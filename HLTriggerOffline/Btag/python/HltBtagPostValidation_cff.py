@@ -3,7 +3,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 #define HltBTagPostValidation for the b-tag DQM validation (efficiency and mistagrate plot)
 HltBTagPostValidation = DQMEDHarvester("HLTBTagHarvestingAnalyzer",
-        mainFolder   = cms.string("HLT/BTag"),
+        mainFolder   = cms.string("HLT/BTV/Validation"),
 	HLTPathNames = cms.vstring(
 	'HLT_PFMET120_PFMHT120_IDTight_v',
 	'HLT_PFHT300PT30_QuadPFJet_75_60_45_40_v',

@@ -115,9 +115,6 @@ class CSCMotherboard
   unsigned int alct_trig_enable, clct_trig_enable, match_trig_enable;
   unsigned int match_trig_window_size, tmb_l1a_window_size;
 
-  /** Central BX */
-  int lct_central_bx;
-
   /** SLHC: whether to not reuse ALCTs that were used by previous matching CLCTs */
   bool drop_used_alcts;
 
@@ -142,12 +139,20 @@ class CSCMotherboard
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
-  void correlateLCTs(CSCALCTDigi& bestALCT, CSCALCTDigi& secondALCT,
-                     CSCCLCTDigi& bestCLCT, CSCCLCTDigi& secondCLCT);
+  void correlateLCTs(const CSCALCTDigi& bestALCT, const CSCALCTDigi& secondALCT,
+                     const CSCCLCTDigi& bestCLCT, const CSCCLCTDigi& secondCLCT);
+
+  // This method calculates all the TMB words and then passes them to the
+  // constructor of correlated LCTs.
   CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT,
                                      const CSCCLCTDigi& cLCT,
-                                     int type) const;
+                                     int type, int trknmb) const;
+
+  // CLCT pattern number: encodes the pattern number itself and
+  // whether the pattern consists of half-strips or di-strips.
   unsigned int encodePattern(const int ptn, const int highPt) const;
+
+  // 4-bit LCT quality number.Made by TMB lookup tables and used for MPC sorting.
   unsigned int findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
 
   enum LCT_Quality{

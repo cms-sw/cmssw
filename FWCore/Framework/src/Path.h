@@ -64,10 +64,12 @@ namespace edm {
     void runAllModulesAsync(WaitingTask*,
                             typename T::MyPrincipal const&,
                             EventSetup  const&,
+                            ServiceToken const&,
                             StreamID const&,
                             typename T::Context const*);
 
-    void processOneOccurrenceAsync(WaitingTask*, EventPrincipal const&, EventSetup const&, StreamID const&, StreamContext const*);
+    void processOneOccurrenceAsync(WaitingTask*, EventPrincipal const&, EventSetup const&,
+                                   ServiceToken const&, StreamID const&, StreamContext const*);
     
     int bitPosition() const { return bitpos_; }
     std::string const& name() const { return pathContext_.pathName(); }
@@ -154,9 +156,11 @@ namespace edm {
     void workerFinished(std::exception_ptr const* iException,
                         unsigned int iModuleIndex,
                         EventPrincipal const& iEP, EventSetup const& iES,
+                        ServiceToken const& iToken,
                         StreamID const& iID, StreamContext const* iContext);
     void runNextWorkerAsync(unsigned int iNextModuleIndex,
                             EventPrincipal const&, EventSetup const&,
+                            ServiceToken const&,
                             StreamID const&, StreamContext const*);
 
   };
@@ -186,12 +190,13 @@ namespace edm {
 
   template <typename T>
   void Path::runAllModulesAsync(WaitingTask* task,
-                          typename T::MyPrincipal const& p,
-                          EventSetup  const& es,
-                          StreamID const& streamID,
+                                typename T::MyPrincipal const& p,
+                                EventSetup  const& es,
+                                ServiceToken const& token,
+                                StreamID const& streamID,
                                 typename T::Context const* context) {
     for(auto& worker: workers_) {
-      worker.runWorkerAsync<T>(task,p,es,streamID,context);
+      worker.runWorkerAsync<T>(task,p,es,token,streamID,context);
     }
   }
 

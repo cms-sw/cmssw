@@ -17,7 +17,7 @@ public:
   typedef unsigned int PackedDigiType;
   typedef unsigned int ChannelType;
 
-  PixelDigi( int packed_value) : theData(packed_value) {}
+  explicit PixelDigi(PackedDigiType packed_value) : theData(packed_value) {}
 
   PixelDigi( int row, int col, int adc) {
     init( row, col, adc);

@@ -26,7 +26,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& iEvent, const edm::EventSet
   track_finder_->process(iEvent, iSetup, *out_hits, *out_tracks);
 
   // Convert into uGMT format
-  uGMT_converter_->convert_all(*out_tracks, *out_cands);
+  uGMT_converter_->convert_all(iEvent, *out_tracks, *out_cands);
 
   // Fill the output products
   iEvent.put(std::move(out_hits)  , "");

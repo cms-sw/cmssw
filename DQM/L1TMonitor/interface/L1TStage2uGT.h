@@ -33,6 +33,7 @@
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "L1Trigger/L1TGlobal/interface/L1TGlobalUtil.h"
 
 // DQM include files
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
@@ -62,8 +63,18 @@ private:
    edm::EDGetTokenT<GlobalAlgBlkBxCollection> l1tStage2uGtSource_; // input tag for L1 uGT DAQ readout record
   
    std::string monitorDir_; // histogram folder for L1 uGT plots
+
    
    bool verbose_; // verbosity switch
+
+   // To get the algo bits corresponding to algo names
+   std::shared_ptr<l1t::L1TGlobalUtil> gtUtil_;
+
+   // For the timing histograms
+   int algoBitFirstBxInTrain_;
+   int algoBitLastBxInTrain_;
+   const std::string algoNameFirstBxInTrain_;
+   const std::string algoNameLastBxInTrain_;
    
    // Booking of histograms for the module
    
@@ -98,7 +109,11 @@ private:
    // Pre- Post- firing timing dedicated plots
    MonitorElement* first_collision_run_;
    MonitorElement* isolated_collision_run_;
-   MonitorElement* last_collision_run_; 
+   MonitorElement* last_collision_run_;
+
+   MonitorElement* den_first_collision_run_; 
+   MonitorElement* den_last_collision_run_;
+   MonitorElement* den_isolated_collision_run_;
 
 };
 

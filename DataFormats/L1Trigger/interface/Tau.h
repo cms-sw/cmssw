@@ -4,6 +4,7 @@
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
 
 namespace l1t {
 
@@ -13,10 +14,14 @@ namespace l1t {
   typedef edm::RefVector< TauBxCollection > TauRefVector ;
   typedef std::vector< TauRef > TauVectorRef ;
 
+  typedef ObjectRefBxCollection<Tau> TauRefBxCollection;
+  typedef ObjectRefPair<Tau> TauRefPair;
+  typedef ObjectRefPairBxCollection<Tau> TauRefPairBxCollection;
+
   class Tau : public L1Candidate {
 
   public:
-    Tau(){}
+    Tau(){ clear_extended(); }
     Tau( const LorentzVector& p4,
 	    int pt=0,
 	    int eta=0,
@@ -48,6 +53,9 @@ namespace l1t {
     short int nTT() const;
     bool hasEM() const;
     bool isMerged() const;
+
+    virtual bool operator==(const l1t::Tau& rhs) const;
+    virtual inline bool operator!=(const l1t::Tau& rhs) const { return !(operator==(rhs)); };
 
   private:
 

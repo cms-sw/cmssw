@@ -400,7 +400,7 @@ SiPixelPhase1ClustersChargeVsSizeOnTrack = DefaultHistoTrack.clone(
 SiPixelPhase1TrackClustersOnTrackChargeOuter = DefaultHistoTrack.clone(
   name = "chargeOuter",
   title = "Corrected Cluster Charge (OnTrack) outer ladders",
-  range_min = 0, range_max = 150e3, range_nbins = 150,
+  range_min = 0, range_max = 80e3, range_nbins = 100,
   xlabel = "Charge (electrons)",
 
   specs = VPSet(
@@ -463,7 +463,8 @@ SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1ClustersChargeVsSizeOnTrack
 )
 
-SiPixelPhase1TrackClustersAnalyzer = cms.EDAnalyzer("SiPixelPhase1TrackClusters",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelPhase1TrackClustersAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackClusters',
         clusters = cms.InputTag("siPixelClusters"),
         clusterShapeCache = cms.InputTag("siPixelClusterShapeCache"),
         tracks = cms.InputTag("generalTracks"),

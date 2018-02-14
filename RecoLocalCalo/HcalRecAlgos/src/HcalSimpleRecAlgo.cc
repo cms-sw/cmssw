@@ -24,8 +24,6 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPul
 {  
   hcalTimeSlew_delay_ = nullptr;
   pulseCorr_ = std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError);
-  pedSubFxn_ = std::make_unique<PedestalSub>();
-  hltOOTpuCorr_ = std::make_unique<HcalDeterministicFit>();
 }
 
 
@@ -278,8 +276,7 @@ namespace HcalSimpleRecAlgoImpl {
                      const int runnum, const bool useLeak,
                      const AbsOOTPileupCorrection* pileupCorrection,
                      const BunchXParameter* bxInfo, const unsigned lenInfo, 
-		     const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr,
-		     HcalDeterministicFit * hltOOTpuCorr, PedestalSub * hltPedSub, /* whatever don't know what to do with the pointer...*/
+		     const int puCorrMethod,
 		     const HcalTimeSlew* hcalTimeSlew_delay_)
   {
     double fc_ampl =0, ampl =0, uncorr_ampl =0, m3_ampl =0, maxA = -1.e300;
@@ -336,7 +333,7 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
 							   HcalTimeSlew::Slow,
                                                            runnum_, false, hoPileupCorr_.get(),
                                                            bunchCrossingInfo_, lenBunchCrossingInfo_, 
-							   puCorrMethod_, psFitOOTpuCorr_.get(),/*hlt*/hltOOTpuCorr_.get(),pedSubFxn_.get(),
+							   puCorrMethod_,
 							   hcalTimeSlew_delay_);
 }
 
@@ -348,7 +345,7 @@ HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, i
 									 HcalTimeSlew::Fast,
                                                                          runnum_, false, nullptr,
                                                                          bunchCrossingInfo_, lenBunchCrossingInfo_, 
-									 puCorrMethod_, psFitOOTpuCorr_.get(),/*hlt*/hltOOTpuCorr_.get(),pedSubFxn_.get(),
+									 puCorrMethod_,
 									 hcalTimeSlew_delay_);
 }
 

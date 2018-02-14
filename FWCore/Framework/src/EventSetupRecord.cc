@@ -17,6 +17,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
@@ -181,7 +182,7 @@ EventSetupRecord::getFromProxy(DataKey const & iKey ,
    if(nullptr!=proxy) {
       try {
         convertException::wrap([&]() {
-            hold = proxy->get(*this, iKey,iTransientAccessOnly);
+            hold = proxy->get(*this, iKey,iTransientAccessOnly, eventSetup_->activityRegistry());
             iDesc = proxy->providerDescription(); 
         });
       }
@@ -211,7 +212,7 @@ EventSetupRecord::doGet(const DataKey& aKey, bool aGetTransiently) const {
    if(nullptr != proxy) {
       try {
          convertException::wrap([&]() {
-            proxy->doGet(*this, aKey, aGetTransiently);
+            proxy->doGet(*this, aKey, aGetTransiently, eventSetup_->activityRegistry());
          });
       }
       catch( cms::Exception& e) {

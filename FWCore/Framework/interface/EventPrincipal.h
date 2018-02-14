@@ -89,10 +89,11 @@ namespace edm {
     }
 
     bool luminosityBlockPrincipalPtrValid() const {
-      return (luminosityBlockPrincipal_) ? true : false;
+      return luminosityBlockPrincipal_ != nullptr;
     }
 
-    void setLuminosityBlockPrincipal(std::shared_ptr<LuminosityBlockPrincipal> const& lbp);
+    //does not share ownership
+    void setLuminosityBlockPrincipal(LuminosityBlockPrincipal* lbp);
 
     void setRunAndLumiNumber(RunNumber_t run, LuminosityBlockNumber_t lumi);
 
@@ -191,7 +192,7 @@ namespace edm {
 
     EventAuxiliary aux_;
 
-    edm::propagate_const<std::shared_ptr<LuminosityBlockPrincipal>> luminosityBlockPrincipal_;
+    edm::propagate_const<LuminosityBlockPrincipal*> luminosityBlockPrincipal_;
 
     // Pointer to the 'retriever' that will get provenance information from the persistent store.
     edm::propagate_const<std::shared_ptr<ProductProvenanceRetriever>> provRetrieverPtr_;

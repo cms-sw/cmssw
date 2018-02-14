@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMOffline.L1Trigger.L1THistDefinitions_cff import histDefinitions
 
 jetEfficiencyThresholds = [36, 68, 128, 176]
 metEfficiencyThresholds = [40, 60, 80, 100, 120]
@@ -51,12 +52,17 @@ l1tStage2CaloLayer2OfflineDQM = cms.EDAnalyzer(
     PVCollection=cms.InputTag("offlinePrimaryVerticesWithBS"),
     beamSpotCollection=cms.InputTag("offlineBeamSpot"),
 
-    TriggerEvent=cms.InputTag('hltTriggerSummaryAOD', '', 'HLT'),
-    TriggerResults=cms.InputTag('TriggerResults', '', 'HLT'),
-    # last filter of HLTEle27WP80Sequence
-    TriggerFilter=cms.InputTag('hltEle27WP80TrackIsoFilter', '', 'HLT'),
-    TriggerPath=cms.string('HLT_Ele27_WP80_v13'),
-
+    triggerInputTag=cms.InputTag('hltTriggerSummaryAOD', '', 'HLT'),
+    triggerProcess=cms.string('HLT'),
+    triggerResults=cms.InputTag('TriggerResults', '', 'HLT'),
+    triggerNames=cms.vstring(
+        'HLT_IsoMu18_v*',
+        'HLT_IsoMu20_v*',
+        'HLT_IsoMu22_v*',
+        'HLT_IsoMu24_v*',
+        'HLT_IsoMu27_v*',
+        'HLT_IsoMu30_v*',
+    ),
 
     stage2CaloLayer2JetSource=cms.InputTag("caloStage2Digis", "Jet"),
     stage2CaloLayer2EtSumSource=cms.InputTag("caloStage2Digis", "EtSum"),
@@ -76,6 +82,16 @@ l1tStage2CaloLayer2OfflineDQM = cms.EDAnalyzer(
 
     recoHTTMaxEta=cms.double(2.5),
     recoMHTMaxEta=cms.double(2.5),
+
+    histDefinitions=cms.PSet(
+        nVertex=histDefinitions.nVertex.clone(),
+        ETvsET=histDefinitions.ETvsET.clone(),
+        PHIvsPHI=histDefinitions.PHIvsPHI.clone(),
+        # L1JetETvsCaloJetET_HB=histDefinitions.ETvsET.clone(
+        #     name='L1JetETvsCaloJetET_HB',
+        #     title='L1 Jet E_{T} vs Offline Jet E_{T} (HB); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)',
+        # )
+    ),
 )
 
 # modifications for the pp reference run
@@ -89,7 +105,8 @@ jetEfficiencyBins_HI.extend(list(xrange(180, 300, 40)))
 jetEfficiencyBins_HI.extend(list(xrange(300, 401, 100)))
 
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017
-ppRef_2017.toModify(l1tStage2CaloLayer2OfflineDQM,
+ppRef_2017.toModify(
+    l1tStage2CaloLayer2OfflineDQM,
     TriggerFilter=cms.InputTag('hltEle20WPLoose1GsfTrackIsoFilter', '', 'HLT'),
     TriggerPath=cms.string('HLT_Ele20_WPLoose_Gsf_v4'),
     jetEfficiencyThresholds=cms.vdouble(jetEfficiencyThresholds_HI),

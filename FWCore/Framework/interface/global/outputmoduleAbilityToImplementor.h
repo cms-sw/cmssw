@@ -22,6 +22,7 @@
 #include "FWCore/Framework/interface/moduleAbilities.h"
 #include "FWCore/Framework/interface/global/implementors.h"
 #include "FWCore/Framework/interface/global/OutputModuleBase.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 
 // forward declarations
 
@@ -79,20 +80,23 @@ namespace edm {
         LuminosityBlockCacheHolder<T,C>& operator=(LuminosityBlockCacheHolder<T,C> const&) = delete;
         ~LuminosityBlockCacheHolder() noexcept(false) override {};
       protected:
-        C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return cache_.get(); }
-      private:
-        void doBeginLuminosityBlock_(LuminosityBlockForOutput const& rp) final {
-          cache_ = globalBeginLuminosityBlock(rp);
+        void preallocLumis(unsigned int iNLumis) final {
+          caches_.reset(new std::shared_ptr<C>[iNLumis]);
         }
-        void doEndLuminosityBlock_(LuminosityBlockForOutput const& rp) final {
-          globalEndLuminosityBlock(rp);
-          cache_.reset();
+        C const* luminosityBlockCache(edm::LuminosityBlockIndex iID) const { return caches_[iID].get(); }
+      private:
+        void doBeginLuminosityBlock_(LuminosityBlockForOutput const& lp) final {
+          caches_[lp.index()] = globalBeginLuminosityBlock(lp);
+        }
+        void doEndLuminosityBlock_(LuminosityBlockForOutput const& lp) final {
+          globalEndLuminosityBlock(lp);
+          caches_[lp.index()].reset();
         }
 
         virtual std::shared_ptr<C> globalBeginLuminosityBlock(LuminosityBlockForOutput const&) const = 0;
         virtual void globalEndLuminosityBlock(LuminosityBlockForOutput const&) const = 0;
         //When threaded we will have a container for N items whre N is # of simultaneous runs
-        std::shared_ptr<C> cache_;
+        std::unique_ptr<std::shared_ptr<C>[]> caches_;
       };
 
       template<typename T> struct AbilityToImplementor;

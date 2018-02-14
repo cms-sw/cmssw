@@ -4,6 +4,7 @@
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
 
 namespace l1t {
 
@@ -12,6 +13,10 @@ namespace l1t {
   typedef edm::Ref< EtSumBxCollection > EtSumRef ;
   typedef edm::RefVector< EtSumBxCollection > EtSumRefVector ;
   typedef std::vector< EtSumRef > EtSumVectorRef ;
+
+  typedef ObjectRefBxCollection<EtSum> EtSumRefBxCollection;
+  typedef ObjectRefPair<EtSum> EtSumRefPair;
+  typedef ObjectRefPairBxCollection<EtSum> EtSumRefPairBxCollection;
 
   class EtSum : public L1Candidate {
 
@@ -63,6 +68,9 @@ namespace l1t {
     void setType(EtSumType type);
 
     EtSumType getType() const;
+
+    virtual bool operator==(const l1t::EtSum& rhs) const;
+    virtual inline bool operator!=(const l1t::EtSum& rhs) const { return !(operator==(rhs)); };
 
   private:
 

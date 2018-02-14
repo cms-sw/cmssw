@@ -356,10 +356,6 @@ DST_L1HTT_CaloBTagScouting_v*	#	CMSHLT-1324, CMSHLT-1574
 DST_L1HTT_CaloScouting_PFScouting_v*	#	CMSHLT-1324, CMSHLT-1574
 DST_ZeroBias_BTagScouting_v*	#	CMSHLT-1324
 DST_ZeroBias_CaloScouting_PFScouting_v*	#	CMSHLT-1324
-HLT_DoubleLooseChargedIsoPFTau35_Trk1_eta2p1_Reg_v*	#	CMSHLT-1326
-HLT_DoubleLooseChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v*	#	CMSHLT-1326
-HLT_DoubleLooseChargedIsoPFTau40_Trk1_eta2p1_Reg_v*	#	CMSHLT-1326
-HLT_DoubleLooseChargedIsoPFTau40_Trk1_TightID_eta2p1_Reg_v*	#	CMSHLT-1326
 HLT_DoubleMediumChargedIsoPFTau35_Trk1_eta2p1_Reg_v*	#	CMSHLT-1326
 HLT_DoubleMediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_v*	#	CMSHLT-1326
 HLT_DoubleMediumChargedIsoPFTau40_Trk1_eta2p1_Reg_v*	#	CMSHLT-1326
@@ -380,19 +376,11 @@ HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_CrossL1_v*	#	CMSHLT-1326
 HLT_IsoMu20_eta2p1_MediumChargedIsoPFTau27_eta2p1_TightID_CrossL1_v*	#	CMSHLT-1326
 HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_CrossL1_v*	#	CMSHLT-1326
 HLT_IsoMu20_eta2p1_TightChargedIsoPFTau27_eta2p1_TightID_CrossL1_v*	#	CMSHLT-1326
-HLT_IsoMu24_eta2p1_LooseChargedIsoPFTau20_SingleL1_v*	#	CMSHLT-1326
-HLT_IsoMu24_eta2p1_LooseChargedIsoPFTau20_TightID_SingleL1_v*	#	CMSHLT-1326
-HLT_IsoMu24_eta2p1_LooseChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1326
-HLT_IsoMu24_eta2p1_LooseChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1326
-HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau20_SingleL1_v*	#	CMSHLT-1326
-HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau20_TightID_SingleL1_v*	#	CMSHLT-1326
-HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1326
-HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1326
+HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1326, CMSHLT-1713
+HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1326, CMSHLT-1713
 HLT_IsoMu24_eta2p1_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_v*	#	CMSHLT-1326
-HLT_IsoMu24_eta2p1_TightChargedIsoPFTau20_SingleL1_v*	#	CMSHLT-1326
-HLT_IsoMu24_eta2p1_TightChargedIsoPFTau20_TightID_SingleL1_v*	#	CMSHLT-1326
-HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1326
-HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1326
+HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1326, CMSHLT-1713
+HLT_IsoMu24_eta2p1_TightChargedIsoPFTau35_Trk1_TightID_eta2p1_Reg_CrossL1_v*	#	CMSHLT-1326, CMSHLT-1713
 HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_1pr_v*	#	CMSHLT-1326
 HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v*	#	CMSHLT-1326
 HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET100_v*	#	CMSHLT-1326
@@ -611,6 +599,14 @@ HLT_Ele17_WPLoose_Gsf_v*	#	CMSHLT-1661
 HLT_Ele15_Ele8_CaloIdL_TrackIdL_IsoVL_v*	#	CMSHLT-1661
 HLT_Ele15_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	#	CMSHLT-1661
 HLT_Photon20_v*	#	CMSHLT-1661
+HLT_AK8PFJet15_v*	#	CMSHLT-1662
+HLT_AK8PFJet25_v*	#	CMSHLT-1662
+HLT_PFJet15_v*	#	CMSHLT-1662
+HLT_PFJet25_v*	#	CMSHLT-1662
+HLT_PFJetFwd15_v*	#	CMSHLT-1662
+HLT_PFJetFwd25_v*	#	CMSHLT-1662
+HLT_AK8PFJetFwd15_v*	#	CMSHLT-1662
+HLT_AK8PFJetFwd25_v*	#	CMSHLT-1662
 
 ## EndPath ##
 

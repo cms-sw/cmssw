@@ -46,8 +46,6 @@ class SiPixelPhase1HitsV : public SiPixelPhase1Base {
   edm::EDGetTokenT< edm::View<reco::Track> > tracksToken_;
   edm::EDGetTokenT< TrackingParticleCollection > tpToken_;
   edm::EDGetTokenT< reco::TrackToTrackingParticleAssociator > trackAssociatorByHitsToken_;
-  reco::TrackToTrackingParticleAssociator const * associatorByHits;
-  edm::SimTrackContainer const * simTC;
 
 };
 

@@ -9,6 +9,7 @@
 <use name="DataFormats/MuonDetId"/>
 <use name="DataFormats/L1CSCTrackFinder"/>
 <use name="DataFormats/Common"/>
+<use name="L1Trigger/CSCCommonTrigger"/>
 <use name="L1Trigger/DTTrackFinder"/>
 <use name="rootrflx"/>
 <flags ADD_SUBDIR="1"/>

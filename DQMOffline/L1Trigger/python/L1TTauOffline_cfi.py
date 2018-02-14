@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMOffline.L1Trigger.L1THistDefinitions_cff import histDefinitions
 
 tauEfficiencyThresholds = [28, 30, 32, 128, 176]
 
@@ -35,6 +36,12 @@ l1tTauOfflineDQM = cms.EDAnalyzer(
 
     tauEfficiencyThresholds=cms.vint32(tauEfficiencyThresholds),
     tauEfficiencyBins=cms.vdouble(tauEfficiencyBins),
+
+    histDefinitions=cms.PSet(
+        nVertex=histDefinitions.nVertex.clone(),
+        ETvsET=histDefinitions.ETvsET.clone(),
+        PHIvsPHI=histDefinitions.PHIvsPHI.clone(),
+    ),
 
 )
 

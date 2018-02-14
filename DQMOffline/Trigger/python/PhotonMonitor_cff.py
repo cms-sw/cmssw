@@ -53,6 +53,47 @@ Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring.FolderName = cms.string('HLT
 Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon60_R9Id90_CaloIdL_IsoL_v*","HLT_PFHT350MinPFJet15_v*")
 Photon60_DisplacedIdL_PFJet350MinPFJet15_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Photon60_R9Id90_CaloIdL_IsoL_DisplacedIdL_PFHT350MinPFJet15_v*")
 
+from DQMOffline.Trigger.ObjMonitor_cfi import hltobjmonitoring
+
+Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50_monitoring = hltobjmonitoring.clone(
+    FolderName = 'HLT/Photon/Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50/',
+    denGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
+        hltPaths = ["HLT_Photon50_R9Id90_HE10_IsoM_v*"]
+    ),
+    numGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
+        hltPaths = ["HLT_Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50_v*"]
+    ),
+    phoSelection = 'pt > 80 & abs(eta) < 1.44',
+    nphotons = 1,
+    jetSelection = "pt > 30 & abs(eta) < 5.0",
+    jetId = "tight",
+    njets = 2,
+    doHTHistos = False
+)
+Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50_monitoring.histoPSet.mjjBinning = cms.vdouble([20. * x for x in range(30)])
+Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50_monitoring.histoPSet.metPSet = cms.PSet(
+    nbins = cms.uint32(20),
+    xmin = cms.double(-0.5),
+    xmax = cms.double(200.)
+)
+
+Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_monitoring = hltobjmonitoring.clone(
+    FolderName = 'HLT/Photon/Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3/',
+    denGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
+        hltPaths = ["HLT_Photon75_R9Id90_HE10_IsoM_v*"]
+    ),
+    numGenericTriggerEventPSet = hltobjmonitoring.numGenericTriggerEventPSet.clone(
+        hltPaths = ["HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_v*"]
+    ),
+    phoSelection = 'pt > 80 & abs(eta) < 1.44',
+    nphotons = 1,
+    jetSelection = "pt > 30 & abs(eta) < 5.0",
+    jetId = "tight",
+    njets = 2,
+    doMETHistos = False,
+    doHTHistos = False
+)
+Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_monitoring.histoPSet.mjjBinning = cms.vdouble([20. * x for x in range(30)])
 
 exoHLTPhotonmonitoring = cms.Sequence(
     SinglePhoton300_monitoring
@@ -65,7 +106,8 @@ exoHLTPhotonmonitoring = cms.Sequence(
     + SinglePhoton90_R9Id90_HE10_IsoM_monitoring
     + SinglePhoton120_R9Id90_HE10_IsoM_monitoring
     + SinglePhoton165_R9Id90_HE10_IsoM_monitoring
-    
+    + Photon50_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_PFMET50_monitoring
+    + Photon75_R9Id90_HE10_IsoM_EBOnly_PFJetsMJJ300DEta3_monitoring
 )
 
 

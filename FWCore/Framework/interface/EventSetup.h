@@ -35,6 +35,7 @@
 // forward declarations
 
 namespace edm {
+   class ActivityRegistry;
    class ESInputTag;
    
    namespace eventsetup {
@@ -116,6 +117,9 @@ namespace edm {
          getAvoidCompilerBug(const T*& iValue) const {
             iValue = &(get<T>());
          }
+
+      friend class eventsetup::EventSetupRecord;
+
     protected:
       //Only called by EventSetupProvider
       void setKnownRecordsSupplier(eventsetup::EventSetupKnownRecordsSupplier const* iSupplier) {
@@ -127,11 +131,13 @@ namespace edm {
       void clear();
       
     private:
-      EventSetup();
+      EventSetup(ActivityRegistry*);
       
       EventSetup(EventSetup const&) = delete; // stop default
 
       EventSetup const& operator=(EventSetup const&) = delete; // stop default
+
+      ActivityRegistry* activityRegistry() const { return activityRegistry_; }
 
       void insert(const eventsetup::EventSetupRecordKey&,
                   const eventsetup::EventSetupRecord*);
@@ -141,6 +147,7 @@ namespace edm {
       //NOTE: the records are not owned
       std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *> recordMap_;
       eventsetup::EventSetupKnownRecordsSupplier const* knownRecords_;
+      ActivityRegistry* activityRegistry_;
   };
 
   // Free functions to retrieve an object from the EventSetup.

@@ -39,6 +39,13 @@
 
 #include <string>
 
+#ifdef VI_DEBUG
+#define COUT(x)  std::cout << x << ' '
+#else
+#define COUT(x)	LogDebug(x)
+#endif
+
+
 // TrackingMonitor 
 // ----------------------------------------------------------------------------------//
 
@@ -224,7 +231,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
    assert(conf != nullptr);
    std::string Quality      = conf->getParameter<std::string>("Quality");
    std::string AlgoName     = conf->getParameter<std::string>("AlgoName");
-   std::string MEFolderName = conf->getParameter<std::string>("FolderName"); 
+   MEFolderName = conf->getParameter<std::string>("FolderName"); 
 
    // test for the Quality veriable validity
    if( Quality_ != "") {
@@ -1060,7 +1067,10 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       
 	  std::vector<int> NClus;
 	  setNclus(iEvent,NClus);
+          std::ostringstream ss;
+          ss << "VI stat " << totalNumGoodPV << ' ' << numberOfTracks; 
 	  for (uint  i=0; i< ClusterLabels.size(); i++){
+            ss << ' ' << NClus[i];
 	    if ( doPlotsVsLUMI_ || doAllPlots )	{
 	      if (ClusterLabels[i]  =="Pix") NumberOfPixelClustersVsLUMI->Fill(lumi,NClus[i]);
 	      if (ClusterLabels[i]=="Strip") NumberOfStripClustersVsLUMI->Fill(lumi,NClus[i]);
@@ -1068,7 +1078,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    if (ClusterLabels[i]  =="Pix") NumberOfPixelClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
 	    if (ClusterLabels[i]=="Strip") NumberOfStripClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
 	  }
-	
+	  COUT(MEFolderName) << ss.str() << std::endl;
 	if ( doPlotsVsBXlumi_ ) {
 	  double bxlumi = theLumiDetails_->getValue(iEvent);
 	  NumberOfTracksVsBXlumi       -> Fill( bxlumi, numberOfTracks      );

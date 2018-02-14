@@ -22,7 +22,7 @@ class SiStripQualityESProducer : public edm::ESProducer {
   SiStripQualityESProducer(const edm::ParameterSet&);
   ~SiStripQualityESProducer() override{};
   
-  std::shared_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
+  std::unique_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
    
  private:
 
@@ -33,7 +33,6 @@ class SiStripQualityESProducer : public edm::ESProducer {
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toGet;
 
-  std::shared_ptr<SiStripQuality>  quality;
 };
 
 #endif

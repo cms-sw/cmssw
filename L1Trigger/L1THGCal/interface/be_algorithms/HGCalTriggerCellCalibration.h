@@ -9,24 +9,16 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 class HGCalTriggerCellCalibration{
-
-private:
-    // FIXME: currently there is no access to the HGCal DDDConstants
-    // So cannot retrieve the following constants.
-    static const unsigned kLayersEE_ = 28;
-    static const unsigned kLayersFH_ = 12;
-    static const unsigned kLayersBH_ = 12;
-    static const unsigned kLayers_ = kLayersEE_+kLayersFH_+kLayersBH_;
 
 public:
   
     HGCalTriggerCellCalibration(const edm::ParameterSet &conf);    
+    void eventSetup(const edm::EventSetup& es) {triggerTools_.eventSetup(es);}
     void calibrateInMipT(l1t::HGCalTriggerCell&);
     void calibrateMipTinGeV(l1t::HGCalTriggerCell&); 
     void calibrateInGeV(l1t::HGCalTriggerCell&); 
@@ -39,6 +31,8 @@ private:
     double fCperMIP_;
     double thickCorr_;
     std::vector<double> dEdX_weights_;
+
+    HGCalTriggerTools triggerTools_;
 
 };
 

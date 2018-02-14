@@ -12,19 +12,15 @@ import os, sys, socket, string
 #-------------------------------------
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
-process			= cms.Process('HCALDQM', 
-    eras.run2_HCAL_2017, 
-    eras.run2_HF_2017,
-    eras.run2_HEPlan1_2017
-)
-subsystem		= 'Hcal'
-cmssw			= os.getenv("CMSSW_VERSION").split("_")
-debugstr		= "### HcalDQM::cfg::DEBUG: "
-warnstr			= "### HcalDQM::cfg::WARN: "
-errorstr		= "### HcalDQM::cfg::ERROR:"
-useOfflineGT	= False
-useFileInput	= False
-useMap		= False
+process      = cms.Process('HCALDQM', eras.Run2_2018)
+subsystem    = 'Hcal'
+cmssw        = os.getenv("CMSSW_VERSION").split("_")
+debugstr     = "### HcalDQM::cfg::DEBUG: "
+warnstr      = "### HcalDQM::cfg::WARN: "
+errorstr     = "### HcalDQM::cfg::ERROR:"
+useOfflineGT = False
+useFileInput = False
+useMap       = False
 
 #-------------------------------------
 #	Central DQM Stuff imports
@@ -32,7 +28,8 @@ useMap		= False
 from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
 	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-	process.GlobalTag.globaltag = '90X_dataRun2_HLT_v1'
+	process.GlobalTag.globaltag = '100X_dataRun2_HLT_v1'
+	#process.GlobalTag.globaltag = '100X_dataRun2_HLT_Candidate_2018_01_31_16_04_35'
 else:
 	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if useFileInput:
@@ -104,8 +101,8 @@ process.emulTPDigis.ZS_threshold = cms.uint32(0)
 process.hcalDigis.InputLabel = rawTag
 
 # Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
-from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-run2_HCAL_2017.toModify(process.hcalDigis, FEDs=cms.untracked.vint32(724,725,726,727,728,729,730,731,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123))
+#from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+#run2_HCAL_2017.toModify(process.hcalDigis, FEDs=cms.untracked.vint32(724,725,726,727,728,729,730,731,1100,1101,1102,1103,1104,1105,1106,1107,1108,1109,1110,1111,1112,1113,1114,1115,1116,1117,1118,1119,1120,1121,1122,1123))
 
 #-------------------------------------
 #	Hcal DQM Tasks and Harvesters import

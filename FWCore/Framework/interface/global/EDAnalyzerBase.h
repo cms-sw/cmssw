@@ -121,6 +121,7 @@ namespace edm {
       
 
       virtual void preallocStreams(unsigned int);
+      virtual void preallocLumis(unsigned int);
       virtual void preallocate(PreallocationConfiguration const&);
       virtual void doBeginStream_(StreamID id);
       virtual void doEndStream_(StreamID id);
@@ -141,6 +142,7 @@ namespace edm {
       virtual void doEndLuminosityBlock_(LuminosityBlock const& lb, EventSetup const& c);
 
       bool hasAcquire() const { return false; }
+      bool hasAccumulator() const { return false; }
 
       void setModuleDescription(ModuleDescription const& md) {
         moduleDescription_ = md;

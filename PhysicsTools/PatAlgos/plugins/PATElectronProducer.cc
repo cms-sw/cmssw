@@ -446,14 +446,12 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	    iEvent.getByToken(ecalPFClusterIsoT_, ecalPFClusterIsoMapH);
 	    edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
 	    iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
-
-	    anElectron.setEcalPFClusterIso((*ecalPFClusterIsoMapH)[elecsRef]);
-	    anElectron.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[elecsRef]);
-	  } else {
-	    anElectron.setEcalPFClusterIso(-999.);
-	    anElectron.setHcalPFClusterIso(-999.);
+	    reco::GsfElectron::PflowIsolationVariables newPFIsol = anElectron.pfIsolationVariables();
+	    newPFIsol.sumEcalClusterEt = (*ecalPFClusterIsoMapH)[elecsRef];
+	    newPFIsol.sumHcalClusterEt = (*hcalPFClusterIsoMapH)[elecsRef];
+	    anElectron.setPfIsolationVariables(newPFIsol);
 	  }
-	    
+ 
 	  std::vector<DetId> selectedCells;
           bool barrel = itElectron->isEB();
           //loop over sub clusters
@@ -675,6 +673,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
         std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
         anElectron.setMvaVariables(vCov[1], ip3d);
       }
+      
       // PFCluster Isolation
       if (addPFClusterIso_) {
 	// Get PFCluster Isolation
@@ -682,13 +681,12 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	iEvent.getByToken(ecalPFClusterIsoT_, ecalPFClusterIsoMapH);
 	edm::Handle<edm::ValueMap<float> > hcalPFClusterIsoMapH;
 	iEvent.getByToken(hcalPFClusterIsoT_, hcalPFClusterIsoMapH);
-	
-	anElectron.setEcalPFClusterIso((*ecalPFClusterIsoMapH)[elecsRef]);
-	anElectron.setHcalPFClusterIso((*hcalPFClusterIsoMapH)[elecsRef]);
-      } else {
-	anElectron.setEcalPFClusterIso(-999.);
-	anElectron.setHcalPFClusterIso(-999.);
+	reco::GsfElectron::PflowIsolationVariables newPFIsol = anElectron.pfIsolationVariables();
+	newPFIsol.sumEcalClusterEt = (*ecalPFClusterIsoMapH)[elecsRef];
+	newPFIsol.sumHcalClusterEt = (*hcalPFClusterIsoMapH)[elecsRef];
+	anElectron.setPfIsolationVariables(newPFIsol);
       }
+      
       if (addPuppiIsolation_) {
         anElectron.setIsolationPUPPI((*PUPPIIsolation_charged_hadrons)[elePtr], (*PUPPIIsolation_neutral_hadrons)[elePtr], (*PUPPIIsolation_photons)[elePtr]);
         anElectron.setIsolationPUPPINoLeptons((*PUPPINoLeptonsIsolation_charged_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_neutral_hadrons)[elePtr], (*PUPPINoLeptonsIsolation_photons)[elePtr]);

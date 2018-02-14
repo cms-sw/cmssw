@@ -18,7 +18,12 @@ TriggerOutputBranches::updateTriggerNames(TTree & tree, const edm::TriggerNames 
    {
        existing.idx=-1;// reset all triggers as not found
        for(unsigned int j=0;j<newNames.size();j++) {
-          if(newNames[j]==existing.name) existing.idx=j;
+	 std::string name=newNames[j]; // no const & as it will be modified below!
+	 std::size_t vfound = name.rfind("_v");
+	 if (vfound!=std::string::npos){
+           name.replace(vfound,name.size()-vfound,"");
+	 }
+	 if(name==existing.name) existing.idx=j;
        }
    }
    // Find new ones

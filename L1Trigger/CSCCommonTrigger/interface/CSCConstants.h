@@ -78,7 +78,9 @@ class CSCConstants
     // Each CSC can send up to 2 LCTs to the MPC.
     MAX_LCTS_PER_CSC = 2,
     // An MPC receives up to 18 LCTs from 9 CSCs in the trigger sector
-    MAX_LCTS_PER_MPC = 18 };
+    MAX_LCTS_PER_MPC = 18,
+    // Reference BX for LCTs in simulation and firmware
+    LCT_CENTRAL_BX = 6};
 };
 
 #endif

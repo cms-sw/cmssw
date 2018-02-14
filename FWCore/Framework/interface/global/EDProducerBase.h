@@ -132,6 +132,7 @@ namespace edm {
       virtual void endJob(){}
 
       virtual void preallocStreams(unsigned int);
+      virtual void preallocLumis(unsigned int);
       virtual void preallocate(PreallocationConfiguration const&);
       virtual void doBeginStream_(StreamID id);
       virtual void doEndStream_(StreamID id);
@@ -155,6 +156,8 @@ namespace edm {
       virtual void doEndRunProduce_(Run& rp, EventSetup const& c);
       virtual void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
       virtual void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
+
+      virtual bool hasAccumulator() const { return false; }
 
       virtual bool hasAcquire() const { return false; }
 

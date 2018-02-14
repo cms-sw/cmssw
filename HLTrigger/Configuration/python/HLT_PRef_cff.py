@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_10_0_0/PRef --type PRef
 
-# /dev/CMSSW_10_0_0/PRef/V6 (CMSSW_10_0_0_pre3)
+# /dev/CMSSW_10_0_0/PRef/V11 (CMSSW_10_0_2)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_0_0/PRef/V6')
+  tableName = cms.string('/dev/CMSSW_10_0_0/PRef/V11')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -2460,6 +2460,57 @@ fragment.GlobalParametersRcdSource = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "L1TGlobalParametersRcd" ),
     firstValid = cms.vuint32( 1 )
 )
+fragment.HcalTimeSlewEP = cms.ESSource( "HcalTimeSlewEP",
+    timeSlewParametersM3 = cms.VPSet( 
+      cms.PSet(  tspar2 = cms.double( 0.0 ),
+        tspar0 = cms.double( 12.2999 ),
+        tspar1 = cms.double( -2.19142 ),
+        tspar1_siPM = cms.double( 0.0 ),
+        cap = cms.double( 6.0 ),
+        tspar0_siPM = cms.double( 0.0 ),
+        tspar2_siPM = cms.double( 0.0 )
+      ),
+      cms.PSet(  tspar2 = cms.double( 32.0 ),
+        tspar0 = cms.double( 15.5 ),
+        tspar1 = cms.double( -3.2 ),
+        tspar1_siPM = cms.double( 0.0 ),
+        cap = cms.double( 6.0 ),
+        tspar0_siPM = cms.double( 0.0 ),
+        tspar2_siPM = cms.double( 0.0 )
+      ),
+      cms.PSet(  tspar2 = cms.double( 0.0 ),
+        tspar0 = cms.double( 12.2999 ),
+        tspar1 = cms.double( -2.19142 ),
+        tspar1_siPM = cms.double( 0.0 ),
+        cap = cms.double( 6.0 ),
+        tspar0_siPM = cms.double( 0.0 ),
+        tspar2_siPM = cms.double( 0.0 )
+      ),
+      cms.PSet(  tspar2 = cms.double( 0.0 ),
+        tspar0 = cms.double( 12.2999 ),
+        tspar1 = cms.double( -2.19142 ),
+        tspar1_siPM = cms.double( 0.0 ),
+        cap = cms.double( 6.0 ),
+        tspar0_siPM = cms.double( 0.0 ),
+        tspar2_siPM = cms.double( 0.0 )
+      )
+    ),
+    timeSlewParametersM2 = cms.VPSet( 
+      cms.PSet(  slope = cms.double( -3.178648 ),
+        tmax = cms.double( 16.0 ),
+        tzero = cms.double( 23.960177 )
+      ),
+      cms.PSet(  slope = cms.double( -1.5610227 ),
+        tmax = cms.double( 10.0 ),
+        tzero = cms.double( 11.977461 )
+      ),
+      cms.PSet(  slope = cms.double( -1.075824 ),
+        tmax = cms.double( 6.25 ),
+        tzero = cms.double( 9.109694 )
+      )
+    ),
+    appendToDataLabel = cms.string( "HBHE" )
+)
 fragment.hltESSBTagRecord = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
     recordName = cms.string( "JetTagComputerRecord" ),
@@ -4585,6 +4636,7 @@ fragment.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     UseEtEBTreshold = cms.bool( False ),
     hfInput = cms.InputTag( "hltHfreco" ),
     AllowMissingInputs = cms.bool( False ),
+    HEDThreshold1 = cms.double( 0.8 ),
     MomEEDepth = cms.double( 0.0 ),
     EESumThreshold = cms.double( 0.45 ),
     HBGrid = cms.vdouble(  ),
@@ -4605,6 +4657,7 @@ fragment.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     HBWeights = cms.vdouble(  ),
     HF1Weight = cms.double( 1.0 ),
     HF2Grid = cms.vdouble(  ),
+    HESThreshold1 = cms.double( 0.8 ),
     HEDWeights = cms.vdouble(  ),
     EBWeight = cms.double( 1.0 ),
     HF1Grid = cms.vdouble(  ),
@@ -4735,26 +4788,9 @@ fragment.hltAK4CaloJetsPFEt5 = cms.EDFilter( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltAK4CaloJetsPF" ),
     etMin = cms.double( 5.0 )
 )
-fragment.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
-    useStandardFEDid = cms.bool( True ),
-    maxFEDid = cms.untracked.int32( 779 ),
-    inputLabel = cms.InputTag( "rawDataCollector" ),
-    minFEDid = cms.untracked.int32( 770 ),
-    dataType = cms.string( "DDU" ),
-    readOutParameters = cms.PSet( 
-      localDAQ = cms.untracked.bool( False ),
-      debug = cms.untracked.bool( False ),
-      rosParameters = cms.PSet( 
-        localDAQ = cms.untracked.bool( False ),
-        debug = cms.untracked.bool( False ),
-        writeSC = cms.untracked.bool( True ),
-        readDDUIDfromDDU = cms.untracked.bool( True ),
-        readingDDU = cms.untracked.bool( True ),
-        performDataIntegrityMonitor = cms.untracked.bool( False )
-      ),
-      performDataIntegrityMonitor = cms.untracked.bool( False )
-    ),
-    dqmOnly = cms.bool( False )
+fragment.hltMuonDTDigis = cms.EDProducer( "DTuROSRawToDigi",
+    debug = cms.untracked.bool( False ),
+    inputLabel = cms.InputTag( "rawDataCollector" )
 )
 fragment.hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
     debug = cms.untracked.bool( False ),
@@ -11008,10 +11044,10 @@ fragment.hltEcalPreshowerRecHit = cms.EDProducer( "ESRecHitProducer",
 fragment.hltParticleFlowRecHitECALUnseeded = cms.EDProducer( "PFRecHitProducer",
     producers = cms.VPSet( 
       cms.PSet(  src = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
-        srFlags = cms.InputTag( "hltEcalDigis" ),
+        srFlags = cms.InputTag( "" ),
         name = cms.string( "PFEBRecHitCreator" ),
         qualityTests = cms.VPSet( 
-          cms.PSet(  thresholds = cms.vdouble( 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 1.25023, 1.25033, 1.25047, 1.25068, 1.25097, 1.25139, 1.25199, 1.25286, 1.2541, 1.25587, 1.25842, 1.26207, 1.26729, 1.27479, 1.28553, 1.30092, 1.32299, 1.35462, 1.39995, 1.46493, 1.55807, 1.69156, 1.88291, 2.15716, 2.55027, 3.11371, 3.92131, 5.07887, 6.73803, 9.11615, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 1.25023, 1.25033, 1.25047, 1.25068, 1.25097, 1.25139, 1.25199, 1.25286, 1.2541, 1.25587, 1.25842, 1.26207, 1.26729, 1.27479, 1.28553, 1.30092, 1.32299, 1.35462, 1.39995, 1.46493, 1.55807, 1.69156, 1.88291, 2.15716, 2.55027, 3.11371, 3.92131, 5.07887, 6.73803, 9.11615, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0 ),
+          cms.PSet(  thresholds = cms.vdouble( 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3 ),
             name = cms.string( "PFRecHitQTestECALMultiThreshold" )
           ),
           cms.PSet(  topologicalCleaning = cms.bool( True ),
@@ -11023,10 +11059,10 @@ fragment.hltParticleFlowRecHitECALUnseeded = cms.EDProducer( "PFRecHitProducer",
         )
       ),
       cms.PSet(  src = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
-        srFlags = cms.InputTag( "hltEcalDigis" ),
+        srFlags = cms.InputTag( "" ),
         name = cms.string( "PFEERecHitCreator" ),
         qualityTests = cms.VPSet( 
-          cms.PSet(  thresholds = cms.vdouble( 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 1.25023, 1.25033, 1.25047, 1.25068, 1.25097, 1.25139, 1.25199, 1.25286, 1.2541, 1.25587, 1.25842, 1.26207, 1.26729, 1.27479, 1.28553, 1.30092, 1.32299, 1.35462, 1.39995, 1.46493, 1.55807, 1.69156, 1.88291, 2.15716, 2.55027, 3.11371, 3.92131, 5.07887, 6.73803, 9.11615, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 1.25023, 1.25033, 1.25047, 1.25068, 1.25097, 1.25139, 1.25199, 1.25286, 1.2541, 1.25587, 1.25842, 1.26207, 1.26729, 1.27479, 1.28553, 1.30092, 1.32299, 1.35462, 1.39995, 1.46493, 1.55807, 1.69156, 1.88291, 2.15716, 2.55027, 3.11371, 3.92131, 5.07887, 6.73803, 9.11615, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0 ),
+          cms.PSet(  thresholds = cms.vdouble( 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3 ),
             name = cms.string( "PFRecHitQTestECALMultiThreshold" )
           ),
           cms.PSet(  topologicalCleaning = cms.bool( True ),
@@ -11050,7 +11086,17 @@ fragment.hltParticleFlowRecHitHBHE = cms.EDProducer( "PFRecHitProducer",
         name = cms.string( "PFHBHERecHitCreator" ),
         qualityTests = cms.VPSet( 
           cms.PSet(  threshold = cms.double( 0.8 ),
-            name = cms.string( "PFRecHitQTestThreshold" )
+            name = cms.string( "PFRecHitQTestThreshold" ),
+            cuts = cms.VPSet( 
+              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4 ),
+                threshold = cms.vdouble( 0.8, 0.8, 0.8, 0.8 ),
+                detectorEnum = cms.int32( 1 )
+              ),
+              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
+                threshold = cms.vdouble( 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8 ),
+                detectorEnum = cms.int32( 2 )
+              )
+            )
           ),
           cms.PSet(  flags = cms.vstring( 'Standard' ),
             cleaningThresholds = cms.vdouble( 0.0 ),
@@ -11095,11 +11141,9 @@ fragment.hltParticleFlowRecHitHF = cms.EDProducer( "PFRecHitProducer",
           ),
           cms.PSet(  name = cms.string( "PFRecHitQTestHCALThresholdVsDepth" ),
             cuts = cms.VPSet( 
-              cms.PSet(  threshold = cms.double( 1.2 ),
-                depth = cms.int32( 1 )
-              ),
-              cms.PSet(  threshold = cms.double( 1.8 ),
-                depth = cms.int32( 2 )
+              cms.PSet(  depth = cms.vint32( 1, 2 ),
+                threshold = cms.vdouble( 1.2, 1.8 ),
+                detectorEnum = cms.int32( 4 )
               )
             )
           )
@@ -11337,11 +11381,13 @@ fragment.hltParticleFlowClusterHBHE = cms.EDProducer( "PFClusterProducer",
       ),
       algoName = cms.string( "Basic2DGenericPFlowClusterizer" ),
       recHitEnergyNorms = cms.VPSet( 
-        cms.PSet(  recHitEnergyNorm = cms.double( 0.8 ),
-          detector = cms.string( "HCAL_BARREL1" )
+        cms.PSet(  detector = cms.string( "HCAL_BARREL1" ),
+          depths = cms.vint32( 1, 2, 3, 4 ),
+          recHitEnergyNorm = cms.vdouble( 0.8, 0.8, 0.8, 0.8 )
         ),
-        cms.PSet(  recHitEnergyNorm = cms.double( 0.8 ),
-          detector = cms.string( "HCAL_ENDCAP" )
+        cms.PSet(  detector = cms.string( "HCAL_ENDCAP" ),
+          depths = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
+          recHitEnergyNorm = cms.vdouble( 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8 )
         )
       ),
       maxNSigmaTime = cms.double( 10.0 ),
@@ -11373,13 +11419,15 @@ fragment.hltParticleFlowClusterHBHE = cms.EDProducer( "PFClusterProducer",
     positionReCalc = cms.PSet(  ),
     initialClusteringStep = cms.PSet( 
       thresholdsByDetector = cms.VPSet( 
-        cms.PSet(  gatheringThreshold = cms.double( 0.8 ),
-          gatheringThresholdPt = cms.double( 0.0 ),
-          detector = cms.string( "HCAL_BARREL1" )
+        cms.PSet(  detector = cms.string( "HCAL_BARREL1" ),
+          depths = cms.vint32( 1, 2, 3, 4 ),
+          gatheringThreshold = cms.vdouble( 0.8, 0.8, 0.8, 0.8 ),
+          gatheringThresholdPt = cms.vdouble( 0.0, 0.0, 0.0, 0.0 )
         ),
-        cms.PSet(  gatheringThreshold = cms.double( 0.8 ),
-          gatheringThresholdPt = cms.double( 0.0 ),
-          detector = cms.string( "HCAL_ENDCAP" )
+        cms.PSet(  detector = cms.string( "HCAL_ENDCAP" ),
+          depths = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
+          gatheringThreshold = cms.vdouble( 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8 ),
+          gatheringThresholdPt = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 )
         )
       ),
       algoName = cms.string( "Basic2DGenericTopoClusterizer" ),
@@ -11390,13 +11438,15 @@ fragment.hltParticleFlowClusterHBHE = cms.EDProducer( "PFClusterProducer",
     ),
     seedFinder = cms.PSet( 
       thresholdsByDetector = cms.VPSet( 
-        cms.PSet(  seedingThresholdPt = cms.double( 0.0 ),
-          seedingThreshold = cms.double( 1.0 ),
-          detector = cms.string( "HCAL_BARREL1" )
+        cms.PSet(  detector = cms.string( "HCAL_BARREL1" ),
+          depths = cms.vint32( 1, 2, 3, 4 ),
+          seedingThreshold = cms.vdouble( 1.0, 1.0, 1.0, 1.0 ),
+          seedingThresholdPt = cms.vdouble( 0.0, 0.0, 0.0, 0.0 )
         ),
-        cms.PSet(  seedingThresholdPt = cms.double( 0.0 ),
-          seedingThreshold = cms.double( 1.1 ),
-          detector = cms.string( "HCAL_ENDCAP" )
+        cms.PSet(  detector = cms.string( "HCAL_ENDCAP" ),
+          depths = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
+          seedingThreshold = cms.vdouble( 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1 ),
+          seedingThresholdPt = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 )
         )
       ),
       algoName = cms.string( "LocalMaximumSeedFinder" ),
@@ -12306,15 +12356,15 @@ fragment.hltFullIter0PrimaryVerticesPreSplittingForRefPP = cms.EDProducer( "Prim
 )
 fragment.hltSiPixelClustersAfterSplittingForRefPP = cms.EDProducer( "JetCoreClusterSplitter",
     verbose = cms.bool( False ),
-    deltaRmax = cms.double( 0.05 ),
+    chargeFractionMin = cms.double( 2.0 ),
     forceXError = cms.double( 100.0 ),
     vertices = cms.InputTag( "hltFullIter0PrimaryVerticesPreSplittingForRefPP" ),
     chargePerUnit = cms.double( 2000.0 ),
-    forceYError = cms.double( 150.0 ),
     centralMIPCharge = cms.double( 26000.0 ),
+    forceYError = cms.double( 150.0 ),
     pixelClusters = cms.InputTag( "hltSiPixelClustersForRefPP" ),
     ptMin = cms.double( 200.0 ),
-    chargeFractionMin = cms.double( 2.0 ),
+    deltaRmax = cms.double( 0.05 ),
     cores = cms.InputTag( "hltJetsForCoreTracking" ),
     fractionalWidth = cms.double( 0.4 ),
     pixelCPE = cms.string( "hltESPPixelCPEGeneric" )
@@ -15774,10 +15824,10 @@ fragment.hltRechitInRegionsES = cms.EDProducer( "HLTEcalRecHitInAllL1RegionsProd
 fragment.hltParticleFlowRecHitECALL1Seeded = cms.EDProducer( "PFRecHitProducer",
     producers = cms.VPSet( 
       cms.PSet(  src = cms.InputTag( 'hltRechitInRegionsECAL','EcalRecHitsEB' ),
-        srFlags = cms.InputTag( "hltEcalDigis" ),
+        srFlags = cms.InputTag( "" ),
         name = cms.string( "PFEBRecHitCreator" ),
         qualityTests = cms.VPSet( 
-          cms.PSet(  thresholds = cms.vdouble( 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 1.25023, 1.25033, 1.25047, 1.25068, 1.25097, 1.25139, 1.25199, 1.25286, 1.2541, 1.25587, 1.25842, 1.26207, 1.26729, 1.27479, 1.28553, 1.30092, 1.32299, 1.35462, 1.39995, 1.46493, 1.55807, 1.69156, 1.88291, 2.15716, 2.55027, 3.11371, 3.92131, 5.07887, 6.73803, 9.11615, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 1.25023, 1.25033, 1.25047, 1.25068, 1.25097, 1.25139, 1.25199, 1.25286, 1.2541, 1.25587, 1.25842, 1.26207, 1.26729, 1.27479, 1.28553, 1.30092, 1.32299, 1.35462, 1.39995, 1.46493, 1.55807, 1.69156, 1.88291, 2.15716, 2.55027, 3.11371, 3.92131, 5.07887, 6.73803, 9.11615, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0 ),
+          cms.PSet(  thresholds = cms.vdouble( 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3 ),
             name = cms.string( "PFRecHitQTestECALMultiThreshold" )
           ),
           cms.PSet(  topologicalCleaning = cms.bool( True ),
@@ -15789,10 +15839,10 @@ fragment.hltParticleFlowRecHitECALL1Seeded = cms.EDProducer( "PFRecHitProducer",
         )
       ),
       cms.PSet(  src = cms.InputTag( 'hltRechitInRegionsECAL','EcalRecHitsEE' ),
-        srFlags = cms.InputTag( "hltEcalDigis" ),
+        srFlags = cms.InputTag( "" ),
         name = cms.string( "PFEERecHitCreator" ),
         qualityTests = cms.VPSet( 
-          cms.PSet(  thresholds = cms.vdouble( 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 1.25023, 1.25033, 1.25047, 1.25068, 1.25097, 1.25139, 1.25199, 1.25286, 1.2541, 1.25587, 1.25842, 1.26207, 1.26729, 1.27479, 1.28553, 1.30092, 1.32299, 1.35462, 1.39995, 1.46493, 1.55807, 1.69156, 1.88291, 2.15716, 2.55027, 3.11371, 3.92131, 5.07887, 6.73803, 9.11615, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 1.25023, 1.25033, 1.25047, 1.25068, 1.25097, 1.25139, 1.25199, 1.25286, 1.2541, 1.25587, 1.25842, 1.26207, 1.26729, 1.27479, 1.28553, 1.30092, 1.32299, 1.35462, 1.39995, 1.46493, 1.55807, 1.69156, 1.88291, 2.15716, 2.55027, 3.11371, 3.92131, 5.07887, 6.73803, 9.11615, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0 ),
+          cms.PSet(  thresholds = cms.vdouble( 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3 ),
             name = cms.string( "PFRecHitQTestECALMultiThreshold" )
           ),
           cms.PSet(  topologicalCleaning = cms.bool( True ),
@@ -16181,7 +16231,7 @@ fragment.hltHbhePhase1RecoMethod2L1EGSeeded = cms.EDProducer( "HBHEPhase1Reconst
       ts4Min = cms.double( 0.0 ),
       applyPulseJitter = cms.bool( False ),
       noiseHPD = cms.double( 1.0 ),
-      useM2 = cms.bool( True ),
+      useM2 = cms.bool( False ),
       timeMin = cms.double( -12.5 ),
       useM3 = cms.bool( False ),
       tdcTimeShift = cms.double( 0.0 ),
@@ -16191,7 +16241,7 @@ fragment.hltHbhePhase1RecoMethod2L1EGSeeded = cms.EDProducer( "HBHEPhase1Reconst
       ts4chi2 = cms.vdouble( 15.0, 15.0 ),
       timeMax = cms.double( 12.5 ),
       Class = cms.string( "SimpleHBHEPhase1Algo" ),
-      useMahi = cms.bool( False ),
+      useMahi = cms.bool( True ),
       dynamicPed = cms.bool( True ),
       ts4Thresh = cms.double( 0.0 ),
       chiSqSwitch = cms.double( -10.0 ),
@@ -16221,6 +16271,7 @@ fragment.hltTowerMakerMethod2L1EGSeeded = cms.EDProducer( "CaloTowersCreator",
     UseEtEBTreshold = cms.bool( False ),
     hfInput = cms.InputTag( "hltHfreco" ),
     AllowMissingInputs = cms.bool( False ),
+    HEDThreshold1 = cms.double( 0.8 ),
     MomEEDepth = cms.double( 0.0 ),
     EESumThreshold = cms.double( 0.45 ),
     HBGrid = cms.vdouble(  ),
@@ -16241,6 +16292,7 @@ fragment.hltTowerMakerMethod2L1EGSeeded = cms.EDProducer( "CaloTowersCreator",
     HBWeights = cms.vdouble(  ),
     HF1Weight = cms.double( 1.0 ),
     HF2Grid = cms.vdouble(  ),
+    HESThreshold1 = cms.double( 0.8 ),
     HEDWeights = cms.vdouble(  ),
     EBWeight = cms.double( 1.0 ),
     HF1Grid = cms.vdouble(  ),
@@ -16673,7 +16725,17 @@ fragment.hltParticleFlowRecHitHBHEForEgamma = cms.EDProducer( "PFRecHitProducer"
         name = cms.string( "PFHBHERecHitCreator" ),
         qualityTests = cms.VPSet( 
           cms.PSet(  threshold = cms.double( 0.8 ),
-            name = cms.string( "PFRecHitQTestThreshold" )
+            name = cms.string( "PFRecHitQTestThreshold" ),
+            cuts = cms.VPSet( 
+              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4 ),
+                threshold = cms.vdouble( 0.8, 0.8, 0.8, 0.8 ),
+                detectorEnum = cms.int32( 1 )
+              ),
+              cms.PSet(  depth = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
+                threshold = cms.vdouble( 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8 ),
+                detectorEnum = cms.int32( 2 )
+              )
+            )
           ),
           cms.PSet(  flags = cms.vstring( 'Standard' ),
             cleaningThresholds = cms.vdouble( 0.0 ),
@@ -16719,11 +16781,13 @@ fragment.hltParticleFlowClusterHBHEForEgamma = cms.EDProducer( "PFClusterProduce
       ),
       algoName = cms.string( "Basic2DGenericPFlowClusterizer" ),
       recHitEnergyNorms = cms.VPSet( 
-        cms.PSet(  recHitEnergyNorm = cms.double( 0.8 ),
-          detector = cms.string( "HCAL_BARREL1" )
+        cms.PSet(  detector = cms.string( "HCAL_BARREL1" ),
+          depths = cms.vint32( 1, 2, 3, 4 ),
+          recHitEnergyNorm = cms.vdouble( 0.8, 0.8, 0.8, 0.8 )
         ),
-        cms.PSet(  recHitEnergyNorm = cms.double( 0.8 ),
-          detector = cms.string( "HCAL_ENDCAP" )
+        cms.PSet(  detector = cms.string( "HCAL_ENDCAP" ),
+          depths = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
+          recHitEnergyNorm = cms.vdouble( 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8 )
         )
       ),
       maxNSigmaTime = cms.double( 10.0 ),
@@ -16755,13 +16819,15 @@ fragment.hltParticleFlowClusterHBHEForEgamma = cms.EDProducer( "PFClusterProduce
     positionReCalc = cms.PSet(  ),
     initialClusteringStep = cms.PSet( 
       thresholdsByDetector = cms.VPSet( 
-        cms.PSet(  gatheringThreshold = cms.double( 0.8 ),
-          gatheringThresholdPt = cms.double( 0.0 ),
-          detector = cms.string( "HCAL_BARREL1" )
+        cms.PSet(  detector = cms.string( "HCAL_BARREL1" ),
+          depths = cms.vint32( 1, 2, 3, 4 ),
+          gatheringThreshold = cms.vdouble( 0.8, 0.8, 0.8, 0.8 ),
+          gatheringThresholdPt = cms.vdouble( 0.0, 0.0, 0.0, 0.0 )
         ),
-        cms.PSet(  gatheringThreshold = cms.double( 0.8 ),
-          gatheringThresholdPt = cms.double( 0.0 ),
-          detector = cms.string( "HCAL_ENDCAP" )
+        cms.PSet(  detector = cms.string( "HCAL_ENDCAP" ),
+          depths = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
+          gatheringThreshold = cms.vdouble( 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8 ),
+          gatheringThresholdPt = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 )
         )
       ),
       algoName = cms.string( "Basic2DGenericTopoClusterizer" ),
@@ -16772,13 +16838,15 @@ fragment.hltParticleFlowClusterHBHEForEgamma = cms.EDProducer( "PFClusterProduce
     ),
     seedFinder = cms.PSet( 
       thresholdsByDetector = cms.VPSet( 
-        cms.PSet(  seedingThresholdPt = cms.double( 0.0 ),
-          seedingThreshold = cms.double( 1.0 ),
-          detector = cms.string( "HCAL_BARREL1" )
+        cms.PSet(  detector = cms.string( "HCAL_BARREL1" ),
+          depths = cms.vint32( 1, 2, 3, 4 ),
+          seedingThreshold = cms.vdouble( 1.0, 1.0, 1.0, 1.0 ),
+          seedingThresholdPt = cms.vdouble( 0.0, 0.0, 0.0, 0.0 )
         ),
-        cms.PSet(  seedingThresholdPt = cms.double( 0.0 ),
-          seedingThreshold = cms.double( 1.1 ),
-          detector = cms.string( "HCAL_ENDCAP" )
+        cms.PSet(  detector = cms.string( "HCAL_ENDCAP" ),
+          depths = cms.vint32( 1, 2, 3, 4, 5, 6, 7 ),
+          seedingThreshold = cms.vdouble( 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1 ),
+          seedingThresholdPt = cms.vdouble( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 )
         )
       ),
       algoName = cms.string( "LocalMaximumSeedFinder" ),

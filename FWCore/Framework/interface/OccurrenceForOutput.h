@@ -45,7 +45,7 @@ namespace edm {
   class OccurrenceForOutput {
   public:
     OccurrenceForOutput(Principal const& ep, ModuleDescription const& md,
-          ModuleCallingContext const*);
+          ModuleCallingContext const*, bool isAtEnd);
     virtual ~OccurrenceForOutput();
 
     //Used in conjunction with EDGetToken

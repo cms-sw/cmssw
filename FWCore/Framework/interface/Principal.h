@@ -86,9 +86,6 @@ namespace edm {
     
     void setupUnscheduled(UnscheduledConfigurator const&);
   
-    void setAtEndTransition(bool iAtEnd);
-    bool atEndTransition() const {return atEndTransition_;}
-    
     void deleteProduct(BranchID const& id) const;
     
     EDProductGetter const* prodGetter() const {return this;}
@@ -130,6 +127,7 @@ namespace edm {
     void prefetchAsync(WaitingTask* waitTask,
                        ProductResolverIndex index,
                        bool skipCurrentProcess,
+                       ServiceToken const& token,
                        ModuleCallingContext const* mcc) const;
 
     void getManyByType(TypeID const& typeID,
@@ -188,16 +186,10 @@ namespace edm {
     ProductData const* findProductByTag(TypeID const& typeID, InputTag const& tag, ModuleCallingContext const* mcc) const;
 
     void readAllFromSourceAndMergeImmediately();
-    //For end Run/Lumi we need to reset products failed in the begin
-    // transition since they may be put into the Principal at the
-    // end transition
-    void resetFailedFromThisProcess();
     
     std::vector<unsigned int> const& lookupProcessOrder() const { return lookupProcessOrder_; }
 
     ConstProductResolverPtr getProductResolverByIndex(ProductResolverIndex const& oid) const;
-
-    bool isComplete() const {return isComplete_();}
 
   protected:
 
@@ -258,8 +250,6 @@ namespace edm {
                                           SharedResourcesAcquirer* sra,
                                           ModuleCallingContext const* mcc) const;
 
-    virtual bool isComplete_() const {return true;}
-    
     void putOrMerge(std::unique_ptr<WrapperBase> prod, ProductResolverBase const* productResolver) const;
     
     std::shared_ptr<ProcessHistory const> processHistoryPtr_;
@@ -292,8 +282,6 @@ namespace edm {
     edm::propagate_const<HistoryAppender*> historyAppender_;
     
     CacheIdentifier_t cacheIdentifier_;
-
-    bool atEndTransition_;
   };
 
   template <typename PROD>

@@ -98,9 +98,12 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
                                            conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM"):edm::ParameterSet());
   const edm::ParameterSet me21tmbGemParams(conf.existsAs<edm::ParameterSet>("me21tmbSLHCGEM")?
                                            conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM"):edm::ParameterSet());
+  const edm::ParameterSet me3141tmbParams(conf.existsAs<edm::ParameterSet>("me3141tmbSLHC")?
+                                             conf.getParameter<edm::ParameterSet>("me3141tmbSLHC"):edm::ParameterSet());
 
   const bool runME11ILT(commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false);
   const bool runME21ILT(commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false);
+  const bool runME3141ILT(commonParams.existsAs<bool>("runME3141ILT")?commonParams.getParameter<bool>("runME3141ILT"):false);
 
   // run upgrade TMBs for all MEX/1 stations
   if (isSLHC and theRing == 1){
@@ -117,6 +120,11 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
       alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME21");
       clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME21");
     }
+    else if ((theStation == 3 or theStation == 4) and runME3141ILT) {
+      tmbParams = me3141tmbParams;
+      alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME3141");
+      clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME3141");
+    }
   }
 
   mpc_block_me1a    = tmbParams.getParameter<unsigned int>("mpcBlockMe1a");
@@ -127,8 +135,6 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
     tmbParams.getParameter<unsigned int>("matchTrigWindowSize");
   tmb_l1a_window_size = // Common to CLCT and TMB
     tmbParams.getParameter<unsigned int>("tmbL1aWindowSize");
-
-  lct_central_bx = 6;
 
   // configuration handle for number of early time bins
   early_tbins = tmbParams.getParameter<int>("tmbEarlyTbins");
@@ -541,10 +547,15 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() {
   return tmpV;
 }
 
-void CSCMotherboard::correlateLCTs(CSCALCTDigi& bestALCT,
-                                   CSCALCTDigi& secondALCT,
-                                   CSCCLCTDigi& bestCLCT,
-                                   CSCCLCTDigi& secondCLCT) {
+void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
+                                   const CSCALCTDigi& sALCT,
+                                   const CSCCLCTDigi& bCLCT,
+                                   const CSCCLCTDigi& sCLCT)
+{
+  CSCALCTDigi bestALCT = bALCT;
+  CSCALCTDigi secondALCT = sALCT;
+  CSCCLCTDigi bestCLCT = bCLCT;
+  CSCCLCTDigi secondCLCT = sCLCT;
 
   bool anodeBestValid     = bestALCT.isValid();
   bool anodeSecondValid   = secondALCT.isValid();
@@ -561,11 +572,10 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi& bestALCT,
   if ((alct_trig_enable  && bestALCT.isValid()) ||
       (clct_trig_enable  && bestCLCT.isValid()) ||
       (match_trig_enable && bestALCT.isValid() && bestCLCT.isValid())) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::CLCTALCT);
+    CSCCorrelatedLCTDigi lct = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::CLCTALCT, 1);
     int bx = lct.getBX();
     if (bx >= 0 && bx < CSCConstants::MAX_LCT_TBINS) {
       firstLCT[bx] = lct;
-      firstLCT[bx].setTrknmb(1);
     }
     else {
       if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeLCT")
@@ -579,11 +589,10 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi& bestALCT,
       ((alct_trig_enable  && secondALCT.isValid()) ||
        (clct_trig_enable  && secondCLCT.isValid()) ||
        (match_trig_enable && secondALCT.isValid() && secondCLCT.isValid()))) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::CLCTALCT);
+    CSCCorrelatedLCTDigi lct = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::CLCTALCT, 2);
     int bx = lct.getBX();
     if (bx >= 0 && bx < CSCConstants::MAX_LCT_TBINS) {
       secondLCT[bx] = lct;
-      secondLCT[bx].setTrknmb(2);
     }
     else {
       if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeLCT")
@@ -598,7 +607,8 @@ void CSCMotherboard::correlateLCTs(CSCALCTDigi& bestALCT,
 // constructor of correlated LCTs.
 CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
                                                    const CSCCLCTDigi& cLCT,
-                                                   int type) const {
+                                                   int type,
+                                                   int trknmb) const {
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
 
@@ -608,8 +618,7 @@ CSCCorrelatedLCTDigi CSCMotherboard::constructLCTs(const CSCALCTDigi& aLCT,
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
   int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
 
-  // construct correlated LCT; temporarily assign track number of 0.
-  int trknmb = 0;
+  // construct correlated LCT
   CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
                                cLCT.getKeyStrip(), pattern, cLCT.getBend(),
                                bx, 0, 0, 0, theTrigChamber);

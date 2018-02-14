@@ -144,6 +144,7 @@ namespace ZdcSimpleRecAlgoImpl {
     for(unsigned int iv = 0; iv<myNoiseTS.size(); ++iv)
     {
       CurrentTS = myNoiseTS[iv];
+      if ( CurrentTS >= digi.size() ) continue;
       Allnoise += tool[CurrentTS];
       noiseslices++;
     }
@@ -155,6 +156,7 @@ namespace ZdcSimpleRecAlgoImpl {
     for(unsigned int ivs = 0; ivs<mySignalTS.size(); ++ivs)
     {
       CurrentTS = mySignalTS[ivs];
+      if ( CurrentTS >= digi.size() ) continue;
       int capid=digi[CurrentTS].capid();
 //       if(noise<0){
 //       // flag hit as having negative noise, and don't subtract anything, because
@@ -174,6 +176,7 @@ namespace ZdcSimpleRecAlgoImpl {
     for(unsigned int iLGvs = 0; iLGvs<mySignalTS.size(); ++iLGvs)
     {
       CurrentTS = mySignalTS[iLGvs]+lowGainOffset;
+      if ( CurrentTS >= digi.size() ) continue;
       int capid=digi[CurrentTS].capid();
       TempLGAmp = tool[CurrentTS]-noise;
       lowGfc_ampl+=TempLGAmp; 

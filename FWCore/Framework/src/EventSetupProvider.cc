@@ -61,8 +61,10 @@ namespace edm {
 //
 // constructors and destructor
 //
-EventSetupProvider::EventSetupProvider(unsigned subProcessIndex, const PreferredProviderInfo* iInfo) :
-eventSetup_(),
+EventSetupProvider::EventSetupProvider(ActivityRegistry* activityRegistry,
+                                       unsigned subProcessIndex,
+                                       const PreferredProviderInfo* iInfo) :
+eventSetup_(activityRegistry),
 providers_(),
 knownRecordsSupplier_( std::make_unique<KnownRecordsSupplierImpl>(providers_)),
 mustFinishConfiguration_(true),
@@ -779,6 +781,15 @@ EventSetupProvider::proxyProviderDescriptions() const
    return descriptions;
 }
 
+bool
+EventSetupProvider::isWithinValidityInterval(IOVSyncValue const& iSync) const {
+  for( auto const& provider: providers_) {
+    if(not provider.second->validityInterval().validFor(iSync)) {
+      return false;
+    }
+  }
+  return true;
+}
 //
 // static member functions
 //

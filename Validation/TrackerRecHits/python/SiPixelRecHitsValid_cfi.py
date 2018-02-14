@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-pixRecHitsValid = cms.EDAnalyzer("SiPixelRecHitsValid",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+pixRecHitsValid = DQMEDAnalyzer('SiPixelRecHitsValid',
     src = cms.InputTag("siPixelRecHits"),
     associatePixel = cms.bool(True),
     ROUList = cms.vstring('g4SimHitsTrackerHitsPixelBarrelLowTof', 

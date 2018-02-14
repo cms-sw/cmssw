@@ -51,7 +51,16 @@ def miniAOD_customizeCommon(process):
             eidTight            = cms.InputTag("reducedEgamma","eidTight"),
             eidRobustHighEnergy = cms.InputTag("reducedEgamma","eidRobustHighEnergy"),
         )
-    process.patElectrons.addPFClusterIso = cms.bool(True)
+    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    run2_miniAOD_80XLegacy.toModify(process.patElectrons,
+                                    addPFClusterIso = cms.bool(True),
+                                    ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleEcalPFClusIso"),
+                                    hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleHcalPFClusIso"))
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    run2_miniAOD_94XFall17.toModify(process.patElectrons,
+                                    addPFClusterIso = cms.bool(True),
+                                    ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleEcalPFClusIso"),
+                                    hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleHcalPFClusIso"))
     #add puppi isolation in miniAOD
     process.patElectrons.addPuppiIsolation = cms.bool(True)
     process.patElectrons.puppiIsolationChargedHadrons = cms.InputTag("egmElectronPUPPIIsolation","h+-DR030-BarVeto000-EndVeto001")
@@ -62,9 +71,6 @@ def miniAOD_customizeCommon(process):
     process.patElectrons.puppiNoLeptonsIsolationPhotons        = cms.InputTag("egmElectronPUPPINoLeptonsIsolation","gamma-DR030-BarVeto000-EndVeto008")
 
     process.patElectrons.computeMiniIso = cms.bool(True)
-
-    process.patElectrons.ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleEcalPFClusIso")
-    process.patElectrons.hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "eleHcalPFClusIso")
 
     process.elPFIsoDepositChargedPAT.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     process.elPFIsoDepositChargedAllPAT.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
@@ -77,7 +83,6 @@ def miniAOD_customizeCommon(process):
     process.patPhotons.embedBasicClusters             = False  ## process.patPhotons.embed in AOD externally stored the photon's basic clusters
     process.patPhotons.embedPreshowerClusters         = False  ## process.patPhotons.embed in AOD externally stored the photon's preshower clusters
     process.patPhotons.embedRecHits         = False  ## process.patPhotons.embed in AOD externally stored the RecHits - can be called from the PATPhotonProducer
-    process.patPhotons.addPFClusterIso = cms.bool(True)
 
     #add puppi isolation in miniAOD
     process.patPhotons.addPuppiIsolation = cms.bool(True)
@@ -85,8 +90,23 @@ def miniAOD_customizeCommon(process):
     process.patPhotons.puppiIsolationNeutralHadrons = cms.InputTag("egmPhotonPUPPIIsolation","h0-DR030-")
     process.patPhotons.puppiIsolationPhotons        = cms.InputTag("egmPhotonPUPPIIsolation","gamma-DR030-")
 
-    process.patPhotons.ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoEcalPFClusIso")
-    process.patPhotons.hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoHcalPFClusIso")
+    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    run2_miniAOD_80XLegacy.toModify(process.patPhotons,
+                                    addPFClusterIso = cms.bool(True),
+                                    ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoEcalPFClusIso"),
+                                    hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoHcalPFClusIso"))
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    run2_miniAOD_94XFall17.toModify(process.patPhotons,
+                                    addPFClusterIso = cms.bool(True),
+                                    ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoEcalPFClusIso"),
+                                    hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoHcalPFClusIso"))
+    #the 80X legacy customsations are done in ootPhotonProducer for OOT photons
+    run2_miniAOD_94XFall17.toModify(process.patOOTPhotons,
+                                    addPFClusterIso = cms.bool(True),
+                                    ecalPFClusterIsoMap = cms.InputTag("reducedEgamma", "ootPhoEcalPFClusIso"),
+                                    hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "ootPhoHcalPFClusIso"))
+
+
     process.patPhotons.photonSource = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.patPhotons.electronSource = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     process.patPhotons.photonIDSources = cms.PSet(
@@ -333,8 +353,6 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     run2_miniAOD_80XLegacy.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithTauReReco)
-    #---------------------------------------------------------------------------
-
     # Adding puppi jets
     if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
         process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
@@ -354,10 +372,11 @@ def miniAOD_customizeCommon(process):
     )
     task.add(process.patJetPuppiCharge)
 
+    noDeepFlavourDiscriminators = [x.value() for x in process.patJets.discriminatorSources if not "DeepFlavour" in x.value()]
     addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
                     jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], ''),
                     pfCandidates = cms.InputTag('puppi'), # using Puppi candidates as input for b tagging of Puppi jets
-                    algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
+                    algo= 'AK', rParam = 0.4, btagDiscriminators = noDeepFlavourDiscriminators
                     )
     
     process.patJetGenJetMatchPuppi.matched = 'slimmedGenJets'
@@ -367,9 +386,44 @@ def miniAOD_customizeCommon(process):
     process.selectedPatJetsPuppi.cut = cms.string("pt > 15")
 
     process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
+
+    # update slimmed jets to include DeepFlavour (keep same name)
+    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+    # make clone for DeepFlavour-less slimmed jets, so output name is preserved
+    process.slimmedJetsNoDeepFlavour = process.slimmedJets.clone()
+    task.add(process.slimmedJetsNoDeepFlavour)
+    updateJetCollection(
+       process,
+       jetSource = cms.InputTag('slimmedJetsNoDeepFlavour'),
+       # updateJetCollection defaults to MiniAOD inputs but
+       # here it is made explicit (as in training or MINIAOD redoing)
+       pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+       pfCandidates = cms.InputTag('packedPFCandidates'),
+       svSource = cms.InputTag('slimmedSecondaryVertices'),
+       muSource = cms.InputTag('slimmedMuons'),
+       elSource = cms.InputTag('slimmedElectrons'),
+       jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+       btagDiscriminators = [
+          'pfDeepFlavourJetTags:probb',
+          'pfDeepFlavourJetTags:probbb',
+          'pfDeepFlavourJetTags:problepb',
+          'pfDeepFlavourJetTags:probc',
+          'pfDeepFlavourJetTags:probuds',
+          'pfDeepFlavourJetTags:probg',
+       ],
+       postfix = 'SlimmedDeepFlavour',
+       printWarning = False
+    )
+
+    # slimmedJets with DeepFlavour (remove DeepFlavour-less)
+    delattr(process, 'slimmedJets')
+    process.slimmedJets = process.selectedUpdatedPatJetsSlimmedDeepFlavour.clone()
+    # delete module not used anymore (slimmedJets substitutes)
+    delattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour')
+
     task.add(process.slimmedJets)
     task.add(process.slimmedJetsAK8)
-    addToProcessAndTask('slimmedJetsPuppi', process.slimmedJets.clone(), process, task)
+    addToProcessAndTask('slimmedJetsPuppi', process.slimmedJetsNoDeepFlavour.clone(), process, task)
     process.slimmedJetsPuppi.src = cms.InputTag("selectedPatJetsPuppi")    
     process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("packedPFCandidates")
 

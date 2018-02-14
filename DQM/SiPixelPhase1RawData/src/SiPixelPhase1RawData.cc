@@ -6,24 +6,44 @@
 
 // Original Author: Marcel Schneider
 
-#include "DQM/SiPixelPhase1RawData/interface/SiPixelPhase1RawData.h"
+#include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
+namespace {
+
+class SiPixelPhase1RawData final : public SiPixelPhase1Base {
+  enum {
+    NERRORS,
+    FIFOFULL,
+    TBMMESSAGE,
+    TBMTYPE,
+    TYPE_NERRORS
+  };
+
+  public:
+  explicit SiPixelPhase1RawData(const edm::ParameterSet& conf);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  private:
+  edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError>> srcToken_;
+};
 
 SiPixelPhase1RawData::SiPixelPhase1RawData(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig) 
 {
-  srcToken_ = consumes<DetSetVector<SiPixelRawDataError>>(iConfig.getParameter<edm::InputTag>("src"));
+  srcToken_ = consumes<edm::DetSetVector<SiPixelRawDataError>>(iConfig.getParameter<edm::InputTag>("src"));
 }
 
 
 void SiPixelPhase1RawData::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if( !checktrigger(iEvent,iSetup,DCS) ) return;
 
-  edm::Handle<DetSetVector<SiPixelRawDataError>> input;
+  edm::Handle<edm::DetSetVector<SiPixelRawDataError>> input;
   iEvent.getByToken(srcToken_, input);
   if (!input.isValid()) return;
 
@@ -87,6 +107,8 @@ void SiPixelPhase1RawData::analyze(const edm::Event& iEvent, const edm::EventSet
 
   histo[NERRORS].executePerEventHarvesting(&iEvent);
 }
+
+} //namespace
 
 DEFINE_FWK_MODULE(SiPixelPhase1RawData);
 

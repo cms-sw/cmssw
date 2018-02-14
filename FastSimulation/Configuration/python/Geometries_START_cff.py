@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 from FastSimulation.Configuration.Geometries_cff import *
 
-import FastSimulation.EventProducer.FamosSimHits_cff
+import FastSimulation.SimplifiedGeometryPropagator.fastSimProducer_cff
 
 # Apply Tracker and Muon misalignment
-FastSimulation.EventProducer.FamosSimHits_cff.famosSimHits.ApplyAlignment = True
+process.fastSimProducer.detectorDefinition.trackerAlignmentLabel = cms.untracked.string("")
 misalignedTrackerGeometry.applyAlignment = True
 misalignedDTGeometry.applyAlignment = True
 misalignedCSCGeometry.applyAlignment = True

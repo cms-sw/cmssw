@@ -21,7 +21,7 @@
 
 // auxilliary functions
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
-#include "CalibTracker/SiStripCommon/interface/StandaloneTrackerTopology.h" 
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 #include <memory>
 #include <sstream>
@@ -95,7 +95,7 @@ namespace {
 	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	 
-	  TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
+	  TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
 
 	  std::vector<uint32_t> detid;
 	  payload->getDetIds(detid);
@@ -151,7 +151,7 @@ namespace {
           std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload (std::get<1>(iov));
           if (payload.get()){
 
-            TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
+            TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
 
             std::vector<uint32_t> detid;
             payload->getDetIds(detid);
@@ -192,7 +192,7 @@ namespace {
 	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	 
-	  TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
+	  TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
 
 	  std::vector<uint32_t> detid;
 	  payload->getDetIds(detid);
@@ -256,7 +256,7 @@ namespace {
 	std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
 	if( payload.get() ){
 	 
-	  TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
+	  TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
 
 	  std::vector<uint32_t> detid;
 	  payload->getDetIds(detid);
@@ -319,7 +319,7 @@ namespace {
 	    std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
 	    if( payload.get() ){
 
-	      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
+	      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
 
 	      std::vector<uint32_t> detid;
 	      payload->getDetIds(detid);
@@ -366,7 +366,7 @@ namespace {
 	    std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload( std::get<1>(iov) );
 	    if( payload.get() ){
 
-	      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
+	      TrackerTopology tTopo = StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath());
 
 	      std::vector<uint32_t> detid;
 	      payload->getDetIds(detid);
@@ -991,7 +991,7 @@ namespace {
   public:
     SiStripApvGainsTest() : cond::payloadInspector::Histogram1D<SiStripApvGain>("SiStripApv Gains test",
 										"SiStripApv Gains test", 10,0.0,10.0),
-      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       Base::setSingleIov( true );
     }
@@ -1107,7 +1107,7 @@ namespace {
       std::vector<std::string> parts = {"TEC","TOB","TIB","TID"};
       
       for ( const auto &part : parts){
-	ratios[part]   = std::make_shared<TH1F>(Form("hRatio_%s",part.c_str()),Form("Gains ratio IOV: %s/ IOV: %s ;New Gain (%s) / Previous Gain (%s);Number of APV",lastIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str(),firstIOVsince.c_str()),200,0.,2.);
+	ratios[part]   = std::make_shared<TH1F>(Form("hRatio_%s",part.c_str()),Form("Gains ratio IOV: %s/ IOV: %s ;Previous Gain (%s) / New Gain (%s);Number of APV",firstIOVsince.c_str(),lastIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str()),200,0.,2.);
 	scatters[part] = std::make_shared<TH2F>(Form("hScatter_%s",part.c_str()),Form("new Gain (%s) vs previous Gain (%s);Previous Gain (%s);New Gain (%s)",lastIOVsince.c_str(),firstIOVsince.c_str(),firstIOVsince.c_str(),lastIOVsince.c_str()),100,0.5,1.8,100,0.5,1.8);
       }
       
@@ -1152,6 +1152,7 @@ namespace {
 
       for (const auto &part : parts){
 	SiStripPI::makeNicePlotStyle(ratios[part].get());
+	ratios[part]->SetMinimum(1.);
 	ratios[part]->SetStats(false);
 	ratios[part]->SetLineWidth(2);
 	ratios[part]->SetLineColor(colormap[part]);
@@ -1301,8 +1302,8 @@ namespace {
       h_firstGains->SetMarkerSize(1.);
       h_lastGains->SetMarkerSize(1.);
 
-      h_firstGains->SetLineWidth(1.5);
-      h_lastGains->SetLineWidth(1.5);
+      h_firstGains->SetLineWidth(1);
+      h_lastGains->SetLineWidth(1);
 
       h_firstGains->SetMarkerStyle(20);
       h_lastGains->SetMarkerStyle(21);
@@ -1377,7 +1378,7 @@ namespace {
   class SiStripApvGainsRatioComparatorByRegion : public cond::payloadInspector::PlotImage<SiStripApvGain> {
   public:
     SiStripApvGainsRatioComparatorByRegion () : cond::payloadInspector::PlotImage<SiStripApvGain>( "Module by Module Comparison of SiStrip APV gains" ),
-      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       setSingleIov( false );
     }
@@ -1571,7 +1572,7 @@ namespace {
   class SiStripApvGainsComparatorByRegion : public cond::payloadInspector::PlotImage<SiStripApvGain> {
   public:
     SiStripApvGainsComparatorByRegion() : cond::payloadInspector::PlotImage<SiStripApvGain>( "SiStripGains Comparison By Region" ),
-      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       setSingleIov( false );
     }
@@ -1735,7 +1736,7 @@ namespace {
   class SiStripApvGainsByRegion : public cond::payloadInspector::PlotImage<SiStripApvGain> {
   public:
     SiStripApvGainsByRegion() : cond::payloadInspector::PlotImage<SiStripApvGain>( "SiStripGains By Region" ),
-      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXML(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
     {
       setSingleIov( true );
     }
