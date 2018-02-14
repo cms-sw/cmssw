@@ -1,0 +1,4 @@
+<architecture name="slc.*_amd64_.*">
+  <test name="SiStripDCS_O2O_test" command="testSiStripDCSO2O.sh"/>
+  <test name="SiStripDAQ_O2O_test" command="testSiStripDAQO2O.sh"/>
+</architecture>
