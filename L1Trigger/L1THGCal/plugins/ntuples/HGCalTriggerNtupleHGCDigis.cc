@@ -13,6 +13,8 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
+
 
 class HGCalTriggerNtupleHGCDigis : public HGCalTriggerNtupleBase
 {
@@ -30,6 +32,8 @@ class HGCalTriggerNtupleHGCDigis : public HGCalTriggerNtupleBase
         edm::EDGetToken ee_token_, fh_token_, bh_token_;
         bool is_Simhit_comp_;
         edm::EDGetToken SimHits_inputee_, SimHits_inputfh_, SimHits_inputbh_;
+
+        HGCalTriggerTools triggerTools_;
 
         int hgcdigi_n_ ;
         std::vector<int> hgcdigi_id_;
@@ -60,7 +64,7 @@ class HGCalTriggerNtupleHGCDigis : public HGCalTriggerNtupleBase
         std::vector<float> bhdigi_simenergy_;
 
         edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
-     
+
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory,
@@ -80,7 +84,7 @@ HGCalTriggerNtupleHGCDigis::
 initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& collector)
 {
 
-    ee_token_ = collector.consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("HGCDigisEE")); 
+    ee_token_ = collector.consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("HGCDigisEE"));
     fh_token_ = collector.consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("HGCDigisFH"));
     bh_token_ = collector.consumes<HGCBHDigiCollection>(conf.getParameter<edm::InputTag>("HGCDigisBH"));
     if (is_Simhit_comp_) {
@@ -95,10 +99,10 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
     tree.Branch("hgcdigi_layer", &hgcdigi_layer_);
     tree.Branch("hgcdigi_wafer", &hgcdigi_wafer_);
     tree.Branch("hgcdigi_wafertype", &hgcdigi_wafertype_);
-    tree.Branch("hgcdigi_cell", &hgcdigi_cell_);    
-    tree.Branch("hgcdigi_eta", &hgcdigi_eta_);    
-    tree.Branch("hgcdigi_phi", &hgcdigi_phi_);    
-    tree.Branch("hgcdigi_z", &hgcdigi_z_);    
+    tree.Branch("hgcdigi_cell", &hgcdigi_cell_);
+    tree.Branch("hgcdigi_eta", &hgcdigi_eta_);
+    tree.Branch("hgcdigi_phi", &hgcdigi_phi_);
+    tree.Branch("hgcdigi_z", &hgcdigi_z_);
     tree.Branch("hgcdigi_data", &hgcdigi_data_);
     tree.Branch("hgcdigi_isadc", &hgcdigi_isadc_);
     if (is_Simhit_comp_) tree.Branch("hgcdigi_simenergy", &hgcdigi_simenergy_);
@@ -109,10 +113,10 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
     tree.Branch("bhdigi_zside", &bhdigi_side_);
     tree.Branch("bhdigi_layer", &bhdigi_layer_);
     tree.Branch("bhdigi_ieta", &bhdigi_ieta_);
-    tree.Branch("bhdigi_iphi", &bhdigi_iphi_);    
-    tree.Branch("bhdigi_eta", &bhdigi_eta_);    
-    tree.Branch("bhdigi_phi", &bhdigi_phi_);    
-    tree.Branch("bhdigi_z", &bhdigi_z_);    
+    tree.Branch("bhdigi_iphi", &bhdigi_iphi_);
+    tree.Branch("bhdigi_eta", &bhdigi_eta_);
+    tree.Branch("bhdigi_phi", &bhdigi_phi_);
+    tree.Branch("bhdigi_z", &bhdigi_z_);
     tree.Branch("bhdigi_data", &bhdigi_data_);
     if (is_Simhit_comp_) tree.Branch("bhdigi_simenergy", &bhdigi_simenergy_);
 }
@@ -133,12 +137,14 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     e.getByToken(bh_token_, bh_digis_h);
     const HGCBHDigiCollection& bh_digis = *bh_digis_h;
 
+    triggerTools_.setEventSetup(es);
+
     // sim hit association
     std::unordered_map<uint32_t, double> simhits_ee;
-    std::unordered_map<uint32_t, double> simhits_fh;  
-    std::unordered_map<uint32_t, double> simhits_bh;  
+    std::unordered_map<uint32_t, double> simhits_fh;
+    std::unordered_map<uint32_t, double> simhits_bh;
     if (is_Simhit_comp_) simhits(e, simhits_ee, simhits_fh, simhits_bh);
-    
+
     clear();
     hgcdigi_n_ = ee_digis.size() + fh_digis.size();
     hgcdigi_id_.reserve(hgcdigi_n_);
@@ -166,7 +172,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     bhdigi_phi_.reserve(bhdigi_n_);
     bhdigi_z_.reserve(bhdigi_n_);
     if (is_Simhit_comp_) bhdigi_simenergy_.reserve(bhdigi_n_);
-    
+
     const int kIntimeSample = 2;
     for(const auto& digi : ee_digis)
       {
@@ -174,7 +180,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         hgcdigi_id_.emplace_back(id.rawId());
         hgcdigi_subdet_.emplace_back(ForwardSubdetector::HGCEE);
         hgcdigi_side_.emplace_back(id.zside());
-        hgcdigi_layer_.emplace_back(id.layer());
+        hgcdigi_layer_.emplace_back(triggerTools_.getLayerWithOffset(id));
         hgcdigi_wafer_.emplace_back(id.wafer());
         hgcdigi_wafertype_.emplace_back(id.waferType());
         hgcdigi_cell_.emplace_back(id.cell());
@@ -182,7 +188,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         hgcdigi_eta_.emplace_back(cellpos.eta());
         hgcdigi_phi_.emplace_back(cellpos.phi());
         hgcdigi_z_.emplace_back(cellpos.z());
-        hgcdigi_data_.emplace_back(digi[kIntimeSample].data()); 
+        hgcdigi_data_.emplace_back(digi[kIntimeSample].data());
         int is_adc=0;
         if (!(digi[kIntimeSample].mode())) is_adc =1;
         hgcdigi_isadc_.emplace_back(is_adc);
@@ -190,17 +196,17 @@ fill(const edm::Event& e, const edm::EventSetup& es)
           double hit_energy=0;
           auto itr = simhits_ee.find(id);
           if(itr!=simhits_ee.end())hit_energy = itr->second;
-          hgcdigi_simenergy_.emplace_back(hit_energy); 
+          hgcdigi_simenergy_.emplace_back(hit_energy);
         }
       }
-    
+
     for(const auto& digi : fh_digis)
       {
         const HGCalDetId id(digi.id());
         hgcdigi_id_.emplace_back(id.rawId());
         hgcdigi_subdet_.emplace_back(ForwardSubdetector::HGCHEF);
         hgcdigi_side_.emplace_back(id.zside());
-        hgcdigi_layer_.emplace_back(id.layer());
+        hgcdigi_layer_.emplace_back(triggerTools_.getLayerWithOffset(id));
         hgcdigi_wafer_.emplace_back(id.wafer());
         hgcdigi_wafertype_.emplace_back(id.waferType());
         hgcdigi_cell_.emplace_back(id.cell());
@@ -208,7 +214,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         hgcdigi_eta_.emplace_back(cellpos.eta());
         hgcdigi_phi_.emplace_back(cellpos.phi());
         hgcdigi_z_.emplace_back(cellpos.z());
-        hgcdigi_data_.emplace_back(digi[kIntimeSample].data()); 
+        hgcdigi_data_.emplace_back(digi[kIntimeSample].data());
         int is_adc=0;
         if (!(digi[kIntimeSample].mode())) is_adc =1;
         hgcdigi_isadc_.emplace_back(is_adc);
@@ -216,7 +222,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
           double hit_energy=0;
           auto itr = simhits_fh.find(id);
           if(itr!=simhits_fh.end())hit_energy = itr->second;
-          hgcdigi_simenergy_.emplace_back(hit_energy); 
+          hgcdigi_simenergy_.emplace_back(hit_energy);
         }
       }
 
@@ -226,19 +232,19 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         bhdigi_id_.emplace_back(id.rawId());
         bhdigi_subdet_.emplace_back(id.subdetId());
         bhdigi_side_.emplace_back(id.zside());
-        bhdigi_layer_.emplace_back(id.depth());
+        bhdigi_layer_.emplace_back(triggerTools_.getLayerWithOffset(id));
         bhdigi_ieta_.emplace_back(id.ieta());
         bhdigi_iphi_.emplace_back(id.iphi());
         GlobalPoint cellpos = triggerGeometry_->bhGeometry().getPosition(id.rawId());
         bhdigi_eta_.emplace_back(cellpos.eta());
         bhdigi_phi_.emplace_back(cellpos.phi());
         bhdigi_z_.emplace_back(cellpos.z());
-        bhdigi_data_.emplace_back(digi[kIntimeSample].data()); 
+        bhdigi_data_.emplace_back(digi[kIntimeSample].data());
         if (is_Simhit_comp_) {
           double hit_energy=0;
           auto itr = simhits_bh.find(id);
           if(itr!=simhits_bh.end())hit_energy = itr->second;
-          bhdigi_simenergy_.emplace_back(hit_energy); 
+          bhdigi_simenergy_.emplace_back(hit_energy);
         }
       }
 }
@@ -257,13 +263,13 @@ simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, s
       edm::Handle<edm::PCaloHitContainer> bh_simhits_h;
       e.getByToken(SimHits_inputbh_,bh_simhits_h);
       const edm::PCaloHitContainer& bh_simhits = *bh_simhits_h;
-      
+
       //EE
       int layer=0,cell=0, sec=0, subsec=0, zp=0,subdet=0;
       ForwardSubdetector mysubdet;
-      
-      for( const auto& simhit : ee_simhits ) { 
-        HGCalTestNumbering::unpackHexagonIndex(simhit.id(), subdet, zp, layer, sec, subsec, cell); 
+
+      for( const auto& simhit : ee_simhits ) {
+        HGCalTestNumbering::unpackHexagonIndex(simhit.id(), subdet, zp, layer, sec, subsec, cell);
         mysubdet = (ForwardSubdetector)(subdet);
         std::pair<int,int> recoLayerCell = triggerGeometry_->eeTopology().dddConstants().simToReco(cell,layer,sec,triggerGeometry_->eeTopology().detectorType());
         cell  = recoLayerCell.first;
@@ -277,9 +283,9 @@ simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, s
 
       //  FH
       layer=0; cell=0; sec=0; subsec=0; zp=0; subdet=0;
-      
-      for( const auto& simhit : fh_simhits ) { 
-        HGCalTestNumbering::unpackHexagonIndex(simhit.id(), subdet, zp, layer, sec, subsec, cell); 
+
+      for( const auto& simhit : fh_simhits ) {
+        HGCalTestNumbering::unpackHexagonIndex(simhit.id(), subdet, zp, layer, sec, subsec, cell);
         mysubdet = (ForwardSubdetector)(subdet);
         std::pair<int,int> recoLayerCell = triggerGeometry_->fhTopology().dddConstants().simToReco(cell,layer,sec,triggerGeometry_->fhTopology().detectorType());
         cell  = recoLayerCell.first;
@@ -289,14 +295,14 @@ simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, s
         }
         auto itr_insert = simhits_fh.emplace(HGCalDetId(mysubdet,zp,layer,subsec,sec,cell), 0.);
         itr_insert.first->second += simhit.energy();
-      }      
+      }
       //  BH
-      for( const auto& simhit : bh_simhits ) { 
+      for( const auto& simhit : bh_simhits ) {
         HcalDetId id = HcalHitRelabeller::relabel(simhit.id(), triggerGeometry_->bhTopology().dddConstants());
         if (id.subdetId()!=HcalEndcap) continue;
         auto itr_insert = simhits_bh.emplace(id, 0.);
         itr_insert.first->second += simhit.energy();
-      }      
+      }
 }
 
 
@@ -332,7 +338,3 @@ clear()
     bhdigi_data_.clear();
     if  (is_Simhit_comp_) bhdigi_simenergy_.clear();
 }
-
-
-
-
