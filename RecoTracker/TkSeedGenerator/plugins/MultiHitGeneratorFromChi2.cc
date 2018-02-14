@@ -227,9 +227,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
                                         const std::vector<const DetLayer *>& thirdLayerDetLayer,
                                         const int nThirdLayers,
                                         cacheHits& refittedHitStorage) {
+#ifdef EDM_ML_DEBUG
   unsigned int debug_Id0 = detIdsToDebug[0];
   unsigned int debug_Id1 = detIdsToDebug[1];
-#ifdef EDM_ML_DEBUG
   unsigned int debug_Id2 = detIdsToDebug[2];
 #endif  
 
@@ -276,7 +276,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
             auto angle = layer3.phi(i);
 	    auto myz = layer3.v[i];
 #ifdef EDM_ML_DEBUG
-             IfLogTrace(hi->hit()->rawId()==debug_Id2, "MultiHitGeneratorFromChi2") << "filling KDTree with hit in id=" << debug_Id2
+            IfLogTrace(hi->hit()->rawId()==debug_Id2, "MultiHitGeneratorFromChi2") << "filling KDTree with hit in id=" << debug_Id2
                                                                                    << " with pos: " << hi->hit()->globalPosition()
                                                                                    << " phi=" << hi->hit()->globalPosition().phi()
                                                                                    << " z=" << hi->hit()->globalPosition().z()
@@ -347,9 +347,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 
 #ifdef EDM_ML_DEBUG
     bool debugPair = oriHit0->rawId()==debug_Id0 && oriHit1->rawId()==debug_Id1;
-#endif
     IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << endl << endl
                                                        << "found new pair with ids "<<debug_Id0<<" "<<debug_Id1<<" with pos: " << gp0 << " " << gp1;
+#endif
 
     if (refitHits) {
 
@@ -551,11 +551,11 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 
 #ifdef EDM_ML_DEBUG
 	bool debugTriplet = debugPair && hit2->rawId()==debug_Id2;
-#endif
 	IfLogTrace(debugTriplet, "MultiHitGeneratorFromChi2") << endl << "triplet candidate in debug id" << std::endl
                                                               << "hit in id="<<hit2->rawId()<<" (from KDTree) with pos: " << KDdata->hit()->globalPosition()
                                                               << " refitted: " << hit2->globalPosition() 
                                                               << " chi2: " << chi2;
+#endif
 	// should fix nan
 	if ( (chi2 > maxChi2) | edm::isNotFinite(chi2) ) continue; 
 
