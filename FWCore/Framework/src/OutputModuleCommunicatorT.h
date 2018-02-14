@@ -7,6 +7,7 @@
 #include "FWCore/Framework/src/OutputModuleCommunicator.h"
 
 namespace edm {
+  class ActivityRegistry;
   class OutputModule;
   class ThinnedAssociationsHelper;
 
@@ -43,9 +44,13 @@ namespace edm {
     
     void openFile(edm::FileBlock const& fb) override;
     
-    void writeRun(edm::RunPrincipal const& rp, ProcessContext const*) override;
+    void writeRun(edm::RunPrincipal const& rp,
+                  ProcessContext const*,
+                  ActivityRegistry*) override;
     
-    void writeLumi(edm::LuminosityBlockPrincipal const& lbp, ProcessContext const*) override;
+    void writeLumi(edm::LuminosityBlockPrincipal const& lbp,
+                   ProcessContext const*,
+                   ActivityRegistry*) override;
     
     ///\return true if OutputModule has reached its limit on maximum number of events it wants to see
     bool limitReached() const override;
