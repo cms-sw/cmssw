@@ -347,9 +347,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 
 #ifdef EDM_ML_DEBUG
     bool debugPair = oriHit0->rawId()==debug_Id0 && oriHit1->rawId()==debug_Id1;
-    IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << endl << endl
-                                                       << "found new pair with ids "<<debug_Id0<<" "<<debug_Id1<<" with pos: " << gp0 << " " << gp1;
 #endif
+    IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << endl << endl
+                                                       << "found new pair with ids "<<oriHit0->rawId()<<" "<<oriHit1->rawId()<<" with pos: " << gp0 << " " << gp1;
 
     if (refitHits) {
 
@@ -551,11 +551,11 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMul
 
 #ifdef EDM_ML_DEBUG
 	bool debugTriplet = debugPair && hit2->rawId()==debug_Id2;
+#endif
 	IfLogTrace(debugTriplet, "MultiHitGeneratorFromChi2") << endl << "triplet candidate in debug id" << std::endl
                                                               << "hit in id="<<hit2->rawId()<<" (from KDTree) with pos: " << KDdata->hit()->globalPosition()
                                                               << " refitted: " << hit2->globalPosition() 
                                                               << " chi2: " << chi2;
-#endif
 	// should fix nan
 	if ( (chi2 > maxChi2) | edm::isNotFinite(chi2) ) continue; 
 
