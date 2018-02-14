@@ -24,7 +24,7 @@ phase2_tracker.toModify(simHitTPAssocProducer, simHitSrc = ["g4SimHits:TrackerHi
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(simHitTPAssocProducer,
-    simHitSrc = ["fastSimProducer:TrackerHits",
+    simHitSrc = ["famosSimHits:TrackerHits",
                  "MuonSimHits:MuonCSCHits",
                  "MuonSimHits:MuonDTHits",
                  "MuonSimHits:MuonRPCHits"]

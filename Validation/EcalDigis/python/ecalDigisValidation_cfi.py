@@ -12,4 +12,4 @@ ecalDigisValidation = DQMEDAnalyzer('EcalDigisValidation',
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(ecalDigisValidation, moduleLabelG4 = 'fastSimProducer')
+fastSim.toModify(ecalDigisValidation, moduleLabelG4 = 'famosSimHits')

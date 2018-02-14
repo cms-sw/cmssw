@@ -45,22 +45,26 @@ process.source = cms.Source("PoolSource",
 #fastsim
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 process.load("FastSimulation.Configuration.CommonInputs_cff")
+process.load("FastSimulation.Configuration.FamosSequences_cff")
 process.GlobalTag.globaltag = "MC_31X_V1::All"
 
 
-process.fastSimProducer.SimulateCalorimetry = True
-for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
-    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
-for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
-    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+process.famosSimHits.SimulateCalorimetry = True
+process.famosSimHits.SimulateTracking = True
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 
-process.fastSimProducer.VertexGenerator.BetaStar = 0.00001
-process.fastSimProducer.VertexGenerator.SigmaZ = 0.00001
+process.famosSimHits.VertexGenerator.BetaStar = 0.00001
+process.famosSimHits.VertexGenerator.SigmaZ = 0.00001
 
 # Parametrized magnetic field (new mapping, 4.0 and 3.8T)
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
+
+# process.famosSimHits.MaterialEffects.PairProduction = False
+# process.famosSimHits.MaterialEffects.Bremsstrahlung = False
+# process.famosSimHits.MaterialEffects.EnergyLoss = False
+# process.famosSimHits.MaterialEffects.MultipleScattering = False
+# process.famosSimHits.MaterialEffects.NuclearInteraction = False
 
 process.load("RecoParticleFlow.PFProducer.particleFlowSimParticle_cff")
 process.load("Validation.RecoParticleFlow.tauBenchmarkGeneric_cff")

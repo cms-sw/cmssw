@@ -9,9 +9,7 @@ ParticleFilterBlock = cms.PSet(
         # Charged particles with pT < pTMin (GeV/c) are not simulated
         chargedPtMin = cms.double(0.1),
         # Particles must have energy greater than EMin [GeV]
-        EMin = cms.double(0.1),
-        # List of invisible particles (abs of pdgid)
-        invisibleParticles = cms.vint32()
+        EMin = cms.double(0.1)
         )
     )
 

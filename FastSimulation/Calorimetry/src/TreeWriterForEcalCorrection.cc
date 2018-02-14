@@ -24,13 +24,13 @@
 class TreeWriterForEcalCorrection : public edm::EDAnalyzer {
   public:
     explicit TreeWriterForEcalCorrection(const edm::ParameterSet&);
-    ~TreeWriterForEcalCorrection() override{};
+    ~TreeWriterForEcalCorrection(){};
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
   private:
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     edm::Service<TFileService> file;
     TTree* tree;
@@ -74,10 +74,10 @@ TreeWriterForEcalCorrection::analyze(const edm::Event& iEvent, const edm::EventS
   edm::Handle<edm::PCaloHitContainer> SimHitsES;
 
   // Finds out automatically, if this is fullsim or fastsim
-  bool isFastSim = iEvent.getByLabel( "fastSimProducer", "EcalHitsEB", SimHitsEB );
+  bool isFastSim = iEvent.getByLabel( "famosSimHits", "EcalHitsEB", SimHitsEB );
   if( isFastSim ) {
-    iEvent.getByLabel( "fastSimProducer", "EcalHitsEE", SimHitsEE );
-    iEvent.getByLabel( "fastSimProducer", "EcalHitsES", SimHitsES );
+    iEvent.getByLabel( "famosSimHits", "EcalHitsEE", SimHitsEE );
+    iEvent.getByLabel( "famosSimHits", "EcalHitsES", SimHitsES );
   } else {
     iEvent.getByLabel( "g4SimHits", "EcalHitsEB", SimHitsEB );
     iEvent.getByLabel( "g4SimHits", "EcalHitsEE", SimHitsEE );

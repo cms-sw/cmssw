@@ -63,11 +63,8 @@ process.schedule.append(process.reconstruction)
 # Simulation sequence
 process.simulation = cms.Sequence(process.simulationWithFamos)
 # You many not want to simulate everything
-process.fastSimProducer.SimulateCalorimetry = True
-for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
-    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
-for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
-    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+process.famosSimHits.SimulateCalorimetry = True
+process.famosSimHits.SimulateTracking = True
 # Parameterized magnetic field
 process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # Number of pileup events per crossing
@@ -78,15 +75,15 @@ process.GlobalTag.globaltag = "IDEAL_31X::All"
 
 
 # Set the early collions 10TeV parameters (as in the standard RelVals)
-process.fastSimProducer.VertexGenerator.SigmaZ=cms.double(3.8)
-process.fastSimProducer.VertexGenerator.Emittance = cms.double(7.03e-08)
-process.fastSimProducer.VertexGenerator.BetaStar = cms.double(300.0)
+process.famosSimHits.VertexGenerator.SigmaZ=cms.double(3.8)
+process.famosSimHits.VertexGenerator.Emittance = cms.double(7.03e-08)
+process.famosSimHits.VertexGenerator.BetaStar = cms.double(300.0)
 
 # Apply ECAL and HCAL miscalibration 
 process.caloRecHits.RecHitsFactory.doMiscalib = False
 
 # Apply Tracker misalignment
-process.fastSimProducer.detectorDefinition.trackerAlignmentLabel = cms.untracked.string("MisAligned")
+process.famosSimHits.ApplyAlignment = True
 process.misalignedTrackerGeometry.applyAlignment = True
 
 # Apply HCAL miscalibration (not ideal in that case).

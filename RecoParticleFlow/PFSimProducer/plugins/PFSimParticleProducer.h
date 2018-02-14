@@ -65,8 +65,8 @@ class PFSimParticleProducer : public edm::stream::EDProducer<> {
   //MC Truth Matching 
   //modif-beg
   bool mctruthMatchingInfo_;
-  edm::InputTag    inputTagFastSimProducer_;
-  edm::EDGetTokenT<edm::PCaloHitContainer>    tokenFastSimProducer_;
+  edm::InputTag    inputTagFamosSimHits_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>    tokenFamosSimHits_;
   //modif-end
 
   edm::InputTag   inputTagRecTracks_;

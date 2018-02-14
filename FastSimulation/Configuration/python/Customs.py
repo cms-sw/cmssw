@@ -30,9 +30,11 @@ def fakeSimHits_for_geometry_ECALHCAL(process):
     return process
 
 def disableMaterialInteractionsTracker(process):
-    for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
-        layer.interactionModels = cms.untracked.vstring("trackerSimHits")
-    for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
-        layer.interactionModels = cms.untracked.vstring("trackerSimHits")
+    process.famosSimHits.MaterialEffects.Bremsstrahlung = False
+    process.famosSimHits.MaterialEffects.NuclearInteraction = False
+    process.famosSimHits.MaterialEffects.PairProduction = False
+    process.famosSimHits.MaterialEffects.MuonBremsstrahlung = False
+    process.famosSimHits.MaterialEffects.MultipleScattering = False
+    process.famosSimHits.MaterialEffects.EnergyLoss = False
     return process
 
