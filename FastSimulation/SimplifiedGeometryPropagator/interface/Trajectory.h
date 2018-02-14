@@ -83,6 +83,7 @@ namespace fastsim
             \param deltaTimeC Time in units of t*c..
         */
         virtual void move(double deltaTimeC) = 0;
+	virtual ~Trajectory();
 
         protected:
         //! Constructor of base class.
