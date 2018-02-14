@@ -30,6 +30,7 @@ namespace gpuPixelRecHits {
 			  int32_t * const  clus,
 			  int numElements,
 			  uint32_t const * hitsModuleStart,
+                          int32_t * chargeh,
 			  float * xh, float * yh, float * zh,
 			  bool local // if true fill just x & y in local coord...
 			  ){
@@ -62,6 +63,8 @@ namespace gpuPixelRecHits {
       clusParams.minCol[ic] = std::numeric_limits<uint32_t>::max();
       clusParams.maxCol[ic] = 0;
       
+      clusParams.charge[ic] = 0;
+
       clusParams.Q_f_X[ic] = 0;
       clusParams.Q_l_X[ic] = 0;
       clusParams.Q_f_Y[ic] = 0;
@@ -91,6 +94,7 @@ namespace gpuPixelRecHits {
     for (int i=first; i<numElements; i+=blockDim.x) {
       if (id[i]==InvId) continue;  // not valid
       if (id[i]!=me) break;  // end of module
+      atomicAdd(&clusParams.charge[clus[i]],adc[i]);
       if (clusParams.minRow[clus[i]]==x[i]) atomicAdd(&clusParams.Q_f_X[clus[i]],adc[i]); 
       if (clusParams.maxRow[clus[i]]==x[i]) atomicAdd(&clusParams.Q_l_X[clus[i]],adc[i]); 
       if (clusParams.minCol[clus[i]]==y[i]) atomicAdd(&clusParams.Q_f_Y[clus[i]],adc[i]);
@@ -108,6 +112,8 @@ namespace gpuPixelRecHits {
     assert(h<2000*256);
 
     pixelCPEforGPU::position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams,ic);
+
+    chargeh[h] = clusParams.charge[ic];
 
     if (local) {   
      xh[h]= clusParams.xpos[ic];   

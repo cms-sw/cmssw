@@ -63,6 +63,8 @@ namespace pixelCPEforGPU {
     int32_t Q_l_X[N];
     int32_t Q_f_Y[N];
     int32_t Q_l_Y[N];
+    
+    int32_t charge[N];
 
     float xpos[N];
     float ypos[N];

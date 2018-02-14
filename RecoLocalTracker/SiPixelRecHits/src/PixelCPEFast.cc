@@ -123,7 +123,7 @@ void PixelCPEFast::fillParamsForGpu() {
 
     if (oldLayer != g.layer) {
       oldLayer = g.layer;
-      std::cout << "new layer at " << i << (g.isBarrel ? " B  " :  (g.isPosZ ? " E+ " : " E- ")) << g.layer << std::endl;
+      std::cout << "new layer at " << i << (g.isBarrel ? " B  " :  (g.isPosZ ? " E+ " : " E- ")) << g.layer << " starting at " << g.rawId << std::endl;
     }
 
     g.shiftX = 0.5f*p.lorentzShiftInCmX;

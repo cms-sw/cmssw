@@ -11,6 +11,7 @@ struct context;
 struct HitsOnGPU{
 
    uint32_t * hitsModuleStart_d;
+   int32_t  * charge_d;
    float *xg_d, *yg_d, *zg_d;
 };
 

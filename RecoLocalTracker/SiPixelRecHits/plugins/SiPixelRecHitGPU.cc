@@ -157,6 +157,8 @@ using namespace std;
     // Step C: Iterate over DetIds and invoke the strip CPE algorithm
     // on each DetUnit
 
+    std::cout << "Number of Clusers on CPU " << (*input).data().size() << std::endl;
+
     run( input, *output, geom );
 
     output->shrink_to_fit();

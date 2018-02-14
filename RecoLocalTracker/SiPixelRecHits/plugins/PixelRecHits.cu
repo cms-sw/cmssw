@@ -15,6 +15,7 @@
 HitsOnGPU allocHitsOnGPU() {
    HitsOnGPU hh;
    cudaCheck(cudaMalloc((void**) & hh.hitsModuleStart_d,(gpuClustering::MaxNumModules+1)*sizeof(uint32_t)));
+   cudaCheck(cudaMalloc((void**) & hh.charge_d,(gpuClustering::MaxNumModules*256)*sizeof(float)));
    cudaCheck(cudaMalloc((void**) & hh.xg_d,(gpuClustering::MaxNumModules*256)*sizeof(float)));
    cudaCheck(cudaMalloc((void**) & hh.yg_d,(gpuClustering::MaxNumModules*256)*sizeof(float)));
    cudaCheck(cudaMalloc((void**) & hh.zg_d,(gpuClustering::MaxNumModules*256)*sizeof(float)));
@@ -57,8 +58,16 @@ void pixelRecHits_wrapper(
                c.clus_d,
                ndigis,
                hh.hitsModuleStart_d,
+               hh.charge_d,
                hh.xg_d,hh.yg_d,hh.zg_d,
                false
   );
 
+  int32_t charge[nhits];
+  cudaCheck(cudaMemcpyAsync(charge, hh.charge_d, nhits*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
+  int ngood=0;
+  for (auto i=0U; i<nhits; ++i) if(charge[i]>4000) ++ngood;
+  std::cout << " total number of good clusters " << ngood << std::endl;
+
+   
 }
