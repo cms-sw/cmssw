@@ -319,7 +319,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     fMasterGen.reset(new Pythia);
     fDire.reset(new Pythia8::Dire());
     fDire->initSettings(*fMasterGen.get());
-    fDire->initShowersAndWeights(*fMasterGen.get(), NULL, NULL);
+    fDire->initShowersAndWeights(*fMasterGen.get(), nullptr, nullptr);
   }
 
 }
@@ -585,7 +585,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     fMasterGen->setUserHooksPtr(fMultiUserHook.get());
   }  
   
-  if(LHEInputFileName != std::string()) {
+  if(!LHEInputFileName.empty()) {
 
     edm::LogInfo("Pythia8Interface") << "Initialize direct pythia8 reading from LHE file "
                                      << LHEInputFileName;
@@ -789,7 +789,7 @@ bool Pythia8Hadronizer::hadronize()
   DJR.resize(0);
   nME = -1;
   nMEFiltered = -1;
-  if(LHEInputFileName == std::string()) lhaUP->loadEvent(lheEvent());
+  if(LHEInputFileName.empty()) lhaUP->loadEvent(lheEvent());
 
   if ( fJetMatchingHook.get() ) 
   {
