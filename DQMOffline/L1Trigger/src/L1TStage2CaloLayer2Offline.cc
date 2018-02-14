@@ -740,7 +740,7 @@ bool L1TStage2CaloLayer2Offline::doesNotOverlapWithHLTObjects(const l1t::Jet & j
   double l1Phi = jet.phi();
   const trigger::TriggerObjectCollection matchedObjects = getMatchedTriggerObjects(l1Eta, l1Phi, 0.3, hltObjects);
 
-  return matchedObjects.size() == 0;
+  return matchedObjects.empty();
 }
 
 //define this as a plug-in

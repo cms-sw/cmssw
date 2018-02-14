@@ -424,7 +424,7 @@ bool L1TEGammaOffline::matchesAnHLTObject(double eta, double phi) const{
   const trigger::TriggerObjectCollection hltObjects = getTriggerObjects(hltFilters, triggerEvent_);
   const trigger::TriggerObjectCollection matchedObjects = getMatchedTriggerObjects(eta, phi, 0.3, hltObjects);
 
-  return matchedObjects.size() > 0;
+  return !matchedObjects.empty();
 }
 
 void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVertex)
