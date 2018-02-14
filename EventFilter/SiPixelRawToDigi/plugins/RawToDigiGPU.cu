@@ -659,11 +659,7 @@ void RawToDigi_wrapper(
                wordCounter
              );
 
-  cudaDeviceSynchronize();
-
   cudaCheck(cudaGetLastError());
-  cudaDeviceSynchronize();
-
 
   std::cout
     << "CUDA countModules kernel launch with " << blocks
@@ -711,6 +707,7 @@ void RawToDigi_wrapper(
   );
 
   cudaDeviceSynchronize();
+  cudaCheck(cudaGetLastError());
 
   nModulesActive = nModules;
 

@@ -66,7 +66,8 @@ void pixelRecHits_wrapper(
   int32_t charge[nhits];
   cudaCheck(cudaMemcpyAsync(charge, hh.charge_d, nhits*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
   int ngood=0;
-  for (auto i=0U; i<nhits; ++i) if(charge[i]>4000) ++ngood;
+  auto l1 = hitsModuleStart[96];
+  for (auto i=0U; i<nhits; ++i) if( charge[i]>4000 || (i<l1 &&charge[i]>2000) ) ++ngood;
   std::cout << " total number of good clusters " << ngood << std::endl;
 
    
