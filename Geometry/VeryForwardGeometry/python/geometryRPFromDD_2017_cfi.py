@@ -106,11 +106,11 @@ ctppsDiamondGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment3.xml',
     'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment4.xml',
     'Geometry/VeryForwardData/data/CTPPS_Diamond_Segments/CTPPS_Diamond_Pattern4_Segment5.xml',
-    'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane1.xml',
-    'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane2.xml',
-    'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane3.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Diamond_2017/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane1.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Diamond_2017/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane2.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Diamond_2017/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane3.xml',
     #'Geometry/VeryForwardData/data/CTPPS_Diamond_Planes/CTPPS_Diamond_Plane4.xml',
-    'Geometry/VeryForwardData/data/CTPPS_Diamond_Detector_Assembly.xml'
+    'Geometry/VeryForwardData/data/CTPPS_Diamond_2017/CTPPS_Diamond_Detector_Assembly.xml'
 )
 
 # UFSD files
@@ -129,8 +129,8 @@ ctppsPixelGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/ppstrackerMaterials.xml',
     'Geometry/VeryForwardData/data/CTPPS_Pixel_Module.xml',
     'Geometry/VeryForwardData/data/CTPPS_Pixel_Module_2x2.xml',
-    'Geometry/VeryForwardData/data/CTPPS_Pixel_Assembly_Box_Real_023.xml',
-    'Geometry/VeryForwardData/data/CTPPS_Pixel_Assembly_Box_Real_123.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Pixel_2017/CTPPS_Pixel_Assembly_Box_Real_023.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Pixel_2017/CTPPS_Pixel_Assembly_Box_Real_123.xml',
     'Geometry/VeryForwardData/data/CTPPS_Pixel_Sens.xml'
 )
 
