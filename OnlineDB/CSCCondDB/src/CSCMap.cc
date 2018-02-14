@@ -43,7 +43,7 @@
 
     stmt->execute(); //execute procedure
 
-    *chamber_id = stmt->getString(3);
+    *chamber_id = getOraString(stmt,3);
     *chamber_num = stmt->getInt(4);
     *chamber_index = stmt->getInt(5);
     *first_strip_index = stmt->getInt(6);
@@ -71,7 +71,7 @@
 
     stmt->execute(); //execute procedure
 
-    *chamber_id = stmt->getString(3);
+    *chamber_id = getOraString(stmt,3);
     *chamber_num = stmt->getInt(4);
     *chamber_index = stmt->getInt(5);
     *first_strip_index = stmt->getInt(6);

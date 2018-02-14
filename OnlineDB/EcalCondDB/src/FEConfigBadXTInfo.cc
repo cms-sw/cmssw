@@ -50,7 +50,7 @@ int FEConfigBadXTInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigBadXTInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigBadXTInfo::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -74,7 +74,7 @@ void FEConfigBadXTInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigBadXTInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigBadXTInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -110,7 +110,7 @@ void FEConfigBadXTInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigBadXTInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigBadXTInfo::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -161,11 +161,11 @@ void FEConfigBadXTInfo::fetchData(FEConfigBadXTInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigBadXTInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigBadXTInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -195,7 +195,7 @@ int FEConfigBadXTInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigBadXTInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigBadXTInfo::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

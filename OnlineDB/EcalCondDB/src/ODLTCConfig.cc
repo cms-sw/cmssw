@@ -47,7 +47,7 @@ int ODLTCConfig::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTCConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTCConfig::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -92,7 +92,7 @@ void ODLTCConfig::prepareWrite()
 
     
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTCConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTCConfig::prepareWrite():  ")+getOraMessage(&e)));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
@@ -176,7 +176,7 @@ void ODLTCConfig::writeDB()
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTCConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTCConfig::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -218,8 +218,8 @@ void ODLTCConfig::fetchData(ODLTCConfig * result)
     // 1 is the id and 2 is the config tag
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
-    result->setLTCConfigurationFile(rset->getString(3));
+    result->setConfigTag(getOraString(rset,2));
+    result->setLTCConfigurationFile(getOraString(rset,3));
   
 
     Clob clob = rset->getClob (4);
@@ -239,7 +239,7 @@ void ODLTCConfig::fetchData(ODLTCConfig * result)
     result->setLTCClob(buffer );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTCConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTCConfig::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -270,7 +270,7 @@ int ODLTCConfig::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTCConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTCConfig::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

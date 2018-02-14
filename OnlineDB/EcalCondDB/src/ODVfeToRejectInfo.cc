@@ -50,7 +50,7 @@ int ODVfeToRejectInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODVfeToRejectInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODVfeToRejectInfo::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -74,7 +74,7 @@ void ODVfeToRejectInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODVfeToRejectInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODVfeToRejectInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -110,7 +110,7 @@ void ODVfeToRejectInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODVfeToRejectInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODVfeToRejectInfo::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -172,11 +172,11 @@ void ODVfeToRejectInfo::fetchData(ODVfeToRejectInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODVfeToRejectInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODVfeToRejectInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -206,7 +206,7 @@ int ODVfeToRejectInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODVfeToRejectInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODVfeToRejectInfo::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
