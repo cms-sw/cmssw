@@ -13,17 +13,17 @@
  <version ClassVersion="3" checksum="569767420"/>
 </class>
 <class name="std::vector<GEMVfatStatusDigi>"/>
-<class name="std::map<uint8_t,std::vector<GEMVfatStatusDigi> >"/>
-<class name="MuonDigiCollection<uint8_t,GEMVfatStatusDigi>"/> 
-<class name="edm::Wrapper<MuonDigiCollection<uint8_t,GEMVfatStatusDigi> >" splitLevel="0"/> 
+<class name="std::map<uint16_t,std::vector<GEMVfatStatusDigi> >"/>
+<class name="MuonDigiCollection<uint16_t,GEMVfatStatusDigi>"/> 
+<class name="edm::Wrapper<MuonDigiCollection<uint16_t,GEMVfatStatusDigi> >" splitLevel="0"/> 
 
 <class name="GEMGEBStatusDigi" ClassVersion="3">
  <version ClassVersion="3" checksum="3352362623"/>
 </class>
 <class name="std::vector<GEMGEBStatusDigi>"/>
-<class name="std::map<uint8_t,std::vector<GEMGEBStatusDigi> >"/>
-<class name="MuonDigiCollection<uint8_t,GEMGEBStatusDigi>"/>
-<class name="edm::Wrapper<MuonDigiCollection<uint8_t,GEMGEBStatusDigi> >" splitLevel="0"/>
+<class name="std::map<uint16_t,std::vector<GEMGEBStatusDigi> >"/>
+<class name="MuonDigiCollection<uint16_t,GEMGEBStatusDigi>"/>
+<class name="edm::Wrapper<MuonDigiCollection<uint16_t,GEMGEBStatusDigi> >" splitLevel="0"/>
 
 <class name="GEMAMCStatusDigi" ClassVersion="-1">
   <version ClassVersion="-1" checksum="2990326637"/>
