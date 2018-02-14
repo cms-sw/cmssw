@@ -77,7 +77,7 @@ void L1TEGammaOffline::dqmBeginRun(edm::Run const & iRun, edm::EventSetup const 
   edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::beginRun" << std::endl;
   bool changed(true);
   if (!hltConfig_.init(iRun, iSetup, triggerProcess_, changed)) {
-    edm::LogError("L1TStage2CaloLayer2Offline")
+    edm::LogError("L1TEGammaOffline")
         << " HLT config extraction failure with process name "
         << triggerProcess_<< std::endl;
     triggerNames_.clear();
