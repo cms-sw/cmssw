@@ -37,41 +37,6 @@ trackerDict = {
     "abbrev" : "T",
     "name" : "tracker",
     "default" : 5,
-    "T4" : {
-        1 : [
-	    'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
-            'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/FlatTracker/pixfwd.xml', 
-            'Geometry/TrackerCommonData/data/PhaseII/FlatTracker/pixbar.xml', 
-            'Geometry/TrackerCommonData/data/trackermaterial.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/FlatTracker/tracker.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/FlatTracker/pixel.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/FlatTracker/trackerbar.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/FlatTracker/trackerfwd.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/FlatTracker/trackerStructureTopology.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/FlatTracker/pixelStructureTopology.xml',
-            'Geometry/TrackerSimData/data/PhaseII/FlatTracker/trackersens.xml',
-            'Geometry/TrackerSimData/data/PhaseII/FlatTracker/pixelsens.xml',
-            'Geometry/TrackerRecoData/data/PhaseII/FlatTracker/trackerRecoMaterial.xml',
-            'Geometry/TrackerSimData/data/PhaseII/FlatTracker/trackerProdCuts.xml',
-            'Geometry/TrackerSimData/data/PhaseII/FlatTracker/pixelProdCuts.xml',
-            'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
-
-        ],
-        "sim" : [
-            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
-            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkFlat_cff import *',
-        ],
-        "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
-            'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
-            'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
-        ],
-        "era" : "phase2_tracker, trackingPhase2PU140",
-    },
     "T5" : {
         1 : [
             'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
@@ -334,9 +299,8 @@ allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDic
 detectorVersionDict = {
     ("O2","T5","C3","M2","F2","I1") : "D17",
     ("O2","T5","C3","M2","F2","I2") : "D19",
-    ("O2","T4","C3","M2","F2","I1") : "D20",
     ("O2","T6","C3","M2","F2","I1") : "D21",
 }
 
-deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D18" ])
-deprecatedSubdets = set([ "T1", "T2" ,"T3", "C1", "C2", "M1", "O1", "F1" ])
+deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D18","D20" ])
+deprecatedSubdets = set([ "T1", "T2" ,"T3", "T4", "C1", "C2", "M1", "O1", "F1" ])
