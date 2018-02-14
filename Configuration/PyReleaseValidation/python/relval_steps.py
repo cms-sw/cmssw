@@ -2225,7 +2225,6 @@ defaultDataSets['2018']='CMSSW_10_0_0_pre2-100X_upgrade2018_realistic_v1-v'
 #defaultDataSets['2019Design']=''
 defaultDataSets['2023D17']=''
 defaultDataSets['2023D19']=''
-defaultDataSets['2023D20']=''
 defaultDataSets['2023D21']=''
 
 keys=defaultDataSets.keys()
