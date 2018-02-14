@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 class DQMEDAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks>
@@ -20,23 +21,23 @@ public:
   void beginRun(edm::Run const& run, edm::EventSetup const& setup) final
   {
     dqmBeginRun(run, setup);
-    DQMStore * store = edm::Service<DQMStore>().operator->();
-    store->bookTransaction(
+    edm::Service<DQMStore>()->bookTransaction(
       [this, &run, &setup](DQMStore::IBooker & booker)
       {
         booker.cd();
         this->bookHistograms(booker, run, setup);
       },
-      run.run());
+      run.run(),
+      run.moduleCallingContext()->moduleDescription()->id());
   }
 
-  void endRun(edm::Run const& run, edm::EventSetup const& setup)
+  void endRun(edm::Run const& run, edm::EventSetup const& setup) override
   { }
 
-  void beginLuminosityBlock(edm::LuminosityBlock const& run, edm::EventSetup const& setup)
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override
   { }
 
-  void endLuminosityBlock(edm::LuminosityBlock const& run, edm::EventSetup const& setup)
+  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override
   { }
 
   virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}

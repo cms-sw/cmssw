@@ -352,17 +352,19 @@ class DQMStore
   // into the DQMStore via a public API. The central mutex is acquired
   // *before* invoking and automatically released upon returns.
   template <typename iFunc>
-  void bookTransaction(iFunc f, uint32_t run) {
+  void bookTransaction(iFunc f, uint32_t run, uint32_t moduleId) {
     std::lock_guard<std::mutex> guard(book_mutex_);
-    /* Set the run_ member only if enableMultiThread is enabled */
+    /* Set the run number and module id only if multithreading is enabled */
     if (enableMultiThread_) {
       run_ = run;
+      moduleId_ = moduleId;
     }
     f(*ibooker_);
 
-    /* Reset the run_ member only if enableMultiThread is enabled */
+    /* Reset the run number and module id only if multithreading is enabled */
     if (enableMultiThread_) {
       run_ = 0;
+      moduleId_ = 0;
     }
   }
 
@@ -678,9 +680,9 @@ class DQMStore
   bool                          mtEnabled() { return enableMultiThread_; };
 
 
+ public:
   // -------------------------------------------------------------------------
   // ---------------------- Public print methods -----------------------------
- public:
   void                          showDirStructure() const;
 
   // ---------------------- Public check options -----------------------------
@@ -727,7 +729,8 @@ class DQMStore
   MonitorElement *              findObject(const std::string &dir,
                                            const std::string &name,
                                            const uint32_t run = 0,
-                                           const uint32_t lumi = 0) const;
+                                           const uint32_t lumi = 0,
+                                           const uint32_t moduleId = 0) const;
 
   void                          get_info(const  dqmstorepb::ROOTFilePB_Histo &,
                                          std::string & dirname,
@@ -741,10 +744,11 @@ class DQMStore
                                                uint32_t lumi = 0) const;
   std::vector<MonitorElement*>  getMatchingContents(const std::string &pattern, lat::Regexp::Syntax syntaxType = lat::Regexp::Wildcard) const;
 
+  // lumisection based histograms manipulations
+  void cloneLumiHistograms(uint32_t run, uint32_t lumi, uint32_t moduleId);
   void deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi);
 
  private:
-
   // ---------------- Miscellaneous -----------------------------
   void        initializeFrom(const edm::ParameterSet&);
   void        reset();
@@ -843,6 +847,7 @@ class DQMStore
   bool                          forceResetOnBeginLumi_;
   std::string                   readSelectedDirectory_;
   uint32_t                      run_;
+  uint32_t                      moduleId_;
   std::ofstream *               stream_;
 
   std::string                   pwd_;
