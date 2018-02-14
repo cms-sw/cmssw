@@ -132,7 +132,7 @@ namespace evf {
       {
 	bu_run_dir_ = base_dir_ + "/" + run_string_;
 	std::string bulockfile = bu_run_dir_ + "/bu.lock";
-	std::string fulockfile = bu_run_dir_ + "/fu.lock";
+	fulockfile_ = bu_run_dir_ + "/fu.lock";
 
 	//make or find bu run dir
 	retval = mkdir(bu_run_dir_.c_str(),
@@ -166,7 +166,7 @@ namespace evf {
 
 	// BU INITIALIZES LOCK FILE
 	// FU LOCK FILE OPEN
-	openFULockfileStream(fulockfile, true);
+	openFULockfileStream(true);
 	tryInitializeFuLockFile();
 	fflush(fu_rw_lock_stream);
 	close(fu_readwritelock_fd_);
@@ -205,8 +205,8 @@ namespace evf {
 	}
 
 	bu_run_dir_ = bu_base_dir_ + "/" + run_string_;
-	std::string fulockfile = bu_run_dir_ + "/fu.lock";
-	openFULockfileStream(fulockfile, false);
+	fulockfile_ = bu_run_dir_ + "/fu.lock";
+	openFULockfileStream(false);
       }
 
     pthread_mutex_init(&init_lock_,nullptr);
@@ -436,6 +436,7 @@ namespace evf {
 
     int retval = -1;
     int lock_attempts = 0;
+    long total_lock_attempts = 0;
 
     struct stat buf;
     int stopFileLS = -1;
@@ -459,7 +460,6 @@ namespace evf {
 
     timeval ts_lockbegin;
     gettimeofday(&ts_lockbegin,nullptr);
-    long total_lock_attempts = 0;
 
     while (retval==-1) {
       retval = fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_flk);
@@ -483,7 +483,8 @@ namespace evf {
         }
 
         if (stat(bu_run_dir_.c_str(), &buf)!=0) return runEnded;
-        if (stat((bu_run_dir_+"/fu.lock").c_str(), &buf)!=0) return runEnded;
+        if (stat(fulockfile_.c_str(), &buf)!=0) return runEnded;
+
         lock_attempts=0;
       }
       if (total_lock_attempts>5*60000000) {
@@ -497,8 +498,6 @@ namespace evf {
     long deltat = (ts_lockend.tv_usec-ts_lockbegin.tv_usec) + (ts_lockend.tv_sec-ts_lockbegin.tv_sec)*1000000;
     if (deltat>0.) lockWaitTime=deltat;
 
-    
- 
     if(retval!=0) return fileStatus;
 
 #ifdef DEBUG
@@ -506,16 +505,24 @@ namespace evf {
     gettimeofday(&ts_lockend,0);
 #endif
 
+    //open another lock file FD after the lock using main fd has been acquired
+    int fu_readwritelock_fd2 = open(fulockfile_.c_str(), O_RDWR, S_IRWXU);
+    if (fu_readwritelock_fd2 == -1)
+      edm::LogError("EvFDaqDirector") << "problem with creating filedesc for fuwritelock -: " << fulockfile_
+                                      << " create. error:" << strerror(errno);
+
+    FILE * fu_rw_lock_stream2 = fdopen(fu_readwritelock_fd2, "r+");
+ 
     // if the stream is readable
-    if (fu_rw_lock_stream != nullptr) {
+    if (fu_rw_lock_stream2 != nullptr) {
       unsigned int readLs, readIndex;
       int check = 0;
       // rewind the stream
-      check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
+      check = fseek(fu_rw_lock_stream2, 0, SEEK_SET);
       // if rewinded ok
       if (check == 0) {
 	// read its' values
-	fscanf(fu_rw_lock_stream, "%u %u", &readLs, &readIndex);
+	fscanf(fu_rw_lock_stream2, "%u %u", &readLs, &readIndex);
 	edm::LogInfo("EvFDaqDirector") << "Read fu.lock file file -: " << readLs << ":" << readIndex;
 
         unsigned int currentLs = readLs;
@@ -549,13 +556,13 @@ namespace evf {
         }
 	if (bumpedOk) {
 	  // there is a new index file to grab, lock file needs to be updated
-	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
+	  check = fseek(fu_rw_lock_stream2, 0, SEEK_SET);
 	  if (check == 0) {
-	    ftruncate(fu_readwritelock_fd_, 0);
+	    ftruncate(fu_readwritelock_fd2, 0);
 	    // write next index in the file, which is the file the next process should take
-	    fprintf(fu_rw_lock_stream, "%u %u", readLs, readIndex + 1);
-	    fflush(fu_rw_lock_stream);
-	    fsync(fu_readwritelock_fd_);
+	    fprintf(fu_rw_lock_stream2, "%u %u", readLs, readIndex + 1);
+	    fflush(fu_rw_lock_stream2);
+	    fsync(fu_readwritelock_fd2);
 	    fileStatus = newFile;
 	    LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":" << readIndex + 1;
 	  }
@@ -565,13 +572,13 @@ namespace evf {
 	}
         else if (currentLs < readLs) {
           //there is no new file in next LS (yet), but lock file can be updated to the next LS
-	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
+	  check = fseek(fu_rw_lock_stream2, 0, SEEK_SET);
 	  if (check == 0) {
-	    ftruncate(fu_readwritelock_fd_, 0);
+	    ftruncate(fu_readwritelock_fd2, 0);
 	    // in this case LS was bumped, but no new file. Thus readIndex is 0 (set by bumpFile)
-	    fprintf(fu_rw_lock_stream, "%u %u", readLs, readIndex);
-	    fflush(fu_rw_lock_stream);
-	    fsync(fu_readwritelock_fd_);
+	    fprintf(fu_rw_lock_stream2, "%u %u", readLs, readIndex);
+	    fflush(fu_rw_lock_stream2);
+	    fsync(fu_readwritelock_fd2);
 	    LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":" << readIndex;
 	  }
           else {
@@ -584,6 +591,7 @@ namespace evf {
     } else {
       edm::LogError("EvFDaqDirector") << "fu read/write lock stream is invalid " << strerror(errno);
     }
+    fclose(fu_rw_lock_stream2);// = fdopen(fu_readwritelock_fd2, "r+");
 
 #ifdef DEBUG
     timeval ts_preunlock;
@@ -767,22 +775,25 @@ namespace evf {
     }
   }
 
-  void EvFDaqDirector::openFULockfileStream(std::string& fulockfile, bool create) {
+  void EvFDaqDirector::openFULockfileStream(bool create) {
     if (create) {
-      fu_readwritelock_fd_ = open(fulockfile.c_str(), O_RDWR | O_CREAT,
+      fu_readwritelock_fd_ = open(fulockfile_.c_str(), O_RDWR | O_CREAT,
 				  S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);
-      chmod(fulockfile.c_str(),0766);
+      chmod(fulockfile_.c_str(),0766);
     } else {
-      fu_readwritelock_fd_ = open(fulockfile.c_str(), O_RDWR, S_IRWXU);
+      fu_readwritelock_fd_ = open(fulockfile_.c_str(), O_RDWR, S_IRWXU);
     }
     if (fu_readwritelock_fd_ == -1)
-      edm::LogError("EvFDaqDirector") << "problem with creating filedesc for fuwritelock -: " << fulockfile.c_str()
+      edm::LogError("EvFDaqDirector") << "problem with creating filedesc for fuwritelock -: " << fulockfile_
                                       << " create:" << create << " error:" << strerror(errno);
     else
       LogDebug("EvFDaqDirector") << "creating filedesc for fureadwritelock -: "
 		<< fu_readwritelock_fd_;
 
     fu_rw_lock_stream = fdopen(fu_readwritelock_fd_, "r+");
+    if (fu_rw_lock_stream == NULL)
+      edm::LogError("EvFDaqDirector") << "problem with opening fuwritelock file stream -: " << strerror(errno);
+
   }
 
   void EvFDaqDirector::lockInitLock() {
