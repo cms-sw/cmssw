@@ -791,7 +791,7 @@ namespace evf {
 		<< fu_readwritelock_fd_;
 
     fu_rw_lock_stream = fdopen(fu_readwritelock_fd_, "r+");
-    if (fu_rw_lock_stream == NULL)
+    if (fu_rw_lock_stream == nullptr)
       edm::LogError("EvFDaqDirector") << "problem with opening fuwritelock file stream -: " << strerror(errno);
 
   }
@@ -926,12 +926,12 @@ namespace evf {
       }
     }
     //return empty if strict check parameter is not on
-    if (!requireTSPSet_ && (selectedTransferMode_=="" || selectedTransferMode_=="null")) {
+    if (!requireTSPSet_ && (selectedTransferMode_.empty() || selectedTransferMode_=="null")) {
       edm::LogWarning("EvFDaqDirector") << "Selected mode string is not provided as DaqDirector parameter."
                                         << "Switch on requireTSPSet parameter to enforce this requirement. Setting mode to empty string.";
       return std::string("Failsafe");
     }
-    if (requireTSPSet_ && (selectedTransferMode_=="" || selectedTransferMode_=="null")) {
+    if (requireTSPSet_ && (selectedTransferMode_.empty() || selectedTransferMode_=="null")) {
       throw cms::Exception("EvFDaqDirector") << "Selected mode string is not provided as DaqDirector parameter.";
     }
     //check if stream has properly listed transfer stream
@@ -951,7 +951,7 @@ namespace evf {
     std::string ret;
     for (Json::Value::iterator it = destsVec.begin(); it!=destsVec.end(); it++)
     {
-      if (ret!="") ret +=",";
+      if (!ret.empty()) ret +=",";
       ret+=(*it).asString();
     }
     return ret;
