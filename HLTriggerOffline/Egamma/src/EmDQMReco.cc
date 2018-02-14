@@ -889,11 +889,4 @@ template <class T> void HistoFillerReco<T>::fillHistos(edm::Handle<trigger::Trig
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-//      method called once each job just after ending the event loop          //
-////////////////////////////////////////////////////////////////////////////////
-void EmDQMReco::endJob(){
-
-}
-
 DEFINE_FWK_MODULE(EmDQMReco);

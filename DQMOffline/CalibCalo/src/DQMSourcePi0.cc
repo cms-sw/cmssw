@@ -321,25 +321,9 @@ void DQMSourcePi0::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & 
 
   hS4S92EtaEE_ = ibooker.book1D("S4S92EtaEE","S4S9 2nd most energetic Pi0 photon in EE",50,0.,1.);
   hS4S92EtaEE_->setAxisTitle("S4S9 of the 2nd Eta Photon",1);
-
-  
-
-
-}
-
-//--------------------------------------------------------
-//void DQMSourcePi0::beginRun(const edm::Run& r, const EventSetup& context) {
-//
-//}
-
-//--------------------------------------------------------
-void DQMSourcePi0::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
-     const EventSetup& context) {
-  
 }
 
 //-------------------------------------------------------------
-
 void DQMSourcePi0::analyze(const Event& iEvent, 
 			       const EventSetup& iSetup ){  
  
@@ -1499,28 +1483,6 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
 
 } 
-
-
-
-
-//--------------------------------------------------------
-void DQMSourcePi0::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
-                                          const EventSetup& context) {
-}
-//--------------------------------------------------------
-void DQMSourcePi0::endRun(const Run& r, const EventSetup& context){
-
-}
-//--------------------------------------------------------
-void DQMSourcePi0::endJob(){
-
-//  if(dbe_) {  
-//    if (saveToFile_) {
-//      dbe_->save(fileName_);
-//    }
-//  }
-}
-
 
 void DQMSourcePi0::convxtalid(Int_t &nphi,Int_t &neta)
 {
