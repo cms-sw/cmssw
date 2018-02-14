@@ -34,6 +34,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigi.h"
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 
@@ -89,6 +90,8 @@ class CSCCathodeLCTProcessor
 
   std::vector<int> preTriggerBXs() const {return thePreTriggerBXs;}
 
+  std::vector<CSCCLCTPreTriggerDigi> preTriggerDigis() const {return thePreTriggerDigis; }
+
   static void distripStagger(int stag_triad[CSCConstants::MAX_NUM_STRIPS_7CFEBS],
 			     int stag_time[CSCConstants::MAX_NUM_STRIPS_7CFEBS],
 			     int stag_digi[CSCConstants::MAX_NUM_STRIPS_7CFEBS],
@@ -143,6 +146,7 @@ class CSCCathodeLCTProcessor
 
   std::vector<CSCComparatorDigi> digiV[CSCConstants::NUM_LAYERS];
   std::vector<int> thePreTriggerBXs;
+  std::vector<CSCCLCTPreTriggerDigi> thePreTriggerDigis;
 
   /** Flag for "real" - not idealized - version of the algorithm. */
   bool isMTCC;
