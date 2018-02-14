@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 #from Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi import *
 from Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi import *
-
 from Geometry.VeryForwardGeometryBuilder.ctppsIncludeAlignments_cfi import *
 ctppsIncludeAlignments.RealFiles = cms.vstring("Alignment/CTPPS/data/RPixGeometryCorrections.xml")
 
