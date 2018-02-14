@@ -21,13 +21,48 @@ namespace APVGain {
     std::vector<std::pair<std::string,std::string>> monHnames(std::vector<std::string>,bool,const char* tag);
 
     struct APVmon{
-        int subdetectorId;
-        int subdetectorSide;
-        int subdetectorPlane;
-        MonitorElement* monitor;
+      
+      APVmon(int v1, int v2, int v3, MonitorElement* v4) :
+	subdetectorId(v1),
+	subdetectorSide(v2),
+	subdetectorPlane(v3),
+	monitor(std::move(v4)) 
+      {
+      }
 
-        APVmon(int v1, int v2, int v3, MonitorElement* v4) :
-            subdetectorId(v1),subdetectorSide(v2),subdetectorPlane(v3),monitor(v4) {}
+    public:
+
+      int getSubdetectorId(){
+	return subdetectorId;
+      }
+
+      int getSubdetectorSide(){
+	return subdetectorSide;
+      }
+
+      int getSubdetectorPlane(){
+	return subdetectorPlane;
+      }
+
+      MonitorElement* getTheMon(){
+	return monitor;
+      }
+
+      void printAll(){
+	std::cout<< "subDetectorID:" << subdetectorId << std::endl;
+	std::cout<< "subDetectorSide:" << subdetectorSide << std::endl;
+	std::cout<< "subDetectorPlane:" << subdetectorPlane << std::endl;
+	std::cout<< "histoName:" << monitor->getName() << std::endl;
+	return;
+      }
+
+    private:
+
+      int subdetectorId;
+      int subdetectorSide;
+      int subdetectorPlane;
+      MonitorElement* monitor;
+
     };
 
     std::vector<MonitorElement*> FetchMonitor(std::vector<APVmon>, uint32_t, const TrackerTopology* topo=nullptr);
