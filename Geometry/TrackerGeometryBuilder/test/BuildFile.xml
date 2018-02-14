@@ -27,3 +27,7 @@
   <use   name="Geometry/Records"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+
+
+<bin file="phase1PixelTopology_t.cpp"/>
