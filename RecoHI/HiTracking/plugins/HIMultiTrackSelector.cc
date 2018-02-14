@@ -208,7 +208,7 @@ HIMultiTrackSelector::HIMultiTrackSelector( const edm::ParameterSet & cfg ) :
   
     setQualityBit_.push_back( false );
     std::string qualityStr = trkSelectors[i].getParameter<std::string>("qualityBit");
-    if (qualityStr != "") {
+    if (!qualityStr.empty()) {
       setQualityBit_[i] = true;
       qualityToSet_[i]  = TrackBase::qualityByName(trkSelectors[i].getParameter<std::string>("qualityBit"));
     }
@@ -230,7 +230,7 @@ HIMultiTrackSelector::HIMultiTrackSelector( const edm::ParameterSet & cfg ) :
     preFilter_[i]=trkSelectors.size(); // no prefilter
 
     std::string pfName=trkSelectors[i].getParameter<std::string>("preFilterName");
-    if (pfName!="") {
+    if (!pfName.empty()) {
       bool foundPF=false;
       for ( unsigned int j=0; j<i; j++) 
 	if (name_[j]==pfName ) {
