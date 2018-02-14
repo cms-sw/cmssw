@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+from Geometry.VeryForwardGeometry.geometryRPFromDB_cfi import *
+from Geometry.VeryForwardGeometryBuilder.ctppsIncludeAlignments_cfi import *
+ctppsIncludeAlignments.RealFiles = cms.vstring("Alignment/CTPPS/data/RPixGeometryCorrections.xml")
+
 from RecoCTPPS.TotemRPLocal.totemRPLocalReconstruction_DB_cff import *
 from RecoCTPPS.TotemRPLocal.ctppsDiamondLocalReconstruction_DB_cff import *
 from RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cff import ctppsLocalTrackLiteProducer

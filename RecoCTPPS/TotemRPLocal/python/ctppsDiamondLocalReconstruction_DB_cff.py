@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# geometry
-from Geometry.VeryForwardGeometry.geometryRPFromDB_cfi import *
-
 # reco hit production
 from RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi import ctppsDiamondRecHits
 

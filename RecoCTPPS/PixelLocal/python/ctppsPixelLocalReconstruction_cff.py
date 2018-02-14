@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# geometry
-from Geometry.VeryForwardGeometry.geometryRP_cfi import *
-
 # local clusterizer
 from RecoCTPPS.PixelLocal.ctppsPixelClusters_cfi import ctppsPixelClusters
 
