@@ -87,7 +87,7 @@ class SiPixelGainCalibrationForHLT {
   float getPed   (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn ) const;
   float getGain  (const int& col, const int& row, const Range& range, const int& nCols, bool& isDeadColumn, bool& isNoisyColumn ) const;
 
-  private:
+private:
 
   float   encodeGain(const float& gain);
   float   encodePed (const float& ped);

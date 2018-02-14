@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include<cassert>
 
 namespace gpuClustering {
 
@@ -46,7 +47,8 @@ namespace gpuClustering {
     auto first = moduleStart[1 + blockIdx.x];  
     
     auto me = id[first];
-    
+
+    assert(me<MaxNumModules);    
 
 #ifdef GPU_DEBUG
     if (me%100==1)

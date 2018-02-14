@@ -29,6 +29,7 @@ class TH1D;
 class PixelUnpackingRegions;
 
 class SiPixelGainForHLTonGPU;
+struct SiPixelGainForHLTonGPU_DecodingStructure;
 class SiPixelRawToDigiGPU : public edm::stream::EDProducer<> {
 public:
 
@@ -84,8 +85,8 @@ private:
 
   //  gain calib
   SiPixelGainCalibrationForHLTService  theSiPixelGainCalibration_;
-  SiPixelGainForHLTonGPU  * gainForHLTonGPU_;
-  char * gainDataOnGPU_;
+  SiPixelGainForHLTonGPU  * gainForHLTonGPU_ = nullptr;
+  SiPixelGainForHLTonGPU_DecodingStructure * gainDataOnGPU_ = nullptr;
 
 };
 

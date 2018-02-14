@@ -650,6 +650,21 @@ void RawToDigi_wrapper(
   int threadsPerBlock = 256;
   int blocks = (wordCounter + threadsPerBlock - 1) / threadsPerBlock;
 
+
+  assert(ped);
+  gpuCalibPixel::calibDigis<<<blocks, threadsPerBlock, 0, c.stream>>>(
+               c.moduleInd_d,
+               c.xx_d, c.yy_d, c.adc_d,
+               ped,
+               wordCounter
+             );
+
+  cudaDeviceSynchronize();
+
+  cudaCheck(cudaGetLastError());
+  cudaDeviceSynchronize();
+
+
   std::cout
     << "CUDA countModules kernel launch with " << blocks
     << " blocks of " << threadsPerBlock << " threads\n";
@@ -659,6 +674,7 @@ void RawToDigi_wrapper(
   cudaCheck(cudaMemcpyAsync(c.moduleStart_d, &nModules, sizeof(uint32_t), cudaMemcpyHostToDevice, c.stream));
 
   countModules<<<blocks, threadsPerBlock, 0, c.stream>>>(c.moduleInd_d, c.moduleStart_d, c.clus_d, wordCounter);
+  cudaCheck(cudaGetLastError());
 
   cudaCheck(cudaMemcpyAsync(&nModules, c.moduleStart_d, sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
 
@@ -674,14 +690,15 @@ void RawToDigi_wrapper(
 
   cudaCheck(cudaMemsetAsync(c.clusInModule_d, 0, (MaxNumModules)*sizeof(uint32_t),c.stream));
 
-
-  gpuCalibPixel::calibADC<<<blocks, threadsPerBlock, 0, c.stream>>>(
+  /*
+  gpuCalibPixel::calibADCByModule<<<blocks, threadsPerBlock, 0, c.stream>>>(
                c.moduleInd_d,
                c.xx_d, c.yy_d, c.adc_d,
                c.moduleStart_d,
                ped, 
                wordCounter
              );
+  */
 
   findClus<<<blocks, threadsPerBlock, 0, c.stream>>>(
                c.moduleInd_d,

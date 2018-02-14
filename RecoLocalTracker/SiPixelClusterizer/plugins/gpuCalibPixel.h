@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <cassert>
 
 namespace gpuCalibPixel {
 
@@ -15,11 +16,51 @@ namespace gpuCalibPixel {
   constexpr float VCaltoElectronOffset_L1 = -670; // L1:   -670 +- 220
 
 
- __global__ void calibADC(uint16_t * id,
+ __global__ void calibDigis(uint16_t * id,
+                           uint16_t const * x,
+                           uint16_t const * y,
+                           uint16_t * adc,
+                           SiPixelGainForHLTonGPU const * ped,
+                           int numElements
+                         )
+{
+
+    int i = blockDim.x * blockIdx.x + threadIdx.x;
+    if (i >= numElements) return;
+    if (InvId==id[i]) return;
+
+    float conversionFactor = id[i]<96 ? VCaltoElectronGain_L1 : VCaltoElectronGain;
+    float offset =  id[i]<96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset;
+
+    bool isDeadColumn=false, isNoisyColumn=false;
+ 
+    int row = x[i];
+    int col = y[i];
+    auto ret = ped->getPedAndGain(id[i], col, row, isDeadColumn, isNoisyColumn);
+    float pedestal = ret.first; float gain = ret.second;
+    // float pedestal = 0; float gain = 1.;
+    if ( isDeadColumn | isNoisyColumn )
+      { 
+        id[i]=InvId; adc[i] =0; 
+        printf("bad pixel at %d in %d\n",i,id[i]);
+    }
+    else {
+      float vcal = adc[i] * gain  - pedestal*gain;
+      adc[i] = std::max(100, int( vcal * conversionFactor + offset));
+    }
+
+    // if (threadIdx.x==0)
+    //  printf ("calibrated %d\n",id[i]);
+
+   __syncthreads();
+
+}
+
+ __global__ void calibADCByModule(uint16_t * id,
 			   uint16_t const * x,
 			   uint16_t const * y,
 			   uint16_t * adc,
-			   uint32_t const * moduleStart,
+			   uint32_t * moduleStart,
                            SiPixelGainForHLTonGPU const * ped,
                            int numElements
                          )
@@ -30,6 +71,8 @@ namespace gpuCalibPixel {
     
     auto me = id[first];
     
+    assert(me<2000);
+
     /// depends on "me"
 
     float conversionFactor = me<96 ? VCaltoElectronGain_L1 : VCaltoElectronGain; 
@@ -68,5 +111,15 @@ namespace gpuCalibPixel {
        }
     } 
 
+    __syncthreads(); 
+    //reset start
+    if(0==threadIdx.x) {
+     auto & k = moduleStart[1 + blockIdx.x];
+     while (id[k]==InvId) ++k;
+    }
+     
+
  }
+
+
 }

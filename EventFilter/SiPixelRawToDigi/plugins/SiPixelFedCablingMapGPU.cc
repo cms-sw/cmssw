@@ -112,7 +112,7 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap,  TrackerGeometry 
 }
 
 void
-processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeometry const& geom, SiPixelGainForHLTonGPU * & gainsOnGPU, char * & gainDataOnGPU) {
+processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeometry const& geom, SiPixelGainForHLTonGPU * & gainsOnGPU, SiPixelGainForHLTonGPU::DecodingStructure *  & gainDataOnGPU) {
 
 
   // bizzarre logic (looking for fist strip-det) don't ask
@@ -125,17 +125,23 @@ processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeomet
       }
    }
    
-   std::cout<<"caching calibs for "<<m_detectors<<" pixel detectors"<< std::endl;
+   std::cout<<"caching calibs for "<<m_detectors<<" pixel detectors of size "<< gains.data().size() << std::endl;
+   std::cout << "sizes " << sizeof(char) << ' ' << sizeof(uint8_t) << ' ' << sizeof(SiPixelGainForHLTonGPU::DecodingStructure) << std::endl;
+
 
   SiPixelGainForHLTonGPU gg;
 
+  assert(nullptr==gainDataOnGPU);
   cudaCheck(cudaMalloc((void**) & gainDataOnGPU, gains.data().size()));
   cudaCheck(cudaMalloc((void**) &gainsOnGPU,sizeof(SiPixelGainForHLTonGPU)));
 
-  gg.v_pedestals = gainDataOnGPU;
-
   cudaCheck(cudaMemcpy(gainDataOnGPU,gains.data().data(),gains.data().size(), cudaMemcpyHostToDevice));
 
+  gg.v_pedestals = gainDataOnGPU;
+
+  assert(gg.v_pedestals);
+
+  // we will simplify later (not everything is needed....)
   gg.minPed_ = gains.getPedLow();
   gg.maxPed_ = gains.getPedHigh();
   gg.minGain_= gains.getGainLow();
@@ -149,6 +155,8 @@ processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeomet
   gg.pedPrecision  = (gg.maxPed_-gg.minPed_)/static_cast<float>(gg.nBinsToUseForEncoding_);
   gg.gainPrecision = (gg.maxGain_-gg.minGain_)/static_cast<float>(gg.nBinsToUseForEncoding_);
 
+  std::cout << "precisions g " << gg.pedPrecision << ' ' << gg.gainPrecision << std::endl;
+
   // fill the index map
   auto const & ind = gains.getIndexes();  
   std::cout << ind.size() << " " << m_detectors << std::endl;
@@ -156,6 +164,12 @@ processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeomet
   for (auto i=0U; i<m_detectors; ++i) {
     auto p = std::lower_bound(ind.begin(),ind.end(),dus[i]->geographicalId().rawId(),SiPixelGainCalibrationForHLT::StrictWeakOrdering());
     assert (p!=ind.end() && p->detid==dus[i]->geographicalId());
+    assert(p->iend<=gains.data().size());
+    assert(p->iend>=p->ibegin);
+    assert(0==p->ibegin%2);
+    assert(0==p->iend%2);
+    assert(p->ibegin!=p->iend);
+    assert(p->ncols>0);
     gg.rangeAndCols[i] = std::make_pair(SiPixelGainForHLTonGPU::Range(p->ibegin,p->iend), p->ncols);
     // if (ind[i].detid!=dus[i]->geographicalId()) std::cout << ind[i].detid<<"!="<<dus[i]->geographicalId() << std::endl;
     // gg.rangeAndCols[i] = std::make_pair(SiPixelGainForHLTonGPU::Range(ind[i].ibegin,ind[i].iend), ind[i].ncols);
