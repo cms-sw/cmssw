@@ -5,10 +5,12 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/make_sentry.h"
 
 #include "FWCore/Framework/src/OutputModuleCommunicatorT.h"
 
@@ -34,7 +36,9 @@ namespace edm {
 
   template<typename T>
   void
-  OutputModuleCommunicatorT<T>::writeRun(edm::RunPrincipal const& rp, ProcessContext const* processContext) {
+  OutputModuleCommunicatorT<T>::writeRun(edm::RunPrincipal const& rp,
+                                         ProcessContext const* processContext,
+                                         ActivityRegistry* activityRegistry) {
     GlobalContext globalContext(GlobalContext::Transition::kWriteRun,
                                 LuminosityBlockID(rp.run(), 0),
                                 rp.index(),
@@ -44,12 +48,19 @@ namespace edm {
     ParentContext parentContext(&globalContext);
     ModuleCallingContext mcc(&description());
     ModuleContextSentry moduleContextSentry(&mcc, parentContext);
+    activityRegistry->preModuleWriteRunSignal_(globalContext, mcc);
+    auto sentry( make_sentry(activityRegistry,
+                             [&globalContext, &mcc](ActivityRegistry* activityRegistry) {
+                               activityRegistry->postModuleWriteRunSignal_(globalContext, mcc);
+                             }));
     module().doWriteRun(rp, &mcc);
   }
 
   template<typename T>
   void
-  OutputModuleCommunicatorT<T>::writeLumi(edm::LuminosityBlockPrincipal const& lbp, ProcessContext const* processContext) {
+  OutputModuleCommunicatorT<T>::writeLumi(edm::LuminosityBlockPrincipal const& lbp,
+                                          ProcessContext const* processContext,
+                                          ActivityRegistry* activityRegistry) {
     GlobalContext globalContext(GlobalContext::Transition::kWriteLuminosityBlock,
                                 lbp.id(),
                                 lbp.runPrincipal().index(),
@@ -59,6 +70,11 @@ namespace edm {
     ParentContext parentContext(&globalContext);
     ModuleCallingContext mcc(&description());
     ModuleContextSentry moduleContextSentry(&mcc, parentContext);
+    activityRegistry->preModuleWriteLumiSignal_(globalContext, mcc);
+    auto sentry( make_sentry(activityRegistry,
+                             [&globalContext, &mcc](ActivityRegistry* activityRegistry) {
+                               activityRegistry->postModuleWriteLumiSignal_(globalContext, mcc);
+                             }));
     module().doWriteLuminosityBlock(lbp, &mcc);
   }
 

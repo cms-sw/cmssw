@@ -244,6 +244,12 @@ namespace edm {
      preModuleGlobalEndLumiSignal_.connect(std::cref(iOther.preModuleGlobalEndLumiSignal_));
      postModuleGlobalEndLumiSignal_.connect(std::cref(iOther.postModuleGlobalEndLumiSignal_));
 
+     preModuleWriteRunSignal_.connect(std::cref(iOther.preModuleWriteRunSignal_));
+     postModuleWriteRunSignal_.connect(std::cref(iOther.postModuleWriteRunSignal_));
+
+     preModuleWriteLumiSignal_.connect(std::cref(iOther.preModuleWriteLumiSignal_));
+     postModuleWriteLumiSignal_.connect(std::cref(iOther.postModuleWriteLumiSignal_));
+
     //preModuleSignal_.connect(std::cref(iOther.preModuleSignal_));
     //postModuleSignal_.connect(std::cref(iOther.postModuleSignal_));
 
@@ -419,6 +425,12 @@ namespace edm {
 
     copySlotsToFrom(preModuleGlobalEndLumiSignal_, iOther.preModuleGlobalEndLumiSignal_);
     copySlotsToFromReverse(postModuleGlobalEndLumiSignal_, iOther.postModuleGlobalEndLumiSignal_);
+
+    copySlotsToFrom(preModuleWriteRunSignal_, iOther.preModuleWriteRunSignal_);
+    copySlotsToFromReverse(postModuleWriteRunSignal_, iOther.postModuleWriteRunSignal_);
+
+    copySlotsToFrom(preModuleWriteLumiSignal_, iOther.preModuleWriteLumiSignal_);
+    copySlotsToFromReverse(postModuleWriteLumiSignal_, iOther.postModuleWriteLumiSignal_);
 
     /*
     copySlotsToFrom(preModuleSignal_, iOther.preModuleSignal_);

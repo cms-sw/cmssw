@@ -30,6 +30,7 @@
 // forward declarations
 namespace edm {
 
+  class ActivityRegistry;
   class ProcessContext;
   class ThinnedAssociationsHelper;
 
@@ -50,9 +51,13 @@ namespace edm {
     
     virtual void openFile(FileBlock const& fb) = 0;
     
-    virtual void writeRun(RunPrincipal const& rp, ProcessContext const*) = 0;
+    virtual void writeRun(RunPrincipal const& rp,
+                          ProcessContext const*,
+                          ActivityRegistry*) = 0;
     
-    virtual void writeLumi(LuminosityBlockPrincipal const& lbp, ProcessContext const*) = 0;
+    virtual void writeLumi(LuminosityBlockPrincipal const& lbp,
+                           ProcessContext const*,
+                           ActivityRegistry*) = 0;
     
     ///\return true if OutputModule has reached its limit on maximum number of events it wants to see
     virtual bool limitReached() const = 0;
