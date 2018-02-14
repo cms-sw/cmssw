@@ -27,6 +27,14 @@ _particle_flow_zero_suppression_ECAL_2017 = cms.PSet(
     thresholds = cms.vdouble(_pfZeroSuppressionThresholds_EB_2017 + _pfZeroSuppressionThresholds_EEminus_2017 + _pfZeroSuppressionThresholds_EEplus_2017
         )
     )
+    
+particle_flow_sr_flags = cms.PSet(    
+  pfsrFlags = cms.InputTag("ecalDigis")
+)
+
+_particle_flow_sr_flags_2016 = cms.PSet(    
+  pfsrFlags = cms.InputTag("")
+)
 
 from Configuration.Eras.Modifier_run2_ECAL_2017_cff import run2_ECAL_2017
 run2_ECAL_2017.toReplaceWith(particle_flow_zero_suppression_ECAL, _particle_flow_zero_suppression_ECAL_2017)
@@ -36,3 +44,4 @@ phase2_ecal.toReplaceWith(particle_flow_zero_suppression_ECAL, _particle_flow_ze
 
 from Configuration.Eras.Modifier_lowPU_2017_cff import lowPU_2017
 lowPU_2017.toReplaceWith(particle_flow_zero_suppression_ECAL, _particle_flow_zero_suppression_ECAL_2016)
+lowPU_2017.toReplaceWith(particle_flow_sr_flags, _particle_flow_sr_flags_2016)
