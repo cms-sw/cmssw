@@ -4,7 +4,7 @@
 #include "DataFormats/GEMDigi/interface/GEMGEBStatusDigi.h"
 #include "DataFormats/MuonData/interface/MuonDigiCollection.h"
 
-typedef MuonDigiCollection<uint8_t, GEMGEBStatusDigi> GEMGEBStatusDigiCollection;
+typedef MuonDigiCollection<uint16_t, GEMGEBStatusDigi> GEMGEBStatusDigiCollection;
 
 #endif
 

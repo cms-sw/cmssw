@@ -4,6 +4,6 @@
 #include "DataFormats/GEMDigi/interface/GEMVfatStatusDigi.h"
 #include "DataFormats/MuonData/interface/MuonDigiCollection.h"
 
-typedef MuonDigiCollection<uint8_t, GEMVfatStatusDigi> GEMVfatStatusDigiCollection;
+typedef MuonDigiCollection<uint16_t, GEMVfatStatusDigi> GEMVfatStatusDigiCollection;
 
 #endif
