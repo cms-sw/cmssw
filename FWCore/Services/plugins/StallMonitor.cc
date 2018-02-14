@@ -154,6 +154,10 @@ namespace edm {
       void postEventReadFromSource(StreamContext const&, ModuleCallingContext const&);
       void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
       void postEvent(StreamContext const&);
+      void preModuleStreamTransition(StreamContext const&, ModuleCallingContext const&);
+      void postModuleStreamTransition(StreamContext const&, ModuleCallingContext const&);
+      void preModuleGlobalTransition(GlobalContext const&, ModuleCallingContext const&);
+      void postModuleGlobalTransition(GlobalContext const&, ModuleCallingContext const&);
       void postEndJob();
 
       ThreadSafeOutputFileStream file_;
@@ -171,6 +175,7 @@ namespace edm {
 
       std::vector<std::string> moduleLabels_ {};
       std::vector<StallStatistics> moduleStats_ {};
+      unsigned int numStreams_;
     };
 
   }
@@ -209,6 +214,28 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
     iRegistry.watchPostModuleEvent(this, &StallMonitor::postModuleEvent);
     iRegistry.watchPostEvent(this, &StallMonitor::postEvent);
 
+    iRegistry.watchPreModuleStreamBeginRun(this,&StallMonitor::preModuleStreamTransition);
+    iRegistry.watchPostModuleStreamBeginRun(this,&StallMonitor::postModuleStreamTransition);
+    iRegistry.watchPreModuleStreamEndRun(this,&StallMonitor::preModuleStreamTransition);
+    iRegistry.watchPostModuleStreamEndRun(this,&StallMonitor::postModuleStreamTransition);
+
+    iRegistry.watchPreModuleStreamBeginLumi(this,&StallMonitor::preModuleStreamTransition);
+    iRegistry.watchPostModuleStreamBeginLumi(this,&StallMonitor::postModuleStreamTransition);
+    iRegistry.watchPreModuleStreamEndLumi(this,&StallMonitor::preModuleStreamTransition);
+    iRegistry.watchPostModuleStreamEndLumi(this,&StallMonitor::postModuleStreamTransition);
+
+    iRegistry.watchPreModuleGlobalBeginRun(this,&StallMonitor::preModuleGlobalTransition);
+    iRegistry.watchPostModuleGlobalBeginRun(this,&StallMonitor::postModuleGlobalTransition);
+    iRegistry.watchPreModuleGlobalEndRun(this,&StallMonitor::preModuleGlobalTransition);
+    iRegistry.watchPostModuleGlobalEndRun(this,&StallMonitor::postModuleGlobalTransition);
+
+    iRegistry.watchPreModuleGlobalBeginLumi(this,&StallMonitor::preModuleGlobalTransition);
+    iRegistry.watchPostModuleGlobalBeginLumi(this,&StallMonitor::postModuleGlobalTransition);
+    iRegistry.watchPreModuleGlobalEndLumi(this,&StallMonitor::preModuleGlobalTransition);
+    iRegistry.watchPostModuleGlobalEndLumi(this,&StallMonitor::postModuleGlobalTransition);
+
+    iRegistry.preallocateSignal_.connect([this](service::SystemBounds const& iBounds) { numStreams_=iBounds.maxNumberOfStreams(); });
+    
     std::ostringstream oss;
     oss << "# Step                       Symbol Entries\n"
         << "# -------------------------- ------ ------------------------------------------\n"
@@ -381,6 +408,36 @@ void StallMonitor::preModuleEvent(StreamContext const& sc, ModuleCallingContext 
     if (preFetch_to_preModEvent < stallThreshold_) return;
     moduleStats_[mid].update(preFetch_to_preModEvent);
   }
+}
+
+void StallMonitor::preModuleStreamTransition(StreamContext const& sc, ModuleCallingContext const& mcc)
+{
+  auto const tNow = now();
+  auto const sid = stream_id(sc);
+  auto const mid = module_id(mcc);
+  auto t = duration_cast<milliseconds>(tNow-beginTime_).count();
+  auto msg = assembleMessage<step::preModuleEvent>(sid, mid, t);
+  file_.write(std::move(msg));
+}
+    
+void StallMonitor::postModuleStreamTransition(StreamContext const& sc, ModuleCallingContext const& mcc)
+{
+  auto const t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto msg = assembleMessage<step::postModuleEvent>(stream_id(sc), module_id(mcc), t);
+  file_.write(std::move(msg));
+}
+
+
+void StallMonitor::preModuleGlobalTransition(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  auto t = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto msg = assembleMessage<step::preModuleEvent>(numStreams_, module_id(mcc), t);
+  file_.write(std::move(msg));
+}
+
+void StallMonitor::postModuleGlobalTransition(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  auto const postModTime = duration_cast<milliseconds>(now()-beginTime_).count();
+  auto msg = assembleMessage<step::postModuleEvent>(numStreams_, module_id(mcc), postModTime);
+  file_.write(std::move(msg));
 }
 
 void StallMonitor::preEventReadFromSource(StreamContext const& sc, ModuleCallingContext const& mcc)
