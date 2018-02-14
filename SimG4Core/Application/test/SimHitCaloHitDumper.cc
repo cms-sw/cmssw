@@ -1,91 +1,180 @@
 // system include files
-#include <iostream>
-#include <memory>
 #include <vector>
 #include <string>
+#include <iostream>
+#include <memory>
 
 // user include files
-#include "SimG4Core/Application/test/SimHitCaloHitDumper.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-void SimHitCaloHitDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ){
 
-   using namespace edm;
+class SimHitCaloHitDumper : public edm::EDAnalyzer{
+ public:
+  SimHitCaloHitDumper( const edm::ParameterSet& iConfig );
+  ~SimHitCaloHitDumper() override {};
+  
+  void analyze( const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override{};
+  void endJob() override{};
+  
+ private:
+  std::string moduleName;
+
+  edm::EDGetTokenT<edm::PSimHitContainer> PixelBarrelLowTofToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> PixelBarrelHighTofToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> PixelEndcapLowTofToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> PixelEndcapHighTofToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> TrackerTIBLowTofToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> TrackerTIBHighTofToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> TrackerTIDLowTofToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> TrackerTIDHighTofToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> TrackerTOBLowTofToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> TrackerTOBHighTofToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> TrackerTECLowTofToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> TrackerTECHighTofToken;
+  
+  edm::EDGetTokenT<edm::PSimHitContainer> MuonDTToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuonCSCToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuonRPCToken;
+  
+  edm::EDGetTokenT<edm::PSimHitContainer> FastTimerBTLToken;
+  edm::EDGetTokenT<edm::PSimHitContainer> FastTimerETLToken;
+  
+  edm::EDGetTokenT<edm::PCaloHitContainer> EcalEBToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> EcalEEToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> EcalESToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> HcalToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> CaloTkToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> ZDCToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> CastorTUToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> CastorPLToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> CastorFIToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> CastorBUToken;
+
+};
+
+SimHitCaloHitDumper::SimHitCaloHitDumper( const edm::ParameterSet & iConfig ):
+  moduleName(iConfig.getParameter<std::string>("moduleName")) {
+
+  PixelBarrelLowTofToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "TrackerHitsPixelBarrelLowTof" ));
+  PixelBarrelHighTofToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "TrackerHitsPixelBarrelHighTof" ));
+  PixelEndcapLowTofToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "TrackerHitsPixelEndcapLowTof" ));
+  PixelEndcapHighTofToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "TrackerHitsPixelEndcapHighTof" ));
+  TrackerTIBLowTofToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "TrackerHitsTIBLowTof" ));
+  TrackerTIBHighTofToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "TrackerHitsTIBHighTof" ));
+  TrackerTIDLowTofToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "TrackerHitsTIDLowTof" ));
+  TrackerTIDHighTofToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "TrackerHitsTIDHighTof" ));
+  TrackerTOBLowTofToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "TrackerHitsTOBLowTof" ));
+  TrackerTOBHighTofToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "TrackerHitsTOBHighTof" ));
+  TrackerTECLowTofToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "TrackerHitsTECLowTof" ));
+  TrackerTECHighTofToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "TrackerHitsTECHighTof" ));
+
+  MuonDTToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "MuonDTHits"));
+  MuonCSCToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "MuonCSCHits" ));
+  MuonRPCToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "MuonRPCHits" ));
+
+  FastTimerBTLToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "FastTimerHitsBarrel" ));
+  FastTimerETLToken = consumes <edm::PSimHitContainer> (edm::InputTag(std::string(moduleName), "FastTimerHitsEndcap" ));
+
+  EcalEBToken = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(moduleName), "EBHits" ));
+  EcalEEToken = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(moduleName), "EEHits" ));
+  EcalESToken = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(moduleName), "ESHits" ));
+  HcalToken = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(moduleName), "HcalHits" ));
+  CaloTkToken = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(moduleName), "CaloTkHits" ));
+  ZDCToken = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(moduleName), "ZDC" ));
+  CastorTUToken = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(moduleName), "CastorTUHits" ));
+  CastorPLToken = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(moduleName), "CastorPLHits" ));
+  CastorFIToken = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(moduleName), "CastorFIHits" ));
+  CastorBUToken = consumes <edm::PCaloHitContainer> (edm::InputTag(std::string(moduleName), "CastorBUHits" ));
+
+}
+
+
+void SimHitCaloHitDumper::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ){
 
    std::vector<PSimHit> theTrackerHits;
    std::vector<PSimHit> theMuonHits;
+   std::vector<PSimHit> theMTDHits;
    std::vector<PCaloHit> theCaloHits;
 
    std::vector< std::pair<int,std::string> > theTrackerComposition;
    std::vector< std::pair<int,std::string> > theMuonComposition;
+   std::vector< std::pair<int,std::string> > theMTDComposition;
    std::vector< std::pair<int,std::string> > theCaloComposition;
    
 
-   Handle<PSimHitContainer> PixelBarrelHitsLowTof;
-   Handle<PSimHitContainer> PixelBarrelHitsHighTof;
-   Handle<PSimHitContainer> PixelEndcapHitsLowTof;
-   Handle<PSimHitContainer> PixelEndcapHitsHighTof;
-   Handle<PSimHitContainer> TIBHitsLowTof;
-   Handle<PSimHitContainer> TIBHitsHighTof;
-   Handle<PSimHitContainer> TIDHitsLowTof;
-   Handle<PSimHitContainer> TIDHitsHighTof;
-   Handle<PSimHitContainer> TOBHitsLowTof;
-   Handle<PSimHitContainer> TOBHitsHighTof;
-   Handle<PSimHitContainer> TECHitsLowTof;
-   Handle<PSimHitContainer> TECHitsHighTof;
+   edm::Handle<edm::PSimHitContainer> PixelBarrelHitsLowTof;
+   edm::Handle<edm::PSimHitContainer> PixelBarrelHitsHighTof;
+   edm::Handle<edm::PSimHitContainer> PixelEndcapHitsLowTof;
+   edm::Handle<edm::PSimHitContainer> PixelEndcapHitsHighTof;
+   edm::Handle<edm::PSimHitContainer> TIBHitsLowTof;
+   edm::Handle<edm::PSimHitContainer> TIBHitsHighTof;
+   edm::Handle<edm::PSimHitContainer> TIDHitsLowTof;
+   edm::Handle<edm::PSimHitContainer> TIDHitsHighTof;
+   edm::Handle<edm::PSimHitContainer> TOBHitsLowTof;
+   edm::Handle<edm::PSimHitContainer> TOBHitsHighTof;
+   edm::Handle<edm::PSimHitContainer> TECHitsLowTof;
+   edm::Handle<edm::PSimHitContainer> TECHitsHighTof;
 
-   Handle<PSimHitContainer> DTHits;
-   Handle<PSimHitContainer> CSCHits;
-   Handle<PSimHitContainer> RPCHits;
+   edm::Handle<edm::PSimHitContainer> DTHits;
+   edm::Handle<edm::PSimHitContainer> CSCHits;
+   edm::Handle<edm::PSimHitContainer> RPCHits;
 
-   Handle<PCaloHitContainer> EBHits;
-   Handle<PCaloHitContainer> EEHits;
-   Handle<PCaloHitContainer> ESHits;
-   Handle<PCaloHitContainer> HcalHits;
-   Handle<PCaloHitContainer> CaloTkHits;
-   Handle<PCaloHitContainer> ZDCHits;
-   Handle<PCaloHitContainer> CastorTUHits;
-   Handle<PCaloHitContainer> CastorPLHits;
-   Handle<PCaloHitContainer> CastorFIHits;
-   Handle<PCaloHitContainer> CastorBUHits;
+   edm::Handle<edm::PSimHitContainer> BTLHits;
+   edm::Handle<edm::PSimHitContainer> ETLHits;
 
-   iEvent.getByLabel(edm::InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof",processName), PixelBarrelHitsLowTof);
-   iEvent.getByLabel("g4SimHits","TrackerHitsPixelBarrelHighTof", PixelBarrelHitsHighTof);
-   iEvent.getByLabel("g4SimHits","TrackerHitsPixelEndcapLowTof", PixelEndcapHitsLowTof);
-   iEvent.getByLabel("g4SimHits","TrackerHitsPixelEndcapHighTof", PixelEndcapHitsHighTof);
-   iEvent.getByLabel("g4SimHits","TrackerHitsTIBLowTof", TIBHitsLowTof);
-   iEvent.getByLabel("g4SimHits","TrackerHitsTIBHighTof", TIBHitsHighTof);
-   iEvent.getByLabel("g4SimHits","TrackerHitsTIDLowTof", TIDHitsLowTof);
-   iEvent.getByLabel("g4SimHits","TrackerHitsTIDHighTof", TIDHitsHighTof);
-   iEvent.getByLabel("g4SimHits","TrackerHitsTOBLowTof", TOBHitsLowTof);
-   iEvent.getByLabel("g4SimHits","TrackerHitsTOBHighTof", TOBHitsHighTof);
-   iEvent.getByLabel("g4SimHits","TrackerHitsTECLowTof", TECHitsLowTof);
-   iEvent.getByLabel("g4SimHits","TrackerHitsTECHighTof", TECHitsHighTof);
+   edm::Handle<edm::PCaloHitContainer> EBHits;
+   edm::Handle<edm::PCaloHitContainer> EEHits;
+   edm::Handle<edm::PCaloHitContainer> ESHits;
+   edm::Handle<edm::PCaloHitContainer> HcalHits;
+   edm::Handle<edm::PCaloHitContainer> CaloTkHits;
+   edm::Handle<edm::PCaloHitContainer> ZDCHits;
+   edm::Handle<edm::PCaloHitContainer> CastorTUHits;
+   edm::Handle<edm::PCaloHitContainer> CastorPLHits;
+   edm::Handle<edm::PCaloHitContainer> CastorFIHits;
+   edm::Handle<edm::PCaloHitContainer> CastorBUHits;
 
-   iEvent.getByLabel("g4SimHits","MuonDTHits",DTHits);
-   iEvent.getByLabel("g4SimHits","MuonCSCHits",CSCHits);
-   iEvent.getByLabel("g4SimHits","MuonRPCHits",RPCHits);
+   iEvent.getByToken( PixelBarrelLowTofToken, PixelBarrelHitsLowTof );
+   iEvent.getByToken( PixelBarrelHighTofToken, PixelBarrelHitsHighTof);
+   iEvent.getByToken( PixelEndcapLowTofToken, PixelEndcapHitsLowTof);
+   iEvent.getByToken( PixelEndcapHighTofToken, PixelEndcapHitsHighTof);
+   iEvent.getByToken( TrackerTIBLowTofToken, TIBHitsLowTof);
+   iEvent.getByToken( TrackerTIBHighTofToken, TIBHitsHighTof);
+   iEvent.getByToken( TrackerTIDLowTofToken, TIDHitsLowTof);
+   iEvent.getByToken( TrackerTIDHighTofToken, TIDHitsHighTof);
+   iEvent.getByToken( TrackerTOBLowTofToken, TOBHitsLowTof);
+   iEvent.getByToken( TrackerTOBHighTofToken, TOBHitsHighTof);
+   iEvent.getByToken( TrackerTECLowTofToken, TECHitsLowTof);
+   iEvent.getByToken( TrackerTECHighTofToken, TECHitsHighTof);
 
-   iEvent.getByLabel("g4SimHits","EcalHitsEB", EBHits );
-   iEvent.getByLabel("g4SimHits","EcalHitsEE", EEHits );
-   iEvent.getByLabel("g4SimHits","EcalHitsES", ESHits );
-   iEvent.getByLabel("g4SimHits","HcalHits", HcalHits );
-   iEvent.getByLabel("g4SimHits","CaloHitsTk", CaloTkHits );
-   iEvent.getByLabel("g4SimHits","ZDCHITS", ZDCHits );
-   iEvent.getByLabel("g4SimHits","CastorTU", CastorTUHits );
-   iEvent.getByLabel("g4SimHits","CastorPL", CastorPLHits );
-   iEvent.getByLabel("g4SimHits","CastorFI", CastorFIHits );
-   iEvent.getByLabel("g4SimHits","CastorBU", CastorBUHits );
+   iEvent.getByToken( MuonDTToken,DTHits);
+   iEvent.getByToken( MuonCSCToken,CSCHits);
+   iEvent.getByToken( MuonRPCToken,RPCHits);
+
+   iEvent.getByToken( EcalEBToken, EBHits );
+   iEvent.getByToken( EcalEEToken, EEHits );
+   iEvent.getByToken( EcalESToken, ESHits );
+   iEvent.getByToken( HcalToken, HcalHits );
+   iEvent.getByToken( CaloTkToken, CaloTkHits );
+   iEvent.getByToken( ZDCToken, ZDCHits );
+   iEvent.getByToken( CastorTUToken, CastorTUHits );
+   iEvent.getByToken( CastorPLToken, CastorPLHits );
+   iEvent.getByToken( CastorFIToken, CastorFIHits );
+   iEvent.getByToken( CastorBUToken, CastorBUHits );
+
+   iEvent.getByToken( FastTimerBTLToken, BTLHits);
+   iEvent.getByToken( FastTimerETLToken, ETLHits);
 
    int oldsize = 0;
 
@@ -244,6 +333,20 @@ void SimHitCaloHitDumper::analyze( const edm::Event& iEvent, const edm::EventSet
      theCaloComposition.push_back(label25);
    } 
 
+   oldsize = 0;
+   if ( BTLHits.isValid() ) {
+     theMTDHits.insert(theMTDHits.end(), BTLHits->begin(), BTLHits->end() );
+     std::pair<int,std::string> label26(theMTDHits.size()-oldsize,"BTLHits");
+     oldsize = theMTDHits.size();
+     theMTDComposition.push_back(label26);
+   }
+   if ( ETLHits.isValid() ) {
+     theMTDHits.insert(theMTDHits.end(), ETLHits->begin(), ETLHits->end() );
+     std::pair<int,std::string> label27(theMTDHits.size()-oldsize,"ETLHits");
+     oldsize = theMTDHits.size();
+     theMTDComposition.push_back(label27);
+   }
+
    std::cout << "\n SimHit / CaloHit structure dump \n" << std::endl;
    std::cout << " Tracker Hits in the event = " << theTrackerHits.size() << std::endl; 
    std::cout << "\n" << std::endl;
@@ -281,6 +384,24 @@ void SimHitCaloHitDumper::analyze( const edm::Event& iEvent, const edm::EventSet
      }
    }   
 
+   std::cout << "\n MTD Hits in the event = " << theMTDHits.size() << std::endl; 
+   std::cout << "\n" << std::endl;
+   //   for (std::vector<PSimHit>::iterator isim = theMTDHits.begin();
+   //        isim != theMTDHits.end(); ++isim){
+   //     std::cout << (*isim) << " Track Id = " << isim->trackId() << std::endl;
+   //   }
+   nhit = 0;
+   for (std::vector< std::pair<int,std::string> >::iterator icoll = theMTDComposition.begin();
+        icoll != theMTDComposition.end(); ++icoll){
+     std::cout << "\n" << std::endl;
+     std::cout << (*icoll).second << " hits in the event = " << (*icoll).first << std::endl;
+     std::cout << "\n" << std::endl;
+     for ( int ihit = 0; ihit < (*icoll).first; ++ihit ) {
+       std::cout << theMTDHits[nhit] << " Track Id = " << theMTDHits[nhit].trackId() << std::endl;
+       nhit++;
+     }
+   }   
+
    std::cout << "\n Calorimeter Hits in the event = " << theCaloHits.size() << std::endl; 
    std::cout << "\n" << std::endl;
    //   for (std::vector<PCaloHit>::iterator isim = theCaloHits.begin();
@@ -303,6 +424,7 @@ void SimHitCaloHitDumper::analyze( const edm::Event& iEvent, const edm::EventSet
 
 }
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SimHitCaloHitDumper);
