@@ -48,7 +48,7 @@ namespace fastsim
         SimplifiedGeometry(double geomProperty);
 
         //! Default destructor.
-        ~SimplifiedGeometry();
+        virtual ~SimplifiedGeometry();
 
         ////////
         // HACK
