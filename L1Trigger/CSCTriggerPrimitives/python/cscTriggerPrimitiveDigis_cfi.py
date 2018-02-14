@@ -42,6 +42,9 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # flags to optionally disable finding stubs in ME42 or ME1a
         disableME1a = cms.bool(False),
         disableME42 = cms.bool(False),
+
+        # offset between the ALCT and CLCT central BX in simulation
+        alctClctOffset = cms.uint32(1),
     ),
 
     # Parameters for ALCT processors: old MC studies

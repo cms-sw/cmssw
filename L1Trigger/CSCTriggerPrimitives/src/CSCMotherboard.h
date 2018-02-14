@@ -87,6 +87,9 @@ class CSCMotherboard
  // VK: change to protected, to allow inheritance
  protected:
 
+  // helper function to return ALCT with correct central BX
+  CSCALCTDigi getBXShiftedALCT(const CSCALCTDigi&) const;
+
   /** Verbosity level: 0: no print (default).
    *                   1: print LCTs found. */
   int infoV;

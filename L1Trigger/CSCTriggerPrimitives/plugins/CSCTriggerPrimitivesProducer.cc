@@ -110,9 +110,6 @@ void CSCTriggerPrimitivesProducer::produce(edm::StreamID iID, edm::Event& ev, co
     streamCache(iID)->setConfigParameters(conf.product());
   }
 
-  // temporary hack to run on data
-  streamCache(iID)->runOnData(ev.eventAuxiliary().isRealData());
-
   // Get the collections of comparator & wire digis from event.
   edm::Handle<CSCComparatorDigiCollection> compDigis;
   edm::Handle<CSCWireDigiCollection>       wireDigis;
