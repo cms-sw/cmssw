@@ -888,3 +888,52 @@ produceAndDiscriminateHPSPFTausTask = cms.Task(
 produceAndDiscriminateHPSPFTaus = cms.Sequence(
     produceAndDiscriminateHPSPFTausTask
     )
+
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+for era in [ run2_miniAOD_80XLegacy, run2_miniAOD_94XFall17]:
+    era.toModify(hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw,
+                 mvaName = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1",
+                 mvaOpt  = "DBoldDMwLTwGJ")
+    era.toModify(hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                 mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                              cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff90"),
+                                            variable = cms.string("pt")),))
+    era.toModify(hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                 mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                              cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff80"),
+                                              variable = cms.string("pt")),))
+    era.toModify(hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                 mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                              cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff70"),
+                                              variable = cms.string("pt")),))    
+    era.toModify(hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                        mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                                     cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff60"),
+                                                     variable = cms.string("pt")),))
+    era.toModify(hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                 mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                              cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff50"),
+                                              variable = cms.string("pt")),))
+    era.toModify(hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                 mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                              cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff40"),
+                                              variable = cms.string("pt")),))
