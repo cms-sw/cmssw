@@ -24,7 +24,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -54,12 +54,14 @@
 #include <string>
 #include <iostream>
 
+//#define EDM_ML_DEBUG
+
 using namespace std;
 using namespace edm;
 using namespace reco;
   
  
-class Phase2PixelNtuple : public edm::EDAnalyzer
+class Phase2PixelNtuple : public edm::one::EDAnalyzer<>
 {
 public:
    
@@ -72,8 +74,6 @@ public:
 protected:
  
   void fillEvt(const edm::Event& );
-  //void fillPRecHit(const int subid, SiPixelRecHitCollection::const_iterator pixeliter,
-  //                 const GeomDet* PixGeom);
   void fillPRecHit(const int detid_db, const int subid, 
 		   const int layer_num,const int ladder_num,const int module_num,
 		   const int disk_num,const int blade_num,const int panel_num,const int side_num,
@@ -96,7 +96,6 @@ private:
   edm::ParameterSet const conf_;
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelRecHit>> pixelRecHits_token;
-  //edm::InputTag src_;
   edm::EDGetTokenT<edm::View<reco::Track> > token_recoTracks;
   bool verbose_;
   bool picky_;
@@ -150,7 +149,6 @@ private:
     int fDgN;  
     int fDgRow[DGPERCLMAX], fDgCol[DGPERCLMAX];
     int fDgDetId[DGPERCLMAX];
-    //   int fDgRoc[DGPERCLMAX], fDgRocR[DGPERCLMAX], fDgRocC[DGPERCLMAX];
     float fDgAdc[DGPERCLMAX], fDgCharge[DGPERCLMAX];
 
     void init();
@@ -165,7 +163,6 @@ private:
 Phase2PixelNtuple::Phase2PixelNtuple(edm::ParameterSet const& conf) : 
   trackerHitAssociatorConfig_(conf, consumesCollector()),
   pixelRecHits_token(consumes<edmNew::DetSetVector<SiPixelRecHit>>(edm::InputTag("siPixelRecHits"))),
-  //src_( conf.getParameter<edm::InputTag>( "src" ) ),
   token_recoTracks(consumes<edm::View<reco::Track> >(conf.getParameter<edm::InputTag>( "trackProducer" ))),  
   verbose_( conf.getUntrackedParameter<bool>("verbose",false)),
   picky_(conf.getUntrackedParameter<bool>("picky",false)),
@@ -179,23 +176,16 @@ Phase2PixelNtuple::~Phase2PixelNtuple() { }
  
 void Phase2PixelNtuple::endJob() 
 {
-  std::cout << " Phase2PixelNtuple::endJob" << std::endl;
 }
  
  
  
 void Phase2PixelNtuple::beginJob()
 {
-  std::cout << " Phase2PixelNtuple::beginJob" << std::endl;
   pixeltree_        = tFileService->make<TTree>("PixelNtuple","Pixel hit analyzer ntuple");
   pixeltreeOnTrack_ = tFileService->make<TTree>("PixelNtupleOnTrack","On-Track Pixel hit analyzer ntuple");
 
   int bufsize = 64000;
-  //Common Branch
-  // pixeltree_->Branch("evt",    &evt_,      "run/I:evtnum/I", bufsize);
-  // pixeltree_->Branch("pixel_recHit", &recHit_, 
-  //                     "pdgid/I:process:q/F:x:y:xx:xy:yy:row:col:gx:gy:gz:subid/I:module:layer:ladder:disk:blade:panel:side:nsimhit:spreadx:spready:hx/F:hy:tx:ty:tz:theta:phi:DgN/I:DgRow[DgN]/I:DgCol[DgN]/I:DgDetId[DgN]/I:DgAdc[DgN]/F:DgCharge[DgN]/F:DgClI[DgN]/I:ClN/I:ClDgN[ClN]/I:ClDgI[ClN][100]/I]", bufsize);
-
   //Common Branch
   pixeltree_->Branch("evt",     &evt_ ,          "run/I:evtnum/I", bufsize);
   pixeltree_->Branch("pdgid",   &recHit_.pdgid,  "pdgid/I"  );
@@ -315,12 +305,10 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
   std::vector<PSimHit>::const_iterator closest_simhit;
 
   edm::Handle<SiPixelRecHitCollection> recHitColl;
-  //e.getByLabel( src_, recHitColl);
   e.getByToken(pixelRecHits_token, recHitColl);
   // for finding matched simhit
   TrackerHitAssociator associate( e, trackerHitAssociatorConfig_);
  
-  //  std::cout << " Step A: Standard RecHits found " << (recHitColl.product())->dataSize() << std::endl;
   if((recHitColl.product())->dataSize() > 0) {
     SiPixelRecHitCollection::const_iterator recHitIdIterator      = (recHitColl.product())->begin();
     SiPixelRecHitCollection::const_iterator recHitIdIteratorEnd   = (recHitColl.product())->end();
@@ -383,7 +371,9 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
 	    layer_num   = tTopo->pxbLayer(detId.rawId());
 	    ladder_num  = tTopo->pxbLadder(detId.rawId());
 	    module_num  = tTopo->pxbModule(detId.rawId());
-	    //	    std::cout <<"\ndetId = "<<subid<<" : "<<tTopo->pxbLayer(detId.rawId())<<" , "<<tTopo->pxbLadder(detId.rawId())<<" , "<< tTopo->pxbModule(detId.rawId());
+#ifdef EDM_ML_DEBUG
+	    std::cout <<"\ndetId = "<<subid<<" : "<<tTopo->pxbLayer(detId.rawId())<<" , "<<tTopo->pxbLadder(detId.rawId())<<" , "<< tTopo->pxbModule(detId.rawId());
+#endif
 	  } else if ( subid ==  PixelSubdetector::PixelEndcap ) {
 	    module_num  = tTopo->pxfModule(detId());
 	    disk_num    = tTopo->pxfDisk(detId());
@@ -415,10 +405,11 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
       ++rT;
       RefToBase<reco::Track> track(trackCollection, i);
       int iT = 0;
-      //std::cout << " num of hits for track " << rT << " = " << track->recHitsSize() << std::endl;
+#ifdef EDM_ML_DEBUG
+      std::cout << " num of hits for track " << rT << " = " << track->recHitsSize() << std::endl;
+#endif
       for(trackingRecHit_iterator ih=track->recHitsBegin(); ih != track->recHitsEnd(); ++ih) {
 	++iT;
-	//std::cout<<" analyzing hit n. "<<iT<<std::endl;
 	TrackingRecHit * hit = (*ih)->clone();
 	const DetId& detId =  hit->geographicalId();
 	const GeomDet* geomDet( theGeometry->idToDet(detId) );
@@ -472,7 +463,9 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
 		layer_num   = tTopo->pxbLayer(detId.rawId());
 		ladder_num  = tTopo->pxbLadder(detId.rawId());
 		module_num  = tTopo->pxbModule(detId.rawId());
-		//std::cout <<"\ndetId = "<<subid<<" : "<<tTopo->pxbLayer(detId.rawId())<<" , "<<tTopo->pxbLadder(detId.rawId())<<" , "<< tTopo->pxbModule(detId.rawId()) <<std::endl;
+#ifdef EDM_ML_DEBUG
+		std::cout <<"\ndetId = "<<subid<<" : "<<tTopo->pxbLayer(detId.rawId())<<" , "<<tTopo->pxbLadder(detId.rawId())<<" , "<< tTopo->pxbModule(detId.rawId()) <<std::endl;
+#endif
 	      } else if ( subid ==  PixelSubdetector::PixelEndcap ) {
 		module_num  = tTopo->pxfModule(detId());
 		disk_num    = tTopo->pxfDisk(detId());
@@ -485,22 +478,6 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      fillPRecHit(detid_db, subid, layer_num,ladder_num,module_num,disk_num,blade_num,panel_num,side_num, 
 			  ih, num_simhit, closest_simhit, geomDet );	 
 	      pixeltreeOnTrack_->Fill();	   
-	      /*
-		TrackingRecHit * hit = (*ih)->clone();
-		LocalPoint lp = hit->localPosition();
-		LocalError le = hit->localPositionError();
-		//            std::cout << "   lp x,y = " << lp.x() << " " << lp.y() << " lpe xx,xy,yy = "
-		//                  << le.xx() << " " << le.xy() << " " << le.yy() << std::endl;
-		std::cout << "Found RecHit in " << detname << " from detid " << detId.rawId()
-		<< " subdet = " << subdetId
-		<< " layer = " << layerNumber
-		<< "global x/y/z/r = "
-		<< geomDet->surface().toGlobal(lp).x() << " " 
-		<< geomDet->surface().toGlobal(lp).y() << " " 
-		<< geomDet->surface().toGlobal(lp).z() << " " 
-		<< geomDet->surface().toGlobal(lp).perp() 
-		<< " err x/y = " << sqrt(le.xx()) << " " << sqrt(le.yy()) << std::endl;
-	      */
 	    } // if ( (subid==1)||(subid==2) ) 
 	  } // if SiPixelHit is valid
 	} // if cast is possible to SiPixelHit
@@ -566,14 +543,6 @@ void Phase2PixelNtuple::fillPRecHit(const int detid_db, const int subid,
   recHit_.row = mp.x();
   recHit_.col = mp.y();
   
-  // if ( subid == 1 ) {
-  //     std::cout << "all hits: BPIX Layer "<< layer_num << " RectangularPixelTopology "
-  // 	      << " rechit row " << recHit_.row << 
-  // 	      << " , rechit col " << recHit_.col
-  // 	      << " , nrow " << topol->nrows() << ", ncols " << topol->ncolumns() << ", pitchx " << topol->pitch().first << ", pitchy " << topol->pitch().second 
-  // 	      << std::endl;
-  //  }
-
   if ( Cluster.isNonnull() ) { 
 
     // compute local angles from det position
@@ -584,14 +553,18 @@ void Phase2PixelNtuple::fillPRecHit(const int detid_db, const int subid,
 
     // -- Get digis of this cluster
     const std::vector<SiPixelCluster::Pixel>& pixvector = Cluster->pixels();
-    //      std::cout << "  Found " << pixvector.size() << " pixels for this cluster " << std::endl;
+#ifdef EDM_ML_DEBUG
+    std::cout << "  Found " << pixvector.size() << " pixels for this cluster " << std::endl;
+#endif
     for (unsigned int i = 0; i < pixvector.size(); ++i) {
       if (recHit_.fDgN > DGPERCLMAX - 1) break;
       SiPixelCluster::Pixel holdpix = pixvector[i];
       
       recHit_.fDgRow[recHit_.fDgN]    = holdpix.x;
       recHit_.fDgCol[recHit_.fDgN]    = holdpix.y;
-      //	std::cout << "holdpix " << holdpix.x << " " <<  holdpix.y << std::endl;
+#ifdef EDM_ML_DEBUG
+      std::cout << "holdpix " << holdpix.x << " " <<  holdpix.y << std::endl;
+#endif
       recHit_.fDgDetId[recHit_.fDgN]  = detid_db;
       recHit_.fDgAdc[recHit_.fDgN]    = -99.;
       recHit_.fDgCharge[recHit_.fDgN] = holdpix.adc/1000.;	
@@ -599,14 +572,10 @@ void Phase2PixelNtuple::fillPRecHit(const int detid_db, const int subid,
       
     }      
   } // if ( Cluster.isNonnull() )
-  else 
-    {
-      std::cout << "Pixel rechits with no associated cluster ?!?!?!!!!!!!!!!!!!!!!!!!!!!! " << std::endl;
-	// for (std::vector<TrajectoryMeasurement>::const_iterator tmeasIt = tmeasColl.begin(); ...
-    }
-	/*-- --*/
-
-  //std::cout << "num_simhit = " << num_simhit << std::endl;
+	
+#ifdef EDM_ML_DEBUG
+  std::cout << "num_simhit = " << num_simhit << std::endl;
+#endif
   if(num_simhit > 0) {
 
     recHit_.pdgid = (*closest_simhit).particleType();
@@ -627,20 +596,23 @@ void Phase2PixelNtuple::fillPRecHit(const int detid_db, const int subid,
     recHit_.hrow = hmp.x();
     recHit_.hcol = hmp.y();
 
+    // Leaving the comment below, useful for future reference
     // alpha: angle with respect to local x axis in local (x,z) plane
     // float cotalpha = sim_xdir/sim_zdir;
     // beta: angle with respect to local y axis in local (y,z) plane
     // float cotbeta = sim_ydir/sim_zdir;
     
-    //std::cout << "num_simhit x, y = " << 0.5*(sim_x1+sim_x2) << " " << 0.5*(sim_y1+sim_y2) << std::endl;
+#ifdef EDM_ML_DEBUG
+    std::cout << "num_simhit x, y = " << 0.5*(sim_x1+sim_x2) << " " << 0.5*(sim_y1+sim_y2) << std::endl;
+#endif
   }
-  /*
+#ifdef EDM_ML_DEBUG    
     std::cout << "Found RecHit in " << subid
     << " global x/y/z : "
     << PixGeom->surface().toGlobal(pixeliter->localPosition()).x() << " " 
     << PixGeom->surface().toGlobal(pixeliter->localPosition()).y() << " " 
     << PixGeom->surface().toGlobal(pixeliter->localPosition()).z() << std::endl;
-  */
+#endif
 }
 
 // Function for filling in on track rechits
@@ -696,9 +668,6 @@ void Phase2PixelNtuple::fillPRecHit(const int detid_db, const int subid,
   recHit_.pitchy     =	topol->pitch().second;        
   recHit_.thickness  =	theGeomDet->surface().bounds().thickness();      
 
-  // if ( subid == 1 ) {
-  //     std::cout << "on track only: BPIX Layer "<< layer_num << " RectangularPixelTopology " << "nrows " << topol->nrows() << ", ncols " << topol->ncolumns() << ", pitchx " << topol->pitch().first << ", pitchy " << topol->pitch().second << std::endl;
-  //   }
 
   if ( Cluster.isNonnull() ) { 
     // compute local angles from det position
@@ -708,27 +677,25 @@ void Phase2PixelNtuple::fillPRecHit(const int detid_db, const int subid,
 
     // -- Get digis of this cluster
     const std::vector<SiPixelCluster::Pixel>& pixvector = Cluster->pixels();
-    //      std::cout << "  Found " << pixvector.size() << " pixels for this cluster " << std::endl;
+#ifdef EDM_ML_DEBUG
+    std::cout << "  Found " << pixvector.size() << " pixels for this cluster " << std::endl;
+#endif
     for (unsigned int i = 0; i < pixvector.size(); ++i) {
       if (recHit_.fDgN > DGPERCLMAX - 1) break;
       SiPixelCluster::Pixel holdpix = pixvector[i];
       
       recHit_.fDgRow[recHit_.fDgN]    = holdpix.x;
       recHit_.fDgCol[recHit_.fDgN]    = holdpix.y;
-      //	std::cout << "holdpix " << holdpix.x << " " <<  holdpix.y << std::endl;
+#ifdef EDM_ML_DEBUG
+      std::cout << "holdpix " << holdpix.x << " " <<  holdpix.y << std::endl;
+#endif
       recHit_.fDgDetId[recHit_.fDgN]  = detid_db;
       recHit_.fDgAdc[recHit_.fDgN]    = -99.;
       recHit_.fDgCharge[recHit_.fDgN] = holdpix.adc/1000.;	
       ++recHit_.fDgN;      
     }      
   } // if ( Cluster.isNonnull() )
-  else 
-    {
-      std::cout << "Pixel rechits with no associated cluster ?!?!?!!!!!!!!!!!!!!!!!!!!!!! " << std::endl;
-	// for (std::vector<TrajectoryMeasurement>::const_iterator tmeasIt = tmeasColl.begin(); ...
-    }
 
-  //std::cout << "num_simhit = " << num_simhit << std::endl;
   if(num_simhit > 0) {
 
     recHit_.pdgid = (*closest_simhit).particleType();
@@ -749,12 +716,15 @@ void Phase2PixelNtuple::fillPRecHit(const int detid_db, const int subid,
     recHit_.hrow = hmp.x();
     recHit_.hcol = hmp.y();
 
+    // Leaving the comment below, useful for future reference
     // alpha: angle with respect to local x axis in local (x,z) plane
     // float cotalpha = sim_xdir/sim_zdir;
     // beta: angle with respect to local y axis in local (y,z) plane
     // float cotbeta = sim_ydir/sim_zdir;
     
-    //std::cout << "num_simhit x, y = " << 0.5*(sim_x1+sim_x2) << " " << 0.5*(sim_y1+sim_y2) << std::endl;
+#ifdef EDM_ML_DEBUG
+    std::cout << "num_simhit x, y = " << 0.5*(sim_x1+sim_x2) << " " << 0.5*(sim_y1+sim_y2) << std::endl;
+#endif
   }
 
   delete pixeliter;
