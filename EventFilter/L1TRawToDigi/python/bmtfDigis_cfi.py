@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 bmtfDigis = cms.EDProducer(
     "L1TRawToDigi",
-    Setup = cms.string("stage2::BMTFSetupZS"),
+    Setup = cms.string("stage2::BMTFSetup"),
     InputLabel = cms.InputTag("rawDataCollector"),
     FedIds = cms.vint32(1376,1377),
     FWId = cms.uint32(1),

@@ -11,7 +11,6 @@
 
 namespace l1t {
    namespace stage2 {
-
       class BMTFSetup : public PackingSetup {
          public:
             std::unique_ptr<PackerTokens> registerConsumes(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) override;
