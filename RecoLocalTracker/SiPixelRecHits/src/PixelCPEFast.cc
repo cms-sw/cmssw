@@ -17,7 +17,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include "EventFilter/SiPixelRawToDigi/plugins/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include <iostream>
 
