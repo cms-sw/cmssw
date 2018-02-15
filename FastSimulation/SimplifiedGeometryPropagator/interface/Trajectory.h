@@ -29,6 +29,8 @@ namespace fastsim
     class Trajectory
     {
         public:
+        virtual ~Trajectory() = default;
+
         //! Calls constructor of derived classes.
         /*!
             Decides whether a straight (uncharged particle or very high pT charged particle) or a helix trajectory (generic charged particle) is constructed.
