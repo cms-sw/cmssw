@@ -14,6 +14,10 @@
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelQualityRcd.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationForHLTService.h"
+
+
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "RawToDigiGPU.h"
@@ -24,6 +28,8 @@ class SiPixelQuality;
 class TH1D;
 class PixelUnpackingRegions;
 
+class SiPixelGainForHLTonGPU;
+struct SiPixelGainForHLTonGPU_DecodingStructure;
 class SiPixelRawToDigiGPU : public edm::stream::EDProducer<> {
 public:
 
@@ -76,6 +82,12 @@ private:
   context context_;
   SiPixelFedCablingMapGPU * cablingMapGPUHost_;
   SiPixelFedCablingMapGPU * cablingMapGPUDevice_;
+
+  //  gain calib
+  SiPixelGainCalibrationForHLTService  theSiPixelGainCalibration_;
+  SiPixelGainForHLTonGPU  * gainForHLTonGPU_ = nullptr;
+  SiPixelGainForHLTonGPU_DecodingStructure * gainDataOnGPU_ = nullptr;
+
 };
 
 #endif

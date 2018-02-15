@@ -2,6 +2,7 @@
 #define EventFilter_SiPixelRawToDigi_cudaCheck_h
 
 #include <cuda.h>
+#include <iostream>
 
 inline
 bool cudaCheck_(const char* file, int line, const char* cmd, CUresult result)
