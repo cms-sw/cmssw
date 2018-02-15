@@ -10,7 +10,6 @@ namespace l1t{
 			int linkNo;
 			int hits[3][7];
 		};
-
 		class BMTFUnpackerInputsOldQual : public Unpacker
 		{
 			public:
