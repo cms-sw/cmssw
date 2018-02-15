@@ -97,27 +97,6 @@ namespace
     tau.setP4(tauP4_modified);
     tau.setStatus(-1);
   }
-
-  const reco::Track* getTrackFromChargedHadron(const reco::PFRecoTauChargedHadron& chargedHadron) {
-    // Charged hadron made from track (reco::Track) - RECO/AOD only
-    if ( chargedHadron.getTrack().isNonnull()) {
-      return chargedHadron.getTrack().get();
-    }
-    // Get track from chargedPackedCandidate - MINIAOD
-    const pat::PackedCandidate* chargedPFPCand = dynamic_cast<const pat::PackedCandidate*> (&*chargedHadron.getChargedPFCandidate());
-    if (chargedPFPCand) {
-        if (chargedPFPCand->hasTrackDetails())
-          return &chargedPFPCand->pseudoTrack();
-    }
-    // Get track from lostTrackPackedCandidate - MINIAOD for charged hadron made from lostTtrack (pat::PackedCandidate)
-    const pat::PackedCandidate* lostTrackPCand = dynamic_cast<const pat::PackedCandidate*> (&*chargedHadron.getLostTrackCandidate());
-    if (lostTrackPCand) {
-        if (lostTrackPCand->hasTrackDetails())
-          return &lostTrackPCand->pseudoTrack();
-    }
-
-    return nullptr;
-  }
 }
 
 template<class Base, class Der>

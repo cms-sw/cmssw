@@ -11,12 +11,11 @@
 namespace reco { namespace tau {
 
 namespace {
-  // Get the KF track if it exists.  Otherwise, see if PFCandidate has a GSF track.
-  // JAN FIXME - WE NEED TO SEE WHAT TO DO FOR MINIAOD
   const reco::Track* getTrack(const Candidate& cand) 
   { 
     const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
     if (pfCandPtr) {
+      // Get the KF track if it exists.  Otherwise, see if PFCandidate has a GSF track.
       if      ( pfCandPtr->trackRef().isNonnull()    ) return pfCandPtr->trackRef().get();
       else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return pfCandPtr->gsfTrackRef().get();
       else return nullptr;
