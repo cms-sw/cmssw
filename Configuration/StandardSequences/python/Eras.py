@@ -25,6 +25,7 @@ class Eras (object):
                  'Run2_2017_trackingLowPU',
                  'Run2_2017_pp_on_XeXe',
                  'Run2_2017_ppRef',
+                 'Run2_2017_lowPU',
                  'Run2_2018',
                  'Run3',
                  'Phase2',
