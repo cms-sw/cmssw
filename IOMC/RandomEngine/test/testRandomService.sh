@@ -107,15 +107,15 @@ pushd ${LOCAL_TMP_DIR}
   then
     echo running cmsRun with StashStateStream.data_2
     mv stream2LastEvent.txt lastEvent.txt
-  elif [ -f StashStateFork.data_1 ]
+  elif [ -f StashStateStream.data_1 ]
   then
-    echo running cmsRun with StashStateFork.data_1
-    mv StashStateFork.data_1 StashStateFork.data_2
+    echo running cmsRun with StashStateStream.data_1
+    mv StashStateStream.data_1 StashStateStream.data_2
     mv stream1LastEvent.txt lastEvent.txt
-  elif [ -f StashStateFork.data_0 ]
+  elif [ -f StashStateStream.data_0 ]
   then
-    echo running cmsRun with StashStateFork.data_0
-    mv StashStateFork.data_0 StashStateFork.data_2
+    echo running cmsRun with StashStateStream.data_0
+    mv StashStateStream.data_0 StashStateStream.data_2
     mv stream0LastEvent.txt lastEvent.txt
   else
     echo Error: Text file containing states not found
