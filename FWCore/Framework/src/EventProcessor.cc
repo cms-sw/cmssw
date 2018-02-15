@@ -1442,7 +1442,7 @@ namespace edm {
   }
 
   void EventProcessor::writeRun(ProcessHistoryID const& phid, RunNumber_t run) {
-    schedule_->writeRun(principalCache_.runPrincipal(phid, run), &processContext_);
+    schedule_->writeRun(principalCache_.runPrincipal(phid, run), &processContext_, actReg_.get());
     for_all(subProcesses_, [run,phid](auto& subProcess){ subProcess.writeRun(phid, run); });
     FDEBUG(1) << "\twriteRun " << run << "\n";
   }
@@ -1454,7 +1454,7 @@ namespace edm {
   }
 
   void EventProcessor::writeLumi(LuminosityBlockProcessingStatus& iStatus) {
-    schedule_->writeLumi(*iStatus.lumiPrincipal(), &processContext_);
+    schedule_->writeLumi(*iStatus.lumiPrincipal(), &processContext_, actReg_.get());
     for_all(subProcesses_, [&iStatus](auto& subProcess){ subProcess.writeLumi(*iStatus.lumiPrincipal()); });
     //FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
   }
