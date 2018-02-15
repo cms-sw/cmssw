@@ -1,0 +1,3 @@
+<bin   file="test_GPUSimpleVector.cu" name="test_GPUSimpleVector">
+  <flags   CUDA_FLAGS="-std=c++14"/>
+</bin>
