@@ -23,23 +23,23 @@ namespace l1t {
          PackerMap res;
 	 //res are in format res[amc_no, board_id]
 	 
-	  if (fed == 1376 || fed == 1377) {
+	 if (fed == 1376 || fed == 1377) {
 
-            std::array<int,12> board_out = { {1,7,2,8,3,9,4,10,5,11,6,12} };//these are board_ids per amc_no-1
+	   int board_out[]={1,7,2,8,3,9,4,10,5,11,6,12};//these are board_ids per amc_no-1
 
-	    for (unsigned int i=1; i<=board_out.size(); i++)
-	      {
-		if (i%2 != 0) {//maybe this check is not needed
-		  res[{i, board_out[i-1]}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
-					      PackerFactory::get()->make("stage2::BMTFPackerInputs")};
-		}
-		else{
-		  res[{i, board_out[i-1]}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
-					      PackerFactory::get()->make("stage2::BMTFPackerInputs")};
-		}
+	   for (int i=1; i<=12; i++)
+	     {
+	       if (i%2 != 0) {//maybe this check is not needed
+		 res[{i, board_out[i-1]}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
+					     PackerFactory::get()->make("stage2::BMTFPackerInputs")};
+	       }
+	       else{
+		 res[{i, board_out[i-1]}] = {PackerFactory::get()->make("stage2::BMTFPackerOutput"),
+					     PackerFactory::get()->make("stage2::BMTFPackerInputs")};
+	       }
 
 	     }
-	  }//if feds
+	 }//if feds
 
 	   /*
 	 if (fed == 1376) {
@@ -95,7 +95,7 @@ namespace l1t {
          auto inputMuonsNew = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsNewQual");
 
          UnpackerMap res;
-         if (fed == 1376 || fed == 1377) {
+         if (fed == 1376 || fed == 1377 || 1) {
             for (int iL = 0; iL <= 70; iL += 2) {
                if (iL == 12 || iL == 14 || ( iL > 26 && iL < 32) || iL == 60 || iL == 62)
                   continue;
