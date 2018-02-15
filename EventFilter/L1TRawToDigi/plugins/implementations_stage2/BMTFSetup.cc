@@ -25,7 +25,7 @@ namespace l1t {
 	 
 	 if (fed == 1376 || fed == 1377) {
 
-	   std::array<int, 12> board_out[] = { {1,7,2,8,3,9,4,10,5,11,6,12} };//these are board_ids per amc_no-1
+	   std::array<int,12> board_out = { {1,7,2,8,3,9,4,10,5,11,6,12} };//these are board_ids per amc_no-1
 
 	   for (int i=1; i<=12; i++)
 	     {
