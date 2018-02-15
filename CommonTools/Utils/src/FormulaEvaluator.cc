@@ -562,7 +562,6 @@ namespace {
   const std::string k_log("log");
   const std::string k_log10("log10");
   const std::string k_TMath__Log("TMath::Log");
-  const std::string k_TMath__Exp("TMath::Exp");
   double const kLog10Inv = 1./std::log(10.);
   const std::string k_exp("exp");
   const std::string k_pow("pow");
@@ -606,12 +605,6 @@ namespace {
 
     info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
                                      k_TMath__Log, [](double iArg)->double { return std::log(iArg); } );
-    if(info.evaluator.get() != nullptr) {
-      return info;
-    }
-
-    info = checkForSingleArgFunction(iBegin, iEnd, m_expressionFinder,
-                                     k_TMath__Exp, [](double iArg)->double { return std::exp(iArg); } );
     if(info.evaluator.get() != nullptr) {
       return info;
     }
