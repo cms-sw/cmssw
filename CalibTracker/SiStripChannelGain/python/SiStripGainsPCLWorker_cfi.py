@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripGainsPCLWorker = cms.EDAnalyzer(
-    "SiStripGainsPCLWorker",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiStripGainsPCLWorker = DQMEDAnalyzer(
+    'SiStripGainsPCLWorker',
     minTrackMomentum    = cms.untracked.double(2),
     maxNrStrips         = cms.untracked.uint32(8),
     Validation          = cms.untracked.bool(False),

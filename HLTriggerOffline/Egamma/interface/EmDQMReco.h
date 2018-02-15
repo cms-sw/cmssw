@@ -92,8 +92,6 @@ public:
   // Operations
 
   void analyze(const edm::Event & event, const edm::EventSetup&) override;
-  void beginJob();
-  void endJob();
   void dqmBeginRun( const edm::Run&, const edm::EventSetup& ) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 

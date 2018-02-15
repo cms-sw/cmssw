@@ -52,8 +52,9 @@ process.TrackerInteractionGeometryESProducer.TrackerMaterial.TrackerMaterialVers
 
 
 #process.testME = cms.EDFilter(
-process.testME = cms.EDAnalyzer(
-   "testMaterialEffects",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.testME = DQMEDAnalyzer(
+   'testMaterialEffects',
 
     # Full, Fast radii and lengths for plots
     BPCylinderRadius = cms.untracked.vdouble(3.2, 3.05),

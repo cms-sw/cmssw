@@ -4,40 +4,41 @@ import FWCore.ParameterSet.Config as cms
 from DQM.L1TMonitor.L1TStage2uGMT_cfi import *
 
 # the uGMT intermediate muon DQM modules
-l1tStage2uGMTIntermediateBMTF = cms.EDAnalyzer(
-    "L1TStage2uGMTMuon",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tStage2uGMTIntermediateBMTF = DQMEDAnalyzer(
+    'L1TStage2uGMTMuon',
     muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsBMTF"),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/BMTF"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from BMTF "),
     verbose = cms.untracked.bool(False),
 )
 
-l1tStage2uGMTIntermediateOMTFNeg = cms.EDAnalyzer(
-    "L1TStage2uGMTMuon",
+l1tStage2uGMTIntermediateOMTFNeg = DQMEDAnalyzer(
+    'L1TStage2uGMTMuon',
     muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsOMTFNeg"),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/OMTF_neg"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from OMTF neg. "),
     verbose = cms.untracked.bool(False),
 )
 
-l1tStage2uGMTIntermediateOMTFPos = cms.EDAnalyzer(
-    "L1TStage2uGMTMuon",
+l1tStage2uGMTIntermediateOMTFPos = DQMEDAnalyzer(
+    'L1TStage2uGMTMuon',
     muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsOMTFPos"),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/OMTF_pos"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from OMTF pos. "),
     verbose = cms.untracked.bool(False),
 )
 
-l1tStage2uGMTIntermediateEMTFNeg = cms.EDAnalyzer(
-    "L1TStage2uGMTMuon",
+l1tStage2uGMTIntermediateEMTFNeg = DQMEDAnalyzer(
+    'L1TStage2uGMTMuon',
     muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsEMTFNeg"),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/EMTF_neg"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from EMTF neg. "),
     verbose = cms.untracked.bool(False),
 )
 
-l1tStage2uGMTIntermediateEMTFPos = cms.EDAnalyzer(
-    "L1TStage2uGMTMuon",
+l1tStage2uGMTIntermediateEMTFPos = DQMEDAnalyzer(
+    'L1TStage2uGMTMuon',
     muonProducer = cms.InputTag("gmtStage2Digis", "imdMuonsEMTFPos"),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/intermediate_muons/EMTF_pos"),
     titlePrefix = cms.untracked.string("uGMT intermediate muon from EMTF pos. "),
@@ -45,8 +46,8 @@ l1tStage2uGMTIntermediateEMTFPos = cms.EDAnalyzer(
 )
 
 # zero suppression DQM
-l1tStage2uGMTZeroSupp = cms.EDAnalyzer(
-    "L1TMP7ZeroSupp",
+l1tStage2uGMTZeroSupp = DQMEDAnalyzer(
+    'L1TMP7ZeroSupp',
     fedIds = cms.vint32(1402),
     rawData = cms.InputTag("rawDataCollector"),
     # mask for inputs (pt==0 defines empty muon)
@@ -88,8 +89,8 @@ ignoreBins = {
 
 # compares the unpacked BMTF output regional muon collection with the unpacked uGMT input regional muon collection from BMTF
 # only muons that do not match are filled in the histograms
-l1tStage2BmtfOutVsuGMTIn = cms.EDAnalyzer(
-    "L1TStage2RegionalMuonCandComp",
+l1tStage2BmtfOutVsuGMTIn = DQMEDAnalyzer(
+    'L1TStage2RegionalMuonCandComp',
     regionalMuonCollection1 = cms.InputTag("bmtfDigis", "BMTF"),
     regionalMuonCollection2 = cms.InputTag("gmtStage2Digis", "BMTF"),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/BMTFoutput_vs_uGMTinput"),
@@ -102,8 +103,8 @@ l1tStage2BmtfOutVsuGMTIn = cms.EDAnalyzer(
 
 # compares the unpacked OMTF output regional muon collection with the unpacked uGMT input regional muon collection from OMTF
 # only muons that do not match are filled in the histograms
-l1tStage2OmtfOutVsuGMTIn = cms.EDAnalyzer(
-    "L1TStage2RegionalMuonCandComp",
+l1tStage2OmtfOutVsuGMTIn = DQMEDAnalyzer(
+    'L1TStage2RegionalMuonCandComp',
     regionalMuonCollection1 = cms.InputTag("omtfStage2Digis", ""),
     regionalMuonCollection2 = cms.InputTag("gmtStage2Digis", "OMTF"),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/OMTFoutput_vs_uGMTinput"),
@@ -115,8 +116,8 @@ l1tStage2OmtfOutVsuGMTIn = cms.EDAnalyzer(
 
 # compares the unpacked EMTF output regional muon collection with the unpacked uGMT input regional muon collection from EMTF
 # only muons that do not match are filled in the histograms
-l1tStage2EmtfOutVsuGMTIn = cms.EDAnalyzer(
-    "L1TStage2RegionalMuonCandComp",
+l1tStage2EmtfOutVsuGMTIn = DQMEDAnalyzer(
+    'L1TStage2RegionalMuonCandComp',
     regionalMuonCollection1 = cms.InputTag("emtfStage2Digis"),
     regionalMuonCollection2 = cms.InputTag("gmtStage2Digis", "EMTF"),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/EMTFoutput_vs_uGMTinput"),
@@ -130,8 +131,8 @@ l1tStage2EmtfOutVsuGMTIn = cms.EDAnalyzer(
 # The five modules below compare the primary unpacked uGMT muon collection to goes to uGT board 0
 # to the unpacked uGMT muon collections that are sent to uGT boards 1 to 5.
 # Only muons that do not match are filled in the histograms
-l1tStage2uGMTMuonVsuGMTMuonCopy1 = cms.EDAnalyzer(
-    "L1TStage2MuonComp",
+l1tStage2uGMTMuonVsuGMTMuonCopy1 = DQMEDAnalyzer(
+    'L1TStage2MuonComp',
     muonCollection1 = cms.InputTag("gmtStage2Digis", "Muon"),
     muonCollection2 = cms.InputTag("gmtStage2Digis", "MuonCopy1"),
     monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/uGMTMuonCopies/uGMTMuonCopy1"),

@@ -22,8 +22,9 @@ probeToL1Offset = 10
 photonEfficiencyThresholds = electronEfficiencyThresholds
 photonEfficiencyBins = electronEfficiencyBins
 
-l1tEGammaOfflineDQM = cms.EDAnalyzer(
-    "L1TEGammaOffline",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tEGammaOfflineDQM = DQMEDAnalyzer(
+    'L1TEGammaOffline',
     electronCollection=cms.InputTag("gedGsfElectrons"),
     photonCollection=cms.InputTag("photons"),
     caloJetCollection=cms.InputTag("ak4CaloJets"),

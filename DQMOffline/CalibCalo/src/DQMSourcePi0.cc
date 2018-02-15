@@ -327,16 +327,6 @@ void DQMSourcePi0::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & 
 
 }
 
-//--------------------------------------------------------
-//void DQMSourcePi0::beginRun(const edm::Run& r, const EventSetup& context) {
-//
-//}
-
-//--------------------------------------------------------
-void DQMSourcePi0::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
-     const EventSetup& context) {
-  
-}
 
 //-------------------------------------------------------------
 
@@ -1499,27 +1489,6 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
 
 } 
-
-
-
-
-//--------------------------------------------------------
-void DQMSourcePi0::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
-                                          const EventSetup& context) {
-}
-//--------------------------------------------------------
-void DQMSourcePi0::endRun(const Run& r, const EventSetup& context){
-
-}
-//--------------------------------------------------------
-void DQMSourcePi0::endJob(){
-
-//  if(dbe_) {  
-//    if (saveToFile_) {
-//      dbe_->save(fileName_);
-//    }
-//  }
-}
 
 
 void DQMSourcePi0::convxtalid(Int_t &nphi,Int_t &neta)

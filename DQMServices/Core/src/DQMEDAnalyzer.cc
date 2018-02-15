@@ -9,11 +9,6 @@
 
 DQMEDAnalyzer::DQMEDAnalyzer() = default;
 
-void DQMEDAnalyzer::beginStream(edm::StreamID id)
-{
-  stream_id_ = id.value();
-}
-
 void DQMEDAnalyzer::beginRun(edm::Run const &iRun,
                              edm::EventSetup const &iSetup) {
   dqmBeginRun(iRun, iSetup);
@@ -23,22 +18,14 @@ void DQMEDAnalyzer::beginRun(edm::Run const &iRun,
                            this->bookHistograms(b, iRun, iSetup);
                          },
                          iRun.run(),
-                         streamId(),
-                         iRun.moduleCallingContext()->moduleDescription()->id());
+                         0, 0);
+
 }
 
 
-std::shared_ptr<dqmDetails::NoCache>
-DQMEDAnalyzer::globalBeginRunSummary(edm::Run const&,
-                                     edm::EventSetup const&,
-                                     RunContext const*)
-{
-  return nullptr;
-}
 
-void DQMEDAnalyzer::endLuminosityBlockSummary(edm::LuminosityBlock const &iLumi ,
-                                              edm::EventSetup const &iSetup,
-                                              dqmDetails::NoCache*) const {
+void DQMEDAnalyzer::endLuminosityBlock(edm::LuminosityBlock const &iLumi ,
+                                              edm::EventSetup const &iSetup) {
   DQMStore * store = edm::Service<DQMStore>().operator->();
   assert(store);
   LogDebug("DQMEDAnalyzer") << "Merging Lumi local MEs ("
@@ -49,8 +36,7 @@ void DQMEDAnalyzer::endLuminosityBlockSummary(edm::LuminosityBlock const &iLumi 
                             << ") into the DQMStore@" << store << std::endl;
   store->mergeAndResetMEsLuminositySummaryCache(iLumi.run(),
                                                 iLumi.id().luminosityBlock(),
-                                                stream_id_,
-                                                iLumi.moduleCallingContext()->moduleDescription()->id());
+                                                0, 0);
 }
 
 void DQMEDAnalyzer::endRunSummary(edm::Run const &iRun ,
@@ -68,42 +54,7 @@ void DQMEDAnalyzer::endRunSummary(edm::Run const &iRun ,
                                          iRun.moduleCallingContext()->moduleDescription()->id());
 }
 
-void DQMEDAnalyzer::globalEndRunSummary(edm::Run const&,
-                                        edm::EventSetup const&,
-                                        RunContext const*,
-                                        dqmDetails::NoCache*)
-{}
 
-std::shared_ptr<dqmDetails::NoCache>
-DQMEDAnalyzer::globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
-                                                 edm::EventSetup const&,
-                                                 LuminosityBlockContext const*)
-{
-  return nullptr;
-}
-
-void DQMEDAnalyzer::globalEndLuminosityBlockSummary(edm::LuminosityBlock const&,
-                                                    edm::EventSetup const&,
-                                                    LuminosityBlockContext const*,
-                                                    dqmDetails::NoCache*)
-{}
-
-
-
-//############################## ONLY NEEDED IN THE TRANSITION PERIOD ################################
-//here the thread_unsafe (simplified) carbon copy of the DQMEDAnalyzer
-
-thread_unsafe::DQMEDAnalyzer::DQMEDAnalyzer() = default;
-
-void thread_unsafe::DQMEDAnalyzer::beginRun(edm::Run const &iRun,
-					    edm::EventSetup const &iSetup) {
-  dqmBeginRun(iRun, iSetup);
-  DQMStore * store = edm::Service<DQMStore>().operator->();
-  store->bookTransaction([this, &iRun, &iSetup](DQMStore::IBooker &b) {
-      b.cd();
-      this->bookHistograms(b, iRun, iSetup);
-    },
-    iRun.run(),
-    0,
-    0);
+void DQMEDAnalyzer::accumulate(edm::Event const& ev, edm::EventSetup const& es) {
+  this->analyze(ev, es);
 }

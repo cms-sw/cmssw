@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-hfRaddamTask = cms.EDAnalyzer(
-	"HFRaddamTask",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hfRaddamTask = DQMEDAnalyzer(
+	'HFRaddamTask',
 	
 	#	standard parameters
 	name = cms.untracked.string("HFRaddamTask"),
