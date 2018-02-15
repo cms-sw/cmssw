@@ -147,7 +147,8 @@ class CSCMotherboard
   void checkConfigParameters();
 
   void correlateLCTs(const CSCALCTDigi& bestALCT, const CSCALCTDigi& secondALCT,
-                     const CSCCLCTDigi& bestCLCT, const CSCCLCTDigi& secondCLCT);
+                     const CSCCLCTDigi& bestCLCT, const CSCCLCTDigi& secondCLCT,
+                     int type);
 
   // This method calculates all the TMB words and then passes them to the
   // constructor of correlated LCTs.
