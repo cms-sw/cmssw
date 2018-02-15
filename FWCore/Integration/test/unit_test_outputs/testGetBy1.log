@@ -912,6 +912,8 @@ GlobalContext: transition = EndLuminosityBlock
     ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
     parent ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
 
+++++++ starting: write lumi for module: label = 'out' id = 8
+++++++ finished: write lumi for module: label = 'out' id = 8
 ++++ starting: end run: stream = 0 run = 1 time = 15000001
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
@@ -1004,6 +1006,8 @@ GlobalContext: transition = EndRun
     ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
     parent ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
 
+++++++ starting: write run for module: label = 'out' id = 8
+++++++ finished: write run for module: label = 'out' id = 8
 ++++ starting: end stream for module: stream = 0 label = 'intProducer' id = 4
 ++++ finished: end stream for module: stream = 0 label = 'intProducer' id = 4
 ++++ starting: end stream for module: stream = 0 label = 'a1' id = 5

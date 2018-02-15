@@ -165,7 +165,13 @@ namespace edm {
       void postModuleGlobalBeginLumi(GlobalContext const&, ModuleCallingContext const&);
       void preModuleGlobalEndLumi(GlobalContext const&, ModuleCallingContext const&);
       void postModuleGlobalEndLumi(GlobalContext const&, ModuleCallingContext const&);
+
+      void preModuleWriteRun(GlobalContext const&, ModuleCallingContext const&);
+      void postModuleWriteRun(GlobalContext const&, ModuleCallingContext const&);
       
+      void preModuleWriteLumi(GlobalContext const&, ModuleCallingContext const&);
+      void postModuleWriteLumi(GlobalContext const&, ModuleCallingContext const&);
+
       void preSourceConstruction(ModuleDescription const& md);
       void postSourceConstruction(ModuleDescription const& md);
 
@@ -322,6 +328,12 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry&iRegistry) :
   iRegistry.watchPostModuleGlobalBeginLumi(this, &Tracer::postModuleGlobalBeginLumi);
   iRegistry.watchPreModuleGlobalEndLumi(this, &Tracer::preModuleGlobalEndLumi);
   iRegistry.watchPostModuleGlobalEndLumi(this, &Tracer::postModuleGlobalEndLumi);
+
+  iRegistry.watchPreModuleWriteRun(this, &Tracer::preModuleWriteRun);
+  iRegistry.watchPostModuleWriteRun(this, &Tracer::postModuleWriteRun);
+
+  iRegistry.watchPreModuleWriteLumi(this, &Tracer::preModuleWriteLumi);
+  iRegistry.watchPostModuleWriteLumi(this, &Tracer::postModuleWriteLumi);
 
   iRegistry.watchPreSourceConstruction(this, &Tracer::preSourceConstruction);
   iRegistry.watchPostSourceConstruction(this, &Tracer::postSourceConstruction);
@@ -1253,6 +1265,66 @@ Tracer::postModuleGlobalEndLumi(GlobalContext const& gc, ModuleCallingContext co
     out << indention_;
   }
   out << " finished: global end lumi for module: label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
+void
+Tracer::preModuleWriteRun(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 3;
+  for(unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: write run for module: label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
+void
+Tracer::postModuleWriteRun(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 3;
+  for(unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: write run for module: label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
+void
+Tracer::preModuleWriteLumi(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 3;
+  for(unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: write lumi for module: label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
+  if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
+    out << "\n" << gc;
+    out << mcc;
+  }
+}
+
+void
+Tracer::postModuleWriteLumi(GlobalContext const& gc, ModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 3;
+  for(unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: write lumi for module: label = '" << mcc.moduleDescription()->moduleLabel() << "' id = " << mcc.moduleDescription()->id();
   if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << gc;
     out << mcc;
