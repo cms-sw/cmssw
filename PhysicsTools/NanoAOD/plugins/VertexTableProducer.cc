@@ -68,6 +68,8 @@ class VertexTableProducer : public edm::stream::EDProducer<> {
       const edm::EDGetTokenT<edm::ValueMap<float>> pvsScore_;
       const edm::EDGetTokenT<edm::View<reco::VertexCompositePtrCandidate> > svs_;
       const StringCutObjectSelector<reco::Candidate> svCut_;
+      const StringCutObjectSelector<reco::Vertex> goodPvCut_;
+      const std::string goodPvCutString_;
       const std::string  pvName_;
       const std::string  svName_;
       const std::string svDoc_;
@@ -85,6 +87,8 @@ VertexTableProducer::VertexTableProducer(const edm::ParameterSet& params):
     pvsScore_(consumes<edm::ValueMap<float>>( params.getParameter<edm::InputTag>("pvSrc") )),
     svs_(consumes<edm::View<reco::VertexCompositePtrCandidate> >( params.getParameter<edm::InputTag>("svSrc") )),
     svCut_(params.getParameter<std::string>("svCut") , true),
+    goodPvCut_(params.getParameter<std::string>("goodPvCut") , true),
+    goodPvCutString_(params.getParameter<std::string>("goodPvCut") ),
     pvName_(params.getParameter<std::string>("pvName") ),
     svName_(params.getParameter<std::string>("svName") ),
     svDoc_(params.getParameter<std::string>("svDoc") ),
@@ -130,7 +134,10 @@ VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pvTable->addColumnValue<float>("y",(*pvsIn)[0].position().y(),"main primary vertex position y coordinate",nanoaod::FlatTable::FloatColumn,10);
     pvTable->addColumnValue<float>("z",(*pvsIn)[0].position().z(),"main primary vertex position z coordinate",nanoaod::FlatTable::FloatColumn,16);
     pvTable->addColumnValue<float>("chi2",(*pvsIn)[0].normalizedChi2(),"main primary vertex reduced chi2",nanoaod::FlatTable::FloatColumn,8);
+    int goodPVs=0;
+    for (const auto & pv : *pvsIn) if (goodPvCut_(pv)) goodPVs++;
     pvTable->addColumnValue<int>("npvs",(*pvsIn).size(),"total number of reconstructed primary vertices",nanoaod::FlatTable::IntColumn);
+    pvTable->addColumnValue<int>("npvsGood",goodPVs,"number of good reconstructed primary vertices. selection:"+goodPvCutString_,nanoaod::FlatTable::IntColumn);
     pvTable->addColumnValue<float>("score",(*pvsScoreIn).get(pvsIn.id(),0),"main primary vertex score, i.e. sum pt2 of clustered objects",nanoaod::FlatTable::FloatColumn,8);
 
     auto otherPVsTable = std::make_unique<nanoaod::FlatTable>((*pvsIn).size() >4?3:(*pvsIn).size()-1,"Other"+pvName_,false);

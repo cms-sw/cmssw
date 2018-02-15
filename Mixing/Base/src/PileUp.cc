@@ -68,7 +68,7 @@ namespace edm {
     Source_type_(config->sourcename_),
     averageNumber_(config->averageNumber_),
     intAverage_(static_cast<int>(averageNumber_)),
-    histo_(config->histo_),
+    histo_(std::make_shared<TH1F>(*config->histo_)),
     histoDistribution_(type_ == "histo"),
     probFunctionDistribution_(type_ == "probFunction"),
     poisson_(type_ == "poisson"),

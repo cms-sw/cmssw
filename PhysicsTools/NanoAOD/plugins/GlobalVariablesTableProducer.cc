@@ -23,6 +23,7 @@ class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
                 else if (type == "bool") vars_.push_back(new BoolVar(vname, nanoaod::FlatTable::UInt8Column, varPSet, consumesCollector()));
                 else if (type == "candidatescalarsum") vars_.push_back(new CandidateScalarSumVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
                 else if (type == "candidatesize") vars_.push_back(new CandidateSizeVar(vname, nanoaod::FlatTable::IntColumn, varPSet, consumesCollector()));
+		else if (type == "candidatesummass") vars_.push_back(new CandidateSumMassVar(vname, nanoaod::FlatTable::FloatColumn, varPSet, consumesCollector()));
                 else throw cms::Exception("Configuration", "unsupported type "+type+" for variable "+vname);
             }
 
@@ -92,11 +93,21 @@ class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
                                 return v;
                         }
         };
+        template <typename ColType,typename ValType>
+        class MassSum {
+                public:
+                        static ColType convert(ValType x){
+			        if(x.empty()) return 0;
+ 			        auto v=x[0].p4();
+                                for(const auto & i : x) v+=i.p4();
+                                return v.mass();
+                        }
+        };
 	template <typename ColType,typename ValType>
         class PtVectorSum {
                 public:
                         static ColType convert(ValType x){
-				if(x.size()==0) return 0;
+				if(x.empty()) return 0;
                                 auto v=x[0].p4();
 				v-=x[0].p4();
                                 for(const auto & i : x) v+=i.p4();
@@ -125,6 +136,7 @@ class GlobalVariablesTableProducer : public edm::stream::EDProducer<> {
         typedef VariableT<double,float> DoubleVar;
         typedef VariableT<bool,uint8_t> BoolVar;
         typedef VariableT<edm::View<reco::Candidate>,float,ScalarPtSum<float,edm::View<reco::Candidate>>> CandidateScalarSumVar;
+        typedef VariableT<edm::View<reco::Candidate>,float,MassSum<float,edm::View<reco::Candidate>>> CandidateSumMassVar;
         typedef VariableT<edm::View<reco::Candidate>,int,Size<edm::View<reco::Candidate>>> CandidateSizeVar;
         boost::ptr_vector<Variable> vars_;
 };
