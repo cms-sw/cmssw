@@ -691,6 +691,8 @@ GlobalContext: transition = EndLuminosityBlock
     runIndex = 0  luminosityBlockIndex = 0  unixTime = 0 microsecondOffset = 1
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
 
+++++++ starting: write lumi for module: label = 'out' id = 5
+++++++ finished: write lumi for module: label = 'out' id = 5
 ++++ starting: end run: stream = 0 run = 1 time = 15000001
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
@@ -745,6 +747,8 @@ GlobalContext: transition = EndRun
     runIndex = 0  luminosityBlockIndex = 4294967295  unixTime = 0 microsecondOffset = 15000001
     ProcessContext: PROD2 7da3661f4f7dead5e42f07cf3ddf5a59
 
+++++++ starting: write run for module: label = 'out' id = 5
+++++++ finished: write run for module: label = 'out' id = 5
 ++++ starting: close input file: lfn = file:testGetBy1.root usedFallBack = 0
 ++++ finished: close input file: lfn = file:testGetBy1.root usedFallBack = 0
 ++++ starting: end stream for module: stream = 0 label = 'intProducer' id = 4
