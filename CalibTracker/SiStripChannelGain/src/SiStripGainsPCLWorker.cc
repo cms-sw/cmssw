@@ -270,7 +270,10 @@ void SiStripGainsPCLWorker::processEvent(const TrackerTopology* topo) {
 
     // keep processing of pixel cluster charge until here
     if(APV->SubDet<=2) continue;
-    
+
+    // real histogram for calibration
+    (Charge_Vs_Index[elepos])->Fill(APV->Index,ClusterChargeOverPath);
+
     LogDebug("SiStripGainsPCLWorker") <<" for mode "<< m_calibrationMode << "\n"
 				      <<" i "<< i
 				      <<" NClusterStrip "<< NClusterStrip
@@ -281,9 +284,6 @@ void SiStripGainsPCLWorker::processEvent(const TrackerTopology* topo) {
 				      <<" Charge "<< Charge
 				      <<" ClusterChargeOverPath "<< ClusterChargeOverPath
 				      <<std::endl;
-  
-    // real histogram for calibration
-    (Charge_Vs_Index[elepos])->Fill(APV->Index,ClusterChargeOverPath);
     
     // Fill monitoring histograms
     int mCharge1 = 0;
@@ -567,7 +567,7 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     int id    = APVGain::subdetectorId((hnames[i]).first);
     int side  = APVGain::subdetectorSide((hnames[i]).first);
     int plane = APVGain::subdetectorPlane((hnames[i]).first);
-    if(Charge_1[elepos].size()<=VChargeHisto.size()) Charge_1[elepos].emplace_back(id,side,plane,monitor);
+    Charge_1[elepos].emplace_back(id,side,plane,monitor);
   }
 
   hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG2");
@@ -577,7 +577,7 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     int id    = APVGain::subdetectorId((hnames[i]).first);
     int side  = APVGain::subdetectorSide((hnames[i]).first);
     int plane = APVGain::subdetectorPlane((hnames[i]).first);
-    if(Charge_2[elepos].size()<=VChargeHisto.size()) Charge_2[elepos].emplace_back(id,side,plane,monitor);
+    Charge_2[elepos].emplace_back(id,side,plane,monitor);
   }
 
   hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG1");
@@ -587,7 +587,7 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     int id    = APVGain::subdetectorId((hnames[i]).first);
     int side  = APVGain::subdetectorSide((hnames[i]).first);
     int plane = APVGain::subdetectorPlane((hnames[i]).first);
-    if(Charge_3[elepos].size()<=VChargeHisto.size()) Charge_3[elepos].emplace_back(id,side,plane,monitor);
+    Charge_3[elepos].emplace_back(id,side,plane,monitor);
   }
 
   hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG1G2");
@@ -597,7 +597,6 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     int id    = APVGain::subdetectorId((hnames[i]).first);
     int side  = APVGain::subdetectorSide((hnames[i]).first);
     int plane = APVGain::subdetectorPlane((hnames[i]).first);
-    if(Charge_4[elepos].size()<=VChargeHisto.size()) Charge_4[elepos].emplace_back(id,side,plane,monitor);
-
+    Charge_4[elepos].emplace_back(id,side,plane,monitor);
   }
 }
