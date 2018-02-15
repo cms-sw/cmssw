@@ -4,7 +4,7 @@
 #include "RecoLocalTracker/SiPixelClusterizer/plugins/gpuClustering.h"
 
 #include "EventFilter/SiPixelRawToDigi/plugins/RawToDigiGPU.h" // for context....
-#include "EventFilter/SiPixelRawToDigi/plugins/cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 // CUDA runtime
 #include <cuda.h>

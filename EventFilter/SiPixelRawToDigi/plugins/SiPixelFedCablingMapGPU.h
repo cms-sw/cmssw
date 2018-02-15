@@ -3,7 +3,7 @@
 
 #include <set>
 
-#include "cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 class SiPixelFedCablingMap;
 class SiPixelQuality;

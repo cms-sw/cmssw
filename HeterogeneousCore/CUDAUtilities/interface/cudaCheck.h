@@ -1,5 +1,5 @@
-#ifndef EventFilter_SiPixelRawToDigi_cudaCheck_h
-#define EventFilter_SiPixelRawToDigi_cudaCheck_h
+#ifndef HeterogeneousCore_CUDAUtilities_cudaCheck_h
+#define HeterogeneousCore_CUDAUtilities_cudaCheck_h
 
 #include <cuda.h>
 #include <iostream>
@@ -36,4 +36,4 @@ bool cudaCheck_(const char* file, int line, const char* cmd, cudaError_t result)
 
 #define cudaCheck(ARG) (cudaCheck_(__FILE__, __LINE__, #ARG, (ARG)))
 
-#endif // EventFilter_SiPixelRawToDigi_cudaCheck_h
+#endif // HeterogeneousCore_CUDAUtilities_cudaCheck_h

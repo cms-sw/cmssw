@@ -32,7 +32,7 @@
 #include <thrust/unique.h>
 #include <thrust/execution_policy.h>
 
-#include "cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "EventInfoGPU.h"
 #include "RawToDigiGPU.h"
 #include "SiPixelFedCablingMapGPU.h"

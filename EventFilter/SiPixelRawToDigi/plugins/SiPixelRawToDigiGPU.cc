@@ -43,7 +43,7 @@
 #include "RawToDigiGPU.h"
 #include "SiPixelFedCablingMapGPU.h"
 #include "SiPixelRawToDigiGPU.h"
-#include "cudaCheck.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 using namespace std;
 
