@@ -354,7 +354,6 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
     _makePatTausTaskWithTauReReco.add(process.PFTauTask)
-    _makePatTausTaskWithTauReReco.add(process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask)
     run2_miniAOD_80XLegacy.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithTauReReco
         )
