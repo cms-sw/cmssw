@@ -43,7 +43,6 @@
 #include "TString.h"
 
 // #include <iostream>
-#include <boost/assign/list_of.hpp>
 #include <vector>
 #include <map>
 #include <sstream>
@@ -284,7 +283,7 @@ void SiStripLorentzAngleCalibration::beginOfJob(AlignableTracker *aliTracker,
                                                 AlignableExtras * /*aliExtras*/)
 {
   //specify the sub-detectors for which the LA is determined
-  const std::vector<int> sdets = boost::assign::list_of(SiStripDetId::TIB)(SiStripDetId::TOB); //no TEC,TID
+  const std::vector<int> sdets = {SiStripDetId::TIB, SiStripDetId::TOB}; //no TEC,TID
   moduleGroupSelector_ = new TkModuleGroupSelector(aliTracker, moduleGroupSelCfg_, sdets);
  
   parameters_.resize(moduleGroupSelector_->getNumberOfParameters(), 0.);
