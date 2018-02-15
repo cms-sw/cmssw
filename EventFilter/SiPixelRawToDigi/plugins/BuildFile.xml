@@ -4,6 +4,7 @@
 </library>
 <library   file="SiPixelRawToDigiGPU.cc SiPixelFedCablingMapGPU.cc RawToDigiGPU.cu" name="EventFilterSiPixelRawToDigiGPUPlugins">
   <use   name="cuda"/>
+  <use   name="CalibTracker/SiPixelESProducers"/>
   <flags   EDM_PLUGIN="1"/>
   <flags   CUDA_FLAGS="-O2 --expt-relaxed-constexpr"/>
 </library>
