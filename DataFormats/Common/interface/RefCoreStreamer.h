@@ -31,6 +31,7 @@ namespace edm {
     TClassRef cl_;
   };
 
+  void setRefCoreStreamerInTClass();
   void setRefCoreStreamer(bool resetAll = false);
   EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep);
 }
