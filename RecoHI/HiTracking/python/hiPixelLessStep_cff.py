@@ -23,20 +23,12 @@ pixelLessStepSeedLayers.TEC.skipClusters   = cms.InputTag('hiPixelLessStepCluste
 pixelLessStepSeedLayers.MTEC.skipClusters   = cms.InputTag('hiPixelLessStepClusters')
 
 # TrackingRegion
-from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-hiPixelLessStepTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-     VertexCollection = "hiSelectedPixelVertex",
+from RecoHI.HiTracking.hiMixedTripletStep_cff import hiMixedTripletStepTrackingRegionsA as _hiMixedTripletStepTrackingRegionsA
+hiPixelLessStepTrackingRegions = _hiMixedTripletStepTrackingRegionsA.clone(RegionPSet=dict(
      fixedError = 3.0,#12.0
      ptMin = 0.7, #0.4
      originRadius = 1.0,
-     originRScaling4BigEvts = cms.bool(True),
-     halfLengthScaling4BigEvts = cms.bool(False),
-     ptMinScaling4BigEvts = cms.bool(True),
-     minOriginR = 0,
-     minHalfLength = 0,
      maxPtMin = 1.0,#0.7
-     scalingStartNPix = 20000,
-     scalingEndNPix = 35000     
 ))
 
 # seeding

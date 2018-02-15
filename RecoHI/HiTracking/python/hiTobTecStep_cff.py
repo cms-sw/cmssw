@@ -18,20 +18,12 @@ tobTecStepSeedLayersTripl.MTOB.skipClusters   = cms.InputTag('hiTobTecStepCluste
 tobTecStepSeedLayersTripl.MTEC.skipClusters   = cms.InputTag('hiTobTecStepClusters')
 
 # Triplet TrackingRegion
-from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-hiTobTecStepTrackingRegionsTripl = _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-     VertexCollection = "hiSelectedPixelVertex",
+from RecoHI.HiTracking.hiMixedTripletStep_cff import hiMixedTripletStepTrackingRegionsA as _hiMixedTripletStepTrackingRegionsA
+hiTobTecStepTrackingRegionsTripl = _hiMixedTripletStepTrackingRegionsA.clone(RegionPSet=dict(
      fixedError = 5.0,#20.0
      ptMin = 0.9,#0.55
      originRadius = 3.5,
-     originRScaling4BigEvts = cms.bool(True),
-     halfLengthScaling4BigEvts = cms.bool(False),
-     ptMinScaling4BigEvts = cms.bool(True),
-     minOriginR = 0,
-     minHalfLength = 0,
      maxPtMin = 1.2,#0.85
-     scalingStartNPix = 20000,
-     scalingEndNPix = 35000     
 ))
 
 # Triplet seeding
