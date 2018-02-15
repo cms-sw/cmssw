@@ -17,6 +17,7 @@ namespace l1t{
 				bool unpack(const Block& block, UnpackerCollections *coll) override;
 			private:
 				qualityHits linkAndQual_;
+				//std::map<int, qualityHits> linkAndQual_;
 		};
 
 		class BMTFUnpackerInputsNewQual : public Unpacker
@@ -25,6 +26,7 @@ namespace l1t{
 				bool unpack(const Block& block, UnpackerCollections *coll) override;
 			private:
 				qualityHits linkAndQual_;
+				//std::map<int, qualityHits> linkAndQual_;
 		};
 
 	}
