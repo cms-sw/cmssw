@@ -401,7 +401,8 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
                                << "; match window: [" << bx_alct_start << "; " << bx_alct_stop
                                << "]; bx_alct = " << bx_alct;
               correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                            clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+                            clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
+                            CSCCorrelatedLCTDigi::CLCTALCT);
               used_alct_mask[bx_alct] += 1;
               is_matched = true;
               bx_alct_matched = bx_alct;
@@ -416,7 +417,8 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
                              << bx_clct << "; match window: [" << bx_alct_start
                              << "; " << bx_alct_stop << "]";
             correlateLCTs(alct->bestALCT[bx_clct], alct->secondALCT[bx_clct],
-                          clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+                          clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
+                          CSCCorrelatedLCTDigi::CLCTALCT);
           }
         }
         // No valid CLCTs; attempt to make ALCT-only LCT.  Use only ALCTs
@@ -431,7 +433,8 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
                                << "Unsuccessful ALCT-CLCT match (ALCT only): bx_alct = "
                                << bx_alct;
               correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                            clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+                            clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
+                            CSCCorrelatedLCTDigi::CLCTALCT);
             }
           }
         }
@@ -476,7 +479,8 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
                                << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
                                << "]; bx_clct = " << bx_clct;
               correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                            clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+                            clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
+                            CSCCorrelatedLCTDigi::ALCTCLCT);
               used_clct_mask[bx_clct] += 1;
               is_matched = true;
               bx_clct_matched = bx_clct;
@@ -491,7 +495,8 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
                              << bx_alct << "; match window: [" << bx_clct_start
                              << "; " << bx_clct_stop << "]";
             correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                          clct->bestCLCT[bx_alct], clct->secondCLCT[bx_alct]);
+                          clct->bestCLCT[bx_alct], clct->secondCLCT[bx_alct],
+                          CSCCorrelatedLCTDigi::ALCTCLCT);
           }
         }
         // No valid ALCTs; attempt to make CLCT-only LCT.  Use only CLCTs
@@ -506,7 +511,8 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
                                << "Unsuccessful CLCT-ALCT match (CLCT only): bx_clct = "
                                << bx_clct;
               correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                            clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct]);
+                            clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
+                            CSCCorrelatedLCTDigi::ALCTCLCT);
             }
           }
         }
@@ -630,7 +636,8 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::getLCTs() const {
 void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
                                    const CSCALCTDigi& sALCT,
                                    const CSCCLCTDigi& bCLCT,
-                                   const CSCCLCTDigi& sCLCT)
+                                   const CSCCLCTDigi& sCLCT,
+                                   int type)
 {
   CSCALCTDigi bestALCT = bALCT;
   CSCALCTDigi secondALCT = sALCT;
@@ -652,7 +659,7 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
   if ((alct_trig_enable  && bestALCT.isValid()) ||
       (clct_trig_enable  && bestCLCT.isValid()) ||
       (match_trig_enable && bestALCT.isValid() && bestCLCT.isValid())) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::CLCTALCT, 1);
+    const CSCCorrelatedLCTDigi& lct = constructLCTs(bestALCT, bestCLCT, type, 1);
     int bx = lct.getBX();
     if (bx >= 0 && bx < CSCConstants::MAX_LCT_TBINS) {
       firstLCT[bx] = lct;
@@ -669,7 +676,7 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
       ((alct_trig_enable  && secondALCT.isValid()) ||
        (clct_trig_enable  && secondCLCT.isValid()) ||
        (match_trig_enable && secondALCT.isValid() && secondCLCT.isValid()))) {
-    CSCCorrelatedLCTDigi lct = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::CLCTALCT, 2);
+    const CSCCorrelatedLCTDigi& lct = constructLCTs(secondALCT, secondCLCT, type, 2);
     int bx = lct.getBX();
     if (bx >= 0 && bx < CSCConstants::MAX_LCT_TBINS) {
       secondLCT[bx] = lct;
