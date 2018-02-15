@@ -114,23 +114,20 @@ std::vector<MonitorElement*> APVGain::FetchMonitor(std::vector<APVGain::APVmon> 
   int sSide  = APVGain::subdetectorSide((uint32_t)det_id, topo);
   std::vector<APVGain::APVmon>::iterator it= histos.begin();
     
-  //std::cout<<"sId: "<<sId<<" sPlane: "<<sPlane<<" sSide: "<<sSide<<std::endl;
+  LogDebug("APVGainHelpers")<<"sId: "<<sId<<" sPlane: "<<sPlane<<" sSide: "<<sSide<<std::endl;
 
   while (it!=histos.end()) {
-    std::string tag = (*it).getTheMon()->getName();
+    std::string tag = (*it).getMonitor()->getName();
     int subdetectorId    = (*it).getSubdetectorId();
     int subdetectorSide  = (*it).getSubdetectorSide();
     int subdetectorPlane = (*it).getSubdetectorPlane();
     
-    //(*it).printAll();
-
     bool match = (subdetectorId==0 || subdetectorId==sId) && (subdetectorPlane==0 || subdetectorPlane==sPlane) && (subdetectorSide==0  || subdetectorSide==sSide);
 
-    //bool match = (subdetectorId==sId) && (subdetectorPlane==sPlane) && (subdetectorSide==sSide);
-
     if (match) {
-      found.push_back((*it).getTheMon());
-      //std::cout<<det_id<<" found: "<< tag << std::endl;
+      found.push_back((*it).getMonitor());
+      LogDebug("APVGainHelpers")<<det_id<<" found: "<< tag << std::endl;
+      (*it).printAll();
     }
     it++;
   }

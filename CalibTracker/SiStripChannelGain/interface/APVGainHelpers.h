@@ -3,6 +3,7 @@
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
 #include <vector>
@@ -23,45 +24,40 @@ namespace APVGain {
     struct APVmon{
       
       APVmon(int v1, int v2, int v3, MonitorElement* v4) :
-	subdetectorId(v1),
-	subdetectorSide(v2),
-	subdetectorPlane(v3),
-	monitor(std::move(v4)) 
-      {
-      }
+	m_subdetectorId(v1),m_subdetectorSide(v2),m_subdetectorPlane(v3),m_monitor(std::move(v4)){}
 
     public:
 
       int getSubdetectorId(){
-	return subdetectorId;
+	return m_subdetectorId;
       }
 
       int getSubdetectorSide(){
-	return subdetectorSide;
+	return m_subdetectorSide;
       }
 
       int getSubdetectorPlane(){
-	return subdetectorPlane;
+	return m_subdetectorPlane;
       }
 
-      MonitorElement* getTheMon(){
-	return monitor;
+      MonitorElement* getMonitor(){
+	return m_monitor;
       }
 
       void printAll(){
-	std::cout<< "subDetectorID:" << subdetectorId << std::endl;
-	std::cout<< "subDetectorSide:" << subdetectorSide << std::endl;
-	std::cout<< "subDetectorPlane:" << subdetectorPlane << std::endl;
-	std::cout<< "histoName:" << monitor->getName() << std::endl;
+	LogDebug("APVGainHelpers")<< "subDetectorID:" << m_subdetectorId << std::endl;
+	LogDebug("APVGainHelpers")<< "subDetectorSide:" << m_subdetectorSide << std::endl;
+	LogDebug("APVGainHelpers")<< "subDetectorPlane:" << m_subdetectorPlane << std::endl;
+	LogDebug("APVGainHelpers")<< "histoName:" << m_monitor->getName() << std::endl;
 	return;
       }
 
     private:
 
-      int subdetectorId;
-      int subdetectorSide;
-      int subdetectorPlane;
-      MonitorElement* monitor;
+      int m_subdetectorId;
+      int m_subdetectorSide;
+      int m_subdetectorPlane;
+      MonitorElement* m_monitor;
 
     };
 
