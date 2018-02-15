@@ -64,10 +64,10 @@ class CSCMotherboard
   void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
 
   /** Returns vector of correlated LCTs in the read-out time window, if any. */
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs();
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const;
 
   /** Returns vector of all found correlated LCTs, if any. */
-  std::vector<CSCCorrelatedLCTDigi> getLCTs();
+  std::vector<CSCCorrelatedLCTDigi> getLCTs() const;
 
   /** Clears correlated LCT and passes clear signal on to cathode and anode
       LCT processors. */
@@ -118,11 +118,18 @@ class CSCMotherboard
   /** SLHC: whether to not reuse ALCTs that were used by previous matching CLCTs */
   bool drop_used_alcts;
 
+  /** SLHC: whether to not reuse CLCTs that were used by previous matching ALCTs */
+  bool drop_used_clcts;
+
   /** SLHC: separate handle for early time bins */
   int early_tbins;
 
   /** SLHC: whether to readout only the earliest two LCTs in readout window */
   bool readout_earliest_2;
+
+  /** if true: use regular CLCT-to-ALCT matching in TMB
+      if false: do ALCT-to-CLCT matching */
+  bool clct_to_alct;
 
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;
