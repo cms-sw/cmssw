@@ -1,16 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-FullSimEngine = cms.untracked.string('HepJamesRandom')
-#FullSimEngine = cms.untracked.string('MixMaxRng')
-FastSimEngine = cms.untracked.string('TRandom3')
+FullSimEngine = cms.untracked.string('MixMaxRng')
+FastSimEngine = cms.untracked.string('MixMaxRng')
 RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-#
-#  seed for a source no longer needed - replaces by "generator"
-#
-#    theSource = cms.PSet(
-#        initialSeed = cms.untracked.uint32(123456789),
-#        engineName = cms.untracked.string('HepJamesRandom')
-#    ),
+
     externalLHEProducer = cms.PSet(
         initialSeed = cms.untracked.uint32(234567),
         engineName = FullSimEngine
@@ -19,14 +12,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
         initialSeed = cms.untracked.uint32(123456789),
         engineName = FullSimEngine
     ),
-#
-# EvtGenProducer discontinued, replaced by funtionalities in ExternalDecays,
-# altogether wrapped with "generator"
-#
-#    evtgenproducer = cms.PSet( 
-#        initialSeed = cms.untracked.uint32(93278151),
-#        engineName = cms.untracked.string('HepJamesRandom') 
-#    ),
+
     VtxSmeared = cms.PSet(
         initialSeed = cms.untracked.uint32(98765432),
         engineName = FullSimEngine
