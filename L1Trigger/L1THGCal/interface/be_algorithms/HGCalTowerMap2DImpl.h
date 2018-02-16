@@ -16,6 +16,7 @@ class HGCalTowerMap2DImpl{
 
   HGCalTowerMap2DImpl( const edm::ParameterSet &conf); 
   
+  void resetTowerMaps( );
 
   void buildTowerMap2D( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs,
 			l1t::HGCalTowerMapBxCollection & towermaps
