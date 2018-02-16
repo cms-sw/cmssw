@@ -1278,82 +1278,51 @@ class _ParameterModifier(object):
   def _raiseUnknownKey(key):
     raise KeyError("Unknown parameter name "+key+" specified while calling Modifier")
 
-class _AndModifier(object):
+class _BoolModifierBase(object):
+  """A helper base class for _AndModifier, _InvertModifier, and _OrModifier to contain the common code"""
+  def __init__(self, lhs, rhs=None):
+    self._lhs = lhs
+    if rhs is not None:
+      self._rhs = rhs
+  def toModify(self,obj, func=None,**kw):
+    Modifier._toModifyCheck(obj,func,**kw)
+    if not self.isChosen():
+      return
+    self._toModify(obj,func,**kw)
+  def _toModify(self,obj,func,**kw):
+    self._lhs._toModify(obj,func, **kw)
+  def makeProcessModifier(self,func):
+    """This is used to create a ProcessModifer that can perform actions on the process as a whole.
+        This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
+        In order to work, the value returned from this function must be assigned to a uniquely named variable."""
+    return ProcessModifier(self,func)
+  def __and__(self, other):
+    return _AndModifier(self,other)
+  def __invert__(self):
+    return _InvertModifier(self)
+  def __or__(self, other):
+    return _OrModifier(self,other)
+
+class _AndModifier(_BoolModifierBase):
   """A modifier which only applies if multiple Modifiers are chosen"""
   def __init__(self, lhs, rhs):
-    self.__lhs = lhs
-    self.__rhs = rhs
+    super(_AndModifier,self).__init__(lhs, rhs)
   def isChosen(self):
-    return self.__lhs.isChosen() and self.__rhs.isChosen()
-  def toModify(self,obj, func=None,**kw):
-    Modifier._toModifyCheck(obj,func,**kw)
-    if not self.isChosen():
-      return
-    self._toModify(obj,func,**kw)
-  def _toModify(self,obj,func,**kw):
-    self.__lhs._toModify(obj,func, **kw)
-  def makeProcessModifier(self,func):
-    """This is used to create a ProcessModifer that can perform actions on the process as a whole.
-        This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
-        In order to work, the value returned from this function must be assigned to a uniquely named variable."""
-    return ProcessModifier(self,func)
-  def __and__(self, other):
-    return _AndModifier(self,other)
-  def __invert__(self):
-    return _InvertModifier(self)
-  def __or__(self, other):
-    return _OrModifier(self,other)
+    return self._lhs.isChosen() and self._rhs.isChosen()
 
-class _InvertModifier(object):
+class _InvertModifier(_BoolModifierBase):
   """A modifier which only applies if a Modifier is not chosen"""
-  def __init__(self, modifier):
-    self.__modifier = modifier
+  def __init__(self, lhs):
+    super(_InvertModifier,self).__init__(lhs)
   def isChosen(self):
-    return not self.__modifier.isChosen()
-  def toModify(self,obj, func=None,**kw):
-    Modifier._toModifyCheck(obj,func,**kw)
-    if not self.isChosen():
-      return
-    self._toModify(obj,func,**kw)
-  def _toModify(self,obj,func,**kw):
-    self.__modifier._toModify(obj,func,**kw)
-  def makeProcessModifier(self,func):
-    """This is used to create a ProcessModifer that can perform actions on the process as a whole.
-        This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
-        In order to work, the value returned from this function must be assigned to a uniquely named variable."""
-    return ProcessModifier(self,func)
-  def __and__(self, other):
-    return _AndModifier(self,other)
-  def __invert__(self):
-    return _InvertModifier(self)
-  def __or__(self, other):
-    return _OrModifier(self,other)
+    return not self._lhs.isChosen()
 
-class _OrModifier(object):
+class _OrModifier(_BoolModifierBase):
   """A modifier which only applies if at least one of multiple Modifiers is chosen"""
   def __init__(self, lhs, rhs):
-    self.__lhs = lhs
-    self.__rhs = rhs
+    super(_OrModifier,self).__init__(lhs, rhs)
   def isChosen(self):
-    return self.__lhs.isChosen() or self.__rhs.isChosen()
-  def toModify(self,obj, func=None,**kw):
-    Modifier._toModifyCheck(obj,func,**kw)
-    if not self.isChosen():
-      return
-    self._toModify(obj,func, **kw)
-  def _toModify(self,obj,func,**kw):
-    self.__lhs._toModify(obj,func, **kw)
-  def makeProcessModifier(self,func):
-    """This is used to create a ProcessModifer that can perform actions on the process as a whole.
-        This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
-        In order to work, the value returned from this function must be assigned to a uniquely named variable."""
-    return ProcessModifier(self,func)
-  def __and__(self, other):
-    return _AndModifier(self,other)
-  def __invert__(self):
-    return _InvertModifier(self)
-  def __or__(self, other):
-    return _OrModifier(self,other)
+    return self._lhs.isChosen() or self._rhs.isChosen()
 
 
 class Modifier(object):
