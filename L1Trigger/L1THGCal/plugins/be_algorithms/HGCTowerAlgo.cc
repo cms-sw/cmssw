@@ -28,17 +28,16 @@ class HGCTowerAlgo : public Algorithm<FECODEC>
 
     public:
 
-          HGCTowerAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& cc) :
-	  Algorithm<FECODEC>(conf, cc),
-	  trgcell_product_( new l1t::HGCalTriggerCellBxCollection ),
-	  towermap_product_( new l1t::HGCalTowerMapBxCollection ),
-	  tower_product_( new l1t::HGCalTowerBxCollection ),
-	  calibration_( conf.getParameterSet("calib_parameters") ),
-	  towermap2D_( conf.getParameterSet("towermap_parameters") ),
-	  towermap3D_( )
-          {
-    
-          }
+        HGCTowerAlgo(const edm::ParameterSet& conf, edm::ConsumesCollector& cc) :
+        Algorithm<FECODEC>(conf, cc),
+        trgcell_product_( new l1t::HGCalTriggerCellBxCollection ),
+        towermap_product_( new l1t::HGCalTowerMapBxCollection ),
+        tower_product_( new l1t::HGCalTowerBxCollection ),
+        calibration_( conf.getParameterSet("calib_parameters") ),
+        towermap2D_( conf.getParameterSet("towermap_parameters") ),
+        towermap3D_( )
+        {
+        }
 	
     
         virtual void setProduces(edm::stream::EDProducer<>& prod) const override final
