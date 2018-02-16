@@ -1291,6 +1291,13 @@ class _BoolModifierBase(object):
     self._toModify(obj,func,**kw)
   def _toModify(self,obj,func,**kw):
     self._lhs._toModify(obj,func, **kw)
+  def toReplaceWith(self,toObj,fromObj):
+    Modifier._toReplaceWithCheck(toObj,fromObj)
+    if not self.isChosen():
+      return
+    self._toReplaceWith(toObj,fromObj)
+  def _toReplaceWith(self,toObj,fromObj):
+    self._lhs._toReplaceWith(toObj,fromObj)
   def makeProcessModifier(self,func):
     """This is used to create a ProcessModifer that can perform actions on the process as a whole.
         This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
@@ -1370,13 +1377,18 @@ class Modifier(object):
     else:
       temp =_ParameterModifier(kw)
       temp(obj)
+  @staticmethod
+  def _toReplaceWithCheck(toObj,fromObj):
+    if type(fromObj) != type(toObj):
+        raise TypeError("toReplaceWith requires both arguments to be the same class type")
   def toReplaceWith(self,toObj,fromObj):
     """If the Modifier is chosen the internals of toObj will be associated with the internals of fromObj
     """
-    if type(fromObj) != type(toObj):
-        raise TypeError("toReplaceWith requires both arguments to be the same class type")
+    Modifier._toReplaceWithCheck(toObj,fromObj)
     if not self.isChosen():
         return
+    self._toReplaceWith(toObj,fromObj)
+  def _toReplaceWith(self,toObj,fromObj):
     if isinstance(fromObj,_ModuleSequenceType):
         toObj._seq = fromObj._seq
         toObj._tasks = fromObj._tasks
@@ -3066,6 +3078,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p = Process("test",m1)
             p.a =EDAnalyzer("MyAnalyzer", fred = int32(1))
             m1.toReplaceWith(p.a, EDAnalyzer("YourAnalyzer", wilma = int32(3)))
+            self.assertRaises(TypeError, lambda: m1.toReplaceWith(p.a, EDProducer("YourProducer")))
             p.b =EDAnalyzer("BAn")
             p.c =EDProducer("c")
             p.d =EDProducer("d")
@@ -3086,4 +3099,29 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p.a =EDAnalyzer("MyAnalyzer", fred = int32(1))
             m1.toReplaceWith(p.a, EDAnalyzer("YourAnalyzer", wilma = int32(3)))
             self.assertEqual(p.a.type_(),"MyAnalyzer")
+            #check toReplaceWith and and/not/or combinations
+            m1 = Modifier()
+            m2 = Modifier()
+            m3 = Modifier()
+            m4 = Modifier()
+            p = Process("test", m1, m2)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            self.assertRaises(TypeError, lambda: (m1 & m2).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (m3 & m4).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (~m3).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (~m1).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (m1 | m3).toReplaceWith(p.a, EDProducer("YourProducer")))
+            self.assertRaises(TypeError, lambda: (m3 | m4).toReplaceWith(p.a, EDProducer("YourProducer")))
+            (m1 & m2).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer1"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer1")
+            (m1 & m3).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer2"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer1")
+            (~m1).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer2"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer1")
+            (~m3).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer2"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer2")
+            (m1 | m3).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer3"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer3")
+            (m3 | m4).toReplaceWith(p.a, EDAnalyzer("YourAnalyzer4"))
+            self.assertEqual(p.a.type_(), "YourAnalyzer3")
     unittest.main()
