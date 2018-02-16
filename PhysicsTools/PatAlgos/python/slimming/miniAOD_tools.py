@@ -318,22 +318,28 @@ def miniAOD_customizeCommon(process):
     for idmod in photon_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False,task)
 
-    #---------------------------------------------------------------------------
-    #Adding  Boosted Subjets taus
+    #-- Adding boosted taus
     from RecoTauTag.Configuration.boostedHPSPFTaus_cfi import addBoostedTaus
     addBoostedTaus(process)
-    #---------------------------------------------------------------------------
-    #Adding tau reco for 80X legacy reMiniAOD
-    #make a copy of makePatTauTask to avoid labels and substitution problems
-    _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
-    #add PFTau reco modules to cloned makePatTauTask
     process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
-    _makePatTausTaskWithTauReReco.add(process.PFTauTask)
-    #replace original task by extended one for the miniAOD_80XLegacy era
+    process.load("RecoTauTag.Configuration.HPSPFTaus_cff")
+    process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT = process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone()
+    process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff95")
+    #-- Adding customization for 94X 2017 legacy reMniAOD
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    _makePatTausTaskWithRetrainedMVATauID = process.makePatTausTask.copy()
+    _makePatTausTaskWithRetrainedMVATauID.add(process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask)
+    _makePatTausTaskWithRetrainedMVATauID.add(process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT)
+    run2_miniAOD_94XFall17.toReplaceWith(
+        process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
+        )
+    #-- Adding custimization for 80X 2016 legacy reMiniAOD
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
+    _makePatTausTaskWithTauReReco.add(process.PFTauTask)
+    _makePatTausTaskWithTauReReco.add(process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT)
     run2_miniAOD_80XLegacy.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithTauReReco)
-    #---------------------------------------------------------------------------
 
     # Adding puppi jets
     if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
@@ -354,10 +360,11 @@ def miniAOD_customizeCommon(process):
     )
     task.add(process.patJetPuppiCharge)
 
+    noDeepFlavourDiscriminators = [x.value() for x in process.patJets.discriminatorSources if not "DeepFlavour" in x.value()]
     addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
                     jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], ''),
                     pfCandidates = cms.InputTag('puppi'), # using Puppi candidates as input for b tagging of Puppi jets
-                    algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
+                    algo= 'AK', rParam = 0.4, btagDiscriminators = noDeepFlavourDiscriminators
                     )
     
     process.patJetGenJetMatchPuppi.matched = 'slimmedGenJets'
@@ -367,9 +374,44 @@ def miniAOD_customizeCommon(process):
     process.selectedPatJetsPuppi.cut = cms.string("pt > 15")
 
     process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
+
+    # update slimmed jets to include DeepFlavour (keep same name)
+    from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+    # make clone for DeepFlavour-less slimmed jets, so output name is preserved
+    process.slimmedJetsNoDeepFlavour = process.slimmedJets.clone()
+    task.add(process.slimmedJetsNoDeepFlavour)
+    updateJetCollection(
+       process,
+       jetSource = cms.InputTag('slimmedJetsNoDeepFlavour'),
+       # updateJetCollection defaults to MiniAOD inputs but
+       # here it is made explicit (as in training or MINIAOD redoing)
+       pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+       pfCandidates = cms.InputTag('packedPFCandidates'),
+       svSource = cms.InputTag('slimmedSecondaryVertices'),
+       muSource = cms.InputTag('slimmedMuons'),
+       elSource = cms.InputTag('slimmedElectrons'),
+       jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+       btagDiscriminators = [
+          'pfDeepFlavourJetTags:probb',
+          'pfDeepFlavourJetTags:probbb',
+          'pfDeepFlavourJetTags:problepb',
+          'pfDeepFlavourJetTags:probc',
+          'pfDeepFlavourJetTags:probuds',
+          'pfDeepFlavourJetTags:probg',
+       ],
+       postfix = 'SlimmedDeepFlavour',
+       printWarning = False
+    )
+
+    # slimmedJets with DeepFlavour (remove DeepFlavour-less)
+    delattr(process, 'slimmedJets')
+    process.slimmedJets = process.selectedUpdatedPatJetsSlimmedDeepFlavour.clone()
+    # delete module not used anymore (slimmedJets substitutes)
+    delattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour')
+
     task.add(process.slimmedJets)
     task.add(process.slimmedJetsAK8)
-    addToProcessAndTask('slimmedJetsPuppi', process.slimmedJets.clone(), process, task)
+    addToProcessAndTask('slimmedJetsPuppi', process.slimmedJetsNoDeepFlavour.clone(), process, task)
     process.slimmedJetsPuppi.src = cms.InputTag("selectedPatJetsPuppi")    
     process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("packedPFCandidates")
 

@@ -26,7 +26,7 @@ using namespace pat;
 
 PATJetUpdater::PATJetUpdater(const edm::ParameterSet& iConfig) :
   useUserData_(iConfig.exists("userData")),
-  printWarning_(true)
+  printWarning_(iConfig.getParameter<bool>("printWarning"))
 {
   // initialize configurables
   jetsToken_ = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>( "jetSource" ));
@@ -239,6 +239,9 @@ void PATJetUpdater::fillDescriptions(edm::ConfigurationDescriptions & descriptio
   iDesc.add<bool>("addBTagInfo",true);
   iDesc.add<bool>("addDiscriminators", true);
   iDesc.add<std::vector<edm::InputTag> >("discriminatorSources", emptyVInputTags);
+
+  // silent warning if false
+  iDesc.add<bool>("printWarning",true);
 
   // Check to see if the user wants to add user data
   edm::ParameterSetDescription userDataPSet;

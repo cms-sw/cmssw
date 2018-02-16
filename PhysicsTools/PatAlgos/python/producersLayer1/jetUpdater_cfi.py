@@ -36,7 +36,8 @@ updatedPatJets = cms.EDProducer("PATJetUpdater",
     # usually the discriminators from the default algos
     # are sufficient
     addTagInfos     = cms.bool(False),
-    tagInfoSources  = cms.VInputTag()
+    tagInfoSources  = cms.VInputTag(),
+    printWarning = cms.bool(True)
 )
 
 
