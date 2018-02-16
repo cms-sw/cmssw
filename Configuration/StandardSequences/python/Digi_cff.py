@@ -42,20 +42,14 @@ pdigi_hi_nogen=cms.Sequence(pdigi_nogen+heavyIon)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 def _fastSimDigis(process):
-    # no need for the aliases for usual mixing
-    from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
-    if premix_stage1.isChosen():
-        # Which is better (or worse), isChosen() or defining an
-        # "_InverseModifier" in order to do "(fastSim & ~premix_stage1).makeProcessModifier()"?
-        return
-
     import FastSimulation.Configuration.DigiAliases_cff as DigiAliases
 
     # pretend these digis have been through digi2raw and raw2digi, by using the approprate aliases
     # use an alias to make the mixed track collection available under the usual label
     from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliases
     loadDigiAliases(process)
-modifyDigi_fastSimDigis = fastSim.makeProcessModifier(_fastSimDigis)
+# no need for the aliases for premixing stage1
+modifyDigi_fastSimDigis = (fastSim & ~premix_stage1).makeProcessModifier(_fastSimDigis)
 
 #phase 2 common mods
 def _modifyEnableHcalHardcode( theProcess ):
