@@ -123,17 +123,17 @@ class CSCCorrelatedLCTDigi
 	    CLCT2GEM  // CLCT-2 GEM pads in coincidence
   };
   
-  int getType() {return type_;}
+  int getType() const {return type_;}
   void setType(int type) {type_ = type;}
   
   void setALCT(const CSCALCTDigi& alct) {alct_ = alct;}
   void setCLCT(const CSCCLCTDigi& clct) {clct_ = clct;}
   void setGEM1(const GEMPadDigi& gem) {gem1_ = gem;}
   void setGEM2(const GEMPadDigi& gem) {gem2_ = gem;}
-  const CSCALCTDigi&  getALCT() {return alct_;}
-  const CSCCLCTDigi&  getCLCT() {return clct_;}
-  const GEMPadDigi&  getGEM1() {return gem1_;}
-  const GEMPadDigi&  getGEM2() {return gem2_;}
+  const CSCALCTDigi&  getALCT() const {return alct_;}
+  const CSCCLCTDigi&  getCLCT() const {return clct_;}
+  const GEMPadDigi&  getGEM1() const {return gem1_;}
+  const GEMPadDigi&  getGEM2() const {return gem2_;}
 
 private:
   uint16_t trknmb;
