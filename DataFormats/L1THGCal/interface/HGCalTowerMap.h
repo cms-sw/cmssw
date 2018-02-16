@@ -41,6 +41,8 @@ namespace l1t {
 
     static constexpr double kEtaMin_ = 1.479;
     static constexpr double kEtaMax_ = 3.;
+    static constexpr double kEtaMinLoose_ = 1.401; //BH has some TC below 1.479
+    static constexpr double kEtaMaxLoose_ = 3.085; //FH has some TC above 3.0
     static constexpr double kPhiMin_ = -M_PI;
     static constexpr double kPhiMax_ = +M_PI;  
     

@@ -126,13 +126,9 @@ void HGCTowerAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & col
         triggerCellsPtrs.push_back(ptr);
     }    
 
-    cout<<"ok TC calib"<<endl;
-
     /* call to towerMap2D clustering */
     towermap2D_.eventSetup(es);
     towermap2D_.buildTowerMap2D( triggerCellsPtrs, *towermap_product_);
-
-    cout<<"ok towermap 2d"<<endl;
 
     /* retrieve the orphan handle to the towermaps collection and put the collection in the event */
     towerMapsHandle = evt.put( std::move( towermap_product_ ), "towerMap");
@@ -146,8 +142,6 @@ void HGCTowerAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & col
 
     /* call to towerMap3D clustering */
     towermap3D_.buildTowerMap3D( towerMapsPtrs, *tower_product_);
-
-    cout<<"ok towermap 3d"<<endl;
 
     /* retrieve the orphan handle to the tower collection and put the collection in the event */
     towersHandle = evt.put( std::move( tower_product_ ), "tower");
