@@ -1288,7 +1288,9 @@ class _AndModifier(object):
   def toModify(self,obj, func=None,**kw):
     if not self.isChosen():
       return
-    self.__lhs.toModify(obj,func, **kw)
+    self._toModify(obj,func,**kw)
+  def _toModify(self,obj,func,**kw):
+    self.__lhs._toModify(obj,func, **kw)
   def makeProcessModifier(self,func):
     """This is used to create a ProcessModifer that can perform actions on the process as a whole.
         This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
@@ -1296,7 +1298,59 @@ class _AndModifier(object):
     return ProcessModifier(self,func)
   def __and__(self, other):
     return _AndModifier(self,other)
+  def __invert__(self):
+    return _InvertModifier(self)
+  def __or__(self, other):
+    return _OrModifier(self,other)
 
+class _InvertModifier(object):
+  """A modifier which only applies if a Modifier is not chosen"""
+  def __init__(self, modifier):
+    self.__modifier = modifier
+  def isChosen(self):
+    return not self.__modifier.isChosen()
+  def toModify(self,obj, func=None,**kw):
+    if not self.isChosen():
+      return
+    self._toModify(obj,func,**kw)
+  def _toModify(self,obj,func,**kw):
+    self.__modifier._toModify(obj,func,**kw)
+  def makeProcessModifier(self,func):
+    """This is used to create a ProcessModifer that can perform actions on the process as a whole.
+        This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
+        In order to work, the value returned from this function must be assigned to a uniquely named variable."""
+    return ProcessModifier(self,func)
+  def __and__(self, other):
+    return _AndModifier(self,other)
+  def __invert__(self):
+    return _InvertModifier(self)
+  def __or__(self, other):
+    return _OrModifier(self,other)
+
+class _OrModifier(object):
+  """A modifier which only applies if at least one of multiple Modifiers is chosen"""
+  def __init__(self, lhs, rhs):
+    self.__lhs = lhs
+    self.__rhs = rhs
+  def isChosen(self):
+    return self.__lhs.isChosen() or self.__rhs.isChosen()
+  def toModify(self,obj, func=None,**kw):
+    if not self.isChosen():
+      return
+    self._toModify(obj,func, **kw)
+  def _toModify(self,obj,func,**kw):
+    self.__lhs._toModify(obj,func, **kw)
+  def makeProcessModifier(self,func):
+    """This is used to create a ProcessModifer that can perform actions on the process as a whole.
+        This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
+        In order to work, the value returned from this function must be assigned to a uniquely named variable."""
+    return ProcessModifier(self,func)
+  def __and__(self, other):
+    return _AndModifier(self,other)
+  def __invert__(self):
+    return _InvertModifier(self)
+  def __or__(self, other):
+    return _OrModifier(self,other)
 
 
 class Modifier(object):
@@ -1334,6 +1388,11 @@ class Modifier(object):
       raise TypeError("toModify takes either two arguments or one argument and key/value pairs")
     if not self.isChosen():
         return
+    self._toModify(obj,func,**kw)
+  def _toModify(self,obj,func,**kw):
+    # Need to repeat the check in case the call comes via _AndModifier, _InvertModifier, or _OrModifier
+    if func is not None and len(kw) != 0:
+      raise TypeError("toModify takes either two arguments or one argument and key/value pairs")
     if func is not None:
       func(obj)
     else:
@@ -1370,6 +1429,10 @@ class Modifier(object):
     return self.__chosen
   def __and__(self, other):
     return _AndModifier(self,other)
+  def __invert__(self):
+    return _InvertModifier(self)
+  def __or__(self, other):
+    return _OrModifier(self,other)
   def _isOrContains(self, other):
     return self == other
 
@@ -2979,6 +3042,48 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & m2 & m3).toModify(p.a, fred = int32(2))
             self.assertEqual(p.a.fred, 2)
+            #check inverse
+            m1 = Modifier()
+            m2 = Modifier()
+            p = Process("test", m1)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            (~m1).toModify(p.a, fred=2)
+            self.assertEqual(p.a.fred, 1)
+            (~m2).toModify(p.a, wilma=2)
+            self.assertEqual(p.a.wilma, 2)
+            # check or
+            m1 = Modifier()
+            m2 = Modifier()
+            m3 = Modifier()
+            p = Process("test", m1)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            (m1 | m2).toModify(p.a, fred=2)
+            self.assertEqual(p.a.fred, 2)
+            (m1 | m2 | m3).toModify(p.a, fred=3)
+            self.assertEqual(p.a.fred, 3)
+            (m3 | m2 | m1).toModify(p.a, fred=4)
+            self.assertEqual(p.a.fred, 4)
+            (m2 | m3).toModify(p.a, fred=5)
+            self.assertEqual(p.a.fred, 4)
+            # check combinations
+            m1 = Modifier()
+            m2 = Modifier()
+            m3 = Modifier()
+            m4 = Modifier()
+            p = Process("test", m1, m2)
+            p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
+            (m1 & ~m2).toModify(p.a, fred=2)
+            self.assertEqual(p.a.fred, 1)
+            (m1 & ~m3).toModify(p.a, fred=2)
+            self.assertEqual(p.a.fred, 2)
+            (m1 | ~m2).toModify(p.a, fred=3)
+            self.assertEqual(p.a.fred, 3)
+            (~m1 | ~m2).toModify(p.a, fred=4)
+            self.assertEqual(p.a.fred, 3)
+            (~m3 & ~m4).toModify(p.a, fred=4)
+            self.assertEqual(p.a.fred, 4)
+            ((m1 & m3) | ~m4).toModify(p.a, fred=5)
+            self.assertEqual(p.a.fred, 5)
             #check toReplaceWith
             m1 = Modifier()
             p = Process("test",m1)
