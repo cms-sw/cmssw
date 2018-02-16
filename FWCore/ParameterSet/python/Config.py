@@ -1286,6 +1286,7 @@ class _AndModifier(object):
   def isChosen(self):
     return self.__lhs.isChosen() and self.__rhs.isChosen()
   def toModify(self,obj, func=None,**kw):
+    Modifier._toModifyCheck(obj,func,**kw)
     if not self.isChosen():
       return
     self._toModify(obj,func,**kw)
@@ -1310,6 +1311,7 @@ class _InvertModifier(object):
   def isChosen(self):
     return not self.__modifier.isChosen()
   def toModify(self,obj, func=None,**kw):
+    Modifier._toModifyCheck(obj,func,**kw)
     if not self.isChosen():
       return
     self._toModify(obj,func,**kw)
@@ -1335,6 +1337,7 @@ class _OrModifier(object):
   def isChosen(self):
     return self.__lhs.isChosen() or self.__rhs.isChosen()
   def toModify(self,obj, func=None,**kw):
+    Modifier._toModifyCheck(obj,func,**kw)
     if not self.isChosen():
       return
     self._toModify(obj,func, **kw)
@@ -1371,6 +1374,10 @@ class Modifier(object):
        In order to work, the value returned from this function must be assigned to a uniquely named variable.
     """
     return ProcessModifier(self,func)
+  @staticmethod
+  def _toModifyCheck(obj,func,**kw):
+    if func is not None and len(kw) != 0:
+      raise TypeError("toModify takes either two arguments or one argument and key/value pairs")
   def toModify(self,obj, func=None,**kw):
     """This is used to register an action to be performed on the specific object. Two different forms are allowed
     Form 1: A callable object (e.g. function) can be passed as the second. This callable object is expected to take one argument
@@ -1384,15 +1391,11 @@ class Modifier(object):
         #change foo.fred.pebbles to 3 and foo.fred.friend to "barney"
         mod.toModify(foo, fred = dict(pebbles = 3, friend = "barney)) )
     """
-    if func is not None and len(kw) != 0:
-      raise TypeError("toModify takes either two arguments or one argument and key/value pairs")
+    Modifier._toModifyCheck(obj,func,**kw)
     if not self.isChosen():
         return
     self._toModify(obj,func,**kw)
   def _toModify(self,obj,func,**kw):
-    # Need to repeat the check in case the call comes via _AndModifier, _InvertModifier, or _OrModifier
-    if func is not None and len(kw) != 0:
-      raise TypeError("toModify takes either two arguments or one argument and key/value pairs")
     if func is not None:
       func(obj)
     else:
@@ -3028,6 +3031,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & m2).toModify(p.a, fred = int32(2))
+            self.assertRaises(TypeError, lambda: (m1 & m2).toModify(p.a, 1, wilma=2))
             self.assertEqual(p.a.fred, 1)
             m1 = Modifier()
             m2 = Modifier()
@@ -3051,6 +3055,8 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             self.assertEqual(p.a.fred, 1)
             (~m2).toModify(p.a, wilma=2)
             self.assertEqual(p.a.wilma, 2)
+            self.assertRaises(TypeError, lambda: (~m1).toModify(p.a, 1, wilma=2))
+            self.assertRaises(TypeError, lambda: (~m2).toModify(p.a, 1, wilma=2))
             # check or
             m1 = Modifier()
             m2 = Modifier()
@@ -3065,6 +3071,8 @@ process.schedule = cms.Schedule(*[ process.path1, process.endpath1 ], tasks=[pro
             self.assertEqual(p.a.fred, 4)
             (m2 | m3).toModify(p.a, fred=5)
             self.assertEqual(p.a.fred, 4)
+            self.assertRaises(TypeError, lambda: (m1 | m2).toModify(p.a, 1, wilma=2))
+            self.assertRaises(TypeError, lambda: (m2 | m3).toModify(p.a, 1, wilma=2))
             # check combinations
             m1 = Modifier()
             m2 = Modifier()
