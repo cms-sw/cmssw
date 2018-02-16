@@ -890,8 +890,8 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     )
 
 hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone()
-hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTaskExt = hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask.copy()
-hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTaskExt.add(hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT)
+_hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTaskExt = hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask.copy()
+_hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTaskExt.add(hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT)
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 for era in [ run2_miniAOD_80XLegacy, run2_miniAOD_94XFall17]:
@@ -907,7 +907,7 @@ for era in [ run2_miniAOD_80XLegacy, run2_miniAOD_94XFall17]:
                                             variable = cms.string("pt")),))
     era.toReplaceWith(
         hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask,
-        hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTaskExt
+        _hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTaskExt
     )
     era.toModify(hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT,
                  mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
