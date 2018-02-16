@@ -39,9 +39,9 @@ def getFileNames_das_client():
 
     files = []
     for row in data:
-        file = [r for r in das_client.get_value(row, filters['grep'])][0]
-        if len(file) > 0 and not file in files:
-            files.append(file)
+        the_file = [r for r in das_client.get_value(row, filters['grep'])][0]
+        if len(the_file) > 0 and not the_file in files:
+            files.append(the_file)
 
     return files
 
