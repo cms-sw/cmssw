@@ -889,12 +889,26 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     produceAndDiscriminateHPSPFTausTask
     )
 
+hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone()
+hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTaskExt = hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask.copy()
+hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTaskExt.add(hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT)
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 for era in [ run2_miniAOD_80XLegacy, run2_miniAOD_94XFall17]:
     era.toModify(hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw,
                  mvaName = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1",
                  mvaOpt  = "DBoldDMwLTwGJ")
+    era.toModify(hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                 mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                              cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff95"),
+                                            variable = cms.string("pt")),))
+    era.toReplaceWith(
+        hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask,
+        hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTaskExt
+    )
     era.toModify(hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT,
                  mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
                  key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),

@@ -323,13 +323,10 @@ def miniAOD_customizeCommon(process):
     addBoostedTaus(process)
     process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
     process.load("RecoTauTag.Configuration.HPSPFTaus_cff")
-    process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT = process.hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone()
-    process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff95")
     #-- Adding customization for 94X 2017 legacy reMniAOD
     from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
     _makePatTausTaskWithRetrainedMVATauID = process.makePatTausTask.copy()
     _makePatTausTaskWithRetrainedMVATauID.add(process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask)
-    _makePatTausTaskWithRetrainedMVATauID.add(process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT)
     run2_miniAOD_94XFall17.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
@@ -337,7 +334,6 @@ def miniAOD_customizeCommon(process):
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
     _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
     _makePatTausTaskWithTauReReco.add(process.PFTauTask)
-    _makePatTausTaskWithTauReReco.add(process.hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT)
     run2_miniAOD_80XLegacy.toReplaceWith(
         process.makePatTausTask, _makePatTausTaskWithTauReReco)
 
