@@ -7,6 +7,8 @@ using namespace l1t;
 
 constexpr double HGCalTowerMap::kEtaMax_;
 constexpr double HGCalTowerMap::kEtaMin_;
+constexpr double HGCalTowerMap::kEtaMaxLoose_;
+constexpr double HGCalTowerMap::kEtaMinLoose_;
 constexpr double HGCalTowerMap::kPhiMax_;
 constexpr double HGCalTowerMap::kPhiMin_;
 
@@ -81,13 +83,13 @@ int HGCalTowerMap::iEta(const double eta) const
   int signEta = eta>0 ? 1 : -1;
   
   if(absEta<kEtaMin_){
-    absEta = kEtaMin_;    
-    edm::LogWarning("HGCalTowerMap") << "WARNING: trying to access towers below min eta range of tower maps eta="<<eta;
+    absEta = kEtaMin_;
+    if(absEta<kEtaMinLoose_) edm::LogWarning("HGCalTowerMap") << "WARNING: trying to access towers below min eta range of tower maps eta="<<eta;
     return signEta;
   }
   else if(absEta>kEtaMax_){
     absEta = kEtaMax_;
-    edm::LogWarning("HGCalTowerMap") << "WARNING: trying to access towers above max eta range of tower maps eta="<<eta;
+    if(absEta>kEtaMaxLoose_) edm::LogWarning("HGCalTowerMap") << "WARNING: trying to access towers above max eta range of tower maps eta="<<eta;
     return signEta*nEtaBins_;
   }
 
