@@ -86,6 +86,20 @@ cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoThreshold'),
                           C3d_parameters = C3d_parValues.clone()
                           )
 
+towerMap2D_parValues = cms.PSet( nEtaBins = cms.int32(18),
+                                 nPhiBins = cms.int32(72),
+                                 etaBins = cms.vdouble(),
+                                 phiBins = cms.vdouble(),
+                                 useLayerWeights = cms.bool(False),
+                                 layerWeights = cms.vdouble()
+                                 )
+
+tower_algo =  cms.PSet( AlgorithmName = cms.string('HGCTowerAlgoThreshold'),
+                        FECodec = fe_codec.clone(),
+                        calib_parameters = calib_parValues.clone(),
+                        towermap_parameters = towerMap2D_parValues.clone()
+                        )
+
 hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     "HGCalTriggerDigiProducer",
     eeDigis = cms.InputTag('mix:HGCDigisEE'),
@@ -93,7 +107,8 @@ hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     bhDigis = cms.InputTag('mix:HGCDigisHEback'),
     FECodec = fe_codec.clone(),
     BEConfiguration = cms.PSet( 
-        algorithms = cms.VPSet( cluster_algo )
+        algorithms = cms.VPSet( cluster_algo,
+                                tower_algo )
         )
     )
 
@@ -102,6 +117,7 @@ hgcalTriggerPrimitiveDigiFEReproducer = cms.EDProducer(
     feDigis = cms.InputTag('hgcalTriggerPrimitiveDigiProducer'),
     FECodec = fe_codec.clone(),
     BEConfiguration = cms.PSet( 
-        algorithms = cms.VPSet( cluster_algo )
+        algorithms = cms.VPSet( cluster_algo,
+                                tower_algo)
         )
     )
