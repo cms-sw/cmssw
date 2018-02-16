@@ -23,10 +23,10 @@ namespace APVGain {
 
     struct APVmon{
       
-      APVmon(int v1, int v2, int v3, MonitorElement* v4) :
-	m_subdetectorId(v1),m_subdetectorSide(v2),m_subdetectorPlane(v3),m_monitor(std::move(v4)){}
-
     public:
+
+    APVmon(int v1, int v2, int v3, MonitorElement* v4) :
+      m_subdetectorId(v1),m_subdetectorSide(v2),m_subdetectorPlane(v3),m_monitor(v4){}
 
       int getSubdetectorId(){
 	return m_subdetectorId;
