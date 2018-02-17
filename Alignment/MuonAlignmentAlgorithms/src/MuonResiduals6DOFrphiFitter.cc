@@ -107,13 +107,13 @@ void MuonResiduals6DOFrphiFitter_FCN(int &npar, double *gin, double &fval, doubl
 
     double coeff = alpha;
     if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian ||
-        fitter->residualsModel() == MuonResidualsFitter::kPureGaussian2D) coeff = 0.;
+        fitter->residualsModel() == MuonResidualsFitter::kPureGaussian2D) { coeff = 0.; }
     double effr = effectiveR(positionX, positionY);
     double residpeak = getResidual(alignx, aligny, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY, effr, coeff, resslope);
     double resslopepeak = getResSlope(alignx, aligny, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY, effr);
 
     double weight = (1./redchi2) * number_of_hits / sum_of_weights;
-    if (!weight_alignment) weight = 1.;
+    if (!weight_alignment) { weight = 1.; }
 
     if (!weight_alignment  ||  TMath::Prob(redchi2*6, 6) < 0.99) // no spikes allowed
     {
@@ -228,20 +228,20 @@ bool MuonResiduals6DOFrphiFitter::fit(Alignable *ali)
 
   int idx[4], ni = 0;
   if (useRes() == k1111 || useRes() == k1110 || useRes() == k1010) {
-    for(ni=0; ni<2; ni++) idx[ni] = ni+5;
-    if (add_alpha) idx[ni++] = 7;
-    else if (add_gamma) for(; ni<4; ni++) idx[ni] = ni+6;
-    if (!add_alpha) fix(kAlpha);
+    for(ni=0; ni<2; ni++) { idx[ni] = ni+5; }
+    if (add_alpha) { idx[ni++] = 7;
+    } else if (add_gamma) { for(; ni<4; ni++) { idx[ni] = ni+6; }
+    if (!add_alpha) { fix(kAlpha); }
   }
   else if (useRes() == k1100) {
     idx[ni++] = 5;
-    if (add_gamma) idx[ni++] = 8;
+    if (add_gamma) { idx[ni++] = 8; }
     fix(kResSlopeSigma);
     fix(kAlpha);
   }
   else if (useRes() == k0010) {
     idx[ni++] = 6;
-    if (add_gamma) idx[ni++] = 9;
+    if (add_gamma) { idx[ni++] = 9; }
     fix(kResidSigma);
     fix(kAlpha);
   }
@@ -270,7 +270,7 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
   {
     const double redchi2 = (*rit)[kRedChi2];
     double weight = 1./redchi2;
-    if (!m_weightAlignment) weight = 1.;
+    if (!m_weightAlignment) { weight = 1.; }
 
     if (!m_weightAlignment  ||  TMath::Prob(redchi2*6, 6) < 0.99)  // no spikes allowed
     {
@@ -452,7 +452,7 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
 
   double fitparameters[12] = {value(kAlignX), value(kAlignY), value(kAlignZ), value(kAlignPhiX), value(kAlignPhiY), value(kAlignPhiZ),
                               mean_trackx, mean_tracky, mean_trackdxdz, mean_trackdydz, value(kAlpha), mean_resslope};
-  if (residualsModel() == kPureGaussian2D) fitparameters[10] = 0.;
+  if (residualsModel() == kPureGaussian2D) { fitparameters[10] = 0.; }
 
   for(std::vector<TF1*>::const_iterator itr = fitlines.begin(); itr != fitlines.end(); itr++)
   {
@@ -471,13 +471,13 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
     const double angleY = (*resiter)[kAngleY];
     const double redchi2 = (*resiter)[kRedChi2];
     double weight = 1./redchi2;
-    if (!m_weightAlignment) weight = 1.;
+    if (!m_weightAlignment) { weight = 1.; }
 
     if (!m_weightAlignment  ||  TMath::Prob(redchi2*6, 6) < 0.99) {  // no spikes allowed
       hist_alpha->Fill(1000.*resslope, 10.*resid);
 
       double coeff = value(kAlpha);
-      if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D) coeff = 0.;
+      if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D) { coeff = 0.; }
       double geom_resid = getResidual(value(kAlignX), value(kAlignY), value(kAlignZ), value(kAlignPhiX), value(kAlignPhiY), value(kAlignPhiZ), positionX, positionY, angleX, angleY, effectiveR(positionX, positionY), coeff, resslope);
       hist_residual->Fill(10.*(resid - geom_resid + value(kAlignX)), weight);
       hist_residual_trackx->Fill(positionX, 10.*resid, weight);
@@ -503,7 +503,7 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
 
     hist_residual_raw->Fill(10.*resid);
     hist_resslope_raw->Fill(1000.*resslope);
-    if (fabs(resslope) < 0.005) hist_residual_cut->Fill(10.*resid);
+    if (fabs(resslope) < 0.005) { hist_residual_cut->Fill(10.*resid); }
   }
 
   double chi2 = 0.;

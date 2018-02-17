@@ -73,7 +73,7 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, A
   }
 
   // Correct directory, needed before asking for fileName(..):
-  if (myDirectory.empty()) myDirectory = defaultDir;
+  if (myDirectory.empty()) { myDirectory = defaultDir; }
   if (!myDirectory.empty() && myDirectory.find_last_of('/') != myDirectory.size() - 1) {
     myDirectory += '/'; // directory may need '/'
   }
@@ -106,10 +106,10 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, A
 	<< "[PedeSteerer]" << "Cannot define global coordinate system "
 	<< "with neither tracker nor muon!";
     }
-    if (aliMuon) theCoordMaster->addComponent(aliMuon); // tracker is already added if existing
+    if (aliMuon) { theCoordMaster->addComponent(aliMuon); // tracker is already added if existing }
     if (aliExtras) { // tracker and/or muon are already added if existing
       align::Alignables allExtras = aliExtras->components();
-      for (const auto& it: allExtras ) theCoordMaster->addComponent(it);
+      for (const auto& it: allExtras ) { theCoordMaster->addComponent(it); }
     }
 
     theCoordMaster->recenterSurface();
@@ -162,7 +162,7 @@ unsigned int PedeSteerer::buildNoHierarchyCollection(const align::Alignables& al
   for (const auto& iAli: alis) {
     AlignmentParameters *params = iAli->alignmentParameters();
     SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(params->userVariables());
-    if (!selVar) continue;
+    if (!selVar) { continue; }
     // Now check whether taking out of hierarchy is selected - must be consistent!
     unsigned int numNoHieraPar = 0;
     unsigned int numHieraPar = 0;
@@ -184,12 +184,12 @@ unsigned int PedeSteerer::buildNoHierarchyCollection(const align::Alignables& al
       bool isInHiera = false; // Check whether Alignable is really part of hierarchy:
       auto mother = iAli;
       while ((mother = mother->mother())) {
-	if (mother->alignmentParameters()) isInHiera = true; // could 'break;', but loop is short
+	if (mother->alignmentParameters()) { isInHiera = true; // could 'break;', but loop is short }
       }
       // Complain, but keep collection short if not in hierarchy:
-      if (isInHiera) myNoHieraCollection.insert(iAli);
-      else edm::LogWarning("Alignment") << "@SUB=PedeSteerer::buildNoHierarchyCollection"
-					<< "Alignable not in hierarchy, no need to remove it!";
+      if (isInHiera) { myNoHieraCollection.insert(iAli);
+      } else { edm::LogWarning("Alignment") << "@SUB=PedeSteerer::buildNoHierarchyCollection"
+					<< "Alignable not in hierarchy, no need to remove it!"; }
     }
   } // end loop on alignables
 
@@ -202,7 +202,7 @@ bool PedeSteerer::checkParameterChoices(const align::Alignables& alis) const
   for (const auto& iAli: alis) {
     AlignmentParameters *paras = iAli->alignmentParameters();
     SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(paras->userVariables());
-    if (!selVar) continue;
+    if (!selVar) { continue; }
     for (unsigned int iParam = 0; static_cast<int>(iParam) < paras->size(); ++iParam) {
       const char sel = selVar->fullSelection()[iParam];
       if (sel != 'f' && sel != 'F' && sel != 'c' && sel != 'C' &&
@@ -236,7 +236,7 @@ PedeSteerer::fixParameters(const align::Alignables& alis, const std::string &fil
 
     AlignmentParameters *params = iAli->alignmentParameters();
     SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(params->userVariables());
-    if (!selVar) continue;
+    if (!selVar) { continue; }
     
     for (unsigned int iParam = 0; static_cast<int>(iParam) < params->size(); ++iParam) {
       const unsigned int nInstances = myLabels->numberOfParameterInstances(iAli, iParam);
@@ -305,7 +305,7 @@ align::Alignables PedeSteerer::selectCoordinateAlis(const align::Alignables& ali
   for (const auto& iAli: alis) {
     AlignmentParameters *params = iAli->alignmentParameters();
     SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(params->userVariables());
-    if (!selVar) continue;
+    if (!selVar) { continue; }
     unsigned int refParam = 0;
     unsigned int nonRefParam = 0;
     for (unsigned int iParam = 0; static_cast<int>(iParam) < params->size(); ++iParam) {
@@ -371,11 +371,11 @@ bool PedeSteerer::isCorrectToRefSystem(const align::Alignables& coordDefiners) c
     SelectionUserVariables *selVar = 
       (it->alignmentParameters() ? 
        dynamic_cast<SelectionUserVariables*>(it->alignmentParameters()->userVariables()) : nullptr);
-    if (!selVar) continue;  // is an error!?
+    if (!selVar) { continue;  // is an error!? }
 
     for (unsigned int i = 0; i < selVar->fullSelection().size(); ++i) {
-      if (selVar->fullSelection()[i] == 'r') doNotCorrect = true;
-      else if (selVar->fullSelection()[i] == 's') doCorrect = true;
+      if (selVar->fullSelection()[i] == 'r') { doNotCorrect = true;
+      } else if (selVar->fullSelection()[i] == 's') { doCorrect = true; }
     }
   }
 
@@ -391,7 +391,7 @@ bool PedeSteerer::isCorrectToRefSystem(const align::Alignables& coordDefiners) c
 void PedeSteerer::correctToReferenceSystem()
 {
   typedef RigidBodyAlignmentParameters RbPars;
-  if (!theCoordMaster || theCoordDefiners.empty()) return; // nothing was defined
+  if (!theCoordMaster || theCoordDefiners.empty()) { return; // nothing was defined }
 
   align::Alignables definerDets; // or ...DetUnits
   for (const auto& it: theCoordDefiners) {// find lowest level objects of alignables that define the coordinate system
@@ -407,7 +407,7 @@ void PedeSteerer::correctToReferenceSystem()
     meanPars /= definerDets.size();
     const align::Scalar squareSum = meanPars.normsq();
 
-    if (squareSum < 1.e-20) break; // sqrt(1.e-20)=1.e-10: close enough to stop iterating
+    if (squareSum < 1.e-20) { break; // sqrt(1.e-20)=1.e-10: close enough to stop iterating }
     if (iLoop == 0) {
       edm::LogInfo("Alignment") << "@SUB=PedeSteerer::correctToReferenceSystem"
 				<< "Loop " << iLoop << " "
@@ -451,7 +451,7 @@ unsigned int PedeSteerer::hierarchyConstraints(const align::Alignables& alis,
     }
     //     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
     // 			      << aliDaughts.size() << " ali param components";
-    if (aliDaughts.empty()) continue;
+    if (aliDaughts.empty()) { continue; }
     //     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
     // 			      << aliDaughts.size() << " alignable components ("
     // 			      << iA->size() << " in total) for " 
@@ -459,7 +459,7 @@ unsigned int PedeSteerer::hierarchyConstraints(const align::Alignables& alis,
     // 			      << ", layer " << aliId.typeAndLayerFromAlignable(iA).second
     // 			      << ", position " << (iA)->globalPosition()
     // 			      << ", r = " << (iA)->globalPosition().perp();
-    if (!filePtr) filePtr = this->createSteerFile(fileName, true);
+    if (!filePtr) { filePtr = this->createSteerFile(fileName, true); }
     ++nConstraints;
     this->hierarchyConstraint(iA, aliDaughts, *filePtr);
   }
@@ -501,16 +501,16 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
       Alignable *aliSubComp = parIds[iParam].first;
       const unsigned int compParNum = parIds[iParam].second;
       if (this->isNoHiera(aliSubComp)) {
-	if (myIsSteerFileDebug) aConstr << "* Taken out of hierarchy: ";
+	if (myIsSteerFileDebug) { aConstr << "* Taken out of hierarchy: "; }
 	continue;
       }
       const unsigned int aliLabel = myLabels->alignableLabel(aliSubComp);
       const unsigned int paramLabel = myLabels->parameterLabel(aliLabel, compParNum);
       // FIXME: multiply by cmsToPedeFactor(subcomponent)/cmsToPedeFactor(mother) (or vice a versa?)
-      if (theConstrPrecision > 0)
+      if (theConstrPrecision > 0) {
         aConstr << paramLabel << "    " << std::setprecision(theConstrPrecision) << factors[iParam];
-     else
-        aConstr << paramLabel << "    " << factors[iParam];
+     } else {
+        aConstr << paramLabel << "    " << factors[iParam]; }
       if (myIsSteerFileDebug) { // debug
 	aConstr << "   ! for param " << compParNum << " of a " 
 		<< alignableObjectId_.idToString(aliSubComp->alignableObjectId()) << " at "
@@ -564,7 +564,7 @@ unsigned int PedeSteerer::presigmas(const std::vector<edm::ParameterSet> &cffPre
     // now loop on alis of present selection
     for (unsigned int iAli = 0; iAli < alis.size(); ++iAli) {
       std::vector<float> &presigmas = aliPresiMap[alis[iAli]]; // existing or empty, so ensure length:
-      if (presigmas.size() < sels[iAli].size()) presigmas.resize(sels[iAli].size(), 0.);
+      if (presigmas.size() < sels[iAli].size()) { presigmas.resize(sels[iAli].size(), 0.); }
       for (unsigned int iParam = 0; iParam < sels[iAli].size(); ++iParam) { // loop on parameters
         if (sels[iAli][iParam] != '0') { // all but '0' means to apply the chosen presigma
           if (presigmas[iParam] != 0.) { // reset forbidden (would make it order dependent!)
@@ -579,8 +579,8 @@ unsigned int PedeSteerer::presigmas(const std::vector<edm::ParameterSet> &cffPre
     } // end loop on alignables for given selection and presigma
   } // end loop on PSets 
 
-  if (aliPresiMap.empty()) return 0;
-  else return this->presigmasFile(fileName, alis, aliPresiMap);
+  if (aliPresiMap.empty()) { return 0;
+  } else { return this->presigmasFile(fileName, alis, aliPresiMap); }
 }
 
 //_________________________________________________________________________
@@ -596,20 +596,20 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
   for (const auto& iAli: alis) {
     // Any presigma chosen for alignable?
     AlignablePresigmasMap::const_iterator presigmasIt = aliPresiMap.find(iAli);
-    if (presigmasIt == aliPresiMap.end()) continue; // no presigma chosen for alignable
+    if (presigmasIt == aliPresiMap.end()) { continue; // no presigma chosen for alignable }
 
     // Why does the following not work? It does with CMSSW_1_3_X on SLC3...
     // const AlignablePresigmasMap::data_type &presigmas = presigmasIt->second;
     const std::vector<float> &presigmas = presigmasIt->second; // I want to hide float or double...
     for (unsigned int iParam = 0; iParam < presigmas.size(); ++iParam) {
       // Now check whether a presigma value > 0. chosen: 
-      if (presigmas[iParam] <= 0.) continue; // must be positive, '<' checked above
+      if (presigmas[iParam] <= 0.) { continue; // must be positive, '<' checked above }
       // Do not apply presigma to inactive or fixed values.
-      if (!(iAli->alignmentParameters()->selector()[iParam])) continue;
+      if (!(iAli->alignmentParameters()->selector()[iParam])) { continue; }
       SelectionUserVariables *selVar 
         = dynamic_cast<SelectionUserVariables*>(iAli->alignmentParameters()->userVariables());
       const char selChar = (selVar ? selVar->fullSelection()[iParam] : '1');
-      if (selChar == 'f' || selChar == 'F' || selChar == 'c' || selChar == 'C') continue;
+      if (selChar == 'f' || selChar == 'F' || selChar == 'c' || selChar == 'C') { continue; }
       // Finally create and write steering file:
       if (!filePtr) {
         filePtr = this->createSteerFile(fileName, true);
@@ -744,7 +744,7 @@ std::string PedeSteerer::buildMasterSteer(const std::vector<std::string> &binary
 {
   const std::string nameMasterSteer(this->fileName("Master"));
   std::ofstream *mainSteerPtr = this->createSteerFile(nameMasterSteer, false);
-  if (!mainSteerPtr) return "";
+  if (!mainSteerPtr) { return ""; }
 
   // add external steering files, if any
   std::vector<std::string> addfiles =  myConfig.getParameter<std::vector<std::string> >("additionalSteerFiles");

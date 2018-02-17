@@ -25,7 +25,8 @@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOPinhole::defaultBehaviour( LightRay& lightray, Measurement& meas )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: TRAVERSE PINHOLE  " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: TRAVERSE PINHOLE  " << name() << std::endl;
+}
   
   //----------- Direction is the one that links the source and the pinhole
   CLHEP::Hep3Vector source = lightray.point();

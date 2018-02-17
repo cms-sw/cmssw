@@ -26,7 +26,7 @@ AlignmentUserVariablesIO::write(const align::Alignables& alivec,
     if ((*it)->alignmentParameters()->isValid() || !(validCheck)) {
       icount++;
       int iret=writeOne(*it);
-      if (iret!=0) return iret;
+      if (iret!=0) { return iret; }
     }
   }
   edm::LogInfo("Alignment") << "@SUB=AlignmentUserVariablesIO::write"
@@ -50,7 +50,7 @@ AlignmentUserVariablesIO::read(const align::Alignables& alivec, int& ierr)
     AlignmentUserVariables* ad=readOne(*it, ierr2); // should create with new!
     if (ierr2==0) { 
       retvec.push_back(ad); icount++; 
-      if (ad!=nullptr) icount2++;
+      if (ad!=nullptr) { icount2++; }
     }
   }
   edm::LogInfo("Alignment") << "@SUB=AlignmentUserVariablesIO::read"

@@ -118,10 +118,10 @@ void AlignableDet::update(const GeomDet* geomDet, bool updateComponents)
 void AlignableDet::setAlignmentPositionError(const AlignmentPositionError& ape, bool propagateDown)
 {
 
-  if ( !theAlignmentPositionError )
+  if ( !theAlignmentPositionError ) {
 	theAlignmentPositionError = new AlignmentPositionError( ape );
-  else 
-	*theAlignmentPositionError = ape;
+  } else { 
+	*theAlignmentPositionError = ape; }
 
   this->AlignableComposite::setAlignmentPositionError( ape, propagateDown );
 
@@ -199,8 +199,8 @@ AlignmentErrorsExtended* AlignableDet::alignmentErrors( void ) const
   // Add associated alignment position error
   uint32_t detId = this->geomDetId().rawId();
   CLHEP::HepSymMatrix clhepSymMatrix(6,0);
-  if ( theAlignmentPositionError ) // Might not be set
-    clhepSymMatrix= asHepMatrix(theAlignmentPositionError->globalError().matrix());
+  if ( theAlignmentPositionError ) { // Might not be set
+    clhepSymMatrix= asHepMatrix(theAlignmentPositionError->globalError().matrix()); }
   AlignTransformErrorExtended transformError( clhepSymMatrix, detId );
   m_alignmentErrors->m_alignError.push_back( transformError );
 

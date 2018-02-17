@@ -35,7 +35,7 @@ AlignmentParametersIO::write(const align::Alignables& alivec,
     if ((*it)->alignmentParameters()->isValid() || !(validCheck)) {
       icount++;
       int iret=writeOne(*it);
-      if (iret!=0) return iret;
+      if (iret!=0) { return iret; }
     }
   }
   edm::LogInfo("Alignment") << "@SUB=AlignmentParametersIO::write"
@@ -54,7 +54,7 @@ AlignmentParametersIO::writeOrigRigidBody(const align::Alignables& alivec, bool 
     if (!validCheck || (*it)->alignmentParameters()->isValid()) {
       ++icount;
       int iret = this->writeOneOrigRigidBody(*it);
-      if (iret != 0) return iret;
+      if (iret != 0) { return iret; }
     }
   }
   edm::LogInfo("Alignment") << "@SUB=AlignmentParametersIO::writeOrigRigidBody"

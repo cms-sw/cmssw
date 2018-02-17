@@ -95,12 +95,12 @@ MuonGeometrySVGTemplate::analyze(const edm::Event &iEvent, const edm::EventSetup
 
    while (in_BEGINNING.good()) {
       char c = (char) in_BEGINNING.get();
-      if (in_BEGINNING.good()) out << c;
+      if (in_BEGINNING.good()) { out << c; }
    }
 
    for (int station = 1;  station <= 4;  station++) {
       int numSectors = 12;
-      if (station == 4) numSectors = 14;
+      if (station == 4) { numSectors = 14; }
       for (int sector = 1;  sector <= numSectors;  sector++) {
 	 DTChamberId id(-2, station, sector);  // wheel -2 has a +1 signConvention for x
 	 Alignable *chamber = &*(alignableNavigator->alignableFromDetId(id));
@@ -126,7 +126,7 @@ MuonGeometrySVGTemplate::analyze(const edm::Event &iEvent, const edm::EventSetup
 
    while (in_END.good()) {
       char c = (char) in_END.get();
-      if (in_END.good()) out << c;
+      if (in_END.good()) { out << c; }
    }
 }
 

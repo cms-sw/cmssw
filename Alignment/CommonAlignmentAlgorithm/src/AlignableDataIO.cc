@@ -109,7 +109,7 @@ int AlignableDataIO::writeAbsPos(const align::Alignables& alivec,
        it!=alivec.end(); ++it ) 
     {
       int iret = writeAbsPos(*it,validCheck);
-      if (iret==0) icount++;
+      if (iret==0) { icount++; }
     }
   LogDebug("WriteAbsPos") << "all,written: " << alivec.size() <<","<< icount;
 
@@ -130,7 +130,7 @@ AlignableDataIO::readAbsPos(const align::Alignables& alivec, int& ierr)
        it!=alivec.end(); ++it ) 
     {
       AlignableAbsData ad=readAbsPos(*it, ierr2);
-      if (ierr2==0) retvec.push_back(ad);
+      if (ierr2==0) { retvec.push_back(ad); }
     }
   
   LogDebug("ReadAbsPos") << "all,written: " << alivec.size() <<"," << retvec.size();
@@ -150,7 +150,7 @@ int AlignableDataIO::writeOrgPos( const align::Alignables& alivec,
        it!=alivec.end(); ++it ) 
     {
       int iret=writeOrgPos(*it,validCheck);
-      if (iret==0) icount++;
+      if (iret==0) { icount++; }
     }
   
   LogDebug("WriteOrgPos") << "all,written: " << alivec.size() <<"," << icount;
@@ -171,7 +171,7 @@ AlignableDataIO::readOrgPos(const align::Alignables& alivec, int& ierr)
        it!=alivec.end(); ++it ) 
     {
       AlignableAbsData ad=readOrgPos(*it, ierr2);
-      if (ierr2==0) retvec.push_back(ad);
+      if (ierr2==0) { retvec.push_back(ad); }
     }
 
   LogDebug("ReadOrgPos") << "all,read: " << alivec.size() <<", "<< retvec.size();
@@ -190,7 +190,7 @@ int AlignableDataIO::writeRelPos(const align::Alignables& alivec,
   for( align::Alignables::const_iterator it=alivec.begin();
        it!=alivec.end(); ++it ) {
     int iret=writeRelPos(*it,validCheck);
-    if (iret==0) icount++;
+    if (iret==0) { icount++; }
   }
   LogDebug("WriteRelPos") << "all,written: " << alivec.size() <<", "<< icount;
   return 0;
@@ -210,7 +210,7 @@ AlignableDataIO::readRelPos(const align::Alignables& alivec, int& ierr)
        it!=alivec.end(); ++it ) 
     {
       AlignableRelData ad=readRelPos(*it, ierr2);
-      if (ierr2==0) retvec.push_back(ad);
+      if (ierr2==0) { retvec.push_back(ad); }
     }
   LogDebug("ReadRelPos") << "all,read: " << alivec.size() <<", "<< retvec.size();
 

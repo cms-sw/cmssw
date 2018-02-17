@@ -36,7 +36,7 @@ TwoBodyDecay TwoBodyDecayEstimator::estimate( const std::vector< RefCountedLinea
   AlgebraicMatrix matA;
 
   bool check = constructMatrices( linTracks, linearizationPoint, vm, vecM, matG, matA );
-  if ( !check ) return TwoBodyDecay();
+  if ( !check ) { return TwoBodyDecay(); }
 
   AlgebraicSymMatrix matGPrime;
   AlgebraicSymMatrix invAtGPrimeA;
@@ -64,7 +64,7 @@ TwoBodyDecay TwoBodyDecayEstimator::estimate( const std::vector< RefCountedLinea
 	double sigma = 1./sqrt( matG[i][i] );
 	double sigmaTimesR = sigma*theRobustificationConstant;
 	double absRes = fabs( res[i] ); 
-	if (  absRes > sigmaTimesR ) matGPrime[i][i] *= sigmaTimesR/absRes;
+	if (  absRes > sigmaTimesR ) { matGPrime[i][i] *= sigmaTimesR/absRes; }
       }
     }
 
@@ -82,8 +82,8 @@ TwoBodyDecay TwoBodyDecayEstimator::estimate( const std::vector< RefCountedLinea
     res = matA*vecEstimate - vecM;
     chi2 = dot( res, matGPrime*res );
 
-    if ( ( nIterations > 0 ) && ( fabs( chi2 - oldChi2 ) < theMaxIterDiff ) ) stopIteration = true;
-    if ( nIterations == theMaxIterations ) stopIteration = true;
+    if ( ( nIterations > 0 ) && ( fabs( chi2 - oldChi2 ) < theMaxIterDiff ) ) { stopIteration = true; }
+    if ( nIterations == theMaxIterations ) { stopIteration = true; }
 
     oldChi2 = chi2;
     nIterations++;
@@ -93,7 +93,7 @@ TwoBodyDecay TwoBodyDecayEstimator::estimate( const std::vector< RefCountedLinea
   {
     AlgebraicSymMatrix pullsCov = matGPrime.inverse( checkInversion ) - invAtGPrimeA.similarity( matA );
     thePulls = AlgebraicVector( matG.num_col(), 0 );
-    for ( int i = 0; i < pullsCov.num_col(); i++ ) thePulls[i] = res[i]/sqrt( pullsCov[i][i] );
+    for ( int i = 0; i < pullsCov.num_col(); i++ ) { thePulls[i] = res[i]/sqrt( pullsCov[i][i] ); }
   }
 
   theNdf = matA.num_row() - matA.num_col();
@@ -111,12 +111,12 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
   PerigeeLinearizedTrackState* linTrack1 = dynamic_cast<PerigeeLinearizedTrackState*>( linTracks[0].get() );
   PerigeeLinearizedTrackState* linTrack2 = dynamic_cast<PerigeeLinearizedTrackState*>( linTracks[1].get() );
 
-  if (!linTrack1 || !linTrack2) return false;
+  if (!linTrack1 || !linTrack2) { return false; }
 
   AlgebraicVector trackParam1 = asHepVector( linTrack1->predictedStateParameters() );
   AlgebraicVector trackParam2 = asHepVector( linTrack2->predictedStateParameters() );
 
-  if ( checkValues( trackParam1 ) || checkValues( trackParam2 ) || checkValues( linearizationPoint.parameters() ) ) return false;
+  if ( checkValues( trackParam1 ) || checkValues( trackParam2 ) || checkValues( linearizationPoint.parameters() ) ) { return false; }
 
   AlgebraicVector vecLinParam = linearizationPoint.sub( TwoBodyDecayParameters::px,
 							TwoBodyDecayParameters::mass );
@@ -225,8 +225,8 @@ bool TwoBodyDecayEstimator::checkValues( const AlgebraicVector & vec ) const
 {
   bool isNotFinite = false;
 
-  for ( int i = 0; i < vec.num_col(); ++i )
-    isNotFinite |= edm::isNotFinite( vec[i] );
+  for ( int i = 0; i < vec.num_col(); ++i ) {
+    isNotFinite |= edm::isNotFinite( vec[i] ); }
 
   return isNotFinite;
 }

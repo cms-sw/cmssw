@@ -43,26 +43,26 @@ AlignmentCSCTrackSelector::select(const Tracks& tracks, const edm::Event& evt) c
 	 DetId id = (*hit)->geographicalId();
 
 	 if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::DT) {
-	    if (m_stationA == 0) hitsOnStationA++;
-	    if (m_stationB == 0) hitsOnStationB++;
+	    if (m_stationA == 0) { hitsOnStationA++; }
+	    if (m_stationB == 0) { hitsOnStationB++; }
 	 }
 	 else if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
 	    CSCDetId cscid(id.rawId());
 	    int station = (cscid.endcap() == 1 ? 1 : -1) * cscid.station();
 
-	    if (station == m_stationA) hitsOnStationA++;
-	    if (station == m_stationB) hitsOnStationB++;
+	    if (station == m_stationA) { hitsOnStationA++; }
+	    if (station == m_stationB) { hitsOnStationB++; }
 
 	 } // end if CSC
       } // end loop over hits
 
       bool stationAokay;
-      if (m_stationA == 0) stationAokay = (m_minHitsDT <= hitsOnStationA);
-      else stationAokay = (m_minHitsPerStation <= hitsOnStationA  &&  hitsOnStationA <= m_maxHitsPerStation);
+      if (m_stationA == 0) { stationAokay = (m_minHitsDT <= hitsOnStationA);
+      } else { stationAokay = (m_minHitsPerStation <= hitsOnStationA  &&  hitsOnStationA <= m_maxHitsPerStation); }
 
       bool stationBokay;
-      if (m_stationB == 0) stationBokay = (m_minHitsDT <= hitsOnStationB);
-      else stationBokay = (m_minHitsPerStation <= hitsOnStationB  &&  hitsOnStationB <= m_maxHitsPerStation);
+      if (m_stationB == 0) { stationBokay = (m_minHitsDT <= hitsOnStationB);
+      } else { stationBokay = (m_minHitsPerStation <= hitsOnStationB  &&  hitsOnStationB <= m_maxHitsPerStation); }
 
       if (stationAokay  &&  stationBokay) {
 	 result.push_back(*track);

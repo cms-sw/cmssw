@@ -57,7 +57,7 @@ AlignmentParameters::AlignmentParameters(Alignable* object,
 //__________________________________________________________________________________________________
 AlignmentParameters::~AlignmentParameters()
 { 
-  if ( theUserVariables ) delete theUserVariables;
+  if ( theUserVariables ) { delete theUserVariables; }
 }
 
 
@@ -130,7 +130,7 @@ AlignmentParameters::selectedDerivatives(const TrajectoryStateOnSurface& tsos,
 //__________________________________________________________________________________________________
 void  AlignmentParameters::setUserVariables(AlignmentUserVariables* auv)
 { 
-  if ( theUserVariables ) delete theUserVariables;
+  if ( theUserVariables ) { delete theUserVariables; }
   theUserVariables = auv;
 }
 
@@ -159,13 +159,13 @@ unsigned int AlignmentParameters::hierarchyLevel() const
 
   align::Alignables comps;
   theAlignable->firstCompsWithParams(comps);
-  if (comps.empty()) return 0;
+  if (comps.empty()) { return 0; }
 
   unsigned int maxLevelOfComp = 0;
   for (const auto& iAli: comps) {// firstCompsWithParams guaranties that alignmentParameters() != 0:
     const unsigned int compResult = iAli->alignmentParameters()->hierarchyLevel();
     // levels might be different for components, get largest:
-    if (maxLevelOfComp < compResult) maxLevelOfComp = compResult;
+    if (maxLevelOfComp < compResult) { maxLevelOfComp = compResult; }
   }
 
   return maxLevelOfComp + 1;
@@ -203,20 +203,20 @@ AlignmentParameters::collapseSymMatrix(const AlgebraicSymMatrix& m,
   int size  = sel.size();
 
   // Check size matching
-  if ( nRows != size ) 
+  if ( nRows != size ) { 
     throw cms::Exception("LogicError") << "Size mismatch in parameters"
-    << " (input symmatrix = " << nRows << ", selection: " << size << ")";
+    << " (input symmatrix = " << nRows << ", selection: " << size << ")"; }
 
   // If OK, continue
   std::vector<int> rowvec;
-  for ( int i=0; i<nRows; i++ ) 
-    if ( sel[i] ) rowvec.push_back(i);
+  for ( int i=0; i<nRows; i++ ) { 
+    if ( sel[i] ) { rowvec.push_back(i); }
  
   int nSelectedRows = rowvec.size();
   AlgebraicSymMatrix result( nSelectedRows, 0 );
-  for (int i=0; i<nSelectedRows; i++) 
-    for (int j=0; j<nSelectedRows; j++)
-      result[i][j] = m[ rowvec[i] ][ rowvec[j] ];
+  for (int i=0; i<nSelectedRows; i++) { 
+    for (int j=0; j<nSelectedRows; j++) {
+      result[i][j] = m[ rowvec[i] ][ rowvec[j] ]; }
 
   return result;
 
@@ -232,19 +232,19 @@ AlgebraicVector AlignmentParameters::collapseVector(const AlgebraicVector& m,
   int size  = sel.size();
 
   // Check size matching
-  if ( nRows != size ) 
+  if ( nRows != size ) { 
     throw cms::Exception("LogicError") << "Size mismatch in parameters"
-    << " (input vector = " << nRows << ", selection: " << size << ")";
+    << " (input vector = " << nRows << ", selection: " << size << ")"; }
 
   // If OK, continue
   std::vector<int> rowvec;
-  for ( int i=0; i<nRows; i++ ) 
-    if ( sel[i] ) rowvec.push_back(i);
+  for ( int i=0; i<nRows; i++ ) { 
+    if ( sel[i] ) { rowvec.push_back(i); }
 
   int nSelectedRows=rowvec.size();
   AlgebraicVector result( nSelectedRows, 0 );
-  for ( int i=0; i<nSelectedRows; i++ )
-    result[i] = m[ (int)rowvec[i] ];
+  for ( int i=0; i<nSelectedRows; i++ ) {
+    result[i] = m[ (int)rowvec[i] ]; }
 
   return result;
 
@@ -260,19 +260,19 @@ AlgebraicSymMatrix AlignmentParameters::expandSymMatrix(const AlgebraicSymMatrix
   int size  = sel.size();
 
   std::vector<int> rowvec;
-  for ( int i=0; i<size; i++ ) 
-    if ( sel[i] ) rowvec.push_back(i);
+  for ( int i=0; i<size; i++ ) { 
+    if ( sel[i] ) { rowvec.push_back(i); }
 
   // Check size matching
-  if( nRows != static_cast<int>(rowvec.size()) ) 
+  if( nRows != static_cast<int>(rowvec.size()) ) { 
     throw cms::Exception("LogicError") << "Size mismatch in parameters"
-    << " (input symmatrix = " << nRows << ", selection: " << size << ")";
+    << " (input symmatrix = " << nRows << ", selection: " << size << ")"; }
 
   // If OK, continue
   AlgebraicSymMatrix result(size,0);
-  for ( int i=0; i<nRows; i++ )
-    for (int j=0; j<nRows; j++)
-      result[ rowvec[i] ][ rowvec[j] ] = m[i][j];
+  for ( int i=0; i<nRows; i++ ) {
+    for (int j=0; j<nRows; j++) {
+      result[ rowvec[i] ][ rowvec[j] ] = m[i][j]; }
 
   return result;
 }
@@ -287,17 +287,17 @@ AlgebraicVector AlignmentParameters::expandVector(const AlgebraicVector& m,
   int size  = sel.size();
 
   std::vector<int> rowvec;
-  for ( int i=0; i<size; i++ ) 
-    if (sel[i]==true) rowvec.push_back(i);
+  for ( int i=0; i<size; i++ ) { 
+    if (sel[i]==true) { rowvec.push_back(i); }
 
   // Check size matching
-  if( nRows != static_cast<int>(rowvec.size()) ) 
+  if( nRows != static_cast<int>(rowvec.size()) ) { 
     throw cms::Exception("LogicError") << "Size mismatch in parameters"
-    << " (input vector = " << nRows << ", selection: " << size << ")";
+    << " (input vector = " << nRows << ", selection: " << size << ")"; }
 
   // If OK, continue
   AlgebraicVector result(size,0);
-  for (int i=0; i<nRows; i++) result[ rowvec[i] ] = m[i];
+  for (int i=0; i<nRows; i++) { result[ rowvec[i] ] = m[i]; }
   return result;
 
 }

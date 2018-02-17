@@ -147,7 +147,7 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
 					AlignTransform() );  
 
   // Write alignments to DB
-  if (theSaveToDB) this->saveToDB();
+  if (theSaveToDB) { this->saveToDB(); }
 
   edm::LogInfo("MisalignedMuon") << "Producer done";
 
@@ -162,8 +162,8 @@ void MisalignedMuonESProducer::saveToDB( void )
 
   // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if( !poolDbService.isAvailable() ) // Die if not available
-	throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+  if( !poolDbService.isAvailable() ) { // Die if not available
+	throw cms::Exception("NotAvailable") << "PoolDBOutputService not available"; }
 
   // Store DT alignments and errors
   poolDbService->writeOne<Alignments>( &(*dt_Alignments), poolDbService->beginOfTime(), theDTAlignRecordName);

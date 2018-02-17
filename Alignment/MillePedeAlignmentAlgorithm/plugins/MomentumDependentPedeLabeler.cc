@@ -58,7 +58,7 @@ MomentumDependentPedeLabeler::~MomentumDependentPedeLabeler()
 /// Return 32-bit unique label for alignable, 0 indicates failure.
 unsigned int MomentumDependentPedeLabeler::alignableLabel(Alignable *alignable) const
 {
-  if (!alignable) return 0;
+  if (!alignable) { return 0; }
 
   AlignableToIdMap::const_iterator position = theAlignableToIdMap.find(alignable);
   if (position != theAlignableToIdMap.end()) {
@@ -80,7 +80,7 @@ unsigned int MomentumDependentPedeLabeler::alignableLabelFromParamAndInstance(Al
 									      unsigned int param,
 									      unsigned int instance) const
 {
-  if (!alignable) return 0;
+  if (!alignable) { return 0; }
   
   AlignableToIdMap::const_iterator position = theAlignableToIdMap.find(alignable);
   if (position != theAlignableToIdMap.end()) {
@@ -140,7 +140,7 @@ unsigned int MomentumDependentPedeLabeler::parameterLabel(Alignable *alignable, 
 							  const AlignmentAlgorithmBase::EventInfo &eventInfo,
 							  const TrajectoryStateOnSurface &tsos) const
 {
-  if (!alignable) return 0;
+  if (!alignable) { return 0; }
   
   if (parNum >= theMaxNumParam) {
     throw cms::Exception("Alignment") << "@SUB=MomentumDependentPedeLabeler::parameterLabel" 
@@ -195,7 +195,7 @@ unsigned int MomentumDependentPedeLabeler::parameterLabel(Alignable *alignable, 
 bool MomentumDependentPedeLabeler::hasSplitParameters(Alignable *alignable) const
 {
   AlignableToMomentumRangeMap::const_iterator positionAli = theAlignableToMomentumRangeMap.find(alignable);
-  if (positionAli != theAlignableToMomentumRangeMap.end()) return true;
+  if (positionAli != theAlignableToMomentumRangeMap.end()) { return true; }
   return false;
 }
 
@@ -245,7 +245,7 @@ unsigned int MomentumDependentPedeLabeler::alignableLabelFromLabel(unsigned int 
 Alignable* MomentumDependentPedeLabeler::alignableFromLabel(unsigned int label) const
 {
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return nullptr; // error already given
+  if (aliLabel < theMinLabel) { return nullptr; // error already given }
   
   IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
   if (position != theIdToAlignableMap.end()) {
@@ -265,7 +265,7 @@ Alignable* MomentumDependentPedeLabeler::alignableFromLabel(unsigned int label) 
 unsigned int MomentumDependentPedeLabeler::lasBeamIdFromLabel(unsigned int label) const
 {
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return 0; // error already given
+  if (aliLabel < theMinLabel) { return 0; // error already given }
   
   UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
   if (position != theLabelToLasBeamMap.end()) {
@@ -302,7 +302,7 @@ std::vector<unsigned int> MomentumDependentPedeLabeler::convertParamSel(const st
 {
   std::vector<unsigned int> result;
   for (std::string::size_type pos = 0; pos < selString.size(); ++pos) {
-    if (selString[pos]=='1') result.push_back(pos);
+    if (selString[pos]=='1') { result.push_back(pos); }
   }
   return result;
 }

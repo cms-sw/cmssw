@@ -126,9 +126,9 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
       int stripType=0;
       if(subdetId>2){// SST case
 	const std::type_info &type = typeid(*hit); 	 
-	if (type == typeid(SiStripRecHit1D))	stripType=1;
-	else  if (type == typeid(SiStripRecHit2D))	stripType=2;
-	else	stripType=3;
+	if (type == typeid(SiStripRecHit1D)) {	stripType=1;
+	} else  if (type == typeid(SiStripRecHit2D)) {	stripType=2;
+	} else {	stripType=3; }
 
 	if(stripType==1) { 
 	  //	  const SiStripRecHit1D* stripHit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
@@ -137,7 +137,7 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 	    SiStripRecHit1D::ClusterRef stripclust(stripHit1D->cluster());
 	    tmpflag=InValMap[stripclust];
 	    tmpflag.SetDetId(hit->geographicalId());
-	    if(tmpflag.isOverlap())isOverlapHit=true;
+	    if(tmpflag.isOverlap()) {isOverlapHit=true; }
 	    // std::cout<<"~*~*~* Prescale (1D) for module "<<tmpflag.detId().rawId()<<"("<<InValMap[stripclust].detId().rawId() <<") is "<<hitPrescFactor_<<std::flush;
 	    //  if(tmpflag.isOverlap())cout<<" (it is Overlap)"<<endl;
 	    // else cout<<endl;
@@ -150,7 +150,7 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 	    SiStripRecHit2D::ClusterRef stripclust(stripHit2D->cluster());
 	    tmpflag=InValMap[stripclust];
 	    tmpflag.SetDetId(hit->geographicalId());
-	    if(tmpflag.isOverlap())isOverlapHit=true;
+	    if(tmpflag.isOverlap()) {isOverlapHit=true; }
 	    // std::cout<<"~*~*~* Prescale (2D) for module "<<tmpflag.detId().rawId()<<"("<<InValMap[stripclust].detId().rawId() <<") is "<<hitPrescFactor_<<std::flush;
 	    //  if(tmpflag.isOverlap())cout<<" (it is Overlap)"<<endl;
 	    // else cout<<endl;
@@ -165,7 +165,7 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 	  SiPixelClusterRefNew pixclust(pixelhit->cluster());
 	  tmpflag=InValMap[pixclust];
 	  tmpflag.SetDetId(hit->geographicalId());
-	  if(tmpflag.isOverlap())isOverlapHit=true;
+	  if(tmpflag.isOverlap()) {isOverlapHit=true; }
 	}
       }//end else is a pixel hit
       //      tmpflag.SetDetId(hit->geographicalId());
@@ -191,7 +191,7 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 	    SiStripRecHit1D::ClusterRef stripclust(stripHit2D->cluster());
 	    InValMap[stripclust]=tmpflag;//.SetTakenFlag();
 	  }
-	  else std::cout<<"Unknown type of strip hit"<<std::endl;
+	  else { std::cout<<"Unknown type of strip hit"<<std::endl; }
 	}
 	else{
 	  SiPixelClusterRefNew pixclust(pixelhit->cluster());

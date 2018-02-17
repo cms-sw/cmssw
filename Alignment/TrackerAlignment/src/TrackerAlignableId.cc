@@ -52,8 +52,8 @@ std::pair<int,int> TrackerAlignableId::typeAndLayerFromDetId( const DetId& detId
 	   
 	  layerNumber = tTopo->pxfDisk(detId.rawId());  
 	}
-  else
-	edm::LogWarning("LogicError") << "Unknown subdetid: " <<  subdetId;
+  else {
+	edm::LogWarning("LogicError") << "Unknown subdetid: " <<  subdetId; }
 
 
   return std::make_pair( subdetId, layerNumber );

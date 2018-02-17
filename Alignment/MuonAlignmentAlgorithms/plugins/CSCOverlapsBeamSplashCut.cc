@@ -92,11 +92,11 @@ CSCOverlapsBeamSplashCut::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 
    m_numSegments->Fill(cscSegments->size());
 
-   if (m_maxSegments < 0) return true;
+   if (m_maxSegments < 0) { return true;
 
-   else if (int(cscSegments->size()) <= m_maxSegments) return true;
+   } else if (int(cscSegments->size()) <= m_maxSegments) { return true;
 
-   else return false;
+   } else { return false; }
 }
 
 // ------------ method called once each job just before starting event loop  ------------

@@ -193,10 +193,10 @@ void AlignmentMonitorMuonSystemMap1D::book()
     std::string s_station = std::to_string(station);
     
     bool do_y = true;
-    if (station==4) do_y = false;
+    if (station==4) { do_y = false; }
 
     // *** DT ***
-    if (m_doDT) for (int sector = 1;  sector <= 14;  sector++)
+    if (m_doDT) { for (int sector = 1;  sector <= 14;  sector++)
     {
       if ((station<4 && sector <= 12) || station==4)
       {
@@ -204,20 +204,20 @@ void AlignmentMonitorMuonSystemMap1D::book()
 	  new MuonSystemMapPlot1D("DTvsz_st" + s_station + "sec" + num02d(sector), this, 60, -660., 660., do_y,false);
 	m_plots.push_back(m_DTvsz_station[station-1][sector-1]);
       }
-    }
+    } }
 
-    if (m_doDT) for (int wheel = -2;  wheel <= 2;  wheel++)
+    if (m_doDT) { for (int wheel = -2;  wheel <= 2;  wheel++)
     {
       m_DTvsphi_station[station-1][wheel+2] = 
 	new MuonSystemMapPlot1D("DTvsphi_st" + s_station + "wh" + wheel_label[wheel+2], this, 180, -M_PI, M_PI, do_y, false);
       m_plots.push_back(m_DTvsphi_station[station-1][wheel+2]);
-    }
+    } }
 
     // *** CSC ***
-    if (m_doCSC) for (int endcap = 1;  endcap <= 2;  endcap++)
+    if (m_doCSC) { for (int endcap = 1;  endcap <= 2;  endcap++)
     {
       std::string s_endcap("m");
-      if (endcap == 1) s_endcap = "p";
+      if (endcap == 1) { s_endcap = "p"; }
 
       for (int chamber = 1;  chamber <= 36;  chamber++)
       {
@@ -236,7 +236,7 @@ void AlignmentMonitorMuonSystemMap1D::book()
 	  m_plots.push_back(m_CSCvsphi_me[endcap-1][station-1][ring-1]);
 	}
       }
-    } // endcaps
+    } // endcaps }
   } // stations
 
   m_counter_event = 0;
@@ -299,7 +299,7 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
 
     for (reco::MuonCollection::const_iterator muon = muons->begin();  muon != muons->end();  ++muon)
     {
-      if ( !(muon->isTrackerMuon() && muon->innerTrack().isNonnull() ) ) continue;
+      if ( !(muon->isTrackerMuon() && muon->innerTrack().isNonnull() ) ) { continue; }
 
       m_counter_track++;
 
@@ -321,14 +321,14 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent, const edm:
 
 void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft, const edm::Event &iEvent)
 {
-  if (mrft.trackerNumHits() < m_minTrackerHits) return;
-  if (!m_allowTIDTEC  && mrft.contains_TIDTEC()) return;
-  if (mrft.normalizedChi2() > m_maxTrackerRedChi2) return;
+  if (mrft.trackerNumHits() < m_minTrackerHits) { return; }
+  if (!m_allowTIDTEC  && mrft.contains_TIDTEC()) { return; }
+  if (mrft.normalizedChi2() > m_maxTrackerRedChi2) { return; }
 
   int nMuChambers = 0;
   std::vector<DetId> chamberIds = mrft.chamberIds();
-  for (unsigned ch=0; ch < chamberIds.size(); ch++)  if (chamberIds[ch].det() == DetId::Muon)  nMuChambers++;
-  if (nMuChambers < m_minNCrossedChambers ) return;
+  for (unsigned ch=0; ch < chamberIds.size(); ch++) {  if (chamberIds[ch].det() == DetId::Muon) {  nMuChambers++; }
+  if (nMuChambers < m_minNCrossedChambers ) { return; }
 
   char charge = (mrft.getTrack()->charge() > 0 ? 1 : -1);
   // double qoverpt = track->charge() / track->pt();
@@ -338,7 +338,7 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
 
   for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin();  chamberId != chamberIds.end();  ++chamberId)
   {
-    if (chamberId->det() != DetId::Muon  ) continue;
+    if (chamberId->det() != DetId::Muon  ) { continue; }
 
     if (m_doDT  &&  chamberId->subdetId() == MuonSubdetId::DT)
     {
@@ -358,8 +358,8 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
         int dof = dt13->ndof();
 
         align::GlobalPoint gpos;
-        if (m_useStubPosition) gpos = dt13->global_stubpos();
-        else gpos = dt13->global_trackpos();
+        if (m_useStubPosition) { gpos = dt13->global_stubpos();
+        } else { gpos = dt13->global_trackpos(); }
         double phi = atan2(gpos.y(), gpos.x());
         double z = gpos.z();
 
@@ -377,8 +377,8 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
         chi2 = dt2->chi2();
         dof = dt2->ndof();
 
-        if (m_useStubPosition) gpos = dt2->global_stubpos();
-        else gpos = dt2->global_trackpos();
+        if (m_useStubPosition) { gpos = dt2->global_stubpos();
+        } else { gpos = dt2->global_trackpos(); }
         phi = atan2(gpos.y(), gpos.x());
         z = gpos.z();
 
@@ -400,8 +400,8 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
         int dof = dt13->ndof();
 
         align::GlobalPoint gpos;
-        if (m_useStubPosition) gpos = dt13->global_stubpos();
-        else gpos = dt13->global_trackpos();
+        if (m_useStubPosition) { gpos = dt13->global_stubpos();
+        } else { gpos = dt13->global_trackpos(); }
         double phi = atan2(gpos.y(), gpos.x());
         double z = gpos.z();
 
@@ -420,7 +420,7 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
       CSCDetId id(chamberId->rawId());
 
       int ring = id.ring();
-      if (id.ring()==4) ring = 1; // combine ME1/a + ME1/b
+      if (id.ring()==4) { ring = 1; // combine ME1/a + ME1/b }
 
       m_counter_csc++;
 
@@ -434,19 +434,19 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
         int dof = csc->ndof();
 
         align::GlobalPoint gpos;
-        if (m_useStubPosition) gpos = csc->global_stubpos();
-        else gpos = csc->global_trackpos();
+        if (m_useStubPosition) { gpos = csc->global_stubpos();
+        } else { gpos = csc->global_trackpos(); }
         double phi = atan2(gpos.y(), gpos.x());
         // start phi from -5deg
-        if (phi<-M_PI/180.*5.) phi += 2.*M_PI;
+        if (phi<-M_PI/180.*5.) { phi += 2.*M_PI; }
         double R = sqrt(pow(gpos.x(), 2) + pow(gpos.y(), 2));
 
         int chamber = id.chamber() - 1;
-        if (id.station() > 1  &&  ring == 1) chamber *= 2;
+        if (id.station() > 1  &&  ring == 1) { chamber *= 2; }
 
         assert(1 <= id.endcap()  &&  id.endcap() <= 2  &&  0 <= chamber  &&  chamber <= 35);
 
-        if (R>0.) m_CSCvsphi_me[id.endcap()-1][id.station()-1][ring-1]->fill_x_1d(residual/R, chi2, dof);
+        if (R>0.) { m_CSCvsphi_me[id.endcap()-1][id.station()-1][ring-1]->fill_x_1d(residual/R, chi2, dof); }
 
         m_CSCvsr_me[id.endcap()-1][id.station()-1][chamber]->fill_x(charge, R, residual, chi2, dof);
         m_CSCvsr_me[id.endcap()-1][id.station()-1][chamber]->fill_dxdz(charge, R, resslope, chi2, dof);
@@ -506,9 +506,9 @@ AlignmentMonitorMuonSystemMap1D::MuonSystemMapPlot1D::MuonSystemMapPlot1D(std::s
   const double window = 100.;
 
   m_x_2d = module->book2D("/iterN/", name_x_2d.str(), "", m_bins, low, high, nbins, -window, window);
-  if (m_xy) m_y_2d = module->book2D("/iterN/", name_y_2d.str(), "", m_bins, low, high, nbins, -window, window);
+  if (m_xy) { m_y_2d = module->book2D("/iterN/", name_y_2d.str(), "", m_bins, low, high, nbins, -window, window); }
   m_dxdz_2d = module->book2D("/iterN/", name_dxdz_2d.str(), "", m_bins, low, high, nbins, -window, window);
-  if (m_xy) m_dydz_2d = module->book2D("/iterN/", name_dydz_2d.str(), "", m_bins, low, high, nbins, -window, window);
+  if (m_xy) { m_dydz_2d = module->book2D("/iterN/", name_dydz_2d.str(), "", m_bins, low, high, nbins, -window, window); }
 
   m_x_1d = nullptr;
   if (m_1d) {

@@ -45,8 +45,8 @@ void SurveyDataConverter::analyze( const edm::Event& iEvent, const edm::EventSet
 
   SurveyDataReader dataReader;
   for (int ii=0 ; ii<NFILES ;ii++) {
-    if ( textFileNames[ii] == "NONE" )
-      throw cms::Exception("BadConfig") << fileType[ii] << " input file not found in configuration";
+    if ( textFileNames[ii] == "NONE" ) {
+      throw cms::Exception("BadConfig") << fileType[ii] << " input file not found in configuration"; }
     dataReader.readFile( textFileNames[ii], fileType[ii], tTopo );
   }
 
@@ -56,9 +56,9 @@ void SurveyDataConverter::analyze( const edm::Event& iEvent, const edm::EventSet
   std::cout << "DATA HAS BEEN CONVERTED IN ALIGNABLE COORDINATES" << std::endl;  
 
   TrackerAlignment tr_align( iSetup );
-  if (applycoarseinfo) this->applyCoarseSurveyInfo(tr_align); 
-  if (applyfineinfo) this->applyFineSurveyInfo(tr_align, mapIdToInfo);
-  if (adderrors) this->applyAPEs(tr_align);
+  if (applycoarseinfo) { this->applyCoarseSurveyInfo(tr_align);  }
+  if (applyfineinfo) { this->applyFineSurveyInfo(tr_align, mapIdToInfo); }
+  if (adderrors) { this->applyAPEs(tr_align); }
   tr_align.saveToDB();
 }
 

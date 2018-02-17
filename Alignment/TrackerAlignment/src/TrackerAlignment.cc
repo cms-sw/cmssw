@@ -267,8 +267,8 @@ void TrackerAlignment::saveToDB(void){
 	
   // Output POOL-ORA objects
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if( !poolDbService.isAvailable() ) // Die if not available
-	throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+  if( !poolDbService.isAvailable() ) { // Die if not available
+	throw cms::Exception("NotAvailable") << "PoolDBOutputService not available"; }
 
   // Retrieve and store
   Alignments* alignments = theAlignableTracker->alignments();

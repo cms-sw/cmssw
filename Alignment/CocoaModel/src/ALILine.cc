@@ -20,8 +20,10 @@ ALILine::ALILine( const CLHEP::Hep3Vector& point, const CLHEP::Hep3Vector& direc
 {
   _point = point;
   _direction = direction* (1/direction.mag());
-  if (ALIUtils::debug >= 9) ALIUtils::dump3v( _point, " ALILine point _point = ");
-  if (ALIUtils::debug >= 9) ALIUtils::dump3v( _direction, " ALILine direction _direction = ");
+  if (ALIUtils::debug >= 9) { ALIUtils::dump3v( _point, " ALILine point _point = ");
+}
+  if (ALIUtils::debug >= 9) { ALIUtils::dump3v( _direction, " ALILine direction _direction = ");
+}
 }
 
 
@@ -51,14 +53,16 @@ CLHEP::Hep3Vector ALILine::intersect( const ALILine& l2, bool notParallel )
 
   			}
 
-  if(ALIUtils::debug >= 5 ) std::cout << " acosvec = " << acosvec << std::endl;
+  if(ALIUtils::debug >= 5 ) { std::cout << " acosvec = " << acosvec << std::endl;
+}
   if( 1 - std::abs(acosvec) < 1E-8 ) {
     if( notParallel ) {
       std::cerr << " !!!EXITING ALILine::intersect: two lines are parallel"
 	<< std::endl;
       exit(1);
     } else {
-      if(ALIUtils::debug >= 5 ) std::cout << " !!! ALILine::intersect: two lines are parallel (no errors)" << std::endl;
+      if(ALIUtils::debug >= 5 ) { std::cout << " !!! ALILine::intersect: two lines are parallel (no errors)" << std::endl;
+}
       //gcc2952      inters = CLHEP::Hep3Vector( DBL_MAX, DBL_MAX, DBL_MAX );
       inters = CLHEP::Hep3Vector( ALI_DBL_MAX, ALI_DBL_MAX, ALI_DBL_MAX );
     }
@@ -112,19 +116,24 @@ CLHEP::Hep3Vector ALILine::intersect( const ALILine& l2, bool notParallel )
       // Z-> X
       // X-> -Z
 
-       if(ALIUtils::debug >= 2 && std::abs(old_fact_denominator) < 1.e-10) std::cout << " ** Problem:  old_fact_denominator -> " << old_fact_denominator << std::endl;
+       if(ALIUtils::debug >= 2 && std::abs(old_fact_denominator) < 1.e-10) { std::cout << " ** Problem:  old_fact_denominator -> " << old_fact_denominator << std::endl;
+}
 
-       if(ALIUtils::debug >= 2 && std::abs(fact) > 1e8) std::cout << " ** Problem: fact -> " << fact << std::endl;
+       if(ALIUtils::debug >= 2 && std::abs(fact) > 1e8) { std::cout << " ** Problem: fact -> " << fact << std::endl;
+}
 
-       if(ALIUtils::debug >= 2 && (vec().x() * l2.vec().y() - vec().y() * l2.vec().x()) == 0) std::cout << " ** Division by 0 !!! " << std::endl;
-       if(ALIUtils::debug >= 2 ) std::cout << " ** Must rotate to yz plane for calculation (X-> Z) ";
+       if(ALIUtils::debug >= 2 && (vec().x() * l2.vec().y() - vec().y() * l2.vec().x()) == 0) { std::cout << " ** Division by 0 !!! " << std::endl;
+}
+       if(ALIUtils::debug >= 2 ) { std::cout << " ** Must rotate to yz plane for calculation (X-> Z) ";
+}
 
 
     	fact = ( -1 * vec().y() * l2.pt().z() + vec().z() * l2.pt().y()
        	+ vec().y() * pt().z() - vec().z() * pt().y() )
       	/ ( -1*vec().z() * l2.vec().y() + vec().y() * l2.vec().z() );
 
-        if(ALIUtils::debug >= 2 ) std::cout << "\t -- 1st Recalculation of fact in yz plane = " << fact << std::endl;
+        if(ALIUtils::debug >= 2 ) { std::cout << "\t -- 1st Recalculation of fact in yz plane = " << fact << std::endl;
+}
 
         old_fact_denominator2 = -1*vec().z() * l2.vec().y() + vec().y() * l2.vec().z();
 
@@ -132,30 +141,36 @@ CLHEP::Hep3Vector ALILine::intersect( const ALILine& l2, bool notParallel )
         if(std::abs(-1*vec().z() * l2.vec().y() + vec().y() * l2.vec().z())< 1.e-10)
      	{
 
-	  if(ALIUtils::debug >= 2 ) std::cout << " ** Must rotate to xz plane for calculation (Y-> -Z) ";
-	    if(ALIUtils::debug >= 2 && std::abs(old_fact_denominator2) < 1.e-10) std::cout << " ** Problem: old_fact_denominator2 -> " << old_fact_denominator2 << std::endl;
+	  if(ALIUtils::debug >= 2 ) { std::cout << " ** Must rotate to xz plane for calculation (Y-> -Z) ";
+}
+	    if(ALIUtils::debug >= 2 && std::abs(old_fact_denominator2) < 1.e-10) { std::cout << " ** Problem: old_fact_denominator2 -> " << old_fact_denominator2 << std::endl;
+}
 	  //-       	   if(ALIUtils::debug >= 2 && std::abs(old_fact2) > 1.e8) std::cout << " ** Problem: old_fact2 -> " << old_fact2 << std::endl;
 
 	  fact = ( -1*vec().z() * l2.pt().x() + vec().x() * l2.pt().z()
 		   + vec().z() * pt().x() - vec().x() * pt().z() )
 	    / ( -1*vec().x() * l2.vec().z() + vec().z() * l2.vec().x() );
 
-       	   if(ALIUtils::debug >= 2 ) std::cout << "\t -- 2nd Recalculation of fact in xz plane = " << fact << std::endl;
+       	   if(ALIUtils::debug >= 2 ) { std::cout << "\t -- 2nd Recalculation of fact in xz plane = " << fact << std::endl;
+}
 
 
     	}
 	else {
-	  if(ALIUtils::debug >= 2 ) std::cout << "*!* 2nd calculation sufficient" << std::endl;
+	  if(ALIUtils::debug >= 2 ) { std::cout << "*!* 2nd calculation sufficient" << std::endl;
+}
 	}
 
     }
     else
     {
 
-     if(ALIUtils::debug >= 2 ) std::cout << "*!* Standard calculation - things are fine" << std::endl;
-     if(ALIUtils::debug >= 2 ) std::cout << "\t ----> fact = ( " << vec().y() * l2.pt().x() - vec().x() *
+     if(ALIUtils::debug >= 2 ) { std::cout << "*!* Standard calculation - things are fine" << std::endl;
+}
+     if(ALIUtils::debug >= 2 ) { std::cout << "\t ----> fact = ( " << vec().y() * l2.pt().x() - vec().x() *
      l2.pt().y() - vec().y() * pt().x() + vec().x() * pt().y() << " / " << vec().x() * l2.vec().y()
      - vec().y()* l2.vec().x() << " ) = " << fact << std::endl;
+}
     }
 
 
@@ -200,7 +215,8 @@ std::ostream& operator<<(std::ostream& out, const ALILine& li)
 
 CLHEP::Hep3Vector ALILine::intersect( const ALIPlane& plane, bool notParallel)
 {
-  if(ALIUtils::debug >= 5) std::cout << "***** ALILine::intersect WITH PLANE" << std::endl;
+  if(ALIUtils::debug >= 5) { std::cout << "***** ALILine::intersect WITH PLANE" << std::endl;
+}
   if(ALIUtils::debug >= 4) {
     ALIUtils::dump3v( plane.point(), "plane point");
     ALIUtils::dump3v( plane.normal(), "plane normal");
@@ -219,25 +235,35 @@ CLHEP::Hep3Vector ALILine::intersect( const ALIPlane& plane, bool notParallel)
   //-  	if(ALIUtils::debug >= 4) std::cout << " ALILine::intersect WITH LightRay" << std::endl;
 
   CLHEP::Hep3Vector vtemp = plane.point() - _point;
-  	if(ALIUtils::debug >= 4) ALIUtils::dump3v( vtemp, "n_r = point  - point_plane");
+  	if(ALIUtils::debug >= 4) { ALIUtils::dump3v( vtemp, "n_r = point  - point_plane");
+}
 
   ALIdouble dtemp = _direction * plane.normal();
-  	if(ALIUtils::debug >= 4) std::cout << " lightray* plate normal" << dtemp << std::endl;
+  	if(ALIUtils::debug >= 4) { std::cout << " lightray* plate normal" << dtemp << std::endl;
+}
 
   if ( dtemp != 0. ) {
       dtemp = (vtemp * plane.normal()) / dtemp;
-      if(ALIUtils::debug >= 4)  std::cout << " n_r*plate normal (dtemp) : " << dtemp << std::endl;
-      if(ALIUtils::debug >= 4)  std::cout << " Old vtemp : " << vtemp << std::endl;
-  	} else std::cerr << "!!! LightRay: Intersect With Plane: plane and light ray parallel: no intersection" << std::endl;
+      if(ALIUtils::debug >= 4) {  std::cout << " n_r*plate normal (dtemp) : " << dtemp << std::endl;
+}
+      if(ALIUtils::debug >= 4) {  std::cout << " Old vtemp : " << vtemp << std::endl;
+}
+  	} else { std::cerr << "!!! LightRay: Intersect With Plane: plane and light ray parallel: no intersection" << std::endl;
+}
 
   vtemp = _direction * dtemp;
-  	if(ALIUtils::debug >= 4) ALIUtils::dump3v( vtemp, "n_r scaled (vtemp) : ");
-  	if(ALIUtils::debug >= 4) ALIUtils::dump3v( CLHEP::Hep3Vector(dtemp), "dtemp analog to vtemp : ");
+  	if(ALIUtils::debug >= 4) { ALIUtils::dump3v( vtemp, "n_r scaled (vtemp) : ");
+}
+  	if(ALIUtils::debug >= 4) { ALIUtils::dump3v( CLHEP::Hep3Vector(dtemp), "dtemp analog to vtemp : ");
+}
 
   CLHEP::Hep3Vector inters = vtemp + _point;
-  	if(ALIUtils::debug >= 4) ALIUtils::dump3v( inters, "intersection point = vtemp + _point");
-  	if(ALIUtils::debug >= 4) ALIUtils::dump3v( vtemp, "vtemp =  ");
-  	if(ALIUtils::debug >= 4) ALIUtils::dump3v( _point, "_point =  ");
+  	if(ALIUtils::debug >= 4) { ALIUtils::dump3v( inters, "intersection point = vtemp + _point");
+}
+  	if(ALIUtils::debug >= 4) { ALIUtils::dump3v( vtemp, "vtemp =  ");
+}
+  	if(ALIUtils::debug >= 4) { ALIUtils::dump3v( _point, "_point =  ");
+}
 
   return inters;
 }

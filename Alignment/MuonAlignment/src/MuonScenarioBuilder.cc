@@ -30,8 +30,8 @@ MuonScenarioBuilder::MuonScenarioBuilder( Alignable* alignable ) :
 
   theAlignableMuon = dynamic_cast<AlignableMuon*>( alignable );
 
-  if ( !theAlignableMuon )
-    throw cms::Exception("TypeMismatch") << "Argument is not an AlignableMuon";
+  if ( !theAlignableMuon ) {
+    throw cms::Exception("TypeMismatch") << "Argument is not an AlignableMuon"; }
 
 }
 
@@ -44,10 +44,10 @@ void MuonScenarioBuilder::applyScenario( const edm::ParameterSet& scenario )
   theModifierCounter = 0;
 
   // Seed is set at top-level, and is mandatory
-  if ( this->hasParameter_( "seed", theScenario ) )
+  if ( this->hasParameter_( "seed", theScenario ) ) {
 	theModifier.setSeed( static_cast<long>(theScenario.getParameter<int>("seed")) );
-  else
-	throw cms::Exception("BadConfig") << "No generator seed defined!";  
+  } else {
+	throw cms::Exception("BadConfig") << "No generator seed defined!";   }
 
 
 
@@ -77,18 +77,18 @@ align::Scalars MuonScenarioBuilder::extractParameters(const edm::ParameterSet& p
   edm::ParameterSet Parameters = this->getParameterSet_((std::string)blockId, pSet);
   std::vector<std::string> parameterNames = Parameters.getParameterNames();
   for ( std::vector<std::string>::iterator iParam = parameterNames.begin(); iParam != parameterNames.end(); iParam++ ) {
-    if ( (*iParam) == "scale" )    scale_ = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "distribution" ) distribution_ = Parameters.getParameter<std::string>( *iParam );
-    else if ( (*iParam) == "scaleError" ) scaleError_ = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "phiX" )     phiX_     = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "phiY" )     phiY_     = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "phiZ" )     phiZ_     = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "dX" )       dX_       = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "dY" )       dY_       = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "dZ" )       dZ_       = Parameters.getParameter<double>( *iParam );
-    else if ( Parameters.retrieve( *iParam ).typeCode() != 'P' )
+    if ( (*iParam) == "scale" ) {    scale_ = Parameters.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "distribution" ) { distribution_ = Parameters.getParameter<std::string>( *iParam );
+    } else if ( (*iParam) == "scaleError" ) { scaleError_ = Parameters.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "phiX" ) {     phiX_     = Parameters.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "phiY" ) {     phiY_     = Parameters.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "phiZ" ) {     phiZ_     = Parameters.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "dX" ) {       dX_       = Parameters.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "dY" ) {       dY_       = Parameters.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "dZ" ) {       dZ_       = Parameters.getParameter<double>( *iParam );
+    } else if ( Parameters.retrieve( *iParam ).typeCode() != 'P' )
       { // Add unknown parameter to list
-	if ( !error.str().length() ) error << "Unknown parameter name(s): ";
+	if ( !error.str().length() ) { error << "Unknown parameter name(s): "; }
 	error << " " << *iParam;
       }
   }
@@ -97,12 +97,12 @@ align::Scalars MuonScenarioBuilder::extractParameters(const edm::ParameterSet& p
   param.push_back(phiX_); param.push_back(phiY_);
   param.push_back(phiZ_); param.push_back(dX_);
   param.push_back(dY_); param.push_back(dZ_);
-  if( distribution_ == "gaussian" )
+  if( distribution_ == "gaussian" ) {
     param.push_back(0);
-  else if ( distribution_ == "flat" )
+  } else if ( distribution_ == "flat" ) {
     param.push_back(1);
-  else if ( distribution_ == "fix" )
-    param.push_back(2);
+  } else if ( distribution_ == "fix" ) {
+    param.push_back(2); }
   
   return param;
 }
@@ -242,7 +242,7 @@ void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet)
 	    continue;
 	  } else {
 	    for(int chamber = 0; chamber < 36; chamber++) {
-	      if(ring == 0 && chamber > 17) continue;
+	      if(ring == 0 && chamber > 17) { continue; }
 	      if(sector == sector_index[endcap][station][ring][chamber]) {
 		Alignable *myAlign = CSCchambers.at(index[endcap][station][ring][chamber]);
                 this->moveChamberInSector(myAlign, disp, rotation, errorDisp, errorRotation);

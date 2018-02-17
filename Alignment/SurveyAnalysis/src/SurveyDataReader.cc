@@ -17,14 +17,14 @@ using namespace edm;
 void SurveyDataReader::readFile( const std::string& textFileName, const std::string& fileType, const TrackerTopology* tTopo) {
   
   std::ifstream myfile( textFileName.c_str() );
-  if ( !myfile.is_open() ) 
-    throw cms::Exception("FileAccess") << "Unable to open input text file for " << fileType.c_str();
+  if ( !myfile.is_open() ) { 
+    throw cms::Exception("FileAccess") << "Unable to open input text file for " << fileType.c_str(); }
 
   int nErrors = 0;
   align::ID m_detId = 0;
   int NINPUTS_align = 30;
   int NINPUTS_detId = 6;
-  if (fileType == "TID") NINPUTS_detId++;
+  if (fileType == "TID") { NINPUTS_detId++; }
 
   std::vector<int> d_inputs;
   align::Scalars a_inputs;
@@ -79,7 +79,7 @@ void SurveyDataReader::readFile( const std::string& textFileName, const std::str
 		}
 
 	  // Check if read succeeded (otherwise, we are at eof)
-	  if ( myfile.fail() ) break;
+	  if ( myfile.fail() ) { break; }
 
           a_outputs = convertToAlignableCoord( a_inputs );
 

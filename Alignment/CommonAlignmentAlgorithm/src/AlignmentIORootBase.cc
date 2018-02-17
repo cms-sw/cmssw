@@ -125,7 +125,7 @@ int AlignmentIORootBase::testFile(const char* filename, const TString &tname)
     TFile *aFile = TFile::Open(filename,"read");
     for (int iter=0; iter<itermax; iter++) {
       if ((nullptr != (TTree*)aFile->Get(treeName(iter,tname))) 
-	  && (iter>ihighest)) ihighest=iter; 
+	  && (iter>ihighest)) { ihighest=iter;  }
     }
     delete aFile;
     return ihighest;

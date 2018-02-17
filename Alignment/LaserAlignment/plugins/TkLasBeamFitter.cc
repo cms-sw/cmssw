@@ -289,8 +289,8 @@ void TkLasBeamFitter::endRunProduce(edm::Run &run, const edm::EventSetup &setup)
   unsigned int beamNo(0);
   // fit BS? If false, values from bsParams are taken
   gFitBeamSplitters = fitBeamSplitters_;
-  if(fitBeamSplitters_) cout << "Fitting BS!" << endl;
-  else cout << "BS fixed, not fitted!" << endl;
+  if(fitBeamSplitters_) { cout << "Fitting BS!" << endl;
+  } else { cout << "BS fixed, not fitted!" << endl; }
 
   // loop over LAS beams
   for(TkLasBeamCollection::const_iterator iBeam = laserBeams->begin(), iEnd = laserBeams->end();
@@ -428,9 +428,9 @@ void TkLasBeamFitter::getLasBeams(TkFittedLasBeam &beam, vector<TrajectoryStateO
 
   // number of fit parameters, 3 for TECs (always!); 3, 5, or 6 for ATs
   unsigned int tecParams(3), atParams(0);
-  if(nAtParameters_ == 3) atParams = 3;
-  else if(nAtParameters_ == 5) atParams = 5;
-  else atParams = 6;                            // <-- default value, recommended
+  if(nAtParameters_ == 3) { atParams = 3;
+  } else if(nAtParameters_ == 5) { atParams = 5;
+  } else { atParams = 6;                            // <-- default value, recommended }
   unsigned int nFitParams(0);
   if(!fitBeamSplitters_ || 
      (hitsAtTecPlus == 0 && beam.isAlignmentTube() ) ){
@@ -570,8 +570,8 @@ void TkLasBeamFitter::getLasHits(TkFittedLasBeam &beam, const SiStripLaserRecHit
 
   if(beam.isAlignmentTube()){
     if(abs(globPtemp.z()) > 112.3){
-      if(globPtemp.z() < 112.3) gHitsAtTecMinus++ ;
-      else hitsAtTecPlus++ ;
+      if(globPtemp.z() < 112.3) { gHitsAtTecMinus++ ;
+      } else { hitsAtTecPlus++ ; }
     }
   }
 }
@@ -883,8 +883,8 @@ bool TkLasBeamFitter::fitBeam(TkFittedLasBeam &beam, AlgebraicSymMatrix &covMatr
 {
   // set beam parameters for beam output
   unsigned int paramType(0);
-  if(!fitBeamSplitters_) paramType = 1;
-  if(beam.isAlignmentTube() && hitsAtTecPlus == 0) paramType = 0;
+  if(!fitBeamSplitters_) { paramType = 1; }
+  if(beam.isAlignmentTube() && hitsAtTecPlus == 0) { paramType = 0; }
 //   const unsigned int nPedeParams = nFitParams + paramType;
 
   // test without BS params

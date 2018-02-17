@@ -35,8 +35,8 @@ DualBzeroReferenceTrajectory::construct(const TrajectoryStateOnSurface &referenc
 					bool useBeamSpot,
 					const reco::BeamSpot &beamSpot) const
 {
-  if (materialEffects >= breakPoints)  throw cms::Exception("BadConfig")
-    << "[DualBzeroReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects;
+  if (materialEffects >= breakPoints) {  throw cms::Exception("BadConfig")
+    << "[DualBzeroReferenceTrajectory::construct] Wrong MaterialEffects: " << materialEffects; }
   
   ReferenceTrajectoryBase::Config config(materialEffects, propDir, mass, theMomentumEstimate);
   config.useBeamSpot = useBeamSpot;

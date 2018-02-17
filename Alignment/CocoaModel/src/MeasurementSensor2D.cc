@@ -25,7 +25,8 @@
 void MeasurementSensor2D::calculateSimulatedValue( ALIbool firstTime ) 
 {
  
-  if( ALIUtils::debug >= 2) printStartCalculateSimulatedValue( this ); // important
+  if( ALIUtils::debug >= 2) { printStartCalculateSimulatedValue( this ); // important
+}
   //---------- Create light ray
   LightRay* lightray = new LightRay;
 
@@ -53,7 +54,8 @@ void MeasurementSensor2D::calculateSimulatedValue( ALIbool firstTime )
 
   //-  while( (*vocite) !=  *(OptOList().end()) ) {
   while( (vocite) !=  (OptOList().end()) ) {
-    if( ALIUtils::debug >= 2) std::cout << std::endl << "@@@@ LR:OBJECT " << (*vocite)->name() << std::endl;  
+    if( ALIUtils::debug >= 2) { std::cout << std::endl << "@@@@ LR:OBJECT " << (*vocite)->name() << std::endl;  
+}
     isec ++;
 
     //---------- Get the behaviour of the object w.r.t the measurement (if it reflects the light, let it traverse it, ...)
@@ -92,7 +94,8 @@ void MeasurementSensor2D::calculateSimulatedValue( ALIbool firstTime )
 
   delete lightray;
  
-  if(ALIUtils::debug >= 9) std::cout << "end calculateSimulatedValue" <<std::endl;
+  if(ALIUtils::debug >= 9) { std::cout << "end calculateSimulatedValue" <<std::endl;
+}
   
 }
 
@@ -112,7 +115,8 @@ void MeasurementSensor2D::setConversionFactor( const std::vector<ALIstring>& wor
   theMultiplyY = 1.;
   //-  std::cout << " 0 factors for correction X = " << theDisplaceX << " Y " << theDisplaceY << std::endl;
  
-  if(wordlist.size() == 1) return; 
+  if(wordlist.size() == 1) { return; 
+}
   if( (wordlist.size() != 3 && wordlist.size() != 5 )
       || !ALIUtils::IsNumber(wordlist[1]) || !ALIUtils::IsNumber(wordlist[2]) ) {
     std::cerr << "!! Sensor2D Measurement setConversionFactor: WRONG FORMAT "<<  std::endl 
@@ -143,13 +147,15 @@ void MeasurementSensor2D::correctValueAndSigma()
   val += theDisplaceX;
   val *= theMultiplyX;
   //-  std::cout << " theDisplaceX " <<  theDisplaceX << " theMultiplyX " << theMultiplyX << std::endl;
-  if(ALIUtils::debug >= 4) std::cout << "MeasurementSensor2D::correctValueAndSigma: " << " old value X " << value()[0] << " new " << val << std::endl;
+  if(ALIUtils::debug >= 4) { std::cout << "MeasurementSensor2D::correctValueAndSigma: " << " old value X " << value()[0] << " new " << val << std::endl;
+}
   setValue( 0, val );
 
   val = value()[1];
   val += theDisplaceY;
   val *= theMultiplyY;
-  if(ALIUtils::debug >= 4) std::cout << "MeasurementSensor2D::correctValueAndSigma: old value Y " << value()[1] << " new " << val << std::endl;
+  if(ALIUtils::debug >= 4) { std::cout << "MeasurementSensor2D::correctValueAndSigma: old value Y " << value()[1] << " new " << val << std::endl;
+}
   setValue( 1, val );
 
 }

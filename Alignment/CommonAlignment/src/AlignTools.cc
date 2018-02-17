@@ -96,17 +96,17 @@ void align::createPoints(align::GlobalVectors* Vs, Alignable* ali, const std::st
 	if(copy != "SELF"){
 		const auto& comp = ali->components();
 		unsigned int nComp = comp.size();
-		for (unsigned int i = 0; i < nComp; ++i) align::createPoints(Vs, comp[i], weightBy, weightById, weightByIdVector);
+		for (unsigned int i = 0; i < nComp; ++i) { align::createPoints(Vs, comp[i], weightBy, weightById, weightByIdVector); }
 		// double the weight for SS modules if weight by Det
 		if ((ali->alignableObjectId() == align::AlignableDet)&&(weightBy == "Det")){
-			for (unsigned int i = 0; i < nComp; ++i) align::createPoints(Vs, comp[i], weightBy, weightById, weightByIdVector);
+			for (unsigned int i = 0; i < nComp; ++i) { align::createPoints(Vs, comp[i], weightBy, weightById, weightByIdVector); }
 		}
 		
 		//only create points for lowest hiearchical level
 		if (ali->alignableObjectId() == align::AlignableDetUnit){
 			//check if the raw id or the mother's raw id is on the list
 			bool createPointsForDetUnit = true;
-			if (weightById) createPointsForDetUnit = align::readModuleList( ali->id(), ali->mother()->id(), weightByIdVector);
+			if (weightById) { createPointsForDetUnit = align::readModuleList( ali->id(), ali->mother()->id(), weightByIdVector); }
 			if (createPointsForDetUnit){
 				//if no survey information, create local points
 				if(!(ali->survey())){
@@ -123,7 +123,7 @@ void align::createPoints(align::GlobalVectors* Vs, Alignable* ali, const std::st
 	}
 	else{
 		bool createPointsForDetUnit = true;
-		if (weightById) createPointsForDetUnit = align::readModuleList( ali->id(), ali->mother()->id(), weightByIdVector);
+		if (weightById) { createPointsForDetUnit = align::readModuleList( ali->id(), ali->mother()->id(), weightByIdVector); }
 		if (createPointsForDetUnit){
 			//if no survey information, create local points
 			if(!(ali->survey())){

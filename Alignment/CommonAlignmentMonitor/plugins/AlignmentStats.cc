@@ -148,7 +148,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     for (trackingRecHit_iterator ith = ittrk->recHitsBegin(), edh = ittrk->recHitsEnd(); ith != edh; ++ith) {
 
       const TrackingRecHit *hit = *ith; // ith is an iterator on edm::Ref to rechit
-      if(! hit->isValid())continue;
+      if(! hit->isValid()) {continue; }
       DetId detid = hit->geographicalId();
       int subDet = detid.subdetId();
       uint32_t rawId = hit->geographicalId().rawId();
@@ -254,7 +254,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     outtree_->Fill();
     tmpPresc_=prescale_;
   }
-  if(trk_cnt!=ntracks)edm::LogError("AlignmentStats")<<"\nERROR! trk_cnt="<<trk_cnt<<"   ntracks="<<ntracks;
+  if(trk_cnt!=ntracks) {edm::LogError("AlignmentStats")<<"\nERROR! trk_cnt="<<trk_cnt<<"   ntracks="<<ntracks; }
 
   return;
 }

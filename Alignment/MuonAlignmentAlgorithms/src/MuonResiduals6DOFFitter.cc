@@ -122,14 +122,14 @@ void MuonResiduals6DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
 
     double coefX = alphax, coefY = alphay;
     if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian ||
-        fitter->residualsModel() == MuonResidualsFitter::kPureGaussian2D) coefX = coefY = 0.;
+        fitter->residualsModel() == MuonResidualsFitter::kPureGaussian2D) { coefX = coefY = 0.; }
     double residXpeak = residual_x(alignx, aligny, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY, coefX, resslopeX);
     double residYpeak = residual_y(alignx, aligny, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY, coefY, resslopeY);
     double slopeXpeak = residual_dxdz(alignx, aligny, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY);
     double slopeYpeak = residual_dydz(alignx, aligny, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY);
 
     double weight = (1./redchi2) * number_of_hits / sum_of_weights;
-    if (!weight_alignment) weight = 1.;
+    if (!weight_alignment) { weight = 1.; }
 
     if (!weight_alignment  ||  TMath::Prob(redchi2*12, 12) < 0.99)  // no spikes allowed
     {
@@ -285,23 +285,23 @@ bool MuonResiduals6DOFFitter::fit(Alignable *ali)
 
   int idx[8], ni = 0;
   if (useRes() == k1111) {
-    for(ni=0; ni<4; ni++) idx[ni] = ni+6;
-    if (add_alpha) for(; ni<6; ni++) idx[ni] = ni+6;
-    else if (add_gamma) for(; ni<8; ni++) idx[ni] = ni+8;
-    if (!add_alpha) fix(kAlphaX);
-    if (!add_alpha) fix(kAlphaY);
+    for(ni=0; ni<4; ni++) { idx[ni] = ni+6; }
+    if (add_alpha) { for(; ni<6; ni++) { idx[ni] = ni+6; }
+    } else if (add_gamma) { for(; ni<8; ni++) { idx[ni] = ni+8; }
+    if (!add_alpha) { fix(kAlphaX); }
+    if (!add_alpha) { fix(kAlphaY); }
   }
   else if (useRes() == k1110) {
-    for(ni=0; ni<3; ni++) idx[ni] = ni+6;
-    if (add_alpha) idx[ni++] = 10;
-    else if (add_gamma) for(; ni<6; ni++) idx[ni] = ni+9;
+    for(ni=0; ni<3; ni++) { idx[ni] = ni+6; }
+    if (add_alpha) { idx[ni++] = 10;
+    } else if (add_gamma) { for(; ni<6; ni++) { idx[ni] = ni+9; }
     fix(kResSlopeYSigma);
     fix(kAlphaY);
-    if (!add_alpha) fix(kAlphaX);
+    if (!add_alpha) { fix(kAlphaX); }
   }
   else if (useRes() == k1100) {
-    for(ni=0; ni<2; ni++) idx[ni] = ni+6;
-    if (add_gamma) for(; ni<4; ni++) idx[ni] = ni+10;
+    for(ni=0; ni<2; ni++) { idx[ni] = ni+6; }
+    if (add_gamma) { for(; ni<4; ni++) { idx[ni] = ni+10; }
     fix(kResSlopeXSigma);
     fix(kResSlopeYSigma);
     fix(kAlphaX);
@@ -309,16 +309,16 @@ bool MuonResiduals6DOFFitter::fit(Alignable *ali)
   }
   else if (useRes() == k1010) {
     idx[ni++] = 6; idx[ni++] = 8;
-    if (add_alpha) idx[ni++] = 10;
+    if (add_alpha) { idx[ni++] = 10; }
     if (add_gamma) { idx[ni++] = 12; idx[ni++] = 14; }
     fix(kResidYSigma);
     fix(kResSlopeYSigma);
     fix(kAlphaY);
-    if (!add_alpha) fix(kAlphaX);
+    if (!add_alpha) { fix(kAlphaX); }
   }
   else if (useRes() == k0010) {
     idx[ni++] = 8;
-    if (add_gamma) idx[ni++] = 14;
+    if (add_gamma) { idx[ni++] = 14; }
     fix(kResidXSigma);
     fix(kResidYSigma);
     fix(kResSlopeYSigma);
@@ -350,7 +350,7 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
   {
     const double redchi2 = (*rit)[kRedChi2];
     double weight = 1./redchi2;
-    if (!m_weightAlignment) weight = 1.;
+    if (!m_weightAlignment) { weight = 1.; }
 
     if (!m_weightAlignment  ||  TMath::Prob(redchi2*12, 12) < 0.99)  // no spikes allowed
     {
@@ -661,7 +661,7 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
   double fitparameters[14] = {value(kAlignX), value(kAlignY), value(kAlignZ), value(kAlignPhiX), value(kAlignPhiY), value(kAlignPhiZ),
                               mean_trackx, mean_tracky, mean_trackdxdz, mean_trackdydz,
                               value(kAlphaX), mean_resslopex, value(kAlphaY), mean_resslopey};
-  if (residualsModel() == kPureGaussian2D) fitparameters[10] = fitparameters[12] = 0.;
+  if (residualsModel() == kPureGaussian2D) { fitparameters[10] = fitparameters[12] = 0.; }
 
   for(std::vector<TF1*>::const_iterator itr = fitlines.begin(); itr != fitlines.end(); itr++)
   {
@@ -683,7 +683,7 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
     const double angleY    = (*resiter)[kAngleY];
     const double redchi2   = (*resiter)[kRedChi2];
     double weight = 1./redchi2;
-    if (!m_weightAlignment) weight = 1.;
+    if (!m_weightAlignment) { weight = 1.; }
 
     if (!m_weightAlignment  ||  TMath::Prob(redchi2*12, 12) < 0.99) {  // no spikes allowed
 
@@ -691,7 +691,7 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
       hist_alphay->Fill(1000.*resslopeY, 10.*residY);
 
       double coefX = value(kAlphaX), coefY = value(kAlphaY);
-      if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D) coefX = coefY = 0.;
+      if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D) { coefX = coefY = 0.; }
       double geom_residX = residual_x(value(kAlignX), value(kAlignY), value(kAlignZ), value(kAlignPhiX), value(kAlignPhiY), value(kAlignPhiZ), positionX, positionY, angleX, angleY, coefX, resslopeX);
       hist_x->Fill(10.*(residX - geom_residX + value(kAlignX)), weight);
       hist_x_trackx->Fill(positionX, 10.*residX, weight);
@@ -741,8 +741,8 @@ double MuonResiduals6DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
     hist_y_raw->Fill(10.*residY);
     hist_dxdz_raw->Fill(1000.*resslopeX);
     hist_dydz_raw->Fill(1000.*resslopeY);
-    if (fabs(resslopeX) < 0.005) hist_x_cut->Fill(10.*residX);
-    if (fabs(resslopeY) < 0.030) hist_y_cut->Fill(10.*residY);
+    if (fabs(resslopeX) < 0.005) { hist_x_cut->Fill(10.*residX); }
+    if (fabs(resslopeY) < 0.030) { hist_y_cut->Fill(10.*residY); }
   }
 
   double chi2 = 0.;

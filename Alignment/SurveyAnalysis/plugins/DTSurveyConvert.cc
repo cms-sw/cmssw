@@ -93,7 +93,7 @@ DTSurveyConvert::analyze(const edm::Event&, const edm::EventSetup& iSetup)
       float alpha, beta, gamma, sigma_alpha, sigma_beta, sigma_gamma;
       inFile >> dx >> sigma_dx >> dy >> sigma_dy >> dz >> sigma_dz
              >> alpha >> sigma_alpha >> beta >> sigma_beta >> gamma >> sigma_gamma; 
-      if(inFile.eof()) break;
+      if(inFile.eof()) { break; }
       std::vector<float> displacement;
       displacement.push_back(dx);
       displacement.push_back(dy);

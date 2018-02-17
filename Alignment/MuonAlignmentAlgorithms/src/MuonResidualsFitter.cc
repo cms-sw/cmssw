@@ -56,7 +56,7 @@ double MuonResidualsFitter_logPureGaussian2D(double x, double y, double x0, doub
 
 double MuonResidualsFitter_compute_log_convolution(double toversigma, double gammaoversigma, double max, double step, double power)
 {
-  if (gammaoversigma == 0.) return (-toversigma*toversigma/2.) - log(sqrt(2*M_PI));
+  if (gammaoversigma == 0.) { return (-toversigma*toversigma/2.) - log(sqrt(2*M_PI)); }
 
   double sum = 0.;
   double uplus = 0.;
@@ -145,8 +145,8 @@ double MuonResidualsFitter_logGaussPowerTails(double residual, double center, do
   double a = pow(m,4)*e2;
   double n = sqerf*s + 2.*a*pow(m,-3)/3.;
 
-  if (fabs(x)<m) return -x*x/(2.*s*s) - log(n);
-  else return log(a) -4.*log(fabs(x)) - log(n);
+  if (fabs(x)<m) { return -x*x/(2.*s*s) - log(n);
+  } else { return log(a) -4.*log(fabs(x)) - log(n); }
 }
 
 
@@ -173,8 +173,8 @@ MuonResidualsFitter::MuonResidualsFitter(int residualsModel, int minHits, int us
 , m_loglikelihood(0.)
 {
   if (m_residualsModel != kPureGaussian  &&  m_residualsModel != kPowerLawTails  &&
-      m_residualsModel != kROOTVoigt     &&  m_residualsModel != kGaussPowerTails && m_residualsModel != kPureGaussian2D)
-    throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel";
+      m_residualsModel != kROOTVoigt     &&  m_residualsModel != kGaussPowerTails && m_residualsModel != kPureGaussian2D) {
+    throw cms::Exception("MuonResidualsFitter") << "unrecognized residualsModel"; }
 }
 
 
@@ -189,7 +189,7 @@ MuonResidualsFitter::~MuonResidualsFitter()
 void MuonResidualsFitter::fix(int parNum, bool dofix)
 {
   assert(0 <= parNum  &&  parNum < npar());
-  if (m_fixed.empty()) m_fixed.resize(npar(), false);
+  if (m_fixed.empty()) { m_fixed.resize(npar(), false); }
   m_fixed[parNum] = dofix;
 }
 
@@ -197,8 +197,8 @@ void MuonResidualsFitter::fix(int parNum, bool dofix)
 bool MuonResidualsFitter::fixed(int parNum)
 {
   assert(0 <= parNum  &&  parNum < npar());
-  if (m_fixed.empty()) return false;
-  else return m_fixed[parNum];
+  if (m_fixed.empty()) { return false;
+  } else { return m_fixed[parNum]; }
 }
 
 
@@ -221,7 +221,7 @@ double MuonResidualsFitter::covarianceElement(int parNum1, int parNum2)
 long MuonResidualsFitter::numsegments()
 {
   long num = 0;
-  for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) num++;
+  for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) { num++; }
   return num;
 }
 
@@ -229,7 +229,7 @@ long MuonResidualsFitter::numsegments()
 
 void MuonResidualsFitter::initialize_table()
 {
-  if (MuonResidualsFitter_table_initialized  ||  residualsModel() != kPowerLawTails) return;
+  if (MuonResidualsFitter_table_initialized  ||  residualsModel() != kPowerLawTails) { return; }
   MuonResidualsFitter_table_initialized = true;
 
   std::ifstream convolution_table("convolution_table.txt");
@@ -269,7 +269,7 @@ void MuonResidualsFitter::initialize_table()
   {
     std::ofstream convolution_table2("convolution_table.txt");
 
-    if (!convolution_table2.is_open()) throw cms::Exception("MuonResidualsFitter") << "Couldn't write to file convolution_table.txt\n";
+    if (!convolution_table2.is_open()) { throw cms::Exception("MuonResidualsFitter") << "Couldn't write to file convolution_table.txt\n"; }
 
     convolution_table2 << MuonResidualsFitter_numgsbins << " " << MuonResidualsFitter_numtsbins << " " << MuonResidualsFitter_tsbinsize << " " << MuonResidualsFitter_gsbinsize << std::endl;
 
@@ -322,7 +322,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
   for (; iNum != parNum.end();  ++iNum, ++iName, ++istart, ++istep, ++ilow, ++ihigh)
   {
     MuonResidualsFitter_TMinuit->DefineParameter(*iNum, iName->c_str(), *istart, *istep, *ilow, *ihigh);
-    if (fixed(*iNum)) MuonResidualsFitter_TMinuit->FixParameter(*iNum);
+    if (fixed(*iNum)) { MuonResidualsFitter_TMinuit->FixParameter(*iNum); }
   }
 
   double arglist[10];
@@ -330,7 +330,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
   int smierflg; //second MIGRAD ierflg
 
   // chi^2 errors should be 1.0, log-likelihood should be 0.5
-  for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
+  for (int i = 0;  i < 10;  i++) { arglist[i] = 0.; }
   arglist[0] = 0.5;
   ierflg = 0;
   smierflg = 0;
@@ -338,7 +338,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
   if (ierflg != 0) { delete MuonResidualsFitter_TMinuit; delete fitinfo; return false; }
 
   // set strategy = 2 (more refined fits)
-  for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
+  for (int i = 0;  i < 10;  i++) { arglist[i] = 0.; }
   arglist[0] = m_strategy;
   ierflg = 0;
   MuonResidualsFitter_TMinuit->mnexcm("SET STR", arglist, 1, ierflg);
@@ -347,16 +347,16 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
   bool try_again = false;
 
   // minimize
-  for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
+  for (int i = 0;  i < 10;  i++) { arglist[i] = 0.; }
   arglist[0] = 50000;
   ierflg = 0;
   MuonResidualsFitter_TMinuit->mnexcm("MIGRAD", arglist, 1, ierflg);
-  if (ierflg != 0) try_again = true;
+  if (ierflg != 0) { try_again = true; }
 
   // just once more, if needed (using the final Minuit parameters from the failed fit; often works)
   if (try_again)
   {
-    for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
+    for (int i = 0;  i < 10;  i++) { arglist[i] = 0.; }
     arglist[0] = 50000;
     MuonResidualsFitter_TMinuit->mnexcm("MIGRAD", arglist, 1, smierflg);
   }
@@ -367,7 +367,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
 
   if (istat != 3)
   {
-    for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
+    for (int i = 0;  i < 10;  i++) { arglist[i] = 0.; }
     ierflg = 0;
     MuonResidualsFitter_TMinuit->mnexcm("HESSE", arglist, 0, ierflg);
   }
@@ -389,7 +389,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
 
   delete MuonResidualsFitter_TMinuit;
   delete fitinfo;
-  if (smierflg != 0) return false;
+  if (smierflg != 0) { return false; }
   return true;
 }
 
@@ -417,8 +417,8 @@ void MuonResidualsFitter::write(FILE *file, int which)
     fwrite((*residual), sizeof(double), cols, file);
     for (int i = 0;  i < cols;  i++)
     {
-      if (fabs((*residual)[i]) > likeAChecksum[i]) likeAChecksum[i] = fabs((*residual)[i]);
-      if (fabs((*residual)[i]) < likeAChecksum2[i]) likeAChecksum2[i] = fabs((*residual)[i]);
+      if (fabs((*residual)[i]) > likeAChecksum[i]) { likeAChecksum[i] = fabs((*residual)[i]); }
+      if (fabs((*residual)[i]) < likeAChecksum2[i]) { likeAChecksum2[i] = fabs((*residual)[i]); }
     }
   } // end loop over residuals
 
@@ -462,8 +462,8 @@ void MuonResidualsFitter::read(FILE *file, int which)
     fill(residual);
     for (int i = 0;  i < cols;  i++)
     {
-      if (fabs(residual[i]) > likeAChecksum[i]) likeAChecksum[i] = fabs(residual[i]);
-      if (fabs(residual[i]) < likeAChecksum2[i]) likeAChecksum2[i] = fabs(residual[i]);
+      if (fabs(residual[i]) > likeAChecksum[i]) { likeAChecksum[i] = fabs(residual[i]); }
+      if (fabs(residual[i]) < likeAChecksum2[i]) { likeAChecksum2[i] = fabs(residual[i]); }
     }
   } // end loop over records in file
 
@@ -490,29 +490,29 @@ void MuonResidualsFitter::read(FILE *file, int which)
 void MuonResidualsFitter::plotsimple(std::string name, TFileDirectory *dir, int which, double multiplier)
 {
   double window = 100.;
-  if (which == 0) window = 2.*30.;
-  else if (which == 1) window = 2.*30.;
-  else if (which == 2) window = 2.*20.;
-  else if (which == 3) window = 2.*50.;
+  if (which == 0) { window = 2.*30.;
+  } else if (which == 1) { window = 2.*30.;
+  } else if (which == 2) { window = 2.*20.;
+  } else if (which == 3) { window = 2.*50.; }
 
   TH1F *hist = dir->make<TH1F>(name.c_str(), "", 200, -window, window);
-  for (std::vector<double*>::const_iterator r = residuals_begin();  r != residuals_end();  ++r) hist->Fill(multiplier * (*r)[which]);
+  for (std::vector<double*>::const_iterator r = residuals_begin();  r != residuals_end();  ++r) { hist->Fill(multiplier * (*r)[which]); }
 }
 
 
 void MuonResidualsFitter::plotweighted(std::string name, TFileDirectory *dir, int which, int whichredchi2, double multiplier)
 {
   double window = 100.;
-  if (which == 0) window = 2.*30.;
-  else if (which == 1) window = 2.*30.;
-  else if (which == 2) window = 2.*20.;
-  else if (which == 3) window = 2.*50.;
+  if (which == 0) { window = 2.*30.;
+  } else if (which == 1) { window = 2.*30.;
+  } else if (which == 2) { window = 2.*20.;
+  } else if (which == 3) { window = 2.*50.; }
 
   TH1F *hist = dir->make<TH1F>(name.c_str(), "", 200, -window, window);
   for (std::vector<double*>::const_iterator r = residuals_begin();  r != residuals_end();  ++r)
   {
     double weight = 1./(*r)[whichredchi2];
-    if (TMath::Prob(1./weight*12, 12) < 0.99) hist->Fill(multiplier * (*r)[which], weight);
+    if (TMath::Prob(1./weight*12, 12) < 0.99) { hist->Fill(multiplier * (*r)[which], weight); }
   }
 }
 
@@ -522,12 +522,12 @@ void MuonResidualsFitter::computeHistogramRangeAndBinning(int which, int &nbins,
   // first, make a numeric array while discarding some crazy outliers
   double *data = new double[numResiduals()];
   int n = 0;
-  for (std::vector<double*>::const_iterator r = m_residuals.begin();  r != m_residuals.end();  r++)  
+  for (std::vector<double*>::const_iterator r = m_residuals.begin();  r != m_residuals.end();  r++) {  
     if (fabs((*r)[which])<50.) 
     {
       data[n] = (*r)[which];
       n++;
-    }
+    } }
   
   // compute "3 normal sigma" and regular interquantile ranges
   const int n_quantiles = 7;
@@ -546,7 +546,7 @@ void MuonResidualsFitter::computeHistogramRangeAndBinning(int which, int &nbins,
   b = quantiles[5];
   nbins = (int) ( (b - a) / hbin + 3. ); // add extra safety margin of 3
 
-  std::cout<<"   quantiles: ";  for (int i=0;i<n_quantiles;i++) std::cout<<quantiles[i]<<" "; std::cout<<std::endl;
+  std::cout<<"   quantiles: ";  for (int i=0;i<n_quantiles;i++) { std::cout<<quantiles[i]<<" ";  }std::cout<<std::endl;
   //cout<<"n="<<select_count<<" quantiles ["<<quantiles[1]<<", "<<quantiles[2]<<"]  IQR="<<iqr
   //  <<"  full range=["<<minx<<","<<maxx<<"]"<<"  2 normal sigma quantile range = ["<<quantiles[0]<<", "<<quantiles[3]<<"]"<<endl;
   std::cout<<"   optimal h="<<hbin<<" nbins="<<nbins<<std::endl;
@@ -561,7 +561,7 @@ void MuonResidualsFitter::histogramChi2GaussianFit(int which, double &fit_mean, 
   if (a==b || a > b) { fit_mean = a; fit_sigma = 0; return; }
 
   TH1D *hist = new TH1D("htmp", "", nbins, a, b);
-  for (std::vector<double*>::const_iterator r = m_residuals.begin();  r != m_residuals.end();  ++r)   hist->Fill( (*r)[which] );
+  for (std::vector<double*>::const_iterator r = m_residuals.begin();  r != m_residuals.end();  ++r) {   hist->Fill( (*r)[which] ); }
   
   // do simple chi2 gaussian fit
   TF1 *f1= new TF1("f1","gaus", a, b);
@@ -586,7 +586,7 @@ void MuonResidualsFitter::histogramChi2GaussianFit(int which, double &fit_mean, 
 void MuonResidualsFitter::selectPeakResiduals(double nsigma, int nvar, int *vars)
 {
   // does not make sense for small statistics
-  if (numResiduals()<25) return;
+  if (numResiduals()<25) { return; }
 
   int nbefore = numResiduals();
 
@@ -609,11 +609,11 @@ void MuonResidualsFitter::selectPeakResiduals(double nsigma, int nvar, int *vars
     for (int v = 0; v<nvar; v++)
     {
       int which = vars[v];
-      if (m_radii[which] == 0.) continue;
+      if (m_radii[which] == 0.) { continue; }
       ellipsoid_sum += pow( ( (*r)[which] - m_center[which]) / m_radii[which] , 2);
     }
-    if (ellipsoid_sum <= 1.)  ++r;
-    else
+    if (ellipsoid_sum <= 1.) {  ++r;
+    } else
     {
       m_residuals_ok[r - m_residuals.begin()] = false;
       ++r;
@@ -630,12 +630,12 @@ void MuonResidualsFitter::selectPeakResiduals(double nsigma, int nvar, int *vars
 void MuonResidualsFitter::selectPeakResiduals_simple(double nsigma, int nvar, int *vars)
 {
   //std::cout<<"doing selectpeakresiduals: nsig="<<nsigma<<" nvar="<<nvar<<" vars=";
-  for (int i=0; i<nvar; ++i) std::cout<<vars[i]<<" ";
+  for (int i=0; i<nvar; ++i) { std::cout<<vars[i]<<" "; }
   std::cout<<std::endl;
 
   // does not make sense for small statistics set to 50
   // YP changed it to 10 for test
-  if (numResiduals()<10) return;
+  if (numResiduals()<10) { return; }
   // if (numResiduals()<50) return;
   
   size_t nbefore = numResiduals();
@@ -651,7 +651,7 @@ void MuonResidualsFitter::selectPeakResiduals_simple(double nsigma, int nvar, in
     std::cout << "1D case" << std::endl;
     // get robust estimates for the peak and sigma
     double *data = new double[nbefore];
-    for (size_t i = 0; i < nbefore; i++) data[i] = m_residuals[i][ vars[0] ];
+    for (size_t i = 0; i < nbefore; i++) { data[i] = m_residuals[i][ vars[0] ]; }
     double peak, sigma;
     TRobustEstimator re;
     re.EvaluateUni(nbefore, data, peak, sigma);
@@ -660,8 +660,8 @@ void MuonResidualsFitter::selectPeakResiduals_simple(double nsigma, int nvar, in
     while (r != m_residuals.end())
     {
       double distance = fabs( ((*r)[ vars[0] ] - peak)/sigma );
-      if (distance <= nsigma)  ++r;
-      else
+      if (distance <= nsigma) {  ++r;
+      } else
       {
         m_residuals_ok[r - m_residuals.begin()] = false;
         ++r;
@@ -683,7 +683,7 @@ void MuonResidualsFitter::selectPeakResiduals_simple(double nsigma, int nvar, in
   while (r != m_residuals.end())
   {
     double *row = new double[nvar];
-    for (int v = 0; v<nvar; v++)  row[v] = (*r)[ vars[v] ];
+    for (int v = 0; v<nvar; v++) {  row[v] = (*r)[ vars[v] ]; }
     re.AddRow(row);
     // delete[] row;
     ++r;
@@ -710,10 +710,10 @@ void MuonResidualsFitter::selectPeakResiduals_simple(double nsigma, int nvar, in
   while (r != m_residuals.end())
   {
     TVectorD res(nvar);
-    for (int v = 0; v<nvar; v++)  res[v] = (*r)[ vars[v] ];
+    for (int v = 0; v<nvar; v++) {  res[v] = (*r)[ vars[v] ]; }
     double distance = sqrt( Cov.Similarity(res - M) );
-    if (distance <= surf_radius)  ++r;
-    else
+    if (distance <= surf_radius) {  ++r;
+    } else
     {
       m_residuals_ok[r - m_residuals.begin()] = false;
       ++r;
@@ -741,7 +741,7 @@ void MuonResidualsFitter::fiducialCuts(double xMin, double xMax, double yMin, do
   
   for (std::vector<double*>::const_iterator r = residuals_begin();  r != residuals_end();  ++r) {
     iResidual++;
-    if (!m_residuals_ok[iResidual]) continue;
+    if (!m_residuals_ok[iResidual]) { continue; }
 
     if( (*r)[15]>0.0001 ) { // this value is greater than zero (chamber width) for 6DOFs stations 1,2,3 better to change for type()!!!
       n_station = (*r)[12];
@@ -764,8 +764,8 @@ void MuonResidualsFitter::fiducialCuts(double xMin, double xMax, double yMin, do
     
     
     if(fidcut1){    // this is the standard fiducial cut used so far 80x80 cm in x,y
-      if (positionX >= xMax || positionX <= xMin)  m_residuals_ok[iResidual] = false;
-      if (positionY >= yMax || positionY <= yMin)  m_residuals_ok[iResidual] = false;
+      if (positionX >= xMax || positionX <= xMin) {  m_residuals_ok[iResidual] = false; }
+      if (positionY >= yMax || positionY <= yMin) {  m_residuals_ok[iResidual] = false; }
     }
     
     // Implementation of new fiducial cut
@@ -778,28 +778,28 @@ void MuonResidualsFitter::fiducialCuts(double xMin, double xMax, double yMin, do
 
       if(n_station==4){
 		if( (n_wheel==-1 && n_sector==3) || (n_wheel==1 && n_sector==4)){   // FOR SHORT CHAMBER LENGTH IN:  WHEEL 1 SECTOR 4  AND  WHEEL -1 SECTOR 3
-	  if( (n_sector==1 || n_sector==2 || n_sector==3 || n_sector==5 || n_sector==6 || n_sector==7 || n_sector==8 || n_sector==12) && ( (dtrkchamx<40 || dtrkchamx>380) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) m_residuals_ok[iResidual] = false;
-	  if( (n_sector==4  || n_sector==13)  && ( (dtrkchamx<40 || dtrkchamx>280) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) m_residuals_ok[iResidual] = false;
-	  if( (n_sector==9  || n_sector==11)  && ( (dtrkchamx<40 || dtrkchamx>180) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) m_residuals_ok[iResidual] = false;
-	  if( (n_sector==10 || n_sector==14)  && ( (dtrkchamx<40 || dtrkchamx>220) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) m_residuals_ok[iResidual] = false;
+	  if( (n_sector==1 || n_sector==2 || n_sector==3 || n_sector==5 || n_sector==6 || n_sector==7 || n_sector==8 || n_sector==12) && ( (dtrkchamx<40 || dtrkchamx>380) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) { m_residuals_ok[iResidual] = false; }
+	  if( (n_sector==4  || n_sector==13)  && ( (dtrkchamx<40 || dtrkchamx>280) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) { m_residuals_ok[iResidual] = false; }
+	  if( (n_sector==9  || n_sector==11)  && ( (dtrkchamx<40 || dtrkchamx>180) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) { m_residuals_ok[iResidual] = false; }
+	  if( (n_sector==10 || n_sector==14)  && ( (dtrkchamx<40 || dtrkchamx>220) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) { m_residuals_ok[iResidual] = false; }
 	}
 	else{
-	  if( (n_sector==1 || n_sector==2 || n_sector==3 || n_sector==5 || n_sector==6 || n_sector==7 || n_sector==8 || n_sector==12) && ( (dtrkchamx<40 || dtrkchamx>380) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) m_residuals_ok[iResidual] = false;
-	  if( (n_sector==4  || n_sector==13)  && ( (dtrkchamx<40 || dtrkchamx>280) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) m_residuals_ok[iResidual] = false;
-	  if( (n_sector==9  || n_sector==11)  && ( (dtrkchamx<40 || dtrkchamx>180) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) m_residuals_ok[iResidual] = false;
-	  if( (n_sector==10 || n_sector==14)  && ( (dtrkchamx<40 || dtrkchamx>220) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) m_residuals_ok[iResidual] = false;
+	  if( (n_sector==1 || n_sector==2 || n_sector==3 || n_sector==5 || n_sector==6 || n_sector==7 || n_sector==8 || n_sector==12) && ( (dtrkchamx<40 || dtrkchamx>380) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) { m_residuals_ok[iResidual] = false; }
+	  if( (n_sector==4  || n_sector==13)  && ( (dtrkchamx<40 || dtrkchamx>280) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) { m_residuals_ok[iResidual] = false; }
+	  if( (n_sector==9  || n_sector==11)  && ( (dtrkchamx<40 || dtrkchamx>180) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) { m_residuals_ok[iResidual] = false; }
+	  if( (n_sector==10 || n_sector==14)  && ( (dtrkchamx<40 || dtrkchamx>220) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) { m_residuals_ok[iResidual] = false; }
 	}
       }
       else{
 	if( (n_wheel==-1 && n_sector==3) || (n_wheel==1 && n_sector==4)){
-	  if(n_station==1 && ( (dtrkchamx<30.0 || dtrkchamx>190.0) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) m_residuals_ok[iResidual] = false;
-	  if(n_station==2 && ( (dtrkchamx<30.0 || dtrkchamx>240.0) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) m_residuals_ok[iResidual] = false;
-	  if(n_station==3 && ( (dtrkchamx<30.0 || dtrkchamx>280.0) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) m_residuals_ok[iResidual] = false;
+	  if(n_station==1 && ( (dtrkchamx<30.0 || dtrkchamx>190.0) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) { m_residuals_ok[iResidual] = false; }
+	  if(n_station==2 && ( (dtrkchamx<30.0 || dtrkchamx>240.0) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) { m_residuals_ok[iResidual] = false; }
+	  if(n_station==3 && ( (dtrkchamx<30.0 || dtrkchamx>280.0) || (dtrkchamy<40.0 || dtrkchamy>170.0)) ) { m_residuals_ok[iResidual] = false; }
 	}
 	else{
-	  if(n_station==1 && ( (dtrkchamx<30.0 || dtrkchamx>190.0) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) m_residuals_ok[iResidual] = false;
-	  if(n_station==2 && ( (dtrkchamx<30.0 || dtrkchamx>240.0) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) m_residuals_ok[iResidual] = false;
-	  if(n_station==3 && ( (dtrkchamx<30.0 || dtrkchamx>280.0) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) m_residuals_ok[iResidual] = false;
+	  if(n_station==1 && ( (dtrkchamx<30.0 || dtrkchamx>190.0) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) { m_residuals_ok[iResidual] = false; }
+	  if(n_station==2 && ( (dtrkchamx<30.0 || dtrkchamx>240.0) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) { m_residuals_ok[iResidual] = false; }
+	  if(n_station==3 && ( (dtrkchamx<30.0 || dtrkchamx>280.0) || (dtrkchamy<40.0 || dtrkchamy>210.0)) ) { m_residuals_ok[iResidual] = false; }
 	}
       }
     }
@@ -815,7 +815,7 @@ void MuonResidualsFitter::correctBField(int idx_momentum, int idx_q)
   for (std::vector<double*>::const_iterator r = residuals_begin();  r != residuals_end();  ++r)
   {
     double pt = fabs((*r)[idx_momentum]);
-    if (pt < min_pt) min_pt = pt;
+    if (pt < min_pt) { min_pt = pt; }
   }
   min_pt -= 0.01; // to prevent bin # overflow
   const double bin_width = 1./min_pt/Nbin;
@@ -824,10 +824,10 @@ void MuonResidualsFitter::correctBField(int idx_momentum, int idx_q)
   std::vector<size_t> pos[Nbin], neg[Nbin], to_erase;
   for (size_t i = 0; i < m_residuals.size(); i++)
   {
-    if (!m_residuals_ok[i]) continue;
+    if (!m_residuals_ok[i]) { continue; }
     int bin = (int)floor(1./fabs(m_residuals[i][idx_momentum])/bin_width);
-    if (m_residuals[i][idx_q] > 0) pos[bin].push_back(i);
-    else                           neg[bin].push_back(i);
+    if (m_residuals[i][idx_q] > 0) { pos[bin].push_back(i);
+    } else {                           neg[bin].push_back(i); }
   }
 
   // equalize pos and neg in each bin
@@ -835,18 +835,18 @@ void MuonResidualsFitter::correctBField(int idx_momentum, int idx_q)
   {
     size_t psize = pos[j].size();
     size_t nsize = neg[j].size();
-    if (psize == nsize) continue;
+    if (psize == nsize) { continue; }
 
     std::set<int> idx_set; // use a set to collect certain number of unique random indices to erase
     if (psize > nsize)
     {
-      while (idx_set.size() < psize - nsize)  idx_set.insert( gRandom->Integer(psize) );
-      for (std::set<int>::iterator it = idx_set.begin() ; it != idx_set.end(); it++ )  to_erase.push_back(pos[j][*it]);
+      while (idx_set.size() < psize - nsize) {  idx_set.insert( gRandom->Integer(psize) ); }
+      for (std::set<int>::iterator it = idx_set.begin() ; it != idx_set.end(); it++ ) {  to_erase.push_back(pos[j][*it]); }
     }
     else
     {
-      while (idx_set.size() < nsize - psize)  idx_set.insert( gRandom->Integer(nsize) );
-      for (std::set<int>::iterator it = idx_set.begin() ; it != idx_set.end(); it++ )  to_erase.push_back(neg[j][*it]);
+      while (idx_set.size() < nsize - psize) {  idx_set.insert( gRandom->Integer(nsize) ); }
+      for (std::set<int>::iterator it = idx_set.begin() ; it != idx_set.end(); it++ ) {  to_erase.push_back(neg[j][*it]); }
     }
   }
   // sort in descending order, so we safely go from higher to lower indices:
@@ -861,13 +861,13 @@ void MuonResidualsFitter::correctBField(int idx_momentum, int idx_q)
   std::vector<size_t> apos[Nbin], aneg[Nbin];
   for (size_t i = 0; i < m_residuals.size(); i++)
   {
-    if (!m_residuals_ok[i]) continue;
+    if (!m_residuals_ok[i]) { continue; }
     int bin = (int)floor(1./fabs(m_residuals[i][idx_momentum])/bin_width);
-    if (m_residuals[i][idx_q] > 0) apos[bin].push_back(i);
-    else                           aneg[bin].push_back(i);
+    if (m_residuals[i][idx_q] > 0) { apos[bin].push_back(i);
+    } else {                           aneg[bin].push_back(i); }
   }
-  for (int j = 0; j < Nbin; j++) std::cout << "bin " << j << ": [pos,neg] sizes before & after: ["
-    << pos[j].size() <<","<< neg[j].size()<<"] -> [" << apos[j].size() <<","<< aneg[j].size() << "]" << std::endl;
+  for (int j = 0; j < Nbin; j++) { std::cout << "bin " << j << ": [pos,neg] sizes before & after: ["
+    << pos[j].size() <<","<< neg[j].size()<<"] -> [" << apos[j].size() <<","<< aneg[j].size() << "]" << std::endl; }
   std::cout<<" N residuals "<<m_residuals.size()<<" -> "<<(size_t) std::count(m_residuals_ok.begin(), m_residuals_ok.end(), true)<<std::endl;
 }
 
@@ -881,7 +881,7 @@ void MuonResidualsFitter::eraseNotSelectedResiduals()
   int iok=0;
   for (size_t i = 0; i < m_residuals.size(); i++)
   {
-    if (!m_residuals_ok[i]) continue;
+    if (!m_residuals_ok[i]) { continue; }
     tmp[iok++] = m_residuals[i];
   }
   m_residuals.swap(tmp);

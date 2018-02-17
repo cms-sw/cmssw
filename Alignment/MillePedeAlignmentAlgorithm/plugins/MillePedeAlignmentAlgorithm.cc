@@ -113,7 +113,7 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
   enforceSingleIOVInput_(!(enableAlignableUpdates_ && areIOVsSpecified())),
   lastProcessedRun_(cond::timeTypeSpecs[cond::runnumber].beginValue)
 {
-  if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) theDir += '/';// may need '/'
+  if (!theDir.empty() && theDir.find_last_of('/') != theDir.size()-1) { theDir += '/';// may need '/' }
   edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm" << "Start in mode '"
                             << theConfig.getUntrackedParameter<std::string>("mode")
                             << "' with output directory '" << theDir << "'.";
@@ -294,7 +294,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
         << "modes running mille.";
     }
     const std::string moniFile(theConfig.getUntrackedParameter<std::string>("monitorFile"));
-    if (!moniFile.empty()) theMonitor = std::make_unique<MillePedeMonitor>(tTopo, (theDir + moniFile).c_str());
+    if (!moniFile.empty()) { theMonitor = std::make_unique<MillePedeMonitor>(tTopo, (theDir + moniFile).c_str()); }
 
     // Get trajectory factory. In case nothing found, FrameWork will throw...
     const edm::ParameterSet fctCfg(theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory"));
@@ -307,7 +307,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
     // Get config for survey and set flag accordingly
     const edm::ParameterSet pxbSurveyCfg(theConfig.getParameter<edm::ParameterSet>("surveyPixelBarrel"));
     theDoSurveyPixelBarrel = pxbSurveyCfg.getParameter<bool>("doSurvey");
-    if (theDoSurveyPixelBarrel) this->addPxbSurvey(pxbSurveyCfg);
+    if (theDoSurveyPixelBarrel) { this->addPxbSurvey(pxbSurveyCfg); }
   }
 }
 
@@ -409,8 +409,8 @@ void MillePedeAlignmentAlgorithm::terminate()
     files = getExistingFormattedFiles(plainFiles, theDir);
     // Do some logging:
     std::string filesForLogOutput;
-    for (const auto& file: files) filesForLogOutput += " " + file + ",";
-    if (filesForLogOutput.length() != 0) filesForLogOutput.pop_back();
+    for (const auto& file: files) { filesForLogOutput += " " + file + ","; }
+    if (filesForLogOutput.length() != 0) { filesForLogOutput.pop_back(); }
     edm::LogInfo("Alignment")
       << "Based on the config parameter mergeBinaryFiles, using the following "
       << "files as input (assigned weights are indicated by ' -- <weight>'):"
@@ -494,7 +494,7 @@ std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventInfo &eventInfo)
 {
-  if (!this->isMode(myMilleBit)) return; // no theMille created...
+  if (!this->isMode(myMilleBit)) { return; // no theMille created... }
   const auto& tracks = eventInfo.trajTrackPairs();
 
   if (theMonitor) { // monitor input tracks
@@ -512,7 +512,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
        iRefTraj != iRefTrajE; ++iRefTraj, ++refTrajCount) {
 
     RefTrajColl::value_type refTrajPtr = *iRefTraj;
-    if (theMonitor) theMonitor->fillRefTrajectory(refTrajPtr);
+    if (theMonitor) { theMonitor->fillRefTrajectory(refTrajPtr); }
 
     const auto nHitXy = this->addReferenceTrajectory(setup, eventInfo, refTrajPtr);
 
@@ -547,13 +547,13 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const edm::EventSetup &setup
       auto theGblInput = refTrajPtr->gblInput();
       for (unsigned int iTraj = 0; iTraj < refTrajPtr->gblInput().size(); ++iTraj) {
         for (itPoint = refTrajPtr->gblInput()[iTraj].first.begin(); itPoint < refTrajPtr->gblInput()[iTraj].first.end(); ++itPoint) {
-          if (this->addGlobalData(setup, eventInfo, refTrajPtr, iHit++, *itPoint) < 0) return hitResultXy;
-          if (itPoint->hasMeasurement() >= 1) ++numPointsWithMeas;
+          if (this->addGlobalData(setup, eventInfo, refTrajPtr, iHit++, *itPoint) < 0) { return hitResultXy; }
+          if (itPoint->hasMeasurement() >= 1) { ++numPointsWithMeas; }
         }
       }
       hitResultXy.first = numPointsWithMeas;
       // check #hits criterion
-      if (hitResultXy.first == 0 || hitResultXy.first < theMinNumHits) return hitResultXy;
+      if (hitResultXy.first == 0 || hitResultXy.first < theMinNumHits) { return hitResultXy; }
       // construct GBL trajectory
       if (refTrajPtr->gblInput().size() == 1) {
         // from single track
@@ -565,13 +565,13 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const edm::EventSetup &setup
         aGblTrajectory.fit(Chi2, Ndf, lostWeight);
         std::cout << " GblFit: " << Chi2 << ", " << Ndf << ", " << lostWeight << std::endl; */
         // write to MP binary file
-        if (aGblTrajectory.isValid() && aGblTrajectory.getNumPoints() >= theMinNumHits) aGblTrajectory.milleOut(*theBinary);
+        if (aGblTrajectory.isValid() && aGblTrajectory.getNumPoints() >= theMinNumHits) { aGblTrajectory.milleOut(*theBinary); }
       }
       if (refTrajPtr->gblInput().size() == 2) {
         // from TwoBodyDecay
         GblTrajectory aGblTrajectory( refTrajPtr->gblInput(), refTrajPtr->gblExtDerivatives(), refTrajPtr->gblExtMeasurements(), refTrajPtr->gblExtPrecisions() );
         // write to MP binary file
-        if (aGblTrajectory.isValid() && aGblTrajectory.getNumPoints() >= theMinNumHits) aGblTrajectory.milleOut(*theBinary);
+        if (aGblTrajectory.isValid() && aGblTrajectory.getNumPoints() >= theMinNumHits) { aGblTrajectory.milleOut(*theBinary); }
       }
     } else {
       // to add hits if all fine:
@@ -586,7 +586,7 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const edm::EventSetup &setup
           hitResultXy.first = 0;
           break;
         } else { // hit is fine, increase x/y statistics
-          if (flagXY >= 1) ++hitResultXy.first;
+          if (flagXY >= 1) { ++hitResultXy.first; }
           validHitVecY[iHit] = (flagXY >= 2);
         }
       } // end loop on hits
@@ -635,7 +635,7 @@ MillePedeAlignmentAlgorithm::addHitCount(const std::vector<AlignmentParameters*>
         mpVar->increaseHitsX();
         if (validHitVecY[iHit]) {
           mpVar->increaseHitsY();
-          if (pars == parVec[iHit]) ++nHitY; // do not count hits twice
+          if (pars == parVec[iHit]) { ++nHitY; // do not count hits twice }
         }
       }
       ali = ali->mother();
@@ -743,26 +743,26 @@ void MillePedeAlignmentAlgorithm::endRun(const EventInfo &eventInfo, const EndRu
     // LAS beam treatment
     this->addLaserData(eventInfo, *(runInfo.tkLasBeams()), *(runInfo.tkLasBeamTsoses()));
   }
-  if(this->isMode(myMilleBit)) theMille->flushOutputFile();
+  if(this->isMode(myMilleBit)) { theMille->flushOutputFile(); }
 }
 
 // Implementation of endRun that DOES get called. (Because we need it.)
 void MillePedeAlignmentAlgorithm::endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) {
-  if(this->isMode(myMilleBit)) theMille->flushOutputFile();
+  if(this->isMode(myMilleBit)) { theMille->flushOutputFile(); }
 }
 
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::beginLuminosityBlock(const edm::EventSetup&)
 {
-  if (!runAtPCL_) return;
-  if(this->isMode(myMilleBit)) theMille->resetOutputFile();
+  if (!runAtPCL_) { return; }
+  if(this->isMode(myMilleBit)) { theMille->resetOutputFile(); }
 }
 
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::endLuminosityBlock(const edm::EventSetup&)
 {
-  if (!runAtPCL_) return;
-  if(this->isMode(myMilleBit)) theMille->flushOutputFile();
+  if (!runAtPCL_) { return; }
+  if(this->isMode(myMilleBit)) { theMille->flushOutputFile(); }
 }
 
 
@@ -781,7 +781,7 @@ int MillePedeAlignmentAlgorithm::addMeasurementData(const edm::EventSetup &setup
   const TrajectoryStateOnSurface &tsos = refTrajPtr->trajectoryStates()[iHit];
   const ConstRecHitPointer &recHitPtr = refTrajPtr->recHits()[iHit];
   // ignore invalid hits
-  if (!recHitPtr->isValid()) return 0;
+  if (!recHitPtr->isValid()) { return 0; }
 
   // First add the derivatives from IntegratedCalibration's,
   // should even be OK if problems for "usual" derivatives from Alignables
@@ -820,7 +820,7 @@ int MillePedeAlignmentAlgorithm::addGlobalData(const edm::EventSetup &setup, con
   const TrajectoryStateOnSurface &tsos = refTrajPtr->trajectoryStates()[iHit];
   const ConstRecHitPointer &recHitPtr = refTrajPtr->recHits()[iHit];
   // ignore invalid hits
-  if (!recHitPtr->isValid()) return 0;
+  if (!recHitPtr->isValid()) { return 0; }
 
   // get AlignableDet/Unit for this hit
   AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromDetId(recHitPtr->geographicalId()));
@@ -875,14 +875,14 @@ bool MillePedeAlignmentAlgorithm
                              AlignmentParameters *&lowestParams) const
 {
   // derivatives and labels are recursively attached
-  if (!ali) return true; // no mother might be OK
+  if (!ali) { return true; // no mother might be OK }
 
-  if (false && theMonitor && alidet != ali) theMonitor->fillFrameToFrame(alidet, ali);
+  if (false && theMonitor && alidet != ali) { theMonitor->fillFrameToFrame(alidet, ali); }
 
   AlignmentParameters *params = ali->alignmentParameters();
 
   if (params) {
-    if (!lowestParams) lowestParams = params; // set parameters of lowest level
+    if (!lowestParams) { lowestParams = params; // set parameters of lowest level }
 
     bool hasSplitParameters = thePedeLabels->hasSplitParameters(ali);
     const unsigned int alignableLabel = thePedeLabels->alignableLabel(ali);
@@ -911,7 +911,7 @@ bool MillePedeAlignmentAlgorithm
       }
     }
     // Exclude mothers if Alignable selected to be no part of a hierarchy:
-    if (thePedeSteer->isNoHiera(ali)) return true;
+    if (thePedeSteer->isNoHiera(ali)) { return true; }
   }
   // Call recursively for mother, will stop if mother == 0:
   return this->globalDerivativesHierarchy(eventInfo,
@@ -931,14 +931,14 @@ bool MillePedeAlignmentAlgorithm
                              AlignmentParameters *&lowestParams) const
 {
   // derivatives and labels are recursively attached
-  if (!ali) return true; // no mother might be OK
+  if (!ali) { return true; // no mother might be OK }
 
-  if (false && theMonitor && alidet != ali) theMonitor->fillFrameToFrame(alidet, ali);
+  if (false && theMonitor && alidet != ali) { theMonitor->fillFrameToFrame(alidet, ali); }
 
   AlignmentParameters *params = ali->alignmentParameters();
 
   if (params) {
-    if (!lowestParams) lowestParams = params; // set parameters of lowest level
+    if (!lowestParams) { lowestParams = params; // set parameters of lowest level }
 
     bool hasSplitParameters = thePedeLabels->hasSplitParameters(ali);
     const unsigned int alignableLabel = thePedeLabels->alignableLabel(ali);
@@ -973,7 +973,7 @@ bool MillePedeAlignmentAlgorithm
       }
     }
     // Exclude mothers if Alignable selected to be no part of a hierarchy:
-    if (thePedeSteer->isNoHiera(ali)) return true;
+    if (thePedeSteer->isNoHiera(ali)) { return true; }
   }
   // Call recursively for mother, will stop if mother == 0:
   return this->globalDerivativesHierarchy(eventInfo,
@@ -1074,8 +1074,8 @@ bool MillePedeAlignmentAlgorithm::readFromPede(const edm::ParameterSet &mprespse
     out << " while " << theAlignables.size() << " in store";
     numMatch = false; // FIXME: Should we check one by one? Or transfer 'alis' to the store?
   }
-  if (!okRead) out << ", but problems in reading";
-  if (!allEmpty) out << ", possibly overwriting previous settings";
+  if (!okRead) { out << ", but problems in reading"; }
+  if (!allEmpty) { out << ", possibly overwriting previous settings"; }
   out << ".";
 
   if (okRead && allEmpty) {
@@ -1104,9 +1104,9 @@ bool MillePedeAlignmentAlgorithm::areEmptyParams(const align::Alignables& aligna
       const auto& parVec(params->parameters());
       const auto& parCov(params->covariance());
       for (int i = 0; i < parVec.num_row(); ++i) {
-        if (parVec[i] != 0.) return false;
+        if (parVec[i] != 0.) { return false; }
         for (int j = i; j < parCov.num_col(); ++j) {
-          if (parCov[i][j] != 0.) return false;
+          if (parCov[i][j] != 0.) { return false; }
         }
       }
     }
@@ -1466,7 +1466,7 @@ int MillePedeAlignmentAlgorithm
   // FIXME: Should take correlation (and resulting transformation) from original hit,
   //        not 2x2 matrix from ReferenceTrajectory: That can come from error propagation etc.!
   const double corr = aHitCovarianceM(0,1) / sqrt(aHitCovarianceM(0,0) * aHitCovarianceM(1,1));
-  if (theMonitor) theMonitor->fillCorrelations2D(corr, aRecHit);
+  if (theMonitor) { theMonitor->fillCorrelations2D(corr, aRecHit); }
   bool diag = false; // diagonalise only tracker TID, TEC
   switch(aRecHit->geographicalId().subdetId()) {
   case SiStripDetId::TID:
@@ -1605,7 +1605,7 @@ void MillePedeAlignmentAlgorithm::addLasBeam(const EventInfo &eventInfo,
   const unsigned int beamLabel = thePedeLabels->lasBeamLabel(lasBeam.getBeamId());// for global par
 
   for (unsigned int iHit = 0; iHit < tsoses.size(); ++iHit) {
-    if (!tsoses[iHit].isValid()) continue;
+    if (!tsoses[iHit].isValid()) { continue; }
     // clear buffer
     theFloatBufferX.clear();
     theFloatBufferY.clear();
@@ -1747,7 +1747,7 @@ bool MillePedeAlignmentAlgorithm::areIOVsSpecified() const {
   const auto runRangeSelection =
     theConfig.getUntrackedParameter<edm::VParameterSet>("RunRangeSelection");
 
-  if (runRangeSelection.empty()) return false;
+  if (runRangeSelection.empty()) { return false; }
 
   const auto runRanges =
     align::makeNonOverlappingRunRanges(runRangeSelection,

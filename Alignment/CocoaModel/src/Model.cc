@@ -125,7 +125,8 @@ void Model::readSystemDescription()
   ALIint currentSectionNo = -1;
   while (!filein.eof()) {
 
-    if( !filein.getWordsInLine(wordlist) ) break;  //----- Read line
+    if( !filein.getWordsInLine(wordlist) ) { break;  //----- Read line
+}
     assert( !wordlist.empty() );
 
     //----- checking
@@ -158,7 +159,8 @@ void Model::readSystemDescription()
         SetValueDisplacementsFromReportOut();
       }
 
-      if( ALIUtils::debug >= 4) std::cout << std::endl << "START OF SECTION: " << currentSectionNo << " " << *SectionTitleIterator << std::endl;
+      if( ALIUtils::debug >= 4) { std::cout << std::endl << "START OF SECTION: " << currentSectionNo << " " << *SectionTitleIterator << std::endl;
+}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@ ---------- Reading GLOBAL_OPTIONS section
@@ -273,8 +275,9 @@ void Model::readSystemDescription()
           int nOpticalObjects = atoi( (*vsite).c_str() );
           //----- If number is 1 it is not necessary
           if( nOpticalObjects == 1 ) {
-            if( ALIUtils::debug >= 0) std::cerr << "WARNING: in line " << ALIFileIn::getInstance( Model::SDFName() ).nline()
+            if( ALIUtils::debug >= 0) { std::cerr << "WARNING: in line " << ALIFileIn::getInstance( Model::SDFName() ).nline()
                  << " number of repeated OpticalObjects = 1. Please avoid the numbering " << std::endl;
+}
             //-    wordlist.erase( wordlist.begin() + (vsite-wordlist2.begin()) );
           } else {
             //----- The number cannot be the last in the list and you cannot put two numbers together
@@ -462,7 +465,8 @@ void Model::readSystemDescription()
         //      ScanMgr::getInstance()->addOptOEntry( wordlist );
       } else if ( wordlist[0] == ALIstring("fittedEntries_from_file") ) {
         theFittedEntriesReader = new FittedEntriesReader( wordlist[1] );
-         if ( ALIUtils::debug >= 2) std::cout << " setting fittedEntries_from_file " << wordlist[0] << " == " << wordlist[1] << std::endl;
+         if ( ALIUtils::debug >= 2) { std::cout << " setting fittedEntries_from_file " << wordlist[0] << " == " << wordlist[1] << std::endl;
+}
       } else {
         std::cerr << "Measurement:" << std::endl;
         ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
@@ -493,7 +497,8 @@ void Model::readSystemDescription()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@ All system read
   //---------- make Measurements links to their OptOs
-  if ( ALIUtils::debug >= 2) std::cout << std::endl << "@@@@ Building Measurements links to OptOs" << std::endl;
+  if ( ALIUtils::debug >= 2) { std::cout << std::endl << "@@@@ Building Measurements links to OptOs" << std::endl;
+}
   Model::buildMeasurementsLinksToOptOs();
 
   if ( ALIUtils::debug >= 1) {
@@ -582,7 +587,8 @@ OpticalObject* Model::getOptOByName( const ALIstring& opto_name )
   //---------- Look for Optical Object name in OptOList
   std::vector< OpticalObject* >::const_iterator vocite;
   for( vocite = OptOList().begin(); vocite != OptOList().end(); ++vocite ) {
-    if( (*vocite)->name() == opto_name ) break;
+    if( (*vocite)->name() == opto_name ) { break;
+}
   }
 
   if ( vocite == OptOList().end() ) {
@@ -615,7 +621,8 @@ OpticalObject* Model::getOptOByType( const ALIstring& opto_type )
   std::vector< OpticalObject* >::const_iterator vocite;
   for( vocite = OptOList().begin(); vocite != OptOList().end(); ++vocite ) {
    //   std::cout << "OPTOList" << (*msocite).first << std::endl;
-    if( (*vocite)->type() == opto_type ) break;
+    if( (*vocite)->type() == opto_type ) { break;
+}
   }
 
   if ( vocite == OptOList().end() ) {
@@ -637,8 +644,9 @@ Entry* Model::getEntryByName( const ALIstring& opto_name, const ALIstring& entry
   //---------- Look for Entry name type in EntryList
   std::vector<Entry*>::const_iterator vecite;
   for( vecite = EntryList().begin(); vecite != EntryList().end(); ++vecite) {
-    if( ALIUtils::debug >= 4 ) std::cout <<  "getEntryByName: " <<(*vecite)->OptOCurrent()->name()
+    if( ALIUtils::debug >= 4 ) { std::cout <<  "getEntryByName: " <<(*vecite)->OptOCurrent()->name()
          << " E " << (*vecite)->name() << " Searching: " << opto_name << " E " << entry_name << std::endl;
+}
     //-    std::cout << " optoName " << (*vecite)->OptOCurrent()->name()<< " " << (*vecite)->name() << std::endl;
     if( (*vecite)->OptOCurrent()->name() == opto_name &&
         (*vecite)->name() == entry_name ) {
@@ -657,7 +665,8 @@ Measurement* Model::getMeasurementByName( const ALIstring& meas_name, ALIbool ex
   //---------- Look for Optical Object name in OptOList
   std::vector< Measurement* >::const_iterator vmcite;
   for( vmcite = theMeasurementVector.begin(); vmcite != theMeasurementVector.end(); ++vmcite ) {
-    if( (*vmcite)->name() == meas_name ) break;
+    if( (*vmcite)->name() == meas_name ) { break;
+}
   }
 
   if ( vmcite != theMeasurementVector.end() ) {
@@ -733,10 +742,12 @@ ALIbool Model::getComponentOptOs( const ALIstring& opto_name, std::vector<Optica
   //---------- Get OptO corresponding to name 'opto_name'
   OpticalObject* opto = getOptOByName( opto_name );
 
-  if ( ALIUtils::debug >= 99) std::cout << opto_name << "getComponentOptOs: opto " << opto << opto->name() << std::endl;
+  if ( ALIUtils::debug >= 99) { std::cout << opto_name << "getComponentOptOs: opto " << opto << opto->name() << std::endl;
+}
   std::vector<OpticalObject*>::const_iterator vocite;
 
-  if ( ALIUtils::debug >= 99) std::cout << "optolist size " << OptOList().size() << std::endl;
+  if ( ALIUtils::debug >= 99) { std::cout << "optolist size " << OptOList().size() << std::endl;
+}
   ALIbool opto_found = false;
   for (vocite = OptOList().begin(); vocite != OptOList().end(); ++vocite) {
     if( (*vocite)->parent() != nullptr ) {
@@ -771,7 +782,8 @@ ALIbool Model::getComponentOptOs( const ALIstring& opto_name, std::vector<Optica
 ALIbool Model::createCopyComponentList( const ALIstring& typ )
 {
   //---------- Find an OptO with the same type (YOU HAVE TO BE SURE THAT ALL EXISTING OPTOs OF THIS TYPE HAVE SAME COMPONENTS, IF NOT COPYING MAY GIVE YOU UNPREDICTABLE RESULTS)
-  if(ALIUtils::debug >= 3) std::cout << "createCopyComponentList " << typ << std::endl;
+  if(ALIUtils::debug >= 3) { std::cout << "createCopyComponentList " << typ << std::endl;
+}
   OpticalObject* start_opto = getOptOByType( typ );
 
   //---------- clean list of OptOs to copy
@@ -791,19 +803,22 @@ ALIbool Model::createCopyComponentList( const ALIstring& typ )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIbool Model::fillCopyComponentList( const OpticalObject* opto )
 {
-  if(ALIUtils::debug >= 3) std::cout << "entering fillCopyComponentList(): OptO" << opto->name() << std::endl;
+  if(ALIUtils::debug >= 3) { std::cout << "entering fillCopyComponentList(): OptO" << opto->name() << std::endl;
+}
   //---------- Get list of components of 'opto'
   std::vector<OpticalObject*> vopto;
   ALIbool opto_found = getComponentOptOs( opto->name(), vopto);
   if( !opto_found ) {
-    if(ALIUtils::debug >= 5) std::cout << "fillCopyComponentList: NO COMPONENTS TO COPY IN THIS OptO" << opto->name() << std::endl ;
+    if(ALIUtils::debug >= 5) { std::cout << "fillCopyComponentList: NO COMPONENTS TO COPY IN THIS OptO" << opto->name() << std::endl ;
+}
   }
 
   //---------- Loop list of components of 'opto'
   std::vector<OpticalObject*>::const_iterator vocite;
   for( vocite = vopto.begin(); vocite != vopto.end(); ++vocite ){
     theOptOsToCopyList.push_back( *vocite );
-    if(ALIUtils::debug >= 5) std::cout << "fillCopyOptOList " << (*vocite)->type() << " " << (*vocite)->name() << std::endl;
+    if(ALIUtils::debug >= 5) { std::cout << "fillCopyOptOList " << (*vocite)->type() << " " << (*vocite)->name() << std::endl;
+}
     //---------- Add components of this component
     fillCopyComponentList( *vocite );
   }
@@ -817,7 +832,8 @@ ALIbool Model::fillCopyComponentList( const OpticalObject* opto )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 OpticalObject* Model::nextOptOToCopy()
 {
-  if(ALIUtils::debug >= 5) std::cout << "entering nextOptOToCopy() " << std::endl;
+  if(ALIUtils::debug >= 5) { std::cout << "entering nextOptOToCopy() " << std::endl;
+}
   ++theOptOsToCopyListIterator;
   //  if(ALIUtils::debug >= 5) std::cout <<" nextOptOToCopy " << (*(theOptOsToCopyListIterator-1))->name() << std::endl;
   return *(theOptOsToCopyListIterator-1);
@@ -910,7 +926,8 @@ void Model::CMSLinkDeleteOptOs( )
   assert(gomgr->getGlobalOptionValue("cms_link_method", cmslink_method));
   ALIdouble cmslink_halfplanes;
   assert(gomgr->getGlobalOptionValue("cms_link_halfplanes", cmslink_halfplanes));
-  if(ALIUtils::debug >= 2) std::cout << "CMSLinkDeleteOptOs: cms_link_halfplanes " << cmslink_halfplanes <<  cmslink_iter  << std::endl;
+  if(ALIUtils::debug >= 2) { std::cout << "CMSLinkDeleteOptOs: cms_link_halfplanes " << cmslink_halfplanes <<  cmslink_iter  << std::endl;
+}
 
   if( cmslink_iter == 1){
     //---------- First fit: delete everything but laser1 and det_tkU
@@ -1158,12 +1175,14 @@ void Model::deleteOptO( const ALIstring& opto_name )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Model::deleteOptO( OpticalObject* opto )
 {
-  if(ALIUtils::debug >= 5 ) std::cout << "DELETING OptO" << opto->name() << std::endl;
+  if(ALIUtils::debug >= 5 ) { std::cout << "DELETING OptO" << opto->name() << std::endl;
+}
 
   //---------- Delete Coordinate Entries of this OptO
   std::vector<Entry*>::const_iterator vecite;
   std::vector<Entry*>::iterator veite2;
-  if ( ALIUtils::debug >= 9) std::cout << "SIZE" << theEntryVector.size() <<std::endl;
+  if ( ALIUtils::debug >= 9) { std::cout << "SIZE" << theEntryVector.size() <<std::endl;
+}
   for( vecite = opto->CoordinateEntryList().begin(); vecite != opto->CoordinateEntryList().end(); ++vecite) {
     //    ALIuint pos = FindItemInVector( (*veite), opto->CoordinateEntryList() );
     veite2 = find( theEntryVector.begin(), theEntryVector.end(), (*vecite) );
@@ -1190,7 +1209,8 @@ void Model::deleteOptO( OpticalObject* opto )
   std::vector<Measurement*>::const_iterator vmite;
   std::vector<OpticalObject*>::const_iterator vocite;
   for( vmite = MeasurementList().begin(); vmite != MeasurementList().end(); ++vmite ) {
-      if(ALIUtils::debug >= 5) std::cout << "Deleting Measurement" << (*vmite)->name() << std::endl;
+      if(ALIUtils::debug >= 5) { std::cout << "Deleting Measurement" << (*vmite)->name() << std::endl;
+}
     //----- If any of the OptO Measured is opto, delete this Measurement
     for( vocite = (*vmite)->OptOList().begin(); vocite != (*vmite)->OptOList().end(); ++vocite) {
       if( (*vocite) == opto ) {
@@ -1205,7 +1225,8 @@ void Model::deleteOptO( OpticalObject* opto )
  //---------- Delete Measurements from list
   std::vector<Measurement*>::const_iterator vmcite;
   std::vector<Measurement*>::iterator vmite2;
-  if ( ALIUtils::debug >= 9) std::cout << "SIZEMEAS" << MeasToBeDeleted.size() <<std::endl;
+  if ( ALIUtils::debug >= 9) { std::cout << "SIZEMEAS" << MeasToBeDeleted.size() <<std::endl;
+}
   for( vmcite = MeasToBeDeleted.begin(); vmcite != MeasToBeDeleted.end(); ++vmcite) {
     vmite2 = find( theMeasurementVector.begin(), theMeasurementVector.end(), (*vmcite) );
     //    std::cout << (*vmite2) << "DELETE MSEASU " << (*vmcite) << (*vmite2)->name()[0] << std::endl;
@@ -1337,8 +1358,10 @@ ALIdouble Model::getParamFittedSigmaVectorItem( const ALIuint position )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time )
 {
- if(ALIUtils::debug >= 5) std::cout << " readMeasurementsFromFile " << Measurement::measurementsFileName() << std::endl;
-  if( Measurement::measurementsFileName() == "") return true;
+ if(ALIUtils::debug >= 5) { std::cout << " readMeasurementsFromFile " << Measurement::measurementsFileName() << std::endl;
+}
+  if( Measurement::measurementsFileName().empty()) { return true;
+}
 
   ALIFileIn& filein = ALIFileIn::getInstance( Measurement::measurementsFileName() );
   std::vector<ALIstring> wordlist;
@@ -1347,7 +1370,8 @@ ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time
   // std::cout << "@@@@@@@@@@@@@@@ RETFIL " << retfil << std::endl;
   //if( retfil == 0 ) {
   if( filein.getWordsInLine(wordlist) == 0 ) {
-    if(ALIUtils::debug>=4 ) std::cout << "@@@@ No more measurements left" << std::endl;
+    if(ALIUtils::debug>=4 ) { std::cout << "@@@@ No more measurements left" << std::endl;
+}
     return false;
   }
 
@@ -1358,7 +1382,8 @@ ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time
   //if you are looking for only one measurement with a given date and time, loop all measurements until you find it
   if( Measurement::only1 ) {
     for(;;) {
-      if( wordlist[0] == "DATE:" && wordlist[1] == Measurement::only1Date && wordlist[2] == Measurement::only1Time ) break;
+      if( wordlist[0] == "DATE:" && wordlist[1] == Measurement::only1Date && wordlist[2] == Measurement::only1Time ) { break;
+}
       filein.getWordsInLine(wordlist);
       if(filein.eof() ) {
         std::cerr << "!! EXITING date not found in measurements file" << Measurement::only1Date << " " <<  Measurement::only1Time << std::endl;
@@ -1535,7 +1560,8 @@ void Model::copyMeasurements( const std::vector<ALIstring>& wl )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Model::SetValueDisplacementsFromReportOut()
 {
-  if( ALIUtils::debug >= 3 ) std::cout << " Model::SetValueDisplacementsFromReportOut() " << std::endl;
+  if( ALIUtils::debug >= 3 ) { std::cout << " Model::SetValueDisplacementsFromReportOut() " << std::endl;
+}
 
   EntryMgr* entryMgr = EntryMgr::getInstance();
 
@@ -1547,7 +1573,8 @@ void Model::SetValueDisplacementsFromReportOut()
           vecite != Model::EntryList().end(); ++vecite ) {
       //----- Find the EntryData corresponding to this entry
       entryData = entryMgr->findEntryByLongName( (*vecite)->OptOCurrent()->longName(), (*vecite)->name() );
-      if( ALIUtils::debug >= 3 ) std::cout << "SetValueDisplacementsFromReportOut "<< (*vecite)->OptOCurrent()->longName() << " " <<  (*vecite)->name() << " " << entryData->valueDisplacement() << std::endl;
+      if( ALIUtils::debug >= 3 ) { std::cout << "SetValueDisplacementsFromReportOut "<< (*vecite)->OptOCurrent()->longName() << " " <<  (*vecite)->name() << " " << entryData->valueDisplacement() << std::endl;
+}
       (*vecite)->addFittedDisplacementToValue( entryData->valueDisplacement() );
     }
   }
@@ -1633,12 +1660,14 @@ void Model::BuildMeasurementsFromOA( OpticalAlignMeasurements& measList )
 {
   std::vector<OpticalAlignMeasurementInfo>::iterator mite;
 
-  if( ALIUtils::debug >= 5 ) std::cout << " BuildMeasurementsFromOA " << std::endl;
+  if( ALIUtils::debug >= 5 ) { std::cout << " BuildMeasurementsFromOA " << std::endl;
+}
   std::vector<OpticalAlignMeasurementInfo> measInfos = measList.oaMeasurements_;
   for( mite = measInfos.begin(); mite != measInfos.end(); ++mite ) {
     std::string measType = (*mite).type_;
     std::string measName = (*mite).name_;
-  if( ALIUtils::debug >= 4 ) std::cout << " BuildMeasurementsFromOA measType " << measType << " measName " << measName << std::endl;
+  if( ALIUtils::debug >= 4 ) { std::cout << " BuildMeasurementsFromOA measType " << measType << " measName " << measName << std::endl;
+}
     //---------- Create Measurement with appropiate dimension
     Measurement* meastemp = nullptr;
     if ( measType == ALIstring("SENSOR2D") ) {

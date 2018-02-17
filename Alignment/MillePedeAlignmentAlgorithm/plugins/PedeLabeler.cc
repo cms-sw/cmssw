@@ -46,7 +46,7 @@ PedeLabeler::~PedeLabeler()
 /// Return 32-bit unique label for alignable, 0 indicates failure.
 unsigned int PedeLabeler::alignableLabel(Alignable *alignable) const
 {
-  if (!alignable) return 0;
+  if (!alignable) { return 0; }
 
   AlignableToIdMap::const_iterator position = theAlignableToIdMap.find(alignable);
   if (position != theAlignableToIdMap.end()) {
@@ -117,7 +117,7 @@ unsigned int PedeLabeler::alignableLabelFromLabel(unsigned int paramLabel) const
 Alignable* PedeLabeler::alignableFromLabel(unsigned int label) const
 {
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return nullptr; // error already given
+  if (aliLabel < theMinLabel) { return nullptr; // error already given }
   
   IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
   if (position != theIdToAlignableMap.end()) {
@@ -137,7 +137,7 @@ Alignable* PedeLabeler::alignableFromLabel(unsigned int label) const
 unsigned int PedeLabeler::lasBeamIdFromLabel(unsigned int label) const
 {
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return 0; // error already given
+  if (aliLabel < theMinLabel) { return 0; // error already given }
   
   UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
   if (position != theLabelToLasBeamMap.end()) {

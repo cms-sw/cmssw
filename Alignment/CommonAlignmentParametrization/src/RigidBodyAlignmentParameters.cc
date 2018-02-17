@@ -60,7 +60,7 @@ RigidBodyAlignmentParameters::clone( const AlgebraicVector& parameters,
   RigidBodyAlignmentParameters* rbap = 
     new RigidBodyAlignmentParameters( alignable(), parameters, covMatrix, selector());
 
-  if (userVariables()) rbap->setUserVariables(userVariables()->clone());
+  if (userVariables()) { rbap->setUserVariables(userVariables()->clone()); }
   rbap->setValid(isValid());
 
   return rbap;
@@ -75,7 +75,7 @@ RigidBodyAlignmentParameters::cloneFromSelected( const AlgebraicVector& paramete
     new RigidBodyAlignmentParameters(alignable(), expandVector( parameters, selector()),
                                      expandSymMatrix(covMatrix, selector()), selector());
 
-  if ( userVariables() ) rbap->setUserVariables(userVariables()->clone());
+  if ( userVariables() ) { rbap->setUserVariables(userVariables()->clone()); }
   rbap->setValid(isValid());
 
   return rbap;
@@ -114,7 +114,7 @@ RigidBodyAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurfac
   int ir2=0;
   for ( int irow=0; irow<nrows; ++irow ) {
     if (selector()[irow]) {
-      for ( int icol=0; icol<ncols; ++icol ) seldev[ir2][icol] = dev[irow][icol];
+      for ( int icol=0; icol<ncols; ++icol ) { seldev[ir2][icol] = dev[irow][icol]; }
       ++ir2;
     }
   }
@@ -127,7 +127,7 @@ RigidBodyAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurfac
 AlgebraicVector RigidBodyAlignmentParameters::translation(void) const
 { 
   AlgebraicVector shift(3);
-  for ( int i=0;i<3;++i ) shift[i]=theData->parameters()[i];
+  for ( int i=0;i<3;++i ) { shift[i]=theData->parameters()[i]; }
 
   return shift;
 }
@@ -137,7 +137,7 @@ AlgebraicVector RigidBodyAlignmentParameters::translation(void) const
 AlgebraicVector RigidBodyAlignmentParameters::rotation(void) const
 {
   AlgebraicVector rot(3);
-  for (int i=0;i<3;++i) rot[i] = theData->parameters()[i+3];
+  for (int i=0;i<3;++i) { rot[i] = theData->parameters()[i+3]; }
 
   return rot;
 }

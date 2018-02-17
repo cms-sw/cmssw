@@ -119,7 +119,7 @@ int MillePedeMonitor::GetIndex(const std::vector<OBJECT_TYPE*> &vec, const TStri
   int result = 0;
   for (typename std::vector<OBJECT_TYPE*>::const_iterator iter = vec.begin(), iterEnd = vec.end();
        iter != iterEnd; ++iter, ++result) {
-    if (*iter && (*iter)->GetName() == name) return result;
+    if (*iter && (*iter)->GetName() == name) { return result; }
   }
   edm::LogError("Alignment") << "@SUB=MillePedeMonitor::GetIndex" << " could not find " << name;
   return -1;
@@ -134,11 +134,11 @@ std::vector<OBJECT_TYPE*> MillePedeMonitor::cloneHists(const std::vector<OBJECT_
   std::vector<OBJECT_TYPE*> result;
   for (typename std::vector<OBJECT_TYPE*>::const_iterator iter = orgs.begin(), iterEnd = orgs.end();
        iter != iterEnd; ++iter) {
-    if (!(*iter)) continue;
+    if (!(*iter)) { continue; }
     result.push_back(static_cast<OBJECT_TYPE*>((*iter)->Clone(namAd + (*iter)->GetName())));
-    if (result.back()) result.back()->SetTitle((*iter)->GetTitle() + titAd);
-    else edm::LogError("Alignment") <<"@SUB=MillePedeMonitor::cloneHists"
-				    << "out of memory?";
+    if (result.back()) { result.back()->SetTitle((*iter)->GetTitle() + titAd);
+    } else { edm::LogError("Alignment") <<"@SUB=MillePedeMonitor::cloneHists"
+				    << "out of memory?"; }
   }
   
   return result;
@@ -152,7 +152,7 @@ void MillePedeMonitor::addToDirectory(const std::vector<OBJECT_TYPE*> &obs,
   // OBJECT_TYPE is required to have method SetDirectory(TDirectory *dir)
   for (typename std::vector<OBJECT_TYPE*>::const_iterator iter = obs.begin(), iterEnd = obs.end();
        iter != iterEnd; ++iter) {
-    if (*iter) (*iter)->SetDirectory(dir);
+    if (*iter) { (*iter)->SetDirectory(dir); }
   }
 }
 

@@ -85,8 +85,10 @@ void OptOSensor2D::makeMeasurement( LightRay& lightray, Measurement& meas )
     ALIUtils::dump3v( measvv, " $$$$$$MEAS IN LOCAL FRAME");
     ALIUtils::dump3v( measvv+centreGlob(), " $$$$$$MEAS IN GLOBAL FRAME");
 
-    ALIdouble detH =  1000*meas.valueSimulated(0); if(std::abs(detH) <= 1.e-9 ) detH = 0.;
-    ALIdouble detV =  1000*meas.valueSimulated(1); if(std::abs(detV) <= 1.e-9 ) detV = 0.;
+    ALIdouble detH =  1000*meas.valueSimulated(0); if(std::abs(detH) <= 1.e-9 ) { detH = 0.;
+}
+    ALIdouble detV =  1000*meas.valueSimulated(1); if(std::abs(detV) <= 1.e-9 ) { detV = 0.;
+}
     std::cout << "REAL value: " << chrg << meas.valueType(0) << ": " << 1000*meas.value()[0] << chrg << " " << meas.valueType(1) << ": " << 1000*meas.value()[1]  << " (mm)  " << (this)->name() 
 	 << "   DIFF= " << detH-1000*meas.value()[0] << " " << detV-1000*meas.value()[1] << std::endl;
     std::cout << "SIMU value: " << chrg << " " << meas.valueType(0) << ": "
@@ -121,7 +123,8 @@ void OptOSensor2D::makeMeasurement( LightRay& lightray, Measurement& meas )
 void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
 {
   verbose = ALIUtils::debug;
-  if (ALIUtils::debug >= 2) std::cout << "LR: FAST TRAVERSES SENSOR2D  " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: FAST TRAVERSES SENSOR2D  " << name() << std::endl;
+}
 
   //---------- Shift and Deviate
 
@@ -160,14 +163,16 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
 
     ALIdouble interslcx = omeas->value( 0 );
     ALIdouble interslcy = omeas->value( 1 );
-    if(ALIUtils::debug >= 5) std::cout << " interslcx " << interslcx << " interslcy " << interslcy << std::endl;
+    if(ALIUtils::debug >= 5) { std::cout << " interslcx " << interslcx << " interslcy " << interslcy << std::endl;
+}
     //----- transform in milimeters and positive
     //mum    interslcx = interslcx*1.E6 + 10000.;
     //mum    interslcy = interslcy*1.E6 + 10000.;
     ALIdouble df = ALIUtils::LengthValueDimensionFactor();
     interslcx = interslcx/df + 0.010/df;
     interslcy = interslcy/df + 0.010/df;
-     if(ALIUtils::debug >= 5) std::cout << " interslcx " << interslcx << " interslcy " << interslcy << std::endl;
+     if(ALIUtils::debug >= 5) { std::cout << " interslcx " << interslcx << " interslcy " << interslcy << std::endl;
+}
 
     //---------- Get deviations from file (they are in microrads)
     std::pair< ALIdouble, ALIdouble> devis = deviFromFile->getDevis( interslcx, interslcy );
@@ -181,7 +186,8 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
     
     //---------- Set this deviation value as original one, as it will not be changed for derivatives (change the entry and also the ExtraEntryValueOriginalList())
     ALIuint entryNo = extraEntryNo( "deviX" );
-    if( verbose >= 3 ) std::cout << "entrynox" << entryNo << name() << verbose << std::endl;
+    if( verbose >= 3 ) { std::cout << "entrynox" << entryNo << name() << verbose << std::endl;
+}
     Entry* entryDeviX = *(ExtraEntryList().begin()+entryNo);
     entryDeviX->setValue( deviX );
     //-    std::vector< ALIdouble >::const_iterator eevolite = static_cast<std::vector< ALIdouble >::iterator>( ExtraEntryValueOriginalList().begin() );
@@ -190,7 +196,8 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
     std::vector< ALIdouble >::iterator eevolite = eevil.begin();
 
     *(eevolite+entryNo) = deviX;
-    if( verbose >= 3 ) std::cout<< " entryDeviX name " << entryDeviX->name() << entryDeviX->value() << std::endl;
+    if( verbose >= 3 ) { std::cout<< " entryDeviX name " << entryDeviX->name() << entryDeviX->value() << std::endl;
+}
     entryNo = extraEntryNo( "deviY" );
     Entry* entryDeviY = *(ExtraEntryList().begin()+entryNo);
     //- std::cout << "entrynoy" << entryNo << name() << std::endl;
@@ -204,14 +211,17 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
 
     //??? why previous does not work??
     if( fdevi_from_file ) {
-      if( ALIUtils::debug >= 5) std::cout << "fdeviFromFile" << fdevi_from_file << std::endl;
+      if( ALIUtils::debug >= 5) { std::cout << "fdeviFromFile" << fdevi_from_file << std::endl;
+}
       ALIuint entryNo = extraEntryNo( "deviX" );
       Entry* entryDeviX = *(ExtraEntryList().begin()+entryNo);
-     if( verbose >= 3 ) std::cout<< entryDeviX << " entryDeviX name " << entryDeviX->name() << entryDeviX->value() << std::endl;
+     if( verbose >= 3 ) { std::cout<< entryDeviX << " entryDeviX name " << entryDeviX->name() << entryDeviX->value() << std::endl;
+}
       deviX = entryDeviX->value();
       entryNo = extraEntryNo( "deviY" );
       Entry* entryDeviY = *(ExtraEntryList().begin()+entryNo);
-      if( verbose >= 3 )  std::cout<< entryDeviY << " entryDeviY name " << entryDeviY->name() << entryDeviY->value() << std::endl;
+      if( verbose >= 3 ) {  std::cout<< entryDeviY << " entryDeviY name " << entryDeviY->name() << entryDeviY->value() << std::endl;
+}
       deviY = entryDeviY->value();
 
     } else {
@@ -244,11 +254,13 @@ void OptOSensor2D::fastTraversesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOSensor2D::detailedTraversesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 4) std::cout << "%%% LR: DETAILED TRAVERSES SENSOR2D  " << name() << std::endl;
+  if (ALIUtils::debug >= 4) { std::cout << "%%% LR: DETAILED TRAVERSES SENSOR2D  " << name() << std::endl;
+}
   if( DeviationsFromFileSensor2D::apply() && fdevi_from_file) {
    DeviationsFromFileSensor2D::setApply( false );
    //- std::cout << "fdeviFromFile" << fdevi_from_file << std::endl;
-    if(ALIUtils::debug >= 0 )std::cerr << "!!WARNING: sensor " << name() << " has read deviation from file and it will not be taken into account. Please use FAST TRAVERSES" << deviFromFile << std::endl;
+    if(ALIUtils::debug >= 0 ) {std::cerr << "!!WARNING: sensor " << name() << " has read deviation from file and it will not be taken into account. Please use FAST TRAVERSES" << deviFromFile << std::endl;
+}
   }
 
   //---------- If width is 0, just keep the intersection point 
@@ -267,7 +279,8 @@ void OptOSensor2D::detailedTraversesLightRay( LightRay& lightray )
     return;
   }
 
-  if (ALIUtils::debug >= 4) std::cout << std::endl << "$$$ LR: REFRACTION IN FORWARD PLATE " << std::endl;
+  if (ALIUtils::debug >= 4) { std::cout << std::endl << "$$$ LR: REFRACTION IN FORWARD PLATE " << std::endl;
+}
   //---------- Get forward plate
   ALIPlane plate = getPlate(true, true);
   //---------- Refract while entering object
@@ -275,7 +288,8 @@ void OptOSensor2D::detailedTraversesLightRay( LightRay& lightray )
   ALIdouble refra_ind2 = findExtraEntryValueMustExist("refra_ind");
   lightray.refract( plate, refra_ind1, refra_ind2 );
 
-  if (ALIUtils::debug >= 4) std::cout << std::endl << "$$$ LR: REFRACTION IN BACKWARD PLATE " << std::endl;
+  if (ALIUtils::debug >= 4) { std::cout << std::endl << "$$$ LR: REFRACTION IN BACKWARD PLATE " << std::endl;
+}
   //---------- Get backward plate
   plate = getPlate(false, true);
   //---------- Refract while exiting splitter
@@ -298,7 +312,8 @@ void OptOSensor2D::detailedTraversesLightRay( LightRay& lightray )
 void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
 {
 
-  if(ALIUtils::debug >= 5) std::cout << "OptOSensor2D fillExtraEntry wordlist[1] " << wordlist[1] << std::endl;
+  if(ALIUtils::debug >= 5) { std::cout << "OptOSensor2D fillExtraEntry wordlist[1] " << wordlist[1] << std::endl;
+}
   //---------- check if it is deviation read from file 
   fdevi_from_file = false;
   //-  std::cout << "WL " << wordlist[1]<< "WL " << wordlist[2]<< "WL " << wordlist[3] << std::endl;
@@ -317,7 +332,8 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
     ALIFileIn& ifdevi = ALIFileIn::getInstance( fnam );
 
     //----- Check that file exists 
-    if(ALIUtils::debug >= 4) std::cout << "Opening deviation file: " << fnam << std::endl;
+    if(ALIUtils::debug >= 4) { std::cout << "Opening deviation file: " << fnam << std::endl;
+}
     /*-    if( !ifdevi ) {
       std::cerr << " !!! Sensor2D Deviation file not found: " << fnam << " of object " << name() << std::endl;
       exit(1);
@@ -325,7 +341,8 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
 
     deviFromFile = new DeviationsFromFileSensor2D();
     fdevi_from_file = true;
-    if(ALIUtils::debug >= 5 ) std::cout << "deviFromFile " << deviFromFile << std::endl; 
+    if(ALIUtils::debug >= 5 ) { std::cout << "deviFromFile " << deviFromFile << std::endl; 
+}
     //----- Read header
     ALIstring sensor1_name, sensor2_name;
     ALIdouble sensor_dist;
@@ -343,13 +360,15 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
     if(sensor2_name[sensor2_name.size()-2] == 'c') {
       sensor2_name = sensor2_name.substr(0,sensor2_name.size()-1);
     }
-    if(ALIUtils::debug >= 5) std::cout << "sensor1_name " << sensor1_name << " sensor2_name " << sensor2_name  << " sensor_dist " << sensor_dist << " unknown " << wl[3] << std::endl;
+    if(ALIUtils::debug >= 5) { std::cout << "sensor1_name " << sensor1_name << " sensor2_name " << sensor2_name  << " sensor_dist " << sensor_dist << " unknown " << wl[3] << std::endl;
+}
 
     ifdevi.getWordsInLine( wl );
     prec_deviX = atof( wl[0].c_str() );
     prec_deviY = atof( wl[1].c_str() );
 
-    if(ALIUtils::debug >= 5) std::cout << "prec_deviX " <<  prec_deviX  << " prec_deviY " << prec_deviY << std::endl;
+    if(ALIUtils::debug >= 5) { std::cout << "prec_deviX " <<  prec_deviX  << " prec_deviY " << prec_deviY << std::endl;
+}
 
     deviFromFile = new DeviationsFromFileSensor2D();
     ALIdouble offsetX, offsetY;
@@ -360,7 +379,8 @@ void OptOSensor2D::fillExtraEntry( std::vector<ALIstring>& wordlist )
     }
     deviFromFile->readFile( ifdevi );
     fdevi_from_file = true;
-    if(ALIUtils::debug >= 5 ) std::cout << "deviFromFile " << deviFromFile << std::endl; 
+    if(ALIUtils::debug >= 5 ) { std::cout << "deviFromFile " << deviFromFile << std::endl; 
+}
 
  
     //--- Fill extra entries 'deviX' & 'deviY' to compute derivatives 
@@ -397,17 +417,21 @@ ALIdouble* OptOSensor2D::convertPointToLocalCoordinates( const CLHEP::Hep3Vector
   CLHEP::HepRotation rmt = rmGlob();
   CLHEP::Hep3Vector XAxism(1.,0.,0.);
   XAxism*=rmt;
-  if( ALIUtils::debug >= 5) ALIUtils::dump3v( (this)->centreGlob(),  "centre glob sensor2D" );
-  if( ALIUtils::debug >= 5) ALIUtils::dumprm( rmt,  "rotation matrix sensor2D" );
+  if( ALIUtils::debug >= 5) { ALIUtils::dump3v( (this)->centreGlob(),  "centre glob sensor2D" );
+}
+  if( ALIUtils::debug >= 5) { ALIUtils::dumprm( rmt,  "rotation matrix sensor2D" );
+}
   //t  ALIUtils::dump3v(point - (this)->centreGlob() , "inters - (this)->centreGlob()");
-  if( ALIUtils::debug >= 5) ALIUtils::dump3v(XAxism , "XAxism");
+  if( ALIUtils::debug >= 5) { ALIUtils::dump3v(XAxism , "XAxism");
+}
   interslc[0] = (point - (this)->centreGlob() ) * XAxism;
   
   //----- Y value
   CLHEP::Hep3Vector YAxism(0.,1.,0.);
   YAxism*=rmt;
-  if( ALIUtils::debug >= 5)
+  if( ALIUtils::debug >= 5) {
 ALIUtils::dump3v(YAxism , "YAxism");
+}
   interslc[1] = (point - (this)->centreGlob() ) * YAxism;
   
   if( ALIUtils::debug >= 5 ) {

@@ -17,16 +17,16 @@ namespace gs {
         {
             CPP11_shared_ptr<const CatalogEntry> pentry = 
                 catalog_.retrieveEntry(idlist[i]);
-            if (reference.isIOCompatible(*pentry))
-                addItemToReference(reference, idlist[i]);
+            if (reference.isIOCompatible(*pentry)) {
+                addItemToReference(reference, idlist[i]); }
         }
     }
 
     std::istream& StringArchive::inputStream(const unsigned long long id,
                                              long long* sz)
     {
-        if (!id) throw gs::IOInvalidArgument(
-            "In gs::StringArchive::inputStream: invalid item id");
+        if (!id) { throw gs::IOInvalidArgument(
+            "In gs::StringArchive::inputStream: invalid item id"); }
         unsigned cCode;
         std::streampos pos;
         unsigned long long itemLen;
@@ -37,8 +37,8 @@ namespace gs {
                << "failed to locate item with id " << id;
             throw gs::IOInvalidArgument(os.str());
         }
-        if (sz)
-            *sz = -1LL;
+        if (sz) {
+            *sz = -1LL; }
         stream_.seekg(pos);
         return stream_;
     }
@@ -72,8 +72,8 @@ namespace gs {
         read_pod(in, &lastpos);
         std::string nam;
         read_pod(in, &nam);
-        if (in.fail()) throw IOReadFailure(
-            "In gs::StringArchive::read: input stream failure");
+        if (in.fail()) { throw IOReadFailure(
+            "In gs::StringArchive::read: input stream failure"); }
         CPP11_auto_ptr<StringArchive> archive(new StringArchive(nam.c_str()));
         archive->lastpos_ = lastpos;
         ClassId streamId(in, 1);

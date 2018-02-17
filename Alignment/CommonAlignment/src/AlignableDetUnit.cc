@@ -38,7 +38,7 @@ AlignableDetUnit::~AlignableDetUnit()
   delete theAlignmentPositionError;
   delete theSurfaceDeformation;
   delete theCachedSurfaceDeformation;
-  for (auto surface: surfaceDeformationsCache_) delete surface.second;
+  for (auto surface: surfaceDeformationsCache_) { delete surface.second; }
 }
 
 //__________________________________________________________________________________________________
@@ -95,10 +95,10 @@ void AlignableDetUnit::setAlignmentPositionError(const AlignmentPositionError& a
 						 bool /*propagateDown*/)
 {
 
-  if ( !theAlignmentPositionError ) 
+  if ( !theAlignmentPositionError ) { 
     theAlignmentPositionError = new AlignmentPositionError( ape );
-  else
-    *theAlignmentPositionError = ape;
+  } else {
+    *theAlignmentPositionError = ape; }
 
 }
 
@@ -108,10 +108,10 @@ void AlignableDetUnit::addAlignmentPositionError(const AlignmentPositionError& a
 						 bool propagateDown )
 {
 
-  if ( !theAlignmentPositionError )
+  if ( !theAlignmentPositionError ) {
     this->setAlignmentPositionError( ape, propagateDown ); // 2nd argument w/o effect
-  else 
-    *theAlignmentPositionError += ape;
+  } else { 
+    *theAlignmentPositionError += ape; }
 }
 
 
@@ -229,8 +229,8 @@ AlignmentErrorsExtended* AlignableDetUnit::alignmentErrors() const
   uint32_t detId = this->geomDetId().rawId();
  
   CLHEP::HepSymMatrix clhepSymMatrix(6,0);
-  if ( theAlignmentPositionError ) // Might not be set
-    clhepSymMatrix = asHepMatrix(theAlignmentPositionError->globalError().matrix());
+  if ( theAlignmentPositionError ) { // Might not be set
+    clhepSymMatrix = asHepMatrix(theAlignmentPositionError->globalError().matrix()); }
   
   AlignTransformErrorExtended transformError( clhepSymMatrix, detId );
   
@@ -264,8 +264,8 @@ void AlignableDetUnit::cacheTransformation()
     theCachedSurfaceDeformation = nullptr;
   }
 
-  if (theSurfaceDeformation)
-    theCachedSurfaceDeformation = theSurfaceDeformation->clone();
+  if (theSurfaceDeformation) {
+    theCachedSurfaceDeformation = theSurfaceDeformation->clone(); }
 }
 
 //__________________________________________________________________________________________________

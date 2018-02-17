@@ -58,7 +58,7 @@ void AlignableTrackerBuilder
   // now build the composite Alignables (Ladders, Layers etc.)
   buildAlignableComposites(update);
 
-  if (update) return;           // everything else not needed for the update
+  if (update) { return;           // everything else not needed for the update }
 
   // create pixel-detector
   buildPixelDetector(trackerAlignables);
@@ -126,12 +126,12 @@ void AlignableTrackerBuilder
   numDetUnits = 0;
 
   auto& alignables = alignableMap_->get(moduleName);
-  if (!update) alignables.reserve(geomDets.size());
+  if (!update) { alignables.reserve(geomDets.size()); }
 
   // units are added for each moduleName, which are at moduleName + "Unit"
   // in the pixel Module and ModuleUnit are equivalent
   auto & aliUnits = alignableMap_->get(moduleName+"Unit");
-  if (!update) aliUnits.reserve(geomDets.size()); // minimal number space needed
+  if (!update) { aliUnits.reserve(geomDets.size()); // minimal number space needed }
 
   for (auto& geomDet : geomDets) {
     int subdetId = geomDet->geographicalId().subdetId(); //don't check det()==Tracker

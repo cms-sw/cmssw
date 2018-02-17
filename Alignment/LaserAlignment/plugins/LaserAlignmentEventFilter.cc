@@ -64,12 +64,12 @@ bool LaserAlignmentEventFilter::filter(edm::StreamID sid, edm::Event& iEvent, co
     LogDebug("LaserAlignmentEventFilter") << "Examining FED " << *ifed;
 
     // check on FEDRawData pointer
-    if (not input.data())
-      continue;
+    if (not input.data()) {
+      continue; }
 
     // check on FEDRawData size
-    if (not input.size())
-      continue;
+    if (not input.size()) {
+      continue; }
 
     // construct FEDBuffer
     sistrip::FEDBuffer buffer(input.data(), input.size());
@@ -92,8 +92,8 @@ bool LaserAlignmentEventFilter::filter(edm::StreamID sid, edm::Event& iEvent, co
           << iconn->detId() << "\n"
           << "buffer.channel(iconn->fedCh()).size(): " << buffer.channel(iconn->fedCh()).length();
         //++det_ctr;
-        if (buffer.channel(iconn->fedCh()).length() > single_channel_thresh)
-          ++sig_ctr;
+        if (buffer.channel(iconn->fedCh()).length() > single_channel_thresh) {
+          ++sig_ctr; }
         //buffer_sum += buffer.channel(iconn->fedCh()).length();
         if (sig_ctr > channel_count_thresh){
           LogDebug("LaserAlignmentEventFilter") << "Event identified as LAS";

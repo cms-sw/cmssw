@@ -239,7 +239,7 @@ CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    edm::ESHandle<SiStripLatency> apvlat;
    iSetup.get<SiStripLatencyRcd>().get(apvlat);
 
-   if (!tracks->empty()) v_ntrk.push_back(tracks->size());
+   if (!tracks->empty()) { v_ntrk.push_back(tracks->size()); }
 
    ntrk	= 0;
    for(TrackCollection::const_iterator itTrack1 = tracks->begin(); itTrack1 != tracks->end(); ++itTrack1)
@@ -274,7 +274,7 @@ CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
          const DetId detId1((*iHit1)->geographicalId());
          const int subdetId1 = detId1.subdetId();
-         if (!(*iHit1)->isValid()) continue; // only real hits count as in itTrack1->numberOfValidHits()
+         if (!(*iHit1)->isValid()) { continue; // only real hits count as in itTrack1->numberOfValidHits() }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // 			 Hit information in PixelBarrel                          		 //

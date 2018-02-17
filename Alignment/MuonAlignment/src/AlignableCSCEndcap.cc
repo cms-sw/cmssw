@@ -37,8 +37,8 @@ AlignableCSCEndcap::AlignableCSCEndcap( const std::vector<AlignableCSCStation*>&
 AlignableCSCStation &AlignableCSCEndcap::station(int i) 
 {
   
-  if (i >= size() ) 
-	throw cms::Exception("LogicError") << "Station index (" << i << ") out of range";
+  if (i >= size() ) { 
+	throw cms::Exception("LogicError") << "Station index (" << i << ") out of range"; }
 
   return *theCSCStations[i];
   
@@ -63,8 +63,8 @@ AlignableCSCEndcap::PositionType AlignableCSCEndcap::computePosition()
   float zz = 0.;
 
   for ( std::vector<AlignableCSCStation*>::iterator ilayer = theCSCStations.begin();
-		ilayer != theCSCStations.end(); ilayer++ )
-    zz += (*ilayer)->globalPosition().z();
+		ilayer != theCSCStations.end(); ilayer++ ) {
+    zz += (*ilayer)->globalPosition().z(); }
 
   zz /= static_cast<float>(theCSCStations.size());
 
@@ -99,8 +99,8 @@ void AlignableCSCEndcap::dump( void ) const
 
   edm::LogInfo("AlignableDump") << (*this);
   for ( std::vector<AlignableCSCStation*>::const_iterator iLayer = theCSCStations.begin();
-		iLayer != theCSCStations.end(); iLayer++ )
-	(*iLayer)->dump();
+		iLayer != theCSCStations.end(); iLayer++ ) {
+	(*iLayer)->dump(); }
 
 }
 

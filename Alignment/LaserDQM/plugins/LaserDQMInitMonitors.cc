@@ -1069,7 +1069,7 @@ void LaserDQM::initMonitors()
   theMEBeam7TIBPosition6AdcCounts->setResetMe(true);
 
   // show directory structure
-  if (theDebugLevel > 3)
-    theDaqMonitorBEI->showDirStructure();
+  if (theDebugLevel > 3) {
+    theDaqMonitorBEI->showDirStructure(); }
 
 }

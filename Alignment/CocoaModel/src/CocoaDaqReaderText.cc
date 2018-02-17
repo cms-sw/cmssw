@@ -12,7 +12,8 @@ using namespace std;
 CocoaDaqReaderText::CocoaDaqReaderText(const std::string& fileName )
 {
 
- if(ALIUtils::debug >= 5) std::cout << " CocoaDaqReaderText::CocoaDaqReaderText from file " << fileName << std::endl;
+ if(ALIUtils::debug >= 5) { std::cout << " CocoaDaqReaderText::CocoaDaqReaderText from file " << fileName << std::endl;
+}
 
   CocoaDaqReader::SetDaqReader( this );
 
@@ -34,7 +35,8 @@ bool CocoaDaqReaderText::ReadNextEvent()
   // std::cout << "@@@@@@@@@@@@@@@ RETFIL " << retfil << std::endl;
   //if( retfil == 0 ) {
   if( theFilein.getWordsInLine(wordlist) == 0 ) {
-    if(ALIUtils::debug>=4 ) std::cout << "@@@@ No more measurements left" << std::endl;
+    if(ALIUtils::debug>=4 ) { std::cout << "@@@@ No more measurements left" << std::endl;
+}
     return false; 
   }
 

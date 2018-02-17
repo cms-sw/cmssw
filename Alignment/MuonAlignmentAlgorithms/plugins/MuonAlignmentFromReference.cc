@@ -232,7 +232,7 @@ class MuonAlignmentFromReference : public AlignmentAlgorithmBase
     }
 
     m_ttree = nullptr;
-    if (m_createNtuple) bookNtuple();
+    if (m_createNtuple) { bookNtuple(); }
 
     m_counter_events = 0;
     m_counter_tracks = 0;
@@ -302,7 +302,7 @@ bool MuonAlignmentFromReference::numeric(std::string s)
 
 int MuonAlignmentFromReference::number(std::string s)
 {
-    if (!numeric(s)) assert(false);
+    if (!numeric(s)) { assert(false); }
     return atoi(s.c_str());
 }
 
@@ -313,29 +313,29 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup,
         AlignableExtras* extras,
         AlignmentParameterStore* alignmentParameterStore)
 {
-    if (alignableMuon == nullptr)
-        throw cms::Exception("MuonAlignmentFromReference") << "doMuon must be set to True" << std::endl;
+    if (alignableMuon == nullptr) {
+        throw cms::Exception("MuonAlignmentFromReference") << "doMuon must be set to True" << std::endl; }
 
     m_alignableNavigator = new AlignableNavigator(alignableMuon);
     m_alignmentParameterStore = alignmentParameterStore;
     m_alignables = m_alignmentParameterStore->alignables();
 
     int residualsModel;
-    if      (m_residualsModel == std::string("pureGaussian"))    residualsModel = MuonResidualsFitter::kPureGaussian;
-    else if (m_residualsModel == std::string("pureGaussian2D"))  residualsModel = MuonResidualsFitter::kPureGaussian2D;
-    else if (m_residualsModel == std::string("powerLawTails"))   residualsModel = MuonResidualsFitter::kPowerLawTails;
-    else if (m_residualsModel == std::string("ROOTVoigt"))       residualsModel = MuonResidualsFitter::kROOTVoigt;
-    else if (m_residualsModel == std::string("GaussPowerTails")) residualsModel = MuonResidualsFitter::kGaussPowerTails;
-    else throw cms::Exception("MuonAlignmentFromReference") << "unrecognized residualsModel: \"" << m_residualsModel << "\"" << std::endl;
+    if      (m_residualsModel == std::string("pureGaussian")) {    residualsModel = MuonResidualsFitter::kPureGaussian;
+    } else if (m_residualsModel == std::string("pureGaussian2D")) {  residualsModel = MuonResidualsFitter::kPureGaussian2D;
+    } else if (m_residualsModel == std::string("powerLawTails")) {   residualsModel = MuonResidualsFitter::kPowerLawTails;
+    } else if (m_residualsModel == std::string("ROOTVoigt")) {       residualsModel = MuonResidualsFitter::kROOTVoigt;
+    } else if (m_residualsModel == std::string("GaussPowerTails")) { residualsModel = MuonResidualsFitter::kGaussPowerTails;
+    } else { throw cms::Exception("MuonAlignmentFromReference") << "unrecognized residualsModel: \"" << m_residualsModel << "\"" << std::endl; }
 
     int useResiduals;
-    if      (m_useResiduals == std::string("1111")) useResiduals = MuonResidualsFitter::k1111;
-    else if (m_useResiduals == std::string("1110")) useResiduals = MuonResidualsFitter::k1110;
-    else if (m_useResiduals == std::string("1100")) useResiduals = MuonResidualsFitter::k1100;
-    else if (m_useResiduals == std::string("1000")) useResiduals = MuonResidualsFitter::k1000;
-    else if (m_useResiduals == std::string("1010")) useResiduals = MuonResidualsFitter::k1010;
-    else if (m_useResiduals == std::string("0010")) useResiduals = MuonResidualsFitter::k0010;
-    else throw cms::Exception("MuonAlignmentFromReference") << "unrecognized useResiduals: \"" << m_useResiduals << "\"" << std::endl;
+    if      (m_useResiduals == std::string("1111")) { useResiduals = MuonResidualsFitter::k1111;
+    } else if (m_useResiduals == std::string("1110")) { useResiduals = MuonResidualsFitter::k1110;
+    } else if (m_useResiduals == std::string("1100")) { useResiduals = MuonResidualsFitter::k1100;
+    } else if (m_useResiduals == std::string("1000")) { useResiduals = MuonResidualsFitter::k1000;
+    } else if (m_useResiduals == std::string("1010")) { useResiduals = MuonResidualsFitter::k1010;
+    } else if (m_useResiduals == std::string("0010")) { useResiduals = MuonResidualsFitter::k0010;
+    } else { throw cms::Exception("MuonAlignmentFromReference") << "unrecognized useResiduals: \"" << m_useResiduals << "\"" << std::endl; }
 
     edm::ESHandle<CSCGeometry> cscGeometry;
     iSetup.get<MuonGeometryRecord>().get(cscGeometry);
@@ -422,7 +422,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup,
     const auto& all_DT_chambers = alignableMuon->DTChambers();
     const auto& all_CSC_chambers = alignableMuon->CSCChambers();
     align::Alignables reference;
-    if (!m_reference.empty()) parseReference(reference, all_DT_chambers, all_CSC_chambers);
+    if (!m_reference.empty()) { parseReference(reference, all_DT_chambers, all_CSC_chambers); }
 
     alignmentParameterStore->setAlignmentPositionError(all_DT_chambers, 100000000., 0.);
     alignmentParameterStore->setAlignmentPositionError(all_CSC_chambers, 100000000., 0.);
@@ -431,7 +431,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup,
 
 void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventInfo &eventInfo)
 {
-    if (m_debug) std::cout << "****** EVENT START *******" << std::endl;
+    if (m_debug) { std::cout << "****** EVENT START *******" << std::endl; }
     m_counter_events++;
 
     edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
@@ -449,7 +449,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
 
     if (m_muonCollectionTag.label().empty()) // use trajectories
     {
-        if (m_debug) std::cout << "JUST BEFORE LOOP OVER trajTrackPairs" << std::endl;
+        if (m_debug) { std::cout << "JUST BEFORE LOOP OVER trajTrackPairs" << std::endl; }
         // const ConstTrajTrackPairCollection &trajtracks = eventInfo.trajTrackPairs_; // trajTrackPairs_ now private
         const ConstTrajTrackPairCollection& trajtracks = eventInfo.trajTrackPairs();
 
@@ -467,17 +467,17 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
                 if ( fabs(track->dxy(eventInfo.beamSpot().position())) < m_maxDxy )
                 {
                     m_counter_trackdxy++;
-                    if (m_debug) std::cout << "JUST BEFORE muonResidualsFromTrack" << std::endl;
+                    if (m_debug) { std::cout << "JUST BEFORE muonResidualsFromTrack" << std::endl; }
                     MuonResidualsFromTrack muonResidualsFromTrack(iSetup, magneticField, globalGeometry, muonDetIdAssociator_, prop, traj, track, m_alignableNavigator, 1000.);
-                    if (m_debug) std::cout << "JUST AFTER muonResidualsFromTrack" << std::endl;
+                    if (m_debug) { std::cout << "JUST AFTER muonResidualsFromTrack" << std::endl; }
 
-                    if (m_debug) std::cout << "JUST BEFORE PROCESS" << std::endl;
+                    if (m_debug) { std::cout << "JUST BEFORE PROCESS" << std::endl; }
                     processMuonResidualsFromTrack(muonResidualsFromTrack);
-                    if (m_debug) std::cout << "JUST AFTER PROCESS" << std::endl;
+                    if (m_debug) { std::cout << "JUST AFTER PROCESS" << std::endl; }
                 }
             } // end if track p is within range
         } // end if track pT is within range
-        if (m_debug) std::cout << "JUST AFTER LOOP OVER trajTrackPairs" << std::endl;
+        if (m_debug) { std::cout << "JUST AFTER LOOP OVER trajTrackPairs" << std::endl; }
 
     }
     else // use muons
@@ -538,7 +538,7 @@ void MuonAlignmentFromReference::processMuonResidualsFromTrack(MuonResidualsFrom
 
                     for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin();  chamberId != chamberIds.end();  ++chamberId)
                     {
-                        if (chamberId->det() != DetId::Muon) continue;
+                        if (chamberId->det() != DetId::Muon) { continue; }
                         m_counter_totchambers++;
 
                         // DT station 1,2,3
@@ -673,7 +673,7 @@ void MuonAlignmentFromReference::processMuonResidualsFromTrack(MuonResidualsFrom
                                     Alignable *ali = csc->chamberAlignable();
 
                                     CSCDetId id(ali->geomDetId().rawId());
-                                    if (m_combineME11  &&  id.station() == 1  &&  id.ring() == 4)  ali = m_me11map[ali];
+                                    if (m_combineME11  &&  id.station() == 1  &&  id.ring() == 4) {  ali = m_me11map[ali]; }
 
                                     std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(ali);
                                     if (fitter != m_fitters.end())
@@ -707,7 +707,7 @@ void MuonAlignmentFromReference::processMuonResidualsFromTrack(MuonResidualsFrom
                             }
                         } // end CSC
 
-                        else if (m_doDT && m_doCSC) assert(false);
+                        else if (m_doDT && m_doCSC) { assert(false); }
 
                     } // end loop over chamberIds
                 } // # crossed muon chambers ok
@@ -755,7 +755,7 @@ void MuonAlignmentFromReference::terminate(const edm::EventSetup& iSetup)
     {
         stop_watch.Start();
         readTmpFiles();
-        if (m_debug) std::cout <<"readTmpFiles took "<< stop_watch.CpuTime() << " sec" << std::endl;
+        if (m_debug) { std::cout <<"readTmpFiles took "<< stop_watch.CpuTime() << " sec" << std::endl; }
         stop_watch.Stop();
     }
 
@@ -764,7 +764,7 @@ void MuonAlignmentFromReference::terminate(const edm::EventSetup& iSetup)
     {
         stop_watch.Start();
         selectResidualsPeaks();
-        if (m_debug) std::cout <<"selectResidualsPeaks took "<< stop_watch.CpuTime() << " sec" << std::endl;
+        if (m_debug) { std::cout <<"selectResidualsPeaks took "<< stop_watch.CpuTime() << " sec" << std::endl; }
         stop_watch.Stop();
     }
 
@@ -772,7 +772,7 @@ void MuonAlignmentFromReference::terminate(const edm::EventSetup& iSetup)
     {
         stop_watch.Start();
         correctBField();
-        if (m_debug) std::cout <<"correctBField took "<< stop_watch.CpuTime() << " sec" << std::endl;
+        if (m_debug) { std::cout <<"correctBField took "<< stop_watch.CpuTime() << " sec" << std::endl; }
         stop_watch.Stop();
     }
 
@@ -780,7 +780,7 @@ void MuonAlignmentFromReference::terminate(const edm::EventSetup& iSetup)
     {
         stop_watch.Start();
         fiducialCuts();
-        if (m_debug) std::cout <<"fiducialCuts took "<< stop_watch.CpuTime() << " sec" << std::endl;
+        if (m_debug) { std::cout <<"fiducialCuts took "<< stop_watch.CpuTime() << " sec" << std::endl; }
         stop_watch.Stop();
     }
 
@@ -789,7 +789,7 @@ void MuonAlignmentFromReference::terminate(const edm::EventSetup& iSetup)
     {
         stop_watch.Start();
         fillNtuple();
-        if (m_debug) std::cout <<"fillNtuple took "<< stop_watch.CpuTime() << " sec" << std::endl;
+        if (m_debug) { std::cout <<"fillNtuple took "<< stop_watch.CpuTime() << " sec" << std::endl; }
         stop_watch.Stop();
     }
 
@@ -797,7 +797,7 @@ void MuonAlignmentFromReference::terminate(const edm::EventSetup& iSetup)
     {
         stop_watch.Start();
         eraseNotSelectedResiduals();
-        if (m_debug) std::cout <<"eraseNotSelectedResiduals took "<< stop_watch.CpuTime() << " sec" << std::endl;
+        if (m_debug) { std::cout <<"eraseNotSelectedResiduals took "<< stop_watch.CpuTime() << " sec" << std::endl; }
         stop_watch.Stop();
     }
 
@@ -806,13 +806,13 @@ void MuonAlignmentFromReference::terminate(const edm::EventSetup& iSetup)
     {
         stop_watch.Start();
         fitAndAlign();
-        if (m_debug) std::cout <<"fitAndAlign took "<< stop_watch.CpuTime() << " sec" << std::endl;
+        if (m_debug) { std::cout <<"fitAndAlign took "<< stop_watch.CpuTime() << " sec" << std::endl; }
         stop_watch.Stop();
     }
 
     // write out the pseudontuples for a later job to collect
-    if (m_writeTemporaryFile != std::string("")) writeTmpFiles();
-    if (m_debug) std::cout << "end: MuonAlignmentFromReference::terminate()" << std::endl;
+    if (m_writeTemporaryFile != std::string("")) { writeTmpFiles(); }
+    if (m_debug) { std::cout << "end: MuonAlignmentFromReference::terminate()" << std::endl; }
 }
 
 
@@ -860,11 +860,11 @@ void MuonAlignmentFromReference::fitAndAlign()
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         << std::endl;
     }
 
-    if (m_debug) std::cout << "***** just after report.open" << std::endl;
+    if (m_debug) { std::cout << "***** just after report.open" << std::endl; }
 
     for (const auto& ali: m_alignables)
     {
-        if (m_debug) std::cout << "***** Start loop over alignables" << std::endl;
+        if (m_debug) { std::cout << "***** Start loop over alignables" << std::endl; }
 
         std::vector<bool> selector = ali->alignmentParameters()->selector();
         bool align_x = selector[0];
@@ -878,17 +878,17 @@ void MuonAlignmentFromReference::fitAndAlign()
         // map from 0-5 to the index of params, above
         std::vector<int> paramIndex;
         int paramIndex_counter = -1;
-        if (align_x) paramIndex_counter++;
+        if (align_x) { paramIndex_counter++; }
         paramIndex.push_back(paramIndex_counter);
-        if (align_y) paramIndex_counter++;
+        if (align_y) { paramIndex_counter++; }
         paramIndex.push_back(paramIndex_counter);
-        if (align_z) paramIndex_counter++;
+        if (align_z) { paramIndex_counter++; }
         paramIndex.push_back(paramIndex_counter);
-        if (align_phix) paramIndex_counter++;
+        if (align_phix) { paramIndex_counter++; }
         paramIndex.push_back(paramIndex_counter);
-        if (align_phiy) paramIndex_counter++;
+        if (align_phiy) { paramIndex_counter++; }
         paramIndex.push_back(paramIndex_counter);
-        if (align_phiz) paramIndex_counter++;
+        if (align_phiz) { paramIndex_counter++; }
         paramIndex.push_back(paramIndex_counter);
 
         DetId id = ali->geomDetId();
@@ -897,10 +897,10 @@ void MuonAlignmentFromReference::fitAndAlign()
         if (m_combineME11 && id.subdetId() == MuonSubdetId::CSC)
         {
             CSCDetId cscid(id.rawId());
-            if (cscid.station() == 1 && cscid.ring() == 4)   thisali = m_me11map[ali];
+            if (cscid.station() == 1 && cscid.ring() == 4) {   thisali = m_me11map[ali]; }
         }
 
-        if (m_debug) std::cout << "***** loop over alignables 1" << std::endl;
+        if (m_debug) { std::cout << "***** loop over alignables 1" << std::endl; }
 
         char cname[40];
         char wheel_label[][2]={"A","B","C","D","E"};
@@ -933,13 +933,13 @@ void MuonAlignmentFromReference::fitAndAlign()
             }
         }
 
-        if (m_debug) std::cout << "***** loop over alignables 2" << std::endl;
+        if (m_debug) { std::cout << "***** loop over alignables 2" << std::endl; }
 
         //if(! ( strcmp(cname,"MBwhCst3sec12")==0 || strcmp(cname,"MBwhCst3sec06")==0)) continue;
 
         std::map<Alignable*, MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(thisali);
 
-        if (m_debug) std::cout << "***** loop over alignables 3" << std::endl;
+        if (m_debug) { std::cout << "***** loop over alignables 3" << std::endl; }
 
         if (fitter != m_fitters.end())
         {
@@ -949,8 +949,8 @@ void MuonAlignmentFromReference::fitAndAlign()
             stop_watch.Start();
 
             // MINUIT is verbose in std::cout anyway
-            if (m_debug) std::cout << "=============================================================================================" << std::endl;
-            if (m_debug) std::cout << "Fitting " << cname << std::endl;
+            if (m_debug) { std::cout << "=============================================================================================" << std::endl; }
+            if (m_debug) { std::cout << "Fitting " << cname << std::endl; }
 
             if (writeReport)
             {
@@ -960,33 +960,33 @@ void MuonAlignmentFromReference::fitAndAlign()
 
             if (fitter->second->type() == MuonResidualsFitter::k5DOF)
             {
-                if (!align_x) fitter->second->fix(MuonResiduals5DOFFitter::kAlignX);
-                if (!align_z) fitter->second->fix(MuonResiduals5DOFFitter::kAlignZ);
-                if (!align_phix) fitter->second->fix(MuonResiduals5DOFFitter::kAlignPhiX);
-                if (!align_phiy) fitter->second->fix(MuonResiduals5DOFFitter::kAlignPhiY);
-                if (!align_phiz) fitter->second->fix(MuonResiduals5DOFFitter::kAlignPhiZ);
+                if (!align_x) { fitter->second->fix(MuonResiduals5DOFFitter::kAlignX); }
+                if (!align_z) { fitter->second->fix(MuonResiduals5DOFFitter::kAlignZ); }
+                if (!align_phix) { fitter->second->fix(MuonResiduals5DOFFitter::kAlignPhiX); }
+                if (!align_phiy) { fitter->second->fix(MuonResiduals5DOFFitter::kAlignPhiY); }
+                if (!align_phiz) { fitter->second->fix(MuonResiduals5DOFFitter::kAlignPhiZ); }
             }
             else if (fitter->second->type() == MuonResidualsFitter::k6DOF)
             {
-                if (!align_x) fitter->second->fix(MuonResiduals6DOFFitter::kAlignX);
-                if (!align_y) fitter->second->fix(MuonResiduals6DOFFitter::kAlignY);
-                if (!align_z) fitter->second->fix(MuonResiduals6DOFFitter::kAlignZ);
-                if (!align_phix) fitter->second->fix(MuonResiduals6DOFFitter::kAlignPhiX);
-                if (!align_phiy) fitter->second->fix(MuonResiduals6DOFFitter::kAlignPhiY);
-                if (!align_phiz) fitter->second->fix(MuonResiduals6DOFFitter::kAlignPhiZ);
+                if (!align_x) { fitter->second->fix(MuonResiduals6DOFFitter::kAlignX); }
+                if (!align_y) { fitter->second->fix(MuonResiduals6DOFFitter::kAlignY); }
+                if (!align_z) { fitter->second->fix(MuonResiduals6DOFFitter::kAlignZ); }
+                if (!align_phix) { fitter->second->fix(MuonResiduals6DOFFitter::kAlignPhiX); }
+                if (!align_phiy) { fitter->second->fix(MuonResiduals6DOFFitter::kAlignPhiY); }
+                if (!align_phiz) { fitter->second->fix(MuonResiduals6DOFFitter::kAlignPhiZ); }
             }
             else if (fitter->second->type() == MuonResidualsFitter::k6DOFrphi)
             {
-                if (!align_x) fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignX);
-                if (!align_y) fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignY);
-                if (!align_z) fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignZ);
-                if (!align_phix) fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignPhiX);
-                if (!align_phiy) fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignPhiY);
-                if (!align_phiz) fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignPhiZ);
+                if (!align_x) { fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignX); }
+                if (!align_y) { fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignY); }
+                if (!align_z) { fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignZ); }
+                if (!align_phix) { fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignPhiX); }
+                if (!align_phiy) { fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignPhiY); }
+                if (!align_phiz) { fitter->second->fix(MuonResiduals6DOFrphiFitter::kAlignPhiZ); }
             }
-            else  assert(false);
+            else {  assert(false); }
 
-            if (m_debug) std::cout << "***** loop over alignables 4" << std::endl;
+            if (m_debug) { std::cout << "***** loop over alignables 4" << std::endl; }
 
             AlgebraicVector params(numParams);
             AlgebraicSymMatrix cov(numParams);
@@ -994,11 +994,11 @@ void MuonAlignmentFromReference::fitAndAlign()
             if (fitter->second->numsegments() >= m_minAlignmentHits)
             {
 
-                if (m_debug) std::cout << "***** loop over alignables 5" << std::endl;
+                if (m_debug) { std::cout << "***** loop over alignables 5" << std::endl; }
 
                 bool successful_fit = fitter->second->fit(thisali);
 
-                if (m_debug) std::cout << "***** loop over alignables 6 " << fitter->second->type() << std::endl;
+                if (m_debug) { std::cout << "***** loop over alignables 6 " << fitter->second->type() << std::endl; }
 
                 double loglikelihood = fitter->second->loglikelihood();
                 double numsegments = fitter->second->numsegments();
@@ -1007,7 +1007,7 @@ void MuonAlignmentFromReference::fitAndAlign()
 
                 if (fitter->second->type() == MuonResidualsFitter::k5DOF)
                 {
-                    if (m_debug) std::cout << "***** loop over alignables k5DOF" << std::endl;
+                    if (m_debug) { std::cout << "***** loop over alignables k5DOF" << std::endl; }
 
                     double deltax_value = fitter->second->value(MuonResiduals5DOFFitter::kAlignX);
                     double deltax_error = fitter->second->errorerror(MuonResiduals5DOFFitter::kAlignX);
@@ -1103,17 +1103,17 @@ void MuonAlignmentFromReference::fitAndAlign()
 
                     if (successful_fit)
                     {
-                        if (align_x) params[paramIndex[0]] = deltax_value;
-                        if (align_z) params[paramIndex[2]] = deltaz_value;
-                        if (align_phix) params[paramIndex[3]] = deltaphix_value;
-                        if (align_phiy) params[paramIndex[4]] = deltaphiy_value;
-                        if (align_phiz) params[paramIndex[5]] = deltaphiz_value;
+                        if (align_x) { params[paramIndex[0]] = deltax_value; }
+                        if (align_z) { params[paramIndex[2]] = deltaz_value; }
+                        if (align_phix) { params[paramIndex[3]] = deltaphix_value; }
+                        if (align_phiy) { params[paramIndex[4]] = deltaphiy_value; }
+                        if (align_phiz) { params[paramIndex[5]] = deltaphiz_value; }
                     }
                 } // end if 5DOF
 
                 else if (fitter->second->type() == MuonResidualsFitter::k6DOF)
                 {
-                    if (m_debug) std::cout << "***** loop over alignables k6DOF" << std::endl;
+                    if (m_debug) { std::cout << "***** loop over alignables k6DOF" << std::endl; }
 
                     double deltax_value = fitter->second->value(MuonResiduals6DOFFitter::kAlignX);
                     double deltax_error = fitter->second->errorerror(MuonResiduals6DOFFitter::kAlignX);
@@ -1258,18 +1258,18 @@ void MuonAlignmentFromReference::fitAndAlign()
 
                     if (successful_fit)
                     {
-                        if (align_x) params[paramIndex[0]] = deltax_value;
-                        if (align_y) params[paramIndex[1]] = deltay_value;
-                        if (align_z) params[paramIndex[2]] = deltaz_value;
-                        if (align_phix) params[paramIndex[3]] = deltaphix_value;
-                        if (align_phiy) params[paramIndex[4]] = deltaphiy_value;
-                        if (align_phiz) params[paramIndex[5]] = deltaphiz_value;
+                        if (align_x) { params[paramIndex[0]] = deltax_value; }
+                        if (align_y) { params[paramIndex[1]] = deltay_value; }
+                        if (align_z) { params[paramIndex[2]] = deltaz_value; }
+                        if (align_phix) { params[paramIndex[3]] = deltaphix_value; }
+                        if (align_phiy) { params[paramIndex[4]] = deltaphiy_value; }
+                        if (align_phiz) { params[paramIndex[5]] = deltaphiz_value; }
                     }
                 } // end if 6DOF
 
                 else if (fitter->second->type() == MuonResidualsFitter::k6DOFrphi)
                 {
-                    if (m_debug) std::cout << "***** loop over alignables k6DOFrphi" << std::endl;
+                    if (m_debug) { std::cout << "***** loop over alignables k6DOFrphi" << std::endl; }
 
                     double deltax_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kAlignX);
                     double deltax_error = fitter->second->errorerror(MuonResiduals6DOFrphiFitter::kAlignX);
@@ -1368,12 +1368,12 @@ void MuonAlignmentFromReference::fitAndAlign()
 
                     if (successful_fit)
                     {
-                        if (align_x) params[paramIndex[0]] = deltax_value;
-                        if (align_y) params[paramIndex[1]] = deltay_value;
-                        if (align_z) params[paramIndex[2]] = deltaz_value;
-                        if (align_phix) params[paramIndex[3]] = deltaphix_value;
-                        if (align_phiy) params[paramIndex[4]] = deltaphiy_value;
-                        if (align_phiz) params[paramIndex[5]] = deltaphiz_value;
+                        if (align_x) { params[paramIndex[0]] = deltax_value; }
+                        if (align_y) { params[paramIndex[1]] = deltay_value; }
+                        if (align_z) { params[paramIndex[2]] = deltaz_value; }
+                        if (align_phix) { params[paramIndex[3]] = deltaphix_value; }
+                        if (align_phiy) { params[paramIndex[4]] = deltaphiy_value; }
+                        if (align_phiz) { params[paramIndex[5]] = deltaphiz_value; }
                     }
                 } // end if 6DOFrphi
 
@@ -1381,38 +1381,38 @@ void MuonAlignmentFromReference::fitAndAlign()
                 {
                     align::Alignables oneortwo;
                     oneortwo.push_back(ali);
-                    if (thisali != ali) oneortwo.push_back(thisali);
+                    if (thisali != ali) { oneortwo.push_back(thisali); }
                     m_alignmentParameterStore->setAlignmentPositionError(oneortwo, 0., 0.);
                 }
                 else
                 {
-                    if (m_debug) std::cout << "MINUIT fit failed!" << std::endl;
+                    if (m_debug) { std::cout << "MINUIT fit failed!" << std::endl; }
                     if (writeReport)
                     {
                         report << "reports[-1].status = \"MINUITFAIL\"" << std::endl;
                     }
 
-                    for (int i = 0; i < numParams; i++)  cov[i][i] = 1000.;
+                    for (int i = 0; i < numParams; i++) {  cov[i][i] = 1000.; }
 
                     align::Alignables oneortwo;
                     oneortwo.push_back(ali);
-                    if (thisali != ali) oneortwo.push_back(thisali);
+                    if (thisali != ali) { oneortwo.push_back(thisali); }
                     m_alignmentParameterStore->setAlignmentPositionError(oneortwo, 1000., 0.);
                 }
             }
             else
             { // too few hits
-                if (m_debug) std::cout << "Too few hits!" << std::endl;
+                if (m_debug) { std::cout << "Too few hits!" << std::endl; }
                 if (writeReport)
                 {
                     report << "reports[-1].status = \"TOOFEWHITS\"" << std::endl;
                 }
 
-                for (int i = 0; i < numParams; i++)  cov[i][i] = 1000.;
+                for (int i = 0; i < numParams; i++) {  cov[i][i] = 1000.; }
 
                 align::Alignables oneortwo;
                 oneortwo.push_back(ali);
-                if (thisali != ali) oneortwo.push_back(thisali);
+                if (thisali != ali) { oneortwo.push_back(thisali); }
                 m_alignmentParameterStore->setAlignmentPositionError(oneortwo, 1000., 0.);
             }
 
@@ -1421,14 +1421,14 @@ void MuonAlignmentFromReference::fitAndAlign()
             m_alignmentParameterStore->applyParameters(ali);
             ali->alignmentParameters()->setValid(true);
 
-            if (m_debug) std::cout << cname<<" fittime= "<< stop_watch.CpuTime() << " sec" << std::endl;
+            if (m_debug) { std::cout << cname<<" fittime= "<< stop_watch.CpuTime() << " sec" << std::endl; }
         } // end we have a fitter for this alignable
 
-        if (writeReport) report << std::endl;
+        if (writeReport) { report << std::endl; }
 
     } // end loop over alignables
 
-    if (writeReport) report.close();
+    if (writeReport) { report.close(); }
 }
 
 
@@ -1439,13 +1439,13 @@ void MuonAlignmentFromReference::readTmpFiles()
         FILE *file;
         int size;
         file = fopen( (*fileName).c_str(), "r");
-        if (file == nullptr)
-            throw cms::Exception("MuonAlignmentFromReference") << "file \"" << *fileName << "\" can't be opened (doesn't exist?)" << std::endl;
+        if (file == nullptr) {
+            throw cms::Exception("MuonAlignmentFromReference") << "file \"" << *fileName << "\" can't be opened (doesn't exist?)" << std::endl; }
 
         fread(&size, sizeof(int), 1, file);
-        if (int(m_indexes.size()) != size)
+        if (int(m_indexes.size()) != size) {
             throw cms::Exception("MuonAlignmentFromReference") << "file \"" << *fileName << "\" has " << size
-                << " fitters, but this job has " << m_indexes.size() << " fitters (probably corresponds to the wrong alignment job)" << std::endl;
+                << " fitters, but this job has " << m_indexes.size() << " fitters (probably corresponds to the wrong alignment job)" << std::endl; }
 
         int i = 0;
         for (std::vector<unsigned int>::const_iterator index = m_indexes.begin();  index != m_indexes.end();  ++index, ++i)
@@ -1453,9 +1453,9 @@ void MuonAlignmentFromReference::readTmpFiles()
             MuonResidualsTwoBin *fitter = m_fitterOrder[*index];
             unsigned int index_toread;
             fread(&index_toread, sizeof(unsigned int), 1, file);
-            if (*index != index_toread)
+            if (*index != index_toread) {
                 throw cms::Exception("MuonAlignmentFromReference") << "file \"" << *fileName << "\" has index " << index_toread
-                    << " at position " << i << ", but this job is expecting " << *index << " (probably corresponds to the wrong alignment job)" << std::endl;
+                    << " at position " << i << ", but this job is expecting " << *index << " (probably corresponds to the wrong alignment job)" << std::endl; }
             fitter->read(file, i);
         }
 
@@ -1489,7 +1489,7 @@ void MuonAlignmentFromReference::correctBField()
 
     for (std::vector<unsigned int>::const_iterator index = m_indexes.begin();  index != m_indexes.end();  ++index)
     {
-        if (m_debug) std::cout<<"correcting B in "<<chamberPrettyNameFromId(*index)<<std::endl;
+        if (m_debug) { std::cout<<"correcting B in "<<chamberPrettyNameFromId(*index)<<std::endl; }
         MuonResidualsTwoBin *fitter = m_fitterOrder[*index];
         fitter->correctBField();
     }
@@ -1499,7 +1499,7 @@ void MuonAlignmentFromReference::fiducialCuts()
 {
     for (std::vector<unsigned int>::const_iterator index = m_indexes.begin();  index != m_indexes.end();  ++index)
     {
-        if (m_debug) std::cout<<"applying fiducial cuts in "<<chamberPrettyNameFromId(*index)<<std::endl;
+        if (m_debug) { std::cout<<"applying fiducial cuts in "<<chamberPrettyNameFromId(*index)<<std::endl; }
         MuonResidualsTwoBin *fitter = m_fitterOrder[*index];
         fitter->fiducialCuts();
     }
@@ -1509,7 +1509,7 @@ void MuonAlignmentFromReference::eraseNotSelectedResiduals()
 {
     for (std::vector<unsigned int>::const_iterator index = m_indexes.begin();  index != m_indexes.end();  ++index)
     {
-        if (m_debug) std::cout<<"erasing in "<<chamberPrettyNameFromId(*index)<<std::endl;
+        if (m_debug) { std::cout<<"erasing in "<<chamberPrettyNameFromId(*index)<<std::endl; }
         MuonResidualsTwoBin *fitter = m_fitterOrder[*index];
         fitter->eraseNotSelectedResiduals();
     }
@@ -1589,9 +1589,9 @@ void MuonAlignmentFromReference::selectResidualsPeaks()
                 vars_index[0] = MuonResiduals6DOFrphiFitter::kResSlope;
             }
         }
-        else assert(false);
+        else { assert(false); }
 
-        if (m_debug) std::cout<<"selecting in "<<chamberPrettyNameFromId(*index)<<std::endl;
+        if (m_debug) { std::cout<<"selecting in "<<chamberPrettyNameFromId(*index)<<std::endl; }
 
         fitter->selectPeakResiduals(m_peakNSigma, nvar, vars_index);
     }
@@ -1623,7 +1623,7 @@ void MuonAlignmentFromReference::fillNtuple()
     for (std::vector<unsigned int>::const_iterator index = m_indexes.begin();  index != m_indexes.end();  ++index)
     {
         DetId detid(*index);
-        if (detid.det() != DetId::Muon || !( detid.subdetId() == MuonSubdetId::DT || detid.subdetId() == MuonSubdetId::CSC) ) assert(false);
+        if (detid.det() != DetId::Muon || !( detid.subdetId() == MuonSubdetId::DT || detid.subdetId() == MuonSubdetId::CSC) ) { assert(false); }
 
         if(detid.subdetId() == MuonSubdetId::DT)
         {
@@ -1680,7 +1680,7 @@ void MuonAlignmentFromReference::fillNtuple()
                 m_tree_row.q           = (Char_t) (*residual)[MuonResiduals6DOFFitter::kCharge];
                 m_tree_row.select      = (Bool_t) *residual_ok;
             }
-            else assert(false);
+            else { assert(false); }
 
             m_ttree->Fill();
         }
@@ -1699,12 +1699,12 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
 
         bool barrel = (name->substr(0, 2) == std::string("MB"));
         bool endcap = (name->substr(0, 2) == std::string("ME"));
-        if (!barrel  &&  !endcap) parsing_error = true;
+        if (!barrel  &&  !endcap) { parsing_error = true; }
 
         if (!parsing_error  &&  barrel)
         {
             int index = 2;
-            if (name->substr(index, 1) == std::string(" "))  index++;
+            if (name->substr(index, 1) == std::string(" ")) {  index++; }
 
             bool plus = true;
             if (name->substr(index, 1) == std::string("+"))
@@ -1718,7 +1718,7 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
                 index++;
             }
             else if (numeric(name->substr(index, 1))) {}
-            else parsing_error = true;
+            else { parsing_error = true; }
 
             int wheel = 0;
             bool wheel_digit = false;
@@ -1729,10 +1729,10 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
                 wheel_digit = true;
                 index++;
             }
-            if (!plus) wheel *= -1;
-            if (!wheel_digit) parsing_error = true;
+            if (!plus) { wheel *= -1; }
+            if (!wheel_digit) { parsing_error = true; }
 
-            if (name->substr(index, 1) != std::string(" ")) parsing_error = true;
+            if (name->substr(index, 1) != std::string(" ")) { parsing_error = true; }
             index++;
 
             int station = 0;
@@ -1744,9 +1744,9 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
                 station_digit = true;
                 index++;
             }
-            if (!station_digit) parsing_error = true;
+            if (!station_digit) { parsing_error = true; }
 
-            if (name->substr(index, 1) != std::string(" ")) parsing_error = true;
+            if (name->substr(index, 1) != std::string(" ")) { parsing_error = true; }
             index++;
 
             int sector = 0;
@@ -1758,19 +1758,19 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
                 sector_digit = true;
                 index++;
             }
-            if (!sector_digit) parsing_error = true;
+            if (!sector_digit) { parsing_error = true; }
 
             if (!parsing_error)
             {
                 bool no_such_chamber = false;
 
-                if (wheel < -2  ||  wheel > 2) no_such_chamber = true;
-                if (station < 1  ||  station > 4) no_such_chamber = true;
-                if (station == 4  &&  (sector < 1  ||  sector > 14)) no_such_chamber = true;
-                if (station < 4  &&  (sector < 1  ||  sector > 12)) no_such_chamber = true;
+                if (wheel < -2  ||  wheel > 2) { no_such_chamber = true; }
+                if (station < 1  ||  station > 4) { no_such_chamber = true; }
+                if (station == 4  &&  (sector < 1  ||  sector > 14)) { no_such_chamber = true; }
+                if (station < 4  &&  (sector < 1  ||  sector > 12)) { no_such_chamber = true; }
 
-                if (no_such_chamber)
-                    throw cms::Exception("MuonAlignmentFromReference") << "reference chamber doesn't exist: " << (*name) << std::endl;
+                if (no_such_chamber) {
+                    throw cms::Exception("MuonAlignmentFromReference") << "reference chamber doesn't exist: " << (*name) << std::endl; }
 
                 DTChamberId id(wheel, station, sector);
                 for (const auto& ali: all_DT_chambers)
@@ -1791,7 +1791,7 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
         if (!parsing_error  &&  endcap)
         {
             int index = 2;
-            if (name->substr(index, 1) == std::string(" "))  index++;
+            if (name->substr(index, 1) == std::string(" ")) {  index++; }
 
             bool plus = true;
             if (name->substr(index, 1) == std::string("+"))
@@ -1805,7 +1805,7 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
                 index++;
             }
             else if (numeric(name->substr(index, 1))) {}
-            else parsing_error = true;
+            else { parsing_error = true; }
 
             int station = 0;
             bool station_digit = false;
@@ -1816,10 +1816,10 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
                 station_digit = true;
                 index++;
             }
-            if (!plus) station *= -1;
-            if (!station_digit) parsing_error = true;
+            if (!plus) { station *= -1; }
+            if (!station_digit) { parsing_error = true; }
 
-            if (name->substr(index, 1) != std::string("/")) parsing_error = true;
+            if (name->substr(index, 1) != std::string("/")) { parsing_error = true; }
             index++;
 
             int ring = 0;
@@ -1831,9 +1831,9 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
                 ring_digit = true;
                 index++;
             }
-            if (!ring_digit) parsing_error = true;
+            if (!ring_digit) { parsing_error = true; }
 
-            if (name->substr(index, 1) != std::string(" ")) parsing_error = true;
+            if (name->substr(index, 1) != std::string(" ")) { parsing_error = true; }
             index++;
 
             int chamber = 0;
@@ -1845,7 +1845,7 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
                 chamber_digit = true;
                 index++;
             }
-            if (!chamber_digit) parsing_error = true;
+            if (!chamber_digit) { parsing_error = true; }
 
             if (!parsing_error)
             {
@@ -1853,15 +1853,15 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
 
                 int endcap = (station > 0 ? 1 : 2);
                 station = abs(station);
-                if (station < 1  ||  station > 4) no_such_chamber = true;
-                if (station == 1  &&  (ring < 1  ||  ring > 4)) no_such_chamber = true;
-                if (station > 1  &&  (ring < 1  ||  ring > 2)) no_such_chamber = true;
-                if (station == 1  &&  (chamber < 1  ||  chamber > 36)) no_such_chamber = true;
-                if (station > 1  &&  ring == 1  &&  (chamber < 1  ||  chamber > 18)) no_such_chamber = true;
-                if (station > 1  &&  ring == 2  &&  (chamber < 1  ||  chamber > 36)) no_such_chamber = true;
+                if (station < 1  ||  station > 4) { no_such_chamber = true; }
+                if (station == 1  &&  (ring < 1  ||  ring > 4)) { no_such_chamber = true; }
+                if (station > 1  &&  (ring < 1  ||  ring > 2)) { no_such_chamber = true; }
+                if (station == 1  &&  (chamber < 1  ||  chamber > 36)) { no_such_chamber = true; }
+                if (station > 1  &&  ring == 1  &&  (chamber < 1  ||  chamber > 18)) { no_such_chamber = true; }
+                if (station > 1  &&  ring == 2  &&  (chamber < 1  ||  chamber > 36)) { no_such_chamber = true; }
 
-                if (no_such_chamber)
-                    throw cms::Exception("MuonAlignmentFromReference") << "reference chamber doesn't exist: " << (*name) << std::endl;
+                if (no_such_chamber) {
+                    throw cms::Exception("MuonAlignmentFromReference") << "reference chamber doesn't exist: " << (*name) << std::endl; }
 
                 CSCDetId id(endcap, station, ring, chamber);
                 for (const auto& ali: all_CSC_chambers)
@@ -1879,8 +1879,8 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
             } // if (!parsing_error)
         }// endcap
 
-        if (parsing_error)
-            throw cms::Exception("MuonAlignmentFromReference") << "reference chamber name is malformed: " << (*name) << std::endl;
+        if (parsing_error) {
+            throw cms::Exception("MuonAlignmentFromReference") << "reference chamber name is malformed: " << (*name) << std::endl; }
     }
 }
 

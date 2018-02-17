@@ -41,7 +41,7 @@ RigidBodyAlignmentParameters4D::clone( const AlgebraicVector& parameters,
   RigidBodyAlignmentParameters4D* rbap =
     new RigidBodyAlignmentParameters4D( alignable(), parameters, covMatrix, selector());
 
-  if (userVariables()) rbap->setUserVariables(userVariables()->clone());
+  if (userVariables()) { rbap->setUserVariables(userVariables()->clone()); }
   rbap->setValid(isValid());
 
   return rbap;
@@ -56,7 +56,7 @@ RigidBodyAlignmentParameters4D::cloneFromSelected( const AlgebraicVector& parame
     new RigidBodyAlignmentParameters4D(alignable(), expandVector( parameters, selector()),
                                      expandSymMatrix(covMatrix, selector()), selector());
 
-  if ( userVariables() ) rbap->setUserVariables(userVariables()->clone());
+  if ( userVariables() ) { rbap->setUserVariables(userVariables()->clone()); }
   rbap->setValid(isValid());
 
   return rbap;

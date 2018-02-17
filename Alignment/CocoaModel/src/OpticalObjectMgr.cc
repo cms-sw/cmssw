@@ -75,7 +75,8 @@ void OpticalObjectMgr::dumpOptOs( std::ostream& out ) const
   for( vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); ++vocite ) {
     ALIstring name = (*vocite)->name();
     ALIUtils::dump3v( (*vocite)->centreGlobal(), name + " CENTRE GLOBAL: " );
-    if( (*vocite)->parent() != nullptr ) ALIUtils::dump3v( (*vocite)->centreLocal(),  name + "  CENTRE LOCAL: " ); //not for the 'system'
+    if( (*vocite)->parent() != nullptr ) { ALIUtils::dump3v( (*vocite)->centreLocal(),  name + "  CENTRE LOCAL: " ); //not for the 'system'
+}
   }
 
 }

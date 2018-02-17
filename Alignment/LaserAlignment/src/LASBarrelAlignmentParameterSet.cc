@@ -66,12 +66,13 @@ std::pair<double,double>& LASBarrelAlignmentParameterSet::GetParameter( int aSub
 
 
   // would use a switch here, but this creates problems..
-  if( aSubdetector == 0 ) return tecPlusParameters.at( aDisk ).at( aParameter );
-  else if( aSubdetector == 1 ) return tecMinusParameters.at( aDisk ).at( aParameter );
-  else if( aSubdetector == 2 ) return tibPlusParameters.at( aDisk ).at( aParameter );
-  else if( aSubdetector == 3 ) return tibMinusParameters.at( aDisk ).at( aParameter );
-  else if( aSubdetector == 4 ) return tobPlusParameters.at( aDisk ).at( aParameter );
-  else return tobMinusParameters.at( aDisk ).at( aParameter );
+  if( aSubdetector == 0 ) { return tecPlusParameters.at( aDisk ).at( aParameter );
+  } else if( aSubdetector == 1 ) { return tecMinusParameters.at( aDisk ).at( aParameter );
+  } else if( aSubdetector == 2 ) { return tibPlusParameters.at( aDisk ).at( aParameter );
+  } else if( aSubdetector == 3 ) { return tibMinusParameters.at( aDisk ).at( aParameter );
+  } else if( aSubdetector == 4 ) { return tobPlusParameters.at( aDisk ).at( aParameter );
+  } else { return tobMinusParameters.at( aDisk ).at( aParameter );
+}
 
 
 }
@@ -116,16 +117,20 @@ void LASBarrelAlignmentParameterSet::Print( void ) {
   std::cout << " Values:     PHI1         X1          Y1         PHI2         X2          Y2   " << std::endl;
   for( int subdet = 0; subdet < 6; ++subdet ) {
     std::cout <<subdetNames[subdet];
-    for( int par = 0; par < 3; ++par ) std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetParameter( subdet, 0, par ).first;
-    for( int par = 0; par < 3; ++par ) std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetParameter( subdet, 1, par ).first;
+    for( int par = 0; par < 3; ++par ) { std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetParameter( subdet, 0, par ).first;
+}
+    for( int par = 0; par < 3; ++par ) { std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetParameter( subdet, 1, par ).first;
+}
     std::cout << std::endl;
   }
 
   std::cout << " Errors:     PHI1         X1          Y1         PHI2         X2          Y2   " << std::endl;
   for( int subdet = 0; subdet < 6; ++subdet ) {
     std::cout <<subdetNames[subdet];
-    for( int par = 0; par < 3; ++par ) std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetParameter( subdet, 0, par ).second;
-    for( int par = 0; par < 3; ++par ) std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetParameter( subdet, 1, par ).second;
+    for( int par = 0; par < 3; ++par ) { std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetParameter( subdet, 0, par ).second;
+}
+    for( int par = 0; par < 3; ++par ) { std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetParameter( subdet, 1, par ).second;
+}
     std::cout << std::endl;
   }
 
@@ -135,14 +140,16 @@ void LASBarrelAlignmentParameterSet::Print( void ) {
   std::cout << " Values:     PHI1        PHI2" << std::endl;
   for( int beam = 0; beam < 8; ++beam ) {
     std::cout << " beam " << beam;
-    for( int par = 0; par < 2; ++par ) std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetBeamParameter( beam, par ).first;
+    for( int par = 0; par < 2; ++par ) { std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetBeamParameter( beam, par ).first;
+}
     std::cout << std::endl;
   }
 
   std::cout << " Errors:     PHI1        PHI2" << std::endl;
   for( int beam = 0; beam < 8; ++beam ) {
     std::cout << " beam " << beam;
-    for( int par = 0; par < 2; ++par ) std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetBeamParameter( beam, par ).second;
+    for( int par = 0; par < 2; ++par ) { std::cout << std::right << std::setw( 12 ) << std::setprecision( 6 ) << std::fixed << GetBeamParameter( beam, par ).second;
+}
     std::cout << std::endl;
   }
 

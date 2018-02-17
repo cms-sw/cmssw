@@ -17,8 +17,8 @@ CompositeAlignmentDerivativesExtractor( const align::Alignables & alignables,
   detOrUnits.reserve(alignableDets.size());
 
   std::vector<AlignableDet*>::const_iterator it, itEnd;
-  for (it = alignableDets.begin(), itEnd = alignableDets.end(); it != itEnd; ++it)
-    detOrUnits.push_back(AlignableDetOrUnitPtr(*it));
+  for (it = alignableDets.begin(), itEnd = alignableDets.end(); it != itEnd; ++it) {
+    detOrUnits.push_back(AlignableDetOrUnitPtr(*it)); }
 
   extractCurrentAlignment( alignables, detOrUnits, tsos );
 }
@@ -101,12 +101,12 @@ extractCurrentAlignment( const align::Alignables & alignables,
   theDerivatives = AlgebraicMatrix( nRow, nCollumn, 0 );
   theCorrectionTerm = AlgebraicVector( nRow, 0 );
 
-  if ( alignables.size() == nAlignables )
+  if ( alignables.size() == nAlignables ) {
     // One hit per alignable
     extractWithoutMultipleHits( subCorrectionTerm, subDerivatives );
-  else
+  } else {
     // At least one alignable has two hits
-    extractWithMultipleHits( subCorrectionTerm, subDerivatives, alignables );
+    extractWithMultipleHits( subCorrectionTerm, subDerivatives, alignables ); }
 
   return;
 
@@ -168,8 +168,8 @@ extractWithMultipleHits(const std::vector<AlgebraicVector>& subCorrectionTerm,
 
     for ( itPosition = alignables.begin(); itPosition != itLastPosition; ++itPosition )
 	  {
-		if ( count( alignables.begin(), itPosition, *itPosition ) == 0 )
-		  iCollumn += subDerivatives[iAlignable].num_col();
+		if ( count( alignables.begin(), itPosition, *itPosition ) == 0 ) {
+		  iCollumn += subDerivatives[iAlignable].num_col(); }
 		iAlignable++;
 	  }
 

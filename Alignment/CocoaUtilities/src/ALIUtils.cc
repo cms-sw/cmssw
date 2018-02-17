@@ -104,7 +104,8 @@ void ALIUtils::SetLengthDimensionFactors()
   //  _LengthValueDimensionFactor /= _LengthSigmaDimensionFactor;
   //_LengthSigmaDimensionFactor = 1;
 
-  if(ALIUtils::debug >= 6) std::cout <<  _LengthValueDimensionFactor << " Set Length DimensionFactors " << _LengthSigmaDimensionFactor << std::endl; 
+  if(ALIUtils::debug >= 6) { std::cout <<  _LengthValueDimensionFactor << " Set Length DimensionFactors " << _LengthSigmaDimensionFactor << std::endl; 
+}
    
 }
 
@@ -129,7 +130,8 @@ void ALIUtils::SetAngleDimensionFactors()
   //  _AngleValueDimensionFactor /= _AngleSigmaDimensionFactor;
   //_AngleSigmaDimensionFactor = 1;
 
-  if(ALIUtils::debug >= 6) std::cout <<  _AngleValueDimensionFactor <<  "Set Angle DimensionFactors" << _AngleSigmaDimensionFactor << std::endl; 
+  if(ALIUtils::debug >= 6) { std::cout <<  _AngleValueDimensionFactor <<  "Set Angle DimensionFactors" << _AngleSigmaDimensionFactor << std::endl; 
+}
    
 }
 
@@ -144,20 +146,23 @@ void ALIUtils::SetOutputLengthDimensionFactors()
   //---------- Calculate factors to convert to meters
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   ALIint ad =  ALIint(gomgr->GlobalOptions()[ ALIstring("output_length_value_dimension") ]);
-  if( ad == 0 ) ad =  ALIint(gomgr->GlobalOptions()[ ALIstring("length_value_dimension") ]);
+  if( ad == 0 ) { ad =  ALIint(gomgr->GlobalOptions()[ ALIstring("length_value_dimension") ]);
+}
   _OutputLengthValueDimensionFactor = CalculateLengthDimensionFactorFromInt( ad );
 
   ad =  ALIint(gomgr->GlobalOptions()[ ALIstring("output_length_error_dimension"
 ) ]);
-  if( ad == 0 ) ad =  ALIint(gomgr->GlobalOptions()[ ALIstring("length_error_dimension"
+  if( ad == 0 ) { ad =  ALIint(gomgr->GlobalOptions()[ ALIstring("length_error_dimension"
 ) ]);
+}
   _OutputLengthSigmaDimensionFactor = CalculateLengthDimensionFactorFromInt( ad );
 
   //---------- Change factor to convert to error dimensions
   //  _LengthValueDimensionFactor /= _LengthSigmaDimensionFactor;
   //_LengthSigmaDimensionFactor = 1;
 
-  if(ALIUtils::debug >= 6) std::cout <<  _OutputLengthValueDimensionFactor << "Output Length Dimension Factors" << _OutputLengthSigmaDimensionFactor << std::endl; 
+  if(ALIUtils::debug >= 6) { std::cout <<  _OutputLengthValueDimensionFactor << "Output Length Dimension Factors" << _OutputLengthSigmaDimensionFactor << std::endl; 
+}
    
 }
 
@@ -172,19 +177,22 @@ void ALIUtils::SetOutputAngleDimensionFactors()
   //---------- Calculate factors to convert to radians
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   ALIint ad =  ALIint(gomgr->GlobalOptions()[ ALIstring("output_angle_value_dimension") ]);
-  if( ad == 0 ) ad =  ALIint(gomgr->GlobalOptions()[ ALIstring("angle_value_dimension") ]);
+  if( ad == 0 ) { ad =  ALIint(gomgr->GlobalOptions()[ ALIstring("angle_value_dimension") ]);
+}
   _OutputAngleValueDimensionFactor = CalculateAngleDimensionFactorFromInt(ad);
 
 
   ad =  ALIint(gomgr->GlobalOptions()[ ALIstring("output_angle_error_dimension") ]);
-  if( ad == 0) ad =  ALIint(gomgr->GlobalOptions()[ ALIstring("angle_error_dimension") ]);
+  if( ad == 0) { ad =  ALIint(gomgr->GlobalOptions()[ ALIstring("angle_error_dimension") ]);
+}
   _OutputAngleSigmaDimensionFactor = CalculateAngleDimensionFactorFromInt(ad);
 
   //---------- Change factor to convert to error dimensions
   //  _AngleValueDimensionFactor /= _AngleSigmaDimensionFactor;
   //_AngleSigmaDimensionFactor = 1;
 
-  if(ALIUtils::debug >= 9) std::cout <<  _OutputAngleValueDimensionFactor <<  "Output Angle Dimension Factors" << _OutputAngleSigmaDimensionFactor << std::endl; 
+  if(ALIUtils::debug >= 9) { std::cout <<  _OutputAngleValueDimensionFactor <<  "Output Angle Dimension Factors" << _OutputAngleSigmaDimensionFactor << std::endl; 
+}
    
 }
 
@@ -428,14 +436,17 @@ int ALIUtils::getInt( const ALIstring& str )
     ALIuint ii = 0;
     if(ch != -1 ) {
       for( ii = ch+1; ii < str.size(); ii++) {
-	if( str[ii] != '0' ) isFloat = true;
+	if( str[ii] != '0' ) { isFloat = true;
+}
       }
     }
 
     ch = str.find('E');
-    if(ch != -1 ) ch = str.find('e');
+    if(ch != -1 ) { ch = str.find('e');
+}
     if(ch != -1 ) {
-      if(str[ch+1] == '-') isFloat = true;
+      if(str[ch+1] == '-') { isFloat = true;
+}
     }
 
     if(isFloat) {
@@ -614,19 +625,23 @@ std::vector<double> ALIUtils::getRotationAnglesFromMatrix( CLHEP::HepRotation& r
       double aa = asin( rmLocal.xy() );
       if( diff2pi( angleZ, - aa + newang[0] ) < diff2pi( angleZ, - pii + aa + newang[0] )  ) {
 	newang[2] = -aa + newang[0];
-	if( ALIUtils::debug >= 5 ) std::cout << " newang[0] = -aa + newang[0] " << std::endl;
+	if( ALIUtils::debug >= 5 ) { std::cout << " newang[0] = -aa + newang[0] " << std::endl;
+}
       } else {
 	newang[2] = -pii + aa + newang[0];
-	if( ALIUtils::debug >= 5 ) std::cout << " newang[0] = -pii + aa + newang[0] " << newang[0] << " " << aa << " " << newang[2] << std::endl;
+	if( ALIUtils::debug >= 5 ) { std::cout << " newang[0] = -pii + aa + newang[0] " << newang[0] << " " << aa << " " << newang[2] << std::endl;
+}
       }
     } else {
       double aa = asin( -rmLocal.xy() );
       if( diff2pi( angleZ, aa - newang[0] ) < diff2pi( angleZ, pii - aa - newang[0] )  ) {
 	newang[2] = aa - newang[0];
-	if( ALIUtils::debug >= 5 ) std::cout << " newang[0] = aa - newang[2] " << std::endl;
+	if( ALIUtils::debug >= 5 ) { std::cout << " newang[0] = aa - newang[2] " << std::endl;
+}
       } else {
 	newang[2] = pii - aa - newang[0];
-	if( ALIUtils::debug >= 5 ) std::cout << " newang[0] = pii - aa - newang[2] " << newang[0] << " " << aa << " " << newang[2] << std::endl;
+	if( ALIUtils::debug >= 5 ) { std::cout << " newang[0] = pii - aa - newang[2] " << newang[0] << " " << aa << " " << newang[2] << std::endl;
+}
       }
     } 
   } else {
@@ -641,10 +656,11 @@ std::vector<double> ALIUtils::getRotationAnglesFromMatrix( CLHEP::HepRotation& r
     rotzx = 1.;
   }
   newang[1] = -asin( rotzx );
-  if( ALIUtils::debug >= 5 ) std::cout << "First calculation of angles: " << std::endl 
+  if( ALIUtils::debug >= 5 ) { std::cout << "First calculation of angles: " << std::endl 
 			       << " newang[0] " << newang[0] << " " << rotzy << " " << rotzz << std::endl
 			       << " newang[1] " << newang[1] << " " << rotzx << std::endl
 			       << " newang[2] " << newang[2] << " " << rotyx << " " << rotxx << std::endl;
+}
   
   //    newang[2] = acos( rmLocal.xx() / cos( newang[1] ) );
   //----- CHECK if the angles are OK (there are several symmetries)
@@ -674,13 +690,16 @@ std::vector<double> ALIUtils::getRotationAnglesFromMatrix( CLHEP::HepRotation& r
 
   if( eqxx & !eqzz ) {
     newang[0] = pii + newang[0];
-    if( ALIUtils::debug >= 5 ) std::cout << " change newang[0] " << newang[0] << std::endl;
+    if( ALIUtils::debug >= 5 ) { std::cout << " change newang[0] " << newang[0] << std::endl;
+}
   } else  if( !eqxx & !eqzz ) {
     newang[1] = pii - newang[1];
-    if( ALIUtils::debug >= 5 ) std::cout << " change newang[1] " << newang[1] << std::endl;
+    if( ALIUtils::debug >= 5 ) { std::cout << " change newang[1] " << newang[1] << std::endl;
+}
   } else  if( !eqxx & eqzz ) {
     newang[2] = pii + newang[2];
-    if( ALIUtils::debug >= 5 ) std::cout << " change newang[2] " << newang[2] << std::endl;
+    if( ALIUtils::debug >= 5 ) { std::cout << " change newang[2] " << newang[2] << std::endl;
+}
   }
 
   //--- Check if the 3 angles should be changed (previous check is invariant to the 3 changing)
@@ -695,26 +714,30 @@ std::vector<double> ALIUtils::getRotationAnglesFromMatrix( CLHEP::HepRotation& r
 
   if( !eqxy || !eqxz || !eqyy || !eqyz ) {
     // check also cases where one of the above 'eq' is OK because it is = 0
-    if( ALIUtils::debug >= 5 ) std::cout << " change the 3 newang " << std::endl;
+    if( ALIUtils::debug >= 5 ) { std::cout << " change the 3 newang " << std::endl;
+}
     newang[0] = addPii( newang[0] );
     newang[1] = pii - newang[1];
     newang[2] = addPii( newang[2] );
     double rotnewxy = -sin( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - cos( newang[0] )* sin( newang[2] );
     double rotnewxz = -cos( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - sin( newang[0] )* sin( newang[2] );
-    if( ALIUtils::debug >= 5 ) std::cout << " rotnewxy " << rotnewxy << " = " << rmLocal.xy()
+    if( ALIUtils::debug >= 5 ) { std::cout << " rotnewxy " << rotnewxy << " = " << rmLocal.xy()
 	 << " rotnewxz " << rotnewxz << " = " << rmLocal.xz() << std::endl;
+}
   }
   if( diff2pi(angleX, newang[0] ) + diff2pi(angleY, newang[1] ) +diff2pi(angleZ, newang[2] )
 	   > diff2pi(angleX, pii+newang[0] ) + diff2pi(angleY, pii-newang[1] ) + diff2pi(angleZ, pii+newang[2] ) ){
     // check also cases where one of the above 'eq' is OK because it is = 0
-    if( ALIUtils::debug >= 5 ) std::cout << " change the 3 newang " << std::endl;
+    if( ALIUtils::debug >= 5 ) { std::cout << " change the 3 newang " << std::endl;
+}
     newang[0] = addPii( newang[0] );
     newang[1] = pii - newang[1];
     newang[2] = addPii( newang[2] );
     double rotnewxy = -sin( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - cos( newang[0] )* sin( newang[2] );
     double rotnewxz = -cos( newang[0] ) * sin( newang[1] ) * cos( newang[2] ) - sin( newang[0] )* sin( newang[2] );
-    if( ALIUtils::debug >= 5 ) std::cout << " rotnewxy " << rotnewxy << " = " << rmLocal.xy()
+    if( ALIUtils::debug >= 5 ) { std::cout << " rotnewxy " << rotnewxy << " = " << rmLocal.xy()
 	 << " rotnewxz " << rotnewxz << " = " << rmLocal.xz() << std::endl;
+}
   }
   
   for (int ii=0; ii<3; ii++) {  
@@ -778,7 +801,8 @@ bool ALIUtils::eq2ang( double ang1, double ang2 )
 double ALIUtils::approxTo0( double val )
 {
   double precision = 1.e-9;
-  if( fabs(val) < precision ) val = 0;
+  if( fabs(val) < precision ) { val = 0;
+}
   return val;
 }
 

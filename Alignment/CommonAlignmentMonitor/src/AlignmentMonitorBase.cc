@@ -33,9 +33,9 @@ void AlignmentMonitorBase::beginOfJob(AlignableTracker *pTracker, AlignableMuon 
    mp_muon = pMuon;
    mp_store = pStore;
 
-   if (!pMuon)          mp_navigator = new AlignableNavigator(pTracker);
-   else if (!pTracker)  mp_navigator = new AlignableNavigator(pMuon);
-   else                 mp_navigator = new AlignableNavigator(pTracker, pMuon);
+   if (!pMuon) {          mp_navigator = new AlignableNavigator(pTracker);
+   } else if (!pTracker) {  mp_navigator = new AlignableNavigator(pMuon);
+   } else {                 mp_navigator = new AlignableNavigator(pTracker, pMuon); }
 }
 
 
@@ -88,8 +88,8 @@ TFileDirectory *AlignmentMonitorBase::directory(std::string dir)
    }
 
    std::map<std::vector<std::string>, TFileDirectory*> *theMap;
-   if (isIter) theMap = &m_iterDirMap;
-   else theMap = &m_baseDirMap;
+   if (isIter) { theMap = &m_iterDirMap;
+   } else { theMap = &m_baseDirMap; }
 
    std::vector<std::string> partial;
    TFileDirectory *last = (*theMap)[partial];

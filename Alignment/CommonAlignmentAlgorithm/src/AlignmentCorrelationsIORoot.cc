@@ -60,9 +60,9 @@ int AlignmentCorrelationsIORoot::write(const align::Correlations& cor, bool vali
       Ali2Id = ali2->id();
       int maxColumn = mat.num_row();
       corSize = maxColumn*maxColumn;
-      for(int row = 0;row<maxColumn;row++)	  
-		for(int col = 0;col<maxColumn;col++)
-		  CorMatrix[row+col*maxColumn] =mat[row][col]; 
+      for(int row = 0;row<maxColumn;row++) {	  
+		for(int col = 0;col<maxColumn;col++) {
+		  CorMatrix[row+col*maxColumn] =mat[row][col];  }
       tree->Fill();
       icount++;
     }
@@ -83,8 +83,8 @@ AlignmentCorrelationsIORoot::read(const align::Alignables& alivec, int& ierr)
   // create ID map for all Alignables in alivec
   align::Alignables::const_iterator it1;
   std::map< std::pair<unsigned int,int>, Alignable* > idAlis;
-  for( it1=alivec.begin();it1!=alivec.end();++it1 )
-    idAlis[std::make_pair((*it1)->id(),(*it1)->alignableObjectId())] = (*it1);
+  for( it1=alivec.begin();it1!=alivec.end();++it1 ) {
+    idAlis[std::make_pair((*it1)->id(),(*it1)->alignableObjectId())] = (*it1); }
 
   std::map<std::pair<unsigned int,int>,Alignable*>::const_iterator aliSearch1;  
   std::map<std::pair<unsigned int,int>,Alignable*>::const_iterator aliSearch2;  
@@ -106,9 +106,9 @@ AlignmentCorrelationsIORoot::read(const align::Alignables& alivec, int& ierr)
 		  //        use something like sqrt(corSize) - but take care of rounding!
 		  //        I have no time to test... :-( GF
 		  AlgebraicMatrix  mat(nParMax,nParMax);
-		  for(int row = 0;row<nParMax;row++) 
-			for(int col = 0;col<nParMax;col++) 
-			  mat[row][col] = CorMatrix[row+col*nParMax];
+		  for(int row = 0;row<nParMax;row++) { 
+			for(int col = 0;col<nParMax;col++) { 
+			  mat[row][col] = CorMatrix[row+col*nParMax]; }
 		  theMap[ std::make_pair(myAli1,myAli2) ] = mat;
 		}
 	}

@@ -20,8 +20,8 @@ namespace gs {
     {
         unsigned long long tmp = 0ULL;
         buf_.getPutBuffer(&tmp);
-        if (tmp > ULONG_MAX) 
-            throw gs::IOLengthError("In CharBuffer::size: buffer is too large");
+        if (tmp > ULONG_MAX) { 
+            throw gs::IOLengthError("In CharBuffer::size: buffer is too large"); }
         return static_cast<unsigned long>(tmp);
     }
 
@@ -54,10 +54,10 @@ namespace gs {
             inbuf->sgetn(local, tmp);
             outbuf->sputn(local, tmp);
         }
-        if (in.fail()) throw IOReadFailure(
-            "In gs::CharBuffer::restore: input stream failure");
-        if (buf->fail()) throw IOWriteFailure(
-            "In gs::CharBuffer::restore: buffer stream failure");
+        if (in.fail()) { throw IOReadFailure(
+            "In gs::CharBuffer::restore: input stream failure"); }
+        if (buf->fail()) { throw IOWriteFailure(
+            "In gs::CharBuffer::restore: buffer stream failure"); }
     }
 
     bool CharBuffer::operator==(const CharBuffer& r) const
@@ -66,8 +66,8 @@ namespace gs {
         const char* buf = buf_.getPutBuffer(&tmp);
         unsigned long long tmp2 = 0ULL;
         const char* buf2 = r.buf_.getPutBuffer(&tmp2);
-        if (tmp != tmp2)
-            return false;
+        if (tmp != tmp2) {
+            return false; }
         return memcmp(buf, buf2, tmp) == 0;
     }
 }

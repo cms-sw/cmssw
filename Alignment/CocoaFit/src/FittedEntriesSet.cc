@@ -154,10 +154,12 @@ void FittedEntriesSet::FillEntriesAveragingSets( const std::vector<FittedEntries
   ALIuint nEntry = vSets[0]->FittedEntries().size();
   //  ALIuint setssiz = vSets.size();
   for( ALIuint ii = 0; ii < nEntry; ii++ ){  // loop to FittedEntry's
-    if(ALIUtils::debug >= 5) std::cout << "FillEntriesAveragingSets entry " << ii << std::endl;
+    if(ALIUtils::debug >= 5) { std::cout << "FillEntriesAveragingSets entry " << ii << std::endl;
+}
     vFEntry.clear();
     for( ALIuint jj = 0; jj < vSets.size(); jj++ ){  // look for FittedEntry ii in each Sets
-     if(ALIUtils::debug >= 5) std::cout << "FillEntriesAveragingSets set " << jj << std::endl;
+     if(ALIUtils::debug >= 5) { std::cout << "FillEntriesAveragingSets set " << jj << std::endl;
+}
       //----- Check all have the same number of entries
       if( vSets[jj]->FittedEntries().size() != nEntry ){
 	std::cerr << "!!! FATAL ERROR FittedEntriesSet::FillEntriesAveragingSets  set number " << jj 
@@ -170,7 +172,8 @@ void FittedEntriesSet::FillEntriesAveragingSets( const std::vector<FittedEntries
       vFEntry.push_back( vSets[jj]->FittedEntries()[ii] );
     }
    FittedEntry* fe = new FittedEntry( vFEntry );
-   if(ALIUtils::debug >= 5) std::cout << "FillEntriesAveragingSets new fentry " << fe->getValue() << " " << fe->getSigma() << std::endl;
+   if(ALIUtils::debug >= 5) { std::cout << "FillEntriesAveragingSets new fentry " << fe->getValue() << " " << fe->getSigma() << std::endl;
+}
    theFittedEntries.push_back( fe );
   }
 
@@ -181,7 +184,8 @@ void FittedEntriesSet::FillEntriesAveragingSets( const std::vector<FittedEntries
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
 void FittedEntriesSet::SetOptOEntries()
 {
-  if(ALIUtils::debug >= 5) std::cout << "  FittedEntriesSet::SetOptOEntries " << theFittedEntries.size() << std::endl;
+  if(ALIUtils::debug >= 5) { std::cout << "  FittedEntriesSet::SetOptOEntries " << theFittedEntries.size() << std::endl;
+}
 
   std::vector< FittedEntry* >::const_iterator ite;
   for( ite = theFittedEntries.begin();ite != theFittedEntries.end();++ite){
@@ -191,7 +195,8 @@ void FittedEntriesSet::SetOptOEntries()
     entry->setValue( fe->getValue() );
     entry->setSigma( fe->getSigma() );
 
-   if(ALIUtils::debug >= 5) std::cout << "  FittedEntriesSet::SetOptOEntries() " << opto->name() << " " << entry->name() << std::endl;
+   if(ALIUtils::debug >= 5) { std::cout << "  FittedEntriesSet::SetOptOEntries() " << opto->name() << " " << entry->name() << std::endl;
+}
     opto->setGlobalCoordinates();
     opto->setOriginalEntryValues();
  }

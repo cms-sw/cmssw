@@ -119,7 +119,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   // auto_ptr to avoid memory leaks in case of not reaching delete at end of method:
   std::auto_ptr<MaterialEffectsUpdator> aMaterialEffectsUpdator
     (this->createUpdator(materialEffects_, mass_));
-  if (!aMaterialEffectsUpdator.get()) return false; // empty auto_ptr
+  if (!aMaterialEffectsUpdator.get()) { return false; // empty auto_ptr }
 
   AlgebraicMatrix                 fullJacobian(theParameters.num_row(), theParameters.num_row());
   std::vector<AlgebraicMatrix>    allJacobians; 
@@ -173,7 +173,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     std::pair< TrajectoryStateOnSurface, double > tsosWithPath =
       propagator.propagateWithPath(pcaFts, refTsos.surface());
     
-    if (!tsosWithPath.first.isValid()) return false;
+    if (!tsosWithPath.first.isValid()) { return false; }
     
     GlobalVector momDir(pcaFts.momentum());
     GlobalVector perpDir(bd.cross(momDir));
@@ -261,7 +261,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 					   theTsosVec.back().surface(), magField, surfaceSide);
     const TrajectoryStateOnSurface updatedTsos = aMaterialEffectsUpdator->updateState(tmpTsos, propDir_);
 
-    if ( !updatedTsos.isValid() ) return false;// no delete aMaterialEffectsUpdator needed
+    if ( !updatedTsos.isValid() ) { return false;// no delete aMaterialEffectsUpdator needed }
     
     if ( theTsosVec.back().localParameters().charge() )
     {
@@ -287,7 +287,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
 
     AlgebraicVector mixedLocalParams = asHepVector<5>(theTsosVec.back().localParameters().mixedFormatVector());
     this->fillTrajectoryPositions(allProjections.back(), mixedLocalParams, iRow);
-    if ( useRecHit( hitPtr ) ) this->fillMeasurementAndError(hitPtr, iRow, updatedTsos);
+    if ( useRecHit( hitPtr ) ) { this->fillMeasurementAndError(hitPtr, iRow, updatedTsos); }
 
     iRow += nMeasPerHit;
   } // end of loop on hits
@@ -322,7 +322,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     msOK = this->addMaterialEffectsCurvlinGbl(allCurvlinJacobians, allProjections, allCurvatureChanges,
                                        allDeltaParameterCovs, allLocalToCurv);
   }
-  if (!msOK) return false;
+  if (!msOK) { return false; }
  
   if (refTsos.hasError()) {
     AlgebraicSymMatrix parameterCov = asHepMatrix<5>(refTsos.localError().matrix());
@@ -388,7 +388,7 @@ bool ReferenceTrajectory::propagate(const Plane &previousSurface, const Trajecto
     aPropagator.propagateWithPath(previousTsos, newSurface);
 
   // stop if propagation wasn't successful
-  if (!tsosWithPath.first.isValid()) return false;
+  if (!tsosWithPath.first.isValid()) { return false; }
   
   nextStep = tsosWithPath.second;
   // calculate derivative of reference-track parameters on the actual layer w.r.t. the ones
@@ -852,7 +852,7 @@ bool ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
     plane[k] = nPlane;
     sPlane[nPlane] += sTot;
   }
-  if (nPlane < 2) return false; // pathological cases: need at least 2 planes
+  if (nPlane < 2) { return false; // pathological cases: need at least 2 planes }
 
   theNumberOfVirtualPars = 2*(nPlane+1);
   theNumberOfVirtualMeas = 2*(nPlane-1);// unsigned underflow for nPlane == 0...

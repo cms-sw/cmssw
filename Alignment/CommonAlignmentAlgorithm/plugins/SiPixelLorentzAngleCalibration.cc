@@ -424,7 +424,7 @@ void SiPixelLorentzAngleCalibration::writeTree(const SiPixelLorentzAngle *lorent
 					       const std::map<unsigned int,TreeStruct> &treeInfo, 
 					       const char *treeName) const
 {
-  if (!lorentzAngle) return;
+  if (!lorentzAngle) { return; }
 
   TFile* file = TFile::Open(outFileName_.c_str(), "UPDATE");
   if (!file) {
@@ -476,7 +476,7 @@ SiPixelLorentzAngleCalibration::createFromTree(const char *fileName, const char 
   } // else not existing, see error below
 
   TTree *tree = nullptr;
-  if (file) file->GetObject(treeName, tree);
+  if (file) { file->GetObject(treeName, tree); }
 
   SiPixelLorentzAngle *result = nullptr;
   if (tree) {

@@ -23,7 +23,7 @@ SurveyResidual::SurveyResidual(const Alignable& ali,
   {
     theMother = theMother->mother(); // move up a level
 
-    if (!theMother) return;
+    if (!theMother) { return; }
 //     {
 //       throw cms::Exception("ConfigError")
 // 	<< "Alignable (id = " << ali.geomDetId().rawId()
@@ -61,9 +61,9 @@ AlgebraicVector SurveyResidual::sensorResidual() const
 
   align::LocalVector deltaR = theSurface.toLocal(theCurrentVs[0] - theNominalVs[0]);
 
-  if (theSelector[0]) pars.push_back( deltaR.x() );
-  if (theSelector[1]) pars.push_back( deltaR.y() );
-  if (theSelector[2]) pars.push_back( deltaR.z() );
+  if (theSelector[0]) { pars.push_back( deltaR.x() ); }
+  if (theSelector[1]) { pars.push_back( deltaR.y() ); }
+  if (theSelector[2]) { pars.push_back( deltaR.z() ); }
 
 // Match the centers of current and nominal surfaces to find the angular
 // displacements about the center. Only do this if angular dof are selected.
@@ -83,14 +83,14 @@ AlgebraicVector SurveyResidual::sensorResidual() const
 
     EulerAngles deltaW = toAngles( theSurface.toLocal(rot) );
 
-    if (theSelector[3]) pars.push_back( deltaW(1) );
-    if (theSelector[4]) pars.push_back( deltaW(2) );
-    if (theSelector[5]) pars.push_back( deltaW(3) );
+    if (theSelector[3]) { pars.push_back( deltaW(1) ); }
+    if (theSelector[4]) { pars.push_back( deltaW(2) ); }
+    if (theSelector[5]) { pars.push_back( deltaW(3) ); }
   }
   
   AlgebraicVector deltaRW( pars.size() ); // (deltaR, deltaW)
 
-  for (unsigned int j = 0; j < pars.size(); ++j) deltaRW(j + 1) = pars[j];
+  for (unsigned int j = 0; j < pars.size(); ++j) { deltaRW(j + 1) = pars[j]; }
 
   return deltaRW;
 }
@@ -123,14 +123,14 @@ AlgebraicSymMatrix SurveyResidual::inverseCovariance() const
 
   indices.reserve(ErrorMatrix::kRows);
 
-  for (unsigned int i = 0; i < ErrorMatrix::kRows; ++i)
-    if (theSelector[i]) indices.push_back(i);
+  for (unsigned int i = 0; i < ErrorMatrix::kRows; ++i) {
+    if (theSelector[i]) { indices.push_back(i); }
 
   AlgebraicSymMatrix invCov( indices.size() );
 
-  for (unsigned int i = 0; i < indices.size(); ++i)
-    for (unsigned int j = 0; j <= i; ++j)
-      invCov.fast(i + 1, j + 1) = theCovariance(indices[i], indices[j]);
+  for (unsigned int i = 0; i < indices.size(); ++i) {
+    for (unsigned int j = 0; j <= i; ++j) {
+      invCov.fast(i + 1, j + 1) = theCovariance(indices[i], indices[j]); }
 
   int fail(0); invCov.invert(fail);
 
@@ -157,8 +157,8 @@ void SurveyResidual::findSisters(const Alignable* ali,
   {
     const Alignable* dau = comp[i];
 
-    if (dau != ali || bias)
-      theSisters.insert( theSisters.end(), dau->deepComponents().begin(), dau->deepComponents().end() );
+    if (dau != ali || bias) {
+      theSisters.insert( theSisters.end(), dau->deepComponents().begin(), dau->deepComponents().end() ); }
 //     if (dau != ali || bias) theSisters.push_back(dau);
   }
 }

@@ -205,7 +205,7 @@ TwoBodyDecayTrajectoryFactory::constructTrajectories( const ConstTrajTrackPairCo
   TrajectoryInput input1 = this->innermostStateAndRecHits( tracks[0] );
   TrajectoryInput input2 = this->innermostStateAndRecHits( tracks[1] );
 
-  if ( !( input1.first.isValid() && input2.first.isValid() ) ) return trajectories;
+  if ( !( input1.first.isValid() && input2.first.isValid() ) ) { return trajectories; }
 
   // produce TwoBodyDecayTrajectoryState (input for TwoBodyDecayTrajectory)
   TsosContainer tsos( input1.first, input2.first );
@@ -252,7 +252,7 @@ TwoBodyDecayTrajectoryFactory::constructTrajectories( const ConstTrajTrackPairCo
                                                               magField,
                                                               beamSpot,
                                                               config);
-  if ( setParameterErrors && tbd.hasError() ) result->setParameterErrors( tbd.covariance() );
+  if ( setParameterErrors && tbd.hasError() ) { result->setParameterErrors( tbd.covariance() ); }
   trajectories.push_back( ReferenceTrajectoryPtr( result ) );
   return trajectories;
 }

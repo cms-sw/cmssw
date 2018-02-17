@@ -98,18 +98,18 @@ namespace gs {
                         cat->largestId_ = id;
                         ++cat->count_;
                     }
-                    else
-                        ordered = false;
+                    else {
+                        ordered = false; }
                 }
                 delete rec;
-                if (!ordered)
+                if (!ordered) {
                     throw IOInvalidData("In gs::WriteOnlyCatalog::read: "
                                         "entry out of order. Catalog is "
-                                        "likely to be corrupted.");
+                                        "likely to be corrupted."); }
             }
-            else
+            else {
                 throw IOInvalidData("In gs::WriteOnlyCatalog::read: "
-                                    "failed to read catalog entry");
+                                    "failed to read catalog entry"); }
         }
         return cat.release();
     }

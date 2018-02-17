@@ -38,8 +38,8 @@ AlignableDTBarrel::AlignableDTBarrel( const std::vector<AlignableDTWheel*>& dtWh
 AlignableDTWheel &AlignableDTBarrel::wheel(int i) 
 {
   
-  if (i >= size() ) 
-	throw cms::Exception("LogicError") << "Wheel index (" << i << ") out of range";
+  if (i >= size() ) { 
+	throw cms::Exception("LogicError") << "Wheel index (" << i << ") out of range"; }
 
   return *theDTWheels[i];
   
@@ -64,8 +64,8 @@ AlignableDTBarrel::PositionType AlignableDTBarrel::computePosition()
   float zz = 0.;
 
   for ( std::vector<AlignableDTWheel*>::iterator ilayer = theDTWheels.begin();
-		ilayer != theDTWheels.end(); ilayer++ )
-    zz += (*ilayer)->globalPosition().z();
+		ilayer != theDTWheels.end(); ilayer++ ) {
+    zz += (*ilayer)->globalPosition().z(); }
 
   zz /= static_cast<float>(theDTWheels.size());
 
@@ -101,8 +101,8 @@ void AlignableDTBarrel::dump( void ) const
 
   edm::LogInfo("AlignableDump") << (*this);
   for ( std::vector<AlignableDTWheel*>::const_iterator iWheel = theDTWheels.begin();
-		iWheel != theDTWheels.end(); iWheel++ )
-	(*iWheel)->dump();
+		iWheel != theDTWheels.end(); iWheel++ ) {
+	(*iWheel)->dump(); }
 
 }
 

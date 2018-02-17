@@ -59,7 +59,7 @@ void RawDataConverter::GetDigis( const edm::Event& iEvent)
   // This is a vector with all the modules, each module containing zero or more strips with signal (Digis)
   edm::Handle< edm::DetSetVector< Digitype > > detSetVector;  // Handle for holding the DetSetVector
   iEvent.getByLabel( CurrentModuleLabel , CurrentInstanceLabel , detSetVector );
-  if( ! detSetVector.isValid() ) throw std::runtime_error("Could not find the Digis");
+  if( ! detSetVector.isValid() ) { throw std::runtime_error("Could not find the Digis"); }
 
   // set everything in the local container to zero
   ClearData();
@@ -80,7 +80,7 @@ void RawDataConverter::GetDigis( const edm::Event& iEvent)
       typename edm::DetSet< Digitype >::const_iterator theDigi;
       for (theDigi = theModule->data.begin(); theDigi != theModule->data.end(); ++theDigi ) {
 	// fill the number of adc counts into the local container
-	if ( theDigi->channel() < 512 ) theData.GetTECEntry( det, ring, beam, disk ).at( theDigi->channel() ) = theDigi->adc();
+	if ( theDigi->channel() < 512 ) { theData.GetTECEntry( det, ring, beam, disk ).at( theDigi->channel() ) = theDigi->adc(); }
       }
     }
   } while( loop.TECLoop( det, ring, beam, disk ) );
@@ -96,7 +96,7 @@ void RawDataConverter::GetDigis( const edm::Event& iEvent)
       typename edm::DetSet< Digitype >::const_iterator theDigi;
       for (theDigi = theModule->data.begin(); theDigi != theModule->data.end(); ++theDigi ) {
 	// fill the number of adc counts into the local container
-	if ( theDigi->channel() < 512 ) theData.GetTIBTOBEntry( det, beam, pos ).at( theDigi->channel() ) = theDigi->adc();
+	if ( theDigi->channel() < 512 ) { theData.GetTIBTOBEntry( det, beam, pos ).at( theDigi->channel() ) = theDigi->adc(); }
       }
     }
   } while( loop.TIBTOBLoop( det, beam, pos ) );
@@ -113,7 +113,7 @@ void RawDataConverter::GetDigis( const edm::Event& iEvent)
       typename edm::DetSet< Digitype >::const_iterator theDigi;
       for (theDigi = theModule->data.begin(); theDigi != theModule->data.end(); ++theDigi ) {
 	// fill the number of adc counts into the local container
-	if ( theDigi->channel() < 512 ) theData.GetTEC2TECEntry( det, beam, disk ).at( theDigi->channel() ) = theDigi->adc();
+	if ( theDigi->channel() < 512 ) { theData.GetTEC2TECEntry( det, beam, disk ).at( theDigi->channel() ) = theDigi->adc(); }
       }
     }
   } while( loop.TEC2TECLoop( det, beam, disk ) );

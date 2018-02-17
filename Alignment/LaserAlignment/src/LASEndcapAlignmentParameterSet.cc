@@ -97,7 +97,8 @@ std::pair<double,double>& LASEndcapAlignmentParameterSet::GetDiskParameter( int 
   }
 
 
-  if( aSubdetector == 0 ) return tecPlusDiskParameters.at( aDisk ).at( aParameter );
+  if( aSubdetector == 0 ) { return tecPlusDiskParameters.at( aDisk ).at( aParameter );
+}
   return tecMinusDiskParameters.at( aDisk ).at( aParameter );
 
 }
@@ -124,7 +125,8 @@ std::pair<double,double>& LASEndcapAlignmentParameterSet::GetGlobalParameter( in
     throw cms::Exception( "Laser Alignment" ) << " [LASEndcapAlignmentParameterSet::GetGlobalParameter] ERROR ** Illegal parameter index: " << aParameter << "." << std::endl;
   }
 
-  if( aSubdetector == 0 ) return tecPlusGlobalParameters.at( aParameter );
+  if( aSubdetector == 0 ) { return tecPlusGlobalParameters.at( aParameter );
+}
   return tecMinusGlobalParameters.at( aParameter );
 
 }
@@ -158,7 +160,8 @@ std::pair<double,double>& LASEndcapAlignmentParameterSet::GetBeamParameter( int 
     throw cms::Exception( "Laser Alignment" ) << " [LASEndcapAlignmentParameterSet::GetBeamParameter] ERROR ** Illegal parameter index: " << aParameter << "." << std::endl;
   }
 
-  if( aSubdetector == 0 ) return tecPlusBeamParameters.at( aBeam ).at( aRing ).at( aParameter );
+  if( aSubdetector == 0 ) { return tecPlusBeamParameters.at( aBeam ).at( aRing ).at( aParameter );
+}
   return tecMinusBeamParameters.at( aBeam ).at( aRing ).at( aParameter );
 
 }
@@ -180,16 +183,18 @@ void LASEndcapAlignmentParameterSet::Print( void ) {
     std::cout << "  " << (det==0 ? "TEC+" : "TEC-") << ":          dPHI \xb1  \bE                 dX \xb1  \bE                 dY \xb1  \bE          (rad/mm): " << std::endl;
     for( int disk = 0; disk < 9; ++disk ) {
       std::cout << "  disk " << disk << ": ";
-      for( int par = 0; par < 3; ++par ) std::cout << std::right << std::setw( 11 ) << std::fixed << std::setprecision( 6 ) << GetDiskParameter( det, disk, par ).first 
+      for( int par = 0; par < 3; ++par ) { std::cout << std::right << std::setw( 11 ) << std::fixed << std::setprecision( 6 ) << GetDiskParameter( det, disk, par ).first 
 						   << " \xb1 " << std::left << std::setw( 9 ) << std::fixed << std::setprecision( 6 ) << GetDiskParameter( det, disk, par ).second;
+}
       std::cout << std::endl;
     }
   }
 
   for( int det = 0; det < 2; ++det ) {
     std::cout << "  " << (det==0 ? "TEC+" : "TEC-") << " global parameters in format: dPhi0\xb1 \be  dPhiT\xb1 \be  dX0\xb1 \be  dXT\xb1 \be  dY0\xb1 \be  dYT\xb1 \be (rad/mm): " << std::endl;
-    for( int par = 0; par < 6; ++par ) std::cout << std::setw( 11 ) << std::setprecision( 6 ) << std::right << GetGlobalParameter( det, par ).first 
+    for( int par = 0; par < 6; ++par ) { std::cout << std::setw( 11 ) << std::setprecision( 6 ) << std::right << GetGlobalParameter( det, par ).first 
 						 << " \xb1 " << std::setw( 9 ) << std::setprecision( 6 ) << std::left << GetGlobalParameter( det, par ).second;
+}
     std::cout << std::endl;
   }
 
@@ -199,8 +204,9 @@ void LASEndcapAlignmentParameterSet::Print( void ) {
       std::cout << "   ring " << (ring==0?"4":"6") << ": " << std::endl;
       for( int beam = 0; beam < 8; ++beam ) {
 	std::cout << "     beam " << beam << ": ";
-	for( int par = 0; par < 2; ++par ) std::cout << std::setw( 11 ) << std::setprecision( 6 ) << std::right << GetBeamParameter( det, ring, beam, par ).first 
+	for( int par = 0; par < 2; ++par ) { std::cout << std::setw( 11 ) << std::setprecision( 6 ) << std::right << GetBeamParameter( det, ring, beam, par ).first 
 						     << " \xb1 " << std::setw( 9 ) << std::setprecision( 6 ) << std::left << GetBeamParameter( det, ring, beam, par ).second;
+}
 	std::cout << std::endl;
       }
     }

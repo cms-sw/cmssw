@@ -232,38 +232,38 @@ ApeTreeCreateDefault::sectorBuilder()
         m_tkTreeVar_[rawId] = tkTreeVar;
       }
       //Check if modules from Sector builder equal those from TrackerTree
-      if(!this->checkModuleIds(rawId,v_rawId))continue;
-      if(!this->checkModuleIds(subdetId,v_subdetId))continue;
-      if(!this->checkModuleIds(layer,v_layer))continue;
-      if(!this->checkModuleIds(side,v_side))continue;
-      if(!this->checkModuleIds(half,v_half))continue;
-      if(!this->checkModuleIds(rod,v_rod))continue;
-      if(!this->checkModuleIds(ring,v_ring))continue;
-      if(!this->checkModuleIds(petal,v_petal))continue;
-      if(!this->checkModuleIds(blade,v_blade))continue;
-      if(!this->checkModuleIds(panel,v_panel))continue;
-      if(!this->checkModuleIds(outerInner,v_outerInner))continue;
-      if(!this->checkModuleIds(module,v_module))continue;
-      if(!this->checkModuleIds(nStrips,v_nStrips))continue;
-      if(!this->checkModuleBools(isDoubleSide,v_isDoubleSide))continue;
-      if(!this->checkModuleBools(isRPhi,v_isRPhi))continue;
-      if(!this->checkModuleBools(isStereo,v_isStereo))continue;
-      if(!this->checkModuleDirections(uDirection,v_uDirection))continue;
-      if(!this->checkModuleDirections(vDirection,v_vDirection))continue;
-      if(!this->checkModuleDirections(wDirection,v_wDirection))continue;
-      if(!this->checkModulePositions(posR,v_posR))continue;
-      if(!this->checkModulePositions(posPhi,v_posPhi))continue;
-      if(!this->checkModulePositions(posEta,v_posEta))continue;
-      if(!this->checkModulePositions(posX,v_posX))continue;
-      if(!this->checkModulePositions(posY,v_posY))continue;
-      if(!this->checkModulePositions(posZ,v_posZ))continue;
+      if(!this->checkModuleIds(rawId,v_rawId)) {continue; }
+      if(!this->checkModuleIds(subdetId,v_subdetId)) {continue; }
+      if(!this->checkModuleIds(layer,v_layer)) {continue; }
+      if(!this->checkModuleIds(side,v_side)) {continue; }
+      if(!this->checkModuleIds(half,v_half)) {continue; }
+      if(!this->checkModuleIds(rod,v_rod)) {continue; }
+      if(!this->checkModuleIds(ring,v_ring)) {continue; }
+      if(!this->checkModuleIds(petal,v_petal)) {continue; }
+      if(!this->checkModuleIds(blade,v_blade)) {continue; }
+      if(!this->checkModuleIds(panel,v_panel)) {continue; }
+      if(!this->checkModuleIds(outerInner,v_outerInner)) {continue; }
+      if(!this->checkModuleIds(module,v_module)) {continue; }
+      if(!this->checkModuleIds(nStrips,v_nStrips)) {continue; }
+      if(!this->checkModuleBools(isDoubleSide,v_isDoubleSide)) {continue; }
+      if(!this->checkModuleBools(isRPhi,v_isRPhi)) {continue; }
+      if(!this->checkModuleBools(isStereo,v_isStereo)) {continue; }
+      if(!this->checkModuleDirections(uDirection,v_uDirection)) {continue; }
+      if(!this->checkModuleDirections(vDirection,v_vDirection)) {continue; }
+      if(!this->checkModuleDirections(wDirection,v_wDirection)) {continue; }
+      if(!this->checkModulePositions(posR,v_posR)) {continue; }
+      if(!this->checkModulePositions(posPhi,v_posPhi)) {continue; }
+      if(!this->checkModulePositions(posEta,v_posEta)) {continue; }
+      if(!this->checkModulePositions(posX,v_posX)) {continue; }
+      if(!this->checkModulePositions(posY,v_posY)) {continue; }
+      if(!this->checkModulePositions(posZ,v_posZ)) {continue; }
       
       tkSector.v_rawId.push_back(rawId);
       bool moduleSelected(false);
       for(auto const & i_rawId : allSectors.v_rawId){
-        if(rawId == i_rawId)moduleSelected = true;
+        if(rawId == i_rawId) {moduleSelected = true; }
       }
-      if(!moduleSelected)allSectors.v_rawId.push_back(rawId);
+      if(!moduleSelected) {allSectors.v_rawId.push_back(rawId); }
     }
     
     // Stops you from combining pixel and strip detector into one sector
@@ -304,7 +304,7 @@ bool
 ApeTreeCreateDefault::checkIntervalsForSectors(const unsigned int sectorCounter, const std::vector<double>& v_id)const
 {
     
-  if(v_id.empty())return true;
+  if(v_id.empty()) {return true; }
   if(v_id.size()%2==1){
     edm::LogError("SectorBuilder")<<"Incorrect Sector Definition: Position Vectors need even number of arguments (Intervals)"
                                      <<"\n... sector selection is not applied, sector "<<sectorCounter<<" is not built";
@@ -313,7 +313,7 @@ ApeTreeCreateDefault::checkIntervalsForSectors(const unsigned int sectorCounter,
   int entry(0); double intervalBegin(999.);
   for(auto const & i_id : v_id){
     ++entry;
-    if(entry%2==1) intervalBegin = i_id;
+    if(entry%2==1) { intervalBegin = i_id; }
     if(entry%2==0 && intervalBegin > i_id){
       edm::LogError("SectorBuilder")<<"Incorrect Sector Definition (Position Vector Intervals): \t"
                                     <<intervalBegin<<" is bigger than "<<i_id<<" but is expected to be smaller"
@@ -328,9 +328,9 @@ bool
 ApeTreeCreateDefault::checkModuleIds(const unsigned int id, const std::vector<unsigned int>& v_id)const
 {
     
-  if(v_id.empty())return true;
+  if(v_id.empty()) {return true; }
   for(auto const & i_id : v_id){
-    if(id==i_id)return true;
+    if(id==i_id) {return true; }
   }
   return false;
 }
@@ -339,10 +339,10 @@ bool
 ApeTreeCreateDefault::checkModuleBools(const bool id, const std::vector<unsigned int>& v_id)const
 {
     
-  if(v_id.empty())return true;
+  if(v_id.empty()) {return true; }
   for(auto const & i_id : v_id){
-    if(1==i_id && id)return true;
-    if(2==i_id && !id)return true;
+    if(1==i_id && id) {return true; }
+    if(2==i_id && !id) {return true; }
   }
   return false;
 }
@@ -351,9 +351,9 @@ bool
 ApeTreeCreateDefault::checkModuleDirections(const int id, const std::vector<int>& v_id)const
 {
     
-  if(v_id.empty())return true;
+  if(v_id.empty()) {return true; }
   for(auto const & i_id : v_id){
-    if(id==i_id)return true;
+    if(id==i_id) {return true; }
   }
   return false;
 }
@@ -362,12 +362,12 @@ bool
 ApeTreeCreateDefault::checkModulePositions(const float id, const std::vector<double>& v_id)const
 {
     
-  if(v_id.empty())return true;
+  if(v_id.empty()) {return true; }
   int entry(0); double intervalBegin(999.);
   for(auto const & i_id : v_id){
     ++entry;
-    if(entry%2==1)intervalBegin = i_id;
-    if(entry%2==0 && id>=intervalBegin && id<i_id)return true;
+    if(entry%2==1) {intervalBegin = i_id; }
+    if(entry%2==0 && id>=intervalBegin && id<i_id) {return true; }
   }
   return false;
 }

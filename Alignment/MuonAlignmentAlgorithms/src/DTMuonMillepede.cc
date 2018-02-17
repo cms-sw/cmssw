@@ -55,7 +55,8 @@ void DTMuonMillepede::calculationMillepede(int workingmode) {
       C[whI+2][stI-1] = new TMatrixD * [14];
       b[whI+2][stI-1] = new TMatrixD * [14];
       for(int seI = 1; seI < 15; ++seI) {
-        if(seI > 12 && stI != 4) continue;
+        if(seI > 12 && stI != 4) { continue;
+}
         if(stI == 4) {
           C[whI+2][stI-1][seI-1] = new TMatrixD(24,24);
           b[whI+2][stI-1][seI-1] = new TMatrixD(24,1);
@@ -74,14 +75,17 @@ void DTMuonMillepede::calculationMillepede(int workingmode) {
     for (Int_t i=0;i<nentries;i++) {
       tali->GetEntry(i);
       
-      if (i%100000==0) std::cout << "Analyzing track number " << i << std::endl;
+      if (i%100000==0) { std::cout << "Analyzing track number " << i << std::endl;
+}
       
       //Basic cuts
-      if(pt > ptMax || pt < ptMin) continue;
+      if(pt > ptMax || pt < ptMin) { continue;
+}
       
       for(int counter = 0; counter < nseg; ++counter) {
 	
-	if (nphihits[counter]<nPhiHits || (nthetahits[counter]<nThetaHits && st[counter]<4)) continue;
+	if (nphihits[counter]<nPhiHits || (nthetahits[counter]<nThetaHits && st[counter]<4)) { continue;
+}
 	
 	TMatrixD A(12,60);
 	TMatrixD R(12,1);
@@ -166,12 +170,13 @@ void DTMuonMillepede::calculationMillepede(int workingmode) {
 
   }
   
-  if (workingmode==3) 
-    for(int wheel = -2; wheel < 3; ++wheel) 
-      for(int station = 1; station < 5; ++station) 
+  if (workingmode==3) { 
+    for(int wheel = -2; wheel < 3; ++wheel) { 
+      for(int station = 1; station < 5; ++station) { 
 	for(int sector = 1; sector < 15; ++sector) {
 	  
-	  if(sector > 12 && station != 4) continue;
+	  if(sector > 12 && station != 4) { continue;
+}
 	  
 	  TMatrixD Ctr = *C[wheel+2][station-1][sector-1];
 	  TMatrixD btr = *b[wheel+2][station-1][sector-1];
@@ -185,15 +190,17 @@ void DTMuonMillepede::calculationMillepede(int workingmode) {
 	  btr.Write(btrName);
 	  
 	}
+}
   
   // My Final Calculation and Constraints 
   if (workingmode%2==0) {
 
-    for(int wheel = -2; wheel < 3; ++wheel) 
-      for(int station = 1; station < 5; ++station) 
+    for(int wheel = -2; wheel < 3; ++wheel) { 
+      for(int station = 1; station < 5; ++station) { 
 	for(int sector = 1; sector < 15; ++sector) {
 	  
-	  if(sector > 12 && station != 4) continue;
+	  if(sector > 12 && station != 4) { continue;
+}
        
  	  if (workingmode==4) {
 	    
@@ -229,7 +236,7 @@ void DTMuonMillepede::calculationMillepede(int workingmode) {
 
 	  int nLayer = 12, nDeg = 5;
 	  if (station==4) { nLayer = 8; nDeg = 3; }
-	  for(int counterLayer = 0; counterLayer < nLayer; ++counterLayer) 
+	  for(int counterLayer = 0; counterLayer < nLayer; ++counterLayer) { 
 	    for(int counterDeg = 0; counterDeg < nDeg; ++counterDeg) {
 	      
 	      if(counterLayer < 4) {
@@ -262,12 +269,14 @@ void DTMuonMillepede::calculationMillepede(int workingmode) {
 		phiz[counterLayer] = 0.;
 	      }
 	    }
+}
 
 	  whC = wheel; stC = station; srC = sector;
 	  
 	  ttreeOutput->Fill();
 
 	}
+}
   
   }
 
@@ -344,7 +353,8 @@ void DTMuonMillepede::calculationMillepede(int workingmode) {
 TMatrixD DTMuonMillepede::getCcsMatrix(int wh, int st, int se) {
 
   int size = 60;
-  if(st == 4) size = 24;
+  if(st == 4) { size = 24;
+}
 
   TMatrixD matrix(size, size);
 
@@ -358,19 +368,22 @@ TMatrixD DTMuonMillepede::getCcsMatrix(int wh, int st, int se) {
   TMatrixD ConsQC = myPG->giveQCCal(wh, st, se);
 
   bool UseQC = true;
-  if (ConsQC.GetNrows()<70) UseQC = false;
+  if (ConsQC.GetNrows()<70) { UseQC = false;
+}
   
   int nLayer = 12, nDeg = 5;
   if (st==4) { nLayer = 8; nDeg = 3; }
 
-  for (int la = 0; la<nLayer; la++) 
+  for (int la = 0; la<nLayer; la++) { 
     for (int dg = 0; dg<nDeg; dg++) {
 
       int index = la*nDeg + dg;
 
       int rdg = dg + 1;
-      if (la<8 && rdg==1) rdg = 0;
-      if (st==4 && rdg==3) rdg = 4;
+      if (la<8 && rdg==1) { rdg = 0;
+}
+      if (st==4 && rdg==3) { rdg = 4;
+}
 
       double ThisError2 = Error[la/4][rdg]*Error[la/4][rdg];
       if (rdg<2) {
@@ -382,6 +395,7 @@ TMatrixD DTMuonMillepede::getCcsMatrix(int wh, int st, int se) {
       matrix(index, index) = 1./ThisError2;
       
     }
+}
 
   return matrix;
 
@@ -392,7 +406,8 @@ TMatrixD DTMuonMillepede::getCcsMatrix(int wh, int st, int se) {
 TMatrixD DTMuonMillepede::getbcsMatrix(int wh, int st, int se) {
 
   int size = 60;
-  if(st == 4) size = 24;
+  if(st == 4) { size = 24;
+}
 
   TMatrixD matrix(size, 1);
 
@@ -406,21 +421,24 @@ TMatrixD DTMuonMillepede::getbcsMatrix(int wh, int st, int se) {
   TMatrixD ConsQC = myPG->giveQCCal(wh, st, se);
 
   bool UseQC = true;
-  if (ConsQC.GetNrows()<70) UseQC = false;
+  if (ConsQC.GetNrows()<70) { UseQC = false;
+}
 
   TMatrixD Survey = myPG->giveSurvey(wh, st, se);
 
   int nLayer = 12, nDeg = 5;
   if (st==4) { nLayer = 8; nDeg = 3; }
 
-  for (int la = 0; la<nLayer; la++) 
+  for (int la = 0; la<nLayer; la++) { 
     for (int dg = 0; dg<nDeg; dg++) {
 
       int index = la*nDeg + dg;
 
       int rdg = dg + 1;
-      if (la<8 && rdg==1) rdg = 0;
-      if (st==4 && rdg==3) rdg = 4;
+      if (la<8 && rdg==1) { rdg = 0;
+}
+      if (st==4 && rdg==3) { rdg = 4;
+}
 
       double ThisError2 = Error[la/4][rdg]*Error[la/4][rdg];
       if (rdg<2) {
@@ -430,14 +448,18 @@ TMatrixD DTMuonMillepede::getbcsMatrix(int wh, int st, int se) {
       } else { ThisError2 += TollerancyRotation*TollerancyRotation; }
       
       float Constraint = 0.;
-      if (la>3) 
+      if (la>3) { 
 	Constraint += Survey(rdg, la/4-1);
-      if (UseQC && rdg==0) Constraint += ConsQC(la, 0);;
-      if (UseQC && rdg==1) Constraint -= ConsQC(la, 0);
+}
+      if (UseQC && rdg==0) { Constraint += ConsQC(la, 0);
+};
+      if (UseQC && rdg==1) { Constraint -= ConsQC(la, 0);
+}
      
       matrix(index, 0) = Constraint/ThisError2;
       
     }
+}
   
   return matrix;
   
@@ -446,7 +468,8 @@ TMatrixD DTMuonMillepede::getbcsMatrix(int wh, int st, int se) {
 TMatrixD DTMuonMillepede::getMatrixFromFile(const TString& Code, int wh, int st, int se, int mf) {
 	    
   TString MtxFileName = "./LocalMillepedeMatrix_"; MtxFileName += mf; MtxFileName += ".root";
-  if (mf==-1) MtxFileName = "./LocalMillepedeMatrix.root";
+  if (mf==-1) { MtxFileName = "./LocalMillepedeMatrix.root";
+}
 
   TDirectory *dirSave = gDirectory;
 
@@ -466,7 +489,8 @@ TMatrixD DTMuonMillepede::getMatrixFromFile(const TString& Code, int wh, int st,
 TMatrixD DTMuonMillepede::getLagMatrix(int wh, int st, int se) {
   
   TMatrixD matrix(60+6,60+6);
-  if(st == 4) matrix.ResizeTo(40+6, 40+6); 
+  if(st == 4) { matrix.ResizeTo(40+6, 40+6); 
+}
   
   for(int counterDeg = 0; counterDeg < 5; ++counterDeg) {
     for(int counterLayer = 0; counterLayer < 12; ++counterLayer) {
@@ -480,7 +504,8 @@ TMatrixD DTMuonMillepede::getLagMatrix(int wh, int st, int se) {
         }
         matrix(counterLayer*5+counterDeg,40+realCounter) = 10000.0;
         if( (realCounter == 0 && counterLayer > 7) ||
-            (realCounter == 1 && counterLayer < 7)) continue;  
+            (realCounter == 1 && counterLayer < 7)) { continue;  
+}
         matrix(60+realCounter,counterLayer*5+counterDeg) = 10000.0;
       }
     }
@@ -495,13 +520,15 @@ TMatrixD DTMuonMillepede::getCqcMatrix(int wh, int st, int se) {
   TMatrixD sigmaQC(5, 12);
   
   TMatrixD matrix(60, 60);
-  if(st == 4) matrix.ResizeTo(40, 40);
+  if(st == 4) { matrix.ResizeTo(40, 40);
+}
   
 
   if(surv.GetNrows() < 7) {
     for(int counterDeg = 0; counterDeg < 5; counterDeg++) {
       for(int counterLayer = 0; counterLayer < 12; ++counterLayer) {
-        if(st != 4 && counterLayer > 7) continue;
+        if(st != 4 && counterLayer > 7) { continue;
+}
         if(counterDeg == 0) {
           sigmaQC(counterDeg, counterLayer) = 0.05;
         } else if(counterDeg < 3) {
@@ -514,11 +541,13 @@ TMatrixD DTMuonMillepede::getCqcMatrix(int wh, int st, int se) {
   } else {
     float meanvarSL1 = sqrt(surv(0,1)*surv(0,1)+surv(1,1)*surv(1,1)+surv(2,1)*surv(2,1)+surv(3,1)*surv(3,1))/10000.0; 
     float meanvarSL2 = 0;
-    if(surv.GetNrows() > 9) meanvarSL2 = sqrt(surv(8,1)*surv(8,1)+surv(9,1)*surv(9,1)+surv(10,1)*surv(10,1)+surv(11,1)*surv(11,1))/10000.0; 
+    if(surv.GetNrows() > 9) { meanvarSL2 = sqrt(surv(8,1)*surv(8,1)+surv(9,1)*surv(9,1)+surv(10,1)*surv(10,1)+surv(11,1)*surv(11,1))/10000.0; 
+}
     float meanvarSL3 = sqrt(surv(4,1)*surv(4,1)+surv(5,1)*surv(5,1)+surv(6,1)*surv(6,1)+surv(7,1)*surv(7,1))/10000.0; 
     for(int counterDeg = 0; counterDeg < 5; counterDeg++) {
       for(int counterLayer = 0; counterLayer < 12; ++counterLayer) {
-	if(st != 4 && counterLayer > 7) continue;
+	if(st != 4 && counterLayer > 7) { continue;
+}
 	float meanerror = 0;
 	if(counterLayer < 4) {
 	  meanerror = meanvarSL1;
@@ -539,10 +568,12 @@ TMatrixD DTMuonMillepede::getCqcMatrix(int wh, int st, int se) {
     double **Eta = new double *[12];
     for(int counterLayer = 0; counterLayer < 12; counterLayer++) {
       
-      if(counterLayer > 7 && st == 4) continue; 
+      if(counterLayer > 7 && st == 4) { continue; 
+}
       Eta[counterLayer] = new double [5];
       for(int counterLayer2 = 0; counterLayer2 < 12; counterLayer2++) {
-	if(counterLayer > 7 && st == 4) continue; 
+	if(counterLayer > 7 && st == 4) { continue; 
+}
 	if((counterLayer2 < 4 && counterLayer < 4) || (counterLayer2 > 3 && counterLayer > 3)) {
 	  if(counterLayer == counterLayer2) {
 	    Eta[counterLayer][counterLayer2] = 3.0/(4.0);
@@ -557,11 +588,14 @@ TMatrixD DTMuonMillepede::getCqcMatrix(int wh, int st, int se) {
   
     for(int counterDeg = 0; counterDeg < 5; counterDeg++) {
       for(int counterLayer = 0; counterLayer < 12; counterLayer++) {
-        if(counterLayer > 7 && st == 4) continue; 
+        if(counterLayer > 7 && st == 4) { continue; 
+}
         for(int counterLayer2 = 0; counterLayer2 < 12; counterLayer2++) {
-          if(counterLayer2 > 7 && st == 4) continue; 
+          if(counterLayer2 > 7 && st == 4) { continue; 
+}
           for(int counterLayer3 = 0; counterLayer3 < 12; counterLayer3++) {
-            if(counterLayer3 > 7 && st == 4) continue; 
+            if(counterLayer3 > 7 && st == 4) { continue; 
+}
             matrix(5*counterLayer2+counterDeg, 5*counterLayer3+counterDeg) +=
               Eta[counterLayer][counterLayer2]*Eta[counterLayer][counterLayer3]/(sigmaQC(counterDeg,counterLayer)*sigmaQC(counterDeg,counterLayer));
           }
@@ -579,12 +613,14 @@ TMatrixD DTMuonMillepede::getbqcMatrix(int wh, int st, int se) {
   TMatrixD ResQC(5, 12);
   TMatrixD sigmaQC(5, 12);
   TMatrixD matrix(60, 1);
-  if(st == 4) matrix.ResizeTo(40, 1);
+  if(st == 4) { matrix.ResizeTo(40, 1);
+}
   
   if(surv.GetNrows() < 7) {
     for(int counterDeg = 0; counterDeg < 5; counterDeg++) {
       for(int counterLayer = 0; counterLayer < 12; ++counterLayer) {
-        if(st != 4 && counterLayer > 7) continue;
+        if(st != 4 && counterLayer > 7) { continue;
+}
         if(counterDeg == 0) {
           sigmaQC(counterDeg, counterLayer) = 0.05;
         } else if(counterDeg < 3) {
@@ -606,7 +642,8 @@ TMatrixD DTMuonMillepede::getbqcMatrix(int wh, int st, int se) {
     float meanvarSL3 = sqrt(surv(4,1)*surv(4,1)+surv(5,1)*surv(5,1)+surv(6,1)*surv(6,1)+surv(7,1)*surv(7,1))/10000.0;
     for(int counterDeg = 0; counterDeg < 5; counterDeg++) {
       for(int counterLayer = 0; counterLayer < 12; ++counterLayer) {
-	if(st != 4 && counterLayer > 7) continue;
+	if(st != 4 && counterLayer > 7) { continue;
+}
 	float meanerror = 0;
 	if(counterLayer < 4) {
 	  meanerror = meanvarSL1;
@@ -626,10 +663,12 @@ TMatrixD DTMuonMillepede::getbqcMatrix(int wh, int st, int se) {
     }
     double **Eta = new double *[12];
     for(int counterLayer = 0; counterLayer < 12; counterLayer++) {
-      if(counterLayer > 7 && st == 4) continue;
+      if(counterLayer > 7 && st == 4) { continue;
+}
       Eta[counterLayer] = new double [5];
       for(int counterLayer2 = 0; counterLayer2 < 12; counterLayer2++) {
-	if(counterLayer > 7 && st == 4) continue;
+	if(counterLayer > 7 && st == 4) { continue;
+}
 	if((counterLayer2 < 4 && counterLayer < 4) || (counterLayer2 > 3 && counterLayer > 3)) {
 	  if(counterLayer == counterLayer2) {
 	    Eta[counterLayer][counterLayer2] = 3.0/(4.0);
@@ -644,9 +683,11 @@ TMatrixD DTMuonMillepede::getbqcMatrix(int wh, int st, int se) {
   
     for(int counterDeg = 0; counterDeg < 5; counterDeg++) {
       for(int counterLayer = 0; counterLayer < 12; counterLayer++) {
-	if(counterLayer > 7 && st == 4) continue; 
+	if(counterLayer > 7 && st == 4) { continue; 
+}
 	for(int counterLayer2 = 0; counterLayer2 < 12; counterLayer2++) {
-	  if(counterLayer2 > 7 && st == 4) continue;
+	  if(counterLayer2 > 7 && st == 4) { continue;
+}
 	  float mean = 0;
 	  if(counterDeg != 0) {
 	    if(counterLayer < 4) {
@@ -694,7 +735,8 @@ TMatrixD DTMuonMillepede::getbqcMatrix(int wh, int st, int se) {
 TMatrixD DTMuonMillepede::getCsurveyMatrix(int wh, int st, int se) {
 
   int size = 60;
-  if(st == 4) size = 40;
+  if(st == 4) { size = 40;
+}
 
   TMatrixD matrix(size+6, size+6);
   //Careful with the sign
@@ -707,7 +749,8 @@ TMatrixD DTMuonMillepede::getCsurveyMatrix(int wh, int st, int se) {
       if (sl1==sl2) {
 	for(int counterDeg = 0; counterDeg < 5; counterDeg++) {
 	  int counterDegAux = counterDeg+1;
-	  if(counterLayer < 8 && counterDeg == 1) counterDegAux = 0;
+	  if(counterLayer < 8 && counterDeg == 1) { counterDegAux = 0;
+}
 	  int sl = (sl1 + 1)/2; 
 	  matrix(5*counterLayer+counterDeg, 5*counterLayer2+counterDeg) =  1.0/(16.0*error[sl][counterDegAux]*error[sl][counterDegAux]);
 	}
@@ -750,7 +793,8 @@ TMatrixD DTMuonMillepede::getbsurveyMatrix(int wh, int st, int se) {
  
   TMatrixD survey = myPG->giveSurvey(wh, st, se); 
   int size = 60;
-  if(st == 4) size = 40;
+  if(st == 4) { size = 40;
+}
 
   TMatrixD matrix(size+6, 1);
   //Careful with the sign
@@ -759,7 +803,8 @@ TMatrixD DTMuonMillepede::getbsurveyMatrix(int wh, int st, int se) {
   for(int counterLayer = 0; counterLayer < size/5; counterLayer++) {
     for(int counterDeg = 0; counterDeg < 5; counterDeg++) {
       int counterDegAux = counterDeg+1;
-      if(counterLayer < 8 && counterDeg == 1) counterDegAux = 0;  
+      if(counterLayer < 8 && counterDeg == 1) { counterDegAux = 0;  
+}
       int superlayerAux = counterLayer/4;
       int sl = (superlayerAux + 1)/2;
       matrix(5*counterLayer+counterDeg, 0) =  survey(counterDegAux, superlayerAux)/(4.0*error[sl][counterDegAux]*error[sl][counterDegAux]);

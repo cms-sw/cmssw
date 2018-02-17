@@ -100,8 +100,9 @@ T& LASGlobalData<T>::GetTECEntry( int theDetector, int theRing, int theBeam, int
     throw   "   Bailing out."; // @@@ REPLACE THIS BY cms::Exception (<FWCore/Utilities/interface/Exception.h> in 1_3_6)
   }
   else {
-    if( theDetector == 0 ) return( tecPlusData.at( theRing ).at( theBeam ).at( theDisk ) );
-    else return( tecMinusData.at( theRing ).at( theBeam ).at( theDisk ) );
+    if( theDetector == 0 ) { return( tecPlusData.at( theRing ).at( theBeam ).at( theDisk ) );
+    } else { return( tecMinusData.at( theRing ).at( theBeam ).at( theDisk ) ); }
+}
   }
 
 }
@@ -125,8 +126,9 @@ T& LASGlobalData<T>::GetTIBTOBEntry( int theDetector, int theBeam, int thePositi
     throw   "   Bailing out."; // @@@ REPLACE THIS BY cms::Exception (<FWCore/Utilities/interface/Exception.h> in 1_3_6)
   }
   else {
-    if( theDetector == 2 ) return( tibData.at( theBeam ).at( thePosition ) );
-    else return( tobData.at( theBeam ).at( thePosition ) );
+    if( theDetector == 2 ) { return( tibData.at( theBeam ).at( thePosition ) );
+    } else { return( tobData.at( theBeam ).at( thePosition ) ); }
+}
   }
 
 }
@@ -150,8 +152,9 @@ T& LASGlobalData<T>::GetTEC2TECEntry( int theDetector, int theBeam, int theDisk 
     throw   "   Bailing out."; // @@@ REPLACE THIS BY cms::Exception (<FWCore/Utilities/interface/Exception.h> in 1_3_6)
   }
   else {
-    if( theDetector == 0 ) return( tecPlusATData.at( theBeam ).at( theDisk ) );
-    else return( tecMinusATData.at( theBeam ).at( theDisk ) );
+    if( theDetector == 0 ) { return( tecPlusATData.at( theBeam ).at( theDisk ) );
+    } else { return( tecMinusATData.at( theBeam ).at( theDisk ) ); }
+}
   }
 
 }
@@ -177,8 +180,9 @@ void LASGlobalData<T>::SetTECEntry( int theDetector, int theRing, int theBeam, i
     throw   "   Bailing out."; // @@@ REPLACE THIS BY cms::Exception (<FWCore/Utilities/interface/Exception.h> in 1_3_6)
   }
   else {
-    if( theDetector == 0 ) tecPlusData.at( theRing ).at( theBeam ).at( theDisk ) = theEntry;
-    else tecMinusData.at( theRing ).at( theBeam ).at( theDisk ) = theEntry;
+    if( theDetector == 0 ) { tecPlusData.at( theRing ).at( theBeam ).at( theDisk ) = theEntry;
+    } else { tecMinusData.at( theRing ).at( theBeam ).at( theDisk ) = theEntry; }
+}
   }
 
 }
@@ -203,8 +207,9 @@ void LASGlobalData<T>::SetTIBTOBEntry( int theDetector, int theBeam, int thePosi
     throw   "   Bailing out."; // @@@ REPLACE THIS BY cms::Exception (<FWCore/Utilities/interface/Exception.h> in 1_3_6)
   }
   else {
-    if( theDetector == 2 ) tibData.at( theBeam ).at( thePosition ) = theEntry;
-    else tobData.at( theBeam ).at( thePosition ) = theEntry;
+    if( theDetector == 2 ) { tibData.at( theBeam ).at( thePosition ) = theEntry;
+    } else { tobData.at( theBeam ).at( thePosition ) = theEntry; }
+}
   }
 
 }
@@ -229,8 +234,9 @@ void LASGlobalData<T>::SetTEC2TECEntry( int theDetector, int theBeam, int theDis
     throw   "   Bailing out."; // @@@ REPLACE THIS BY cms::Exception (<FWCore/Utilities/interface/Exception.h> in 1_3_6)
   }
   else {
-    if( theDetector == 0 ) tecPlusATData.at( theBeam ).at( theDisk ) = theEntry;
-    else tecMinusATData.at( theBeam ).at( theDisk ) = theEntry;
+    if( theDetector == 0 ) { tecPlusATData.at( theBeam ).at( theDisk ) = theEntry;
+    } else { tecMinusATData.at( theBeam ).at( theDisk ) = theEntry; }
+}
   }
 
 }

@@ -34,8 +34,8 @@ AlignableCSCRing::AlignableCSCRing( const std::vector<AlignableCSCChamber*>& csc
 AlignableCSCChamber &AlignableCSCRing::chamber(int i) 
 {
   
-  if (i >= size() ) 
-	throw cms::Exception("LogicError") << "CSC Chamber index (" << i << ") out of range";
+  if (i >= size() ) { 
+	throw cms::Exception("LogicError") << "CSC Chamber index (" << i << ") out of range"; }
 
   return *theCSCChambers[i];
   
@@ -60,8 +60,8 @@ AlignableCSCRing::PositionType AlignableCSCRing::computePosition()
   float zz = 0.;
 
   for ( std::vector<AlignableCSCChamber*>::iterator ichamber = theCSCChambers.begin();
-		ichamber != theCSCChambers.end(); ichamber++ )
-    zz += (*ichamber)->globalPosition().z();
+		ichamber != theCSCChambers.end(); ichamber++ ) {
+    zz += (*ichamber)->globalPosition().z(); }
 
   zz /= static_cast<float>(theCSCChambers.size());
 
@@ -106,7 +106,7 @@ void AlignableCSCRing::dump( void ) const
 
   edm::LogInfo("AlignableDump") << (*this);
   for ( std::vector<AlignableCSCChamber*>::const_iterator iChamber = theCSCChambers.begin();
-		iChamber != theCSCChambers.end(); iChamber++ )
-	 edm::LogInfo("AlignableDump")  << (**iChamber);
+		iChamber != theCSCChambers.end(); iChamber++ ) {
+	 edm::LogInfo("AlignableDump")  << (**iChamber); }
 
 }

@@ -37,8 +37,8 @@ void AlignableExtras::dump( void ) const
     << " AlignableExtras knows " << comp.size() << " alignable(s)" << std::endl;
 
   // Dump components
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
-    (*i)->dump();
+  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i ) {
+    (*i)->dump(); }
 }
 
 //__________________________________________________________________________________________________

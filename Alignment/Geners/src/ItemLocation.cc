@@ -5,21 +5,21 @@
 namespace gs {
     bool ItemLocation::operator==(const ItemLocation& r) const
     {
-        if (pos_ != r.pos_)
-            return false;
-        if (URI_ != r.URI_)
-            return false;
+        if (pos_ != r.pos_) {
+            return false; }
+        if (URI_ != r.URI_) {
+            return false; }
         // If global URI does not exist, local URI must coincide exactly.
         // If global URI exists, local URI may or may not be defined.
         if (!URI_.empty())
         {
-            if (!cachedItemURI_.empty() && !r.cachedItemURI_.empty())
-                if (cachedItemURI_ != r.cachedItemURI_)
-                    return false;
+            if (!cachedItemURI_.empty() && !r.cachedItemURI_.empty()) {
+                if (cachedItemURI_ != r.cachedItemURI_) {
+                    return false; }
         }
         else
-            if (cachedItemURI_ != r.cachedItemURI_)
-                return false;
+            if (cachedItemURI_ != r.cachedItemURI_) {
+                return false; }
         return true;
     }
 
@@ -48,8 +48,8 @@ namespace gs {
         std::string cachedItemURI;
         read_pod(in, &cachedItemURI);
 
-        if (in.fail())
-            throw IOReadFailure("In ItemLocation::read: input stream failure");
+        if (in.fail()) {
+            throw IOReadFailure("In ItemLocation::read: input stream failure"); }
 
         return new ItemLocation(pos, globURI.c_str(), cachedItemURI.c_str());
     }

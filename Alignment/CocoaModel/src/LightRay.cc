@@ -27,7 +27,8 @@ LightRay::LightRay( )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void LightRay::startLightRay( OpticalObject* opto )
 {
-  if(ALIUtils::debug >= 3) std::cout << std::endl << "LR: CREATE LIGHTRAY " << opto->name() << " OptO type is " << opto->type() << std::endl;
+  if(ALIUtils::debug >= 3) { std::cout << std::endl << "LR: CREATE LIGHTRAY " << opto->name() << " OptO type is " << opto->type() << std::endl;
+}
 
   //---------- Get Z axis of opto
   CLHEP::Hep3Vector ZAxis(0.,0.,1.);
@@ -51,7 +52,8 @@ void LightRay::startLightRay( OpticalObject* opto )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 LightRay::LightRay( OpticalObject* opto1, OpticalObject* opto2)
 {
-  if(ALIUtils::debug >= 7) std::cout << std::endl << "LR:CREATE LIGHTRAY FROM SOURCE" << opto2->name() << std::endl;
+  if(ALIUtils::debug >= 7) { std::cout << std::endl << "LR:CREATE LIGHTRAY FROM SOURCE" << opto2->name() << std::endl;
+}
 
   CLHEP::Hep3Vector _ZAxis(0.,0.,1.);
   //-  LightRay* linetmp;
@@ -60,7 +62,8 @@ LightRay::LightRay( OpticalObject* opto1, OpticalObject* opto2)
   setDirection( opto2->centreGlob() - opto1->centreGlob() );
   setPoint( opto1->centreGlob() );
 
-  if(ALIUtils::debug >= 9) std::cout << "OPT" << opto1 << opto1->name() << std::endl;
+  if(ALIUtils::debug >= 9) { std::cout << "OPT" << opto1 << opto1->name() << std::endl;
+}
   //-  std::cout << "centre glob" << &p1->aff()->centre_glob() << std::endl;
   if (ALIUtils::debug >= 9) {
     dumpData(" ");
@@ -86,7 +89,8 @@ LightRay::LightRay( CLHEP::Hep3Vector& vec1, CLHEP::Hep3Vector& vec2 )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void LightRay::intersect( const OpticalObject& opto )
 {
-  if(ALIUtils::debug >= 3) std::cout << "% LR INTERSECT WITH OPTO" << std::endl;
+  if(ALIUtils::debug >= 3) { std::cout << "% LR INTERSECT WITH OPTO" << std::endl;
+}
   CLHEP::Hep3Vector ZAxis(0.,0.,1.);
   const CLHEP::HepRotation& rmt = opto.rmGlob();
   ZAxis = rmt*ZAxis;
@@ -100,7 +104,8 @@ void LightRay::intersect( const OpticalObject& opto )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void LightRay::intersect( const ALIPlane& plane )
 {
-  if(ALIUtils::debug >= 4) std::cout << "% LR INTERSECT WITH PLANE" << std::endl;
+  if(ALIUtils::debug >= 4) { std::cout << "% LR INTERSECT WITH PLANE" << std::endl;
+}
   if(ALIUtils::debug >= 4) {
     ALIUtils::dump3v( plane.point(), "plane point");
     ALIUtils::dump3v( plane.normal(), "plane normal");
@@ -118,19 +123,24 @@ void LightRay::intersect( const ALIPlane& plane )
 
   //---------- Get intersection point between LightRay and plane
   CLHEP::Hep3Vector vtemp = plane.point() - _point;
-  if(ALIUtils::debug >= 5) ALIUtils::dump3v( vtemp, "n_r = point  - point_plane");
+  if(ALIUtils::debug >= 5) { ALIUtils::dump3v( vtemp, "n_r = point  - point_plane");
+}
   ALIdouble dtemp = _direction * plane.normal();
-  if(ALIUtils::debug >= 5) std::cout << " lightray* plate normal" << dtemp << std::endl;
+  if(ALIUtils::debug >= 5) { std::cout << " lightray* plate normal" << dtemp << std::endl;
+}
   if ( dtemp != 0. ) {
       dtemp = (vtemp * plane.normal()) / dtemp;
-      if(ALIUtils::debug >= 5)  std::cout << " n_r*plate normal" << dtemp << std::endl;
+      if(ALIUtils::debug >= 5) {  std::cout << " n_r*plate normal" << dtemp << std::endl;
+}
   } else {
       std::cerr << "!!! LightRay: Intersect With Plane: plane and light ray parallel: no intersection" << std::endl;
   }
   vtemp = _direction * dtemp;
-  if(ALIUtils::debug >= 5) ALIUtils::dump3v( vtemp, "n_r scaled");
+  if(ALIUtils::debug >= 5) { ALIUtils::dump3v( vtemp, "n_r scaled");
+}
   CLHEP::Hep3Vector inters = vtemp + _point;
-  if(ALIUtils::debug >= 3) ALIUtils::dump3v( inters, "INTERSECTION point ");
+  if(ALIUtils::debug >= 3) { ALIUtils::dump3v( inters, "INTERSECTION point ");
+}
 
   _point = inters;
 }
@@ -142,7 +152,8 @@ void LightRay::intersect( const ALIPlane& plane )
 void LightRay::reflect( const ALIPlane& plane)
 {
   intersect(plane);
-  if( ALIUtils::debug >= 4 ) std::cout << "% LR: REFLECT IN PLANE " << std::endl;
+  if( ALIUtils::debug >= 4 ) { std::cout << "% LR: REFLECT IN PLANE " << std::endl;
+}
   ALIdouble cosang = -(plane.normal() * _direction) /
            plane.normal().mag() / _direction.mag();
   if(ALIUtils::debug >= 5) {
@@ -150,7 +161,8 @@ void LightRay::reflect( const ALIPlane& plane)
     ALIUtils::dump3v( plane.normal(), " plane normal");
   }
   _direction += plane.normal()*2*cosang;
-  if( ALIUtils::debug >= 5 ) dumpData("LightRay after reflection: ");
+  if( ALIUtils::debug >= 5 ) { dumpData("LightRay after reflection: ");
+}
 
 }
 

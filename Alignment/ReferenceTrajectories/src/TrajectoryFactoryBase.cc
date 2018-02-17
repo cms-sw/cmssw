@@ -56,16 +56,16 @@ TrajectoryFactoryBase::innermostStateAndRecHits( const ConstTrajTrackPair & trac
   // get the innermost valid trajectory state - the corresponding hit must be o.k. as well
   while ( itM != trajectoryMeasurements.end() )
   {
-    if ( ( *itM ).updatedState().isValid() && useRecHit( ( *itM ).recHit() ) ) break;
+    if ( ( *itM ).updatedState().isValid() && useRecHit( ( *itM ).recHit() ) ) { break; }
     ++itM;
   }
-  if ( itM != trajectoryMeasurements.end() ) result.first = ( *itM ).updatedState();
+  if ( itM != trajectoryMeasurements.end() ) { result.first = ( *itM ).updatedState(); }
 
   // get the valid RecHits
   while ( itM != trajectoryMeasurements.end() )
   {
     TransientTrackingRecHit::ConstRecHitPointer aRecHit = ( *itM ).recHit();
-    if ( useRecHit( aRecHit ) ) result.second.push_back( aRecHit );
+    if ( useRecHit( aRecHit ) ) { result.second.push_back( aRecHit ); }
     ++itM;
   }
 
@@ -112,13 +112,13 @@ bool
 TrajectoryFactoryBase::useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const
 {
   const GeomDet* det = hitPtr->det();
-  if ( !det && !useWithoutDet_ ) return false;
+  if ( !det && !useWithoutDet_ ) { return false; }
   
-  if ( !( useInvalidHits_ || hitPtr->isValid() ) ) return false;
+  if ( !( useInvalidHits_ || hitPtr->isValid() ) ) { return false; }
 
   if ( !useProjectedHits_ )
   {
-    if(trackerHitRTTI::isProjected(*hitPtr)) return false;
+    if(trackerHitRTTI::isProjected(*hitPtr)) { return false; }
   }
 
   return true;
@@ -128,16 +128,16 @@ TrajectoryFactoryBase::useRecHit( const TransientTrackingRecHit::ConstRecHitPoin
 TrajectoryFactoryBase::MaterialEffects
 TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
 {
-  if ( strME == "MultipleScattering" ) return ReferenceTrajectoryBase::multipleScattering;
-  if ( strME == "EnergyLoss" ) return ReferenceTrajectoryBase::energyLoss;
-  if ( strME == "Combined" ) return ReferenceTrajectoryBase::combined;
-  if ( strME == "None" ) return ReferenceTrajectoryBase::none;
-  if ( strME == "BreakPoints" ) return ReferenceTrajectoryBase::breakPoints;
-  if ( strME == "BrokenLines" ) return ReferenceTrajectoryBase::brokenLinesCoarse;
-  if ( strME == "BrokenLinesCoarse" ) return ReferenceTrajectoryBase::brokenLinesCoarse;
-  if ( strME == "BrokenLinesFine" ) return ReferenceTrajectoryBase::brokenLinesFine;
-  if ( strME == "LocalGBL" ) return ReferenceTrajectoryBase::localGBL;
-  if ( strME == "CurvlinGBL" ) return ReferenceTrajectoryBase::curvlinGBL;
+  if ( strME == "MultipleScattering" ) { return ReferenceTrajectoryBase::multipleScattering; }
+  if ( strME == "EnergyLoss" ) { return ReferenceTrajectoryBase::energyLoss; }
+  if ( strME == "Combined" ) { return ReferenceTrajectoryBase::combined; }
+  if ( strME == "None" ) { return ReferenceTrajectoryBase::none; }
+  if ( strME == "BreakPoints" ) { return ReferenceTrajectoryBase::breakPoints; }
+  if ( strME == "BrokenLines" ) { return ReferenceTrajectoryBase::brokenLinesCoarse; }
+  if ( strME == "BrokenLinesCoarse" ) { return ReferenceTrajectoryBase::brokenLinesCoarse; }
+  if ( strME == "BrokenLinesFine" ) { return ReferenceTrajectoryBase::brokenLinesFine; }
+  if ( strME == "LocalGBL" ) { return ReferenceTrajectoryBase::localGBL; }
+  if ( strME == "CurvlinGBL" ) { return ReferenceTrajectoryBase::curvlinGBL; }
             
   throw cms::Exception("BadConfig")
     << "[TrajectoryFactoryBase::materialEffects] Unknown parameter: " << strME;
@@ -147,9 +147,9 @@ TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
 PropagationDirection
 TrajectoryFactoryBase::propagationDirection( const std::string & strPD ) const
 {
-  if ( strPD == "oppositeToMomentum" ) return oppositeToMomentum;
-  if ( strPD == "alongMomentum" ) return alongMomentum;
-  if ( strPD == "anyDirection" ) return anyDirection;
+  if ( strPD == "oppositeToMomentum" ) { return oppositeToMomentum; }
+  if ( strPD == "alongMomentum" ) { return alongMomentum; }
+  if ( strPD == "anyDirection" ) { return anyDirection; }
 
   throw cms::Exception("BadConfig")
     << "[TrajectoryFactoryBase::propagationDirection] Unknown parameter: " << strPD;

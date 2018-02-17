@@ -34,7 +34,8 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
   // phi positions of the AT beams in rad
   const double phiPositions[8] = { 0.392699, 1.289799, 1.851794, 2.748894, 3.645995, 4.319690, 5.216791, 5.778784 };
   std::vector<double> beamPhiPositions( 8, 0. );
-  for( beam = 0; beam < 8; ++beam ) beamPhiPositions.at( beam ) = phiPositions[beam];
+  for( beam = 0; beam < 8; ++beam ) { beamPhiPositions.at( beam ) = phiPositions[beam];
+}
 
   // the radii of the alignment tube beams for each halfbarrel.
   // the halfbarrels 1-6 are (see TkLasATModel TWiki): TEC+, TEC-, TIB+, TIB-. TOB+, TOB-
@@ -42,7 +43,8 @@ LASBarrelAlignmentParameterSet LASAlignmentTubeAlgorithm::CalculateParameters( L
   // ..due to the radial offsets (after the semitransparent mirrors)
   const double radii[6] = { 564., 564., 514., 514., 600., 600. };
   std::vector<double> beamRadii( 6, 0. );
-  for( int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) beamRadii.at( aHalfbarrel ) =  radii[aHalfbarrel];
+  for( int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) { beamRadii.at( aHalfbarrel ) =  radii[aHalfbarrel];
+}
   
   // the z positions of the halfbarrel_end_faces / outer_TEC_disks (in mm);
   // parameters are: det, side(0=+/1=-), z(0=lowerZ/1=higherZ). TECs have no side (use side = 0)
@@ -466,7 +468,8 @@ double LASAlignmentTubeAlgorithm::GetTIBTOBAlignmentParameterCorrection( int det
   // phi positions of the AT beams in rad
   const double phiPositions[8] = { 0.392699, 1.289799, 1.851794, 2.748894, 3.645995, 4.319690, 5.216791, 5.778784 };
   std::vector<double> beamPhiPositions( 8, 0. );
-  for( unsigned int aBeam = 0; aBeam < 8; ++aBeam ) beamPhiPositions.at( aBeam ) = phiPositions[aBeam];
+  for( unsigned int aBeam = 0; aBeam < 8; ++aBeam ) { beamPhiPositions.at( aBeam ) = phiPositions[aBeam];
+}
 
   // the radii of the alignment tube beams for each halfbarrel.
   // the halfbarrels 1-6 are (see TkLasATModel TWiki): TEC+, TEC-, TIB+, TIB-. TOB+, TOB-
@@ -474,7 +477,8 @@ double LASAlignmentTubeAlgorithm::GetTIBTOBAlignmentParameterCorrection( int det
   // ..due to the radial offsets (after the semitransparent mirrors)
   const double radii[6] = { 564., 564., 514., 514., 600., 600. };
   std::vector<double> beamRadii( 6, 0. );
-  for( int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) beamRadii.at( aHalfbarrel ) =  radii[aHalfbarrel];
+  for( int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) { beamRadii.at( aHalfbarrel ) =  radii[aHalfbarrel];
+}
 
   // reduced z positions of the beam spots ( z'_{k,j}, z"_{k,j} )
   double detReducedZ[2] = { 0., 0. };
@@ -574,7 +578,8 @@ double LASAlignmentTubeAlgorithm::GetTEC2TECAlignmentParameterCorrection( int de
   // phi positions of the AT beams in rad
   const double phiPositions[8] = { 0.392699, 1.289799, 1.851794, 2.748894, 3.645995, 4.319690, 5.216791, 5.778784 };
   std::vector<double> beamPhiPositions( 8, 0. );
-  for( unsigned int aBeam = 0; aBeam < 8; ++aBeam ) beamPhiPositions.at( aBeam ) = phiPositions[aBeam];
+  for( unsigned int aBeam = 0; aBeam < 8; ++aBeam ) { beamPhiPositions.at( aBeam ) = phiPositions[aBeam];
+}
 
   // the radii of the alignment tube beams for each halfbarrel.
   // the halfbarrels 1-6 are (see TkLasATModel TWiki): TEC+, TEC-, TIB+, TIB-. TOB+, TOB-
@@ -582,7 +587,8 @@ double LASAlignmentTubeAlgorithm::GetTEC2TECAlignmentParameterCorrection( int de
   // ..due to the radial offsets (after the semitransparent mirrors)
   const double radii[6] = { 564., 564., 514., 514., 600., 600. };
   std::vector<double> beamRadii( 6, 0. );
-  for( int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) beamRadii.at( aHalfbarrel ) =  radii[aHalfbarrel];
+  for( int aHalfbarrel = 0; aHalfbarrel < 6; ++aHalfbarrel ) { beamRadii.at( aHalfbarrel ) =  radii[aHalfbarrel];
+}
 
   // reduced z positions of the beam spots ( z'_{k,j}, z"_{k,j} )
   double detReducedZ[2] = { 0., 0. };
@@ -698,7 +704,8 @@ void LASAlignmentTubeAlgorithm::ReadMisalignmentFromFile( const char* filename,
   while( !file.eof() ) {
 
     file >> det;
-    if( file.eof() ) break; // do not read the last line twice, do not fill trash if file empty
+    if( file.eof() ) { break; // do not read the last line twice, do not fill trash if file empty
+}
 
     file >> beam; file >> z; file >> ring;
     file >> phi; file >> phiError;

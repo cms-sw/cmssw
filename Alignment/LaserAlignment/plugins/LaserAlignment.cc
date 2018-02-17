@@ -110,7 +110,7 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
 ///
 LaserAlignment::~LaserAlignment() {
 
-  if ( theSaveHistograms ) theFile->Write();
+  if ( theSaveHistograms ) { theFile->Write(); }
   if ( theFile ) { delete theFile; }
   if ( theAlignableTracker ) { delete theAlignableTracker; }
 
@@ -136,9 +136,9 @@ void LaserAlignment::beginJob() {
     if ( theFile ) {
       theFile->SetCompressionLevel(theCompression);
       singleModulesDir = theFile->mkdir( "single modules" );
-    } else 
+    } else { 
       throw cms::Exception( " [LaserAlignment::beginJob]") << " ** ERROR: could not open file:"
-							   << theFileName.c_str() << " for writing." << std::endl;
+							   << theFileName.c_str() << " for writing." << std::endl; }
 
   }
 
@@ -171,9 +171,9 @@ void LaserAlignment::beginJob() {
     nameBuilder.clear();
     nameBuilder.str( "" );
     nameBuilder << "TEC";
-    if( det == 0 ) nameBuilder << "+"; else nameBuilder << "-";
+    if( det == 0 ) { nameBuilder << "+"; } else { nameBuilder << "-"; }
     nameBuilder << "_Ring";
-    if( ring == 0 ) nameBuilder << "4"; else nameBuilder << "6";
+    if( ring == 0 ) { nameBuilder << "4"; } else { nameBuilder << "6"; }
     nameBuilder << "_Beam" << beam;
     nameBuilder << "_Disk" << disk;
     theProfileNames.SetTECEntry( det, ring, beam, disk, nameBuilder.str() );
@@ -203,7 +203,7 @@ void LaserAlignment::beginJob() {
     // create strings for histo names
     nameBuilder.clear();
     nameBuilder.str( "" );
-    if( det == 2 ) nameBuilder << "TIB"; else nameBuilder << "TOB";
+    if( det == 2 ) { nameBuilder << "TIB"; } else { nameBuilder << "TOB"; }
     nameBuilder << "_Beam" << beam;
     nameBuilder << "_Zpos" << pos;
 
@@ -235,7 +235,7 @@ void LaserAlignment::beginJob() {
     nameBuilder.clear();
     nameBuilder.str( "" );
     nameBuilder << "TEC(AT)";
-    if( det == 0 ) nameBuilder << "+"; else nameBuilder << "-";
+    if( det == 0 ) { nameBuilder << "+"; } else { nameBuilder << "-"; }
     nameBuilder << "_Beam" << beam;
     nameBuilder << "_Disk" << disk;
     theProfileNames.SetTEC2TECEntry( det, beam, disk, nameBuilder.str() );
@@ -511,9 +511,9 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
 				       summedHistograms.GetTECEntry( det, ring, beam, disk ), 0 ); // offset is 0 for TEC
 
     // now we have the measured positions in units of strips. 
-    if( !isGoodFit ) std::cout << " [LaserAlignment::endRun] ** WARNING: Fit failed for TEC det: "
+    if( !isGoodFit ) { std::cout << " [LaserAlignment::endRun] ** WARNING: Fit failed for TEC det: "
 			       << det << ", ring: " << ring << ", beam: " << beam << ", disk: " << disk
-			       << " (id: " << detectorId.GetTECEntry( det, ring, beam, disk ) << ")." << std::endl;
+			       << " (id: " << detectorId.GetTECEntry( det, ring, beam, disk ) << ")." << std::endl; }
 
     
 
@@ -561,9 +561,9 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
 				       summedHistograms.GetTIBTOBEntry( det, beam, pos ), getTIBTOBNominalBeamOffset( det, beam, pos ) );
 
     // now we have the measured positions in units of strips.
-    if( !isGoodFit ) std::cout << " [LaserAlignment::endJob] ** WARNING: Fit failed for TIB/TOB det: "
+    if( !isGoodFit ) { std::cout << " [LaserAlignment::endJob] ** WARNING: Fit failed for TIB/TOB det: "
 			       << det << ", beam: " << beam << ", pos: " << pos 
-			       << " (id: " << detectorId.GetTIBTOBEntry( det, beam, pos ) << ")." << std::endl;
+			       << " (id: " << detectorId.GetTIBTOBEntry( det, beam, pos ) << ")." << std::endl; }
 
       
     // <- here we will later implement the kink corrections
@@ -604,9 +604,9 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
     isGoodFit = peakFinder.FindPeakIn( collectedDataProfiles.GetTEC2TECEntry( det, beam, disk ), peakFinderResults,
 				       summedHistograms.GetTEC2TECEntry( det, beam, disk ), getTEC2TECNominalBeamOffset( det, beam, disk ) );
     // now we have the positions in units of strips.
-    if( !isGoodFit ) std::cout << " [LaserAlignment::endRun] ** WARNING: Fit failed for TEC2TEC det: "
+    if( !isGoodFit ) { std::cout << " [LaserAlignment::endRun] ** WARNING: Fit failed for TEC2TEC det: "
 			       << det << ", beam: " << beam << ", disk: " << disk
-			       << " (id: " << detectorId.GetTEC2TECEntry( det, beam, disk ) << ")." << std::endl;
+			       << " (id: " << detectorId.GetTEC2TECEntry( det, beam, disk ) << ")." << std::endl; }
 
 
     // <- here we will later implement the kink corrections
@@ -656,15 +656,15 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
   LASGeometryUpdater geometryUpdater( nominalCoordinates, theLasConstants );
 
   // apply all beam corrections
-  if( theApplyBeamKinkCorrections ) geometryUpdater.ApplyBeamKinkCorrections( measuredCoordinates );
+  if( theApplyBeamKinkCorrections ) { geometryUpdater.ApplyBeamKinkCorrections( measuredCoordinates ); }
 
   // if we start with input geometry instead of IDEAL,
   // reverse the adjustments in the AlignableTracker object
-  if( updateFromInputGeometry ) geometryUpdater.SetReverseDirection( true );
+  if( updateFromInputGeometry ) { geometryUpdater.SetReverseDirection( true ); }
 
   // if we have "virtual" misalignment which is introduced via the reference geometry,
   // tell the LASGeometryUpdater to reverse x & y adjustments
-  if( misalignedByRefGeometry ) geometryUpdater.SetMisalignmentFromRefGeometry( true );
+  if( misalignedByRefGeometry ) { geometryUpdater.SetMisalignmentFromRefGeometry( true ); }
 
   // run the endcap algorithm
   LASEndcapAlgorithm endcapAlgorithm;
@@ -930,8 +930,8 @@ void LaserAlignment::endRunProduce( edm::Run& theRun, const edm::EventSetup& the
 
     // Call service
     edm::Service<cond::service::PoolDBOutputService> poolDbService;
-    if( !poolDbService.isAvailable() ) // Die if not available
-      throw cms::Exception( "NotAvailable" ) << "PoolDBOutputService not available";
+    if( !poolDbService.isAvailable() ) { // Die if not available
+      throw cms::Exception( "NotAvailable" ) << "PoolDBOutputService not available"; }
     
     // Store
 
@@ -1035,8 +1035,8 @@ void LaserAlignment::fillDataProfiles( edm::Event const& theEvent, edm::EventSet
 	for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator ) {
 	  const SiStripRawDigi& digi = *digiRangeIterator;
 	  const int channel = distance( digiRangeStart, digiRangeIterator );
-	  if ( channel >= 0 && channel < 512 ) currentDataProfiles.GetTECEntry( det, ring, beam, disk ).SetValue( channel, digi.adc() );
-	  else throw cms::Exception( "[Laser Alignment::fillDataProfiles]" ) << " ** ERROR: raw digi channel: " << channel << " out of range for det: " << detRawId << "." << std::endl;
+	  if ( channel >= 0 && channel < 512 ) { currentDataProfiles.GetTECEntry( det, ring, beam, disk ).SetValue( channel, digi.adc() );
+	  } else { throw cms::Exception( "[Laser Alignment::fillDataProfiles]" ) << " ** ERROR: raw digi channel: " << channel << " out of range for det: " << detRawId << "." << std::endl; }
 	}
 
       }
@@ -1047,15 +1047,15 @@ void LaserAlignment::fillDataProfiles( edm::Event const& theEvent, edm::EventSet
 	edm::DetSetVector<SiStripDigi>::const_iterator detSetIter = theStripDigis->find( detRawId );
 	
 	// processed DetSets may be missing, just skip
- 	if( detSetIter == theStripDigis->end() ) continue;
+ 	if( detSetIter == theStripDigis->end() ) { continue; }
 
 	// fill the digis to the profiles
 	edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin(); // for the loop
 	
 	for(; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator ) {
 	  const SiStripDigi& digi = *digiRangeIterator;
-	  if ( digi.strip() < 512 ) currentDataProfiles.GetTECEntry( det, ring, beam, disk ).SetValue( digi.strip(), digi.adc() );
-	  else throw cms::Exception( "[Laser Alignment::fillDataProfiles]" ) << " ** ERROR: digi strip: " << digi.strip() << " out of range for det: " << detRawId << "." << std::endl;
+	  if ( digi.strip() < 512 ) { currentDataProfiles.GetTECEntry( det, ring, beam, disk ).SetValue( digi.strip(), digi.adc() );
+	  } else { throw cms::Exception( "[Laser Alignment::fillDataProfiles]" ) << " ** ERROR: digi strip: " << digi.strip() << " out of range for det: " << detRawId << "." << std::endl; }
 	}
 
       }
@@ -1093,8 +1093,8 @@ void LaserAlignment::fillDataProfiles( edm::Event const& theEvent, edm::EventSet
 	for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator ) {
 	  const SiStripRawDigi& digi = *digiRangeIterator;
 	  const int channel = distance( digiRangeStart, digiRangeIterator );
-	  if ( channel >= 0 && channel < 512 ) currentDataProfiles.GetTIBTOBEntry( det, beam, pos ).SetValue( channel, digi.adc() );
-	  else throw cms::Exception( "[Laser Alignment::fillDataProfiles]" ) << " ** ERROR: raw digi channel: " << channel << " out of range for det: " << detRawId << "." << std::endl;
+	  if ( channel >= 0 && channel < 512 ) { currentDataProfiles.GetTIBTOBEntry( det, beam, pos ).SetValue( channel, digi.adc() );
+	  } else { throw cms::Exception( "[Laser Alignment::fillDataProfiles]" ) << " ** ERROR: raw digi channel: " << channel << " out of range for det: " << detRawId << "." << std::endl; }
 	}
 
       }
@@ -1105,15 +1105,15 @@ void LaserAlignment::fillDataProfiles( edm::Event const& theEvent, edm::EventSet
 	edm::DetSetVector<SiStripDigi>::const_iterator detSetIter = theStripDigis->find( detRawId );
 
 	// processed DetSets may be missing, just skip
- 	if( detSetIter == theStripDigis->end() ) continue;
+ 	if( detSetIter == theStripDigis->end() ) { continue; }
 
 	// fill the digis to the profiles
 	edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin(); // for the loop
 	
 	for(; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator ) {
 	  const SiStripDigi& digi = *digiRangeIterator;
-	  if ( digi.strip() < 512 ) currentDataProfiles.GetTIBTOBEntry( det, beam, pos ).SetValue( digi.strip(), digi.adc() );
-	  else throw cms::Exception( "[Laser Alignment::fillDataProfiles]" ) << " ** ERROR: digi strip: " << digi.strip() << " out of range for det: " << detRawId << "." << std::endl;
+	  if ( digi.strip() < 512 ) { currentDataProfiles.GetTIBTOBEntry( det, beam, pos ).SetValue( digi.strip(), digi.adc() );
+	  } else { throw cms::Exception( "[Laser Alignment::fillDataProfiles]" ) << " ** ERROR: digi strip: " << digi.strip() << " out of range for det: " << detRawId << "." << std::endl; }
 	}
 
       }
@@ -1148,8 +1148,8 @@ void LaserAlignment::fillDataProfiles( edm::Event const& theEvent, edm::EventSet
 	for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator ) {
 	  const SiStripRawDigi& digi = *digiRangeIterator;
 	  const int channel = distance( digiRangeStart, digiRangeIterator );
-	  if ( channel >= 0 && channel < 512 ) currentDataProfiles.GetTEC2TECEntry( det, beam, disk ).SetValue( channel, digi.adc() );
-	  else throw cms::Exception( "[Laser Alignment::fillDataProfiles]" ) << " ** ERROR: raw digi channel: " << channel << " out of range for det: " << detRawId << "." << std::endl;
+	  if ( channel >= 0 && channel < 512 ) { currentDataProfiles.GetTEC2TECEntry( det, beam, disk ).SetValue( channel, digi.adc() );
+	  } else { throw cms::Exception( "[Laser Alignment::fillDataProfiles]" ) << " ** ERROR: raw digi channel: " << channel << " out of range for det: " << detRawId << "." << std::endl; }
 	}
       
       }
@@ -1160,15 +1160,15 @@ void LaserAlignment::fillDataProfiles( edm::Event const& theEvent, edm::EventSet
 	edm::DetSetVector<SiStripDigi>::const_iterator detSetIter = theStripDigis->find( detRawId );
 	
 	// processed DetSets may be missing, just skip
- 	if( detSetIter == theStripDigis->end() ) continue;
+ 	if( detSetIter == theStripDigis->end() ) { continue; }
       
 	// fill the digis to the profiles
 	edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin(); // for the loop
       
 	for(; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator ) {
 	  const SiStripDigi& digi = *digiRangeIterator;
-	  if ( digi.strip() < 512 ) currentDataProfiles.GetTEC2TECEntry( det, beam, disk ).SetValue( digi.strip(), digi.adc() );
-	  else throw cms::Exception( "[Laser Alignment::fillDataProfiles]" ) << " ** ERROR: digi strip: " << digi.strip() << " out of range for det: " << detRawId << "." << std::endl;
+	  if ( digi.strip() < 512 ) { currentDataProfiles.GetTEC2TECEntry( det, beam, disk ).SetValue( digi.strip(), digi.adc() );
+	  } else { throw cms::Exception( "[Laser Alignment::fillDataProfiles]" ) << " ** ERROR: digi strip: " << digi.strip() << " out of range for det: " << detRawId << "." << std::endl; }
 	}
       
       }
@@ -1201,7 +1201,7 @@ void LaserAlignment::fillPedestalProfiles( edm::ESHandle<SiStripPedestals>& pede
     SiStripPedestals::Range pedRange = pedestalsHandle->getRange( detectorId.GetTECEntry( det, ring, beam, disk ) );
     for( int strip = 0; strip < 512; ++strip ) {
       int thePedestal = int( pedestalsHandle->getPed( strip, pedRange ) );
-      if( thePedestal > 895 ) thePedestal -= 1024;
+      if( thePedestal > 895 ) { thePedestal -= 1024; }
       pedestalProfiles.GetTECEntry( det, ring, beam, disk ).SetValue( strip, thePedestal );
     }
   } while ( moduleLoop.TECLoop( det, ring, beam, disk ) );
@@ -1213,7 +1213,7 @@ void LaserAlignment::fillPedestalProfiles( edm::ESHandle<SiStripPedestals>& pede
     SiStripPedestals::Range pedRange = pedestalsHandle->getRange( detectorId.GetTIBTOBEntry( det, beam, pos ) );
     for( int strip = 0; strip < 512; ++strip ) {
       int thePedestal = int( pedestalsHandle->getPed( strip, pedRange ) );
-      if( thePedestal > 895 ) thePedestal -= 1024;
+      if( thePedestal > 895 ) { thePedestal -= 1024; }
       pedestalProfiles.GetTIBTOBEntry( det, beam, pos ).SetValue( strip, thePedestal );
     }
   } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
@@ -1225,7 +1225,7 @@ void LaserAlignment::fillPedestalProfiles( edm::ESHandle<SiStripPedestals>& pede
     SiStripPedestals::Range pedRange = pedestalsHandle->getRange( detectorId.GetTEC2TECEntry( det, beam, disk ) );
     for( int strip = 0; strip < 512; ++strip ) {
       int thePedestal = int( pedestalsHandle->getPed( strip, pedRange ) );
-      if( thePedestal > 895 ) thePedestal -= 1024;
+      if( thePedestal > 895 ) { thePedestal -= 1024; }
       pedestalProfiles.GetTEC2TECEntry( det, beam, disk ).SetValue( strip, thePedestal );
     }
   } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
@@ -1249,7 +1249,7 @@ bool LaserAlignment::isTECBeam( void ) {
   for( int det = 0; det < 2; ++det ) {
     for( int beam = 0; beam < 8; ++ beam ) {
       for( int disk = 0; disk < 9; ++disk ) {
-	if( isAcceptedProfile.GetTECEntry( det, ring, beam, disk ) == 1 ) numberOfProfiles++;
+	if( isAcceptedProfile.GetTECEntry( det, ring, beam, disk ) == 1 ) { numberOfProfiles++; }
       }
     }
   }
@@ -1257,7 +1257,7 @@ bool LaserAlignment::isTECBeam( void ) {
   LogDebug( "[LaserAlignment::isTECBeam]" ) << " Found: " << numberOfProfiles << "hits." << std::endl;
   std::cout << " [LaserAlignment::isTECBeam] -- Found: " << numberOfProfiles << " hits." << std::endl; ////
 
-  if( numberOfProfiles > 10 ) return( true );
+  if( numberOfProfiles > 10 ) { return( true ); }
   return( false );
  
 }
@@ -1278,13 +1278,13 @@ bool LaserAlignment::isATBeam( void ) {
 
   int det = 2; int beam = 0; int pos = 0; // search all TIB/TOB for signals
   do {
-    if( isAcceptedProfile.GetTIBTOBEntry( det, beam, pos ) == 1 ) numberOfProfiles++;
+    if( isAcceptedProfile.GetTIBTOBEntry( det, beam, pos ) == 1 ) { numberOfProfiles++; }
   } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
 
   LogDebug( "[LaserAlignment::isATBeam]" ) << " Found: " << numberOfProfiles << "hits." << std::endl;
   std::cout << " [LaserAlignment::isATBeam] -- Found: " << numberOfProfiles << " hits." << std::endl; /////
 
-  if( numberOfProfiles > 10 ) return( true );
+  if( numberOfProfiles > 10 ) { return( true ); }
   return( false );
     
 }
@@ -1316,11 +1316,11 @@ double LaserAlignment::getTIBTOBNominalBeamOffset( unsigned int det, unsigned in
   const double nominalOffsetsTOB[8] = { 0.00217408, 1.58678, 117.733, 119.321, 120.906, 119.328, 117.743, 1.58947 };
 
 
-  if( det == 2 ) return( -1. * nominalOffsetsTIB[beam] );
+  if( det == 2 ) { return( -1. * nominalOffsetsTIB[beam] );
 
-  else {
-    if( beam == 0 or beam > 4 ) return( nominalOffsetsTOB[beam] * orientationPattern[pos] );
-    else return( -1. * nominalOffsetsTOB[beam] * orientationPattern[pos] );
+  } else {
+    if( beam == 0 or beam > 4 ) { return( nominalOffsetsTOB[beam] * orientationPattern[pos] );
+    } else { return( -1. * nominalOffsetsTOB[beam] * orientationPattern[pos] ); }
   }
 
 }
@@ -1344,8 +1344,8 @@ double LaserAlignment::getTEC2TECNominalBeamOffset( unsigned int det, unsigned i
 
   const double nominalOffsets[8] = { 0., 2.220, -2.221, 0., 2.214, 0., 2.214, -2.217 };
   
-  if( det == 0 ) return -1. * nominalOffsets[beam];
-  else return nominalOffsets[beam];
+  if( det == 0 ) { return -1. * nominalOffsets[beam];
+  } else { return nominalOffsets[beam]; }
 
 }
 
@@ -1449,8 +1449,8 @@ double LaserAlignment::ConvertAngle( double angle ) {
     throw cms::Exception(" [LaserAlignment::ConvertAngle] ") << "** ERROR: Called with illegal input angle: " << angle << "." << std::endl;
   }
 
-  if( angle >= 0. ) return angle;
-  else return( angle + 2. * M_PI );
+  if( angle >= 0. ) { return angle;
+  } else { return( angle + 2. * M_PI ); }
 
 }
 

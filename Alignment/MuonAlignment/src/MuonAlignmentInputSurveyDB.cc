@@ -108,7 +108,7 @@ void MuonAlignmentInputSurveyDB::addSurveyInfo_(Alignable* ali,
 
   unsigned int nComp = comp.size();
 
-  for (unsigned int i = 0; i < nComp; ++i) addSurveyInfo_(comp[i], theSurveyIndex, theSurveyValues, theSurveyErrors);
+  for (unsigned int i = 0; i < nComp; ++i) { addSurveyInfo_(comp[i], theSurveyIndex, theSurveyValues, theSurveyErrors); }
 
   const SurveyError& error = theSurveyErrors->m_surveyErrors[*theSurveyIndex];
 

@@ -97,7 +97,7 @@ MCMisalignmentScaler::MCMisalignmentScaler(const edm::ParameterSet& iConfig) :
 void
 MCMisalignmentScaler::analyze(const edm::Event&, const edm::EventSetup& iSetup)
 {
-  if (!firstEvent_) return;
+  if (!firstEvent_) { return; }
   firstEvent_ = false;
 
   // get handle on bad modules
@@ -261,8 +261,8 @@ MCMisalignmentScaler::decodeSubDetectors(const edm::VParameterSet& psets)
     const auto& factor = pset.getUntrackedParameter<double>("factor");
 
     std::vector<int> sides;
-    if (name.find("-") != std::string::npos) sides.push_back(1);
-    if (name.find("+") != std::string::npos) sides.push_back(2);
+    if (name.find("-") != std::string::npos) { sides.push_back(1); }
+    if (name.find("+") != std::string::npos) { sides.push_back(2); }
     if (sides.empty()) {        // -> use both sides
       sides.push_back(1);
       sides.push_back(2);
@@ -270,7 +270,7 @@ MCMisalignmentScaler::decodeSubDetectors(const edm::VParameterSet& psets)
 
     if (name.find("Tracker") != std::string::npos) {
       for (unsigned int subDetId = 1; subDetId <= 6; ++subDetId) {
-        for (const auto& side: sides) subDetMap[subDetId][side] *= factor;
+        for (const auto& side: sides) { subDetMap[subDetId][side] *= factor; }
       }
       if (sides.size() == 1) {
         // if only one side to be scaled
@@ -282,15 +282,15 @@ MCMisalignmentScaler::decodeSubDetectors(const edm::VParameterSet& psets)
       subDetMap[PixelSubdetector::PixelBarrel][1] *= factor;
       subDetMap[PixelSubdetector::PixelBarrel][2] *= factor;
     } else if (name.find("PXF") != std::string::npos) {
-      for (const auto& side: sides) subDetMap[PixelSubdetector::PixelEndcap][side] *= factor;
+      for (const auto& side: sides) { subDetMap[PixelSubdetector::PixelEndcap][side] *= factor; }
     } else if (name.find("TIB") != std::string::npos) {
-      for (const auto& side: sides) subDetMap[StripSubdetector::TIB][side] *= factor;
+      for (const auto& side: sides) { subDetMap[StripSubdetector::TIB][side] *= factor; }
     } else if (name.find("TOB") != std::string::npos) {
-      for (const auto& side: sides) subDetMap[StripSubdetector::TOB][side] *= factor;
+      for (const auto& side: sides) { subDetMap[StripSubdetector::TOB][side] *= factor; }
     } else if (name.find("TID") != std::string::npos) {
-      for (const auto& side: sides) subDetMap[StripSubdetector::TID][side] *= factor;
+      for (const auto& side: sides) { subDetMap[StripSubdetector::TID][side] *= factor; }
     } else if (name.find("TEC") != std::string::npos) {
-      for (const auto& side: sides) subDetMap[StripSubdetector::TEC][side] *= factor;
+      for (const auto& side: sides) { subDetMap[StripSubdetector::TEC][side] *= factor; }
     } else {
       throw cms::Exception("BadConfig")
         << "@SUB=MCMisalignmentScaler::decodeSubDetectors\n"

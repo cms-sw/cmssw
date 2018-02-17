@@ -24,7 +24,7 @@ void MuonResiduals1DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
     const double residgamma = par[MuonResiduals1DOFFitter::kGamma];
 
     double weight = (1./redchi2) * MuonResiduals1DOFFitter_number_of_hits / MuonResiduals1DOFFitter_sum_of_weights;
-    if (!MuonResiduals1DOFFitter_weightAlignment) weight = 1.;
+    if (!MuonResiduals1DOFFitter_weightAlignment) { weight = 1.; }
 
     if (!MuonResiduals1DOFFitter_weightAlignment  ||  TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
@@ -78,7 +78,7 @@ bool MuonResiduals1DOFFitter::fit(Alignable *ali) {
     const double residual = (*resiter)[MuonResiduals1DOFFitter::kResid];
     const double redchi2 = (*resiter)[MuonResiduals1DOFFitter::kRedChi2];
     double weight = 1./redchi2;
-    if (!m_weightAlignment) weight = 1.;
+    if (!m_weightAlignment) { weight = 1.; }
 
     if (!m_weightAlignment  ||  TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
       if (fabs(residual) < 10.) {   // 10 cm
@@ -101,7 +101,7 @@ bool MuonResiduals1DOFFitter::fit(Alignable *ali) {
     const double residual = (*resiter)[MuonResiduals1DOFFitter::kResid];
     const double redchi2 = (*resiter)[MuonResiduals1DOFFitter::kRedChi2];
     double weight = 1./redchi2;
-    if (!m_weightAlignment) weight = 1.;
+    if (!m_weightAlignment) { weight = 1.; }
 
     if (!m_weightAlignment  ||  TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
       if (fabs(residual - resid_mean) < 2.5*resid_stdev) {
@@ -173,7 +173,7 @@ double MuonResiduals1DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
     const double resid = (*resiter)[MuonResiduals1DOFFitter::kResid];
     const double redchi2 = (*resiter)[MuonResiduals1DOFFitter::kRedChi2];
     double weight = 1./redchi2;
-    if (!m_weightAlignment) weight = 1.;
+    if (!m_weightAlignment) { weight = 1.; }
 
     if (!m_weightAlignment  ||  TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
       hist_residual->Fill(10.*(resid + value(kAlign)), weight);

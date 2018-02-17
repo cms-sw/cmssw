@@ -144,11 +144,11 @@ ZMuMuMassConstraintParameterFinder
   iEvent.getByToken(genParticlesToken_, genParticles);
 
   for (const auto& particle: *(genParticles.product())) {
-    if (std::abs(particle.pdgId()) != muonPdg_ || particle.status() != 1) continue;
-    if (particle.p() < pMin_) continue;
-    if (particle.pt() < ptMin_) continue;
-    if (particle.eta() < etaMin_ || particle.eta() > etaMax_) continue;
-    if (particle.phi() < phiMin_ || particle.phi() > phiMax_) continue;
+    if (std::abs(particle.pdgId()) != muonPdg_ || particle.status() != 1) { continue; }
+    if (particle.p() < pMin_) { continue; }
+    if (particle.pt() < ptMin_) { continue; }
+    if (particle.eta() < etaMin_ || particle.eta() > etaMax_) { continue; }
+    if (particle.phi() < phiMin_ || particle.phi() > phiMax_) { continue; }
 
     muonInfo_.muons().push_back(particle);
     if (particle.mother()->pdgId() == zBosonPdg_) {
@@ -210,7 +210,7 @@ ZMuMuMassConstraintParameterFinder
   if (muons_.size() == 2) {
     diMuonMass_ = (muons_[0].p4() + muons_[1].p4()).M();
     pdgMother_ = muons_[0].mother()->pdgId();
-    if (diMuonMass_ > minMassPair_ && diMuonMass_ < maxMassPair_) passed_ = true;
+    if (diMuonMass_ > minMassPair_ && diMuonMass_ < maxMassPair_) { passed_ = true; }
     tree_->Fill();
   }
   muons_.clear();

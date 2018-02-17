@@ -66,7 +66,7 @@ BeamSpotAlignmentParameters::clone( const AlgebraicVector& parameters,
   BeamSpotAlignmentParameters* rbap = 
     new BeamSpotAlignmentParameters( alignable(), parameters, covMatrix, selector());
 
-  if (userVariables()) rbap->setUserVariables(userVariables()->clone());
+  if (userVariables()) { rbap->setUserVariables(userVariables()->clone()); }
   rbap->setValid(isValid());
 
   return rbap;
@@ -81,7 +81,7 @@ BeamSpotAlignmentParameters::cloneFromSelected( const AlgebraicVector& parameter
     new BeamSpotAlignmentParameters(alignable(), expandVector( parameters, selector()),
 				    expandSymMatrix(covMatrix, selector()), selector());
 
-  if ( userVariables() ) rbap->setUserVariables(userVariables()->clone());
+  if ( userVariables() ) { rbap->setUserVariables(userVariables()->clone()); }
   rbap->setValid(isValid());
   
   return rbap;
@@ -120,7 +120,7 @@ BeamSpotAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurface
   int ir2=0;
   for ( int irow=0; irow<nrows; ++irow ) {
     if (selector()[irow]) {
-      for ( int icol=0; icol<ncols; ++icol ) seldev[ir2][icol] = dev[irow][icol];
+      for ( int icol=0; icol<ncols; ++icol ) { seldev[ir2][icol] = dev[irow][icol]; }
       ++ir2;
     }
   }
@@ -132,7 +132,7 @@ BeamSpotAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurface
 AlgebraicVector BeamSpotAlignmentParameters::translation(void) const
 { 
   AlgebraicVector shift(3);
-  for ( int i=0;i<2;++i ) shift[i] = theData->parameters()[i];
+  for ( int i=0;i<2;++i ) { shift[i] = theData->parameters()[i]; }
   shift[2] = 0.0;
 
   return shift;

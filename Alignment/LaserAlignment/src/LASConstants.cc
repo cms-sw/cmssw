@@ -24,10 +24,10 @@ LASConstants::LASConstants( std::vector<edm::ParameterSet> const& theConstConf )
 
   for( std::vector<edm::ParameterSet>::const_iterator iter = theConstConf.begin(); iter < theConstConf.end(); ++iter ) {
 
-    if( iter->getParameter<std::string>( "PSetName" ) == "BeamsplitterKinks" ) FillBsKinks( *iter );
-    else if( iter->getParameter<std::string>( "PSetName" ) == "Radii" ) FillRadii( *iter );
-    else if( iter->getParameter<std::string>( "PSetName" ) == "ZPositions" ) FillZPositions( *iter );
-    else {
+    if( iter->getParameter<std::string>( "PSetName" ) == "BeamsplitterKinks" ) { FillBsKinks( *iter );
+    } else if( iter->getParameter<std::string>( "PSetName" ) == "Radii" ) { FillRadii( *iter );
+    } else if( iter->getParameter<std::string>( "PSetName" ) == "ZPositions" ) { FillZPositions( *iter );
+    } else {
       std::cerr << " [] ** WARNING: Cannot process unknown parameter set named: " << iter->getParameter<std::string>( "PSetName" ) << "." << std::endl;
     }
 
@@ -125,8 +125,8 @@ double LASConstants::GetTecZPosition( unsigned int det, unsigned int disk ) cons
     throw cms::Exception( " [LASConstants::GetTecZPosition]" ) << " ** ERROR: no such element: det " << det << ", disk " << disk << "." << std::endl;
   }
 
-  if( det == 0 ) return tecZPositions.at( disk ); // tec+
-  else return -1. * tecZPositions.at( disk ); // tec-
+  if( det == 0 ) { return tecZPositions.at( disk ); // tec+
+  } else { return -1. * tecZPositions.at( disk ); // tec- }
 
 }
 

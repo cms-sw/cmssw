@@ -26,7 +26,8 @@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOCubeSplitter::fastDeviatesLightRay( LightRay& lightray ) 
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: FAST REFLECTION IN CUBE SPLITTER " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: FAST REFLECTION IN CUBE SPLITTER " << name() << std::endl;
+}
 
   //---------- Get forward plate
   ALIPlane plate = getMiddlePlate();
@@ -58,7 +59,8 @@ void OptOCubeSplitter::fastDeviatesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOCubeSplitter::fastTraversesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: FAST TRAVERSE CUBE SPLITTER  " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: FAST TRAVERSE CUBE SPLITTER  " << name() << std::endl;
+}
   
   //---------- Get backward plate
   ALIPlane plate = getPlate(false, false);
@@ -93,12 +95,16 @@ void OptOCubeSplitter::fastTraversesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOCubeSplitter::detailedDeviatesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED REFLECTION IN CUBE SPLITTER " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: DETAILED REFLECTION IN CUBE SPLITTER " << name() << std::endl;
+}
 
-  if(ALIUtils::debug >= 2) ALIUtils::dump3v( centreGlob(), "centreGlob");
+  if(ALIUtils::debug >= 2) { ALIUtils::dump3v( centreGlob(), "centreGlob");
+}
   //---------- Get first plate
-  if (ALIUtils::debug >= 3) std::cout << "%%%%% refracting at entering first plate " << std::endl; 
-  if (ALIUtils::debug >= 3) std::cout << "%%% getting first plate " << std::endl; 
+  if (ALIUtils::debug >= 3) { std::cout << "%%%%% refracting at entering first plate " << std::endl; 
+}
+  if (ALIUtils::debug >= 3) { std::cout << "%%% getting first plate " << std::endl; 
+}
   ALIPlane plate = getPlate(true, true);
 
   //---------- Refract  
@@ -107,8 +113,10 @@ void OptOCubeSplitter::detailedDeviatesLightRay( LightRay& lightray )
   lightray.refract( plate, refra_ind1, refra_ind2 );
 
   //---------- Get middle plate
-  if (ALIUtils::debug >= 3) std::cout << "%%%%% reflecting in middle plate " << std::endl; 
-  if (ALIUtils::debug >= 3) std::cout << "%%% getting middle plate " << std::endl; 
+  if (ALIUtils::debug >= 3) { std::cout << "%%%%% reflecting in middle plate " << std::endl; 
+}
+  if (ALIUtils::debug >= 3) { std::cout << "%%% getting middle plate " << std::endl; 
+}
   plate = getMiddlePlate();
 
   //---------- Reflect
@@ -118,9 +126,11 @@ void OptOCubeSplitter::detailedDeviatesLightRay( LightRay& lightray )
   }
 
   //--------- Get upper plate
-  if (ALIUtils::debug >= 3) std::cout << "%%%%% getting second plate " << std::endl; 
+  if (ALIUtils::debug >= 3) { std::cout << "%%%%% getting second plate " << std::endl; 
+}
   plate = getUpperPlate();
-  if (ALIUtils::debug >= 3) std::cout << "%%%%% refracting at exiting second plate " << std::endl; 
+  if (ALIUtils::debug >= 3) { std::cout << "%%%%% refracting at exiting second plate " << std::endl; 
+}
   lightray.refract( plate, refra_ind2, refra_ind1 );
 
  if (ALIUtils::debug >= 2) {
@@ -140,7 +150,8 @@ void OptOCubeSplitter::detailedDeviatesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOCubeSplitter::detailedTraversesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED TRAVERSE CUBE SPLITTER " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: DETAILED TRAVERSE CUBE SPLITTER " << name() << std::endl;
+}
 
   //---------- Get forward plate
   ALIPlane plate = getPlate(true, true);
@@ -171,14 +182,16 @@ void OptOCubeSplitter::detailedTraversesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIPlane OptOCubeSplitter::getMiddlePlate()
 {
-  if (ALIUtils::debug >= 4) std::cout << "%%% LR: GET MIDDLE PLATE " << name() << std::endl;
+  if (ALIUtils::debug >= 4) { std::cout << "%%% LR: GET MIDDLE PLATE " << name() << std::endl;
+}
   //---------- Get centre and normal of plate
   //----- plate normal before wedge (Z axis of OptO)
   ALIdouble anglePlanes;
   ALIbool angpl = findExtraEntryValueIfExists("anglePlanes", anglePlanes);
   if( !angpl ) {
     anglePlanes = acos(0.)/2.;  //default is 45o  !!! this creates problem in 'isr_medidas_globales.txt': laser goes along X and does not intersect cube if angles Y 0, anglePlanes 45 
-    if (ALIUtils::debug >= 4) std::cout << "anglePlanes default = " << anglePlanes/deg << std::endl;
+    if (ALIUtils::debug >= 4) { std::cout << "anglePlanes default = " << anglePlanes/deg << std::endl;
+}
   }
   CLHEP::Hep3Vector Axis(0., 0., 1.);
   CLHEP::Hep3Vector XAxis(1., 0., 0.);
@@ -204,7 +217,8 @@ ALIPlane OptOCubeSplitter::getMiddlePlate()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIPlane OptOCubeSplitter::getUpperPlate()
 {
-  if (ALIUtils::debug >= 4) std::cout << "LR: GET UPPER PLATE " << name() << std::endl;
+  if (ALIUtils::debug >= 4) { std::cout << "LR: GET UPPER PLATE " << name() << std::endl;
+}
   //---------- Get centre and normal of plate
   ALIdouble width = findExtraEntryValue("width");
   //----- plate normal before wedge (Y axis of OptO)

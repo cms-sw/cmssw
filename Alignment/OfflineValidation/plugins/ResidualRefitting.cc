@@ -80,7 +80,7 @@ ResidualRefitting::ResidualRefitting( const edm::ParameterSet & cfg ) :
 
 void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
 	
-	if(debug_) printf("STARTING EVENT\n");
+	if(debug_) { printf("STARTING EVENT\n"); }
 
 	eventInfo_.evtNum_ = (int)event.id().run();
 	eventInfo_.runNum_ = (int)event.id().event();
@@ -176,14 +176,14 @@ void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& 
 */
 
 //Refitted muons
-	if (debug_) printf("Data Dump:: Rebuilt GMR Muon Track With TeV refitter default\n");
+	if (debug_) { printf("Data Dump:: Rebuilt GMR Muon Track With TeV refitter default\n"); }
 	int iGmrRemake = 0;
 	for ( reco::TrackCollection::const_iterator muon = muonTracks->begin(); muon!=muonTracks->end(); muon++, iGmrRemake++) {
-		if ( iGmrRemake >= ResidualRefitting::N_MAX_STORED) break; // error checking
+		if ( iGmrRemake >= ResidualRefitting::N_MAX_STORED) { break; // error checking }
 			// from TrackInfoProducer/test/TrackInfoAnalyzerExample.cc
 	        reco::TrackRef trackref=reco::TrackRef(muonTracks,iGmrRemake);
 
-			if (debug_) dumpTrackRef(trackref, "gmr");
+			if (debug_) { dumpTrackRef(trackref, "gmr"); }
 			muonInfo(storageGmrNew_,trackref,iGmrRemake);
 
 	}
@@ -191,8 +191,8 @@ void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& 
 		
 
 
-	if (debug_) printf("muons Remake");
-	if (debug_) printf("-----------------------------------------\n");
+	if (debug_) { printf("muons Remake"); }
+	if (debug_) { printf("-----------------------------------------\n"); }
 	CollectTrackHits(muonTracks, storageTrackExtrapRec_, eventSetup);
 
 
@@ -252,7 +252,7 @@ void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& 
 		outputTree_ -> Fill();
 	  	std::cout << "FILLING NTUPLE!" << std::endl;
 		std::cout << "Entries Recorded: " << outputTree_ -> GetEntries() << " Branch :: " << outputBranch_ -> GetEntries() <<  std::endl<<std::endl;
-	} else std::cout<<"no tracks -- no fill!\n"<<std::endl<<std::endl;
+	} else { std::cout<<"no tracks -- no fill!\n"<<std::endl<<std::endl; }
 
 //  /*************************************************************************************************************/
 //  //END OF ntuple dumper
@@ -291,7 +291,7 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
 	    reco::TrackRef trackref=reco::TrackRef(trackColl,iTrack);
 		FreeTrajectoryState recoStart = ResidualRefitting::freeTrajStateMuon(trackref);
 
-		if (debug_) dumpTrackRef(trackref, "CollectTrackHits Track");
+		if (debug_) { dumpTrackRef(trackref, "CollectTrackHits Track"); }
 	
 		for (trackingRecHit_iterator rec = muon->recHitsBegin(); rec != muon->recHitsEnd(); rec++) {
 
@@ -299,7 +299,7 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
 			DetId detid = (*rec)->geographicalId(); 
 
 			if (detid.det() != DetId::Muon && detid.det() != DetId::Tracker) {
-				if (debug_) printf("Rec Hit not from muon system or tracker... continuing...\n");
+				if (debug_) { printf("Rec Hit not from muon system or tracker... continuing...\n"); }
 				continue;
 			}
 //			numTracks++;
@@ -339,8 +339,8 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
 					ring		= id.ring();
 					chamber		= id.chamber();
 					layer		= id.layer();
-					if (debug_)printf("CSC\t[endcap][station][ringN][chamber][layer]:[%d][%d][%d][%d][%d]\t",
-						 endcap, station, ring, chamber, layer);
+					if (debug_) {printf("CSC\t[endcap][station][ringN][chamber][layer]:[%d][%d][%d][%d][%d]\t",
+						 endcap, station, ring, chamber, layer); }
 
 				}
 				else if ( systemMuon == MuonSubdetId::DT ) {
@@ -350,13 +350,13 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
 					superLayer	= id.superLayer();
 					wheel		= id.wheel();
 					sector		= id.sector();
-					if (debug_) printf("DT \t[station][layer][superlayer]:[%d][%d][%d]\n", station,layer,superLayer);
+					if (debug_) { printf("DT \t[station][layer][superlayer]:[%d][%d][%d]\n", station,layer,superLayer); }
 				
 				}
 				else if ( systemMuon == MuonSubdetId::RPC) {
 					RPCDetId id(detid.rawId());
 					station		= id.station();
-					if (debug_) printf("RPC\t[station]:[%d]\n", station);
+					if (debug_) { printf("RPC\t[station]:[%d]\n", station); }
 				}
 
 			
@@ -384,7 +384,7 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
 			}
 			else if (detid.det() == DetId::Tracker) {
 				
-				if (debug_) printf("Tracker\n");
+				if (debug_) { printf("Tracker\n"); }
 
 				StoreTrackerRecHits(detid, tTopo, iTrack, iTrackHit);
 
@@ -398,14 +398,14 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
 				storageTrackHit_.lpZ_		[iTrackHit]	= lpZ;
 				iTrackHit++;
 			 }		
-			else printf("THIS CAN NOT HAPPEN\n");		
+			else { printf("THIS CAN NOT HAPPEN\n");		 }
 			
 			trkExtrap(detid, numTracks, iTrack, iRec, recoStart, lp, trackExtrap);
 			numTracks++;
 
-			if (debug_) printf("\tLocal Positon:  \tx = %2.2f\ty = %2.2f\tz = %2.2f\n",lpX, lpY, lpZ);
-			if (debug_) printf("\tGlobal Position: \tx = %6.2f\ty = %6.2f\tz = %6.2f\teta = %4.2f\tphi = %3.2f\n",
-							gpRecX,gpRecY,gpRecZ,gpRecEta,gpRecPhi);
+			if (debug_) { printf("\tLocal Positon:  \tx = %2.2f\ty = %2.2f\tz = %2.2f\n",lpX, lpY, lpZ); }
+			if (debug_) { printf("\tGlobal Position: \tx = %6.2f\ty = %6.2f\tz = %6.2f\teta = %4.2f\tphi = %3.2f\n",
+							gpRecX,gpRecY,gpRecZ,gpRecEta,gpRecPhi); }
 				
 
 		}
@@ -454,7 +454,7 @@ void ResidualRefitting::NewTrackMeasurements(edm::Handle<reco::TrackCollection> 
 					break;
 				}
 			}
-			if (!unbiasedRec) continue;
+			if (!unbiasedRec) { continue; }
 				
 			DetId detid = (*rec1)->geographicalId(); 
 
@@ -478,7 +478,7 @@ void ResidualRefitting::NewTrackMeasurements(edm::Handle<reco::TrackCollection> 
 int ResidualRefitting::MatchTrackWithRecHits(reco::TrackCollection::const_iterator trackIt,
 	 edm::Handle<reco::TrackCollection> ref) {
 
-	if (debug_) printf("Matching a re-fitted track to the original track.\n");
+	if (debug_) { printf("Matching a re-fitted track to the original track.\n"); }
 	
 	int TrackMatch = -1;
 
@@ -488,10 +488,10 @@ int ResidualRefitting::MatchTrackWithRecHits(reco::TrackCollection::const_iterat
 		for (reco::TrackCollection::const_iterator refIt = ref->begin(); refIt!=ref->end(); refIt++) {
 		
 			int iTrackMatch = refIt - ref->begin();
-			if (foundMatch && TrackMatch !=iTrackMatch) break;
+			if (foundMatch && TrackMatch !=iTrackMatch) { break; }
 			for (trackingRecHit_iterator recRef = refIt->recHitsBegin(); recRef!=refIt->recHitsEnd(); recRef++) {
 
-				if (!IsSameHit(rec,recRef)) continue;
+				if (!IsSameHit(rec,recRef)) { continue; }
 				
 				foundMatch = true;
 				TrackMatch = iTrackMatch;
@@ -505,7 +505,7 @@ int ResidualRefitting::MatchTrackWithRecHits(reco::TrackCollection::const_iterat
 		}
 		
 	}
-	if (debug_) printf("Rec hit match for original track %d\n", TrackMatch);
+	if (debug_) { printf("Rec hit match for original track %d\n", TrackMatch); }
 
 //	reco::TrackRef trackref=reco::TrackRef(ref,TrackMatch);
 	return TrackMatch;
@@ -553,11 +553,11 @@ bool ResidualRefitting::IsSameHit(trackingRecHit_iterator hit1, trackingRecHit_i
 	double lpx2 = (*hit2)->localPosition().x();
 	double lpy2 = (*hit2)->localPosition().y();
 	double lpz2 = (*hit2)->localPosition().z();
-	if ( fabs( lpx1 - lpx2) > 1e-3) return false;
+	if ( fabs( lpx1 - lpx2) > 1e-3) { return false; }
 //	printf("Match lpx...\n");
-	if ( fabs( lpy1 - lpy2) > 1e-3) return false;
+	if ( fabs( lpy1 - lpy2) > 1e-3) { return false; }
 //	printf("Match lpy...\n");
-	if ( fabs( lpz1 - lpz2) > 1e-3) return false;
+	if ( fabs( lpz1 - lpz2) > 1e-3) { return false; }
 //	printf("Match lpz...\n");
 
 	return true;
@@ -592,15 +592,15 @@ void ResidualRefitting::StoreTrackerRecHits(DetId detid, const TrackerTopology* 
 				return;
 			}
 
-			if (debug_) std::cout<<"Tracker:: ";
+			if (debug_) { std::cout<<"Tracker:: "; }
 			if (subdetector == ResidualRefitting::PXB) {
 				layer	= tTopo->pxbLayer(detid.rawId());
 				ladder	= tTopo->pxbLadder(detid.rawId());
 				module	= tTopo->pxbModule(detid.rawId());
-				if (debug_)	std::cout	<<	"PXB"
+				if (debug_) {	std::cout	<<	"PXB"
 										<<	"\tlayer = "	<< layer
 										<<	"\tladder = "	<< ladder
-										<<	"\tmodule = "	<< module;
+										<<	"\tmodule = "	<< module; }
 				
 			} 
 			else if (subdetector == ResidualRefitting::PXF) {
@@ -609,45 +609,45 @@ void ResidualRefitting::StoreTrackerRecHits(DetId detid, const TrackerTopology* 
 				blade	= tTopo->pxfBlade(detid.rawId());
 				panel	= tTopo->pxfPanel(detid.rawId());
 				module	= tTopo->pxfModule(detid.rawId());
-				if (debug_)	std::cout	<<  "PXF"
+				if (debug_) {	std::cout	<<  "PXF"
 										<<	"\tside = "		<< side
 										<<	"\tdisk = "		<< disk
 										<<	"\tblade = "	<< blade
 										<<	"\tpanel = "	<< panel
-										<<	"\tmodule = "	<< module;
+										<<	"\tmodule = "	<< module; }
 							
 			}
 			else if (subdetector == ResidualRefitting::TIB) {
 				layer	= tTopo->tibLayer(detid.rawId());
 				module	= tTopo->tibModule(detid.rawId());
-				if (debug_)	std::cout	<< "TIB"
+				if (debug_) {	std::cout	<< "TIB"
 										<< "\tlayer = "	<< layer
-										<< "\tmodule = "<< module;
+										<< "\tmodule = "<< module; }
 			}
 			else if (subdetector == ResidualRefitting::TID) {
 				side	= tTopo->tidSide(detid.rawId());
 				wheel	= tTopo->tidWheel(detid.rawId());
 				ring	= tTopo->tidRing(detid.rawId());
-				if (debug_)	std::cout	<<"TID"
+				if (debug_) {	std::cout	<<"TID"
 										<< "\tside = "	<< side
 										<< "\twheel = "	<< wheel
-										<< "\tring = "	<< ring;
+										<< "\tring = "	<< ring; }
 			
 			}
 			else if (subdetector == ResidualRefitting::TOB) {
 				layer	= tTopo->tobLayer(detid.rawId());
 				module	= tTopo->tobModule(detid.rawId());
-				if (debug_)	std::cout	<<"TOB"
+				if (debug_) {	std::cout	<<"TOB"
 										<<"\tlayer = "	<< layer
-										<<"\tmodule = "	<< module;
+										<<"\tmodule = "	<< module; }
 			
 			}
 			else if (subdetector == ResidualRefitting::TEC) {
 				ring	= tTopo->tecRing(detid.rawId());
 				module	= tTopo->tecModule(detid.rawId());
-				if (debug_)	std::cout	<<"TEC"
+				if (debug_) {	std::cout	<<"TEC"
 										<< "\tring = "	<< ring
-										<< "\tmodule = "<< module;
+										<< "\tmodule = "<< module; }
 			}
 
 
@@ -695,7 +695,7 @@ void ResidualRefitting::trkExtrap(const DetId& detid, int iTrk, int iTrkLink, in
 
 	bool dump_ = debug_;
 	
-	if (dump_) std::cout<< "In the trkExtrap function"<<std::endl;
+	if (dump_) { std::cout<< "In the trkExtrap function"<<std::endl; }
 
 	float gpExtrapX		= -99999;
 	float gpExtrapY		= -99999;
@@ -851,7 +851,7 @@ void ResidualRefitting::cylExtrapTrkSam(int recNum, reco::TrackRef track, Residu
 	float rhoVal = sqrt( xVal*xVal + yVal*yVal);
 
 	printf("Cylinder: rho = %4.2f\tphi = %4.2f\teta = %4.2f\n", rhoVal, phiVal, etaVal);
-	if (debug_) printf("Cylinder: rho = %4.2f\tphi = %4.2f\teta = %4.2f\n", rhoVal, phiVal, etaVal);
+	if (debug_) { printf("Cylinder: rho = %4.2f\tphi = %4.2f\teta = %4.2f\n", rhoVal, phiVal, etaVal); }
 
 
 }
@@ -863,7 +863,7 @@ void ResidualRefitting::cylExtrapTrkSam(int recNum, reco::TrackRef track, Residu
 // zero storage
 // 
 void ResidualRefitting::zero_storage() {
-	if (debug_)	printf("zero_storage\n");
+	if (debug_) {	printf("zero_storage\n"); }
 
 	zero_muon(&storageGmrOld_	);
 	zero_muon(&storageGmrNew_	);
@@ -1213,11 +1213,11 @@ FreeTrajectoryState ResidualRefitting::freeTrajStateMuon(reco::TrackRef muon){
 					
 			math::XYZPoint  innerPos = muon -> referencePoint();
 			math::XYZVector innerMom = muon -> momentum();
-			if (debug_) std::cout	<<  "Inner Pos: "
+			if (debug_) { std::cout	<<  "Inner Pos: "
 									<<	"\tx = "	<< innerPos.X()
 									<<	"\ty = "	<< innerPos.Y()
 									<<	"\tz = "	<< innerPos.Z()
-									<<	std::endl;
+									<<	std::endl; }
 								
 			GlobalPoint   innerPoint( innerPos.X(), innerPos.Y(), innerPos.Z());
 			GlobalVector  innerVec  ( innerMom.X(), innerMom.Y(), innerMom.Z());

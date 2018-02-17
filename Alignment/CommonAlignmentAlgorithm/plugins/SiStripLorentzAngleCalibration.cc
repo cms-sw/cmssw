@@ -413,7 +413,7 @@ double SiStripLorentzAngleCalibration::effectiveThickness(const GeomDet *det,
 							  int16_t mode,
 							  const edm::EventSetup &setup) const
 {
-  if (!det) return 0.;
+  if (!det) { return 0.; }
   double dZ = det->surface().bounds().thickness(); // it is a float only...
   const SiStripDetId id(det->geographicalId());
   edm::ESHandle<SiStripBackPlaneCorrection> backPlaneHandle;
@@ -482,7 +482,7 @@ void SiStripLorentzAngleCalibration::writeTree(const SiStripLorentzAngle *lorent
 					       const std::map<unsigned int, TreeStruct> &treeInfo,
 					       const char *treeName) const
 {
-  if (!lorentzAngle) return;
+  if (!lorentzAngle) { return; }
 
   TFile* file = TFile::Open(outFileName_.c_str(), "UPDATE");
   if (!file) {
@@ -533,7 +533,7 @@ SiStripLorentzAngleCalibration::createFromTree(const char *fileName, const char 
   } // else not existing, see error below
 
   TTree *tree = nullptr;
-  if (file) file->GetObject(treeName, tree);
+  if (file) { file->GetObject(treeName, tree); }
 
   SiStripLorentzAngle *result = nullptr;
   if (tree) {

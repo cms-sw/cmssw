@@ -70,7 +70,7 @@ void CocoaAnalyzer::RunCocoa()
 
   Fit::startFit();
 
-  if(ALIUtils::debug >= 0) std::cout << "............ program ended OK" << std::endl;
+  if(ALIUtils::debug >= 0) { std::cout << "............ program ended OK" << std::endl; }
   if( ALIUtils::report >=1 ) {
     ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
     fileout << "............ program ended OK" << std::endl;
@@ -157,7 +157,7 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     oaInfo.parentName_ = "";
     size_t ii;
     for(ii = 0; ii < history.size()-1;ii++ ) {
-      if( ii != 0 ) oaInfo.parentName_ += "/";
+      if( ii != 0 ) { oaInfo.parentName_ += "/"; }
       std::string name = history[ii].logicalPart().name().name();
       oaInfo.parentName_ += name;
  //    oaInfo.parentName_ = (fv.geoHistory()[fv.geoHistory().size()-2]).logicalPart().name();
@@ -550,7 +550,7 @@ bool CocoaAnalyzer::CorrectOaParam( OpticalAlignParam* oaParamXML, const Optical
   if(ALIUtils::debug >= 4) {
     std::cout << "CocoaAnalyzer::CorrectOaParam  old value= " << oaParamXML->value_  << " new value= " << oaParamDB.value_ << std::endl;
   }
-  if( oaParamDB.value_ == -9.999E9 ) return false;
+  if( oaParamDB.value_ == -9.999E9 ) { return false; }
  
   double dimFactor = 1.; 
   //loop for an Entry with equal type to entries to know which is the 

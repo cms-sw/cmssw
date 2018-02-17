@@ -147,7 +147,7 @@ align::RotationType align::diffRot(const GlobalVectors& current,
 
     rot *= toMatrix(dOmega); // add to rotation
 
-    if (dOmega.normsq() < tolerance) break; // converges, so exit loop
+    if (dOmega.normsq() < tolerance) { break; // converges, so exit loop }
     count++;
     if(count>100000){
        std::cout<<"diffRot infinite loop: dOmega is "<<dOmega.normsq()<<"\n";
@@ -190,7 +190,7 @@ align::GlobalVector align::centerOfMass(const GlobalVectors& theVs)
 
   GlobalVector CM(0,0,0);
 
-  for (unsigned int j = 0; j < nPoints; ++j) CM += theVs[j];
+  for (unsigned int j = 0; j < nPoints; ++j) { CM += theVs[j]; }
 
   return CM /= static_cast<Scalar>(nPoints);
 }

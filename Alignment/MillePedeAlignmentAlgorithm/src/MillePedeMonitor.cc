@@ -68,13 +68,13 @@ MillePedeMonitor::~MillePedeMonitor()
 {
 
   myRootDir->Write();
-  if (myDeleteDir) delete myRootDir; //hists are deleted with their directory
+  if (myDeleteDir) { delete myRootDir; //hists are deleted with their directory }
 }
 
 //__________________________________________________________________
 bool MillePedeMonitor::init(TDirectory *directory)
 {
-  if (!directory) return false;
+  if (!directory) { return false; }
   TDirectory *oldDir = gDirectory;
 
   const int kNumBins = 20;
@@ -504,7 +504,7 @@ bool MillePedeMonitor::equidistLogBins(double* bins, int nBins,
   // so 'bins' must have length nBins+1;
   // If 'first', 'last' or 'nBins' are not positive, failure is reported.
 
-  if (nBins < 1 || first <= 0. || last <= 0.) return false;
+  if (nBins < 1 || first <= 0. || last <= 0.) { return false; }
 
   bins[0] = first;
   bins[nBins] = last;
@@ -533,7 +533,7 @@ void MillePedeMonitor::fillUsedTrack(const reco::Track *track, unsigned int nHit
   static const int iUsedY = this->GetIndex(myUsedTrackHists1D, "usedHitsY");
   myUsedTrackHists1D[iUsedY]->Fill(nHitY);
 
-  if (!track) return;
+  if (!track) { return; }
   this->fillTrack(track, myUsedTrackHists1D, myUsedTrackHists2D);
 }
 
@@ -541,7 +541,7 @@ void MillePedeMonitor::fillUsedTrack(const reco::Track *track, unsigned int nHit
 void MillePedeMonitor::fillTrack(const reco::Track *track, std::vector<TH1*> &trackHists1D,
 				 std::vector<TH2*> &trackHists2D)
 {
-  if (!track) return;
+  if (!track) { return; }
 
   const reco::TrackBase::Vector p(track->momentum());
 
@@ -576,16 +576,16 @@ void MillePedeMonitor::fillTrack(const reco::Track *track, std::vector<TH1*> &tr
     const DetId detId((*iHit)->geographicalId());
     const int subdetId = detId.subdetId(); 
 
-    if (!(*iHit)->isValid()) continue; // only real hits count as in track->numberOfValidHits()
+    if (!(*iHit)->isValid()) { continue; // only real hits count as in track->numberOfValidHits() }
     if (detId.det() != DetId::Tracker) {
       edm::LogError("DetectorMismatch") << "@SUB=MillePedeMonitor::fillTrack"
                                         << "DetId.det() != DetId::Tracker (=" << DetId::Tracker
                                         << "), but " << detId.det() << ".";
     }
 
-    if      (SiStripDetId::TIB == subdetId) ++nhitinTIB;
-    else if (SiStripDetId::TOB == subdetId) ++nhitinTOB;
-    else if (SiStripDetId::TID == subdetId) {
+    if      (SiStripDetId::TIB == subdetId) { ++nhitinTIB;
+    } else if (SiStripDetId::TOB == subdetId) { ++nhitinTOB;
+    } else if (SiStripDetId::TID == subdetId) {
       ++nhitinTID;
       ++nhitinENDCAP;
       
@@ -616,8 +616,8 @@ void MillePedeMonitor::fillTrack(const reco::Track *track, std::vector<TH1*> &tr
       ++nhitinFPIX;
       ++nhitinPIXEL;
       
-      if (trackerTopology->pxfSide(detId)==1) ++nhitinFPIXminus;
-      else if (trackerTopology->pxfSide(detId)==2) ++nhitinFPIXplus;
+      if (trackerTopology->pxfSide(detId)==1) { ++nhitinFPIXminus;
+      } else if (trackerTopology->pxfSide(detId)==2) { ++nhitinFPIXplus; }
     }
 
   } // end loop on hits
@@ -781,15 +781,15 @@ void MillePedeMonitor::fillRefTrajectory(const ReferenceTrajectoryBase::Referenc
     }
 
     float nHitRow = iRow/2; // '/2' not '/2.'!
-    if (TMath::Odd(iRow)) nHitRow += 0.5; // y-hit gets 0.5
+    if (TMath::Odd(iRow)) { nHitRow += 0.5; // y-hit gets 0.5 }
     // correlations
     for (int iCol = iRow+1; iCol < nRow; ++iCol) {
       double rho = TMath::Sqrt(covMeasLocRow + covMeasLoc[iCol][iCol]);
       rho = (0. == rho ? -2 : covMeasLoc[iRow][iCol] / rho);
       float nHitCol = iCol/2; //cf. comment nHitRow
-      if (TMath::Odd(iCol)) nHitCol += 0.5; // dito
+      if (TMath::Odd(iCol)) { nHitCol += 0.5; // dito }
       //      myProfileCorr->Fill(nHitRow, nHitCol, TMath::Abs(rho));
-      if (0. == rho) continue;
+      if (0. == rho) { continue; }
       static const int iProfileCorr = this->GetIndex(myTrajectoryHists2D, "profCorr");
       myTrajectoryHists2D[iProfileCorr]->Fill(nHitRow, nHitCol, TMath::Abs(rho));
       if (iRow+1 == iCol && TMath::Even(iRow)) { // i.e. if iRow is x and iCol the same hit's y
@@ -941,9 +941,9 @@ void MillePedeMonitor::fillResiduals(const ConstRecHitPointer &recHit,
     if (subDetNum < histArrayVec.size() && subDetNum > 0) {
       this->fillResidualHists(histArrayVec[subDetNum], phiSensToNorm, residuum, sigma);
     } else {
-      if (detId!=AlignableBeamSpot::detId())
+      if (detId!=AlignableBeamSpot::detId()) {
 	edm::LogWarning("Alignment") << "@SUB=MillePedeMonitor::fillResiduals"
-				     << "Expect subDetNum from 1 to 6, got " << subDetNum;
+				     << "Expect subDetNum from 1 to 6, got " << subDetNum; }
     }
   }
 }
@@ -979,14 +979,14 @@ void MillePedeMonitor::fillResidualHists(const std::vector<TH1*> &hists,
     static const int iSigmaGt45 = this->GetIndex(hists, "sigmaGt45");
     hists[iSigmaGt45]->Fill(sigma);
     static const int iReduResGt45 = this->GetIndex(hists, "reduResidGt45");
-    if (sigma) hists[iReduResGt45]->Fill(residuum/sigma);
+    if (sigma) { hists[iReduResGt45]->Fill(residuum/sigma); }
   } else {
     static const int iResLt45 = this->GetIndex(hists, "residLt45");
     hists[iResLt45]->Fill(residuum);
     static const int iSigmaLt45 = this->GetIndex(hists, "sigmaLt45");
     hists[iSigmaLt45]->Fill(sigma);
     static const int iReduResLt45 = this->GetIndex(hists, "reduResidLt45");
-    if (sigma) hists[iReduResLt45]->Fill(residuum/sigma);
+    if (sigma) { hists[iReduResLt45]->Fill(residuum/sigma); }
   }
 }
 
@@ -1003,7 +1003,7 @@ void MillePedeMonitor::fillResidualHitHists(const std::vector<TH1*> &hists, floa
   static const auto iSigmaHit   = indexArray1D<TH1,maxNhit+1>(hists, "sigma_%d");
   static const auto iReduResHit = indexArray1D<TH1,maxNhit+1>(hists, "reduResid_%d");
   static const auto iAngleHit   = indexArray1D<TH1,maxNhit+1>(hists, "angle_%d");
-  if (nHit > maxNhit) nHit = maxNhit; // limit of hists
+  if (nHit > maxNhit) { nHit = maxNhit; // limit of hists }
 
   hists[iResHit[nHit]]->Fill(residuum);
   hists[iSigmaHit[nHit]]->Fill(sigma);
@@ -1048,7 +1048,7 @@ void MillePedeMonitor::fillFrameToFrame(const AlignableDetOrUnitPtr &aliDet, con
 void MillePedeMonitor::fillCorrelations2D(float corr, const ConstRecHitPointer &recHit)
 {
   const DetId detId(recHit->det()->geographicalId());
-  if (detId.det() != DetId::Tracker) return;
+  if (detId.det() != DetId::Tracker) { return; }
 
   if ((detId.subdetId() < 1 || detId.subdetId() > 6) &&
       detId!=AlignableBeamSpot::detId()) {

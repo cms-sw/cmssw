@@ -11,7 +11,7 @@ TwoBodyDecayLinearizationPointFinder::getLinearizationPoint( const std::vector< 
   GlobalPoint linPoint = tracks[0]->linearizationPoint();
   PerigeeLinearizedTrackState* linTrack1 = dynamic_cast<PerigeeLinearizedTrackState*>( tracks[0].get() );
   PerigeeLinearizedTrackState* linTrack2 = dynamic_cast<PerigeeLinearizedTrackState*>( tracks[1].get() );
-  if (!linTrack1 || !linTrack2) return TwoBodyDecayParameters();
+  if (!linTrack1 || !linTrack2) { return TwoBodyDecayParameters(); }
 
   GlobalVector firstMomentum = linTrack1->predictedState().momentum();
   GlobalVector secondMomentum = linTrack2->predictedState().momentum();
@@ -66,9 +66,9 @@ TwoBodyDecayLinearizationPointFinder::getLinearizationPoint( const std::vector< 
   double pi = 3.141592654;
   double relSign = -1.;
 
-  if ( phi1 < 0 ) phi1 += 2*pi;
-  if ( phi2 < 0 ) phi2 += 2*pi;
-  if ( phi1 > phi2 ) relSign = 1.;
+  if ( phi1 < 0 ) { phi1 += 2*pi; }
+  if ( phi2 < 0 ) { phi2 += 2*pi; }
+  if ( phi1 > phi2 ) { relSign = 1.; }
 
   double momentumSquared1 = secondaryMomentum1.normsq();
   double energy1 = sqrt( secondaryMass*secondaryMass + momentumSquared1 );

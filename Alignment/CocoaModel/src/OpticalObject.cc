@@ -77,10 +77,10 @@ void OpticalObject::construct()
   if( theParent != nullptr ) { //----- OptO 'system' has no parent (and no affine frame)
     //---------- Read or copy Data
     if(!fcopyData) {
-      if(ALIUtils::debug >=4) std::cout << "@@@@ Reading data of Optical Object " << name() << std::endl;
+      if(ALIUtils::debug >=4) { std::cout << "@@@@ Reading data of Optical Object " << name() << std::endl; }
       readData( filein );
     } else {
-      if(ALIUtils::debug >=4) std::cout << "Copy data of Optical Object " << name() << std::endl;
+      if(ALIUtils::debug >=4) { std::cout << "Copy data of Optical Object " << name() << std::endl; }
       copyData();
     }
 
@@ -203,7 +203,7 @@ void OpticalObject::fillExtraEntry( std::vector<ALIstring>& wordlist )
   Model::addEntryToList( xentry );
   addExtraEntryToList( xentry );
 
-  if(ALIUtils::debug >=5) std::cout << "fillExtraEntry: xentry_value" <<  xentry->value()<<xentry->ValueDimensionFactor() << std::endl;
+  if(ALIUtils::debug >=5) { std::cout << "fillExtraEntry: xentry_value" <<  xentry->value()<<xentry->ValueDimensionFactor() << std::endl; }
 
   //---------- Add entry value to list
   addExtraEntryValueToList( xentry->value() );
@@ -220,7 +220,7 @@ void OpticalObject::readCoordinates( const ALIstring& coor_type_read, const ALIs
 {
 
   ALIstring coor_type_reads = coor_type_read.substr(0,6);
-  if( coor_type_reads == "center" ) coor_type_reads = "centre";
+  if( coor_type_reads == "center" ) { coor_type_reads = "centre"; }
   //---------- if after the first six letters ther is a 'G', it means they are global coordinates
   //----- If data is read from a 'report.out', it is always local and this is not needed
 
@@ -228,7 +228,7 @@ void OpticalObject::readCoordinates( const ALIstring& coor_type_read, const ALIs
   if( EntryMgr::getInstance()->findEntryByLongName( longName(), "" ) == nullptr ) {
     if(coor_type_read.size() == 7) {
       if(coor_type_read[6] == 'G' ) {
-        if(ALIUtils::debug >= 5) std::cout << " coordinate global " << coor_type_read << std::endl;
+        if(ALIUtils::debug >= 5) { std::cout << " coordinate global " << coor_type_read << std::endl; }
         if(coor_type_expected == "centre" ) {
           centreIsGlobal = true;
         } else if(coor_type_expected == "angles" ) {
@@ -294,7 +294,7 @@ void OpticalObject::transformCylindrical2Cartesian()
    //----- Name is filled from here to include 'centre' or 'angles'
 
  for( ii = 0; ii < siz; ii++ ) {
-    if(ALIUtils::debug >= 5 ) std::cout << " OpticalObject::transformCylindrical2Cartesian " << ii << " " << newcoor[ii] << std::endl;
+    if(ALIUtils::debug >= 5 ) { std::cout << " OpticalObject::transformCylindrical2Cartesian " << ii << " " << newcoor[ii] << std::endl; }
     theCoordinateEntryVector[ii]->setValue( newcoor[ii] );
   }
  // change the names
@@ -386,7 +386,7 @@ void OpticalObject::copyData()
 {
   centreIsGlobal = false;
   anglesIsGlobal = false;
-  if(ALIUtils::debug >= 5) std::cout << "entering copyData()" << std::endl;
+  if(ALIUtils::debug >= 5) { std::cout << "entering copyData()" << std::endl; }
 
   //---------- Get copied OptO
   OpticalObject* opto = Model::nextOptOToCopy();
@@ -396,7 +396,7 @@ void OpticalObject::copyData()
   ALIint copy_name_size = opto->name().length();
   //-  if(ALIUtils::debug >= 9) std::cout << "BUILD UP NAME0 " << theName << std::endl;
   theName.append( opto->name(), copy_name_last_slash, copy_name_size);
-  if(ALIUtils::debug >= 5) std::cout << "copying OptO: " << opto->name() << " to OptO " << theName << std::endl;
+  if(ALIUtils::debug >= 5) { std::cout << "copying OptO: " << opto->name() << " to OptO " << theName << std::endl; }
 
   //---------- Copy Extra Entries from copied OptO
   std::vector<Entry*>::const_iterator vecite;
@@ -482,7 +482,7 @@ void OpticalObject::createComponentOptOs( ALIFileIn& filein )
   std::vector<ALIstring> vopto_types;
   int igetood = Model::getComponentOptOTypes( type(), vopto_types );
   if( !igetood ) {
-    if(ALIUtils::debug >= 5) std::cout << " NO MORE COMPONENTS IN THIS OptO" << name() << std::endl ;
+    if(ALIUtils::debug >= 5) { std::cout << " NO MORE COMPONENTS IN THIS OptO" << name() << std::endl ; }
     return;
   }
 
@@ -497,7 +497,7 @@ void OpticalObject::createComponentOptOs( ALIFileIn& filein )
   for( vsite=vopto_types.begin(); vsite!=vopto_types.end(); ++vsite ) {
     //----- If it is not being copied, read first line describing object
     //- std::cout << "fcopyy" << fcopyComponents << fcopyData << theName << *vsite << std::endl;
-    if( !fcopyData && !fcopyComponents ) filein.getWordsInLine(wordlist);
+    if( !fcopyData && !fcopyComponents ) { filein.getWordsInLine(wordlist); }
     //t    if( !fcopyData ) filein.getWordsInLine(wordlist);
 
     //----- Check first line describing object
@@ -507,7 +507,7 @@ void OpticalObject::createComponentOptOs( ALIFileIn& filein )
       fcopyComponents = true;
     //--- If OptO not copied, but components will be copied
     }else if( wordlist[0] == ALIstring("copy_components") ) {
-      if(ALIUtils::debug>=3)std::cout << "createComponentOptOs: copy_components" << wordlist[0] << std::endl;
+      if(ALIUtils::debug>=3) {std::cout << "createComponentOptOs: copy_components" << wordlist[0] << std::endl; }
       Model::createCopyComponentList( type() );
       fcopyComponents = true;  //--- for the second and following components
     //----- If no copying: check that type is the expected one
@@ -548,7 +548,7 @@ void OpticalObject::createComponentOptOs( ALIFileIn& filein )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 OpticalObject* OpticalObject::createNewOptO( OpticalObject* parent, ALIstring optoType, ALIstring optoName, ALIbool fcopyComponents )
 {
-  if ( ALIUtils::debug >= 3 ) std::cout << " OpticalObject::createNewOptO optoType " << optoType << " optoName " << optoName << " parent " << parent->name() << std::endl;
+  if ( ALIUtils::debug >= 3 ) { std::cout << " OpticalObject::createNewOptO optoType " << optoType << " optoName " << optoName << " parent " << parent->name() << std::endl; }
   OpticalObject* OptOcomponent;
   if( optoType == "laser" ) {
     OptOcomponent =
@@ -718,15 +718,15 @@ CLHEP::HepRotation OpticalObject::buildRmFromEntryValuesOriginalOriginal()
   CLHEP::HepRotation rm;
   const OpticalObject* opto_par = this;
   //  if(Model::GlobalOptions()["rotateAroundLocal"] == 0) {
-  if(ALIUtils::debug >= 55) std::cout << "rotate with parent: before X " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(XCoor) <<std::endl;
+  if(ALIUtils::debug >= 55) { std::cout << "rotate with parent: before X " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(XCoor) <<std::endl; }
   const std::vector< Entry* >& cel = CoordinateEntryList();
   rm.rotateX( cel[3]->valueOriginalOriginal() );
-  if(ALIUtils::debug >= 55) std::cout << "rotate with parent: before Y " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(YCoor) <<std::endl;
+  if(ALIUtils::debug >= 55) { std::cout << "rotate with parent: before Y " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(YCoor) <<std::endl; }
   rm.rotateY( cel[4]->valueOriginalOriginal() );
-  if(ALIUtils::debug >= 55) std::cout << "rotate with parent: before Z " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(ZCoor) <<std::endl;
+  if(ALIUtils::debug >= 55) { std::cout << "rotate with parent: before Z " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(ZCoor) <<std::endl; }
   rm.rotateZ( cel[5]->valueOriginalOriginal() );
   //-  rm.rotateZ( getEntryRMangle(ZCoor) );
-  if(ALIUtils::debug >= 54) ALIUtils::dumprm( theRmGlob, "SetRMGlobFromRMLocal: RM GLOB after " +  opto_par->parent()->longName() );
+  if(ALIUtils::debug >= 54) { ALIUtils::dumprm( theRmGlob, "SetRMGlobFromRMLocal: RM GLOB after " +  opto_par->parent()->longName() ); }
 
   return rm;
 }
@@ -744,7 +744,7 @@ void OpticalObject::SetCentreLocalFromEntryValues()
   theCentreGlob.setX( getEntryCentre(XCoor) );
   theCentreGlob.setY( getEntryCentre(YCoor) );
   theCentreGlob.setZ( getEntryCentre(ZCoor) );
-  if(ALIUtils::debug >=4) ALIUtils::dump3v( centreGlob(), "SetCentreLocalFromEntryValues: CENTRE LOCAL ");
+  if(ALIUtils::debug >=4) { ALIUtils::dump3v( centreGlob(), "SetCentreLocalFromEntryValues: CENTRE LOCAL "); }
 }
 
 
@@ -792,10 +792,10 @@ void OpticalObject::SetCentreGlobFromCentreLocal()
   CLHEP::Hep3Vector cLocal = theCentreGlob;
   theCentreGlob = parent()->rmGlob() * theCentreGlob;
 
-  if(ALIUtils::debug >= 5) ALIUtils::dump3v( theCentreGlob, "SetCentreGlobFromCentreLocal: CENTRE in parent local frame ");
+  if(ALIUtils::debug >= 5) { ALIUtils::dump3v( theCentreGlob, "SetCentreGlobFromCentreLocal: CENTRE in parent local frame "); }
   theCentreGlob += parent()->centreGlob();
 
-  if(ALIUtils::debug >= 5) ALIUtils::dump3v( theCentreGlob, "SetCentreGlobFromCentreLocal: CENTRE GLOBAL ");
+  if(ALIUtils::debug >= 5) { ALIUtils::dump3v( theCentreGlob, "SetCentreGlobFromCentreLocal: CENTRE GLOBAL "); }
   if(ALIUtils::debug >= 5) {
     ALIUtils::dump3v( parent()->centreGlob(), " parent centreGlob" + parent()->name() );
     ALIUtils::dumprm( parent()->rmGlob(), " parent rmGlob ");
@@ -821,13 +821,13 @@ void OpticalObject::SetRMGlobFromRMLocal()
   if(gomgr->GlobalOptions()["rotateAroundLocal"] == 0) {
     while ( opto_par->parent()->type() != ALIstring("system") ) {
       //t    vecite = opto_par->parent()->GetCoordinateEntry( CEanglesX );
-      if(ALIUtils::debug >= 5) std::cout << "rotate with parent: before X " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(XCoor) <<std::endl;
+      if(ALIUtils::debug >= 5) { std::cout << "rotate with parent: before X " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(XCoor) <<std::endl; }
       theRmGlob.rotateX( parent()->getEntryRMangle(XCoor) );
-      if(ALIUtils::debug >= 5) std::cout << "rotate with parent: before Y " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(YCoor) <<std::endl;
+      if(ALIUtils::debug >= 5) { std::cout << "rotate with parent: before Y " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(YCoor) <<std::endl; }
       theRmGlob.rotateY( parent()->getEntryRMangle(YCoor) );
-      if(ALIUtils::debug >= 5) std::cout << "rotate with parent: before Z " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(ZCoor) <<std::endl;
+      if(ALIUtils::debug >= 5) { std::cout << "rotate with parent: before Z " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(ZCoor) <<std::endl; }
       theRmGlob.rotateZ( parent()->getEntryRMangle(ZCoor) );
-      if(ALIUtils::debug >= 4) ALIUtils::dumprm( theRmGlob, "SetRMGlobFromRMLocal: RM GLOB after " +  opto_par->parent()->longName() );
+      if(ALIUtils::debug >= 4) { ALIUtils::dumprm( theRmGlob, "SetRMGlobFromRMLocal: RM GLOB after " +  opto_par->parent()->longName() ); }
       opto_par = opto_par->parent();
     }
   }else {
@@ -879,7 +879,7 @@ void OpticalObject::setOriginalEntryValues()
       addExtraEntryValueOriginalOriginalToList( *vdcite );
   }
   //-  test();
-  if( ALIUtils::debug >= 6 ) std::cout << " setOriginalEntryValues " << std::endl;
+  if( ALIUtils::debug >= 6 ) { std::cout << " setOriginalEntryValues " << std::endl; }
 }
 
 
@@ -992,7 +992,7 @@ void OpticalObject::userDefinedBehaviour( LightRay& lightray, Measurement& meas,
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIPlane OpticalObject::getPlate(const ALIbool forwardPlate, const ALIbool applyWedge)
 {
-  if (ALIUtils::debug >= 4) std::cout << "% LR: GET PLATE " << name() << " forward= " << forwardPlate << std::endl;
+  if (ALIUtils::debug >= 4) { std::cout << "% LR: GET PLATE " << name() << " forward= " << forwardPlate << std::endl; }
   //---------- Get OptO variables
   const ALIdouble width = (findExtraEntryValue("width"));
 
@@ -1022,13 +1022,13 @@ ALIPlane OpticalObject::getPlate(const ALIbool forwardPlate, const ALIbool apply
       CLHEP::Hep3Vector XAxis(1.,0.,0.);
       XAxis = rmt*XAxis;
       plate_normal.rotate( normal_sign * wedge/2., XAxis );
-      if (ALIUtils::debug >= 3) ALIUtils::dump3v( plate_normal, "plate_normal after wedgeX ");
-      if (ALIUtils::debug >= 4) ALIUtils::dump3v( XAxis, "X Axis for applying wedge ");
+      if (ALIUtils::debug >= 3) { ALIUtils::dump3v( plate_normal, "plate_normal after wedgeX "); }
+      if (ALIUtils::debug >= 4) { ALIUtils::dump3v( XAxis, "X Axis for applying wedge "); }
       CLHEP::Hep3Vector YAxis(0.,1.,0.);
       YAxis = rmt*YAxis;
       plate_normal.rotate( normal_sign * wedge/2., YAxis );
-      if (ALIUtils::debug >= 3) ALIUtils::dump3v( plate_normal, "plate_normal after wedgeY ");
-      if (ALIUtils::debug >= 4) ALIUtils::dump3v( YAxis, "Y Axis for applying wedge ");
+      if (ALIUtils::debug >= 3) { ALIUtils::dump3v( plate_normal, "plate_normal after wedgeY "); }
+      if (ALIUtils::debug >= 4) { ALIUtils::dump3v( YAxis, "Y Axis for applying wedge "); }
     }
   }
 
@@ -1044,7 +1044,7 @@ ALIPlane OpticalObject::getPlate(const ALIbool forwardPlate, const ALIbool apply
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::displaceCentreGlob( const XYZcoor coor, const ALIdouble disp)
 {
-  if ( ALIUtils::debug >= 5 ) std::cout << name() << " displaceCentreGlob: coor " << coor << " disp = " << disp << std::endl;
+  if ( ALIUtils::debug >= 5 ) { std::cout << name() << " displaceCentreGlob: coor " << coor << " disp = " << disp << std::endl; }
 
   theCentreGlob = centreGlobOriginal();
   CLHEP::Hep3Vector dispVec = getDispVec( coor, disp );
@@ -1093,7 +1093,7 @@ CLHEP::Hep3Vector OpticalObject::getDisplacementInLocalCoordinates( const XYZcoo
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::displaceCentreGlob( const CLHEP::Hep3Vector& dispVec)
 {
-  if ( ALIUtils::debug >= 5 ) std::cout << name() << " displaceCentreGlob: dispVec = " << dispVec << std::endl;
+  if ( ALIUtils::debug >= 5 ) { std::cout << name() << " displaceCentreGlob: dispVec = " << dispVec << std::endl; }
 
   theCentreGlob = centreGlobOriginal();
   theCentreGlob += dispVec;
@@ -1134,12 +1134,12 @@ void OpticalObject::setExtraEntryValue(const ALIuint entryNo, const ALIdouble va
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::displaceCentreGlobOriginal( const XYZcoor coor, const ALIdouble disp)
 {
-  if ( ALIUtils::debug >= 4 ) std::cout << "@@ OpticalObject::displaceCentreGloboriginal " << name() << " " << coor << " " << disp << std::endl;
-  if ( ALIUtils::debug >= 5 ) ALIUtils::dump3v(theCentreGlobOriginal, "the centre glob original 0");
+  if ( ALIUtils::debug >= 4 ) { std::cout << "@@ OpticalObject::displaceCentreGloboriginal " << name() << " " << coor << " " << disp << std::endl; }
+  if ( ALIUtils::debug >= 5 ) { ALIUtils::dump3v(theCentreGlobOriginal, "the centre glob original 0"); }
   CLHEP::Hep3Vector dispVec = getDispVec( coor, disp );
   theCentreGlobOriginal += dispVec;
 
-  if ( ALIUtils::debug >= 5 ) ALIUtils::dump3v(theCentreGlobOriginal, "the centre glob original displaced");
+  if ( ALIUtils::debug >= 5 ) { ALIUtils::dump3v(theCentreGlobOriginal, "the centre glob original displaced"); }
 
   //----------- Displace CentreGlob() of every component
   std::vector<OpticalObject*> vopto;
@@ -1157,11 +1157,11 @@ void OpticalObject::displaceCentreGlobOriginal( const XYZcoor coor, const ALIdou
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::displaceCentreGlobOriginal( const CLHEP::Hep3Vector& dispVec)
 {
-  if ( ALIUtils::debug >= 4 ) std::cout << " OpticalObject::displaceCentreGloboriginal " << name() << " dispVec " << dispVec << std::endl;
+  if ( ALIUtils::debug >= 4 ) { std::cout << " OpticalObject::displaceCentreGloboriginal " << name() << " dispVec " << dispVec << std::endl; }
 
   theCentreGlobOriginal += dispVec;
 
-  if ( ALIUtils::debug >= 5 ) ALIUtils::dump3v(theCentreGlobOriginal, "the centre glob original");
+  if ( ALIUtils::debug >= 5 ) { ALIUtils::dump3v(theCentreGlobOriginal, "the centre glob original"); }
 
   //----------- Displace CentreGlob() of every component
   std::vector<OpticalObject*> vopto;
@@ -1177,12 +1177,12 @@ void OpticalObject::displaceCentreGlobOriginal( const CLHEP::Hep3Vector& dispVec
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::displaceCentreGlobOriginalOriginal( const XYZcoor coor, const ALIdouble disp)
 {
-  if ( ALIUtils::debug >= 4 ) std::cout << "@@ OpticalObject::displaceCentreGloboriginal " << name() << " " << coor << " " << disp << std::endl;
-  if ( ALIUtils::debug >= 5 ) ALIUtils::dump3v(theCentreGlobOriginalOriginal, "the centre glob originalOriginal 0");
+  if ( ALIUtils::debug >= 4 ) { std::cout << "@@ OpticalObject::displaceCentreGloboriginal " << name() << " " << coor << " " << disp << std::endl; }
+  if ( ALIUtils::debug >= 5 ) { ALIUtils::dump3v(theCentreGlobOriginalOriginal, "the centre glob originalOriginal 0"); }
   CLHEP::Hep3Vector dispVec = getDispVec( coor, disp );
   theCentreGlobOriginalOriginal += dispVec;
 
-  if ( ALIUtils::debug >= 5 ) ALIUtils::dump3v(theCentreGlobOriginalOriginal, "the centre glob original displaced");
+  if ( ALIUtils::debug >= 5 ) { ALIUtils::dump3v(theCentreGlobOriginalOriginal, "the centre glob original displaced"); }
 
   //----------- Displace CentreGlob() of every component
   std::vector<OpticalObject*> vopto;
@@ -1200,11 +1200,11 @@ void OpticalObject::displaceCentreGlobOriginalOriginal( const XYZcoor coor, cons
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::displaceCentreGlobOriginalOriginal( const CLHEP::Hep3Vector& dispVec)
 {
-  if ( ALIUtils::debug >= 4 ) std::cout << " OpticalObject::displaceCentreGloboriginal " << name() << " dispVec " << dispVec << std::endl;
+  if ( ALIUtils::debug >= 4 ) { std::cout << " OpticalObject::displaceCentreGloboriginal " << name() << " dispVec " << dispVec << std::endl; }
 
   theCentreGlobOriginalOriginal += dispVec;
 
-  if ( ALIUtils::debug >= 5 ) ALIUtils::dump3v(theCentreGlobOriginalOriginal, "the centre glob original");
+  if ( ALIUtils::debug >= 5 ) { ALIUtils::dump3v(theCentreGlobOriginalOriginal, "the centre glob original"); }
 
   //----------- Displace CentreGlob() of every component
   std::vector<OpticalObject*> vopto;
@@ -1223,7 +1223,7 @@ void OpticalObject::displaceCentreGlobOriginalOriginal( const CLHEP::Hep3Vector&
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::displaceRmGlobAroundGlobal( OpticalObject* opto1stRotated, const XYZcoor coor, const ALIdouble disp)
 {
-  if(ALIUtils::debug>=5) std::cout << name() << "DISPLACERMGLOBAROUNDGLOBAL" << coor << "disp" << disp << std::endl;
+  if(ALIUtils::debug>=5) { std::cout << name() << "DISPLACERMGLOBAROUNDGLOBAL" << coor << "disp" << disp << std::endl; }
   //-------------------- Rotate rotation matrix
   theRmGlob = rmGlobOriginal();
   theCentreGlob = centreGlobOriginal();
@@ -1236,16 +1236,16 @@ void OpticalObject::displaceRmGlobAroundGlobal( OpticalObject* opto1stRotated, c
     ALIUtils::dumprm( theRmGlob, "after disp rm " );
   }
   //-------------------- Rotation translate the centre of component OptO
-  if(ALIUtils::debug >= 5) ALIUtils::dump3v( centreGlob(), " centre_glob before rotation" );
-  if(ALIUtils::debug >= 5 ) ALIUtils::dump3v( centreGlobOriginal(), "         centreGlobOriginal before rotation" );
+  if(ALIUtils::debug >= 5) { ALIUtils::dump3v( centreGlob(), " centre_glob before rotation" ); }
+  if(ALIUtils::debug >= 5 ) { ALIUtils::dump3v( centreGlobOriginal(), "         centreGlobOriginal before rotation" ); }
   if(opto1stRotated != this ) { //own _centre_glob is not displaced
     //---------- Distance to 1st rotated OptO
     CLHEP::Hep3Vector radiusOriginal =  centreGlobOriginal() - opto1stRotated->centreGlobOriginal();
     CLHEP::Hep3Vector radius_rotated = radiusOriginal;
     rotateItAroundGlobal( radius_rotated, coor, disp );
     theCentreGlob = centreGlobOriginal() + (radius_rotated - radiusOriginal);
-    if(ALIUtils::debug >= 5) ALIUtils::dump3v( centreGlob(), " centre_glob after rotation" );
-    if(ALIUtils::debug >= 5) ALIUtils::dump3v( centreGlobOriginal(), "         centre_globOriginal() after rotation" );
+    if(ALIUtils::debug >= 5) { ALIUtils::dump3v( centreGlob(), " centre_glob after rotation" ); }
+    if(ALIUtils::debug >= 5) { ALIUtils::dump3v( centreGlobOriginal(), "         centre_globOriginal() after rotation" ); }
   }
 
   //----------- Displace every component
@@ -1270,7 +1270,7 @@ void OpticalObject::displaceRmGlobAroundLocal( OpticalObject* opto1stRotated, co
     abort();
   }
 
-  if(ALIUtils::debug>=5) std::cout << name() << " DISPLACE_RMGLOB_AROUND_LOCAL " << coor << " disp " << disp << std::endl;
+  if(ALIUtils::debug>=5) { std::cout << name() << " DISPLACE_RMGLOB_AROUND_LOCAL " << coor << " disp " << disp << std::endl; }
   //---------- Build the rmGlob and centreGlob again, with displacement values
   //----- Local rotation is build with entry values plus displacement
   theRmGlob = CLHEP::HepRotation();
@@ -1278,7 +1278,7 @@ void OpticalObject::displaceRmGlobAroundLocal( OpticalObject* opto1stRotated, co
   //-------- Get rm from Entries
   if( coor == XCoor ) {
     theRmGlob.rotateX( getEntryRMangle(XCoor) + disp );
-    if(ALIUtils::debug>=5) std::cout << " rmglob rotated around x " <<  getEntryRMangle(XCoor) + disp << std::endl;
+    if(ALIUtils::debug>=5) { std::cout << " rmglob rotated around x " <<  getEntryRMangle(XCoor) + disp << std::endl; }
   }else {
     theRmGlob.rotateX( getEntryRMangle(XCoor) );
   }
@@ -1289,7 +1289,7 @@ void OpticalObject::displaceRmGlobAroundLocal( OpticalObject* opto1stRotated, co
 //-  std::cout << name() << " " << coor << " " << XCoor << " getEntryRMangle(coor) )" << getEntryRMangle(coor) << std::endl;
   if( coor == YCoor ) {
     theRmGlob.rotateY( getEntryRMangle(YCoor) + disp );
-    if(ALIUtils::debug>=5) std::cout << " rmglob rotated around y " <<  getEntryRMangle(YCoor) + disp << std::endl;
+    if(ALIUtils::debug>=5) { std::cout << " rmglob rotated around y " <<  getEntryRMangle(YCoor) + disp << std::endl; }
   }else {
     theRmGlob.rotateY( getEntryRMangle(YCoor) );
   }
@@ -1300,7 +1300,7 @@ void OpticalObject::displaceRmGlobAroundLocal( OpticalObject* opto1stRotated, co
 
   if( coor == ZCoor ) {
     theRmGlob.rotateZ( getEntryRMangle(ZCoor) + disp );
-    if(ALIUtils::debug>=5) std::cout << " rmglob rotated around z " <<  getEntryRMangle(ZCoor) + disp << std::endl;
+    if(ALIUtils::debug>=5) { std::cout << " rmglob rotated around z " <<  getEntryRMangle(ZCoor) + disp << std::endl; }
   }else {
     theRmGlob.rotateZ( getEntryRMangle(ZCoor) );
   }
@@ -1367,11 +1367,11 @@ void OpticalObject::setGlobalCoordinatesOfComponents()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::displaceRmGlobOriginal(const  OpticalObject* opto1stRotated, const XYZcoor coor, const ALIdouble disp)
 {
-  if(ALIUtils::debug>=9) std::cout << name() << " DISPLACEORIGRMGLOB " << coor << " disp " << disp << std::endl;
+  if(ALIUtils::debug>=9) { std::cout << name() << " DISPLACEORIGRMGLOB " << coor << " disp " << disp << std::endl; }
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   if(gomgr->GlobalOptions()["rotateAroundLocal"] == 0) {
     //-------------------- Rotate rotation matrix
-    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginal, name() + ALIstring(" theRmGlobOriginal before displaced ") );
+    if( ALIUtils::debug >= 5 ) { ALIUtils::dumprm(theRmGlobOriginal, name() + ALIstring(" theRmGlobOriginal before displaced ") ); }
     switch( coor ) {
     case 0:
       theRmGlobOriginal.rotateX( disp );
@@ -1389,8 +1389,8 @@ void OpticalObject::displaceRmGlobOriginal(const  OpticalObject* opto1stRotated,
 
 
     //-------------------- Rotation translate the centre of component OptO
-    if(ALIUtils::debug>=98)ALIUtils::dump3v( centreGlob(), "angles rotate centre_glob" );
-    if(ALIUtils::debug>=98)ALIUtils::dump3v( centreGlobOriginal(), "         centreGlobOriginal" );
+    if(ALIUtils::debug>=98) {ALIUtils::dump3v( centreGlob(), "angles rotate centre_glob" ); }
+    if(ALIUtils::debug>=98) {ALIUtils::dump3v( centreGlobOriginal(), "         centreGlobOriginal" ); }
     if(opto1stRotated != this ) { //own _centre_glob doesn't rotate
       //---------- Distance to 1st rotated OptO
       CLHEP::Hep3Vector radiusOriginal =  centreGlobOriginal() - opto1stRotated->centreGlobOriginal();
@@ -1409,11 +1409,11 @@ void OpticalObject::displaceRmGlobOriginal(const  OpticalObject* opto1stRotated,
         break;  // already exited in previous switch
       }
       theCentreGlobOriginal = centreGlobOriginal() + (radius_rotated - radiusOriginal);
-      if(ALIUtils::debug>=98)ALIUtils::dump3v( centreGlob(), "angle rotate centre_glob" );
-      if(ALIUtils::debug>=98)ALIUtils::dump3v( centreGlobOriginal(), "         centre_globOriginal()" );
+      if(ALIUtils::debug>=98) {ALIUtils::dump3v( centreGlob(), "angle rotate centre_glob" ); }
+      if(ALIUtils::debug>=98) {ALIUtils::dump3v( centreGlobOriginal(), "         centre_globOriginal()" ); }
     }
 
-    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginal, name() + ALIstring(" theRmGlobOriginal displaced ") );
+    if( ALIUtils::debug >= 5 ) { ALIUtils::dumprm(theRmGlobOriginal, name() + ALIstring(" theRmGlobOriginal displaced ") ); }
 
     //----------- Displace every OptO component
     std::vector<OpticalObject*> vopto;
@@ -1445,11 +1445,11 @@ void OpticalObject::displaceRmGlobOriginal(const  OpticalObject* opto1stRotated,
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OpticalObject::displaceRmGlobOriginalOriginal(const  OpticalObject* opto1stRotated, const XYZcoor coor, const ALIdouble disp)
 {
-  if(ALIUtils::debug>=9) std::cout << name() << " DISPLACEORIGRMGLOB " << coor << " disp " << disp << std::endl;
+  if(ALIUtils::debug>=9) { std::cout << name() << " DISPLACEORIGRMGLOB " << coor << " disp " << disp << std::endl; }
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   if(gomgr->GlobalOptions()["rotateAroundLocal"] == 0) {
     //-------------------- Rotate rotation matrix
-    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginalOriginal, name() + ALIstring(" theRmGlobOriginalOriginal before displaced") );
+    if( ALIUtils::debug >= 5 ) { ALIUtils::dumprm(theRmGlobOriginalOriginal, name() + ALIstring(" theRmGlobOriginalOriginal before displaced") ); }
     switch( coor ) {
     case 0:
       theRmGlobOriginalOriginal.rotateX( disp );
@@ -1467,8 +1467,8 @@ void OpticalObject::displaceRmGlobOriginalOriginal(const  OpticalObject* opto1st
 
 
     //-------------------- Rotation translate the centre of component OptO
-    if(ALIUtils::debug>=98)ALIUtils::dump3v( centreGlob(), "angles rotate centre_glob" );
-    if(ALIUtils::debug>=98)ALIUtils::dump3v( centreGlobOriginalOriginal(), "         centreGlobOriginalOriginal" );
+    if(ALIUtils::debug>=98) {ALIUtils::dump3v( centreGlob(), "angles rotate centre_glob" ); }
+    if(ALIUtils::debug>=98) {ALIUtils::dump3v( centreGlobOriginalOriginal(), "         centreGlobOriginalOriginal" ); }
     if(opto1stRotated != this ) { //own _centre_glob doesn't rotate
       //---------- Distance to 1st rotated OptO
       CLHEP::Hep3Vector radiusOriginalOriginal =  centreGlobOriginalOriginal() - opto1stRotated->centreGlobOriginalOriginal();
@@ -1487,11 +1487,11 @@ void OpticalObject::displaceRmGlobOriginalOriginal(const  OpticalObject* opto1st
         break;  // already exited in previous switch
       }
       theCentreGlobOriginalOriginal = centreGlobOriginalOriginal() + (radius_rotated - radiusOriginalOriginal);
-      if(ALIUtils::debug>=98)ALIUtils::dump3v( centreGlob(), "angle rotate centre_glob" );
-      if(ALIUtils::debug>=98)ALIUtils::dump3v( centreGlobOriginalOriginal(), "         centre_globOriginalOriginal()" );
+      if(ALIUtils::debug>=98) {ALIUtils::dump3v( centreGlob(), "angle rotate centre_glob" ); }
+      if(ALIUtils::debug>=98) {ALIUtils::dump3v( centreGlobOriginalOriginal(), "         centre_globOriginalOriginal()" ); }
     }
 
-    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginalOriginal, name() + ALIstring(" theRmGlobOriginalOriginal displaced ") );
+    if( ALIUtils::debug >= 5 ) { ALIUtils::dumprm(theRmGlobOriginalOriginal, name() + ALIstring(" theRmGlobOriginalOriginal displaced ") ); }
 
     //----------- Displace every OptO component
     std::vector<OpticalObject*> vopto;
@@ -1586,7 +1586,7 @@ const ALIdouble OpticalObject::findExtraEntryValue( const ALIstring& eename ) co
     }
   }
 
-  if(ALIUtils::debug >= 5)  std::cout << " OpticalObject::findExtraEntryValue: " << eename << " = " << retval << std::endl;
+  if(ALIUtils::debug >= 5) {  std::cout << " OpticalObject::findExtraEntryValue: " << eename << " = " << retval << std::endl; }
   return retval;
 }
 
@@ -1827,7 +1827,7 @@ void OpticalObject::rotateItAroundGlobal( T& object, const XYZcoor coor, const d
   }
       //  CLHEP::Hep3Vector axisToRotate = GetAxisForDisplacement( coor );
       //  object.rotate(disp, axisToRotate);
-  if( ALIUtils::debug >= 5 ) std::cout << " rotateItAroundGlobal coor " << coor << " disp " << disp << std::endl;
+  if( ALIUtils::debug >= 5 ) { std::cout << " rotateItAroundGlobal coor " << coor << " disp " << disp << std::endl; }
 }
 
 
@@ -1903,7 +1903,7 @@ bool OpticalObject::eq2ang( double ang1, double ang2 )
 double OpticalObject::approxTo0( double val )
 {
   double precision = 1.e-9;
-  if( fabs(val) < precision ) val = 0;
+  if( fabs(val) < precision ) { val = 0; }
   return val;
 }
 
@@ -2014,7 +2014,7 @@ CLHEP::Hep3Vector OpticalObject::getDispVec( const XYZcoor coor, const ALIdouble
     ALIUtils::dumprm( rmt, "parent rmGlob ");
   }
   dispVec = parent()->rmGlob() * dispVec;
-  if ( ALIUtils::debug >= 5 ) ALIUtils::dump3v( dispVec, " dispVec in global " );
+  if ( ALIUtils::debug >= 5 ) { ALIUtils::dump3v( dispVec, " dispVec in global " ); }
 
   return dispVec;
 }

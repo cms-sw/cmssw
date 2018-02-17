@@ -10,9 +10,9 @@ AlignmentSeedSelector::AlignmentSeedSelector(const edm::ParameterSet & cfg) :
   maxNSeeds ( cfg.getParameter<int>( "maxNSeeds" ) )
 {
 
-  if (applySeedNumber)
+  if (applySeedNumber) {
 	edm::LogInfo("AlignmentSeedSelector") 
-	  << "apply seedNumber N<=" << minNSeeds;
+	  << "apply seedNumber N<=" << minNSeeds; }
 
 }
 
@@ -31,7 +31,7 @@ AlignmentSeedSelector::select(const Seeds& seeds, const edm::Event& evt) const
 
   // apply minimum/maximum multiplicity requirement (if selected)
   if (applySeedNumber) {
-    if (result.size()<(unsigned int)minNSeeds || result.size()>(unsigned int)maxNSeeds ) result.clear();
+    if (result.size()<(unsigned int)minNSeeds || result.size()>(unsigned int)maxNSeeds ) { result.clear(); }
   }
 
   return result;

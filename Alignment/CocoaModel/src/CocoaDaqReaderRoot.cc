@@ -16,7 +16,8 @@
 //----------------------------------------------------------------------
 CocoaDaqReaderRoot::CocoaDaqReaderRoot(const std::string& m_inFileName )
 {
-  if ( ALIUtils::debug >= 3) std::cout << " CocoaDaqReaderRoot opening file: " << m_inFileName << std::endl;
+  if ( ALIUtils::debug >= 3) { std::cout << " CocoaDaqReaderRoot opening file: " << m_inFileName << std::endl;
+}
   // Open root file
   theFile = new TFile(m_inFileName.c_str()); 
   if( !theTree ) {
@@ -72,20 +73,25 @@ bool CocoaDaqReaderRoot::ReadEvent( int nev )
   // Loop over all events
   nb = theTree->GetEntry(nev);  // read in entire event
  
-  if ( ALIUtils::debug >= 3) std::cout << "CocoaDaqReaderRoot reading event " << nev << " " << nb << std::endl;
-  if( nb == 0 ) return false; //end of file reached??
+  if ( ALIUtils::debug >= 3) { std::cout << "CocoaDaqReaderRoot reading event " << nev << " " << nb << std::endl;
+}
+  if( nb == 0 ) { return false; //end of file reached??
+}
 
   // Every n events, dump one to screen
   int n = 1;
-  if(nev%n == 0 &&  ALIUtils::debug >= 3 ) theEvent->DumpIt();
+  if(nev%n == 0 &&  ALIUtils::debug >= 3 ) { theEvent->DumpIt();
+}
   
   //if ( ALIUtils::debug >= 3) std::cout<<" CocoaDaqReaderRoot::ReadEvent "<< nev <<std::endl;
 
-   if ( ALIUtils::debug >= 3) std::cout<<" CocoaDaqReaderRoot::ReadEvent npos2D "<< theEvent->GetNumPos2D() << " nCOPS " << theEvent->GetNumPosCOPS() << std::endl;
+   if ( ALIUtils::debug >= 3) { std::cout<<" CocoaDaqReaderRoot::ReadEvent npos2D "<< theEvent->GetNumPos2D() << " nCOPS " << theEvent->GetNumPosCOPS() << std::endl;
+}
   
   for(int ii=0; ii<theEvent->GetNumPos2D(); ii++) {
     AliDaqPosition2D* pos2D = (AliDaqPosition2D*) theEvent->GetArray_Position2D()->At(ii);
-    if ( ALIUtils::debug >= 4) std::cout<<"2D sensor "<<ii<<" has ID = "<<pos2D->GetID()<< std::endl;
+    if ( ALIUtils::debug >= 4) { std::cout<<"2D sensor "<<ii<<" has ID = "<<pos2D->GetID()<< std::endl;
+}
       pos2D->DumpIt("2DSENSOR"); 
      measList.push_back( GetMeasFromPosition2D( pos2D ) );
   }
@@ -256,7 +262,8 @@ OpticalAlignMeasurementInfo CocoaDaqReaderRoot::GetMeasFromDist( AliDaqDistance*
 //----------------------------------------------------------------------
 void CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign( std::vector<OpticalAlignMeasurementInfo>& measList )
 {
-  if ( ALIUtils::debug >= 3) std::cout << "@@@ CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign " << std::endl;
+  if ( ALIUtils::debug >= 3) { std::cout << "@@@ CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign " << std::endl;
+}
 
  //set date and time of current measurement
   //  if( wordlist[0] == "DATE:" ) {

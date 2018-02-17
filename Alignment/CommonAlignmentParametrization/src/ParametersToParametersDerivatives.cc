@@ -140,7 +140,7 @@ bool ParametersToParametersDerivatives::init2BowedRigid(const Alignable &compone
                                                     mother.globalRotation(),
                                                     posSurf2, mother.globalPosition()));
   // We have to invert matrices to get d(rigid_mother)/d(rigid_component):
-  if (!f2fSurf1.Invert() || !f2fSurf2.Invert()) return false; // bail out if bad inversion
+  if (!f2fSurf1.Invert() || !f2fSurf2.Invert()) { return false; // bail out if bad inversion }
   // Now get d(rigid_mother)/d(bowed_component):
   const AlgebraicMatrix69 derivs1(this->dRigid_dBowed(f2fSurf1, halfWidth, halfLength1));
   const AlgebraicMatrix69 derivs2(this->dRigid_dBowed(f2fSurf2, halfWidth, halfLength2));

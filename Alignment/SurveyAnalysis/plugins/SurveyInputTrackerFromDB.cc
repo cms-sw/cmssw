@@ -58,8 +58,8 @@ void SurveyInputTrackerFromDB::analyze(const edm::Event&, const edm::EventSetup&
 	edm::Service<cond::service::PoolDBOutputService> poolDbService;
 	// Call service
 	
-	if( !poolDbService.isAvailable() ) // Die if not available
-		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+	if( !poolDbService.isAvailable() ) { // Die if not available
+		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available"; }
 	
 	poolDbService->writeOne<Alignments>( myAlignments, poolDbService->beginOfTime(), "TrackerAlignmentRcd" );
 	poolDbService->writeOne<AlignmentErrorsExtended>( myAlignmentErrorsExtended, poolDbService->beginOfTime(), "TrackerAlignmentErrorExtendedRcd" );
@@ -73,7 +73,7 @@ void SurveyInputTrackerFromDB::addSurveyInfo(Alignable* ali)
 	const align::Alignables& comp = ali->components();
 	unsigned int nComp = comp.size();
 	
-	for (unsigned int i = 0; i < nComp; ++i) addSurveyInfo(comp[i]);
+	for (unsigned int i = 0; i < nComp; ++i) { addSurveyInfo(comp[i]); }
 	
 	align::ErrorMatrix error;
 

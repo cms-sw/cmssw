@@ -30,7 +30,7 @@ MillePedeFileExtractor::~MillePedeFileExtractor() {}
 void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLumi,
                                                 const edm::EventSetup&)
 {
-  if (enoughBinaries()) return;
+  if (enoughBinaries()) { return; }
 
   // Getting our hands on the vector of FileBlobs
   edm::Handle<FileBlobCollection> fileBlobCollection;
@@ -41,7 +41,7 @@ void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLum
       << "Root file contains " << fileBlobCollection->size() << " FileBlob(s).";
     // Loop over the FileBlobs in the vector, and write them to files:
     for (const auto& blob: *fileBlobCollection) {
-      if (enoughBinaries()) break;
+      if (enoughBinaries()) { break; }
       // We format the filename with a number, starting from 0 to the size of
       // our vector.
       // For this to work, the outputBinaryFile config parameter must contain a

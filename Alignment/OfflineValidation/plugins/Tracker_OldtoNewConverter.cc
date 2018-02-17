@@ -159,8 +159,8 @@ void Tracker_OldtoNewConverter::beginJob()
 void Tracker_OldtoNewConverter::createMap() {
 
 	std::ifstream myfile( m_textFile.c_str() );
-	if (!myfile.is_open())
-		throw cms::Exception("FileAccess") << "Unable to open input text file";
+	if (!myfile.is_open()) {
+		throw cms::Exception("FileAccess") << "Unable to open input text file"; }
 
 	uint32_t oldid;
 	uint32_t newid;
@@ -178,7 +178,7 @@ void Tracker_OldtoNewConverter::createMap() {
 
 		theMap.insert( pairType );
 
-		if (myfile.fail()) break;
+		if (myfile.fail()) { break; }
 
 		ctr++;
 	}

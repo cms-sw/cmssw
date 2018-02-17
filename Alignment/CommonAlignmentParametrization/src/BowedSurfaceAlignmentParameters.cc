@@ -65,7 +65,7 @@ BowedSurfaceAlignmentParameters::clone(const AlgebraicVector &parameters,
   BowedSurfaceAlignmentParameters* rbap = 
     new BowedSurfaceAlignmentParameters(this->alignable(), parameters, covMatrix, selector());
 
-  if (this->userVariables()) rbap->setUserVariables(this->userVariables()->clone());
+  if (this->userVariables()) { rbap->setUserVariables(this->userVariables()->clone()); }
   rbap->setValid(this->isValid());
 
   return rbap;

@@ -199,8 +199,8 @@ void AlignmentMonitorMuonResiduals::book() {
    m_y_wyy.clear();
 
    align::Alignables chambers;
-   for (const auto& iter: pMuon()->DTChambers()) chambers.push_back(iter);
-   for (const auto& iter: pMuon()->CSCChambers()) chambers.push_back(iter);
+   for (const auto& iter: pMuon()->DTChambers()) { chambers.push_back(iter); }
+   for (const auto& iter: pMuon()->CSCChambers()) { chambers.push_back(iter); }
 
    for (const auto& chamber: chambers) {
       int id = chamber->geomDetId().rawId();
@@ -820,8 +820,8 @@ void AlignmentMonitorMuonResiduals::event(const edm::Event &iEvent, const edm::E
 
 void AlignmentMonitorMuonResiduals::afterAlignment() {
    align::Alignables chambers;
-   for (const auto& iter: pMuon()->DTChambers()) chambers.push_back(iter);
-   for (const auto& iter: pMuon()->CSCChambers()) chambers.push_back(iter);
+   for (const auto& iter: pMuon()->DTChambers()) { chambers.push_back(iter); }
+   for (const auto& iter: pMuon()->CSCChambers()) { chambers.push_back(iter); }
 
    int index = 0;
    for (const auto& chamber: chambers) {

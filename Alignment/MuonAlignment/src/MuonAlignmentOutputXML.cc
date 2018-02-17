@@ -186,8 +186,8 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 	 if (DT) {
 	    if (m_rawIds  &&  rawId != 0) {
 	       std::string typeName = objectIdProvider.idToString(alignableObjectId);
-	       if (alignableObjectId == align::AlignableDTSuperLayer) typeName = std::string("DTSuperLayer");
-	       if (alignableObjectId == align::AlignableDetUnit) typeName = std::string("DTLayer");
+	       if (alignableObjectId == align::AlignableDTSuperLayer) { typeName = std::string("DTSuperLayer"); }
+	       if (alignableObjectId == align::AlignableDetUnit) { typeName = std::string("DTLayer"); }
 	       outputFile << "  <" << typeName << " rawId=\"" << rawId << "\" />" << std::endl;
 	    }
 	    else {
@@ -215,7 +215,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 		  else if (alignableObjectId == align::AlignableDTBarrel) {
 		     outputFile << "  <DTBarrel />" << std::endl;
 		  }
-		  else throw cms::Exception("Alignment") << "Unknown DT Alignable StructureType" << std::endl;
+		  else { throw cms::Exception("Alignment") << "Unknown DT Alignable StructureType" << std::endl; }
 	       }
 
 	    } // end if not rawId
@@ -224,7 +224,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 	 else { // CSC
 	    if (m_rawIds  &&  rawId != 0) {
 	       std::string typeName = objectIdProvider.idToString(alignableObjectId);
-	       if (alignableObjectId == align::AlignableDetUnit) typeName = std::string("CSCLayer");
+	       if (alignableObjectId == align::AlignableDetUnit) { typeName = std::string("CSCLayer"); }
 	       outputFile << "  <" << typeName << " rawId=\"" << rawId << "\" />" << std::endl;
 	    }
 	    else {
@@ -247,7 +247,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 		  else if (alignableObjectId == align::AlignableCSCEndcap) {
 		     outputFile << "  <CSCEndcap endcap=\"" << id.endcap() << "\" />" << std::endl;
 		  }
-		  else throw cms::Exception("Alignment") << "Unknown CSC Alignable StructureType" << std::endl;
+		  else { throw cms::Exception("Alignment") << "Unknown CSC Alignable StructureType" << std::endl; }
 	       
 	       }
 
@@ -312,7 +312,7 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
 	    str_relativeto = std::string("container");
 	 }
 
-	 else assert(false);  // can't happen: see constructor
+	 else { assert(false);  // can't happen: see constructor }
 
 	 outputFile << "  <setposition relativeto=\"" << str_relativeto << "\" "
 		    << "x=\"" << pos.x() << "\" y=\"" << pos.y() << "\" z=\"" << pos.z() << "\" ";

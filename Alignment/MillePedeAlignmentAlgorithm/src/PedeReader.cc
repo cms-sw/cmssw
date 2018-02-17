@@ -37,8 +37,8 @@ PedeReader::PedeReader(const edm::ParameterSet &config, const PedeSteerer &steer
   : mySteerer(steerer), myLabels(labels), myRunRange(runrange)
 {
   std::string pedeResultFile(config.getUntrackedParameter<std::string>("fileDir"));
-  if (pedeResultFile.empty()) pedeResultFile = steerer.directory(); // includes final '/'
-  else if (pedeResultFile.find_last_of('/') != pedeResultFile.size() - 1) {
+  if (pedeResultFile.empty()) { pedeResultFile = steerer.directory(); // includes final '/'
+  } else if (pedeResultFile.find_last_of('/') != pedeResultFile.size() - 1) {
     pedeResultFile += '/'; // directory may need '/'
   }
 
@@ -68,13 +68,13 @@ bool PedeReader::read(align::Alignables& alignables, bool setUserVars)
   while (myPedeResult.good() && !myPedeResult.eof()) {
     // read label
     unsigned int paramLabel = 0;
-    if (!this->readIfSameLine<unsigned int>(myPedeResult, paramLabel)) continue; // empty line?
+    if (!this->readIfSameLine<unsigned int>(myPedeResult, paramLabel)) { continue; // empty line? }
 
     // read up to maximal number of pede result per parameter
     float buffer[myMaxNumValPerParam] = {0.};
     unsigned int bufferPos = 0;
     for ( ; bufferPos < myMaxNumValPerParam; ++bufferPos) {
-      if (!this->readIfSameLine<float>(myPedeResult, buffer[bufferPos])) break;
+      if (!this->readIfSameLine<float>(myPedeResult, buffer[bufferPos])) { break; }
     }
     
     // First check whether parameter is from any calibration (to be done before RunRange check:
@@ -95,7 +95,7 @@ bool PedeReader::read(align::Alignables& alignables, bool setUserVars)
     }
     // Now treat Alignables if paramLabel fits to run range, otherwise skip line:
     const RunRange & runRange = myLabels.runRangeFromLabel(paramLabel);
-    if (!(runRange.first<=myRunRange.first && myRunRange.second<=runRange.second)) continue;
+    if (!(runRange.first<=myRunRange.first && myRunRange.second<=runRange.second)) { continue; }
     
     Alignable *alignable = this->setParameter(paramLabel, bufferPos, buffer, setUserVars);
     if (!alignable) {
@@ -130,7 +130,7 @@ bool PedeReader::readIfSameLine(std::ifstream &aStream, T &outValue) const
 
   while (true) {
     const int aChar = aStream.get();
-    if (!aStream.good()) return false;
+    if (!aStream.good()) { return false; }
 
     switch(aChar) {
     case ' ':
@@ -143,7 +143,7 @@ bool PedeReader::readIfSameLine(std::ifstream &aStream, T &outValue) const
       aStream >> outValue;
       if (aStream.fail()) {// not correct type 'T' (!aStream.good() is true also in case of EOF)
         aStream.clear();
-        while (aStream.good() && aStream.get() != '\n'); // forward to end of line
+        while (aStream.good() && aStream.get() != '\n') {; // forward to end of line }
         return false; 
       } else {
         return true;
@@ -177,17 +177,17 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
     AlgebraicVector parVec(params->parameters());
     AlgebraicSymMatrix covMat(params->covariance());
 
-    if (userParams) userParams->setAllDefault(paramNum);
+    if (userParams) { userParams->setAllDefault(paramNum); }
 
     switch (bufLength) {
     case 5: // global correlation
-      if (userParams) userParams->globalCor()[paramNum] = buf[4]; // no break
+      if (userParams) { userParams->globalCor()[paramNum] = buf[4]; // no break }
     case 4: // uncertainty
-      if (userParams) userParams->sigma()[paramNum] = buf[3] / cmsToPede;
+      if (userParams) { userParams->sigma()[paramNum] = buf[3] / cmsToPede; }
       covMat[paramNum][paramNum] = buf[3]*buf[3] / (cmsToPede*cmsToPede);
       // no break;
     case 3: // difference to start value
-      if (userParams) userParams->diffBefore()[paramNum] = buf[2] / cmsToPede;
+      if (userParams) { userParams->diffBefore()[paramNum] = buf[2] / cmsToPede; }
       // no break
     case 2: 
       params->setValid(true);
@@ -233,7 +233,7 @@ Alignable* PedeReader::setParameter(unsigned int paramLabel,
 bool PedeReader::setCalibrationParameter(IntegratedCalibrationBase* calib, unsigned int paramNum,
                                          unsigned int bufLength, const float *buf) const
 {
-  if (!calib || !buf) return false;
+  if (!calib || !buf) { return false; }
 
   // FIXME: Should we attach MillePedeVariables to IntegratedCalibrationBase to store
   //        'other' results beyond value and error?

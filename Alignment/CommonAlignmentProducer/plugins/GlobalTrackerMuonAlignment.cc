@@ -367,24 +367,24 @@ void GlobalTrackerMuonAlignment::endJob() {
   AlgebraicVector3 d(0., 0., 0.);   // ------------  alignmnet  Global Algebraic
 
   AlgebraicSymMatrix33 InfI;   // inverse it   
-  for(int i=0; i<=2; i++) 
+  for(int i=0; i<=2; i++) { 
     for(int j=0; j<=2; j++){
-      if(j < i) continue;
-      InfI(i,j) += Inf(i,j);}
+      if(j < i) { continue; }
+      InfI(i,j) += Inf(i,j);} }
   bool ierr = !InfI.Invert();
-  if( ierr ) { if(alarm)
-      std::cout<<" Error inverse  Inf matrix !!!!!!!!!!!"<<std::endl;}
+  if( ierr ) { if(alarm) {
+      std::cout<<" Error inverse  Inf matrix !!!!!!!!!!!"<<std::endl; }}
   
-  for(int i=0; i<=2; i++) 
-    for(int k=0; k<=2; k++) d(i) -= InfI(i,k)*Gfr(k);
+  for(int i=0; i<=2; i++) { 
+    for(int k=0; k<=2; k++) { d(i) -= InfI(i,k)*Gfr(k); }
   // end of Global Algebraic
         
   //                                ---------------  alignment Global CLHEP
   CLHEP::HepVector d3 = CLHEP::solve(Hess, -Grad);
   int iEr3;
   CLHEP::HepMatrix Errd3 = Hess.inverse(iEr3);
-  if( iEr3 != 0) { if(alarm)
-    std::cout<<" endJob Error inverse Hess matrix !!!!!!!!!!!"<<std::endl;
+  if( iEr3 != 0) { if(alarm) {
+    std::cout<<" endJob Error inverse Hess matrix !!!!!!!!!!!"<<std::endl; }
   }
   // end of Global CLHEP
   
@@ -392,17 +392,17 @@ void GlobalTrackerMuonAlignment::endJob() {
   CLHEP::HepVector dLI = CLHEP::solve(HessL, -GradL);
   int iErI;
   CLHEP::HepMatrix ErrdLI = HessL.inverse(iErI);
-  if( iErI != 0) { if(alarm)
-      std::cout<<" endJob Error inverse HessL matrix !!!!!!!!!!!"<<std::endl;
+  if( iErI != 0) { if(alarm) {
+      std::cout<<" endJob Error inverse HessL matrix !!!!!!!!!!!"<<std::endl; }
   }
   // end of Local CLHEP
 
   // printout of final parameters
   std::cout<<" ---- "<<N_event<<" event "<<N_track<<" tracks "
 	   <<MuSelect<<" ---- "<<std::endl;
-  if (collectionIsolated) std::cout<<" ALCARECOMuAlCalIsolatedMu "<<std::endl;
-  else if (collectionCosmic) std::cout<<"  ALCARECOMuAlGlobalCosmics "<<std::endl; 
-  else std::cout<<smuonTags_<<std::endl;
+  if (collectionIsolated) { std::cout<<" ALCARECOMuAlCalIsolatedMu "<<std::endl;
+  } else if (collectionCosmic) { std::cout<<"  ALCARECOMuAlGlobalCosmics "<<std::endl; 
+  } else { std::cout<<smuonTags_<<std::endl; }
   std::cout<<" Similated shifts[cm] "
 	   <<MuGlShift(1)<<" "<<MuGlShift(2)<<" "<<MuGlShift(3)<<" "
 	   <<" angles[rad] "<<MuGlAngle(1)<<" "<<MuGlAngle(2)<<" "<<MuGlAngle(3)<<" "
@@ -426,7 +426,7 @@ void GlobalTrackerMuonAlignment::endJob() {
   //vectorToDb = d3;
   //for(unsigned int i=1; i<=6; i++) vectorErrToDb(i) = sqrt(Errd3(i,i));
   vectorToDb = -dLI;
-  for(unsigned int i=1; i<=6; i++) vectorErrToDb(i) = sqrt(ErrdLI(i,i));
+  for(unsigned int i=1; i<=6; i++) { vectorErrToDb(i) = sqrt(ErrdLI(i,i)); }
 
   // write histograms to root file
   file->Write(); 
@@ -434,26 +434,26 @@ void GlobalTrackerMuonAlignment::endJob() {
 
   // write global parameters to text file 
   OutGlobalTxt.open(txtOutFile_.c_str(), ios::out);
-  if(!OutGlobalTxt.is_open()) std::cout<<" outglobal.txt is not open !!!!!"<<std::endl;
-  else{
+  if(!OutGlobalTxt.is_open()) { std::cout<<" outglobal.txt is not open !!!!!"<<std::endl;
+  } else{
     OutGlobalTxt<<vectorToDb(1)<<" "<<vectorToDb(2)<<" "<<vectorToDb(3)<<" "<<vectorToDb(4)<<" "
 		<<vectorToDb(5)<<" "<<vectorToDb(6)<<" muon Global.\n";
     OutGlobalTxt<<vectorErrToDb(1)<<" "<<vectorErrToDb(1)<<" "<<vectorErrToDb(1)<<" "
 		<<vectorErrToDb(1)<<" "<<vectorErrToDb(1)<<" "<<vectorErrToDb(1)<<" errors.\n";
     OutGlobalTxt<<N_event<<" events are processed.\n";
 
-    if (collectionIsolated) OutGlobalTxt<<"ALCARECOMuAlCalIsolatedMu.\n";
-    else if (collectionCosmic) OutGlobalTxt<<"  ALCARECOMuAlGlobalCosmics.\n"; 
-    else OutGlobalTxt<<smuonTags_<<".\n";
+    if (collectionIsolated) { OutGlobalTxt<<"ALCARECOMuAlCalIsolatedMu.\n";
+    } else if (collectionCosmic) { OutGlobalTxt<<"  ALCARECOMuAlGlobalCosmics.\n"; 
+    } else { OutGlobalTxt<<smuonTags_<<".\n"; }
     OutGlobalTxt.close();
     std::cout<<" Write to the file outglobal.txt done  "<<std::endl;
   }
 
   // write new GlobalPositionRcd to DB
-  if(debug_)
-    std::cout<<" writeBD_ "<<writeDB_<<std::endl;
-  if (writeDB_) 
-    GlobalTrackerMuonAlignment::writeGlPosRcd(vectorToDb);
+  if(debug_) {
+    std::cout<<" writeBD_ "<<writeDB_<<std::endl; }
+  if (writeDB_) { 
+    GlobalTrackerMuonAlignment::writeGlPosRcd(vectorToDb); }
 }
 
 // ------------ book histogram  ------------
@@ -581,8 +581,8 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
   N_event++;
   if (info || debug_) {
     std::cout << "----- event " << N_event << " -- tracks "<<N_track<<" ---";
-    if (cosmicMuonMode_) std::cout << " treated as CosmicMu ";
-    if (isolatedMuonMode_) std::cout <<" treated as IsolatedMu ";
+    if (cosmicMuonMode_) { std::cout << " treated as CosmicMu "; }
+    if (isolatedMuonMode_) { std::cout <<" treated as IsolatedMu "; }
     std::cout << std::endl;
   }
 
@@ -624,17 +624,17 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
   }
 
   if (isolatedMuonMode_) {                // ---- Only 1 Isolated Muon --------
-    if (tracks->size() != 1) return;  
-    if (muons->size()  != 1) return;  
-    if (gmuons->size() != 1) return; 
-    if (smuons->size() != 1) return; 
+    if (tracks->size() != 1) { return;   }
+    if (muons->size()  != 1) { return;   }
+    if (gmuons->size() != 1) { return;  }
+    if (smuons->size() != 1) { return;  }
   }
   
   if (cosmicMuonMode_){                // ---- 1,2 Cosmic Muon --------
-    if (smuons->size() > 2) return; 
-    if (tracks->size() != smuons->size()) return;  
-    if (muons->size() != smuons->size()) return;  
-    if (gmuons->size() != smuons->size()) return;  
+    if (smuons->size() > 2) { return;  }
+    if (tracks->size() != smuons->size()) { return;   }
+    if (muons->size() != smuons->size()) { return;   }
+    if (gmuons->size() != smuons->size()) { return;   }
   }
   
   // ok mc_isolated_mu
@@ -666,10 +666,10 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
     for (std::vector<AlignTransform>::const_iterator i 
 	   = globalPositionRcd_->m_align.begin();
 	 i != globalPositionRcd_->m_align.end();  ++i){
-      if(DetId(DetId::Tracker).rawId() == i->rawId()) iteratorTrackerRcd = i;
-      if(DetId(DetId::Muon).rawId() == i->rawId()) iteratorMuonRcd = i;
-      if(DetId(DetId::Ecal).rawId() == i->rawId()) iteratorEcalRcd = i;
-      if(DetId(DetId::Hcal).rawId() == i->rawId()) iteratorHcalRcd = i;
+      if(DetId(DetId::Tracker).rawId() == i->rawId()) { iteratorTrackerRcd = i; }
+      if(DetId(DetId::Muon).rawId() == i->rawId()) { iteratorMuonRcd = i; }
+      if(DetId(DetId::Ecal).rawId() == i->rawId()) { iteratorEcalRcd = i; }
+      if(DetId(DetId::Hcal).rawId() == i->rawId()) { iteratorHcalRcd = i; }
     }
     if(true || debug_){
       std::cout << "=== iteratorMuonRcd " << iteratorMuonRcd->rawId()<<" ====\n" 
@@ -742,13 +742,13 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 	       <<distanceInIn<<" "<<distanceOutOut<<std::endl; 
   }   
 
-    if(lenghtTrack < 90.) continue;
-    if(lenghtMuon < 300.) continue;
-    if(momentumTrackIn.mag() < 15. || momentumTrackOut.mag() < 15.) continue;
-    if(trackTT.charge() != muTT.charge()) continue;
+    if(lenghtTrack < 90.) { continue; }
+    if(lenghtMuon < 300.) { continue; }
+    if(momentumTrackIn.mag() < 15. || momentumTrackOut.mag() < 15.) { continue; }
+    if(trackTT.charge() != muTT.charge()) { continue; }
 
-    if(debug_)
-      std::cout<<" passed lenght momentum cuts"<<std::endl;
+    if(debug_) {
+      std::cout<<" passed lenght momentum cuts"<<std::endl; }
 
     GlobalVector GRm, GPm, Nl, Rm, Pm, Rt, Pt, Rt0;
     AlgebraicSymMatrix66 Cm, C0, Ce, C1;
@@ -783,10 +783,10 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
       //extrapolationT = propagator->propagate(outerTrackTSOS, refSurface);
       
       if(!extrapolationT.isValid()){
-	if(false & alarm)
+	if(false & alarm) {
 	  std::cout<<" !!!!!!!!! Catastrophe Out-In extrapolationT.isValid "
 	    //<<"\a\a\a\a\a\a\a\a"<<extrapolationT.isValid()
-		   <<std::endl;
+		   <<std::endl; }
 	continue;
       }
       tsosMuonIf = 1;
@@ -816,7 +816,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 
       if((distanceOutIn <= distanceInOut) & (distanceOutIn <= distanceInIn) & 
 	 (distanceOutIn <= distanceOutOut)){             // ----- Out - In ------    
-	if(debug_) std::cout<<" -----    Out - In -----"<<std::endl;
+	if(debug_) { std::cout<<" -----    Out - In -----"<<std::endl; }
 
         const Surface& refSurface = innerMuTSOS.surface(); 
 	ConstReferenceCountingPointer<TangentPlane> 
@@ -828,14 +828,14 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 	//extrapolationT = propagator->propagate(outerTrackTSOS, refSurface);
 
 	if(!extrapolationT.isValid()){
-	  if(false & alarm)
+	  if(false & alarm) {
 	    std::cout<<" !!!!!!!!! Catastrophe Out-In extrapolationT.isValid "
 	      //<<"\a\a\a\a\a\a\a\a"<<extrapolationT.isValid()
-		     <<std::endl;
+		     <<std::endl; }
 	  continue;
 	}
-	if(debug_)
-	  std::cout<<" extrapolationT.isValid "<<extrapolationT.isValid()<<std::endl; 
+	if(debug_) {
+	  std::cout<<" extrapolationT.isValid "<<extrapolationT.isValid()<<std::endl;  }
 
 	tsosMuonIf = 1;
 	Rt = GlobalVector((extrapolationT.globalPosition()).x(),
@@ -873,7 +873,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 
       else if((distanceInOut <= distanceInIn) & (distanceInOut <= distanceOutIn) & 
 	      (distanceInOut <= distanceOutOut)){            // ----- In - Out ------    
-	if(debug_) std::cout<<" -----    In - Out -----"<<std::endl;
+	if(debug_) { std::cout<<" -----    In - Out -----"<<std::endl; }
 
 	const Surface& refSurface = outerMuTSOS.surface(); 
 	ConstReferenceCountingPointer<TangentPlane> 
@@ -884,14 +884,14 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 	extrapolationT = oppositeSmPr.propagate(innerTrackTSOS, refSurface);
 
 	if(!extrapolationT.isValid()){
-	  if(false & alarm)
+	  if(false & alarm) {
 	    std::cout<<" !!!!!!!!! Catastrophe Out-In extrapolationT.isValid "
 	      <<"\a\a\a\a\a\a\a\a"<<extrapolationT.isValid()
-		     <<std::endl;
+		     <<std::endl; }
 	  continue;
 	}
-	if(debug_)
-	  std::cout<<" extrapolationT.isValid "<<extrapolationT.isValid()<<std::endl; 
+	if(debug_) {
+	  std::cout<<" extrapolationT.isValid "<<extrapolationT.isValid()<<std::endl;  }
 	
 	tsosMuonIf = 2;
 	Rt = GlobalVector((extrapolationT.globalPosition()).x(),
@@ -928,7 +928,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 
       else if((distanceOutOut <= distanceInOut) & (distanceOutOut <= distanceInIn) & 
 	      (distanceOutOut <= distanceOutIn)){          // ----- Out - Out ------    
-	if(debug_) std::cout<<" -----    Out - Out -----"<<std::endl;
+	if(debug_) { std::cout<<" -----    Out - Out -----"<<std::endl; }
 
 	// reject: momentum of track has opposite direction to muon track
 	continue;
@@ -942,14 +942,14 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 	extrapolationT = alongSmPr.propagate(outerTrackTSOS, refSurface);
 
 	if(!extrapolationT.isValid()){
-	  if(alarm)
+	  if(alarm) {
 	    std::cout<<" !!!!!!!!! Catastrophe Out-Out extrapolationT.isValid "
 		     <<"\a\a\a\a\a\a\a\a"<<extrapolationT.isValid()
-		     <<std::endl;
+		     <<std::endl; }
 	  continue;
 	}
-	if(debug_)
-	  std::cout<<" extrapolationT.isValid "<<extrapolationT.isValid()<<std::endl; 
+	if(debug_) {
+	  std::cout<<" extrapolationT.isValid "<<extrapolationT.isValid()<<std::endl;  }
 
 	tsosMuonIf = 2;
 	Rt = GlobalVector((extrapolationT.globalPosition()).x(),
@@ -985,8 +985,8 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 	}
       }           //                                       enf of ---- Out - Out -----
       else{
-	if(alarm)
-	  std::cout<<" ------- !!!!!!!!!!!!!!! No proper Out - In \a\a\a\a\a\a\a"<<std::endl; 
+	if(alarm) {
+	  std::cout<<" ------- !!!!!!!!!!!!!!! No proper Out - In \a\a\a\a\a\a\a"<<std::endl;  }
 	continue;
       }
       
@@ -994,8 +994,8 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
     
     if(tsosMuonIf == 0) {if(info) {std::cout<<"No tsosMuon !!!!!!"<<std::endl; continue;}}
     TrajectoryStateOnSurface tsosMuon;
-    if(tsosMuonIf == 1) tsosMuon = muTT.innermostMeasurementState();
-    else tsosMuon = muTT.outermostMeasurementState();
+    if(tsosMuonIf == 1) { tsosMuon = muTT.innermostMeasurementState();
+    } else { tsosMuon = muTT.outermostMeasurementState(); }
 
     //GlobalTrackerMuonAlignment::misalignMuon(GRm, GPm, Nl, Rt, Rm, Pm);
     AlgebraicVector4 LPRm;  // muon local (dx/dz, dy/dz, x, y)
@@ -1021,7 +1021,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
     }
 
     double chi_d = 0;
-    for(int i=0; i<=5; i++) chi_d += Vm(i)*Vm(i)/Cm(i,i);
+    for(int i=0; i<=5; i++) { chi_d += Vm(i)*Vm(i)/Cm(i,i); }
         
     AlgebraicVector5 Vml(tsosMuon.localParameters().vector() 
 		       - extrapolationT.localParameters().vector());
@@ -1032,11 +1032,11 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
       std::cout<< " ==== Error inverting Local covariance matrix ==== "<<std::endl;
       continue;}
     double chi_Loc = ROOT::Math::Similarity(Vml,m);
-    if(debug_)
-      std::cout<<" chi_Loc px/pz/err "<<chi_Loc<<" "<<Vml(1)/sqrt(Cml(1,1))<<std::endl;
+    if(debug_) {
+      std::cout<<" chi_Loc px/pz/err "<<chi_Loc<<" "<<Vml(1)/sqrt(Cml(1,1))<<std::endl; }
 
-    if(Pt.mag() < 15.) continue;
-    if(Pm.mag() <  5.) continue;
+    if(Pt.mag() < 15.) { continue; }
+    if(Pm.mag() <  5.) { continue; }
  
     //if(Pt.mag() < 30.) continue;          // momenum cut  < 30GeV
     //if(Pt.mag() < 60.) continue;          // momenum cut  < 30GeV
@@ -1080,13 +1080,13 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
     //if(fabs(Nl.z()) < 0.95) continue;  
     //MuSelect = " EndCap2";
     //                                                 select All
-    if(Rmuon < 120. || Rmuon > 450.) continue;  
-    if(Zmuon < -720. || Zmuon > 720.) continue;
+    if(Rmuon < 120. || Rmuon > 450.) { continue;   }
+    if(Zmuon < -720. || Zmuon > 720.) { continue; }
     MuSelect = " Barrel+EndCaps";
 
     
-    if(debug_)
-      std::cout<<" .............. passed all cuts"<<std::endl;
+    if(debug_) {
+      std::cout<<" .............. passed all cuts"<<std::endl; }
         
     N_track++;
     //                     gradient and Hessian for each track
@@ -1095,12 +1095,12 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
     GlobalTrackerMuonAlignment::gradientGlobal(Rt, Pt, Rm, Pm, Nl, Cm); 
 
     CLHEP::HepSymMatrix covLoc(4,0);
-    for(int i=1; i<=4; i++)
+    for(int i=1; i<=4; i++) {
       for(int j=1; j<=i; j++){
 	covLoc(i,j) = (tsosMuon.localError().matrix()
 		       + extrapolationT.localError().matrix())(i,j);
 	//if(i != j) Cov(i,j) = 0.;
-      }
+      } }
 
     const Surface& refSurface = tsosMuon.surface(); 
     CLHEP::HepMatrix rotLoc (3,3,0);
@@ -1148,9 +1148,9 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
     histo102->Fill(Rm.x(), Rm.y()); 
     
     histo11->Fill(resR.mag()); 
-    if(fabs(Nl.x()) < 0.98) histo12->Fill(resR.x()); 
-    if(fabs(Nl.y()) < 0.98) histo13->Fill(resR.y()); 
-    if(fabs(Nl.z()) < 0.98) histo14->Fill(resR.z()); 
+    if(fabs(Nl.x()) < 0.98) { histo12->Fill(resR.x());  }
+    if(fabs(Nl.y()) < 0.98) { histo13->Fill(resR.y());  }
+    if(fabs(Nl.z()) < 0.98) { histo14->Fill(resR.z());  }
     histo15->Fill(resP.x()); 
     histo16->Fill(resP.y()); 
     histo17->Fill(resP.z()); 
@@ -1161,9 +1161,9 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 	histo19->Fill(sqrt(C1(0,0))); 
 	histo20->Fill(sqrt(C1(0,0)+Ce(0,0))); 		   
       }
-    if(fabs(Nl.x()) < 0.98) histo21->Fill(Vm(0)/sqrt(Cm(0,0))); 
-    if(fabs(Nl.y()) < 0.98) histo22->Fill(Vm(1)/sqrt(Cm(1,1))); 
-    if(fabs(Nl.z()) < 0.98) histo23->Fill(Vm(2)/sqrt(Cm(2,2))); 
+    if(fabs(Nl.x()) < 0.98) { histo21->Fill(Vm(0)/sqrt(Cm(0,0)));  }
+    if(fabs(Nl.y()) < 0.98) { histo22->Fill(Vm(1)/sqrt(Cm(1,1)));  }
+    if(fabs(Nl.z()) < 0.98) { histo23->Fill(Vm(2)/sqrt(Cm(2,2)));  }
     histo24->Fill(Vm(3)/sqrt(C1(3,3)+Ce(3,3))); 
     histo25->Fill(Vm(4)/sqrt(C1(4,4)+Ce(4,4))); 
     histo26->Fill(Vm(5)/sqrt(C1(5,5)+Ce(5,5))); 
@@ -1208,21 +1208,21 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
       
       AlgebraicSymMatrix66 Ro;
       double Diag[6];
-      for(int i=0; i<=5; i++) Diag[i] = sqrt(Cm(i,i));
-      for(int i=0; i<=5; i++)
-	for(int j=0; j<=5; j++)
-	  Ro(i,j) = Cm(i,j)/Diag[i]/Diag[j];
+      for(int i=0; i<=5; i++) { Diag[i] = sqrt(Cm(i,i)); }
+      for(int i=0; i<=5; i++) {
+	for(int j=0; j<=5; j++) {
+	  Ro(i,j) = Cm(i,j)/Diag[i]/Diag[j]; }
       std::cout<<" correlation matrix "<<std::endl;
       std::cout<<Ro<<std::endl;
       
       AlgebraicSymMatrix66 CmI;
-      for(int i=0; i<=5; i++)
-	for(int j=0; j<=5; j++)
-	  CmI(i,j) = Cm(i,j);
+      for(int i=0; i<=5; i++) {
+	for(int j=0; j<=5; j++) {
+	  CmI(i,j) = Cm(i,j); }
       
       bool ierr = !CmI.Invert();
-      if( ierr ) { if(alarm || debug_)
-	  std::cout<<" Error inverse covariance matrix !!!!!!!!!!!"<<std::endl;
+      if( ierr ) { if(alarm || debug_) {
+	  std::cout<<" Error inverse covariance matrix !!!!!!!!!!!"<<std::endl; }
 	continue;
       }       
       std::cout<<" inverse cov matrix "<<std::endl;
@@ -1258,8 +1258,8 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
   N_event++;
   if (info || debug_) {
     std::cout << "----- event " << N_event << " -- tracks "<<N_track<<" ---";
-    if (cosmicMuonMode_) std::cout << " treated as CosmicMu ";
-    if (isolatedMuonMode_) std::cout <<" treated as IsolatedMu ";
+    if (cosmicMuonMode_) { std::cout << " treated as CosmicMu "; }
+    if (isolatedMuonMode_) { std::cout <<" treated as IsolatedMu "; }
     std::cout << std::endl;
   }
 
@@ -1301,17 +1301,17 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
   }
 
   if (isolatedMuonMode_) {                // ---- Only 1 Isolated Muon --------
-    if (tracks->size() != 1) return;  
-    if (muons->size()  != 1) return;  
-    if (gmuons->size() != 1) return; 
-    if (smuons->size() != 1) return; 
+    if (tracks->size() != 1) { return;   }
+    if (muons->size()  != 1) { return;   }
+    if (gmuons->size() != 1) { return;  }
+    if (smuons->size() != 1) { return;  }
   }
   
   if (cosmicMuonMode_){                // ---- 1,2 Cosmic Muon --------
-    if (smuons->size() > 2) return; 
-    if (tracks->size() != smuons->size()) return;  
-    if (muons->size() != smuons->size()) return;  
-    if (gmuons->size() != smuons->size()) return;  
+    if (smuons->size() > 2) { return;  }
+    if (tracks->size() != smuons->size()) { return;   }
+    if (muons->size() != smuons->size()) { return;   }
+    if (gmuons->size() != smuons->size()) { return;   }
   }
   
   // ok mc_isolated_mu
@@ -1344,10 +1344,10 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     for (std::vector<AlignTransform>::const_iterator i 
 	   = globalPositionRcd_->m_align.begin();
 	 i != globalPositionRcd_->m_align.end();  ++i){
-      if(DetId(DetId::Tracker).rawId() == i->rawId()) iteratorTrackerRcd = i;
-      if(DetId(DetId::Muon).rawId() == i->rawId()) iteratorMuonRcd = i;
-      if(DetId(DetId::Ecal).rawId() == i->rawId()) iteratorEcalRcd = i;
-      if(DetId(DetId::Hcal).rawId() == i->rawId()) iteratorHcalRcd = i;
+      if(DetId(DetId::Tracker).rawId() == i->rawId()) { iteratorTrackerRcd = i; }
+      if(DetId(DetId::Muon).rawId() == i->rawId()) { iteratorMuonRcd = i; }
+      if(DetId(DetId::Ecal).rawId() == i->rawId()) { iteratorEcalRcd = i; }
+      if(DetId(DetId::Hcal).rawId() == i->rawId()) { iteratorHcalRcd = i; }
     }
     if(debug_){
       std::cout << "=== iteratorTrackerRcd " << iteratorTrackerRcd->rawId()<<" ====\n" 
@@ -1380,8 +1380,8 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     SmartPropagator(oppositeRKPr, oppositeStHePr, magneticField_, oppositeToMomentum, epsilon);
 
   if(defineFitter){
-    if(debug_)
-      std::cout<<" ............... DEFINE FITTER ..................."<<std::endl;
+    if(debug_) {
+      std::cout<<" ............... DEFINE FITTER ..................."<<std::endl; }
     KFUpdator* theUpdator = new KFUpdator();
     //Chi2MeasurementEstimator* theEstimator = new Chi2MeasurementEstimator(30);
     Chi2MeasurementEstimator* theEstimator = new Chi2MeasurementEstimator(100000,100000);
@@ -1455,14 +1455,14 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	       <<distanceInIn<<" "<<distanceOutOut<<std::endl; 
   }   
 
-    if(lenghtTrack < 90.) continue;
-    if(lenghtMuon < 300.) continue;
-    if(innerMuTSOS.globalMomentum().mag() < 5. || outerMuTSOS.globalMomentum().mag() < 5.) continue;
-    if(momentumTrackIn.mag() < 15. || momentumTrackOut.mag() < 15.) continue;
-    if(trackTT.charge() != muTT.charge()) continue;
+    if(lenghtTrack < 90.) { continue; }
+    if(lenghtMuon < 300.) { continue; }
+    if(innerMuTSOS.globalMomentum().mag() < 5. || outerMuTSOS.globalMomentum().mag() < 5.) { continue; }
+    if(momentumTrackIn.mag() < 15. || momentumTrackOut.mag() < 15.) { continue; }
+    if(trackTT.charge() != muTT.charge()) { continue; }
 
-    if(debug_)
-      std::cout<<" passed lenght momentum cuts"<<std::endl;
+    if(debug_) {
+      std::cout<<" passed lenght momentum cuts"<<std::endl; }
 
     GlobalVector GRm, GPm, Nl, Rm, Pm, Rt, Pt, Rt0;
     AlgebraicSymMatrix66 Cm, C0, Ce, C1;
@@ -1475,7 +1475,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     TrajectoryStateOnSurface trackFittedTSOS;
 
     if( isolatedMuonMode_ ){      //------------------------------- Isolated Muon --- Out-In --
-      if(debug_) std::cout<<" ------ Isolated (out-in) ----- "<<std::endl;
+      if(debug_) { std::cout<<" ------ Isolated (out-in) ----- "<<std::endl; }
       const Surface& refSurface = innerMuTSOS.surface(); 
       ConstReferenceCountingPointer<TangentPlane> 
 	tpMuLocal(refSurface.tangentPlane(innerMuTSOS.localPosition()));
@@ -1500,20 +1500,20 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
       //                          extrapolation to innermost muon hit     
 
       //extrapolationT = alongSmPr.propagate(outerTrackTSOS, refSurface);
-      if(!refitTrack_)
+      if(!refitTrack_) {
 	extrapolationT = alongSmPr.propagate(outerTrackTSOS, refSurface);
-      else{
+      } else{
 	GlobalTrackerMuonAlignment::trackFitter(itMuon->track(),
 						trackTT,alongMomentum,trackFittedTSOS);
-	if(trackFittedTSOS.isValid())
-	  extrapolationT = alongSmPr.propagate(trackFittedTSOS, refSurface);	   
+	if(trackFittedTSOS.isValid()) {
+	  extrapolationT = alongSmPr.propagate(trackFittedTSOS, refSurface);	    }
       }   
       
       if(!extrapolationT.isValid()){
-	if(false & alarm)
+	if(false & alarm) {
 	  std::cout<<" !!!!!!!!! Catastrophe Out-In extrapolationT.isValid "
 	    //<<"\a\a\a\a\a\a\a\a"<<extrapolationT.isValid()
-		   <<std::endl;
+		   <<std::endl; }
 	continue;
       }
       tsosMuonIf = 1;
@@ -1537,8 +1537,8 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
       Ce = AlgebraicSymMatrix66(extrapolationT.cartesianError().matrix()); 
       C1 = AlgebraicSymMatrix66(innerMuTSOS.cartesianError().matrix());
 
-      if(refitMuon_)
-	GlobalTrackerMuonAlignment::muonFitter(itMuon->outerTrack(),muTT,oppositeToMomentum,muonFittedTSOS);
+      if(refitMuon_) {
+	GlobalTrackerMuonAlignment::muonFitter(itMuon->outerTrack(),muTT,oppositeToMomentum,muonFittedTSOS); }
 
     }  //                    -------------------------------   end Isolated Muon -- Out - In  ---
     
@@ -1547,7 +1547,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
       
       if((distanceOutIn <= distanceInOut) & (distanceOutIn <= distanceInIn) & 
 	 (distanceOutIn <= distanceOutOut)){             // ----- Out - In ------    
-	if(debug_) std::cout<<" -----    Out - In -----"<<std::endl;
+	if(debug_) { std::cout<<" -----    Out - In -----"<<std::endl; }
 
         const Surface& refSurface = innerMuTSOS.surface(); 
 	ConstReferenceCountingPointer<TangentPlane> 
@@ -1556,24 +1556,24 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 
 	//                          extrapolation to innermost muon hit     
 	//extrapolationT = alongSmPr.propagate(outerTrackTSOS, refSurface);
-	if(!refitTrack_)
+	if(!refitTrack_) {
 	  extrapolationT = alongSmPr.propagate(outerTrackTSOS, refSurface);
-	else{
+	} else{
 	  GlobalTrackerMuonAlignment::trackFitter(itMuon->track(),
 						  trackTT,alongMomentum,trackFittedTSOS);
-	  if(trackFittedTSOS.isValid())
-	    extrapolationT = alongSmPr.propagate(trackFittedTSOS, refSurface);	   
+	  if(trackFittedTSOS.isValid()) {
+	    extrapolationT = alongSmPr.propagate(trackFittedTSOS, refSurface);	    }
 	}  
 
 	if(!extrapolationT.isValid()){
-	  if(false & alarm)
+	  if(false & alarm) {
 	    std::cout<<" !!!!!!!!! Catastrophe Out-In extrapolationT.isValid "
 	      //<<"\a\a\a\a\a\a\a\a"<<extrapolationT.isValid()
-		     <<std::endl;
+		     <<std::endl; }
 	  continue;
 	}
-	if(debug_)
-	  std::cout<<" extrapolationT.isValid "<<extrapolationT.isValid()<<std::endl; 
+	if(debug_) {
+	  std::cout<<" extrapolationT.isValid "<<extrapolationT.isValid()<<std::endl;  }
 
 	tsosMuonIf = 1;
 	Rt = GlobalVector((extrapolationT.globalPosition()).x(),
@@ -1595,8 +1595,8 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	Ce = AlgebraicSymMatrix66(extrapolationT.cartesianError().matrix()); 
 	C1 = AlgebraicSymMatrix66(innerMuTSOS.cartesianError().matrix());
 	
-	if(refitMuon_)
-	  GlobalTrackerMuonAlignment::muonFitter(itMuon->outerTrack(),muTT,oppositeToMomentum,muonFittedTSOS);
+	if(refitMuon_) {
+	  GlobalTrackerMuonAlignment::muonFitter(itMuon->outerTrack(),muTT,oppositeToMomentum,muonFittedTSOS); }
 
 	if(false & debug_){
 	  //std::cout<<" ->propDir "<<propagator->propagationDirection()<<std::endl;
@@ -1614,7 +1614,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 
       else if((distanceInOut <= distanceInIn) & (distanceInOut <= distanceOutIn) & 
 	      (distanceInOut <= distanceOutOut)){            // ----- In - Out ------    
-	if(debug_) std::cout<<" -----    In - Out -----"<<std::endl;
+	if(debug_) { std::cout<<" -----    In - Out -----"<<std::endl; }
 
 	const Surface& refSurface = outerMuTSOS.surface(); 
 	ConstReferenceCountingPointer<TangentPlane> 
@@ -1623,24 +1623,24 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 		
 	//                          extrapolation to outermost muon hit     
 	//extrapolationT = oppositeSmPr.propagate(innerTrackTSOS, refSurface);
-	if(!refitTrack_)
+	if(!refitTrack_) {
 	  extrapolationT = oppositeSmPr.propagate(innerTrackTSOS, refSurface);
-	else{
+	} else{
 	  GlobalTrackerMuonAlignment::trackFitter(itMuon->track(),
 						trackTT,oppositeToMomentum,trackFittedTSOS);
-	if(trackFittedTSOS.isValid())
-	  extrapolationT = oppositeSmPr.propagate(trackFittedTSOS, refSurface);	   
+	if(trackFittedTSOS.isValid()) {
+	  extrapolationT = oppositeSmPr.propagate(trackFittedTSOS, refSurface);	    }
       }   
 
 	if(!extrapolationT.isValid()){
-	  if(false & alarm)
+	  if(false & alarm) {
 	    std::cout<<" !!!!!!!!! Catastrophe Out-In extrapolationT.isValid "
 	      <<"\a\a\a\a\a\a\a\a"<<extrapolationT.isValid()
-		     <<std::endl;
+		     <<std::endl; }
 	  continue;
 	}
-	if(debug_)
-	  std::cout<<" extrapolationT.isValid "<<extrapolationT.isValid()<<std::endl; 
+	if(debug_) {
+	  std::cout<<" extrapolationT.isValid "<<extrapolationT.isValid()<<std::endl;  }
 	
 	tsosMuonIf = 2;
 	Rt = GlobalVector((extrapolationT.globalPosition()).x(),
@@ -1662,8 +1662,8 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	Ce = AlgebraicSymMatrix66(extrapolationT.cartesianError().matrix()); 
 	C1 = AlgebraicSymMatrix66(outerMuTSOS.cartesianError().matrix());
 	
-	if(refitMuon_)
-	  GlobalTrackerMuonAlignment::muonFitter(itMuon->outerTrack(),muTT,alongMomentum,muonFittedTSOS);
+	if(refitMuon_) {
+	  GlobalTrackerMuonAlignment::muonFitter(itMuon->outerTrack(),muTT,alongMomentum,muonFittedTSOS); }
 
 	if(false & debug_){
 	  //std::cout<<" ->propDir "<<propagator->propagationDirection()<<std::endl;
@@ -1680,7 +1680,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 
       else if((distanceOutOut <= distanceInOut) & (distanceOutOut <= distanceInIn) & 
 	      (distanceOutOut <= distanceOutIn)){          // ----- Out - Out ------    
-	if(debug_) std::cout<<" -----    Out - Out -----"<<std::endl;
+	if(debug_) { std::cout<<" -----    Out - Out -----"<<std::endl; }
 
 	// reject: momentum of track has opposite direction to muon track
 	continue;
@@ -1694,14 +1694,14 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	extrapolationT = alongSmPr.propagate(outerTrackTSOS, refSurface);
 
 	if(!extrapolationT.isValid()){
-	  if(alarm)
+	  if(alarm) {
 	    std::cout<<" !!!!!!!!! Catastrophe Out-Out extrapolationT.isValid "
 		     <<"\a\a\a\a\a\a\a\a"<<extrapolationT.isValid()
-		     <<std::endl;
+		     <<std::endl; }
 	  continue;
 	}
-	if(debug_)
-	  std::cout<<" extrapolationT.isValid "<<extrapolationT.isValid()<<std::endl; 
+	if(debug_) {
+	  std::cout<<" extrapolationT.isValid "<<extrapolationT.isValid()<<std::endl;  }
 
 	tsosMuonIf = 2;
 	Rt = GlobalVector((extrapolationT.globalPosition()).x(),
@@ -1737,8 +1737,8 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	}
       }           //                                       enf of ---- Out - Out -----
       else{
-	if(alarm)
-	  std::cout<<" ------- !!!!!!!!!!!!!!! No proper Out - In \a\a\a\a\a\a\a"<<std::endl; 
+	if(alarm) {
+	  std::cout<<" ------- !!!!!!!!!!!!!!! No proper Out - In \a\a\a\a\a\a\a"<<std::endl;  }
 	continue;
       }
       
@@ -1746,8 +1746,8 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     
     if(tsosMuonIf == 0) {if(info) {std::cout<<"No tsosMuon !!!!!!"<<std::endl; continue;}}
     TrajectoryStateOnSurface tsosMuon;
-    if(tsosMuonIf == 1) tsosMuon = muTT.innermostMeasurementState();
-    else tsosMuon = muTT.outermostMeasurementState();
+    if(tsosMuonIf == 1) { tsosMuon = muTT.innermostMeasurementState();
+    } else { tsosMuon = muTT.outermostMeasurementState(); }
 
     //GlobalTrackerMuonAlignment::misalignMuon(GRm, GPm, Nl, Rt, Rm, Pm);
     AlgebraicVector4 LPRm;  // muon local (dx/dz, dy/dz, x, y)
@@ -1756,16 +1756,16 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 
     if(refitTrack_){
       if(!trackFittedTSOS.isValid()){ 
-	if(info) std::cout<<" =================  trackFittedTSOS notValid !!!!!!!! "<<std::endl;
+	if(info) { std::cout<<" =================  trackFittedTSOS notValid !!!!!!!! "<<std::endl; }
 	continue;}
-      if(debug_) this->debugTrajectorySOS(" trackFittedTSOS ", trackFittedTSOS);
+      if(debug_) { this->debugTrajectorySOS(" trackFittedTSOS ", trackFittedTSOS); }
     }
 
     if(refitMuon_){
       if(!muonFittedTSOS.isValid()){ 
-	if(info) std::cout<<" =================  muonFittedTSOS notValid !!!!!!!! "<<std::endl;
+	if(info) { std::cout<<" =================  muonFittedTSOS notValid !!!!!!!! "<<std::endl; }
 	continue;}
-      if(debug_) this->debugTrajectorySOS(" muonFittedTSOS ", muonFittedTSOS);
+      if(debug_) { this->debugTrajectorySOS(" muonFittedTSOS ", muonFittedTSOS); }
       Rm = GlobalVector((muonFittedTSOS.globalPosition()).x(),
 			(muonFittedTSOS.globalPosition()).y(),
 			(muonFittedTSOS.globalPosition()).z());
@@ -1794,7 +1794,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     }
 
     double chi_d = 0;
-    for(int i=0; i<=5; i++) chi_d += Vm(i)*Vm(i)/Cm(i,i);
+    for(int i=0; i<=5; i++) { chi_d += Vm(i)*Vm(i)/Cm(i,i); }
         
     AlgebraicVector5 Vml(tsosMuon.localParameters().vector() 
 		       - extrapolationT.localParameters().vector());
@@ -1805,11 +1805,11 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
       std::cout<< " ==== Error inverting Local covariance matrix ==== "<<std::endl;
       continue;}
     double chi_Loc = ROOT::Math::Similarity(Vml,m);
-    if(debug_)
-      std::cout<<" chi_Loc px/pz/err "<<chi_Loc<<" "<<Vml(1)/sqrt(Cml(1,1))<<std::endl;
+    if(debug_) {
+      std::cout<<" chi_Loc px/pz/err "<<chi_Loc<<" "<<Vml(1)/sqrt(Cml(1,1))<<std::endl; }
 
-    if(Pt.mag() < 15.) continue;
-    if(Pm.mag() <  5.) continue;
+    if(Pt.mag() < 15.) { continue; }
+    if(Pm.mag() <  5.) { continue; }
  
     //if(Pt.mag() < 30.) continue;          // momenum cut  < 30GeV
     //if(Pt.mag() < 60.) continue;          // momenum cut  < 30GeV
@@ -1824,14 +1824,14 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     //if(fabs(resR.mag()) > 7.5) continue;   //            dR
 
     //if(fabs(RelMomResidual) > 0.5) continue;
-    if(fabs(resR.x()) > 20.) continue;
-    if(fabs(resR.y()) > 20.) continue;
-    if(fabs(resR.z()) > 20.) continue;
-    if(fabs(resR.mag()) > 30.) continue;
-    if(fabs(resP.x()) > 0.06) continue;
-    if(fabs(resP.y()) > 0.06) continue;
-    if(fabs(resP.z()) > 0.06) continue;
-    if(chi_d > 40.) continue;
+    if(fabs(resR.x()) > 20.) { continue; }
+    if(fabs(resR.y()) > 20.) { continue; }
+    if(fabs(resR.z()) > 20.) { continue; }
+    if(fabs(resR.mag()) > 30.) { continue; }
+    if(fabs(resP.x()) > 0.06) { continue; }
+    if(fabs(resP.y()) > 0.06) { continue; }
+    if(fabs(resP.z()) > 0.06) { continue; }
+    if(chi_d > 40.) { continue; }
 
     //                                            select Barrel 
     //if(Rmuon < 400. || Rmuon > 450.) continue; 
@@ -1851,12 +1851,12 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     //if(fabs(Nl.z()) < 0.95) continue;  
     //MuSelect = " EndCap2";
     //                                                 select All
-    if(Rmuon < 120. || Rmuon > 450.) continue;  
-    if(Zmuon < -720. || Zmuon > 720.) continue;
+    if(Rmuon < 120. || Rmuon > 450.) { continue;   }
+    if(Zmuon < -720. || Zmuon > 720.) { continue; }
     MuSelect = " Barrel+EndCaps";
 
-    if(debug_)
-      std::cout<<" .............. passed all cuts"<<std::endl;
+    if(debug_) {
+      std::cout<<" .............. passed all cuts"<<std::endl; }
         
     N_track++;
     //                     gradient and Hessian for each track
@@ -1865,12 +1865,12 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     GlobalTrackerMuonAlignment::gradientGlobal(Rt, Pt, Rm, Pm, Nl, Cm); 
 
     CLHEP::HepSymMatrix covLoc(4,0);
-    for(int i=1; i<=4; i++)
+    for(int i=1; i<=4; i++) {
       for(int j=1; j<=i; j++){
 	covLoc(i,j) = (tsosMuon.localError().matrix()
 		       + extrapolationT.localError().matrix())(i,j);
 	//if(i != j) Cov(i,j) = 0.;
-      }
+      } }
 
     const Surface& refSurface = tsosMuon.surface(); 
     CLHEP::HepMatrix rotLoc (3,3,0);
@@ -1918,9 +1918,9 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     histo102->Fill(Rm.x(), Rm.y()); 
     
     histo11->Fill(resR.mag()); 
-    if(fabs(Nl.x()) < 0.98) histo12->Fill(resR.x()); 
-    if(fabs(Nl.y()) < 0.98) histo13->Fill(resR.y()); 
-    if(fabs(Nl.z()) < 0.98) histo14->Fill(resR.z()); 
+    if(fabs(Nl.x()) < 0.98) { histo12->Fill(resR.x());  }
+    if(fabs(Nl.y()) < 0.98) { histo13->Fill(resR.y());  }
+    if(fabs(Nl.z()) < 0.98) { histo14->Fill(resR.z());  }
     histo15->Fill(resP.x()); 
     histo16->Fill(resP.y()); 
     histo17->Fill(resP.z()); 
@@ -1931,9 +1931,9 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	histo19->Fill(sqrt(C1(0,0))); 
 	histo20->Fill(sqrt(C1(0,0)+Ce(0,0))); 		   
       }
-    if(fabs(Nl.x()) < 0.98) histo21->Fill(Vm(0)/sqrt(Cm(0,0))); 
-    if(fabs(Nl.y()) < 0.98) histo22->Fill(Vm(1)/sqrt(Cm(1,1))); 
-    if(fabs(Nl.z()) < 0.98) histo23->Fill(Vm(2)/sqrt(Cm(2,2))); 
+    if(fabs(Nl.x()) < 0.98) { histo21->Fill(Vm(0)/sqrt(Cm(0,0)));  }
+    if(fabs(Nl.y()) < 0.98) { histo22->Fill(Vm(1)/sqrt(Cm(1,1)));  }
+    if(fabs(Nl.z()) < 0.98) { histo23->Fill(Vm(2)/sqrt(Cm(2,2)));  }
     histo24->Fill(Vm(3)/sqrt(C1(3,3)+Ce(3,3))); 
     histo25->Fill(Vm(4)/sqrt(C1(4,4)+Ce(4,4))); 
     histo26->Fill(Vm(5)/sqrt(C1(5,5)+Ce(5,5))); 
@@ -1978,21 +1978,21 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
       
       AlgebraicSymMatrix66 Ro;
       double Diag[6];
-      for(int i=0; i<=5; i++) Diag[i] = sqrt(Cm(i,i));
-      for(int i=0; i<=5; i++)
-	for(int j=0; j<=5; j++)
-	  Ro(i,j) = Cm(i,j)/Diag[i]/Diag[j];
+      for(int i=0; i<=5; i++) { Diag[i] = sqrt(Cm(i,i)); }
+      for(int i=0; i<=5; i++) {
+	for(int j=0; j<=5; j++) {
+	  Ro(i,j) = Cm(i,j)/Diag[i]/Diag[j]; }
       std::cout<<" correlation matrix "<<std::endl;
       std::cout<<Ro<<std::endl;
       
       AlgebraicSymMatrix66 CmI;
-      for(int i=0; i<=5; i++)
-	for(int j=0; j<=5; j++)
-	  CmI(i,j) = Cm(i,j);
+      for(int i=0; i<=5; i++) {
+	for(int j=0; j<=5; j++) {
+	  CmI(i,j) = Cm(i,j); }
       
       bool ierr = !CmI.Invert();
-      if( ierr ) { if(alarm || debug_)
-	  std::cout<<" Error inverse covariance matrix !!!!!!!!!!!"<<std::endl;
+      if( ierr ) { if(alarm || debug_) {
+	  std::cout<<" Error inverse covariance matrix !!!!!!!!!!!"<<std::endl; }
 	continue;
       }       
       std::cout<<" inverse cov matrix "<<std::endl;
@@ -2025,9 +2025,9 @@ GlobalTrackerMuonAlignment::gradientGlobalAlg(GlobalVector& Rt, GlobalVector& Pt
   Norm(0) = Nl.x();  Norm(1) = Nl.y();  Norm(2) = Nl.z(); 
   
   for(int i=0; i<=2; i++){
-    if(Cm(i,i) > 1.e-20)
+    if(Cm(i,i) > 1.e-20) {
       Wi(i) = 1./Cm(i,i);
-    else Wi(i) = 1.e-10;
+    } else { Wi(i) = 1.e-10; }
     dR(i) = R_m(i) - R_t(i);
   }
   
@@ -2047,23 +2047,23 @@ GlobalTrackerMuonAlignment::gradientGlobalAlg(GlobalVector& Rt, GlobalVector& Pt
   
   AlgebraicSymMatrix33 Itr;
   
-  for(int i=0; i<=2; i++) 
+  for(int i=0; i<=2; i++) { 
     for(int j=0; j<=2; j++){
-      if(j < i) continue;
+      if(j < i) { continue; }
       Itr(i,j) = 0.;
       //std::cout<<" ij "<<i<<" "<<j<<std::endl;	 
       for(int k=0; k<=2; k++){
-	Itr(i,j) += Jac(k,i)*Wi(k)*Jac(k,j);}}
+	Itr(i,j) += Jac(k,i)*Wi(k)*Jac(k,j);}} }
   
-  for(int i=0; i<=2; i++) 
+  for(int i=0; i<=2; i++) { 
     for(int j=0; j<=2; j++){
-      if(j < i) continue;
-      Inf(i,j) += Itr(i,j);}
+      if(j < i) { continue; }
+      Inf(i,j) += Itr(i,j);} }
   
   AlgebraicVector3 Gtr(0., 0., 0.);
-  for(int i=0; i<=2; i++)
-    for(int k=0; k<=2; k++) Gtr(i) += dR(k)*Wi(k)*Jac(k,i);
-  for(int i=0; i<=2; i++) Gfr(i) += Gtr(i); 
+  for(int i=0; i<=2; i++) {
+    for(int k=0; k<=2; k++) { Gtr(i) += dR(k)*Wi(k)*Jac(k,i); }
+  for(int i=0; i<=2; i++) { Gfr(i) += Gtr(i);  }
 
   if(debug_){
    std::cout<<" Wi  "<<Wi<<std::endl;     
@@ -2104,14 +2104,14 @@ GlobalTrackerMuonAlignment::gradientGlobal(GlobalVector& GRt, GlobalVector& GPt,
   
   //double PtMom = GPt.mag();
   CLHEP::HepSymMatrix w(Nd,0);
-  for (int i=1; i <= Nd; i++)
+  for (int i=1; i <= Nd; i++) {
     for (int j=1; j <= Nd; j++){
-      if(j <= i ) w(i,j) = GCov(i-1, j-1);
+      if(j <= i ) { w(i,j) = GCov(i-1, j-1); }
       //if(i >= 3) w(i,j) /= PtMom;
       //if(j >= 3) w(i,j) /= PtMom;
-      if((i == j) && (i<=3) && (GCov(i-1, j-1) < 1.e-20))  w(i,j) = 1.e20; // w=0  
-      if(i != j) w(i,j) = 0.;                // use diaginal elements    
-    }
+      if((i == j) && (i<=3) && (GCov(i-1, j-1) < 1.e-20)) {  w(i,j) = 1.e20; // w=0   }
+      if(i != j) { w(i,j) = 0.;                // use diaginal elements     }
+    } }
 
   //GPt /= GPt.mag();
   //GPm /= GPm.mag();   // end of transform
@@ -2129,11 +2129,11 @@ GlobalTrackerMuonAlignment::gradientGlobal(GlobalVector& GRt, GlobalVector& GPt,
   double PmN = CLHEP_dot(Pm, Norm);
 
   CLHEP::HepMatrix Jac(Nd,Nd,0);
-  for (int i=1; i <= 3; i++)
+  for (int i=1; i <= 3; i++) {
     for (int j=1; j <= 3; j++){
       Jac(i,j) =  Pm(i)*Norm(j) / PmN;
-      if(i == j ) Jac(i,j) -= 1.;
-    } 
+      if(i == j ) { Jac(i,j) -= 1.; }
+    }  }
 
   //                                            dp/da                   
   Jac(4,4) =     0.;   // dpx/dax
@@ -2167,8 +2167,8 @@ GlobalTrackerMuonAlignment::gradientGlobal(GlobalVector& GRt, GlobalVector& GPt,
   CLHEP::HepSymMatrix W(Nd,0);
   int ierr;
   W = w.inverse(ierr);
-  if(ierr != 0) { if(alarm)
-      std::cout<<" gradientGlobal: inversion of matrix w fail "<<std::endl;
+  if(ierr != 0) { if(alarm) {
+      std::cout<<" gradientGlobal: inversion of matrix w fail "<<std::endl; }
     return;
   }
 
@@ -2188,8 +2188,8 @@ GlobalTrackerMuonAlignment::gradientGlobal(GlobalVector& GRt, GlobalVector& GPt,
   CLHEP::HepVector d3I = CLHEP::solve(Hess, -Grad);
   int iEr3I;
   CLHEP::HepMatrix Errd3I = Hess.inverse(iEr3I);
-  if( iEr3I != 0) { if(alarm)
-      std::cout<<" gradientGlobal error inverse  Hess matrix !!!!!!!!!!!"<<std::endl;
+  if( iEr3I != 0) { if(alarm) {
+      std::cout<<" gradientGlobal error inverse  Hess matrix !!!!!!!!!!!"<<std::endl; }
   }
 
   if(info || debug_){
@@ -2277,8 +2277,8 @@ GlobalTrackerMuonAlignment::gradientLocal(GlobalVector& GRt, GlobalVector& GPt,
   //bool alarm = false;
   bool info = false;
 
-  if(debug_)
-    std::cout<<" gradientLocal "<<std::endl; 
+  if(debug_) {
+    std::cout<<" gradientLocal "<<std::endl;  }
 
   /*
   const Surface& refSurface = tsosMuon.surface();
@@ -2339,8 +2339,8 @@ GlobalTrackerMuonAlignment::gradientLocal(GlobalVector& GRt, GlobalVector& GPt,
 
   int ierr;
   W.invert(ierr);
-  if(ierr != 0) { if(alarm)
-      std::cout<<" gradientLocal: inversion of matrix W fail "<<std::endl;
+  if(ierr != 0) { if(alarm) {
+      std::cout<<" gradientLocal: inversion of matrix W fail "<<std::endl; }
     return;
   }
   
@@ -2353,22 +2353,22 @@ GlobalTrackerMuonAlignment::gradientLocal(GlobalVector& GRt, GlobalVector& GPt,
   //int j1 = j - 1; JacToLoc(i,j) = jacobian(i, j1);}
   
   CLHEP::HepMatrix JacToLoc(4,6,0);
-  for(int i=1; i<=2; i++)
+  for(int i=1; i<=2; i++) {
     for(int j=1; j<=3; j++){
       JacToLoc(i,j+3) = (rotLoc(i,j) - rotLoc(3,j)*Pml(i)/Pml(3))/Pml(3); 
       JacToLoc(i+2,j) = rotLoc(i,j);
-    }
+    } }
 
   //                                    JacobianCorrectionsToCartesian
   //double PmN = CLHEP::dot(Pm, Norm);
   double PmN = CLHEP_dot(Pm, Norm);
 
   CLHEP::HepMatrix Jac(6,6,0);
-  for (int i=1; i <= 3; i++)
+  for (int i=1; i <= 3; i++) {
     for (int j=1; j <= 3; j++){
       Jac(i,j) =  Pm(i)*Norm(j) / PmN;
-      if(i == j ) Jac(i,j) -= 1.;
-    }  
+      if(i == j ) { Jac(i,j) -= 1.; }
+    }   }
 
   //                                            dp/da                   
   Jac(4,4) =     0.;   // dpx/dax
@@ -2419,8 +2419,8 @@ GlobalTrackerMuonAlignment::gradientLocal(GlobalVector& GRt, GlobalVector& GPt,
   CLHEP::HepVector dLI = CLHEP::solve(HessL, -GradL);
   int iErI;
   CLHEP::HepMatrix ErrdLI = HessL.inverse(iErI);
-  if( iErI != 0) { if(alarm)
-      std::cout<<" gradLocal Error inverse  Hess matrix !!!!!!!!!!!"<<std::endl;
+  if( iErI != 0) { if(alarm) {
+      std::cout<<" gradLocal Error inverse  Hess matrix !!!!!!!!!!!"<<std::endl; }
   }
 
   if(info || debug_){
@@ -2441,12 +2441,12 @@ GlobalTrackerMuonAlignment::gradientLocal(GlobalVector& GRt, GlobalVector& GPt,
     //std::cout<<"Jac(,a3){"<<Jac(1,6)<<" "<<Jac(2,6)<<" "<<Jac(3,6)<<" "<<Jac(4,6)<<" "
     //   <<Jac(5,6)<<" "<<Jac(6,6)<<std::endl;
     int i=5;  
-    if(GNorm.z() > 0.95)
+    if(GNorm.z() > 0.95) {
       std::cout<<" Ecap1   N "<<GNorm<<std::endl; 
-    else if(GNorm.z() < -0.95)
+    } else if(GNorm.z() < -0.95) {
       std::cout<<" Ecap2   N "<<GNorm<<std::endl; 
-    else
-      std::cout<<" Barrel  N "<<GNorm<<std::endl; 
+    } else {
+      std::cout<<" Barrel  N "<<GNorm<<std::endl;  }
     std::cout<<" JacCLo(i,"<<i<<") = {"<<JacCorLoc(1,i)<<" "<<JacCorLoc(2,i)<<" "
      <<JacCorLoc(3,i)<<" "<<JacCorLoc(4,i)<<"}"<<std::endl;
     std::cout<<"   rotLoc "<<rotLoc<<std::endl;
@@ -2526,8 +2526,8 @@ GlobalTrackerMuonAlignment::misalignMuon(GlobalVector& GRm, GlobalVector& GPm, G
      (a(1) == 0.) & (a(2) == 0.) & (a(3) == 0.)){
     Rm = GRm;
     Pm = GPm;
-    if(debug_)
-      std::cout<<" ......   without misalignment "<<std::endl;
+    if(debug_) {
+      std::cout<<" ......   without misalignment "<<std::endl; }
     return;
   }
   
@@ -2672,8 +2672,8 @@ GlobalTrackerMuonAlignment::misalignMuonL(GlobalVector& GRm, GlobalVector& GPm, 
 			  tsosMuon.localParameters().vector()(2),
 			  tsosMuon.localParameters().vector()(3),
 			  tsosMuon.localParameters().vector()(4)); 
-    if(debug_)
-      std::cout<<" ......   without misalignment "<<std::endl;
+    if(debug_) {
+      std::cout<<" ......   without misalignment "<<std::endl; }
     return;
   }
   
@@ -2909,8 +2909,8 @@ GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr, reco::TransientT
   bool info = false;
   bool smooth = false;
   
-  if(info)
-    std::cout<<" ......... start of trackFitter ......... "<<std::endl;  
+  if(info) {
+    std::cout<<" ......... start of trackFitter ......... "<<std::endl;   }
   if(false && info){ 
     this->debugTrackHit(" Tracker track hits ", alongTr); 
     this->debugTrackHit(" Tracker TransientTrack hits ", alongTTr); 
@@ -2930,8 +2930,8 @@ GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr, reco::TransientT
       }
       recHitAlong.clear();
     }
-  if(info)
-    std::cout<<" ... Own recHit.size() "<<recHit.size()<<" "<<trackDetId.rawId()<<std::endl;
+  if(info) {
+    std::cout<<" ... Own recHit.size() "<<recHit.size()<<" "<<trackDetId.rawId()<<std::endl; }
 
   //MuonTransientTrackingRecHitBuilder::ConstRecHitContainer recHitTrack;
   TransientTrackingRecHit::RecHitContainer recHitTrack;
@@ -2942,17 +2942,17 @@ GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr, reco::TransientT
       recHitTrack.push_back(TTRHBuilder->build(&**i ));}  
   }
   
-  if(info)
+  if(info) {
     std::cout<<" ... recHitTrack.size() "<<recHit.size()<<" "<<trackDetId.rawId()
-	     <<" ======> recHitMu "<<std::endl;
+	     <<" ======> recHitMu "<<std::endl; }
 
   MuonTransientTrackingRecHitBuilder::ConstRecHitContainer recHitMu = recHitTrack;
   /*
     MuonTransientTrackingRecHitBuilder::ConstRecHitContainer recHitMu =
     MuRHBuilder->build(alongTTr.recHitsBegin(), alongTTr.recHitsEnd());
   */
-  if(info)
-    std::cout<<" ...along.... recHitMu.size() "<<recHitMu.size()<<std::endl;
+  if(info) {
+    std::cout<<" ...along.... recHitMu.size() "<<recHitMu.size()<<std::endl; }
   if(direction != alongMomentum){
     MuonTransientTrackingRecHitBuilder::ConstRecHitContainer recHitMuAlong = recHitMu;
     recHitMu.clear();
@@ -2961,12 +2961,12 @@ GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr, reco::TransientT
     }
     recHitMuAlong.clear();
   }
-  if(info)
-    std::cout<<" ...opposite... recHitMu.size() "<<recHitMu.size()<<std::endl;
+  if(info) {
+    std::cout<<" ...opposite... recHitMu.size() "<<recHitMu.size()<<std::endl; }
 
   TrajectoryStateOnSurface firstTSOS;
-  if(direction == alongMomentum) firstTSOS = alongTTr.innermostMeasurementState();
-  else                           firstTSOS = alongTTr.outermostMeasurementState();
+  if(direction == alongMomentum) { firstTSOS = alongTTr.innermostMeasurementState();
+  } else {                           firstTSOS = alongTTr.outermostMeasurementState(); }
 
   AlgebraicSymMatrix55 CovLoc;
   CovLoc(0,0) = 1.   * firstTSOS.localError().matrix()(0,0);
@@ -2983,8 +2983,8 @@ GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr, reco::TransientT
   const TrajectorySeed seedT(PTraj, recHit, direction);  
 
   std::vector<Trajectory> trajVec;
-  if(direction == alongMomentum) trajVec = theFitter->fit(seedT, recHitMu, initialTSOS);
-  else                           trajVec = theFitterOp->fit(seedT, recHitMu, initialTSOS);
+  if(direction == alongMomentum) { trajVec = theFitter->fit(seedT, recHitMu, initialTSOS);
+  } else {                           trajVec = theFitterOp->fit(seedT, recHitMu, initialTSOS); }
   
   if(info){
     this->debugTrajectorySOSv(" innermostTSOS of TransientTrack", 
@@ -2993,24 +2993,24 @@ GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr, reco::TransientT
 			     alongTTr.outermostMeasurementState());
     this->debugTrajectorySOS(" initialTSOS for theFitter ", initialTSOS);
     std::cout<<" . . . . . trajVec.size() "<<trajVec.size()<<std::endl;
-    if(!trajVec.empty()) this->debugTrajectory(" theFitter trajectory ", trajVec[0]);
+    if(!trajVec.empty()) { this->debugTrajectory(" theFitter trajectory ", trajVec[0]); }
   }
 
   if(!smooth){
-    if(!trajVec.empty()) trackFittedTSOS = trajVec[0].lastMeasurement().updatedState();}
+    if(!trajVec.empty()) { trackFittedTSOS = trajVec[0].lastMeasurement().updatedState(); }}
   else{
     std::vector<Trajectory> trajSVec;
     if (!trajVec.empty()){
-      if(direction == alongMomentum) trajSVec = theSmoother->trajectories(*(trajVec.begin()));
-      else                           trajSVec = theSmootherOp->trajectories(*(trajVec.begin()));
+      if(direction == alongMomentum) { trajSVec = theSmoother->trajectories(*(trajVec.begin()));
+      } else {                           trajSVec = theSmootherOp->trajectories(*(trajVec.begin())); }
     }
-    if(info) std::cout<<" . . . . trajSVec.size() "<<trajSVec.size()<<std::endl;
-    if(!trajSVec.empty()) this->debugTrajectorySOSv("smoothed geom InnermostState",
-						  trajSVec[0].geometricalInnermostState());
-    if(!trajSVec.empty()) trackFittedTSOS = trajSVec[0].geometricalInnermostState();
+    if(info) { std::cout<<" . . . . trajSVec.size() "<<trajSVec.size()<<std::endl; }
+    if(!trajSVec.empty()) { this->debugTrajectorySOSv("smoothed geom InnermostState",
+						  trajSVec[0].geometricalInnermostState()); }
+    if(!trajSVec.empty()) { trackFittedTSOS = trajSVec[0].geometricalInnermostState(); }
   }
 
-  if(info) this->debugTrajectorySOSv(" trackFittedTSOS ", trackFittedTSOS);
+  if(info) { this->debugTrajectorySOSv(" trackFittedTSOS ", trackFittedTSOS); }
 
 } // end of trackFitter
 
@@ -3023,7 +3023,7 @@ GlobalTrackerMuonAlignment::muonFitter(reco::TrackRef alongTr, reco::TransientTr
   bool info = false;
   bool smooth = false;
   
-  if(info)  std::cout<<" ......... start of muonFitter ........"<<std::endl;  
+  if(info) {  std::cout<<" ......... start of muonFitter ........"<<std::endl;   }
   if(false && info){  
     this->debugTrackHit(" Muon track hits ", alongTr); 
     this->debugTrackHit(" Muon TransientTrack hits ", alongTTr); 
@@ -3043,13 +3043,13 @@ GlobalTrackerMuonAlignment::muonFitter(reco::TrackRef alongTr, reco::TransientTr
       }
       recHitAlong.clear();
     }
-  if(info)
-    std::cout<<" ... Own recHit.size() DetId==Muon "<<recHit.size()<<" "<<trackDetId.rawId()<<std::endl;
+  if(info) {
+    std::cout<<" ... Own recHit.size() DetId==Muon "<<recHit.size()<<" "<<trackDetId.rawId()<<std::endl; }
 
   MuonTransientTrackingRecHitBuilder::ConstRecHitContainer recHitMu =
     MuRHBuilder->build(alongTTr.recHitsBegin(), alongTTr.recHitsEnd());
-  if(info)
-    std::cout<<" ...along.... recHitMu.size() "<<recHitMu.size()<<std::endl;
+  if(info) {
+    std::cout<<" ...along.... recHitMu.size() "<<recHitMu.size()<<std::endl; }
   if(direction != alongMomentum){
     MuonTransientTrackingRecHitBuilder::ConstRecHitContainer recHitMuAlong = recHitMu;
     recHitMu.clear();
@@ -3058,12 +3058,12 @@ GlobalTrackerMuonAlignment::muonFitter(reco::TrackRef alongTr, reco::TransientTr
     }
     recHitMuAlong.clear();
   }
-  if(info)
-    std::cout<<" ...opposite... recHitMu.size() "<<recHitMu.size()<<std::endl;
+  if(info) {
+    std::cout<<" ...opposite... recHitMu.size() "<<recHitMu.size()<<std::endl; }
 
   TrajectoryStateOnSurface firstTSOS;
-  if(direction == alongMomentum) firstTSOS = alongTTr.innermostMeasurementState();
-  else                           firstTSOS = alongTTr.outermostMeasurementState();
+  if(direction == alongMomentum) { firstTSOS = alongTTr.innermostMeasurementState();
+  } else {                           firstTSOS = alongTTr.outermostMeasurementState(); }
 
   AlgebraicSymMatrix55 CovLoc;
   CovLoc(0,0) = 1.   * firstTSOS.localError().matrix()(0,0);
@@ -3080,8 +3080,8 @@ GlobalTrackerMuonAlignment::muonFitter(reco::TrackRef alongTr, reco::TransientTr
   const TrajectorySeed seedT(PTraj, recHit, direction);  
 
   std::vector<Trajectory> trajVec;
-  if(direction == alongMomentum) trajVec = theFitter->fit(seedT, recHitMu, initialTSOS);
-  else                           trajVec = theFitterOp->fit(seedT, recHitMu, initialTSOS);
+  if(direction == alongMomentum) { trajVec = theFitter->fit(seedT, recHitMu, initialTSOS);
+  } else {                           trajVec = theFitterOp->fit(seedT, recHitMu, initialTSOS); }
   
   if(info){
     this->debugTrajectorySOSv(" innermostTSOS of TransientTrack", 
@@ -3090,21 +3090,21 @@ GlobalTrackerMuonAlignment::muonFitter(reco::TrackRef alongTr, reco::TransientTr
 			     alongTTr.outermostMeasurementState());
     this->debugTrajectorySOS(" initialTSOS for theFitter ", initialTSOS);
     std::cout<<" . . . . . trajVec.size() "<<trajVec.size()<<std::endl;
-    if(!trajVec.empty()) this->debugTrajectory(" theFitter trajectory ", trajVec[0]);
+    if(!trajVec.empty()) { this->debugTrajectory(" theFitter trajectory ", trajVec[0]); }
   }
 
   if(!smooth){
-    if(!trajVec.empty()) trackFittedTSOS = trajVec[0].lastMeasurement().updatedState();}
+    if(!trajVec.empty()) { trackFittedTSOS = trajVec[0].lastMeasurement().updatedState(); }}
   else{
     std::vector<Trajectory> trajSVec;
     if (!trajVec.empty()){
-      if(direction == alongMomentum) trajSVec = theSmoother->trajectories(*(trajVec.begin()));
-      else                           trajSVec = theSmootherOp->trajectories(*(trajVec.begin()));
+      if(direction == alongMomentum) { trajSVec = theSmoother->trajectories(*(trajVec.begin()));
+      } else {                           trajSVec = theSmootherOp->trajectories(*(trajVec.begin())); }
     }
-    if(info) std::cout<<" . . . . trajSVec.size() "<<trajSVec.size()<<std::endl;
-    if(!trajSVec.empty()) this->debugTrajectorySOSv("smoothed geom InnermostState",
-						  trajSVec[0].geometricalInnermostState());
-    if(!trajSVec.empty()) trackFittedTSOS = trajSVec[0].geometricalInnermostState();
+    if(info) { std::cout<<" . . . . trajSVec.size() "<<trajSVec.size()<<std::endl; }
+    if(!trajSVec.empty()) { this->debugTrajectorySOSv("smoothed geom InnermostState",
+						  trajSVec[0].geometricalInnermostState()); }
+    if(!trajSVec.empty()) { trackFittedTSOS = trajSVec[0].geometricalInnermostState(); }
   }
 
 } // end of muonFitter
@@ -3118,11 +3118,11 @@ void GlobalTrackerMuonAlignment::debugTrackHit(const std::string title, Transien
   TransientTrackingRecHit::RecHitContainer recHit;
   for (trackingRecHit_iterator i=alongTr.recHitsBegin();i!=alongTr.recHitsEnd(); i++) {
     std::cout<<" Hit "<<nHit++<<" DetId "<<(*i)->geographicalId().det();
-    if( (*i)->geographicalId().det() == DetId::Tracker ) std::cout<<" Tracker ";
-    else if ( (*i)->geographicalId().det() == DetId::Muon ) std::cout<<" Muon "; 
-    else std::cout<<" Unknown ";
-    if(!(*i)->isValid()) std::cout<<" not valid "<<std::endl;  
-    else std::cout<<std::endl;
+    if( (*i)->geographicalId().det() == DetId::Tracker ) { std::cout<<" Tracker ";
+    } else if ( (*i)->geographicalId().det() == DetId::Muon ) { std::cout<<" Muon "; 
+    } else { std::cout<<" Unknown "; }
+    if(!(*i)->isValid()) { std::cout<<" not valid "<<std::endl;  
+    } else { std::cout<<std::endl; }
   }
 }
 
@@ -3135,11 +3135,11 @@ void GlobalTrackerMuonAlignment::debugTrackHit(const std::string title, reco::Tr
   TransientTrackingRecHit::RecHitContainer recHit;
   for (trackingRecHit_iterator i=alongTr->recHitsBegin();i!=alongTr->recHitsEnd(); i++) {
     std::cout<<" Hit "<<nHit++<<" DetId "<<(*i)->geographicalId().det();
-    if( (*i)->geographicalId().det() == DetId::Tracker ) std::cout<<" Tracker ";
-    else if ( (*i)->geographicalId().det() == DetId::Muon ) std::cout<<" Muon "; 
-    else std::cout<<" Unknown ";
-    if(!(*i)->isValid()) std::cout<<" not valid "<<std::endl;  
-    else std::cout<<std::endl;
+    if( (*i)->geographicalId().det() == DetId::Tracker ) { std::cout<<" Tracker ";
+    } else if ( (*i)->geographicalId().det() == DetId::Muon ) { std::cout<<" Muon "; 
+    } else { std::cout<<" Unknown "; }
+    if(!(*i)->isValid()) { std::cout<<" not valid "<<std::endl;  
+    } else { std::cout<<std::endl; }
   }
 }
 
@@ -3213,8 +3213,8 @@ void GlobalTrackerMuonAlignment::debugTrajectory(const std::string title, Trajec
   std::cout<<"\n"<<"    ...... "<<title<<" ...... "<<std::endl;
   if(!traj.isValid()) {std::cout<<"          Not valid !!!!!!!!  "<<std::endl; return;}
   std::cout<<" chi2/Nhit "<<traj.chiSquared()<<" / "<<traj.foundHits();
-  if(traj.direction() == alongMomentum) std::cout<<" alongMomentum  >>>>"<<std::endl;
-  else                                  std::cout<<" oppositeToMomentum  <<<<"<<std::endl;
+  if(traj.direction() == alongMomentum) { std::cout<<" alongMomentum  >>>>"<<std::endl;
+  } else {                                  std::cout<<" oppositeToMomentum  <<<<"<<std::endl; }
   this->debugTrajectorySOSv(" firstMeasurementTSOS ",traj.firstMeasurement().updatedState());
   //this->debugTrajectorySOSv(" firstMeasurementTSOS ",traj.firstMeasurement().predictedState());
   this->debugTrajectorySOSv(" lastMeasurementTSOS ",traj.lastMeasurement().updatedState());
@@ -3266,9 +3266,9 @@ void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector& paramVec)
   CLHEP::Hep3Vector posMuGlRcd = iteratorMuonRcd->translation();
   CLHEP::HepRotation rotMuGlRcd = iteratorMuonRcd->rotation();
   CLHEP::HepEulerAngles angMuGlRcd = iteratorMuonRcd->rotation().eulerAngles();
-  if(debug_)
+  if(debug_) {
     std::cout<<" Old muon Rcd Euler angles "<<angMuGlRcd.phi()<<" "<<angMuGlRcd.theta()
-	     <<" "<<angMuGlRcd.psi()<<std::endl;
+	     <<" "<<angMuGlRcd.psi()<<std::endl; }
   AlignTransform muon;
   if((angMuGlRcd.phi() == 0.) && (angMuGlRcd.theta() == 0.) && (angMuGlRcd.psi() == 0.) &&
      (posMuGlRcd.x() == 0.) && (posMuGlRcd.y() == 0.) && (posMuGlRcd.z() == 0.)){
@@ -3355,8 +3355,8 @@ void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector& paramVec)
 
    edm::Service<cond::service::PoolDBOutputService> poolDbService;
    
-   if (!poolDbService.isAvailable())
-     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+   if (!poolDbService.isAvailable()) {
+     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available"; }
                   
    //    if (poolDbService->isNewTagRequest("GlobalPositionRcd")) {
 //       poolDbService->createNewIOV<Alignments>(&(*globalPositions), poolDbService->endOfTime(), "GlobalPositionRcd");

@@ -34,8 +34,8 @@ namespace gs {
             // Check for valid id in the archive
             if (idFound && this->isIOCompatible(*record))
             {
-                if (idFound != searchId_) throw IOInvalidData(
-                    "In AbsReference::initialize: catalog is corrupted");
+                if (idFound != searchId_) { throw IOInvalidData(
+                    "In AbsReference::initialize: catalog is corrupted"); }
                 modifiable->itemId_ = searchId_;
             }
         }
@@ -50,15 +50,15 @@ namespace gs {
                 const unsigned long nFound = idList_.size();
                 const unsigned long long* ids = &idList_[0];
                 bool sorted = true;
-                for (unsigned long i=1; i<nFound; ++i)
+                for (unsigned long i=1; i<nFound; ++i) {
                     if (ids[i-1] >= ids[i])
                     {
                         sorted = false;
                         break;
-                    }
-                if (!sorted)
+                    } }
+                if (!sorted) {
                     std::sort(modifiable->idList_.begin(),
-                              modifiable->idList_.end());
+                              modifiable->idList_.end()); }
             }            
         }
         modifiable->initialized_ = true;
@@ -73,36 +73,36 @@ namespace gs {
 
     bool AbsReference::empty() const
     {
-        if (!initialized_)
-            initialize();
+        if (!initialized_) {
+            initialize(); }
         return itemId_ == 0 && idList_.empty();
     }
 
     bool AbsReference::unique() const
     {
-        if (!initialized_)
-            initialize();
+        if (!initialized_) {
+            initialize(); }
         return itemId_ && idList_.empty();
     }
 
     unsigned long AbsReference::size() const
     {
-        if (!initialized_)
-            initialize();
+        if (!initialized_) {
+            initialize(); }
         return itemId_ ? 1UL : idList_.size();
     }
 
     unsigned long long AbsReference::id(const unsigned long index) const
     {
-        if (!initialized_)
-            initialize();
-        if (itemId_ && index == 0UL)
+        if (!initialized_) {
+            initialize(); }
+        if (itemId_ && index == 0UL) {
             return itemId_;
-        else if (index < idList_.size())
+        } else if (index < idList_.size()) {
             return idList_[index];
-        else
+        } else {
             throw gs::IOOutOfRange("In gs::AbsReference::id: "
-                                    "index out of range");
+                                    "index out of range"); }
     }
 
     CPP11_shared_ptr<const CatalogEntry> 
@@ -118,8 +118,8 @@ namespace gs {
 
     void AbsReference::addItemId(const unsigned long long idIn)
     {
-        if (!idIn) throw gs::IOInvalidArgument(
-            "In AbsReference::addItemId: invalid item id");
+        if (!idIn) { throw gs::IOInvalidArgument(
+            "In AbsReference::addItemId: invalid item id"); }
         const unsigned long mySize = itemId_ ? 1UL : idList_.size();
         switch (mySize)
         {
@@ -152,8 +152,8 @@ namespace gs {
           itemId_(0),
           initialized_(false)
     {
-        if (!itemId) throw gs::IOInvalidArgument(
-            "In AbsReference constructor: invalid item id");
+        if (!itemId) { throw gs::IOInvalidArgument(
+            "In AbsReference constructor: invalid item id"); }
     }
 
     AbsReference::AbsReference(AbsArchive& ar, const ClassId& classId,

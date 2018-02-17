@@ -27,8 +27,8 @@ static void doZlibCompression(const char* data, const unsigned long long len,
         assert(status == Z_OK || status == Z_STREAM_END);
         const unsigned have = bufLen - strm.avail_out;
         sink.write(buffer, have);
-        if (sink.fail()) throw gs::IOWriteFailure(
-            "In gs::doZlibCompression: sink stream failure");
+        if (sink.fail()) { throw gs::IOWriteFailure(
+            "In gs::doZlibCompression: sink stream failure"); }
     } while (strm.avail_out == 0);
 
     if (defl)
@@ -37,8 +37,8 @@ static void doZlibCompression(const char* data, const unsigned long long len,
         assert(status == Z_STREAM_END);
         assert(deflateReset(&strm) == Z_OK);
     }
-    else
-        assert(inflateReset(&strm) == Z_OK);
+    else {
+        assert(inflateReset(&strm) == Z_OK); }
 }
 
 
@@ -62,8 +62,8 @@ static void doBZ2Compression(const char* data, const unsigned long long len,
         assert(status == BZ_OK || status == BZ_STREAM_END);
         const unsigned have = bufLen - strm.avail_out;
         sink.write(buffer, have);
-        if (sink.fail()) throw gs::IOWriteFailure(
-            "In gs::doBZ2Compression: sink stream failure");
+        if (sink.fail()) { throw gs::IOWriteFailure(
+            "In gs::doBZ2Compression: sink stream failure"); }
     } while (status != BZ_STREAM_END);
 }
 
@@ -103,12 +103,12 @@ namespace gs {
                                        const unsigned long long len)
     {
         reset();
-        if (!len)
-            return;
+        if (!len) {
+            return; }
 
         // Decompress and dump to this string stream
-        if (len > readBuf_.size())
-            readBuf_.resize(len);
+        if (len > readBuf_.size()) {
+            readBuf_.resize(len); }
         in.read(&readBuf_[0], len);
 
         switch (static_cast<CompressionMode>(compressionCode))
@@ -119,9 +119,9 @@ namespace gs {
 
         case ZLIB:
         {
-            if (!inflator_.get())
+            if (!inflator_.get()) {
                 inflator_ = CPP11_auto_ptr<ZlibInflateHandle>(
-                    new ZlibInflateHandle());
+                    new ZlibInflateHandle()); }
             doZlibCompression(&readBuf_[0], len, false, inflator_->strm(),
                               &comprBuf_[0], comprBuf_.size(), *this);
         }
@@ -152,8 +152,8 @@ namespace gs {
 
         unsigned long long len = 0;
         const char* data = buf_.getPutBuffer(&len);
-        if (len == 0)
-            return NOT_COMPRESSED;
+        if (len == 0) {
+            return NOT_COMPRESSED; }
 
         if (mode_ == NOT_COMPRESSED || len < minSizeToCompress_)
         {
@@ -165,9 +165,9 @@ namespace gs {
         {
         case ZLIB:
         {
-            if (!deflator_.get())
+            if (!deflator_.get()) {
                 deflator_ = CPP11_auto_ptr<ZlibDeflateHandle>(
-                    new ZlibDeflateHandle(compressionLevel_));
+                    new ZlibDeflateHandle(compressionLevel_)); }
             doZlibCompression(data, len, true, deflator_->strm(),
                               &comprBuf_[0], comprBuf_.size(), *sink_);
         }        
@@ -202,14 +202,14 @@ namespace gs {
             "z",
             "b"
         };
-        if (!name || !m)
-            return false;
-        for (unsigned i=0; i<sizeof(names)/sizeof(names[0]); ++i)
+        if (!name || !m) {
+            return false; }
+        for (unsigned i=0; i<sizeof(names)/sizeof(names[0]); ++i) {
             if (strcasecmp(name, names[i]) == 0)
             {
                 *m = static_cast<CompressionMode>(i);
                 return true;
-            }
+            } }
         return false;
     }
 

@@ -37,7 +37,8 @@ bool LASGlobalLoop::TECLoop( int& subdet, int& ring, int& beam, int& disk ) cons
 	++subdet;
 	ring = 0;
 
-	if( subdet == 2 ) return false;
+	if( subdet == 2 ) { return false;
+}
 
       }
     }
@@ -72,7 +73,8 @@ bool LASGlobalLoop::TIBTOBLoop( int& subdet, int& beam, int& position ) const {
       ++subdet;
       beam = 0;
       
-      if( subdet == 4 ) return false;
+      if( subdet == 4 ) { return false;
+}
 
     }
   }
@@ -106,7 +108,8 @@ bool LASGlobalLoop::TEC2TECLoop( int& subdet, int& beam, int& disk ) const {
       ++subdet;
       beam = 0;
       
-      if( subdet == 2 ) return false;
+      if( subdet == 2 ) { return false;
+}
 
     }
   }

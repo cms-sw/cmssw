@@ -34,15 +34,15 @@ void LaserSteppingAction::UserSteppingAction(const G4Step * myStep)
     LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: AC1CMS: the PreStep Material = " 
 					  << theStep->GetPreStepPoint()->GetMaterial()->GetName()
 					  << "\n<LaserSteppingAction::UserSteppingAction(const G4Step *)>: AC1CMS: The Track Status = " << isGood;
-    if ( isGood == fStopAndKill ) 
-      LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: AC1CMS: Track Status = fStopAndKill ";
+    if ( isGood == fStopAndKill ) { 
+      LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: AC1CMS: Track Status = fStopAndKill "; }
       
-    if ( theStep->GetPreStepPoint()->GetProcessDefinedStep() != nullptr )
+    if ( theStep->GetPreStepPoint()->GetProcessDefinedStep() != nullptr ) {
       LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: AC1CMS: PreStep Process  = " 
-					    << theStep->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessName();
-    if ( theStep->GetPostStepPoint()->GetProcessDefinedStep() != nullptr )
+					    << theStep->GetPreStepPoint()->GetProcessDefinedStep()->GetProcessName(); }
+    if ( theStep->GetPostStepPoint()->GetProcessDefinedStep() != nullptr ) {
       LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: AC1CMS: PostStep Process = " 
-					    << theStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
+					    << theStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName(); }
   }
 
   // ***********************************************************************************************************

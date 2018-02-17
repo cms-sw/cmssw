@@ -105,7 +105,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer
 	    positionIt != positionDT.end(); positionIt++ )
 	{
 	  //If this segment has been used before isNewChamber = false
-	  if(NumberOfDTSegment == *positionIt) isNewChamber = false;
+	  if(NumberOfDTSegment == *positionIt) { isNewChamber = false; }
 	}
 	
 	//Loop over vectors of segments associated to previous tracks
@@ -117,7 +117,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer
 	      positionIt != (*collect).end(); positionIt++ )
 	  {
 	    //If this segment was used in a previos track then isNewChamber = false
-	    if( NumberOfDTSegment == *positionIt ) isNewChamber = false;
+	    if( NumberOfDTSegment == *positionIt ) { isNewChamber = false; }
 	  }
 	}
 	
@@ -161,7 +161,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer
 	    positionIt != positionCSC.end(); positionIt++ )
 	{
 	  //If this segment has been used then newchamber = false
-	  if( NumberOfCSCSegment == *positionIt ) isNewChamber = false;
+	  if( NumberOfCSCSegment == *positionIt ) { isNewChamber = false; }
 	}
 	//Loop over vectors of segments in previous tracks
 	for( std::vector<std::vector<int> >::iterator collect = indexCollectionCSC.begin();
@@ -172,7 +172,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer
 	      positionIt != (*collect).end(); positionIt++ )
 	  {
 	    //If the segment was used in a previous track isNewChamber = false
-	    if( NumberOfCSCSegment == *positionIt ) isNewChamber = false;
+	    if( NumberOfCSCSegment == *positionIt ) { isNewChamber = false; }
 	  }
 	}
 	//If the chamber is new

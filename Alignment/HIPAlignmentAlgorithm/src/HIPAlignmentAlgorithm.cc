@@ -99,7 +99,7 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(
   theCollectorNJobs=cfg.getParameter<int>("collectorNJobs");
   theCollectorPath=cfg.getParameter<std::string>("collectorPath");
 
-  if (isCollector) edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::HIPAlignmentAlgorithm" << "Collector mode";
+  if (isCollector) { edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::HIPAlignmentAlgorithm" << "Collector mode"; }
 
   trackPs = cfg.getParameter<bool>("UsePreSelection");
   theDataGroup = cfg.getParameter<int>("DataGroup");
@@ -133,7 +133,7 @@ void HIPAlignmentAlgorithm::initialize(
     AlignableObjectId::commonObjectIdProvider(tracker, muon)
     );
 
-  for (const auto& level: surveyResiduals_) theLevels.push_back(alignableObjectId_->stringToId(level));
+  for (const auto& level: surveyResiduals_) { theLevels.push_back(alignableObjectId_->stringToId(level)); }
 
   edm::ESHandle<Alignments> globalPositionRcd;
 
@@ -162,7 +162,7 @@ void HIPAlignmentAlgorithm::initialize(
           break;
         }
       }
-      if (!findMatchIOV) edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::initialize" << "Didn't find the IOV file matching IOV first run " << firstrun << " from the validity interval";
+      if (!findMatchIOV) { edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::initialize" << "Didn't find the IOV file matching IOV first run " << firstrun << " from the validity interval"; }
     }
     else{
       std::string iovapp = std::to_string(theIOVrangeSet.at(0));
@@ -175,7 +175,7 @@ void HIPAlignmentAlgorithm::initialize(
 
   // accessor Det->AlignableDet
   theAlignableDetAccessor = std::make_unique<AlignableNavigator>(extras, tracker, muon);
-  if (extras!=nullptr) edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::initialize" << "AlignableNavigator initialized with AlignableExtras";
+  if (extras!=nullptr) { edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::initialize" << "AlignableNavigator initialized with AlignableExtras"; }
 
   // set alignmentParameterStore
   theAlignmentParameterStore=store;
@@ -196,8 +196,8 @@ void HIPAlignmentAlgorithm::initialize(
         selector.clear();
         edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
         std::vector<std::string> alignParams = selectorPSet.getParameter<std::vector<std::string> >("alignParams");
-        if (alignParams.size()==1 && alignParams[0] == std::string("selected")) alignables = theAlignables;
-        else{
+        if (alignParams.size()==1 && alignParams[0] == std::string("selected")) { alignables = theAlignables;
+        } else{
           selector.addSelections(selectorPSet);
           alignables = selector.selectedAlignables();
         }
@@ -206,17 +206,17 @@ void HIPAlignmentAlgorithm::initialize(
         std::vector<double> apeRPar = setiter->getParameter<std::vector<double> >("apeRPar");
         std::string function = setiter->getParameter<std::string>("function");
 
-        if (apeSPar.size()!=3 || apeRPar.size()!=3)
+        if (apeSPar.size()!=3 || apeRPar.size()!=3) {
           throw cms::Exception("BadConfig")
           << "apeSPar and apeRPar must have 3 values each"
-          << std::endl;
+          << std::endl; }
 
-        for (std::vector<double>::const_iterator i = apeRPar.begin(); i != apeRPar.end(); ++i) apeSPar.push_back(*i);
+        for (std::vector<double>::const_iterator i = apeRPar.begin(); i != apeRPar.end(); ++i) { apeSPar.push_back(*i); }
 
-        if (function == std::string("linear")) apeSPar.push_back(0); // c.f. note in calcAPE
-        else if (function == std::string("exponential")) apeSPar.push_back(1); // c.f. note in calcAPE
-        else if (function == std::string("step")) apeSPar.push_back(2); // c.f. note in calcAPE
-        else throw cms::Exception("BadConfig") << "APE function must be \"linear\", \"exponential\", or \"step\"." << std::endl;
+        if (function == std::string("linear")) { apeSPar.push_back(0); // c.f. note in calcAPE
+        } else if (function == std::string("exponential")) { apeSPar.push_back(1); // c.f. note in calcAPE
+        } else if (function == std::string("step")) { apeSPar.push_back(2); // c.f. note in calcAPE
+        } else { throw cms::Exception("BadConfig") << "APE function must be \"linear\", \"exponential\", or \"step\"." << std::endl; }
 
         theAPEParameters.push_back(std::make_pair(alignables, apeSPar));
       }
@@ -231,8 +231,8 @@ void HIPAlignmentAlgorithm::initialize(
         selector.clear();
         edm::ParameterSet selectorPSet = setiter->getParameter<edm::ParameterSet>("Selector");
         std::vector<std::string> alignParams = selectorPSet.getParameter<std::vector<std::string> >("alignParams");
-        if (alignParams.size()==1 && alignParams[0] == std::string("selected")) alignables = theAlignables;
-        else{
+        if (alignParams.size()==1 && alignParams[0] == std::string("selected")) { alignables = theAlignables;
+        } else{
           selector.addSelections(selectorPSet);
           alignables = selector.selectedAlignables();
         }
@@ -302,8 +302,8 @@ void HIPAlignmentAlgorithm::startNewLoop(void){
   int numAlignablesFromFile = theAlignablePositionsFromFile.size();
   if (numAlignablesFromFile==0){ // file not there: first iteration 
     // set iteration number to 1 when needed
-    if (isCollector) theIteration=0;
-    else theIteration=1;
+    if (isCollector) { theIteration=0;
+    } else { theIteration=1; }
     edm::LogWarning("Alignment") << "@SUB=HIPAlignmentAlgorithm::startNewLoop" << "IO alignables file not found for iteration " << theIteration;
   }
   else{ // there have been previous iterations
@@ -335,7 +335,7 @@ void HIPAlignmentAlgorithm::startNewLoop(void){
   setAlignmentPositionError();
 
   // run collector job if we are in parallel mode
-  if (isCollector) collector();
+  if (isCollector) { collector(); }
 
   edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::startNewLoop" << "End";
 }
@@ -381,7 +381,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
             uservar->jtvj += invCov;
             uservar->jtve += invCov * sensResid;
 
-            if (theSurveyTree!=nullptr) theSurveyTree->Fill();
+            if (theSurveyTree!=nullptr) { theSurveyTree->Fill(); }
           }
         }
       }
@@ -391,7 +391,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
   // write user variables
   HIPUserVariablesIORoot HIPIO;
   // don't store userVariable in main, to save time
-  if (!isCollector) HIPIO.writeHIPUserVariables(theAlignables, suvarfile.c_str(), theIteration, false, ioerr);
+  if (!isCollector) { HIPIO.writeHIPUserVariables(theAlignables, suvarfile.c_str(), theIteration, false, ioerr); }
 
   // now calculate alignment corrections...
   int ialigned=0;
@@ -404,7 +404,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
       edm::LogWarning("Alignment") <<"det ID="<<SetScanDet.at(0)<<", starting position="<<SetScanDet.at(1)<<", step="<<SetScanDet.at(2)<<", currentDet = "<<ali->id();
     }
 
-    if ((SetScanDet.at(0)!=0)&&(SetScanDet.at(0)!=1)&&(ali->id()!=SetScanDet.at(0))) continue;
+    if ((SetScanDet.at(0)!=0)&&(SetScanDet.at(0)!=1)&&(ali->id()!=SetScanDet.at(0))) { continue; }
 
     bool test = calcParameters(ali, SetScanDet.at(0), SetScanDet.at(1), SetScanDet.at(2));
     if (test){
@@ -413,7 +413,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
         ali->surfaceDeformationIdPairs(pairs);
         edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::terminate" << "The alignable contains " << pairs.size() << " surface deformations";
       }
-      else edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::terminate" << "The alignable cannot contain surface deformations";
+      else { edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::terminate" << "The alignable cannot contain surface deformations"; }
 
       theAlignmentParameterStore->applyParameters(ali);
       // set these parameters 'valid'
@@ -421,7 +421,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
       // increase counter
       ialigned++;
     }
-    else par->setValid(false);
+    else { par->setValid(false); }
   }
   //end looping over alignables
 
@@ -436,7 +436,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
 
 
   // write user variables	
-  if (isCollector) HIPIO.writeHIPUserVariables(theAlignables, suvarfile.c_str(), theIteration, false, ioerr);
+  if (isCollector) { HIPIO.writeHIPUserVariables(theAlignables, suvarfile.c_str(), theIteration, false, ioerr); }
 
   // write new absolute positions to disk
   theIO.writeAlignableAbsolutePositions(theAlignables, salignedfile.c_str(), theIteration, false, ioerr);
@@ -452,7 +452,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
   // Survey tree
   if (theSurveyIORootFile!=nullptr){
     theSurveyIORootFile->cd();
-    if (theSurveyTree!=nullptr) theSurveyTree->Write();
+    if (theSurveyTree!=nullptr) { theSurveyTree->Write(); }
     delete theSurveyTree;
     theSurveyTree=nullptr;
     theSurveyIORootFile->Close();
@@ -460,7 +460,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup){
   // Alignable-wise tree is only filled once at iteration 1
   if (theAlignablesMonitorIORootFile!=nullptr){
     theAlignablesMonitorIORootFile->cd();
-    if (theAlignablesMonitorTree!=nullptr) theAlignablesMonitorTree->Write();
+    if (theAlignablesMonitorTree!=nullptr) { theAlignablesMonitorTree->Write(); }
     delete theAlignablesMonitorTree;
     theAlignablesMonitorTree=nullptr;
     theAlignablesMonitorIORootFile->Close();
@@ -513,7 +513,7 @@ bool HIPAlignmentAlgorithm::processHit1D(
 
   // calculate the x pull of this hit
   double xpull = 0.;
-  if (covmat[0][0] != 0.) xpull = (pos[0] - coor[0])/sqrt(fabs(covmat[0][0]));
+  if (covmat[0][0] != 0.) { xpull = (pos[0] - coor[0])/sqrt(fabs(covmat[0][0])); }
 
   // get Alignment Parameters
   AlignmentParameters* params = ali->alignmentParameters();
@@ -568,12 +568,12 @@ bool HIPAlignmentAlgorithm::processHit1D(
   float thischi2;
   thischi2 = hitwt*(hitresidualT *covmat *hitresidual)[0];
 
-  if (verbose && (thischi2/ static_cast<float>(uservar->nhit))>10.)
+  if (verbose && (thischi2/ static_cast<float>(uservar->nhit))>10.) {
     edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit1D] Added to Chi2 the number " << thischi2 << " having "
       << uservar->nhit << " ndof"
       << ", X-resid " << hitresidual[0]
       << ", Cov^-1 matr (covmat):"
-      << " [0][0] = " << covmat[0][0];
+      << " [0][0] = " << covmat[0][0]; }
 
   uservar->alichi2 += thischi2;
   uservar->alindof += hitDim;
@@ -619,8 +619,8 @@ bool HIPAlignmentAlgorithm::processHit2D(
   // calculate the x pull and y pull of this hit
   double xpull = 0.;
   double ypull = 0.;
-  if (covmat[0][0] != 0.) xpull = (pos[0] - coor[0])/sqrt(fabs(covmat[0][0]));
-  if (covmat[1][1] != 0.) ypull = (pos[1] - coor[1])/sqrt(fabs(covmat[1][1]));
+  if (covmat[0][0] != 0.) { xpull = (pos[0] - coor[0])/sqrt(fabs(covmat[0][0])); }
+  if (covmat[1][1] != 0.) { ypull = (pos[1] - coor[1])/sqrt(fabs(covmat[1][1])); }
 
   // get Alignment Parameters
   AlignmentParameters* params = ali->alignmentParameters();
@@ -676,7 +676,7 @@ bool HIPAlignmentAlgorithm::processHit2D(
   float thischi2;
   thischi2 = hitwt*(hitresidualT *covmat *hitresidual)[0];
 
-  if (verbose && (thischi2/ static_cast<float>(uservar->nhit))>10.)
+  if (verbose && (thischi2/ static_cast<float>(uservar->nhit))>10.) {
     edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::processHit2D] Added to Chi2 the number " << thischi2 << " having "
       << uservar->nhit << " ndof"
       << ", X-resid " << hitresidual[0]
@@ -685,7 +685,7 @@ bool HIPAlignmentAlgorithm::processHit2D(
       << " [0][0] = " << covmat[0][0]
       << " [0][1] = " << covmat[0][1]
       << " [1][0] = " << covmat[1][0]
-      << " [1][1] = " << covmat[1][1];
+      << " [1][1] = " << covmat[1][1]; }
 
   uservar->alichi2 += thischi2;
   uservar->alindof += hitDim;
@@ -695,7 +695,7 @@ bool HIPAlignmentAlgorithm::processHit2D(
 
 // Run the algorithm on trajectories and tracks -------------------------------
 void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &eventInfo){
-  if (isCollector) return;
+  if (isCollector) { return; }
 
   TrajectoryStateCombiner tsoscomb;
 
@@ -729,26 +729,26 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
     int nhtid   = track->hitPattern().numberOfValidStripTIDHits();
     int nhtec   = track->hitPattern().numberOfValidStripTECHits();
 
-    if (verbose) edm::LogInfo("Alignment")
+    if (verbose) { edm::LogInfo("Alignment")
       << "New track pt,eta,phi,chi2n,hits: "
       << pt << ","
       << eta << ","
       << phi << ","
       << chi2n << ","
-      << nhit;
+      << nhit; }
 
     double ihitwt = 1;
     double trkwt = 1;
     if (trackWt){
       trkwt=Scale;
       // Reweight by the specified eta distribution
-      if (uniEta) trkwt *= theEtaFormula->Eval(fabs(eta));
+      if (uniEta) { trkwt *= theEtaFormula->Eval(fabs(eta)); }
     }
     if (trackPs){
       double r = gRandom->Rndm();
-      if (trkwt < r) continue;
+      if (trkwt < r) { continue; }
     }
-    else if (trackWt) ihitwt=trkwt;
+    else if (trackWt) { ihitwt=trkwt; }
 
     // fill track parameters in root tree
     {
@@ -810,9 +810,9 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
                 // myflag=PrescMap[stripclust]; 	 
                 myflag = (*eventInfo.clusterValueMap())[stripclust];
               }
-              else edm::LogError("HIPAlignmentAlgorithm")
+              else { edm::LogError("HIPAlignmentAlgorithm")
                 << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed! "
-                << "TypeId of the RecHit: " << className(*hit);
+                << "TypeId of the RecHit: " << className(*hit); }
             }//end if type = SiStripRecHit1D 	 
             else if (type == typeid(SiStripRecHit2D)){
 
@@ -822,9 +822,9 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
                 // myflag=PrescMap[stripclust]; 	 
                 myflag = (*eventInfo.clusterValueMap())[stripclust];
               }
-              else edm::LogError("HIPAlignmentAlgorithm")
+              else { edm::LogError("HIPAlignmentAlgorithm")
                 << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed! "
-                << "TypeId of the TTRH: " << className(*hit);
+                << "TypeId of the TTRH: " << className(*hit); }
             } //end if type == SiStripRecHit2D 	 
           } //end if hit from strips 	 
           else{
@@ -834,11 +834,11 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
               // myflag=PrescMap[pixelclust]; 	 
               myflag = (*eventInfo.clusterValueMap())[pixelclust];
             }
-            else edm::LogError("HIPAlignmentAlgorithm")
+            else { edm::LogError("HIPAlignmentAlgorithm")
               << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Pixel RecHit failed! "
-              << "TypeId of the TTRH: " << className(*hit);
+              << "TypeId of the TTRH: " << className(*hit); }
           } //end 'else' it is a pixel hit
-          if (!myflag.isTaken()) continue;
+          if (!myflag.isTaken()) { continue; }
         }//end if Prescaled Hits
         ////////////////////////////////
 
@@ -891,8 +891,8 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
         double angle = TMath::ASin(sin_theta);
 
         //Make cut on hit impact angle, reduce collision hits perpendicular to modules
-        if (IsCollision){ if (angle>col_cut)ihitwt=0; }
-        else{ if (angle<cos_cut)ihitwt=0; }
+        if (IsCollision){ if (angle>col_cut) {ihitwt=0;  }}
+        else{ if (angle<cos_cut) {ihitwt=0;  }}
         m_angle = angle;
         m_sinTheta = sin_theta;
         m_detId = ali->id();
@@ -915,9 +915,9 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
                 bool probXYgood = (m_probXY>=alispecifics->minPixelProbXY && m_probXY<=alispecifics->maxPixelProbXY);
                 bool probQgood = (m_probQ>=alispecifics->minPixelProbQ && m_probQ<=alispecifics->maxPixelProbQ);
                 bool probXYQgood;
-                if (alispecifics->usePixelProbXYOrProbQ) probXYQgood = (probXYgood || probQgood);
-                else probXYQgood = (probXYgood && probQgood);
-                if (!probXYQgood) ihitwt=0;
+                if (alispecifics->usePixelProbXYOrProbQ) { probXYQgood = (probXYgood || probQgood);
+                } else { probXYQgood = (probXYgood && probQgood); }
+                if (!probXYQgood) { ihitwt=0; }
               }
             }
           }
@@ -940,7 +940,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
               << std::endl;
             break;
           }
-          if (theMonitorConfig.fillTrackHitMonitoring && theMonitorConfig.checkNhits() && theHitMonitorTree!=nullptr && hitProcessed) theHitMonitorTree->Fill();
+          if (theMonitorConfig.fillTrackHitMonitoring && theMonitorConfig.checkNhits() && theHitMonitorTree!=nullptr && hitProcessed) { theHitMonitorTree->Fill(); }
         }
       }
 
@@ -950,7 +950,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
   } // end of track loop
 
   // fill eventwise root tree (with prescale defined in pset)
-  if (theMonitorConfig.fillTrackMonitoring && theMonitorConfig.checkNevents() && theTrackMonitorTree!=nullptr) theTrackMonitorTree->Fill();
+  if (theMonitorConfig.fillTrackMonitoring && theMonitorConfig.checkNevents() && theTrackMonitorTree!=nullptr) { theTrackMonitorTree->Fill(); }
 }
 
 // ----------------------------------------------------------------------------
@@ -976,9 +976,9 @@ int HIPAlignmentAlgorithm::readIterationFile(std::string filename){
 // ----------------------------------------------------------------------------
 void HIPAlignmentAlgorithm::writeIterationFile(std::string filename, int iter){
   std::ofstream outIterFile((filename.c_str()), std::ios::out);
-  if (!outIterFile) edm::LogError("Alignment")
+  if (!outIterFile) { edm::LogError("Alignment")
     << "[HIPAlignmentAlgorithm::writeIterationFile] ERROR: Unable to write Iteration file";
-  else{
+  } else{
     outIterFile << iter;
     edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm::writeIterationFile] writing iteration number to file: " << iter;
   }
@@ -1034,15 +1034,15 @@ void HIPAlignmentAlgorithm::setAlignmentPositionError(void){
 // calculate APE
 double HIPAlignmentAlgorithm::calcAPE(double* par, int iter, int function){
   double diter=(double)iter;
-  if (function == 0) return std::max(par[1], par[0]+((par[1]-par[0])/par[2])*diter);
-  else if (function == 1) return std::max(0., par[0]*(exp(-pow(diter, par[1])/par[2])));
-  else if (function == 2){
+  if (function == 0) { return std::max(par[1], par[0]+((par[1]-par[0])/par[2])*diter);
+  } else if (function == 1) { return std::max(0., par[0]*(exp(-pow(diter, par[1])/par[2])));
+  } else if (function == 2){
     int ipar2 = (int)par[2];
     int step = iter/ipar2;
     double dstep = (double)step;
     return std::max(0., par[0] - par[1]*dstep);
   }
-  else assert(false); // should have been caught in the constructor
+  else { assert(false); // should have been caught in the constructor }
 }
 
 // ----------------------------------------------------------------------------
@@ -1129,7 +1129,7 @@ void HIPAlignmentAlgorithm::bookRoot(void){
 // ----------------------------------------------------------------------------
 // fill alignable-wise root tree
 void HIPAlignmentAlgorithm::fillAlignablesMonitor(const edm::EventSetup& iSetup){
-  if (theAlignablesMonitorIORootFile==(TFile*)nullptr) return;
+  if (theAlignablesMonitorIORootFile==(TFile*)nullptr) { return; }
   using std::setw;
   theAlignablesMonitorIORootFile->cd();
 
@@ -1178,7 +1178,7 @@ void HIPAlignmentAlgorithm::fillAlignablesMonitor(const edm::EventSetup& iSetup)
           dali = dali_obj->parameters();
           dtype = (SurfaceDeformationFactory::Type)dali_obj->type();
         }
-        for (auto& dit : dali) m2_surfDef.push_back((float)dit);
+        for (auto& dit : dali) { m2_surfDef.push_back((float)dit); }
         m2_dtype = dtype;
         m2_nsurfdef = m2_surfDef.size();
       }
@@ -1214,7 +1214,7 @@ void HIPAlignmentAlgorithm::fillAlignablesMonitor(const edm::EventSetup& iSetup)
       }
 
       naligned++;
-      if (theAlignablesMonitorTree!=nullptr) theAlignablesMonitorTree->Fill();
+      if (theAlignablesMonitorTree!=nullptr) { theAlignablesMonitorTree->Fill(); }
     }
   }
 }
@@ -1235,7 +1235,7 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double st
 
   // Test nhits
   int minHitThreshold = (!theApplyCutsPerComponent ? defaultAlignableSpecs.minNHits : alispecifics->minNHits);
-  if (!isCollector) minHitThreshold=1;
+  if (!isCollector) { minHitThreshold=1; }
   if (setDet==0 && nhit<minHitThreshold){
     edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "Skipping detector " << ali->id() << " because number of hits = " << nhit << " <= " << minHitThreshold;
     par->setValid(false);
@@ -1267,9 +1267,9 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double st
       double maxRelErrThreshold = (!theApplyCutsPerComponent ? defaultAlignableSpecs.maxRelParError : alispecifics->maxRelParError);
       for (int i=0; i<npar; i++){
         double relerr=0;
-        if (fabs(cov[i][i])>0.) paramerr[i] = sqrt(fabs(cov[i][i]));
-        else paramerr[i] = params[i];
-        if (params[i]!=0.) relerr = fabs(paramerr[i]/params[i]);
+        if (fabs(cov[i][i])>0.) { paramerr[i] = sqrt(fabs(cov[i][i]));
+        } else { paramerr[i] = params[i]; }
+        if (params[i]!=0.) { relerr = fabs(paramerr[i]/params[i]); }
         if ((maxRelErrThreshold>=0. && relerr>maxRelErrThreshold) || relerr<minRelErrThreshold){
           edm::LogWarning("Alignment")
             << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "RelError = " << relerr
@@ -1285,8 +1285,8 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double st
         edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "For scanning, please only turn on one parameter! check common_cff_py.txt";
         return false;
       }
-      if (theIteration==1) params[0] = start;
-      else params[0]=step;
+      if (theIteration==1) { params[0] = start;
+      } else { params[0]=step; }
       edm::LogWarning("Alignment") << "@SUB=HIPAlignmentAlgorithm::calcParameters" << "Parameters = " << params;
     }
   }
@@ -1322,10 +1322,10 @@ void HIPAlignmentAlgorithm::collector(void){
       std::string uvfile = theCollectorPath+"/job"+str+"/"+suvarfilecore;
 
       std::vector<AlignmentUserVariables*> uvarvec = HIPIO.readHIPUserVariables(theAlignables, uvfile.c_str(), theIteration, ioerr);
-      if (uvarvec.size()!=theAlignables.size()) edm::LogWarning("Alignment")
+      if (uvarvec.size()!=theAlignables.size()) { edm::LogWarning("Alignment")
         << "@SUB=HIPAlignmentAlgorithm::collector"
         << "Number of alignables = " << theAlignables.size() << " is not the same as number of user variables = " << uvarvec.size()
-        << ". A mismatch might occur!";
+        << ". A mismatch might occur!"; }
       if (ioerr!=0){
         edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector" << "Could not read user variable files for job " << ijob << " in iteration " << theIteration;
         continue;
@@ -1345,8 +1345,8 @@ void HIPAlignmentAlgorithm::collector(void){
           }
           else{ // Alignable already exists in the map
             std::unordered_map<int, pawt_t>& theMap = ali_datatypecountpair_map[ali];
-            if (theMap.find(alijobdtype)==theMap.end()) theMap[alijobdtype]=alijobnhits;
-            else theMap[alijobdtype] += alijobnhits;
+            if (theMap.find(alijobdtype)==theMap.end()) { theMap[alijobdtype]=alijobnhits;
+            } else { theMap[alijobdtype] += alijobnhits; }
           }
           delete uvar; // Delete new user variables as they are added
         }
@@ -1362,10 +1362,10 @@ void HIPAlignmentAlgorithm::collector(void){
     std::string uvfile = theCollectorPath+"/job"+str+"/"+suvarfilecore;
 
     std::vector<AlignmentUserVariables*> uvarvec = HIPIO.readHIPUserVariables(theAlignables, uvfile.c_str(), theIteration, ioerr);
-    if (uvarvec.size()!=theAlignables.size()) edm::LogWarning("Alignment")
+    if (uvarvec.size()!=theAlignables.size()) { edm::LogWarning("Alignment")
       << "@SUB=HIPAlignmentAlgorithm::collector"
       << "Number of alignables = " << theAlignables.size() << " is not the same as number of user variables = " << uvarvec.size()
-      << ". A mismatch might occur!";
+      << ". A mismatch might occur!"; }
 
     if (ioerr!=0){
       edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector" << "Could not read user variable files for job " << ijob << " in iteration " << theIteration;
@@ -1398,20 +1398,20 @@ void HIPAlignmentAlgorithm::collector(void){
               pawt_t sumwgts=0;
               for (auto it=ali_datatypecountpair_map[ali].cbegin(); it!=ali_datatypecountpair_map[ali].cend(); ++it){
                 sumwgts+=it->second;
-                if (it->second!=pawt_t(0)) nNonZeroTypes++;
+                if (it->second!=pawt_t(0)) { nNonZeroTypes++; }
               }
               edm::LogInfo("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector"
                 << "Reweighting detector " << ali->id() << " / " << ali->alignableObjectId()
                 << " for data type " << alijobdtype << " by " << sumwgts << "/" << peraliwgt << "/" << nNonZeroTypes;
               peraliwgt=((nNonZeroTypes==0 || peraliwgt==double(0)) ? double(1) : double((double(sumwgts))/peraliwgt/(double(nNonZeroTypes))));
           }
-          else if (ali_datatypecountpair_map.find(ali)!=ali_datatypecountpair_map.end())
+          else if (ali_datatypecountpair_map.find(ali)!=ali_datatypecountpair_map.end()) {
             edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector"
             << "Could not find data type " << alijobdtype << " for detector " << ali->id() << " / " << ali->alignableObjectId();
-          else
+          } else {
             edm::LogError("Alignment") << "@SUB=HIPAlignmentAlgorithm::collector"
             << "Could not find detector " << ali->id() << " / " << ali->alignableObjectId()
-            << " in the map ali_datatypecountpair_map";
+            << " in the map ali_datatypecountpair_map"; }
         }
 
         uvar->nhit = (uvarold->nhit) + (uvarnew->nhit);
@@ -1437,16 +1437,16 @@ void HIPAlignmentAlgorithm::collector(void){
   } // end loop on jobs
 
   // Collect monitor (eventwise and hitwise) trees
-  if (doTrackHitMonitoring) collectMonitorTrees(monitorFileList);
+  if (doTrackHitMonitoring) { collectMonitorTrees(monitorFileList); }
 
 }
 
 //------------------------------------------------------------------------------------
 void HIPAlignmentAlgorithm::collectMonitorTrees(const std::vector<std::string>& filenames){
-  if (!doTrackHitMonitoring) return;
-  if (!isCollector) throw cms::Exception("LogicError")
+  if (!doTrackHitMonitoring) { return; }
+  if (!isCollector) { throw cms::Exception("LogicError")
     << "[HIPAlignmentAlgorithm::collectMonitorTrees] Called in non-collector mode."
-    << std::endl;
+    << std::endl; }
 
   TString theTrackMonitorTreeName=Form("T1_%i", theIteration);
   TString theHitMonitorTreeName=Form("T1_hit_%i", theIteration);
@@ -1461,12 +1461,12 @@ void HIPAlignmentAlgorithm::collectMonitorTrees(const std::vector<std::string>& 
       if (theMonitorConfig.fillTrackMonitoring){
         tmptree=nullptr;
         tmptree = (TTree*)finput->Get(theTrackMonitorTreeName);
-        if (tmptree!=nullptr) eventtrees->Add(tmptree);
+        if (tmptree!=nullptr) { eventtrees->Add(tmptree); }
       }
       if (theMonitorConfig.fillTrackHitMonitoring){
         tmptree=nullptr;
         tmptree = (TTree*)finput->Get(theHitMonitorTreeName);
-        if (tmptree!=nullptr) hittrees->Add((TTree*)finput->Get(theHitMonitorTreeName));
+        if (tmptree!=nullptr) { hittrees->Add((TTree*)finput->Get(theHitMonitorTreeName)); }
       }
       finputlist.push_back(finput);
     }
@@ -1481,24 +1481,24 @@ void HIPAlignmentAlgorithm::collectMonitorTrees(const std::vector<std::string>& 
   }
   theTrackHitMonitorIORootFile = TFile::Open(theMonitorConfig.outfile.c_str(), "update");
   theTrackHitMonitorIORootFile->cd();
-  if (eventtrees->GetSize()>0) theTrackMonitorTree = TTree::MergeTrees(eventtrees);
-  if (hittrees->GetSize()>0) theHitMonitorTree = TTree::MergeTrees(hittrees);
+  if (eventtrees->GetSize()>0) { theTrackMonitorTree = TTree::MergeTrees(eventtrees); }
+  if (hittrees->GetSize()>0) { theHitMonitorTree = TTree::MergeTrees(hittrees); }
   // Leave it to HIPAlignmentAlgorithm::terminate to write the trees and close theTrackHitMonitorIORootFile
 
   delete hittrees;
   delete eventtrees;
-  for (TFile*& finput : finputlist) finput->Close();
+  for (TFile*& finput : finputlist) { finput->Close(); }
 
   // Rename the trees to standard names
-  if (theTrackMonitorTree!=nullptr) theTrackMonitorTree->SetName(theTrackMonitorTreeName);
-  if (theHitMonitorTree!=nullptr) theHitMonitorTree->SetName(theHitMonitorTreeName);
+  if (theTrackMonitorTree!=nullptr) { theTrackMonitorTree->SetName(theTrackMonitorTreeName); }
+  if (theHitMonitorTree!=nullptr) { theHitMonitorTree->SetName(theHitMonitorTreeName); }
 }
 
 //-----------------------------------------------------------------------------------
 HIPAlignableSpecificParameters* HIPAlignmentAlgorithm::findAlignableSpecs(const Alignable* ali){
   if (ali!=nullptr){
     for (std::vector<HIPAlignableSpecificParameters>::iterator it=theAlignableSpecifics.begin(); it!=theAlignableSpecifics.end(); it++){
-      if (it->matchAlignable(ali)) return &(*it);
+      if (it->matchAlignable(ali)) { return &(*it); }
     }
     edm::LogInfo("Alignment") << "[HIPAlignmentAlgorithm::findAlignableSpecs] Alignment object with id " << ali->id() << " / " << ali->alignableObjectId() << " could not be found. Returning default.";
   }

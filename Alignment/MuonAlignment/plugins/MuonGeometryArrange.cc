@@ -158,7 +158,7 @@ void MuonGeometryArrange::endHist(){
  // Unpack the list and create ntuples here.
 
    int size=_mgacollection.size();
-   if(size<=0) return;	// nothing to do here.
+   if(size<=0) { return;	// nothing to do here. }
    std::vector<float> xp(size+1);
    std::vector<float> yp(size+1);
    int i;
@@ -171,15 +171,15 @@ void MuonGeometryArrange::endHist(){
 
 // for position plots:
    for(i=0; i<size; i++){
-     if(_mgacollection[i].phipos<minI) minI=_mgacollection[i].phipos;
-     if(_mgacollection[i].phipos>maxI) maxI=_mgacollection[i].phipos;
+     if(_mgacollection[i].phipos<minI) { minI=_mgacollection[i].phipos; }
+     if(_mgacollection[i].phipos>maxI) { maxI=_mgacollection[i].phipos; }
      xp[i]=_mgacollection[i].phipos;
    }
-   if(minI>=maxI) return;	// can't do anything?
+   if(minI>=maxI) { return;	// can't do anything? }
    xp[size]=xp[size-1]+1;	// wraparound point
 
-   if(1<minI) minI=1;
-   if(size>maxI) maxI=size;
+   if(1<minI) { minI=1; }
+   if(size>maxI) { maxI=size; }
    maxI++;	// allow for wraparound to show neighbors
    int sizeI=maxI+1-minI;
    float smi=minI-1;
@@ -189,8 +189,8 @@ void MuonGeometryArrange::endHist(){
 // Dx plot
 
    for(i=0; i<size; i++){
-     if(_mgacollection[i].ldx<minV) minV=_mgacollection[i].ldx;
-     if(_mgacollection[i].ldx>maxV) maxV=_mgacollection[i].ldx;
+     if(_mgacollection[i].ldx<minV) { minV=_mgacollection[i].ldx; }
+     if(_mgacollection[i].ldx>maxV) { maxV=_mgacollection[i].ldx; }
      yp[i]=_mgacollection[i].ldx;
    }
    yp[size]=yp[0];	// wraparound point
@@ -201,8 +201,8 @@ void MuonGeometryArrange::endHist(){
 // Dy plot
    minV=99999999.; maxV=-minV;
    for(i=0; i<size; i++){
-     if(_mgacollection[i].ldy<minV) minV=_mgacollection[i].ldy;
-     if(_mgacollection[i].ldy>maxV) maxV=_mgacollection[i].ldy;
+     if(_mgacollection[i].ldy<minV) { minV=_mgacollection[i].ldy; }
+     if(_mgacollection[i].ldy>maxV) { maxV=_mgacollection[i].ldy; }
      yp[i]=_mgacollection[i].ldy;
    }
    yp[size]=yp[0];	// wraparound point
@@ -214,8 +214,8 @@ void MuonGeometryArrange::endHist(){
 // Dz plot
    minV=99999999.; maxV=-minV;
    for(i=0; i<size; i++){
-     if(_mgacollection[i].dz<minV) minV=_mgacollection[i].dz;
-     if(_mgacollection[i].dz>maxV) maxV=_mgacollection[i].dz;
+     if(_mgacollection[i].dz<minV) { minV=_mgacollection[i].dz; }
+     if(_mgacollection[i].dz>maxV) { maxV=_mgacollection[i].dz; }
      yp[i]=_mgacollection[i].dz;
    }
    yp[size]=yp[0];	// wraparound point
@@ -227,8 +227,8 @@ void MuonGeometryArrange::endHist(){
 // Dphi plot
    minV=99999999.; maxV=-minV;
    for(i=0; i<size; i++){
-     if(_mgacollection[i].dphi<minV) minV=_mgacollection[i].dphi;
-     if(_mgacollection[i].dphi>maxV) maxV=_mgacollection[i].dphi;
+     if(_mgacollection[i].dphi<minV) { minV=_mgacollection[i].dphi; }
+     if(_mgacollection[i].dphi>maxV) { maxV=_mgacollection[i].dphi; }
      yp[i]=_mgacollection[i].dphi;
    }
    yp[size]=yp[0];	// wraparound point
@@ -240,8 +240,8 @@ void MuonGeometryArrange::endHist(){
 // Dr plot
    minV=99999999.; maxV=-minV;
    for(i=0; i<size; i++){
-     if(_mgacollection[i].dr<minV) minV=_mgacollection[i].dr;
-     if(_mgacollection[i].dr>maxV) maxV=_mgacollection[i].dr;
+     if(_mgacollection[i].dr<minV) { minV=_mgacollection[i].dr; }
+     if(_mgacollection[i].dr>maxV) { maxV=_mgacollection[i].dr; }
      yp[i]=_mgacollection[i].dr;
    }
    yp[size]=yp[0];	// wraparound point
@@ -254,8 +254,8 @@ void MuonGeometryArrange::endHist(){
    minV=99999999.; maxV=-minV;
    for(i=0; i<size; i++){
      float ttemp=_mgacollection[i].r*_mgacollection[i].dphi;
-     if(ttemp<minV) minV=ttemp;
-     if(ttemp>maxV) maxV=ttemp;
+     if(ttemp<minV) { minV=ttemp; }
+     if(ttemp>maxV) { maxV=ttemp; }
      yp[i]=ttemp;
    }
    yp[size]=yp[0];	// wraparound point
@@ -267,8 +267,8 @@ void MuonGeometryArrange::endHist(){
 // Dalpha plot
    minV=99999999.; maxV=-minV;
    for(i=0; i<size; i++){
-     if(_mgacollection[i].dalpha<minV) minV=_mgacollection[i].dalpha;
-     if(_mgacollection[i].dalpha>maxV) maxV=_mgacollection[i].dalpha;
+     if(_mgacollection[i].dalpha<minV) { minV=_mgacollection[i].dalpha; }
+     if(_mgacollection[i].dalpha>maxV) { maxV=_mgacollection[i].dalpha; }
      yp[i]=_mgacollection[i].dalpha;
    }
    yp[size]=yp[0];	// wraparound point
@@ -280,8 +280,8 @@ void MuonGeometryArrange::endHist(){
 // Dbeta plot
    minV=99999999.; maxV=-minV;
    for(i=0; i<size; i++){
-     if(_mgacollection[i].dbeta<minV) minV=_mgacollection[i].dbeta;
-     if(_mgacollection[i].dbeta>maxV) maxV=_mgacollection[i].dbeta;
+     if(_mgacollection[i].dbeta<minV) { minV=_mgacollection[i].dbeta; }
+     if(_mgacollection[i].dbeta>maxV) { maxV=_mgacollection[i].dbeta; }
      yp[i]=_mgacollection[i].dbeta;
    }
    yp[size]=yp[0];	// wraparound point
@@ -293,8 +293,8 @@ void MuonGeometryArrange::endHist(){
 // Dgamma plot
    minV=99999999.; maxV=-minV;
    for(i=0; i<size; i++){
-     if(_mgacollection[i].dgamma<minV) minV=_mgacollection[i].dgamma;
-     if(_mgacollection[i].dgamma>maxV) maxV=_mgacollection[i].dgamma;
+     if(_mgacollection[i].dgamma<minV) { minV=_mgacollection[i].dgamma; }
+     if(_mgacollection[i].dgamma>maxV) { maxV=_mgacollection[i].dgamma; }
      yp[i]=_mgacollection[i].dgamma;
    }
    yp[size]=yp[0];	// wraparound point
@@ -306,8 +306,8 @@ void MuonGeometryArrange::endHist(){
 // Drotx plot
    minV=99999999.; maxV=-minV;
    for(i=0; i<size; i++){
-     if(_mgacollection[i].drotx<minV) minV=_mgacollection[i].drotx;
-     if(_mgacollection[i].drotx>maxV) maxV=_mgacollection[i].drotx;
+     if(_mgacollection[i].drotx<minV) { minV=_mgacollection[i].drotx; }
+     if(_mgacollection[i].drotx>maxV) { maxV=_mgacollection[i].drotx; }
      yp[i]=_mgacollection[i].drotx;
    }
    yp[size]=yp[0];	// wraparound point
@@ -319,8 +319,8 @@ void MuonGeometryArrange::endHist(){
 // Droty plot
    minV=99999999.; maxV=-minV;
    for(i=0; i<size; i++){
-     if(_mgacollection[i].droty<minV) minV=_mgacollection[i].droty;
-     if(_mgacollection[i].droty>maxV) maxV=_mgacollection[i].droty;
+     if(_mgacollection[i].droty<minV) { minV=_mgacollection[i].droty; }
+     if(_mgacollection[i].droty>maxV) { maxV=_mgacollection[i].droty; }
      yp[i]=_mgacollection[i].droty;
    }
    yp[size]=yp[0];	// wraparound point
@@ -332,8 +332,8 @@ void MuonGeometryArrange::endHist(){
 // Drotz plot
    minV=99999999.; maxV=-minV;
    for(i=0; i<size; i++){
-     if(_mgacollection[i].drotz<minV) minV=_mgacollection[i].drotz;
-     if(_mgacollection[i].drotz>maxV) maxV=_mgacollection[i].drotz;
+     if(_mgacollection[i].drotz<minV) { minV=_mgacollection[i].drotz; }
+     if(_mgacollection[i].drotz>maxV) { maxV=_mgacollection[i].drotz; }
      yp[i]=_mgacollection[i].drotz;
    }
    yp[size]=yp[0];	// wraparound point
@@ -355,16 +355,16 @@ void MuonGeometryArrange::endHist(){
         _mgacollection[i].dy*_mgacollection[i].dy);
      rtemp= sqrt(_mgacollection[i].x*_mgacollection[i].x+
         _mgacollection[i].y*_mgacollection[i].y);
-     if(ttemp>maxV) maxV=ttemp;
-     if(rtemp>maxR) maxR=rtemp;
+     if(ttemp>maxV) { maxV=ttemp; }
+     if(rtemp>maxR) { maxR=rtemp; }
    }
    
   // Don't try to scale rediculously small values 
    float smallestVcm=.001;	// 10 microns
-   if(maxV<smallestVcm) maxV=smallestVcm;
+   if(maxV<smallestVcm) { maxV=smallestVcm; }
    float scale=0.;
    float lside=1.1*maxR;
-   if(lside<=0) lside=100.;
+   if(lside<=0) { lside=100.; }
    if(maxV>0){scale=.09*lside/maxV;}	// units of pad length!
    char scalename[50];
    int ret=snprintf(scalename,50,"#delta #bar{x}   length =%f cm",maxV);
@@ -410,7 +410,7 @@ void MuonGeometryArrange::makeGraph(int sizeI, float smi, float sma,
 	const char* titleg, const char* axis,
 	const float* xp, const float* yp, int size){
 
-  if(minV>=maxV || smi>=sma || sizeI<=1 || xp==nullptr || yp==nullptr) return;
+  if(minV>=maxV || smi>=sma || sizeI<=1 || xp==nullptr || yp==nullptr) { return; }
   	// out of bounds, bail
   float diff=maxV-minV;
   float over=.05*diff;
@@ -512,11 +512,11 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
   if(curAli==nullptr){return;}
  // Is this the Ring we want to align?  If so it will contain the
  // chambers specified in the configuration file	
-  if(!isMother(refAli)) return;	// Not the desired alignable object
+  if(!isMother(refAli)) { return;	// Not the desired alignable object }
  // But... There are granddaughters involved--and I don't want to monkey with
  // the layers of the chambers.  So, if the mother of this is also an approved
  // mother, bail.
-  if(isMother(refAli->mother() )) return;
+  if(isMother(refAli->mother() )) { return; }
   const auto& refComp = refAli->components();
   const auto& curComp = curCopy->components();
   if(refComp.size()!=curComp.size()){
@@ -551,10 +551,10 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
   for(int ich=0; ich<nComp; ich++){
     useIt=true;
     if(_weightById){
-      if(!align::readModuleList(curComp[ich]->id(), curComp[ich]->id(), _weightByIdVector))
-         useIt=false;
+      if(!align::readModuleList(curComp[ich]->id(), curComp[ich]->id(), _weightByIdVector)) {
+         useIt=false; }
     }
-    if(!useIt) continue;
+    if(!useIt) { continue; }
     align::GlobalVectors curVs;
     align::createPoints(&curVs, refComp[ich], 
       _weightBy, _weightById, _weightByIdVector);
@@ -574,10 +574,10 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
    for(int ich=0; ich<nComp; ich++){
     useIt=true;
     if(_weightById){
-      if(!align::readModuleList(curComp[ich]->id(), curComp[ich]->id(), _weightByIdVector))
-         useIt=false;
+      if(!align::readModuleList(curComp[ich]->id(), curComp[ich]->id(), _weightByIdVector)) {
+         useIt=false; }
     }
-    if(!useIt)continue;
+    if(!useIt) {continue; }
     align::GlobalVectors curVs;
     align::createPoints(&curVs, curComp[ich], 
       _weightBy, _weightById, _weightByIdVector);
@@ -616,8 +616,8 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
 
   for(int ich=0; ich<nComp; ich++){
     if(_weightById){
-      if(!align::readModuleList(curComp[ich]->id(), curComp[ich]->id(), _weightByIdVector))
-         continue;
+      if(!align::readModuleList(curComp[ich]->id(), curComp[ich]->id(), _weightByIdVector)) {
+         continue; }
     }
       CLHEP::Hep3Vector Rtotal, Wtotal;
       Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
@@ -673,8 +673,8 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
      CLHEP::Hep3Vector Rtotal, Wtotal;
      Rtotal.set(0.,0.,0.); Wtotal.set(0.,0.,0.);
      if(_weightById){
-       if(!align::readModuleList(curComp[ich]->id(), curComp[ich]->id(), _weightByIdVector))
-         continue;
+       if(!align::readModuleList(curComp[ich]->id(), curComp[ich]->id(), _weightByIdVector)) {
+         continue; }
      }
     
      for (int i = 0; i < 100; i++){
@@ -741,8 +741,8 @@ void MuonGeometryArrange::fillTree(Alignable *refAli, const AlgebraicVector& dif
 	align::EulerAngles eulerAngles = align::toAngles(rot);
 	_rotxVal = atan2(rot.yz(), rot.zz());
 	float ttt=-rot.xz();
-	if(ttt>1.) ttt=1.;
-	if(ttt<-1.) ttt=-1.;
+	if(ttt>1.) { ttt=1.; }
+	if(ttt<-1.) { ttt=-1.; }
 	_rotyVal = asin(ttt);
 	_rotzVal = atan2(rot.xy(), rot.xx());
 	_alphaVal = eulerAngles[0];
@@ -794,18 +794,18 @@ void MuonGeometryArrange::fillTree(Alignable *refAli, const AlgebraicVector& dif
 	protx = atan2(prot.yz(), prot.zz());
 	_drotxVal = protx;//_rotxVal-protx; //atan2(drot.yz(), drot.zz());
 	ttt=-prot.xz();
-	if(ttt>1.) ttt=1.;
-	if(ttt<-1.) ttt=-1.;
+	if(ttt>1.) { ttt=1.; }
+	if(ttt<-1.) { ttt=-1.; }
 	_drotyVal = asin(ttt);// -_rotyVal;
 	_drotzVal = atan2(prot.xy(), prot.xx());// - _rotzVal;
 // Above does not account for 2Pi wraparounds!
 // Prior knowledge:  these are supposed to be small rotations.  Therefore:
-	if(_drotxVal>3.141592656) _drotxVal=-6.2831853072+_drotxVal;
-	if(_drotxVal<-3.141592656) _drotxVal=6.2831853072+_drotxVal;
-	if(_drotyVal>3.141592656) _drotyVal=-6.2831853072+_drotyVal;
-	if(_drotyVal<-3.141592656) _drotyVal=6.2831853072+_drotyVal;
-	if(_drotzVal>3.141592656) _drotzVal=-6.2831853072+_drotzVal;
-	if(_drotzVal<-3.141592656) _drotzVal=6.2831853072+_drotzVal;
+	if(_drotxVal>3.141592656) { _drotxVal=-6.2831853072+_drotxVal; }
+	if(_drotxVal<-3.141592656) { _drotxVal=6.2831853072+_drotxVal; }
+	if(_drotyVal>3.141592656) { _drotyVal=-6.2831853072+_drotyVal; }
+	if(_drotyVal<-3.141592656) { _drotyVal=6.2831853072+_drotyVal; }
+	if(_drotzVal>3.141592656) { _drotzVal=-6.2831853072+_drotzVal; }
+	if(_drotzVal<-3.141592656) { _drotzVal=6.2831853072+_drotzVal; }
 	
 	_ldxVal=-999.; _ldyVal=-999.; _ldxVal=-999.; 
 	_ldrVal=-999.; _ldphiVal=-999; // set fake
@@ -835,7 +835,7 @@ void MuonGeometryArrange::fillTree(Alignable *refAli, const AlgebraicVector& dif
 	   else if (refAli->mother()->alignableObjectId() == 
 	                               align::AlignableDet) {_detDim = 2;}
 	}
-	else _detDim = 0;
+	else { _detDim = 0; }
 	
 	
 	
@@ -876,14 +876,14 @@ void MuonGeometryArrange::fillTree(Alignable *refAli, const AlgebraicVector& dif
 //////////////////////////////////////////////////
 bool MuonGeometryArrange::isMother(Alignable* ali){
   // Is this the mother ring?
- if(ali==nullptr) return false;	// elementary sanity
+ if(ali==nullptr) { return false;	// elementary sanity }
  const auto& aliComp = ali->components();
 
  int size=aliComp.size();
- if(size<=0) return false;	// no subcomponents
+ if(size<=0) { return false;	// no subcomponents }
  
  for(int i=0; i<size; i++){
-   if(checkChosen(aliComp[i])) return true;	// A ring has CSC chambers
+   if(checkChosen(aliComp[i])) { return true;	// A ring has CSC chambers }
  }					// as subcomponents
  return false;		// 1'st layer of subcomponents weren't CSC chambers
 } 
@@ -891,10 +891,10 @@ bool MuonGeometryArrange::isMother(Alignable* ali){
 
 bool MuonGeometryArrange::checkChosen(Alignable* ali){
  // Check whether the item passed satisfies the criteria given.
-  if(ali==nullptr) return false;	// elementary sanity
+  if(ali==nullptr) { return false;	// elementary sanity }
  // Is this in the CSC section?  If not, bail.  Later may extend.
   if(ali->geomDetId().det()!=DetId::Muon ||
-     ali->geomDetId().subdetId()!=MuonSubdetId::CSC) return false;
+     ali->geomDetId().subdetId()!=MuonSubdetId::CSC) { return false; }
  // If it is a CSC alignable, then check that the station, etc are
  // those requested.
  // One might think of aligning more than a single ring at a time,
@@ -928,16 +928,16 @@ bool MuonGeometryArrange::passChosen( Alignable* ali ){
  // The fact that it has layers as sub components, or the fact that it is
  // the first item with a non-zero ID breakdown?  Pick the latter.
  //
- if(ali==nullptr) return false;
- if(checkChosen(ali)) return true;	// If this is one of the desired
+ if(ali==nullptr) { return false; }
+ if(checkChosen(ali)) { return true;	// If this is one of the desired }
  					// CSC chambers, accept it
  const auto& aliComp = ali->components();
 
  int size=aliComp.size();
- if(size<=0) return false;	// no subcomponents
+ if(size<=0) { return false;	// no subcomponents }
  
  for(int i=0; i<size; i++){
-   if(checkChosen(aliComp[i])) return true;	// A ring has CSC chambers
+   if(checkChosen(aliComp[i])) { return true;	// A ring has CSC chambers }
  }					// as subcomponents
  return false;		// 1'st layer of subcomponents weren't CSC chambers
 }
@@ -953,7 +953,7 @@ bool MuonGeometryArrange::passIdCut( uint32_t id ){
 	int nEntries = _detIdFlagVector.size();
 	
 	for (int i = 0; i < nEntries; i++){
-		if (_detIdFlagVector[i] == id) pass = true;
+		if (_detIdFlagVector[i] == id) { pass = true; }
 	}
 	
 	return pass;

@@ -303,8 +303,8 @@ CosmicSplitterValidation::CosmicSplitterValidation(const edm::ParameterSet& iCon
                 splitGlobalMuonsToken_ = iC.consumes<reco::MuonCollection>(splitGlobalMuons_);
                 originalGlobalMuonsToken_ = iC.consumes<reco::MuonCollection>(originalGlobalMuons_);
         }
-        if (checkIfGolden_)
-                STAMuonsToken_ = iC.consumes<reco::MuonCollection>(edm::InputTag("STAMuons"));
+        if (checkIfGolden_) {
+                STAMuonsToken_ = iC.consumes<reco::MuonCollection>(edm::InputTag("STAMuons")); }
 }
 
 
@@ -322,7 +322,7 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 
         // check if golden muon
         bool isGolden = true;
-        if (checkIfGolden_) isGolden = is_gold_muon( iEvent );
+        if (checkIfGolden_) { isGolden = is_gold_muon( iEvent ); }
 
         // grab collections
         edm::Handle<std::vector<reco::Track>> tracks;
@@ -341,8 +341,8 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 
 
         totalTracksToAnalyzer_ = totalTracksToAnalyzer_ + tracks->size();
-        if (isGolden) goldenCtr++;
-        if (tracks->size() == 2) twoTracksCtr++;
+        if (isGolden) { goldenCtr++; }
+        if (tracks->size() == 2) { twoTracksCtr++; }
         if (tracks->size() == 2 && originalTracks->size() == 1 && isGolden){
                 goldenPlusTwoTracksCtr++;
 
@@ -920,7 +920,7 @@ bool CosmicSplitterValidation::is_gold_muon(const edm::Event& e){
         e.getByToken(STAMuonsToken_, muHandle);
         const reco::MuonCollection & muons = *(muHandle.product());
         // make sure there are 2 muons
-        if ( 2 != muons.size() ) return false;
+        if ( 2 != muons.size() ) { return false; }
 
         double mudd0=0., mudphi=0., muddsz=0., mudeta=0.;
         for ( unsigned int bindex = 0; bindex < muons.size(); ++bindex ) {
@@ -942,7 +942,7 @@ bool CosmicSplitterValidation::is_gold_muon(const edm::Event& e){
                         mudeta-=mymuon.eta();
                 }
         }
-        if ((fabs(mudd0)<15.0)&&(fabs(mudphi)<0.045)&&(fabs(muddsz)<20.0)&&(fabs(mudeta)<0.060)) return true;
+        if ((fabs(mudd0)<15.0)&&(fabs(mudphi)<0.045)&&(fabs(muddsz)<20.0)&&(fabs(mudeta)<0.060)) { return true; }
         return false;
 }
 

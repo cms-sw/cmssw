@@ -48,7 +48,7 @@ AlignmentCSCBeamHaloSelector::select(const Tracks &tracks, const edm::Event &iEv
 
       unsigned int stations = 0;
       for (std::map<int, unsigned int>::const_iterator station_iter = station_map.begin();  station_iter != station_map.end();  ++station_iter) {
-	 if (station_iter->second > m_minHitsPerStation) stations++;
+	 if (station_iter->second > m_minHitsPerStation) { stations++; }
       }
       if (stations >= m_minStations) {
 	 result.push_back(*track);

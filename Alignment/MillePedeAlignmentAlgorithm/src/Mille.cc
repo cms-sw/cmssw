@@ -47,9 +47,9 @@ void Mille::mille(int NLC, const float *derLc,
                   int NGL, const float *derGl, const int *label,
                   float rMeas, float sigma)
 {
-  if (sigma <= 0.) return;
-  if (bufferPos_ == -1) this->newSet(); // start, e.g. new track
-  if (!this->checkBufferSize(NLC, NGL)) return;
+  if (sigma <= 0.) { return; }
+  if (bufferPos_ == -1) { this->newSet(); // start, e.g. new track }
+  if (!this->checkBufferSize(NLC, NGL)) { return; }
 
   // first store measurement
   ++bufferPos_;
@@ -89,14 +89,14 @@ void Mille::mille(int NLC, const float *derLc,
 //___________________________________________________________________________
 void Mille::special(int nSpecial, const float *floatings, const int *integers)
 {
-  if (nSpecial == 0) return;
-  if (bufferPos_ == -1) this->newSet(); // start, e.g. new track
+  if (nSpecial == 0) { return; }
+  if (bufferPos_ == -1) { this->newSet(); // start, e.g. new track }
   if (hasSpecial_) {
     edm::LogError("Alignment")
       << "Mille::special: Special values already stored for this record.";
     return;
   }
-  if (!this->checkBufferSize(nSpecial, 0)) return;
+  if (!this->checkBufferSize(nSpecial, 0)) { return; }
   hasSpecial_ = true; // after newSet() (Note: MILLSP sets to buffer position...)
 
   //  bufferFloat_[.]   | bufferInt_[.]

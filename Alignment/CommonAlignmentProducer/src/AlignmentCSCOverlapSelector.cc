@@ -61,65 +61,65 @@ AlignmentCSCOverlapSelector::select(const Tracks &tracks, const edm::Event &iEve
 	    int station = (cscid.endcap() == 1 ? 1 : -1) * cscid.station();
 
 	    if (station == -4) {
-	       if (cscid.chamber() % 2 == 0) MEminus4_even++;
-	       else MEminus4_odd++;
+	       if (cscid.chamber() % 2 == 0) { MEminus4_even++;
+	       } else { MEminus4_odd++; }
 	    }
 	    else if (station == -3) {
-	       if (cscid.chamber() % 2 == 0) MEminus3_even++;
-	       else MEminus3_odd++;
+	       if (cscid.chamber() % 2 == 0) { MEminus3_even++;
+	       } else { MEminus3_odd++; }
 	    }
 	    else if (station == -2) {
-	       if (cscid.chamber() % 2 == 0) MEminus2_even++;
-	       else MEminus2_odd++;
+	       if (cscid.chamber() % 2 == 0) { MEminus2_even++;
+	       } else { MEminus2_odd++; }
 	    }
 	    else if (station == -1) {
-	       if (cscid.chamber() % 2 == 0) MEminus1_even++;
-	       else MEminus1_odd++;
+	       if (cscid.chamber() % 2 == 0) { MEminus1_even++;
+	       } else { MEminus1_odd++; }
 	    }
 
 	    else if (station == 1) {
-	       if (cscid.chamber() % 2 == 0) MEplus1_even++;
-	       else MEplus1_odd++;
+	       if (cscid.chamber() % 2 == 0) { MEplus1_even++;
+	       } else { MEplus1_odd++; }
 	    }
 	    else if (station == 2) {
-	       if (cscid.chamber() % 2 == 0) MEplus2_even++;
-	       else MEplus2_odd++;
+	       if (cscid.chamber() % 2 == 0) { MEplus2_even++;
+	       } else { MEplus2_odd++; }
 	    }
 	    else if (station == 3) {
-	       if (cscid.chamber() % 2 == 0) MEplus3_even++;
-	       else MEplus3_odd++;
+	       if (cscid.chamber() % 2 == 0) { MEplus3_even++;
+	       } else { MEplus3_odd++; }
 	    }
 	    else if (station == 4) {
-	       if (cscid.chamber() % 2 == 0) MEplus4_even++;
-	       else MEplus4_odd++;
+	       if (cscid.chamber() % 2 == 0) { MEplus4_even++;
+	       } else { MEplus4_odd++; }
 	    }
 
 	 } // end if it's a CSC hit
       } // end loop over hits
 
       if ((m_station == 0  ||  m_station == -4)  &&
-	  (MEminus4_even >= m_minHitsPerChamber)  &&  (MEminus4_odd >= m_minHitsPerChamber)) result.push_back(*track);
+	  (MEminus4_even >= m_minHitsPerChamber)  &&  (MEminus4_odd >= m_minHitsPerChamber)) { result.push_back(*track);
 
-      else if ((m_station == 0  ||  m_station == -3)  &&
-	       (MEminus3_even >= m_minHitsPerChamber)  &&  (MEminus3_odd >= m_minHitsPerChamber)) result.push_back(*track);
+      } else if ((m_station == 0  ||  m_station == -3)  &&
+	       (MEminus3_even >= m_minHitsPerChamber)  &&  (MEminus3_odd >= m_minHitsPerChamber)) { result.push_back(*track);
 
-      else if ((m_station == 0  ||  m_station == -2)  &&
-	       (MEminus2_even >= m_minHitsPerChamber)  &&  (MEminus2_odd >= m_minHitsPerChamber)) result.push_back(*track);
+      } else if ((m_station == 0  ||  m_station == -2)  &&
+	       (MEminus2_even >= m_minHitsPerChamber)  &&  (MEminus2_odd >= m_minHitsPerChamber)) { result.push_back(*track);
 
-      else if ((m_station == 0  ||  m_station == -1)  &&
-	       (MEminus1_even >= m_minHitsPerChamber)  &&  (MEminus1_odd >= m_minHitsPerChamber)) result.push_back(*track);
+      } else if ((m_station == 0  ||  m_station == -1)  &&
+	       (MEminus1_even >= m_minHitsPerChamber)  &&  (MEminus1_odd >= m_minHitsPerChamber)) { result.push_back(*track);
 
-      else if ((m_station == 0  ||  m_station == 1)  &&
-	       (MEplus1_even >= m_minHitsPerChamber)  &&  (MEplus1_odd >= m_minHitsPerChamber)) result.push_back(*track);
+      } else if ((m_station == 0  ||  m_station == 1)  &&
+	       (MEplus1_even >= m_minHitsPerChamber)  &&  (MEplus1_odd >= m_minHitsPerChamber)) { result.push_back(*track);
 
-      else if ((m_station == 0  ||  m_station == 2)  &&
-	       (MEplus2_even >= m_minHitsPerChamber)  &&  (MEplus2_odd >= m_minHitsPerChamber)) result.push_back(*track);
+      } else if ((m_station == 0  ||  m_station == 2)  &&
+	       (MEplus2_even >= m_minHitsPerChamber)  &&  (MEplus2_odd >= m_minHitsPerChamber)) { result.push_back(*track);
 
-      else if ((m_station == 0  ||  m_station == 3)  &&
-	       (MEplus3_even >= m_minHitsPerChamber)  &&  (MEplus3_odd >= m_minHitsPerChamber)) result.push_back(*track);
+      } else if ((m_station == 0  ||  m_station == 3)  &&
+	       (MEplus3_even >= m_minHitsPerChamber)  &&  (MEplus3_odd >= m_minHitsPerChamber)) { result.push_back(*track);
 
-      else if ((m_station == 0  ||  m_station == 4)  &&
-	       (MEplus4_even >= m_minHitsPerChamber)  &&  (MEplus4_odd >= m_minHitsPerChamber)) result.push_back(*track);
+      } else if ((m_station == 0  ||  m_station == 4)  &&
+	       (MEplus4_even >= m_minHitsPerChamber)  &&  (MEplus4_odd >= m_minHitsPerChamber)) { result.push_back(*track); }
 
    } // end loop over tracks
   

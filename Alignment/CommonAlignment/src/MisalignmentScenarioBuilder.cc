@@ -50,10 +50,10 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet &pSet
   // 'numerically', remove this comment and the lines marked with 'HACK'.
   const AlignablesMap::iterator itTec = alisMap.find("TECEndcap"); // HACK
   for (AlignablesMap::iterator it = alisMap.begin(); it != alisMap.end(); ++it) {
-    if (it == itTec) continue; // HACK
+    if (it == itTec) { continue; // HACK }
     this->decodeMovements_(pSet, it->second, it->first);
   }
-  if (itTec != alisMap.end()) this->decodeMovements_(pSet, itTec->second, itTec->first); // HACK
+  if (itTec != alisMap.end()) { this->decodeMovements_(pSet, itTec->second, itTec->first); // HACK }
 }
 
 
@@ -108,9 +108,9 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet &pSet
     // Apply movements to components
     std::vector<std::string> parameterSetNames;
     localParameters.getParameterSetNames( parameterSetNames, true );
-    if ( (*iter)->size() > 0 && !parameterSetNames.empty() )
+    if ( (*iter)->size() > 0 && !parameterSetNames.empty() ) {
       // Has components and remaining parameter sets
-      this->decodeMovements_( localParameters, (*iter)->components() );
+      this->decodeMovements_( localParameters, (*iter)->components() ); }
   }
 
   indent_ = indent_.substr( 0, indent_.length()-1 );
@@ -247,7 +247,7 @@ edm::ParameterSet MisalignmentScenarioBuilder::getParameterSet_( const std::stri
   // Get list of parameter set names and look for requested one
   std::vector<std::string> pNames = pSet.getParameterNames();
   for (std::vector<std::string>::iterator iter = pNames.begin(); iter != pNames.end(); ++iter) {
-    if (iter->find(levelName) != 0) continue; // parameter not starting with levelName
+    if (iter->find(levelName) != 0) { continue; // parameter not starting with levelName }
 
     const std::string numberString(*iter, levelName.size());
     //    if (numberString.empty() || numberString == "s") { // "s" only left means we have e.g. 'TOBs' 
@@ -262,7 +262,7 @@ edm::ParameterSet MisalignmentScenarioBuilder::getParameterSet_( const std::stri
 
       bool isDigit = !digit.empty();
       for (std::string::const_iterator dIt = digit.begin(); dIt != digit.end(); ++dIt) {
-        if (!isdigit(*dIt)) isDigit = false; // check all 'letters' to be a digit
+        if (!isdigit(*dIt)) { isDigit = false; // check all 'letters' to be a digit }
       }
       if (!isDigit) {
         if (lastPos != 0) { // do not throw if e.g. after 'TOB' ('Det') you find only 's' (Unit<n>)
@@ -354,9 +354,9 @@ bool MisalignmentScenarioBuilder::isTopLevel_( const std::string& parameterSetNa
   std::string root = this->rootName_( parameterSetName );
 
   // tracker stuff treated in overwriting TrackerScenarioBuilder::isTopLevel_(..) 
-  if ( root == "DTSector" ) return true;
-  else if ( root == "CSCSector" ) return true;
-  else if ( root == "Muon" ) return true;
+  if ( root == "DTSector" ) { return true;
+  } else if ( root == "CSCSector" ) { return true;
+  } else if ( root == "Muon" ) { return true; }
 
   return false;
 

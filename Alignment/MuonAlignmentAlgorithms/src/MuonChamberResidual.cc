@@ -89,7 +89,7 @@ int MuonChamberResidual::hitlayer(int i) const
     CSCDetId layerId(m_localIDs[i].rawId());
     return layerId.layer();
   }
-  else assert(false);
+  else { assert(false); }
 }
 
 
@@ -103,5 +103,5 @@ double MuonChamberResidual::hitposition(int i) const
   else if (m_chamberId.subdetId() == MuonSubdetId::CSC) {
     return m_globalGeometry->idToDet(m_localIDs[i])->position().z();  // Z for CSCs
   }
-  else assert(false);
+  else { assert(false); }
 }

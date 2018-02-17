@@ -71,7 +71,7 @@ int AlignableDataIORoot::findEntry(align::ID id, align::StructureType comp)
   // now we have filled the map
   treemaptype::iterator imap = treemap.find( std::make_pair(id,comp) );
   int result=-1;
-  if (imap != treemap.end()) result=(*imap).second;
+  if (imap != treemap.end()) { result=(*imap).second; }
   return result;
 
 }
@@ -145,7 +145,7 @@ AlignableAbsData AlignableDataIORoot::readAbsRaw(Alignable* ali,int& ierr)
 
     ierr=0;
   }
-  else ierr=-1;
+  else { ierr=-1; }
 
   return AlignableAbsData(pos,rot,id,typeId,deformPars);
 }
@@ -176,7 +176,7 @@ AlignableRelData AlignableDataIORoot::readRelRaw(Alignable* ali,int& ierr)
 
     ierr=0;
   }
-  else ierr=-1;
+  else { ierr=-1; }
 
   return AlignableRelData(pos,rot,id,typeId,deformPars);
 }

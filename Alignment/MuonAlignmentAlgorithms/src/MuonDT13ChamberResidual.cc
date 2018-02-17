@@ -84,5 +84,5 @@ void MuonDT13ChamberResidual::addResidual(edm::ESHandle<Propagator> prop, const 
     m_individual_y.push_back(residual);
     m_individual_weight.push_back(weight);
 
-    if (m_numHits>1) segment_fit();
+    if (m_numHits>1) { segment_fit(); }
 }

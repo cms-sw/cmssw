@@ -110,7 +110,7 @@ void AlignmentMonitorTemplate::event(const edm::Event &iEvent, const edm::EventS
 	    // while our histograms may be associated with higher-level Alignables.
 	    Alignable *alignable = pNavigator()->alignableFromDetId(id);
 	    std::map<Alignable*, TH1F*>::const_iterator search = m_residuals.find(alignable);
-	    while (search == m_residuals.end()  &&  (alignable = alignable->mother())) search = m_residuals.find(alignable);
+	    while (search == m_residuals.end()  &&  (alignable = alignable->mother())) { search = m_residuals.find(alignable); }
 
 	    if (search != m_residuals.end()) {
 	       search->second->Fill(tsosc.localPosition().x() - hit->localPosition().x());

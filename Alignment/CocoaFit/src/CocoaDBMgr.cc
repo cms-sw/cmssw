@@ -92,7 +92,7 @@ bool CocoaDBMgr::DumpCocoaResults()
 	  std::cout<<"Funny error"<<std::endl;
 	  } */
     
-    if(ALIUtils::debug >= 2) std::cout << "OpticalAlignmentsRcd WRITTEN TO DB : "<< nrcd << std::endl;
+    if(ALIUtils::debug >= 2) { std::cout << "OpticalAlignmentsRcd WRITTEN TO DB : "<< nrcd << std::endl; }
   }
 
   if( gomgr->GlobalOptions()["writeDBAlign"] > 0) {
@@ -115,7 +115,7 @@ bool CocoaDBMgr::DumpCocoaResults()
 					       //					       myDbService->currentTime(),
 					       "DTAlignmentRcd");
     }
-    if(ALIUtils::debug >= 2) std::cout << "DTAlignmentRcd WRITTEN TO DB : "<< nrcd << std::endl;
+    if(ALIUtils::debug >= 2) { std::cout << "DTAlignmentRcd WRITTEN TO DB : "<< nrcd << std::endl; }
     
     nrcd = dt_AlignmentErrors->m_alignError.size();
     if ( myDbService->isNewTagRequest( "DTAlignmentErrorExtendedRcd" ) ) {
@@ -128,7 +128,7 @@ bool CocoaDBMgr::DumpCocoaResults()
 						       appendTime,
 						    "DTAlignmentErrorExtendedRcd");
     }
-    if(ALIUtils::debug >= 2) std::cout << "DTAlignmentErrorExtendedRcd WRITTEN TO DB : "<< nrcd << std::endl;
+    if(ALIUtils::debug >= 2) { std::cout << "DTAlignmentErrorExtendedRcd WRITTEN TO DB : "<< nrcd << std::endl; }
     
     // Build CSC alignments and errors
     std::pair< Alignments*,AlignmentErrorsExtended*> cscali = BuildAlignments(false);
@@ -147,7 +147,7 @@ bool CocoaDBMgr::DumpCocoaResults()
 						       appendTime,
 					       "CSCAlignmentRcd");
     }
-    if(ALIUtils::debug >= 2) std::cout << "CSCAlignmentRcd WRITTEN TO DB : "<< nrcd << std::endl;
+    if(ALIUtils::debug >= 2) { std::cout << "CSCAlignmentRcd WRITTEN TO DB : "<< nrcd << std::endl; }
     
     nrcd = csc_AlignmentErrors->m_alignError.size();
     if ( myDbService->isNewTagRequest( "CSCAlignmentErrorExtendedRcd" ) ) {
@@ -160,7 +160,7 @@ bool CocoaDBMgr::DumpCocoaResults()
 						       appendTime,
 						    "CSCAlignmentErrorExtendedRcd");
     }
-    if(ALIUtils::debug >= 2) std::cout << "CSCAlignmentErrorExtendedRcd WRITTEN TO DB : "<< nrcd << std::endl;
+    if(ALIUtils::debug >= 2) { std::cout << "CSCAlignmentErrorExtendedRcd WRITTEN TO DB : "<< nrcd << std::endl; }
     
     //? gives unreadable error???  std::cout << "@@@@ OPTICALALIGNMENTS WRITTEN TO DB " << *optalign << std::endl;
     
@@ -250,7 +250,7 @@ double CocoaDBMgr::GetEntryError( const Entry* entry )
 //-----------------------------------------------------------------------
 double CocoaDBMgr::GetEntryError( const Entry* entry1, const Entry* entry2 )
 {
-  if( entry1 == entry2 ) return GetEntryError( entry1 );
+  if( entry1 == entry2 ) { return GetEntryError( entry1 ); }
 
   if( entry1->quality() > 0 && entry2->quality() > 0 ) {
     return sqrt(Fit::GetAtWAMatrix()->Mat()->me[entry1->fitPos()][entry2->fitPos()]);
@@ -268,7 +268,7 @@ OpticalAlignments* CocoaDBMgr::BuildOpticalAlignments()
   static std::vector< OpticalObject* > optolist = Model::OptOList();
   static std::vector< OpticalObject* >::const_iterator ite;
   for(ite = optolist.begin(); ite != optolist.end(); ++ite ){
-    if( (*ite)->type() == "system" ) continue;    
+    if( (*ite)->type() == "system" ) { continue;     }
     OpticalAlignInfo data = GetOptAlignInfoFromOptO( *ite );
     optalign->opticalAlignments_.push_back(data);
     if(ALIUtils::debug >= 5) {
@@ -291,7 +291,7 @@ std::pair< Alignments*,AlignmentErrorsExtended*> CocoaDBMgr::BuildAlignments(boo
   static std::vector< OpticalObject* > optolist = Model::OptOList();
   static std::vector< OpticalObject* >::const_iterator ite;
   for(ite = optolist.begin(); ite != optolist.end(); ++ite ){
-    if( (*ite)->type() == "system" ) continue; 
+    if( (*ite)->type() == "system" ) { continue;  }
       std::cout << "CocoaDBMgr::BuildAlignments getCmsswID " << (*ite) << std::endl;
       std::cout << "CocoaDBMgr::BuildAlignments getCmsswID " << (*ite)->getCmsswID()  << std::endl;
     //check CMSSW ID
@@ -306,7 +306,7 @@ std::pair< Alignments*,AlignmentErrorsExtended*> CocoaDBMgr::BuildAlignments(boo
     }
   }
 
-  if(ALIUtils::debug >= 4) std::cout << "CocoaDBMgr::BuildAlignments end with n alignment " << alignments->m_align.size() << " n alignmentError " << alignmentErrors->m_alignError.size() << std::endl;
+  if(ALIUtils::debug >= 4) { std::cout << "CocoaDBMgr::BuildAlignments end with n alignment " << alignments->m_align.size() << " n alignmentError " << alignmentErrors->m_alignError.size() << std::endl; }
   return std::pair< Alignments*,AlignmentErrorsExtended*>(alignments,alignmentErrors);
 }
 
@@ -314,7 +314,7 @@ std::pair< Alignments*,AlignmentErrorsExtended*> CocoaDBMgr::BuildAlignments(boo
 //-----------------------------------------------------------------------
 AlignTransform* CocoaDBMgr::GetAlignInfoFromOptO( OpticalObject* opto )
 {
-  if(ALIUtils::debug >= 3) std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptO " << opto->name() << std::endl;
+  if(ALIUtils::debug >= 3) { std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptO " << opto->name() << std::endl; }
 
   const AlignTransform::Translation& trans = opto->centreGlob();
   const AlignTransform::Rotation& rot = opto->rmGlob();
@@ -332,7 +332,7 @@ AlignTransform* CocoaDBMgr::GetAlignInfoFromOptO( OpticalObject* opto )
 //-----------------------------------------------------------------------
 AlignTransformErrorExtended* CocoaDBMgr::GetAlignInfoErrorFromOptO( OpticalObject* opto )
 {
-  if(ALIUtils::debug >= 3) std::cout << "@@@ CocoaDBMgr::GetAlignInfoErrorFromOptO " << opto->name() << std::endl;
+  if(ALIUtils::debug >= 3) { std::cout << "@@@ CocoaDBMgr::GetAlignInfoErrorFromOptO " << opto->name() << std::endl; }
 
   align::ID cmsswID = opto->getCmsswID();
 

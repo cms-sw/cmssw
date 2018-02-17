@@ -16,8 +16,8 @@ namespace gs {
           nameCat_(name ? std::string(name) : std::string(""),
                    categ ? std::string(categ) : std::string(""))
     {
-        if (classId_.name().empty()) throw gs::IOInvalidArgument(
-            "In ItemDescriptor constructor: invalid class id");
+        if (classId_.name().empty()) { throw gs::IOInvalidArgument(
+            "In ItemDescriptor constructor: invalid class id"); }
     }
 
     bool ItemDescriptor::isSameClassIdandIO(const ItemDescriptor& r) const

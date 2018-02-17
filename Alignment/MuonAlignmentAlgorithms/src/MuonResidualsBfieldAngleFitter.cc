@@ -56,7 +56,7 @@ bool MuonResidualsBfieldAngleFitter::fit(Alignable *ali) {
     }
   }
 
-  if (N < m_minHits) return false;
+  if (N < m_minHits) { return false; }
 
   // truncated mean and stdev to seed the fit
   double mean = sum_x/double(N);

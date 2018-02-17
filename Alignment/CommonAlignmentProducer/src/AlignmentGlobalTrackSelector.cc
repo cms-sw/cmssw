@@ -31,8 +31,8 @@ AlignmentGlobalTrackSelector::AlignmentGlobalTrackSelector(const edm::ParameterS
   theIsoFilterSwitch(cfg.getParameter<bool>("applyIsolationtest")),
   theJetCountFilterSwitch(cfg.getParameter<bool>("applyJetCountFilter"))
 {
-  if (theGMFilterSwitch || theIsoFilterSwitch || theJetCountFilterSwitch)
-    LogDebug("Alignment") << "> applying global Trackfilter ...";
+  if (theGMFilterSwitch || theIsoFilterSwitch || theJetCountFilterSwitch) {
+    LogDebug("Alignment") << "> applying global Trackfilter ..."; }
 
   if (theGMFilterSwitch) {
     edm::InputTag theMuonSource = cfg.getParameter<InputTag>("muonSource");
@@ -86,9 +86,9 @@ AlignmentGlobalTrackSelector::select(const Tracks& tracks, const edm::Event& iEv
 {
   Tracks result = tracks;
 
-  if (theGMFilterSwitch) result = findMuons(result, iEvent);
-  if (theIsoFilterSwitch) result = checkIsolation(result, iEvent);
-  if (theJetCountFilterSwitch) result = checkJetCount(result, iEvent);
+  if (theGMFilterSwitch) { result = findMuons(result, iEvent); }
+  if (theIsoFilterSwitch) { result = checkIsolation(result, iEvent); }
+  if (theJetCountFilterSwitch) { result = checkJetCount(result, iEvent); }
   LogDebug("Alignment") << ">  Global: tracks all, kept: " << tracks.size() << ", " << result.size();
 //  LogDebug("Alignment")<<">  o kept:";
 //  printTracks(result);
@@ -126,7 +126,7 @@ AlignmentGlobalTrackSelector::findMuons(const Tracks& tracks, const edm::Event& 
 
   result = this->matchTracks(tracks, globalMuons);
   
-  if (static_cast<int>(result.size()) < theMinGlobalMuonCount) result.clear();
+  if (static_cast<int>(result.size()) < theMinGlobalMuonCount) { result.clear(); }
 
   return result;
 }
@@ -147,19 +147,19 @@ AlignmentGlobalTrackSelector::checkIsolation(const Tracks& cands,const edm::Even
       bool isolated = true;
       for (reco::CaloJetCollection::const_iterator itJet = jets->begin();
 	   itJet!=jets->end();
-	   ++itJet) 
-	isolated &= !((*itJet).pt() > theMaxJetPt && deltaR(*(*it),(*itJet)) < theMinJetDeltaR);
+	   ++itJet) { 
+	isolated &= !((*itJet).pt() > theMaxJetPt && deltaR(*(*it),(*itJet)) < theMinJetDeltaR); }
       
-      if (isolated)
-	result.push_back(*it);
+      if (isolated) {
+	result.push_back(*it); }
     }
     //    LogDebug("Alignment") << "D  Found "<<result.size()<<" isolated of "<< cands.size()<<" Tracks!";   
     
-  } else
+  } else {
     LogError("Alignment")<< "@SUB=AlignmentGlobalTrackSelector::checkIsolation"
-			 << "> could not optain jetCollection!";
+			 << "> could not optain jetCollection!"; }
 
-  if (static_cast<int>(result.size()) < theMinIsolatedCount) result.clear();
+  if (static_cast<int>(result.size()) < theMinIsolatedCount) { result.clear(); }
 
   return result;
 }
@@ -178,17 +178,17 @@ AlignmentGlobalTrackSelector::checkJetCount(const Tracks& tracks, const edm::Eve
     for (reco::CaloJetCollection::const_iterator itJet = jets->begin();
 	 itJet!=jets->end();
 	 ++itJet) {
-      if ((*itJet).pt() > theMinJetPt)
-	jetCount++;
+      if ((*itJet).pt() > theMinJetPt) {
+	jetCount++; }
     }
 
-    if (jetCount <= theMaxJetCount)
-      result = tracks;
+    if (jetCount <= theMaxJetCount) {
+      result = tracks; }
 
     LogDebug("Alignment") << "> found " << jetCount << " Jets";
-  } else
+  } else {
     LogError("Alignment") << "@SUB=AlignmentGlobalTrackSelector::checkJetCount"
-			  << ">  could not optain jetCollection!";
+			  << ">  could not optain jetCollection!"; }
 
   return result;
 }
@@ -212,8 +212,8 @@ AlignmentGlobalTrackSelector::matchTracks(const Tracks& src, const Tracks& comp)
 	match = static_cast<int>(i);
       }
     }
-    if (match > -1)
-      result.push_back(src.at(match)); 
+    if (match > -1) {
+      result.push_back(src.at(match));  }
   }
   return result;
 }

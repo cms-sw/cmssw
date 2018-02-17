@@ -393,7 +393,7 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 	  
 	  // typedef edm::Ref<TrackingParticleCollection> TrackingParticleRef;
 	  TrackingParticleRef tp(TPCollectionHeff, i);
-	  if (tp->charge()==0) continue;
+	  if (tp->charge()==0) { continue; }
 	  st++;
 	  //pt=sqrt(tp->momentum().perp2());
 	  //eta=tp->momentum().eta();
@@ -550,8 +550,8 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 		  recpy[flagrec][countrec]=t->momentum().y();
 		  recpz[flagrec][countrec]=t->momentum().z();
 		  recptmu[flagrec][countrec]=sqrt( (t->momentum().x()*t->momentum().x()) + (t->momentum().y()*t->momentum().y()) );
-		  if (abs(trackType)==13) recene[flagrec][countrec]=sqrt(recp[flagrec][countrec]*recp[flagrec][countrec]+0.105*0.105);
-		  if (abs(trackType)==11) recene[flagrec][countrec]=sqrt(recp[flagrec][countrec]*recp[flagrec][countrec]+0.0005*0.0005);
+		  if (abs(trackType)==13) { recene[flagrec][countrec]=sqrt(recp[flagrec][countrec]*recp[flagrec][countrec]+0.105*0.105); }
+		  if (abs(trackType)==11) { recene[flagrec][countrec]=sqrt(recp[flagrec][countrec]*recp[flagrec][countrec]+0.0005*0.0005); }
 		}
 		
 		std::cout << "7) Transverse momentum reconstructed =" << recpt 

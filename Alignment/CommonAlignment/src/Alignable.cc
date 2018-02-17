@@ -75,7 +75,7 @@ bool Alignable::firstCompsWithParams(Alignables &paramComps) const
   for (const auto& iComp: comps) {
     if (iComp->alignmentParameters()) { // component has parameters itself
       paramComps.push_back(iComp);
-      if (!first && !hasAliComp) isConsistent = false;
+      if (!first && !hasAliComp) { isConsistent = false; }
       hasAliComp = true;
     } else {
       const unsigned int nCompBefore = paramComps.size();
@@ -83,7 +83,7 @@ bool Alignable::firstCompsWithParams(Alignables &paramComps) const
         isConsistent = false; // problem down in hierarchy
       }
       if (paramComps.size() != nCompBefore) {
-        if (!first && !hasAliComp) isConsistent = false;
+        if (!first && !hasAliComp) { isConsistent = false; }
         hasAliComp = true;
       } else if (hasAliComp) { // no components with params, but previous component did have comps.
         isConsistent = false;
@@ -108,14 +108,14 @@ bool Alignable::lastCompsWithParams(Alignables& paramComps) const
     if (paramComps.size() == nCompsBefore) {
       if (iComp->alignmentParameters()) {
 	paramComps.push_back(iComp);
-	if (!first && !hasAliComp) isConsistent = false;
+	if (!first && !hasAliComp) { isConsistent = false; }
 	hasAliComp = true;
       }
     } else {
       if (hasAliComp) {
 	isConsistent = false;
       }
-      if (!first && !hasAliComp) isConsistent = false;
+      if (!first && !hasAliComp) { isConsistent = false; }
       hasAliComp = true;
     }
     first = false;
@@ -296,7 +296,7 @@ void Alignable::cacheTransformation()
   theCachedRotation = theRotation;
 
   // now treat components (a clean design would move that to AlignableComposite...)
-  for (const auto& it: this->components()) it->cacheTransformation();
+  for (const auto& it: this->components()) { it->cacheTransformation(); }
 }
 
 void Alignable::cacheTransformation(const align::RunNumber& run)
@@ -307,7 +307,7 @@ void Alignable::cacheTransformation(const align::RunNumber& run)
   rotationsCache_[run] = theRotation;
 
   // now treat components (a clean design would move that to AlignableComposite...)
-  for (const auto& it: this->components()) it->cacheTransformation(run);
+  for (const auto& it: this->components()) { it->cacheTransformation(run); }
 }
 
 void Alignable::restoreCachedTransformation()
@@ -318,7 +318,7 @@ void Alignable::restoreCachedTransformation()
   theRotation = theCachedRotation;
 
   // now treat components (a clean design would move that to AlignableComposite...)
-  for (const auto& it: this->components()) it->restoreCachedTransformation();
+  for (const auto& it: this->components()) { it->restoreCachedTransformation(); }
 }
 
 void Alignable::restoreCachedTransformation(const align::RunNumber& run)
@@ -335,7 +335,7 @@ void Alignable::restoreCachedTransformation(const align::RunNumber& run)
     theRotation = rotationsCache_[run];
 
     // now treat components (a clean design would move that to AlignableComposite...)
-    for (const auto& it: this->components()) it->restoreCachedTransformation();
+    for (const auto& it: this->components()) { it->restoreCachedTransformation(); }
   }
 }
 
@@ -351,7 +351,7 @@ void Alignable::setSurvey( const SurveyDet* survey )
 //______________________________________________________________________________
 void Alignable::updateMother(const GlobalVector& shift) {
 
-  if (!theMother) return;
+  if (!theMother) { return; }
 
   const auto thisComps = this->deepComponents().size();
   const auto motherComps = theMother->deepComponents().size();

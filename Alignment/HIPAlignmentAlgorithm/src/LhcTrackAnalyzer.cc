@@ -109,10 +109,10 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   for(VertexCollection::const_iterator vtx = vertexCollectionHandle->begin();vtx!=vertexCollectionHandle->end(); ++vtx)
     {
       if(vtx==vertexCollectionHandle->begin()){
-	if(vtx->isFake())goodvtx_=false;
-	else goodvtx_=true;
+	if(vtx->isFake()) {goodvtx_=false;
+	} else { goodvtx_=true; }
       }
-      else break;
+      else { break; }
     }
 
 
@@ -126,8 +126,8 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   run_=iEvent.id().run();
   event_=iEvent.id().event();
  
-  if(debug_)
-    cout<<"LhcTrackAnalyzer::analyze() looping over "<< trackCollectionHandle->size()<< "tracks." << endl;    
+  if(debug_) {
+    cout<<"LhcTrackAnalyzer::analyze() looping over "<< trackCollectionHandle->size()<< "tracks." << endl;     }
   
   // unsigned int i = 0;   
   for(TrackCollection::const_iterator track = trackCollectionHandle->begin(); track!= trackCollectionHandle->end(); ++track)
@@ -160,16 +160,16 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 	  int myalgo=-88;
-	  if(track->algo()==reco::TrackBase::undefAlgorithm)myalgo=0;
-	  if(track->algo()==reco::TrackBase::ctf)myalgo=1;
-	  if(track->algo()==reco::TrackBase::initialStep)myalgo=4;
-	  if(track->algo()==reco::TrackBase::lowPtTripletStep)myalgo=5;
-	  if(track->algo()==reco::TrackBase::pixelPairStep)myalgo=6;
-	  if(track->algo()==reco::TrackBase::detachedTripletStep)myalgo=7;
-	  if(track->algo()==reco::TrackBase::mixedTripletStep)myalgo=8;
-	  if(track->algo()==reco::TrackBase::pixelLessStep)myalgo=9;
-	  if(track->algo()==reco::TrackBase::tobTecStep)myalgo=10;
-	  if(track->algo()==reco::TrackBase::jetCoreRegionalStep)myalgo=11;
+	  if(track->algo()==reco::TrackBase::undefAlgorithm) {myalgo=0; }
+	  if(track->algo()==reco::TrackBase::ctf) {myalgo=1; }
+	  if(track->algo()==reco::TrackBase::initialStep) {myalgo=4; }
+	  if(track->algo()==reco::TrackBase::lowPtTripletStep) {myalgo=5; }
+	  if(track->algo()==reco::TrackBase::pixelPairStep) {myalgo=6; }
+	  if(track->algo()==reco::TrackBase::detachedTripletStep) {myalgo=7; }
+	  if(track->algo()==reco::TrackBase::mixedTripletStep) {myalgo=8; }
+	  if(track->algo()==reco::TrackBase::pixelLessStep) {myalgo=9; }
+	  if(track->algo()==reco::TrackBase::tobTecStep) {myalgo=10; }
+	  if(track->algo()==reco::TrackBase::jetCoreRegionalStep) {myalgo=11; }
     // This class is pending the migration to Phase1 tracks
 	  if(track->algo() == reco::TrackBase::highPtTripletStep ||
 	     track->algo() == reco::TrackBase::lowPtQuadStep ||
@@ -179,17 +179,17 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  trkAlgo_[nTracks_]  = myalgo;
 
 	  int myquality=-99;
-	  if(track->quality(reco::TrackBase::undefQuality))myquality=-1;
-	  if(track->quality(reco::TrackBase::loose))myquality=0;
-	  if(track->quality(reco::TrackBase::tight))myquality=1;
-	  if(track->quality(reco::TrackBase::highPurity))myquality=2;
+	  if(track->quality(reco::TrackBase::undefQuality)) {myquality=-1; }
+	  if(track->quality(reco::TrackBase::loose)) {myquality=0; }
+	  if(track->quality(reco::TrackBase::tight)) {myquality=1; }
+	  if(track->quality(reco::TrackBase::highPurity)) {myquality=2; }
 	  //if(track->quality(reco::TrackBase::confirmed))myquality=3;
 	  // if(track->quality(reco::TrackBase::goodIterative))myquality=4;
 	  // if(track->quality(reco::TrackBase::qualitySize))myquality=5;	  
 	  trkQuality_[nTracks_]= myquality;
 
-	  if(track->quality(reco::TrackBase::highPurity))isHighPurity_[nTracks_]=1;
-	  else isHighPurity_[nTracks_]=0;
+	  if(track->quality(reco::TrackBase::highPurity)) {isHighPurity_[nTracks_]=1;
+	  } else { isHighPurity_[nTracks_]=0; }
 	  nTracks_++;
 
 
@@ -199,7 +199,7 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }//end loop on tracks
 
   for(int d=0;d<nTracks_;++d){
-    if(abs(trkQuality_[d])>5)cout<<"MYQUALITY!!! " <<trkQuality_[d] <<" at track # "<<d<<"/"<< nTracks_<<endl;
+    if(abs(trkQuality_[d])>5) {cout<<"MYQUALITY!!! " <<trkQuality_[d] <<" at track # "<<d<<"/"<< nTracks_<<endl; }
   }
 
  

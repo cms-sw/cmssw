@@ -23,7 +23,7 @@ static bool parse_unsigned(std::ostringstream& err,
     if (errno || *endptr != '\0')
     {
         err << "expected an unsigned integer, got \"" << c << '"';
-        if (errno) err << ", " << strerror(errno);
+        if (errno) { err << ", " << strerror(errno); }
         return false;
     }
     if (value > UINT_MAX)
@@ -44,7 +44,7 @@ static bool parse_int(std::ostringstream& err,
     if (errno || *endptr != '\0')
     {
         err << "expected an integer, got \"" << c << '"';
-        if (errno) err << ", " << strerror(errno);
+        if (errno) { err << ", " << strerror(errno); }
         return false;
     }
     if (value < INT_MIN || value > INT_MAX)
@@ -77,16 +77,16 @@ namespace gs {
         modeIsValid_ = parseArchiveOptions(err, mode, &m, &compressionLevel,
                                            &minSizeToCompress, &bufSize,
                                            &addCatalogToData_);
-        if (modeIsValid_)
+        if (modeIsValid_) {
             cStream_ = new CStringStream(m, compressionLevel,
                                          minSizeToCompress, bufSize);
-        else
+        } else
         {
             errorStream() << "In BinaryArchiveBase constructor: "
                           << "invalid archive opening mode \"" << mode << '"';
             const std::string& errInfo = err.str();
-            if (!errInfo.empty())
-                errorStream() << ": " << errInfo;
+            if (!errInfo.empty()) {
+                errorStream() << ": " << errInfo; }
         }
     }
 
@@ -136,8 +136,8 @@ namespace gs {
         is.seekg(0, std::ios_base::beg);
         unsigned format = 0;
         read_pod(is, &format);
-        if (format != expectedFormat)
-            return false;
+        if (format != expectedFormat) {
+            return false; }
 
         unsigned infoword = 0xffffffff;
         read_pod(is, &infoword);
@@ -147,8 +147,8 @@ namespace gs {
         // The following check will make sure that we are not reading
         // an archive created on a 32-bit machine with a 64-bit system
         // (and otherwise)
-        if (sizeoflong != sizeof(long))
-            return false;
+        if (sizeoflong != sizeof(long)) {
+            return false; }
 
         addCatalogToData_ = multiplex;
         if (addCatalogToData_)
@@ -164,11 +164,11 @@ namespace gs {
             {
                 const ClassId& entryId = ClassId::makeId<CatalogEntry>();
                 const ClassId& locId = ClassId::makeId<ItemLocation>();
-                if (entryId != *storedEntryId_ || locId != *storedLocationId_)
+                if (entryId != *storedEntryId_ || locId != *storedLocationId_) {
                     throw IOInvalidData(
                         "In gs::BinaryArchiveBase::readHeader: this "
                         "archive can no longer be open for update as it was "
-                        "created using an older version of I/O software");
+                        "created using an older version of I/O software"); }
             }
         }
         return !is.fail();
@@ -179,22 +179,22 @@ namespace gs {
                                          const char* filename)
     {
         assert(filename);
-        if (stream.is_open())
-            stream.close();
+        if (stream.is_open()) {
+            stream.close(); }
         stream.clear();
         stream.open(filename, mode_);
-        if (!stream.is_open())
+        if (!stream.is_open()) {
             throw IOOpeningFailure("gs::BinaryArchiveBase::openDataFile",
-                                   filename);
+                                   filename); }
 
         // Do we need to write the header out or to read it in?
         bool writeHead = false;
         if (mode_ & std::ios_base::out)
         {
-            if (mode_ & std::ios_base::trunc)
+            if (mode_ & std::ios_base::trunc) {
                 writeHead = true;
-            else if (isEmptyFile(stream))
-                writeHead = true;
+            } else if (isEmptyFile(stream)) {
+                writeHead = true; }
         }
 
         if (writeHead)
@@ -253,9 +253,9 @@ namespace gs {
         const SearchSpecifier& categoryPattern,
         std::vector<unsigned long long>* idsFound) const
     {
-        if (catalog_)
+        if (catalog_) {
             catalog_->search(namePattern, categoryPattern, idsFound);
-        else
+        } else
         {
             assert(idsFound);
             idsFound->clear();
@@ -269,49 +269,49 @@ namespace gs {
         int* compressionLevel, unsigned* minSizeToCompress,
         unsigned* bufSize, bool* multiplexCatalog)
     {
-        if (!modeIn)
-            return true;
+        if (!modeIn) {
+            return true; }
         std::string cmode(modeIn ? modeIn : "");
-        if (cmode.empty())
-            return true;
+        if (cmode.empty()) {
+            return true; }
         char* mode = const_cast<char*>(cmode.c_str());
 
         unsigned cnt = 0;
         for (char* opt = strtok(mode, ":"); opt; opt = strtok(nullptr, ":"), ++cnt)
         {
             // Skip the first word -- this is the file opening mode
-            if (!cnt)
-                continue;
+            if (!cnt) {
+                continue; }
             char* eq = strchr(opt, '=');
             if (eq)
             {
                 // Get rid of spaces around option name
                 char* optname = opt;
-                while (isspace(*optname) && optname < eq)
-                    ++optname;
+                while (isspace(*optname) && optname < eq) {
+                    ++optname; }
                 if (optname == eq)
                 {
                     err << "invalid binary archive option \"\"";
                     return false;
                 }
                 char* optend = eq - 1;
-                while (isspace(*optend))
-                    --optend;
+                while (isspace(*optend)) {
+                    --optend; }
                 ++optend;
                 *optend = '\0';
 
                 // Get rid of spaces around option value
                 char* optval = eq + 1;
-                while (*optval && isspace(*optval))
-                    ++optval;
+                while (*optval && isspace(*optval)) {
+                    ++optval; }
                 if (!*optval)
                 {
                     err << "invalid binary archive option value \"\"";
                     return false;
                 }
                 char* valend = opt + strlen(opt) - 1;
-                while (isspace(*valend))
-                    --valend;
+                while (isspace(*valend)) {
+                    --valend; }
                 ++valend;
                 *valend = '\0';
                 if (strlen(optval) == 0)
@@ -333,8 +333,8 @@ namespace gs {
                 else if (!strcasecmp(optname, "cl"))
                 {
                     // Compression level
-                    if (!parse_int(err, optval, compressionLevel))
-                        return false;
+                    if (!parse_int(err, optval, compressionLevel)) {
+                        return false; }
                     if (*compressionLevel < -1 || *compressionLevel > 9)
                     {
                         err << "compression level is out of range";
@@ -344,23 +344,23 @@ namespace gs {
                 else if (!strcasecmp(optname, "cb"))
                 {
                     // Compression buffer size
-                    if (!parse_unsigned(err, optval, bufSize))
-                        return false;
+                    if (!parse_unsigned(err, optval, bufSize)) {
+                        return false; }
                 }
                 else if (!strcasecmp(optname, "cm"))
                 {
                     // Compression minimum size
-                    if (!parse_unsigned(err, optval, minSizeToCompress))
-                        return false;
+                    if (!parse_unsigned(err, optval, minSizeToCompress)) {
+                        return false; }
                 }
                 else if (!strcasecmp(optname, "cat"))
                 {
                     // Internal or external catalog
-                    if (optval[0] == 'i' || optval[0] == 'I')
+                    if (optval[0] == 'i' || optval[0] == 'I') {
                         *multiplexCatalog = true;
-                    else if (optval[0] == 's' || optval[0] == 'S')
+                    } else if (optval[0] == 's' || optval[0] == 'S') {
                         *multiplexCatalog = false;
-                    else
+                    } else
                     {
                         err << "invalid catalog mode \"" << optval << '"';
                         return false;
@@ -394,22 +394,22 @@ namespace gs {
             {
                 // Note that all characters other than 'r', 'w',
                 // 'a', and '+' are basically ignored inside this cycle
-                if (mode[i] == 'r')
+                if (mode[i] == 'r') {
                     m |= std::ios_base::in;
-                else if (mode[i] == 'w')
+                } else if (mode[i] == 'w') {
                     m |= (std::ios_base::out | std::ios_base::trunc);
-                else if (mode[i] == 'a')
+                } else if (mode[i] == 'a') {
                     m |= (std::ios_base::out | std::ios_base::app);
-                else if (mode[i] == '+')
+                } else if (mode[i] == '+') {
                     m |= (std::ios_base::in | std::ios_base::out);
-                else if (mode[i] == ':')
-                    break;
+                } else if (mode[i] == ':') {
+                    break; }
             }
         }
 
         // Make sure that we are at least reading
-        if (!(m & (std::ios_base::in | std::ios_base::out)))
-            m |= std::ios_base::in;
+        if (!(m & (std::ios_base::in | std::ios_base::out))) {
+            m |= std::ios_base::in; }
         return m;
     }
 
@@ -427,8 +427,8 @@ namespace gs {
             {
                 CPP11_shared_ptr<const CatalogEntry> pentry = 
                     catalog_->retrieveEntry(idlist[i]);
-                if (reference.isIOCompatible(*pentry))
-                    addItemToReference(reference, idlist[i]);
+                if (reference.isIOCompatible(*pentry)) {
+                    addItemToReference(reference, idlist[i]); }
             }
         }
     }
@@ -449,8 +449,8 @@ namespace gs {
         std::istream& is = plainInputStream(id, &compressionCode, &length);
         if (cStream_->compressionMode() == CStringStream::NOT_COMPRESSED)
         {
-            if (sz)
-                *sz = -1LL;
+            if (sz) {
+                *sz = -1LL; }
             return is;
         }
         else
@@ -474,9 +474,9 @@ namespace gs {
 
     std::ostream& BinaryArchiveBase::compressedStream(std::ostream& os)
     {
-        if (cStream_->compressionMode() == CStringStream::NOT_COMPRESSED)
+        if (cStream_->compressionMode() == CStringStream::NOT_COMPRESSED) {
             return os;
-        else
+        } else
         {
             cStream_->reset();
             cStream_->setSink(os);

@@ -164,9 +164,9 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
 	       }
 	     else
 	       {
-                 if (readFullLocalMatrix_)
+                 if (readFullLocalMatrix_) {
 		    globErr = GlobalErrorExtended(x11,x21,x31,0,0,0,x22,x32,0,0,0,x33,0,0,0,0,0,0,0,0,0);
-                 else {
+                 } else {
                     globErr = GlobalErrorExtended(x11*x11,0,0,0,0,0,x22*x22,0,0,0,0,x33*x33,0,0,0,0,0,0,0,0,0);
                   }
 	       }
@@ -211,9 +211,9 @@ void ApeSettingAlgorithm::terminate(const edm::EventSetup& iSetup)
 	  am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
 	  sm=sm.similarity(am); //symmetric matrix
 	  } //transform to local
-	for (int j=0; j < sm.num_row(); ++j)
-	  for (int k=0; k <= j; ++k)
-	    apeSaveFile<<"  "<<sm[j][k]; //always write full matrix
+	for (int j=0; j < sm.num_row(); ++j) {
+	  for (int k=0; k <= j; ++k) {
+	    apeSaveFile<<"  "<<sm[j][k]; //always write full matrix }
 	
 	apeSaveFile<<std::endl;
 	}

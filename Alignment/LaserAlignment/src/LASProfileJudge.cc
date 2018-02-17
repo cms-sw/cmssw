@@ -71,14 +71,16 @@ bool LASProfileJudge::JudgeProfile( const LASModuleProfile& aProfile, double off
   const double negativity = GetNegativity( approxOffset );
 
   bool isPeaks;
-  if( !isZeroFilter ) isPeaks = true; // disable this test if set in cfg
-  else isPeaks = IsPeaksInProfile( approxOffset );
+  if( !isZeroFilter ) { isPeaks = true; // disable this test if set in cfg
+  } else { isPeaks = IsPeaksInProfile( approxOffset );
+}
 
   const bool isNegativePeaks = IsNegativePeaksInProfile( approxOffset );
 
   bool isOverdrive; // disable this test if set in cfg
-  if( !isZeroFilter ) isOverdrive = false;
-  else isOverdrive = IsOverdrive( approxOffset );
+  if( !isZeroFilter ) { isOverdrive = false;
+  } else { isOverdrive = IsOverdrive( approxOffset );
+}
 
   bool result = 
     ( negativity > -1000. ) &&  // < 1000. = distorted profile
@@ -253,7 +255,8 @@ bool LASProfileJudge::IsOverdrive( int offset ) {
 
   // find maximum strip amplitude in range
   for( unsigned int strip = meanPosition - halfWindowSize; strip < meanPosition + halfWindowSize; ++strip ) {
-    if( profile.GetValue( strip ) > overdriveThreshold ) return true;
+    if( profile.GetValue( strip ) > overdriveThreshold ) { return true;
+}
   }
 
   return false;

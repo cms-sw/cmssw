@@ -19,7 +19,7 @@ BeamSpotAlignmentDerivatives::operator()( const TrajectoryStateOnSurface &tsos )
 { 
   AlgebraicMatrix aliderivs(4,2);
 
-  if (!tsos.isValid()) return aliderivs;
+  if (!tsos.isValid()) { return aliderivs; }
 
   // lp.x = transverse impact parameter
   // lp.y = longitudinal impact parameter

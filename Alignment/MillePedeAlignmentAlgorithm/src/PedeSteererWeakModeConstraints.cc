@@ -121,7 +121,7 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
     if(deadmodules_.empty()) { //fill the list of dead modules only once
       edm::LogInfo("Alignment") << "@SUB=PedeSteererWeakModeConstraints"
                                 << "Load list of dead modules (size = " << dm.size()<< ").";
-      for(const auto& it: dm) deadmodules_.push_back(it);
+      for(const auto& it: dm) { deadmodules_.push_back(it); }
     }
 
     // loop over all IOVs/momentum ranges
@@ -620,12 +620,12 @@ PedeSteererWeakModeConstraints::constructConstraints(const align::Alignables& al
 
         for(int iParameter = 0; iParameter < numparameterlimit; iParameter++) {
           int localindex = 0;
-          if(iParameter == 0 || iParameter == 9)
-            localindex = 0;
-          if(iParameter == 1 || iParameter == 10)
-            localindex = 1;
-          if(iParameter == 2 || iParameter == 11)
-            localindex = 2;
+          if(iParameter == 0 || iParameter == 9) {
+            localindex = 0; }
+          if(iParameter == 1 || iParameter == 10) {
+            localindex = 1; }
+          if(iParameter == 2 || iParameter == 11) {
+            localindex = 2; }
 
           if((iParameter >= 0 && iParameter <= 2)
              || (iParameter >= 9 && iParameter <=11)) {
@@ -701,10 +701,10 @@ PedeSteererWeakModeConstraints::checkMother(const Alignable * const lowleveldet,
   if(lowleveldet->id() == HLS->id() && lowleveldet->alignableObjectId() == HLS->alignableObjectId()) {
     return true;
   } else {
-    if(lowleveldet->mother() == nullptr)
+    if(lowleveldet->mother() == nullptr) {
       return false;
-    else
-      return this->checkMother(lowleveldet->mother(),HLS);
+    } else {
+      return this->checkMother(lowleveldet->mother(),HLS); }
   }
 }
 

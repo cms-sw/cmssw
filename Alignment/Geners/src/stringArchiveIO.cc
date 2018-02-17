@@ -14,13 +14,13 @@ static bool suffix_matches(const char* filename, const char* suffix)
 {
     static const char default_suffix[] = ".gssaz";
     assert(filename);
-    if (suffix == nullptr)
-        suffix = default_suffix;
+    if (suffix == nullptr) {
+        suffix = default_suffix; }
     const std::size_t lenSuffix = strlen(suffix);
     const std::size_t len = strlen(filename);
     bool suffixMatches = len >= lenSuffix;
-    for (std::size_t i=0; i<lenSuffix && suffixMatches; ++i)
-        suffixMatches = suffix[i] == filename[len-lenSuffix+i];
+    for (std::size_t i=0; i<lenSuffix && suffixMatches; ++i) {
+        suffixMatches = suffix[i] == filename[len-lenSuffix+i]; }
     return suffixMatches;
 }
 
@@ -45,8 +45,8 @@ namespace gs {
     {
         assert(filename);
         std::ifstream is(filename, std::ios_base::binary);
-        if (!is.is_open())
-            throw IOOpeningFailure("gs::readStringArchive", filename);
+        if (!is.is_open()) {
+            throw IOOpeningFailure("gs::readStringArchive", filename); }
         CPP11_auto_ptr<StringArchive> ar = read_item<StringArchive>(is);
         return ar.release();
     }
@@ -57,10 +57,10 @@ namespace gs {
         const unsigned minSizeToCompress, const unsigned bufSize)
     {
         assert(filename);
-        if (inCompressionMode > CStringStream::BZIP2)
+        if (inCompressionMode > CStringStream::BZIP2) {
             throw gs::IOInvalidArgument(
                 "In gs::writeCompressedStringArchive: "
-                "compression mode argument out of range");
+                "compression mode argument out of range"); }
         const CStringStream::CompressionMode m = 
             static_cast<CStringStream::CompressionMode>(inCompressionMode);
         bool status = false;
@@ -80,8 +80,8 @@ namespace gs {
     {
         assert(filename);
         std::ifstream is(filename, std::ios_base::binary);
-        if (!is.is_open())
-            throw IOOpeningFailure("gs::readCompressedStringArchive", filename);
+        if (!is.is_open()) {
+            throw IOOpeningFailure("gs::readCompressedStringArchive", filename); }
         CPP11_auto_ptr<StringArchive> ar =
             read_compressed_item<StringArchive>(is);
         return ar.release();
@@ -105,19 +105,19 @@ namespace gs {
     StringArchive* readCompressedStringArchiveExt(const char* filename,
                                                   const char* suffix)
     {
-        if (suffix_matches(filename, suffix))
+        if (suffix_matches(filename, suffix)) {
             return readCompressedStringArchive(filename);
-        else
-            return readStringArchive(filename);
+        } else {
+            return readStringArchive(filename); }
     }
 
     bool writeCompressedStringArchiveExt(const StringArchive& ar,
                                          const char* filename,
                                          const char* suffix)
     {
-        if (suffix_matches(filename, suffix))
+        if (suffix_matches(filename, suffix)) {
             return writeCompressedStringArchive(ar, filename);
-        else
-            return writeStringArchive(ar, filename);
+        } else {
+            return writeStringArchive(ar, filename); }
     }
 }

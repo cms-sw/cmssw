@@ -308,7 +308,7 @@ align::StructureType AlignableObjectId::stringToId(const char *name) const
 //______________________________________________________________________________
 AlignableObjectId::Geometry AlignableObjectId
 ::trackerGeometry(const TrackerGeometry* geometry) {
-  if (!geometry) return Geometry::General;
+  if (!geometry) { return Geometry::General; }
 
   if (geometry->isThere(GeomDetEnumerators::P2PXEC)) {
     // use structure-type <-> name translation for PhaseII geometry
@@ -337,9 +337,9 @@ AlignableObjectId::Geometry AlignableObjectId
 
 AlignableObjectId::Geometry AlignableObjectId
 ::commonGeometry(Geometry first, Geometry second) {
-  if (first == Geometry::General) return second;
-  if (second == Geometry::General) return first;
-  if (first == second) return first;
+  if (first == Geometry::General) { return second; }
+  if (second == Geometry::General) { return first; }
+  if (first == second) { return first; }
 
   throw cms::Exception("AlignableObjectIdError")
     << "@SUB=AlignableObjectId::commonGeometry\n"

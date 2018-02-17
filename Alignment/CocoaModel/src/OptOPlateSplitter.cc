@@ -25,8 +25,10 @@ using namespace CLHEP;
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOPlateSplitter::detailedDeviatesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED REFLECTION IN PLATE SPLITTER " << name() << std::endl;
-  if (ALIUtils::debug >= 3) ALIUtils::dump3v( centreGlob(), " centre Global RF ");
+  if (ALIUtils::debug >= 2) { std::cout << "LR: DETAILED REFLECTION IN PLATE SPLITTER " << name() << std::endl;
+}
+  if (ALIUtils::debug >= 3) { ALIUtils::dump3v( centreGlob(), " centre Global RF ");
+}
 
   //---------- Get forward plate
   ALIPlane plate = getPlate(true, true);
@@ -50,14 +52,16 @@ void OptOPlateSplitter::detailedDeviatesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOPlateSplitter::detailedTraversesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED TRAVERSE IN PLATE SPLITTER " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: DETAILED TRAVERSE IN PLATE SPLITTER " << name() << std::endl;
+}
 
   //---------- Get forward plate
   ALIPlane plate = getPlate(true, true);
   //---------- If width is 0, just keep the same point 
   ALIdouble width = findExtraEntryValue("width");
   if( width == 0 ) {
-    if(ALIUtils::debug >= 3) lightray.dumpData("Traversed with 0 width"); 
+    if(ALIUtils::debug >= 3) { lightray.dumpData("Traversed with 0 width"); 
+}
     return;
   }
 
@@ -89,7 +93,8 @@ void OptOPlateSplitter::detailedTraversesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOPlateSplitter::fastDeviatesLightRay( LightRay& lightray ) 
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: REFLECTION IN PLATE SPLITTER " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: REFLECTION IN PLATE SPLITTER " << name() << std::endl;
+}
 
   //---------- Get forward plate
   ALIPlane plate = getPlate(true, false);
@@ -118,7 +123,8 @@ void OptOPlateSplitter::fastDeviatesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOPlateSplitter::fastTraversesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: TRAVERSE PLATE SPLITTER  " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: TRAVERSE PLATE SPLITTER  " << name() << std::endl;
+}
   
   //---------- Get backward plate
   ALIPlane plate = getPlate(false, false);

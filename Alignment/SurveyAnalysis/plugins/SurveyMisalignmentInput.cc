@@ -58,7 +58,7 @@ void SurveyMisalignmentInput::addSurveyInfo(Alignable* ali)
 
   const align::Alignables& comp = ali->components();
   unsigned int nComp = comp.size();
-  for (unsigned int i = 0; i < nComp; ++i) addSurveyInfo(comp[i]);
+  for (unsigned int i = 0; i < nComp; ++i) { addSurveyInfo(comp[i]); }
 	
   SurveyInputTextReader::MapType::const_iterator it
     = uIdMap.find(std::make_pair(ali->id(), ali->alignableObjectId()));

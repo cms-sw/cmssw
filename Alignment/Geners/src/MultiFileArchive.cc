@@ -31,41 +31,41 @@ namespace gs {
           annotationsMerged_(false),
           streamFlushed_(true)
     {
-        if (!modeValid()) return;
+        if (!modeValid()) { return; }
 
         try
         {
             // Get a new buffer for the output stream
-            if (dataFileBufferSize)
-                filebuf_ = new char[dataFileBufferSize];
+            if (dataFileBufferSize) {
+                filebuf_ = new char[dataFileBufferSize]; }
             writeStream_.rdbuf()->pubsetbuf(filebuf_, dataFileBufferSize);
 
             // Get a new buffer for the input stream
-            if (dataFileBufferSize)
-                readbuf_ = new char[dataFileBufferSize];
+            if (dataFileBufferSize) {
+                readbuf_ = new char[dataFileBufferSize]; }
             separateReadStream_.rdbuf()->pubsetbuf(readbuf_,dataFileBufferSize);
 
             // Get a new buffer for the catalog and open the catalog stream.
             // We may have to rewrite the complete catalog, so remove the flag
             // std::ios_base::app from the opening mode.
-            if (catalogFileBufferSize)
-                catabuf_ = new char[catalogFileBufferSize];
+            if (catalogFileBufferSize) {
+                catabuf_ = new char[catalogFileBufferSize]; }
             catStream_.rdbuf()->pubsetbuf(catabuf_, catalogFileBufferSize);
             catStream_.open(catalogFileName_.c_str(),
                             openmode() & ~std::ios_base::app);
-            if (!catStream_.is_open())
+            if (!catStream_.is_open()) {
                 throw IOOpeningFailure("gs::MultiFileArchive constructor",
-                                       catalogFileName_);
+                                       catalogFileName_); }
 
             // Can we use a write-only catalog?
             if (openmode() & std::ios_base::in)
             {
                 // Reading is allowed. Have to use in-memory catalog.
                 // If the file data already exists, get the catalog in.
-                if (isEmptyFile(catStream_))
+                if (isEmptyFile(catStream_)) {
                     setCatalog(new ContiguousCatalog());
-                else
-                    readCatalog<ContiguousCatalog>();
+                } else {
+                    readCatalog<ContiguousCatalog>(); }
             }
             else
             {
@@ -86,8 +86,8 @@ namespace gs {
                     catStream_.clear();
                     catStream_.open(catalogFileName_.c_str(),
                                     openmode() | std::ios_base::in);
-                    if (!catStream_.is_open()) throw IOOpeningFailure(
-                        "gs::MultiFileArchive constructor", catalogFileName_);
+                    if (!catStream_.is_open()) { throw IOOpeningFailure(
+                        "gs::MultiFileArchive constructor", catalogFileName_); }
                     readCatalog<WriteOnlyCatalog>();
                     catStream_.seekp(0, std::ios_base::end);
                 }
@@ -98,8 +98,8 @@ namespace gs {
             {
                 setupWriteStream();
                 const std::streampos pos1 = writeStream_.tellp();
-                if (maxpos_ < pos1)
-                    maxpos_ = pos1;
+                if (maxpos_ < pos1) {
+                    maxpos_ = pos1; }
             }
         }
         catch (std::exception& e)
@@ -112,9 +112,9 @@ namespace gs {
 
     void MultiFileArchive::releaseBuffers()
     {
-        if (writeStream_.is_open()) writeStream_.close();
-        if (separateReadStream_.is_open()) separateReadStream_.close();
-        if (catStream_.is_open()) catStream_.close();
+        if (writeStream_.is_open()) { writeStream_.close(); }
+        if (separateReadStream_.is_open()) { separateReadStream_.close(); }
+        if (catStream_.is_open()) { catStream_.close(); }
         catStream_.rdbuf()->pubsetbuf(nullptr, 0);
         writeStream_.rdbuf()->pubsetbuf(nullptr, 0);
         separateReadStream_.rdbuf()->pubsetbuf(nullptr, 0);
@@ -135,8 +135,8 @@ namespace gs {
         {
             if (!annotationsMerged_)
             {
-                if (!annotation_.empty())
-                    catalogAnnotations_.push_back(annotation_);
+                if (!annotation_.empty()) {
+                    catalogAnnotations_.push_back(annotation_); }
                 annotationsMerged_ = true;
             }
             const unsigned compress = static_cast<unsigned>(compressionMode());
@@ -218,8 +218,8 @@ namespace gs {
 
             if (openmode() & std::ios_base::out)
             {
-                if (dynamic_cast<WriteOnlyCatalog*>(catalog()) == nullptr)
-                    writeCatalog();
+                if (dynamic_cast<WriteOnlyCatalog*>(catalog()) == nullptr) {
+                    writeCatalog(); }
                 catStream_.flush();
             }
         }
@@ -248,8 +248,8 @@ namespace gs {
                 os << AbsArchive::name() << '.' << firstNonExistent << ".gsbd";
                 std::string fname = os.str();
                 std::ifstream f(fname.c_str());
-                if (!f)
-                    break;
+                if (!f) {
+                    break; }
             }
             writeFileNumber_ = firstNonExistent ? firstNonExistent - 1UL : 0UL;
         }
@@ -265,8 +265,8 @@ namespace gs {
         if (isOpen())
         {
             assert(openmode() & std::ios_base::in);
-            if (!id) throw gs::IOInvalidArgument(
-                "In gs::MultiFileArchive::plainInputStream: invalid item id");
+            if (!id) { throw gs::IOInvalidArgument(
+                "In gs::MultiFileArchive::plainInputStream: invalid item id"); }
 
             // If we have a write stream, and if the archive
             // has one file only, we should be able to retrieve
@@ -326,8 +326,8 @@ namespace gs {
 
     void MultiFileArchive::updateReadStream(const std::string& uri)
     {
-        if (uri == readFileURI_)
-            return;
+        if (uri == readFileURI_) {
+            return; }
 
         assert(openmode() & std::ios_base::in);
         if (separateReadStream_.is_open())
@@ -343,9 +343,9 @@ namespace gs {
                                           uri.c_str());
         separateReadStream_.open(readFileName_.c_str(), std::ios_base::binary |
                                                         std::ios_base::in);
-        if (!separateReadStream_.is_open())
+        if (!separateReadStream_.is_open()) {
             throw IOOpeningFailure("gs::MultiFileArchive::updateReadStream",
-                                   readFileName_);
+                                   readFileName_); }
         readFileURI_ = uri;
     }
 
@@ -371,8 +371,8 @@ namespace gs {
                     write_pod(writeStream_, now);
                     writeStream_.seekp(0, std::ios_base::end);
                 }
-                else
-                    id = 0;
+                else {
+                    id = 0; }
             }
         }
         return id;

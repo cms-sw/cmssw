@@ -272,7 +272,7 @@ TrackerTreeGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
     if(!createEntryForDoubleSidedModule_){
       // do so only for individual modules and not also one entry for the combined doubleSided Module
-      if (tkTreeVar.isDoubleSide) continue;
+      if (tkTreeVar.isDoubleSide) { continue; }
     }
     vTkTreeVar_.push_back(tkTreeVar);
   }

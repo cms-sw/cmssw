@@ -146,7 +146,7 @@ APVModeFilter::BitMask
 APVModeFilter::convertMode(const uint16_t& mode) const {
   BitMask input(mode);
   BitMask result;
-  for (const auto& bit: bits_) result.set(bit, input[bit]);
+  for (const auto& bit: bits_) { result.set(bit, input[bit]); }
   return result;
 }
 

@@ -89,7 +89,7 @@ bool AlignableModifier::isPropagated( const std::string& parameterName ) const
        parameterName == "setRotations"    ||
        parameterName == "setTranslations" ||
        parameterName == "scale" 
-       ) return true;
+       ) { return true; }
   
   return false;
 
@@ -114,24 +114,24 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
   std::vector<std::string> parameterNames = pSet.getParameterNames();
   for ( std::vector<std::string>::iterator iParam = parameterNames.begin(); 
         iParam != parameterNames.end(); ++iParam ) {
-    if  ( (*iParam) == "distribution" ) distribution_ = pSet.getParameter<std::string>( *iParam );
-    else if ( (*iParam) == "setError" ) setError_ = pSet.getParameter<bool>( *iParam );
-    else if ( (*iParam) == "setRotations") setRotations_ = pSet.getParameter<bool>( *iParam );
-    else if ( (*iParam) == "setTranslations") setTranslations_ = pSet.getParameter<bool>( *iParam );
-    else if ( (*iParam) == "scale" )    scale_ = pSet.getParameter<double>( *iParam );
-    else if ( (*iParam) == "scaleError" ) scaleError_ = pSet.getParameter<double>( *iParam );
-    else if ( (*iParam) == "phiX" )    phiX_     = pSet.getParameter<double>( *iParam );
-    else if ( (*iParam) == "phiY" )    phiY_     = pSet.getParameter<double>( *iParam );
-    else if ( (*iParam) == "phiZ" )    phiZ_     = pSet.getParameter<double>( *iParam );
-    else if ( (*iParam) == "dX" )      dX_       = pSet.getParameter<double>( *iParam );
-    else if ( (*iParam) == "dY" )      dY_       = pSet.getParameter<double>( *iParam );
-    else if ( (*iParam) == "dZ" )      dZ_       = pSet.getParameter<double>( *iParam );
-    else if ( (*iParam) == "dXlocal" ) dXlocal_  = pSet.getParameter<double>( *iParam );
-    else if ( (*iParam) == "dYlocal" ) dYlocal_  = pSet.getParameter<double>( *iParam );
-    else if ( (*iParam) == "dZlocal" ) dZlocal_  = pSet.getParameter<double>( *iParam );
-    else if ( (*iParam) == "twist" )   twist_    = pSet.getParameter<double>( *iParam );
-    else if ( (*iParam) == "shear" )   shear_    = pSet.getParameter<double>( *iParam );
-    else if ( (*iParam) == "localX" ) { phiXlocal_=pSet.getParameter<double>( *iParam ); rotX_++; }
+    if  ( (*iParam) == "distribution" ) { distribution_ = pSet.getParameter<std::string>( *iParam );
+    } else if ( (*iParam) == "setError" ) { setError_ = pSet.getParameter<bool>( *iParam );
+    } else if ( (*iParam) == "setRotations") { setRotations_ = pSet.getParameter<bool>( *iParam );
+    } else if ( (*iParam) == "setTranslations") { setTranslations_ = pSet.getParameter<bool>( *iParam );
+    } else if ( (*iParam) == "scale" ) {    scale_ = pSet.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "scaleError" ) { scaleError_ = pSet.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "phiX" ) {    phiX_     = pSet.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "phiY" ) {    phiY_     = pSet.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "phiZ" ) {    phiZ_     = pSet.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "dX" ) {      dX_       = pSet.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "dY" ) {      dY_       = pSet.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "dZ" ) {      dZ_       = pSet.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "dXlocal" ) { dXlocal_  = pSet.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "dYlocal" ) { dYlocal_  = pSet.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "dZlocal" ) { dZlocal_  = pSet.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "twist" ) {   twist_    = pSet.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "shear" ) {   shear_    = pSet.getParameter<double>( *iParam );
+    } else if ( (*iParam) == "localX" ) { phiXlocal_=pSet.getParameter<double>( *iParam ); rotX_++; }
     else if ( (*iParam) == "localY" ) { phiYlocal_=pSet.getParameter<double>( *iParam ); rotY_++; }
     else if ( (*iParam) == "localZ" ) { phiZlocal_=pSet.getParameter<double>( *iParam ); rotZ_++; }
     else if ( (*iParam) == "phiXlocal" ) { phiXlocal_=pSet.getParameter<double>( *iParam ); rotX_++; }
@@ -156,19 +156,19 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
                                           << "with 's' or a digit at the end.\n";
       } // other PSets should now be hierarchy levels and thus be OK to ignore here
     } else {
-      if ( !error.str().length() ) error << "Unknown parameter name(s): ";
+      if ( !error.str().length() ) { error << "Unknown parameter name(s): "; }
       error << " " << *iParam;
     }
   }
 
   // Check if both 'localN' and 'phiNlocal' have been used
-  if ( rotX_==2 ) throw cms::Exception("BadConfig") << "Found both localX and phiXlocal";
-  if ( rotY_==2 ) throw cms::Exception("BadConfig") << "Found both localY and phiYlocal";
-  if ( rotZ_==2 ) throw cms::Exception("BadConfig") << "Found both localZ and phiZlocal";
+  if ( rotX_==2 ) { throw cms::Exception("BadConfig") << "Found both localX and phiXlocal"; }
+  if ( rotY_==2 ) { throw cms::Exception("BadConfig") << "Found both localY and phiYlocal"; }
+  if ( rotZ_==2 ) { throw cms::Exception("BadConfig") << "Found both localZ and phiZlocal"; }
 
   // Check error
-  if ( error.str().length() )
-    throw cms::Exception("BadConfig") << error.str();
+  if ( error.str().length() ) {
+    throw cms::Exception("BadConfig") << error.str(); }
 
   // Decode distribution
   this->setDistribution( distribution_ );
@@ -176,31 +176,31 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
   //if (scale_) { NO! Different random sequence if only parts scale to zero!
 
   // Apply displacements
-  if ( std::abs(dX_) + std::abs(dY_) + std::abs(dZ_) > 0 && setTranslations_ )
-    this->moveAlignable( alignable, random_, gaussian_, scale_*dX_, scale_*dY_, scale_*dZ_ );
+  if ( std::abs(dX_) + std::abs(dY_) + std::abs(dZ_) > 0 && setTranslations_ ) {
+    this->moveAlignable( alignable, random_, gaussian_, scale_*dX_, scale_*dY_, scale_*dZ_ ); }
   
   // Apply local displacements
-  if ( std::abs(dXlocal_) + std::abs(dYlocal_) + std::abs(dZlocal_) > 0 && setTranslations_ )
+  if ( std::abs(dXlocal_) + std::abs(dYlocal_) + std::abs(dZlocal_) > 0 && setTranslations_ ) {
     this->moveAlignableLocal( alignable, random_, gaussian_, 
-			      scale_*dXlocal_, scale_*dYlocal_, scale_*dZlocal_ );
+			      scale_*dXlocal_, scale_*dYlocal_, scale_*dZlocal_ ); }
   
   // Apply rotations
-  if ( std::abs(phiX_) + std::abs(phiY_) + std::abs(phiZ_) > 0 && setRotations_ )
+  if ( std::abs(phiX_) + std::abs(phiY_) + std::abs(phiZ_) > 0 && setRotations_ ) {
     this->rotateAlignable( alignable, random_, gaussian_,
-			   scale_*phiX_, scale_*phiY_, scale_*phiZ_ );
+			   scale_*phiX_, scale_*phiY_, scale_*phiZ_ ); }
   
   // Apply local rotations
-  if ( std::abs(phiXlocal_) + std::abs(phiYlocal_) + std::abs(phiZlocal_) > 0 && setRotations_ )
+  if ( std::abs(phiXlocal_) + std::abs(phiYlocal_) + std::abs(phiZlocal_) > 0 && setRotations_ ) {
     this->rotateAlignableLocal( alignable, random_, gaussian_, 
-				scale_*phiXlocal_, scale_*phiYlocal_, scale_*phiZlocal_ );
+				scale_*phiXlocal_, scale_*phiYlocal_, scale_*phiZlocal_ ); }
   
   // Apply twist
-  if ( std::abs(twist_) > 0 )
-    edm::LogError("NotImplemented") << "Twist is not implemented yet";
+  if ( std::abs(twist_) > 0 ) {
+    edm::LogError("NotImplemented") << "Twist is not implemented yet"; }
   
   // Apply shear
-  if ( std::abs(shear_) > 0 )
-    edm::LogError("NotImplemented") << "Shear is not implemented yet";
+  if ( std::abs(shear_) > 0 ) {
+    edm::LogError("NotImplemented") << "Shear is not implemented yet"; }
   
   if (!deformation_.first.empty()) {
     this->addDeformation(alignable, deformation_, random_, gaussian_, scale_);
@@ -210,33 +210,33 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
   scaleError_ *= scale_;
   if ( setError_ && scaleError_ ) {
     // Alignment Position Error for flat distribution: 1 sigma
-    if ( !gaussian_ ) scaleError_ *= 0.68;
+    if ( !gaussian_ ) { scaleError_ *= 0.68; }
     
     
     // Error on displacement
-    if ( std::abs(dX_) + std::abs(dY_) + std::abs(dZ_) > 0 && setTranslations_ )
+    if ( std::abs(dX_) + std::abs(dY_) + std::abs(dZ_) > 0 && setTranslations_ ) {
       this->addAlignmentPositionError( alignable, 
-				       scaleError_*dX_, scaleError_*dY_, scaleError_*dZ_ );
+				       scaleError_*dX_, scaleError_*dY_, scaleError_*dZ_ ); }
     
     // Error on local displacements
-    if ( std::abs(dXlocal_) + std::abs(dYlocal_) + std::abs(dZlocal_) > 0 && setTranslations_ )
+    if ( std::abs(dXlocal_) + std::abs(dYlocal_) + std::abs(dZlocal_) > 0 && setTranslations_ ) {
       this->addAlignmentPositionErrorLocal( alignable,
 					    scaleError_*dXlocal_, scaleError_*dYlocal_, 
-					    scaleError_*dZlocal_ );
+					    scaleError_*dZlocal_ ); }
     
     // Error on rotations
-    if ( std::abs(phiX_) + std::abs(phiY_) + std::abs(phiZ_) > 0 && setRotations_ )
+    if ( std::abs(phiX_) + std::abs(phiY_) + std::abs(phiZ_) > 0 && setRotations_ ) {
       this->addAlignmentPositionErrorFromRotation( alignable, 
 						   scaleError_*phiX_, scaleError_*phiY_, 
-						   scaleError_*phiZ_ );
+						   scaleError_*phiZ_ ); }
     
     // Error on local rotations
     if ( std::abs(phiXlocal_) + std::abs(phiYlocal_) + std::abs(phiZlocal_) > 0
-	 && setRotations_ )
+	 && setRotations_ ) {
       this->addAlignmentPositionErrorFromLocalRotation( alignable, 
 							scaleError_*phiXlocal_, 
 							scaleError_*phiYlocal_, 
-							scaleError_*phiZlocal_ );
+							scaleError_*phiZlocal_ ); }
     // Do we need to add any APE for deformations?
     // Probably we would do so if there wouldn't be data, but only MC to play with... ;-)
   }
@@ -251,8 +251,8 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
 void AlignableModifier::setDistribution( const std::string& distr )
 {
 
-  if ( distr == "fixed" ) random_ = false;
-  else if ( distr == "flat" ) {
+  if ( distr == "fixed" ) { random_ = false;
+  } else if ( distr == "flat" ) {
     random_   = true;
     gaussian_ = false;
   } else if ( distr == "gaussian" ) {
@@ -270,8 +270,8 @@ void AlignableModifier::setSeed( const long seed )
 
   long m_seed;
 
-  if ( seed > 0 ) m_seed = seed;
-  else {
+  if ( seed > 0 ) { m_seed = seed;
+  } else {
     edm::Service<edm::RandomNumberGenerator> rng;
     m_seed = rng->mySeed();
   }
@@ -416,9 +416,9 @@ void AlignableModifier::rotateAlignable( Alignable* alignable, bool random, bool
   LogDebug("PrintArgs") << message.str(); // Arguments
 
   LogDebug("PrintMovement") << "applied rotation angles: " << rotV; // Actual movements
-  if ( std::abs(sigmaPhiX) ) alignable->rotateAroundGlobalX( rotV.x() );
-  if ( std::abs(sigmaPhiY) ) alignable->rotateAroundGlobalY( rotV.y() );
-  if ( std::abs(sigmaPhiZ) ) alignable->rotateAroundGlobalZ( rotV.z() );
+  if ( std::abs(sigmaPhiX) ) { alignable->rotateAroundGlobalX( rotV.x() ); }
+  if ( std::abs(sigmaPhiY) ) { alignable->rotateAroundGlobalY( rotV.y() ); }
+  if ( std::abs(sigmaPhiZ) ) { alignable->rotateAroundGlobalZ( rotV.z() ); }
   m_modified++;
 
 
@@ -455,9 +455,9 @@ AlignableModifier::rotateAlignableLocal( Alignable* alignable, bool random, bool
   LogDebug("PrintArgs") << message.str(); // Arguments
   
   LogDebug("PrintMovement") << "applied local rotation angles: " << rotV; // Actual movements
-  if ( std::abs(sigmaPhiX) ) alignable->rotateAroundLocalX( rotV.x() );
-  if ( std::abs(sigmaPhiY) ) alignable->rotateAroundLocalY( rotV.y() );
-  if ( std::abs(sigmaPhiZ) ) alignable->rotateAroundLocalZ( rotV.z() );
+  if ( std::abs(sigmaPhiX) ) { alignable->rotateAroundLocalX( rotV.x() ); }
+  if ( std::abs(sigmaPhiY) ) { alignable->rotateAroundLocalY( rotV.y() ); }
+  if ( std::abs(sigmaPhiZ) ) { alignable->rotateAroundLocalZ( rotV.z() ); }
   m_modified++;
 
 

@@ -226,8 +226,8 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const edm::ParameterSet& pset):
     min1DTrackRecHitSize = pset.getUntrackedParameter<unsigned int>("min1DTrackRecHitSize");
     min4DTrackSegmentSize = pset.getUntrackedParameter<unsigned int>("min4DTrackSegmentSize");
   
-    if(theDataType != "RealData" && theDataType != "SimData")
-        edm::LogError("MuonAlignmentAnalyzer")  << "Error in Data Type!!"<<std::endl;
+    if(theDataType != "RealData" && theDataType != "SimData") {
+        edm::LogError("MuonAlignmentAnalyzer")  << "Error in Data Type!!"<<std::endl; }
 
     numberOfSimTracks=0;
     numberOfSARecTracks=0;
@@ -820,14 +820,14 @@ void MuonAlignmentAnalyzer::endJob(){
 
     edm::LogInfo("MuonAlignmentAnalyzer")  << "----------------- " << std::endl << std::endl;
 
-    if(theDataType == "SimData")
-        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of Sim tracks: " << numberOfSimTracks << std::endl << std::endl;
+    if(theDataType == "SimData") {
+        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of Sim tracks: " << numberOfSimTracks << std::endl << std::endl; }
 
-    if(doSAplots)
-        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of SA Reco tracks: " << numberOfSARecTracks << std::endl << std::endl;
+    if(doSAplots) {
+        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of SA Reco tracks: " << numberOfSARecTracks << std::endl << std::endl; }
 
-    if(doGBplots)
-        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of GB Reco tracks: " << numberOfGBRecTracks << std::endl << std::endl;
+    if(doGBplots) {
+        edm::LogInfo("MuonAlignmentAnalyzer")  << "Number of GB Reco tracks: " << numberOfGBRecTracks << std::endl << std::endl; }
 
     if(doResplots){
 
@@ -899,16 +899,16 @@ void MuonAlignmentAnalyzer::endJob(){
                 Double_t ErrorRPhi=unitsLocalX[i]->GetMeanError();
 
                 Int_t xbin=abs(station)*2+ring;
-                if(abs(station)==1) xbin=ring;
-                if (station>0) xbin=xbin+9;
-                else xbin = 10 -xbin;
+                if(abs(station)==1) { xbin=ring; }
+                if (station>0) { xbin=xbin+9;
+                } else { xbin = 10 -xbin; }
 
                 // To avoid holes in xAxis, I can't imagine right now a simpler way...
-                if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
-                else if(xbin<6) xbin=108+chamber;
-                else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
-                else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
-                else xbin=522+chamber;
+                if(xbin<5) { xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+                } else if(xbin<6) { xbin=108+chamber;
+                } else if(xbin<14) { xbin=126 +(xbin-6)*36+chamber;
+                } else if(xbin<18) { xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+                } else { xbin=522+chamber; }
 
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
@@ -919,9 +919,9 @@ void MuonAlignmentAnalyzer::endJob(){
                 hprofLocalXCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
 
                 Int_t ybin=abs(station)*2+ring;
-                if(abs(station)==1) ybin=ring;
-                if (station>0) ybin=ybin+9;
-                else ybin = 10 -ybin;
+                if(abs(station)==1) { ybin=ring; }
+                if (station>0) { ybin=ybin+9;
+                } else { ybin = 10 -ybin; }
                 ybin=2*ybin-1;
                 hprofLocalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanRPhi));
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%d_LocalX", station,ring );
@@ -1006,16 +1006,16 @@ void MuonAlignmentAnalyzer::endJob(){
                 Double_t ErrorPhi=unitsLocalPhi[i]->GetMeanError();
 
                 Int_t xbin=abs(station)*2+ring;
-                if(abs(station)==1) xbin=ring;
-                if (station>0) xbin=xbin+9;
-                else xbin = 10 -xbin;
+                if(abs(station)==1) { xbin=ring; }
+                if (station>0) { xbin=xbin+9;
+                } else { xbin = 10 -xbin; }
 
                 // To avoid holes in xAxis, I can't imagine right now a simpler way...
-                if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
-                else if(xbin<6) xbin=108+chamber;
-                else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
-                else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
-                else xbin=522+chamber;
+                if(xbin<5) { xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+                } else if(xbin<6) { xbin=108+chamber;
+                } else if(xbin<14) { xbin=126 +(xbin-6)*36+chamber;
+                } else if(xbin<18) { xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+                } else { xbin=522+chamber; }
 
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
@@ -1026,9 +1026,9 @@ void MuonAlignmentAnalyzer::endJob(){
                 hprofLocalPhiCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
 
                 Int_t ybin=abs(station)*2+ring;
-                if(abs(station)==1) ybin=ring;
-                if (station>0) ybin=ybin+9;
-                else ybin = 10 -ybin;
+                if(abs(station)==1) { ybin=ring; }
+                if (station>0) { ybin=ybin+9;
+                } else { ybin = 10 -ybin; }
                 ybin=2*ybin-1;
                 hprofLocalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanPhi));
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%d_LocalPhi", station,ring );
@@ -1048,16 +1048,16 @@ void MuonAlignmentAnalyzer::endJob(){
                 Double_t ErrorTheta=unitsLocalTheta[i]->GetMeanError();
 
                 Int_t xbin=abs(station)*2+ring;
-                if(abs(station)==1) xbin=ring;
-                if (station>0) xbin=xbin+9;
-                else xbin = 10 -xbin;
+                if(abs(station)==1) { xbin=ring; }
+                if (station>0) { xbin=xbin+9;
+                } else { xbin = 10 -xbin; }
 
                 // To avoid holes in xAxis, I can't imagine right now a simpler way...
-                if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
-                else if(xbin<6) xbin=108+chamber;
-                else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
-                else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
-                else xbin=522+chamber;
+                if(xbin<5) { xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+                } else if(xbin<6) { xbin=108+chamber;
+                } else if(xbin<14) { xbin=126 +(xbin-6)*36+chamber;
+                } else if(xbin<18) { xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+                } else { xbin=522+chamber; }
 
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
@@ -1068,9 +1068,9 @@ void MuonAlignmentAnalyzer::endJob(){
                 hprofLocalThetaCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
 
                 Int_t ybin=abs(station)*2+ring;
-                if(abs(station)==1) ybin=ring;
-                if (station>0) ybin=ybin+9;
-                else ybin = 10 -ybin;
+                if(abs(station)==1) { ybin=ring; }
+                if (station>0) { ybin=ybin+9;
+                } else { ybin = 10 -ybin; }
                 ybin=2*ybin;
                 hprofLocalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanTheta));
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%d_LocalTheta", station,ring );
@@ -1123,16 +1123,16 @@ void MuonAlignmentAnalyzer::endJob(){
                 Double_t ErrorR=unitsLocalY[i]->GetMeanError();
 
                 Int_t xbin=abs(station)*2+ring;
-                if(abs(station)==1) xbin=ring;
-                if (station>0) xbin=xbin+9;
-                else xbin = 10 -xbin;
+                if(abs(station)==1) { xbin=ring; }
+                if (station>0) { xbin=xbin+9;
+                } else { xbin = 10 -xbin; }
 
                 // To avoid holes in xAxis, I can't imagine right now a simpler way...
-                if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
-                else if(xbin<6) xbin=108+chamber;
-                else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
-                else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
-                else xbin=522+chamber;
+                if(xbin<5) { xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+                } else if(xbin<6) { xbin=108+chamber;
+                } else if(xbin<14) { xbin=126 +(xbin-6)*36+chamber;
+                } else if(xbin<18) { xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+                } else { xbin=522+chamber; }
 
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
@@ -1143,9 +1143,9 @@ void MuonAlignmentAnalyzer::endJob(){
                 hprofLocalYCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
 
                 Int_t ybin=abs(station)*2+ring;
-                if(abs(station)==1) ybin=ring;
-                if (station>0) ybin=ybin+9;
-                else ybin = 10 -ybin;
+                if(abs(station)==1) { ybin=ring; }
+                if (station>0) { ybin=ybin+9;
+                } else { ybin = 10 -ybin; }
                 ybin=2*ybin;
                 hprofLocalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanR));
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%d_LocalY", station,ring );
@@ -1195,16 +1195,16 @@ void MuonAlignmentAnalyzer::endJob(){
                 Double_t ErrorRPhi=unitsGlobalRPhi[i]->GetMeanError();
 
                 Int_t xbin=abs(station)*2+ring;
-                if(abs(station)==1) xbin=ring;
-                if (station>0) xbin=xbin+9;
-                else xbin = 10 -xbin;
+                if(abs(station)==1) { xbin=ring; }
+                if (station>0) { xbin=xbin+9;
+                } else { xbin = 10 -xbin; }
 
                 // To avoid holes in xAxis, I can't imagine right now a simpler way...
-                if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
-                else if(xbin<6) xbin=108+chamber;
-                else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
-                else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
-                else xbin=522+chamber;
+                if(xbin<5) { xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+                } else if(xbin<6) { xbin=108+chamber;
+                } else if(xbin<14) { xbin=126 +(xbin-6)*36+chamber;
+                } else if(xbin<18) { xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+                } else { xbin=522+chamber; }
 
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
@@ -1215,9 +1215,9 @@ void MuonAlignmentAnalyzer::endJob(){
                 hprofGlobalRPhiCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
 
                 Int_t ybin=abs(station)*2+ring;
-                if(abs(station)==1) ybin=ring;
-                if (station>0) ybin=ybin+9;
-                else ybin = 10 -ybin;
+                if(abs(station)==1) { ybin=ring; }
+                if (station>0) { ybin=ybin+9;
+                } else { ybin = 10 -ybin; }
                 ybin=2*ybin-1;
                 hprofGlobalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanRPhi));
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%d_GlobalRPhi", station,ring );
@@ -1301,16 +1301,16 @@ void MuonAlignmentAnalyzer::endJob(){
                 Double_t ErrorPhi=unitsGlobalPhi[i]->GetMeanError();
 
                 Int_t xbin=abs(station)*2+ring;
-                if(abs(station)==1) xbin=ring;
-                if (station>0) xbin=xbin+9;
-                else xbin = 10 -xbin;
+                if(abs(station)==1) { xbin=ring; }
+                if (station>0) { xbin=xbin+9;
+                } else { xbin = 10 -xbin; }
 
                 // To avoid holes in xAxis, I can't imagine right now a simpler way...
-                if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
-                else if(xbin<6) xbin=108+chamber;
-                else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
-                else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
-                else xbin=522+chamber;
+                if(xbin<5) { xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+                } else if(xbin<6) { xbin=108+chamber;
+                } else if(xbin<14) { xbin=126 +(xbin-6)*36+chamber;
+                } else if(xbin<18) { xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+                } else { xbin=522+chamber; }
 
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
@@ -1321,9 +1321,9 @@ void MuonAlignmentAnalyzer::endJob(){
                 hprofGlobalPhiCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
 
                 Int_t ybin=abs(station)*2+ring;
-                if(abs(station)==1) ybin=ring;
-                if (station>0) ybin=ybin+9;
-                else ybin = 10 -ybin;
+                if(abs(station)==1) { ybin=ring; }
+                if (station>0) { ybin=ybin+9;
+                } else { ybin = 10 -ybin; }
                 ybin=2*ybin-1;
                 hprofGlobalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanPhi));
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%d_GlobalPhi", station,ring );
@@ -1343,16 +1343,16 @@ void MuonAlignmentAnalyzer::endJob(){
                 Double_t ErrorTheta=unitsGlobalTheta[i]->GetMeanError();
 
                 Int_t xbin=abs(station)*2+ring;
-                if(abs(station)==1) xbin=ring;
-                if (station>0) xbin=xbin+9;
-                else xbin = 10 -xbin;
+                if(abs(station)==1) { xbin=ring; }
+                if (station>0) { xbin=xbin+9;
+                } else { xbin = 10 -xbin; }
 
                 // To avoid holes in xAxis, I can't imagine right now a simpler way...
-                if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
-                else if(xbin<6) xbin=108+chamber;
-                else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
-                else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
-                else xbin=522+chamber;
+                if(xbin<5) { xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+                } else if(xbin<6) { xbin=108+chamber;
+                } else if(xbin<14) { xbin=126 +(xbin-6)*36+chamber;
+                } else if(xbin<18) { xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+                } else { xbin=522+chamber; }
 
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
@@ -1363,9 +1363,9 @@ void MuonAlignmentAnalyzer::endJob(){
                 hprofGlobalThetaCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
 
                 Int_t ybin=abs(station)*2+ring;
-                if(abs(station)==1) ybin=ring;
-                if (station>0) ybin=ybin+9;
-                else ybin = 10 -ybin;
+                if(abs(station)==1) { ybin=ring; }
+                if (station>0) { ybin=ybin+9;
+                } else { ybin = 10 -ybin; }
                 ybin=2*ybin;
                 hprofGlobalAngleCSC->SetBinContent(chamber,ybin,fabs(MeanTheta));
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%d_GlobalTheta", station,ring );
@@ -1419,16 +1419,16 @@ void MuonAlignmentAnalyzer::endJob(){
                 Double_t ErrorR=unitsGlobalRZ[i]->GetMeanError();
 
                 Int_t xbin=abs(station)*2+ring;
-                if(abs(station)==1) xbin=ring;
-                if (station>0) xbin=xbin+9;
-                else xbin = 10 -xbin;
+                if(abs(station)==1) { xbin=ring; }
+                if (station>0) { xbin=xbin+9;
+                } else { xbin = 10 -xbin; }
 
                 // To avoid holes in xAxis, I can't imagine right now a simpler way...
-                if(xbin<5) xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
-                else if(xbin<6) xbin=108+chamber;
-                else if(xbin<14) xbin=126 +(xbin-6)*36+chamber;
-                else if(xbin<18) xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
-                else xbin=522+chamber;
+                if(xbin<5) { xbin= 18*(((Int_t)(xbin/3))*2+(Int_t)(xbin/2))+chamber;
+                } else if(xbin<6) { xbin=108+chamber;
+                } else if(xbin<14) { xbin=126 +(xbin-6)*36+chamber;
+                } else if(xbin<18) { xbin=414+18*(((Int_t)(xbin-13)/3)*2+((Int_t)(xbin-13)/2))+chamber;
+                } else { xbin=522+chamber; }
 
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%dC%d", station, ring, chamber );
 
@@ -1439,9 +1439,9 @@ void MuonAlignmentAnalyzer::endJob(){
                 hprofGlobalRCSC->GetXaxis()->SetBinLabel(xbin, binLabel);
 
                 Int_t ybin=abs(station)*2+ring;
-                if(abs(station)==1) ybin=ring;
-                if (station>0) ybin=ybin+9;
-                else ybin = 10 -ybin;
+                if(abs(station)==1) { ybin=ring; }
+                if (station>0) { ybin=ybin+9;
+                } else { ybin = 10 -ybin; }
                 ybin=2*ybin;
                 hprofGlobalPositionCSC->SetBinContent(chamber,ybin,fabs(MeanR));
                 snprintf(binLabel, sizeof(binLabel), "ME%d/%d_GlobalR", station,ring );
@@ -1497,8 +1497,8 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
                 simPar[3].push_back((*simTrack).charge());
 	
 //	Save the muon pair
-                if(i==1)  p1=GlobalVector((*simTrack).momentum().x(),(*simTrack).momentum().y(),(*simTrack).momentum().z());
-                if(i==2)  p2=GlobalVector((*simTrack).momentum().x(),(*simTrack).momentum().y(),(*simTrack).momentum().z());
+                if(i==1) {  p1=GlobalVector((*simTrack).momentum().x(),(*simTrack).momentum().y(),(*simTrack).momentum().z()); }
+                if(i==2) {  p2=GlobalVector((*simTrack).momentum().x(),(*simTrack).momentum().y(),(*simTrack).momentum().z()); }
             }    
         }
         hSimNmuons->Fill(i);
@@ -1511,9 +1511,9 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
             TLorentzVector pair = mu1 + mu2;
             double Minv = pair.M();
             hSimInvM->Fill(Minv);
-            if(fabs(p1.eta())<1.04 && fabs(p2.eta())<1.04) hSimInvM_Barrel->Fill(Minv);
-            else if(fabs(p1.eta())>=1.04 && fabs(p2.eta())>=1.04) hSimInvM_Endcap->Fill(Minv);
-            else  hSimInvM_Overlap->Fill(Minv);  
+            if(fabs(p1.eta())<1.04 && fabs(p2.eta())<1.04) { hSimInvM_Barrel->Fill(Minv);
+            } else if(fabs(p1.eta())>=1.04 && fabs(p2.eta())>=1.04) { hSimInvM_Endcap->Fill(Minv);
+            } else {  hSimInvM_Overlap->Fill(Minv);   }
         }
 
     } //simData
@@ -1551,8 +1551,8 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
             else {hSAPTRec_Endcap->Fill(SArecPt); hSAChi2_Endcap->Fill((*staTrack).chi2()); hSANhits_Endcap->Fill((*staTrack).numberOfValidHits()); ie++;}
 
 // save the muon pair
-            if(i==1)  p1=GlobalVector((*staTrack).momentum().x(),(*staTrack).momentum().y(),(*staTrack).momentum().z());
-            if(i==2)  p2=GlobalVector((*staTrack).momentum().x(),(*staTrack).momentum().y(),(*staTrack).momentum().z());
+            if(i==1) {  p1=GlobalVector((*staTrack).momentum().x(),(*staTrack).momentum().y(),(*staTrack).momentum().z()); }
+            if(i==2) {  p2=GlobalVector((*staTrack).momentum().x(),(*staTrack).momentum().y(),(*staTrack).momentum().z()); }
 
    
             if(SArecPt && theDataType == "SimData"){  
@@ -1570,8 +1570,8 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
 	
                 double simPt=simPar[0][iCand];
                 hSAPTres->Fill( (SArecPt-simPt)/simPt);
-                if(fabs(SAeta)<1.04) hSAPTres_Barrel->Fill((SArecPt-simPt)/simPt);
-                else hSAPTres_Endcap->Fill((SArecPt-simPt)/simPt);
+                if(fabs(SAeta)<1.04) { hSAPTres_Barrel->Fill((SArecPt-simPt)/simPt);
+                } else { hSAPTres_Endcap->Fill((SArecPt-simPt)/simPt); }
 
                 hSAPTDiff->Fill(SArecPt-simPt);
 
@@ -1599,9 +1599,9 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
             TLorentzVector pair = mu1 + mu2;
             double Minv = pair.M();
             hSAInvM->Fill(Minv);
-            if(fabs(p1.eta())<1.04 && fabs(p2.eta())<1.04) hSAInvM_Barrel->Fill(Minv);
-            else if(fabs(p1.eta())>=1.04 && fabs(p2.eta())>=1.04) hSAInvM_Endcap->Fill(Minv);
-            else hSAInvM_Overlap->Fill(Minv);
+            if(fabs(p1.eta())<1.04 && fabs(p2.eta())<1.04) { hSAInvM_Barrel->Fill(Minv);
+            } else if(fabs(p1.eta())>=1.04 && fabs(p2.eta())>=1.04) { hSAInvM_Endcap->Fill(Minv);
+            } else { hSAInvM_Overlap->Fill(Minv); }
         } // 2 first muons
 
     }//end doSAplots
@@ -1640,8 +1640,8 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
             else {hGBPTRec_Endcap->Fill(GBrecPt); hGBChi2_Endcap->Fill((*glbTrack).chi2()); hGBNhits_Endcap->Fill((*glbTrack).numberOfValidHits()); ie++;}
   
 // save the muon pair
-            if(i==1)  p1=GlobalVector((*glbTrack).momentum().x(),(*glbTrack).momentum().y(),(*glbTrack).momentum().z());
-            if(i==2)  p2=GlobalVector((*glbTrack).momentum().x(),(*glbTrack).momentum().y(),(*glbTrack).momentum().z());
+            if(i==1) {  p1=GlobalVector((*glbTrack).momentum().x(),(*glbTrack).momentum().y(),(*glbTrack).momentum().z()); }
+            if(i==2) {  p2=GlobalVector((*glbTrack).momentum().x(),(*glbTrack).momentum().y(),(*glbTrack).momentum().z()); }
 
             if(GBrecPt && theDataType == "SimData"){ 
                 double candDeltaR= -999.0, dR;
@@ -1658,8 +1658,8 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
                 double simPt=simPar[0][iCand];
 	
                 hGBPTres->Fill( (GBrecPt-simPt)/simPt);
-                if(fabs(GBeta)<1.04) hGBPTres_Barrel->Fill((GBrecPt-simPt)/simPt);
-                else hGBPTres_Endcap->Fill((GBrecPt-simPt)/simPt);
+                if(fabs(GBeta)<1.04) { hGBPTres_Barrel->Fill((GBrecPt-simPt)/simPt);
+                } else { hGBPTres_Endcap->Fill((GBrecPt-simPt)/simPt); }
 
                 hGBPTDiff->Fill(GBrecPt-simPt);
 
@@ -1690,9 +1690,9 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
             TLorentzVector pair = mu1 + mu2;
             double Minv = pair.M();
             hGBInvM->Fill(Minv);
-            if(fabs(p1.eta())<1.04 && fabs(p2.eta())<1.04)   hGBInvM_Barrel->Fill(Minv);
-            else if(fabs(p1.eta())>=1.04 && fabs(p2.eta())>=1.04) hGBInvM_Endcap->Fill(Minv);
-            else hGBInvM_Overlap->Fill(Minv);
+            if(fabs(p1.eta())<1.04 && fabs(p2.eta())<1.04) {   hGBInvM_Barrel->Fill(Minv);
+            } else if(fabs(p1.eta())>=1.04 && fabs(p2.eta())>=1.04) { hGBInvM_Endcap->Fill(Minv);
+            } else { hGBInvM_Overlap->Fill(Minv); }
         }
 
     } //end doGBplots
@@ -1778,7 +1778,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
  
                                 TrajectoryStateOnSurface destiny = thePropagator->propagate(*(innerTSOS.freeState()), geomDet->surface());
 
-                                if(!destiny.isValid()|| !destiny.hasError()) continue;
+                                if(!destiny.isValid()|| !destiny.hasError()) { continue; }
 
 /*	    std::cout << "<MuonAlignmentAnalyzer> Segment: " << geomDet->toGlobal((*rechit)->localPosition()) << std::endl;
   std::cout << "<MuonAlignmentAnalyzer> Segment local: " << (*rechit)->localPosition() << std::endl;
@@ -1882,7 +1882,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
                                     CSCDetId myChamber(rawId);
                                     endcap= myChamber.endcap();
                                     station = myChamber.station();
-                                    if(endcap==2) station = -station;
+                                    if(endcap==2) { station = -station; }
                                     ring = myChamber.ring();
                                     chamber=myChamber.chamber();
 
@@ -1924,9 +1924,9 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event & event, const edm::EventSe
 
                                     int index=2*station+ring+7;
                                     if(station==-1) {index=5+ring;
-                                        if(ring==4) index=6;}
+                                        if(ring==4) { index=6; }}
                                     if(station==1) {index=8+ring;
-                                        if(ring==4) index=9;}
+                                        if(ring==4) { index=9; }}
                                     hResidualGlobalRPhiCSC_ME[index]->Fill(residualGlobalRPhi);
                                     hResidualGlobalPhiCSC_ME[index]->Fill(residualGlobalPhi);
                                     hResidualGlobalThetaCSC_ME[index]->Fill(residualGlobalTheta);
@@ -2101,7 +2101,7 @@ RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack, edm:
                 for(std::vector<int>::iterator positionIt = positionDT.begin(); positionIt != positionDT.end(); positionIt++) {
 	  
                     //If this segment has been used before isNewChamber = false
-                    if(NumberOfDTSegment == *positionIt) isNewChamber = false;
+                    if(NumberOfDTSegment == *positionIt) { isNewChamber = false; }
                 }
 	
                 //Loop over vectors of segments associated to previous tracks
@@ -2111,7 +2111,7 @@ RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack, edm:
                     for(std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end(); positionIt++) {
 	    
                         //If this segment was used in a previos track then isNewChamber = false
-                        if(NumberOfDTSegment == *positionIt) isNewChamber = false;
+                        if(NumberOfDTSegment == *positionIt) { isNewChamber = false; }
                     }
                 }
 	
@@ -2146,7 +2146,7 @@ RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack, edm:
                 for(std::vector<int>::iterator positionIt = positionCSC.begin(); positionIt != positionCSC.end(); positionIt++) {
 	  
                     //If this segment has been used then newchamber = false
-                    if(NumberOfCSCSegment == *positionIt) isNewChamber = false;
+                    if(NumberOfCSCSegment == *positionIt) { isNewChamber = false; }
                 }
                 //Loop over vectors of segments in previous tracks
                 for(std::vector<std::vector<int> >::iterator collect = indexCollectionCSC->begin(); collect != indexCollectionCSC->end(); ++collect) {
@@ -2155,7 +2155,7 @@ RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack, edm:
                     for(std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end(); positionIt++) {
 	    
                         //If the segment was used in a previous track isNewChamber = false
-                        if(NumberOfCSCSegment == *positionIt) isNewChamber = false;
+                        if(NumberOfCSCSegment == *positionIt) { isNewChamber = false; }
                     }
                 }
                 //If the chamber is new

@@ -133,8 +133,8 @@ CreateIdealTkAlRecords::analyze(const edm::Event&, const edm::EventSetup& iSetup
               [](const auto& a, const auto& b) {
                 return a->geographicalId().rawId() < b->geographicalId().rawId();});
 
-    for (const auto& det: dets) addAlignmentInfo(*det);
-    if (alignToGlobalTag_ && !createReferenceRcd_) alignToGT(iSetup);
+    for (const auto& det: dets) { addAlignmentInfo(*det); }
+    if (alignToGlobalTag_ && !createReferenceRcd_) { alignToGT(iSetup); }
     writeToDB();
     firstEvent_ = false;
   }
@@ -173,26 +173,26 @@ CreateIdealTkAlRecords::toString(const GeomDetEnumerators::SubDetector& sub)
 GeomDetEnumerators::SubDetector
 CreateIdealTkAlRecords::toSubDetector(const std::string& sub)
 {
-  if (sub == "PixelBarrel")      return GeomDetEnumerators::PixelBarrel;
-  else if (sub == "PixelEndcap") return GeomDetEnumerators::PixelEndcap;
-  else if (sub == "TIB")         return GeomDetEnumerators::TIB;
-  else if (sub == "TOB")         return GeomDetEnumerators::TOB;
-  else if (sub == "TID")         return GeomDetEnumerators::TID;
-  else if (sub == "TEC")         return GeomDetEnumerators::TEC;
-  else if (sub == "CSC")         return GeomDetEnumerators::CSC;
-  else if (sub == "DT")          return GeomDetEnumerators::DT;
-  else if (sub == "RPCBarrel")   return GeomDetEnumerators::RPCBarrel;
-  else if (sub == "RPCEndcap")   return GeomDetEnumerators::RPCEndcap;
-  else if (sub == "GEM")         return GeomDetEnumerators::GEM;
-  else if (sub == "ME0")         return GeomDetEnumerators::ME0;
-  else if (sub == "P2OTB")       return GeomDetEnumerators::P2OTB;
-  else if (sub == "P2OTEC")      return GeomDetEnumerators::P2OTEC;
-  else if (sub == "P1PXB")       return GeomDetEnumerators::P1PXB;
-  else if (sub == "P1PXEC")      return GeomDetEnumerators::P1PXEC;
-  else if (sub == "P2PXB")       return GeomDetEnumerators::P2PXB;
-  else if (sub == "P2PXEC")      return GeomDetEnumerators::P2PXEC;
-  else if (sub == "invalidDet")  return GeomDetEnumerators::invalidDet;
-  else throw cms::Exception("UnknownSubdetector") << sub;
+  if (sub == "PixelBarrel") {      return GeomDetEnumerators::PixelBarrel;
+  } else if (sub == "PixelEndcap") { return GeomDetEnumerators::PixelEndcap;
+  } else if (sub == "TIB") {         return GeomDetEnumerators::TIB;
+  } else if (sub == "TOB") {         return GeomDetEnumerators::TOB;
+  } else if (sub == "TID") {         return GeomDetEnumerators::TID;
+  } else if (sub == "TEC") {         return GeomDetEnumerators::TEC;
+  } else if (sub == "CSC") {         return GeomDetEnumerators::CSC;
+  } else if (sub == "DT") {          return GeomDetEnumerators::DT;
+  } else if (sub == "RPCBarrel") {   return GeomDetEnumerators::RPCBarrel;
+  } else if (sub == "RPCEndcap") {   return GeomDetEnumerators::RPCEndcap;
+  } else if (sub == "GEM") {         return GeomDetEnumerators::GEM;
+  } else if (sub == "ME0") {         return GeomDetEnumerators::ME0;
+  } else if (sub == "P2OTB") {       return GeomDetEnumerators::P2OTB;
+  } else if (sub == "P2OTEC") {      return GeomDetEnumerators::P2OTEC;
+  } else if (sub == "P1PXB") {       return GeomDetEnumerators::P1PXB;
+  } else if (sub == "P1PXEC") {      return GeomDetEnumerators::P1PXEC;
+  } else if (sub == "P2PXB") {       return GeomDetEnumerators::P2PXB;
+  } else if (sub == "P2PXEC") {      return GeomDetEnumerators::P2PXEC;
+  } else if (sub == "invalidDet") {  return GeomDetEnumerators::invalidDet;
+  } else { throw cms::Exception("UnknownSubdetector") << sub; }
 }
 
 
@@ -200,7 +200,7 @@ std::vector<GeomDetEnumerators::SubDetector>
 CreateIdealTkAlRecords::toSubDetectors(const std::vector<std::string>& subs)
 {
   std::vector<GeomDetEnumerators::SubDetector> result;
-  for (const auto& sub: subs) result.emplace_back(toSubDetector(sub));
+  for (const auto& sub: subs) { result.emplace_back(toSubDetector(sub)); }
   return result;
 }
 
@@ -290,11 +290,11 @@ CreateIdealTkAlRecords::alignToGT(const edm::EventSetup& iSetup)
   edm::ESHandle<AlignmentSurfaceDeformations> surfaceDeformations;
   iSetup.get<TrackerSurfaceDeformationRcd>().get(surfaceDeformations);
 
-  if (alignments->m_align.size() != alignmentErrors->m_alignError.size())
+  if (alignments->m_align.size() != alignmentErrors->m_alignError.size()) {
     throw cms::Exception("GeometryMismatch")
       << "Size mismatch between alignments (size=" << alignments->m_align.size()
       << ") and alignment errors (size=" << alignmentErrors->m_alignError.size()
-      << ")";
+      << ")"; }
 
   std::vector<uint32_t> commonIDs;
   auto itAlignErr = alignmentErrors->m_alignError.cbegin();
@@ -304,23 +304,23 @@ CreateIdealTkAlRecords::alignToGT(const edm::EventSetup& iSetup)
     const auto id = itAlign->rawId();
     auto found = std::find(rawIDs_.cbegin(), rawIDs_.cend(), id);
     if (found != rawIDs_.cend()) {
-      if (id != itAlignErr->rawId())
+      if (id != itAlignErr->rawId()) {
         throw cms::Exception("GeometryMismatch")
           << "DetId mismatch between alignments (rawId=" << id
-          << ") and alignment errors (rawId=" << itAlignErr->rawId() << ")";
+          << ") and alignment errors (rawId=" << itAlignErr->rawId() << ")"; }
 
       const auto index = std::distance(rawIDs_.cbegin(), found);
       if (std::find(skipSubDetectors_.begin(),
                     skipSubDetectors_.end(),
-                    subDets_[index]) != skipSubDetectors_.end()) continue;
+                    subDets_[index]) != skipSubDetectors_.end()) { continue; }
 
       if (alignments_.m_align[index].rawId()
-          != alignmentErrors_.m_alignError[index].rawId())
+          != alignmentErrors_.m_alignError[index].rawId()) {
         throw cms::Exception("GeometryMismatch")
           << "DetId mismatch between alignments (rawId="
           << alignments_.m_align[index].rawId()
           << ") and alignment errors (rawId="
-          << alignmentErrors_.m_alignError[index].rawId() << ")";
+          << alignmentErrors_.m_alignError[index].rawId() << ")"; }
 
       LogDebug("Alignment")
 	<< "============================================================\n"
@@ -361,7 +361,7 @@ CreateIdealTkAlRecords::alignToGT(const edm::EventSetup& iSetup)
     auto item = std::find_if(surfaceDeformations->items().cbegin(),
                              surfaceDeformations->items().cend(),
                              [&id](const auto& i) { return i.m_rawId == id; });
-    if (item == surfaceDeformations->items().cend()) continue; // not found
+    if (item == surfaceDeformations->items().cend()) { continue; // not found }
 
     // copy surface deformation item
     const auto index = std::distance(surfaceDeformations->items().cbegin(), item);

@@ -261,7 +261,7 @@ int TkModuleGroupSelector::getParameterIndexFromDetId(unsigned int detId,
     }
   }
 
-  if (temp_id.det() != DetId::Tracker || !sel) return -1;
+  if (temp_id.det() != DetId::Tracker || !sel) { return -1; }
   
   std::map<unsigned int, unsigned int>::const_iterator it = mapDetIdGroupId_.find(detId);
   if(it != mapDetIdGroupId_.end()) {
@@ -273,7 +273,7 @@ int TkModuleGroupSelector::getParameterIndexFromDetId(unsigned int detId,
 
     unsigned int iovNum = 0;
     for ( ; iovNum < runs.size(); ++iovNum) {
-      if (runs[iovNum] > run) break;
+      if (runs[iovNum] > run) { break; }
     }
     if (iovNum == 0) {
       throw cms::Exception("BadConfig") << "@SUB=TkModuleGroupSelector::getParameterIndexFromDetId:\n"
@@ -286,8 +286,8 @@ int TkModuleGroupSelector::getParameterIndexFromDetId(unsigned int detId,
     //test whether the iov contains the reference run
     if(refrun > 0) { //if > 0 a reference run number has been provided
       if(iovNum+1 == runs.size()) {
-        if(refrun >= runs[iovNum])
-          return -1;
+        if(refrun >= runs[iovNum]) {
+          return -1; }
       } else if( (iovNum+1) < runs.size()) {
         if(refrun >= runs[iovNum] && refrun < runs[iovNum+1]) {
           return -1;

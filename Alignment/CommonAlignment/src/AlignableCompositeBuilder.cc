@@ -82,7 +82,7 @@ unsigned int AlignableCompositeBuilder
 
   auto& children = alignableMap.find(alignableObjectId_.idToString(childType));
   auto& parents  = alignableMap.get (alignableObjectId_.idToString(parentType));
-  if (!update) parents.reserve(maxNumParents);
+  if (!update) { parents.reserve(maxNumParents); }
 
   // This vector is used indicate if a parent already exists. It is initialized
   // with 'naked' Alignables-pointers; if the pointer is not naked (!= nullptr)
@@ -129,7 +129,7 @@ unsigned int AlignableCompositeBuilder
     }
 
     // in all cases (except updates) add the child to the parent Alignable
-    if (!update) parent->addComponent(child);
+    if (!update) { parent->addComponent(child); }
   }
 
   ss << "   built " << parents.size() << " "

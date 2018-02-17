@@ -72,9 +72,10 @@ void AlignmentParametersData::checkConsistency( void ) const
   int paramSize = theParameters->num_row();
   int covSize = theCovariance->num_row();
 
-  if ( ( paramSize != covSize ) || ( paramSize != selectorSize ) )
+  if ( ( paramSize != covSize ) || ( paramSize != selectorSize ) ) {
       throw cms::Exception("LogicError") << "@SUB=AlignmentParametersData::checkConsistency "
 					 << "\nSize mismatch: parameter size = " << paramSize
 					 << ", covariance size = " << covSize
 					 << ", selector size = " << selectorSize << ".";
+}
 }

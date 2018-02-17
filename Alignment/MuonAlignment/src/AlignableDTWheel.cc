@@ -33,8 +33,8 @@ AlignableDTWheel::AlignableDTWheel( const std::vector<AlignableDTStation*>& dtSt
 AlignableDTStation &AlignableDTWheel::station(int i) 
 {
   
-  if (i >= size() ) 
-	throw cms::Exception("LogicError") << "Station index (" << i << ") out of range";
+  if (i >= size() ) { 
+	throw cms::Exception("LogicError") << "Station index (" << i << ") out of range"; }
 
   return *theDTStations[i];
   
@@ -59,8 +59,8 @@ AlignableDTWheel::PositionType AlignableDTWheel::computePosition()
   float zz = 0.;
 
   for ( std::vector<AlignableDTStation*>::iterator ilayer = theDTStations.begin();
-		ilayer != theDTStations.end(); ilayer++ )
-    zz += (*ilayer)->globalPosition().z();
+		ilayer != theDTStations.end(); ilayer++ ) {
+    zz += (*ilayer)->globalPosition().z(); }
 
   zz /= static_cast<float>(theDTStations.size());
 
@@ -95,7 +95,7 @@ void AlignableDTWheel::dump( void ) const
 
   edm::LogInfo("AlignableDump") << (*this);
   for ( std::vector<AlignableDTStation*>::const_iterator iStation = theDTStations.begin();
-		iStation != theDTStations.end(); iStation++ )
-	(*iStation)->dump();
+		iStation != theDTStations.end(); iStation++ ) {
+	(*iStation)->dump(); }
 
 }

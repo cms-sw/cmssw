@@ -82,12 +82,12 @@ void MuonResiduals5DOFFitter_FCN(int &npar, double *gin, double &fval, double *p
 
     double coeff = alpha;
     if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian ||
-        fitter->residualsModel() == MuonResidualsFitter::kPureGaussian2D) coeff = 0.;
+        fitter->residualsModel() == MuonResidualsFitter::kPureGaussian2D) { coeff = 0.; }
     double residpeak = residual_x(alignx, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY, coeff, resslope);
     double resslopepeak = residual_dxdz(alignx, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY);
 
     double weight = (1./redchi2) * number_of_hits / sum_of_weights;
-    if (!weight_alignment) weight = 1.;
+    if (!weight_alignment) { weight = 1.; }
 
     if (!weight_alignment  ||  TMath::Prob(redchi2*8, 8) < 0.99)  // no spikes allowed
     {
@@ -193,20 +193,20 @@ bool MuonResiduals5DOFFitter::fit(Alignable *ali)
 
   int idx[4], ni = 0;
   if (useRes() == k1111 || useRes() == k1110 || useRes() == k1010) {
-    for(ni=0; ni<2; ni++) idx[ni] = ni+5;
-    if (add_alpha) idx[ni++] = 7;
-    else if (add_gamma) for(; ni<4; ni++) idx[ni] = ni+6;
-    if (!add_alpha) fix(kAlpha);
+    for(ni=0; ni<2; ni++) { idx[ni] = ni+5; }
+    if (add_alpha) { idx[ni++] = 7;
+    } else if (add_gamma) { for(; ni<4; ni++) { idx[ni] = ni+6; }
+    if (!add_alpha) { fix(kAlpha); }
   }
   else if (useRes() == k1100) {
     idx[ni++] = 5;
-    if (add_gamma) idx[ni++] = 8;
+    if (add_gamma) { idx[ni++] = 8; }
     fix(kResSlopeSigma);
     fix(kAlpha);
   }
   else if (useRes() == k0010) {
     idx[ni++] = 6;
-    if (add_gamma) idx[ni++] = 9;
+    if (add_gamma) { idx[ni++] = 9; }
     fix(kResidSigma);
     fix(kAlpha);
   }
@@ -235,7 +235,7 @@ double MuonResiduals5DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
   {
     const double redchi2 = (*rit)[kRedChi2];
     double weight = 1./redchi2;
-    if (!m_weightAlignment) weight = 1.;
+    if (!m_weightAlignment) { weight = 1.; }
 
     if (!m_weightAlignment  ||  TMath::Prob(redchi2*6, 6) < 0.99)  // no spikes allowed
     {
@@ -417,7 +417,7 @@ double MuonResiduals5DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
 
   double fitparameters[12] = {value(kAlignX), 0., value(kAlignZ), value(kAlignPhiX), value(kAlignPhiY), value(kAlignPhiZ),
                               mean_trackx, mean_tracky, mean_trackdxdz, mean_trackdydz, value(kAlpha), mean_resslope};
-  if (residualsModel() == kPureGaussian2D) fitparameters[10] = 0.;
+  if (residualsModel() == kPureGaussian2D) { fitparameters[10] = 0.; }
 
   for(std::vector<TF1*>::const_iterator itr = fitlines.begin(); itr != fitlines.end(); itr++)
   {
@@ -436,13 +436,13 @@ double MuonResiduals5DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
     const double angleY = (*resiter)[kAngleY];
     const double redchi2 = (*resiter)[kRedChi2];
     double weight = 1./redchi2;
-    if (!m_weightAlignment) weight = 1.;
+    if (!m_weightAlignment) { weight = 1.; }
 
     if (!m_weightAlignment  ||  TMath::Prob(redchi2*8, 8) < 0.99) {  // no spikes allowed
       hist_alpha->Fill(1000.*resslope, 10.*resid);
 
       double coeff = value(kAlpha);
-      if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D) coeff = 0.;
+      if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D) { coeff = 0.; }
       double geom_resid = residual_x(value(kAlignX), value(kAlignZ), value(kAlignPhiX), value(kAlignPhiY), value(kAlignPhiZ), positionX, positionY, angleX, angleY, coeff, resslope);
       hist_residual->Fill(10.*(resid - geom_resid + value(kAlignX)), weight);
       hist_residual_trackx->Fill(positionX, 10.*resid, weight);
@@ -468,7 +468,7 @@ double MuonResiduals5DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
 
     hist_residual_raw->Fill(10.*resid);
     hist_resslope_raw->Fill(1000.*resslope);
-    if (fabs(resslope) < 0.005) hist_residual_cut->Fill(10.*resid);
+    if (fabs(resslope) < 0.005) { hist_residual_cut->Fill(10.*resid); }
   }
 
   double chi2 = 0.;

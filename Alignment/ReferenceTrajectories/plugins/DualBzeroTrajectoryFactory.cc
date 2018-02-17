@@ -139,7 +139,7 @@ DualBzeroTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 	TrajectoryStateOnSurface propExternal =
 	  propagateExternal( *itExternal, input.refTsos.surface(), magneticField.product() );
 
-	if ( !propExternal.isValid() ) continue;
+	if ( !propExternal.isValid() ) { continue; }
 
         ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(),
                                                theMass, theMomentumEstimate);
@@ -195,7 +195,7 @@ DualBzeroTrajectoryFactory::referenceStateAndRecHits( const ConstTrajTrackPair& 
   // get all relevant trajectory measurements
   for ( itM = allTrajMeas.begin(); itM != allTrajMeas.end(); itM++ )
   {
-    if ( useRecHit( ( *itM ).recHit() ) ) usedTrajMeas.push_back( *itM );
+    if ( useRecHit( ( *itM ).recHit() ) ) { usedTrajMeas.push_back( *itM ); }
   }
 
   unsigned int iMeas = 0;

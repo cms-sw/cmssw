@@ -336,7 +336,7 @@ ApeEstimator::sectorBuilder(){
     
       if(!this->checkIntervalsForSectors(sectorCounter,v_posR) || !this->checkIntervalsForSectors(sectorCounter,v_posPhi) ||
         !this->checkIntervalsForSectors(sectorCounter,v_posEta) || !this->checkIntervalsForSectors(sectorCounter,v_posX) ||
-        !this->checkIntervalsForSectors(sectorCounter,v_posY)   || !this->checkIntervalsForSectors(sectorCounter,v_posZ))continue;
+        !this->checkIntervalsForSectors(sectorCounter,v_posY)   || !this->checkIntervalsForSectors(sectorCounter,v_posZ)) {continue; }
     
     
       TrackerSectorStruct tkSector;
@@ -357,38 +357,38 @@ ApeEstimator::sectorBuilder(){
             m_tkTreeVar_[rawId] = tkTreeVar;
           }
       
-          if(!this->checkModuleIds(rawId,v_rawId))continue;
-          if(!this->checkModuleIds(subdetId,v_subdetId))continue;
-          if(!this->checkModuleIds(layer,v_layer))continue;
-          if(!this->checkModuleIds(side,v_side))continue;
-          if(!this->checkModuleIds(half,v_half))continue;
-          if(!this->checkModuleIds(rod,v_rod))continue;
-          if(!this->checkModuleIds(ring,v_ring))continue;
-          if(!this->checkModuleIds(petal,v_petal))continue;
-          if(!this->checkModuleIds(blade,v_blade))continue;
-          if(!this->checkModuleIds(panel,v_panel))continue;
-          if(!this->checkModuleIds(outerInner,v_outerInner))continue;
-          if(!this->checkModuleIds(module,v_module))continue;
-          if(!this->checkModuleIds(nStrips,v_nStrips))continue;
-          if(!this->checkModuleBools(isDoubleSide,v_isDoubleSide))continue;
-          if(!this->checkModuleBools(isRPhi,v_isRPhi))continue;
-          if(!this->checkModuleBools(isStereo,v_isStereo))continue;
-          if(!this->checkModuleDirections(uDirection,v_uDirection))continue;
-          if(!this->checkModuleDirections(vDirection,v_vDirection))continue;
-          if(!this->checkModuleDirections(wDirection,v_wDirection))continue;
-          if(!this->checkModulePositions(posR,v_posR))continue;
-          if(!this->checkModulePositions(posPhi,v_posPhi))continue;
-          if(!this->checkModulePositions(posEta,v_posEta))continue;
-          if(!this->checkModulePositions(posX,v_posX))continue;
-          if(!this->checkModulePositions(posY,v_posY))continue;
-          if(!this->checkModulePositions(posZ,v_posZ))continue;
+          if(!this->checkModuleIds(rawId,v_rawId)) {continue; }
+          if(!this->checkModuleIds(subdetId,v_subdetId)) {continue; }
+          if(!this->checkModuleIds(layer,v_layer)) {continue; }
+          if(!this->checkModuleIds(side,v_side)) {continue; }
+          if(!this->checkModuleIds(half,v_half)) {continue; }
+          if(!this->checkModuleIds(rod,v_rod)) {continue; }
+          if(!this->checkModuleIds(ring,v_ring)) {continue; }
+          if(!this->checkModuleIds(petal,v_petal)) {continue; }
+          if(!this->checkModuleIds(blade,v_blade)) {continue; }
+          if(!this->checkModuleIds(panel,v_panel)) {continue; }
+          if(!this->checkModuleIds(outerInner,v_outerInner)) {continue; }
+          if(!this->checkModuleIds(module,v_module)) {continue; }
+          if(!this->checkModuleIds(nStrips,v_nStrips)) {continue; }
+          if(!this->checkModuleBools(isDoubleSide,v_isDoubleSide)) {continue; }
+          if(!this->checkModuleBools(isRPhi,v_isRPhi)) {continue; }
+          if(!this->checkModuleBools(isStereo,v_isStereo)) {continue; }
+          if(!this->checkModuleDirections(uDirection,v_uDirection)) {continue; }
+          if(!this->checkModuleDirections(vDirection,v_vDirection)) {continue; }
+          if(!this->checkModuleDirections(wDirection,v_wDirection)) {continue; }
+          if(!this->checkModulePositions(posR,v_posR)) {continue; }
+          if(!this->checkModulePositions(posPhi,v_posPhi)) {continue; }
+          if(!this->checkModulePositions(posEta,v_posEta)) {continue; }
+          if(!this->checkModulePositions(posX,v_posX)) {continue; }
+          if(!this->checkModulePositions(posY,v_posY)) {continue; }
+          if(!this->checkModulePositions(posZ,v_posZ)) {continue; }
           
           tkSector.v_rawId.push_back(rawId);
           bool moduleSelected(false);
           for(auto const & i_rawId : allSectors.v_rawId){
-            if(rawId == i_rawId)moduleSelected = true;
+            if(rawId == i_rawId) {moduleSelected = true; }
           }
-          if(!moduleSelected)allSectors.v_rawId.push_back(rawId);
+          if(!moduleSelected) {allSectors.v_rawId.push_back(rawId); }
       }
     
       bool isPixel(false);
@@ -431,7 +431,7 @@ bool
 ApeEstimator::checkIntervalsForSectors(const unsigned int sectorCounter, const std::vector<double>& v_id)const
 {
     
-  if(v_id.empty())return true;
+  if(v_id.empty()) {return true; }
   if(v_id.size()%2==1){
     edm::LogError("SectorBuilder")<<"Incorrect Sector Definition: Position Vectors need even number of arguments (Intervals)"
                                      <<"\n... sector selection is not applied, sector "<<sectorCounter<<" is not built";
@@ -440,7 +440,7 @@ ApeEstimator::checkIntervalsForSectors(const unsigned int sectorCounter, const s
   int entry(0); double intervalBegin(999.);
   for(auto const & i_id : v_id){
     ++entry;
-    if(entry%2==1) intervalBegin = i_id;
+    if(entry%2==1) { intervalBegin = i_id; }
     if(entry%2==0 && intervalBegin > i_id){
       edm::LogError("SectorBuilder")<<"Incorrect Sector Definition (Position Vector Intervals): \t"
                                     <<intervalBegin<<" is bigger than "<<i_id<<" but is expected to be smaller"
@@ -455,9 +455,9 @@ bool
 ApeEstimator::checkModuleIds(const unsigned int id, const std::vector<unsigned int>& v_id)const
 {
     
-  if(v_id.empty())return true;
+  if(v_id.empty()) {return true; }
   for(auto const & i_id : v_id){
-    if(id==i_id)return true;
+    if(id==i_id) {return true; }
   }
   return false;
 }
@@ -466,10 +466,10 @@ bool
 ApeEstimator::checkModuleBools(const bool id, const std::vector<unsigned int>& v_id)const
 {
     
-  if(v_id.empty())return true;
+  if(v_id.empty()) {return true; }
   for(auto const & i_id : v_id){
-    if(1==i_id && id)return true;
-    if(2==i_id && !id)return true;
+    if(1==i_id && id) {return true; }
+    if(2==i_id && !id) {return true; }
   }
   return false;
 }
@@ -478,9 +478,9 @@ bool
 ApeEstimator::checkModuleDirections(const int id, const std::vector<int>& v_id)const
 {
     
-  if(v_id.empty())return true;
+  if(v_id.empty()) {return true; }
   for(auto const & i_id : v_id){
-    if(id==i_id)return true;
+    if(id==i_id) {return true; }
   }
   return false;
 }
@@ -489,12 +489,12 @@ bool
 ApeEstimator::checkModulePositions(const float id, const std::vector<double>& v_id)const
 {
     
-  if(v_id.empty())return true;
+  if(v_id.empty()) {return true; }
   int entry(0); double intervalBegin(999.);
   for(auto const & i_id : v_id){
     ++entry;
-    if(entry%2==1)intervalBegin = i_id;
-    if(entry%2==0 && id>=intervalBegin && id<i_id)return true;
+    if(entry%2==1) {intervalBegin = i_id; }
+    if(entry%2==0 && id>=intervalBegin && id<i_id) {return true; }
   }
   return false;
 }
@@ -508,26 +508,26 @@ ApeEstimator::statistics(const TrackerSectorStruct& allSectors, const int nModul
       unsigned int nCommonModules(0);
       for(auto const & i_module : (*i_sector).second.v_rawId){
         for(auto const & i_module2 : (*i_sector2).second.v_rawId){
-          if(i_module2 == i_module) ++nCommonModules;
+          if(i_module2 == i_module) { ++nCommonModules; }
         }
       }
-      if(nCommonModules==0)
+      if(nCommonModules==0) {
         ;//edm::LogInfo("SectorBuilder")<<"Sector "<<(*i_sector).first<<" and Sector "<<(*i_sector2).first<< " have ZERO Modules in common";
-      else{
+      } else{
         edm::LogError("SectorBuilder")<<"Sector "<<(*i_sector).first<<" and Sector "<<(*i_sector2).first<< " have "<<nCommonModules<<" Modules in common";
         commonModules = true;
       }
     }
   }
-  if(static_cast<int>(allSectors.v_rawId.size())==nModules)
+  if(static_cast<int>(allSectors.v_rawId.size())==nModules) {
     edm::LogInfo("SectorBuilder")<<"ALL Tracker Modules are contained in the Sectors";
-  else
+  } else {
     edm::LogWarning("SectorBuilder")<<"There are "<<allSectors.v_rawId.size()<<" Modules in all Sectors"
-                               <<" out of "<<nModules<<" Tracker Modules";
-  if(!commonModules)
+                               <<" out of "<<nModules<<" Tracker Modules"; }
+  if(!commonModules) {
     edm::LogInfo("SectorBuilder")<<"There are ZERO modules associated to different sectors, no ambiguities exist";
-  else
-  edm::LogError("SectorBuilder")<<"There are modules associated to different sectors, APE value cannot be assigned reasonably";
+  } else {
+  edm::LogError("SectorBuilder")<<"There are modules associated to different sectors, APE value cannot be assigned reasonably"; }
 }
 
 
@@ -999,7 +999,7 @@ ApeEstimator::fillTrackVariables(const reco::Track& track, const Trajectory& tra
     const TrajectoryMeasurement& meas = i_meas;
     const TransientTrackingRecHit& hit = *meas.recHit();
     const TrackingRecHit& recHit = *hit.hit();
-    if(this->isHit2D(recHit)) ++count2D;
+    if(this->isHit2D(recHit)) { ++count2D; }
     
     TrajectoryStateOnSurface tsos = tsoscomb(meas.forwardPredictedState(),meas.backwardPredictedState());
     const align::LocalVector mom(tsos.localDirection());
@@ -1016,7 +1016,7 @@ ApeEstimator::fillTrackVariables(const reco::Track& track, const Trajectory& tra
        trkParams.hitsStrip>35 || trkParams.hitsPixel>7 ||
        trkParams.norChi2>5. ||
        trkParams.pt<25. || trkParams.pt>150. || 
-       std::abs(trkParams.d0Beamspot)>0.02 || std::abs(trkParams.dz)>15.)trackCut_ = true;
+       std::abs(trkParams.d0Beamspot)>0.02 || std::abs(trkParams.dz)>15.) {trackCut_ = true; }
   }
   else{
     trackCut_ = false;
@@ -1355,16 +1355,16 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
     LocalVector momentumDir(tsos.localDirection());
     LocalPoint momentumPos(tsos.localPosition());
     LocalVector scaledMomentumDir(momentumDir);
-    if(momentumDir.z() > 0.)scaledMomentumDir *= std::fabs(thickness/momentumDir.z());
-    else if(momentumDir.z() < 0.)scaledMomentumDir *= -std::fabs(thickness/momentumDir.z());
-    else scaledMomentumDir *= maxLength/momentumDir.mag();
+    if(momentumDir.z() > 0.) {scaledMomentumDir *= std::fabs(thickness/momentumDir.z());
+    } else if(momentumDir.z() < 0.) {scaledMomentumDir *= -std::fabs(thickness/momentumDir.z());
+    } else { scaledMomentumDir *= maxLength/momentumDir.mag(); }
     
     float projEdge1 = topol.measurementPosition(momentumPos - 0.5*scaledMomentumDir).x();
-    if(projEdge1 < 0.)projEdge1 = 0.;
-    else if(projEdge1 > m_tkTreeVar_[rawId].nStrips)projEdge1 = m_tkTreeVar_[rawId].nStrips;
+    if(projEdge1 < 0.) {projEdge1 = 0.;
+    } else if(projEdge1 > m_tkTreeVar_[rawId].nStrips) {projEdge1 = m_tkTreeVar_[rawId].nStrips; }
     float projEdge2 = topol.measurementPosition(momentumPos + 0.5*scaledMomentumDir).x();
-    if(projEdge2 < 0.)projEdge1 = 0.;
-    else if(projEdge2 > m_tkTreeVar_[rawId].nStrips)projEdge1 = m_tkTreeVar_[rawId].nStrips;
+    if(projEdge2 < 0.) {projEdge1 = 0.;
+    } else if(projEdge2 > m_tkTreeVar_[rawId].nStrips) {projEdge1 = m_tkTreeVar_[rawId].nStrips; }
     
     
     float coveredStrips = std::fabs(projEdge2 - projEdge1);
@@ -1420,10 +1420,10 @@ ApeEstimator::positionAndError2(const LocalPoint& localPoint, const LocalError& 
   }
   else if(subdetId==StripSubdetector::TID || subdetId==StripSubdetector::TEC){
     // Local x in radial coordinates
-    if(!hit.detUnit())return vPE2; // is it a single physical module?
+    if(!hit.detUnit()) {return vPE2; // is it a single physical module? }
     const GeomDetUnit& detUnit = *hit.detUnit();
     
-    if(!dynamic_cast<const RadialStripTopology*>(&detUnit.type().topology()))return vPE2;
+    if(!dynamic_cast<const RadialStripTopology*>(&detUnit.type().topology())) {return vPE2; }
     const RadialStripTopology& topol = dynamic_cast<const RadialStripTopology&>(detUnit.type().topology());
     
     MeasurementError measError = topol.measurementError(localPoint,localError);
@@ -1568,7 +1568,7 @@ ApeEstimator::hitSelection(){
           }
         }
       }
-      if(!i_hitSelection.second.empty())emptyMap = false;
+      if(!i_hitSelection.second.empty()) {emptyMap = false; }
     }
   }
   
@@ -1592,7 +1592,7 @@ ApeEstimator::hitSelection(){
           }
         }
       }
-      if(!i_hitSelection.second.empty())emptyMapUInt = false;
+      if(!i_hitSelection.second.empty()) {emptyMapUInt = false; }
     }
   }
   
@@ -1643,8 +1643,8 @@ ApeEstimator::setHitSelectionMapUInt(const std::string& cutVariable){
 
 bool
 ApeEstimator::hitSelected(TrackStruct::HitParameterStruct& hitParams)const{
-  if(hitParams.hitState == TrackStruct::notInTracker)return false;
-  if(hitParams.hitState == TrackStruct::invalid || hitParams.hitState == TrackStruct::negativeError)return false;
+  if(hitParams.hitState == TrackStruct::notInTracker) {return false; }
+  if(hitParams.hitState == TrackStruct::invalid || hitParams.hitState == TrackStruct::negativeError) {return false; }
   
   bool isGoodHit(true);
   bool isGoodHitX(true);
@@ -1653,74 +1653,74 @@ ApeEstimator::hitSelected(TrackStruct::HitParameterStruct& hitParams)const{
   for(auto & i_hitSelection : m_hitSelection_){
     const std::string& hitSelection(i_hitSelection.first);
     const std::vector<double>& v_hitSelection(i_hitSelection.second);
-    if(v_hitSelection.empty())continue;
+    if(v_hitSelection.empty()) {continue; }
     
     // For pixel and strip sectors in common
-    if     (hitSelection == "phiSens")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.phiSens))isGoodHit = false;}
-    else if(hitSelection == "phiSensX")       {if(!this->inDoubleInterval(v_hitSelection, hitParams.phiSensX))isGoodHit = false;}
-    else if(hitSelection == "phiSensY")       {if(!this->inDoubleInterval(v_hitSelection, hitParams.phiSensY))isGoodHit = false;}
+    if     (hitSelection == "phiSens")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.phiSens)) {isGoodHit = false; }}
+    else if(hitSelection == "phiSensX")       {if(!this->inDoubleInterval(v_hitSelection, hitParams.phiSensX)) {isGoodHit = false; }}
+    else if(hitSelection == "phiSensY")       {if(!this->inDoubleInterval(v_hitSelection, hitParams.phiSensY)) {isGoodHit = false; }}
     
-    else if(hitSelection == "resX")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.resX))isGoodHitX = false;}
-    else if(hitSelection == "norResX")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.norResX))isGoodHitX = false;}
-    else if(hitSelection == "probX")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.probX))isGoodHitX = false;}
-    else if(hitSelection == "errXHit")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.errXHit))isGoodHitX = false;}
-    else if(hitSelection == "errXTrk")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.errXTrk))isGoodHitX = false;}
-    else if(hitSelection == "errX")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.errX))isGoodHitX = false;}
-    else if(hitSelection == "errX2")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.errX2))isGoodHitX = false;}
+    else if(hitSelection == "resX")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.resX)) {isGoodHitX = false; }}
+    else if(hitSelection == "norResX")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.norResX)) {isGoodHitX = false; }}
+    else if(hitSelection == "probX")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.probX)) {isGoodHitX = false; }}
+    else if(hitSelection == "errXHit")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.errXHit)) {isGoodHitX = false; }}
+    else if(hitSelection == "errXTrk")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.errXTrk)) {isGoodHitX = false; }}
+    else if(hitSelection == "errX")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.errX)) {isGoodHitX = false; }}
+    else if(hitSelection == "errX2")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.errX2)) {isGoodHitX = false; }}
     
     // For pixel only
     if(hitParams.isPixelHit){
-      if     (hitSelection == "chargePixel")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargePixel))isGoodHit = false;}
-      else if(hitSelection == "clusterProbabilityXY") {if(!this->inDoubleInterval(v_hitSelection, hitParams.clusterProbabilityXY))isGoodHit = false;}
-      else if(hitSelection == "clusterProbabilityQ")  {if(!this->inDoubleInterval(v_hitSelection, hitParams.clusterProbabilityQ))isGoodHit = false;}
-      else if(hitSelection == "clusterProbabilityXYQ"){if(!this->inDoubleInterval(v_hitSelection, hitParams.clusterProbabilityXYQ))isGoodHit = false;}
-      else if(hitSelection == "logClusterProbability"){if(!this->inDoubleInterval(v_hitSelection, hitParams.logClusterProbability))isGoodHit = false;}
+      if     (hitSelection == "chargePixel")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargePixel)) {isGoodHit = false; }}
+      else if(hitSelection == "clusterProbabilityXY") {if(!this->inDoubleInterval(v_hitSelection, hitParams.clusterProbabilityXY)) {isGoodHit = false; }}
+      else if(hitSelection == "clusterProbabilityQ")  {if(!this->inDoubleInterval(v_hitSelection, hitParams.clusterProbabilityQ)) {isGoodHit = false; }}
+      else if(hitSelection == "clusterProbabilityXYQ"){if(!this->inDoubleInterval(v_hitSelection, hitParams.clusterProbabilityXYQ)) {isGoodHit = false; }}
+      else if(hitSelection == "logClusterProbability"){if(!this->inDoubleInterval(v_hitSelection, hitParams.logClusterProbability)) {isGoodHit = false; }}
       
-      else if(hitSelection == "baryStripX")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.baryStripX))isGoodHitX = false;}
-      else if(hitSelection == "baryStripY")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.baryStripY))isGoodHitY = false;}
+      else if(hitSelection == "baryStripX")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.baryStripX)) {isGoodHitX = false; }}
+      else if(hitSelection == "baryStripY")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.baryStripY)) {isGoodHitY = false; }}
       
       
       
-      else if(hitSelection == "resY")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.resY))isGoodHitY = false;}
-      else if(hitSelection == "norResY")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.norResY))isGoodHitY = false;}
-      else if(hitSelection == "probY")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.probY))isGoodHitY = false;}
-      else if(hitSelection == "errYHit")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.errYHit))isGoodHitY = false;}
-      else if(hitSelection == "errYTrk")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.errYTrk))isGoodHitY = false;}
-      else if(hitSelection == "errY")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.errY))isGoodHitY = false;}
-      else if(hitSelection == "errY2")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.errY2))isGoodHitY = false;}
+      else if(hitSelection == "resY")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.resY)) {isGoodHitY = false; }}
+      else if(hitSelection == "norResY")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.norResY)) {isGoodHitY = false; }}
+      else if(hitSelection == "probY")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.probY)) {isGoodHitY = false; }}
+      else if(hitSelection == "errYHit")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.errYHit)) {isGoodHitY = false; }}
+      else if(hitSelection == "errYTrk")        {if(!this->inDoubleInterval(v_hitSelection, hitParams.errYTrk)) {isGoodHitY = false; }}
+      else if(hitSelection == "errY")           {if(!this->inDoubleInterval(v_hitSelection, hitParams.errY)) {isGoodHitY = false; }}
+      else if(hitSelection == "errY2")          {if(!this->inDoubleInterval(v_hitSelection, hitParams.errY2)) {isGoodHitY = false; }}
     }else{ // For strip only
-      if     (hitSelection == "widthProj")      {if(!this->inDoubleInterval(v_hitSelection, hitParams.projWidth))isGoodHit = false;}
-      else if(hitSelection == "widthDiff")      {if(!this->inDoubleInterval(v_hitSelection, hitParams.projWidth-static_cast<float>(hitParams.widthX)))isGoodHit = false;}
-      else if(hitSelection == "charge")         {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeStrip))isGoodHit = false;}
-      else if(hitSelection == "maxCharge")      {if(!this->inDoubleInterval(v_hitSelection, hitParams.maxCharge))isGoodHit = false;}
-      else if(hitSelection == "chargeOnEdges")  {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeOnEdges))isGoodHit = false;}
-      else if(hitSelection == "chargeAsymmetry"){if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeAsymmetry))isGoodHit = false;}
-      else if(hitSelection == "chargeLRplus")   {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeLRplus))isGoodHit = false;}
-      else if(hitSelection == "chargeLRminus")  {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeLRminus))isGoodHit = false;}
-      else if(hitSelection == "sOverN")         {if(!this->inDoubleInterval(v_hitSelection, hitParams.sOverN))isGoodHit = false;}
+      if     (hitSelection == "widthProj")      {if(!this->inDoubleInterval(v_hitSelection, hitParams.projWidth)) {isGoodHit = false; }}
+      else if(hitSelection == "widthDiff")      {if(!this->inDoubleInterval(v_hitSelection, hitParams.projWidth-static_cast<float>(hitParams.widthX))) {isGoodHit = false; }}
+      else if(hitSelection == "charge")         {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeStrip)) {isGoodHit = false; }}
+      else if(hitSelection == "maxCharge")      {if(!this->inDoubleInterval(v_hitSelection, hitParams.maxCharge)) {isGoodHit = false; }}
+      else if(hitSelection == "chargeOnEdges")  {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeOnEdges)) {isGoodHit = false; }}
+      else if(hitSelection == "chargeAsymmetry"){if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeAsymmetry)) {isGoodHit = false; }}
+      else if(hitSelection == "chargeLRplus")   {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeLRplus)) {isGoodHit = false; }}
+      else if(hitSelection == "chargeLRminus")  {if(!this->inDoubleInterval(v_hitSelection, hitParams.chargeLRminus)) {isGoodHit = false; }}
+      else if(hitSelection == "sOverN")         {if(!this->inDoubleInterval(v_hitSelection, hitParams.sOverN)) {isGoodHit = false; }}
     }
   }
   
   for(auto & i_hitSelection : m_hitSelectionUInt_){
     const std::string& hitSelection(i_hitSelection.first);
     const std::vector<unsigned int>& v_hitSelection(i_hitSelection.second);
-    if(v_hitSelection.empty())continue;
+    if(v_hitSelection.empty()) {continue; }
     
     // For pixel and strip sectors in common
     
     // For pixel only
     if(hitParams.isPixelHit){
-      if(hitSelection == "isOnEdge")          {if(!this->inUintInterval(v_hitSelection, hitParams.isOnEdge))isGoodHit = false;}
-      else if(hitSelection == "hasBadPixels") {if(!this->inUintInterval(v_hitSelection, hitParams.hasBadPixels))isGoodHit = false;}
-      else if(hitSelection == "spansTwoRoc")  {if(!this->inUintInterval(v_hitSelection, hitParams.spansTwoRoc))isGoodHit = false;}
-      else if(hitSelection == "qBin")         {if(!this->inUintInterval(v_hitSelection, hitParams.qBin))isGoodHit = false;}
+      if(hitSelection == "isOnEdge")          {if(!this->inUintInterval(v_hitSelection, hitParams.isOnEdge)) {isGoodHit = false; }}
+      else if(hitSelection == "hasBadPixels") {if(!this->inUintInterval(v_hitSelection, hitParams.hasBadPixels)) {isGoodHit = false; }}
+      else if(hitSelection == "spansTwoRoc")  {if(!this->inUintInterval(v_hitSelection, hitParams.spansTwoRoc)) {isGoodHit = false; }}
+      else if(hitSelection == "qBin")         {if(!this->inUintInterval(v_hitSelection, hitParams.qBin)) {isGoodHit = false; }}
       
-      else if(hitSelection == "widthX")       {if(!this->inUintInterval(v_hitSelection, hitParams.widthX))isGoodHitX = false;}
-      else if(hitSelection == "widthY")       {if(!this->inUintInterval(v_hitSelection, hitParams.widthY))isGoodHitY = false;}
+      else if(hitSelection == "widthX")       {if(!this->inUintInterval(v_hitSelection, hitParams.widthX)) {isGoodHitX = false; }}
+      else if(hitSelection == "widthY")       {if(!this->inUintInterval(v_hitSelection, hitParams.widthY)) {isGoodHitY = false; }}
     }else{ // For strip only
-      if     (hitSelection == "width")     {if(!this->inUintInterval(v_hitSelection, hitParams.widthX))isGoodHit = false;}
-      else if(hitSelection == "edgeStrips"){if(!this->inUintInterval(v_hitSelection, hitParams.maxStrip, hitParams.maxStripInv))isGoodHit = false;}
-      else if(hitSelection == "maxIndex")  {if(!this->inUintInterval(v_hitSelection, hitParams.maxIndex))isGoodHit = false;}
+      if     (hitSelection == "width")     {if(!this->inUintInterval(v_hitSelection, hitParams.widthX)) {isGoodHit = false; }}
+      else if(hitSelection == "edgeStrips"){if(!this->inUintInterval(v_hitSelection, hitParams.maxStrip, hitParams.maxStripInv)) {isGoodHit = false; }}
+      else if(hitSelection == "maxIndex")  {if(!this->inUintInterval(v_hitSelection, hitParams.maxIndex)) {isGoodHit = false; }}
     }
   }
   
@@ -1732,8 +1732,8 @@ ApeEstimator::hitSelected(TrackStruct::HitParameterStruct& hitParams)const{
     hitParams.goodYMeasurement = false;
   }
   
-  if(!hitParams.goodXMeasurement && !hitParams.goodYMeasurement)return false;
-  else return true;
+  if(!hitParams.goodXMeasurement && !hitParams.goodYMeasurement) {return false;
+  } else { return true; }
 }
 
 
@@ -1743,8 +1743,8 @@ ApeEstimator::inDoubleInterval(const std::vector<double>& v_hitSelection, const 
   bool isSelected(false);
   for(auto const & i_hitInterval : v_hitSelection){
     ++entry;
-    if(entry%2==1)intervalBegin = i_hitInterval;
-    else if(variable>=intervalBegin && variable<i_hitInterval)isSelected = true;
+    if(entry%2==1) {intervalBegin = i_hitInterval;
+    } else if(variable>=intervalBegin && variable<i_hitInterval) {isSelected = true; }
   }
   return isSelected;
 }
@@ -1756,9 +1756,9 @@ ApeEstimator::inUintInterval(const std::vector<unsigned int>& v_hitSelection, co
   bool isSelected(false);
   for(auto i_hitInterval : v_hitSelection ){
     ++entry;
-    if(entry%2==1)intervalBegin = i_hitInterval;
-    else if(variable>=intervalBegin && variable<=i_hitInterval){
-      if(variable2==999 || (variable2>=intervalBegin && variable2<=i_hitInterval))isSelected = true;
+    if(entry%2==1) {intervalBegin = i_hitInterval;
+    } else if(variable>=intervalBegin && variable<=i_hitInterval){
+      if(variable2==999 || (variable2>=intervalBegin && variable2<=i_hitInterval)) {isSelected = true; }
     }
   }
   return isSelected;
@@ -1778,7 +1778,7 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
   
   if(parameterSet_.getParameter<bool>("applyTrackCuts")){
     // which tracks to take? need min. nr. of selected hits?
-    if(goodHitsPerTrack < minGoodHitsPerTrack_)return;
+    if(goodHitsPerTrack < minGoodHitsPerTrack_) {return; }
   }
   
   tkDetector_.HitsSize     ->Fill(trackStruct.trkParams.hitsSize);
@@ -1832,7 +1832,7 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
   for(auto & i_hit : trackStruct.v_hitParams){
     const TrackStruct::HitParameterStruct& hit(i_hit);
     //Put here from earlier method
-    if(hit.hitState == TrackStruct::notAssignedToSectors)continue;
+    if(hit.hitState == TrackStruct::notAssignedToSectors) {continue; }
     
     for(auto & i_sector : m_tkSector_){
       bool moduleInSector(false);
@@ -1842,7 +1842,7 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
           break;
         }
       }
-      if(!moduleInSector)continue;
+      if(!moduleInSector) {continue; }
       TrackerSectorStruct& sector(i_sector.second);
       
       if(hit.goodXMeasurement){
@@ -1898,16 +1898,16 @@ ApeEstimator::fillHistsForAnalyzerMode(const TrackStruct& trackStruct){
       // Special Histograms 
       for(auto & i_sigmaX : sector.m_sigmaX){
         for(auto & iHist : i_sigmaX.second){
-          if     (i_sigmaX.first=="sigmaXHit") iHist->Fill(hit.errXHit*10000.);
-          else if(i_sigmaX.first=="sigmaXTrk") iHist->Fill(hit.errXTrk*10000.);
-          else if(i_sigmaX.first=="sigmaX")    iHist->Fill(hit.errX*10000.);
+          if     (i_sigmaX.first=="sigmaXHit") { iHist->Fill(hit.errXHit*10000.);
+          } else if(i_sigmaX.first=="sigmaXTrk") { iHist->Fill(hit.errXTrk*10000.);
+          } else if(i_sigmaX.first=="sigmaX") {    iHist->Fill(hit.errX*10000.); }
         }
       }
       for(auto & i_sigmaY : sector.m_sigmaY){
         for(auto & iHist : i_sigmaY.second){
-          if     (i_sigmaY.first=="sigmaYHit") iHist->Fill(hit.errYHit*10000.);
-          else if(i_sigmaY.first=="sigmaYTrk") iHist->Fill(hit.errYTrk*10000.);
-          else if(i_sigmaY.first=="sigmaY")    iHist->Fill(hit.errY*10000.);
+          if     (i_sigmaY.first=="sigmaYHit") { iHist->Fill(hit.errYHit*10000.);
+          } else if(i_sigmaY.first=="sigmaYTrk") { iHist->Fill(hit.errYTrk*10000.);
+          } else if(i_sigmaY.first=="sigmaY") {    iHist->Fill(hit.errY*10000.); }
         }
       }
     }
@@ -1989,7 +1989,7 @@ void
 ApeEstimator::fillHitHistsYForAnalyzerMode(const TrackStruct::HitParameterStruct& hit, TrackerSectorStruct& sector){
   std::map<std::string, TrackerSectorStruct::CorrelationHists>& m_corrHists(sector.m_correlationHistsY);
   // Do not fill anything for strip
-  if(!hit.isPixelHit)return;
+  if(!hit.isPixelHit) {return; }
   
   // Cluster Parameters
   m_corrHists["WidthY"].fillCorrHistsY(hit,hit.widthY);
@@ -2035,12 +2035,12 @@ ApeEstimator::fillHistsForApeCalculation(const TrackStruct& trackStruct){
   
   if(parameterSet_.getParameter<bool>("applyTrackCuts")){
     // which tracks to take? need min. nr. of selected hits?
-    if(goodHitsPerTrack < minGoodHitsPerTrack_)return;
+    if(goodHitsPerTrack < minGoodHitsPerTrack_) {return; }
   }
   
   for(auto const & i_hit : trackStruct.v_hitParams){
     // Put here from earlier method
-    if(i_hit.hitState == TrackStruct::notAssignedToSectors)continue;
+    if(i_hit.hitState == TrackStruct::notAssignedToSectors) {continue; }
     
     for(auto & i_sector : m_tkSector_){
       
@@ -2051,9 +2051,9 @@ ApeEstimator::fillHistsForApeCalculation(const TrackStruct& trackStruct){
           break;
         }
       }
-      if(!moduleInSector)continue;      
+      if(!moduleInSector) {continue;       }
       
-      if(!calculateApe_)continue;
+      if(!calculateApe_) {continue; }
       
       if(i_hit.goodXMeasurement){
         for(auto const & i_errBins : m_resErrBins_){
@@ -2139,11 +2139,11 @@ ApeEstimator::isHit2D(const TrackingRecHit &hit) const
         return true; // pixel is always 2D
       }else{ // should be SiStrip now
         const SiStripDetId stripId(detId);
-        if (stripId.stereo()) return true; // stereo modules
-        else if (dynamic_cast<const SiStripRecHit1D*>(&hit) || dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // rphi modules hit
+        if (stripId.stereo()) { return true; // stereo modules
+        } else if (dynamic_cast<const SiStripRecHit1D*>(&hit) || dynamic_cast<const SiStripRecHit2D*>(&hit)) { return false; // rphi modules hit
         //the following two are not used any more since ages... 
-        else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) return true; // matched is 2D
-        else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) {
+        } else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) { return true; // matched is 2D
+        } else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) {
           const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
           return (this->isHit2D(pH->originalHit())); // depends on original...
         }else{
@@ -2185,9 +2185,9 @@ ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
    iEvent.getByToken(tjTagToken_, m_TrajTracksMap);
    
-   if(analyzerMode_)tkDetector_.TrkSize->Fill(m_TrajTracksMap->size());
+   if(analyzerMode_) {tkDetector_.TrkSize->Fill(m_TrajTracksMap->size()); }
    
-   if(maxTracksPerEvent_!=0 && m_TrajTracksMap->size()>maxTracksPerEvent_)return;
+   if(maxTracksPerEvent_!=0 && m_TrajTracksMap->size()>maxTracksPerEvent_) {return; }
    
    //Creation of (traj,track)
    typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair;
@@ -2211,22 +2211,22 @@ ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      TrackStruct trackStruct;
      trackStruct.trkParams = this->fillTrackVariables(*track, *traj, beamSpot);
      
-     if(trackCut_)continue;
+     if(trackCut_) {continue; }
      
      const std::vector<TrajectoryMeasurement> v_meas = (*traj).measurements();
      
      //Loop over Hits
      for(std::vector<TrajectoryMeasurement>::const_iterator i_meas = v_meas.begin(); i_meas != v_meas.end(); ++i_meas){
        TrackStruct::HitParameterStruct hitParams = this->fillHitVariables(*i_meas, iSetup);
-       if(this->hitSelected(hitParams))trackStruct.v_hitParams.push_back(hitParams);
+       if(this->hitSelected(hitParams)) {trackStruct.v_hitParams.push_back(hitParams); }
      }
      
-     if(analyzerMode_)this->fillHistsForAnalyzerMode(trackStruct);
-     if(calculateApe_)this->fillHistsForApeCalculation(trackStruct);
+     if(analyzerMode_) {this->fillHistsForAnalyzerMode(trackStruct); }
+     if(calculateApe_) {this->fillHistsForApeCalculation(trackStruct); }
      
-     if(!trackStruct.v_hitParams.empty())++trackSizeGood;
+     if(!trackStruct.v_hitParams.empty()) {++trackSizeGood; }
    }
-   if(analyzerMode_ && trackSizeGood>0)tkDetector_.TrkSizeGood->Fill(trackSizeGood);
+   if(analyzerMode_ && trackSizeGood>0) {tkDetector_.TrkSizeGood->Fill(trackSizeGood); }
 }
 
 
@@ -2239,11 +2239,11 @@ ApeEstimator::beginJob(){
    
    this->residualErrorBinning();
    
-   if(analyzerMode_)this->bookSectorHistsForAnalyzerMode();
+   if(analyzerMode_) {this->bookSectorHistsForAnalyzerMode(); }
    
-   if(calculateApe_)this->bookSectorHistsForApeCalculation();
+   if(calculateApe_) {this->bookSectorHistsForApeCalculation(); }
    
-   if(analyzerMode_)this->bookTrackHists();
+   if(analyzerMode_) {this->bookTrackHists(); }
    
    
 }
@@ -2251,7 +2251,7 @@ ApeEstimator::beginJob(){
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 ApeEstimator::endJob() {
-   if(calculateApe_)this->calculateAPE();
+   if(calculateApe_) {this->calculateAPE(); }
    
    edm::LogInfo("HitSelector")<<"\nThere are "<<counter1<< " negative Errors calculated\n";
 }

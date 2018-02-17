@@ -26,13 +26,13 @@ namespace gs {
           annotationsMerged_(false),
           streamFlushed_(true)
     {
-        if (!modeValid()) return;
+        if (!modeValid()) { return; }
 
         try
         {
             // Get a new buffer for the data and open the data stream
-            if (dataFileBufferSize)
-                filebuf_ = new char[dataFileBufferSize];
+            if (dataFileBufferSize) {
+                filebuf_ = new char[dataFileBufferSize]; }
             dataStream_.rdbuf()->pubsetbuf(filebuf_, dataFileBufferSize);
             openDataFile(dataStream_, dataFileName_.c_str());
             dataStream_.seekp(0, std::ios_base::end);
@@ -40,24 +40,24 @@ namespace gs {
             // Get a new buffer for the catalog and open the catalog stream.
             // We may have to rewrite the complete catalog, so remove the flag
             // std::ios_base::app from the opening mode.
-            if (catalogFileBufferSize)
-                catabuf_ = new char[catalogFileBufferSize];
+            if (catalogFileBufferSize) {
+                catabuf_ = new char[catalogFileBufferSize]; }
             catStream_.rdbuf()->pubsetbuf(catabuf_, catalogFileBufferSize);
             catStream_.open(catalogFileName_.c_str(),
                             openmode() & ~std::ios_base::app);
-            if (!catStream_.is_open())
+            if (!catStream_.is_open()) {
                 throw IOOpeningFailure("gs::BinaryFileArchive constructor",
-                                       catalogFileName_);
+                                       catalogFileName_); }
 
             // Can we use a write-only catalog?
             if (openmode() & std::ios_base::in)
             {
                 // Reading is allowed. Have to use in-memory catalog.
                 // If the file data already exists, get the catalog in.
-                if (isEmptyFile(catStream_))
+                if (isEmptyFile(catStream_)) {
                     setCatalog(new ContiguousCatalog());
-                else
-                    readCatalog<ContiguousCatalog>();
+                } else {
+                    readCatalog<ContiguousCatalog>(); }
             }
             else
             {
@@ -79,8 +79,8 @@ namespace gs {
                     catStream_.clear();
                     catStream_.open(catalogFileName_.c_str(),
                                     openmode() | std::ios_base::in);
-                    if (!catStream_.is_open()) throw IOOpeningFailure(
-                        "gs::BinaryFileArchive constructor", catalogFileName_);
+                    if (!catStream_.is_open()) { throw IOOpeningFailure(
+                        "gs::BinaryFileArchive constructor", catalogFileName_); }
                     readCatalog<WriteOnlyCatalog>();
                     catStream_.seekp(0, std::ios_base::end);
                 }
@@ -96,8 +96,8 @@ namespace gs {
 
     void BinaryFileArchive::releaseBuffers()
     {
-        if (dataStream_.is_open()) dataStream_.close();
-        if (catStream_.is_open()) catStream_.close();
+        if (dataStream_.is_open()) { dataStream_.close(); }
+        if (catStream_.is_open()) { catStream_.close(); }
         catStream_.rdbuf()->pubsetbuf(nullptr, 0);
         dataStream_.rdbuf()->pubsetbuf(nullptr, 0);
         delete [] catabuf_; catabuf_ = nullptr;
@@ -116,8 +116,8 @@ namespace gs {
         {
             if (!annotationsMerged_)
             {
-                if (!annotation_.empty())
-                    catalogAnnotations_.push_back(annotation_);
+                if (!annotation_.empty()) {
+                    catalogAnnotations_.push_back(annotation_); }
                 annotationsMerged_ = true;
             }
             const unsigned compress = static_cast<unsigned>(compressionMode());
@@ -141,8 +141,8 @@ namespace gs {
         if (isOpen())
         {
             assert(openmode() & std::ios_base::in);
-            if (!id) throw gs::IOInvalidArgument(
-                "In gs::BinaryFileArchive::plainInputStream: invalid item id");
+            if (!id) { throw gs::IOInvalidArgument(
+                "In gs::BinaryFileArchive::plainInputStream: invalid item id"); }
             std::streampos pos;
             if (!catalog()->retrieveStreampos(
                     id, compressionCode, length, &pos))
@@ -185,8 +185,8 @@ namespace gs {
                     write_pod(dataStream_, now);
                     dataStream_.seekp(0, std::ios_base::end);
                 }
-                else
-                    id = 0;
+                else {
+                    id = 0; }
             }
         }
         return id;
@@ -222,8 +222,8 @@ namespace gs {
 
             if (openmode() & std::ios_base::out)
             {
-                if (dynamic_cast<WriteOnlyCatalog*>(catalog()) == nullptr)
-                    writeCatalog();
+                if (dynamic_cast<WriteOnlyCatalog*>(catalog()) == nullptr) {
+                    writeCatalog(); }
                 catStream_.flush();
             }
         }

@@ -27,7 +27,8 @@ using namespace CLHEP;
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOOpticalSquare::detailedDeviatesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED DEVIATION IN OPTICAL SQUARE " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: DETAILED DEVIATION IN OPTICAL SQUARE " << name() << std::endl;
+}
 
   calculateFaces( true );
 
@@ -39,7 +40,8 @@ void OptOOpticalSquare::detailedDeviatesLightRay( LightRay& lightray )
   ALIint ii;
   for( ii = 0; ii < 4; ii++ ) {
     if(ii == 0) { 
-      if( ALIUtils::debug >= 3 ) std::cout << "## OPTOOPTICALSQUARE: refract in face " << ii << std::endl;
+      if( ALIUtils::debug >= 3 ) { std::cout << "## OPTOOPTICALSQUARE: refract in face " << ii << std::endl;
+}
       lightray.refract( ALIPlane(faceP[ii],faceV[ii]), refra_ind0, refra_ind );
     } else if( ii == 3) { 
     //---- interchange refraction index for exiting instead of entering
@@ -64,7 +66,8 @@ void OptOOpticalSquare::detailedDeviatesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOOpticalSquare::detailedTraversesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED TRAVERSES OPTICAL SQUARE " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: DETAILED TRAVERSES OPTICAL SQUARE " << name() << std::endl;
+}
 
   calculateFaces( true );
   const ALIdouble refra_ind = findExtraEntryValueMustExist("refra_ind");
@@ -83,7 +86,8 @@ void OptOOpticalSquare::detailedTraversesLightRay( LightRay& lightray )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOOpticalSquare::fastDeviatesLightRay( LightRay& lightray )
 {
-  if (ALIUtils::debug >= 2) std::cout << "LR: FAST DEVIATION IN OPTICAL SQUARE " << name() << std::endl;
+  if (ALIUtils::debug >= 2) { std::cout << "LR: FAST DEVIATION IN OPTICAL SQUARE " << name() << std::endl;
+}
   
   calculateFaces( false );
   
@@ -158,7 +162,8 @@ void OptOOpticalSquare::calculateFaces( ALIbool isDetailed )
 
   //----- useful variables
   CLHEP::Hep3Vector opto_centre = centreGlob();
-  if(ALIUtils::debug >= 3) std::cout << "opto_centre " << opto_centre << std::endl;
+  if(ALIUtils::debug >= 3) { std::cout << "opto_centre " << opto_centre << std::endl;
+}
   const ALIdouble hlen1 = findExtraEntryValueMustExist("length1") / 2.;
   const ALIdouble hlen2 = findExtraEntryValueMustExist("length2") / 2.;
   ALIdouble ang = 67.5*acos(0.)/90.;
@@ -207,7 +212,8 @@ void OptOOpticalSquare::calculateFaces( ALIbool isDetailed )
     }
 
     //----- One axis is along X axis for the two faces (X belong to both faces)
-    if(ALIUtils::debug >= 4) std::cout << "OptOOpticalSquare calculateFaces: wedgeX  " << wedgeX << " wedgeY  " << wedgeY << std::endl;
+    if(ALIUtils::debug >= 4) { std::cout << "OptOOpticalSquare calculateFaces: wedgeX  " << wedgeX << " wedgeY  " << wedgeY << std::endl;
+}
     CLHEP::Hep3Vector Axis1(1.,0.,0.);
     Axis1 = rmt * Axis1; 
     if( ALIUtils::debug >= 4) {
@@ -215,7 +221,8 @@ void OptOOpticalSquare::calculateFaces( ALIbool isDetailed )
       ALIUtils::dump3v(faceV[2], "faceV[2] before wedge"); 
     }
     faceV[1].rotate(0.5* wedgeX, Axis1);
-    if( ALIUtils::debug >= 4) ALIUtils::dump3v( Axis1, " Axis1 in faceV[1] ");
+    if( ALIUtils::debug >= 4) { ALIUtils::dump3v( Axis1, " Axis1 in faceV[1] ");
+}
     faceV[2].rotate(-0.5* wedgeX, Axis1);
     if( ALIUtils::debug >= 4) {
       ALIUtils::dump3v( Axis1, " Axis1 in faceV[2] ");
@@ -227,7 +234,8 @@ void OptOOpticalSquare::calculateFaces( ALIbool isDetailed )
     CLHEP::Hep3Vector Axis2 = Axis1;
     Axis2 = Axis2.cross( faceV[1] );
     faceV[1].rotate(0.5* wedgeY, Axis2);
-    if( ALIUtils::debug >= 4) ALIUtils::dump3v( Axis2, " Axis2 in faceV[1] ");
+    if( ALIUtils::debug >= 4) { ALIUtils::dump3v( Axis2, " Axis2 in faceV[1] ");
+}
     Axis2 = Axis1;
     Axis2 = Axis2.cross( faceV[2] );
     faceV[2].rotate(-0.5* wedgeY, Axis2);

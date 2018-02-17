@@ -116,8 +116,8 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 
       // Call service
       edm::Service<cond::service::PoolDBOutputService> poolDbService;
-      if( !poolDbService.isAvailable() ) // Die if not available
-        throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+      if( !poolDbService.isAvailable() ) { // Die if not available
+        throw cms::Exception("NotAvailable") << "PoolDBOutputService not available"; }
       if (theSaveFakeScenario) { // make empty!
         alignments->clear();
         alignmentErrors->clear();

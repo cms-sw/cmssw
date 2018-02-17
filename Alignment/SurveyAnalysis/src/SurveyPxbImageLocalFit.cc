@@ -247,28 +247,28 @@ void SurveyPxbImageLocalFit::doFit(value_t u1, value_t v1, value_t g1, value_t u
 
 SurveyPxbImageLocalFit::localpars_t SurveyPxbImageLocalFit::getLocalParameters()
 {
-	if (!fitValidFlag_) throw std::logic_error("SurveyPxbImageLocalFit::getLocalParameters(): Fit is not valid. Call doFit(...) before calling this function.");
+	if (!fitValidFlag_) { throw std::logic_error("SurveyPxbImageLocalFit::getLocalParameters(): Fit is not valid. Call doFit(...) before calling this function."); }
 	return a_;
 }
 
 SurveyPxbImageLocalFit::value_t SurveyPxbImageLocalFit::getChi2()
 {
-	if (!fitValidFlag_) throw std::logic_error("SurveyPxbImageLocalFit::getChi2(): Fit is not valid. Call doFit(...) before calling this function.");
+	if (!fitValidFlag_) { throw std::logic_error("SurveyPxbImageLocalFit::getChi2(): Fit is not valid. Call doFit(...) before calling this function."); }
 	return chi2_;
 }
 
 void SurveyPxbImageLocalFit::setLocalDerivsToZero(count_t j)
 {
-    if (!(j < nLcD)) throw std::range_error("SurveyPxbImageLocalFit::setLocalDerivsToZero(j): j out of range.");
-    for(count_t i=0; i!=nMsrmts; i++)
-	localDerivsMatrix_(i,j)=0;
+    if (!(j < nLcD)) { throw std::range_error("SurveyPxbImageLocalFit::setLocalDerivsToZero(j): j out of range."); }
+    for(count_t i=0; i!=nMsrmts; i++) {
+	localDerivsMatrix_(i,j)=0; }
 }
 
 void SurveyPxbImageLocalFit::setGlobalDerivsToZero(count_t j)
 {
-    if (!(j < nGlD)) throw std::range_error("SurveyPxbImageLocalFit::setLocalDerivsToZero(j): j out of range.");
-    for(count_t i=0; i!=nMsrmts; i++)
-	globalDerivsMatrix_(i,j)=0;
+    if (!(j < nGlD)) { throw std::range_error("SurveyPxbImageLocalFit::setLocalDerivsToZero(j): j out of range."); }
+    for(count_t i=0; i!=nMsrmts; i++) {
+	globalDerivsMatrix_(i,j)=0; }
 }
 
 

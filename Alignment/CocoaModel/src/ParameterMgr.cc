@@ -69,7 +69,8 @@ ALIdouble ParameterMgr::getVal( const ALIstring& str, const ALIdouble dimensionF
 void ParameterMgr::addParameter( const ALIstring& name, const ALIstring& valstr )
 {
   if( theParameters.find( name ) != theParameters.end() ) {
-    if( ALIUtils::debug >= 1) std::cerr << "!! WARNING: PARAMETER " << name << " appears twice, it will take first value " << std::endl;
+    if( ALIUtils::debug >= 1) { std::cerr << "!! WARNING: PARAMETER " << name << " appears twice, it will take first value " << std::endl;
+}
   } else {
     theParameters[name] = getVal( valstr );
   }
@@ -87,13 +88,15 @@ void ParameterMgr::setRandomSeed( const long seed )
 void ParameterMgr::addRandomGaussParameter( const ALIstring& name, const ALIstring& valMean, const ALIstring& valStdDev ) 
 {
   if( theParameters.find( name ) != theParameters.end() ) {
-    if( ALIUtils::debug >= 1) std::cerr << "!! WARNING: PARAMETER " << name << " appears twice, it will take first value " << std::endl;
+    if( ALIUtils::debug >= 1) { std::cerr << "!! WARNING: PARAMETER " << name << " appears twice, it will take first value " << std::endl;
+}
   } else {
     ALIdouble mean = getVal( valMean );
     ALIdouble stddev = getVal( valStdDev );
     ALIdouble val = CLHEP::RandGauss::shoot( mean, stddev );
     theParameters[name] = val;
-    if( ALIUtils::debug >= -2 ) std::cout << " addRandomGaussParameter "  << name << " " << valMean << " " << valStdDev << " = " << val << std::endl;
+    if( ALIUtils::debug >= -2 ) { std::cout << " addRandomGaussParameter "  << name << " " << valMean << " " << valStdDev << " = " << val << std::endl;
+}
   }
 
 }
@@ -103,7 +106,8 @@ void ParameterMgr::addRandomGaussParameter( const ALIstring& name, const ALIstri
 void ParameterMgr::addRandomFlatParameter( const ALIstring& name, const ALIstring& valMean, const ALIstring& valInterval ) 
 {
   if( theParameters.find( name ) != theParameters.end() ) {
-    if( ALIUtils::debug >= 1) std::cerr << "!! WARNING: PARAMETER " << name << " appears twice, it will take first value " << std::endl;
+    if( ALIUtils::debug >= 1) { std::cerr << "!! WARNING: PARAMETER " << name << " appears twice, it will take first value " << std::endl;
+}
   } else {
     ALIdouble mean = getVal( valMean );
     ALIdouble interval = getVal( valInterval );
@@ -111,7 +115,8 @@ void ParameterMgr::addRandomFlatParameter( const ALIstring& name, const ALIstrin
     // flat between ]mean-interval, mean+interval[
     val = val * 2*interval + mean-interval;
     theParameters[name] = val;
-    if( ALIUtils::debug >= 2 )std::cout << " addRandomFlatParameter " << name << " " << valMean << " " << valInterval << " = " << val << std::endl;
+    if( ALIUtils::debug >= 2 ) {std::cout << " addRandomFlatParameter " << name << " " << valMean << " " << valInterval << " = " << val << std::endl;
+}
   }
 
 }

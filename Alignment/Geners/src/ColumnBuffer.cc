@@ -9,10 +9,10 @@ namespace gs {
             write_pod(os, lastrowp1);
             const unsigned char isPod = (podsize ? 1 : 0);
             write_pod(os, isPod);
-            if (isPod)
+            if (isPod) {
                 write_pod(os, podsize);
-            else
-                write_pod_vector(os, offsets);
+            } else {
+                write_pod_vector(os, offsets); }
             return !os.fail() && buf.write(os);
         }
 
@@ -36,12 +36,12 @@ namespace gs {
                 obj->podsize = 0;
                 read_pod_vector(is, &obj->offsets);
             }
-            if (is.fail()) throw IOReadFailure(
-                "In gs::Private::ColumnBuffer::restore: input stream failure");
+            if (is.fail()) { throw IOReadFailure(
+                "In gs::Private::ColumnBuffer::restore: input stream failure"); }
 
             // Size of a POD object can not be zero
-            if (isPod && !obj->podsize) throw IOInvalidData(
-                "In gs::Private::ColumnBuffer::restore: corrupted record");
+            if (isPod && !obj->podsize) { throw IOInvalidData(
+                "In gs::Private::ColumnBuffer::restore: corrupted record"); }
 
             CharBuffer::restore(bufId, is, &obj->buf);
         }

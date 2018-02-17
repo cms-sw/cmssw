@@ -113,7 +113,7 @@ unsigned int AlignableNavigator::recursiveGetId( Alignable* alignable )
   // Returns number of Alignables with DetId which are neither AlignableDet
   // nor AlignableDetUnit and are thus not added to the map.
 
-  if (!alignable) return 0;
+  if (!alignable) { return 0; }
 
   unsigned int nProblem = 0;
   const DetId detId(alignable->geomDetId());
@@ -209,7 +209,7 @@ bool AlignableNavigator::detAndSubdetInMap( const DetId& detid ) const
    int det = detid.det();
    int subdet = detid.subdetId();
    for (std::vector<std::pair<int, int> >::const_iterator i = theDetAndSubdet.begin();  i != theDetAndSubdet.end();  ++i) {
-      if (det == i->first  &&  subdet == i->second) return true;
+      if (det == i->first  &&  subdet == i->second) { return true; }
    }
    return false;
 }

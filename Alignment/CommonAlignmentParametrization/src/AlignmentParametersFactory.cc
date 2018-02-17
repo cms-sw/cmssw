@@ -22,12 +22,12 @@ namespace AlignmentParametersFactory {
   //_______________________________________________________________________________________
   ParametersType parametersType(const std::string &typeString)
   {
-    if (typeString == "RigidBody") return kRigidBody;
-    else if (typeString == "Survey") return kSurvey; //GF: do not belong here, so remove in the long term...
-    else if (typeString == "RigidBody4D") return kRigidBody4D;    
-    else if (typeString == "BeamSpot") return kBeamSpot;
-    else if (typeString == "BowedSurface") return kBowedSurface;
-    else if (typeString == "TwoBowedSurfaces") return kTwoBowedSurfaces;
+    if (typeString == "RigidBody") { return kRigidBody;
+    } else if (typeString == "Survey") { return kSurvey; //GF: do not belong here, so remove in the long term...
+    } else if (typeString == "RigidBody4D") { return kRigidBody4D;    
+    } else if (typeString == "BeamSpot") { return kBeamSpot;
+    } else if (typeString == "BowedSurface") { return kBowedSurface;
+    } else if (typeString == "TwoBowedSurfaces") { return kTwoBowedSurfaces; }
     throw cms::Exception("BadConfig") 
       << "AlignmentParametersFactory" << " No AlignmentParameters with name '" << typeString << "'.";
     
@@ -37,12 +37,12 @@ namespace AlignmentParametersFactory {
   //_______________________________________________________________________________________
   ParametersType parametersType(int typeInt)
   {
-    if (typeInt == kRigidBody) return kRigidBody;
-    if (typeInt == kSurvey) return kSurvey; //GF: do not belong here, so remove in the long term...
-    if (typeInt == kRigidBody4D) return kRigidBody4D;
-    if (typeInt == kBeamSpot) return kBeamSpot;
-    if (typeInt == kBowedSurface) return kBowedSurface;
-    if (typeInt == kTwoBowedSurfaces) return kTwoBowedSurfaces;
+    if (typeInt == kRigidBody) { return kRigidBody; }
+    if (typeInt == kSurvey) { return kSurvey; //GF: do not belong here, so remove in the long term... }
+    if (typeInt == kRigidBody4D) { return kRigidBody4D; }
+    if (typeInt == kBeamSpot) { return kBeamSpot; }
+    if (typeInt == kBowedSurface) { return kBowedSurface; }
+    if (typeInt == kTwoBowedSurfaces) { return kTwoBowedSurfaces; }
     
     throw cms::Exception("BadConfig") 
       << "AlignmentParametersFactory" << " No AlignmentParameters with number " << typeInt << ".";

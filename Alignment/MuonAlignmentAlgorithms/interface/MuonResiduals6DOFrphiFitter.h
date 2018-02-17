@@ -62,10 +62,10 @@ public:
 
   int npar() override
   {
-    if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D || residualsModel() == kGaussPowerTails) return kNPar - 2;
-    else if (residualsModel() == kPowerLawTails) return kNPar;
-    else if (residualsModel() == kROOTVoigt) return kNPar;
-    else assert(false);
+    if (residualsModel() == kPureGaussian || residualsModel() == kPureGaussian2D || residualsModel() == kGaussPowerTails) { return kNPar - 2;
+    } else if (residualsModel() == kPowerLawTails) { return kNPar;
+    } else if (residualsModel() == kROOTVoigt) { return kNPar;
+    } else { assert(false); }
   }
   int ndata() override { return kNData; }
 

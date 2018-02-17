@@ -83,7 +83,7 @@ bool TwoBodyDecayTrajectory::construct(const TwoBodyDecayTrajectoryState& state,
   ReferenceTrajectory trajectory1(tsos.first, recHits.first, field, beamSpot, config);
 
   // check if construction of trajectory was successful
-  if ( !trajectory1.isValid() ) return false;
+  if ( !trajectory1.isValid() ) { return false; }
 
   //
   // second track
@@ -91,7 +91,7 @@ bool TwoBodyDecayTrajectory::construct(const TwoBodyDecayTrajectoryState& state,
 
   ReferenceTrajectory trajectory2(tsos.second, recHits.second, field, beamSpot, config);
 
-  if ( !trajectory2.isValid() ) return false;
+  if ( !trajectory2.isValid() ) { return false; }
   
   //
   // combine both tracks

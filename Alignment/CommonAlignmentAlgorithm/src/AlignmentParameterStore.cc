@@ -73,8 +73,8 @@ AlignmentParameterStore::selectParameters( const std::vector<AlignableDet*>& ali
   detOrUnits.reserve(alignabledets.size());
 
   std::vector<AlignableDet*>::const_iterator it, iEnd;
-  for ( it = alignabledets.begin(), iEnd = alignabledets.end(); it != iEnd; ++it)
-    detOrUnits.push_back(AlignableDetOrUnitPtr(*it));
+  for ( it = alignabledets.begin(), iEnd = alignabledets.end(); it != iEnd; ++it) {
+    detOrUnits.push_back(AlignableDetOrUnitPtr(*it)); }
 
   return this->selectParameters(detOrUnits);
 }
@@ -261,8 +261,8 @@ align::Alignables AlignmentParameterStore::validAlignables(void) const
 { 
   align::Alignables result;
   for (align::Alignables::const_iterator iali = theAlignables.begin();
-       iali != theAlignables.end(); ++iali)
-    if ( (*iali)->alignmentParameters()->isValid() ) result.push_back(*iali);
+       iali != theAlignables.end(); ++iali) {
+    if ( (*iali)->alignmentParameters()->isValid() ) { result.push_back(*iali); }
 
   LogDebug("Alignment") << "@SUB=AlignmentParameterStore::validAlignables"
                         << "Valid alignables: " << result.size()
@@ -276,7 +276,7 @@ Alignable* AlignmentParameterStore::alignableFromAlignableDet( const AlignableDe
   AlignableDetOrUnitPtr alignableDet = _alignableDet;
   Alignable *mother = alignableDet;
   while (mother) {
-    if (mother->alignmentParameters()) return mother;
+    if (mother->alignmentParameters()) { return mother; }
     mother = mother->mother();
   }
 
@@ -287,8 +287,8 @@ Alignable* AlignmentParameterStore::alignableFromAlignableDet( const AlignableDe
 void AlignmentParameterStore::applyParameters(void)
 {
   align::Alignables::const_iterator iali;
-  for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) 
-    applyParameters( *iali );
+  for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) { 
+    applyParameters( *iali ); }
 }
 
 
@@ -313,8 +313,8 @@ void AlignmentParameterStore::resetParameters(void)
 
   // Iterate over alignables in the store and reset parameters
   align::Alignables::const_iterator iali;
-  for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali )
-    resetParameters( *iali );
+  for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali ) {
+    resetParameters( *iali ); }
 }
 
 
@@ -335,13 +335,13 @@ void AlignmentParameterStore::resetParameters( Alignable* ali )
       ali->setAlignmentParameters(apnew);
       apnew->setValid(false);
     }
-    else 
+    else { 
       edm::LogError("BadArgument") << "@SUB=AlignmentParameterStore::resetParameters"
-				   << "alignable has no alignment parameter";
+				   << "alignable has no alignment parameter"; }
   }
-  else
+  else {
     edm::LogError("BadArgument") << "@SUB=AlignmentParameterStore::resetParameters"
-                                 << "argument is NULL";
+                                 << "argument is NULL"; }
 }
 
 
@@ -349,15 +349,15 @@ void AlignmentParameterStore::resetParameters( Alignable* ali )
 void AlignmentParameterStore::cacheTransformations(void)
 {
   align::Alignables::const_iterator iali;
-  for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) 
-    (*iali)->cacheTransformation();
+  for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) { 
+    (*iali)->cacheTransformation(); }
 }
 
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::cacheTransformations(const align::RunNumber& run)
 {
-  for (const auto& iali: theAlignables) iali->cacheTransformation(run);
+  for (const auto& iali: theAlignables) { iali->cacheTransformation(run); }
 }
 
 
@@ -365,15 +365,15 @@ void AlignmentParameterStore::cacheTransformations(const align::RunNumber& run)
 void AlignmentParameterStore::restoreCachedTransformations(void)
 {
   align::Alignables::const_iterator iali;
-  for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) 
-    (*iali)->restoreCachedTransformation();
+  for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) { 
+    (*iali)->restoreCachedTransformation(); }
 }
 
 
 //__________________________________________________________________________________________________
 void AlignmentParameterStore::restoreCachedTransformations(const align::RunNumber& run)
 {
-  for (const auto& iali: theAlignables) iali->restoreCachedTransformation(run);
+  for (const auto& iali: theAlignables) { iali->restoreCachedTransformation(run); }
 }
 
 
@@ -390,10 +390,10 @@ void AlignmentParameterStore::acquireRelativeParameters(void)
     RigidBodyAlignmentParameters* ap = 
       dynamic_cast<RigidBodyAlignmentParameters*>( ali->alignmentParameters() );
 
-    if ( !ap )
+    if ( !ap ) {
       throw cms::Exception("BadAlignable") 
 	<< "acquireRelativeParameters: "
-	<< "provided alignable does not have rigid body alignment parameters";
+	<< "provided alignable does not have rigid body alignment parameters"; }
 
     AlgebraicVector par( ap->size(),0 );
     AlgebraicSymMatrix cov( ap->size(), 0 );
@@ -482,7 +482,7 @@ applyAlignableAbsolutePositions(const align::Alignables& alivec, const Alignable
           // If an old surface deformation record exists, ensure that the added deformation has the same type and size.
           if (!dold.empty() && dtype != SurfaceDeformationFactory::kNoDeformations && dnew.size()==dold.size()){
             std::vector<double> defDiff; defDiff.reserve(dold.size());
-            for (unsigned int i = 0; i < dold.size(); i++) defDiff.push_back(dnew[i] - dold[i]);
+            for (unsigned int i = 0; i < dold.size(); i++) { defDiff.push_back(dnew[i] - dold[i]); }
             auto deform = SurfaceDeformationFactory::create(dtype, defDiff);
             edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore::applyAlignableAbsolutePositions"
               << "Adding surface deformation of type " << SurfaceDeformationFactory::surfaceDeformationTypeName((SurfaceDeformationFactory::Type)deform->type())
@@ -515,9 +515,9 @@ applyAlignableAbsolutePositions(const align::Alignables& alivec, const Alignable
     }
   }
 
-  if (nappl< newpos.size())
+  if (nappl< newpos.size()) {
     edm::LogError("Mismatch") << "Applied only " << nappl << " new positions"
-    << " out of " << newpos.size();
+    << " out of " << newpos.size(); }
 
   LogDebug("NewPositions") << "Applied new positions for " << nappl
     << " out of " << alivec.size() <<" alignables.";
@@ -597,9 +597,9 @@ applyAlignableRelativePositions(const align::Alignables& alivec, const Alignable
     }
   }
 
-  if (nappl < shifts.size())
+  if (nappl < shifts.size()) {
     edm::LogError("Mismatch") << "Applied only " << nappl << " new positions"
-    << " out of " << shifts.size();
+    << " out of " << shifts.size(); }
 
   LogDebug("NewPositions") << "Applied new positions for " << nappl << " alignables.";
 }
@@ -641,13 +641,13 @@ void AlignmentParameterStore::attachAlignmentParameters( const align::Alignables
           ++ipass;
           found=true;
         } 
-        else edm::LogError("Alignment") << "@SUB=AlignmentParameterStore::attachAlignmentParameters" 
-					<< "More than one parameters for Alignable.";
+        else { edm::LogError("Alignment") << "@SUB=AlignmentParameterStore::attachAlignmentParameters" 
+					<< "More than one parameters for Alignable."; }
       }
     }
-    if (!found) ++ifail;
+    if (!found) { ++ifail; }
   }
-  if (ifail>0) ierr=-1;
+  if (ifail>0) { ierr=-1; }
   
   LogDebug("attachAlignmentParameters") << " Parameters, Alignables: " << parvec.size() << ","
                                         << alivec.size() << "\n pass,fail: " << ipass << ","<< ifail;
@@ -687,9 +687,9 @@ void AlignmentParameterStore::attachCorrelations( const align::Alignables& alive
          theCorrelationsStore->setCorrelations(ali1,ali2,mat);
          ++icount;
        }
-      else edm::LogInfo("AlreadyExists") << "Correlation existing and not overwritten";
+      else { edm::LogInfo("AlreadyExists") << "Correlation existing and not overwritten"; }
     }
-    else edm::LogInfo("IgnoreCorrelation") << "Ignoring correlation with no alignables!";
+    else { edm::LogInfo("IgnoreCorrelation") << "Ignoring correlation with no alignables!"; }
   }
 
   LogDebug( "attachCorrelations" ) << " Alignables,Correlations: " << alivec.size() <<","<< cormap.size() 
@@ -735,8 +735,8 @@ void AlignmentParameterStore::setAlignmentPositionError( const align::Alignables
 
     // Set APE from displacement
     AlignmentPositionError ape(valshift,valshift,valshift);
-    if ( valshift > 0. ) ali->addAlignmentPositionError(ape, true);
-    else ali->setAlignmentPositionError(ape, true);
+    if ( valshift > 0. ) { ali->addAlignmentPositionError(ape, true);
+    } else { ali->setAlignmentPositionError(ape, true); }
     // GF: Resetting and setting as above does not really make sense to me, 
     //     and adding to zero or setting is the same! I'd just do 
     //ali->setAlignmentPositionError(AlignmentPositionError ape(valshift,valshift,valshift),true);
@@ -761,7 +761,7 @@ bool AlignmentParameterStore
   // Weak point if all = false:
   // Ignores constraints between non-subsequent levels in case the parameter is not considered in
   // the intermediate level, e.g. global z for dets and layers is aligned, but not for rods!
-  if (!ali || !ali->alignmentParameters()) return false;
+  if (!ali || !ali->alignmentParameters()) { return false; }
 
   const std::vector<bool> &aliSel= ali->alignmentParameters()->selector();
   paramIdsVecOut.clear();
@@ -782,7 +782,7 @@ bool AlignmentParameterStore
     }
     const std::vector<bool> &aliCompSel = (*iComp)->alignmentParameters()->selector();
     for (unsigned int iParMast = 0, iParMastUsed = 0; iParMast < aliSel.size(); ++iParMast) {
-      if (!all && !aliSel[iParMast]) continue;// no higher level parameter & constraint deselected
+      if (!all && !aliSel[iParMast]) { continue;// no higher level parameter & constraint deselected }
       if (firstComp) { // fill output with empty arrays 
 	paramIdsVecOut.push_back(std::vector<ParameterId>());
 	factorsVecOut.push_back(std::vector<double>());
@@ -796,7 +796,7 @@ bool AlignmentParameterStore
 	  } else if( theTypeOfConstraints == APPROX_AVERAGING_CONSTRAINTS ) {
 	    // CHK poor mans averaging constraints
 	    factor = p2pDerivs(iParMast, iParComp);
-	    if (iParMast < 3 && (iParComp % 9) >= 3) factor = 0.;
+	    if (iParMast < 3 && (iParComp % 9) >= 3) { factor = 0.; }
 	  }
 	  if (fabs(factor) > epsilon) {
 	    paramIdsVecOut[iParMastUsed].push_back(ParameterId(*iComp, iParComp));

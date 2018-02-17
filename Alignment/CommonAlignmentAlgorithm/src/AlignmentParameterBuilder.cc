@@ -115,8 +115,8 @@ unsigned int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &p
     std::vector<bool> boolParSel;
     std::vector<char> parSel(*iParamSel); // copy, since decodeParamSel may manipulate
     bool charSelIsGeneral = this->decodeParamSel(parSel, boolParSel);
-    if (this->add(*iAli, parType, boolParSel)) ++nHigherLevel;
-    if (charSelIsGeneral) this->addFullParamSel((*iAli)->alignmentParameters(), parSel);
+    if (this->add(*iAli, parType, boolParSel)) { ++nHigherLevel; }
+    if (charSelIsGeneral) { this->addFullParamSel((*iAli)->alignmentParameters(), parSel); }
 
     ++iAli;
     ++iParamSel;
@@ -156,7 +156,7 @@ unsigned int AlignmentParameterBuilder::add(const align::Alignables &alignables,
 
   for (align::Alignables::const_iterator iAli = alignables.begin();
        iAli != alignables.end(); ++iAli) {
-    if (this->add(*iAli, parType, sel)) ++nHigherLevel;
+    if (this->add(*iAli, parType, sel)) { ++nHigherLevel; }
   }
 
   return nHigherLevel;
@@ -179,12 +179,12 @@ void AlignmentParameterBuilder::fixAlignables(int n)
         ia!=theAlignables.end();  ++ia ) 
 	{
 	  i++;
-	  if ( n==1 && i>1 ) 
+	  if ( n==1 && i>1 ) { 
 		theNewAlignables.push_back(*ia);
-	  else if ( n==2 && i>1 && i<imax ) 
+	  } else if ( n==2 && i>1 && i<imax ) { 
 		theNewAlignables.push_back(*ia);
-	  else if ( n==3 && i>2 && i<imax) 
-		theNewAlignables.push_back(*ia);
+	  } else if ( n==3 && i>2 && i<imax) { 
+		theNewAlignables.push_back(*ia); }
 	}
 
   theAlignables = theNewAlignables;
@@ -227,7 +227,7 @@ bool AlignmentParameterBuilder::decodeParamSel(std::vector<char> &paramSelChar,
 bool AlignmentParameterBuilder::addFullParamSel(AlignmentParameters *aliParams,
                                                 const std::vector<char> &fullSel) const
 {
-  if (!aliParams) return false;
+  if (!aliParams) { return false; }
 
   aliParams->setUserVariables(new SelectionUserVariables(fullSel));
 

@@ -266,8 +266,8 @@ void TrackerGeometryCompare::analyze(const edm::Event&, const edm::EventSetup& i
 		// 2. Store alignment[Error]s to DB
 		edm::Service<cond::service::PoolDBOutputService> poolDbService;
 		// Call service
-		if( !poolDbService.isAvailable() ) // Die if not available
-			throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+		if( !poolDbService.isAvailable() ) { // Die if not available
+			throw cms::Exception("NotAvailable") << "PoolDBOutputService not available"; }
 		
 		poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->beginOfTime(), "TrackerAlignmentRcd");
 		poolDbService->writeOne<AlignmentErrorsExtended>(&(*myAlignmentErrorsExtended), poolDbService->beginOfTime(), "TrackerAlignmentErrorExtendedRcd");
@@ -504,16 +504,16 @@ void TrackerGeometryCompare::compareSurfaceDeformations(TTree* refTree, TTree* c
         _surfDeform[npar] = inputDpar2.at(npar) - inputDpar1.at(npar) ; 
         std::stringstream histname0 ;
         histname0 << "SurfDeform_Par_" << npar ;  
-	if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname0.str()]->Fill(_surfDeform[npar]) ; 
+	if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) { m_h1[histname0.str()]->Fill(_surfDeform[npar]) ;  }
 	if (inputSubdetid1 == 1 && inputSubdetid2 == 1) {
           std::stringstream histname1 ;
           histname1 << "SurfDeform_PixelBarrel_Par_" << npar ;  
-          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname1.str()]->Fill(_surfDeform[npar]) ; 
+          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) { m_h1[histname1.str()]->Fill(_surfDeform[npar]) ;  }
 	}
 	if (inputSubdetid1 == 2 && inputSubdetid2 == 2) {
           std::stringstream histname2 ;
           histname2 << "SurfDeform_PixelEndcap_Par_" << npar ;  
-          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname2.str()]->Fill(_surfDeform[npar]) ; 
+          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) { m_h1[histname2.str()]->Fill(_surfDeform[npar]) ;  }
 	}
         (m_vtkmap.at(npar)).fill_current_val(inputRawid1,_surfDeform[npar]) ; 
   	    }
@@ -543,16 +543,16 @@ void TrackerGeometryCompare::compareSurfaceDeformations(TTree* refTree, TTree* c
         _surfDeform[npar] = inputDpar2.at(npar) ; 
         std::stringstream histname0 ;
         histname0 << "SurfDeform_Par_" << npar ;  
-        if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname0.str()]->Fill(_surfDeform[npar]) ; 
+        if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) { m_h1[histname0.str()]->Fill(_surfDeform[npar]) ;  }
 	if (inputSubdetid2 == 1) {
           std::stringstream histname1 ;
           histname1 << "SurfDeform_PixelBarrel_Par_" << npar ;  
-          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname1.str()]->Fill(_surfDeform[npar]) ; 
+          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) { m_h1[histname1.str()]->Fill(_surfDeform[npar]) ;  }
 	}
 	if (inputSubdetid2 == 2) {
           std::stringstream histname2 ;
           histname2 << "SurfDeform_PixelEndcap_Par_" << npar ;  
-          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname2.str()]->Fill(_surfDeform[npar]) ; 
+          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) { m_h1[histname2.str()]->Fill(_surfDeform[npar]) ;  }
 	}
         (m_vtkmap.at(npar)).fill_current_val(inputRawid2,_surfDeform[npar]) ; 
       }
@@ -581,16 +581,16 @@ void TrackerGeometryCompare::compareSurfaceDeformations(TTree* refTree, TTree* c
         _surfDeform[npar] = - inputDpar1.at(npar) ; 
         std::stringstream histname0 ;
         histname0 << "SurfDeform_Par_" << npar ;  
-        if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname0.str()]->Fill(_surfDeform[npar]) ; 
+        if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) { m_h1[histname0.str()]->Fill(_surfDeform[npar]) ;  }
 	if (inputSubdetid1 == 1) {
           std::stringstream histname1 ;
           histname1 << "SurfDeform_PixelBarrel_Par_" << npar ;  
-          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname1.str()]->Fill(_surfDeform[npar]) ; 
+          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) { m_h1[histname1.str()]->Fill(_surfDeform[npar]) ;  }
 	}
 	if (inputSubdetid1 == 2) {
           std::stringstream histname2 ;
           histname2 << "SurfDeform_PixelEndcap_Par_" << npar ;  
-          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) m_h1[histname2.str()]->Fill(_surfDeform[npar]) ; 
+          if ( TMath::Abs(_surfDeform[npar]) > (m_rangeHigh - m_rangeLow)/(10.*m_nBins) ) { m_h1[histname2.str()]->Fill(_surfDeform[npar]) ;  }
 	}
         (m_vtkmap.at(npar)).fill_current_val(inputRawid1,_surfDeform[npar]) ; 
       }
@@ -616,7 +616,7 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 	//only perform for designate levels
 	bool useLevel = false;
 	for (unsigned int i = 0; i < m_theLevels.size(); ++i){
-		if (refAli->alignableObjectId() == m_theLevels[i]) useLevel = true;
+		if (refAli->alignableObjectId() == m_theLevels[i]) { useLevel = true; }
 	}
 	
 	//another added level for difference between det and detunit
@@ -701,8 +701,8 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 	}
 
 	// another added level for difference between det and detunit
-	for (unsigned int i = 0; i < nComp; ++i) 
-	  compareGeometries(refComp[i],curComp[i],tTopo,iSetup);	
+	for (unsigned int i = 0; i < nComp; ++i) { 
+	  compareGeometries(refComp[i],curComp[i],tTopo,iSetup);	 }
 
 }
 
@@ -752,7 +752,7 @@ void TrackerGeometryCompare::diffCommonTrackerSystem(Alignable *refAli, Alignabl
 	unsigned int nComp = refComp.size();
 	//only perform for designate levels
 	bool useLevel = false;
-	if (refAli->alignableObjectId() == _commonTrackerLevel) useLevel = true;
+	if (refAli->alignableObjectId() == _commonTrackerLevel) { useLevel = true; }
 	
 	//useLevel = false;
 	if (useLevel){
@@ -797,7 +797,7 @@ void TrackerGeometryCompare::diffCommonTrackerSystem(Alignable *refAli, Alignabl
 		
 	}
 	else{
-		for (unsigned int i = 0; i < nComp; ++i) diffCommonTrackerSystem(refComp[i],curComp[i]);
+		for (unsigned int i = 0; i < nComp; ++i) { diffCommonTrackerSystem(refComp[i],curComp[i]); }
 	}
 	
 	
@@ -895,10 +895,10 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, const AlgebraicVector& 
 	}
 	// det module dimension
 	if (refAli->alignableObjectId() == align::AlignableDetUnit){
-		if (refAli->mother()->alignableObjectId() != align::AlignableDet) _detDim = 1;
-		else if (refAli->mother()->alignableObjectId() == align::AlignableDet) _detDim = 2;
+		if (refAli->mother()->alignableObjectId() != align::AlignableDet) { _detDim = 1;
+		} else if (refAli->mother()->alignableObjectId() == align::AlignableDet) { _detDim = 2; }
 	}
-	else _detDim = 0;
+	else { _detDim = 0; }
 	
 	_surWidth = refAli->surface().width();
 	_surLength = refAli->surface().length();
@@ -938,7 +938,7 @@ void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* 
 		else if (i->components().size() > 1){
 			rcdAlis.push_back(i);
 			const auto& comp = i->components();
-			for (const auto& j: comp) rcdAlis.push_back(j);
+			for (const auto& j: comp) { rcdAlis.push_back(j); }
 		}
 	}
 	
@@ -967,7 +967,7 @@ void TrackerGeometryCompare::addSurveyInfo(Alignable* ali){
 	
 	unsigned int nComp = comp.size();
 	
-	for (unsigned int i = 0; i < nComp; ++i) addSurveyInfo(comp[i]);
+	for (unsigned int i = 0; i < nComp; ++i) { addSurveyInfo(comp[i]); }
 	
 	const SurveyError& error = theSurveyErrors->m_surveyErrors[theSurveyIndex];
 	
@@ -1001,7 +1001,7 @@ bool TrackerGeometryCompare::passIdCut( uint32_t id ){
 	int nEntries = _detIdFlagVector.size();
 	
 	for (int i = 0; i < nEntries; i++){
-		if (_detIdFlagVector[i] == id) pass = true;
+		if (_detIdFlagVector[i] == id) { pass = true; }
 	}
 	
 	return pass;

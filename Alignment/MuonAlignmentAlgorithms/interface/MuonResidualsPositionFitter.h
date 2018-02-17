@@ -34,10 +34,10 @@ public:
   int type() const override { return MuonResidualsFitter::kPositionFitter; }
 
   int npar() override {
-    if (residualsModel() == kPureGaussian || residualsModel() == kGaussPowerTails) return kNPar - 1;
-    else if (residualsModel() == kPowerLawTails) return kNPar;
-    else if (residualsModel() == kROOTVoigt) return kNPar;
-    else assert(false);
+    if (residualsModel() == kPureGaussian || residualsModel() == kGaussPowerTails) { return kNPar - 1;
+    } else if (residualsModel() == kPowerLawTails) { return kNPar;
+    } else if (residualsModel() == kROOTVoigt) { return kNPar;
+    } else { assert(false); }
   }
   int ndata() override { return kNData; }
 

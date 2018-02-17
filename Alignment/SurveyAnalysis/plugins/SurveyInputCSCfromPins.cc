@@ -299,13 +299,13 @@ void SurveyInputCSCfromPins::fillAllRecords(Alignable *ali) {
 	      else {
 		 double a = 100.;
 		 double b = -9.4034;
-		 if      (abs(detid.station()) == 1  &&  detid.ring() == 2) a = -90.260;
-		 else if (abs(detid.station()) == 1  &&  detid.ring() == 3) a = -85.205;
-		 else if (abs(detid.station()) == 2  &&  detid.ring() == 1) a = -97.855;
-		 else if (abs(detid.station()) == 2  &&  detid.ring() == 2) a = -164.555;
-		 else if (abs(detid.station()) == 3  &&  detid.ring() == 1) a = -87.870;
-		 else if (abs(detid.station()) == 3  &&  detid.ring() == 2) a = -164.555;
-		 else if (abs(detid.station()) == 4  &&  detid.ring() == 1) a = -77.890;
+		 if      (abs(detid.station()) == 1  &&  detid.ring() == 2) { a = -90.260;
+		 } else if (abs(detid.station()) == 1  &&  detid.ring() == 3) { a = -85.205;
+		 } else if (abs(detid.station()) == 2  &&  detid.ring() == 1) { a = -97.855;
+		 } else if (abs(detid.station()) == 2  &&  detid.ring() == 2) { a = -164.555;
+		 } else if (abs(detid.station()) == 3  &&  detid.ring() == 1) { a = -87.870;
+		 } else if (abs(detid.station()) == 3  &&  detid.ring() == 2) { a = -164.555;
+		 } else if (abs(detid.station()) == 4  &&  detid.ring() == 1) { a = -77.890; }
 
 		double dx_dx, dy_dy, dz_dz, phix_phix, phiz_phiz, dy_phix;
 		errors(a, b, true, true, dx_dx, dy_dy, dz_dz, phix_phix, phiz_phiz, dy_phix);

@@ -20,7 +20,8 @@
 void MeasurementTiltmeter::calculateSimulatedValue( ALIbool firstTime ) 
 {
  
-  if( ALIUtils::debug >= 2) printStartCalculateSimulatedValue( this ); // important for Examples/FakeMeas
+  if( ALIUtils::debug >= 2) { printStartCalculateSimulatedValue( this ); // important for Examples/FakeMeas
+}
 
   //--------- Check there is only one OptO of type 'tiltmeter'
   std::vector<OpticalObject*>::const_iterator vocite =  OptOList().begin();
@@ -38,7 +39,8 @@ void MeasurementTiltmeter::calculateSimulatedValue( ALIbool firstTime )
   LightRay ll;
   (*vocite)->participateInMeasurement( ll, *this, behav );
 
-  if(ALIUtils::debug >= 5) std::cout << "end calculateSimulatedValue" <<std::endl;
+  if(ALIUtils::debug >= 5) { std::cout << "end calculateSimulatedValue" <<std::endl;
+}
   
 }
 
@@ -52,7 +54,8 @@ void MeasurementTiltmeter::calculateSimulatedValue( ALIbool firstTime )
 void MeasurementTiltmeter::setConversionFactor( const std::vector<ALIstring>& wordlist ) 
 {
   //--------- Check that the format is OK
-  if(wordlist.size() == 1) return; 
+  if(wordlist.size() == 1) { return; 
+}
   if( wordlist.size() != 7
     || !ALIUtils::IsNumber(wordlist[1]) || !ALIUtils::IsNumber(wordlist[3]) 
     || !ALIUtils::IsNumber(wordlist[4]) || !ALIUtils::IsNumber(wordlist[6])
@@ -101,7 +104,8 @@ void MeasurementTiltmeter::correctValueAndSigma()
 {
   ALIdouble val = value()[0];
   ALIdouble sig = sigma()[0];
-  if(ALIUtils::debug >= 4) std::cout << "MeasurementTiltmeter::correctValueAndSigma: old value" << val << " +- " << sig << std::endl;
+  if(ALIUtils::debug >= 4) { std::cout << "MeasurementTiltmeter::correctValueAndSigma: old value" << val << " +- " << sig << std::endl;
+}
    //---------- Substract pedestal
   val -= theConstantTerm;
   //-  sig = sqrt(sig*sig  + thePedestalSigma*thePedestalSigma );
@@ -118,7 +122,8 @@ void MeasurementTiltmeter::correctValueAndSigma()
   val *= theFactor; 
   //-------- Do not correct the sigma!!!!
   //-  sig /= theFactor; 
-  if(ALIUtils::debug >= 4) std::cout << "MeasurementTiltmeter::correctValueAndSigma: new value " << val << " +- " << sig << std::endl;
+  if(ALIUtils::debug >= 4) { std::cout << "MeasurementTiltmeter::correctValueAndSigma: new value " << val << " +- " << sig << std::endl;
+}
   setValue( 0, val );
   setSigma( 0, sig );
 

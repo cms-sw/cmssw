@@ -72,7 +72,8 @@ void EntryAngleAffAngles::displaceOriginal( ALIdouble disp )
 void EntryAngleAffAngles::displaceOriginalOriginal( ALIdouble disp )
 {
   ALIint namelength = name().length()-1;
-  if(ALIUtils::debug >= 5) std::cout << this << "ENtryAnglesAffAngle displaceOriginalOriginal" << name_ <<std::endl;
+  if(ALIUtils::debug >= 5) { std::cout << this << "ENtryAnglesAffAngle displaceOriginalOriginal" << name_ <<std::endl;
+}
   if ( name_[namelength] == 'X' ) {
     //-    std::cout << "displaX";
       OptOCurrent()->displaceRmGlobOriginalOriginal( OptOCurrent(), XCoor, disp );

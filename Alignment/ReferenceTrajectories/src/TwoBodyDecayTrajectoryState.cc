@@ -115,7 +115,7 @@ bool TwoBodyDecayTrajectoryState::propagateSingleState( const FreeTrajectoryStat
   pair< TrajectoryStateOnSurface, double > tsosWithPath = propagator.propagateWithPath( fts, surface );
 
   // check if propagation was successful
-  if ( !tsosWithPath.first.isValid() ) return false;
+  if ( !tsosWithPath.first.isValid() ) { return false; }
 
   // jacobian for transformation from cartesian to curvilinear frame at the starting point
   JacobianCartesianToCurvilinear cartToCurv( gtp );

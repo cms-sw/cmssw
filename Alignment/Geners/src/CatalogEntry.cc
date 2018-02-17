@@ -26,16 +26,16 @@ namespace gs {
           compressionCode_(compressionCod),
           location_(location)
     {
-        if (!id) throw gs::IOInvalidArgument(
-            "In CatalogEntry constructor: invalid item id");
+        if (!id) { throw gs::IOInvalidArgument(
+            "In CatalogEntry constructor: invalid item id"); }
     }
 
     bool CatalogEntry::isEqual(const ItemDescriptor& other) const
     {
-        if ((void*)this == (void*)(&other))
-            return true;
-        if (!ItemDescriptor::isEqual(other))
-            return false;
+        if ((void*)this == (void*)(&other)) {
+            return true; }
+        if (!ItemDescriptor::isEqual(other)) {
+            return false; }
         const CatalogEntry& r = static_cast<const CatalogEntry&>(other);
         return id_ == r.id_ && len_ == r.len_ &&
                offset_ == r.offset_ &&
@@ -56,8 +56,8 @@ namespace gs {
         // Most items will not have offsets
         unsigned char hasOffset = offset_ > 0ULL;
         write_pod(of, hasOffset);
-        if (hasOffset)
-            write_pod(of, offset_);
+        if (hasOffset) {
+            write_pod(of, offset_); }
 
         location_.write(of);
 
@@ -88,18 +88,18 @@ namespace gs {
         unsigned long long offset = 0;
         unsigned char hasOffset = 0;
         read_pod(in, &hasOffset);
-        if (hasOffset)
-            read_pod(in, &offset);
+        if (hasOffset) {
+            read_pod(in, &offset); }
 
         CatalogEntry* rec = nullptr;
         if (!in.fail())
         {
             CPP11_auto_ptr<ItemLocation> loc(ItemLocation::read(locId, in));
-            if (loc.get())
+            if (loc.get()) {
                 rec = new CatalogEntry(
                     ItemDescriptor(itemClass, ioPrototype.c_str(),
                                    name.c_str(), category.c_str()),
-                    itemId, coCode, itemLen, *loc, offset);
+                    itemId, coCode, itemLen, *loc, offset); }
         }
         return rec;
     }

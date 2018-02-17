@@ -84,9 +84,9 @@ void CreateSurveyRcds::setGeometry(Alignable* ali)
 	//move then do for lower level object
 	//for issue of det vs detunit
 	bool usecomps = true;
-	if ((ali->alignableObjectId()==2)&&(nComp>=1)) usecomps = false;
+	if ((ali->alignableObjectId()==2)&&(nComp>=1)) { usecomps = false; }
 	for (unsigned int i = 0; i < nComp; ++i){
-		if (usecomps) setGeometry(comp[i]);
+		if (usecomps) { setGeometry(comp[i]); }
 	}
 	DetId id( ali->id() );
 	int subdetlevel = id.subdetId();

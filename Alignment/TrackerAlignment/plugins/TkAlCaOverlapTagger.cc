@@ -112,7 +112,7 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       
       TrackingRecHit::ConstRecHitPointer hitpointer = itTrajMeas->recHit();
       const TrackingRecHit *hit=&(* hitpointer);
-      if(!hit->isValid())continue;
+      if(!hit->isValid()) {continue; }
 
       //std::cout << "         hit number " << (ith - itt->recHitsBegin()) << std::endl;
       DetId detid = hit->geographicalId();
@@ -122,8 +122,8 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       if ( ( previousTM!=nullptr )&& (layer!=-1 )) {
 	for (std::vector<TrajectoryMeasurement>::const_iterator itmCompare =itTrajMeas-1;itmCompare >= tmColl.begin() &&  itmCompare > itTrajMeas - 4;--itmCompare){
 	  DetId compareId = itmCompare->recHit()->geographicalId();
-	  if ( subDet != compareId.subdetId() || layer  != layerFromId(compareId, tTopo)) break;
-	  if (!itmCompare->recHit()->isValid()) continue;
+	  if ( subDet != compareId.subdetId() || layer  != layerFromId(compareId, tTopo)) { break; }
+	  if (!itmCompare->recHit()->isValid()) { continue; }
 	  if ( (subDet<=2) || (subDet > 2 && SiStripDetId(detid).stereo()==SiStripDetId(compareId).stereo())){//if either pixel or strip stereo module
 	    
 	    //

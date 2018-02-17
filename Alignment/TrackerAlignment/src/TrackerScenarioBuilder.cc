@@ -48,10 +48,10 @@ void TrackerScenarioBuilder::applyScenario( const edm::ParameterSet& scenario )
   theModifierCounter = 0;
 
   // Seed is set at top-level, and is mandatory
-  if ( this->hasParameter_( "seed", scenario) )
+  if ( this->hasParameter_( "seed", scenario) ) {
 	theModifier.setSeed( static_cast<long>(scenario.getParameter<int>("seed")) );
-  else
-	throw cms::Exception("BadConfig") << "No generator seed defined!";  
+  } else {
+	throw cms::Exception("BadConfig") << "No generator seed defined!";   }
 
   // misalignment applied recursively ('subStructures("Tracker")' contains only tracker itself)
   this->decodeMovements_(scenario, theAlignableTracker->subStructures("Tracker"));
@@ -68,7 +68,7 @@ bool TrackerScenarioBuilder::isTopLevel_(const std::string &parameterSetName) co
   // Get root name (strip last character [s])
   std::string root = this->rootName_(parameterSetName);
 
-  if (root == "Tracker") return true;
+  if (root == "Tracker") { return true; }
 
   return false;
 }
@@ -81,24 +81,24 @@ bool TrackerScenarioBuilder::possiblyPartOf(const std::string &subStruct, const 
 
   // First check whether anything from pixel in strip.
   if (largeStr.find("Strip") != nPos) {
-    if (subStruct.find("Pixel") != nPos) return false;
+    if (subStruct.find("Pixel") != nPos) { return false; }
     for (unsigned int iPix = 0; iPix < theFirstStripIndex; ++iPix) {
-      if (subStruct.find(theSubdets[iPix]) != nPos) return false;
+      if (subStruct.find(theSubdets[iPix]) != nPos) { return false; }
     }
   }
 
   // Now check whether anything from strip in pixel.
   if (largeStr.find("Pixel") != nPos) {
-    if (subStruct.find("Strip") != nPos) return false;
+    if (subStruct.find("Strip") != nPos) { return false; }
     for (unsigned int iStrip = theFirstStripIndex; iStrip < theSubdets.size(); ++iStrip) {
-      if (subStruct.find(theSubdets[iStrip]) != nPos) return false;
+      if (subStruct.find(theSubdets[iStrip]) != nPos) { return false; }
     }
   }
 
   // Finally check for any different detector parts, e.g. TIDEndcap/TIBString gives false.
   for (unsigned int iSub = 0; iSub < theSubdets.size(); ++iSub) {
     for (unsigned int iLarge = 0; iLarge < theSubdets.size(); ++iLarge) {
-      if (iLarge == iSub) continue;
+      if (iLarge == iSub) { continue; }
       if (largeStr.find(theSubdets[iLarge]) != nPos && subStruct.find(theSubdets[iSub]) != nPos) {
 	return false;
       }

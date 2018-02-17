@@ -99,7 +99,7 @@ TrackerToMuonPropagator::TrackerToMuonPropagator(const edm::ParameterSet& iConfi
    if (m_refitTracker) {
       m_trackTransformer = new TrackTransformer(iConfig.getParameter<edm::ParameterSet>("trackerTrackTransformer"));
    }
-   else m_trackTransformer = nullptr;
+   else { m_trackTransformer = nullptr; }
   
    produces<std::vector<Trajectory> >();
    produces<TrajTrackAssociationCollection>();
@@ -123,7 +123,7 @@ TrackerToMuonPropagator::~TrackerToMuonPropagator()
 void
 TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   if (m_trackTransformer) m_trackTransformer->setServices(iSetup);
+   if (m_trackTransformer) { m_trackTransformer->setServices(iSetup); }
 
    edm::Handle<reco::MuonCollection> globalMuons;
    iEvent.getByLabel(m_globalMuons, globalMuons);
@@ -168,7 +168,7 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       for (; globalMuonTrack != globalMuonTracks->end();  ++globalMuonTrack) {
 	 trackCounter++;
 	 if (fabs(globalMuon->combinedMuon()->phi() - globalMuonTrack->phi()) < 1e-10  &&
-	     fabs(globalMuon->combinedMuon()->eta() - globalMuonTrack->eta()) < 1e-10) break;
+	     fabs(globalMuon->combinedMuon()->eta() - globalMuonTrack->eta()) < 1e-10) { break; }
       }
       if (globalMuonTrack == globalMuonTracks->end()) {
 	 throw cms::Exception("BadConfig") << "The tracks label doesn't correspond to the same objects as the muons label" << std::endl;
@@ -185,7 +185,7 @@ TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	    tracker_tsos = trackerTrajectory.firstMeasurement().forwardPredictedState();
 	    outerDetId = trackerTrajectory.firstMeasurement().recHit()->geographicalId();
 	 }
-	 else continue;
+	 else { continue; }
       }
       else {
 	 // get information about the outermost tracker hit

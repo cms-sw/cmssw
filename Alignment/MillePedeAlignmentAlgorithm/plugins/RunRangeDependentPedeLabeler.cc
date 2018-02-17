@@ -58,7 +58,7 @@ RunRangeDependentPedeLabeler::~RunRangeDependentPedeLabeler()
 /// Return 32-bit unique label for alignable, 0 indicates failure.
 unsigned int RunRangeDependentPedeLabeler::alignableLabel(Alignable *alignable) const
 {
-  if (!alignable) return 0;
+  if (!alignable) { return 0; }
 
   AlignableToIdMap::const_iterator position = theAlignableToIdMap.find(alignable);
   if (position != theAlignableToIdMap.end()) {
@@ -80,7 +80,7 @@ unsigned int RunRangeDependentPedeLabeler::alignableLabelFromParamAndInstance(Al
 									      unsigned int param,
 									      unsigned int instance) const
 {
-  if (!alignable) return 0;
+  if (!alignable) { return 0; }
   
   AlignableToIdMap::const_iterator position = theAlignableToIdMap.find(alignable);
   if (position != theAlignableToIdMap.end()) {
@@ -140,7 +140,7 @@ unsigned int RunRangeDependentPedeLabeler::parameterLabel(Alignable *alignable, 
 							  const AlignmentAlgorithmBase::EventInfo &eventInfo,
 							  const TrajectoryStateOnSurface &tsos) const
 {
-  if (!alignable) return 0;
+  if (!alignable) { return 0; }
   
   if (parNum >= theMaxNumParam) {
     throw cms::Exception("Alignment") << "@SUB=RunRangeDependentPedeLabeler::parameterLabel" 
@@ -195,7 +195,7 @@ unsigned int RunRangeDependentPedeLabeler::parameterLabel(Alignable *alignable, 
 bool RunRangeDependentPedeLabeler::hasSplitParameters(Alignable *alignable) const
 {
   AlignableToRunRangeRangeMap::const_iterator positionAli = theAlignableToRunRangeRangeMap.find(alignable);
-  if (positionAli != theAlignableToRunRangeRangeMap.end()) return true;
+  if (positionAli != theAlignableToRunRangeRangeMap.end()) { return true; }
   return false;
 }
 
@@ -245,7 +245,7 @@ unsigned int RunRangeDependentPedeLabeler::alignableLabelFromLabel(unsigned int 
 Alignable* RunRangeDependentPedeLabeler::alignableFromLabel(unsigned int label) const
 {
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return nullptr; // error already given
+  if (aliLabel < theMinLabel) { return nullptr; // error already given }
   
   IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
   if (position != theIdToAlignableMap.end()) {
@@ -265,7 +265,7 @@ Alignable* RunRangeDependentPedeLabeler::alignableFromLabel(unsigned int label) 
 unsigned int RunRangeDependentPedeLabeler::lasBeamIdFromLabel(unsigned int label) const
 {
   const unsigned int aliLabel = this->alignableLabelFromLabel(label);
-  if (aliLabel < theMinLabel) return 0; // error already given
+  if (aliLabel < theMinLabel) { return 0; // error already given }
   
   UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
   if (position != theLabelToLasBeamMap.end()) {
@@ -290,8 +290,8 @@ RunRangeDependentPedeLabeler::runRangeFromLabel(unsigned int label) const
   Alignable* ali = alignableFromLabel(label);
 
   AlignableToRunRangeRangeMap::const_iterator positionAli = theAlignableToRunRangeRangeMap.find(ali);
-  if (positionAli==theAlignableToRunRangeRangeMap.end())
-    return theOpenRunRange;
+  if (positionAli==theAlignableToRunRangeRangeMap.end()) {
+    return theOpenRunRange; }
   
   unsigned int firstLabel = alignableLabel(ali);
   unsigned int runRangeIndex = (label-firstLabel)/theParamInstanceOffset;
@@ -330,7 +330,7 @@ std::vector<unsigned int> RunRangeDependentPedeLabeler::convertParamSel(const st
 {
   std::vector<unsigned int> result;
   for (std::string::size_type pos = 0; pos < selString.size(); ++pos) {
-    if (selString[pos]=='1') result.push_back(pos);
+    if (selString[pos]=='1') { result.push_back(pos); }
   }
   return result;
 }
@@ -367,7 +367,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 	
 	first = cond::timeTypeSpecs[cond::runnumber].beginValue;
 	temp = strtol(iRunRange.c_str(), nullptr, 0);
-	if (temp!=-1) first = temp;
+	if (temp!=-1) { first = temp; }
 	
       } else {
 	
@@ -382,7 +382,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 	std::vector<std::string> tokens = edm::tokenize(iRunRange, ":");
 	first = cond::timeTypeSpecs[cond::runnumber].beginValue;
 	temp = strtol(tokens[0].c_str(), nullptr, 0);
-	if (temp!=-1) first = temp;
+	if (temp!=-1) { first = temp; }
 	
       }
       

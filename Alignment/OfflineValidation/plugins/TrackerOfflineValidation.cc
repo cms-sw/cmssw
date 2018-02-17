@@ -146,16 +146,16 @@ private:
 	dqmMode(useDqmMode),
 	theDbe(nullptr) {
       if (newDir.length()!=0){
-        if(upDir.directoryString.length()!=0)directoryString=upDir.directoryString+"/"+newDir;
-	else directoryString = newDir;
+        if(upDir.directoryString.length()!=0) {directoryString=upDir.directoryString+"/"+newDir;
+	} else { directoryString = newDir; }
       }
-      else
-	directoryString=upDir.directoryString;
+      else {
+	directoryString=upDir.directoryString; }
 
       if (!dqmMode){
-	if (newDir.length()==0) tfd.reset(&(*upDir.tfd));
-	else
-	  tfd.reset(new TFileDirectory(upDir.tfd->mkdir(newDir)));
+	if (newDir.length()==0) { tfd.reset(&(*upDir.tfd));
+	} else {
+	  tfd.reset(new TFileDirectory(upDir.tfd->mkdir(newDir))); }
       }
       else {
 	theDbe=edm::Service<DQMStore>().operator->();
@@ -178,10 +178,10 @@ private:
       }
       else {
 	if (newDir.length()!=0){
-	  if(basedir.length()!=0)directoryString=basedir+"/"+newDir;
-	  else directoryString = newDir;
+	  if(basedir.length()!=0) {directoryString=basedir+"/"+newDir;
+	  } else { directoryString = newDir; }
 	}
-	else directoryString=basedir;
+	else { directoryString=basedir; }
 	theDbe=edm::Service<DQMStore>().operator->();
       }
     }
@@ -325,7 +325,7 @@ int TrackerOfflineValidation::GetIndex(const std::vector<OBJECT_TYPE*> &vec, con
   int result = 0;
   for (typename std::vector<OBJECT_TYPE*>::const_iterator iter = vec.begin(), iterEnd = vec.end();
        iter != iterEnd; ++iter, ++result) {
-    if (*iter && (*iter)->GetName() == name) return result;
+    if (*iter && (*iter)->GetName() == name) { return result; }
   }
   edm::LogError("Alignment") << "@SUB=TrackerOfflineValidation::GetIndex" << " could not find " << name;
   return -1;
@@ -402,7 +402,7 @@ TrackerOfflineValidation::~TrackerOfflineValidation()
    // (e.g. close files, deallocate resources etc.)
   for( std::vector<TH1*>::const_iterator it = vDeleteObjects_.begin(), itEnd = vDeleteObjects_.end(); 
        it != itEnd;
-       ++it) delete *it;
+       ++it) { delete *it; }
 }
 
 
@@ -417,7 +417,7 @@ TrackerOfflineValidation::checkBookHists(const edm::EventSetup& es)
 {
   es.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
   const TrackerGeometry *newBareTkGeomPtr = &(*tkGeom_);
-  if (newBareTkGeomPtr == bareTkGeomPtr_) return; // already booked hists, nothing changed
+  if (newBareTkGeomPtr == bareTkGeomPtr_) { return; // already booked hists, nothing changed }
 
   if (!bareTkGeomPtr_) { // pointer not yet set: called the first time => book hists
 
@@ -643,7 +643,7 @@ TrackerOfflineValidation::bookDirHists(DirectoryWrapper& tfd, const Alignable& a
     std::stringstream dirname;
     dirname << structurename;
     // add no suffix counter to Strip and Pixel, just aesthetics
-    if (structurename != "Strip" && structurename != "Pixel") dirname << "_" << i+1;
+    if (structurename != "Strip" && structurename != "Pixel") { dirname << "_" << i+1; }
 
     if (structurename.find("Endcap",0) != std::string::npos ) {
       DirectoryWrapper f(tfd,dirname.str(),moduleDirectory_,dqmMode_);
@@ -675,8 +675,8 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
   align::StructureType subtype = align::invalid;
   
   // are we on or just above det, detunit level respectively?
-  if (type == align::AlignableDetUnit )subtype = type;
-  else if( this->isDetOrDetUnit(ali.alignableObjectId()) ) subtype = ali.alignableObjectId();
+  if (type == align::AlignableDetUnit ) {subtype = type;
+  } else if( this->isDetOrDetUnit(ali.alignableObjectId()) ) { subtype = ali.alignableObjectId(); }
   
   // construct histogram title and name
   std::stringstream histoname, histotitle, normhistoname, normhistotitle, 
@@ -689,10 +689,10 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
   
   std::string wheel_or_layer;
 
-  if( this->isEndCap(static_cast<uint32_t>(subdetandlayer.first)) ) wheel_or_layer = "_wheel_";
-  else if ( this->isBarrel(static_cast<uint32_t>(subdetandlayer.first)) ) wheel_or_layer = "_layer_";
-  else edm::LogWarning("TrackerOfflineValidation") << "@SUB=TrackerOfflineValidation::bookHists" 
-						   << "Unknown subdetid: " <<  subdetandlayer.first;     
+  if( this->isEndCap(static_cast<uint32_t>(subdetandlayer.first)) ) { wheel_or_layer = "_wheel_";
+  } else if ( this->isBarrel(static_cast<uint32_t>(subdetandlayer.first)) ) { wheel_or_layer = "_layer_";
+  } else { edm::LogWarning("TrackerOfflineValidation") << "@SUB=TrackerOfflineValidation::bookHists" 
+						   << "Unknown subdetid: " <<  subdetandlayer.first;      }
   
   histoname << "h_residuals_subdet_" << subdetandlayer.first 
 	    << wheel_or_layer << subdetandlayer.second << "_module_" << id.rawId();
@@ -746,7 +746,7 @@ TrackerOfflineValidation::bookHists(DirectoryWrapper& tfd, const Alignable& ali,
 
     // do not allow transient hists in DQM mode
     bool moduleLevelHistsTransient(moduleLevelHistsTransient_);
-    if (dqmMode_) moduleLevelHistsTransient = false;
+    if (dqmMode_) { moduleLevelHistsTransient = false; }
     
     // decide via cfg if hists in local coordinates should be booked 
     if(lCoorHistOn_) {
@@ -827,8 +827,8 @@ TH1* TrackerOfflineValidation::bookTH1F(bool isTransient, DirectoryWrapper& tfd,
     vDeleteObjects_.push_back(new TH1F(histName, histTitle, nBinsX, lowX, highX));
     return vDeleteObjects_.back(); // return last element of vector
   } 
-  else
-    return tfd.make<TH1F>(histName, histTitle, nBinsX, lowX, highX);
+  else {
+    return tfd.make<TH1F>(histName, histTitle, nBinsX, lowX, highX); }
 }
 
 TProfile* TrackerOfflineValidation::bookTProfile(bool isTransient, DirectoryWrapper& tfd, const char* histName, const char* histTitle, 
@@ -839,8 +839,8 @@ TProfile* TrackerOfflineValidation::bookTProfile(bool isTransient, DirectoryWrap
     vDeleteObjects_.push_back(profile);
     return profile;
   }
-  else
-    return (TProfile*)tfd.make<TProfile>(histName, histTitle, nBinsX, lowX, highX);
+  else {
+    return (TProfile*)tfd.make<TProfile>(histName, histTitle, nBinsX, lowX, highX); }
 }
 
 
@@ -852,8 +852,8 @@ TProfile* TrackerOfflineValidation::bookTProfile(bool isTransient, DirectoryWrap
     vDeleteObjects_.push_back(profile);
     return profile;
   }
-  else
-    return (TProfile*)tfd.make<TProfile>(histName, histTitle, nBinsX, lowX, highX, lowY, highY);
+  else {
+    return (TProfile*)tfd.make<TProfile>(histName, histTitle, nBinsX, lowX, highX, lowY, highY); }
 }
 
 bool TrackerOfflineValidation::isBarrel(uint32_t subDetId)
@@ -899,38 +899,38 @@ TrackerOfflineValidation::getBinning(uint32_t subDetId,
   switch(residualType) 
     {
     case XResidual :
-      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1XResPixelModules");                
-      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1XResStripModules");                
+      if(isPixel) { binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1XResPixelModules");                
+      } else { binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1XResStripModules");                 }
       break;
     case NormXResidual : 
-      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1NormXResPixelModules");             
-      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1NormXResStripModules");                
+      if(isPixel) { binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1NormXResPixelModules");             
+      } else { binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1NormXResStripModules");                 }
       break;
     case XprimeResidual :
-      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1XprimeResPixelModules");                
-      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1XprimeResStripModules");                
+      if(isPixel) { binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1XprimeResPixelModules");                
+      } else { binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1XprimeResStripModules");                 }
       break;
     case NormXprimeResidual :
-      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1NormXprimeResPixelModules");
-      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1NormXprimeResStripModules");
+      if(isPixel) { binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1NormXprimeResPixelModules");
+      } else { binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1NormXprimeResStripModules"); }
       break;
     case YResidual : // borrow y-residual binning from yprime
     case YprimeResidual :
-      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1YResPixelModules");                
-      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1YResStripModules");                
+      if(isPixel) { binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1YResPixelModules");                
+      } else { binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1YResStripModules");                 }
       break; 
       /* case NormYResidual :*/
     case NormYprimeResidual :
-      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1NormYResPixelModules");             
-      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1NormYResStripModules");  
+      if(isPixel) { binningPSet = parSet_.getParameter<edm::ParameterSet>("TH1NormYResPixelModules");             
+      } else { binningPSet        = parSet_.getParameter<edm::ParameterSet>("TH1NormYResStripModules");   }
       break;
     case XResidualProfile :
-      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TProfileXResPixelModules");                
-      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TProfileXResStripModules");                
+      if(isPixel) { binningPSet = parSet_.getParameter<edm::ParameterSet>("TProfileXResPixelModules");                
+      } else { binningPSet        = parSet_.getParameter<edm::ParameterSet>("TProfileXResStripModules");                 }
       break;
     case YResidualProfile :
-      if(isPixel) binningPSet = parSet_.getParameter<edm::ParameterSet>("TProfileYResPixelModules");                
-      else binningPSet        = parSet_.getParameter<edm::ParameterSet>("TProfileYResStripModules");                
+      if(isPixel) { binningPSet = parSet_.getParameter<edm::ParameterSet>("TProfileYResPixelModules");                
+      } else { binningPSet        = parSet_.getParameter<edm::ParameterSet>("TProfileYResStripModules");                 }
       break;
     }
   nBinsX      = binningPSet.getParameter<int32_t>("Nbinx");		       
@@ -944,10 +944,10 @@ TrackerOfflineValidation::setSummaryBin(int bin, TH1* targetHist, TH1* sourceHis
 {
   if(targetHist && sourceHist) {
     targetHist->SetBinContent(bin, sourceHist->GetMean(1));
-    if(useFwhm_) targetHist->SetBinError(bin, Fwhm(sourceHist)/2.);
-    else targetHist->SetBinError(bin, sourceHist->GetRMS(1) );
+    if(useFwhm_) { targetHist->SetBinError(bin, Fwhm(sourceHist)/2.);
+    } else { targetHist->SetBinError(bin, sourceHist->GetRMS(1) ); }
   }
-  else return;
+  else { return; }
 }
 
 
@@ -1010,10 +1010,10 @@ TrackerOfflineValidation::getHistStructFromMap(const DetId& detid)
 void
 TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  if (maxTracks_ > 0 && nTracks_ >= maxTracks_) return;  //don't do anything after hitting the max number of tracks
+  if (maxTracks_ > 0 && nTracks_ >= maxTracks_) { return;  //don't do anything after hitting the max number of tracks }
                                                          //(could just rely on break below, but this way saves fillTrackQuantities)
 
-  if (useOverflowForRMS_)TH1::StatOverflows(kTRUE);
+  if (useOverflowForRMS_) {TH1::StatOverflows(kTRUE); }
   this->checkBookHists(iSetup); // check whether hists are booked and do so if not yet done
 
   std::vector<TrackerValidationVariables::AVTrackStruct> vTrackstruct;
@@ -1023,7 +1023,7 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
        itT != vTrackstruct.end();
        ++itT) {
     
-    if (maxTracks_ > 0 && nTracks_++ >= maxTracks_) break; //exit the loop after hitting the max number of tracks
+    if (maxTracks_ > 0 && nTracks_++ >= maxTracks_) { break; //exit the loop after hitting the max number of tracks }
     // Fill 1D track histos
     static const int etaindex = this->GetIndex(vTrackHistos_,"h_tracketa");
     vTrackHistos_[etaindex]->Fill(itT->eta);
@@ -1036,11 +1036,11 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     static const int kappaindex = this->GetIndex(vTrackHistos_,"h_curvature");
     vTrackHistos_[kappaindex]->Fill(itT->kappa);
     static const int kappaposindex = this->GetIndex(vTrackHistos_,"h_curvature_pos");
-    if (itT->charge > 0)
-      vTrackHistos_[kappaposindex]->Fill(fabs(itT->kappa));
+    if (itT->charge > 0) {
+      vTrackHistos_[kappaposindex]->Fill(fabs(itT->kappa)); }
     static const int kappanegindex = this->GetIndex(vTrackHistos_,"h_curvature_neg");
-    if (itT->charge < 0)
-      vTrackHistos_[kappanegindex]->Fill(fabs(itT->kappa));
+    if (itT->charge < 0) {
+      vTrackHistos_[kappanegindex]->Fill(fabs(itT->kappa)); }
     static const int normchi2index = this->GetIndex(vTrackHistos_,"h_normchi2");
     vTrackHistos_[normchi2index]->Fill(itT->normchi2);
     static const int chi2index = this->GetIndex(vTrackHistos_,"h_chi2");
@@ -1130,7 +1130,7 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       // fill histos in local coordinates if set in cf
       if (lCoorHistOn_) {
 	histStruct.ResHisto->Fill(itH->resX);
-	if(itH->resErrX != 0) histStruct.NormResHisto->Fill(itH->resX/itH->resErrX);
+	if(itH->resErrX != 0) { histStruct.NormResHisto->Fill(itH->resX/itH->resErrX); }
 	if (this->isPixel(detid.subdetId()) || stripYResiduals_ ) {
 	  histStruct.ResYHisto->Fill(itH->resY);
 	  // here add un-primed normalised y-residuals if wanted
@@ -1240,7 +1240,7 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     } // finish loop over hit quantities
   } // finish loop over track quantities
 
-  if (useOverflowForRMS_) TH1::StatOverflows(kFALSE);  
+  if (useOverflowForRMS_) { TH1::StatOverflows(kFALSE);   }
 }
 
 
@@ -1248,7 +1248,7 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 void 
 TrackerOfflineValidation::endJob()
 {
-  if (!tkGeom_.product()) return;
+  if (!tkGeom_.product()) { return; }
   
   static const int kappadiffindex = this->GetIndex(vTrackHistos_,"h_diff_curvature");
   vTrackHistos_[kappadiffindex]->Add(vTrackHistos_[this->GetIndex(vTrackHistos_,"h_curvature_neg")],
@@ -1258,7 +1258,7 @@ TrackerOfflineValidation::endJob()
   // create summary histograms recursively
   this->collateSummaryHists();
 
-  if (dqmMode_) return;
+  if (dqmMode_) { return; }
   // Should be excluded in dqmMode, since TTree is not usable
   // In dqmMode tree operations are are sourced out to the additional module TrackerOfflineValidationSummary
 
@@ -1287,7 +1287,7 @@ TrackerOfflineValidation::prepareSummaryHists( DirectoryWrapper& tfd, const Alig
 					       std::vector<TrackerOfflineValidation::SummaryContainer>& vLevelProfiles)
 {
   const auto& alivec = ali.components();
-  if( this->isDetOrDetUnit((alivec)[0]->alignableObjectId()) ) return;
+  if( this->isDetOrDetUnit((alivec)[0]->alignableObjectId()) ) { return; }
   
   for(int iComp=0, iCompEnd = ali.components().size();iComp < iCompEnd; ++iComp) {
     std::vector< TrackerOfflineValidation::SummaryContainer > vProfiles;        
@@ -1298,7 +1298,7 @@ TrackerOfflineValidation::prepareSummaryHists( DirectoryWrapper& tfd, const Alig
     dirname << structurename;
     
     // add no suffix counter to strip and pixel -> just aesthetics
-    if (structurename != "Strip" && structurename != "Pixel") dirname << "_" << iComp+1;
+    if (structurename != "Strip" && structurename != "Pixel") { dirname << "_" << iComp+1; }
     
     if(  !(this->isDetOrDetUnit( (alivec)[iComp]->alignableObjectId()) )
 	 || (alivec)[0]->components().size() > 1 ) {
@@ -1317,19 +1317,19 @@ TrackerOfflineValidation::prepareSummaryHists( DirectoryWrapper& tfd, const Alig
         this->summarizeBinInContainer(n+1, vLevelProfiles[iComp], vProfiles[n]);
 	            sumHistStructure_.emplace_back(hX,     vProfiles[n].sumXResiduals_);
 	            sumHistStructure_.emplace_back(hNormX, vProfiles[n].sumNormXResiduals_);
-	if (hY)     sumHistStructure_.emplace_back(hY,     vProfiles[n].sumYResiduals_);         // only if existing
-	if (hNormY) sumHistStructure_.emplace_back(hNormY, vProfiles[n].sumNormYResiduals_);     // ditto (pxl, stripYResiduals_)
-	if (pXX)    sumHistStructure_.emplace_back(pXX,    vProfiles[n].sumResXvsXProfile_);
-	if (pXY)    sumHistStructure_.emplace_back(pXY,    vProfiles[n].sumResXvsYProfile_);
-	if (pYX)    sumHistStructure_.emplace_back(pYX,    vProfiles[n].sumResYvsXProfile_);
-	if (pYY)    sumHistStructure_.emplace_back(pYY,    vProfiles[n].sumResYvsYProfile_);
+	if (hY) {     sumHistStructure_.emplace_back(hY,     vProfiles[n].sumYResiduals_);         // only if existing }
+	if (hNormY) { sumHistStructure_.emplace_back(hNormY, vProfiles[n].sumNormYResiduals_);     // ditto (pxl, stripYResiduals_) }
+	if (pXX) {    sumHistStructure_.emplace_back(pXX,    vProfiles[n].sumResXvsXProfile_); }
+	if (pXY) {    sumHistStructure_.emplace_back(pXY,    vProfiles[n].sumResXvsYProfile_); }
+	if (pYX) {    sumHistStructure_.emplace_back(pYX,    vProfiles[n].sumResYvsXProfile_); }
+	if (pYY) {    sumHistStructure_.emplace_back(pYY,    vProfiles[n].sumResYvsYProfile_); }
       }
-      if(dqmMode_)continue;  // No fits in dqmMode
+      if(dqmMode_) {continue;  // No fits in dqmMode }
       //add fit values to stat box
       toFit_.push_back(vLevelProfiles[iComp].sumXResiduals_);
       toFit_.push_back(vLevelProfiles[iComp].sumNormXResiduals_);
-      if (hY)     toFit_.push_back(hY);     // only if existing (pixel or stripYResiduals_)
-      if (hNormY) toFit_.push_back(hNormY); // ditto
+      if (hY) {     toFit_.push_back(hY);     // only if existing (pixel or stripYResiduals_) }
+      if (hNormY) { toFit_.push_back(hNormY); // ditto }
     } else {
       // nothing to be done for det or detunits
       continue;
@@ -1342,18 +1342,18 @@ TrackerOfflineValidation::collateSummaryHists()
 {
     for (std::vector<std::pair<TH1*,TH1*> >::const_iterator it = sumHistStructure_.begin();
            it != sumHistStructure_.end();
-           ++it)
-        it->first->Add(it->second);
+           ++it) {
+        it->first->Add(it->second); }
 
     for (std::vector<std::tuple<int,TH1*,TH1*> >::const_iterator it = summaryBins_.begin();
            it != summaryBins_.end();
-           ++it)
-        setSummaryBin(std::get<0>(*it), std::get<1>(*it), std::get<2>(*it));
+           ++it) {
+        setSummaryBin(std::get<0>(*it), std::get<1>(*it), std::get<2>(*it)); }
 
     for (std::vector<TH1*>::const_iterator it = toFit_.begin();
            it != toFit_.end();
-           ++it)
-        fitResiduals(*it);
+           ++it) {
+        fitResiduals(*it); }
 }
 
 
@@ -1587,7 +1587,7 @@ TrackerOfflineValidation::setUpTreeMembers(const std::map<int, TrackerOfflineVal
     if(treeMem.subDetId == PixelSubdetector::PixelBarrel){
       unsigned int whichHalfBarrel(1), rawId(detId_.rawId());  //DetId does not know about halfBarrels is PXB ...
       if( (rawId>=302056964 && rawId<302059300) || (rawId>=302123268 && rawId<302127140) ||
-	  (rawId>=302189572 && rawId<302194980) ) whichHalfBarrel=2;
+	  (rawId>=302189572 && rawId<302194980) ) { whichHalfBarrel=2; }
       treeMem.layer = tTopo->pxbLayer(detId_); 
       treeMem.half = whichHalfBarrel;
       treeMem.rod = tTopo->pxbLadder(detId_);     // ... so, ladder is not per halfBarrel-Layer, but per barrel-layer!
@@ -1595,7 +1595,7 @@ TrackerOfflineValidation::setUpTreeMembers(const std::map<int, TrackerOfflineVal
     } else if(treeMem.subDetId == PixelSubdetector::PixelEndcap){
       unsigned int whichHalfCylinder(1), rawId(detId_.rawId());  //DetId does not kmow about halfCylinders in PXF
       if( (rawId>=352394500 && rawId<352406032) || (rawId>=352460036 && rawId<352471568) ||
-	  (rawId>=344005892 && rawId<344017424) || (rawId>=344071428 && rawId<344082960) ) whichHalfCylinder=2;
+	  (rawId>=344005892 && rawId<344017424) || (rawId>=344071428 && rawId<344082960) ) { whichHalfCylinder=2; }
       treeMem.layer = tTopo->pxfDisk(detId_); 
       treeMem.side = tTopo->pxfSide(detId_);
       treeMem.half = whichHalfCylinder;
@@ -1611,7 +1611,7 @@ TrackerOfflineValidation::setUpTreeMembers(const std::map<int, TrackerOfflineVal
 	    (rawId>=369124580 && rawId<369124784) || (rawId>=369125636 && rawId<369125872) ||
 	    (rawId>=369141028 && rawId<369141296) || (rawId>=369142084 && rawId<369142384) ||
 	    (rawId>=369157492 && rawId<369157840) || (rawId>=369158532 && rawId<369158896) ||
-	    (rawId>=369173940 && rawId<369174352) || (rawId>=369174996 && rawId<369175440) ) whichHalfShell=2;
+	    (rawId>=369173940 && rawId<369174352) || (rawId>=369174996 && rawId<369175440) ) { whichHalfShell=2; }
       treeMem.layer = tTopo->tibLayer(detId_); 
       treeMem.side = tTopo->tibStringInfo(detId_)[0];
       treeMem.half = whichHalfShell;
@@ -1667,21 +1667,21 @@ TrackerOfflineValidation::setUpTreeMembers(const std::map<int, TrackerOfflineVal
       dR = gWDirection.perp() - gPModule.perp();
       dPhi = deltaPhi(gUDirection.barePhi(),gPModule.barePhi());
       dZ = gVDirection.z() - gPModule.z();
-      if(dZ>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
+      if(dZ>=0.) {treeMem.rOrZDirection = 1; } else { treeMem.rOrZDirection = -1; }
     }else if(treeMem.subDetId==PixelSubdetector::PixelEndcap){
       dR = gUDirection.perp() - gPModule.perp();
       dPhi = deltaPhi(gVDirection.barePhi(),gPModule.barePhi());
       dZ = gWDirection.z() - gPModule.z();
-      if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
+      if(dR>=0.) {treeMem.rOrZDirection = 1; } else { treeMem.rOrZDirection = -1; }
     }else if(treeMem.subDetId==StripSubdetector::TID || treeMem.subDetId==StripSubdetector::TEC){
       dR = gVDirection.perp() - gPModule.perp();
       dPhi = deltaPhi(gUDirection.barePhi(),gPModule.barePhi());
       dZ = gWDirection.z() - gPModule.z();
-      if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
+      if(dR>=0.) {treeMem.rOrZDirection = 1; } else { treeMem.rOrZDirection = -1; }
     }
-    if(dR>=0.)treeMem.rDirection = 1; else treeMem.rDirection = -1;
-    if(dPhi>=0.)treeMem.phiDirection = 1; else treeMem.phiDirection = -1;
-    if(dZ>=0.)treeMem.zDirection = 1; else treeMem.zDirection = -1;
+    if(dR>=0.) {treeMem.rDirection = 1; } else { treeMem.rDirection = -1; }
+    if(dPhi>=0.) {treeMem.phiDirection = 1; } else { treeMem.phiDirection = -1; }
+    if(dZ>=0.) {treeMem.zDirection = 1; } else { treeMem.zDirection = -1; }
   }
 }
 
@@ -1726,7 +1726,7 @@ TrackerOfflineValidation::fillTree(TTree& tree, TkOffTreeVariables &treeMem,
     double stats[20];
     it->second.NormResXprimeHisto->GetStats(stats);
     // GF  treeMem.chi2PerDofX = stats[3]/(stats[0]-1);
-    if (stats[0]) treeMem.chi2PerDofX = stats[3]/stats[0];
+    if (stats[0]) { treeMem.chi2PerDofX = stats[3]/stats[0]; }
     
     treeMem.sigmaNormX = Fwhm(it->second.NormResXprimeHisto)/2.355;
     treeMem.histNameX = it->second.ResXprimeHisto->GetName();
@@ -1741,7 +1741,7 @@ TrackerOfflineValidation::fillTree(TTree& tree, TkOffTreeVariables &treeMem,
 
       treeMem.histNameLocalX = it->second.ResHisto->GetName();
       treeMem.histNameNormLocalX = it->second.NormResHisto->GetName();
-      if (it->second.ResYHisto) treeMem.histNameLocalY = it->second.ResYHisto->GetName();
+      if (it->second.ResYHisto) { treeMem.histNameLocalY = it->second.ResYHisto->GetName(); }
     }
 
     // mean and RMS values in local y (extracted from histograms(normalized Yprime on module level)
@@ -1767,7 +1767,7 @@ TrackerOfflineValidation::fillTree(TTree& tree, TkOffTreeVariables &treeMem,
       treeMem.meanNormY = h->GetMean();
       treeMem.rmsNormY  = h->GetRMS();
       h->GetStats(stats); // stats buffer defined above
-      if (stats[0]) treeMem.chi2PerDofY = stats[3]/stats[0];
+      if (stats[0]) { treeMem.chi2PerDofY = stats[3]/stats[0]; }
 
       if (useFit_) { // fit function which returns mean and sigma from the fit
 	std::pair<float,float> fitMeanSigma = this->fitResiduals(h);
@@ -1813,7 +1813,7 @@ std::pair<float,float>
 TrackerOfflineValidation::fitResiduals(TH1* hist) const
 {
   std::pair<float,float> fitResult(9999., 9999.);
-  if (!hist || hist->GetEntries() < 20) return fitResult;
+  if (!hist || hist->GetEntries() < 20) { return fitResult; }
 
   float mean  = hist->GetMean();
   float sigma = hist->GetRMS();

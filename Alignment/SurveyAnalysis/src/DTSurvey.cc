@@ -56,7 +56,7 @@ void DTSurvey::ReadChambers(edm::ESHandle<DTGeometry> pDD) {
     int code, station, sector;
     double x, y, z, rms, dx, dy, dz;
     file >> code >> x >> y >> z >> rms >> dx >> dy >> dz;
-    if(file.eof()) break;
+    if(file.eof()) { break; }
     x = x/10.0; y=y/10.0; z=z/10.0; dx=dx/10.0; dy=dy/10.0; dz=dz/10.0;rms=rms/10.0; 
     station = code/10000 - 1;
     sector = (code-(station+1)*10000)/100 - 1;

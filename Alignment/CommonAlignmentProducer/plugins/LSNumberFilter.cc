@@ -56,7 +56,7 @@ LSNumberFilter::~LSNumberFilter()
 bool LSNumberFilter::filter(edm::Event& iEvent,
 			    const edm::EventSetup& iSetup) {
 
-  if(iEvent.luminosityBlock() < minLS) return false;
+  if(iEvent.luminosityBlock() < minLS) { return false; }
   
   return true;
 

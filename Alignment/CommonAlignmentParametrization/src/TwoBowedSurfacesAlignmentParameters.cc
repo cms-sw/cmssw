@@ -69,7 +69,7 @@ TwoBowedSurfacesAlignmentParameters::clone(const AlgebraicVector &parameters,
   TwoBowedSurfacesAlignmentParameters* rbap = 
     new TwoBowedSurfacesAlignmentParameters(this->alignable(), parameters, covMatrix, selector());
 
-  if (this->userVariables()) rbap->setUserVariables(this->userVariables()->clone());
+  if (this->userVariables()) { rbap->setUserVariables(this->userVariables()->clone()); }
   rbap->setValid(this->isValid());
 
   return rbap;
@@ -239,7 +239,7 @@ void TwoBowedSurfacesAlignmentParameters::print() const
 //_________________________________________________________________________________________________
 double TwoBowedSurfacesAlignmentParameters::ySplitFromAlignable(const Alignable *ali) const
 {
-  if (!ali) return 0.;
+  if (!ali) { return 0.; }
 
   const align::PositionType pos(ali->globalPosition());  
   const double r = pos.perp();

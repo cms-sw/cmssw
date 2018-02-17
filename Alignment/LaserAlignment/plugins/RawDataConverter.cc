@@ -137,7 +137,7 @@ void RawDataConverter::analyze( const edm::Event& iEvent, const edm::EventSetup&
 {
   // Determine the digi type to be used (only for the first time this methosd is called)
   static DigiType digitype = Unknown;  // Type of digis in this run
-  if(digitype == Unknown) digitype = GetValidLabels( iEvent );   // Initialization of Digi Type
+  if(digitype == Unknown) { digitype = GetValidLabels( iEvent );   // Initialization of Digi Type }
 
   //////////////////////////////////////////////////////////
   // Retrieve SiStripEventSummary produced by the digitizer

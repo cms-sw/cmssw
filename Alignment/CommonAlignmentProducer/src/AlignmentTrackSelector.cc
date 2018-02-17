@@ -107,7 +107,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
       trkQualities_.push_back(reco::TrackBase::qualityByName(trkQualityStrings[i]));
     }
   }
-  else applyTrkQualityCheck_=false;
+  else { applyTrkQualityCheck_=false; }
 
   std::vector<std::string> trkIterStrings(cfg.getParameter<std::vector<std::string> >("iterativeTrackingSteps"));
   if(!trkIterStrings.empty()){
@@ -118,7 +118,7 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
       trkSteps_.push_back(reco::TrackBase::algoByName(trkIterStrings[i]));
     }
   }
-  else   applyIterStepCheck_=false;
+  else {   applyIterStepCheck_=false; }
 
   if (applyBasicCuts_){
       edm::LogInfo("AlignmentTrackSelector") 
@@ -133,15 +133,15 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
         << (countStereoHitAs2D_ ? "," : ", not") << " counting hits on SiStrip stereo modules as 2D" 
 	<< "\nchi2nmax:        " << chi2nMax_;
 
-      if (applyIsolation_)
+      if (applyIsolation_) {
 	edm::LogInfo("AlignmentTrackSelector") 
 	  << "only retain tracks isolated at least by " << minHitIsolation_ << 
-	  " cm from other rechits"; 
+	  " cm from other rechits";  }
       
-      if (chargeCheck_)
+      if (chargeCheck_) {
 	edm::LogInfo("AlignmentTrackSelector") 
 	  << "only retain hits with at least " << minHitChargeStrip_ <<  
-	  " ADC counts of total cluster charge"; 
+	  " ADC counts of total cluster charge";  }
    
       edm::LogInfo("AlignmentTrackSelector") 
 	<< "Minimum number of hits in TIB/TID/TOB/TEC/BPIX/FPIX/PIXEL = " 
@@ -168,14 +168,14 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
       }    
   }
   
-  if (applyNHighestPt_)
+  if (applyNHighestPt_) {
 	edm::LogInfo("AlignmentTrackSelector") 
-	  << "filter N tracks with highest Pt N=" << nHighestPt_;
+	  << "filter N tracks with highest Pt N=" << nHighestPt_; }
 
-  if (applyMultiplicityFilter_)
+  if (applyMultiplicityFilter_) {
 	edm::LogInfo("AlignmentTrackSelector") 
 	  << "apply multiplicity filter N>= " << minMultiplicity_ << "and N<= " << maxMultiplicity_
-          << " on " << (multiplicityOnInput_ ? "input" : "output");
+          << " on " << (multiplicityOnInput_ ? "input" : "output"); }
 
   if (applyPrescaledHitsFilter_) {
     edm::LogInfo("AlignmentTrackSelector") 
@@ -247,10 +247,10 @@ AlignmentTrackSelector::select(const Tracks& tracks, const edm::Event& evt, cons
 
   Tracks result = tracks;
   // apply basic track cuts (if selected)
-  if (applyBasicCuts_) result= this->basicCuts(result, evt, eSetup);
+  if (applyBasicCuts_) { result= this->basicCuts(result, evt, eSetup); }
   
   // filter N tracks with highest Pt (if selected)
-  if (applyNHighestPt_) result = this->theNHighestPtTracks(result);
+  if (applyNHighestPt_) { result = this->theNHighestPtTracks(result); }
   
   // apply minimum multiplicity requirement (if selected)
   if (applyMultiplicityFilter_ && !multiplicityOnInput_) {
@@ -295,9 +295,9 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt, c
 
     int q = trackp->charge();
     bool isChargeOk = false;
-    if(theCharge_==-1 && q<0)         isChargeOk = true; 
-    else if (theCharge_==1 && q>0)    isChargeOk = true; 
-    else if (theCharge_==0)           isChargeOk = true; 
+    if(theCharge_==-1 && q<0) {         isChargeOk = true; 
+    } else if (theCharge_==1 && q>0) {    isChargeOk = true; 
+    } else if (theCharge_==0) {           isChargeOk = true;  }
 
     float d0    = trackp->d0();
     float dz    = trackp->dz();
@@ -316,12 +316,12 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt, c
        && d0>=d0Min_ && d0<=d0Max_
        && dz>=dzMin_ && dz<=dzMax_) {
       bool trkQualityOk=false ;
-      if (!applyTrkQualityCheck_ &&!applyIterStepCheck_)trkQualityOk=true ; // nothing required
-      else trkQualityOk = this->isOkTrkQuality(trackp);
+      if (!applyTrkQualityCheck_ &&!applyIterStepCheck_) {trkQualityOk=true ; // nothing required
+      } else { trkQualityOk = this->isOkTrkQuality(trackp); }
 
       bool hitsCheckOk=this->detailedHitsCheck(trackp, evt, eSetup);
  
-      if (trkQualityOk && hitsCheckOk )  result.push_back(trackp);
+      if (trkQualityOk && hitsCheckOk ) {  result.push_back(trackp); }
     }
   }
 
@@ -377,18 +377,18 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
         return false;
       }
 
-      if (!(*iHit)->isValid()) continue; // only real hits count as in trackp->numberOfValidHits()
+      if (!(*iHit)->isValid()) { continue; // only real hits count as in trackp->numberOfValidHits() }
       if (detId.det() != DetId::Tracker) {
         edm::LogError("DetectorMismatch") << "@SUB=AlignmentTrackSelector::detailedHitsCheck"
                                           << "DetId.det() != DetId::Tracker (=" << DetId::Tracker
                                           << "), but " << detId.det() << ".";
       }
       const TrackingRecHit* therechit = (*iHit);
-      if (chargeCheck_ && !(this->isOkCharge(therechit))) return false;
-      if (applyIsolation_ && (!this->isIsolated(therechit, evt))) return false;
-      if      (SiStripDetId::TIB == subdetId) ++nhitinTIB;
-      else if (SiStripDetId::TOB == subdetId) ++nhitinTOB;
-      else if (SiStripDetId::TID == subdetId) {
+      if (chargeCheck_ && !(this->isOkCharge(therechit))) { return false; }
+      if (applyIsolation_ && (!this->isIsolated(therechit, evt))) { return false; }
+      if      (SiStripDetId::TIB == subdetId) { ++nhitinTIB;
+      } else if (SiStripDetId::TOB == subdetId) { ++nhitinTOB;
+      } else if (SiStripDetId::TID == subdetId) {
         ++nhitinTID;
         ++nhitinENDCAP;
         
@@ -419,11 +419,11 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
         ++nhitinFPIX;
         ++nhitinPIXEL;
 	
-        if (tTopo->pxfSide(detId)==1) ++nhitinFPIXminus;
-        else if (tTopo->pxfSide(detId)==2) ++nhitinFPIXplus;
+        if (tTopo->pxfSide(detId)==1) { ++nhitinFPIXminus;
+        } else if (tTopo->pxfSide(detId)==2) { ++nhitinFPIXplus; }
       }
       // Do not call isHit2D(..) if already enough 2D hits for performance reason:
-      if (nHit2D < nHitMin2D_ && this->isHit2D(**iHit)) ++nHit2D;
+      if (nHit2D < nHitMin2D_ && this->isHit2D(**iHit)) { ++nHit2D; }
     } // end loop on hits
 
 
@@ -438,10 +438,10 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
 
       const reco::TrackBase::Point& firstPoint(trackp->innerPosition());
 
-      if( (std::fabs(firstPoint.R()) < RorZofFirstHitMin_.at(0) )) passedFirstHitPositionR = false;
-      if( (std::fabs(firstPoint.R()) > RorZofFirstHitMax_.at(0) )) passedFirstHitPositionR = false;
-      if( (std::fabs(firstPoint.Z()) < RorZofFirstHitMin_.at(1) )) passedFirstHitPositionZ = false;
-      if( (std::fabs(firstPoint.Z()) > RorZofFirstHitMax_.at(1) )) passedFirstHitPositionZ = false;
+      if( (std::fabs(firstPoint.R()) < RorZofFirstHitMin_.at(0) )) { passedFirstHitPositionR = false; }
+      if( (std::fabs(firstPoint.R()) > RorZofFirstHitMax_.at(0) )) { passedFirstHitPositionR = false; }
+      if( (std::fabs(firstPoint.Z()) < RorZofFirstHitMin_.at(1) )) { passedFirstHitPositionZ = false; }
+      if( (std::fabs(firstPoint.Z()) > RorZofFirstHitMax_.at(1) )) { passedFirstHitPositionZ = false; }
     }
     
     if( RorZofLastHitMin_.at(0) != 0.0 || RorZofLastHitMin_.at(1) != 0.0 
@@ -449,10 +449,10 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
 
       const reco::TrackBase::Point& lastPoint(trackp->outerPosition());
 
-      if( (std::fabs(lastPoint.R()) < RorZofLastHitMin_.at(0) )) passedLastHitPositionR = false;
-      if( (std::fabs(lastPoint.R()) > RorZofLastHitMax_.at(0) )) passedLastHitPositionR = false;
-      if( (std::fabs(lastPoint.Z()) < RorZofLastHitMin_.at(1) )) passedLastHitPositionZ = false;
-      if( (std::fabs(lastPoint.Z()) > RorZofLastHitMax_.at(1) )) passedLastHitPositionZ = false;
+      if( (std::fabs(lastPoint.R()) < RorZofLastHitMin_.at(0) )) { passedLastHitPositionR = false; }
+      if( (std::fabs(lastPoint.R()) > RorZofLastHitMax_.at(0) )) { passedLastHitPositionR = false; }
+      if( (std::fabs(lastPoint.Z()) < RorZofLastHitMin_.at(1) )) { passedLastHitPositionZ = false; }
+      if( (std::fabs(lastPoint.Z()) > RorZofLastHitMax_.at(1) )) { passedLastHitPositionZ = false; }
     }
 
     bool passedFirstHitPosition = passedFirstHitPositionR || passedFirstHitPositionZ;
@@ -492,12 +492,12 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit &hit) const
         return true; // pixel is always 2D
       } else { // should be SiStrip now
 	const SiStripDetId stripId(detId);
-	if (stripId.stereo()) return countStereoHitAs2D_; // stereo modules
-        else if (dynamic_cast<const SiStripRecHit1D*>(&hit)
-		 || dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // rphi modules hit
+	if (stripId.stereo()) { return countStereoHitAs2D_; // stereo modules
+        } else if (dynamic_cast<const SiStripRecHit1D*>(&hit)
+		 || dynamic_cast<const SiStripRecHit2D*>(&hit)) { return false; // rphi modules hit
 	//the following two are not used any more since ages... 
-        else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) return true; // matched is 2D
-        else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) {
+        } else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) { return true; // matched is 2D
+        } else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) {
 	  const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
 	  return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit())); // depends on original...
 	} else {
@@ -520,7 +520,7 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit &hit) const
 
 bool AlignmentTrackSelector::isOkCharge(const TrackingRecHit* hit) const
 {
-  if (!hit || !hit->isValid()) return true; 
+  if (!hit || !hit->isValid()) { return true;  }
 
   // check det and subdet
   const DetId id(hit->geographicalId());
@@ -641,20 +641,20 @@ bool AlignmentTrackSelector::isIsolated(const TrackingRecHit* therechit, const e
   for( istripSt=stripcollSt.begin(); istripSt!=stripcollSt.end(); ++istripSt ) {
     const SiStripRecHit2D *aHit = &*(istripSt);
     DetId mydet1 = aHit->geographicalId(); 
-    if (idet.rawId() != mydet1.rawId()) continue; 
+    if (idet.rawId() != mydet1.rawId()) { continue;  }
     float theDistance = ( therechit->localPosition() - aHit->localPosition() ).mag();
     // std::cout << "theDistance1 = " << theDistance << "\n";
-    if (theDistance > 0.001 && theDistance < minHitIsolation_) return false;
+    if (theDistance > 0.001 && theDistance < minHitIsolation_) { return false; }
   }
   
   // FIXME: see above
   for( istripStm=stripcollStm.begin(); istripStm!=stripcollStm.end(); ++istripStm ) {
     const SiStripMatchedRecHit2D *aHit = &*(istripStm);
     DetId mydet2 = aHit->geographicalId(); 
-    if (idet.rawId() != mydet2.rawId()) continue;
+    if (idet.rawId() != mydet2.rawId()) { continue; }
     float theDistance = (therechit->localPosition() - aHit->localPosition()).mag();
     // std::cout << "theDistance1 = " << theDistance << "\n";
-    if (theDistance > 0.001 && theDistance < minHitIsolation_) return false;
+    if (theDistance > 0.001 && theDistance < minHitIsolation_) { return false; }
   }
   return true;
 }
@@ -700,7 +700,7 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
 
     for (trackingRecHit_iterator ith = trackp->recHitsBegin(), edh = trackp->recHitsEnd(); ith != edh; ++ith) {
       const TrackingRecHit *hit = (*ith); // ith is an iterator on edm::Ref to rechit
-      if(! hit->isValid())continue;
+      if(! hit->isValid()) {continue; }
       DetId detid = hit->geographicalId();
       int subDet = detid.subdetId();
       AlignmentClusterFlag flag;
@@ -744,10 +744,10 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
 	}
       }//end else hit is in Pixel
       
-      if(flag.isTaken())ntakenhits++;
+      if(flag.isTaken()) {ntakenhits++; }
 
     }//end loop on hits
-    if(ntakenhits >= minPrescaledHits_)result.push_back(trackp);
+    if(ntakenhits >= minPrescaledHits_) {result.push_back(trackp); }
   }//end loop on tracks
 
   return result;
@@ -768,7 +768,7 @@ bool AlignmentTrackSelector::isOkTrkQuality(const reco::Track* track) const
       }
     }
   }
-  else iterStepOk=true;
+  else { iterStepOk=true; }
 
   //check track quality
   if(applyTrkQualityCheck_){
@@ -778,7 +778,7 @@ bool AlignmentTrackSelector::isOkTrkQuality(const reco::Track* track) const
       }
     }
   }
-  else 	qualityOk=true;
+  else { 	qualityOk=true; }
 
   return qualityOk&&iterStepOk;
 }//end check on track quality

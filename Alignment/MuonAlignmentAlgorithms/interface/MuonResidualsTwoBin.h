@@ -16,8 +16,8 @@ class MuonResidualsTwoBin {
 public:
   MuonResidualsTwoBin(bool twoBin, MuonResidualsFitter *pos, MuonResidualsFitter *neg): m_twoBin(twoBin), m_pos(pos), m_neg(neg) {};
   ~MuonResidualsTwoBin() {
-    if (m_pos != nullptr) delete m_pos;
-    if (m_neg != nullptr) delete m_neg;
+    if (m_pos != nullptr) { delete m_pos; }
+    if (m_neg != nullptr) { delete m_neg; }
   };
 
   int residualsModel() const { assert(m_pos->residualsModel() == m_neg->residualsModel());  return m_pos->residualsModel(); };
@@ -48,8 +48,8 @@ public:
   }
 
   void fill(char charge, double *residual) {
-    if (!m_twoBin  ||  charge > 0) m_pos->fill(residual);
-    else m_neg->fill(residual);
+    if (!m_twoBin  ||  charge > 0) { m_pos->fill(residual);
+    } else { m_neg->fill(residual); }
   };
 
   bool fit(Alignable *ali) {

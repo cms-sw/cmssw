@@ -44,8 +44,8 @@ AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm
   if(theChargeSwitch){
     theCharge = cfg.getParameter<int>( "charge" );
     theUnsignedSwitch = cfg.getParameter<bool>( "useUnsignedCharge" );
-    if(theUnsignedSwitch) 
-      theCharge=std::abs(theCharge);
+    if(theUnsignedSwitch) { 
+      theCharge=std::abs(theCharge); }
     LogDebug("Alignment") << ">  Desired Charge, unsigned: "<<theCharge<<" , "<<theUnsignedSwitch;
   }else{
     theCharge =0;
@@ -85,10 +85,10 @@ AlignmentTwoBodyDecayTrackSelector::select(const Tracks& tracks, const edm::Even
   Tracks result = tracks;
 
   if (theMassrangeSwitch) {  
-    if (theMissingETSwitch)
+    if (theMissingETSwitch) {
       result = checkMETMass(result,iEvent); 
-    else
-      result = checkMass(result); 
+    } else {
+      result = checkMass(result);  }
   }
 
   LogDebug("Alignment") << ">  TwoBodyDecay tracks all,kept: " << tracks.size() << "," << result.size();
@@ -112,7 +112,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
   
   LogDebug("Alignment") <<">  cands size : "<< cands.size();
   
-  if (cands.size()<2) return result;
+  if (cands.size()<2) { return result; }
 
   TLorentzVector track0;
   TLorentzVector track1;
@@ -134,17 +134,17 @@ AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
 		     cands.at(jCand)->py(),
 		     cands.at(jCand)->pz(),
 		     sqrt( cands.at(jCand)->p()*cands.at(jCand)->p() + theDaughterMass*theDaughterMass ));
-      if (secThrBool==true && track1.Pt() < thesecThr && track0.Pt()< thesecThr) continue;          
+      if (secThrBool==true && track1.Pt() < thesecThr && track0.Pt()< thesecThr) { continue;           }
       mother = track0 + track1;
       
       const reco::Track *trk1 = cands.at(iCand);
       const reco::Track *trk2 = cands.at(jCand);
 
       bool correctCharge = true;
-      if (theChargeSwitch) correctCharge = this->checkCharge(trk1, trk2);
+      if (theChargeSwitch) { correctCharge = this->checkCharge(trk1, trk2); }
 
       bool acoplanarTracks = true;
-      if (theAcoplanarityFilterSwitch) acoplanarTracks = this->checkAcoplanarity(trk1, trk2);
+      if (theAcoplanarityFilterSwitch) { acoplanarTracks = this->checkAcoplanarity(trk1, trk2); }
 
       if (mother.M() > theMinMass &&
 	  mother.M() < theMaxMass &&
@@ -156,7 +156,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
     }
   }
 
-  if (candCollection.empty()) return result;
+  if (candCollection.empty()) { return result; }
 
   sort(candCollection.begin(), candCollection.end(), 
        higherTwoBodyDecayPt<candCollectionItem>());
@@ -192,7 +192,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
   
   LogDebug("Alignment") <<">  cands size : "<< cands.size();
   
-  if (cands.empty()) return result;
+  if (cands.empty()) { return result; }
 
   TLorentzVector track;
   TLorentzVector met4;
@@ -231,10 +231,10 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
       const reco::CaloMET *met = &(*itMET);
 
       bool correctCharge = true;
-      if (theChargeSwitch) correctCharge = this->checkCharge(trk);
+      if (theChargeSwitch) { correctCharge = this->checkCharge(trk); }
 
       bool acoplanarTracks = true;
-      if (theAcoplanarityFilterSwitch) acoplanarTracks = this->checkMETAcoplanarity(trk, met);
+      if (theAcoplanarityFilterSwitch) { acoplanarTracks = this->checkMETAcoplanarity(trk, met); }
 
       if (mother.M() > theMinMass &&
 	  mother.M() < theMaxMass &&
@@ -245,7 +245,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
     }
   }
 
-  if (candCollection.empty()) return result;
+  if (candCollection.empty()) { return result; }
 
   sort(candCollection.begin(), candCollection.end(), 
        higherTwoBodyDecayPt<candCollectionItem>());
@@ -270,9 +270,9 @@ bool
 AlignmentTwoBodyDecayTrackSelector::checkCharge(const reco::Track* trk1, const reco::Track* trk2)const
 {
   int sumCharge = trk1->charge();
-  if (trk2) sumCharge += trk2->charge();
-  if (theUnsignedSwitch) sumCharge = std::abs(sumCharge);
-  if (sumCharge == theCharge) return true;
+  if (trk2) { sumCharge += trk2->charge(); }
+  if (theUnsignedSwitch) { sumCharge = std::abs(sumCharge); }
+  if (sumCharge == theCharge) { return true; }
   return false;
 }
 
@@ -280,7 +280,7 @@ AlignmentTwoBodyDecayTrackSelector::checkCharge(const reco::Track* trk1, const r
 bool
 AlignmentTwoBodyDecayTrackSelector::checkAcoplanarity(const reco::Track* trk1, const reco::Track* trk2)const
 {
-  if (fabs(deltaPhi(trk1->phi(),trk2->phi()-M_PI)) < theAcoplanarDistance) return true;
+  if (fabs(deltaPhi(trk1->phi(),trk2->phi()-M_PI)) < theAcoplanarDistance) { return true; }
   return false;
 }
 
@@ -288,7 +288,7 @@ AlignmentTwoBodyDecayTrackSelector::checkAcoplanarity(const reco::Track* trk1, c
 bool
 AlignmentTwoBodyDecayTrackSelector::checkMETAcoplanarity(const reco::Track* trk1, const reco::CaloMET* met)const
 {
-  if (fabs(deltaPhi(trk1->phi(),met->phi()-M_PI)) < theAcoplanarDistance) return true;
+  if (fabs(deltaPhi(trk1->phi(),met->phi()-M_PI)) < theAcoplanarDistance) { return true; }
   return false;
 }
 

@@ -91,7 +91,7 @@ void MillePedeDQMModule
 void MillePedeDQMModule
 ::beginRun(const edm::Run&, const edm::EventSetup& setup) {
 
-  if (!setupChanged(setup)) return;
+  if (!setupChanged(setup)) { return; }
 
   edm::ESHandle<TrackerTopology> tTopo;
   setup.get<TrackerTopologyRcd>().get(tTopo);
@@ -247,9 +247,9 @@ bool MillePedeDQMModule
 {
   bool changed{false};
 
-  if (watchIdealGeometryRcd_.check(setup)) changed = true;
-  if (watchTrackerTopologyRcd_.check(setup)) changed = true;
-  if (watchPTrackerParametersRcd_.check(setup)) changed = true;
+  if (watchIdealGeometryRcd_.check(setup)) { changed = true; }
+  if (watchTrackerTopologyRcd_.check(setup)) { changed = true; }
+  if (watchPTrackerParametersRcd_.check(setup)) { changed = true; }
 
   return changed;
 }

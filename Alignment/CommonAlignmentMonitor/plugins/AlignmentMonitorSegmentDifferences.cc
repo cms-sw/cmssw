@@ -131,7 +131,7 @@ void AlignmentMonitorSegmentDifferences::book()
 
   double max_curv = 1./m_minTrackPt;
 
-  if (m_doDT) for (int wheel = -2;  wheel <= +2;  wheel++) 
+  if (m_doDT) { for (int wheel = -2;  wheel <= +2;  wheel++) 
   {
     char wheel_label[][2]={"A","B","C","D","E"};
     for (int sector = 1;  sector <= 12;  sector++) 
@@ -212,13 +212,13 @@ void AlignmentMonitorSegmentDifferences::book()
       m_posdt2_slope[wheel+2][sector-1][1] = book1D("/iterN/", pos, pos, nb, -100., 100.);
       m_negdt2_slope[wheel+2][sector-1][1] = book1D("/iterN/", neg, neg, nb, -100., 100.);
     }
-  }
+  } }
 
-  if (m_doCSC) for (int endcap = 1;  endcap <= 2;  endcap++)
+  if (m_doCSC) { for (int endcap = 1;  endcap <= 2;  endcap++)
   {
     std::string endcapletter;
-    if (endcap == 1) endcapletter = "p";
-    else if (endcap == 2) endcapletter = "m";
+    if (endcap == 1) { endcapletter = "p";
+    } else if (endcap == 2) { endcapletter = "m"; }
 
     for (int chamber = 1;  chamber <= 36;  chamber++)
     {
@@ -307,15 +307,15 @@ void AlignmentMonitorSegmentDifferences::book()
       m_poscscinner_slope[endcap-1][chamber-1][2] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
       m_negcscinner_slope[endcap-1][chamber-1][2] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
     }
-  }
+  } }
 
   // cross-system
-  for (int e = 1; e<=2; e++)
+  for (int e = 1; e<=2; e++) {
   for (int s = 1; s <= 12; s++)
   {
     char endcap_sector[50];
-    if (e == 1) sprintf(endcap_sector,"Wp2S%02d", s);
-    if (e == 2) sprintf(endcap_sector,"Wm2S%02d", s);
+    if (e == 1) { sprintf(endcap_sector,"Wp2S%02d", s); }
+    if (e == 2) { sprintf(endcap_sector,"Wm2S%02d", s); }
 
     int nb = 200;
     double wnd = 100.;
@@ -334,7 +334,7 @@ void AlignmentMonitorSegmentDifferences::book()
     sprintf(neg,"neg_x_dt2_csc1_%s", endcap_sector);
     m_x_pos_dt2_csc1_resid[e-1][s-1] = book1D("/iterN/", pos, pos, nb, -wnd, wnd);
     m_x_neg_dt2_csc1_resid[e-1][s-1] = book1D("/iterN/", neg, neg, nb, -wnd, wnd);
-  }
+  } }
 
 }
 
@@ -378,7 +378,7 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 
     for (reco::MuonCollection::const_iterator muon = muons->begin();  muon != muons->end();  ++muon)
     {
-      if ( !(muon->isTrackerMuon() && muon->innerTrack().isNonnull() ) ) continue;
+      if ( !(muon->isTrackerMuon() && muon->innerTrack().isNonnull() ) ) { continue; }
 
       if (m_minTrackPt < muon->pt()  &&  m_minTrackP < muon->p() && fabs(muon->innerTrack()->dxy(beamSpot->position())) < m_maxDxy)
       {
@@ -392,22 +392,22 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent, const e
 
 void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft)
 {
-  if (mrft.trackerNumHits() < m_minTrackerHits) return;
-  if (!m_allowTIDTEC  && mrft.contains_TIDTEC()) return;
-  if (mrft.normalizedChi2() > m_maxTrackerRedChi2) return;
+  if (mrft.trackerNumHits() < m_minTrackerHits) { return; }
+  if (!m_allowTIDTEC  && mrft.contains_TIDTEC()) { return; }
+  if (mrft.normalizedChi2() > m_maxTrackerRedChi2) { return; }
 
   int nMuChambers = 0;
   std::vector<DetId> chamberIds = mrft.chamberIds();
-  for (unsigned ch=0; ch < chamberIds.size(); ch++)  if (chamberIds[ch].det() == DetId::Muon)  nMuChambers++;
-  if (nMuChambers < m_minNCrossedChambers ) return;
+  for (unsigned ch=0; ch < chamberIds.size(); ch++) {  if (chamberIds[ch].det() == DetId::Muon) {  nMuChambers++; }
+  if (nMuChambers < m_minNCrossedChambers ) { return; }
 
   double qoverpt = (mrft.getTrack()->charge() > 0 ? 1. : -1.) / mrft.getTrack()->pt();
   double qoverpz = 0.;
-  if (fabs(mrft.getTrack()->pz()) > 0.01) qoverpz = mrft.getTrack()->charge() / fabs(mrft.getTrack()->pz());
+  if (fabs(mrft.getTrack()->pz()) > 0.01) { qoverpz = mrft.getTrack()->charge() / fabs(mrft.getTrack()->pz()); }
 
   for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin();  chamberId != chamberIds.end();  ++chamberId)
   {
-    if (chamberId->det() != DetId::Muon  ) continue;
+    if (chamberId->det() != DetId::Muon  ) { continue; }
 
     // **************** DT ****************
     if (m_doDT  &&  chamberId->subdetId() == MuonSubdetId::DT)
@@ -435,7 +435,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
                 double residdiff = 10. * (dt13->global_residual() - dt13other->global_residual());
 
                 int st = 0;
-                if (thatid.station() - thisid.station() == 1) st = thisid.station();
+                if (thatid.station() - thisid.station() == 1) { st = thisid.station(); }
                 if (st>0)
                 {
                   m_dt13_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(qoverpt, residdiff);
@@ -457,12 +457,12 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
 
           // cross-system: other is CSC
           // only do it for DT stubs in W+-2 St1&2:
-          if ( !(abs(thisid.wheel()) == 2 && (thisid.station() == 1 || thisid.station() == 2)) ) continue;
+          if ( !(abs(thisid.wheel()) == 2 && (thisid.station() == 1 || thisid.station() == 2)) ) { continue; }
           if (otherId->det() == DetId::Muon  &&  otherId->subdetId() == MuonSubdetId::CSC)
           {
             CSCDetId thatid(otherId->rawId());
             //only do it for CSC stubs in St1R3 or St2R2:
-            if ( !( (thatid.station()==1 && thatid.ring()==3) || (thatid.station()==2 && thatid.ring()==2) ) ) continue;
+            if ( !( (thatid.station()==1 && thatid.ring()==3) || (thatid.station()==2 && thatid.ring()==2) ) ) { continue; }
 
             MuonChamberResidual *cscother = mrft.chamberResidual(*otherId, MuonChamberResidual::kCSC);
             if (cscother != nullptr  &&  cscother->numHits() >= m_minCSCHits)
@@ -473,18 +473,18 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
               double residdiff = 10. * (dt13->global_residual() - cscother->global_residual() * csc_scale);
               if (thisid.station() == 1 && thatid.station()==1)
               {
-                if (qoverpt > 0) m_x_pos_dt1_csc1_resid[thatid.endcap()-1][thisid.sector()-1]->Fill(residdiff);
-                else             m_x_neg_dt1_csc1_resid[thatid.endcap()-1][thisid.sector()-1]->Fill(residdiff);
+                if (qoverpt > 0) { m_x_pos_dt1_csc1_resid[thatid.endcap()-1][thisid.sector()-1]->Fill(residdiff);
+                } else {             m_x_neg_dt1_csc1_resid[thatid.endcap()-1][thisid.sector()-1]->Fill(residdiff); }
               }
               else if (thisid.station() == 1 && thatid.station()==2)
               {
-                if (qoverpt > 0) m_x_pos_dt1_csc2_resid[thatid.endcap()-1][thisid.sector()-1]->Fill(residdiff);
-                else             m_x_neg_dt1_csc2_resid[thatid.endcap()-1][thisid.sector()-1]->Fill(residdiff);
+                if (qoverpt > 0) { m_x_pos_dt1_csc2_resid[thatid.endcap()-1][thisid.sector()-1]->Fill(residdiff);
+                } else {             m_x_neg_dt1_csc2_resid[thatid.endcap()-1][thisid.sector()-1]->Fill(residdiff); }
               }
               else if (thisid.station() == 2 && thatid.station()==1)
               {
-                if (qoverpt > 0) m_x_pos_dt2_csc1_resid[thatid.endcap()-1][thisid.sector()-1]->Fill(residdiff);
-                else             m_x_neg_dt2_csc1_resid[thatid.endcap()-1][thisid.sector()-1]->Fill(residdiff);
+                if (qoverpt > 0) { m_x_pos_dt2_csc1_resid[thatid.endcap()-1][thisid.sector()-1]->Fill(residdiff);
+                } else {             m_x_neg_dt2_csc1_resid[thatid.endcap()-1][thisid.sector()-1]->Fill(residdiff); }
               }
             }
           } // end other is CSC
@@ -512,7 +512,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
                 double residdiff = 10. * (dt2->global_residual() - dt2other->global_residual());
 
                 int st = 0;
-                if (thatid.station() - thisid.station() == 1) st = thisid.station();
+                if (thatid.station() - thisid.station() == 1) { st = thisid.station(); }
                 if (st>0)
                 {
                   m_dt2_resid[thisid.wheel()+2][thisid.sector()-1][st-1]->Fill(qoverpt, residdiff);
@@ -571,7 +571,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
                   bool inner = (thisring == 1);
                   bool outer = (thisring == 2);
                   int st = 0;
-                  if (thatid.station() - thisid.station() == 1 && (inner || thisid.station()<3) ) st = thisid.station();
+                  if (thatid.station() - thisid.station() == 1 && (inner || thisid.station()<3) ) { st = thisid.station(); }
 
                   if (outer && st>0)
                   {

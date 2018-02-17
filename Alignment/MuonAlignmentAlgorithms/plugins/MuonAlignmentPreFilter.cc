@@ -83,8 +83,8 @@ MuonAlignmentPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
     const reco::Track* track = &(*it);
     
-    if (track->pt() < m_minTrackPt || track->p() < m_minTrackP) continue;
-    if (track->eta() < m_minTrackEta || track->eta() > m_maxTrackEta ) continue;
+    if (track->pt() < m_minTrackPt || track->p() < m_minTrackP) { continue; }
+    if (track->eta() < m_minTrackEta || track->eta() > m_maxTrackEta ) { continue; }
     
     for (trackingRecHit_iterator hit = track->recHitsBegin(); hit != track->recHitsEnd();  ++hit)
     {
@@ -92,16 +92,16 @@ MuonAlignmentPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       if (id.det() == DetId::Tracker) 
       {
         tracker_numHits++;
-        if (id.subdetId() == StripSubdetector::TID  ||  id.subdetId() == StripSubdetector::TEC) contains_TIDTEC = true;
+        if (id.subdetId() == StripSubdetector::TID  ||  id.subdetId() == StripSubdetector::TEC) { contains_TIDTEC = true; }
       }
      
-      if ( id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::DT ) dt_numHits++;
-      if ( id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::CSC ) csc_numHits++;
+      if ( id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::DT ) { dt_numHits++; }
+      if ( id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::CSC ) { csc_numHits++; }
     }
 
     if (( m_allowTIDTEC || !contains_TIDTEC )   &&
           m_minTrackerHits <= tracker_numHits &&
-        ( m_minDTHits <= dt_numHits  ||  m_minCSCHits <= csc_numHits ) )  return true;
+        ( m_minDTHits <= dt_numHits  ||  m_minCSCHits <= csc_numHits ) ) {  return true; }
   }
   return false;
 }

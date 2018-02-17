@@ -67,11 +67,11 @@ private:
   template<typename varType> void setVal(std::string bname, varType value){
     int varposition=-1;
     BranchType varbranchtype = searchArray(bname, varposition);
-    if (varposition==-1) std::cerr << "HIPTwoBodyDecayAnalyzer::setVal -> Could not find the branch called " << bname << "!" << std::endl;
-    else if (varbranchtype==BranchType_short_t) *(shortBranches.at(varposition).second)=value;
-    else if (varbranchtype==BranchType_int_t) *(intBranches.at(varposition).second)=value;
-    else if (varbranchtype==BranchType_float_t) *(floatBranches.at(varposition).second)=value;
-    else std::cerr << "HIPTwoBodyDecayAnalyzer::setVal -> Could not find the type " << varbranchtype << " for branch called " << bname << "!" << std::endl;
+    if (varposition==-1) { std::cerr << "HIPTwoBodyDecayAnalyzer::setVal -> Could not find the branch called " << bname << "!" << std::endl;
+    } else if (varbranchtype==BranchType_short_t) { *(shortBranches.at(varposition).second)=value;
+    } else if (varbranchtype==BranchType_int_t) { *(intBranches.at(varposition).second)=value;
+    } else if (varbranchtype==BranchType_float_t) { *(floatBranches.at(varposition).second)=value;
+    } else { std::cerr << "HIPTwoBodyDecayAnalyzer::setVal -> Could not find the type " << varbranchtype << " for branch called " << bname << "!" << std::endl; }
   }
   void cleanBranches();
   void initializeBranches();
@@ -127,30 +127,30 @@ HIPTwoBodyDecayAnalyzer::BranchType HIPTwoBodyDecayAnalyzer::searchArray(std::st
 }
 void HIPTwoBodyDecayAnalyzer::cleanBranches(){
   for (unsigned short el=0; el<shortBranches.size(); el++){
-    if (shortBranches.at(el).second!=nullptr) delete shortBranches.at(el).second;
+    if (shortBranches.at(el).second!=nullptr) { delete shortBranches.at(el).second; }
     shortBranches.at(el).second=nullptr;
   }
   shortBranches.clear();
   for (unsigned int el=0; el<intBranches.size(); el++){
-    if (intBranches.at(el).second!=nullptr) delete intBranches.at(el).second;
+    if (intBranches.at(el).second!=nullptr) { delete intBranches.at(el).second; }
     intBranches.at(el).second=nullptr;
   }
   intBranches.clear();
   for (unsigned int el=0; el<floatBranches.size(); el++){
-    if (floatBranches.at(el).second!=nullptr) delete floatBranches.at(el).second;
+    if (floatBranches.at(el).second!=nullptr) { delete floatBranches.at(el).second; }
     floatBranches.at(el).second=nullptr;
   }
   floatBranches.clear();
 }
 void HIPTwoBodyDecayAnalyzer::initializeBranches(){
   for (unsigned short el=0; el<shortBranches.size(); el++){
-    if (shortBranches.at(el).second!=nullptr) *(shortBranches.at(el).second)=0;
+    if (shortBranches.at(el).second!=nullptr) { *(shortBranches.at(el).second)=0; }
   }
   for (unsigned int el=0; el<intBranches.size(); el++){
-    if (intBranches.at(el).second!=nullptr) *(intBranches.at(el).second)=0;
+    if (intBranches.at(el).second!=nullptr) { *(intBranches.at(el).second)=0; }
   }
   for (unsigned int el=0; el<floatBranches.size(); el++){
-    if (floatBranches.at(el).second!=nullptr) *(floatBranches.at(el).second)=0;
+    if (floatBranches.at(el).second!=nullptr) { *(floatBranches.at(el).second)=0; }
   }
 }
 
@@ -178,10 +178,10 @@ void HIPTwoBodyDecayAnalyzer::bookAllBranches(){
   actuateBranches();
 }
 bool HIPTwoBodyDecayAnalyzer::bookBranch(std::string bname, BranchType btype){
-  if (btype==BranchType_float_t) floatBranches.emplace_back(bname, new float);
-  else if (btype==BranchType_int_t) intBranches.emplace_back(bname, new int);
-  else if (btype==BranchType_short_t) shortBranches.emplace_back(bname, new short);
-  else{
+  if (btype==BranchType_float_t) { floatBranches.emplace_back(bname, new float);
+  } else if (btype==BranchType_int_t) { intBranches.emplace_back(bname, new int);
+  } else if (btype==BranchType_short_t) { shortBranches.emplace_back(bname, new short);
+  } else{
     std::cerr << "HIPTwoBodyDecayAnalyzer::bookBranch: No support for type " << btype << " for the branch " << bname << " is available." << std::endl;
     return false;
   }
@@ -196,25 +196,25 @@ bool HIPTwoBodyDecayAnalyzer::actuateBranches(){
   if (tree!=nullptr){
     for (unsigned short el=0; el<shortBranches.size(); el++){
       std::cout << "Actuating branch " << shortBranches.at(el).first << " at address " << shortBranches.at(el).second << std::endl;
-      if (!tree->GetBranchStatus(shortBranches.at(el).first.c_str()))
+      if (!tree->GetBranchStatus(shortBranches.at(el).first.c_str())) {
         tree->Branch(shortBranches.at(el).first.c_str(), shortBranches.at(el).second);
-      else std::cout << "Failed!" << std::endl;
+      } else { std::cout << "Failed!" << std::endl; }
     }
     for (unsigned int el=0; el<intBranches.size(); el++){
       std::cout << "Actuating branch " << intBranches.at(el).first.c_str() << " at address " << intBranches.at(el).second << std::endl;
-      if (!tree->GetBranchStatus(intBranches.at(el).first.c_str()))
+      if (!tree->GetBranchStatus(intBranches.at(el).first.c_str())) {
         tree->Branch(intBranches.at(el).first.c_str(), intBranches.at(el).second);
-      else std::cout << "Failed!" << std::endl;
+      } else { std::cout << "Failed!" << std::endl; }
     }
     for (unsigned int el=0; el<floatBranches.size(); el++){
       std::cout << "Actuating branch " << floatBranches.at(el).first.c_str() << " at address " << floatBranches.at(el).second << std::endl;
-      if (!tree->GetBranchStatus(floatBranches.at(el).first.c_str()))
+      if (!tree->GetBranchStatus(floatBranches.at(el).first.c_str())) {
         tree->Branch(floatBranches.at(el).first.c_str(), floatBranches.at(el).second);
-      else std::cout << "Failed!" << std::endl;
+      } else { std::cout << "Failed!" << std::endl; }
     }
   }
-  else success=false;
-  if (!success) std::cerr << "HIPTwoBodyDecayAnalyzer::actuateBranch: Failed to actuate the branches!" << std::endl;
+  else { success=false; }
+  if (!success) { std::cerr << "HIPTwoBodyDecayAnalyzer::actuateBranch: Failed to actuate the branches!" << std::endl; }
   return success;
 }
 HIPTwoBodyDecayAnalyzer::~HIPTwoBodyDecayAnalyzer(){
@@ -258,18 +258,18 @@ void HIPTwoBodyDecayAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& d
 }
 
 void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType, edm::ESHandle<TransientTrackBuilder>& theTTBuilder, edm::Handle<reco::TrackCollection>& hTrackColl, bool verbose){
-  if (verbose) std::cout << "Starting to process the track collection for " << strTrackType << std::endl;
+  if (verbose) { std::cout << "Starting to process the track collection for " << strTrackType << std::endl; }
 
   using namespace edm;
   using namespace reco;
   using reco::TrackCollection;
 
   if (!hTrackColl.isValid()){
-    if (verbose) std::cout << "Track collection is invalid." << std::endl;
+    if (verbose) { std::cout << "Track collection is invalid." << std::endl; }
     return;
   }
   if (hTrackColl->size()<2){
-    if (verbose) std::cout << "Track collection size<2." << std::endl;
+    if (verbose) { std::cout << "Track collection size<2." << std::endl; }
     return;
   }
 
@@ -292,15 +292,15 @@ void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType, e
     if (j==0){
       itrk = (charge>0 ? 1 : 0);
     }
-    else itrk = 1-itrk;
+    else { itrk = 1-itrk; }
     trackMom[itrk].SetPtEtaPhiM(track->pt(), track->eta(), track->phi(), 0.105);
     trackVtx[itrk].SetXYZ(track->vx(), track->vy(), track->vz());
     j++;
-    if (j==2) break;
+    if (j==2) { break; }
   }
 
   isValidPair = (totalcharge==0 && trackMom[0].P()!=0. && trackMom[1].P()!=0.);
-  if (verbose && !isValidPair) std::cout << "Track collection does not contain a valid std::pair." << std::endl;
+  if (verbose && !isValidPair) { std::cout << "Track collection does not contain a valid std::pair." << std::endl; }
   setVal(strTrackType + "_present", (isValidPair ? (short)1 : (short)0));
   if (isValidPair){
     TLorentzVector ZMom = trackMom[0] + trackMom[1];
@@ -328,12 +328,12 @@ void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType, e
         if (j==0){
           itrk = (charge>0 ? 1 : 0);
         }
-        else itrk = 1-itrk;
+        else { itrk = 1-itrk; }
         trackMomAfterZVtxFit[itrk].SetXYZT(mom.x(), mom.y(), mom.z(), sqrt(pow(0.105, 2) + pow(mom.mag(), 2)));
         j++;
-        if (j==2) break;
+        if (j==2) { break; }
       }
-      if (totalcharge!=0) std::cerr << "HIPTwoBodyDecayAnalyzer::analyzeTrackCollection: Something went wrong! The total charge is no longer 0!" << std::endl;
+      if (totalcharge!=0) { std::cerr << "HIPTwoBodyDecayAnalyzer::analyzeTrackCollection: Something went wrong! The total charge is no longer 0!" << std::endl; }
       for (unsigned int jtrk=0; jtrk<2; jtrk++){
         std::string strMuCore = (jtrk==0 ? "MuMinus" : "MuPlus");
         setVal(strTrackType + "_" + strMuCore + "Pt_AfterZVtxFit", (float)trackMomAfterZVtxFit[jtrk].Pt());
@@ -346,7 +346,7 @@ void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType, e
       setVal(strTrackType + "_ZPhi_AfterZVtxFit", (float)ZMom_AfterZVtxFit.Phi());
       setVal(strTrackType + "_ZMass_AfterZVtxFit", (float)ZMom_AfterZVtxFit.M());
     }
-    else std::cerr << "HIPTwoBodyDecayAnalyzer::analyzeTrackCollection: Z vertex fit failed for track collection " << strTrackType << std::endl;
+    else { std::cerr << "HIPTwoBodyDecayAnalyzer::analyzeTrackCollection: Z vertex fit failed for track collection " << strTrackType << std::endl; }
   }
   setVal(strTrackType + "_ZVtxFitOk", (ZVtxOk ? (short)1 : (short)0));
   for (unsigned int jtrk=0; jtrk<2; jtrk++){

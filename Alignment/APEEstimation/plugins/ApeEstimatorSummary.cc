@@ -179,7 +179,7 @@ ApeEstimatorSummary::getTrackerSectorStructs(){
           }
         }else{
           intervalBool = false;
-          if(iSector==1)edm::LogInfo("CalculateAPE")<<"There are "<<iInterval-1<<" intervals per sector defined in input file";
+          if(iSector==1) {edm::LogInfo("CalculateAPE")<<"There are "<<iInterval-1<<" intervals per sector defined in input file"; }
         }
       }
       TDirectory *resultsDir(nullptr);
@@ -189,7 +189,7 @@ ApeEstimatorSummary::getTrackerSectorStructs(){
       resultsDir = (TDirectory*)inputFile_->TDirectory::GetDirectory(fullName);
       if(resultsDir){
         resultsDir->GetObject("h_entriesX;1", tkSector.EntriesX);
-        if(tkSector.isPixel)resultsDir->GetObject("h_entriesY;1", tkSector.EntriesY);
+        if(tkSector.isPixel) {resultsDir->GetObject("h_entriesY;1", tkSector.EntriesY); }
         TTree* rawIdTree(nullptr);
         resultsDir->GetObject("rawIdTree", rawIdTree);
         unsigned int rawId(0);
@@ -199,9 +199,9 @@ ApeEstimatorSummary::getTrackerSectorStructs(){
           // command "hadd" adds entries in TTree, so rawId are existing as often as number of files are added
           bool alreadyAdded(false);
           for(auto const & i_rawId : tkSector.v_rawId){
-            if(rawId==i_rawId)alreadyAdded = true;
+            if(rawId==i_rawId) {alreadyAdded = true; }
           }
-          if(alreadyAdded)break;
+          if(alreadyAdded) {break; }
           tkSector.v_rawId.push_back(rawId);
         }
       }
@@ -461,9 +461,9 @@ ApeEstimatorSummary::calculateApe(){
   // Loop over sectors for calculating APE
   const std::string apeWeightName(parameterSet_.getParameter<std::string>("apeWeight"));
   ApeWeight apeWeight(wInvalid);
-  if(apeWeightName=="unity") apeWeight = wUnity;
-  else if(apeWeightName=="entries")apeWeight = wEntries;
-  else if(apeWeightName=="entriesOverSigmaX2")apeWeight = wEntriesOverSigmaX2;
+  if(apeWeightName=="unity") { apeWeight = wUnity;
+  } else if(apeWeightName=="entries") {apeWeight = wEntries;
+  } else if(apeWeightName=="entriesOverSigmaX2") {apeWeight = wEntriesOverSigmaX2; }
   if(apeWeight==wInvalid){
     edm::LogError("CalculateAPE")<<"Invalid parameter 'apeWeight' in cfg file: \""<<apeWeightName
                                 <<"\"\nimplemented apeWeights are \"unity\", \"entries\", \"entriesOverSigmaX2\""
@@ -602,10 +602,10 @@ ApeEstimatorSummary::calculateApe(){
       double correctionY_1 = correctionY2_1>=0. ? std::sqrt(correctionY2_1) : -std::sqrt(-correctionY2_1);
       double correctionY_2 = correctionY2_2>=0. ? std::sqrt(correctionY2_2) : -std::sqrt(-correctionY2_2);
       // Meanwhile, this got very bad default values, or? (negative corrections allowed)
-      if(isnan(correctionX_1))correctionX_1 = -0.0010;
-      if(isnan(correctionX_2))correctionX_2 = -0.0010;
-      if(isnan(correctionY_1))correctionY_1 = -0.0010;
-      if(isnan(correctionY_2))correctionY_2 = -0.0010;
+      if(isnan(correctionX_1)) {correctionX_1 = -0.0010; }
+      if(isnan(correctionX_2)) {correctionX_2 = -0.0010; }
+      if(isnan(correctionY_1)) {correctionY_1 = -0.0010; }
+      if(isnan(correctionY_2)) {correctionY_2 = -0.0010; }
       
       if(entriesX<minHitsPerInterval){
         meanX = 0.; rmsX = -0.0010;
@@ -645,7 +645,7 @@ ApeEstimatorSummary::calculateApe(){
       
       
       // Use result for bin only when entries>=minHitsPerInterval
-      if(entriesX<minHitsPerInterval && entriesY<minHitsPerInterval)continue;
+      if(entriesX<minHitsPerInterval && entriesY<minHitsPerInterval) {continue; }
       
       double weightX(0.);
       double weightY(0.);
@@ -770,16 +770,16 @@ ApeEstimatorSummary::calculateApe(){
       
       // scale APE Correction with value given in cfg (not if smoothed iteration is used)
       edm::LogInfo("CalculateAPE")<<"Unscaled correction x for sector "<<i_sector.first<<" is "<<(correctionX2>0. ? +1. : -1.)*std::sqrt(std::fabs(correctionX2));
-      if(!smoothIteration || firstIter)correctionX2 = correctionX2*correctionScaling*correctionScaling;
+      if(!smoothIteration || firstIter) {correctionX2 = correctionX2*correctionScaling*correctionScaling; }
       if(i_sector.second.isPixel){
         edm::LogInfo("CalculateAPE")<<"Unscaled correction y for sector "<<i_sector.first<<" is "<<(correctionY2>0. ? +1. : -1.)*std::sqrt(std::fabs(correctionY2));
-        if(!smoothIteration || firstIter)correctionY2 = correctionY2*correctionScaling*correctionScaling;
+        if(!smoothIteration || firstIter) {correctionY2 = correctionY2*correctionScaling*correctionScaling; }
       }
       
       // new APE value
       // smooth iteration or not?
-      if(apeX2 + correctionX2 < 0.) correctionX2 = -apeX2;
-      if(apeY2 + correctionY2 < 0.) correctionY2 = -apeY2;
+      if(apeX2 + correctionX2 < 0.) { correctionX2 = -apeX2; }
+      if(apeY2 + correctionY2 < 0.) { correctionY2 = -apeY2; }
       const double apeX2new(apeX2old + correctionX2);
       const double apeY2new(apeY2old + correctionY2);
       if(!smoothIteration || firstIter){
@@ -791,7 +791,7 @@ ApeEstimatorSummary::calculateApe(){
         apeX2 = apeXtmp*apeXtmp;
         apeY2 = apeYtmp*apeYtmp;
       }
-      if(apeX2<0. || apeY2<0.)edm::LogError("CalculateAPE")<<"\n\n\tBad APE, but why???\n\n\n";
+      if(apeX2<0. || apeY2<0.) {edm::LogError("CalculateAPE")<<"\n\n\tBad APE, but why???\n\n\n"; }
       a_apeSectorX[i_sector.first] = apeX2;
       a_apeSectorY[i_sector.first] = apeY2;
       
@@ -811,7 +811,7 @@ ApeEstimatorSummary::calculateApe(){
       a_apeSectorY[i_sector.first] = correctionY2;
     }
   }
-  if(!setBaseline)apeOutputFile.close();
+  if(!setBaseline) {apeOutputFile.close(); }
    
   iterationTreeX->Fill();
   iterationTreeX->Write("iterTreeX", TObject::kOverwrite);  // TObject::kOverwrite needed to not produce another iterTreeX;2
@@ -944,7 +944,7 @@ ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           return;
         }
       }
-      else a_sectorName[i_sector.first] = new std::string(name);
+      else { a_sectorName[i_sector.first] = new std::string(name); }
       if(!setBaseline && baselineFile){
         const std::string& nameBaseline(*a_sectorBaselineName[i_sector.first]);
         if(name!=nameBaseline){

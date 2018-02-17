@@ -87,7 +87,8 @@ void Measurement::construct()
     fillData( ii, wordlist );
   }
 
-  if( !valueIsSimulated(0) ) correctValueAndSigma();
+  if( !valueIsSimulated(0) ) { correctValueAndSigma();
+}
 
   postConstruct();
 }
@@ -101,7 +102,8 @@ void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo)
   std::vector<ALIstring> wordlist;
   //--- Fill the list of names of OptOs that take part in this measurement ( names only )
   for( site = objNames.begin(); site != objNames.end(); ++site) {
-    if( site != objNames.begin() ) wordlist.push_back("&");
+    if( site != objNames.begin() ) { wordlist.push_back("&");
+}
     wordlist.push_back(*site);
   }
   buildOptONamesList( wordlist );
@@ -139,7 +141,8 @@ void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo)
     std::cout << " sigma " << err << " = " << ctmp << " " << (measInfo.values_)[ii].error_ << std::endl;
     //-    wordlist.push_back( "simulated_value" );
     //-   wordlist.push_back( "1." );
-      if ( ALIUtils::debug >= 5 ) ALIUtils::dumpVS(wordlist, " Measurement: calling fillData ");
+      if ( ALIUtils::debug >= 5 ) { ALIUtils::dumpVS(wordlist, " Measurement: calling fillData ");
+}
     //-    std::cout << " MEAS INFO " << measInfo << std::endl;
     //-   std::cout << ii << " MEAS INFO PARAM " <<  (measInfo.values_)[ii] << std::endl;
     //- std::cout << ii << " MEAS INFO PARAM VALUE " <<  (measInfo.values_)[ii].value_ << std::endl;
@@ -249,7 +252,8 @@ void Measurement::fillData( ALIuint coor, const std::vector<ALIstring>& wordlist
     val = atof( wordlist[1].c_str() );
   }
   val *= valueDimensionFactor();
-  if( ALIUtils::debug >= 3 ) std::cout << "Meas VALUE= " << val << " (ValueDimensionFactor= " << valueDimensionFactor() <<std::endl;
+  if( ALIUtils::debug >= 3 ) { std::cout << "Meas VALUE= " << val << " (ValueDimensionFactor= " << valueDimensionFactor() <<std::endl;
+}
 
   //----- Set sigma (translate it if a PARAMETER is used)
   ALIdouble sig = 0.;
@@ -265,7 +269,8 @@ void Measurement::fillData( ALIuint coor, const std::vector<ALIstring>& wordlist
     sig = atof( wordlist[2].c_str() );
   }
   sig *= sigmaDimensionFactor();
-  if( ALIUtils::debug >= 3) std::cout << "SIGMA= " << sig << " (SigmaDimensionFactor= " << sigmaDimensionFactor() <<std::endl;
+  if( ALIUtils::debug >= 3) { std::cout << "SIGMA= " << sig << " (SigmaDimensionFactor= " << sigmaDimensionFactor() <<std::endl;
+}
 
   //----- set theValue & theSigma
   theValue[coor] = val;
@@ -297,7 +302,8 @@ void Measurement::fillData( ALIuint coor, OpticalAlignParam* oaParam)
   val = oaParam->value();
   val *= valueDimensionFactor();
   theValue[coor] = val;
-  if( ALIUtils::debug >= 3 ) std::cout << "Meas VALUE= " << val << " (ValueDimensionFactor= " << valueDimensionFactor() <<std::endl;
+  if( ALIUtils::debug >= 3 ) { std::cout << "Meas VALUE= " << val << " (ValueDimensionFactor= " << valueDimensionFactor() <<std::endl;
+}
 
   ALIbool sigmaFF = GlobalOptionMgr::getInstance()->GlobalOptions()["measurementErrorFromFile"];
   if( sigmaFF ) {
@@ -306,7 +312,8 @@ void Measurement::fillData( ALIuint coor, OpticalAlignParam* oaParam)
     sig = oaParam->sigma(); // it is in mm always
     sig *= sigmaDimensionFactor();
     theSigma[coor] = sig;
-    if( ALIUtils::debug >= 3) std::cout << "SIGMA= " << sig << " (SigmaDimensionFactor= " << sigmaDimensionFactor() <<std::endl;
+    if( ALIUtils::debug >= 3) { std::cout << "SIGMA= " << sig << " (SigmaDimensionFactor= " << sigmaDimensionFactor() <<std::endl;
+}
 
   }
 }
@@ -329,14 +336,16 @@ void Measurement::buildOptOList()
     ALIuint Ntwopoints = 0;    //---- No '..' in ALIstring
     for(;;) {
       int i2p = (*vsite).find_first_of( twopoints, 3*ii ); // if it is ., it also finds it!!!
-      if ( i2p < 0 ) break;
+      if ( i2p < 0 ) { break;
+}
       if ( i2p != ALIint(3*ii)) {
         std::cerr << i2p << "!!! Bad position of '..' in reference ALIstring: "
              << (*vsite).c_str() << std::endl;
         exit(2);
       } else {
         Ntwopoints++;
-        if ( ALIUtils::debug >=9 ) std::cout << "N2p" << Ntwopoints;
+        if ( ALIUtils::debug >=9 ) { std::cout << "N2p" << Ntwopoints;
+}
       }
       ii++;
     }
@@ -356,7 +365,8 @@ void Measurement::buildOptOList()
       referenceOptO = referenceOptO.substr( 0, colon );
     }
     OpticalObject* OptOitem = Model::getOptOByName( referenceOptO );
-    if ( ALIUtils::debug >= 3 ) std::cout << "Measurement::buildOptOList: OptO in Measurement: " << OptOitem->name() << std::endl;
+    if ( ALIUtils::debug >= 3 ) { std::cout << "Measurement::buildOptOList: OptO in Measurement: " << OptOitem->name() << std::endl;
+}
     if ( OptOitem != (OpticalObject*)nullptr ) {
       _OptOList.push_back( OptOitem);
     } else {
@@ -389,7 +399,8 @@ void Measurement::buildAffectingEntryList(){
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Measurement::addAffectingEntriesFromOptO( const OpticalObject* optoP )
 {
-  if(ALIUtils::debug >= 3)  std::cout << "Measurement::addAffectingEntriesFromOptO: OptO taking part in Measurement: " << optoP->name() << std::endl;
+  if(ALIUtils::debug >= 3) {  std::cout << "Measurement::addAffectingEntriesFromOptO: OptO taking part in Measurement: " << optoP->name() << std::endl;
+}
       //---------- Loop entries in this OptO
   std::vector< Entry* >::const_iterator vecite;
   std::vector< Entry* >::const_iterator fvecite;
@@ -401,7 +412,8 @@ void Measurement::addAffectingEntriesFromOptO( const OpticalObject* optoP )
     fvecite = find( theAffectingEntryList.begin(), theAffectingEntryList.end(), (*vecite) );
     if (fvecite == theAffectingEntryList.end() ){
       theAffectingEntryList.push_back(*vecite);
-      if(ALIUtils::debug >= 4)  std::cout << "Entry that may affect Measurement: " << (*vecite)->name() << std::endl;
+      if(ALIUtils::debug >= 4) {  std::cout << "Entry that may affect Measurement: " << (*vecite)->name() << std::endl;
+}
     }
   }
   for (vecite = optoP->ExtraEntryList().begin();
@@ -409,7 +421,8 @@ void Measurement::addAffectingEntriesFromOptO( const OpticalObject* optoP )
     fvecite = find( theAffectingEntryList.begin(), theAffectingEntryList.end(), (*vecite) );
     if (fvecite == theAffectingEntryList.end() ){
       theAffectingEntryList.push_back(*vecite);
-      if(ALIUtils::debug >= 4)  std::cout << "Entry that may affect Measurement: " << (*vecite)->name() << std::endl;
+      if(ALIUtils::debug >= 4) {  std::cout << "Entry that may affect Measurement: " << (*vecite)->name() << std::endl;
+}
     }
   }
   if(optoP->parent() != nullptr) {
@@ -430,13 +443,16 @@ void Measurement::Substitute2p( ALIstring& ref, const ALIstring& firstref, int N
   // Go back an '/' in firstref for each '..' in ref
   for (int ii=0; ii < Ntwopoints; ii++) {
       pos1st = firstref.find_last_of( slash, pos1st-1);
-      if ( ALIUtils::debug >=9 ) std::cout << "pos1st=" << pos1st;
+      if ( ALIUtils::debug >=9 ) { std::cout << "pos1st=" << pos1st;
+}
   }
 
-  if ( ALIUtils::debug >=9 ) std::cout << "before change ref: " << ref << " 1ref " << firstref << std::endl;
+  if ( ALIUtils::debug >=9 ) { std::cout << "before change ref: " << ref << " 1ref " << firstref << std::endl;
+}
   // Substitute name
   ref.replace( 0, (Ntwopoints*3)-1, firstref, 0, pos1st);
-  if ( ALIUtils::debug >=9 ) std::cout << "after change ref: " << ref << " 1ref " << firstref << std::endl;
+  if ( ALIUtils::debug >=9 ) { std::cout << "after change ref: " << ref << " 1ref " << firstref << std::endl;
+}
 
 }
 
@@ -471,7 +487,8 @@ void Measurement::calculateOriginalSimulatedValue()
   //-  if(ALIUtils::debug >= 5) std::cout << "MEAS DIMENSION" << dim() << std::endl;
   for ( ALIuint ii = 0; ii < dim(); ii++) {
     setValueSimulated_orig( ii, valueSimulated(ii) );
-    if ( ALIUtils::debug >= 4 ) std::cout << "SETsimuvalOriginal" << valueSimulated(ii) << std::endl;
+    if ( ALIUtils::debug >= 4 ) { std::cout << "SETsimuvalOriginal" << valueSimulated(ii) << std::endl;
+}
     //----- If Measurement has as value 'simulated_value', set the value to the simulated one
     if( valueIsSimulated(ii) == 1 ){
       setValue( ii, valueSimulated(ii) );
@@ -519,7 +536,8 @@ std::vector<ALIdouble> Measurement::DerivativeRespectEntry( Entry* entry )
   ALIdouble displacement = entry->startingDisplacement();
   //----- all angles are in radians, so, if displace is not, rescale it before making the displacement
   //-  displacement *= entry->SigmaDimensionFactor();
-  if( ALIUtils::debug >= 3) std::cout << std::endl << "%%% Derivative w.r.t. entry " << entry->name() << ": displacement = " << displacement << std::endl;
+  if( ALIUtils::debug >= 3) { std::cout << std::endl << "%%% Derivative w.r.t. entry " << entry->name() << ": displacement = " << displacement << std::endl;
+}
 
   ALIint count_itera = 0;
 
@@ -528,7 +546,8 @@ std::vector<ALIdouble> Measurement::DerivativeRespectEntry( Entry* entry )
     count_itera++;
     entry->displace( displacement );
 
-    if ( ALIUtils::debug >= 5) std::cout << "Get simulated value for displacement " << displacement << std::endl;
+    if ( ALIUtils::debug >= 5) { std::cout << "Get simulated value for displacement " << displacement << std::endl;
+}
     calculateSimulatedValue( false );
 
     //---------- Get sum of derivatives
@@ -561,7 +580,8 @@ std::vector<ALIdouble> Measurement::DerivativeRespectEntry( Entry* entry )
     deriv.push_back( ( theValueSimulated[ii] - theValueSimulated_orig[ii] ) / displacement );
     //----- change it to entry sigma dimensions
     //     deriv[ii] /= entry->SigmaDimensionFactor();
-    if( ALIUtils::debug >= 1) std::cout << name() << ": " <<  entry->OptOCurrent()->name() << " " <<  entry->name() << " " << ii << "### DERIVATIVE: " << deriv[ii] <<  std::endl;
+    if( ALIUtils::debug >= 1) { std::cout << name() << ": " <<  entry->OptOCurrent()->name() << " " <<  entry->name() << " " << ii << "### DERIVATIVE: " << deriv[ii] <<  std::endl;
+}
   }
   //-  if(ALIUtils::debug >= 5) std::cout << "END derivative: " << deriv << "disp" << displacement << std::endl;
 
@@ -675,7 +695,8 @@ void Measurement::copyMeas( Measurement* meas, const std::string& subsstr1, cons
   for ( ALIuint ii = 0; ii < nOptos; ii++ ) {
     wordlist.push_back( ALIUtils::changeName( optolist[ii]->longName(), subsstr1, subsstr2) );
     std::cout << " copymeas " << ALIUtils::changeName( optolist[ii]->longName(), subsstr1, subsstr2) << std::endl;
-    if( ii != nOptos -1 ) wordlist.push_back("&");
+    if( ii != nOptos -1 ) { wordlist.push_back("&");
+}
   }
 
   buildOptONamesList( wordlist );
@@ -698,7 +719,8 @@ void Measurement::copyMeas( Measurement* meas, const std::string& subsstr1, cons
 void Measurement::setName()
 {
   // name already set by passing one argument with sensor type
-  if( theName != "" ) return;
+  if( !theName.empty() ) { return;
+}
   if( _OptONameList.empty()) {
     std::cerr << " !!! Error in your code, you cannot ask for the name of the Measurement before the OptONameList is build " << std::endl;
     exit(9);

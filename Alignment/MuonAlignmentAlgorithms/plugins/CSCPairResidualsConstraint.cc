@@ -15,7 +15,7 @@ double CSCPairResidualsConstraint::value() const {
   else if (m_parent->m_mode == kModePhiz) {
     return ((m_sum1*m_sumxy) - (m_sumx*m_sumy))/delta;
   }
-  else assert(false);
+  else { assert(false); }
 }
 
 double CSCPairResidualsConstraint::error() const {
@@ -32,7 +32,7 @@ double CSCPairResidualsConstraint::error() const {
     else if (m_parent->m_mode == kModePhiz) {
       return sqrt(m_sum1/delta);
     }
-    else assert(false);
+    else { assert(false); }
   }
 }
 
@@ -101,10 +101,10 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
     if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
       CSCDetId cscid(id.rawId());
       CSCDetId chamberId(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber(), 0);
-      if (m_parent->m_combineME11  &&  cscid.station() == 1  &&  cscid.ring() == 4) chamberId = CSCDetId(cscid.endcap(), 1, 1, cscid.chamber(), 0);
+      if (m_parent->m_combineME11  &&  cscid.station() == 1  &&  cscid.ring() == 4) { chamberId = CSCDetId(cscid.endcap(), 1, 1, cscid.chamber(), 0); }
 
-      if (chamberId == m_id_i) hits_i.push_back(hit);
-      if (chamberId == m_id_j) hits_j.push_back(hit);
+      if (chamberId == m_id_i) { hits_i.push_back(hit); }
+      if (chamberId == m_id_j) { hits_j.push_back(hit); }
     }
   }
 
@@ -114,10 +114,10 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
   }
 
   // require minimum number of hits (if the requirement is too low (~2), some NANs might result...)
-  if (int(hits_i.size()) < m_parent->m_minHitsPerChamber  ||  int(hits_j.size()) < m_parent->m_minHitsPerChamber) return false;
+  if (int(hits_i.size()) < m_parent->m_minHitsPerChamber  ||  int(hits_j.size()) < m_parent->m_minHitsPerChamber) { return false; }
 
   // maybe require segments to be fiducial
-  if (m_parent->m_fiducial  &&  !(isFiducial(hits_i, true)  &&  isFiducial(hits_j, false))) return false;
+  if (m_parent->m_fiducial  &&  !(isFiducial(hits_i, true)  &&  isFiducial(hits_j, false))) { return false; }
 
   double intercept_i = 0.;
   double interceptError2_i = 0.;
@@ -141,7 +141,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
 	double z = (*hit)->globalPosition().z() - m_Zplane;
 
 	double weight = 1.;
-	if (m_parent->m_useHitWeights) weight = 1./phierr2;
+	if (m_parent->m_useHitWeights) { weight = 1./phierr2; }
 	sum1_i += weight;
 	sumy_i += weight * (phi - z*dphidz);
       }
@@ -154,7 +154,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
 	double z = (*hit)->globalPosition().z() - m_Zplane;
 
 	double weight = 1.;
-	if (m_parent->m_useHitWeights) weight = 1./phierr2;
+	if (m_parent->m_useHitWeights) { weight = 1./phierr2; }
 	sum1_j += weight;
 	sumy_j += weight * (phi - z*dphidz);
       }
@@ -168,7 +168,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
 	intercept_j = sumy_j / sum1_j;
 	interceptError2_j = 1. / sum1_j;
       }
-      else return false;
+      else { return false; }
     }
   }
 
@@ -184,7 +184,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
       double z = (*hit)->globalPosition().z() - m_Zplane;
 
       double weight = 1.;
-      if (m_parent->m_useHitWeights) weight = 1./phierr2;
+      if (m_parent->m_useHitWeights) { weight = 1./phierr2; }
       sum1_i += weight;
       sumx_i += weight * z;
       sumy_i += weight * phi;
@@ -203,7 +203,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
       double z = (*hit)->globalPosition().z() - m_Zplane;
 	
       double weight = 1.;
-      if (m_parent->m_useHitWeights) weight = 1./phierr2;
+      if (m_parent->m_useHitWeights) { weight = 1./phierr2; }
       sum1_j += weight;
       sumx_j += weight * z;
       sumy_j += weight * phi;
@@ -224,7 +224,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
       slope_j = ((sum1_j*sumxy_j) - (sumx_j*sumy_j))/delta_j;
       slopeError2_j = sum1_j/delta_j;
     }
-    else return false;
+    else { return false; }
   }
 
   // from hits on the two chambers, determine radial_intercepts separately and radial_slope together
@@ -243,7 +243,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
       sumxy_ri += z*r;
   }
   double radial_delta_i = (sum1_ri*sumxx_ri) - (sumx_ri*sumx_ri);
-  if (radial_delta_i == 0.) return false;
+  if (radial_delta_i == 0.) { return false; }
   double radial_slope_i = ((sum1_ri*sumxy_ri) - (sumx_ri*sumy_ri))/radial_delta_i;
   double radial_intercept_i = ((sumxx_ri*sumy_ri) - (sumx_ri*sumxy_ri))/radial_delta_i + radial_slope_i*(m_iZ - m_Zplane);
 
@@ -262,19 +262,19 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
       sumxy_rj += z*r;
   }
   double radial_delta_j = (sum1_rj*sumxx_rj) - (sumx_rj*sumx_rj);
-  if (radial_delta_j == 0.) return false;
+  if (radial_delta_j == 0.) { return false; }
   double radial_slope_j = ((sum1_rj*sumxy_rj) - (sumx_rj*sumy_rj))/radial_delta_j;
   double radial_intercept_j = ((sumxx_rj*sumy_rj) - (sumx_rj*sumxy_rj))/radial_delta_j + radial_slope_j*(m_jZ - m_Zplane);
 
   double radial_delta = ((sum1_ri + sum1_rj)*(sumxx_ri + sumxx_rj)) - ((sumx_ri + sumx_rj)*(sumx_ri + sumx_rj));
-  if (radial_delta == 0.) return false;
+  if (radial_delta == 0.) { return false; }
   double radial_intercept = (((sumxx_ri + sumxx_rj)*(sumy_ri + sumy_rj)) - ((sumx_ri + sumx_rj)*(sumxy_ri + sumxy_rj)))/radial_delta;
   double radial_slope = (((sum1_ri + sum1_rj)*(sumxy_ri + sumxy_rj)) - ((sumx_ri + sumx_rj)*(sumy_ri + sumy_rj)))/radial_delta;
 
   if (m_parent->m_makeHistograms) {
     m_parent->m_drdz->Fill(radial_slope);
   }
-  if (m_parent->m_maxdrdz > 0.  &&  fabs(radial_slope) > m_parent->m_maxdrdz) return false;
+  if (m_parent->m_maxdrdz > 0.  &&  fabs(radial_slope) > m_parent->m_maxdrdz) { return false; }
 
   double quantity = 0.;
   double quantityError2 = 0.;
@@ -290,20 +290,20 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
     quantity = (intercept_i - intercept_j) * radial_intercept;
     quantityError2 = (interceptError2_i + interceptError2_j) * pow(radial_intercept, 2);
   }
-  else assert(false);
+  else { assert(false); }
 
-  if (quantityError2 == 0.) return false;
+  if (quantityError2 == 0.) { return false; }
 
   double slopeResid = ((slope_i*radial_intercept_i) - (slope_j*radial_intercept_j)) * 1000.;
   double slopeResidError2 = ((slopeError2_i)*pow(radial_intercept_i, 2) + (slopeError2_j)*pow(radial_intercept_j, 2)) * 1000. * 1000.;
   double offsetResid = (intercept_i - intercept_j) * radial_intercept * 10.;
   double offsetResidError2 = (interceptError2_i + interceptError2_j) * pow(radial_intercept, 2) * 10. * 10.;
 
-  if (m_parent->m_truncateSlopeResid > 0.  &&  fabs(slopeResid) > m_parent->m_truncateSlopeResid) return false;
-  if (m_parent->m_truncateOffsetResid > 0.  &&  fabs(offsetResid) > m_parent->m_truncateOffsetResid) return false;
+  if (m_parent->m_truncateSlopeResid > 0.  &&  fabs(slopeResid) > m_parent->m_truncateSlopeResid) { return false; }
+  if (m_parent->m_truncateOffsetResid > 0.  &&  fabs(offsetResid) > m_parent->m_truncateOffsetResid) { return false; }
 
   double weight = 1.;
-  if (m_parent->m_useTrackWeights) weight = 1./quantityError2;
+  if (m_parent->m_useTrackWeights) { weight = 1./quantityError2; }
 
   // fill the running sums for this CSCPairResidualsConstraint
   m_sumN += 1;
@@ -321,14 +321,14 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
     if (m_parent->m_slopeFromTrackRefit) {
       m_parent->m_slope->Fill(rphi_slope_i);  // == rphi_slope_j
 
-      if (m_id_i.endcap() == 1  &&  m_id_i.station() == 4) m_parent->m_slope_MEp4->Fill(rphi_slope_i);
-      if (m_id_i.endcap() == 1  &&  m_id_i.station() == 3) m_parent->m_slope_MEp3->Fill(rphi_slope_i);
-      if (m_id_i.endcap() == 1  &&  m_id_i.station() == 2) m_parent->m_slope_MEp2->Fill(rphi_slope_i);
-      if (m_id_i.endcap() == 1  &&  m_id_i.station() == 1) m_parent->m_slope_MEp1->Fill(rphi_slope_i);
-      if (m_id_i.endcap() == 2  &&  m_id_i.station() == 1) m_parent->m_slope_MEm1->Fill(rphi_slope_i);
-      if (m_id_i.endcap() == 2  &&  m_id_i.station() == 2) m_parent->m_slope_MEm2->Fill(rphi_slope_i);
-      if (m_id_i.endcap() == 2  &&  m_id_i.station() == 3) m_parent->m_slope_MEm3->Fill(rphi_slope_i);
-      if (m_id_i.endcap() == 2  &&  m_id_i.station() == 4) m_parent->m_slope_MEm4->Fill(rphi_slope_i);
+      if (m_id_i.endcap() == 1  &&  m_id_i.station() == 4) { m_parent->m_slope_MEp4->Fill(rphi_slope_i); }
+      if (m_id_i.endcap() == 1  &&  m_id_i.station() == 3) { m_parent->m_slope_MEp3->Fill(rphi_slope_i); }
+      if (m_id_i.endcap() == 1  &&  m_id_i.station() == 2) { m_parent->m_slope_MEp2->Fill(rphi_slope_i); }
+      if (m_id_i.endcap() == 1  &&  m_id_i.station() == 1) { m_parent->m_slope_MEp1->Fill(rphi_slope_i); }
+      if (m_id_i.endcap() == 2  &&  m_id_i.station() == 1) { m_parent->m_slope_MEm1->Fill(rphi_slope_i); }
+      if (m_id_i.endcap() == 2  &&  m_id_i.station() == 2) { m_parent->m_slope_MEm2->Fill(rphi_slope_i); }
+      if (m_id_i.endcap() == 2  &&  m_id_i.station() == 3) { m_parent->m_slope_MEm3->Fill(rphi_slope_i); }
+      if (m_id_i.endcap() == 2  &&  m_id_i.station() == 4) { m_parent->m_slope_MEm4->Fill(rphi_slope_i); }
     }
     else {
       m_parent->m_slope->Fill(rphi_slope_i); m_parent->m_slope->Fill(rphi_slope_j);
@@ -356,26 +356,26 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
     m_parent->m_offsetResiduals_normalized->Fill(offsetResid/sqrt(offsetResidError2));
 
     double ringbin = 0;
-    if (m_id_i.endcap() == 2  &&  m_id_i.station() == 4  &&  m_id_i.ring() == 2) ringbin = 1.5;
-    else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 4  &&  m_id_i.ring() == 1) ringbin = 2.5;
-    else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 3  &&  m_id_i.ring() == 2) ringbin = 3.5;
-    else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 3  &&  m_id_i.ring() == 1) ringbin = 4.5;
-    else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 2  &&  m_id_i.ring() == 2) ringbin = 5.5;
-    else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 2  &&  m_id_i.ring() == 1) ringbin = 6.5;
-    else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 3) ringbin = 7.5;
-    else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 2) ringbin = 8.5;
-    else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 1) ringbin = 9.5;
-    else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 4) ringbin = 10.5;
-    else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 4) ringbin = 11.5;
-    else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 1) ringbin = 12.5;
-    else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 2) ringbin = 13.5;
-    else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 3) ringbin = 14.5;
-    else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 2  &&  m_id_i.ring() == 1) ringbin = 15.5;
-    else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 2  &&  m_id_i.ring() == 2) ringbin = 16.5;
-    else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 3  &&  m_id_i.ring() == 1) ringbin = 17.5;
-    else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 3  &&  m_id_i.ring() == 2) ringbin = 18.5;
-    else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 4  &&  m_id_i.ring() == 1) ringbin = 19.5;
-    else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 4  &&  m_id_i.ring() == 2) ringbin = 20.5;
+    if (m_id_i.endcap() == 2  &&  m_id_i.station() == 4  &&  m_id_i.ring() == 2) { ringbin = 1.5;
+    } else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 4  &&  m_id_i.ring() == 1) { ringbin = 2.5;
+    } else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 3  &&  m_id_i.ring() == 2) { ringbin = 3.5;
+    } else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 3  &&  m_id_i.ring() == 1) { ringbin = 4.5;
+    } else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 2  &&  m_id_i.ring() == 2) { ringbin = 5.5;
+    } else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 2  &&  m_id_i.ring() == 1) { ringbin = 6.5;
+    } else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 3) { ringbin = 7.5;
+    } else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 2) { ringbin = 8.5;
+    } else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 1) { ringbin = 9.5;
+    } else if (m_id_i.endcap() == 2  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 4) { ringbin = 10.5;
+    } else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 4) { ringbin = 11.5;
+    } else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 1) { ringbin = 12.5;
+    } else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 2) { ringbin = 13.5;
+    } else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 1  &&  m_id_i.ring() == 3) { ringbin = 14.5;
+    } else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 2  &&  m_id_i.ring() == 1) { ringbin = 15.5;
+    } else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 2  &&  m_id_i.ring() == 2) { ringbin = 16.5;
+    } else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 3  &&  m_id_i.ring() == 1) { ringbin = 17.5;
+    } else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 3  &&  m_id_i.ring() == 2) { ringbin = 18.5;
+    } else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 4  &&  m_id_i.ring() == 1) { ringbin = 19.5;
+    } else if (m_id_i.endcap() == 1  &&  m_id_i.station() == 4  &&  m_id_i.ring() == 2) { ringbin = 20.5; }
     m_parent->m_occupancy->Fill(m_id_i.chamber() + 0.5, ringbin);
   }
 
@@ -392,7 +392,7 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
     if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
       CSCDetId cscid(id.rawId());
       CSCDetId chamberId(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber(), 0);
-      if (m_parent->m_combineME11  &&  cscid.station() == 1  &&  cscid.ring() == 4) chamberId = CSCDetId(cscid.endcap(), 1, 1, cscid.chamber(), 0);
+      if (m_parent->m_combineME11  &&  cscid.station() == 1  &&  cscid.ring() == 4) { chamberId = CSCDetId(cscid.endcap(), 1, 1, cscid.chamber(), 0); }
 
       if (chamberId != m_id_i  &&  chamberId != m_id_j) {
 	int station = (cscid.endcap() == 1 ? 1 : -1) * cscid.station();
@@ -432,13 +432,13 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
 	  if (!found_plus  ||  fabs(z - m_Zplane) < fabs(tsos_plus.globalPosition().z() - m_Zplane)) {
 	    tsos_plus = TrajectoryStateCombiner().combine(measurement->forwardPredictedState(), measurement->backwardPredictedState());
 	  }
-	  if (tsos_plus.isValid()) found_plus = true;
+	  if (tsos_plus.isValid()) { found_plus = true; }
 	}
 	else {
 	  if (!found_minus  ||  fabs(z - m_Zplane) < fabs(tsos_minus.globalPosition().z() - m_Zplane)) {
 	    tsos_minus = TrajectoryStateCombiner().combine(measurement->forwardPredictedState(), measurement->backwardPredictedState());
 	  }
-	  if (tsos_minus.isValid()) found_minus = true;
+	  if (tsos_minus.isValid()) { found_minus = true; }
 	}
       }
 
@@ -462,7 +462,7 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
       else if (found_minus  &&  from_minus.isValid()) {
 	merged = from_minus;
       }
-      else return false;
+      else { return false; }
 
       // if, after all that, we have a good fit-and-propagation, report the direction
       if (merged.isValid()) {
@@ -509,10 +509,10 @@ void CSCPairResidualsConstraint::read(std::vector<std::ifstream*> &input, std::v
     
       (**inputiter) >> name >> identifier >> i >> j >> sumN >> sum1 >> sumx >> sumy >> sumxx >> sumyy >> sumxy >> eoln;
 
-      if (!(*inputiter)->eof()  &&  (name != "CSCPairResidualsConstraint"  ||  eoln != "EOLN")) throw cms::Exception("CorruptTempFile") << "Temporary file " << *filename << " is incorrectly formatted on line " << linenumber << std::endl;
+      if (!(*inputiter)->eof()  &&  (name != "CSCPairResidualsConstraint"  ||  eoln != "EOLN")) { throw cms::Exception("CorruptTempFile") << "Temporary file " << *filename << " is incorrectly formatted on line " << linenumber << std::endl; }
 
       if (identifier == m_identifier) {
-	if (i != m_i  ||  j != m_j) throw cms::Exception("CorruptTempFile") << "Wrong (i,j) for CSCPairResidualsConstraint " << m_identifier << " (" << m_i << "," << m_j << ") in file " << *filename << " on line " << linenumber << std::endl;
+	if (i != m_i  ||  j != m_j) { throw cms::Exception("CorruptTempFile") << "Wrong (i,j) for CSCPairResidualsConstraint " << m_identifier << " (" << m_i << "," << m_j << ") in file " << *filename << " on line " << linenumber << std::endl; }
 	touched = true;
 
 	m_sumN += sumN;
@@ -528,7 +528,7 @@ void CSCPairResidualsConstraint::read(std::vector<std::ifstream*> &input, std::v
     (*inputiter)->clear();
     (*inputiter)->seekg(0, std::ios::beg);
 
-    if (!touched) throw cms::Exception("CorruptTempFile") << "CSCPairResidualsConstraint " << m_identifier << " is missing from file " << *filename << std::endl;
+    if (!touched) { throw cms::Exception("CorruptTempFile") << "CSCPairResidualsConstraint " << m_identifier << " is missing from file " << *filename << std::endl; }
   }
 }
 
@@ -559,19 +559,19 @@ void CSCPairResidualsConstraint::calculatePhi(const TransientTrackingRecHit *hit
     const double R_MEx2 = 526.5;
 
     double R = 0.;
-    if (cscid.station() == 1  &&  (cscid.ring() == 1  ||  cscid.ring() == 4)) R = R_ME11;
-    else if (cscid.station() == 1  &&  cscid.ring() == 2) R = R_ME12;
-    else if (cscid.station() == 2  &&  cscid.ring() == 1) R = R_ME21;
-    else if (cscid.station() == 3  &&  cscid.ring() == 1) R = R_ME31;
-    else if (cscid.station() == 4  &&  cscid.ring() == 1) R = R_ME41;
-    else if (cscid.station() > 1  &&  cscid.ring() == 2) R = R_MEx2;
-    else assert(false);
+    if (cscid.station() == 1  &&  (cscid.ring() == 1  ||  cscid.ring() == 4)) { R = R_ME11;
+    } else if (cscid.station() == 1  &&  cscid.ring() == 2) { R = R_ME12;
+    } else if (cscid.station() == 2  &&  cscid.ring() == 1) { R = R_ME21;
+    } else if (cscid.station() == 3  &&  cscid.ring() == 1) { R = R_ME31;
+    } else if (cscid.station() == 4  &&  cscid.ring() == 1) { R = R_ME41;
+    } else if (cscid.station() > 1  &&  cscid.ring() == 2) { R = R_MEx2;
+    } else { assert(false); }
     r = (pos.y() + R);
   
     phi = atan2(pos.x(), r);
 
-    if (cscid.endcap() == 1  &&  cscid.station() >= 3) phi *= -1;
-    else if (cscid.endcap() == 2  &&  cscid.station() <= 2) phi *= -1;
+    if (cscid.endcap() == 1  &&  cscid.station() >= 3) { phi *= -1;
+    } else if (cscid.endcap() == 2  &&  cscid.station() <= 2) { phi *= -1; }
   }
 
   int strip = m_cscGeometry->layer(id)->geometry()->nearestStrip(pos);
@@ -622,7 +622,7 @@ bool CSCPairResidualsConstraint::isFiducial(std::vector<const TransientTrackingR
     }
     
     double weight = 1.;
-    if (m_parent->m_useHitWeights) weight = 1./phierr2;
+    if (m_parent->m_useHitWeights) { weight = 1./phierr2; }
     sum1 += weight;
     sumx += weight * z;
     sumy += weight * phi;
@@ -630,7 +630,7 @@ bool CSCPairResidualsConstraint::isFiducial(std::vector<const TransientTrackingR
     sumxy += weight * z*phi;
   }
   double delta = (sum1*sumxx) - (sumx*sumx);
-  if (delta == 0.) return false;
+  if (delta == 0.) { return false; }
   double intercept = ((sumxx*sumy) - (sumx*sumxy))/delta;
   double slope = ((sum1*sumxy) - (sumx*sumy))/delta;
 
@@ -649,5 +649,5 @@ bool CSCPairResidualsConstraint::isFiducial(std::vector<const TransientTrackingR
   else if (m_id_i.station() > 1  &&  m_id_i.ring() == 2) {
     return (fabs(phi1) < cut_MEx2  &&  fabs(phi6) < cut_MEx2);
   }
-  else assert(false);
+  else { assert(false); }
 }

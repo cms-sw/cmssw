@@ -92,8 +92,8 @@
 	    snprintf(name_f, sizeof(name_f), "%s_%d/%s", collec_path.c_str(), c_job, collec_f.c_str());
 	    TFile file_it(name_f);
 
-	    if(file_it.IsZombie())
-	      continue;
+	    if(file_it.IsZombie()) {
+	      continue; }
 
 	    TList *m_list = file_it.GetListOfKeys();
 	    if(m_list == nullptr) {
@@ -396,7 +396,7 @@
 		    {  
 		      for(int icor = 0; icor < 6; ++icor)
 		      {
-			if(mb4_mask[icor] && selection[icor]) nAlignParam++;                      
+			if(mb4_mask[icor] && selection[icor]) { nAlignParam++;                       }
 		      }
 		    }
 		    else

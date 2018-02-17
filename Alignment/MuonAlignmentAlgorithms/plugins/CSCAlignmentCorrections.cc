@@ -10,14 +10,14 @@ void CSCAlignmentCorrections::plot() {
   for (unsigned int i = 0;  i < m_coefficient.size();  i++) {
     std::string modifiedName = m_fitterName;
     if (modifiedName[0] == 'M'  &&  modifiedName[1] == 'E') {
-       if (modifiedName[2] == '-') modifiedName[2] = 'm';
-       else if (modifiedName[2] == '+') modifiedName[2] = 'p';
-       if (modifiedName[4] == '/') modifiedName[4] = '_';
-       if (modifiedName[6] == '/') modifiedName[6] = '_';
+       if (modifiedName[2] == '-') { modifiedName[2] = 'm';
+       } else if (modifiedName[2] == '+') { modifiedName[2] = 'p'; }
+       if (modifiedName[4] == '/') { modifiedName[4] = '_'; }
+       if (modifiedName[6] == '/') { modifiedName[6] = '_'; }
     }
     else if (modifiedName[0] == 'Y'  &&  modifiedName[1] == 'E') {
-       if (modifiedName[2] == '-') modifiedName[2] = 'm';
-       else if (modifiedName[2] == '+') modifiedName[2] = 'p';
+       if (modifiedName[2] == '-') { modifiedName[2] = 'm';
+       } else if (modifiedName[2] == '+') { modifiedName[2] = 'p'; }
     }
 
     std::stringstream histname, histtitle;
@@ -38,7 +38,7 @@ void CSCAlignmentCorrections::plot() {
 	shortname << m_modename[i][j][7] << m_modename[i][j][8];
 	hist->GetXaxis()->SetBinLabel(j+1, shortname.str().c_str());
       }
-      if (m_modeid[i][j] != -1) showed_full_name = true;
+      if (m_modeid[i][j] != -1) { showed_full_name = true; }
     }
 
     th1f_modes.push_back(hist);
@@ -106,7 +106,7 @@ void CSCAlignmentCorrections::applyAlignment(AlignableNavigator *alignableNaviga
       params[5] = m_value[i] * (backward ? -1. : 1.);
       cov[5][5] = 1e-6;
     }
-    else assert(false);
+    else { assert(false); }
 
     AlignmentParameters *parnew = alignable->alignmentParameters()->cloneFromSelected(params, cov);
     alignable->setAlignmentParameters(parnew);

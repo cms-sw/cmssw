@@ -136,7 +136,7 @@ public:
   virtual int npar() = 0;
   virtual int ndata() = 0;
 
-  int useRes(int pattern = -1) { if (pattern>=0) m_useResiduals = pattern; return m_useResiduals; }
+  int useRes(int pattern = -1) { if (pattern>=0) { m_useResiduals = pattern;  }return m_useResiduals; }
   int residualsModel() const { return m_residualsModel; }
   long numResiduals() const { return m_residuals.size(); }
 

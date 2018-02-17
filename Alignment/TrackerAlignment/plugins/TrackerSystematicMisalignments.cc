@@ -159,8 +159,8 @@ void TrackerSystematicMisalignments::analyze(const edm::Event& event, const edm:
 	std::string theErrorRecordName = "TrackerAlignmentErrorExtendedRcd";
 
 	// Call service
-	if( !poolDbService.isAvailable() ) // Die if not available
-		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
+	if( !poolDbService.isAvailable() ) { // Die if not available
+		throw cms::Exception("NotAvailable") << "PoolDBOutputService not available"; }
 
 	poolDbService->writeOne<Alignments>(&(*myAlignments), poolDbService->beginOfTime(), theAlignRecordName);
 	poolDbService->writeOne<AlignmentErrorsExtended>(&(*myAlignmentErrorsExtended), poolDbService->beginOfTime(), theErrorRecordName);
@@ -174,9 +174,9 @@ void TrackerSystematicMisalignments::applySystematicMisalignment(Alignable* ali)
 	//move then do for lower level object
 	//for issue of det vs detunit
 	bool usecomps = true;
-	if ((ali->alignableObjectId()==2)&&(nComp>=1)) usecomps = false;
+	if ((ali->alignableObjectId()==2)&&(nComp>=1)) { usecomps = false; }
 	for (unsigned int i = 0; i < nComp; ++i){
-		if (usecomps) applySystematicMisalignment(comp[i]);
+		if (usecomps) { applySystematicMisalignment(comp[i]); }
 	}
 
 	// if suppression of blind mvmts: check if subdet is blind to a certain mode
@@ -267,7 +267,7 @@ align::GlobalVector TrackerSystematicMisalignments::findSystematicMis( const ali
 	}
 
 	// Compatibility with old version <= 1.5
-	if (oldMinusZconvention) deltaZ = -deltaZ;
+	if (oldMinusZconvention) { deltaZ = -deltaZ; }
 
 	align::GlobalVector gV( deltaX, deltaY, deltaZ );
 	return gV;

@@ -181,7 +181,7 @@ TrackerOfflineValidationSummary::analyze(const edm::Event& iEvent, const edm::Ev
 
   // Access of EventSetup is needed to get the list of silicon-modules and their IDs
   // Since they do not change, it is accessed only once
-  if(moduleMapsInitialized)return;
+  if(moduleMapsInitialized) {return; }
   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
   const TrackerGeometry* bareTkGeomPtr = &(*tkGeom_);
   const TrackingGeometry::DetIdContainer& detIdContainer = bareTkGeomPtr->detIds();
@@ -190,13 +190,13 @@ TrackerOfflineValidationSummary::analyze(const edm::Event& iEvent, const edm::Ev
     const DetId& detId = *iDet;
     const uint32_t rawId = detId.rawId();
     const unsigned int subdetId = detId.subdetId();
-    if     (subdetId == PixelSubdetector::PixelBarrel) mPxbResiduals_[rawId];
-    else if(subdetId == PixelSubdetector::PixelEndcap) mPxeResiduals_[rawId];
-    else if(subdetId  == StripSubdetector::TIB) mTibResiduals_[rawId];
-    else if(subdetId  == StripSubdetector::TID) mTidResiduals_[rawId];
-    else if(subdetId  == StripSubdetector::TOB) mTobResiduals_[rawId];
-    else if(subdetId  == StripSubdetector::TEC) mTecResiduals_[rawId];
-    else {
+    if     (subdetId == PixelSubdetector::PixelBarrel) { mPxbResiduals_[rawId];
+    } else if(subdetId == PixelSubdetector::PixelEndcap) { mPxeResiduals_[rawId];
+    } else if(subdetId  == StripSubdetector::TIB) { mTibResiduals_[rawId];
+    } else if(subdetId  == StripSubdetector::TID) { mTidResiduals_[rawId];
+    } else if(subdetId  == StripSubdetector::TOB) { mTobResiduals_[rawId];
+    } else if(subdetId  == StripSubdetector::TEC) { mTecResiduals_[rawId];
+    } else {
       throw cms::Exception("Geometry Error")
         << "[TrackerOfflineValidationSummary] Error, tried to get reference for non-tracker subdet " << subdetId 
         << " from detector " << detId.det();
@@ -267,7 +267,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
     if(treeMem.subDetId == PixelSubdetector::PixelBarrel){
       
       unsigned int whichHalfBarrel(1), rawId(detId.rawId());  //DetId does not know about halfBarrels is PXB ...
-      if( (rawId>=302056964 && rawId<302059300) || (rawId>=302123268 && rawId<302127140) || (rawId>=302189572 && rawId<302194980) )whichHalfBarrel=2;
+      if( (rawId>=302056964 && rawId<302059300) || (rawId>=302123268 && rawId<302127140) || (rawId>=302189572 && rawId<302194980) ) {whichHalfBarrel=2; }
       treeMem.layer = tTopo->pxbLayer(detId);
       treeMem.half = whichHalfBarrel; 
       treeMem.rod = tTopo->pxbLadder(detId);     // ... so, ladder is not per halfBarrel-Layer, but per barrel-layer! Needs complicated calculation in associateModuleHistsWithTree()
@@ -275,7 +275,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
     } else if(treeMem.subDetId == PixelSubdetector::PixelEndcap){
        
       unsigned int whichHalfCylinder(1), rawId(detId.rawId());  //DetId does not kmow about halfCylinders in PXF
-      if( (rawId>=352394500 && rawId<352406032) || (rawId>=352460036 && rawId<352471568) || (rawId>=344005892 && rawId<344017424) || (rawId>=344071428 && rawId<344082960) )whichHalfCylinder=2;
+      if( (rawId>=352394500 && rawId<352406032) || (rawId>=352460036 && rawId<352471568) || (rawId>=344005892 && rawId<344017424) || (rawId>=344071428 && rawId<344082960) ) {whichHalfCylinder=2; }
       treeMem.layer = tTopo->pxfDisk(detId); 
       treeMem.side = tTopo->pxfSide(detId);
       treeMem.half = whichHalfCylinder;
@@ -288,7 +288,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
        if ( (rawId>=369120484 && rawId<369120688) || (rawId>=369121540 && rawId<369121776) || (rawId>=369136932 && rawId<369137200) || (rawId>=369137988 && rawId<369138288) ||
             (rawId>=369153396 && rawId<369153744) || (rawId>=369154436 && rawId<369154800) || (rawId>=369169844 && rawId<369170256) || (rawId>=369170900 && rawId<369171344) ||
 	    (rawId>=369124580 && rawId<369124784) || (rawId>=369125636 && rawId<369125872) || (rawId>=369141028 && rawId<369141296) || (rawId>=369142084 && rawId<369142384) ||
-	    (rawId>=369157492 && rawId<369157840) || (rawId>=369158532 && rawId<369158896) || (rawId>=369173940 && rawId<369174352) || (rawId>=369174996 && rawId<369175440) ) whichHalfShell=2;
+	    (rawId>=369157492 && rawId<369157840) || (rawId>=369158532 && rawId<369158896) || (rawId>=369173940 && rawId<369174352) || (rawId>=369174996 && rawId<369175440) ) { whichHalfShell=2; }
       treeMem.layer = tTopo->tibLayer(detId); 
       treeMem.side = tTopo->tibStringInfo(detId)[0];
       treeMem.half = whichHalfShell;
@@ -348,21 +348,21 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
       dR = gWDirection.perp() - gPModule.perp();
       dPhi = deltaPhi(gUDirection.barePhi(),gPModule.barePhi());
       dZ = gVDirection.z() - gPModule.z();
-      if(dZ>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
+      if(dZ>=0.) {treeMem.rOrZDirection = 1; } else { treeMem.rOrZDirection = -1; }
     }else if(treeMem.subDetId==PixelSubdetector::PixelEndcap){
       dR = gUDirection.perp() - gPModule.perp();
       dPhi = deltaPhi(gVDirection.barePhi(),gPModule.barePhi());
       dZ = gWDirection.z() - gPModule.z();
-      if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
+      if(dR>=0.) {treeMem.rOrZDirection = 1; } else { treeMem.rOrZDirection = -1; }
     }else if(treeMem.subDetId==StripSubdetector::TID || treeMem.subDetId==StripSubdetector::TEC){
       dR = gVDirection.perp() - gPModule.perp();
       dPhi = deltaPhi(gUDirection.barePhi(),gPModule.barePhi());
       dZ = gWDirection.z() - gPModule.z();
-      if(dR>=0.)treeMem.rOrZDirection = 1; else treeMem.rOrZDirection = -1;
+      if(dR>=0.) {treeMem.rOrZDirection = 1; } else { treeMem.rOrZDirection = -1; }
     }
-    if(dR>=0.)treeMem.rDirection = 1; else treeMem.rDirection = -1;
-    if(dPhi>=0.)treeMem.phiDirection = 1; else treeMem.phiDirection = -1;
-    if(dZ>=0.)treeMem.zDirection = 1; else treeMem.zDirection = -1;
+    if(dR>=0.) {treeMem.rDirection = 1; } else { treeMem.rDirection = -1; }
+    if(dPhi>=0.) {treeMem.phiDirection = 1; } else { treeMem.phiDirection = -1; }
+    if(dZ>=0.) {treeMem.zDirection = 1; } else { treeMem.zDirection = -1; }
     
     
     // Assign histos from first step (TrackerOfflineValidation) to the module's entry in the TTree for retrieving mean, rms, median ...
@@ -400,7 +400,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
     double stats[20];
     it->second.NormResXprimeHisto->GetStats(stats);
     // GF  treeMem.chi2PerDofX = stats[3]/(stats[0]-1);
-    if (stats[0]) treeMem.chi2PerDofX = stats[3]/stats[0];
+    if (stats[0]) { treeMem.chi2PerDofX = stats[3]/stats[0]; }
     
     //treeMem.sigmaNormX = Fwhm(it->second.NormResXprimeHisto)/2.355;
     treeMem.histNameX = it->second.ResXprimeHisto->GetName();
@@ -441,7 +441,7 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
       treeMem.meanNormY = h->GetMean();
       treeMem.rmsNormY  = h->GetRMS();
       h->GetStats(stats); // stats buffer defined above
-      if (stats[0]) treeMem.chi2PerDofY = stats[3]/stats[0];
+      if (stats[0]) { treeMem.chi2PerDofY = stats[3]/stats[0]; }
 
       if (useFit_) { // fit function which returns mean and sigma from the fit
 	std::pair<float,float> fitMeanSigma = this->fitResiduals(h);
@@ -455,12 +455,12 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
     const bool removeModuleLevelHists(parSet_.getParameter<bool>("removeModuleLevelHists"));
     if(removeModuleLevelHists){
       dbe_->setCurrentFolder("");
-      if(it->second.ResHisto)          dbe_->removeElement(histDir + "/" + it->second.ResHisto->GetName());
-      if(it->second.NormResHisto)      dbe_->removeElement(histDir + "/" + it->second.NormResHisto->GetName());
-      if(it->second.ResXprimeHisto)    dbe_->removeElement(histDir + "/" + it->second.ResXprimeHisto->GetName());
-      if(it->second.NormResXprimeHisto)dbe_->removeElement(histDir + "/" + it->second.NormResXprimeHisto->GetName());
-      if(it->second.ResYprimeHisto)    dbe_->removeElement(histDir + "/" + it->second.ResYprimeHisto->GetName());
-      if(it->second.NormResYprimeHisto)dbe_->removeElement(histDir + "/" + it->second.NormResYprimeHisto->GetName());
+      if(it->second.ResHisto) {          dbe_->removeElement(histDir + "/" + it->second.ResHisto->GetName()); }
+      if(it->second.NormResHisto) {      dbe_->removeElement(histDir + "/" + it->second.NormResHisto->GetName()); }
+      if(it->second.ResXprimeHisto) {    dbe_->removeElement(histDir + "/" + it->second.ResXprimeHisto->GetName()); }
+      if(it->second.NormResXprimeHisto) {dbe_->removeElement(histDir + "/" + it->second.NormResXprimeHisto->GetName()); }
+      if(it->second.ResYprimeHisto) {    dbe_->removeElement(histDir + "/" + it->second.ResYprimeHisto->GetName()); }
+      if(it->second.NormResYprimeHisto) {dbe_->removeElement(histDir + "/" + it->second.NormResYprimeHisto->GetName()); }
     }
     
     tree.Fill();
@@ -472,32 +472,32 @@ const std::string
 TrackerOfflineValidationSummary::associateModuleHistsWithTree(const TkOffTreeVariables& treeMem, TrackerOfflineValidationSummary::ModuleHistos& moduleHists, std::map<std::string,std::string>& substructureName){
    std::stringstream histDir, sSubdetName;
    std::string componentName;
-   if(moduleDirectory_.length() != 0)histDir<<moduleDirectory_<<"/";
+   if(moduleDirectory_.length() != 0) {histDir<<moduleDirectory_<<"/"; }
    std::string wheelOrLayer("_layer_");
    if(treeMem.subDetId == PixelSubdetector::PixelBarrel){
      unsigned int half(treeMem.half), layer(treeMem.layer), ladder(0);
      if(layer==1){
-       if(half==2)ladder = treeMem.rod -5;
-       else if(treeMem.rod>15)ladder = treeMem.rod -10;
-       else ladder = treeMem.rod;
+       if(half==2) {ladder = treeMem.rod -5;
+       } else if(treeMem.rod>15) {ladder = treeMem.rod -10;
+       } else { ladder = treeMem.rod; }
      }else if(layer==2){
-       if(half==2)ladder = treeMem.rod -8;
-       else if(treeMem.rod>24)ladder = treeMem.rod -16;
-       else ladder = treeMem.rod;
+       if(half==2) {ladder = treeMem.rod -8;
+       } else if(treeMem.rod>24) {ladder = treeMem.rod -16;
+       } else { ladder = treeMem.rod; }
      }else if(layer==3){
-       if(half==2)ladder = treeMem.rod -11;
-       else if(treeMem.rod>33)ladder = treeMem.rod -22;
-       else ladder = treeMem.rod;
+       if(half==2) {ladder = treeMem.rod -11;
+       } else if(treeMem.rod>33) {ladder = treeMem.rod -22;
+       } else { ladder = treeMem.rod; }
      }
      componentName = "Pixel";
      sSubdetName<<"TPBBarrel_1";
      histDir<<componentName<<"/"<<sSubdetName.str()<<"/TPBHalfBarrel_"<<treeMem.half<<"/TPBLayer_"<<treeMem.layer<<"/TPBLadder_"<<ladder;
    }else if(treeMem.subDetId == PixelSubdetector::PixelEndcap){
      unsigned int side(treeMem.side), half(treeMem.half), blade(0);
-     if(side==1)side=3;
-     if(half==2)blade = treeMem.blade -6;
-     else if(treeMem.blade>18)blade = treeMem.blade -12;
-     else blade = treeMem.blade;
+     if(side==1) {side=3; }
+     if(half==2) {blade = treeMem.blade -6;
+     } else if(treeMem.blade>18) {blade = treeMem.blade -12;
+     } else { blade = treeMem.blade; }
      componentName = "Pixel";
      sSubdetName<<"TPEEndcap_"<<side;
      histDir<<componentName<<"/"<<sSubdetName.str()<<"/TPEHalfCylinder_"<<treeMem.half<<"/TPEHalfDisk_"<<treeMem.layer<<"/TPEBlade_"<<blade<<"/TPEPanel_"<<treeMem.panel;
@@ -506,61 +506,61 @@ TrackerOfflineValidationSummary::associateModuleHistsWithTree(const TkOffTreeVar
      unsigned int half(treeMem.half), layer(treeMem.layer), surface(treeMem.outerInner), string(0);
      if(half==2){
        if(layer==1){
-         if(surface==1)string = treeMem.rod -13;
-	 else if(surface==2)string = treeMem.rod -15;
+         if(surface==1) {string = treeMem.rod -13;
+	 } else if(surface==2) {string = treeMem.rod -15; }
        }
        if(layer==2){
-         if(surface==1)string = treeMem.rod -17;
-	 else if(surface==2)string = treeMem.rod -19;
+         if(surface==1) {string = treeMem.rod -17;
+	 } else if(surface==2) {string = treeMem.rod -19; }
        }
        if(layer==3){
-         if(surface==1)string = treeMem.rod -22;
-	 else if(surface==2)string = treeMem.rod -23;
+         if(surface==1) {string = treeMem.rod -22;
+	 } else if(surface==2) {string = treeMem.rod -23; }
        }
        if(layer==4){
-         if(surface==1)string = treeMem.rod -26;
-	 else if(surface==2)string = treeMem.rod -28;
+         if(surface==1) {string = treeMem.rod -26;
+	 } else if(surface==2) {string = treeMem.rod -28; }
        }
      }
-     else string = treeMem.rod;
+     else { string = treeMem.rod; }
      std::stringstream detString;
-     if(treeMem.layer<3 && !treeMem.isDoubleSide)detString<<"/Det_"<<treeMem.module;
-     else detString<<"";
+     if(treeMem.layer<3 && !treeMem.isDoubleSide) {detString<<"/Det_"<<treeMem.module;
+     } else { detString<<""; }
      componentName = "Strip";
      sSubdetName<<"TIBBarrel_1";
      histDir<<componentName<<"/"<<sSubdetName.str()<<"/TIBHalfBarrel_"<<treeMem.side<<"/TIBLayer_"<<treeMem.layer<<"/TIBHalfShell_"<<treeMem.half<<"/TIBSurface_"<<treeMem.outerInner<<"/TIBString_"<<string<<detString.str();
    }else if(treeMem.subDetId == StripSubdetector::TID){
      unsigned int side(treeMem.side), outerInner(0);
-     if(side==1)side=3;
-     if(treeMem.outerInner==1)outerInner=2;
-     else if(treeMem.outerInner==2)outerInner=1;
+     if(side==1) {side=3; }
+     if(treeMem.outerInner==1) {outerInner=2;
+     } else if(treeMem.outerInner==2) {outerInner=1; }
      std::stringstream detString;
-     if(treeMem.ring<3 && !treeMem.isDoubleSide)detString<<"/Det_"<<treeMem.module;
-     else detString<<"";
+     if(treeMem.ring<3 && !treeMem.isDoubleSide) {detString<<"/Det_"<<treeMem.module;
+     } else { detString<<""; }
      componentName = "Strip";
      sSubdetName<<"TIDEndcap_"<<side;
      histDir<<componentName<<"/"<<sSubdetName.str()<<"/TIDDisk_"<<treeMem.layer<<"/TIDRing_"<<treeMem.ring<<"/TIDSide_"<<outerInner<<detString.str();
      wheelOrLayer = "_wheel_";
    }else if(treeMem.subDetId == StripSubdetector::TOB){
      std::stringstream detString;
-     if(treeMem.layer<3 && !treeMem.isDoubleSide)detString<<"/Det_"<<treeMem.module;
-     else detString<<"";
+     if(treeMem.layer<3 && !treeMem.isDoubleSide) {detString<<"/Det_"<<treeMem.module;
+     } else { detString<<""; }
      componentName = "Strip";
      sSubdetName<<"TOBBarrel_4";
      histDir<<componentName<<"/"<<sSubdetName.str()<<"/TOBHalfBarrel_"<<treeMem.side<<"/TOBLayer_"<<treeMem.layer<<"/TOBRod_"<<treeMem.rod<<detString.str();
    }else if(treeMem.subDetId == StripSubdetector::TEC) {
      unsigned int side(0), outerInner(0), ring(0);
-     if(treeMem.side==1)side=6;
-     else if(treeMem.side==2)side=5;
-     if(treeMem.outerInner==1)outerInner = 2;
-     else if(treeMem.outerInner==2)outerInner=1;
-     if(treeMem.layer>3 && treeMem.layer<7)ring = treeMem.ring -1;
-     else if(treeMem.layer==7 || treeMem.layer==8)ring = treeMem.ring -2;
-     else if(treeMem.layer==9)ring = treeMem.ring -3;
-     else ring = treeMem.ring;
+     if(treeMem.side==1) {side=6;
+     } else if(treeMem.side==2) {side=5; }
+     if(treeMem.outerInner==1) {outerInner = 2;
+     } else if(treeMem.outerInner==2) {outerInner=1; }
+     if(treeMem.layer>3 && treeMem.layer<7) {ring = treeMem.ring -1;
+     } else if(treeMem.layer==7 || treeMem.layer==8) {ring = treeMem.ring -2;
+     } else if(treeMem.layer==9) {ring = treeMem.ring -3;
+     } else { ring = treeMem.ring; }
      std::stringstream detString;
-     if((treeMem.ring<3 || treeMem.ring==5) && !treeMem.isDoubleSide)detString<<"/Det_"<<treeMem.module;
-     else detString<<"";
+     if((treeMem.ring<3 || treeMem.ring==5) && !treeMem.isDoubleSide) {detString<<"/Det_"<<treeMem.module;
+     } else { detString<<""; }
      componentName = "Strip";
      sSubdetName<<"TECEndcap_"<<side;
      histDir<<componentName<<"/"<<sSubdetName.str()<<"/TECDisk_"<<treeMem.layer<<"/TECSide_"<<outerInner<<"/TECPetal_"<<treeMem.petal<<"/TECRing_"<<ring<<detString.str();
@@ -575,22 +575,22 @@ TrackerOfflineValidationSummary::associateModuleHistsWithTree(const TkOffTreeVar
    
    std::string fullPath;
    fullPath = histDir.str()+"/h_xprime_"+histName.str();
-   if(dbe_->get(fullPath)) moduleHists.ResXprimeHisto = dbe_->get(fullPath)->getTH1();
-   else{edm::LogError("TrackerOfflineValidationSummary")<<"Problem with names in input file produced in TrackerOfflineValidation ...\n"
+   if(dbe_->get(fullPath)) { moduleHists.ResXprimeHisto = dbe_->get(fullPath)->getTH1();
+   } else{edm::LogError("TrackerOfflineValidationSummary")<<"Problem with names in input file produced in TrackerOfflineValidation ...\n"
                                                         <<"This histogram should exist in every configuration, "
 							<<"but no histogram with name "<<fullPath<<" is found!";
      return "";
    }
    fullPath = histDir.str()+"/h_normxprime"+histName.str();
-   if(dbe_->get(fullPath)) moduleHists.NormResXprimeHisto = dbe_->get(fullPath)->getTH1();
+   if(dbe_->get(fullPath)) { moduleHists.NormResXprimeHisto = dbe_->get(fullPath)->getTH1(); }
    fullPath = histDir.str()+"/h_yprime_"+histName.str();
-   if(dbe_->get(fullPath)) moduleHists.ResYprimeHisto = dbe_->get(fullPath)->getTH1();
+   if(dbe_->get(fullPath)) { moduleHists.ResYprimeHisto = dbe_->get(fullPath)->getTH1(); }
    fullPath = histDir.str()+"/h_normyprime"+histName.str();
-   if(dbe_->get(fullPath)) moduleHists.NormResYprimeHisto = dbe_->get(fullPath)->getTH1();
+   if(dbe_->get(fullPath)) { moduleHists.NormResYprimeHisto = dbe_->get(fullPath)->getTH1(); }
    fullPath = histDir.str()+"/h_"+histName.str();
-   if(dbe_->get(fullPath)) moduleHists.ResHisto = dbe_->get(fullPath)->getTH1();
+   if(dbe_->get(fullPath)) { moduleHists.ResHisto = dbe_->get(fullPath)->getTH1(); }
    fullPath = histDir.str()+"/h_norm"+histName.str();
-   if(dbe_->get(fullPath)) moduleHists.NormResHisto = dbe_->get(fullPath)->getTH1();
+   if(dbe_->get(fullPath)) { moduleHists.NormResHisto = dbe_->get(fullPath)->getTH1(); }
    
    return histDir.str();
 }
@@ -600,7 +600,7 @@ std::pair<float,float>
 TrackerOfflineValidationSummary::fitResiduals(TH1* hist) const
 {
   std::pair<float,float> fitResult(9999., 9999.);
-  if (!hist || hist->GetEntries() < 20) return fitResult;
+  if (!hist || hist->GetEntries() < 20) { return fitResult; }
 
   float mean  = hist->GetMean();
   float sigma = hist->GetRMS();
@@ -678,13 +678,13 @@ TrackerOfflineValidationSummary::applyHarvestingHierarchy(TTree& tree)
     std::vector<unsigned int> treeEntries;
     for(unsigned int iSide = 1; iSide<3; ++iSide){
       // Set up only one collection for Barrels, not separated for side
-      if(iSide==1 && (iSubdet==PixelSubdetector::PixelBarrel || iSubdet==StripSubdetector::TIB || iSubdet==StripSubdetector::TOB))continue;
+      if(iSide==1 && (iSubdet==PixelSubdetector::PixelBarrel || iSubdet==StripSubdetector::TIB || iSubdet==StripSubdetector::TOB)) {continue; }
       for(int iTree=0; iTree<tree.GetEntries(); ++iTree){
 	tree.GetEntry(iTree);
         // Do not use glued Dets
-	if(treeMemPtr->isDoubleSide)continue;
+	if(treeMemPtr->isDoubleSide) {continue; }
 	if(treeMemPtr->subDetId == iSubdet){
-          if(iSide!=treeMemPtr->side && (iSubdet==PixelSubdetector::PixelEndcap || iSubdet==StripSubdetector::TID || iSubdet==StripSubdetector::TEC))continue;
+          if(iSide!=treeMemPtr->side && (iSubdet==PixelSubdetector::PixelEndcap || iSubdet==StripSubdetector::TID || iSubdet==StripSubdetector::TEC)) {continue; }
 	  treeEntries.push_back(iTree);
 	  if(hierarchyName.length() == 0){
 	    hierarchyName = (*substructureName)["subdet"];
@@ -719,7 +719,7 @@ TrackerOfflineValidationSummary::bookHarvestingHists()
     dmrYprimeHistoTitle<<  "DMR for " << iHier->hierarchyName <<";<#DeltaY> [cm];# modules";
     
     std::string directoryString(moduleDirectory_);
-    if(directoryString.length()!=0)directoryString += "/";
+    if(directoryString.length()!=0) {directoryString += "/"; }
     directoryString += iHier->componentName;
     dbe_->setCurrentFolder(directoryString);
     
@@ -733,7 +733,7 @@ TrackerOfflineValidationSummary::bookHarvestingHists()
     else if(iHier->componentName == "Strip"){
       this->getBinning("TH1DmrXprimeStripModules",nBinsX,xMin,xMax);
       iHier->harvestingHistos.DmrXprime = dbe_->book1D(dmrXprimeHistoName.str(),dmrXprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
-      if(!parSet_.getParameter<bool>("stripYDmrs"))continue;
+      if(!parSet_.getParameter<bool>("stripYDmrs")) {continue; }
       this->getBinning("TH1DmrYprimeStripModules",nBinsX,xMin,xMax);
       iHier->harvestingHistos.DmrYprime = dbe_->book1D(dmrYprimeHistoName.str(),dmrYprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
     }
@@ -765,9 +765,9 @@ TrackerOfflineValidationSummary::fillHarvestingHists(TTree& tree)
   for(std::vector<HarvestingHierarchy>::iterator iHier = vHarvestingHierarchy_.begin(); iHier != vHarvestingHierarchy_.end(); ++iHier){
     for(std::vector<unsigned int>::const_iterator iTreeEntries = iHier->treeEntries.begin(); iTreeEntries != iHier->treeEntries.end(); ++iTreeEntries){
       tree.GetEntry(*iTreeEntries);
-      if(treeMemPtr->entries < minEntriesPerModule)continue;
+      if(treeMemPtr->entries < minEntriesPerModule) {continue; }
       iHier->harvestingHistos.DmrXprime->Fill(treeMemPtr->medianX);
-      if(iHier->harvestingHistos.DmrYprime)iHier->harvestingHistos.DmrYprime->Fill(treeMemPtr->medianY);
+      if(iHier->harvestingHistos.DmrYprime) {iHier->harvestingHistos.DmrYprime->Fill(treeMemPtr->medianY); }
     }
   }
 }

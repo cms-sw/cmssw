@@ -107,7 +107,7 @@ void TkAlCaSkimTreeMerger::beginJob(){
   while(!flist.eof()){
     filename="";
     flist>>filename;
-    if(filename.empty())continue;
+    if(filename.empty()) {continue; }
     //std::cout<<"Adding "<<filename<<std::endl;
     ch_->Add(filename.c_str());
     if(first){
@@ -270,13 +270,13 @@ void TkAlCaSkimTreeMerger::endJob(){
 
     //calculate prescaling factor
     int subdetmax=-1;
-    if(subdet_out==1)subdetmax=maxPXBhits_;
-    else if(subdet_out==2)subdetmax=maxPXFhits_;
-    else if(subdet_out==3)subdetmax=maxTIBhits_;
-    else if(subdet_out==4)subdetmax=maxTIDhits_;
-    else if(subdet_out==5)subdetmax=maxTOBhits_;
-    else if(subdet_out==6)subdetmax=maxTEChits_;
-    else subdetmax=-9999;
+    if(subdet_out==1) {subdetmax=maxPXBhits_;
+    } else if(subdet_out==2) {subdetmax=maxPXFhits_;
+    } else if(subdet_out==3) {subdetmax=maxTIBhits_;
+    } else if(subdet_out==4) {subdetmax=maxTIDhits_;
+    } else if(subdet_out==5) {subdetmax=maxTOBhits_;
+    } else if(subdet_out==6) {subdetmax=maxTEChits_;
+    } else { subdetmax=-9999; }
 
     if(maxhits_>-1){
       if(int(nhits_out)>maxhits_){

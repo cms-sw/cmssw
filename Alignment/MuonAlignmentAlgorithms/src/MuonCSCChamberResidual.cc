@@ -22,11 +22,11 @@ void MuonCSCChamberResidual::addResidual(edm::ESHandle<Propagator> prop, const T
 {
     bool m_debug = false;
 
-    if (m_debug) std::cout << "MuonCSCChamberResidual::addResidual 1" << std::endl;
+    if (m_debug) { std::cout << "MuonCSCChamberResidual::addResidual 1" << std::endl; }
     DetId id = hit->geographicalId();
-    if (m_debug) std::cout << "MuonCSCChamberResidual::addResidual 2" << std::endl;
+    if (m_debug) { std::cout << "MuonCSCChamberResidual::addResidual 2" << std::endl; }
     const CSCGeometry *cscGeometry = dynamic_cast<const CSCGeometry*>(m_globalGeometry->slaveGeometry(id));
-    if (m_debug) std::cout << "MuonCSCChamberResidual::addResidual 3" << std::endl;
+    if (m_debug) { std::cout << "MuonCSCChamberResidual::addResidual 3" << std::endl; }
     assert(cscGeometry);
 
     if (m_debug) {
@@ -48,7 +48,7 @@ void MuonCSCChamberResidual::addResidual(edm::ESHandle<Propagator> prop, const T
 
     double residual = cosAngle * (tsosChamberPos.x() - hitChamberPos.x()) + sinAngle * (tsosChamberPos.y() - hitChamberPos.y());  // yes, that's +sin()
 
-    if (m_debug) std::cout << " MuonCSCChamberResidual residual: " << residual << std::endl;
+    if (m_debug) { std::cout << " MuonCSCChamberResidual residual: " << residual << std::endl; }
 
     double xx = hit->localPositionError().xx();
     double xy = hit->localPositionError().xy();
@@ -99,6 +99,6 @@ void MuonCSCChamberResidual::addResidual(edm::ESHandle<Propagator> prop, const T
     m_individual_y.push_back(residual);
     m_individual_weight.push_back(weight);
 
-    if (m_numHits>1) segment_fit();
+    if (m_numHits>1) { segment_fit(); }
 }
 

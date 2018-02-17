@@ -136,10 +136,10 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
       if(debug_){
 	edm::LogInfo("PrimaryVertexValidation")<<"==> "<<std::get<0>(PVValHelper::getTypeString(res_index)) << " "<< std::setw(10)<< std::get<0>(PVValHelper::getVarString(plot_index))<<std::endl;
       }
-      if(res_index!=PVValHelper::d3D && res_index!=PVValHelper::norm_d3D)
+      if(res_index!=PVValHelper::d3D && res_index!=PVValHelper::norm_d3D) {
 	theDetails_.setMap(res_index,plot_index,theDetails_.getLow(PVValHelper::dxy,plot_index),theDetails_.getHigh(PVValHelper::dxy,plot_index));
-      else
-	theDetails_.setMap(res_index,plot_index,0.,theDetails_.getHigh(PVValHelper::dxy,plot_index));
+      } else {
+	theDetails_.setMap(res_index,plot_index,0.,theDetails_.getHigh(PVValHelper::dxy,plot_index)); }
     }
   }
 
@@ -186,8 +186,8 @@ PrimaryVertexValidation::~PrimaryVertexValidation()
 {
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  if (theTrackFilter_) delete theTrackFilter_;
-  if (theTrackClusterizer_) delete theTrackClusterizer_;
+  if (theTrackFilter_) { delete theTrackFilter_; }
+  if (theTrackClusterizer_) { delete theTrackClusterizer_; }
 }
 
 
@@ -228,7 +228,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	break;
       }
     }
-    if (!passesRunControl) return;
+    if (!passesRunControl) { return; }
   }
 
   Nevt_++;  
@@ -323,7 +323,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   edm::Handle<TrackCollection>  trackCollectionHandle;
   iEvent.getByToken(theTrackCollectionToken, trackCollectionHandle);
-  if(!trackCollectionHandle.isValid()) return;
+  if(!trackCollectionHandle.isValid()) { return; }
   auto const & tracks = *trackCollectionHandle;
 
   //=======================================================
@@ -354,10 +354,10 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   // skip events with no PV, this should not happen
 
-  if( vsorted.empty()) return;
+  if( vsorted.empty()) { return; }
 
   // skip events failing vertex cut
-  if( std::abs(vsorted[0].z()) > vertexZMax_ ) return; 
+  if( std::abs(vsorted[0].z()) > vertexZMax_ ) { return;  }
   
   if ( vsorted[0].isValid() ) {
     xOfflineVertex_ = (vsorted)[0].x();
@@ -381,7 +381,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   
   for (unsigned int i=0; i<vertexCollectionSize; i++) {
     const Vertex& vertex = vsorted.at(i);
-    if (vertex.isValid()) nvvertex++;
+    if (vertex.isValid()) { nvvertex++; }
   }
 
   nOfflineVertices_ = nvvertex;
@@ -500,8 +500,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   h_BeamWidthX->Fill(BeamWidthX_);
   h_BeamWidthY->Fill(BeamWidthY_);
 
-  if(debug_)
-    edm::LogInfo("PrimaryVertexValidation")<<"Beamspot x:" <<BSx0_<<" y:"<<BSy0_<<" z:"<<BSz0_;
+  if(debug_) {
+    edm::LogInfo("PrimaryVertexValidation")<<"Beamspot x:" <<BSx0_<<" y:"<<BSy0_<<" z:"<<BSz0_; }
    
   //=======================================================
   // Starts here ananlysis
@@ -517,8 +517,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   LuminosityBlockNumber_=iEvent.eventAuxiliary().luminosityBlock();
   EventNumber_=iEvent.eventAuxiliary().id().event();
     
-  if(debug_)
-    edm::LogInfo("PrimaryVertexValidation")<<" looping over "<<trackCollectionHandle->size()<< "tracks";
+  if(debug_) {
+    edm::LogInfo("PrimaryVertexValidation")<<" looping over "<<trackCollectionHandle->size()<< "tracks"; }
 
   h_nTracks->Fill(trackCollectionHandle->size()); 
 
@@ -637,7 +637,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	//=======================================================  
 
 	bool pass = true;
-	if(askFirstLayerHit_) pass = this->hasFirstLayerPixelHits(theTTrack);
+	if(askFirstLayerHit_) { pass = this->hasFirstLayerPixelHits(theTTrack); }
 	if (pass 
 	    && (theTrack.pt() >=ptOfProbe_) 
 	    && std::abs(theTrack.eta()) <= etaOfProbe_ 
@@ -657,8 +657,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	  pass = this->hasFirstLayerPixelHits(tk);
 	  if (pass){
-	    if( tk == theTTrack ) continue;
-	    else {
+	    if( tk == theTTrack ) { continue;
+	    } else {
 	      theFinalTracks.push_back(tk);
 	    }
 	  }
@@ -666,8 +666,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	
 	if(theFinalTracks.size() > 1){
 	    
-	  if(debug_)
-	    edm::LogInfo("PrimaryVertexValidation")<<"Transient Track Collection size: "<<theFinalTracks.size();
+	  if(debug_) {
+	    edm::LogInfo("PrimaryVertexValidation")<<"Transient Track Collection size: "<<theFinalTracks.size(); }
 	  try{
 	      
 	    auto theFitter = std::unique_ptr<VertexFitter<5> >( new AdaptiveVertexFitter());
@@ -838,13 +838,13 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		float pTF = mypT_bins_[ipTBin];
 		float pTL = mypT_bins_[ipTBin+1];
 		
-		if(debug_)
-		  edm::LogInfo("PrimaryVertexValidation")<<"ipTBin:"<<ipTBin<< " "<<mypT_bins_[ipTBin]<< " < pT < "<<mypT_bins_[ipTBin+1]<<std::endl;
+		if(debug_) {
+		  edm::LogInfo("PrimaryVertexValidation")<<"ipTBin:"<<ipTBin<< " "<<mypT_bins_[ipTBin]<< " < pT < "<<mypT_bins_[ipTBin+1]<<std::endl; }
 		
 		if( std::abs(tracketa)<1.5 && (trackpt >= pTF && trackpt < pTL) ){
 		  
-		  if(debug_)
-		    edm::LogInfo("PrimaryVertexValidation")<<"passes this cut: "<<mypT_bins_[ipTBin]<<std::endl;
+		  if(debug_) {
+		    edm::LogInfo("PrimaryVertexValidation")<<"passes this cut: "<<mypT_bins_[ipTBin]<<std::endl; }
 		  PVValHelper::fillByIndex(h_dxy_pT_,ipTBin,dxyFromMyVertex*cmToum);
 		  PVValHelper::fillByIndex(h_dz_pT_,ipTBin,dzFromMyVertex*cmToum);
 		  PVValHelper::fillByIndex(h_norm_dxy_pT_,ipTBin,dxyFromMyVertex/s_ip2dpv_err);
@@ -852,8 +852,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		  
 		  if(std::abs(tracketa)<1.){
 		    
-		    if(debug_)
-		      edm::LogInfo("PrimaryVertexValidation")<<"passes tight eta cut: "<<mypT_bins_[ipTBin]<<std::endl;
+		    if(debug_) {
+		      edm::LogInfo("PrimaryVertexValidation")<<"passes tight eta cut: "<<mypT_bins_[ipTBin]<<std::endl; }
 		    PVValHelper::fillByIndex(h_dxy_Central_pT_,ipTBin,dxyFromMyVertex*cmToum);
 		    PVValHelper::fillByIndex(h_dz_Central_pT_,ipTBin,dzFromMyVertex*cmToum);
 		    PVValHelper::fillByIndex(h_norm_dxy_Central_pT_,ipTBin,dxyFromMyVertex/s_ip2dpv_err);
@@ -871,14 +871,14 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 		std::pair<bool,bool> pixelOcc = pixelHitsCheck((theTTrack));
 
 		if(debug_){
-		  if(pixelOcc.first == true)
-		    edm::LogInfo("PrimaryVertexValidation")<<"has BPIx hits"<<std::endl;
-		  if(pixelOcc.second == true)
-		    edm::LogInfo("PrimaryVertexValidation")<<"has FPix hits"<<std::endl;
+		  if(pixelOcc.first == true) {
+		    edm::LogInfo("PrimaryVertexValidation")<<"has BPIx hits"<<std::endl; }
+		  if(pixelOcc.second == true) {
+		    edm::LogInfo("PrimaryVertexValidation")<<"has FPix hits"<<std::endl; }
 		}		  
 
-		if(!doBPix_ && (pixelOcc.first == true))  continue;
-		if(!doFPix_ && (pixelOcc.second == true)) continue;
+		if(!doBPix_ && (pixelOcc.first == true)) {  continue; }
+		if(!doFPix_ && (pixelOcc.second == true)) { continue; }
 		
 		fillTrackHistos(hDA,"sel",&(theTTrack),vertex,beamSpot,fBfield_);
 
@@ -1057,15 +1057,15 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	} //ends if theFinalTracks.size() > 2
 	
 	else {
-	  if(debug_)
-	    edm::LogInfo("PrimaryVertexValidation")<<"Not enough tracks to make a vertex.  Returns no vertex info";
+	  if(debug_) {
+	    edm::LogInfo("PrimaryVertexValidation")<<"Not enough tracks to make a vertex.  Returns no vertex info"; }
 	}
 	  
 	++nTracks_;  
 	++nTracksPerClus_;
 
-	if(debug_)
-	  edm::LogInfo("PrimaryVertexValidation")<<"Track "<<i<<" : pT = "<<theTrack.pt();
+	if(debug_) {
+	  edm::LogInfo("PrimaryVertexValidation")<<"Track "<<i<<" : pT = "<<theTrack.pt(); }
 	  
       }// for loop on tracks
   } // for loop on track clusters
@@ -1090,10 +1090,10 @@ bool PrimaryVertexValidation::isHit2D(const TrackingRecHit &hit) const
       if (detId.subdetId() == PixelSubdetector::PixelBarrel || detId.subdetId() == PixelSubdetector::PixelEndcap) {
         return true; // pixel is always 2D
       } else { // should be SiStrip now
-        if (dynamic_cast<const SiStripRecHit2D*>(&hit)) return false; // normal hit
-        else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) return true; // matched is 2D
-        else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) return false; // crazy hit...
-        else {
+        if (dynamic_cast<const SiStripRecHit2D*>(&hit)) { return false; // normal hit
+        } else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit)) { return true; // matched is 2D
+        } else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) { return false; // crazy hit...
+        } else {
           edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
                                       << "Tracker hit not in pixel and neither SiStripRecHit2D nor "
                                       << "SiStripMatchedRecHit2D nor ProjectedSiStripRecHit2D.";
@@ -2586,10 +2586,10 @@ void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100
 bool PrimaryVertexValidation::vtxSort( const reco::Vertex & a, const reco::Vertex & b )
 //*************************************************************
 {
-  if( a.tracksSize() != b.tracksSize() )
+  if( a.tracksSize() != b.tracksSize() ) {
     return a.tracksSize() > b.tracksSize() ? true : false ;
-  else
-    return a.chi2() < b.chi2() ? true : false ;
+  } else {
+    return a.chi2() < b.chi2() ? true : false ; }
 }
 
 //*************************************************************
@@ -2610,10 +2610,10 @@ bool PrimaryVertexValidation::passesTrackCuts(const reco::Track & track, const r
    dxysigma = sqrt(track.d0Error()*track.d0Error()+vxErr*vyErr);
    dzsigma = sqrt(track.dzError()*track.dzError()+vzErr*vzErr);
  
-   if(track.quality(reco::TrackBase::qualityByName(qualityString_)) != 1)return false;
-   if(std::abs(dxy/dxysigma) > dxyErrMax_) return false;
-   if(std::abs(dz/dzsigma) > dzErrMax_) return false;
-   if(track.ptError() / track.pt() > ptErrMax_) return false;
+   if(track.quality(reco::TrackBase::qualityByName(qualityString_)) != 1) {return false; }
+   if(std::abs(dxy/dxysigma) > dxyErrMax_) { return false; }
+   if(std::abs(dz/dzsigma) > dzErrMax_) { return false; }
+   if(track.ptError() / track.pt() > ptErrMax_) { return false; }
 
    return true;
 }
@@ -2821,7 +2821,7 @@ void PrimaryVertexValidation::fillTrackHistos(std::map<std::string, TH1*> & h, c
 	edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = (*pixhit).cluster();
 	if (clust.isNonnull()) {
 	  nbarrel++;
-	  if (clust->sizeY()-longesthit>0) longesthit=clust->sizeY();
+	  if (clust->sizeY()-longesthit>0) { longesthit=clust->sizeY(); }
 	  if (clust->sizeY()>20.){
 	    PVValHelper::fill(h,"lvseta_"+ttype,tt->track().eta(), 19.9);
 	    PVValHelper::fill(h,"lvstanlambda_"+ttype,tan(tt->track().lambda()), 19.9);

@@ -202,17 +202,17 @@ bool MuonGeometrySanityCheckPoint::numeric(std::string s) {
 }
 
 int MuonGeometrySanityCheckPoint::number(std::string s) {
-  if (s == std::string("0")) return 0;
-  else if (s == std::string("1")) return 1;
-  else if (s == std::string("2")) return 2;
-  else if (s == std::string("3")) return 3;
-  else if (s == std::string("4")) return 4;
-  else if (s == std::string("5")) return 5;
-  else if (s == std::string("6")) return 6;
-  else if (s == std::string("7")) return 7;
-  else if (s == std::string("8")) return 8;
-  else if (s == std::string("9")) return 9;
-  else assert(false);
+  if (s == std::string("0")) { return 0;
+  } else if (s == std::string("1")) { return 1;
+  } else if (s == std::string("2")) { return 2;
+  } else if (s == std::string("3")) { return 3;
+  } else if (s == std::string("4")) { return 4;
+  } else if (s == std::string("5")) { return 5;
+  } else if (s == std::string("6")) { return 6;
+  } else if (s == std::string("7")) { return 7;
+  } else if (s == std::string("8")) { return 8;
+  } else if (s == std::string("9")) { return 9;
+  } else { assert(false); }
 }
 
 MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterSet &iConfig, const std::map<std::string,const MuonGeometrySanityCheckCustomFrame*> &frames) {
@@ -222,7 +222,7 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 
    bool barrel = (detName.substr(0, 2) == std::string("MB"));
    bool endcap = (detName.substr(0, 2) == std::string("ME"));
-   if (!barrel  &&  !endcap) parsing_error = true;
+   if (!barrel  &&  !endcap) { parsing_error = true; }
 
    if (!parsing_error  &&  barrel) {
       int index = 2;
@@ -245,10 +245,10 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 	 wheel_digit = true;
 	 index++;
       }
-      if (!plus) wheel *= -1;
-      if (!wheel_digit) parsing_error = true;
+      if (!plus) { wheel *= -1; }
+      if (!wheel_digit) { parsing_error = true; }
       
-      if (detName.substr(index, 1) != std::string("/")) parsing_error = true;
+      if (detName.substr(index, 1) != std::string("/")) { parsing_error = true; }
       index++;
       
       int station = 0;
@@ -259,9 +259,9 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 	 station_digit = true;
 	 index++;
       }
-      if (!station_digit) parsing_error = true;
+      if (!station_digit) { parsing_error = true; }
       
-      if (detName.substr(index, 1) != std::string("/")) parsing_error = true;
+      if (detName.substr(index, 1) != std::string("/")) { parsing_error = true; }
       index++;
       
       int sector = 0;
@@ -272,7 +272,7 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 	 sector_digit = true;
 	 index++;
       }
-      if (!sector_digit) parsing_error = true;
+      if (!sector_digit) { parsing_error = true; }
       
       // these are optional
       int superlayer = 0;
@@ -286,7 +286,7 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 	    superlayer_digit = true;
 	    index++;
 	 }
-	 if (!superlayer_digit) parsing_error = true;
+	 if (!superlayer_digit) { parsing_error = true; }
 
 	 if (detName.substr(index, 1) == std::string("/")) {
 	    index++;
@@ -301,10 +301,10 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
       if (!parsing_error) {
 	 bool no_such_chamber = false;
 	 
-	 if (wheel < -2  ||  wheel > 2) no_such_chamber = true;
-	 if (station < 1  ||  station > 4) no_such_chamber = true;
-	 if (station == 4  &&  (sector < 1  ||  sector > 14)) no_such_chamber = true;
-	 if (station < 4  &&  (sector < 1  ||  sector > 12)) no_such_chamber = true;
+	 if (wheel < -2  ||  wheel > 2) { no_such_chamber = true; }
+	 if (station < 1  ||  station > 4) { no_such_chamber = true; }
+	 if (station == 4  &&  (sector < 1  ||  sector > 14)) { no_such_chamber = true; }
+	 if (station < 4  &&  (sector < 1  ||  sector > 12)) { no_such_chamber = true; }
 	 
 	 if (no_such_chamber) {
 	    throw cms::Exception("BadConfig") << "Chamber doesn't exist: MB" << (plus ? "+" : "-") << wheel << "/" << station << "/" << sector << std::endl;
@@ -316,8 +316,8 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 	 }
 	 else {
 	    bool no_such_superlayer = false;
-	    if (superlayer < 1  ||  superlayer > 3) no_such_superlayer = true;
-	    if (station == 4  &&  superlayer == 2) no_such_superlayer = true;
+	    if (superlayer < 1  ||  superlayer > 3) { no_such_superlayer = true; }
+	    if (station == 4  &&  superlayer == 2) { no_such_superlayer = true; }
 
 	    if (no_such_superlayer) {
 	       throw cms::Exception("BadConfig") << "Superlayer doesn't exist: MB" << (plus ? "+" : "-") << wheel << "/" << station << "/" << sector << "/" << superlayer << std::endl;
@@ -329,7 +329,7 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 	    }
 	    else {
 	       bool no_such_layer = false;
-	       if (layer < 1  ||  layer > 4) no_such_layer = true;
+	       if (layer < 1  ||  layer > 4) { no_such_layer = true; }
 
 	       if (no_such_layer) {
 		  throw cms::Exception("BadConfig") << "Layer doesn't exist: MB" << (plus ? "+" : "-") << wheel << "/" << station << "/" << sector << "/" << superlayer << "/" << layer << std::endl;
@@ -353,7 +353,7 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 	 plus = false;
 	 index++;
       }
-      else parsing_error = true;
+      else { parsing_error = true; }
 
       int station = 0;
       bool station_digit = false;
@@ -363,10 +363,10 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 	 station_digit = true;
 	 index++;
       }
-      if (!plus) station *= -1;
-      if (!station_digit) parsing_error = true;
+      if (!plus) { station *= -1; }
+      if (!station_digit) { parsing_error = true; }
 
-      if (detName.substr(index, 1) != std::string("/")) parsing_error = true;
+      if (detName.substr(index, 1) != std::string("/")) { parsing_error = true; }
       index++;
 
       int ring = 0;
@@ -377,9 +377,9 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 	 ring_digit = true;
 	 index++;
       }
-      if (!ring_digit) parsing_error = true;
+      if (!ring_digit) { parsing_error = true; }
       
-      if (detName.substr(index, 1) != std::string("/")) parsing_error = true;
+      if (detName.substr(index, 1) != std::string("/")) { parsing_error = true; }
       index++;
       
       int chamber = 0;
@@ -390,7 +390,7 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 	 chamber_digit = true;
 	 index++;
       }
-      if (!chamber_digit) parsing_error = true;
+      if (!chamber_digit) { parsing_error = true; }
 
       // this is optional
       int layer = 0;
@@ -403,7 +403,7 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 	    layer_digit = true;
 	    index++;
 	 }
-	 if (!layer_digit) parsing_error = true;
+	 if (!layer_digit) { parsing_error = true; }
       }
 
       if (!parsing_error) {
@@ -411,12 +411,12 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 
 	 int endcap = (station > 0 ? 1 : 2);
 	 station = abs(station);
-	 if (station < 1  ||  station > 4) no_such_chamber = true;
-	 if (station == 1  &&  (ring < 1  ||  ring > 4)) no_such_chamber = true;
-	 if (station > 1  &&  (ring < 1  ||  ring > 2)) no_such_chamber = true;
-	 if (station == 1  &&  (chamber < 1  ||  chamber > 36)) no_such_chamber = true;
-	 if (station > 1  &&  ring == 1  &&  (chamber < 1  ||  chamber > 18)) no_such_chamber = true;
-	 if (station > 1  &&  ring == 2  &&  (chamber < 1  ||  chamber > 36)) no_such_chamber = true;
+	 if (station < 1  ||  station > 4) { no_such_chamber = true; }
+	 if (station == 1  &&  (ring < 1  ||  ring > 4)) { no_such_chamber = true; }
+	 if (station > 1  &&  (ring < 1  ||  ring > 2)) { no_such_chamber = true; }
+	 if (station == 1  &&  (chamber < 1  ||  chamber > 36)) { no_such_chamber = true; }
+	 if (station > 1  &&  ring == 1  &&  (chamber < 1  ||  chamber > 18)) { no_such_chamber = true; }
+	 if (station > 1  &&  ring == 2  &&  (chamber < 1  ||  chamber > 36)) { no_such_chamber = true; }
 
 	 if (no_such_chamber) {
 	    throw cms::Exception("BadConfig") << "Chamber doesn't exist: ME" << (endcap == 1 ? "+" : "-") << station << "/" << ring << "/" << chamber << std::endl;
@@ -428,7 +428,7 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 	 }
 	 else {
 	    bool no_such_layer = false;
-	    if (layer < 1  ||  layer > 6) no_such_layer = true;
+	    if (layer < 1  ||  layer > 6) { no_such_layer = true; }
 
 	    if (no_such_layer) {
 	       throw cms::Exception("BadConfig") << "Layer doesn't exist: ME" << (endcap == 1 ? "+" : "-") << station << "/" << ring << "/" << chamber << "/" << layer << std::endl;
@@ -548,7 +548,7 @@ std::string MuonGeometrySanityCheckPoint::detName() const {
       CSCDetId id(detector);
       output << "ME" << (id.endcap() == 1 ? "+" : "-") << id.station() << "/" << id.ring() << "/" << id.chamber() << "/" << id.layer();
    }
-   else assert(false);
+   else { assert(false); }
    return output.str();
 }
 
@@ -571,8 +571,8 @@ MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::EventSetup
 
       // convert the displacement vector into the chosen coordinate system and add it to the chamber's position
       GlobalPoint chamberPos;
-      if (dt) chamberPos = dtGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(0., 0., 0.));
-      else chamberPos = cscGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(0., 0., 0.));
+      if (dt) { chamberPos = dtGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(0., 0., 0.));
+      } else { chamberPos = cscGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(0., 0., 0.)); }
 
       GlobalPoint result;
       if (point->frame == MuonGeometrySanityCheckPoint::kGlobal) {
@@ -580,21 +580,21 @@ MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::EventSetup
       }
 
       else if (point->frame == MuonGeometrySanityCheckPoint::kLocal) {
-	 if (dt) result = dtGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
-	 else result = cscGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+	 if (dt) { result = dtGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+	 } else { result = cscGeometry->idToDet(point->detector)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z())); }
       }
 
       else if (point->frame == MuonGeometrySanityCheckPoint::kChamber) {
 	 if (point->detector.subdetId() == MuonSubdetId::DT) {
 	    DTChamberId id(point->detector);
-	    if (dt) result = dtGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
-	    else result = cscGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+	    if (dt) { result = dtGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+	    } else { result = cscGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z())); }
 	 }
 	 else if (point->detector.subdetId() == MuonSubdetId::CSC) {
 	    CSCDetId cscid(point->detector);
 	    CSCDetId id(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber());
-	    if (dt) result = dtGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
-	    else result = cscGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+	    if (dt) { result = dtGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z()));
+	    } else { result = cscGeometry->idToDet(id)->surface().toGlobal(LocalPoint(point->displacement.x(), point->displacement.y(), point->displacement.z())); }
 	 }
 	 else { assert(false); }
       }
@@ -611,8 +611,8 @@ MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::EventSetup
 
       else if (point->outputFrame == MuonGeometrySanityCheckPoint::kLocal) {
         LocalPoint transformed;
-        if (dt) transformed = dtGeometry->idToDet(point->detector)->surface().toLocal(result);
-        else transformed = cscGeometry->idToDet(point->detector)->surface().toLocal(result);
+        if (dt) { transformed = dtGeometry->idToDet(point->detector)->surface().toLocal(result);
+        } else { transformed = cscGeometry->idToDet(point->detector)->surface().toLocal(result); }
         result = GlobalPoint(transformed.x(), transformed.y(), transformed.z());
       }
 
@@ -620,16 +620,16 @@ MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::EventSetup
 	 if (point->detector.subdetId() == MuonSubdetId::DT) {
 	    DTChamberId id(point->detector);
 	    LocalPoint transformed;
-	    if (dt) transformed = dtGeometry->idToDet(id)->surface().toLocal(result);
-	    else transformed = cscGeometry->idToDet(id)->surface().toLocal(result);
+	    if (dt) { transformed = dtGeometry->idToDet(id)->surface().toLocal(result);
+	    } else { transformed = cscGeometry->idToDet(id)->surface().toLocal(result); }
 	    result = GlobalPoint(transformed.x(), transformed.y(), transformed.z());
 	 }
 	 else if (point->detector.subdetId() == MuonSubdetId::CSC) {
 	    CSCDetId cscid(point->detector);
 	    CSCDetId id(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber());
 	    LocalPoint transformed;
-	    if (dt) transformed = dtGeometry->idToDet(id)->surface().toLocal(result);
-	    else transformed = cscGeometry->idToDet(id)->surface().toLocal(result);
+	    if (dt) { transformed = dtGeometry->idToDet(id)->surface().toLocal(result);
+	    } else { transformed = cscGeometry->idToDet(id)->surface().toLocal(result); }
 	    result = GlobalPoint(transformed.x(), transformed.y(), transformed.z());
 	 }
 	 else { assert(false); }

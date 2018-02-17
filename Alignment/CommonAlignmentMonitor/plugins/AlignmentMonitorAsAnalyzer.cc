@@ -112,7 +112,7 @@ AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& 
    for (std::vector<std::string>::const_iterator miter = monitors.begin();  miter != monitors.end();  ++miter) {
       AlignmentMonitorBase* newMonitor = AlignmentMonitorPluginFactory::get()->create(*miter, iConfig.getUntrackedParameter<edm::ParameterSet>(*miter));
 
-      if (!newMonitor) throw cms::Exception("BadConfig") << "Couldn't find monitor named " << *miter;
+      if (!newMonitor) { throw cms::Exception("BadConfig") << "Couldn't find monitor named " << *miter; }
 
       m_monitors.push_back(newMonitor);
    }

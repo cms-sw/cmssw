@@ -21,7 +21,7 @@ AlignableChi2(0.), AlignableNdof(0)
   treename = "T9";
   treetxt = "HIP User Variables";
 
-  for (int i=0; i<nparmax*(nparmax+1)/2; ++i) Jtvj[i] = 0.;
+  for (int i=0; i<nparmax*(nparmax+1)/2; ++i) { Jtvj[i] = 0.; }
   for (int i=0; i<nparmax; ++i){
     Jtve[i] = 0.;
     Par[i] = 0.;
@@ -82,7 +82,7 @@ int HIPUserVariablesIORoot::findEntry(unsigned int detId, int comp){
   // now we have filled the map
   treemaptype::iterator imap = treemap.find(std::make_pair(detId, comp));
   int result=-1;
-  if (imap != treemap.end()) result=(*imap).second;
+  if (imap != treemap.end()) { result=(*imap).second; }
   return result;
 
 
