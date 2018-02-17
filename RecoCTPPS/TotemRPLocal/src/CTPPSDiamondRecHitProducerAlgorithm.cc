@@ -52,8 +52,8 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const CTPPSGeometry* geom, const edm
       rec_hits.push_back( CTPPSDiamondRecHit( x_pos, x_width, y_pos, y_width, z_pos, z_width, // spatial information
                                               ( t0 * ts_to_ns_ ),
                                               ( tot * ts_to_ns_),
-                                              time_slice,
                                               0., // time precision
+                                              time_slice,
                                               digi.getHPTDCErrorFlags(),
                                               digi.getMultipleHit() ) );
     }
