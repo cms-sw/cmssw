@@ -338,21 +338,26 @@ def miniAOD_customizeCommon(process):
     for idmod in photon_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False,task)
 
-    #---------------------------------------------------------------------------
-    #Adding  Boosted Subjets taus
+    #-- Adding boosted taus
     from RecoTauTag.Configuration.boostedHPSPFTaus_cfi import addBoostedTaus
     addBoostedTaus(process)
-    #---------------------------------------------------------------------------
-    #Adding tau reco for 80X legacy reMiniAOD
-    #make a copy of makePatTauTask to avoid labels and substitution problems
-    _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
-    #add PFTau reco modules to cloned makePatTauTask
     process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
-    _makePatTausTaskWithTauReReco.add(process.PFTauTask)
-    #replace original task by extended one for the miniAOD_80XLegacy era
+    process.load("RecoTauTag.Configuration.HPSPFTaus_cff")
+    #-- Adding customization for 94X 2017 legacy reMniAOD
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    _makePatTausTaskWithRetrainedMVATauID = process.makePatTausTask.copy()
+    _makePatTausTaskWithRetrainedMVATauID.add(process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask)
+    run2_miniAOD_94XFall17.toReplaceWith(
+        process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
+        )
+    #-- Adding customization for 80X 2016 legacy reMiniAOD
     from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    _makePatTausTaskWithTauReReco = process.makePatTausTask.copy()
+    _makePatTausTaskWithTauReReco.add(process.PFTauTask)
     run2_miniAOD_80XLegacy.toReplaceWith(
-        process.makePatTausTask, _makePatTausTaskWithTauReReco)
+        process.makePatTausTask, _makePatTausTaskWithTauReReco
+        )
+    
     # Adding puppi jets
     if not hasattr(process, 'ak4PFJetsPuppi'): #MM: avoid confilct with substructure call
         process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
