@@ -159,6 +159,7 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
   MonitorElement* ugmtMuonBXvshwChargeValid;
   MonitorElement* ugmtMuonBXvshwQual;
   MonitorElement* ugmtMuonBXvshwIso;
+  MonitorElement* ugmtMuonChargevsLink;
 
   // muon correlations
   MonitorElement* ugmtMuMuInvMass;
