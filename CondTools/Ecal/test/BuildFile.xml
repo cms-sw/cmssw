@@ -21,6 +21,5 @@
   <test name="EcalTPGCrystalStatus_O2O_test" command="EcalTPGCrystalStatus_O2O_test.sh"/>
   <test name="EcalTPGTowerStatus_O2O_test" command="EcalTPGTowerStatus_O2O_test.sh"/>
   <test name="EcalADCToGeV_update_test" command="EcalADCToGeV_update_test.sh"/>
-  <test name="EcalIntercalib_update_test" command="EcalIntercalib_update_test.sh"/>
   <test name="EcalIntercalibConstants_O2O_test" command="EcalIntercalibConstants_O2O_test.sh"/>
 </architecture>
