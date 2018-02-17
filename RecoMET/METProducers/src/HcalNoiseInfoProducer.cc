@@ -861,6 +861,8 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
   for(HBHERecHitCollection::const_iterator it=handle->begin(); it!=handle->end(); ++it) {
     const HBHERecHit &rechit=(*it);
 
+    if((rechit.auxPhase1()>>26)&1) continue; // Jae
+
     // skip bad rechits (other than those flagged by the isolated noise, triangle, flat, and spike algorithms)
     const DetId id = rechit.idFront();
 
