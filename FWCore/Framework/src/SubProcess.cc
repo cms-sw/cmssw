@@ -467,7 +467,7 @@ namespace edm {
     std::map<ProcessHistoryID, ProcessHistoryID>::const_iterator it = parentToChildPhID_.find(parentPhID);
     assert(it != parentToChildPhID_.end());
     auto const& childPhID = it->second;
-    schedule_->writeRun(principalCache_.runPrincipal(childPhID, runNumber), &processContext_);
+    schedule_->writeRun(principalCache_.runPrincipal(childPhID, runNumber), &processContext_, actReg_.get());
     for_all(subProcesses_, [&childPhID, runNumber](auto& subProcess){ subProcess.writeRun(childPhID, runNumber); });
   }
 
@@ -526,7 +526,7 @@ namespace edm {
   SubProcess::writeLumi(LuminosityBlockPrincipal& principal) {
     ServiceRegistry::Operate operate(serviceToken_);
     auto l =inUseLumiPrincipals_[principal.index()];
-    schedule_->writeLumi(*l, &processContext_);
+    schedule_->writeLumi(*l, &processContext_, actReg_.get());
     for_all(subProcesses_, [l](auto& subProcess){ subProcess.writeLumi(*l); });
   }
 

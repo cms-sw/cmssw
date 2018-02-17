@@ -991,14 +991,22 @@ namespace edm {
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::openFile, _1, std::cref(fb)));
   }
 
-  void Schedule::writeRun(RunPrincipal const& rp, ProcessContext const* processContext) {
+  void Schedule::writeRun(RunPrincipal const& rp,
+                          ProcessContext const* processContext,
+                          ActivityRegistry* activityRegistry) {
     using std::placeholders::_1;
-    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::writeRun, _1, std::cref(rp), processContext));
+    for_all(all_output_communicators_,
+            std::bind(&OutputModuleCommunicator::writeRun, _1, std::cref(rp),
+                      processContext, activityRegistry));
   }
 
-  void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp, ProcessContext const* processContext) {
+  void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp,
+                           ProcessContext const* processContext,
+                           ActivityRegistry* activityRegistry) {
     using std::placeholders::_1;
-    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::writeLumi, _1, std::cref(lbp), processContext));
+    for_all(all_output_communicators_,
+            std::bind(&OutputModuleCommunicator::writeLumi, _1,
+                      std::cref(lbp), processContext, activityRegistry));
   }
 
   bool Schedule::shouldWeCloseOutput() const {
