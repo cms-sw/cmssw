@@ -1,4 +1,4 @@
-1;2cimport subprocess
+import subprocess
 import json
 import netrc
 import sqlite3
