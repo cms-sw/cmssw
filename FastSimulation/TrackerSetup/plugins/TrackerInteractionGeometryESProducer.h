@@ -12,9 +12,8 @@ class  TrackerInteractionGeometryESProducer: public edm::ESProducer{
  public:
   TrackerInteractionGeometryESProducer(const edm::ParameterSet & p);
   ~TrackerInteractionGeometryESProducer() override; 
-  std::shared_ptr<TrackerInteractionGeometry> produce(const TrackerInteractionGeometryRecord &);
+  std::unique_ptr<TrackerInteractionGeometry> produce(const TrackerInteractionGeometryRecord &);
  private:
-  std::shared_ptr<TrackerInteractionGeometry> _tracker;
   std::string _label;
   edm::ParameterSet theTrackerMaterial;
 };
