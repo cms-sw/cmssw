@@ -1,4 +1,4 @@
-import subprocess
+1;2cimport subprocess
 import json
 import netrc
 import sqlite3
@@ -8,7 +8,7 @@ import shutil
 import logging
 from datetime import datetime
 
-dbName = 'popcon'
+dbName = datetime.datetime.utcnow().strftime('%Y-%m-%d_%H-%M-%S-%f')
 dbFileName = '%s.db' %dbName
 dbFileForDropBox = dbFileName
 dbLogFile = '%s_log.db' %dbName
