@@ -74,41 +74,29 @@ namespace edm {
   }
 
 
-  void setRefCoreStreamer(bool resetAll) {
+  void setRefCoreStreamerInTClass() {
+
+    TClass *cl = TClass::GetClass("edm::RefCore");
+    TClassStreamer *st = cl->GetStreamer();
+    if (st == nullptr) {
+      cl->AdoptStreamer(new RefCoreStreamer());
+    }
     {
-      TClass *cl = TClass::GetClass("edm::RefCore");
+      TClass *cl = TClass::GetClass("edm::RefCoreWithIndex");
       TClassStreamer *st = cl->GetStreamer();
       if (st == nullptr) {
-        cl->AdoptStreamer(new RefCoreStreamer());
-      }
-      {
-        TClass *cl = TClass::GetClass("edm::RefCoreWithIndex");
-        TClassStreamer *st = cl->GetStreamer();
-        if (st == nullptr) {
-          cl->AdoptStreamer(new RefCoreWithIndexStreamer());
-        }
+        cl->AdoptStreamer(new RefCoreWithIndexStreamer());
       }
     }
+  }
+
+  void setRefCoreStreamer(bool) {
     EDProductGetter::switchProductGetter(nullptr);
   }
 
   EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep) {
     EDProductGetter const* returnValue=nullptr;
     if (ep != nullptr) {
-      {
-        TClass *cl = TClass::GetClass("edm::RefCore");
-        TClassStreamer *st = cl->GetStreamer();
-        if (st == nullptr) {
-          cl->AdoptStreamer(new RefCoreStreamer());
-        }
-      }
-      {
-        TClass *cl = TClass::GetClass("edm::RefCoreWithIndex");
-        TClassStreamer *st = cl->GetStreamer();
-        if (st == nullptr) {
-          cl->AdoptStreamer(new RefCoreWithIndexStreamer());
-        }
-      }
       returnValue = edm::EDProductGetter::switchProductGetter(ep);
     }
     return returnValue;
