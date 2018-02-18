@@ -11,9 +11,8 @@ class  MagneticFieldMapESProducer: public edm::ESProducer{
  public:
   MagneticFieldMapESProducer(const edm::ParameterSet & p);
   ~MagneticFieldMapESProducer() override; 
-  std::shared_ptr<MagneticFieldMap> produce(const MagneticFieldMapRecord &);
+  std::unique_ptr<MagneticFieldMap> produce(const MagneticFieldMapRecord &);
  private:
-  std::shared_ptr<MagneticFieldMap> _map;
   std::string _label;
 };
 
