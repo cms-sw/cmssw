@@ -357,7 +357,7 @@ Status TBBSession::Run(const RunOptions& run_options,
                           std::vector<Tensor>* outputs,
                           RunMetadata* run_metadata) {
   TF_RETURN_IF_ERROR(CheckNotClosed());
-  direct_session_runs->GetCell()->IncrementBy(1);
+  tbb_session_runs->GetCell()->IncrementBy(1);
   {
     mutex_lock l(graph_def_lock_);
     if (!graph_created_) {
