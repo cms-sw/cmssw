@@ -221,7 +221,7 @@ run2_HE_2017.toModify( es_hardcode, useHEUpgrade = cms.bool(True), HEreCalibCuto
 run2_HEPlan1_2017.toModify( es_hardcode, testHEPlan1 = cms.bool(True), useHEUpgrade = cms.bool(False), HEreCalibCutoff = cms.double(20.0) )
 
 run2_HCAL_2018.toModify( es_hardcode, useLayer0Weight = cms.bool(True), useIeta18depth1 = cms.bool(False) )
-run3_HB.toModify( es_hardcode, useHBUpgrade = cms.bool(True), HBreCalibCutoff = cms.double(100.0),  useIeta18depth1 = cms.bool(True)  )
+run3_HB.toModify( es_hardcode, useHBUpgrade = cms.bool(True), HBreCalibCutoff = cms.double(100.0) )
 # now that we have an emap
 run3_HB.toModify( es_hardcode, toGet = cms.untracked.vstring(_toGet_noEmap),  )
 
