@@ -77,7 +77,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(const auto& track : l1Tracks){
     if(track.pt() > settings_->vx_TrackMinPt() ){
       if(track.pt() < 50 or track.getNumStubs() > 5 )
-				l1TrackPtrs.push_back(&track);
+        l1TrackPtrs.push_back(&track);
     }
   }
 
@@ -149,8 +149,8 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       map<edm::Ptr< TrackingParticle >, const TP* > translateTP;
       for (const TP& tp : inputData.getTPs()) {
-				TrackingParticlePtr tpPtr(tp);
-				translateTP[tpPtr] = &tp;
+        TrackingParticlePtr tpPtr(tp);
+        translateTP[tpPtr] = &tp;
       }
 
       edm::Handle<TTStubAssMap>    mcTruthTTStubHandle;
@@ -159,15 +159,15 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle );
 
       for(const auto& track : l1TracksHandle->ptrs())
-				l1Tracks.push_back(L1fittedTrack(track, *settings_, trackerGeometryHandle.product(), trackerTopologyHandle.product(), translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle, inputData.getStubGeoDetIdMap()));
+        l1Tracks.push_back(L1fittedTrack(track, *settings_, trackerGeometryHandle.product(), trackerTopologyHandle.product(), translateTP, mcTruthTTStubHandle, mcTruthTTClusterHandle, inputData.getStubGeoDetIdMap()));
     }
 
     std::vector<const L1fittedTrack*> l1TrackPtrs;
     l1TrackPtrs.reserve(l1Tracks.size());
     for(const auto& track : l1Tracks){
       if(track.pt() > settings_->vx_TrackMinPt() ){
-				if(track.pt() < 50 or track.getNumStubs() > 5 )
-					l1TrackPtrs.push_back(&track);
+        if(track.pt() < 50 or track.getNumStubs() > 5 )
+          l1TrackPtrs.push_back(&track);
       }
     }
 
@@ -188,9 +188,9 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (printResults_) {
       std::cout << vf.numVertices() << " vertices were found ... " << std::endl;
       for (const auto& vtx : vf.Vertices()) {
-				std::cout << "  * z0 = " << vtx.z0() << "; contains " << vtx.numTracks() << " tracks ..." <<  std::endl;
-				for (const auto& trackPtr : vtx.tracks())
-					std::cout << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt() << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0() << std::endl;
+        std::cout << "  * z0 = " << vtx.z0() << "; contains " << vtx.numTracks() << " tracks ..." <<  std::endl;
+        for (const auto& trackPtr : vtx.tracks())
+          std::cout << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt() << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0() << std::endl;
       }
     }
   }
@@ -208,7 +208,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
-void VertexProducer::endJob() 
+void VertexProducer::endJob()
 {
   hists_->endJobAnalysis();
 }
