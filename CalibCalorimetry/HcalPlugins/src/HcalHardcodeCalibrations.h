@@ -113,5 +113,6 @@ private:
   bool setHEdsegm;
   bool setHBdsegm;
   bool useLayer0Weight;
+  bool useIeta18depth1;
 };
 
