@@ -91,9 +91,6 @@ def myrootsubmit(cfgfile):
     print('   ... executed \'' + command + '\'');
 
 def downloadfile(url):
-    os.system('setenv X509_CERT_DIR $HOME/.globus')
-    os.system('setenv X509_USER_PROXY /tmp/x509up_u'+new_userparams.UnixId)
-
     print('   + Downloading "' + url + '"...')
     #os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+url)
     stream = os.popen('/usr/bin/curl -k -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY -w "%{http_code}" '+ url)
@@ -219,8 +216,11 @@ if ((new_userparams.NewParams['GetFilesFrom']=='GUI')|(new_userparams.RefParams[
     if os.getenv('X509_USER_PROXY','') == '':
         print "ERROR: It seems you did not configure your environment to be able"
         print "       to download files from the GUI. Your should follow these steps:"
-        print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.csh"
-        print " > voms-proxy-init"
+        print " > source /cvmfs/cms.cern.ch/crab3/crab.csh"
+        print " > voms-proxy-init --voms cms"
+        print " > setenv X509_CERT_DIR $HOME/.globus"
+        print " > setenv X509_USER_PROXY /tmp/x509up_uVWXYZ (where VWXYZ = your unix Id on lxplus)"
+        print " >  or similarly for bash shell"
         quit()
 
 if (new_userparams.NewParams['FastSim']|new_userparams.RefParams['FastSim']):

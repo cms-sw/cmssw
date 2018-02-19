@@ -25,7 +25,6 @@ WebRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Valida
 
 # User enabled to write in the afs area
 User='giovanni'
-UnixId='19424'
 
 #
 # Information about the new release
