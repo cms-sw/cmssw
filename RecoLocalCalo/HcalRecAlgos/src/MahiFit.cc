@@ -268,7 +268,12 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
 			       FullSampleMatrix &pulseCov) const {
   
   float t0=meanTime_;
-  if (applyTimeSlew_) t0+=hcalTimeSlewDelay_->delay(std::max(1.0, itQ), slewFlavor_);
+
+  if(applyTimeSlew_) {
+    if(itQ<=1.0) t0+=TSdelay1GeV_;
+    else t0+=hcalTimeSlewDelay_->delay(itQ,slewFlavor_);
+  }
+
 
   nnlsWork_.pulseN.fill(0);
   nnlsWork_.pulseM.fill(0);
@@ -479,10 +484,12 @@ double MahiFit::calculateChiSq() const {
 
 void MahiFit::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps,const HcalTimeSlew* hcalTimeSlewDelay) {
 
-  hcalTimeSlewDelay_ = hcalTimeSlewDelay;
-
   if (!(&ps == currentPulseShape_ ))
     {
+
+      hcalTimeSlewDelay_ = hcalTimeSlewDelay;
+      TSdelay1GeV_= hcalTimeSlewDelay->delay(1.0, slewFlavor_);
+
       resetPulseShapeTemplate(ps);
       currentPulseShape_ = &ps;
     }

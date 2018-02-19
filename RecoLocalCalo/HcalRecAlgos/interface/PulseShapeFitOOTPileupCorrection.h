@@ -42,6 +42,7 @@ public:
 
     const HcalPulseShapes::Shape* currentPulseShape_=nullptr;
     const HcalTimeSlew* hcalTimeSlewDelay_=nullptr;
+    double TSdelay1GeV_=0;
 
     void setChi2Term( bool isHPD );
 
