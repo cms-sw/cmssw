@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "FWCore/Utilities/interface/EDGetToken.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -19,6 +19,9 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+
+
 /**
    \class   MonitorEnsemble TopDQMHelpers.h
    "DQM/Physics/interface/TopDQMHelpers.h"
@@ -130,6 +133,8 @@ class MonitorEnsemble {
 
   /// electronId label
   edm::EDGetTokenT<edm::ValueMap<float> > electronId_;
+  edm::EDGetTokenT<reco::JetCorrector> mJetCorrector;
+
   /// electronId pattern we expect the following pattern:
   ///  0: fails
   ///  1: passes electron ID only
@@ -144,9 +149,12 @@ class MonitorEnsemble {
   // int eidPattern_;
   // the cut for the MVA Id
   double eidCutValue_;
-  /// extra isolation criterion on electron
-  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > elecIso_;
+	// electron ISO things
+
+	edm::InputTag rhoTag;
+
   /// extra selection on electrons
+
   std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > elecSelect_;
 
   /// extra selection on primary vertices; meant to investigate the pile-up
@@ -161,13 +169,15 @@ class MonitorEnsemble {
 
   /// jetCorrector
   std::string jetCorrector_;
+
   /// jetID as an extra selection type
   edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
-  /// extra jetID selection on calo jets
+
   std::unique_ptr<StringCutObjectSelector<reco::JetID> > jetIDSelect_;
-  /// extra selection on jets (here given as std::string as it depends
-  /// on the the jet type, which selections are valid and which not)
+  /// extra selection on jets 
   std::string jetSelect_;
+	std::unique_ptr<StringCutObjectSelector<reco::PFJet> > jetlooseSelection_;
+	std::unique_ptr<StringCutObjectSelector<reco::PFJet> > jetSelection_;
   /// include btag information or not
   /// to be determined from the cfg
   bool includeBTag_;
