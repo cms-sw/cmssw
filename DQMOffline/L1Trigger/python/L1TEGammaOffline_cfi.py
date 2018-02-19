@@ -41,7 +41,7 @@ l1tEGammaOfflineDQM = cms.EDAnalyzer(
 
     stage2CaloLayer2EGammaSource=cms.InputTag("caloStage2Digis", "EGamma"),
 
-    histFolder=cms.string('L1T/L1TEGamma'),
+    histFolder=cms.string('L1T/L1TObjects/L1TEGamma/L1TriggerVsReco'),
 
     electronEfficiencyThresholds=cms.vdouble(electronEfficiencyThresholds),
     electronEfficiencyBins=cms.vdouble(electronEfficiencyBins),
@@ -89,5 +89,5 @@ ppRef_2017.toModify(
 l1tEGammaOfflineDQMEmu = l1tEGammaOfflineDQM.clone(
     stage2CaloLayer2EGammaSource=cms.InputTag("simCaloStage2Digis"),
 
-    histFolder=cms.string('L1TEMU/L1TEGamma'),
+    histFolder=cms.string('L1TEMU/L1TObjects/L1TEGamma/L1TriggerVsReco'),
 )
