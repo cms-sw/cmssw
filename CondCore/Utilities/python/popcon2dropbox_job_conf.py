@@ -3,6 +3,11 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import popcon2dropbox
 
 options = VarParsing.VarParsing()
+options.register('targetFile',
+                'popcon.db',
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                "the target sqlite file name")
 options.register('destinationDatabase',
                 '',
                 VarParsing.VarParsing.multiplicity.singleton,
@@ -23,11 +28,10 @@ def setup_popcon( recordName, tagTimeType ):
                                     )
                           )
 
-    sqliteConnect = 'sqlite:%s' %popcon2dropbox.dbFileForDropBox
+    sqliteConnect = 'sqlite:%s' %options.targetFile
     process = cms.Process("PopCon")
     process.load("CondCore.CondDB.CondDB_cfi")
     process.CondDB.DBParameters.messageLevel = cms.untracked.int32( 3 )
-    #process.CondDB.connect = 'sqlite:%s' %popcon2dropbox.dbFileForDropBox
 
     process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                               DBParameters = cms.PSet( messageLevel = cms.untracked.int32( 3 ),
