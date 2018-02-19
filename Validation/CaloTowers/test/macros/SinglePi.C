@@ -256,8 +256,8 @@ void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
      f1_prof[7]->SetMinimum(0.);
      f1_prof[8]->SetMinimum(0.);
      f1_prof[6]->SetMaximum(20.); 
-     f1_prof[7]->SetMaximum(80.);
-     f1_prof[8]->SetMaximum(80.);
+     f1_prof[7]->SetMaximum(60.);
+     f1_prof[8]->SetMaximum(60.);
    }
 
 
