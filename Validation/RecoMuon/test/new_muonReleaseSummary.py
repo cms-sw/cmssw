@@ -353,8 +353,4 @@ for sample in new_userparams.samples :
         if(new_userparams.Publish_rootfile):            
             os.system('scp -r '+newpath+'/val.*.root '+new_userparams.User+'@lxplus.cern.ch:' + newdir)
 
-        os.system('cp '+newdir+'/../../../index.php '+newdir)
-        os.system('cp '+newdir+'/../../../index.php '+newdir+'/..')
-        os.system('cp '+newdir+'/../../../index.php '+newdir+'/../..')
-
         print('New path is ' + newlocalsample + ' and ' + newpath)
