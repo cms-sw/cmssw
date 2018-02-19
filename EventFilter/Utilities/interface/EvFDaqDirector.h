@@ -128,7 +128,7 @@ namespace evf{
 
     private:
       bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, int maxLS);
-      void openFULockfileStream(std::string& fuLockFilePath, bool create);
+      void openFULockfileStream(bool create);
       std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
       std::string outputFileNameStem(const unsigned int ls, std::string const& stream) const;
       std::string mergedFileNameStem(const unsigned int ls, std::string const& stream) const;
@@ -153,6 +153,7 @@ namespace evf{
       std::string run_dir_;
       std::string bu_run_dir_;
       std::string bu_run_open_dir_;
+      std::string fulockfile_;
 
       int bu_readlock_fd_;
       int bu_writelock_fd_;
