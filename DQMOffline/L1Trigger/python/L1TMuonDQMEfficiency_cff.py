@@ -38,7 +38,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQMOffline.L1Trigger.L1TMuonDQMOffline_cfi import ptQualCuts, ptQualCuts_HI
 
 l1tMuonDQMEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs = cms.untracked.vstring("L1T/L1TMuon/"),
+    subDirs = cms.untracked.vstring("L1T/L1TObjects/L1TMuon/L1TriggerVsReco/"),
     efficiency = cms.vstring(),
     efficiencyProfile = cms.untracked.vstring(generateEfficiencyStrings(ptQualCuts)),
     resolution = cms.vstring(),
