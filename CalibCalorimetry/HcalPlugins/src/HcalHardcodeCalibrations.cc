@@ -152,6 +152,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   dbHardcode.setSiPMCharacteristics(iConfig.getParameter<std::vector<edm::ParameterSet>>("SiPMCharacteristics"));
 
   useLayer0Weight = iConfig.getParameter<bool>("useLayer0Weight");
+  useIeta18depth1 = iConfig.getParameter<bool>(" useIeta18depth1");
   // HB, HE, HF recalibration preparation
   iLumi=iConfig.getParameter<double>("iLumi");
 
@@ -458,8 +459,18 @@ std::unique_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQual
   auto result = std::make_unique<HcalChannelQuality>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalChannelStatus item(cell->rawId(),0);
-    result->addValues(item);
+
+    HcalChannelStatus item;
+
+    if( (!useIeta18depth1) && (HcalDetId(*cell).depth()==1 && HcalDetId(*cell).ietaAbs()==18)) {
+      HcalChannelStatus item(cell->rawId(),0x8002);  // dead cell
+      result->addValues(item);
+    }
+    else {
+      HcalChannelStatus item(cell->rawId(),0);
+      result->addValues(item);
+    }
+
   }
   return result;
 }
@@ -883,6 +894,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc.add<bool>("testHEPlan1",false);
 	desc.add<bool>("killHE",false);
 	desc.add<bool>("useLayer0Weight",false);
+        desc.add<bool>("useIeta18depth1",true);
 	desc.addUntracked<std::vector<std::string> >("toGet",std::vector<std::string>());
 	desc.addUntracked<bool>("fromDDD",false);
 
