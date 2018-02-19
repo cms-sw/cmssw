@@ -106,8 +106,6 @@ private:
     std::vector<MonitorElement*>  Charge_Vs_PathlengthTECM1; /*!< Charge vs pathlength in TECP thin */
     std::vector<MonitorElement*>  Charge_Vs_PathlengthTECM2; /*!< Charge vs pathlength in TECP thick */
 
-    
-
     unsigned int NEvent;    
     unsigned int NTrack;
     unsigned int NClusterStrip;
