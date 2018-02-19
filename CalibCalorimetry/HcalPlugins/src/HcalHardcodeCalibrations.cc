@@ -152,7 +152,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   dbHardcode.setSiPMCharacteristics(iConfig.getParameter<std::vector<edm::ParameterSet>>("SiPMCharacteristics"));
 
   useLayer0Weight = iConfig.getParameter<bool>("useLayer0Weight");
-  useIeta18depth1 = iConfig.getParameter<bool>(" useIeta18depth1");
+  useIeta18depth1 = iConfig.getParameter<bool>("useIeta18depth1");
   // HB, HE, HF recalibration preparation
   iLumi=iConfig.getParameter<double>("iLumi");
 
