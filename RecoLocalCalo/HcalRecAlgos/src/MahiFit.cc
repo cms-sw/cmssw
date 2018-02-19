@@ -61,10 +61,6 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
   if (channelData.hasTimeInfo()) nnlsWork_.dt=timeSigmaSiPM_;
   else nnlsWork_.dt=timeSigmaHPD_;
 
-  //Dark current value for this channel (SiPM only)
-  float darkCurrent =  getSiPMDarkCurrent(channelData.darkCurrent(), 
-					  channelData.fcByPE(),
-					  channelData.lambda());
 
   //Average pedestal width (for covariance matrix constraint)
   float pedVal = 0.25*( channelData.tsPedestalWidth(0)*channelData.tsPedestalWidth(0)+
@@ -91,7 +87,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     //Dark current (for SiPMs)
     double noiseDC=0;
     if(channelData.hasTimeInfo() && !channelData.hasEffectivePedestals() && (charge-ped)>channelData.tsPedestalWidth(iTS)) {
-      noiseDC = darkCurrent;
+      noiseDC = getSiPMDarkCurrent(channelData.darkCurrent(),channelData.fcByPE(),channelData.lambda());
     }
 
     //Photostatistics
