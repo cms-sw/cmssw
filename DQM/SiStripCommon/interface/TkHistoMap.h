@@ -15,8 +15,9 @@ class TkHistoMap{
   typedef std::vector<MonitorElement*> tkHistoMapVect;
 
  public:
-  TkHistoMap(const TkDetMap* tkDetMap, DQMStore::IBooker & ibooker, const std::string& path, const std::string& MapName, float baseline=0, bool mechanicalView=false);
+  TkHistoMap(const TkDetMap* tkDetMap, DQMStore::IBooker& ibooker, const std::string& path, const std::string& MapName, float baseline=0, bool mechanicalView=false);
   TkHistoMap(const TkDetMap* tkDetMap, const std::string& path, const std::string& MapName, float baseline=0, bool mechanicalView=false);
+  TkHistoMap(const TkDetMap* tkDetMap, const std::string& path, const std::string& MapName, float baseline, bool mechanicalView, bool isTH2F);
   TkHistoMap(const TkDetMap* tkDetMap);
   ~TkHistoMap(){};
 
@@ -46,21 +47,26 @@ class TkHistoMap{
   void saveAsCanvas(const std::string& filename, const std::string& options="", const std::string& mode="RECREATE");
 
  private:
+ 
+  void load(const TkDetMap* tkDetMap, const std::string& path, float baseline, bool mechanicalView, bool isTH2F, bool createTkMap = true);
 
-  //fixme: keep single method
   void createTkHistoMap(const std::string& path, const std::string& MapName, float baseline, bool mechanicalView);
-  void createTkHistoMap(DQMStore::IBooker & ibooker , const std::string& path, const std::string& MapName, float baseline, bool mechanicalView);
 
-  std::string folderDefinition(std::string path, const std::string& MapName, int layer , bool mechanicalView, std::string& fullName);
+  std::string folderDefinition(std::string folder, const std::string& MapName, int layer , bool mechanicalView,std::string& fullName );
 
-  DQMStore* dqmStore_;
-  const TkDetMap* tkdetmap_;
-  DetId cached_detid;
-  int16_t cached_layer;
-  TkLayerMap::XYbin cached_XYbin;
-  std::vector<MonitorElement*> tkHistoMap_;
-  int HistoNumber;
-  std::string MapName_;
+  DQMStore*                     dqmStore_{nullptr};
+  DQMStore::IBooker*            ibooker_{nullptr};
+  DQMStore::IGetter*            igetter_{nullptr};
+  
+  
+  const TkDetMap*               tkdetmap_;
+  DetId                         cached_detid;
+  int16_t                       cached_layer;
+  TkLayerMap::XYbin             cached_XYbin;
+  std::vector<MonitorElement*>  tkHistoMap_;
+  int                           HistoNumber;
+  std::string                   MapName_;
+  bool                          isTH2F_;
 };
 
 #endif
