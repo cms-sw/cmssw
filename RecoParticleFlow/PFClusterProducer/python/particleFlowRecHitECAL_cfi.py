@@ -21,7 +21,7 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
                   cms.PSet(
                   name = cms.string("PFRecHitQTestECALMultiThreshold"),
                   thresholds = particle_flow_zero_suppression_ECAL.thresholds,
-                  applySelectionsToAllCrystals = cms.bool(False)
+                  applySelectionsToAllCrystals = cms.bool(True)
                   ),
                   cms.PSet(
                   name = cms.string("PFRecHitQTestECAL"),
@@ -40,7 +40,7 @@ particleFlowRecHitECAL = cms.EDProducer("PFRecHitProducer",
                  cms.PSet(
                  name = cms.string("PFRecHitQTestECALMultiThreshold"),
                  thresholds = particle_flow_zero_suppression_ECAL.thresholds,
-                 applySelectionsToAllCrystals = cms.bool(False)
+                 applySelectionsToAllCrystals = cms.bool(True)
                  ),
                  cms.PSet(
                  name = cms.string("PFRecHitQTestECAL"),
