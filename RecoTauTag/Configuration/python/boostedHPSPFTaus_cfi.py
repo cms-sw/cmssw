@@ -14,6 +14,14 @@ def addBoostedTaus(process):
     process.PATTauSequence = cms.Sequence(process.PFTau+process.makePatTaus+process.selectedPatTaus)
     process.PATTauSequenceBoosted = cloneProcessingSnippet(process,process.PATTauSequence, "Boosted", addToTask = True)
     process.recoTauAK4PFJets08RegionBoosted.src = cms.InputTag('boostedTauSeeds')
+    _allModifiers = cms.VPSet()
+    for modifier in process.combinatoricRecoTausBoosted.modifiers:
+        _allModifiers.append(modifier)
+    process.combinatoricRecoTausBoosted.modifiers.remove(process.combinatoricRecoTausBoosted.modifiers[3])
+    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    for era in [ run2_miniAOD_80XLegacy, run2_miniAOD_94XFall17]:
+        era.toModify(process.combinatoricRecoTausBoosted, modifiers = _allModifiers)
     process.recoTauAK4PFJets08RegionBoosted.pfCandSrc = cms.InputTag('particleFlow')
     process.recoTauAK4PFJets08RegionBoosted.pfCandAssocMapSrc = cms.InputTag('boostedTauSeeds', 'pfCandAssocMapForIsolation')
     process.ak4PFJetsLegacyHPSPiZerosBoosted.jetSrc = cms.InputTag('boostedTauSeeds')
