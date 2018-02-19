@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-laserTask = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+laserTask = DQMEDAnalyzer(
 	"LaserTask",
 	
 	#	standard parameters
