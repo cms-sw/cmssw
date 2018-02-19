@@ -144,6 +144,7 @@ class MahiFit
 
   bool applyTimeSlew_; 
   HcalTimeSlew::BiasSetting slewFlavor_;
+  double TSdelay1GeV_=0;
 
   float meanTime_;
   float timeSigmaHPD_; 
