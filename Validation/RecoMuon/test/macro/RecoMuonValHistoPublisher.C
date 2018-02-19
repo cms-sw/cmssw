@@ -5,7 +5,7 @@
 
 /////
 // Uncomment the following line to get more debuggin output
-#define DEBUG
+// #define DEBUG
 
 void RecoMuonValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="REF_FILE") {
   cout << ">> Starting RecoMuonValHistoPublisher(" << newFile << "," << refFile << ")..." << endl;
