@@ -64,12 +64,14 @@ class CaloParticleDebugger : public edm::one::EDAnalyzer<>  {
       edm::InputTag simVertices_;
       edm::InputTag trackingParticles_;
       edm::InputTag caloParticles_;
+      edm::InputTag simClusters_;
       std::vector<edm::InputTag> collectionTags_;
       edm::EDGetTokenT<std::vector<SimTrack> > simTracksToken_;
       edm::EDGetTokenT<std::vector<reco::GenParticle> > genParticlesToken_;
       edm::EDGetTokenT<std::vector<SimVertex> > simVerticesToken_;
       edm::EDGetTokenT<std::vector<TrackingParticle> > trackingParticlesToken_;
       edm::EDGetTokenT<std::vector<CaloParticle> > caloParticlesToken_;
+      edm::EDGetTokenT<std::vector<SimCluster>> simClustersToken_;
       std::vector<edm::EDGetTokenT<std::vector<PCaloHit> > > collectionTagsToken_;
       // ----------member data ---------------------------
 };
@@ -91,6 +93,7 @@ CaloParticleDebugger::CaloParticleDebugger(const edm::ParameterSet& iConfig)
   simVertices_(iConfig.getParameter<edm::InputTag>("simVertices")),
   trackingParticles_(iConfig.getParameter<edm::InputTag>("trackingParticles")),
   caloParticles_(iConfig.getParameter<edm::InputTag>("caloParticles")),
+  simClusters_(iConfig.getParameter<edm::InputTag>("simClusters")),
   collectionTags_(iConfig.getParameter<std::vector<edm::InputTag> >("collectionTags")) {
   edm::ConsumesCollector&& iC = consumesCollector();
   simTracksToken_ = iC.consumes<std::vector<SimTrack> >(simTracks_);
@@ -98,6 +101,7 @@ CaloParticleDebugger::CaloParticleDebugger(const edm::ParameterSet& iConfig)
   simVerticesToken_ = iC.consumes<std::vector<SimVertex> >(simVertices_);
   trackingParticlesToken_ = iC.consumes<std::vector<TrackingParticle> >(trackingParticles_);
   caloParticlesToken_ = iC.consumes<std::vector<CaloParticle> >(caloParticles_);
+  simClustersToken_ = iC.consumes<std::vector<SimCluster> >(simClusters_);
   for (auto const & collectionTag : collectionTags_) {
     collectionTagsToken_.push_back(iC.consumes<std::vector<PCaloHit> >(collectionTag));
   }
@@ -124,6 +128,7 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<std::vector<SimVertex> > simVerticesH;
   edm::Handle<std::vector<TrackingParticle> > trackingParticlesH;
   edm::Handle<std::vector<CaloParticle> > caloParticlesH;
+  edm::Handle<std::vector<SimCluster> > simClustersH;
 
   iEvent.getByToken(simTracksToken_, simTracksH);
   auto const & tracks = *simTracksH.product();
@@ -170,6 +175,15 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
        end(sorted_cp_idx), [&calopart](int i, int j){
        return calopart.at(i).eta() < calopart.at(j).eta();});
 
+  iEvent.getByToken(simClustersToken_, simClustersH);
+  auto const & simclusters = *simClustersH.product();
+  std::vector<int> sorted_simcl_idx(simclusters.size());
+  iota(begin(sorted_simcl_idx),
+       end(sorted_simcl_idx), 0);
+  sort(begin(sorted_simcl_idx),
+       end(sorted_simcl_idx), [&simclusters](int i, int j){
+       return simclusters.at(i).eta() < simclusters.at(j).eta();});
+
   // Let's first fill in hits information
   std::map<int, float> detIdToTotalSimEnergy;
   fillSimHits(detIdToTotalSimEnergy, iEvent, iSetup);
@@ -212,12 +226,26 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   idx = 0;
   for (auto i : sorted_cp_idx) {
     auto const & cp = calopart.at(i);
-    std::cout << idx++ << " |Eta|: " << std::abs(cp.momentum().eta())
+    std::cout << "\n\n" << idx++ << " |Eta|: " << std::abs(cp.momentum().eta())
               << "\tType: " << cp.pdgId()
-              << "\tEnergy: " << cp.energy() << "\t" << std::endl; // << cp << std::endl;
+              << "\tEnergy: " << cp.energy()
+              << "\tIdx: " << cp.g4Tracks()[0].trackId() << std::endl; // << cp << std::endl;
     double total_sim_energy = 0.;
     double total_cp_energy = 0.;
     std::cout << "--> Overall simclusters's size: " << cp.simClusters().size() << std::endl;
+    // All the next mess just to print the simClusters ordered
+    auto const & simcs = cp.simClusters();
+    std::vector<int> sorted_sc_idx(simcs.size());
+    iota(begin(sorted_sc_idx), end(sorted_sc_idx), 0);
+    sort(begin(sorted_sc_idx),
+        end(sorted_sc_idx),
+        [&simcs] (int i, int j) {
+        return simcs.at(i)->momentum().eta() < simcs.at(j)->momentum().eta();
+        });
+    for (auto i : sorted_sc_idx) {
+      std::cout <<  *(simcs.at(i));
+    }
+
     for (auto const & sc : cp.simClusters()) {
       for (auto const & cl : sc->hits_and_fractions()) {
         total_sim_energy += detIdToTotalSimEnergy[cl.first]*cl.second;
@@ -226,6 +254,23 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     }
     std::cout << "--> Overall SC energy (sum using sim energies): " << total_sim_energy << std::endl;
     std::cout << "--> Overall SC energy (sum using CaloP energies): " << total_cp_energy << std::endl;
+  }
+
+  idx = 0;
+  std::cout << "Printing SimClusters information" << std::endl;
+  for (auto i : sorted_simcl_idx) {
+    auto const & simcl = simclusters.at(i);
+    std::cout << "\n\n" << idx++ << " |Eta|: " << std::abs(simcl.momentum().eta())
+              << "\tType: " << simcl.pdgId()
+              << "\tEnergy: " << simcl.energy()
+              << "\tKey: " << i << std::endl; // << simcl << std::endl;
+    double total_sim_energy = 0.;
+    std::cout << "--> Overall simclusters's size: " << simcl.numberOfRecHits() << std::endl;
+    for (auto const & cl : simcl.hits_and_fractions()) {
+      total_sim_energy += detIdToTotalSimEnergy[cl.first]*cl.second;
+    }
+    std::cout << simcl << std::endl;
+    std::cout << "--> Overall SimCluster energy (sum using sim energies): " << total_sim_energy << std::endl;
   }
 }
 
@@ -304,6 +349,7 @@ CaloParticleDebugger::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"));
   desc.add<edm::InputTag>("trackingParticles", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
+  desc.add<edm::InputTag>("simClusters", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<std::vector<edm::InputTag> >("collectionTags",
       { edm::InputTag("g4SimHits", "HGCHitsEE"),
         edm::InputTag("g4SimHits", "HGCHitsHEfront"),
