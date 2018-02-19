@@ -15,4 +15,5 @@
   <use   name="CommonTools/Utils"/>
   <use   name="CommonTools/ParticleFlow"/>
   <use   name="CalibFormats/HcalObjects"/>
+  <use   name="Geometry/HcalTowerAlgo"/>
 </library>
