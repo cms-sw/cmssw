@@ -88,10 +88,10 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     if (method2)
     {
         psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),
-                                               !info.hasTimeInfo(),info.nSamples());
+                                               !info.hasTimeInfo(),info.nSamples(),hcalTimeSlew_delay_);
         // "phase1Apply" call below sets m2E, m2t, useTriple, and chi2.
         // These parameters are pased by non-const reference.
-        method2->phase1Apply(info, m2E, m2t, useTriple, chi2, hcalTimeSlew_delay_);
+        method2->phase1Apply(info, m2E, m2t, useTriple, chi2);
         m2E *= hbminusCorrectionFactor(channelId, m2E, isData);
     }
 
@@ -113,8 +113,8 @@ HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
     const MahiFit* mahi = mahiOOTpuCorr_.get();
 
     if (mahi) {
-      mahiOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()));
-      mahi->phase1Apply(info,m4E,m4T,m4UseTriple,m4chi2,hcalTimeSlew_delay_);
+      mahiOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),hcalTimeSlew_delay_);
+      mahi->phase1Apply(info,m4E,m4T,m4UseTriple,m4chi2);
       m4E *= hbminusCorrectionFactor(channelId, m4E, isData);
     }
 
