@@ -17,13 +17,11 @@ Submit=True
 #
 # Should we publish the results?
 #
-#Publish=False
 Publish=True
 Publish_rootfile=False
 
 # + Location of the AFS place where to put the PDFs
-#WebRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
-WebRepository = '/afs/cern.ch/cms/POG/muon/test_NewValidation'
+WebRepository = '/afs/cern.ch/cms/Physics/muon/CMSSW/Performance/RecoMuon/Validation/val'
 
 # User enabled to write in the afs area
 User='giovanni'
@@ -48,8 +46,8 @@ NewParams = dict(
     #Condition='100X_mcRun2_asymptotic_v2',
 
     # 'no' if no pileup, otherwise set BX spacing
-    #PileUp='25ns',
-    PileUp='',      # for HeavyIons
+    PileUp='25ns',
+    #PileUp='',      # for HeavyIons
     #PileUp='no',
 
     Version='v1',
@@ -60,9 +58,10 @@ NewParams = dict(
     FastSim=False,
     #FastSim=True,
 
-    # for HeavyIons samples skip 
-    HeavyIons=True,
- 
+    # for HeavyIons samples (few folders are not there) 
+    HeavyIons=False,
+    #HeavyIons=True,
+
     # needed if you copy any root file from the DQM GUI.
     # See GetLabel function for more details
     Label='',
@@ -73,8 +72,8 @@ NewParams = dict(
     # * EOS: copy root files from Muon POG users area
     # By default, if the root files are already in the local area,
     # they won't be overwritten
-    #GetFilesFrom='GUI',
-    GetFilesFrom='EOS',
+    GetFilesFrom='GUI',
+    #GetFilesFrom='EOS',
 
     # Base URL of the DQM GUI repository
     #DqmGuiBaseRepo='https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/',
@@ -98,11 +97,11 @@ RefParams = dict(
     # Conditions for Special RelVals in CMSSW_10_0_0
     #
     #    FullSim NoPU in CMSSW_10_0_0
-    Condition='100X_upgrade2018_realistic_v6_muVal', 
+    #Condition='100X_upgrade2018_realistic_v6_muVal', 
     #Condition='100X_upgrade2018_realistic_v6_mahiON', #standard RelVals (v1 and v2)
     #
     #    FullSim PU25ns in CMSSW_10_0_0
-    #Condition='100X_upgrade2018_realistic_v6_muVal_resubwith4cores',
+    Condition='100X_upgrade2018_realistic_v6_muVal_resubwith4cores',
     #
     #    FastSim in CMSSW_10_0_0
     #Condition='100X_mcRun2_asymptotic_v2_muVal',
@@ -133,10 +132,10 @@ ValidateDQM  = True
 #           'RelValDisplacedSUSY_stopToBottom_M_300_1000mm_13']
 
 # For FullSim PU 25ns
-#samples = ['RelValZMM_13', 'RelValTTbar_13']
+samples = ['RelValZMM_13', 'RelValTTbar_13']
 
 # For HeavyIons FullSim
-samples = ['RelValZEEMM_13_HI']
+#samples = ['RelValZEEMM_13_HI']
 
 # For FastSim No PU
 #samples = ['RelValSingleMuPt10_UP15', 'RelValSingleMuPt100_UP15',
@@ -144,3 +143,4 @@ samples = ['RelValZEEMM_13_HI']
 
 # For FastSim PU 25ns
 #samples = ['RelValZMM_13','RelValTTbar_13']
+
