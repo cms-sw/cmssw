@@ -32,7 +32,7 @@ l1tTauOfflineDQM = cms.EDAnalyzer(
     trigProcess        = cms.untracked.string("HLT"),
     trigProcess_token  = cms.untracked.InputTag("TriggerResults","","HLT"),
 
-    histFolder=cms.string('L1T/L1TTau'),
+    histFolder=cms.string('L1T/L1TObjects/L1TTau/L1TriggerVsReco'),
 
     tauEfficiencyThresholds=cms.vint32(tauEfficiencyThresholds),
     tauEfficiencyBins=cms.vdouble(tauEfficiencyBins),
@@ -48,5 +48,5 @@ l1tTauOfflineDQM = cms.EDAnalyzer(
 l1tTauOfflineDQMEmu = l1tTauOfflineDQM.clone(
     stage2CaloLayer2TauSource=cms.InputTag("simCaloStage2Digis"),
 
-    histFolder=cms.string('L1TEMU/L1TTau'),
+    histFolder=cms.string('L1TEMU/L1TObjects/L1TTau/L1TriggerVsReco'),
 )
