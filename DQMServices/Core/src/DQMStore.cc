@@ -385,6 +385,16 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     ar.watchPostSourceLumi([this](edm::LuminosityBlockIndex){ forceReset(); });
   }
   ar.watchPostGlobalBeginLumi(this, &DQMStore::postGlobalBeginLumi);
+
+  // ACHTUNG: if DQMEDAnalyzers are migrated from EDAnalyzer to EDProducer<Accumulator>
+  // this callback should be removed, and the call to cloneLumiHistograms(...) should be 
+  // moved to the DQMEDAnalyzer::endLuminosityBlockProduce...() method.
+  ar.watchPostModuleGlobalEndLumi([this](edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
+      cloneLumiHistograms(
+        gc.luminosityBlockID().run(),
+        gc.luminosityBlockID().luminosityBlock(),
+        mcc.moduleDescription()->id());
+  });
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
