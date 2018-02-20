@@ -1,7 +1,7 @@
 /**  \class L3MuonCandidateProducerFromMuons
  * 
- *   This class takes the tracker muons (which are reco::Muons) 
- *   and creates the correspondent reco::RecoChargedCandidate.
+ *   This class takes reco::Muons and creates
+ *   the correspondent reco::RecoChargedCandidate.
  *
  */
 
