@@ -64,17 +64,10 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   //    Template is introduced to handle reco/pat photons and aod/miniAOD
   // PF candidates collections
   template <class T, class U>
-  float computeWorstPFChargedIsolationWithPVConstraint(const T& photon,
-				       const U& pfCandidates,
-				       const edm::Handle<reco::VertexCollection> vertices,
-				       bool isAOD, const reco::Vertex& pv,
-				       float dRmax, float dxyMax, float dzMax,
-				       float dRvetoBarrel, float dRvetoEndcap, float ptMin);
-  template <class T, class U>
   float computeWorstPFChargedIsolation(const T& photon,
 				       const U& pfCandidates,
 				       const edm::Handle<reco::VertexCollection> vertices,
-				       bool isAOD, const reco::Vertex& pv,
+				       bool isAOD, bool isPVConstraint,const reco::Vertex& pv,
 				       float dRmax, float dxyMax, float dzMax,
 				       float dRvetoBarrel, float dRvetoEndcap, float ptMin);
 
@@ -460,9 +453,10 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
     float dRvetoBarrel = 0.0;
     float dRvetoEndcap = 0.0;
     float ptMin = 0.0;
+    bool isPVConstraint=false;
     float worstChargedIso =
       computeWorstPFChargedIsolation(iPho, pfCandidatesHandle, vertices, 
-				     isAOD, pv,coneSizeDR, dxyMax, dzMax,
+				     isAOD, isPVConstraint,pv,coneSizeDR, dxyMax, dzMax,
 				     dRvetoBarrel, dRvetoEndcap, ptMin);
     phoWorstChargedIsolation .push_back( worstChargedIso );
 
@@ -473,13 +467,14 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
     ptMin = 0.1;
     float worstChargedIsoWithConeVeto =
       computeWorstPFChargedIsolation(iPho, pfCandidatesHandle, vertices, 
-				     isAOD, pv, coneSizeDR, dxyMax, dzMax,
+				     isAOD, isPVConstraint,pv, coneSizeDR, dxyMax, dzMax,
 				     dRvetoBarrel, dRvetoEndcap, ptMin);
     phoWorstChargedIsolationWithConeVeto .push_back( worstChargedIsoWithConeVeto );
 
+    isPVConstraint=true;
     float worstChargedIsoWithPVConstraint =
-      computeWorstPFChargedIsolationWithPVConstraint(iPho, pfCandidatesHandle, vertices, 
-				     isAOD, pv,coneSizeDR, dxyMax, dzMax,
+      computeWorstPFChargedIsolation(iPho, pfCandidatesHandle, vertices, 
+				     isAOD, isPVConstraint,pv,coneSizeDR, dxyMax, dzMax,
 				     dRvetoBarrel, dRvetoEndcap, ptMin);
     phoWorstChargedIsolationWithPVConstraint .push_back( worstChargedIsoWithPVConstraint );
 
@@ -489,8 +484,8 @@ void PhotonIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup
     dRvetoEndcap = 0.02;
     ptMin = 0.1;
     float worstChargedIsoWithConeVetoWithPVConstraint =
-      computeWorstPFChargedIsolationWithPVConstraint(iPho, pfCandidatesHandle, vertices, 
-				     isAOD, pv, coneSizeDR, dxyMax, dzMax,
+      computeWorstPFChargedIsolation(iPho, pfCandidatesHandle, vertices, 
+				     isAOD,isPVConstraint, pv, coneSizeDR, dxyMax, dzMax,
 				     dRvetoBarrel, dRvetoEndcap, ptMin);
     phoWorstChargedIsolationWithConeVetoWithPVConstraint .push_back( worstChargedIsoWithConeVetoWithPVConstraint );
 
@@ -549,7 +544,7 @@ template <class T, class U>
 float PhotonIDValueMapProducer
 ::computeWorstPFChargedIsolation(const T& photon, const U& pfCandidates,
 				 const edm::Handle<reco::VertexCollection> vertices,
-				 bool isAOD,const reco::Vertex& pv,
+				 bool isAOD, bool isPVConstraint,const reco::Vertex& pv,
 				 float dRmax, float dxyMax, float dzMax,
 				 float dRvetoBarrel, float dRvetoEndcap, float ptMin){
 
@@ -587,7 +582,8 @@ float PhotonIDValueMapProducer
 	continue;
       
       float dxy=-999, dz=-999;
-      getImpactParameters(iCand, isAOD, *vtx, dxy, dz);
+      if(isPVConstraint) getImpactParameters(iCand, isAOD, pv, dxy, dz);
+      else getImpactParameters(iCand, isAOD, *vtx, dxy, dz);
 
 
 
@@ -610,72 +606,6 @@ float PhotonIDValueMapProducer
   return worstIsolation;
 }
 
-// Charged isolation with respect to the worst vertex. See more
-// comments above at the function declaration. Here the impact parameter is Constraint to belong from the PV
-template <class T, class U>
-float PhotonIDValueMapProducer
-::computeWorstPFChargedIsolationWithPVConstraint(const T& photon, const U& pfCandidates,
-				 const edm::Handle<reco::VertexCollection> vertices,
-				 bool isAOD,const reco::Vertex& pv,
-				 float dRmax, float dxyMax, float dzMax,
-				 float dRvetoBarrel, float dRvetoEndcap, float ptMin){
-
-
-  float worstIsolation = 999;
-  std::vector<float> allIsolations;
-
-  float dRveto;
-  if (photon->isEB())
-    dRveto = dRvetoBarrel;
-  else
-    dRveto = dRvetoEndcap;
-
-  //Calculate isolation sum separately for each vertex
-  for(unsigned int ivtx=0; ivtx<vertices->size(); ++ivtx) {
-    
-    // Shift the photon according to the vertex
-    reco::VertexRef vtx(vertices, ivtx);
-    math::XYZVector photon_directionWrtVtx(photon->superCluster()->x() - vtx->x(),
-					   photon->superCluster()->y() - vtx->y(),
-					   photon->superCluster()->z() - vtx->z());
-    
-    float sum = 0;
-    // Loop over the PFCandidates
-    for(unsigned i=0; i<pfCandidates->size(); i++) {
-      
-      const auto& iCand = pfCandidates->ptrAt(i);
-
-      //require that PFCandidate is a charged hadron
-      reco::PFCandidate::ParticleType thisCandidateType = candidatePdgId(iCand, isAOD);
-      if (thisCandidateType != reco::PFCandidate::h) 
-	continue;
-
-      if (iCand->pt() < ptMin)
-	continue;
-      
-      float dxy=-999, dz=-999;
-      getImpactParameters(iCand, isAOD, pv, dxy, dz);
-
-
-
-      if( fabs(dxy) > dxyMax) continue;
-      if ( fabs(dz) > dzMax) continue;
-      
-      float dR2 = deltaR2(photon_directionWrtVtx.Eta(), photon_directionWrtVtx.Phi(), 
-                          iCand->eta(),      iCand->phi());
-      if(dR2 > dRmax*dRmax || dR2 < dRveto*dRveto) continue;
-      
-      sum += iCand->pt();
-    }
-
-    allIsolations.push_back(sum);
-  }
-
-  if( !allIsolations.empty() )
-    worstIsolation = * std::max_element( allIsolations.begin(), allIsolations.end() );
-  
-  return worstIsolation;
-}
 
 reco::PFCandidate::ParticleType
 PhotonIDValueMapProducer::candidatePdgId(const edm::Ptr<reco::Candidate> candidate, 
