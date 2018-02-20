@@ -52,7 +52,8 @@ process.TrackerInteractionGeometryESProducer.TrackerMaterial.TrackerMaterialVers
 
 
 #process.testME = cms.EDFilter(
-process.testME = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.testME = DQMEDAnalyzer(
    "testMaterialEffects",
 
     # Full, Fast radii and lengths for plots

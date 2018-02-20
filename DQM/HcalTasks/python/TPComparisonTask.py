@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-tpComparisonTask = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+tpComparisonTask = DQMEDAnalyzer(
 	"TPComparisonTask",
 
 	name = cms.untracked.string("TPComparisonTask"),

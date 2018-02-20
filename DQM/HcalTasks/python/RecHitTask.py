@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-recHitTask = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+recHitTask = DQMEDAnalyzer(
 	"RecHitTask",
 	
 	#	standard parameters

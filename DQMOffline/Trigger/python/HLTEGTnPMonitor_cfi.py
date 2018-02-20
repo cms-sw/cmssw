@@ -851,7 +851,8 @@ egammaMuEleFiltersToMonitor= cms.VPSet(
         ),
 )
 
-egHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+egHLTDQMOfflineTnPSource = DQMEDAnalyzer("HLTEleTagAndProbeOfflineSource",
                                           tagAndProbeCollections = cms.VPSet(
         cms.PSet( 
             tagAndProbeConfigEle27WPTight,
@@ -875,7 +876,7 @@ egHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
         )
 )
 
-egHLTElePhoHighEtaDQMOfflineTnPSource = cms.EDAnalyzer("HLTElePhoTagAndProbeOfflineSource",
+egHLTElePhoHighEtaDQMOfflineTnPSource = DQMEDAnalyzer("HLTElePhoTagAndProbeOfflineSource",
                                                        tagAndProbeCollections = cms.VPSet(
         cms.PSet( 
             tagAndProbeElePhoHighEtaConfigEle27WPTight,
@@ -898,7 +899,7 @@ egHLTElePhoHighEtaDQMOfflineTnPSource = cms.EDAnalyzer("HLTElePhoTagAndProbeOffl
            
         )
                                                 )
-egHLTElePhoDQMOfflineTnPSource = cms.EDAnalyzer("HLTElePhoTagAndProbeOfflineSource",
+egHLTElePhoDQMOfflineTnPSource = DQMEDAnalyzer("HLTElePhoTagAndProbeOfflineSource",
                                                 tagAndProbeCollections = cms.VPSet(
         cms.PSet( 
             tagAndProbeElePhoConfigEle27WPTight,
@@ -922,7 +923,7 @@ egHLTElePhoDQMOfflineTnPSource = cms.EDAnalyzer("HLTElePhoTagAndProbeOfflineSour
         )
 )
 
-egHLTMuonEleDQMOfflineTnPSource = cms.EDAnalyzer("HLTMuEleTagAndProbeOfflineSource",
+egHLTMuonEleDQMOfflineTnPSource = DQMEDAnalyzer("HLTMuEleTagAndProbeOfflineSource",
                                                  tagAndProbeCollections = cms.VPSet(
         cms.PSet( 
             tagAndProbeMuonEleConfigIsoMu,
@@ -945,7 +946,7 @@ egHLTMuonEleDQMOfflineTnPSource = cms.EDAnalyzer("HLTMuEleTagAndProbeOfflineSour
            
         )
 )
-egHLTMuonPhoDQMOfflineTnPSource = cms.EDAnalyzer("HLTMuPhoTagAndProbeOfflineSource",
+egHLTMuonPhoDQMOfflineTnPSource = DQMEDAnalyzer("HLTMuPhoTagAndProbeOfflineSource",
                                                  tagAndProbeCollections = cms.VPSet(
         cms.PSet( 
             tagAndProbeMuonPhoConfigIsoMu,

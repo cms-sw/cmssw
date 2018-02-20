@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ExoticaDQM = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ExoticaDQM = DQMEDAnalyzer(
     "ExoticaDQM",
 
     #Trigger Results
