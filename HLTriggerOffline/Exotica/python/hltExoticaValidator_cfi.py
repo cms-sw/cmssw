@@ -41,7 +41,8 @@ from HLTriggerOffline.Exotica.analyses.hltExoticaDSTJets_cff           import DS
 from HLTriggerOffline.Exotica.analyses.hltExoticaDSTMuons_cff          import DSTMuonsPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaTracklessJets_cff     import TracklessJetsPSet
 
-hltExoticaValidator = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltExoticaValidator = DQMEDAnalyzer(
 
     "HLTExoticaValidator",
 		

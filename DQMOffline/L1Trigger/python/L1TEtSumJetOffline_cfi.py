@@ -41,7 +41,8 @@ httEfficiencyBins.extend(list(xrange(200, 400, 20)))
 httEfficiencyBins.extend(list(xrange(400, 500, 50)))
 httEfficiencyBins.extend(list(xrange(500, 601, 10)))
 
-l1tEtSumJetOfflineDQM = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tEtSumJetOfflineDQM = DQMEDAnalyzer(
     "L1TStage2CaloLayer2Offline",
     electronCollection=cms.InputTag("gedGsfElectrons"),
     caloJetCollection=cms.InputTag("ak4CaloJets"),

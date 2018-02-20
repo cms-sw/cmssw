@@ -13,7 +13,8 @@ tauEfficiencyBins.extend(list(xrange(300, 400, 50)))
 tauEfficiencyBins.extend(list(xrange(400, 600, 100)))
 tauEfficiencyBins.extend(list(xrange(600, 1200, 200)))
 
-l1tTauOfflineDQM = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tTauOfflineDQM = DQMEDAnalyzer(
     "L1TTauOffline",
     verbose   = cms.untracked.bool(False),
 

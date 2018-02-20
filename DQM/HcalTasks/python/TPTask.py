@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 fgbits = [1 for x in range(5)]
 fgbits.append(0)
 
-tpTask = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+tpTask = DQMEDAnalyzer(
 	"TPTask",
 	
 	#	standard parameters

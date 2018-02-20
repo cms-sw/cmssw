@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tStage2Bmtf = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tStage2Bmtf = DQMEDAnalyzer(
     "L1TStage2BMTF",
     bmtfSource = cms.InputTag("bmtfDigis", "BMTF"),
 #    bmtfSourceTwinMux1 = cms.InputTag("BMTFStage2Digis", "TheDigis"),
