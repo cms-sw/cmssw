@@ -1,0 +1,144 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tobrod4l.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+	</ConstantsSection>
+	<LogicalPartSection label="tobrod4l.xml">
+		<LogicalPart name="TOBRod4L" category="unspecified">
+			<rSolid name="tobrodpar:TOBRodL"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TOBRodCentral4L" category="unspecified">
+			<rSolid name="tobrodpar:TOBRodCentralL"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="tobrod4l.xml">
+		<PosPart copyNumber="1">
+			<rParent name="tobrod4l:TOBRod4L"/>
+			<rChild name="tobrod4l:TOBRodCentral4L"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="track:DDTOBRodAlgo">
+		<rParent name="tobrod4l:TOBRod4L"/>
+		<Numeric name="Shift" value="([tobrodpar:RodL]-[tobrodpar:RodDL])/2"/>
+		<String name="CentralName" value="tobrod4l:TOBRodCentral4L"/>
+		<Vector name="SideRodName" type="string" nEntries="2">
+			tobrodpar:TOBSideRod1, tobrodpar:TOBSideRod2
+		</Vector>
+		<Vector name="SideRodX" type="numeric" nEntries="2">
+			-[tobrodpar:SideRodX],  [tobrodpar:SideRodX]
+		</Vector>
+		<Vector name="SideRodY" type="numeric" nEntries="2">
+			-[tobrodpar:RodY],      [tobrodpar:RodY]
+		</Vector>
+		<Vector name="SideRodZ" type="numeric" nEntries="2">
+			[zero],               -[tobrodpar:RodDL]
+		</Vector>
+		<String name="EndRod1Name" value="tobrodpar:TOBEndRod1"/>
+		<Vector name="EndRod1Y" type="numeric" nEntries="2">
+			-[tobrodpar:RodY],      [tobrodpar:RodY]
+		</Vector>
+		<Vector name="EndRod1Z" type="numeric" nEntries="2">
+			-[tobrodpar:EndRod1Z], -[tobrodpar:EndRod1Z]
+		</Vector>
+		<String name="EndRod2Name" value="tobrodpar:TOBEndRod2"/>
+		<Numeric name="EndRod2Y" value="[tobrodpar:EndRod2Y]"/>
+		<Numeric name="EndRod2Z" value="-[tobrodpar:EndRod2Z]"/>
+		<String name="CableName" value="tobrodpar:TOBCable"/>
+		<Numeric name="CableZ" value="-[tobrodpar:CableZ]"/>
+		<String name="ClampName" value="tobrodpar:TOBClamp"/>
+		<Vector name="ClampX" type="numeric" nEntries="4">
+			-[tobrodpar:ClampX],  -[tobrodpar:ClampX],   [tobrodpar:ClampX],
+			[tobrodpar:ClampX]
+		</Vector>
+		<Vector name="ClampZ" type="numeric" nEntries="4">
+			-[tobrodpar:ClampZ1], -[tobrodpar:ClampZ2], -[tobrodpar:ClampZ1],
+			-[tobrodpar:ClampZ2]
+		</Vector>
+		<String name="SideCoolName" value="tobrod4c:TOBSideCoolTube4"/>
+		<Vector name="SideCoolX" type="numeric" nEntries="2">
+			-[tobrodpar:SideCoolX],  [tobrodpar:SideCoolX]
+		</Vector>
+		<Vector name="SideCoolY" type="numeric" nEntries="2">
+			[tobrodpar:SideCoolY],  [tobrodpar:SideCoolY]
+		</Vector>
+		<Vector name="SideCoolZ" type="numeric" nEntries="2">
+			-[tobrodpar:SideCoolZ], -[tobrodpar:SideCoolZ]
+		</Vector>
+		<String name="EndCoolName" value="tobrod4c:TOBEndCoolTube4"/>
+		<String name="EndCoolRot" value="tobrodpar:90XD"/>
+		<Numeric name="EndCoolY" value="[tobrodpar:EndCoolY]"/>
+		<Numeric name="EndCoolZ" value="-[tobrodpar:EndCoolZ]"/>
+		<String name="OptFibreName" value="tobrod4c:TOBOptFibre4"/>
+		<Vector name="optFibreX" type="numeric" nEntries="2">
+			-[tobrodpar:OptFibreX],  [tobrodpar:OptFibreX]
+		</Vector>
+		<Vector name="optFibreZ" type="numeric" nEntries="2">
+			-[tobrodpar:OptFibreZ], -[tobrodpar:OptFibreZ]
+		</Vector>
+		<String name="SideClamp1Name" value="tobrod4c:TOBPlate41"/>
+		<Vector name="SideClampX" type="numeric" nEntries="12">
+			-[tobrodpar:SideClampX],  [tobrodpar:SideClampX], -[tobrodpar:SideClampX],
+			[tobrodpar:SideClampX], -[tobrodpar:SideClampX],  [tobrodpar:SideClampX],
+			-[tobrodpar:SideClampX],  [tobrodpar:SideClampX], -[tobrodpar:SideClampX],
+			[tobrodpar:SideClampX], -[tobrodpar:SideClampX],  [tobrodpar:SideClampX]
+		</Vector>
+		<Vector name="SideClamp1DZ" type="numeric" nEntries="12">
+			-[tobrodpar:SideClamp1Z],-[tobrodpar:SideClamp1Z],-[tobrodpar:SideClamp1Z],
+			-[tobrodpar:SideClamp1Z], [tobrodpar:SideClamp1Z], [tobrodpar:SideClamp1Z],
+			[tobrodpar:SideClamp1Z], [tobrodpar:SideClamp1Z], [tobrodpar:SideClamp1Z],
+			[tobrodpar:SideClamp1Z], [tobrodpar:SideClamp1Z], [tobrodpar:SideClamp1Z]
+		</Vector>
+		<String name="SideClamp2Name" value="tobrod4c:TOBPlate42"/>
+		<Vector name="SideClamp2DZ" type="numeric" nEntries="12">
+			[tobrodpar:SideClamp2Z], [tobrodpar:SideClamp2Z], [tobrodpar:SideClamp2Z],
+			[tobrodpar:SideClamp2Z],-[tobrodpar:SideClamp2Z],-[tobrodpar:SideClamp2Z],
+			-[tobrodpar:SideClamp2Z],-[tobrodpar:SideClamp2Z],-[tobrodpar:SideClamp2Z],
+			-[tobrodpar:SideClamp2Z],-[tobrodpar:SideClamp2Z],-[tobrodpar:SideClamp2Z]
+		</Vector>
+		<String name="ModuleName" value="tobmodule4:TOBModule4"/>
+		<Vector name="ModuleRot" type="string" nEntries="6">
+			tobrodpar:NULL, tobrodpar:R180, tobrodpar:180D,
+			tobrodpar:180X, tobrodpar:180D, tobrodpar:180X</Vector>
+		<Vector name="ModuleY" type="numeric" nEntries="6">
+			[tobrodpar:ModuleY], -[tobrodpar:ModuleY],  [tobrodpar:ModuleY],
+			-[tobrodpar:ModuleY],  [tobrodpar:ModuleY], -[tobrodpar:ModuleY]
+		</Vector>
+		<Vector name="ModuleZ" type="numeric" nEntries="6">
+			[tobrodpar:ModuleZ01], [tobrodpar:ModuleZ02], [tobrodpar:ModuleZ03],
+			[tobrodpar:ModuleZ04], [tobrodpar:ModuleZ05], [tobrodpar:ModuleZ06]
+		</Vector>
+		<Vector name="ICCName" type="string" nEntries="6">
+			tobrod4c:TOBRodConn4, tobrod4c:TOBCCUM4, tobrod4c:TOBICC42, 
+			tobrod4c:TOBICC42, tobrod4c:TOBICC41, tobrod4c:TOBICC41
+		</Vector>
+		<Vector name="ICCY" type="numeric" nEntries="6">
+			-[tobrodpar:ICCY1], -[tobrodpar:ICCY2],  [tobrodpar:ICCY1],
+			-[tobrodpar:ICCY1],  [tobrodpar:ICCY1], -[tobrodpar:ICCY1]
+		</Vector>
+		<Vector name="ICCZ" type="numeric" nEntries="6">
+			[tobrodpar:ICCZ01], [tobrodpar:ICCZ02], [tobrodpar:ICCZ03],
+			[tobrodpar:ICCZ04], [tobrodpar:ICCZ05], [tobrodpar:ICCZ06]
+		</Vector>
+		<String name="AOHName" value="tobrodpar:TOBAOH"/>
+		<Vector name="AOHCopies" type="numeric" nEntries="6">
+			0 , 0 , 2 , 2 , 1 , 1
+		</Vector>
+		<Vector name="AOHx" type="numeric" nEntries="6">
+			[zero] , [zero] ,
+			[tobrodpar:AOHx] , [tobrodpar:AOHx] ,
+			[tobrodpar:AOHx] , -[tobrodpar:AOHx]
+		</Vector>
+		<Vector name="AOHy" type="numeric" nEntries="6">
+			[zero] , [zero] ,
+			[tobrodpar:AOHy] , -[tobrodpar:AOHy] ,
+			[tobrodpar:AOHy] , -[tobrodpar:AOHy]
+		</Vector>
+		<Vector name="AOHz" type="numeric" nEntries="6">
+			[zero] , [zero] ,
+			[tobrodpar:AOHz] , -[tobrodpar:AOHz] ,
+			[zero] , [zero]
+		</Vector>
+	</Algorithm>
+</DDDefinition>
