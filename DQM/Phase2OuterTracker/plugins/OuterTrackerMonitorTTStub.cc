@@ -28,7 +28,6 @@
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQM/Phase2OuterTracker/interface/OuterTrackerMonitorTTStub.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -37,6 +36,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
+#include "OuterTrackerMonitorTTStub.h"
 
 //
 // constructors and destructor
@@ -480,13 +480,6 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
     Stub_Endcap_Ring_O_Bw[i]->setAxisTitle("Trigger Offset",2);
   }
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-OuterTrackerMonitorTTStub::endJob() 
-{
-}
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(OuterTrackerMonitorTTStub);

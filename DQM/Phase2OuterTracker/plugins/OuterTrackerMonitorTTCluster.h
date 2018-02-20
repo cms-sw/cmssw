@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -24,7 +24,6 @@ public:
   explicit OuterTrackerMonitorTTCluster(const edm::ParameterSet&);
   ~OuterTrackerMonitorTTCluster() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
  
   // TTCluster stacks
