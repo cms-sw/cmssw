@@ -43,6 +43,8 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
+#include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
+
 #include <vector>
 #include <memory>
 
@@ -55,6 +57,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
   relMiniIsoPUCorrected_(0),
   useUserData_(iConfig.exists("userData")),
   computeMuonMVA_(false),
+  computeSoftMuonMVA_(false),
   recomputeBasicSelectors_(false),
   mvaDrMax_(0),
   mvaUseJec_(false),
@@ -159,6 +162,15 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) :
     // xml training file
     edm::FileInPath fip(mvaTrainingFile_);
     mvaEstimator_.initialize(fip.fullPath(),mvaDrMax_);
+  }
+
+  computeSoftMuonMVA_ = iConfig.getParameter<bool>("computeSoftMuonMVA");
+  softMvaTrainingFile_ = iConfig.getParameter<std::string>("softMvaTrainingFile");
+
+  if(computeSoftMuonMVA_) {
+    // xml soft mva training file
+    edm::FileInPath softfip(softMvaTrainingFile_);
+    softMvaEstimator_.initialize(softfip.fullPath());
   }
 
   // MC info
@@ -554,6 +566,15 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	muon.setSelector(reco::Muon::MvaMedium, muon.mvaValue()>-0.20);
 	muon.setSelector(reco::Muon::MvaTight,  muon.mvaValue()> 0.15);
       }
+    }
+
+    //SOFT MVA
+    if (computeSoftMuonMVA_){
+      softMvaEstimator_.computeMva(muon);
+      muon.setSoftMvaValue(softMvaEstimator_.mva());
+      //preselection in SoftMuonMvaEstimator.cc
+      muon.setSelector(reco::Muon::SoftMvaId,  muon.softMvaValue() >   0.58  ); //WP choose for bmm4
+      
     }
   }
 
