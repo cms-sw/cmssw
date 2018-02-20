@@ -32,16 +32,17 @@ public:
 
   void addItem(unsigned int fedId, unsigned int linkId, const sipixelobjects::PixelROC& roc);
 
-  std::vector<sipixelobjects::CablingPathToDetUnit> pathToDetUnit(uint32_t rawDetId) const override;
+  std::vector<sipixelobjects::CablingPathToDetUnit> pathToDetUnit(uint32_t rawDetId) const final;
+  bool pathToDetUnitHasDetUnit(uint32_t rawDetId, unsigned int fedId) const final;
 
-  const sipixelobjects::PixelROC* findItem(const sipixelobjects::CablingPathToDetUnit & path) const override;  
+  const sipixelobjects::PixelROC* findItem(const sipixelobjects::CablingPathToDetUnit & path) const final;  
 
   const sipixelobjects::PixelROC* findItemInFed(const sipixelobjects::CablingPathToDetUnit & path, 
 						const PixelFEDCabling * aFed) const;  
 
 
-  std::unordered_map<uint32_t, unsigned int> det2fedMap() const override;
-  std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > det2PathMap() const override;
+  std::unordered_map<uint32_t, unsigned int> det2fedMap() const final;
+  std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > det2PathMap() const final;
 
 
   int checkNumbering() const;
