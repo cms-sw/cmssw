@@ -35,6 +35,7 @@ siPixelDigisGPU.UsePhase1 = cms.bool(False)
 ## Empty Regions PSet means complete unpacking
 siPixelDigisGPU.Regions = cms.PSet( )
 siPixelDigisGPU.CablingMapLabel = cms.string("")
+siPixelDigisGPU.enableErrorDebug = cms.bool(False)
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(siPixelDigis, UsePhase1=True)
