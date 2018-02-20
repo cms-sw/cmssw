@@ -1,0 +1,5 @@
+<use name="CondTools/Ecal"/>
+
+<architecture name="slc.*_amd64_.*">
+  <test name="EcalDAQ_O2O_test" command="EcalDAQ_O2O_test.sh"/>
+</architecture>
