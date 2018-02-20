@@ -153,6 +153,7 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
 
   useLayer0Weight = iConfig.getParameter<bool>("useLayer0Weight");
   useIeta18depth1 = iConfig.getParameter<bool>("useIeta18depth1");
+  testHEPlan1     = iConfig.getParameter<bool>("testHEPlan1");
   // HB, HE, HF recalibration preparation
   iLumi=iConfig.getParameter<double>("iLumi");
 
@@ -460,18 +461,33 @@ std::unique_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQual
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
 
-    HcalChannelStatus item;
+    // Special: removal of (non-instrumented) layer "-1"("nose") = depth 1 
+    // from Upgrade HE, either from  
+    // (i)  HEP17 sector in 2017 or 
+    // (ii) the entire HE rin=18 from 2018 through Run 3. 
+    // May require a revision  by 2021.
+ 
+    HcalDetId hid =  HcalDetId(*cell);    
+    int iphi    = hid.iphi();
+    int ieta    = hid.ieta();
+    int absieta = hid.ietaAbs();
+    int depth   = hid.depth();
 
-    if( (!useIeta18depth1) && (HcalDetId(*cell).depth()==1 && HcalDetId(*cell).ietaAbs()==18)) {
-      HcalChannelStatus item(cell->rawId(),0x8002);  // dead cell
-      result->addValues(item);
-    }
-    else {
-      HcalChannelStatus item(cell->rawId(),0);
-      result->addValues(item);
-    }
+    // specific HEP17 sector (2017 only) 
+    bool isHEP17 = (iphi >= 63) && (iphi <= 66) && (ieta > 0); 
+    // |ieta|=18, depth=1     
+    bool is18d1  = (absieta == 18) && (depth ==1);             
 
+    uint32_t status = 0;
+    
+    if( (!useIeta18depth1 && is18d1 ) &&       
+        ((testHEPlan1 && isHEP17) || (!testHEPlan1))) { 
+      status = 0x8002;  // dead cell
+    }
+    HcalChannelStatus item(cell->rawId(),status);
+    result->addValues(item);
   }
+
   return result;
 }
 
