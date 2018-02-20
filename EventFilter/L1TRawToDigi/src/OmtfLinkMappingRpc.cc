@@ -40,15 +40,12 @@ MapEleIndex2LBIndex translateOmtf2Pact(const RpcLinkMap & omtfLink2Ele, const RP
         const  std::vector<LinkBoardSpec> & lbs = it3.linkBoards();
         for (std::vector<LinkBoardSpec>::const_iterator it4=lbs.begin(); it4 != lbs.end(); ++it4) {
 
-          try {
-            std::string lbNameCH = it4->linkBoardName();
-            std::string lbName = lbNameCH.substr(0,lbNameCH.size()-4);
-            const std::vector<EleIndex> & omtfEles = omtfLink2Ele.omtfEleIndex(lbName);
-//          std::cout <<"  isOK ! " <<  it4->linkBoardName() <<" has: " << omtfEles.size() << " first: "<< omtfEles[0] << std::endl;
-            LinkBoardElectronicIndex rpcEle = { it1->id(), it2.dccInputChannelNum(), it3.triggerBoardInputNumber(), it4->linkBoardNumInLink()};
-            for ( const auto & omtfEle : omtfEles ) omtf2rpc[omtfEle]= rpcEle;
-          }
-          catch(...) { ; } // std::cout << "exception! "<<it4->linkBoardName()<< std::endl; }
+          std::string lbNameCH = it4->linkBoardName();
+          std::string lbName = lbNameCH.substr(0,lbNameCH.size()-4);
+          std::vector<EleIndex> omtfEles = omtfLink2Ele.omtfEleIndex(lbName);
+//        if (!omtfEles.empty()) std::cout <<"  isOK ! " <<  it4->linkBoardName() <<" has: " << omtfEles.size() << " first: "<< omtfEles[0] << std::endl;
+          LinkBoardElectronicIndex rpcEle = { it1->id(), it2.dccInputChannelNum(), it3.triggerBoardInputNumber(), it4->linkBoardNumInLink()};
+          for ( const auto & omtfEle : omtfEles ) omtf2rpc[omtfEle]= rpcEle;
         }
       }
     }
@@ -124,4 +121,11 @@ void RpcLinkMap::init(const std::string& fName) {
   }
   inFile.close();
 }
+
+std::vector<EleIndex> RpcLinkMap::omtfEleIndex ( const std::string& lbName) const { 
+    const auto pos = lbName2OmtfIndex.find(lbName);
+    return pos != lbName2OmtfIndex.end() ?  pos->second : std::vector<EleIndex>() ; 
+}
+
+
 }
