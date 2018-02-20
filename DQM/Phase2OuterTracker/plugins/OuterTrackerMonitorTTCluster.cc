@@ -25,7 +25,6 @@
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQM/Phase2OuterTracker/interface/OuterTrackerMonitorTTCluster.h"
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -34,6 +33,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
+#include "OuterTrackerMonitorTTCluster.h"
 
 //
 // constructors and destructor
@@ -369,12 +369,5 @@ OuterTrackerMonitorTTCluster::beginRun(const edm::Run& run, const edm::EventSetu
   Cluster_Endcap_Bw_RZ_Zoom->setAxisTitle("L1 Cluster Backward Endcap position #rho [cm]", 2);
                                   
 }//end of method
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-OuterTrackerMonitorTTCluster::endJob(void) 
-{
-	
-}
 
 DEFINE_FWK_MODULE(OuterTrackerMonitorTTCluster);

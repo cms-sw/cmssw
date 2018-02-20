@@ -25,14 +25,13 @@
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQM/Phase2OuterTracker/interface/OuterTrackerMonitorTTTrack.h"
-//#include "DataFormats/L1TrackTrigger/interface/TTTrack.h" // does not exist yet in 81X
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 
+#include "OuterTrackerMonitorTTTrack.h"
 //
 // constructors and destructor
 //
@@ -343,12 +342,5 @@ OuterTrackerMonitorTTTrack::beginRun(const edm::Run& run, const edm::EventSetup&
   Track_HQ_Chi2Red_NStubs->setAxisTitle("L1 Track #chi^{2}/ndf", 2);
   
 }//end of method
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-OuterTrackerMonitorTTTrack::endJob(void) 
-{
-	
-}
 
 DEFINE_FWK_MODULE(OuterTrackerMonitorTTTrack);
