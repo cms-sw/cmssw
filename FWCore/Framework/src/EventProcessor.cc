@@ -42,6 +42,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -69,6 +70,7 @@
 
 #include "boost/range/adaptor/reversed.hpp"
 
+#include <cassert>
 #include <exception>
 #include <iomanip>
 #include <iostream>
@@ -389,56 +391,47 @@ namespace edm {
     auto subProcessVParameterSet = popSubProcessVParameterSet(*parameterSet);
     bool const hasSubProcesses = !subProcessVParameterSet.empty();
 
+    // Validates the parameters in the 'options', 'maxEvents', 'maxLuminosityBlocks',
+    // and 'maxSecondsUntilRampdown' top level parameter sets. Default values are also
+    // set in here if the parameters were not explicitly set.
+    validateTopLevelParameterSets(parameterSet.get());
+
     // Now set some parameters specific to the main process.
-    ParameterSet const& optionsPset(parameterSet->getUntrackedParameterSet("options", ParameterSet()));
-    auto const& fileMode = optionsPset.getUntrackedParameter<std::string>("fileMode", "FULLMERGE");
-    if(fileMode != "NOMERGE" and fileMode != "FULLMERGE") {
+    ParameterSet const& optionsPset(parameterSet->getUntrackedParameterSet("options"));
+    auto const& fileMode = optionsPset.getUntrackedParameter<std::string>("fileMode");
+    if (fileMode != "NOMERGE" and fileMode != "FULLMERGE") {
         throw Exception(errors::Configuration, "Illegal fileMode parameter value: ")
         << fileMode << ".\n"
         << "Legal values are 'NOMERGE' and 'FULLMERGE'.\n";
     } else {
       fileModeNoMerge_ = (fileMode == "NOMERGE");
     }
-    forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun", false);
+    forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun");
+
     //threading
-    unsigned int nThreads=1;
-    if(optionsPset.existsAs<unsigned int>("numberOfThreads",false)) {
-      nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfThreads");
-      if(nThreads == 0) {
-        nThreads = 1;
-      }
+    unsigned int nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfThreads");
+
+    // Even if numberOfThreads was set to zero in the Python configuration, the code
+    // in cmsRun.cpp should have reset it to something else.
+    assert(nThreads != 0);
+
+    unsigned int nStreams = optionsPset.getUntrackedParameter<unsigned int>("numberOfStreams");
+    if (nStreams == 0) {
+      nStreams = nThreads;
     }
-    /* TODO: when we support having each stream run in a different thread use this default
-       unsigned int nStreams =nThreads;
-    */
-    unsigned int nStreams =1;
-    if(optionsPset.existsAs<unsigned int>("numberOfStreams",false)) {
-      nStreams = optionsPset.getUntrackedParameter<unsigned int>("numberOfStreams");
-      if(nStreams==0) {
-        nStreams = nThreads;
-      }
-    }
-    if(nThreads >1) {
+    if(nThreads > 1) {
       edm::LogInfo("ThreadStreamSetup") <<"setting # threads "<<nThreads<<"\nsetting # streams "<<nStreams;
     }
-
-    /*
-      bool nRunsSet = false;
-    */
-    unsigned int nConcurrentRuns =1;
-    /*
-      if(nRunsSet = optionsPset.existsAs<unsigned int>("numberOfConcurrentRuns",false)) {
-      nConcurrentRuns = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
-      }
-    */
-    unsigned int nConcurrentLumis =1;
-    
-    if(optionsPset.existsAs<unsigned int>("numberOfConcurrentLuminosityBlocks",false)) {
-      nConcurrentLumis = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
-    } else {
+    unsigned int nConcurrentRuns = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
+    if (nConcurrentRuns != 1) {
+      throw Exception(errors::Configuration, "Illegal value nConcurrentRuns : ")
+        << "Although the plan is to change this in the future, currently nConcurrentRuns must always be 1.\n";
+    }
+    unsigned int nConcurrentLumis = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
+    if (nConcurrentLumis == 0) {
       nConcurrentLumis = nConcurrentRuns;
     }
-    
+
     //Check that relationships between threading parameters makes sense
     /*
       if(nThreads<nStreams) {
@@ -451,9 +444,9 @@ namespace edm {
       //bad
       }
     */
-    IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
+    IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter"));
 
-    printDependencies_ =  optionsPset.getUntrackedParameter("printDependencies", false);
+    printDependencies_ =  optionsPset.getUntrackedParameter<bool>("printDependencies");
 
     // Now do general initialization
     ScheduleItems items;
