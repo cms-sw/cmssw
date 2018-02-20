@@ -45,9 +45,11 @@ void L1TStage2uGMTMuon::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
 
   ugmtMuonhwPhi = ibooker.book1D("ugmtMuonhwPhi", (titlePrefix+"#phi").c_str(), 576, -0.5, 575.5);
   ugmtMuonhwPhi->setAxisTitle("Hardware Phi", 1);
+  ugmtMuonhwPhi->getTH1F()->SetMinimum(0.0);
 
   ugmtMuonhwCharge = ibooker.book1D("ugmtMuonhwCharge", (titlePrefix+"Charge").c_str(), 2, -0.5, 1.5);
   ugmtMuonhwCharge->setAxisTitle("Hardware Charge", 1);
+  ugmtMuonhwCharge->getTH1F()->SetMinimum(0.0);
 
   ugmtMuonhwChargeValid = ibooker.book1D("ugmtMuonhwChargeValid", (titlePrefix+"ChargeValid").c_str(), 2, -0.5, 1.5);
   ugmtMuonhwChargeValid->setAxisTitle("ChargeValid", 1);
@@ -109,6 +111,7 @@ void L1TStage2uGMTMuon::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
 
     ugmtMuonhwPhiAtVtx = ibooker.book1D("ugmtMuonhwPhiAtVtx", (titlePrefix+"#phi at vertex").c_str(), 576, -0.5, 575.5);
     ugmtMuonhwPhiAtVtx->setAxisTitle("Hardware Phi at Vertex", 1);
+    ugmtMuonhwPhiAtVtx->getTH1F()->SetMinimum(0.0);
 
     ugmtMuonEtaAtVtx = ibooker.book1D("ugmtMuonEtaAtVtx", (titlePrefix+"#eta at vertex").c_str(), 100, -2.5, 2.5);
     ugmtMuonEtaAtVtx->setAxisTitle("#eta at Vertex", 1);
