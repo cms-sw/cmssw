@@ -114,5 +114,6 @@ private:
   bool setHBdsegm;
   bool useLayer0Weight;
   bool useIeta18depth1;
+  bool testHEPlan1;
 };
 
