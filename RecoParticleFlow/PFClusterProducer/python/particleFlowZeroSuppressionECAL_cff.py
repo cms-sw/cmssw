@@ -11,6 +11,16 @@ _pfZeroSuppressionThresholds_EEminus_2017 = [1.25023,   1.25033,   1.25047,   1.
                                              10,   10,   10,   10,   10,   10,   10,   10,   10 ]  # rings 200-208 (EE-) / 239-247 (EE+)
 _pfZeroSuppressionThresholds_EEplus_2017 = _pfZeroSuppressionThresholds_EEminus_2017
 
+
+# 
+# The three different set of thresholds will be used to study
+# possible new thresholds of pfrechits and effects on high level objects
+# The values proposed (A, B, C) are driven by expected noise levels
+# A ~ 0.5 sigma noise equivalent thresholds
+# B ~ 1.0 sigma noise equivalent thresholds
+# C ~ 2.0 sigma noise equivalent thresholds
+#
+
 # A
 _pfZeroSuppressionThresholds_EB_2018_A = [0.180]*170
 _pfZeroSuppressionThresholds_EEminus_2018_A = [0.22, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.34, 0.36, 0.36, 0.38, 0.38, 0.4, 0.44, 0.46, 0.5, 0.54, 0.58, 0.62, 0.68, 0.72, 0.78, 0.84, 0.9, 1.0, 1.14, 1.36, 1.68, 2.14, 2.8, 3.76, 5.1, 6.94, 9.46, 12.84, 17.3, 23.2, 30.8]
