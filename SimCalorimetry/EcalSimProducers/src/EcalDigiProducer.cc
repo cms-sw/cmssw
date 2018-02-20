@@ -552,17 +552,23 @@ EcalDigiProducer::accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle cons
 void
 EcalDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const& eventSetup) {
   // Step A: Get Inputs
-  edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
   edm::Handle<std::vector<PCaloHit> > ebHandle;
-  e.getByLabel(ebTag, ebHandle);
+  if(m_doEB) {
+    edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
+    e.getByLabel(ebTag, ebHandle);
+  }
 
-  edm::InputTag eeTag(m_hitsProducerTag, "EcalHitsEE");
   edm::Handle<std::vector<PCaloHit> > eeHandle;
-  e.getByLabel(eeTag, eeHandle);
+  if(m_doEE) {
+    edm::InputTag eeTag(m_hitsProducerTag, "EcalHitsEE");
+    e.getByLabel(eeTag, eeHandle);
+  }
 
-  edm::InputTag esTag(m_hitsProducerTag, "EcalHitsES");
   edm::Handle<std::vector<PCaloHit> > esHandle;
-  e.getByLabel(esTag, esHandle);
+  if(m_doES) {
+    edm::InputTag esTag(m_hitsProducerTag, "EcalHitsES");
+    e.getByLabel(esTag, esHandle);
+  }
 
   accumulateCaloHits(ebHandle, eeHandle, esHandle, 0, randomEngine(e.streamID()));
 }
@@ -570,17 +576,23 @@ EcalDigiProducer::accumulate(edm::Event const& e, edm::EventSetup const& eventSe
 void
 EcalDigiProducer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& eventSetup, edm::StreamID const& streamID) {
   // Step A: Get Inputs
-  edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
   edm::Handle<std::vector<PCaloHit> > ebHandle;
-  e.getByLabel(ebTag, ebHandle);
+  if(m_doEB) {
+    edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
+    e.getByLabel(ebTag, ebHandle);
+  }
 
-  edm::InputTag eeTag(m_hitsProducerTag, "EcalHitsEE");
   edm::Handle<std::vector<PCaloHit> > eeHandle;
-  e.getByLabel(eeTag, eeHandle);
+  if(m_doEE) {
+    edm::InputTag eeTag(m_hitsProducerTag, "EcalHitsEE");
+    e.getByLabel(eeTag, eeHandle);
+  }
 
-  edm::InputTag esTag(m_hitsProducerTag, "EcalHitsES");
   edm::Handle<std::vector<PCaloHit> > esHandle;
-  e.getByLabel(esTag, esHandle);
+  if(m_doES) {
+    edm::InputTag esTag(m_hitsProducerTag, "EcalHitsES");
+    e.getByLabel(esTag, esHandle);
+  }
 
   accumulateCaloHits(ebHandle, eeHandle, esHandle, e.bunchCrossing(), randomEngine(streamID));
 }
