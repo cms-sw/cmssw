@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -18,14 +18,13 @@
 
 class DQMStore;
 
-class OuterTrackerMonitorTTCluster : public edm::EDAnalyzer {
+class OuterTrackerMonitorTTCluster : public DQMEDAnalyzer {
 
 public:
   explicit OuterTrackerMonitorTTCluster(const edm::ParameterSet&);
   ~OuterTrackerMonitorTTCluster() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override; 
  
   // TTCluster stacks
   MonitorElement* Cluster_IMem_Barrel = nullptr;
@@ -50,7 +49,6 @@ public:
   MonitorElement* Cluster_Endcap_Bw_RZ_Zoom = nullptr;
 
  private:
-  DQMStore* dqmStore_;
   edm::ParameterSet conf_;
   edm::EDGetTokenT<edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > >  tagTTClustersToken_;
 

@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -18,14 +18,14 @@
 
 class DQMStore;
 
-class OuterTrackerMonitorTTStub : public edm::EDAnalyzer {
+class OuterTrackerMonitorTTStub : public DQMEDAnalyzer {
 
 public:
   explicit OuterTrackerMonitorTTStub(const edm::ParameterSet&);
   ~OuterTrackerMonitorTTStub() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override; 
+
  
   // TTStub stacks
   // * Global position of the stubs * //
@@ -62,7 +62,6 @@ public:
   MonitorElement* Stub_Endcap_Ring_O_Bw[5] = {nullptr, nullptr, nullptr, nullptr, nullptr}; // TTStub Offset (EC ring)
 
  private:
-  DQMStore* dqmStore_;
   edm::ParameterSet conf_;
   edm::EDGetTokenT<edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > > >  tagTTStubsToken_;
 
