@@ -63,9 +63,15 @@ def customiseFor2017DtUnpacking(process):
 
 
 
+# 
+# The three different set of thresholds will be used to study
+# possible new thresholds of pfrechits and effects on high level objects
+# The values proposed (A, B, C) are driven by expected noise levels
+#
+
+
 # particleFlowRechitECAL new default value "false" flag to be added
 def customiseForEcalTestPR22254Default(process):
-    from Configuration.Eras.Modifier_run2_ECAL_2017_cff import run2_ECAL_2017
 
     for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
         if hasattr(process,hltParticleFlowRecHitECAL):                                                 
@@ -159,5 +165,4 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-        
     return process
