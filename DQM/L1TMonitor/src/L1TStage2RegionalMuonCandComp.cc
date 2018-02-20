@@ -119,8 +119,10 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   muColl1hwEta->setAxisTitle("Hardware #eta", 1);
   muColl1hwPhi = ibooker.book1D("muHwPhiColl1", (muonColl1Title+" mismatching muon #phi"+trkAddrIgnoreText).c_str(), 256, -128.5, 127.5);
   muColl1hwPhi->setAxisTitle("Hardware #phi", 1);
+  muColl1hwPhi->getTH1F()->SetMinimum(0.0);
   muColl1hwSign = ibooker.book1D("muHwSignColl1", (muonColl1Title+" mismatching muon sign"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
   muColl1hwSign->setAxisTitle("Hardware sign", 1);
+  muColl1hwSign->getTH1F()->SetMinimum(0.0);
   muColl1hwSignValid = ibooker.book1D("muHwSignValidColl1", (muonColl1Title+" mismatching muon sign valid"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
   muColl1hwSignValid->setAxisTitle("Hardware sign valid", 1);
   muColl1hwQual = ibooker.book1D("muHwQualColl1", (muonColl1Title+" mismatching muon quality"+trkAddrIgnoreText).c_str(), 16, -0.5, 15.5);
@@ -154,8 +156,10 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   muColl2hwEta->setAxisTitle("Hardware #eta", 1);
   muColl2hwPhi = ibooker.book1D("muHwPhiColl2", (muonColl2Title+" mismatching muon #phi"+trkAddrIgnoreText).c_str(), 256, -128.5, 127.5);
   muColl2hwPhi->setAxisTitle("Hardware #phi", 1);
+  muColl2hwPhi->getTH1F()->SetMinimum(0.0);
   muColl2hwSign = ibooker.book1D("muHwSignColl2", (muonColl2Title+" mismatching muon sign"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
   muColl2hwSign->setAxisTitle("Hardware sign", 1);
+  muColl2hwSign->getTH1F()->SetMinimum(0.0);
   muColl2hwSignValid = ibooker.book1D("muHwSignValidColl2", (muonColl2Title+" mismatching muon sign valid"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
   muColl2hwSignValid->setAxisTitle("Hardware sign valid", 1);
   muColl2hwQual = ibooker.book1D("muHwQualColl2", (muonColl2Title+" mismatching muon quality"+trkAddrIgnoreText).c_str(), 16, -0.5, 15.5);
