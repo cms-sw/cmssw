@@ -467,26 +467,32 @@ std::unique_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQual
     // (ii) the entire HE rin=18 from 2018 through Run 3. 
     // May require a revision  by 2021.
  
-    HcalDetId hid =  HcalDetId(*cell);    
-    int iphi    = hid.iphi();
-    int ieta    = hid.ieta();
-    int absieta = hid.ietaAbs();
-    int depth   = hid.depth();
-
-    // specific HEP17 sector (2017 only) 
-    bool isHEP17 = (iphi >= 63) && (iphi <= 66) && (ieta > 0); 
-    // |ieta|=18, depth=1     
-    bool is18d1  = (absieta == 18) && (depth ==1);             
-
     uint32_t status = 0;
-    
-    if( (!useIeta18depth1 && is18d1 ) &&       
-        ((testHEPlan1 && isHEP17) || (!testHEPlan1))) { 
-      status = 0x8002;  // dead cell
+
+    if ( !(cell->isHcalZDCDetId())) {
+
+      HcalDetId hid =  HcalDetId(*cell);    
+      int iphi    = hid.iphi();
+      int ieta    = hid.ieta();
+      int absieta = hid.ietaAbs();
+      int depth   = hid.depth();
+
+      // specific HEP17 sector (2017 only) 
+      bool isHEP17 = (iphi >= 63) && (iphi <= 66) && (ieta > 0); 
+      // |ieta|=18, depth=1     
+      bool is18d1  = (absieta == 18) && (depth ==1);             
+            
+      if( (!useIeta18depth1 && is18d1 ) &&       
+	  ((testHEPlan1 && isHEP17) || (!testHEPlan1))) { 
+	status = 0x8002;  // dead cell
+      }
     }
+
     HcalChannelStatus item(cell->rawId(),status);
     result->addValues(item);
   }
+
+   
 
   return result;
 }
