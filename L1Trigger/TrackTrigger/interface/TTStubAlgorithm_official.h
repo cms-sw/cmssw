@@ -115,7 +115,6 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
 {
   private:
     /// Data members
-    std::shared_ptr< TTStubAlgorithm< T > > _theAlgo;
 
     /// Windows
     std::vector< double >                setBarrelCut;
@@ -159,7 +158,7 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
     ~ES_TTStubAlgorithm_official() override{}
 
     /// Implement the producer
-    std::shared_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
+    std::unique_ptr< TTStubAlgorithm< T > > produce( const TTStubAlgorithmRecord & record )
     { 
       edm::ESHandle< TrackerGeometry > tGeomHandle;
       record.getRecord< TrackerDigiGeometryRecord >().get( tGeomHandle );
@@ -172,8 +171,7 @@ class ES_TTStubAlgorithm_official : public edm::ESProducer
 									    setBarrelCut, setRingCut, setTiltedCut, setBarrelNTilt,
 									    mPerformZMatchingPS, mPerformZMatching2S);
 
-      _theAlgo = std::shared_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
-      return _theAlgo;
+      return std::unique_ptr< TTStubAlgorithm< T > >( TTStubAlgo );
     } 
 
 };
