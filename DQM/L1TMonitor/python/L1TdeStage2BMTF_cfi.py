@@ -5,7 +5,8 @@ ignoreBinsDeStage2Bmtf = [1]
 
 # compares the unpacked BMTF regional muon collection to the emulated BMTF regional muon collection
 # only muons that do not match are filled in the histograms
-l1tdeStage2Bmtf = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tdeStage2Bmtf = DQMEDAnalyzer(
     "L1TStage2RegionalMuonCandComp",
     regionalMuonCollection1 = cms.InputTag("bmtfDigis", "BMTF"),
     regionalMuonCollection2 = cms.InputTag("valBmtfDigis", "BMTF"),

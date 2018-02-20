@@ -5,7 +5,8 @@ from DQM.L1TMonitor.L1TStage2uGT_cfi import *
 
 # compares the unpacked uGMT muon collection to the unpacked uGT muon collection
 # only muons that do not match are filled in the histograms
-l1tStage2uGMTOutVsuGTIn = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tStage2uGMTOutVsuGTIn = DQMEDAnalyzer(
     "L1TStage2MuonComp",
     muonCollection1 = cms.InputTag("gmtStage2Digis", "Muon"),
     muonCollection2 = cms.InputTag("gtStage2Digis", "Muon"),

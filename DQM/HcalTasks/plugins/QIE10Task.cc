@@ -1,5 +1,6 @@
 
 #include "DQM/HcalTasks/interface/QIE10Task.h"
+#include "FWCore/Framework/interface/Run.h"
 #include <map>
 
 using namespace hcaldqm;

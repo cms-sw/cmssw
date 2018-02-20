@@ -5,63 +5,64 @@ import FWCore.ParameterSet.Config as cms
 # Date: 03.04.2008
 #
 # Fill validation histograms for MET
-metAnalyzer = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+metAnalyzer = DQMEDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("caloMet"),
     METType = cms.untracked.string("calo"),
     PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
     )
 
-#metHOAnalyzer = cms.EDAnalyzer(
+#metHOAnalyzer = DQMEDAnalyzer(
 #    "METTester",
 #    OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("metHO")
 #    )
 #
-#metNoHFAnalyzer = cms.EDAnalyzer(
+#metNoHFAnalyzer = DQMEDAnalyzer(
 #    "METTester",
 #    OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("metNoHF")
 #    )
 #
-#metNoHFHOAnalyzer = cms.EDAnalyzer(
+#metNoHFHOAnalyzer = DQMEDAnalyzer(
 #    "METTester",
 #    OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("metNoHFHO")
 #    )
 #
-#metOptAnalyzer = cms.EDAnalyzer(
+#metOptAnalyzer = DQMEDAnalyzer(
 #    "METTester",
 #    OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("metOpt")
 #    )
 #
-#metOptHOAnalyzer = cms.EDAnalyzer(
+#metOptHOAnalyzer = DQMEDAnalyzer(
 #    "METTester",
 #    OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("metOptHO")
 #    )
 #
-#metOptNoHFAnalyzer = cms.EDAnalyzer(
+#metOptNoHFAnalyzer = DQMEDAnalyzer(
 #    "METTester",
 #    OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("metOptNoHF")
 #    )
 #
-#metOptNoHFHOAnalyzer = cms.EDAnalyzer(
+#metOptNoHFHOAnalyzer = DQMEDAnalyzer(
 #    "METTester",
 #    OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("metOptNoHFHO")
 #    )
 
-pfMetAnalyzer = cms.EDAnalyzer(
+pfMetAnalyzer = DQMEDAnalyzer(
    "METTester",
    InputMETLabel = cms.InputTag("pfMet"),
    METType = cms.untracked.string("pf"),
    PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
    ) 
 
-#tcMetAnalyzer = cms.EDAnalyzer(
+#tcMetAnalyzer = DQMEDAnalyzer(
 #    "METTester",
 #    OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("tcMet"),
@@ -82,7 +83,7 @@ pfMetAnalyzer = cms.EDAnalyzer(
 #    METType = cms.untracked.string("tc")
 #    ) 
 
-#corMetGlobalMuonsAnalyzer = cms.EDAnalyzer(
+#corMetGlobalMuonsAnalyzer = DQMEDAnalyzer(
 #    "METTester",
 #     OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("caloMetM"),
@@ -90,63 +91,63 @@ pfMetAnalyzer = cms.EDAnalyzer(
 #    ) 
 
 
-#genMptTrueAnalyzer = cms.EDAnalyzer(
+#genMptTrueAnalyzer = DQMEDAnalyzer(
 #    "METTester",
 #    OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("genMptTrue"),
 #    )
 
-genMetTrueAnalyzer = cms.EDAnalyzer(
+genMetTrueAnalyzer = DQMEDAnalyzer(
     "METTester",
     InputMETLabel = cms.InputTag("genMetTrue"),
     METType = cms.untracked.string("gen"),
     PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
     )
 
-#genMetCaloAnalyzer = cms.EDAnalyzer(
+#genMetCaloAnalyzer = DQMEDAnalyzer(
 #    "METTester",
 #    OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("genMetCalo")
 #    )
 #
-#genMptCaloAnalyzer = cms.EDAnalyzer(
+#genMptCaloAnalyzer = DQMEDAnalyzer(
 #    "METTester",
 #    OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("genMptCalo")
 #    )
 #
 #
-#genMetCaloAndNonPromptAnalyzer = cms.EDAnalyzer(
+#genMetCaloAndNonPromptAnalyzer = DQMEDAnalyzer(
 #    "METTester",
 #    OutputFile = cms.untracked.string(''),
 #    InputMETLabel = cms.InputTag("genMetCaloAndNonPrompt")
 #    )
-pfType0CorrectedMetAnalyzer = cms.EDAnalyzer(
+pfType0CorrectedMetAnalyzer = DQMEDAnalyzer(
    "METTester",
    InputMETLabel = cms.InputTag("pfMetT0pc"),
    METType = cms.untracked.string("pf"),
    PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
    )
-pfType1CorrectedMetAnalyzer = cms.EDAnalyzer(
+pfType1CorrectedMetAnalyzer = DQMEDAnalyzer(
    "METTester",
    InputMETLabel = cms.InputTag("PfMetT1"),
    METType = cms.untracked.string("pf"),
    PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
    )
-pfType01CorrectedMetAnalyzer = cms.EDAnalyzer(
+pfType01CorrectedMetAnalyzer = DQMEDAnalyzer(
    "METTester",
    InputMETLabel = cms.InputTag("PfMetT0pcT1"),
    METType = cms.untracked.string("pf"),
    PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
    )
-pfType1CorrectedMetAnalyzerMiniAOD = cms.EDAnalyzer(
+pfType1CorrectedMetAnalyzerMiniAOD = DQMEDAnalyzer(
    "METTester",
    InputMETLabel = cms.InputTag("slimmedMETs"),
    METType = cms.untracked.string("miniaod"),
    PrimaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices")
    )
 
-pfPuppiMetAnalyzerMiniAOD = cms.EDAnalyzer(
+pfPuppiMetAnalyzerMiniAOD = DQMEDAnalyzer(
    "METTester",
    InputMETLabel = cms.InputTag("slimmedMETsPuppi"),
    METType = cms.untracked.string("miniaod"),
