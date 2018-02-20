@@ -331,25 +331,25 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   ugmtMuonEta = ibooker.book1D("ugmtMuonEta", "uGMT Muon #eta", 100, -2.5, 2.5);
   ugmtMuonEta->setAxisTitle("#eta", 1);
 
-  ugmtMuonPhi = ibooker.book1D("ugmtMuonPhi", "uGMT Muon #phi", 126, -3.15, 3.15);
+  ugmtMuonPhi = ibooker.book1D("ugmtMuonPhi", "uGMT Muon #phi", 128, -3.20, 3.20);
   ugmtMuonPhi->setAxisTitle("#phi", 1);
 
   ugmtMuonEtaAtVtx = ibooker.book1D("ugmtMuonEtaAtVtx", "uGMT Muon #eta at vertex", 100, -2.5, 2.5);
   ugmtMuonEtaAtVtx->setAxisTitle("#eta at vertex", 1);
 
-  ugmtMuonPhiAtVtx = ibooker.book1D("ugmtMuonPhiAtVtx", "uGMT Muon #phi at vertex", 126, -3.15, 3.15);
+  ugmtMuonPhiAtVtx = ibooker.book1D("ugmtMuonPhiAtVtx", "uGMT Muon #phi at vertex", 128, -3.20, 3.20);
   ugmtMuonPhiAtVtx->setAxisTitle("#phi at vertex", 1);
 
   ugmtMuonCharge = ibooker.book1D("ugmtMuonCharge", "uGMT Muon Charge", 3, -1.5, 1.5);
   ugmtMuonCharge->setAxisTitle("Charge", 1);
 
-  ugmtMuonPhiBmtf = ibooker.book1D("ugmtMuonPhiBmtf", "uGMT Muon #phi for BMTF Inputs", 126, -3.15, 3.15);
+  ugmtMuonPhiBmtf = ibooker.book1D("ugmtMuonPhiBmtf", "uGMT Muon #phi for BMTF Inputs", 128, -3.20, 3.20);
   ugmtMuonPhiBmtf->setAxisTitle("#phi", 1);
 
-  ugmtMuonPhiOmtf = ibooker.book1D("ugmtMuonPhiOmtf", "uGMT Muon #phi for OMTF Inputs", 126, -3.15, 3.15);
+  ugmtMuonPhiOmtf = ibooker.book1D("ugmtMuonPhiOmtf", "uGMT Muon #phi for OMTF Inputs", 128, -3.20, 3.20);
   ugmtMuonPhiOmtf->setAxisTitle("#phi", 1);
 
-  ugmtMuonPhiEmtf = ibooker.book1D("ugmtMuonPhiEmtf", "uGMT Muon #phi for EMTF Inputs", 126, -3.15, 3.15);
+  ugmtMuonPhiEmtf = ibooker.book1D("ugmtMuonPhiEmtf", "uGMT Muon #phi for EMTF Inputs", 128, -3.20, 3.20);
   ugmtMuonPhiEmtf->setAxisTitle("#phi", 1);
 
   const float dPhiScale = 4*phiScale_;
