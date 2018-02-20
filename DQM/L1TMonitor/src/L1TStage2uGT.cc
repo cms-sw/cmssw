@@ -15,18 +15,30 @@
 L1TStage2uGT::L1TStage2uGT(const edm::ParameterSet& params):
    l1tStage2uGtSource_(consumes<GlobalAlgBlkBxCollection>(params.getParameter<edm::InputTag>("l1tStage2uGtSource"))),
    monitorDir_(params.getUntrackedParameter<std::string> ("monitorDir", "")),
-   verbose_(params.getUntrackedParameter<bool>("verbose", false))
+   verbose_(params.getUntrackedParameter<bool>("verbose", false)),
+   gtUtil_(new l1t::L1TGlobalUtil(params, consumesCollector(), *this, params.getParameter<edm::InputTag>("l1tStage2uGtSource"), params.getParameter<edm::InputTag>("l1tStage2uGtSource"))),
+   algoBitFirstBxInTrain_(-1),
+   algoBitLastBxInTrain_(-1),
+   algoNameFirstBxInTrain_(params.getUntrackedParameter<std::string>("firstBXInTrainAlgo","")),
+   algoNameLastBxInTrain_(params.getUntrackedParameter<std::string>("lastBXInTrainAlgo",""))
 {
-   // empty
+
 }
 
 // Destructor
-L1TStage2uGT::~L1TStage2uGT() {
-   // empty
-}
+L1TStage2uGT::~L1TStage2uGT() {}
 
 void L1TStage2uGT::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& evtSetup) {
-   // empty 
+   // Get the trigger menu information
+   gtUtil_->retrieveL1Setup(evtSetup);
+   // Get the algo bits needed for the timing histograms
+   if (!gtUtil_->getAlgBitFromName(algoNameFirstBxInTrain_, algoBitFirstBxInTrain_)) {
+      edm::LogWarning("L1TStage2uGT") << "Algo \"" << algoNameFirstBxInTrain_ << "\" not found in the trigger menu " << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
+   }
+   if (!gtUtil_->getAlgBitFromName(algoNameLastBxInTrain_, algoBitLastBxInTrain_)) {
+      edm::LogWarning("L1TStage2uGT") << "Algo \"" << algoNameLastBxInTrain_ << "\" not found in the trigger menu " << gtUtil_->gtTriggerMenuName() << ". Could not retrieve algo bit number.";
+   }
+
 }
 
 void L1TStage2uGT::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& evtSetup) { 
@@ -206,7 +218,7 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
 
   for(auto itr = uGtAlgs->begin(0); itr != uGtAlgs->end(0); ++itr) { 
 //  This loop is only called once since the size of uGTAlgs seems to be always 1
-     if(itr->getAlgoDecisionInitial(488)) {
+     if(algoBitFirstBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitFirstBxInTrain_)) { 
 //  Algo bit for the first bunch in train trigger (should be made configurable or, better, taken from conditions if possible)
 //  The first BX in train trigger has fired. Now check all other triggers around this.
         for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
@@ -224,7 +236,7 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
            } // end of uGtAlgs
         } // end of BX
      } // selecting FirstCollisionInTrain
-     if(itr->getAlgoDecisionInitial(488) && itr->getAlgoDecisionInitial(487)) {
+     if((algoBitFirstBxInTrain_ != -1 && algoBitLastBxInTrain_ != -1) && (itr->getAlgoDecisionInitial(algoBitFirstBxInTrain_) && itr->getAlgoDecisionInitial(algoBitLastBxInTrain_))) {
         for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
            for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
               auto algoBits = itr2->getAlgoDecisionInitial();
@@ -236,7 +248,7 @@ void L1TStage2uGT::analyze(const edm::Event& evt, const edm::EventSetup& evtSetu
            } // end of uGtAlgs
         } // end of BX
      } // selecting FirstCollisionInTrain && LastCollisionInTrain
-     if(itr->getAlgoDecisionInitial(487)) {
+     if(algoBitLastBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitLastBxInTrain_)) {
         for(int ibx = uGtAlgs->getFirstBX(); ibx <= uGtAlgs->getLastBX(); ++ibx) {
            for(auto itr2 = uGtAlgs->begin(ibx); itr2 != uGtAlgs->end(ibx); ++itr2) {
               auto algoBits = itr2->getAlgoDecisionInitial();
