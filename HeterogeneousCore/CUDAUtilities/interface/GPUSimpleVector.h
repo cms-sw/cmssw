@@ -11,7 +11,7 @@ namespace GPU {
 template <class T> struct SimpleVector {
   // Constructors
   __host__ __device__ SimpleVector(int capacity, T *data) // ownership of m_data stays within the caller
-      : m_size(0), m_data(data), m_capacity(capacity) {
+      : m_size(0), m_capacity(capacity), m_data(data) {
     static_assert(std::is_trivially_destructible<T>::value);
   }
 
@@ -83,6 +83,11 @@ template <class T> struct SimpleVector {
   __inline__ __host__ __device__ int capacity() const { return m_capacity; }
 
   __inline__ __host__ __device__ T *data() const { return m_data; }
+    
+  __inline__ __host__ __device__ void resize(int size) { m_size = size; }
+    
+  __inline__ __host__ __device__ void set_data(T * data) { m_data = data; }
+
 
 private:
   int m_size;
@@ -93,3 +98,4 @@ private:
 } // namespace GPU
 
 #endif // HeterogeneousCore_CUDAUtilities_GPUSimpleVector_h
+

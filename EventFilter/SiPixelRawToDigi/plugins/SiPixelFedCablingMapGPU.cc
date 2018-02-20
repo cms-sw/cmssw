@@ -90,9 +90,9 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap,  TrackerGeometry 
       moduleId[i] = gdet->index();
     }
     LogDebug("SiPixelFedCablingMapGPU") << "----------------------------------------------------------------------------" << std::endl;
-    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << fedMap[i]         << std::setw(20) << linkMap[i]         << std::setw(20) << rocMap[i]   << std::endl;
-    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << RawId[i]          << std::setw(20) << rocInDet[i]        << std::setw(20) << moduleId[i] << std::endl;
-    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << (bool) badRocs[i] << std::setw(20) << (bool) modToUnp[i] << std::endl;
+    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << fedMap[i]  << std::setw(20) << linkMap[i]  << std::setw(20) << rocMap[i] << std::endl;
+    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << RawId[i]   << std::setw(20) << rocInDet[i] << std::setw(20) << moduleId[i] << std::endl;
+    LogDebug("SiPixelFedCablingMapGPU") << i << std::setw(20) << (bool)badRocs[i] << std::setw(20) << (bool)modToUnp[i] << std::endl;
     LogDebug("SiPixelFedCablingMapGPU") << "----------------------------------------------------------------------------" << std::endl;
   }
 
