@@ -286,8 +286,13 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
     ugmtBXvsLink = ibooker.book2D("ugmtBXvsLink", "uGMT BX vs Input Links", 36, 35.5, 71.5, 5, -2.5, 2.5);
     ugmtBXvsLink->setAxisTitle("Link", 1);
-    for (int bin = 1; bin <= 36; ++bin) {
-      ugmtBXvsLink->setBinLabel(bin, Form("E+%d", bin), 1);
+    for (int bin = 1; bin <= 6; ++bin) {
+      ugmtBXvsLink->setBinLabel(bin   , Form("E+%d", bin  ), 1);
+      ugmtBXvsLink->setBinLabel(bin+6 , Form("O+%d", bin  ), 1);
+      ugmtBXvsLink->setBinLabel(bin+12, Form("B+%d", bin  ), 1);
+      ugmtBXvsLink->setBinLabel(bin+18, Form("B+%d", bin+6), 1);
+      ugmtBXvsLink->setBinLabel(bin+24, Form("O-%d", bin  ), 1);
+      ugmtBXvsLink->setBinLabel(bin+30, Form("E-%d", bin  ), 1);
     }
     ugmtBXvsLink->setAxisTitle("BX", 2);
   }
@@ -402,15 +407,25 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
   ugmtMuonBXvsLink = ibooker.book2D("ugmtMuonBXvsLink", "uGMT Muon BX vs Input Links", 36, 35.5, 71.5, 5, -2.5, 2.5);
   ugmtMuonBXvsLink->setAxisTitle("Muon Input Links", 1);
-  for (int bin = 1; bin <= 36; ++bin) {
-    ugmtMuonBXvsLink->setBinLabel(bin, Form("E+%d", bin), 1);
+  for (int bin = 1; bin <= 6; ++bin) {
+    ugmtMuonBXvsLink->setBinLabel(bin   , Form("E+%d", bin  ), 1);
+    ugmtMuonBXvsLink->setBinLabel(bin+6 , Form("O+%d", bin  ), 1);
+    ugmtMuonBXvsLink->setBinLabel(bin+12, Form("B+%d", bin  ), 1);
+    ugmtMuonBXvsLink->setBinLabel(bin+18, Form("B+%d", bin+6), 1);
+    ugmtMuonBXvsLink->setBinLabel(bin+24, Form("O-%d", bin  ), 1);
+    ugmtMuonBXvsLink->setBinLabel(bin+30, Form("E-%d", bin  ), 1);
   }
   ugmtMuonBXvsLink->setAxisTitle("BX", 2);
 
   ugmtMuonChargevsLink = ibooker.book2D("ugmtMuonChargevsLink", "uGMT Muon Charge vs Input Links", 36, 35.5, 71.5, 3, -1.5, 1.5);
   ugmtMuonChargevsLink->setAxisTitle("Muon Input Links", 1);
-  for (int bin = 1; bin <= 36; ++bin) {
-    ugmtMuonChargevsLink->setBinLabel(bin, Form("E+%d", bin), 1);
+  for (int bin = 1; bin <= 6; ++bin) {
+    ugmtMuonChargevsLink->setBinLabel(bin   , Form("E+%d", bin  ), 1);
+    ugmtMuonChargevsLink->setBinLabel(bin+6 , Form("O+%d", bin  ), 1);
+    ugmtMuonChargevsLink->setBinLabel(bin+12, Form("B+%d", bin  ), 1);
+    ugmtMuonChargevsLink->setBinLabel(bin+18, Form("B+%d", bin+6), 1);
+    ugmtMuonChargevsLink->setBinLabel(bin+24, Form("O-%d", bin  ), 1);
+    ugmtMuonChargevsLink->setBinLabel(bin+30, Form("E-%d", bin  ), 1);
   }
   ugmtMuonChargevsLink->setAxisTitle("Charge", 2);
 
