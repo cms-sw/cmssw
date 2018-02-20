@@ -1,7 +1,7 @@
 #include <vector>
 #include <algorithm>
 #include "TMath.h"
-#include "PlotHelpers.C"
+#include "macro/PlotHelpers.C"
 
 // Uncomment the following line for some extra debug information
 // #define DEBUG
