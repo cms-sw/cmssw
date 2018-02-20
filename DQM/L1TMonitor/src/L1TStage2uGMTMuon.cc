@@ -22,168 +22,166 @@ void L1TStage2uGMTMuon::fillDescriptions(edm::ConfigurationDescriptions& descrip
   descriptions.add("l1tStage2uGMTMuon", desc);
 }
 
-void L1TStage2uGMTMuon::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
+void L1TStage2uGMTMuon::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c, ugmtmuondqm::Histograms& histograms) const {}
 
-void L1TStage2uGMTMuon::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
-
-void L1TStage2uGMTMuon::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
+void L1TStage2uGMTMuon::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm::Run&, const edm::EventSetup&, ugmtmuondqm::Histograms& histograms) const {
 
   // Subsystem Monitoring and Muon Output
-  ibooker.setCurrentFolder(monitorDir);
+  booker.setCurrentFolder(monitorDir);
 
-  ugmtMuonBX = ibooker.book1D("ugmtMuonBX", (titlePrefix+"BX").c_str(), 7, -3.5, 3.5);
-  ugmtMuonBX->setAxisTitle("BX", 1);
+  histograms.ugmtMuonBX = booker.book1D("ugmtMuonBX", titlePrefix+"BX", 7, -3.5, 3.5);
+  histograms.ugmtMuonBX.setAxisTitle("BX", 1);
 
-  ugmtnMuons = ibooker.book1D("ugmtnMuons", (titlePrefix+"Multiplicity").c_str(), 9, -0.5, 8.5);
-  ugmtnMuons->setAxisTitle("Muon Multiplicity (BX == 0)", 1);
+  histograms.ugmtnMuons = booker.book1D("ugmtnMuons", titlePrefix+"Multiplicity", 9, -0.5, 8.5);
+  histograms.ugmtnMuons.setAxisTitle("Muon Multiplicity (BX == 0)", 1);
 
-  ugmtMuonhwPt = ibooker.book1D("ugmtMuonhwPt", (titlePrefix+"p_{T}").c_str(), 512, -0.5, 511.5);
-  ugmtMuonhwPt->setAxisTitle("Hardware p_{T}", 1);
+  histograms.ugmtMuonhwPt = booker.book1D("ugmtMuonhwPt", titlePrefix+"p_{T}", 512, -0.5, 511.5);
+  histograms.ugmtMuonhwPt.setAxisTitle("Hardware p_{T}", 1);
 
-  ugmtMuonhwEta = ibooker.book1D("ugmtMuonhwEta", (titlePrefix+"#eta").c_str(), 461, -230.5, 230.5);
-  ugmtMuonhwEta->setAxisTitle("Hardware Eta", 1);
+  histograms.ugmtMuonhwEta = booker.book1D("ugmtMuonhwEta", titlePrefix+"#eta", 461, -230.5, 230.5);
+  histograms.ugmtMuonhwEta.setAxisTitle("Hardware Eta", 1);
 
-  ugmtMuonhwPhi = ibooker.book1D("ugmtMuonhwPhi", (titlePrefix+"#phi").c_str(), 576, -0.5, 575.5);
-  ugmtMuonhwPhi->setAxisTitle("Hardware Phi", 1);
+  histograms.ugmtMuonhwPhi = booker.book1D("ugmtMuonhwPhi", titlePrefix+"#phi", 576, -0.5, 575.5);
+  histograms.ugmtMuonhwPhi.setAxisTitle("Hardware Phi", 1);
 
-  ugmtMuonhwCharge = ibooker.book1D("ugmtMuonhwCharge", (titlePrefix+"Charge").c_str(), 2, -0.5, 1.5);
-  ugmtMuonhwCharge->setAxisTitle("Hardware Charge", 1);
+  histograms.ugmtMuonhwCharge = booker.book1D("ugmtMuonhwCharge", titlePrefix+"Charge", 2, -0.5, 1.5);
+  histograms.ugmtMuonhwCharge.setAxisTitle("Hardware Charge", 1);
 
-  ugmtMuonhwChargeValid = ibooker.book1D("ugmtMuonhwChargeValid", (titlePrefix+"ChargeValid").c_str(), 2, -0.5, 1.5);
-  ugmtMuonhwChargeValid->setAxisTitle("ChargeValid", 1);
+  histograms.ugmtMuonhwChargeValid = booker.book1D("ugmtMuonhwChargeValid", titlePrefix+"ChargeValid", 2, -0.5, 1.5);
+  histograms.ugmtMuonhwChargeValid.setAxisTitle("ChargeValid", 1);
 
-  ugmtMuonhwQual = ibooker.book1D("ugmtMuonhwQual", (titlePrefix+"Quality").c_str(), 16, -0.5, 15.5);
-  ugmtMuonhwQual->setAxisTitle("Quality", 1);
+  histograms.ugmtMuonhwQual = booker.book1D("ugmtMuonhwQual", titlePrefix+"Quality", 16, -0.5, 15.5);
+  histograms.ugmtMuonhwQual.setAxisTitle("Quality", 1);
 
-  ugmtMuonPt = ibooker.book1D("ugmtMuonPt", (titlePrefix+"p_{T}").c_str(), 256, -0.5, 255.5);
-  ugmtMuonPt->setAxisTitle("p_{T} [GeV]", 1);
+  histograms.ugmtMuonPt = booker.book1D("ugmtMuonPt", titlePrefix+"p_{T}", 256, -0.5, 255.5);
+  histograms.ugmtMuonPt.setAxisTitle("p_{T} [GeV]", 1);
 
-  ugmtMuonEta = ibooker.book1D("ugmtMuonEta", (titlePrefix+"#eta").c_str(), 100, -2.5, 2.5);
-  ugmtMuonEta->setAxisTitle("#eta", 1);
+  histograms.ugmtMuonEta = booker.book1D("ugmtMuonEta", titlePrefix+"#eta", 100, -2.5, 2.5);
+  histograms.ugmtMuonEta.setAxisTitle("#eta", 1);
 
-  ugmtMuonPhi = ibooker.book1D("ugmtMuonPhi", (titlePrefix+"#phi").c_str(), 126, -3.15, 3.15);
-  ugmtMuonPhi->setAxisTitle("#phi", 1);
+  histograms.ugmtMuonPhi = booker.book1D("ugmtMuonPhi", titlePrefix+"#phi", 126, -3.15, 3.15);
+  histograms.ugmtMuonPhi.setAxisTitle("#phi", 1);
 
-  ugmtMuonCharge = ibooker.book1D("ugmtMuonCharge", (titlePrefix+"Charge").c_str(), 3, -1.5, 1.5);
-  ugmtMuonCharge->setAxisTitle("Charge", 1);
+  histograms.ugmtMuonCharge = booker.book1D("ugmtMuonCharge", titlePrefix+"Charge", 3, -1.5, 1.5);
+  histograms.ugmtMuonCharge.setAxisTitle("Charge", 1);
 
-  ugmtMuonPtvsEta = ibooker.book2D("ugmtMuonPtvsEta", (titlePrefix+"p_{T} vs #eta").c_str(), 100, -2.5, 2.5, 256, -0.5, 255.5);
-  ugmtMuonPtvsEta->setAxisTitle("#eta", 1);
-  ugmtMuonPtvsEta->setAxisTitle("p_{T} [GeV]", 2);
+  histograms.ugmtMuonPtvsEta = booker.book2D("ugmtMuonPtvsEta", titlePrefix+"p_{T} vs #eta", 100, -2.5, 2.5, 256, -0.5, 255.5);
+  histograms.ugmtMuonPtvsEta.setAxisTitle("#eta", 1);
+  histograms.ugmtMuonPtvsEta.setAxisTitle("p_{T} [GeV]", 2);
 
-  ugmtMuonPtvsPhi = ibooker.book2D("ugmtMuonPtvsPhi", (titlePrefix+"p_{T} vs #phi").c_str(), 64, -3.2, 3.2, 256, -0.5, 255.5);
-  ugmtMuonPtvsPhi->setAxisTitle("#phi", 1);
-  ugmtMuonPtvsPhi->setAxisTitle("p_{T} [GeV]", 2);
+  histograms.ugmtMuonPtvsPhi = booker.book2D("ugmtMuonPtvsPhi", titlePrefix+"p_{T} vs #phi", 64, -3.2, 3.2, 256, -0.5, 255.5);
+  histograms.ugmtMuonPtvsPhi.setAxisTitle("#phi", 1);
+  histograms.ugmtMuonPtvsPhi.setAxisTitle("p_{T} [GeV]", 2);
 
-  ugmtMuonPhivsEta = ibooker.book2D("ugmtMuonPhivsEta", (titlePrefix+"#phi vs #eta").c_str(), 100, -2.5, 2.5, 64, -3.2, 3.2);
-  ugmtMuonPhivsEta->setAxisTitle("#eta", 1);
-  ugmtMuonPhivsEta->setAxisTitle("#phi", 2);
+  histograms.ugmtMuonPhivsEta = booker.book2D("ugmtMuonPhivsEta", titlePrefix+"#phi vs #eta", 100, -2.5, 2.5, 64, -3.2, 3.2);
+  histograms.ugmtMuonPhivsEta.setAxisTitle("#eta", 1);
+  histograms.ugmtMuonPhivsEta.setAxisTitle("#phi", 2);
 
-  ugmtMuonBXvshwPt = ibooker.book2D("ugmtMuonBXvshwPt", (titlePrefix+"BX vs p_{T}").c_str(), 256, -0.5, 511.5, 5, -2.5, 2.5);
-  ugmtMuonBXvshwPt->setAxisTitle("Hardware p_{T}", 1);
-  ugmtMuonBXvshwPt->setAxisTitle("BX", 2);
+  histograms.ugmtMuonBXvshwPt = booker.book2D("ugmtMuonBXvshwPt", titlePrefix+"BX vs p_{T}", 256, -0.5, 511.5, 5, -2.5, 2.5);
+  histograms.ugmtMuonBXvshwPt.setAxisTitle("Hardware p_{T}", 1);
+  histograms.ugmtMuonBXvshwPt.setAxisTitle("BX", 2);
 
-  ugmtMuonBXvshwEta = ibooker.book2D("ugmtMuonBXvshwEta", (titlePrefix+"BX vs #eta").c_str(), 93, -232.5, 232.5, 5, -2.5, 2.5);
-  ugmtMuonBXvshwEta->setAxisTitle("Hardware #eta", 1);
-  ugmtMuonBXvshwEta->setAxisTitle("BX", 2);
+  histograms.ugmtMuonBXvshwEta = booker.book2D("ugmtMuonBXvshwEta", titlePrefix+"BX vs #eta", 93, -232.5, 232.5, 5, -2.5, 2.5);
+  histograms.ugmtMuonBXvshwEta.setAxisTitle("Hardware #eta", 1);
+  histograms.ugmtMuonBXvshwEta.setAxisTitle("BX", 2);
 
-  ugmtMuonBXvshwPhi = ibooker.book2D("ugmtMuonBXvshwPhi", (titlePrefix+"BX vs #phi").c_str(), 116, -2.5, 577.5, 5, -2.5, 2.5);
-  ugmtMuonBXvshwPhi->setAxisTitle("Hardware #phi", 1);
-  ugmtMuonBXvshwPhi->setAxisTitle("BX", 2);
+  histograms.ugmtMuonBXvshwPhi = booker.book2D("ugmtMuonBXvshwPhi", titlePrefix+"BX vs #phi", 116, -2.5, 577.5, 5, -2.5, 2.5);
+  histograms.ugmtMuonBXvshwPhi.setAxisTitle("Hardware #phi", 1);
+  histograms.ugmtMuonBXvshwPhi.setAxisTitle("BX", 2);
 
-  ugmtMuonBXvshwCharge = ibooker.book2D("ugmtMuonBXvshwCharge", (titlePrefix+"BX vs Charge").c_str(), 2, -0.5, 1.5, 5, -2.5, 2.5);
-  ugmtMuonBXvshwCharge->setAxisTitle("Hardware Charge", 1);
-  ugmtMuonBXvshwCharge->setAxisTitle("BX", 2);
+  histograms.ugmtMuonBXvshwCharge = booker.book2D("ugmtMuonBXvshwCharge", titlePrefix+"BX vs Charge", 2, -0.5, 1.5, 5, -2.5, 2.5);
+  histograms.ugmtMuonBXvshwCharge.setAxisTitle("Hardware Charge", 1);
+  histograms.ugmtMuonBXvshwCharge.setAxisTitle("BX", 2);
 
-  ugmtMuonBXvshwChargeValid = ibooker.book2D("ugmtMuonBXvshwChargeValid", (titlePrefix+"BX vs ChargeValid").c_str(), 2, -0.5, 1.5, 5, -2.5, 2.5);
-  ugmtMuonBXvshwChargeValid->setAxisTitle("ChargeValid", 1);
-  ugmtMuonBXvshwChargeValid->setAxisTitle("BX", 2);
+  histograms.ugmtMuonBXvshwChargeValid = booker.book2D("ugmtMuonBXvshwChargeValid", titlePrefix+"BX vs ChargeValid", 2, -0.5, 1.5, 5, -2.5, 2.5);
+  histograms.ugmtMuonBXvshwChargeValid.setAxisTitle("ChargeValid", 1);
+  histograms.ugmtMuonBXvshwChargeValid.setAxisTitle("BX", 2);
 
-  ugmtMuonBXvshwQual = ibooker.book2D("ugmtMuonBXvshwQual", (titlePrefix+"BX vs Quality").c_str(), 16, -0.5, 15.5, 5, -2.5, 2.5);
-  ugmtMuonBXvshwQual->setAxisTitle("Quality", 1);
-  ugmtMuonBXvshwQual->setAxisTitle("BX", 2);
+  histograms.ugmtMuonBXvshwQual = booker.book2D("ugmtMuonBXvshwQual", titlePrefix+"BX vs Quality", 16, -0.5, 15.5, 5, -2.5, 2.5);
+  histograms.ugmtMuonBXvshwQual.setAxisTitle("Quality", 1);
+  histograms.ugmtMuonBXvshwQual.setAxisTitle("BX", 2);
 
   if (makeMuonAtVtxPlots) {
-    ugmtMuonhwEtaAtVtx = ibooker.book1D("ugmtMuonhwEtaAtVtx", (titlePrefix+"#eta at vertex").c_str(), 461, -230.5, 230.5);
-    ugmtMuonhwEtaAtVtx->setAxisTitle("Hardware Eta at Vertex", 1);
+    histograms.ugmtMuonhwEtaAtVtx = booker.book1D("ugmtMuonhwEtaAtVtx", titlePrefix+"#eta at vertex", 461, -230.5, 230.5);
+    histograms.ugmtMuonhwEtaAtVtx.setAxisTitle("Hardware Eta at Vertex", 1);
 
-    ugmtMuonhwPhiAtVtx = ibooker.book1D("ugmtMuonhwPhiAtVtx", (titlePrefix+"#phi at vertex").c_str(), 576, -0.5, 575.5);
-    ugmtMuonhwPhiAtVtx->setAxisTitle("Hardware Phi at Vertex", 1);
+    histograms.ugmtMuonhwPhiAtVtx = booker.book1D("ugmtMuonhwPhiAtVtx", titlePrefix+"#phi at vertex", 576, -0.5, 575.5);
+    histograms.ugmtMuonhwPhiAtVtx.setAxisTitle("Hardware Phi at Vertex", 1);
 
-    ugmtMuonEtaAtVtx = ibooker.book1D("ugmtMuonEtaAtVtx", (titlePrefix+"#eta at vertex").c_str(), 100, -2.5, 2.5);
-    ugmtMuonEtaAtVtx->setAxisTitle("#eta at Vertex", 1);
+    histograms.ugmtMuonEtaAtVtx = booker.book1D("ugmtMuonEtaAtVtx", titlePrefix+"#eta at vertex", 100, -2.5, 2.5);
+    histograms.ugmtMuonEtaAtVtx.setAxisTitle("#eta at Vertex", 1);
 
-    ugmtMuonPhiAtVtx = ibooker.book1D("ugmtMuonPhiAtVtx", (titlePrefix+"#phi at vertex").c_str(), 126, -3.15, 3.15);
-    ugmtMuonPhiAtVtx->setAxisTitle("#phi at Vertex", 1);
+    histograms.ugmtMuonPhiAtVtx = booker.book1D("ugmtMuonPhiAtVtx", titlePrefix+"#phi at vertex", 126, -3.15, 3.15);
+    histograms.ugmtMuonPhiAtVtx.setAxisTitle("#phi at Vertex", 1);
 
-    ugmtMuonPtvsEtaAtVtx = ibooker.book2D("ugmtMuonPtvsEtaAtVtx", (titlePrefix+"p_{T} vs #eta at vertex").c_str(), 100, -2.5, 2.5, 256, -0.5, 255.5);
-    ugmtMuonPtvsEtaAtVtx->setAxisTitle("#eta at Vertex", 1);
-    ugmtMuonPtvsEtaAtVtx->setAxisTitle("p_{T} [GeV]", 2);
+    histograms.ugmtMuonPtvsEtaAtVtx = booker.book2D("ugmtMuonPtvsEtaAtVtx", titlePrefix+"p_{T} vs #eta at vertex", 100, -2.5, 2.5, 256, -0.5, 255.5);
+    histograms.ugmtMuonPtvsEtaAtVtx.setAxisTitle("#eta at Vertex", 1);
+    histograms.ugmtMuonPtvsEtaAtVtx.setAxisTitle("p_{T} [GeV]", 2);
 
-    ugmtMuonPhiAtVtxvsEtaAtVtx = ibooker.book2D("ugmtMuonPhiAtVtxvsEtaAtVtx", (titlePrefix+"#phi_{vtx} vs #eta_{vtx}").c_str(), 100, -2.5, 2.5, 64, -3.2, 3.2);
-    ugmtMuonPhiAtVtxvsEtaAtVtx->setAxisTitle("#eta at Vertex", 1);
-    ugmtMuonPhiAtVtxvsEtaAtVtx->setAxisTitle("#phi at Vertex", 2);
+    histograms.ugmtMuonPhiAtVtxvsEtaAtVtx = booker.book2D("ugmtMuonPhiAtVtxvsEtaAtVtx", titlePrefix+"#phi_{vtx} vs #eta_{vtx}", 100, -2.5, 2.5, 64, -3.2, 3.2);
+    histograms.ugmtMuonPhiAtVtxvsEtaAtVtx.setAxisTitle("#eta at Vertex", 1);
+    histograms.ugmtMuonPhiAtVtxvsEtaAtVtx.setAxisTitle("#phi at Vertex", 2);
 
-    ugmtMuonPtvsPhiAtVtx = ibooker.book2D("ugmtMuonPtvsPhiAtVtx", (titlePrefix+"p_{T} vs #phi at vertex").c_str(), 64, -3.2, 3.2, 256, -0.5, 255.5);
-    ugmtMuonPtvsPhiAtVtx->setAxisTitle("#phi at Vertex", 1);
-    ugmtMuonPtvsPhiAtVtx->setAxisTitle("p_{T} [GeV]", 2);
+    histograms.ugmtMuonPtvsPhiAtVtx = booker.book2D("ugmtMuonPtvsPhiAtVtx", titlePrefix+"p_{T} vs #phi at vertex", 64, -3.2, 3.2, 256, -0.5, 255.5);
+    histograms.ugmtMuonPtvsPhiAtVtx.setAxisTitle("#phi at Vertex", 1);
+    histograms.ugmtMuonPtvsPhiAtVtx.setAxisTitle("p_{T} [GeV]", 2);
 
-    ugmtMuonBXvshwEtaAtVtx = ibooker.book2D("ugmtMuonBXvshwEtaAtVtx", (titlePrefix+"BX vs #eta at vertex").c_str(), 93, -232.5, 232.5, 5, -2.5, 2.5);
-    ugmtMuonBXvshwEtaAtVtx->setAxisTitle("Hardware #eta at Vertex", 1);
-    ugmtMuonBXvshwEtaAtVtx->setAxisTitle("BX", 2);
+    histograms.ugmtMuonBXvshwEtaAtVtx = booker.book2D("ugmtMuonBXvshwEtaAtVtx", titlePrefix+"BX vs #eta at vertex", 93, -232.5, 232.5, 5, -2.5, 2.5);
+    histograms.ugmtMuonBXvshwEtaAtVtx.setAxisTitle("Hardware #eta at Vertex", 1);
+    histograms.ugmtMuonBXvshwEtaAtVtx.setAxisTitle("BX", 2);
 
-    ugmtMuonBXvshwPhiAtVtx = ibooker.book2D("ugmtMuonBXvshwPhiAtVtx", (titlePrefix+"BX vs #phi at vertex").c_str(), 116, -2.5, 577.5, 5, -2.5, 2.5);
-    ugmtMuonBXvshwPhiAtVtx->setAxisTitle("Hardware #phi at Vertex", 1);
-    ugmtMuonBXvshwPhiAtVtx->setAxisTitle("BX", 2);
+    histograms.ugmtMuonBXvshwPhiAtVtx = booker.book2D("ugmtMuonBXvshwPhiAtVtx", titlePrefix+"BX vs #phi at vertex", 116, -2.5, 577.5, 5, -2.5, 2.5);
+    histograms.ugmtMuonBXvshwPhiAtVtx.setAxisTitle("Hardware #phi at Vertex", 1);
+    histograms.ugmtMuonBXvshwPhiAtVtx.setAxisTitle("BX", 2);
   }
 }
 
-void L1TStage2uGMTMuon::analyze(const edm::Event& e, const edm::EventSetup& c) {
+void L1TStage2uGMTMuon::dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, ugmtmuondqm::Histograms const& histograms) const {
 
   if (verbose) edm::LogInfo("L1TStage2uGMTMuon") << "L1TStage2uGMTMuon: analyze..." << std::endl;
 
   edm::Handle<l1t::MuonBxCollection> MuonBxCollection;
   e.getByToken(ugmtMuonToken, MuonBxCollection);
 
-  ugmtnMuons->Fill(MuonBxCollection->size(0));
+  histograms.ugmtnMuons.fill(MuonBxCollection->size(0));
 
   for (int itBX = MuonBxCollection->getFirstBX(); itBX <= MuonBxCollection->getLastBX(); ++itBX) {
     for (l1t::MuonBxCollection::const_iterator Muon = MuonBxCollection->begin(itBX); Muon != MuonBxCollection->end(itBX); ++Muon) {
 
-      ugmtMuonBX->Fill(itBX);
-      ugmtMuonhwPt->Fill(Muon->hwPt());
-      ugmtMuonhwEta->Fill(Muon->hwEta());
-      ugmtMuonhwPhi->Fill(Muon->hwPhi());
-      ugmtMuonhwCharge->Fill(Muon->hwCharge());
-      ugmtMuonhwChargeValid->Fill(Muon->hwChargeValid());
-      ugmtMuonhwQual->Fill(Muon->hwQual());
+      histograms.ugmtMuonBX.fill(itBX);
+      histograms.ugmtMuonhwPt.fill(Muon->hwPt());
+      histograms.ugmtMuonhwEta.fill(Muon->hwEta());
+      histograms.ugmtMuonhwPhi.fill(Muon->hwPhi());
+      histograms.ugmtMuonhwCharge.fill(Muon->hwCharge());
+      histograms.ugmtMuonhwChargeValid.fill(Muon->hwChargeValid());
+      histograms.ugmtMuonhwQual.fill(Muon->hwQual());
 
-      ugmtMuonPt->Fill(Muon->pt());
-      ugmtMuonEta->Fill(Muon->eta());
-      ugmtMuonPhi->Fill(Muon->phi());
-      ugmtMuonCharge->Fill(Muon->charge());
+      histograms.ugmtMuonPt.fill(Muon->pt());
+      histograms.ugmtMuonEta.fill(Muon->eta());
+      histograms.ugmtMuonPhi.fill(Muon->phi());
+      histograms.ugmtMuonCharge.fill(Muon->charge());
 
-      ugmtMuonPtvsEta->Fill(Muon->eta(), Muon->pt());
-      ugmtMuonPtvsPhi->Fill(Muon->phi(), Muon->pt());
-      ugmtMuonPhivsEta->Fill(Muon->eta(), Muon->phi());
+      histograms.ugmtMuonPtvsEta.fill(Muon->eta(), Muon->pt());
+      histograms.ugmtMuonPtvsPhi.fill(Muon->phi(), Muon->pt());
+      histograms.ugmtMuonPhivsEta.fill(Muon->eta(), Muon->phi());
 
-      ugmtMuonBXvshwPt->Fill(Muon->hwPt(), itBX);
-      ugmtMuonBXvshwEta->Fill(Muon->hwEta(), itBX);
-      ugmtMuonBXvshwPhi->Fill(Muon->hwPhi(), itBX);
-      ugmtMuonBXvshwCharge->Fill(Muon->hwCharge(), itBX);
-      ugmtMuonBXvshwChargeValid->Fill(Muon->hwChargeValid(), itBX);
-      ugmtMuonBXvshwQual->Fill(Muon->hwQual(), itBX);
+      histograms.ugmtMuonBXvshwPt.fill(Muon->hwPt(), itBX);
+      histograms.ugmtMuonBXvshwEta.fill(Muon->hwEta(), itBX);
+      histograms.ugmtMuonBXvshwPhi.fill(Muon->hwPhi(), itBX);
+      histograms.ugmtMuonBXvshwCharge.fill(Muon->hwCharge(), itBX);
+      histograms.ugmtMuonBXvshwChargeValid.fill(Muon->hwChargeValid(), itBX);
+      histograms.ugmtMuonBXvshwQual.fill(Muon->hwQual(), itBX);
 
       if (makeMuonAtVtxPlots) {
-        ugmtMuonhwEtaAtVtx->Fill(Muon->hwEtaAtVtx());
-        ugmtMuonhwPhiAtVtx->Fill(Muon->hwPhiAtVtx());
-        ugmtMuonEtaAtVtx->Fill(Muon->etaAtVtx());
-        ugmtMuonPhiAtVtx->Fill(Muon->phiAtVtx());
-        ugmtMuonPtvsEtaAtVtx->Fill(Muon->etaAtVtx(), Muon->pt());
-        ugmtMuonPtvsPhiAtVtx->Fill(Muon->phiAtVtx(), Muon->pt());
-        ugmtMuonPhiAtVtxvsEtaAtVtx->Fill(Muon->etaAtVtx(), Muon->phiAtVtx());
-        ugmtMuonBXvshwEtaAtVtx->Fill(Muon->hwEtaAtVtx(), itBX);
-        ugmtMuonBXvshwPhiAtVtx->Fill(Muon->hwPhiAtVtx(), itBX);
+        histograms.ugmtMuonhwEtaAtVtx.fill(Muon->hwEtaAtVtx());
+        histograms.ugmtMuonhwPhiAtVtx.fill(Muon->hwPhiAtVtx());
+        histograms.ugmtMuonEtaAtVtx.fill(Muon->etaAtVtx());
+        histograms.ugmtMuonPhiAtVtx.fill(Muon->phiAtVtx());
+        histograms.ugmtMuonPtvsEtaAtVtx.fill(Muon->etaAtVtx(), Muon->pt());
+        histograms.ugmtMuonPtvsPhiAtVtx.fill(Muon->phiAtVtx(), Muon->pt());
+        histograms.ugmtMuonPhiAtVtxvsEtaAtVtx.fill(Muon->etaAtVtx(), Muon->phiAtVtx());
+        histograms.ugmtMuonBXvshwEtaAtVtx.fill(Muon->hwEtaAtVtx(), itBX);
+        histograms.ugmtMuonBXvshwPhiAtVtx.fill(Muon->hwPhiAtVtx(), itBX);
       }
     }
   }

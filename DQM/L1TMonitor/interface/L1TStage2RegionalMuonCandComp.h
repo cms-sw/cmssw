@@ -4,8 +4,8 @@
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -13,8 +13,45 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+namespace regionalmuoncandcompdqm {
+  struct Histograms {
+    ConcurrentMonitorElement summary;
+    ConcurrentMonitorElement errorSummaryNum;
+    ConcurrentMonitorElement errorSummaryDen;
 
-class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
+    ConcurrentMonitorElement muColl1BxRange;
+    ConcurrentMonitorElement muColl1nMu;
+    ConcurrentMonitorElement muColl1hwPt;
+    ConcurrentMonitorElement muColl1hwEta;
+    ConcurrentMonitorElement muColl1hwPhi;
+    ConcurrentMonitorElement muColl1hwSign;
+    ConcurrentMonitorElement muColl1hwSignValid;
+    ConcurrentMonitorElement muColl1hwQual;
+    ConcurrentMonitorElement muColl1link;
+    ConcurrentMonitorElement muColl1processor;
+    ConcurrentMonitorElement muColl1trackFinderType;
+    ConcurrentMonitorElement muColl1hwHF;
+    ConcurrentMonitorElement muColl1TrkAddrSize;
+    ConcurrentMonitorElement muColl1TrkAddr;
+
+    ConcurrentMonitorElement muColl2BxRange;
+    ConcurrentMonitorElement muColl2nMu;
+    ConcurrentMonitorElement muColl2hwPt;
+    ConcurrentMonitorElement muColl2hwEta;
+    ConcurrentMonitorElement muColl2hwPhi;
+    ConcurrentMonitorElement muColl2hwSign;
+    ConcurrentMonitorElement muColl2hwSignValid;
+    ConcurrentMonitorElement muColl2hwQual;
+    ConcurrentMonitorElement muColl2link;
+    ConcurrentMonitorElement muColl2processor;
+    ConcurrentMonitorElement muColl2trackFinderType;
+    ConcurrentMonitorElement muColl2hwHF;
+    ConcurrentMonitorElement muColl2TrkAddrSize;
+    ConcurrentMonitorElement muColl2TrkAddr;
+  };
+}
+
+class L1TStage2RegionalMuonCandComp : public DQMGlobalEDAnalyzer<regionalmuoncandcompdqm::Histograms> {
 
  public:
 
@@ -24,10 +61,9 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
 
  protected:
 
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&, regionalmuoncandcompdqm::Histograms&) const override;
+  void bookHistograms(DQMStore::ConcurrentBooker&, const edm::Run&, const edm::EventSetup&, regionalmuoncandcompdqm::Histograms&) const override;
+  void dqmAnalyze(const edm::Event&, const edm::EventSetup&, regionalmuoncandcompdqm::Histograms const&) const override;
 
  private:  
 
@@ -45,41 +81,6 @@ class L1TStage2RegionalMuonCandComp : public DQMEDAnalyzer {
   bool ignoreBadTrkAddr;
   std::vector<int> ignoreBin;
   bool verbose;
-
-  MonitorElement* summary;
-  MonitorElement* errorSummaryNum;
-  MonitorElement* errorSummaryDen;
-
-  MonitorElement* muColl1BxRange;
-  MonitorElement* muColl1nMu;
-  MonitorElement* muColl1hwPt;
-  MonitorElement* muColl1hwEta;
-  MonitorElement* muColl1hwPhi;
-  MonitorElement* muColl1hwSign;
-  MonitorElement* muColl1hwSignValid;
-  MonitorElement* muColl1hwQual;
-  MonitorElement* muColl1link;
-  MonitorElement* muColl1processor;
-  MonitorElement* muColl1trackFinderType;
-  MonitorElement* muColl1hwHF;
-  MonitorElement* muColl1TrkAddrSize;
-  MonitorElement* muColl1TrkAddr;
-
-  MonitorElement* muColl2BxRange;
-  MonitorElement* muColl2nMu;
-  MonitorElement* muColl2hwPt;
-  MonitorElement* muColl2hwEta;
-  MonitorElement* muColl2hwPhi;
-  MonitorElement* muColl2hwSign;
-  MonitorElement* muColl2hwSignValid;
-  MonitorElement* muColl2hwQual;
-  MonitorElement* muColl2link;
-  MonitorElement* muColl2processor;
-  MonitorElement* muColl2trackFinderType;
-  MonitorElement* muColl2hwHF;
-  MonitorElement* muColl2TrkAddrSize;
-  MonitorElement* muColl2TrkAddr;
-
 };
 
 #endif

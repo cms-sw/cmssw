@@ -40,11 +40,11 @@ void L1TStage2RegionalMuonCandComp::fillDescriptions(edm::ConfigurationDescripti
   descriptions.add("l1tStage2RegionalMuonCandComp", desc);
 }
 
-void L1TStage2RegionalMuonCandComp::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
+void L1TStage2RegionalMuonCandComp::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c, regionalmuoncandcompdqm::Histograms& histograms) const
+{}
 
-void L1TStage2RegionalMuonCandComp::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
-
-void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
+void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm::Run&, const edm::EventSetup&, regionalmuoncandcompdqm::Histograms& histograms) const
+{
 
   std::string trkAddrIgnoreText = "";
   if (ignoreBadTrkAddr) {
@@ -52,135 +52,130 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   }
 
   // Subsystem Monitoring and Muon Output
-  ibooker.setCurrentFolder(monitorDir);
+  booker.setCurrentFolder(monitorDir);
 
-  summary = ibooker.book1D("summary", (summaryTitle+trkAddrIgnoreText).c_str(), 17, 1, 18); // range to match bin numbering
-  summary->setBinLabel(BXRANGEGOOD, "BX range match", 1);
-  summary->setBinLabel(BXRANGEBAD, "BX range mismatch", 1);
-  summary->setBinLabel(NMUONGOOD, "muon collection size match", 1);
-  summary->setBinLabel(NMUONBAD, "muon collection size mismatch", 1);
-  summary->setBinLabel(MUONALL, "# muons", 1);
-  summary->setBinLabel(MUONGOOD, "# matching muons", 1);
-  summary->setBinLabel(PTBAD, "p_{T} mismatch", 1);
-  summary->setBinLabel(ETABAD, "#eta mismatch", 1);
-  summary->setBinLabel(LOCALPHIBAD, "local #phi mismatch", 1);
-  summary->setBinLabel(SIGNBAD, "sign mismatch", 1);
-  summary->setBinLabel(SIGNVALBAD, "sign valid mismatch", 1);
-  summary->setBinLabel(QUALBAD, "quality mismatch", 1);
-  summary->setBinLabel(HFBAD, "HF bit mismatch", 1);
-  summary->setBinLabel(LINKBAD, "link mismatch", 1);
-  summary->setBinLabel(PROCBAD, "processor mismatch", 1);
-  summary->setBinLabel(TFBAD, "track finder type mismatch", 1);
-  summary->setBinLabel(TRACKADDRBAD, "track address mismatch", 1);
+  histograms.summary = booker.book1D("summary", (summaryTitle+trkAddrIgnoreText).c_str(), 17, 1, 18); // range to match bin numbering
+  histograms.summary.setBinLabel(BXRANGEGOOD, "BX range match", 1);
+  histograms.summary.setBinLabel(BXRANGEBAD, "BX range mismatch", 1);
+  histograms.summary.setBinLabel(NMUONGOOD, "muon collection size match", 1);
+  histograms.summary.setBinLabel(NMUONBAD, "muon collection size mismatch", 1);
+  histograms.summary.setBinLabel(MUONALL, "# muons", 1);
+  histograms.summary.setBinLabel(MUONGOOD, "# matching muons", 1);
+  histograms.summary.setBinLabel(PTBAD, "p_{T} mismatch", 1);
+  histograms.summary.setBinLabel(ETABAD, "#eta mismatch", 1);
+  histograms.summary.setBinLabel(LOCALPHIBAD, "local #phi mismatch", 1);
+  histograms.summary.setBinLabel(SIGNBAD, "sign mismatch", 1);
+  histograms.summary.setBinLabel(SIGNVALBAD, "sign valid mismatch", 1);
+  histograms.summary.setBinLabel(QUALBAD, "quality mismatch", 1);
+  histograms.summary.setBinLabel(HFBAD, "HF bit mismatch", 1);
+  histograms.summary.setBinLabel(LINKBAD, "link mismatch", 1);
+  histograms.summary.setBinLabel(PROCBAD, "processor mismatch", 1);
+  histograms.summary.setBinLabel(TFBAD, "track finder type mismatch", 1);
+  histograms.summary.setBinLabel(TRACKADDRBAD, "track address mismatch", 1);
 
-  errorSummaryNum = ibooker.book1D("errorSummaryNum", (summaryTitle+trkAddrIgnoreText).c_str(), 14, 1, 15); // range to match bin numbering
-  errorSummaryNum->setBinLabel(RBXRANGE, "BX range mismatch", 1);
-  errorSummaryNum->setBinLabel(RNMUON, "muon collection size mismatch", 1);
-  errorSummaryNum->setBinLabel(RMUON, "mismatching muons", 1);
-  errorSummaryNum->setBinLabel(RPT, "p_{T} mismatch", 1);
-  errorSummaryNum->setBinLabel(RETA, "#eta mismatch", 1);
-  errorSummaryNum->setBinLabel(RLOCALPHI, "local #phi mismatch", 1);
-  errorSummaryNum->setBinLabel(RSIGN, "sign mismatch", 1);
-  errorSummaryNum->setBinLabel(RSIGNVAL, "sign valid mismatch", 1);
-  errorSummaryNum->setBinLabel(RQUAL, "quality mismatch", 1);
-  errorSummaryNum->setBinLabel(RHF, "HF bit mismatch", 1);
-  errorSummaryNum->setBinLabel(RLINK, "link mismatch", 1);
-  errorSummaryNum->setBinLabel(RPROC, "processor mismatch", 1);
-  errorSummaryNum->setBinLabel(RTF, "track finder type mismatch", 1);
-  errorSummaryNum->setBinLabel(RTRACKADDR, "track address mismatch", 1);
+  histograms.errorSummaryNum = booker.book1D("errorSummaryNum", (summaryTitle+trkAddrIgnoreText).c_str(), 14, 1, 15); // range to match bin numbering
+  histograms.errorSummaryNum.setBinLabel(RBXRANGE, "BX range mismatch", 1);
+  histograms.errorSummaryNum.setBinLabel(RNMUON, "muon collection size mismatch", 1);
+  histograms.errorSummaryNum.setBinLabel(RMUON, "mismatching muons", 1);
+  histograms.errorSummaryNum.setBinLabel(RPT, "p_{T} mismatch", 1);
+  histograms.errorSummaryNum.setBinLabel(RETA, "#eta mismatch", 1);
+  histograms.errorSummaryNum.setBinLabel(RLOCALPHI, "local #phi mismatch", 1);
+  histograms.errorSummaryNum.setBinLabel(RSIGN, "sign mismatch", 1);
+  histograms.errorSummaryNum.setBinLabel(RSIGNVAL, "sign valid mismatch", 1);
+  histograms.errorSummaryNum.setBinLabel(RQUAL, "quality mismatch", 1);
+  histograms.errorSummaryNum.setBinLabel(RHF, "HF bit mismatch", 1);
+  histograms.errorSummaryNum.setBinLabel(RLINK, "link mismatch", 1);
+  histograms.errorSummaryNum.setBinLabel(RPROC, "processor mismatch", 1);
+  histograms.errorSummaryNum.setBinLabel(RTF, "track finder type mismatch", 1);
+  histograms.errorSummaryNum.setBinLabel(RTRACKADDR, "track address mismatch", 1);
 
   // Change the label for those bins that will be ignored
   for (unsigned int i = 1; i <= RTRACKADDR; i++) {
     if (incBin[i]==false) {
-      errorSummaryNum->setBinLabel(i, "Ignored", 1);
+      histograms.errorSummaryNum.setBinLabel(i, "Ignored", 1);
     }
   }
-  // Setting canExtend to false is needed to get the correct behaviour when running multithreaded.
-  // Otherwise, when merging the histgrams of the threads, TH1::Merge sums bins that have the same label in one bin.
-  // This needs to come after the calls to setBinLabel.
-  errorSummaryNum->getTH1F()->GetXaxis()->SetCanExtend(false);
 
-  errorSummaryDen = ibooker.book1D("errorSummaryDen", "denominators", 14, 1, 15); // range to match bin numbering
-  errorSummaryDen->setBinLabel(RBXRANGE, "# events", 1);
-  errorSummaryDen->setBinLabel(RNMUON, "# muon collections", 1);
+  histograms.errorSummaryDen = booker.book1D("errorSummaryDen", "denominators", 14, 1, 15); // range to match bin numbering
+  histograms.errorSummaryDen.setBinLabel(RBXRANGE, "# events", 1);
+  histograms.errorSummaryDen.setBinLabel(RNMUON, "# muon collections", 1);
   for (int i = RMUON; i <= RTRACKADDR; ++i) {
-    errorSummaryDen->setBinLabel(i, "# muons", 1);
+    histograms.errorSummaryDen.setBinLabel(i, "# muons", 1);
   }
-  // Needed for correct histogram summing in multithreaded running.
-  errorSummaryDen->getTH1F()->GetXaxis()->SetCanExtend(false);
 
-  muColl1BxRange = ibooker.book1D("muBxRangeColl1", (muonColl1Title+" mismatching BX range").c_str(), 11, -5.5, 5.5);
-  muColl1BxRange->setAxisTitle("BX range", 1);
-  muColl1nMu = ibooker.book1D("nMuColl1", (muonColl1Title+" mismatching muon multiplicity").c_str(), 37, -0.5, 36.5);
-  muColl1nMu->setAxisTitle("Muon multiplicity", 1);
-  muColl1hwPt = ibooker.book1D("muHwPtColl1", (muonColl1Title+" mismatching muon p_{T}"+trkAddrIgnoreText).c_str(), 512, -0.5, 511.5);
-  muColl1hwPt->setAxisTitle("Hardware p_{T}", 1);
-  muColl1hwEta = ibooker.book1D("muHwEtaColl1", (muonColl1Title+" mismatching muon #eta"+trkAddrIgnoreText).c_str(), 512, -256.5, 255.5);
-  muColl1hwEta->setAxisTitle("Hardware #eta", 1);
-  muColl1hwPhi = ibooker.book1D("muHwPhiColl1", (muonColl1Title+" mismatching muon #phi"+trkAddrIgnoreText).c_str(), 256, -128.5, 127.5);
-  muColl1hwPhi->setAxisTitle("Hardware #phi", 1);
-  muColl1hwSign = ibooker.book1D("muHwSignColl1", (muonColl1Title+" mismatching muon sign"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
-  muColl1hwSign->setAxisTitle("Hardware sign", 1);
-  muColl1hwSignValid = ibooker.book1D("muHwSignValidColl1", (muonColl1Title+" mismatching muon sign valid"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
-  muColl1hwSignValid->setAxisTitle("Hardware sign valid", 1);
-  muColl1hwQual = ibooker.book1D("muHwQualColl1", (muonColl1Title+" mismatching muon quality"+trkAddrIgnoreText).c_str(), 16, -0.5, 15.5);
-  muColl1hwQual->setAxisTitle("Hardware quality", 1);
-  muColl1link = ibooker.book1D("muLinkColl1", (muonColl1Title+" mismatching muon link"+trkAddrIgnoreText).c_str(), 36, 35.5, 71.5);
-  muColl1link->setAxisTitle("Link", 1);
-  muColl1processor = ibooker.book1D("muProcessorColl1", (muonColl1Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 15.5);
-  muColl1processor->setAxisTitle("Processor", 1);
-  muColl1trackFinderType = ibooker.book1D("muTrackFinderTypeColl1", (muonColl1Title+" mismatching muon track finder type"+trkAddrIgnoreText).c_str(), 5, -0.5, 4.5);
-  muColl1trackFinderType->setAxisTitle("Track finder type", 1);
-  muColl1trackFinderType->setBinLabel(BMTFBIN, "BMTF", 1);
-  muColl1trackFinderType->setBinLabel(OMTFNEGBIN, "OMTF-", 1);
-  muColl1trackFinderType->setBinLabel(OMTFPOSBIN, "OMTF+", 1);
-  muColl1trackFinderType->setBinLabel(EMTFNEGBIN, "EMTF-", 1);
-  muColl1trackFinderType->setBinLabel(EMTFPOSBIN, "EMTF+", 1);
-  muColl1hwHF = ibooker.book1D("muHwHFColl1", (muonColl1Title+" mismatching muon halo/fine-eta bit"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
-  muColl1hwHF->setAxisTitle("Hardware H/F bit", 1);
-  muColl1TrkAddrSize = ibooker.book1D("muTrkAddrSizeColl1", (muonColl1Title+" mismatching muon number of track address keys"+trkAddrIgnoreText).c_str(), 11, -0.5, 10.5);
-  muColl1TrkAddrSize->setAxisTitle("number of keys", 1);
-  muColl1TrkAddr = ibooker.book2D("muTrkAddrColl1", (muonColl1Title+" mismatching muon track address"+trkAddrIgnoreText).c_str(), 10, -0.5, 9.5, 16, -0.5, 15.5);
-  muColl1TrkAddr->setAxisTitle("key", 1);
-  muColl1TrkAddr->setAxisTitle("value", 2);
+  histograms.muColl1BxRange = booker.book1D("muBxRangeColl1", (muonColl1Title+" mismatching BX range").c_str(), 11, -5.5, 5.5);
+  histograms.muColl1BxRange.setAxisTitle("BX range", 1);
+  histograms.muColl1nMu = booker.book1D("nMuColl1", (muonColl1Title+" mismatching muon multiplicity").c_str(), 37, -0.5, 36.5);
+  histograms.muColl1nMu.setAxisTitle("Muon multiplicity", 1);
+  histograms.muColl1hwPt = booker.book1D("muHwPtColl1", (muonColl1Title+" mismatching muon p_{T}"+trkAddrIgnoreText).c_str(), 512, -0.5, 511.5);
+  histograms.muColl1hwPt.setAxisTitle("Hardware p_{T}", 1);
+  histograms.muColl1hwEta = booker.book1D("muHwEtaColl1", (muonColl1Title+" mismatching muon #eta"+trkAddrIgnoreText).c_str(), 512, -256.5, 255.5);
+  histograms.muColl1hwEta.setAxisTitle("Hardware #eta", 1);
+  histograms.muColl1hwPhi = booker.book1D("muHwPhiColl1", (muonColl1Title+" mismatching muon #phi"+trkAddrIgnoreText).c_str(), 256, -128.5, 127.5);
+  histograms.muColl1hwPhi.setAxisTitle("Hardware #phi", 1);
+  histograms.muColl1hwSign = booker.book1D("muHwSignColl1", (muonColl1Title+" mismatching muon sign"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
+  histograms.muColl1hwSign.setAxisTitle("Hardware sign", 1);
+  histograms.muColl1hwSignValid = booker.book1D("muHwSignValidColl1", (muonColl1Title+" mismatching muon sign valid"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
+  histograms.muColl1hwSignValid.setAxisTitle("Hardware sign valid", 1);
+  histograms.muColl1hwQual = booker.book1D("muHwQualColl1", (muonColl1Title+" mismatching muon quality"+trkAddrIgnoreText).c_str(), 16, -0.5, 15.5);
+  histograms.muColl1hwQual.setAxisTitle("Hardware quality", 1);
+  histograms.muColl1link = booker.book1D("muLinkColl1", (muonColl1Title+" mismatching muon link"+trkAddrIgnoreText).c_str(), 36, 35.5, 71.5);
+  histograms.muColl1link.setAxisTitle("Link", 1);
+  histograms.muColl1processor = booker.book1D("muProcessorColl1", (muonColl1Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 15.5);
+  histograms.muColl1processor.setAxisTitle("Processor", 1);
+  histograms.muColl1trackFinderType = booker.book1D("muTrackFinderTypeColl1", (muonColl1Title+" mismatching muon track finder type"+trkAddrIgnoreText).c_str(), 5, -0.5, 4.5);
+  histograms.muColl1trackFinderType.setAxisTitle("Track finder type", 1);
+  histograms.muColl1trackFinderType.setBinLabel(BMTFBIN, "BMTF", 1);
+  histograms.muColl1trackFinderType.setBinLabel(OMTFNEGBIN, "OMTF-", 1);
+  histograms.muColl1trackFinderType.setBinLabel(OMTFPOSBIN, "OMTF+", 1);
+  histograms.muColl1trackFinderType.setBinLabel(EMTFNEGBIN, "EMTF-", 1);
+  histograms.muColl1trackFinderType.setBinLabel(EMTFPOSBIN, "EMTF+", 1);
+  histograms.muColl1hwHF = booker.book1D("muHwHFColl1", (muonColl1Title+" mismatching muon halo/fine-eta bit"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
+  histograms.muColl1hwHF.setAxisTitle("Hardware H/F bit", 1);
+  histograms.muColl1TrkAddrSize = booker.book1D("muTrkAddrSizeColl1", (muonColl1Title+" mismatching muon number of track address keys"+trkAddrIgnoreText).c_str(), 11, -0.5, 10.5);
+  histograms.muColl1TrkAddrSize.setAxisTitle("number of keys", 1);
+  histograms.muColl1TrkAddr = booker.book2D("muTrkAddrColl1", (muonColl1Title+" mismatching muon track address"+trkAddrIgnoreText).c_str(), 10, -0.5, 9.5, 16, -0.5, 15.5);
+  histograms.muColl1TrkAddr.setAxisTitle("key", 1);
+  histograms.muColl1TrkAddr.setAxisTitle("value", 2);
 
-  muColl2BxRange = ibooker.book1D("muBxRangeColl2", (muonColl2Title+" mismatching BX range").c_str(), 11, -5.5, 5.5);
-  muColl2BxRange->setAxisTitle("BX range", 1);
-  muColl2nMu = ibooker.book1D("nMuColl2", (muonColl2Title+" mismatching muon multiplicity").c_str(), 37, -0.5, 36.5);
-  muColl2nMu->setAxisTitle("Muon multiplicity", 1);
-  muColl2hwPt = ibooker.book1D("muHwPtColl2", (muonColl2Title+" mismatching muon p_{T}"+trkAddrIgnoreText).c_str(), 512, -0.5, 511.5);
-  muColl2hwPt->setAxisTitle("Hardware p_{T}", 1);
-  muColl2hwEta = ibooker.book1D("muHwEtaColl2", (muonColl2Title+" mismatching muon #eta"+trkAddrIgnoreText).c_str(), 512, -256.5, 255.5);
-  muColl2hwEta->setAxisTitle("Hardware #eta", 1);
-  muColl2hwPhi = ibooker.book1D("muHwPhiColl2", (muonColl2Title+" mismatching muon #phi"+trkAddrIgnoreText).c_str(), 256, -128.5, 127.5);
-  muColl2hwPhi->setAxisTitle("Hardware #phi", 1);
-  muColl2hwSign = ibooker.book1D("muHwSignColl2", (muonColl2Title+" mismatching muon sign"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
-  muColl2hwSign->setAxisTitle("Hardware sign", 1);
-  muColl2hwSignValid = ibooker.book1D("muHwSignValidColl2", (muonColl2Title+" mismatching muon sign valid"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
-  muColl2hwSignValid->setAxisTitle("Hardware sign valid", 1);
-  muColl2hwQual = ibooker.book1D("muHwQualColl2", (muonColl2Title+" mismatching muon quality"+trkAddrIgnoreText).c_str(), 16, -0.5, 15.5);
-  muColl2hwQual->setAxisTitle("Hardware quality", 1);
-  muColl2link = ibooker.book1D("muLinkColl2", (muonColl2Title+" mismatching muon link"+trkAddrIgnoreText).c_str(), 36, 35.5, 71.5);
-  muColl2link->setAxisTitle("Link", 1);
-  muColl2processor = ibooker.book1D("muProcessorColl2", (muonColl2Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 15.5);
-  muColl2processor->setAxisTitle("Processor", 1);
-  muColl2trackFinderType = ibooker.book1D("muTrackFinderTypeColl2", (muonColl2Title+" mismatching muon track finder type"+trkAddrIgnoreText).c_str(), 5, -0.5, 4.5);
-  muColl2trackFinderType->setAxisTitle("Track finder type", 1);
-  muColl2trackFinderType->setBinLabel(BMTFBIN, "BMTF", 1);
-  muColl2trackFinderType->setBinLabel(OMTFNEGBIN, "OMTF-", 1);
-  muColl2trackFinderType->setBinLabel(OMTFPOSBIN, "OMTF+", 1);
-  muColl2trackFinderType->setBinLabel(EMTFNEGBIN, "EMTF-", 1);
-  muColl2trackFinderType->setBinLabel(EMTFPOSBIN, "EMTF+", 1);
-  muColl2hwHF = ibooker.book1D("muHwHFColl2", (muonColl2Title+" mismatching muon halo/fine-eta bit"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
-  muColl2hwHF->setAxisTitle("Hardware H/F bit", 1);
-  muColl2TrkAddrSize = ibooker.book1D("muTrkAddrSizeColl2", (muonColl2Title+" mismatching muon number of track address keys"+trkAddrIgnoreText).c_str(), 11, -0.5, 10.5);
-  muColl2TrkAddrSize->setAxisTitle("number of keys", 1);
-  muColl2TrkAddr = ibooker.book2D("muTrkAddrColl2", (muonColl2Title+" mismatching muon track address"+trkAddrIgnoreText).c_str(), 10, -0.5, 9.5, 16, -0.5, 15.5);
-  muColl2TrkAddr->setAxisTitle("key", 1);
-  muColl2TrkAddr->setAxisTitle("value", 2);
+  histograms.muColl2BxRange = booker.book1D("muBxRangeColl2", (muonColl2Title+" mismatching BX range").c_str(), 11, -5.5, 5.5);
+  histograms.muColl2BxRange.setAxisTitle("BX range", 1);
+  histograms.muColl2nMu = booker.book1D("nMuColl2", (muonColl2Title+" mismatching muon multiplicity").c_str(), 37, -0.5, 36.5);
+  histograms.muColl2nMu.setAxisTitle("Muon multiplicity", 1);
+  histograms.muColl2hwPt = booker.book1D("muHwPtColl2", (muonColl2Title+" mismatching muon p_{T}"+trkAddrIgnoreText).c_str(), 512, -0.5, 511.5);
+  histograms.muColl2hwPt.setAxisTitle("Hardware p_{T}", 1);
+  histograms.muColl2hwEta = booker.book1D("muHwEtaColl2", (muonColl2Title+" mismatching muon #eta"+trkAddrIgnoreText).c_str(), 512, -256.5, 255.5);
+  histograms.muColl2hwEta.setAxisTitle("Hardware #eta", 1);
+  histograms.muColl2hwPhi = booker.book1D("muHwPhiColl2", (muonColl2Title+" mismatching muon #phi"+trkAddrIgnoreText).c_str(), 256, -128.5, 127.5);
+  histograms.muColl2hwPhi.setAxisTitle("Hardware #phi", 1);
+  histograms.muColl2hwSign = booker.book1D("muHwSignColl2", (muonColl2Title+" mismatching muon sign"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
+  histograms.muColl2hwSign.setAxisTitle("Hardware sign", 1);
+  histograms.muColl2hwSignValid = booker.book1D("muHwSignValidColl2", (muonColl2Title+" mismatching muon sign valid"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
+  histograms.muColl2hwSignValid.setAxisTitle("Hardware sign valid", 1);
+  histograms.muColl2hwQual = booker.book1D("muHwQualColl2", (muonColl2Title+" mismatching muon quality"+trkAddrIgnoreText).c_str(), 16, -0.5, 15.5);
+  histograms.muColl2hwQual.setAxisTitle("Hardware quality", 1);
+  histograms.muColl2link = booker.book1D("muLinkColl2", (muonColl2Title+" mismatching muon link"+trkAddrIgnoreText).c_str(), 36, 35.5, 71.5);
+  histograms.muColl2link.setAxisTitle("Link", 1);
+  histograms.muColl2processor = booker.book1D("muProcessorColl2", (muonColl2Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 15.5);
+  histograms.muColl2processor.setAxisTitle("Processor", 1);
+  histograms.muColl2trackFinderType = booker.book1D("muTrackFinderTypeColl2", (muonColl2Title+" mismatching muon track finder type"+trkAddrIgnoreText).c_str(), 5, -0.5, 4.5);
+  histograms.muColl2trackFinderType.setAxisTitle("Track finder type", 1);
+  histograms.muColl2trackFinderType.setBinLabel(BMTFBIN, "BMTF", 1);
+  histograms.muColl2trackFinderType.setBinLabel(OMTFNEGBIN, "OMTF-", 1);
+  histograms.muColl2trackFinderType.setBinLabel(OMTFPOSBIN, "OMTF+", 1);
+  histograms.muColl2trackFinderType.setBinLabel(EMTFNEGBIN, "EMTF-", 1);
+  histograms.muColl2trackFinderType.setBinLabel(EMTFPOSBIN, "EMTF+", 1);
+  histograms.muColl2hwHF = booker.book1D("muHwHFColl2", (muonColl2Title+" mismatching muon halo/fine-eta bit"+trkAddrIgnoreText).c_str(), 2, -0.5, 1.5);
+  histograms.muColl2hwHF.setAxisTitle("Hardware H/F bit", 1);
+  histograms.muColl2TrkAddrSize = booker.book1D("muTrkAddrSizeColl2", (muonColl2Title+" mismatching muon number of track address keys"+trkAddrIgnoreText).c_str(), 11, -0.5, 10.5);
+  histograms.muColl2TrkAddrSize.setAxisTitle("number of keys", 1);
+  histograms.muColl2TrkAddr = booker.book2D("muTrkAddrColl2", (muonColl2Title+" mismatching muon track address"+trkAddrIgnoreText).c_str(), 10, -0.5, 9.5, 16, -0.5, 15.5);
+  histograms.muColl2TrkAddr.setAxisTitle("key", 1);
+  histograms.muColl2TrkAddr.setAxisTitle("value", 2);
 }
 
-void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
+void L1TStage2RegionalMuonCandComp::dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, regionalmuoncandcompdqm::Histograms const& histograms) const
+{
 
   if (verbose) edm::LogInfo("L1TStage2RegionalMuonCandComp") << "L1TStage2RegionalMuonCandComp: analyze..." << std::endl;
 
@@ -189,21 +184,21 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
   e.getByToken(muonToken1, muonBxColl1);
   e.getByToken(muonToken2, muonBxColl2);
 
-  errorSummaryDen->Fill(RBXRANGE);
+  histograms.errorSummaryDen.fill(RBXRANGE);
   int bxRange1 = muonBxColl1->getLastBX() - muonBxColl1->getFirstBX() + 1;
   int bxRange2 = muonBxColl2->getLastBX() - muonBxColl2->getFirstBX() + 1;
   if (bxRange1 != bxRange2) {
-    summary->Fill(BXRANGEBAD);
-    if (incBin[RBXRANGE]) errorSummaryNum->Fill(RBXRANGE);
+    histograms.summary.fill(BXRANGEBAD);
+    if (incBin[RBXRANGE]) histograms.errorSummaryNum.fill(RBXRANGE);
     int bx;
     for (bx = muonBxColl1->getFirstBX(); bx <= muonBxColl1->getLastBX(); ++bx) {
-        muColl1BxRange->Fill(bx);
+        histograms.muColl1BxRange.fill(bx);
     }
     for (bx = muonBxColl2->getFirstBX(); bx <= muonBxColl2->getLastBX(); ++bx) {
-        muColl2BxRange->Fill(bx);
+        histograms.muColl2BxRange.fill(bx);
     }
   } else {
-    summary->Fill(BXRANGEGOOD);
+    histograms.summary.fill(BXRANGEGOOD);
   }
 
   for (int iBx = muonBxColl1->getFirstBX(); iBx <= muonBxColl1->getLastBX(); ++iBx) {
@@ -213,55 +208,55 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
     l1t::RegionalMuonCandBxCollection::const_iterator muonIt1;
     l1t::RegionalMuonCandBxCollection::const_iterator muonIt2;
 
-    errorSummaryDen->Fill(RNMUON);
+    histograms.errorSummaryDen.fill(RNMUON);
     // check number of muons
     if (muonBxColl1->size(iBx) != muonBxColl2->size(iBx)) {
-      summary->Fill(NMUONBAD);
-      if (incBin[RNMUON]) errorSummaryNum->Fill(RNMUON);
-      muColl1nMu->Fill(muonBxColl1->size(iBx));
-      muColl2nMu->Fill(muonBxColl2->size(iBx));
+      histograms.summary.fill(NMUONBAD);
+      if (incBin[RNMUON]) histograms.errorSummaryNum.fill(RNMUON);
+      histograms.muColl1nMu.fill(muonBxColl1->size(iBx));
+      histograms.muColl2nMu.fill(muonBxColl2->size(iBx));
 
       if (muonBxColl1->size(iBx) > muonBxColl2->size(iBx)) {
         muonIt1 = muonBxColl1->begin(iBx) + muonBxColl2->size(iBx);
         const std::map<int, int> muon1TrackAddr = muonIt1->trackAddress();
         for (; muonIt1 != muonBxColl1->end(iBx); ++muonIt1) {
-          muColl1hwPt->Fill(muonIt1->hwPt());
-          muColl1hwEta->Fill(muonIt1->hwEta());
-          muColl1hwPhi->Fill(muonIt1->hwPhi());
-          muColl1hwSign->Fill(muonIt1->hwSign());
-          muColl1hwSignValid->Fill(muonIt1->hwSignValid());
-          muColl1hwQual->Fill(muonIt1->hwQual());
-          muColl1link->Fill(muonIt1->link());
-          muColl1processor->Fill(muonIt1->processor());
-          muColl1trackFinderType->Fill(muonIt1->trackFinderType());
-          muColl1hwHF->Fill(muonIt1->hwHF());
-          muColl1TrkAddrSize->Fill(muon1TrackAddr.size());
+          histograms.muColl1hwPt.fill(muonIt1->hwPt());
+          histograms.muColl1hwEta.fill(muonIt1->hwEta());
+          histograms.muColl1hwPhi.fill(muonIt1->hwPhi());
+          histograms.muColl1hwSign.fill(muonIt1->hwSign());
+          histograms.muColl1hwSignValid.fill(muonIt1->hwSignValid());
+          histograms.muColl1hwQual.fill(muonIt1->hwQual());
+          histograms.muColl1link.fill(muonIt1->link());
+          histograms.muColl1processor.fill(muonIt1->processor());
+          histograms.muColl1trackFinderType.fill(muonIt1->trackFinderType());
+          histograms.muColl1hwHF.fill(muonIt1->hwHF());
+          histograms.muColl1TrkAddrSize.fill(muon1TrackAddr.size());
           for (std::map<int, int>::const_iterator trIt1 = muon1TrackAddr.begin(); trIt1 != muon1TrackAddr.end(); ++trIt1) {
-            muColl1TrkAddr->Fill(trIt1->first, trIt1->second);
+            histograms.muColl1TrkAddr.fill(trIt1->first, trIt1->second);
           }
         }
       } else {
         muonIt2 = muonBxColl2->begin(iBx) + muonBxColl1->size(iBx);
         const std::map<int, int> muon2TrackAddr = muonIt2->trackAddress();
         for (; muonIt2 != muonBxColl2->end(iBx); ++muonIt2) {
-          muColl2hwPt->Fill(muonIt2->hwPt());
-          muColl2hwEta->Fill(muonIt2->hwEta());
-          muColl2hwPhi->Fill(muonIt2->hwPhi());
-          muColl2hwSign->Fill(muonIt2->hwSign());
-          muColl2hwSignValid->Fill(muonIt2->hwSignValid());
-          muColl2hwQual->Fill(muonIt2->hwQual());
-          muColl2link->Fill(muonIt2->link());
-          muColl2processor->Fill(muonIt2->processor());
-          muColl2trackFinderType->Fill(muonIt2->trackFinderType());
-          muColl2hwHF->Fill(muonIt2->hwHF());
-          muColl2TrkAddrSize->Fill(muon2TrackAddr.size());
+          histograms.muColl2hwPt.fill(muonIt2->hwPt());
+          histograms.muColl2hwEta.fill(muonIt2->hwEta());
+          histograms.muColl2hwPhi.fill(muonIt2->hwPhi());
+          histograms.muColl2hwSign.fill(muonIt2->hwSign());
+          histograms.muColl2hwSignValid.fill(muonIt2->hwSignValid());
+          histograms.muColl2hwQual.fill(muonIt2->hwQual());
+          histograms.muColl2link.fill(muonIt2->link());
+          histograms.muColl2processor.fill(muonIt2->processor());
+          histograms.muColl2trackFinderType.fill(muonIt2->trackFinderType());
+          histograms.muColl2hwHF.fill(muonIt2->hwHF());
+          histograms.muColl2TrkAddrSize.fill(muon2TrackAddr.size());
           for (std::map<int, int>::const_iterator trIt2 = muon2TrackAddr.begin(); trIt2 != muon2TrackAddr.end(); ++trIt2) {
-            muColl2TrkAddr->Fill(trIt2->first, trIt2->second);
+            histograms.muColl2TrkAddr.fill(trIt2->first, trIt2->second);
           }
         }
       }
     } else {
-      summary->Fill(NMUONGOOD);
+      histograms.summary.fill(NMUONGOOD);
     }
 
     muonIt1 = muonBxColl1->begin(iBx);
@@ -276,91 +271,91 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
       //          << ", hwSign=" << muonIt2->hwSign() << ", hwSignValid=" << muonIt2->hwSignValid()
       //          << ", hwQual=" << muonIt2->hwQual() << ", link=" << muonIt2->link() << ", processor=" << muonIt2->processor()
       //          << ", trackFinderType=" << muonIt2->trackFinderType() << std::endl;
-      summary->Fill(MUONALL);
+      histograms.summary.fill(MUONALL);
       for (int i = RMUON; i <= RTRACKADDR; ++i) {
-        errorSummaryDen->Fill(i);
+        histograms.errorSummaryDen.fill(i);
       }
 
       bool muonMismatch = false;    // All muon mismatches
       bool muonSelMismatch = false; // Muon mismatches excluding ignored bins
       if (muonIt1->hwPt() != muonIt2->hwPt()) {
         muonMismatch = true;
-        summary->Fill(PTBAD);
+        histograms.summary.fill(PTBAD);
         if (incBin[RPT]) {
           muonSelMismatch = true;
-          errorSummaryNum->Fill(RPT);
+          histograms.errorSummaryNum.fill(RPT);
         }
       }
       if (muonIt1->hwEta() != muonIt2->hwEta()) {
         muonMismatch = true;
-        summary->Fill(ETABAD);
+        histograms.summary.fill(ETABAD);
         if (incBin[RETA]) {
           muonSelMismatch = true;
-          errorSummaryNum->Fill(RETA);
+          histograms.errorSummaryNum.fill(RETA);
         }
       }
       if (muonIt1->hwPhi() != muonIt2->hwPhi()) {
         muonMismatch = true;
-        summary->Fill(LOCALPHIBAD);
+        histograms.summary.fill(LOCALPHIBAD);
         if (incBin[RLOCALPHI]) {
           muonSelMismatch = true;
-          errorSummaryNum->Fill(RLOCALPHI);
+          histograms.errorSummaryNum.fill(RLOCALPHI);
         }
       }
       if (muonIt1->hwSign() != muonIt2->hwSign()) {
         muonMismatch = true;
-        summary->Fill(SIGNBAD);
+        histograms.summary.fill(SIGNBAD);
         if (incBin[RSIGN]) {
           muonSelMismatch = true;
-          errorSummaryNum->Fill(RSIGN);
+          histograms.errorSummaryNum.fill(RSIGN);
         }
       }
       if (muonIt1->hwSignValid() != muonIt2->hwSignValid()) {
         muonMismatch = true;
-        summary->Fill(SIGNVALBAD);
+        histograms.summary.fill(SIGNVALBAD);
         if (incBin[RSIGNVAL]) {
           muonSelMismatch = true;
-          errorSummaryNum->Fill(RSIGNVAL);
+          histograms.errorSummaryNum.fill(RSIGNVAL);
         }
       }
       if (muonIt1->hwQual() != muonIt2->hwQual()) {
         muonMismatch = true;
-        summary->Fill(QUALBAD);
+        histograms.summary.fill(QUALBAD);
         if (incBin[RQUAL]) {
           muonSelMismatch = true;
-          errorSummaryNum->Fill(RQUAL);
+          histograms.errorSummaryNum.fill(RQUAL);
         }
       }
       if (muonIt1->hwHF() != muonIt2->hwHF()) {
         muonMismatch = true;
-        summary->Fill(HFBAD);
+        histograms.summary.fill(HFBAD);
         if (incBin[RHF]) {
           muonSelMismatch = true;
-          errorSummaryNum->Fill(RHF);
+          histograms.errorSummaryNum.fill(RHF);
         }
       }
       if (muonIt1->link() != muonIt2->link()) {
         muonMismatch = true;
-        summary->Fill(LINKBAD);
+        histograms.summary.fill(LINKBAD);
         if (incBin[RLINK]) {
           muonSelMismatch = true;
-          errorSummaryNum->Fill(RLINK);
+          histograms.errorSummaryNum.fill(RLINK);
         }
       }
       if (muonIt1->processor() != muonIt2->processor()) {
         muonMismatch = true;
-        summary->Fill(PROCBAD);
+        histograms.summary.fill(PROCBAD);
         if (incBin[RPROC]) {
           muonSelMismatch = true;
-          errorSummaryNum->Fill(RPROC);
+          histograms.errorSummaryNum.fill(RPROC);
         }
       }
       if (muonIt1->trackFinderType() != muonIt2->trackFinderType()) {
         muonMismatch = true;
-        summary->Fill(TFBAD);
+        histograms.summary.fill(TFBAD);
         if (incBin[RTF]) {
           muonSelMismatch = true;
-          errorSummaryNum->Fill(RTF);
+          histograms.errorSummaryNum.fill(RTF);
         }
       }
       // check track address
@@ -385,47 +380,47 @@ void L1TStage2RegionalMuonCandComp::analyze(const edm::Event& e, const edm::Even
           muonMismatch = true;
           if (incBin[RTRACKADDR]) muonSelMismatch = true;
         }
-        summary->Fill(TRACKADDRBAD);
-        if (incBin[RTRACKADDR]) errorSummaryNum->Fill(RTRACKADDR);
+        histograms.summary.fill(TRACKADDRBAD);
+        if (incBin[RTRACKADDR]) histograms.errorSummaryNum.fill(RTRACKADDR);
       }
 
       if (incBin[RMUON] && muonSelMismatch) {
-        errorSummaryNum->Fill(RMUON);
+        histograms.errorSummaryNum.fill(RMUON);
       }
 
       if (muonMismatch) {
 
-        muColl1hwPt->Fill(muonIt1->hwPt());
-        muColl1hwEta->Fill(muonIt1->hwEta());
-        muColl1hwPhi->Fill(muonIt1->hwPhi());
-        muColl1hwSign->Fill(muonIt1->hwSign());
-        muColl1hwSignValid->Fill(muonIt1->hwSignValid());
-        muColl1hwQual->Fill(muonIt1->hwQual());
-        muColl1link->Fill(muonIt1->link());
-        muColl1processor->Fill(muonIt1->processor());
-        muColl1trackFinderType->Fill(muonIt1->trackFinderType());
-        muColl1hwHF->Fill(muonIt1->hwHF());
-        muColl1TrkAddrSize->Fill(muon1TrackAddr.size());
+        histograms.muColl1hwPt.fill(muonIt1->hwPt());
+        histograms.muColl1hwEta.fill(muonIt1->hwEta());
+        histograms.muColl1hwPhi.fill(muonIt1->hwPhi());
+        histograms.muColl1hwSign.fill(muonIt1->hwSign());
+        histograms.muColl1hwSignValid.fill(muonIt1->hwSignValid());
+        histograms.muColl1hwQual.fill(muonIt1->hwQual());
+        histograms.muColl1link.fill(muonIt1->link());
+        histograms.muColl1processor.fill(muonIt1->processor());
+        histograms.muColl1trackFinderType.fill(muonIt1->trackFinderType());
+        histograms.muColl1hwHF.fill(muonIt1->hwHF());
+        histograms.muColl1TrkAddrSize.fill(muon1TrackAddr.size());
         for (std::map<int, int>::const_iterator trIt1 = muon1TrackAddr.begin(); trIt1 != muon1TrackAddr.end(); ++trIt1) {
-          muColl1TrkAddr->Fill(trIt1->first, trIt1->second);
+          histograms.muColl1TrkAddr.fill(trIt1->first, trIt1->second);
         }
 
-        muColl2hwPt->Fill(muonIt2->hwPt());
-        muColl2hwEta->Fill(muonIt2->hwEta());
-        muColl2hwPhi->Fill(muonIt2->hwPhi());
-        muColl2hwSign->Fill(muonIt2->hwSign());
-        muColl2hwSignValid->Fill(muonIt2->hwSignValid());
-        muColl2hwQual->Fill(muonIt2->hwQual());
-        muColl2link->Fill(muonIt2->link());
-        muColl2processor->Fill(muonIt2->processor());
-        muColl2trackFinderType->Fill(muonIt2->trackFinderType());
-        muColl2hwHF->Fill(muonIt2->hwHF());
-        muColl2TrkAddrSize->Fill(muon2TrackAddr.size());
+        histograms.muColl2hwPt.fill(muonIt2->hwPt());
+        histograms.muColl2hwEta.fill(muonIt2->hwEta());
+        histograms.muColl2hwPhi.fill(muonIt2->hwPhi());
+        histograms.muColl2hwSign.fill(muonIt2->hwSign());
+        histograms.muColl2hwSignValid.fill(muonIt2->hwSignValid());
+        histograms.muColl2hwQual.fill(muonIt2->hwQual());
+        histograms.muColl2link.fill(muonIt2->link());
+        histograms.muColl2processor.fill(muonIt2->processor());
+        histograms.muColl2trackFinderType.fill(muonIt2->trackFinderType());
+        histograms.muColl2hwHF.fill(muonIt2->hwHF());
+        histograms.muColl2TrkAddrSize.fill(muon2TrackAddr.size());
         for (std::map<int, int>::const_iterator trIt2 = muon2TrackAddr.begin(); trIt2 != muon2TrackAddr.end(); ++trIt2) {
-          muColl2TrkAddr->Fill(trIt2->first, trIt2->second);
+          histograms.muColl2TrkAddr.fill(trIt2->first, trIt2->second);
         }
       } else {
-        summary->Fill(MUONGOOD);
+        histograms.summary.fill(MUONGOOD);
       }
 
       ++muonIt1;

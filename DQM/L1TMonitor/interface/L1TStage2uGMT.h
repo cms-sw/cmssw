@@ -6,8 +6,8 @@
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,8 +15,165 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+namespace ugmtdqm {
+  struct Histograms {
+    ConcurrentMonitorElement ugmtBMTFBX;
+    ConcurrentMonitorElement ugmtBMTFnMuons;
+    ConcurrentMonitorElement ugmtBMTFhwPt;
+    ConcurrentMonitorElement ugmtBMTFhwEta;
+    ConcurrentMonitorElement ugmtBMTFhwPhi;
+    ConcurrentMonitorElement ugmtBMTFglbPhi;
+    ConcurrentMonitorElement ugmtBMTFProcvshwPhi;
+    ConcurrentMonitorElement ugmtBMTFhwSign;
+    ConcurrentMonitorElement ugmtBMTFhwSignValid;
+    ConcurrentMonitorElement ugmtBMTFhwQual;
+    ConcurrentMonitorElement ugmtBMTFlink;
+    ConcurrentMonitorElement ugmtBMTFMuMuDEta;
+    ConcurrentMonitorElement ugmtBMTFMuMuDPhi;
+    ConcurrentMonitorElement ugmtBMTFMuMuDR;
 
-class L1TStage2uGMT : public DQMEDAnalyzer {
+    ConcurrentMonitorElement ugmtOMTFBX;
+    ConcurrentMonitorElement ugmtOMTFnMuons;
+    ConcurrentMonitorElement ugmtOMTFhwPt;
+    ConcurrentMonitorElement ugmtOMTFhwEta;
+    ConcurrentMonitorElement ugmtOMTFhwPhiPos;
+    ConcurrentMonitorElement ugmtOMTFhwPhiNeg;
+    ConcurrentMonitorElement ugmtOMTFglbPhiPos;
+    ConcurrentMonitorElement ugmtOMTFglbPhiNeg;
+    ConcurrentMonitorElement ugmtOMTFProcvshwPhiPos;
+    ConcurrentMonitorElement ugmtOMTFProcvshwPhiNeg;
+    ConcurrentMonitorElement ugmtOMTFhwSign;
+    ConcurrentMonitorElement ugmtOMTFhwSignValid;
+    ConcurrentMonitorElement ugmtOMTFhwQual;
+    ConcurrentMonitorElement ugmtOMTFlink;
+    ConcurrentMonitorElement ugmtOMTFMuMuDEta;
+    ConcurrentMonitorElement ugmtOMTFMuMuDPhi;
+    ConcurrentMonitorElement ugmtOMTFMuMuDR;
+
+    ConcurrentMonitorElement ugmtEMTFBX;
+    ConcurrentMonitorElement ugmtEMTFnMuons;
+    ConcurrentMonitorElement ugmtEMTFhwPt;
+    ConcurrentMonitorElement ugmtEMTFhwEta;
+    ConcurrentMonitorElement ugmtEMTFhwPhiPos;
+    ConcurrentMonitorElement ugmtEMTFhwPhiNeg;
+    ConcurrentMonitorElement ugmtEMTFglbPhiPos;
+    ConcurrentMonitorElement ugmtEMTFglbPhiNeg;
+    ConcurrentMonitorElement ugmtEMTFProcvshwPhiPos;
+    ConcurrentMonitorElement ugmtEMTFProcvshwPhiNeg;
+    ConcurrentMonitorElement ugmtEMTFhwSign;
+    ConcurrentMonitorElement ugmtEMTFhwSignValid;
+    ConcurrentMonitorElement ugmtEMTFhwQual;
+    ConcurrentMonitorElement ugmtEMTFlink;
+    ConcurrentMonitorElement ugmtEMTFMuMuDEta;
+    ConcurrentMonitorElement ugmtEMTFMuMuDPhi;
+    ConcurrentMonitorElement ugmtEMTFMuMuDR;
+
+    ConcurrentMonitorElement ugmtBOMTFposMuMuDEta;
+    ConcurrentMonitorElement ugmtBOMTFposMuMuDPhi;
+    ConcurrentMonitorElement ugmtBOMTFposMuMuDR;
+    ConcurrentMonitorElement ugmtBOMTFnegMuMuDEta;
+    ConcurrentMonitorElement ugmtBOMTFnegMuMuDPhi;
+    ConcurrentMonitorElement ugmtBOMTFnegMuMuDR;
+
+    ConcurrentMonitorElement ugmtEOMTFposMuMuDEta;
+    ConcurrentMonitorElement ugmtEOMTFposMuMuDPhi;
+    ConcurrentMonitorElement ugmtEOMTFposMuMuDR;
+    ConcurrentMonitorElement ugmtEOMTFnegMuMuDEta;
+    ConcurrentMonitorElement ugmtEOMTFnegMuMuDPhi;
+    ConcurrentMonitorElement ugmtEOMTFnegMuMuDR;
+
+    ConcurrentMonitorElement ugmtBMTFBXvsProcessor;
+    ConcurrentMonitorElement ugmtOMTFBXvsProcessor;
+    ConcurrentMonitorElement ugmtEMTFBXvsProcessor;
+    ConcurrentMonitorElement ugmtBXvsLink;
+
+    ConcurrentMonitorElement ugmtMuonBX;
+    ConcurrentMonitorElement ugmtnMuons;
+    ConcurrentMonitorElement ugmtMuonIndex;
+    ConcurrentMonitorElement ugmtMuonhwPt;
+    ConcurrentMonitorElement ugmtMuonhwEta;
+    ConcurrentMonitorElement ugmtMuonhwPhi;
+    ConcurrentMonitorElement ugmtMuonhwEtaAtVtx;
+    ConcurrentMonitorElement ugmtMuonhwPhiAtVtx;
+    ConcurrentMonitorElement ugmtMuonhwCharge;
+    ConcurrentMonitorElement ugmtMuonhwChargeValid;
+    ConcurrentMonitorElement ugmtMuonhwQual;
+    ConcurrentMonitorElement ugmtMuonhwIso;
+
+    ConcurrentMonitorElement ugmtMuonPt;
+    ConcurrentMonitorElement ugmtMuonEta;
+    ConcurrentMonitorElement ugmtMuonPhi;
+    ConcurrentMonitorElement ugmtMuonEtaAtVtx;
+    ConcurrentMonitorElement ugmtMuonPhiAtVtx;
+    ConcurrentMonitorElement ugmtMuonCharge;
+
+    ConcurrentMonitorElement ugmtMuonPhiBmtf;
+    ConcurrentMonitorElement ugmtMuonPhiOmtf;
+    ConcurrentMonitorElement ugmtMuonPhiEmtf;
+    ConcurrentMonitorElement ugmtMuonDEtavsPtBmtf;
+    ConcurrentMonitorElement ugmtMuonDPhivsPtBmtf;
+    ConcurrentMonitorElement ugmtMuonDEtavsPtOmtf;
+    ConcurrentMonitorElement ugmtMuonDPhivsPtOmtf;
+    ConcurrentMonitorElement ugmtMuonDEtavsPtEmtf;
+    ConcurrentMonitorElement ugmtMuonDPhivsPtEmtf;
+
+    ConcurrentMonitorElement ugmtMuonPtvsEta;
+    ConcurrentMonitorElement ugmtMuonPtvsPhi;
+    ConcurrentMonitorElement ugmtMuonPhivsEta;
+    ConcurrentMonitorElement ugmtMuonPhiAtVtxvsEtaAtVtx;
+
+    ConcurrentMonitorElement ugmtMuonBXvsLink;
+    ConcurrentMonitorElement ugmtMuonBXvshwPt;
+    ConcurrentMonitorElement ugmtMuonBXvshwEta;
+    ConcurrentMonitorElement ugmtMuonBXvshwPhi;
+    ConcurrentMonitorElement ugmtMuonBXvshwCharge;
+    ConcurrentMonitorElement ugmtMuonBXvshwChargeValid;
+    ConcurrentMonitorElement ugmtMuonBXvshwQual;
+    ConcurrentMonitorElement ugmtMuonBXvshwIso;
+
+    // muon correlations
+    ConcurrentMonitorElement ugmtMuMuInvMass;
+    ConcurrentMonitorElement ugmtMuMuInvMassAtVtx;
+
+    ConcurrentMonitorElement ugmtMuMuDEta;
+    ConcurrentMonitorElement ugmtMuMuDPhi;
+    ConcurrentMonitorElement ugmtMuMuDR;
+
+    ConcurrentMonitorElement ugmtMuMuDEtaBOpos;
+    ConcurrentMonitorElement ugmtMuMuDPhiBOpos;
+    ConcurrentMonitorElement ugmtMuMuDRBOpos;
+    ConcurrentMonitorElement ugmtMuMuDEtaBOneg;
+    ConcurrentMonitorElement ugmtMuMuDPhiBOneg;
+    ConcurrentMonitorElement ugmtMuMuDRBOneg;
+
+    ConcurrentMonitorElement ugmtMuMuDEtaEOpos;
+    ConcurrentMonitorElement ugmtMuMuDPhiEOpos;
+    ConcurrentMonitorElement ugmtMuMuDREOpos;
+    ConcurrentMonitorElement ugmtMuMuDEtaEOneg;
+    ConcurrentMonitorElement ugmtMuMuDPhiEOneg;
+    ConcurrentMonitorElement ugmtMuMuDREOneg;
+
+    ConcurrentMonitorElement ugmtMuMuDEtaB;
+    ConcurrentMonitorElement ugmtMuMuDPhiB;
+    ConcurrentMonitorElement ugmtMuMuDRB;
+
+    ConcurrentMonitorElement ugmtMuMuDEtaOpos;
+    ConcurrentMonitorElement ugmtMuMuDPhiOpos;
+    ConcurrentMonitorElement ugmtMuMuDROpos;
+    ConcurrentMonitorElement ugmtMuMuDEtaOneg;
+    ConcurrentMonitorElement ugmtMuMuDPhiOneg;
+    ConcurrentMonitorElement ugmtMuMuDROneg;
+
+    ConcurrentMonitorElement ugmtMuMuDEtaEpos;
+    ConcurrentMonitorElement ugmtMuMuDPhiEpos;
+    ConcurrentMonitorElement ugmtMuMuDREpos;
+    ConcurrentMonitorElement ugmtMuMuDEtaEneg;
+    ConcurrentMonitorElement ugmtMuMuDPhiEneg;
+    ConcurrentMonitorElement ugmtMuMuDREneg;
+  };
+}
+
+class L1TStage2uGMT : public DQMGlobalEDAnalyzer<ugmtdqm::Histograms> {
 
  public:
 
@@ -26,14 +183,13 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
 
  protected:
 
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&, ugmtdqm::Histograms &) const override;
+  void bookHistograms(DQMStore::ConcurrentBooker&, const edm::Run&, const edm::EventSetup&, ugmtdqm::Histograms &) const override;
+  void dqmAnalyze(const edm::Event&, const edm::EventSetup&, ugmtdqm::Histograms const&) const override;
 
  private:  
 
-  l1t::tftype getTfOrigin(const int tfMuonIndex);
+  l1t::tftype getTfOrigin(int tfMuonIndex) const;
 
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtBMTFToken;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> ugmtOMTFToken;
@@ -45,160 +201,6 @@ class L1TStage2uGMT : public DQMEDAnalyzer {
 
   const float etaScale_;
   const float phiScale_;
-
-  MonitorElement* ugmtBMTFBX;
-  MonitorElement* ugmtBMTFnMuons;
-  MonitorElement* ugmtBMTFhwPt;
-  MonitorElement* ugmtBMTFhwEta;
-  MonitorElement* ugmtBMTFhwPhi;
-  MonitorElement* ugmtBMTFglbPhi;
-  MonitorElement* ugmtBMTFProcvshwPhi;
-  MonitorElement* ugmtBMTFhwSign;
-  MonitorElement* ugmtBMTFhwSignValid;
-  MonitorElement* ugmtBMTFhwQual;
-  MonitorElement* ugmtBMTFlink;
-  MonitorElement* ugmtBMTFMuMuDEta;
-  MonitorElement* ugmtBMTFMuMuDPhi;
-  MonitorElement* ugmtBMTFMuMuDR;
-
-  MonitorElement* ugmtOMTFBX;
-  MonitorElement* ugmtOMTFnMuons;
-  MonitorElement* ugmtOMTFhwPt;
-  MonitorElement* ugmtOMTFhwEta;
-  MonitorElement* ugmtOMTFhwPhiPos;
-  MonitorElement* ugmtOMTFhwPhiNeg;
-  MonitorElement* ugmtOMTFglbPhiPos;
-  MonitorElement* ugmtOMTFglbPhiNeg;
-  MonitorElement* ugmtOMTFProcvshwPhiPos;
-  MonitorElement* ugmtOMTFProcvshwPhiNeg;
-  MonitorElement* ugmtOMTFhwSign;
-  MonitorElement* ugmtOMTFhwSignValid;
-  MonitorElement* ugmtOMTFhwQual;
-  MonitorElement* ugmtOMTFlink;
-  MonitorElement* ugmtOMTFMuMuDEta;
-  MonitorElement* ugmtOMTFMuMuDPhi;
-  MonitorElement* ugmtOMTFMuMuDR;
-
-  MonitorElement* ugmtEMTFBX;
-  MonitorElement* ugmtEMTFnMuons;
-  MonitorElement* ugmtEMTFhwPt;
-  MonitorElement* ugmtEMTFhwEta;
-  MonitorElement* ugmtEMTFhwPhiPos;
-  MonitorElement* ugmtEMTFhwPhiNeg;
-  MonitorElement* ugmtEMTFglbPhiPos;
-  MonitorElement* ugmtEMTFglbPhiNeg;
-  MonitorElement* ugmtEMTFProcvshwPhiPos;
-  MonitorElement* ugmtEMTFProcvshwPhiNeg;
-  MonitorElement* ugmtEMTFhwSign;
-  MonitorElement* ugmtEMTFhwSignValid;
-  MonitorElement* ugmtEMTFhwQual;
-  MonitorElement* ugmtEMTFlink;
-  MonitorElement* ugmtEMTFMuMuDEta;
-  MonitorElement* ugmtEMTFMuMuDPhi;
-  MonitorElement* ugmtEMTFMuMuDR;
-
-  MonitorElement* ugmtBOMTFposMuMuDEta;
-  MonitorElement* ugmtBOMTFposMuMuDPhi;
-  MonitorElement* ugmtBOMTFposMuMuDR;
-  MonitorElement* ugmtBOMTFnegMuMuDEta;
-  MonitorElement* ugmtBOMTFnegMuMuDPhi;
-  MonitorElement* ugmtBOMTFnegMuMuDR;
-
-  MonitorElement* ugmtEOMTFposMuMuDEta;
-  MonitorElement* ugmtEOMTFposMuMuDPhi;
-  MonitorElement* ugmtEOMTFposMuMuDR;
-  MonitorElement* ugmtEOMTFnegMuMuDEta;
-  MonitorElement* ugmtEOMTFnegMuMuDPhi;
-  MonitorElement* ugmtEOMTFnegMuMuDR;
-
-  MonitorElement* ugmtBMTFBXvsProcessor;
-  MonitorElement* ugmtOMTFBXvsProcessor;
-  MonitorElement* ugmtEMTFBXvsProcessor;
-  MonitorElement* ugmtBXvsLink;
-
-  MonitorElement* ugmtMuonBX;
-  MonitorElement* ugmtnMuons;
-  MonitorElement* ugmtMuonIndex;
-  MonitorElement* ugmtMuonhwPt;
-  MonitorElement* ugmtMuonhwEta;
-  MonitorElement* ugmtMuonhwPhi;
-  MonitorElement* ugmtMuonhwEtaAtVtx;
-  MonitorElement* ugmtMuonhwPhiAtVtx;
-  MonitorElement* ugmtMuonhwCharge;
-  MonitorElement* ugmtMuonhwChargeValid;
-  MonitorElement* ugmtMuonhwQual;
-  MonitorElement* ugmtMuonhwIso;
-
-  MonitorElement* ugmtMuonPt;
-  MonitorElement* ugmtMuonEta;
-  MonitorElement* ugmtMuonPhi;
-  MonitorElement* ugmtMuonEtaAtVtx;
-  MonitorElement* ugmtMuonPhiAtVtx;
-  MonitorElement* ugmtMuonCharge;
-
-  MonitorElement* ugmtMuonPhiBmtf;
-  MonitorElement* ugmtMuonPhiOmtf;
-  MonitorElement* ugmtMuonPhiEmtf;
-  MonitorElement* ugmtMuonDEtavsPtBmtf;
-  MonitorElement* ugmtMuonDPhivsPtBmtf;
-  MonitorElement* ugmtMuonDEtavsPtOmtf;
-  MonitorElement* ugmtMuonDPhivsPtOmtf;
-  MonitorElement* ugmtMuonDEtavsPtEmtf;
-  MonitorElement* ugmtMuonDPhivsPtEmtf;
-
-  MonitorElement* ugmtMuonPtvsEta;
-  MonitorElement* ugmtMuonPtvsPhi;
-  MonitorElement* ugmtMuonPhivsEta;
-  MonitorElement* ugmtMuonPhiAtVtxvsEtaAtVtx;
-
-  MonitorElement* ugmtMuonBXvsLink;
-  MonitorElement* ugmtMuonBXvshwPt;
-  MonitorElement* ugmtMuonBXvshwEta;
-  MonitorElement* ugmtMuonBXvshwPhi;
-  MonitorElement* ugmtMuonBXvshwCharge;
-  MonitorElement* ugmtMuonBXvshwChargeValid;
-  MonitorElement* ugmtMuonBXvshwQual;
-  MonitorElement* ugmtMuonBXvshwIso;
-
-  // muon correlations
-  MonitorElement* ugmtMuMuInvMass;
-  MonitorElement* ugmtMuMuInvMassAtVtx;
-
-  MonitorElement* ugmtMuMuDEta;
-  MonitorElement* ugmtMuMuDPhi;
-  MonitorElement* ugmtMuMuDR;
-
-  MonitorElement* ugmtMuMuDEtaBOpos;
-  MonitorElement* ugmtMuMuDPhiBOpos;
-  MonitorElement* ugmtMuMuDRBOpos;
-  MonitorElement* ugmtMuMuDEtaBOneg;
-  MonitorElement* ugmtMuMuDPhiBOneg;
-  MonitorElement* ugmtMuMuDRBOneg;
-
-  MonitorElement* ugmtMuMuDEtaEOpos;
-  MonitorElement* ugmtMuMuDPhiEOpos;
-  MonitorElement* ugmtMuMuDREOpos;
-  MonitorElement* ugmtMuMuDEtaEOneg;
-  MonitorElement* ugmtMuMuDPhiEOneg;
-  MonitorElement* ugmtMuMuDREOneg;
-
-  MonitorElement* ugmtMuMuDEtaB;
-  MonitorElement* ugmtMuMuDPhiB;
-  MonitorElement* ugmtMuMuDRB;
-
-  MonitorElement* ugmtMuMuDEtaOpos;
-  MonitorElement* ugmtMuMuDPhiOpos;
-  MonitorElement* ugmtMuMuDROpos;
-  MonitorElement* ugmtMuMuDEtaOneg;
-  MonitorElement* ugmtMuMuDPhiOneg;
-  MonitorElement* ugmtMuMuDROneg;
-
-  MonitorElement* ugmtMuMuDEtaEpos;
-  MonitorElement* ugmtMuMuDPhiEpos;
-  MonitorElement* ugmtMuMuDREpos;
-  MonitorElement* ugmtMuMuDEtaEneg;
-  MonitorElement* ugmtMuMuDPhiEneg;
-  MonitorElement* ugmtMuMuDREneg;
 };
 
 #endif

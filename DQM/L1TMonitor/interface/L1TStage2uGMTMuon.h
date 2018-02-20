@@ -4,8 +4,8 @@
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -13,7 +13,45 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-class L1TStage2uGMTMuon : public DQMEDAnalyzer {
+namespace ugmtmuondqm {
+  struct Histograms {
+    ConcurrentMonitorElement ugmtMuonBX;
+    ConcurrentMonitorElement ugmtnMuons;
+    ConcurrentMonitorElement ugmtMuonhwPt;
+    ConcurrentMonitorElement ugmtMuonhwEta;
+    ConcurrentMonitorElement ugmtMuonhwPhi;
+    ConcurrentMonitorElement ugmtMuonhwEtaAtVtx;
+    ConcurrentMonitorElement ugmtMuonhwPhiAtVtx;
+    ConcurrentMonitorElement ugmtMuonhwCharge;
+    ConcurrentMonitorElement ugmtMuonhwChargeValid;
+    ConcurrentMonitorElement ugmtMuonhwQual;
+
+    ConcurrentMonitorElement ugmtMuonPt;
+    ConcurrentMonitorElement ugmtMuonEta;
+    ConcurrentMonitorElement ugmtMuonPhi;
+    ConcurrentMonitorElement ugmtMuonEtaAtVtx;
+    ConcurrentMonitorElement ugmtMuonPhiAtVtx;
+    ConcurrentMonitorElement ugmtMuonCharge;
+
+    ConcurrentMonitorElement ugmtMuonPtvsEta;
+    ConcurrentMonitorElement ugmtMuonPtvsPhi;
+    ConcurrentMonitorElement ugmtMuonPhivsEta;
+    ConcurrentMonitorElement ugmtMuonPtvsEtaAtVtx;
+    ConcurrentMonitorElement ugmtMuonPtvsPhiAtVtx;
+    ConcurrentMonitorElement ugmtMuonPhiAtVtxvsEtaAtVtx;
+
+    ConcurrentMonitorElement ugmtMuonBXvshwPt;
+    ConcurrentMonitorElement ugmtMuonBXvshwEta;
+    ConcurrentMonitorElement ugmtMuonBXvshwPhi;
+    ConcurrentMonitorElement ugmtMuonBXvshwEtaAtVtx;
+    ConcurrentMonitorElement ugmtMuonBXvshwPhiAtVtx;
+    ConcurrentMonitorElement ugmtMuonBXvshwCharge;
+    ConcurrentMonitorElement ugmtMuonBXvshwChargeValid;
+    ConcurrentMonitorElement ugmtMuonBXvshwQual;
+  };
+}
+
+class L1TStage2uGMTMuon : public DQMGlobalEDAnalyzer<ugmtmuondqm::Histograms> {
 
  public:
 
@@ -23,10 +61,9 @@ class L1TStage2uGMTMuon : public DQMEDAnalyzer {
 
  protected:
 
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&, ugmtmuondqm::Histograms &) const override;
+  void bookHistograms(DQMStore::ConcurrentBooker&, const edm::Run&, const edm::EventSetup&, ugmtmuondqm::Histograms &) const override;
+  void dqmAnalyze(const edm::Event&, const edm::EventSetup&, ugmtmuondqm::Histograms const&) const override;
 
  private:  
 
@@ -35,40 +72,6 @@ class L1TStage2uGMTMuon : public DQMEDAnalyzer {
   std::string titlePrefix;
   bool verbose;
   bool makeMuonAtVtxPlots;
-
-  MonitorElement* ugmtMuonBX;
-  MonitorElement* ugmtnMuons;
-  MonitorElement* ugmtMuonhwPt;
-  MonitorElement* ugmtMuonhwEta;
-  MonitorElement* ugmtMuonhwPhi;
-  MonitorElement* ugmtMuonhwEtaAtVtx;
-  MonitorElement* ugmtMuonhwPhiAtVtx;
-  MonitorElement* ugmtMuonhwCharge;
-  MonitorElement* ugmtMuonhwChargeValid;
-  MonitorElement* ugmtMuonhwQual;
-
-  MonitorElement* ugmtMuonPt;
-  MonitorElement* ugmtMuonEta;
-  MonitorElement* ugmtMuonPhi;
-  MonitorElement* ugmtMuonEtaAtVtx;
-  MonitorElement* ugmtMuonPhiAtVtx;
-  MonitorElement* ugmtMuonCharge;
-
-  MonitorElement* ugmtMuonPtvsEta;
-  MonitorElement* ugmtMuonPtvsPhi;
-  MonitorElement* ugmtMuonPhivsEta;
-  MonitorElement* ugmtMuonPtvsEtaAtVtx;
-  MonitorElement* ugmtMuonPtvsPhiAtVtx;
-  MonitorElement* ugmtMuonPhiAtVtxvsEtaAtVtx;
-
-  MonitorElement* ugmtMuonBXvshwPt;
-  MonitorElement* ugmtMuonBXvshwEta;
-  MonitorElement* ugmtMuonBXvshwPhi;
-  MonitorElement* ugmtMuonBXvshwEtaAtVtx;
-  MonitorElement* ugmtMuonBXvshwPhiAtVtx;
-  MonitorElement* ugmtMuonBXvshwCharge;
-  MonitorElement* ugmtMuonBXvshwChargeValid;
-  MonitorElement* ugmtMuonBXvshwQual;
 };
 
 #endif

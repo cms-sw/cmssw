@@ -67,25 +67,25 @@ void L1TMP7ZeroSupp::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descriptions.add("l1tMP7ZeroSupp", desc);
 }
 
-void L1TMP7ZeroSupp::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) {}
+void L1TMP7ZeroSupp::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c, mp7zsdqm::Histograms& histograms) const {}
 
-void L1TMP7ZeroSupp::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
-
-void L1TMP7ZeroSupp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
+void L1TMP7ZeroSupp::bookHistograms(DQMStore::ConcurrentBooker& booker, const edm::Run&, const edm::EventSetup&, mp7zsdqm::Histograms& histograms) const
+{
   // overall summary
-  ibooker.setCurrentFolder(monitorDir_);
-  bookCapIdHistograms(ibooker, maxMasks_);
-  capIds_ = ibooker.book1D("capIds", "Caption ids found in data", maxMasks_, 0, maxMasks_);
-  capIds_->setAxisTitle("caption id", 1);
+  booker.setCurrentFolder(monitorDir_);
+  bookCapIdHistograms(booker, histograms, maxMasks_);
+  histograms.capIds = booker.book1D("capIds", "Caption ids found in data", maxMasks_, 0, maxMasks_);
+  histograms.capIds.setAxisTitle("caption id", 1);
 
   // per caption id subdirectories
   for (const auto &id: definedMaskCapIds_) {
-    ibooker.setCurrentFolder(monitorDir_+"/CapId"+std::to_string(id));
-    bookCapIdHistograms(ibooker, id);
+    booker.setCurrentFolder(monitorDir_+"/CapId"+std::to_string(id));
+    bookCapIdHistograms(booker, histograms, id);
   }
 }
 
-void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsigned int& id) {
+void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::ConcurrentBooker& booker, mp7zsdqm::Histograms& histograms, const unsigned int& id) const
+{
   std::string summaryTitleText = "Zero suppression validation summary";
   std::string sizeTitleText;
   if (id == maxMasks_) {
@@ -95,54 +95,50 @@ void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsig
     sizeTitleText = "cumulated caption id "+std::to_string(id)+" block ";
   }
 
-  zeroSuppValMap_[id] = ibooker.book1D("zeroSuppVal", summaryTitleText, NBINLABELS, 0, NBINLABELS);
-  zeroSuppValMap_[id]->setAxisTitle("ZS status", 1);
-  zeroSuppValMap_[id]->setBinLabel(EVTS+1, "events", 1);
-  zeroSuppValMap_[id]->setBinLabel(EVTSGOOD+1, "good events", 1);
-  zeroSuppValMap_[id]->setBinLabel(EVTSBAD+1, "bad events", 1);
-  zeroSuppValMap_[id]->setBinLabel(BLOCKS+1, "blocks", 1);
-  zeroSuppValMap_[id]->setBinLabel(ZSBLKSGOOD+1, "good blocks", 1);
-  zeroSuppValMap_[id]->setBinLabel(ZSBLKSBAD+1, "bad blocks", 1);
-  zeroSuppValMap_[id]->setBinLabel(ZSBLKSBADFALSEPOS+1, "false pos.", 1);
-  zeroSuppValMap_[id]->setBinLabel(ZSBLKSBADFALSENEG+1, "false neg.", 1);
-  zeroSuppValMap_[id]->setBinLabel(BXBLOCKS+1, "BX blocks", 1);
-  zeroSuppValMap_[id]->setBinLabel(ZSBXBLKSGOOD+1, "good BX blocks", 1);
-  zeroSuppValMap_[id]->setBinLabel(ZSBXBLKSBAD+1, "bad BX blocks", 1);
-  zeroSuppValMap_[id]->setBinLabel(ZSBXBLKSBADFALSEPOS+1, "BX false pos.", 1);
-  zeroSuppValMap_[id]->setBinLabel(ZSBXBLKSBADFALSENEG+1, "BX false neg.", 1);
+  histograms.zeroSuppValMap[id] = booker.book1D("zeroSuppVal", summaryTitleText, NBINLABELS, 0, NBINLABELS);
+  histograms.zeroSuppValMap[id].setAxisTitle("ZS status", 1);
+  histograms.zeroSuppValMap[id].setBinLabel(EVTS+1, "events", 1);
+  histograms.zeroSuppValMap[id].setBinLabel(EVTSGOOD+1, "good events", 1);
+  histograms.zeroSuppValMap[id].setBinLabel(EVTSBAD+1, "bad events", 1);
+  histograms.zeroSuppValMap[id].setBinLabel(BLOCKS+1, "blocks", 1);
+  histograms.zeroSuppValMap[id].setBinLabel(ZSBLKSGOOD+1, "good blocks", 1);
+  histograms.zeroSuppValMap[id].setBinLabel(ZSBLKSBAD+1, "bad blocks", 1);
+  histograms.zeroSuppValMap[id].setBinLabel(ZSBLKSBADFALSEPOS+1, "false pos.", 1);
+  histograms.zeroSuppValMap[id].setBinLabel(ZSBLKSBADFALSENEG+1, "false neg.", 1);
+  histograms.zeroSuppValMap[id].setBinLabel(BXBLOCKS+1, "BX blocks", 1);
+  histograms.zeroSuppValMap[id].setBinLabel(ZSBXBLKSGOOD+1, "good BX blocks", 1);
+  histograms.zeroSuppValMap[id].setBinLabel(ZSBXBLKSBAD+1, "bad BX blocks", 1);
+  histograms.zeroSuppValMap[id].setBinLabel(ZSBXBLKSBADFALSEPOS+1, "BX false pos.", 1);
+  histograms.zeroSuppValMap[id].setBinLabel(ZSBXBLKSBADFALSENEG+1, "BX false neg.", 1);
 
-  errorSummaryNumMap_[id] = ibooker.book1D("errorSummaryNum", summaryTitleText, RNBINLABELS, 0, RNBINLABELS);
-  errorSummaryNumMap_[id]->setBinLabel(REVTS+1, "bad events", 1);
-  errorSummaryNumMap_[id]->setBinLabel(RBLKS+1, "bad blocks", 1);
-  errorSummaryNumMap_[id]->setBinLabel(RBLKSFALSEPOS+1, "false pos.", 1);
-  errorSummaryNumMap_[id]->setBinLabel(RBLKSFALSENEG+1, "false neg.", 1);
-  errorSummaryNumMap_[id]->setBinLabel(RBXBLKS+1, "bad BX blocks", 1);
-  errorSummaryNumMap_[id]->setBinLabel(RBXBLKSFALSEPOS+1, "BX false pos.", 1);
-  errorSummaryNumMap_[id]->setBinLabel(RBXBLKSFALSENEG+1, "BX false neg.", 1);
+  histograms.errorSummaryNumMap[id] = booker.book1D("errorSummaryNum", summaryTitleText, RNBINLABELS, 0, RNBINLABELS);
+  histograms.errorSummaryNumMap[id].setBinLabel(REVTS+1, "bad events", 1);
+  histograms.errorSummaryNumMap[id].setBinLabel(RBLKS+1, "bad blocks", 1);
+  histograms.errorSummaryNumMap[id].setBinLabel(RBLKSFALSEPOS+1, "false pos.", 1);
+  histograms.errorSummaryNumMap[id].setBinLabel(RBLKSFALSENEG+1, "false neg.", 1);
+  histograms.errorSummaryNumMap[id].setBinLabel(RBXBLKS+1, "bad BX blocks", 1);
+  histograms.errorSummaryNumMap[id].setBinLabel(RBXBLKSFALSEPOS+1, "BX false pos.", 1);
+  histograms.errorSummaryNumMap[id].setBinLabel(RBXBLKSFALSENEG+1, "BX false neg.", 1);
 
-  errorSummaryDenMap_[id] = ibooker.book1D("errorSummaryDen", "denominators", RNBINLABELS, 0, RNBINLABELS);
-  errorSummaryDenMap_[id]->setBinLabel(REVTS+1, "# events", 1);
-  errorSummaryDenMap_[id]->setBinLabel(RBLKS+1, "# blocks", 1);
-  errorSummaryDenMap_[id]->setBinLabel(RBLKSFALSEPOS+1, "# blocks", 1);
-  errorSummaryDenMap_[id]->setBinLabel(RBLKSFALSENEG+1, "# blocks", 1);
-  errorSummaryDenMap_[id]->setBinLabel(RBXBLKS+1, "# BX blocks", 1);
-  errorSummaryDenMap_[id]->setBinLabel(RBXBLKSFALSEPOS+1, "# BX blocks", 1);
-  errorSummaryDenMap_[id]->setBinLabel(RBXBLKSFALSENEG+1, "# BX blocks", 1);
-  // Setting canExtend to false is needed to get the correct behaviour when running multithreaded.
-  // Otherwise, when merging the histgrams of the threads, TH1::Merge sums bins that have the same label in one bin.
-  // This needs to come after the calls to setBinLabel.
-  errorSummaryDenMap_[id]->getTH1F()->GetXaxis()->SetCanExtend(false);
+  histograms.errorSummaryDenMap[id] = booker.book1D("errorSummaryDen", "denominators", RNBINLABELS, 0, RNBINLABELS);
+  histograms.errorSummaryDenMap[id].setBinLabel(REVTS+1, "# events", 1);
+  histograms.errorSummaryDenMap[id].setBinLabel(RBLKS+1, "# blocks", 1);
+  histograms.errorSummaryDenMap[id].setBinLabel(RBLKSFALSEPOS+1, "# blocks", 1);
+  histograms.errorSummaryDenMap[id].setBinLabel(RBLKSFALSENEG+1, "# blocks", 1);
+  histograms.errorSummaryDenMap[id].setBinLabel(RBXBLKS+1, "# BX blocks", 1);
+  histograms.errorSummaryDenMap[id].setBinLabel(RBXBLKSFALSEPOS+1, "# BX blocks", 1);
+  histograms.errorSummaryDenMap[id].setBinLabel(RBXBLKSFALSENEG+1, "# BX blocks", 1);
 
-  readoutSizeNoZSMap_[id] = ibooker.book1D("readoutSize", sizeTitleText + "size", 100, 0, maxFedReadoutSize_);
-  readoutSizeNoZSMap_[id]->setAxisTitle("size (byte)", 1);
-  readoutSizeZSMap_[id] = ibooker.book1D("readoutSizeZS", sizeTitleText + "size with zero suppression", 100, 0, maxFedReadoutSize_);
-  readoutSizeZSMap_[id]->setAxisTitle("size (byte)", 1);
-  readoutSizeZSExpectedMap_[id] = ibooker.book1D("readoutSizeZSExpected", "Expected " + sizeTitleText + "size with zero suppression", 100, 0, maxFedReadoutSize_);
-  readoutSizeZSExpectedMap_[id]->setAxisTitle("size (byte)", 1);
+  histograms.readoutSizeNoZSMap[id] = booker.book1D("readoutSize", sizeTitleText + "size", 100, 0, maxFedReadoutSize_);
+  histograms.readoutSizeNoZSMap[id].setAxisTitle("size (byte)", 1);
+  histograms.readoutSizeZSMap[id] = booker.book1D("readoutSizeZS", sizeTitleText + "size with zero suppression", 100, 0, maxFedReadoutSize_);
+  histograms.readoutSizeZSMap[id].setAxisTitle("size (byte)", 1);
+  histograms.readoutSizeZSExpectedMap[id] = booker.book1D("readoutSizeZSExpected", "Expected " + sizeTitleText + "size with zero suppression", 100, 0, maxFedReadoutSize_);
+  histograms.readoutSizeZSExpectedMap[id].setAxisTitle("size (byte)", 1);
 }
 
-void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
-
+void L1TMP7ZeroSupp::dqmAnalyze(const edm::Event& e, const edm::EventSetup& c, mp7zsdqm::Histograms const& histograms) const
+{
   if (verbose_) edm::LogInfo("L1TDQM") << "L1TMP7ZeroSupp: analyze..." << std::endl;
 
   edm::Handle<FEDRawDataCollection> feds;
@@ -153,11 +149,11 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     return;
   }
 
-  zeroSuppValMap_[maxMasks_]->Fill(EVTS);
-  errorSummaryDenMap_[maxMasks_]->Fill(REVTS);
+  histograms.zeroSuppValMap.at(maxMasks_).fill(EVTS);
+  histograms.errorSummaryDenMap.at(maxMasks_).fill(REVTS);
   for (const auto &id: definedMaskCapIds_) {
-    zeroSuppValMap_[id]->Fill(EVTS);
-    errorSummaryDenMap_[id]->Fill(REVTS);
+    histograms.zeroSuppValMap.at(id).fill(EVTS);
+    histograms.errorSummaryDenMap.at(id).fill(REVTS);
   }
 
   std::map<unsigned int, bool> evtGood;
@@ -170,16 +166,16 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     const FEDRawData& l1tRcd = feds->FEDData(fedId);
 
     unsigned int fedDataSize = l1tRcd.size();
-    std::map<unsigned int, unsigned int> readoutSizeNoZSMap;
-    std::map<unsigned int, unsigned int> readoutSizeZSMap;
-    std::map<unsigned int, unsigned int> readoutSizeZSExpectedMap;
-    readoutSizeNoZSMap[maxMasks_] = 0;
-    readoutSizeZSMap[maxMasks_] = 0;
-    readoutSizeZSExpectedMap[maxMasks_] = 0;
+    std::map<unsigned int, unsigned int> roSizeNoZSMap;
+    std::map<unsigned int, unsigned int> roSizeZSMap;
+    std::map<unsigned int, unsigned int> roSizeZSExpectedMap;
+    roSizeNoZSMap[maxMasks_] = 0;
+    roSizeZSMap[maxMasks_] = 0;
+    roSizeZSExpectedMap[maxMasks_] = 0;
     for (const auto &id: definedMaskCapIds_) {
-      readoutSizeNoZSMap[id] = 0;
-      readoutSizeZSMap[id] = 0;
-      readoutSizeZSExpectedMap[id] = 0;
+      roSizeNoZSMap[id] = 0;
+      roSizeZSMap[id] = 0;
+      roSizeZSExpectedMap[id] = 0;
     }
 
     edm::LogInfo("L1TDQM") << "Found FEDRawDataCollection with ID " << fedId << " and size " << l1tRcd.size();
@@ -256,20 +252,20 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
         bool blockZsFlagSet = newZsFlagSet ? true : ((blockHeaderFlags & zsFlagMask_) != 0); // ZS validation flag for whole block
         bool dataInvertFlagSet = newZsFlagSet && ((blockHeaderFlags & dataInvFlagMask_) != 0); // invert the data before applying the mask
 
-        capIds_->Fill(blockCapId);
+        histograms.capIds.fill(blockCapId);
 
         // fill the denominator histograms
         bool capIdDefined = false;
-        zeroSuppValMap_[maxMasks_]->Fill(BLOCKS);
-        errorSummaryDenMap_[maxMasks_]->Fill(RBLKS);
-        errorSummaryDenMap_[maxMasks_]->Fill(RBLKSFALSEPOS);
-        errorSummaryDenMap_[maxMasks_]->Fill(RBLKSFALSENEG);
-        if (zeroSuppValMap_.find(blockCapId) != zeroSuppValMap_.end()) {
+        histograms.zeroSuppValMap.at(maxMasks_).fill(BLOCKS);
+        histograms.errorSummaryDenMap.at(maxMasks_).fill(RBLKS);
+        histograms.errorSummaryDenMap.at(maxMasks_).fill(RBLKSFALSEPOS);
+        histograms.errorSummaryDenMap.at(maxMasks_).fill(RBLKSFALSENEG);
+        if (histograms.zeroSuppValMap.find(blockCapId) != histograms.zeroSuppValMap.end()) {
           capIdDefined = true;
-          zeroSuppValMap_[blockCapId]->Fill(BLOCKS);
-          errorSummaryDenMap_[blockCapId]->Fill(RBLKS);
-          errorSummaryDenMap_[blockCapId]->Fill(RBLKSFALSEPOS);
-          errorSummaryDenMap_[blockCapId]->Fill(RBLKSFALSENEG);
+          histograms.zeroSuppValMap.at(blockCapId).fill(BLOCKS);
+          histograms.errorSummaryDenMap.at(blockCapId).fill(RBLKS);
+          histograms.errorSummaryDenMap.at(blockCapId).fill(RBLKSFALSEPOS);
+          histograms.errorSummaryDenMap.at(blockCapId).fill(RBLKSFALSENEG);
         }
 
         auto totalBlockSize = blockHeaderSize;
@@ -325,119 +321,119 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
             blockZsFlagSet = blockZsFlagSet && bxZsFlagSet;
 
             // fill the BX related bins of the denominator histogram
-            zeroSuppValMap_[maxMasks_]->Fill(BXBLOCKS);
-            errorSummaryDenMap_[maxMasks_]->Fill(RBXBLKS);
-            errorSummaryDenMap_[maxMasks_]->Fill(RBXBLKSFALSEPOS);
-            errorSummaryDenMap_[maxMasks_]->Fill(RBXBLKSFALSENEG);
+            histograms.zeroSuppValMap.at(maxMasks_).fill(BXBLOCKS);
+            histograms.errorSummaryDenMap.at(maxMasks_).fill(RBXBLKS);
+            histograms.errorSummaryDenMap.at(maxMasks_).fill(RBXBLKSFALSEPOS);
+            histograms.errorSummaryDenMap.at(maxMasks_).fill(RBXBLKSFALSENEG);
             if (capIdDefined) {
-              zeroSuppValMap_[blockCapId]->Fill(BXBLOCKS);
-              errorSummaryDenMap_[blockCapId]->Fill(RBXBLKS);
-              errorSummaryDenMap_[blockCapId]->Fill(RBXBLKSFALSEPOS);
-              errorSummaryDenMap_[blockCapId]->Fill(RBXBLKSFALSENEG);
+              histograms.zeroSuppValMap.at(blockCapId).fill(BXBLOCKS);
+              histograms.errorSummaryDenMap.at(blockCapId).fill(RBXBLKS);
+              histograms.errorSummaryDenMap.at(blockCapId).fill(RBXBLKSFALSEPOS);
+              histograms.errorSummaryDenMap.at(blockCapId).fill(RBXBLKSFALSENEG);
             }
 
             unsigned int totalBxBlockSize = bxBlock.getSize() * 4 + sizeof(bxBlock.header().raw());  // times 4 to get the size in byte
             // check if zero suppression flag agrees for the BX block
             if (toSuppress && bxZsFlagSet) {
               if (verbose_) std::cout << "GOOD BX block with ZS flag true" << std::endl;
-              zeroSuppValMap_[maxMasks_]->Fill(ZSBXBLKSGOOD);
+              histograms.zeroSuppValMap.at(maxMasks_).fill(ZSBXBLKSGOOD);
               if (capIdDefined) {
-                zeroSuppValMap_[blockCapId]->Fill(ZSBXBLKSGOOD);
+                histograms.zeroSuppValMap.at(blockCapId).fill(ZSBXBLKSGOOD);
               }
             } else if (!toSuppress && !bxZsFlagSet) {
               if (verbose_) std::cout << "GOOD BX block with ZS flag false" << std::endl;
               totalBlockSize += totalBxBlockSize;
               totalBlockSizeExpected += totalBxBlockSize;
-              zeroSuppValMap_[maxMasks_]->Fill(ZSBXBLKSGOOD);
+              histograms.zeroSuppValMap.at(maxMasks_).fill(ZSBXBLKSGOOD);
               if (capIdDefined) {
-                zeroSuppValMap_[blockCapId]->Fill(ZSBXBLKSGOOD);
+                histograms.zeroSuppValMap.at(blockCapId).fill(ZSBXBLKSGOOD);
               }
             } else if (!toSuppress && bxZsFlagSet) {
               if (verbose_) std::cout << "BAD BX block with ZS flag true" << std::endl;
               totalBlockSizeExpected += totalBxBlockSize;
-              zeroSuppValMap_[maxMasks_]->Fill(ZSBXBLKSBAD);
-              zeroSuppValMap_[maxMasks_]->Fill(ZSBXBLKSBADFALSEPOS);
-              errorSummaryNumMap_[maxMasks_]->Fill(RBXBLKS);
-              errorSummaryNumMap_[maxMasks_]->Fill(RBXBLKSFALSEPOS);
+              histograms.zeroSuppValMap.at(maxMasks_).fill(ZSBXBLKSBAD);
+              histograms.zeroSuppValMap.at(maxMasks_).fill(ZSBXBLKSBADFALSEPOS);
+              histograms.errorSummaryNumMap.at(maxMasks_).fill(RBXBLKS);
+              histograms.errorSummaryNumMap.at(maxMasks_).fill(RBXBLKSFALSEPOS);
               evtGood[maxMasks_] = false;
               if (capIdDefined) {
-                zeroSuppValMap_[blockCapId]->Fill(ZSBXBLKSBAD);
-                zeroSuppValMap_[blockCapId]->Fill(ZSBXBLKSBADFALSEPOS);
-                errorSummaryNumMap_[blockCapId]->Fill(RBXBLKS);
-                errorSummaryNumMap_[blockCapId]->Fill(RBXBLKSFALSEPOS);
+                histograms.zeroSuppValMap.at(blockCapId).fill(ZSBXBLKSBAD);
+                histograms.zeroSuppValMap.at(blockCapId).fill(ZSBXBLKSBADFALSEPOS);
+                histograms.errorSummaryNumMap.at(blockCapId).fill(RBXBLKS);
+                histograms.errorSummaryNumMap.at(blockCapId).fill(RBXBLKSFALSEPOS);
                 evtGood[blockCapId] = false;
               }
             } else {
               if (verbose_) std::cout << "BAD BX block with ZS flag false" << std::endl;
               totalBlockSize += totalBxBlockSize;
-              zeroSuppValMap_[maxMasks_]->Fill(ZSBXBLKSBAD);
-              zeroSuppValMap_[maxMasks_]->Fill(ZSBXBLKSBADFALSENEG);
-              errorSummaryNumMap_[maxMasks_]->Fill(RBXBLKS);
-              errorSummaryNumMap_[maxMasks_]->Fill(RBXBLKSFALSENEG);
+              histograms.zeroSuppValMap.at(maxMasks_).fill(ZSBXBLKSBAD);
+              histograms.zeroSuppValMap.at(maxMasks_).fill(ZSBXBLKSBADFALSENEG);
+              histograms.errorSummaryNumMap.at(maxMasks_).fill(RBXBLKS);
+              histograms.errorSummaryNumMap.at(maxMasks_).fill(RBXBLKSFALSENEG);
               evtGood[maxMasks_] = false;
               if (capIdDefined) {
-                zeroSuppValMap_[blockCapId]->Fill(ZSBXBLKSBAD);
-                zeroSuppValMap_[blockCapId]->Fill(ZSBXBLKSBADFALSENEG);
-                errorSummaryNumMap_[blockCapId]->Fill(RBXBLKS);
-                errorSummaryNumMap_[blockCapId]->Fill(RBXBLKSFALSENEG);
+                histograms.zeroSuppValMap.at(blockCapId).fill(ZSBXBLKSBAD);
+                histograms.zeroSuppValMap.at(blockCapId).fill(ZSBXBLKSBADFALSENEG);
+                histograms.errorSummaryNumMap.at(blockCapId).fill(RBXBLKS);
+                histograms.errorSummaryNumMap.at(blockCapId).fill(RBXBLKSFALSENEG);
                 evtGood[blockCapId] = false;
               }
             }
           }
         }
 
-        readoutSizeNoZSMap[maxMasks_] += totalBlockSizeNoZS;
+        roSizeNoZSMap[maxMasks_] += totalBlockSizeNoZS;
         if (capIdDefined) {
-          readoutSizeNoZSMap[blockCapId] += totalBlockSizeNoZS;
+          roSizeNoZSMap[blockCapId] += totalBlockSizeNoZS;
         }
 
         // check if zero suppression flag agrees for the whole block
         if (allToSuppress && blockZsFlagSet) {
           if (verbose_) std::cout << "GOOD block with ZS flag true" << std::endl;
-          zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSGOOD);
+          histograms.zeroSuppValMap.at(maxMasks_).fill(ZSBLKSGOOD);
           if (capIdDefined) {
-            zeroSuppValMap_[blockCapId]->Fill(ZSBLKSGOOD);
+            histograms.zeroSuppValMap.at(blockCapId).fill(ZSBLKSGOOD);
           }
         } else if (!allToSuppress && !blockZsFlagSet) {
           if (verbose_) std::cout << "GOOD block with ZS flag false" << std::endl;
-          zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSGOOD);
-          readoutSizeZSMap[maxMasks_] += totalBlockSize;
-          readoutSizeZSExpectedMap[maxMasks_] += totalBlockSizeExpected;
+          histograms.zeroSuppValMap.at(maxMasks_).fill(ZSBLKSGOOD);
+          roSizeZSMap[maxMasks_] += totalBlockSize;
+          roSizeZSExpectedMap[maxMasks_] += totalBlockSizeExpected;
           if (capIdDefined) {
-            zeroSuppValMap_[blockCapId]->Fill(ZSBLKSGOOD);
-            readoutSizeZSMap[blockCapId] += totalBlockSize;
-            readoutSizeZSExpectedMap[blockCapId] += totalBlockSizeExpected;
+            histograms.zeroSuppValMap.at(blockCapId).fill(ZSBLKSGOOD);
+            roSizeZSMap[blockCapId] += totalBlockSize;
+            roSizeZSExpectedMap[blockCapId] += totalBlockSizeExpected;
           }
         } else if (!allToSuppress && blockZsFlagSet) {
           if (verbose_) std::cout << "BAD block with ZS flag true" << std::endl;
-          zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBAD);
-          zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBADFALSEPOS);
-          errorSummaryNumMap_[maxMasks_]->Fill(RBLKS);
-          errorSummaryNumMap_[maxMasks_]->Fill(RBLKSFALSEPOS);
-          readoutSizeZSExpectedMap[maxMasks_] += totalBlockSizeExpected;
+          histograms.zeroSuppValMap.at(maxMasks_).fill(ZSBLKSBAD);
+          histograms.zeroSuppValMap.at(maxMasks_).fill(ZSBLKSBADFALSEPOS);
+          histograms.errorSummaryNumMap.at(maxMasks_).fill(RBLKS);
+          histograms.errorSummaryNumMap.at(maxMasks_).fill(RBLKSFALSEPOS);
+          roSizeZSExpectedMap[maxMasks_] += totalBlockSizeExpected;
           evtGood[maxMasks_] = false;
           if (capIdDefined) {
-            zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBAD);
-            zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBADFALSEPOS);
-            errorSummaryNumMap_[blockCapId]->Fill(RBLKS);
-            errorSummaryNumMap_[blockCapId]->Fill(RBLKSFALSEPOS);
-            readoutSizeZSExpectedMap[blockCapId] += totalBlockSizeExpected;
+            histograms.zeroSuppValMap.at(blockCapId).fill(ZSBLKSBAD);
+            histograms.zeroSuppValMap.at(blockCapId).fill(ZSBLKSBADFALSEPOS);
+            histograms.errorSummaryNumMap.at(blockCapId).fill(RBLKS);
+            histograms.errorSummaryNumMap.at(blockCapId).fill(RBLKSFALSEPOS);
+            roSizeZSExpectedMap[blockCapId] += totalBlockSizeExpected;
             evtGood[blockCapId] = false;
           }
         } else {
           if (verbose_) std::cout << "BAD block with ZS flag false" << std::endl;
-          zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBAD);
-          zeroSuppValMap_[maxMasks_]->Fill(ZSBLKSBADFALSENEG);
-          errorSummaryNumMap_[maxMasks_]->Fill(RBLKS);
-          errorSummaryNumMap_[maxMasks_]->Fill(RBLKSFALSENEG);
-          readoutSizeZSMap[maxMasks_] += totalBlockSize;
+          histograms.zeroSuppValMap.at(maxMasks_).fill(ZSBLKSBAD);
+          histograms.zeroSuppValMap.at(maxMasks_).fill(ZSBLKSBADFALSENEG);
+          histograms.errorSummaryNumMap.at(maxMasks_).fill(RBLKS);
+          histograms.errorSummaryNumMap.at(maxMasks_).fill(RBLKSFALSENEG);
+          roSizeZSMap[maxMasks_] += totalBlockSize;
           evtGood[maxMasks_] = false;
           if (capIdDefined) {
-            zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBAD);
-            zeroSuppValMap_[blockCapId]->Fill(ZSBLKSBADFALSENEG);
-            errorSummaryNumMap_[blockCapId]->Fill(RBLKS);
-            errorSummaryNumMap_[blockCapId]->Fill(RBLKSFALSENEG);
-            readoutSizeZSMap[blockCapId] += totalBlockSize;
+            histograms.zeroSuppValMap.at(blockCapId).fill(ZSBLKSBAD);
+            histograms.zeroSuppValMap.at(blockCapId).fill(ZSBLKSBADFALSENEG);
+            histograms.errorSummaryNumMap.at(blockCapId).fill(RBLKS);
+            histograms.errorSummaryNumMap.at(blockCapId).fill(RBLKSFALSENEG);
+            roSizeZSMap[blockCapId] += totalBlockSize;
             evtGood[blockCapId] = false;
           }
         }
@@ -445,34 +441,34 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
     if (verbose_) {
       std::cout << "FED data size: " << fedDataSize << " bytes" << std::endl;
-      std::cout << "Payload size no ZS: " << readoutSizeNoZSMap[maxMasks_] << " bytes" << std::endl;
-      std::cout << "Payload size ZS: " << readoutSizeZSMap[maxMasks_] << " bytes" << std::endl;
-      std::cout << "Payload size expected ZS: " << readoutSizeZSExpectedMap[maxMasks_] << " bytes" << std::endl;
-      std::cout << "Filled readout size ZS with headers: " << readoutSizeZSMap[maxMasks_] + fedDataSize - readoutSizeNoZSMap[maxMasks_] << " bytes" << std::endl;
-      std::cout << "Filled expected readout size ZS with headers: " << readoutSizeZSExpectedMap[maxMasks_] + fedDataSize - readoutSizeNoZSMap[maxMasks_] << " bytes" << std::endl;
+      std::cout << "Payload size no ZS: " << roSizeNoZSMap[maxMasks_] << " bytes" << std::endl;
+      std::cout << "Payload size ZS: " << roSizeZSMap[maxMasks_] << " bytes" << std::endl;
+      std::cout << "Payload size expected ZS: " << roSizeZSExpectedMap[maxMasks_] << " bytes" << std::endl;
+      std::cout << "Filled readout size ZS with headers: " << roSizeZSMap[maxMasks_] + fedDataSize - roSizeNoZSMap[maxMasks_] << " bytes" << std::endl;
+      std::cout << "Filled expected readout size ZS with headers: " << roSizeZSExpectedMap[maxMasks_] + fedDataSize - roSizeNoZSMap[maxMasks_] << " bytes" << std::endl;
     }
-    readoutSizeNoZSMap_[maxMasks_]->Fill(fedDataSize);
-    readoutSizeZSMap_[maxMasks_]->Fill(readoutSizeZSMap[maxMasks_] + fedDataSize - readoutSizeNoZSMap[maxMasks_]);
-    readoutSizeZSExpectedMap_[maxMasks_]->Fill(readoutSizeZSExpectedMap[maxMasks_] + fedDataSize - readoutSizeNoZSMap[maxMasks_]);
+    histograms.readoutSizeNoZSMap.at(maxMasks_).fill(fedDataSize);
+    histograms.readoutSizeZSMap.at(maxMasks_).fill(roSizeZSMap[maxMasks_] + fedDataSize - roSizeNoZSMap[maxMasks_]);
+    histograms.readoutSizeZSExpectedMap.at(maxMasks_).fill(roSizeZSExpectedMap[maxMasks_] + fedDataSize - roSizeNoZSMap[maxMasks_]);
     for (const auto &id: definedMaskCapIds_) {
-      readoutSizeNoZSMap_[id]->Fill(readoutSizeNoZSMap[id]);
-      readoutSizeZSMap_[id]->Fill(readoutSizeZSMap[id]);
-      readoutSizeZSExpectedMap_[id]->Fill(readoutSizeZSExpectedMap[id]);
+      histograms.readoutSizeNoZSMap.at(id).fill(roSizeNoZSMap[id]);
+      histograms.readoutSizeZSMap.at(id).fill(roSizeZSMap[id]);
+      histograms.readoutSizeZSExpectedMap.at(id).fill(roSizeZSExpectedMap[id]);
     }
   }
 
   if (evtGood[maxMasks_]) {
-    zeroSuppValMap_[maxMasks_]->Fill(EVTSGOOD);
+    histograms.zeroSuppValMap.at(maxMasks_).fill(EVTSGOOD);
   } else {
-    zeroSuppValMap_[maxMasks_]->Fill(EVTSBAD);
-    errorSummaryNumMap_[maxMasks_]->Fill(REVTS);
+    histograms.zeroSuppValMap.at(maxMasks_).fill(EVTSBAD);
+    histograms.errorSummaryNumMap.at(maxMasks_).fill(REVTS);
   }
   for (const auto &id: definedMaskCapIds_) {
     if (evtGood[id]) {
-      zeroSuppValMap_[id]->Fill(EVTSGOOD);
+      histograms.zeroSuppValMap.at(id).fill(EVTSGOOD);
     } else {
-      zeroSuppValMap_[id]->Fill(EVTSBAD);
-      errorSummaryNumMap_[id]->Fill(REVTS);
+      histograms.zeroSuppValMap.at(id).fill(EVTSBAD);
+      histograms.errorSummaryNumMap.at(id).fill(REVTS);
     }
   }
 }
