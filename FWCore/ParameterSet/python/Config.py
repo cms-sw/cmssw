@@ -1288,16 +1288,12 @@ class _BoolModifierBase(object):
     Modifier._toModifyCheck(obj,func,**kw)
     if not self.isChosen():
       return
-    self._toModify(obj,func,**kw)
-  def _toModify(self,obj,func,**kw):
-    self._lhs._toModify(obj,func, **kw)
+    Modifier._toModify(obj,func,**kw)
   def toReplaceWith(self,toObj,fromObj):
     Modifier._toReplaceWithCheck(toObj,fromObj)
     if not self.isChosen():
       return
-    self._toReplaceWith(toObj,fromObj)
-  def _toReplaceWith(self,toObj,fromObj):
-    self._lhs._toReplaceWith(toObj,fromObj)
+    Modifier._toReplaceWith(toObj,fromObj)
   def makeProcessModifier(self,func):
     """This is used to create a ProcessModifer that can perform actions on the process as a whole.
         This takes as argument a callable object (e.g. function) that takes as its sole argument an instance of Process.
@@ -1370,8 +1366,9 @@ class Modifier(object):
     Modifier._toModifyCheck(obj,func,**kw)
     if not self.isChosen():
         return
-    self._toModify(obj,func,**kw)
-  def _toModify(self,obj,func,**kw):
+    Modifier._toModify(obj,func,**kw)
+  @staticmethod
+  def _toModify(obj,func,**kw):
     if func is not None:
       func(obj)
     else:
@@ -1387,8 +1384,9 @@ class Modifier(object):
     Modifier._toReplaceWithCheck(toObj,fromObj)
     if not self.isChosen():
         return
-    self._toReplaceWith(toObj,fromObj)
-  def _toReplaceWith(self,toObj,fromObj):
+    Modifier._toReplaceWith(toObj,fromObj)
+  @staticmethod
+  def _toReplaceWith(toObj,fromObj):
     if isinstance(fromObj,_ModuleSequenceType):
         toObj._seq = fromObj._seq
         toObj._tasks = fromObj._tasks
