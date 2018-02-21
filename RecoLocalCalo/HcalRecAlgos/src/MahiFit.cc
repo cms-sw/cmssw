@@ -6,11 +6,6 @@ MahiFit::MahiFit() :
   fullTSofInterest_(8)
 {}
 
-double MahiFit::getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const {
-  double mu = darkCurrent * 25 / fcByPE;
-  return sqrt(mu/pow(1-lambda,3)) * fcByPE;
-}
-
 void MahiFit::setParameters(bool iDynamicPed, double iTS4Thresh, double chiSqSwitch, 
 			    bool iApplyTimeSlew, HcalTimeSlew::BiasSetting slewFlavor,
 			    double iMeanTime, double iTimeSigmaHPD, double iTimeSigmaSiPM, 
@@ -154,7 +149,7 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
     nnlsWork_.bxs.coeffRef(0) = 0;
   }
   else {
-    for (unsigned int iBX=0; iBX<bxSize; iBX++) {
+    for (unsigned int iBX=0; iBX<bxSize; ++iBX) {
       nnlsWork_.bxs.coeffRef(iBX) = activeBXs_[iBX];
     }
   }
@@ -172,7 +167,7 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
   nnlsWork_.errVec = PulseVector::Zero(nnlsWork_.nPulseTot);
 
   int offset=0;
-  for (unsigned int iBX=0; iBX<nnlsWork_.nPulseTot; iBX++) {
+  for (unsigned int iBX=0; iBX<nnlsWork_.nPulseTot; ++iBX) {
     offset=nnlsWork_.bxs.coeff(iBX);
 
     nnlsWork_.pulseShapeArray[iBX] = FullSampleVector::Zero(MaxFSVSize);
@@ -227,14 +222,10 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
 
 double MahiFit::minimize() const {
 
-  int iter = 0;
   double oldChiSq=9999;
   double chiSq=oldChiSq;
 
-  while (true) {
-    if (iter>=nMaxItersMin_) {
-      break;
-    }
+  for( int iter=1; iter<nMaxItersMin_ ; ++iter) {
 
     updateCov();
 
@@ -256,8 +247,6 @@ double MahiFit::minimize() const {
 
     if (std::abs(deltaChiSq)<deltaChiSqThresh_) break;
 
-    iter++;
-    
   }
 
   return chiSq;
@@ -296,7 +285,7 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   //with previous SOI=TS4 case assumed by psfPtr_->getPulseShape()
   int delta =nnlsWork_. tsOffset == 3 ? 1 : 0;
 
-  for (unsigned int iTS=nnlsWork_.fullTSOffset; iTS<nnlsWork_.fullTSOffset + nnlsWork_.tsSize; iTS++) {
+  for (unsigned int iTS=nnlsWork_.fullTSOffset; iTS<nnlsWork_.fullTSOffset + nnlsWork_.tsSize; ++iTS) {
 
     pulseShape.coeffRef(iTS) = nnlsWork_.pulseN[iTS-nnlsWork_.fullTSOffset+delta];
     pulseDeriv.coeffRef(iTS) = 0.5*(nnlsWork_.pulseM[iTS-nnlsWork_.fullTSOffset+delta]+nnlsWork_.pulseP[iTS-nnlsWork_.fullTSOffset+delta])/(2*nnlsWork_.dt);
@@ -305,8 +294,8 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
     nnlsWork_.pulseP[iTS-nnlsWork_.fullTSOffset] -= nnlsWork_.pulseN[iTS-nnlsWork_.fullTSOffset];
   }
 
-  for (unsigned int iTS=nnlsWork_.fullTSOffset; iTS<nnlsWork_.fullTSOffset+nnlsWork_.tsSize; iTS++) {
-    for (unsigned int jTS=nnlsWork_.fullTSOffset; jTS<iTS+1; jTS++) {
+  for (unsigned int iTS=nnlsWork_.fullTSOffset; iTS<nnlsWork_.fullTSOffset+nnlsWork_.tsSize; ++iTS) {
+    for (unsigned int jTS=nnlsWork_.fullTSOffset; jTS<iTS+1; ++jTS) {
       
       double tmp = 0.5*( nnlsWork_.pulseP[iTS-nnlsWork_.fullTSOffset+delta]*nnlsWork_.pulseP[jTS-nnlsWork_.fullTSOffset+delta] +
 			 nnlsWork_.pulseM[iTS-nnlsWork_.fullTSOffset+delta]*nnlsWork_.pulseM[jTS-nnlsWork_.fullTSOffset+delta] );
@@ -326,7 +315,7 @@ void MahiFit::updateCov() const {
   nnlsWork_.invCovMat = nnlsWork_.noiseTerms.asDiagonal();
   nnlsWork_.invCovMat +=nnlsWork_.pedConstraint;
 
-  for (unsigned int iBX=0; iBX<nnlsWork_.nPulseTot; iBX++) {
+  for (unsigned int iBX=0; iBX<nnlsWork_.nPulseTot; ++iBX) {
     if (nnlsWork_.ampVec.coeff(iBX)==0) continue;
     
     int offset=nnlsWork_.bxs.coeff(iBX);
@@ -347,7 +336,7 @@ double MahiFit::calculateArrivalTime() const {
 
   int itIndex=0;
 
-  for (unsigned int iBX=0; iBX<nnlsWork_.nPulseTot; iBX++) {
+  for (unsigned int iBX=0; iBX<nnlsWork_.nPulseTot; ++iBX) {
     int offset=nnlsWork_.bxs.coeff(iBX);
     if (offset==0) itIndex=iBX;
 
@@ -368,7 +357,7 @@ double MahiFit::calculateArrivalTime() const {
 void MahiFit::nnls() const {
   const unsigned int npulse = nnlsWork_.nPulseTot;
   
-  for (unsigned int iBX=0; iBX<npulse; iBX++) {
+  for (unsigned int iBX=0; iBX<npulse; ++iBX) {
     int offset=nnlsWork_.bxs.coeff(iBX);
     if (offset==pedestalBX_) {
       nnlsWork_.pulseMat.col(iBX) = SampleVector::Ones(nnlsWork_.tsSize);
