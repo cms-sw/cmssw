@@ -16,9 +16,9 @@ _pfZeroSuppressionThresholds_EEplus_2017 = _pfZeroSuppressionThresholds_EEminus_
 # The three different set of thresholds will be used to study
 # possible new thresholds of pfrechits and effects on high level objects
 # The values proposed (A, B, C) are driven by expected noise levels
-# A ~ 0.5 sigma noise equivalent thresholds
+# A ~ 2.0 sigma noise equivalent thresholds
 # B ~ 1.0 sigma noise equivalent thresholds
-# C ~ 2.0 sigma noise equivalent thresholds
+# C ~ 0.5 sigma noise equivalent thresholds
 #
 
 # A
