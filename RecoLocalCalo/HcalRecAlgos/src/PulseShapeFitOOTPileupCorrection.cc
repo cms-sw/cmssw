@@ -19,10 +19,11 @@ PulseShapeFitOOTPileupCorrection::~PulseShapeFitOOTPileupCorrection() {
    if(hybridfitter) delete hybridfitter;
 }
 
+void PulseShapeFitOOTPileupCorrection::setChi2Term( bool isHPD ) {
 
-double PulseShapeFitOOTPileupCorrection::getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const {
-  double mu = darkCurrent * 25 / fcByPE;
-  return sqrt(mu/pow(1-lambda,3)) * fcByPE;
+  if(isHPD) timeSig_       = timeSigHPD_;
+  else timeSig_            = timeSigSiPM_;
+
 }
 
 
