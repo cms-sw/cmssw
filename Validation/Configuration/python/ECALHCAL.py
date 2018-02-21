@@ -81,7 +81,7 @@ def customise(process):
     process.local_validation = cms.Path(process.ecalSimValid+process.hcalSimValid)
     process.schedule.append(process.local_validation) 
 
-    process.schedule.append(process.endjob_step)
+    #process.schedule.append(process.endjob_step)
     #process.schedule.append(process.out_step)
     process.schedule.append(getattr(process,process.outputModules_().iteritems().next()[0]+"_step"))
 
