@@ -42,7 +42,7 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
     
   for( unsigned int id = 0; id < detids.size(); ++id ){  
     GEMDetId gemid( detids[id] );
-    std::cout<<"GEMGeometryBuilderFromDDD adding " << gemid << std::endl;
+    LogDebug("GEMGeometryBuilderFromDDD") <<"GEMGeometryBuilderFromDDD adding " << gemid << std::endl;
     
     if (gemid.roll() == 0){
       if (gemid.layer() == 0){
