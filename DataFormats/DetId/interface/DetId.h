@@ -66,8 +66,16 @@ inline bool operator!=(DetId id, uint32_t i) { return i!=id(); }
 inline bool operator<(uint32_t i, DetId id) { return i<id(); }
 inline bool operator<(DetId id, uint32_t i) { return id()<i; }
 
-
 //std::ostream& operator<<(std::ostream& s, const DetId& id);
 
+namespace std {
+  template<> struct hash<DetId> {
+    typedef DetId argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(argument_type const& id) const noexcept {
+      return std::hash<uint32_t>()(id.rawId());            
+    }
+  };
+}
 
 #endif

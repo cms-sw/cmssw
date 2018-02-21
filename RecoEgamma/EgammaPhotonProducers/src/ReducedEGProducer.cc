@@ -44,15 +44,6 @@
 
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
-namespace std {
-  template<> 
-  struct hash<DetId> {
-    size_t operator()(const DetId& id) const {
-      return std::hash<uint32_t>()(id.rawId());
-    }
-  };  
-}
-
 ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   photonT_(consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("photons"))),
   ootPhotonT_(consumes<reco::PhotonCollection>(config.getParameter<edm::InputTag>("ootPhotons"))),

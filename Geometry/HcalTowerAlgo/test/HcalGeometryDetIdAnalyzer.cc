@@ -47,11 +47,11 @@ HcalGeometryDetIdAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::Eve
     HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
     caloGeom = m_loader.load(topology, hcons);
   }
-  const std::vector<DetId>& ids = caloGeom->getValidDetIds();
+  const std::unordered_set<DetId>& ids = caloGeom->getValidDetIds();
 
   int counter = 0;
-  for (std::vector<DetId>::const_iterator i = ids.begin(), iEnd = ids.end();
-       i != iEnd; ++i, ++counter )  {
+  for (std::unordered_set<DetId>::const_iterator i = ids.begin();
+       i != ids.end(); ++i, ++counter )  {
     HcalDetId hid = (*i);
     unsigned int did = topology.detId2denseId(*i);
     HcalDetId rhid = topology.denseId2detId(did);

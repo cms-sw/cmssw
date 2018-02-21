@@ -157,7 +157,7 @@ void CastorDigiProducer::checkGeometry(const edm::EventSetup & eventSetup) {
   eventSetup.get<CaloGeometryRecord>().get(geometry);
   theCastorResponse->setGeometry(&*geometry);
 
-  const std::vector<DetId>& castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
+  const std::unordered_set<DetId>& castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
 
   //std::cout<<"CastorDigiProducer::CheckGeometry number of cells: "<<castorCells.size()<<std::endl;
   theCastorDigitizer->setDetIds(castorCells);

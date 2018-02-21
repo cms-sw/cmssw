@@ -93,11 +93,11 @@ EcalPreshowerGeometry::initializeParms()
    CCGFloat z2minus ( 0 ) ;
    CCGFloat z1plus ( 0 ) ;
    CCGFloat z2plus ( 0 ) ;
-   const std::vector<DetId>& esDetIds ( getValidDetIds() ) ;
+   const std::unordered_set<DetId>& esDetIds ( getValidDetIds() ) ;
 
-   for( unsigned int i ( 0 ) ; i != esDetIds.size() ; ++i )
+   for( auto const& id : esDetIds)
    {
-      const ESDetId esid ( esDetIds[i] ) ;
+      const ESDetId esid ( id ) ;
       auto cell = getGeometry( esid ) ;
       if( nullptr != cell )
       {

@@ -33,8 +33,8 @@ ZdcGeometry::~ZdcGeometry()
 DetId ZdcGeometry::getClosestCell(const GlobalPoint& r) const
 {
    DetId returnId ( 0 ) ;
-   const std::vector<DetId>& detIds ( getValidDetIds() ) ;
-   for( std::vector<DetId>::const_iterator it ( detIds.begin() ) ;
+   const std::unordered_set<DetId>& detIds ( getValidDetIds() ) ;
+   for( std::unordered_set<DetId>::const_iterator it ( detIds.begin() ) ;
 	it != detIds.end(); ++it )
    {
       auto cell = ( getGeometry( *it ) ) ;

@@ -44,10 +44,10 @@ void HcalRecHitsDQMClient::beginRun(const edm::Run& run, const edm::EventSetup& 
 
   es.get<CaloGeometryRecord > ().get(geometry);
  
-  const std::vector<DetId>& hbCells = geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
-  const std::vector<DetId>& heCells = geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
-  const std::vector<DetId>& hoCells = geometry->getValidDetIds(DetId::Hcal, HcalOuter);
-  const std::vector<DetId>& hfCells = geometry->getValidDetIds(DetId::Hcal, HcalForward);
+  const std::unordered_set<DetId>& hbCells = geometry->getValidDetIds(DetId::Hcal, HcalBarrel);
+  const std::unordered_set<DetId>& heCells = geometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+  const std::unordered_set<DetId>& hoCells = geometry->getValidDetIds(DetId::Hcal, HcalOuter);
+  const std::unordered_set<DetId>& hfCells = geometry->getValidDetIds(DetId::Hcal, HcalForward);
  
   nChannels_[1] = hbCells.size(); 
   nChannels_[2] = heCells.size(); 

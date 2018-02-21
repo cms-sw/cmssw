@@ -117,17 +117,17 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
   
     //std::cout << " Building the array of neighbours (barrel) " ;
 
-    const std::vector<DetId>& vec(barrelGeom.getValidDetIds(DetId::Ecal,
-							  EcalBarrel));
-    unsigned size=vec.size();    
-    for(unsigned ic=0; ic<size; ++ic) 
+    const std::unordered_set<DetId>& vec(barrelGeom.getValidDetIds(DetId::Ecal,
+								   EcalBarrel));
+//  unsigned size=vec.size();    
+    for(auto const& id : vec) 
       {
 	// We get the 9 cells in a square. 
-	std::vector<DetId> neighbours(barrelTopo.getWindow(vec[ic],3,3));
+	std::vector<DetId> neighbours(barrelTopo.getWindow(id,3,3));
 	//      std::cout << " Cell " << EBDetId(vec[ic]) << std::endl;
 	unsigned nneighbours=neighbours.size();
 	
-	unsigned hashedindex=EBDetId(vec[ic]).hashedIndex();
+	unsigned hashedindex=EBDetId(id).hashedIndex();
 	if(hashedindex>=nbarrel)
 	  {
 	    LogDebug("CaloGeometryTools")  << " Array overflow " << std::endl;
@@ -145,7 +145,7 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
 	    for(unsigned in=0;in<nneighbours;++in)
 	      {
 		// remove the centre
-		if(neighbours[in]!=vec[ic]) 
+		if(neighbours[in]!=id) 
 		  {
 		    neighboursEB_[hashedindex].push_back(neighbours[in]);
                   //          std::cout << " Neighbour " << in << " " << EBDetId(neighbours[in]) << std::endl;
@@ -154,7 +154,7 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
 	  }
 	else
 	  {
-	    DetId central(vec[ic]);
+	    DetId central(id);
 	    neighboursEB_[hashedindex].resize(8,DetId(0));
 	    for(unsigned idir=0;idir<8;++idir)
 	      {
@@ -174,20 +174,20 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
     //  std::cout << " Building the array of neighbours (endcap) " ;
 
     //  vec.clear();
-    const std::vector<DetId>& vecee=endcapGeom.getValidDetIds(DetId::Ecal,EcalEndcap);
-    size=vecee.size();    
+    const std::unordered_set<DetId>& vecee=endcapGeom.getValidDetIds(DetId::Ecal,EcalEndcap);
+//  size=vecee.size();    
     // There are some holes in the hashedIndex for the EE. Hence the array is bigger than the number
     // of crystals
     const unsigned nendcap=19960;
 
     neighboursEE_.resize(nendcap);
-    for(unsigned ic=0; ic<size; ++ic) 
+    for(auto const& id : vecee) 
       {
 	// We get the 9 cells in a square. 
-	std::vector<DetId> neighbours(endcapTopo.getWindow(vecee[ic],3,3));
+	std::vector<DetId> neighbours(endcapTopo.getWindow(id,3,3));
 	unsigned nneighbours=neighbours.size();
 	// remove the centre
-	unsigned hashedindex=EEDetId(vecee[ic]).hashedIndex();
+	unsigned hashedindex=EEDetId(id).hashedIndex();
       
 	if(hashedindex>=nendcap)
 	  {
@@ -200,7 +200,7 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
 	    for(unsigned in=0;in<nneighbours;++in)
 	      {     
 		// remove the centre
-		if(neighbours[in]!=vecee[ic]) 
+		if(neighbours[in]!=id) 
 		  {
 		    neighboursEE_[hashedindex].push_back(neighbours[in]);
 		  }
@@ -208,7 +208,7 @@ class PFECALHashNavigator : public PFRecHitNavigatorBase {
 	  }
 	else
 	  {
-	    DetId central(vecee[ic]);
+	    DetId central(id);
 	    neighboursEE_[hashedindex].resize(8,DetId(0));
 	    for(unsigned idir=0;idir<8;++idir)
 	      {

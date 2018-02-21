@@ -119,13 +119,13 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
       // first time or when es geom changes set flags
       if( nullptr != iESGeom && m_esGeom != iESGeom ) {
 	m_esGeom = iESGeom ;
-	for( uint32_t ic ( 0 ) ;
-	     ( ic != m_esGeom->getValidDetIds().size() ) &&
-	       ( (!m_esPlus) || (!m_esMinus) ) ; ++ic ) {
-	  const double z ( m_esGeom->getGeometry( m_esGeom->getValidDetIds()[ic] )->getPosition().z() ) ;
+	const std::unordered_set<DetId> & ids = m_esGeom->getValidDetIds();
+	for( auto const ic : ids) {
+	  const double z ( m_esGeom->getGeometry(ic)->getPosition().z() ) ;
 	  m_esPlus  = m_esPlus  || ( 0 < z ) ;
 	  m_esMinus = m_esMinus || ( 0 > z ) ;
-	}
+	  if (m_esPlus && m_esMinus) break;
+	}  
       }
       
       //Select the correct value of the T0 parameter depending on subdetector       

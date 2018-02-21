@@ -31,7 +31,7 @@ public:
   typedef typename Traits::Digi Digi;
   typedef typename Traits::DigiCollection DigiCollection;
 
-  void operator()(DigiCollection & output, CLHEP::HepRandomEngine* engine, CaloSamples * analogSignal, std::vector<DetId>::const_iterator idItr, ElectronicsSim* theElectronicsSim){
+  void operator()(DigiCollection & output, CLHEP::HepRandomEngine* engine, CaloSamples * analogSignal, std::unordered_set<DetId>::const_iterator idItr, ElectronicsSim* theElectronicsSim){
     output.push_back( idItr->rawId() ) ;
     Digi digi ( output.back() ) ;  //QIEDataFrame gets ptr to edm::DataFrame data
     theElectronicsSim->analogToDigital( engine, *analogSignal , digi, Traits::PreMixFactor, Traits::PreMixBits ) ;

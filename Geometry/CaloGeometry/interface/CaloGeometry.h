@@ -4,6 +4,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <memory>
+#include <unordered_set>
 #include <vector>
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
@@ -38,10 +39,10 @@ class CaloGeometry
       std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) const;
 
       /// Get the list of all valid detector ids
-      std::vector<DetId> getValidDetIds() const ;
+      std::unordered_set<DetId> getValidDetIds() const ;
     
       /// Get the list of valid detector ids for the given subdetector
-      const std::vector<DetId>& getValidDetIds( DetId::Detector det, int subdet ) const;
+      const std::unordered_set<DetId>& getValidDetIds( DetId::Detector det, int subdet ) const;
 
       /// is this detid present in the geometry?
       bool present( const DetId& id ) const;
@@ -58,7 +59,7 @@ class CaloGeometry
 
    private:
 
-      static const std::vector<DetId> k_emptyVec ;
+      static const std::unordered_set<DetId> k_emptyVec ;
 
       std::vector< const CaloSubdetectorGeometry* > m_geos ;
 

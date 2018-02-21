@@ -91,7 +91,7 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
   const CaloSubdetectorGeometry* geom(cg.getSubdetectorGeometry(det,subdetn));
 
   int n=0;
-  const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);
+  const std::unordered_set<DetId>& ids=geom->getValidDetIds(det,subdetn);
   for (auto id : ids) {
     n++;
     auto cell=geom->getGeometry(id);

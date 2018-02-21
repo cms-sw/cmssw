@@ -31,7 +31,7 @@ EcalTBReadout::findTTlist( const int& crysId,
    /// assuming only 1 SM present
   
    EBDetId theTargetId;
-   std::vector<DetId>::const_iterator idItr = theDetIds->begin();
+   std::unordered_set<DetId>::const_iterator idItr = theDetIds->begin();
    unsigned int ncount = 0;
    bool found = false;
   

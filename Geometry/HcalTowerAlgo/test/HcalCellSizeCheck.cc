@@ -45,14 +45,14 @@ void HcalCellSizeCheck::analyze(const edm::Event& /*iEvent*/,
   HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
   CaloSubdetectorGeometry*  geom = m_loader.load(topology, hcons);
 
-  const std::vector<DetId>& idsb=geom->getValidDetIds(DetId::Hcal,HcalBarrel);
+  const std::unordered_set<DetId>& idsb=geom->getValidDetIds(DetId::Hcal,HcalBarrel);
   for (auto id : idsb) {
     HcalDetId hid(id.rawId());
     std::pair<double,double> rz = hcons.getRZ(hid);
     std::cout << hid << " Front " << rz.first << " Back " << rz.second << "\n";
   }
   
-  const std::vector<DetId>& idse=geom->getValidDetIds(DetId::Hcal,HcalEndcap);
+  const std::unordered_set<DetId>& idse=geom->getValidDetIds(DetId::Hcal,HcalEndcap);
   for (auto id : idse) {
     HcalDetId hid(id.rawId());
     std::pair<double,double> rz = hcons.getRZ(hid);

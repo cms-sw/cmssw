@@ -149,7 +149,7 @@ void DetIdAssociator::buildMap()
    // clear the map
    if (nEta_ <= 0 || nPhi_ <= 0) throw cms::Exception("FatalError") << "incorrect look-up map size. Cannot build such a map.";
    std::vector<GlobalPoint> pointBuffer;
-   std::vector<DetId> detIdBuffer;
+   std::unordered_set<DetId> detIdBuffer;
    unsigned int numberOfSubDetectors = getNumberOfSubdetectors();
    unsigned totalNumberOfElementsInTheContainer(0);
    for ( unsigned int step = 0; step < 2; ++step){
@@ -159,9 +159,9 @@ void DetIdAssociator::buildMap()
      for ( unsigned int subDetectorIndex = 0; subDetectorIndex < numberOfSubDetectors; ++subDetectorIndex ){
        getValidDetIds(subDetectorIndex, detIdBuffer);
        // This std::move prevents modification
-       std::vector<DetId> const& validIds = std::move(detIdBuffer);
+       std::unordered_set<DetId> const& validIds = std::move(detIdBuffer);
        LogTrace("TrackAssociator")<< "Number of valid DetIds for subdetector: " << subDetectorIndex << " is " <<  validIds.size();
-       for (std::vector<DetId>::const_iterator id_itr = validIds.begin(); id_itr!=validIds.end(); id_itr++) {
+       for (std::unordered_set<DetId>::const_iterator id_itr = validIds.begin(); id_itr!=validIds.end(); id_itr++) {
 	 std::pair<const_iterator,const_iterator> points = getDetIdPoints(*id_itr, pointBuffer);
 	 LogTrace("TrackAssociatorVerbose")<< "Found " << points.second-points.first << " global points to describe geometry of DetId: " 
 					   << id_itr->rawId();

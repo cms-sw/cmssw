@@ -30,7 +30,7 @@ class HODetIdAssociator: public CaloDetIdAssociator{
 
  protected:
 
-   void getValidDetIds(unsigned int subDectorIndex, std::vector<DetId>& validIds) const override
+   void getValidDetIds(unsigned int subDectorIndex, std::unordered_set<DetId> validIds) const override
      {
        if ( subDectorIndex!=0 ) cms::Exception("FatalError") << 
 	 "HO sub-dectors are all handle as one sub-system, but subDetectorIndex is not zero.\n";

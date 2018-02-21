@@ -84,7 +84,7 @@ void testEcalRingCalibrationTools::build(const CaloGeometry& cg, DetId::Detector
   std::fstream f(name,std::ios_base::out);
   const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(det,subdetn);
 
-  std::vector<DetId> ids=geom->getValidDetIds(det,subdetn);
+  const std::unordered_set<DetId> & ids=geom->getValidDetIds(det,subdetn);
   if (det == DetId::Ecal && subdetn == EcalBarrel)  
     {
       f << "EB-" << std::endl;

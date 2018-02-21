@@ -40,6 +40,7 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include <vector>
+#include <unordered_set>
 #include<iostream>
 #include<iterator>
 
@@ -59,8 +60,8 @@ private:
 
   HcalDbHardcode dbHardcode;
   std::vector<PCaloHit>  hits;
-  std::vector<DetId>     hcalDetIds, hoDetIds, hfDetIds, hzdcDetIds, allDetIds;
-  std::vector<HcalDetId> outerHcalDetIds;
+  std::unordered_set<DetId> hcalDetIds, hoDetIds, hfDetIds, hzdcDetIds, allDetIds;
+  std::unordered_set<DetId> outerHcalDetIds;
 
   const HcalTimeSlew* hcalTimeSlew_delay_;
 };
@@ -93,43 +94,43 @@ void HcalDigitizerTest::beginJob() {
   for (int phi = 1; phi < 50 ; ++phi) {
     HcalDetId detId(HcalBarrel, 1 , phi, 1);
     PCaloHit barrelHit(detId.rawId(),  0.085*phi, 0.);
-    hcalDetIds.push_back(detId);
+    hcalDetIds.emplace(detId);
     hits.push_back(barrelHit);
   }
 
   HcalDetId endcapDetId(HcalEndcap, 17, 1, 1);
   PCaloHit endcapHit(endcapDetId.rawId(), 0.9, 0.);
-  hcalDetIds.push_back(endcapDetId);
+  hcalDetIds.emplace(endcapDetId);
   hits.push_back(endcapHit);
 
   HcalDetId outerDetId(HcalOuter, 1, 1, 4);
   PCaloHit outerHit(outerDetId.rawId(), 0.45, 0.);
-  hoDetIds.push_back(outerDetId);
-  outerHcalDetIds.push_back(outerDetId);
+  hoDetIds.emplace(outerDetId);
+  outerHcalDetIds.emplace(outerDetId);
   hits.push_back(outerHit);
 
   HcalDetId forwardDetId1(HcalForward, 30, 1, 1);
   PCaloHit forwardHit1(forwardDetId1.rawId(), 35.2, 0.);
-  hfDetIds.push_back(forwardDetId1);
+  hfDetIds.emplace(forwardDetId1);
   hits.push_back(forwardHit1);
 
   HcalDetId forwardDetId2(HcalForward, 30, 1, 2);
   PCaloHit forwardHit2(forwardDetId2.rawId(), 47.8, 0.);
-  hfDetIds.push_back(forwardDetId2);
+  hfDetIds.emplace(forwardDetId2);
   hits.push_back(forwardHit2);
 
   HcalZDCDetId zdcDetId(HcalZDCDetId::Section(1),true,1);
   PCaloHit zdcHit(zdcDetId.rawId(), 50.0, 0.123);
-  hzdcDetIds.push_back(zdcDetId);
+  hzdcDetIds.emplace(zdcDetId);
   hits.push_back(zdcHit);
  
   std::cout << zdcDetId << std::endl;
   std::cout << zdcHit   << std::endl;
 
-  allDetIds.insert(allDetIds.end(), hcalDetIds.begin(), hcalDetIds.end());
-  allDetIds.insert(allDetIds.end(), hoDetIds.begin(), hoDetIds.end());
-  allDetIds.insert(allDetIds.end(), hfDetIds.begin(), hfDetIds.end());
-  allDetIds.insert(allDetIds.end(), hzdcDetIds.begin(), hzdcDetIds.end());
+  allDetIds.insert(hcalDetIds.begin(),hcalDetIds.end());
+  allDetIds.insert(hoDetIds.begin(),  hoDetIds.end());
+  allDetIds.insert(hfDetIds.begin(),  hfDetIds.end());
+  allDetIds.insert(hzdcDetIds.begin(),hzdcDetIds.end());
 }
 
 void HcalDigitizerTest::analyze(const edm::Event& iEvent, 

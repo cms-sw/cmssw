@@ -33,7 +33,7 @@ ESDigitizer::~ESDigitizer()
 
 /// tell the digitizer which cells exist; cannot change during a run
 void 
-ESDigitizer::setDetIds( const std::vector<DetId>& detIds )
+ESDigitizer::setDetIds( const std::unordered_set<DetId>& detIds )
 {
    assert( nullptr       == m_detIds ||
 	   &detIds == m_detIds    ) ; // sanity check; don't allow to change midstream
@@ -223,7 +223,9 @@ ESDigitizer::createNoisyList( std::vector<DetId>& abThreshCh, CLHEP::HepRandomEn
          iChan = (uint32_t) CLHEP::RandFlat::shoot(engine, m_detIds->size());
 	 if( iChan == m_detIds->size() ) --iChan ; //protect against roundup at end
 	 assert( m_detIds->size() > iChan ) ;      // sanity check
-	 id = (*m_detIds)[ iChan ] ;
+	 std::unordered_set<DetId>::const_iterator itr (m_detIds->begin());
+	 for (unsigned k=0; k<iChan; ++k) ++itr;
+	 id = *(itr);
 	 idItr = find( abThreshCh.begin() ,
 		       abThreshCh.end()   ,
 		       id                  ) ;

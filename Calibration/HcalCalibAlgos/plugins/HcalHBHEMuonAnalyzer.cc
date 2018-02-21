@@ -924,7 +924,7 @@ void HcalHBHEMuonAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const&
     iSetup.get<CaloGeometryRecord>().get(pG);
     const CaloGeometry* geo = pG.product();
     const HcalGeometry* gHcal = (const HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
-    const std::vector<DetId>& ids = gHcal->getValidDetIds(DetId::Hcal,0);
+    const std::unordered_set<DetId>& ids = gHcal->getValidDetIds(DetId::Hcal,0);
     edm::LogVerbatim("HBHEMuon") << "\nTable of Correction Factors for Run "
 				 << iRun.run() << "\n";
     for (auto const& id: ids) {

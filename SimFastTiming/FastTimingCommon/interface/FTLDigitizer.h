@@ -22,17 +22,6 @@
 #include <memory>
 #include <tuple>
 
-
-
-namespace std {
-  template<>
-  struct hash<DetId> {
-    std::size_t operator()(const DetId& detid) const {
-      return hash<uint32_t>()(detid.rawId());
-    }
-  };
-}
-
 namespace ftl_digitizer {
   
   namespace FTLHelpers {

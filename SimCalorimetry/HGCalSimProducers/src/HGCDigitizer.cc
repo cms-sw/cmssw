@@ -50,14 +50,12 @@ namespace {
   }
 
   void getValidDetIds(const HGCalGeometry* geom, std::unordered_set<DetId>& valid) {
-    const std::vector<DetId>& ids = geom->getValidDetIds();
-    valid.reserve(ids.size());
-    valid.insert(ids.begin(),ids.end());
+    valid = geom->getValidDetIds();
   }
 
   void getValidDetIds(const HcalGeometry* geom, std::unordered_set<DetId>& valid) {
-    const std::vector<DetId>& ids = geom->getValidDetIds();
-    for( const auto& id : ids ) {
+    const std::unordered_set<DetId>& ids = geom->getValidDetIds();
+    for( auto const & id : ids ) {
       if( HcalEndcap == id.subdetId() &&
 	  DetId::Hcal == id.det() ) 
 	valid.emplace(id);
