@@ -263,8 +263,18 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         # For CLCT-centric matching, whether to drop ALCTs that were matched
         # to CLCTs in this BX, and not use them in the following BX
-        # (default non-upgrade TMB behavior).
-        tmbDropUsedAlcts = cms.bool(True)
+        tmbDropUsedAlcts = cms.bool(True),
+
+        # For ALCT-centric matching, whether to drop CLCTs that were matched
+        # to ALCTs in this BX, and not use them in the following BX
+        tmbDropUsedClcts = cms.bool(False),
+
+        # Switch to enable
+        #  True = CLCT-centric matching (default non-upgrade behavior,
+        #         take CLCTs in BX look for matching ALCTs in window)
+        #  False = ALCT-centric matching (recommended for SLHC,
+        #         take ALCTs in BX look for matching CLCTs in window)
+        clctToAlct = cms.bool(True),
     ),
 
     # to be used by ME11 chambers with upgraded TMB and ALCT
