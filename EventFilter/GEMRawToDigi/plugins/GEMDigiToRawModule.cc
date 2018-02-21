@@ -41,15 +41,15 @@ std::shared_ptr<GEMROmap> GEMDigiToRawModule::globalBeginRun(edm::Run const&, ed
 {
   auto gemORmap = std::make_shared<GEMROmap>();
   if (useDBEMap_){
-    edm::ESHandle<GEMEMap> gemEMapRcd;
-    iSetup.get<GEMEMapRcd>().get(gemEMapRcd);
-    auto gemEMap = std::make_unique<GEMEMap>(*(gemEMapRcd.product()));
+    edm::ESHandle<GEMELMap> gemEMapRcd;
+    iSetup.get<GEMELMapRcd>().get(gemEMapRcd);
+    auto gemEMap = std::make_unique<GEMELMap>(*(gemEMapRcd.product()));
     gemEMap->convert(*gemORmap);
     gemEMap.reset();    
   }
   else {
     // no EMap in DB, using dummy
-    auto gemEMap = std::make_unique<GEMEMap>();
+    auto gemEMap = std::make_unique<GEMELMap>();
     gemEMap->convertDummy(*gemORmap);
     gemEMap.reset();    
   }
@@ -88,7 +88,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	amcId = ec.amcId;
 	amcData = std::make_unique<AMCdata>();
 	amcData->setBID(amcId);
- 	amcData->setBX(GEMEMap::amcBX_);
+ 	amcData->setBX(GEMELMap::amcBX_);
       }
       
       if (gebId != ec.gebId){
@@ -100,7 +100,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
       uint16_t vfatId = ec.vfatId;
       GEMDetId gemId = dc.gemDetId;
 
-      for (uint16_t bc = 0; bc < 2*GEMEMap::amcBX_; ++bc){
+      for (uint16_t bc = 0; bc < 2*GEMELMap::amcBX_; ++bc){
 	bool hasDigi = false;
 
 	uint8_t  b1010      =0xA;           ///<1010:4 Control bits, shoud be 1010
@@ -120,14 +120,14 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
 	for (GEMDigiCollection::const_iterator digiIt = range.first; digiIt!=range.second; ++digiIt){
 
 	  const GEMDigi & digi = (*digiIt);
-	  if (digi.bx() != bc-GEMEMap::amcBX_) continue;
+	  if (digi.bx() != bc-GEMELMap::amcBX_) continue;
 	  
-	  int maxVFat = GEMEMap::maxVFatGE11_;
-	  if (gemId.station() == 2) maxVFat = GEMEMap::maxVFatGE21_;
+	  int maxVFat = GEMELMap::maxVFatGE11_;
+	  if (gemId.station() == 2) maxVFat = GEMELMap::maxVFatGE21_;
 
-	  int localStrip = digi.strip() - ((dc.iPhi-1)%maxVFat)*GEMEMap::maxChan_;	  
+	  int localStrip = digi.strip() - ((dc.iPhi-1)%maxVFat)*GEMELMap::maxChan_;	  
 	  // skip strips not in current vFat
-	  if (localStrip < 1 || localStrip > GEMEMap::maxChan_) continue;
+	  if (localStrip < 1 || localStrip > GEMELMap::maxChan_) continue;
 
 	  hasDigi = true;
 
