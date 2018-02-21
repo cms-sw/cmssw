@@ -12,6 +12,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "TrackingSeedCandidates.h"
 class AreaSeededTrackingRegionsBuilder {
 public:
   using Origin = std::pair<GlobalPoint, float>; // (origin, half-length in z)
@@ -78,6 +79,7 @@ public:
     ~Builder() = default;
 
     void setMeasurementTracker(const MeasurementTrackerEvent *mte) { m_measurementTracker = mte; }
+    void setCandidates(const TrackingSeedCandidates::Objects cands) { candidates = cands; }
 
     std::vector<std::unique_ptr<TrackingRegion> > regions(const Origins& origins, const std::vector<Area>& areas) const;
     std::unique_ptr<TrackingRegion> region(const Origin& origin, const std::vector<Area>& areas) const;
@@ -89,6 +91,7 @@ public:
 
     const AreaSeededTrackingRegionsBuilder *m_conf = nullptr;
     const MeasurementTrackerEvent *m_measurementTracker = nullptr;
+    TrackingSeedCandidates::Objects candidates;
   };
 
   AreaSeededTrackingRegionsBuilder(const edm::ParameterSet& regPSet, edm::ConsumesCollector&& iC): AreaSeededTrackingRegionsBuilder(regPSet, iC) {}
@@ -101,7 +104,7 @@ public:
 
 private:
   std::vector<Area> m_areas;
-
+  TrackingSeedCandidates candidates_;
   float m_extraPhi;
   float m_extraEta;
   float m_ptMin;

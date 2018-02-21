@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/PtEtaPhiMass.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include <array>
@@ -15,7 +16,9 @@ namespace {
   }
 }
 
-AreaSeededTrackingRegionsBuilder::AreaSeededTrackingRegionsBuilder(const edm::ParameterSet& regPSet, edm::ConsumesCollector& iC) {
+AreaSeededTrackingRegionsBuilder::AreaSeededTrackingRegionsBuilder(const edm::ParameterSet& regPSet, edm::ConsumesCollector& iC):
+ candidates_(regPSet, iC)
+ {
   m_extraPhi = regPSet.getParameter<double>("extraPhi");
   m_extraEta = regPSet.getParameter<double>("extraEta");
 
@@ -40,7 +43,7 @@ void AreaSeededTrackingRegionsBuilder::fillDescriptions(edm::ParameterSetDescrip
 
   desc.add<std::string>("whereToUseMeasurementTracker", "Never");
   desc.add<edm::InputTag>("measurementTrackerName", edm::InputTag(""));
-
+  TrackingSeedCandidates::fillDescriptions(desc);
   desc.add<bool>("searchOpt", false);
 }
 
@@ -52,7 +55,7 @@ AreaSeededTrackingRegionsBuilder::Builder AreaSeededTrackingRegionsBuilder::begi
     e.getByToken(token_measurementTracker, hmte);
     builder.setMeasurementTracker(hmte.product());
   }
-
+  builder.setCandidates( ( candidates_.objects(e)));
   return builder;
 }
 
@@ -63,7 +66,9 @@ std::vector<std::unique_ptr<TrackingRegion> > AreaSeededTrackingRegionsBuilder::
   // create tracking regions in directions of the points of interest
   int n_regions = 0;
   for(const auto& origin: origins) {
-    result.push_back(region(origin, areas));
+    auto reg = region(origin, areas);
+    if (!reg) continue;
+    result.push_back(std::move(reg));
     ++n_regions;
   }
   LogDebug("AreaSeededTrackingRegionsBuilder") << "produced "<<n_regions<<" regions";
@@ -228,29 +233,93 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
 
   const auto meanEta = (minEta+maxEta)/2.f;
   const auto meanPhi = (minPhi+maxPhi)/2.f;
-  const auto deltaEta = maxEta-meanEta + m_conf->m_extraEta;
-  const auto deltaPhi = maxPhi-meanPhi + m_conf->m_extraPhi;
+  const auto dEta = maxEta-meanEta + m_conf->m_extraEta;
+  const auto dPhi = maxPhi-meanPhi + m_conf->m_extraPhi;
 
-  const auto x = std::cos(meanPhi);
-  const auto y = std::sin(meanPhi);
-  const auto z = (x*x+y*y)/std::tan(2.f*std::atan(std::exp(-meanEta))); // simplify?
+  int n_objects = 0;
+  if (candidates.first) n_objects = candidates.first->size();
 
-  LogTrace("AreaSeededTrackingRegionsBuilder") << "Direction x,y,z " << x << "," << y << "," << z
+  if (n_objects > 0){
+	// If we have objected used for seeding, loop over objects and find overlap with the found region. Return overlaps as tracking regions to use
+	for(const auto& object : *candidates.first) {
+		float dEta_Cand = candidates.second.first;
+		float dPhi_Cand = candidates.second.second;
+	       	float eta_Cand = object.eta();
+		float phi_Cand = object.phi();
+          	float dEta_Cand_Point = std::abs(eta_Cand-meanEta);
+          	float dPhi_Cand_Point = std::abs(deltaPhi(phi_Cand,meanPhi));
+
+		if(dEta_Cand_Point > (dEta_Cand + dEta) || dPhi_Cand_Point > (dPhi_Cand + dPhi)) continue;
+
+		float  etaMin_RoI = std::max(eta_Cand-dEta_Cand,meanEta-dEta);
+		float  etaMax_RoI = std::min(eta_Cand+dEta_Cand,meanEta+dEta);
+
+		float  phi_Cand_minus  = normalizedPhi(phi_Cand-dPhi_Cand);
+		float  phi_Point_minus = normalizedPhi(meanPhi-dPhi);
+		float  phi_Cand_plus  = normalizedPhi(phi_Cand+dPhi_Cand);
+		float  phi_Point_plus = normalizedPhi(meanPhi+dPhi);
+
+		float phiMin_RoI = deltaPhi(phi_Cand_minus,phi_Point_minus)>0. ? phi_Cand_minus : phi_Point_minus ;	
+		float phiMax_RoI = deltaPhi(phi_Cand_plus,phi_Point_plus)<0. ? phi_Cand_plus : phi_Point_plus;
+
+
+		const auto meanEtaTemp = (etaMin_RoI+etaMax_RoI)/2.f;
+		auto meanPhiTemp = (phiMin_RoI+phiMax_RoI)/2.f;
+		if( phiMax_RoI < phiMin_RoI ) meanPhiTemp-=M_PI;
+	        meanPhiTemp = normalizedPhi(meanPhiTemp);
+	        
+		const auto dPhiTemp = deltaPhi(phiMax_RoI,meanPhiTemp);
+		const auto dEtaTemp = etaMax_RoI-meanEtaTemp;
+
+		const auto x = std::cos(meanPhiTemp);
+  	  	const auto y = std::sin(meanPhiTemp);
+  	  	const auto z = 1./std::tan(2.f*std::atan(std::exp(-meanEtaTemp)));
+
+  		LogTrace("AreaSeededTrackingRegionsBuilder") << "Direction x,y,z " << x << "," << y << "," << z
+                                               << " eta,phi " << meanEtaTemp << "," << meanPhiTemp
+                                               << " window eta " << (meanEtaTemp-dEtaTemp) << "," << (meanEtaTemp+dEtaTemp)
+                                               << " phi " << (meanPhiTemp-dPhiTemp) << "," << (meanPhiTemp+dPhiTemp);
+
+  		return std::make_unique<RectangularEtaPhiTrackingRegion>(
+      			GlobalVector(x,y,z),
+      			origin.first, // GlobalPoint
+      			m_conf->m_ptMin,
+      			m_conf->m_originRadius,
+      			origin.second,
+      			dEtaTemp,
+      			dPhiTemp,
+      			m_conf->m_whereToUseMeasurementTracker,
+      			m_conf->m_precise,
+      			m_measurementTracker,
+      			m_conf->m_searchOpt
+  		);  
+	}
+	// Have to retun nullptr here to ensure that we always return something
+	return nullptr;
+
+  }
+  else{
+  	const auto x = std::cos(meanPhi);
+  	const auto y = std::sin(meanPhi);
+  	const auto z = 1./std::tan(2.f*std::atan(std::exp(-meanEta))); 
+
+  	LogTrace("AreaSeededTrackingRegionsBuilder") << "Direction x,y,z " << x << "," << y << "," << z
                                                << " eta,phi " << meanEta << "," << meanPhi
-                                               << " window eta " << (meanEta-deltaEta) << "," << (meanEta+deltaEta)
-                                               << " phi " << (meanPhi-deltaPhi) << "," << (meanPhi+deltaPhi);
+                                               << " window eta " << (meanEta-dEta) << "," << (meanEta+dEta)
+                                               << " phi " << (meanPhi-dPhi) << "," << (meanPhi+dPhi);
 
-  return std::make_unique<RectangularEtaPhiTrackingRegion>(
-      GlobalVector(x,y,z),
-      origin.first, // GlobalPoint
-      m_conf->m_ptMin,
-      m_conf->m_originRadius,
-      origin.second,
-      deltaEta,
-      deltaPhi,
-      m_conf->m_whereToUseMeasurementTracker,
-      m_conf->m_precise,
-      m_measurementTracker,
-      m_conf->m_searchOpt
-  );  
+  	return std::make_unique<RectangularEtaPhiTrackingRegion>(
+      		GlobalVector(x,y,z),
+      		origin.first, // GlobalPoint
+      		m_conf->m_ptMin,
+      		m_conf->m_originRadius,
+      		origin.second,
+      		dEta,
+      		dPhi,
+      		m_conf->m_whereToUseMeasurementTracker,
+      		m_conf->m_precise,
+      		m_measurementTracker,
+      		m_conf->m_searchOpt
+  	);  
+  }
 }
