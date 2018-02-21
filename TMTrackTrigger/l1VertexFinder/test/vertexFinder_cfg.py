@@ -69,5 +69,8 @@ process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 #--- Load config fragment that configures vertex producer
 process.load('TMTrackTrigger.l1VertexFinder.VertexProducer_cff')
 
-process.p = cms.Path(process.VertexProducer)
+#--- Load config fragment that configures vertex analyzer
+process.load('TMTrackTrigger.l1VertexFinder.VertexAnalyzer_cff')
+
+process.p = cms.Path(process.VertexProducer + process.L1TVertexAnalyzer)
 # process.e = cms.EndPath(process.out)

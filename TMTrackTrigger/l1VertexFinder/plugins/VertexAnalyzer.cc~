@@ -1,0 +1,36 @@
+#ifndef __TMTTrackTrigger_VertexAnalyzer_VertexAnalyzer_h__
+#define __TMTTrackTrigger_VertexAnalyzer_VertexAnalyzer_h__
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include <iostream>
+
+namespace l1tVertexFinder {
+
+  class VertexAnalyzer : public edm::EDAnalyzer {
+
+  public:
+    VertexAnalyzer(const edm::ParameterSet& p);
+    ~VertexAnalyzer();
+
+  private:
+    void beginRun(const edm::EventSetup& setup) {
+
+    }
+
+    void analyze(const edm::Event& evt, const edm::EventSetup& setup) {
+      std::cout << "processing " << std::endl;
+      exit(1);
+    }
+
+    void endJob() {
+
+    }
+  };
+
+}
+
+#endif
+
