@@ -30,9 +30,6 @@ muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
 import EventFilter.GEMRawToDigi.muonGEMDigis_cfi
 muonGEMDigis = EventFilter.GEMRawToDigi.muonGEMDigis_cfi.muonGEMDigis.clone()
 
-import EventFilter.GEMRawToDigi.muonME0Digis_cfi
-muonME0Digis = EventFilter.GEMRawToDigi.muonME0Digis_cfi.muonME0Digis.clone()
-
 from EventFilter.CastorRawToDigi.CastorRawToDigi_cff import *
 castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692, 693,722) )
 
@@ -107,14 +104,8 @@ ctpps_2016.toReplaceWith(RawToDigi_noTk, _ctpps_2016_RawToDigi_noTk)
 _gem_RawToDigi = RawToDigi.copy()
 _gem_RawToDigi.insert(-1,muonGEMDigis)
 
-_me0_RawToDigi = RawToDigi.copy()
-_me0_RawToDigi.insert(-1,muonGEMDigis*muonME0Digis)
-
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith(RawToDigi, _gem_RawToDigi)
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith(RawToDigi, _gem_RawToDigi)
-
-from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
-phase2_muon.toReplaceWith(RawToDigi, _me0_RawToDigi)
