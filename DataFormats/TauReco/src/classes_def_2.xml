@@ -372,6 +372,18 @@ isolationTauChargedHadronCandidates_.reset();
   <class name="edm::RefVector<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> >"/>
   <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecoTauChargedHadron>,reco::PFRecoTauChargedHadron> > >" />
 
+<ioread sourceClass="reco::PFRecoTauChargedHadron" version="[-14]" source="edm::Ptr<reco::PFCandidate> chargedPFCandidate_;" targetClass="reco::PFRecoTauChargedHadron" target="chargedPFCandidate_">
+   <![CDATA[chargedPFCandidate_ = edm::Ptr<reco::Candidate>(onfile.chargedPFCandidate_);]]>
+  </ioread>
+
+<ioread sourceClass="reco::PFRecoTauChargedHadron" version="[-14]" source="std::vector<edm::Ptr<reco::PFCandidate> > neutralPFCandidates_;" targetClass="reco::PFRecoTauChargedHadron" target="neutralPFCandidates_">
+    <![CDATA[
+    neutralPFCandidates_.reserve(onfile.neutralPFCandidates_.size());
+    for (const auto& cand : onfile.neutralPFCandidates_)
+      neutralPFCandidates_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
+  </ioread>
+
+
   <class name="reco::CaloTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>
   </class>
