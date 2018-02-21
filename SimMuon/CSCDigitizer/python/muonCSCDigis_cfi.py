@@ -24,7 +24,8 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
         timingCalibrationError = cms.vdouble(0., 4.2, 4.2, 0., 0., 0., 0., 0., 0., 0., 0.),
         # parameters for tuning timing
         scaTimingOffsets =  cms.vdouble(0.0, 10., 10., 0.,0.,0.,0.,0.,0.,0.,0.),
-        comparatorTimeBinOffset = cms.double(5.0),
+        ## this offset ensures that the central CLCT BX is 7 in simulation
+        comparatorTimeBinOffset = cms.double(4.0),
         comparatorSamplingTime = cms.double(25.0),
         scaPeakBin = cms.int32(5),
         pedestalSigma = cms.double(1.5),
