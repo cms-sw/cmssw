@@ -28,6 +28,11 @@ vertexAnalysis = DQMEDAnalyzer('PrimaryVertexAnalyzer4PUSlimmed',
                                                                       "selectedOfflinePrimaryVerticesWithBS"
                                                                       ),
 )
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(vertexAnalysis,
+    trackingParticleCollection = "mixData:MergedTrackTruth",
+    trackingVertexCollection = "mixData:MergedTrackTruth",
+)
 
 vertexAnalysisTrackingOnly = vertexAnalysis.clone(
     vertexRecoCollections = vertexAnalysis.vertexRecoCollections.value() + [

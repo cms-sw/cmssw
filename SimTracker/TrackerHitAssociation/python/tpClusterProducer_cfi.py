@@ -10,3 +10,10 @@ phase2_tracker.toModify(
     pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel"),
     phase2OTSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
 )
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(tpClusterProducer,
+    trackingParticleSrc = "mixData:MergedTrackTruth",
+    pixelSimLinkSrc = "mixData:PixelDigiSimLink",
+    stripSimLinkSrc = "mixData:StripDigiSimLink",
+)

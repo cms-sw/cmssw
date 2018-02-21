@@ -50,5 +50,8 @@ globalrechitsanalyze = DQMEDAnalyzer('GlobalRecHitsAnalyzer',
     ECalEBSrc = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 )
 
-
-
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(globalrechitsanalyze,
+    pixelSimLinkSrc = "mixData:PixelDigiSimLink",
+    stripSimLinkSrc = "mixData:StripDigiSimLink",
+)
