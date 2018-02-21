@@ -1,5 +1,5 @@
-#ifndef CondFormats_GEMObjects_GEMEMap_h
-#define CondFormats_GEMObjects_GEMEMap_h
+#ifndef CondFormats_GEMObjects_GEMELMap_h
+#define CondFormats_GEMObjects_GEMELMap_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 #include <string>
@@ -7,25 +7,18 @@
 
 class GEMROmap;
 
-class GEMEMap {
+class GEMELMap {
  public:
-  GEMEMap();
-  explicit GEMEMap(const std::string & version);
+  GEMELMap();
+  explicit GEMELMap(const std::string & version);
 
-  virtual ~GEMEMap();
+  virtual ~GEMELMap();
 
   const std::string & version() const;
   void convert(GEMROmap & romap);
   void convertDummy(GEMROmap & romap);
 
-  struct GEMEMapItem {
-    int ChamberID;
-    std::vector<int> VFatIDs;
-    std::vector<int> positions;
-
-    COND_SERIALIZABLE;
-  };  
-  struct GEMVFatMaptype {
+  struct GEMVFatMap {
     int VFATmapTypeId;
     std::vector<int> vfat_position;
     std::vector<int> z_direction;
@@ -40,8 +33,7 @@ class GEMEMap {
 
     COND_SERIALIZABLE;
   };
-  struct GEMChStripMap {
-
+  struct GEMStripMap {
     std::vector<int> vfatType;
     std::vector<int> vfatCh;
     std::vector<int> vfatStrip;
@@ -49,17 +41,8 @@ class GEMEMap {
     COND_SERIALIZABLE;
   };
 
-  struct GEMVFatMapInPos {
-    int position;
-    int VFATmapTypeId;
-
-    COND_SERIALIZABLE;
-  };
-
-  std::vector<GEMEMapItem>     theEMapItem_;
-  std::vector<GEMVFatMaptype>  theVFatMaptype_;
-  std::vector<GEMVFatMapInPos> theVFatMapInPos_;
-  std::vector<GEMChStripMap>   theVfatChStripMap_;
+  std::vector<GEMVFatMap>  theVFatMap_;
+  std::vector<GEMStripMap> theStripMap_;
   
  private:
   std::string theVersion;
@@ -72,9 +55,10 @@ class GEMEMap {
   static const int chipIdMask_ = 0xfff;  // chipId mask for 12 bits
   static const int gebIdBits_  = 5;      // ID size from GEB
   static const int maxGEBs_    = 24;     // 24 gebs per amc
+  static const int maxVFatGE0_ = 12;     // vFat per eta partition, not known yet for ME0
   static const int maxVFatGE11_= 3;      // vFat per eta partition in GE11
   static const int maxVFatGE21_= 6;      // vFat per eta partition in GE21
   static const int maxChan_    = 128;    // channels per vFat
   static const int amcBX_      = 25;     // amc BX to get strip bx
 };
-#endif // GEMEMap_H
+#endif // GEMELMap_H
