@@ -123,7 +123,7 @@ private:
   HLTConfigProvider              hltConfig_;
   const std::vector<std::string> trigNames_;
   spr::trackSelectionParameters  selectionParameter_;
-  std::string                    theTrackQuality_;
+  const std::string              theTrackQuality_;
   const std::string              processName_, l1Filter_;
   const std::string              l2Filter_, l3Filter_;
   const double                   a_coneR_, a_mipR_, pTrackMin_, eEcalMax_;
