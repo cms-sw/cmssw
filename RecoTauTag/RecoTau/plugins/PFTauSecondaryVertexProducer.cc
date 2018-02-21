@@ -103,11 +103,15 @@ void PFTauSecondaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent,con
 	// Fit the secondary vertex
 	bool FitOk(true);
 	KalmanVertexFitter kvf(true);
-	try{
-	  transVtx = kvf.vertex(transTrk); //KalmanVertexFitter  
-	}catch(...){
-	  FitOk=false;
-	}
+        if(transTrk.size() > 1) {
+          try{
+            transVtx = kvf.vertex(transTrk); //KalmanVertexFitter  
+          }catch(...){
+            FitOk=false;
+          }
+        } else {
+          FitOk = false;
+        }
 	if(!transVtx.hasRefittedTracks()) FitOk=false;
 	if(transVtx.refittedTracks().size()!=transTrk.size()) FitOk=false;
 	if(FitOk){
