@@ -166,6 +166,79 @@
    <version ClassVersion="10" checksum="2617942038"/>
   </class>
   <class name="std::vector<pat::tau::TauPFSpecific>" />
+  <ioread sourceClass="reco::TauPFSpecific" version="[-15]" source="edm::Ptr<reco::PFCandidate> leadPFChargedHadrCand_;" targetClass="reco::TauPFSpecific" target="leadPFChargedHadrCand_">
+   <![CDATA[leadPFChargedHadrCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFChargedHadrCand_);]]>
+  </ioread>
+
+<ioread sourceClass="pat::tau::TauPFSpecific" version="[-15]" source="edm::Ptr<reco::PFCandidate> leadPFNeutralCand_;" targetClass="pat::tau::TauPFSpecific" target="leadPFNeutralCand_">
+    <![CDATA[leadPFNeutralCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFNeutralCand_);]]>
+  </ioread>
+
+<ioread sourceClass="pat::tau::TauPFSpecific" version="[-15]" source="edm::Ptr<reco::PFCandidate> leadPFCand_;" targetClass="pat::tau::TauPFSpecific" target="leadPFCand_">
+    <![CDATA[leadPFCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFCand_);]]>
+  </ioread>
+
+<ioread sourceClass="pat::tau::TauPFSpecific" version="[-15]" source="std::vector<reco::PFCandidatePtr> selectedSignalPFCands_;" targetClass="pat::tau::TauPFSpecific" target="selectedSignalPFCands_">
+    <![CDATA[
+    selectedSignalPFCands_.reserve(onfile.selectedSignalPFCands_.size());
+    for (const edm::Ptr<reco::PFCandidate>& cand : onfile.selectedSignalPFCands_) {
+      selectedSignalPFCands_.push_back(edm::Ptr<reco::Candidate>(cand));}
+      ]]>
+  </ioread>
+
+<ioread sourceClass="pat::tau::TauPFSpecific" version="[-15]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFChargedHadrCands_;" targetClass="pat::tau::TauPFSpecific" target="selectedSignalPFChargedHadrCands_">
+    <![CDATA[
+    selectedSignalPFChargedHadrCands_.reserve(onfile.selectedSignalPFChargedHadrCands_.size());
+    for (const auto& cand : onfile.selectedSignalPFChargedHadrCands_)
+      selectedSignalPFChargedHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
+  </ioread>
+
+<ioread sourceClass="pat::tau::TauPFSpecific" version="[-15]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFNeutrHadrCands_;" targetClass="pat::tau::TauPFSpecific" target="selectedSignalPFNeutrHadrCands_">
+    <![CDATA[
+    selectedSignalPFNeutrHadrCands_.reserve(onfile.selectedSignalPFNeutrHadrCands_.size());
+    for (const auto& cand : onfile.selectedSignalPFNeutrHadrCands_)
+      selectedSignalPFNeutrHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));;]]>
+  </ioread>
+
+<ioread sourceClass="pat::tau::TauPFSpecific" version="[-15]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFGammaCands_;" targetClass="pat::tau::TauPFSpecific" target="selectedSignalPFGammaCands_">
+    <![CDATA[
+    selectedSignalPFGammaCands_.reserve(onfile.selectedSignalPFGammaCands_.size());
+    for (const auto& cand : onfile.selectedSignalPFGammaCands_)
+      selectedSignalPFGammaCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
+  </ioread>
+
+<ioread sourceClass="pat::tau::TauPFSpecific" version="[-15]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFCands_;" targetClass="pat::tau::TauPFSpecific" target="selectedIsolationPFCands_">
+    <![CDATA[
+    selectedIsolationPFCands_.reserve(onfile.selectedIsolationPFCands_.size());
+    for (const auto& cand : onfile.selectedIsolationPFCands_)
+      selectedIsolationPFCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
+  </ioread>
+
+<ioread sourceClass="pat::tau::TauPFSpecific" version="[-15]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFChargedHadrCands_;" targetClass="pat::tau::TauPFSpecific" target="selectedIsolationPFChargedHadrCands_">
+    <![CDATA[
+    selectedIsolationPFChargedHadrCands_.reserve(onfile.selectedIsolationPFChargedHadrCands_.size());
+    for (const auto& cand : onfile.selectedIsolationPFChargedHadrCands_)
+      selectedIsolationPFChargedHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
+  </ioread>
+
+<ioread sourceClass="pat::tau::TauPFSpecific" version="[-15]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFNeutrHadrCands_;" targetClass="pat::tau::TauPFSpecific" target="selectedIsolationPFNeutrHadrCands_">
+    <![CDATA[
+    selectedIsolationPFNeutrHadrCands_.reserve(onfile.selectedIsolationPFNeutrHadrCands_.size());
+    for (const auto& cand : onfile.selectedIsolationPFNeutrHadrCands_)
+      selectedIsolationPFNeutrHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
+  </ioread>
+
+<ioread sourceClass="pat::tau::TauPFSpecific" version="[-15]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFGammaCands_;" targetClass="pat::tau::TauPFSpecific" target="selectedIsolationPFGammaCands_">
+    <![CDATA[
+    selectedIsolationPFGammaCands_.reserve(onfile.selectedIsolationPFGammaCands_.size());
+    for (const auto& cand : onfile.selectedIsolationPFGammaCands_)
+      selectedIsolationPFGammaCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
+  </ioread>
+
+<ioread sourceClass="pat::tau::TauPFSpecific" version="[-15]" source="edm::Ref<vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<vector<reco::PFJet>,reco::PFJet> > pfJetRef_;" targetClass="pat::tau::TauPFSpecific" target="pfJetRef_" include="DataFormats/JetReco/interface/PFJet.h">
+    <![CDATA[pfJetRef_ = reco::JetBaseRef(onfile.pfJetRef_);]]>
+  </ioread>
+
   <class name="pat::tau::TauCaloSpecific"  ClassVersion="11">
    <version ClassVersion="11" checksum="943826557"/>
    <version ClassVersion="10" checksum="2692173055"/>
