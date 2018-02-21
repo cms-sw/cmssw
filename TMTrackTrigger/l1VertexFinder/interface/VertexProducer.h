@@ -11,22 +11,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
-#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
-#include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
-
-
+// #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+// #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+// #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
+// #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 
 namespace l1tVertexFinder {
-  class Histos;
+  // class Histos;
   class Settings;
 }
 
 class VertexProducer : public edm::EDProducer {
 
 public:
-  explicit VertexProducer(const edm::ParameterSet&);	
+  explicit VertexProducer(const edm::ParameterSet&);
   ~VertexProducer(){}
 
 private:
@@ -38,19 +36,12 @@ private:
   virtual void endJob() ;
 
 private:
-  const edm::EDGetTokenT<TrackingParticleCollection> tpInputTag;
-  typedef edmNew::DetSetVector< TTStub<Ref_Phase2TrackerDigi_> > DetSetVec;
-  const edm::EDGetTokenT<DetSetVec> stubInputTag;
-  typedef TTStubAssociationMap<Ref_Phase2TrackerDigi_>           TTStubAssMap;
-  const edm::EDGetTokenT<TTStubAssMap> stubTruthInputTag;
-  typedef TTClusterAssociationMap<Ref_Phase2TrackerDigi_>        TTClusterAssMap;
-  const edm::EDGetTokenT<TTClusterAssMap> clusterTruthInputTag;
   const edm::EDGetTokenT<TTTrackCollectionView> l1TracksToken_;
 
-  const bool printResults_;
+  // const bool printResults_;
 
   l1tVertexFinder::Settings *settings_;
-  l1tVertexFinder::Histos   *hists_;
+  // l1tVertexFinder::Histos   *hists_;
 };
 
 #endif
