@@ -1,5 +1,5 @@
 #include "CondCore/ESSources/interface/registration_macros.h"
-#include "CondFormats/GEMObjects/interface/GEMEMap.h"
-#include "CondFormats/DataRecord/interface/GEMEMapRcd.h"
+#include "CondFormats/GEMObjects/interface/GEMELMap.h"
+#include "CondFormats/DataRecord/interface/GEMELMapRcd.h"
 
-REGISTER_PLUGIN(GEMEMapRcd,GEMEMap); 
+REGISTER_PLUGIN(GEMELMapRcd,GEMELMap); 
