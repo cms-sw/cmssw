@@ -112,6 +112,41 @@ class EleWorkingPoint_V3:
         # conversion veto cut needs no parameters, so not mentioned
         self.missingHitsCut               = missingHitsCut
 
+class EleWorkingPoint_V4:
+    """
+    This is a container class to hold numerical cut values for either
+    the barrel or endcap set of cuts for electron cut-based ID
+    With respect to V3, the hOverE cut is made energy and pileup dependend as presented in
+    https://indico.cern.ch/event/662749/contributions/2763092/attachments/1545209/2425054/talk_electron_ID_2017.pdf
+    """
+    def __init__(self, 
+                 idName,
+                 dEtaInSeedCut,
+                 dPhiInCut,
+                 full5x5_sigmaIEtaIEtaCut,
+                 hOverECut_C0,
+                 hOverECut_CE,
+                 hOverECut_Cr,
+                 absEInverseMinusPInverseCut,
+                 relCombIsolationWithEALowPtCut,
+                 relCombIsolationWithEAHighPtCut,
+                 # conversion veto cut needs no parameters, so not mentioned
+                 missingHitsCut
+                 ):
+        self.idName                          = idName                       
+        self.dEtaInSeedCut                   = dEtaInSeedCut                   
+        self.dPhiInCut                       = dPhiInCut                   
+        self.full5x5_sigmaIEtaIEtaCut        = full5x5_sigmaIEtaIEtaCut    
+        self.hOverECut_C0                    = hOverECut_C0
+        self.hOverECut_CE                    = hOverECut_CE
+        self.hOverECut_Cr                    = hOverECut_Cr
+        self.absEInverseMinusPInverseCut     = absEInverseMinusPInverseCut 
+        self.relCombIsolationWithEALowPtCut  = relCombIsolationWithEALowPtCut
+        self.relCombIsolationWithEAHighPtCut = relCombIsolationWithEAHighPtCut
+        # conversion veto cut needs no parameters, so not mentioned
+        self.missingHitsCut                  = missingHitsCut
+
+
 class EleHLTSelection_V1:
     """
     This is a container class to hold numerical cut values for either
@@ -224,6 +259,23 @@ def psetHadronicOverEMCut(wpEB, wpEE):
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
+
+# Configure energy and pileup dependend H/E cut
+def psetHadronicOverEMEnergyScaledCut(wpEB, wpEE):
+    return cms.PSet( 
+        cutName = cms.string('GsfEleHadronicOverEMEnergyScaledCut'),
+        barrelC0 = cms.double( wpEB.hOverECut_C0 ),
+        barrelCE = cms.double( wpEB.hOverECut_CE ),
+        barrelCr = cms.double( wpEB.hOverECut_Cr ),
+        endcapC0 = cms.double( wpEE.hOverECut_C0 ),
+        endcapCE = cms.double( wpEE.hOverECut_CE ),
+        endcapCr = cms.double( wpEE.hOverECut_Cr ),
+        rho = cms.InputTag("fixedGridRhoFastjetAll"),
+        barrelCutOff = cms.double(ebCutOff),
+        needsAdditionalProducts = cms.bool(True),
+        isIgnored = cms.bool(False)
+        )
+
 
 # Configure |1/E-1/p| cut
 def psetEInerseMinusPInverseCut(wpEB, wpEE):
@@ -581,6 +633,35 @@ def configureVIDCutBasedEleID_V3( wpEB, wpEE, isoInputs ):
             psetDPhiInCut(wpEB, wpEE),                          # dPhiIn cut
             psetPhoFull5x5SigmaIEtaIEtaCut(wpEB, wpEE),         # full 5x5 sigmaIEtaIEta cut
             psetHadronicOverEMCut(wpEB, wpEE),                  # H/E cut
+            psetEInerseMinusPInverseCut(wpEB, wpEE),            # |1/e-1/p| cut
+            psetEffAreaPFIsoCut(wpEB, wpEE, isoInputs),         # rel. comb. PF isolation cut
+            psetConversionVetoCut(),
+            psetMissingHitsCut(wpEB, wpEE)
+            )
+        )
+    #
+    return parameterSet
+
+def configureVIDCutBasedEleID_V4( wpEB, wpEE, isoInputs ):
+    """
+    This function configures the full cms.PSet for a VID ID and returns it.
+    The inputs: two objects of the type WorkingPoint_V3, one
+    containing the cuts for the Barrel (EB) and the other one for the Endcap (EE).
+    The third argument is an object that contains information necessary
+    for isolation calculations.
+        In this version, the energy and pileup dependend hOverE is introduced 
+    """
+    # print "VID: Configuring cut set %s" % wpEB.idName
+    parameterSet =  cms.PSet(
+        #
+        idName = cms.string( wpEB.idName ), # same name stored in the _EB and _EE objects
+        cutFlow = cms.VPSet(
+            psetMinPtCut(),
+            psetPhoSCEtaMultiRangeCut(),                        # eta cut
+            psetDEtaInSeedCut(wpEB, wpEE),                      # dEtaIn seed cut
+            psetDPhiInCut(wpEB, wpEE),                          # dPhiIn cut
+            psetPhoFull5x5SigmaIEtaIEtaCut(wpEB, wpEE),         # full 5x5 sigmaIEtaIEta cut
+            psetHadronicOverEMEnergyScaledCut(wpEB, wpEE),      # H/E cut
             psetEInerseMinusPInverseCut(wpEB, wpEE),            # |1/e-1/p| cut
             psetEffAreaPFIsoCut(wpEB, wpEE, isoInputs),         # rel. comb. PF isolation cut
             psetConversionVetoCut(),
