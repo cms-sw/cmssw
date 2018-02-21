@@ -29,12 +29,18 @@ except Exception as ex:
     msg += str(ex)
     raise RuntimeError(msg)
 
+# A hack necessary to prevert scenario.visualizationProcessing
+# from overriding the connect string
+from DQM.Integration.config.FrontierCondition_GT_autoExpress_cfi import GlobalTag
+kwds = {
+   'globalTag': GlobalTag.globaltag.value(),
+   'globalTagConnect': GlobalTag.connect.value()
+}
 
-kwds = {}
 # example of how to add a filer IN FRONT of all the paths, eg for HLT selection
 #kwds['preFilter'] = 'DQM/Integration/python/config/visualizationPreFilter.hltfilter'
 
-process = scenario.visualizationProcessing(globalTag='DUMMY', writeTiers=['FEVT'], **kwds)
+process = scenario.visualizationProcessing(writeTiers=['FEVT'], **kwds)
 
 process.source = source
 process.source.inputFileTransitionsEachEvent = cms.untracked.bool(True)
@@ -52,8 +58,6 @@ try:
     os.makedirs(outDir)
 except:
     pass
-
-process.load("DQM.Integration.config.FrontierCondition_GT_autoExpress_cfi")
 
 process.options = cms.untracked.PSet(
         Rethrow = cms.untracked.vstring('ProductNotFound'),
