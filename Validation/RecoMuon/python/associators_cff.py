@@ -9,9 +9,9 @@ from Validation.RecoMuon.track_selectors_cff import *
 import SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi
 trackAssociatorByHits = SimTracker.TrackAssociatorProducers.quickTrackAssociatorByHits_cfi.quickTrackAssociatorByHits.clone()
 
-tpToTkmuTrackAssociation = cms.EDProducer('TrackAssociatorEDProducer',
+from SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi import trackingParticleRecoTrackAsssociation as _trackingParticleRecoTrackAsssociation
+tpToTkmuTrackAssociation = _trackingParticleRecoTrackAsssociation.clone(
     associator = cms.InputTag('trackAssociatorByHits'),
-    label_tp = cms.InputTag('mix', 'MergedTrackTruth'),
 #    label_tr = cms.InputTag('generalTracks')
     label_tr = cms.InputTag('probeTracks')
 )

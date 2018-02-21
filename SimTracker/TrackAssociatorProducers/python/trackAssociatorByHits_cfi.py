@@ -31,3 +31,8 @@ trackAssociatorByHits = cms.EDProducer("TrackAssociatorByHitsProducer",
  )
 
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(trackAssociatorByHits,
+    pixelSimLinkSrc = "mixData:PixelDigiSimLink",
+    stripSimLinkSrc = "mixData:StripDigiSimLink",
+)

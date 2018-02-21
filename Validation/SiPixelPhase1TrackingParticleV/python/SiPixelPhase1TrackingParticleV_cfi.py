@@ -127,6 +127,8 @@ SiPixelPhase1TrackingParticleAnalyzerV = DQMEDAnalyzer('SiPixelPhase1TrackingPar
     histograms = SiPixelPhase1TrackingParticleConf,
     geometry = SiPixelPhase1Geometry
 )
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(SiPixelPhase1TrackingParticleAnalyzerV, src = "mixData:MergedTrackTruth")
 
 SiPixelPhase1TrackingParticleHarvesterV = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = SiPixelPhase1TrackingParticleConf,
