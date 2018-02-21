@@ -51,7 +51,7 @@ public:
 
 private:
 
-    double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const;
+    inline double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const { double mu = darkCurrent * 25 / fcByPE; return sqrt(mu/pow(1-lambda,3)) * fcByPE;}
 
     int pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, 
 		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * ADCnoise, unsigned int soi) const;

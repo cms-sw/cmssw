@@ -99,7 +99,7 @@ class MahiFit
 		   bool& useTriple,
 		   float& chi2) const;
 
-  void doFit(std::array<float,3> &correctedOutput, int nbx) const;
+  void doFit(std::array<float,3> &correctedOutput, const int nbx) const;
 
   void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps,const HcalTimeSlew * hcalTimeSlewDelay);
   void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
@@ -127,7 +127,7 @@ class MahiFit
 
   void solveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned nP) const;
 
-  double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const;
+  inline double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const { double mu = darkCurrent * 25 / fcByPE; return sqrt(mu/pow(1-lambda,3)) * fcByPE;}
   
   mutable MahiNnlsWorkspace nnlsWork_;
 
