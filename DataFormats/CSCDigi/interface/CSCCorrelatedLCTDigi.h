@@ -116,11 +116,13 @@ class CSCCorrelatedLCTDigi
 
   /// SIMULATION ONLY ////
   enum Type{CLCTALCT, // CLCT-centric
-	    ALCTCLCT, // ALCT-centric
-	    ALCTCLCTGEM, // ALCT-CLCT-1 GEM pad
-	    ALCTCLCT2GEM, // ALCT-CLCT-2 GEM pads in coincidence
-	    ALCT2GEM, // ALCT-2 GEM pads in coincidence
-	    CLCT2GEM  // CLCT-2 GEM pads in coincidence
+            ALCTCLCT, // ALCT-centric
+            ALCTCLCTGEM, // ALCT-CLCT-1 GEM pad
+            ALCTCLCT2GEM, // ALCT-CLCT-2 GEM pads in coincidence
+            ALCT2GEM, // ALCT-2 GEM pads in coincidence
+            CLCT2GEM,  // CLCT-2 GEM pads in coincidence
+            CLCTONLY, // Missing ALCT
+            ALCTONLY // Missing CLCT
   };
   
   int getType() const {return type_;}
