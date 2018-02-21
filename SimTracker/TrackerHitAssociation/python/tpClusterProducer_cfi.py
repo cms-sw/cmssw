@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimTracker.TrackerHitAssociation.tpClusterProducerDefault_cfi import *
+from SimTracker.TrackerHitAssociation.tpClusterProducerDefault_cfi import tpClusterProducerDefault as _tpClusterProducerDefault
 
-tpClusterProducer = tpClusterProducerDefault.clone()
+tpClusterProducer = _tpClusterProducerDefault.clone()
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify( 
