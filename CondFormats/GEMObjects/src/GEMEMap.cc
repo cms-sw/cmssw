@@ -1,22 +1,22 @@
-#include "CondFormats/GEMObjects/interface/GEMEMap.h"
+#include "CondFormats/GEMObjects/interface/GEMELMap.h"
 #include "CondFormats/GEMObjects/interface/GEMROmap.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 
-GEMEMap::GEMEMap():
+GEMELMap::GEMELMap():
   theVersion("") {}
 
-GEMEMap::GEMEMap(const std::string & version):
+GEMELMap::GEMELMap(const std::string & version):
   theVersion(version) {}
 
-GEMEMap::~GEMEMap() {}
+GEMELMap::~GEMELMap() {}
 
-const std::string & GEMEMap::version() const{
+const std::string & GEMELMap::version() const{
   return theVersion;
 }
 
-void GEMEMap::convert(GEMROmap & romap) {
+void GEMELMap::convert(GEMROmap & romap) {
 
-  for (auto imap : theVFatMaptype_){
+  for (auto imap : theVFatMap_){
     for (unsigned int ix=0;ix<imap.vfatId.size();ix++){
       GEMROmap::eCoord ec;
       ec.vfatId = imap.vfatId[ix] & chipIdMask_;
@@ -34,7 +34,7 @@ void GEMEMap::convert(GEMROmap & romap) {
     }
   }
   
-  for (auto imap : theVfatChStripMap_){
+  for (auto imap : theStripMap_){
     for (unsigned int ix=0;ix<imap.vfatType.size();ix++){
       GEMROmap::channelNum cMap;
       cMap.vfatType = imap.vfatType[ix];
@@ -50,7 +50,7 @@ void GEMEMap::convert(GEMROmap & romap) {
   }
 }
 
-void GEMEMap::convertDummy(GEMROmap & romap) {
+void GEMELMap::convertDummy(GEMROmap & romap) {
   // 12 bits for vfat, 5 bits for geb, 8 bit long GLIB serial number
   uint16_t amcId = 1; //amc
   uint16_t gebId = 0; 
@@ -59,6 +59,7 @@ void GEMEMap::convertDummy(GEMROmap & romap) {
     for (int st = GEMDetId::minStationId; st<=GEMDetId::maxStationId; ++st) {
       int maxVFat = maxVFatGE11_;
       if (st == 2) maxVFat = maxVFatGE21_;      
+      if (st == 0) maxVFat = maxVFatGE0_;
       
       for (int ch = 1; ch<=GEMDetId::maxChamberId; ++ch) {
 	for (int ly = 1; ly<=GEMDetId::maxLayerId; ++ly) {
