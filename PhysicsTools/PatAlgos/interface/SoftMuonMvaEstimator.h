@@ -25,19 +25,19 @@ public:
 
   // MVA VAriables
   float segmentCompatibility_;
-	float chi2LocalMomentum_;
-	float chi2LocalPosition_;
-	float glbTrackProbability_;
+  float chi2LocalMomentum_;
+  float chi2LocalPosition_;
+  float glbTrackProbability_;
   float iValidFraction_;
   float layersWithMeasurement_;
   float trkKink_;
   float log2PlusGlbKink_;
-	float timeAtIpInOutErr_;
-	float outerChi2_;
-	float innerChi2_;
-	float trkRelChi2_;
-	float vMuonHitComb_;
-	float Qprod_;
+  float timeAtIpInOutErr_;
+  float outerChi2_;
+  float innerChi2_;
+  float trkRelChi2_;
+  float vMuonHitComb_;
+  float Qprod_;
 
   };
 }
