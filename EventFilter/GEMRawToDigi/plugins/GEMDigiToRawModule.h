@@ -16,8 +16,8 @@
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
 #include "EventFilter/GEMRawToDigi/interface/AMC13Event.h"
-#include "CondFormats/DataRecord/interface/GEMEMapRcd.h"
-#include "CondFormats/GEMObjects/interface/GEMEMap.h"
+#include "CondFormats/DataRecord/interface/GEMELMapRcd.h"
+#include "CondFormats/GEMObjects/interface/GEMELMap.h"
 #include "CondFormats/GEMObjects/interface/GEMROmap.h"
 
 namespace edm {
