@@ -644,15 +644,30 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
               colls.qie11 = new QIE11DigiCollection(ns);
           }
           else if (colls.qie11->samples() != ns) {
-              // This is horrible
-              edm::LogError("Invalid Data") << "QIE11 Collection has " << colls.qie11->samples() << " samples per digi, raw data has " << ns << "!";
-              return;
+            // if this sample type hasn't been requested to be saved
+            // warn the user to provide a configuration that prompts it to be saved
+            if( colls.qie11Addtl.find( ns ) == colls.qie11Addtl.end() ) {
+	      edm::LogError("Invalid Data") << "The default QIE11 Collection has " 
+                  << colls.qie10->samples() << " samples per digi, while the current data has " 
+                  << ns << "!  This data cannot be included with the default collection.\n"
+                  << "In order to store this data in the event, it must have a unique tag.  "
+                  << "To accomplish this, provide two lists to HcalRawToDigi \n"
+                  << "1) that specifies the number of samples and "
+                  << "2) that gives tags with which these data are saved.\n"
+                  << "For example in this case you might add \n"
+                  << "hcaldigis.saveQIE11DataNSamples = cms.untracked.vint32( " 
+                  << ns << ") \nhcaldigis.saveQIE11DataTags = cms.untracked.vstring( \"MYDATA\" )" << std::endl;
+            }
           }
 
           // Insert data
           /////////////////////////////////////////////CODE FROM OLD STYLE DIGIS///////////////////////////////////////////////////////////////
           if (!did.null()) { // unpack and store...
               colls.qie11->addDataFrame(did, head_pos);
+              // fill the additional qie11 collections
+              if( colls.qie11Addtl.find( ns ) != colls.qie11Addtl.end() ) {
+                  colls.qie11Addtl[ns]->addDataFrame( did, head_pos );
+              }
           } else {
               report.countUnmappedDigi(eid);
               if (unknownIds_.find(eid)==unknownIds_.end()) {
@@ -681,12 +696,14 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	  ns++; 
 	}
 
+        bool isZDC = (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId);
+
 	// Check QEI10 container exists
 	if (colls.qie10ZDC == nullptr) {
 	  colls.qie10ZDC = new QIE10DigiCollection(ns);
 	}
-	else if (colls.qie10ZDC->samples() != ns) {
-	  // This is horrible
+	else if (colls.qie10ZDC->samples() != ns && isZDC ) {
+	  // This should only print if we have this conflict within ZDC type data
 	  edm::LogError("Invalid Data") << "QIE10ZDC Collection has " << colls.qie10ZDC->samples() << " samples per digi, raw data has " << ns << "!";
 	  return;
 	}
@@ -695,18 +712,33 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	  colls.qie10 = new QIE10DigiCollection(ns);
 	}
 	else if (colls.qie10->samples() != ns) {
-	  // This is horrible
-	  edm::LogError("Invalid Data") << "QIE10 Collection has " << colls.qie10->samples() << " samples per digi, raw data has " << ns << "!";
-	  return;
+          // if this sample type hasn't been requested to be saved
+          // warn the user to provide a configuration that prompts it to be saved
+          if( colls.qie10Addtl.find( ns ) == colls.qie10Addtl.end() ) {
+	    edm::LogError("Invalid Data") << "The default QIE10 Collection has " 
+                << colls.qie10->samples() << " samples per digi, while the current data has " 
+                << ns << "!  This data cannot be included with the default collection.\n"
+                << "In order to store this data in the event, it must have a unique tag.  "
+                << "To accomplish this, provide two lists to HcalRawToDigi \n"
+                << "1) that specifies the number of samples and "
+                << "2) that gives tags with which these data are saved.\n"
+                << "For example in this case you might add \n"
+                << "hcaldigis.saveQIE10DataNSamples = cms.untracked.vint32( " 
+                << ns << ") \nhcaldigis.saveQIE10DataTags = cms.untracked.vstring( \"MYDATA\" )" << std::endl;
+          }
 	}
 
 	// Insert data
     /////////////////////////////////////////////CODE FROM OLD STYLE DIGIS///////////////////////////////////////////////////////////////
-	if (!did.null() && did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) { // unpack and store...
-		colls.qie10ZDC->addDataFrame(did, head_pos);
+	if (!did.null() && isZDC ) { // unpack and store...
+          colls.qie10ZDC->addDataFrame(did, head_pos);
 	} 
 	else if (!did.null()) { // unpack and store...
-		colls.qie10->addDataFrame(did, head_pos);
+          colls.qie10->addDataFrame(did, head_pos);
+          // fill the additional qie10 collections
+          if( colls.qie10Addtl.find( ns ) != colls.qie10Addtl.end() ) {
+            colls.qie10Addtl[ns]->addDataFrame( did, head_pos );
+          }
 	} else {
 		report.countUnmappedDigi(eid);
 		if (unknownIds_.find(eid)==unknownIds_.end()) {
