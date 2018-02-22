@@ -455,6 +455,13 @@ void HGCalClusteringImpl::calibratePt( l1t::HGCalCluster & cluster ){
             layerN = cluster.layer()+kLayersFH_+kLayersEE_;
         }
 
+        if(layerWeights_.at(layerN)==0.){
+            throw cms::Exception("BadConfiguration")
+                <<"2D cluster energy forced to 0 by calibration coefficients.\n"
+                <<"The configuration should be changed. "
+                <<"Discarded layers should be defined in hgcalTriggerGeometryESProducer.TriggerGeometry.DisconnectedLayers and not with calibration coefficients = 0\n";
+        }
+
         calibPt = layerWeights_.at(layerN) * cluster.mipPt();
 
     }
