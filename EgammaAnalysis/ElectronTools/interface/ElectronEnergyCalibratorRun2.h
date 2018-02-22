@@ -23,18 +23,26 @@ class ElectronEnergyCalibratorRun2
   /// Initialize with a random number generator (if not done, it will use the CMSSW service)
   /// Caller code owns the TRandom.
   void initPrivateRng(TRandom *rnd) ;
-  
+  void setMinEt(float val){minEt_=val;}
   /// Correct this electron.
   /// StreamID is needed when used with CMSSW Random Number Generator
-  std::vector<float> calibrate(reco::GsfElectron &electron, unsigned int runNumber, 
-			       const EcalRecHitCollection* recHits, edm::StreamID const & id = edm::StreamID::invalidStreamID(), int eventIsMC = -1) const ;
+  std::vector<float> calibrate(reco::GsfElectron &ele, const unsigned int runNumber, 
+			       const EcalRecHitCollection* recHits, edm::StreamID const & id = edm::StreamID::invalidStreamID(), const int eventIsMC = -1) const ;
+  std::vector<float> calibrate(reco::GsfElectron &ele, const unsigned int runNumber, 
+			       const EcalRecHitCollection* recHits, const float smearNrSigma, const int eventIsMC = -1) const ;
+
+private:
+  void setEcalEnergy(reco::GsfElectron& ele,const float scale,const float smear)const;
+  std::pair<float,float> calCombinedMom(reco::GsfElectron& ele,const float scale,const float smear)const;
   
+
  protected:
   // whatever data will be needed
-  EpCombinationToolSemi *epCombinationTool_;
+  EpCombinationToolSemi *epCombinationTool_; //this is not owned
   bool isMC_;
   bool synchronization_;
-  TRandom *rng_;
+  TRandom *rng_; //this is not owned
+  float minEt_;
   
   /// Return a number distributed as a unit gaussian, drawn from the private RNG if initPrivateRng was called,
   /// or from the CMSSW RandomNumberGenerator service

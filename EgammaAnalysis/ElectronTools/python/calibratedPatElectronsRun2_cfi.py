@@ -19,6 +19,8 @@ calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducerRun2",
 
                                         # set to True to get special "fake" smearing for synchronization. Use JUST in case of synchronization
                                         isSynchronization = cms.bool(False),
+                                        minEtToCalibrate = cms.double(5.0),
+                                        produceCalibratedEles = cms.bool(True),
 
                                         correctionFile = cms.string(files[correctionType]),
                                         recHitCollectionEB = cms.InputTag('reducedEgamma:reducedEBRecHits'),
