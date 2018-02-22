@@ -1448,7 +1448,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCHS=None
             if self._parameters["onMiniAOD"].value: 
                 pfCHS = cms.EDFilter("CandPtrSelector", src = pfCandCollection, cut = cms.string("fromPV"))
-                #setattr(process,"pfNoPileUpJME"+postfix,pfCHS)
                 pfCandColl = cms.InputTag("pfNoPileUpJME"+postfix)
                 addToProcessAndTask("pfNoPileUpJME"+postfix, pfCHS, process, task)
                 patMetModuleSequence += getattr(process, "pfNoPileUpJME"+postfix)
