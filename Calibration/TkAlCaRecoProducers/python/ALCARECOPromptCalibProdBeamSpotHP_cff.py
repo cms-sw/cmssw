@@ -15,21 +15,6 @@ ALCARECOTkAlMinBiasFilterForBSHP.TriggerResultsTag = cms.InputTag("TriggerResult
 # ------------------------------------------------------------------------------
 # configure the beam-spot production
 from Calibration.TkAlCaRecoProducers.AlcaBeamSpotProducerHP_cff import *
-#alcaBeamSpotProducerHP.BeamFitter.TrackCollection = 'ALCARECOTkAlMinBias'
-#alcaBeamSpotProducerHP.BeamFitter.MinimumTotalLayers = 6
-#alcaBeamSpotProducerHP.BeamFitter.MinimumPixelLayers = -1
-#alcaBeamSpotProducerHP.BeamFitter.MaximumNormChi2 = 10
-#alcaBeamSpotProducerHP.BeamFitter.MinimumInputTracks = 50
-#alcaBeamSpotProducerHP.BeamFitter.MinimumPt = 1.0
-#alcaBeamSpotProducerHP.BeamFitter.MaximumImpactParameter = 1.0
-#alcaBeamSpotProducerHP.BeamFitter.TrackAlgorithm =  cms.untracked.vstring()
-#alcaBeamSpotProducerHP.BeamFitter.Debug = True
-#alcaBeamSpotProducerHP.PVFitter.Apply3DFit = True
-#alcaBeamSpotProducerHP.PVFitter.minNrVerticesForFit = 10 
-
-# fit as function of lumi sections
-#alcaBeamSpotProducerHP.AlcaBeamSpotProducerParameters.fitEveryNLumi = 1
-#alcaBeamSpotProducerHP.AlcaBeamSpotProducerParameters.resetEveryNLumi = 1
 
 
 # ------------------------------------------------------------------------------
@@ -46,6 +31,6 @@ ALCARECOHltFilterForBSHP = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.cl
     throw = False # tolerate triggers stated above, but not available
     )
 
-seqALCARECOPromptCalibProd = cms.Sequence(ALCARECOTkAlMinBiasFilterForBSHP *
-                                          ALCARECOHltFilterForBSHP *
-                                          alcaBeamSpotProducerHP)
+seqALCARECOPromptCalibProdBeamSpotHP = cms.Sequence(ALCARECOTkAlMinBiasFilterForBSHP *
+                                                    ALCARECOHltFilterForBSHP *
+                                                    alcaBeamSpotProducerHP)
