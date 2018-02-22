@@ -42,15 +42,6 @@ def miniAOD_customizeCommon(process):
     process.patElectrons.electronSource = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     process.patElectrons.usePfCandidateMultiMap = True
     process.patElectrons.pfCandidateMultiMap    = cms.InputTag("reducedEgamma","reducedGsfElectronPfCandMap")
-    process.patElectrons.electronIDSources = cms.PSet(
-            # configure many IDs as InputTag <someName> = <someTag> you
-            # can comment out those you don't want to save some disk space
-            eidRobustLoose      = cms.InputTag("reducedEgamma","eidRobustLoose"),
-            eidRobustTight      = cms.InputTag("reducedEgamma","eidRobustTight"),
-            eidLoose            = cms.InputTag("reducedEgamma","eidLoose"),
-            eidTight            = cms.InputTag("reducedEgamma","eidTight"),
-            eidRobustHighEnergy = cms.InputTag("reducedEgamma","eidRobustHighEnergy"),
-        )
     process.patElectrons.addPFClusterIso = cms.bool(True)
     #add puppi isolation in miniAOD
     process.patElectrons.addPuppiIsolation = cms.bool(True)
@@ -89,12 +80,6 @@ def miniAOD_customizeCommon(process):
     process.patPhotons.hcalPFClusterIsoMap = cms.InputTag("reducedEgamma", "phoHcalPFClusIso")
     process.patPhotons.photonSource = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.patPhotons.electronSource = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
-    process.patPhotons.photonIDSources = cms.PSet(
-                PhotonCutBasedIDLoose = cms.InputTag('reducedEgamma',
-                                                      'PhotonCutBasedIDLoose'),
-                PhotonCutBasedIDTight = cms.InputTag('reducedEgamma',
-                                                      'PhotonCutBasedIDTight')
-              )
     
     process.phPFIsoDepositChargedPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.phPFIsoDepositChargedAllPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
@@ -259,13 +244,14 @@ def miniAOD_customizeCommon(process):
     process.slimmedPhotons.modifierConfig.modifications   = egamma_modifications
 
     #VID Electron IDs
-    electron_ids = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_50ns_V2_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_50ns_Trig_V1_cff']
+    electron_ids = ['RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V1_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff', 
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V1_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_HZZ_V1_cff',
+                    ]
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD, task)
     process.egmGsfElectronIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
@@ -281,13 +267,27 @@ def miniAOD_customizeCommon(process):
         process.heepIDVarValueMaps.elesMiniAOD = cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
         #force HEEP to use miniAOD (otherwise it'll detect the AOD)
         process.heepIDVarValueMaps.dataFormat = cms.int32(2)
-        
+    
+    vidCutBitsModifier = cms.PSet(
+        modifierName    = cms.string('EGExtraInfoModifierFromUIntToIntValueMaps'),
+        electron_config = cms.PSet(),
+        photon_config = cms.PSet()
+        )
 
+    #now put them all in the pat electron
+    process.patElectrons.electronIDSources=cms.PSet()
+    for egid in process.egmGsfElectronIDs.physicsObjectIDs:
+        setattr(process.patElectrons.electronIDSources,egid.idDefinition.idName.value(),cms.InputTag('egmGsfElectronIDs:'+egid.idDefinition.idName.value()))  
+        #do not store cut bit maps for the MVA ID, its just one cut so doesnt make sense
+        #they all start with "mva"
+        if egid.idDefinition.idName.value().find("mva")!=0:
+            setattr(vidCutBitsModifier.electron_config,egid.idDefinition.idName.value(),cms.InputTag('egmGsfElectronIDs:'+egid.idDefinition.idName.value()+"Bitmap"))
+    
+    
     #VID Photon IDs
-    photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_25ns_V1_cff',
-                  'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_50ns_V1_cff',
-                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V2p1_cff',
-                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V2p1_cff',
+    photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V1_TrueVtx_cff',
+                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff', 
+                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1p1_cff', 
                   'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff']
     switchOnVIDPhotonIdProducer(process,DataFormat.AOD, task) 
@@ -308,7 +308,17 @@ def miniAOD_customizeCommon(process):
         cms.InputTag('reducedEgamma','reducedGedPhotons')
     for idmod in photon_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False,task)
+    
+    process.patPhotons.photonIDSources=cms.PSet()
+    for egid in process.egmPhotonIDs.physicsObjectIDs:
+        setattr(process.patPhotons.photonIDSources,egid.idDefinition.idName.value(),cms.InputTag('egmPhotonIDs:'+egid.idDefinition.idName.value()))
+        #do not store cut bit maps for the MVA ID, its just one cut so doesnt make sense
+        #they all start with "mva"
+        if egid.idDefinition.idName.value().find("mva")!=0:
+            setattr(vidCutBitsModifier.photon_config,egid.idDefinition.idName.value(),cms.InputTag('egmPhotonIDs:'+egid.idDefinition.idName.value()+"Bitmap"))      
 
+    egamma_modifications.append(vidCutBitsModifier)
+     
     #---------------------------------------------------------------------------
     #Adding  Boosted Subjets taus
     from RecoTauTag.Configuration.boostedHPSPFTaus_cfi import addBoostedTaus
