@@ -396,16 +396,6 @@ class DQMStore
     f(*ibooker_, *igetter_);
   }
 
-  // Signature needed in the harvesting where it might be needed to get
-  // the LS based histograms. Handle to the Lumi and to the iSetup are available.
-  // No need to book anything there. The method relies on the
-  // initialization of run, stream and module ID to 0. The mutex
-  // is not needed.
-  template <typename iFunc>
-  void meGetter(iFunc f) {
-    f(*igetter_);
-  }
-
   //-------------------------------------------------------------------------
   // ---------------------- Constructors ------------------------------------
   DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry&);
