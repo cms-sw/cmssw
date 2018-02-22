@@ -1,0 +1,219 @@
+/** \class PreMixingModule
+ *
+ * PreMixingModule is the EDProducer subclass that overlays premixed
+ * MC events on top of MC. It is similar to DataMixingModule, but
+ * tailored for premixing use case.
+ *
+ ************************************************************/
+#include "Mixing/Base/interface/BMixingModule.h"
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/ModuleContextSentry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ServiceRegistry/interface/InternalContext.h"
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ParentContext.h"
+
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+
+#include "PreMixingWorker.h"
+
+#include <functional>
+#include <vector>
+
+namespace edm {
+  class PreMixingModule: public BMixingModule {
+    public:
+    PreMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf);
+
+    ~PreMixingModule() override = default;
+
+    void checkSignal(const edm::Event &e) override {}; 
+    void createnewEDProduct() override {}
+    void addSignals(const edm::Event &e, const edm::EventSetup& ES) override; 
+    void doPileUp(edm::Event &e,const edm::EventSetup& ES) override;
+    void put(edm::Event &e,const edm::EventSetup& ES) override ;
+
+    void initializeEvent(edm::Event const& e, edm::EventSetup const& eventSetup) override;
+    void beginRun(edm::Run const& run, edm::EventSetup const& eventSetup) override;
+    void beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
+    void endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
+    void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
+
+  private:
+    void pileWorker(const edm::EventPrincipal&, int bcr, int EventId,const edm::EventSetup& ES, ModuleCallingContext const*);
+
+    //DataMixingPileupCopy  *PUWorker_;
+    bool addedPileup_;
+
+    std::vector<std::unique_ptr<PreMixingWorker> > workers_;
+  };
+
+  PreMixingModule::PreMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf):
+    BMixingModule(ps, globalConf),
+    addedPileup_(false)
+  {  
+    produces< std::vector<PileupSummaryInfo> >();
+    produces< int >("bunchSpacing");
+    produces<CrossingFramePlaybackInfoNew>();
+
+    // TODO: Who produces these?
+    std::vector<edm::InputTag> GenPUProtonsInputTags;
+    GenPUProtonsInputTags = ps.getParameter<std::vector<edm::InputTag> >("GenPUProtonsInputTags");
+    for(std::vector<edm::InputTag>::const_iterator it_InputTag = GenPUProtonsInputTags.begin(); 
+        it_InputTag != GenPUProtonsInputTags.end(); ++it_InputTag) 
+      produces< std::vector<reco::GenParticle> >( it_InputTag->label() );
+
+    //PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());
+
+    // construct workers
+  }
+
+
+  void PreMixingModule::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) {
+    for(auto& w: workers_) {
+      w->initializeEvent(e, ES);
+    }
+  }
+  
+
+  void PreMixingModule::beginRun(edm::Run const& run, const edm::EventSetup& ES) { 
+    BMixingModule::beginRun( run, ES);
+    for(auto& w: workers_) {
+      w->beginRun(run, ES);
+    }
+  }
+
+  void PreMixingModule::endRun(edm::Run const& run, const edm::EventSetup& ES) { 
+    // Do these have to be implemented?
+    // HcalDigiWorkerProd_->endRun( run, ES ); // FIXME not implemented
+    // EcalDigiWorkerProd_->endRun( ES );      // FIXME not implemented
+
+    BMixingModule::endRun( run, ES);
+  }
+
+  void PreMixingModule::addSignals(const edm::Event &e, const edm::EventSetup& ES) { 
+    // fill in maps of hits
+
+    LogDebug("PreMixingModule")<<"===============> adding MC signals for "<<e.id();
+
+    for(auto& w: workers_) {
+      w->addSignals(e, ES);
+    }
+
+    addedPileup_ = false; 
+  }
+
+  void PreMixingModule::pileWorker(const EventPrincipal &ep, int bcr, int eventNr, const edm::EventSetup& ES, edm::ModuleCallingContext const* mcc) {  
+    InternalContext internalContext(ep.id(), mcc);
+    ParentContext parentContext(&internalContext);
+    ModuleCallingContext moduleCallingContext(&moduleDescription());
+    ModuleContextSentry moduleContextSentry(&moduleCallingContext, parentContext);
+
+    LogDebug("PreMixingModule") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
+
+    // Note:  setupPileUpEvent may modify the run and lumi numbers of the EventPrincipal to match that of the primary event.
+    setupPileUpEvent(ES);
+
+    // check and see if we need to copy the pileup information from 
+    // secondary stream to the output stream  
+    // We only have the pileup event here, so pick the first time and store the info
+    if(!addedPileup_) {
+      //PUWorker_->addPileupInfo(&ep, eventNr, &moduleCallingContext);
+      addedPileup_ = true;
+    }
+
+    // fill in maps of hits; same code as addSignals, except now applied to the pileup events
+
+    for(auto& w: workers_) {
+      w->addPileups(bcr, ep, eventNr, ES, &moduleCallingContext);
+    }
+  }
+  
+  void PreMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& ES)
+  {
+    using namespace std::placeholders;
+
+    std::vector<edm::SecondaryEventIDAndFileInfo> recordEventID;
+    std::vector<int> PileupList;
+    TrueNumInteractions_.clear();
+
+    ModuleCallingContext const* mcc = e.moduleCallingContext();
+
+    for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
+      for (unsigned int isource=0;isource<maxNbSources_;++isource) {
+        std::shared_ptr<PileUp> source = inputSources_[isource];
+        if (!source || !(source->doPileUp(bunchCrossing))) 
+          continue;
+
+	if (isource==0) 
+          source->CalculatePileup(minBunch_, maxBunch_, PileupList, TrueNumInteractions_, e.streamID());
+
+	int NumPU_Events = 0;
+	if (isource ==0) { 
+          NumPU_Events = PileupList[bunchCrossing - minBunch_];
+        } else {
+          // non-minbias pileup only gets one event for now. Fix later if desired.
+          NumPU_Events = 1;
+        }  
+
+        for(auto& w: workers_) {
+          w->initializeBunchCrossing(e, ES, bunchCrossing);
+        }
+
+        source->readPileUp(
+                e.id(),
+                recordEventID,
+                std::bind(&PreMixingModule::pileWorker, std::ref(*this),
+			  _1, bunchCrossing, _2, std::cref(ES), mcc),
+		NumPU_Events,
+                e.streamID()
+			   );
+
+        for(auto& w: workers_) {
+          w->finalizeBunchCrossing(e, ES, bunchCrossing);
+        }
+      }
+    }
+  }
+
+  void PreMixingModule::put(edm::Event &e,const edm::EventSetup& ES) {
+    // individual workers...
+    // move pileup first so we have access to the information for the put step
+
+    std::vector<PileupSummaryInfo> ps;
+    int bunchSpacing=10000;
+    //PUWorker_->getPileupInfo(ps,bunchSpacing);      
+    //PUWorker_->putPileupInfo(e);
+
+    for(auto& w: workers_) {
+      w->put(e, ES, ps, bunchSpacing);
+    }
+  }
+
+  void PreMixingModule::beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
+    BMixingModule::beginLuminosityBlock(l1, c);
+    for(auto& w: workers_) {
+      w->beginLuminosityBlock(l1,c);
+    }
+  }
+
+  void PreMixingModule::endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
+    // Should this be implemented?
+    // EcalDigiWorkerProd_->endLuminosityBlock(l1,c);  // FIXME Not implemented.
+    BMixingModule::endLuminosityBlock(l1, c);
+  }
+}
+
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+using edm::PreMixingModule;
+DEFINE_FWK_MODULE(PreMixingModule);
+
+
