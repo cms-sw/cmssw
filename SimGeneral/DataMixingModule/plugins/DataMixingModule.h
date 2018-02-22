@@ -31,7 +31,6 @@
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalDigiWorkerProd.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingMuonWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripWorker.h"
-#include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripMCDigiWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripRawWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingTrackingParticleWorker.h"
@@ -170,7 +169,6 @@ namespace edm {
       // Si-Strips
 
       DataMixingSiStripWorker *SiStripWorker_ ;
-      DataMixingSiStripMCDigiWorker *SiStripMCDigiWorker_ ;
       DataMixingSiStripRawWorker *SiStripRawWorker_ ;
       bool useSiStripRawDigi_;
       bool addMCDigiNoise_;
