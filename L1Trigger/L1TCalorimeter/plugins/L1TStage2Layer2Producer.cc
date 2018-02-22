@@ -96,6 +96,9 @@ using namespace l1t;
     // the processor
     std::shared_ptr<Stage2MainProcessor> m_processor;
 
+    // use static config for fw testing
+    bool m_useStaticConfig;
+
   };
 
 
@@ -122,6 +125,9 @@ L1TStage2Layer2Producer::L1TStage2Layer2Producer(const edm::ParameterSet& ps) {
 
   // set firmware version from python config for now
   m_fwv = ps.getParameter<int>("firmware");
+
+  // get static config flag
+  m_useStaticConfig = ps.getParameter<bool>("useStaticConfig");
 
   //initialize
   m_paramsCacheId=0;
@@ -275,24 +281,32 @@ L1TStage2Layer2Producer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
     iSetup.get<L1TCaloParamsRcd>().get(candidateHandle);
     std::unique_ptr<l1t::CaloParams> candidate(new l1t::CaloParams( *candidateHandle.product() ));
 
-    // fetch the latest greatest prototype (equivalent of static payload)
-    edm::ESHandle<CaloParams> o2oProtoHandle;
-    iSetup.get<L1TCaloParamsO2ORcd>().get(o2oProtoHandle);
-    std::unique_ptr<l1t::CaloParams> prototype(new l1t::CaloParams( *o2oProtoHandle.product() ));
 
-    // prepare to set the emulator's configuration
-    //  and then replace our local copy of the parameters with a new one using placement new
-    m_params->~CaloParamsHelper();
+    if(!m_useStaticConfig){
 
-    // compare the candidate payload misses some of the pnodes compared to the prototype,
-    // if this is the case - the candidate is an old payload that'll crash the Stage2 emulator
-    // and we better use the prototype for the emulator's configuration
-    if( ((CaloParamsHelper*)candidate.get())->getNodes().size() < ((CaloParamsHelper*)prototype.get())->getNodes().size() )
-        m_params = new (m_params) CaloParamsHelper( *o2oProtoHandle.product() );
-    else
-        m_params = new (m_params) CaloParamsHelper( *candidateHandle.product() );
-    // KK: the nifty tricks above (placement new) work as long as current definition of
-    //     CaloParams takes more space than the one obtained from the record
+      // fetch the latest greatest prototype (equivalent of static payload)
+      edm::ESHandle<CaloParams> o2oProtoHandle;
+      iSetup.get<L1TCaloParamsO2ORcd>().get(o2oProtoHandle);
+      std::unique_ptr<l1t::CaloParams> prototype(new l1t::CaloParams( *o2oProtoHandle.product() ));
+
+      // prepare to set the emulator's configuration
+      //  and then replace our local copy of the parameters with a new one using placement new
+      m_params->~CaloParamsHelper();
+
+      // compare the candidate payload misses some of the pnodes compared to the prototype,
+      // if this is the case - the candidate is an old payload that'll crash the Stage2 emulator
+      // and we better use the prototype for the emulator's configuration
+      if( ((CaloParamsHelper*)candidate.get())->getNodes().size() < ((CaloParamsHelper*)prototype.get())->getNodes().size())
+	m_params = new (m_params) CaloParamsHelper( *o2oProtoHandle.product() );
+      else
+	m_params = new (m_params) CaloParamsHelper( *candidateHandle.product() );
+      // KK: the nifty tricks above (placement new) work as long as current definition of
+      //     CaloParams takes more space than the one obtained from the record
+      
+    } else {
+      m_params->~CaloParamsHelper();
+      m_params = new (m_params) CaloParamsHelper( *candidateHandle.product() );
+    }
 
     LogDebug("L1TDebug") << *m_params << std::endl;
 
