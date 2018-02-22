@@ -197,11 +197,12 @@ SiPixelLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
       const LocalVector bFieldLocal(hit.det()->surface().toLocal(bField));
       const double dZ = hit.det()->surface().bounds().thickness(); // it is a float only...
       // shift due to LA: dx = tan(LA) * dz/2 = mobility * B_y * dz/2,
+      // shift due to LA: dy = - mobility * B_x * dz/2,
       // '-' since we have derivative of the residual r = trk -hit
       const double xDerivative = bFieldLocal.y() * dZ * -0.5; // parameter is mobility!
-      // FIXME: Have to treat that for FPIX yDerivative != 0., due to higher order effects! 
-      if (xDerivative) { // If field is zero, this is zero: do not return it
-	const Values derivs(xDerivative, 0.); // yDerivative = 0.
+      const double yDerivative = bFieldLocal.x() * dZ * 0.5; // parameter is mobility!
+      if (xDerivative || yDerivative) { // If field is zero, this is zero: do not return it
+	const Values derivs{xDerivative, yDerivative};
 	outDerivInds.push_back(ValuesIndexPair(derivs, index));
       }
     }
