@@ -1,4 +1,10 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
+
+DQMEDAnalyzer::DQMEDAnalyzer() {
+  produces<DQMToken,edm::Transition::EndLuminosityBlock>();
+  produces<DQMRunToken,edm::Transition::EndRun>();
+}
 
 void DQMEDAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& setup) 
 {
@@ -16,6 +22,11 @@ void DQMEDAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& setup)
 void DQMEDAnalyzer::endRun(edm::Run const& run, edm::EventSetup const& setup) 
 { }
 
+void DQMEDAnalyzer::endRunProduce(edm::Run& run, edm::EventSetup const& setup) 
+{
+  run.put(std::make_unique<DQMRunToken>());
+}
+
 void DQMEDAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) 
 { }
 
@@ -28,6 +39,7 @@ void DQMEDAnalyzer::endLuminosityBlockProduce(edm::LuminosityBlock & lumi, edm::
       lumi.run(),
       lumi.luminosityBlock(),
       lumi.moduleCallingContext()->moduleDescription()->id());
+  lumi.put(std::make_unique<DQMToken>());
 }
 
 
