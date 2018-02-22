@@ -24,17 +24,23 @@ class PhotonEnergyCalibratorRun2
   /// Initialize with a random number generator (if not done, it will use the CMSSW service)
   /// Caller code owns the TRandom.
   void initPrivateRng(TRandom *rnd) ;
+
+  //set the minimum et to apply the correction to
+  void setMinEt(float val){minEt_=val;}
   
-  /// Correct this electron.
+  /// Correct this photon.
   /// StreamID is needed when used with CMSSW Random Number Generator
-  std::vector<float> calibrate(reco::Photon &photon, unsigned int runNumber, 
-			       const EcalRecHitCollection* recHits, edm::StreamID const & id = edm::StreamID::invalidStreamID(), int eventIsMC = -1) const ;
+  std::vector<float> calibrate(reco::Photon &photon, const unsigned int runNumber, 
+			       const EcalRecHitCollection* recHits, edm::StreamID const & id = edm::StreamID::invalidStreamID(), const int eventIsMC = -1) const ;
+  std::vector<float> calibrate(reco::Photon &photon, const unsigned int runNumber, 
+			       const EcalRecHitCollection* recHits, const float smearNrSigma, const int eventIsMC = -1) const ;
   
  protected:
   // whatever data will be needed
   bool isMC_;
   bool synchronization_;
-  TRandom *rng_;
+  TRandom *rng_; //this is not owned
+  float minEt_;
   std::vector<double> smearings_;
   std::vector<double> scales_;
   
@@ -43,6 +49,7 @@ class PhotonEnergyCalibratorRun2
   /// If synchronization is set to true, it returns a fixed number (1.0)
   double gauss(edm::StreamID const& id) const ;
   EnergyScaleCorrection_class correctionRetriever_;
+
 
 };
 

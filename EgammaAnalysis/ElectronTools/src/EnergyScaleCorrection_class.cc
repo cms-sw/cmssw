@@ -9,8 +9,8 @@
 #define LOGDRESSED(x) LogDebug(x)
 
 #include <cassert>
-#include <stdlib.h>
-#include <float.h> 
+#include <cstdlib>
+#include <cfloat> 
 #include <iomanip>
 #include <sstream>
 
@@ -19,7 +19,7 @@ EnergyScaleCorrection_class::EnergyScaleCorrection_class(std::string correctionF
   smearingType_(ECALELF)
 {
   
-  if(correctionFileName.size() > 0) { 
+  if(!correctionFileName.empty()) { 
     std::string filename = correctionFileName+"_scales.dat";
     ReadFromFile(filename);
     if(scales.empty()) {
@@ -27,7 +27,7 @@ EnergyScaleCorrection_class::EnergyScaleCorrection_class(std::string correctionF
     }
   }
   
-  if(correctionFileName.size() > 0) { 
+  if(!correctionFileName.empty()) { 
     std::string filename = correctionFileName+"_smearings.dat";
     ReadSmearingFromFile(filename);
     if(smearings.empty()) {
@@ -462,6 +462,6 @@ correctionCategory_class::correctionCategory_class(TString category_)
   if(p1 != std::string::npos) {
 	  p1+=8;                       // Position of character after _
 	  p2 = category.find("-", p1); // Position of - or end of string
-	  gain = std::stoul(category.substr(p1, p2-p1), NULL);
+	  gain = std::stoul(category.substr(p1, p2-p1), nullptr);
   }
 }

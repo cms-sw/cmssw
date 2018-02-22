@@ -1,6 +1,6 @@
 #include "EgammaAnalysis/ElectronTools/interface/EpCombinationToolSemi.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <iostream>
 #include <vdt/vdtMath.h>
