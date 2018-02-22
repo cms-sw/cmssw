@@ -3274,9 +3274,10 @@ DQMStore::removeElement(const std::string &dir, const std::string &name, bool wa
   auto pos = data_.find(proto);
   if (pos != data_.end())
     data_.erase(pos);
-  else if (warning)
+  else if (warning) {
     std::cout << "DQMStore: WARNING: attempt to remove non-existent"
               << " monitor element '" << name << "' in '" << dir << "'\n";
+  }
 }
 
 //////////////////////////////////////////////////////////////////////

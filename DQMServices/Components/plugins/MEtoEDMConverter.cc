@@ -94,7 +94,7 @@ void
 MEtoEDMConverter::beginJob()
 {
   // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
-  enableMultiThread_ = dbe->enableMultiThread_;
+  //enableMultiThread_ = dbe->enableMultiThread_;
 }
 
 void
@@ -541,8 +541,8 @@ MEtoEDMConverter::putData(T& iPutTo,
 
     if (!iLumiOnly) {
       // remove ME after copy to EDM is done.
-      if (deleteAfterCopy)
-        dbe->removeElement(me->getPathname(),me->getName());
+      //if (deleteAfterCopy)
+      //  dbe->removeElement(me->getPathname(),me->getName());
     }
 
   } // end loop through monitor elements
