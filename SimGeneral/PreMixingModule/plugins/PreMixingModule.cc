@@ -23,6 +23,7 @@
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "PreMixingWorker.h"
+#include "PreMixingPileupCopy.h"
 
 #include <functional>
 #include <vector>
@@ -49,29 +50,16 @@ namespace edm {
   private:
     void pileWorker(const edm::EventPrincipal&, int bcr, int EventId,const edm::EventSetup& ES, ModuleCallingContext const*);
 
-    //DataMixingPileupCopy  *PUWorker_;
-    bool addedPileup_;
+    PreMixingPileupCopy puWorker_;
+    bool addedPileup_ = false;
 
     std::vector<std::unique_ptr<PreMixingWorker> > workers_;
   };
 
   PreMixingModule::PreMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf):
     BMixingModule(ps, globalConf),
-    addedPileup_(false)
+    puWorker_(ps.getParameter<edm::ParameterSet>("workers").getParameter<edm::ParameterSet>("pileup"), *this, consumesCollector())
   {  
-    produces< std::vector<PileupSummaryInfo> >();
-    produces< int >("bunchSpacing");
-    produces<CrossingFramePlaybackInfoNew>();
-
-    // TODO: Who produces these?
-    std::vector<edm::InputTag> GenPUProtonsInputTags;
-    GenPUProtonsInputTags = ps.getParameter<std::vector<edm::InputTag> >("GenPUProtonsInputTags");
-    for(std::vector<edm::InputTag>::const_iterator it_InputTag = GenPUProtonsInputTags.begin(); 
-        it_InputTag != GenPUProtonsInputTags.end(); ++it_InputTag) 
-      produces< std::vector<reco::GenParticle> >( it_InputTag->label() );
-
-    //PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());
-
     // construct workers
   }
 
@@ -125,7 +113,7 @@ namespace edm {
     // secondary stream to the output stream  
     // We only have the pileup event here, so pick the first time and store the info
     if(!addedPileup_) {
-      //PUWorker_->addPileupInfo(&ep, eventNr, &moduleCallingContext);
+      puWorker_.addPileupInfo(ep, eventNr, &moduleCallingContext);
       addedPileup_ = true;
     }
 
@@ -186,15 +174,14 @@ namespace edm {
   void PreMixingModule::put(edm::Event &e,const edm::EventSetup& ES) {
     // individual workers...
     // move pileup first so we have access to the information for the put step
-
-    std::vector<PileupSummaryInfo> ps;
-    int bunchSpacing=10000;
-    //PUWorker_->getPileupInfo(ps,bunchSpacing);      
-    //PUWorker_->putPileupInfo(e);
+    const auto& ps = puWorker_.getPileupSummaryInfo();
+    int bunchSpacing = puWorker_.getBunchSpacing();
 
     for(auto& w: workers_) {
       w->put(e, ES, ps, bunchSpacing);
     }
+
+    puWorker_.putPileupInfo(e);
   }
 
   void PreMixingModule::beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
