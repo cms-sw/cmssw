@@ -10,7 +10,7 @@
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -47,7 +47,7 @@
 #include "classlib/utils/StringList.h"
 #include "classlib/utils/StringOps.h"
 
-class EDMtoMEConverter : public edm::EDAnalyzer
+class EDMtoMEConverter : public edm::one::EDProducer<edm::one::WatchRuns,edm::one::WatchLuminosityBlocks,edm::one::SharedResources,edm::EndLuminosityBlockProducer>
 {
 
  public:
@@ -56,12 +56,13 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   ~EDMtoMEConverter() override;
   void beginJob() override;
   void endJob() override;  
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
   void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void respondToOpenInputFile(const edm::FileBlock&) override;
+  void respondToOpenInputFile(const edm::FileBlock&) ;
+  void produce(edm::Event&, edm::EventSetup const&) final {};
+  void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) final {};
 
   template <class T>
   void getData(T& iGetFrom);

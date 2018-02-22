@@ -10,6 +10,7 @@
 #include "DQMServices/Components/plugins/EDMtoMEConverter.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
 
 using namespace lat;
 
@@ -259,6 +260,8 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
   iCount.clear();
 
   assert(sizeof(int64_t) == sizeof(long long));
+  usesResource("DQMStore");
+  produces<DQMToken,edm::Transition::EndLuminosityBlock>();
 
 } // end constructor
 
@@ -322,9 +325,6 @@ void EDMtoMEConverter::endLuminosityBlock(const edm::LuminosityBlock& iLumi, con
   }
 }
 
-void EDMtoMEConverter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-}
 
 template <class T>
 void
