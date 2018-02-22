@@ -57,5 +57,5 @@ def custom_3dclustering_dbscan(process,
     parameters_c3d = process.hgcalTriggerPrimitiveDigiProducer.BEConfiguration.algorithms[0].C3d_parameters
     parameters_c3d.dist_dbscan_multicluster = cms.double(distance)
     parameters_c3d.minN_dbscan_multicluster = cms.uint32(min_points)
-    parameters_c3d.type_multicluster = cms.string('DBSCAN3d')
+    parameters_c3d.type_multicluster = cms.string('DBSCANC3d')
     return process
