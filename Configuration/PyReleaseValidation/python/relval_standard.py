@@ -424,7 +424,7 @@ workflows[1325.2] = ['', ['TTbar_13','DIGIUP15','RECOUP15_trackingLowPU','HARVES
 workflows[1325.3] = ['', ['TTbar_13','DIGIUP15','RECOUP15_trackingOnlyLowPU','HARVESTUP15_trackingOnly']]
 workflows[1325.4] = ['', ['TTbar_13','DIGIUP15','RECOUP15_HIPM','HARVESTUP15']]
 # reminiaod wf on 80X MC
-workflows[1325.5] = ['', ['TTbar_13_reminiaodINPUT','REMINIAOD_mc2016','HARVESTDR2_REMINIAOD_mc2016']]
+workflows[1325.5] = ['', ['ProdZEE_13_reminiaodINPUT','REMINIAOD_mc2016','HARVESTDR2_REMINIAOD_mc2016']]
 # reminiaod wf on 94X MC
 workflows[1325.51] = ['', ['TTbar_13_94XreminiaodINPUT','REMINIAOD_mc2017','HARVESTUP17_REMINIAOD_mc2017']]
 
