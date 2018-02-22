@@ -56,8 +56,8 @@ private:
 
   // maps to easily associate nSamples to 
   // the tag for additional qie10 and qie11 info
-  std::map<int, std::string> saveQIE10Info_;
-  std::map<int, std::string> saveQIE11Info_;
+  std::unordered_map<int, std::string> saveQIE10Info_;
+  std::unordered_map<int, std::string> saveQIE11Info_;
 
 
   struct Statistics {

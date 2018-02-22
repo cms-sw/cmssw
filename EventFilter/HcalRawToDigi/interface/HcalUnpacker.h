@@ -35,8 +35,8 @@ public:
     QIE10DigiCollection* qie10ZDC;
     QIE11DigiCollection* qie11;
     // additional qie10 and qie11 data collections
-    std::map<int, QIE10DigiCollection*> qie10Addtl;
-    std::map<int, QIE11DigiCollection*> qie11Addtl;
+    std::unordered_map<int, QIE10DigiCollection*> qie10Addtl;
+    std::unordered_map<int, QIE11DigiCollection*> qie11Addtl;
     HcalUMNioDigi* umnio;
 
   };
@@ -54,6 +54,7 @@ private:
   void unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& emap, Collections& conts, HcalUnpackerReport& report, bool silent=false);
   void unpackUMNio(const FEDRawData& raw, int slot, Collections& colls);
 
+  void printInvalidDataMessage( const std::string &coll_type, int default_ns, int conflict_ns );
 
   int sourceIdOffset_; ///< number to subtract from the source id to get the dcc id
   int startSample_; ///< first sample from fed raw data to copy 
