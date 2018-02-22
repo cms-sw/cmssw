@@ -29,7 +29,7 @@ namespace l1tVertexFinder {
     highPt_ = false;
     highestPt_ = 0.;
     numHighPtTracks_ = 0;
-    unsigned int overflows = 0;
+    // unsigned int overflows = 0;
     float SumZ_pT = 0.;
     float SumZ = 0.;
     for(const L1fittedTrack* track : tracks_){

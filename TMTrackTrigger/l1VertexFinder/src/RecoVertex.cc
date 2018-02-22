@@ -15,7 +15,7 @@ namespace l1tVertexFinder {
     highestPt_ = 0.;
     numHighPtTracks_ = 0;
 
-    unsigned int overflows = 0;
+    // unsigned int overflows = 0;
     float SumZ_pT = 0.;
     float SumZ = 0.;
 

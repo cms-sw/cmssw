@@ -27,6 +27,8 @@ options.register('inputMC','TMTrackTrigger/l1VertexFinder/Samples/DavidePhaseIIF
 #--- Specify number of events to process.
 options.register('Events',-1,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,"Number of Events to analyze")
 
+options.register('analysis',False,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool,"Run vertex finding analysis code")
+
 #--- Specify name of output histogram file.
 options.register('histFile','Hist.root',VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,"Name of output histogram file")
 
@@ -72,5 +74,9 @@ process.load('TMTrackTrigger.l1VertexFinder.VertexProducer_cff')
 #--- Load config fragment that configures vertex analyzer
 process.load('TMTrackTrigger.l1VertexFinder.VertexAnalyzer_cff')
 
-process.p = cms.Path(process.VertexProducer + process.L1TVertexAnalyzer)
+if (options.analysis):
+    process.p = cms.Path(process.VertexProducer + process.L1TVertexAnalyzer)
+else:
+    process.p = cms.Path(process.VertexProducer)
+
 # process.e = cms.EndPath(process.out)

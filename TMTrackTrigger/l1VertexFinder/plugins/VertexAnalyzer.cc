@@ -33,9 +33,6 @@ using namespace std;
 
 namespace l1tVertexFinder {
 
-  class Histos;
-  class Settings;
-
   class VertexAnalyzer : public edm::EDAnalyzer {
 
   public:
@@ -171,4 +168,4 @@ namespace l1tVertexFinder {
 using namespace l1tVertexFinder;
 
 //define this as a plug-in
-// DEFINE_FWK_MODULE(VertexAnalyzer);
+DEFINE_FWK_MODULE(VertexAnalyzer);

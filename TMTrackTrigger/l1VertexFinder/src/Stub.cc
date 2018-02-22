@@ -22,7 +22,7 @@ Stub::Stub(const TTStubRef& ttStubRef, unsigned int index_in_vStubs, const Setti
   settings_(settings)
 {
   // Get coordinates of stub.
-  const TTStub<Ref_Phase2TrackerDigi_> *ttStubP = ttStubRef.get(); 
+  // const TTStub<Ref_Phase2TrackerDigi_> *ttStubP = ttStubRef.get(); 
 
   DetId geoDetId = geoDetIdMap.find(ttStubRef->getDetId())->second;
 
