@@ -193,7 +193,10 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(G4Step * aStep,
 #endif
 
   double tSlice = (postStepPoint->GetGlobalTime())/nanosecond;
-  double pin    = preStepPoint->GetTotalEnergy();
+
+  // use kinetic energy for protons and ions
+  double pin = (track->GetDefinition()->GetBaryonNumber() > 0) 
+    ? preStepPoint->GetKineticEnergy() : preStepPoint->GetTotalEnergy();
 
   return fillHits(hitPoint,momDir,parCode,pin,ok,weight,tSlice,onlyLong);
 }
@@ -211,6 +214,10 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector 
     return hit;
   }
   ok = true;
+
+  // remove low-energy component
+  const double threshold = 50*MeV;
+  if(pin < threshold) { return hit; }
 
   double pz     = momDir.z(); 
   double zint   = hitPoint.z(); 

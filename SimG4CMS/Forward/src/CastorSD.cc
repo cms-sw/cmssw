@@ -233,7 +233,6 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   if (!trkInfo.hasCastorHit()) {
     trkInfo.setCastorHitPID(parCode);
   }
-  int castorHitPID = trkInfo.getCastorHitPID();
   
   G4double           stepl    = aStep->GetStepLength()/cm;
   

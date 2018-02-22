@@ -405,14 +405,17 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 #endif 
       } else {
 	// shower library is applied only for gamma, e+- or stable hadrons
-        if (useShowerLibrary && (isEM || G4TrackToParticleID::isStableHadronIon(aStep->GetTrack()))) {
+	// muons are tracked via HF, hyperons does not interact
+        if (useShowerLibrary && !G4TrackToParticleID::isMuon(aStep->GetTrack())) {
+	  if(isEM || G4TrackToParticleID::isStableHadronIon(aStep->GetTrack())) {
+	    getFromLibrary(aStep, weight);
+	  }
 #ifdef EDM_ML_DEBUG
           LogDebug("HcalSim") << "HCalSD: Starts shower library from " 
                               << nameVolume << " for Track " 
                               << aStep->GetTrack()->GetTrackID() << " ("
                               << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
-          getFromLibrary(aStep, weight);
         } else if (isItFibre(lv)) {
 #ifdef EDM_ML_DEBUG
           LogDebug("HcalSim") << "HCalSD: Hit at Fibre in " << nameVolume 
@@ -778,48 +781,50 @@ bool HCalSD::isItinFidVolume (const G4ThreeVector& hitPoint) {
 void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
   preStepPoint  = aStep->GetPreStepPoint(); 
   theTrack = aStep->GetTrack();   
-  int det       = 5;
-  bool ok;
+  int det  = 5;
+  bool ok(false);
 
   std::vector<HFShowerLibrary::Hit> hits = showerLibrary->getHits(aStep, ok, weight, false);
 
-  double etrack    = preStepPoint->GetKineticEnergy();
-  int    primaryID = setTrackID(aStep);
+  if(!hits.empty()) {
+    double etrack    = preStepPoint->GetKineticEnergy();
+    int    primaryID = setTrackID(aStep);
 
-  // Reset entry point for new primary
-  posGlobal = preStepPoint->GetPosition();
-  resetForNewPrimary(posGlobal, etrack);
+    // Reset entry point for new primary
+    posGlobal = preStepPoint->GetPosition();
+    resetForNewPrimary(posGlobal, etrack);
 
-  if (isEM) {
-    edepositEM  = 1.*GeV;
-    edepositHAD = 0.;
-  } else {
-    edepositEM  = 0.;
-    edepositHAD = 1.*GeV;
-  }
+    if (isEM) {
+      edepositEM  = 1.*GeV;
+      edepositHAD = 0.;
+    } else {
+      edepositEM  = 0.;
+      edepositHAD = 1.*GeV;
+    }
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HcalSim") << "HCalSD::getFromLibrary " <<hits.size() 
-                          << " hits for " << GetName() << " of " << primaryID 
-                          << " with " << theTrack->GetDefinition()->GetParticleName() 
-                          << " of " << preStepPoint->GetKineticEnergy()/GeV << " GeV";
+    edm::LogInfo("HcalSim") << "HCalSD::getFromLibrary " <<hits.size() 
+			    << " hits for " << GetName() << " of " << primaryID 
+			    << " with " << theTrack->GetDefinition()->GetParticleName() 
+			    << " of " << preStepPoint->GetKineticEnergy()/GeV << " GeV";
 #endif
-  for (unsigned int i=0; i<hits.size(); ++i) {
-    G4ThreeVector hitPoint = hits[i].position;
-    if (isItinFidVolume (hitPoint)) {
-      int depth              = hits[i].depth;
-      double time            = hits[i].time;
-      unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
-      currentID.setID(unitID, time, primaryID, 0);
+    for (unsigned int i=0; i<hits.size(); ++i) {
+      G4ThreeVector hitPoint = hits[i].position;
+      if (isItinFidVolume (hitPoint)) {
+	int depth              = hits[i].depth;
+	double time            = hits[i].time;
+	unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
+	currentID.setID(unitID, time, primaryID, 0);
 #ifdef plotDebug
-      plotProfile(aStep, hitPoint, 1.0*GeV, time, depth);
-      plotHF(hitPoint,isEM);
+	plotProfile(aStep, hitPoint, 1.0*GeV, time, depth);
+	plotHF(hitPoint,isEM);
 #endif
    
-      // check if it is in the same unit and timeslice as the previous one
-      if (currentID == previousID) {
-	updateHit(currentHit);
-      } else {
-	if (!checkHit()) currentHit = createNewHit();
+	// check if it is in the same unit and timeslice as the previous one
+	if (currentID == previousID) {
+	  updateHit(currentHit);
+	} else {
+	  if (!checkHit()) currentHit = createNewHit();
+	}
       }
     }
   }
