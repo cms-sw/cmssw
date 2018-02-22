@@ -1,9 +1,10 @@
 #ifndef DataFormats_L1TCalorimeter_HGCalTowerMap_h
 #define DataFormats_L1TCalorimeter_HGCalTowerMap_h
 
-
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+
+#include <unordered_map>
 
 namespace l1t {
   
@@ -16,9 +17,9 @@ namespace l1t {
 
   HGCalTowerMap(): nEtaBins_(0), nPhiBins_(0), layer_(0) {}
     
-    HGCalTowerMap( int& nEtaBins, int& nPhiBins );    
+    HGCalTowerMap( int nEtaBins, int nPhiBins );
 
-    HGCalTowerMap( std::vector<double>& etaBins, std::vector<double>& phiBins );
+    HGCalTowerMap( const std::vector<double>& etaBins, const std::vector<double>& phiBins );
 
     ~HGCalTowerMap();
 
@@ -27,15 +28,16 @@ namespace l1t {
 
     int nEtaBins() const { return nEtaBins_; }
     int nPhiBins() const { return nPhiBins_; }
-    vector<double> etaBins() const { return etaBins_; }
-    vector<double> phiBins() const { return phiBins_; }
-    l1t::HGCalTower* tower(int iEta, int iPhi) { return &(towerMap_[iEta][iPhi]); }
+    const vector<double>& etaBins() const { return etaBins_; }
+    const vector<double>& phiBins() const { return phiBins_; }
+    const l1t::HGCalTower& tower(int iEta, int iPhi) { return towerMap_[bin_id(iEta,iPhi)]; }
+
     int iEta(const double eta) const;
     int iPhi(const double phi) const;
     int layer() const { return layer_;}
 
-    HGCalTowerMap& operator+=(HGCalTowerMap map);
-
+    const HGCalTowerMap& operator+=(HGCalTowerMap map);
+    void addTower(int iEta, int iPhi, const l1t::HGCalTower& tower) { towerMap_[bin_id(iEta,iPhi)] += tower; }
 
   private:
 
@@ -50,8 +52,11 @@ namespace l1t {
     int nPhiBins_;
     vector<double> etaBins_;
     vector<double> phiBins_;
-    std::map<int,std::vector<l1t::HGCalTower>>  towerMap_;
+    //std::map<int,std::vector<l1t::HGCalTower>>  towerMap_;
+    std::unordered_map<int,l1t::HGCalTower>  towerMap_;
     unsigned layer_;
+
+    int bin_id(int iEta,int iPhi) const;
 
   };
 

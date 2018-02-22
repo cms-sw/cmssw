@@ -31,12 +31,6 @@ class HGCalTowerMap2DImpl{
   
  private:
 
-  static const int kLayersEE_ = 28;
-  static const int kLayersFH_ = 12;  
-  static const unsigned kLayersBH_ = 12;
-  static const unsigned kLayers_ = kLayersEE_+kLayersFH_+kLayersBH_;
-  std::vector<l1t::HGCalTowerMap> towerMaps_; //towerMaps for each HGC layer
-
   int nEtaBins_;
   int nPhiBins_;
   std::vector<double> etaBins_;
@@ -45,6 +39,8 @@ class HGCalTowerMap2DImpl{
   bool useLayerWeights_;
   std::vector<double> layerWeights_;
   HGCalTriggerTools triggerTools_;
+
+  std::vector<l1t::HGCalTowerMap> newTowerMaps();
 
 };
 
