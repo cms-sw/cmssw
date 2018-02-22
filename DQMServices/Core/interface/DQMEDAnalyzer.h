@@ -12,11 +12,12 @@
 
 class DQMEDAnalyzer : public edm::one::EDProducer<edm::Accumulator,
                                                   edm::EndLuminosityBlockProducer,
+                                                  edm::EndRunProducer,
                                                   edm::one::WatchLuminosityBlocks,
                                                   edm::one::WatchRuns> 
 {
 public:
-  DQMEDAnalyzer() = default;
+  DQMEDAnalyzer();
   ~DQMEDAnalyzer() override = default;
   DQMEDAnalyzer(DQMEDAnalyzer const&) = delete;
   DQMEDAnalyzer(DQMEDAnalyzer &&) = delete;
@@ -24,6 +25,7 @@ public:
   void beginRun(edm::Run const& run, edm::EventSetup const& setup) final;
 
   void endRun(edm::Run const& run, edm::EventSetup const& setup) override;
+  void endRunProduce(edm::Run& run, edm::EventSetup const& setup) override;
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
 
