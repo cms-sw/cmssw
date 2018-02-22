@@ -105,6 +105,7 @@ namespace HcalUnpacker_impl {
 	  digi.setSample(ntaken,sample);
 	  ++ntaken;
 	}
+
 	ncurr++;
       }
       digi.setSize(ntaken);
@@ -647,27 +648,18 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
             // if this sample type hasn't been requested to be saved
             // warn the user to provide a configuration that prompts it to be saved
             if( colls.qie11Addtl.find( ns ) == colls.qie11Addtl.end() ) {
-	      edm::LogError("Invalid Data") << "The default QIE11 Collection has " 
-                  << colls.qie10->samples() << " samples per digi, while the current data has " 
-                  << ns << "!  This data cannot be included with the default collection.\n"
-                  << "In order to store this data in the event, it must have a unique tag.  "
-                  << "To accomplish this, provide two lists to HcalRawToDigi \n"
-                  << "1) that specifies the number of samples and "
-                  << "2) that gives tags with which these data are saved.\n"
-                  << "For example in this case you might add \n"
-                  << "hcaldigis.saveQIE11DataNSamples = cms.untracked.vint32( " 
-                  << ns << ") \nhcaldigis.saveQIE11DataTags = cms.untracked.vstring( \"MYDATA\" )" << std::endl;
+              printInvalidDataMessage( "QIE11", colls.qie11->samples(), ns );
             }
           }
 
           // Insert data
           /////////////////////////////////////////////CODE FROM OLD STYLE DIGIS///////////////////////////////////////////////////////////////
           if (!did.null()) { // unpack and store...
-              colls.qie11->addDataFrame(did, head_pos);
-              // fill the additional qie11 collections
-              if( colls.qie11Addtl.find( ns ) != colls.qie11Addtl.end() ) {
-                  colls.qie11Addtl[ns]->addDataFrame( did, head_pos );
-              }
+            colls.qie11->addDataFrame(did, head_pos);
+            // fill the additional qie11 collections
+            if( colls.qie11Addtl.find( ns ) != colls.qie11Addtl.end() ) {
+              colls.qie11Addtl[ns]->addDataFrame( did, head_pos );
+            }
           } else {
               report.countUnmappedDigi(eid);
               if (unknownIds_.find(eid)==unknownIds_.end()) {
@@ -715,16 +707,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
           // if this sample type hasn't been requested to be saved
           // warn the user to provide a configuration that prompts it to be saved
           if( colls.qie10Addtl.find( ns ) == colls.qie10Addtl.end() ) {
-	    edm::LogError("Invalid Data") << "The default QIE10 Collection has " 
-                << colls.qie10->samples() << " samples per digi, while the current data has " 
-                << ns << "!  This data cannot be included with the default collection.\n"
-                << "In order to store this data in the event, it must have a unique tag.  "
-                << "To accomplish this, provide two lists to HcalRawToDigi \n"
-                << "1) that specifies the number of samples and "
-                << "2) that gives tags with which these data are saved.\n"
-                << "For example in this case you might add \n"
-                << "hcaldigis.saveQIE10DataNSamples = cms.untracked.vint32( " 
-                << ns << ") \nhcaldigis.saveQIE10DataTags = cms.untracked.vstring( \"MYDATA\" )" << std::endl;
+            printInvalidDataMessage( "QIE10", colls.qie11->samples(), ns );
           }
 	}
 
@@ -935,3 +918,18 @@ void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, Collections& col
   *(colls.umnio) = HcalUMNioDigi(data, nwords);
   
 }
+
+void HcalUnpacker::printInvalidDataMessage( const std::string &coll_type, int default_ns, int conflict_ns ) {
+
+  edm::LogError("Invalid Data") << "The default " << coll_type << " Collection has " 
+        << conflict_ns << " samples per digi, while the current data has " 
+        << default_ns << "!  This data cannot be included with the default collection.\n"
+        << "In order to store this data in the event, it must have a unique tag.  "
+        << "To accomplish this, provide two lists to HcalRawToDigi \n"
+        << "1) that specifies the number of samples and "
+        << "2) that gives tags with which these data are saved.\n"
+        << "For example in this case you might add \n"
+        << "process.hcalDigis.saveQIE11DataNSamples = cms.untracked.vint32( " 
+        << conflict_ns << ") \nprocess.hcalDigis.saveQIE11DataTags = cms.untracked.vstring( \"MYDATA\" )" << std::endl;
+}
+

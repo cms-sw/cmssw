@@ -71,8 +71,23 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   produces<QIE11DigiCollection>();
   produces<QIE10DigiCollection>("ZDC");
 
+  // Print a warning if the two vectors
+  // for additional qie10 or qie11 data
+  // are not the same length
+  if( saveQIE10DataTags_.size() != saveQIE10DataNSamples_.size() ) {
+    edm::LogError("HcalRawToDigi") << "The saveQIE10DataTags and saveQIE10DataNSamples inputs must be the same length!  These will be ingored" << std::endl;
+    saveQIE10DataTags_.clear();
+    saveQIE10DataNSamples_.clear();
+  }
+  if( saveQIE11DataTags_.size() != saveQIE11DataNSamples_.size() ) {
+    edm::LogError("HcalRawToDigi") << "The saveQIE11DataTags and saveQIE11DataNSamples inputs must be the same length!  These will be ingored" << std::endl;
+    saveQIE11DataTags_.clear();
+    saveQIE11DataNSamples_.clear();
+  }
+      
+ 
   // If additional qie10 samples were requested,
-  // decalre that we will produce this collection
+  // declare that we will produce this collection
   // with the given tag.  Also store the map
   // from nSamples to tag for later use
   for( unsigned idx = 0; idx < saveQIE10DataNSamples_.size(); ++idx ) {
@@ -85,7 +100,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   }
 
   // If additional qie11 samples were requested,
-  // decalre that we will produce this collection
+  // declare that we will produce this collection
   // with the given tag.  Also store the map
   // from nSamples to tag for later use
   for( unsigned idx = 0; idx < saveQIE11DataNSamples_.size(); ++idx ) {
@@ -177,18 +192,14 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   colls.umnio=&umnio;
   if (unpackTTP_) colls.ttp=&ttp;
 
-  // make a entry for each additional qie10 collection that is requested
-  for( std::map<int, std::string>::const_iterator itr = saveQIE10Info_.begin();
-          itr != saveQIE10Info_.end(); ++itr ) {
-
-      colls.qie10Addtl[itr->first] = new QIE10DigiCollection(itr->first);
+  // make an entry for each additional qie10 collection that is requested
+  for( const auto &info : saveQIE10Info_ ) {
+      colls.qie10Addtl[info.first] = new QIE10DigiCollection(info.first);
   }
 
-  // make a entry for each additional qie11 collection that is requested
-  for( std::map<int, std::string>::const_iterator itr = saveQIE11Info_.begin();
-          itr != saveQIE11Info_.end(); ++itr ) {
-
-      colls.qie11Addtl[itr->first] = new QIE11DigiCollection(itr->first);
+  // make an entry for each additional qie11 collection that is requested
+  for( const auto &info : saveQIE11Info_ ) {
+      colls.qie11Addtl[info.first] = new QIE11DigiCollection(info.first);
   }
 
   // Step C: unpack all requested FEDs
@@ -242,6 +253,31 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   }
   if( cntHFdup ) edm::LogError("HcalRawToDigi") << "Duplicated HF digis found for "<<cntHFdup<<" times"<<std::endl;
 
+  // Check that additional QIE10 and QIE11 collections
+  // do not duplicate the default collections
+  for( const auto & addtl: colls.qie10Addtl ) {
+      if( addtl.second->samples() == colls.qie10->samples() ) {
+          std::string tag = saveQIE10Info_[addtl.second->samples()];
+          edm::LogError("HcalRawToDigi") << "QIE10 data requested to be stored in tag " 
+              << tag << " is already stored in the default QIE10 collection.  "
+              << "To avoid duplicating, remove the tag " << tag 
+              << " from the saveQIE10DataTags and the value of " 
+              << addtl.second->samples() << " from the saveQIE10DataNSamples "
+              << "configurables to HcalRawToDigi" << std::endl;
+      }
+  }
+  for( const auto & addtl: colls.qie11Addtl ) {
+      if( addtl.second->samples() == colls.qie11->samples() ) {
+          std::string tag = saveQIE11Info_[addtl.second->samples()];
+          edm::LogError("HcalRawToDigi") << "QIE11 data requested to be stored in tag " 
+              << tag << " is already stored in the default QIE11 collection.  "
+              << "To avoid duplicating, remove the tag " << tag 
+              << " from the saveQIE11DataTags and the value of " 
+              << addtl.second->samples() << " from the saveQIE11DataNSamples "
+              << "configurables to HcalRawToDigi" << std::endl;
+      }
+  }
+
   // Step B: encapsulate vectors in actual collections
   auto hbhe_prod = std::make_unique<HBHEDigiCollection>();
   auto hf_prod = std::make_unique<HFDigiCollection>();
@@ -264,16 +300,13 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 
   // follow the procedure for other collections.  Copy the unpacked
   // data so that it can be filtered and sorted
-  std::map<int, std::unique_ptr<QIE10DigiCollection> > qie10_prodAddtl;
-  std::map<int, std::unique_ptr<QIE11DigiCollection> > qie11_prodAddtl;
-  for( std::map<int, QIE10DigiCollection*>::const_iterator itr = colls.qie10Addtl.begin();
-          itr != colls.qie10Addtl.end(); ++itr) {
-      std::cout << "data with tag " << saveQIE10Info_[itr->first] << " Has " << itr->second->size() << " channels "<< std::endl;
-      qie10_prodAddtl[itr->first] = std::unique_ptr<QIE10DigiCollection>(itr->second);
+  std::unordered_map<int, std::unique_ptr<QIE10DigiCollection> > qie10_prodAddtl;
+  std::unordered_map<int, std::unique_ptr<QIE11DigiCollection> > qie11_prodAddtl;
+  for( const auto & orig : colls.qie10Addtl ) {
+      qie10_prodAddtl[orig.first] = std::unique_ptr<QIE10DigiCollection>(orig.second);
   }
-  for( std::map<int, QIE11DigiCollection*>::const_iterator itr = colls.qie11Addtl.begin();
-          itr != colls.qie11Addtl.end(); ++itr) {
-      qie11_prodAddtl[itr->first] = std::unique_ptr<QIE11DigiCollection>(itr->second);
+  for( const auto & orig : colls.qie11Addtl ) {
+      qie11_prodAddtl[orig.first] = std::unique_ptr<QIE11DigiCollection>(orig.second);
   }
 
   hbhe_prod->swap_contents(hbhe);
@@ -297,20 +330,16 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
     qie11_prod->swap(filtered_qie11);
 
     // apply filter to additional collections
-    for( std::map<int, std::unique_ptr<QIE10DigiCollection> >::iterator 
-           itr = qie10_prodAddtl.begin(); itr != qie10_prodAddtl.end(); ++itr ) {
-
-      QIE10DigiCollection filtered_qie10=filter_.filter(*(itr->second),*report);
-
-      itr->second->swap(filtered_qie10);
+    for( auto & prod : qie10_prodAddtl ) {
+      QIE10DigiCollection filtered_qie10=filter_.filter(*(prod.second),*report);
+      prod.second->swap(filtered_qie10);
     }
 
-    for( std::map<int, std::unique_ptr<QIE11DigiCollection> >::iterator 
-           itr = qie11_prodAddtl.begin(); itr != qie11_prodAddtl.end(); ++itr ) {
-
-      QIE11DigiCollection filtered_qie11=filter_.filter(*(itr->second),*report);
-      itr->second->swap(filtered_qie11);
+    for( auto & prod : qie11_prodAddtl ) {
+      QIE11DigiCollection filtered_qie11=filter_.filter(*(prod.second),*report);
+      prod.second->swap(filtered_qie11);
     }
+
 
   }
 
@@ -326,15 +355,13 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   qie11_prod->sort();
 
   // sort the additional collections
-  for( std::map<int, std::unique_ptr<QIE10DigiCollection> >::iterator 
-         itr = qie10_prodAddtl.begin(); itr != qie10_prodAddtl.end(); ++itr ) {
-      itr->second->sort();
+  for( auto & prod : qie10_prodAddtl ) {
+    prod.second->sort();
   }
-  for( std::map<int, std::unique_ptr<QIE11DigiCollection> >::iterator 
-         itr = qie11_prodAddtl.begin(); itr != qie11_prodAddtl.end(); ++itr ) {
-      itr->second->sort();
+  for( auto & prod : qie11_prodAddtl ) {
+    prod.second->sort();
   }
-
+        
   e.put(std::move(hbhe_prod));
   e.put(std::move(ho_prod));
   e.put(std::move(hf_prod));
@@ -345,16 +372,14 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   e.put(std::move(qie11_prod));
 
   // put the qie10 and qie11 collections into the event
-  for( std::map<int, std::unique_ptr<QIE10DigiCollection> >::iterator 
-       itr = qie10_prodAddtl.begin(); itr != qie10_prodAddtl.end(); ++itr ) {
-    std::string tag = saveQIE10Info_[itr->first];
-    e.put(std::move(itr->second), tag);
+  for( auto & prod : qie10_prodAddtl ) {
+    std::string tag = saveQIE10Info_[prod.first];
+    e.put(std::move(prod.second), tag);
   }
 
-  for( std::map<int, std::unique_ptr<QIE11DigiCollection> >::iterator 
-       itr = qie11_prodAddtl.begin(); itr != qie11_prodAddtl.end(); ++itr ) {
-    std::string tag = saveQIE11Info_[itr->first];
-    e.put(std::move(itr->second), tag);
+  for( auto & prod : qie11_prodAddtl ) {
+    std::string tag = saveQIE11Info_[prod.first];
+    e.put(std::move(prod.second), tag);
   }
 
   /// calib
