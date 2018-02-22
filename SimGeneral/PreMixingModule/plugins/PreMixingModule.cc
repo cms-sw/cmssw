@@ -23,6 +23,7 @@
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "PreMixingWorker.h"
+#include "PreMixingWorkerFactory.h"
 #include "PreMixingPileupCopy.h"
 
 #include <functional>
@@ -60,7 +61,16 @@ namespace edm {
     BMixingModule(ps, globalConf),
     puWorker_(ps.getParameter<edm::ParameterSet>("workers").getParameter<edm::ParameterSet>("pileup"), *this, consumesCollector())
   {  
-    // construct workers
+    const auto& workers = ps.getParameter<edm::ParameterSet>("workers");
+    std::vector<std::string> names = workers.getParameterNames();
+    for(const auto& name: names) {
+      if(name == "pileup") {
+        continue;
+      }
+      const auto& pset = workers.getParameter<edm::ParameterSet>(name);
+      std::string type = pset.getParameter<std::string>("workerType");
+      workers_.emplace_back(PreMixingWorkerFactory::get()->create(type, pset, *this, consumesCollector()));
+    }
   }
 
 
