@@ -79,14 +79,14 @@ protected:
 		   const int disk_num,const int blade_num,const int panel_num,const int side_num,
 		   SiPixelRecHitCollection::DetSet::const_iterator pixeliter,
 		   const int num_simhit,
-		   std::vector<PSimHit>::const_iterator closest_simhit,
+		   const PSimHit* closest_simhit,
 		   const GeomDet* PixGeom);
   void fillPRecHit(const int detid_db, const int subid,
 		   const int layer_num,const int ladder_num,const int module_num,
 		   const int disk_num,const int blade_num,const int panel_num,const int side_num,
 		   trackingRecHit_iterator pixeliter,
 		   const int num_simhit,
-		   std::vector<PSimHit>::const_iterator closest_simhit,
+		   const PSimHit* closest_simhit,
 		   const GeomDet* PixGeom);
   std::pair<float, float> computeAnglesFromDetPosition(const SiPixelCluster & cl, 
 						       const PixelTopology  & top, 
@@ -302,7 +302,7 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
   const TrackerGeometry*  theGeometry = &(*geometry);
   
   std::vector<PSimHit> matched;
-  std::vector<PSimHit>::const_iterator closest_simhit;
+  const PSimHit* closest_simhit=nullptr;
 
   edm::Handle<SiPixelRecHitCollection> recHitColl;
   e.getByToken(pixelRecHits_token, recHitColl);
@@ -338,18 +338,17 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
 	matched = associate.associateHit(*iterRecHit);
 	if ( !matched.empty() ) {
 	  float closest = 9999.9;
-	  std::vector<PSimHit>::const_iterator closestit = matched.begin();
 	  LocalPoint lp = iterRecHit->localPosition();
 	  float rechit_x = lp.x();
 	  float rechit_y = lp.y();
 	  //loop over simhits and find closest
-	  for (std::vector<PSimHit>::const_iterator m = matched.begin(); m<matched.end(); m++) 
+	  for(auto const& m : matched) 
 	    {
-	      float sim_x1 = (*m).entryPoint().x();
-	      float sim_x2 = (*m).exitPoint().x();
+	      float sim_x1 = m.entryPoint().x();
+	      float sim_x2 = m.exitPoint().x();
 	      float sim_xpos = 0.5*(sim_x1+sim_x2);
-	      float sim_y1 = (*m).entryPoint().y();
-	      float sim_y2 = (*m).exitPoint().y();
+	      float sim_y1 = m.entryPoint().y();
+	      float sim_y2 = m.exitPoint().y();
 	      float sim_ypos = 0.5*(sim_y1+sim_y2);
              
 	      float x_res = sim_xpos - rechit_x;
@@ -357,10 +356,9 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      float dist = sqrt(x_res*x_res + y_res*y_res);
 	      if ( dist < closest ) {
 		closest = dist;
-		closestit = m;
+		closest_simhit = &m;
 	      }
 	    } // end of simhit loop
-	  closest_simhit = closestit;
 	} // end matched emtpy
 	unsigned int subid = detId.subdetId();
 	int detid_db = detId.rawId();
@@ -425,19 +423,19 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
 	    
 	    if ( !matched.empty() ) {
 	      float closest = 9999.9;
-	      std::vector<PSimHit>::const_iterator closestit = matched.begin();
 	      LocalPoint lp = pixhit->localPosition();
 	      float rechit_x = lp.x();
 	      float rechit_y = lp.y();
 	      
 	      //loop over simhits and find closest	   	    
-	      for (std::vector<PSimHit>::const_iterator m = matched.begin(); m<matched.end(); m++) 
+	      //for (std::vector<PSimHit>::const_iterator m = matched.begin(); m<matched.end(); m++)
+	      for(auto const& m : matched) 
 		{
-		  float sim_x1 = (*m).entryPoint().x();
-		  float sim_x2 = (*m).exitPoint().x();
+		  float sim_x1 = m.entryPoint().x();
+		  float sim_x2 = m.exitPoint().x();
 		  float sim_xpos = 0.5*(sim_x1+sim_x2);
-		  float sim_y1 = (*m).entryPoint().y();
-		  float sim_y2 = (*m).exitPoint().y();
+		  float sim_y1 = m.entryPoint().y();
+		  float sim_y2 = m.exitPoint().y();
 		  float sim_ypos = 0.5*(sim_y1+sim_y2);
 		  
 		  float x_res = sim_xpos - rechit_x;
@@ -445,10 +443,9 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
 		  float dist = sqrt(x_res*x_res + y_res*y_res);
 		  if ( dist < closest ) {
 		    closest = dist;
-		    closestit = m;
+		    closest_simhit = &m;
 		  }
 		} // end of simhit loop
-	      closest_simhit = closestit;
 	    } // end matched emtpy
 	    
 	    int num_simhit = matched.size();
@@ -494,7 +491,7 @@ void Phase2PixelNtuple::fillPRecHit(const int detid_db, const int subid,
 				  const int disk_num,const int blade_num,const int panel_num,const int side_num,
 				  SiPixelRecHitCollection::DetSet::const_iterator pixeliter,
 				  const int num_simhit,
-				  std::vector<PSimHit>::const_iterator closest_simhit,
+				  const PSimHit* closest_simhit,
 				  const GeomDet* PixGeom)
 {
   LocalPoint lp = pixeliter->localPosition();
@@ -578,19 +575,19 @@ void Phase2PixelNtuple::fillPRecHit(const int detid_db, const int subid,
 #endif
   if(num_simhit > 0) {
 
-    recHit_.pdgid = (*closest_simhit).particleType();
-    recHit_.process= (*closest_simhit).processType();
+    recHit_.pdgid = closest_simhit->particleType();
+    recHit_.process= closest_simhit->processType();
 
-    float sim_x1 = (*closest_simhit).entryPoint().x();
-    float sim_x2 = (*closest_simhit).exitPoint().x();
+    float sim_x1 = closest_simhit->entryPoint().x();
+    float sim_x2 = closest_simhit->exitPoint().x();
     recHit_.hx = 0.5*(sim_x1+sim_x2);
-    float sim_y1 = (*closest_simhit).entryPoint().y();
-    float sim_y2 = (*closest_simhit).exitPoint().y();
+    float sim_y1 = closest_simhit->entryPoint().y();
+    float sim_y2 = closest_simhit->exitPoint().y();
     recHit_.hy = 0.5*(sim_y1+sim_y2);
 
-    recHit_.tx = (*closest_simhit).localDirection().x();
-    recHit_.ty = (*closest_simhit).localDirection().y();
-    recHit_.tz = (*closest_simhit).localDirection().z();
+    recHit_.tx = closest_simhit->localDirection().x();
+    recHit_.ty = closest_simhit->localDirection().y();
+    recHit_.tz = closest_simhit->localDirection().z();
 
     MeasurementPoint hmp = topol->measurementPosition(LocalPoint(recHit_.hx, recHit_.hy));
     recHit_.hrow = hmp.x();
@@ -621,7 +618,7 @@ void Phase2PixelNtuple::fillPRecHit(const int detid_db, const int subid,
 				     const int disk_num,const int blade_num,const int panel_num,const int side_num,
 				     trackingRecHit_iterator ih,
 				     const int num_simhit,
-				     std::vector<PSimHit>::const_iterator closest_simhit,
+				     const PSimHit* closest_simhit,
 				     const GeomDet* PixGeom)
 {
   TrackingRecHit * pixeliter = (*ih)->clone(); 
@@ -698,19 +695,19 @@ void Phase2PixelNtuple::fillPRecHit(const int detid_db, const int subid,
 
   if(num_simhit > 0) {
 
-    recHit_.pdgid = (*closest_simhit).particleType();
-    recHit_.process= (*closest_simhit).processType();
+    recHit_.pdgid = closest_simhit->particleType();
+    recHit_.process= closest_simhit->processType();
 
-    float sim_x1 = (*closest_simhit).entryPoint().x();
-    float sim_x2 = (*closest_simhit).exitPoint().x();
+    float sim_x1 = closest_simhit->entryPoint().x();
+    float sim_x2 = closest_simhit->exitPoint().x();
     recHit_.hx = 0.5*(sim_x1+sim_x2);
-    float sim_y1 = (*closest_simhit).entryPoint().y();
-    float sim_y2 = (*closest_simhit).exitPoint().y();
+    float sim_y1 = closest_simhit->entryPoint().y();
+    float sim_y2 = closest_simhit->exitPoint().y();
     recHit_.hy = 0.5*(sim_y1+sim_y2);
 
-    recHit_.tx = (*closest_simhit).localDirection().x();
-    recHit_.ty = (*closest_simhit).localDirection().y();
-    recHit_.tz = (*closest_simhit).localDirection().z();
+    recHit_.tx = closest_simhit->localDirection().x();
+    recHit_.ty = closest_simhit->localDirection().y();
+    recHit_.tz = closest_simhit->localDirection().z();
 
     MeasurementPoint hmp = topol->measurementPosition(LocalPoint(recHit_.hx, recHit_.hy));
     recHit_.hrow = hmp.x();
@@ -796,15 +793,6 @@ std::pair<float, float> Phase2PixelNtuple::computeAnglesFromDetPosition(const Si
 									   const PixelTopology  & theTopol, 
 									   const GeomDetUnit    & theDet ) const
  {
-   // EM check performed outside
-   // //--- This is a new det unit, so cache it
-   // PixelGeomDetUnit * theDet = dynamic_cast<const PixelGeomDetUnit*>( &det );
-   // if ( ! theDet ) 
-   //   {
-   //     throw cms::Exception("Phase2PixelNtuple::computeAngleFromDetPosition")
-   //   << " Wrong pointer to pixel detector !!!" << endl;
-     
-   //   }
  
    // get cluster center of gravity (of charge)
    float xcenter = cl.x();

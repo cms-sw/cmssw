@@ -72,15 +72,20 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("Phase2PixelNtuple",
    ROUList = cms.vstring('g4SimHitsTrackerHitsPixelBarrelLowTof',
                          'g4SimHitsTrackerHitsPixelBarrelHighTof',
                          'g4SimHitsTrackerHitsPixelEndcapLowTof',
-                         'g4SimHitsTrackerHitsPixelEndcapHighTof')
-)
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(process.ReadLocalMeasurement,
+                         'g4SimHitsTrackerHitsPixelEndcapHighTof'),
    usePhase2Tracker = cms.bool(True),
    siPhase2RecHits = cms.InputTag("siPhase2RecHits"),
    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel"),
-   phase2TrackerSimLinkSrc = cms.InputTag("simSiPixelDigis", "Tracker"),
+   phase2TrackerSimLinkSrc = cms.InputTag("simSiPixelDigis", "Tracker")
+
 )
+#from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+#phase2_tracker.toModify(process.ReadLocalMeasurement,
+##   usePhase2Tracker = cms.bool(True),
+#   siPhase2RecHits = cms.InputTag("siPhase2RecHits"),
+#   pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel"),
+#   phase2TrackerSimLinkSrc = cms.InputTag("simSiPixelDigis", "Tracker"),
+#)
 
 
 # Additional output definition
