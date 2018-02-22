@@ -12,6 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
+//NOTE: The memory layout of the Node class changes depending on if NDEBUG was
+// set when tensorflow was compiled. The reason is Node class holds two edgeset
+// class instances and edgeset adds a member data if NDEBUG is set
 
 /*
 This file is an adaptation of the original direct_session.cc file located at
@@ -171,6 +174,21 @@ static NTSessionRegistrar registrar;
 
 std::atomic_int_fast64_t NTSession::step_id_counter_(1);
 
+// NOTE: On Android with a single device, there is never
+// a risk of an OpKernel blocking indefinitely:
+//
+// 1) No operations do I/O that depends on other simultaneous kernels,
+//
+// 2) Recv nodes always complete immediately: The inputs are sent into
+//    the local rendezvous before we start the executor, so the
+//    corresponding recvs will not block.
+//
+// Based on these assumptions, we can use the same thread pool for
+// both "non-blocking" and "blocking" OpKernels on Android.
+//
+// This may change down the road when we add support for multiple
+// devices that run concurrently, in which case we will need to
+// revisit this decision.
 // Override to allow CMSSW FWK to schedule
 void NTSession::SchedClosure(std::function<void()> c) {
   c();
@@ -419,9 +437,7 @@ Status NTSession::Run(const RunOptions& run_options,
 
   args.rendezvous = run_state.rendez;
   args.cancellation_manager = &step_cancellation_manager;
-  args.runner = [this](Executor::Args::Closure c) {
-    SchedClosure(std::move(c));
-  };
+
   args.session_state = &session_state_;
   args.tensor_store = &run_state.tensor_store;
   args.step_container = &run_state.step_container;
@@ -482,6 +498,9 @@ Status NTSession::Run(const RunOptions& run_options,
     return errors::Cancelled("Run call was cancelled");
   }
 
+  args.runner = [this](Executor::Args::Closure c) {
+    SchedClosure(std::move(c));
+  };
   for (const auto& item : executors_and_keys->items) {
     item.executor->RunAsync(args, barrier->Get());
   }
