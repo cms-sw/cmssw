@@ -1,6 +1,8 @@
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 
 #include "DummyPhysics.h"
+#include "EMPhysics1CMS.h"
+#include "EMPhysics2CMS.h"
 #include "FTFCMS_BIC.h"
 #include "FTFPCMS_BERT.h"
 #include "FTFPCMS_BERT_ATL_EMM.h"
@@ -23,6 +25,10 @@
 #include "QGSPCMS_FTFP_BERT_EMZ.h"
 
 DEFINE_PHYSICSLIST(DummyPhysics);
+typedef EMPhysics1CMS EMPhysics1;
+DEFINE_PHYSICSLIST(EMPhysics1);
+typedef EMPhysics2CMS EMPhysics2;
+DEFINE_PHYSICSLIST(EMPhysics2);
 typedef FTFCMS_BIC FTF_BIC;
 DEFINE_PHYSICSLIST(FTF_BIC);
 typedef FTFPCMS_BERT FTFP_BERT;
