@@ -707,7 +707,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
           // if this sample type hasn't been requested to be saved
           // warn the user to provide a configuration that prompts it to be saved
           if( colls.qie10Addtl.find( ns ) == colls.qie10Addtl.end() ) {
-            printInvalidDataMessage( "QIE10", colls.qie11->samples(), ns );
+            printInvalidDataMessage( "QIE10", colls.qie10->samples(), ns );
           }
 	}
 
