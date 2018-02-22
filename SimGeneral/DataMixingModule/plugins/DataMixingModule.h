@@ -34,7 +34,6 @@
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripMCDigiWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripRawWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelWorker.h"
-#include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelMCDigiWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingTrackingParticleWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingPileupCopy.h"
 
@@ -179,7 +178,6 @@ namespace edm {
 
       // Pixels
 
-      DataMixingSiPixelMCDigiWorker *SiPixelMCDigiWorker_ ;
       DataMixingSiPixelWorker *SiPixelWorker_ ;
 
       // Tracks

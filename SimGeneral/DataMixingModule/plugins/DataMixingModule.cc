@@ -213,10 +213,7 @@ namespace edm
       
       produces< edm::DetSetVector<PixelDigi> > (PixelDigiCollectionDM_);
       
-      if( addMCDigiNoise_ ) {
-	SiPixelMCDigiWorker_ = new DataMixingSiPixelMCDigiWorker(ps, consumesCollector());
-      }
-      else {
+      if( !addMCDigiNoise_ ) {
 	SiPixelWorker_ = new DataMixingSiPixelWorker(ps, consumesCollector());
       }
 
@@ -303,7 +300,6 @@ namespace edm
     if( addMCDigiNoise_ ) {
       if(MergeTrackerDigis_){
 	SiStripMCDigiWorker_->initializeEvent( e, ES );
-	SiPixelMCDigiWorker_->initializeEvent( e, ES );
       }
       else{
 	GeneralTrackWorker_->initializeEvent(e,ES);
@@ -352,8 +348,7 @@ namespace edm
 	delete SiStripRawWorker_;
       else if(addMCDigiNoise_ ) delete SiStripMCDigiWorker_;
       else delete SiStripWorker_;
-      if(addMCDigiNoise_ ) delete SiPixelMCDigiWorker_;
-      else delete SiPixelWorker_;
+      if(!addMCDigiNoise_) delete SiPixelWorker_;
     }
     else{
       delete GeneralTrackWorker_;
@@ -396,8 +391,7 @@ namespace edm
       else SiStripWorker_->addSiStripSignals(e);
       
       // SiPixels
-      if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->addSiPixelSignals(e);
-      else SiPixelWorker_->addSiPixelSignals(e);
+      if(!addMCDigiNoise_ ) SiPixelWorker_->addSiPixelSignals(e);
     }else{
       //GeneralTrackWorker_->addGeneralTrackSignal(e);
       GeneralTrackWorker_->accumulate(e,ES);
@@ -465,8 +459,7 @@ namespace edm
       
       // SiPixels
       //whoops this should be for the MC worker ????? SiPixelWorker_->setPileupInfo(ps,bunchSpacing);
-      if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
-      else SiPixelWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
+      if(!addMCDigiNoise_ ) SiPixelWorker_->addSiPixelPileups(bcr, &ep, eventNr, &moduleCallingContext);
     }else{
       PileUpEventPrincipal pep(ep,&moduleCallingContext,bcr);
       GeneralTrackWorker_->accumulate(pep, ES,ep.streamID());
@@ -569,8 +562,7 @@ namespace edm
       else SiStripWorker_->putSiStrip(e);
        
        // SiPixels
-      if(addMCDigiNoise_ ) SiPixelMCDigiWorker_->putSiPixel(e, ES, ps, bunchSpacing); 
-      else SiPixelWorker_->putSiPixel(e);
+      if(!addMCDigiNoise_ ) SiPixelWorker_->putSiPixel(e);
     }else{
       GeneralTrackWorker_->finalizeEvent(e,ES);
     }
