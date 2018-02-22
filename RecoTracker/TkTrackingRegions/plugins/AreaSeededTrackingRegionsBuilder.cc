@@ -296,8 +296,8 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
 	}
 	// Have to retun nullptr here to ensure that we always return something
 	return nullptr;
-  }
 
+  }
   else{
   	const auto x = std::cos(meanPhi);
   	const auto y = std::sin(meanPhi);
