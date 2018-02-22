@@ -52,7 +52,6 @@ namespace l1t {
     int nPhiBins_;
     vector<double> etaBins_;
     vector<double> phiBins_;
-    //std::map<int,std::vector<l1t::HGCalTower>>  towerMap_;
     std::unordered_map<int,l1t::HGCalTower>  towerMap_;
     unsigned layer_;
 
