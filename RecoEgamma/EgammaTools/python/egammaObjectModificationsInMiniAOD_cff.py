@@ -133,4 +133,4 @@ energyScaleAndSmearing = cms.PSet(
         energyEcalErrPreCorr = cms.InputTag("reducedEgamma","calibPhoEnergyEcalErrPreCorr"),
         )
     )
-#egamma_modifications.append(energyScaleAndSmearing)
+egamma_modifications.append(energyScaleAndSmearing)

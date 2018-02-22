@@ -349,7 +349,12 @@ def miniAOD_customizeCommon(process):
             setattr(vidCutBitsModifier.photon_config,egid.idDefinition.idName.value(),cms.InputTag('egmPhotonIDs:'+egid.idDefinition.idName.value()+"Bitmap"))      
 
     egamma_modifications.append(vidCutBitsModifier)
-     
+    
+    #e/gamma scale & smearing
+    #we will run in value map producting mode keyed to the orginal collection
+    from RecoEgamma.EgammaPhotonProducers.reducedEgamma_tools import calibrateReducedEgamma
+    calibrateReducedEgamma(process)
+
     #---------------------------------------------------------------------------
     #Adding  Boosted Subjets taus
     from RecoTauTag.Configuration.boostedHPSPFTaus_cfi import addBoostedTaus
