@@ -1,9 +1,13 @@
+<use   name="CondFormats/SiPixelObjects"/>
 <use   name="DataFormats/HepMCCandidate"/>
+<use   name="DataFormats/TrackerCommon"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ServiceRegistry"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="Geometry/Records"/>
 <use   name="Mixing/Base"/>
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimDataFormats/PileupSummaryInfo"/>
