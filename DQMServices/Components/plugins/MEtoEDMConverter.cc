@@ -80,8 +80,8 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet & iPSet) :
   produces<MEtoEDM<long long>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TString>, edm::Transition::EndLuminosityBlock>(sName);
 
-  consumesMany<DQMToken>();
-  consumesMany<DQMRunToken>();
+  consumesMany<DQMToken, edm::InLumi>();
+  consumesMany<DQMRunToken, edm::InRun>();
   usesResource("DQMStore");
 
   static_assert(sizeof(int64_t) == sizeof(long long),"type int64_t is not the same length as long long");
