@@ -34,6 +34,9 @@ public:
     QIE10DigiCollection* qie10;
     QIE10DigiCollection* qie10ZDC;
     QIE11DigiCollection* qie11;
+    // additional qie10 and qie11 data collections
+    std::map<int, QIE10DigiCollection*> qie10Addtl;
+    std::map<int, QIE11DigiCollection*> qie11Addtl;
     HcalUMNioDigi* umnio;
 
   };
