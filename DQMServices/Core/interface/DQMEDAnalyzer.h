@@ -6,11 +6,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-class DQMEDAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks>
+class DQMEDAnalyzer : public edm::one::EDProducer<edm::Accumulator,
+                                                  edm::EndLuminosityBlockProducer,
+                                                  edm::one::WatchLuminosityBlocks,
+                                                  edm::one::WatchRuns> 
 {
 public:
   DQMEDAnalyzer() = default;
@@ -18,46 +21,22 @@ public:
   DQMEDAnalyzer(DQMEDAnalyzer const&) = delete;
   DQMEDAnalyzer(DQMEDAnalyzer &&) = delete;
 
-  void beginRun(edm::Run const& run, edm::EventSetup const& setup) final
-  {
-    dqmBeginRun(run, setup);
-    edm::Service<DQMStore>()->bookTransaction(
-      [this, &run, &setup](DQMStore::IBooker & booker)
-      {
-        booker.cd();
-        this->bookHistograms(booker, run, setup);
-      },
-      run.run(),
-      run.moduleCallingContext()->moduleDescription()->id());
-  }
+  void beginRun(edm::Run const& run, edm::EventSetup const& setup) final;
 
-  void endRun(edm::Run const& run, edm::EventSetup const& setup) override
-  { }
+  void endRun(edm::Run const& run, edm::EventSetup const& setup) override;
 
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override
-  { }
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
 
-  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override
-  { }
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-  /* uncomment this after the migration to
-   * edm::one::EDProducer<edm::Accumulator,
-   *                      edm::one::WatchLuminosityBlocks,
-   *                      edm::EndLuminosityBlockProducer,
-   *                      edm::one::WatchRuns,
-   *                      edm::EndRunProducer>
-   *
-  void endLuminosityBlockProduce(edm::LuminosityBlock & lumi, edm::EventSetup const& setup) final
-  {
-    edm::Service<DQMStore>()->cloneLumiHistograms(
-        lumi.run(),
-        lumi.luminosityBlock(),
-        lumi.moduleCallingContext()->moduleDescription()->id());
-  }
-  */
+  void endLuminosityBlockProduce(edm::LuminosityBlock & lumi, edm::EventSetup const& setup) final;
 
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
+
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
   virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) = 0;
+
+  virtual void analyze(edm::Event const&, edm::EventSetup const&);
+  void accumulate(edm::Event const& ev, edm::EventSetup const& es) final;
 };
 
 #endif // DQMServices_Core_DQMEDAnalyzer_h
