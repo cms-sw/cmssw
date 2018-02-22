@@ -124,8 +124,8 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   //Summary Counts of clusters
   std::map<std::string, MonitorElement*>::iterator iME;
   std::map<std::string, LayerMEs>::iterator        iLayerME;
-  
-  fillControlViewHistos(e,es);
+
+  if (!(topFolderName_.find("IsolatedBunches") != std::string::npos)) { fillControlViewHistos(e,es); }
 
   if (Trend_On_) {
  // for (std::map<std::string, SubDetMEs>::iterator iSubDet = SubDetMEsMap.begin(), iterEnd=SubDetMEsMaps.end();
@@ -279,88 +279,91 @@ void SiStripMonitorTrack::book(DQMStore::IBooker& ibooker, const TrackerTopology
   }
   
   //book control view plots
-  ibooker.setCurrentFolder(topFolderName_+"/ControlView/");
+  if (!(topFolderName_.find("IsolatedBunches") != std::string::npos)) {
+    
+    ibooker.setCurrentFolder(topFolderName_+"/ControlView/");
 
-  ClusterStoNCorr_OnTrack_TIBTID =
-    ibooker.book1D("ClusterStoNCorr_OnTrack_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",100,0.,100.);
-  ClusterStoNCorr_OnTrack_TIBTID->setAxisTitle("S/N",1);
-
-  ClusterStoNCorr_OnTrack_TOB =
-    ibooker.book1D("ClusterStoNCorr_OnTrack_TOB","TOB [FECCrate=4] (OnTrack)",100,0.,100.);
-  ClusterStoNCorr_OnTrack_TOB->setAxisTitle("S/N",1);
-
-  ClusterStoNCorr_OnTrack_TECM =
-    ibooker.book1D("ClusterStoNCorr_OnTrack_TECM","TECM [FECCrate=3] (OnTrack)",100,0.,100.);
-  ClusterStoNCorr_OnTrack_TECM->setAxisTitle("S/N",1);
-
-  ClusterStoNCorr_OnTrack_TECP =
-    ibooker.book1D("ClusterStoNCorr_OnTrack_TECP","TECP [FECCrate=2] (OnTrack)",100,0.,100.);
-  ClusterStoNCorr_OnTrack_TECP->setAxisTitle("S/N",1);
-
-
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot =
-    ibooker.book2D("ClusterStoNCorr_OnTrack_FECCratevsFECSlot"," S/N (On track)",22,0.5,22.5,4,0.5,4.5);
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Slot",1);
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Crate (TTC partition)",2);
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(1,"TIB/TID",2);
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(2,"TEC+",2);
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(3,"TEC-",2);
-  ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(4,"TOB",2);
-
-ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID =
-  ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",10,-0.5,9.5,22,0.5,22.5)\
-  ;
- ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Ring",1);
- ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Slot",2);
-
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB =
-    ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB","TOB [FECCrate=4] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Ring",1);
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Slot",2);
-
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM =
-    ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM","TEC- [FECCrate=3] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Ring",1);
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Slot",2);
-
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP =
-    ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP","TEC- [FECCrate=2] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Ring",1);
-  ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Slot",2);
-
-  //----------------------------------------
-  // for conting the number of clusters, for the mean S/N calculation
-   //book control view plots
-
-  ClusterCount_OnTrack_FECCratevsFECSlot =
-    ibooker.book2D("ClusterCount_OnTrack_FECCratevsFECSlot"," S/N (On track)",22,0.5,22.5,4,0.5,4.5);
-  ClusterCount_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Slot",1);
-  ClusterCount_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Crate (TTC partition)",2);
-  ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(1,"TIB/TID",2);
-  ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(2,"TEC+",2);
-  ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(3,"TEC-",2);
-  ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(4,"TOB",2);
-
-ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID =
-  ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",10,-0.5,9.5,22,0.5,22.5)\
-  ;
- ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Ring",1);
- ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Slot",2);
-
-  ClusterCount_OnTrack_FECSlotVsFECRing_TOB =
-    ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TOB","TOB [FECCrate=4] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
-  ClusterCount_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Ring",1);
-  ClusterCount_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Slot",2);
-
-  ClusterCount_OnTrack_FECSlotVsFECRing_TECM =
-    ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TECM","TEC- [FECCrate=3] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
-  ClusterCount_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Ring",1);
-  ClusterCount_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Slot",2);
-
-  ClusterCount_OnTrack_FECSlotVsFECRing_TECP =
-    ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TECP","TEC- [FECCrate=2] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
-  ClusterCount_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Ring",1);
-  ClusterCount_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Slot",2);
+    ClusterStoNCorr_OnTrack_TIBTID =
+      ibooker.book1D("ClusterStoNCorr_OnTrack_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",100,0.,100.);
+    ClusterStoNCorr_OnTrack_TIBTID->setAxisTitle("S/N",1);
+    
+    ClusterStoNCorr_OnTrack_TOB =
+      ibooker.book1D("ClusterStoNCorr_OnTrack_TOB","TOB [FECCrate=4] (OnTrack)",100,0.,100.);
+    ClusterStoNCorr_OnTrack_TOB->setAxisTitle("S/N",1);
+    
+    ClusterStoNCorr_OnTrack_TECM =
+      ibooker.book1D("ClusterStoNCorr_OnTrack_TECM","TECM [FECCrate=3] (OnTrack)",100,0.,100.);
+    ClusterStoNCorr_OnTrack_TECM->setAxisTitle("S/N",1);
+    
+    ClusterStoNCorr_OnTrack_TECP =
+      ibooker.book1D("ClusterStoNCorr_OnTrack_TECP","TECP [FECCrate=2] (OnTrack)",100,0.,100.);
+    ClusterStoNCorr_OnTrack_TECP->setAxisTitle("S/N",1);
+    
+    
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot =
+      ibooker.book2D("ClusterStoNCorr_OnTrack_FECCratevsFECSlot"," S/N (On track)",22,0.5,22.5,4,0.5,4.5);
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Slot",1);
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Crate (TTC partition)",2);
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(1,"TIB/TID",2);
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(2,"TEC+",2);
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(3,"TEC-",2);
+    ClusterStoNCorr_OnTrack_FECCratevsFECSlot->setBinLabel(4,"TOB",2);
+    
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID =
+      ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",10,-0.5,9.5,22,0.5,22.5) \
+      ;
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Ring",1);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Slot",2);
+    
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB =
+      ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB","TOB [FECCrate=4] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Ring",1);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Slot",2);
+    
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM =
+      ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM","TEC- [FECCrate=3] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Ring",1);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Slot",2);
+    
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP =
+      ibooker.book2D("ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP","TEC- [FECCrate=2] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Ring",1);
+    ClusterStoNCorr_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Slot",2);
+    
+    //----------------------------------------
+    // for conting the number of clusters, for the mean S/N calculation
+    //book control view plots
+    
+    ClusterCount_OnTrack_FECCratevsFECSlot =
+      ibooker.book2D("ClusterCount_OnTrack_FECCratevsFECSlot"," S/N (On track)",22,0.5,22.5,4,0.5,4.5);
+    ClusterCount_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Slot",1);
+    ClusterCount_OnTrack_FECCratevsFECSlot->setAxisTitle("FEC Crate (TTC partition)",2);
+    ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(1,"TIB/TID",2);
+    ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(2,"TEC+",2);
+    ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(3,"TEC-",2);
+    ClusterCount_OnTrack_FECCratevsFECSlot->setBinLabel(4,"TOB",2);
+    
+    ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID =
+      ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID","TIB/TID [FECCrate=1] (OnTrack)",10,-0.5,9.5,22,0.5,22.5) \
+      ;
+    ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Ring",1);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TIBTID->setAxisTitle("FEC Slot",2);
+    
+    ClusterCount_OnTrack_FECSlotVsFECRing_TOB =
+      ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TOB","TOB [FECCrate=4] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Ring",1);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TOB->setAxisTitle("FEC Slot",2);
+    
+    ClusterCount_OnTrack_FECSlotVsFECRing_TECM =
+      ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TECM","TEC- [FECCrate=3] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Ring",1);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TECM->setAxisTitle("FEC Slot",2);
+    
+    ClusterCount_OnTrack_FECSlotVsFECRing_TECP =
+      ibooker.book2D("ClusterCount_OnTrack_FECSlotVsFECRing_TECP","TEC- [FECCrate=2] (OnTrack)",10,-0.5,9.5,22,0.5,22.5);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Ring",1);
+    ClusterCount_OnTrack_FECSlotVsFECRing_TECP->setAxisTitle("FEC Slot",2);
+  }
 }
 
 //--------------------------------------------------------------------------------
@@ -1258,7 +1261,7 @@ bool SiStripMonitorTrack::fillControlViewHistos(const edm::Event& ev, const edm:
 
   edm::Handle<reco::TrackCollection > tracks;
   ev.getByToken(trackToken_, tracks);//takes the track collection
-
+  
   //check that tracks are valid
   if( !tracks.isValid() )     return false;
 
