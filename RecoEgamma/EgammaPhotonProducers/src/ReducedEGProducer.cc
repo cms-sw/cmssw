@@ -66,6 +66,11 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   preshowerEcalHits_(doPreshowerEcalHits_ ? consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("preshowerEcalHits")) : edm::EDGetTokenT<EcalRecHitCollection>()),
   photonPfCandMapT_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(config.getParameter<edm::InputTag>("photonsPFValMap"))),  
   gsfElectronPfCandMapT_(consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(config.getParameter<edm::InputTag>("gsfElectronsPFValMap"))),
+  //calibration flags
+  applyPhotonCalibOnData_(config.getParameter<bool>("applyPhotonCalibOnData")),
+  applyPhotonCalibOnMC_(config.getParameter<bool>("applyPhotonCalibOnMC")),
+  applyGsfElectronCalibOnData_(config.getParameter<bool>("applyGsfElectronCalibOnData")),
+  applyGsfElectronCalibOnMC_(config.getParameter<bool>("applyGsfElectronCalibOnMC")),
   //output collections    
   outPhotons_("reducedGedPhotons"),
   outPhotonCores_("reducedGedPhotonCores"),
@@ -130,8 +135,19 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
     config.getParameter<std::vector<edm::InputTag> >("gsfElectronPFClusterIsoSources");
   for (const edm::InputTag &tag : gsfelectronpfclusterisoinputs) {
     gsfElectronPFClusterIsoTs_.emplace_back(consumes<edm::ValueMap<float> >(tag));
-  }  
-  
+  } 
+
+  if(applyPhotonCalibOnData_ || applyPhotonCalibOnMC_){
+    setToken(photonCalibEnergyT_,config,"photonCalibEnergySource");
+    setToken(photonCalibEnergyErrT_,config,"photonCalibEnergyErrSource");
+  }
+  if(applyGsfElectronCalibOnData_ || applyGsfElectronCalibOnMC_){
+    setToken(gsfElectronCalibEnergyT_,config,"gsfElectronCalibEnergySource");
+    setToken(gsfElectronCalibEnergyErrT_,config,"gsfElectronCalibEnergyErrSource");  
+    setToken(gsfElectronCalibEcalEnergyT_,config,"gsfElectronCalibEcalEnergySource");
+    setToken(gsfElectronCalibEcalEnergyErrT_,config,"gsfElectronCalibEcalEnergyErrSource");
+  }
+
   produces< reco::PhotonCollection >(outPhotons_);
   produces< reco::PhotonCoreCollection >(outPhotonCores_);
   produces< reco::PhotonCollection >(outOOTPhotons_);
@@ -240,7 +256,25 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   for (const auto& gsfElectronPFClusterIsoT : gsfElectronPFClusterIsoTs_) {
     theEvent.getByToken(gsfElectronPFClusterIsoT,gsfElectronPFClusterIsoHandles[index++]);
   }  
-  
+ 
+ 
+  edm::Handle<edm::ValueMap<float> > gsfElectronCalibEnergyHandle;  
+  edm::Handle<edm::ValueMap<float> > gsfElectronCalibEnergyErrHandle;
+  edm::Handle<edm::ValueMap<float> > gsfElectronCalibEcalEnergyHandle;  
+  edm::Handle<edm::ValueMap<float> > gsfElectronCalibEcalEnergyErrHandle;
+  if(applyGsfElectronCalibOnData_ || applyGsfElectronCalibOnMC_) {
+    theEvent.getByToken(gsfElectronCalibEnergyT_,gsfElectronCalibEnergyHandle);
+    theEvent.getByToken(gsfElectronCalibEnergyErrT_,gsfElectronCalibEnergyErrHandle);
+    theEvent.getByToken(gsfElectronCalibEcalEnergyT_,gsfElectronCalibEcalEnergyHandle);
+    theEvent.getByToken(gsfElectronCalibEcalEnergyErrT_,gsfElectronCalibEcalEnergyErrHandle);
+  }
+  edm::Handle<edm::ValueMap<float> > photonCalibEnergyHandle;  
+  edm::Handle<edm::ValueMap<float> > photonCalibEnergyErrHandle;
+  if(applyPhotonCalibOnData_ || applyPhotonCalibOnMC_){
+    theEvent.getByToken(photonCalibEnergyT_,photonCalibEnergyHandle);
+    theEvent.getByToken(photonCalibEnergyErrT_,photonCalibEnergyErrHandle);
+  }
+
   edm::ESHandle<CaloTopology> theCaloTopology;
   theEventSetup.get<CaloTopologyRecord>().get(theCaloTopology);  
   const CaloTopology *caloTopology = & (*theCaloTopology);  
@@ -301,12 +335,21 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   for (const auto& photon : *photonHandle) {
     index++;
 
-    bool keep = keepPhotonSel_(photon);
-    if (!keep) continue;
-    
     reco::PhotonRef photonref(photonHandle,index);
-    
     photons->push_back(photon);
+   
+    if( (applyPhotonCalibOnData_ && theEvent.isRealData()) ||
+	(applyPhotonCalibOnMC_ && !theEvent.isRealData()) ){
+      calibratePhoton(photons->back(),photonref,		      
+		      *photonCalibEnergyHandle,*photonCalibEnergyErrHandle);
+    }
+      
+    //we do this after calibration
+    bool keep = keepPhotonSel_(photons->back());
+    if (!keep){
+      photons->pop_back();
+      continue;
+    }    
     
     //fill pf candidate value map vector
     pfCandIsoPairVecPho.push_back((*photonPfCandMapHandle)[photonref]);
@@ -386,13 +429,24 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   index = -1;
   for (const auto& gsfElectron : *gsfElectronHandle) {
     index++;
-    
-    bool keep = keepGsfElectronSel_(gsfElectron);    
-    if (!keep) continue;
-    
+
     reco::GsfElectronRef gsfElectronref(gsfElectronHandle,index);
-    
     gsfElectrons->push_back(gsfElectron);
+    
+    if( (applyGsfElectronCalibOnData_ && theEvent.isRealData()) ||
+	(applyGsfElectronCalibOnMC_ && !theEvent.isRealData()) ){
+      calibrateElectron(gsfElectrons->back(), gsfElectronref,		
+			*gsfElectronCalibEnergyHandle,*gsfElectronCalibEnergyErrHandle,
+			*gsfElectronCalibEcalEnergyHandle,*gsfElectronCalibEcalEnergyErrHandle);
+			
+    }
+    
+    bool keep = keepGsfElectronSel_(gsfElectrons->back());    
+    if (!keep) {
+      gsfElectrons->pop_back();
+      continue;
+    }    
+  
     pfCandIsoPairVecEle.push_back((*gsfElectronPfCandMapHandle)[gsfElectronref]);
     
     //fill electron id valuemap vectors
@@ -942,4 +996,39 @@ void ReducedEGProducer::relinkGsfElectronCore(reco::GsfElectron& gsfElectron,
     reco::GsfElectronCoreRef coreref(outgsfElectronCoreHandle,coremapped->second);
     gsfElectron.setCore(coreref);
   }
+}
+
+void ReducedEGProducer::calibratePhoton(reco::Photon& photon, 
+					const reco::PhotonRef& oldPhoRef,
+					const edm::ValueMap<float>& energyMap,
+					const edm::ValueMap<float>& energyErrMap)
+{
+  float newEnergy = energyMap[oldPhoRef];
+  float newEnergyErr = energyErrMap[oldPhoRef];
+  photon.setCorrectedEnergy(reco::Photon::P4type::regression2, newEnergy, newEnergyErr, true);
+ 
+}
+
+void ReducedEGProducer::calibrateElectron(reco::GsfElectron& electron,
+					  const reco::GsfElectronRef& oldEleRef,
+					  const edm::ValueMap<float>& energyMap,
+					  const edm::ValueMap<float>& energyErrMap,
+					  const edm::ValueMap<float>& ecalEnergyMap,
+					  const edm::ValueMap<float>& ecalEnergyErrMap)
+{
+  const float newEnergy = energyMap[oldEleRef];
+  const float newEnergyErr = energyErrMap[oldEleRef];
+  const float newEcalEnergy = ecalEnergyMap[oldEleRef];
+  const float newEcalEnergyErr = ecalEnergyErrMap[oldEleRef];
+  
+  electron.setCorrectedEcalEnergy(newEcalEnergy);
+  electron.setCorrectedEcalEnergyError(newEcalEnergyErr);
+ 
+  const math::XYZTLorentzVector oldP4 = electron.p4();
+  math::XYZTLorentzVector newP4 = math::XYZTLorentzVector(newP4.x() * newEnergy / oldP4.t(),
+							  oldP4.y() * newEnergy / oldP4.t(),
+							  oldP4.z() * newEnergy / oldP4.t(),
+							  newEnergy);
+  electron.correctMomentum(newP4, electron.trackMomentumError(), newEnergyErr); 
+
 }
