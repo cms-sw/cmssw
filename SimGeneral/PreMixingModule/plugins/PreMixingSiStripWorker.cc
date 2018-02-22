@@ -1,39 +1,147 @@
-// File: DataMixingSiStripMCDigiWorker.cc
-// Description:  see DataMixingSiStripMCDigiWorker.h
-// Author:  Mike Hildreth, University of Notre Dame
-//
-//--------------------------------------------
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CalibTracker/Records/interface/SiStripDependentRecords.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
+//Data Formats
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSet.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "SimTracker/SiStripDigitizer/interface/SiTrivialDigitalConverter.h"
+#include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+
+#include "CLHEP/Random/RandFlat.h"
+
+#include "PreMixingWorker.h"
 
 #include <map>
 #include <memory>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-#include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-//
-#include "CLHEP/Random/RandFlat.h"
-//
-#include "DataMixingSiStripMCDigiWorker.h"
 
-using namespace std;
+class PileupSummaryInfo;
 
-namespace edm
-{
+namespace edm {
+  class PreMixingSiStripWorker: public PreMixingWorker {
+  public:
+    PreMixingSiStripWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector && iC);
+    ~PreMixingSiStripWorker() override = default;
 
-  // Virtual constructor
+    void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+    void addSignals(edm::Event const& e, edm::EventSetup const& es) override;
+    void addPileups(int bcr, edm::EventPrincipal const& ep, int EventId, edm::EventSetup const& es, ModuleCallingContext const*) override;
+    void put(edm::Event &e, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bs) override;
 
-  DataMixingSiStripMCDigiWorker::DataMixingSiStripMCDigiWorker() { }
+  private:
+    void DMinitializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup );
 
-  // Constructor 
-  DataMixingSiStripMCDigiWorker::DataMixingSiStripMCDigiWorker(const edm::ParameterSet& ps, 
-							       edm::ConsumesCollector && iC) : 
-    label_(ps.getParameter<std::string>("Label")),
+    // data specifiers
+
+    edm::InputTag SistripLabelSig_ ;        // name given to collection of SiStrip digis
+    edm::InputTag SiStripPileInputTag_ ;    // InputTag for pileup strips
+    std::string SiStripDigiCollectionDM_  ; // secondary name to be given to new SiStrip digis
+
+    edm::InputTag SistripAPVLabelSig_;      // where to find vector of dead APVs
+    edm::InputTag SiStripAPVPileInputTag_;
+    std::string SistripAPVListDM_;          // output tag
+
+
+    // 
+
+    typedef float Amplitude;
+    typedef std::pair<uint16_t, Amplitude> RawDigi;  // Replacement for SiStripDigi with pulse height instead of integer ADC
+    typedef std::vector<SiStripDigi> OneDetectorMap;   // maps by strip ID for later combination - can have duplicate strips
+    typedef std::vector<RawDigi> OneDetectorRawMap;   // maps by strip ID for later combination - can have duplicate strips
+    typedef std::map<uint32_t, OneDetectorMap> SiGlobalIndex; // map to all data for each detector ID
+    typedef std::map<uint32_t, OneDetectorRawMap> SiGlobalRawIndex; // map to all data for each detector ID
+
+    typedef SiDigitalConverter::DigitalVecType DigitalVecType;
+
+    SiGlobalIndex SiHitStorage_;
+    SiGlobalRawIndex SiRawDigis_;
+
+    //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
+
+    // variables for temporary storage of mixed hits:
+
+
+    typedef std::map<int, Amplitude>  SignalMapType;
+    typedef std::map<uint32_t, SignalMapType>  signalMaps;
+
+    const SignalMapType* getSignal(uint32_t detID) const {
+      auto where = signals_.find(detID);
+      if(where == signals_.end()) {
+        return nullptr;
+      }
+      return &where->second;
+    }
+
+    signalMaps signals_;
+
+    // to keep track of dead APVs from HIP interactions
+    typedef std::multimap< uint32_t, std::bitset<6> > APVMap;
+
+    APVMap theAffectedAPVmap_;
+
+    // for noise adding:
+
+    std::string gainLabel;
+    bool SingleStripNoise;
+    bool peakMode;
+    double theThreshold;
+    double theElectronPerADC;
+    bool APVSaturationFromHIP_;
+    int theFedAlgo;
+    std::string geometryType;
+
+    std::unique_ptr<SiGaussianTailNoiseAdder> theSiNoiseAdder;
+    std::unique_ptr<SiStripFedZeroSuppression> theSiZeroSuppress;
+    std::unique_ptr<SiTrivialDigitalConverter> theSiDigitalConverter;
+
+    edm::ESHandle<TrackerGeometry> pDD;
+
+    // bad channels for each detector ID
+    std::map<unsigned int, std::vector<bool> > allBadChannels;
+    // channels killed by HIP interactions for each detector ID
+    std::map<unsigned int, std::vector<bool> > allHIPChannels;
+    // first and last channel wit signal for each detector ID
+    std::map<unsigned int, size_t> firstChannelsWithSignal;
+    std::map<unsigned int, size_t> lastChannelsWithSignal;
+
+    //----------------------------
+
+    class StrictWeakOrdering{
+    public:
+      bool operator() (SiStripDigi i,SiStripDigi j) const {return i.strip() < j.strip();}
+    };
+
+    class StrictWeakRawOrdering{
+    public:
+      bool operator() (RawDigi i,RawDigi j) const {return i.first < j.first;}
+    };
+
+  };
+
+  PreMixingSiStripWorker::PreMixingSiStripWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector && iC): 
     gainLabel(ps.getParameter<std::string>("Gain")),
     SingleStripNoise(ps.getParameter<bool>("SingleStripNoise")),
     peakMode(ps.getParameter<bool>("APVpeakmode")),
@@ -58,6 +166,7 @@ namespace edm
     SiStripDigiCollectionDM_  = ps.getParameter<std::string>("SiStripDigiCollectionDM");
     SistripAPVListDM_= ps.getParameter<std::string>("SiStripAPVListDM");
 
+    producer.produces< edm::DetSetVector<SiStripDigi> > (SiStripDigiCollectionDM_);
 
     if(APVSaturationFromHIP_) { 
       SistripAPVLabelSig_ = ps.getParameter<edm::InputTag>("SistripAPVLabelSig");
@@ -83,12 +192,7 @@ namespace edm
 
   }
 	       
-
-  // Virtual destructor needed.
-  DataMixingSiStripMCDigiWorker::~DataMixingSiStripMCDigiWorker() { 
-  }  
-
-  void DataMixingSiStripMCDigiWorker::initializeEvent(const edm::Event &e, edm::EventSetup const& iSetup) {
+  void PreMixingSiStripWorker::initializeEvent(const edm::Event &e, edm::EventSetup const& iSetup) {
     // initialize individual detectors so we can copy real digitization code:
 
     iSetup.get<TrackerDigiGeometryRecord>().get(geometryType,pDD);
@@ -110,7 +214,7 @@ namespace edm
   }
 
 
-  void DataMixingSiStripMCDigiWorker::DMinitializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup ) { 
+  void PreMixingSiStripWorker::DMinitializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup ) { 
 
     edm::ESHandle<SiStripBadStrip> deadChannelHandle;
     iSetup.get<SiStripBadChannelRcd>().get(deadChannelHandle);
@@ -136,7 +240,7 @@ namespace edm
   }
 
 
-  void DataMixingSiStripMCDigiWorker::addSiStripSignals(const edm::Event &e) { 
+  void PreMixingSiStripWorker::addSignals(const edm::Event &e, edm::EventSetup const& es) { 
     // fill in maps of hits
 
     Handle< edm::DetSetVector<SiStripDigi> >  input;
@@ -149,7 +253,7 @@ namespace edm
       for (; DSViter!=input->end();DSViter++){
 
 #ifdef DEBUG
-	LogDebug("DataMixingSiStripMCDigiWorker")  << "Processing DetID " << DSViter->id;
+	LogDebug("PreMixingSiStripWorker")  << "Processing DetID " << DSViter->id;
 #endif
 
 	LocalMap.clear();
@@ -178,14 +282,13 @@ namespace edm
 
 
 
-  void DataMixingSiStripMCDigiWorker::addSiStripPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr,
-                                                  ModuleCallingContext const* mcc) {
-    LogDebug("DataMixingSiStripMCDigiWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
+  void PreMixingSiStripWorker::addPileups(int bcr, edm::EventPrincipal const& ep, int EventId, edm::EventSetup const& es, ModuleCallingContext const* mcc) {
+    LogDebug("PreMixingSiStripWorker") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
     std::shared_ptr<Wrapper<edm::DetSetVector<SiStripDigi> >  const> inputPTR =
-      getProductByTag<edm::DetSetVector<SiStripDigi> >(*ep, SiStripPileInputTag_, mcc);
+      getProductByTag<edm::DetSetVector<SiStripDigi> >(ep, SiStripPileInputTag_, mcc);
 
     if(inputPTR ) {
 
@@ -202,7 +305,7 @@ namespace edm
       for (; DSViter!=input->end();DSViter++){
 
 #ifdef DEBUG
-	LogDebug("DataMixingSiStripMCDigiWorker")  << "Pileups: Processing DetID " << DSViter->id;
+	LogDebug("PreMixingSiStripWorker")  << "Pileups: Processing DetID " << DSViter->id;
 #endif
 
 	// find correct local map (or new one) for this detector ID
@@ -217,7 +320,7 @@ namespace edm
 
 	  // fill in local map with extra channels
 	  LocalMap.insert(LocalMap.end(),(DSViter->data).begin(),(DSViter->data).end());
-	  std::stable_sort(LocalMap.begin(),LocalMap.end(),DataMixingSiStripMCDigiWorker::StrictWeakOrdering());
+	  std::stable_sort(LocalMap.begin(),LocalMap.end(),PreMixingSiStripWorker::StrictWeakOrdering());
 	  SiHitStorage_[DSViter->id]=LocalMap;
 	  
 	}
@@ -233,7 +336,7 @@ namespace edm
 
       if(APVSaturationFromHIP_) {
 	std::shared_ptr<Wrapper<std::vector<std::pair<int,std::bitset<6>> >  >  const> inputAPVPTR =
-	  getProductByTag< std::vector<std::pair<int,std::bitset<6>> > >(*ep, SiStripAPVPileInputTag_, mcc);
+	  getProductByTag< std::vector<std::pair<int,std::bitset<6>> > >(ep, SiStripAPVPileInputTag_, mcc);
 
 	if(inputAPVPTR) {
 
@@ -250,7 +353,7 @@ namespace edm
 
 
  
-  void DataMixingSiStripMCDigiWorker::putSiStrip(edm::Event &e, edm::EventSetup const& iSetup) {
+  void PreMixingSiStripWorker::put(edm::Event &e, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bs) {
 
     // set up machinery to do proper noise adding:
     edm::ESHandle<SiStripGain> gainHandle;
@@ -552,7 +655,7 @@ namespace edm
     } // end of big loop over all detector IDs
 
     // put the collection of digis in the event   
-    LogInfo("DataMixingSiStripMCDigiWorker") << "total # Merged strips: " << vSiStripDigi.size() ;
+    LogInfo("PreMixingSiStripWorker") << "total # Merged strips: " << vSiStripDigi.size() ;
 
     // make new digi collection
     
@@ -569,3 +672,6 @@ namespace edm
   }
 
 } //edm
+
+#include "PreMixingWorkerFactory.h"
+DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, edm::PreMixingSiStripWorker, "PreMixingSiStripWorker");

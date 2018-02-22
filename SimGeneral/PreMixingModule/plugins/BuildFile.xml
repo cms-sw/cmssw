@@ -1,4 +1,5 @@
 <use   name="CondFormats/SiPixelObjects"/>
+<use   name="CondFormats/SiStripObjects"/>
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="DataFormats/TrackerCommon"/>
 <use   name="FWCore/Framework"/>
@@ -11,6 +12,7 @@
 <use   name="Mixing/Base"/>
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimDataFormats/PileupSummaryInfo"/>
+<use   name="SimTracker/SiStripDigitizer"/>
 <library   file="*.cc" name="SimGeneralPreMixingModulePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

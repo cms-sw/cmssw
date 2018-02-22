@@ -199,10 +199,7 @@ namespace edm
 	
 	produces< edm::DetSetVector<SiStripDigi> > (SiStripDigiCollectionDM_);
 	
-	if( addMCDigiNoise_ ) {
-	  SiStripMCDigiWorker_ = new DataMixingSiStripMCDigiWorker(ps, consumesCollector());
-	}
-	else {
+	if(!addMCDigiNoise_ ) {
 	  SiStripWorker_ = new DataMixingSiStripWorker(ps, consumesCollector());
 	}
       }
@@ -298,10 +295,7 @@ namespace edm
   void DataMixingModule::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) { 
 
     if( addMCDigiNoise_ ) {
-      if(MergeTrackerDigis_){
-	SiStripMCDigiWorker_->initializeEvent( e, ES );
-      }
-      else{
+      if(!MergeTrackerDigis_){
 	GeneralTrackWorker_->initializeEvent(e,ES);
       }
       EcalDigiWorkerProd_->initializeEvent( e, ES );
@@ -346,8 +340,7 @@ namespace edm
     if(MergeTrackerDigis_){
       if(useSiStripRawDigi_)
 	delete SiStripRawWorker_;
-      else if(addMCDigiNoise_ ) delete SiStripMCDigiWorker_;
-      else delete SiStripWorker_;
+      else if(!addMCDigiNoise_) delete SiStripWorker_;
       if(!addMCDigiNoise_) delete SiPixelWorker_;
     }
     else{
@@ -387,7 +380,6 @@ namespace edm
     if(MergeTrackerDigis_){
       // SiStrips
       if(useSiStripRawDigi_) SiStripRawWorker_->addSiStripSignals(e);
-      else if(addMCDigiNoise_ ) SiStripMCDigiWorker_->addSiStripSignals(e);
       else SiStripWorker_->addSiStripSignals(e);
       
       // SiPixels
@@ -454,7 +446,6 @@ namespace edm
     if(MergeTrackerDigis_){      
       // SiStrips
       if(useSiStripRawDigi_) SiStripRawWorker_->addSiStripPileups(bcr, &ep, eventNr, &moduleCallingContext);
-      else if(addMCDigiNoise_ ) SiStripMCDigiWorker_->addSiStripPileups(bcr, &ep, eventNr, &moduleCallingContext);
       else SiStripWorker_->addSiStripPileups(bcr, &ep, eventNr, &moduleCallingContext);
       
       // SiPixels
@@ -558,7 +549,6 @@ namespace edm
     if(MergeTrackerDigis_){
        // SiStrips
       if(useSiStripRawDigi_) SiStripRawWorker_->putSiStrip(e);
-      else if(addMCDigiNoise_ ) SiStripMCDigiWorker_->putSiStrip(e, ES);
       else SiStripWorker_->putSiStrip(e);
        
        // SiPixels
