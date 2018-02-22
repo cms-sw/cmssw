@@ -13,7 +13,7 @@ constexpr double HGCalTowerMap::kPhiMax_;
 constexpr double HGCalTowerMap::kPhiMin_;
 
 
-HGCalTowerMap::HGCalTowerMap( int& nEtaBins, int& nPhiBins )
+HGCalTowerMap::HGCalTowerMap( int nEtaBins, int nPhiBins )
 {
 
   nEtaBins_ = nEtaBins;
@@ -27,17 +27,15 @@ HGCalTowerMap::HGCalTowerMap( int& nEtaBins, int& nPhiBins )
   for(int i=0; i<nPhiBins_; i++) phiBins_.emplace_back( kPhiMin_ + phi_step*i );
   phiBins_.emplace_back( kPhiMax_ );
 
-  vector<l1t::HGCalTower> towerRing( nPhiBins_ );
-  for(int iEta=-nEtaBins_; iEta<=nEtaBins_; iEta++){
-    if(iEta==0) continue;
-    towerMap_[iEta] = towerRing;
-  }
 
   for(int iEta=-nEtaBins_; iEta<=nEtaBins_; iEta++){
     if(iEta==0) continue;
     for(int iPhi=0; iPhi<nPhiBins_; iPhi++){
-      towerMap_[iEta][iPhi].setHwEta(iEta);
-      towerMap_[iEta][iPhi].setHwPhi(iPhi);
+      l1t::HGCalTower tower;
+      tower.setHwEta(iEta);
+      tower.setHwPhi(iPhi);
+      int bin = bin_id(iEta,iPhi);
+      towerMap_[bin] = tower;
     }
   }
 
@@ -45,7 +43,7 @@ HGCalTowerMap::HGCalTowerMap( int& nEtaBins, int& nPhiBins )
 }
 
 
-HGCalTowerMap::HGCalTowerMap( vector<double>& etaBins, vector<double>& phiBins )
+HGCalTowerMap::HGCalTowerMap( const vector<double>& etaBins, const vector<double>& phiBins )
 {
 
   nEtaBins_ = etaBins.size()-1;
@@ -53,17 +51,14 @@ HGCalTowerMap::HGCalTowerMap( vector<double>& etaBins, vector<double>& phiBins )
   etaBins_ = etaBins;
   phiBins_ = phiBins;
 
-  vector<l1t::HGCalTower> towerRing( nPhiBins_ );
-  for(int iEta=-nEtaBins_; iEta<=nEtaBins_; iEta++){
-    if(iEta==0) continue;
-    towerMap_[iEta] = towerRing;
-  }
-
   for(int iEta=-nEtaBins_; iEta<=nEtaBins_; iEta++){
     if(iEta==0) continue;
     for(int iPhi=0; iPhi<nPhiBins_; iPhi++){
-      towerMap_[iEta][iPhi].setHwEta(iEta);
-      towerMap_[iEta][iPhi].setHwPhi(iPhi);
+      l1t::HGCalTower tower;
+      tower.setHwEta(iEta);
+      tower.setHwPhi(iPhi);
+      int bin = bin_id(iEta,iPhi);
+      towerMap_[bin] = tower;
     }
   }
 
@@ -120,7 +115,7 @@ int HGCalTowerMap::iPhi(const double phi) const
 }
 
 
-HGCalTowerMap& HGCalTowerMap::operator+=(HGCalTowerMap map){
+const HGCalTowerMap& HGCalTowerMap::operator+=(HGCalTowerMap map){
 
   if(etaBins_!=map.etaBins() || phiBins_!=map.phiBins()){
     throw edm::Exception(edm::errors::StdException, "StdException")
@@ -130,7 +125,7 @@ HGCalTowerMap& HGCalTowerMap::operator+=(HGCalTowerMap map){
   for(int iEta=-nEtaBins_; iEta<=nEtaBins_; iEta++){
     if(iEta==0) continue;
     for(int iPhi=0; iPhi<nPhiBins_; iPhi++){
-      towerMap_[iEta][iPhi] += *(map.tower(iEta,iPhi));
+      towerMap_[bin_id(iEta,iPhi)] += map.tower(iEta,iPhi);
     }
   }
 
@@ -140,4 +135,19 @@ HGCalTowerMap& HGCalTowerMap::operator+=(HGCalTowerMap map){
 
 
 
+int HGCalTowerMap::bin_id(int iEta, int iPhi) const{
+
+  if(iEta==0 || iEta>nEtaBins_ || iEta<-nEtaBins_){
+    throw edm::Exception(edm::errors::StdException, "StdException")
+      << "HGCalTowerMap: Trying to access a bin out of eta range"<<endl;
+  }
+
+  if(iPhi<0 || iPhi>=nPhiBins_){
+    throw edm::Exception(edm::errors::StdException, "StdException")
+      << "HGCalTowerMap: Trying to access a bin out of phi range"<<endl;
+  }
+
+  return iEta*nPhiBins_ + iPhi;
+
+}
 

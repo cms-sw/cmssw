@@ -34,7 +34,8 @@ namespace edm {
   public:
   HGCalTriggerTools() : geom_(nullptr),
                         fhOffset_(0),
-                        bhOffset_(0) {}
+                        bhOffset_(0),
+                        kLayers_(0) {}
     ~HGCalTriggerTools() {}
 
     void setEventSetup(const edm::EventSetup&);
@@ -56,6 +57,7 @@ namespace edm {
     inline const HGCalTriggerGeometryBase * getTriggerGeometry() const {return geom_;};
     unsigned int lastLayerEE() const {return fhOffset_;}
     unsigned int lastLayerFH() const {return bhOffset_;}
+    unsigned int lastLayerBH() const {return kLayers_;}
 
     float getLayerZ(const unsigned& layerWithOffset) const;
     float getLayerZ(const int& subdet, const unsigned& layer) const;
@@ -64,7 +66,7 @@ namespace edm {
 
   private:
     const HGCalTriggerGeometryBase* geom_;
-    unsigned int        fhOffset_, bhOffset_;
+    unsigned int        fhOffset_, bhOffset_, kLayers_;
   };
 
 
