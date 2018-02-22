@@ -59,20 +59,27 @@ void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgC
 
 
     if( subdet == HGCHEF ){
-            trgCellLayer = trgCellLayer + kLayersEE_;
+        trgCellLayer = trgCellLayer + kLayersEE_;
     }
     else if( subdet == HGCHEB ){
-            trgCellLayer = trgCellLayer + kLayersEE_ + kLayersFH_;
+        trgCellLayer = trgCellLayer + kLayersEE_ + kLayersFH_;
+    }
+
+    if(dEdX_weights_.at(trgCellLayer)==0.){
+        throw cms::Exception("BadConfiguration")
+            <<"Trigger cell energy forced to 0 by calibration coefficients.\n"
+            <<"The configuration should be changed. "
+            <<"Discarded layers should be defined in hgcalTriggerGeometryESProducer.TriggerGeometry.DisconnectedLayers and not with calibration coefficients = 0\n";
     }
    
     /* weight the amplitude by the absorber coefficient in MeV/mip + bring it in GeV */
     double trgCellEt = trgCell.mipPt() * dEdX_weights_.at(trgCellLayer) * MevToGeV;
 
+
     /* correct for the cell-thickness */
     if( subdet!=HGCHEB && thickCorr_ > 0 ){
         trgCellEt /= thickCorr_; 
     }
-
     /* assign the new energy to the four-vector of the trigger cell */
     math::PtEtaPhiMLorentzVector calibP4(trgCellEt, 
                                          trgCell.eta(), 
