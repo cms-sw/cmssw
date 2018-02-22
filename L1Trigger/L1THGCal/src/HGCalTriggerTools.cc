@@ -62,6 +62,7 @@ void HGCalTriggerTools::setEventSetup(const edm::EventSetup& es) {
   geom_ = triggerGeometry_.product();
   fhOffset_ = (geom_->eeTopology().dddConstants()).layers(true);
   bhOffset_ = fhOffset_ + (geom_->fhTopology().dddConstants()).layers(true);
+  kLayers_ = bhOffset_ + (geom_->bhTopology().dddConstants())->getMaxDepth(1);
 }
 
 GlobalPoint HGCalTriggerTools::getTCPosition(const DetId& id) const {

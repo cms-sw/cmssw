@@ -31,34 +31,34 @@ HGCalTowerMap2DImpl::HGCalTowerMap2DImpl( const edm::ParameterSet& conf ) :
       << "HGCalTowerMap2DImpl nPhiBins for the tower map not consistent with phiBins size"<<endl;
   }
 
-  resetTowerMaps();
 
+  std::vector<l1t::HGCalTowerMap> towerMaps = newTowerMaps();
   edm::LogInfo("HGCalTowerMap2DImpl") << "Eta bins for the tower maps: {";
-  for(auto eta : towerMaps_[0].etaBins()) edm::LogInfo("HGCalTowerMap2DImpl") << eta << ",";
+  for(auto eta : towerMaps[0].etaBins()) edm::LogInfo("HGCalTowerMap2DImpl") << eta << ",";
   edm::LogInfo("HGCalTowerMap2DImpl") << "}" <<endl;
   edm::LogInfo("HGCalTowerMap2DImpl") << "Phi bins for the tower maps: {";
-  for(auto phi : towerMaps_[0].phiBins()) edm::LogInfo("HGCalTowerMap2DImpl") << phi << ",";
+  for(auto phi : towerMaps[0].phiBins()) edm::LogInfo("HGCalTowerMap2DImpl") << phi << ",";
   edm::LogInfo("HGCalTowerMap2DImpl") << "}" <<endl;  
 
 }
 
 
-void HGCalTowerMap2DImpl::resetTowerMaps(){
+std::vector<l1t::HGCalTowerMap> HGCalTowerMap2DImpl::newTowerMaps(){
 
   //If no custom binning specified, assume uniform one
-  l1t::HGCalTowerMap towerMap;  
+  l1t::HGCalTowerMap map;
   if(etaBins_.size()==0 || phiBins_.size()==0){
-    l1t::HGCalTowerMap towerMapTmp(nEtaBins_,nPhiBins_);
-    towerMap = towerMapTmp;
+    l1t::HGCalTowerMap mapTmp(nEtaBins_,nPhiBins_);
+    map = mapTmp;
   }
   else{
-    l1t::HGCalTowerMap towerMapTmp(etaBins_,phiBins_);
-    towerMap = towerMapTmp;
+    l1t::HGCalTowerMap mapTmp(etaBins_,phiBins_);
+    map = mapTmp;
   }
 
-  std::vector<l1t::HGCalTowerMap> towerMapsTmp(kLayers_,towerMap);
-  towerMaps_ = towerMapsTmp;
-  for(unsigned layer=0; layer<kLayers_; layer++) towerMaps_[layer].setLayer(layer+1);
+  std::vector<l1t::HGCalTowerMap> towerMaps(max(triggerTools_.lastLayerBH(),unsigned(1)),map); //Always create at least 1 towerMap
+  for(unsigned layer=0; layer<triggerTools_.lastLayerBH(); layer++) towerMaps[layer].setLayer(layer+1);
+  return towerMaps;
 
 }
 
@@ -69,13 +69,13 @@ void HGCalTowerMap2DImpl::buildTowerMap2D(const std::vector<edm::Ptr<l1t::HGCalT
 					  l1t::HGCalTowerMapBxCollection & towerMaps
 				       ){
 
-  
+  std::vector<l1t::HGCalTowerMap> towerMapsTmp = newTowerMaps();
 
   for( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc ){
 
     unsigned layer = triggerTools_.getLayerWithOffset((*tc)->detId());
-    int iEta = towerMaps_[layer-1].iEta((*tc)->eta());
-    int iPhi = towerMaps_[layer-1].iPhi((*tc)->phi());
+    int iEta = towerMapsTmp[layer-1].iEta((*tc)->eta());
+    int iPhi = towerMapsTmp[layer-1].iPhi((*tc)->phi());
 
     double calibPt = (*tc)->pt();
     if(useLayerWeights_) calibPt = layerWeights_[layer]*((*tc)->mipPt());
@@ -84,8 +84,8 @@ void HGCalTowerMap2DImpl::buildTowerMap2D(const std::vector<edm::Ptr<l1t::HGCalT
 				    (*tc)->phi(),
 				    0. );
 
-    double etEm = layer<=kLayersEE_ ? calibPt : 0;
-    double etHad = layer>kLayersEE_ ? calibPt : 0;
+    double etEm = layer<=triggerTools_.lastLayerEE() ? calibPt : 0;
+    double etHad = layer>triggerTools_.lastLayerEE() ? calibPt : 0;
 
     l1t::HGCalTower tower;
     tower.setP4(p4);
@@ -94,20 +94,18 @@ void HGCalTowerMap2DImpl::buildTowerMap2D(const std::vector<edm::Ptr<l1t::HGCalT
     tower.setHwEta(iEta);
     tower.setHwPhi(iPhi);
 
-    (*towerMaps_[layer-1].tower(iEta,iPhi)) += tower;
+    towerMapsTmp[layer-1].addTower(iEta,iPhi,tower);
 
   }
 
   /* store towerMaps in the persistent collection */
-  towerMaps.resize(0, kLayers_);
+  towerMaps.resize(0, triggerTools_.lastLayerBH());
   int i=0;
-  for(auto towerMap : towerMaps_){
+  for(auto towerMap : towerMapsTmp){
     towerMaps.set( 0, i, towerMap);
     i++;
   }
 
-
-  resetTowerMaps();
 
 }
 
