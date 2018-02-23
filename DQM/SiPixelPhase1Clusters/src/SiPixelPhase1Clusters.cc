@@ -25,8 +25,8 @@ namespace {
   class SiPixelPhase1Clusters final : public SiPixelPhase1Base {
     enum {
       CHARGE,
-      BPCHARGE,
-      PCHARGE,
+      BIGPIXELCHARGE,
+      NOTBIGPIXELCHARGE,
       SIZE,
       SIZEX,
       SIZEY,
@@ -103,9 +103,9 @@ namespace {
 
           bool bigInX = topol.isItBigPixelInX(int(pixx));
           bool bigInY = topol.isItBigPixelInY(int(pixy));
-          float pixel_charge = pixelsVec[i].adc/1000;
-          histo[PCHARGE].fill(pixel_charge, id, &iEvent, col, row);
-          if (bigInX || bigInY) histo[BPCHARGE].fill(pixel_charge, id, &iEvent, col, row);
+          float pixel_charge = pixelsVec[i].adc;
+          if (bigInX || bigInY) histo[BIGPIXELCHARGE].fill(pixel_charge, id, &iEvent, col, row);
+          else histo[NOTBIGPIXELCHARGE].fill(pixel_charge, id, &iEvent, col, row);
         }
 
 

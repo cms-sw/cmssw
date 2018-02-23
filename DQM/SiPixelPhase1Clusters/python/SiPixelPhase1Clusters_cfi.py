@@ -18,33 +18,32 @@ SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   )
 )
 
-SiPixelPhase1ClustersBPCharge = DefaultHistoDigiCluster.clone(
-  name = "bpcharge",
+SiPixelPhase1ClustersBigPixelCharge = DefaultHistoDigiCluster.clone(
+  name = "bigpixelcharge",
   title = "Big Pixel Charge",
-  range_min = 0, range_max = 70, range_nbins = 300,
-  xlabel = "Mysterious units",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
 
   specs = VPSet(
-    StandardSpecification2DProfile,
-    StandardSpecificationPixelmapProfile,
-    StandardSpecificationTrend,
-    StandardSpecifications1D,
-    StandardSpecificationTrend2D
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
   )
 )
 
-SiPixelPhase1ClustersPCharge = DefaultHistoDigiCluster.clone(
-  name = "pcharge",
-  title = "All Pixel Charge",
-  range_min = 0, range_max = 70, range_nbins = 300,
-  xlabel = "Mysterious units",
+SiPixelPhase1ClustersNotBigPixelCharge = DefaultHistoDigiCluster.clone(
+  name = "notbigpixelcharge",
+  title = "Not Big Pixel Charge",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+  enabled=False,
 
   specs = VPSet(
-    StandardSpecification2DProfile,
-    StandardSpecificationPixelmapProfile,
-    StandardSpecificationTrend,
-    StandardSpecifications1D,
-    StandardSpecificationTrend2D
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
   )
 )
 
@@ -268,8 +267,8 @@ SiPixelPhase1ClustersPixelToStripRatio = DefaultHistoDigiCluster.clone(
 
 SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersCharge,
-  SiPixelPhase1ClustersBPCharge,
-  SiPixelPhase1ClustersPCharge,
+  SiPixelPhase1ClustersBigPixelCharge,
+  SiPixelPhase1ClustersNotBigPixelCharge,
   SiPixelPhase1ClustersSize,
   SiPixelPhase1ClustersSizeX,
   SiPixelPhase1ClustersSizeY,

@@ -63,63 +63,32 @@ SiPixelPhase1TrackClustersOnTrackCharge = DefaultHistoTrack.clone(
   )
 )
 
-SiPixelPhase1TrackClustersOnTrackBPCharge = DefaultHistoTrack.clone(
-  name = "bpcharge",
+SiPixelPhase1TrackClustersOnTrackBigPixelCharge = DefaultHistoTrack.clone(
+  name = "bigpixelcharge",
   title = "Corrected Big Pixel Charge (OnTrack)",
-  range_min = 0, range_max = 80, range_nbins = 100,
-  xlabel = "Mysterious units",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
 
   specs = VPSet(
-    StandardSpecifications1D,
-    StandardSpecification2DProfile,
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
+  )
+)
 
-    #what is below is only for the timing client
-    Specification(OverlayCurvesForTiming).groupBy("PXBarrel/OnlineBlock")
-         .groupBy("PXBarrel", "EXTEND_Y")
-         .save(),
-    Specification(OverlayCurvesForTiming).groupBy("PXForward/OnlineBlock")
-         .groupBy("PXForward", "EXTEND_Y")
-         .save(),
+SiPixelPhase1TrackClustersOnTrackNotBigPixelCharge = DefaultHistoTrack.clone(
+  name = "notbigpixelcharge",
+  title = "Corrected Not Big Pixel Charge (OnTrack)",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+  enabled=False,
 
-    Specification().groupBy("PXForward/PXRing").save(),
-
-    Specification(PerModule).groupBy("PXForward/PXRing/Lumisection")
-                   .reduce("MEAN")
-                   .groupBy("PXForward/PXRing","EXTEND_X")
-                   .save(),
-
-    Specification(IsOffline).groupBy("PXForward/PXRing/LumiBlock")
-                   .reduce("MEAN")
-                   .groupBy("PXForward/PXRing","EXTEND_X")
-                   .save(),
-
-
-    Specification(PerModule).groupBy("PXBarrel/PXLayer/Lumisection")
-                   .reduce("MEAN")
-                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
-                   .save(),
-
-    Specification(PerModule).groupBy("PXForward/PXDisk/Lumisection")
-                   .reduce("MEAN")
-                   .groupBy("PXForward/PXDisk", "EXTEND_X")
-                   .save(),
-
-    Specification(IsOffline).groupBy("PXBarrel/PXLayer/LumiBlock")
-                   .reduce("MEAN")
-                   .groupBy("PXBarrel/PXLayer", "EXTEND_X")
-                   .save(),
-
-    Specification(IsOffline).groupBy("PXForward/PXDisk/LumiBlock")
-                   .reduce("MEAN")
-                   .groupBy("PXForward/PXDisk", "EXTEND_X")
-                   .save(),
-
-    Specification(OverlayCurvesForTiming).groupBy("PXForward/PXDisk/OnlineBlock") # per-layer with history for online
-                   .groupBy("PXForward/PXDisk", "EXTEND_Y")
-                   .save(),
-    Specification(OverlayCurvesForTiming).groupBy("PXBarrel/PXLayer/OnlineBlock") # per-layer with history for online
-                   .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
-                   .save()
+  specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
   )
 )
 
@@ -492,7 +461,8 @@ SiPixelPhase1TrackClustersOnTrackShapeInner = SiPixelPhase1TrackClustersOnTrackS
 # copy this in the enum
 SiPixelPhase1TrackClustersConf = cms.VPSet(
   SiPixelPhase1TrackClustersOnTrackCharge,
-  SiPixelPhase1TrackClustersOnTrackBPCharge,
+  SiPixelPhase1TrackClustersOnTrackBigPixelCharge,
+  SiPixelPhase1TrackClustersOnTrackNotBigPixelCharge,
   SiPixelPhase1TrackClustersOnTrackSize,
   SiPixelPhase1TrackClustersOnTrackShape,
   SiPixelPhase1TrackClustersOnTrackNClusters,
