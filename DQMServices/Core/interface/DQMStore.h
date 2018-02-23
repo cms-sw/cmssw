@@ -666,7 +666,7 @@ class DQMStore
                                      OpenRunDirs stripdirs = StripRunDirs,
                                      bool fileMustExist = true);
   // TODO: this should go away
-  bool                          mtEnabled() { return true; };
+  bool                          mtEnabled() { return false; };
 
 
  public:
