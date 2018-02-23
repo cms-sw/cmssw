@@ -131,7 +131,6 @@ void DQMSourceExample::beginJob() {
   h6->setResetMe(true);
   dbe_->showDirStructure();
   std::vector<std::string> tags;
-  dbe_->getAllTags(tags);
   for (size_t i = 0, e = tags.size(); i < e; ++i)
     std::cout << "TAGS [" << i << "] = " << tags[i] << std::endl;
   */
