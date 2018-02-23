@@ -3,6 +3,10 @@
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="DataFormats/TrackerCommon"/>
 <use   name="DataFormats/EcalDigi"/>
+<use   name="DataFormats/HcalDigi"/>
+<use   name="DataFormats/DTDigi"/>
+<use   name="DataFormats/RPCDigi"/>
+<use   name="DataFormats/CSCDigi"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
@@ -16,6 +20,8 @@
 <use   name="SimTracker/SiStripDigitizer"/>
 <use   name="SimCalorimetry/EcalSimProducers"/>
 <use   name="SimCalorimetry/EcalSimAlgos"/>
+<use   name="SimCalorimetry/HcalSimProducers"/>
+<use   name="SimCalorimetry/HcalSimAlgos"/>
 <library   file="*.cc" name="SimGeneralPreMixingModulePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
