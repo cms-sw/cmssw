@@ -137,7 +137,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     e.getByToken(bh_token_, bh_digis_h);
     const HGCBHDigiCollection& bh_digis = *bh_digis_h;
 
-    triggerTools_.setEventSetup(es);
+    triggerTools_.eventSetup(es);
 
     // sim hit association
     std::unordered_map<uint32_t, double> simhits_ee;
@@ -180,7 +180,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         hgcdigi_id_.emplace_back(id.rawId());
         hgcdigi_subdet_.emplace_back(ForwardSubdetector::HGCEE);
         hgcdigi_side_.emplace_back(id.zside());
-        hgcdigi_layer_.emplace_back(triggerTools_.getLayerWithOffset(id));
+        hgcdigi_layer_.emplace_back(triggerTools_.layerWithOffset(id));
         hgcdigi_wafer_.emplace_back(id.wafer());
         hgcdigi_wafertype_.emplace_back(id.waferType());
         hgcdigi_cell_.emplace_back(id.cell());
@@ -206,7 +206,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         hgcdigi_id_.emplace_back(id.rawId());
         hgcdigi_subdet_.emplace_back(ForwardSubdetector::HGCHEF);
         hgcdigi_side_.emplace_back(id.zside());
-        hgcdigi_layer_.emplace_back(triggerTools_.getLayerWithOffset(id));
+        hgcdigi_layer_.emplace_back(triggerTools_.layerWithOffset(id));
         hgcdigi_wafer_.emplace_back(id.wafer());
         hgcdigi_wafertype_.emplace_back(id.waferType());
         hgcdigi_cell_.emplace_back(id.cell());
@@ -232,7 +232,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
         bhdigi_id_.emplace_back(id.rawId());
         bhdigi_subdet_.emplace_back(id.subdetId());
         bhdigi_side_.emplace_back(id.zside());
-        bhdigi_layer_.emplace_back(triggerTools_.getLayerWithOffset(id));
+        bhdigi_layer_.emplace_back(triggerTools_.layerWithOffset(id));
         bhdigi_ieta_.emplace_back(id.ieta());
         bhdigi_iphi_.emplace_back(id.iphi());
         GlobalPoint cellpos = triggerGeometry_->bhGeometry().getPosition(id.rawId());
