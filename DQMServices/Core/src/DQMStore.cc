@@ -2568,7 +2568,7 @@ DQMStore::save(const std::string &filename,
                const std::string &path /* = "" */,
                const std::string &pattern /* = "" */,
                const std::string &rewrite /* = "" */,
-               const uint32_t run /* = 0 */,
+                     uint32_t run /* = 0 */,
                const uint32_t lumi /* = 0 */,
                SaveReferenceTag ref /* = SaveWithReference */,
                int minStatus /* = dqm::qstatus::STATUS_OK */,
@@ -2646,9 +2646,9 @@ DQMStore::save(const std::string &filename,
     // - "normal" MEs (default, moduleId set, lumi=0)
     // - per-lumi clones (perLumiFlag=true, moduleId=0, lumi set)
     // the sort order is run, lumi, module, dir, name
-    // TODO: for now we use the old MT behavoiur and only save per-lumi histos.
-    //       Maybe we should *also* save all others, but that was not done before.
     // Restrict the loop to the monitor elements for the current lumisection
+    // If the run is 0 (former non-MT mode), return the first run
+    // TODO(schneiml): I think this is the semantics that legacy stuff expects. 
     if (lumi != 0) {
       // only save global per-lumi clones.
       // with LSbasedMode, all histos are cloned, so all are saved.
@@ -2664,6 +2664,11 @@ DQMStore::save(const std::string &filename,
       // even if there are per-lumi clones in the moduleId=0 sapce,
       // we start with the lumi=0 ones, and saveMonitorElementRangeToROOT will
       // stop before running into the per-lumi ones.
+      if (run == 0) {
+        MonitorElement runproto(&dir, std::string(), 0, 0, 0);
+        auto runit = data_.lower_bound(runproto);
+        run = runit->run();
+      }
       uint32_t moduleId = 0;
       for(;;) {
         MonitorElement proto1(&dir, std::string(), run, 0, moduleId);
@@ -2770,7 +2775,7 @@ DQMStore::saveMonitorElementRangeToPB(
 void
 DQMStore::savePB(const std::string &filename,
                  const std::string &path /* = "" */,
-                 const uint32_t run /* = 0 */,
+                       uint32_t run /* = 0 */,
                  const uint32_t lumi /* = 0 */)
 {
   using google::protobuf::io::FileOutputStream;
@@ -2805,9 +2810,9 @@ DQMStore::savePB(const std::string &filename,
     // - "normal" MEs (default, moduleId set, lumi=0)
     // - per-lumi clones (perLumiFlag=true, moduleId=0, lumi set)
     // the sort order is run, lumi, module, dir, name
-    // TODO: for now we use the old MT behavoiur and only save per-lumi histos.
-    //       Maybe we should *also* save all others, but that was not done before.
     // Restrict the loop to the monitor elements for the current lumisection
+    // If the run is 0 (former non-MT mode), return the first run
+    // TODO(schneiml): I think this is the semantics that legacy stuff expects. 
     if (lumi != 0) {
       // only save global per-lumi clones.
       // with LSbasedMode, all histos are cloned, so all are saved.
@@ -2823,6 +2828,11 @@ DQMStore::savePB(const std::string &filename,
       // even if there are per-lumi clones in the moduleId=0 sapce,
       // we start with the lumi=0 ones, and saveMonitorElementRangeToROOT will
       // stop before running into the per-lumi ones.
+      if (run == 0) {
+        MonitorElement runproto(&dir, std::string(), 0, 0, 0);
+        auto runit = data_.lower_bound(runproto);
+        run = runit->run();
+      }
       uint32_t moduleId = 0;
       for(;;) {
         MonitorElement proto1(&dir, std::string(), run, 0, moduleId);
