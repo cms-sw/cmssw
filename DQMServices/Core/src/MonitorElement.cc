@@ -177,7 +177,7 @@ MonitorElement::MonitorElement(const std::string *path,
   data_.version  = 0;
   data_.run      = run;
   data_.lumi     = 0;
-  data_.streamId = streamId;
+  data_.streamId = 0;
   data_.moduleId = moduleId;
   data_.dirname  = path;
   data_.objname  = name;
