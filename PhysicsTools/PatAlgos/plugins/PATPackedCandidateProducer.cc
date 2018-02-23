@@ -20,6 +20,10 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
 /*#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -92,6 +96,10 @@ namespace pat {
             const std::vector<int> covariancePackingSchemas_;
       
             const bool storeTiming_;
+
+            const bool resyncToEgammaEnergies_;
+            const edm::EDGetTokenT<reco::GsfElectronCollection> elesToken_;
+            const edm::EDGetTokenT<reco::PhotonCollection> phosToken_;
       
             // for debugging
             float calcDxy(float dx, float dy, float phi) const {
@@ -101,6 +109,66 @@ namespace pat {
                 return p.Z()-v.Z() - ((p.X()-v.X()) * c.px() + (p.Y()-v.Y())*c.py()) * c.pz()/(c.pt()*c.pt());
             }
     };
+}
+
+namespace {
+  //if PFLinker gave it the ele/photon energy, it set the supercluster ref
+  //the ref will be different now as this will be reducedEgamma electrons
+  //so we match of seed crystal which is unique
+  //however if there is no SuperCluster, we match of GsfTrack which is how Gsf
+
+  const reco::GsfElectron* matchEG(const reco::PFCandidate& orgCand,			   
+				   const reco::GsfElectronCollection& eles)
+  {
+    if(orgCand.superClusterRef().isNonnull()){
+      auto seedId = orgCand.superClusterRef()->seed()->seed().rawId();
+      for(const auto& ele : eles){
+	if(ele.superCluster().isNonnull() && ele.superCluster()->seed()->seed().rawId() == seedId){
+	  return &ele;
+	}
+      }
+    }else{
+      for(const auto& ele : eles){
+	//sc for ele must be null as the PFCand was set with it
+	if(ele.superCluster().isNonnull()){
+	  auto pfCandGsfTrack = orgCand.gsfTrackRef();
+	  auto floatEq=[](float lhs,float rhs){return std::abs(lhs-rhs)<0.001;};
+	  if(floatEq(ele.gsfTrack()->px(),pfCandGsfTrack->px()) && 
+	     floatEq(ele.gsfTrack()->py(),pfCandGsfTrack->py()) && 
+	     floatEq(ele.gsfTrack()->pz(),pfCandGsfTrack->pz())){
+	    return &ele;
+	  }
+	}
+      }
+    }
+    return nullptr;
+  }
+  const reco::Photon* matchEG(const reco::PFCandidate& orgCand,			   
+				   const reco::PhotonCollection& phos)
+  {
+    if(orgCand.superClusterRef().isNonnull()){
+      auto seedId = orgCand.superClusterRef()->seed()->seed().rawId();
+      for(const auto& pho : phos){
+	if(pho.superCluster()->seed()->seed().rawId() == seedId){
+	  return &pho;
+	}
+      }
+    }
+    return nullptr;
+  }
+  void setToEgammaEnergy(pat::PackedCandidate& packedCand,const reco::PFCandidate& orgCand,			   
+			 const reco::GsfElectronCollection& eles)
+  {
+    auto ele = matchEG(orgCand,eles);
+    if(ele) packedCand.setP4(ele->p4(reco::GsfElectron::P4_COMBINATION));
+  }
+  void setToEgammaEnergy(pat::PackedCandidate& packedCand,const reco::PFCandidate& orgCand,			   
+			 const reco::PhotonCollection& phos)
+  {
+    auto pho = matchEG(orgCand,phos);
+    if(pho) packedCand.setP4(pho->p4(reco::Photon::regression2));
+  }
+
 }
 
 pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::ParameterSet& iConfig) :
@@ -123,7 +191,11 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties")),
   covarianceVersion_(iConfig.getParameter<int >("covarianceVersion")),
   covariancePackingSchemas_(iConfig.getParameter<std::vector<int> >("covariancePackingSchemas")),
-  storeTiming_(iConfig.getParameter<bool>("storeTiming"))  
+  storeTiming_(iConfig.getParameter<bool>("storeTiming")),
+  resyncToEgammaEnergies_(iConfig.getParameter<bool>("resyncToEgammaEnergies")),
+  elesToken_(resyncToEgammaEnergies_ ? consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("eles")) : edm::EDGetTokenT<reco::GsfElectronCollection>()),
+  phosToken_(resyncToEgammaEnergies_ ? consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("phos")) : edm::EDGetTokenT<reco::PhotonCollection>())
+	     
 {
   std::vector<edm::InputTag> sv_tags = iConfig.getParameter<std::vector<edm::InputTag> >("secondaryVerticesForWhiteList");
   for(auto itag : sv_tags){
@@ -162,8 +234,15 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
       for (auto pup : *puppiCandsNoLep){
         puppiCandsNoLepPtrs.push_back(pup.sourceCandidatePtr(0));
       }
-    }  
+    }
     std::vector<int> mappingPuppi(usePuppi_ ? puppiCands->size() : 0);
+
+    edm::Handle<reco::GsfElectronCollection> eles;
+    edm::Handle<reco::PhotonCollection> phos;
+    if(resyncToEgammaEnergies_){
+      iEvent.getByToken( elesToken_, eles );
+      iEvent.getByToken( phosToken_, phos );
+    }
 
     edm::Handle<reco::VertexCollection> PVOrigs;
     iEvent.getByToken( PVOrigs_, PVOrigs );
@@ -325,6 +404,15 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
 	//specifically this is the PFLinker requirements to apply the e/gamma regression
 	if(cand.particleId() == reco::PFCandidate::e || (cand.particleId() == reco::PFCandidate::gamma && cand.mva_nothing_gamma()>0.)) { 
 	  outPtrP->back().setGoodEgamma();
+	  if(resyncToEgammaEnergies_){
+	    if(cand.particleId() == reco::PFCandidate::e) setToEgammaEnergy(outPtrP->back(),
+									    cand,*eles);
+	    if(cand.particleId() == reco::PFCandidate::gamma) setToEgammaEnergy(outPtrP->back(),
+										cand,*phos);
+	    outPtrP->back().setRawCaloFraction(outPtrP->back().rawCaloFraction()/outPtrP->back().energy()*cand.energy());
+	    
+	  }
+	  
 	}
        
         if (usePuppi_){
