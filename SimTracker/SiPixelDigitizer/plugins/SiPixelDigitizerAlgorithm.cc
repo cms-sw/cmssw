@@ -1249,24 +1249,6 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
     } //endfor ix
 
 
-    // Test conversions (THIS IS FOR TESTING ONLY) comment-out.
-    //     mp = topol->measurementPosition( i->position() ); //OK
-    //     LocalPoint lp = topol->localPosition(mp);     //OK
-    //     std::pair<float,float> p = topol->pixel( i->position() );  //OK
-    //     chan = PixelDigi::pixelToChannel( int(p.first), int(p.second));
-    //     std::pair<int,int> ip = PixelDigi::channelToPixel(chan);
-    //     MeasurementPoint mp1 = MeasurementPoint( float(ip.first),
-    // 					     float(ip.second) );
-    //     LogDebug ("Pixel Digitizer") << " Test "<< mp.x() << " " << mp.y()
-    // 				 << " "<< lp.x() << " " << lp.y() << " "<<" "
-    // 				 <<p.first <<" "<<p.second<<" "<<chan<< " "
-    // 				 <<" " << ip.first << " " << ip.second << " "
-    // 				 << mp1.x() << " " << mp1.y() << " " //OK
-    // 				 << topol->localPosition(mp1).x() << " "  //OK
-    // 				 << topol->localPosition(mp1).y() << " "
-    // 				 << topol->channel( i->position() ); //OK
-
-
   } // loop over charge distributions
 
   // Fill the global map with all hit pixels from this event
@@ -1278,10 +1260,10 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
        theSignal[chan] += (makeDigiSimLinks_ ? Amplitude( (*im).second, &hit, hitIndex, tofBin, (*im).second) : Amplitude( (*im).second, (*im).second) )  ;
        
 #ifdef TP_DEBUG
-    std::pair<int,int> ip = PixelDigi::channelToPixel(chan);
-    LogDebug ("Pixel Digitizer")
-      << " pixel " << ip.first << " " << ip.second << " "
-      << theSignal[chan];
+       std::pair<int,int> ip = PixelDigi::channelToPixel(chan);
+       LogDebug ("Pixel Digitizer")
+	 << " pixel " << ip.first << " " << ip.second << " "
+	 << theSignal[chan];
 #endif
      }
    }else if ((UseTemplateAgeing) && (hit.processType() == 0)) {
