@@ -87,6 +87,8 @@ void HGCTowerAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & col
                                        edm::Event & evt ) 
 {
     es.get<CaloGeometryRecord>().get("", triggerGeometry_);    
+    calibration_.eventSetup(es);
+    towermap2D_.eventSetup(es);
 
     for( const auto& digi : coll ){
         
@@ -127,7 +129,6 @@ void HGCTowerAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & col
     }    
 
     /* call to towerMap2D clustering */
-    towermap2D_.eventSetup(es);
     towermap2D_.buildTowerMap2D( triggerCellsPtrs, *towermap_product_);
 
     /* retrieve the orphan handle to the towermaps collection and put the collection in the event */

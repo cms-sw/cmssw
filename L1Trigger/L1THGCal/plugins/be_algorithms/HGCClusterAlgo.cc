@@ -52,7 +52,7 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
                 clusteringAlgorithmType_ = dRC2d;
             }else if(typeCluster=="NNC2d"){
                 clusteringAlgorithmType_ = NNC2d;
-            }else if(type=="dRNNC2d"){
+            }else if(typeCluster=="dRNNC2d"){
                 clusteringAlgorithmType_ = dRNNC2d;
             }else {
                 throw cms::Exception("HGCTriggerParameterError")

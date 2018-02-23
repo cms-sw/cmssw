@@ -73,7 +73,7 @@ void HGCalTowerMap2DImpl::buildTowerMap2D(const std::vector<edm::Ptr<l1t::HGCalT
 
   for( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc ){
 
-    unsigned layer = triggerTools_.getLayerWithOffset((*tc)->detId());
+    unsigned layer = triggerTools_.layerWithOffset((*tc)->detId());
     int iEta = towerMapsTmp[layer-1].iEta((*tc)->eta());
     int iPhi = towerMapsTmp[layer-1].iPhi((*tc)->phi());
 

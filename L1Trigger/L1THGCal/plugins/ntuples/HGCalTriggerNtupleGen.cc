@@ -289,7 +289,7 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
     es.getData(pdt);
     mySimEvent_->initializePdt(&(*pdt));
 
-    triggerTools_.setEventSetup(es);
+    triggerTools_.eventSetup(es);
 
     edm::ESHandle<MagneticField> magfield;
     es.get<IdealMagneticFieldRecord>().get(magfield);
