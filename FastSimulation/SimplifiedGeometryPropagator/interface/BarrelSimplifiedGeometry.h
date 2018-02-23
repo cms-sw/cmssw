@@ -68,7 +68,7 @@ namespace fastsim{
         {
             // Do projection of norm(layer) on momentum vector
             // CosTheta = (momentum dot norm) / (length(momentum) / length(norm))
-            return getThickness(position) / fabs(momentum.X() * position.X() + momentum.Y() * position.Y()) / (momentum.P() * std::sqrt(position.X() * position.X() + position.Y() * position.Y()));
+            return getThickness(position) / (fabs(momentum.X() * position.X() + momentum.Y() * position.Y()) / (momentum.P() * std::sqrt(position.X() * position.X() + position.Y() * position.Y())));
         }
         
         //! Return magnetic field (field only has Z component!) on the barrel layer.
