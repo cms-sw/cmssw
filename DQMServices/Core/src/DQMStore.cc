@@ -1892,7 +1892,7 @@ DQMStore::getAllContents(const std::string &path,
   if (lumi != 0) {
     // only save global per-lumi clones.
     // with LSbasedMode, all histos are cloned, so all are saved.
-    MonitorElement proto(cleaned, std::string(), runNumber, 0, 0);
+    MonitorElement proto(cleaned, std::string(), runNumber, 0);
     proto.setLumi(lumi);
     auto begin = data_.lower_bound(proto);
     proto.setLumi(lumi+1);
@@ -1905,7 +1905,7 @@ DQMStore::getAllContents(const std::string &path,
     // we start with the lumi=0 ones, and saveMonitorElementRangeToROOT will
     // stop before running into the per-lumi ones.
     if (runNumber == 0) {
-      MonitorElement runproto(cleaned, std::string(), 0, 0, 0);
+      MonitorElement runproto(cleaned, std::string(), 0, 0);
       auto runit = data_.lower_bound(runproto);
       if (runit != data_.end()) {
         runNumber = runit->run();
@@ -1913,9 +1913,9 @@ DQMStore::getAllContents(const std::string &path,
     }
     uint32_t moduleId = 0;
     for(;;) {
-      MonitorElement proto1(cleaned, std::string(), runNumber, 0, moduleId);
+      MonitorElement proto1(cleaned, std::string(), runNumber, moduleId);
       auto begin = data_.lower_bound(proto1);
-      MonitorElement proto2(cleaned, std::string(), runNumber, 0, moduleId+1);
+      MonitorElement proto2(cleaned, std::string(), runNumber, moduleId+1);
       auto end   = data_.lower_bound(proto2);
       if (begin == end) break; // nothing to do
       if (begin->lumi() == 0) { // in case there are no global MEs
@@ -2030,8 +2030,8 @@ DQMStore::postGlobalBeginLumi(const edm::GlobalContext &gc)
 
   // find the range of non-legacy global MEs for the current run:
   // run != 0, lumi == 0 (implicit), stream id == 0, module id == 0
-  const MonitorElement begin(&null_str, null_str, run, 0, 0);
-  const MonitorElement end(&null_str, null_str, run, 0, 1);
+  const MonitorElement begin(&null_str, null_str, run, 0);
+  const MonitorElement end(&null_str, null_str, run, 1);
   auto i = data_.lower_bound(begin);
   const auto e = data_.lower_bound(end);
   while (i != e) {
@@ -2680,7 +2680,7 @@ DQMStore::save(const std::string &filename,
     if (lumi != 0) {
       // only save global per-lumi clones.
       // with LSbasedMode, all histos are cloned, so all are saved.
-      MonitorElement proto(&dir, std::string(), run, 0, 0);
+      MonitorElement proto(&dir, std::string(), run, 0);
       proto.setLumi(lumi);
       auto begin = data_.lower_bound(proto);
       proto.setLumi(lumi+1);
@@ -2693,15 +2693,15 @@ DQMStore::save(const std::string &filename,
       // we start with the lumi=0 ones, and saveMonitorElementRangeToROOT will
       // stop before running into the per-lumi ones.
       if (run == 0) {
-        MonitorElement runproto(&dir, std::string(), 0, 0, 0);
+        MonitorElement runproto(&dir, std::string(), 0, 0);
         auto runit = data_.lower_bound(runproto);
         run = runit->run();
       }
       uint32_t moduleId = 0;
       for(;;) {
-        MonitorElement proto1(&dir, std::string(), run, 0, moduleId);
+        MonitorElement proto1(&dir, std::string(), run, moduleId);
         auto begin = data_.lower_bound(proto1);
-        MonitorElement proto2(&dir, std::string(), run, 0, moduleId+1);
+        MonitorElement proto2(&dir, std::string(), run, moduleId+1);
         auto end   = data_.lower_bound(proto2);
         if (begin == end) break; // nothing to do
         if (begin->lumi() > 0) break; // in case there are no global MEs
@@ -2846,7 +2846,7 @@ DQMStore::savePB(const std::string &filename,
     if (lumi != 0) {
       // only save global per-lumi clones.
       // with LSbasedMode, all histos are cloned, so all are saved.
-      MonitorElement proto(&dir, std::string(), run, 0, 0);
+      MonitorElement proto(&dir, std::string(), run, 0);
       proto.setLumi(lumi);
       auto begin = data_.lower_bound(proto);
       proto.setLumi(lumi+1);
@@ -2859,15 +2859,15 @@ DQMStore::savePB(const std::string &filename,
       // we start with the lumi=0 ones, and saveMonitorElementRangeToROOT will
       // stop before running into the per-lumi ones.
       if (run == 0) {
-        MonitorElement runproto(&dir, std::string(), 0, 0, 0);
+        MonitorElement runproto(&dir, std::string(), 0, 0);
         auto runit = data_.lower_bound(runproto);
         run = runit->run();
       }
       uint32_t moduleId = 0;
       for(;;) {
-        MonitorElement proto1(&dir, std::string(), run, 0, moduleId);
+        MonitorElement proto1(&dir, std::string(), run, moduleId);
         auto begin = data_.lower_bound(proto1);
-        MonitorElement proto2(&dir, std::string(), run, 0, moduleId+1);
+        MonitorElement proto2(&dir, std::string(), run, moduleId+1);
         auto end   = data_.lower_bound(proto2);
         if (begin == end) break; // nothing to do
         if (begin->lumi() > 0) break; // in case there are no global MEs
