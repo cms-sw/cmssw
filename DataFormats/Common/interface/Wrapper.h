@@ -77,20 +77,12 @@ private:
   };
 
   template<typename T>
-  inline
-  void swap_or_assign(T& a, T& b) {
-    detail::doSwapOrAssign<T>()(a, b);
-  } 
-
-  template<typename T>
   Wrapper<T>::Wrapper(std::unique_ptr<T> ptr) :
     WrapperBase(),
     present(ptr.get() != nullptr),
     obj() {
     if (present) {
-      // The following will call swap if T has such a function,
-      // and use assignment if T has no such function.
-      swap_or_assign(obj, *ptr);
+      obj = std::move(*ptr);
     }
   }
 
@@ -101,9 +93,7 @@ private:
   obj() {
      std::unique_ptr<T> temp(ptr);
      if (present) {
-        // The following will call swap if T has such a function,
-        // and use assignment if T has no such function.
-        swap_or_assign(obj, *ptr);
+       obj = std::move(*ptr);
      }
   }
 
