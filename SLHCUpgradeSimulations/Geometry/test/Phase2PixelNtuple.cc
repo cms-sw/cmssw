@@ -310,8 +310,6 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
   TrackerHitAssociator associate( e, trackerHitAssociatorConfig_);
  
   if((recHitColl.product())->dataSize() > 0) {
-    SiPixelRecHitCollection::const_iterator recHitIdIterator      = (recHitColl.product())->begin();
-    SiPixelRecHitCollection::const_iterator recHitIdIteratorEnd   = (recHitColl.product())->end();
  
     std::string detname ;
 
@@ -319,8 +317,8 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
     fillEvt(e);
 
     // Loop over Detector IDs
-    for ( ; recHitIdIterator != recHitIdIteratorEnd; recHitIdIterator++) {
-      SiPixelRecHitCollection::DetSet detset = *recHitIdIterator;
+    for ( auto recHitIdIterator : *(recHitColl.product())) {
+      SiPixelRecHitCollection::DetSet detset = recHitIdIterator;
  
       if( detset.empty() ) continue;
       DetId detId = DetId(detset.detId()); // Get the Detid object
@@ -328,17 +326,13 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
       const GeomDet* geomDet( theGeometry->idToDet(detId) );
        
       // Loop over rechits for this detid
-      SiPixelRecHitCollection::DetSet::const_iterator rechitRangeIteratorBegin = detset.begin();
-      SiPixelRecHitCollection::DetSet::const_iterator rechitRangeIteratorEnd   = detset.end();
-      SiPixelRecHitCollection::DetSet::const_iterator iterRecHit;
-      for ( iterRecHit = rechitRangeIteratorBegin; 
-            iterRecHit != rechitRangeIteratorEnd; ++iterRecHit) {
+      for ( auto iterRecHit : detset ) {
 	// get matched simhit
 	matched.clear();
-	matched = associate.associateHit(*iterRecHit);
+	matched = associate.associateHit(iterRecHit);
 	if ( !matched.empty() ) {
 	  float closest = 9999.9;
-	  LocalPoint lp = iterRecHit->localPosition();
+	  LocalPoint lp = iterRecHit.localPosition();
 	  float rechit_x = lp.x();
 	  float rechit_y = lp.y();
 	  //loop over simhits and find closest
@@ -382,7 +376,7 @@ void Phase2PixelNtuple::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  int num_simhit = matched.size();
 	  recHit_.init();
 	  fillPRecHit(  detid_db, subid,layer_num,ladder_num,module_num,disk_num,blade_num,panel_num,side_num,
-			iterRecHit, num_simhit, closest_simhit, geomDet );
+			&iterRecHit, num_simhit, closest_simhit, geomDet );
 	  pixeltree_->Fill();
 	}
       } // end of rechit loop
