@@ -2,6 +2,7 @@
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="DataFormats/TrackerCommon"/>
+<use   name="DataFormats/EcalDigi"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
@@ -13,6 +14,8 @@
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimDataFormats/PileupSummaryInfo"/>
 <use   name="SimTracker/SiStripDigitizer"/>
+<use   name="SimCalorimetry/EcalSimProducers"/>
+<use   name="SimCalorimetry/EcalSimAlgos"/>
 <library   file="*.cc" name="SimGeneralPreMixingModulePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
