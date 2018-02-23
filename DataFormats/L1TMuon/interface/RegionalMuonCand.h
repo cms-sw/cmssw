@@ -63,10 +63,14 @@ class RegionalMuonCand {
     void setHwPt2(int bits) { m_hwPt2 = bits; };
     /// Set compressed impact parameter with respect to beamspot (4 bits)
     void setHwDXY(int bits) { m_hwDXY = bits; };
+    /// Set compressed displaced pT - only for BMTF - kalman Algo
+    void setHwDisplacedPt(int bits = 0) { m_hwDisplacedPt = bits; };
     /// Set compressed relative phi as transmitted by hardware LSB = 2*pi/576 (8 bits)
     void setHwPhi(int bits) { m_hwPhi = bits; };
     /// Set compressed eta as transmitted by hardware LSB = 0.010875 (9 bits)
     void setHwEta(int bits) { m_hwEta = bits; };
+    /// Set Kalman Dxy parameter for displaced muon 
+    void setHwDxy(int bits) { m_hwDxy = bits; };
     /// Set charge sign bit (charge = (-1)^(sign))
     void setHwSign(int bits) { m_hwSign = bits; };
     /// Set whether charge measurement is valid (0 for high pT muons)
@@ -107,10 +111,14 @@ class RegionalMuonCand {
     const int hwPt2() const { return m_hwPt2; };
     /// Get compressed impact parameter (4 bits)
     const int hwDXY() const { return m_hwDXY; };
+    /// Get compressed displaced pT - kalman Algorithm
+    const int hwDisplacedPt() const { return m_hwDisplacedPt; };
     /// Get compressed local phi (returned int * 2*pi/576 = local phi in rad)
     const int hwPhi() const { return m_hwPhi; };
     /// Get compressed eta (returned int * 0.010875 = eta)
     const int hwEta() const { return m_hwEta; };
+    /// Get Dxw kalman parameter dor displaced muon
+    const int hwDxy() const { return m_hwDxy; };
     /// Get charge sign bit (charge = (-1)^(sign))
     const int hwSign() const { return m_hwSign; };
     /// Get charge sign valid bit (0 - not valid (high pT muon); 1 - valid)
@@ -155,8 +163,10 @@ class RegionalMuonCand {
     int m_hwPt;
     int m_hwPt2;
     int m_hwDXY;
+    int m_hwDisplacedPt;
     int m_hwPhi;
     int m_hwEta;
+    int m_hwDxy;
     bool m_hwHF;
     int m_hwSign;
     int m_hwSignValid;
