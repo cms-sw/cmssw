@@ -153,7 +153,7 @@ class WorkFlowRunner(Thread):
                         cmd+=' --fileout file:step%s.root '%(istep,)
                 if self.jobReport:
                   cmd += ' --suffix "-j JobReport%s.xml " ' % istep
-                if (self.nThreads > 1) and ('HARVESTING' not in cmd) :
+                if (self.nThreads > 1) and ('HARVESTING' not in cmd) and ('ALCAHARVEST' not in cmd):
                   cmd += ' --nThreads %s' % self.nThreads
                 cmd+=closeCmd(istep,self.wf.nameId)            
                 retStep = 0
