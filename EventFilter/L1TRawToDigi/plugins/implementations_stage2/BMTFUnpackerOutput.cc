@@ -3,7 +3,6 @@
 #include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"
 
 #include "BMTFUnpackerOutput.h"
-#include "testTools.h"//debug
 
 namespace l1t
 {
@@ -67,10 +66,6 @@ namespace l1t
 	    }
 					
 	  RegionalMuonCand muCand;
-	  std::cout << "Debug INFO ------------" << std::endl;
-	  testTools::printRaw32(raw_first);
-	  testTools::printRaw32(raw_secnd);
-	  std::cout << "isKalman: " << isKalman << std::endl;
 	  RegionalMuonRawDigiTranslator::fillRegionalMuonCand(muCand, raw_first, raw_secnd, processor, tftype::bmtf);
 
 <<<<<<< HEAD
