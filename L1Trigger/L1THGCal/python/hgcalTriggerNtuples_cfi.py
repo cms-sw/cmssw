@@ -1,14 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
+import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
+import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
+import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
+import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
+
+
+fcPerMip = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP
+keV2fC = digiparam.hgceeDigitizer.digiCfg.keV2fC
+layerWeights = layercalibparam.TrgLayer_dEdX_weights
+thicknessCorrections = recocalibparam.HGCalRecHit.thicknessCorrection
 
 ntuple_event = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleEvent')
 )
 
+
+from FastSimulation.Event.ParticleFilter_cfi import ParticleFilterBlock
+PartFilterConfig = ParticleFilterBlock.ParticleFilter.copy()
+PartFilterConfig.protonEMin = cms.double(100000)
+PartFilterConfig.etaMax = cms.double(3.1)
+
 ntuple_gen = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleGen'),
     GenParticles = cms.InputTag('genParticles'),
-    GenPU = cms.InputTag('addPileupInfo')
+    GenPU = cms.InputTag('addPileupInfo'),
+    particleFilter = PartFilterConfig
 )
 
 ntuple_gentau = cms.PSet(
@@ -41,6 +58,10 @@ ntuple_triggercells = cms.PSet(
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
     FillSimEnergy = cms.bool(False),
+    fcPerMip = fcPerMip,
+    keV2fC = keV2fC,
+    layerWeights = layerWeights,
+    thicknessCorrections = thicknessCorrections,
     FilterCellsInMulticlusters = cms.bool(True)
 )
 
@@ -56,6 +77,16 @@ ntuple_multicluster = cms.PSet(
     Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D')
 )
 
+ntuple_panels = cms.PSet(
+    NtupleName = cms.string('HGCalTriggerNtupleHGCPanels'),
+    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:calibratedTriggerCells')
+)
+
+ntuple_tower = cms.PSet(
+    NtupleName = cms.string('HGCalTriggerNtupleHGCTowers'),
+    Towers = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:tower')
+)
+
 hgcalTriggerNtuplizer = cms.EDAnalyzer(
     "HGCalTriggerNtupleManager",
     Ntuples = cms.VPSet(
@@ -66,6 +97,7 @@ hgcalTriggerNtuplizer = cms.EDAnalyzer(
         ntuple_digis,
         ntuple_triggercells,
         ntuple_clusters,
-        ntuple_multicluster
+        ntuple_multicluster,
+        ntuple_tower
     )
 )
