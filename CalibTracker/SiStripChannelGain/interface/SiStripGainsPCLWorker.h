@@ -82,9 +82,9 @@ public:
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-    virtual void beginJob() ;
+    void beginJob() override ;
     void dqmBeginRun(edm::Run const&, edm::EventSetup const&, APVGain::APVGainHistograms &) const override;
-    virtual void endJob() ;
+    void endJob() override ;
     void checkBookAPVColls(const TrackerGeometry *bareTkGeomPtr,APVGain::APVGainHistograms & histograms) const;
 
     std::vector<std::string> dqm_tag_;
@@ -157,7 +157,7 @@ SiStripGainsPCLWorker::statCollectionFromMode(const char* tag) const
     it++;
   }
   
-  if (std::string(tag)=="") return 0;  // return StdBunch calibration mode for backward compatibility
+  if (std::string(tag).empty()) return 0;  // return StdBunch calibration mode for backward compatibility
   
   return None;
 }
