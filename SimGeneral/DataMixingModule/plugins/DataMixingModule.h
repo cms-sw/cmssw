@@ -26,7 +26,6 @@
 #include "SimGeneral/DataMixingModule/plugins/DataMixingEMWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingEMDigiWorker.h"
-#include "SimGeneral/DataMixingModule/plugins/DataMixingEcalDigiWorkerProd.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalDigiWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalDigiWorkerProd.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingMuonWorker.h"
@@ -127,7 +126,6 @@ namespace edm {
 
       DataMixingEMWorker *EMWorker_ ;
       DataMixingEMDigiWorker *EMDigiWorker_ ;
-      DataMixingEcalDigiWorkerProd *EcalDigiWorkerProd_ ;
       bool MergeEMDigis_;
 
       // Hcal 
@@ -152,9 +150,6 @@ namespace edm {
       edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
       edm::EDGetTokenT<HcalQIE10DigitizerTraits::DigiCollection> tok_qie10_;
       edm::EDGetTokenT<HcalQIE11DigitizerTraits::DigiCollection> tok_qie11_;
-      edm::EDGetTokenT<EBDigitizerTraits::DigiCollection> tok_eb_;
-      edm::EDGetTokenT<EEDigitizerTraits::DigiCollection> tok_ee_;
-      edm::EDGetTokenT<ESDigitizerTraits::DigiCollection> tok_es_;
 
       bool MergeHcalDigis_;
       bool MergeHcalDigisProd_;

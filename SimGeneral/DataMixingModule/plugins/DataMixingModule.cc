@@ -50,12 +50,6 @@ namespace edm
     QIE11PileInputTag_(ps.getParameter<edm::InputTag>("QIE11PileInputTag")),
 							    label_(ps.getParameter<std::string>("Label"))
   {  
-
-    // prepare for data access in DataMixingEcalDigiWorkerProd
-    tok_eb_ = consumes<EBDigitizerTraits::DigiCollection>(EBPileInputTag_);
-    tok_ee_ = consumes<EEDigitizerTraits::DigiCollection>(EEPileInputTag_);
-    tok_es_ = consumes<ESDigitizerTraits::DigiCollection>(ESPileInputTag_);
-
     // prepare for data access in DataMixingHcalDigiWorkerProd
     tok_hbhe_ = consumes<HBHEDigitizerTraits::DigiCollection>(HBHEPileInputTag_);
     tok_ho_ = consumes<HODigitizerTraits::DigiCollection>(HOPileInputTag_);
@@ -98,14 +92,9 @@ namespace edm
       produces< ESDigiCollection >(ESDigiCollectionDM_);
 
 
-      if(addMCDigiNoise_ ) {
-	edm::ConsumesCollector iC(consumesCollector());
-        EcalDigiWorkerProd_ = new DataMixingEcalDigiWorkerProd(ps, iC);
-        EcalDigiWorkerProd_->setEBAccess(tok_eb_);
-        EcalDigiWorkerProd_->setEEAccess(tok_ee_);
-        EcalDigiWorkerProd_->setESAccess(tok_es_);
+      if(!addMCDigiNoise_ ) {
+        EMDigiWorker_ = new DataMixingEMDigiWorker(ps, consumesCollector());
       }
-      else { EMDigiWorker_ = new DataMixingEMDigiWorker(ps, consumesCollector()); }
     }
     else { // merge RecHits 
       EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
@@ -298,7 +287,6 @@ namespace edm
       if(!MergeTrackerDigis_){
 	GeneralTrackWorker_->initializeEvent(e,ES);
       }
-      EcalDigiWorkerProd_->initializeEvent( e, ES );
     }
     if( addMCDigiNoise_ && MergeHcalDigisProd_) {
       HcalDigiWorkerProd_->initializeEvent( e, ES );
@@ -312,7 +300,6 @@ namespace edm
   void DataMixingModule::beginRun(edm::Run const& run, const edm::EventSetup& ES) { 
     BMixingModule::beginRun( run, ES);
     if( addMCDigiNoise_ ) {
-      EcalDigiWorkerProd_->beginRun( ES );
       HcalDigiWorkerProd_->beginRun( run, ES );
     }
   }
@@ -320,7 +307,6 @@ namespace edm
   void DataMixingModule::endRun(edm::Run const& run, const edm::EventSetup& ES) { 
     //if( addMCDigiNoise_ ) {
       // HcalDigiWorkerProd_->endRun( run, ES ); // FIXME not implemented
-      // EcalDigiWorkerProd_->endRun( ES );      // FIXME not implemented
     //}
     BMixingModule::endRun( run, ES);
   }
@@ -328,8 +314,7 @@ namespace edm
   // Virtual destructor needed.
   DataMixingModule::~DataMixingModule() { 
     if(MergeEMDigis_){ 
-      if(addMCDigiNoise_ ) {delete EcalDigiWorkerProd_;}
-      else {delete EMDigiWorker_;}
+      if(!addMCDigiNoise_ ) {delete EMDigiWorker_;}
     }    
     else {delete EMWorker_;}
     if(MergeHcalDigis_) { 
@@ -358,8 +343,7 @@ namespace edm
 
     // Ecal
     if(MergeEMDigis_) { 
-      if(addMCDigiNoise_ ){ EcalDigiWorkerProd_->addEcalSignals(e, ES);}
-      else {EMDigiWorker_->addEMSignals(e, ES); }
+      if(!addMCDigiNoise_ ){EMDigiWorker_->addEMSignals(e, ES); }
     }
     else{ EMWorker_->addEMSignals(e);}
 
@@ -425,8 +409,7 @@ namespace edm
 
     // Ecal
     if(MergeEMDigis_) {  
-      if(addMCDigiNoise_ ) { EcalDigiWorkerProd_->addEcalPileups(bcr, &ep, eventNr, ES, &moduleCallingContext);}
-      else { EMDigiWorker_->addEMPileups(bcr, &ep, eventNr, ES, &moduleCallingContext);}
+      if(!addMCDigiNoise_ ) { EMDigiWorker_->addEMPileups(bcr, &ep, eventNr, ES, &moduleCallingContext);}
     }
     else {EMWorker_->addEMPileups(bcr, &ep, eventNr, &moduleCallingContext); }
 
@@ -527,8 +510,7 @@ namespace edm
 
     // Ecal
     if(MergeEMDigis_) {
-      if(addMCDigiNoise_ ) {EcalDigiWorkerProd_->putEcal(e,ES);}
-      else { EMDigiWorker_->putEM(e,ES);}
+      if(!addMCDigiNoise_ ) { EMDigiWorker_->putEM(e,ES);}
     }
     else {EMWorker_->putEM(e);}
 
@@ -563,11 +545,9 @@ namespace edm
 
   void DataMixingModule::beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
     BMixingModule::beginLuminosityBlock(l1, c);
-    if(addMCDigiNoise_ && EcalDigiWorkerProd_) EcalDigiWorkerProd_->beginLuminosityBlock(l1,c);
   }
 
   void DataMixingModule::endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
-    // EcalDigiWorkerProd_->endLuminosityBlock(l1,c);  // FIXME Not implemented.
     BMixingModule::endLuminosityBlock(l1, c);
   }
 
