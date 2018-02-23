@@ -8,6 +8,9 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 
+#include "FWCore/Utilities/interface/EDPutToken.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
+
 class DQMEDHarvester: public edm::one::EDProducer<edm::Accumulator,
                                                   edm::EndLuminosityBlockProducer,
                                                   edm::EndRunProducer,
@@ -33,6 +36,10 @@ public:
   void endJob() final;
   virtual void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) {};
   virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) = 0;
+
+protected:
+  edm::EDPutTokenT<DQMToken> lumiToken_;
+  edm::EDPutTokenT<DQMToken> runToken_;
 };
 
 #endif // CORE_DQMED_HARVESTER_H

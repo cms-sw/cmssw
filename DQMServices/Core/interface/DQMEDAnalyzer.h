@@ -10,6 +10,9 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "FWCore/Utilities/interface/EDPutToken.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
+
 class DQMEDAnalyzer : public edm::one::EDProducer<edm::Accumulator,
                                                   edm::EndLuminosityBlockProducer,
                                                   edm::EndRunProducer,
@@ -39,6 +42,11 @@ public:
 
   virtual void analyze(edm::Event const&, edm::EventSetup const&);
   void accumulate(edm::Event const& ev, edm::EventSetup const& es) final;
+
+protected:
+  edm::EDPutTokenT<DQMToken> lumiToken_;
+  edm::EDPutTokenT<DQMToken> runToken_;
+
 };
 
 #endif // DQMServices_Core_DQMEDAnalyzer_h
