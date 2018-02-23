@@ -25,5 +25,12 @@ class DQMToken
       DQMToken() {}
 };
 
+class DQMRunToken
+{
+
+   public:
+      DQMRunToken() {}
+};
+
 
 #endif

@@ -106,6 +106,12 @@ namespace edm
     template <typename F>
     void watchPostModuleGlobalEndLumi(F) {}
 
+    template <typename T>
+    void watchPostModuleGlobalEndRun(void*, T) {}
+
+    template <typename F>
+    void watchPostModuleGlobalEndRun(F) {}
+
     PreallocationSignal preallocateSignal_;
   };
 
