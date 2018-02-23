@@ -71,11 +71,12 @@ namespace l1t {
       void
       BMTFSetup::registerProducts(edm::stream::EDProducerBase& prod)
       {
-         prod.produces<RegionalMuonCandBxCollection>("BMTF");
-         //prod.produces<L1MuDTChambPhContainer>("PhiDigis");
-         //prod.produces<L1MuDTChambThContainer>("TheDigis");
-         prod.produces<L1MuDTChambPhContainer>();
-         prod.produces<L1MuDTChambThContainer>();
+	prod.produces<RegionalMuonCandBxCollection>("kBMTF");
+	prod.produces<RegionalMuonCandBxCollection>("BMTF");
+	//prod.produces<L1MuDTChambPhContainer>("PhiDigis");
+	//prod.produces<L1MuDTChambThContainer>("TheDigis");
+	prod.produces<L1MuDTChambPhContainer>();
+	prod.produces<L1MuDTChambThContainer>();
       }
 
       std::unique_ptr<UnpackerCollections>
@@ -89,6 +90,7 @@ namespace l1t {
       {
 
          auto outputMuon = UnpackerFactory::get()->make("stage2::BMTFUnpackerOutput");
+	 auto outputKalmanMuon = UnpackerFactory::get()->make("stage2::BMTFUnpackerKalmanOutput");
          auto inputMuonsOld = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsOldQual");
          auto inputMuonsNew = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsNewQual");
 
@@ -106,6 +108,7 @@ namespace l1t {
 	       }
 	    }
             res[123] = outputMuon;
+	    res[125] = outputKalmanMuon;
          }
          return res;
       };

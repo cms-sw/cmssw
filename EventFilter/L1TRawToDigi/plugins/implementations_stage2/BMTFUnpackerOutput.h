@@ -10,5 +10,11 @@ namespace l1t{
     public:
       bool unpack(const Block& block, UnpackerCollections *coll) override;
     };
+
+    class BMTFUnpackerKalmanOutput : public Unpacker
+    {
+    public:
+      bool unpack(const Block& block, UnpackerCollections *coll) override;
+    };
   }
 }
