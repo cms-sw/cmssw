@@ -37,7 +37,8 @@ namespace {
 class SiPixelPhase1TrackClusters final : public SiPixelPhase1Base {
 enum {
   ON_TRACK_CHARGE,
-  ON_TRACK_BPCHARGE,
+  ON_TRACK_BIGPIXELCHARGE,
+  ON_TRACK_NOTBIGPIXELCHARGE,
   ON_TRACK_SIZE,
   ON_TRACK_SHAPE,
   ON_TRACK_NCLUSTERS,
@@ -198,9 +199,10 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
 
         bool bigInX = topol.isItBigPixelInX(int(pixx));
         bool bigInY = topol.isItBigPixelInY(int(pixy));
-        float pixel_charge = pixelsVec[i].adc/1000;
+        float pixel_charge = pixelsVec[i].adc;
 
-        if (bigInX || bigInY) histo[ON_TRACK_BPCHARGE].fill(pixel_charge, id, &iEvent);
+        if (bigInX || bigInY) histo[ON_TRACK_BIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
+        else histo[ON_TRACK_NOTBIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
       }
 
 
