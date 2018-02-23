@@ -95,7 +95,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
   edm::ESHandle<HGCalTriggerGeometryBase> geometry;
   es.get<CaloGeometryRecord>().get(geometry);
 
-  triggerTools_.setEventSetup(es);
+  triggerTools_.eventSetup(es);
 
   // Associate cells to clusters
   std::unordered_map<uint32_t, l1t::HGCalMulticlusterBxCollection::const_iterator> cluster2multicluster;
@@ -126,7 +126,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl_phi_.emplace_back(cl_itr->phi());
 
     cl_id_.emplace_back(cl_itr->detId());
-    cl_layer_.emplace_back(triggerTools_.getLayerWithOffset(cl_itr->detId()));
+    cl_layer_.emplace_back(triggerTools_.layerWithOffset(cl_itr->detId()));
     cl_subdet_.emplace_back(cl_itr->subdetId());
     cl_cells_n_.emplace_back(cl_itr->constituents().size());
     // Retrieve indices of trigger cells inside cluster
