@@ -79,9 +79,14 @@ namespace l1t
 	  int bxNum = ibx.header().getBx();
 	  uint32_t inputWords[ibx.getSize()]; //array of 6 uint32_t payload-words (size of the payload in the BxBlock)
 
+	  //Note
+	  /*In the non-ZS fashion, the expression "block.header().getSize()/nBX" was 6 in any case
+	    the reason is that the size is 6 or 30, and these numbers are divided by 1 or 5 respectively.*/
+
 	  //Fill the above uint32_t array
 	  for(unsigned int iw = 0; iw < ibx.getSize(); iw++)
 	    inputWords[iw] = (ibx.payload())[iw];
+
 			
 	  int wheel, sector, trTag;//Container information
 	  numWheelSectorTrTag_bmtf(wheel, trTag, blockId/2, block.amc().getAMCNumber());//this returns wheel & tsTag
