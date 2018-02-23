@@ -41,7 +41,7 @@ void DQMSourceExample::initialize() {
   ////---- define base folder for the contents of this job 
   monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
   cout << "DQMSourceExample: Monitor name = " << monitorName_ << endl;
-  if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
+  if (!monitorName_.empty() ) monitorName_ = monitorName_+"/" ;
   
   ////--- get steerable parameters
   prescaleLS_  = parameters_.getUntrackedParameter<int>("prescaleLS",  -1);
