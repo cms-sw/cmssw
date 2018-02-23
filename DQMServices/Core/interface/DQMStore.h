@@ -354,36 +354,24 @@ class DQMStore
   template <typename iFunc>
   void bookTransaction(iFunc f, uint32_t run, uint32_t moduleId) {
     std::lock_guard<std::mutex> guard(book_mutex_);
-    /* Set the run number and module id only if multithreading is enabled */
-    if (enableMultiThread_) {
-      run_ = run;
-      moduleId_ = moduleId;
-    }
+    run_ = run;
+    moduleId_ = moduleId;
     f(*ibooker_);
 
-    /* Reset the run number and module id only if multithreading is enabled */
-    if (enableMultiThread_) {
-      run_ = 0;
-      moduleId_ = 0;
-    }
+    run_ = 0;
+    moduleId_ = 0;
   }
 
   // Similar function used to book "global" histograms via the
   // ConcurrentMonitorElement interface.
+  // TODO: Maybe we should add the moduleId here as well.
   template <typename iFunc>
   void bookConcurrentTransaction(iFunc f, uint32_t run) {
     std::lock_guard<std::mutex> guard(book_mutex_);
-    /* Set the run_ member only if enableMultiThread is enabled */
-    if (enableMultiThread_) {
-      run_ = run;
-    }
+    run_ = run;
     ConcurrentBooker booker(this);
     f(booker);
-
-    /* Reset the run_ member only if enableMultiThread is enabled */
-    if (enableMultiThread_) {
-      run_ = 0;
-    }
+    run_ = 0;
   }
 
   // Signature needed in the harvesting where the booking is done
@@ -677,7 +665,8 @@ class DQMStore
   bool                          load(const std::string &filename,
                                      OpenRunDirs stripdirs = StripRunDirs,
                                      bool fileMustExist = true);
-  bool                          mtEnabled() { return enableMultiThread_; };
+  // TODO: this should go away
+  bool                          mtEnabled() { return true; };
 
 
  public:
@@ -842,7 +831,6 @@ class DQMStore
   bool                          reset_;
   double                        scaleFlag_;
   bool                          collateHistograms_;
-  bool                          enableMultiThread_;
   bool                          LSbasedMode_;
   bool                          forceResetOnBeginLumi_;
   std::string                   readSelectedDirectory_;

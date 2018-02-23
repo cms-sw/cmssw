@@ -356,7 +356,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     verboseQT_ (1),
     reset_ (false),
     collateHistograms_ (false),
-    enableMultiThread_(false),
     forceResetOnBeginLumi_(false),
     readSelectedDirectory_ (""),
     run_(0),
@@ -372,15 +371,11 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     igetter_ = new DQMStore::IGetter(this);
   initializeFrom(pset);
 
-  ar.preallocateSignal_.connect([this](edm::service::SystemBounds const& iBounds) {
-      if(iBounds.maxNumberOfStreams() > 1 ) {
-	enableMultiThread_ = true;
-      }
-    });
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
     ar.watchPostSourceRun([this](edm::RunIndex){ forceReset(); });
   }
-  if(pset.getUntrackedParameter<bool>("forceResetOnBeginLumi",false) && enableMultiThread_ == false) {
+  if(pset.getUntrackedParameter<bool>("forceResetOnBeginLumi",false)) {
+    // TODO: merge this into the cloneLumiHistograms, so it maybe actually works?
     forceResetOnBeginLumi_ = true;
     ar.watchPostSourceLumi([this](edm::LuminosityBlockIndex){ forceReset(); });
   }
@@ -402,7 +397,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     verboseQT_ (1),
     reset_ (false),
     collateHistograms_ (false),
-    enableMultiThread_(false),
     readSelectedDirectory_ (""),
     run_(0),
     moduleId_(0),
@@ -448,10 +442,6 @@ DQMStore::initializeFrom(const edm::ParameterSet& pset) {
   collateHistograms_ = pset.getUntrackedParameter<bool>("collateHistograms", false);
   if (collateHistograms_)
     std::cout << "DQMStore: histogram collation is enabled\n";
-
-  enableMultiThread_ = pset.getUntrackedParameter<bool>("enableMultiThread", false);
-  if (enableMultiThread_)
-    std::cout << "DQMStore: MultiThread option is enabled\n";
 
   LSbasedMode_ = pset.getUntrackedParameter<bool>("LSbasedMode", false);
    if (LSbasedMode_)
@@ -1875,6 +1865,7 @@ DQMStore::getAllContents(const std::string &path,
                          uint32_t runNumber /* = 0 */,
                          uint32_t lumi /* = 0 */) const
 {
+  //TODO: revise the entire logic of this.
   std::string clean;
   const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
@@ -1901,16 +1892,13 @@ DQMStore::getAllContents(const std::string &path,
     result.push_back(const_cast<MonitorElement *>(&*i));
   }
 
-  if (enableMultiThread_)
-    {
-      //save legacy modules when running MT
-      i = data_.begin();
-      for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i) {
-        if (i->data_.run != 0 or i->data_.moduleId != 0)
-          break;
-        result.push_back(const_cast<MonitorElement *>(&*i));
-      }
-    }
+  //save legacy modules when running MT
+  i = data_.begin();
+  for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i) {
+    if (i->data_.run != 0 or i->data_.moduleId != 0)
+      break;
+    result.push_back(const_cast<MonitorElement *>(&*i));
+  }
 
   return result;
 }
@@ -2005,6 +1993,8 @@ DQMStore::forceReset()
 void
 DQMStore::postGlobalBeginLumi(const edm::GlobalContext &gc)
 {
+  // TODO: there should be no MEs that are global but per-lumi today,
+  // since ConcurrentMonitorElement does not support it
   static const std::string null_str("");
 
   auto const& lumiblock = gc.luminosityBlockID();
@@ -2077,9 +2067,6 @@ DQMStore::cloneLumiHistograms(uint32_t run, uint32_t lumi, uint32_t moduleId)
 void
 DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
 {
-  if (!enableMultiThread_)
-    return;
-
   std::lock_guard<std::mutex> guard(book_mutex_);
 
   std::string null_str("");
@@ -2654,13 +2641,17 @@ DQMStore::save(const std::string &filename,
       cdInto(s_monitorDirName + '/' + dir);
 
     // Loop over monitor elements in this directory.
-    if (not enableMultiThread_) {
-      MonitorElement proto(&dir, std::string(), run, 0, 0);
-      auto begin = data_.lower_bound(proto);
-      auto end   = data_.end();
-      saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
-    } else {
-      // Restrict the loop to the monitor elements for the current lumisection
+    // There are 3 cases to consider:
+    // - Global MEs (ConcurrentMonitorElement, moduleId=0, lumi=0)
+    // - "normal" MEs (default, moduleId set, lumi=0)
+    // - per-lumi clones (perLumiFlag=true, moduleId=0, lumi set)
+    // the sort order is run, lumi, module, dir, name
+    // TODO: for now we use the old MT behavoiur and only save per-lumi histos.
+    //       Maybe we should *also* save all others, but that was not done before.
+    // Restrict the loop to the monitor elements for the current lumisection
+    if (lumi != 0) {
+      // only save global per-lumi clones.
+      // with LSbasedMode, all histos are cloned, so all are saved.
       MonitorElement proto(&dir, std::string(), run, 0, 0);
       proto.setLumi(lumi);
       auto begin = data_.lower_bound(proto);
@@ -2668,15 +2659,24 @@ DQMStore::save(const std::string &filename,
       auto end   = data_.lower_bound(proto);
       saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
     }
-
-    // In LSbasedMode, loop also over the (run, 0, 0, 0) global histograms;
-    // these could be the merged global histrograms of their per-stream
-    // counterparts after the streamEndRun transition - but they are not
-    // produced in LSbasedMode.
-    if (enableMultiThread_ and LSbasedMode_ and lumi != 0) {
-      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 0));
-      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 1));
-      saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
+    if (lumi == 0) {
+      // save normal and global (moduleId=0) histos
+      // even if there are per-lumi clones in the moduleId=0 sapce,
+      // we start with the lumi=0 ones, and saveMonitorElementRangeToROOT will
+      // stop before running into the per-lumi ones.
+      uint32_t moduleId = 0;
+      for(;;) {
+        MonitorElement proto1(&dir, std::string(), run, 0, moduleId);
+        auto begin = data_.lower_bound(proto1);
+        MonitorElement proto2(&dir, std::string(), run, 0, moduleId+1);
+        auto end   = data_.lower_bound(proto2);
+        if (begin == end) break; // nothing to do
+        if (begin->lumi() > 0) break; // in case there are no global MEs
+        saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
+        if (end == data_.end()) break; // we are done
+        moduleId = end->moduleId(); // next module, so we reliably advance to the 
+                                    // first matching ME of the next module.
+      }
     }
   }
 
@@ -2799,15 +2799,18 @@ DQMStore::savePB(const std::string &filename,
     if (verbose_ > 1) {
       std::cout << "DQMStore::savePB: DQM folder " << dir << "/" << std::endl;
     }
-
     // Loop over monitor elements in this directory.
-    if (not enableMultiThread_) {
-      MonitorElement proto(&dir, std::string(), run, 0, 0);
-      auto begin = data_.lower_bound(proto);
-      auto end   = data_.end();
-      saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
-    } else {
-      // Restrict the loop to the monitor elements for the current lumisection
+    // There are 3 cases to consider:
+    // - Global MEs (ConcurrentMonitorElement, moduleId=0, lumi=0)
+    // - "normal" MEs (default, moduleId set, lumi=0)
+    // - per-lumi clones (perLumiFlag=true, moduleId=0, lumi set)
+    // the sort order is run, lumi, module, dir, name
+    // TODO: for now we use the old MT behavoiur and only save per-lumi histos.
+    //       Maybe we should *also* save all others, but that was not done before.
+    // Restrict the loop to the monitor elements for the current lumisection
+    if (lumi != 0) {
+      // only save global per-lumi clones.
+      // with LSbasedMode, all histos are cloned, so all are saved.
       MonitorElement proto(&dir, std::string(), run, 0, 0);
       proto.setLumi(lumi);
       auto begin = data_.lower_bound(proto);
@@ -2815,15 +2818,24 @@ DQMStore::savePB(const std::string &filename,
       auto end   = data_.lower_bound(proto);
       saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
     }
-
-    // In LSbasedMode, loop also over the (run, 0, 0, 0) global histograms;
-    // these could be the merged global histrograms of their per-stream
-    // counterparts after the streamEndRun transition - but they are not
-    // produced in LSbasedMode.
-    if (enableMultiThread_ and LSbasedMode_ and lumi != 0) {
-      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 0));
-      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 1));
-      saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
+    if (lumi == 0) {
+      // save normal and global (moduleId=0) histos
+      // even if there are per-lumi clones in the moduleId=0 sapce,
+      // we start with the lumi=0 ones, and saveMonitorElementRangeToROOT will
+      // stop before running into the per-lumi ones.
+      uint32_t moduleId = 0;
+      for(;;) {
+        MonitorElement proto1(&dir, std::string(), run, 0, moduleId);
+        auto begin = data_.lower_bound(proto1);
+        MonitorElement proto2(&dir, std::string(), run, 0, moduleId+1);
+        auto end   = data_.lower_bound(proto2);
+        if (begin == end) break; // nothing to do
+        if (begin->lumi() > 0) break; // in case there are no global MEs
+        saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
+        if (end == data_.end()) break; // we are done
+        moduleId = end->moduleId(); // next module, so we reliably advance to the 
+                                    // first matching ME of the next module.
+      }
     }
   }
 
