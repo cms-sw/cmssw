@@ -1,4 +1,5 @@
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace l1t;
 
@@ -75,4 +76,26 @@ int HGCalTower::hwEtHad()const
 int HGCalTower::hwEtRatio()const
 {
   return hwEtRatio_;
+}
+
+
+
+
+const HGCalTower& HGCalTower::operator+=(const HGCalTower tower){
+
+  if(this->hwEta()!= tower.hwEta() || this->hwPhi()!= tower.hwPhi()){
+    throw edm::Exception(edm::errors::StdException, "StdException")
+      << "HGCalTower: Trying to add HGCalTowers with different coordinates"<<endl;
+  }
+
+  this->setP4(this->p4() + tower.p4());
+  this->setEtEm(this->etEm() + tower.etEm());
+  this->setEtHad(this->etHad() + tower.etHad());
+
+  this->setHwPt(this->hwPt() + tower.hwPt());
+  this->setHwEtEm(this->hwEtEm() + tower.hwEtEm());
+  this->setHwEtHad(this->hwEtHad() + tower.hwEtHad());
+
+  return *this;
+
 }
