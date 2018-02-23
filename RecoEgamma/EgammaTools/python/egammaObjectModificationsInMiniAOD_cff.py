@@ -133,4 +133,8 @@ energyScaleAndSmearing = cms.PSet(
         energyEcalErrPreCorr = cms.InputTag("reducedEgamma","calibPhoEnergyEcalErrPreCorr"),
         )
     )
-egamma_modifications.append(energyScaleAndSmearing)
+
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+if run2_miniAOD_94XFall17.isChosen(): 
+    egamma_modifications.append(energyScaleAndSmearing)
+    

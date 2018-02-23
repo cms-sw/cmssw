@@ -352,9 +352,13 @@ def miniAOD_customizeCommon(process):
     
     #e/gamma scale & smearing
     #we will run in value map producting mode keyed to the orginal collection
-    from RecoEgamma.EgammaPhotonProducers.reducedEgamma_tools import calibrateReducedEgamma
-    calibrateReducedEgamma(process)
-
+    #only enabled for 94X right now
+    if run2_miniAOD_94XFall17.isChosen():
+        from RecoEgamma.EgammaPhotonProducers.reducedEgamma_tools import calibrateReducedEgamma
+        run2_miniAOD_94XFall17.toModify(process,
+                                        calibrateReducedEgamma
+                                        )
+        
     #---------------------------------------------------------------------------
     #Adding  Boosted Subjets taus
     from RecoTauTag.Configuration.boostedHPSPFTaus_cfi import addBoostedTaus
