@@ -14,6 +14,8 @@
  *   \author  A.Everett, R.Bellan
  *
  *    ORCA's author: N. Neumeister 
+ *
+ *    Modified by M.Oh
  */
 //L2MuonSeedGeneratorFromL1T
 //--------------------------------------------------
@@ -77,6 +79,9 @@ class L2MuonSeedGeneratorFromL1T : public edm::stream::EDProducer<> {
   /// use central bx only muons
   bool centralBxOnly_;
 
+  const int matchType;
+  const int sortType;
+
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy *theService;  
 
@@ -86,6 +91,13 @@ class L2MuonSeedGeneratorFromL1T : public edm::stream::EDProducer<> {
 						  std::vector<int> &, 
 						  TrajectoryStateOnSurface &,
 						  double );
+
+  bool isAssociateOfflineSeedToL1( edm::Handle<edm::View<TrajectorySeed> > &,
+              std::vector< std::vector<double> > &,
+              TrajectoryStateOnSurface &,
+              unsigned int,
+              std::vector< std::vector<const TrajectorySeed *> > &,
+              double );
 
 };
 
