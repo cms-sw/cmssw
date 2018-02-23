@@ -746,6 +746,8 @@ class DQMStore
 
   // lumisection based histograms manipulations
   void cloneLumiHistograms(uint32_t run, uint32_t lumi, uint32_t moduleId);
+  void cloneRunHistograms(uint32_t run, uint32_t moduleId);
+
   void deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi);
 
  private:

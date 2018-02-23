@@ -395,6 +395,13 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
         gc.luminosityBlockID().luminosityBlock(),
         mcc.moduleDescription()->id());
   });
+
+  ar.watchPostModuleGlobalEndRun([this](edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
+      cloneRunHistograms(
+        gc.luminosityBlockID().run(),
+        mcc.moduleDescription()->id());
+  });
+
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
@@ -1104,6 +1111,7 @@ MonitorElement *
 DQMStore::book2S(const char *name, const char *title,
                  int nchX, const float *xbinsize, int nchY, const float *ybinsize)
 {
+
   return book2S_(pwd_, name, new TH2S(name, title,
                                      nchX, xbinsize, nchY, ybinsize));
 }
@@ -2069,6 +2077,43 @@ DQMStore::cloneLumiHistograms(uint32_t run, uint32_t lumi, uint32_t moduleId)
     const_cast<MonitorElement*>(&*i)->Reset();
   }
 }
+
+/** Same as above, but for run histograms.
+ */
+
+void
+DQMStore::cloneRunHistograms(uint32_t run, uint32_t moduleId)
+{
+  if (verbose_ > 1) {
+    std::cout << "DQMStore::cloneRunHistograms - Preparing run histograms for run: "
+              << run << ", module: " << moduleId << std::endl;
+  }
+
+  // acquire the global lock since this accesses the undelying data structure
+  std::lock_guard<std::mutex> guard(book_mutex_);
+
+  // MEs are sorted by (run, lumi, stream id, module id, directory, name)
+  // lumi deafults to 0
+  // stream id is always 0
+  std::string null_str("");
+  auto i = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId));
+  auto e = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId + 1));
+  for (; i != e; ++i) {
+    // handle only non lumisection-based histograms
+    if (LSbasedMode_ or i->getLumiFlag())
+      continue;
+
+    // clone the lumisection-based histograms
+    MonitorElement clone{*i};
+    clone.globalize();
+    clone.markToDelete();
+    data_.insert(std::move(clone));
+
+    // reset the ME for the next lumisection
+    const_cast<MonitorElement*>(&*i)->Reset();
+  }
+}
+
 
 /** Delete *global* histograms which are no longer in use.
  * Such histograms are created at the end of each lumi and should be
