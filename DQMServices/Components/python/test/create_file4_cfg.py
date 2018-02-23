@@ -35,8 +35,6 @@ process.o = cms.EndPath(process.out)
 
 process.add_(cms.Service("DQMStore"))
 
-if b.multithread():
-
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
 
 
