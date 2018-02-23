@@ -1823,59 +1823,6 @@ DQMStore::findObject(const std::string &dir,
           : const_cast<MonitorElement *>(&*mepos));
 }
 
-/** get tags for various maps, return vector with strings of the form
-    <dir pathname>:<obj1>/<tag1>/<tag2>,<obj2>/<tag1>/<tag3>, etc. */
-void
-DQMStore::getAllTags(std::vector<std::string> &into) const
-{
-  into.clear();
-  into.reserve(dirs_.size());
-
-  auto me = data_.end();
-  auto di = dirs_.begin();
-  auto de = dirs_.end();
-  char tagbuf[32]; // more than enough for '/' and up to 10 digits
-
-  for ( ; di != de; ++di)
-  {
-    MonitorElement proto(&*di, std::string());
-    auto mi = data_.lower_bound(proto);
-    auto m = mi;
-    size_t sz = di->size() + 2;
-    size_t nfound = 0;
-    for ( ; m != me && isSubdirectory(*di, *m->data_.dirname); ++m)
-      if (*di == *m->data_.dirname && (m->data_.flags & DQMNet::DQM_PROP_TAGGED))
-      {
-        // the tags count for '/' + up to 10 digits, otherwise ',' + ME name
-        sz += 1 + m->data_.objname.size() + 11;
-        ++nfound;
-      }
-
-    if (! nfound)
-      continue;
-
-    auto istr
-      = into.insert(into.end(), std::string());
-
-    istr->reserve(sz);
-
-    *istr += *di;
-    *istr += ':';
-    for (sz = 0; mi != m; ++mi)
-    {
-      if (*di == *m->data_.dirname && (m->data_.flags & DQMNet::DQM_PROP_TAGGED))
-      {
-        sprintf(tagbuf, "/%u", mi->data_.tag);
-        if (sz > 0)
-          *istr += ',';
-        *istr += m->data_.objname;
-        *istr += tagbuf;
-        ++sz;
-      }
-    }
-  }
-}
-
 /// get vector with children of folder, including all subfolders + their children;
 /// must use an exact pathname
 std::vector<MonitorElement*>
