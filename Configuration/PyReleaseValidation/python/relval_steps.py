@@ -2230,7 +2230,6 @@ defaultDataSets['2018Design']='CMSSW_10_0_2-100X_upgrade2018_design_IdealBS_v6-v
 #defaultDataSets['2019Design']=''
 defaultDataSets['2023D17']=''
 defaultDataSets['2023D19']=''
-defaultDataSets['2023D20']=''
 defaultDataSets['2023D21']=''
 
 keys=defaultDataSets.keys()
