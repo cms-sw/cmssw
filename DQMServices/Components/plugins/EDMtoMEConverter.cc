@@ -254,59 +254,16 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
       << "===============================\n";
   }
 
-  iCountf = 0;
-  iCount.clear();
-
   assert(sizeof(int64_t) == sizeof(long long));
   usesResource("DQMStore");
-  produces<DQMToken,edm::Transition::EndLuminosityBlock>();
-  produces<DQMToken,edm::Transition::EndRun>();
 
+  dqmLumiToken_ = produces<DQMToken,edm::Transition::EndLuminosityBlock>("endLumi");
+  dqmRunToken_ = produces<DQMToken,edm::Transition::EndRun>("endRun");
 } // end constructor
 
 EDMtoMEConverter::~EDMtoMEConverter() = default;
 
-void EDMtoMEConverter::beginJob()
-{
-}
-
-void EDMtoMEConverter::endJob()
-{
-  constexpr char MsgLoggerCat[] = "EDMtoMEConverter_endJob";
-  if (verbosity >= 0)
-    edm::LogInfo(MsgLoggerCat)
-      << "Terminating having processed " << iCount.size() << " runs across "
-      << iCountf << " files.";
-  return;
-}
-
-void EDMtoMEConverter::respondToOpenInputFile(const edm::FileBlock& iFb)
-{
-  ++iCountf;
-  return;
-}
-
-void EDMtoMEConverter::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
-{
-  constexpr char MsgLoggerCat[] = "EDMtoMEConverter_beginRun";
-
-  int nrun = iRun.run();
-
-  // keep track of number of unique runs processed
-  ++iCount[nrun];
-
-  if (verbosity > 0) {
-    edm::LogInfo(MsgLoggerCat)
-      << "Processing run " << nrun << " (" << iCount.size() << " runs total)";
-  } else if (verbosity == 0) {
-    if (nrun%frequency == 0 || iCount.size() == 1) {
-      edm::LogInfo(MsgLoggerCat)
-        << "Processing run " << nrun << " (" << iCount.size() << " runs total)";
-    }
-  }
-}
-
-void EDMtoMEConverter::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
+void EDMtoMEConverter::endRunProduce(edm::Run& iRun, edm::EventSetup const& iSetup) 
 {
   if (convertOnEndRun) {
     DQMStore * store = edm::Service<DQMStore>().operator->();
@@ -314,13 +271,12 @@ void EDMtoMEConverter::endRun(const edm::Run& iRun, const edm::EventSetup& iSetu
       getData(b, g, iRun);
     });
   }
+
+
+  iRun.put(dqmRunToken_, std::make_unique<DQMToken>());
 }
 
-void EDMtoMEConverter::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
-{
-}
-
-void EDMtoMEConverter::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup)
+void EDMtoMEConverter::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi, edm::EventSetup const& iSetup)
 {
   if (convertOnEndLumi) {
     DQMStore * store = edm::Service<DQMStore>().operator->();
@@ -328,6 +284,8 @@ void EDMtoMEConverter::endLuminosityBlock(const edm::LuminosityBlock& iLumi, con
       getData(b, g, iLumi);
     });
   }
+
+  iLumi.put(dqmLumiToken_, std::make_unique<DQMToken>());
 }
 
 
