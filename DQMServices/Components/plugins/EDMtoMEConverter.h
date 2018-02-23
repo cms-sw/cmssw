@@ -65,7 +65,7 @@ class EDMtoMEConverter : public edm::one::EDProducer<edm::one::WatchRuns,edm::on
   void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) final {};
 
   template <class T>
-  void getData(T& iGetFrom);
+  void getData(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, T& iGetFrom);
 
   using TagList = std::vector<uint32_t>;
 
@@ -77,8 +77,6 @@ class EDMtoMEConverter : public edm::one::EDProducer<edm::one::WatchRuns,edm::on
 
   bool convertOnEndLumi;
   bool convertOnEndRun;
-
-  DQMStore *dbe;
 
   // private statistics information
   unsigned int iCountf;
