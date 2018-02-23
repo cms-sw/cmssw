@@ -227,21 +227,6 @@ namespace edm
 
       PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());
     }
-
-    // Validation
-
-    produces< std::vector<TrackingParticle> >(ps.getParameter<std::string>("TrackingParticleCollectionDM"));
-    produces< std::vector<TrackingVertex> >(ps.getParameter<std::string>("TrackingParticleCollectionDM"));
-
-    produces< edm::DetSetVector<StripDigiSimLink> >(ps.getParameter<std::string>("StripDigiSimLinkCollectionDM"));
-    produces< edm::DetSetVector<PixelDigiSimLink> >(ps.getParameter<std::string>("PixelDigiSimLinkCollectionDM"));
-    produces< MuonDigiCollection<DTLayerId,DTDigiSimLink> >(ps.getParameter<std::string>("DTDigiSimLinkDM"));
-    produces< edm::DetSetVector<RPCDigiSimLink> >(ps.getParameter<std::string>("RPCDigiSimLinkDM"));
-    produces< edm::DetSetVector<StripDigiSimLink> >(ps.getParameter<std::string>("CSCStripDigiSimLinkDM"));
-    produces< edm::DetSetVector<StripDigiSimLink> >(ps.getParameter<std::string>("CSCWireDigiSimLinkDM"));
-
-    TrackingParticleWorker_ = new DataMixingTrackingParticleWorker(ps, consumesCollector());
-
   }
 
   void DataMixingModule::getSubdetectorNames() {
@@ -291,9 +276,6 @@ namespace edm
     if( addMCDigiNoise_ && MergeHcalDigisProd_) {
       HcalDigiWorkerProd_->initializeEvent( e, ES );
     }
-
-    TrackingParticleWorker_->initializeEvent( e, ES );
-
   }
   
 
@@ -332,8 +314,6 @@ namespace edm
       delete GeneralTrackWorker_;
     }
     if(MergePileup_) { delete PUWorker_;}
-
-    delete TrackingParticleWorker_;
   }
 
   void DataMixingModule::addSignals(const edm::Event &e, const edm::EventSetup& ES) { 
@@ -373,9 +353,6 @@ namespace edm
       GeneralTrackWorker_->accumulate(e,ES);
     }
     AddedPileup_ = false;
-
-    TrackingParticleWorker_->addTrackingParticleSignals(e);
-
   } // end of addSignals
 
   
@@ -438,9 +415,6 @@ namespace edm
       PileUpEventPrincipal pep(ep,&moduleCallingContext,bcr);
       GeneralTrackWorker_->accumulate(pep, ES,ep.streamID());
     }
-    
-    TrackingParticleWorker_->addTrackingParticlePileups(bcr, &ep, eventNr, &moduleCallingContext);
-    
   }
 
 
@@ -538,9 +512,6 @@ namespace edm
     }else{
       GeneralTrackWorker_->finalizeEvent(e,ES);
     }
-
-    TrackingParticleWorker_->putTrackingParticle(e);
-
   }
 
   void DataMixingModule::beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {

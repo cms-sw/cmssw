@@ -32,7 +32,6 @@
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripRawWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelWorker.h"
-#include "SimGeneral/DataMixingModule/plugins/DataMixingTrackingParticleWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingPileupCopy.h"
 
 #include <map>
@@ -177,10 +176,6 @@ namespace edm {
 
       DigiAccumulatorMixMod * GeneralTrackWorker_;
 
-
-      // Validation
-
-      DataMixingTrackingParticleWorker * TrackingParticleWorker_ ;
 
       virtual void getSubdetectorNames();  
 
