@@ -124,6 +124,7 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
     std::vector<int> oldToNew(n), newToOld, badToOld; 
     newToOld.reserve(n);
 
+    //std::cout << "NEW EV:" << std::endl;
 
     //loop over PFCandidates
     int i = -1;
@@ -137,7 +138,7 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 	  {
 	    bool toKill = false;
 	    for(auto badIt: badChHE_)
-	      if( reco::deltaR2(pf.eta(), pf.phi(), std::get<0>(badIt), std::get<1>(badIt)) < 0.008 )
+	      if( reco::deltaR2(pf.eta(), pf.phi(), std::get<0>(badIt), std::get<1>(badIt)) < 0.07 )
 		toKill = true;
 	    
 	    
@@ -155,50 +156,95 @@ void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup 
 		newToOld.push_back(i);
 	      }
 	  }
+	//deal with HF
+	else if(fabs(pf.eta()) > 3.)
+	  {
+	    math::XYZPointF ecalPoint = pf.positionAtECALEntrance();
+	    GlobalPoint ecalGPoint(ecalPoint.X(),ecalPoint.Y(),ecalPoint.Z());
+	    HcalDetId closestDetId(hgeom->getClosestCell(ecalGPoint));
+	    
+	    if(closestDetId.subdet() == 4)
+	      {
+		HcalDetId hDetId(closestDetId.subdet(),closestDetId.ieta(),closestDetId.iphi(),1); //depth1
+		
+		//raw*calEnergy() is the same as *calEnergy() - no corrections are done for HF
+		float longE  = pf.rawEcalEnergy() + pf.rawHcalEnergy()/2.;  //depth1
+		float shortE = pf.rawHcalEnergy()/2.;                       //depth2
+		
+		float ecalEnergy = pf.rawEcalEnergy();
+		float hcalEnergy = pf.rawHcalEnergy();
+		float totEnergy = ecalEnergy + hcalEnergy;
+		
+		bool toKill = false;
+			
+		for(auto badIt: badChHF_)
+		  {
+		    if ( hDetId.ieta() == std::get<0>(badIt) &&
+			 hDetId.iphi() == std::get<1>(badIt) )
+		      {
+			//std::cout << "==> orig en (tot,H,E): " << pf.energy() << " " << pf.rawHcalEnergy() << " " << pf.rawEcalEnergy() << std::endl;
+			if(std::get<2>(badIt) == 1) //depth1
+			  {
+			    longE *= std::get<3>(badIt);
+			    ecalEnergy = longE - shortE;
+			    totEnergy = ecalEnergy + hcalEnergy;
+			  }
+			else //depth2
+			  {
+			    shortE *= std::get<3>(badIt);
+			    hcalEnergy = 2*shortE;
+			    if(ecalEnergy > 0)
+			      ecalEnergy = longE - shortE;
+			    totEnergy = ecalEnergy + hcalEnergy;
+			  }
+			//kill candidate if goes below thr
+			if((pf.pdgId()==1 && shortE < 1.4) || 
+			   (pf.pdgId()==2 && longE < 1.4))
+			  toKill = true;
+
+			//std::cout << "====> ieta,iphi,depth: " <<std::get<0>(badIt) << " " << std::get<1>(badIt) << " " << std::get<2>(badIt) << " corr: " << std::get<3>(badIt) << std::endl;
+			//std::cout << "====> recal en (tot,H,E): " << totEnergy << " " << hcalEnergy << " " << ecalEnergy << std::endl;
+
+		      }
+		  }
+		
+		if(toKill == true)
+		  {
+		    discarded->push_back(pf);
+		    oldToNew[i] = (-discarded->size());
+		    badToOld.push_back(i);
+
+		    //std::cout << "==> KILLED " << std::endl;
+		  }
+		else
+		  {
+		    copy->push_back(pf);
+		    oldToNew[i] = (copy->size());
+		    newToOld.push_back(i);
+		    
+		    copy->back().setHcalEnergy(hcalEnergy, hcalEnergy);
+		    copy->back().setEcalEnergy(ecalEnergy, ecalEnergy);
+		    math::XYZTLorentzVector recalibP4(pf.px(), pf.py(), pf.pz(), totEnergy);
+		    copy->back().setP4( recalibP4 );
+
+		    //std::cout << "====> stored en (tot,H,E): " << copy->back().energy() << " " << copy->back().hcalEnergy() << " " << copy->back().ecalEnergy() << std::endl;
+		  }
+	      }
+	    else
+	      {
+		copy->push_back(pf);
+		oldToNew[i] = (copy->size());
+		newToOld.push_back(i);
+	      }
+	  }
 	else
 	  {
 	    copy->push_back(pf);
 	    oldToNew[i] = (copy->size());
 	    newToOld.push_back(i);
 	  }
+      }
 
-	
-	
-
-	//deal with HF
-	math::XYZPointF ecalPoint = pf.positionAtECALEntrance();
-	GlobalPoint ecalGPoint(ecalPoint.X(),ecalPoint.Y(),ecalPoint.Z());
-	HcalDetId closestDetId(hgeom->getClosestCell(ecalGPoint));
-	
-	if(closestDetId.subdet() == 4)
-	  {
-	    HcalDetId hDetId(closestDetId.subdet(),closestDetId.ieta(),closestDetId.iphi(),1); //depth1
-	    for(auto badIt: badChHF_)
-	      {
-		if ( hDetId.ieta() == std::get<0>(badIt) &&
-		     hDetId.iphi() == std::get<1>(badIt) )
-		  {
-		    float totEnergy = -1;
-		    if(std::get<2>(badIt) == 1) //depth1
-		      {
-			copy->back().setEcalEnergy(pf.rawEcalEnergy() * std::get<3>(badIt),
-						   pf.ecalEnergy() * std::get<3>(badIt));
-			totEnergy = pf.hcalEnergy() + pf.ecalEnergy() * std::get<3>(badIt);
-		      }
-		    else //depth2
-		      {
-			copy->back().setHcalEnergy(pf.rawHcalEnergy() * std::get<3>(badIt),
-						   pf.hcalEnergy() * std::get<3>(badIt));
-			totEnergy = pf.hcalEnergy() * std::get<3>(badIt) + pf.ecalEnergy();
-		      }
-		    
-		    math::XYZTLorentzVector recalibP4(pf.px(), pf.py(), pf.pz(), totEnergy);		
-		    copy->back().setP4( recalibP4 );		  
-		  }
-	      }
-	  }
-      }	
-	
     // Now we put things in the event
     edm::OrphanHandle<std::vector<reco::PFCandidate>> newpf = iEvent.put(std::move(copy));
     edm::OrphanHandle<std::vector<reco::PFCandidate>> badpf = iEvent.put(std::move(discarded), "discarded");
