@@ -641,7 +641,7 @@ namespace edm {
                         SubProcessParentageHelper const* subProcessParentageHelper) {
     std::string const output("output");
 
-    ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents", ParameterSet());
+    ParameterSet const& maxEventsPSet = proc_pset.getUntrackedParameterSet("maxEvents");
     int maxEventSpecs = 0;
     int maxEventsOut = -1;
     ParameterSet const* vMaxEventsOut = nullptr;
