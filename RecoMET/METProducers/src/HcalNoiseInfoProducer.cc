@@ -862,8 +862,6 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
   for(HBHERecHitCollection::const_iterator it=handle->begin(); it!=handle->end(); ++it) {
     const HBHERecHit &rechit=(*it);
 
-    if((rechit.auxPhase1()>>HBHERecHitAuxSetter::OFF_TDC_TIME)&1) continue; // Exclude QIE11 channels  
-
     // skip bad rechits (other than those flagged by the isolated noise, triangle, flat, and spike algorithms)
     const DetId id = rechit.idFront();
 
@@ -906,6 +904,9 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
       summary.rechitCount15_ = summary.rechitCount15_ + 1;
       summary.rechitEnergy15_ = summary.rechitEnergy15_ + rechit.eraw();
     }
+    
+    // Exclude QIE11 channels  
+    if((rechit.auxPhase1()>>HBHERecHitAuxSetter::OFF_TDC_TIME)&1) continue; 
 
     // if it was ID'd as isolated noise, update the summary object
     if(rechit.flags() & isolbitset) {
