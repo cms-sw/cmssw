@@ -298,7 +298,10 @@ def miniAOD_customizeCommon(process):
         process.heepIDVarValueMaps.elesMiniAOD = cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
         #force HEEP to use miniAOD (otherwise it'll detect the AOD)
         process.heepIDVarValueMaps.dataFormat = cms.int32(2)
-    
+
+        #add the HEEP trk isol to the slimmed electron
+        process.slimmedElectrons.modifierConfig.modifications[0].electron_config.heepV70TrkPtIso = cms.InputTag("heepIDVarValueMaps","eleTrkPtIso")
+
     vidCutBitsModifier = cms.PSet(
         modifierName    = cms.string('EGExtraInfoModifierFromUIntToIntValueMaps'),
         electron_config = cms.PSet(),
