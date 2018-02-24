@@ -187,11 +187,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       auto clustp = pixhit->cluster();
       if (clustp.isNull()) continue;
       auto const & cluster = *clustp;
-
-
       const std::vector<SiPixelCluster::Pixel> pixelsVec = cluster.pixels();
-
-
       for (unsigned int i = 0;  i < pixelsVec.size(); ++i) {
 
         float pixx = pixelsVec[i].x; // index as float=iteger, row index
@@ -201,12 +197,17 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
         bool bigInY = topol.isItBigPixelInY(int(pixy));
         float pixel_charge = pixelsVec[i].adc;
 
-        if (bigInX || bigInY) histo[ON_TRACK_BIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
-        else histo[ON_TRACK_NOTBIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
-      }
+        if (bigInX==true || bigInY==true) {
+          std::cout<<"Failure here 1?"<<std::endl;
+          histo[ON_TRACK_BIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
+        }
+        else {
+          std::cout<<"Failure here 2?"<<std::endl;
+          histo[ON_TRACK_NOTBIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
+          std::cout<<"Did this pass?????"<<std::endl;
 
-
-
+        }
+      } // End loop over pixels
       auto const & ltp = trajParams[h];
 
       auto localDir = ltp.momentum() / ltp.momentum().mag();
