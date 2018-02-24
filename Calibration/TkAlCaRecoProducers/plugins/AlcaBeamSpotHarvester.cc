@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
@@ -27,7 +28,7 @@
 //#include "CondCore/Utilities/interface/Utilities.h"
 // #include "FWCore/MessageLogger/interface/JobReport.h"
 
-#include <iostream> 
+#include <iostream>
 #include <cstring>
 
 using namespace edm;
@@ -42,7 +43,7 @@ AlcaBeamSpotHarvester::AlcaBeamSpotHarvester(const edm::ParameterSet& iConfig) :
   sigmaZCut_           (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<double>("SigmaZCut")),
   dumpTxt_               (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<bool>("DumpTxt")),
   outTxtFileName_        (iConfig.getParameter<ParameterSet>("AlcaBeamSpotHarvesterParameters").getUntrackedParameter<std::string>("TxtFileName")),
-  theAlcaBeamSpotManager_(iConfig, consumesCollector()) {  
+  theAlcaBeamSpotManager_(iConfig, consumesCollector()) {
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -52,13 +53,13 @@ AlcaBeamSpotHarvester::~AlcaBeamSpotHarvester(){}
 void AlcaBeamSpotHarvester::beginJob() {}
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotHarvester::endJob() {}  
+void AlcaBeamSpotHarvester::endJob() {}
 
 //--------------------------------------------------------------------------------------------------
 void AlcaBeamSpotHarvester::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
 //  edm::LogInfo("AlcaBeamSpotHarvester")
-//      << "Lumi: " << iEvent.luminosityBlock() 
-//      << " Time: " << iEvent.time().unixTime() 
+//      << "Lumi: " << iEvent.luminosityBlock()
+//      << " Time: " << iEvent.time().unixTime()
 //      << std::endl;
 }
 
@@ -96,7 +97,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
       aBeamSpot->SetEmittanceX(it->second.emittanceX());
       aBeamSpot->SetEmittanceY(it->second.emittanceY());
       aBeamSpot->SetBetaStar(it->second.betaStar() );
-	
+
       for (int i=0; i<7; ++i) {
 	for (int j=0; j<7; ++j) {
 	  aBeamSpot->SetCovariance(i,j,it->second.covariance(i,j));
@@ -112,14 +113,14 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
       beamspot::BeamSpotContainer currentBS;
 
 
-      // run based      
+      // run based
       if (beamSpotOutputBase_ == "runbased" ) {
 	thisIOV = (cond::Time_t) iRun.id().run();
       }
       // lumi based
       else if (beamSpotOutputBase_ == "lumibased" ) {
 	edm::LuminosityBlockID lu(iRun.id().run(),it->first);
-	thisIOV = (cond::Time_t)(lu.value()); 
+	thisIOV = (cond::Time_t)(lu.value());
 
 	currentBS.beamspot       = it -> second       ;
 	currentBS.run            = iRun.id().run()    ;
@@ -139,13 +140,21 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
           edm::LogInfo("AlcaBeamSpotHarvester")
               << "new tag requested" << std::endl;
           //poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->beginOfTime(),poolDbService->endOfTime(),"BeamSpotObjectsRcd");
-	  
 	  //poolDbService->createNewIOV<BeamSpotObjects>(aBeamSpot, poolDbService->currentTime(), poolDbService->endOfTime(),"BeamSpotObjectsRcd");
 	  poolDbService->writeOne<BeamSpotObjects>(aBeamSpot, thisIOV, outputrecordName_);
           if (dumpTxt_ && beamSpotOutputBase_ == "lumibased"){
               beamspot::dumpBeamSpotTxt(outFile, currentBS);
-          }    
-      } 
+
+	            edm::Service<edm::JobReport> jr;
+      	      if (jr.isAvailable()) {
+            		std::map<std::string, std::string> jrInfo;
+            		jrInfo["Source"] = std::string("AlcaHarvesting");
+            		jrInfo["FileClass"] = std::string("ALCATXT");
+            		jr->reportAnalysisFile(outTxt, jrInfo);
+      	      }
+
+          }
+      }
       else {
         edm::LogInfo("AlcaBeamSpotHarvester")
             << "no new tag requested, appending IOV" << std::endl;
@@ -155,7 +164,6 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
             beamspot::dumpBeamSpotTxt(outFile, currentBS);
         }
       }
-
 
 
 
@@ -170,12 +178,12 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
 			   ,"-b","1"
 			   ,"-e","10"
 			   };
-      
+
       edm::LogInfo("AlcaBeamSpotHarvester")
-        << "Running utilities!" 
+        << "Running utilities!"
 	<< utilities.run(argc,(char**)argv);
       edm::LogInfo("AlcaBeamSpotHarvester")
-        << "Run utilities!" 
+        << "Run utilities!"
 	<< std::endl;
 */
     }
