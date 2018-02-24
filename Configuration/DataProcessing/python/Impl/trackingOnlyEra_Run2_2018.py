@@ -26,7 +26,6 @@ class trackingOnlyEra_Run2_2018(trackingOnly):
         self.eras=Run2_2018
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018' ]
         self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_express_trackingOnly' ]
-        self.alcaHarvCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_harvesting_trackingOnly' ]
         self.visCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018' ]
 
     """
