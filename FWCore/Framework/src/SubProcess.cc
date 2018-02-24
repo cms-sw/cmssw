@@ -28,6 +28,7 @@
 #include "FWCore/Framework/src/globalTransitionAsync.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
@@ -121,11 +122,13 @@ namespace edm {
     auto subProcessVParameterSet = popSubProcessVParameterSet(*processParameterSet_);
     bool hasSubProcesses = subProcessVParameterSet.size() != 0ull;
 
+    // Validates the parameters in the 'options', 'maxEvents', and 'maxLuminosityBlocks'
+    // top level parameter sets. Default values are also set in here if the
+    // parameters were not explicitly set.
+    validateTopLevelParameterSets(processParameterSet_.get());
+
     ScheduleItems items(*parentProductRegistry, *this);
     actReg_ = items.actReg_;
-
-    ParameterSet const& optionsPset(processParameterSet_->getUntrackedParameterSet("options", ParameterSet()));
-    IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
 
     //initialize the services
     ServiceToken iToken;
