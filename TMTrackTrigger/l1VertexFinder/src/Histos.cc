@@ -542,7 +542,7 @@ void Histos::fillVertexReconstruction(const InputData& inputData, const VertexFi
     if(!found){
       bool TrackIsReconstructed = false;
       for(const L1fittedTrackBase* l1trackIt: vf.FitTracks()){
-	const L1fittedTrack * l1track = trackAssociationMap[l1trackIt->getTTTrackPtr()];
+        const L1fittedTrack * l1track = trackAssociationMap[l1trackIt->getTTTrackPtr()];
         if(l1track->getMatchedTP()!= nullptr){
           if(tp.index() == l1track->getMatchedTP()->index() ){
             TrackIsReconstructed = true;
