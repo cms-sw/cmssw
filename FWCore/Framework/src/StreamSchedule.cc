@@ -88,7 +88,7 @@ namespace edm {
                                     std::multimap<std::string,Worker*>& branchToReadingWorker)
     {
       // See if any data has been marked to be deleted early (removing any duplicates)
-      auto vBranchesToDeleteEarly = opts.getUntrackedParameter<std::vector<std::string>>("canDeleteEarly",std::vector<std::string>());
+      auto vBranchesToDeleteEarly = opts.getUntrackedParameter<std::vector<std::string>>("canDeleteEarly");
       if(not vBranchesToDeleteEarly.empty()) {
         std::sort(vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end(),std::less<std::string>());
         vBranchesToDeleteEarly.erase(std::unique(vBranchesToDeleteEarly.begin(),vBranchesToDeleteEarly.end()),
