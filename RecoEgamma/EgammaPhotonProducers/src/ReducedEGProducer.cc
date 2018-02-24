@@ -655,7 +655,6 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     std::vector<reco::GsfTrackRef> ambigTracksInThisElectron;
     // Here we loop over the ambiguous tracks and save them in a vector
     for (reco::GsfTrackRefVector::const_iterator igsf = gsfElectron.ambiguousGsfTracksBegin(); igsf != gsfElectron.ambiguousGsfTracksEnd(); ++igsf) {
-      const reco::GsfTrackRef &ambGsfTrack = *igsf;
       ambigTracksInThisElectron.push_back(*igsf);
     }
     
@@ -1025,7 +1024,7 @@ void ReducedEGProducer::calibrateElectron(reco::GsfElectron& electron,
   electron.setCorrectedEcalEnergyError(newEcalEnergyErr);
  
   const math::XYZTLorentzVector oldP4 = electron.p4();
-  math::XYZTLorentzVector newP4 = math::XYZTLorentzVector(newP4.x() * newEnergy / oldP4.t(),
+  math::XYZTLorentzVector newP4 = math::XYZTLorentzVector(oldP4.x() * newEnergy / oldP4.t(),
 							  oldP4.y() * newEnergy / oldP4.t(),
 							  oldP4.z() * newEnergy / oldP4.t(),
 							  newEnergy);
