@@ -498,9 +498,10 @@ void MahiFit::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps) {
 
   // only the pulse shape itself from PulseShapeFunctor is used for Mahi
   // the uncertainty terms calculated inside PulseShapeFunctor are used for Method 2 only
-  psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,false,false,false,false,
-						   1,0,2.5,0,0.00065,1,10));
+  psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps,false,false,false,
+						   1,0,0,10));
   pfunctor_ = std::unique_ptr<ROOT::Math::Functor>( new ROOT::Math::Functor(psfPtr_.get(),&FitterFuncs::PulseShapeFunctor::singlePulseShapeFunc, 3) );
+
 
 }
 

@@ -19,7 +19,8 @@ class HcalDeterministicFit {
   ~HcalDeterministicFit();
 
   enum FType {shapeLandau, shape205, shape206, shape207};
-  void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, PedestalSub pedSubFxn, double respCorr);
+
+  void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, double respCorr);
 
   void phase1Apply(const HBHEChannelInfo& channelData,
 		   float& reconstructedEnergy,
