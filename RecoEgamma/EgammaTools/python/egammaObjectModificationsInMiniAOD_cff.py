@@ -84,7 +84,7 @@ setup_mva(egamma_modifications[0].photon_config,
 #############################################################
 # Scale and Smearing Modifiers
 #############################################################
-energyScaleAndSmearing = cms.PSet(
+reducedEgammaEnergyScaleAndSmearingModifier = cms.PSet(
     modifierName    = cms.string('EGExtraInfoModifierFromFloatValueMaps'),
     electron_config = cms.PSet(
         energyScaleUp = cms.InputTag("reducedEgamma","calibEleEnergyScaleUp"),
@@ -133,4 +133,4 @@ energyScaleAndSmearing = cms.PSet(
         energyEcalErrPreCorr = cms.InputTag("reducedEgamma","calibPhoEnergyEcalErrPreCorr"),
         )
     )
-egamma_modifications.append(energyScaleAndSmearing)
+

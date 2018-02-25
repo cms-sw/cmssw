@@ -21,7 +21,7 @@ calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducerRun2",
                                         isSynchronization = cms.bool(False),
                                         minEtToCalibrate = cms.double(5.0),
                                         produceCalibratedEles = cms.bool(True),
-
+                                        semiDeterministic = cms.bool(True),
                                         correctionFile = cms.string(files[correctionType]),
                                         recHitCollectionEB = cms.InputTag('reducedEgamma:reducedEBRecHits'),
                                         recHitCollectionEE = cms.InputTag('reducedEgamma:reducedEERecHits')

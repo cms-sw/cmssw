@@ -271,21 +271,11 @@ def miniAOD_customizeCommon(process):
         #add the HEEP trk isol to the slimmed electron
         process.slimmedElectrons.modifierConfig.modifications[0].electron_config.heepV70TrkPtIso = cms.InputTag("heepIDVarValueMaps","eleTrkPtIso")
 
-    vidCutBitsModifier = cms.PSet(
-        modifierName    = cms.string('EGExtraInfoModifierFromUIntToIntValueMaps'),
-        electron_config = cms.PSet(),
-        photon_config = cms.PSet()
-        )
-
     #now put them all in the pat electron
     process.patElectrons.electronIDSources=cms.PSet()
     for egid in process.egmGsfElectronIDs.physicsObjectIDs:
         setattr(process.patElectrons.electronIDSources,egid.idDefinition.idName.value(),cms.InputTag('egmGsfElectronIDs:'+egid.idDefinition.idName.value()))  
-        #do not store cut bit maps for the MVA ID, its just one cut so doesnt make sense
-        #they all start with "mva"
-        if egid.idDefinition.idName.value().find("mva")!=0:
-            setattr(vidCutBitsModifier.electron_config,egid.idDefinition.idName.value(),cms.InputTag('egmGsfElectronIDs:'+egid.idDefinition.idName.value()+"Bitmap"))
-    
+       
     
     #VID Photon IDs
     photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V1_TrueVtx_cff',
@@ -315,17 +305,18 @@ def miniAOD_customizeCommon(process):
     process.patPhotons.photonIDSources=cms.PSet()
     for egid in process.egmPhotonIDs.physicsObjectIDs:
         setattr(process.patPhotons.photonIDSources,egid.idDefinition.idName.value(),cms.InputTag('egmPhotonIDs:'+egid.idDefinition.idName.value()))
-        #do not store cut bit maps for the MVA ID, its just one cut so doesnt make sense
-        #they all start with "mva"
-        if egid.idDefinition.idName.value().find("mva")!=0:
-            setattr(vidCutBitsModifier.photon_config,egid.idDefinition.idName.value(),cms.InputTag('egmPhotonIDs:'+egid.idDefinition.idName.value()+"Bitmap"))      
 
-    egamma_modifications.append(vidCutBitsModifier)
+    #add the cut base IDs bitmaps of which cuts passed
+    from RecoEgamma.EgammaTools.egammaObjectModifications_tools import makeVIDBitsModifier
+    egamma_modifications.append(makeVIDBitsModifier(process,"egmGsfElectronIDs","egmPhotonIDs"))
     
     #e/gamma scale & smearing
     #we will run in value map producting mode keyed to the orginal collection
     from RecoEgamma.EgammaPhotonProducers.reducedEgamma_tools import calibrateReducedEgamma
     calibrateReducedEgamma(process)
+    from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import reducedEgammaEnergyScaleAndSmearingModifier
+    egamma_modifications.append(reducedEgammaEnergyScaleAndSmearingModifier)
+
 
     #---------------------------------------------------------------------------
     #Adding  Boosted Subjets taus
