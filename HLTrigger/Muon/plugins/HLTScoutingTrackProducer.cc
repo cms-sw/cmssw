@@ -40,7 +40,6 @@ void HLTScoutingTrackProducer::produce(edm::StreamID sid, edm::Event & iEvent,
     if(iEvent.getByToken(OtherTrackCollection_, OtherTrackCollection)){
       // Produce tracks in event
       for (auto &trk : *OtherTrackCollection) {
-	std::cout << "\n\n\ngot a track "  << trk.pt()  << " " << trk.eta()  << " " << trk.phi()  << "\n\n\n" << std::endl;
 	outTrack->emplace_back(trk.pt(), trk.eta(), trk.phi(),trk.chi2(), trk.ndof(),
 		               trk.charge(), trk.dxy(), trk.dz(), trk.hitPattern().numberOfValidPixelHits(), 
 			       trk.hitPattern().trackerLayersWithMeasurement(), trk.hitPattern().numberOfValidStripHits(), 
