@@ -84,7 +84,7 @@ setup_mva(egamma_modifications[0].photon_config,
 #############################################################
 # Scale and Smearing Modifiers
 #############################################################
-energyScaleAndSmearing = cms.PSet(
+reducedEgammaEnergyScaleAndSmearingModifier = cms.PSet(
     modifierName    = cms.string('EGExtraInfoModifierFromFloatValueMaps'),
     electron_config = cms.PSet(
         energyScaleUp = cms.InputTag("reducedEgamma","calibEleEnergyScaleUp"),
@@ -134,7 +134,3 @@ energyScaleAndSmearing = cms.PSet(
         )
     )
 
-from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
-if run2_miniAOD_94XFall17.isChosen(): 
-    egamma_modifications.append(energyScaleAndSmearing)
-    
