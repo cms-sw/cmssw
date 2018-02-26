@@ -8,10 +8,9 @@ ctppsDiamondDQMSource = DQMEDAnalyzer('CTPPSDiamondDQMSource',
     tagDiamondRecHits = cms.InputTag("ctppsDiamondRecHits"),
     tagDiamondLocalTracks = cms.InputTag("ctppsDiamondLocalTracks"),
     tagLocalTrack = cms.InputTag("totemRPLocalTrackFitter"),
+    tagPixelLocalTracks = cms.InputTag("ctppsPixelLocalTracks"),
     
     excludeMultipleHits = cms.bool(True),
-    minimumStripAngleForTomography = cms.double(0),
-    maximumStripAngleForTomography = cms.double(1),
 
     offsetsOOT = cms.VPSet( # cut on the OOT bin for physics hits
         # 2016, after TS2
