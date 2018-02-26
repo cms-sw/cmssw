@@ -215,7 +215,7 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
 // Values for all constants
 const double    CTPPSDiamondDQMSource::SEC_PER_LUMI_SECTION = 23.31;
 const int       CTPPSDiamondDQMSource::CHANNEL_OF_VFAT_CLOCK = 30;
-const double    CTPPSDiamondDQMSource::DISPLAY_RESOLUTION_FOR_HITS_MM = 0.01;
+const double    CTPPSDiamondDQMSource::DISPLAY_RESOLUTION_FOR_HITS_MM = 0.1;
 const double    CTPPSDiamondDQMSource::INV_DISPLAY_RESOLUTION_FOR_HITS_MM = 1./DISPLAY_RESOLUTION_FOR_HITS_MM;
 const double    CTPPSDiamondDQMSource::HPTDC_BIN_WIDTH_NS = 25./1024;
 const int       CTPPSDiamondDQMSource::CTPPS_NUM_OF_ARMS = 2;
@@ -834,8 +834,8 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
         if ( pixId.station() != CTPPS_PIXEL_STATION_ID || pixId.rp() != CTPPS_FAR_RP_ID ) continue;
         for ( const auto& lt : ds ) {
           if ( lt.isValid() && pixId.arm() == detId_pot.arm() ) {
-            if ( rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && rechit.getOOTIndex() - centralOOT_ + 1 < (int) potPlots_[detId_pot].pixelTomographyAll.size() && rechit.getOOTIndex() - centralOOT_ + 1  >= 0 )
-              potPlots_[detId_pot].pixelTomographyAll.at( rechit.getOOTIndex() - centralOOT_ + 1  )->Fill( lt.getX0() - horizontalShiftBwDiamondPixels_ + 25*detId.plane(), lt.getY0() );
+            if ( rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && rechit.getOOTIndex() - centralOOT_ < (int) potPlots_[detId_pot].pixelTomographyAll.size() && rechit.getOOTIndex() - centralOOT_  >= 0 )
+              potPlots_[detId_pot].pixelTomographyAll.at( rechit.getOOTIndex() - centralOOT_  )->Fill( lt.getX0() - horizontalShiftBwDiamondPixels_ + 25*detId.plane(), lt.getY0() );
           }
         }
       }
