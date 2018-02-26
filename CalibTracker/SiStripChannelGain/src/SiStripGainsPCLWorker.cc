@@ -100,6 +100,12 @@ SiStripGainsPCLWorker::dqmBeginRun(edm::Run const& run, edm::EventSetup const& i
   
   using namespace edm;
   
+  edm::ESHandle<TrackerGeometry> tkGeom_;
+  iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
+  const TrackerGeometry *bareTkGeomPtr = &(*tkGeom_);
+  
+  checkBookAPVColls(bareTkGeomPtr,histograms); // check whether APV colls are booked and do so if not yet done
+
   edm::ESHandle<SiStripGain> gainHandle;
   iSetup.get<SiStripGainRcd>().get(gainHandle);
   if(!gainHandle.isValid()){edm::LogError("SiStripGainPCLWorker")<< "gainHandle is not valid\n"; exit(0);}
@@ -297,9 +303,12 @@ SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup cons
 				      <<" i "<< i
 				      <<" useCalibration "<< useCalibration
 				      <<" FirstSetOfConstants "<< FirstSetOfConstants
+				      <<" APV->PreviousGain " << APV->PreviousGain
+				      <<" APV->CalibGain " << APV->CalibGain
 				      <<" APV->DetId "<< APV->DetId
 				      <<" APV->Index "<< APV->Index 
 				      <<" Charge "<< Charge
+				      <<" Path "<< (*path)[i]
 				      <<" ClusterChargeOverPath "<< ClusterChargeOverPath
 				      <<std::endl;
     
@@ -498,12 +507,6 @@ SiStripGainsPCLWorker::fillDescriptions(edm::ConfigurationDescriptions& descript
 //********************************************************************************//
 void 
 SiStripGainsPCLWorker::bookHistograms(DQMStore::ConcurrentBooker & ibooker, edm::Run const& run, edm::EventSetup const& setup, APVGain::APVGainHistograms & histograms) const {
-
-  edm::ESHandle<TrackerGeometry> tkGeom_;
-  setup.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
-  const TrackerGeometry *bareTkGeomPtr = &(*tkGeom_);
-
-  checkBookAPVColls(bareTkGeomPtr,histograms); // check whether APV colls are booked and do so if not yet done
 
   ibooker.cd();
   std::string dqm_dir = m_DQMdir;
