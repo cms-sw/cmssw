@@ -18,7 +18,7 @@
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -38,7 +38,7 @@
 
 #include <iterator>
 
-CaloTruthAccumulator::CaloTruthAccumulator( const edm::ParameterSet & config, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+CaloTruthAccumulator::CaloTruthAccumulator( const edm::ParameterSet & config, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) :
 		messageCategory_("CaloTruthAccumulator"),
 		maximumPreviousBunchCrossing_( config.getParameter<unsigned int>("maximumPreviousBunchCrossing") ),
 		maximumSubsequentBunchCrossing_( config.getParameter<unsigned int>("maximumSubsequentBunchCrossing") ),

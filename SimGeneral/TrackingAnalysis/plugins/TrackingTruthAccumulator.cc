@@ -37,7 +37,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "SimGeneral/TrackingAnalysis/interface/EncodedTruthId.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -221,7 +221,7 @@ namespace
 //---------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------
 
-TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & config, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & config, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) :
 		messageCategory_("TrackingTruthAccumulator"),
 		volumeRadius_( config.getParameter<double>("volumeRadius") ),
 		volumeZ_( config.getParameter<double>("volumeZ") ),
