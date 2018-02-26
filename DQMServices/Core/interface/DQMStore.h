@@ -808,8 +808,8 @@ class DQMStore
   void                          saveMonitorElementRangeToPB(
                                     std::string const& dir,
                                     unsigned int run,
-                                    MEMap::const_iterator begin,
-                                    MEMap::const_iterator end,
+                                    std::vector<MonitorElement*>::const_iterator begin,
+                                    std::vector<MonitorElement*>::const_iterator end,
                                     dqmstorepb::ROOTFilePB & file,
                                     unsigned int & counter);
   void                          saveMonitorElementToROOT(
@@ -821,8 +821,8 @@ class DQMStore
                                     SaveReferenceTag ref,
                                     int minStatus,
                                     unsigned int run,
-                                    MEMap::const_iterator begin,
-                                    MEMap::const_iterator end,
+                                    std::vector<MonitorElement*>::const_iterator begin,
+                                    std::vector<MonitorElement*>::const_iterator end,
                                     TFile & file,
                                     unsigned int & counter);
 

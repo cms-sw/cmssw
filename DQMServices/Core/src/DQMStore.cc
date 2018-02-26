@@ -1882,10 +1882,12 @@ DQMStore::getAllContents(const std::string &path,
   // - per-lumi clones (perLumiFlag=true, moduleId=0, lumi set)
   // the sort order is run, lumi, module, dir, name
   // Debug dump:
-  // for (auto const& me : data_) 
-  //   std::cout << "++++ " << me.run() << " " << me.lumi() << " " << 
-  //   me.streamId() << " " << me.moduleId() << " " << *me.data_.dirname << " "
-  //   << me.getName() << "\n";
+  auto dumpme = [](std::string prefix, MonitorElement const& me) {
+    std::cout << prefix << me.run() << " " << me.lumi() << " " << 
+    me.moduleId() << " " << *me.data_.dirname << " "
+    << me.getName() << "\n";
+  };
+  //for (auto const& me : data_) dumpme("++++ dqmstore: ", me);
   // Restrict the loop to the monitor elements for the current lumisection
   // If the run is 0 (former non-MT mode), return the first run
   // TODO(schneiml): I think this is the semantics that legacy stuff expects. 
@@ -1894,9 +1896,12 @@ DQMStore::getAllContents(const std::string &path,
     // with LSbasedMode, all histos are cloned, so all are saved.
     MonitorElement proto(cleaned, std::string(), runNumber, 0);
     proto.setLumi(lumi);
+    dumpme("+++ lumiproto: ", proto);
     auto begin = data_.lower_bound(proto);
+    if (begin != data_.end()) dumpme("+++ lumibegin: ", *begin);
     proto.setLumi(lumi+1);
     auto end   = data_.lower_bound(proto);
+    if (begin != data_.end()) dumpme("+++ lumiend: ", *end);
     saveRange(begin, end);
   }
   if (lumi == 0) {
@@ -1906,19 +1911,24 @@ DQMStore::getAllContents(const std::string &path,
     // stop before running into the per-lumi ones.
     if (runNumber == 0) {
       MonitorElement runproto(cleaned, std::string(), 0, 0);
+      //dumpme("+++ runproto: ", runproto);
       auto runit = data_.lower_bound(runproto);
       if (runit != data_.end()) {
         runNumber = runit->run();
+        //dumpme("+++ runme: ", *runit);
       }
     }
     uint32_t moduleId = 0;
     for(;;) {
       MonitorElement proto1(cleaned, std::string(), runNumber, moduleId);
+      //dumpme("+++ proto1: ", proto1);
       auto begin = data_.lower_bound(proto1);
+      //if (begin != data_.end()) dumpme("+++ begin: ", *begin);
       MonitorElement proto2(cleaned, std::string(), runNumber, moduleId+1);
+      //dumpme("+++ proto2: ", proto2);
       auto end   = data_.lower_bound(proto2);
-      if (begin == end) break; // nothing to do
-      if (begin->lumi() == 0) { // in case there are no global MEs
+      //if (end != data_.end()) dumpme("+++ end: ", *end);
+      if (begin != end && begin->lumi() == 0) { // no per-lumi MEs
         saveRange(begin, end);
       }
       if (end == data_.end()) break; // we are done
@@ -2513,13 +2523,14 @@ DQMStore::saveMonitorElementRangeToROOT(
     SaveReferenceTag ref,
     int minStatus,
     unsigned int run,
-    MEMap::const_iterator begin,
-    MEMap::const_iterator end,
+    std::vector<MonitorElement*>::const_iterator begin,
+    std::vector<MonitorElement*>::const_iterator end,
     TFile & file,
     unsigned int & counter)
 {
-  for (auto const& me: boost::make_iterator_range(begin, end))
+  for (auto const& meptr: boost::make_iterator_range(begin, end))
   {
+    auto const& me = *meptr;
     if (not isSubdirectory(dir, *me.data_.dirname))
       break;
 
@@ -2668,51 +2679,8 @@ DQMStore::save(const std::string &filename,
     else
       cdInto(s_monitorDirName + '/' + dir);
 
-    // Loop over monitor elements in this directory.
-    // There are 3 cases to consider:
-    // - Global MEs (ConcurrentMonitorElement, moduleId=0, lumi=0)
-    // - "normal" MEs (default, moduleId set, lumi=0)
-    // - per-lumi clones (perLumiFlag=true, moduleId=0, lumi set)
-    // the sort order is run, lumi, module, dir, name
-    // Restrict the loop to the monitor elements for the current lumisection
-    // If the run is 0 (former non-MT mode), return the first run
-    // TODO(schneiml): I think this is the semantics that legacy stuff expects. 
-    if (lumi != 0) {
-      // only save global per-lumi clones.
-      // with LSbasedMode, all histos are cloned, so all are saved.
-      MonitorElement proto(&dir, std::string(), run, 0);
-      proto.setLumi(lumi);
-      auto begin = data_.lower_bound(proto);
-      proto.setLumi(lumi+1);
-      auto end   = data_.lower_bound(proto);
-      saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
-    }
-    if (lumi == 0) {
-      // save normal and global (moduleId=0) histos
-      // even if there are per-lumi clones in the moduleId=0 sapce,
-      // we start with the lumi=0 ones, and saveMonitorElementRangeToROOT will
-      // stop before running into the per-lumi ones.
-      if (run == 0) {
-        MonitorElement runproto(&dir, std::string(), 0, 0);
-        auto runit = data_.lower_bound(runproto);
-        run = runit->run();
-      }
-      uint32_t moduleId = 0;
-      for(;;) {
-        MonitorElement proto1(&dir, std::string(), run, moduleId);
-        auto begin = data_.lower_bound(proto1);
-        MonitorElement proto2(&dir, std::string(), run, moduleId+1);
-        auto end   = data_.lower_bound(proto2);
-        if (begin == end) break; // nothing to do
-        if (begin->lumi() > 0) break; // in case there are no global MEs
-        saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
-        if (end == data_.end()) break; // we are done
-        if (end->moduleId() <= moduleId) break; // skipped into next run, also done
-        moduleId = end->moduleId(); // next module, so we reliably advance to the 
-                                    // first matching ME of the next module.
-
-      }
-    }
+    auto MEs = getAllContents(dir, run, lumi);
+    saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, MEs.begin(), MEs.end(), f, nme);
   }
 
   f.Close();
@@ -2758,13 +2726,14 @@ void
 DQMStore::saveMonitorElementRangeToPB(
     std::string const& dir,
     unsigned int run,
-    MEMap::const_iterator begin,
-    MEMap::const_iterator end,
+    std::vector<MonitorElement*>::const_iterator begin,
+    std::vector<MonitorElement*>::const_iterator end,
     dqmstorepb::ROOTFilePB & file,
     unsigned int & counter)
 {
-  for (auto const& me: boost::make_iterator_range(begin, end))
+  for (auto const& meptr: boost::make_iterator_range(begin, end))
   {
+    auto const& me = *meptr;
     if (not isSubdirectory(dir, *me.data_.dirname))
       break;
 
@@ -2834,50 +2803,8 @@ DQMStore::savePB(const std::string &filename,
     if (verbose_ > 1) {
       std::cout << "DQMStore::savePB: DQM folder " << dir << "/" << std::endl;
     }
-    // Loop over monitor elements in this directory.
-    // There are 3 cases to consider:
-    // - Global MEs (ConcurrentMonitorElement, moduleId=0, lumi=0)
-    // - "normal" MEs (default, moduleId set, lumi=0)
-    // - per-lumi clones (perLumiFlag=true, moduleId=0, lumi set)
-    // the sort order is run, lumi, module, dir, name
-    // Restrict the loop to the monitor elements for the current lumisection
-    // If the run is 0 (former non-MT mode), return the first run
-    // TODO(schneiml): I think this is the semantics that legacy stuff expects. 
-    if (lumi != 0) {
-      // only save global per-lumi clones.
-      // with LSbasedMode, all histos are cloned, so all are saved.
-      MonitorElement proto(&dir, std::string(), run, 0);
-      proto.setLumi(lumi);
-      auto begin = data_.lower_bound(proto);
-      proto.setLumi(lumi+1);
-      auto end   = data_.lower_bound(proto);
-      saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
-    }
-    if (lumi == 0) {
-      // save normal and global (moduleId=0) histos
-      // even if there are per-lumi clones in the moduleId=0 sapce,
-      // we start with the lumi=0 ones, and saveMonitorElementRangeToROOT will
-      // stop before running into the per-lumi ones.
-      if (run == 0) {
-        MonitorElement runproto(&dir, std::string(), 0, 0);
-        auto runit = data_.lower_bound(runproto);
-        run = runit->run();
-      }
-      uint32_t moduleId = 0;
-      for(;;) {
-        MonitorElement proto1(&dir, std::string(), run, moduleId);
-        auto begin = data_.lower_bound(proto1);
-        MonitorElement proto2(&dir, std::string(), run, moduleId+1);
-        auto end   = data_.lower_bound(proto2);
-        if (begin == end) break; // nothing to do
-        if (begin->lumi() > 0) break; // in case there are no global MEs
-        saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
-        if (end == data_.end()) break; // we are done
-        if (end->moduleId() <= moduleId) break; // skipped into next run, also done
-        moduleId = end->moduleId(); // next module, so we reliably advance to the 
-                                    // first matching ME of the next module.
-      }
-    }
+    auto MEs = getAllContents(dir, run, lumi);
+    saveMonitorElementRangeToPB(dir, run, MEs.begin(), MEs.end(), dqmstore_message, nme);
   }
 
   int filedescriptor = ::open(filename.c_str(),
