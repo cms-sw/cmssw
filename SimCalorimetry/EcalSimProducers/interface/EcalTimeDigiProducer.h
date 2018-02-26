@@ -11,7 +11,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 
 #include <vector>
 
@@ -32,7 +32,7 @@ namespace edm {
 class EcalTimeDigiProducer : public DigiAccumulatorMixMod {
    public:
 
-  EcalTimeDigiProducer( const edm::ParameterSet& params , edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector&);
+  EcalTimeDigiProducer( const edm::ParameterSet& params , edm::ProducerBase& mixMod, edm::ConsumesCollector&);
       ~EcalTimeDigiProducer() override;
 
       void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
