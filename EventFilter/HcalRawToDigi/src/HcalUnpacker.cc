@@ -689,40 +689,36 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	}
 
         bool isZDC = (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId);
+        bool isLasmon = (did.det()==DetId::Hcal && (HcalSubdetector)did.subdetId() == HcalOther && HcalCalibDetId( did ).calibFlavor() == 5);
 
-	// Check QEI10 container exists
-	if (colls.qie10ZDC == nullptr) {
-	  colls.qie10ZDC = new QIE10DigiCollection(ns);
-	}
-	else if (colls.qie10ZDC->samples() != ns && isZDC ) {
-	  // This should only print if we have this conflict within ZDC type data
-	  edm::LogError("Invalid Data") << "QIE10ZDC Collection has " << colls.qie10ZDC->samples() << " samples per digi, raw data has " << ns << "!";
-	  return;
-	}
-	
+        std::cout << "IsLasmon = " << isLasmon << std::endl;
+
 	if (colls.qie10 == nullptr) {
 	  colls.qie10 = new QIE10DigiCollection(ns);
 	}
 	else if (colls.qie10->samples() != ns) {
           // if this sample type hasn't been requested to be saved
           // warn the user to provide a configuration that prompts it to be saved
-          if( colls.qie10Addtl.find( ns ) == colls.qie10Addtl.end() ) {
+          if( !(isZDC) && !(isLasmon) && colls.qie10Addtl.find( ns ) == colls.qie10Addtl.end() ) {
             printInvalidDataMessage( "QIE10", colls.qie10->samples(), ns );
           }
 	}
 
 	// Insert data
     /////////////////////////////////////////////CODE FROM OLD STYLE DIGIS///////////////////////////////////////////////////////////////
-	if (!did.null() && isZDC ) { // unpack and store...
-          colls.qie10ZDC->addDataFrame(did, head_pos);
-	} 
-	else if (!did.null()) { // unpack and store...
+	if (!did.null()) { // unpack and store...
           colls.qie10->addDataFrame(did, head_pos);
           // fill the additional qie10 collections
           if( colls.qie10Addtl.find( ns ) != colls.qie10Addtl.end() ) {
             colls.qie10Addtl[ns]->addDataFrame( did, head_pos );
           }
+          if( isZDC ) colls.qie10Addtl[-1]->addDataFrame( did, head_pos );
+          if( isLasmon) {
+              std::cout << "Save lasmon data" << std::endl;
+              colls.qie10Addtl[-2]->addDataFrame( did, head_pos );
+          }
 	} else {
+            if( isLasmon) std::cout << "Lasermon did is null" << std::endl;
 		report.countUnmappedDigi(eid);
 		if (unknownIds_.find(eid)==unknownIds_.end()) {
 			if (!silent) edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
@@ -839,7 +835,6 @@ HcalUnpacker::Collections::Collections() {
   calibCont=nullptr;
   ttp=nullptr;
   qie10=nullptr;
-  qie10ZDC=nullptr;
   qie11=nullptr;
   umnio=nullptr;
 }

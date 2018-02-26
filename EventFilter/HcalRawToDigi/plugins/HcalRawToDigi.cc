@@ -69,7 +69,6 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
     produces<HcalUMNioDigi>();
   produces<QIE10DigiCollection>();
   produces<QIE11DigiCollection>();
-  produces<QIE10DigiCollection>("ZDC");
 
   // Print a warning if the two vectors
   // for additional qie10 or qie11 data
@@ -98,6 +97,12 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
 
       saveQIE10Info_[nsamples] = tag;
   }
+
+  // add LASERMON and ZDC
+  saveQIE10Info_[-1] = "ZDC";
+  saveQIE10Info_[-2] = "LASERMON";
+  produces<QIE10DigiCollection>("ZDC");
+  produces<QIE10DigiCollection>("LASERMON");
 
   // If additional qie11 samples were requested,
   // declare that we will produce this collection
@@ -288,10 +293,6 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
     colls.qie10 = new QIE10DigiCollection(); 
   }
   std::unique_ptr<QIE10DigiCollection> qie10_prod(colls.qie10);
-  if (colls.qie10ZDC == nullptr) {
-    colls.qie10ZDC = new QIE10DigiCollection(); 
-  }
-  std::unique_ptr<QIE10DigiCollection> qie10ZDC_prod(colls.qie10ZDC);
   if (colls.qie11 == nullptr) {
     colls.qie11 = new QIE11DigiCollection(); 
   }
@@ -351,7 +352,6 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   htp_prod->sort();
   hotp_prod->sort();
   qie10_prod->sort();
-  qie10ZDC_prod->sort();
   qie11_prod->sort();
 
   // sort the additional collections
@@ -368,7 +368,6 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   e.put(std::move(htp_prod));
   e.put(std::move(hotp_prod));
   e.put(std::move(qie10_prod));
-  e.put(std::move(qie10ZDC_prod),"ZDC");
   e.put(std::move(qie11_prod));
 
   // put the qie10 and qie11 collections into the event
