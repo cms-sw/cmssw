@@ -9,7 +9,7 @@ class DummyEMPhysics : public G4VPhysicsConstructor {
 
 public:
   DummyEMPhysics(G4int verb);
-  ~DummyEMPhysics() = default;
+  ~DummyEMPhysics() override = default;
   void ConstructParticle() override;
   void ConstructProcess() override;
 
