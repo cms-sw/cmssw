@@ -65,5 +65,6 @@ class ECALpedestalPCLHarvester : public  DQMEDHarvester {
       std::string labelG6G1_;    // DB label from which pedestals for G6 and G1 are to be copied
       float threshDiffEB_;       // if the new pedestals differs more than this from old, keep old
       float threshDiffEE_;         // same as above for EE. Stray channel protection
+      float threshChannelsAnalyzed_; // threshold for minimum percentage of channels analized to produce DQM plots
 
 };
