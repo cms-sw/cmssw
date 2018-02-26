@@ -48,7 +48,8 @@ def _fastSimDigis(process):
     # use an alias to make the mixed track collection available under the usual label
     from FastSimulation.Configuration.DigiAliases_cff import loadDigiAliases
     loadDigiAliases(process)
-modifyDigi_fastSimDigis = fastSim.makeProcessModifier(_fastSimDigis)
+# no need for the aliases for premixing stage1
+modifyDigi_fastSimDigis = (fastSim & ~premix_stage1).makeProcessModifier(_fastSimDigis)
 
 #phase 2 common mods
 def _modifyEnableHcalHardcode( theProcess ):
