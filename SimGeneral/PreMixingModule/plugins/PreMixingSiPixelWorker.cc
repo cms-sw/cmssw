@@ -145,7 +145,7 @@ namespace edm {
 
   // Constructor 
   PreMixingSiPixelWorker::PreMixingSiPixelWorker(const edm::ParameterSet& ps, edm::ProducerBase& producer, edm::ConsumesCollector && iC): 
-    geometryType_(ps.getParameter<std::string>("GeometryType")),
+    geometryType_(ps.getParameter<std::string>("PixGeometryType")),
     // get external parameters:
     // To account for upgrade geometries do not assume the number 
     // of layers or disks.
