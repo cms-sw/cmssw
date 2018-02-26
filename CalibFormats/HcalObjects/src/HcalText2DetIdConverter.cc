@@ -233,6 +233,12 @@ bool HcalText2DetIdConverter::init (const std::string& fFlavor, const std::strin
     int channel=getField(1);
     mId = HcalCalibDetId (HcalCalibDetId::uMNqie,channel);
   }
+  else if (flavorName == "LASMON" ) {
+    int rm = 1;
+    int fiber = getField(2);
+    int channel = getField(3);
+    mId = HcalCalibDetId (HcalCalibDetId::LASERMON,rm, fiber, channel);
+  }
   else if (flavorName=="CRF") {
     int rm=getField(1);
     int fiber=getField(2);

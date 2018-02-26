@@ -126,6 +126,8 @@ std::ostream& operator<<(std::ostream& s,const HcalCalibDetId& id) {
 	     << ')';
   case (HcalCalibDetId::uMNqie):
     return s << "(uMNqie " << id.channel() << ')';
+  case (HcalCalibDetId::LASERMON):
+    return s << "(LASERMON" << id.channel() << ')';
   case (HcalCalibDetId::CastorRadFacility):
     return s << "(CastorRadFacility " << id.rm() << " / " << id.fiber() << " / " << id.channel() << ')';
   default: return s;

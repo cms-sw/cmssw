@@ -32,7 +32,6 @@ public:
     std::vector<HOTriggerPrimitiveDigi>* tphoCont;
     std::vector<HcalTTPDigi>* ttp;
     QIE10DigiCollection* qie10;
-    QIE10DigiCollection* qie10ZDC;
     QIE11DigiCollection* qie11;
     // additional qie10 and qie11 data collections
     std::unordered_map<int, QIE10DigiCollection*> qie10Addtl;
