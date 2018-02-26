@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalcell.xml" eval="true">
+  <Constant name="WaferSize"             value="167.4408*mm"/>
+  <Constant name="WaferThickness"        value="0.30*mm"/>
+  <Constant name="CellThicknessFine"     value="0.10*mm"/>
+  <Constant name="CellThicknessCourse1"  value="0.20*mm"/>
+  <Constant name="CellThicknessCourse2"  value="0.30*mm"/>
+  <Constant name="NumberOfCellsFine"     value="12"/>
+  <Constant name="NumberOfCellsCoarse"   value="8"/>
+</ConstantsSection>
+
+<PosPartSection label="hgcalcell.xml">
+  <Algorithm name="hgcal:DDHGCalCell">
+    <rParent name="hgcalwafer:HGCalCell"/>
+    <Numeric name="WaferSize"    value="[WaferSize]"/>
+    <Numeric name="WaferThick"   value="[WaferThickness]"/>
+    <Numeric name="CellThick"    value="[CellThicknessFine]"/>
+    <Numeric name="NCells"       value="[NumberOfCellsFine]"/>
+    <String name="Material"      value="materials:Silicon"/>
+    <String name="FullCell"      value="HGCalEECellFullFine"/>
+    <String name="FullSensitive" value="HGCalEESenitiveFullFine"/>
+    <Vector name="TruncatedCell" type="string" nEntries="3">
+       HGCalEECellTrunc1Fine, HGCalEECellTrunc2Fine,
+       HGCalEECellTrunc3Fine</Vector>
+    <Vector name="TruncatedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveTrunc1Fine, HGCalEESenitiveTrunc2Fine,
+      HGCalEESenitiveTrunc3Fine</Vector>
+    <Vector name="ExtendedCell" type="string" nEntries="3">
+       HGCalEECellExten1Fine, HGCalEECellExten2Fine,
+       HGCalEECellExten3Fine</Vector>
+    <Vector name="ExtendedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveExten1Fine, HGCalEESenitiveExten2Fine,
+      HGCalEESenitiveExten3Fine</Vector>
+    <Vector name="CornerCell" type="string" nEntries="6">
+       HGCalEECellCorner1Fine, HGCalEECellCorner2Fine,
+       HGCalEECellCorner3Fine, HGCalEECellCorner4Fine,
+       HGCalEECellCorner5Fine, HGCalEECellCorner6Fine</Vector>
+    <Vector name="CornerSensitive" type="string" nEntries="6">
+      HGCalEESenitiveCorner1Fine, HGCalEESenitiveCorner2Fine,
+      HGCalEESenitiveCorner3Fine, HGCalEESenitiveCorner4Fine,
+      HGCalEESenitiveCorner5Fine, HGCalEESenitiveCorner6Fine</Vector>
+  </Algorithm>
+</PosPartSection>
+
+</DDDefinition>
