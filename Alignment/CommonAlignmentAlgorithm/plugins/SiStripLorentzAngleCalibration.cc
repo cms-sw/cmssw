@@ -239,7 +239,6 @@ SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
         setup.get<IdealMagneticFieldRecord>().get(magneticField);
         const GlobalVector bField(magneticField->inTesla(hit.det()->surface().position()));
         const LocalVector bFieldLocal(hit.det()->surface().toLocal(bField));
-        //std::cout << "SiStripLorentzAngleCalibration derivatives " << readoutModeName_ << std::endl;
         const double dZ = this->effectiveThickness(hit.det(), mode, setup);
         // shift due to LA: dx = tan(LA) * dz/2 = mobility * B_y * dz/2,
         // '-' since we have derivative of the residual r = hit - trk and mu is part of trk model
@@ -250,9 +249,11 @@ SiStripLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
         //      drift.x = -mobility * by * thickness (full drift from backside)
         //      So '-' already comes from that, not from mobility being part of
         //      track model...
+	// GM: sign convention is the same as for pixel LA, i.e. adopt it here, too
         const double xDerivative = bFieldLocal.y() * dZ * -0.5; // parameter is mobility!
-        if (xDerivative) { // If field is zero, this is zero: do not return it
-          const Values derivs(xDerivative, 0.); // yDerivative = 0.
+        const double yDerivative = bFieldLocal.x() * dZ * 0.5; // parameter is mobility!
+        if (xDerivative || yDerivative) { // If field is zero, this is zero: do not return it
+          const Values derivs{xDerivative, yDerivative};
           outDerivInds.push_back(ValuesIndexPair(derivs, index));
         }
       }
@@ -310,7 +311,8 @@ void SiStripLorentzAngleCalibration::beginOfJob(AlignableTracker *aliTracker,
                                                 AlignableExtras * /*aliExtras*/)
 {
   //specify the sub-detectors for which the LA is determined
-  const std::vector<int> sdets = {SiStripDetId::TIB, SiStripDetId::TOB}; //no TEC,TID
+  const std::vector<int> sdets = {SiStripDetId::TIB, SiStripDetId::TOB,
+                                  SiStripDetId::TID, SiStripDetId::TEC};
   moduleGroupSelector_ =
     std::make_unique<TkModuleGroupSelector>(aliTracker, moduleGroupSelCfg_, sdets);
 
