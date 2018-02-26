@@ -128,6 +128,7 @@
 #include "CondFormats/RecoMuonObjects/interface/DYTThrObject.h"
 #include "CondFormats/RecoMuonObjects/interface/MuScleFitDBobject.h"
 #include "CondFormats/RecoMuonObjects/interface/DYTParamObject.h"
+#include "CondFormats/RunInfo/interface/FillInfo.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/RunInfo/interface/MixingModuleConfig.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelCalibConfiguration.h"
