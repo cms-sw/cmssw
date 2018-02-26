@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-FullSimEngine = cms.untracked.string('HepJamesRandom')
-#FullSimEngine = cms.untracked.string('MixMaxRng')
-FastSimEngine = cms.untracked.string('TRandom3')
+FullSimEngine = cms.untracked.string('MixMaxRng')
+FastSimEngine = cms.untracked.string('MixMaxRng')
+#FastSimEngine = cms.untracked.string('TRandom3')
 RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 #
 #  seed for a source no longer needed - replaces by "generator"
