@@ -297,7 +297,7 @@ SimClusterCollection CaloTruthAccumulator::descendantSimClusters( Barcode_t barc
     //return result;
   }
 
-  std::unique_ptr<SimHitInfoPerSimTrack_t> hit_info = std::move(CaloTruthAccumulator::attachedSimHitInfo(barcode,hits, true, false, false));
+  std::unique_ptr<SimHitInfoPerSimTrack_t> hit_info = CaloTruthAccumulator::attachedSimHitInfo(barcode,hits, true, false, false);
   //std::unique_ptr<SimHitInfoPerSimTrack_t> inclusive_hit_info = std::move(CaloTruthAccumulator::allAttachedSimHitInfo(barcode,hits, false) );
 
   const auto& simTrack = simTracks[m_simTrackBarcodeToIndex[barcode]];
@@ -312,9 +312,9 @@ SimClusterCollection CaloTruthAccumulator::descendantSimClusters( Barcode_t barc
     
     
     if( isInCalo  ) {
-      marked_hit_info = std::move( CaloTruthAccumulator::allAttachedSimHitInfo(barcode,hits,true) );
+      marked_hit_info = CaloTruthAccumulator::allAttachedSimHitInfo(barcode,hits,true) ;
     } else {    
-      marked_hit_info = std::move( CaloTruthAccumulator::attachedSimHitInfo(barcode,hits,true,false,true) );
+      marked_hit_info = CaloTruthAccumulator::attachedSimHitInfo(barcode,hits,true,false,true) ;
     }   
     
     if( !marked_hit_info->empty() ) {
@@ -395,10 +395,10 @@ std::unique_ptr<SimHitInfoPerSimTrack_t> CaloTruthAccumulator::attachedSimHitInf
 	  const auto& daughter = simTracks[m_simTrackBarcodeToIndex[track_iter->second]];
 
 	  if( includeOther || nextInCalo ) {
-	    std::unique_ptr<SimHitInfoPerSimTrack_t> daughter_result = std::move(CaloTruthAccumulator::allAttachedSimHitInfo(track_iter->second,hits,markUsed));
+	    std::unique_ptr<SimHitInfoPerSimTrack_t> daughter_result = CaloTruthAccumulator::allAttachedSimHitInfo(track_iter->second,hits,markUsed);
 	    result->insert(result->end(),daughter_result->begin(),daughter_result->end());
 	  } else if ( daughter.type() == simTrack.type() ) {
-	    std::unique_ptr<SimHitInfoPerSimTrack_t> daughter_result = std::move(CaloTruthAccumulator::attachedSimHitInfo(track_iter->second,hits,includeOwn, includeOther, markUsed));
+	    std::unique_ptr<SimHitInfoPerSimTrack_t> daughter_result = CaloTruthAccumulator::attachedSimHitInfo(track_iter->second,hits,includeOwn, includeOther, markUsed);
 	     result->insert(result->end(),daughter_result->begin(),daughter_result->end());
 	  }
 	}
