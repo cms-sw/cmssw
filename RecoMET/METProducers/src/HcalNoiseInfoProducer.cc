@@ -18,6 +18,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
@@ -903,6 +904,9 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
       summary.rechitCount15_ = summary.rechitCount15_ + 1;
       summary.rechitEnergy15_ = summary.rechitEnergy15_ + rechit.eraw();
     }
+    
+    // Exclude QIE11 channels  
+    if((rechit.auxPhase1()>>HBHERecHitAuxSetter::OFF_TDC_TIME)&1) continue; 
 
     // if it was ID'd as isolated noise, update the summary object
     if(rechit.flags() & isolbitset) {
