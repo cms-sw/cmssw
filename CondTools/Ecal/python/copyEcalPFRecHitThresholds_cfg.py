@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
 process.load("CalibCalorimetry.EcalTrivialCondModules.EcalTrivialCondRetriever_cfi")
+process.EcalTrivialConditionRetriever.producedEcalPFRecHitThresholds = cms.untracked.bool(True)
+process.EcalTrivialConditionRetriever.EcalPFRecHitThresholdsEB = cms.untracked.double( 0.0)
+process.EcalTrivialConditionRetriever.EcalPFRecHitThresholdsEE = cms.untracked.double( 0.0)
+
 
 process.load("CondCore.CondDB.CondDB_cfi")
 #process.CondDBCommon.connect = 'oracle://cms_orcon_prod/CMS_COND_31X_ECAL'
@@ -24,8 +28,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
   process.CondDB,
   toPut = cms.VPSet(
     cms.PSet(
-      record = cms.string('EcalClusterEnergyCorrectionParametersRcd'),
-      tag = cms.string('EcalClusterEnergyCorrectionParameters_2011_mc')
+      record = cms.string('EcalPFRecHitThresholdsRcd'),
+      tag = cms.string('EcalPFRecHitThresholds_2018_mc')
     )
   )
 )
@@ -34,8 +38,8 @@ process.dbCopy = cms.EDAnalyzer("EcalDBCopy",
   timetype = cms.string('runnumber'),
   toCopy = cms.VPSet(
     cms.PSet(
-      record = cms.string('EcalClusterEnergyCorrectionParametersRcd'),
-      container = cms.string('EcalClusterEnergyCorrectionParameters')
+      record = cms.string('EcalPFRecHitThresholdsRcd'),
+      container = cms.string('EcalPFRecHitThresholds')
     )
   )
 )
