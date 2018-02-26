@@ -28,12 +28,12 @@ using namespace l1t;
 class L1TdeStage2CaloLayer1 : public DQMEDAnalyzer {
   public:
     L1TdeStage2CaloLayer1(const edm::ParameterSet& ps);
-    virtual ~L1TdeStage2CaloLayer1();
+    ~L1TdeStage2CaloLayer1() override;
   
   protected:
     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+    void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
     void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
     void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
   
@@ -71,6 +71,18 @@ class L1TdeStage2CaloLayer1 : public DQMEDAnalyzer {
     };
     typedef std::set<SimpleTower> SimpleTowerSet;
 
+    enum SummaryColumn {
+      EtMismatch,
+      ErMismatch,
+      FbMismatch,
+      TowerCountMismatch,
+      NSummaryColumns,
+    };
+    MonitorElement *dataEmulSummary_;
+    std::array<double, NSummaryColumns> dataEmulNumerator_;
+    double dataEmulDenominator_;
+    MonitorElement *mismatchesPerBxMod9_;
+
     MonitorElement *dataOcc_;
     MonitorElement *emulOcc_;
     MonitorElement *matchOcc_;
@@ -86,12 +98,15 @@ class L1TdeStage2CaloLayer1 : public DQMEDAnalyzer {
     MonitorElement *etCorrelation_;
     MonitorElement *matchEtDistribution_;
     MonitorElement *etMismatchDiff_;
+    MonitorElement *fbCorrelation_;
     MonitorElement *fbCorrelationHF_;
 
     MonitorElement *etMismatchByLumi_;
     MonitorElement *erMismatchByLumi_;
     MonitorElement *fbMismatchByLumi_;
 
+    MonitorElement *etMismatchesPerBx_;
+    MonitorElement *erMismatchesPerBx_;
     MonitorElement *fbMismatchesPerBx_;
     MonitorElement *towerCountMismatchesPerBx_;
 
