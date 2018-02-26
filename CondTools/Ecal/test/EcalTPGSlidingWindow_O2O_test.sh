@@ -1,4 +1,5 @@
 #!/bin/sh
+export LD_PRELOAD=$CMS_ORACLEOCCI_LIB
 conddb --yes copy EcalTPGSlidingWindow_v2_hlt --destdb EcalTPGSlidingWindow_v2_hlt_O2OTEST.db --o2oTest
 cmsRun ./src/CondTools/Ecal/python/copySli_cfg.py destinationDatabase=sqlite_file:EcalTPGSlidingWindow_v2_hlt_O2OTEST.db destinationTag=EcalTPGSlidingWindow_v2_hlt
 ret=$?

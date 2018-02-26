@@ -1,4 +1,5 @@
 #!/bin/sh
+export LD_PRELOAD=$CMS_ORACLEOCCI_LIB
 conddb --yes copy EcalTPGFineGrainStripEE_v2_hlt --destdb EcalTPGFineGrainStripEE_v2_hlt_O2OTEST.db --o2oTest
 cmsRun ./src/CondTools/Ecal/python/copyLutGroup_cfg.py destinationDatabase=sqlite_file:EcalTPGFineGrainStripEE_v2_hlt_O2OTEST.db destinationTag=EcalTPGFineGrainStripEE_v2_hlt
 ret=$?

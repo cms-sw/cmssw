@@ -1,4 +1,5 @@
 #!/bin/sh
+export LD_PRELOAD=$CMS_ORACLEOCCI_LIB
 conddb --yes copy EcalTPGLinearizationConst_v2_hlt --destdb EcalTPGLinearizationConst_v2_hlt_O2OTEST.db --o2oTest
 cmsRun ./src/CondTools/Ecal/python/copyLin_cfg.py destinationDatabase=sqlite_file:EcalTPGLinearizationConst_v2_hlt_O2OTEST.db destinationTag=EcalTPGLinearizationConst_v2_hlt
 ret=$?
