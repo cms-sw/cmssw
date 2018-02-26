@@ -166,6 +166,7 @@ namespace pat {
     edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_photons_;
     /// standard muon selectors
     bool computeMuonMVA_;
+    bool computeSoftMuonMVA_;
     bool recomputeBasicSelectors_;
     double mvaDrMax_;
     bool mvaUseJec_;
