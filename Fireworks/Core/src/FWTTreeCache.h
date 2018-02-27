@@ -13,6 +13,7 @@ class FWTTreeCache : public TTreeCache
 
    static int            s_default_size;
    static bool           s_logging;
+   static bool           s_prefetching;
 
 protected:
    bool is_branch_in_cache(const char* name) { return (m_branch_set.find(name) != m_branch_set.end()); }
@@ -47,6 +48,9 @@ public:
    static void LoggingOn();
    static void LoggingOff();
    static bool IsLogging();
+   static void PrefetchingOn();
+   static void PrefetchingOff();
+   static bool IsPrefetching();
    static void SetDefaultCacheSize(int def_size);
    static int  GetDefaultCacheSize();
 
