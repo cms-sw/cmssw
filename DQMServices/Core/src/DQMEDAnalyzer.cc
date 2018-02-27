@@ -23,6 +23,10 @@ void DQMEDAnalyzer::endRun(edm::Run const& run, edm::EventSetup const& setup)
 
 void DQMEDAnalyzer::endRunProduce(edm::Run& run, edm::EventSetup const& setup) 
 {
+  edm::Service<DQMStore>()->cloneRunHistograms(
+      run.run(),
+      run.moduleCallingContext()->moduleDescription()->id());
+
   run.put(runToken_, std::make_unique<DQMToken>());
 }
 
