@@ -913,7 +913,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     arphi.Draw();
     TLegend *MyL = buildLegend();
     
-    if (((title.find("QTestAlarm")!=std::string::npos) || (maxvalue == minvalue))){
+    if (title.find("QTestAlarm")!=std::string::npos){
 
       MyL->Draw();
     }
