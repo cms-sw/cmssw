@@ -465,13 +465,23 @@ namespace edm {
   }
 
   void
-  SubProcess::writeRun(ProcessHistoryID const& parentPhID, int runNumber) {
+  SubProcess::writeRunAsync(edm::WaitingTaskHolder task, ProcessHistoryID const& parentPhID, int runNumber) {
     ServiceRegistry::Operate operate(serviceToken_);
     std::map<ProcessHistoryID, ProcessHistoryID>::const_iterator it = parentToChildPhID_.find(parentPhID);
     assert(it != parentToChildPhID_.end());
     auto const& childPhID = it->second;
-    schedule_->writeRun(principalCache_.runPrincipal(childPhID, runNumber), &processContext_, actReg_.get());
-    for_all(subProcesses_, [&childPhID, runNumber](auto& subProcess){ subProcess.writeRun(childPhID, runNumber); });
+    
+    auto subTasks = edm::make_waiting_task(tbb::task::allocate_root(), [this,childPhID,runNumber, task](std::exception_ptr const* iExcept) mutable {
+      if( iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        ServiceRegistry::Operate operate(serviceToken_);
+        for(auto& s: subProcesses_) {
+          s.writeRunAsync(task, childPhID, runNumber);
+        }
+      }
+    });
+    schedule_->writeRunAsync(WaitingTaskHolder(subTasks),principalCache_.runPrincipal(childPhID, runNumber), &processContext_, actReg_.get());
   }
 
   void
@@ -526,11 +536,21 @@ namespace edm {
 
   
   void
-  SubProcess::writeLumi(LuminosityBlockPrincipal& principal) {
+  SubProcess::writeLumiAsync(WaitingTaskHolder task, LuminosityBlockPrincipal& principal) {
     ServiceRegistry::Operate operate(serviceToken_);
+
     auto l =inUseLumiPrincipals_[principal.index()];
-    schedule_->writeLumi(*l, &processContext_, actReg_.get());
-    for_all(subProcesses_, [l](auto& subProcess){ subProcess.writeLumi(*l); });
+    auto subTasks = edm::make_waiting_task(tbb::task::allocate_root(), [this,l, task](std::exception_ptr const* iExcept) mutable {
+      if( iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        ServiceRegistry::Operate operate(serviceToken_);
+        for(auto& s: subProcesses_) {
+          s.writeLumiAsync(task, *l);
+        }
+      }
+    });
+    schedule_->writeLumiAsync(WaitingTaskHolder(subTasks),*l, &processContext_, actReg_.get());
   }
 
   void
