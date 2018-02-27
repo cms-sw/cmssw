@@ -28,7 +28,11 @@ else:
 #########Checking Data taking period##########
 for i in range(len(Run_Number)):
 
-    if Run_Number[i] > 294644:
+    if Run_Number[i] > 308336:
+    	DataLocalDir='Data2018'
+	DataOfflineDir='Commissioning2018'
+
+    elif Run_Number[i] > 294644:
         DataLocalDir='Data2017'
         DataOfflineDir='Run2017'
 
@@ -95,6 +99,7 @@ for i in range(len(Run_Number)):
     index = f.readlines()
     if any(str(Run_Number[i]) in s for s in index):
         for s in index:
+	    print s
             if (str(Run_Number[i]) in s) and ("__DQMIO.root" in s):
                 File_Name = str(str(s).split("xx/")[1].split("'>DQM")[0])
     else:
@@ -137,13 +142,14 @@ for i in range(len(Run_Number)):
             print 'No Online DQM file available. Skip dead roc map'
             deadRocMap = False
 
-    print 'Downloading DQM file:'+File_Name_online
+    if deadRocMap == True:		    
+    	print 'Downloading DQM file:'+File_Name_online
 
 
-    os.system('curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/online/data/browse/Original/000'+str(nnnOnline)+'xxxx/000'+str(nnn)+'xx/'+File_Name_online+' > /tmp/'+File_Name_online)
+    	os.system('curl -k --cert /data/users/cctrkdata/current/auth/proxy/proxy.cert --key /data/users/cctrkdata/current/auth/proxy/proxy.cert -X GET https://cmsweb.cern.ch/dqm/online/data/browse/Original/000'+str(nnnOnline)+'xxxx/000'+str(nnn)+'xx/'+File_Name_online+' > /tmp/'+File_Name_online)
 
-    os.remove('index_online.html')
-    os.remove('index_online_backup.html')
+    	os.remove('index_online.html')
+   	os.remove('index_online_backup.html')
 
 
 
@@ -184,7 +190,7 @@ for i in range(len(Run_Number)):
     globalTag = globalTag_v0
 
     for z in range(len(globalTag_v0)-2):#clean up the garbage string in the GT
-        if (globalTag_v0[z].isdigit()) and  (globalTag_v0[z+1].isdigit()) and(globalTag_v0[z+2].isupper()):
+        if (globalTag_v0[z].isdigit()) and  (globalTag_v0[z+1].isdigit()) and (globalTag_v0[z+2].isdigit()) and (globalTag_v0[z+3].isupper()):
             globalTag = globalTag_v0[z:]
 
     ####################################################
