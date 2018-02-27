@@ -1,4 +1,5 @@
 #!/bin/sh
+export LD_PRELOAD=$CMS_ORACLEOCCI_LIB
 conddb --yes copy EcalTPGCrystalStatus_v2_hlt --destdb EcalTPGCrystalStatus_v2_hlt_O2OTEST.db --o2oTest
 cmsRun ./src/CondTools/Ecal/python/copyBadXT_cfg.py destinationDatabase=sqlite_file:EcalTPGCrystalStatus_v2_hlt_O2OTEST.db destinationTag=EcalTPGCrystalStatus_v2_hlt
 ret=$?

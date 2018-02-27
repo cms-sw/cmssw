@@ -1,4 +1,5 @@
 #!/bin/sh
+export LD_PRELOAD=$CMS_ORACLEOCCI_LIB
 conddb --yes copy EcalTPGLutIdMap_v2_hlt --destdb EcalTPGLutIdMap_v2_hlt_O2OTEST.db --o2oTest
 cmsRun ./src/CondTools/Ecal/python/copyLutIdMap_cfg.py destinationDatabase=sqlite_file:EcalTPGLutIdMap_v2_hlt_O2OTEST.db destinationTag=EcalTPGLutIdMap_v2_hlt
 ret=$?

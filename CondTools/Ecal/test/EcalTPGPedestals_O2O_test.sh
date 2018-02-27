@@ -1,4 +1,5 @@
 #!/bin/sh
+export LD_PRELOAD=$CMS_ORACLEOCCI_LIB
 conddb --yes copy EcalTPGPedestals_v2_hlt --destdb EcalTPGPedestals_v2_hlt_O2OTEST.db --o2oTest
 cmsRun ./src/CondTools/Ecal/python/copyPed_cfg.py destinationDatabase=sqlite_file:EcalTPGPedestals_v2_hlt_O2OTEST.db destinationTag=EcalTPGPedestals_v2_hlt
 ret=$?

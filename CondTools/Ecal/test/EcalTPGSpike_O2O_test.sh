@@ -1,4 +1,5 @@
 #!/bin/sh
+export LD_PRELOAD=$CMS_ORACLEOCCI_LIB
 conddb --yes copy EcalTPGSpike_v3_hlt --destdb EcalTPGSpike_v3_hlt_O2OTEST.db --o2oTest
 cmsRun ./src/CondTools/Ecal/python/copySpikeTh_cfg.py destinationDatabase=sqlite_file:EcalTPGSpike_v3_hlt_O2OTEST.db destinationTag=EcalTPGSpike_v3_hlt
 ret=$?

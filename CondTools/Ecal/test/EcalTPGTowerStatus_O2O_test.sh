@@ -1,4 +1,5 @@
 #!/bin/sh
+export LD_PRELOAD=$CMS_ORACLEOCCI_LIB
 conddb --yes copy EcalTPGTowerStatus_hlt --destdb EcalTPGTowerStatus_hlt_O2OTEST.db --o2oTest
 cmsRun ./src/CondTools/Ecal/python/copyBadTT_cfg.py destinationDatabase=sqlite_file:EcalTPGTowerStatus_hlt_O2OTEST.db destinationTag=EcalTPGTowerStatus_hlt
 ret=$?

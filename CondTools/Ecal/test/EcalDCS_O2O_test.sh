@@ -1,4 +1,5 @@
 #!/bin/sh
+export LD_PRELOAD=$CMS_ORACLEOCCI_LIB
 conddb --yes copy EcalDCSTowerStatus_online --destdb EcalDCSTowerStatus_online_O2OTEST.db --o2oTest
 popconRun ./src/CondTools/Ecal/python/EcalDCS_popcon.py -d sqlite_file:EcalDCSTowerStatus_online_O2OTEST.db -t EcalDCSTowerStatus_online -c
 ret=$?

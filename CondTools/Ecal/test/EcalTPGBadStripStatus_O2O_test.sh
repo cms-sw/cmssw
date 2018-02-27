@@ -1,4 +1,5 @@
 #!/bin/sh
+export LD_PRELOAD=$CMS_ORACLEOCCI_LIB
 conddb --yes copy EcalTPGStripStatus_v3_hlt --destdb EcalTPGStripStatus_v3_hlt_O2OTEST.db --o2oTest
 cmsRun ./src/CondTools/Ecal/python/copyBadStrip_cfg.py destinationDatabase=sqlite_file:EcalTPGStripStatus_v3_hlt_O2OTEST.db destinationTag=EcalTPGStripStatus_v3_hlt
 ret=$?
