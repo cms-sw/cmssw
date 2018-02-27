@@ -1,5 +1,6 @@
 #!/bin/sh
 function die { echo $1: status $2 ; exit $2; }
+export LD_PRELOAD=$CMS_ORACLEOCCI_LIB
 
 iov=308698
 tag="SiStripBadChannel_FromOnline_GR10_v1_hlt"
