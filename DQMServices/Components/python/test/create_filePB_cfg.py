@@ -49,8 +49,6 @@ process.schedule = cms.Schedule(
 process.add_(cms.Service("DQMStore"))
 
 if b.multithread():
-    process.out.enableMultiThread = cms.untracked.bool(True)
-    process.DQMStore.enableMultiThread = cms.untracked.bool(True)
     process.options = cms.untracked.PSet(
         numberOfThreads = cms.untracked.uint32(4),
         numberOfStreams = cms.untracked.uint32(4)

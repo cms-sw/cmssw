@@ -66,8 +66,6 @@ process.options = cms.untracked.PSet(
 )
 
 # Enable MultiThread DQM
-process.dqmSaver.enableMultiThread = cms.untracked.bool(True)
-process.MEtoEDMConverter.enableMultiThread = cms.untracked.bool(True)
 
 
 #process.Tracer = cms.Service('Tracer')

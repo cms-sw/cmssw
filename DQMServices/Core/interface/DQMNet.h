@@ -101,7 +101,6 @@ public:
     uint64_t		version;
     uint32_t            run;
     uint32_t            lumi;
-    uint32_t            streamId;
     uint32_t            moduleId;
     const std::string	*dirname;
     std::string		objname;
@@ -181,16 +180,13 @@ public:
     {
       if (a.run == b.run) {
         if (a.lumi == b.lumi) {
-          if (a.streamId == b.streamId) {
-            if (a.moduleId == b.moduleId) {
-              if (*a.dirname == *b.dirname) {
-                return a.objname < b.objname;
-              }
-              return *a.dirname < *b.dirname;
+          if (a.moduleId == b.moduleId) {
+            if (*a.dirname == *b.dirname) {
+              return a.objname < b.objname;
             }
-            return a.moduleId < b.moduleId;
+            return *a.dirname < *b.dirname;
           }
-          return a.streamId < b.streamId;
+          return a.moduleId < b.moduleId;
         }
         return a.lumi < b.lumi;
       }

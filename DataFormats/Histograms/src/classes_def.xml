@@ -73,4 +73,6 @@
 
  <class name="DQMToken" ClassVersion="0"/>
  <class name="edm::Wrapper<DQMToken>" persistent="false"/>
+ <class name="DQMRunToken" ClassVersion="0"/>
+ <class name="edm::Wrapper<DQMRunToken>" persistent="false"/>
 </lcgdict>

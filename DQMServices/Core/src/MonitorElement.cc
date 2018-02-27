@@ -157,7 +157,6 @@ MonitorElement::MonitorElement()
   data_.dirname  = nullptr;
   data_.run      = 0;
   data_.lumi     = 0;
-  data_.streamId = 0;
   data_.moduleId = 0;
   data_.tag = 0;
   data_.flags = DQM_KIND_INVALID | DQMNet::DQM_PROP_NEW;
@@ -168,7 +167,6 @@ MonitorElement::MonitorElement()
 MonitorElement::MonitorElement(const std::string *path,
                                const std::string &name,
                                uint32_t run /* = 0 */,
-                               uint32_t streamId /* = 0 */,
                                uint32_t moduleId /* = 0 */)
   : object_(nullptr),
     reference_(nullptr),
@@ -177,7 +175,6 @@ MonitorElement::MonitorElement(const std::string *path,
   data_.version  = 0;
   data_.run      = run;
   data_.lumi     = 0;
-  data_.streamId = streamId;
   data_.moduleId = moduleId;
   data_.dirname  = path;
   data_.objname  = name;

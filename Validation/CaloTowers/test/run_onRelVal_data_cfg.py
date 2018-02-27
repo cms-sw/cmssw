@@ -136,7 +136,6 @@ process.p2 = cms.Path( process.hcalTowerAnalyzer * process.noiseRates * process.
 #
 # DQMIO
 #
-#process.DQMStore.enableMultiThread = cms.untracked.bool(False)
 process.load('Configuration.EventContent.EventContent_cff')
 process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
     splitLevel = cms.untracked.int32(0),
