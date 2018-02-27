@@ -19,7 +19,7 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
-HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) :
   theParameterMap(new HcalTBSimParameterMap(ps)), 
   theHcalShape(new HcalShape()),
   theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
