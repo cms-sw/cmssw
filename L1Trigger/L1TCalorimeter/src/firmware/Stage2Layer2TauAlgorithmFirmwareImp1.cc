@@ -189,7 +189,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 	}
 	else {
 	  if (secMaxN != nullptr) secondaryCluster = secMaxN;
-	  else if (secMaxS != 0) secondaryCluster = secMaxS;
+	  else if (secMaxS != nullptr) secondaryCluster = secMaxS;
 	}
 	    
 	
@@ -226,7 +226,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 	l1t::CaloCluster mainClusterTrim = mainCluster;
 	int secondaryClusterHwPt = 0;
 	
-	if(secClusters.size()>0){
+	if(!secClusters.empty()){
 	  
 	  secondaryClusterHwPt = secondaryCluster->hwPt();
 	  
