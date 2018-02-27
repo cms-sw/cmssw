@@ -21,7 +21,7 @@ for testing purposes only.
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 
 
 namespace edmtest {
@@ -33,6 +33,8 @@ namespace one {
     explicit SharedResourcesAnalyzer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
       usesResource();
+      callWhenNewProductsRegistered([](edm::BranchDescription const& desc)
+        { std::cout << "one::SharedResourcesAnalyzer " << desc.moduleLabel() << std::endl; });
     }
     const unsigned int trans_; 
     unsigned int m_count = 0;
