@@ -95,8 +95,8 @@ namespace edm {
       static void prevalidate(ConfigurationDescriptions& );
       
       //Output modules always need writeRun and writeLumi to be called
-      bool wantsGlobalRuns() const {return true;}
-      bool wantsGlobalLuminosityBlocks() const {return true;}
+      virtual bool wantsGlobalRuns() const = 0;
+      virtual bool wantsGlobalLuminosityBlocks() const = 0;
       bool wantsStreamRuns() const {return false;}
       bool wantsStreamLuminosityBlocks() const {return false;};
 
