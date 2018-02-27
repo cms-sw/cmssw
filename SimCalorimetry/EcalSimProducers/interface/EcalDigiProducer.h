@@ -43,9 +43,7 @@ class PileUpEventPrincipal ;
 
 namespace edm {
   class ConsumesCollector;
-  namespace stream {
-    class EDProducerBase;
-  }
+  class ProducerBase;
   class Event;
   class EventSetup;
   template<typename T> class Handle;
@@ -60,7 +58,7 @@ namespace CLHEP {
 class EcalDigiProducer : public DigiAccumulatorMixMod {
    public:
 
-      EcalDigiProducer( const edm::ParameterSet& params , edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+      EcalDigiProducer( const edm::ParameterSet& params , edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
       EcalDigiProducer( const edm::ParameterSet& params , edm::ConsumesCollector& iC);
       ~EcalDigiProducer() override;
 
