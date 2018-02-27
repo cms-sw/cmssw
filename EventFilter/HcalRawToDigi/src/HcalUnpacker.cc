@@ -691,34 +691,48 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
         bool isZDC = (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId);
         bool isLasmon = (did.det()==DetId::Hcal && (HcalSubdetector)did.subdetId() == HcalOther && HcalCalibDetId( did ).calibFlavor() == 5);
 
-        std::cout << "IsLasmon = " << isLasmon << std::endl;
-
-	if (colls.qie10 == nullptr) {
-	  colls.qie10 = new QIE10DigiCollection(ns);
-	}
-	else if (colls.qie10->samples() != ns) {
-          // if this sample type hasn't been requested to be saved
-          // warn the user to provide a configuration that prompts it to be saved
-          if( !(isZDC) && !(isLasmon) && colls.qie10Addtl.find( ns ) == colls.qie10Addtl.end() ) {
-            printInvalidDataMessage( "QIE10", colls.qie10->samples(), ns );
+	if( isZDC ) {
+          if( colls.qie10ZDC == nullptr ) {
+            colls.qie10ZDC = new QIE10DigiCollection(ns);
+          } else if (colls.qie10ZDC->samples() != ns) {
+            printInvalidDataMessage( "QIE10ZDC", colls.qie10ZDC->samples(), ns );
           }
 	}
+        else if( isLasmon ) {
+          if (colls.qie10Lasermon == nullptr ) {
+            colls.qie10Lasermon = new QIE10DigiCollection(ns);
+          } else if (colls.qie10Lasermon->samples() != ns) {
+            printInvalidDataMessage( "QIE10LASMON", colls.qie10Lasermon->samples(), ns );
+          }
+        } else { // these are the default qie10 channels
+          if (colls.qie10 == nullptr) { 
+              std::cout << "Create qie10 collection with " << ns << " samples" << std::endl;
+	    colls.qie10 = new QIE10DigiCollection(ns);
+          }
+          else if (colls.qie10->samples() != ns) {
+            // if this sample type hasn't been requested to be saved
+            // warn the user to provide a configuration that prompts it to be saved
+            if( colls.qie10Addtl.find( ns ) == colls.qie10Addtl.end() ) {
+              printInvalidDataMessage( "QIE10", colls.qie10->samples(), ns );
+            }
+          }
+        }
 
 	// Insert data
     /////////////////////////////////////////////CODE FROM OLD STYLE DIGIS///////////////////////////////////////////////////////////////
 	if (!did.null()) { // unpack and store...
-          colls.qie10->addDataFrame(did, head_pos);
           // fill the additional qie10 collections
-          if( colls.qie10Addtl.find( ns ) != colls.qie10Addtl.end() ) {
-            colls.qie10Addtl[ns]->addDataFrame( did, head_pos );
-          }
-          if( isZDC ) colls.qie10Addtl[-1]->addDataFrame( did, head_pos );
-          if( isLasmon) {
-              std::cout << "Save lasmon data" << std::endl;
-              colls.qie10Addtl[-2]->addDataFrame( did, head_pos );
+          if( isZDC ) colls.qie10ZDC->addDataFrame( did, head_pos );
+          else if( isLasmon) colls.qie10Lasermon->addDataFrame( did, head_pos );
+          else {
+
+            colls.qie10->addDataFrame(did, head_pos);
+              
+            if( colls.qie10Addtl.find( ns ) != colls.qie10Addtl.end() ) {
+              colls.qie10Addtl[ns]->addDataFrame( did, head_pos );
+            }
           }
 	} else {
-            if( isLasmon) std::cout << "Lasermon did is null" << std::endl;
 		report.countUnmappedDigi(eid);
 		if (unknownIds_.find(eid)==unknownIds_.end()) {
 			if (!silent) edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
@@ -835,6 +849,8 @@ HcalUnpacker::Collections::Collections() {
   calibCont=nullptr;
   ttp=nullptr;
   qie10=nullptr;
+  qie10ZDC=nullptr;
+  qie10Lasermon=nullptr;
   qie11=nullptr;
   umnio=nullptr;
 }
@@ -917,14 +933,14 @@ void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, Collections& col
 void HcalUnpacker::printInvalidDataMessage( const std::string &coll_type, int default_ns, int conflict_ns ) {
 
   edm::LogError("Invalid Data") << "The default " << coll_type << " Collection has " 
-        << conflict_ns << " samples per digi, while the current data has " 
-        << default_ns << "!  This data cannot be included with the default collection.\n"
+        << default_ns << " samples per digi, while the current data has " 
+        << conflict_ns << "!  This data cannot be included with the default collection.\n"
         << "In order to store this data in the event, it must have a unique tag.  "
         << "To accomplish this, provide two lists to HcalRawToDigi \n"
         << "1) that specifies the number of samples and "
         << "2) that gives tags with which these data are saved.\n"
         << "For example in this case you might add \n"
-        << "process.hcalDigis.saveQIE11DataNSamples = cms.untracked.vint32( " 
-        << conflict_ns << ") \nprocess.hcalDigis.saveQIE11DataTags = cms.untracked.vstring( \"MYDATA\" )" << std::endl;
+        << "process.hcalDigis.save" << coll_type << "DataNSamples = cms.untracked.vint32( " 
+        << conflict_ns << ") \nprocess.hcalDigis.save" << coll_type << "DataTags = cms.untracked.vstring( \"MYDATA\" )" << std::endl;
 }
 
