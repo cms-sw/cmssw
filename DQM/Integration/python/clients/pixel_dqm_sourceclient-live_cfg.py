@@ -4,7 +4,7 @@ from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process("PIXELDQMLIVE", eras.Run2_2017)
 
-live=False  #set to false for lxplus offline testing
+live=True  #set to false for lxplus offline testing
 offlineTesting=not live
 
 TAG ="PixelPhase1" 
@@ -47,12 +47,6 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = TAG
 process.dqmSaver.tag = TAG
 
-#from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-#process.dqmEnvTr = DQMEDAnalyzer('DQMEventInfo',
-#                 subSystemFolder = cms.untracked.string('TrackTimingPixelPhase1'),
-#                 eventRateWindow = cms.untracked.double(0.5),
-#                 eventInfoFolder = cms.untracked.string('EventInfo')
-#)
 
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
 if (process.runType.getRunType() == process.runType.hi_run):
@@ -85,7 +79,7 @@ if (live):
 elif(offlineTesting):
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-    process.GlobalTag = gtCustomise(process.GlobalTag, '100X_dataRun2_v1', '')
+    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 #-----------------------
 #  Reconstruction Modules
@@ -93,7 +87,6 @@ elif(offlineTesting):
 
 # Real data raw to digi
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
-#process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
 process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
 process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_RealData_cfi")
 
@@ -112,9 +105,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
     process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
     process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
-
-# Phase1 DQM cosmic/pp settings
-#process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OnlineDQM_Timing_cff")
 
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
@@ -157,7 +147,6 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 )
 
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-#process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*', 'HLT*SingleMu*')
 process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*')
 process.hltHighLevel.andOr = cms.bool(True)
 process.hltHighLevel.throw =  cms.bool(False)
@@ -167,7 +156,6 @@ process.hltHighLevel.throw =  cms.bool(False)
 #--------------------------
 
 process.DQMmodules = cms.Sequence(process.dqmEnv*
-                                  #process.dqmEnvTr*
                                   process.dqmSaver)
 
 
