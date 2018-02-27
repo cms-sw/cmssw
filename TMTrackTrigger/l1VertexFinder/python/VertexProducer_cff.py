@@ -10,6 +10,7 @@ VertexProducer = cms.EDProducer('VertexProducer',
   l1TracksInputTag = cms.InputTag("TMTrackProducer", "TML1TracksSimpleLR"), # SFLR
 
 
+
   #=== Cuts on MC truth particles (i.e., tracking particles) used for tracking efficiency measurements.
 
   GenCuts = cms.PSet(
@@ -50,7 +51,6 @@ VertexProducer = cms.EDProducer('VertexProducer',
      # Associate stub to TP only if the TP contributed to both its clusters? (If False, then associate even if only one cluster was made by TP).
      StubMatchStrict          = cms.bool(False)
   ),
-
 
   # === Vertex Reconstruction configuration
   VertexReconstruction=cms.PSet(

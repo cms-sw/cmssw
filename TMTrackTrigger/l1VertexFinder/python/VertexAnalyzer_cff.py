@@ -6,8 +6,10 @@ L1TVertexAnalyzer = cms.EDAnalyzer('VertexAnalyzer',
   stubTruthInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
   clusterTruthInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
   l1TracksInputTag = cms.InputTag("TMTrackProducer", "TML1TracksSimpleLR"), # SFLR
-  #=== Cuts on MC truth particles (i.e., tracking particles) used for tracking efficiency measurements.
+  l1VerticesInputTag = cms.InputTag("VertexProducer", "l1vertices"),
+  l1VerticesTDRInputTag = cms.InputTag("VertexProducer", "l1verticestdr"),
 
+  #=== Cuts on MC truth particles (i.e., tracking particles) used for tracking efficiency measurements.
   GenCuts = cms.PSet(
      GenMinPt         = cms.double(3.0),
      GenMaxAbsEta     = cms.double(2.4),
@@ -24,7 +26,6 @@ L1TVertexAnalyzer = cms.EDAnalyzer('VertexAnalyzer',
 
 
   #=== Rules for deciding when the track finding has found an L1 track candidate
-
   L1TrackDef = cms.PSet(
      UseLayerID           = cms.bool(True),
      # Reduce this layer ID, so that it takes no more than 8 different values in any eta region (simplifies firmware).
@@ -32,7 +33,6 @@ L1TVertexAnalyzer = cms.EDAnalyzer('VertexAnalyzer',
   ),
 
   #=== Rules for deciding when a reconstructed L1 track matches a MC truth particle (i.e. tracking particle).
-
   TrackMatchDef = cms.PSet(
      #--- Three different ways to define if a tracking particle matches a reco track candidate. (Usually, set two of them to ultra loose).
      # Min. fraction of matched stubs relative to number of stubs on reco track.
@@ -92,6 +92,7 @@ L1TVertexAnalyzer = cms.EDAnalyzer('VertexAnalyzer',
         VxMergeByTracks = cms.bool(False),
         VxMinTrackPt   = cms.double(2.)
     ),
+
   # Debug printout
   Debug  = cms.uint32(0), #(0=none, 1=print tracks/sec, 2=show filled cells in HT array in each sector of each event, 3=print all HT cells each TP is found in, to look for duplicates, 4=print missed tracking particles by r-z filters, 5 = show debug info about duplicate track removal, 6 = show debug info about fitters)
   printResults = cms.bool(False)

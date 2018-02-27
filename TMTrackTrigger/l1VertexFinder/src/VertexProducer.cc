@@ -40,6 +40,7 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
 
   //--- Define EDM output to be written to file (if required) 
   produces< l1t::VertexCollection >( "l1vertices" );
+  produces< l1t::VertexCollection >( "l1tvertextdr" );
 }
 
 
@@ -107,15 +108,20 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<edm::Ptr<l1t::Vertex::Track_t>> lVtxTracks;
     for (const auto& t : vtx.tracks() )
       lVtxTracks.push_back( t->getTTTrackPtr() );
-    lProduct->push_back(l1t::Vertex(vtx.z0(), lVtxTracks));
+    lProduct->emplace_back(l1t::Vertex(vtx.z0(), lVtxTracks));
   }
   iEvent.put(std::move(lProduct), "l1vertices");
+
+  // //=== Store output EDM track and hardware stub collections.
+  std::unique_ptr<l1t::VertexCollection> lProductTDR(new std::vector<l1t::Vertex>());
+  std::vector<edm::Ptr<l1t::Vertex::Track_t>> lVtxTracksTDR;
+  lVtxTracksTDR.reserve(vf.TDRPrimaryVertex().tracks().size());
+  for (const auto& t : vf.TDRPrimaryVertex().tracks() )
+    lVtxTracksTDR.emplace_back( t->getTTTrackPtr() );
+  lProductTDR->emplace_back(l1t::Vertex(vf.TDRPrimaryVertex().z0(), lVtxTracksTDR));
+  iEvent.put(std::move(lProductTDR), "l1tvertextdr");
 }
 
-
-void VertexProducer::endJob()
-{
-  // hists_->endJobAnalysis();
-}
+void VertexProducer::endJob() {}
 
 DEFINE_FWK_MODULE(VertexProducer);
