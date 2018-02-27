@@ -4,7 +4,7 @@ from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process("PIXELDQMLIVE", eras.Run2_2017)
 
-live=False  #set to false for lxplus offline testing
+live=True  #set to false for lxplus offline testing
 offlineTesting=not live
 
 TAG ="PixelPhase1" 
@@ -78,7 +78,7 @@ if (live):
 elif(offlineTesting):
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-    process.GlobalTag = gtCustomise(process.GlobalTag, '100X_dataRun2_v1', '')
+    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 #-----------------------
 #  Reconstruction Modules
