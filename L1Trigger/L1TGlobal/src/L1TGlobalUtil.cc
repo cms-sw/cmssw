@@ -219,6 +219,22 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
        if (algBlk != m_uGtAlgBlk->end(0)){
 	 if (! m_readPrescalesFromFile){
 	   m_PreScaleColumn = static_cast<unsigned int>(algBlk->getPreScColumn());
+
+	   // Fix for MC prescale column being set to index+1 in early versions of uGT emulator
+	   if (iEvent.run() == 1){
+	     if (m_prescaleFactorsAlgoTrig->size() == 1 && m_PreScaleColumn ==1) m_PreScaleColumn = 0;
+	   }
+
+	   // add protection against out-of-bound index for prescale column
+	   if(m_PreScaleColumn >= m_prescaleFactorsAlgoTrig->size()) {
+	     LogDebug("l1t|Global")
+	       << "Prescale column extracted from GlobalAlgBlk too large: " << m_PreScaleColumn
+	       << "\tMaximum value allowed: " << m_prescaleFactorsAlgoTrig->size()-1
+	       << "\tResetting prescale column to 0"
+	       << std::endl;
+	     m_PreScaleColumn = 0;
+	   }
+
 	 }
 	 const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn];
 
