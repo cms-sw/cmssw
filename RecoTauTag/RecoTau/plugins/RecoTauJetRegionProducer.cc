@@ -201,11 +201,7 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   // Create a matching between original jets -> extra collection
   auto matching = (nJets !=0) ? std::make_unique<PFJetMatchMap>(edm::makeRefToBaseProdFrom(edm::RefToBase<reco::Jet>(jets[0]), evt), newJetsInEvent) : std::make_unique<PFJetMatchMap>();
   for (size_t ijet = 0; ijet < nJets; ++ijet) {
-    // JAN - FIXME - this doesn't look very elegant...
     matching->insert(edm::RefToBase<reco::Jet>(jets[ijet]), edm::RefToBase<reco::Jet>(edm::Ref<reco::PFJetCollection>(newJetsInEvent, matchInfo[ijet])));
-    // PFJetMatchMap::Filler filler(*matching);
-    // filler.insert(originalJets, matchInfo.begin(), matchInfo.end());
-    // filler.fill();
   }
   evt.put(std::move(matching));
 }

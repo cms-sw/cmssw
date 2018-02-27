@@ -132,12 +132,7 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   // Get the jet input collection via a view of Candidates
   edm::Handle<reco::JetView> jetView;
   evt.getByToken(jet_token, jetView);
-  
-  // Convert to a vector of PFJetRefs
-  // reco::PFJetRefVector jets = reco::tau::castView<reco::PFJetRefVector>(jetView);
-  // edm::RefVector<std::vector<reco::Jet>> jets = reco::tau::castView<edm::RefVector<std::vector<reco::Jet>>>(jetView);
-  // edm::RefToBaseVector<reco::Jet> jets = reco::tau::castViewToOtherBase<edm::RefToBaseVector<reco::Jet>>(jetView);
-  
+    
   // Get the jet region producer
   edm::Handle<edm::AssociationMap<edm::OneToOne<reco::JetView, reco::JetView> > > jetRegionHandle;
   evt.getByToken(jetRegion_token, jetRegionHandle);

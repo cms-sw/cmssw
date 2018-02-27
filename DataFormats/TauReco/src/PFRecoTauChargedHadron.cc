@@ -74,23 +74,6 @@ bool PFRecoTauChargedHadron::algoIs(PFRecoTauChargedHadron::PFRecoTauChargedHadr
   return (algo_ == algo);
 }
 
-namespace
-{
-  // JAN - FIXME - can still use this to print out based on PDG ID
-  // std::string getPFCandidateType(reco::PFCandidate::ParticleType pfCandidateType)
-  // {
-  //   if      ( pfCandidateType == reco::PFCandidate::X         ) return "undefined";
-  //   else if ( pfCandidateType == reco::PFCandidate::h         ) return "PFChargedHadron";
-  //   else if ( pfCandidateType == reco::PFCandidate::e         ) return "PFElectron";
-  //   else if ( pfCandidateType == reco::PFCandidate::mu        ) return "PFMuon";
-  //   else if ( pfCandidateType == reco::PFCandidate::gamma     ) return "PFGamma";
-  //   else if ( pfCandidateType == reco::PFCandidate::h0        ) return "PFNeutralHadron";
-  //   else if ( pfCandidateType == reco::PFCandidate::h_HF      ) return "HF_had";
-  //   else if ( pfCandidateType == reco::PFCandidate::egamma_HF ) return "HF_em";
-  //   else assert(0);
-  // }
-}
-
 void PFRecoTauChargedHadron::print(std::ostream& stream) const 
 {
   stream << " Pt = " << this->pt() << ", eta = " << this->eta() << ", phi = " << this->phi() << " (mass = " << this->mass() << ")" << std::endl;

@@ -256,8 +256,6 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       if ( nextChargedHadron->algoIs(reco::PFRecoTauChargedHadron::kPFNeutralHadron) ) {
 	for ( std::set<reco::CandidatePtr>::const_iterator neutralPFCandInCleanCollection = neutralPFCandsInCleanCollection.begin();
 	      neutralPFCandInCleanCollection != neutralPFCandsInCleanCollection.end(); ++neutralPFCandInCleanCollection ) {
-          // JAN - FIXME - this should be fine according to the documentation but need to double-check
-	  // if ( neutralPFCandInCleanCollection->id() == nextChargedHadron->getChargedPFCandidate().id() )
           if ( (*neutralPFCandInCleanCollection) == nextChargedHadron->getChargedPFCandidate() )  isNeutralPFCand_overlap = true;
 
 	}

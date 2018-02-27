@@ -204,8 +204,9 @@ namespace
     }
   }
 
-  // JAN - FIXME - this method is needed multiple times
-
+  // The following method has not been adapted to work with PackedCandidates,
+  // however, it is only used for printing/debugging and can be adapted when
+  // needed.
   inline const reco::TrackBaseRef getTrack(const Candidate& cand)
   {
     const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
@@ -214,7 +215,7 @@ namespace
       else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(pfCandPtr->gsfTrackRef());
       else return reco::TrackBaseRef();
     }
-    // JAN - FIXME: Add method for miniAOD PackedCandidate
+    
     return reco::TrackBaseRef();
   }
 }
