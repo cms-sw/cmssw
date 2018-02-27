@@ -49,6 +49,8 @@ from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 from RecoVertex.Configuration.RecoVertex_EventContent_cff import *
 # raw2digi that are already the final RECO/AOD products
 from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
+from EventFilter.OnlineMetaDataRawToDigi.OnlineMetaData_EventContent_cff import *
+from EventFilter.Utilities.Tcds_EventContent_cff import *
 from Configuration.EventContent.EventContent_cff import REGENEventContent,RESIMEventContent,REDIGIEventContent
 
 #not in Cosmics 
