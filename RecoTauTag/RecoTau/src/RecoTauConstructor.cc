@@ -117,8 +117,6 @@ namespace
     for ( std::vector<CandidatePtr>::const_iterator pfGamma = pfGammas.begin();
 	  pfGamma != pfGammas.end(); ++pfGamma ) {
       LogDebug("TauConstructorCheckOverlap") << "pfGamma = " << pfGamma->id() << ":" << pfGamma->key();
-      // JAN - FIXME - double-check that id() equality is fine!
-      // lhs.refCore() == rhs.refCore() && lhs.key() == rhs.key() ???
       if ( (*pfGamma).refCore() == neutral.refCore() && (*pfGamma).key() == neutral.key() ) isUnique = false;
     }
   }

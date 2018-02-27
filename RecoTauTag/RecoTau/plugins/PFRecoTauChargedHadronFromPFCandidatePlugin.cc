@@ -130,19 +130,6 @@ void PFRecoTauChargedHadronFromPFCandidatePlugin::beginEvent()
 
 namespace
 {
-  // std::string getPFCandidateType(reco::PFCandidate::ParticleType pfCandidateType)
-  // {
-  //   if      ( pfCandidateType == reco::PFCandidate::X         ) return "undefined";
-  //   else if ( pfCandidateType == reco::PFCandidate::h         ) return "PFChargedHadron";
-  //   else if ( pfCandidateType == reco::PFCandidate::e         ) return "PFElectron";
-  //   else if ( pfCandidateType == reco::PFCandidate::mu        ) return "PFMuon";
-  //   else if ( pfCandidateType == reco::PFCandidate::gamma     ) return "PFGamma";
-  //   else if ( pfCandidateType == reco::PFCandidate::h0        ) return "PFNeutralHadron";
-  //   else if ( pfCandidateType == reco::PFCandidate::h_HF      ) return "HF_had";
-  //   else if ( pfCandidateType == reco::PFCandidate::egamma_HF ) return "HF_em";
-  //   else assert(0);
-  // }
-
   bool isMatchedByBlockElement(const reco::PFCandidate& pfCandidate1, const reco::PFCandidate& pfCandidate2, int minMatches1, int minMatches2, int maxUnmatchedBlockElements1plus2)
   {
     reco::PFCandidate::ElementsInBlocks blockElements1 = pfCandidate1.elementsInBlocks();

@@ -179,8 +179,6 @@ namespace
       candFlags[*candId] = true;
     }
   }
-  
-  // JAN - FIXME - this method is needed multiple times
 
   inline const reco::TrackBaseRef getTrack(const Candidate& cand)
   {
@@ -190,7 +188,7 @@ namespace
       else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(pfCandPtr->gsfTrackRef());
       else return reco::TrackBaseRef();
     }
-    // JAN - FIXME: Add method for miniAOD PackedCandidate
+
     return reco::TrackBaseRef();
   }
 }

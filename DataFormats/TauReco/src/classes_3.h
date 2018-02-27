@@ -246,7 +246,6 @@ namespace DataFormats_TauReco {
 /*     std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > jetPFCandidateAssociation_mkv; */
 
     // PAT Jet associations, needed for miniAOD-based reconstruction
-    // JAN - FIXME - this should possibly go into PatCandidates
     edm::Association<std::vector<pat::Jet> > patjet_assoc_vr;
     edm::Wrapper<edm::Association<std::vector<pat::Jet> > > patjet_assoc_vr_wrapper;
     edm::RefProd<vector<pat::Jet> > patjet_rp;
