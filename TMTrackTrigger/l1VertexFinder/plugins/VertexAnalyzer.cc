@@ -486,20 +486,18 @@ namespace l1tVertexFinder {
     iEvent.getByToken(l1VerticesToken_, l1VerticesHandle);
 
     edm::Handle<std::vector<l1t::Vertex>> l1VertexTDRHandle;
-    iEvent.getByToken(l1VerticesToken_, l1VertexTDRHandle);
+    iEvent.getByToken(l1VerticesTDRToken_, l1VertexTDRHandle);
 
     // extract VF parameters
     unsigned int numInputTracks = l1Tracks.size();
     unsigned int numVertices = l1VerticesHandle->size();
 
-    std::cout << "no TDR vertices = " << l1VertexTDRHandle->at(0).z0()<< std::endl;
-    std::cout << "vertices = " << numVertices << std::endl;
-    std::cout << "tracks = " << numInputTracks << std::endl;
+    cout << "Input Tracks to L1 Correlator " << numInputTracks << endl;
 
-    // exit(1);
+    l1t::Vertex pvVertexFromEDM = l1VerticesHandle->at(0);
+    l1t::Vertex tdrPVVertexFromEDM = l1VertexTDRHandle->at(0);
 
-    // cout << "Input Tracks to L1 Correlator " << numInputTracks << endl;
-
+    //l1t::vector<l1t::Vertex> recoVertices;
 
     // noEvents++;
     const Vertex&     TruePrimaryVertex = inputData.getPrimaryVertex();
@@ -518,8 +516,25 @@ namespace l1tVertexFinder {
     // get reference to PV and TDR PV
 
     // Associate true primary vertex with the closest reconstructed vertex
-    RecoVertex RecoPrimaryVertexBase = vf.PrimaryVertex();
-    RecoVertex TDRVertexBase         = vf.TDRPrimaryVertex();
+    // RecoVertex RecoPrimaryVertexBase = vf.PrimaryVertex();
+    // RecoVertex TDRVertexBase         = vf.TDRPrimaryVertex();
+    RecoVertex RecoPrimaryVertexBase = RecoVertex();
+    RecoVertex TDRVertexBase         = RecoVertex();
+
+    // populate RecoVertex version of PV with information obtained from
+    // l1t::Vertex
+    for (const auto & track : pvVertexFromEDM.tracks()) {
+      RecoPrimaryVertexBase.insert(new L1fittedTrackBase(track));
+    }
+    RecoPrimaryVertexBase.setZ(pvVertexFromEDM.z0());
+
+    // populate RecoVertex version of TDR PV with information obtained
+    // from l1t::Vertex
+    for (const auto & track : tdrPVVertexFromEDM.tracks()) {
+      TDRVertexBase.insert(new L1fittedTrackBase(track));
+    }
+    // TDRVertexBase.computeParameters(settings_->vx_weightedmean());
+    TDRVertexBase.setZ(tdrPVVertexFromEDM.z0());
 
     RecoVertexWithTP * RecoPrimaryVertex = new RecoVertexWithTP(RecoPrimaryVertexBase, trackAssociationMap);
     RecoVertexWithTP * TDRVertex = new RecoVertexWithTP(TDRVertexBase, trackAssociationMap);
@@ -558,6 +573,8 @@ namespace l1tVertexFinder {
       hisRecoVertexVsGenMET_->Fill(inputData.GenMET());
     }
 
+    /*
+       TODO:REVIEW
     if(settings_->debug()==7){
       cout << "** RECO VERTICES ***" << endl;
       for(RecoVertex vertex : vf.Vertices()){
@@ -568,7 +585,10 @@ namespace l1tVertexFinder {
       cout << "Reco PrimaryVertex z0 "<< RecoPrimaryVertex->z0() << " pT "<< RecoPrimaryVertex->pT() << " met "<< RecoPrimaryVertex->met() << " nTracks "<< RecoPrimaryVertex->numTracks() << endl;
       cout << "TP PrimaryVertex z0 "<< TDRVertex->z0() << " pT "<< TDRVertex->pT() << " met "<< RecoPrimaryVertex->met() << endl;
     }
+    */
 
+    /*
+      TODO:REVIEW
     unsigned int TrackRank = 0;
     for(unsigned int id = 0; id < numVertices ; ++id){
       if(id!=vf.PrimaryVertexId()){
@@ -587,7 +607,7 @@ namespace l1tVertexFinder {
 
     hisNumVxIterations_->Fill(vf.NumIterations());
     hisNumVxIterationsPerTrack_->Fill(vf.IterationsPerTrack());
-  
+    */
 
     hisTrkMETvsGenMET_->Fill(inputData.GenMET(), TruePrimaryVertex.met() );
     hisRecoTrkMETvsGenMET_->Fill(inputData.GenMET(), RecoPrimaryVertex->met());
@@ -792,6 +812,8 @@ namespace l1tVertexFinder {
     unsigned int misassignedTracks_tdr = 0;
 
 
+    /*
+      TODO:REVIEW
     if(settings_->debug() == 7) cout << "*** Misassigned primary vertex tracks ***"<< endl;
     for(const TP& tp : TruePrimaryVertex.tracks()){
       bool found = false;
@@ -882,8 +904,12 @@ namespace l1tVertexFinder {
     hisUnmatchedPVtracks_->Fill(misassignedTracks);
     hisTDRUnmatchedPVtracks_->Fill(misassignedTracks_tdr);
 
+    */
+
     hisPrimaryVertexZ0width_->Fill(TruePrimaryVertex.z0width());
 
+    /*
+      TODO:REVIEW
     float z0distance = 0.;
 
     for(unsigned int i = 0; i<vf.Vertices().size(); ++i){
@@ -912,7 +938,7 @@ namespace l1tVertexFinder {
       hisPileUpVertexZ0_->Fill(inputData.getRecoPileUpVertices()[i].z0());
       hisPileUpVertexZ0width_->Fill(inputData.getRecoPileUpVertices()[i].z0width());
     }
-
+    */
 
     if(settings_->debug()==7) cout << "================ End of Event =============="<< endl;
 

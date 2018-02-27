@@ -143,7 +143,7 @@ namespace l1tVertexFinder {
       if(fitTracks_[i]->pt() > settings_->vx_dbscan_pt()) numDensityTracks++;
       for(unsigned int k = 0; k < fitTracks_.size(); ++k){
 	iterations_++;
-	if(k!= i and (fabs(fitTracks_[k]->z0()-fitTracks_[i]->z0()) < settings_->vx_distance() or (fabs(fitTracks_[i]->eta())> 1.5 and fabs(fitTracks_[k]->z0()-fitTracks_[i]->z0()) < 0.5 )) ){ neighbourTrackIds.insert(k); 
+	if(k!= i and (fabs(fitTracks_[k]->z0()-fitTracks_[i]->z0()) < settings_->vx_distance() or (fabs(fitTracks_[i]->eta())> 1.5 and fabs(fitTracks_[k]->z0()-fitTracks_[i]->z0()) < 0.5 )) ){ neighbourTrackIds.insert(k);
 	  if(fitTracks_[k]->pt() > settings_->vx_dbscan_pt()){
 	    numDensityTracks++;
 	  }
@@ -385,50 +385,14 @@ namespace l1tVertexFinder {
 
   void VertexFinder::FindPrimaryVertex() {
     double vertexPt = 0;
-    // unsigned int numTracks = 0;
     pv_index_ = 0;
 
     for(unsigned int i = 0; i < vertices_.size(); ++i){
       if(vertices_[i].pT() > vertexPt){
-	vertexPt = vertices_[i].pT();
-	pv_index_ = i;
-	// numTracks = vertices_[i].numTracks();
+        vertexPt = vertices_[i].pT();
+        pv_index_ = i;
       }
     }
-
-    // for(unsigned int i = 0; i < vertices_.size(); ++i){
-    // 	if(vertices_[i].hasHighPt()) {
-    // 		if(!vertices_[pv_index_].hasHighPt() ){
-    // 			vertexPt = vertices_[i].pT();
-    // 			pv_index_ = i;
-    // 			numTracks = vertices_[i].numTracks();
-    // 		} else if(vertices_[i].highestPt() > vertices_[pv_index_].highestPt()){
-    // 			if(vertices_[i].numTracks() > numTracks*2 and vertices_[i].numTracks() > 10){
-    // 				vertexPt = vertices_[i].pT();
-    // 				numTracks = vertices_[i].numTracks();
-    // 				pv_index_ = i;
-    // 			}
-    // 			if(vertices_[i].pT() > vertexPt and vertices_[i].numTracks() > numTracks/3){
-    // 				vertexPt = vertices_[i].pT();
-    // 				pv_index_ = i;
-    // 				numTracks = vertices_[i].numTracks();
-    // 			}
-    // 		}
-    // 	} else{
-    // 		if(vertices_[i].numTracks() > numTracks*2 and vertices_[i].numTracks() > 10 and !vertices_[pv_index_].hasHighPt()){
-    // 			vertexPt = vertices_[i].pT();
-    // 			numTracks = vertices_[i].numTracks();
-    // 			pv_index_ = i;
-    // 		}
-    // 		if(vertices_[i].pT() > vertexPt and vertices_[i].numTracks() > numTracks/3 and !vertices_[pv_index_].hasHighPt()){
-    // 			vertexPt = vertices_[i].pT();
-    // 			pv_index_ = i;
-    // 			numTracks = vertices_[i].numTracks();
-    // 		}
-    // 	}
-    // }
-
-    // cout << "Vertex id " << pv_index_ << " is primary" << endl;
   }
 
   void VertexFinder::AssociatePrimaryVertex(double trueZ0){
@@ -466,7 +430,6 @@ namespace l1tVertexFinder {
 	vxPt = vertex.pT();
       }
     }
-
-  }
+  } // end of TDRalgorithm
 
 } // end ns l1tVertexFinder

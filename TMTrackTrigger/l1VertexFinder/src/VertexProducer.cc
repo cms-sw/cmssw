@@ -40,7 +40,7 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
 
   //--- Define EDM output to be written to file (if required) 
   produces< l1t::VertexCollection >( "l1vertices" );
-  produces< l1t::VertexCollection >( "l1tvertextdr" );
+  produces< l1t::VertexCollection >( "l1vertextdr" );
 }
 
 
@@ -101,14 +101,27 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   vf.TDRalgorithm();
   vf.SortVerticesInZ0();
+  vf.FindPrimaryVertex();
 
   // //=== Store output EDM track and hardware stub collections.
   std::unique_ptr<l1t::VertexCollection> lProduct(new std::vector<l1t::Vertex>());
+  std::vector<edm::Ptr<l1t::Vertex::Track_t>> pvTracks;
+  pvTracks.reserve(vf.PrimaryVertex().tracks().size());
+  // store PV first in list
+  for (const auto& track : vf.PrimaryVertex().tracks()) {
+    pvTracks.emplace_back(track->getTTTrackPtr());
+  }
+  lProduct->emplace_back(l1t::Vertex(vf.PrimaryVertex().z0(), pvTracks));
+
+  unsigned vIndex = 0;
   for (const auto& vtx : vf.Vertices()) {
-    std::vector<edm::Ptr<l1t::Vertex::Track_t>> lVtxTracks;
-    for (const auto& t : vtx.tracks() )
-      lVtxTracks.push_back( t->getTTTrackPtr() );
-    lProduct->emplace_back(l1t::Vertex(vtx.z0(), lVtxTracks));
+    if (vIndex != vf.PrimaryVertexId()) {
+      std::vector<edm::Ptr<l1t::Vertex::Track_t>> lVtxTracks;
+      for (const auto& t : vtx.tracks() )
+        lVtxTracks.push_back( t->getTTTrackPtr() );
+      lProduct->emplace_back(l1t::Vertex(vtx.z0(), lVtxTracks));
+    }
+    ++vIndex;
   }
   iEvent.put(std::move(lProduct), "l1vertices");
 
@@ -119,7 +132,7 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (const auto& t : vf.TDRPrimaryVertex().tracks() )
     lVtxTracksTDR.emplace_back( t->getTTTrackPtr() );
   lProductTDR->emplace_back(l1t::Vertex(vf.TDRPrimaryVertex().z0(), lVtxTracksTDR));
-  iEvent.put(std::move(lProductTDR), "l1tvertextdr");
+  iEvent.put(std::move(lProductTDR), "l1vertextdr");
 }
 
 void VertexProducer::endJob() {}
