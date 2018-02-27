@@ -6,9 +6,9 @@ import FWCore.ParameterSet.Config as cms
 
 OnlineMetaDataContent = cms.PSet(
    outputCommands = cms.untracked.vstring(
-       'keep CTPPSRecord_metaData_*_*',
-       'keep DCSRecord_metaData_*_*',
-       'keep OnlineLuminosityRecord_metaData_*_*',
-       'keep recoBeamSpot_metaData_*_*'
+       'keep CTPPSRecord_onlineMetaDataDigis_*_*',
+       'keep DCSRecord_onlineMetaDataDigis_*_*',
+       'keep OnlineLuminosityRecord_onlineMetaDataDigis_*_*',
+       'keep recoBeamSpot_onlineMetaDataDigis_*_*'
        )
 )
