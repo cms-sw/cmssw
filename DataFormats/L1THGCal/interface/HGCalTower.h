@@ -43,7 +43,7 @@ namespace l1t {
     int hwEtHad()const;
     int hwEtRatio()const;
 
-    const HGCalTower& operator+=(const HGCalTower tower);
+    HGCalTower& operator+=(const HGCalTower& tower);
 
   private:
     
