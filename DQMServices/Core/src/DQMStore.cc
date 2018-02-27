@@ -1890,18 +1890,16 @@ DQMStore::getAllContents(const std::string &path,
   //for (auto const& me : data_) dumpme("++++ dqmstore: ", me);
   // Restrict the loop to the monitor elements for the current lumisection
   // If the run is 0 (former non-MT mode), return the first run
+  // but, if there are MEs with run 0, also output these.
   // TODO(schneiml): I think this is the semantics that legacy stuff expects. 
   if (lumi != 0) {
     // only save global per-lumi clones.
     // with LSbasedMode, all histos are cloned, so all are saved.
     MonitorElement proto(cleaned, std::string(), runNumber, 0);
     proto.setLumi(lumi);
-    dumpme("+++ lumiproto: ", proto);
     auto begin = data_.lower_bound(proto);
-    if (begin != data_.end()) dumpme("+++ lumibegin: ", *begin);
     proto.setLumi(lumi+1);
     auto end   = data_.lower_bound(proto);
-    if (begin != data_.end()) dumpme("+++ lumiend: ", *end);
     saveRange(begin, end);
   }
   if (lumi == 0) {
@@ -1909,32 +1907,33 @@ DQMStore::getAllContents(const std::string &path,
     // even if there are per-lumi clones in the moduleId=0 space,
     // we start with the lumi=0 ones, and saveMonitorElementRangeToROOT will
     // stop before running into the per-lumi ones.
+    std::vector<uint32_t> runs;
     if (runNumber == 0) {
-      MonitorElement runproto(cleaned, std::string(), 0, 0);
-      //dumpme("+++ runproto: ", runproto);
+      runs.push_back(0); // global MEs (run=0)
+      MonitorElement runproto(cleaned, std::string(), 1, 0); // first non-0 run
       auto runit = data_.lower_bound(runproto);
       if (runit != data_.end()) {
-        runNumber = runit->run();
-        //dumpme("+++ runme: ", *runit);
+        runs.push_back(runit->run());
       }
+    } else {
+      runs.push_back(runNumber);
     }
-    uint32_t moduleId = 0;
-    for(;;) {
-      MonitorElement proto1(cleaned, std::string(), runNumber, moduleId);
-      //dumpme("+++ proto1: ", proto1);
-      auto begin = data_.lower_bound(proto1);
-      //if (begin != data_.end()) dumpme("+++ begin: ", *begin);
-      MonitorElement proto2(cleaned, std::string(), runNumber, moduleId+1);
-      //dumpme("+++ proto2: ", proto2);
-      auto end   = data_.lower_bound(proto2);
-      //if (end != data_.end()) dumpme("+++ end: ", *end);
-      if (begin != end && begin->lumi() == 0) { // no per-lumi MEs
-        saveRange(begin, end);
+    for (auto run : runs) {
+      uint32_t moduleId = 0;
+      for(;;) {
+        MonitorElement proto1(cleaned, std::string(), run, moduleId);
+        auto begin = data_.lower_bound(proto1);
+        MonitorElement proto2(cleaned, std::string(), run, moduleId+1);
+        auto end   = data_.lower_bound(proto2);
+        if (begin != end && begin->lumi() == 0) { // no per-lumi MEs
+          saveRange(begin, end);
+        }
+        if (end == data_.end()) break; // we are done
+        if (end->run() != run) break; // skipped into next run, also done
+        if (end->lumi() != 0) break; // skipped into lumi clones, done
+        moduleId = end->moduleId(); // next module, so we reliably advance to the 
+                                    // first matching ME of the next module.
       }
-      if (end == data_.end()) break; // we are done
-      if (end->moduleId() <= moduleId) break; // skipped into next run, also done
-      moduleId = end->moduleId(); // next module, so we reliably advance to the 
-                                  // first matching ME of the next module.
     }
   }
 
