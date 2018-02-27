@@ -164,28 +164,28 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
             beamspot::dumpBeamSpotTxt(outFile, currentBS);
         }
       }
-// 
-// 
-// 
-// /*
-//       int         argc = 15;
-//       const char* argv[] = {"endRun"
-//                            ,"-d","sqlite_file:combined.db"
-//                            ,"-s","sqlite_file:testbs2.db"
-//                            ,"-l","sqlite_file:log.db"
-// 			   ,"-i","TestLSBasedBS"
-// 			   ,"-t","TestLSBasedBS"
-// 			   ,"-b","1"
-// 			   ,"-e","10"
-// 			   };
-// 
-//       edm::LogInfo("AlcaBeamSpotHarvester")
-//         << "Running utilities!"
-// 	<< utilities.run(argc,(char**)argv);
-//       edm::LogInfo("AlcaBeamSpotHarvester")
-//         << "Run utilities!"
-// 	<< std::endl;
-// */
+
+
+
+/*
+      int         argc = 15;
+      const char* argv[] = {"endRun"
+                           ,"-d","sqlite_file:combined.db"
+                           ,"-s","sqlite_file:testbs2.db"
+                           ,"-l","sqlite_file:log.db"
+			   ,"-i","TestLSBasedBS"
+			   ,"-t","TestLSBasedBS"
+			   ,"-b","1"
+			   ,"-e","10"
+			   };
+
+      edm::LogInfo("AlcaBeamSpotHarvester")
+        << "Running utilities!"
+	<< utilities.run(argc,(char**)argv);
+      edm::LogInfo("AlcaBeamSpotHarvester")
+        << "Run utilities!"
+	<< std::endl;
+*/
     }
 
   }
