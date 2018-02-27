@@ -92,6 +92,7 @@ static const char* const kLoopCommandOpt       = "loop";
 static const char* const kLogLevelCommandOpt   = "log";
 static const char* const kLogTreeCacheOpt      = "log-tree-cache";
 static const char* const kSizeTreeCacheOpt     = "tree-cache-size";
+static const char* const kPrefetchTreeCacheOpt = "tree-cache-prefetch";
 static const char* const kEveOpt               = "eve";
 static const char* const kEveCommandOpt        = "eve";
 static const char* const kAdvancedRenderOpt        = "shine";
@@ -192,7 +193,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
  po::options_description tcachedesc("TreeCache");
  tcachedesc.add_options()
     (kLogTreeCacheOpt,                                 "Log tree cache operations and status")
-    (kSizeTreeCacheOpt, po::value<int>(),              "Set size of TTreeCache for data access in MB (default is 50)");
+    (kSizeTreeCacheOpt, po::value<int>(),              "Set size of TTreeCache for data access in MB (default is 50)")
+    (kPrefetchTreeCacheOpt,                            "Enable prefetching");
 
  po::options_description rnrdesc("Appearance");
  rnrdesc.add_options()
@@ -241,6 +243,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    if(vm.count(kLogTreeCacheOpt)) {
       fwLog(fwlog::kInfo) << "Enabling logging of TTreCache operations." << std::endl;
       FWTTreeCache::LoggingOn();
+   }
+
+   if(vm.count(kPrefetchTreeCacheOpt)) {
+      fwLog(fwlog::kInfo) << "Enabling TTreCache prefetching." << std::endl;
+      FWTTreeCache::PrefetchingOn();
    }
 
    if(vm.count(kSizeTreeCacheOpt)) {
