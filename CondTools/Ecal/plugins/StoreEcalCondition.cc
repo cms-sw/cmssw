@@ -101,6 +101,13 @@ void StoreEcalCondition::endJob() {
 	}else{
 	  mydbservice->appendSinceTime<EcalIntercalibConstants>(mycali,newTime,"EcalIntercalibConstantsRcd");
 	}
+      } else if (objectName_[i]  ==  "EcalPFRecHitThresholds") {
+	EcalPFRecHitThresholds* mycali=readEcalPFRecHitThresholdsFromFile(inpFileName_[i].c_str(),inpFileNameEE_[i].c_str());
+	if(!toAppend){
+	  mydbservice->createNewIOV<EcalPFRecHitThresholds>(mycali,newTime,mydbservice->endOfTime(),"EcalPFRecHitThresholdsRcd");
+	}else{
+	  mydbservice->appendSinceTime<EcalPFRecHitThresholds>(mycali,newTime,"EcalPFRecHitThresholdsRcd");
+	}
       } else if (objectName_[i]  ==  "EcalIntercalibConstantsMC") {
 	EcalIntercalibConstantsMC* mycali=readEcalIntercalibConstantsMCFromFile(inpFileName_[i].c_str(),inpFileNameEE_[i].c_str());
 	if(!toAppend){
@@ -508,6 +515,84 @@ StoreEcalCondition::readEcalADCToGeVConstantFromFile(const char* inputFile) {
 }
 
 
+//-------------------------------------------------------------
+EcalPFRecHitThresholds*
+StoreEcalCondition::readEcalPFRecHitThresholdsFromFile(const char* inputFile,const char* inputFileEE) {
+//-------------------------------------------------------------
+
+  EcalPFRecHitThresholds* ical = new EcalPFRecHitThresholds();
+
+    
+    FILE *inpFile; // input file
+    inpFile = fopen(inputFile,"r");
+    if(!inpFile) {
+      edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFile;
+      return nullptr;
+    }
+
+    char line[256];
+ 
+
+    int ieta=0;
+    int iphi=0;
+    int ix=0;
+    int iy=0;
+    int iz=0;
+    
+    float thresh=0;
+
+
+    int ii = 0;
+    while(fgets(line,255,inpFile)) {
+      sscanf(line, "%d %d %f ", &ieta, &iphi, &thresh);
+      if(ii==0) cout<<"crystal "<<ieta<<"/"<<iphi<<" Thresh= "<< thresh<<endl;
+      
+      if (EBDetId::validDetId(ieta,iphi)) {
+	EBDetId ebid(ieta,iphi);
+	ical->setValue( ebid.rawId(), thresh  );
+	ii++ ;
+      }
+    }
+    
+
+    //    inf.close();           // close inp. file
+    fclose(inpFile);           // close inp. file
+    
+    edm::LogInfo("StoreEcalCondition") << "Read PF RecHits for " << ii << " xtals " ; 
+    
+    cout << " I read the thresholds for "<< ii<< " crystals " << endl;
+    
+    
+    
+    FILE *inpFileEE; // input file
+    inpFileEE = fopen(inputFileEE,"r");
+    if(!inpFileEE) {
+      edm::LogError("StoreEcalCondition")<<"*** Can not open file: "<<inputFileEE;
+      return nullptr;
+    } 
+    ii=0;
+    while(fgets(line,255,inpFileEE)) {
+      sscanf(line, "%d %d %d %f ", &ix,&iy,&iz,  &thresh);
+      if(ii==0) cout<<"crystal "<<ix<<"/"<<iy<<"/"<<iz<<" Thresh= "<< thresh<<endl;
+      if (EEDetId::validDetId(ix,iy,iz)) {
+	EEDetId eeid(ix,iy,iz);
+	ical->setValue( eeid.rawId(), thresh  );
+	ii++ ;
+      }
+    }
+    
+    
+    //    inf.close();           // close inp. file
+    fclose(inpFileEE);           // close inp. file
+    
+    
+    cout<<"loop on EE channels done - number of crystals =" <<ii<< std::endl;
+    
+    
+    
+    return ical;
+    
+}
 //-------------------------------------------------------------
 EcalIntercalibConstants*
 StoreEcalCondition::readEcalIntercalibConstantsFromFile(const char* inputFile,const char* inputFileEE) {
