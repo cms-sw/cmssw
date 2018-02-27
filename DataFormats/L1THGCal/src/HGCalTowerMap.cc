@@ -115,7 +115,7 @@ int HGCalTowerMap::iPhi(const double phi) const
 }
 
 
-const HGCalTowerMap& HGCalTowerMap::operator+=(HGCalTowerMap map){
+HGCalTowerMap& HGCalTowerMap::operator+=(const HGCalTowerMap& map){
 
   if(etaBins_!=map.etaBins() || phiBins_!=map.phiBins()){
     throw edm::Exception(edm::errors::StdException, "StdException")

@@ -66,8 +66,11 @@ namespace edm {
 
   private:
     const HGCalTriggerGeometryBase* geom_;
-    unsigned int        fhOffset_, bhOffset_, kLayers_;
-  };
+    unsigned eeLayers_;
+    unsigned fhLayers_;
+    unsigned bhLayers_;
+    unsigned totalLayers_;
+};
 
 
 #endif
