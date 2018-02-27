@@ -103,7 +103,6 @@ int APVGain::subdetectorPlane(const std::string& tag) {
 
 /** Brief Fetch the Monitor Element corresponding to a DetId.
  *  */
-
 std::vector<MonitorElement*> APVGain::FetchMonitor(std::vector<APVGain::APVmon> histos, uint32_t det_id, 
 						   const TrackerTopology* topo) {
 				       
@@ -113,13 +112,15 @@ std::vector<MonitorElement*> APVGain::FetchMonitor(std::vector<APVGain::APVmon> 
   int sSide  = APVGain::subdetectorSide(det_id, topo);
   auto it = histos.begin();
 
+  LogDebug("APVGainHelpers")<<"sId: "<<sId<<" sPlane: "<<sPlane<<" sSide: "<<sSide<<std::endl; 
+
   while (it!=histos.end()) {
     std::string tag = (*it).getMonitor()->getName();
     int subdetectorId    = (*it).getSubdetectorId();
     int subdetectorSide  = (*it).getSubdetectorSide();
     int subdetectorPlane = (*it).getSubdetectorPlane();
     
-    bool match = (subdetectorId==0    || subdetectorId==sId) && (subdetectorPlane==0 || subdetectorPlane==sPlane) && (subdetectorSide==0  || subdetectorSide==sSide);
+    bool match = (subdetectorId==0  || subdetectorId==sId) && (subdetectorPlane==0 || subdetectorPlane==sPlane) && (subdetectorSide==0  || subdetectorSide==sSide);
 
     if (match) {
       found.emplace_back((*it).getMonitor());
@@ -153,7 +154,6 @@ std::vector<unsigned int> APVGain::FetchIndices(std::map<unsigned int,APVloc> th
       found_indices.push_back(element.first);
     }
   }
-
   return found_indices;
 }
 

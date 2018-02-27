@@ -144,8 +144,9 @@ private:
     std::string CalibPrefix_; //("GainCalibration");
     std::string CalibSuffix_; //("");
 
+    // maps histograms index to topology 
     std::map<unsigned int,APVloc> theTopologyMap;
-    
+
 };
 
 inline int
@@ -162,10 +163,3 @@ SiStripGainsPCLWorker::statCollectionFromMode(const char* tag) const
   return None;
 }
 
-template<typename T>
-inline edm::Handle<T> connectTokens(const T* ptr, edm::EDGetTokenT<T> token,const edm::Event &evt) {
-  edm::Handle<T> handle;
-  evt.getByToken(token, handle);
-  ptr = handle.product();
-  return handle; //return handle to keep alive pointer (safety first)
-}

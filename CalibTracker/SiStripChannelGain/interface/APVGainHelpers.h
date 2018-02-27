@@ -1,7 +1,6 @@
 #ifndef CALIBTRACKER_SISTRIPCHANNELGAIN_APVGAINHELPERS_H
 #define CALIBTRACKER_SISTRIPCHANNELGAIN_APVGAINHELPERS_H
 
-
 #include "CalibTracker/SiStripChannelGain/interface/APVGainStruct.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -45,7 +44,7 @@ namespace APVGain {
     }
       
     MonitorElement* getMonitor(){
-      return std::move(m_monitor);
+      return m_monitor;
     }
 
     void printAll(){
@@ -64,10 +63,6 @@ namespace APVGain {
     MonitorElement* m_monitor;
     
   };
-
-  std::vector<MonitorElement*> FetchMonitor(std::vector<APVmon>, uint32_t, const TrackerTopology* topo=nullptr);
-
-  std::vector<unsigned int> FetchIndices(std::map<unsigned int,APVloc>, uint32_t, const TrackerTopology* topo=nullptr);
 
   struct APVGainHistograms {
   public:
@@ -112,6 +107,9 @@ namespace APVGain {
     std::unordered_map<unsigned int, std::shared_ptr<stAPVGain> > APVsColl; 
 
   };
+  
+  std::vector<MonitorElement*> FetchMonitor(std::vector<APVmon>, uint32_t, const TrackerTopology* topo=nullptr);
+  std::vector<unsigned int> FetchIndices(std::map<unsigned int,APVloc>, uint32_t, const TrackerTopology* topo=nullptr);
 
 };
 

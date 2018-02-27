@@ -54,8 +54,6 @@ APVloc(int v1, int v2, int v3,const std::string& s) :
   
 };
 
-
-
 enum statistic_type {None=-1, StdBunch, StdBunch0T, FaABunch, FaABunch0T, IsoBunch, IsoBunch0T, Harvest};
 
 #endif

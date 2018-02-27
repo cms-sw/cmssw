@@ -26,6 +26,7 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig)
   m_calibrationMode       = iConfig.getUntrackedParameter<std::string>  ("calibrationMode"    , "StdBunch");
   VChargeHisto            = iConfig.getUntrackedParameter<std::vector<std::string> >  ("ChargeHisto");
 
+  // fill in the mapping between the histogram indices and the (id,side,plane) tuple
   std::vector<std::pair<std::string,std::string>> hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"");
   for (unsigned int i=0;i<hnames.size();i++){
 
@@ -100,11 +101,11 @@ SiStripGainsPCLWorker::dqmBeginRun(edm::Run const& run, edm::EventSetup const& i
   
   using namespace edm;
   
+  // fills the APV collections at each begin run 
   edm::ESHandle<TrackerGeometry> tkGeom_;
   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom_ );
   const TrackerGeometry *bareTkGeomPtr = &(*tkGeom_);
-  
-  checkBookAPVColls(bareTkGeomPtr,histograms); // check whether APV colls are booked and do so if not yet done
+  checkBookAPVColls(bareTkGeomPtr,histograms); 
 
   edm::ESHandle<SiStripGain> gainHandle;
   iSetup.get<SiStripGainRcd>().get(gainHandle);
@@ -162,84 +163,84 @@ SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup cons
   //Event data					       
   
   // Track data					       
-  Handle<const std::vector<double>> handle02;
-  iEvent.getByToken(trackchi2ndof_token_,handle02);
-  auto trackchi2ndof = handle02.product(); 
+  Handle<const std::vector<double>> handle01;
+  iEvent.getByToken(trackchi2ndof_token_,handle01);
+  auto trackchi2ndof = handle01.product(); 
 
-  Handle<const std::vector<float>> handle03;
-  iEvent.getByToken(trackp_token_,handle03);
-  auto trackp = handle03.product(); 
+  Handle<const std::vector<float>> handle02;
+  iEvent.getByToken(trackp_token_,handle02);
+  auto trackp = handle02.product(); 
 
-  Handle<const std::vector<double>> handle05;
-  iEvent.getByToken(tracketa_token_,handle05);
-  auto tracketa = handle05.product(); 
+  Handle<const std::vector<double>> handle03;
+  iEvent.getByToken(tracketa_token_,handle03);
+  auto tracketa = handle03.product(); 
   
-  Handle<const std::vector<unsigned int>> handle07;
-  iEvent.getByToken(trackhitsvalid_token_,handle07);
-  auto trackhitsvalid = handle07.product(); 
+  Handle<const std::vector<unsigned int>> handle04;
+  iEvent.getByToken(trackhitsvalid_token_,handle04);
+  auto trackhitsvalid = handle04.product(); 
 
-  Handle<const std::vector<int>> handle08;
-  iEvent.getByToken(trackalgo_token_,handle08);
-  auto trackalgo = handle08.product(); 
+  Handle<const std::vector<int>> handle05;
+  iEvent.getByToken(trackalgo_token_,handle05);
+  auto trackalgo = handle05.product(); 
 
   // CalibTree data					       
-  Handle<const std::vector<int>> handle09;
-  iEvent.getByToken(trackindex_token_,handle09);
-  auto trackindex = handle09.product(); 
+  Handle<const std::vector<int>> handle06;
+  iEvent.getByToken(trackindex_token_,handle06);
+  auto trackindex = handle06.product(); 
 
-  Handle<const std::vector<unsigned int>> handle10;
-  iEvent.getByToken(rawid_token_,handle10);
-  auto rawid = handle10.product(); 
+  Handle<const std::vector<unsigned int>> handle07;
+  iEvent.getByToken(rawid_token_,handle07);
+  auto rawid = handle07.product(); 
 
-  Handle<const std::vector<unsigned short>> handle14;
-  iEvent.getByToken(firststrip_token_,handle14);
-  auto firststrip = handle14.product(); 
+  Handle<const std::vector<unsigned short>> handle08;
+  iEvent.getByToken(firststrip_token_,handle08);
+  auto firststrip = handle08.product(); 
 
-  Handle<const std::vector<unsigned short>> handle15;
-  iEvent.getByToken(nstrips_token_,handle15);
-  auto nstrips = handle15.product(); 
+  Handle<const std::vector<unsigned short>> handle09;
+  iEvent.getByToken(nstrips_token_,handle09);
+  auto nstrips = handle09.product(); 
 
-  Handle<const std::vector<bool>> handle16;
-  iEvent.getByToken(saturation_token_,handle16);
-  auto saturation = handle16.product(); 
+  Handle<const std::vector<bool>> handle10;
+  iEvent.getByToken(saturation_token_,handle10);
+  auto saturation = handle10.product(); 
 
-  Handle<const std::vector<bool>> handle17;
-  iEvent.getByToken(overlapping_token_,handle17);
-  auto overlapping = handle17.product(); 
+  Handle<const std::vector<bool>> handle11;
+  iEvent.getByToken(overlapping_token_,handle11);
+  auto overlapping = handle11.product(); 
 
-  Handle<const std::vector<bool>> handle18;
-  iEvent.getByToken(farfromedge_token_,handle18);
-  auto farfromedge = handle18.product(); 
+  Handle<const std::vector<bool>> handle12;
+  iEvent.getByToken(farfromedge_token_,handle12);
+  auto farfromedge = handle12.product(); 
 
-  Handle<const std::vector<unsigned int>> handle19;
-  iEvent.getByToken(charge_token_,handle19);
-  auto charge = handle19.product(); 
+  Handle<const std::vector<unsigned int>> handle13;
+  iEvent.getByToken(charge_token_,handle13);
+  auto charge = handle13.product(); 
 
-  Handle<const std::vector<double>> handle20;
-  iEvent.getByToken(path_token_,handle20);
-  auto path = handle20.product(); 
+  Handle<const std::vector<double>> handle14;
+  iEvent.getByToken(path_token_,handle14);
+  auto path = handle14.product(); 
 
-  Handle<const std::vector<double>> handle21;
-  iEvent.getByToken(chargeoverpath_token_,handle21);
-  auto chargeoverpath = handle21.product();
+  Handle<const std::vector<double>> handle15;
+  iEvent.getByToken(chargeoverpath_token_,handle15);
+  auto chargeoverpath = handle15.product();
 
-  Handle<const std::vector<unsigned char>> handle23;
-  iEvent.getByToken(amplitude_token_,handle23);
-  auto amplitude = handle23.product(); 
+  Handle<const std::vector<unsigned char>> handle16;
+  iEvent.getByToken(amplitude_token_,handle16);
+  auto amplitude = handle16.product(); 
 
-  Handle<const std::vector<double>> handle24;
-  iEvent.getByToken(gainused_token_,handle24);
-  auto gainused = handle24.product(); 
+  Handle<const std::vector<double>> handle17;
+  iEvent.getByToken(gainused_token_,handle17);
+  auto gainused = handle17.product(); 
 
-  Handle<const std::vector<double>> handle25;
-  iEvent.getByToken(gainusedTick_token_,handle25);
-  auto gainusedTick = handle25.product(); 
+  Handle<const std::vector<double>> handle18;
+  iEvent.getByToken(gainusedTick_token_,handle18);
+  auto gainusedTick = handle18.product(); 
 
   for (const auto &elem : theTopologyMap){
     LogDebug("SiStripGainsPCLWorker") << elem.first << " - " << elem.second.m_string << " " << elem.second.m_subdetectorId << " " << elem.second.m_subdetectorSide << " " << elem.second.m_subdetectorPlane << std::endl;
   }
 
-  edm::LogInfo("SiStripGainsPCLWorker") <<"for mode"<< m_calibrationMode <<std::endl;
+  LogDebug("SiStripGainsPCLWorker") <<"for mode"<< m_calibrationMode <<std::endl;
 
   int elepos = statCollectionFromMode(m_calibrationMode.c_str());
   
@@ -542,9 +543,6 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::ConcurrentBooker & ibooker, edm:
   histograms.Charge_Vs_PathlengthTECM1.reserve(dqm_tag_.size());
   histograms.Charge_Vs_PathlengthTECM2.reserve(dqm_tag_.size());
 
-  edm::LogInfo("SiStripGainsPCLWorker")<<" for mode"<< m_calibrationMode 
-				       <<" check-point 1: elepos"<< elepos << std::endl; 
-
   // The cluster charge is stored by exploiting a non uniform binning in order 
   // reduce the histogram memory size. The bin width is relaxed with a falling
   // exponential function and the bin boundaries are stored in the binYarray. 
@@ -608,7 +606,6 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::ConcurrentBooker & ibooker, edm:
   for (unsigned int i=0;i<hnames.size();i++){
     std::string htag = (hnames[i]).first + stag;
     histograms.Charge_1[elepos].push_back(ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. ));
-
   }
 
   hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG2");
@@ -621,7 +618,6 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::ConcurrentBooker & ibooker, edm:
   for (unsigned int i=0;i<hnames.size();i++){
     std::string htag = (hnames[i]).first + stag;
     histograms.Charge_3[elepos].push_back(ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. ));
-
   }
 
   hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG1G2");
@@ -629,5 +625,4 @@ SiStripGainsPCLWorker::bookHistograms(DQMStore::ConcurrentBooker & ibooker, edm:
     std::string htag = (hnames[i]).first + stag;   
     histograms.Charge_4[elepos].push_back(ibooker.book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. ));
   }
-  
 }
