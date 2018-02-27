@@ -81,7 +81,7 @@ int HGCalTower::hwEtRatio()const
 
 
 
-const HGCalTower& HGCalTower::operator+=(const HGCalTower tower){
+HGCalTower& HGCalTower::operator+=(const HGCalTower& tower){
 
   if(this->hwEta()!= tower.hwEta() || this->hwPhi()!= tower.hwPhi()){
     throw edm::Exception(edm::errors::StdException, "StdException")
