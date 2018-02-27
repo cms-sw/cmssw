@@ -148,6 +148,11 @@ bool HcalText2DetIdConverter::init (DetId fId) {
       setField (1, calibId.channel());
       setField (2, -999);
       setField (3, -999);
+    } else if (calibId.calibFlavor()==HcalCalibDetId::LASERMON) {
+      flavorName="LASERMON";
+      setField (1, calibId.ieta());
+      setField (2, calibId.iphi());
+      setField (3, calibId.cboxChannel() );
     } else if (calibId.calibFlavor()==HcalCalibDetId::CastorRadFacility) {
       flavorName="CRF";
       setField (1, calibId.rm());
@@ -234,10 +239,10 @@ bool HcalText2DetIdConverter::init (const std::string& fFlavor, const std::strin
     mId = HcalCalibDetId (HcalCalibDetId::uMNqie,channel);
   }
   else if (flavorName == "LASMON" ) {
-    int rm = 1;
-    int fiber = getField(2);
+    int ieta = getField(1);
+    int iphi = getField(2);
     int channel = getField(3);
-    mId = HcalCalibDetId (HcalCalibDetId::LASERMON,rm, fiber, channel);
+    mId = HcalCalibDetId (HcalCalibDetId::LASERMON, ieta, iphi, channel);
   }
   else if (flavorName=="CRF") {
     int rm=getField(1);
