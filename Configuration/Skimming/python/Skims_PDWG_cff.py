@@ -393,3 +393,18 @@ SKIMStreamEXOEMu = cms.FilteredStream(
     dataTier = cms.untracked.string('AOD')
     )
 """
+
+#####################
+
+from Configuration.Skimming.PDWG_MuonPOGSkim_cff import *
+MuonPOGSkimPath = cms.Path(MuonPOGSkimSequence)
+MuonPOGSkim     = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'MuonPOGSkim',
+    paths = (MuonPOGSkimPath),
+    content = MuonPOG_EventContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
+    )
+
+#####################

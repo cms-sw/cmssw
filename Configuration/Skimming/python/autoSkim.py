@@ -21,7 +21,9 @@ autoSkim = {
  'HLTPhysics' : 'LogError+LogErrorMonitor',
  'ZeroBias' : 'LogError+LogErrorMonitor',
  'Commissioning' : 'EcalActivity+LogError+LogErrorMonitor',
- 'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor'
+ 'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor',
+
+ 
 }
 
 autoSkimRunI = {
@@ -32,6 +34,7 @@ autoSkimRunI = {
     'Mu' : 'WMu+ZMu+HighMET+LogError',    
     'EG':'WElectron+ZElectron+HighMET+LogError',
     'TopMuEG':'TopMuEG+LogError',
+    'MuonPOG': 'MuonPOGSkim+LogError',
     'Electron':'WElectron+ZElectron+HighMET+LogError',
     'Photon':'WElectron+ZElectron+HighMET+LogError+DiPhoton+EXOHPTE',
     'JetMETTau':'LogError+Tau',
