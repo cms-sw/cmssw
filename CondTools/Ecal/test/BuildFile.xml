@@ -1,5 +1,8 @@
 <use name="CondTools/Ecal"/>
 
 <architecture name="slc.*_amd64_.*">
+  <ifcxx11_abi value="1">
+    <flags SETENV="LD_PRELOAD=$(CMS_ORACLEOCCI_LIB)"/>
+  </ifcxx11_abi>
   <test name="EcalDAQ_O2O_test" command="EcalDAQ_O2O_test.sh"/>
 </architecture>
