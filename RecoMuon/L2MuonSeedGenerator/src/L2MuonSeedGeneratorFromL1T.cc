@@ -44,13 +44,13 @@ using namespace edm;
 using namespace l1t;
 
 //--- Functions used in output sorting
-bool SortByL1Pt(L2MuonTrajectorySeed &A, L2MuonTrajectorySeed &B) {
+bool sortByL1Pt(L2MuonTrajectorySeed &A, L2MuonTrajectorySeed &B) {
   l1t::MuonRef Ref_L1A = A.l1tParticle();
   l1t::MuonRef Ref_L1B = B.l1tParticle();
   return (Ref_L1A->pt() > Ref_L1B->pt());
 };
 
-bool SortByL1QandPt(L2MuonTrajectorySeed &A, L2MuonTrajectorySeed &B) {
+bool sortByL1QandPt(L2MuonTrajectorySeed &A, L2MuonTrajectorySeed &B) {
   l1t::MuonRef Ref_L1A = A.l1tParticle();
   l1t::MuonRef Ref_L1B = B.l1tParticle();
 
@@ -73,6 +73,10 @@ L2MuonSeedGeneratorFromL1T::L2MuonSeedGeneratorFromL1T(const edm::ParameterSet& 
   theL1MinPt(iConfig.getParameter<double>("L1MinPt")),
   theL1MaxEta(iConfig.getParameter<double>("L1MaxEta")),
   theL1MinQuality(iConfig.getParameter<unsigned int>("L1MinQuality")),
+
+  theMinPtBarrel(iConfig.getParameter<double>("SetMinPtBarrelTo")),  //previously 3.5
+  theMinPtEndcap(iConfig.getParameter<double>("SetMinPtEndcapTo")),  //previously 1.0
+
   useOfflineSeed(iConfig.getUntrackedParameter<bool>("UseOfflineSeed", false)),
   useUnassociatedL1(iConfig.existsAs<bool>("UseUnassociatedL1") ? 
             iConfig.getParameter<bool>("UseUnassociatedL1") : true),
@@ -129,6 +133,10 @@ L2MuonSeedGeneratorFromL1T::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("L1MinPt",-1.);
   desc.add<double>("L1MaxEta",5.0);
   desc.add<unsigned int>("L1MinQuality",0);   
+
+  desc.add<double>("SetMinPtBarrelTo",3.5);
+  desc.add<double>("SetMinPtEndcapTo",1.0);
+
   desc.addUntracked<bool>("UseOfflineSeed",false);
   desc.add<bool>("UseUnassociatedL1", true);
   desc.add<std::vector<double>>("MatchDR", {0.3});
@@ -165,12 +173,6 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
   iEvent.getByToken(muCollToken_, muColl);
   LogTrace(metname) << "Number of muons " << muColl->size() << endl;
 
-  /*
-  if(muColl->size()>3){
-    cout << endl;
-    cout << iEvent.id().run() << ":" << iEvent.id().luminosityBlock() << ":" << iEvent.id().event() << endl;
-  }
-  */
 
   //--- matchType 0 : Old logic
   if(matchType == 0) {
@@ -198,6 +200,8 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
         // Set charge=0 for the time being if the valid charge bit is zero
         if (!valid_charge) charge = 0;
 
+        // link number indices of the optical fibres that connect the uGMT with the track finders
+        //EMTF+ : 36-41, OMTF+ : 42-47, BMTF : 48-59, OMTF- : 60-65, EMTF- : 66-71
         int link = 36 + (int)(it -> tfMuonIndex() / 3.);
         bool barrel = true;
         if ( (link >= 36 && link <= 41) || (link >= 66 && link <= 71)) barrel = false;
@@ -243,7 +247,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
           LogTrace(metname) << "radius "<<radius;
 
-          if ( pt < 3.5 ) pt = 3.5;
+          if ( pt < theMinPtBarrel ) pt = theMinPtBarrel;
         }
         else {
           LogTrace(metname) << "The seed is in the endcap";
@@ -261,7 +265,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
           radius = fabs(detLayer->position().z()/cos(theta));      
           theid = id;    
 
-          if( pt < 1.0) pt = 1.0;
+          if( pt < theMinPtEndcap) pt = theMinPtEndcap;
         }
 
         // Fallback solution using ME2
@@ -366,15 +370,10 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
               if (newTSOS.isValid()){
 
-                //LogDebug(metname) << "(x, y, z) = (" << newTSOS.globalPosition().x() << ", "
-                //                  << newTSOS.globalPosition().y() << ", " << newTSOS.globalPosition().z() << ")";
                 LogDebug(metname) << "pos: (r=" << newTSOS.globalPosition().mag() << ", phi="
                                   << newTSOS.globalPosition().phi() << ", eta=" << newTSOS.globalPosition().eta() << ")";
                 LogDebug(metname) << "mom: (q*pt=" << newTSOS.charge()*newTSOS.globalMomentum().perp() << ", phi="
                                   << newTSOS.globalMomentum().phi() << ", eta=" << newTSOS.globalMomentum().eta() << ")";
-
-                //LogDebug(metname) << "State on it";
-                //LogDebug(metname) << debug.dumpTSOS(newTSOS);
 
                 const TrajectorySeed *assoOffseed =
                   associateOfflineSeedToL1(offlineSeedHandle, offlineSeedMap, newTSOS, dRcone);
@@ -454,6 +453,8 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
         // Set charge=0 for the time being if the valid charge bit is zero
         if (!valid_charge) charge = 0;
 
+        // link number indices of the optical fibres that connect the uGMT with the track finders
+        //EMTF+ : 36-41, OMTF+ : 42-47, BMTF : 48-59, OMTF- : 60-65, EMTF- : 66-71
         int link = 36 + (int)(it -> tfMuonIndex() / 3.);
         bool barrel = true;
         if ( (link >= 36 && link <= 41) || (link >= 66 && link <= 71)) barrel = false;
@@ -499,7 +500,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
           LogTrace(metname) << "radius "<<radius;
 
-          if ( pt < 3.5 ) pt = 3.5;
+          if ( pt < theMinPtBarrel ) pt = theMinPtBarrel;
         }
         else {
           LogTrace(metname) << "The seed is in the endcap";
@@ -517,7 +518,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
           radius = fabs(detLayer->position().z()/cos(theta));
           theid = id;
 
-          if( pt < 1.0) pt = 1.0;
+          if( pt < theMinPtEndcap) pt = theMinPtEndcap;
         }
 
         // Fallback solution using ME2
@@ -620,15 +621,10 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
                 if (newTSOS.isValid()){
 
-                  //LogDebug(metname) << "(x, y, z) = (" << newTSOS.globalPosition().x() << ", "
-                  //                  << newTSOS.globalPosition().y() << ", " << newTSOS.globalPosition().z() << ")";
                   LogDebug(metname) << "pos: (r=" << newTSOS.globalPosition().mag() << ", phi="
                                     << newTSOS.globalPosition().phi() << ", eta=" << newTSOS.globalPosition().eta() << ")";
                   LogDebug(metname) << "mom: (q*pt=" << newTSOS.charge()*newTSOS.globalMomentum().perp() << ", phi="
                                     << newTSOS.globalMomentum().phi() << ", eta=" << newTSOS.globalMomentum().eta() << ")";
-
-                  //LogDebug(metname) << "State on it";
-                  //LogDebug(metname) << debug.dumpTSOS(newTSOS);
 
                   bool isAssoOffseed = isAssociateOfflineSeedToL1(offlineSeedHandle, dRmtx, newTSOS, imu, selOffseeds, dRcone );
 
@@ -669,36 +665,6 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
       unsigned int nL1;
       unsigned int i, j; // for the matrix element
 
-      /*
-      if(muColl->size()>3){
-        cout << "New Logic" << endl;
-        cout << "nL1 = " << muColl->size() << endl;
-        cout << "nOffseed = " << NofflineSeed1 << endl;
-        cout << "L1" << endl;
-        for (int ibx = muColl->getFirstBX(); ibx <= muColl->getLastBX(); ++ibx) {
-          for (auto tempit = muColl->begin(ibx); tempit != muColl->end(ibx); tempit++){
-            cout << "\t[BX " << ibx << "]\tpT=" << tempit->pt() << "\tEta=" << tempit->eta() << "\tQ=" << tempit->hwQual() << endl;
-          }
-        }
-
-        cout << endl;
-        cout << "|| New  Matrix ||" << endl;
-        for(i=0; i<NmuColl; ++i) {
-          for(j=0; j<NofflineSeed1; ++j) {
-            cout << dRmtx[i][j] << "    ";
-          }
-          cout << endl;
-        }
-        cout << endl;
-        cout << "|| New SelOffSeeds ||" << endl;
-        for(i=0; i<NmuColl; ++i) {
-          for(j=0; j<NofflineSeed1; ++j) {
-            cout << selOffseeds[i][j] << "    ";
-          }
-          cout << endl;
-        }
-      }
-      */
 
       if(matchType==1) {
 
@@ -726,10 +692,10 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
           // Remove row and column for given (L1mu, offSeed)
           for(i=0; i<NmuColl; ++i) {
-            for(j=0; j<NofflineSeed1; ++j) {
-              dRmtx[theL1][j] = 999;
-              dRmtx[i][theOffs] = 999;
-            }
+            dRmtx[i][theOffs] = 999;
+          }
+          for(j=0; j<NofflineSeed1; ++j) {
+            dRmtx[theL1][j] = 999;
           }
 
           if( selOffseeds[theL1][theOffs] != nullptr ) {
@@ -778,10 +744,10 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
           // Remove row and column for given (L1mu, offSeed)
           for(i=0; i<NmuColl; ++i) {
-            for(j=0; j<NofflineSeed1; ++j) {
-              dRmtx[theL1][j] = 999;
-              dRmtx[i][theOffs] = 999;
-            }
+            dRmtx[i][theOffs] = 999;
+          }
+          for(j=0; j<NofflineSeed1; ++j) {
+            dRmtx[theL1][j] = 999;
           }
 
           if( selOffseeds[theL1][theOffs] != nullptr ) {
@@ -867,10 +833,10 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
           // Remove row and column for given (L1mu, offSeed)
           for(i=0; i<NmuColl; ++i) {
-            for(j=0; j<NofflineSeed1; ++j) {
-              dRmtx[theL1][j] = 999;
-              dRmtx[i][theOffs] = 999;
-            }
+            dRmtx[i][theOffs] = 999;
+          }
+          for(j=0; j<NofflineSeed1; ++j) {
+            dRmtx[theL1][j] = 999;
           }
 
           if( selOffseeds[theL1][theOffs] != nullptr ) {
@@ -937,23 +903,14 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
   //--- SortType 1 : by L1 pT
   if(sortType == 1) {
-    sort(output->begin(),output->end(),SortByL1Pt);
+    sort(output->begin(),output->end(),sortByL1Pt);
   }
 
   //--- SortType 2 : by L1 quality and pT
   else if(sortType == 2) {
-    sort(output->begin(),output->end(),SortByL1QandPt);
+    sort(output->begin(),output->end(),sortByL1QandPt);
   }
 
-  /*
-  if(muColl->size()>3){
-    cout << "Output" << endl;
-    for(unsigned int k=0; k<output->size(); ++k){
-      l1t::MuonRef Ref_L1 = output->at(k).l1tParticle();
-      cout << "\tpT=" << Ref_L1->pt() << "\tEta=" << Ref_L1->eta() << "\tQ=" << Ref_L1->hwQual() << endl;
-    }
-  }
-  */
 
   iEvent.put(std::move(output));
 }
@@ -987,23 +944,17 @@ const TrajectorySeed* L2MuonSeedGeneratorFromL1T::associateOfflineSeedToL1( edm:
     TrajectoryStateOnSurface offseedTsos = theService->propagator(thePropagatorName)->propagate(offseedFTS, newTsos.surface());
     LogDebug(metlabel) << "Offline seed info: Det and State" << std::endl;
     LogDebug(metlabel) << debugtmp.dumpMuonId(offseed->startingState().detId()) << std::endl;
-    //LogDebug(metlabel) << "(x, y, z) = (" << newTSOS.globalPosition().x() << ", " 
-    //                     << newTSOS.globalPosition().y() << ", " << newTSOS.globalPosition().z() << ")" << std::endl;
     LogDebug(metlabel) << "pos: (r=" << offseedFTS.position().mag() << ", phi=" 
                << offseedFTS.position().phi() << ", eta=" << offseedFTS.position().eta() << ")" << std::endl;
     LogDebug(metlabel) << "mom: (q*pt=" << offseedFTS.charge()*offseedFTS.momentum().perp() << ", phi=" 
                << offseedFTS.momentum().phi() << ", eta=" << offseedFTS.momentum().eta() << ")" << std::endl << std::endl;
-    //LogDebug(metlabel) << debugtmp.dumpFTS(offseedFTS) << std::endl;
 
     if(offseedTsos.isValid()) {
       LogDebug(metlabel) << "Offline seed info after propagation to L1 layer:" << std::endl;
-      //LogDebug(metlabel) << "(x, y, z) = (" << offseedTsos.globalPosition().x() << ", " 
-      //                   << offseedTsos.globalPosition().y() << ", " << offseedTsos.globalPosition().z() << ")" << std::endl;
       LogDebug(metlabel) << "pos: (r=" << offseedTsos.globalPosition().mag() << ", phi=" 
              << offseedTsos.globalPosition().phi() << ", eta=" << offseedTsos.globalPosition().eta() << ")" << std::endl;
       LogDebug(metlabel) << "mom: (q*pt=" << offseedTsos.charge()*offseedTsos.globalMomentum().perp() << ", phi=" 
              << offseedTsos.globalMomentum().phi() << ", eta=" << offseedTsos.globalMomentum().eta() << ")" << std::endl << std::endl;
-      //LogDebug(metlabel) << debugtmp.dumpTSOS(offseedTsos) << std::endl;
       double newDr = deltaR( newTsos.globalPosition().eta(),     newTsos.globalPosition().phi(), 
                  offseedTsos.globalPosition().eta(), offseedTsos.globalPosition().phi() );
       LogDebug(metlabel) << "   -- DR = " << newDr << std::endl;
@@ -1066,27 +1017,21 @@ bool L2MuonSeedGeneratorFromL1T::isAssociateOfflineSeedToL1( edm::Handle<edm::Vi
     TrajectoryStateOnSurface offseedTsos = theService->propagator(thePropagatorName)->propagate(offseedFTS, newTsos.surface());
     LogDebug(metlabel) << "Offline seed info: Det and State" << std::endl;
     LogDebug(metlabel) << debugtmp.dumpMuonId(offseed->startingState().detId()) << std::endl;
-    //LogDebug(metlabel) << "(x, y, z) = (" << newTSOS.globalPosition().x() << ", "
-    //                     << newTSOS.globalPosition().y() << ", " << newTSOS.globalPosition().z() << ")" << std::endl;
     LogDebug(metlabel) << "pos: (r=" << offseedFTS.position().mag() <<
                               ", phi=" << offseedFTS.position().phi() <<
                               ", eta=" << offseedFTS.position().eta() << ")" << std::endl;
     LogDebug(metlabel) << "mom: (q*pt=" << offseedFTS.charge()*offseedFTS.momentum().perp() <<
                               ", phi=" << offseedFTS.momentum().phi() <<
                               ", eta=" << offseedFTS.momentum().eta() << ")" << std::endl << std::endl;
-    //LogDebug(metlabel) << debugtmp.dumpFTS(offseedFTS) << std::endl;
 
     if(offseedTsos.isValid()) {
       LogDebug(metlabel) << "Offline seed info after propagation to L1 layer:" << std::endl;
-      //LogDebug(metlabel) << "(x, y, z) = (" << offseedTsos.globalPosition().x() << ", "
-      //                   << offseedTsos.globalPosition().y() << ", " << offseedTsos.globalPosition().z() << ")" << std::endl;
       LogDebug(metlabel) << "pos: (r=" << offseedTsos.globalPosition().mag() <<
                                 ", phi=" << offseedTsos.globalPosition().phi() <<
                                 ", eta=" << offseedTsos.globalPosition().eta() << ")" << std::endl;
       LogDebug(metlabel) << "mom: (q*pt=" << offseedTsos.charge()*offseedTsos.globalMomentum().perp() <<
                                 ", phi=" << offseedTsos.globalMomentum().phi() <<
                                 ", eta=" << offseedTsos.globalMomentum().eta() << ")" << std::endl << std::endl;
-      //LogDebug(metlabel) << debugtmp.dumpTSOS(offseedTsos) << std::endl;
       double newDr = deltaR( newTsos.globalPosition().eta(),     newTsos.globalPosition().phi(),
                              offseedTsos.globalPosition().eta(), offseedTsos.globalPosition().phi() );
 
