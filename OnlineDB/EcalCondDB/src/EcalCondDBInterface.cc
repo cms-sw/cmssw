@@ -145,7 +145,7 @@ EcalLogicID EcalCondDBInterface::getEcalLogicID( string name,
   noexcept(false)
 {
 
-  if (mapsTo == "") {
+  if (mapsTo.empty()) {
     mapsTo = name;
   }
 
@@ -206,7 +206,7 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSet( string name,
 							    string mapsTo )
   noexcept(false)
 {
-  if (mapsTo == "") {
+  if (mapsTo.empty()) {
     mapsTo = name;
   }
   
@@ -406,7 +406,7 @@ std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDSetOrdered( string n
   // corresponding to id1 id2 id3 or logic_id 
   noexcept(false)
 {
-  if (mapsTo == "") {
+  if (mapsTo.empty()) {
     mapsTo = name;
   }
   

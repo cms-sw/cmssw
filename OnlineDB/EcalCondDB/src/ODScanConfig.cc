@@ -133,7 +133,7 @@ void ODScanConfig::fetchData(ODScanConfig * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODScanConfig::fetchData(): no Id defined for this ODScanConfig "));
   }
 

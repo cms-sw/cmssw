@@ -130,7 +130,7 @@ void FEConfigSlidingInfo::fetchData(FEConfigSlidingInfo * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("FEConfigSlidingInfo::fetchData(): no Id defined for this FEConfigSlidingInfo "));
   }
 

@@ -159,12 +159,12 @@ void ODFEDAQConfig::fetchData(ODFEDAQConfig * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODFEDAQConfig::fetchData(): no Id defined for this ODFEDAQConfig "));
   }
 
   m_readStmt = m_conn->createStatement(); 
-  if(result->getConfigTag()!="" && result->getVersion() ==0  ){
+  if(!result->getConfigTag().empty() && result->getVersion() ==0  ){
     int new_version=0;
     std::cout<< "using new method : retrieving last version for this tag "<<endl;
     try {

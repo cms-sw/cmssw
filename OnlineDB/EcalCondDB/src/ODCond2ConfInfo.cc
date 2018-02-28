@@ -70,7 +70,7 @@ void ODCond2ConfInfo::fetchParents()  noexcept(false) {
 
   if(m_typ_id==0) {
   
-    if(getType()!=""){
+    if(!getType().empty()){
     try {
       this->checkConnection();
       m_readStmt = m_conn->createStatement(); 
@@ -88,7 +88,7 @@ void ODCond2ConfInfo::fetchParents()  noexcept(false) {
   }
   }
   if(m_loc_id==0){
-  if(getLocation()!=""){
+  if(!getLocation().empty()){
     try {
       this->checkConnection();
       m_readStmt = m_conn->createStatement(); 

@@ -130,7 +130,7 @@ void FEConfigLUTInfo::fetchData(FEConfigLUTInfo * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("FEConfigLUTInfo::fetchData(): no Id defined for this FEConfigLUTInfo "));
   }
 

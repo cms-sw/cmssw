@@ -190,7 +190,7 @@ void ODTCCEEConfig::fetchData(ODTCCEEConfig * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODTCCEEConfig::fetchData(): no Id defined for this ODTCCEEConfig "));
   }
 
