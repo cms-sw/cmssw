@@ -195,12 +195,7 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
       }
       if (passed && cut_.get()){passed = (*cut_)(*tau);}
       if (passed){
-      	// Use two signal track collections: One with Refs for taus made from PFCandidates,
-      	// and one with pointers for taus made from PackedCandidates
 	std::vector<reco::TrackBaseRef> SignalTracks;
-	// std::vector<reco::Track*> SignalTrackPtrs;
-	// JAN - FIXME - THIS NEEDS TO BE CHANGED WITH MICHAL'S ADAPTIONS
-
 	for(reco::PFTauCollection::size_type jPFTau = 0; jPFTau < Tau->size(); jPFTau++) {
 	  if(useSelectedTaus_ || iPFTau==jPFTau){
 	    reco::PFTauRef RefPFTau(Tau, jPFTau);
