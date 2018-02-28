@@ -34,7 +34,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_10_0_0_pre1/RelValSingleMuPt10/GEN-SIM/94X_upgrade2023_realistic_v2_2023D21noPU-v2/10000/F2B83850-E6CE-E711-8185-0CC47A78A4B0.root'
+'/store/relval/CMSSW_10_0_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW/94X_upgrade2023_realistic_v2_2023D21noPU-v2/10000/0E747454-F7CE-E711-B528-0CC47A7C34C8.root'
     )
 )
 
@@ -100,7 +100,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 #process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.L1TrackTrigger_step,process.digi2raw_step)
+process.schedule = cms.Schedule()
 process.schedule.extend(process.HLTSchedule)
 process.schedule.extend([process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.user_step,process.endjob_step])
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
@@ -114,19 +114,7 @@ from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
 #call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
 process = customizeHLTforMC(process)
 
-# This pset is specific for producing simulated events for the designers of the PROC (InnerTracker)
-# They need pixel RecHits where the charge is stored with high-granularity and large dinamic range
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(process.mix.digitizers.pixel.PixelDigitizerAlgorithm,
-  AdcFullScale   = cms.int32(255),
-  ElectronPerAdc = cms.double(135)
-)
-phase2_tracker.toModify(process.siPixelClusters, 
-  ElectronPerADCGain = cms.double(135) 
-)
-
 # End of customisation functions
-
 #do not add changes to your config after this point (unless you know what you are doing)
 from FWCore.ParameterSet.Utilities import convertToUnscheduled
 process=convertToUnscheduled(process)
@@ -145,5 +133,3 @@ process = customiseEarlyDelete(process)
 process.TFileService = cms.Service('TFileService',
 fileName = cms.string("pixelntuple.root")
 )
-
-
