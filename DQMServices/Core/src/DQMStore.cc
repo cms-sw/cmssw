@@ -299,9 +299,9 @@ void DQMStore::IBooker::tagContents(const std::string &path, unsigned int myTag)
 //IGetter methods
 std::vector<MonitorElement*>
 DQMStore::IGetter::getAllContents(const std::string &path,
-				  uint32_t runNumber /* = 0 */,
-				  uint32_t lumi      /* = 0 */) {
-  return owner_->getAllContents(path, runNumber, lumi);
+				  uint32_t run  /* = 0 */,
+				  uint32_t lumi /* = 0 */) {
+  return owner_->getAllContents(path, run, lumi);
 }
 
 MonitorElement * DQMStore::IGetter::get(const std::string &path) {
@@ -1810,21 +1810,21 @@ DQMStore::findObject(const std::string &dir,
 /// must use an exact pathname
 std::vector<MonitorElement*>
 DQMStore::getAllContents(const std::string &path,
-                         uint32_t runNumber /* = 0 */,
+                         uint32_t run  /* = 0 */,
                          uint32_t lumi /* = 0 */) const
 {
   std::string clean;
   const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
-  MonitorElement proto(cleaned, std::string(), runNumber);
+  MonitorElement proto(cleaned, std::string(), run, 0);
   proto.setLumi(lumi);
 
   std::vector<MonitorElement *> result;
   auto e = data_.end();
   auto i = data_.lower_bound(proto);
   for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i) {
-    if (runNumber != 0) {
-      if (i->data_.run > runNumber // TODO[rovere]: pleonastic? first we encounter local ME of the same run ...
+    if (run != 0) {
+      if (i->data_.run > run // TODO[rovere]: pleonastic? first we encounter local ME of the same run ...
           || i->data_.moduleId != 0)
         break;
     }
@@ -1833,7 +1833,7 @@ DQMStore::getAllContents(const std::string &path,
           || i->data_.moduleId != 0)
         break;
     }
-    if (runNumber != 0 or lumi !=0) {
+    if (run != 0 or lumi !=0) {
       assert(i->data_.moduleId == 0);
     }
     result.push_back(const_cast<MonitorElement *>(&*i));
@@ -1950,8 +1950,8 @@ DQMStore::postGlobalBeginLumi(const edm::GlobalContext &gc)
 
   // find the range of non-legacy global MEs for the current run:
   // run != 0, lumi == 0 (implicit), stream id == 0, module id == 0
-  const MonitorElement begin(&null_str, null_str, run, 0, 0);
-  const MonitorElement end(&null_str, null_str, run, 0, 1);
+  const MonitorElement begin(&null_str, null_str, run, 0);
+  const MonitorElement end(&null_str, null_str, run, 1);
   auto i = data_.lower_bound(begin);
   const auto e = data_.lower_bound(end);
   while (i != e) {
@@ -2630,13 +2630,13 @@ DQMStore::save(const std::string &filename,
 
     // Loop over monitor elements in this directory.
     if (not enableMultiThread_) {
-      MonitorElement proto(&dir, std::string(), run, 0, 0);
+      MonitorElement proto(&dir, std::string(), run, 0);
       auto begin = data_.lower_bound(proto);
       auto end   = data_.end();
       saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
     } else {
       // Restrict the loop to the monitor elements for the current lumisection
-      MonitorElement proto(&dir, std::string(), run, 0, 0);
+      MonitorElement proto(&dir, std::string(), run, 0);
       proto.setLumi(lumi);
       auto begin = data_.lower_bound(proto);
       proto.setLumi(lumi+1);
@@ -2644,13 +2644,13 @@ DQMStore::save(const std::string &filename,
       saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
     }
 
-    // In LSbasedMode, loop also over the (run, 0, 0, 0) global histograms;
+    // In LSbasedMode, loop also over the (run, 0) global histograms;
     // these could be the merged global histrograms of their per-stream
     // counterparts after the streamEndRun transition - but they are not
     // produced in LSbasedMode.
     if (enableMultiThread_ and LSbasedMode_ and lumi != 0) {
-      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 0));
-      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 1));
+      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0));
+      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 1));
       saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
     }
   }
@@ -2777,13 +2777,13 @@ DQMStore::savePB(const std::string &filename,
 
     // Loop over monitor elements in this directory.
     if (not enableMultiThread_) {
-      MonitorElement proto(&dir, std::string(), run, 0, 0);
+      MonitorElement proto(&dir, std::string(), run, 0);
       auto begin = data_.lower_bound(proto);
       auto end   = data_.end();
       saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
     } else {
       // Restrict the loop to the monitor elements for the current lumisection
-      MonitorElement proto(&dir, std::string(), run, 0, 0);
+      MonitorElement proto(&dir, std::string(), run, 0);
       proto.setLumi(lumi);
       auto begin = data_.lower_bound(proto);
       proto.setLumi(lumi+1);
@@ -2791,13 +2791,13 @@ DQMStore::savePB(const std::string &filename,
       saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
     }
 
-    // In LSbasedMode, loop also over the (run, 0, 0, 0) global histograms;
+    // In LSbasedMode, loop also over the (run, 0) global histograms;
     // these could be the merged global histrograms of their per-stream
     // counterparts after the streamEndRun transition - but they are not
     // produced in LSbasedMode.
     if (enableMultiThread_ and LSbasedMode_ and lumi != 0) {
-      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 0));
-      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 1));
+      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0));
+      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 1));
       saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
     }
   }
