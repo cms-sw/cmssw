@@ -38,8 +38,6 @@
 #include <vector>
 #include <string>
 
-class DigiAccumulatorMixMod;
-
 namespace edm {
 
   class ModuleCallingContext;
@@ -165,16 +163,11 @@ namespace edm {
       DataMixingSiStripWorker *SiStripWorker_ ;
       DataMixingSiStripRawWorker *SiStripRawWorker_ ;
       bool useSiStripRawDigi_;
-      bool addMCDigiNoise_;
       std::string siStripRawDigiSource_;
 
       // Pixels
 
       DataMixingSiPixelWorker *SiPixelWorker_ ;
-
-      // Tracks
-
-      DigiAccumulatorMixMod * GeneralTrackWorker_;
 
 
       virtual void getSubdetectorNames();  
