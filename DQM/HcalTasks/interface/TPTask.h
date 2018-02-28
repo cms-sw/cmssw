@@ -38,8 +38,10 @@ class TPTask : public hcaldqm::DQTask
 
 		edm::InputTag		_tagData;
 		edm::InputTag		_tagEmul;
+		edm::InputTag		_tagEmulNoTDCCut;
 		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokData;
 		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmul;
+		edm::EDGetTokenT<HcalTrigPrimDigiCollection> _tokEmulNoTDCCut;
 
 		//	flag vector
 		std::vector<hcaldqm::flag::Flag> _vflags;
@@ -70,6 +72,7 @@ class TPTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_VME;
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_depth0;
+		hcaldqm::filter::HashFilter _filter_HF;
 
 		//	Et/FG
 		hcaldqm::Container1D _cEtData_TTSubdet;
@@ -169,6 +172,12 @@ class TPTask : public hcaldqm::DQTask
 		hcaldqm::ContainerSingle2D _cSummaryvsLS; // online only
 		hcaldqm::ContainerXXX<uint32_t> _xEtMsm, _xFGMsm, _xNumCorr,
 			_xDataMsn, _xDataTotal, _xEmulMsn, _xEmulTotal;
+
+		hcaldqm::ContainerSingle2D _cTDCCutEfficiency_depth;
+		hcaldqm::ContainerSingle1D _cTDCCutEfficiency_ieta;
+		// Temporary storage for occupancy with and without HF TDC cut
+		hcaldqm::ContainerXXX<int> _xOccupancy_HF_depth, _xOccupancyNoTDC_HF_depth;
+		hcaldqm::ContainerXXX<int> _xOccupancy_HF_ieta, _xOccupancyNoTDC_HF_ieta;
 };
 
 #endif

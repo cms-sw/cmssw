@@ -10,9 +10,12 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		edm::InputTag("hcalDigis"));
 	_tagEmul = ps.getUntrackedParameter<edm::InputTag>("tagEmul",
 		edm::InputTag("emulDigis"));
+	_tagEmulNoTDCCut = ps.getUntrackedParameter<edm::InputTag>("tagEmulNoTDCCut",
+		edm::InputTag("emulTPDigisNoTDCCut"));
 
 	_tokData = consumes<HcalTrigPrimDigiCollection>(_tagData);
 	_tokEmul = consumes<HcalTrigPrimDigiCollection>(_tagEmul);
+	_tokEmulNoTDCCut = consumes<HcalTrigPrimDigiCollection>(_tagEmulNoTDCCut);
 
 	_skip1x1 = ps.getUntrackedParameter<bool>("skip1x1", true);
 	_cutEt = ps.getUntrackedParameter<int>("cutEt", 3);
@@ -283,6 +286,19 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			hcaldqm::hashfunctions::fTTSubdet,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+
+		_cTDCCutEfficiency_depth.initialize(_name, "TDCCutEfficiency_depth", 
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRatio, true),0);
+		_cTDCCutEfficiency_ieta.initialize(_name, "TDCCutEfficiency_ieta", 
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRatio, true),0);
+
+		_xOccupancy_HF_depth.initialize(hcaldqm::hashfunctions::fTChannel);
+		_xOccupancyNoTDC_HF_depth.initialize(hcaldqm::hashfunctions::fTChannel);
+		_xOccupancy_HF_ieta.initialize(hcaldqm::hashfunctions::fTTSubdetieta);
+		_xOccupancyNoTDC_HF_ieta.initialize(hcaldqm::hashfunctions::fTTSubdetieta);
 	}
 
 	// FED-based containers
@@ -438,7 +454,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			_xDataTotal.initialize(hcaldqm::hashfunctions::fFED);
 			_xEmulMsn.initialize(hcaldqm::hashfunctions::fFED);
 			_xEmulTotal.initialize(hcaldqm::hashfunctions::fFED);
-
 		}
 	}
 
@@ -538,6 +553,19 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		_xDataTotal.book(_emap);
 		_xEmulMsn.book(_emap);
 		_xEmulTotal.book(_emap);
+
+		std::vector<uint32_t> vHF;
+		vHF.push_back(HcalTrigTowerDetId(-41, 0, 0).rawId());
+		_filter_HF.initialize(filter::fPreserver, hcaldqm::hashfunctions::fTTSubdet, vHF);
+
+		_cTDCCutEfficiency_depth.book(ib, _subsystem);
+		_cTDCCutEfficiency_ieta.book(ib, _subsystem);
+
+		_xOccupancy_HF_depth.book(_emap, _filter_HF);
+		_xOccupancyNoTDC_HF_depth.book(_emap, _filter_HF);
+		_xOccupancy_HF_ieta.book(_emap, _filter_HF);
+		_xOccupancyNoTDC_HF_ieta.book(_emap, _filter_HF);
+
 	}
 	
 	//	initialize the hash map
@@ -569,12 +597,16 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 {
 	edm::Handle<HcalTrigPrimDigiCollection> cdata;
 	edm::Handle<HcalTrigPrimDigiCollection> cemul;
+	edm::Handle<HcalTrigPrimDigiCollection> cemul_noTDCCut;
 	if (!e.getByToken(_tokData, cdata))
 		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
 			+ _tagData.label() + " " + _tagData.instance());
 	if (!e.getByToken(_tokEmul, cemul))
 		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
 			+ _tagEmul.label() + " " + _tagEmul.instance());
+	if (!e.getByToken(_tokEmulNoTDCCut, cemul_noTDCCut))
+		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
+			+ _tagEmulNoTDCCut.label() + " " + _tagEmulNoTDCCut.instance());
 
 	//	extract some info per event
 	int bx = e.bunchCrossing();
@@ -642,6 +674,9 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		_cEtData_TTSubdet.fill(tid, soiEt_d);
 		_cEtData_depthlike.fill(tid, soiEt_d);
 		_cOccupancyData_depthlike.fill(tid);
+
+		_xOccupancy_HF_depth.get(tid)++;
+		_xOccupancy_HF_ieta.get(tid)++;
 		if (_ptype != fOffline) { // hidefed2crate
 			if (eid.isVMEid())
 			{
@@ -654,7 +689,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 				_cEtData_ElectronicsuTCA.fill(eid, soiEt_d);
 			}
 		}
-		
+
 		//	FILL w/a CUT
 		if (soiEt_d>_cutEt)
 		{
@@ -772,6 +807,23 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		}
 	}
 	
+	if (_ptype == fOnline) {
+		for (HcalTrigPrimDigiCollection::const_iterator it=cemul_noTDCCut->begin(); it!=cemul_noTDCCut->end(); ++it)	{
+			//	Explicit check on the DetIds present in the Collection
+			HcalTrigTowerDetId tid = it->id();
+			uint32_t rawid = _ehashmap.lookup(tid);
+			if (rawid==0) {
+				continue;
+			}
+			if (tid.version()==0 && tid.ietaAbs()>=29)
+			{
+				continue;
+			}
+			_xOccupancyNoTDC_HF_depth.get(tid)++;
+			_xOccupancyNoTDC_HF_ieta.get(tid)++;
+		}
+	}
+
 	if (rawidHFValid!=0 && rawidHBHEValid!=0)
 	{
 		//	ONLINE ONLY!
@@ -996,6 +1048,23 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 {
 	if (_ptype!=fOnline)
 		return;
+
+	// Ratio of occupancies (data) / (emul, no TDC cut)
+	for (intCompactMap::const_iterator it=_xOccupancy_HF_depth.begin(); it!=_xOccupancy_HF_depth.end(); ++it) {
+		HcalTrigTowerDetId ttdid(it->first);
+		int num = it->second;
+		int den = _xOccupancyNoTDC_HF_depth.get(ttdid);
+		double ratio = (den > 0 ? 1. * num / den : 0.);
+		_cTDCCutEfficiency_depth.setBinContent(ttdid.ieta(), ttdid.iphi(), ratio);
+	}
+	for (intCompactMap::const_iterator it=_xOccupancy_HF_ieta.begin(); it!=_xOccupancy_HF_ieta.end(); ++it) {
+		HcalTrigTowerDetId ttdid(it->first);
+		int num = it->second;
+		int den = _xOccupancyNoTDC_HF_ieta.get(ttdid);
+		double ratio = (den > 0 ? 1. * num / den : 0.);
+		_cTDCCutEfficiency_ieta.fill(ttdid.ieta(), ratio);
+	}
+
 
 	//
 	//	GENERATE STATUS ONLY FOR ONLINE!
