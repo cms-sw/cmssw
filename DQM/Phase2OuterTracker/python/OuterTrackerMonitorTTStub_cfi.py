@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-OuterTrackerMonitorTTStub = cms.EDAnalyzer('OuterTrackerMonitorTTStub',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+OuterTrackerMonitorTTStub = DQMEDAnalyzer('OuterTrackerMonitorTTStub',
     
     TopFolderName = cms.string('Phase2OuterTracker'),
     TTStubs       = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
