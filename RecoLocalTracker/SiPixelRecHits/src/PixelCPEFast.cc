@@ -21,20 +21,8 @@
 
 #include <iostream>
 
-  namespace {
-
-        struct Stat {
-          Stat():c(0){}
-          ~Stat(){std::cout << "CPE stat " << c << ' ' << maxx << ' ' << maxd << std::endl;}
-          std::atomic<uint32_t> c;
-          float maxx=0.f, maxd=0.0f;
-        };
-        Stat statx, staty; 
-  }
-
 namespace {
    constexpr float micronsToCm = 1.0e-4;
-   const bool MYDEBUG = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -63,11 +51,7 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const & conf,
             throw cms::Exception("InvalidCalibrationLoaded")
             << "ERROR: GenErrors not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version "
             << ( *genErrorDBObject_ ).version();
-     if(MYDEBUG) std::cout<<"Loaded genErrorDBObject v"<<( *genErrorDBObject_ ).version()<< std::endl;
-   }  else {
-     if(MYDEBUG) std::cout<<" Use simple parametrised errors "<< std::endl;
-   } // if ( UseErrorsFromTemplates_ )
-   
+   }
    
    // Rechit errors in case other, more correct, errors are not vailable
    // This are constants. Maybe there is a more efficienct way to store them.
@@ -288,38 +272,6 @@ PixelCPEFast::localPosition(DetParam const & theDetParam, ClusterParam & theClus
                            );   
    // apply the lorentz offset correction
    yPos = yPos + shiftY + theDetParam.thePitchY*float(phase1PixelTopology::yOffset);
-
-
-   {
-     // ok now do GPU like ...
-
-     pixelCPEforGPU::ClusParams cp;
-
-     
-     cp.minRow[0] = theClusterParam.theCluster->minPixelRow();
-     cp.maxRow[0] = theClusterParam.theCluster->maxPixelRow();
-     cp.minCol[0] = theClusterParam.theCluster->minPixelCol();
-     cp.maxCol[0] = theClusterParam.theCluster->maxPixelCol();
-
-      cp.Q_f_X[0] = Q_f_X;
-      cp.Q_l_X[0] = Q_l_X;
-      cp.Q_f_Y[0] = Q_f_Y;
-      cp.Q_l_Y[0] = Q_l_Y;
-
-      auto ind = theDetParam.theDet->index();
-      pixelCPEforGPU::position(m_commonParamsGPU, m_detParamsGPU[ind],cp,0);
-      auto xg = cp.xpos[0];     
-      auto yg =	cp.ypos[0];
-
-      if(std::abs(xPos-xg)>0.001) {++statx.c; statx.maxx=std::max(statx.maxx,xPos);}
-      statx.maxd=std::max(std::abs(xPos-xg), statx.maxd);
-      if(std::abs(yPos-yg)>0.001) {++staty.c; staty.maxx=std::max(staty.maxx,yPos);}
-      staty.maxd=std::max(std::abs(yPos-yg), staty.maxd);
-      if(std::abs(xPos-xg)>0.001 || std::abs(yPos-yg)>0.001) 
-          std::cout << (m_detParamsGPU[ind].isBarrel ? "B " : "E ") << xPos <<'/'<<xPos-xg << ' ' << yPos <<'/'<<yPos-yg << ' ' << cp.maxRow[0]-cp.minRow[0] << ',' << cp.maxCol[0]-cp.minCol[0] 
-                    << ' ' << urxl - llxl << ',' << uryl - llyl << std::endl;
-   
-   }
 
    //--- Now put the two together
    LocalPoint pos_in_local( xPos, yPos );
