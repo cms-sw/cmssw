@@ -25,7 +25,7 @@ MuonPOGSkimHLTFilter = copy.deepcopy(hltHighLevel)
 MuonPOGSkimHLTFilter.throw = cms.bool(False)
 MuonPOGSkimHLTFilter.HLTPaths = ["HLT_Mu*","HLT_IsoMu*"]
 
-TAGMUON_CUT = '(pt > 28) &&  (abs(eta)<2.4) && (isPFMuon>0) && (isGlobalMuon = 1) && (globalTrack().normalizedChi2() < 10) && (globalTrack().hitPattern().numberOfValidMuonHits()>0)&& (numberOfMatchedStations() > 1)&& (innerTrack().hitPattern().numberOfValidPixelHits() > 0)&& (innerTrack().hitPattern().trackerLayersWithMeasurement() > 5) &&  ((isolationR03().sumPt/pt)<0.1)'
+TAGMUON_CUT = '(pt > 28) &&  (abs(eta)<2.4) && (isPFMuon>0) && (isGlobalMuon = 1) && (globalTrack().normalizedChi2() < 10) && (globalTrack().hitPattern().numberOfValidMuonHits()>0)&& (numberOfMatchedStations() > 1)&& (innerTrack().hitPattern().numberOfValidPixelHits() > 0)&& (innerTrack().hitPattern().trackerLayersWithMeasurement() > 5) &&  (((pfIsolationR04.sumChargedHadronPt + max(0., pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - 0.5 * pfIsolationR04.sumPUPt) ) / pt)<0.2)'
 PROBETRACK_CUT = 'pt > 10 &&  abs(eta)<2.4 &&  (charge!=0)'
 DIMUON = 'mass > 40'
 
