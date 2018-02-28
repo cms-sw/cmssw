@@ -68,7 +68,7 @@ std::string LMFRunTag::setByIDSql(Statement *stmt, int id)
 }
 
 void LMFRunTag::getParameters(ResultSet *rset) {
-  setString("gen_tag", rset->getString(1));
+  setString("gen_tag", getOraString(rset,1));
   setInt("version", rset->getInt(2));
 }
 
