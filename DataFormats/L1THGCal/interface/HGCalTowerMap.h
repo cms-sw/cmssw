@@ -30,7 +30,7 @@ namespace l1t {
     int nPhiBins() const { return nPhiBins_; }
     const vector<double>& etaBins() const { return etaBins_; }
     const vector<double>& phiBins() const { return phiBins_; }
-    const l1t::HGCalTower& tower(int iEta, int iPhi) { return towerMap_[bin_id(iEta,iPhi)]; }
+    const l1t::HGCalTower& tower(int iEta, int iPhi) const { return towerMap_.at(bin_id(iEta,iPhi)); }
 
     int iEta(const double eta) const;
     int iPhi(const double phi) const;
