@@ -583,7 +583,7 @@ bool LMFDat::check() {
     ret = false;
   }
   //then check that the table name has been set
-  if (getTableName() == "") {
+  if (getTableName().empty()) {
     m_Error += "table name not set ";
     ret = false;
   }
