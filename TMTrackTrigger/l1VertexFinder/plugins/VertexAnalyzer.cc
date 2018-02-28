@@ -457,6 +457,7 @@ namespace l1tVertexFinder {
 
     std::vector<const L1fittedTrack*> l1TrackPtrs;
     l1TrackPtrs.reserve(l1Tracks.size());
+
     for(const auto& track : l1Tracks){
       if(track.pt() > settings_->vx_TrackMinPt() ){
         if(track.pt() < 50 or track.getNumStubs() > 5 )
@@ -497,7 +498,8 @@ namespace l1tVertexFinder {
     l1t::Vertex pvVertexFromEDM = l1VerticesHandle->at(0);
     l1t::Vertex tdrPVVertexFromEDM = l1VertexTDRHandle->at(0);
 
-    //l1t::vector<l1t::Vertex> recoVertices;
+    std::vector<RecoVertexWithTP *> recoVertices;
+    recoVertices.reserve(numVertices);
 
     // noEvents++;
     const Vertex&     TruePrimaryVertex = inputData.getPrimaryVertex();
@@ -507,26 +509,44 @@ namespace l1tVertexFinder {
     // std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, L1fittedTrack> trackAssociationMap;
     std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, const L1fittedTrack *> trackAssociationMap;
 
-    // unsigned int index = 0;
     // get a list of reconstructed tracks with references to their TPs
     for (const auto & trackIt: l1Tracks) {
       trackAssociationMap.insert(std::pair<const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, const L1fittedTrack *>(trackIt.getTTTrackPtr(), &trackIt));
     }
+
+    // generate reconstructed vertices (starting at 1 avoids PV)
+    for (unsigned int i = 0; i < numVertices; ++i) {
+      RecoVertex recoPUVertexBase = RecoVertex();
+
+      // populate vertex with tracks
+      for (const auto & track : l1VerticesHandle->at(i).tracks()) {
+        recoPUVertexBase.insert(new L1fittedTrackBase(track));
+      }
+
+      recoPUVertexBase.setZ(l1VerticesHandle->at(i).z0());
+      RecoVertexWithTP * recoPUVertex = new RecoVertexWithTP(recoPUVertexBase, trackAssociationMap);
+      recoPUVertex->computeParameters(settings_->vx_weightedmean());
+      if (settings_->vx_algoId() == 6 || settings_->vx_algoId() == 5)
+        recoPUVertex->setZ(recoPUVertexBase.z0());
+
+      recoVertices.emplace_back(recoPUVertex);
+    }
+    // TODO: add PV conversion above
 
     // get reference to PV and TDR PV
 
     // Associate true primary vertex with the closest reconstructed vertex
     // RecoVertex RecoPrimaryVertexBase = vf.PrimaryVertex();
     // RecoVertex TDRVertexBase         = vf.TDRPrimaryVertex();
-    RecoVertex RecoPrimaryVertexBase = RecoVertex();
+    // RecoVertex RecoPrimaryVertexBase = RecoVertex();
     RecoVertex TDRVertexBase         = RecoVertex();
 
     // populate RecoVertex version of PV with information obtained from
     // l1t::Vertex
-    for (const auto & track : pvVertexFromEDM.tracks()) {
-      RecoPrimaryVertexBase.insert(new L1fittedTrackBase(track));
-    }
-    RecoPrimaryVertexBase.setZ(pvVertexFromEDM.z0());
+    // for (const auto & track : pvVertexFromEDM.tracks()) {
+    //   RecoPrimaryVertexBase.insert(new L1fittedTrackBase(track));
+    // }
+    // RecoPrimaryVertexBase.setZ(pvVertexFromEDM.z0());
 
     // populate RecoVertex version of TDR PV with information obtained
     // from l1t::Vertex
@@ -536,15 +556,16 @@ namespace l1tVertexFinder {
     // TDRVertexBase.computeParameters(settings_->vx_weightedmean());
     TDRVertexBase.setZ(tdrPVVertexFromEDM.z0());
 
-    RecoVertexWithTP * RecoPrimaryVertex = new RecoVertexWithTP(RecoPrimaryVertexBase, trackAssociationMap);
+    // RecoVertexWithTP * RecoPrimaryVertex = new RecoVertexWithTP(RecoPrimaryVertexBase, trackAssociationMap);
     RecoVertexWithTP * TDRVertex = new RecoVertexWithTP(TDRVertexBase, trackAssociationMap);
+    RecoVertexWithTP * RecoPrimaryVertex = recoVertices.at(0);
 
-    RecoPrimaryVertex->computeParameters(settings_->vx_weightedmean());
+    //RecoPrimaryVertex->computeParameters(settings_->vx_weightedmean());
     TDRVertex->computeParameters(settings_->vx_weightedmean());
 
     // update the primary vertex z0 if the algorithm is HPV, kmeans
-    if (settings_->vx_algoId() == 6 || settings_->vx_algoId() == 5)
-      RecoPrimaryVertex->setZ(RecoPrimaryVertexBase.z0());
+    //if (settings_->vx_algoId() == 6 || settings_->vx_algoId() == 5)
+    //  RecoPrimaryVertex->setZ(RecoPrimaryVertexBase.z0());
     TDRVertex->setZ(TDRVertexBase.z0());
 
     hisGenVertexPt_->Fill(inputData.GenPt());
@@ -912,7 +933,7 @@ namespace l1tVertexFinder {
       TODO:REVIEW
     float z0distance = 0.;
 
-    for(unsigned int i = 0; i<vf.Vertices().size(); ++i){
+    for(unsigned int i = 0; i < numVertices; ++i){
       if(i < vf.Vertices().size()-1){
         z0distance = vf.Vertices()[i+1].z0() - vf.Vertices()[i].z0();
         hisRecoVertexZ0Spacing_->Fill(z0distance);
