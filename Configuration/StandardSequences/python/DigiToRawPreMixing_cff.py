@@ -13,7 +13,6 @@ from EventFilter.HcalRawToDigi.HcalDigiToRaw_cfi import *
 from EventFilter.CSCRawToDigi.cscPacker_cfi import *
 from EventFilter.DTRawToDigi.dtPacker_cfi import *
 from EventFilter.RPCRawToDigi.rpcPacker_cfi import *
-from EventFilter.GEMRawToDigi.gemPacker_cfi import *
 from EventFilter.CastorRawToDigi.CastorDigiToRaw_cfi import *
 from EventFilter.RawDataCollector.rawDataCollector_cfi import *
 #from L1Trigger.Configuration.L1TDigiToRaw_cff import *  # no L1 DigiToRaw in first PreMixing step
@@ -39,16 +38,6 @@ phase2_tracker.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([siPixelRawData
 
 from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_muon.toReplaceWith(DigiToRaw, DigiToRaw.copyAndExclude([rpcpacker]))
-
-# GEM settings
-_gem_DigiToRaw = DigiToRaw.copy()
-_gem_DigiToRaw.insert(-1,gemPacker)
-
-from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
-run2_GEM_2017.toReplaceWith(DigiToRaw, _gem_DigiToRaw)
-
-from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-run3_GEM.toReplaceWith(DigiToRaw, _gem_DigiToRaw)
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 if fastSim.isChosen() :

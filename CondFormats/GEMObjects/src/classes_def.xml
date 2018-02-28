@@ -1,12 +1,14 @@
 <lcgdict>
 
-  <class name="GEMELMap"/>
-  <class name="GEMELMap::GEMVFatMap"/>
-  <class name="std::vector<GEMELMap::GEMVFatMap>"/>
+  <class name="GEMEMap"/>
+  <class name="GEMEMap::GEMEMapItem"/>
+  <class name="std::vector<GEMEMap::GEMEMapItem>"/>
 
-  <class name="GEMELMap::GEMStripMap"/>
-  <class name="std::vector<GEMELMap::GEMStripMap>"/>
+  <class name="GEMEMap::GEMVFatMaptype"/>
+  <class name="std::vector<GEMEMap::GEMVFatMaptype>"/>
 
+  <class name="GEMEMap::GEMVFatMapInPos"/>
+  <class name="std::vector<GEMEMap::GEMVFatMapInPos>"/>
 
   <class name="GEMDeadStrips"/>
   <class name="GEMDeadStrips::DeadItem"/>
