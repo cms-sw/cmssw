@@ -366,7 +366,11 @@ double MahiFit::calculateArrivalTime() const {
   }
 
   PulseVector solution = nnlsWork_.pulseDerivMat.colPivHouseholderQr().solve(nnlsWork_.residuals);
-  return solution.coeff(itIndex)/nnlsWork_.ampVec.coeff(itIndex);
+  float t = solution.coeff(itIndex)/nnlsWork_.ampVec.coeff(itIndex);
+  t = (t>timeLimit_) ?  timeLimit_ : 
+    ((t<-timeLimit_) ? -timeLimit_ : t);
+
+  return t;
 
 }
   
