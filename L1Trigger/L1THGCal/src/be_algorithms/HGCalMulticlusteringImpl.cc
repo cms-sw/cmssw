@@ -149,97 +149,97 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const std::vector<edm::Ptr<l1t:
                                                  const HGCalTriggerGeometryBase & triggerGeometry)
 {
 
-  std::vector<l1t::HGCalMulticluster> multiclustersTmp;
-  l1t::HGCalMulticluster mcluTmp;
-  std::vector<bool> visited(clustersPtrs.size(),false);
-  std::vector<bool> merged (clustersPtrs.size(),false);
-  std::vector<std::pair<unsigned int,double>>  rankedList;
-  rankedList.reserve(clustersPtrs.size());
-  std::vector<std::vector<unsigned int>> neighborList;
-  neighborList.reserve(clustersPtrs.size());
+    std::vector<l1t::HGCalMulticluster> multiclustersTmp;
+    l1t::HGCalMulticluster mcluTmp;
+    std::vector<bool> visited(clustersPtrs.size(),false);
+    std::vector<bool> merged (clustersPtrs.size(),false);
+    std::vector<std::pair<unsigned int,double>>  rankedList;
+    rankedList.reserve(clustersPtrs.size());
+    std::vector<std::vector<unsigned int>> neighborList;
+    neighborList.reserve(clustersPtrs.size());
 
-  int iclu = 0, imclu = 0, neighNo;
-  double dist = 0.;
+    int iclu = 0, imclu = 0, neighNo;
+    double dist = 0.;
 
-  for(std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
-    dist = (*clu)->centreProj().mag()*HGCalDetId((*clu)->detId()).zside();
-    rankedList.push_back(std::make_pair(iclu,dist));
-  }  
-  iclu = 0;
-  std::sort(rankedList.begin(), rankedList.end(), [](auto &left, auto &right) {
-      return left.second < right.second;
-      });
+    for(std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu){
+        dist = (*clu)->centreProj().mag()*HGCalDetId((*clu)->detId()).zside();
+        rankedList.push_back(std::make_pair(iclu,dist));
+    }  
+    iclu = 0;
+    std::sort(rankedList.begin(), rankedList.end(), [](auto &left, auto &right) {
+            return left.second < right.second;
+            });
 
-  for(const auto& cluRanked: rankedList){
-    std::vector<unsigned int> neighbors;      
+    for(const auto& cluRanked: rankedList){
+        std::vector<unsigned int> neighbors;      
 
-    if(!visited.at(iclu)){
-      visited.at(iclu) = true;
-      findNeighbor(rankedList, iclu, clustersPtrs, neighbors);
-      neighborList.push_back(std::move(neighbors));
+        if(!visited.at(iclu)){
+            visited.at(iclu) = true;
+            findNeighbor(rankedList, iclu, clustersPtrs, neighbors);
+            neighborList.push_back(std::move(neighbors));
 
-      if(neighborList.at(iclu).size() >= minNDbscan_) {
-        multiclustersTmp.emplace_back( clustersPtrs[cluRanked.first] );
-        merged.at(iclu) = true;
-        /* dynamic range loop: range-based loop syntax cannot be employed */
-        for(unsigned int neighInd = 0; neighInd < neighborList.at(iclu).size(); neighInd++){
-          neighNo = neighborList.at(iclu).at(neighInd);
-          /* This condition also ensures merging of clusters visited by other clusters but not merged. */
-          if(!merged.at(neighNo) ){
-            merged.at(neighNo) = true;          
-            multiclustersTmp.at(imclu).addConstituent( clustersPtrs[rankedList.at(neighNo).first] );
+            if(neighborList.at(iclu).size() >= minNDbscan_) {
+                multiclustersTmp.emplace_back( clustersPtrs[cluRanked.first] );
+                merged.at(iclu) = true;
+                /* dynamic range loop: range-based loop syntax cannot be employed */
+                for(unsigned int neighInd = 0; neighInd < neighborList.at(iclu).size(); neighInd++){
+                    neighNo = neighborList.at(iclu).at(neighInd);
+                    /* This condition also ensures merging of clusters visited by other clusters but not merged. */
+                    if(!merged.at(neighNo) ){
+                        merged.at(neighNo) = true;          
+                        multiclustersTmp.at(imclu).addConstituent( clustersPtrs[rankedList.at(neighNo).first] );
 
-            if(!visited.at(neighNo)){
-              visited.at(neighNo) = true;
-              std::vector<unsigned int> secNeighbors;
-              findNeighbor(rankedList, neighNo,clustersPtrs, secNeighbors);
+                        if(!visited.at(neighNo)){
+                            visited.at(neighNo) = true;
+                            std::vector<unsigned int> secNeighbors;
+                            findNeighbor(rankedList, neighNo,clustersPtrs, secNeighbors);
 
-              if(secNeighbors.size() >= minNDbscan_){
-                neighborList.at(iclu).insert(neighborList.at(iclu).end(), secNeighbors.begin(), secNeighbors.end());
-              }
+                            if(secNeighbors.size() >= minNDbscan_){
+                                neighborList.at(iclu).insert(neighborList.at(iclu).end(), secNeighbors.begin(), secNeighbors.end());
+                            }
+                        }
+                    }
+                }
+                imclu++;
             }
-          }
         }
-        imclu++;
-      }
+        else neighborList.push_back(std::move(neighbors));
+        iclu++;    
     }
-    else neighborList.push_back(std::move(neighbors));
-    iclu++;    
-  }
-  /* making the collection of multiclusters */
-  for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
+    /* making the collection of multiclusters */
+    for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
 
-    // compute the eta, phi observables for multicluster starting from its barycenter x,y,z position + pT as scalar sum of pT of constituents
-    double sumPt=0.;
+        // compute the eta, phi observables for multicluster starting from its barycenter x,y,z position + pT as scalar sum of pT of constituents
+        double sumPt=0.;
 
-    const std::vector<edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp.at(i).constituents();
-    for( std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator  it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++) sumPt +=(*it_clu)->pt();
+        const std::vector<edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp.at(i).constituents();
+        for( std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator  it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++) sumPt +=(*it_clu)->pt();
 
-    math::PtEtaPhiMLorentzVector multiclusterP4(  sumPt,
-        multiclustersTmp.at(i).centre().eta(),
-        multiclustersTmp.at(i).centre().phi(),
-        0. );
-    multiclustersTmp.at(i).setP4( multiclusterP4 );
+        math::PtEtaPhiMLorentzVector multiclusterP4(  sumPt,
+                multiclustersTmp.at(i).centre().eta(),
+                multiclustersTmp.at(i).centre().phi(),
+                0. );
+        multiclustersTmp.at(i).setP4( multiclusterP4 );
 
 
-    if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
+        if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
 
-      //compute shower shape
-      multiclustersTmp.at(i).showerLength(shape_.showerLength(multiclustersTmp.at(i)));
-      multiclustersTmp.at(i).coreShowerLength(shape_.coreShowerLength(multiclustersTmp.at(i), triggerGeometry));
-      multiclustersTmp.at(i).firstLayer(shape_.firstLayer(multiclustersTmp.at(i)));
-      multiclustersTmp.at(i).maxLayer(shape_.maxLayer(multiclustersTmp.at(i)));
-      multiclustersTmp.at(i).sigmaEtaEtaTot(shape_.sigmaEtaEtaTot(multiclustersTmp.at(i)));
-      multiclustersTmp.at(i).sigmaEtaEtaMax(shape_.sigmaEtaEtaMax(multiclustersTmp.at(i)));
-      multiclustersTmp.at(i).sigmaPhiPhiTot(shape_.sigmaPhiPhiTot(multiclustersTmp.at(i)));
-      multiclustersTmp.at(i).sigmaPhiPhiMax(shape_.sigmaPhiPhiMax(multiclustersTmp.at(i)));
-      multiclustersTmp.at(i).sigmaZZ(shape_.sigmaZZ(multiclustersTmp.at(i)));
-      multiclustersTmp.at(i).sigmaRRTot(shape_.sigmaRRTot(multiclustersTmp.at(i)));
-      multiclustersTmp.at(i).sigmaRRMax(shape_.sigmaRRMax(multiclustersTmp.at(i)));
-      multiclustersTmp.at(i).sigmaRRMean(shape_.sigmaRRMean(multiclustersTmp.at(i)));
-      multiclustersTmp.at(i).eMax(shape_.eMax(multiclustersTmp.at(i)));
+            //compute shower shape
+            multiclustersTmp.at(i).showerLength(shape_.showerLength(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).coreShowerLength(shape_.coreShowerLength(multiclustersTmp.at(i), triggerGeometry));
+            multiclustersTmp.at(i).firstLayer(shape_.firstLayer(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).maxLayer(shape_.maxLayer(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).sigmaEtaEtaTot(shape_.sigmaEtaEtaTot(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).sigmaEtaEtaMax(shape_.sigmaEtaEtaMax(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).sigmaPhiPhiTot(shape_.sigmaPhiPhiTot(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).sigmaPhiPhiMax(shape_.sigmaPhiPhiMax(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).sigmaZZ(shape_.sigmaZZ(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).sigmaRRTot(shape_.sigmaRRTot(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).sigmaRRMax(shape_.sigmaRRMax(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).sigmaRRMean(shape_.sigmaRRMean(multiclustersTmp.at(i)));
+            multiclustersTmp.at(i).eMax(shape_.eMax(multiclustersTmp.at(i)));
 
-      multiclusters.push_back( 0, multiclustersTmp.at(i));  
+            multiclusters.push_back( 0, multiclustersTmp.at(i));  
+        }
     }
-  }
 }
