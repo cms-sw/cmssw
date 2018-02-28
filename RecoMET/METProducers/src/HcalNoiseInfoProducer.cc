@@ -137,6 +137,7 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
 
   hbhedigi_token_      = consumes<HBHEDigiCollection>(edm::InputTag(digiCollName_));
   hcalcalibdigi_token_ = consumes<HcalCalibDigiCollection>(edm::InputTag("hcalDigis"));
+  lasermondigi_token_  = consumes<QIE10DigiCollection>(iConfig.getParameter<edm::InputTag>("lasermonDigis"));
   hbherechit_token_    = consumes<HBHERecHitCollection>(edm::InputTag(recHitCollName_));
   calotower_token_     = consumes<CaloTowerCollection>(edm::InputTag(caloTowerCollName_));
   track_token_         = consumes<reco::TrackCollection>(edm::InputTag(trackCollName_));
@@ -249,11 +250,11 @@ void HcalNoiseInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   // define the channels used for laser monitoring
   // note that the order here indicates the time order
   // of the channels
-  desc.add<std::vector<int>>("laserMonCBoxList", {6,6,6,6,6,6,6,6,})->
+  desc.add<std::vector<int>>("laserMonCBoxList", {5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,})->
       setComment("time ordered list of the cBox values of laser monitor channels");
-  desc.add<std::vector<int>>("laserMonIPhiList", {23,17,11,5,29,35,41,47,})->
+  desc.add<std::vector<int>>("laserMonIPhiList", {23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0})->
       setComment("time ordered list of the iPhi values of laser monitor channels");
-  desc.add<std::vector<int>>("laserMonIEtaList", {0,0,0,0,0,0,0,0,})->
+  desc.add<std::vector<int>>("laserMonIEtaList", {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,})->
       setComment("time ordered list of the iEta values of laser monitor channels");
 
   // boundaries for total charge integration
@@ -291,6 +292,7 @@ void HcalNoiseInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<std::string>("caloTowerCollName", "towerMaker");
   desc.add<std::string>("trackCollName", "generalTracks");
   desc.add<std::string>("jetCollName", "ak4PFJets");
+  desc.add<edm::InputTag>("lasermonDigis", edm::InputTag( "hcalDigis", "LASERMON"));
 
   // severity level
   desc.add<unsigned int>("HcalAcceptSeverityLevel", 9);
@@ -590,44 +592,19 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
   //  iEvent.getByLabel("hcalDigis", hCalib);
   iEvent.getByToken(hcalcalibdigi_token_, hCalib);
 
+
+  // get the lasermon digis
+  edm::Handle<QIE10DigiCollection> hLasermon;
+  iEvent.getByToken(lasermondigi_token_, hLasermon);
+
   // get total charge in calibration channels
   if(hCalib.isValid() == true)
   {
-
-
-     std::vector<std::vector<int> > lasmon_adcs(laserMonCBoxList_.size(), std::vector<int>());
-     std::vector<std::vector<int> > lasmon_capids(laserMonCBoxList_.size(), std::vector<int>());
 
      for(HcalCalibDigiCollection::const_iterator digi = hCalib->begin(); digi != hCalib->end(); digi++)
      {
         if(digi->id().hcalSubdet() == 0)
            continue;
-
-        // Fill the lasermonitor channels
-        if( fillLaserMonitor_ ) {
-          int cboxch  = digi->id().cboxChannel( );
-          int iphi    = digi->id().iphi();
-          int ieta    = digi->id().ieta();
-         
-          // only check channels having the requested cboxch
-          if (std::find( laserMonCBoxList_.begin(), laserMonCBoxList_.end(),
-                         cboxch ) != laserMonCBoxList_.end() ) {
-            // find the index of this channel by matching cBox, iEta, iPhi
-            for( unsigned idx = 0; idx < laserMonCBoxList_.size(); ++idx ) {
-              if( cboxch == laserMonCBoxList_[idx] &&
-                iphi  == laserMonIPhiList_[idx] && 
-                ieta  == laserMonIEtaList_[idx] ) {
-
-                // now get the digis
-                unsigned ts_size = digi->size();
-                for(unsigned i = 0; i < ts_size; i++) {
-                  lasmon_adcs[idx].push_back( digi->sample(i).adc() );
-                  lasmon_capids[idx].push_back( digi->sample(i).capid() );
-                } // end digi loop
-              } // end matching channel if
-            } // end fiber order loop
-          } // end cboxch check
-        } // end filllasmon check
 
 
 	for(unsigned i = 0; i < (unsigned)digi->size(); i++)
@@ -672,137 +649,176 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
           } // end of HBHE check
      } // loop on HcalCalibDigiCollection
 
-     // now match the laser monitor data by fiber (in time) 
-     if( fillLaserMonitor_ ) {
-       // check for any fibers without data and fill
-       // them so we dont run into problems later
-       for( unsigned idx = 0; idx < laserMonCBoxList_.size(); ++idx ) {
-           if( lasmon_adcs[idx].empty() ) {
-               lasmon_adcs[idx] = std::vector<int>(10, -1);
-           }
-           if( lasmon_capids[idx].empty() ) {
-               lasmon_capids[idx] = std::vector<int>(10, -1);
-           }
-       }
-       unsigned nFibers = laserMonIEtaList_.size();
-       // for each fiber we need to find the index at with the 
-       // data from the next fiber matches in order to stitch them together.
-       // When there is an overlap, the data from the end of the
-       // earlier fiber is removed.  There is no removal of the last fiber
-       std::vector<unsigned> matching_idx; 
-       // we assume that the list of fibers was given in time order
-       // (if this was not the case, then we just end up using 
-       // all data from all fibers )
-       for( unsigned fidx = 0; nFibers > 0 && (fidx < (nFibers - 1)); ++fidx ) {
-
-         unsigned nts = lasmon_capids[fidx].size();  // number of time slices
-
-         // start by checking just the last TS of the earlier fiber
-         // against the first TS of the later fiber
-         // on each iteration, check one additional TS
-         // moving back in time on the earlier fiber and
-         // forward in time in the later fiber
-         
-         int start_ts = nts - 1; // start_ts will be decrimented on each loop where a match is not found
-
-         // in the case that our stringent check below doesn't work 
-         // store the latest capID that has a match
-         int latest_cap_match = -1;
-
-         // loop over the number of checks to make
-         for( unsigned ncheck = 1; ncheck <= nts ; ncheck++ ) {
-           bool cap_match = true; //will be set to false if at least one check fails below
-           bool adc_match = true; //will be set to false if at least one check fails below
-
-           // loop over the channel TS, this is for the later fiber in time
-           for( unsigned lidx = 0; lidx < ncheck; lidx++) {
-             // we are looping over the TS of the later fiber in time
-             // the TS of the earlier fiber starts from the end
-             unsigned eidx = nts-ncheck+lidx;
-             // if we get an invald value, this fiber has no data
-             // the check and match will fail, so the start_ts will 
-             // be decrimented
-             if( lasmon_capids[fidx][eidx] == -1 || lasmon_capids[fidx+1][lidx] == -1 ) {
-               cap_match = false;
-               adc_match = false;
-               break;
-             }
-
-             if( lasmon_capids[fidx][eidx] != lasmon_capids[fidx+1][lidx] ) {
-               cap_match = false;
-             }
-             // check the data values as well
-             if( lasmon_adcs[fidx][eidx] != lasmon_adcs[fidx+1][lidx] ) {
-               adc_match = false;
-             }
-           }
-           if( cap_match && (start_ts > latest_cap_match) ) {
-             latest_cap_match = start_ts;
-           }
-           if( cap_match && adc_match ) {
-             // end the loop and we'll take the current start_ts
-             // as the end of the data for this fiber
-             break;
-           }
-           else {
-             // if we don't have a match, then decrement the 
-             // starting TS and check again
-             start_ts--;
-           }
-         }
-
-         // now make some sanity checks on the determined overlap index
-         if( start_ts == -1 ) {
-           // if we didn't find any match, use the capID only to compare
-           if( latest_cap_match < 0 ) {
-             //this shouldn't happen, in this case use all the data from the fiber
-             start_ts = nts;
-           }
-           else {
-             // its possible that the timing of the fibers
-             // is shifted such that they do not overlap
-             // and we just want to stitch the fibers
-             // together with no removal.
-             // In this case the capIDs will match at the
-             // N-4 spot (and the ADCs will not)
-             // if this is not the case, then we just take
-             // the value of latest match
-             if( latest_cap_match == int(nts - 4) ) {
-               start_ts = nts;
-             } else {
-               start_ts = latest_cap_match;
-             }
-           }
-         }
-
-         // now store as the matching index
-         matching_idx.push_back(start_ts);
-       }
-
-       // for the last fiber we always use all of the data
-       matching_idx.push_back(10);
-
-       // now loop over the time slices of each fiber and make the sum
-       int icombts = -1;
-       for( unsigned fidx = 0 ; fidx < nFibers; ++fidx ) {
-         for( unsigned its = 0; its < matching_idx[fidx]; ++its ) {
-           icombts++;
-
-           // apply integration limits
-           if( icombts < laserMonitorTSStart_ ) continue;
-           if( laserMonitorTSEnd_ > 0 && icombts > laserMonitorTSEnd_ ) continue;
-
-           int adc = lasmon_adcs[fidx][its];
-
-           if( adc >= 0 ) { // skip invalid data
-             float fc = adc2fCHF[adc];
-             totalLasmonCharge += fc;
-           }
-
-         } 
-       }
-     } // if( fillLaserMonitor_ )
   } // if (hCalib.isValid()==true)
+  if( fillLaserMonitor_ ) {
+    if( hLasermon.isValid()  == true ) {
+
+      std::vector<std::vector<int> > lasmon_adcs(laserMonCBoxList_.size(), std::vector<int>());
+      std::vector<std::vector<int> > lasmon_capids(laserMonCBoxList_.size(), std::vector<int>());
+
+      unsigned max_nsamples = 0;
+      for(QIE10DigiCollection::const_iterator digi = hLasermon->begin(); digi != hLasermon->end(); digi++) {
+
+        QIE10DataFrame df = static_cast<QIE10DataFrame>(*digi);
+
+        HcalCalibDetId calibId( digi->id() );
+
+        // Fill the lasermonitor channels
+        int cboxch  = calibId.cboxChannel( );
+        int iphi    = calibId.iphi();
+        int ieta    = calibId.ieta();
+
+        // only check channels having the requested cboxch
+        if (std::find( laserMonCBoxList_.begin(), laserMonCBoxList_.end(),
+                       cboxch ) != laserMonCBoxList_.end() ) {
+          // find the index of this channel by matching cBox, iEta, iPhi
+          for( unsigned idx = 0; idx < laserMonCBoxList_.size(); ++idx ) {
+            if( cboxch == laserMonCBoxList_[idx] &&
+              iphi  == laserMonIPhiList_[idx] && 
+              ieta  == laserMonIEtaList_[idx] ) {
+
+              // now get the digis
+              unsigned ts_size = df.samples();
+              if( ts_size > max_nsamples ) max_nsamples = ts_size;
+              for(unsigned i = 0; i < ts_size; i++) {
+                lasmon_adcs[idx].push_back( df[i].adc() );
+                lasmon_capids[idx].push_back( df[i].capid() );
+              } // end digi loop
+            } // end matching channel if
+          } // end fiber order loop
+        } // end cboxch check
+      } // end loop over digis
+
+      // now match the laser monitor data by fiber (in time) 
+      // check for any fibers without data and fill
+      // them so we dont run into problems later
+      for( unsigned idx = 0; idx < laserMonCBoxList_.size(); ++idx ) {
+          if( lasmon_adcs[idx].empty() ) {
+              lasmon_adcs[idx] = std::vector<int>(max_nsamples, -1);
+          }
+          if( lasmon_capids[idx].empty() ) {
+              lasmon_capids[idx] = std::vector<int>(max_nsamples, -1);
+          }
+      }
+      unsigned nFibers = laserMonIEtaList_.size();
+      // for each fiber we need to find the index at with the 
+      // data from the next fiber matches in order to stitch them together.
+      // When there is an overlap, the data from the end of the
+      // earlier fiber is removed.  There is no removal of the last fiber
+      std::vector<unsigned> matching_idx; 
+      // we assume that the list of fibers was given in time order
+      // (if this was not the case, then we just end up using 
+      // all data from all fibers )
+      for( unsigned fidx = 0; nFibers > 0 && (fidx < (nFibers - 1)); ++fidx ) {
+
+        unsigned nts = lasmon_capids[fidx].size();  // number of time slices
+
+        // start by checking just the last TS of the earlier fiber
+        // against the first TS of the later fiber
+        // on each iteration, check one additional TS
+        // moving back in time on the earlier fiber and
+        // forward in time in the later fiber
+        
+        int start_ts = nts - 1; // start_ts will be decrimented on each loop where a match is not found
+
+        // in the case that our stringent check below doesn't work 
+        // store the latest capID that has a match
+        int latest_cap_match = -1;
+
+        // loop over the number of checks to make
+        for( unsigned ncheck = 1; ncheck <= nts ; ncheck++ ) {
+          bool cap_match = true; //will be set to false if at least one check fails below
+          bool adc_match = true; //will be set to false if at least one check fails below
+
+          // loop over the channel TS, this is for the later fiber in time
+          for( unsigned lidx = 0; lidx < ncheck; lidx++) {
+            // we are looping over the TS of the later fiber in time
+            // the TS of the earlier fiber starts from the end
+            unsigned eidx = nts-ncheck+lidx;
+            // if we get an invald value, this fiber has no data
+            // the check and match will fail, so the start_ts will 
+            // be decrimented
+            if( lasmon_capids[fidx][eidx] == -1 || lasmon_capids[fidx+1][lidx] == -1 ) {
+              cap_match = false;
+              adc_match = false;
+              break;
+            }
+
+            if( lasmon_capids[fidx][eidx] != lasmon_capids[fidx+1][lidx] ) {
+              cap_match = false;
+            }
+            // check the data values as well
+            if( lasmon_adcs[fidx][eidx] != lasmon_adcs[fidx+1][lidx] ) {
+              adc_match = false;
+            }
+          }
+          if( cap_match && (start_ts > latest_cap_match) ) {
+            latest_cap_match = start_ts;
+          }
+          if( cap_match && adc_match ) {
+            // end the loop and we'll take the current start_ts
+            // as the end of the data for this fiber
+            break;
+          }
+          else {
+            // if we don't have a match, then decrement the 
+            // starting TS and check again
+            start_ts--;
+          }
+        }
+
+        // now make some sanity checks on the determined overlap index
+        if( start_ts == -1 ) {
+          // if we didn't find any match, use the capID only to compare
+          if( latest_cap_match < 0 ) {
+            //this shouldn't happen, in this case use all the data from the fiber
+            start_ts = nts;
+          }
+          else {
+            // its possible that the timing of the fibers
+            // is shifted such that they do not overlap
+            // and we just want to stitch the fibers
+            // together with no removal.
+            // In this case the capIDs will match at the
+            // N-4 spot (and the ADCs will not)
+            // if this is not the case, then we just take
+            // the value of latest match
+            if( latest_cap_match == int(nts - 4) ) {
+              start_ts = nts;
+            } else {
+              start_ts = latest_cap_match;
+            }
+          }
+        }
+
+        // now store as the matching index
+        matching_idx.push_back(start_ts);
+      }
+
+      // for the last fiber we always use all of the data
+      matching_idx.push_back(max_nsamples);
+
+      // now loop over the time slices of each fiber and make the sum
+      int icombts = -1;
+      for( unsigned fidx = 0 ; fidx < nFibers; ++fidx ) {
+        for( unsigned its = 0; its < matching_idx[fidx]; ++its ) {
+          icombts++;
+
+          // apply integration limits
+          if( icombts < laserMonitorTSStart_ ) continue;
+          if( laserMonitorTSEnd_ > 0 && icombts > laserMonitorTSEnd_ ) continue;
+
+          int adc = lasmon_adcs[fidx][its];
+
+          if( adc >= 0 ) { // skip invalid data
+            float fc = adc2fCHF[adc];
+            totalLasmonCharge += fc;
+            
+          }
+        } 
+      }
+    } // end isValid check
+  } // end filllasmon check
 
   summary.calibCharge_ = totalCalibCharge;
   summary.lasmonCharge_ = totalLasmonCharge;
