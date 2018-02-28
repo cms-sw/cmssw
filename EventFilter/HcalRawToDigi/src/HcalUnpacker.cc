@@ -655,7 +655,10 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
           // Insert data
           /////////////////////////////////////////////CODE FROM OLD STYLE DIGIS///////////////////////////////////////////////////////////////
           if (!did.null()) { // unpack and store...
-            colls.qie11->addDataFrame(did, head_pos);
+            // only fill the default collection if we have the correct number of samples
+            if (colls.qie11->samples() == ns) {
+              colls.qie11->addDataFrame(did, head_pos);
+            }
             // fill the additional qie11 collections
             if( colls.qie11Addtl.find( ns ) != colls.qie11Addtl.end() ) {
               colls.qie11Addtl[ns]->addDataFrame( did, head_pos );
@@ -725,8 +728,12 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
           else if( isLasmon) colls.qie10Lasermon->addDataFrame( did, head_pos );
           else {
 
-            colls.qie10->addDataFrame(did, head_pos);
+            // only fill the default collection if we have the correct number of samples
+            if (colls.qie10->samples() == ns) {
+              colls.qie10->addDataFrame(did, head_pos);
+            }
               
+            // fill the additional qie10 collections
             if( colls.qie10Addtl.find( ns ) != colls.qie10Addtl.end() ) {
               colls.qie10Addtl[ns]->addDataFrame( did, head_pos );
             }
