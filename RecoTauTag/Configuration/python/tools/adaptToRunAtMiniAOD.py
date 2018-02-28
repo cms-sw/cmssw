@@ -182,6 +182,7 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	convertModuleToMiniAODInput(process, 'hpsPFTauPhotonPtSumOutsideSignalConedR03')
 
 	# Redefine tau PV producer
+	process.hpsPFTauPrimaryVertexProducer.__dict__['_TypedParameterizable__type'] = 'PFTauMiniAODPrimaryVertexProducer'
 	process.hpsPFTauPrimaryVertexProducer.PVTag = 'offlineSlimmedPrimaryVertices'
 	process.hpsPFTauPrimaryVertexProducer.qualityCuts.primaryVertexSrc = 'offlineSlimmedPrimaryVertices'
 	process.hpsPFTauPrimaryVertexProducer.packedCandidatesTag = cms.InputTag("packedPFCandidates")
@@ -298,6 +299,10 @@ def setOutputModule(mode=0):
 			)
 		)
 	output.outputCommands.append('keep *_selectedPatTaus_*_*')
+	output.outputCommands.append('keep *_combinatoricReco*_*_*')
+	output.outputCommands.append('keep *_ak4PFJetsRecoTauChargedHadrons_*_*')
+	output.outputCommands.append('keep *_ak4PFJetsLegacyHPSPiZeros_*_*')
+	output.outputCommands.append('keep *_patAK4PFJets_*_*')
 	if mode==1:
                 for prod in evtContent.RecoTauTagAOD.outputCommands:
 			if prod.find('ElectronRejection') > -1:
