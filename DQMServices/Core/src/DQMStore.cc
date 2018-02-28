@@ -385,16 +385,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     ar.watchPostSourceLumi([this](edm::LuminosityBlockIndex){ forceReset(); });
   }
   ar.watchPostGlobalBeginLumi(this, &DQMStore::postGlobalBeginLumi);
-
-  // ACHTUNG: if DQMEDAnalyzers are migrated from EDAnalyzer to EDProducer<Accumulator>
-  // this callback should be removed, and the call to cloneLumiHistograms(...) should be 
-  // moved to the DQMEDAnalyzer::endLuminosityBlockProduce...() method.
-  ar.watchPostModuleGlobalEndLumi([this](edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
-      cloneLumiHistograms(
-        gc.luminosityBlockID().run(),
-        gc.luminosityBlockID().luminosityBlock(),
-        mcc.moduleDescription()->id());
-  });
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
@@ -1104,6 +1094,7 @@ MonitorElement *
 DQMStore::book2S(const char *name, const char *title,
                  int nchX, const float *xbinsize, int nchY, const float *ybinsize)
 {
+
   return book2S_(pwd_, name, new TH2S(name, title,
                                      nchX, xbinsize, nchY, ybinsize));
 }
@@ -1815,59 +1806,6 @@ DQMStore::findObject(const std::string &dir,
           : const_cast<MonitorElement *>(&*mepos));
 }
 
-/** get tags for various maps, return vector with strings of the form
-    <dir pathname>:<obj1>/<tag1>/<tag2>,<obj2>/<tag1>/<tag3>, etc. */
-void
-DQMStore::getAllTags(std::vector<std::string> &into) const
-{
-  into.clear();
-  into.reserve(dirs_.size());
-
-  auto me = data_.end();
-  auto di = dirs_.begin();
-  auto de = dirs_.end();
-  char tagbuf[32]; // more than enough for '/' and up to 10 digits
-
-  for ( ; di != de; ++di)
-  {
-    MonitorElement proto(&*di, std::string());
-    auto mi = data_.lower_bound(proto);
-    auto m = mi;
-    size_t sz = di->size() + 2;
-    size_t nfound = 0;
-    for ( ; m != me && isSubdirectory(*di, *m->data_.dirname); ++m)
-      if (*di == *m->data_.dirname && (m->data_.flags & DQMNet::DQM_PROP_TAGGED))
-      {
-        // the tags count for '/' + up to 10 digits, otherwise ',' + ME name
-        sz += 1 + m->data_.objname.size() + 11;
-        ++nfound;
-      }
-
-    if (! nfound)
-      continue;
-
-    auto istr
-      = into.insert(into.end(), std::string());
-
-    istr->reserve(sz);
-
-    *istr += *di;
-    *istr += ':';
-    for (sz = 0; mi != m; ++mi)
-    {
-      if (*di == *m->data_.dirname && (m->data_.flags & DQMNet::DQM_PROP_TAGGED))
-      {
-        sprintf(tagbuf, "/%u", mi->data_.tag);
-        if (sz > 0)
-          *istr += ',';
-        *istr += m->data_.objname;
-        *istr += tagbuf;
-        ++sz;
-      }
-    }
-  }
-}
-
 /// get vector with children of folder, including all subfolders + their children;
 /// must use an exact pathname
 std::vector<MonitorElement*>
@@ -2069,6 +2007,43 @@ DQMStore::cloneLumiHistograms(uint32_t run, uint32_t lumi, uint32_t moduleId)
     const_cast<MonitorElement*>(&*i)->Reset();
   }
 }
+
+/** Same as above, but for run histograms.
+ */
+
+void
+DQMStore::cloneRunHistograms(uint32_t run, uint32_t moduleId)
+{
+  if (verbose_ > 1) {
+    std::cout << "DQMStore::cloneRunHistograms - Preparing run histograms for run: "
+              << run << ", module: " << moduleId << std::endl;
+  }
+
+  // acquire the global lock since this accesses the undelying data structure
+  std::lock_guard<std::mutex> guard(book_mutex_);
+
+  // MEs are sorted by (run, lumi, stream id, module id, directory, name)
+  // lumi deafults to 0
+  // stream id is always 0
+  std::string null_str("");
+  auto i = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId));
+  auto e = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId + 1));
+  for (; i != e; ++i) {
+    // handle only non lumisection-based histograms
+    if (LSbasedMode_ or i->getLumiFlag())
+      continue;
+
+    // clone the lumisection-based histograms
+    MonitorElement clone{*i};
+    clone.globalize();
+    clone.markToDelete();
+    data_.insert(std::move(clone));
+
+    // reset the ME for the next lumisection
+    const_cast<MonitorElement*>(&*i)->Reset();
+  }
+}
+
 
 /** Delete *global* histograms which are no longer in use.
  * Such histograms are created at the end of each lumi and should be
@@ -3274,9 +3249,10 @@ DQMStore::removeElement(const std::string &dir, const std::string &name, bool wa
   auto pos = data_.find(proto);
   if (pos != data_.end())
     data_.erase(pos);
-  else if (warning)
+  else if (warning) {
     std::cout << "DQMStore: WARNING: attempt to remove non-existent"
               << " monitor element '" << name << "' in '" << dir << "'\n";
+  }
 }
 
 //////////////////////////////////////////////////////////////////////
