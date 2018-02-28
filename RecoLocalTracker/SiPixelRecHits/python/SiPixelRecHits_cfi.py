@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalTracker.SiPixelRecHits.SiPixelRecHitsGPU_cfi import siPixelRecHits as _siPixelRecHitsGPU
 siPixelRecHits = cms.EDProducer("SiPixelRecHitConverter",
     src = cms.InputTag("siPixelClusters"),
     CPE = cms.string('PixelCPEGeneric'),
@@ -8,6 +7,7 @@ siPixelRecHits = cms.EDProducer("SiPixelRecHitConverter",
 
 )
 
+from RecoLocalTracker.SiPixelRecHits.SiPixelRecHitsGPU_cfi import siPixelRecHits as _siPixelRecHitsGPU
 from Configuration.ProcessModifiers.gpu_cff import gpu
 gpu.toReplaceWith(siPixelRecHits, _siPixelRecHitsGPU)
 
