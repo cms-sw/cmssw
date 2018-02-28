@@ -51,7 +51,7 @@ int ODFEWeightsInfo::fetchNextId()  noexcept(false) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEWeightsInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEWeightsInfo::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -75,7 +75,7 @@ void ODFEWeightsInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEWeightsInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEWeightsInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -110,7 +110,7 @@ void ODFEWeightsInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEWeightsInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEWeightsInfo::writeDB():  ")+getOraMessage(&e)));
   }
 
   // Now get the ID
@@ -160,11 +160,11 @@ void ODFEWeightsInfo::fetchData(ODFEWeightsInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEWeightsInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEWeightsInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
@@ -194,7 +194,7 @@ int ODFEWeightsInfo::fetchID()    noexcept(false)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODFEWeightsInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODFEWeightsInfo::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

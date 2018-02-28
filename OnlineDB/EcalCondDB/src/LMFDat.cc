@@ -330,7 +330,7 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
       m_conn->terminateStatement(stmt);
     }
     catch (oracle::occi::SQLException &e) {
-      throw(std::runtime_error(m_className + "::fetch: " + e.getMessage()));
+      throw(std::runtime_error(m_className + "::fetch: " + getOraMessage(&e)));
     }
     m_ID = m_data.size();
   }
@@ -386,7 +386,7 @@ std::map<int, std::vector<float> > LMFDat::fetchData()
     m_conn->terminateStatement(stmt);
   }
   catch (oracle::occi::SQLException &e) {
-    throw(std::runtime_error(m_className + "::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error(m_className + "::fetchData:  "+getOraMessage(&e)));
   }
   if (m_debug) {
     cout << m_className << ":: data items to write = " 
@@ -528,7 +528,7 @@ int LMFDat::writeDB()
 	dump();
 	m_conn->rollback();
 	throw(std::runtime_error(m_className + "::writeDB: " + 
-				 e.getMessage()));
+				 getOraMessage(&e)));
       }
     } else {
       cout << m_className << "::writeDB: Cannot write because " << 
@@ -562,13 +562,13 @@ void LMFDat::getKeyTypes()
     stmt->setString(2, getIovIdFieldName());
     ResultSet *rset = stmt->executeQuery();
     while (rset->next() != 0) {
-      std::string name = rset->getString(1);
-      std::string t = rset->getString(2);
+      std::string name = getOraString(rset,1);
+      std::string t = getOraString(rset,2);
       m_type[m_keys[name]] = t;
     }
     m_conn->terminateStatement(stmt);
   } catch (oracle::occi::SQLException &e) {
-    throw(std::runtime_error(m_className + "::getKeyTypes: " + e.getMessage() +
+    throw(std::runtime_error(m_className + "::getKeyTypes: " + getOraMessage(&e) +
 			" [" + sql + "]"));
   }
 }
