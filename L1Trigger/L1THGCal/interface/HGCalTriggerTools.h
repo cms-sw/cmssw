@@ -66,7 +66,7 @@ class HGCalTriggerTools {
     unsigned fhLayers_;
     unsigned bhLayers_;
     unsigned totalLayers_;
-  };
+};
 
 
 #endif

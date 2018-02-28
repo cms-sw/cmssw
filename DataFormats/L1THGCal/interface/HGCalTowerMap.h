@@ -15,7 +15,7 @@ namespace l1t {
 
   public:
 
-  HGCalTowerMap(): nEtaBins_(0), nPhiBins_(0), layer_(0) {}
+    HGCalTowerMap(): nEtaBins_(0), nPhiBins_(0), layer_(0) {}
     
     HGCalTowerMap( int nEtaBins, int nPhiBins );
 
@@ -30,13 +30,13 @@ namespace l1t {
     int nPhiBins() const { return nPhiBins_; }
     const vector<double>& etaBins() const { return etaBins_; }
     const vector<double>& phiBins() const { return phiBins_; }
-    const l1t::HGCalTower& tower(int iEta, int iPhi) { return towerMap_[bin_id(iEta,iPhi)]; }
+    const l1t::HGCalTower& tower(int iEta, int iPhi) const { return towerMap_.at(bin_id(iEta,iPhi)); }
 
     int iEta(const double eta) const;
     int iPhi(const double phi) const;
     int layer() const { return layer_;}
 
-    const HGCalTowerMap& operator+=(HGCalTowerMap map);
+    HGCalTowerMap& operator+=(const HGCalTowerMap& map);
     void addTower(int iEta, int iPhi, const l1t::HGCalTower& tower) { towerMap_[bin_id(iEta,iPhi)] += tower; }
 
   private:
