@@ -149,7 +149,7 @@ bool HcalText2DetIdConverter::init (DetId fId) {
       setField (2, -999);
       setField (3, -999);
     } else if (calibId.calibFlavor()==HcalCalibDetId::LASERMON) {
-      flavorName="LASERMON";
+      flavorName="LASMON";
       setField (1, calibId.ieta());
       setField (2, calibId.iphi());
       setField (3, calibId.cboxChannel() );
