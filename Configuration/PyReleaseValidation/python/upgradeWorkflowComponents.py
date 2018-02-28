@@ -130,6 +130,28 @@ upgradeSteps['pixelTrackingOnly'] = {
     'suffix' : '_pixelTrackingOnly',
     'offset' : 0.5,
 }
+upgradeSteps['pixelTrackingOnlyRiemannFit'] = {
+    'steps' : [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_pixelTrackingOnlyRiemannFit',
+    'offset' : 0.7,
+}
+upgradeSteps['pixelTrackingOnlyGPU'] = {
+    'steps' : [
+        'RecoFull',
+        'HARVESTFull',
+        'RecoFullGlobal',
+        'HARVESTFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_pixelTrackingOnlyGPU',
+    'offset' : 0.8,
+}
 upgradeSteps['Timing'] = {
     'steps' : upgradeSteps['baseline']['steps'],
     'PU' : upgradeSteps['baseline']['PU'],

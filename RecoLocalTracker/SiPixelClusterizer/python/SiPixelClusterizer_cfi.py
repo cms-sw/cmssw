@@ -48,3 +48,7 @@ phase2_tracker.toModify(siPixelClusters, # FIXME
   MissCalibrate = False,
   ElectronPerADCGain = cms.double(600.) # it can be changed to something else (e.g. 135e) if needed
 )
+
+# to ensure reproducibility
+from Configuration.ProcessModifiers.gpu_cff import gpu
+gpu.toModify(siPixelClusters, payloadType = "HLT")

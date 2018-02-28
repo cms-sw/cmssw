@@ -41,3 +41,8 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(siPixelDigis, UsePhase1=True)
 phase1Pixel.toModify(siPixelDigisGPU, UsePhase1=True)
 
+# In principle I would like to hide the name 'siPixelDigisGPU', but it
+# is used in test/runRawToDigi_GPU_phase1.py which I also don't want
+# to break
+from Configuration.ProcessModifiers.gpu_cff import gpu
+gpu.toReplaceWith(siPixelDigis, siPixelDigisGPU)
