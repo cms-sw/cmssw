@@ -680,8 +680,14 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
             unsigned ts_size = df.samples();
             if( ts_size > max_nsamples ) max_nsamples = ts_size;
             for(unsigned i = 0; i < ts_size; i++) {
-              lasmon_adcs[idx].push_back( df[i].adc() );
-              lasmon_capids[idx].push_back( df[i].capid() );
+              bool ok = df[i].ok();
+              if( !ok ) { // protection against QIE reset
+                lasmon_adcs[idx].push_back( -1 );
+                lasmon_capids[idx].push_back( -1 );
+              } else {
+                lasmon_adcs[idx].push_back( df[i].adc() );
+                lasmon_capids[idx].push_back( df[i].capid() );
+              }
             } // end digi loop
           } // end matching channel if
         } // end fiber order loop
