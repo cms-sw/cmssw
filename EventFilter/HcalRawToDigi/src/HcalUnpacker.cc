@@ -648,7 +648,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
             // if this sample type hasn't been requested to be saved
             // warn the user to provide a configuration that prompts it to be saved
             if( colls.qie11Addtl.find( ns ) == colls.qie11Addtl.end() ) {
-              printInvalidDataMessage( "QIE11", colls.qie11->samples(), ns );
+              printInvalidDataMessage( "QIE11", colls.qie11->samples(), ns, true );
             }
           }
 
@@ -695,25 +695,24 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
           if( colls.qie10ZDC == nullptr ) {
             colls.qie10ZDC = new QIE10DigiCollection(ns);
           } else if (colls.qie10ZDC->samples() != ns) {
-            printInvalidDataMessage( "QIE10ZDC", colls.qie10ZDC->samples(), ns );
+            printInvalidDataMessage( "QIE10ZDC", colls.qie10ZDC->samples(), ns, false );
           }
 	}
         else if( isLasmon ) {
           if (colls.qie10Lasermon == nullptr ) {
             colls.qie10Lasermon = new QIE10DigiCollection(ns);
           } else if (colls.qie10Lasermon->samples() != ns) {
-            printInvalidDataMessage( "QIE10LASMON", colls.qie10Lasermon->samples(), ns );
+            printInvalidDataMessage( "QIE10LASMON", colls.qie10Lasermon->samples(), ns, false );
           }
         } else { // these are the default qie10 channels
           if (colls.qie10 == nullptr) { 
-              std::cout << "Create qie10 collection with " << ns << " samples" << std::endl;
 	    colls.qie10 = new QIE10DigiCollection(ns);
           }
           else if (colls.qie10->samples() != ns) {
             // if this sample type hasn't been requested to be saved
             // warn the user to provide a configuration that prompts it to be saved
             if( colls.qie10Addtl.find( ns ) == colls.qie10Addtl.end() ) {
-              printInvalidDataMessage( "QIE10", colls.qie10->samples(), ns );
+              printInvalidDataMessage( "QIE10", colls.qie10->samples(), ns, true );
             }
           }
         }
@@ -930,17 +929,24 @@ void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, Collections& col
   
 }
 
-void HcalUnpacker::printInvalidDataMessage( const std::string &coll_type, int default_ns, int conflict_ns ) {
+void HcalUnpacker::printInvalidDataMessage( const std::string &coll_type, int default_ns, int conflict_ns, bool extended ) {
 
-  edm::LogError("Invalid Data") << "The default " << coll_type << " Collection has " 
+  std::stringstream message;
+
+  message << "The default " << coll_type << " Collection has " 
         << default_ns << " samples per digi, while the current data has " 
-        << conflict_ns << "!  This data cannot be included with the default collection.\n"
-        << "In order to store this data in the event, it must have a unique tag.  "
-        << "To accomplish this, provide two lists to HcalRawToDigi \n"
-        << "1) that specifies the number of samples and "
-        << "2) that gives tags with which these data are saved.\n"
-        << "For example in this case you might add \n"
-        << "process.hcalDigis.save" << coll_type << "DataNSamples = cms.untracked.vint32( " 
-        << conflict_ns << ") \nprocess.hcalDigis.save" << coll_type << "DataTags = cms.untracked.vstring( \"MYDATA\" )" << std::endl;
+        << conflict_ns << "!  This data cannot be included with the default collection.";
+
+  if( extended ) {
+      message << "\nIn order to store this data in the event, it must have a unique tag.  "
+              << "To accomplish this, provide two lists to HcalRawToDigi \n"
+              << "1) that specifies the number of samples and "
+              << "2) that gives tags with which these data are saved.\n"
+              << "For example in this case you might add \n"
+              << "process.hcalDigis.save" << coll_type << "DataNSamples = cms.untracked.vint32( " 
+              << conflict_ns << ") \nprocess.hcalDigis.save" << coll_type << "DataTags = cms.untracked.vstring( \"MYDATA\" )" ;
+  }
+
+  edm::LogError("Invalid Data") << message.str() << std::endl;
 }
 

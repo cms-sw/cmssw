@@ -55,7 +55,7 @@ private:
   void unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& emap, Collections& conts, HcalUnpackerReport& report, bool silent=false);
   void unpackUMNio(const FEDRawData& raw, int slot, Collections& colls);
 
-  void printInvalidDataMessage( const std::string &coll_type, int default_ns, int conflict_ns );
+  void printInvalidDataMessage( const std::string &coll_type, int default_ns, int conflict_ns, bool extended=false );
 
   int sourceIdOffset_; ///< number to subtract from the source id to get the dcc id
   int startSample_; ///< first sample from fed raw data to copy 

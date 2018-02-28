@@ -73,6 +73,23 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   produces<QIE10DigiCollection>("ZDC");
   produces<QIE10DigiCollection>("LASERMON");
 
+  // Print a warning if an already
+  // used tag was requested
+  if( std::find( saveQIE10DataTags_.begin(), saveQIE10DataTags_.end(), "ZDC") 
+          != saveQIE10DataTags_.end()  ) {
+    edm::LogError("HcalRawToDigi") << "Cannot create an additional QIE10 sample with name ZDC, it is already created!  It must be removed along with the corresponding entry in saveQIE10DataNSamples" << std::endl;
+    saveQIE10DataTags_.clear();
+    saveQIE10DataNSamples_.clear();
+  }
+  // Print a warning if an already
+  // used tag was requested
+  if( std::find( saveQIE10DataTags_.begin(), saveQIE10DataTags_.end(), "LASERMON") 
+          != saveQIE10DataTags_.end()  ) {
+    edm::LogError("HcalRawToDigi") << "Cannot create an additional QIE10 sample with name LASERMON, it is already created!  It must be removed along with the corresponding entry in saveQIE10DataNSamples" << std::endl;
+    saveQIE10DataTags_.clear();
+    saveQIE10DataNSamples_.clear();
+  }
+
   // Print a warning if the two vectors
   // for additional qie10 or qie11 data
   // are not the same length
