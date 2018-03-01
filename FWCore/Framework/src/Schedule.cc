@@ -991,22 +991,22 @@ namespace edm {
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::openFile, _1, std::cref(fb)));
   }
 
-  void Schedule::writeRun(RunPrincipal const& rp,
-                          ProcessContext const* processContext,
-                          ActivityRegistry* activityRegistry) {
-    using std::placeholders::_1;
-    for_all(all_output_communicators_,
-            std::bind(&OutputModuleCommunicator::writeRun, _1, std::cref(rp),
-                      processContext, activityRegistry));
+  void Schedule::writeRunAsync(WaitingTaskHolder task,
+                               RunPrincipal const& rp,
+                               ProcessContext const* processContext,
+                               ActivityRegistry* activityRegistry) {
+    for(auto& c: all_output_communicators_) {
+      c->writeRunAsync(task, rp, processContext, activityRegistry);
+    }
   }
 
-  void Schedule::writeLumi(LuminosityBlockPrincipal const& lbp,
-                           ProcessContext const* processContext,
-                           ActivityRegistry* activityRegistry) {
-    using std::placeholders::_1;
-    for_all(all_output_communicators_,
-            std::bind(&OutputModuleCommunicator::writeLumi, _1,
-                      std::cref(lbp), processContext, activityRegistry));
+  void Schedule::writeLumiAsync(WaitingTaskHolder task,
+                                LuminosityBlockPrincipal const& lbp,
+                                ProcessContext const* processContext,
+                                ActivityRegistry* activityRegistry) {
+    for(auto& c: all_output_communicators_) {
+      c->writeLumiAsync(task, lbp, processContext, activityRegistry);
+    }
   }
 
   bool Schedule::shouldWeCloseOutput() const {
