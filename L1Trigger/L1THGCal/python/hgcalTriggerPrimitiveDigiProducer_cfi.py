@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
+import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
 
 # Digitization parameters
 adcSaturation_fC = digiparam.hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC
@@ -31,7 +32,7 @@ thicknessCorrection_200 = thicknessCorrection[1]
 fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellThresholdCodec'),
                      CodecIndex = cms.uint32(2),
                      MaxCellsInModule = cms.uint32(288),
-                     DataLength = cms.uint32(16),
+                     DataLength = cms.uint32(20),
                      linLSB = cms.double(triggerCellLsbBeforeCompression),
                      linnBits = cms.uint32(16),
                      triggerCellTruncationBits = cms.uint32(triggerCellTruncationBits),
@@ -55,6 +56,7 @@ calib_parValues = cms.PSet( siliconCellLSB_fC =  cms.double( triggerCellLsbBefor
                             dEdXweights = layerWeights,
                             thickCorr = cms.double(thicknessCorrection_200)
                             )
+
 C2d_parValues = cms.PSet( seeding_threshold_silicon = cms.double(5), # MipT
                           seeding_threshold_scintillator = cms.double(5), # MipT
                           clustering_threshold_silicon = cms.double(2), # MipT
@@ -65,11 +67,18 @@ C2d_parValues = cms.PSet( seeding_threshold_silicon = cms.double(5), # MipT
 
 C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized plane used to clusterize C2d
                           minPt_multicluster = cms.double(0.5), # minimum pt of the multicluster (GeV)
-                          calibSF_multicluster = cms.double(1.084)
+                          calibSF_multicluster = cms.double(1.084),
+                          type_multicluster = cms.string('dRC3d'), #'DBSCANC3d' for the DBSCAN algorithm 
+                          applyLayerCalibration = cms.bool(True),
+                          layerWeights = layercalibparam.TrgLayer_weights,
+                          dist_dbscan_multicluster = cms.double(0.005),
+                          minN_dbscan_multicluster = cms.uint32(3)
                           )
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoThreshold'),
                           FECodec = fe_codec.clone(),
                           calib_parameters = calib_parValues.clone(),
+                          triggercell_threshold_silicon = cms.double(2.), # MipT
+                          triggercell_threshold_scintillator = cms.double(2.), # MipT
                           C2d_parameters = C2d_parValues.clone(),
                           C3d_parameters = C3d_parValues.clone()
                           )

@@ -7,13 +7,14 @@ ntuple_event = cms.PSet(
 
 ntuple_gen = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleGen'),
-    GenParticles = cms.InputTag('genParticles')
+    GenParticles = cms.InputTag('genParticles'),
+    GenPU = cms.InputTag('addPileupInfo')
 )
 
 ntuple_gentau = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleGenTau'),
     GenParticles = cms.InputTag('genParticles'),
-    isPythia8 = cms.bool(True)
+    isPythia8 = cms.bool(False)
 )
 
 ntuple_genjet = cms.PSet(
@@ -34,12 +35,20 @@ ntuple_digis = cms.PSet(
 
 ntuple_triggercells = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCTriggerCells'),
-    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:calibratedTriggerCells')
+    TriggerCells = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:calibratedTriggerCells'),
+    Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D'),
+    eeSimHits = cms.InputTag('g4SimHits:HGCHitsEE'),
+    fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
+    bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
+    FillSimEnergy = cms.bool(False),
+    FilterCellsInMulticlusters = cms.bool(True)
 )
 
 ntuple_clusters = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCClusters'),
-    Clusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster2D')
+    Clusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster2D'),
+    Multiclusters = cms.InputTag('hgcalTriggerPrimitiveDigiProducer:cluster3D'),
+    FilterClustersInMulticlusters = cms.bool(True)
 )
 
 ntuple_multicluster = cms.PSet(
@@ -53,6 +62,7 @@ hgcalTriggerNtuplizer = cms.EDAnalyzer(
         ntuple_event,
         ntuple_gen,
         ntuple_genjet,
+        ntuple_gentau,
         ntuple_digis,
         ntuple_triggercells,
         ntuple_clusters,

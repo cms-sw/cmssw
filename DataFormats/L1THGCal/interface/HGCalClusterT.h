@@ -95,6 +95,7 @@ namespace l1t
       double seedMipPt() const { return seedMipPt_; }
       uint32_t detId() const { return detId_.rawId(); }
 
+
       /* distance in 'cm' */
       double distance( const l1t::HGCalTriggerCell &tc ) const 
       {
@@ -139,8 +140,38 @@ namespace l1t
       uint32_t subdetId() const {return detId_.subdetId();} 
       uint32_t layer() const {return detId_.layer();}
       int32_t zside() const {return detId_.zside();}
-      
 
+
+      //shower shape
+
+      int showerLength() const { return showerLength_; }
+      int coreShowerLength() const { return coreShowerLength_; }
+      int firstLayer() const { return firstLayer_; }
+      int maxLayer() const { return maxLayer_; }
+      float eMax() const { return eMax_; }
+      float sigmaEtaEtaMax() const { return sigmaEtaEtaMax_; }
+      float sigmaPhiPhiMax() const { return sigmaPhiPhiMax_; }
+      float sigmaEtaEtaTot() const { return sigmaEtaEtaTot_; }
+      float sigmaPhiPhiTot() const { return sigmaPhiPhiTot_; }
+      float sigmaZZ() const { return sigmaZZ_; }
+      float sigmaRRTot() const { return sigmaRRTot_; }
+      float sigmaRRMax() const { return sigmaRRMax_; }
+      float sigmaRRMean() const { return sigmaRRMean_; }
+
+      void showerLength(int showerLength) { showerLength_ = showerLength;}
+      void coreShowerLength(int coreShowerLength) { coreShowerLength_ = coreShowerLength;}
+      void firstLayer(int firstLayer) { firstLayer_ = firstLayer;}
+      void maxLayer(int maxLayer) { maxLayer_ = maxLayer;}
+      void eMax(float eMax) { eMax_ = eMax;}
+      void sigmaEtaEtaMax(float sigmaEtaEtaMax) { sigmaEtaEtaMax_ = sigmaEtaEtaMax;}
+      void sigmaEtaEtaTot(float sigmaEtaEtaTot) { sigmaEtaEtaTot_ = sigmaEtaEtaTot;}
+      void sigmaPhiPhiMax(float sigmaPhiPhiMax) { sigmaPhiPhiMax_ = sigmaPhiPhiMax;}
+      void sigmaPhiPhiTot(float sigmaPhiPhiTot) { sigmaPhiPhiTot_ = sigmaPhiPhiTot;}
+      void sigmaRRMax(float sigmaRRMax) { sigmaRRMax_ = sigmaRRMax;}
+      void sigmaRRTot(float sigmaRRTot) { sigmaRRTot_ = sigmaRRTot;}
+      void sigmaRRMean(float sigmaRRMean) { sigmaRRMean_ = sigmaRRMean;}
+      void sigmaZZ(float sigmaZZ) { sigmaZZ_ = sigmaZZ;}
+      
       /* operators */
       bool operator<(const HGCalClusterT<C>& cl) const {return mipPt() < cl.mipPt();}
       bool operator>(const HGCalClusterT<C>& cl) const  { return  cl<*this;   }
@@ -157,6 +188,22 @@ namespace l1t
 
       double mipPt_;
       double seedMipPt_;
+
+      //shower shape
+
+      int showerLength_;
+      int coreShowerLength_;
+      int firstLayer_;
+      int maxLayer_;
+      float eMax_;
+      float sigmaEtaEtaMax_;
+      float sigmaPhiPhiMax_;
+      float sigmaRRMax_;
+      float sigmaEtaEtaTot_;
+      float sigmaPhiPhiTot_;
+      float sigmaRRTot_;
+      float sigmaRRMean_;
+      float sigmaZZ_;
 
       ClusterShapes shapes_;
 
