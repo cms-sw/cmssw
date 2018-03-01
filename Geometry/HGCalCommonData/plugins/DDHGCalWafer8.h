@@ -1,7 +1,6 @@
 #ifndef HGCalCommonData_DDHGCalWafer8_h
 #define HGCalCommonData_DDHGCalWafer8_h
 
-#include <map>
 #include <string>
 #include <vector>
 #include "DetectorDescription/Core/interface/DDTypes.h"

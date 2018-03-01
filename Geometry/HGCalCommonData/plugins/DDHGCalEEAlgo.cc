@@ -3,9 +3,6 @@
 // Description: Geometry factory class for HGCal (EE and HESil)
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -17,7 +14,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 DDHGCalEEAlgo::DDHGCalEEAlgo() {
 #ifdef EDM_ML_DEBUG
