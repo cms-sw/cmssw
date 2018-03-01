@@ -160,7 +160,7 @@ int HcalNoiseHPD::numRecHits(const float threshold) const
   for(edm::RefVector<HBHERecHitCollection>::const_iterator it=rechits_.begin(); it!=rechits_.end(); ++it) {
     // Exclude uncollapsed QIE11 channels
     if((((*it)->auxPhase1()>>HBHERecHitAuxSetter::OFF_TDC_TIME)&1) &&
-       (((*it)->auxPhase1()>>HBHERecHitAuxSetter::OFF_COMBINED)&0) ) continue;
+       !(((*it)->auxPhase1()>>HBHERecHitAuxSetter::OFF_COMBINED)&1) ) continue;
     if((*it)->eraw()>=threshold) ++count;
   }
   return count;
