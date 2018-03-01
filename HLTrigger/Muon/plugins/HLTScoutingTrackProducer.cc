@@ -10,15 +10,50 @@ Description: Producer for Scouting Tracks
 */
 //
 
-#include "HLTScoutingTrackProducer.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "TMath.h"
+#include <memory>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/getRef.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Scouting/interface/ScoutingMuon.h"
+#include "DataFormats/Scouting/interface/ScoutingTrack.h"
+#include "DataFormats/Scouting/interface/ScoutingVertex.h"
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
+class HLTScoutingTrackProducer : public edm::global::EDProducer<> {
+
+public:
+  explicit HLTScoutingTrackProducer(const edm::ParameterSet&);
+  ~HLTScoutingTrackProducer();
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup)
+    const final;
+
+  const edm::EDGetTokenT<reco::TrackCollection> otherTrackCollection_;
+
+
+};
 
 //
 // constructors and destructor
 //
 HLTScoutingTrackProducer::HLTScoutingTrackProducer(const edm::ParameterSet& iConfig):
-    OtherTrackCollection_(consumes<reco::TrackCollection>
+    otherTrackCollection_(consumes<reco::TrackCollection>
                      (iConfig.getParameter<edm::InputTag>("OtherTracks")))
 {
     //register products
@@ -35,11 +70,11 @@ void HLTScoutingTrackProducer::produce(edm::StreamID sid, edm::Event & iEvent,
 
     std::unique_ptr<ScoutingTrackCollection> outTrack(new ScoutingTrackCollection());
   
-    Handle<reco::TrackCollection> OtherTrackCollection;
+    Handle<reco::TrackCollection> otherTrackCollection;
     
-    if(iEvent.getByToken(OtherTrackCollection_, OtherTrackCollection)){
+    if(iEvent.getByToken(otherTrackCollection_, otherTrackCollection)){
       // Produce tracks in event
-      for (auto &trk : *OtherTrackCollection) {
+      for (auto &trk : *otherTrackCollection) {
 	outTrack->emplace_back(trk.pt(), trk.eta(), trk.phi(),trk.chi2(), trk.ndof(),
 		               trk.charge(), trk.dxy(), trk.dz(), trk.hitPattern().numberOfValidPixelHits(), 
 			       trk.hitPattern().trackerLayersWithMeasurement(), trk.hitPattern().numberOfValidStripHits(), 
