@@ -44,6 +44,7 @@ private:
   double                   rMaxFine_;     //Maximum r-value for fine wafer
   double                   rMinThick_;    //Transition R between 200 & 300 mum
   double                   waferSize_;    //Width of the wafer
+  double                   waferSepar_;   //Sensor separation
   int                      sectors_;      //Sectors   
   std::vector<double>      slopeB_;       //Slope at the lower R
   std::vector<double>      slopeT_;       //Slopes at the larger R
