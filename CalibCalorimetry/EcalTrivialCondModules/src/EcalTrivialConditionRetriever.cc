@@ -1101,7 +1101,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
 	}
 	ical->setValue( ebdetid, alpha );
 
-	if((ic==1650 )){
+	if( ic==1650  ){
 	  std::cout << " ic/alpha "<<ic<<"/"<<alpha<<std::endl; 
 	}
 
@@ -1124,7 +1124,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
 	ical->setValue( ebid, alpha );
 	std::cout << " ieta/iphi/alpha "<<ieta<<"/"<<iphi<<"/"<<alpha<<std::endl; 
       }
-      if((ieta==10)){
+      if( ieta==10 ){
 	std::cout << "I will print some alphas from the file... ieta/iphi/alpha "<<ieta<<"/"<<iphi<<"/"<<alpha<<std::endl; 
       }
     }
