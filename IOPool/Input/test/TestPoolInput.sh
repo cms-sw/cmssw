@@ -105,4 +105,8 @@ cmsRun ${LOCAL_TEST_DIR}/test_reduced_ProcessHistory_end_cfg.py merged_files.roo
 
 cmsRun ${LOCAL_TEST_DIR}/test_make_multi_lumi_cfg.py || die 'Failure using test_make_multi_lumi_cfg.py' $?
 cmsRun ${LOCAL_TEST_DIR}/test_read_multi_lumi_as_one_cfg.py || die 'Failure using test_read_multi_lumi_as_one_cfg.py' $?
+
+cmsRun ${LOCAL_TEST_DIR}/test_make_overlapping_lumis_cfg.py || die 'Failure using test_make_overlapping_lumis_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/test_read_overlapping_lumis_cfg.py || die 'Failure using test_read_overlapping_lumis_cfg.py' $?
+
 popd
