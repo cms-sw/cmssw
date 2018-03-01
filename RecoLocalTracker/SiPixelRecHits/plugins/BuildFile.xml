@@ -1,9 +1,8 @@
-<use   name="RecoLocalTracker/ClusterParameterEstimator"/>
-<use   name="RecoLocalTracker/Records"/>
-<use   name="RecoLocalTracker/SiPixelRecHits"/>
-<use   name="DataFormats/TrackerCommon"/>
-<library   file="*.cc *.cu" name="RecoLocalTrackerSiPixelRecHitsPlugins">
-  <use   name="cuda"/>
-  <flags   EDM_PLUGIN="1"/>
-  <flags   CUDA_FLAGS="-O2 --expt-relaxed-constexpr"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="RecoLocalTracker/ClusterParameterEstimator"/>
+<use name="RecoLocalTracker/Records"/>
+<use name="RecoLocalTracker/SiPixelRecHits"/>
+<library file="*.cc *.cu" name="RecoLocalTrackerSiPixelRecHitsPlugins">
+  <use name="cuda"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
