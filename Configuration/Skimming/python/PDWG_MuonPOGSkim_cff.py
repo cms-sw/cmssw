@@ -25,10 +25,22 @@ MuonPOGSkimHLTFilter = copy.deepcopy(hltHighLevel)
 MuonPOGSkimHLTFilter.throw = cms.bool(False)
 MuonPOGSkimHLTFilter.HLTPaths = ["HLT_Mu*","HLT_IsoMu*"]
 
-TAGMUON_CUT = '(pt > 28) &&  (abs(eta)<2.4) && (isPFMuon>0) && (isGlobalMuon = 1) && (globalTrack().normalizedChi2() < 10) && (globalTrack().hitPattern().numberOfValidMuonHits()>0)&& (numberOfMatchedStations() > 1)&& (innerTrack().hitPattern().numberOfValidPixelHits() > 0)&& (innerTrack().hitPattern().trackerLayersWithMeasurement() > 5) &&  (((pfIsolationR04.sumChargedHadronPt + max(0., pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - 0.5 * pfIsolationR04.sumPUPt) ) / pt)<0.2)'
+
+MuonPOGJPsiSkimHLTFilter = copy.deepcopy(hltHighLevel)
+MuonPOGJPsiSkimHLTFilter.throw = cms.bool(False)
+MuonPOGJPsiSkimHLTFilter.HLTPaths = ["HLT_Mu*_Track*_Jpsi*"]
+
+
+TAGMUON_CUT = '(pt > 25) &&  (abs(eta)<2.4) && (isPFMuon>0) && (isGlobalMuon = 1) && (globalTrack().normalizedChi2() < 10) && (globalTrack().hitPattern().numberOfValidMuonHits()>0)&& (numberOfMatchedStations() > 1)&& (innerTrack().hitPattern().numberOfValidPixelHits() > 0)&& (innerTrack().hitPattern().trackerLayersWithMeasurement() > 5) &&  (((pfIsolationR04.sumChargedHadronPt + max(0., pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - 0.5 * pfIsolationR04.sumPUPt) ) / pt)<0.2)'
+TAGMUON_JPSI_CUT = '(pt > 7.5) &&  (abs(eta)<2.4) && (isPFMuon>0) && (isGlobalMuon = 1) && (globalTrack().normalizedChi2() < 10) && (globalTrack().hitPattern().numberOfValidMuonHits()>0)&& (numberOfMatchedStations() > 1)&& (innerTrack().hitPattern().numberOfValidPixelHits() > 0)&& (innerTrack().hitPattern().trackerLayersWithMeasurement() > 5) &&  (((pfIsolationR04.sumChargedHadronPt + max(0., pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - 0.5 * pfIsolationR04.sumPUPt) ) / pt)<0.2)'
+
 PROBETRACK_CUT = 'pt > 10 &&  abs(eta)<2.4 &&  (charge!=0)'
+PROBETRACK_JPSI_CUT = 'pt > 7 &&  abs(eta)<2.4 &&  (charge!=0)'
+
 DIMUON = 'mass > 40'
 
+
+# Tag and probe for Z#to#mu#mu
 GoodTagMuons = cms.EDFilter("MuonRefPatSelector",
                             src = cms.InputTag("slimmedMuons"),
                             cut = cms.string(TAGMUON_CUT)
@@ -39,6 +51,21 @@ GoodProbeMuons = cms.EDFilter("IsoTrackSelector",
                              cut = cms.string(PROBETRACK_CUT),
                              filter = cms.bool(True)                                
 )
+
+# Tag and probe for J/Psi #to #mu#mu
+GoodJPsiTagMuons = cms.EDFilter("MuonRefPatSelector",
+                                src = cms.InputTag("slimmedMuons"),
+                                cut = cms.string(TAGMUON_JPSI_CUT)
+                                )
+
+GoodJPsiProbeMuons = cms.EDFilter("IsoTrackSelector",
+                                  src = cms.InputTag("isolatedTracks"),
+                                  cut = cms.string(PROBETRACK_JPSI_CUT),
+                                  filter = cms.bool(True)                                
+)
+
+
+
 
 # build Z-> MuMu candidates
 DiMuonPOGSkim = cms.EDProducer("CandViewShallowCloneCombiner",
@@ -60,4 +87,10 @@ MuonPOGSkimSequence = cms.Sequence(
     GoodProbeMuons *
     DiMuonPOGSkim *
     DiMuonPOGFilterSkim
+    )
+
+MuonPOGJPsiSkimSequence = cms.Sequence(
+    MuonPOGJPsiSkimHLTFilter 
+#    GoodJPsiTagMuons * 
+#    GoodJPsiProbeMuons 
     )
