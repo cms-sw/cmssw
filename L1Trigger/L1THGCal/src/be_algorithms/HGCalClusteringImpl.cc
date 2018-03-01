@@ -140,10 +140,10 @@ void HGCalClusteringImpl::mergeClusters( l1t::HGCalCluster & main_cluster,
                                          const l1t::HGCalCluster & secondary_cluster ) const
 {
 
-    const std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& pertinentTC = secondary_cluster.constituents();
+    const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>& pertinentTC = secondary_cluster.constituents();
     
-    for( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = pertinentTC.begin(); tc != pertinentTC.end(); ++tc ){
-        main_cluster.addConstituent(*tc);
+    for(const auto& id_tc : pertinentTC){
+        main_cluster.addConstituent(id_tc.second);
     }
 
 }
@@ -205,8 +205,8 @@ void HGCalClusteringImpl::NNKernel( const std::vector<edm::Ptr<l1t::HGCalTrigger
         // as well as all neighbor TC
         std::unordered_set<uint32_t> cluTcSet;
         for(const auto& tc_clu1 : cluster1.constituents()){ 
-            cluTcSet.insert( tc_clu1->detId() );
-            const auto neighbors = triggerGeometry.getNeighborsFromTriggerCell( tc_clu1->detId() );
+            cluTcSet.insert( tc_clu1.second->detId() );
+            const auto neighbors = triggerGeometry.getNeighborsFromTriggerCell( tc_clu1.second->detId() );
             for(const auto neighbor : neighbors){
                 cluTcSet.insert( neighbor );
             }
@@ -219,10 +219,10 @@ void HGCalClusteringImpl::NNKernel( const std::vector<edm::Ptr<l1t::HGCalTrigger
             // Check if the TC in clu2 are in clu1 or its neighbors
             // If yes, merge the second cluster into the first one
             for(const auto& tc_clu2 : cluster2.constituents()){ 
-                if( cluTcSet.find(tc_clu2->detId())!=cluTcSet.end() ){
+                if( cluTcSet.find(tc_clu2.second->detId())!=cluTcSet.end() ){
                     mergeClusters( cluster1, cluster2 );                    
-                    cluTcSet.insert( tc_clu2->detId() );
-                    const auto neighbors = triggerGeometry.getNeighborsFromTriggerCell( tc_clu2->detId() );
+                    cluTcSet.insert( tc_clu2.second->detId() );
+                    const auto neighbors = triggerGeometry.getNeighborsFromTriggerCell( tc_clu2.second->detId() );
                     for(const auto neighbor : neighbors){
                         cluTcSet.insert( neighbor );
                     }                    
@@ -238,10 +238,10 @@ void HGCalClusteringImpl::NNKernel( const std::vector<edm::Ptr<l1t::HGCalTrigger
     for( auto& cluster : clustersTmp ){
         if( !cluster.valid() ) continue;
         bool saveInCollection(false);
-        for( const auto& tc_ptr : cluster.constituents() ){
+        for( const auto& id_tc : cluster.constituents() ){
             /* threshold in transverse-mip */
-            double seedThreshold = (tc_ptr->subdetId()==HGCHEB ? scintillatorSeedThreshold_ : siliconSeedThreshold_);
-            if( tc_ptr->mipPt() > seedThreshold ){
+            double seedThreshold = (id_tc.second->subdetId()==HGCHEB ? scintillatorSeedThreshold_ : siliconSeedThreshold_);
+            if( id_tc.second->mipPt() > seedThreshold ){
                 saveInCollection = true;
                 break;
             }
@@ -390,16 +390,16 @@ bool HGCalClusteringImpl::areTCneighbour(uint32_t detIDa, uint32_t detIDb, const
 void HGCalClusteringImpl::removeUnconnectedTCinCluster( l1t::HGCalCluster & cluster, const HGCalTriggerGeometryBase & triggerGeometry ) {
 
     /* get the constituents and the centre of the seed tc (considered as the first of the constituents) */
-    const std::vector<edm::Ptr<l1t::HGCalTriggerCell>>& constituents = cluster.constituents(); 
-    Basic3DVector<float> seedCentre( constituents[0]->position() );
+    const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>& constituents = cluster.constituents(); 
+    Basic3DVector<float> seedCentre( constituents.at(cluster.detId())->position() );
     
     /* distances from the seed */
     vector<pair<edm::Ptr<l1t::HGCalTriggerCell>,float>> distances;
-    for( const auto & tc : constituents )
+    for( const auto & id_tc : constituents )
     {
-        Basic3DVector<float> tcCentre( tc->position() );
+        Basic3DVector<float> tcCentre( id_tc.second->position() );
         float distance = ( seedCentre - tcCentre ).mag();
-        distances.push_back( pair<edm::Ptr<l1t::HGCalTriggerCell>,float>( tc, distance ) );
+        distances.push_back( pair<edm::Ptr<l1t::HGCalTriggerCell>,float>( id_tc.second, distance ) );
     }
 
     /* sorting (needed in order to be sure that we are skipping any tc) */

@@ -113,8 +113,8 @@ void HGCalMulticlusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGC
 
         double sumPt=0.;
 
-        const std::vector<edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp.at(i).constituents();
-        for( std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator  it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++) sumPt +=(*it_clu)->pt();
+        const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp.at(i).constituents();
+        for(const auto& id_cluster : pertinentClu) sumPt += id_cluster.second->pt();
         math::PtEtaPhiMLorentzVector multiclusterP4(  sumPt,
                                                       multiclustersTmp.at(i).centre().eta(),
                                                       multiclustersTmp.at(i).centre().phi(),
@@ -212,8 +212,8 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const std::vector<edm::Ptr<l1t:
         // compute the eta, phi observables for multicluster starting from its barycenter x,y,z position + pT as scalar sum of pT of constituents
         double sumPt=0.;
 
-        const std::vector<edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp.at(i).constituents();
-        for( std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator  it_clu=pertinentClu.begin(); it_clu<pertinentClu.end(); it_clu++) sumPt +=(*it_clu)->pt();
+        const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp.at(i).constituents();
+        for(const auto& id_cluster : pertinentClu) sumPt += id_cluster.second->pt();
 
         math::PtEtaPhiMLorentzVector multiclusterP4(  sumPt,
                 multiclustersTmp.at(i).centre().eta(),
