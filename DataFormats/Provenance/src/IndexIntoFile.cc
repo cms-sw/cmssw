@@ -66,6 +66,21 @@ namespace edm {
   }
 
   void
+  IndexIntoFile::addLumi(int index, RunNumber_t run, LuminosityBlockNumber_t lumi, EntryNumber_t entry) {
+    std::pair<IndexRunLumiKey, EntryNumber_t> firstLumiEntry(IndexRunLumiKey(index, run, lumi), lumiToFirstEntry().size());
+    lumiToFirstEntry().insert(firstLumiEntry);
+    runOrLumiEntries_.emplace_back(
+                                   invalidEntry,
+                                   lumiToFirstEntry()[IndexRunLumiKey(index, run, lumi)],
+                                   entry, index,
+                                   run, lumi,
+                                   beginEvents(), endEvents());
+    beginEvents() = invalidEntry;
+    endEvents()= invalidEntry;
+
+  }
+
+  void
   IndexIntoFile::addEntry(ProcessHistoryID const& processHistoryID,
                           RunNumber_t run,
                           LuminosityBlockNumber_t lumi,
@@ -110,24 +125,24 @@ namespace edm {
       currentLumi() = invalidLumi;
       std::pair<IndexRunKey, EntryNumber_t> firstRunEntry(IndexRunKey(index, run), entry);
       runToFirstEntry().insert(firstRunEntry);
-      RunOrLumiEntry runEntry(runToFirstEntry()[IndexRunKey(index, run)], invalidEntry, entry, index, run, lumi, invalidEntry, invalidEntry);
-      runOrLumiEntries_.push_back(runEntry);
+      runOrLumiEntries_.emplace_back(runToFirstEntry()[IndexRunKey(index, run)], invalidEntry, entry, index, run, lumi, invalidEntry, invalidEntry);
     } else {
-      assert(currentLumi() == lumi || currentLumi() == invalidLumi);
       if(currentRun() == invalidRun) {
         currentRun() = run;
         currentIndex() = index;
       }
       if(event == invalidEvent) {
+        if(currentLumi() != lumi and currentLumi() != invalidLumi) {
+          //we have overlapping lumis so must inject a placeholder
+          addLumi(index,run,currentLumi(),invalidEntry);
+        }
         currentLumi() = invalidLumi;
-        std::pair<IndexRunLumiKey, EntryNumber_t> firstLumiEntry(IndexRunLumiKey(index, run, lumi), entry);
-        lumiToFirstEntry().insert(firstLumiEntry);
-        RunOrLumiEntry lumiEntry(invalidEntry, lumiToFirstEntry()[IndexRunLumiKey(index, run, lumi)],
-                                 entry, index, run, lumi, beginEvents(), endEvents());
-        runOrLumiEntries_.push_back(lumiEntry);
-        beginEvents() = invalidEntry;
-        endEvents() = invalidEntry;
+        addLumi(index,run,lumi,entry);
       } else {
+        if(currentLumi() != lumi and currentLumi() != invalidLumi) {
+          //We have overlapping lumis so need to inject a placeholder
+          addLumi(index,run,currentLumi(),invalidEntry);
+        }
         setNumberOfEvents(numberOfEvents() + 1);
         if(beginEvents() == invalidEntry) {
           currentLumi() = lumi;
@@ -1359,6 +1374,17 @@ namespace edm {
         return;
       }
     }
+  }
+  
+  void IndexIntoFile::IndexIntoFileItrImpl::initializeLumi() {
+    initializeLumi_();
+    //See if entry number is invalid, this can happen if events from
+    // different lumis overlap when doing concurrent lumi processing
+    auto oldLumi = lumi();
+    while( indexIntoFile_->runOrLumiEntries()[indexToLumi_].entry() == invalidEntry) {
+      ++indexToLumi_;
+    }
+    assert(oldLumi == lumi());
   }
 
   bool IndexIntoFile::IndexIntoFileItrImpl::operator==(IndexIntoFileItrImpl const& right) const {

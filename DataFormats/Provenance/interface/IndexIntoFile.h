@@ -195,12 +195,12 @@ namespace edm {
       class SortedRunOrLumiItr;
       class IndexRunLumiEventKey;
 
-      typedef long long EntryNumber_t;
-      static int const invalidIndex = -1;
-      static RunNumber_t const invalidRun = 0U;
-      static LuminosityBlockNumber_t const invalidLumi = 0U;
-      static EventNumber_t const invalidEvent = 0U;
-      static EntryNumber_t const invalidEntry = -1LL;
+      using EntryNumber_t = long long ;
+      static constexpr int invalidIndex = -1;
+      static constexpr RunNumber_t invalidRun = 0U;
+      static constexpr LuminosityBlockNumber_t invalidLumi = 0U;
+      static constexpr EventNumber_t invalidEvent = 0U;
+      static constexpr EntryNumber_t invalidEntry = -1LL;
 
       enum EntryType {kRun, kLumi, kEvent, kEnd};
 
@@ -529,7 +529,7 @@ namespace edm {
         bool skipToNextEventInLumi();
         void initializeRun();
 
-        void initializeLumi() {initializeLumi_();}
+        void initializeLumi() ;
 
         bool operator==(IndexIntoFileItrImpl const& right) const;
 
@@ -908,6 +908,8 @@ namespace edm {
       /// works in cases where those corrections are not needed.
       void sortVector_Run_Or_Lumi_Entries();
 
+      //used internally by addEntry
+      void addLumi(int index, RunNumber_t run, LuminosityBlockNumber_t lumi, EntryNumber_t entry);
       //*****************************************************************************
       //*****************************************************************************
 
