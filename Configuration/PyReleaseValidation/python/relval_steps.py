@@ -1514,7 +1514,7 @@ step3_trackingOnly = {
     '--eventcontent':'RECOSIM,DQM',
 }
 step3_pixelTrackingOnly = {
-    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation',
+    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
     '--datatier': 'GEN-SIM-RECO,DQMIO',
     '--eventcontent': 'RECOSIM,DQM',
 }
@@ -2391,17 +2391,17 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     for step in upgradeSteps['pixelTrackingOnly']['steps']:
         stepName = step + upgradeSteps['pixelTrackingOnly']['suffix']
         if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_pixelTrackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation'}, upgradeStepDict[step][k]])
+        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, upgradeStepDict[step][k]])
 
     for step in upgradeSteps['pixelTrackingOnlyRiemannFit']['steps']:
         stepName = step + upgradeSteps['pixelTrackingOnlyRiemannFit']['suffix']
         if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_riemannFit, step3_pixelTrackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation'}, upgradeStepDict[step][k]])
+        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, upgradeStepDict[step][k]])
 
     for step in upgradeSteps['pixelTrackingOnlyGPU']['steps']:
         stepName = step + upgradeSteps['pixelTrackingOnlyGPU']['suffix']
         if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_gpu, step3_pixelTrackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation'}, upgradeStepDict[step][k]])
+        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, upgradeStepDict[step][k]])
 
     for step in upgradeSteps['trackingRun2']['steps']:
         stepName = step + upgradeSteps['trackingRun2']['suffix']
