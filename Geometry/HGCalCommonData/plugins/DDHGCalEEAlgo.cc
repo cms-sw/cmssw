@@ -78,12 +78,14 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
   rMaxFine_     = nArgs["rMaxFine"];
   rMinThick_    = nArgs["rMinThick"];
   waferSize_    = nArgs["waferSize"];
+  waferSepar_   = nArgs["SensorSeparation"];
   sectors_      = (int)(nArgs["Sectors"]);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "zStart " << zMinBlock_ << " rFineCoarse " 
 				<< rMaxFine_ << " rMaxThick " << rMinThick_
-				<< " wafer width " << waferSize_ << " sectors "
-				<< sectors_;
+				<< " wafer width " << waferSize_ 
+				<< " separations " << waferSepar_
+				<< " sectors " << sectors_;
 #endif
   slopeB_       = vArgs["SlopeBottom"];
   slopeT_       = vArgs["SlopeTop"];
@@ -250,11 +252,11 @@ void DDHGCalEEAlgo::positionSensitive(DDLogicalPart& glog, double rin,
 				      double rout, int layertype,
 				      DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
-  double r    = 0.5*waferSize_;
+  double r    = 0.5*(waferSize_ + waferSepar_);
   double R    = 2.0*r/sqrt3;
   double dy   = 0.75*R;
   int    N    = (int)(0.5*rout/r) + 2;
-  int    ium(0), ivm(0), kount(0), ntot(0), nin(0);
+  int    ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
   std::vector<int>  ntype(3,0);
   double xc[6], yc[6];
 #ifdef EDM_ML_DEBUG
@@ -291,6 +293,8 @@ void DDHGCalEEAlgo::positionSensitive(DDLogicalPart& glog, double rin,
 	kount++;
 	if (copies_.count(copy) == 0) copies_.insert(copy);
 	if (cornerAll) {
+	  if (iu > iumAll) iumAll = iu;
+	  if (iv > ivmAll) ivmAll = iv;
 	  double rpos = std::sqrt(xpos*xpos+ypos*ypos);
 	  DDTranslation tran(xpos, ypos, 0.0);
 	  DDRotation rotation;
@@ -312,10 +316,12 @@ void DDHGCalEEAlgo::positionSensitive(DDLogicalPart& glog, double rin,
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Maximum # of u " << ium << " # of v " 
-				<< ivm << " and " << nin << ":" << kount << ":"
+  edm::LogVerbatim("HGCalGeom") << "Maximum # of u " << ium << ":" << iumAll
+				<< " # of v " << ivm << ":" << ivmAll 
+				<< " and " << nin << ":" << kount << ":"
 				<< ntot << " wafers (" << ntype[0] << ":" 
 				<< ntype[1] << ":" << ntype[2] << ") for " 
-				<< glog.ddname() << " R " << rin << ":" <<rout;
+				<< glog.ddname() << " R " << rin << ":" 
+				<< rout;
 #endif
 }

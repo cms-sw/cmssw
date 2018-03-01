@@ -24,7 +24,7 @@ public:
 private:
   double                   waferSize_;  // Wafer size
   double                   waferT_;     // Wafer thickness
-  double                   waferSepar_; // Half sensor separation
+  double                   waferSepar_; // Sensor separation
   double                   mouseBite_;  // MouseBite radius
   int                      nCells_;     // Half number of cells along u-v axis
   int                      cellType_;   // Cell Type (0,1,2: Fine, Course 2/3)
