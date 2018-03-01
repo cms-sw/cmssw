@@ -190,6 +190,7 @@ void RawToDigi_wrapper(context &, const SiPixelFedCablingMapGPU* cablingMapDevic
                        bool convertADCtoElectrons, uint32_t * pdigi_h,
                        uint32_t *rawIdArr_h, GPU::SimpleVector<error_obj> *error_h,
                        GPU::SimpleVector<error_obj> *error_h_tmp, error_obj *data_h,
+                       uint16_t * adc_h, int32_t * clus_h,
                        bool useQualityInfo, bool includeErrors, bool debug,
                        uint32_t & nModulesActive);
 

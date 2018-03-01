@@ -573,8 +573,9 @@ void RawToDigi_wrapper(
     const SiPixelFedCablingMapGPU* cablingMapDevice, SiPixelGainForHLTonGPU * const ped,
     const uint32_t wordCounter, uint32_t *word, const uint32_t fedCounter,  uint8_t *fedId_h,
     bool convertADCtoElectrons, 
-    uint32_t * pdigi_h, uint32_t *rawIdArr_h, 
+    uint32_t * pdigi_h, uint32_t *rawIdArr_h,
     GPU::SimpleVector<error_obj> *error_h, GPU::SimpleVector<error_obj> *error_h_tmp, error_obj *data_h,
+    uint16_t * adc_h, int32_t * clus_h,
     bool useQualityInfo, bool includeErrors, bool debug, uint32_t & nModulesActive)
 {
   const int threadsPerBlock = 512;
@@ -637,10 +638,14 @@ void RawToDigi_wrapper(
 
   cudaCheck(cudaGetLastError());
 
+  // calibrated adc
+  cudaCheck(cudaMemcpyAsync(adc_h, c.adc_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
+
+  /*
   std::cout
     << "CUDA countModules kernel launch with " << blocks
     << " blocks of " << threadsPerBlock << " threads\n";
-
+  */
 
   uint32_t nModules=0;
   cudaCheck(cudaMemcpyAsync(c.moduleStart_d, &nModules, sizeof(uint32_t), cudaMemcpyHostToDevice, c.stream));
@@ -650,27 +655,19 @@ void RawToDigi_wrapper(
 
   cudaCheck(cudaMemcpyAsync(&nModules, c.moduleStart_d, sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
 
-  std::cout << "found " << nModules << " Modules active" << std::endl;
+  // std::cout << "found " << nModules << " Modules active" << std::endl;
 
   
   threadsPerBlock = 256;
   blocks = nModules;
 
+  /*
   std::cout
     << "CUDA findClus kernel launch with " << blocks
     << " blocks of " << threadsPerBlock << " threads\n";
+  */
 
   cudaCheck(cudaMemsetAsync(c.clusInModule_d, 0, (MaxNumModules)*sizeof(uint32_t),c.stream));
-
-  /*
-  gpuCalibPixel::calibADCByModule<<<blocks, threadsPerBlock, 0, c.stream>>>(
-               c.moduleInd_d,
-               c.xx_d, c.yy_d, c.adc_d,
-               c.moduleStart_d,
-               ped, 
-               wordCounter
-             );
-  */
 
   findClus<<<blocks, threadsPerBlock, 0, c.stream>>>(
                c.moduleInd_d,
@@ -681,6 +678,10 @@ void RawToDigi_wrapper(
 	       c.debug_d,
                wordCounter
   );
+
+  // clusters
+  cudaCheck(cudaMemcpyAsync(clus_h, c.clus_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
+
 
   cudaDeviceSynchronize();
   cudaCheck(cudaGetLastError());

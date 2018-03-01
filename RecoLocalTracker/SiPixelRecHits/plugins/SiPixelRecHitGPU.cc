@@ -41,7 +41,9 @@ namespace
 
     void run(edm::Handle<edmNew::DetSetVector<SiPixelCluster> >  inputhandle,
 	     SiPixelRecHitCollectionNew & output,
-	     edm::ESHandle<TrackerGeometry> & geom);
+	     edm::ESHandle<TrackerGeometry> & geom,
+             HitsOnCPU const & hoc
+             );
 
   private:
     edm::ParameterSet conf_;
@@ -150,16 +152,15 @@ using namespace std;
     }
     assert(fcpe->d_paramsOnGPU);
 
-    pixelRecHits_wrapper(* (context const *)(gprod[0]),fcpe->d_paramsOnGPU,gprod[1],gprod[2], hitsOnGPU_);
-
-
+    auto hoc = pixelRecHits_wrapper(* (context const *)(gprod[0]),fcpe->d_paramsOnGPU,gprod[1],gprod[2], hitsOnGPU_);
 
     // Step C: Iterate over DetIds and invoke the strip CPE algorithm
     // on each DetUnit
 
-    std::cout << "Number of Clusers on CPU " << (*input).data().size() << std::endl;
+    // std::cout << "Number of Clusers on CPU " << (*input).data().size() << std::endl;
 
-    run( input, *output, geom );
+    run( input, *output, geom,hoc );
+    // std::cout << "Number of Hits on CPU " << (*output).data().size() << std::endl;
 
     output->shrink_to_fit();
     e.put(std::move(output));
@@ -173,44 +174,83 @@ using namespace std;
   //---------------------------------------------------------------------------
   void SiPixelRecHitGPU::run(edm::Handle<edmNew::DetSetVector<SiPixelCluster> >  inputhandle,
 				   SiPixelRecHitCollectionNew &output,
-				   edm::ESHandle<TrackerGeometry> & geom) {
-    if ( ! cpe_ ) 
-      {
-	edm::LogError("SiPixelRecHitGPU") << " at least one CPE is not ready -- can't run!";
-	// TO DO: throw an exception here?  The user may want to know...
-	assert(0);
-	return;   // clusterizer is invalid, bail out
-      }
-
+				   edm::ESHandle<TrackerGeometry> & geom,
+                                   HitsOnCPU const & hoc 
+ ) {
 
     int numberOfDetUnits = 0;
     int numberOfClusters = 0;
     
-    const edmNew::DetSetVector<SiPixelCluster>& input = *inputhandle;
+    auto const & input = *inputhandle;
     
-    edmNew::DetSetVector<SiPixelCluster>::const_iterator DSViter=input.begin();
     
-    for ( ; DSViter != input.end() ; DSViter++) {
+    for (auto DSViter=input.begin(); DSViter != input.end() ; DSViter++) {
       numberOfDetUnits++;
       unsigned int detid = DSViter->detId();
       DetId detIdObject( detid );  
       const GeomDetUnit * genericDet = geom->idToDetUnit( detIdObject );
+      auto gind = genericDet->index();
       const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
       assert(pixDet); 
       SiPixelRecHitCollectionNew::FastFiller recHitsOnDetUnit(output,detid);
-      
-      edmNew::DetSet<SiPixelCluster>::const_iterator clustIt = DSViter->begin(), clustEnd = DSViter->end();
-      
-      for ( ; clustIt != clustEnd; clustIt++) {
+      auto fc = hoc.hitsModuleStart[gind];
+      auto lc = hoc.hitsModuleStart[gind+1];
+      auto nhits = lc-fc;
+      int32_t ind[nhits];
+      auto mrp = &hoc.mr[fc];
+      uint32_t ngh=0;
+      for (uint32_t i=0; i<nhits;++i) {
+        if( hoc.charge[fc+i]<2000 || (gind>=96 && hoc.charge[fc+i]<4000) ) continue;
+        ind[ngh]=i;std::push_heap(ind,ind+ngh+1,[&](auto a, auto b) { return mrp[a]<mrp[b];});
+        ++ngh;
+      }
+      std::sort_heap(ind,ind+ngh,[&](auto a, auto b) { return mrp[a]<mrp[b];});
+      uint32_t ic=0;
+      assert(ngh==DSViter->size());
+      for (auto const & clust : *DSViter) {
+        assert(ic<ngh);
+        // order is not stable... assume charge to be unique...
+        auto ij = fc+ind[ic];
+        // assert( clust.minPixelRow()==hoc.mr[ij] );
+        if( clust.minPixelRow()!=hoc.mr[ij] )
+              edm::LogWarning("GPUHits2CPU") <<"IMPOSSIBLE " 
+                        << gind <<'/'<<fc<<'/'<<ic<<'/'<<ij << ' ' << clust.charge()<<"/"<<hoc.charge[ij]
+                        << ' ' << clust.minPixelRow()<<"!="<< mrp[ij] << std::endl;
+
+        if(clust.charge()!=hoc.charge[ij]) {
+           auto fd=false;
+           auto k = ij;
+           while (clust.minPixelRow()==hoc.mr[++k]) if(clust.charge()==hoc.charge[k]) {fd=true; break;}
+           if (!fd) {
+      	     k = ij;
+       	     while (clust.minPixelRow()==hoc.mr[--k])  if(clust.charge()==hoc.charge[k]) {fd=true; break;}
+           }
+           // assert(fd && k!=ij);
+           if(fd) ij=k;
+        }
+        if(clust.charge()!=hoc.charge[ij])
+             edm::LogWarning("GPUHits2CPU") << "perfect Match not found " 
+                        << gind <<'/'<<fc<<'/'<<ic<<'/'<<ij << ' ' << clust.charge()<<"!="<<hoc.charge[ij] 
+                        << ' ' << clust.minPixelRow()<<'/'<< mrp[ij] <<'/'<< mrp[fc+ind[ic]] << std::endl;
+
+        LocalPoint lp(hoc.xl[ij],hoc.yl[ij]);
+        LocalError le(hoc.xe[ij]*hoc.xe[ij],0,hoc.ye[ij]*hoc.ye[ij]);
+        SiPixelRecHitQuality::QualWordType rqw=0;
+
+
+        ++ic;
 	numberOfClusters++;
-	std::tuple<LocalPoint, LocalError,SiPixelRecHitQuality::QualWordType> tuple = cpe_->getParameters( *clustIt, *genericDet );
+
+        /*   cpu version....  (for reference)
+	std::tuple<LocalPoint, LocalError,SiPixelRecHitQuality::QualWordType> tuple = cpe_->getParameters( clust, *genericDet );
 	LocalPoint lp( std::get<0>(tuple) );
 	LocalError le( std::get<1>(tuple) );
         SiPixelRecHitQuality::QualWordType rqw( std::get<2>(tuple) );
+        */
+        
 	// Create a persistent edm::Ref to the cluster
-	edm::Ref< edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > cluster = edmNew::makeRefTo( inputhandle, clustIt);
+	edm::Ref< edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > cluster = edmNew::makeRefTo( inputhandle, &clust);
 	// Make a RecHit and add it to the DetSet
-	// old : recHitsOnDetUnit.push_back( new SiPixelRecHit( lp, le, detIdObject, &*clustIt) );
 	SiPixelRecHit hit( lp, le, rqw, *genericDet, cluster);
 	// 
 	// Now save it =================
@@ -218,13 +258,14 @@ using namespace std;
 	// =============================
 
 	// std::cout << "SiPixelRecHitGPUVI " << numberOfClusters << ' '<< lp << " " << le << std::endl;
+        
       } //  <-- End loop on Clusters
 	
 
       //  LogDebug("SiPixelRecHitGPU")
       //std::cout << "SiPixelRecHitGPUVI "
-	//	<< " Found " << recHitsOnDetUnit.size() << " RecHits on " << detid //;
-	//	<< std::endl;
+      //	<< " Found " << recHitsOnDetUnit.size() << " RecHits on " << detid //;
+      // << std::endl;
       
       
     } //    <-- End loop on DetUnits

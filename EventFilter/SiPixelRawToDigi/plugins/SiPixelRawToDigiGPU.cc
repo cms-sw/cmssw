@@ -25,6 +25,10 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+
+
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
@@ -44,6 +48,33 @@
 #include "SiPixelFedCablingMapGPU.h"
 #include "SiPixelRawToDigiGPU.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+
+
+namespace {
+struct AccretionCluster {
+    typedef unsigned short UShort;
+    static constexpr UShort MAXSIZE = 256;
+    UShort adc[MAXSIZE];
+    UShort x[MAXSIZE];
+    UShort y[MAXSIZE];
+    UShort xmin=16000;
+    UShort ymin=16000;
+    unsigned int isize=0;
+    int charge=0;    
+
+    bool add(SiPixelCluster::PixelPos const & p, UShort const iadc) {
+      if (isize==MAXSIZE) return false;
+      xmin=std::min(xmin,(unsigned short)(p.row()));
+      ymin=std::min(ymin,(unsigned short)(p.col()));
+      adc[isize]=iadc;
+      x[isize]=p.row();
+      y[isize++]=p.col();
+      charge+=iadc;
+      return true;
+    }
+  };
+}
+
 
 using namespace std;
 
@@ -72,6 +103,7 @@ SiPixelRawToDigiGPU::SiPixelRawToDigiGPU( const edm::ParameterSet& conf )
 
   // Products
   produces< edm::DetSetVector<PixelDigi> >();
+  produces<SiPixelClusterCollectionNew>(); 
   if (includeErrors) {
     produces< edm::DetSetVector<SiPixelRawDataError> >();
     produces<DetIdCollection>();
@@ -128,6 +160,9 @@ SiPixelRawToDigiGPU::SiPixelRawToDigiGPU( const edm::ParameterSet& conf )
   cudaMallocHost(&pdigi_h,    sizeof(uint32_t)*WSIZE);
   cudaMallocHost(&rawIdArr_h, sizeof(uint32_t)*WSIZE);
 
+  cudaMallocHost(&adc_h, sizeof(uint16_t)*WSIZE);
+  cudaMallocHost(&clus_h, sizeof(int32_t)*WSIZE);
+
   uint32_t vsize = sizeof(GPU::SimpleVector<error_obj>);
   uint32_t esize = sizeof(error_obj);
   cudaCheck(cudaMallocHost(&error_h, vsize));
@@ -163,6 +198,8 @@ SiPixelRawToDigiGPU::~SiPixelRawToDigiGPU() {
   cudaFreeHost(fedId_h);
   cudaFreeHost(pdigi_h);
   cudaFreeHost(rawIdArr_h);
+  cudaFreeHost(adc_h);
+  cudaFreeHost(clus_h);
   cudaFreeHost(error_h);
   cudaFreeHost(error_h_tmp);
   cudaFreeHost(data_h);
@@ -228,6 +265,11 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
   // setup gain calibration service
   theSiPixelGainCalibration_.setESObjects( es );
 
+   edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+   es.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+   tTopo_ = trackerTopologyHandle.product();
+
+
   int theWordCounter = 0;
   int theDigiCounter = 0;
   const uint32_t dummydetid = 0xffffffff;
@@ -280,6 +322,10 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
   auto tkerror_detidcollection = std::make_unique<DetIdCollection>();
   auto usererror_detidcollection = std::make_unique<DetIdCollection>();
   auto disabled_channelcollection = std::make_unique<edmNew::DetSetVector<PixelFEDChannel> >();
+
+  // create product (clusters);
+  auto outputClusters = std::make_unique< SiPixelClusterCollectionNew>();
+
 
   //PixelDataFormatter formatter(cabling_.get()); // phase 0 only
   PixelDataFormatter formatter(cabling_.get(), usePhase1); // for phase 1 & 0
@@ -357,7 +403,8 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
   uint32_t nModulesActive=0;
   RawToDigi_wrapper(context_, cablingMapGPUDevice_, gainForHLTonGPU_, wordCounterGPU, word, fedCounter,
                     fedId_h, convertADCtoElectrons, pdigi_h, rawIdArr_h, error_h, error_h_tmp, data_h,
-                    useQuality, includeErrors, debug,nModulesActive);
+                    adc_h, clus_h,
+                    useQuality, includeErrors, debug, nModulesActive);
 
   auto gpuProd = std::make_unique<std::vector<unsigned long long>>();
   gpuProd->resize(3);
@@ -373,18 +420,58 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
     break;
   }
 
+  int32_t nclus=-1;
+  std::vector<AccretionCluster> aclusters(256);
+  auto totCluseFilled=0;
+  auto fillClusters = [&](uint32_t detId){
+    if (nclus<0) return; // this in reality should never happen
+    edmNew::DetSetVector<SiPixelCluster>::FastFiller spc(*outputClusters, detId);
+    auto layer = (DetId(detId).subdetId()==1) ? tTopo_->pxbLayer(detId) : 0;
+    auto clusterThreshold = (layer==1) ? 2000 : 4000;
+    for (int32_t ic=0; ic<nclus+1;++ic) {
+      auto const & acluster = aclusters[ic];
+      if ( acluster.charge < clusterThreshold) continue;
+      SiPixelCluster cluster(acluster.isize,acluster.adc, acluster.x,acluster.y, acluster.xmin,acluster.ymin);
+      ++totCluseFilled;
+      // std::cout << "putting in this cluster " << ic << " " << cluster.charge() << " " << cluster.pixelADC().size() << endl;
+      // sort by row (x)
+      spc.push_back( std::move(cluster) );
+      std::push_heap(spc.begin(),spc.end(),[](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
+    }
+    // sort by row (x)
+    std::sort_heap(spc.begin(),spc.end(),[](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
+    if ( spc.empty() ) spc.abort();
+   };
+
   for (uint32_t i = 0; i < wordCounterGPU; i++) {
     if (pdigi_h[i]==0) continue;
     assert(rawIdArr_h[i] > 109999);
     if ( (*detDigis).detId() != rawIdArr_h[i])
     {
+      fillClusters((*detDigis).detId());
+      nclus=-1; aclusters.clear();aclusters.resize(256);
+
       detDigis = &(*collection).find_or_insert(rawIdArr_h[i]);
       if ( (*detDigis).empty() )
         (*detDigis).data.reserve(32); // avoid the first relocations
+      else { std::cout << "Problem det present twice in input! " << (*detDigis).detId() << std::endl; }
     }
     (*detDigis).data.emplace_back(pdigi_h[i]);
+    auto const & dig = (*detDigis).data.back();
+    // fill clusters
+    assert(clus_h[i]>=0);
+    nclus = std::max(clus_h[i],nclus);
+    auto row = dig.row();
+    auto col = dig.column();
+    SiPixelCluster::PixelPos pix(row,col);
+    aclusters[clus_h[i]].add(pix,adc_h[i]);
+ 
     theDigiCounter++;
   }
+
+  // fill final clusters
+  fillClusters((*detDigis).detId());
+  //std::cout << "filled " << totCluseFilled << " clusters" << std::endl;
 
   auto size = error_h->size();
   for (auto i = 0; i < size; i++) {
@@ -481,8 +568,10 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
     errorDetSet.data = nodeterrors;
   }
 
-  // send digis and errors back to framework
+  // send digis clusters and errors back to framework
+  // std::cout << "Number of Clusters from GPU to CPU " << (*outputClusters).data().size() << std::endl;
   ev.put(std::move(collection));
+  ev.put(std::move(outputClusters));
   if (includeErrors) {
     ev.put(std::move(errorcollection));
     ev.put(std::move(tkerror_detidcollection));
