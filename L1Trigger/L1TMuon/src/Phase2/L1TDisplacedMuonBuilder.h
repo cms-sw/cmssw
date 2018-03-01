@@ -14,8 +14,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // helper classes
-#include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
-#include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitiveFwd.h"
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitiveFwd.h"
 #include "L1Trigger/L1TMuon/src/Phase2/L1TDisplacedMuonPtAssignment.h"
 #include "L1Trigger/L1TMuon/src/Phase2/L1TDisplacedMuonStubRecovery.h"
 #include "L1Trigger/CSCTriggerPrimitives/src/CSCComparatorDigiFitter.h"
