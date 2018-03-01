@@ -596,11 +596,12 @@ namespace {
 	}	
       }
 
+
       // loop on the map
       for (const auto &item : info_per_detid){
 	tmap->fill(item.first,item.second);
       }
-
+      
       auto range = SiStripPI::getTheRange(info_per_detid,2);
       
       //=========================
@@ -611,7 +612,7 @@ namespace {
       } else {
 	tmap->save(true,range.first,range.second,fileName);
       }
-
+      
       return true;
     }
   };
@@ -620,6 +621,136 @@ namespace {
   typedef SiStripNoiseTrackerMap<SiStripPI::max>  SiStripNoiseMax_TrackerMap;
   typedef SiStripNoiseTrackerMap<SiStripPI::mean> SiStripNoiseMean_TrackerMap;
   typedef SiStripNoiseTrackerMap<SiStripPI::rms>  SiStripNoiseRMS_TrackerMap;
+
+
+
+  /************************************************
+    SiStrip Noise Tracker Map  (ratio with previous gain per detid)
+  *************************************************/
+  template<SiStripPI::estimator est,int nsigma> class SiStripNoiseRatioWithPreviousIOVTrackerMap : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  public:
+    SiStripNoiseRatioWithPreviousIOVTrackerMap() : cond::payloadInspector::PlotImage<SiStripNoises>( "Tracker Map of ratio of SiStripNoises "+estimatorType(est)+ "with previous IOV"){
+      setSingleIov( false );
+    }
+
+    std::map<unsigned int,float>computeEstimator(std::shared_ptr<SiStripNoises>  payload){
+
+      std::map<unsigned int,float> info_per_detid;
+      SiStripNoises::RegistryIterator rit=payload->getRegistryVectorBegin(), erit=payload->getRegistryVectorEnd();
+      uint16_t Nstrips;
+      std::vector<float> vstripnoise;
+      double mean,rms,min, max;
+      for(;rit!=erit;++rit){
+	Nstrips = (rit->iend-rit->ibegin)*8/9; //number of strips = number of chars * char size / strip noise size
+	vstripnoise.resize(Nstrips);
+	payload->allNoises(vstripnoise,make_pair(payload->getDataVectorBegin()+rit->ibegin,payload->getDataVectorBegin()+rit->iend));
+	mean=0; rms=0; min=10000; max=0;  
+      
+	DetId detId(rit->detid);
+      
+	for(size_t i=0;i<Nstrips;++i){
+	  mean+=vstripnoise[i];
+	  rms+=vstripnoise[i]*vstripnoise[i];
+	  if(vstripnoise[i]<min) min=vstripnoise[i];
+	  if(vstripnoise[i]>max) max=vstripnoise[i];
+	}
+      
+	mean/=Nstrips;
+	if((rms/Nstrips-mean*mean)>0.){
+	  rms = sqrt(rms/Nstrips-mean*mean);
+	} else {
+	  rms=0.;
+	}       
+	switch(est){
+	case SiStripPI::min:
+	  info_per_detid[rit->detid]=min;
+	  break;
+	case SiStripPI::max:
+	  info_per_detid[rit->detid]=max;
+	  break;
+	case SiStripPI::mean:
+	  info_per_detid[rit->detid]=mean;
+	  break;
+	case SiStripPI::rms:
+	  info_per_detid[rit->detid]=rms;
+	  break;
+	default:
+	  edm::LogWarning("LogicError") << "Unknown estimator: " <<  est; 
+	  break;
+	}
+      }
+      return info_per_detid;
+    }
+      
+
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+      
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);  //J: ???????
+	});
+      
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+      
+      std::shared_ptr<SiStripNoises> last_payload  = fetchPayload( std::get<1>(lastiov) );
+      std::shared_ptr<SiStripNoises> first_payload = fetchPayload( std::get<1>(firstiov) );
+      
+      std::string titleMap = "SiStripNoise " +estimatorType(est)+ " ratio per module average (IOV: ";
+
+      titleMap+=std::to_string(std::get<0>(firstiov));
+      titleMap+="/ IOV:";
+      titleMap+=std::to_string(std::get<0>(lastiov));
+      titleMap+=")";
+
+      titleMap+=+" "+std::to_string(nsigma)+" std. dev. saturation";
+
+
+      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripNoises"));
+      tmap->setTitle(titleMap);
+      tmap->setPalette(1);
+
+
+      std::map<unsigned int,float> map_first,map_second;
+
+      map_first = computeEstimator(first_payload);
+      map_second = computeEstimator(last_payload);
+      std::map<unsigned int,float> cachedRatio;
+
+      for (auto entry : map_first){
+	auto it2 = map_second.find(entry.first);
+	if (it2==map_second.end() || it2->second==0) continue;
+	tmap->fill(entry.first,entry.second/it2->second);
+	cachedRatio[entry.first]=(entry.second/it2->second);
+	}      
+
+      auto range = SiStripPI::getTheRange(cachedRatio,nsigma);
+      std::string fileName(m_imageFileName);
+      if(est==SiStripPI::rms && (range.first<0.)){
+	tmap->save(true,0.,range.second,fileName);
+      } else {
+	tmap->save(true,range.first,range.second,fileName);
+      }
+
+      return true;
+
+    }
+  };
+
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::min,1>  SiStripNoiseMin_RatioWithPreviousIOV1sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::max,1>  SiStripNoiseMax_RatioWithPreviousIOV1sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::mean,1> SiStripNoiseMean_RatioWithPreviousIOV1sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::rms,1>  SiStripNoiseRms_RatioWithPreviousIOV1sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::min,2>  SiStripNoiseMin_RatioWithPreviousIOV2sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::max,2>  SiStripNoiseMax_RatioWithPreviousIOV2sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::mean,2> SiStripNoiseMean_RatioWithPreviousIOV2sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::rms,2>  SiStripNoiseRms_RatioWithPreviousIOV2sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::min,3>  SiStripNoiseMin_RatioWithPreviousIOV3sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::max,3>  SiStripNoiseMax_RatioWithPreviousIOV3sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::mean,3> SiStripNoiseMean_RatioWithPreviousIOV3sigmaTrackerMap;
+    typedef SiStripNoiseRatioWithPreviousIOVTrackerMap<SiStripPI::rms,3>  SiStripNoiseRms_RatioWithPreviousIOV3sigmaTrackerMap;
 
   /************************************************
   SiStrip Noise Tracker Summaries 
@@ -1174,6 +1305,18 @@ PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMinByRegion);  
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMaxByRegion);  
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorRMSByRegion);  
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV1sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV1sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV1sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV1sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV2sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV2sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV2sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV2sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_RatioWithPreviousIOV3sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_RatioWithPreviousIOV3sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_RatioWithPreviousIOV3sigmaTrackerMap);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRms_RatioWithPreviousIOV3sigmaTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseLinearity);
   PAYLOAD_INSPECTOR_CLASS(TIBNoiseHistory);
   PAYLOAD_INSPECTOR_CLASS(TOBNoiseHistory);
