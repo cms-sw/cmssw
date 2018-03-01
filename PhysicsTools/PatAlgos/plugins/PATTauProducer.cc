@@ -371,7 +371,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     }
 
     // extraction of variables needed to rerun MVA isolation and anti-electron discriminator on MiniAOD
-    if( aTau.isPFTau() ) {
+    if( !aTau.pfEssential_.empty() ) {
       edm::Handle<reco::PFTauCollection> pfTaus;
       iEvent.getByToken(pfTauToken_, pfTaus);
       reco::PFTauRef pfTauRef(pfTaus, idx);
