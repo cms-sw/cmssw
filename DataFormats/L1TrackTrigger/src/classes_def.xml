@@ -82,7 +82,7 @@
   <class name="edm::Ref<std::vector<l1t::L1TkJetParticle>,l1t::L1TkJetParticle,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkJetParticle>,l1t::L1TkJetParticle> >"/>
 
   <class name="edm::RefProd< std::vector<l1t::L1TkJetParticle> >"/>
-  
+
   <class name="l1t::L1TkHTMissParticle" ClassVersion="14">
    <version ClassVersion="14" checksum="3858597526"/>
   </class>
@@ -91,8 +91,8 @@
   <class name="edm::Wrapper<std::vector<l1t::L1TkHTMissParticle> >"/>
 
 
-  <class name="l1t::L1TkMuonParticle" ClassVersion="12">
-   <version ClassVersion="13" checksum="1571385768"/>
+  <class name="l1t::L1TkMuonParticle" ClassVersion="13">
+   <version ClassVersion="13" checksum="3532596056"/>
    <version ClassVersion="12" checksum="1571385768"/>
   </class>
   <class name="std::vector<l1t::L1TkMuonParticle>"/>

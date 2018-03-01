@@ -9,11 +9,11 @@ using namespace l1t;
 
 
 L1TkMuonParticle::L1TkMuonParticle( const LorentzVector& p4,
-         const edm::Ref< MuonBxCollection > &muRef,
+         const edm::Ref< RegionalMuonCandBxCollection > &muRef,
          const edm::Ptr< L1TTTrackType >& trkPtr,
          float tkisol )
    : L1Candidate( p4 ),
-     muRef_ ( muRef ) ,	
+     muRef_ ( muRef ) ,
      trkPtr_ ( trkPtr ) ,
      theIsolation ( tkisol ),
      TrkzVtx_(999),

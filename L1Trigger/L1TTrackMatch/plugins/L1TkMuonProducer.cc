@@ -1,56 +1,39 @@
-// -*- C++ -*-
-//
-// input: L1 TkTracks and  L1MuonParticleExtended (standalone with component details)
+// input: L1TkTracks and  RegionalMuonCand (standalone with component details)
 // match the two and produce a collection of L1TkMuonParticle
 // eventually, this should be made modular and allow to swap out different algorithms
 
-
-#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
-#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
-
-
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
 // user include files
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-
-#include "TMath.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
 
 // system include files
 #include <memory>
 #include <string>
 
-
 using namespace l1t;
-
-//
-// class declaration
-//
 
 class L1TkMuonProducer : public edm::EDProducer {
 public:
-  
+
   typedef TTTrack< Ref_Phase2TrackerDigi_ >  L1TTTrackType;
   typedef std::vector< L1TTTrackType > L1TTTrackCollectionType;
-  
+
   struct PropState { //something simple, imagine it's hardware emulation
-    PropState() : 
+    PropState() :
       pt(-99),  eta(-99), phi(-99),
       sigmaPt(-99),  sigmaEta(-99), sigmaPhi(-99),
       valid(false) {}
@@ -66,45 +49,46 @@ public:
 
   explicit L1TkMuonProducer(const edm::ParameterSet&);
   ~L1TkMuonProducer();
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
-
   PropState propagateToGMT(const L1TTTrackType& l1tk) const;
-  
+  void runOnMTFCollection(const edm::Handle<RegionalMuonCandBxCollection>&,
+                          const edm::Handle<L1TTTrackCollectionType>&,
+                          L1TkMuonParticleCollection& tkMuons) const;
+
   float ETAMIN_;
   float ETAMAX_;
   float ZMAX_;             // |z_track| < ZMAX in cm
   float CHI2MAX_;
   float PTMINTRA_;
-  //  float DRmax_;
-  int nStubsmin_ ;         // minimum number of stubs   
+  float DRmax_;
+  int nStubsmin_ ;         // minimum number of stubs
   //  bool closest_ ;
   bool correctGMTPropForTkZ_;
-
   bool use5ParameterFit_;
 
-  const edm::EDGetTokenT< MuonBxCollection > muToken;
+  const edm::EDGetTokenT< RegionalMuonCandBxCollection > bmtfToken;
+  const edm::EDGetTokenT< RegionalMuonCandBxCollection > omtfToken;
+  const edm::EDGetTokenT< RegionalMuonCandBxCollection > emtfToken;
   const edm::EDGetTokenT< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > trackToken;
 } ;
 
 
-//
-// constructors and destructor
-//
 L1TkMuonProducer::L1TkMuonProducer(const edm::ParameterSet& iConfig) :
-  muToken(consumes< MuonBxCollection >(iConfig.getParameter<edm::InputTag>("L1MuonInputTag"))),
+  bmtfToken(consumes< RegionalMuonCandBxCollection >(iConfig.getParameter<edm::InputTag>("L1BMTFInputTag"))),
+  omtfToken(consumes< RegionalMuonCandBxCollection >(iConfig.getParameter<edm::InputTag>("L1OMTFInputTag"))),
+  emtfToken(consumes< RegionalMuonCandBxCollection >(iConfig.getParameter<edm::InputTag>("L1EMTFInputTag"))),
   trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag")))
 {
-
    ETAMIN_ = (float)iConfig.getParameter<double>("ETAMIN");
    ETAMAX_ = (float)iConfig.getParameter<double>("ETAMAX");
    ZMAX_ = (float)iConfig.getParameter<double>("ZMAX");
    CHI2MAX_ = (float)iConfig.getParameter<double>("CHI2MAX");
    PTMINTRA_ = (float)iConfig.getParameter<double>("PTMINTRA");
-   //   DRmax_ = (float)iConfig.getParameter<double>("DRmax");
+   DRmax_ = (float)iConfig.getParameter<double>("DRmax");
    nStubsmin_ = iConfig.getParameter<int>("nStubsmin");
    //   closest_ = iConfig.getParameter<bool>("closest");
 
@@ -120,30 +104,56 @@ L1TkMuonProducer::~L1TkMuonProducer() {
 // ------------ method called to produce the data  ------------
 void
 L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{  
-  
-  std::unique_ptr<L1TkMuonParticleCollection> tkMuons(new L1TkMuonParticleCollection);
-  
-  // the L1EGamma objects
-  edm::Handle<MuonBxCollection> l1musH;
-  iEvent.getByToken(muToken, l1musH);  
-  const MuonBxCollection l1mus = (*l1musH.product());
-  MuonBxCollection::const_iterator l1mu;
+{
+  // the L1Mu objects
+  edm::Handle<RegionalMuonCandBxCollection> l1bmtfH;
+  edm::Handle<RegionalMuonCandBxCollection> l1omtfH;
+  edm::Handle<RegionalMuonCandBxCollection> l1emtfH;
 
+  iEvent.getByToken(bmtfToken, l1bmtfH);
+  iEvent.getByToken(omtfToken, l1omtfH);
+  iEvent.getByToken(emtfToken, l1emtfH);
 
   // the L1Tracks
   edm::Handle<L1TTTrackCollectionType> l1tksH;
   iEvent.getByToken(trackToken, l1tksH);
+
+  L1TkMuonParticleCollection oc_bmtf_tkmuon;
+  L1TkMuonParticleCollection oc_omtf_tkmuon;
+  L1TkMuonParticleCollection oc_emtf_tkmuon;
+
+  // process each of the MTF collections separately! -- we don't want to filter the muons
+  runOnMTFCollection(l1bmtfH, l1tksH, oc_bmtf_tkmuon);
+  runOnMTFCollection(l1omtfH, l1tksH, oc_omtf_tkmuon);
+  runOnMTFCollection(l1emtfH, l1tksH, oc_emtf_tkmuon);
+
+  // now combine all trk muons into a single output collection!
+  std::unique_ptr<L1TkMuonParticleCollection> oc_tkmuon(new L1TkMuonParticleCollection());
+  for (const auto& p : {oc_bmtf_tkmuon, oc_omtf_tkmuon, oc_emtf_tkmuon}){
+    oc_tkmuon->insert(oc_tkmuon->end(), p.begin(), p.end());
+  }
+
+  // put the new track+muon objects in the event!
+  iEvent.put( std::move(oc_tkmuon));
+};
+
+void
+L1TkMuonProducer::runOnMTFCollection(const edm::Handle<RegionalMuonCandBxCollection>& muonH,
+                                     const edm::Handle<L1TTTrackCollectionType>& l1tksH,
+                                     L1TkMuonParticleCollection& tkMuons) const
+{
   const L1TTTrackCollectionType& l1tks = (*l1tksH.product());
+  const RegionalMuonCandBxCollection& l1mtfs = (*muonH.product());
 
   int imu = 0;
-  for (l1mu = l1mus.begin(0); l1mu != l1mus.end(0);  ++l1mu){ // considering BX = only
-    edm::Ref< MuonBxCollection > l1muRef( l1musH, imu );
+  for (auto l1mu = l1mtfs.begin(0); l1mu != l1mtfs.end(0);  ++l1mu){ // considering BX = only
+
+    edm::Ref< RegionalMuonCandBxCollection > l1muRef( muonH, imu );
     imu++;
 
-    float l1mu_eta = l1mu->eta();
-    float l1mu_phi = l1mu->phi();
-    
+    float l1mu_eta = l1mu->hwEta()*0.010875;
+    float l1mu_phi = l1mu->hwPhi()*2*M_PI/576.;
+
     float l1mu_feta = fabs( l1mu_eta );
     if (l1mu_feta < ETAMIN_) continue;
     if (l1mu_feta > ETAMAX_) continue;
@@ -152,13 +162,12 @@ L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     float drmin = 999;
     float ptmax = -1;
     if (ptmax < 0) ptmax = -1;	// dummy
-    
+
     PropState matchProp;
     int match_idx = -1;
     int il1tk = -1;
 
-
-    for (auto l1tk : l1tks ){
+    for (const auto& l1tk : l1tks ){
       il1tk++;
 
       unsigned int nPars = 4;
@@ -171,70 +180,62 @@ L1TkMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       float l1tk_chi2 = l1tk.getChi2(nPars);
       if (l1tk_chi2 > CHI2MAX_) continue;
-      
+
       int l1tk_nstubs = l1tk.getStubRefs().size();
       if ( l1tk_nstubs < nStubsmin_) continue;
 
       float l1tk_eta = l1tk.getMomentum(nPars).eta();
       float l1tk_phi = l1tk.getMomentum(nPars).phi();
 
-
       float dr2 = deltaR2(l1mu_eta, l1mu_phi, l1tk_eta, l1tk_phi);
-      
       if (dr2 > 0.3) continue;
 
-      PropState pstate = propagateToGMT(l1tk);
+      const PropState& pstate = propagateToGMT(l1tk);
       if (!pstate.valid) continue;
 
       float dr2prop = deltaR2(l1mu_eta, l1mu_phi, pstate.eta, pstate.phi);
-      
+      // FIXME: check if this matching procedure can be improved with
+      // a pT dependent dR window
       if (dr2prop < drmin){
-	drmin = dr2prop;
-	match_idx = il1tk;
-	matchProp = pstate;
+        drmin = dr2prop;
+        match_idx = il1tk;
+        matchProp = pstate;
       }
     }// over l1tks
-    
+
     LogDebug("MYDEBUG")<<"matching index is "<<match_idx;
     if (match_idx >= 0){
       const L1TTTrackType& matchTk = l1tks[match_idx];
-      
-      float etaCut = 3.*sqrt(l1mu->hwDEtaExtra()*l1mu->hwDEtaExtra() + matchProp.sigmaEta*matchProp.sigmaEta);
-      float phiCut = 4.*sqrt(l1mu->hwDPhiExtra()*l1mu->hwDPhiExtra() + matchProp.sigmaPhi*matchProp.sigmaPhi);
 
-      float dEta = std::abs(matchProp.eta - l1mu->eta());
-      float dPhi = std::abs(deltaPhi(matchProp.phi, l1mu->phi()));
+      // float etaCut = 3.*sqrt(l1mu->hwDEtaExtra()*l1mu->hwDEtaExtra() + matchProp.sigmaEta*matchProp.sigmaEta);
+      // float phiCut = 4.*sqrt(l1mu->hwDPhiExtra()*l1mu->hwDPhiExtra() + matchProp.sigmaPhi*matchProp.sigmaPhi);
 
-      LogDebug("MYDEBUG")<<"match details: prop "<<matchProp.pt<<" "<<matchProp.eta<<" "<<matchProp.phi
-			 <<" mutk "<<l1mu->pt()<<" "<<l1mu->eta()<<" "<<l1mu->phi()<<" delta "<<dEta<<" "<<dPhi<<" cut "<<etaCut<<" "<<phiCut;
-      if (dEta < etaCut && dPhi < phiCut){
-	edm::Ptr< L1TTTrackType > l1tkPtr(l1tksH, match_idx);
+      // float dEta = std::abs(matchProp.eta - l1mu->eta());
+      // float dPhi = std::abs(deltaPhi(matchProp.phi, l1mu->phi()));
 
-	unsigned int nPars = 4;
-	if (use5ParameterFit_) nPars = 5;
-	auto p3 = matchTk.getMomentum(nPars);
-	float p4e = sqrt(0.105658369*0.105658369 + p3.mag2() );
+      // LogDebug("MYDEBUG")<<"match details: prop "<<matchProp.pt<<" "<<matchProp.eta<<" "<<matchProp.phi
+			//  <<" mutk "<<l1mu->pt()<<" "<<l1mu->eta()<<" "<<l1mu->phi()<<" delta "<<dEta<<" "<<dPhi<<" cut "<<etaCut<<" "<<phiCut;
+      if (drmin < DRmax_){
+        edm::Ptr< L1TTTrackType > l1tkPtr(l1tksH, match_idx);
 
-	math::XYZTLorentzVector l1tkp4(p3.x(), p3.y(), p3.z(), p4e);
+        unsigned int nPars = 4;
+        if (use5ParameterFit_) nPars = 5;
+        const auto& p3 = matchTk.getMomentum(nPars);
+        float p4e = sqrt(0.105658369*0.105658369 + p3.mag2() );
 
-	auto tkv3=matchTk.getPOCA(nPars);
-	math::XYZPoint v3(tkv3.x(), tkv3.y(), tkv3.z());
-	float trkisol = -999;
+        math::XYZTLorentzVector l1tkp4(p3.x(), p3.y(), p3.z(), p4e);
 
-	L1TkMuonParticle l1tkmu(l1tkp4, l1muRef, l1tkPtr, trkisol);
+        const auto& tkv3=matchTk.getPOCA(nPars);
+        math::XYZPoint v3(tkv3.x(), tkv3.y(), tkv3.z());
+        float trkisol = -999;
 
-	// EP: add the zvtx information
-	l1tkmu.setTrkzVtx( (float)tkv3.z() );
+        L1TkMuonParticle l1tkmu(l1tkp4, l1muRef, l1tkPtr, trkisol);
+        l1tkmu.setTrkzVtx( (float)tkv3.z() );
 
-	tkMuons->push_back(l1tkmu);
+        tkMuons.push_back(l1tkmu);
       }
     }
-
   }//over l1mus
-  
-  
-  iEvent.put( std::move(tkMuons));
-  
 }
 
 
