@@ -13,6 +13,7 @@ CUDAService::CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry
   bool configEnabled = iConfig.getUntrackedParameter<bool>("enabled");
   if(!configEnabled) {
     edm::LogInfo("CUDAService") << "CUDAService disabled by configuration";
+    return;
   }
 
   auto ret = cuInit(0);
