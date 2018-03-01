@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.ProcessModifiers.gpu_cff import gpu
 
 import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
 pixelTracksMonitoring = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
@@ -21,3 +22,4 @@ pixelTracksMonitoring.doPlotsVsGoodPVtx         = True
 pixelTracksMonitoring.doPlotsVsLUMI             = True
 pixelTracksMonitoring.doPlotsVsBX               = True
 
+gpu.toModify(pixelTracksMonitoring, pixelCluster4lumi = "siPixelDigis")
