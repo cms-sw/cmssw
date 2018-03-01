@@ -166,11 +166,6 @@ PixelCPEFast::localPosition(DetParam const & theDetParam, ClusterParam & theClus
 
    assert(!theClusterParam.with_track_angle); 
    
-   float chargeWidthX = (theDetParam.lorentzShiftInCmX * theDetParam.widthLAFractionX);
-   float chargeWidthY = (theDetParam.lorentzShiftInCmY * theDetParam.widthLAFractionY);
-   float shiftX = 0.5f*theDetParam.lorentzShiftInCmX;
-   float shiftY = 0.5f*theDetParam.lorentzShiftInCmY;
-   
    if ( UseErrorsFromTemplates_ ) {
       
       float qclus = theClusterParam.theCluster->charge();
@@ -223,133 +218,32 @@ PixelCPEFast::localPosition(DetParam const & theDetParam, ClusterParam & theClus
                         UseErrorsFromTemplates_ && TruncatePixelCharge_
                         );
    
-   //--- Find the inner widths along X and Y in one shot.  We
-   //--- compute the upper right corner of the inner pixels
-   //--- (== lower left corner of upper right pixel) and
-   //--- the lower left corner of the inner pixels
-   //--- (== upper right corner of lower left pixel), and then
-   //--- subtract these two points in the formula.
-   
-   //--- Upper Right corner of Lower Left pixel -- in measurement frame
-   uint16_t llx = theClusterParam.theCluster->minPixelRow()+1;
-   uint16_t lly = theClusterParam.theCluster->minPixelCol()+1;
-   
-   //--- Lower Left corner of Upper Right pixel -- in measurement frame
-   uint16_t urx = theClusterParam.theCluster->maxPixelRow();
-   uint16_t ury = theClusterParam.theCluster->maxPixelCol();
-   
-   auto llxl = phase1PixelTopology::localX(llx);   
-   auto	llyl = phase1PixelTopology::localY(lly);
-   auto	urxl = phase1PixelTopology::localX(urx);
-   auto uryl = phase1PixelTopology::localY(ury);
 
-   
-   float xPos =
-   generic_position_formula( theClusterParam.theCluster->sizeX(),
-                            Q_f_X, Q_l_X,
-                            llxl, urxl,
-                            chargeWidthX,   // lorentz shift in cm
-                            theDetParam.theThickness,
-                            theClusterParam.cotalpha,
-                            theDetParam.thePitchX,
-                            phase1PixelTopology::isBigPixX( theClusterParam.theCluster->minPixelRow() ),
-                            phase1PixelTopology::isBigPixX( theClusterParam.theCluster->maxPixelRow() )
-                           );   
-   
-   // apply the lorentz offset correction
-   xPos = xPos + shiftX + theDetParam.thePitchX*float(phase1PixelTopology::xOffset);
-   
-   float yPos =
-   generic_position_formula( theClusterParam.theCluster->sizeY(),
-                            Q_f_Y, Q_l_Y,
-                            llyl, uryl,
-                            chargeWidthY,   // lorentz shift in cm
-                            theDetParam.theThickness,
-                            theClusterParam.cotbeta,
-                            theDetParam.thePitchY,
-                            phase1PixelTopology::isBigPixY( theClusterParam.theCluster->minPixelCol() ),
-                            phase1PixelTopology::isBigPixY( theClusterParam.theCluster->maxPixelCol() )
-                           );   
-   // apply the lorentz offset correction
-   yPos = yPos + shiftY + theDetParam.thePitchY*float(phase1PixelTopology::yOffset);
+     // do GPU like ...
+
+     pixelCPEforGPU::ClusParams cp;
+
+     
+     cp.minRow[0] = theClusterParam.theCluster->minPixelRow();
+     cp.maxRow[0] = theClusterParam.theCluster->maxPixelRow();
+     cp.minCol[0] = theClusterParam.theCluster->minPixelCol();
+     cp.maxCol[0] = theClusterParam.theCluster->maxPixelCol();
+
+      cp.Q_f_X[0] = Q_f_X;
+      cp.Q_l_X[0] = Q_l_X;
+      cp.Q_f_Y[0] = Q_f_Y;
+      cp.Q_l_Y[0] = Q_l_Y;
+
+      auto ind = theDetParam.theDet->index();
+      pixelCPEforGPU::position(m_commonParamsGPU, m_detParamsGPU[ind],cp,0);
+      auto xPos = cp.xpos[0];     
+      auto yPos = cp.ypos[0];
 
    //--- Now put the two together
    LocalPoint pos_in_local( xPos, yPos );
    return pos_in_local;
 }
 
-
-
-//-----------------------------------------------------------------------------
-//!  A generic version of the position formula.  Since it works for both
-//!  X and Y, in the interest of the simplicity of the code, all parameters
-//!  are passed by the caller.  The only class variable used by this method
-//!  is the theThickness, since that's common for both X and Y.
-//-----------------------------------------------------------------------------
-float
-PixelCPEFast::
-generic_position_formula( int size,                //!< Size of this projection.
-                         int Q_f,              //!< Charge in the first pixel.
-                         int Q_l,              //!< Charge in the last pixel.
-                         uint16_t upper_edge_first_pix, //!< As the name says.
-                         uint16_t lower_edge_last_pix,  //!< As the name says.
-                         float lorentz_shift,   //!< L-shift at half thickness
-                         float theThickness,   //detector thickness
-                         float cot_angle,        //!< cot of alpha_ or beta_
-                         float pitch,            //!< thePitchX or thePitchY
-                         bool first_is_big,       //!< true if the first is big
-                         bool last_is_big        //!< true if the last is big
-                        )
-{
-   
-   float geom_center = 0.5f * pitch*float( upper_edge_first_pix + lower_edge_last_pix );
-   
-   //--- The case of only one pixel in this projection is separate.  Note that
-   //--- here first_pix == last_pix, so the average of the two is still the
-   //--- center of the pixel.
-   if ( size == 1 ) {return geom_center;}
-
-   float W_eff; // the compiler detects the logic below (and warns if buggy!!!!0 
-   bool simple=true;
-   if (size==2) {   
-     //--- Width of the clusters minus the edge (first and last) pixels.
-     //--- In the note, they are denoted x_F and x_L (and y_F and y_L)
-     assert(lower_edge_last_pix>=upper_edge_first_pix);
-     float W_inner      =  pitch * float(lower_edge_last_pix-upper_edge_first_pix);  // in cm
-   
-     //--- Predicted charge width from geometry
-     float W_pred = theThickness * cot_angle                     // geometric correction (in cm)
-                    - lorentz_shift;                    // (in cm) &&& check fpix!
-   
-     W_eff = std::abs( W_pred ) - W_inner;
-
-     //--- If the observed charge width is inconsistent with the expectations
-     //--- based on the track, do *not* use W_pred-W_innner.  Instead, replace
-     //--- it with an *average* effective charge width, which is the average
-     //--- length of the edge pixels.
-     //
-     simple = ( W_eff < 0.0f ) | ( W_eff > pitch );  // this produces "large" regressions for very small numeric differences...
-
-   }
-   if (simple) {
-     //--- Total length of the two edge pixels (first+last)
-     float sum_of_edge = 2.0f;
-     if (first_is_big) sum_of_edge += 1.0f;
-     if (last_is_big)  sum_of_edge += 1.0f;
-     W_eff = pitch * 0.5f * sum_of_edge;  // ave. length of edge pixels (first+last) (cm)
-   }
-   
-   
-   //--- Finally, compute the position in this projection
-   float Qdiff = Q_l - Q_f;
-   float Qsum  = Q_l + Q_f;
-   
-   //--- Temporary fix for clusters with both first and last pixel with charge = 0
-   if(Qsum==0) Qsum=1.0f;
-   float hit_pos = geom_center + 0.5f*(Qdiff/Qsum) * W_eff;
-   
-   return hit_pos;
-}
 
 
 //-----------------------------------------------------------------------------

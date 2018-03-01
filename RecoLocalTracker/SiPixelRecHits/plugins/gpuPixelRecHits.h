@@ -32,6 +32,7 @@ namespace gpuPixelRecHits {
 			  uint32_t const * hitsModuleStart,
                           int32_t * chargeh,
 			  float * xh, float * yh, float * zh,
+                          float * xe, float * ye, uint16_t * mr,
 			  bool local // if true fill just x & y in local coord...
 			  ){
 
@@ -112,7 +113,8 @@ namespace gpuPixelRecHits {
     assert(h<2000*256);
 
     pixelCPEforGPU::position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams,ic);
-
+    pixelCPEforGPU::error(cpeParams->commonParams(), cpeParams->detParams(me), clusParams,ic);
+ 
     chargeh[h] = clusParams.charge[ic];
 
     if (local) {   
@@ -123,7 +125,9 @@ namespace gpuPixelRecHits {
                                               xh[h],yh[h],zh[h]
                                              );
     }
-    
+    xe[h]= clusParams.xerr[ic];
+    ye[h]= clusParams.yerr[ic];
+    mr[h]= clusParams.minRow[ic];
   }
 
 }

@@ -49,23 +49,6 @@ private:
    LocalPoint localPosition (DetParam const & theDetParam, ClusterParam & theClusterParam) const override;
    LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const override;
    
-   //--------------------------------------------------------------------
-   //  Methods.
-   //------------------------------------------------------------------
-   static float
-   generic_position_formula( int size,                //!< Size of this projection.
-                            int Q_f,              //!< Charge in the first pixel.
-                            int Q_l,              //!< Charge in the last pixel.
-                            uint16_t upper_edge_first_pix, //!< As the name says.
-                            uint16_t lower_edge_last_pix,  //!< As the name says.
-                            float lorentz_shift,   //!< L-width
-                            float theThickness,   //detector thickness
-                            float cot_angle,            //!< cot of alpha_ or beta_
-                            float pitch,            //!< thePitchX or thePitchY
-                            bool first_is_big,       //!< true if the first is big
-                            bool last_is_big        //!< true if the last is big
-   );
-   
    static void
    collect_edge_charges(ClusterParam & theClusterParam,  //!< input, the cluster
                         int & Q_f_X,              //!< output, Q first  in X

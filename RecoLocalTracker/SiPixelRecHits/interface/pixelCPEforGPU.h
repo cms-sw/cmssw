@@ -4,6 +4,7 @@
 #include "DataFormats/GeometrySurface/interface/SOARotation.h"
 #include <cstdint>
 #include <cmath>
+#include <iterator>
 
 #include<cassert>
 
@@ -68,6 +69,9 @@ namespace pixelCPEforGPU {
 
     float xpos[N];
     float ypos[N];
+    
+    float xerr[N];
+    float yerr[N];
   };
 
 
@@ -202,5 +206,53 @@ namespace pixelCPEforGPU {
    cp.ypos[ic]=yPos+ycorr;
 
   }
+
+  // FIXME these are errors form Run1
+  constexpr inline
+  void error(CommonParams const & comParams, DetParams const & detParams, ClusParams & cp, uint32_t ic) {
+     // Edge cluster errors
+     cp.xerr[ic]= 0.0050;
+     cp.yerr[ic]= 0.0085;
+
+
+     constexpr float xerr_barrel_l1[] = {0.00115, 0.00120, 0.00088};
+     constexpr float xerr_barrel_l1_def = 0.01030;
+     constexpr float yerr_barrel_l1[] = {0.00375,0.00230,0.00250,0.00250,0.00230,0.00230,0.00210,0.00210,0.00240};
+     constexpr float yerr_barrel_l1_def=0.00210;
+     constexpr float xerr_barrel_ln[]= {0.00115, 0.00120, 0.00088};
+     constexpr float xerr_barrel_ln_def=0.01030;
+     constexpr float yerr_barrel_ln[]= {0.00375,0.00230,0.00250,0.00250,0.00230,0.00230,0.00210,0.00210,0.00240};
+     constexpr float yerr_barrel_ln_def=0.00210;
+     constexpr float xerr_endcap[]= {0.0020, 0.0020};
+     constexpr float xerr_endcap_def=0.0020;
+     constexpr float yerr_endcap[]= {0.00210};
+     constexpr float yerr_endcap_def=0.00210;
+
+     // is edgy?
+     bool isEdgeX = cp.minRow[ic]==0 || cp.maxRow[ic]==phase1PixelTopology::lastRowInModule;
+     bool isEdgeY = cp.minCol[ic]==0 || cp.maxCol[ic]==phase1PixelTopology::lastColInModule;
+ 
+     if (!isEdgeX) {
+       auto sx = cp.maxRow[ic]-cp.minRow[ic];
+       if (!detParams.isBarrel ) {
+          cp.xerr[ic] =  sx <std::size(xerr_endcap) ? xerr_endcap[sx] : xerr_endcap_def;
+       } else if (detParams.layer==1) {
+          cp.xerr[ic] =  sx <std::size(xerr_barrel_l1) ?  xerr_barrel_l1[sx]: xerr_barrel_l1_def;
+       } else {
+          cp.xerr[ic] =  sx <std::size(xerr_barrel_ln) ?  xerr_barrel_ln[sx]: xerr_barrel_ln_def;
+      }
+     } 
+
+     if (!isEdgeY) {
+       auto sy =cp.maxCol[ic]-cp.minCol[ic];;
+       if (!detParams.isBarrel ) {
+          cp.yerr[ic] =  sy <std::size(yerr_endcap) ? yerr_endcap[sy] : yerr_endcap_def;
+       } else if (detParams.layer==1) {
+          cp.yerr[ic] =  sy <std::size(yerr_barrel_l1) ?  yerr_barrel_l1[sy]: yerr_barrel_l1_def;
+       } else {
+          cp.yerr[ic] =  sy <std::size(yerr_barrel_ln) ?  yerr_barrel_ln[sy]: yerr_barrel_ln_def;
+      }
+     }
+   }
 
 }
