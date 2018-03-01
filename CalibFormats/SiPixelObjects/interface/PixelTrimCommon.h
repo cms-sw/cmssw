@@ -44,6 +44,9 @@ namespace pos{
 
     void         writeASCII(std::string filename)                                                           const override  ;
     void         writeXML(      pos::PixelConfigKey key, int version, std::string path)                     const override {;}
+    using PixelTrimBase::writeXMLHeader;
+    using PixelTrimBase::writeXML;
+    using PixelTrimBase::writeXMLTrailer;
     void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream *out) const override {;}
     void writeXML(                                                              std::ofstream *out) const override {;}
     void writeXMLTrailer(                                                       std::ofstream *out) const override {;}
