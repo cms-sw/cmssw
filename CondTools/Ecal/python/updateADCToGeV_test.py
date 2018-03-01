@@ -21,11 +21,11 @@ process.source = cms.Source("EmptyIOVSource",
 
 process.load("CondCore.CondDB.CondDB_cfi")
 
-process.CondDB.connect = 'sqlite_file:EcalADCToGeV.db'
+process.CondDB.connect = conddb_init.options.destinationDatabase
+if process.CondDB.connect == '':
+    process.CondDB.connect = 'sqlite_file:EcalADCToGeV.db'
 
 process.CondDB.DBParameters.authenticationPath = ''
-
-process.CondDB.connect = conddb_init.options.destinationDatabase
 
 db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
 
