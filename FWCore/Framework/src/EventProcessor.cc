@@ -1011,6 +1011,22 @@ namespace edm {
     }
   }
 
+  void EventProcessor::endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException) {
+    //If we skip empty runs, this would be called conditionally
+    endRun(phid, run, globalBeginSucceeded, cleaningUpAfterException);
+    
+    if(globalBeginSucceeded) {
+      auto t = edm::make_empty_waiting_task();
+      t->increment_ref_count();
+      writeRunAsync(edm::WaitingTaskHolder{t.get()}, phid, run);
+      t->wait_for_all();
+      if(t->exceptionPtr()) {
+        std::rethrow_exception(*t->exceptionPtr());
+      }
+    }
+    deleteRunFromCache(phid, run);
+  }
+
   void EventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
     runPrincipal.setEndTime(input_->timestamp());
@@ -1250,11 +1266,6 @@ namespace edm {
       } else {
         try {
           ServiceRegistry::Operate operate(serviceToken_);
-
-          //Only call writeLumi if beginLumi succeeded
-          if(status->didGlobalBeginSucceed()) {
-            writeLumi(*status);
-          }
           if(looper_) {
             auto& lp = *(status->lumiPrincipal());
             EventSetup const& es = esp_->eventSetup();
@@ -1281,6 +1292,16 @@ namespace edm {
       t.doneWaiting(ptr);
     });
 
+    auto writeT = edm::make_waiting_task(tbb::task::allocate_root(), [this,status =iLumiStatus, task = WaitingTaskHolder(t)] (std::exception_ptr const* iExcept) mutable {
+      if(iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        //Only call writeLumi if beginLumi succeeded
+        if(status->didGlobalBeginSucceed()) {
+          writeLumiAsync(std::move(task),status);
+        }
+      }
+    });
     auto& lp = *(iLumiStatus->lumiPrincipal());
 
     IOVSyncValue ts(EventID(lp.run(), lp.luminosityBlock(), EventID::maxEventNumber()),
@@ -1290,7 +1311,7 @@ namespace edm {
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
     EventSetup const& es = esp_->eventSetup();
 
-    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(t),
+    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(writeT),
                                      *schedule_,
                                      lp,
                                      ts,
@@ -1434,10 +1455,19 @@ namespace edm {
     return input_->luminosityBlock();
   }
 
-  void EventProcessor::writeRun(ProcessHistoryID const& phid, RunNumber_t run) {
-    schedule_->writeRun(principalCache_.runPrincipal(phid, run), &processContext_, actReg_.get());
-    for_all(subProcesses_, [run,phid](auto& subProcess){ subProcess.writeRun(phid, run); });
-    FDEBUG(1) << "\twriteRun " << run << "\n";
+  void EventProcessor::writeRunAsync(WaitingTaskHolder task, ProcessHistoryID const& phid, RunNumber_t run) {
+    auto subsT = edm::make_waiting_task(tbb::task::allocate_root(), [this,phid,run,task](std::exception_ptr const* iExcept) mutable {
+      if(iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        ServiceRegistry::Operate op(serviceToken_);
+        for(auto&s : subProcesses_) {
+          s.writeRunAsync(task,phid,run);
+        }
+      }
+    });
+    ServiceRegistry::Operate op(serviceToken_);
+    schedule_->writeRunAsync(WaitingTaskHolder(subsT), principalCache_.runPrincipal(phid, run), &processContext_, actReg_.get());
   }
 
   void EventProcessor::deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run) {
@@ -1446,10 +1476,20 @@ namespace edm {
     FDEBUG(1) << "\tdeleteRunFromCache " << run << "\n";
   }
 
-  void EventProcessor::writeLumi(LuminosityBlockProcessingStatus& iStatus) {
-    schedule_->writeLumi(*iStatus.lumiPrincipal(), &processContext_, actReg_.get());
-    for_all(subProcesses_, [&iStatus](auto& subProcess){ subProcess.writeLumi(*iStatus.lumiPrincipal()); });
-    //FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
+  void EventProcessor::writeLumiAsync(WaitingTaskHolder task, std::shared_ptr<LuminosityBlockProcessingStatus> iStatus) {
+    auto subsT = edm::make_waiting_task(tbb::task::allocate_root(), [this,task, iStatus](std::exception_ptr const* iExcept) mutable {
+      if(iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        ServiceRegistry::Operate op(serviceToken_);
+        for(auto&s : subProcesses_) {
+          s.writeLumiAsync(task,*(iStatus->lumiPrincipal()));
+        }
+      }
+    });
+    ServiceRegistry::Operate op(serviceToken_);
+
+    schedule_->writeLumiAsync(WaitingTaskHolder{subsT}, *(iStatus->lumiPrincipal()), &processContext_, actReg_.get());
   }
 
   void EventProcessor::deleteLumiFromCache(LuminosityBlockProcessingStatus& iStatus) {

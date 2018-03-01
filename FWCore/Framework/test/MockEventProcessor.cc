@@ -246,6 +246,14 @@ namespace edm {
     output_ << "\tendRun " << run << postfix;
   }
 
+  void MockEventProcessor::endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalTransitionSucceeded, bool cleaningUpAfterException ) {
+    endRun(phid,run,globalTransitionSucceeded,cleaningUpAfterException);
+    if(globalTransitionSucceeded) {
+      writeRun(phid,run);
+    }
+    deleteRunFromCache(phid,run);
+  }
+
   InputSource::ItemType MockEventProcessor::processLumis(std::shared_ptr<void> iRunResource) {
     
     if(lumiStatus_ and
