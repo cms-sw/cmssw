@@ -76,8 +76,8 @@ def test_nnet(n_samples=200, n_features=7, distance=0.8, complete=False):
 def test_with_scaler(n_samples=200, n_features=15, distance=0.5):
     X, y = generate_sample(n_samples=n_samples, n_features=n_features, distance=distance)
     for scaler in [BinTransformer(max_bins=16), IronTransformer()]:
-        clf = nnet.SimpleNeuralNetwork(scaler=scaler)
-        clf.fit(X, y, epochs=300)
+        clf = nnet.SimpleNeuralNetwork(scaler=scaler,epochs=300)
+        clf.fit(X, y)
 
         p = clf.predict_proba(X)
         assert roc_auc_score(y, p[:, 1]) > 0.8, 'quality is too low for model: {}'.format(clf)
