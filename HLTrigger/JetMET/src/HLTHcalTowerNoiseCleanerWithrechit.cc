@@ -218,7 +218,17 @@ void HLTHcalTowerNoiseCleanerWithrechit::produce(edm::Event& iEvent, const edm::
 	  passEMF=false;
 	}
       }
-      
+     std::cout << "r45="<< passRechitr45 << ";" 
+		     << "energy=" << it.energy() << "; "
+		     << "ratio=" << it.ratio() << "; "
+		     << "# RBX hits=" << it.numRBXHits() << "; "
+		     << "# HPD hits=" << it.numHPDHits() << "; "
+		     << "# HPD NoOther hits=" << it.numHPDNoOtherHits() << "; "
+		     << "# Zeros=" << it.numZeros() << "; "
+		     << "min time=" << it.minHighEHitTime() << "; "
+		     << "max time=" << it.maxHighEHitTime() << "; "
+		     << "RBX EMF=" << it.RBXEMF()
+		     << std::endl;
       if((needEMFCoincidence_ && !passEMF && !passFilter) ||
 	 (!needEMFCoincidence_ && !passFilter)) { // check for noise
 	LogDebug("") << "HLTHcalTowerNoiseCleanerWithrechit debug: Found a noisy RBX: "
