@@ -1,0 +1,4 @@
+<bin  file="testCUDAService.cpp">
+  <use  name="HeterogeneousCore/CUDAServices"/>
+  <use  name="cuda"/>
+</bin>
