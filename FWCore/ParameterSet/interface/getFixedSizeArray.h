@@ -22,7 +22,7 @@ namespace edm {
         << "' should have " << N << " elements, but has " << vec.size()
         << " elements in the configuration.\n";
     }
-    std::array<T, N> a;
+    std::array<T, N> a {};
     std::copy_n(vec.begin(), N, a.begin());
     return a;
   }
