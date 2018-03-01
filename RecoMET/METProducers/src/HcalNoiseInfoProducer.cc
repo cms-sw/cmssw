@@ -905,9 +905,10 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
       summary.rechitEnergy15_ = summary.rechitEnergy15_ + rechit.eraw();
     }
     
-    // Exclude QIE11 channels  
-    if((rechit.auxPhase1()>>HBHERecHitAuxSetter::OFF_TDC_TIME)&1) continue; 
-
+    // Exclude uncollapsed QIE11 channels
+    if(((rechit.auxPhase1()>>HBHERecHitAuxSetter::OFF_TDC_TIME)&1) &&
+       ((rechit.auxPhase1()>>HBHERecHitAuxSetter::OFF_COMBINED)&0) ) continue;
+    
     // if it was ID'd as isolated noise, update the summary object
     if(rechit.flags() & isolbitset) {
       summary.nisolnoise_++;
