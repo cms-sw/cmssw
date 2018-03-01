@@ -1,6 +1,3 @@
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -11,7 +8,7 @@
 #include "Geometry/HGCalCommonData/plugins/DDHGCalWafer8.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 DDHGCalWafer8::DDHGCalWafer8() {
 #ifdef EDM_ML_DEBUG

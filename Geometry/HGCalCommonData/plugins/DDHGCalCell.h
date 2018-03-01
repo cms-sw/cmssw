@@ -1,7 +1,6 @@
 #ifndef HGCalCommonData_DDHGCalCell_h
 #define HGCalCommonData_DDHGCalCell_h
 
-#include <map>
 #include <string>
 #include <vector>
 #include "DetectorDescription/Core/interface/DDTypes.h"
