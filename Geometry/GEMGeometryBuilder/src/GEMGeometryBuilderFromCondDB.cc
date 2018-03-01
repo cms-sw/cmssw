@@ -161,7 +161,7 @@ GEMEtaPartition* GEMGeometryBuilderFromCondDB::buildEtaPartition(const RecoIdeal
   std::string name = *( strStart );
   LogDebug("GEMGeometryBuilderFromCondDB") << "buildEtaPartition "<< name<<" "<< detId <<std::endl;
   
-  std::vector<double>::const_iterator shapeStart = rgeo.shapeStart( gid );
+  std::vector<double>::const_iterator shapeStart = rgeo.shapeStart( gid );  
   float be = *(shapeStart+0)/cm;
   float te = *(shapeStart+1)/cm;
   float ap = *(shapeStart+2)/cm;
@@ -187,17 +187,16 @@ GEMEtaPartition* GEMGeometryBuilderFromCondDB::buildEtaPartition(const RecoIdeal
 GEMGeometryBuilderFromCondDB::RCPBoundPlane 
 GEMGeometryBuilderFromCondDB::boundPlane(const RecoIdealGeometry& rgeo, unsigned int gid, GEMDetId detId) const
 {
-  std::vector<double>::const_iterator shapeStart = rgeo.shapeStart( gid );
+  std::vector<double>::const_iterator shapeStart = rgeo.shapeStart( gid );  
   float be = *(shapeStart+0)/cm;
   float te = *(shapeStart+1)/cm;
   float ap = *(shapeStart+2)/cm;
   float ti = *(shapeStart+3)/cm;
-  //  TrapezoidalPlaneBounds* 
   Bounds* bounds = new TrapezoidalPlaneBounds( be, te, ap, ti );
 
   std::vector<double>::const_iterator tranStart = rgeo.tranStart( gid );
   Surface::PositionType posResult(*(tranStart)/cm, *(tranStart+1)/cm, *(tranStart+2)/cm );
-
+  
   std::vector<double>::const_iterator rotStart = rgeo.rotStart( gid );
   Surface::RotationType rotResult(*(rotStart+0), *(rotStart+1), *(rotStart+2),
 				  *(rotStart+3), *(rotStart+4), *(rotStart+5),
