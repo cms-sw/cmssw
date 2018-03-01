@@ -31,6 +31,7 @@ void DDHGCalCell::initialize(const DDNumericArguments & nArgs,
   waferT_      = nArgs["WaferThick"];
   cellT_       = nArgs["CellThick"];
   nCells_      = (int)(nArgs["NCells"]);
+  posSens_     = (int)(nArgs["PosSensitive"]);
   material_    = sArgs["Material"];
   fullCN_      = sArgs["FullCell"];
   fullSensN_   = sArgs["FullSensitive"];
@@ -60,7 +61,8 @@ void DDHGCalCell::initialize(const DDNumericArguments & nArgs,
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Wafer r " << waferSize_
 				<< " T " << waferT_ << " Cell T " << cellT_
 				<< " Cells/Wafer " << nCells_ << " Material "
-				<< material_ << " NameSpace " << nameSpace_
+				<< material_ << "Sensitive Position "
+				<< posSens_ << " NameSpace " << nameSpace_
 				<< " Full Cell: " << fullCN_ << ":"
 				<< fullSensN_;
   for (unsigned int k=0; k<truncCN_.size(); ++k)
@@ -93,18 +95,22 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
   DDLogicalPart glog1, glog2;
 
   static const double sqrt3 = std::sqrt(3.0);
-  double dx1 = 0.5*waferSize_/(sqrt3*nCells_);
-  double dx3 = dx1/sqrt3;
-  double dx2 = 2*dx3;
-  double dx4 = 2.5*dx1;
-  double dx5 = 0.5*dx1;
-  double dx6 = 0.5*dx3;
-  double dx7 = 1.5*dx1;
-  std::vector<double> xx = {dx2,dx3,-dx3,-dx2,-dx3,dx3,
-			    dx4,-dx6,-dx2,-dx2,-dx6,dx4};
-  std::vector<double> yy = {0,dx1,-dx1,0,-dx1,dx1,
-			    dx5,dx6,dx1,-dx1,-dx7,-dx5};
-
+  double R   = waferSize_/(3.0*nCells_);
+  double r   = 0.5*R*sqrt3;
+  double dx1 = R;
+  double dx2 = 0.5*dx1;
+  double dx3 = 2.5*dx2;
+  double dx4 = 0.5*dx2;
+  double dy1 = r;
+  double dy2 = 0.5*dy1;
+  double dy3 = 1.5*dy1;
+  std::vector<double> xx = {dx1,dx2,-dx2,-dx1,-dx2,dx2,
+			    dx3,-dx4,-dx1,-dx1,-dx4,dx3};
+  std::vector<double> yy = {0,dy1,dy1,0,-dy1,-dy1,
+			    dy2,dy3,dy1,-dy1,-dy3,-dy2};
+  double zpos = (posSens_ == 0) ? -0.5*(waferT_-cellT_) : 0.5*(waferT_-cellT_);
+  DDTranslation tran(0,0,zpos);
+  
   // First the full cell
   std::vector<double> xw = {xx[0],xx[1],xx[2],xx[3],xx[4],xx[5]};
   std::vector<double> yw = {yy[0],yy[1],yy[2],yy[3],yy[4],yy[5]};
@@ -131,15 +137,14 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: " << solid.name() 
 				<< " extruded polygon made of " << matName
-				<< " z|x|y|s (0) " << zw[0] << ":" << zx[0] 
+				<< " z|x|y|s (0) " << zc[0] << ":" << zx[0] 
 				<< ":" << zy[0] << ":" << scale[0] 
-				<< " z|x|y|s (1) " << zw[1] << ":" << zx[1] 
+				<< " z|x|y|s (1) " << zc[1] << ":" << zx[1] 
 				<< ":" << zy[1] << ":" << scale[1] << " and "
 				<< xw.size() << " edges";
   for (unsigned int k=0; k<xw.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << xw[k] << ":" << yw[k];
 #endif
-  DDTranslation tran(0,0,-0.5*(waferT_-cellT_));
   DDRotation    rot;
   cpv.position(glog2, glog1, 1, tran, rot);
 #ifdef EDM_ML_DEBUG
@@ -194,11 +199,11 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
 #endif
   }
 
-  static const int ie0[] = {1,3,5};
-  static const int ie1[] = {2,4,0};
-  static const int ie2[] = {3,5,1};
-  static const int ie3[] = {10,6,8};
-  static const int ie4[] = {11,7,9};
+  static const int ie0[] = {1,5,0};
+  static const int ie1[] = {2,6,1};
+  static const int ie2[] = {3,7,8};
+  static const int ie3[] = {10,3,9};
+  static const int ie4[] = {11,4,5};
   for (unsigned int i=0; i<extenCN_.size(); ++i) {
     std::vector<double> xw = {xx[ie0[i]],xx[ie1[i]],xx[ie2[i]],xx[ie3[i]],xx[ie4[i]]};
     std::vector<double> yw = {yy[ie0[i]],yy[ie1[i]],yy[ie2[i]],yy[ie3[i]],yy[ie4[i]]};
