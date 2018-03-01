@@ -10,8 +10,6 @@
 
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include <map>
-#include <list>
 
 class GEMGeometryBuilderFromCondDB 
 {

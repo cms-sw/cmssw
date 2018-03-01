@@ -2,27 +2,15 @@
  *
  *  \author M. Maggi - INFN Bari
  */
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/GEMGeometryBuilder/src/GEMGeometryBuilderFromCondDB.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 
-//#include <DetectorDescription/Core/interface/DDFilter.h>
-// #include <DetectorDescription/Core/interface/DDFilteredView.h>
-// #include <DetectorDescription/Core/interface/DDSolid.h>
-
-//#include "Geometry/MuonNumbering/interface/MuonDDDNumbering.h"
-//#include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
-//#include "Geometry/MuonNumbering/interface/GEMNumberingScheme.h"
-
-//#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
-
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-
-#include <iostream>
 #include <algorithm>
 
 GEMGeometryBuilderFromCondDB::GEMGeometryBuilderFromCondDB() 
@@ -36,32 +24,47 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
 				    const RecoIdealGeometry& rgeo )
 {
   const std::vector<DetId>& detids( rgeo.detIds());
-  std::map<GEMDetId, GEMSuperChamber*> superChambers;
-  std::map<GEMDetId, GEMChamber*> chambers;
-  std::map<GEMDetId, GEMEtaPartition*> partitions;
+  std::unordered_map<uint32_t, GEMSuperChamber*> superChambers;
+  std::unordered_map<uint32_t, GEMChamber*> chambers;
+  std::unordered_map<uint32_t, GEMEtaPartition*> partitions;
     
-  for( unsigned int id = 0; id < detids.size(); ++id ){  
+  for( unsigned int id = 0; id < detids.size(); ++id ){
     GEMDetId gemid( detids[id] );
-    LogDebug("GEMGeometryBuilderFromDDD") <<"GEMGeometryBuilderFromDDD adding " << gemid << std::endl;
-    
+    LogDebug("GEMGeometryBuilderFromDDD") <<"GEMGeometryBuilderFromDDD adding " << gemid << std::endl;    
     if (gemid.roll() == 0){
       if (gemid.layer() == 0){
 	GEMSuperChamber* gsc = buildSuperChamber( rgeo, id, gemid );
-	superChambers.insert(std::pair<GEMDetId, GEMSuperChamber*>(gemid, gsc));
+	superChambers.emplace(gemid.rawId(), gsc);
       }
       else {
 	GEMChamber* gch = buildChamber( rgeo, id, gemid );
-	chambers.insert(std::pair<GEMDetId, GEMChamber*>(gemid, gch));
+	chambers.emplace(gemid.rawId(), gch);
       }
     }
     else {
       GEMEtaPartition* gep = buildEtaPartition( rgeo, id, gemid );
-      partitions.insert(std::pair<GEMDetId, GEMEtaPartition*>(gemid, gep));
+      partitions.emplace(gemid.rawId(), gep);
     }
-    
   }
-
-  //auto& superChambers(theGeometry->superChambers());
+  
+  ////////////////////////////////////////////////////////////
+  // TEMP - for backward compatability with old geometry
+  // no superchambers or chambers in old geometry, using etpartitions
+  if (superChambers.empty()){
+    for( unsigned int id = 0; id < detids.size(); ++id ){
+      GEMDetId gemid( detids[id] );
+      if (gemid.roll() == 1){
+	GEMChamber* gch = buildChamber( rgeo, id, gemid.chamberId() );
+	chambers.emplace(gemid.chamberId().rawId(), gch);	
+	if (gemid.layer() == 1){
+	  GEMSuperChamber* gsc = buildSuperChamber( rgeo, id, gemid.superChamberId());
+	  superChambers.emplace(gemid.superChamberId().rawId(), gsc);
+	}
+      }
+    }
+  }
+  ////////////////////////////////////////////////////////////
+  
   // construct the regions, stations and rings. 
   for (int re = -1; re <= 1; re = re+2){
     GEMRegion* region = new GEMRegion(re);
@@ -77,20 +80,19 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
 
 	for (auto sch : superChambers){
 	  auto superChamber = sch.second;
-	  const GEMDetId detId(superChamber->id());
-	  
-	  if (detId.region() != re || detId.station() != st || detId.ring() != ri) continue;
-	  int ch = detId.chamber();
-
+	  const GEMDetId scId(superChamber->id());
+	  if (scId.region() != re || scId.station() != st || scId.ring() != ri) continue;
+	  int ch = scId.chamber();
+		  
 	  for (int ly=1; ly<=GEMDetId::maxLayerId; ++ly) {
 	    const GEMDetId chId(re,ri,st,ly,ch,0);
-	    auto chamberIt = chambers.find(chId);
+	    auto chamberIt = chambers.find(chId.rawId());
 	    if (chamberIt == chambers.end()) continue;
 	    auto chamber = chamberIt->second;
 	    
 	    for (int roll=1; roll<=GEMDetId::maxRollId; ++roll) {
 	      const GEMDetId rollId(re,ri,st,ly,ch,roll);
-	      auto gepIt = partitions.find(rollId);
+	      auto gepIt = partitions.find(rollId.rawId());
 	      if (gepIt == partitions.end()) continue;
 	      auto gep = gepIt->second;
 	      
@@ -102,7 +104,7 @@ GEMGeometryBuilderFromCondDB::build(const std::shared_ptr<GEMGeometry>& theGeome
 	    theGeometry->add(chamber);
 	  }
 	  
-	  LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << detId << " to ring: " << std::endl;
+	  LogDebug("GEMGeometryBuilderFromDDD") << "Adding super chamber " << scId << " to ring: " << std::endl;
 	  ring->add(superChamber);
 	  theGeometry->add(superChamber);
 	} // end superChambers
