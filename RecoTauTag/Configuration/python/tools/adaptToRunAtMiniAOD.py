@@ -260,9 +260,8 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 	process.miniAODTausTask.add(process.hpsPFTauDiscriminationByTightMuonRejectionSimple)
 
 	#####
-	# OK NOW COMES PATTY PAT
+	# PAT part in the following
 
-	# FIXME - check both if this is the OK collection...
 	process.tauGenJets.GenParticles = cms.InputTag("prunedGenParticles")
 	process.tauMatch.matched = cms.InputTag("prunedGenParticles")
 
@@ -282,7 +281,7 @@ def adaptTauToMiniAODReReco(process, reclusterJets=True):
 #####
 def setOutputModule(mode=0):
 	#mode = 0: store original MiniAOD and new selectedPatTaus 
-	#mode = 1: store original MiniAOD, new selectedPatTaus, and all PFTau products as in AOD (except of unsuported ones)
+	#mode = 1: store original MiniAOD, new selectedPatTaus, and all PFTau products as in AOD (except of unsuported ones), plus a few additional collections (charged hadrons, pi zeros, combinatoric reco taus)
 
 	import Configuration.EventContent.EventContent_cff as evtContent
 	output = cms.OutputModule(
@@ -299,10 +298,6 @@ def setOutputModule(mode=0):
 			)
 		)
 	output.outputCommands.append('keep *_selectedPatTaus_*_*')
-	output.outputCommands.append('keep *_combinatoricReco*_*_*')
-	output.outputCommands.append('keep *_ak4PFJetsRecoTauChargedHadrons_*_*')
-	output.outputCommands.append('keep *_ak4PFJetsLegacyHPSPiZeros_*_*')
-	output.outputCommands.append('keep *_patAK4PFJets_*_*')
 	if mode==1:
                 for prod in evtContent.RecoTauTagAOD.outputCommands:
 			if prod.find('ElectronRejection') > -1:
@@ -312,6 +307,10 @@ def setOutputModule(mode=0):
 			output.outputCommands.append(prod)
 		output.outputCommands.append('keep *_hpsPFTauDiscriminationByLooseMuonRejectionSimple_*_*')
 		output.outputCommands.append('keep *_hpsPFTauDiscriminationByTightMuonRejectionSimple_*_*')
+		output.outputCommands.append('keep *_combinatoricReco*_*_*')
+		output.outputCommands.append('keep *_ak4PFJetsRecoTauChargedHadrons_*_*')
+		output.outputCommands.append('keep *_ak4PFJetsLegacyHPSPiZeros_*_*')
+		output.outputCommands.append('keep *_patAK4PFJets_*_*')
 
 	return output
 
