@@ -71,7 +71,7 @@ totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSource
       validityRange = cms.EventRange("292521:min - 310000:max"),
       mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_timing_diamond_2017.xml"),
       maskFileNames = cms.vstring()
-    )
+    ),
     # 2018
     cms.PSet(
       validityRange = cms.EventRange("310001:min - 999999999:max"),
