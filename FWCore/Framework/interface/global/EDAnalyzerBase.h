@@ -66,6 +66,10 @@ namespace edm {
       virtual bool wantsStreamRuns() const =0;
       virtual bool wantsStreamLuminosityBlocks() const =0;
 
+      void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+        callWhenNewProductsRegistered_ = func;
+      }
+
     private:
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,
