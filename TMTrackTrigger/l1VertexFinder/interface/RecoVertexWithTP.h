@@ -29,7 +29,7 @@ public:
   /// Number of true particles assigned to this vertex
   unsigned int      numTrueTracks() const {return trueTracks_.size();}
   /// Assign fitted track to this vertex
-  void              insert(const L1fittedTrack* fitTrack)     {  tracks_.push_back(fitTrack); if(fitTrack->getMatchedTP()!= nullptr and fitTrack->getMatchedTP()->physicsCollision()) trueTracks_.insert(fitTrack->getMatchedTP()); }
+  void              insert(const L1fittedTrack* fitTrack);
   /// Compute vertex parameters
   void              computeParameters(bool weightedmean = false);
   /// Set z0 position
