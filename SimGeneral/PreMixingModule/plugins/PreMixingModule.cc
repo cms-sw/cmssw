@@ -63,6 +63,27 @@ namespace edm {
   {  
     const auto& workers = ps.getParameter<edm::ParameterSet>("workers");
     std::vector<std::string> names = workers.getParameterNames();
+
+    // Hack to keep the random number sequence unchanged for migration
+    // from DataMixingModule to PreMixingModule. To be removed in a
+    // subsequent PR doing only that.
+    {
+      std::vector<std::string> tmp;
+      auto hack = [&](const std::string& name) {
+        auto i = std::find(names.begin(), names.end(), name);
+        if(i != names.end()) {
+          tmp.push_back(*i);
+          names.erase(i);
+        }
+      };
+      hack("ecal");
+      hack("hcal");
+      hack("strip");
+      hack("pixel");
+      std::copy(names.begin(), names.end(), std::back_inserter(tmp));
+      names = std::move(tmp);
+    }
+
     for(const auto& name: names) {
       if(name == "pileup") {
         continue;
