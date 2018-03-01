@@ -1,70 +1,79 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
+<ConstantsSection label="hgcal.xml" eval="true">
+  <Constant name="WaferSize"             value="167.4408*mm"/>
+  <Constant name="WaferThickness"        value="0.30*mm"/>
+  <Constant name="CellThicknessFine"     value="0.10*mm"/>
+  <Constant name="CellThicknessCoarse1"  value="0.20*mm"/>
+  <Constant name="CellThicknessCoarse2"  value="0.30*mm"/>
+  <Constant name="NumberOfCellsFine"     value="12"/>
+  <Constant name="NumberOfCellsCoarse"   value="8"/>
+</ConstantsSection>
 
-<PosPartSection label="cmsMother.xml">
+<PosPartSection label="hgcal.xml">
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
-    <rChild name="hgcalCell:HGCalEECellFullFine"/>
+    <rChild name="hgcalcell:HGCalEECellFull0Fine"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
-    <rChild name="hgcalCell:HGCalEECellTrunc1Fine"/>
+    <rChild name="hgcalcell:HGCalEECellTrunc01Fine"/>
     <Translation x="1.0*cm" y="0*fm" z="0*fm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
-    <rChild name="hgcalCell:HGCalEECellTrunc2Fine"/>
+    <rChild name="hgcalcell:HGCalEECellTrunc02Fine"/>
     <Translation x="1.0*cm" y="1.0*cm" z="0*fm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
-    <rChild name="hgcalCell:HGCalEECellTrunc3Fine"/>
+    <rChild name="hgcalcell:HGCalEECellTrunc03Fine"/>
     <Translation x="0*fm" y="1.0*cm" z="0*fm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
-    <rChild name="hgcalCell:HGCalEECellExten1Fine"/>
+    <rChild name="hgcalcell:HGCalEECellExten01Fine"/>
     <Translation x="-1.0*cm" y="1.0*cm" z="0*fm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
-    <rChild name="hgcalCell:HGCalEECellExten2Fine"/>
+    <rChild name="hgcalcell:HGCalEECellExten02Fine"/>
     <Translation x="-1.0*cm" y="0*fm" z="0*fm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
-    <rChild name="hgcalCell:HGCalEECellExten3Fine"/>
+    <rChild name="hgcalcell:HGCalEECellExten03Fine"/>
     <Translation x="-1.0*cm" y="-1.0*cm" z="0*fm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
-    <rChild name="hgcalCell:HGCalEECellCorner1Fine"/>
+    <rChild name="hgcalcell:HGCalEECellCorner01Fine"/>
     <Translation x="-2.0*cm" y="2.0*cm" z="0*fm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
-    <rChild name="hgcalCell:HGCalEECellCorner2Fine"/>
+    <rChild name="hgcalcell:HGCalEECellCorner02Fine"/>
     <Translation x="-1.0*cm" y="2.0*cm" z="0*fm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
-    <rChild name="hgcalCell:HGCalEECellCorner3Fine"/>
+    <rChild name="hgcalcell:HGCalEECellCorner03Fine"/>
     <Translation x="0*fm" y="2.0*cm" z="0*fm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
-    <rChild name="hgcalCell:HGCalEECellCorner4Fine"/>
+    <rChild name="hgcalcell:HGCalEECellCorner04Fine"/>
     <Translation x="1.0*cm" y="2.0*cm" z="0*fm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
-    <rChild name="hgcalCell:HGCalEECellCorner5Fine"/>
+    <rChild name="hgcalcell:HGCalEECellCorner05Fine"/>
     <Translation x="2.0*cm" y="2.0*cm" z="0*fm"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="cms:CMSE"/>
-    <rChild name="hgcalCell:HGCalEECellCorner6Fine"/>
+    <rChild name="hgcalcell:HGCalEECellCorner06Fine"/>
     <Translation x="2.0*cm" y="1.0*cm" z="0*fm"/>
   </PosPart>
 </PosPartSection>

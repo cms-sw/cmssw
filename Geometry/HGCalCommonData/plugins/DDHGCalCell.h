@@ -26,6 +26,7 @@ private:
   double                   waferT_;                //Wafer Thickness
   double                   cellT_;                 //Cell Thickness
   int                      nCells_;                //Number of columns (8:12)
+  int                      posSens_;               //Position depleted layer
   std::string              material_;              //Name of the material
   std::string              fullCN_, fullSensN_;    //Name of full cell
   std::vector<std::string> truncCN_, truncSensN_;  //Names of truncated cells
