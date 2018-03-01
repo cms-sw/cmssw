@@ -6,8 +6,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include <cuda.h>
-
-#include <dlfcn.h>
+#include "HeterogeneousCore/CUDAUtilities/interface/getCudaDrvErrorString.h"
 
 CUDAService::CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry& iRegistry) {
   bool configEnabled = iConfig.getUntrackedParameter<bool>("enabled");
@@ -18,14 +17,14 @@ CUDAService::CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry
 
   auto ret = cuInit(0);
   if(CUDA_SUCCESS != ret) {
-    edm::LogWarning("CUDAService") << "cuInit failed, return value " << ret << ", disabling CUDAService";
+    edm::LogWarning("CUDAService") << "Failed to initialize the CUDA driver API by calling cuInit, return value " << ret << " ("<< getCudaDrvErrorString(ret) << "), disabling CUDAService";
     return;
   }
   edm::LogInfo("CUDAService") << "cuInit succeeded";
 
   ret = cuDeviceGetCount(&numberOfDevices_);
   if(CUDA_SUCCESS != ret) {
-    edm::LogWarning("CUDAService") << "cuDeviceGetCount failed, return value " << ret << ", disabling CUDAService";
+    edm::LogWarning("CUDAService") << "Failed to call cuDeviceGetCount from CUDA driver API, return value " << ret << " ("<< getCudaDrvErrorString(ret) << "), disabling CUDAService";
     return;
   }
   edm::LogInfo("CUDAService") << "cuDeviceGetCount succeeded, found " << numberOfDevices_ << " devices";
@@ -39,7 +38,7 @@ CUDAService::CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry
     int major, minor;
     ret = cuDeviceComputeCapability(&major, &minor, i);
     if(CUDA_SUCCESS != ret) {
-      edm::LogWarning("CUDAService") << "cuDeviceComputeCapability failed for device " << i << ", return value " << ret << " disabling CUDAService";
+      edm::LogWarning("CUDAService") << "Failed to call cuDeviceComputeCapability for device " << i << " from CUDA driver API, return value " << ret << " ("<< getCudaDrvErrorString(ret) << "), disabling CUDAService";
       return;
     }
     edm::LogInfo("CUDAService") << "Device " << i << " compute capability major " << major << " minor " << minor;
