@@ -11,13 +11,15 @@
 /* ROOT */
 #include "Math/Vector3D.h"
 
+#include <unordered_map>
+
 namespace l1t 
 {
   template <class C> class HGCalClusterT : public L1Candidate 
   {
 
     public:
-      typedef typename std::vector<edm::Ptr<C>>::const_iterator const_iterator;
+      typedef typename std::unordered_map<uint32_t, edm::Ptr<C>>::const_iterator const_iterator;
 
     public:
       HGCalClusterT(){}
@@ -47,7 +49,7 @@ namespace l1t
       
       ~HGCalClusterT() override {};
       
-      const std::vector<edm::Ptr<C>>& constituents() const { return constituents_; }
+      const std::unordered_map<uint32_t, edm::Ptr<C>>& constituents() const { return constituents_; }
       const_iterator constituents_begin() const { return constituents_.begin(); }
       const_iterator constituents_end() const { return constituents_.end(); }
       unsigned size() const { return constituents_.size(); }
@@ -97,8 +99,8 @@ namespace l1t
         updatedP4 += (c->p4()*fraction);
         setP4( updatedP4 );
 
-        constituents_.push_back( c );
-        constituentsFraction_.push_back( fraction );
+        constituents_.emplace( c->detId(), c );
+        constituentsFraction_.emplace( c->detId(), fraction );
 
       }
 
@@ -107,21 +109,14 @@ namespace l1t
         /* remove the pointer to c from the std::vector */
         double fraction=0;
         bool constituentRemoved=false;
-        for( unsigned i=0; i<constituents_.size(); i++ )
+        const auto& constituent_itr = constituents_.find(c->detId());
+        const auto& fraction_itr = constituentsFraction_.find(c->detId());
+        if(constituent_itr!=constituents_.end())
         {
-          if( constituents_[i] == c )
-          {
-            // remove constituent and get its fraction in the cluster
-            constituents_.erase( constituents_.begin()+i );
-            fraction = constituentsFraction_.at(i);
-            constituentsFraction_.erase( constituentsFraction_.begin()+i );
-            constituentRemoved=true;
-            break;
-          }
-        }
-
-        /* if a constituent has been removed update cluster info */
-        if( constituentRemoved ) {
+          // remove constituent and get its fraction in the cluster
+          fraction = fraction_itr->second;
+          constituents_.erase(constituent_itr);
+          constituentsFraction_.erase(fraction_itr);
 
           /* update cluster positions (IF requested) */
           double cMipt = c->mipPt()*fraction;
@@ -154,7 +149,6 @@ namespace l1t
           setP4( updatedP4 );
 
         }
-
       }
 
       bool valid() const { return valid_; }
@@ -250,8 +244,8 @@ namespace l1t
       bool valid_;
       HGCalDetId detId_;
 
-      std::vector<edm::Ptr<C>> constituents_;  /* ???? possibly change this in something like     */
-      std::vector<double> constituentsFraction_;  /*    vector<pair<edm::Ptr<C>,float>>    ????  */
+      std::unordered_map<uint32_t, edm::Ptr<C>> constituents_;
+      std::unordered_map<uint32_t, double> constituentsFraction_;
 
       GlobalPoint centre_;
       GlobalPoint centreProj_; // centre projected onto the first HGCal layer

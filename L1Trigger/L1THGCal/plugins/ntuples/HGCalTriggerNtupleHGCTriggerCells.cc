@@ -153,10 +153,10 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     for(const auto& cl_ptr : mcl_itr->constituents())
     {
       // loop on TC inside 2D clusters
-      for(const auto& tc_ptr : cl_ptr->constituents())
+      for(const auto& tc_ptr : cl_ptr.second->constituents())
       {
-        cell2cluster.emplace(tc_ptr->detId(), cl_ptr->detId());
-        cell2multicluster.emplace(tc_ptr->detId(), mcl_itr);
+        cell2cluster.emplace(tc_ptr.second->detId(), cl_ptr.second->detId());
+        cell2multicluster.emplace(tc_ptr.second->detId(), mcl_itr);
       }
     }
   }

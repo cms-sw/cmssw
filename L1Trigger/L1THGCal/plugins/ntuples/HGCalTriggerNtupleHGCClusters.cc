@@ -104,7 +104,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     // loop on 2D clusters inside 3D clusters
     for(const auto& cl_ptr : mcl_itr->constituents())
     {
-      cluster2multicluster.emplace(cl_ptr->detId(), mcl_itr);
+      cluster2multicluster.emplace(cl_ptr.second->detId(), mcl_itr);
     }
   }
 
@@ -132,7 +132,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     // Retrieve indices of trigger cells inside cluster
     cl_cells_id_.emplace_back(cl_itr->constituents().size());
     std::transform(cl_itr->constituents_begin(), cl_itr->constituents_end(),
-        cl_cells_id_.back().begin(), [](const edm::Ptr<l1t::HGCalTriggerCell>& tc){return tc->detId();}
+        cl_cells_id_.back().begin(), [](const std::pair<uint32_t,edm::Ptr<l1t::HGCalTriggerCell>>& id_tc){return id_tc.second->detId();}
         );
     cl_multicluster_id_.emplace_back(mcl_id);
     cl_multicluster_pt_.emplace_back(mcl_pt);
