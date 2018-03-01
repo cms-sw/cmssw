@@ -407,4 +407,16 @@ MuonPOGSkim     = cms.FilteredStream(
     dataTier = cms.untracked.string('USER')
     )
 
+
+MuonPOGJPsiSkimPath = cms.Path(MuonPOGJPsiSkimSequence)
+MuonPOGJPsiSkim     = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'MuonPOGJPsiSkim',
+    paths = (MuonPOGJPsiSkimPath),
+    content = MuonPOG_EventContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
+    )
+
+
 #####################
