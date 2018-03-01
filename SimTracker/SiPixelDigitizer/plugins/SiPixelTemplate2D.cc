@@ -260,14 +260,14 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
    
    // We must create a new object because dbobject must be a const and our stream must not be
    SiPixel2DTemplateDBObject db = dbobject;
-   
-   // Create a local template storage entry
-   SiPixelTemplateStore2D theCurrentTemp;
-   
+      
    // Fill the template storage for each template calibration stored in the db
    for(int m=0; m<db.numOfTempl(); ++m)
    {
-      
+     
+      // Create a local template storage entry
+      SiPixelTemplateStore2D theCurrentTemp;
+     
       // Read-in a header string first and print it
       
       SiPixel2DTemplateDBObject::char2float temp;
@@ -417,11 +417,12 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
             
          }
       }
+      
+      // Add this template to the store
+      thePixelTemp_.push_back(theCurrentTemp);
 
    }
    
-   // Add this template to the store
-   thePixelTemp_.push_back(theCurrentTemp);
    
    return true;
    

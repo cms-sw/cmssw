@@ -131,15 +131,17 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
 
   // Read template files for charge reweighting
   if (UseTemplateAgeing){
-    templateStores_.reserve(2);    
     edm::ESHandle<SiPixel2DTemplateDBObject> SiPixel2DTemp_den;
     es.get<SiPixel2DTemplateDBObjectRcd>().get("denominator",SiPixel2DTemp_den);
     SiPixel2DTemplateDBObject dbobject_den = *SiPixel2DTemp_den.product();
-    SiPixelTemplate2D::pushfile(dbobject_den, templateStores_);
-
+    
     edm::ESHandle<SiPixel2DTemplateDBObject> SiPixel2DTemp_num;
     es.get<SiPixel2DTemplateDBObjectRcd>().get("numerator",SiPixel2DTemp_num);
     SiPixel2DTemplateDBObject dbobject_num = *SiPixel2DTemp_num.product();
+    
+    int numOfTemplates = dbobject_den.numOfTempl()+dbobject_num.numOfTempl();
+    templateStores_.reserve(numOfTemplates);
+    SiPixelTemplate2D::pushfile(dbobject_den, templateStores_);
     SiPixelTemplate2D::pushfile(dbobject_num, templateStores_);
     
     track.reserve(6);
