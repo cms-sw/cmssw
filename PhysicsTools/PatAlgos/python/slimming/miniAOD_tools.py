@@ -439,8 +439,8 @@ def miniAOD_customizeCommon(process):
        jetSource = cms.InputTag('slimmedJetsPuppiNoMultiplicties'),
     )
     process.updatedPatJetsPuppiJetSpecific.userData.userFloats.src = ['patPuppiJetSpecificProducer:puppiMultiplicity', 'patPuppiJetSpecificProducer:neutralPuppiMultiplicity', 'patPuppiJetSpecificProducer:neutralHadronPuppiMultiplicity', 'patPuppiJetSpecificProducer:photonPuppiMultiplicity', 'patPuppiJetSpecificProducer:HFHadronPuppiMultiplicity', 'patPuppiJetSpecificProducer:HFEMPuppiMultiplicity' ]
-    process.slimmedJetsPuppi = process.updatedPatJetsPuppiJetSpecific.clone()
-    delattr(process, 'updatedPatJetsPuppiJetSpecific')
+    process.slimmedJetsPuppi = process.selectedUpdatedPatJetsPuppiJetSpecific.clone()
+    delattr(process, 'selectedUpdatedPatJetsPuppiJetSpecific')
 
     task.add(process.slimmedJetsPuppi)
     
