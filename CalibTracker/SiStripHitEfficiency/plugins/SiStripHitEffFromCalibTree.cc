@@ -95,7 +95,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     ~SiStripHitEffFromCalibTree() override;
 
   private:
-    virtual void algoBeginJob();
+    virtual void algoBeginJob(const edm::EventSetup&) override;
     void algoEndJob() override;
     void algoAnalyze(const edm::Event& e, const edm::EventSetup& c) override;
     void SetBadComponents(int i, int component,SiStripQuality::BadComponent& BC, std::stringstream ssV[4][19], int NBadComponent[4][19][4]);
@@ -199,7 +199,7 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
 
 SiStripHitEffFromCalibTree::~SiStripHitEffFromCalibTree() { }
 
-void SiStripHitEffFromCalibTree::algoBeginJob() {
+void SiStripHitEffFromCalibTree::algoBeginJob(const edm::EventSetup&) {
   //I have no idea what goes here
   //fs->make<TTree>("HitEffHistos","Tree of the inefficient hit histograms");
 }
