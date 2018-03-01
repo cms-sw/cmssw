@@ -1659,10 +1659,10 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
       }
     }
   }
-  ic++;
+//  ic++; // ic=NHBHECR after increment after traversing for loop starting at 1517 and ending at 1605
 
   /*HO calibration channels*/
-  for(ic=ic; ic<NCALIBCR; ic++){
+  for(ic=NHBHECR; ic<NCALIBCR; ic++){
     icrate=calibcrate[ic];
     irm_fi = 1;// everything other than he is on A
     ifed=fedcalibnum[ic][idcc-1];
