@@ -15,37 +15,6 @@ CUDAService::CUDAService(edm::ParameterSet const& iConfig, edm::ActivityRegistry
     edm::LogInfo("CUDAService") << "CUDAService disabled by configuration";
   }
 
-  // First check if we can load the cuda runtime library
-  void *cudaLib = dlopen("libcuda.so", RTLD_NOW);
-  if(cudaLib == nullptr) {
-    edm::LogWarning("CUDAService") << "Failed to dlopen libcuda.so, disabling CUDAService";
-    return;
-  }
-  edm::LogInfo("CUDAService") << "Found libcuda.so";
-
-  // Find functions
-  auto cuInit = reinterpret_cast<CUresult (*)(unsigned int Flags)>(dlsym(cudaLib, "cuInit"));
-  if(cuInit == nullptr) {
-    edm::LogWarning("CUDAService") << "Failed to find cuInit from libcuda.so, disabling CUDAService";
-    return;
-  }
-  edm::LogInfo("CUDAService") << "Found cuInit from libcuda";
-
-  auto cuDeviceGetCount = reinterpret_cast<CUresult (*)(int *count)>(dlsym(cudaLib, "cuDeviceGetCount"));
-  if(cuDeviceGetCount == nullptr) {
-    edm::LogWarning("CUDAService") << "Failed to find cuDeviceGetCount from libcuda.so, disabling CUDAService";
-    return;
-  }
-  edm::LogInfo("CUDAService") << "Found cuDeviceGetCount from libcuda";
-
-  auto cuDeviceComputeCapability = reinterpret_cast<CUresult (*)(int *major, int *minor, CUdevice dev)>(dlsym(cudaLib, "cuDeviceComputeCapability"));
-  if(cuDeviceComputeCapability == nullptr) {
-    edm::LogWarning("CUDAService") << "Failed to find cuDeviceComputeCapability from libcuda.so, disabling CUDAService";
-    return;
-  }
-  edm::LogInfo("CUDAService") << "Found cuDeviceComputeCapability";
-
-  // Then call functions
   auto ret = cuInit(0);
   if(CUDA_SUCCESS != ret) {
     edm::LogWarning("CUDAService") << "cuInit failed, return value " << ret << ", disabling CUDAService";
