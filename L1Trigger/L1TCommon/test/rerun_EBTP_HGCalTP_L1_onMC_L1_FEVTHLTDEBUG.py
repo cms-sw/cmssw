@@ -29,7 +29,13 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/r/rekovic/release/CMSSW_9_3_2/src/step2_DIGI_PU200_10ev.root'),
     fileNames = cms.untracked.vstring('/store/group/upgrade/sandhya/SMP-PhaseIIFall17D-00001.root'),
-    secondaryFileNames = cms.untracked.vstring()
+    secondaryFileNames = cms.untracked.vstring(),
+    inputCommands = cms.untracked.vstring("keep *", 
+        "drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT",
+        "drop l1tEMTFHit2016Extras_simEmtfDigis_RPC_HLT",
+        "drop l1tEMTFHit2016s_simEmtfDigis__HLT",
+        "drop l1tEMTFTrack2016Extras_simEmtfDigis__HLT",
+        "drop l1tEMTFTrack2016s_simEmtfDigis__HLT")
 )
 
 process.options = cms.untracked.PSet(
@@ -60,60 +66,12 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '93X_upgrade2023_realistic_v2', '')
-
-process.HcalHardcodeGeometryEP = cms.ESProducer("HcalHardcodeGeometryEP",
-    UseOldLoader = cms.bool(False)
-)
+process.GlobalTag = GlobalTag(process.GlobalTag, '100X_upgrade2023_realistic_v1', '')
 
 
-process.HcalTPGCoderULUT = cms.ESProducer("HcalTPGCoderULUT",
-    FGLUTs = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/HBHE_FG_LUT.dat'),
-    LUTGenerationMode = cms.bool(True),
-    MaskBit = cms.int32(32768),
-    RCalibFile = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/RecHit-TPG-calib.dat'),
-    inputLUTs = cms.FileInPath('CalibCalorimetry/HcalTPGAlgos/data/inputLUTcoder_physics.dat'),
-    read_Ascii_LUTs = cms.bool(False),
-    read_FG_LUTs = cms.bool(False),
-    read_XML_LUTs = cms.bool(False)
-)
 
-
-process.HcalTrigTowerGeometryESProducer = cms.ESProducer("HcalTrigTowerGeometryESProducer")
-
-process.CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
-    SelectedCalos = cms.vstring('HCAL', 
-        'ZDC', 
-        'EcalBarrel', 
-        'TOWER', 
-        'HGCalEESensitive', 
-        'HGCalHESiliconSensitive')
-)
-
-
-process.CaloTPGTranscoder = cms.ESProducer("CaloTPGTranscoderULUTs",
-    HFTPScaleShift = cms.PSet(
-        NCT = cms.int32(1),
-        RCT = cms.int32(3)
-    ),
-    LUTfactor = cms.vint32(1, 2, 5, 0),
-    RCTLSB = cms.double(0.25),
-    ZS = cms.vint32(4, 2, 1, 0),
-    hcalLUT1 = cms.FileInPath('CalibCalorimetry/CaloTPG/data/outputLUTtranscoder_physics.dat'),
-    hcalLUT2 = cms.FileInPath('CalibCalorimetry/CaloTPG/data/TPGcalcDecompress2.txt'),
-    ietaLowerBound = cms.vint32(1, 18, 27, 29),
-    ietaUpperBound = cms.vint32(17, 26, 28, 32),
-    nominal_gain = cms.double(0.177),
-    read_Ascii_Compression_LUTs = cms.bool(False),
-    read_Ascii_RCT_LUTs = cms.bool(False)
-)
-
-
-process.CaloTopologyBuilder = cms.ESProducer("CaloTopologyBuilder")
-
-process.CaloTowerHardcodeGeometryEP = cms.ESProducer("CaloTowerHardcodeGeometryEP")
-
-process.CaloTowerTopologyEP = cms.ESProducer("CaloTowerTopologyEP")
+process.load('SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff')
+process.load('CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi')
 
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
