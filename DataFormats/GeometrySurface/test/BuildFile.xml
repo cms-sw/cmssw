@@ -1,16 +1,16 @@
-<use   name="DataFormats/GeometrySurface"/>
-<use   name="cppunit"/>
-<use   name="boost"/>
-<bin   file="FrameTransformTest.cpp">
-</bin>
-<bin   file="OldFrameTransformTest.cpp">
-</bin>
+<use name="boost"/>
+<use name="cppunit"/>
+<use name="DataFormats/GeometrySurface"/>
 
-<bin   file="PrecisionMixSurface.cpp">
+<bin file="FrameTransformTest.cpp">
 </bin>
-<bin   file="referencecounted_t.cpp">
+<bin file="OldFrameTransformTest.cpp">
 </bin>
-<bin   file="testGeometricSort.cpp" name="testGeometricSort">
+<bin file="PrecisionMixSurface.cpp">
 </bin>
-<bin   file="Bounds_t.cpp">
+<bin file="referencecounted_t.cpp">
+</bin>
+<bin file="testGeometricSort.cpp" name="testGeometricSort">
+</bin>
+<bin file="Bounds_t.cpp">
 </bin>
