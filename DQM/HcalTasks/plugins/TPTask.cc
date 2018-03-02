@@ -594,14 +594,17 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 	edm::Handle<HcalTrigPrimDigiCollection> cemul;
 	edm::Handle<HcalTrigPrimDigiCollection> cemul_noTDCCut;
 	if (!e.getByToken(_tokData, cdata))
-		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
+		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available: "
 			+ _tagData.label() + " " + _tagData.instance());
 	if (!e.getByToken(_tokEmul, cemul))
-		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
+		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available: "
 			+ _tagEmul.label() + " " + _tagEmul.instance());
-	if (!e.getByToken(_tokEmulNoTDCCut, cemul_noTDCCut))
-		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
-			+ _tagEmulNoTDCCut.label() + " " + _tagEmulNoTDCCut.instance());
+	if (_ptype == fOnline) {
+		if (!e.getByToken(_tokEmulNoTDCCut, cemul_noTDCCut)) {
+			_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available: "
+				+ _tagEmulNoTDCCut.label() + " " + _tagEmulNoTDCCut.instance());
+		}
+	}
 
 	//	extract some info per event
 	int bx = e.bunchCrossing();
