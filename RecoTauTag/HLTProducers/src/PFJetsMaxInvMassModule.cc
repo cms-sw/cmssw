@@ -29,11 +29,8 @@ void PFJetsMaxInvMassModule::produce(edm::StreamID iSId, edm::Event& iEvent, con
 
     if(jets->size() > 1){
         for(unsigned i = 0; i < jets->size(); i++){  
-
             for(unsigned j = i+1; j < jets->size(); j++){  
-
                 double test = ((*jets)[i].p4()+(*jets)[j].p4()).M();
-
                 if (test > mjj_max) {
                     mjj_max = test;
                     iCan = i;
