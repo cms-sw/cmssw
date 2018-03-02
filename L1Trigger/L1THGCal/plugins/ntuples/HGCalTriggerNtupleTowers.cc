@@ -12,11 +12,11 @@ class HGCalTriggerNtupleHGCTowers : public HGCalTriggerNtupleBase
   public:
     HGCalTriggerNtupleHGCTowers(const edm::ParameterSet& conf);
     ~HGCalTriggerNtupleHGCTowers(){};
-    virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
-    virtual void fill(const edm::Event& e, const edm::EventSetup& es) override final;
+    void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
+    void fill(const edm::Event& e, const edm::EventSetup& es) final;
 
   private:
-    virtual void clear() override final;
+    void clear() final;
 
     edm::EDGetToken towers_token_;
 

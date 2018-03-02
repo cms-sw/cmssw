@@ -19,13 +19,12 @@ namespace {
   constexpr char hgcalee_sens[] = "HGCalEESensitive";
   constexpr char hgcalfh_sens[] = "HGCalHESiliconSensitive";
 
-  constexpr std::float_t idx_to_thickness = std::float_t(100.0);
 
   template<typename DDD>
   inline void check_ddd(const DDD* ddd) {
     if( nullptr == ddd ) {
       throw cms::Exception("hgcal::HGCalTriggerTools")
-        << "DDDConstants not accessibl to hgcal::HGCalTriggerTools!";
+        << "DDDConstants not accessible to hgcal::HGCalTriggerTools!";
     }
   }
 
