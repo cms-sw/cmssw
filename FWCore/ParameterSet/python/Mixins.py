@@ -644,10 +644,7 @@ def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
                                                   ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth,key))
                         for k,v in p.iteritems():
                             setattr(pset,k,v)
-                            try:
-                                oldkeys.remove(k)
-                            except KeyError:
-                                pass
+                            oldkeys.discard(k)
                         for k in oldkeys:
                             delattr(pset,k)
                     elif isinstance(params[key],_ValidatingParameterListBase):
