@@ -330,7 +330,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 
     ++DTTM7iterator; // User word empty  /// ==>> increment 2
     if( DTTM7iterator == DTTM7itend ) {
-      edm::LogInfo("TwinMux_unpacker") << "TRAILING WORD AS A PAYLOAD END in FED " 
+      LogDebug("TwinMux_unpacker") << "TRAILING WORD AS A PAYLOAD END in FED " 
                                        << std::hex << TM7fedId 
                                        << std::hex << dataWord 
                                        << std::dec<< " [it pos " 
@@ -532,7 +532,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0x9 || selector == 0xE ) { //RPC word
 			  
-			edm::LogInfo("TwinMux_unpacker") << "RPC WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "RPC WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -544,7 +544,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0x6 ) { //HO word
 			  
-			edm::LogInfo("TwinMux_unpacker") << "HO WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "HO WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -556,7 +556,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0xF ) { //ERROR word
 
-			edm::LogInfo("TwinMux_unpacker") << "ERROR WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "ERROR WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -567,7 +567,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 
 		  else { //unkown word
 
-			edm::LogInfo("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 
+			LogDebug("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 
 											   << " in FED " << std::hex << TM7fedId;
 
 			if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
@@ -873,7 +873,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 		   
 		  else if ( selector == 0x9 || selector == 0xE ) { //RPC word
 			  
-			edm::LogInfo("TwinMux_unpacker") << "RPC WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "RPC WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -885,7 +885,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0x6 ) { //HO word
 			  
-			edm::LogInfo("TwinMux_unpacker") << "HO WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "HO WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -897,7 +897,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0xF ) { //ERROR word
 
-			edm::LogInfo("TwinMux_unpacker") << "ERROR WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "ERROR WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -908,7 +908,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 
 		  else { //unkown word
 
-			edm::LogInfo("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 
+			LogDebug("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 
 											   << " in FED " << std::hex << TM7fedId;
 
 			if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
