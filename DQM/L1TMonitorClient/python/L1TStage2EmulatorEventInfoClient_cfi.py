@@ -93,7 +93,7 @@ l1tStage2EmulatorEventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
-                                QualityTestName = cms.string("BMTFDE_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("BMTFDE_MismatchRatioMax0p01"),
                                 QualityTestHist = cms.string("L1TEMU/L1TdeStage2BMTF/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
@@ -105,7 +105,7 @@ l1tStage2EmulatorEventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
-                                QualityTestName = cms.string("OMTFDE_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("OMTFDE_MismatchRatioMax0p01"),
                                 QualityTestHist = cms.string("L1TEMU/L1TdeStage2OMTF/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
@@ -117,7 +117,7 @@ l1tStage2EmulatorEventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                         SystemDisable  = cms.uint32(0),
                         QualityTests = cms.VPSet(
                             cms.PSet(
-                                QualityTestName = cms.string("EMTFDE_MismatchRatioMax0p05"),
+                                QualityTestName = cms.string("EMTFDE_MismatchRatioMax0p01"),
                                 QualityTestHist = cms.string("L1TEMU/L1TdeStage2EMTF/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
