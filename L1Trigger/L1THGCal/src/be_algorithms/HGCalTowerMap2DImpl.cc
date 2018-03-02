@@ -71,17 +71,17 @@ void HGCalTowerMap2DImpl::buildTowerMap2D(const std::vector<edm::Ptr<l1t::HGCalT
 
   std::vector<l1t::HGCalTowerMap> towerMapsTmp = newTowerMaps();
 
-  for( std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc ){
+  for(const auto& tc : triggerCellsPtrs){
 
-    unsigned layer = triggerTools_.layerWithOffset((*tc)->detId());
-    int iEta = towerMapsTmp[layer-1].iEta((*tc)->eta());
-    int iPhi = towerMapsTmp[layer-1].iPhi((*tc)->phi());
+    unsigned layer = triggerTools_.layerWithOffset(tc->detId());
+    int iEta = towerMapsTmp[layer-1].iEta(tc->eta());
+    int iPhi = towerMapsTmp[layer-1].iPhi(tc->phi());
 
-    double calibPt = (*tc)->pt();
-    if(useLayerWeights_) calibPt = layerWeights_[layer]*((*tc)->mipPt());
+    double calibPt = tc->pt();
+    if(useLayerWeights_) calibPt = layerWeights_[layer]*(tc->mipPt());
     math::PtEtaPhiMLorentzVector p4(calibPt,
-				    (*tc)->eta(),
-				    (*tc)->phi(),
+				    tc->eta(),
+				    tc->phi(),
 				    0. );
 
     double etEm = layer<=triggerTools_.lastLayerEE() ? calibPt : 0;

@@ -40,7 +40,7 @@ class HGCTowerAlgo : public Algorithm<FECODEC>
         }
 	
     
-        virtual void setProduces(edm::stream::EDProducer<>& prod) const override final
+        void setProduces(edm::stream::EDProducer<>& prod) const final
         {
             prod.produces<l1t::HGCalTriggerCellBxCollection>( "calibratedTriggerCellsTower" );            
             prod.produces<l1t::HGCalTowerMapBxCollection>( "towerMap" );
@@ -48,16 +48,16 @@ class HGCTowerAlgo : public Algorithm<FECODEC>
         }
           
             
-        virtual void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es, edm::Event&evt ) override final;
+        void run(const l1t::HGCFETriggerDigiCollection& coll, const edm::EventSetup& es, edm::Event&evt ) final;
 
 
-        virtual void putInEvent(edm::Event& evt) override final 
+        void putInEvent(edm::Event& evt) final
         {
 
         }
 
 
-        virtual void reset() override final 
+        void reset() final
         {
             trgcell_product_.reset( new l1t::HGCalTriggerCellBxCollection );    
             towermap_product_.reset( new l1t::HGCalTowerMapBxCollection );
