@@ -8,8 +8,6 @@ description: Computes the type 1 and type 2 corrections to the luminosity
 authors:Sam Higginbotham (shigginb@cern.ch) and Chris Palmer (capalmer@cern.ch) 
 
 ________________________________________________________________**/
-
-// C++ standard
 #include <memory>
 #include <string>
 #include <vector>
@@ -17,7 +15,6 @@ ________________________________________________________________**/
 #include <iostream> 
 #include <map>
 #include <utility>
-// CMS
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Luminosity/interface/LumiCorrections.h"
 #include "CondFormats/DataRecord/interface/LumiCorrectionsRcd.h"
@@ -42,7 +39,6 @@ ________________________________________________________________**/
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
-//ROOT
 #include "TMath.h"
 #include "TH1.h"
 #include "TGraph.h"
@@ -55,13 +51,6 @@ class CorrPCCProducer : public edm::one::EDProducer<edm::EndRunProducer,edm::one
         ~CorrPCCProducer();
 
     private:
-        void makeCorrectionTemplate ();
-        float getMaximum(std::vector<float>);
-        void estimateType1Frac(std::vector<float>, float& );
-        void evaluateCorrectionResiduals(std::vector<float>); 
-        void calculateCorrections (std::vector<float>, std::vector<float>&, float&);
-        std::vector<float>& makeCorrections (std::vector<float>&);
-        void resetBlock();
         virtual void beginRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) override final;
         virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup);
         virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup);
@@ -71,11 +60,17 @@ class CorrPCCProducer : public edm::one::EDProducer<edm::EndRunProducer,edm::one
         virtual void endJob()  override final;
         virtual void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) override final;
 
+        void makeCorrectionTemplate ();
+        float getMaximum(std::vector<float>);
+        void estimateType1Frac(std::vector<float>, float& );
+        void evaluateCorrectionResiduals(std::vector<float>); 
+        void calculateCorrections (std::vector<float>, std::vector<float>&, float&);
+        void resetBlock();
+
         edm::EDGetTokenT<LumiInfo>  lumiInfoToken;
         std::string   pccSrc_;//input file EDproducer module label 
         std::string   prodInst_;//input file product instance 
 
-        std::string trigstring_; //specifices the iov LSs for the object that is saved.  
         std::vector<float> rawlumiBX_;//new vector containing clusters per bxid 
         std::vector<float> errOnLumiByBX_;//standard error per bx
         std::vector<float> totalLumiByBX_;//summed lumi
@@ -113,7 +108,7 @@ class CorrPCCProducer : public edm::one::EDProducer<edm::EndRunProducer,edm::one
         float mean_type2_residual_unc;//Type 2 residual uncertainty rms 
         unsigned int nTrain;//Number of bunch trains used in calc type 1 and 2 res, frac.
         unsigned int countLumi_;//The lumisection count... the size of the lumiblock
-        unsigned int resetNLumi_;//The number of lumisections per block.
+        unsigned int approxLumiBlockSize_;//The number of lumisections per block.
         unsigned int thisLS;//Ending lumisection for the iov that we save with the lumiInfo object.
 
         double type2_a_;//amplitude for the type 2 correction 
@@ -130,8 +125,7 @@ CorrPCCProducer::CorrPCCProducer(const edm::ParameterSet& iConfig)
 {
     pccSrc_ = iConfig.getParameter<edm::ParameterSet>("CorrPCCProducerParameters").getParameter<std::string>("inLumiObLabel");
     prodInst_ = iConfig.getParameter<edm::ParameterSet>("CorrPCCProducerParameters").getParameter<std::string>("ProdInst");
-    trigstring_ = iConfig.getParameter<edm::ParameterSet>("CorrPCCProducerParameters").getUntrackedParameter<std::string>("trigstring","alcaLumi");
-    resetNLumi_=iConfig.getParameter<edm::ParameterSet>("CorrPCCProducerParameters").getParameter<int>("resetEveryNLumi");
+    approxLumiBlockSize_=iConfig.getParameter<edm::ParameterSet>("CorrPCCProducerParameters").getParameter<int>("approxLumiBlockSize");
     type2_a_ = iConfig.getParameter<edm::ParameterSet>("CorrPCCProducerParameters").getParameter<double>("type2_a");
     type2_b_ = iConfig.getParameter<edm::ParameterSet>("CorrPCCProducerParameters").getParameter<double>("type2_b");
     countLumi_=0;
@@ -147,9 +141,9 @@ CorrPCCProducer::CorrPCCProducer(const edm::ParameterSet& iConfig)
 
     makeCorrectionTemplate(); 
 
-    edm::InputTag PCCInputTag_(pccSrc_, prodInst_);
+    edm::InputTag inputPCCTag_(pccSrc_, prodInst_);
 
-    lumiInfoToken=consumes<LumiInfo, edm::InLumi>(PCCInputTag_);
+    lumiInfoToken=consumes<LumiInfo, edm::InLumi>(inputPCCTag_);
 
     histoFile = new TFile("CorrectionHisto.root","RECREATE");
 
@@ -172,15 +166,6 @@ CorrPCCProducer::CorrPCCProducer(const edm::ParameterSet& iConfig)
 
 //--------------------------------------------------------------------------------------------------
 CorrPCCProducer::~CorrPCCProducer(){
-}
-//--------------------------------------------------------------------------------------------------
-// Can apply corrections to vector of clusters per bx
-std::vector<float>& CorrPCCProducer::makeCorrections(std::vector<float>& corrected_){
-
-    for(unsigned int bx=0;bx<LumiConstants::numBX;bx++){
-        corrected_.at(bx)=corrected_.at(bx)*correctionScaleFactors_.at(bx);//Applying the corrections
-    } 
-    return corrected_;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -300,6 +285,7 @@ void CorrPCCProducer::calculateCorrections (std::vector<float> uncorrected, std:
     type1Frac = 0;
 
     int nTrials=4;
+
     for(int trial=0;trial<nTrials;trial++){
         estimateType1Frac(uncorrected, type1Frac);
         edm::LogInfo("INFO") <<"type 1 fraction after iteration "<<trial<<" is  "<<type1Frac;
@@ -385,8 +371,13 @@ void CorrPCCProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, co
 
     if(totalEvents<minimumNumberOfEvents){
         edm::LogInfo("INFO") <<"number of events in this LS is too few "<<totalEvents;
-        return;
+        //return;
     }
+    else{
+         
+        edm::LogInfo("INFO") <<"Skipping Lumisection "<<thisLS;
+    }
+
     lumiInfoMapPerLS[thisLS] = new LumiInfo();
     totalLumiByBX_=inLumiOb.getInstLumiAllBX();
     events_=inLumiOb.getErrorLumiAllBX();
@@ -411,26 +402,29 @@ void CorrPCCProducer::endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSe
 
     std::sort (lumiSections.begin(), lumiSections.end());
 
-    edm::LogInfo("INFO") <<"size "<<lumiSections.size();
+    edm::LogInfo("INFO") <<"Number of Lumisections "<<lumiSections.size()<<" in run "<<runSeg.run() ;
 
-    float nBlocks_f = float(lumiSections.size())/resetNLumi_;
+    //Determining integer number of blocks
+    float nBlocks_f = float(lumiSections.size())/approxLumiBlockSize_;
     unsigned int nBlocks=1;
     if(nBlocks_f>1){
-        if(nBlocks_f - lumiSections.size()/resetNLumi_ < 0.5){
-            nBlocks=lumiSections.size()/resetNLumi_;
+        if(nBlocks_f - lumiSections.size()/approxLumiBlockSize_ < 0.5){
+            nBlocks=lumiSections.size()/approxLumiBlockSize_;
         } else {
-            nBlocks=lumiSections.size()/resetNLumi_+1;
+            nBlocks=lumiSections.size()/approxLumiBlockSize_+1;
         }
     }
 
-    float LSPerBlock = float(lumiSections.size())/nBlocks;
+    float nLSPerBlock = float(lumiSections.size())/nBlocks;
 
     std::vector<std::pair<unsigned int, unsigned int>> lsKeys;
     lsKeys.clear();
 
+    //Constructing nBlocks IOVs 
     for(unsigned iKey=0; iKey<nBlocks; iKey++){
-        lsKeys.push_back(std::make_pair(lumiSections[(unsigned int)(iKey*LSPerBlock)], lumiSections[(unsigned int)((iKey+1)*LSPerBlock)-1]));
+        lsKeys.push_back(std::make_pair(lumiSections[(unsigned int)(iKey*nLSPerBlock)], lumiSections[(unsigned int)((iKey+1)*nLSPerBlock)-1]));
     }
+    
     lsKeys[0].first=1;
 
     for(unsigned int lumiSection=0; lumiSection<lumiSections.size(); lumiSection++){
@@ -457,7 +451,7 @@ void CorrPCCProducer::endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSe
             lumiInfoMap[lsKey] = new LumiInfo();
         }
 
-
+        //Sum all lumi in IOV of lsKey 
         totalLumiByBX_=lumiInfoMap[lsKey]->getInstLumiAllBX();
         events_       =lumiInfoMap[lsKey]->getErrorLumiAllBX();
 
@@ -466,7 +460,7 @@ void CorrPCCProducer::endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSe
 
         for(unsigned int bx=0;bx<LumiConstants::numBX;bx++){
             totalLumiByBX_[bx]+=rawlumiBX_[bx];
-            events_[bx]       +=errOnLumiByBX_[bx];
+            events_[bx]+=errOnLumiByBX_[bx];
         }
         lumiInfoMap[lsKey]->setInstLumiAllBX(totalLumiByBX_);
         lumiInfoMap[lsKey]->setErrorLumiAllBX(events_);
@@ -543,8 +537,14 @@ void CorrPCCProducer::endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSe
         pccCorrections->setType1Residual(mean_type1_residual);
         pccCorrections->setType2Residual(mean_type2_residual);
         pccCorrections->setCorrectionsBX(correctionScaleFactors_);
+        
 
-        poolDbService->writeOne<LumiCorrections>(pccCorrections,thisIOV,"LumiCorrectionsRcd"); 
+        if( poolDbService.isAvailable() ){ 
+            poolDbService->writeOne<LumiCorrections>(pccCorrections,thisIOV,"LumiCorrectionsRcd"); 
+        }
+        else{
+            throw std::runtime_error("PoolDBService required.");
+        }
 
         delete pccCorrections;
 
@@ -562,12 +562,12 @@ void CorrPCCProducer::endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSe
         type2resHist->Fill(mean_type2_residual);
 
 
-        type1FracGraph->SetPoint(iBlock,thisIOV+resetNLumi_/2.0,type1Frac);
-        type1resGraph->SetPoint(iBlock,thisIOV+resetNLumi_/2.0,mean_type1_residual);
-        type2resGraph->SetPoint(iBlock,thisIOV+resetNLumi_/2.0,mean_type2_residual);
-        type1FracGraph->SetPointError(iBlock,resetNLumi_/2.0,mean_type1_residual_unc);
-        type1resGraph->SetPointError(iBlock,resetNLumi_/2.0, mean_type1_residual_unc);
-        type2resGraph->SetPointError(iBlock,resetNLumi_/2.0, mean_type2_residual_unc);
+        type1FracGraph->SetPoint(iBlock,thisIOV+approxLumiBlockSize_/2.0,type1Frac);
+        type1resGraph->SetPoint(iBlock,thisIOV+approxLumiBlockSize_/2.0,mean_type1_residual);
+        type2resGraph->SetPoint(iBlock,thisIOV+approxLumiBlockSize_/2.0,mean_type2_residual);
+        type1FracGraph->SetPointError(iBlock,approxLumiBlockSize_/2.0,mean_type1_residual_unc);
+        type1resGraph->SetPointError(iBlock,approxLumiBlockSize_/2.0, mean_type1_residual_unc);
+        type2resGraph->SetPointError(iBlock,approxLumiBlockSize_/2.0, mean_type2_residual_unc);
 
         edm::LogInfo("INFO") <<"iBlock type1Frac mean_type1_residual mean_type2_residual mean_type1_residual_unc mean_type2_residual_unc "<<iBlock<<" "<<type1Frac<<" "<<mean_type1_residual<<" "<<mean_type2_residual<<" "<<mean_type1_residual_unc<<" "<<mean_type2_residual_unc;
 
