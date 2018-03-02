@@ -23,6 +23,7 @@ Ranges of FED ids are assigned to specific sub-detectors. Once FED ids have been
 <tr style='color:#000000'><td><div align='center'>TotemRPHorizontal</div></td><td><div align='center'>578</div></td><td><div align='center'>581</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>CTPPSDiamond</div></td><td><div align='center'>582</div></td><td><div align='center'>583</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>TotemRPVertical</div></td><td><div align='center'>584</div></td><td><div align='center'>585</div></td></tr>
+<tr style='color:#000000'><td><div align='center'>TotemRPTimingVertical</div></td><td><div align='center'>586</div></td><td><div align='center'>587</div></td></tr>
 <tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>586</div></td><td><div align='center'>599</div></td></tr>
 <tr style='color:#000000'><td><div align='center'>ECAL</div></td><td><div align='center'>600</div></td><td><div align='center'>670</div></td></tr>
 <tr style='color:#FF0000'><td><div align='center'>Free IDs</div></td><td><div align='center'>671</div></td><td><div align='center'>689</div></td></tr>
