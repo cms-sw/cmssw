@@ -78,12 +78,6 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     //ADC granularity
     double noiseADC = (1./sqrt(12))*channelData.tsDFcPerADC(iTS);
 
-    //Dark current (for SiPMs)
-    double noiseDC=0;
-    if(channelData.hasTimeInfo() && !channelData.hasEffectivePedestals() && (charge-ped)>channelData.tsPedestalWidth(iTS)) {
-      noiseDC = getSiPMDarkCurrent(channelData.darkCurrent(),channelData.fcByPE(),channelData.lambda());
-    }
-
     //Photostatistics
     double noisePhoto = 0;
     if ( (charge-ped)>channelData.tsPedestalWidth(iTS)) {
@@ -94,7 +88,7 @@ void MahiFit::phase1Apply(const HBHEChannelInfo& channelData,
     double pedWidth = channelData.tsPedestalWidth(iTS);
 
     //Total uncertainty from all sources
-    nnlsWork_.noiseTerms.coeffRef(iTS) = noiseADC*noiseADC + noiseDC*noiseDC + noisePhoto*noisePhoto + pedWidth*pedWidth;
+    nnlsWork_.noiseTerms.coeffRef(iTS) = noiseADC*noiseADC + noisePhoto*noisePhoto + pedWidth*pedWidth;
 
     tsTOT += (charge - ped)*channelData.tsGain(0);
     if( iTS==nnlsWork_.tsOffset ){
@@ -259,7 +253,7 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   float t0=meanTime_;
 
   if(applyTimeSlew_) {
-    if(itQ<=1.0) t0+=TSdelay1GeV_;
+    if(itQ<=1.0) t0+=tsDelay1GeV_;
     else t0+=hcalTimeSlewDelay_->delay(itQ,slewFlavor_);
   }
 
@@ -477,7 +471,7 @@ void MahiFit::setPulseShapeTemplate(const HcalPulseShapes::Shape& ps,const HcalT
     {
 
       hcalTimeSlewDelay_ = hcalTimeSlewDelay;
-      TSdelay1GeV_= hcalTimeSlewDelay->delay(1.0, slewFlavor_);
+      tsDelay1GeV_= hcalTimeSlewDelay->delay(1.0, slewFlavor_);
 
       resetPulseShapeTemplate(ps);
       currentPulseShape_ = &ps;

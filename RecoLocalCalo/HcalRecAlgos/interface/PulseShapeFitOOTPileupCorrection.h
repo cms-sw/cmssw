@@ -42,16 +42,12 @@ public:
 
     const HcalPulseShapes::Shape* currentPulseShape_=nullptr;
     const HcalTimeSlew* hcalTimeSlewDelay_=nullptr;
-    double TSdelay1GeV_=0;
-
-    void setChi2Term( bool isHPD );
+    double tsDelay1GeV_=0;
 
     void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD, unsigned nSamples, const HcalTimeSlew* hcalTimeSlewDelay);
     void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, unsigned nSamples);
 
 private:
-
-    inline double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const { double mu = darkCurrent * 25 / fcByPE; return sqrt(mu/pow(1-lambda,3)) * fcByPE;}
 
     int pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, 
 		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * ADCnoise, unsigned int soi) const;

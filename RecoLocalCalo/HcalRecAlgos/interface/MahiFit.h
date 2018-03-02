@@ -127,8 +127,6 @@ class MahiFit
 
   void solveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned nP) const;
 
-  inline double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const { double mu = darkCurrent * 25 / fcByPE; return sqrt(mu/pow(1-lambda,3)) * fcByPE;}
-  
   mutable MahiNnlsWorkspace nnlsWork_;
 
   //hard coded in initializer
@@ -144,7 +142,7 @@ class MahiFit
 
   bool applyTimeSlew_; 
   HcalTimeSlew::BiasSetting slewFlavor_;
-  double TSdelay1GeV_=0;
+  double tsDelay1GeV_=0;
 
   float meanTime_;
   float timeSigmaHPD_; 

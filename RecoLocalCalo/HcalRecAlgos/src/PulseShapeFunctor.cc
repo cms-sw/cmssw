@@ -68,7 +68,6 @@ namespace FitterFuncs{
     int i_start         = ( -HcalConst::iniTimeShift - pulseTime - slew >0 ? 0 : (int)std::abs(-HcalConst::iniTimeShift-pulseTime-slew) + 1);
     double offset_start = i_start - HcalConst::iniTimeShift - pulseTime - slew; //-199-2*pars[0]-2.*slew (for pars[0] > 98.5) or just -98.5-pars[0]-slew;
     // zeroing output binned pulse shape
-    //    ntmpbin = { {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f} };
     ntmpbin.fill(0.0f);
 
     if( edm::isNotFinite(offset_start) ){ //Check for nan
