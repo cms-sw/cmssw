@@ -157,8 +157,10 @@ float HcalNoiseHPD::maxRecHitTime(const float threshold) const
 int HcalNoiseHPD::numRecHits(const float threshold) const
 {
   int count=0;
-  for(edm::RefVector<HBHERecHitCollection>::const_iterator it=rechits_.begin(); it!=rechits_.end(); ++it)
+  for(edm::RefVector<HBHERecHitCollection>::const_iterator it=rechits_.begin(); it!=rechits_.end(); ++it) {
+    if(((*it)->auxPhase1()>>HBHERecHitAuxSetter::OFF_TDC_TIME)&1) continue; // Exclude QIE11 channels 
     if((*it)->eraw()>=threshold) ++count;
+  }
   return count;
 }
 
