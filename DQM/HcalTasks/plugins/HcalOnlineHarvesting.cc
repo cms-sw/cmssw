@@ -138,6 +138,29 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 		_runSummary->setBinContent(1,1, int(hcaldqm::flag::fNCDAQ));
 	else
 		_runSummary->setBinContent(1,1, int(hcaldqm::flag::fGOOD));
+
+	// HF TDC TP efficiency
+	if (_vmarks[fTP]) {
+		MonitorElement* meOccupancy_HF_depth = ig.get("Hcal/Run Summary/TPTask/OccupancyHF_depth");
+		MonitorElement* meOccupancyNoTDC_HF_depth = ig.get("Hcal/Run Summary/TPTask/OccupancyHFNoTDCCut_depth");
+		MonitorElement* meOccupancy_HF_ieta = ig.get("Hcal/Run Summary/TPTask/OccupancyHF_ieta");
+		MonitorElement* meOccupancyNoTDC_HF_ieta = ig.get("Hcal/Run Summary/TPTask/OccupancyHFNoTDCCut_ieta");
+
+		TH2F* hOccupancy_HF_depth = meOccupancy_HF_depth->getTH2F();
+		TH2F* hOccupancyNoTDC_HF_depth = meOccupancyNoTDC_HF_depth->getTH2F();
+		TH1F* hOccupancy_HF_ieta = meOccupancy_HF_ieta->getTH1F();
+		TH1F* hOccupancyNoTDC_HF_ieta = meOccupancyNoTDC_HF_ieta->getTH1F();
+
+		TH2F *hEfficiency_HF_depth = (TH2F*)hOccupancy_HF_depth->Clone();
+		hEfficiency_HF_depth->Divide(hOccupancyNoTDC_HF_depth);
+		TH2F *hEfficiency_HF_ieta = (TH2F*)hOccupancy_HF_ieta->Clone();
+		hEfficiency_HF_ieta->Divide(hOccupancyNoTDC_HF_ieta);
+
+		MonitorElement* meEfficiency_HF_depth = ib.book2D("Hcal/Run Summary/TPTask/TDCCutEfficiency_depth", hEfficiency_HF_depth);
+		meEfficiency_HF_depth->setEfficiencyFlag();
+		MonitorElement* meEfficiency_HF_ieta = ib.book2D("Hcal/Run Summary/TPTask/TDCCutEfficiency_ieta", hEfficiency_HF_ieta);
+		meEfficiency_HF_ieta->setEfficiencyFlag();		
+	}
 }
 
 /*
