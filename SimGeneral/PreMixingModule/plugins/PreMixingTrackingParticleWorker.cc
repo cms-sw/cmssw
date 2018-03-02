@@ -97,7 +97,7 @@ namespace edm {
 
     // grab tracks, store copy
     for(const auto& track: particles) {
-      auto oldRef=track.parentVertex();
+      const auto& oldRef=track.parentVertex();
       auto newRef=TrackingVertexRef( VertexListRef_, oldRef.index()+StartingIndexV );
       NewTrackList_->push_back(track);
 
