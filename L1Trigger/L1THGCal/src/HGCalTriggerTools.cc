@@ -145,14 +145,14 @@ float HGCalTriggerTools::getLayerZ(const unsigned& layerWithOffset) const {
 }
 
 float HGCalTriggerTools::getLayerZ(const int& subdet, const unsigned& layer) const {
-  const unsigned heOffset = 7;
   float layerGlobalZ = 0.;
   if(subdet == ForwardSubdetector::HGCEE) {
     layerGlobalZ = geom_->eeTopology().dddConstants().waferZ(layer, true);
   } else if(subdet == ForwardSubdetector::HGCHEF) {
     layerGlobalZ = geom_->fhTopology().dddConstants().waferZ(layer, true);
   } else if(subdet == HcalSubdetector::HcalEndcap || subdet == ForwardSubdetector::HGCHEB) {
-    layerGlobalZ = geom_->bhTopology().dddConstants()->getRZ(HcalSubdetector::HcalEndcap, layer+heOffset);
+    std::pair<int,int> eta_range = geom_->bhTopology().dddConstants()->getEtaRange(1);
+    layerGlobalZ = geom_->bhTopology().dddConstants()->getRZ(HcalSubdetector::HcalEndcap,eta_range.second,layer);
   }
   return layerGlobalZ;
 }
