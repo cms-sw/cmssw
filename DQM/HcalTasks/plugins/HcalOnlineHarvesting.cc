@@ -146,7 +146,7 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 		MonitorElement* meOccupancy_HF_ieta = ig.get("Hcal/TPTask/OccupancyHF_ieta/OccupancyHF_ieta");
 		MonitorElement* meOccupancyNoTDC_HF_ieta = ig.get("Hcal/TPTask/OccupancyHFNoTDC_ieta/OccupancyHFNoTDC_ieta");
 
-		//if (meOccupancy_HF_depth && meOccupancyNoTDC_HF_depth && meOccupancy_HF_ieta && meOccupancyNoTDC_HF_ieta) {
+		if (meOccupancy_HF_depth && meOccupancyNoTDC_HF_depth && meOccupancy_HF_ieta && meOccupancyNoTDC_HF_ieta) {
 			TH2F* hOccupancy_HF_depth = meOccupancy_HF_depth->getTH2F();
 			TH2F* hOccupancyNoTDC_HF_depth = meOccupancyNoTDC_HF_depth->getTH2F();
 			TH1F* hOccupancy_HF_ieta = meOccupancy_HF_ieta->getTH1F();
@@ -163,7 +163,7 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 			meEfficiency_HF_depth->setEfficiencyFlag();
 			MonitorElement* meEfficiency_HF_ieta = ib.book1D("TDCCutEfficiency_ieta", hEfficiency_HF_ieta);
 			meEfficiency_HF_ieta->setEfficiencyFlag();	
-		//}	
+		}	
 	}
 }
 
