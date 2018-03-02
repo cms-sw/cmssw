@@ -34,7 +34,7 @@ class HLTScoutingTrackProducer : public edm::global::EDProducer<> {
 
 public:
   explicit HLTScoutingTrackProducer(const edm::ParameterSet&);
-  ~HLTScoutingTrackProducer();
+  ~HLTScoutingTrackProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
