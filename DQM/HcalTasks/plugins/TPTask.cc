@@ -556,10 +556,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		_xEmulMsn.book(_emap);
 		_xEmulTotal.book(_emap);
 
-		//std::vector<uint32_t> vHF;
-		//vHF.push_back(HcalTrigTowerDetId(-41, 0, 0).rawId());
-		//_filter_HF.initialize(filter::fPreserver, hcaldqm::hashfunctions::fTTSubdet, vHF);
-
 		_cOccupancy_HF_depth.book(ib, _subsystem);
 		_cOccupancyNoTDC_HF_depth.book(ib, _subsystem);
 		_cOccupancy_HF_ieta.book(ib, _subsystem);
