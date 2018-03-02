@@ -22,7 +22,6 @@
 
 // NOTE: most of this code is borrowed by https://github.com/CMS-HGCAL/reco-ntuples
 // kudos goes to the original authors. Ideally the 2 repos should be merged since they share part of the use case
-#include <iostream>
 #include <memory>
 
 namespace HGCal_helpers {
@@ -185,9 +184,6 @@ class HGCalTriggerNtupleGen : public HGCalTriggerNtupleBase
 
         // -------convenient tool to deal with simulated tracks
         std::unique_ptr<FSimEvent> mySimEvent_;
-
-        //std::vector<double> dEdXWeights_;
-        //std::vector<double> invThicknessCorrection_;
 
         // and also the magnetic field
         const MagneticField *aField_;
@@ -404,18 +400,17 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
     iEvent.getByToken(gen_token_, genParticlesHandle);
     gen_n_ = genParticlesHandle->size();
 
-    for (std::vector<reco::GenParticle>::const_iterator it_p = genParticlesHandle->begin();
-         it_p != genParticlesHandle->end(); ++it_p) {
-      gen_eta_.push_back(it_p->eta());
-      gen_phi_.push_back(it_p->phi());
-      gen_pt_.push_back(it_p->pt());
-      gen_energy_.push_back(it_p->energy());
-      gen_charge_.push_back(it_p->charge());
-      gen_pdgid_.push_back(it_p->pdgId());
-      gen_status_.push_back(it_p->status());
-      std::vector<int> daughters(it_p->daughterRefVector().size(), 0);
-      for (unsigned j = 0; j < it_p->daughterRefVector().size(); ++j) {
-        daughters[j] = static_cast<int>(it_p->daughterRefVector().at(j).key());
+    for (const auto& particle : *genParticlesHandle) {
+      gen_eta_.push_back(particle.eta());
+      gen_phi_.push_back(particle.phi());
+      gen_pt_.push_back(particle.pt());
+      gen_energy_.push_back(particle.energy());
+      gen_charge_.push_back(particle.charge());
+      gen_pdgid_.push_back(particle.pdgId());
+      gen_status_.push_back(particle.status());
+      std::vector<int> daughters(particle.daughterRefVector().size(), 0);
+      for (unsigned j = 0; j < particle.daughterRefVector().size(); ++j) {
+        daughters[j] = static_cast<int>(particle.daughterRefVector().at(j).key());
       }
       gen_daughters_.push_back(daughters);
     }

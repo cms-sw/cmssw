@@ -13,11 +13,11 @@ class HGCalTriggerNtupleHGCPanels : public HGCalTriggerNtupleBase
   public:
     HGCalTriggerNtupleHGCPanels(const edm::ParameterSet& conf);
     ~HGCalTriggerNtupleHGCPanels(){};   
-    virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
-    virtual void fill(const edm::Event& e, const edm::EventSetup& es) override final;
+    void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
+    void fill(const edm::Event& e, const edm::EventSetup& es) final;
 
   private:
-    virtual void clear() override final;
+    void clear() final;
 
 
     edm::EDGetToken trigger_cells_token_;
@@ -126,8 +126,6 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     panel_tc_mipPt_.emplace_back();
     panel_tc_pt_.emplace_back();
 
-    std::unordered_map<uint32_t, float> modules_mipPt;
-    std::unordered_map<uint32_t, float> thirds_mipPt;
     for (const auto& tc : tcs)
     {
       panel_tc_id_.back().push_back(tc->detId());
@@ -140,8 +138,6 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       panel_tc_mod_.back().push_back(module_id);
       panel_tc_third_.back().push_back(third_id);
       panel_tc_cell_.back().push_back(cell_id);
-      modules_mipPt[module_id] += tc->mipPt();
-      thirds_mipPt[third_id] += tc->mipPt();
     }
   }
 }

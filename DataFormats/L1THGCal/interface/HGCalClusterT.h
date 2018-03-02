@@ -54,6 +54,7 @@ namespace l1t
       const_iterator constituents_end() const { return constituents_.end(); }
       unsigned size() const { return constituents_.size(); }
 
+
       void addConstituent( const edm::Ptr<C>& c, bool updateCentre=true, float fraction=1. )
       {
 
@@ -70,34 +71,8 @@ namespace l1t
             centre_ = c->position();
           }
         }
+        updateP4AndPosition(c, updateCentre, fraction);
 
-        /* update cluster positions (IF requested) */
-        if( updateCentre ){
-          Basic3DVector<float> constituentCentre( c->position() );
-          Basic3DVector<float> clusterCentre( centre_ );
-
-          clusterCentre = clusterCentre*mipPt_ + constituentCentre*cMipt;
-          if( (mipPt_ + cMipt ) > 0 )
-          {
-            clusterCentre /= ( mipPt_ +  cMipt );
-          }
-          centre_ = GlobalPoint( clusterCentre );
-
-          if( clusterCentre.z()!=0 )
-          {
-            centreProj_= GlobalPoint( clusterCentre / clusterCentre.z() );
-          }
-        }
-
-        /* update cluster energies */
-        mipPt_ += cMipt;
-
-        int updatedPt = hwPt() + (int)(c->hwPt()*fraction);
-        setHwPt( updatedPt );
-
-        math::PtEtaPhiMLorentzVector updatedP4 ( p4() );
-        updatedP4 += (c->p4()*fraction);
-        setP4( updatedP4 );
 
         constituents_.emplace( c->detId(), c );
         constituentsFraction_.emplace( c->detId(), fraction );
@@ -108,7 +83,6 @@ namespace l1t
 
         /* remove the pointer to c from the std::vector */
         double fraction=0;
-        bool constituentRemoved=false;
         const auto& constituent_itr = constituents_.find(c->detId());
         const auto& fraction_itr = constituentsFraction_.find(c->detId());
         if(constituent_itr!=constituents_.end())
@@ -118,36 +92,7 @@ namespace l1t
           constituents_.erase(constituent_itr);
           constituentsFraction_.erase(fraction_itr);
 
-          /* update cluster positions (IF requested) */
-          double cMipt = c->mipPt()*fraction;
-          if( updateCentre ){
-            Basic3DVector<float> constituentCentre( c->position() );
-            Basic3DVector<float> clusterCentre( centre_ );
-
-            clusterCentre = clusterCentre*mipPt_ - constituentCentre*cMipt;
-            if( (mipPt_ - cMipt ) > 0 )
-            {
-              clusterCentre /= ( mipPt_ - cMipt ) ;
-            }
-            centre_ = GlobalPoint( clusterCentre );
-
-            if( clusterCentre.z() != 0 )
-            {
-              centreProj_= GlobalPoint( clusterCentre / clusterCentre.z() );
-            }
-
-          }
-
-          /* update cluster energies */
-          mipPt_ -= cMipt;
-
-          int updatedPt = hwPt() - ( c->hwPt()*fraction );
-          setHwPt( updatedPt );
-
-          math::PtEtaPhiMLorentzVector updatedP4 ( p4() );
-          updatedP4 -= ( c->p4()*fraction );
-          setP4( updatedP4 );
-
+          updateP4AndPosition(c, updateCentre, -fraction);
         }
       }
 
@@ -270,6 +215,39 @@ namespace l1t
       float sigmaZZ_;
 
       ClusterShapes shapes_;
+
+
+      void updateP4AndPosition(const edm::Ptr<C>& c, bool updateCentre=true, float fraction=1.)
+      {
+        double cMipt = c->mipPt()*fraction;
+        /* update cluster positions (IF requested) */
+        if( updateCentre ){
+          Basic3DVector<float> constituentCentre( c->position() );
+          Basic3DVector<float> clusterCentre( centre_ );
+
+          clusterCentre = clusterCentre*mipPt_ + constituentCentre*cMipt;
+          if( (mipPt_ + cMipt ) > 0 )
+          {
+            clusterCentre /= ( mipPt_ +  cMipt );
+          }
+          centre_ = GlobalPoint( clusterCentre );
+
+          if( clusterCentre.z()!=0 )
+          {
+            centreProj_= GlobalPoint( clusterCentre / clusterCentre.z() );
+          }
+        }
+
+        /* update cluster energies */
+        mipPt_ += cMipt;
+
+        int updatedPt = hwPt() + (int)(c->hwPt()*fraction);
+        setHwPt( updatedPt );
+
+        math::PtEtaPhiMLorentzVector updatedP4 ( p4() );
+        updatedP4 += (c->p4()*fraction);
+        setP4( updatedP4 );
+      }
 
   };
 

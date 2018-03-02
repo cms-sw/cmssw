@@ -113,33 +113,33 @@ void HGCalMulticlusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGC
 
         double sumPt=0.;
 
-        const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp.at(i).constituents();
+        const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp[i].constituents();
         for(const auto& id_cluster : pertinentClu) sumPt += id_cluster.second->pt();
         math::PtEtaPhiMLorentzVector multiclusterP4(  sumPt,
-                                                      multiclustersTmp.at(i).centre().eta(),
-                                                      multiclustersTmp.at(i).centre().phi(),
+                                                      multiclustersTmp[i].centre().eta(),
+                                                      multiclustersTmp[i].centre().phi(),
                                                       0. );
-        multiclustersTmp.at(i).setP4( multiclusterP4 );
+        multiclustersTmp[i].setP4( multiclusterP4 );
 
 
-        if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
+        if( multiclustersTmp[i].pt() > ptC3dThreshold_ ){
 
             //compute shower shape
-            multiclustersTmp.at(i).showerLength(shape_.showerLength(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).coreShowerLength(shape_.coreShowerLength(multiclustersTmp.at(i), triggerGeometry));
-            multiclustersTmp.at(i).firstLayer(shape_.firstLayer(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).maxLayer(shape_.maxLayer(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaEtaEtaTot(shape_.sigmaEtaEtaTot(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaEtaEtaMax(shape_.sigmaEtaEtaMax(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaPhiPhiTot(shape_.sigmaPhiPhiTot(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaPhiPhiMax(shape_.sigmaPhiPhiMax(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaZZ(shape_.sigmaZZ(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaRRTot(shape_.sigmaRRTot(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaRRMax(shape_.sigmaRRMax(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaRRMean(shape_.sigmaRRMean(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).eMax(shape_.eMax(multiclustersTmp.at(i)));
+            multiclustersTmp[i].showerLength(shape_.showerLength(multiclustersTmp[i]));
+            multiclustersTmp[i].coreShowerLength(shape_.coreShowerLength(multiclustersTmp[i], triggerGeometry));
+            multiclustersTmp[i].firstLayer(shape_.firstLayer(multiclustersTmp[i]));
+            multiclustersTmp[i].maxLayer(shape_.maxLayer(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaEtaEtaTot(shape_.sigmaEtaEtaTot(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaEtaEtaMax(shape_.sigmaEtaEtaMax(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaPhiPhiTot(shape_.sigmaPhiPhiTot(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaPhiPhiMax(shape_.sigmaPhiPhiMax(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaZZ(shape_.sigmaZZ(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaRRTot(shape_.sigmaRRTot(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaRRMax(shape_.sigmaRRMax(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaRRMean(shape_.sigmaRRMean(multiclustersTmp[i]));
+            multiclustersTmp[i].eMax(shape_.eMax(multiclustersTmp[i]));
 
-            multiclusters.push_back( 0, multiclustersTmp.at(i));  
+            multiclusters.push_back( 0, multiclustersTmp[i]);
         }
     }
     
@@ -212,34 +212,34 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN( const std::vector<edm::Ptr<l1t:
         // compute the eta, phi observables for multicluster starting from its barycenter x,y,z position + pT as scalar sum of pT of constituents
         double sumPt=0.;
 
-        const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp.at(i).constituents();
+        const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp[i].constituents();
         for(const auto& id_cluster : pertinentClu) sumPt += id_cluster.second->pt();
 
         math::PtEtaPhiMLorentzVector multiclusterP4(  sumPt,
-                multiclustersTmp.at(i).centre().eta(),
-                multiclustersTmp.at(i).centre().phi(),
+                multiclustersTmp[i].centre().eta(),
+                multiclustersTmp[i].centre().phi(),
                 0. );
-        multiclustersTmp.at(i).setP4( multiclusterP4 );
+        multiclustersTmp[i].setP4( multiclusterP4 );
 
 
-        if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
+        if( multiclustersTmp[i].pt() > ptC3dThreshold_ ){
 
             //compute shower shape
-            multiclustersTmp.at(i).showerLength(shape_.showerLength(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).coreShowerLength(shape_.coreShowerLength(multiclustersTmp.at(i), triggerGeometry));
-            multiclustersTmp.at(i).firstLayer(shape_.firstLayer(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).maxLayer(shape_.maxLayer(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaEtaEtaTot(shape_.sigmaEtaEtaTot(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaEtaEtaMax(shape_.sigmaEtaEtaMax(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaPhiPhiTot(shape_.sigmaPhiPhiTot(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaPhiPhiMax(shape_.sigmaPhiPhiMax(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaZZ(shape_.sigmaZZ(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaRRTot(shape_.sigmaRRTot(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaRRMax(shape_.sigmaRRMax(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).sigmaRRMean(shape_.sigmaRRMean(multiclustersTmp.at(i)));
-            multiclustersTmp.at(i).eMax(shape_.eMax(multiclustersTmp.at(i)));
+            multiclustersTmp[i].showerLength(shape_.showerLength(multiclustersTmp[i]));
+            multiclustersTmp[i].coreShowerLength(shape_.coreShowerLength(multiclustersTmp[i], triggerGeometry));
+            multiclustersTmp[i].firstLayer(shape_.firstLayer(multiclustersTmp[i]));
+            multiclustersTmp[i].maxLayer(shape_.maxLayer(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaEtaEtaTot(shape_.sigmaEtaEtaTot(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaEtaEtaMax(shape_.sigmaEtaEtaMax(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaPhiPhiTot(shape_.sigmaPhiPhiTot(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaPhiPhiMax(shape_.sigmaPhiPhiMax(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaZZ(shape_.sigmaZZ(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaRRTot(shape_.sigmaRRTot(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaRRMax(shape_.sigmaRRMax(multiclustersTmp[i]));
+            multiclustersTmp[i].sigmaRRMean(shape_.sigmaRRMean(multiclustersTmp[i]));
+            multiclustersTmp[i].eMax(shape_.eMax(multiclustersTmp[i]));
 
-            multiclusters.push_back( 0, multiclustersTmp.at(i));  
+            multiclusters.push_back( 0, multiclustersTmp[i]);
         }
     }
 }
