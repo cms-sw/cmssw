@@ -192,7 +192,7 @@ std::atomic_int_fast64_t TBBSession::step_id_counter_(1);
 // revisit this decision.
 // Override to allow CMSSW FWK to schedule
 void TBBSession::SchedClosure(tbb::task_arena& arena, tbb::task_group& g, std::function<void()> c) {
-  arena.execute( [&g,&c] () {g.run( c ); } );
+  arena.execute( [&g, &c] () {g.run( c ); } );
 }
 
 TBBSession::TBBSession(const SessionOptions& options,
@@ -507,10 +507,25 @@ Status TBBSession::Run(const RunOptions& run_options,
     return errors::Cancelled("Run call was cancelled");
   }
 
-  args.runner = [this, &taskArena, &taskGroup](Executor::Args::Closure c) {
+  // pass taskArena and taskGroup to SchedClosure
+  // consequently, disable TF's own thread logic inside the loop
+  Executor::Args::Runner default_runner = [this, &taskArena, &taskGroup](Executor::Args::Closure c) {
     SchedClosure(taskArena, taskGroup, std::move(c));
   };
   for (const auto& item : executors_and_keys->items) {
+    // TODO(zhengxq): support partial run.
+    // TODO(zhengxq): if the device picks its own threadpool, we need to assign
+    //     less threads to the main compute pool by default.
+    // thread::ThreadPool* device_thread_pool =
+    //     item.device->tensorflow_device_thread_pool();
+    // if (!device_thread_pool) {
+    //   args.runner = default_runner;
+    // } else {
+    //   args.runner = [this, device_thread_pool](Executor::Args::Closure c) {
+    //     SchedClosure(device_thread_pool, std::move(c));
+    //   };
+    // }
+    args.runner = default_runner;
     item.executor->RunAsync(args, barrier->Get());
   }
 

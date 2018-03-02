@@ -498,10 +498,25 @@ Status NTSession::Run(const RunOptions& run_options,
     return errors::Cancelled("Run call was cancelled");
   }
 
-  args.runner = [this](Executor::Args::Closure c) {
+  // pass no arguments to SchedClosure
+  // consequently, disable TF's own thread logic inside the loop
+  Executor::Args::Runner default_runner = [this](Executor::Args::Closure c) {
     SchedClosure(std::move(c));
   };
   for (const auto& item : executors_and_keys->items) {
+    // TODO(zhengxq): support partial run.
+    // TODO(zhengxq): if the device picks its own threadpool, we need to assign
+    //     less threads to the main compute pool by default.
+    // thread::ThreadPool* device_thread_pool =
+    //     item.device->tensorflow_device_thread_pool();
+    // if (!device_thread_pool) {
+    //   args.runner = default_runner;
+    // } else {
+    //   args.runner = [this, device_thread_pool](Executor::Args::Closure c) {
+    //     SchedClosure(device_thread_pool, std::move(c));
+    //   };
+    // }
+    args.runner = default_runner;
     item.executor->RunAsync(args, barrier->Get());
   }
 
