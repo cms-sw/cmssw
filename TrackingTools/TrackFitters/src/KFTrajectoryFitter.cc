@@ -129,7 +129,9 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
               (std::abs(currTsos.localParameters().qbp())>100
                || std::abs(currTsos.localParameters().position().y()) > 1000
                || std::abs(currTsos.localParameters().position().x()) > 1000
-               ) ) || edm::isNotFinite(currTsos.localParameters().qbp());
+               ) ) 
+            || edm::isNotFinite(currTsos.localParameters().qbp()) 
+            || !currTsos.localError().posDef();
 	  if unlikely(badState){
 	    if (!currTsos.isValid()) {
 	      edm::LogError("FailedUpdate") <<"updating with the hit failed. Not updating the trajectory with the hit";
@@ -137,6 +139,10 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
             } 
 	    else if (edm::isNotFinite(currTsos.localParameters().qbp())) {
               edm::LogError("TrajectoryNaN")<<"Trajectory has NaN";
+
+            }
+	    else if (!currTsos.localError().posDef()) {
+              edm::LogError("TrajectoryNotPosDef")<<"Trajectory covariance is not positive-definite";
 
             }
 	    else{ 
