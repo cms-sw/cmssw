@@ -19,6 +19,7 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHitAuxSetter.h"
+#include "DataFormats/HcalRecHit/interface/CaloRecHitAuxSetter.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
@@ -906,9 +907,11 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
     }
     
     // Exclude uncollapsed QIE11 channels
-    if(((rechit.auxPhase1()>>HBHERecHitAuxSetter::OFF_TDC_TIME)&1) &&
-       ((rechit.auxPhase1()>>HBHERecHitAuxSetter::OFF_COMBINED)&0) ) continue;
-    
+    //if(((rechit.auxPhase1()>>HBHERecHitAuxSetter::OFF_TDC_TIME)&1) &&
+    //   !((rechit.auxPhase1()>>HBHERecHitAuxSetter::OFF_COMBINED)&1) ) continue;
+    if( CaloRecHitAuxSetter::getBit(rechit.auxPhase1(), HBHERecHitAuxSetter::OFF_TDC_TIME) &&
+       !CaloRecHitAuxSetter::getBit(rechit.auxPhase1(), HBHERecHitAuxSetter::OFF_COMBINED) ) continue;
+   
     // if it was ID'd as isolated noise, update the summary object
     if(rechit.flags() & isolbitset) {
       summary.nisolnoise_++;
