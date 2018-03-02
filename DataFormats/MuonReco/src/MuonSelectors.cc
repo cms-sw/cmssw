@@ -967,6 +967,24 @@ int muon::sharedSegments( const reco::Muon& mu, const reco::Muon& mu2, unsigned 
     return ret; 
 }
 
+bool outOfTimeMuon(const reco::Muon& muon){
+  const auto& combinedTime = muon.time();
+  const auto& rpcTime      = muon.rpcTime();
+  bool combinedTimeIsOk = (combinedTime.nDof>7);
+  bool rpcTimeIsOk = (rpcTime.nDof>1 && fabs(rpcTime.timeAtIpInOutErr)<0.001);
+  bool outOfTime = false;
+  if (rpcTimeIsOk){
+    if ( (fabs(rpcTime.timeAtIpInOut)>10 ) &&
+	 !(combinedTimeIsOk && fabs(combinedTime.timeAtIpInOut)<10) )
+      outOfTime = true; 
+  } else {
+    if (combinedTimeIsOk && (combinedTime.timeAtIpInOut>20 || combinedTime.timeAtIpInOut<-45))
+      outOfTime = true; 
+  }
+  return outOfTime;
+}
+
+
 void muon::setCutBasedSelectorFlags(reco::Muon& muon, 
 				    const reco::Vertex* vertex,
 				    bool run2016_hip_mitigation)
@@ -1004,6 +1022,7 @@ void muon::setCutBasedSelectorFlags(reco::Muon& muon,
   if (dbCorectedRelIso<0.20)    selectors |= reco::Muon::PFIsoMedium;
   if (dbCorectedRelIso<0.15)    selectors |= reco::Muon::PFIsoTight;
   if (dbCorectedRelIso<0.10)    selectors |= reco::Muon::PFIsoVeryTight;
+  if (dbCorectedRelIso<0.05)    selectors |= reco::Muon::PFIsoVeryVeryTight;
   
   // Tracker isolation
   if (tkRelIso<0.10)            selectors |= reco::Muon::TkIsoLoose;
@@ -1011,6 +1030,9 @@ void muon::setCutBasedSelectorFlags(reco::Muon& muon,
 
   // Trigger selectors
   if (isLooseTriggerMuon(muon)) selectors |= reco::Muon::TriggerIdLoose;
+
+  // Timing
+  if (!outOfTimeMuon(muon))     selectors |= reco::Muon::InTimeMuon;
 
   muon.setSelectors(selectors);
 }
