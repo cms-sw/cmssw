@@ -22,6 +22,9 @@ from DQM.L1TMonitorClient.L1TStage2EventInfoClient_cfi import *
 # CaloLayer2 client
 from DQM.L1TMonitorClient.L1TStage2CaloLayer2Client_cff import *
 
+# EMTF client
+from DQM.L1TMonitorClient.L1TStage2EMTFClient_cff import *
+
 # BMTF client
 from DQM.L1TMonitorClient.L1TStage2BMTFClient_cff import *
 
@@ -41,6 +44,7 @@ from DQM.L1TMonitorClient.L1TStage2EMTFEventInfoClient_cfi import *
 l1TStage2Clients = cms.Sequence(
                         l1tStage2EventInfoClient
                       + l1tStage2uGTCaloLayer2CompClient
+                      + l1tStage2EmtfClient
                       + l1tStage2BmtfClient
                       + l1tStage2uGMTClient
                       + l1tStage2uGTClient

@@ -5,13 +5,34 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
+#include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
+namespace emtfdedqm {
+  struct Histograms {
+    ConcurrentMonitorElement emtfComparenMuonsEvent;
 
-class L1TdeStage2EMTF : public DQMEDAnalyzer {
+    ConcurrentMonitorElement emtfDataBX;
+    ConcurrentMonitorElement emtfEmulBX;
+    ConcurrentMonitorElement emtfDatahwPt;
+    ConcurrentMonitorElement emtfEmulhwPt;
+    ConcurrentMonitorElement emtfDatahwEta;
+    ConcurrentMonitorElement emtfEmulhwEta;
+    ConcurrentMonitorElement emtfDatahwPhi;
+    ConcurrentMonitorElement emtfEmulhwPhi;
+    ConcurrentMonitorElement emtfDatahwQual;
+    ConcurrentMonitorElement emtfEmulhwQual;
+
+    /*ConcurrentMonitorElement emtfComparehwPt;
+    ConcurrentMonitorElement emtfComparehwEta;
+    ConcurrentMonitorElement emtfComparehwPhi;
+    ConcurrentMonitorElement emtfComparehwQual;*/
+  };
+}
+
+class L1TdeStage2EMTF : public DQMGlobalEDAnalyzer<emtfdedqm::Histograms> {
 
  public:
 
@@ -20,10 +41,9 @@ class L1TdeStage2EMTF : public DQMEDAnalyzer {
 
  protected:
 
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&, emtfdedqm::Histograms&) const override;
+  void bookHistograms(DQMStore::ConcurrentBooker&, const edm::Run&, const edm::EventSetup&, emtfdedqm::Histograms&) const override;
+  void dqmAnalyze(const edm::Event&, const edm::EventSetup&, const emtfdedqm::Histograms&) const override;
 
  private:
 
@@ -31,24 +51,6 @@ class L1TdeStage2EMTF : public DQMEDAnalyzer {
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> emulToken;
   std::string monitorDir;
   bool verbose;
-
-  MonitorElement* emtfComparenMuonsEvent;
-
-  MonitorElement* emtfDataBX;
-  MonitorElement* emtfEmulBX;
-  MonitorElement* emtfDatahwPt;
-  MonitorElement* emtfEmulhwPt;
-  MonitorElement* emtfDatahwEta;
-  MonitorElement* emtfEmulhwEta;
-  MonitorElement* emtfDatahwPhi;
-  MonitorElement* emtfEmulhwPhi;
-  MonitorElement* emtfDatahwQual;
-  MonitorElement* emtfEmulhwQual;
-
-  /*MonitorElement* emtfComparehwPt;
-  MonitorElement* emtfComparehwEta;
-  MonitorElement* emtfComparehwPhi;
-  MonitorElement* emtfComparehwQual;*/
 };
 
 #endif
