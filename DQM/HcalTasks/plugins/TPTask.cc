@@ -287,18 +287,20 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
-		_cTDCCutEfficiency_depth.initialize(_name, "TDCCutEfficiency_depth", 
+		_cOccupancy_HF_depth.initialize(_name, "OccupancyHF_depth", 
 			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRatio, true),0);
-		_cTDCCutEfficiency_ieta.initialize(_name, "TDCCutEfficiency_ieta", 
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cOccupancyNoTDC_HF_depth.initialize(_name, "OccupancyHFNoTDC_depth", 
 			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fRatio, true),0);
-
-		_xOccupancy_HF_depth.initialize(hcaldqm::hashfunctions::fTChannel);
-		_xOccupancyNoTDC_HF_depth.initialize(hcaldqm::hashfunctions::fTChannel);
-		_xOccupancy_HF_ieta.initialize(hcaldqm::hashfunctions::fTTSubdetieta);
-		_xOccupancyNoTDC_HF_ieta.initialize(hcaldqm::hashfunctions::fTTSubdetieta);
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cOccupancy_HF_ieta.initialize(_name, "OccupancyHF_ieta", 
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0),
+		_cOccupancyNoTDC_HF_ieta.initialize(_name, "OccupancyHFNoTDC_ieta", 
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	}
 
 	// FED-based containers
@@ -554,17 +556,14 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		_xEmulMsn.book(_emap);
 		_xEmulTotal.book(_emap);
 
-		std::vector<uint32_t> vHF;
-		vHF.push_back(HcalTrigTowerDetId(-41, 0, 0).rawId());
-		_filter_HF.initialize(filter::fPreserver, hcaldqm::hashfunctions::fTTSubdet, vHF);
+		//std::vector<uint32_t> vHF;
+		//vHF.push_back(HcalTrigTowerDetId(-41, 0, 0).rawId());
+		//_filter_HF.initialize(filter::fPreserver, hcaldqm::hashfunctions::fTTSubdet, vHF);
 
-		_cTDCCutEfficiency_depth.book(ib, _subsystem);
-		_cTDCCutEfficiency_ieta.book(ib, _subsystem);
-
-		_xOccupancy_HF_depth.book(_emap, _filter_HF);
-		_xOccupancyNoTDC_HF_depth.book(_emap, _filter_HF);
-		_xOccupancy_HF_ieta.book(_emap, _filter_HF);
-		_xOccupancyNoTDC_HF_ieta.book(_emap, _filter_HF);
+		_cOccupancy_HF_depth.book(ib, _subsystem);
+		_cOccupancyNoTDC_HF_depth.book(ib, _subsystem);
+		_cOccupancy_HF_ieta.book(ib, _subsystem);
+		_cOccupancyNoTDC_HF_ieta.book(ib, _subsystem);
 
 	}
 	
@@ -675,8 +674,8 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		_cEtData_depthlike.fill(tid, soiEt_d);
 		_cOccupancyData_depthlike.fill(tid);
 
-		_xOccupancy_HF_depth.get(tid)++;
-		_xOccupancy_HF_ieta.get(tid)++;
+		_cOccupancy_HF_depth.fill(tid);
+		_cOccupancy_HF_ieta.fill(tid);
 		if (_ptype != fOffline) { // hidefed2crate
 			if (eid.isVMEid())
 			{
@@ -819,8 +818,8 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			{
 				continue;
 			}
-			_xOccupancyNoTDC_HF_depth.get(tid)++;
-			_xOccupancyNoTDC_HF_ieta.get(tid)++;
+			_cOccupancyNoTDC_HF_depth.fill(tid);
+			_cOccupancyNoTDC_HF_ieta.fill(tid);
 		}
 	}
 
@@ -1048,23 +1047,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 {
 	if (_ptype!=fOnline)
 		return;
-
-	// Ratio of occupancies (data) / (emul, no TDC cut)
-	for (intCompactMap::const_iterator it=_xOccupancy_HF_depth.begin(); it!=_xOccupancy_HF_depth.end(); ++it) {
-		HcalTrigTowerDetId ttdid(it->first);
-		int num = it->second;
-		int den = _xOccupancyNoTDC_HF_depth.get(ttdid);
-		double ratio = (den > 0 ? 1. * num / den : 0.);
-		_cTDCCutEfficiency_depth.setBinContent(ttdid.ieta(), ttdid.iphi(), ratio);
-	}
-	for (intCompactMap::const_iterator it=_xOccupancy_HF_ieta.begin(); it!=_xOccupancy_HF_ieta.end(); ++it) {
-		HcalTrigTowerDetId ttdid(it->first);
-		int num = it->second;
-		int den = _xOccupancyNoTDC_HF_ieta.get(ttdid);
-		double ratio = (den > 0 ? 1. * num / den : 0.);
-		_cTDCCutEfficiency_ieta.fill(ttdid.ieta(), ratio);
-	}
-
 
 	//
 	//	GENERATE STATUS ONLY FOR ONLINE!
