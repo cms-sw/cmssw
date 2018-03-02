@@ -69,8 +69,6 @@ process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
 # Change to V7 trigger geometry for older samples
 #  from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_ZoltanSplit_V7
 #  process = custom_geometry_ZoltanSplit_V7(process)
-from L1Trigger.L1THGCal.customClustering import custom_2dclustering_constrainedtopological
-process = custom_2dclustering_constrainedtopological(process)
 
 # load ntuplizer
 process.load('L1Trigger.L1THGCal.hgcalTriggerNtuples_cff')
