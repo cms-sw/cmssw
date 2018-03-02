@@ -49,7 +49,6 @@ process = customise(process)
 process.DQMStore.verbose = 0
 process.source.minEventsPerLumi=100
 
-
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
 #-------------------------------------
@@ -100,8 +99,13 @@ process.emulTPDigis.RunZS = cms.bool(True)
 process.emulTPDigis.ZS_threshold = cms.uint32(0)
 process.hcalDigis.InputLabel = rawTag
 process.emulTPDigisNoTDCCut = process.emulTPDigis.clone()
-process.emulTPDigisNoTDCCut.ADCThresholdHF = cms.uint32(255)
-process.emulTPDigisNoTDCCut.TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
+#process.emulTPDigisNoTDCCut.ADCThresholdHF = cms.uint32(255)
+#process.emulTPDigisNoTDCCut.TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
+
+# For testing on cosmics: 12.5 ns cut = 50% efficiency
+process.emulTPDigisNoTDCCut.ADCThresholdHF = cms.uint32(0)
+process.emulTPDigisNoTDCCut.TDCMaskHF = cms.uint64(0xFFFFFFFFFE000000)
+
 
 
 # Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
