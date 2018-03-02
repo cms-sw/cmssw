@@ -336,7 +336,7 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
 
       if (std::abs(myTrack.vertex().position().z()) >= triggerTools_.getLayerZ(1)) continue;
 
-      const unsigned nlayers = 52;
+      const unsigned nlayers = triggerTools_.lastLayerBH();
       if (myTrack.noEndVertex())  // || myTrack.genpartIndex()>=0)
       {
         HGCal_helpers::Coordinates propcoords;
