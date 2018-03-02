@@ -39,7 +39,6 @@
 #include <iostream>
 
 using namespace std;
-// using namespace l1tVertexFinder;
 
 namespace l1tVertexFinder {
 
@@ -70,9 +69,6 @@ namespace l1tVertexFinder {
     const edm::EDGetTokenT<std::vector<l1t::Vertex>> l1VerticesTDRToken_;
 
     const bool printResults_;
-
-    // temporary histogramming class
-    // Histos * hists_;
 
     // storage class for configuration parameters
     Settings *settings_;
@@ -217,10 +213,6 @@ namespace l1tVertexFinder {
   {
     // Get configuration parameters
     settings_ = new Settings(iConfig);
-
-    // Book histograms.
-    // hists_ = new Histos( settings_ );
-    // hists_->book();
 
     // Configure TH1 for plotting
     TH1::SetDefaultSumw2(true);
@@ -420,15 +412,13 @@ namespace l1tVertexFinder {
   void VertexAnalyzer::beginJob() {};
   void VertexAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   {
-    std::cout << "processing " << std::endl;
-
     edm::Handle<TTStubAssMap>    mcTruthTTStubHandle;
     edm::Handle<TTClusterAssMap> mcTruthTTClusterHandle;
     iEvent.getByToken(stubTruthInputTag, mcTruthTTStubHandle );
     iEvent.getByToken(clusterTruthInputTag, mcTruthTTClusterHandle );
 
     // Note useful info about MC truth particles and about reconstructed stubs .
-    InputData inputData(iEvent, iSetup, settings_, tpInputTag, stubInputTag, stubTruthInputTag, clusterTruthInputTag );
+    InputData inputData(iEvent, iSetup, settings_, tpInputTag, stubInputTag, stubTruthInputTag, clusterTruthInputTag);
 
     edm::Handle<TTTrackCollectionView> l1TracksHandle;
     iEvent.getByToken(l1TracksToken_, l1TracksHandle);
@@ -460,10 +450,15 @@ namespace l1tVertexFinder {
     std::vector<const L1fittedTrack*> l1TrackPtrs;
     l1TrackPtrs.reserve(l1Tracks.size());
 
+    // TODO: REVIEW. This check on tracks should ideally be done with an edm
+    // filter so as to be shared between the producer and analyser. The current
+    // implementation duplicates the requirements and can potentially bias the
+    // analysis results.
     for(const auto& track : l1Tracks){
       if(track.pt() > settings_->vx_TrackMinPt() ){
-        if(track.pt() < 50 or track.getNumStubs() > 5 )
+        if(track.pt() < 50 or track.getNumStubs() > 5 ) {
           l1TrackPtrs.push_back(&track);
+        }
       }
     }
 
@@ -474,16 +469,6 @@ namespace l1tVertexFinder {
       vf.AssociatePrimaryVertex(inputData.getPrimaryVertex().z0());
       }
     */
-
-    /*
-      if(settings_->debug()==7 and vf.numVertices() > 0){
-      cout << "Num Found Vertices " << vf.numVertices() << endl;
-      cout << "Reconstructed Primary Vertex z0 "<<vf.PrimaryVertex().z0() << " pT "<< vf.PrimaryVertex().pT() << endl;
-      }
-    */
-
-    //=== Fill histograms studying vertex reconstruction performance
-    // hists_->fillVertexReconstruction(inputData, vf, l1Tracks);
 
     edm::Handle<std::vector<l1t::Vertex>> l1VerticesHandle;
     iEvent.getByToken(l1VerticesToken_, l1VerticesHandle);
@@ -503,11 +488,10 @@ namespace l1tVertexFinder {
     std::vector<RecoVertexWithTP *> recoVertices;
     recoVertices.reserve(numVertices);
 
-    const Vertex&     TruePrimaryVertex = inputData.getPrimaryVertex();
+    const Vertex& TruePrimaryVertex = inputData.getPrimaryVertex();
 
     // create a map for associating fat reco tracks with their underlying
     // TTTrack pointers
-    // std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, L1fittedTrack> trackAssociationMap;
     std::map <const edm::Ptr<TTTrack< Ref_Phase2TrackerDigi_ >>, const L1fittedTrack *> trackAssociationMap;
 
     // get a list of reconstructed tracks with references to their TPs
@@ -533,40 +517,29 @@ namespace l1tVertexFinder {
       recoVertices.emplace_back(recoVertex);
     }
 
-    // get reference to PV and TDR PV
-
     // Associate true primary vertex with the closest reconstructed vertex
-    // RecoVertex RecoPrimaryVertexBase = vf.PrimaryVertex();
-    // RecoVertex TDRVertexBase         = vf.TDRPrimaryVertex();
-    // RecoVertex RecoPrimaryVertexBase = RecoVertex();
-    RecoVertex TDRVertexBase         = RecoVertex();
-
-    // populate RecoVertex version of PV with information obtained from
-    // l1t::Vertex
-    // for (const auto & track : pvVertexFromEDM.tracks()) {
-    //   RecoPrimaryVertexBase.insert(new L1fittedTrackBase(track));
-    // }
-    // RecoPrimaryVertexBase.setZ(pvVertexFromEDM.z0());
+    RecoVertex TDRVertexBase = RecoVertex();
 
     // populate RecoVertex version of TDR PV with information obtained
     // from l1t::Vertex
     for (const auto & track : tdrPVVertexFromEDM.tracks()) {
       TDRVertexBase.insert(new L1fittedTrackBase(track));
     }
-    // TDRVertexBase.computeParameters(settings_->vx_weightedmean());
     TDRVertexBase.setZ(tdrPVVertexFromEDM.z0());
 
-    // RecoVertexWithTP * RecoPrimaryVertex = new RecoVertexWithTP(RecoPrimaryVertexBase, trackAssociationMap);
     RecoVertexWithTP * TDRVertex = new RecoVertexWithTP(TDRVertexBase, trackAssociationMap);
     RecoVertexWithTP * RecoPrimaryVertex = recoVertices.at(0);
 
-    //RecoPrimaryVertex->computeParameters(settings_->vx_weightedmean());
     TDRVertex->computeParameters(settings_->vx_weightedmean());
 
     // update the primary vertex z0 if the algorithm is HPV, kmeans
-    //if (settings_->vx_algoId() == 6 || settings_->vx_algoId() == 5)
-    //  RecoPrimaryVertex->setZ(RecoPrimaryVertexBase.z0());
     TDRVertex->setZ(TDRVertexBase.z0());
+
+    if(settings_->debug()==7 and numVertices > 0){
+      cout << "Num Found Vertices " << numVertices << endl;
+      cout << "Reconstructed Primary Vertex z0 "<< RecoPrimaryVertex->z0()
+           << " pT "<< RecoPrimaryVertex->pT() << endl;
+    }
 
     hisGenVertexPt_->Fill(inputData.GenPt());
     hisGenTkVertexPt_->Fill(TruePrimaryVertex.pT());
@@ -612,31 +585,14 @@ namespace l1tVertexFinder {
            << TDRVertex->pT() << " met "<< RecoPrimaryVertex->met() << endl;
     }
 
-    std::cout << "checking rank -------------------" << std::endl;
     unsigned int TrackRank = 0;
     for(unsigned int id = 1; id < numVertices ; ++id){
-      // this will not work since numTrueTracks() will return 0
-      // to fix this, one needs to use reference to RecoVertex from vf.Vertices()
-      // and use that to create a RecoVertexWithTP object that will have TP
-      // specific information
       if(recoVertices.at(id)->numTrueTracks() > RecoPrimaryVertex->numTrueTracks()) {
-        std::cout << "----------------------- increasing rank -----------------------------------------"
-                  << std::endl;
         TrackRank++;
       }
-
-      std::cout << "true tracks in reco = " << recoVertices.at(id)->numTrueTracks()
-                << ", pT = " << recoVertices.at(id)->pT()
-                << ", # tracks = " << recoVertices.at(id)->tracks().size()
-                << std::endl;
-      std::cout << "true tracks in true = " << RecoPrimaryVertex->numTrueTracks() 
-                << " , pT = " << RecoPrimaryVertex->pT()
-                << ", # tracks = " << RecoPrimaryVertex->tracks().size()
-                << std::endl;
     }
 
     hisRecoVertexTrackRank_->Fill(TrackRank);
-
     hisCorrelatorInputTracks_->Fill(numInputTracks);
     hisCorrelatorTPInputTracks_->Fill(numInputTracks);
 
@@ -695,6 +651,7 @@ namespace l1tVertexFinder {
           cout << " pT "<< track->pt() << " phi0 "<< track->phi0()
                << " z0 "<< track->z0() << endl;
         }
+
         cout << "** TRUE TRACKS in PV**" << endl;
         for(TP track: TruePrimaryVertex.tracks()){
           cout << "index " << track.index()
@@ -704,7 +661,6 @@ namespace l1tVertexFinder {
                << " status "<< track.physicsCollision() << endl;
         }
       }
-
 
       hisRecoVertexMETResolution_->Fill(TruePrimaryVertex.met(), METres);
 
@@ -770,28 +726,42 @@ namespace l1tVertexFinder {
       hisRecoVertexOffPT_->Fill(RecoPrimaryVertex->pT());
       hisUnmatchedVertexZ0distance_->Fill(fabs(z0res));
       if(settings_->debug() == 7) {
-        cout << "Vertex Reconstruction Algorithm doesn't find the correct the primary vertex (Delta Z = " << fabs(z0res) << ")"<<endl;
+        cout << "Vertex Reconstruction Algorithm doesn't find the correct"
+             << " primary vertex (Delta Z = " << fabs(z0res) << ")" << endl;
       }
     }
 
-    if(settings_->debug() == 7){
-      for(const L1fittedTrack* l1track : RecoPrimaryVertex->tracks()){
-        if(l1track->getMatchedTP() == nullptr){
-          cout << "FAKE track assigned to PV. Track z0: "<< l1track->z0() << " track pT "<< l1track->pt() << " chi2/ndof " << l1track->chi2dof() << " numstubs "<< l1track->getNumStubs() << endl;
-        } else if(l1track->getMatchedTP()->physicsCollision() == 0){
-          cout << "Pile-Up track assigned to PV. Track z0: "<< l1track->z0() << " track pT "<< l1track->pt() << endl;
-        } else{
-          cout << "Physics Collision track assigned to PV. Track z0: "<< l1track->z0() << " track pT "<< l1track->pt() << " numstubs "<< l1track->getNumStubs();
-          cout << " (real values) id: "<< l1track->getMatchedTP()->index()<< " pT " <<  l1track->getMatchedTP()->pt() << " eta " << l1track->getMatchedTP()->eta() << " d0 "<< l1track->getMatchedTP()->d0() << " z0 "<< l1track->getMatchedTP()->z0() << " physicsCollision " << l1track->getMatchedTP()->physicsCollision() << " useForEff() " << l1track->getMatchedTP()->useForEff() << " pdg "<< l1track->getMatchedTP()->pdgId() << " tip "<< l1track->getMatchedTP()->tip() << endl;
+    if(settings_->debug() == 7) {
+      for(const L1fittedTrack* l1track : RecoPrimaryVertex->tracks()) {
+        if(l1track->getMatchedTP() == nullptr) {
+          cout << "FAKE track assigned to PV. Track z0: "<< l1track->z0()
+               << " track pT "<< l1track->pt()
+               << " chi2/ndof " << l1track->chi2dof()
+               << " numstubs "<< l1track->getNumStubs() << endl;
+        } else if(l1track->getMatchedTP()->physicsCollision() == 0) {
+          cout << "Pile-Up track assigned to PV. Track z0: " << l1track->z0()
+               << " track pT "<< l1track->pt() << endl;
+        } else {
+          cout << "Physics Collision track assigned to PV."
+               << " Track z0: "<< l1track->z0() << " track pT " << l1track->pt()
+               << " numstubs "<< l1track->getNumStubs() << endl;;
+          cout << " (real values) id: " << l1track->getMatchedTP()->index()
+               << " pT " <<  l1track->getMatchedTP()->pt()
+               << " eta " << l1track->getMatchedTP()->eta()
+               << " d0 "<< l1track->getMatchedTP()->d0()
+               << " z0 "<< l1track->getMatchedTP()->z0()
+               << " physicsCollision " << l1track->getMatchedTP()->physicsCollision()
+               << " useForEff() " << l1track->getMatchedTP()->useForEff()
+               << " pdg "<< l1track->getMatchedTP()->pdgId()
+               << " tip "<< l1track->getMatchedTP()->tip() << endl;
         }
       }
     }
 
-
     // ** Technical Proposal algorithm
     float z0res_tdr = (TruePrimaryVertex.z0() - TDRVertex->z0());
     float pTres_tdr = fabs(TruePrimaryVertex.pT() - TDRVertex->pT());
-  
+
     hisTDRVertexZ0Resolution_->Fill(fabs(z0res_tdr));
 
     if(fabs(z0res_tdr) < settings_->vx_resolution()){
@@ -806,38 +776,36 @@ namespace l1tVertexFinder {
       hisTDRNoTracksFromPrimaryVertex_->Fill(TDRVertex->numTracks(),TruePrimaryVertex.numTracks());
       hisTDRNoTrueTracksFromPrimaryVertex_->Fill(TDRVertex->numTrueTracks(),TruePrimaryVertex.numTracks());
       hisTDRPrimaryVertexZ0width_->Fill(TDRVertex->z0width());
-  
-      float matchratio_res = float(TDRVertex->numTrueTracks())/float(TruePrimaryVertex.numTracks());
+
+      float matchratio_res = float(TDRVertex->numTrueTracks()) / float(TruePrimaryVertex.numTracks());
       hisRatioMatchedTracksInTDRPV_->Fill(matchratio_res);
-      float trueRate_res = float(TDRVertex->numTrueTracks())/float(TDRVertex->numTracks());
+      float trueRate_res = float(TDRVertex->numTrueTracks()) / float(TDRVertex->numTracks());
       hisTrueTracksRateInTDRPV_->Fill(trueRate_res);
-      float fakeRate_res = float(TDRVertex->numTracks()-TDRVertex->numTrueTracks())/float(TDRVertex->numTracks());
+      float fakeRate_res = float(TDRVertex->numTracks() - TDRVertex->numTrueTracks()) / float(TDRVertex->numTracks());
       hisFakeTracksRateInTDRPV_->Fill(fakeRate_res);
 
-      for(unsigned int i = 0; i < 3; ++i ){
+      for (unsigned int i = 0; i < 3; ++i ) {
         float genmet = 25. + i*25.;
-        float met_steps = (genmet-10.)/10;
+        float met_steps = (genmet - 10.) / 10;
         bool signal = false;
-        if(TruePrimaryVertex.met() > genmet){
+        if (TruePrimaryVertex.met() > genmet) {
           noSignalEventsTDR[i]++;
           signal = true;
-        }
-        else {
+        } else {
           noBackgroundEventsTDR[i]++;
         }
 
-        for(unsigned int j = 0; j < 10; ++j ){
+        for (unsigned int j = 0; j < 10; ++j ) {
           float cutmet = 10. + j*met_steps;
 
-          if(TDRVertex->met() > cutmet){
-            if(signal) noTDRSignalEvents[i][j]++;
-          } else if(!signal){
+          if (TDRVertex->met() > cutmet) {
+            if (signal) noTDRSignalEvents[i][j]++;
+          } else if (!signal) {
             noTDRBackgroundEvents[i][j]++;
           }
         }
       }
-
-    } else{
+    } else {
       hisTDRVertexOffPT_->Fill(TDRVertex->pT());
       hisTDRUnmatchedVertexZ0distance_->Fill(fabs(z0res_tdr));
     }
@@ -846,26 +814,38 @@ namespace l1tVertexFinder {
     unsigned int misassignedTracks = 0;
     unsigned int misassignedTracks_tdr = 0;
 
-
-    if(settings_->debug() == 7) cout << "*** Misassigned primary vertex tracks ***"<< endl;
-    for(const TP& tp : TruePrimaryVertex.tracks()){
+    /**
+     * TODO: REVIEW
+     *
+     * The current implementation of the "matching" of unmatched TPs to fitted
+     * tracks takes the first L1fittedTrack object that is associated with a
+     * given unmatched TP. In the original implementation of below code (when it
+     * was coupled to the vertex producer) the fitted tracks were coming
+     * directly from the vertex finder which would often sort them in pT. As a
+     * result if one is to compare this implementation with the version where
+     * below code was part of the histogramming class which was initiated from
+     * the producer, minor differences are to be expected (as a different fitted
+     * track will sometimes be matched to a given TP).
+     */
+    if (settings_->debug() == 7)
+      cout << "*** Misassigned primary vertex tracks ***"<< endl;
+    for (const TP& tp : TruePrimaryVertex.tracks()) {
       bool found = false;
-      // cout << tp.index() << " "<< endl;
-      for(const L1fittedTrack* l1track : RecoPrimaryVertex->tracks()){
-        if(l1track->getMatchedTP()!= nullptr){
-          if(tp.index() == l1track->getMatchedTP()->index() ) {
+      for (const L1fittedTrack* l1track : RecoPrimaryVertex->tracks()) {
+        if (l1track->getMatchedTP()!= nullptr) {
+          if (tp.index() == l1track->getMatchedTP()->index()) {
             found = true;
             break;
           }
         }
       }
 
-      if(!found){
+      if (!found) {
         bool TrackIsReconstructed = false;
-        for(const L1fittedTrackBase * l1trackBase: l1TrackPtrs){
+        for (const L1fittedTrackBase * l1trackBase: l1TrackPtrs) {
           const L1fittedTrack * l1track = trackAssociationMap[l1trackBase->getTTTrackPtr()];
-          if(l1track->getMatchedTP()!= nullptr){
-            if(tp.index() == l1track->getMatchedTP()->index() ){
+          if (l1track->getMatchedTP()!= nullptr) {
+            if (tp.index() == l1track->getMatchedTP()->index()) {
               TrackIsReconstructed = true;
               hisUnmatchZ0distance_->Fill(fabs(l1track->z0() - RecoPrimaryVertex->z0()));
               hisUnmatchPt_->Fill(l1track->pt());
@@ -874,13 +854,13 @@ namespace l1tVertexFinder {
               hisUnmatchTrueEta_->Fill(tp.eta());
 
               double mindistance = 999.;
-              for(const L1fittedTrack* vertexTrack : RecoPrimaryVertex->tracks()){
+              for (const L1fittedTrack* vertexTrack : RecoPrimaryVertex->tracks()) {
                 if( fabs(vertexTrack->z0() - l1track->z0()) < mindistance )
                   mindistance = fabs(vertexTrack->z0() - l1track->z0());
               }
               hisUnmatchZ0MinDistance_->Fill(mindistance);
 
-              if(settings_->debug()>5){
+              if (settings_->debug()>5) {
                 cout << "PV Track assigned to wrong vertex. Track z0: "
                      << l1track->z0() << " PV z0: "<< RecoPrimaryVertex->z0()
                      << " tp z0 "<< tp.z0() << " track pT "<< l1track->pt()
@@ -892,31 +872,29 @@ namespace l1tVertexFinder {
           }
         }
 
-        if(!TrackIsReconstructed){
+        if (!TrackIsReconstructed) {
           lostTracks++;
-        } else{
+        } else {
           misassignedTracks++;
         }
       }
 
       found = false;
 
-      for(const L1fittedTrack* l1track : TDRVertex->tracks()){
-        // const L1fittedTrack * l1track = trackAssociationMap[l1trackIt->getTTTrackPtr()];
-        if(l1track->getMatchedTP()!= nullptr){
-          // cout << l1track->getMatchedTP()->index() << " ";
-          if(tp.index() == l1track->getMatchedTP()->index() ) {
+      for (const L1fittedTrack* l1track : TDRVertex->tracks()) {
+        if (l1track->getMatchedTP()!= nullptr) {
+          if (tp.index() == l1track->getMatchedTP()->index()) {
             found = true;
             break;
           }
         }
       }
 
-      if(!found){
-        for(const L1fittedTrackBase * l1trackPtr: l1TrackPtrs){
+      if (!found) {
+        for (const L1fittedTrackBase * l1trackPtr: l1TrackPtrs) {
           const L1fittedTrack * l1track = trackAssociationMap[l1trackPtr->getTTTrackPtr()];
-          if(l1track->getMatchedTP()!= nullptr){
-            if(tp.index() == l1track->getMatchedTP()->index() ){
+          if (l1track->getMatchedTP()!= nullptr) {
+            if (tp.index() == l1track->getMatchedTP()->index()) {
               hisTDRUnmatchZ0distance_->Fill(fabs(l1track->z0() - TDRVertex->z0()));
               hisTDRUnmatchPt_->Fill(l1track->pt());
               hisTDRUnmatchEta_->Fill(l1track->eta());
@@ -924,8 +902,8 @@ namespace l1tVertexFinder {
               hisTDRUnmatchTrueEta_->Fill(tp.eta());
               misassignedTracks_tdr++;
               double mindistance = 999.;
-              for(const L1fittedTrackBase* vertexTrack : TDRVertex->tracks()){
-                if( fabs(vertexTrack->z0() - l1track->z0()) < mindistance )
+              for (const L1fittedTrackBase* vertexTrack : TDRVertex->tracks()) {
+                if ( fabs(vertexTrack->z0() - l1track->z0()) < mindistance )
                   mindistance = fabs(vertexTrack->z0() - l1track->z0());
               }
               hisTDRUnmatchZ0MinDistance_->Fill(mindistance);
@@ -945,8 +923,8 @@ namespace l1tVertexFinder {
 
     float z0distance = 0.;
 
-    for(unsigned int i = 0; i < numVertices; ++i){
-      if (i < numVertices - 1){
+    for (unsigned int i = 0; i < numVertices; ++i) {
+      if (i < numVertices - 1) {
         z0distance = recoVertices.at(i+1)->z0() - recoVertices.at(i)->z0();
         hisRecoVertexZ0Spacing_->Fill(z0distance);
       }
@@ -954,8 +932,8 @@ namespace l1tVertexFinder {
         hisRecoPileUpVertexZ0width_->Fill(recoVertices.at(i)->z0width());
         hisRecoPileUpVertexPT_->Fill(recoVertices.at(i)->pT());
         double PUres = 999.;
-        for(unsigned int j = 0; j<inputData.getRecoPileUpVertices().size(); ++j){
-          if(fabs(recoVertices.at(i)->z0() - inputData.getRecoPileUpVertices()[j].z0()) < PUres){
+        for (unsigned int j = 0; j<inputData.getRecoPileUpVertices().size(); ++j) {
+          if (fabs(recoVertices.at(i)->z0() - inputData.getRecoPileUpVertices()[j].z0()) < PUres) {
             PUres = fabs(recoVertices.at(i)->z0() - inputData.getRecoPileUpVertices()[j].z0());
           }
         }
@@ -963,8 +941,8 @@ namespace l1tVertexFinder {
       }
     }
 
-    for(unsigned int i = 0; i<inputData.getRecoPileUpVertices().size(); ++i){
-      if(i < inputData.getRecoPileUpVertices().size()-1){
+    for (unsigned int i = 0; i<inputData.getRecoPileUpVertices().size(); ++i) {
+      if (i < inputData.getRecoPileUpVertices().size()-1) {
         z0distance = inputData.getRecoPileUpVertices()[i+1].z0() - inputData.getRecoPileUpVertices()[i].z0();
         hisPileUpVertexZ0Spacing_->Fill(z0distance);
       }
@@ -972,23 +950,25 @@ namespace l1tVertexFinder {
       hisPileUpVertexZ0width_->Fill(inputData.getRecoPileUpVertices()[i].z0width());
     }
 
-    // end of problem ---------------------
-
-    if(settings_->debug()==7) cout << "================ End of Event =============="<< endl;
+    if (settings_->debug()==7)
+      cout << "================ End of Event =============="<< endl;
 
     delete RecoPrimaryVertex;
     delete TDRVertex;
 
-    /*
-      if (printResults_) {
-      std::cout << vf.numVertices() << " vertices were found ... " << std::endl;
-      for (const auto& vtx : vf.Vertices()) {
-      std::cout << "  * z0 = " << vtx.z0() << "; contains " << vtx.numTracks() << " tracks ..." <<  std::endl;
-      for (const auto& trackPtr : vtx.tracks())
-      std::cout << "     - z0 = " << trackPtr->z0() << "; pt = " << trackPtr->pt() << ", eta = " << trackPtr->eta() << ", phi = " << trackPtr->phi0() << std::endl;
+    if (printResults_) {
+      std::cout << numVertices << " vertices were found ... " << std::endl;
+      for (const auto& vtx : recoVertices) {
+      std::cout << "  * z0 = " << vtx->z0() << "; contains "
+                << vtx->numTracks() << " tracks ..."
+                <<  std::endl;
+      for (const auto& trackPtr : vtx->tracks())
+      std::cout << "     - z0 = " << trackPtr->z0()
+                << "; pt = " << trackPtr->pt()
+                << ", eta = " << trackPtr->eta()
+                << ", phi = " << trackPtr->phi0() << std::endl;
       }
-      }
-    */
+    }
   }
 
   void VertexAnalyzer::endJob() {
@@ -1001,14 +981,9 @@ namespace l1tVertexFinder {
 
     tdrPVefficiencyVsTrueZ0_ = inputDir.make<TEfficiency>(*hisTDRPrimaryVertexVsTrueZ0_,*hisPrimaryVertexTrueZ0_);
     tdrPVefficiencyVsTrueZ0_->SetNameTitle("tdrPVefficiencyVsTrueZ0_", "Primary Vertex Finding Efficiency (Technical Proposal Algo); true z_{0}; Efficiency");
-    cout << "==================== VERTEX RECONSTRUCTION ======================" << endl;
-    /*
-    if(settings_->vx_algoId()==0) cout << "GAP ALGORITHM with vertex gap = "<< settings_->vx_distance() << " cm "<< endl;
-    if(settings_->vx_algoId()==1) cout << "SIMPLE MERGE CLUSTERING ALGORITHM with mininal vertex distance = "<< settings_->vx_distance() << " cm "<< endl;
-    if(settings_->vx_algoId()==2) cout << "DBSCAN ALGORITHM with vertex gap = "<< settings_->vx_distance() << " cm "<< endl;
-    if(settings_->vx_algoId()==3) cout << "PVR ALGORITHM with vertex gap = "<< settings_->vx_distance() << " cm "<< endl;
-    if(settings_->vx_algoId()==4) cout << "AVR ALGORITHM with vertex gap = "<< settings_->vx_distance() << " cm "<< endl;
-    */
+
+    cout << "==================== VERTEX RECONSTRUCTION ======================"
+         << endl;
 
     cout << "Average no. Reconstructed Vertices: "
          << hisNoRecoVertices_->GetMean() << "("
@@ -1027,7 +1002,7 @@ namespace l1tVertexFinder {
          << " cm , Technical Proposal Algo : "
          << hisTDRVertexZ0Resolution_->GetMean() << " cm "<< endl;
 
-    float recoPVeff = double(hisRecoPrimaryVertexVsTrueZ0_->GetEntries())/double(hisPrimaryVertexTrueZ0_->GetEntries());
+    float recoPVeff = double(hisRecoPrimaryVertexVsTrueZ0_->GetEntries()) / double(hisPrimaryVertexTrueZ0_->GetEntries());
     float numRecoPV = double(hisRecoPrimaryVertexVsTrueZ0_->GetEntries());
     float numPVs = double(hisPrimaryVertexTrueZ0_->GetEntries());
     float numTDRPV = double(hisTDRPrimaryVertexVsTrueZ0_->GetEntries());
@@ -1048,7 +1023,7 @@ namespace l1tVertexFinder {
 
       // cout << "********** GenMET > " << genmet << " GeV << ************" << endl;
       ostringstream name;
-      name << "GenMET" <<genmet<<".txt";
+      name << "GenMET" << genmet << ".txt";
       float sigEvents = double(noSignalEvents[i]);
       float bkgEvents = double(noBackgroundEvents[i]);
 
@@ -1057,7 +1032,7 @@ namespace l1tVertexFinder {
       hisMETevents_[i]->GetXaxis()->SetBinLabel(1,"Signal Events");
       hisMETevents_[i]->GetXaxis()->SetBinLabel(22,"Bkg Events");
 
-      for (unsigned int j = 0; j < 10; ++j){
+      for (unsigned int j = 0; j < 10; ++j) {
         float cutmet = 10. + j*met_steps;
 
         float efficiency = 0.;
@@ -1069,7 +1044,7 @@ namespace l1tVertexFinder {
         float recoEvents = double(noRecoSignalEvents[i][j]);
         float tdrEvents = double(noTDRSignalEvents[i][j]);
 
-        if(noSignalEvents[i] > 0){
+        if (noSignalEvents[i] > 0) {
           efficiency = double(noRecoSignalEvents[i][j])/double(noSignalEvents[i]);
           efficiency_tdr = double(noTDRSignalEvents[i][j])/double(noSignalEventsTDR[i]);
 
@@ -1102,7 +1077,7 @@ namespace l1tVertexFinder {
         hisMETevents_[i]->GetXaxis()->SetBinLabel(j+33,label.str().c_str());
 
 
-        if(noBackgroundEvents[i] > 0){
+        if (noBackgroundEvents[i] > 0) {
           rejection = double(noRecoBackgroundEvents[i][j])/double(noBackgroundEvents[i]);
           rejection_tdr = double(noTDRBackgroundEvents[i][j])/double(noBackgroundEventsTDR[i]);
 
