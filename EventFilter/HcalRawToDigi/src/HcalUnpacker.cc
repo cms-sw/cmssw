@@ -938,6 +938,16 @@ void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, Collections& col
 
 void HcalUnpacker::printInvalidDataMessage( const std::string &coll_type, int default_ns, int conflict_ns, bool extended ) {
 
+  nPrinted_++;
+
+  int limit = 50;
+  if( nPrinted_ >= limit ) {
+
+      if( nPrinted_ == limit ) edm::LogError("Invalid Data") << "Suppresing further error messages" << std::endl;
+      
+      return;
+  }
+
   std::stringstream message;
 
   message << "The default " << coll_type << " Collection has " 
