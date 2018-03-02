@@ -6,7 +6,7 @@
 # Author: S.Viret (viret@in2p3.fr)
 # Date        : 16/02/2017
 #
-# Script tested with release CMSSW_9_0_0_pre4
+# Script tested with release CMSSW_10_0_0_pre1
 #
 #########################
 #
@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
@@ -34,7 +34,6 @@ process.load('SimGeneral.MixingModule.mix_POISSON_average_cfi')
 process.load('IOMC.EventVertexGenerators.VtxSmearedGauss_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
-process.load('L1Trigger.TrackTrigger.TkOnlyFlatGeom_cff') # Special config file for TkOnly geometry
 process.load('SimTracker.TrackTriggerAssociation.TrackTriggerAssociator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -42,12 +41,21 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 if flat:
 	print 'You choose the flat geometry'
 	process.load('L1Trigger.TrackTrigger.TkOnlyFlatGeom_cff') # Special config file for TkOnly geometry
+	process.TTStubAlgorithm_official_Phase2TrackerDigi_.zMatchingPS = cms.bool(False) # Tilted is the new default
+	process.TTStubAlgorithm_official_Phase2TrackerDigi_.EndcapCutSet = cms.VPSet(
+		cms.PSet( EndcapCut = cms.vdouble( 0 ) ),
+		cms.PSet( EndcapCut = cms.vdouble( 0, 0.5, 2, 3.5, 2, 3.5, 5.5, 6, 6.5, 6.5, 6.5, 6.5, 6.5, 6.5, 7, 7) ),
+		cms.PSet( EndcapCut = cms.vdouble( 0, 0.5, 1.5, 3, 2, 3, 5, 6, 6.5, 6.5, 6.5, 5, 6.5, 6.5, 7, 7) ),
+		cms.PSet( EndcapCut = cms.vdouble( 0, 0.5, 0.5, 0.5, 1, 1.5, 3, 4.5, 6, 6.5, 6.5, 7, 7, 7, 7, 7) ),
+		cms.PSet( EndcapCut = cms.vdouble( 0, 0.5, 0.5, 0.5, 0.5, 1.5, 2., 3.5, 5., 6.5, 6.5, 6.5, 6, 7, 7, 7) ),
+		cms.PSet( EndcapCut = cms.vdouble( 0, 0.5, 0.5, 0.5, 0.5, 1., 1.5, 2.5, 4., 5, 7, 5.5, 7, 7, 7, 7) ),
+		)
 else:
 	print 'You choose the tilted geometry'
 	process.load('L1Trigger.TrackTrigger.TkOnlyTiltedGeom_cff') # Special config file for TkOnly geometry
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(20)
+    input = cms.untracked.int32(5)
 )
 
 # Input source
@@ -59,13 +67,6 @@ process.mix.input.nbPileupEvents.averageNumber = cms.double(20.0)  # The average
 process.mix.input.fileNames     = cms.untracked.vstring('file:MBias_100_TkOnly.root') # The file where to pick them up
 
 # Additional output definition
-
-# Other statements
-# Global tag for PromptReco
-#
-# To find where upgradePLS3 is pointing, look here:
-#
-# https://github.com/cms-sw/cmssw/blob/CMSSW_6_2_X_SLHC_2014-06-16-0200/Configuration/AlCa/python/autoCond.py
 
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 
@@ -105,7 +106,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RAWSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('PU_20_sample_TkOnly_FLAT.root'),
+    fileName = cms.untracked.string('PU_20_sample_TkOnly.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM')
