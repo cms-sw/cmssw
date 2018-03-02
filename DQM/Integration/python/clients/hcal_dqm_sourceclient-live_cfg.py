@@ -102,12 +102,8 @@ process.emulTPDigis.RunZS = cms.bool(True)
 process.emulTPDigis.ZS_threshold = cms.uint32(0)
 process.hcalDigis.InputLabel = rawTag
 process.emulTPDigisNoTDCCut = process.emulTPDigis.clone()
-#process.emulTPDigisNoTDCCut.ADCThresholdHF = cms.uint32(255)
-#process.emulTPDigisNoTDCCut.TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
-
-# For testing on cosmics: 12.5 ns cut = 50% efficiency
-process.emulTPDigisNoTDCCut.ADCThresholdHF = cms.uint32(0)
-process.emulTPDigisNoTDCCut.TDCMaskHF = cms.uint64(0xFFFFFFFFFE000000)
+process.emulTPDigisNoTDCCut.ADCThresholdHF = cms.uint32(255)
+process.emulTPDigisNoTDCCut.TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
 
 
 

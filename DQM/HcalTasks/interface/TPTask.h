@@ -72,7 +72,6 @@ class TPTask : public hcaldqm::DQTask
 		hcaldqm::filter::HashFilter _filter_VME;
 		hcaldqm::filter::HashFilter _filter_uTCA;
 		hcaldqm::filter::HashFilter _filter_depth0;
-		hcaldqm::filter::HashFilter _filter_HF;
 
 		//	Et/FG
 		hcaldqm::Container1D _cEtData_TTSubdet;
