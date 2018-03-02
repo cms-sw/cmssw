@@ -25,6 +25,9 @@ ntuple_gen = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleGen'),
     GenParticles = cms.InputTag('genParticles'),
     GenPU = cms.InputTag('addPileupInfo'),
+    MCEvent = cms.InputTag('generatorSmeared'),
+    SimTracks = cms.InputTag('g4SimHits'),
+    SimVertices = cms.InputTag('g4SimHits'),
     particleFilter = PartFilterConfig
 )
 

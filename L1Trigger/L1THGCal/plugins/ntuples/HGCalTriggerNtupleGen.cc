@@ -223,10 +223,10 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
     tree.Branch("gen_PUNumInt", &gen_PUNumInt_ ,"gen_PUNumInt/I");
     tree.Branch("gen_TrueNumInt", &gen_TrueNumInt_ ,"gen_TrueNumInt/F");
 
-    hepmcev_token_ = collector.consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
+    hepmcev_token_ = collector.consumes<edm::HepMCProduct>(conf.getParameter<edm::InputTag>("MCEvent"));
 
-    simTracks_token_ = collector.consumes<std::vector<SimTrack>>(edm::InputTag("g4SimHits"));
-    simVertices_token_ = collector.consumes<std::vector<SimVertex>>(edm::InputTag("g4SimHits"));
+    simTracks_token_ = collector.consumes<std::vector<SimTrack>>(conf.getParameter<edm::InputTag>("SimTracks"));
+    simVertices_token_ = collector.consumes<std::vector<SimVertex>>(conf.getParameter<edm::InputTag>("SimVertices"));
 
     tree.Branch("vtx_x", &vtx_x_);
     tree.Branch("vtx_y", &vtx_y_);
