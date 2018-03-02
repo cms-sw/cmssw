@@ -57,8 +57,8 @@ void PFJetsMaxInvMassModule::fillDescriptions(edm::ConfigurationDescriptions& de
 {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("PFJetSrc", edm::InputTag(""))->setComment("Input collection of PFJets that pass a filter"    );
-  desc.add<bool>("maxInvMassPairOnly",1)->setComment("Add only max mjj pair");
-  desc.add<bool>("removeMaxInvMassPair",0)->setComment("Remove max mjj pair and keep all other jets");
+  desc.add<bool>("maxInvMassPairOnly", true)->setComment("Add only max mjj pair");
+  desc.add<bool>("removeMaxInvMassPair", false)->setComment("Remove max mjj pair and keep all other jets");
   descriptions.setComment("This module produces a collection of PFJets that are cross-cleaned with respect to PFTaus passing a HLT filter.");
   descriptions.add       ("PFJetsMaxInvMassModule",desc);
 }
