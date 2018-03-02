@@ -13,10 +13,7 @@ SimTrackerFEVTDEBUG = cms.PSet(
         'keep *_assoc2thStepTk_*_*', 
         'keep *_assoc2GsfTracks_*_*', 
         'keep *_assocOutInConversionTracks_*_*', 
-        'keep *_assocInOutConversionTracks_*_*',
-        'keep *_TTClusterAssociatorFromPixelDigis_*_*',
-        'keep *_TTStubAssociatorFromPixelDigis_*_*')
-
+        'keep *_assocInOutConversionTracks_*_*')
 )
 
 SimTrackerDEBUG = cms.PSet(
