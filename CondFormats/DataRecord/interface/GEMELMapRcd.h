@@ -1,11 +1,11 @@
-#ifndef CondFormats_DataRecord_GEMEMapRcd_h
-#define CondFormats_DataRecord_GEMEMapRcd_h
+#ifndef CondFormats_DataRecord_GEMELMapRcd_h
+#define CondFormats_DataRecord_GEMELMapRcd_h
 // -*- C++ -*-
 //
 // Package:     CondFormats/DataRecord
-// Class  :     GEMEMapRcd
+// Class  :     GEMELMapRcd
 // 
-/**\class GEMEMapRcd GEMEMapRcd.h CondFormats/DataRecord/interface/GEMEMapRcd.h
+/**\class GEMELMapRcd GEMELMapRcd.h CondFormats/DataRecord/interface/GEMELMapRcd.h
 
  Description: [one line class summary]
 
@@ -20,6 +20,6 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class GEMEMapRcd : public edm::eventsetup::EventSetupRecordImplementation<GEMEMapRcd> {};
+class GEMELMapRcd : public edm::eventsetup::EventSetupRecordImplementation<GEMELMapRcd> {};
 
 #endif
