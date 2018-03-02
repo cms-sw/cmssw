@@ -66,13 +66,13 @@ protected:
 //
 class PFRecHitQTestDBThreshold : public PFRecHitQTestBase {
 public:
-    PFRecHitQTestDBThreshold():eventSetup_(0){
+    PFRecHitQTestDBThreshold():eventSetup_(nullptr){
     }
 
     PFRecHitQTestDBThreshold(const edm::ParameterSet& iConfig):
      PFRecHitQTestBase(iConfig),
      applySelectionsToAllCrystals_(iConfig.getParameter<bool>("applySelectionsToAllCrystals")),    
-     eventSetup_(0){
+     eventSetup_(nullptr){
     }
 
     void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
