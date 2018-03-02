@@ -339,13 +339,24 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 		iend = patJet->end(), isub = ibegin;
 	      isub != iend; ++isub ) {
 	  reco::PFJet const * pfsub = dynamic_cast<reco::PFJet const *>( &*isub );
-	  e_chf += pfsub->chargedHadronEnergy();
-	  e_nhf += pfsub->neutralHadronEnergy();
-	  e_cef += pfsub->chargedEmEnergy();
-	  e_nef += pfsub->neutralEmEnergy();
-	  nch += pfsub->chargedMultiplicity();
-	  nconstituents += pfsub->numberOfDaughters();
-	  nneutrals += pfsub->neutralMultiplicity();
+	  pat::Jet const * patsub = dynamic_cast<pat::Jet const *>( &*isub );
+	  if ( patsub ) {
+	    e_chf += patsub->chargedHadronEnergy();
+	    e_nhf += patsub->neutralHadronEnergy();
+	    e_cef += patsub->chargedEmEnergy();
+	    e_nef += patsub->neutralEmEnergy();
+	    nch += patsub->chargedMultiplicity();
+            nconstituents += patsub->numberOfDaughters();
+	    nneutrals += patsub->neutralMultiplicity();
+	  } else if ( pfsub ) {
+            e_chf += pfsub->chargedHadronEnergy();
+	    e_nhf += pfsub->neutralHadronEnergy();
+	    e_cef += pfsub->chargedEmEnergy();
+	    e_nef += pfsub->neutralEmEnergy();
+	    nch += pfsub->chargedMultiplicity();
+            nconstituents += pfsub->numberOfDaughters();
+	    nneutrals += pfsub->neutralMultiplicity();
+	  } else assert(0);
 	}
 	double e = patJet->energy();
 	if ( e > 0.000001 ) {
@@ -407,8 +418,6 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       }
     } // end if basic jet
 
-
-
    // Cuts for |eta| < 2.4 for FIRSTDATA, RUNIISTARTUP and WINTER16
     if ( ignoreCut(indexCEF_)           || ( cef < cut(indexCEF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCEF_);
     if ( ignoreCut(indexCHF_)           || ( chf > cut(indexCHF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCHF_);
@@ -442,7 +451,6 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       if ( ignoreCut(indexNEF_FW_)           || ( nef < cut(indexNEF_FW_, double()) || std::abs(jet.eta()) <= 3.0 ) ) passCut( ret, indexNEF_FW_);
       if ( ignoreCut(indexNNeutrals_FW_) || ( nneutrals > cut(indexNNeutrals_FW_, int())    || std::abs(jet.eta()) <= 3.0 ) ) passCut( ret, indexNNeutrals_FW_);
     }
-
 
     //std::cout << "<PFJetIDSelectionFunctor::firstDataCuts>:" << std::endl;
     //std::cout << " jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << std::endl;
