@@ -618,7 +618,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 		  double chg(ene), enec(ene);
 		  if (unCorrect_) {
 		    double corr = (ignoreHECorr_ && (subdet0==HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
-		    if (corr != 0) {ene /= corr; chg /= corr;}
+		    if (corr != 0) ene /= corr;
 #ifdef EDM_ML_DEBUG
 		    HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc_->mergedDepthDetId(hcid0) : hcid0;
 		    edm::LogVerbatim("HBHEMuon") << hcid0 << ":" << id 
@@ -676,7 +676,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 		  double chg(ene);
 		  if (unCorrect_) {
 		    double corr = (ignoreHECorr_ && (subdet0==HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
-		    if (corr != 0) {ene /= corr; chg /= corr;}
+		    if (corr != 0) ene /= corr; 
 #ifdef EDM_ML_DEBUG
 		    HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc_->mergedDepthDetId(hcid0) : hcid0;
 		    edm::LogVerbatim("HBHEMuon") << hcid0 << ":" << id 
