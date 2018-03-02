@@ -15,8 +15,10 @@
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
+#include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
@@ -195,6 +197,9 @@ class HGCalTriggerNtupleGen : public HGCalTriggerNtupleBase
         edm::EDGetToken simVertices_token_;
         edm::EDGetToken hepmcev_token_;
 
+        edm::ESWatcher<PDTRecord> pdt_watcher_;
+        edm::ESWatcher<IdealMagneticFieldRecord> magfield_watcher_;
+
 
 };
 
@@ -279,18 +284,21 @@ fill(const edm::Event& iEvent, const edm::EventSetup& es)
     iEvent.getByToken(gen_PU_token_, PupInfo_h);
     const std::vector< PileupSummaryInfo >& PupInfo = *PupInfo_h;
 
+    if(pdt_watcher_.check(es))
+    {
+      edm::ESHandle<HepPDT::ParticleDataTable> pdt;
+      es.get<PDTRecord>().get(pdt);
+      mySimEvent_->initializePdt(&(*pdt));
+    }
 
-    // FIXME: this part could go in begin run
-    edm::ESHandle<HepPDT::ParticleDataTable> pdt;
-    es.getData(pdt);
-    mySimEvent_->initializePdt(&(*pdt));
+    if(magfield_watcher_.check(es))
+    {
+      edm::ESHandle<MagneticField> magfield;
+      es.get<IdealMagneticFieldRecord>().get(magfield);
+      aField_ = &(*magfield);
+    }
 
     triggerTools_.eventSetup(es);
-
-    edm::ESHandle<MagneticField> magfield;
-    es.get<IdealMagneticFieldRecord>().get(magfield);
-    aField_ = &(*magfield);
-    // up to here...could go in the beginRun
 
     // This balck magic is needed to use the mySimEvent_
     ParticleTable::Sentry ptable(mySimEvent_->theTable());
