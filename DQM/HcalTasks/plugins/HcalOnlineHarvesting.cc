@@ -141,10 +141,10 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 
 	// HF TDC TP efficiency
 	if (_vmarks[fTP]) {
-		MonitorElement* meOccupancy_HF_depth = ig.get("Hcal/Run summary/TPTask/OccupancyHF_depth/OccupancyHF_depth");
-		MonitorElement* meOccupancyNoTDC_HF_depth = ig.get("Hcal/Run summary/TPTask/OccupancyHFNoTDCCut_depth/OccupancyHFNoTDCCut_depth");
-		MonitorElement* meOccupancy_HF_ieta = ig.get("Hcal/Run summary/TPTask/OccupancyHF_ieta/OccupancyHF_ieta");
-		MonitorElement* meOccupancyNoTDC_HF_ieta = ig.get("Hcal/Run summary/TPTask/OccupancyHFNoTDCCut_ieta/OccupancyHFNoTDCCut_ieta");
+		MonitorElement* meOccupancy_HF_depth = ig.get("Hcal/TPTask/OccupancyHF_depth/OccupancyHF_depth");
+		MonitorElement* meOccupancyNoTDC_HF_depth = ig.get("Hcal/TPTask/OccupancyHFNoTDCCut_depth/OccupancyHFNoTDCCut_depth");
+		MonitorElement* meOccupancy_HF_ieta = ig.get("Hcal/TPTask/OccupancyHF_ieta/OccupancyHF_ieta");
+		MonitorElement* meOccupancyNoTDC_HF_ieta = ig.get("Hcal/TPTask/OccupancyHFNoTDCCut_ieta/OccupancyHFNoTDCCut_ieta");
 
 		//if (meOccupancy_HF_depth && meOccupancyNoTDC_HF_depth && meOccupancy_HF_ieta && meOccupancyNoTDC_HF_ieta) {
 			TH2F* hOccupancy_HF_depth = meOccupancy_HF_depth->getTH2F();
