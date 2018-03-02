@@ -657,7 +657,12 @@ namespace {
       return info;
     }
 
-    return info;
+    // throw exception if info still undefined and first char doesn't match variable name
+    if( *iBegin == 'x' or *iBegin == 'y' or *iBegin == 'z' or *iBegin == 't' ) {
+      return info;
+    }
+    throw cms::Exception("FormulaEvaluatorParseError")<<"Undefined function string contained in: '"<<std::string(iBegin,iEnd) <<"'"; 
+
   };
 
   ExpressionFinder const s_expressionFinder;
