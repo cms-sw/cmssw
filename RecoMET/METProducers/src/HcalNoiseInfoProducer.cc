@@ -907,8 +907,6 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
     }
     
     // Exclude uncollapsed QIE11 channels
-    //if(((rechit.auxPhase1()>>HBHERecHitAuxSetter::OFF_TDC_TIME)&1) &&
-    //   !((rechit.auxPhase1()>>HBHERecHitAuxSetter::OFF_COMBINED)&1) ) continue;
     if( CaloRecHitAuxSetter::getBit(rechit.auxPhase1(), HBHERecHitAuxSetter::OFF_TDC_TIME) &&
        !CaloRecHitAuxSetter::getBit(rechit.auxPhase1(), HBHERecHitAuxSetter::OFF_COMBINED) ) continue;
    
