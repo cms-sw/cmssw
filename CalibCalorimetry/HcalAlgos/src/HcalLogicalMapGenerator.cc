@@ -1659,7 +1659,6 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
       }
     }
   }
-//ic++; // replace with ic=ic+1 below
 
   /*HO calibration channels*/
   for(ic=ic+1 ; ic<NCALIBCR; ic++){
