@@ -161,7 +161,7 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 
 			MonitorElement* meEfficiency_HF_depth = ib.book2D("TDCCutEfficiency_depth", hEfficiency_HF_depth);
 			meEfficiency_HF_depth->setEfficiencyFlag();
-			MonitorElement* meEfficiency_HF_ieta = ib.book2D("TDCCutEfficiency_ieta", hEfficiency_HF_ieta);
+			MonitorElement* meEfficiency_HF_ieta = ib.book1D("TDCCutEfficiency_ieta", hEfficiency_HF_ieta);
 			meEfficiency_HF_ieta->setEfficiencyFlag();	
 		//}	
 	}
