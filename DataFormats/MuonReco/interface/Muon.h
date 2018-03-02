@@ -208,7 +208,11 @@ namespace reco {
       MiniIsoMedium          = 1UL<<19,  // reliso<0.20
       MiniIsoTight           = 1UL<<20,  // reliso<0.10
       MiniIsoVeryTight       = 1UL<<21,  // reliso<0.05
-      TriggerIdLoose         = 1UL<<22   // robust selector for HLT
+      TriggerIdLoose         = 1UL<<22,  // robust selector for HLT
+      InTimeMuon             = 1UL<<23,   
+      PFIsoVeryVeryTight     = 1UL<<24,  // reliso<0.05
+      MultiIsoLoose          = 1UL<<25,  // miniIso with ptRatio and ptRel 
+      MultiIsoMedium         = 1UL<<26   // miniIso with ptRatio and ptRel 
     };
     
     bool passed( unsigned int selection ) const { return (selectors_ & selection)==selection; }

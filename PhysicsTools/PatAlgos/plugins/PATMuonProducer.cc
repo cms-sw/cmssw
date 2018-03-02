@@ -514,13 +514,14 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       bool isRun2016BCDEF = (272728 <= iEvent.run() && iEvent.run() <= 278808);
       muon::setCutBasedSelectorFlags(muon, pv, isRun2016BCDEF);
     }
+    double miniIsoValue = -1;
     if (computeMiniIso_){
       // MiniIsolation working points
-      double iso = getRelMiniIsoPUCorrected(muon,*rho);
-      muon.setSelector(reco::Muon::MiniIsoLoose,     iso<0.40);
-      muon.setSelector(reco::Muon::MiniIsoMedium,    iso<0.20);
-      muon.setSelector(reco::Muon::MiniIsoTight,     iso<0.10);
-      muon.setSelector(reco::Muon::MiniIsoVeryTight, iso<0.05);
+      double miniIsoValue = getRelMiniIsoPUCorrected(muon,*rho);
+      muon.setSelector(reco::Muon::MiniIsoLoose,     miniIsoValue<0.40);
+      muon.setSelector(reco::Muon::MiniIsoMedium,    miniIsoValue<0.20);
+      muon.setSelector(reco::Muon::MiniIsoTight,     miniIsoValue<0.10);
+      muon.setSelector(reco::Muon::MiniIsoVeryTight, miniIsoValue<0.05);
     }
     if (computeMuonMVA_ && primaryVertexIsValid){
       if (mvaUseJec_)
@@ -537,7 +538,13 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       muon.setMvaValue(mvaEstimator_.mva());
       muon.setJetPtRatio(mvaEstimator_.jetPtRatio());
       muon.setJetPtRel(mvaEstimator_.jetPtRel());
-      
+
+      // multi-isolation
+      if (computeMiniIso_){
+	muon.setSelector(reco::Muon::MultiIsoLoose,  miniIsoValue<0.40 && (muon.jetPtRatio() > 0.80 || muon.jetPtRel() > 7.2) );
+	muon.setSelector(reco::Muon::MultiIsoMedium, miniIsoValue<0.16 && (muon.jetPtRatio() > 0.76 || muon.jetPtRel() > 7.2) );
+      }
+
       // MVA working points
       // https://twiki.cern.ch/twiki/bin/viewauth/CMS/LeptonMVA
       double dB2D  = fabs(muon.dB(pat::Muon::BS2D));
