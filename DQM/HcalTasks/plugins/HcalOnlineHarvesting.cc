@@ -154,7 +154,7 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 
 			TH2F *hEfficiency_HF_depth = (TH2F*)hOccupancy_HF_depth->Clone();
 			hEfficiency_HF_depth->Divide(hOccupancyNoTDC_HF_depth);
-			TH2F *hEfficiency_HF_ieta = (TH2F*)hOccupancy_HF_ieta->Clone();
+			TH1F *hEfficiency_HF_ieta = (TH1F*)hOccupancy_HF_ieta->Clone();
 			hEfficiency_HF_ieta->Divide(hOccupancyNoTDC_HF_ieta);
 
 			ib.setCurrentFolder("Hcal/TPTask");
