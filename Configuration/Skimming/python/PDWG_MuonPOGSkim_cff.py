@@ -12,6 +12,7 @@ MuonPOG_EventContent = cms.PSet(
                      'keep *Muons*_slimmedMuons_*_*',
                      'keep *_isolatedTracks_*_*',                   
                      'keep *_slimmedPatTrigger_*_*',
+                     'keep *_slimmedJets_*_*',
      )
 )
 
@@ -37,7 +38,9 @@ TAGMUON_JPSI_CUT = '(isGlobalMuon || numberOfMatchedStations > 1) && pt > 5'
 PROBETRACK_CUT = 'pt > 10 &&  abs(eta)<2.4 &&  (charge!=0)'
 PROBETRACK_JPSI_CUT = 'pt > 7 &&  abs(eta)<2.4 &&  (charge!=0)'
 
-DIMUON = 'mass > 40'
+DIMUON = 'mass > 40 || ( ?daughter(0).masterClone.isStandAloneMuon?({dg0}.p+{dg1}.p)*({dg0}.p+{dg1}.p)-({dg0}.px+{dg1}.px)*({dg0}.px+{dg1}.px)-({dg0}.py+{dg1}.py)*({dg0}.py+{dg1}.py)-({dg0}.pz+{dg1}.pz)*({dg0}.pz+{dg1}.pz):2000) > 1600'
+
+DIMUON = DIMUON.format(dg0 = "daughter(0).masterClone.standAloneMuon()", dg1="daughter(1)")
 
 
 # Tag and probe for Z#to#mu#mu
@@ -90,7 +93,7 @@ MuonPOGSkimSequence = cms.Sequence(
     )
 
 MuonPOGJPsiSkimSequence = cms.Sequence(
-    MuonPOGJPsiSkimHLTFilter 
-#    GoodJPsiTagMuons * 
-#    GoodJPsiProbeMuons 
+    MuonPOGJPsiSkimHLTFilter *
+    GoodJPsiTagMuons * 
+    GoodJPsiProbeMuons 
     )
