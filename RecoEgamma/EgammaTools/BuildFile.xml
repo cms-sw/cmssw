@@ -12,6 +12,7 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="DataFormats/ParticleFlowReco"/>
+<use   name="CommonTools/Utils"/>
 <use name="roottmva"/>
 <export>
   <lib   name="1"/>

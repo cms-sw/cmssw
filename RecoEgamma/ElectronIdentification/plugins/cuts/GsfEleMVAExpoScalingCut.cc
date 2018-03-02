@@ -1,10 +1,11 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
+#include <cmath>
 
-class GsfEleMVACut : public CutApplicatorWithEventContentBase {
+class GsfEleMVAExpoScalingCut : public CutApplicatorWithEventContentBase {
 public:
-  GsfEleMVACut(const edm::ParameterSet& c);
+  GsfEleMVAExpoScalingCut(const edm::ParameterSet& c);
 
   result_type operator()(const reco::GsfElectronPtr&) const final;
 
@@ -29,10 +30,10 @@ private:
 };
 
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
-                  GsfEleMVACut,
-                  "GsfEleMVACut");
+                  GsfEleMVAExpoScalingCut,
+                  "GsfEleMVAExpoScalingCut");
 
-GsfEleMVACut::GsfEleMVACut(const edm::ParameterSet& c) :
+GsfEleMVAExpoScalingCut::GsfEleMVAExpoScalingCut(const edm::ParameterSet& c) :
   CutApplicatorWithEventContentBase(c),
   mvaCutValues(c.getParameter<std::vector<double> >("mvaCuts"))
 {
@@ -44,7 +45,7 @@ GsfEleMVACut::GsfEleMVACut(const edm::ParameterSet& c) :
 
 }
 
-void GsfEleMVACut::setConsumes(edm::ConsumesCollector& cc) {
+void GsfEleMVAExpoScalingCut::setConsumes(edm::ConsumesCollector& cc) {
 
   auto mvaVal =
     cc.consumes<edm::ValueMap<float> >(contentTags_["mvaVal"]);
@@ -55,14 +56,14 @@ void GsfEleMVACut::setConsumes(edm::ConsumesCollector& cc) {
   contentTokens_.emplace("mvaCat",mvaCat);
 }
 
-void GsfEleMVACut::getEventContent(const edm::EventBase& ev) {
+void GsfEleMVAExpoScalingCut::getEventContent(const edm::EventBase& ev) {
 
   ev.getByLabel(contentTags_["mvaVal"], mvaValueMap_);
   ev.getByLabel(contentTags_["mvaCat"], mvaCategoriesMap_);
 }
 
 CutApplicatorBase::result_type
-GsfEleMVACut::
+GsfEleMVAExpoScalingCut::
 operator()(const reco::GsfElectronPtr& cand) const{
 
   // in case we are by-value
@@ -87,22 +88,23 @@ operator()(const reco::GsfElectronPtr& cand) const{
     val = (*mvaValueMap_)[cand];
   }
 
-
   // Find the cut value
   const int iCategory = mvaCategoriesMap_.isValid() ? cat : pat->userInt( cat_name );
-  if( iCategory >= (int)(mvaCutValues.size()) )
+  if( iCategory >= (int)(mvaCutValues.size()) * 3)
     throw cms::Exception(" Error in MVA categories: ")
       << " found a particle with a category larger than max configured " << std::endl;
-  const float cutValue = mvaCutValues[iCategory];
+  const float c   = mvaCutValues[3*iCategory];
+  const float tau = mvaCutValues[3*iCategory+1];
+  const float A   = mvaCutValues[3*iCategory+2];
 
   // Look up the MVA value for this particle
   const float mvaValue = mvaValueMap_.isValid() ? val : pat->userFloat( val_name );
 
   // Apply the cut and return the result
-  return mvaValue > cutValue;
+  return mvaValue > c - exp(- cand->pt() / tau) * A;;
 }
 
-double GsfEleMVACut::value(const reco::CandidatePtr& cand) const {
+double GsfEleMVAExpoScalingCut::value(const reco::CandidatePtr& cand) const {
 
   // in case we are by-value
   const std::string& val_name =contentTags_.find("mvaVal")->second.instance();
