@@ -173,11 +173,9 @@ class TPTask : public hcaldqm::DQTask
 		hcaldqm::ContainerXXX<uint32_t> _xEtMsm, _xFGMsm, _xNumCorr,
 			_xDataMsn, _xDataTotal, _xEmulMsn, _xEmulTotal;
 
-		hcaldqm::ContainerSingle2D _cTDCCutEfficiency_depth;
-		hcaldqm::ContainerSingle1D _cTDCCutEfficiency_ieta;
 		// Temporary storage for occupancy with and without HF TDC cut
-		hcaldqm::ContainerXXX<int> _xOccupancy_HF_depth, _xOccupancyNoTDC_HF_depth;
-		hcaldqm::ContainerXXX<int> _xOccupancy_HF_ieta, _xOccupancyNoTDC_HF_ieta;
+		hcaldqm::ContainerSingle2D _cOccupancy_HF_depth, _cOccupancyNoTDC_HF_depth;
+		hcaldqm::ContainerSingle1D _cOccupancy_HF_ieta, _cOccupancyNoTDC_HF_ieta;
 };
 
 #endif
