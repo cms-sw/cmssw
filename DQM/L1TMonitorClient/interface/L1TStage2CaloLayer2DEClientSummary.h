@@ -34,7 +34,6 @@ class L1TStage2CaloLayer2DEClientSummary: public DQMEDHarvester {
   MonitorElement * egSummary;
   MonitorElement * tauSummary;
   MonitorElement * sumSummary;
-  MonitorElement * problemSummary;
 };
 
 #endif
