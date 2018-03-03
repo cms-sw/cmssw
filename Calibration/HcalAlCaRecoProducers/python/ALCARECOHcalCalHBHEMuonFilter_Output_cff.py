@@ -22,6 +22,7 @@ OutALCARECOHcalCalHBHEMuonFilter_noDrop = cms.PSet(
         'keep recoTracks_tevMuons_*_*',
         'keep recoTrackExtras_tevMuons_*_*',
         'keep *_offlinePrimaryVertices_*_*',
+        'keep *_scalersRawToDigi_*_*',
         'keep *_muons_*_*',
         )
     )
