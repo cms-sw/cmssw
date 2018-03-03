@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_10_0_0/PRef --type PRef
 
-# /dev/CMSSW_10_0_0/PRef/V11 (CMSSW_10_0_2)
+# /dev/CMSSW_10_0_0/PRef/V14 (CMSSW_10_0_3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_10_0_0/PRef/V11')
+  tableName = cms.string('/dev/CMSSW_10_0_0/PRef/V14')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -4433,7 +4433,7 @@ fragment.hltHbhePhase1Reco = cms.EDProducer( "HBHEPhase1Reconstructor",
     digiLabelQIE11 = cms.InputTag( "hltHcalDigis" ),
     saveDroppedInfos = cms.bool( False ),
     setNoiseFlagsQIE8 = cms.bool( True ),
-    saveEffectivePedestal = cms.bool( False ),
+    saveEffectivePedestal = cms.bool( True ),
     digiLabelQIE8 = cms.InputTag( "hltHcalDigis" ),
     sipmQTSShift = cms.int32( 0 ),
     processQIE11 = cms.bool( True ),
@@ -4485,47 +4485,41 @@ fragment.hltHbhePhase1Reco = cms.EDProducer( "HBHEPhase1Reconstructor",
     setNegativeFlagsQIE11 = cms.bool( False ),
     processQIE8 = cms.bool( True ),
     algorithm = cms.PSet( 
+      ts4Thresh = cms.double( 0.0 ),
       meanTime = cms.double( 0.0 ),
-      pedSigmaHPD = cms.double( 0.5 ),
-      pedSigmaSiPM = cms.double( 6.5E-4 ),
+      nnlsThresh = cms.double( 1.0E-11 ),
+      nMaxItersMin = cms.int32( 500 ),
       timeSigmaSiPM = cms.double( 2.5 ),
       applyTimeSlew = cms.bool( True ),
       timeSlewParsType = cms.int32( 3 ),
-      ts4Max = cms.vdouble( 100.0, 45000.0 ),
+      ts4Max = cms.vdouble( 100.0, 20000.0, 30000.0 ),
       samplesToAdd = cms.int32( 2 ),
-      applyTimeConstraint = cms.bool( True ),
+      deltaChiSqThresh = cms.double( 0.001 ),
+      applyTimeConstraint = cms.bool( False ),
       timeSigmaHPD = cms.double( 5.0 ),
+      useMahi = cms.bool( True ),
       correctForPhaseContainment = cms.bool( True ),
-      pedestalUpperLimit = cms.double( 2.7 ),
       respCorrM3 = cms.double( 1.0 ),
       pulseJitter = cms.double( 1.0 ),
-      applyPedConstraint = cms.bool( True ),
+      applyPedConstraint = cms.bool( False ),
       fitTimes = cms.int32( 1 ),
+      nMaxItersNNLS = cms.int32( 500 ),
       applyTimeSlewM3 = cms.bool( True ),
       meanPed = cms.double( 0.0 ),
-      noiseSiPM = cms.double( 1.0 ),
       ts4Min = cms.double( 0.0 ),
       applyPulseJitter = cms.bool( False ),
-      noiseHPD = cms.double( 1.0 ),
       useM2 = cms.bool( False ),
       timeMin = cms.double( -12.5 ),
-      useM3 = cms.bool( True ),
+      useM3 = cms.bool( False ),
+      chiSqSwitch = cms.double( 15.0 ),
+      dynamicPed = cms.bool( True ),
       tdcTimeShift = cms.double( 0.0 ),
       correctionPhaseNS = cms.double( 6.0 ),
       firstSampleShift = cms.int32( 0 ),
-      timeSlewPars = cms.vdouble( 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0 ),
+      activeBXs = cms.vint32( -1, 0, 1 ),
       ts4chi2 = cms.vdouble( 15.0, 15.0 ),
       timeMax = cms.double( 12.5 ),
-      Class = cms.string( "SimpleHBHEPhase1Algo" ),
-      useMahi = cms.bool( False ),
-      dynamicPed = cms.bool( True ),
-      ts4Thresh = cms.double( 0.0 ),
-      chiSqSwitch = cms.double( -10.0 ),
-      activeBXs = cms.vint32( -1, 0, 1 ),
-      nMaxItersMin = cms.int32( 500 ),
-      nMaxItersNNLS = cms.int32( 500 ),
-      deltaChiSqThresh = cms.double( 0.001 ),
-      nnlsThresh = cms.double( 1.0E-11 )
+      Class = cms.string( "SimpleHBHEPhase1Algo" )
     ),
     setLegacyFlagsQIE8 = cms.bool( False ),
     sipmQNTStoSum = cms.int32( 3 ),
@@ -5273,8 +5267,8 @@ fragment.hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
     UsePilotBlade = cms.bool( False ),
     UsePhase1 = cms.bool( True ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
-    IncludeErrors = cms.bool( False ),
-    ErrorList = cms.vint32(  ),
+    IncludeErrors = cms.bool( True ),
+    ErrorList = cms.vint32( 29 ),
     Regions = cms.PSet(  ),
     Timing = cms.untracked.bool( False ),
     CablingMapLabel = cms.string( "" ),
@@ -5334,12 +5328,12 @@ fragment.hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripClusterizerFr
     onDemand = cms.bool( True )
 )
 fragment.hltSiStripClusters = cms.EDProducer( "MeasurementTrackerEventProducer",
-    inactivePixelDetectorLabels = cms.VInputTag(  ),
+    inactivePixelDetectorLabels = cms.VInputTag( 'hltSiPixelDigis' ),
     Phase2TrackerCluster1DProducer = cms.string( "" ),
     measurementTracker = cms.string( "hltESPMeasurementTracker" ),
     pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
     switchOffPixelsIfEmpty = cms.bool( True ),
-    badPixelFEDChannelCollectionLabels = cms.VInputTag(  ),
+    badPixelFEDChannelCollectionLabels = cms.VInputTag( 'hltSiPixelDigis' ),
     inactiveStripDetectorLabels = cms.VInputTag( 'hltSiStripExcludedFEDListProducer' ),
     skipClusters = cms.InputTag( "" ),
     pixelCablingMapLabel = cms.string( "" ),
@@ -8075,20 +8069,63 @@ fragment.hltDoubletRecoveryMaskedMeasurementTrackerEvent = cms.EDProducer( "Mask
     OnDemand = cms.bool( False ),
     src = cms.InputTag( "hltSiStripClusters" )
 )
-fragment.hltDoubletRecoveryPixelLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
-    layerList = cms.vstring( 'BPix1+BPix4',
-      'BPix1+BPix2',
+fragment.hltDoubletRecoveryPixelLayersAndRegions = cms.EDProducer( "PixelInactiveAreaTrackingRegionsSeedingLayersProducer",
+    inactivePixelDetectorLabels = cms.VInputTag( 'hltSiPixelDigis' ),
+    layerList = cms.vstring( 'BPix1+BPix2',
       'BPix1+BPix3',
+      'BPix1+BPix4',
       'BPix2+BPix3',
-      'BPix1+FPix1_pos',
-      'BPix1+FPix1_pos',
-      'BPix1+FPix1_pos',
-      'BPix2+FPix1_neg',
+      'BPix2+BPix4',
       'BPix3+BPix4',
+      'BPix1+FPix1_pos',
+      'BPix1+FPix1_neg',
+      'BPix1+FPix2_pos',
+      'BPix1+FPix2_neg',
+      'BPix1+FPix3_pos',
+      'BPix1+FPix3_neg',
+      'BPix2+FPix1_pos',
+      'BPix2+FPix1_neg',
+      'BPix2+FPix2_pos',
+      'BPix2+FPix2_neg',
       'BPix3+FPix1_pos',
-      'FPix1_pos+FPix2_pos' ),
+      'BPix3+FPix1_neg',
+      'FPix1_pos+FPix2_pos',
+      'FPix1_neg+FPix2_neg',
+      'FPix1_pos+FPix3_pos',
+      'FPix1_neg+FPix3_neg',
+      'FPix2_pos+FPix3_pos',
+      'FPix2_neg+FPix3_neg' ),
     MTOB = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
+    RegionPSet = cms.PSet( 
+      precise = cms.bool( True ),
+      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+      zErrorBeamSpot = cms.double( 15.0 ),
+      nSigmaZVertex = cms.double( 3.0 ),
+      nSigmaZBeamSpot = cms.double( 4.0 ),
+      measurementTrackerName = cms.InputTag( "hltDoubletRecoveryMaskedMeasurementTrackerEvent" ),
+      extraEta = cms.double( 0.0 ),
+      vertexCollection = cms.InputTag( "hltTrimmedPixelVertices" ),
+      ptMin = cms.double( 1.2 ),
+      searchOpt = cms.bool( False ),
+      whereToUseMeasurementTracker = cms.string( "ForSiStrips" ),
+      maxNVertices = cms.int32( 3 ),
+      extraPhi = cms.double( 0.0 ),
+      originRadius = cms.double( 0.015 ),
+      zErrorVertex = cms.double( 0.03 ),
+      operationMode = cms.string( "VerticesFixed" )
+    ),
     TEC = cms.PSet(  ),
+    ignoreSingleFPixPanelModules = cms.bool( True ),
+    TID = cms.PSet(  ),
+    BPix = cms.PSet( 
+      hitErrorRPhi = cms.double( 0.0027 ),
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+      skipClusters = cms.InputTag( "hltDoubletRecoveryClustersRefRemoval" ),
+      useErrorsFromParam = cms.bool( True ),
+      hitErrorRZ = cms.double( 0.006 ),
+      HitProducer = cms.string( "hltSiPixelRecHits" )
+    ),
     MTID = cms.PSet(  ),
     FPix = cms.PSet( 
       hitErrorRPhi = cms.double( 0.0051 ),
@@ -8099,43 +8136,11 @@ fragment.hltDoubletRecoveryPixelLayerPairs = cms.EDProducer( "SeedingLayersEDPro
       HitProducer = cms.string( "hltSiPixelRecHits" )
     ),
     MTEC = cms.PSet(  ),
-    MTIB = cms.PSet(  ),
-    TID = cms.PSet(  ),
+    badPixelFEDChannelCollectionLabels = cms.VInputTag( 'hltSiPixelDigis' ),
+    debug = cms.untracked.bool( False ),
     TOB = cms.PSet(  ),
-    BPix = cms.PSet( 
-      hitErrorRPhi = cms.double( 0.0027 ),
-      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-      skipClusters = cms.InputTag( "hltDoubletRecoveryClustersRefRemoval" ),
-      useErrorsFromParam = cms.bool( True ),
-      hitErrorRZ = cms.double( 0.006 ),
-      HitProducer = cms.string( "hltSiPixelRecHits" )
-    ),
+    createPlottingFiles = cms.untracked.bool( False ),
     TIB = cms.PSet(  )
-)
-fragment.hltDoubletRecoveryPFlowPixelTrackingRegions = cms.EDProducer( "PointSeededTrackingRegionsEDProducer",
-    RegionPSet = cms.PSet( 
-      vertexCollection = cms.InputTag( "hltTrimmedPixelVertices" ),
-      zErrorVetex = cms.double( 0.1 ),
-      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-      zErrorBeamSpot = cms.double( 15.0 ),
-      maxNVertices = cms.int32( 10 ),
-      maxNRegions = cms.int32( 100 ),
-      nSigmaZVertex = cms.double( 3.0 ),
-      nSigmaZBeamSpot = cms.double( 3.0 ),
-      ptMin = cms.double( 0.8 ),
-      points = cms.PSet( 
-        phi = cms.vdouble( 3.0 ),
-        eta = cms.vdouble( 0.8 )
-      ),
-      mode = cms.string( "VerticesFixed" ),
-      searchOpt = cms.bool( False ),
-      whereToUseMeasurementTracker = cms.string( "ForSiStrips" ),
-      originRadius = cms.double( 0.02 ),
-      measurementTrackerName = cms.InputTag( "hltDoubletRecoveryMaskedMeasurementTrackerEvent" ),
-      precise = cms.bool( True ),
-      deltaEta = cms.double( 0.9 ),
-      deltaPhi = cms.double( 0.3 )
-    )
 )
 fragment.hltDoubletRecoveryPFlowPixelClusterCheck = cms.EDProducer( "ClusterCheckerEDProducer",
     cut = cms.string( "" ),
@@ -8147,14 +8152,14 @@ fragment.hltDoubletRecoveryPFlowPixelClusterCheck = cms.EDProducer( "ClusterChec
     ClusterCollectionLabel = cms.InputTag( "hltSiStripClusters" )
 )
 fragment.hltDoubletRecoveryPFlowPixelHitDoublets = cms.EDProducer( "HitPairEDProducer",
-    trackingRegions = cms.InputTag( "hltDoubletRecoveryPFlowPixelTrackingRegions" ),
+    trackingRegions = cms.InputTag( "" ),
     layerPairs = cms.vuint32( 0 ),
     clusterCheck = cms.InputTag( "hltDoubletRecoveryPFlowPixelClusterCheck" ),
     produceSeedingHitSets = cms.bool( True ),
     produceIntermediateHitDoublets = cms.bool( False ),
-    trackingRegionsSeedingLayers = cms.InputTag( "" ),
+    trackingRegionsSeedingLayers = cms.InputTag( "hltDoubletRecoveryPixelLayersAndRegions" ),
     maxElement = cms.uint32( 0 ),
-    seedingLayers = cms.InputTag( "hltDoubletRecoveryPixelLayerPairs" )
+    seedingLayers = cms.InputTag( "" )
 )
 fragment.hltDoubletRecoveryPFlowPixelSeeds = cms.EDProducer( "SeedCreatorFromRegionConsecutiveHitsEDProducer",
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -11048,7 +11053,8 @@ fragment.hltParticleFlowRecHitECALUnseeded = cms.EDProducer( "PFRecHitProducer",
         name = cms.string( "PFEBRecHitCreator" ),
         qualityTests = cms.VPSet( 
           cms.PSet(  thresholds = cms.vdouble( 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3 ),
-            name = cms.string( "PFRecHitQTestECALMultiThreshold" )
+            name = cms.string( "PFRecHitQTestECALMultiThreshold" ),
+            applySelectionsToAllCrystals = cms.bool( True )
           ),
           cms.PSet(  topologicalCleaning = cms.bool( True ),
             skipTTRecoveredHits = cms.bool( True ),
@@ -11063,7 +11069,8 @@ fragment.hltParticleFlowRecHitECALUnseeded = cms.EDProducer( "PFRecHitProducer",
         name = cms.string( "PFEERecHitCreator" ),
         qualityTests = cms.VPSet( 
           cms.PSet(  thresholds = cms.vdouble( 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3 ),
-            name = cms.string( "PFRecHitQTestECALMultiThreshold" )
+            name = cms.string( "PFRecHitQTestECALMultiThreshold" ),
+            applySelectionsToAllCrystals = cms.bool( True )
           ),
           cms.PSet(  topologicalCleaning = cms.bool( True ),
             skipTTRecoveredHits = cms.bool( True ),
@@ -12356,15 +12363,15 @@ fragment.hltFullIter0PrimaryVerticesPreSplittingForRefPP = cms.EDProducer( "Prim
 )
 fragment.hltSiPixelClustersAfterSplittingForRefPP = cms.EDProducer( "JetCoreClusterSplitter",
     verbose = cms.bool( False ),
-    chargeFractionMin = cms.double( 2.0 ),
+    deltaRmax = cms.double( 0.05 ),
     forceXError = cms.double( 100.0 ),
     vertices = cms.InputTag( "hltFullIter0PrimaryVerticesPreSplittingForRefPP" ),
     chargePerUnit = cms.double( 2000.0 ),
-    centralMIPCharge = cms.double( 26000.0 ),
     forceYError = cms.double( 150.0 ),
+    centralMIPCharge = cms.double( 26000.0 ),
     pixelClusters = cms.InputTag( "hltSiPixelClustersForRefPP" ),
     ptMin = cms.double( 200.0 ),
-    deltaRmax = cms.double( 0.05 ),
+    chargeFractionMin = cms.double( 2.0 ),
     cores = cms.InputTag( "hltJetsForCoreTracking" ),
     fractionalWidth = cms.double( 0.4 ),
     pixelCPE = cms.string( "hltESPPixelCPEGeneric" )
@@ -15828,7 +15835,8 @@ fragment.hltParticleFlowRecHitECALL1Seeded = cms.EDProducer( "PFRecHitProducer",
         name = cms.string( "PFEBRecHitCreator" ),
         qualityTests = cms.VPSet( 
           cms.PSet(  thresholds = cms.vdouble( 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3 ),
-            name = cms.string( "PFRecHitQTestECALMultiThreshold" )
+            name = cms.string( "PFRecHitQTestECALMultiThreshold" ),
+            applySelectionsToAllCrystals = cms.bool( True )
           ),
           cms.PSet(  topologicalCleaning = cms.bool( True ),
             skipTTRecoveredHits = cms.bool( True ),
@@ -15843,7 +15851,8 @@ fragment.hltParticleFlowRecHitECALL1Seeded = cms.EDProducer( "PFRecHitProducer",
         name = cms.string( "PFEERecHitCreator" ),
         qualityTests = cms.VPSet( 
           cms.PSet(  thresholds = cms.vdouble( 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3 ),
-            name = cms.string( "PFRecHitQTestECALMultiThreshold" )
+            name = cms.string( "PFRecHitQTestECALMultiThreshold" ),
+            applySelectionsToAllCrystals = cms.bool( True )
           ),
           cms.PSet(  topologicalCleaning = cms.bool( True ),
             skipTTRecoveredHits = cms.bool( True ),
@@ -16157,7 +16166,7 @@ fragment.hltHbhePhase1RecoMethod2L1EGSeeded = cms.EDProducer( "HBHEPhase1Reconst
     digiLabelQIE11 = cms.InputTag( "hltHcalDigis" ),
     saveDroppedInfos = cms.bool( False ),
     setNoiseFlagsQIE8 = cms.bool( True ),
-    saveEffectivePedestal = cms.bool( False ),
+    saveEffectivePedestal = cms.bool( True ),
     digiLabelQIE8 = cms.InputTag( "hltHcalDigisL1EGSeeded" ),
     sipmQTSShift = cms.int32( 0 ),
     processQIE11 = cms.bool( True ),
@@ -16209,47 +16218,41 @@ fragment.hltHbhePhase1RecoMethod2L1EGSeeded = cms.EDProducer( "HBHEPhase1Reconst
     setNegativeFlagsQIE11 = cms.bool( False ),
     processQIE8 = cms.bool( True ),
     algorithm = cms.PSet( 
+      ts4Thresh = cms.double( 0.0 ),
       meanTime = cms.double( 0.0 ),
-      pedSigmaHPD = cms.double( 0.5 ),
-      pedSigmaSiPM = cms.double( 6.5E-4 ),
+      nnlsThresh = cms.double( 1.0E-11 ),
+      nMaxItersMin = cms.int32( 500 ),
       timeSigmaSiPM = cms.double( 2.5 ),
       applyTimeSlew = cms.bool( True ),
       timeSlewParsType = cms.int32( 3 ),
-      ts4Max = cms.vdouble( 100.0, 45000.0 ),
+      ts4Max = cms.vdouble( 100.0, 20000.0, 30000.0 ),
       samplesToAdd = cms.int32( 2 ),
-      applyTimeConstraint = cms.bool( True ),
+      deltaChiSqThresh = cms.double( 0.001 ),
+      applyTimeConstraint = cms.bool( False ),
       timeSigmaHPD = cms.double( 5.0 ),
+      useMahi = cms.bool( True ),
       correctForPhaseContainment = cms.bool( True ),
-      pedestalUpperLimit = cms.double( 2.7 ),
       respCorrM3 = cms.double( 1.0 ),
       pulseJitter = cms.double( 1.0 ),
-      applyPedConstraint = cms.bool( True ),
+      applyPedConstraint = cms.bool( False ),
       fitTimes = cms.int32( 1 ),
+      nMaxItersNNLS = cms.int32( 500 ),
       applyTimeSlewM3 = cms.bool( True ),
       meanPed = cms.double( 0.0 ),
-      noiseSiPM = cms.double( 1.0 ),
       ts4Min = cms.double( 0.0 ),
       applyPulseJitter = cms.bool( False ),
-      noiseHPD = cms.double( 1.0 ),
       useM2 = cms.bool( False ),
       timeMin = cms.double( -12.5 ),
       useM3 = cms.bool( False ),
+      chiSqSwitch = cms.double( 15.0 ),
+      dynamicPed = cms.bool( True ),
       tdcTimeShift = cms.double( 0.0 ),
       correctionPhaseNS = cms.double( 6.0 ),
       firstSampleShift = cms.int32( 0 ),
-      timeSlewPars = cms.vdouble( 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0, 12.2999, -2.19142, 0.0 ),
+      activeBXs = cms.vint32( -1, 0, 1 ),
       ts4chi2 = cms.vdouble( 15.0, 15.0 ),
       timeMax = cms.double( 12.5 ),
-      Class = cms.string( "SimpleHBHEPhase1Algo" ),
-      useMahi = cms.bool( True ),
-      dynamicPed = cms.bool( True ),
-      ts4Thresh = cms.double( 0.0 ),
-      chiSqSwitch = cms.double( -10.0 ),
-      activeBXs = cms.vint32( -1, 0, 1 ),
-      nMaxItersMin = cms.int32( 500 ),
-      nMaxItersNNLS = cms.int32( 500 ),
-      deltaChiSqThresh = cms.double( 0.001 ),
-      nnlsThresh = cms.double( 1.0E-11 )
+      Class = cms.string( "SimpleHBHEPhase1Algo" )
     ),
     setLegacyFlagsQIE8 = cms.bool( False ),
     sipmQNTStoSum = cms.int32( 3 ),
@@ -23744,7 +23747,7 @@ fragment.HLTIterativeTrackingIteration1 = cms.Sequence( fragment.hltIter1Cluster
 fragment.HLTIter1TrackAndTauJets4Iter2Sequence = cms.Sequence( fragment.hltIter1TrackRefsForJets4Iter2 + fragment.hltAK4Iter1TrackJets4Iter2 + fragment.hltIter1TrackAndTauJets4Iter2 )
 fragment.HLTIterativeTrackingIteration2 = cms.Sequence( fragment.hltIter2ClustersRefRemoval + fragment.hltIter2MaskedMeasurementTrackerEvent + fragment.hltIter2PixelLayerTriplets + fragment.hltIter2PFlowPixelTrackingRegions + fragment.hltIter2PFlowPixelClusterCheck + fragment.hltIter2PFlowPixelHitDoublets + fragment.hltIter2PFlowPixelHitTriplets + fragment.hltIter2PFlowPixelSeeds + fragment.hltIter2PFlowCkfTrackCandidates + fragment.hltIter2PFlowCtfWithMaterialTracks + fragment.hltIter2PFlowTrackCutClassifier + fragment.hltIter2PFlowTrackSelectionHighPurity )
 fragment.HLTIterativeTrackingTripletRecovery = cms.Sequence( fragment.hltTripletRecoveryClustersRefRemoval + fragment.hltTripletRecoveryMaskedMeasurementTrackerEvent + fragment.hltTripletRecoveryPixelLayerTriplets + fragment.hltTripletRecoveryPFlowPixelTrackingRegions + fragment.hltTripletRecoveryPFlowPixelClusterCheck + fragment.hltTripletRecoveryPFlowPixelHitDoublets + fragment.hltTripletRecoveryPFlowPixelHitTriplets + fragment.hltTripletRecoveryPFlowPixelSeeds + fragment.hltTripletRecoveryPFlowCkfTrackCandidates + fragment.hltTripletRecoveryPFlowCtfWithMaterialTracks + fragment.hltTripletRecoveryPFlowTrackCutClassifier + fragment.hltTripletRecoveryPFlowTrackSelectionHighPurity )
-fragment.HLTIterativeTrackingDoubletRecovery = cms.Sequence( fragment.hltDoubletRecoveryClustersRefRemoval + fragment.hltDoubletRecoveryMaskedMeasurementTrackerEvent + fragment.hltDoubletRecoveryPixelLayerPairs + fragment.hltDoubletRecoveryPFlowPixelTrackingRegions + fragment.hltDoubletRecoveryPFlowPixelClusterCheck + fragment.hltDoubletRecoveryPFlowPixelHitDoublets + fragment.hltDoubletRecoveryPFlowPixelSeeds + fragment.hltDoubletRecoveryPFlowCkfTrackCandidates + fragment.hltDoubletRecoveryPFlowCtfWithMaterialTracks + fragment.hltDoubletRecoveryPFlowTrackCutClassifier + fragment.hltDoubletRecoveryPFlowTrackSelectionHighPurity )
+fragment.HLTIterativeTrackingDoubletRecovery = cms.Sequence( fragment.hltDoubletRecoveryClustersRefRemoval + fragment.hltDoubletRecoveryMaskedMeasurementTrackerEvent + fragment.hltDoubletRecoveryPixelLayersAndRegions + fragment.hltDoubletRecoveryPFlowPixelClusterCheck + fragment.hltDoubletRecoveryPFlowPixelHitDoublets + fragment.hltDoubletRecoveryPFlowPixelSeeds + fragment.hltDoubletRecoveryPFlowCkfTrackCandidates + fragment.hltDoubletRecoveryPFlowCtfWithMaterialTracks + fragment.hltDoubletRecoveryPFlowTrackCutClassifier + fragment.hltDoubletRecoveryPFlowTrackSelectionHighPurity )
 fragment.HLTIterativeTrackingIter02 = cms.Sequence( fragment.HLTIterativeTrackingIteration0 + fragment.HLTIterativeTrackingIteration1 + fragment.hltIter1Merged + fragment.HLTIter1TrackAndTauJets4Iter2Sequence + fragment.HLTIterativeTrackingIteration2 + fragment.hltIter2Merged + fragment.HLTIterativeTrackingTripletRecovery + fragment.hltTripletRecoveryMerged + fragment.HLTIterativeTrackingDoubletRecovery + fragment.hltMergedTracks )
 fragment.HLTTrackingForBeamSpot = cms.Sequence( fragment.HLTPreAK4PFJetsRecoSequence + fragment.HLTL2muonrecoSequence + fragment.HLTL3muonrecoSequence + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingSequence + fragment.HLTDoLocalStripSequence + fragment.HLTIterativeTrackingIter02 + fragment.hltPFMuonMerging )
 fragment.HLTEndSequence = cms.Sequence( fragment.hltBoolEnd )

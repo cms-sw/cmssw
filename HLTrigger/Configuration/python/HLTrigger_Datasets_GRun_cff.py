@@ -678,10 +678,7 @@ streamPhysicsHadronsTaus_datasetTau_selector.triggerConditions = cms.vstring(
     'HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET120_v6', 
     'HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET130_v6', 
     'HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_MET90_v10', 
-    'HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_v10', 
-    'HLT_VBF_DoubleLooseChargedIsoPFTau20_Trk1_eta2p1_Reg_v7', 
-    'HLT_VBF_DoubleMediumChargedIsoPFTau20_Trk1_eta2p1_Reg_v7', 
-    'HLT_VBF_DoubleTightChargedIsoPFTau20_Trk1_eta2p1_Reg_v7'
+    'HLT_MediumChargedIsoPFTau50_Trk30_eta2p1_1pr_v10'
 )
 
 
