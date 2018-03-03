@@ -45,7 +45,7 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p
 
 PixelCPEGenericESProducer::~PixelCPEGenericESProducer() {}
 
-std::unique_ptr<PixelClusterParameterEstimator>
+std::shared_ptr<PixelClusterParameterEstimator>
 PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){ 
 
   ESHandle<MagneticField> magfield;
@@ -83,11 +83,12 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
     //} else {
     //std::cout<<" pass an empty GenError pointer"<<std::endl;
   }
-  return std::make_unique<PixelCPEGeneric>(
+  cpe_  = std::make_shared<PixelCPEGeneric>(
                          pset_,magfield.product(),*pDD.product(),
 			 *hTT.product(),lorentzAngle.product(),
 			 genErrorDBObjectProduct,lorentzAngleWidthProduct);
 
+  return cpe_;
 }
 
 

@@ -113,6 +113,9 @@ public:
       // ggiurgiu@jhu.edu (10/18/2008)
       bool with_track_angle; // filled in computeAnglesFrom....
 
+     // More detailed edge information (for CPE ClusterRepair, and elsewhere...)
+     int   edgeTypeX_ = 0;   // 0: not on edge, 1: low end on edge, 2: high end
+     int   edgeTypeY_ = 0;   // 0: not on edge, 1: low end on edge, 2: high end
    };
    
 public:

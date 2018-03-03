@@ -78,6 +78,11 @@ private:
    int speed_ ;
    
    bool UseClusterSplitter_;
+
+   // Template file management (when not getting the templates from the DB)
+   int barrelTemplateID_ ;
+   int forwardTemplateID_ ;
+   std::string templateDir_ ;
    
    //bool DoCosmics_;
    //bool LoadTemplatesFromDB_;

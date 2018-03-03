@@ -35,7 +35,7 @@ PixelCPETemplateRecoESProducer::PixelCPETemplateRecoESProducer(const edm::Parame
 
 PixelCPETemplateRecoESProducer::~PixelCPETemplateRecoESProducer() {}
 
-std::unique_ptr<PixelClusterParameterEstimator> 
+std::shared_ptr<PixelClusterParameterEstimator> 
 PixelCPETemplateRecoESProducer::produce(const TkPixelCPERecord & iRecord){ 
 
   ESHandle<MagneticField> magfield;
@@ -60,7 +60,9 @@ PixelCPETemplateRecoESProducer::produce(const TkPixelCPERecord & iRecord){
   ESHandle<SiPixelTemplateDBObject> templateDBobject;
   iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
 
-  return std::make_unique<PixelCPETemplateReco>(pset_,magfield.product(),*pDD.product(),*hTT.product(),lorentzAngleProduct,templateDBobject.product() );
+  //  cpe_  = std::make_shared<PixelCPETemplateReco>(pset_,magfield.product(),lorentzAngle.product(),templateDBobject.product() );
+  cpe_  = std::make_shared<PixelCPETemplateReco>(pset_,magfield.product(),*pDD.product(),*hTT.product(),lorentzAngleProduct,templateDBobject.product() );
+  return cpe_;
 }
 
 
