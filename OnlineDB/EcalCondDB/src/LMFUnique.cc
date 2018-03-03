@@ -73,7 +73,7 @@ boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const
   try {
     Statement* stmt = m_conn->createStatement();
     std::string sql = fetchAllSql(stmt);
-    if (sql != "") {
+    if (!sql.empty()) {
       if (m_debug) {
 	cout << m_className + ": Query " + sql << endl;
       }
@@ -236,7 +236,7 @@ int LMFUnique::fetchID()
     Statement* stmt = m_conn->createStatement();
     // prepare the sql query
     std::string sql = fetchIdSql(stmt);
-    if (sql != "") {
+    if (!sql.empty()) {
       if (m_debug) {
 	cout << m_className + ": Query " + sql << endl;
       }
@@ -296,7 +296,7 @@ void LMFUnique::setByID(int id)
   try {
     Statement* stmt = m_conn->createStatement();
     std::string sql = setByIDSql(stmt, id);
-    if (sql == "") {
+    if (sql.empty()) {
       throw(std::runtime_error(m_className + "::setByID: [empty sql])"));
     }
     if (m_debug) {
@@ -357,7 +357,7 @@ int LMFUnique::writeDB()
       Statement* stmt = m_conn->createStatement();
       
       sql = writeDBSql(stmt);
-      if (sql != "") {
+      if (!sql.empty()) {
 	if (m_debug) {
 	  cout << m_className + ": " + sql << endl;
 	}

@@ -75,7 +75,7 @@ std::string LMFColor::fetchIdSql(Statement *stmt) {
           "WHERE COLOR_INDEX = :1";
     stmt->setSQL(sql);
     stmt->setInt(1, getColorIndex());
-  } else if (getString("sname") != "") {
+  } else if (!getString("sname").empty()) {
     sql = "SELECT COLOR_ID FROM CMS_ECAL_LASER_COND.LMF_COLOR_DEF "
           "WHERE SNAME   = :1";
     stmt->setSQL(sql);

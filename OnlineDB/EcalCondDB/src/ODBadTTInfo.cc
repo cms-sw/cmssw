@@ -132,7 +132,7 @@ void ODBadTTInfo::fetchData(ODBadTTInfo * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODBadTTInfo::fetchData(): no Id defined for this ODBadTTInfo "));
   }
 
@@ -143,7 +143,7 @@ void ODBadTTInfo::fetchData(ODBadTTInfo * result)
       m_readStmt->setSQL("SELECT * FROM " + getTable() +   
 			 " where  rec_id = :1 ");
       m_readStmt->setInt(1, result->getId());
-    } else if (result->getConfigTag()!="") {
+    } else if (!result->getConfigTag().empty()) {
       m_readStmt->setSQL("SELECT * FROM " + getTable() +   
 			 " where  tag=:1 AND version=:2 " );
       m_readStmt->setString(1, result->getConfigTag());

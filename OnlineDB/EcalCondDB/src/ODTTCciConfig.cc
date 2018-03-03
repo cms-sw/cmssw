@@ -209,7 +209,7 @@ void ODTTCciConfig::fetchData(ODTTCciConfig * result)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODTTCciConfig::fetchData(): no Id defined for this ODTTCciConfig "));
   }
 
