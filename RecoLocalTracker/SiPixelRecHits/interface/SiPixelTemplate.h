@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v10.13)
+//  SiPixelTemplate.h (v10.20)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -76,6 +76,8 @@
 //  V10.11 - Allow subdetector ID=5 for FPix R2P2 [allows better internal labeling of templates]
 //  V10.12 - Enforce minimum signal size in pixel charge uncertainty calculation
 //  V10.13 - Update the variable size [SI_PIXEL_TEMPLATE_USE_BOOST] option so that it works with VI's enhancements
+//  V10.20 - Add directory path selection to the ascii pushfile method
+
 
 
 
@@ -217,9 +219,9 @@ struct SiPixelTemplateStore { //!< template storage structure
    SiPixelTemplateEntry entx[5][29];  //!< 29 Barrel x templates spanning cluster lengths from -6px (-1.125Rad) to +6px (+1.125Rad) in each of 5 slices [3x29 for fpix]
    void destroy() {};
 #else
-   float* cotbetaY=nullptr;
-   float* cotbetaX=nullptr;
-   float* cotalphaX=nullptr;
+   float* cotbetaY;
+   float* cotbetaX;
+   float* cotalphaX;
    boost::multi_array<SiPixelTemplateEntry,1> enty;     //!< use 1d entry to store [60] barrel entries or [28] fpix entries
    boost::multi_array<SiPixelTemplateEntry,2> entx;     //!< use 2d entry to store [5][29] barrel entries or [3][29] fpix entries
    void destroy() {  // deletes arrays created by pushfile method of SiPixelTemplate
@@ -254,8 +256,11 @@ class SiPixelTemplate {
 public:
    SiPixelTemplate(const std::vector< SiPixelTemplateStore > & thePixelTemp) : thePixelTemp_(thePixelTemp) { id_current_ = -1; index_id_ = -1; cota_current_ = 0.; cotb_current_ = 0.; } //!< Constructor for cases in which template store already exists
    
-   static bool pushfile(int filenum, std::vector< SiPixelTemplateStore > & thePixelTemp_);     // load the private store with info from the
-   // file with the index (int) filenum
+
+// Load the private store with info from the file with the index (int) filenum from directory dir:
+//   ${dir}template_summary_zp${filenum}.out
+   static bool pushfile(int filenum, std::vector< SiPixelTemplateStore > & thePixelTemp_ , std::string dir = "");
+   
    
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
    static bool pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore > & thePixelTemp_);     // load the private store with info from db
