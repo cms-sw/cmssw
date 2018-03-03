@@ -60,6 +60,7 @@
       0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0
     </Vector>
+    <Numeric name="FirstLayer"       value="1"/>
     <Numeric name="zMinBlock"        value="[hgcal:zMinEE]"/>
     <Numeric name="rMaxFine"         value="[hgcal:rMaxFine]"/>
     <Numeric name="rMinThick"        value="[hgcal:rMaxMiddle]"/>

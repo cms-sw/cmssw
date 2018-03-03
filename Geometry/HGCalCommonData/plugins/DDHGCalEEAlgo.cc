@@ -14,7 +14,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 DDHGCalEEAlgo::DDHGCalEEAlgo() {
 #ifdef EDM_ML_DEBUG
@@ -63,6 +63,22 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
 #endif
   layerType_    = dbl_to_int(vArgs["LayerType"]);
   layerSense_   = dbl_to_int(vArgs["LayerSense"]);
+  firstLayer_   = (int)(nArgs["FirstLayer"]);
+  if (firstLayer_ > 0) {
+    for (unsigned int i=0; i<layerType_.size(); ++i) {
+      if (layerSense_[i] != 0) {
+	int ii = layerType_[i];
+	copyNumber_[ii] = firstLayer_;
+#ifdef EDM_ML_DEBUG
+	edm::LogVerbatim("HGCalGeom") << "First copy number for layer type "
+				      << i << ":" << ii << " with "
+				      << materials_[ii] << " changed to "
+				      << copyNumber_[ii];
+#endif
+	break;
+      }
+    }
+  }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "There are " << layerType_.size() 
 				<< " layers" ;
@@ -265,7 +281,7 @@ void DDHGCalEEAlgo::positionSensitive(DDLogicalPart& glog, double rin,
     for (int v = -N; v <= N; ++v) {
       int iv = std::abs(v);
       int nr = 2*v;
-      int nc = 2*u+v;
+      int nc =-2*u+v;
       double xpos = nc*r;
       double ypos = nr*dy;
       xc[0] = xpos+r;  yc[0] = ypos+0.5*R;
