@@ -196,7 +196,7 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) :
   tok_EB_       = consumes<EcalRecHitCollection>(labelEBRecHit_);
   tok_EE_       = consumes<EcalRecHitCollection>(labelEERecHit_);
   tok_HBHE_     = consumes<HBHERecHitCollection>(labelHBHERecHit_);
-  if (modnam == "") {
+  if (modnam.empty()) {
     tok_Vtx_      = consumes<reco::VertexCollection>(labelVtx_);
     tok_Muon_     = consumes<reco::MuonCollection>(labelMuon_);
     edm::LogVerbatim("HBHEMuon")  << "Labels used: Trig " << hlTriggerResults_
@@ -215,7 +215,7 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) :
 				   << "\n  MU   " << edm::InputTag(modnam,labelMuon_,procnm);
   }
 
-  if (fileInCorr_ != "") {
+  if (!fileInCorr_.empty()) {
     std::ifstream infile(fileInCorr_.c_str());
     if (infile.is_open()) {
       while (true) {
