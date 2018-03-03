@@ -103,7 +103,6 @@ private:
 				unsigned int& numSeedsMade,
 				unsigned int& numOfMaxSeeds,
 				unsigned int& layerCount,
-				bool& foundHitlessSeed,
 				bool& analysedL2,
 				std::unique_ptr<std::vector<TrajectorySeed> >& out) const;
 
@@ -120,9 +119,13 @@ private:
 				const MeasurementTrackerEvent &measurementTracker,
 				edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator_,
 				unsigned int& numSeedsMade,
-				const double errorSF) const;
+				const double errorSF,
+				const double l2Eta) const;
 
-
+        //Find compatability between two TSOSs
+        double match_Chi2(const TrajectoryStateOnSurface& tsos1,
+        		  const TrajectoryStateOnSurface& tsos2) const;
+                                          
 };
 
 #endif
