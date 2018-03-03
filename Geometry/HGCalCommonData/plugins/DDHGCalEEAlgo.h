@@ -38,7 +38,8 @@ private:
   std::vector<int>         layers_;       //Number of layers in a section
   std::vector<double>      layerThick_;   //Thickness of each section
   std::vector<int>         layerType_;    //Type of the layer
-  std::vector<int>         layerSense_;   //COntent of a layer (sensitive?)
+  std::vector<int>         layerSense_;   //Content of a layer (sensitive?)
+  int                      firstLayer_;   //Copy # of the first sensitive layer
   double                   zMinBlock_;    //Starting z-value of the block
   double                   rMaxFine_;     //Maximum r-value for fine wafer
   double                   rMinThick_;    //Transition R between 200 & 300 mum
