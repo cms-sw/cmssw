@@ -2237,6 +2237,8 @@ defaultDataSets['2018Design']='CMSSW_10_0_2-100X_upgrade2018_design_IdealBS_v6-v
 defaultDataSets['2023D17']=''
 defaultDataSets['2023D19']=''
 defaultDataSets['2023D21']=''
+defaultDataSets['2023D22']=''
+defaultDataSets['2023D23']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
