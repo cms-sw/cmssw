@@ -71,10 +71,8 @@ class L2MuonSeedGeneratorFromL1T : public edm::stream::EDProducer<> {
   const double theL1MinPt;
   const double theL1MaxEta;
   const unsigned theL1MinQuality;
-
   const double theMinPtBarrel;
   const double theMinPtEndcap;
-
   const bool useOfflineSeed;
   const bool useUnassociatedL1;
   std::vector<double> matchingDR;
@@ -82,7 +80,6 @@ class L2MuonSeedGeneratorFromL1T : public edm::stream::EDProducer<> {
 
   /// use central bx only muons
   bool centralBxOnly_;
-
   const int matchType;
   const int sortType;
 

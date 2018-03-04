@@ -59,10 +59,7 @@ bool sortByL1QandPt(L2MuonTrajectorySeed &A, L2MuonTrajectorySeed &B) {
   if (Ref_L1A->hwQual() < Ref_L1B->hwQual())  return false;
 
   // For same quality L1s compare pT
-  if (Ref_L1A->pt() > Ref_L1B->pt())  return true;
-  if (Ref_L1A->pt() < Ref_L1B->pt())  return false;
-
-  return false;
+  return (Ref_L1A->pt() > Ref_L1B->pt());
 };
 
 // constructors
@@ -73,19 +70,13 @@ L2MuonSeedGeneratorFromL1T::L2MuonSeedGeneratorFromL1T(const edm::ParameterSet& 
   theL1MinPt(iConfig.getParameter<double>("L1MinPt")),
   theL1MaxEta(iConfig.getParameter<double>("L1MaxEta")),
   theL1MinQuality(iConfig.getParameter<unsigned int>("L1MinQuality")),
-
-  theMinPtBarrel(iConfig.getParameter<double>("SetMinPtBarrelTo")),  //previously 3.5
-  theMinPtEndcap(iConfig.getParameter<double>("SetMinPtEndcapTo")),  //previously 1.0
-
+  theMinPtBarrel(iConfig.getParameter<double>("SetMinPtBarrelTo")),
+  theMinPtEndcap(iConfig.getParameter<double>("SetMinPtEndcapTo")),
   useOfflineSeed(iConfig.getUntrackedParameter<bool>("UseOfflineSeed", false)),
-  useUnassociatedL1(iConfig.existsAs<bool>("UseUnassociatedL1") ? 
-            iConfig.getParameter<bool>("UseUnassociatedL1") : true),
+  useUnassociatedL1(iConfig.getParameter<bool>("UseUnassociatedL1")),
   matchingDR(iConfig.getParameter<std::vector<double> >("MatchDR")),          
   etaBins(iConfig.getParameter<std::vector<double> >("EtaMatchingBins")),          
   centralBxOnly_( iConfig.getParameter<bool>("CentralBxOnly") ),
-
-  // MatchType : 0 Old matching,   1 L1 Order(1to1), 2 Min dR(1to1), 3 Higher Q(1to1), 4 All matched L1
-  // SortType :  0 not sort,       1 Pt, 2 Q and Pt
   matchType( iConfig.getParameter<int>("MatchType") ),
   sortType( iConfig.getParameter<int>("SortType") )
   {
@@ -105,6 +96,10 @@ L2MuonSeedGeneratorFromL1T::L2MuonSeedGeneratorFromL1T(const edm::ParameterSet& 
   
   }
   
+  if(matchType>4 || sortType>3) {
+    throw cms::Exception("Configuration") << "Wrong MatchType or SortType" << endl;
+  }
+
   // service parameters
   ParameterSet serviceParameters = iConfig.getParameter<ParameterSet>("ServiceParameters");
   
@@ -133,19 +128,15 @@ L2MuonSeedGeneratorFromL1T::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("L1MinPt",-1.);
   desc.add<double>("L1MaxEta",5.0);
   desc.add<unsigned int>("L1MinQuality",0);   
-
   desc.add<double>("SetMinPtBarrelTo",3.5);
   desc.add<double>("SetMinPtEndcapTo",1.0);
-
   desc.addUntracked<bool>("UseOfflineSeed",false);
   desc.add<bool>("UseUnassociatedL1", true);
   desc.add<std::vector<double>>("MatchDR", {0.3});
   desc.add<std::vector<double>>("EtaMatchingBins", {0., 2.5});
   desc.add<bool>("CentralBxOnly", true);
-
-  desc.add<int>("MatchType", 0);
-  desc.add<int>("SortType", 0);
-
+  desc.add<int>("MatchType", 0)->setComment("MatchType : 0 Old matching,   1 L1 Order(1to1), 2 Min dR(1to1), 3 Higher Q(1to1), 4 All matched L1");
+  desc.add<int>("SortType", 0)->setComment("SortType :  0 not sort,       1 Pt, 2 Q and Pt");
   desc.addUntracked<edm::InputTag>("OfflineSeedLabel", edm::InputTag(""));
 
   edm::ParameterSetDescription psd0;
@@ -165,10 +156,6 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
   auto output = std::make_unique<L2MuonTrajectorySeedCollection>();
   
-  if(matchType>4 || sortType>3) {
-    throw cms::Exception("Configuration") << "Wrong MatchType or SortType" << endl;
-  }
-
   edm::Handle<MuonBxCollection> muColl;
   iEvent.getByToken(muCollToken_, muColl);
   LogTrace(metname) << "Number of muons " << muColl->size() << endl;
@@ -415,7 +402,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
   //--- matchType > 0 : Updated logics
   else if(matchType > 0) {
 
-    unsigned int NmuColl = muColl->size();
+    unsigned int nMuColl = muColl->size();
 
     vector< vector<double> > dRmtx;
     vector< vector<const TrajectorySeed *> > selOffseeds;
@@ -423,12 +410,12 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
     edm::Handle<edm::View<TrajectorySeed> > offlineSeedHandle;
     if(useOfflineSeed) {
       iEvent.getByToken(offlineSeedToken_, offlineSeedHandle);
-      unsigned int NofflineSeed = offlineSeedHandle->size();
-      LogTrace(metname) << "Number of offline seeds " << NofflineSeed << endl;
+      unsigned int nOfflineSeed = offlineSeedHandle->size();
+      LogTrace(metname) << "Number of offline seeds " << nOfflineSeed << endl;
 
       // Initialize dRmtx and selOffseeds
-      dRmtx = vector< vector<double> >(NmuColl, vector<double>(NofflineSeed, 999.0));
-      selOffseeds = vector< vector <const TrajectorySeed *> >(NmuColl, vector<const TrajectorySeed *>(NofflineSeed, nullptr));
+      dRmtx = vector< vector<double> >(nMuColl, vector<double>(nOfflineSeed, 999.0));
+      selOffseeds = vector< vector <const TrajectorySeed *> >(nMuColl, vector<const TrajectorySeed *>(nOfflineSeed, nullptr));
     }
 
     // At least one L1 muons are associated with offSeed
@@ -660,70 +647,67 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
     // MatchType : 0 Old matching,   1 L1 Order(1to1), 2 Min dR(1to1), 3 Higher Q(1to1), 4 All matched L1
     if(useOfflineSeed && isAsso) {
-      unsigned int NofflineSeed1 = offlineSeedHandle->size();
-
+      unsigned int nOfflineSeed1 = offlineSeedHandle->size();
       unsigned int nL1;
       unsigned int i, j; // for the matrix element
 
-
       if(matchType==1) {
 
-        for(nL1=0; nL1 < NmuColl; ++nL1) {
+        for(nL1=0; nL1 < nMuColl; ++nL1) {
           double tempDR = 999;
-          int theL1 = nL1;
-          int theOffs = 0;
+          unsigned int theOffs = 0;
 
-          for(j=0; j<NofflineSeed1; ++j) {
-            if( tempDR > dRmtx[theL1][j] ) {
-              tempDR = dRmtx[theL1][j];
+          for(j=0; j<nOfflineSeed1; ++j) {
+            if( tempDR > dRmtx[nL1][j] ) {
+              tempDR = dRmtx[nL1][j];
               theOffs = j;
             }
           }
 
-          auto Newit = muColl->begin(muColl->getFirstBX()) + theL1;
+          auto it = muColl->begin(muColl->getFirstBX()) + nL1;
 
-          double NewdRcone = matchingDR[0];
-          if ( fabs(Newit->eta()) < etaBins.back() ){
-            std::vector<double>::iterator lowEdge = std::upper_bound (etaBins.begin(), etaBins.end(), fabs(Newit->eta()));
-            NewdRcone    =  matchingDR.at( lowEdge - etaBins.begin() - 1);
+          double newDRcone = matchingDR[0];
+          if ( fabs(it->eta()) < etaBins.back() ){
+            std::vector<double>::iterator lowEdge = std::upper_bound (etaBins.begin(), etaBins.end(), fabs(it->eta()));
+            newDRcone    =  matchingDR.at( lowEdge - etaBins.begin() - 1);
           }
 
-          if( !(tempDR < NewdRcone) )  continue;
+          if( !(tempDR < newDRcone) )  continue;
 
           // Remove row and column for given (L1mu, offSeed)
-          for(i=0; i<NmuColl; ++i) {
+          for(i=0; i<nMuColl; ++i) {
             dRmtx[i][theOffs] = 999;
           }
-          for(j=0; j<NofflineSeed1; ++j) {
-            dRmtx[theL1][j] = 999;
+          for(j=0; j<nOfflineSeed1; ++j) {
+            dRmtx[nL1][j] = 999;
           }
 
-          if( selOffseeds[theL1][theOffs] != nullptr ) {
+          if( selOffseeds[nL1][theOffs] != nullptr ) {
             //put given L1mu and offSeed to output
-            edm::OwnVector<TrackingRecHit> Newcontainer;
+            edm::OwnVector<TrackingRecHit> newContainer;
 
-            PTrajectoryStateOnDet const & seedTSOS = selOffseeds[theL1][theOffs] ->startingState();
+            PTrajectoryStateOnDet const & seedTSOS = selOffseeds[nL1][theOffs] ->startingState();
                           TrajectorySeed::const_iterator
-                          tsci  = selOffseeds[theL1][theOffs]->recHits().first,
-                          tscie = selOffseeds[theL1][theOffs]->recHits().second;
+                          tsci  = selOffseeds[nL1][theOffs]->recHits().first,
+                          tscie = selOffseeds[nL1][theOffs]->recHits().second;
                           for(; tsci!=tscie; ++tsci) {
-                            Newcontainer.push_back(*tsci);
+                            newContainer.push_back(*tsci);
                           }
-                          output->push_back(L2MuonTrajectorySeed(seedTSOS,Newcontainer,alongMomentum,
-                                            MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),Newit)  )));
+                          output->push_back(L2MuonTrajectorySeed(seedTSOS,newContainer,alongMomentum,
+                                            MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
           }
         }
       }
 
       else if(matchType==2) {
 
-        for(nL1=0; nL1 < NmuColl; ++nL1) {
+        for(nL1=0; nL1 < nMuColl; ++nL1) {
           double tempDR = 999;
-          int theL1 = 0;
-          int theOffs = 0;
+          unsigned int theL1 = 0;
+          unsigned int theOffs = 0;
 
-          for(i=0; i<NmuColl; ++i) {
-            for(j=0; j<NofflineSeed1; ++j) {
+          for(i=0; i<nMuColl; ++i) {
+            for(j=0; j<nOfflineSeed1; ++j) {
               if(tempDR > dRmtx[i][j]) {
                 tempDR = dRmtx[i][j];
                 theL1 = i;
@@ -732,54 +716,54 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
             }
           }
 
-          auto Newit = muColl->begin(muColl->getFirstBX()) + theL1;
+          auto it = muColl->begin(muColl->getFirstBX()) + theL1;
 
-          double NewdRcone = matchingDR[0];
-          if ( fabs(Newit->eta()) < etaBins.back() ){
-            std::vector<double>::iterator lowEdge = std::upper_bound (etaBins.begin(), etaBins.end(), fabs(Newit->eta()));
-            NewdRcone    =  matchingDR.at( lowEdge - etaBins.begin() - 1);
+          double newDRcone = matchingDR[0];
+          if ( fabs(it->eta()) < etaBins.back() ){
+            std::vector<double>::iterator lowEdge = std::upper_bound (etaBins.begin(), etaBins.end(), fabs(it->eta()));
+            newDRcone    =  matchingDR.at( lowEdge - etaBins.begin() - 1);
           }
 
-          if( !(tempDR < NewdRcone) )  continue;
+          if( !(tempDR < newDRcone) )  continue;
 
           // Remove row and column for given (L1mu, offSeed)
-          for(i=0; i<NmuColl; ++i) {
+          for(i=0; i<nMuColl; ++i) {
             dRmtx[i][theOffs] = 999;
           }
-          for(j=0; j<NofflineSeed1; ++j) {
+          for(j=0; j<nOfflineSeed1; ++j) {
             dRmtx[theL1][j] = 999;
           }
 
           if( selOffseeds[theL1][theOffs] != nullptr ) {
             //put given L1mu and offSeed to output
-            edm::OwnVector<TrackingRecHit> Newcontainer;
+            edm::OwnVector<TrackingRecHit> newContainer;
 
             PTrajectoryStateOnDet const & seedTSOS = selOffseeds[theL1][theOffs] ->startingState();
                           TrajectorySeed::const_iterator
                           tsci  = selOffseeds[theL1][theOffs]->recHits().first,
                           tscie = selOffseeds[theL1][theOffs]->recHits().second;
                           for(; tsci!=tscie; ++tsci) {
-                            Newcontainer.push_back(*tsci);
+                            newContainer.push_back(*tsci);
                           }
-                          output->push_back(L2MuonTrajectorySeed(seedTSOS,Newcontainer,alongMomentum,
-                                            MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),Newit)  )));
+                          output->push_back(L2MuonTrajectorySeed(seedTSOS,newContainer,alongMomentum,
+                                            MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
           }
         }
       }
 
       else if(matchType==3) {
 
-        for(nL1=0; nL1 < NmuColl; ++nL1) {
+        for(nL1=0; nL1 < nMuColl; ++nL1) {
           double tempDR = 999;
-          int theL1 = 0;
-          int theOffs = 0;
+          unsigned int theL1 = 0;
+          unsigned int theOffs = 0;
           auto theit = muColl->begin(muColl->getFirstBX());
 
           // L1Q > 10 (L1Q = 12)
-          for(i=0; i<NmuColl; ++i) {
+          for(i=0; i<nMuColl; ++i) {
             theit = muColl->begin(muColl->getFirstBX()) + i;
             if (theit->hwQual() > 10) {
-              for(j=0; j<NofflineSeed1; ++j) {
+              for(j=0; j<nOfflineSeed1; ++j) {
                 if(tempDR > dRmtx[i][j]) {
                   tempDR = dRmtx[i][j];
                   theL1 = i;
@@ -791,10 +775,10 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
           // 6 < L1Q <= 10 (L1Q = 8)
           if (tempDR == 999) {
-            for(i=0; i<NmuColl; ++i) {
+            for(i=0; i<nMuColl; ++i) {
               theit = muColl->begin(muColl->getFirstBX()) + i;
               if ( (theit->hwQual() <= 10) && (theit->hwQual() > 6) ) {
-                for(j=0; j<NofflineSeed1; ++j) {
+                for(j=0; j<nOfflineSeed1; ++j) {
                   if(tempDR > dRmtx[i][j]) {
                     tempDR = dRmtx[i][j];
                     theL1 = i;
@@ -807,10 +791,10 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
           // L1Q <= 6 (L1Q = 4)
           if (tempDR == 999) {
-            for(i=0; i<NmuColl; ++i) {
+            for(i=0; i<nMuColl; ++i) {
               theit = muColl->begin(muColl->getFirstBX()) + i;
               if (theit->hwQual() <= 6) {
-                for(j=0; j<NofflineSeed1; ++j) {
+                for(j=0; j<nOfflineSeed1; ++j) {
                   if(tempDR > dRmtx[i][j]) {
                     tempDR = dRmtx[i][j];
                     theL1 = i;
@@ -821,78 +805,78 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
             }
           }
 
-          auto Newit = muColl->begin(muColl->getFirstBX()) + theL1;
+          auto it = muColl->begin(muColl->getFirstBX()) + theL1;
 
-          double NewdRcone = matchingDR[0];
-          if ( fabs(Newit->eta()) < etaBins.back() ){
-            std::vector<double>::iterator lowEdge = std::upper_bound (etaBins.begin(), etaBins.end(), fabs(Newit->eta()));
-            NewdRcone    =  matchingDR.at( lowEdge - etaBins.begin() - 1);
+          double newDRcone = matchingDR[0];
+          if ( fabs(it->eta()) < etaBins.back() ){
+            std::vector<double>::iterator lowEdge = std::upper_bound (etaBins.begin(), etaBins.end(), fabs(it->eta()));
+            newDRcone    =  matchingDR.at( lowEdge - etaBins.begin() - 1);
           }
 
-          if( !(tempDR < NewdRcone) )  continue;
+          if( !(tempDR < newDRcone) )  continue;
 
           // Remove row and column for given (L1mu, offSeed)
-          for(i=0; i<NmuColl; ++i) {
+          for(i=0; i<nMuColl; ++i) {
             dRmtx[i][theOffs] = 999;
           }
-          for(j=0; j<NofflineSeed1; ++j) {
+          for(j=0; j<nOfflineSeed1; ++j) {
             dRmtx[theL1][j] = 999;
           }
 
           if( selOffseeds[theL1][theOffs] != nullptr ) {
             //put given L1mu and offSeed to output
-            edm::OwnVector<TrackingRecHit> Newcontainer;
+            edm::OwnVector<TrackingRecHit> newContainer;
 
             PTrajectoryStateOnDet const & seedTSOS = selOffseeds[theL1][theOffs] ->startingState();
                           TrajectorySeed::const_iterator
                           tsci  = selOffseeds[theL1][theOffs]->recHits().first,
                           tscie = selOffseeds[theL1][theOffs]->recHits().second;
                           for(; tsci!=tscie; ++tsci) {
-                            Newcontainer.push_back(*tsci);
+                            newContainer.push_back(*tsci);
                           }
-                          output->push_back(L2MuonTrajectorySeed(seedTSOS,Newcontainer,alongMomentum,
-                                            MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),Newit)  )));
+                          output->push_back(L2MuonTrajectorySeed(seedTSOS,newContainer,alongMomentum,
+                                            MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
           }
         }
       }
 
       else if(matchType==4) {
 
-        for(i=0; i<NmuColl; ++i) {
+        for(i=0; i<nMuColl; ++i) {
 
-          auto Newit = muColl->begin(muColl->getFirstBX()) + i;
+          auto it = muColl->begin(muColl->getFirstBX()) + i;
 
           double tempDR = 999;
-          int theOffs = 0;
+          unsigned int theOffs = 0;
 
-          double NewdRcone = matchingDR[0];
-          if ( fabs(Newit->eta()) < etaBins.back() ){
-            std::vector<double>::iterator lowEdge = std::upper_bound (etaBins.begin(), etaBins.end(), fabs(Newit->eta()));
-            NewdRcone    =  matchingDR.at( lowEdge - etaBins.begin() - 1);
+          double newDRcone = matchingDR[0];
+          if ( fabs(it->eta()) < etaBins.back() ){
+            std::vector<double>::iterator lowEdge = std::upper_bound (etaBins.begin(), etaBins.end(), fabs(it->eta()));
+            newDRcone    =  matchingDR.at( lowEdge - etaBins.begin() - 1);
           }
 
-          for(j=0; j<NofflineSeed1; ++j) {
+          for(j=0; j<nOfflineSeed1; ++j) {
             if( tempDR > dRmtx[i][j] ) {
               tempDR = dRmtx[i][j];
               theOffs = j;
             }
           }
 
-          if( !(tempDR < NewdRcone) )  continue;
+          if( !(tempDR < newDRcone) )  continue;
 
           if( selOffseeds[i][theOffs] != nullptr ) {
             //put given L1mu and offSeed to output
-            edm::OwnVector<TrackingRecHit> Newcontainer;
+            edm::OwnVector<TrackingRecHit> newContainer;
 
             PTrajectoryStateOnDet const & seedTSOS = selOffseeds[i][theOffs] ->startingState();
                           TrajectorySeed::const_iterator
                           tsci  = selOffseeds[i][theOffs]->recHits().first,
                           tscie = selOffseeds[i][theOffs]->recHits().second;
                           for(; tsci!=tscie; ++tsci) {
-                            Newcontainer.push_back(*tsci);
+                            newContainer.push_back(*tsci);
                           }
-                          output->push_back(L2MuonTrajectorySeed(seedTSOS,Newcontainer,alongMomentum,
-                                            MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),Newit)  )));
+                          output->push_back(L2MuonTrajectorySeed(seedTSOS,newContainer,alongMomentum,
+                                            MuonRef(muColl,  distance(muColl->begin(muColl->getFirstBX()),it)  )));
           }
         }
       }
@@ -993,16 +977,7 @@ bool L2MuonSeedGeneratorFromL1T::isAssociateOfflineSeedToL1( edm::Handle<edm::Vi
   edm::View<TrajectorySeed>::const_iterator offseed, endOffseed = offseeds->end();
   unsigned int nOffseed(0);
 
-  LogDebug(metlabel) << endl;
-  LogDebug(metlabel) << "[~ loop on L2 off seeds ~]" << endl;
-  LogDebug(metlabel) << endl;
-
   for(offseed=offseeds->begin(); offseed!=endOffseed; ++offseed, ++nOffseed) {
-    LogDebug(metlabel) << "||||||||||||||||||||||||" << endl;
-    LogDebug(metlabel) << "||| " << nOffseed << "th Offline Seed |||" << endl;
-    LogDebug(metlabel) << "||||||||||||||||||||||||" << endl;
-
-
     GlobalPoint  glbPos = theService->trackingGeometry()->idToDet(offseed->startingState().detId())->surface().toGlobal(offseed->startingState().parameters().position());
     GlobalVector glbMom = theService->trackingGeometry()->idToDet(offseed->startingState().detId())->surface().toGlobal(offseed->startingState().parameters().momentum());
 
