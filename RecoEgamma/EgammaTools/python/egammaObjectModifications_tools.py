@@ -41,3 +41,61 @@ def makeVIDinPATIDsModifier(process,eleVIDModuleName,phoVIDModuleName):
         setattr(vidInPATIDsModifier.electron_config,egid.idDefinition.idName.value(),cms.InputTag(eleVIDModuleName+':'+egid.idDefinition.idName.value()))
     
     return vidInPATIDsModifier
+
+
+    
+def makeEnergyScaleAndSmearingSysModifier(eleProdName,phoProdName):
+    energyScaleAndSmearing = cms.PSet(
+        modifierName    = cms.string('EGExtraInfoModifierFromFloatValueMaps'),
+        electron_config = cms.PSet(
+            energyScaleUp = cms.InputTag(eleProdName,"EGMscaleUpUncertainty"),
+            energyScaleDown = cms.InputTag(eleProdName,"EGMscaleDownUncertainty"),
+            energyScaleStatUp = cms.InputTag(eleProdName,"EGMscaleStatUpUncertainty"),
+            energyScaleStatDown = cms.InputTag(eleProdName,"EGMscaleStatDownUncertainty"),
+            energyScaleSystUp = cms.InputTag(eleProdName,"EGMscaleSystUpUncertainty"),
+            energyScaleSystDown = cms.InputTag(eleProdName,"EGMscaleSystDownUncertainty"),
+            energyScaleGainUp = cms.InputTag(eleProdName,"EGMscaleGainUpUncertainty"),
+            energyScaleGainDown = cms.InputTag(eleProdName,"EGMscaleGainDownUncertainty"),
+            energySmearUp = cms.InputTag(eleProdName,"EGMresolutionUpUncertainty"),
+            energySmearDown = cms.InputTag(eleProdName,"EGMresolutionDownUncertainty"),
+            energySmearRhoUp = cms.InputTag(eleProdName,"EGMresolutionRhoUpUncertainty"),
+            energySmearRhoDown = cms.InputTag(eleProdName,"EGMresolutionRhoDownUncertainty"),
+            energySmearPhiUp = cms.InputTag(eleProdName,"EGMresolutionPhiUpUncertainty"),
+            energySmearPhiDown = cms.InputTag(eleProdName,"EGMresolutionPhiDownUncertainty"),
+            energyScaleValue = cms.InputTag(eleProdName,"EGMscale"),
+            energySmearValue = cms.InputTag(eleProdName,"EGMsmear"),
+            energySmearNrSigma = cms.InputTag(eleProdName,"EGMsmearNrSigma"),
+            energyEcalPreCorr = cms.InputTag(eleProdName,"EGMecalEnergyPreCorr"),
+            energyEcalErrPreCorr = cms.InputTag(eleProdName,"EGMecalEnergyErrPreCorr"),
+            energyEcalTrkPreCorr = cms.InputTag(eleProdName,"EGMecalTrkEnergyPreCorr"),
+            energyEcalTrkErrPreCorr = cms.InputTag(eleProdName,"EGMecalTrkEnergyErrPreCorr" ),
+            energyEcalTrkPostCorr = cms.InputTag(eleProdName,"EGMecalTrkEnergy"),
+            energyEcalTrkErrPostCorr = cms.InputTag(eleProdName,"EGMecalTrkEnergyErr"),
+            ),
+        photon_config   = cms.PSet( 
+            energyScaleUp = cms.InputTag(phoProdName,"EGMscaleUpUncertainty"),
+            energyScaleDown = cms.InputTag(phoProdName,"EGMscaleDownUncertainty"),
+            energyScaleStatUp = cms.InputTag(phoProdName,"EGMscaleStatUpUncertainty"),
+            energyScaleStatDown = cms.InputTag(phoProdName,"EGMscaleStatDownUncertainty"),
+            energyScaleSystUp = cms.InputTag(phoProdName,"EGMscaleSystUpUncertainty"),
+            energyScaleSystDown = cms.InputTag(phoProdName,"EGMscaleSystDownUncertainty"),
+            energyScaleGainUp = cms.InputTag(phoProdName,"EGMscaleGainUpUncertainty"),
+            energyScaleGainDown = cms.InputTag(phoProdName,"EGMscaleGainDownUncertainty"),
+            energySmearUp = cms.InputTag(phoProdName,"EGMresolutionUpUncertainty"),
+            energySmearDown = cms.InputTag(phoProdName,"EGMresolutionDownUncertainty"),
+            energySmearRhoUp = cms.InputTag(phoProdName,"EGMresolutionRhoUpUncertainty"),
+            energySmearRhoDown = cms.InputTag(phoProdName,"EGMresolutionRhoDownUncertainty"),
+            energySmearPhiUp = cms.InputTag(phoProdName,"EGMresolutionPhiUpUncertainty"),
+            energySmearPhiDown = cms.InputTag(phoProdName,"EGMresolutionPhiDownUncertainty"),
+            energyScaleValue = cms.InputTag(phoProdName,"EGMscale"),
+            energySmearValue = cms.InputTag(phoProdName,"EGMsmear"),
+            energySmearNrSigma = cms.InputTag(phoProdName,"EGMsmearNrSigma"),
+            energyEcalPreCorr = cms.InputTag(phoProdName,"EGMecalEnergyPreCorr"),
+            energyEcalErrPreCorr = cms.InputTag(phoProdName,"EGMecalEnergyErrPreCorr"),
+            )
+        )
+    return energyScaleAndSmearing
+    
+from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import reducedEgammaEnergyScaleAndSmearingModifier                                   
+def appendReducedEgammaEnergyScaleAndSmearingModifier(modifiers):
+    modifiers.append(reducedEgammaEnergyScaleAndSmearingModifier)
