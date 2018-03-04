@@ -49,7 +49,6 @@ process.load("EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff")
 process.load("RecoCTPPS.Configuration.recoCTPPS_cff")
 
 # rechits production
-process.load('Geometry.VeryForwardGeometry.geometryRP_cfi')
 process.load('RecoCTPPS.TotemRPLocal.ctppsDiamondRecHits_cfi')
 
 # local tracks fitter
