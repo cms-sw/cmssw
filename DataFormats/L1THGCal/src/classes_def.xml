@@ -55,8 +55,11 @@
   <class name="l1t::HGCalTriggerCellBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalTriggerCellBxCollection>"/>
 
-  <class name="edm::PtrVector<l1t::HGCalTriggerCell>" />
-  <class name="edm::PtrVector<l1t::HGCalCluster>" />
+  <class name="std::vector<edm::Ptr<l1t::HGCalTriggerCell>>" />
+  <class name="std::vector<edm::Ptr<l1t::HGCalCluster>>" />
+  <class name="std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>" />
+  <class name="std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>>" />
+  <class name="std::unordered_map<uint32_t, double>" />
   <class name="edm::PtrVector<l1t::HGCalTowerMap>" />
   <class name="edm::Ptr<l1t::HGCalTriggerCell>" />
   <class name="edm::Ptr<l1t::HGCalCluster>" />
