@@ -124,6 +124,25 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
 			     const std::map<reco::GsfElectronCoreRef, unsigned int>& gsfElectronCoreMap, 
 			     const edm::OrphanHandle<reco::GsfElectronCoreCollection>& outGsfElectronCoreHandle);
 
+  static void calibratePhoton(reco::Photon& photon, 
+			      const reco::PhotonRef& oldPhoRef,
+			      const edm::ValueMap<float>& energyMap,
+			      const edm::ValueMap<float>& energyErrMap);
+  
+  static void calibrateElectron(reco::GsfElectron& gsfElectron,
+				const reco::GsfElectronRef& oldEleRef,
+				const edm::ValueMap<float>& energyMap,
+				const edm::ValueMap<float>& energyErrMap,
+				const edm::ValueMap<float>& ecalEnergyMap,
+				const edm::ValueMap<float>& ecalEnergyErrMap);
+
+
+  template <typename T>
+  void setToken(edm::EDGetTokenT<T>& token,const edm::ParameterSet& config,const std::string& name){
+    token = consumes<T>(config.getParameter<edm::InputTag>(name));
+  }
+
+
  //tokens for input collections
  const edm::EDGetTokenT<reco::PhotonCollection> photonT_;
  const edm::EDGetTokenT<reco::PhotonCollection> ootPhotonT_;
@@ -146,6 +165,17 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > photonPFClusterIsoTs_;
  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > ootPhotonPFClusterIsoTs_;
  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > gsfElectronPFClusterIsoTs_;
+
+ const bool applyPhotonCalibOnData_;
+ const bool applyPhotonCalibOnMC_;
+ const bool applyGsfElectronCalibOnData_;
+ const bool applyGsfElectronCalibOnMC_;
+ edm::EDGetTokenT<edm::ValueMap<float> > photonCalibEnergyT_;
+ edm::EDGetTokenT<edm::ValueMap<float> > photonCalibEnergyErrT_;
+ edm::EDGetTokenT<edm::ValueMap<float> > gsfElectronCalibEnergyT_;
+ edm::EDGetTokenT<edm::ValueMap<float> > gsfElectronCalibEnergyErrT_;
+ edm::EDGetTokenT<edm::ValueMap<float> > gsfElectronCalibEcalEnergyT_;
+ edm::EDGetTokenT<edm::ValueMap<float> > gsfElectronCalibEcalEnergyErrT_;
 
  //names for output collections
  const std::string outPhotons_;
