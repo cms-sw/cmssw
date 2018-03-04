@@ -89,9 +89,15 @@ void DiMuonHistograms::bookHistograms(DQMStore::IBooker & ibooker,
     TightTightMuon.push_back(ibooker.book1D("TightTightMuon"+EtaName[iEtaRegion],"InvMass_{Tight,Tight}"+EtaName[iEtaRegion], nBin[iEtaRegion], LowMassMin, LowMassMax));
     MediumMediumMuon.push_back(ibooker.book1D("MediumMediumMuon"+EtaName[iEtaRegion],"InvMass_{Medium,Medium}"+EtaName[iEtaRegion],nBin[iEtaRegion], LowMassMin, LowMassMax));
     LooseLooseMuon.push_back(ibooker.book1D("LooseLooseMuon"+EtaName[iEtaRegion],"InvMass_{Loose,Loose}"+EtaName[iEtaRegion], nBin[iEtaRegion], LowMassMin, LowMassMax));
+    //Fraction of bad hits in the tracker track to the total
+    TightTightMuonBadFrac.push_back(ibooker.book1D("TightTightMuonBadFrac"+EtaName[iEtaRegion],"BadFrac_{Tight,Tight}"+EtaName[iEtaRegion], 10, 0, 0.4));
+    MediumMediumMuonBadFrac.push_back(ibooker.book1D("MediumMediumMuonBadFrac"+EtaName[iEtaRegion],"BadFrac_{Medium,Medium}"+EtaName[iEtaRegion], 10, 0, 0.4));
+    LooseLooseMuonBadFrac.push_back(ibooker.book1D("LooseLooseMuonBadFrac"+EtaName[iEtaRegion],"BadFrac_{Loose,Loose}"+EtaName[iEtaRegion], 10, 0, 0.4));
 
     // low-mass resonances
     SoftSoftMuon.push_back(ibooker.book1D("SoftSoftMuon"+EtaName[iEtaRegion],"InvMass_{Soft,Soft}"+EtaName[iEtaRegion],nBin[iEtaRegion], 0.0, 55.0));
+    SoftSoftMuonBadFrac.push_back(ibooker.book1D("SoftSoftMuonBadFrac"+EtaName[iEtaRegion],"BadFrac_{Soft,Soft}"+EtaName[iEtaRegion], 10, 0, 0.4));
+
   }
 }
 
@@ -184,7 +190,10 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
 	    for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
 	      if(fabs(recoCombinedGlbTrack1->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack1->eta())<EtaCutMax[iEtaRegion] && 
 		 fabs(recoCombinedGlbTrack2->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack2->eta())<EtaCutMax[iEtaRegion]){
-		if (InvMass > 55. && InvMass < 125.) TightTightMuon[iEtaRegion]->Fill(InvMass);
+		if (InvMass > 55. && InvMass < 125.) {
+			TightTightMuon[iEtaRegion]->Fill(InvMass);
+			TightTightMuonBadFrac[iEtaRegion]->Fill(muon1->innerTrack()->lost()/muon1->innerTrack()->found());
+		}
 	      }
 	    }
 	  }
@@ -198,7 +207,10 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
 	    for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
 	      if(fabs(recoCombinedGlbTrack1->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack1->eta())<EtaCutMax[iEtaRegion] && 
 		 fabs(recoCombinedGlbTrack2->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack2->eta())<EtaCutMax[iEtaRegion]){
-		if (InvMass > 55. && InvMass < 125.) MediumMediumMuon[iEtaRegion]->Fill(InvMass);
+		if (InvMass > 55. && InvMass < 125.) {
+			MediumMediumMuon[iEtaRegion]->Fill(InvMass);
+			MediumMediumMuonBadFrac[iEtaRegion]->Fill(muon1->innerTrack()->lost()/muon1->innerTrack()->found());
+		}
 	      }
 	    }
 	  }
@@ -212,7 +224,10 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
 	    for (unsigned int iEtaRegion=0; iEtaRegion<3; iEtaRegion++){
 	      if(fabs(recoCombinedGlbTrack1->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack1->eta())<EtaCutMax[iEtaRegion] && 
 		 fabs(recoCombinedGlbTrack2->eta())>EtaCutMin[iEtaRegion] && fabs(recoCombinedGlbTrack2->eta())<EtaCutMax[iEtaRegion]){
-		if (InvMass > 55. && InvMass < 125.) LooseLooseMuon[iEtaRegion]->Fill(InvMass);
+		if (InvMass > 55. && InvMass < 125.) {
+			LooseLooseMuon[iEtaRegion]->Fill(InvMass);
+			LooseLooseMuonBadFrac[iEtaRegion]->Fill(muon1->innerTrack()->lost()/muon1->innerTrack()->found());
+		}
 	      }
 	    }
 	  }
@@ -291,7 +306,8 @@ void DiMuonHistograms::analyze(const edm::Event & iEvent,const edm::EventSetup& 
 	      
 	      if(fabs(recoTrack1->eta())>EtaCutMin[iEtaRegion] && fabs(recoTrack1->eta())<EtaCutMax[iEtaRegion] &&
 		 fabs(recoTrack2->eta())>EtaCutMin[iEtaRegion] && fabs(recoTrack2->eta())<EtaCutMax[iEtaRegion]){
-		SoftSoftMuon[iEtaRegion]->Fill(InvMass); 
+		    SoftSoftMuon[iEtaRegion]->Fill(InvMass); 
+		    SoftSoftMuonBadFrac[iEtaRegion]->Fill(muon1->innerTrack()->lost()/muon1->innerTrack()->found());
 	      }
 	    }
 	  }
