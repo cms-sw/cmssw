@@ -61,11 +61,11 @@ C2d_parValues = cms.PSet( seeding_threshold_silicon = cms.double(5), # MipT
                           seeding_threshold_scintillator = cms.double(5), # MipT
                           clustering_threshold_silicon = cms.double(2), # MipT
                           clustering_threshold_scintillator = cms.double(2), # MipT
-                          clusterType = cms.string('NNC2d'), 
+                          dR_cluster=cms.double(6.),
+                          clusterType = cms.string('dRNNC2d'), 
                           applyLayerCalibration = cms.bool(True),
                           layerWeights = layercalibparam.TrgLayer_weights,
                           # Parameters not used by this clustering
-                          dR_cluster=cms.double(0.),
                           calibSF_cluster=cms.double(0.)
                           )
 
