@@ -69,6 +69,16 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
         "eleEcalPFClusIso",
         "eleHcalPFClusIso",
   ),
+  applyPhotonCalibOnData = cms.bool(False),
+  applyPhotonCalibOnMC = cms.bool(False),
+  applyGsfElectronCalibOnData = cms.bool(False),
+  applyGsfElectronCalibOnMC = cms.bool(False), 
+  photonCalibEnergySource = cms.InputTag(""),
+  photonCalibEnergyErrSource = cms.InputTag(""),
+  gsfElectronCalibEnergySource = cms.InputTag(""),
+  gsfElectronCalibEnergyErrSource = cms.InputTag(""),
+  gsfElectronCalibEcalEnergySource = cms.InputTag(""),
+  gsfElectronCalibEcalEnergyErrSource = cms.InputTag("")
 )
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
