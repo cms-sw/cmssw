@@ -1,5 +1,5 @@
 #include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelKalmanStubProcessor.h"
-#include <cmath>
+#include "math.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTTFMasks.h"
@@ -171,7 +171,7 @@ L1TMuonBarrelKalmanStubProcessor::buildStub(const L1MuDTChambPhDigi* phiS,const 
     }
 
 
-    if (!eposition.empty()) {
+    if (eposition.size()>=1) {
       eta1=eposition[0];
       qeta1=equality[0];
     }

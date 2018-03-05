@@ -20,7 +20,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanTrackFinder::process(L1TMuonBarrelKalm
   L1MuKBMTrackCollection pretracks;
   for (auto& sector: sectors_) {
     L1MuKBMTrackCollection tmp = sector.process(trackMaker,stubsAll,bx);
-    if (!tmp.empty())
+    if (tmp.size()>0)
       pretracks.insert(pretracks.end(),tmp.begin(),tmp.end());
   } 
   if (verbose_) {

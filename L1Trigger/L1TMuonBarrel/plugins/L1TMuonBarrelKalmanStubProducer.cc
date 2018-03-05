@@ -25,17 +25,17 @@
 class L1TMuonBarrelKalmanStubProducer : public edm::stream::EDProducer<> {
    public:
       explicit L1TMuonBarrelKalmanStubProducer(const edm::ParameterSet&);
-      ~L1TMuonBarrelKalmanStubProducer() override;
+      ~L1TMuonBarrelKalmanStubProducer();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      void beginStream(edm::StreamID) override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endStream() override;
+      virtual void beginStream(edm::StreamID) override;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void endStream() override;
   edm::EDGetTokenT<L1MuDTChambPhContainer> srcPhi_;
   edm::EDGetTokenT<L1MuDTChambThContainer> srcTheta_;
-  std::unique_ptr<L1TMuonBarrelKalmanStubProcessor> proc_;
+  L1TMuonBarrelKalmanStubProcessor * proc_;
 
 };
 
@@ -65,6 +65,8 @@ L1TMuonBarrelKalmanStubProducer::~L1TMuonBarrelKalmanStubProducer()
  
    // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
+  if (proc_!=0)
+    delete proc_;
 }
 
 

@@ -21,7 +21,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanSectorProcessor::process(L1TMuonBarrel
   L1MuKBMTrackCollection pretracks;
   for (auto& region: regions_) {
     L1MuKBMTrackCollection tmp = region.process(trackMaker,stubsAll,bx);
-    if (!tmp.empty())
+    if (tmp.size()>0)
       pretracks.insert(pretracks.end(),tmp.begin(),tmp.end());
   } 
 

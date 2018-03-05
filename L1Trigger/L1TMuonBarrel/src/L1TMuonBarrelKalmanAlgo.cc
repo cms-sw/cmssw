@@ -1,4 +1,4 @@
-#include <cmath>
+#include <math.h>
 #include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelKalmanAlgo.h"
 
 
@@ -733,7 +733,7 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
 	if (verbose_)
 	  printf(" Coordinates before vertex constraint step:%d,phi=%d,dxy=%d,K=%d\n",track.step(),track.phiAtVertex(),track.dxy(),track.curvatureAtVertex());
 	estimateChiSquare(track);
-	if (uint(track.approxChi2())>globalChi2Cut_)
+	if (abs(track.approxChi2())>globalChi2Cut_)
 	  break;
 	vertexConstraint(track);
 	if (verbose_) {
@@ -755,7 +755,7 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
   //Now for all the pretracks we need only one 
   L1MuKBMTrackCollection cleaned = cleanAndSort(pretracks,1);
 
-  if (!cleaned.empty())
+  if (cleaned.size()>0)
     return std::make_pair(true,cleaned[0]);
   return std::make_pair(false,nullTrack);
 }       
@@ -774,7 +774,7 @@ void L1TMuonBarrelKalmanAlgo::estimateChiSquare(L1MuKBMTrack& track) {
 
   for (const auto& stub: track.stubs()) {
     uint delta=abs(correctedPhi(stub,track.sector())-track.phiAtMuon()+correctedPhiB(stub)-track.phiBAtMuon()-chiSquare_[stub->stNum()-1]*K);
-     chi=chi+delta;    
+     chi=chi+abs(delta);    
    }
   chi=chi/2;
   if (chi>511)
@@ -856,7 +856,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanAlgo::cleanAndSort(const L1MuKBMTrackC
     for(const auto& track2 : pretracks) {
       if (track1==track2)
 	continue;
-      if (!track1.overlapTrack(track2))
+      if (!track1.overlap(track2))
 	continue;
       if (track1.rank()<track2.rank())
 	keep=false;
@@ -874,7 +874,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanAlgo::cleanAndSort(const L1MuKBMTrackC
 
 
   TrackSorter sorter;
-  if (!out.empty())
+  if (out.size()>0)
     std::sort(out.begin(),out.end(),sorter);
 
 
