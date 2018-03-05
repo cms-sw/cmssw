@@ -2223,7 +2223,7 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
 
   // Next, interpolate the CMSSW template needed to analyze this cluster     
 
-  if(!templ2D.xytempl(id_in, cotalpha, cotbeta, xhit2D, yhit2D, ydouble, xdouble, xy_in)) {success = 1;}
+  if(!templ2D.xytemp(id_in, cotalpha, cotbeta, xhit2D, yhit2D, ydouble, xdouble, xy_in)) {success = 1;}
   if(success!=0){
     std::cout << "Could not find a template!" << std::endl;
   }
@@ -2270,7 +2270,7 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
   
   // Next, interpolate the physical output template needed to reweight     
 
-  if(!templ2D.xytempl(id_rewgt, cotalpha, cotbeta, xhit2D, yhit2D, ydouble, xdouble, xy_rewgt)) {success = 1;}
+  if(!templ2D.xytemp(id_rewgt, cotalpha, cotbeta, xhit2D, yhit2D, ydouble, xdouble, xy_rewgt)) {success = 1;}
 
   if(PrintTemplates){
     std::cout << "Template irrad: " << std::endl;  

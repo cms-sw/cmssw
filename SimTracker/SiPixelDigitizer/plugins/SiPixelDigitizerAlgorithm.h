@@ -14,8 +14,8 @@
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-#include "SiPixelTemplate2D.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h" 
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate2D.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
 #include "boost/multi_array.hpp"
 
 typedef boost::multi_array<float, 2> array_2d;
