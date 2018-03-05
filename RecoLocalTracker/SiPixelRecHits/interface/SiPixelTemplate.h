@@ -259,10 +259,10 @@ public:
 
 // Load the private store with info from the file with the index (int) filenum from directory dir:
 //   ${dir}template_summary_zp${filenum}.out
+#ifdef SI_PIXEL_TEMPLATE_STANDALONE
    static bool pushfile(int filenum, std::vector< SiPixelTemplateStore > & thePixelTemp_ , std::string dir = "");
-   
-   
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+#else   
+   static bool pushfile(int filenum, std::vector< SiPixelTemplateStore > & thePixelTemp_ , std::string dir = "CalibTracker/SiPixelESProducers/data/");   // *&^%$#@!  Different default dir -- remove once FastSim is updated.
    static bool pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore > & thePixelTemp_);     // load the private store with info from db
 #endif
    
