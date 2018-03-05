@@ -247,6 +247,8 @@ class SiPixelDigitizerAlgorithm  {
 
      // Read factors from DB and fill containers
      std::map<uint32_t, double> PixelGeomFactors;
+     std::map<uint32_t, std::vector<double> > PixelGeomFactorsROCStdPixels;     
+     std::map<uint32_t, std::vector<double> > PixelGeomFactorsROCBigPixels;
      std::map<uint32_t, double> ColGeomFactors;
      std::map<uint32_t, double> ChipGeomFactors;
      std::map<uint32_t, size_t > iPU;
