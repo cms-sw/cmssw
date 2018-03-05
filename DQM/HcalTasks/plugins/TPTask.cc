@@ -287,18 +287,18 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
 
-		_cOccupancy_HF_depth.initialize(_name, "OccupancyHF_depth", 
+		_cOccupancy_HF_depth.initialize(_name, "OccupancyDataHF_depth", 
 			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-		_cOccupancyNoTDC_HF_depth.initialize(_name, "OccupancyHFNoTDC_depth", 
+		_cOccupancyNoTDC_HF_depth.initialize(_name, "OccupancyEmulHFNoTDC_depth", 
 			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-		_cOccupancy_HF_ieta.initialize(_name, "OccupancyHF_ieta", 
+		_cOccupancy_HF_ieta.initialize(_name, "OccupancyDataHF_ieta", 
 			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0),
-		_cOccupancyNoTDC_HF_ieta.initialize(_name, "OccupancyHFNoTDC_ieta", 
+		_cOccupancyNoTDC_HF_ieta.initialize(_name, "OccupancyEmulHFNoTDC_ieta", 
 			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	}
@@ -634,8 +634,11 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		//	Explicit check on the DetIds present in the Collection
 		HcalTrigTowerDetId tid = it->id();
 		uint32_t rawid = _ehashmap.lookup(tid);
-		if (rawid==0)
-		{meUnknownIds1LS->Fill(1); _unknownIdsPresent = true; continue;}
+		if (rawid==0) {
+			meUnknownIds1LS->Fill(1); 
+			_unknownIdsPresent = true; 
+			continue;
+		}
 		HcalElectronicsId const& eid(rawid);
 		if (tid.ietaAbs()>=29)
 			rawidHFValid = tid.rawId();
@@ -648,7 +651,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		if (tid.version()==0 && tid.ietaAbs()>=29)
 		{
 			//	do this only for online processing
-			if (_ptype==fOnline)
+			if (_ptype == fOnline)
 			{
 				_cOccupancyData2x3_depthlike.fill(tid);
 				HcalTrigPrimDigiCollection::const_iterator jt=cemul->find(tid);
@@ -673,8 +676,10 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		_cEtData_depthlike.fill(tid, soiEt_d);
 		_cOccupancyData_depthlike.fill(tid);
 
-		_cOccupancy_HF_depth.fill(tid);
-		_cOccupancy_HF_ieta.fill(tid);
+		if (_ptype == fOnline) {
+			_cOccupancy_HF_depth.fill(tid);
+			_cOccupancy_HF_ieta.fill(tid);
+		}
 		if (_ptype != fOffline) { // hidefed2crate
 			if (eid.isVMEid())
 			{
