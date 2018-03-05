@@ -2477,6 +2477,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         # simplification later
         for step in upgradeSteps['baseline']['steps']:
             if "GenSim" in step:
+                stepName = step + upgradeSteps['baseline']['suffix']
                 stepNamePmx = step.replace('GenSim', 'Premix') + 'PU' + upgradeSteps['Premix']['suffix']
                 d = merge([{'-s'            : 'GEN,SIM,DIGI:pdigi_valid,L1,DIGI2RAW',
                             '--datatier'    : 'PREMIX',
@@ -2487,11 +2488,12 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                 upgradeStepDict[stepNamePmx][k] = d
 
         for stepType in upgradeSteps.keys():
+            if "Premix" in stepType:
+                # Premix stage1 is already set above, and there are no non-PU steps so has to be ignored here
+                continue
             for step in upgradeSteps[stepType]['PU']:
                 stepName = step + upgradeSteps[stepType]['suffix']
                 stepNamePU = step + 'PU' + upgradeSteps[stepType]['suffix']
-                if stepType == 'Premix':
-                    stepName = stepNamePU
                 upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
 
                 # Setup premixing stage2
