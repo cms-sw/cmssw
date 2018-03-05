@@ -256,6 +256,7 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 from Configuration.Eras.Modifier_phase2_ecal_cff import phase2_ecal
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_common.toModify(mixData, input = dict(producers = [])) # we use digis directly, no need for raw2digi producers
 
 # Tracker
@@ -295,3 +296,17 @@ phase2_hcal.toModify(mixData,
 )
 
 # TODO: Add HGCAL, but needs code first
+
+# Muon
+phase2_muon.toModify(mixData,
+    workers = dict(
+        dt = dict(pileInputTag = "simMuonDTDigis"),
+        rpc = dict(pileInputTag = "simMuonRPCDigis"),
+        csc = dict(
+            strip = dict(pileInputTag = "simMuonCSCDigis:MuonCSCStripDigi"),
+            wire = dict(pileInputTag = "simMuonCSCDigis:MuonCSCWireDigi"),
+            comparator = dict(pileInputTag = "simMuonCSCDigis:MuonCSCComparatorDigi"),
+        )
+    )
+)
+# TODO: Add GEM and ME0, but needs code first
