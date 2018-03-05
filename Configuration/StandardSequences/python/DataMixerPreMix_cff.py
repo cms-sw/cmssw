@@ -14,6 +14,7 @@ from SimGeneral.PreMixingModule.mixOne_premix_on_sim_cfi import *
 # clone these sequences:
 
 DMEcalTriggerPrimitiveDigis = simEcalTriggerPrimitiveDigis.clone()
+DMEcalEBTriggerPrimitiveDigis = simEcalEBTriggerPrimitiveDigis.clone()
 DMEcalDigis = simEcalDigis.clone()
 DMEcalPreshowerDigis = simEcalPreshowerDigis.clone()
 
@@ -21,6 +22,8 @@ DMEcalPreshowerDigis = simEcalPreshowerDigis.clone()
 DMEcalTriggerPrimitiveDigis.Label = cms.string('mixData')
 DMEcalTriggerPrimitiveDigis.InstanceEB = cms.string('')
 DMEcalTriggerPrimitiveDigis.InstanceEE = cms.string('')
+#
+DMEcalEBTriggerPrimitiveDigis.barrelEcalDigis = 'mixData'
 #
 DMEcalDigis.digiProducer = cms.string('mixData')
 DMEcalDigis.EBdigiCollection = cms.string('')
@@ -31,6 +34,10 @@ DMEcalPreshowerDigis.digiProducer = cms.string('mixData')
 #DMEcalPreshowerDigis.ESdigiCollection = cms.string('ESDigiCollectionDM')
 
 ecalDigiSequenceDM = cms.Sequence(DMEcalTriggerPrimitiveDigis*DMEcalDigis*DMEcalPreshowerDigis)
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+_phase2_ecalDigiSequenceDM = ecalDigiSequenceDM.copy()
+_phase2_ecalDigiSequenceDM.insert(0,DMEcalEBTriggerPrimitiveDigis)
+phase2_common.toReplaceWith(ecalDigiSequenceDM, _phase2_ecalDigiSequenceDM)
 
 # same for Hcal:
 
