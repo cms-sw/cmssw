@@ -1,6 +1,21 @@
 #!/usr/bin/env python
 import traceback
 import os, sys
+#import gc
+
+#class Importer:
+#    def __init__(self,name):
+#        self.error=0
+#        try:
+#            importlib.import_module(i)
+#            print "Done"
+#        except Exception as e:
+#            print "Fail"
+#            print traceback.format_exc()
+#            self.error = 1
+#        
+#    def err(self):
+#        return self.error
 
 baseDirs=[]
 from subprocess import Popen,PIPE
@@ -23,26 +38,28 @@ for baseDir in baseDirs:
             l.append(file)
         break
 
-print l
-
+#print l
 skipIt=['pytest','climate','theanets','hyperopt','thriftpy']
 # climate misses plac
 # pytest misses py
 # theanets misses plac
-# xrootdpyfs misses     from fs.errors import DestinationExistsError, DirectoryNotEmptyError, \
-#ImportError: cannot import name DestinationExistsError
 #hyperopt misses builtins
 #thriftpy misses ply
-import importlib
-err = 0
+#unless the llvm version in cmssw matches that of root, uproot needs to be
+#tested separately (https://github.com/scikit-hep/uproot/issues/58)
+
+
+#import importlib
+#err = 0
 for i in l:
     if i in skipIt: continue
-    print "Importing",i,".....",
-    try:
-      importlib.import_module(i)
-      print "Done"
-    except Exception as e:
-      print "Fail"
-      print traceback.format_exc()
-      err += 1
-sys.exit(err)
+    print i
+#
+#    if i in skipIt: continue
+#    print "Importing",i,".....",
+#    d=Importer(i)
+#    err+=d.err()
+#    del d
+#    gc.collect()
+#
+#sys.exit(err)
