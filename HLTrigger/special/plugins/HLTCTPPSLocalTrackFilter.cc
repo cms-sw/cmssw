@@ -126,7 +126,7 @@ bool HLTCTPPSLocalTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const e
 
     for(const auto &rpv : (*pixelTracks))
     {
-      CTPPSPixelDetId id(rpv.id);
+      const CTPPSPixelDetId id(rpv.id);
       if(tracksPerPot.count(rpv.id) == 0)
         tracksPerPot[rpv.id] = 0;
 
@@ -149,7 +149,7 @@ bool HLTCTPPSLocalTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const e
 
     for(const auto &rpv : (*stripTracks))
     {
-      TotemRPDetId id(rpv.id);
+      const TotemRPDetId id(rpv.id);
       if(tracksPerPot.count(rpv.id) == 0)
         tracksPerPot[rpv.id] = 0;
 
@@ -172,7 +172,7 @@ bool HLTCTPPSLocalTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const e
 
     for(const auto &rpv : (*diamondTracks))
     {
-      CTPPSDiamondDetId id(rpv.id);
+      const CTPPSDiamondDetId id(rpv.id);
       if(tracksPerPot.count(rpv.id) == 0)
         tracksPerPot[rpv.id] = 0;
 
