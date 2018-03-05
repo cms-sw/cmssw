@@ -55,7 +55,7 @@ namespace HGCal_helpers {
                    const float charge, Coordinates &coords) const;
 
    private:
-    SimpleTrackPropagator() : field_(0), prod_(field_, alongMomentum), absz_target_(0) {}
+    SimpleTrackPropagator() : field_(nullptr), prod_(field_, alongMomentum), absz_target_(0) {}
     const RKPropagatorInS &RKProp() const { return prod_.propagator; }
     Plane::PlanePointer targetPlaneForward_, targetPlaneBackward_;
     const MagneticField *field_;

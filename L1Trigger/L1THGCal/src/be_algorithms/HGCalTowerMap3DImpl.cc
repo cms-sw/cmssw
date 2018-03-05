@@ -37,7 +37,7 @@ void HGCalTowerMap3DImpl::buildTowerMap3D(const std::vector<edm::Ptr<l1t::HGCalT
   for(int iEta=-nEtaBins; iEta<=nEtaBins; iEta++){
     if(iEta==0) continue;
     for(int iPhi=0; iPhi<nPhiBins; iPhi++){ 
-      l1t::HGCalTower tower = towerMap.tower(iEta,iPhi);
+      const l1t::HGCalTower& tower = towerMap.tower(iEta,iPhi);
       if(tower.pt()>0) towersTmp.push_back(tower);
     }
   }

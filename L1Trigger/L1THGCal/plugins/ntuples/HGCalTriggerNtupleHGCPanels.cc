@@ -12,7 +12,7 @@ class HGCalTriggerNtupleHGCPanels : public HGCalTriggerNtupleBase
 
   public:
     HGCalTriggerNtupleHGCPanels(const edm::ParameterSet& conf);
-    ~HGCalTriggerNtupleHGCPanels(){};   
+    ~HGCalTriggerNtupleHGCPanels() override{};   
     void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
     void fill(const edm::Event& e, const edm::EventSetup& es) final;
 

@@ -22,11 +22,11 @@ HGCalTowerMap2DImpl::HGCalTowerMap2DImpl( const edm::ParameterSet& conf ) :
   edm::LogInfo("HGCalTowerMap2DImpl") << "Number of eta bins for the tower maps: " << nEtaBins_<<endl;
   edm::LogInfo("HGCalTowerMap2DImpl") << "Number of phi bins for the tower maps: " << nPhiBins_<<endl;
 
-  if(etaBins_.size()>0 && int(etaBins_.size())!=nEtaBins_+1){
+  if(!etaBins_.empty() && int(etaBins_.size())!=nEtaBins_+1){
     throw edm::Exception(edm::errors::Configuration, "Configuration")
       << "HGCalTowerMap2DImpl nEtaBins for the tower map not consistent with etaBins size"<<endl;
   }
-  if(phiBins_.size()>0 && int(phiBins_.size())!=nPhiBins_+1){
+  if(!phiBins_.empty() && int(phiBins_.size())!=nPhiBins_+1){
     throw edm::Exception(edm::errors::Configuration, "Configuration")
       << "HGCalTowerMap2DImpl nPhiBins for the tower map not consistent with phiBins size"<<endl;
   }
@@ -47,7 +47,7 @@ std::vector<l1t::HGCalTowerMap> HGCalTowerMap2DImpl::newTowerMaps(){
 
   //If no custom binning specified, assume uniform one
   l1t::HGCalTowerMap map;
-  if(etaBins_.size()==0 || phiBins_.size()==0){
+  if(etaBins_.empty() || phiBins_.empty()){
     l1t::HGCalTowerMap mapTmp(nEtaBins_,nPhiBins_);
     map = mapTmp;
   }

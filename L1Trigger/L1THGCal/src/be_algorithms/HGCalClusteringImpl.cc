@@ -343,7 +343,7 @@ void HGCalClusteringImpl::clusterizeDRNN( const std::vector<edm::Ptr<l1t::HGCalT
             ++iclu;
         }   
 
-        if ( tcPertinentClusters.size() == 0 ) {
+        if ( tcPertinentClusters.empty() ) {
             continue;
         }
         else if( tcPertinentClusters.size() == 1 ) {
