@@ -189,7 +189,7 @@ void HcalDigisValidation::booking(DQMStore::IBooker &ib, const std::string bsubd
     HistLim sime(200, 0., 1.0);
 
     HistLim digiAmp(360, -100., 7100.);
-    HistLim digiAmpWide(2410, -10000., 710000.); //300 fC binning
+    HistLim digiAmpWide(2410, -3000., 720000.); //300 fC binning
     HistLim ratio(2000, -100., 3900.);
     HistLim sumAmp(100, -500., 1500.);
 
