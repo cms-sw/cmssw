@@ -34,6 +34,8 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasHI_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasAAGHI_cff import *
 # AlCaReco for tracker calibration using ZeroBias events (noise)
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBiasHI_cff import *
+# AlCaReco for SiPixel Bad Components using ZeroBias events
+from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalZeroBias_cff import *
 
 ###############################################################
 # ECAL Calibration
@@ -103,6 +105,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_cff import *
 # FIXME: this needs to be adapted to run on TkAlMinBiasHI tracks
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_cff import *
 
+from CalibTracer.SiPixelQuality.ALCARECOPromptCalibProdSiPixel_cff import *
 
 
 
@@ -122,6 +125,7 @@ pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
 pathALCARECOSiStripCalMinBiasAAG = cms.Path(seqALCARECOSiStripCalMinBiasAAG*ALCARECOSiStripCalMinBiasAAGDQM)
 pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECOSiStripCalZeroBiasDQM)
+pathALCARECOSiPixelCalZeroBias = cms.Path(seqALCARECOSiPixelCalZeroBias)
 
 pathALCARECOHcalCalDijets = cms.Path(seqALCARECOHcalCalDijets*ALCARECOHcalCalDiJetsDQM)
 pathALCARECOHcalCalGammaJet = cms.Path(seqALCARECOHcalCalGammaJet)
@@ -162,6 +166,7 @@ pathALCARECOPromptCalibProdSiStrip = cms.Path(seqALCARECOPromptCalibProdSiStrip)
 pathALCARECOPromptCalibProdSiStripGains = cms.Path(seqALCARECOPromptCalibProdSiStripGains)
 pathALCARECOPromptCalibProdSiStripGainsAAG = cms.Path(seqALCARECOPromptCalibProdSiStripGainsAAG)
 pathALCARECOPromptCalibProdSiPixelAli = cms.Path(seqALCARECOPromptCalibProdSiPixelAli)
+pathALCARECOPromptCalibProdSiPixel = cms.Path(seqALCARECOPromptCalibProdSiPixel)
 pathALCARECOSiStripPCLHistos = cms.Path(seqALCARECOSiStripPCLHistos)
 
 # AlCaReco event content definitions:
@@ -252,6 +257,15 @@ ALCARECOStreamSiStripCalZeroBias = cms.FilteredStream(
 	selectEvents = OutALCARECOSiStripCalZeroBias.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
+
+ALCARECOStreamSiPixelCalZeroBias = cms.FilteredStream(
+        responsible = 'Tongguang Cheng',
+        name = 'SiPixelCalZeroBias',
+        paths  = (pathALCARECOSiPixelCalZeroBias),
+        content = OutALCARECOSiPixelCalZeroBias.outputCommands,
+        selectEvents = OutALCARECOSiPixelCalZeroBias.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
 
 ALCARECOStreamHcalCalDijets = cms.FilteredStream(
 	responsible = 'Grigory Safronov',
@@ -525,7 +539,6 @@ ALCARECOStreamPromptCalibProdSiStripGainsAAG = cms.FilteredStream(
         dataTier = cms.untracked.string('ALCARECO')
         )
 
-
 ALCARECOStreamPromptCalibProdSiPixelAli = cms.FilteredStream(
 	responsible = 'Gianluca Cerminara',
 	name = 'PromptCalibProdSiPixelAli',
@@ -535,6 +548,14 @@ ALCARECOStreamPromptCalibProdSiPixelAli = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
+ALCARECOStreamPromptCalibProdSiPixel = cms.FilteredStream(
+        responsible = 'Tongguang Cheng',
+        name = 'PromptCalibProdSiPixel',
+        paths  = (pathALCARECOPromptCalibProdSiPixel),
+        content = OutALCARECOPromptCalibProdSiPixel.outputCommands,
+        selectEvents = OutALCARECOPromptCalibProdSiPixel.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
 
 ALCARECOStreamSiStripPCLHistos = cms.FilteredStream(
 	responsible = 'Gianluca Cerminara',
