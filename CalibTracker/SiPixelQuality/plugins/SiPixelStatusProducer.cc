@@ -120,7 +120,7 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
      for (TrackerGeometry::DetContainer::const_iterator it = fTG->dets().begin(); it != fTG->dets().end(); it++){
 
           const PixelGeomDetUnit *pgdu = dynamic_cast<const PixelGeomDetUnit*>((*it));
-          if (0 == pgdu) continue;
+          if (nullptr == pgdu) continue;
           DetId detId = (*it)->geographicalId();
           int detid = detId.rawId();
 
