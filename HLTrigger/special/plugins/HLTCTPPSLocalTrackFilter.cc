@@ -105,7 +105,7 @@ HLTCTPPSLocalTrackFilter::HLTCTPPSLocalTrackFilter(const edm::ParameterSet& iCon
 //
 // member functions
 //
-bool HLTCTPPSLocalTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool HLTCTPPSLocalTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   int arm45Tracks = 0;
   int arm56Tracks = 0;
