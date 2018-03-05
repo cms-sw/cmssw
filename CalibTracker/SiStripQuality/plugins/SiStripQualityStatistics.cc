@@ -42,7 +42,12 @@ SiStripQualityStatistics::SiStripQualityStatistics( const edm::ParameterSet& iCo
   tkhisto=nullptr;
 }
 
-void SiStripQualityStatistics::endJob(){
+SiStripQualityStatistics::~SiStripQualityStatistics()
+{
+  this->EndJob();
+}
+
+void SiStripQualityStatistics::EndJob(){
 
   std::string filename=TkMapFileName_;
   if (filename!=""){
@@ -55,6 +60,10 @@ void SiStripQualityStatistics::endJob(){
       tkhisto->saveAsCanvas(filename+"_Canvas.root","E");
     }
   }
+}
+
+void SiStripQualityStatistics::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & es)
+{
 }
 
 void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSetup& iSetup){

@@ -1,10 +1,12 @@
 #ifndef DQMSERVICES_CORE_STANDALONE_H
 # define DQMSERVICES_CORE_STANDALONE_H
 # if !WITHOUT_CMS_FRAMEWORK
+#  include "DataFormats/Provenance/interface/ModuleDescription.h"
 #  include "FWCore/MessageLogger/interface/JobReport.h"
 #  include "FWCore/ParameterSet/interface/ParameterSet.h"
 #  include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #  include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#  include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #  include "FWCore/ServiceRegistry/interface/Service.h"
 #  include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #  include "FWCore/ServiceRegistry/interface/SystemBounds.h"
@@ -98,6 +100,18 @@ namespace edm
     template <typename T>
     void watchPostGlobalEndLumi(void*, T) {}
 
+    template <typename T>
+    void watchPostModuleGlobalEndLumi(void*, T) {}
+
+    template <typename F>
+    void watchPostModuleGlobalEndLumi(F) {}
+
+    template <typename T>
+    void watchPostModuleGlobalEndRun(void*, T) {}
+
+    template <typename F>
+    void watchPostModuleGlobalEndRun(F) {}
+
     PreallocationSignal preallocateSignal_;
   };
 
@@ -112,6 +126,22 @@ namespace edm
   {
   public:
     LuminosityBlockID luminosityBlockID() const { return LuminosityBlockID(); }
+  };
+
+  class ModuleDescription
+  {
+  public:
+    unsigned int id() const {return 0;}
+  };
+
+  class ModuleCallingContext
+  {
+  public:
+    ModuleDescription const* moduleDescription() const
+    {
+      static ModuleDescription md;
+      return &md;
+    }
   };
 
   class JobReport

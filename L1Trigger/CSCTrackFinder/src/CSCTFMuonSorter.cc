@@ -1,5 +1,5 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFMuonSorter.h>
-
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
 CSCTFMuonSorter::CSCTFMuonSorter(const edm::ParameterSet& pset)
@@ -13,7 +13,8 @@ std::vector<L1MuRegionalCand> CSCTFMuonSorter::run(const CSCTriggerContainer<csc
   std::vector<L1MuRegionalCand> result;
 
   // First we sort and crop the incoming tracks based on their rank.
-  for(int bx = m_minBX - 6; bx <= m_maxBX - 6; ++bx) // switch back into signed BX
+  for(int bx = m_minBX - CSCConstants::LCT_CENTRAL_BX;
+      bx <= m_maxBX - CSCConstants::LCT_CENTRAL_BX; ++bx) // switch back into signed BX
     {
       std::vector<csc::L1Track> tks = tracks.get(bx);
       std::sort(tks.begin(),tks.end(),std::greater<csc::L1Track>());

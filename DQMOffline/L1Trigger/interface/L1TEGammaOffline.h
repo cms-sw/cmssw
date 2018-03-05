@@ -44,7 +44,9 @@ public:
   ~L1TEGammaOffline() override;
 
   enum PlotConfig {
-    nVertex
+    nVertex,
+    ETvsET,
+    PHIvsPHI
   };
 
   static const std::map<std::string, unsigned int> PlotConfigNames;

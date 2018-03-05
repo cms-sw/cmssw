@@ -8,24 +8,29 @@
 
 DQMEDHarvester::DQMEDHarvester() {
   usesResource("DQMStore");
-  produces<DQMToken,edm::Transition::EndLuminosityBlock>();
+  lumiToken_ = produces<DQMToken,edm::Transition::EndLuminosityBlock>("endLumi");
+  runToken_ = produces<DQMToken,edm::Transition::EndRun>("endRun");
 }
 
 void DQMEDHarvester::endJob() {
   DQMStore * store = edm::Service<DQMStore>().operator->();
-  store->meBookerGetter([this](DQMStore::IBooker &b, DQMStore::IGetter &g){
-      this->dqmEndJob(b, g);
-    });
+  store->meBookerGetter([this](DQMStore::IBooker &b, DQMStore::IGetter &g) {
+    this->dqmEndJob(b, g);
+  });
 }
 
 void DQMEDHarvester::endLuminosityBlock(edm::LuminosityBlock const& iLumi,
 					edm::EventSetup const& iSetup) {
   DQMStore * store = edm::Service<DQMStore>().operator->();
   store->meBookerGetter([this, &iLumi, &iSetup](DQMStore::IBooker &b, DQMStore::IGetter &g){
-      this->dqmEndLuminosityBlock(b, g, iLumi, iSetup);
-    });
+    this->dqmEndLuminosityBlock(b, g, iLumi, iSetup);
+  });
 }
 
 void DQMEDHarvester::endLuminosityBlockProduce(edm::LuminosityBlock& iLumi, edm::EventSetup const&) {
-  iLumi.put(std::make_unique<DQMToken>());
+  iLumi.put(lumiToken_, std::make_unique<DQMToken>());
+}
+
+void DQMEDHarvester::endRunProduce(edm::Run& run, edm::EventSetup const& setup) {
+  run.put(runToken_, std::make_unique<DQMToken>());
 }

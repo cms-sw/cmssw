@@ -45,7 +45,7 @@ dqmEnvL1TEMU.subSystemFolder = 'L1TEMU'
 from DQMOffline.L1Trigger.L1TRate_Offline_cfi import *
 from DQMOffline.L1Trigger.L1TSync_Offline_cfi import *
 from DQMOffline.L1Trigger.L1TEmulatorMonitorOffline_cff import *
-from DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi import *
+from DQMOffline.L1Trigger.L1TEtSumJetOffline_cfi import *
 from DQMOffline.L1Trigger.L1TEGammaOffline_cfi import *
 from DQMOffline.L1Trigger.L1TTauOffline_cfi import *
 l1TdeRCT.rctSourceData = 'gctDigis'
@@ -280,9 +280,9 @@ from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 #from L1Trigger.L1TCalorimeter.hackConditions_cff import *
 from L1Trigger.L1TGlobal.GlobalParameters_cff import *
 
-from DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi import *
-l1tStage2CaloLayer2OfflineDQMEmu.stage2CaloLayer2JetSource=cms.InputTag("valCaloStage2Layer2Digis")
-l1tStage2CaloLayer2OfflineDQMEmu.stage2CaloLayer2EtSumSource=cms.InputTag("valCaloStage2Layer2Digis")
+from DQMOffline.L1Trigger.L1TEtSumJetOffline_cfi import *
+l1tEtSumJetOfflineDQMEmu.stage2CaloLayer2JetSource=cms.InputTag("valCaloStage2Layer2Digis")
+l1tEtSumJetOfflineDQMEmu.stage2CaloLayer2EtSumSource=cms.InputTag("valCaloStage2Layer2Digis")
 
 from DQMOffline.L1Trigger.L1TEGammaOffline_cfi import *
 l1tEGammaOfflineDQMEmu.stage2CaloLayer2EGammaSource=cms.InputTag("valCaloStage2Layer2Digis")
@@ -327,8 +327,8 @@ l1tStage2OnlineDQM.remove(l1tStage2uGT)
 
 # sequence to run for all datasets
 Stage2l1TriggerOffline = cms.Sequence(
-                                Stage2l1TriggerOnline *
-                                dqmEnvL1TriggerReco
+                                Stage2l1TriggerOnline #*
+                                #dqmEnvL1TriggerReco
                                 )
 
 # sequence to run only for modules requiring an electron dataset
@@ -338,7 +338,7 @@ Stage2l1tEgOffline = cms.Sequence(
 
 # sequence to run only for modules requiring a muon dataset
 Stage2l1tMuonOffline = cms.Sequence(
-                                l1tStage2CaloLayer2OfflineDQM *
+                                l1tEtSumJetOfflineDQM *
                                 l1tTauOfflineDQM *
                                 l1tMuonDQMOffline
                                 )
@@ -367,7 +367,7 @@ Stage2l1tEgEmulatorOffline = cms.Sequence(
 
 # sequence to run only for modules requiring a muon dataset
 Stage2l1tMuonEmulatorOffline = cms.Sequence(
-                                #l1tStage2CaloLayer2OfflineDQMEmu +
+                                #l1tEtSumJetOfflineDQMEmu +
                                 #l1tTauOfflineDQMEmu
                                 )
 

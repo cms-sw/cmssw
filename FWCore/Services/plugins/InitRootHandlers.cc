@@ -831,7 +831,7 @@ namespace edm {
       //G__SetCatchException(0);
 
       // Set custom streamers
-      setRefCoreStreamer();
+      setRefCoreStreamerInTClass();
 
       // Load the library containing dictionaries for std:: classes, if not already loaded.
       if (!hasDictionary(typeid(std::vector<std::vector<unsigned int> >))) {

@@ -56,8 +56,8 @@ std::string LMFTrigType::setByIDSql(Statement *stmt, int id)
 }   
 
 void LMFTrigType::getParameters(ResultSet *rset) {
-  setString("short_name", rset->getString(1));
-  setString("long_name", rset->getString(2));
+  setString("short_name", getOraString(rset,1));
+  setString("long_name", getOraString(rset,2));
 }
 
 LMFTrigType * LMFTrigType::createObject() const {

@@ -41,7 +41,7 @@ void DQMSourceExample::initialize() {
   ////---- define base folder for the contents of this job 
   monitorName_ = parameters_.getUntrackedParameter<string>("monitorName","YourSubsystemName");
   cout << "DQMSourceExample: Monitor name = " << monitorName_ << endl;
-  if (monitorName_ != "" ) monitorName_ = monitorName_+"/" ;
+  if (!monitorName_.empty() ) monitorName_ = monitorName_+"/" ;
   
   ////--- get steerable parameters
   prescaleLS_  = parameters_.getUntrackedParameter<int>("prescaleLS",  -1);
@@ -131,7 +131,6 @@ void DQMSourceExample::beginJob() {
   h6->setResetMe(true);
   dbe_->showDirStructure();
   std::vector<std::string> tags;
-  dbe_->getAllTags(tags);
   for (size_t i = 0, e = tags.size(); i < e; ++i)
     std::cout << "TAGS [" << i << "] = " << tags[i] << std::endl;
   */

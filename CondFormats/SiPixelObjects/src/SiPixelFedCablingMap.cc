@@ -160,3 +160,15 @@ std::vector<sipixelobjects::CablingPathToDetUnit> SiPixelFedCablingMap::pathToDe
   return result;
 }
 
+bool SiPixelFedCablingMap::pathToDetUnitHasDetUnit(uint32_t rawDetId, unsigned int fedId) const {
+
+  auto end = theMap.end();
+  for (auto im = theMap.lower_bound( {fedId, 0, 0} ); 
+       im != end and im->first.fed == fedId; ++im) {
+    if(im->second.rawId()==rawDetId ) {
+      return true;
+    }
+  }
+  return false;
+}
+

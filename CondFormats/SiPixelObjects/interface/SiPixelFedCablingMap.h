@@ -38,12 +38,14 @@ public:
   std::string version() const override { return theVersion; }
 
   const sipixelobjects::PixelROC* findItem(
-      const sipixelobjects::CablingPathToDetUnit & path) const override;
+      const sipixelobjects::CablingPathToDetUnit & path) const final;
 
-  std::vector<sipixelobjects::CablingPathToDetUnit> pathToDetUnit(uint32_t rawDetId) const override;
+  std::vector<sipixelobjects::CablingPathToDetUnit> pathToDetUnit(uint32_t rawDetId) const final;
 
-  std::unordered_map<uint32_t, unsigned int> det2fedMap() const override;
-  std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > det2PathMap() const override;
+  bool pathToDetUnitHasDetUnit(uint32_t rawDetId, unsigned int fedId) const final;
+
+  std::unordered_map<uint32_t, unsigned int> det2fedMap() const final;
+  std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > det2PathMap() const final;
 
 
   std::vector<unsigned int> fedIds() const;

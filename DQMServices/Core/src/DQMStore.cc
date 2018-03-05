@@ -299,9 +299,9 @@ void DQMStore::IBooker::tagContents(const std::string &path, unsigned int myTag)
 //IGetter methods
 std::vector<MonitorElement*>
 DQMStore::IGetter::getAllContents(const std::string &path,
-				  uint32_t runNumber /* = 0 */,
-				  uint32_t lumi      /* = 0 */) {
-  return owner_->getAllContents(path, runNumber, lumi);
+				  uint32_t run  /* = 0 */,
+				  uint32_t lumi /* = 0 */) {
+  return owner_->getAllContents(path, run, lumi);
 }
 
 MonitorElement * DQMStore::IGetter::get(const std::string &path) {
@@ -350,163 +350,6 @@ void DQMStore::IGetter::setCurrentFolder(const std::string &fullpath) {
   owner_->setCurrentFolder(fullpath);
 }
 
-/** Function to transfer the local copies of histograms from each
-    stream into the global ROOT Object. Since this involves de-facto a
-    booking action in the case in which the global object is not yet
-    there, the function requires the acquisition of the central lock
-    into the DQMStore.
-    In case we book the global object for the first time, no Add action is
-    needed since the ROOT histograms is cloned starting from the local
-    one. */
-
-void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
-                                               uint32_t streamId,
-                                               uint32_t moduleId) {
-  if (verbose_ > 1)
-    std::cout << "DQMStore::mergeAndResetMEsRunSummaryCache - Merging objects from run: "
-              << run
-              << ", stream: " << streamId
-              << " module: " << moduleId << std::endl;
-
-  if (LSbasedMode_) {
-    return;
-  }
-
-  std::string null_str("");
-  MonitorElement proto(&null_str, null_str, run, streamId, moduleId);
-  // Since this accesses the data, the operation must be
-  // be locked.
-  std::lock_guard<std::mutex> guard(book_mutex_);
-
-  auto e = data_.end();
-  auto i = data_.lower_bound(proto);
-  while (i != e) {
-    if (i->data_.run != run
-        || i->data_.streamId != streamId
-        || i->data_.moduleId != moduleId)
-      break;
-
-    // Handle Run-based histograms only.
-    if (i->getLumiFlag() || LSbasedMode_) {
-      ++i;
-      continue;
-    }
-
-    // don't call the copy constructor
-    // we are just searching for a global histogram - a copy is not necessary
-    MonitorElement global_me(*i, MonitorElementNoCloneTag());
-    global_me.globalize();
-
-    auto me = data_.find(global_me);
-    if (me != data_.end()) {
-      if (verbose_ > 1)
-	      std::cout << "Found global Object, using it --> " << me->getFullname() << std::endl;
-
-      //don't take any action if the ME is an INT || FLOAT || STRING
-      if(me->kind() >= MonitorElement::DQM_KIND_TH1F)
-	{
-	  if(me->getTH1()->CanExtendAllAxes() && i->getTH1()->CanExtendAllAxes()) {
-	    TList list;
-	    list.Add(i->getTH1());
-	    if( -1 == me->getTH1()->Merge(&list)) {
-	      std::cout << "mergeAndResetMEsRunSummaryCache: Failed to merge DQM element "<<me->getFullname();
-	    }
-	  }
-	  else {
-            if (i->getTH1()->GetEntries())
-	      me->getTH1()->Add(i->getTH1());
-          }
-	}
-    } else {
-      if (verbose_ > 1)
-        std::cout << "No global Object found. " << std::endl;
-      std::pair<std::set<MonitorElement>::const_iterator, bool> gme;
-
-      // this makes an actual and a single copy with Clone()'ed th1
-      MonitorElement actual_global_me(*i);
-      actual_global_me.globalize();
-      actual_global_me.markToDelete();
-      gme = data_.insert(std::move(actual_global_me));
-      assert(gme.second);
-    }
-    // TODO(rovere): eventually reset the local object and mark it as reusable??
-    ++i;
-  }
-}
-
-void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
-						      uint32_t lumi,
-						      uint32_t streamId,
-						      uint32_t moduleId) {
-  if (verbose_ > 1)
-    std::cout << "DQMStore::mergeAndResetMEsLuminositySummaryCache - Merging objects from run: "
-              << run << 	" lumi: " << lumi
-              << ", stream: " << streamId
-              << " module: " << moduleId << std::endl;
-  std::string null_str("");
-  MonitorElement proto(&null_str, null_str, run, streamId, moduleId);
-
-  // Since this accesses the data, the operation must be
-  // be locked.
-  std::lock_guard<std::mutex> guard(book_mutex_);
-
-  auto e = data_.end();
-  auto i = data_.lower_bound(proto);
-
-  while (i != e) {
-    if (i->data_.run != run
-        || i->data_.streamId != streamId
-        || i->data_.moduleId != moduleId)
-      break;
-
-    // Handle LS-based histograms only.
-    if (not (i->getLumiFlag() || LSbasedMode_)) {
-      ++i;
-      continue;
-    }
-
-    MonitorElement global_me(*i, MonitorElementNoCloneTag());
-    global_me.globalize();
-    global_me.setLumi(lumi);
-    auto me = data_.find(global_me);
-    if (me != data_.end()) {
-      if (verbose_ > 1)
-	      std::cout << "Found global Object, using it --> " << me->getFullname() << std::endl;
-
-      //don't take any action if the ME is an INT || FLOAT || STRING
-      if(me->kind() >= MonitorElement::DQM_KIND_TH1F)
-	{
-	  if(me->getTH1()->CanExtendAllAxes() && i->getTH1()->CanExtendAllAxes()) {
-	    TList list;
-	    list.Add(i->getTH1());
-	    if( -1 == me->getTH1()->Merge(&list)) {
-	      std::cout << "mergeAndResetMEsLuminositySummaryCache: Failed to merge DQM element "<<me->getFullname();
-	    }
-	  }
-	  else {
-            if (i->getTH1()->GetEntries())
-	      me->getTH1()->Add(i->getTH1());
-          }
-	}
-    } else {
-      if (verbose_ > 1)
-        std::cout << "No global Object found. " << std::endl;
-      std::pair<std::set<MonitorElement>::const_iterator, bool> gme;
-
-      // this makes an actual and a single copy with Clone()'ed th1
-      MonitorElement actual_global_me(*i);
-      actual_global_me.globalize();
-      actual_global_me.setLumi(lumi);
-      actual_global_me.markToDelete();
-      gme = data_.insert(std::move(actual_global_me));
-      assert(gme.second);
-    }
-    // make the ME reusable for the next LS
-    const_cast<MonitorElement*>(&*i)->Reset();
-    ++i;
-  }
-}
-
 //////////////////////////////////////////////////////////////////////
 DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
   : verbose_ (1),
@@ -517,7 +360,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     forceResetOnBeginLumi_(false),
     readSelectedDirectory_ (""),
     run_(0),
-    streamId_(0),
     moduleId_(0),
     stream_(nullptr),
     pwd_ (""),
@@ -553,7 +395,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     enableMultiThread_(false),
     readSelectedDirectory_ (""),
     run_(0),
-    streamId_(0),
     moduleId_(0),
     stream_(nullptr),
     pwd_ (""),
@@ -831,7 +672,7 @@ DQMStore::book_(const std::string &dir, const std::string &name,
   h->SetDirectory(nullptr);
 
   // Check if the request monitor element already exists.
-  MonitorElement *me = findObject(dir, name, run_, 0, streamId_, moduleId_);
+  MonitorElement *me = findObject(dir, name, run_, 0, moduleId_);
   if (me)
   {
     if (collateHistograms_)
@@ -856,7 +697,7 @@ DQMStore::book_(const std::string &dir, const std::string &name,
   {
     // Create and initialise core object.
     assert(dirs_.count(dir));
-    MonitorElement proto(&*dirs_.find(dir), name, run_, streamId_, moduleId_);
+    MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
     me = const_cast<MonitorElement &>(*data_.insert(std::move(proto)).first)
       .initialise((MonitorElement::Kind)kind, h);
 
@@ -902,7 +743,7 @@ DQMStore::book_(const std::string &dir,
     print_trace(dir, name);
 
   // Check if the request monitor element already exists.
-  if (MonitorElement *me = findObject(dir, name, run_, 0, streamId_, moduleId_))
+  if (MonitorElement *me = findObject(dir, name, run_, 0, moduleId_))
   {
     if (verbose_ > 1)
     {
@@ -920,7 +761,7 @@ DQMStore::book_(const std::string &dir,
   {
     // Create it and return for initialisation.
     assert(dirs_.count(dir));
-    MonitorElement proto(&*dirs_.find(dir), name, run_, streamId_, moduleId_);
+    MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
     return &const_cast<MonitorElement &>(*data_.insert(std::move(proto)).first);
   }
 }
@@ -932,7 +773,7 @@ DQMStore::bookInt_(const std::string &dir, const std::string &name)
 {
   if (collateHistograms_)
   {
-    if (MonitorElement *me = findObject(dir, name, run_, 0, streamId_, moduleId_))
+    if (MonitorElement *me = findObject(dir, name, run_, 0, moduleId_))
     {
       me->Fill(0);
       return me;
@@ -962,7 +803,7 @@ DQMStore::bookFloat_(const std::string &dir, const std::string &name)
 {
   if (collateHistograms_)
   {
-    if (MonitorElement *me = findObject(dir, name, run_, 0, streamId_, moduleId_))
+    if (MonitorElement *me = findObject(dir, name, run_, 0, moduleId_))
     {
       me->Fill(0.);
       return me;
@@ -994,7 +835,7 @@ DQMStore::bookString_(const std::string &dir,
 {
   if (collateHistograms_)
   {
-    if (MonitorElement *me = findObject(dir, name, run_, 0, streamId_, moduleId_))
+    if (MonitorElement *me = findObject(dir, name, run_, 0, moduleId_))
       return me;
   }
 
@@ -1253,6 +1094,7 @@ MonitorElement *
 DQMStore::book2S(const char *name, const char *title,
                  int nchX, const float *xbinsize, int nchY, const float *ybinsize)
 {
+
   return book2S_(pwd_, name, new TH2S(name, title,
                                      nchX, xbinsize, nchY, ybinsize));
 }
@@ -1943,7 +1785,6 @@ DQMStore::findObject(const std::string &dir,
                      const std::string &name,
                      const uint32_t run /* = 0 */,
                      const uint32_t lumi /* = 0 */,
-                     const uint32_t streamId /* = 0 */,
                      const uint32_t moduleId /* = 0 */) const
 {
   if (dir.find_first_not_of(s_safe) != std::string::npos)
@@ -1958,7 +1799,6 @@ DQMStore::findObject(const std::string &dir,
   proto.data_.objname  = name;
   proto.data_.run      = run;
   proto.data_.lumi     = lumi;
-  proto.data_.streamId = streamId;
   proto.data_.moduleId = moduleId;
 
   auto mepos = data_.find(proto);
@@ -1966,90 +1806,34 @@ DQMStore::findObject(const std::string &dir,
           : const_cast<MonitorElement *>(&*mepos));
 }
 
-/** get tags for various maps, return vector with strings of the form
-    <dir pathname>:<obj1>/<tag1>/<tag2>,<obj2>/<tag1>/<tag3>, etc. */
-void
-DQMStore::getAllTags(std::vector<std::string> &into) const
-{
-  into.clear();
-  into.reserve(dirs_.size());
-
-  auto me = data_.end();
-  auto di = dirs_.begin();
-  auto de = dirs_.end();
-  char tagbuf[32]; // more than enough for '/' and up to 10 digits
-
-  for ( ; di != de; ++di)
-  {
-    MonitorElement proto(&*di, std::string());
-    auto mi = data_.lower_bound(proto);
-    auto m = mi;
-    size_t sz = di->size() + 2;
-    size_t nfound = 0;
-    for ( ; m != me && isSubdirectory(*di, *m->data_.dirname); ++m)
-      if (*di == *m->data_.dirname && (m->data_.flags & DQMNet::DQM_PROP_TAGGED))
-      {
-        // the tags count for '/' + up to 10 digits, otherwise ',' + ME name
-        sz += 1 + m->data_.objname.size() + 11;
-        ++nfound;
-      }
-
-    if (! nfound)
-      continue;
-
-    auto istr
-      = into.insert(into.end(), std::string());
-
-    istr->reserve(sz);
-
-    *istr += *di;
-    *istr += ':';
-    for (sz = 0; mi != m; ++mi)
-    {
-      if (*di == *m->data_.dirname && (m->data_.flags & DQMNet::DQM_PROP_TAGGED))
-      {
-        sprintf(tagbuf, "/%u", mi->data_.tag);
-        if (sz > 0)
-          *istr += ',';
-        *istr += m->data_.objname;
-        *istr += tagbuf;
-        ++sz;
-      }
-    }
-  }
-}
-
 /// get vector with children of folder, including all subfolders + their children;
 /// must use an exact pathname
 std::vector<MonitorElement*>
 DQMStore::getAllContents(const std::string &path,
-                         uint32_t runNumber /* = 0 */,
+                         uint32_t run  /* = 0 */,
                          uint32_t lumi /* = 0 */) const
 {
   std::string clean;
   const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
-  MonitorElement proto(cleaned, std::string(), runNumber);
+  MonitorElement proto(cleaned, std::string(), run, 0);
   proto.setLumi(lumi);
 
   std::vector<MonitorElement *> result;
   auto e = data_.end();
   auto i = data_.lower_bound(proto);
   for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i) {
-    if (runNumber != 0) {
-      if (i->data_.run > runNumber // TODO[rovere]: pleonastic? first we encounter local ME of the same run ...
-          || i->data_.streamId != 0
+    if (run != 0) {
+      if (i->data_.run > run // TODO[rovere]: pleonastic? first we encounter local ME of the same run ...
           || i->data_.moduleId != 0)
         break;
     }
     if (lumi != 0) {
       if (i->data_.lumi > lumi
-          || i->data_.streamId != 0
           || i->data_.moduleId != 0)
         break;
     }
-    if (runNumber != 0 or lumi !=0) {
-      assert(i->data_.streamId == 0);
+    if (run != 0 or lumi !=0) {
       assert(i->data_.moduleId == 0);
     }
     result.push_back(const_cast<MonitorElement *>(&*i));
@@ -2060,7 +1844,8 @@ DQMStore::getAllContents(const std::string &path,
       //save legacy modules when running MT
       i = data_.begin();
       for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i) {
-        if (i->data_.run != 0 || i->data_.streamId != 0 || i->data_.moduleId != 0) break;
+        if (i->data_.run != 0 or i->data_.moduleId != 0)
+          break;
         result.push_back(const_cast<MonitorElement *>(&*i));
       }
     }
@@ -2165,8 +1950,8 @@ DQMStore::postGlobalBeginLumi(const edm::GlobalContext &gc)
 
   // find the range of non-legacy global MEs for the current run:
   // run != 0, lumi == 0 (implicit), stream id == 0, module id == 0
-  const MonitorElement begin(&null_str, null_str, run, 0, 0);
-  const MonitorElement end(&null_str, null_str, run, 0, 1);
+  const MonitorElement begin(&null_str, null_str, run, 0);
+  const MonitorElement end(&null_str, null_str, run, 1);
   auto i = data_.lower_bound(begin);
   const auto e = data_.lower_bound(end);
   while (i != e) {
@@ -2182,6 +1967,84 @@ DQMStore::postGlobalBeginLumi(const edm::GlobalContext &gc)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
+/** Clone the lumisection-based histograms from the 'global' ones
+ * (which have lumi = 0) into per-lumi ones (with the lumi number)
+ * and reset the global ones.
+ * The per-lumi histograms can be saved by the output modules, and
+ * will be deleted at the beginninng of the next lumisection.
+ */
+
+void
+DQMStore::cloneLumiHistograms(uint32_t run, uint32_t lumi, uint32_t moduleId)
+{
+  if (verbose_ > 1) {
+    std::cout << "DQMStore::cloneLumiHistograms - Preparing lumi histograms for run: "
+              << run << ", lumi: " << lumi << ", module: " << moduleId << std::endl;
+  }
+
+  // acquire the global lock since this accesses the undelying data structure
+  std::lock_guard<std::mutex> guard(book_mutex_);
+
+  // MEs are sorted by (run, lumi, stream id, module id, directory, name)
+  // lumi deafults to 0
+  // stream id is always 0
+  std::string null_str("");
+  auto i = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId));
+  auto e = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId + 1));
+  for (; i != e; ++i) {
+    // handle only lumisection-based histograms
+    if (not LSbasedMode_ and not i->getLumiFlag())
+      continue;
+
+    // clone the lumisection-based histograms
+    MonitorElement clone{*i};
+    clone.globalize();
+    clone.setLumi(lumi);
+    clone.markToDelete();
+    data_.insert(std::move(clone));
+
+    // reset the ME for the next lumisection
+    const_cast<MonitorElement*>(&*i)->Reset();
+  }
+}
+
+/** Same as above, but for run histograms.
+ */
+
+void
+DQMStore::cloneRunHistograms(uint32_t run, uint32_t moduleId)
+{
+  if (verbose_ > 1) {
+    std::cout << "DQMStore::cloneRunHistograms - Preparing run histograms for run: "
+              << run << ", module: " << moduleId << std::endl;
+  }
+
+  // acquire the global lock since this accesses the undelying data structure
+  std::lock_guard<std::mutex> guard(book_mutex_);
+
+  // MEs are sorted by (run, lumi, stream id, module id, directory, name)
+  // lumi deafults to 0
+  // stream id is always 0
+  std::string null_str("");
+  auto i = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId));
+  auto e = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId + 1));
+  for (; i != e; ++i) {
+    // handle only non lumisection-based histograms
+    if (LSbasedMode_ or i->getLumiFlag())
+      continue;
+
+    // clone the lumisection-based histograms
+    MonitorElement clone{*i};
+    clone.globalize();
+    clone.markToDelete();
+    data_.insert(std::move(clone));
+
+    // reset the ME for the next lumisection
+    const_cast<MonitorElement*>(&*i)->Reset();
+  }
+}
+
+
 /** Delete *global* histograms which are no longer in use.
  * Such histograms are created at the end of each lumi and should be
  * deleted after the last globalEndLuminosityBlock.
@@ -2195,15 +2058,14 @@ DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
   std::lock_guard<std::mutex> guard(book_mutex_);
 
   std::string null_str("");
-  MonitorElement proto(&null_str, null_str, run, 0, 0);
+  MonitorElement proto(&null_str, null_str, run, 0);
   proto.setLumi(lumi);
 
   auto e = data_.end();
   auto i = data_.lower_bound(proto);
 
   while (i != e) {
-    if (i->data_.streamId != 0 ||
-        i->data_.moduleId != 0)
+    if (i->data_.moduleId != 0)
       break;
     if (i->data_.lumi != lumi)
       break;
@@ -2626,7 +2488,6 @@ DQMStore::saveMonitorElementRangeToROOT(
                 << " run: " << me.run()
                 << " lumi: " << me.lumi()
                 << " lumiFlag: " << me.getLumiFlag()
-                << " streamId: " << me.streamId()
                 << " moduleId: " << me.moduleId()
                 << " fullpathname: " << me.getFullname()
                 << " flags: " << std::hex << me.data_.flags
@@ -2636,15 +2497,6 @@ DQMStore::saveMonitorElementRangeToROOT(
     if (dir != *me.data_.dirname) {
       if (verbose_ > 1) {
         std::cout << "DQMStore::save: skipping monitor element in a subfolder of " << dir << "/" << std::endl;
-      }
-      continue;
-    }
-
-    // For MonitorElements booked with the thread-safe approach, identified
-    // by having run != 0, ignore the per-stream ones.
-    if (run != 0 and (me.data_.streamId != 0 or me.data_.moduleId != 0)) {
-      if (verbose_ > 1) {
-        std::cout << "DQMStore::save: skipping per-stream monitor element" << std::endl;
       }
       continue;
     }
@@ -2778,13 +2630,13 @@ DQMStore::save(const std::string &filename,
 
     // Loop over monitor elements in this directory.
     if (not enableMultiThread_) {
-      MonitorElement proto(&dir, std::string(), run, 0, 0);
+      MonitorElement proto(&dir, std::string(), run, 0);
       auto begin = data_.lower_bound(proto);
       auto end   = data_.end();
       saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
     } else {
       // Restrict the loop to the monitor elements for the current lumisection
-      MonitorElement proto(&dir, std::string(), run, 0, 0);
+      MonitorElement proto(&dir, std::string(), run, 0);
       proto.setLumi(lumi);
       auto begin = data_.lower_bound(proto);
       proto.setLumi(lumi+1);
@@ -2792,13 +2644,13 @@ DQMStore::save(const std::string &filename,
       saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
     }
 
-    // In LSbasedMode, loop also over the (run, 0, 0, 0) global histograms;
+    // In LSbasedMode, loop also over the (run, 0) global histograms;
     // these could be the merged global histrograms of their per-stream
     // counterparts after the streamEndRun transition - but they are not
     // produced in LSbasedMode.
     if (enableMultiThread_ and LSbasedMode_ and lumi != 0) {
-      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 0));
-      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 1));
+      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0));
+      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 1));
       saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
     }
   }
@@ -2861,7 +2713,6 @@ DQMStore::saveMonitorElementRangeToPB(
                 << " run: " << me.run()
                 << " lumi: " << me.lumi()
                 << " lumiFlag: " << me.getLumiFlag()
-                << " streamId: " << me.streamId()
                 << " moduleId: " << me.moduleId()
                 << " fullpathname: " << me.getFullname()
                 << " flags: " << std::hex << me.data_.flags
@@ -2871,15 +2722,6 @@ DQMStore::saveMonitorElementRangeToPB(
     if (dir != *me.data_.dirname) {
       if (verbose_ > 1) {
         std::cout << "DQMStore::savePB: skipping monitor element in a subfolder of " << dir << "/" << std::endl;
-      }
-      continue;
-    }
-
-    // For MonitorElements booked with the thread-safe approach, identified
-    // by having run != 0, ignore the per-stream ones.
-    if (run != 0 and (me.data_.streamId != 0 or me.data_.moduleId != 0)) {
-      if (verbose_ > 1) {
-        std::cout << "DQMStore::savePB: skipping per-stream monitor element" << std::endl;
       }
       continue;
     }
@@ -2935,13 +2777,13 @@ DQMStore::savePB(const std::string &filename,
 
     // Loop over monitor elements in this directory.
     if (not enableMultiThread_) {
-      MonitorElement proto(&dir, std::string(), run, 0, 0);
+      MonitorElement proto(&dir, std::string(), run, 0);
       auto begin = data_.lower_bound(proto);
       auto end   = data_.end();
       saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
     } else {
       // Restrict the loop to the monitor elements for the current lumisection
-      MonitorElement proto(&dir, std::string(), run, 0, 0);
+      MonitorElement proto(&dir, std::string(), run, 0);
       proto.setLumi(lumi);
       auto begin = data_.lower_bound(proto);
       proto.setLumi(lumi+1);
@@ -2949,13 +2791,13 @@ DQMStore::savePB(const std::string &filename,
       saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
     }
 
-    // In LSbasedMode, loop also over the (run, 0, 0, 0) global histograms;
+    // In LSbasedMode, loop also over the (run, 0) global histograms;
     // these could be the merged global histrograms of their per-stream
     // counterparts after the streamEndRun transition - but they are not
     // produced in LSbasedMode.
     if (enableMultiThread_ and LSbasedMode_ and lumi != 0) {
-      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 0));
-      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0, 1));
+      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0));
+      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 1));
       saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
     }
   }
@@ -3407,9 +3249,10 @@ DQMStore::removeElement(const std::string &dir, const std::string &name, bool wa
   auto pos = data_.find(proto);
   if (pos != data_.end())
     data_.erase(pos);
-  else if (warning)
+  else if (warning) {
     std::cout << "DQMStore: WARNING: attempt to remove non-existent"
               << " monitor element '" << name << "' in '" << dir << "'\n";
+  }
 }
 
 //////////////////////////////////////////////////////////////////////

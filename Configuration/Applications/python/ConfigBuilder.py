@@ -947,25 +947,15 @@ class ConfigBuilder(object):
 
         if "DATAMIX" in self.stepMap.keys():
             self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
-	    if self._options.datamix == 'PreMix':
-		    self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDMPreMix_cff"
-	    else:
-	            self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
+            self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
             self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawDM_cff"
             self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
-
-	if "DIGIPREMIX" in self.stepMap.keys():
-            self.DIGIDefaultCFF="Configuration/StandardSequences/Digi_PreMix_cff"
-            self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawPreMixing_cff"
-            self.L1EMDefaultCFF="Configuration/StandardSequences/SimL1EmulatorPreMix_cff"
 
         self.ALCADefaultSeq=None
 	self.LHEDefaultSeq='externalLHEProducer'
         self.GENDefaultSeq='pgen'
         self.SIMDefaultSeq='psim'
         self.DIGIDefaultSeq='pdigi'
-	self.DIGIPREMIXDefaultSeq='pdigi'
-	self.DIGIPREMIX_S2DefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
@@ -1434,35 +1424,6 @@ class ConfigBuilder(object):
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
 
-    def prepare_DIGIPREMIX(self, sequence = None):
-        """ Enrich the schedule with the digitisation step"""
-        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
-
-	self.loadAndRemember("SimGeneral/MixingModule/digi_noNoise_cfi")
-
-        if sequence == 'pdigi_valid':
-		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoiseValid)")
-	else:
-		self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
-
-	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
-        return
-
-    def prepare_DIGIPREMIX_S2(self, sequence = None):
-        """ Enrich the schedule with the digitisation step"""
-	self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
-
-	self.loadAndRemember("SimGeneral/MixingModule/digi_MixPreMix_cfi")
-
-
-        if sequence == 'pdigi_valid':
-            self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMixValid)")
-	else:
-	    self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMix)")
-
-	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
-        return
-
     def prepare_CFWRITER(self, sequence = None):
 	    """ Enrich the schedule with the crossing frame writer step"""
 	    self.loadAndRemember(self.CFWRITERDefaultCFF)
@@ -1490,10 +1451,6 @@ class ConfigBuilder(object):
     def prepare_DIGI2RAW(self, sequence = None):
             self.loadDefaultOrSpecifiedCFF(sequence,self.DIGI2RAWDefaultCFF)
 	    self.scheduleSequence(sequence.split('.')[-1],'digi2raw_step')
-	    if "DIGIPREMIX" in self.stepMap.keys():
-		    self.executeAndRemember("process.esDigiToRaw.Label = cms.string('mix')")  ##terrible hack - bypass zero suppression
-		    self.executeAndRemember("process.SiStripDigiToRaw.FedReadoutMode = cms.string('PREMIX_RAW')") ##special readout mode for StripTracker
-
             return
 
     def prepare_REPACK(self, sequence = None):
@@ -1510,7 +1467,7 @@ class ConfigBuilder(object):
 
     def prepare_L1REPACK(self, sequence = None):
             """ Enrich the schedule with the L1 simulation step, running the L1 emulator on data unpacked from the RAW collection, and repacking the result in a new RAW collection"""
-	    supported = ['GT','GT1','GT2','GCTGT','Full','FullSimTP','FullMC','Full2015Data','uGT']
+	    supported = ['GT','GT1','GT2','GCTGT','Full','FullSimTP','FullMC','Full2015Data','uGT','CalouGT']
             if sequence in supported:
                 self.loadAndRemember('Configuration/StandardSequences/SimL1EmulatorRepack_%s_cff'%sequence)
 		if self._options.scenario == 'HeavyIons':

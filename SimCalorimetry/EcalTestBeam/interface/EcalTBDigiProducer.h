@@ -9,9 +9,7 @@
 
 namespace edm {
   class ConsumesCollector;
-  namespace stream {
-    class EDProducerBase;
-  }
+  class ProducerBase;
   class Event;
   class EventSetup;
   class ParameterSet;
@@ -23,7 +21,7 @@ class EcalTBDigiProducer : public EcalDigiProducer
 {
    public:
 
-      EcalTBDigiProducer( const edm::ParameterSet& params, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) ;
+      EcalTBDigiProducer( const edm::ParameterSet& params, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) ;
       ~EcalTBDigiProducer() override ;
 
 

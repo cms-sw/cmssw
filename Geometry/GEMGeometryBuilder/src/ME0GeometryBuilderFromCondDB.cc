@@ -62,17 +62,15 @@ ME0Geometry* ME0GeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
     float te = *(shapeStart+1)/cm;
     float ap = *(shapeStart+2)/cm;
     float ti = *(shapeStart+3)/cm;
-    //    float nstrip = *(shapeStart+4);
-    //float npad = *(shapeStart+5);
-    //  TrapezoidalPlaneBounds* 
+    float nstrip = *(shapeStart+4);
+    float npad = *(shapeStart+5);
+    //  TrapezoidalPlaneBounds*
     bounds = new TrapezoidalPlaneBounds(be, te, ap, ti);
 
     std::vector<float> pars;
     pars.emplace_back(be); //b/2;
     pars.emplace_back(te); //B/2;
     pars.emplace_back(ap); //h/2;
-    float nstrip = -999.;
-    float npad = -999.;
     pars.emplace_back(nstrip);
     pars.emplace_back(npad);
     

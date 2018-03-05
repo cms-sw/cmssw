@@ -23,8 +23,7 @@ for testing purposes only.
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
-
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 
 namespace edmtest {
 namespace global {
@@ -59,7 +58,9 @@ struct Dummy {
     explicit StreamIntProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) 
     {
-    produces<unsigned int>();
+      callWhenNewProductsRegistered([](edm::BranchDescription const& desc)
+        { std::cout << "global::StreamIntProducer " << desc.moduleLabel() << std::endl; });
+      produces<unsigned int>();
     }
 
     const unsigned int trans_; 

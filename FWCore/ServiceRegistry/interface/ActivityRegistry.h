@@ -890,6 +890,34 @@ namespace edm {
       }
       AR_WATCH_USING_METHOD_2(watchPostModuleGlobalEndLumi)
 
+      typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleWriteRun;
+      PreModuleWriteRun preModuleWriteRunSignal_;
+      void watchPreModuleWriteRun(PreModuleWriteRun::slot_type const& iSlot) {
+         preModuleWriteRunSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPreModuleWriteRun)
+
+      typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PostModuleWriteRun;
+      PostModuleWriteRun postModuleWriteRunSignal_;
+      void watchPostModuleWriteRun(PostModuleWriteRun::slot_type const& iSlot) {
+         postModuleWriteRunSignal_.connect_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPostModuleWriteRun)
+
+      typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PreModuleWriteLumi;
+      PreModuleWriteLumi preModuleWriteLumiSignal_;
+      void watchPreModuleWriteLumi(PreModuleWriteLumi::slot_type const& iSlot) {
+         preModuleWriteLumiSignal_.connect(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPreModuleWriteLumi)
+
+      typedef signalslot::Signal<void(GlobalContext const&, ModuleCallingContext const&)> PostModuleWriteLumi;
+      PostModuleWriteLumi postModuleWriteLumiSignal_;
+      void watchPostModuleWriteLumi(PostModuleWriteLumi::slot_type const& iSlot) {
+         postModuleWriteLumiSignal_.connect_front(iSlot);
+      }
+      AR_WATCH_USING_METHOD_2(watchPostModuleWriteLumi)
+
       // OLD DELETE THIS
       /// signal is emitted before the module starts processing the Event
       typedef signalslot::ObsoleteSignal<void(ModuleDescription const&)> PreModule;

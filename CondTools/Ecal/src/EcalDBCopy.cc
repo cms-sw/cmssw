@@ -53,6 +53,10 @@
 
 #include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
@@ -166,6 +170,8 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalTimeCalibConstantsRcd>().cacheIdentifier();
   } else if (container == "EcalClusterCrackCorrParameters") {
     cacheID = evtSetup.get<EcalClusterCrackCorrParametersRcd>().cacheIdentifier();
+  } else if (container == "EcalPFRecHitThresholds") {
+    cacheID = evtSetup.get<EcalPFRecHitThresholdsRcd>().cacheIdentifier();
   } else if (container == "EcalClusterEnergyUncertaintyParameters") {
     cacheID = evtSetup.get<EcalClusterEnergyUncertaintyParametersRcd>().cacheIdentifier();
   } else if (container == "EcalClusterEnergyCorrectionParameters") {
@@ -374,8 +380,15 @@ else if (container == "EcalIntercalibConstantsMC") {
     edm::ESHandle<EcalClusterCrackCorrParameters> handle;
     evtSetup.get<EcalClusterCrackCorrParametersRcd>().get(handle);
     const EcalClusterCrackCorrParameters* obj = handle.product();
-    std::cout << "tbweight pointer is: "<< obj<< std::endl;
+    std::cout << "cluster crack pointer is: "<< obj<< std::endl;
    dbOutput->createNewIOV<const EcalClusterCrackCorrParameters>( new EcalClusterCrackCorrParameters(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+  } else if (container == "EcalPFRecHitThresholds") {
+    edm::ESHandle<EcalPFRecHitThresholds> handle;
+    evtSetup.get<EcalPFRecHitThresholdsRcd>().get(handle);
+    const EcalPFRecHitThresholds* obj = handle.product();
+    std::cout << "Ecal PF rec hit thresholds pointer is: "<< obj<< std::endl;
+   dbOutput->createNewIOV<const EcalPFRecHitThresholds>( new EcalPFRecHitThresholds(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
 
   } else if (container == "EcalClusterEnergyUncertaintyParameters") {

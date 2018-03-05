@@ -162,12 +162,24 @@ void L1TStage2ObjectComparison<T>::produce(edm::Event& e, const edm::EventSetup&
 
 //define plugins for different L1T objects
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 typedef L1TStage2ObjectComparison<GlobalAlgBlk> L1TStage2GlobalAlgBlkComparison;
+typedef L1TStage2ObjectComparison<l1t::EGamma> L1TStage2EGammaComparison;
+typedef L1TStage2ObjectComparison<l1t::Tau> L1TStage2TauComparison;
+typedef L1TStage2ObjectComparison<l1t::Jet> L1TStage2JetComparison;
+typedef L1TStage2ObjectComparison<l1t::EtSum> L1TStage2EtSumComparison;
 typedef L1TStage2ObjectComparison<l1t::Muon> L1TStage2MuonComparison;
 typedef L1TStage2ObjectComparison<l1t::RegionalMuonCand> L1TStage2RegionalMuonCandComparison;
 DEFINE_FWK_MODULE(L1TStage2GlobalAlgBlkComparison);
+DEFINE_FWK_MODULE(L1TStage2EGammaComparison);
+DEFINE_FWK_MODULE(L1TStage2TauComparison);
+DEFINE_FWK_MODULE(L1TStage2JetComparison);
+DEFINE_FWK_MODULE(L1TStage2EtSumComparison);
 DEFINE_FWK_MODULE(L1TStage2MuonComparison);
 DEFINE_FWK_MODULE(L1TStage2RegionalMuonCandComparison);

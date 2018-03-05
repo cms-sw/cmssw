@@ -99,29 +99,26 @@ private:
   double dR(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
   double deltaR(double eta1,double eta2,double phi1,double phi2);
  
-  edm::Service<TFileService>    fs_;
-  HLTConfigProvider             hltConfig_;
-  L1GtUtils                     m_l1GtUtils;
-  std::vector<std::string>      l1Names_;
-  int                           verbosity_;
-  spr::trackSelectionParameters selectionParameters_;
-  std::string                   theTrackQuality_;
-  double                        a_mipR_, a_coneR_, a_charIsoR_;
-  const L1GtTriggerMenu        *m_l1GtMenu;
-  std::vector<bool>            *t_l1bits;
-  edm::InputTag                 triggerEvent_, theTriggerResultsLabel_;
-  edm::EDGetTokenT<trigger::TriggerEvent>  tok_trigEvt;
-  edm::EDGetTokenT<edm::TriggerResults>    tok_trigRes;
+  edm::Service<TFileService>          fs_;
+  HLTConfigProvider                   hltConfig_;
+  L1GtUtils                           m_l1GtUtils;
+  const L1GtTriggerMenu              *m_l1GtMenu;
+  const int                           verbosity_;
+  const std::vector<std::string>      l1Names_;
+  spr::trackSelectionParameters       selectionParameters_;
+  const std::string                   theTrackQuality_;
+  const double                        a_coneR_, a_charIsoR_, a_mipR_;
+  std::vector<bool>                  *t_l1bits;
 
-  edm::EDGetTokenT<reco::TrackCollection>  tok_genTrack_;
-  edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
-  edm::EDGetTokenT<reco::BeamSpot>         tok_bs_;
-  edm::EDGetTokenT<EcalRecHitCollection>   tok_EB_;
-  edm::EDGetTokenT<EcalRecHitCollection>   tok_EE_;
-  edm::EDGetTokenT<HBHERecHitCollection>   tok_hbhe_;
-  edm::EDGetTokenT<GenEventInfoProduct>    tok_ew_; 
-  edm::EDGetTokenT<reco::GenJetCollection> tok_jets_;
-  edm::EDGetTokenT<reco::PFJetCollection>  tok_pfjets_;
+  const edm::EDGetTokenT<reco::TrackCollection>  tok_genTrack_;
+  const edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
+  const edm::EDGetTokenT<reco::BeamSpot>         tok_bs_;
+  edm::EDGetTokenT<EcalRecHitCollection>         tok_EB_;
+  edm::EDGetTokenT<EcalRecHitCollection>         tok_EE_;
+  edm::EDGetTokenT<HBHERecHitCollection>         tok_hbhe_;
+  const edm::EDGetTokenT<GenEventInfoProduct>    tok_ew_; 
+  const edm::EDGetTokenT<reco::GenJetCollection> tok_jets_;
+  const edm::EDGetTokenT<reco::PFJetCollection>  tok_pfjets_;
   edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extTauJet_;
   edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extCenJet_;
   edm::EDGetTokenT<l1extra::L1JetParticleCollection>  tok_L1extFwdJet_;
@@ -147,14 +144,23 @@ private:
 
 static const bool useL1GtTriggerMenuLite(true);
 IsoTrackCalib::IsoTrackCalib(const edm::ParameterSet& iConfig) :
-  m_l1GtUtils(iConfig, consumesCollector(), useL1GtTriggerMenuLite, *this){
+  m_l1GtUtils(iConfig, consumesCollector(), useL1GtTriggerMenuLite, *this),
+  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)),
+  l1Names_(iConfig.getUntrackedParameter<std::vector<std::string> >("L1Seed")),
+  theTrackQuality_(iConfig.getUntrackedParameter<std::string>("TrackQuality","highPurity")),
+  a_coneR_(iConfig.getUntrackedParameter<double>("ConeRadius",34.98)),
+  a_charIsoR_(a_coneR_+28.9),
+  a_mipR_(iConfig.getUntrackedParameter<double>("ConeRadiusMIP",14.0)),
+  tok_genTrack_(consumes<reco::TrackCollection>(edm::InputTag("generalTracks"))),
+  tok_recVtx_(consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"))),
+  tok_bs_(consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))),
+  tok_ew_(consumes<GenEventInfoProduct>(edm::InputTag("generatorSmeared"))),
+  tok_jets_(consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("JetSource"))),
+  tok_pfjets_(consumes<reco::PFJetCollection>(edm::InputTag("ak5PFJets"))) {
 
-  usesResource("TFileService");
+  usesResource(TFileService::kSharedResource);
 
- //now do whatever initialization is needed
-  verbosity_                          = iConfig.getUntrackedParameter<int>("Verbosity",0);
-  l1Names_ 			      = iConfig.getUntrackedParameter<std::vector<std::string> >("L1Seed");	
-  theTrackQuality_                    = iConfig.getUntrackedParameter<std::string>("TrackQuality","highPurity");
+  //now do whatever initialization is needed
   reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality_);
   selectionParameters_.minPt          = iConfig.getUntrackedParameter<double>("MinTrackPt", 10.0);
   selectionParameters_.minQuality     = trackQuality_;
@@ -166,26 +172,12 @@ IsoTrackCalib::IsoTrackCalib(const edm::ParameterSet& iConfig) :
   selectionParameters_.minLayerCrossed= iConfig.getUntrackedParameter<int>("MinLayerCrossed", 8);
   selectionParameters_.maxInMiss      = iConfig.getUntrackedParameter<int>("MaxInMiss", 0);
   selectionParameters_.maxOutMiss     = iConfig.getUntrackedParameter<int>("MaxOutMiss", 0);
-  a_coneR_                            = iConfig.getUntrackedParameter<double>("ConeRadius",34.98);
-  a_charIsoR_                         = a_coneR_ + 28.9;
-  a_mipR_                             = iConfig.getUntrackedParameter<double>("ConeRadiusMIP",14.0);
   bool isItAOD                        = iConfig.getUntrackedParameter<bool>("IsItAOD", false);
-  triggerEvent_                       = edm::InputTag("hltTriggerSummaryAOD","","HLT");
-  theTriggerResultsLabel_             = edm::InputTag("TriggerResults","","HLT");
   edm::InputTag L1extraTauJetSource_  = iConfig.getParameter<edm::InputTag>  ("L1extraTauJetSource"   );
   edm::InputTag L1extraCenJetSource_  = iConfig.getParameter<edm::InputTag>  ("L1extraCenJetSource"   );
   edm::InputTag L1extraFwdJetSource_  = iConfig.getParameter<edm::InputTag>  ("L1extraFwdJetSource"   );
   
   // define tokens for access
-  tok_trigEvt   = consumes<trigger::TriggerEvent>(triggerEvent_);
-  tok_trigRes   = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
-  tok_genTrack_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
-  tok_recVtx_   = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
-  tok_bs_       = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
-  tok_ew_       = consumes<GenEventInfoProduct>(edm::InputTag("generatorSmeared")); 
-  tok_L1extTauJet_  = consumes<l1extra::L1JetParticleCollection>(L1extraTauJetSource_);
-  tok_L1extCenJet_  = consumes<l1extra::L1JetParticleCollection>(L1extraCenJetSource_);
-  tok_L1extFwdJet_  = consumes<l1extra::L1JetParticleCollection>(L1extraFwdJetSource_);
   if (isItAOD) {
     tok_EB_     = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
     tok_EE_     = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
@@ -195,8 +187,9 @@ IsoTrackCalib::IsoTrackCalib(const edm::ParameterSet& iConfig) :
     tok_EE_     = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
     tok_hbhe_   = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
   }
-  tok_jets_     = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("JetSource"));
-  tok_pfjets_   = consumes<reco::PFJetCollection>(edm::InputTag("ak5PFJets"));
+  tok_L1extTauJet_  = consumes<l1extra::L1JetParticleCollection>(L1extraTauJetSource_);
+  tok_L1extCenJet_  = consumes<l1extra::L1JetParticleCollection>(L1extraCenJetSource_);
+  tok_L1extFwdJet_  = consumes<l1extra::L1JetParticleCollection>(L1extraFwdJetSource_);
   if (verbosity_>=0) {
     edm::LogInfo("IsoTrack") 
       <<"Parameters read from config file \n" 
