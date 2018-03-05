@@ -2495,7 +2495,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                             '--eventcontent': 'PREMIX',
                             '--procModifiers': 'premix_stage1',
                            },
-                           upgradeStepDict[stepName][k]])
+                           PUDataSets[k2],upgradeStepDict[stepName][k]])
                 upgradeStepDict[stepNamePmx][k] = d
 
         for stepType in upgradeSteps.keys():
