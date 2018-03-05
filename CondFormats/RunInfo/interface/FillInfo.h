@@ -71,6 +71,16 @@ class FillInfo {
   
   std::vector<float> const & lumiPerBX() const;
 
+  std::vector<std::string> const & lhcState() const;
+  
+  std::vector<std::string> const & lhcComment() const;
+  
+  std::vector<std::string> const & ctppsStatus() const;
+  
+  std::vector<int> const & lumiSection() const; 
+  
+  std::vector<cond::Time_t> const & dipTime() const; 
+
   //returns a boolean, true if the injection scheme has a leading 25ns
   //TODO: parse the circulating bunch configuration, instead of the string.
   bool is25nsBunchSpacing() const;
@@ -124,6 +134,16 @@ class FillInfo {
   
   void setLumiPerBX( std::vector<float> const & lumiPerBX);
   
+  void setLhcState( std::vector<std::string> const & lhcState);
+  
+  void setLhcComment( std::vector<std::string> const & lhcComment);
+  
+  void setCtppsStatus( std::vector<std::string> const & ctppsStatus);
+  
+  void setLumiSection( std::vector<int> const & lumiSection);
+  
+  void setDipTime( std::vector<cond::Time_t> const & dipTime);
+  
   //sets all values in one go
   void setBeamInfo( unsigned short const & bunches1
 		    ,unsigned short const & bunches2
@@ -144,12 +164,17 @@ class FillInfo {
 		    ,cond::Time_t const & endTime
 		    ,std::string const & scheme
 		    ,std::vector<float> const & lumiPerBX
+			,std::vector<std::string> const & lhcState
+			,std::vector<std::string> const & lhcComment
+			,std::vector<std::string> const & ctppsStatus
+			,std::vector<int> const & lumiSection
+			,std::vector<cond::Time_t> const & dipTime
 		    ,std::bitset<bunchSlots+1> const & bunchConf1 
 		    ,std::bitset<bunchSlots+1> const & bunchConf2 );
   
   //dumping values on output stream
   void print(std::stringstream & ss) const;
-  
+    
  protected:
   std::bitset<bunchSlots+1> const & bunchBitsetForBeam1() const;
   
@@ -169,6 +194,9 @@ class FillInfo {
   cond::Time_t m_createTime, m_beginTime, m_endTime;
   std::string m_injectionScheme;
   std::vector<float> m_lumiPerBX;
+  std::vector<std::string> m_lhcState, m_lhcComment, m_ctppsStatus;
+  std::vector<int> m_lumiSection;
+  std::vector<cond::Time_t> m_dipTime;
   //BEWARE: since CMS counts bunches starting from one,
   //the size of the bitset must be incremented by one,
   //in order to avoid off-by-one

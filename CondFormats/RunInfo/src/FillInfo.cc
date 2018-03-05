@@ -90,7 +90,6 @@ FillInfo::FillInfo(): m_isData( false )
 		    , m_beginTime( 0 )
 		    , m_endTime( 0 )
 		    , m_injectionScheme( "None" )
-		    , m_lumiPerBX( FillInfo::availableBunchSlots )
 {}
 
 FillInfo::FillInfo( unsigned short const & lhcFill, bool const & fromData ): m_isData( fromData )
@@ -113,7 +112,6 @@ FillInfo::FillInfo( unsigned short const & lhcFill, bool const & fromData ): m_i
 									   , m_beginTime( 0 )
 									   , m_endTime( 0 )
 									   , m_injectionScheme( "None" )
-									   , m_lumiPerBX( FillInfo::availableBunchSlots )
 {}
 
 FillInfo::~FillInfo() {}
@@ -139,8 +137,13 @@ void FillInfo::setFill( unsigned short const & lhcFill, bool const & fromData ) 
   m_createTime = 0;
   m_beginTime = 0;
   m_endTime = 0;
-  m_lumiPerBX.clear();  
   m_injectionScheme = "None";
+  m_lumiPerBX.clear();
+  m_lhcState.clear();
+  m_lhcComment.clear();
+  m_ctppsStatus.clear();
+  m_lumiSection.clear();
+  m_dipTime.clear();
   m_bunchConfiguration1.reset();
   m_bunchConfiguration2.reset();
 }
@@ -228,6 +231,26 @@ std::string const & FillInfo::injectionScheme() const {
 
 std::vector<float> const & FillInfo::lumiPerBX() const {
   return m_lumiPerBX;
+}
+
+std::vector<std::string> const & FillInfo::lhcState() const {
+  return m_lhcState;
+}
+
+std::vector<std::string> const & FillInfo::lhcComment() const {
+  return m_lhcComment;
+}
+
+std::vector<std::string> const & FillInfo::ctppsStatus() const {
+  return m_ctppsStatus;
+}
+
+std::vector<int> const & FillInfo::lumiSection() const {
+  return m_lumiSection;
+}
+
+std::vector<cond::Time_t> const & FillInfo::dipTime() const {
+  return m_dipTime;
 }
 
 //returns a boolean, true if the injection scheme has a leading 25ns
@@ -336,6 +359,26 @@ void FillInfo::setLumiPerBX( std::vector<float> const & lumiPerBX) {
   m_lumiPerBX = lumiPerBX;
 }
 
+void FillInfo::setLhcState( std::vector<std::string> const & lhcState) {
+  m_lhcState = lhcState;
+}
+
+void FillInfo::setLhcComment( std::vector<std::string> const & lhcComment) {
+  m_lhcComment = lhcComment;
+}
+
+void FillInfo::setCtppsStatus( std::vector<std::string> const & ctppsStatus) {
+  m_ctppsStatus = ctppsStatus;
+}
+
+void FillInfo::setLumiSection( std::vector<int> const & lumiSection) {
+  m_lumiSection = lumiSection;
+}
+  
+void FillInfo::setDipTime( std::vector<cond::Time_t> const & dipTime) {
+  m_dipTime = dipTime;
+}
+
 //sets all values in one go
 void FillInfo::setBeamInfo( unsigned short const & bunches1
 			    ,unsigned short const & bunches2
@@ -356,6 +399,11 @@ void FillInfo::setBeamInfo( unsigned short const & bunches1
 			    ,cond::Time_t const & endTime
 			    ,std::string const & scheme
 			    ,std::vector<float> const & lumiPerBX
+			    ,std::vector<std::string> const & lhcState
+			    ,std::vector<std::string> const & lhcComment
+			    ,std::vector<std::string> const & ctppsStatus
+			    ,std::vector<int> const & lumiSection
+			    ,std::vector<cond::Time_t> const & dipTime
 			    ,std::bitset<bunchSlots+1> const & bunchConf1
 			    ,std::bitset<bunchSlots+1> const & bunchConf2 ) {
   this->setBunchesInBeam1( bunches1 );
@@ -377,6 +425,11 @@ void FillInfo::setBeamInfo( unsigned short const & bunches1
   this->setEndTime( endTime );
   this->setInjectionScheme( scheme );
   this->setLumiPerBX( lumiPerBX );
+  this->setLhcState( lhcState );
+  this->setLhcComment( lhcComment );
+  this->setCtppsStatus( ctppsStatus );
+  this->setLumiSection( lumiSection );
+  this->setDipTime( dipTime );
   this->setBunchBitsetForBeam1( bunchConf1 );
   this->setBunchBitsetForBeam2( bunchConf2 );
 }
@@ -405,6 +458,26 @@ void FillInfo::print( std::stringstream & ss ) const {
   std::copy( m_lumiPerBX.begin(), m_lumiPerBX.end(), std::ostream_iterator<float>( ss, ", " ) );
   ss << std::endl;
   
+  ss << "LHC Status  (total " << m_lhcState.size() << "): ";
+  std::copy( m_lhcState.begin(), m_lhcState.end(), std::ostream_iterator<std::string>( ss, "\t" ) );
+  ss << std::endl;
+ 
+  ss << "LHC Comments  (total " << m_lhcComment.size() << "): ";
+  std::copy( m_lhcComment.begin(), m_lhcComment.end(), std::ostream_iterator<std::string>( ss, "\t" ) );
+  ss << std::endl;
+  
+  ss << "CTPPS Status  (total " << m_ctppsStatus.size() << "): ";
+  std::copy( m_ctppsStatus.begin(), m_ctppsStatus.end(), std::ostream_iterator<std::string>( ss, "\t" ) );
+  ss << std::endl;
+  
+  ss << "Lumi sections  (total " << m_lumiSection.size() << "): ";
+  std::copy( m_lumiSection.begin(), m_lumiSection.end(), std::ostream_iterator<int>( ss, "\t" ) );
+  ss << std::endl;
+
+  ss << "Time stamps  (total " << m_dipTime.size() << "): ";
+  std::copy( m_dipTime.begin(), m_dipTime.end(), std::ostream_iterator<cond::Time_t>( ss, "\t" ) );
+  ss << std::endl;
+  
   std::vector<unsigned short> bunchVector1 = this->bunchConfigurationForBeam1();
   std::vector<unsigned short> bunchVector2 = this->bunchConfigurationForBeam2();
   ss << "Bunches filled for Beam 1 (total " << bunchVector1.size() << "): ";
@@ -417,11 +490,11 @@ void FillInfo::print( std::stringstream & ss ) const {
 
 //protected getters
 std::bitset<FillInfo::bunchSlots+1> const & FillInfo::bunchBitsetForBeam1() const {
-  return m_bunchConfiguration1;  
+  return m_bunchConfiguration1;
 }
 
 std::bitset<FillInfo::bunchSlots+1> const & FillInfo::bunchBitsetForBeam2() const {
-  return m_bunchConfiguration2;  
+  return m_bunchConfiguration2;
 }
 
 //protected setters
