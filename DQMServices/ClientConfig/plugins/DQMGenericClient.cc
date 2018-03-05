@@ -490,7 +490,7 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
       const double nReco = hReco->GetBinContent(i);
       const double nSim  = hSim->GetBinContent(i);
 
-      if(std::string(hSim->GetXaxis()->GetBinLabel(i)) != "")
+      if(!std::string(hSim->GetXaxis()->GetBinLabel(i)).empty())
         efficHist->GetXaxis()->SetBinLabel(i, hSim->GetXaxis()->GetBinLabel(i));
       
       if (nSim == 0 or nReco < 0 or nReco > nSim) continue;
