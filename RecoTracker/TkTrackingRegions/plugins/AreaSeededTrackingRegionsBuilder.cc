@@ -236,11 +236,11 @@ std::unique_ptr<TrackingRegion> AreaSeededTrackingRegionsBuilder::Builder::regio
   const auto dEta = maxEta-meanEta + m_conf->m_extraEta;
   const auto dPhi = maxPhi-meanPhi + m_conf->m_extraPhi;
 
-  int n_objects = 0;
-  if (candidates.first) n_objects = candidates.first->size();
+  auto useCandidates = false;
+  if (candidates.first) useCandidates = true;
 
-  if (n_objects > 0){
-	// If we have objected used for seeding, loop over objects and find overlap with the found region. Return overlaps as tracking regions to use
+  if (useCandidates){
+	// If we have objects used for seeding, loop over objects and find overlap with the found region. Return overlaps as tracking regions to use
 	for(const auto& object : *candidates.first) {
 		float dEta_Cand = candidates.second.first;
 		float dPhi_Cand = candidates.second.second;

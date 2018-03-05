@@ -10,7 +10,7 @@
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -23,6 +23,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -31,6 +32,7 @@
 
 // data format
 #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
 
 // helper files
 #include <iostream>
@@ -47,24 +49,31 @@
 #include "classlib/utils/StringList.h"
 #include "classlib/utils/StringOps.h"
 
-class EDMtoMEConverter : public edm::EDAnalyzer
+class EDMtoMEConverter : public edm::one::EDProducer<edm::one::WatchRuns,
+                                                     edm::one::WatchLuminosityBlocks,
+                                                     edm::one::SharedResources,
+                                                     edm::EndLuminosityBlockProducer,
+                                                     edm::EndRunProducer>
 {
 
  public:
 
   explicit EDMtoMEConverter(const edm::ParameterSet&);
   ~EDMtoMEConverter() override;
-  void beginJob() override;
-  void endJob() override;  
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  void respondToOpenInputFile(const edm::FileBlock&) override;
+
+  void beginJob() final {};
+  void endJob() final {};
+  void beginRun(const edm::Run&, const edm::EventSetup&) final {};
+  void endRun(const edm::Run&, const edm::EventSetup&) final {};
+  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final {};
+  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) final {};
+  void produce(edm::Event&, edm::EventSetup const&) final {};
+
+  void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) override;
+  void endRunProduce(edm::Run& run, edm::EventSetup const& setup) override;
 
   template <class T>
-  void getData(T& iGetFrom);
+  void getData(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, T& iGetFrom);
 
   using TagList = std::vector<uint32_t>;
 
@@ -76,12 +85,6 @@ class EDMtoMEConverter : public edm::EDAnalyzer
 
   bool convertOnEndLumi;
   bool convertOnEndRun;
-
-  DQMStore *dbe;
-
-  // private statistics information
-  unsigned int iCountf;
-  std::map<int,int> iCount;
 
   template <typename T>
   class Tokens {
@@ -116,6 +119,9 @@ class EDMtoMEConverter : public edm::EDAnalyzer
     Tokens<long long>,
     Tokens<TString>
     > tokens_;
+
+  edm::EDPutTokenT<DQMToken> dqmLumiToken_;
+  edm::EDPutTokenT<DQMToken> dqmRunToken_;
 }; // end class declaration
 
 #endif

@@ -1,0 +1,20 @@
+==================== DUMP ======================
+Reason for dump: Requested by user
+FED completely received   : true
+Buffer size          (dec): 152
+FED size             (dec): 152
+FED id               (dec): 1022
+SubSystem                 : DAQ
+Trigger no           (dec): 13761
+EvB id                    : runNumber=1 resyncCount=0 eventNumber=13761 bxId=1476
+00000000 : 0003fe00 500035c1 00000002 00000000    |    human readable swapped : 500035c1 0003fe00 00000000 00000002 : 00000000
+00000010 : 070979e4 00000161 00330045 00000000    |    human readable swapped : 00000161 070979e4 00000000 00450033 : 00000010
+00000020 : 00000000 00000000 f7e03190 0000015f    |    human readable swapped : 00000000 00000000 0000015f f7e03190 : 00000020
+00000030 : 00000000 00000000 00000000 00000000    |    human readable swapped : 00000000 00000000 00000000 00000000 : 00000030
+00000040 : 00000000 00000000 00000000 00000000    |    human readable swapped : 00000000 00000000 00000000 00000000 : 00000040
+00000050 : 00000000 00000000 00000000 00000000    |    human readable swapped : 00000000 00000000 00000000 00000000 : 00000050
+00000060 : 00000000 00000000 00000000 00000000    |    human readable swapped : 00000000 00000000 00000000 00000000 : 00000060
+00000070 : 6b5a0e5f 00000161 05123545 00000002    |    human readable swapped : 00000161 6b5a0e5f 00000002 05123545 : 00000070
+00000080 : 6b52f433 00000161 001e200c 3ccd2785    |    human readable swapped : 00000161 6b52f433 3ccd2785 001e200c : 00000080
+00000090 : 10c70000 a0000013                      |    human readable swapped : a0000013 10c70000                   : 00000090
+================ END OF DUMP ===================

@@ -117,12 +117,10 @@ private:
   std::vector<int>    v_RH_h3x3_iphi;
   std::vector<double> v_RH_h3x3_ene, PxGlob, PyGlob,PzGlob,Pthetha;
   std::vector<double>  PCharge,PChi2,PD0, PD0Error,dxyWithBS,dzWithBS,PdxyTrack, PdzTrack,PNormalizedChi2, PNDoF, PValidHits, PLostHits, NPvx, NPvy, NPvz, NQOverP, NQOverPError, NTrkMomentum, NRefPointX, NRefPointY, NRefPointZ;
-  std::vector<bool> NTrkQuality;
   double h3x3, h3x3Calo; 
   unsigned int RunNumber, EventNumber , LumiNumber, BXNumber;
   double _RecoMuon1TrackIsoSumPtMaxCutValue_03, _RecoMuon1TrackIsoSumPtMaxCutValue_04; 
   int           ntriggers;
-  std::string theTrackQuality;
   std::vector <double> track_cosmic_xposition , track_cosmic_yposition, track_cosmic_zposition, track_cosmic_xmomentum,track_cosmic_ymomentum, track_cosmic_zmomentum, track_cosmic_rad, track_cosmic_detid;
 
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;

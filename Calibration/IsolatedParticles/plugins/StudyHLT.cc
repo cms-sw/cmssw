@@ -110,7 +110,7 @@ private:
   edm::Service<TFileService>       fs_;
   const int                        verbosity_;
   const std::vector<std::string>   trigNames_, newNames_;
-  std::string                      theTrackQuality_;
+  const std::string                theTrackQuality_;
   const double                     minTrackP_, maxTrackEta_;
   const double                     tMinE_, tMaxE_, tMinH_, tMaxH_;
   const bool                       isItAOD_, doTree_;

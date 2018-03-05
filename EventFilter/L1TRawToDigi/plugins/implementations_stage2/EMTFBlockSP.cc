@@ -196,6 +196,9 @@ namespace l1t {
 	    Track_.set_track_num( (res->at(iOut)).PtrSPCollection()->size() );
 	  else Track_.set_track_num( 0 );
 	else Track_.set_track_num( 0 );
+
+	// For single-LCT tracks, "Track_num" = 2 (last in collection)
+	if (SP_.Quality_GMT() < 4) Track_.set_track_num( 2 );
 	
 	mu_.setHwSign      ( SP_.C() );
 	mu_.setHwSignValid ( SP_.VC() );

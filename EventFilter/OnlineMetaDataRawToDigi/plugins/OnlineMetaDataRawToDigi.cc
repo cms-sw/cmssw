@@ -34,6 +34,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 
+#include "DataFormats/OnlineMetaData/interface/CTPPSRecord.h"
 #include "DataFormats/OnlineMetaData/interface/DCSRecord.h"
 #include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DataFormats/OnlineMetaData/interface/OnlineMetaDataRaw.h"
@@ -63,6 +64,7 @@ OnlineMetaDataRawToDigi::OnlineMetaDataRawToDigi(const edm::ParameterSet& iConfi
   edm::InputTag dataLabel = iConfig.getParameter<edm::InputTag>("onlineMetaDataInputLabel");
   dataToken_=consumes<FEDRawDataCollection>(dataLabel);
 
+  produces<CTPPSRecord>();
   produces<DCSRecord>();
   produces<OnlineLuminosityRecord>();
   produces<reco::BeamSpot>();
@@ -85,21 +87,33 @@ void OnlineMetaDataRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken(dataToken_,rawdata);
 
   DCSRecord dcsRecord;
+  CTPPSRecord ctppsRecord;
   OnlineLuminosityRecord onlineLuminosityRecord;
   reco::BeamSpot onlineBeamSpot;
 
   if( rawdata.isValid() ) {
     const FEDRawData& onlineMetaDataRaw = rawdata->FEDData(FEDNumbering::MINMetaDataSoftFEDID);
+    const unsigned char* payload = onlineMetaDataRaw.data() + FEDHeader::length;
 
-    if ( onlineMetaDataRaw.size() >= sizeof(online::Data_v1) + FEDHeader::length ) {
-      online::Data_v1 const* onlineMetaData =
-        reinterpret_cast<online::Data_v1 const*>(onlineMetaDataRaw.data() + FEDHeader::length);
-      dcsRecord = DCSRecord(onlineMetaData->dcs);
-      onlineLuminosityRecord = OnlineLuminosityRecord(onlineMetaData->luminosity);
-      onlineBeamSpot = getBeamSpot(onlineMetaData->beamSpot);
+    if ( onlineMetaDataRaw.size() >= FEDHeader::length + sizeof(uint8_t) ) {
+      const uint8_t version = *(reinterpret_cast<uint8_t const*>(payload));
+      if ( version == 1 && onlineMetaDataRaw.size() >= FEDHeader::length + sizeof(online::Data_v1) ) {
+        online::Data_v1 const* onlineMetaData = reinterpret_cast<online::Data_v1 const*>(payload);
+        dcsRecord = DCSRecord(onlineMetaData->dcs);
+        onlineLuminosityRecord = OnlineLuminosityRecord(onlineMetaData->luminosity);
+        onlineBeamSpot = getBeamSpot(onlineMetaData->beamSpot);
+      }
+      else if ( version == 2 && onlineMetaDataRaw.size() >= FEDHeader::length + sizeof(online::Data_v2) ) {
+        online::Data_v2 const* onlineMetaData = reinterpret_cast<online::Data_v2 const*>(payload);
+        ctppsRecord = CTPPSRecord(onlineMetaData->ctpps);
+        dcsRecord = DCSRecord(onlineMetaData->dcs);
+        onlineLuminosityRecord = OnlineLuminosityRecord(onlineMetaData->luminosity);
+        onlineBeamSpot = getBeamSpot(onlineMetaData->beamSpot);
+      }
     }
   }
 
+  iEvent.put(std::make_unique<CTPPSRecord>(ctppsRecord));
   iEvent.put(std::make_unique<DCSRecord>(dcsRecord));
   iEvent.put(std::make_unique<OnlineLuminosityRecord>(onlineLuminosityRecord));
   iEvent.put(std::make_unique<reco::BeamSpot>(onlineBeamSpot));
