@@ -14,7 +14,7 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
                   "SinglePhoton"   : "HcalCalGammaJet",
                   "ZeroBias"       : "SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+AlCaPCCZeroBiasFromRECO", 
 
-                  "Express"  : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalib+Hotline+LumiPixelsMinBias",
+                  "Express"  : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+DtCalib+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias",
                   "ExpressCosmics" : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+DtCalibCosmics",
                   "ExpressAlignment":"TkAlMinBias",
                   # These two cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
