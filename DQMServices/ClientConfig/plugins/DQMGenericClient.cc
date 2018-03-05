@@ -40,6 +40,9 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   elsc commonEscapes("\\", " \t", "\'");
 
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
+  runOnEndLumi_ = pset.getUntrackedParameter<bool>("runOnEndLumi", false);
+  runOnEndJob_ = pset.getUntrackedParameter<bool>("runOnEndJob", true);
+  makeGlobalEffPlot_ = pset.getUntrackedParameter<bool>("makeGlobalEffienciesPlot", true);
 
   // Parse efficiency commands
   vstring effCmds = pset.getParameter<vstring>("efficiency");
@@ -350,9 +353,13 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   isWildcardUsed_ = false;
 }
 
-void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+void DQMGenericClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) {
+  if (runOnEndLumi_) {
+    makeAllPlots(ibooker, igetter);
+  }
+}
 
-  typedef vector<string> vstring;
+void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   // Update 2014-04-02
   // Migrated back to the endJob. the DQMFileSaver logic has
@@ -371,6 +378,17 @@ void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
   // needed to access the DQMStore::save method
   theDQM = nullptr;
   theDQM = Service<DQMStore>().operator->();
+
+  if (runOnEndJob_) {
+    makeAllPlots(ibooker, igetter);
+  }
+
+  if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);
+
+}
+
+void DQMGenericClient::makeAllPlots(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+  typedef vector<string> vstring;
 
   // Process wildcard in the sub-directory
   set<string> subDirSet;
@@ -442,8 +460,7 @@ void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
 
   }
 
-  if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);
-  
+
 }
 
 void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const string& startDir, const string& efficMEName,
@@ -529,7 +546,8 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
       efficHist->SetBinEntries(i, 1);
       efficHist->SetBinError(i, std::hypot(effVal, errVal));
     }
-    ibooker.bookProfile(newEfficMEName.c_str(),efficHist);
+    removeMEIfBooked(newEfficMEName, igetter);
+    ibooker.bookProfile(efficDir+"/"+newEfficMEName,efficHist);
     delete efficHist;  
   }
 
@@ -549,10 +567,13 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
     TString histClassName = myHistClass->GetName();
   
     if (histClassName == "TH1F"){
+      removeMEIfBooked(efficDir+"/"+newEfficMEName, igetter);
       efficME = ibooker.book1D(newEfficMEName, (TH1F*)efficHist);
     } else if (histClassName == "TH2F"){
+      removeMEIfBooked(efficDir+"/"+newEfficMEName, igetter);
       efficME = ibooker.book2D(newEfficMEName, (TH2F*)efficHist);    
     } else if (histClassName == "TH3F"){
+      removeMEIfBooked(efficDir+"/"+newEfficMEName, igetter);
       efficME = ibooker.book3D(newEfficMEName, (TH3F*)efficHist);    
     } 
   
@@ -586,39 +607,41 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
   }
 
   // Global efficiency
-  ME* globalEfficME = igetter.get(efficDir+"/globalEfficiencies");
-  if ( !globalEfficME ) globalEfficME = ibooker.book1D("globalEfficiencies", "Global efficiencies", 1, 0, 1);
-  if ( !globalEfficME ) {
-    LogInfo("DQMGenericClient") << "computeEfficiency() : "
-                              << "Cannot book globalEffic-ME from the DQM\n";
-    return;
-  }
-  globalEfficME->setEfficiencyFlag();
-  TH1F* hGlobalEffic = globalEfficME->getTH1F();
-  if ( !hGlobalEffic ) {
-    LogInfo("DQMGenericClient") << "computeEfficiency() : "
-                              << "Cannot create TH1F from ME, globalEfficME\n";
-    return;
-  }
-
-  const float nSimAll = hSim->GetEntries();
-  const float nRecoAll = hReco->GetEntries();
-  float efficAll=0; 
-  if ( type == EfficType::efficiency || type == EfficType::simpleratio ) efficAll = nSimAll ? nRecoAll/nSimAll : 0;
-  else if ( type == EfficType::fakerate ) efficAll = nSimAll ? 1-nRecoAll/nSimAll : 0;
-  float errorAll=0;
-  if ( type == EfficType::simpleratio ) {
-    if(nSimAll) {
-      const float x = nRecoAll/nSimAll;
-      errorAll = std::sqrt(1.f/nSimAll*x*(1+x));
+  if (makeGlobalEffPlot_) {
+    ME* globalEfficME = igetter.get(efficDir+"/globalEfficiencies");
+    if ( !globalEfficME ) globalEfficME = ibooker.book1D("globalEfficiencies", "Global efficiencies", 1, 0, 1);
+    if ( !globalEfficME ) {
+      LogInfo("DQMGenericClient") << "computeEfficiency() : "
+                                << "Cannot book globalEffic-ME from the DQM\n";
+      return;
     }
-  }
-  else
-    errorAll = nSimAll && efficAll < 1 ? sqrt(efficAll*(1-efficAll)/nSimAll) : 0;
+    globalEfficME->setEfficiencyFlag();
+    TH1F* hGlobalEffic = globalEfficME->getTH1F();
+    if ( !hGlobalEffic ) {
+      LogInfo("DQMGenericClient") << "computeEfficiency() : "
+                                << "Cannot create TH1F from ME, globalEfficME\n";
+      return;
+    }
 
-  const int iBin = hGlobalEffic->Fill(newEfficMEName.c_str(), 0);
-  hGlobalEffic->SetBinContent(iBin, efficAll);
-  hGlobalEffic->SetBinError(iBin, errorAll);
+    const float nSimAll = hSim->GetEntries();
+    const float nRecoAll = hReco->GetEntries();
+    float efficAll=0;
+    if ( type == EfficType::efficiency || type == EfficType::simpleratio ) efficAll = nSimAll ? nRecoAll/nSimAll : 0;
+    else if ( type == EfficType::fakerate ) efficAll = nSimAll ? 1-nRecoAll/nSimAll : 0;
+    float errorAll=0;
+    if ( type == EfficType::simpleratio ) {
+      if(nSimAll) {
+        const float x = nRecoAll/nSimAll;
+        errorAll = std::sqrt(1.f/nSimAll*x*(1+x));
+      }
+    }
+    else
+      errorAll = nSimAll && efficAll < 1 ? sqrt(efficAll*(1-efficAll)/nSimAll) : 0;
+
+    const int iBin = hGlobalEffic->Fill(newEfficMEName.c_str(), 0);
+    hGlobalEffic->SetBinContent(iBin, efficAll);
+    hGlobalEffic->SetBinError(iBin, errorAll);
+  }
 }
 
 void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const string& startDir, const string& namePrefix, const string& titlePrefix,
@@ -667,6 +690,8 @@ void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker, DQMStore::I
   float * lowedgesfloats = new float[nBin+1];
   ME* meanME;
   ME* sigmaME;
+  removeMEIfBooked(newDir+"/"+newPrefix+"_Mean", igetter);
+  removeMEIfBooked(newDir+"/"+newPrefix+"_Sigme", igetter);
   if (hSrc->GetXaxis()->GetXbins()->GetSize())
   {
     for (int j=0; j<nBin+1; ++j)
@@ -741,6 +766,7 @@ void DQMGenericClient::computeProfile(DQMStore::IBooker& ibooker, DQMStore::IGet
 
   std::unique_ptr<TProfile> profile(hSrc->ProfileX()); // We own the pointer
   profile->SetTitle(profileMETitle.c_str());
+  removeMEIfBooked(profileDir+"/"+profileMEName, igetter);
   ibooker.bookProfile(profileMEName, profile.get()); // ibooker makes a copy
 }
 
@@ -1035,5 +1061,10 @@ void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* effi
   //efficiencyHist->setMaximum(1.0);
 }
 
+void DQMGenericClient::removeMEIfBooked(const std::string& meName, DQMStore::IGetter& igetter) {
+  if (igetter.get(meName)) {
+    igetter.removeElement(meName);
+  }
+}
 
 /* vim:set ts=2 sts=2 sw=2 expandtab: */
