@@ -94,7 +94,6 @@ namespace edm {
       std::vector<CSCStripDigiCollection::const_iterator> StripPointer;
 
       for(CSCStripDigiCollection::const_iterator dtdigi=range.first; dtdigi!=range.second; ++dtdigi){
-        //std::cout << "Digi " << (*dtdigi).getStrip() << std::endl;
 	StripList.push_back( (*dtdigi).getStrip() );
 	StripPointer.push_back( dtdigi );
       }
@@ -120,9 +119,6 @@ namespace edm {
 	    ++DuplPointer;
 	    for( ; duplicate!=StripList.end(); ++duplicate) {
 	      if( (*duplicate) == CurrentStrip ) {
-
-		//		std::cout << " Duplicate of current " << CurrentStrip << " found at " << (duplicate - StripList.begin()) << std::endl;
-
 		DuplicateList.push_back(CurrentStrip);
 
 		std::vector<int> pileup_adc = (**DuplPointer).getADCCounts();

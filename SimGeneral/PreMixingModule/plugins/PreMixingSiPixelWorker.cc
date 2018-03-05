@@ -72,7 +72,6 @@ namespace edm {
       double thePixelChipEfficiency[20]; // ROC efficiency
       std::vector<double> theLadderEfficiency_BPix[20]; // Ladder efficiency
       std::vector<double> theModuleEfficiency_BPix[20]; // Module efficiency
-      //std::vector<double> thePUEfficiency[20]; // Instlumi dependent efficiency
       double theInnerEfficiency_FPix[20]; // Fpix inner module efficiency
       double theOuterEfficiency_FPix[20]; // Fpix outer module efficiency
       unsigned int FPixIndex;         // The Efficiency index for FPix Disks
@@ -86,13 +85,6 @@ namespace edm {
       bool matches(const DetId&, const DetId&, const std::vector<uint32_t >&);
     
     };
-
-    // Needed by dynamic inefficiency 
-    // 0-3 BPix, 4-5 FPix (inner, outer)
-    //double _pu_scale[20];
-
-    // data specifiers
-
     edm::InputTag pixeldigi_collectionSig_ ; // secondary name given to collection of SiPixel digis
     edm::InputTag pixeldigi_collectionPile_ ; // secondary name given to collection of SiPixel digis
     std::string PixelDigiCollectionDM_  ; // secondary name to be given to new SiPixel digis
@@ -123,17 +115,11 @@ namespace edm {
 
     SiGlobalIndex SiHitStorage_;
 
-
-    //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
-
     const std::string geometryType_;
 
     //-- Allow for upgrades        
     const int NumberOfBarrelLayers;     // Default = 3  
     const int NumberOfEndcapDisks;      // Default = 2  
-
-    //const double theInstLumiScaleFactor;
-    //const double bunchScaleAt25;
 
     const bool AddPixelInefficiency;        // bool to read in inefficiencies    
 
@@ -151,16 +137,10 @@ namespace edm {
     // of layers or disks.
     NumberOfBarrelLayers(ps.exists("NumPixelBarrel")?ps.getParameter<int>("NumPixelBarrel"):3),
     NumberOfEndcapDisks(ps.exists("NumPixelEndcap")?ps.getParameter<int>("NumPixelEndcap"):2),
-    //theInstLumiScaleFactor(ps.getParameter<double>("theInstLumiScaleFactor")), //For dynamic inefficiency PU scaling
-    //bunchScaleAt25(ps.getParameter<double>("bunchScaleAt25")), //For dynamic inefficiency bunchspace scaling
     // Control the pixel inefficiency
     AddPixelInefficiency(ps.getParameter<bool>("AddPixelInefficiency")),
     pixelEff_(ps, AddPixelInefficiency,NumberOfBarrelLayers,NumberOfEndcapDisks)
   {                                                         
-
-    // get the subdetector names
-    //    this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
-
     // declare the products to produce
 
     pixeldigi_collectionSig_   = ps.getParameter<edm::InputTag>("pixeldigiCollectionSig");
@@ -183,9 +163,6 @@ namespace edm {
 
   void PreMixingSiPixelWorker::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {	
     iSetup.get<TrackerDigiGeometryRecord>().get(geometryType_, pDD); 
-    //edm::ESHandle<TrackerTopology> tTopoHand;
-    //iSetup.get<IdealGeometryRecord>().get(tTopoHand);
-    //const TrackerTopology *tTopo=tTopoHand.product();
   }					   
 
 
@@ -429,12 +406,6 @@ bool PreMixingSiPixelWorker::PixelEfficiencies::matches(const DetId& detid, cons
 
       const edm::DetSetVector<PixelDigi>  *input = inputPTR->product();
 
-
-
-      //   Handle< edm::DetSetVector<PixelDigi> >  input;
-
-      //   if( e->getByLabel(pixeldigi_collectionPile_,input) ) {
-
       //loop on all detsets (detectorIDs) inside the input collection
       edm::DetSetVector<PixelDigi>::const_iterator DSViter=input->begin();
       for (; DSViter!=input->end();DSViter++){
@@ -527,8 +498,6 @@ bool PreMixingSiPixelWorker::PixelEfficiencies::matches(const DetId& detid, cons
 	    else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
 
 	    Signals.insert( std::make_pair(formerPixel, ADCSum));
-	    //PixelDigi aHit(formerPixel, ADCSum);
-	    //SPD.push_back( aHit );	  
 	  }
 	  // save pointers for next iteration
 	  formerPixel = currentPixel;
@@ -540,7 +509,6 @@ bool PreMixingSiPixelWorker::PixelEfficiencies::matches(const DetId& detid, cons
 	  if (ADCSum > 511) ADCSum = 255;
 	  else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
 	  Signals.insert( std::make_pair(formerPixel, ADCSum));
-	  //SPD.push_back( PixelDigi(formerPixel, ADCSum) );	  
 	} 
 
       }// end of loop over one detector
@@ -610,7 +578,6 @@ bool PreMixingSiPixelWorker::PixelEfficiencies::matches(const DetId& detid, cons
 	      pixelEfficiency  = pixelEff_.thePixelEfficiency[layerIndex-1];
 	      columnEfficiency = pixelEff_.thePixelColEfficiency[layerIndex-1];
 	      chipEfficiency   = pixelEff_.thePixelChipEfficiency[layerIndex-1];
-	      //std::cout <<"Using BPix columnEfficiency = "<<columnEfficiency<< " for layer = "<<layerIndex <<"\n";
 	      // This should never happen, but only check if it is not an upgrade geometry
 	      if (NumberOfBarrelLayers==3){
 		if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
@@ -630,12 +597,9 @@ bool PreMixingSiPixelWorker::PixelEfficiencies::matches(const DetId& detid, cons
 	      unsigned int diskIndex=tTopo->layer(detID)+pixelEff_.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix
 	      unsigned int panelIndex=tTopo->pxfPanel(detID);
 	      unsigned int moduleIndex=tTopo->pxfModule(detID);
-	      //if (pixelEff_.FPixIndex>diskIndex-1){throw cms::Exception("Configuration") <<"SiPixelDigitizer is using the wrong efficiency value. index = "
-	      //                                                                       <<diskIndex-1<<" , MinIndex = "<<pixelEff_.FPixIndex<<" ... "<<tTopo->pxfDisk(detID);}
 	      pixelEfficiency  = pixelEff_.thePixelEfficiency[diskIndex-1];
 	      columnEfficiency = pixelEff_.thePixelColEfficiency[diskIndex-1];
 	      chipEfficiency   = pixelEff_.thePixelChipEfficiency[diskIndex-1];
-	      //std::cout <<"Using FPix columnEfficiency = "<<columnEfficiency<<" for Disk = "<< tTopo->pxfDisk(detID)<<"\n";
 	      // Sometimes the forward pixels have wrong size,
 	      // this crashes the index conversion, so exit, but only check if it is not an upgrade geometry
 	      if (NumberOfBarrelLayers==3){  // whether it is the present or the phase 1 detector can be checked using GeomDetEnumerators::SubDetector
@@ -698,14 +662,12 @@ bool PreMixingSiPixelWorker::PixelEfficiencies::matches(const DetId& detid, cons
   
 	  // Delete some ROC hits.
 	  for ( iter = chips.begin(); iter != chips.end() ; iter++ ) {
-	    //float rand  = RandFlat::shoot();
 	    float rand  = CLHEP::RandFlat::shoot(engine);
 	    if( rand > chipEfficiency ) chips[iter->first]=0;
 	  }
   
 	  // Delete some Dcol hits.
 	  for ( iter = columns.begin(); iter != columns.end() ; iter++ ) {
-	    //float rand  = RandFlat::shoot();
 	    float rand  = CLHEP::RandFlat::shoot(engine);
 	    if( rand > columnEfficiency ) columns[iter->first]=0;
 	  }
@@ -714,7 +676,6 @@ bool PreMixingSiPixelWorker::PixelEfficiencies::matches(const DetId& detid, cons
 	  // Loop over hit pixels, amplitude in electrons, channel = coded row,col
 	  for(signal_map_iterator i = theSignal.begin();i != theSignal.end(); ++i) {
     
-	    //    int chan = i->first;
 	    std::pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
 	    int row = ip.first;  // X in row
 	    int col = ip.second; // Y is in col
@@ -724,7 +685,6 @@ bool PreMixingSiPixelWorker::PixelEfficiencies::matches(const DetId& detid, cons
 	    //dcol in mod
 	    int dColInDet = pIndexConverter->DColumnInModule(dColInChip,chipIndex);
     
-	    //float rand  = RandFlat::shoot();
 	    float rand  = CLHEP::RandFlat::shoot(engine);
 	    if( chips[chipIndex]==0 || columns[dColInDet]==0
 		|| rand>pixelEfficiency ) {
@@ -758,10 +718,6 @@ bool PreMixingSiPixelWorker::PixelEfficiencies::matches(const DetId& detid, cons
   }
 
 void PreMixingSiPixelWorker::setPileupInfo(const std::vector<PileupSummaryInfo> &ps, const int &bunchSpacing) {
-
-  //double bunchScale=1.0;
-  //if (bunchSpacing==25) bunchScale=bunchScaleAt25;
-  
   int p = -1;
   for ( unsigned int i=0; i<ps.size(); i++) 
     if ( ps[i].getBunchCrossing() == 0 ) 

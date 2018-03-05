@@ -110,10 +110,6 @@ namespace edm {
   }
 
   void PreMixingModule::endRun(edm::Run const& run, const edm::EventSetup& ES) { 
-    // Do these have to be implemented?
-    // HcalDigiWorkerProd_->endRun( run, ES ); // FIXME not implemented
-    // EcalDigiWorkerProd_->endRun( ES );      // FIXME not implemented
-
     BMixingModule::endRun( run, ES);
   }
 
@@ -223,8 +219,6 @@ namespace edm {
   }
 
   void PreMixingModule::endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
-    // Should this be implemented?
-    // EcalDigiWorkerProd_->endLuminosityBlock(l1,c);  // FIXME Not implemented.
     BMixingModule::endLuminosityBlock(l1, c);
   }
 }

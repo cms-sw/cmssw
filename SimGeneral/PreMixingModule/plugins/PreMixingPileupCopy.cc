@@ -14,11 +14,6 @@ namespace edm {
     cfPlaybackInputTag_(ps.getParameter<edm::InputTag>("CFPlaybackInputTag")),
     genPUProtonsInputTags_(ps.getParameter<std::vector<edm::InputTag> >("GenPUProtonsInputTags"))
   {
-    // apparently, we don't need consumes from Secondary input stream
-    //iC.consumes<std::vector<PileupSummaryInfo>>(PileupInfoInputTag_);
-    //iC.consumes<int>(BunchSpacingInputTag_);
-    //iC.consumes<CrossingFramePlaybackInfoNew>(CFPlaybackInputTag_);
-
     producer.produces<std::vector<PileupSummaryInfo> >();
     producer.produces<int>("bunchSpacing");
     producer.produces<CrossingFramePlaybackInfoNew>();

@@ -79,11 +79,7 @@ namespace edm {
     SiGlobalIndex SiHitStorage_;
     SiGlobalRawIndex SiRawDigis_;
 
-    //      unsigned int eventId_; //=0 for signal, from 1-n for pileup events
-
     // variables for temporary storage of mixed hits:
-
-
     typedef std::map<int, Amplitude>  SignalMapType;
     typedef std::map<uint32_t, SignalMapType>  signalMaps;
 
@@ -154,10 +150,6 @@ namespace edm {
     theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC, false)) // no premixing
 
   {                                                         
-
-    // get the subdetector names
-    //    this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
-
     // declare the products to produce
 
     SistripLabelSig_   = ps.getParameter<edm::InputTag>("SistripLabelSig");
@@ -186,10 +178,6 @@ namespace edm {
     }
   
     theSiNoiseAdder.reset(new SiGaussianTailNoiseAdder(theThreshold));
-
-    //    theSiZeroSuppress = new SiStripFedZeroSuppression(theFedAlgo);
-    //theSiDigitalConverter(new SiTrivialDigitalConverter(theElectronPerADC));
-
   }
 	       
   void PreMixingSiStripWorker::initializeEvent(const edm::Event &e, edm::EventSetup const& iSetup) {
@@ -293,10 +281,6 @@ namespace edm {
     if(inputPTR ) {
 
       const edm::DetSetVector<SiStripDigi>  *input = const_cast< edm::DetSetVector<SiStripDigi> * >(inputPTR->product());
-
-      // Handle< edm::DetSetVector<SiStripDigi> >  input;
-
-      // if( e->getByLabel(Sistripdigi_collectionPile_.label(),SistripLabelPile_.label(),input) ) {
 
       OneDetectorMap LocalMap;
 
@@ -610,7 +594,6 @@ namespace edm {
         size_t lastChannelWithSignal = numStrips;
 
         if(SingleStripNoise){
-          //      std::cout<<"In SSN, detId="<<detID<<std::endl;                                                                                                   
 	  std::vector<float> noiseRMSv;
           noiseRMSv.clear();
           noiseRMSv.insert(noiseRMSv.begin(),numStrips,0.);
@@ -618,7 +601,6 @@ namespace edm {
             if(!badChannels[strip]){
               float gainValue = gainHandle->getStripGain(strip, detGainRange);
               noiseRMSv[strip] = (noiseHandle->getNoise(strip,detNoiseRange))* theElectronPerADC/gainValue;
-              //std::cout<<"<SiStripDigitizerAlgorithm::digitize>: gainValue: "<<gainValue<<"\tnoiseRMSv["<<strip<<"]: "<<noiseRMSv[strip]<<std::endl;             
             }
           }
           theSiNoiseAdder->addNoiseVR(detAmpl, noiseRMSv, engine);
@@ -632,7 +614,6 @@ namespace edm {
             float RefnoiseRMS = noiseHandle->getNoise(RefStrip,detNoiseRange) *theElectronPerADC/RefgainValue;
 
             theSiNoiseAdder->addNoise(detAmpl,firstChannelWithSignal,lastChannelWithSignal,numStrips,RefnoiseRMS, engine);
-            //std::cout<<"<SiStripDigitizerAlgorithm::digitize>: RefgainValue: "<<RefgainValue<<"\tRefnoiseRMS: "<<RefnoiseRMS<<std::endl;                         
           }
         }
 	
@@ -641,11 +622,6 @@ namespace edm {
 
 
 	SSD.data = digis;
-	//	if(digis.size() > 0) {
-	//  std::cout << " Real SiS Mixed Digi: " << detID << " ADC values ";
-	//  for(const auto& iDigi : digis) { std::cout << iDigi.adc() << " " ;}
-	//  std::cout << std::endl;
-	//}
 
 	// stick this into the global vector of detector info
 	vSiStripDigi.push_back(SSD);
