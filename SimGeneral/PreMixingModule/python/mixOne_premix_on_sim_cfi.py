@@ -254,6 +254,7 @@ fastSim.toModify(mixData,
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 from Configuration.Eras.Modifier_phase2_ecal_cff import phase2_ecal
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_common.toModify(mixData, input = dict(producers = [])) # we use digis directly, no need for raw2digi producers
 
@@ -278,3 +279,19 @@ phase2_ecal.toModify(mixData,
     )
 )
 phase2_hgcal.toModify(mixData, workers=dict(ecal=dict(doEE=False)))
+
+# HCAL
+phase2_hcal.toModify(mixData,
+    workers = dict(
+        hcal = dict(
+            HBHEPileInputTag = "simHcalDigis",
+            HOPileInputTag = "simHcalDigis",
+            HFPileInputTag = "simHcalDigis",
+            QIE10PileInputTag = "simHcalDigis:HFQIE10DigiCollection",
+            QIE11PileInputTag = "simHcalDigis:HBHEQIE11DigiCollection",
+            ZDCPileInputTag = "simHcalUnsuppressedDigis",
+        )
+    )
+)
+
+# TODO: Add HGCAL, but needs code first
