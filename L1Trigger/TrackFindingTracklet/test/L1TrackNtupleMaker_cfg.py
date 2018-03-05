@@ -125,7 +125,7 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
 process.ana = cms.Path(process.L1TrackNtuple)
 
 # use this if you want to re-run the stub making
-#process.schedule = cms.Schedule(process.TTClusterStub,TrackTriggerAssociatorClustersStubs,process.TTTracksWithTruth,process.ana)
+#process.schedule = cms.Schedule(process.TTClusterStub,process.TTClusterStubTruth,process.TTTracksWithTruth,process.ana)
 
 # use this if cluster/stub associators not available 
 process.schedule = cms.Schedule(process.TTClusterStubTruth,process.TTTracksWithTruth,process.ana)
