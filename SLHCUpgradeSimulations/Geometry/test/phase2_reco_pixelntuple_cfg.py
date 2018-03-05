@@ -29,12 +29,12 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(10)
 )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-'/store/relval/CMSSW_10_0_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW/94X_upgrade2023_realistic_v2_2023D21noPU-v2/10000/0E747454-F7CE-E711-B528-0CC47A7C34C8.root'
+	'/store/relval/CMSSW_10_0_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW/94X_upgrade2023_realistic_v2_2023D21noPU-v2/10000/0E747454-F7CE-E711-B528-0CC47A7C34C8.root'
     )
 )
 
@@ -76,7 +76,6 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("Phase2PixelNtuple",
    usePhase2Tracker = cms.bool(True),
    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel"),
    phase2TrackerSimLinkSrc = cms.InputTag("simSiPixelDigis", "Tracker")
-
 )
 
 

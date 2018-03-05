@@ -29,7 +29,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(5)
+    input = cms.untracked.int32(10)
 )
 
 process.source = cms.Source("PoolSource",
@@ -76,7 +76,6 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("Phase2PixelNtuple",
    usePhase2Tracker = cms.bool(True),
    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel"),
    phase2TrackerSimLinkSrc = cms.InputTag("simSiPixelDigis", "Tracker")
-
 )
 
 
@@ -84,6 +83,14 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("Phase2PixelNtuple",
 
 # Other statements
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
+
+# This pset is specific for producing simulated events for the designers of the PROC (InnerTracker)
+# They need pixel RecHits where the charge is stored with high-granularity and large dinamic range
+process.mix.digitizers.pixel.PixelDigitizerAlgorithm.AdcFullScale   = cms.int32(255)
+process.mix.digitizers.pixel.PixelDigitizerAlgorithm.ElectronPerAdc = cms.double(135.)
+process.siPixelClusters.ElectronPerADCGain=cms.double(135.)
+process.siPixelClustersPreSplitting.ElectronPerADCGain=cms.double(135.)
+
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
@@ -114,19 +121,7 @@ from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
 #call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
 process = customizeHLTforMC(process)
 
-# This pset is specific for producing simulated events for the designers of the PROC (InnerTracker)
-# They need pixel RecHits where the charge is stored with high-granularity and large dinamic range
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(process.mix.digitizers.pixel.PixelDigitizerAlgorithm,
-  AdcFullScale   = cms.int32(255),
-  ElectronPerAdc = cms.double(135)
-)
-phase2_tracker.toModify(process.siPixelClusters, 
-  ElectronPerADCGain = cms.double(135) 
-)
-
 # End of customisation functions
-
 #do not add changes to your config after this point (unless you know what you are doing)
 from FWCore.ParameterSet.Utilities import convertToUnscheduled
 process=convertToUnscheduled(process)
