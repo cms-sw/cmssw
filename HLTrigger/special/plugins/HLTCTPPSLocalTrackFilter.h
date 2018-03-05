@@ -9,7 +9,8 @@
 
 
 // include files
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
@@ -25,14 +26,14 @@
 // class declaration
 //
 
-class HLTCTPPSLocalTrackFilter : public HLTFilter
+class HLTCTPPSLocalTrackFilter : public edm::EDFilter
 {
 public:
   explicit HLTCTPPSLocalTrackFilter(const edm::ParameterSet&);
   ~HLTCTPPSLocalTrackFilter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
-  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs&) const override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::ParameterSet param_;
@@ -46,7 +47,9 @@ private:
   edm::InputTag diamondLocalTrackInputTag_; // Input tag identifying the diamond detector
   edm::EDGetTokenT<edm::DetSetVector<CTPPSDiamondLocalTrack>> diamondLocalTrackToken_;
 
-  unsigned int detectorBitset_;
+  bool usePixel_;
+  bool useStrip_;
+  bool useDiamond_;
 
   int minTracks_;
   int minTracksPerArm_;
@@ -54,10 +57,6 @@ private:
   int maxTracks_;
   int maxTracksPerArm_;
   int maxTracksPerPot_;
-
-  bool usePixel_;
-  bool useStrip_;
-  bool useDiamond_;
 
 protected:
 };

@@ -6,9 +6,6 @@
 // </description>
 
 // system include files
-#include <map>
-#include <iostream>
-#include <memory>
 
 // user include files
 #include "HLTCTPPSLocalTrackFilter.h"
@@ -33,7 +30,6 @@
 void HLTCTPPSLocalTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 {
   edm::ParameterSetDescription desc;
-  makeHLTFilterDescription(desc);
 
   desc.add<edm::InputTag>("pixelLocalTrackInputTag",   edm::InputTag("ctppsPixelLocalTracks"))
     ->setComment("input tag of the pixel local track collection");
@@ -42,8 +38,12 @@ void HLTCTPPSLocalTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<edm::InputTag>("diamondLocalTrackInputTag", edm::InputTag("ctppsDiamondLocalTracks"))
     ->setComment("input tag of the diamond local track collection");
 
-  desc.add<unsigned int>("detectorBitset", static_cast<unsigned int>(1))
-    ->setComment("bitset of which detector types to consider: bit 1 -> pixel; bit 2 -> strips; bit 3 -> diamonds. eg. the value 1 will only consider the pixel detectors, the value 5 will consider the diamond and pixel detectors");
+  desc.add<bool>("usePixel", true)
+    ->setComment("whether to consider the pixel detectors");
+  desc.add<bool>("useStrip", false)
+    ->setComment("whether to consider the strip detectors");
+  desc.add<bool>("useDiamond", false)
+    ->setComment("whether to consider the diamond detectors");
 
   desc.add<int>("minTracks", 2)
     ->setComment("minimum number of tracks");
@@ -69,27 +69,18 @@ void HLTCTPPSLocalTrackFilter::fillDescriptions(edm::ConfigurationDescriptions& 
 HLTCTPPSLocalTrackFilter::~HLTCTPPSLocalTrackFilter()= default;
 
 HLTCTPPSLocalTrackFilter::HLTCTPPSLocalTrackFilter(const edm::ParameterSet& iConfig):
-  HLTFilter(iConfig),
   pixelLocalTrackInputTag_   (iConfig.getParameter< edm::InputTag > ("pixelLocalTrackInputTag")),
   stripLocalTrackInputTag_   (iConfig.getParameter< edm::InputTag > ("stripLocalTrackInputTag")),
   diamondLocalTrackInputTag_ (iConfig.getParameter< edm::InputTag > ("diamondLocalTrackInputTag")),
-  detectorBitset_            (iConfig.getParameter< unsigned int  > ("detectorBitset")),
+  usePixel_                  (iConfig.getParameter< bool          > ("usePixel")),
+  useStrip_                  (iConfig.getParameter< bool          > ("useStrip")),
+  useDiamond_                (iConfig.getParameter< bool          > ("useDiamond")),
   minTracks_                 (iConfig.getParameter< int           > ("minTracks")),
   minTracksPerArm_           (iConfig.getParameter< int           > ("minTracksPerArm")),
   maxTracks_                 (iConfig.getParameter< int           > ("maxTracks")),
   maxTracksPerArm_           (iConfig.getParameter< int           > ("maxTracksPerArm")),
-  maxTracksPerPot_           (iConfig.getParameter< int           > ("maxTracksPerPot")),
-  usePixel_   (false),
-  useStrip_   (false),
-  useDiamond_ (false)
+  maxTracksPerPot_           (iConfig.getParameter< int           > ("maxTracksPerPot"))
 {
-  if(detectorBitset_ & 1)
-    usePixel_ = true;
-  if(detectorBitset_ & 2)
-    useStrip_ = true;
-  if(detectorBitset_ & 4)
-    useDiamond_ = true;
-
   if(usePixel_)
     pixelLocalTrackToken_   = consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(pixelLocalTrackInputTag_);
   if(useStrip_)
@@ -97,11 +88,13 @@ HLTCTPPSLocalTrackFilter::HLTCTPPSLocalTrackFilter(const edm::ParameterSet& iCon
   if(useDiamond_)
     diamondLocalTrackToken_ = consumes<edm::DetSetVector<CTPPSDiamondLocalTrack>>(diamondLocalTrackInputTag_);
 
-  LogDebug("") << "HLTCTPPSLocalTrackFilter: pixelTag/stripTag/diamondTag/bitset/minTracks/minTracksPerArm/maxTracks/maxTracksPerArm/maxTracksPerPot : "
+  LogDebug("") << "HLTCTPPSLocalTrackFilter: pixelTag/stripTag/diamondTag/usePixel/useStrip/useDiamond/minTracks/minTracksPerArm/maxTracks/maxTracksPerArm/maxTracksPerPot : "
                << pixelLocalTrackInputTag_.encode() << " "
                << stripLocalTrackInputTag_.encode() << " "
                << diamondLocalTrackInputTag_.encode() << " "
-               << detectorBitset_ << " "
+               << usePixel_ << " "
+               << useStrip_ << " "
+               << useDiamond_ << " "
                << minTracks_ << " "
                << minTracksPerArm_ << " "
                << maxTracks_ << " "
@@ -112,18 +105,11 @@ HLTCTPPSLocalTrackFilter::HLTCTPPSLocalTrackFilter(const edm::ParameterSet& iCon
 //
 // member functions
 //
-bool HLTCTPPSLocalTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs& filterproduct) const
+bool HLTCTPPSLocalTrackFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   int arm45Tracks = 0;
   int arm56Tracks = 0;
   std::map<uint32_t, int> tracksPerPot;
-
-  if (saveTags())
-  {
-    if(usePixel_)   filterproduct.addCollectionTag(pixelLocalTrackInputTag_);
-    if(useStrip_)   filterproduct.addCollectionTag(stripLocalTrackInputTag_);
-    if(useDiamond_) filterproduct.addCollectionTag(diamondLocalTrackInputTag_);
-  }
 
   typedef edm::Ref<edm::DetSetVector<CTPPSPixelLocalTrack>> PixelRef;
   typedef edm::Ref<edm::DetSetVector<TotemRPLocalTrack>> StripRef;
@@ -203,16 +189,14 @@ bool HLTCTPPSLocalTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSet
   }
 
 
-  bool accept = true;
-
   if(arm45Tracks + arm56Tracks < minTracks_ || arm45Tracks < minTracksPerArm_ || arm56Tracks < minTracksPerArm_)
-    accept = false;
+    return false;
 
   if(maxTracks_ >= minTracks_ && arm45Tracks + arm56Tracks > maxTracks_)
-    accept = false;
+    return false;
 
   if(maxTracksPerArm_ >= minTracksPerArm_ && (arm45Tracks > maxTracksPerArm_ || arm56Tracks > maxTracksPerArm_))
-    accept = false;
+    return false;
 
   if(maxTracksPerPot_ >= 0)
   {
@@ -220,13 +204,12 @@ bool HLTCTPPSLocalTrackFilter::hltFilter(edm::Event& iEvent, const edm::EventSet
     {
       if(pot.second > maxTracksPerPot_)
       {
-        accept = false;
-        break;
+        return false;
       }
     }
   }
 
-  return accept;
+  return true;
 }
 
 // define as a framework module
