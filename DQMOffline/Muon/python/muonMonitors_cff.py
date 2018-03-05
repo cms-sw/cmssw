@@ -22,13 +22,13 @@ dqmInfoMuons = DQMEDAnalyzer('DQMEventInfo',
 
 muonTrackAnalyzers = cms.Sequence(MonitorTrackSTAMuons*MonitorTrackGLBMuons*MonitorTrackINNMuons)
 
-muonMonitors = cms.Sequence(#muonTrackAnalyzers*
-                            #dtSegmentsMonitor*
-                            #cscMonitor*
-                            muonAnalyzer)
-                            #muonIdDQM*
-                            #dqmInfoMuons*
-                            #muIsoDQM_seq)
+muonMonitors = cms.Sequence(muonTrackAnalyzers*
+                            dtSegmentsMonitor*
+                            cscMonitor*
+                            muonAnalyzer*
+                            muonIdDQM*
+                            dqmInfoMuons*
+                            muIsoDQM_seq)
 
 muonMonitors_miniAOD = cms.Sequence( muonAnalyzer_miniAOD*
                                      muIsoDQM_seq_miniAOD)
