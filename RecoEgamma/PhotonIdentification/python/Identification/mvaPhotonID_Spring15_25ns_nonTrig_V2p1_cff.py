@@ -2,6 +2,8 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 
 import FWCore.ParameterSet.Config as cms
 
+mvaVariablesFile        = "RecoEgamma/PhotonIdentification/data/PhotonMVAEstimatorRun2VariablesSpring15.txt"
+
 # This MVA ID is the same as 25ns V2 except it uses quantities embedded 
 # in the objects rather than value maps.
 #
@@ -17,11 +19,11 @@ import FWCore.ParameterSet.Config as cms
 #
 
 # This MVA implementation class name
-mvaSpring15NonTrigClassName = "PhotonMVAEstimatorRun2Spring15NonTrig"
+mvaSpring15NonTrigClassName = "PhotonMVAEstimator"
 # The tag is an extra string attached to the names of the products
 # such as ValueMaps that needs to distinguish cases when the same MVA estimator
 # class is used with different tuning/weights
-mvaTag = "25nsV2p1"
+mvaTag = "Run2Spring15NonTrig25nsV2p1"
 
 # There are 2 categories in this MVA. They have to be configured in this strict order
 # (cuts and weight files order):
@@ -65,27 +67,7 @@ mvaPhoID_Spring15_25ns_nonTrig_V2p1_producer_config = cms.PSet(
     mvaName            = cms.string(mvaSpring15NonTrigClassName),
     mvaTag             = cms.string(mvaTag),
     weightFileNames    = mvaSpring15NonTrigWeightFiles_V2p1,
-    #
-    # All the event content needed for this MVA implementation follows
-    #
-    # All the value maps: these are expected to be produced by the
-    # PhotonIDValueMapProducer running upstream
-    #
-    useValueMaps = cms.bool(False),
-    full5x5SigmaIEtaIEtaMap   = cms.InputTag("photonIDValueMapProducer:phoFull5x5SigmaIEtaIEta"),
-    full5x5SigmaIEtaIPhiMap   = cms.InputTag("photonIDValueMapProducer:phoFull5x5SigmaIEtaIPhi"),
-    full5x5E1x3Map      = cms.InputTag("photonIDValueMapProducer:phoFull5x5E1x3"),
-    full5x5E2x2Map      = cms.InputTag("photonIDValueMapProducer:phoFull5x5E2x2"),
-    full5x5E2x5MaxMap   = cms.InputTag("photonIDValueMapProducer:phoFull5x5E2x5Max"),
-    full5x5E5x5Map      = cms.InputTag("photonIDValueMapProducer:phoFull5x5E5x5"),
-    esEffSigmaRRMap     = cms.InputTag("photonIDValueMapProducer:phoESEffSigmaRR"),
-    phoChargedIsolation = cms.InputTag("photonIDValueMapProducer:phoChargedIsolation"),
-    phoPhotonIsolation  = cms.InputTag("photonIDValueMapProducer:phoPhotonIsolation"),
-    phoWorstChargedIsolation = cms.InputTag("photonIDValueMapProducer:phoWorstChargedIsolation"),
-    #
-    # Original event content: pileup in this case
-    # 
-    rho                       = cms.InputTag("fixedGridRhoFastjetAll") 
+    variableDefinition  = cms.string(mvaVariablesFile)
     )
 # Create the VPset's for VID cuts
 mvaPhoID_Spring15_25ns_nonTrig_V2p1_wp90 = configureVIDMVAPhoID_V1( MVA_WP90 )
