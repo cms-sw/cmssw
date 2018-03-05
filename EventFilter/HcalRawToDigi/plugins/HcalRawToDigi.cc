@@ -77,7 +77,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   // used tag was requested
   if( std::find( saveQIE10DataTags_.begin(), saveQIE10DataTags_.end(), "ZDC") 
           != saveQIE10DataTags_.end()  ) {
-    edm::LogError("HcalRawToDigi") << "Cannot create an additional QIE10 sample with name ZDC, it is already created!  It must be removed along with the corresponding entry in saveQIE10DataNSamples" << std::endl;
+    edm::LogWarning("HcalRawToDigi") << "Cannot create an additional QIE10 sample with name ZDC, it is already created!  It must be removed along with the corresponding entry in saveQIE10DataNSamples" << std::endl;
     saveQIE10DataTags_.clear();
     saveQIE10DataNSamples_.clear();
   }
@@ -85,7 +85,7 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   // used tag was requested
   if( std::find( saveQIE10DataTags_.begin(), saveQIE10DataTags_.end(), "LASERMON") 
           != saveQIE10DataTags_.end()  ) {
-    edm::LogError("HcalRawToDigi") << "Cannot create an additional QIE10 sample with name LASERMON, it is already created!  It must be removed along with the corresponding entry in saveQIE10DataNSamples" << std::endl;
+    edm::LogWarning("HcalRawToDigi") << "Cannot create an additional QIE10 sample with name LASERMON, it is already created!  It must be removed along with the corresponding entry in saveQIE10DataNSamples" << std::endl;
     saveQIE10DataTags_.clear();
     saveQIE10DataNSamples_.clear();
   }
@@ -94,12 +94,12 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   // for additional qie10 or qie11 data
   // are not the same length
   if( saveQIE10DataTags_.size() != saveQIE10DataNSamples_.size() ) {
-    edm::LogError("HcalRawToDigi") << "The saveQIE10DataTags and saveQIE10DataNSamples inputs must be the same length!  These will be ingored" << std::endl;
+    edm::LogWarning("HcalRawToDigi") << "The saveQIE10DataTags and saveQIE10DataNSamples inputs must be the same length!  These will be ignored" << std::endl;
     saveQIE10DataTags_.clear();
     saveQIE10DataNSamples_.clear();
   }
   if( saveQIE11DataTags_.size() != saveQIE11DataNSamples_.size() ) {
-    edm::LogError("HcalRawToDigi") << "The saveQIE11DataTags and saveQIE11DataNSamples inputs must be the same length!  These will be ingored" << std::endl;
+    edm::LogWarning("HcalRawToDigi") << "The saveQIE11DataTags and saveQIE11DataNSamples inputs must be the same length!  These will be ignored" << std::endl;
     saveQIE11DataTags_.clear();
     saveQIE11DataNSamples_.clear();
   }
@@ -277,7 +277,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   for( const auto & addtl: colls.qie10Addtl ) {
       if( addtl.second->samples() == colls.qie10->samples() ) {
           std::string tag = saveQIE10Info_[addtl.second->samples()];
-          edm::LogError("HcalRawToDigi") << "QIE10 data requested to be stored in tag " 
+          edm::LogWarning("HcalRawToDigi") << "QIE10 data requested to be stored in tag " 
               << tag << " is already stored in the default QIE10 collection.  "
               << "To avoid duplicating, remove the tag " << tag 
               << " from the saveQIE10DataTags and the value of " 
@@ -288,7 +288,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   for( const auto & addtl: colls.qie11Addtl ) {
       if( addtl.second->samples() == colls.qie11->samples() ) {
           std::string tag = saveQIE11Info_[addtl.second->samples()];
-          edm::LogError("HcalRawToDigi") << "QIE11 data requested to be stored in tag " 
+          edm::LogWarning("HcalRawToDigi") << "QIE11 data requested to be stored in tag " 
               << tag << " is already stored in the default QIE11 collection.  "
               << "To avoid duplicating, remove the tag " << tag 
               << " from the saveQIE11DataTags and the value of " 
