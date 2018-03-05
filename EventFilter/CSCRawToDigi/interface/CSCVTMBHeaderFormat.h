@@ -15,7 +15,7 @@ class CSCVTMBHeaderFormat {
 public:
   virtual ~CSCVTMBHeaderFormat() {}
   void init() {
-    bzero(this, sizeInWords()*2);
+    bzero(static_cast<void *>(this), sizeInWords()*2);
   }
   
   virtual void setEventInformation(const CSCDMBHeader &) = 0;
