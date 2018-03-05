@@ -23,7 +23,6 @@
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 #include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/CTPPSReco/interface/TotemRPLocalTrack.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
@@ -89,7 +88,6 @@ class CTPPSDiamondDQMSource : public DQMEDAnalyzer
     static const int CTPPS_FED_ID_56;
 
     edm::EDGetTokenT< edm::DetSetVector<TotemVFATStatus> > tokenStatus_;
-    edm::EDGetTokenT< edm::DetSetVector<TotemRPLocalTrack> > tokenLocalTrack_;
     edm::EDGetTokenT< edm::DetSetVector<CTPPSPixelLocalTrack> > tokenPixelTrack_;
     edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondDigi> > tokenDigi_;
     edm::EDGetTokenT< edm::DetSetVector<CTPPSDiamondRecHit> > tokenDiamondHit_;
@@ -374,7 +372,6 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots( DQMStore::IBooker& ibooker, u
 
 CTPPSDiamondDQMSource::CTPPSDiamondDQMSource( const edm::ParameterSet& ps ) :
   tokenStatus_      ( consumes< edm::DetSetVector<TotemVFATStatus> >       ( ps.getParameter<edm::InputTag>( "tagStatus" ) ) ),
-  tokenLocalTrack_  ( consumes< edm::DetSetVector<TotemRPLocalTrack> >     ( ps.getParameter<edm::InputTag>( "tagLocalTrack" ) ) ),
   tokenPixelTrack_  ( consumes< edm::DetSetVector<CTPPSPixelLocalTrack> >     ( ps.getParameter<edm::InputTag>( "tagPixelLocalTracks" ) ) ),
   tokenDigi_        ( consumes< edm::DetSetVector<CTPPSDiamondDigi> >      ( ps.getParameter<edm::InputTag>( "tagDigi" ) ) ),
   tokenDiamondHit_  ( consumes< edm::DetSetVector<CTPPSDiamondRecHit> >    ( ps.getParameter<edm::InputTag>( "tagDiamondRecHits" ) ) ),
@@ -417,8 +414,15 @@ CTPPSDiamondDQMSource::dqmBeginRun( const edm::Run& iRun, const edm::EventSetup&
   
   // Rough alignement of pixel detector for diamond thomography
   const CTPPSPixelDetId pixid(0, CTPPS_PIXEL_STATION_ID, CTPPS_FAR_RP_ID, 0);
-  det = geom->getSensor( pixid );
-  horizontalShiftBwDiamondPixels_ = det->translation().x() - det->params().at( 0 ) - horizontalShiftOfDiamond_ - 3;
+  try {
+    det = geom->getSensor( pixid );
+    horizontalShiftBwDiamondPixels_ = det->translation().x() - det->params().at( 0 ) - horizontalShiftOfDiamond_ - 3;
+  }
+  catch (...)
+  {
+    // Pixel not yet installed... tomography will be empty
+    horizontalShiftBwDiamondPixels_ = 0;
+  }
 }
 
 
@@ -464,9 +468,6 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   // get event data
   edm::Handle< edm::DetSetVector<TotemVFATStatus> > diamondVFATStatus;
   event.getByToken( tokenStatus_, diamondVFATStatus );
-
-  edm::Handle< edm::DetSetVector<TotemRPLocalTrack> > stripTracks;
-  event.getByToken( tokenLocalTrack_, stripTracks );
   
   edm::Handle< edm::DetSetVector<CTPPSPixelLocalTrack> > pixelTracks;
   event.getByToken( tokenPixelTrack_, pixelTracks );
@@ -512,7 +513,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   // Correlation Plots
   //------------------------------
 
-  for ( const auto& ds1 : *stripTracks ) {
+  for ( const auto& ds1 : *pixelTracks ) {
     for ( const auto& tr1 : ds1 ) {
       if ( ! tr1.isValid() )  continue;
 
@@ -523,7 +524,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       if (stNum1 != 0 || ( rpNum1 != 2 && rpNum1 != 3 ) )  continue;
       unsigned int idx1 = arm1*3 + rpNum1-2;
 
-      for ( const auto& ds2 : *stripTracks ) {
+      for ( const auto& ds2 : *pixelTracks ) {
         for ( const auto& tr2 : ds2 ) {
           if ( ! tr2.isValid() )  continue;
 
