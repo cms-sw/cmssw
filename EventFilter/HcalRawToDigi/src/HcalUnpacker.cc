@@ -405,7 +405,7 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw, const HcalElectronicsMap& em
 	  ncurr=0;
 	  valid=true;
 	}      
-	// add the word (if within settings or recent firmware [recent firmware ignores startSample/endSample])
+	// add the word (if within settings or recent firmware [recent firmware Suppressing startSample/endSample])
 	if (valid && ((tpgSOIbitInUse && ncurr<10) || (ncurr>=startSample_ && ncurr<=endSample_))) {
 	  colls.tpCont->back().setSample(colls.tpCont->back().size(),*tp_work);
 	  colls.tpCont->back().setSize(colls.tpCont->back().size()+1);
@@ -597,8 +597,6 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
     // ok, now we're work-able
     int slot=amc13->AMCSlot(iamc);
     int crate=amc13->AMCId(iamc)&0xFF;
-    // this is used only for the 1.6 Gbps link data
-    int nps=(amc13->AMCId(iamc)>>12)&0xF;
     
     HcalUHTRData uhtr(amc13->AMCPayload(iamc),amc13->AMCSize(iamc));
     //Check to make sure uMNio is not unpacked here
@@ -614,7 +612,8 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 #endif
 
     //use uhtr presamples since amc header not properly packed in simulation
-    nps = uhtr.presamples();
+    int nps = uhtr.presamples();
+
     HcalUHTRData::const_iterator i=uhtr.begin(), iend=uhtr.end();
     while (i!=iend) {
 #ifdef DebugLog
@@ -940,10 +939,10 @@ void HcalUnpacker::printInvalidDataMessage( const std::string &coll_type, int de
 
   nPrinted_++;
 
-  int limit = 50;
+  int limit = 20;
   if( nPrinted_ >= limit ) {
 
-      if( nPrinted_ == limit ) edm::LogError("Invalid Data") << "Suppresing further error messages" << std::endl;
+      if( nPrinted_ == limit ) edm::LogWarning("Invalid Data") << "Suppressing further error messages" << std::endl;
       
       return;
   }
@@ -964,6 +963,6 @@ void HcalUnpacker::printInvalidDataMessage( const std::string &coll_type, int de
               << conflict_ns << ") \nprocess.hcalDigis.save" << coll_type << "DataTags = cms.untracked.vstring( \"MYDATA\" )" ;
   }
 
-  edm::LogError("Invalid Data") << message.str() << std::endl;
+  edm::LogWarning("Invalid Data") << message.str() << std::endl;
 }
 
