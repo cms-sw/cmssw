@@ -36,6 +36,7 @@ namespace sistrip {
       //The FE length from the full debug header is used in full debug mode.
       bool fePresent(uint8_t internalFEUnitNum) const;
       //check that a channel is present in data, found, on a good FE unit and has no errors flagged in status bits
+      using FEDBufferBase::channelGood;
       virtual bool channelGood(const uint8_t internalFEDannelNum, const bool doAPVeCheck=true) const;
       void setLegacyMode(bool legacy) { legacyUnpacker_ = legacy;}
 
