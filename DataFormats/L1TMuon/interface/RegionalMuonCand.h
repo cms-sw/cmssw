@@ -28,7 +28,6 @@ class RegionalMuonCand {
 
     RegionalMuonCand() :
     m_hwPt(0),m_hwPt2(0),m_hwDXY(0),m_hwPhi(0), m_hwEta(0), m_hwHF(false), m_hwSign(0), m_hwSignValid(0), m_hwQuality(0),
-      m_trackAddress({{kWheelSide, 0}, {kWheelNum, 0}, {kStat1, 0}, {kStat2, 0}, {kStat3, 0}, {kStat4, 0}, {kSegSelStat1, 0}, {kSegSelStat2, 0}, {kSegSelStat3, 0}, {kSegSelStat4, 0}}),
       m_dataword(0)
       {
         setTFIdentifiers(0, bmtf);
