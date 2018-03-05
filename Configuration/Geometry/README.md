@@ -6,7 +6,7 @@ Tracker:
 * T5: Phase2 tilted tracker (v6.1.3) w/ phase 2 pixel (v4.0.2.5) 
 * T6: Phase2 tilted tracker (v6.1.3) w/ phase 2 pixel (v4.0.4) (Inner Tracker barrel has lower radii than TDR T5 geometry)
 * T7: Phase2 tilted tracker (v6.1.3) w/ phase 2 pixel (v4.2.0) (same as T6 but 25x100 in 1x2 modules, 50x200 in 2x2 modules)
-* T8: Phase2 tilted tracker (v6.1.3) w/ phase 2 pixel (v4.2.2) (same as T6 but 50x50 in 1x2 modules, 50x200 in 2x2 modules)
+* T8: Phase2 tilted tracker (v6.1.3) w/ phase 2 pixel (v4.2.1) (same as T6 but 25x100 in 1x2 modules, 100x100 in 2x2 modules)
 
 Calorimeters:
 * C3: HGCal (v8) + Phase2 HCAL and EB
