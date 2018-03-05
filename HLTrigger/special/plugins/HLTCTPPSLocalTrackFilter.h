@@ -9,7 +9,7 @@
 
 
 // include files
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
@@ -26,14 +26,14 @@
 // class declaration
 //
 
-class HLTCTPPSLocalTrackFilter : public edm::EDFilter
+class HLTCTPPSLocalTrackFilter : public edm::global::EDFilter<>
 {
 public:
   explicit HLTCTPPSLocalTrackFilter(const edm::ParameterSet&);
   ~HLTCTPPSLocalTrackFilter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   edm::ParameterSet param_;
@@ -57,8 +57,6 @@ private:
   int maxTracks_;
   int maxTracksPerArm_;
   int maxTracksPerPot_;
-
-protected:
 };
 
 #endif
