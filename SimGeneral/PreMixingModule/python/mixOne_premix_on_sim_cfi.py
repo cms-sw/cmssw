@@ -250,3 +250,17 @@ fastSim.toModify(mixData,
         )
     ),
 )
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_common.toModify(mixData, input = dict(producers = [])) # we use digis directly, no need for raw2digi producers
+
+# Tracker
+# TODO: Add phase2 OT, but needs code first
+phase2_tracker.toModify(mixData,
+    workers = dict(
+        # Disable SiStrip
+        strip = None,
+        stripSimLink = None,
+    ),
+)
