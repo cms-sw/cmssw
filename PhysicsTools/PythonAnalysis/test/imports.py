@@ -25,14 +25,15 @@ for baseDir in baseDirs:
 
 print l
 
-skipIt=['pytest','climate','theanets','hyperopt','thriftpy']
+skipIt=['pytest','climate','theanets','hyperopt','thriftpy','uproot']
 # climate misses plac
 # pytest misses py
 # theanets misses plac
-# xrootdpyfs misses     from fs.errors import DestinationExistsError, DirectoryNotEmptyError, \
-#ImportError: cannot import name DestinationExistsError
 #hyperopt misses builtins
 #thriftpy misses ply
+#unless the llvm version in cmssw matches that of root, uproot needs to be
+#tested separately (https://github.com/scikit-hep/uproot/issues/58)
+
 import importlib
 err = 0
 for i in l:
