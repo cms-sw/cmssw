@@ -36,7 +36,7 @@ void SiPixelDetectorStatus::readFromFile(std::string filename) {
 
   int oldDetId(-1);
   int detid(0), roc(0), dc(0), hits(0), nroc(0);
-  SiPixelModuleStatus *pMod(0);
+  SiPixelModuleStatus *pMod(nullptr);
   bool readOK(false);
   while (getline(INS, sline)) {
 
@@ -69,16 +69,13 @@ void SiPixelDetectorStatus::readFromFile(std::string filename) {
     if (detid != oldDetId) {
       if (pMod) {
 	pMod->setNrocs(nroc+1);
-	// cout << "set nrocs = " << nroc+1 << " for detid = " << oldDetId << " pMod->detid = " << pMod->detid() << endl;
       }
 
       oldDetId = detid;
-      if (0 == getModule(detid)) {
+      if (nullptr == getModule(detid)) {
 	addModule(detid,nroc+1);
-	// cout << "adding " << detid << endl;
-      } else {
-	// cout << "retrieving " << detid << endl;
-      }
+      } 
+
       pMod = getModule(detid);
       nroc = 0;
     }
@@ -192,7 +189,7 @@ int SiPixelDetectorStatus::nmodules() {
 SiPixelModuleStatus* SiPixelDetectorStatus::getModule(int detid) {
 
   if (fModules.find(detid) == fModules.end()) {
-    return 0;
+    return nullptr;
   }
   return &(fModules[detid]);
 }
@@ -241,9 +238,6 @@ void SiPixelDetectorStatus::updateDetectorStatus(SiPixelDetectorStatus newData){
        if(fModules.find(detid) != fModules.end()){// if the detid is in the module lists
           fModules[detid].updateModuleStatus( *(newData.getModule(detid)) );
        }
-       else{
-           std::cout<<"new module?!"<<std::endl;
-       }
 
   }
 
@@ -267,9 +261,6 @@ SiPixelDetectorStatus SiPixelDetectorStatus::combineDetectorStatus(SiPixelDetect
           // then update the module status
           SiPixelModuleStatus* moduleStatus = combine.getModule(detid);
           moduleStatus->updateModuleStatus(*(newData.getModule(detid)));
-       }
-       else{
-           std::cout<<"new module?!"<<std::endl;
        }
   } 
 
