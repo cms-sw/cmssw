@@ -7,7 +7,6 @@ ctppsDiamondDQMSource = DQMEDAnalyzer('CTPPSDiamondDQMSource',
     tagFEDInfo = cms.InputTag("ctppsDiamondRawToDigi", "TimingDiamond"),
     tagDiamondRecHits = cms.InputTag("ctppsDiamondRecHits"),
     tagDiamondLocalTracks = cms.InputTag("ctppsDiamondLocalTracks"),
-    tagLocalTrack = cms.InputTag("totemRPLocalTrackFitter"),
     tagPixelLocalTracks = cms.InputTag("ctppsPixelLocalTracks"),
     
     excludeMultipleHits = cms.bool(True),
