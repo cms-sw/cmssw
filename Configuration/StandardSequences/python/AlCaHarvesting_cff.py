@@ -148,10 +148,34 @@ ALCAHARVESTSiPixelQuality.SiPixelStatusManagerParameters.outputBase = cms.untrac
 ALCAHARVESTSiPixelQuality.SiPixelStatusManagerParameters.aveDigiOcc = cms.untracked.int32(20000)
 
 ALCAHARVESTSiPixelQuality_metadata = cms.PSet(record = cms.untracked.string('SiPixelQualityFromDbRcd'))
-ALCAHARVESTSiPixelQuality_dbOutput = cms.PSet(record = cms.string('SiPixelQualityFromDbRcd_prompt'),
-                                              tag = cms.string('SiPixelQuality_prompt'),
-                                              timetype   = cms.untracked.string('lumiid')
-                                              )
+ALCAHARVESTSiPixelQuality_dbOutput = cms.VPSet(
+        cms.PSet(
+            record = cms.string('SiPixelQualityFromDbRcd_PCL'),
+            tag = cms.string('SiPixelQualityFromDbRcd_PCL'),
+            timetype = cms.untracked.string('lumiid')
+        ),
+        cms.PSet(
+            record = cms.string('SiPixelQualityFromDbRcd_prompt'),
+            tag = cms.string('SiPixelQualityFromDbRcd_prompt'),
+            timetype = cms.untracked.string('lumiid')
+        ),
+        cms.PSet(
+            record = cms.string('SiPixelQualityFromDbRcd_permanentBad'),
+            tag = cms.string('SiPixelQualityFromDbRcd_permanentBad'),
+            timetype = cms.untracked.string('runnumber')
+        ),
+        cms.PSet(
+            record = cms.string('SiPixelQualityFromDbRcd_stuckTBM'),
+            tag = cms.string('SiPixelQualityFromDbRcd_stuckTBM'),
+            timetype = cms.untracked.string('lumiid'),
+        ),
+        cms.PSet(
+            record = cms.string('SiPixelQualityFromDbRcd_other'),
+            tag = cms.string('SiPixelQualityFromDbRcd_other'),
+            timetype = cms.untracked.string('lumiid')
+        )
+
+)
 
 # define all the paths
 BeamSpotByRun  = cms.Path(ALCAHARVESTBeamSpotByRun)
@@ -164,7 +188,7 @@ SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)
 EcalPedestals  = cms.Path(ALCAHARVESTEcalPedestals)
 SiStripGainsAAG = cms.Path(ALCAHARVESTSiStripGainsAAG)
 LumiPCC = cms.Path(ALCAHARVESTLumiPCC)
-
+SiPixelQuality = cms.Path(ALCAHARVESTSiPixelQuality)
 
 ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(dqmSaver+pclMetadataWriter)
 
