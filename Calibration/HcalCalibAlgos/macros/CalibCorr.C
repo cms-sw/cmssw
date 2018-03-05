@@ -51,6 +51,22 @@ unsigned int truncateId(unsigned int detId, int truncateFlag, bool debug=false){
   return id;
 }
 
+double puFactor(int ieta, double pmom, double eHcal, double ediff) {
+
+  double fac(1.0);
+  static const double frac(0.02);
+  if (pmom > 0 && ediff >  frac*pmom) {
+    double a1(-0.35), a2(-0.65);
+    if (std::abs(ieta) == 25) {
+      a2 = -0.30;
+    } else if (std::abs(ieta) > 25) {
+      a1 = -0.45; a2 = -0.10;
+    }
+    fac = (1.0+a1*(eHcal/pmom)*(ediff/pmom)*(1+a2*(ediff/pmom)));
+  }
+  return fac;
+}
+
 class CalibCorr {
 public :
   CalibCorr(const char* infile, bool debug=false);

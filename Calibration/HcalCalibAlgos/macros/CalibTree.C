@@ -653,18 +653,8 @@ Double_t CalibTree::Loop(int loop, TFile *fout, bool useweight, int nMin,
       eHcalDelta_ = Etot3-Etot1;
       double evWt = (useweight) ? t_EventWeight : 1.0; 
       // PU correction only for loose isolation cut
-      double pufac(1.0);
-      if (puCorr_ && pmom > 0 && eHcalDelta_ > 0.02*pmom) { 
-	double a1(-0.35), a2(-0.65);
-	if (std::abs(t_ieta) == 25) {
-	  a2 = -0.30;
-	} else if (std::abs(t_ieta) > 25) {
-	  a1 = -0.45; a2 = -0.10;
-	}
-	pufac = (1.0 + a1 * (Etot/pmom) * (eHcalDelta_/pmom) *
-		 (1 + a2 * (eHcalDelta_/pmom)));
-      }
-      double ratio= Etot*pufac/(pmom-t_eMipDR);
+      double pufac = puCorr_ ? puFactor(t_ieta,pmom,Etot,eHcalDelta_) : 1.0;
+      double ratio = Etot*pufac/(pmom-t_eMipDR);
       if (debug) std::cout << " Weights " << evWt << ":" << pufac << " Energy "
 			   << Etot2 << ":" << Etot << ":" << pmom << ":" 
 			   << t_eMipDR << ":" << t_eHcal << " ratio " << ratio
