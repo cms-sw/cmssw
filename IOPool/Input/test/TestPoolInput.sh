@@ -103,4 +103,6 @@ cmsRun ${LOCAL_TEST_DIR}/test_reduced_ProcessHistory_dup_cfg.py merged_files.roo
 
 cmsRun ${LOCAL_TEST_DIR}/test_reduced_ProcessHistory_end_cfg.py merged_files.root || die 'Failure using test_reduced_ProcessHistory_end_cfg.py' $?
 
+cmsRun ${LOCAL_TEST_DIR}/test_make_multi_lumi_cfg.py || die 'Failure using test_make_multi_lumi_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/test_read_multi_lumi_as_one_cfg.py || die 'Failure using test_read_multi_lumi_as_one_cfg.py' $?
 popd

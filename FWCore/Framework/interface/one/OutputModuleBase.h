@@ -95,13 +95,16 @@ namespace edm {
       static void prevalidate(ConfigurationDescriptions& );
       
       //Output modules always need writeRun and writeLumi to be called
-      bool wantsGlobalRuns() const {return true;}
-      bool wantsGlobalLuminosityBlocks() const {return true;}
+      virtual bool wantsGlobalRuns() const = 0;
+      virtual bool wantsGlobalLuminosityBlocks() const = 0;
       bool wantsStreamRuns() const {return false;}
       bool wantsStreamLuminosityBlocks() const {return false;};
 
       SerialTaskQueue* globalRunsQueue() { return &runQueue_;}
       SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_;}
+      SharedResourcesAcquirer& sharedResourcesAcquirer() {
+        return resourcesAcquirer_;
+      }
 
       bool wantAllEvents() const {return wantAllEvents_;}
       
@@ -212,10 +215,6 @@ namespace edm {
                                          ThinnedAssociationsHelper&) { }
 
       std::string workerType() const {return "WorkerT<edm::one::OutputModuleBase>";}
-      
-      SharedResourcesAcquirer& sharedResourcesAcquirer() {
-        return resourcesAcquirer_;
-      }
       
       /// Tell the OutputModule that is must end the current file.
       void doCloseFile();

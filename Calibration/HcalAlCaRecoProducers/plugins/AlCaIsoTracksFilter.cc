@@ -94,7 +94,7 @@ private:
   const double                   maxRestrictionP_, slopeRestrictionP_;
   const double                   eIsolate_, pTrackLow_, pTrackHigh_;
   const int                      preScale_;
-  std::string                    theTrackQuality_;
+  const std::string              theTrackQuality_;
   spr::trackSelectionParameters  selectionParameter_;
   double                         a_charIsoR_;
   unsigned int                   nRun_, nAll_, nGood_, nRange_;
@@ -139,6 +139,7 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
   pTrackLow_(iConfig.getParameter<double>("momentumRangeLow")),
   pTrackHigh_(iConfig.getParameter<double>("momentumRangeHigh")),
   preScale_(iConfig.getParameter<int>("preScaleFactor")),
+  theTrackQuality_(iConfig.getParameter<std::string>("trackQuality")),
   nRun_(0), nAll_(0), nGood_(0), nRange_(0) {
   //now do what ever initialization is needed
   const double isolationRadius(28.9);
@@ -147,7 +148,6 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
   // Eta dependent cut uses (maxRestrictionP_ * exp(|ieta|*log(2.5)/18))
   // with the factor for exponential slopeRestrictionP_ = log(2.5)/18
   // maxRestrictionP_ = 8 GeV as came from a study
-  theTrackQuality_                    = iConfig.getParameter<std::string>("trackQuality");
   reco::TrackBase::TrackQuality trackQuality_=reco::TrackBase::qualityByName(theTrackQuality_);
   selectionParameter_.minPt           = iConfig.getParameter<double>("minTrackPt");;
   selectionParameter_.minQuality      = trackQuality_;

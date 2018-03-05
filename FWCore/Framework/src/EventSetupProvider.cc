@@ -784,7 +784,9 @@ EventSetupProvider::proxyProviderDescriptions() const
 bool
 EventSetupProvider::isWithinValidityInterval(IOVSyncValue const& iSync) const {
   for( auto const& provider: providers_) {
-    if(not provider.second->validityInterval().validFor(iSync)) {
+    auto const& iov =provider.second->validityInterval();
+    if( (iov != ValidityInterval::invalidInterval()) and
+        (not provider.second->validityInterval().validFor(iSync)) ) {
       return false;
     }
   }

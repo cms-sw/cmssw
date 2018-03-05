@@ -100,6 +100,13 @@ SiPixelSimBlock = cms.PSet(
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify( SiPixelSimBlock, func=_modifyPixelDigitizerForPhase1Pixel )
 
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(SiPixelSimBlock,
+    AddNoise = True,
+    AddNoisyPixels = False,
+    AddPixelInefficiency = False, #done in second step
+)
+
 # Threshold in electrons are the Official CRAFT09 numbers:
 # FPix(smearing)/BPix(smearing) = 2480(160)/2730(200)
 

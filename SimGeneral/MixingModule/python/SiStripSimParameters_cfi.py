@@ -88,3 +88,10 @@ SiStripSimBlock = cms.PSet(
     TOFCutForPeak              = cms.double(100.0),
     Inefficiency               = cms.double(0.0)
 )
+
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(SiStripSimBlock,
+    Noise = False,
+    PreMixingMode = True,
+    FedAlgorithm = 5, # special ZS mode: accept adc>0
+)

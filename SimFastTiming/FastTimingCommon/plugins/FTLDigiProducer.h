@@ -9,9 +9,7 @@
 
 namespace edm {
   class ConsumesCollector;
-  namespace stream {
-    class EDProducerBase;
-  }
+  class ProducerBase;
   class ParameterSet;
   class StreamID;
 }
@@ -22,7 +20,7 @@ namespace CLHEP {
 
 class FTLDigiProducer : public DigiAccumulatorMixMod {
 public:
-  FTLDigiProducer(edm::ParameterSet const& pset, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  FTLDigiProducer(edm::ParameterSet const& pset, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
   FTLDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC)
   {
     throw cms::Exception("DeprecatedConstructor") << "Please make sure you're calling this with the threaded mixing module...";
