@@ -253,6 +253,8 @@ fastSim.toModify(mixData,
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+from Configuration.Eras.Modifier_phase2_ecal_cff import phase2_ecal
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_common.toModify(mixData, input = dict(producers = [])) # we use digis directly, no need for raw2digi producers
 
 # Tracker
@@ -264,3 +266,15 @@ phase2_tracker.toModify(mixData,
         stripSimLink = None,
     ),
 )
+
+# ECAL
+phase2_ecal.toModify(mixData,
+    workers = dict(
+        ecal = dict(
+            doES = False,
+            EBPileInputTag = "simEcalDigis:ebDigis",
+            EEPileInputTag = "simEcalDigis:eeDigis",
+        )
+    )
+)
+phase2_hgcal.toModify(mixData, workers=dict(ecal=dict(doEE=False)))
