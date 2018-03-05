@@ -165,6 +165,18 @@ upgradeSteps['heCollapse'] = {
     'suffix' : '_heCollapse',
     'offset' : 0.6,
 }
+upgradeSteps['Premix'] = {
+    'steps' : [],
+    'PU': [
+        'PremixFull',
+        'PremixHLBeamSpotFull',
+        'PremixHLBeamSpotFull14',
+    ],
+    'suffix': '_Premix',
+    'offset': 0.98,
+}
+# Premix stage2 is derived from baseline+PU in relval_upgrade.py
+premixS2_offset = 0.99
 
 upgradeProperties = {}
 
