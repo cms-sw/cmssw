@@ -978,15 +978,8 @@ bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
       }
       ediff = (Etot3-Etot1);
     }
-    if (ediff >  0.02*pmom) {
-      double a1(-0.35), a2(-0.65);
-      if (std::abs(t_ieta) == 25) {
-	a2 = -0.30;
-      } else if (std::abs(t_ieta) > 25) {
-	a1 = -0.45; a2 = -0.10;
-      }
-      double fac = (1.0+a1*(t_eHcal/pmom)*(ediff/pmom)*(1+a2*(ediff/pmom)));
-      eHcal *= fac;
+    double fac = puFactor(t_ieta,pmom,eHcal,ediff);
+    eHcal     *= fac;
     }
   }
   select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) &&
