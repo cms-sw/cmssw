@@ -2394,7 +2394,7 @@ void SiPixelDigitizerAlgorithm::printCluster(array_2d& cluster)
     }
     std::cout << std::endl;
   }
-  std::cout.copyfmt(std::ios(NULL));
+  std::cout.copyfmt(std::ios(nullptr));
 }
 
 void SiPixelDigitizerAlgorithm::printCluster(float arr[BXM2][BYM2])
@@ -2406,7 +2406,7 @@ void SiPixelDigitizerAlgorithm::printCluster(float arr[BXM2][BYM2])
     }
     std::cout << std::endl;
   }
-  std::cout.copyfmt(std::ios(NULL));
+  std::cout.copyfmt(std::ios(nullptr));
 }
 
 void SiPixelDigitizerAlgorithm::printCluster(float arr[TXSIZE][TYSIZE])
@@ -2418,5 +2418,5 @@ void SiPixelDigitizerAlgorithm::printCluster(float arr[TXSIZE][TYSIZE])
     }
     std::cout << std::endl;
   }
-  std::cout.copyfmt(std::ios(NULL));
+  std::cout.copyfmt(std::ios(nullptr));
 }
