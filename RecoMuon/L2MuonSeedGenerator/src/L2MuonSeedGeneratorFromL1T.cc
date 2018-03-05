@@ -158,7 +158,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
   
   edm::Handle<MuonBxCollection> muColl;
   iEvent.getByToken(muCollToken_, muColl);
-  LogTrace(metname) << "Number of muons " << muColl->size() << endl;
+  LogDebug(metname) << "Number of muons " << muColl->size() << endl;
 
 
   //--- matchType 0 : Old logic
@@ -168,7 +168,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
     vector<int> offlineSeedMap;
     if(useOfflineSeed) {
       iEvent.getByToken(offlineSeedToken_, offlineSeedHandle);
-      LogTrace(metname) << "Number of offline seeds " << offlineSeedHandle->size() << endl;
+      LogDebug(metname) << "Number of offline seeds " << offlineSeedHandle->size() << endl;
       offlineSeedMap = vector<int>(offlineSeedHandle->size(), 0);
     }
 
@@ -195,16 +195,16 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
         if ( pt < theL1MinPt || fabs(eta) > theL1MaxEta ) continue;
 
-        LogTrace(metname) << "New L2 Muon Seed" ;
-        LogTrace(metname) << "Pt = "         << pt     << " GeV/c";
-        LogTrace(metname) << "eta = "        << eta; 
-        LogTrace(metname) << "theta = "      << theta  << " rad";
-        LogTrace(metname) << "phi = "        << phi    << " rad";
-        LogTrace(metname) << "charge = "     << charge;
-        LogTrace(metname) << "In Barrel? = " << barrel;
+        LogDebug(metname) << "New L2 Muon Seed" ;
+        LogDebug(metname) << "Pt = "         << pt     << " GeV/c";
+        LogDebug(metname) << "eta = "        << eta; 
+        LogDebug(metname) << "theta = "      << theta  << " rad";
+        LogDebug(metname) << "phi = "        << phi    << " rad";
+        LogDebug(metname) << "charge = "     << charge;
+        LogDebug(metname) << "In Barrel? = " << barrel;
 
         if ( quality <= theL1MinQuality ) continue;
-        LogTrace(metname) << "quality = "<< quality; 
+        LogDebug(metname) << "quality = "<< quality; 
 
         // Update the services
         theService->update(iSetup);
@@ -219,46 +219,35 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
         DetId theid; 
         // Get the det layer on which the state should be put
         if ( barrel ){
-          LogTrace(metname) << "The seed is in the barrel";
+          LogDebug(metname) << "The seed is in the barrel";
 
           // MB2
-          DetId id = DTChamberId(0,2,0);
-          detLayer = theService->detLayerGeometry()->idToLayer(id);
-          LogTrace(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
+          theid = DTChamberId(0,2,0);
+          detLayer = theService->detLayerGeometry()->idToLayer(theid);
+          LogDebug(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
 
           const BoundSurface* sur = &(detLayer->surface());
           const BoundCylinder* bc = dynamic_cast<const BoundCylinder*>(sur);
 
           radius = fabs(bc->radius()/sin(theta));
-          theid  = id;    
 
-          LogTrace(metname) << "radius "<<radius;
+          LogDebug(metname) << "radius "<<radius;
 
           if ( pt < theMinPtBarrel ) pt = theMinPtBarrel;
         }
         else {
-          LogTrace(metname) << "The seed is in the endcap";
+          LogDebug(metname) << "The seed is in the endcap";
 
-          DetId id;
           // ME2
-          if ( theta < Geom::pi()/2. )
-            id = CSCDetId(1,2,0,0,0); 
-          else
-            id = CSCDetId(2,2,0,0,0); 
+          theid = theta < Geom::pi()/2. ? CSCDetId(1,2,0,0,0) : CSCDetId(2,2,0,0,0);
 
-          detLayer = theService->detLayerGeometry()->idToLayer(id);
-          LogTrace(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
+          detLayer = theService->detLayerGeometry()->idToLayer(theid);
+          LogDebug(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
 
           radius = fabs(detLayer->position().z()/cos(theta));      
-          theid = id;    
 
           if( pt < theMinPtEndcap) pt = theMinPtEndcap;
         }
-
-        // Fallback solution using ME2
-        DetId fallback_id;
-        theta < Geom::pi()/2. ? fallback_id = CSCDetId(1,2,0,0,0) : fallback_id = CSCDetId(2,2,0,0,0); 
-        const DetLayer* ME2DetLayer = theService->detLayerGeometry()->idToLayer(fallback_id);
 
         vec.setMag(radius);
 
@@ -284,15 +273,15 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
         const FreeTrajectoryState state(param,error);
 
-        LogTrace(metname) << "Free trajectory State from the parameters";
-        LogTrace(metname) << debug.dumpFTS(state);
+        LogDebug(metname) << "Free trajectory State from the parameters";
+        LogDebug(metname) << debug.dumpFTS(state);
 
         // Propagate the state on the MB2/ME2 surface
         TrajectoryStateOnSurface tsos = theService->propagator(thePropagatorName)->propagate(state, detLayer->surface());
 
-        LogTrace(metname) << "State after the propagation on the layer";
-        LogTrace(metname) << debug.dumpLayer(detLayer);
-        LogTrace(metname) << debug.dumpTSOS(tsos);
+        LogDebug(metname) << "State after the propagation on the layer";
+        LogDebug(metname) << debug.dumpLayer(detLayer);
+        LogDebug(metname) << debug.dumpTSOS(tsos);
 
       double dRcone = matchingDR[0];
       if ( fabs(eta) < etaBins.back() ){
@@ -337,7 +326,11 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
                                 *theEstimator);   
 
             if (detsWithStates.empty() && barrel ) {
-              // try again to propagate but using ME2 as reference
+              // Fallback solution using ME2, try again to propagate but using ME2 as reference
+              DetId fallback_id;
+              theta < Geom::pi()/2. ? fallback_id = CSCDetId(1,2,0,0,0) : fallback_id = CSCDetId(2,2,0,0,0); 
+              const DetLayer* ME2DetLayer = theService->detLayerGeometry()->idToLayer(fallback_id);
+
               tsos = theService->propagator(thePropagatorName)->propagate(state, ME2DetLayer->surface());
               detsWithStates = ME2DetLayer->compatibleDets(tsos, 
                                              *theService->propagator(thePropagatorName), 
@@ -349,10 +342,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
               TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
               const GeomDet *newTSOSDet = detsWithStates.front().first;
 
-              LogTrace(metname) << "Most compatible det";
-              LogTrace(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
-
-              LogDebug(metname) << "L1 info: Det and State:";
+              LogDebug(metname) << "Most compatible det";
               LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
 
               if (newTSOS.isValid()){
@@ -411,7 +401,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
     if(useOfflineSeed) {
       iEvent.getByToken(offlineSeedToken_, offlineSeedHandle);
       unsigned int nOfflineSeed = offlineSeedHandle->size();
-      LogTrace(metname) << "Number of offline seeds " << nOfflineSeed << endl;
+      LogDebug(metname) << "Number of offline seeds " << nOfflineSeed << endl;
 
       // Initialize dRmtx and selOffseeds
       dRmtx = vector< vector<double> >(nMuColl, vector<double>(nOfflineSeed, 999.0));
@@ -448,16 +438,16 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
         if ( pt < theL1MinPt || fabs(eta) > theL1MaxEta ) continue;
 
-        LogTrace(metname) << "New L2 Muon Seed" ;
-        LogTrace(metname) << "Pt = "         << pt     << " GeV/c";
-        LogTrace(metname) << "eta = "        << eta;
-        LogTrace(metname) << "theta = "      << theta  << " rad";
-        LogTrace(metname) << "phi = "        << phi    << " rad";
-        LogTrace(metname) << "charge = "     << charge;
-        LogTrace(metname) << "In Barrel? = " << barrel;
+        LogDebug(metname) << "New L2 Muon Seed" ;
+        LogDebug(metname) << "Pt = "         << pt     << " GeV/c";
+        LogDebug(metname) << "eta = "        << eta;
+        LogDebug(metname) << "theta = "      << theta  << " rad";
+        LogDebug(metname) << "phi = "        << phi    << " rad";
+        LogDebug(metname) << "charge = "     << charge;
+        LogDebug(metname) << "In Barrel? = " << barrel;
 
         if ( quality <= theL1MinQuality ) continue;
-        LogTrace(metname) << "quality = "<< quality;
+        LogDebug(metname) << "quality = "<< quality;
 
         // Update the services
         theService->update(iSetup);
@@ -472,46 +462,35 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
         DetId theid;
         // Get the det layer on which the state should be put
         if ( barrel ){
-          LogTrace(metname) << "The seed is in the barrel";
+          LogDebug(metname) << "The seed is in the barrel";
 
           // MB2
-          DetId id = DTChamberId(0,2,0);
-          detLayer = theService->detLayerGeometry()->idToLayer(id);
-          LogTrace(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
+          theid = DTChamberId(0,2,0);
+          detLayer = theService->detLayerGeometry()->idToLayer(theid);
+          LogDebug(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
 
           const BoundSurface* sur = &(detLayer->surface());
           const BoundCylinder* bc = dynamic_cast<const BoundCylinder*>(sur);
 
           radius = fabs(bc->radius()/sin(theta));
-          theid  = id;
 
-          LogTrace(metname) << "radius "<<radius;
+          LogDebug(metname) << "radius "<<radius;
 
           if ( pt < theMinPtBarrel ) pt = theMinPtBarrel;
         }
         else {
-          LogTrace(metname) << "The seed is in the endcap";
+          LogDebug(metname) << "The seed is in the endcap";
 
-          DetId id;
           // ME2
-          if ( theta < Geom::pi()/2. )
-            id = CSCDetId(1,2,0,0,0);
-          else
-            id = CSCDetId(2,2,0,0,0);
+          theid = theta < Geom::pi()/2. ? CSCDetId(1,2,0,0,0) : CSCDetId(2,2,0,0,0);
 
-          detLayer = theService->detLayerGeometry()->idToLayer(id);
-          LogTrace(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
+          detLayer = theService->detLayerGeometry()->idToLayer(theid);
+          LogDebug(metname) << "L2 Layer: " << debug.dumpLayer(detLayer);
 
           radius = fabs(detLayer->position().z()/cos(theta));
-          theid = id;
 
           if( pt < theMinPtEndcap) pt = theMinPtEndcap;
         }
-
-        // Fallback solution using ME2
-        DetId fallback_id;
-        theta < Geom::pi()/2. ? fallback_id = CSCDetId(1,2,0,0,0) : fallback_id = CSCDetId(2,2,0,0,0);
-        const DetLayer* ME2DetLayer = theService->detLayerGeometry()->idToLayer(fallback_id);
 
         vec.setMag(radius);
 
@@ -537,15 +516,15 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
         const FreeTrajectoryState state(param,error);
 
-        LogTrace(metname) << "Free trajectory State from the parameters";
-        LogTrace(metname) << debug.dumpFTS(state);
+        LogDebug(metname) << "Free trajectory State from the parameters";
+        LogDebug(metname) << debug.dumpFTS(state);
 
         // Propagate the state on the MB2/ME2 surface
         TrajectoryStateOnSurface tsos = theService->propagator(thePropagatorName)->propagate(state, detLayer->surface());
 
-        LogTrace(metname) << "State after the propagation on the layer";
-        LogTrace(metname) << debug.dumpLayer(detLayer);
-        LogTrace(metname) << debug.dumpTSOS(tsos);
+        LogDebug(metname) << "State after the propagation on the layer";
+        LogDebug(metname) << debug.dumpLayer(detLayer);
+        LogDebug(metname) << debug.dumpTSOS(tsos);
 
         double dRcone = matchingDR[0];
         if ( fabs(eta) < etaBins.back() ){
@@ -588,7 +567,11 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
                                   *theEstimator);
 
               if (detsWithStates.empty() && barrel ) {
-                // try again to propagate but using ME2 as reference
+                // Fallback solution using ME2, try again to propagate but using ME2 as reference
+                DetId fallback_id;
+                theta < Geom::pi()/2. ? fallback_id = CSCDetId(1,2,0,0,0) : fallback_id = CSCDetId(2,2,0,0,0); 
+                const DetLayer* ME2DetLayer = theService->detLayerGeometry()->idToLayer(fallback_id);
+
                 tsos = theService->propagator(thePropagatorName)->propagate(state, ME2DetLayer->surface());
                 detsWithStates = ME2DetLayer->compatibleDets(tsos,
                                                *theService->propagator(thePropagatorName),
@@ -600,10 +583,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
                 TrajectoryStateOnSurface newTSOS = detsWithStates.front().second;
                 const GeomDet *newTSOSDet = detsWithStates.front().first;
 
-                LogTrace(metname) << "Most compatible det";
-                LogTrace(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
-
-                LogDebug(metname) << "L1 info: Det and State:";
+                LogDebug(metname) << "Most compatible det";
                 LogDebug(metname) << debug.dumpMuonId(newTSOSDet->geographicalId());
 
                 if (newTSOS.isValid()){
@@ -652,12 +632,14 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
       unsigned int i, j; // for the matrix element
 
       if(matchType==1) {
+        vector<bool> removed_col = vector<bool>(nOfflineSeed1, false);
 
         for(nL1=0; nL1 < nMuColl; ++nL1) {
-          double tempDR = 999;
+          double tempDR = 99.;
           unsigned int theOffs = 0;
 
           for(j=0; j<nOfflineSeed1; ++j) {
+            if(removed_col[j]) continue;
             if( tempDR > dRmtx[nL1][j] ) {
               tempDR = dRmtx[nL1][j];
               theOffs = j;
@@ -674,13 +656,11 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
           if( !(tempDR < newDRcone) )  continue;
 
-          // Remove row and column for given (L1mu, offSeed)
+          // Remove column for given offSeed
           for(i=0; i<nMuColl; ++i) {
             dRmtx[i][theOffs] = 999;
           }
-          for(j=0; j<nOfflineSeed1; ++j) {
-            dRmtx[nL1][j] = 999;
-          }
+          removed_col[theOffs] = true;
 
           if( selOffseeds[nL1][theOffs] != nullptr ) {
             //put given L1mu and offSeed to output
@@ -700,14 +680,18 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
       }
 
       else if(matchType==2) {
+        vector<bool> removed_row = vector<bool>(nMuColl, false);
+        vector<bool> removed_col = vector<bool>(nOfflineSeed1, false);
 
         for(nL1=0; nL1 < nMuColl; ++nL1) {
-          double tempDR = 999;
+          double tempDR = 99.;
           unsigned int theL1 = 0;
           unsigned int theOffs = 0;
 
           for(i=0; i<nMuColl; ++i) {
+            if(removed_row[i]) continue;
             for(j=0; j<nOfflineSeed1; ++j) {
+              if(removed_col[j]) continue;
               if(tempDR > dRmtx[i][j]) {
                 tempDR = dRmtx[i][j];
                 theL1 = i;
@@ -730,9 +714,11 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
           for(i=0; i<nMuColl; ++i) {
             dRmtx[i][theOffs] = 999;
           }
+          removed_col[theOffs] = true;
           for(j=0; j<nOfflineSeed1; ++j) {
             dRmtx[theL1][j] = 999;
           }
+          removed_row[theL1] = true;
 
           if( selOffseeds[theL1][theOffs] != nullptr ) {
             //put given L1mu and offSeed to output
@@ -752,18 +738,22 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
       }
 
       else if(matchType==3) {
+        vector<bool> removed_row = vector<bool>(nMuColl, false);
+        vector<bool> removed_col = vector<bool>(nOfflineSeed1, false);
 
         for(nL1=0; nL1 < nMuColl; ++nL1) {
-          double tempDR = 999;
+          double tempDR = 99.;
           unsigned int theL1 = 0;
           unsigned int theOffs = 0;
           auto theit = muColl->begin(muColl->getFirstBX());
 
           // L1Q > 10 (L1Q = 12)
           for(i=0; i<nMuColl; ++i) {
+            if(removed_row[i]) continue;
             theit = muColl->begin(muColl->getFirstBX()) + i;
             if (theit->hwQual() > 10) {
               for(j=0; j<nOfflineSeed1; ++j) {
+                if(removed_col[j]) continue;
                 if(tempDR > dRmtx[i][j]) {
                   tempDR = dRmtx[i][j];
                   theL1 = i;
@@ -774,11 +764,13 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
           }
 
           // 6 < L1Q <= 10 (L1Q = 8)
-          if (tempDR == 999) {
+          if (tempDR == 99.) {
             for(i=0; i<nMuColl; ++i) {
+              if(removed_row[i]) continue;
               theit = muColl->begin(muColl->getFirstBX()) + i;
               if ( (theit->hwQual() <= 10) && (theit->hwQual() > 6) ) {
                 for(j=0; j<nOfflineSeed1; ++j) {
+                  if(removed_col[j]) continue;
                   if(tempDR > dRmtx[i][j]) {
                     tempDR = dRmtx[i][j];
                     theL1 = i;
@@ -790,11 +782,13 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
           }
 
           // L1Q <= 6 (L1Q = 4)
-          if (tempDR == 999) {
+          if (tempDR == 99.) {
             for(i=0; i<nMuColl; ++i) {
+              if(removed_row[i]) continue;
               theit = muColl->begin(muColl->getFirstBX()) + i;
               if (theit->hwQual() <= 6) {
                 for(j=0; j<nOfflineSeed1; ++j) {
+                  if(removed_col[j]) continue;
                   if(tempDR > dRmtx[i][j]) {
                     tempDR = dRmtx[i][j];
                     theL1 = i;
@@ -819,9 +813,11 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
           for(i=0; i<nMuColl; ++i) {
             dRmtx[i][theOffs] = 999;
           }
+          removed_col[theOffs] = true;
           for(j=0; j<nOfflineSeed1; ++j) {
             dRmtx[theL1][j] = 999;
           }
+          removed_row[theL1] = true;
 
           if( selOffseeds[theL1][theOffs] != nullptr ) {
             //put given L1mu and offSeed to output
@@ -846,7 +842,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
 
           auto it = muColl->begin(muColl->getFirstBX()) + i;
 
-          double tempDR = 999;
+          double tempDR = 99.;
           unsigned int theOffs = 0;
 
           double newDRcone = matchingDR[0];
@@ -983,10 +979,7 @@ bool L2MuonSeedGeneratorFromL1T::isAssociateOfflineSeedToL1( edm::Handle<edm::Vi
 
     // Preliminary check
     double preDr = deltaR( newTsos.globalPosition().eta(), newTsos.globalPosition().phi(), glbPos.eta(), glbPos.phi() );
-    if(preDr > 1.0) {
-      LogDebug(metlabel) << "!(preDr > 1.0)" << endl;
-      continue;
-    }
+    if(preDr > 1.0) continue;
 
     const FreeTrajectoryState offseedFTS(glbPos, glbMom, offseed->startingState().parameters().charge(), &*theService->magneticField());
     TrajectoryStateOnSurface offseedTsos = theService->propagator(thePropagatorName)->propagate(offseedFTS, newTsos.surface());
