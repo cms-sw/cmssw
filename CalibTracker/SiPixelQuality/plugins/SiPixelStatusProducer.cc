@@ -196,6 +196,11 @@ void SiPixelStatusProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
            //const SiPixelCluster* siPixelCluster = dynamic_cast<const SiPixelCluster*>(&clu);
            int roc(-1), rocC(-1), rocR(-1);
 
+           std::map<int,int> fRocIds_detid;
+           if(fRocIds.find(detid)!=fRocIds.end()){
+              fRocIds_detid = fRocIds[detid];
+           }
+
            const vector<SiPixelCluster::Pixel>& pixvector = clu.pixels();
            for (unsigned int i = 0; i < pixvector.size(); ++i) {
 
@@ -209,8 +214,8 @@ void SiPixelStatusProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
                      int icol = mc0/colsperroc;
 
                      int key = indexROC(irow,icol,nROCcolumns);
-                     if(fRocIds.find(detid)!=fRocIds.end() && (fRocIds[detid]).find(key)!=(fRocIds[detid]).end()){
-                        roc = (fRocIds[detid])[key];
+                     if(fRocIds_detid.find(key)!=fRocIds_detid.end()){
+                        roc = fRocIds_detid[key];
                      }
 
                      // if monitor on whole ROC DIGI occupancy, so pixel column and row are nuisances
