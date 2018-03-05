@@ -3,8 +3,8 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -27,11 +27,11 @@ namespace TauTagTools{
   reco::TrackRefVector filteredTracks(const reco::TrackRefVector& theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2, reco::Vertex pV);
   reco::TrackRefVector filteredTracks(const reco::TrackRefVector& theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2,double tktorefpointmaxDZ,reco::Vertex pV,double refpoint_Z);
 
-  std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCandsByNumTrkHits(const std::vector<reco::PFCandidatePtr>& theInitialPFCands, int ChargedHadrCand_tkminTrackerHitsn);
-  std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2, reco::Vertex pV);
-  std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2,double ChargedHadrCand_tktorefpointmaxDZ,reco::Vertex pV, double refpoint_Z);
-  std::vector<reco::PFCandidatePtr> filteredPFNeutrHadrCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double NeutrHadrCand_HcalclusMinEt);
-  std::vector<reco::PFCandidatePtr> filteredPFGammaCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double GammaCand_EcalclusMinEt);
+  std::vector<reco::CandidatePtr> filteredPFChargedHadrCandsByNumTrkHits(const std::vector<reco::CandidatePtr>& theInitialPFCands, int ChargedHadrCand_tkminTrackerHitsn);
+  std::vector<reco::CandidatePtr> filteredPFChargedHadrCands(const std::vector<reco::CandidatePtr>& theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2, reco::Vertex pV);
+  std::vector<reco::CandidatePtr> filteredPFChargedHadrCands(const std::vector<reco::CandidatePtr>& theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2,double ChargedHadrCand_tktorefpointmaxDZ,reco::Vertex pV, double refpoint_Z);
+  std::vector<reco::CandidatePtr> filteredPFNeutrHadrCands(const std::vector<reco::CandidatePtr>& theInitialPFCands,double NeutrHadrCand_HcalclusMinEt);
+  std::vector<reco::CandidatePtr> filteredPFGammaCands(const std::vector<reco::CandidatePtr>& theInitialPFCands,double GammaCand_EcalclusMinEt);
   math::XYZPoint propagTrackECALSurfContactPoint(const MagneticField*,reco::TrackRef); 
 
   TFormula computeConeSizeTFormula(const std::string& ConeSizeFormula,const char* errorMessage);
@@ -41,32 +41,32 @@ namespace TauTagTools{
   double computeAngle(const math::XYZVector& vec1, const math::XYZVector& vec2);
 
   //MIKE: Sort a reference vector
-  void sortRefVectorByPt(std::vector<reco::PFCandidatePtr>&);
+  void sortRefVectorByPt(std::vector<reco::CandidatePtr>&);
 
 
   //binary predicate classes for sorting a list of indexes corresponding to PFPtrVectors...(as they can't use STL??)
   class sortRefsByOpeningDistance
   {
      public:
-     sortRefsByOpeningDistance(const math::XYZVector& theAxis, double (*ptrToMetricFunction)(const math::XYZVector&, const math::XYZVector&), const std::vector<reco::PFCandidatePtr>& myInputVector):myMetricFunction(ptrToMetricFunction),axis(theAxis),myVector(myInputVector){};
+     sortRefsByOpeningDistance(const math::XYZVector& theAxis, double (*ptrToMetricFunction)(const math::XYZVector&, const math::XYZVector&), const std::vector<reco::CandidatePtr>& myInputVector):myMetricFunction(ptrToMetricFunction),axis(theAxis),myVector(myInputVector){};
      bool operator()(uint32_t indexA, uint32_t indexB)
      {
-        const reco::PFCandidatePtr candA = myVector.at(indexA);
-        const reco::PFCandidatePtr candB = myVector.at(indexB);
+        const reco::CandidatePtr candA = myVector.at(indexA);
+        const reco::CandidatePtr candB = myVector.at(indexB);
         return (myMetricFunction(axis, candA->momentum()) < myMetricFunction(axis, candB->momentum()));
      }
      private:
      double (*myMetricFunction)(const math::XYZVector&, const math::XYZVector&);
      math::XYZVector axis;  //axis about which candidates are sorted
-     const std::vector<reco::PFCandidatePtr> myVector;
+     const std::vector<reco::CandidatePtr> myVector;
   };
   class filterChargedAndNeutralsByPt
   {
      public:
-     filterChargedAndNeutralsByPt(double minNeutralPt, double minChargedPt, const std::vector<reco::PFCandidatePtr>& myInputVector):minNeutralPt_(minNeutralPt),minChargedPt_(minChargedPt),myVector(myInputVector){};
+     filterChargedAndNeutralsByPt(double minNeutralPt, double minChargedPt, const std::vector<reco::CandidatePtr>& myInputVector):minNeutralPt_(minNeutralPt),minChargedPt_(minChargedPt),myVector(myInputVector){};
      bool operator()(uint32_t candIndex)
      {
-        const reco::PFCandidatePtr cand = myVector.at(candIndex);
+        const reco::CandidatePtr cand = myVector.at(candIndex);
         bool output          = true;
         unsigned char charge = std::abs(cand->charge());
         double thePt         = cand->pt();
@@ -79,12 +79,12 @@ namespace TauTagTools{
      private:
      double minNeutralPt_;
      double minChargedPt_;
-     const std::vector<reco::PFCandidatePtr>& myVector;
+     const std::vector<reco::CandidatePtr>& myVector;
   };
 
   class refVectorPtSorter {
   public:
-    refVectorPtSorter(const std::vector<reco::PFCandidatePtr>& vec)
+    refVectorPtSorter(const std::vector<reco::CandidatePtr>& vec)
       {
 	vec_ = vec;
       }
@@ -102,7 +102,7 @@ namespace TauTagTools{
     }
 
   private:
-    std::vector<reco::PFCandidatePtr> vec_;
+    std::vector<reco::CandidatePtr> vec_;
   };
 
 

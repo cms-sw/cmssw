@@ -1,4 +1,4 @@
-/*
+  /*
  * =============================================================================
  *       Filename:  RecoTauEnergyRecoveryPlugin2.cc
  *
@@ -63,8 +63,8 @@ void RecoTauEnergyRecoveryPlugin2::operator()(PFTau& tau) const
 {
   reco::Candidate::LorentzVector tauAltP4(0.,0.,0.,0.);
   
-  std::vector<reco::PFCandidatePtr> pfJetConstituents = tau.jetRef()->getPFConstituents();
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfJetConstituent = pfJetConstituents.begin();
+  std::vector<reco::CandidatePtr> pfJetConstituents = tau.jetRef()->getJetConstituents();
+  for ( std::vector<reco::CandidatePtr>::const_iterator pfJetConstituent = pfJetConstituents.begin();
 	pfJetConstituent != pfJetConstituents.end(); ++pfJetConstituent ) {
     double dR = deltaR((*pfJetConstituent)->p4(), tau.p4());
     if ( dR < dRcone_ ) tauAltP4 += (*pfJetConstituent)->p4();

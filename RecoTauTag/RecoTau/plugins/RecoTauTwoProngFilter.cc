@@ -18,10 +18,10 @@ namespace reco { namespace tau {
 namespace 
 {
   // Delete an element from a ptr vector
-  std::vector<PFCandidatePtr> deleteFrom(const PFCandidatePtr& ptr, const std::vector<PFCandidatePtr>& collection) 
+  std::vector<CandidatePtr> deleteFrom(const CandidatePtr& ptr, const std::vector<CandidatePtr>& collection) 
   {
-    std::vector<PFCandidatePtr> output;
-    for ( std::vector<PFCandidatePtr>::const_iterator cand = collection.begin();
+    std::vector<CandidatePtr> output;
+    for ( std::vector<CandidatePtr>::const_iterator cand = collection.begin();
 	  cand != collection.end(); ++cand ) {
       if ( (*cand) != ptr) output.push_back(*cand);
     }
@@ -44,7 +44,7 @@ class RecoTauTwoProngFilter : public RecoTauModifierPlugin {
 
 void RecoTauTwoProngFilter::operator()(PFTau& tau) const {
   if (tau.signalPFChargedHadrCands().size() == 2) {
-    const std::vector<PFCandidatePtr>& signalCharged = tau.signalPFChargedHadrCands();
+    const std::vector<CandidatePtr>& signalCharged = tau.signalPFChargedHadrCands();
     size_t indexOfHighestPt =
         (signalCharged[0]->pt() > signalCharged[1]->pt()) ? 0 : 1;
     size_t indexOfLowerPt   = ( indexOfHighestPt ) ? 0 : 1;
@@ -52,18 +52,18 @@ void RecoTauTwoProngFilter::operator()(PFTau& tau) const {
         signalCharged[indexOfHighestPt]->pt();
 
     if (ratio < minPtFractionForSecondProng_) {
-      PFCandidatePtr keep = signalCharged[indexOfHighestPt];
-      PFCandidatePtr filter = signalCharged[indexOfLowerPt];
+      CandidatePtr keep = signalCharged[indexOfHighestPt];
+      CandidatePtr filter = signalCharged[indexOfLowerPt];
       // Make our new signal charged candidate collection
-      std::vector<PFCandidatePtr> newSignalCharged;
+      std::vector<CandidatePtr> newSignalCharged;
       newSignalCharged.push_back(keep);
-      std::vector<PFCandidatePtr> newSignal = deleteFrom(filter, tau.signalPFCands());
+      std::vector<CandidatePtr> newSignal = deleteFrom(filter, tau.signalPFCands());
 
       // Copy our filtered cand to isolation
-      std::vector<PFCandidatePtr> newIsolationCharged =
+      std::vector<CandidatePtr> newIsolationCharged =
           tau.isolationPFChargedHadrCands();
       newIsolationCharged.push_back(filter);
-      std::vector<PFCandidatePtr> newIsolation = tau.isolationPFCands();
+      std::vector<CandidatePtr> newIsolation = tau.isolationPFCands();
       newIsolation.push_back(filter);
 
       // Update tau members

@@ -1,4 +1,4 @@
-/* class PFTauPrimaryVertexProducer
+/* class PFTauMiniAODPrimaryVertexProducer
  * EDProducer of the 
  * authors: Ian M. Nugent
  * This work is based on the impact parameter work by Rosamaria Venditti and reconstructing the 3 prong taus.
@@ -28,8 +28,7 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -37,8 +36,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h" 
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h" 
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -56,7 +55,7 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-class PFTauPrimaryVertexProducer final : public edm::stream::EDProducer<> {
+class PFTauMiniAODPrimaryVertexProducer final : public edm::stream::EDProducer<> {
  public:
   enum Alg{useInputPV=0, useFontPV};
 
@@ -70,49 +69,42 @@ class PFTauPrimaryVertexProducer final : public edm::stream::EDProducer<> {
   };
   typedef std::vector<DiscCutPair*> DiscCutPairVec;
 
-  explicit PFTauPrimaryVertexProducer(const edm::ParameterSet& iConfig);
-  ~PFTauPrimaryVertexProducer() override;
+  explicit PFTauMiniAODPrimaryVertexProducer(const edm::ParameterSet& iConfig);
+  ~PFTauMiniAODPrimaryVertexProducer() override;
   void produce(edm::Event&,const edm::EventSetup&) override;
 
  private:
-  edm::InputTag PFTauTag_;
-  edm::EDGetTokenT<std::vector<reco::PFTau> >PFTauToken_;
-  edm::InputTag ElectronTag_;
-  edm::EDGetTokenT<std::vector<reco::Electron> >ElectronToken_;
-  edm::InputTag MuonTag_;
-  edm::EDGetTokenT<std::vector<reco::Muon> >MuonToken_;
-  edm::InputTag PVTag_;
+  edm::EDGetTokenT<std::vector<reco::PFTau> > PFTauToken_;
+  edm::EDGetTokenT<std::vector<pat::Electron> > ElectronToken_;
+  edm::EDGetTokenT<std::vector<pat::Muon> > MuonToken_;
   edm::EDGetTokenT<reco::VertexCollection> PVToken_;
-  edm::InputTag beamSpotTag_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  edm::EDGetTokenT<edm::View<pat::PackedCandidate> > packedCandsToken_, lostCandsToken_;
   int Algorithm_;
   edm::ParameterSet qualityCutsPSet_;
   bool useBeamSpot_;
   bool useSelectedTaus_;
-  bool RemoveMuonTracks_;
-  bool RemoveElectronTracks_;
+  bool removeMuonTracks_;
+  bool removeElectronTracks_;
   DiscCutPairVec discriminators_;
   std::auto_ptr<StringCutObjectSelector<reco::PFTau> > cut_;
   std::auto_ptr<tau::RecoTauVertexAssociator> vertexAssociator_;
 };
 
-PFTauPrimaryVertexProducer::PFTauPrimaryVertexProducer(const edm::ParameterSet& iConfig):
-  PFTauTag_(iConfig.getParameter<edm::InputTag>("PFTauTag")),
-  PFTauToken_(consumes<std::vector<reco::PFTau> >(PFTauTag_)),
-  ElectronTag_(iConfig.getParameter<edm::InputTag>("ElectronTag")),
-  ElectronToken_(consumes<std::vector<reco::Electron> >(ElectronTag_)),
-  MuonTag_(iConfig.getParameter<edm::InputTag>("MuonTag")),
-  MuonToken_(consumes<std::vector<reco::Muon> >(MuonTag_)),
-  PVTag_(iConfig.getParameter<edm::InputTag>("PVTag")),
-  PVToken_(consumes<reco::VertexCollection>(PVTag_)),
-  beamSpotTag_(iConfig.getParameter<edm::InputTag>("beamSpot")),
-  beamSpotToken_(consumes<reco::BeamSpot>(beamSpotTag_)),
+PFTauMiniAODPrimaryVertexProducer::PFTauMiniAODPrimaryVertexProducer(const edm::ParameterSet& iConfig):
+  PFTauToken_(consumes<std::vector<reco::PFTau> >(iConfig.getParameter<edm::InputTag>("PFTauTag"))),
+  ElectronToken_(consumes<std::vector<pat::Electron> >(iConfig.getParameter<edm::InputTag>("ElectronTag"))),
+  MuonToken_(consumes<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>("MuonTag"))),
+  PVToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("PVTag"))),
+  beamSpotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
+  packedCandsToken_(consumes<edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("packedCandidatesTag"))),
+  lostCandsToken_(consumes<edm::View<pat::PackedCandidate> >(iConfig.getParameter<edm::InputTag>("lostCandidatesTag"))),
   Algorithm_(iConfig.getParameter<int>("Algorithm")),
   qualityCutsPSet_(iConfig.getParameter<edm::ParameterSet>("qualityCuts")),
   useBeamSpot_(iConfig.getParameter<bool>("useBeamSpot")),
   useSelectedTaus_(iConfig.getParameter<bool>("useSelectedTaus")),
-  RemoveMuonTracks_(iConfig.getParameter<bool>("RemoveMuonTracks")),
-  RemoveElectronTracks_(iConfig.getParameter<bool>("RemoveElectronTracks"))
+  removeMuonTracks_(iConfig.getParameter<bool>("RemoveMuonTracks")),
+  removeElectronTracks_(iConfig.getParameter<bool>("RemoveElectronTracks"))
 {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   std::vector<edm::ParameterSet> discriminators =iConfig.getParameter<std::vector<edm::ParameterSet> >("discriminators");
@@ -134,9 +126,18 @@ PFTauPrimaryVertexProducer::PFTauPrimaryVertexProducer(const edm::ParameterSet& 
   vertexAssociator_.reset(new tau::RecoTauVertexAssociator(qualityCutsPSet_,consumesCollector()));
 }
 
-PFTauPrimaryVertexProducer::~PFTauPrimaryVertexProducer(){}
+PFTauMiniAODPrimaryVertexProducer::~PFTauMiniAODPrimaryVertexProducer(){}
 
-void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
+namespace {
+  const reco::Track* getTrack(const reco::Candidate& cand) {
+    const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    if (pCand && pCand->hasTrackDetails())
+      return &pCand->pseudoTrack();
+    return nullptr;
+  }
+}
+
+void PFTauMiniAODPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
   // Obtain Collections
   edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
@@ -144,10 +145,10 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
   edm::Handle<std::vector<reco::PFTau> > Tau;
   iEvent.getByToken(PFTauToken_,Tau);
 
-  edm::Handle<std::vector<reco::Electron> > Electron;
+  edm::Handle<std::vector<pat::Electron> > Electron;
   iEvent.getByToken(ElectronToken_,Electron);
 
-  edm::Handle<std::vector<reco::Muon> > Mu;
+  edm::Handle<std::vector<pat::Muon> > Mu;
   iEvent.getByToken(MuonToken_,Mu);
 
   edm::Handle<reco::VertexCollection > PV;
@@ -155,6 +156,12 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByToken(beamSpotToken_,beamSpot);
+
+  edm::Handle<edm::View<pat::PackedCandidate> >  packedCands;
+  iEvent.getByToken(packedCandsToken_, packedCands);
+
+  edm::Handle<edm::View<pat::PackedCandidate> >  lostCands;
+  iEvent.getByToken(lostCandsToken_, lostCands);
 
   // Set Association Map
   auto AVPFTauPV = std::make_unique<edm::AssociationVector<PFTauRefProd, std::vector<reco::VertexRef>>>(PFTauRefProd(Tau));
@@ -177,11 +184,15 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
     for(reco::PFTauCollection::size_type iPFTau = 0; iPFTau < Tau->size(); iPFTau++) {
       reco::PFTauRef tau(Tau, iPFTau);
       reco::Vertex thePV;
+      size_t thePVkey = 0;
       if(useInputPV==Algorithm_){
-	thePV =(*( vertexAssociator_->associatedVertex(*tau)));
+	reco::VertexRef thePVRef = vertexAssociator_->associatedVertex(*tau); 
+	thePV = *thePVRef;
+	thePVkey = thePVRef.key();
       }
       else if(useFontPV==Algorithm_){
 	thePV=PV->front();
+	thePVkey = 0;
       }
       ///////////////////////
       // Check if it passed all the discrimiantors
@@ -195,58 +206,105 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
       }
       if (passed && cut_.get()){passed = (*cut_)(*tau);}
       if (passed){
-	std::vector<reco::TrackBaseRef> SignalTracks;
+	std::vector<const reco::Track*> SignalTracks;
 	for(reco::PFTauCollection::size_type jPFTau = 0; jPFTau < Tau->size(); jPFTau++) {
 	  if(useSelectedTaus_ || iPFTau==jPFTau){
 	    reco::PFTauRef RefPFTau(Tau, jPFTau);
 	    ///////////////////////////////////////////////////////////////////////////////////////////////
-	    // Get tracks from PFTau daughters
-	    for (const auto& cand : RefPFTau->signalPFChargedHadrCands()){
-	      const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand.get());
-	      if (pfcand != nullptr) {
-		if (pfcand->trackRef().isNonnull()) {SignalTracks.push_back(reco::TrackBaseRef(pfcand->trackRef()));}
-		else if (pfcand->gsfTrackRef().isNonnull()) {SignalTracks.push_back(reco::TrackBaseRef((pfcand->gsfTrackRef())));}
-	      }
+	    // Get tracks from PFTau daugthers
+	    const std::vector<reco::CandidatePtr> cands = RefPFTau->signalPFChargedHadrCands(); 
+	    for(std::vector<reco::CandidatePtr>::const_iterator iter = cands.begin(); iter!=cands.end(); ++iter){
+	      if((*iter).isNull()) continue;
+	      const reco::Track* track = getTrack(**iter);
+	      if(track == nullptr) continue;
+	      SignalTracks.push_back(track);
 	    }
 	  }
 	}
 	// Get Muon tracks
-	if(RemoveMuonTracks_){
+	if(removeMuonTracks_){
 
 	  if(Mu.isValid()) {
-	    for(reco::MuonCollection::size_type iMuon = 0; iMuon< Mu->size(); iMuon++){
-	      reco::MuonRef RefMuon(Mu, iMuon);
-	      if(RefMuon->track().isNonnull()) SignalTracks.push_back(reco::TrackBaseRef(RefMuon->track()));
+	    for(pat::MuonCollection::size_type iMuon = 0; iMuon< Mu->size(); iMuon++){
+	      pat::MuonRef RefMuon(Mu, iMuon);
+	      if(RefMuon->track().isNonnull()) SignalTracks.push_back(RefMuon->track().get());
 	    }
 	  }
 	}
 	// Get Electron Tracks
-	if(RemoveElectronTracks_){
+	if(removeElectronTracks_){
 	  if(Electron.isValid()) {
-	    for(reco::ElectronCollection::size_type iElectron = 0; iElectron<Electron->size(); iElectron++){
-	      reco::ElectronRef RefElectron(Electron, iElectron);
-	      if(RefElectron->track().isNonnull()) SignalTracks.push_back(reco::TrackBaseRef(RefElectron->track()));
+	    for(pat::ElectronCollection::size_type iElectron = 0; iElectron<Electron->size(); iElectron++){
+	      pat::ElectronRef RefElectron(Electron, iElectron);
+	      if(RefElectron->gsfTrack().isNonnull()) SignalTracks.push_back(RefElectron->gsfTrack().get());
 	    }
 	  }
 	}
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Get Non-Tau tracks
-	reco::TrackCollection nonTauTracks;
-	for(std::vector<reco::TrackBaseRef>::const_iterator vtxTrkRef=thePV.tracks_begin();vtxTrkRef<thePV.tracks_end();vtxTrkRef++){
-	  bool matched = false;
-	  for (unsigned int sigTrk = 0; sigTrk < SignalTracks.size(); sigTrk++) {
-	    if ( (*vtxTrkRef) == SignalTracks[sigTrk] ) {
-	      matched = true;
+	std::vector<const reco::Track*> nonTauTracks;
+	//PackedCandidates first...
+ 	if(packedCands.isValid()) {
+	  //Find candidates/tracks associated to thePV
+	  for(size_t iCand=0; iCand<packedCands->size(); ++iCand){
+	    if((*packedCands)[iCand].vertexRef().isNull()) continue;
+	    int quality = (*packedCands)[iCand].pvAssociationQuality();
+	    if((*packedCands)[iCand].vertexRef().key()!=thePVkey ||
+	       (quality!=pat::PackedCandidate::UsedInFitTight &&
+		quality!=pat::PackedCandidate::UsedInFitLoose)) continue;
+	    const reco::Track* track = getTrack((*packedCands)[iCand]);
+	    if(track == nullptr) continue;
+	    //Remove signal (tau) tracks
+	    //MB: Only deltaR deltaPt overlap removal possible (?)
+	    //MB: It should be fine as pat objects stores same track info with same presision 
+	    bool skipTrack = false;
+	    for(size_t iSigTrk=0 ; iSigTrk<SignalTracks.size(); ++iSigTrk){
+	      if(deltaR2(SignalTracks[iSigTrk]->eta(),SignalTracks[iSigTrk]->phi(),
+			 track->eta(),track->phi())<0.005*0.005
+		 && std::abs(SignalTracks[iSigTrk]->pt()/track->pt()-1.)<0.005
+		 ){
+		skipTrack = true;
+		break;
+	      }
 	    }
-	  }
-	  if ( !matched ) nonTauTracks.push_back(**vtxTrkRef);
-	}   
+	    if(skipTrack) continue;
+	    nonTauTracks.push_back(track);
+	  } 
+	}
+	//then lostCandidates
+ 	if(lostCands.isValid()) {
+	  //Find candidates/tracks associated to thePV
+	  for(size_t iCand=0; iCand<lostCands->size(); ++iCand){
+	    if((*lostCands)[iCand].vertexRef().isNull()) continue;
+	    int quality = (*lostCands)[iCand].pvAssociationQuality();
+	    if((*lostCands)[iCand].vertexRef().key()!=thePVkey ||
+	       (quality!=pat::PackedCandidate::UsedInFitTight &&
+		quality!=pat::PackedCandidate::UsedInFitLoose)) continue;
+	    const reco::Track* track = getTrack((*lostCands)[iCand]);
+	    if(track == nullptr) continue;
+	    //Remove signal (tau) tracks
+	    //MB: Only deltaR deltaPt overlap removal possible (?)
+	    //MB: It should be fine as pat objects stores same track info with same presision 
+	    bool skipTrack = false;
+	    for(size_t iSigTrk=0 ; iSigTrk<SignalTracks.size(); ++iSigTrk){
+	      if(deltaR2(SignalTracks[iSigTrk]->eta(),SignalTracks[iSigTrk]->phi(),
+			 track->eta(),track->phi())<0.005*0.005
+		 && std::abs(SignalTracks[iSigTrk]->pt()/track->pt()-1.)<0.005
+		 ){
+		skipTrack = true;
+		break;
+	      }
+	    }
+	    if(skipTrack) continue;
+	    nonTauTracks.push_back(track);
+	  } 
+	}
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Refit the vertex
 	TransientVertex transVtx;
 	std::vector<reco::TransientTrack> transTracks;
-	for (reco::TrackCollection::iterator iter=nonTauTracks.begin(); iter!=nonTauTracks.end(); ++iter){
-	  transTracks.push_back(transTrackBuilder->build(*iter));
+	for(size_t iTrk=0 ; iTrk<nonTauTracks.size(); ++iTrk){
+	  transTracks.push_back(transTrackBuilder->build(*(nonTauTracks[iTrk])));
 	}
 	bool FitOk(true);
 	if ( transTracks.size() >= 2 ) {
@@ -273,4 +331,4 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
   iEvent.put(std::move(AVPFTauPV));
 }
   
-DEFINE_FWK_MODULE(PFTauPrimaryVertexProducer);
+DEFINE_FWK_MODULE(PFTauMiniAODPrimaryVertexProducer);
