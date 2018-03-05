@@ -78,6 +78,8 @@ class FillInfo {
   std::vector<std::string> const & ctppsStatus() const;
   
   std::vector<int> const & lumiSection() const; 
+
+  std::vector<int> const & xingAngle() const;
   
   std::vector<cond::Time_t> const & dipTime() const; 
 
@@ -142,6 +144,8 @@ class FillInfo {
   
   void setLumiSection( std::vector<int> const & lumiSection);
   
+  void setXingAngle( std::vector<int> const & xingAngle);
+  
   void setDipTime( std::vector<cond::Time_t> const & dipTime);
   
   //sets all values in one go
@@ -168,6 +172,7 @@ class FillInfo {
 			,std::vector<std::string> const & lhcComment
 			,std::vector<std::string> const & ctppsStatus
 			,std::vector<int> const & lumiSection
+			,std::vector<int> const & xingAngle
 			,std::vector<cond::Time_t> const & dipTime
 		    ,std::bitset<bunchSlots+1> const & bunchConf1 
 		    ,std::bitset<bunchSlots+1> const & bunchConf2 );
@@ -195,7 +200,7 @@ class FillInfo {
   std::string m_injectionScheme;
   std::vector<float> m_lumiPerBX;
   std::vector<std::string> m_lhcState, m_lhcComment, m_ctppsStatus;
-  std::vector<int> m_lumiSection;
+  std::vector<int> m_lumiSection, m_xingAngle;
   std::vector<cond::Time_t> m_dipTime;
   //BEWARE: since CMS counts bunches starting from one,
   //the size of the bitset must be incremented by one,

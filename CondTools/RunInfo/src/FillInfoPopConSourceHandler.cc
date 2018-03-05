@@ -446,6 +446,7 @@ void FillInfoPopConSourceHandler::getNewObjects() {
 	CTPPSDataQuery->addToOutputList( std::string( "LHC_COMMENT" ) );
 	CTPPSDataQuery->addToOutputList( std::string( "CTPPS_STATUS" ) );
 	CTPPSDataQuery->addToOutputList( std::string( "LUMI_SECTION" ) );
+	CTPPSDataQuery->addToOutputList( std::string( "XING_ANGLE_URAD" ) );
 	CTPPSDataQuery->addToOutputList( std::string( "DIP_UPDATE_TIME" ) );
 	//WHERE CLAUSE
 	coral::AttributeList CTPPSDataBindVariables;
@@ -461,12 +462,13 @@ void FillInfoPopConSourceHandler::getNewObjects() {
 	CTPPSDataOutput.extend<std::string>( std::string( "LHC_COMMENT" ) );
 	CTPPSDataOutput.extend<std::string>( std::string( "CTPPS_STATUS" ) );
 	CTPPSDataOutput.extend<int>( std::string( "LUMI_SECTION" ) );
+	CTPPSDataOutput.extend<int>( std::string( "XING_ANGLE_URAD" ) );
 	CTPPSDataOutput.extend<coral::TimeStamp>( std::string( "DIP_UPDATE_TIME" ) );
 	CTPPSDataQuery->defineOutput( CTPPSDataOutput );
 	//execute the query
 	coral::ICursor& CTPPSDataCursor = CTPPSDataQuery->execute();
 	std::vector<std::string> lhcState, lhcComment, ctppsStatus;
-	std::vector<int> lumiSection;
+	std::vector<int> lumiSection, xingAngle;
 	std::vector<cond::Time_t> dipTime;
 
 	while( CTPPSDataCursor.next() ) {
@@ -502,7 +504,14 @@ void FillInfoPopConSourceHandler::getNewObjects() {
 		} else {
 			lumiSection.push_back(lumiSectionAttribute.data<int>());
 		}
-	
+
+		coral::Attribute const & xingAngleAttribute = CTPPSDataCursor.currentRow()[ std::string( "XING_ANGLE_URAD" ) ];
+		if( xingAngleAttribute.isNull() ) {
+			xingAngle.push_back(0);
+		} else {
+			xingAngle.push_back(xingAngleAttribute.data<int>());
+		}
+		
 		coral::Attribute const & dipTimeAttribute = CTPPSDataCursor.currentRow()[ std::string( "DIP_UPDATE_TIME" ) ];
                 if( dipTimeAttribute.isNull() ) {
                         dipTime.push_back(0ULL);
@@ -560,6 +569,7 @@ void FillInfoPopConSourceHandler::getNewObjects() {
 			 , const_cast<std::vector<std::string> const &>( lhcComment )
 			 , const_cast<std::vector<std::string> const &>( ctppsStatus )
 			 , const_cast<std::vector<int> const &>( lumiSection )
+			 , const_cast<std::vector<int> const &>( xingAngle )
 			 , const_cast<std::vector<cond::Time_t> const &>( dipTime )
 		 	 , const_cast<std::bitset<FillInfo::bunchSlots+1> const &>( bunchConfiguration1 )
 			 , const_cast<std::bitset<FillInfo::bunchSlots+1> const &>( bunchConfiguration2 )  );
@@ -595,4 +605,3 @@ void FillInfoPopConSourceHandler::getNewObjects() {
 
 std::string FillInfoPopConSourceHandler::id() const { 
   return m_name;
-}

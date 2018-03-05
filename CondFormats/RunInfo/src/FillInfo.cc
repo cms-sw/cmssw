@@ -143,6 +143,7 @@ void FillInfo::setFill( unsigned short const & lhcFill, bool const & fromData ) 
   m_lhcComment.clear();
   m_ctppsStatus.clear();
   m_lumiSection.clear();
+  m_xingAngle.clear();
   m_dipTime.clear();
   m_bunchConfiguration1.reset();
   m_bunchConfiguration2.reset();
@@ -247,6 +248,10 @@ std::vector<std::string> const & FillInfo::ctppsStatus() const {
 
 std::vector<int> const & FillInfo::lumiSection() const {
   return m_lumiSection;
+}
+
+std::vector<int> const & FillInfo::xingAngle() const {
+  return m_xingAngle;
 }
 
 std::vector<cond::Time_t> const & FillInfo::dipTime() const {
@@ -374,7 +379,11 @@ void FillInfo::setCtppsStatus( std::vector<std::string> const & ctppsStatus) {
 void FillInfo::setLumiSection( std::vector<int> const & lumiSection) {
   m_lumiSection = lumiSection;
 }
-  
+
+void FillInfo::setXingAngle( std::vector<int> const & xingAngle) {
+  m_xingAngle = xingAngle;
+}
+
 void FillInfo::setDipTime( std::vector<cond::Time_t> const & dipTime) {
   m_dipTime = dipTime;
 }
@@ -403,6 +412,7 @@ void FillInfo::setBeamInfo( unsigned short const & bunches1
 			    ,std::vector<std::string> const & lhcComment
 			    ,std::vector<std::string> const & ctppsStatus
 			    ,std::vector<int> const & lumiSection
+			    ,std::vector<int> const & xingAngle
 			    ,std::vector<cond::Time_t> const & dipTime
 			    ,std::bitset<bunchSlots+1> const & bunchConf1
 			    ,std::bitset<bunchSlots+1> const & bunchConf2 ) {
@@ -429,6 +439,7 @@ void FillInfo::setBeamInfo( unsigned short const & bunches1
   this->setLhcComment( lhcComment );
   this->setCtppsStatus( ctppsStatus );
   this->setLumiSection( lumiSection );
+  this->setXingAngle( xingAngle );
   this->setDipTime( dipTime );
   this->setBunchBitsetForBeam1( bunchConf1 );
   this->setBunchBitsetForBeam2( bunchConf2 );
@@ -474,6 +485,10 @@ void FillInfo::print( std::stringstream & ss ) const {
   std::copy( m_lumiSection.begin(), m_lumiSection.end(), std::ostream_iterator<int>( ss, "\t" ) );
   ss << std::endl;
 
+  ss << "Crossing angle (urad)  (total " << m_xingAngle.size() << "): ";
+  std::copy( m_xingAngle.begin(), m_xingAngle.end(), std::ostream_iterator<int>( ss, "\t" ) );
+  ss << std::endl;
+  
   ss << "Time stamps  (total " << m_dipTime.size() << "): ";
   std::copy( m_dipTime.begin(), m_dipTime.end(), std::ostream_iterator<cond::Time_t>( ss, "\t" ) );
   ss << std::endl;
