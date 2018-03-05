@@ -179,7 +179,7 @@ void SiPixelStatusHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&
 
           // run based
           if (outputBase_ == "runbased") {
-               thisIOV = 1;//(cond::Time_t) iRun.id().run();
+               thisIOV = (cond::Time_t) iRun.id().run();
           }
           else if (outputBase_ == "nLumibased" || outputBase_ == "dynamicLumibased" ) {
 	     edm::LuminosityBlockID lu(iRun.id().run(),it->first);
