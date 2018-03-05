@@ -523,11 +523,14 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   float TauEtaAtEcalEntrance = -99.;
   float sumEtaTimesEnergy = 0.;
   float sumEnergy = 0.;
-  const std::vector<reco::PFCandidatePtr>& signalPFCands = thePFTau.signalPFCands();
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
+  const std::vector<reco::CandidatePtr>& signalPFCands = thePFTau.signalPFCands();
+  for ( std::vector<reco::CandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
 	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-    sumEtaTimesEnergy += (*pfCandidate)->positionAtECALEntrance().eta()*(*pfCandidate)->energy();
-    sumEnergy += (*pfCandidate)->energy();
+    const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(pfCandidate->get());
+    if (pfcand != nullptr) {
+      sumEtaTimesEnergy += pfcand->positionAtECALEntrance().eta()*(*pfCandidate)->energy();
+      sumEnergy += pfcand->energy();
+    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n";
   }
   if ( sumEnergy > 0. ) {
     TauEtaAtEcalEntrance = sumEtaTimesEnergy/sumEnergy;
@@ -535,20 +538,23 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   
   float TauLeadChargedPFCandEtaAtEcalEntrance = -99.;
   float TauLeadChargedPFCandPt = -99.;
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
+  for ( std::vector<reco::CandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
 	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-    const reco::Track* track = nullptr;
-    if ( (*pfCandidate)->trackRef().isNonnull() ) track = (*pfCandidate)->trackRef().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->innerTrack().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull() ) track = (*pfCandidate)->muonRef()->globalTrack().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->outerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->outerTrack().get();
-    else if ( (*pfCandidate)->gsfTrackRef().isNonnull() ) track = (*pfCandidate)->gsfTrackRef().get();
-    if ( track ) {
-      if ( track->pt() > TauLeadChargedPFCandPt ) {
-	TauLeadChargedPFCandEtaAtEcalEntrance = (*pfCandidate)->positionAtECALEntrance().eta();
-	TauLeadChargedPFCandPt = track->pt();
+    const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(pfCandidate->get());
+    if (pfcand != nullptr) {
+      const reco::Track* track = nullptr;
+      if ( pfcand->trackRef().isNonnull() ) track = pfcand->trackRef().get();
+      else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->innerTrack().isNonnull()  ) track = pfcand->muonRef()->innerTrack().get();
+      else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->globalTrack().isNonnull() ) track = pfcand->muonRef()->globalTrack().get();
+      else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->outerTrack().isNonnull()  ) track = pfcand->muonRef()->outerTrack().get();
+      else if ( pfcand->gsfTrackRef().isNonnull() ) track = pfcand->gsfTrackRef().get();
+      if ( track ) {
+        if ( track->pt() > TauLeadChargedPFCandPt ) {
+	  TauLeadChargedPFCandEtaAtEcalEntrance = pfcand->positionAtECALEntrance().eta();
+	  TauLeadChargedPFCandPt = track->pt();
+        }
       }
-    }
+    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n";
   }
 
   Float_t TauPt = thePFTau.pt();
@@ -556,8 +562,11 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   Float_t TauLeadPFChargedHadrHoP = 0.;
   Float_t TauLeadPFChargedHadrEoP = 0.;
   if ( thePFTau.leadPFChargedHadrCand()->p() > 0. ) {
-    TauLeadPFChargedHadrHoP = thePFTau.leadPFChargedHadrCand()->hcalEnergy()/thePFTau.leadPFChargedHadrCand()->p();
-    TauLeadPFChargedHadrEoP = thePFTau.leadPFChargedHadrCand()->ecalEnergy()/thePFTau.leadPFChargedHadrCand()->p();
+    const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(thePFTau.leadPFChargedHadrCand().get());
+    if (pflch != nullptr) {
+      TauLeadPFChargedHadrHoP = pflch->hcalEnergy()/pflch->p();
+      TauLeadPFChargedHadrEoP = pflch->ecalEnergy()/pflch->p();
+    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n";
   }
 
   std::vector<Float_t> GammasdEtaInSigCone;
@@ -570,7 +579,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   reco::Candidate::LorentzVector pfChargedSum(0,0,0,0);
   
   for ( unsigned i = 0 ; i < thePFTau.signalPFGammaCands().size(); ++i ) {
-    reco::PFCandidatePtr gamma = thePFTau.signalPFGammaCands().at(i);
+    reco::CandidatePtr gamma = thePFTau.signalPFGammaCands().at(i);
     float dR = deltaR(gamma->p4(), thePFTau.leadPFChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
 
@@ -602,7 +611,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   }
   
   for ( unsigned i = 0 ; i < thePFTau.signalPFChargedHadrCands().size(); ++i ) {
-    reco::PFCandidatePtr charged = thePFTau.signalPFChargedHadrCands().at(i);
+    reco::CandidatePtr charged = thePFTau.signalPFChargedHadrCands().at(i);
     float dR = deltaR(charged->p4(), thePFTau.leadPFChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
   
@@ -621,8 +630,11 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   float sumEnergyPhi = 0.;
   if ( !usePhiAtEcalEntranceExtrapolation ){
     for (auto const& pfc : signalPFCands){
-      sumPhiTimesEnergy += pfc->positionAtECALEntrance().phi()*pfc->energy();
-      sumEnergyPhi += pfc->energy();
+      const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(pfc.get());
+      if (pfcand != nullptr) {
+        sumPhiTimesEnergy += pfcand->positionAtECALEntrance().phi()*pfc->energy();
+        sumEnergyPhi += pfcand->energy();
+      } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n";
     }
   }
   else{
@@ -641,8 +653,12 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau,
   }
   Float_t TaudCrackPhi = dCrackPhi(TauPhi, TauEtaAtEcalEntrance);
   Float_t TaudCrackEta = dCrackEta(TauEtaAtEcalEntrance);
-  Float_t TauHasGsf = thePFTau.leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
-
+  Float_t TauHasGsf = false;
+  const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(thePFTau.leadPFChargedHadrCand().get());
+  if (pflch != nullptr) {
+    TauHasGsf = pflch->gsfTrackRef().isNonnull();
+  } else {
+    throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n"; }
   
   // === electron variables ===
   Float_t ElecEta = theGsfEle.eta();
@@ -738,11 +754,14 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEc
   float TauEtaAtEcalEntrance = -99.;
   float sumEtaTimesEnergy = 0.;
   float sumEnergy = 0.;
-  const std::vector<reco::PFCandidatePtr>& signalPFCands = thePFTau.signalPFCands();
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
+  const std::vector<reco::CandidatePtr>& signalPFCands = thePFTau.signalPFCands();
+  for ( std::vector<reco::CandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
 	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-    sumEtaTimesEnergy += (*pfCandidate)->positionAtECALEntrance().eta()*(*pfCandidate)->energy();
-    sumEnergy += (*pfCandidate)->energy();
+    const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(pfCandidate->get());
+    if (pfcand != nullptr) {
+      sumEtaTimesEnergy += pfcand->positionAtECALEntrance().eta()*pfcand->energy();
+      sumEnergy += pfcand->energy();
+    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n";
   }
   if ( sumEnergy > 0. ) {
     TauEtaAtEcalEntrance = sumEtaTimesEnergy/sumEnergy;
@@ -750,20 +769,23 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEc
   
   float TauLeadChargedPFCandEtaAtEcalEntrance = -99.;
   float TauLeadChargedPFCandPt = -99.;
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
+  for ( std::vector<reco::CandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
 	pfCandidate != signalPFCands.end(); ++pfCandidate ) {
     const reco::Track* track = nullptr;
-    if ( (*pfCandidate)->trackRef().isNonnull() ) track = (*pfCandidate)->trackRef().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->innerTrack().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull() ) track = (*pfCandidate)->muonRef()->globalTrack().get();
-    else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->outerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->outerTrack().get();
-    else if ( (*pfCandidate)->gsfTrackRef().isNonnull() ) track = (*pfCandidate)->gsfTrackRef().get();
-    if ( track ) {
-      if ( track->pt() > TauLeadChargedPFCandPt ) {
-	TauLeadChargedPFCandEtaAtEcalEntrance = (*pfCandidate)->positionAtECALEntrance().eta();
-	TauLeadChargedPFCandPt = track->pt();
+    const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(pfCandidate->get());
+    if (pfcand != nullptr) {
+      if ( pfcand->trackRef().isNonnull() ) track = pfcand->trackRef().get();
+      else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->innerTrack().isNonnull()  ) track = pfcand->muonRef()->innerTrack().get();
+      else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->globalTrack().isNonnull() ) track = pfcand->muonRef()->globalTrack().get();
+      else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->outerTrack().isNonnull()  ) track = pfcand->muonRef()->outerTrack().get();
+      else if ( pfcand->gsfTrackRef().isNonnull() ) track = pfcand->gsfTrackRef().get();
+      if ( track ) {
+        if ( track->pt() > TauLeadChargedPFCandPt ) {
+	  TauLeadChargedPFCandEtaAtEcalEntrance = pfcand->positionAtECALEntrance().eta();
+	  TauLeadChargedPFCandPt = track->pt();
+        }
       }
-    }
+    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n";
   }
 
   Float_t TauPt = thePFTau.pt();
@@ -771,8 +793,11 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEc
   Float_t TauLeadPFChargedHadrHoP = 0.;
   Float_t TauLeadPFChargedHadrEoP = 0.;
   if ( thePFTau.leadPFChargedHadrCand()->p() > 0. ) {
-    TauLeadPFChargedHadrHoP = thePFTau.leadPFChargedHadrCand()->hcalEnergy()/thePFTau.leadPFChargedHadrCand()->p();
-    TauLeadPFChargedHadrEoP = thePFTau.leadPFChargedHadrCand()->ecalEnergy()/thePFTau.leadPFChargedHadrCand()->p();
+    const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(thePFTau.leadPFChargedHadrCand().get());
+    if (pflch != nullptr) {
+      TauLeadPFChargedHadrHoP = pflch->hcalEnergy()/pflch->p();
+      TauLeadPFChargedHadrEoP = pflch->ecalEnergy()/pflch->p();
+    } else { throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n"; }
   }
 
   std::vector<Float_t> GammasdEtaInSigCone;
@@ -785,7 +810,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEc
   reco::Candidate::LorentzVector pfChargedSum(0,0,0,0);
   
   for ( unsigned i = 0 ; i < thePFTau.signalPFGammaCands().size(); ++i ) {
-    reco::PFCandidatePtr gamma = thePFTau.signalPFGammaCands().at(i);
+    reco::CandidatePtr gamma = thePFTau.signalPFGammaCands().at(i);
     float dR = deltaR(gamma->p4(), thePFTau.leadPFChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
 
@@ -817,7 +842,7 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEc
   }
   
   for ( unsigned i = 0 ; i < thePFTau.signalPFChargedHadrCands().size(); ++i ) {
-    reco::PFCandidatePtr charged = thePFTau.signalPFChargedHadrCands().at(i);
+    reco::CandidatePtr charged = thePFTau.signalPFChargedHadrCands().at(i);
     float dR = deltaR(charged->p4(), thePFTau.leadPFChargedHadrCand()->p4());
     float signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTau.pt())));
   
@@ -835,10 +860,13 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEc
   float sumPhiTimesEnergy = 0.;
   float sumEnergyPhi = 0.;
   if ( !usePhiAtEcalEntranceExtrapolation ){
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
+    for ( std::vector<reco::CandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
 	  pfCandidate != signalPFCands.end(); ++pfCandidate ) {
-      sumPhiTimesEnergy += (*pfCandidate)->positionAtECALEntrance().phi()*(*pfCandidate)->energy();
-      sumEnergyPhi += (*pfCandidate)->energy();
+      const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(pfCandidate->get());
+      if (pfcand != nullptr) {
+        sumPhiTimesEnergy += pfcand->positionAtECALEntrance().phi()*pfcand->energy();
+        sumEnergyPhi += pfcand->energy();
+      } else { throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n"; }
     }
   }
   else{
@@ -857,7 +885,12 @@ double AntiElectronIDMVA6::MVAValue(const reco::PFTau& thePFTau, bool usePhiAtEc
   }
   Float_t TaudCrackPhi = dCrackPhi(TauPhi, TauEtaAtEcalEntrance);
   Float_t TaudCrackEta = dCrackEta(TauEtaAtEcalEntrance);
-  Float_t TauHasGsf = thePFTau.leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
+  Float_t TauHasGsf = false;
+  const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(thePFTau.leadPFChargedHadrCand().get());
+  if (pflch != nullptr) {
+    TauHasGsf = pflch->gsfTrackRef().isNonnull();
+  } else {
+    throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this  algorithm was not yet updated to cope with PFTaus made from other Candidates.\n"; }
 
   
   // === electron variables ===

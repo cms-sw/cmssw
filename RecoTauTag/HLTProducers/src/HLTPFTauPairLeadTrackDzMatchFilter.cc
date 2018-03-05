@@ -43,6 +43,15 @@ void HLTPFTauPairLeadTrackDzMatchFilter::fillDescriptions(edm::ConfigurationDesc
   descriptions.add("hltPFTauPairLeadTrackDzMatchFilter",desc);
 }
 
+inline const reco::Track* getTrack(const reco::Candidate& cand)
+{
+  const reco::PFCandidate* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(&cand);
+  if (pfCandPtr && pfCandPtr->trackRef().isNonnull()) {
+    return pfCandPtr->trackRef().get();
+  }
+  return nullptr;
+}
+
 bool HLTPFTauPairLeadTrackDzMatchFilter::hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs& filterproduct) const {
 
   using namespace std;
@@ -64,23 +73,29 @@ bool HLTPFTauPairLeadTrackDzMatchFilter::hltFilter(edm::Event& ev, const edm::Ev
   size_t npairs = 0, nfail_dz = 0;
   if(n_taus > 1) for(size_t t1 = 0; t1 < n_taus; ++t1) {
     if( taus[t1].leadPFChargedHadrCand().isNull() ||
-	taus[t1].leadPFChargedHadrCand()->trackRef().isNull() ||
-        taus[t1].pt() < tauMinPt_ ||
+	taus[t1].pt() < tauMinPt_ ||
 	std::abs(taus[t1].eta() ) > tauMaxEta_ )
+      continue;
+
+    const reco::Track* track1 = getTrack(*taus[t1].leadPFChargedHadrCand());
+    if (track1 == nullptr) 
       continue;
 
     float mindz = 99.f;
     for(size_t t2 = t1+1; t2 < n_taus; ++t2){
       if( taus[t2].leadPFChargedHadrCand().isNull() ||
-	  taus[t2].leadPFChargedHadrCand()->trackRef().isNull() ||
 	  taus[t2].pt() < tauMinPt_ ||
 	  std::abs(taus[t2].eta() ) > tauMaxEta_ )
 	continue;
+      
+      const reco::Track* track2 = getTrack(*taus[t2].leadPFChargedHadrCand());
+      if (track2 == nullptr) 
+        continue;
 
       float dr2 = reco::deltaR2(taus[t1].eta(), taus[t1].phi(),
 				taus[t2].eta(), taus[t2].phi() );
-      float dz = ( taus[t1].leadPFChargedHadrCand()->trackRef()->vz() -
-		   taus[t2].leadPFChargedHadrCand()->trackRef()->vz() );
+      float dz = ( track1->vz() -
+		   track2->vz() );
 
       // skip pairs of taus that are close
       if ( dr2 < tauMinDR_*tauMinDR_ ) {

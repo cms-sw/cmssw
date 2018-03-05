@@ -46,7 +46,7 @@ RecoTauDifferenceAnalyzer::RecoTauDifferenceAnalyzer(
 }
 
 namespace {
-  reco::PFJetRef getJetRef(const reco::PFTau& tau) {
+  reco::JetBaseRef getJetRef(const reco::PFTau& tau) {
     if (tau.jetRef().isNonnull())
       return tau.jetRef();
     else if (tau.pfTauTagInfoRef()->pfjetRef().isNonnull())
@@ -80,8 +80,8 @@ bool RecoTauDifferenceAnalyzer::filter(
     double bestDeltaR = -1;
     for (size_t iTau2 = 0; iTau2 < taus2->size(); ++iTau2) {
       reco::PFTauRef tau2(taus2, iTau2);
-      reco::PFJetRef jet1 = getJetRef(*tau1);
-      reco::PFJetRef jet2 = getJetRef(*tau2);
+      reco::JetBaseRef jet1 = getJetRef(*tau1);
+      reco::JetBaseRef jet2 = getJetRef(*tau2);
       double deltaRVal = deltaR(jet2->p4(), jet1->p4());
       if (bestMatch.isNull() || deltaRVal < bestDeltaR) {
         bestMatch = tau2;

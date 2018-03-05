@@ -26,7 +26,7 @@
 
 namespace reco {
 // Forward declarations
-class PFJet;
+class Jet;
 class RecoTauPiZero;
 namespace tau {
 
@@ -41,7 +41,7 @@ class RecoTauPiZeroBuilderPlugin : public RecoTauEventHolderPlugin {
         RecoTauEventHolderPlugin(pset) {}
     ~RecoTauPiZeroBuilderPlugin() override {}
     /// Build a collection of piZeros from objects in the input jet
-    virtual return_type operator()(const PFJet&) const = 0;
+    virtual return_type operator()(const Jet&) const = 0;
     /// Hook called at the beginning of the event.
     void beginEvent() override {};
 };

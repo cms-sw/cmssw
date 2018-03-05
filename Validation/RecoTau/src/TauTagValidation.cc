@@ -600,9 +600,9 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }//End of PFTau Collection If Loop
 }
 
-double TauTagValidation::getSumPt(const std::vector<edm::Ptr<reco::PFCandidate> > & candidates ){
+double TauTagValidation::getSumPt(const std::vector<edm::Ptr<reco::Candidate> > & candidates ){
   double sumPt = 0.;
-  for (std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator candidate = candidates.begin(); candidate!=candidates.end(); ++candidate) {
+  for (std::vector<edm::Ptr<reco::Candidate> >::const_iterator candidate = candidates.begin(); candidate!=candidates.end(); ++candidate) {
     sumPt += (*candidate)->pt();
   }
   return sumPt;

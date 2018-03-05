@@ -54,16 +54,19 @@ double PFRecoTauDiscriminationByFlight::discriminate(
     const reco::PFTauRef& tau) const {
 
   KalmanVertexFitter kvf(true);
-  const std::vector<reco::PFCandidatePtr>& signalTracks =
+  const std::vector<reco::CandidatePtr>& signalTracks =
     tau->signalPFChargedHadrCands();
   std::vector<reco::TransientTrack> signalTransTracks;
   std::vector<reco::TrackRef> signalTrackPtrs;
-  BOOST_FOREACH(const reco::PFCandidatePtr& pftrack, signalTracks) {
-    if (pftrack->trackRef().isNonnull()) {
-      signalTransTracks.push_back(
-          builder_->build(pftrack->trackRef()));
-      signalTrackPtrs.push_back(pftrack->trackRef());
-    }
+  BOOST_FOREACH(const reco::CandidatePtr& signalTrack, signalTracks) {
+    const reco::PFCandidate* pftrack = dynamic_cast<const reco::PFCandidate*>(signalTrack.get());
+    if (pftrack != nullptr) {
+      if (pftrack->trackRef().isNonnull()) {
+        signalTransTracks.push_back(
+            builder_->build(pftrack->trackRef()));
+        signalTrackPtrs.push_back(pftrack->trackRef());
+      }
+    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
   }
 
   reco::Vertex pv = (*vertices_)[0];
