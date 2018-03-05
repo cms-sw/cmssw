@@ -20,7 +20,7 @@ class MultiTrackValidatorGenPs : public MultiTrackValidator {
   ~MultiTrackValidatorGenPs() override;
 
   /// Method called once per event
-  void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  void dqmAnalyze(const edm::Event&, const edm::EventSetup&, const Histograms& ) const override;
 
 private:
 

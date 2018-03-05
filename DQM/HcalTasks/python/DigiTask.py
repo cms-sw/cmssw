@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-digiTask = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+digiTask = DQMEDAnalyzer(
 	"DigiTask",
 	
 	#	standard parameters

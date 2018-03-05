@@ -7,6 +7,7 @@
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -60,7 +61,7 @@ namespace ftl_digitizer {
     
   FTLDigitizer(const edm::ParameterSet& config, 
 	       edm::ConsumesCollector& iC,
-	       edm::stream::EDProducerBase& parent) :
+	       edm::ProducerBase& parent) :
     FTLDigitizerBase(config,iC,parent),
     deviceSim_( config.getParameterSet("DeviceSimulation") ),
     electronicsSim_( config.getParameterSet("ElectronicsSimulation") ),        

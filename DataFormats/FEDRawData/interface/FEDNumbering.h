@@ -48,6 +48,8 @@ class FEDNumbering {
      MAXCTPPSDiamondFEDID=583,
      MINTotemRPVerticalFEDID = 584,
      MAXTotemRPVerticalFEDID = 585,
+     MINTotemRPTimingVerticalFEDID = 586,
+     MAXTotemRPTimingVerticalFEDID = 587,
      MINECALFEDID = 600,
      MAXECALFEDID = 670,
      MINCASTORFEDID = 690,

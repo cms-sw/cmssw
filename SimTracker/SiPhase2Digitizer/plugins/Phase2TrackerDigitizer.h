@@ -21,7 +21,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/Framework/interface/stream/EDProducerBase.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include <unordered_map>
@@ -52,7 +52,7 @@ namespace cms
   public:
     typedef std::unordered_map<unsigned, TrackerGeometry::ModuleType>  ModuleTypeCache;
 
-    explicit Phase2TrackerDigitizer(const edm::ParameterSet& iConfig, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+    explicit Phase2TrackerDigitizer(const edm::ParameterSet& iConfig, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
     ~Phase2TrackerDigitizer() override;
     void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
     void accumulate(edm::Event const& e, edm::EventSetup const& c) override;

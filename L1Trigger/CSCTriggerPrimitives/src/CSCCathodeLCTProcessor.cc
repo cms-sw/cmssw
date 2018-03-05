@@ -352,6 +352,7 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   ////  print out all the patterns to make sure we've got what we think we've got.
   //  printPatterns();
   //}
+  thePreTriggerDigis.clear();
 }
 
 CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() :
@@ -393,6 +394,8 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() :
 
   theRing = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
   isME11 = (theStation == 1 && theRing == 1);
+
+  thePreTriggerDigis.clear();
 }
 
 void CSCCathodeLCTProcessor::setDefaultConfigParameters() {
@@ -536,6 +539,7 @@ void CSCCathodeLCTProcessor::checkConfigParameters() {
 }
 
 void CSCCathodeLCTProcessor::clear() {
+  thePreTriggerDigis.clear();
   thePreTriggerBXs.clear();
   for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
     bestCLCT[bx].clear();
@@ -2144,6 +2148,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 	    LogTrace("CSCCathodeLCTProcessor")
 	      << " 1st CLCT: halfstrip = " << std::setw(3) << hstrip
 	      << " quality = "             << std::setw(3) << quality[hstrip]
+        << " nhits = " << std::setw(3) << nhits[hstrip]
+        << " pid = " << std::setw(3) << best_pid[hstrip]
 	      << " best halfstrip = " << std::setw(3) << best_halfstrip[0]
 	      << " best quality = "   << std::setw(3) << best_quality[0];
 	  }
@@ -2166,6 +2172,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(const std::vector<int>
 	    LogTrace("CSCCathodeLCTProcessor")
 	      << " 2nd CLCT: halfstrip = " << std::setw(3) << hstrip
 	      << " quality = "             << std::setw(3) << quality[hstrip]
+        << " nhits = " << std::setw(3) << nhits[hstrip]
+        << " pid = " << std::setw(3) << best_pid[hstrip]
 	      << " best halfstrip = " << std::setw(3) << best_halfstrip[1]
 	      << " best quality = "   << std::setw(3) << best_quality[1];
 	  }
@@ -2311,6 +2319,8 @@ bool CSCCathodeLCTProcessor::preTrigger(
   // Max. number of half-strips for this chamber.
   const int nStrips = 2*numStrips + 1;
 
+  int nPreTriggers = 0;
+
   bool pre_trig = false;
   // Now do a loop over bx times to see (if/when) track goes over threshold
   for (unsigned int bx_time = start_bx; bx_time < fifo_tbins; bx_time++) {
@@ -2322,27 +2332,34 @@ bool CSCCathodeLCTProcessor::preTrigger(
     bool hits_in_time = ptnFinding(pulse, nStrips, bx_time);
     if (hits_in_time) {
       for (int hstrip = stagger[CSCConstants::KEY_CLCT_LAYER-1];
-	   hstrip < nStrips; hstrip++) {
-	if (infoV > 1) {
-	  if (nhits[hstrip] > 0) {
-	    LogTrace("CSCCathodeLCTProcessor")
-	      << " bx = " << std::setw(2) << bx_time << " --->"
-	      << " halfstrip = " << std::setw(3) << hstrip
-	      << " best pid = "  << std::setw(2) << best_pid[hstrip]
-	      << " nhits = "     << nhits[hstrip];
-	  }
-	}
-	ispretrig[hstrip] = false;
-	if (nhits[hstrip]    >= nplanes_hit_pretrig &&
-	    best_pid[hstrip] >= pid_thresh_pretrig) {
-	  pre_trig = true;
-	  ispretrig[hstrip] = true;
-	}
+           hstrip < nStrips; hstrip++) {
+        if (infoV > 1) {
+          if (nhits[hstrip] > 0) {
+            LogTrace("CSCCathodeLCTProcessor")
+              << " bx = " << std::setw(2) << bx_time << " --->"
+              << " halfstrip = " << std::setw(3) << hstrip
+              << " best pid = "  << std::setw(2) << best_pid[hstrip]
+              << " nhits = "     << nhits[hstrip];
+          }
+        }
+        ispretrig[hstrip] = false;
+        if (nhits[hstrip]    >= nplanes_hit_pretrig &&
+            best_pid[hstrip] >= pid_thresh_pretrig) {
+          pre_trig = true;
+          ispretrig[hstrip] = true;
+
+          // write each pre-trigger to output
+          nPreTriggers++;
+          const int bend = pattern2007[best_pid[hstrip]][CSCConstants::MAX_HALFSTRIPS_IN_PATTERN];
+          thePreTriggerDigis.push_back(CSCCLCTPreTriggerDigi(1, nhits[hstrip], best_pid[hstrip],
+                                                          1, bend, hstrip%32, hstrip/32, bx_time, nPreTriggers, 0));
+
+        }
       }
 
       if (pre_trig) {
-	first_bx = bx_time; // bx at time of pretrigger
-	return true;
+        first_bx = bx_time; // bx at time of pretrigger
+        return true;
       }
     }
   } // end loop over bx times

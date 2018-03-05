@@ -6,17 +6,6 @@ import FWCore.ParameterSet.Config as cms
 # this hack would not be needed.
 _loadDigiAliasesWasCalledPremix = None
 
-# This is another ugly hack to disable the loading of digi aliases
-# "for usual mixing" (see
-# Configuration.StandardSequences.Digi_PreMix_cff for the place which
-# sets this variable to false). ProcessModifier can not be used there
-# as there would be one from Digi_cff and another from Digi_Premix_cff
-# and their running order is not specified. The need of this hack
-# could also be fulfilled with a premixing Modifier, but we would
-# actually need two of them: separate ones for premixing steps 1 and 2
-# (this hack modifies step1 and the upper one modifies step2).
-_enableDigiAliases = True
-
 def loadGeneralTracksAlias(process):
     if _loadDigiAliasesWasCalledPremix is None:
         raise Exception("This function may be called only after loadDigiAliases() has been called")
@@ -49,9 +38,6 @@ def loadDigiAliases(process, premix=False):
     global _loadDigiAliasesWasCalledPremix
     _loadDigiAliasesWasCalledPremix = premix
 
-    if not _enableDigiAliases:
-        return
-    
     process.ecalPreshowerDigis = cms.EDAlias(
         **{"simEcalPreshowerDigis" if nopremix else "DMEcalPreshowerDigis" :
                cms.VPSet(

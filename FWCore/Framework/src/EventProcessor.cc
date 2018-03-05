@@ -42,6 +42,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -69,6 +70,7 @@
 
 #include "boost/range/adaptor/reversed.hpp"
 
+#include <cassert>
 #include <exception>
 #include <iomanip>
 #include <iostream>
@@ -389,56 +391,47 @@ namespace edm {
     auto subProcessVParameterSet = popSubProcessVParameterSet(*parameterSet);
     bool const hasSubProcesses = !subProcessVParameterSet.empty();
 
+    // Validates the parameters in the 'options', 'maxEvents', 'maxLuminosityBlocks',
+    // and 'maxSecondsUntilRampdown' top level parameter sets. Default values are also
+    // set in here if the parameters were not explicitly set.
+    validateTopLevelParameterSets(parameterSet.get());
+
     // Now set some parameters specific to the main process.
-    ParameterSet const& optionsPset(parameterSet->getUntrackedParameterSet("options", ParameterSet()));
-    auto const& fileMode = optionsPset.getUntrackedParameter<std::string>("fileMode", "FULLMERGE");
-    if(fileMode != "NOMERGE" and fileMode != "FULLMERGE") {
+    ParameterSet const& optionsPset(parameterSet->getUntrackedParameterSet("options"));
+    auto const& fileMode = optionsPset.getUntrackedParameter<std::string>("fileMode");
+    if (fileMode != "NOMERGE" and fileMode != "FULLMERGE") {
         throw Exception(errors::Configuration, "Illegal fileMode parameter value: ")
         << fileMode << ".\n"
         << "Legal values are 'NOMERGE' and 'FULLMERGE'.\n";
     } else {
       fileModeNoMerge_ = (fileMode == "NOMERGE");
     }
-    forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun", false);
+    forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun");
+
     //threading
-    unsigned int nThreads=1;
-    if(optionsPset.existsAs<unsigned int>("numberOfThreads",false)) {
-      nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfThreads");
-      if(nThreads == 0) {
-        nThreads = 1;
-      }
+    unsigned int nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfThreads");
+
+    // Even if numberOfThreads was set to zero in the Python configuration, the code
+    // in cmsRun.cpp should have reset it to something else.
+    assert(nThreads != 0);
+
+    unsigned int nStreams = optionsPset.getUntrackedParameter<unsigned int>("numberOfStreams");
+    if (nStreams == 0) {
+      nStreams = nThreads;
     }
-    /* TODO: when we support having each stream run in a different thread use this default
-       unsigned int nStreams =nThreads;
-    */
-    unsigned int nStreams =1;
-    if(optionsPset.existsAs<unsigned int>("numberOfStreams",false)) {
-      nStreams = optionsPset.getUntrackedParameter<unsigned int>("numberOfStreams");
-      if(nStreams==0) {
-        nStreams = nThreads;
-      }
-    }
-    if(nThreads >1) {
+    if(nThreads > 1) {
       edm::LogInfo("ThreadStreamSetup") <<"setting # threads "<<nThreads<<"\nsetting # streams "<<nStreams;
     }
-
-    /*
-      bool nRunsSet = false;
-    */
-    unsigned int nConcurrentRuns =1;
-    /*
-      if(nRunsSet = optionsPset.existsAs<unsigned int>("numberOfConcurrentRuns",false)) {
-      nConcurrentRuns = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
-      }
-    */
-    unsigned int nConcurrentLumis =1;
-    
-    if(optionsPset.existsAs<unsigned int>("numberOfConcurrentLuminosityBlocks",false)) {
-      nConcurrentLumis = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
-    } else {
+    unsigned int nConcurrentRuns = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentRuns");
+    if (nConcurrentRuns != 1) {
+      throw Exception(errors::Configuration, "Illegal value nConcurrentRuns : ")
+        << "Although the plan is to change this in the future, currently nConcurrentRuns must always be 1.\n";
+    }
+    unsigned int nConcurrentLumis = optionsPset.getUntrackedParameter<unsigned int>("numberOfConcurrentLuminosityBlocks");
+    if (nConcurrentLumis == 0) {
       nConcurrentLumis = nConcurrentRuns;
     }
-    
+
     //Check that relationships between threading parameters makes sense
     /*
       if(nThreads<nStreams) {
@@ -451,9 +444,9 @@ namespace edm {
       //bad
       }
     */
-    IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
+    IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter"));
 
-    printDependencies_ =  optionsPset.getUntrackedParameter("printDependencies", false);
+    printDependencies_ =  optionsPset.getUntrackedParameter<bool>("printDependencies");
 
     // Now do general initialization
     ScheduleItems items;
@@ -1018,6 +1011,22 @@ namespace edm {
     }
   }
 
+  void EventProcessor::endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException) {
+    //If we skip empty runs, this would be called conditionally
+    endRun(phid, run, globalBeginSucceeded, cleaningUpAfterException);
+    
+    if(globalBeginSucceeded) {
+      auto t = edm::make_empty_waiting_task();
+      t->increment_ref_count();
+      writeRunAsync(edm::WaitingTaskHolder{t.get()}, phid, run);
+      t->wait_for_all();
+      if(t->exceptionPtr()) {
+        std::rethrow_exception(*t->exceptionPtr());
+      }
+    }
+    deleteRunFromCache(phid, run);
+  }
+
   void EventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException) {
     RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
     runPrincipal.setEndTime(input_->timestamp());
@@ -1142,13 +1151,13 @@ namespace edm {
             if (iPtr) {
               holder.doneWaiting(*iPtr);
             } else {
-              //make the services available
-              ServiceRegistry::Operate operate(serviceToken_);
 
               status->globalBeginDidSucceed();
               EventSetup const& es = esp_->eventSetup();
               if(looper_) {
                 try {
+                  //make the services available
+                  ServiceRegistry::Operate operate(serviceToken_);
                   looper_->doBeginLuminosityBlock(*(status->lumiPrincipal()), es, &processContext_);
                 }catch(...) {
                   holder.doneWaiting(std::current_exception());
@@ -1234,23 +1243,15 @@ namespace edm {
     
     unsigned int streamIndex = 0;
     for(; streamIndex< preallocations_.numberOfStreams()-1; ++streamIndex) {
-      tbb::task::enqueue( *edm::make_waiting_task(tbb::task::allocate_root(),
-                                              [this,streamIndex,h = iHolder](std::exception_ptr const* iPtr) mutable
-                                              {
-                                                if(iPtr) {
-                                                  h.doneWaiting(*iPtr);
-                                                } else {
-                                                  handleNextEventForStreamAsync(std::move(h), streamIndex);
-                                                }
-                                              }) );
+      tbb::task::enqueue( *edm::make_functor_task(tbb::task::allocate_root(),
+                                              [this,streamIndex,h = iHolder](){
+        handleNextEventForStreamAsync(std::move(h), streamIndex);
+      }) );
 
     }
-    //need a temporary Task so that the temporary WaitingTaskHolder assigned to h will go out of scope
-    // before the call to spawn_and_wait_for_all
-    auto t = edm::make_waiting_task(tbb::task::allocate_root(),[this,streamIndex,h=iHolder](std::exception_ptr const*){
-      handleNextEventForStreamAsync(h,streamIndex);
-    });
-    tbb::task::spawn(*t);
+    tbb::task::spawn( *edm::make_functor_task(tbb::task::allocate_root(),[this,streamIndex,h=std::move(iHolder)](){
+      handleNextEventForStreamAsync(std::move(h),streamIndex);
+    }) );
   }
 
   void EventProcessor::globalEndLumiAsync(edm::WaitingTaskHolder iTask, std::shared_ptr<LuminosityBlockProcessingStatus> iLumiStatus) {
@@ -1265,11 +1266,6 @@ namespace edm {
       } else {
         try {
           ServiceRegistry::Operate operate(serviceToken_);
-
-          //Only call writeLumi if beginLumi succeeded
-          if(status->didGlobalBeginSucceed()) {
-            writeLumi(*status);
-          }
           if(looper_) {
             auto& lp = *(status->lumiPrincipal());
             EventSetup const& es = esp_->eventSetup();
@@ -1296,6 +1292,16 @@ namespace edm {
       t.doneWaiting(ptr);
     });
 
+    auto writeT = edm::make_waiting_task(tbb::task::allocate_root(), [this,status =iLumiStatus, task = WaitingTaskHolder(t)] (std::exception_ptr const* iExcept) mutable {
+      if(iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        //Only call writeLumi if beginLumi succeeded
+        if(status->didGlobalBeginSucceed()) {
+          writeLumiAsync(std::move(task),status);
+        }
+      }
+    });
     auto& lp = *(iLumiStatus->lumiPrincipal());
 
     IOVSyncValue ts(EventID(lp.run(), lp.luminosityBlock(), EventID::maxEventNumber()),
@@ -1305,7 +1311,7 @@ namespace edm {
     typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Traits;
     EventSetup const& es = esp_->eventSetup();
 
-    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(t),
+    endGlobalTransitionAsync<Traits>(WaitingTaskHolder(writeT),
                                      *schedule_,
                                      lp,
                                      ts,
@@ -1359,15 +1365,22 @@ namespace edm {
 
   
   void EventProcessor::endUnfinishedLumi() {
-    auto status = streamLumiStatus_[0];
-    if(status) {
-      status.reset();
+    bool needToEnd = false;
+    for(auto const& status: streamLumiStatus_) {
+      if(status) {
+        needToEnd = true;
+        break;
+      }
+    }
+    if(needToEnd) {
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
       {
         WaitingTaskHolder globalTaskHolder{globalWaitTask.get()};
         for(unsigned int i=0; i< preallocations_.numberOfStreams(); ++i) {
-          streamEndLumiAsync(globalTaskHolder, i, streamLumiStatus_[i]);
+          if(streamLumiStatus_[i]) {
+            streamEndLumiAsync(globalTaskHolder, i, streamLumiStatus_[i]);
+          }
         }
       }
       globalWaitTask->wait_for_all();
@@ -1442,10 +1455,19 @@ namespace edm {
     return input_->luminosityBlock();
   }
 
-  void EventProcessor::writeRun(ProcessHistoryID const& phid, RunNumber_t run) {
-    schedule_->writeRun(principalCache_.runPrincipal(phid, run), &processContext_);
-    for_all(subProcesses_, [run,phid](auto& subProcess){ subProcess.writeRun(phid, run); });
-    FDEBUG(1) << "\twriteRun " << run << "\n";
+  void EventProcessor::writeRunAsync(WaitingTaskHolder task, ProcessHistoryID const& phid, RunNumber_t run) {
+    auto subsT = edm::make_waiting_task(tbb::task::allocate_root(), [this,phid,run,task](std::exception_ptr const* iExcept) mutable {
+      if(iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        ServiceRegistry::Operate op(serviceToken_);
+        for(auto&s : subProcesses_) {
+          s.writeRunAsync(task,phid,run);
+        }
+      }
+    });
+    ServiceRegistry::Operate op(serviceToken_);
+    schedule_->writeRunAsync(WaitingTaskHolder(subsT), principalCache_.runPrincipal(phid, run), &processContext_, actReg_.get());
   }
 
   void EventProcessor::deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run) {
@@ -1454,10 +1476,20 @@ namespace edm {
     FDEBUG(1) << "\tdeleteRunFromCache " << run << "\n";
   }
 
-  void EventProcessor::writeLumi(LuminosityBlockProcessingStatus& iStatus) {
-    schedule_->writeLumi(*iStatus.lumiPrincipal(), &processContext_);
-    for_all(subProcesses_, [&iStatus](auto& subProcess){ subProcess.writeLumi(*iStatus.lumiPrincipal()); });
-    //FDEBUG(1) << "\twriteLumi " << run << "/" << lumi << "\n";
+  void EventProcessor::writeLumiAsync(WaitingTaskHolder task, std::shared_ptr<LuminosityBlockProcessingStatus> iStatus) {
+    auto subsT = edm::make_waiting_task(tbb::task::allocate_root(), [this,task, iStatus](std::exception_ptr const* iExcept) mutable {
+      if(iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        ServiceRegistry::Operate op(serviceToken_);
+        for(auto&s : subProcesses_) {
+          s.writeLumiAsync(task,*(iStatus->lumiPrincipal()));
+        }
+      }
+    });
+    ServiceRegistry::Operate op(serviceToken_);
+
+    schedule_->writeLumiAsync(WaitingTaskHolder{subsT}, *(iStatus->lumiPrincipal()), &processContext_, actReg_.get());
   }
 
   void EventProcessor::deleteLumiFromCache(LuminosityBlockProcessingStatus& iStatus) {
@@ -1606,10 +1638,10 @@ namespace edm {
                     tbb::task::allocate_root(),
                     [this,pep,iHolder](std::exception_ptr const* iPtr) mutable
              {
-               ServiceRegistry::Operate operate(serviceToken_);
 
                //NOTE: If we have a looper we only have one Stream
                if(looper_) {
+                 ServiceRegistry::Operate operate(serviceToken_);
                  processEventWithLooper(*pep);
                }
                

@@ -28,6 +28,7 @@
 #include "FWCore/Framework/src/globalTransitionAsync.h"
 #include "FWCore/ParameterSet/interface/IllegalParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/validateTopLevelParameterSets.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
@@ -121,11 +122,13 @@ namespace edm {
     auto subProcessVParameterSet = popSubProcessVParameterSet(*processParameterSet_);
     bool hasSubProcesses = subProcessVParameterSet.size() != 0ull;
 
+    // Validates the parameters in the 'options', 'maxEvents', and 'maxLuminosityBlocks'
+    // top level parameter sets. Default values are also set in here if the
+    // parameters were not explicitly set.
+    validateTopLevelParameterSets(processParameterSet_.get());
+
     ScheduleItems items(*parentProductRegistry, *this);
     actReg_ = items.actReg_;
-
-    ParameterSet const& optionsPset(processParameterSet_->getUntrackedParameterSet("options", ParameterSet()));
-    IllegalParameters::setThrowAnException(optionsPset.getUntrackedParameter<bool>("throwIfIllegalParameter", true));
 
     //initialize the services
     ServiceToken iToken;
@@ -437,7 +440,7 @@ namespace edm {
                                        *schedule_,
                                        rp,
                                        ts,
-                                       esp_->eventSetupForInstance(ts),
+                                       esp_->eventSetup(),
                                        serviceToken_,
                                        subProcesses_);
   }
@@ -455,20 +458,30 @@ namespace edm {
                                      *schedule_,
                                      rp,
                                      ts,
-                                     esp_->eventSetupForInstance(ts),
+                                     esp_->eventSetup(),
                                      serviceToken_,
                                      subProcesses_,
                                      cleaningUpAfterException);
   }
 
   void
-  SubProcess::writeRun(ProcessHistoryID const& parentPhID, int runNumber) {
+  SubProcess::writeRunAsync(edm::WaitingTaskHolder task, ProcessHistoryID const& parentPhID, int runNumber) {
     ServiceRegistry::Operate operate(serviceToken_);
     std::map<ProcessHistoryID, ProcessHistoryID>::const_iterator it = parentToChildPhID_.find(parentPhID);
     assert(it != parentToChildPhID_.end());
     auto const& childPhID = it->second;
-    schedule_->writeRun(principalCache_.runPrincipal(childPhID, runNumber), &processContext_);
-    for_all(subProcesses_, [&childPhID, runNumber](auto& subProcess){ subProcess.writeRun(childPhID, runNumber); });
+    
+    auto subTasks = edm::make_waiting_task(tbb::task::allocate_root(), [this,childPhID,runNumber, task](std::exception_ptr const* iExcept) mutable {
+      if( iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        ServiceRegistry::Operate operate(serviceToken_);
+        for(auto& s: subProcesses_) {
+          s.writeRunAsync(task, childPhID, runNumber);
+        }
+      }
+    });
+    schedule_->writeRunAsync(WaitingTaskHolder(subTasks),principalCache_.runPrincipal(childPhID, runNumber), &processContext_, actReg_.get());
   }
 
   void
@@ -500,7 +513,7 @@ namespace edm {
                                        *schedule_,
                                        lbp,
                                        ts,
-                                       esp_->eventSetupForInstance(ts),
+                                       esp_->eventSetup(),
                                        serviceToken_,
                                        subProcesses_);
   }
@@ -515,7 +528,7 @@ namespace edm {
                                      *schedule_,
                                      lbp,
                                      ts,
-                                     esp_->eventSetupForInstance(ts),
+                                     esp_->eventSetup(),
                                      serviceToken_,
                                      subProcesses_,
                                      cleaningUpAfterException);
@@ -523,11 +536,21 @@ namespace edm {
 
   
   void
-  SubProcess::writeLumi(LuminosityBlockPrincipal& principal) {
+  SubProcess::writeLumiAsync(WaitingTaskHolder task, LuminosityBlockPrincipal& principal) {
     ServiceRegistry::Operate operate(serviceToken_);
+
     auto l =inUseLumiPrincipals_[principal.index()];
-    schedule_->writeLumi(*l, &processContext_);
-    for_all(subProcesses_, [l](auto& subProcess){ subProcess.writeLumi(*l); });
+    auto subTasks = edm::make_waiting_task(tbb::task::allocate_root(), [this,l, task](std::exception_ptr const* iExcept) mutable {
+      if( iExcept) {
+        task.doneWaiting(*iExcept);
+      } else {
+        ServiceRegistry::Operate operate(serviceToken_);
+        for(auto& s: subProcesses_) {
+          s.writeLumiAsync(task, *l);
+        }
+      }
+    });
+    schedule_->writeLumiAsync(WaitingTaskHolder(subTasks),*l, &processContext_, actReg_.get());
   }
 
   void
@@ -566,7 +589,7 @@ namespace edm {
                                        id,
                                        rp,
                                        ts,
-                                       esp_->eventSetupForInstance(ts),
+                                       esp_->eventSetup(),
                                        serviceToken_,
                                        subProcesses_);
     
@@ -584,7 +607,7 @@ namespace edm {
                                        id,
                                        rp,
                                        ts,
-                                       esp_->eventSetupForInstance(ts),
+                                       esp_->eventSetup(),
                                        serviceToken_,
                                        subProcesses_,
                                      cleaningUpAfterException);
@@ -602,7 +625,7 @@ namespace edm {
                                        id,
                                        lbp,
                                        ts,
-                                       esp_->eventSetupForInstance(ts),
+                                       esp_->eventSetup(),
                                        serviceToken_,
                                        subProcesses_);
   }
@@ -619,7 +642,7 @@ namespace edm {
                                        id,
                                        lbp,
                                        ts,
-                                       esp_->eventSetupForInstance(ts),
+                                       esp_->eventSetup(),
                                        serviceToken_,
                                        subProcesses_,
                                        cleaningUpAfterException);

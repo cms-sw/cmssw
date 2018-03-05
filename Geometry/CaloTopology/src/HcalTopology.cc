@@ -217,12 +217,16 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
        if ((id.iphi() % 4) != 1)                               return false;
        if (id.ietaAbs() > 32)                                  return false;
     }
-  } else {
+  } else if (id.version()==1) {
     if (triggerMode_==HcalTopologyMode::TriggerMode_2009) return false;
     if (id.ietaAbs()<30 || id.ietaAbs()>41)         return false;
     if (id.ietaAbs()>29 && ((id.iphi()%2)==0))      return false;
     if (id.ietaAbs()>39 && ((id.iphi()%4)!=3))      return false;
+  } else if (id.version()>1) {
+    // only versions 0 and 1 are supported
+    return false;
   }
+
   return true;
 }
 

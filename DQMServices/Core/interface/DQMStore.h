@@ -352,27 +352,18 @@ class DQMStore
   // into the DQMStore via a public API. The central mutex is acquired
   // *before* invoking and automatically released upon returns.
   template <typename iFunc>
-  void bookTransaction(iFunc f,
-                       uint32_t run,
-                       uint32_t streamId,
-                       uint32_t moduleId) {
+  void bookTransaction(iFunc f, uint32_t run, uint32_t moduleId) {
     std::lock_guard<std::mutex> guard(book_mutex_);
-    /* If enableMultiThread is not enabled we do not set run_,
-       streamId_ and moduleId_ to 0, since we rely on their default
-       initialization in DQMStore constructor. */
+    /* Set the run number and module id only if multithreading is enabled */
     if (enableMultiThread_) {
       run_ = run;
-      streamId_ = streamId;
       moduleId_ = moduleId;
     }
     f(*ibooker_);
 
-    /* Initialize to 0 the run_, streamId_ and moduleId_ variables
-       in case we run in mixed conditions with DQMEDAnalyzers and
-       legacy modules */
+    /* Reset the run number and module id only if multithreading is enabled */
     if (enableMultiThread_) {
       run_ = 0;
-      streamId_ = 0;
       moduleId_ = 0;
     }
   }
@@ -382,16 +373,14 @@ class DQMStore
   template <typename iFunc>
   void bookConcurrentTransaction(iFunc f, uint32_t run) {
     std::lock_guard<std::mutex> guard(book_mutex_);
-    /* Even if enableMultiThread_ is enabled, keep the streamId_
-       and moduleId_ to 0, since we want to book global histograms. */
+    /* Set the run_ member only if enableMultiThread is enabled */
     if (enableMultiThread_) {
       run_ = run;
     }
     ConcurrentBooker booker(this);
     f(booker);
 
-    /* Set back to 0 the run_ in case we run in mixed conditions
-       with DQMEDAnalyzers and legacy modules */
+    /* Reset the run_ member only if enableMultiThread is enabled */
     if (enableMultiThread_) {
       run_ = 0;
     }
@@ -405,16 +394,6 @@ class DQMStore
   template <typename iFunc>
   void meBookerGetter(iFunc f) {
     f(*ibooker_, *igetter_);
-  }
-
-  // Signature needed in the harvesting where it might be needed to get
-  // the LS based histograms. Handle to the Lumi and to the iSetup are available.
-  // No need to book anything there. The method relies on the
-  // initialization of run, stream and module ID to 0. The mutex
-  // is not needed.
-  template <typename iFunc>
-  void meGetter(iFunc f) {
-    f(*igetter_);
   }
 
   //-------------------------------------------------------------------------
@@ -691,9 +670,9 @@ class DQMStore
   bool                          mtEnabled() { return enableMultiThread_; };
 
 
+ public:
   // -------------------------------------------------------------------------
   // ---------------------- Public print methods -----------------------------
- public:
   void                          showDirStructure() const;
 
   // ---------------------- Public check options -----------------------------
@@ -741,7 +720,6 @@ class DQMStore
                                            const std::string &name,
                                            const uint32_t run = 0,
                                            const uint32_t lumi = 0,
-                                           const uint32_t streamId = 0,
                                            const uint32_t moduleId = 0) const;
 
   void                          get_info(const  dqmstorepb::ROOTFilePB_Histo &,
@@ -750,24 +728,18 @@ class DQMStore
                                          TObject ** obj);
 
  public:
-  void                          getAllTags(std::vector<std::string> &into) const;
   std::vector<MonitorElement*>  getAllContents(const std::string &path,
                                                uint32_t runNumber = 0,
                                                uint32_t lumi = 0) const;
   std::vector<MonitorElement*>  getMatchingContents(const std::string &pattern, lat::Regexp::Syntax syntaxType = lat::Regexp::Wildcard) const;
 
-  // Multithread SummaryCache manipulations
-  void mergeAndResetMEsRunSummaryCache(uint32_t run,
-                                       uint32_t streamId,
-                                       uint32_t moduleId);
-  void mergeAndResetMEsLuminositySummaryCache(uint32_t run,
-                                              uint32_t lumi,
-                                              uint32_t streamId,
-                                              uint32_t moduleId);
+  // lumisection based histograms manipulations
+  void cloneLumiHistograms(uint32_t run, uint32_t lumi, uint32_t moduleId);
+  void cloneRunHistograms(uint32_t run, uint32_t moduleId);
 
   void deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi);
- private:
 
+ private:
   // ---------------- Miscellaneous -----------------------------
   void        initializeFrom(const edm::ParameterSet&);
   void        reset();
@@ -866,7 +838,6 @@ class DQMStore
   bool                          forceResetOnBeginLumi_;
   std::string                   readSelectedDirectory_;
   uint32_t                      run_;
-  uint32_t                      streamId_;
   uint32_t                      moduleId_;
   std::ofstream *               stream_;
 

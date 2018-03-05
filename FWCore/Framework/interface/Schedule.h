@@ -164,10 +164,16 @@ namespace edm {
     void endStream(unsigned int);
 
     // Write the luminosity block
-    void writeLumi(LuminosityBlockPrincipal const& lbp, ProcessContext const*);
+    void writeLumiAsync(WaitingTaskHolder iTask,
+                        LuminosityBlockPrincipal const& lbp,
+                        ProcessContext const*,
+                        ActivityRegistry*);
 
     // Write the run
-    void writeRun(RunPrincipal const& rp, ProcessContext const*);
+    void writeRunAsync(WaitingTaskHolder iTask,
+                       RunPrincipal const& rp,
+                       ProcessContext const*,
+                       ActivityRegistry*);
 
     // Call closeFile() on all OutputModules.
     void closeOutputFiles();

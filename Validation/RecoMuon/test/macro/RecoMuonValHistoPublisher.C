@@ -1,7 +1,7 @@
 #include <vector>
 #include <algorithm>
 #include "TMath.h"
-#include "PlotHelpers.C"
+#include "macro/PlotHelpers.C"
 
 /////
 // Uncomment the following line to get more debuggin output
@@ -74,6 +74,7 @@ void RecoMuonValHistoPublisher(const char* newFile="NEW_FILE",const char* refFil
   TKey* sKey = 0;
   TString rcollname;
   TString scollname;
+
   while ( (rKey = (TKey*)iter_r()) ) {
     TString myName = rKey->GetName();
 #ifdef DEBUG
@@ -106,11 +107,16 @@ void RecoMuonValHistoPublisher(const char* newFile="NEW_FILE",const char* refFil
 
  
    //===== reco muon distributions: GLB
-    TString baseh     = Form("RecoMuon_MuonAssoc_Glb%s/",fastSim);
-    const char* plots1 [] = {(baseh + "ErrPt").Data(), (baseh + "ErrP").Data(), 
-			     (baseh + "ErrPt_vs_Eta_Sigma").Data(), (baseh + "ErrPt_vs_Pt_Sigma").Data()};   
-    const char* plotst1[] = {"GlobalMuon(GLB) #Delta p_{T}/p_{T}", "GlobalMuon(GLB) #Delta p/p", 
-			     "GlobalMuon(GLB) #Delta p_{T}/p_{T} vs #sigma(#eta)", "GlobalMuon(GLB) #Delta p_{T}/p_{T} vs #sigma(p_{T})"};
+    //TString baseh     = Form("RecoMuon_MuonAssoc_Glb%s/",fastSim);
+
+    const char* plots1[] = {"RecoMuon_MuonAssoc_Glb/ErrPt", 
+    			    "RecoMuon_MuonAssoc_Glb/ErrP", 
+    			    "RecoMuon_MuonAssoc_Glb/ErrPt_vs_Eta_Sigma", 
+    			    "RecoMuon_MuonAssoc_Glb/ErrPt_vs_Pt_Sigma"};
+    const char* plotst1[] = {"GlobalMuon(GLB) #Delta p_{T}/p_{T}", 
+			     "GlobalMuon(GLB) #Delta p/p", 
+			     "GlobalMuon(GLB) #Delta p_{T}/p_{T} vs #sigma(#eta)", 
+			     "GlobalMuon(GLB) #Delta p_{T}/p_{T} vs #sigma(p_{T})"};
     Plot4Histograms(newDir + "/muonRecoGlb.pdf",
 		    rdir, sdir, 
 		    rcollname, scollname,
@@ -121,10 +127,14 @@ void RecoMuonValHistoPublisher(const char* newFile="NEW_FILE",const char* refFil
     
     
     //==== efficiencies and fractions GLB
-    const char* plots2 [] = {(baseh + "EffP").Data(), (baseh + "EffEta").Data(), 
-			     (baseh + "FractP").Data(), (baseh + "FractEta").Data()};   
-    const char* plotst2[] = {"GlobalMuon(GLB) #epsilon vs. p", "GlobalMuon(GLB) #epsilon vs. #eta", 
-			     "GlobalMuon(GLB) fraction vs. p", "GlobalMuon(GLB) fraction vs. #eta"};
+    const char* plots2 [] = {"RecoMuon_MuonAssoc_Glb/EffP", 
+			     "RecoMuon_MuonAssoc_Glb/EffEta", 
+			     "RecoMuon_MuonAssoc_Glb/FractP", 
+			     "RecoMuon_MuonAssoc_Glb/FractEta"};   
+    const char* plotst2[] = {"GlobalMuon(GLB) #epsilon vs. p", 
+			     "GlobalMuon(GLB) #epsilon vs. #eta", 
+			     "GlobalMuon(GLB) fraction vs. p", 
+			     "GlobalMuon(GLB) fraction vs. #eta"};
     Double_t minx1   [] = {5., -1E100,    5.,   -1E100,    -1E100, -1E100 };
     Double_t maxx1   [] = {maxPT, -1E100,maxPT, -1E100,  -1E100, -1E100 };
     Double_t norm2   [] = {-999.,-999.,-999.,-999.,-999.,-999.}; //Normalize to first histogram 
@@ -167,11 +177,15 @@ void RecoMuonValHistoPublisher(const char* newFile="NEW_FILE",const char* refFil
     */
     
     //===== reco muon distributions: STA
-    baseh             = Form("RecoMuon_MuonAssoc_Sta%s/",fastSim);
-    const char* plots5 [] = {(baseh + "ErrPt").Data(), (baseh + "ErrP").Data(), 
-			     (baseh + "ErrPt_vs_Eta_Sigma").Data(), (baseh + "ErrPt_vs_Pt_Sigma").Data()};   
-    const char* plotst5[] = {"StandAloneMuon(STA) #Delta p_{T}/p_{T}", "StandAloneMuon(STA) #Delta p/p", 
-			     "StandAloneMuon(STA) #Delta p_{T}/p_{T} vs #sigma(#eta)", "StandAloneMuon(STA) #Delta p_{T}/p_{T} vs #sigma(p_{T})"};
+    //baseh             = Form("RecoMuon_MuonAssoc_Sta%s/",fastSim);
+    const char* plots5 [] = {"RecoMuon_MuonAssoc_Sta/ErrPt", 
+			     "RecoMuon_MuonAssoc_Sta/ErrP", 
+			     "RecoMuon_MuonAssoc_Sta/ErrPt_vs_Eta_Sigma", 
+			     "RecoMuon_MuonAssoc_Sta/ErrPt_vs_Pt_Sigma"};   
+    const char* plotst5[] = {"StandAloneMuon(STA) #Delta p_{T}/p_{T}", 
+			     "StandAloneMuon(STA) #Delta p/p", 
+			     "StandAloneMuon(STA) #Delta p_{T}/p_{T} vs #sigma(#eta)", 
+			     "StandAloneMuon(STA) #Delta p_{T}/p_{T} vs #sigma(p_{T})"};
     Plot4Histograms(newDir + "/muonRecoSta.pdf",
 		    rdir, sdir, 
 		    rcollname, scollname,
@@ -183,10 +197,14 @@ void RecoMuonValHistoPublisher(const char* newFile="NEW_FILE",const char* refFil
     
     
     //==== efficiencies and fractions STA
-    const char* plots6 [] = {(baseh + "EffP").Data(), (baseh + "EffEta").Data(), 
-			     (baseh + "FractP").Data(), (baseh + "FractEta").Data()};   
-    const char* plotst6[] = {"StandAloneMuon(STA) #epsilon vs. p", "StandAloneMuon(STA) #epsilon vs. #eta", 
-			     "StandAloneMuon(STA) fraction vs. p", "StandAloneMuon(STA) fraction vs. #eta"};
+    const char* plots6 [] = {"RecoMuon_MuonAssoc_Sta/EffP", 
+			     "RecoMuon_MuonAssoc_Sta/EffEta", 
+			     "RecoMuon_MuonAssoc_Sta/FractP", 
+			     "RecoMuon_MuonAssoc_Sta/FractEta"};   
+    const char* plotst6[] = {"StandAloneMuon(STA) #epsilon vs. p", 
+			     "StandAloneMuon(STA) #epsilon vs. #eta", 
+			     "StandAloneMuon(STA) fraction vs. p", 
+			     "StandAloneMuon(STA) fraction vs. #eta"};
     Plot4Histograms(newDir + "/muonRecoStaEff.pdf",
 		    rdir, sdir, 
 		    rcollname, scollname,
@@ -198,11 +216,15 @@ void RecoMuonValHistoPublisher(const char* newFile="NEW_FILE",const char* refFil
 
 
    //===== reco muon distributions: TRK
-    baseh             = Form("RecoMuon_MuonAssoc_Trk%s/",fastSim);
-    const char* plots7 [] = {(baseh + "ErrPt").Data(), (baseh + "ErrP").Data(), 
-			     (baseh + "ErrPt_vs_Eta_Sigma").Data(), (baseh + "ErrPt_vs_Pt_Sigma").Data()};   
-    const char* plotst7[] = {"TrackerMuon(TRK) #Delta p_{T}/p_{T}", "TrackerMuon(TRK) #Delta p/p", 
-			  "TrackerMuon(TRK) #Delta p_{T}/p_{T} vs #sigma(#eta)", "TrackerMuon(TRK) #Delta p_{T}/p_{T} vs #sigma(p_{T})"};
+    //baseh             = Form("RecoMuon_MuonAssoc_Trk%s/",fastSim);
+    const char* plots7 [] = {"RecoMuon_MuonAssoc_Trk/ErrPt", 
+			     "RecoMuon_MuonAssoc_Trk/ErrP", 
+			     "RecoMuon_MuonAssoc_Trk/ErrPt_vs_Eta_Sigma", 
+			     "RecoMuon_MuonAssoc_Trk/ErrPt_vs_Pt_Sigma"};   
+    const char* plotst7[] = {"TrackerMuon(TRK) #Delta p_{T}/p_{T}", 
+			     "TrackerMuon(TRK) #Delta p/p", 
+			     "TrackerMuon(TRK) #Delta p_{T}/p_{T} vs #sigma(#eta)", 
+			     "TrackerMuon(TRK) #Delta p_{T}/p_{T} vs #sigma(p_{T})"};
     Plot4Histograms(newDir + "/muonRecoTrk.pdf",
 		    rdir, sdir, 
 		    rcollname, scollname,
@@ -214,10 +236,14 @@ void RecoMuonValHistoPublisher(const char* newFile="NEW_FILE",const char* refFil
 
 
    //==== efficiencies and fractions TRK
-    const char* plots8 [] = {(baseh + "EffP").Data(), (baseh + "EffEta").Data(), 
-			     (baseh + "FractP").Data(), (baseh + "FractEta").Data()};   
-    const char* plotst8[] = {"TrackerMuon(TRK) #epsilon vs. p", "TrackerMuon(TRK) #epsilon vs. #eta", 
-                         "TrackerMuon(TRK) fraction vs. p", "TrackerMuon(TRK) fraction vs. #eta"};
+    const char* plots8 [] = {"RecoMuon_MuonAssoc_Trk/EffP", 
+			     "RecoMuon_MuonAssoc_Trk/EffEta", 
+			     "RecoMuon_MuonAssoc_Trk/FractP", 
+			     "RecoMuon_MuonAssoc_Trk/FractEta"};   
+    const char* plotst8[] = {"TrackerMuon(TRK) #epsilon vs. p", 
+			     "TrackerMuon(TRK) #epsilon vs. #eta", 
+			     "TrackerMuon(TRK) fraction vs. p", 
+			     "TrackerMuon(TRK) fraction vs. #eta"};
     Plot4Histograms(newDir + "/muonRecoTrkEff.pdf",
 		    rdir, sdir, 
 		    rcollname, scollname,
@@ -230,11 +256,15 @@ void RecoMuonValHistoPublisher(const char* newFile="NEW_FILE",const char* refFil
     //
     //===== reco muon distributions: Tight Muons
     //
-    baseh             = Form("RecoMuon_MuonAssoc_Tgt%s/",fastSim);
-    const char* plots9 [] = {(baseh + "ErrPt").Data(), (baseh + "ErrP").Data(), 
-			     (baseh + "ErrPt_vs_Eta_Sigma").Data(), (baseh + "ErrPt_vs_Pt_Sigma").Data()};   
-    const char* plotst9[] = {"Tight Muon #Delta p_{T}/p_{T}", "Tight Muon #Delta p/p", 
-			     "Tight Muon #Delta p_{T}/p_{T} vs #sigma(#eta)", "Tight Muon #Delta p_{T}/p_{T} vs #sigma(p_{T})"};
+    //baseh             = Form("RecoMuon_MuonAssoc_Tgt%s/",fastSim);
+    const char* plots9 [] = {"RecoMuon_MuonAssoc_Tgt/ErrPt", 
+			     "RecoMuon_MuonAssoc_Tgt/ErrP", 
+			     "RecoMuon_MuonAssoc_Tgt/ErrPt_vs_Eta_Sigma", 
+			     "RecoMuon_MuonAssoc_Tgt/ErrPt_vs_Pt_Sigma"};   
+    const char* plotst9[] = {"Tight Muon #Delta p_{T}/p_{T}", 
+			     "Tight Muon #Delta p/p", 
+			     "Tight Muon #Delta p_{T}/p_{T} vs #sigma(#eta)", 
+			     "Tight Muon #Delta p_{T}/p_{T} vs #sigma(p_{T})"};
     Plot4Histograms(newDir + "/muonRecoTgt.pdf",
 		    rdir, sdir, 
 		    rcollname, scollname,
@@ -246,10 +276,14 @@ void RecoMuonValHistoPublisher(const char* newFile="NEW_FILE",const char* refFil
 
 
    //==== efficiencies and fractions Tight Muons
-    const char* plots10 [] = {(baseh + "EffP").Data(), (baseh + "EffEta").Data(), 
-			      (baseh + "FractP").Data(), (baseh + "FractEta").Data()};   
-    const char* plotst10[] = {"Tight Muon #epsilon vs. p", "Tight Muon #epsilon vs. #eta", 
-			      "Tight Muon fraction vs. p", "Tight Muon fraction vs. #eta"};
+    const char* plots10 [] = {"RecoMuon_MuonAssoc_Tgt/EffP", 
+			      "RecoMuon_MuonAssoc_Tgt/EffEta", 
+			      "RecoMuon_MuonAssoc_Tgt/FractP", 
+			      "RecoMuon_MuonAssoc_Tgt/FractEta"};   
+    const char* plotst10[] = {"Tight Muon #epsilon vs. p", 
+			      "Tight Muon #epsilon vs. #eta", 
+			      "Tight Muon fraction vs. p", 
+			      "Tight Muon fraction vs. #eta"};
     Plot4Histograms(newDir + "/muonRecoTgtEff.pdf",
 		    rdir, sdir, 
 		    rcollname, scollname,

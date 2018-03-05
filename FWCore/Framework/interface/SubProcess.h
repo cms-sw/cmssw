@@ -109,12 +109,12 @@ namespace edm {
 
 
     // Write the luminosity block
-    void writeLumi(LuminosityBlockPrincipal&);
+    void writeLumiAsync(WaitingTaskHolder, LuminosityBlockPrincipal&);
 
     void deleteLumiFromCache(LuminosityBlockPrincipal&);
 
     // Write the run
-    void writeRun(ProcessHistoryID const& parentPhID, int runNumber);
+    void writeRunAsync(WaitingTaskHolder, ProcessHistoryID const& parentPhID, int runNumber);
 
     void deleteRunFromCache(ProcessHistoryID const& parentPhID, int runNumber);
 

@@ -58,7 +58,7 @@ L1TTwinMuxRawToDigi::L1TTwinMuxRawToDigi(const edm::ParameterSet& pset) :
     
   for (size_t wh_i = 0; wh_i < amcsecmap_.size(); ++wh_i){
     std::array<short, 12> whmap;      
-    for (size_t amc_i = 1; amc_i < 13; ++amc_i ){
+    for (size_t amc_i = 1; amc_i < 13; ++amc_i ) {
       short shift = (12-amc_i)*4;
       whmap[amc_i-1] = ( amcsecmap_[wh_i] >> shift ) & 0xF;
     }
@@ -69,8 +69,8 @@ L1TTwinMuxRawToDigi::L1TTwinMuxRawToDigi(const edm::ParameterSet& pset) :
 
 L1TTwinMuxRawToDigi::~L1TTwinMuxRawToDigi(){}
 
-void L1TTwinMuxRawToDigi::produce(edm::Event& e, 
-                             const edm::EventSetup& c) {
+void L1TTwinMuxRawToDigi::produce(edm::StreamID, edm::Event& e, 
+                             const edm::EventSetup& c) const {
 
   std::unique_ptr<L1MuDTChambPhContainer> TM7phi_product(new L1MuDTChambPhContainer);
   std::unique_ptr<L1MuDTChambThContainer> TM7the_product(new L1MuDTChambThContainer);
@@ -96,7 +96,7 @@ void L1TTwinMuxRawToDigi::produce(edm::Event& e,
 bool L1TTwinMuxRawToDigi::fillRawData( edm::Event& e,
                                   L1MuDTChambPhContainer::Phi_Container& phi_data,
                                   L1MuDTChambThContainer::The_Container& the_data,
-                                  L1MuDTChambPhContainer::Phi_Container& phi_out_data  ) {
+                                  L1MuDTChambPhContainer::Phi_Container& phi_out_data  ) const {
 
   edm::Handle<FEDRawDataCollection> data;
   e.getByToken( Raw_token, data );
@@ -109,7 +109,7 @@ bool L1TTwinMuxRawToDigi::fillRawData( edm::Event& e,
 }
 
 int L1TTwinMuxRawToDigi::normBx( int bx_, 
-                            int bxCnt_ ){
+                            int bxCnt_ ) const {
     
     int bxNorm_ = bx_ - bxCnt_;    
     if ( abs( bxNorm_ ) < 3000 ) return bxNorm_; 
@@ -121,7 +121,7 @@ int L1TTwinMuxRawToDigi::normBx( int bx_,
     
 }
 
-int L1TTwinMuxRawToDigi::radAngConversion( int radAng_  ) {
+int L1TTwinMuxRawToDigi::radAngConversion( int radAng_  ) const {
     
     if (radAng_>2047) 
         return radAng_-4096;
@@ -130,7 +130,7 @@ int L1TTwinMuxRawToDigi::radAngConversion( int radAng_  ) {
     
 }
 
-int L1TTwinMuxRawToDigi::benAngConversion( int benAng_  ) {
+int L1TTwinMuxRawToDigi::benAngConversion( int benAng_  ) const {
     
     if (benAng_>511) 
         return benAng_-1024;
@@ -141,11 +141,11 @@ int L1TTwinMuxRawToDigi::benAngConversion( int benAng_  ) {
 
 void L1TTwinMuxRawToDigi::processFed( int twinMuxFed, 
                                  int twinMuxWheel,
-                                 std::array<short, 12> twinMuxAmcSec,
+                                 std::array<short, 12> const& twinMuxAmcSec,
                                  edm::Handle<FEDRawDataCollection> data,
                                  L1MuDTChambPhContainer::Phi_Container& phiSegments,
                                  L1MuDTChambThContainer::The_Container& theSegments,
-                                 L1MuDTChambPhContainer::Phi_Container& phioutSegments ) {
+                                 L1MuDTChambPhContainer::Phi_Container& phioutSegments ) const {
 
   const unsigned int fw_rev_with_zerosupression = 93 ; // put the correct Firmware Revision of the first version with zerosuppression
   int previous_selector = -100;
@@ -165,13 +165,13 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
   if ( TM7data.size() == 0 ) return;
 
   /// Variables
-  LineFED_ = TM7data.data();
+  unsigned char* lineFED = TM7data.data();
   int nline  = 0; // counting already include header
   long dataWord = 0;
   int newCRC = 0xFFFF;
 
   ///--> Header - line 1 [must start with 0x5]
-  readline( nline, dataWord );
+  lineFED = readline( lineFED, nline, dataWord );
   dt_crc::calcCRC(dataWord, newCRC);
 
   int TM7fedId = ( dataWord >> 8 ) & 0xFFF;  // positions 8 -> 19
@@ -197,7 +197,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
   }
 
   ///--> Header - line 2
-  readline( nline, dataWord );
+  lineFED = readline( lineFED, nline, dataWord );
   dt_crc::calcCRC(dataWord, newCRC);
 
   std::map<int, int> AMCsizes;
@@ -213,7 +213,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
   ///--> AMC - line 3 to 3+nAMC
   for ( int j = 0; j < nAMC; ++j ) {
   
-    readline( nline, dataWord ); 
+    lineFED = readline( lineFED, nline, dataWord ); 
     dt_crc::calcCRC(dataWord, newCRC);
 
     int AMCno = (dataWord >> 16 ) & 0xF;  // positions 16 -> 19
@@ -244,7 +244,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
       
     for ( int k=0; k<AMCiterator->second; ++k) {
         
-       readline( nline, dataWord );
+       lineFED = readline( lineFED, nline, dataWord );
        dt_crc::calcCRC(dataWord, newCRC);
   
        DTTM7WordContainer.push_back( dataWord );
@@ -252,12 +252,12 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
   }  
 
   ///--> Trailer - line 1
-  readline( nline, dataWord );
+  lineFED = readline( lineFED, nline, dataWord );
   dt_crc::calcCRC(dataWord, newCRC);
   
   ///--> Trailer - line 2 [must start with 0xA]
 
-  readline( nline, dataWord );
+  lineFED = readline( lineFED, nline, dataWord );
   dt_crc::calcCRC(dataWord & 0xFFFFFFFF0000FFFF, newCRC);
 
   ///--> AMC trailer - line 2
@@ -330,7 +330,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 
     ++DTTM7iterator; // User word empty  /// ==>> increment 2
     if( DTTM7iterator == DTTM7itend ) {
-      edm::LogInfo("TwinMux_unpacker") << "TRAILING WORD AS A PAYLOAD END in FED " 
+      LogDebug("TwinMux_unpacker") << "TRAILING WORD AS A PAYLOAD END in FED " 
                                        << std::hex << TM7fedId 
                                        << std::hex << dataWord 
                                        << std::dec<< " [it pos " 
@@ -532,7 +532,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0x9 || selector == 0xE ) { //RPC word
 			  
-			edm::LogInfo("TwinMux_unpacker") << "RPC WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "RPC WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -544,7 +544,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0x6 ) { //HO word
 			  
-			edm::LogInfo("TwinMux_unpacker") << "HO WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "HO WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -556,7 +556,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0xF ) { //ERROR word
 
-			edm::LogInfo("TwinMux_unpacker") << "ERROR WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "ERROR WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -567,7 +567,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 
 		  else { //unkown word
 
-			edm::LogInfo("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 
+			LogDebug("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 
 											   << " in FED " << std::hex << TM7fedId;
 
 			if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 
@@ -873,7 +873,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 		   
 		  else if ( selector == 0x9 || selector == 0xE ) { //RPC word
 			  
-			edm::LogInfo("TwinMux_unpacker") << "RPC WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "RPC WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -885,7 +885,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0x6 ) { //HO word
 			  
-			edm::LogInfo("TwinMux_unpacker") << "HO WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "HO WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -897,7 +897,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 	 
 		  else if ( selector == 0xF ) { //ERROR word
 
-			edm::LogInfo("TwinMux_unpacker") << "ERROR WORD [" << std::dec << tm7eventsize << "] : "
+			LogDebug("TwinMux_unpacker") << "ERROR WORD [" << std::dec << tm7eventsize << "] : "
 											 << std::hex << dataWordSub << std::dec
 											 << " it pos " << int(DTTM7iterator - DTTM7itend);
 	  
@@ -908,7 +908,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
 
 		  else { //unkown word
 
-			edm::LogInfo("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 
+			LogDebug("TwinMux_unpacker") << "UNKNOWN WORD received " << std::hex << dataWordSub 
 											   << " in FED " << std::hex << TM7fedId;
 
 			if ( debug_ ) logfile << '[' << ++lcounter << "]\t" << std::hex 

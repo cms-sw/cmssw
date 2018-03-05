@@ -91,7 +91,6 @@ private:
   MonitorElement * bookMETrend(DQMStore::IBooker & , const char*);
   // internal evaluation of monitorables
   void AllClusters(const edm::Event& ev, const edm::EventSetup& es);
-
   void trackStudyFromTrack(
     edm::Handle<reco::TrackCollection >   trackCollectionHandle,
     const edm::DetSetVector<SiStripDigi>& digilist,
@@ -123,14 +122,14 @@ private:
 	  const bool                             track_ok);
   bool clusterInfos(
     SiStripClusterInfo* cluster,
-    const uint32_t                        detid,
-    enum ClusterFlags                     flags,
-    bool                                  track_ok,
-    LocalVector                           LV,
-    const Det2MEs&                        MEs ,
-    const TrackerTopology*                tTopo,
-    const SiStripGain*                    stripGain,
-    const SiStripQuality*                 stripQuality,
+    const uint32_t detid,
+    enum ClusterFlags flags,
+    bool track_ok,
+    LocalVector LV,
+    const Det2MEs& MEs ,
+    const TrackerTopology* tTopo,
+    const SiStripGain*     stripGain,
+    const SiStripQuality*  stripQuality,
     const edm::DetSetVector<SiStripDigi>& digilist
   );
   template <class T> void RecHitInfo(
@@ -139,9 +138,9 @@ private:
     const edm::DetSetVector<SiStripDigi>& digilist,
     const edm::Event&                     ev,
     const edm::EventSetup&                es,
-    bool ok
+    bool  track_ok
   );
-
+  
   bool fillControlViewHistos(const edm::Event& ev, const edm::EventSetup& es);
   void return2DME(MonitorElement* input1,MonitorElement* input2, int binx, int biny, double value);
 
@@ -292,8 +291,7 @@ private:
   SiStripDCSStatus* dcsStatus_;
   GenericTriggerEventFlag* genTriggerEventFlag_;
   SiStripFolderOrganizer folderOrganizer_;
-
-
+  
   // control view plots
   MonitorElement* ClusterStoNCorr_OnTrack_TIBTID = nullptr;
   MonitorElement* ClusterStoNCorr_OnTrack_TOB    = nullptr;
@@ -310,10 +308,6 @@ private:
   MonitorElement* ClusterCount_OnTrack_FECSlotVsFECRing_TOB    = nullptr;
   MonitorElement* ClusterCount_OnTrack_FECSlotVsFECRing_TECM   = nullptr;
   MonitorElement* ClusterCount_OnTrack_FECSlotVsFECRing_TECP   = nullptr;
-  
-  
-  
-
 
 };
 #endif

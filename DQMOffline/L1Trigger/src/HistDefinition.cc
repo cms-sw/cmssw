@@ -30,8 +30,10 @@ HistDefinition::HistDefinition(const edm::ParameterSet &ps):
   xmax(ps.getUntrackedParameter<double>("xmax", 0)),
   ymin(ps.getUntrackedParameter<double>("ymin", 0)),
   ymax(ps.getUntrackedParameter<double>("ymax", 0)),
-  binsX(ps.getUntrackedParameter<vdouble>("binsX", vdouble())),
-  binsY(ps.getUntrackedParameter<vdouble>("binsY", vdouble())) {
+  binsXtmp(ps.getUntrackedParameter<vdouble>("binsX", vdouble())),
+  binsYtmp(ps.getUntrackedParameter<vdouble>("binsY", vdouble())),
+  binsX(binsXtmp.begin(), binsXtmp.end()),
+  binsY(binsYtmp.begin(), binsYtmp.end()) {
 
 }
 

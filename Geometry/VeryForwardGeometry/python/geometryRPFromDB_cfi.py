@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-XMLIdealGeometryESSource_CTPPS = cms.ESProducer("XMLIdealCTPPSGeometryESProducer",
+XMLIdealGeometryESSource_CTPPS = cms.ESProducer("XMLIdealGeometryESProducer",
                                                 rootDDName = cms.string('cms:CMSE'),
-                                                label = cms.string(''),
+                                                label = cms.string('CTPPS'),
                                                 appendToDataLabel = cms.string('XMLIdealGeometryESSource_CTPPS')
                                                 )
 

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-umnioTask = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+umnioTask = DQMEDAnalyzer(
 	"UMNioTask",
 	
 	#	standard parameters
