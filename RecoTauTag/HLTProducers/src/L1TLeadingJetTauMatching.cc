@@ -32,7 +32,6 @@ void L1TLeadingJetTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, c
     L1Jets->getObjects(trigger::TriggerL1Jet,jetCandRefVec);
 
     for(unsigned int iTau = 0; iTau < taus->size(); iTau++){  
-
       if ((*taus)[iTau].pt() > minTauPt_){
         if(reco::deltaR2((*taus)[iTau].p4(), jetCandRefVec[0]->p4()) < matchingR2_)
             L1matchedPFTau->push_back((*taus)[iTau]);
