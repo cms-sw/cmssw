@@ -79,10 +79,6 @@ MuonTrackResidualAnalyzer::~MuonTrackResidualAnalyzer(){
   delete theService;
 }
 
-// Operations
-void MuonTrackResidualAnalyzer::beginJob(){
- 
-}
 
 void MuonTrackResidualAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
                                   edm::Run const & iRun,
