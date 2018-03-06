@@ -16,8 +16,8 @@ namespace edm {
   IndexIntoFile::EntryNumber_t const IndexIntoFile::invalidEntry;
 
   IndexIntoFile::Transients::Transients() : previousAddedIndex_(invalidIndex),
-                                            runToFirstEntry_(),
-                                            lumiToFirstEntry_(),
+                                            runToOrder_(),
+                                            lumiToOrder_(),
                                             beginEvents_(invalidEntry),
                                             endEvents_(invalidEntry),
                                             currentIndex_(invalidIndex),
@@ -34,8 +34,8 @@ namespace edm {
   void
   IndexIntoFile::Transients::reset() {
     previousAddedIndex_ = invalidIndex;
-    runToFirstEntry_.clear();
-    lumiToFirstEntry_.clear();
+    runToOrder_.clear();
+    lumiToOrder_.clear();
     beginEvents_ = invalidEntry;
     endEvents_ = invalidEntry;
     currentIndex_ = invalidIndex;
@@ -67,11 +67,12 @@ namespace edm {
 
   void
   IndexIntoFile::addLumi(int index, RunNumber_t run, LuminosityBlockNumber_t lumi, EntryNumber_t entry) {
-    std::pair<IndexRunLumiKey, EntryNumber_t> firstLumiEntry(IndexRunLumiKey(index, run, lumi), lumiToFirstEntry().size());
-    lumiToFirstEntry().insert(firstLumiEntry);
+    // assign each lumi an order value sequentially when first seen
+    std::pair<IndexRunLumiKey, EntryNumber_t> keyAndOrder(IndexRunLumiKey(index, run, lumi), lumiToOrder().size());
+    lumiToOrder().insert(keyAndOrder); // does nothing if this key already was inserted
     runOrLumiEntries_.emplace_back(
                                    invalidEntry,
-                                   lumiToFirstEntry()[IndexRunLumiKey(index, run, lumi)],
+                                   lumiToOrder()[IndexRunLumiKey(index, run, lumi)],
                                    entry, index,
                                    run, lumi,
                                    beginEvents(), endEvents());
@@ -123,9 +124,10 @@ namespace edm {
       currentIndex() = invalidIndex;
       currentRun() = invalidRun;
       currentLumi() = invalidLumi;
-      std::pair<IndexRunKey, EntryNumber_t> firstRunEntry(IndexRunKey(index, run), entry);
-      runToFirstEntry().insert(firstRunEntry);
-      runOrLumiEntries_.emplace_back(runToFirstEntry()[IndexRunKey(index, run)], invalidEntry, entry, index, run, lumi, invalidEntry, invalidEntry);
+      // assign each run an order value when first seen (using entry but any increasing value would work)
+      std::pair<IndexRunKey, EntryNumber_t> keyAndOrder(IndexRunKey(index, run), entry);
+      runToOrder().insert(keyAndOrder);  // Does nothing if this key was already inserted
+      runOrLumiEntries_.emplace_back(runToOrder()[IndexRunKey(index, run)], invalidEntry, entry, index, run, lumi, invalidEntry, invalidEntry);
     } else {
       if(currentRun() == invalidRun) {
         currentRun() = run;
@@ -426,9 +428,9 @@ namespace edm {
 
   void IndexIntoFile::sortVector_Run_Or_Lumi_Entries() {
     for(RunOrLumiEntry& item : runOrLumiEntries_) {
-      std::map<IndexRunKey, EntryNumber_t>::const_iterator firstRunEntry =
-        runToFirstEntry().find(IndexRunKey(item.processHistoryIDIndex(), item.run()));
-      if(firstRunEntry == runToFirstEntry().end()) {
+      std::map<IndexRunKey, EntryNumber_t>::const_iterator keyAndOrder =
+        runToOrder().find(IndexRunKey(item.processHistoryIDIndex(), item.run()));
+      if(keyAndOrder == runToOrder().end()) {
         throw Exception(errors::LogicError)
           << "In IndexIntoFile::sortVector_Run_Or_Lumi_Entries. A run entry is missing.\n"
           << "This means the IndexIntoFile product in the output file will be corrupted.\n"
@@ -438,7 +440,7 @@ namespace edm {
           << "the primary exception. This is an expected side effect.\n"
           << "Otherwise please report this to the core framework developers\n";
       }
-      item.setOrderPHIDRun(firstRunEntry->second);
+      item.setOrderPHIDRun(keyAndOrder->second);
     }
     stable_sort_all(runOrLumiEntries_);
   }
@@ -617,11 +619,19 @@ namespace edm {
 
           indexToEvent = eventIter - eventNumbers().begin() - beginEventNumbers;
         }
+
+        int newIndexToLumi = iLumi - runOrLumiIndexes().begin();
+        while (runOrLumiEntries_[runOrLumiIndexes()[newIndexToLumi].indexToGetEntry()].entry() == invalidEntry) {
+          ++newIndexToLumi;
+          assert(static_cast<unsigned>(newIndexToLumi) < runOrLumiEntries_.size());
+          assert(runOrLumiIndexes()[newIndexToLumi].lumi() == lumi);
+        }
+
         return IndexIntoFileItr(this,
                                 numericalOrder,
                                 kRun,
                                 iRun - runOrLumiIndexes().begin(),
-                                iLumi - runOrLumiIndexes().begin(),
+                                newIndexToLumi,
                                 iLumi - runOrLumiIndexes().begin(),
                                 indexToEvent,
                                 endEventNumbers - beginEventNumbers);
@@ -663,11 +673,19 @@ namespace edm {
                 *eventIter != event) continue;
             indexToEvent = eventIter - eventNumbers().begin() - beginEventNumbers;
           }
+
+          int newIndexToLumi = iLumi - runOrLumiIndexes().begin();
+          while (runOrLumiEntries_[runOrLumiIndexes()[newIndexToLumi].indexToGetEntry()].entry() == invalidEntry) {
+            ++newIndexToLumi;
+            assert(static_cast<unsigned>(newIndexToLumi) < runOrLumiEntries_.size());
+            assert(runOrLumiIndexes()[newIndexToLumi].lumi() == iLumi->lumi());
+          }
+
           return IndexIntoFileItr(this,
                                   numericalOrder,
                                   kRun,
                                   iRun - runOrLumiIndexes().begin(),
-                                  iLumi - runOrLumiIndexes().begin(),
+                                  newIndexToLumi,
                                   iLumi - runOrLumiIndexes().begin(),
                                   indexToEvent,
                                   endEventNumbers - beginEventNumbers);
@@ -1202,7 +1220,8 @@ namespace edm {
 
     // Finish initializing the iterator
     while(getRunOrLumiEntryType(newLumi - 1) == kLumi &&
-           isSameLumi(newLumi, newLumi - 1)) {
+          isSameLumi(newLumi, newLumi - 1) &&
+          lumiEntryValid(newLumi - 1)) {
       --newLumi;
     }
     setIndexToLumi(newLumi);
@@ -1381,7 +1400,7 @@ namespace edm {
     //See if entry number is invalid, this can happen if events from
     // different lumis overlap when doing concurrent lumi processing
     auto oldLumi = lumi();
-    while( indexIntoFile_->runOrLumiEntries()[indexToLumi_].entry() == invalidEntry) {
+    while( not lumiEntryValid(indexToLumi_) ) {
       ++indexToLumi_;
     }
     assert(oldLumi == lumi());
@@ -1579,6 +1598,10 @@ namespace edm {
     return false; // hit the end of the IndexIntoFile
   }
 
+  bool IndexIntoFile::IndexIntoFileItrNoSort::lumiEntryValid(int index) const {
+    return indexIntoFile()->runOrLumiEntries()[index].entry() != invalidEntry;
+  }
+
   IndexIntoFile::EntryType IndexIntoFile::IndexIntoFileItrNoSort::getRunOrLumiEntryType(int index) const {
     if(index < 0 || index >= size()) {
       return kEnd;
@@ -1732,6 +1755,10 @@ namespace edm {
       return true; // hit next lumi
     }
     return false; // hit the end of the IndexIntoFile
+  }
+
+  bool IndexIntoFile::IndexIntoFileItrSorted::lumiEntryValid(int index) const {
+    return indexIntoFile()->runOrLumiEntries()[indexIntoFile()->runOrLumiIndexes()[index].indexToGetEntry()].entry() != invalidEntry;
   }
 
   IndexIntoFile::EntryType IndexIntoFile::IndexIntoFileItrSorted::getRunOrLumiEntryType(int index) const {
