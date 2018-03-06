@@ -209,7 +209,7 @@ if __name__ == '__main__':
                       action='store_true')
 
     parser.add_option('--das-options',
-                      help='Options to be passed to das_client.py.',
+                      help='Options to be passed to dasgoclient.py.',
                       dest='dasOptions',
                       default="--limit 0",
                       action='store')
