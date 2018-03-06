@@ -35,8 +35,8 @@ class CMSFTFPPiKBuilder : public G4VPiKBuilder
     void Build(G4KaonZeroLInelasticProcess * aP) override;
     void Build(G4KaonZeroSInelasticProcess * aP) override;
     
-    void SetMinEnergy(G4double aM) {theMin = aM;}
-    void SetMaxEnergy(G4double aM) {theMax = aM;}
+    void SetMinEnergy(G4double aM) override {theMin = aM;}
+    void SetMaxEnergy(G4double aM) override {theMax = aM;}
 
   private:
     G4TheoFSGenerator * theModel;
