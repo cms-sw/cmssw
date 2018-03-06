@@ -15,14 +15,17 @@ using namespace XERCES_CPP_NAMESPACE;
 
 class L1TMuonBarrelParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd,L1TMuonBarrelParams> {
 private:
+    bool transactionSafe;
 public:
-    virtual std::shared_ptr<L1TMuonBarrelParams> newObject(const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) override ;
+    std::shared_ptr<L1TMuonBarrelParams> newObject(const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) override ;
 
     L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonBarrelParamsOnlineProd(void){}
+    ~L1TMuonBarrelParamsOnlineProd(void) override{}
 };
 
-L1TMuonBarrelParamsOnlineProd::L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd,L1TMuonBarrelParams>(iConfig) {}
+L1TMuonBarrelParamsOnlineProd::L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd,L1TMuonBarrelParams>(iConfig) {
+    transactionSafe = iConfig.getParameter<bool>("transactionSafe");
+}
 
 std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) {
     using namespace edm::es;
@@ -31,10 +34,14 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
     edm::ESHandle< L1TMuonBarrelParams > baseSettings ;
     baseRcd.get( baseSettings ) ;
 
-
     if (objectKey.empty()) {
         edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "Key is empty, returning empty L1TMuonBarrelParams";
-        throw std::runtime_error("Empty objectKey");
+        if( transactionSafe )
+            throw std::runtime_error("SummaryForFunctionManager: BMTF  | Faulty  | Empty objectKey");
+        else {
+            edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonBarrelParams";
+            return std::make_shared< L1TMuonBarrelParams >( *(baseSettings.product()) ) ;
+        }
     }
 
     std::string tscKey = objectKey.substr(0, objectKey.find(":") );
@@ -94,7 +101,12 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
 
     } catch ( std::runtime_error &e ) {
         edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << e.what();
-        throw std::runtime_error("Broken key");
+        if( transactionSafe )
+            throw std::runtime_error(std::string("SummaryForFunctionManager: BMTF  | Faulty  | ") + e.what());
+        else {
+            edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonBarrelParams";
+            return std::make_shared< L1TMuonBarrelParams >( *(baseSettings.product()) ) ;
+        }
     }
 
 
@@ -123,27 +135,49 @@ std::shared_ptr<L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObject(co
     // finally, push all payloads to the XML parser and construct the TrigSystem objects with each of those
     l1t::XmlConfigParser xmlRdr;
     l1t::TriggerSystem parsedXMLs;
+    try {
+        // HW settings should always go first
+        xmlRdr.readDOMFromString( hw_payload );
+        xmlRdr.readRootElement  ( parsedXMLs );
 
-    // HW settings should always go first
-    xmlRdr.readDOMFromString( hw_payload );
-    xmlRdr.readRootElement  ( parsedXMLs );
+        // now let's parse ALGO settings 
+        xmlRdr.readDOMFromString( algo_payload );
+        xmlRdr.readRootElement  ( parsedXMLs   );
 
-    // now let's parse ALGO settings 
-    xmlRdr.readDOMFromString( algo_payload );
-    xmlRdr.readRootElement  ( parsedXMLs   );
+        // remaining RS settings 
+        xmlRdr.readDOMFromString( mp7_payload );
+        xmlRdr.readRootElement  ( parsedXMLs  );
 
-    // remaining RS settings 
-    xmlRdr.readDOMFromString( mp7_payload );
-    xmlRdr.readRootElement  ( parsedXMLs  );
+        xmlRdr.readDOMFromString( amc13_payload );
+        xmlRdr.readRootElement  ( parsedXMLs    );
+        parsedXMLs.setConfigured();
 
-    xmlRdr.readDOMFromString( amc13_payload );
-    xmlRdr.readRootElement  ( parsedXMLs    );
-    parsedXMLs.setConfigured();
+    } catch ( std::runtime_error &e ) {
+        edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << e.what();
+        if( transactionSafe )
+            throw std::runtime_error(std::string("SummaryForFunctionManager: BMTF  | Faulty  | ") + e.what());
+        else {
+            edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonBarrelParams";
+            return std::make_shared< L1TMuonBarrelParams >( *(baseSettings.product()) ) ;
+        }
+    }
 
     L1TMuonBarrelParamsHelper m_params_helper( *(baseSettings.product()) );
-    m_params_helper.configFromDB( parsedXMLs );
+    try {
+        m_params_helper.configFromDB( parsedXMLs );
+    } catch ( std::runtime_error &e ) {
+        edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << e.what();
+        if( transactionSafe )
+            throw std::runtime_error(std::string("SummaryForFunctionManager: BMTF  | Faulty  | ") + e.what());
+        else {
+            edm::LogError( "L1-O2O: L1TMuonBarrelParamsOnlineProd" ) << "returning unmodified prototype of L1TMuonBarrelParams";
+            return std::make_shared< L1TMuonBarrelParams >( *(baseSettings.product()) ) ;
+        }
+    }
+
     std::shared_ptr< L1TMuonBarrelParams > retval = std::make_shared< L1TMuonBarrelParams>( m_params_helper );
- 
+
+    edm::LogInfo( "L1-O2O: L1TCaloParamsOnlineProd" ) << "SummaryForFunctionManager: BMTF  | OK      | All looks good"; 
     return retval;
 }
 

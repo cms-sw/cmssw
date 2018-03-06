@@ -9,6 +9,8 @@
 
 class L1TMuonOverlapParamsOnlineProd : public L1ConfigOnlineProdBaseExt<L1TMuonOverlapParamsO2ORcd,L1TMuonOverlapParams> {
 private:
+    bool transactionSafe;
+
 public:
     std::shared_ptr<L1TMuonOverlapParams> newObject(const std::string& objectKey, const L1TMuonOverlapParamsO2ORcd& record) override ;
 
@@ -16,15 +18,20 @@ public:
     ~L1TMuonOverlapParamsOnlineProd(void) override{}
 };
 
-L1TMuonOverlapParamsOnlineProd::L1TMuonOverlapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonOverlapParamsO2ORcd,L1TMuonOverlapParams>(iConfig) {}
+L1TMuonOverlapParamsOnlineProd::L1TMuonOverlapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonOverlapParamsO2ORcd,L1TMuonOverlapParams>(iConfig) {
+    transactionSafe = iConfig.getParameter<bool>("transactionSafe");
+}
 
 std::shared_ptr<L1TMuonOverlapParams> L1TMuonOverlapParamsOnlineProd::newObject(const std::string& objectKey, const L1TMuonOverlapParamsO2ORcd& record) {
 
     edm::LogError( "L1-O2O" ) << "L1TMuonOverlapParams object with key " << objectKey << " not in ORCON!" ;
 
-    throw std::runtime_error("You are never supposed to get this code running!");
+    if( transactionSafe )
+        throw std::runtime_error("SummaryForFunctionManager: OMTF  | Faulty  | You are never supposed to get OMTF online producer running!");
 
     std::shared_ptr< L1TMuonOverlapParams > retval = std::make_shared< L1TMuonOverlapParams >();
+
+    edm::LogError( "L1-O2O: L1TMuonOverlapParamsOnlineProd" ) << "SummaryForFunctionManager: OMTF  | Faulty  | You are never supposed to get OMTF online producer running; returning empty L1TMuonOverlapParams";
     return retval;
 }
 

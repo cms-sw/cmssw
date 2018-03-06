@@ -15,15 +15,15 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-class L1TMuonOverlapWriter : public edm::EDAnalyzer {
+class L1TMuonOverlapParamsWriter : public edm::EDAnalyzer {
 public:
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override ;
 
-    explicit L1TMuonOverlapWriter(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    ~L1TMuonOverlapWriter(void) override{}
+    explicit L1TMuonOverlapParamsWriter(const edm::ParameterSet&) : edm::EDAnalyzer(){}
+    ~L1TMuonOverlapParamsWriter(void) override {}
 };
 
-void L1TMuonOverlapWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
+void L1TMuonOverlapParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
     edm::ESHandle<L1TMuonOverlapParams> handle1;
     evSetup.get<L1TMuonOverlapParamsRcd>().get( handle1 ) ;
@@ -41,5 +41,5 @@ void L1TMuonOverlapWriter::analyze(const edm::Event& iEvent, const edm::EventSet
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-DEFINE_FWK_MODULE(L1TMuonOverlapWriter);
+DEFINE_FWK_MODULE(L1TMuonOverlapParamsWriter);
 

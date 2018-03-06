@@ -4,8 +4,9 @@ xflag=0
 CMS_OPTIONS=""
 KEY_CONTENT=""
 TAG_UPDATE=""
+UNSAFE=""
 
-while getopts 'xfk:t:h' OPTION
+while getopts 'xfk:t:s:h' OPTION
   do
   case $OPTION in
       x) xflag=1
@@ -17,11 +18,15 @@ while getopts 'xfk:t:h' OPTION
       t) if [ -z $TAG_UPDATE ] ; then TAG_UPDATE="tagUpdate="; else TAG_UPDATE=$TAG_UPDATE","; fi
          TAG_UPDATE=$TAG_UPDATE$OPTARG
           ;;
+      s) if [ -z $UNSAFE ] ; then UNSAFE="unsafe="; else UNSAFE=$UNSAFE","; fi
+         UNSAFE=$UNSAFE$OPTARG
+          ;;
       h) echo "Usage: [-xf] runnum tsckey"
           echo "  -x: write to ORCON instead of sqlite file"
           echo "  -f: force IOV update"
           echo "  -k: limit update to the specific systems (default are all, which is equivalent to -k uGT,uGTrs,GMT,EMTF,OMTF,BMTF,CALO)"
           echo "  -t: override tag name as TYPE:NEW_TAG_BASE (e.g. -t L1TCaloParams:Stage2v1)"
+          echo "  -s: lift transaction safety: carry on even problems are encountered (e.g. -s EMTF,OMTF,CALO)"
           exit
           ;;
   esac
@@ -32,11 +37,11 @@ runnum=$1
 tsckey=$2
 rskey=$3
 
+export TNS_ADMIN=/opt/offline/slc6_amd64_gcc493/cms/oracle-env/29/etc/
+
 echo "INFO: ADDITIONAL CMS OPTIONS:  " $CMS_OPTIONS $KEY_CONTENT $TAG_UPDATE
 
-#ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_omds_adg/CMS_TRG_R onlineDBAuth=./"
-#ONLINEDB_OPTIONS="onlineDBConnect=oracle://int2r_lb/CMS_TRG_R onlineDBAuth=./"
-ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_orcoff_prep/CMS_TRG_R onlineDBAuth=./"
+ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_omds_adg/CMS_TRG_R onlineDBAuth=./"
 PROTODB_OPTIONS="protoDBConnect=oracle://cms_orcon_adg/CMS_CONDITIONS protoDBAuth=./"
 #ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_omds_lb/CMS_TRG_R onlineDBAuth=/data/O2O/L1T/"
 #PROTODB_OPTIONS="protoDBConnect=oracle://cms_orcon_prod/CMS_CONDITIONS protoDBAuth=/data/O2O/L1T/"
@@ -65,7 +70,7 @@ fi
 if cmsRun ${CMSSW_RELEASE_BASE}/src/CondTools/L1TriggerExt/test/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyListExt=1 | grep "${tsckey}:${rskey}" ; then echo "TSC payloads present"
 else
     echo "TSC payloads absent; writing $KEY_CONTENT now"
-    cmsRun ${CMSSW_RELEASE_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWritePayloadOnlineExt_cfg.py tscKey=${tsckey} rsKey=${rskey} ${ONLINEDB_OPTIONS} ${PROTODB_OPTIONS} ${OUTDB_OPTIONS} ${COPY_OPTIONS} ${KEY_CONTENT} ${TAG_UPDATE} logTransactions=0 print
+    cmsRun ${CMSSW_RELEASE_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWritePayloadOnlineExt_cfg.py tscKey=${tsckey} rsKey=${rskey} ${ONLINEDB_OPTIONS} ${PROTODB_OPTIONS} ${OUTDB_OPTIONS} ${COPY_OPTIONS} ${KEY_CONTENT} ${TAG_UPDATE} ${UNSAFE} logTransactions=0 print
     o2ocode=$?
     if [ ${o2ocode} -ne 0 ]
     then
