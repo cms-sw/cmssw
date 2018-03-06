@@ -45,6 +45,7 @@ from DQMOffline.RecoB.dqmCollector_cff import *
 from DQMOffline.JetMET.SusyPostProcessor_cff import *
 from DQMOffline.JetMET.dataCertificationJetMET_cff import *
 from DQM.TrackingMonitorClient.TrackingClientConfig_Tier0_cff import *
+from DQM.TrackingMonitorClient.pixelTrackingEffFromHitPattern_cff import *
 from DQM.Phase2OuterTracker.OuterTrackerClientConfig_cff import *
 
 DQMOffline_SecondStep_PrePOG = cms.Sequence( TrackingOfflineDQMClient *
@@ -115,6 +116,8 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
 
 DQMHarvestTracking = cms.Sequence( TrackingOfflineDQMClient *
                                    dqmFastTimerServiceClient )
+
+DQMHarvestPixelTracking = cms.Sequence( pixelTrackingEffFromHitPattern )
 
 DQMHarvestOuterTracker = cms.Sequence( dqmRefHistoRootFileGetter *
                                  dqmDcsInfoClient *

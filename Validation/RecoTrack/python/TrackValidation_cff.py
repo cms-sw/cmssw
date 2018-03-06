@@ -21,6 +21,7 @@ from CommonTools.RecoAlgos.recoChargedRefCandidateToTrackRefProducer_cfi import 
 import RecoTracker.IterativeTracking.iterativeTkConfig as _cfg
 import RecoTracker.IterativeTracking.iterativeTkUtils as _utils
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
+from Configuration.ProcessModifiers.gpu_cff import gpu
 
 ### First define the stuff for the standard validation sequence
 ## Track selectors
@@ -712,6 +713,8 @@ tracksValidationTrackingOnly = cms.Sequence(
 tpClusterProducerPixelTrackingOnly = tpClusterProducer.clone(
     pixelClusterSrc = "siPixelClustersPreSplitting"
 )
+gpu.toModify(tpClusterProducerPixelTrackingOnly, pixelClusterSrc = "siPixelDigis")
+
 quickTrackAssociatorByHitsPixelTrackingOnly = quickTrackAssociatorByHits.clone(
     cluster2TPSrc = "tpClusterProducerPixelTrackingOnly"
 )
