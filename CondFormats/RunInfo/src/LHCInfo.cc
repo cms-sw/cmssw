@@ -109,7 +109,7 @@ namespace LHCInfoImpl {
   template <typename T> const T& getOneParam( const std::vector< std::vector<T> >& params, size_t index ){
     if( index >= params.size() ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" is out of range.");
     const std::vector<T>& inner = params[index];
-    if( inner.size()==0 ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" has not value stored.");
+    if( inner.empty() ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" has not value stored.");
     return inner[ 0 ];
   }
 
