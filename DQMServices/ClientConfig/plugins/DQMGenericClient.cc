@@ -502,8 +502,8 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
       efficHist->SetBinEntries(i, 1);
       efficHist->SetBinError(i, std::hypot(effVal, errVal));
     }
-    removeMEIfBooked(newEfficMEName, igetter);
-    ibooker.bookProfile(efficDir+"/"+newEfficMEName,efficHist);
+    removeMEIfBooked(efficDir+"/"+newEfficMEName, igetter);
+    ibooker.bookProfile(newEfficMEName, efficHist);
     delete efficHist;  
   }
 
