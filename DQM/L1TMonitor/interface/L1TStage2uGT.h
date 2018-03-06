@@ -75,9 +75,16 @@ private:
    int algoBitLastBxInTrain_;
    const std::string algoNameFirstBxInTrain_;
    const std::string algoNameLastBxInTrain_;
-   
+ 
+   int algoBitUnpre_;
+   int algoBitDis_; 
+   std::vector<std::string> unprescaledAlgoShortList_ ;
+   std::vector<std::string> disabledAlgoShortList_; 
+   const unsigned int range_;
    // Booking of histograms for the module
-   
+   std::vector<int> unprescaledAlgoBit_;
+   std::vector<int> disabledAlgoBit_;
+
    // Algorithm bits
    MonitorElement* algoBits_before_bxmask_;
    MonitorElement* algoBits_before_prescale_;
@@ -115,6 +122,19 @@ private:
    MonitorElement* den_last_collision_run_;
    MonitorElement* den_isolated_collision_run_;
 
+   // Prescaled and unprescaled aglo trigger bits
+    MonitorElement* prescaled_first_collision_run_;
+    MonitorElement* den_prescaled_first_collision_run_;
+    MonitorElement* unprescaled_first_collision_run_;
+    MonitorElement* den_unprescaled_first_collision_run_;
+    MonitorElement* prescaled_isolated_collision_run_;
+    MonitorElement* den_prescaled_isolated_collision_run_;
+    MonitorElement* unprescaled_isolated_collision_run_;
+    MonitorElement* den_unprescaled_isolated_collision_run_;
+    MonitorElement* prescaled_last_collision_run_;
+    MonitorElement* den_prescaled_last_collision_run_;
+    MonitorElement* unprescaled_last_collision_run_;
+    MonitorElement* den_unprescaled_last_collision_run_;
 };
 
 #endif
