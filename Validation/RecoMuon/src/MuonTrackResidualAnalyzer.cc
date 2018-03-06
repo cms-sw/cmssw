@@ -91,11 +91,11 @@ void MuonTrackResidualAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   ibooker.cd();
   InputTag algo = theMuonTrackLabel;
   string dirName=dirName_;
-  if (algo.process()!="")
+  if (!algo.process().empty())
     dirName+=algo.process()+"_";
-  if(algo.label()!="")
+  if(!algo.label().empty())
     dirName+=algo.label()+"_";
-  if(algo.instance()!="")
+  if(!algo.instance().empty())
     dirName+=algo.instance()+"";
   if (dirName.find("Tracks")<dirName.length()){
     dirName.replace(dirName.find("Tracks"),6,"");
