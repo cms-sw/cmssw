@@ -52,11 +52,11 @@ class CorrPCCProducer : public edm::one::EDProducer<edm::EndRunProducer,edm::one
 
     private:
         virtual void beginRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) override final;
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup);
-        virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup);
-        virtual void endRun(edm::Run const& runSeg, const edm::EventSetup& iSetup)override final;
+        virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override final;
+        virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override final;
+        virtual void endRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) override final;
         virtual void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) override final;
-        virtual void endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSetup);
+        virtual void endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSetup) override final;
         virtual void endJob()  override final;
         virtual void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) override final;
 
@@ -482,9 +482,9 @@ void CorrPCCProducer::endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSe
     type1FracHist = new TH1F(histTitle1,histTitle1,1000,-0.5,0.5);
     type1resHist  = new TH1F(histTitle2,histTitle2,4000,-0.2,0.2);
     type2resHist  = new TH1F(histTitle3,histTitle3,4000,-0.2,0.2);
-    delete histTitle1;
-    delete histTitle2;
-    delete histTitle3;
+    delete[] histTitle1;
+    delete[] histTitle2;
+    delete[] histTitle3;
 
     for(lumiInfoMapIterator=lumiInfoMap.begin(); (lumiInfoMapIterator!=lumiInfoMap.end()); ++lumiInfoMapIterator) {
 
@@ -590,9 +590,9 @@ void CorrPCCProducer::endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSe
     delete type1resHist;
     delete type2resHist;
 
-    delete histname1;
-    delete histname2;
-    delete histname3;
+    delete[] histname1;
+    delete[] histname2;
+    delete[] histname3;
 
     for(lumiInfoMapIterator=lumiInfoMap.begin(); (lumiInfoMapIterator!=lumiInfoMap.end()); ++lumiInfoMapIterator) {
         delete lumiInfoMapIterator->second; 
