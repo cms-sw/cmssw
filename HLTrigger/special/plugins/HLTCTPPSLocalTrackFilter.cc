@@ -111,10 +111,6 @@ bool HLTCTPPSLocalTrackFilter::filter(edm::StreamID, edm::Event& iEvent, const e
   int arm56Tracks = 0;
   std::map<uint32_t, int> tracksPerPot;
 
-  typedef edm::Ref<edm::DetSetVector<CTPPSPixelLocalTrack>> PixelRef;
-  typedef edm::Ref<edm::DetSetVector<TotemRPLocalTrack>> StripRef;
-  typedef edm::Ref<edm::DetSetVector<CTPPSDiamondLocalTrack>> DiamondRef;
-
   //   Note that there is no matching between the tracks from the several roman pots
   // so tracks from separate pots might correspond to the same particle.
   // When the pixels are used in more than one RP (in 2018), then the same situation can
