@@ -117,16 +117,16 @@ class InputInfo(object):
         if len(self.run) is not 0 or self.ls:
             queries = self.queries()[:3]
             if len(self.run) != 0:
-              command = ";".join(["das_client %s --query '%s'" % (das_options, query) for query in queries])
+              command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
             else:
               lumis = self.lumis()
               commands = []
               while queries:
-                commands.append("das_client %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
+                commands.append("dasgoclient %s --query 'lumi,%s' --format json | das-selected-lumis.py %s " % (das_options, queries.pop(), lumis.pop()))
               command = ";".join(commands)
             command = "({0})".format(command)
         else:
-            command = "das_client %s --query '%s'" % (das_options, self.queries()[0])
+            command = "dasgoclient %s --query '%s'" % (das_options, self.queries()[0])
        
         # Run filter on DAS output 
         if self.ib_blacklist:
