@@ -47,6 +47,5 @@ l1TStage2Clients = cms.Sequence(
 l1tStage2MonitorClient = cms.Sequence(
                         l1TStage2QualityTests +
                         l1TStage2Clients 
-                       + l1tObjectsTimingClient
                         )
 

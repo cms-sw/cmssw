@@ -119,7 +119,7 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
     muons_eta_phi.push_back(ibooker.book2D("muons_eta_phi_bx_"+bx_obj[i],"L1T Muon #eta vs #phi BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
     muons_eta_phi.at(i)->setAxisTitle("#eta", 1);
     muons_eta_phi.at(i)->setAxisTitle("#phi", 2);
-    den_muons_eta_phi.push_back(ibooker.book2D("den_muons_eta_phi_bx_"+bx_obj[i],"L1T Muon #eta vs #phii denominator BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
+    den_muons_eta_phi.push_back(ibooker.book2D("den_muons_eta_phi_bx_"+bx_obj[i],"L1T Muon #eta vs #phi denominator BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
     den_muons_eta_phi.at(i)->setAxisTitle("#eta", 1);
     den_muons_eta_phi.at(i)->setAxisTitle("#phi", 2);
   }
