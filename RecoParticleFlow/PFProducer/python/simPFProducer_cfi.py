@@ -24,3 +24,8 @@ phase2_timing.toModify(
     gsfTrackTimeValueMap = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModel"),
     gsfTrackTimeErrorMap = cms.InputTag("gsfTrackTimeValueMapProducer:electronGsfTracksConfigurableFlatResolutionModelResolution"),
 )
+
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+premix_stage2.toModify(simPFProducer,
+    trackingParticleSrc = "mixData:MergedTrackTruth"
+)
