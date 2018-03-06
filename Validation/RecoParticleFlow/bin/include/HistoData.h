@@ -90,7 +90,7 @@ public:
 
   // Misc Functions
   void drawResult(TH1 *Summary, bool Vertical = true, bool SetLabels = false);
-  void clear() { memset(this,0,sizeof(*this)); }
+  void clear() { memset(static_cast<void *>(this),0,sizeof(*this)); }
   inline void dump();
 
 private:
