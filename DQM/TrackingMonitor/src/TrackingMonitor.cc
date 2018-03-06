@@ -216,11 +216,6 @@ TrackingMonitor::~TrackingMonitor()
 }
 
 
-void TrackingMonitor::beginJob(void) 
-{
-
-    
-}
 
 void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 				     edm::Run const & iRun,
