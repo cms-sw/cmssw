@@ -58,7 +58,6 @@ private:
   void fillBadComponentHistos(int xbin, int component,SiStripQuality::BadComponent& BC);
   void createSummary(MonitorElement* me);
 
-  DQMStore* dqmStore_;
   MonitorElement * badAPVME_;
   MonitorElement * badFiberME_;
   MonitorElement * badStripME_;
