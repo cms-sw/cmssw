@@ -34,7 +34,8 @@ protected :
 
 
 private:
-  
+
+  ClassDef(TFitParticleSpher, 0)
 };
 
 #endif
