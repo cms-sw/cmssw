@@ -92,6 +92,7 @@ private :
   Bool_t _withMPDGCons;
   Bool_t _doCheckConstraintsTruth;
 
+  ClassDef(TSLToyGen, 0)
 };
 
 #endif
