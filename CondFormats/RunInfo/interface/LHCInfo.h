@@ -15,10 +15,9 @@ class LHCInfo {
   enum ParticleType { NONE = 0, PROTON = 1, PB82 = 2, AR18 = 3, D = 4, XE54 = 5 };
 
   enum IntParamIndex { LHC_FILL = 0, BUNCHES_1 = 1, BUNCHES_2 = 2, COLLIDING_BUNCHES = 3, TARGET_BUNCHES = 4, FILL_TYPE = 5, PARTICLES_1 = 6, PARTICLES_2 = 7, ISIZE = 8 };
-  enum FloatParamIndex { CROSSING_ANGLE = 0, BETA_STAR = 1, INTENSITY_1 = 2, INTENSITY_2 = 3, ENERGY = 4, DELIV_LUMI = 5, REC_LUMI = 7, FSIZE=8};
+  enum FloatParamIndex { CROSSING_ANGLE = 0, BETA_STAR = 1, INTENSITY_1 = 2, INTENSITY_2 = 3, ENERGY = 4, DELIV_LUMI = 5, REC_LUMI = 7, LUMI_PER_B=8, FSIZE=9};
   enum TimeParamIndex { CREATE_TIME = 0, BEGIN_TIME = 1, END_TIME = 2, TSIZE=3};
   enum StringParamIndex { INJECTION_SCHEME = 0, SSIZE=1 };
-  enum ArrayParamIndex { LUMI_PER_B = 0, ASIZE = 1 };
 
   typedef FillType FillTypeId;
   typedef ParticleType ParticleTypeId;
@@ -168,18 +167,19 @@ class LHCInfo {
   
  private:
   bool m_isData;
-  std::vector<unsigned int> m_intParams;
+  std::vector<std::vector<unsigned int> > m_intParams;
   //unsigned short m_lhcFill;
   //unsigned short m_bunches1, m_bunches2, m_collidingBunches, m_targetBunches;
   //FillTypeId m_fillType;
   //ParticleTypeId m_particles1, m_particles2;
-  std::vector<float> m_floatParams;
+  std::vector<std::vector<float> > m_floatParams;
   //float m_crossingAngle, m_betastar, m_intensity1, m_intensity2, m_energy, m_delivLumi, m_recLumi;
-  std::vector<unsigned long long> m_timeParams;
+  std::vector<std::vector<unsigned long long> > m_timeParams;
   //cond::Time_t m_createTime, m_beginTime, m_endTime;
-  std::vector<std::string> m_stringParams;
+  std::vector<std::vector<std::string> > m_stringParams;
   //std::string m_injectionScheme;
-  std::vector<std::vector<float> > m_arrayParams;
+  //std::vector<std::vector<float> > m_farrayParams;
+  //std::vector<std::vector<float> > m_iarrayParams;
   //std::vector<float> m_lumiPerBX;
   //BEWARE: since CMS counts bunches starting from one,
   //the size of the bitset must be incremented by one,

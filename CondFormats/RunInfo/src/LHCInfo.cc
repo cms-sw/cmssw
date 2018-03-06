@@ -75,7 +75,6 @@ LHCInfo::LHCInfo(): m_isData( false )
 		  , m_floatParams( FSIZE )
 		  , m_timeParams( TSIZE )
 		  , m_stringParams( SSIZE )
-		  , m_arrayParams( ASIZE )
 {}
 
 LHCInfo::LHCInfo( unsigned short const & lhcFill, bool const & fromData ): m_isData( fromData )
@@ -83,7 +82,6 @@ LHCInfo::LHCInfo( unsigned short const & lhcFill, bool const & fromData ): m_isD
 									 , m_floatParams( FSIZE )
 									 , m_timeParams( TSIZE )
 									 , m_stringParams( SSIZE )
-									 , m_arrayParams( ASIZE )
 {}
 
 LHCInfo::~LHCInfo() {}
@@ -91,24 +89,36 @@ LHCInfo::~LHCInfo() {}
 //reset instance
 void LHCInfo::setFill( unsigned short const & lhcFill, bool const & fromData ) {
   m_isData = fromData;
-  m_intParams.resize( ISIZE, 0 );
-  m_intParams[ LHC_FILL ] = lhcFill;
-  m_floatParams.resize( FSIZE, 0. );
-  m_timeParams.resize( TSIZE, 0 );
-  m_stringParams.resize( SSIZE );
-  m_stringParams[ INJECTION_SCHEME ] = "None";
-  m_arrayParams.resize( ASIZE, std::vector<float>() );
+  m_intParams.resize( ISIZE, std::vector<unsigned int>(1,0) );
+  m_intParams[ LHC_FILL ][0] = lhcFill;
+  m_floatParams.resize( FSIZE, std::vector<float>(1,0.));
+  m_floatParams[ LUMI_PER_B ] = std::vector<float>();
+  m_timeParams.resize( TSIZE, std::vector<unsigned long long>(1,0) );
+  m_stringParams.resize( SSIZE, std::vector<std::string>() );
+  m_stringParams[ INJECTION_SCHEME ] = std::vector<std::string>(1,"None");
   m_bunchConfiguration1.reset();
   m_bunchConfiguration2.reset();
 }
 
 namespace LHCInfoImpl {
-  template <typename T> const T& getParam( const std::vector<T>& params, size_t index ){
+  template <typename T> const T& getParams( const std::vector<T>& params, size_t index ){
     if( index >= params.size() ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" is out of range.");
-    return params[ index ];
+    return params[index];
+  }  
+
+  template <typename T> const T& getOneParam( const std::vector< std::vector<T> >& params, size_t index ){
+    if( index >= params.size() ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" is out of range.");
+    const std::vector<T>& inner = params[index];
+    if( inner.size()==0 ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" has not value stored.");
+    return inner[ 0 ];
   }
 
-  template <typename T> void setParam( std::vector<T>& params, size_t index, const T& value ){
+  template <typename T> void setOneParam( std::vector< std::vector<T> >& params, size_t index, const T& value ){
+    if( index >= params.size() ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" is out of range.");
+    params[ index ] = std::vector<T>(1,value);
+  }
+
+  template <typename T> void setParams( std::vector<T>& params, size_t index, const T& value ){
     if( index >= params.size() ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" is out of range.");
     params[ index ] = value;
   }
@@ -117,7 +127,7 @@ namespace LHCInfoImpl {
 
 //getters
 unsigned short const LHCInfo::fillNumber() const {
- return LHCInfoImpl::getParam( m_intParams, LHC_FILL );
+ return LHCInfoImpl::getOneParam( m_intParams, LHC_FILL );
 }
 
 bool const LHCInfo::isData() const {
@@ -125,79 +135,79 @@ bool const LHCInfo::isData() const {
 }
 
 unsigned short const LHCInfo::bunchesInBeam1() const {
-  return LHCInfoImpl::getParam( m_intParams, BUNCHES_1 );
+  return LHCInfoImpl::getOneParam( m_intParams, BUNCHES_1 );
 }
 
 unsigned short const LHCInfo::bunchesInBeam2() const {
-  return LHCInfoImpl::getParam( m_intParams, BUNCHES_2 );
+  return LHCInfoImpl::getOneParam( m_intParams, BUNCHES_2 );
 }
 
 unsigned short const LHCInfo::collidingBunches() const {
-  return LHCInfoImpl::getParam( m_intParams, COLLIDING_BUNCHES );
+  return LHCInfoImpl::getOneParam( m_intParams, COLLIDING_BUNCHES );
 }
 
 unsigned short const LHCInfo::targetBunches() const {
-  return LHCInfoImpl::getParam( m_intParams, TARGET_BUNCHES );
+  return LHCInfoImpl::getOneParam( m_intParams, TARGET_BUNCHES );
 }
 
 LHCInfo::FillTypeId const LHCInfo::fillType() const {
-  return static_cast<FillTypeId>(LHCInfoImpl::getParam( m_intParams, FILL_TYPE ));
+  return static_cast<FillTypeId>(LHCInfoImpl::getOneParam( m_intParams, FILL_TYPE ));
 }
 
 LHCInfo::ParticleTypeId const LHCInfo::particleTypeForBeam1() const {
-  return static_cast<ParticleTypeId>(LHCInfoImpl::getParam( m_intParams, PARTICLES_1 ));
+  return static_cast<ParticleTypeId>(LHCInfoImpl::getOneParam( m_intParams, PARTICLES_1 ));
 }
 
 LHCInfo::ParticleTypeId const LHCInfo::particleTypeForBeam2() const {
-  return static_cast<ParticleTypeId>(LHCInfoImpl::getParam( m_intParams, PARTICLES_2 ));
+  return static_cast<ParticleTypeId>(LHCInfoImpl::getOneParam( m_intParams, PARTICLES_2 ));
 }
 
 float const LHCInfo::crossingAngle() const {
-  return LHCInfoImpl::getParam( m_floatParams, CROSSING_ANGLE );
+  return LHCInfoImpl::getOneParam( m_floatParams, CROSSING_ANGLE );
 }
 
 float const LHCInfo::betaStar() const {
-  return LHCInfoImpl::getParam( m_floatParams, BETA_STAR );
+  return LHCInfoImpl::getOneParam( m_floatParams, BETA_STAR );
 }
 
 float const LHCInfo::intensityForBeam1() const {
-  return LHCInfoImpl::getParam( m_floatParams, INTENSITY_1 );
+  return LHCInfoImpl::getOneParam( m_floatParams, INTENSITY_1 );
 }
 
 float const LHCInfo::intensityForBeam2() const {
-  return LHCInfoImpl::getParam( m_floatParams, INTENSITY_2 );
+  return LHCInfoImpl::getOneParam( m_floatParams, INTENSITY_2 );
 }
 
 float const LHCInfo::energy() const {
-  return LHCInfoImpl::getParam( m_floatParams, ENERGY );
+  return LHCInfoImpl::getOneParam( m_floatParams, ENERGY );
 }
 
 float const LHCInfo::delivLumi() const {
-  return LHCInfoImpl::getParam( m_floatParams, DELIV_LUMI );
+  return LHCInfoImpl::getOneParam( m_floatParams, DELIV_LUMI );
 }
 
 float const LHCInfo::recLumi() const {
-  return LHCInfoImpl::getParam( m_floatParams, REC_LUMI );
+  return LHCInfoImpl::getOneParam( m_floatParams, REC_LUMI );
 }
 
 cond::Time_t const LHCInfo::createTime() const {
-  return LHCInfoImpl::getParam( m_timeParams, CREATE_TIME );
+  return LHCInfoImpl::getOneParam( m_timeParams, CREATE_TIME );
 }
 
 cond::Time_t const LHCInfo::beginTime() const {
-  return LHCInfoImpl::getParam(m_timeParams, BEGIN_TIME );
+  return LHCInfoImpl::getOneParam(m_timeParams, BEGIN_TIME );
 }
 
 cond::Time_t const LHCInfo::endTime() const {
-  return LHCInfoImpl::getParam(m_timeParams, END_TIME );
+  return LHCInfoImpl::getOneParam(m_timeParams, END_TIME );
 }
 
 std::string const & LHCInfo::injectionScheme() const {
-  return LHCInfoImpl::getParam(m_stringParams, INJECTION_SCHEME );
+  return LHCInfoImpl::getOneParam(m_stringParams, INJECTION_SCHEME );
 }
 
 std::vector<float> const & LHCInfo::lumiPerBX() const {
-  return LHCInfoImpl::getParam(m_arrayParams, LUMI_PER_B );
+  return LHCInfoImpl::getParams(m_floatParams, LUMI_PER_B );
 }
 
 //returns a boolean, true if the injection scheme has a leading 25ns
@@ -231,79 +241,79 @@ std::vector<unsigned short> LHCInfo::bunchConfigurationForBeam2() const {
 
 //setters
 void LHCInfo::setBunchesInBeam1( unsigned short const & bunches ) {
-  LHCInfoImpl::setParam( m_intParams, BUNCHES_1, static_cast<unsigned int>(bunches) );
+  LHCInfoImpl::setOneParam( m_intParams, BUNCHES_1, static_cast<unsigned int>(bunches) );
 }
 
 void LHCInfo::setBunchesInBeam2( unsigned short const & bunches ) {
-  LHCInfoImpl::setParam( m_intParams, BUNCHES_2, static_cast<unsigned int>(bunches) );
+  LHCInfoImpl::setOneParam( m_intParams, BUNCHES_2, static_cast<unsigned int>(bunches) );
 }
 
 void LHCInfo::setCollidingBunches( unsigned short const & collidingBunches ) {
-  LHCInfoImpl::setParam( m_intParams, COLLIDING_BUNCHES, static_cast<unsigned int>(collidingBunches) );
+  LHCInfoImpl::setOneParam( m_intParams, COLLIDING_BUNCHES, static_cast<unsigned int>(collidingBunches) );
 }
 
 void LHCInfo::setTargetBunches( unsigned short const & targetBunches ) {
-  LHCInfoImpl::setParam( m_intParams, TARGET_BUNCHES, static_cast<unsigned int>(targetBunches) );  
+  LHCInfoImpl::setOneParam( m_intParams, TARGET_BUNCHES, static_cast<unsigned int>(targetBunches) );  
 }
 
 void LHCInfo::setFillType( LHCInfo::FillTypeId const & fillType ) {
-  LHCInfoImpl::setParam( m_intParams, FILL_TYPE, static_cast<unsigned int>(fillType) );
+  LHCInfoImpl::setOneParam( m_intParams, FILL_TYPE, static_cast<unsigned int>(fillType) );
 }
 
 void LHCInfo::setParticleTypeForBeam1( LHCInfo::ParticleTypeId const & particleType ) {
-  LHCInfoImpl::setParam( m_intParams, PARTICLES_1, static_cast<unsigned int>(particleType) );
+  LHCInfoImpl::setOneParam( m_intParams, PARTICLES_1, static_cast<unsigned int>(particleType) );
 }
 
 void LHCInfo::setParticleTypeForBeam2( LHCInfo::ParticleTypeId const & particleType ) {
-  LHCInfoImpl::setParam( m_intParams, PARTICLES_2, static_cast<unsigned int>(particleType) );
+  LHCInfoImpl::setOneParam( m_intParams, PARTICLES_2, static_cast<unsigned int>(particleType) );
 }
 
 void LHCInfo::setCrossingAngle( float const & angle ) {
-  LHCInfoImpl::setParam( m_floatParams, CROSSING_ANGLE, angle );
+  LHCInfoImpl::setOneParam( m_floatParams, CROSSING_ANGLE, angle );
 }
   
 void LHCInfo::setBetaStar( float const & betaStar ) {
-  LHCInfoImpl::setParam( m_floatParams, BETA_STAR, betaStar );
+  LHCInfoImpl::setOneParam( m_floatParams, BETA_STAR, betaStar );
 }
 
 void LHCInfo::setIntensityForBeam1( float const & intensity ) {
-  LHCInfoImpl::setParam( m_floatParams, INTENSITY_1, intensity );
+  LHCInfoImpl::setOneParam( m_floatParams, INTENSITY_1, intensity );
 }
 
 void LHCInfo::setIntensityForBeam2( float const & intensity ) {
-  LHCInfoImpl::setParam( m_floatParams, INTENSITY_2, intensity );
+  LHCInfoImpl::setOneParam( m_floatParams, INTENSITY_2, intensity );
 }
 
 void LHCInfo::setEnergy( float const & energy ) {
-  LHCInfoImpl::setParam( m_floatParams, ENERGY, energy );
+  LHCInfoImpl::setOneParam( m_floatParams, ENERGY, energy );
 }
 
 void LHCInfo::setDelivLumi( float const & delivLumi ) {
-  LHCInfoImpl::setParam( m_floatParams, DELIV_LUMI, delivLumi );
+  LHCInfoImpl::setOneParam( m_floatParams, DELIV_LUMI, delivLumi );
 }
 
 void LHCInfo::setRecLumi( float const & recLumi ) {
-  LHCInfoImpl::setParam( m_floatParams, REC_LUMI, recLumi );
+  LHCInfoImpl::setOneParam( m_floatParams, REC_LUMI, recLumi );
 }
 
 void LHCInfo::setCreationTime( cond::Time_t const & createTime ) {
-  LHCInfoImpl::setParam( m_timeParams, CREATE_TIME, createTime );
+  LHCInfoImpl::setOneParam( m_timeParams, CREATE_TIME, createTime );
 }
 
 void LHCInfo::setBeginTime( cond::Time_t const & beginTime ) {
-  LHCInfoImpl::setParam( m_timeParams, BEGIN_TIME, beginTime );
+  LHCInfoImpl::setOneParam( m_timeParams, BEGIN_TIME, beginTime );
 }
 
 void LHCInfo::setEndTime( cond::Time_t const & endTime ) {
-  LHCInfoImpl::setParam( m_timeParams, END_TIME, endTime );
+  LHCInfoImpl::setOneParam( m_timeParams, END_TIME, endTime );
 }
 
 void LHCInfo::setInjectionScheme( std::string const & injectionScheme ) {
-  LHCInfoImpl::setParam( m_stringParams, INJECTION_SCHEME, injectionScheme );
+  LHCInfoImpl::setOneParam( m_stringParams, INJECTION_SCHEME, injectionScheme );
 }
 
 void LHCInfo::setLumiPerBX( std::vector<float> const & lumiPerBX) {
-  LHCInfoImpl::setParam( m_arrayParams, LUMI_PER_B, lumiPerBX );
+  LHCInfoImpl::setParams( m_floatParams, LUMI_PER_B, lumiPerBX );
 }
 
 //sets all values in one go
