@@ -156,11 +156,20 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps) :
 			MonitorElement* meEfficiency_HF_depth = ib.book2D("TDCCutEfficiency_depth", "TDC cut efficiency", hOccupancy_HF_depth->GetNbinsX(), hOccupancy_HF_depth->GetXaxis()->GetXmin(), hOccupancy_HF_depth->GetXaxis()->GetXmax(), hOccupancy_HF_depth->GetNbinsY(), hOccupancy_HF_depth->GetYaxis()->GetXmin(), hOccupancy_HF_depth->GetYaxis()->GetXmax());
 			meEfficiency_HF_depth->setEfficiencyFlag();
 			TH2F *hEfficiency_HF_depth = meEfficiency_HF_depth->getTH2F();
+			for (int xbin = 1; xbin <= hEfficiency_HF_depth->GetNbinsX(); ++xbin) {
+				hEfficiency_HF_depth->GetXaxis()->SetBinLabel(xbin, hOccupancy_HF_depth->GetXaxis()->GetBinLabel(xbin));
+			}
+			for (int ybin = 1; ybin <= hEfficiency_HF_depth->GetNbinsY(); ++ybin) {
+				hEfficiency_HF_depth->GetYaxis()->SetBinLabel(ybin, hOccupancy_HF_depth->GetYaxis()->GetBinLabel(ybin));
+			}
 			hEfficiency_HF_depth->Divide(hOccupancy_HF_depth, hOccupancyNoTDC_HF_depth);
 
 			MonitorElement* meEfficiency_HF_ieta = ib.book1D("TDCCutEfficiency_ieta", "TDC cut efficiency", hOccupancy_HF_ieta->GetNbinsX(), hOccupancy_HF_ieta->GetXaxis()->GetXmin(), hOccupancy_HF_ieta->GetXaxis()->GetXmax());			
 			meEfficiency_HF_ieta->setEfficiencyFlag();	
 			TH1F *hEfficiency_HF_ieta = meEfficiency_HF_ieta->getTH1F();
+			for (int xbin = 1; xbin <= hEfficiency_HF_ieta->GetNbinsX(); ++xbin) {
+				hEfficiency_HF_ieta->GetXaxis()->SetBinLabel(xbin, hOccupancy_HF_ieta->GetXaxis()->GetBinLabel(xbin));
+			}
 			hEfficiency_HF_ieta->Divide(hOccupancy_HF_ieta, hOccupancyNoTDC_HF_ieta);
 		}	
 	}
