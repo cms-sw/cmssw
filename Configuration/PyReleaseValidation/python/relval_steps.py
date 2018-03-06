@@ -2245,7 +2245,7 @@ defaultDataSets['2018']='CMSSW_10_0_2-100X_upgrade2018_realistic_v10-v'
 defaultDataSets['2018Design']='CMSSW_10_0_2-100X_upgrade2018_design_IdealBS_v6-v'
 #defaultDataSets['2019']=''
 #defaultDataSets['2019Design']=''
-defaultDataSets['2023D17']=''
+defaultDataSets['2023D17']='CMSSW_9_3_2-93X_upgrade2023_realistic_v2_2023D17noPU-v'
 defaultDataSets['2023D19']=''
 defaultDataSets['2023D21']=''
 
