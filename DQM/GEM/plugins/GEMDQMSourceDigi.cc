@@ -51,10 +51,6 @@ private:
 
   std::unordered_map<UInt_t,  MonitorElement*> Digi_2D;
   std::unordered_map<UInt_t,  MonitorElement*> Digi_1D;
-  //std::unordered_map<UInt_t,  MonitorElement*> h1B1010;
-  //std::unordered_map<UInt_t,  MonitorElement*> h1B1100;
-  //std::unordered_map<UInt_t,  MonitorElement*> h1B1110;
-  //std::unordered_map<UInt_t,  MonitorElement*> h1Flag;
   
 
 };
@@ -93,9 +89,6 @@ GEMDQMSourceDigi::GEMDQMSourceDigi(const edm::ParameterSet& cfg)
 {
 
   tagDigi = consumes<GEMDigiCollection>(cfg.getParameter<edm::InputTag>("digisInputLabel")); 
-  
-  //vnAMCBID = cfg.getUntrackedParameter<std::vector<int> >("AMCBID");
-  //vstrAMCBinLabels = cfg.getUntrackedParameter<std::vector<std::string> >("AMCBinLabel");
 
 }
 
