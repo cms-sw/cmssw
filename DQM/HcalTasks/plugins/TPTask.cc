@@ -677,9 +677,11 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		_cOccupancyData_depthlike.fill(tid);
 
 		if (_ptype == fOnline) {
-			if (soiEt_d > 0) {
-				_cOccupancy_HF_depth.fill(tid);
-				_cOccupancy_HF_ieta.fill(tid);
+			if (tid.ietaAbs()>=29) {
+				if (soiEt_d > 0) {
+					_cOccupancy_HF_depth.fill(tid);
+					_cOccupancy_HF_ieta.fill(tid);
+				}
 			}
 		}
 		if (_ptype != fOffline) { // hidefed2crate
@@ -825,9 +827,11 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 				continue;
 			}
 			int soiEt_e = it->SOI_compressedEt();
-			if (soiEt_e > 0) {
-				_cOccupancyNoTDC_HF_depth.fill(tid);
-				_cOccupancyNoTDC_HF_ieta.fill(tid);
+			if (tid.ietaAbs() >= 29) {
+				if (soiEt_e > 0) {
+					_cOccupancyNoTDC_HF_depth.fill(tid);
+					_cOccupancyNoTDC_HF_ieta.fill(tid);
+				}
 			}
 		}
 	}
