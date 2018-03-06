@@ -546,7 +546,7 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
       efficHist->SetBinEntries(i, 1);
       efficHist->SetBinError(i, std::hypot(effVal, errVal));
     }
-    removeMEIfBooked(efficDir+"/"+newEfficMEName, igetter);
+    removeMEIfBooked(newEfficMEName, igetter);
     ibooker.bookProfile(newEfficMEName, efficHist);
     delete efficHist;  
   }
@@ -567,13 +567,13 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
     TString histClassName = myHistClass->GetName();
   
     if (histClassName == "TH1F"){
-      removeMEIfBooked(efficDir+"/"+newEfficMEName, igetter);
+      removeMEIfBooked(newEfficMEName, igetter);
       efficME = ibooker.book1D(newEfficMEName, (TH1F*)efficHist);
     } else if (histClassName == "TH2F"){
-      removeMEIfBooked(efficDir+"/"+newEfficMEName, igetter);
+      removeMEIfBooked(newEfficMEName, igetter);
       efficME = ibooker.book2D(newEfficMEName, (TH2F*)efficHist);    
     } else if (histClassName == "TH3F"){
-      removeMEIfBooked(efficDir+"/"+newEfficMEName, igetter);
+      removeMEIfBooked(newEfficMEName, igetter);
       efficME = ibooker.book3D(newEfficMEName, (TH3F*)efficHist);    
     } 
   
@@ -690,8 +690,8 @@ void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker, DQMStore::I
   float * lowedgesfloats = new float[nBin+1];
   ME* meanME;
   ME* sigmaME;
-  removeMEIfBooked(newDir+"/"+newPrefix+"_Mean", igetter);
-  removeMEIfBooked(newDir+"/"+newPrefix+"_Sigme", igetter);
+  removeMEIfBooked(newPrefix+"_Mean", igetter);
+  removeMEIfBooked(newPrefix+"_Sigme", igetter);
   if (hSrc->GetXaxis()->GetXbins()->GetSize())
   {
     for (int j=0; j<nBin+1; ++j)
@@ -766,7 +766,7 @@ void DQMGenericClient::computeProfile(DQMStore::IBooker& ibooker, DQMStore::IGet
 
   std::unique_ptr<TProfile> profile(hSrc->ProfileX()); // We own the pointer
   profile->SetTitle(profileMETitle.c_str());
-  removeMEIfBooked(profileDir+"/"+profileMEName, igetter);
+  removeMEIfBooked(profileMEName, igetter);
   ibooker.bookProfile(profileMEName, profile.get()); // ibooker makes a copy
 }
 
