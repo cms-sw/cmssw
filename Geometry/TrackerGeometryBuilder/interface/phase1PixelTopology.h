@@ -1,25 +1,25 @@
 #pragma once
+#ifndef Geometry_TrackerGeometryBuilder_phase1PixelTopology_h
+#define Geometry_TrackerGeometryBuilder_phase1PixelTopology_h
 
-#include<cstdint>
+#include <cstdint>
 
 namespace phase1PixelTopology {
 
   constexpr uint16_t numRowsInRoc     = 80;
   constexpr uint16_t numColsInRoc     = 52;
-  constexpr uint16_t lastRowInRoc     = 79;
-  constexpr uint16_t lastColInRoc     = 51;
+  constexpr uint16_t lastRowInRoc     = numRowsInRoc - 1;
+  constexpr uint16_t lastColInRoc     = numColsInRoc - 1;
 
-  constexpr uint16_t numRowsInModule  = 2*80;
-  constexpr uint16_t numColsInModule  = 8*52;
-  constexpr uint16_t lastRowInModule  = 2*80-1;
-  constexpr uint16_t lastColInModule  = 8*52-1;
+  constexpr uint16_t numRowsInModule  = 2 * numRowsInRoc;
+  constexpr uint16_t numColsInModule  = 8 * numColsInRoc;
+  constexpr uint16_t lastRowInModule  = numRowsInModule - 1;
+  constexpr uint16_t lastColInModule  = numColsInModule - 1;
 
   constexpr int16_t xOffset = -81;
   constexpr int16_t yOffset = -54*4;
-    
-  
-  constexpr uint32_t numPixsInModule  =  uint32_t(numRowsInModule)* uint32_t(numColsInModule);
 
+  constexpr uint32_t numPixsInModule = uint32_t(numRowsInModule)* uint32_t(numColsInModule);
 
   // this is for the ROC n<512 (upgrade 1024)
   constexpr inline
@@ -29,19 +29,18 @@ namespace phase1PixelTopology {
     q = q + (q>>4) + (q>>5); q = q >> 3;
     uint16_t r = n - q*13;
     return q + ((r + 3) >> 4);
-    // return q + (r > 12);
   }
 
   constexpr inline
   bool isEdgeX(uint16_t px) { return (px==0) | (px==lastRowInModule);}
   constexpr inline
-  bool isEdgeY(uint16_t	py) { return (py==0) | (py==lastColInModule);}
+  bool isEdgeY(uint16_t py) { return (py==0) | (py==lastColInModule);}
 
-  
+
   constexpr inline
   uint16_t toRocX(uint16_t px) { return (px<numRowsInRoc) ? px : px-numRowsInRoc; }
   constexpr inline
-  uint16_t toRocY(uint16_t py) {  
+  uint16_t toRocY(uint16_t py) {
     auto roc = divu52(py);
     return py - 52*roc;
   }
@@ -56,7 +55,6 @@ namespace phase1PixelTopology {
     auto ly=toRocY(py);
     return (ly==0) | (ly==lastColInRoc);
   }
-
 
   constexpr inline
   uint16_t localX(uint16_t px) {
@@ -74,6 +72,7 @@ namespace phase1PixelTopology {
     if (yInRoc>0) shift+=1;
     return py+shift;
   }
-  
+
 }
 
+#endif // Geometry_TrackerGeometryBuilder_phase1PixelTopology_h
