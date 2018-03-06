@@ -86,7 +86,6 @@ private:
   
   std::unordered_map<uint16_t, int> mlAMCID; 
   std::unordered_map<uint16_t, int> mlGEBID; 
- //std::vector<std::string> vstrAMCBinLabels;
 
   
 };
@@ -297,7 +296,6 @@ void GEMDQMStatusDigi::analyze(edm::Event const& event, edm::EventSetup const& e
       h2Vwh->Fill(GEBStatus->getVwh(), nIdx);
       h2Vwt->Fill(GEBStatus->getVwt(), nIdx);
       
-      //h1GEBError->Fill(GEBStatus->getErrorC());
       for ( int bin = 0 ; bin < 9  ; bin++ ) {
         if ( ( ( GEBStatus->getErrorC() >> bin ) & 0x1 ) != 0 ) {
           h1GEBWarning->Fill(bin);
@@ -331,8 +329,6 @@ void GEMDQMStatusDigi::analyze(edm::Event const& event, edm::EventSetup const& e
       for (int bin = 0; bin < 24; bin++){
         binFired = ((amc->GEMDAV() >> bin) & 0x1);
         if (binFired) {GEMDAV->Fill(bin); GEMDAV2D->Fill(bin, nIdxAMC);}
-        //binFired = ((amc->Bstatus() >> bin) & 0x1);
-        //if (binFired) Bstatus->Fill(bin);
         binFired = ((amc->ChamT() >> bin) & 0x1);
         if (binFired) {ChamT->Fill(bin); ChamT2D->Fill(bin, nIdxAMC);}
       }

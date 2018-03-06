@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('GEMDQM')
 
-test = True
+test = False
 
 process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")

@@ -51,13 +51,8 @@ private:
 
   std::vector<GEMChamber> gemChambers;
 
-  MonitorElement* Phi;
-  MonitorElement* Eta;
-    
   std::unordered_map<UInt_t,  MonitorElement*> recHitME;
-    
   std::unordered_map<UInt_t,  MonitorElement*> VFAT_vs_ClusterSize;
-    
   std::unordered_map<UInt_t,  MonitorElement*> StripsFired_vs_eta;
   std::unordered_map<UInt_t,  MonitorElement*> rh_vs_eta;
 
@@ -129,9 +124,6 @@ void GEMDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, 
   }
   nCh = gemChambers.size();
   ibooker.cd();
-  ibooker.setCurrentFolder("GEM");
-  Phi = ibooker.book1D("phi", "#phi", 360, -3.141592, 3.141592);
-  Eta = ibooker.book1D("eta", "#eta", 10, -2.5, -1.5);
   ibooker.setCurrentFolder("GEM/recHit");
   for (auto ch : gemChambers){
     GEMDetId gid = ch.id();
@@ -142,16 +134,10 @@ void GEMDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, 
     string hName_2 = "VFAT_vs_ClusterSize_Gemini_"+to_string(gid.chamber())+"_la_"+to_string(gid.layer());
     string hTitle_2 = "VFAT vs ClusterSize Gemini chamber : "+to_string(gid.chamber())+", layer : "+to_string(gid.layer());
     VFAT_vs_ClusterSize[ ch.id() ] = ibooker.book2D(hName_2, hTitle_2, 9, 1, 10, 24, 0, 24);
-    //TH2F *hist = VFAT_vs_ClusterSize[ ch.id() ]->getTH2F();
-    //hist->SetMarkerStyle(20);
-    //hist->SetMarkerSize(0.5);
     
     string hName_fired = "StripFired_Gemini_"+to_string(gid.chamber())+"_la_"+to_string(gid.layer());
     string hTitle_fired = "StripsFired Gemini chamber : "+to_string(gid.chamber())+", layer : "+to_string(gid.layer());
     StripsFired_vs_eta[ ch.id() ] = ibooker.book2D(hName_fired, hTitle_fired, 384, 1, 385, 8, 1,9);
-    //TH2F *hist_2 = StripsFired_vs_eta[ ch.id() ]->getTH2F();
-    //hist_2->SetMarkerStyle(20);
-    //hist_2->SetMarkerSize(0.5);
 
     string hName_rh = "recHit_x_Gemini_"+to_string(gid.chamber())+"_la_"+to_string(gid.layer());
     string hTitle_rh = "recHit local x Gemini chamber : "+to_string(gid.chamber())+", layer : "+to_string(gid.layer());
@@ -183,24 +169,10 @@ void GEMDQMSource::analyze(edm::Event const& event, edm::EventSetup const& event
   ////////////////
   edm::Handle<GEMRecHitCollection> gemRecHits;
   event.getByToken( this->tagRecHit, gemRecHits);
-  //   if (!gemRecHits.isValid()) {
-  //     edm::LogError("GEMDQMSource") << "GEM recHit is not valid.\n";
-  //     return ;
-  //   }  
-  for (GEMRecHitCollection::const_iterator recHit = gemRecHits->begin(); recHit != gemRecHits->end(); ++recHit){
-    // Sometimes this value is null
-    if ( GEMGeometry_->idToDet((*recHit).gemId()) == nullptr ) continue;
-    
-    //std::cout << "DetId : " << (*recHit).gemId() << std::endl;
-    
-    GEMDetId id((*recHit).geographicalId());
-    LocalPoint recHitLP = recHit->localPosition();
-    GlobalPoint recHitGP = GEMGeometry_->idToDet((*recHit).gemId())->surface().toGlobal(recHitLP);
-    Float_t rhPhi = recHitGP.phi();
-    Float_t rhEta = recHitGP.eta();
-    Phi->Fill(rhPhi);
-    Eta->Fill(rhEta);
-  }
+  if (!gemRecHits.isValid()) {
+    edm::LogError("GEMDQMSource") << "GEM recHit is not valid.\n";
+    return ;
+  }  
   for (auto ch : gemChambers){
     GEMDetId cId = ch.id();
     for(auto roll : ch.etaPartitions()){
