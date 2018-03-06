@@ -52,10 +52,10 @@ class InputInfo(object):
         
     def das(self, das_options):
         if len(self.run) is not 0:
-            command = ";".join(["das_client.py %s --query '%s'" % (das_options, query) for query in self.queries()])
+            command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in self.queries()])
             command = "({0})".format(command)
         else:
-            command = "das_client.py %s --query '%s'" % (das_options, self.queries()[0])
+            command = "dasgoclient %s --query '%s'" % (das_options, self.queries()[0])
        
         # Run filter on DAS output 
         if self.ib_blacklist:
