@@ -35,8 +35,10 @@ namespace DataFormats {
     edm::Ptr<l1t::HGCalTriggerCell> hgcalTriggerCellPtr;
     edm::Ptr<l1t::HGCalCluster> hgcalClusterPtr;
     edm::Ptr<l1t::HGCalTowerMap> hgcalTowerMapPtr;
-    edm::PtrVector<l1t::HGCalTriggerCell>  hgcalTriggerCellList;
-    edm::PtrVector<l1t::HGCalCluster>  hgcalClusterList;
+    std::vector<edm::Ptr<l1t::HGCalTriggerCell>>  hgcalTriggerCellList;
+    std::vector<edm::Ptr<l1t::HGCalCluster>>  hgcalClusterList;
+    std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>  hgcalTriggerCellMap;
+    std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>>  hgcalClusterMap;
     edm::PtrVector<l1t::HGCalTowerMap>  hgcalTowerMapList;
 
     edm::Wrapper<l1t::HGCalTowerBxCollection>   w_hgcalTowerBxColl;
