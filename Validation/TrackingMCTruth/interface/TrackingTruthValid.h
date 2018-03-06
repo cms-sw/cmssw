@@ -23,9 +23,8 @@ class TrackingTruthValid  : public  DQMEDAnalyzer {
   void analyze(const edm::Event&, const edm::EventSetup& ) override;
 
   void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
-  void beginJob() override;
-  void endJob() override;
-  
+  void endJob() override; 
+
  private:
   bool runStandalone;
   std::string outputFile;
