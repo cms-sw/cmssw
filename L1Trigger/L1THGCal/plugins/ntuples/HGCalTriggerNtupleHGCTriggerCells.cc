@@ -18,14 +18,14 @@ class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase
 
   public:
     HGCalTriggerNtupleHGCTriggerCells(const edm::ParameterSet& conf);
-    ~HGCalTriggerNtupleHGCTriggerCells(){};
-    virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
-    virtual void fill(const edm::Event& e, const edm::EventSetup& es) override final;
+    ~HGCalTriggerNtupleHGCTriggerCells() override{};
+    void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
+    void fill(const edm::Event& e, const edm::EventSetup& es) final;
 
   private:
     double calibrate(double, int, int);
     void simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, std::unordered_map<uint32_t, double>& simhits_fh, std::unordered_map<uint32_t, double>& simhits_bh);
-    virtual void clear() override final;
+    void clear() final;
 
     HGCalTriggerTools triggerTools_;
 
@@ -161,7 +161,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     }
   }
 
-  triggerTools_.setEventSetup(es);
+  triggerTools_.eventSetup(es);
 
   clear();
   for(auto tc_itr=trigger_cells.begin(0); tc_itr!=trigger_cells.end(0); tc_itr++)
@@ -181,7 +181,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       tc_id_.emplace_back(tc_itr->detId());
       tc_subdet_.emplace_back(id.subdetId());
       tc_side_.emplace_back(id.zside());
-      tc_layer_.emplace_back(triggerTools_.getLayerWithOffset(id));
+      tc_layer_.emplace_back(triggerTools_.layerWithOffset(id));
       tc_wafer_.emplace_back(id.wafer());
       tc_wafertype_.emplace_back(id.waferType());
       tc_cell_.emplace_back(id.cell());

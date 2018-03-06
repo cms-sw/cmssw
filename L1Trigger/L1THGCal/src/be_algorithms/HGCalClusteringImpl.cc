@@ -82,10 +82,10 @@ void HGCalClusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGCalTri
             }
             ++iclu;
         }
-        if( tcPertinentClusters.size() == 0 && isSeed[itc] ){
+        if( tcPertinentClusters.empty() && isSeed[itc] ){
             clustersTmp.emplace_back( *tc );
         }
-        else if ( tcPertinentClusters.size() > 0 ){
+        else if ( !tcPertinentClusters.empty() ){
          
             unsigned minDist(300);
             unsigned targetClu(0);
@@ -444,16 +444,7 @@ void HGCalClusteringImpl::calibratePt( l1t::HGCalCluster & cluster ){
 
     if(applyLayerWeights_){
 
-        int layerN = -1;
-        if( cluster.subdetId()==HGCEE ){
-            layerN = cluster.layer();
-        }
-        else if( cluster.subdetId()==HGCHEF ){
-            layerN = cluster.layer()+kLayersEE_;
-        }
-        else if( cluster.subdetId()==HGCHEB ){
-            layerN = cluster.layer()+kLayersFH_+kLayersEE_;
-        }
+        unsigned layerN = triggerTools_.layerWithOffset(cluster.detId());
 
         if(layerWeights_.at(layerN)==0.){
             throw cms::Exception("BadConfiguration")

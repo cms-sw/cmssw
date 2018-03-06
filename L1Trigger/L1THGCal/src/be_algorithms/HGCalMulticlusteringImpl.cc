@@ -88,7 +88,7 @@ void HGCalMulticlusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGC
             }
             ++imclu;
         }
-        if( tcPertinentMulticlusters.size() == 0 ){
+        if( tcPertinentMulticlusters.empty() ){
             multiclustersTmp.emplace_back( *clu );
         }
         else{
@@ -109,8 +109,8 @@ void HGCalMulticlusteringImpl::clusterizeDR( const std::vector<edm::Ptr<l1t::HGC
 
     /* making the collection of multiclusters */
     for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
-      // compute the eta, phi observables for multicluster starting from its barycenter x,y,z position + pT as scalar sum of pT of constituents
 
+        // compute the eta, phi observables for multicluster starting from its barycenter x,y,z position + pT as scalar sum of pT of constituents
         double sumPt=0.;
 
         const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>> &pertinentClu = multiclustersTmp[i].constituents();

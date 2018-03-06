@@ -68,11 +68,11 @@ private:
     double calibSF_;
     std::vector<double> layerWeights_;
     bool applyLayerWeights_;
+    HGCalTriggerTools triggerTools_;
 
     void triggerCellReshuffling( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs, 
                                  std::array<std::vector<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>>, kNSides_> & reshuffledTriggerCells );
 
-    HGCalTriggerTools triggerTools_;
     bool areTCneighbour( uint32_t detIDa, uint32_t detIDb, const HGCalTriggerGeometryBase & triggerGeometry );
     
     void removeUnconnectedTCinCluster( l1t::HGCalCluster & cluster,

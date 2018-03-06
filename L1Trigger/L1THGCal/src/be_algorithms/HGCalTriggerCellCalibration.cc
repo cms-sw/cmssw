@@ -54,16 +54,8 @@ void HGCalTriggerCellCalibration::calibrateMipTinGeV(l1t::HGCalTriggerCell& trgC
     const double MevToGeV(0.001);
 
     HGCalDetId trgdetid( trgCell.detId() );
-    unsigned trgCellLayer = triggerTools_.layerWithOffset(trgCell.detId());
+    unsigned trgCellLayer = triggerTools_.layerWithOffset(trgdetid);
     int subdet = trgdetid.subdetId();
-
-
-    if( subdet == HGCHEF ){
-        trgCellLayer = trgCellLayer + kLayersEE_;
-    }
-    else if( subdet == HGCHEB ){
-        trgCellLayer = trgCellLayer + kLayersEE_ + kLayersFH_;
-    }
 
     if(dEdX_weights_.at(trgCellLayer)==0.){
         throw cms::Exception("BadConfiguration")

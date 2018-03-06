@@ -22,27 +22,26 @@ class HGCalTriggerGeometryBase;
 class DetId;
 
 
-
-
-
 namespace edm {
   class Event;
   class EventSetup;
 }
 
-  class HGCalTriggerTools {
+class HGCalTriggerTools {
   public:
-  HGCalTriggerTools() : geom_(nullptr),
-                        fhOffset_(0),
-                        bhOffset_(0),
-                        kLayers_(0) {}
+    HGCalTriggerTools() : geom_(nullptr),
+      eeLayers_(0), fhLayers_(0), bhLayers_(0), totalLayers_(0){}
     ~HGCalTriggerTools() {}
 
-    void setEventSetup(const edm::EventSetup&);
+    void eventSetup(const edm::EventSetup&);
     GlobalPoint getTCPosition(const DetId& id) const;
-    unsigned int getLayerWithOffset(const DetId&) const;
-    // unsigned int getLayer(ForwardSubdetector type) const;
-    unsigned int getLayer(const DetId&) const;
+    unsigned layers(ForwardSubdetector type) const;
+    unsigned layer(const DetId&) const;
+    unsigned layerWithOffset(const DetId&) const;
+
+    unsigned lastLayerEE() const {return eeLayers_;}
+    unsigned lastLayerFH() const {return eeLayers_+fhLayers_;}
+    unsigned lastLayerBH() const {return totalLayers_;}
 
     // 4-vector helper functions using GlobalPoint
     float getEta(const GlobalPoint& position, const float& vertex_z = 0.) const;
@@ -55,9 +54,6 @@ namespace edm {
     float getTCPt(const DetId& id, const float& hitEnergy, const float& vertex_z = 0.) const;
 
     inline const HGCalTriggerGeometryBase * getTriggerGeometry() const {return geom_;};
-    unsigned int lastLayerEE() const {return fhOffset_;}
-    unsigned int lastLayerFH() const {return bhOffset_;}
-    unsigned int lastLayerBH() const {return kLayers_;}
 
     float getLayerZ(const unsigned& layerWithOffset) const;
     float getLayerZ(const int& subdet, const unsigned& layer) const;

@@ -54,14 +54,18 @@ namespace {
 
 }
 
-void HGCalTriggerTools::setEventSetup(const edm::EventSetup& es) {
-
+void 
+HGCalTriggerTools::
+eventSetup(const edm::EventSetup& es)
+{
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
   es.get<CaloGeometryRecord>().get(triggerGeometry_);
   geom_ = triggerGeometry_.product();
-  fhOffset_ = (geom_->eeTopology().dddConstants()).layers(true);
-  bhOffset_ = fhOffset_ + (geom_->fhTopology().dddConstants()).layers(true);
-  kLayers_ = bhOffset_ + (geom_->bhTopology().dddConstants())->getMaxDepth(1);
+
+  eeLayers_ = geom_->eeTopology().dddConstants().layers(true);
+  fhLayers_ = geom_->fhTopology().dddConstants().layers(true);
+  bhLayers_ = geom_->bhTopology().dddConstants()->getMaxDepth(1);
+  totalLayers_ =  eeLayers_ + fhLayers_ + bhLayers_;
 }
 
 GlobalPoint HGCalTriggerTools::getTCPosition(const DetId& id) const {
@@ -77,7 +81,34 @@ GlobalPoint HGCalTriggerTools::getTCPosition(const DetId& id) const {
 }
 
 
-unsigned int HGCalTriggerTools::getLayer(const DetId& id) const {
+unsigned
+HGCalTriggerTools::
+layers(ForwardSubdetector type) const
+{
+  unsigned layers = 0;
+  switch(type)
+  {
+    case ForwardSubdetector::HGCEE:
+      layers = eeLayers_;
+      break;
+    case ForwardSubdetector::HGCHEF:
+      layers = fhLayers_;
+      break;
+    case ForwardSubdetector::HGCHEB:
+      layers = bhLayers_;
+      break;
+    case ForwardSubdetector::ForwardEmpty:
+      layers = totalLayers_;
+      break;
+    default:
+      break;
+  };
+  return layers;
+}
+
+unsigned
+HGCalTriggerTools::
+layer(const DetId& id) const {
   unsigned int layer = std::numeric_limits<unsigned int>::max();
   if( id.det() == DetId::Forward) {
     const HGCalDetId hid(id);
@@ -89,15 +120,17 @@ unsigned int HGCalTriggerTools::getLayer(const DetId& id) const {
   return layer;
 }
 
-unsigned int HGCalTriggerTools::getLayerWithOffset(const DetId& id) const {
-  unsigned int layer = getLayer(id);
+unsigned 
+HGCalTriggerTools::
+layerWithOffset(const DetId& id) const {
+  unsigned int l = layer(id);
   if( id.det() == DetId::Forward && id.subdetId() == HGCHEF ) {
-    layer += fhOffset_;
+    l += eeLayers_;
   } else if( (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap) ||
              (id.det() == DetId::Forward && id.subdetId() == HGCHEB) ) {
-    layer += bhOffset_;
+    l += eeLayers_ + fhLayers_;
   }
-  return layer;
+  return l;
 }
 
 float HGCalTriggerTools::getEta(const GlobalPoint& position, const float& vertex_z) const {
