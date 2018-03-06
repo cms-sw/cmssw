@@ -657,9 +657,6 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
           if( !(tempDR < newDRcone) )  continue;
 
           // Remove column for given offSeed
-          for(i=0; i<nMuColl; ++i) {
-            dRmtx[i][theOffs] = 999;
-          }
           removed_col[theOffs] = true;
 
           if( selOffseeds[nL1][theOffs] != nullptr ) {
@@ -711,13 +708,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
           if( !(tempDR < newDRcone) )  continue;
 
           // Remove row and column for given (L1mu, offSeed)
-          for(i=0; i<nMuColl; ++i) {
-            dRmtx[i][theOffs] = 999;
-          }
           removed_col[theOffs] = true;
-          for(j=0; j<nOfflineSeed1; ++j) {
-            dRmtx[theL1][j] = 999;
-          }
           removed_row[theL1] = true;
 
           if( selOffseeds[theL1][theOffs] != nullptr ) {
@@ -810,13 +801,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event& iEvent, const edm::EventSet
           if( !(tempDR < newDRcone) )  continue;
 
           // Remove row and column for given (L1mu, offSeed)
-          for(i=0; i<nMuColl; ++i) {
-            dRmtx[i][theOffs] = 999;
-          }
           removed_col[theOffs] = true;
-          for(j=0; j<nOfflineSeed1; ++j) {
-            dRmtx[theL1][j] = 999;
-          }
           removed_row[theL1] = true;
 
           if( selOffseeds[theL1][theOffs] != nullptr ) {
