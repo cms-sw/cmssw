@@ -26,7 +26,7 @@ HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& v
 
   pfTaus_.clear();
   //make the strips globally.
-  std::vector<std::vector<CandidatePtr>> strips = candidateMerger_->mergeCandidates(tagInfo->PFCands());
+  std::vector<std::vector<CandidatePtr> > strips = candidateMerger_->mergeCandidates(tagInfo->PFCands());
 
 
   //Sort the hadrons globally and once!
