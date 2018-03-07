@@ -25,16 +25,16 @@ class CMSHadronPhysicsFTFP_BERT : public G4VPhysicsConstructor
 {
   public: 
     explicit CMSHadronPhysicsFTFP_BERT(G4int verbose =1);
-    virtual ~CMSHadronPhysicsFTFP_BERT() override;
+    ~CMSHadronPhysicsFTFP_BERT() override;
 
-    virtual void ConstructParticle() override;
+    void ConstructParticle() override;
     //This will call in order:
     // DumpBanner (for master)
     // CreateModels
     // ExtraConfiguation
-    virtual void ConstructProcess() override;
+    void ConstructProcess() override;
 
-    virtual void TerminateWorker() override;
+    void TerminateWorker() override;
   protected:
     G4bool QuasiElastic;
     //This calls the specific ones for the different particles in order
