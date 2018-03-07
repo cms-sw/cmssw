@@ -303,7 +303,7 @@ def miniAOD_customizeCommon(process):
         #add the HEEP trk isol to the slimmed electron, add it to the first FromFloatValMap modifier
         for pset in process.slimmedElectrons.modifierConfig.modifications:
             if pset.hasParameter("modifierName") and pset.modifierName == cms.string('EGExtraInfoModifierFromFloatValueMaps'):
-                pset.electron_config.heepV70TrkPtIso = cms.InputTag("heepIDVarValueMaps","eleTrkPtIso")
+                pset.electron_config.heepTrkPtIso = cms.InputTag("heepIDVarValueMaps","eleTrkPtIso")
                 break
                
     #VID Photon IDs
