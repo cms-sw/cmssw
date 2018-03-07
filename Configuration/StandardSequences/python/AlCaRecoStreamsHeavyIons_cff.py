@@ -35,7 +35,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasAAGHI_cff import *
 # AlCaReco for tracker calibration using ZeroBias events (noise)
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBiasHI_cff import *
 # AlCaReco for SiPixel Bad Components using ZeroBias events
-from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalZeroBias_cff import *
+from CalibTracker.SiPixelQuality.ALCARECOSiPixelCalZeroBias_cff import *
 
 ###############################################################
 # ECAL Calibration
@@ -105,7 +105,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_cff import *
 # FIXME: this needs to be adapted to run on TkAlMinBiasHI tracks
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_cff import *
 
-from CalibTracer.SiPixelQuality.ALCARECOPromptCalibProdSiPixel_cff import *
+from CalibTracker.SiPixelQuality.ALCARECOPromptCalibProdSiPixel_cff import *
 
 
 

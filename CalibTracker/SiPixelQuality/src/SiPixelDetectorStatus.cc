@@ -19,6 +19,9 @@ SiPixelDetectorStatus::SiPixelDetectorStatus(): fLS0(99999999), fLS1(0), fRun0(9
 
   fDetAverage = fDetSigma = 0.;
 
+  fTime0 = fTime1 = 0;
+  fNevents = 0;
+
 }
 
 // ----------------------------------------------------------------------
