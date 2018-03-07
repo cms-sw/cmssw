@@ -28,7 +28,7 @@ class GEMDQMSource: public DQMEDAnalyzer
 public:
   GEMDQMSource(const edm::ParameterSet& cfg);
   ~GEMDQMSource() override;
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);  
 protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -38,28 +38,23 @@ protected:
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
 private:
-  unsigned int verbosity;
-   
-  int nCh;
+  int nCh_;
 
-  edm::EDGetToken tagRecHit;
+  edm::EDGetToken tagRecHit_;
 
   const GEMGeometry* initGeometry(edm::EventSetup const & iSetup);
   int findVFAT(float min_, float max_, float x_, int roll_);
      
   const GEMGeometry* GEMGeometry_; 
 
-  std::vector<GEMChamber> gemChambers;
+  std::vector<GEMChamber> gemChambers_;
 
-  std::unordered_map<UInt_t,  MonitorElement*> recHitME;
-  std::unordered_map<UInt_t,  MonitorElement*> VFAT_vs_ClusterSize;
-  std::unordered_map<UInt_t,  MonitorElement*> StripsFired_vs_eta;
-  std::unordered_map<UInt_t,  MonitorElement*> rh_vs_eta;
+  std::unordered_map<UInt_t,  MonitorElement*> recHitME_;
+  std::unordered_map<UInt_t,  MonitorElement*> VFAT_vs_ClusterSize_;
+  std::unordered_map<UInt_t,  MonitorElement*> StripsFired_vs_eta_;
+  std::unordered_map<UInt_t,  MonitorElement*> rh_vs_eta_;
 
 };
-
-//----------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------
 
 using namespace std;
 using namespace edm;
@@ -82,36 +77,29 @@ const GEMGeometry* GEMDQMSource::initGeometry(edm::EventSetup const & iSetup) {
     edm::LogError("MuonGEMBaseValidation") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
     return nullptr;
   }
-
   return GEMGeometry_;
 }
 
-
-//----------------------------------------------------------------------------------------------------
 GEMDQMSource::GEMDQMSource(const edm::ParameterSet& cfg)
 {
-
-  tagRecHit = consumes<GEMRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitsInputLabel")); 
-
+  tagRecHit_ = consumes<GEMRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitsInputLabel")); 
 }
 
-//----------------------------------------------------------------------------------------------------
-
-GEMDQMSource::~GEMDQMSource()
+void GEMDQMSource::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("recHitsInputLabel", edm::InputTag("gemRecHits", "")); 
+  descriptions.add("GEMDQMSource", desc);  
 }
 
-//----------------------------------------------------------------------------------------------------
 
-void GEMDQMSource::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
-{
-}
 
-//----------------------------------------------------------------------------------------------------
+GEMDQMSource::~GEMDQMSource(){}
+
+void GEMDQMSource::dqmBeginRun(edm::Run const &, edm::EventSetup const &){}
 
 void GEMDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const & iSetup)
 {
-
   GEMGeometry_ = initGeometry(iSetup);
   if ( GEMGeometry_ == nullptr) return ;  
 
@@ -119,61 +107,47 @@ void GEMDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, 
   for (auto sch : superChambers_){
     int n_lay = sch->nChambers();
     for (int l=0;l<n_lay;l++){
-      gemChambers.push_back(*sch->chamber(l+1));
+      gemChambers_.push_back(*sch->chamber(l+1));
     }
   }
-  nCh = gemChambers.size();
+  nCh_ = gemChambers_.size();
   ibooker.cd();
   ibooker.setCurrentFolder("GEM/recHit");
-  for (auto ch : gemChambers){
+  for (auto ch : gemChambers_){
     GEMDetId gid = ch.id();
     string hName = "recHit_Gemini_"+to_string(gid.chamber())+"_la_"+to_string(gid.layer());
     string hTitle = "recHit Gemini chamber : "+to_string(gid.chamber())+", layer : "+to_string(gid.layer());
-    recHitME[ ch.id() ] = ibooker.book1D(hName, hTitle, 24,0,24);
+    recHitME_[ ch.id() ] = ibooker.book1D(hName, hTitle, 24,0,24);
 
     string hName_2 = "VFAT_vs_ClusterSize_Gemini_"+to_string(gid.chamber())+"_la_"+to_string(gid.layer());
     string hTitle_2 = "VFAT vs ClusterSize Gemini chamber : "+to_string(gid.chamber())+", layer : "+to_string(gid.layer());
-    VFAT_vs_ClusterSize[ ch.id() ] = ibooker.book2D(hName_2, hTitle_2, 9, 1, 10, 24, 0, 24);
+    VFAT_vs_ClusterSize_[ ch.id() ] = ibooker.book2D(hName_2, hTitle_2, 9, 1, 10, 24, 0, 24);
     
     string hName_fired = "StripFired_Gemini_"+to_string(gid.chamber())+"_la_"+to_string(gid.layer());
     string hTitle_fired = "StripsFired Gemini chamber : "+to_string(gid.chamber())+", layer : "+to_string(gid.layer());
-    StripsFired_vs_eta[ ch.id() ] = ibooker.book2D(hName_fired, hTitle_fired, 384, 1, 385, 8, 1,9);
+    StripsFired_vs_eta_[ ch.id() ] = ibooker.book2D(hName_fired, hTitle_fired, 384, 1, 385, 8, 1,9);
 
     string hName_rh = "recHit_x_Gemini_"+to_string(gid.chamber())+"_la_"+to_string(gid.layer());
     string hTitle_rh = "recHit local x Gemini chamber : "+to_string(gid.chamber())+", layer : "+to_string(gid.layer());
-    rh_vs_eta[ ch.id() ] = ibooker.book2D(hName_rh, hTitle_rh, 50, -25, 25, 8, 1,9);
-
-
+    rh_vs_eta_[ ch.id() ] = ibooker.book2D(hName_rh, hTitle_rh, 50, -25, 25, 8, 1,9);
   }
-  
 }
-
-//----------------------------------------------------------------------------------------------------
 
 void GEMDQMSource::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-					edm::EventSetup const& context) 
-{
-}
-
-//----------------------------------------------------------------------------------------------------
+					edm::EventSetup const& context) {}
 
 void GEMDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
   const GEMGeometry* GEMGeometry_  = initGeometry(eventSetup);
   if ( GEMGeometry_ == nullptr) return; 
 
-
-  
-  ////////////////
-  //// RecHit ////
-  ////////////////
   edm::Handle<GEMRecHitCollection> gemRecHits;
-  event.getByToken( this->tagRecHit, gemRecHits);
+  event.getByToken( this->tagRecHit_, gemRecHits);
   if (!gemRecHits.isValid()) {
     edm::LogError("GEMDQMSource") << "GEM recHit is not valid.\n";
     return ;
   }  
-  for (auto ch : gemChambers){
+  for (auto ch : gemChambers_){
     GEMDetId cId = ch.id();
     for(auto roll : ch.etaPartitions()){
       GEMDetId rId = roll->id();
@@ -181,31 +155,19 @@ void GEMDQMSource::analyze(edm::Event const& event, edm::EventSetup const& event
       auto gemRecHit = recHitsRange.first;
       for ( auto hit = gemRecHit; hit != recHitsRange.second; ++hit ) {
         int nVfat = findVFAT(1.0, 385.0, hit->firstClusterStrip()+0.5*hit->clusterSize(), rId.roll());
-        recHitME[ cId ]->Fill(nVfat);
-        rh_vs_eta[ cId ]->Fill(hit->localPosition().x(), rId.roll());
-        VFAT_vs_ClusterSize[ cId ]->Fill(hit->clusterSize(), nVfat);
+        recHitME_[ cId ]->Fill(nVfat);
+        rh_vs_eta_[ cId ]->Fill(hit->localPosition().x(), rId.roll());
+        VFAT_vs_ClusterSize_[ cId ]->Fill(hit->clusterSize(), nVfat);
         for(int i = hit->firstClusterStrip(); i < (hit->firstClusterStrip() + hit->clusterSize()); i++){
-	  StripsFired_vs_eta[ cId ]->Fill(i, rId.roll());
+	  StripsFired_vs_eta_[ cId ]->Fill(i, rId.roll());
         }
       }  
     }   
   }
-
-  
 }
 
-//----------------------------------------------------------------------------------------------------
+void GEMDQMSource::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup){}
 
-void GEMDQMSource::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) 
-{
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void GEMDQMSource::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
-{
-}
-
-//----------------------------------------------------------------------------------------------------
+void GEMDQMSource::endRun(edm::Run const& run, edm::EventSetup const& eSetup){}
 
 DEFINE_FWK_MODULE(GEMDQMSource);

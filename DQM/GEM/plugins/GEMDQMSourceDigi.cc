@@ -26,7 +26,7 @@ class GEMDQMSourceDigi: public DQMEDAnalyzer
 public:
   GEMDQMSourceDigi(const edm::ParameterSet& cfg);
   ~GEMDQMSourceDigi() override;
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 
 protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -36,27 +36,20 @@ protected:
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
 private:
-  unsigned int verbosity;
-   
-  int nCh;
-  
-  edm::EDGetToken tagDigi;
+  int nCh_; 
+  edm::EDGetToken tagDigi_;
 
   const GEMGeometry* initGeometry(edm::EventSetup const & iSetup);
   int findVFAT(float min_, float max_, float x_, int roll_);
      
   const GEMGeometry* GEMGeometry_; 
 
-  std::vector<GEMChamber> gemChambers;
+  std::vector<GEMChamber> gemChambers_;
 
-  std::unordered_map<UInt_t,  MonitorElement*> Digi_2D;
-  std::unordered_map<UInt_t,  MonitorElement*> Digi_1D;
-  
+  std::unordered_map<UInt_t,  MonitorElement*> Digi_2D_;
+  std::unordered_map<UInt_t,  MonitorElement*> Digi_1D_;
 
 };
-
-//----------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------
 
 using namespace std;
 using namespace edm;
@@ -83,31 +76,25 @@ const GEMGeometry* GEMDQMSourceDigi::initGeometry(edm::EventSetup const & iSetup
   return GEMGeometry_;
 }
 
-
-//----------------------------------------------------------------------------------------------------
 GEMDQMSourceDigi::GEMDQMSourceDigi(const edm::ParameterSet& cfg)
 {
-
-  tagDigi = consumes<GEMDigiCollection>(cfg.getParameter<edm::InputTag>("digisInputLabel")); 
-
+  tagDigi_ = consumes<GEMDigiCollection>(cfg.getParameter<edm::InputTag>("digisInputLabel")); 
 }
 
-//----------------------------------------------------------------------------------------------------
-
-GEMDQMSourceDigi::~GEMDQMSourceDigi()
+void GEMDQMSourceDigi::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("digisInputLabel", edm::InputTag("muonGEMDigis", "")); 
+  descriptions.add("GEMDQMSourceDigi", desc);  
 }
 
 
-void GEMDQMSourceDigi::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
-{
-}
+GEMDQMSourceDigi::~GEMDQMSourceDigi(){}
 
-//----------------------------------------------------------------------------------------------------
+void GEMDQMSourceDigi::dqmBeginRun(edm::Run const &, edm::EventSetup const &){}
 
 void GEMDQMSourceDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const & iSetup)
 {
-
   GEMGeometry_ = initGeometry(iSetup);
   if ( GEMGeometry_ == nullptr) return ;  
 
@@ -115,30 +102,23 @@ void GEMDQMSourceDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   for (auto sch : superChambers_){
     int n_lay = sch->nChambers();
     for (int l=0;l<n_lay;l++){
-      gemChambers.push_back(*sch->chamber(l+1));
+      gemChambers_.push_back(*sch->chamber(l+1));
     }
   }
-  nCh = gemChambers.size();
+  nCh_ = gemChambers_.size();
   ibooker.cd();
   ibooker.setCurrentFolder("GEM/digi");
-  for (auto ch : gemChambers){
+  for (auto ch : gemChambers_){
     GEMDetId gid = ch.id();
     string hName_digi = "Digi_Strips_Gemini_"+to_string(gid.chamber())+"_l_"+to_string(gid.layer());
     string hTitle_digi = "Digi Strip GEMINIm"+to_string(gid.chamber())+"l"+to_string(gid.layer());
-    Digi_2D[ ch.id() ] = ibooker.book2D(hName_digi, hTitle_digi, 384, 1, 385, 8, 0.5,8.5);
-    Digi_1D[ ch.id() ] = ibooker.book1D(hName_digi+"_VFAT", hTitle_digi+" VFAT", 24, 0, 24);
+    Digi_2D_[ ch.id() ] = ibooker.book2D(hName_digi, hTitle_digi, 384, 1, 385, 8, 0.5,8.5);
+    Digi_1D_[ ch.id() ] = ibooker.book1D(hName_digi+"_VFAT", hTitle_digi+" VFAT", 24, 0, 24);
   }
-  
 }
-
-//----------------------------------------------------------------------------------------------------
 
 void GEMDQMSourceDigi::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-                                            edm::EventSetup const& context) 
-{
-}
-
-//----------------------------------------------------------------------------------------------------
+                                            edm::EventSetup const& context) {}
 
 void GEMDQMSourceDigi::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
@@ -146,32 +126,22 @@ void GEMDQMSourceDigi::analyze(edm::Event const& event, edm::EventSetup const& e
   if ( GEMGeometry_ == nullptr) return; 
 
   edm::Handle<GEMDigiCollection> gemDigis;
-  event.getByToken( this->tagDigi, gemDigis);
-  for (auto ch : gemChambers){
+  event.getByToken( this->tagDigi_, gemDigis);
+  for (auto ch : gemChambers_){
     GEMDetId cId = ch.id();
     for(auto roll : ch.etaPartitions()){
       GEMDetId rId = roll->id();      
       const auto& digis_in_det = gemDigis->get(rId);
       for (auto d = digis_in_det.first; d != digis_in_det.second; ++d){
-	Digi_2D[ cId ]->Fill(d->strip(), rId.roll());
-        Digi_1D[ cId ]->Fill(findVFAT(1, roll->nstrips(), d->strip(), rId.roll()));
+	Digi_2D_[ cId ]->Fill(d->strip(), rId.roll());
+        Digi_1D_[ cId ]->Fill(findVFAT(1, roll->nstrips(), d->strip(), rId.roll()));
       }
     }
   }
 }
 
-//----------------------------------------------------------------------------------------------------
+void GEMDQMSourceDigi::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {}
 
-void GEMDQMSourceDigi::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) 
-{
-}
-
-//----------------------------------------------------------------------------------------------------
-
-void GEMDQMSourceDigi::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
-{
-}
-
-//----------------------------------------------------------------------------------------------------
+void GEMDQMSourceDigi::endRun(edm::Run const& run, edm::EventSetup const& eSetup){}
 
 DEFINE_FWK_MODULE(GEMDQMSourceDigi);
