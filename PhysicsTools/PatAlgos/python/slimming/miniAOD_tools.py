@@ -275,6 +275,7 @@ def miniAOD_customizeCommon(process):
     process.slimmedPhotons.modifierConfig.modifications   = egamma_modifications
 
     #VID Electron IDs
+    process.patElectrons.addElectronID = cms.bool(True)
     electron_ids = ['RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V1_cff', 
@@ -306,6 +307,7 @@ def miniAOD_customizeCommon(process):
                 break
                
     #VID Photon IDs
+    process.patPhotons.addPhotonID = cms.bool(True)
     photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V1_TrueVtx_cff',
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff', 
                   'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1p1_cff', 

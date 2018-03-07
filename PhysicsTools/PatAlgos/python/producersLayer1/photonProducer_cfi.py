@@ -53,7 +53,7 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
         ),
 
     # photon ID
-    addPhotonID = cms.bool(True),
+    addPhotonID = cms.bool(False),
     photonIDSources = cms.PSet(),
     # mc matching
     addGenMatch = cms.bool(True),
