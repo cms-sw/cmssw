@@ -44,13 +44,15 @@ namespace edm {
     
     void openFile(edm::FileBlock const& fb) override;
     
-    void writeRun(edm::RunPrincipal const& rp,
-                  ProcessContext const*,
-                  ActivityRegistry*) override;
+    void writeRunAsync(WaitingTaskHolder iTask,
+                       edm::RunPrincipal const& rp,
+                       ProcessContext const*,
+                       ActivityRegistry*) override;
     
-    void writeLumi(edm::LuminosityBlockPrincipal const& lbp,
-                   ProcessContext const*,
-                   ActivityRegistry*) override;
+    void writeLumiAsync(WaitingTaskHolder iTask,
+                        edm::LuminosityBlockPrincipal const& lbp,
+                        ProcessContext const*,
+                        ActivityRegistry*) override;
     
     ///\return true if OutputModule has reached its limit on maximum number of events it wants to see
     bool limitReached() const override;

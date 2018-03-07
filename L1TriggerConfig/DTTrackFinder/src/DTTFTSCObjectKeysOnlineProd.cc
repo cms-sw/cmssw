@@ -33,7 +33,7 @@ class DTTFTSCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       DTTFTSCObjectKeysOnlineProd(const edm::ParameterSet&);
       ~DTTFTSCObjectKeysOnlineProd() override;
 
-      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( FillType ) override ;
    private:
       // ----------member data ---------------------------
 };
@@ -69,7 +69,7 @@ DTTFTSCObjectKeysOnlineProd::~DTTFTSCObjectKeysOnlineProd()
 
 // ------------ method called to produce the data  ------------
 void
-DTTFTSCObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
+DTTFTSCObjectKeysOnlineProd::fillObjectKeys( FillType pL1TriggerKey )
 {
   std::string dttfKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kDTTF ) ;
 

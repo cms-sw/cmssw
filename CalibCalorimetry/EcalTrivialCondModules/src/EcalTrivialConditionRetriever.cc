@@ -176,7 +176,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   mappingFile_ = ps.getUntrackedParameter<std::string>("mappingFile","");
 
   if ( producedEcalMappingElectronics_ ) {
-    if ( mappingFile_ != "" ) { // if file provided read channel map
+    if ( !mappingFile_.empty() ) { // if file provided read channel map
       setWhatProduced( this, &EcalTrivialConditionRetriever::getMappingFromConfiguration );
     } else { 
       setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalMappingElectronics );
@@ -229,7 +229,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   linearCorrectionsFile_ = ps.getUntrackedParameter<std::string>("linearCorrectionsFile","") ;
 
   if (producedEcalLinearCorrections_) { // user asks to produce constants
-    if(linearCorrectionsFile_ != "") {  // if file provided read constants
+    if(!linearCorrectionsFile_.empty()) {  // if file provided read constants
       setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLinearCorrections );
     } else { // set all constants to 1. or smear as specified by user
         setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLinearCorrections ) ;
@@ -246,7 +246,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   intercalibConstantsMCFile_ = ps.getUntrackedParameter<std::string>("intercalibConstantsMCFile","") ;
 
   if (producedEcalIntercalibConstants_) { // user asks to produce constants
-    if(intercalibConstantsFile_ != "") {  // if file provided read constants
+    if(!intercalibConstantsFile_.empty()) {  // if file provided read constants
         setWhatProduced (this, &EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration ) ;
     } else { // set all constants to 1. or smear as specified by user
         setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalIntercalibConstants ) ;
@@ -257,7 +257,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   producedEcalIntercalibConstantsMC_ = ps.getUntrackedParameter<bool>("producedEcalIntercalibConstantsMC",true);
 
   if (producedEcalIntercalibConstantsMC_) { // user asks to produce constants
-    if(intercalibConstantsMCFile_ != "") {  // if file provided read constants
+    if(!intercalibConstantsMCFile_.empty()) {  // if file provided read constants
         setWhatProduced (this, &EcalTrivialConditionRetriever::getIntercalibConstantsMCFromConfiguration ) ;
     } else { // set all constants to 1. or smear as specified by user
         setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalIntercalibConstantsMC ) ;
@@ -270,7 +270,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   intercalibErrorsFile_ = ps.getUntrackedParameter<std::string>("intercalibErrorsFile","") ;
 
   if (producedEcalIntercalibErrors_) { // user asks to produce constants
-    if(intercalibErrorsFile_ != "") {  // if file provided read constants
+    if(!intercalibErrorsFile_.empty()) {  // if file provided read constants
         setWhatProduced (this, &EcalTrivialConditionRetriever::getIntercalibErrorsFromConfiguration ) ;
     } else { // set all constants to 1. or smear as specified by user
         setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalIntercalibErrors ) ;
@@ -283,7 +283,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   timeCalibConstantsFile_ = ps.getUntrackedParameter<std::string>("timeCalibConstantsFile","") ;
 
   if (producedEcalTimeCalibConstants_) { // user asks to produce constants
-    if(timeCalibConstantsFile_ != "") {  // if file provided read constants
+    if(!timeCalibConstantsFile_.empty()) {  // if file provided read constants
         setWhatProduced (this, &EcalTrivialConditionRetriever::getTimeCalibConstantsFromConfiguration ) ;
     } else { // set all constants to 1. or smear as specified by user
         setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalTimeCalibConstants ) ;
@@ -296,7 +296,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   timeCalibErrorsFile_ = ps.getUntrackedParameter<std::string>("timeCalibErrorsFile","") ;
 
   if (producedEcalTimeCalibErrors_) { // user asks to produce constants
-    if(timeCalibErrorsFile_ != "") {  // if file provided read constants
+    if(!timeCalibErrorsFile_.empty()) {  // if file provided read constants
         setWhatProduced (this, &EcalTrivialConditionRetriever::getTimeCalibErrorsFromConfiguration ) ;
     } else { // set all constants to 1. or smear as specified by user
         setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalTimeCalibErrors ) ;
@@ -372,7 +372,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   channelStatusFile_ = ps.getUntrackedParameter<std::string>("channelStatusFile","");
 
   if ( producedEcalChannelStatus_ ) {
-          if ( channelStatusFile_ != "" ) { // if file provided read channel map
+          if ( !channelStatusFile_.empty() ) { // if file provided read channel map
                   setWhatProduced( this, &EcalTrivialConditionRetriever::getChannelStatusFromConfiguration );
           } else { // set all channels to working -- FIXME might be changed
                   setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalChannelStatus );
@@ -409,7 +409,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   trgChannelStatusFile_ = ps.getUntrackedParameter<std::string>("trgChannelStatusFile","");
 
   if ( producedEcalTrgChannelStatus_ ) {
-          if ( trgChannelStatusFile_ != "" ) { // if file provided read channel map
+          if ( !trgChannelStatusFile_.empty() ) { // if file provided read channel map
                   setWhatProduced( this, &EcalTrivialConditionRetriever::getTrgChannelStatusFromConfiguration );
           } else { // set all channels to working -- FIXME might be changed
                   setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalTrgChannelStatus );
@@ -1101,7 +1101,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
 	}
 	ical->setValue( ebdetid, alpha );
 
-	if((ic==1650 )){
+	if( ic==1650  ){
 	  std::cout << " ic/alpha "<<ic<<"/"<<alpha<<std::endl; 
 	}
 
@@ -1124,7 +1124,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
 	ical->setValue( ebid, alpha );
 	std::cout << " ieta/iphi/alpha "<<ieta<<"/"<<iphi<<"/"<<alpha<<std::endl; 
       }
-      if((ieta==10)){
+      if( ieta==10 ){
 	std::cout << "I will print some alphas from the file... ieta/iphi/alpha "<<ieta<<"/"<<iphi<<"/"<<alpha<<std::endl; 
       }
     }

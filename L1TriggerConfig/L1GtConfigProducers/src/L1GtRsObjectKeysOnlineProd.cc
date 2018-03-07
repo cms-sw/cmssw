@@ -238,7 +238,7 @@ std::string L1GtRsObjectKeysOnlineProd::keyL1GtTriggerMaskVetoTechTrig(const std
 }
 
 // public methods
-void L1GtRsObjectKeysOnlineProd::fillObjectKeys(ReturnType pL1TriggerKey) {
+void L1GtRsObjectKeysOnlineProd::fillObjectKeys(FillType pL1TriggerKey) {
 
     const std::string gtSchema = "CMS_GT";
 

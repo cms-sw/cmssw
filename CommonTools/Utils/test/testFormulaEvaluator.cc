@@ -9,6 +9,8 @@
 
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <algorithm>
 #include <cmath>
 #include "TMath.h"
@@ -893,6 +895,63 @@ testFormulaEvaluator::checkFormulaEvaluator() {
 
       CPPUNIT_ASSERT(compare( f.evaluate(x,v),form_val.second));
     }
+  }
+
+  {
+    auto t = [] () {
+      reco::FormulaEvaluator f("doesNotExist(2)");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
+  }
+
+  {
+    auto t = [] () {
+      reco::FormulaEvaluator f("doesNotExist(2) + abs(-1)");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
+  }
+
+  {
+    auto t = [] () {
+      reco::FormulaEvaluator f("abs(-1) + doesNotExist(2)");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
+  }
+
+  {
+    auto t = [] () {
+      reco::FormulaEvaluator f("abs(-1) + ( 5 * doesNotExist(2))");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
+  }
+
+  {
+    auto t = [] () {
+      reco::FormulaEvaluator f("( 5 * doesNotExist(2)) + abs(-1)");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
+  }
+
+  {
+    auto t = [] () {
+      reco::FormulaEvaluator f("TMath::Exp(2)");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
+  }
+
+  {
+    //this was previously causing a seg fault
+    auto t = [] () {
+      reco::FormulaEvaluator f("1 + 2 * 3 + 5 * doesNotExist(2) ");
+    };
+    
+    CPPUNIT_ASSERT_THROW( t(), cms::Exception );
   }
 
 }

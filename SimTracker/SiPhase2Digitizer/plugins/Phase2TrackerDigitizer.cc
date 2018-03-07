@@ -59,6 +59,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -76,7 +77,7 @@
 namespace cms
 {
 
-  Phase2TrackerDigitizer::Phase2TrackerDigitizer(const edm::ParameterSet& iConfig, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+  Phase2TrackerDigitizer::Phase2TrackerDigitizer(const edm::ParameterSet& iConfig, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) :
     first_(true),
     hitsProducer_(iConfig.getParameter<std::string>("hitsProducer")),
     trackerContainers_(iConfig.getParameter<std::vector<std::string> >("ROUList")),

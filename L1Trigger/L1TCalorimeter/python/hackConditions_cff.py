@@ -40,7 +40,7 @@ if stage2L1Trigger.isChosen():
     if pA_2016.isChosen():
         from L1Trigger.L1TCalorimeter.caloStage2Params_2016_v3_3_1_HI_cfi import *    
     else:
-        from L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_2_updateHFSF_v6MET_cfi import *    
+        from L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_4_cfi import *    
     
     # What about CaloConfig?  Related:  How will we switch PP/HH?
     #
