@@ -2,8 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('GEMDQM')
 
-test = False
-
 process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
@@ -13,24 +11,7 @@ process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "GEM"
 process.dqmSaver.tag = "GEM"
 
-if test:
-  process.dqmSaver.path = ""
-
-
-if not test:
-  process.load("DQM.Integration.config.inputsource_cfi")
-else:
-  process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-      'file:/eos/cms/store/express/Commissioning2018/ExpressCosmics/FEVT/Express-v1/000/310/292/00000/6C23251D-4F18-E811-AEC5-02163E01A41D.root'    
-    ),
-    inputCommands = cms.untracked.vstring(
-      'drop *',
-      'keep FEDRawDataCollection_*_*_*'
-    )
-  )
-  
-
+process.load("DQM.Integration.config.inputsource_cfi")
 
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(8000)
@@ -43,20 +24,6 @@ process.load("DQM.GEM.GEMDQM_cff")
 process.muonGEMDigis.useDBEMap = True
 process.muonGEMDigis.unPackStatusDigis = True
 
-if test:
-  ############## DB file ################# 
-  from CondCore.CondDB.CondDB_cfi import *
-  CondDB.DBParameters.authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-  CondDB.connect = cms.string('sqlite_fip:DQM/GEM/test/GEMELMap.db')
-  
-  process.GEMCabling = cms.ESSource("PoolDBESSource",
-      CondDB,
-      toGet = cms.VPSet(cms.PSet(
-          record = cms.string('GEMELMapRcd'),
-          tag = cms.string('GEMELMap_v2')
-      )),
-  )
-  ####################################
 process.path = cms.Path(
   process.muonGEMDigis *
   process.gemRecHits *

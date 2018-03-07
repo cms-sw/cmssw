@@ -14,65 +14,26 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
-#include <iostream>
-#include <cstdlib>
-#include <string>
-#include <memory>
-#include <vector>
-
-#include "TString.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-
-using namespace std;
 using namespace edm;
 
 class GEMDQMHarvester: public DQMEDHarvester
 {  
 public:
-
   GEMDQMHarvester(const edm::ParameterSet&);
   ~GEMDQMHarvester() override;
-    
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 protected:
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override {}
-  
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, const edm::LuminosityBlock &, const edm::EventSetup &) override;
-
-  
-private:
-
-	
-     
-
-    
-    
-
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override {};
 };
 
+GEMDQMHarvester::GEMDQMHarvester(const edm::ParameterSet& ps){}
 
-
-GEMDQMHarvester::GEMDQMHarvester(const edm::ParameterSet& ps)
+void GEMDQMHarvester::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
-  //   fName = ps.getUntrackedParameter<std::string>("Name");
-
-  //dbe_path_ = std::string("GEMDQM/");
-  //outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "myfile.root");
+  edm::ParameterSetDescription desc;
+  descriptions.add("GEMDQMHarvester", desc);  
 }
 
-GEMDQMHarvester::~GEMDQMHarvester()
-{
+GEMDQMHarvester::~GEMDQMHarvester(){}
 
-}
-
-
-void GEMDQMHarvester::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const edm::LuminosityBlock &, const edm::EventSetup &)
-{
-}
-
-//void GEMDQMHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &ig )
-//{
-//ig.setCurrentFolder(dbe_path_.c_str());
-
-//}
 DEFINE_FWK_MODULE(GEMDQMHarvester);
