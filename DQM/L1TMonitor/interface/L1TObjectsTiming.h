@@ -76,15 +76,6 @@ class L1TObjectsTiming : public DQMEDAnalyzer {
   std::vector<MonitorElement*> etsum_eta_phi_MHT;
   std::vector<MonitorElement*> etsum_eta_phi_MHTHF;
 
-  std::vector<MonitorElement*> den_muons_eta_phi;
-  std::vector<MonitorElement*> den_jet_eta_phi;
-  std::vector<MonitorElement*> den_egamma_eta_phi;
-  std::vector<MonitorElement*> den_tau_eta_phi;
-  std::vector<MonitorElement*> den_etsum_eta_phi_MET;
-  std::vector<MonitorElement*> den_etsum_eta_phi_METHF;
-  std::vector<MonitorElement*> den_etsum_eta_phi_MHT;
-  std::vector<MonitorElement*> den_etsum_eta_phi_MHTHF;
-
   std::vector<MonitorElement*> muons_eta_phi_isolated;
   std::vector<MonitorElement*> jet_eta_phi_isolated;
   std::vector<MonitorElement*> egamma_eta_phi_isolated;
@@ -93,15 +84,6 @@ class L1TObjectsTiming : public DQMEDAnalyzer {
   std::vector<MonitorElement*> etsum_eta_phi_METHF_isolated;
   std::vector<MonitorElement*> etsum_eta_phi_MHT_isolated;
   std::vector<MonitorElement*> etsum_eta_phi_MHTHF_isolated;
-
-  std::vector<MonitorElement*> den_muons_eta_phi_isolated;
-  std::vector<MonitorElement*> den_jet_eta_phi_isolated;
-  std::vector<MonitorElement*> den_egamma_eta_phi_isolated;
-  std::vector<MonitorElement*> den_tau_eta_phi_isolated;
-  std::vector<MonitorElement*> den_etsum_eta_phi_MET_isolated;
-  std::vector<MonitorElement*> den_etsum_eta_phi_METHF_isolated;
-  std::vector<MonitorElement*> den_etsum_eta_phi_MHT_isolated;
-  std::vector<MonitorElement*> den_etsum_eta_phi_MHTHF_isolated;
 
   std::vector<MonitorElement*> muons_eta_phi_firstbunch;
   std::vector<MonitorElement*> jet_eta_phi_firstbunch;
@@ -113,16 +95,6 @@ class L1TObjectsTiming : public DQMEDAnalyzer {
   std::vector<MonitorElement*> etsum_eta_phi_MHT_firstbunch;
   std::vector<MonitorElement*> etsum_eta_phi_MHTHF_firstbunch;
 
-  std::vector<MonitorElement*> den_muons_eta_phi_firstbunch;
-  std::vector<MonitorElement*> den_jet_eta_phi_firstbunch;
-  std::vector<MonitorElement*> den_egamma_eta_phi_firstbunch;
-  std::vector<MonitorElement*> den_tau_eta_phi_firstbunch;
-  std::vector<MonitorElement*> den_etsum_eta_phi_firstbunch;
-  std::vector<MonitorElement*> den_etsum_eta_phi_MET_firstbunch;
-  std::vector<MonitorElement*> den_etsum_eta_phi_METHF_firstbunch;
-  std::vector<MonitorElement*> den_etsum_eta_phi_MHT_firstbunch;
-  std::vector<MonitorElement*> den_etsum_eta_phi_MHTHF_firstbunch;
-
   std::vector<MonitorElement*> muons_eta_phi_lastbunch;
   std::vector<MonitorElement*> jet_eta_phi_lastbunch;
   std::vector<MonitorElement*> egamma_eta_phi_lastbunch;
@@ -131,15 +103,11 @@ class L1TObjectsTiming : public DQMEDAnalyzer {
   std::vector<MonitorElement*> etsum_eta_phi_METHF_lastbunch;
   std::vector<MonitorElement*> etsum_eta_phi_MHT_lastbunch;
   std::vector<MonitorElement*> etsum_eta_phi_MHTHF_lastbunch;
-
-  std::vector<MonitorElement*> den_muons_eta_phi_lastbunch;
-  std::vector<MonitorElement*> den_jet_eta_phi_lastbunch;
-  std::vector<MonitorElement*> den_egamma_eta_phi_lastbunch;
-  std::vector<MonitorElement*> den_tau_eta_phi_lastbunch;
-  std::vector<MonitorElement*> den_etsum_eta_phi_MET_lastbunch;
-  std::vector<MonitorElement*> den_etsum_eta_phi_METHF_lastbunch;
-  std::vector<MonitorElement*> den_etsum_eta_phi_MHT_lastbunch;
-  std::vector<MonitorElement*> den_etsum_eta_phi_MHTHF_lastbunch;
+ 
+  MonitorElement* denominator;
+  MonitorElement* denominator_isolated;
+  MonitorElement* denominator_firstbunch;
+  MonitorElement* denominator_lastbunch;
 
 };
 
