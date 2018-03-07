@@ -21,6 +21,25 @@ def customiseForPreMixingInput(process):
     def replaceHcalTp(tag):
         replaceInputTag(tag, "simHcalTriggerPrimitiveDigis", "DMHcalTriggerPrimitiveDigis")
 
+    def replaceAnalyzer(label, analyzer):
+        if analyzer.type_() == "GlobalRecHitsAnalyzer":
+            replacePixelDigiSimLink(analyzer.pixelSimLinkSrc)
+            replaceStripDigiSimLink(analyzer.stripSimLinkSrc)
+        if analyzer.type_() == "SiPixelTrackingRecHitsValid":
+            replacePixelDigiSimLink(analyzer.pixelSimLinkSrc)
+            replaceStripDigiSimLink(analyzer.stripSimLinkSrc)
+        if analyzer.type_() == "SiStripTrackingRecHitsValid":
+            replacePixelDigiSimLink(analyzer.pixelSimLinkSrc)
+            replaceStripDigiSimLink(analyzer.stripSimLinkSrc)
+        if analyzer.type_() == "SiPixelRecHitsValid":
+            replacePixelDigiSimLink(analyzer.pixelSimLinkSrc)
+            replaceStripDigiSimLink(analyzer.stripSimLinkSrc)
+        if analyzer.type_() == "SiStripRecHitsValid":
+            replacePixelDigiSimLink(analyzer.pixelSimLinkSrc)
+            replaceStripDigiSimLink(analyzer.stripSimLinkSrc)
+        if analyzer.type_() == "HcalDigisValidation":
+            replaceHcalTp(analyzer.dataTPs)
+
     for label, producer in process.producers_().iteritems():
         if producer.type_() == "ClusterTPAssociationProducer":
             replacePixelDigiSimLink(producer.pixelSimLinkSrc)
@@ -45,26 +64,11 @@ def customiseForPreMixingInput(process):
             producer.RPCdigisimlinkTag = cms.InputTag("mixData","RPCDigiSimLink")
             replacePixelDigiSimLink(producer.pixelSimLinkSrc)
             replaceStripDigiSimLink(producer.stripSimLinkSrc)
+        # Most of DQM analyzers are nowadays EDProducers
+        replaceAnalyzer(label, producer)
 
     for label, analyzer in process.analyzers_().iteritems():
-        if analyzer.type_() == "GlobalRecHitsAnalyzer":
-            replacePixelDigiSimLink(analyzer.pixelSimLinkSrc)
-            replaceStripDigiSimLink(analyzer.stripSimLinkSrc)
-        if analyzer.type_() == "SiPixelTrackingRecHitsValid":
-            replacePixelDigiSimLink(analyzer.pixelSimLinkSrc)
-            replaceStripDigiSimLink(analyzer.stripSimLinkSrc)
-        if analyzer.type_() == "SiStripTrackingRecHitsValid":
-            replacePixelDigiSimLink(analyzer.pixelSimLinkSrc)
-            replaceStripDigiSimLink(analyzer.stripSimLinkSrc)
-        if analyzer.type_() == "SiPixelRecHitsValid":
-            replacePixelDigiSimLink(analyzer.pixelSimLinkSrc)
-            replaceStripDigiSimLink(analyzer.stripSimLinkSrc)
-        if analyzer.type_() == "SiStripRecHitsValid":
-            replacePixelDigiSimLink(analyzer.pixelSimLinkSrc)
-            replaceStripDigiSimLink(analyzer.stripSimLinkSrc)
-        if analyzer.type_() == "HcalDigisValidation":
-            replaceHcalTp(analyzer.dataTPs)
-
+        replaceAnalyzer(label, analyzer)
 
 
     return process
