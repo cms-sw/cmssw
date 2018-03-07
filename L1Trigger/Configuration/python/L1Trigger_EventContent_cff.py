@@ -120,6 +120,7 @@ def _appendHGCalDigis(obj):
         'keep *_hgcalTriggerPrimitiveDigiProducer_calibratedTriggerCells_*',
         'keep *_hgcalTriggerPrimitiveDigiProducer_cluster2D_*',
         'keep *_hgcalTriggerPrimitiveDigiProducer_cluster3D_*',
+        'keep *_hgcalTriggerPrimitiveDigiProducer_towerMap_*',
         'keep *_hgcalTriggerPrimitiveDigiProducer_tower_*',
         ]
     obj.outputCommands += l1HGCalDigis
