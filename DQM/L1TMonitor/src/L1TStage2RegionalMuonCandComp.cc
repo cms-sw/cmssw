@@ -127,7 +127,7 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   muColl1hwQual->setAxisTitle("Hardware quality", 1);
   muColl1link = ibooker.book1D("muLinkColl1", (muonColl1Title+" mismatching muon link"+trkAddrIgnoreText).c_str(), 36, 35.5, 71.5);
   muColl1link->setAxisTitle("Link", 1);
-  muColl1processor = ibooker.book1D("muProcessorColl1", (muonColl1Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 15.5);
+  muColl1processor = ibooker.book1D("muProcessorColl1", (muonColl1Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 11.5);
   muColl1processor->setAxisTitle("Processor", 1);
   muColl1trackFinderType = ibooker.book1D("muTrackFinderTypeColl1", (muonColl1Title+" mismatching muon track finder type"+trkAddrIgnoreText).c_str(), 5, -0.5, 4.5);
   muColl1trackFinderType->setAxisTitle("Track finder type", 1);
@@ -162,7 +162,7 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   muColl2hwQual->setAxisTitle("Hardware quality", 1);
   muColl2link = ibooker.book1D("muLinkColl2", (muonColl2Title+" mismatching muon link"+trkAddrIgnoreText).c_str(), 36, 35.5, 71.5);
   muColl2link->setAxisTitle("Link", 1);
-  muColl2processor = ibooker.book1D("muProcessorColl2", (muonColl2Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 15.5);
+  muColl2processor = ibooker.book1D("muProcessorColl2", (muonColl2Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 11.5);
   muColl2processor->setAxisTitle("Processor", 1);
   muColl2trackFinderType = ibooker.book1D("muTrackFinderTypeColl2", (muonColl2Title+" mismatching muon track finder type"+trkAddrIgnoreText).c_str(), 5, -0.5, 4.5);
   muColl2trackFinderType->setAxisTitle("Track finder type", 1);
