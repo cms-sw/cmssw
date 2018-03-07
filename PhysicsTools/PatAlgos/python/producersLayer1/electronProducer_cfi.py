@@ -63,7 +63,7 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     userIsolation = cms.PSet(),
 
     # electron ID
-    addElectronID = cms.bool(True),
+    addElectronID = cms.bool(False),
     electronIDSources = cms.PSet(),
 
     # mc matching
