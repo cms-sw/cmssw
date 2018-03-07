@@ -19,21 +19,17 @@ using namespace edm;
 class GEMDQMHarvester: public DQMEDHarvester
 {  
 public:
-  GEMDQMHarvester(const edm::ParameterSet&);
-  ~GEMDQMHarvester() override;
+  GEMDQMHarvester(const edm::ParameterSet&) {};
+  ~GEMDQMHarvester() override {};
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 protected:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override {};
 };
-
-GEMDQMHarvester::GEMDQMHarvester(const edm::ParameterSet& ps){}
 
 void GEMDQMHarvester::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
   descriptions.add("GEMDQMHarvester", desc);  
 }
-
-GEMDQMHarvester::~GEMDQMHarvester(){}
 
 DEFINE_FWK_MODULE(GEMDQMHarvester);
