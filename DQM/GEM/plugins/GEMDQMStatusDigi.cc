@@ -24,18 +24,20 @@ class GEMDQMStatusDigi: public DQMEDAnalyzer
 {
 public:
   GEMDQMStatusDigi(const edm::ParameterSet& cfg);
-  ~GEMDQMStatusDigi() override;
+  ~GEMDQMStatusDigi() override {};
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 
 
 protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override {};
+  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override {};
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override {};
 
 private:
   int nVfat_ = 24;
+  int cBit_ = 9;
+  int eBit_ = 13;
   edm::EDGetToken tagVFAT_;
   edm::EDGetToken tagGEB_;
   edm::EDGetToken tagAMC_;
@@ -109,9 +111,6 @@ void GEMDQMStatusDigi::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.add<edm::InputTag>("AMCInputLabel", edm::InputTag("muonGEMDigis", "AMCStatus")); 
   descriptions.add("GEMDQMStatusDigi", desc);  
 }
-
-
-GEMDQMStatusDigi::~GEMDQMStatusDigi(){}
 
 int GEMDQMStatusDigi::AMCBinN(uint16_t BID_) {
  
@@ -216,13 +215,13 @@ void GEMDQMStatusDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   TH1F *histErr1D = h1GEBError_->getTH1F();
   TH2F *histErr2D = h2GEBError_->getTH2F();
   const char *error_flags[5] = {"Event Size Overflow", "L1AFIFO Full", "InFIFO Full", "Evt FIFO Full","InFIFO Underflow"};
-  for (int i = 1; i<6; i++) {histErr1D->GetXaxis()->SetBinLabel(i, error_flags[i-1]); histErr2D->GetXaxis()->SetBinLabel(i, error_flags[i-1]);}
+  for (int i = 1; i< histErr1D->GetNbinsX(); i++) {histErr1D->GetXaxis()->SetBinLabel(i, error_flags[i-1]); histErr2D->GetXaxis()->SetBinLabel(i, error_flags[i-1]);}
   h1GEBWarning_ = ibooker.book1D("GEB_Warnings", "GEB Warnings", 10,  0, 10);
   h2GEBWarning_ = ibooker.book2D("GEB_Warnings_PerGEB", "GEB Warnings", 10,  0, 10, 1, 0, 1);
   TH1F *histWar1D = h1GEBWarning_->getTH1F();
   TH2F *histWar2D = h2GEBWarning_->getTH2F();
   const char *warning_flags[10] = {"BX AMC-OH Mismatch", "BX AMC-VFAT Mismatch", "OOS AMC OH", "OOS AMC VFAT","No VFAT Marker","Event Size Warn", "L1AFIFO Near Full", "InFIFO Near Full", "EvtFIFO Near Full", "Stuck Data"};
-  for (int i = 1; i<11; i++) {histWar1D->GetXaxis()->SetBinLabel(i, warning_flags[i-1]); histWar2D->GetXaxis()->SetBinLabel(i, warning_flags[i-1]);}
+  for (int i = 1; i<histWar1D->GetNbinsX(); i++) {histWar1D->GetXaxis()->SetBinLabel(i, warning_flags[i-1]); histWar2D->GetXaxis()->SetBinLabel(i, warning_flags[i-1]);}
   
   GEMDAV_ = ibooker.book1D("GEMDAV", "GEM DAV list", 24,  0, 24);
   Tstate_     = ibooker.book1D("Tstate", "TTS state", 15,  0, 15);
@@ -236,13 +235,6 @@ void GEMDQMStatusDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   ChamT2D_      = ibooker.book2D("ChamT_PerAMC", "Chamber Timeout", 24, 0, 24, 1, 0, 1);
   OOSG2D_       = ibooker.book2D("OOSG_PerAMC", "OOS GLIB", 1, 0, 1, 1, 0, 1);
 }
-
-//----------------------------------------------------------------------------------------------------
-
-void GEMDQMStatusDigi::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-                                            edm::EventSetup const& context) {}
-
-//----------------------------------------------------------------------------------------------------
 
 void GEMDQMStatusDigi::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
@@ -286,13 +278,13 @@ void GEMDQMStatusDigi::analyze(edm::Event const& event, edm::EventSetup const& e
       h2Vwh_->Fill(GEBStatus->getVwh(), nIdx);
       h2Vwt_->Fill(GEBStatus->getVwt(), nIdx);
       
-      for ( int bin = 0 ; bin < 9  ; bin++ ) {
+      for ( int bin = 0 ; bin < cBit_  ; bin++ ) {
         if ( ( ( GEBStatus->getErrorC() >> bin ) & 0x1 ) != 0 ) {
           h1GEBWarning_->Fill(bin);
           h2GEBWarning_->Fill(bin, nIdx);
         }
       }
-      for ( int bin = 9 ; bin < 13 ; bin++ ) {
+      for ( int bin = cBit_ ; bin < eBit_ ; bin++ ) {
         if ( ( ( GEBStatus->getErrorC() >> bin ) & 0x1 ) != 0 ) {
           h1GEBError_->Fill(bin - 9);
           h2GEBError_->Fill(bin - 9, nIdx);
@@ -333,9 +325,5 @@ void GEMDQMStatusDigi::analyze(edm::Event const& event, edm::EventSetup const& e
     }
   }
 }
-
-void GEMDQMStatusDigi::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {}
-
-void GEMDQMStatusDigi::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {}
 
 DEFINE_FWK_MODULE(GEMDQMStatusDigi);

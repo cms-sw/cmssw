@@ -25,18 +25,17 @@ class GEMDQMSourceDigi: public DQMEDAnalyzer
 {
 public:
   GEMDQMSourceDigi(const edm::ParameterSet& cfg);
-  ~GEMDQMSourceDigi() override;
+  ~GEMDQMSourceDigi() override {};
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 
 protected:
-  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override {};
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override {};
+  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override {};
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override {};
 
 private:
-  int nCh_; 
   edm::EDGetToken tagDigi_;
 
   const GEMGeometry* initGeometry(edm::EventSetup const & iSetup);
@@ -88,11 +87,6 @@ void GEMDQMSourceDigi::fillDescriptions(edm::ConfigurationDescriptions & descrip
   descriptions.add("GEMDQMSourceDigi", desc);  
 }
 
-
-GEMDQMSourceDigi::~GEMDQMSourceDigi(){}
-
-void GEMDQMSourceDigi::dqmBeginRun(edm::Run const &, edm::EventSetup const &){}
-
 void GEMDQMSourceDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const & iSetup)
 {
   GEMGeometry_ = initGeometry(iSetup);
@@ -105,7 +99,6 @@ void GEMDQMSourceDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
       gemChambers_.push_back(*sch->chamber(l+1));
     }
   }
-  nCh_ = gemChambers_.size();
   ibooker.cd();
   ibooker.setCurrentFolder("GEM/digi");
   for (auto ch : gemChambers_){
@@ -116,9 +109,6 @@ void GEMDQMSourceDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
     Digi_1D_[ ch.id() ] = ibooker.book1D(hName_digi+"_VFAT", hTitle_digi+" VFAT", 24, 0, 24);
   }
 }
-
-void GEMDQMSourceDigi::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-                                            edm::EventSetup const& context) {}
 
 void GEMDQMSourceDigi::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
@@ -139,9 +129,5 @@ void GEMDQMSourceDigi::analyze(edm::Event const& event, edm::EventSetup const& e
     }
   }
 }
-
-void GEMDQMSourceDigi::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {}
-
-void GEMDQMSourceDigi::endRun(edm::Run const& run, edm::EventSetup const& eSetup){}
 
 DEFINE_FWK_MODULE(GEMDQMSourceDigi);
