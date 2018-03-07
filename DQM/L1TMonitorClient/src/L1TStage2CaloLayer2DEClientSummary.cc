@@ -2,7 +2,12 @@
 
 L1TStage2CaloLayer2DEClientSummary::L1TStage2CaloLayer2DEClientSummary(
   const edm::ParameterSet& ps):
-  monitor_dir_(ps.getUntrackedParameter<std::string>("monitorDir",""))
+  monitor_dir_(ps.getUntrackedParameter<std::string>("monitorDir","")),
+  hlSummary(nullptr),
+  jetSummary(nullptr),
+  egSummary(nullptr),
+  tauSummary(nullptr),
+  sumSummary(nullptr)
 {}
 
 L1TStage2CaloLayer2DEClientSummary::~L1TStage2CaloLayer2DEClientSummary(){}
@@ -27,49 +32,69 @@ void L1TStage2CaloLayer2DEClientSummary::dqmEndJob(
 void L1TStage2CaloLayer2DEClientSummary::book(DQMStore::IBooker &ibooker) {
 
   ibooker.setCurrentFolder(monitor_dir_);
-  hlSummary = ibooker.book1D(
-    "High level summary", "Event by event comparison summary", 5, 1, 6);
-  hlSummary->setBinLabel(1, "good events");
-  hlSummary->setBinLabel(2, "good jets");
-  hlSummary->setBinLabel(3, "good e/gs");
-  hlSummary->setBinLabel(4, "good taus");
-  hlSummary->setBinLabel(5, "good sums");
-
-  jetSummary = ibooker.book1D(
-    "Jet Agreement Summary", "Jet Agreement Summary", 3, 1, 4);
-  jetSummary->setBinLabel(1, "good jets");
-  jetSummary->setBinLabel(2, "jets pos off only");
-  jetSummary->setBinLabel(3, "jets Et off only ");
-
-  egSummary = ibooker.book1D(
-    "EG Agreement Summary", "EG Agreement Summary", 6, 1, 7);
-  egSummary->setBinLabel(1, "good non-iso e/gs");
-  egSummary->setBinLabel(2, "non-iso e/gs pos off");
-  egSummary->setBinLabel(3, "non-iso e/gs Et off");
-  egSummary->setBinLabel(4, "good iso e/gs");
-  egSummary->setBinLabel(5, "iso e/gs pos off");
-  egSummary->setBinLabel(6, "iso e/gs Et off");
-
-  tauSummary = ibooker.book1D(
-    "Tau Agreement Summary", "Tau Agremeent Summary", 6, 1, 7);
-  tauSummary->setBinLabel(1, "good non-iso taus");
-  tauSummary->setBinLabel(2, "non-iso taus pos off");
-  tauSummary->setBinLabel(3, "non-iso taus Et off");
-  tauSummary->setBinLabel(4, "good iso taus");
-  tauSummary->setBinLabel(5, "iso taus pos off");
-  tauSummary->setBinLabel(6, "iso taus Et off");
-
-  sumSummary = ibooker.book1D(
-    "Energy Sum Agreement Summary", "Sum Agreement Summary", 7, 1, 8);
-  sumSummary->setBinLabel(1, "good sums");
-  sumSummary->setBinLabel(2, "good ETT sums");
-  sumSummary->setBinLabel(3, "good HTT sums");
-  sumSummary->setBinLabel(4, "good MET sums");
-  sumSummary->setBinLabel(5, "good MHT sums");
-  sumSummary->setBinLabel(6, "good MBHF sums");
-  sumSummary->setBinLabel(7, "good TowCount sums");
-
+  if (hlSummary == nullptr) {
+    hlSummary = ibooker.book1D(
+      "High level summary", "Event by event comparison summary", 5, 1, 6);
+    hlSummary->setBinLabel(1, "good events");
+    hlSummary->setBinLabel(2, "good jets");
+    hlSummary->setBinLabel(3, "good e/gs");
+    hlSummary->setBinLabel(4, "good taus");
+    hlSummary->setBinLabel(5, "good sums");
+  } else {
+    hlSummary->Reset();
   }
+
+  if (jetSummary == nullptr) {
+    jetSummary = ibooker.book1D(
+      "Jet Agreement Summary", "Jet Agreement Summary", 3, 1, 4);
+    jetSummary->setBinLabel(1, "good jets");
+    jetSummary->setBinLabel(2, "jets pos off only");
+    jetSummary->setBinLabel(3, "jets Et off only ");
+  } else {
+    jetSummary->Reset();
+  }
+
+  if (egSummary == nullptr) {
+    egSummary = ibooker.book1D(
+      "EG Agreement Summary", "EG Agreement Summary", 6, 1, 7);
+    egSummary->setBinLabel(1, "good non-iso e/gs");
+    egSummary->setBinLabel(2, "non-iso e/gs pos off");
+    egSummary->setBinLabel(3, "non-iso e/gs Et off");
+    egSummary->setBinLabel(4, "good iso e/gs");
+    egSummary->setBinLabel(5, "iso e/gs pos off");
+    egSummary->setBinLabel(6, "iso e/gs Et off");
+  } else {
+    egSummary->Reset();
+  }
+
+  if (tauSummary == nullptr) {
+    tauSummary = ibooker.book1D(
+      "Tau Agreement Summary", "Tau Agremeent Summary", 6, 1, 7);
+    tauSummary->setBinLabel(1, "good non-iso taus");
+    tauSummary->setBinLabel(2, "non-iso taus pos off");
+    tauSummary->setBinLabel(3, "non-iso taus Et off");
+    tauSummary->setBinLabel(4, "good iso taus");
+    tauSummary->setBinLabel(5, "iso taus pos off");
+    tauSummary->setBinLabel(6, "iso taus Et off");
+  } else {
+    tauSummary->Reset();
+  }
+
+  if (sumSummary == nullptr) {
+    sumSummary = ibooker.book1D(
+      "Energy Sum Agreement Summary", "Sum Agreement Summary", 7, 1, 8);
+    sumSummary->setBinLabel(1, "good sums");
+    sumSummary->setBinLabel(2, "good ETT sums");
+    sumSummary->setBinLabel(3, "good HTT sums");
+    sumSummary->setBinLabel(4, "good MET sums");
+    sumSummary->setBinLabel(5, "good MHT sums");
+    sumSummary->setBinLabel(6, "good MBHF sums");
+    sumSummary->setBinLabel(7, "good TowCount sums");
+  } else {
+    sumSummary->Reset();
+  }
+
+}
 
 void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &igetter){
 
