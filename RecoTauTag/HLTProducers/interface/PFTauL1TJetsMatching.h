@@ -1,5 +1,5 @@
-#ifndef RecoTauTag_HLTProducers_L1TLeadingJetTauMatching_H
-#define RecoTauTag_HLTProducers_L1TLeadingJetTauMatching_H
+#ifndef RecoTauTag_HLTProducers_PFTauL1TJetsMatching_H
+#define RecoTauTag_HLTProducers_PFTauL1TJetsMatching_H
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -17,18 +17,18 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
-class L1TLeadingJetTauMatching: public edm::global::EDProducer<> {
+class PFTauL1TJetsMatching: public edm::global::EDProducer<> {
 
     private:
         const edm::EDGetTokenT<reco::PFTauCollection> tauSrc_;
         const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> L1JetSrc_;
         const double matchingR2_;
         const double minTauPt_;
-        const double minJetPt_;
+        const double minL1TPt_;
 
     public:
-        explicit L1TLeadingJetTauMatching(const edm::ParameterSet&);
-        ~L1TLeadingJetTauMatching() override;
+        explicit PFTauL1TJetsMatching(const edm::ParameterSet&);
+        ~PFTauL1TJetsMatching() override;
         void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 };
