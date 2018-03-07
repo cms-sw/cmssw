@@ -27,7 +27,6 @@ public:
   ~GEMDQMStatusDigi() override;
   
 protected:
-  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
@@ -187,11 +186,6 @@ int GEMDQMStatusDigi::GEBBinN(uint16_t BID_){
 
 //----------------------------------------------------------------------------------------------------
 
-void GEMDQMStatusDigi::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
-{
-}
-
-//----------------------------------------------------------------------------------------------------
 
 void GEMDQMStatusDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const & iSetup)
 {
