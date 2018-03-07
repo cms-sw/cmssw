@@ -14,7 +14,7 @@ l1tStage2BmtfZeroSupp = DQMEDAnalyzer(
                                       0x01c00000,
                                       0x01c00000,
                                       0x01c00000,
-                                      0x00000000,
+                                      0x00200000,
                                       0x00000000),
     # mask for outputs (pt==0 defines empty muon)
     maskCapId2 = cms.untracked.vint32(0x000001FF,
