@@ -186,7 +186,7 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     
     // The angular correction 
     double dEta = std::abs( absEta - 1.5 );
-    doubl etaPow = dEta * dEta * dEta * dEta;
+    double etaPow = dEta * dEta * dEta * dEta;
 
 
     if ( e > 0. && thresh > 0. ) {
@@ -197,9 +197,9 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
         etaPow = dEta * dEta;
         etaCorrE = 1. + aEtaEndcapEH(t) + 1.3*bEtaEndcapEH(t)*(0.6 + etaPow);
       }
+      etaPow = dEta * dEta * dEta * dEta;
       etaCorrH = 1. + aEtaEndcapEH(t) + bEtaEndcapEH(t)*(0.04 + etaPow);
     } else {
-      etaPow = dEta * dEta * dEta * dEta;
       etaCorrE = 1. + aEtaEndcapH(t) + 1.3*bEtaEndcapH(t)*(0.04 + etaPow);
       if(absEta<2.5) {
         etaCorrH = 1. + aEtaEndcapH(t) + 0.05*bEtaEndcapH(t);
