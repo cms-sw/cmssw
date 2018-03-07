@@ -24,6 +24,27 @@ class LHEEventProduct {
 	LHEEventProduct(const lhef::HEPEUP &hepeup,
 			const double originalXWGTUP) : 
 	  hepeup_(hepeup), originalXWGTUP_(originalXWGTUP) {}
+	LHEEventProduct(LHEEventProduct&& other) {
+	  hepeup_ = std::move(other.hepeup_);
+	  comments_ = std::move(other.comments_);
+	  pdf_ = other.pdf_; // auto_ptr, so copy is actually a move
+	  weights_ = std::move(other.weights_);
+	  originalXWGTUP_ = std::move(other.originalXWGTUP_);
+	  scales_ = std::move(other.scales_);
+	  npLO_ = std::move(other.npLO_);
+	  npNLO_ = std::move(other.npNLO_);
+	}
+	LHEEventProduct& operator=(LHEEventProduct&& other) {
+	  hepeup_ = std::move(other.hepeup_);
+	  comments_ = std::move(other.comments_);
+	  pdf_ = other.pdf_; // auto_ptr, so copy is actually a move
+	  weights_ = std::move(other.weights_);
+	  originalXWGTUP_ = std::move(other.originalXWGTUP_);
+	  scales_ = std::move(other.scales_);
+	  npLO_ = std::move(other.npLO_);
+	  npNLO_ = std::move(other.npNLO_);
+	  return *this;
+	}
 	~LHEEventProduct() {}
 
 	void setPDF(const PDF &pdf) { pdf_.reset(new PDF(pdf)); }

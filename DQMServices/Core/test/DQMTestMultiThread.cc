@@ -63,7 +63,6 @@ void DQMTestMultiThread::dumpMe(MonitorElement const& me,
   std::cout << "Run: " << me.run()
             << " Lumi: " << me.lumi()
             << " LumiFlag: " << me.getLumiFlag()
-            << " streamId: " << me.streamId()
             << " moduleId: " << me.moduleId()
             << " fullpathname: " << me.getPathname();
   if (printStat)

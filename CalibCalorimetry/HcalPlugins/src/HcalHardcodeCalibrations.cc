@@ -152,6 +152,8 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iC
   dbHardcode.setSiPMCharacteristics(iConfig.getParameter<std::vector<edm::ParameterSet>>("SiPMCharacteristics"));
 
   useLayer0Weight = iConfig.getParameter<bool>("useLayer0Weight");
+  useIeta18depth1 = iConfig.getParameter<bool>("useIeta18depth1");
+  testHEPlan1     = iConfig.getParameter<bool>("testHEPlan1");
   // HB, HE, HF recalibration preparation
   iLumi=iConfig.getParameter<double>("iLumi");
 
@@ -458,9 +460,40 @@ std::unique_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQual
   auto result = std::make_unique<HcalChannelQuality>(topo);
   std::vector <HcalGenericDetId> cells = allCells(*topo, dbHardcode.killHE());
   for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
-    HcalChannelStatus item(cell->rawId(),0);
+
+    // Special: removal of (non-instrumented) layer "-1"("nose") = depth 1 
+    // from Upgrade HE, either from  
+    // (i)  HEP17 sector in 2017 or 
+    // (ii) the entire HE rin=18 from 2018 through Run 3. 
+    // May require a revision  by 2021.
+ 
+    uint32_t status = 0;
+
+    if ( !(cell->isHcalZDCDetId())) {
+
+      HcalDetId hid =  HcalDetId(*cell);    
+      int iphi    = hid.iphi();
+      int ieta    = hid.ieta();
+      int absieta = hid.ietaAbs();
+      int depth   = hid.depth();
+
+      // specific HEP17 sector (2017 only) 
+      bool isHEP17 = (iphi >= 63) && (iphi <= 66) && (ieta > 0); 
+      // |ieta|=18, depth=1     
+      bool is18d1  = (absieta == 18) && (depth ==1);             
+            
+      if( (!useIeta18depth1 && is18d1 ) &&       
+	  ((testHEPlan1 && isHEP17) || (!testHEPlan1))) { 
+	status = 0x8002;  // dead cell
+      }
+    }
+
+    HcalChannelStatus item(cell->rawId(),status);
     result->addValues(item);
   }
+
+   
+
   return result;
 }
 
@@ -665,49 +698,8 @@ std::unique_ptr<HcalLutMetadata> HcalHardcodeCalibrations::produceLutMetadata (c
     int granularity = 1;
     int threshold = 0;
 
-    if (dbHardcode.useHEUpgrade() or dbHardcode.useHFUpgrade()) {
-       // Use values from 2016 as starting conditions for 2017+.  These are
-       // averaged over the subdetectors, with the last two HE towers split
-       // off due to diverging correction values.
-       switch (cell.genericSubdet()) {
-          case HcalGenericDetId::HcalGenBarrel:
-             rcalib = 1.128;
-             break;
-         case HcalGenericDetId::HcalGenEndcap:
-             {
-	         HcalDetId id(cell);
-	         if (id.ietaAbs() >= 28)
-                   rcalib = 1.188;
-                else
-                   rcalib = 1.117;
-		// granularity is equal to 1 only for |ieta| == 17
-		if(id.ietaAbs() >= 18 && id.ietaAbs() <= 26) granularity = 2;
-		else if(id.ietaAbs() >=27 && id.ietaAbs() <= 29) granularity = 5;
-	     }
-             break;
-        case HcalGenericDetId::HcalGenForward:
-             rcalib = 1.02;
-             break;
-         default:
-             break;
-       }
-
-       if (cell.isHcalTrigTowerDetId()) {
-	  rcalib = 0.;
-	  HcalTrigTowerDetId id(cell);
-	  if(id.ietaAbs() <= 17) {
-	    granularity = 1;
-	  }
-	  else if(id.ietaAbs() >= 18 && id.ietaAbs() <= 26) {
-	    granularity = 2;
-	  }
-	  else if(id.ietaAbs() >= 27 && id.ietaAbs() <= 28) {
-	    granularity = 5;
-	  }
-	  else {
-	    granularity = 0;
-	  }
-       }
+    if (cell.isHcalTrigTowerDetId()) {
+      rcalib = 0.;
     }
 
     HcalLutMetadatum item(cell.rawId(), rcalib, granularity, threshold);
@@ -924,6 +916,7 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions &
 	desc.add<bool>("testHEPlan1",false);
 	desc.add<bool>("killHE",false);
 	desc.add<bool>("useLayer0Weight",false);
+        desc.add<bool>("useIeta18depth1",true);
 	desc.addUntracked<std::vector<std::string> >("toGet",std::vector<std::string>());
 	desc.addUntracked<bool>("fromDDD",false);
 

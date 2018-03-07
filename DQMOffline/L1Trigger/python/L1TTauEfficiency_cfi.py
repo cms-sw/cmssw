@@ -29,8 +29,8 @@ from DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi import l1tEfficiencyHarves
 l1tTauEfficiency = l1tEfficiencyHarvesting.clone(
     plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(
-            numeratorDir=cms.untracked.string("L1T/L1TTau/efficiency_raw"),
-            outputDir=cms.untracked.string("L1T/L1TTau"),
+            numeratorDir=cms.untracked.string("L1T/L1TObjects/L1TTau/L1TriggerVsReco/efficiency_raw"),
+            outputDir=cms.untracked.string("L1T/L1TObjects/L1TTau/L1TriggerVsReco"),
             numeratorSuffix=cms.untracked.string("_Num"),
             denominatorSuffix=cms.untracked.string("_Den"),
             plots=cms.untracked.vstring(allEfficiencyPlots),
@@ -43,8 +43,8 @@ l1tTauEmuEfficiency = l1tEfficiencyHarvesting.clone(
     plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(
             numeratorDir=cms.untracked.string(
-                "L1TEMU/L1TTau/efficiency_raw"),
-            outputDir=cms.untracked.string("L1TEMU/L1TTau"),
+                "L1TEMU/L1TObjects/L1TTau/L1TriggerVsReco/efficiency_raw"),
+            outputDir=cms.untracked.string("L1TEMU/L1TObjects/L1TTau/L1TriggerVsReco"),
             numeratorSuffix=cms.untracked.string("_Num"),
             denominatorSuffix=cms.untracked.string("_Den"),
             plots=cms.untracked.vstring(allEfficiencyPlots),

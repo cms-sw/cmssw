@@ -88,6 +88,9 @@ namespace edm {
 
     SerialTaskQueue* globalRunsQueue() { return &runQueue_;}
     SerialTaskQueue* globalLuminosityBlocksQueue() { return &luminosityBlockQueue_;}
+    SharedResourcesAcquirer& sharedResourcesAcquirer() {
+      return resourceAcquirer_;
+    }
 
     bool wantAllEvents() const {return wantAllEvents_;}
 
@@ -198,10 +201,6 @@ namespace edm {
 
     std::string workerType() const {return "WorkerT<OutputModule>";}
     
-    SharedResourcesAcquirer& sharedResourcesAcquirer() {
-      return resourceAcquirer_;
-    }
-
     /// Tell the OutputModule that is must end the current file.
     void doCloseFile();
 

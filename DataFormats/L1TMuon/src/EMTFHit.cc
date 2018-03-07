@@ -1,4 +1,5 @@
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 
 namespace l1t {
 
@@ -16,8 +17,8 @@ namespace l1t {
 
   CSCCorrelatedLCTDigi EMTFHit::CreateCSCCorrelatedLCTDigi() const {
     return CSCCorrelatedLCTDigi( 1, valid, quality, wire, strip,
-				 pattern, (bend == 1) ? 1 : 0,
-				 bx + 6, 0, 0, sync_err, csc_ID );
+                                 pattern, (bend == 1) ? 1 : 0,
+                                 bx + CSCConstants::LCT_CENTRAL_BX, 0, 0, sync_err, csc_ID );
     // Filling "trknmb" with 1 and "bx0" with 0 (as in MC).
     // May consider filling "trknmb" with 2 for 2nd LCT in the same chamber. - AWB 24.05.17
     // trknmb and bx0 are unused in the EMTF emulator code. mpclink = 0 (after bx) indicates unsorted.
@@ -25,7 +26,7 @@ namespace l1t {
   
   // // Not yet implemented - AWB 15.03.17
   // RPCDigi EMTFHit::CreateRPCDigi() const {
-  //   return RPCDigi( (strip_hi + strip_lo) / 2, bx + 6 );
+  //   return RPCDigi( (strip_hi + strip_lo) / 2, bx + CSCConstants::LCT_CENTRAL_BX );
   // }
   
 } // End namespace l1t

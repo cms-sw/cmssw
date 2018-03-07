@@ -1,14 +1,14 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
 #include "SimFastTiming/FastTimingCommon/plugins/FTLDigiProducer.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
 //
-FTLDigiProducer::FTLDigiProducer(edm::ParameterSet const& pset, edm::stream::EDProducerBase& mixMod, 
+FTLDigiProducer::FTLDigiProducer(edm::ParameterSet const& pset, edm::ProducerBase& mixMod,
                                  edm::ConsumesCollector& iC) :
   DigiAccumulatorMixMod() {
   std::vector<std::string> psetNames;

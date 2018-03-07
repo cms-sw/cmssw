@@ -21,7 +21,8 @@ public:
   static const int kSubdetOffset       = 25;
 
 
-  enum Detector { Tracker=1,Muon=2,Ecal=3,Hcal=4,Calo=5,Forward=6,VeryForward=7 };
+  enum Detector {Tracker=1, Muon=2, Ecal=3, Hcal=4, Calo=5, Forward=6,
+		 VeryForward=7, HGCalEE=8, HGCalHSi=9, HGCalHSc=10 };
   /// Create an empty or null id (also for persistence)
   DetId()  : id_(0) { }
   /// Create an id from a raw number
@@ -67,5 +68,6 @@ inline bool operator<(DetId id, uint32_t i) { return id()<i; }
 
 
 //std::ostream& operator<<(std::ostream& s, const DetId& id);
+
 
 #endif

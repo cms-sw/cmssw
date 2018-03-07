@@ -82,7 +82,9 @@ public:
   typedef std::map<L1TStage2CaloLayer2Offline::ControlPlots, MonitorElement*> ControlPlotMap;
 
   enum PlotConfig {
-    nVertex
+    nVertex,
+    ETvsET,
+    PHIvsPHI
   };
 
   static const std::map<std::string, unsigned int> PlotConfigNames;
@@ -120,8 +122,10 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsInputTag_;
   std::string triggerProcess_;
   std::vector<std::string> triggerNames_;
-  std::string histFolder_;
-  std::string efficiencyFolder_;
+  std::string histFolderEtSum_;
+  std::string histFolderJet_;
+  std::string efficiencyFolderEtSum_;
+  std::string efficiencyFolderJet_;
 
   edm::EDGetTokenT<l1t::JetBxCollection> stage2CaloLayer2JetToken_;
   edm::EDGetTokenT<l1t::EtSumBxCollection> stage2CaloLayer2EtSumToken_;

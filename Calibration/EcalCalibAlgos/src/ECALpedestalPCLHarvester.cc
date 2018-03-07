@@ -27,6 +27,7 @@ ECALpedestalPCLHarvester::ECALpedestalPCLHarvester(const edm::ParameterSet& ps):
     labelG6G1_      = ps.getParameter<std::string>("labelG6G1");
     threshDiffEB_   = ps.getParameter<double>("threshDiffEB");
     threshDiffEE_   = ps.getParameter<double>("threshDiffEE");
+    threshChannelsAnalyzed_ = ps.getParameter<double>("threshChannelsAnalyzed");
 }
 
 void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
@@ -34,6 +35,10 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
     // calculate pedestals and fill db record
     EcalPedestals pedestals;
+    int kBarrelSize = 61200;
+    int kEndcapSize = 2*7324;
+    int skipped_channels_EB = 0;
+    int skipped_channels_EE = 0;
 
 
     for (uint16_t i =0; i< EBDetId::kSizeForDenseIndexing; ++i) {
@@ -58,6 +63,8 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
             ped.mean_x12=oldped.mean_x12;
             ped.rms_x12=oldped.rms_x12;
+
+	    skipped_channels_EB++;
 
         }
         
@@ -92,8 +99,11 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
         // if bad channel or low stat skip or the difference is too large wrt to previous record
         if(ch->getEntries()< minEntries_ || !checkStatusCode(id)|| diff>threshDiffEE_){
+
             ped.mean_x12=oldped.mean_x12;
             ped.rms_x12=oldped.rms_x12;
+
+	        skipped_channels_EE++;
         }
 
         // copy g6 and g1 pedestals from corresponding record
@@ -106,8 +116,19 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
     }
 
 
+    bool enough_stat = false;
+    if ((kBarrelSize-skipped_channels_EB)/kBarrelSize > threshChannelsAnalyzed_ &&
+        (kEndcapSize-skipped_channels_EE)/kEndcapSize > threshChannelsAnalyzed_ ){
 
-    dqmPlots(pedestals, ibooker_);
+        enough_stat=true;
+    }
+
+    
+    if(enough_stat){
+
+        dqmPlots(pedestals, ibooker_);
+
+    }
 
     // check if there are large variations wrt exisiting pedstals
 
@@ -121,11 +142,12 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
     // write out pedestal record
     edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
-    if( poolDbService.isAvailable() )
-        poolDbService->writeOne( &pedestals, poolDbService->currentTime(),
-                                 "EcalPedestalsRcd"  );
-    else
+    if ( !poolDbService.isAvailable() ) {
         throw std::runtime_error("PoolDBService required.");
+    }
+    if (enough_stat)
+        poolDbService->writeOne( &pedestals, poolDbService->currentTime(),"EcalPedestalsRcd"  );
+
 }
 
 

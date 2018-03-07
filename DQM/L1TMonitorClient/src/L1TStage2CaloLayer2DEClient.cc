@@ -4,7 +4,41 @@ L1TStage2CaloLayer2DEClient::L1TStage2CaloLayer2DEClient(
   const edm::ParameterSet& ps):
   monitor_dir_(ps.getUntrackedParameter<std::string>("monitorDir","")),
   input_dir_data_(ps.getUntrackedParameter<std::string>("inputDataDir","")),
-  input_dir_emul_(ps.getUntrackedParameter<std::string>("inputEmulDir",""))
+  input_dir_emul_(ps.getUntrackedParameter<std::string>("inputEmulDir","")),
+  CenJetRankComp_(nullptr),
+  CenJetEtaComp_(nullptr),
+  CenJetPhiComp_(nullptr),
+  ForJetRankComp_(nullptr),
+  ForJetEtaComp_(nullptr),
+  ForJetPhiComp_(nullptr),
+  IsoEGRankComp_(nullptr),
+  IsoEGEtaComp_(nullptr),
+  IsoEGPhiComp_(nullptr),
+  NonIsoEGRankComp_(nullptr),
+  NonIsoEGEtaComp_(nullptr),
+  NonIsoEGPhiComp_(nullptr),
+  IsoTauRankComp_(nullptr),
+  IsoTauEtaComp_(nullptr),
+  IsoTauPhiComp_(nullptr),
+  TauRankComp_(nullptr),
+  TauEtaComp_(nullptr),
+  TauPhiComp_(nullptr),
+  METComp_(nullptr),
+  METPhiComp_(nullptr),
+  METHFComp_(nullptr),
+  METHFPhiComp_(nullptr),
+  MHTComp_(nullptr),
+  MHTPhiComp_(nullptr),
+  MHTHFComp_(nullptr),
+  MHTHFPhiComp_(nullptr),
+  ETTComp_(nullptr),
+  HTTComp_(nullptr),
+  MinBiasHFP0Comp_(nullptr),
+  MinBiasHFM0Comp_(nullptr),
+  MinBiasHFP1Comp_(nullptr),
+  MinBiasHFM1Comp_(nullptr),
+  ETTEMComp_(nullptr),
+  TowerCountComp_(nullptr)
 {}
 
 L1TStage2CaloLayer2DEClient::~L1TStage2CaloLayer2DEClient(){}
@@ -28,432 +62,290 @@ void L1TStage2CaloLayer2DEClient::dqmEndJob(
 
 void L1TStage2CaloLayer2DEClient::book(DQMStore::IBooker &ibooker) {
 
-  ibooker.setCurrentFolder(monitor_dir_);
-  hlSummary = ibooker.book1D(
-    "High level summary", "Event by event comparison summary", 5, 1, 6);
-  hlSummary->setBinLabel(1, "good events");
-  hlSummary->setBinLabel(2, "good jets");
-  hlSummary->setBinLabel(3, "good e/gs");
-  hlSummary->setBinLabel(4, "good taus");
-  hlSummary->setBinLabel(5, "good sums");
-
-  jetSummary = ibooker.book1D(
-    "Jet Agreement Summary", "Jet Agreement Summary", 3, 1, 4);
-  jetSummary->setBinLabel(1, "good jets");
-  jetSummary->setBinLabel(2, "jets pos off only");
-  jetSummary->setBinLabel(3, "jets Et off only ");
-
-  egSummary = ibooker.book1D(
-    "EG Agreement Summary", "EG Agreement Summary", 6, 1, 7);
-  egSummary->setBinLabel(1, "good non-iso e/gs");
-  egSummary->setBinLabel(2, "non-iso e/gs pos off");
-  egSummary->setBinLabel(3, "non-iso e/gs Et off");
-  egSummary->setBinLabel(4, "good iso e/gs");
-  egSummary->setBinLabel(5, "iso e/gs pos off");
-  egSummary->setBinLabel(6, "iso e/gs Et off");
-
-  tauSummary = ibooker.book1D(
-    "Tau Agreement Summary", "Tau Agremeent Summary", 6, 1, 7);
-  tauSummary->setBinLabel(1, "good non-iso taus");
-  tauSummary->setBinLabel(2, "non-iso taus pos off");
-  tauSummary->setBinLabel(3, "non-iso taus Et off");
-  tauSummary->setBinLabel(4, "good iso taus");
-  tauSummary->setBinLabel(5, "iso taus pos off");
-  tauSummary->setBinLabel(6, "iso taus Et off");
-
-  sumSummary = ibooker.book1D(
-    "Energy Sum Agreement Summary", "Sum Agreement Summary", 7, 1, 8);
-  sumSummary->setBinLabel(1, "good sums");
-  sumSummary->setBinLabel(2, "good ETT sums");
-  sumSummary->setBinLabel(3, "good HTT sums");
-  sumSummary->setBinLabel(4, "good MET sums");
-  sumSummary->setBinLabel(5, "good MHT sums");
-  sumSummary->setBinLabel(6, "good MBHF sums");
-  sumSummary->setBinLabel(7, "good TowCount sums");
-
   // problemSummary;
 
   ibooker.setCurrentFolder(monitor_dir_);
 
-  CenJetRankComp_ = ibooker.book1D(
-    "CenJetsRankDERatio","Data/Emul of Central Jet E_{T}; Jet iE_{T}; Counts",
-    2048, -0.5, 2047.5);
-  CenJetRankComp_->setEfficiencyFlag();
-  CenJetEtaComp_ = ibooker.book1D(
-    "CenJetsEtaDERatio","Data/Emul of Central Jet #eta; Jet i#eta; Counts",
-    229, -114.5, 114.5);
-  CenJetEtaComp_->setEfficiencyFlag();
-  CenJetPhiComp_ = ibooker.book1D(
-    "CenJetsPhiDERatio","Data/Emul of Central Jet #phi; Jet i#phi; Counts",
-    144, -0.5, 143.5);
-  CenJetPhiComp_->setEfficiencyFlag();
-  ForJetRankComp_ = ibooker.book1D(
-    "ForJetsRankDERatio","Data/Emul of Forward Jet E_{T}; Jet iE_{T}; Counts",
-    2048, -0.5, 2047.5);
-  ForJetRankComp_->setEfficiencyFlag();
-  ForJetEtaComp_ = ibooker.book1D(
-    "ForJetsEtaDERatio","Data/Emul of Forward Jet #eta; Jet i#eta; Counts",
-    229, -114.5, 114.5);
-  ForJetEtaComp_->setEfficiencyFlag();
-  ForJetPhiComp_ = ibooker.book1D(
-    "ForJetsPhiDERatio","Data/Emul of Forward Jet #phi; Jet i#phi; Counts",
-    144, -0.5, 143.5);
-  ForJetPhiComp_->setEfficiencyFlag();
-  IsoEGRankComp_ = ibooker.book1D(
-    "IsoEGRankDERatio","Data/Emul of isolated eg E_{T}; EG iE_{T}; Counts",
-    512, -0.5, 511.5);
-  IsoEGRankComp_->setEfficiencyFlag();
-  IsoEGEtaComp_ = ibooker.book1D(
-    "IsoEGEtaDERatio","Data/Emul of isolated eg #eta; EG i#eta; Counts",
-    229, -114.5, 114.5);
-  IsoEGEtaComp_->setEfficiencyFlag();
-  IsoEGPhiComp_ = ibooker.book1D(
-    "IsoEGPhiDERatio","Data/Emul of isolated eg #phi; EG i#eta; Counts",
-    144, -0.5, 143.5);
-  IsoEGPhiComp_->setEfficiencyFlag();
-  NonIsoEGRankComp_ = ibooker.book1D(
-    "NonIsoEGRankDERatio",
-    "Data/Emul of non-isolated eg E_{T}; EG iE_{T}; Counts",
-    512, -0.5, 511.5);
-  NonIsoEGRankComp_->setEfficiencyFlag();
-  NonIsoEGEtaComp_ = ibooker.book1D(
-    "NonIsoEGEtaDERatio","Data/Emul of non-isolated eg #eta; EG i#eta; Counts",
-    229, -114.5, 114.5);
-  NonIsoEGEtaComp_->setEfficiencyFlag();
-  NonIsoEGPhiComp_ = ibooker.book1D(
-    "NonIsoEGPhiDERatio","Data/Emul of non-isolated eg #phi; EG i#phi; Counts",
-    144, -0.5, 143.5);
-  NonIsoEGPhiComp_->setEfficiencyFlag();
-  TauRankComp_ = ibooker.book1D(
-    "TauRankDERatio","Data/Emul of relax tau E_{T}; Tau iE_{T}; Counts",
-    512, -0.5, 511.5);
-  TauRankComp_->setEfficiencyFlag();
-  TauEtaComp_ = ibooker.book1D(
-    "TauEtaDERatio","Data/Emul of relax tau #eta; Tau i#eta; Counts",
-    229, -114.5, 114.5);
-  TauEtaComp_->setEfficiencyFlag();
-  TauPhiComp_ = ibooker.book1D(
-    "TauPhiDERatio","Data/Emul of relax tau eg #phi; Tau i#phi; Counts",
-    144, -0.5, 143.5);
-  TauPhiComp_->setEfficiencyFlag();
-  IsoTauRankComp_ = ibooker.book1D(
-    "IsoTauRankDERatio","Data/Emul of iso tau E_{T}; ISO Tau iE_{T}; Counts",
-    512, -0.5, 511.5);
-  IsoTauRankComp_->setEfficiencyFlag();
-  IsoTauEtaComp_ = ibooker.book1D(
-    "IsoTauEtaDERatio","Data/Emul of iso tau #eta; ISO Tau i#eta; Counts",
-    229, -114.5, 114.5);
-  IsoTauEtaComp_->setEfficiencyFlag();
-  IsoTauPhiComp_ = ibooker.book1D(
-    "IsoTauPhiDERatio","Data/Emul of iso tau #phi; ISO Tau i#phi; Counts",
-    144, -0.5, 143.5);
-  IsoTauPhiComp_->setEfficiencyFlag();
-  METComp_ = ibooker.book1D(
-    "METRatio","Data/Emul of MET; iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  METComp_->setEfficiencyFlag();
-  METPhiComp_ = ibooker.book1D(
-    "METPhiRatio","Data/Emul of MET #phi; MET i#phi; Events",
-    1008, -0.5, 1007.5);
-  METPhiComp_->setEfficiencyFlag();
-  METHFComp_ = ibooker.book1D(
-    "METHFRatio","Data/Emul of METHF; METHF iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  METHFComp_->setEfficiencyFlag();
-  METHFPhiComp_ = ibooker.book1D(
-    "METHFPhiRatio","Data/Emul of METHF #phi; METHF i#phi; Events",
-    1008, -0.5, 1007.5);
-  METHFPhiComp_->setEfficiencyFlag();
-  MHTComp_ = ibooker.book1D(
-    "MHTRatio","Data/Emul of MHT; MHT iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  MHTComp_->setEfficiencyFlag();
-  MHTPhiComp_ = ibooker.book1D(
-    "MHTPhiRatio","Data/Emul of MHT #phi; MHTHF i#phi; Events",
-    1008, -0.5, 1007.5);
-  MHTPhiComp_->setEfficiencyFlag();
-  MHTHFComp_ = ibooker.book1D(
-    "MHTHFRatio","Data/Emul of MHTHF; MHTHF iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  MHTHFComp_->setEfficiencyFlag();
-  MHTHFPhiComp_ = ibooker.book1D(
-    "MHTHFPhiRatio","Data/Emul of MHTHF #phi; MHTHF i#phi; Events",
-    1008, -0.5, 1007.5);
-  MHTHFPhiComp_->setEfficiencyFlag();
-  ETTComp_ = ibooker.book1D(
-    "ETTRatio","Data/Emul of ET Total; ETT iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  ETTComp_->setEfficiencyFlag();
-  ETTEMComp_ = ibooker.book1D(
-    "ETTEMRatio","Data/Emul of ET Total EM; ETTEM iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  ETTEMComp_->setEfficiencyFlag();
-  HTTComp_ = ibooker.book1D(
-    "HTTRatio","Data/Emul of HT Total; HT iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  HTTComp_->setEfficiencyFlag();
+  if (CenJetRankComp_ == nullptr) {
+    CenJetRankComp_ = ibooker.book1D(
+      "CenJetsRankDERatio","Data/Emul of Central Jet E_{T}; Jet iE_{T}; Counts",
+      2048, -0.5, 2047.5);
+    CenJetRankComp_->setEfficiencyFlag();
+  } else {
+    CenJetRankComp_->Reset();
+  }
+  if (CenJetEtaComp_ == nullptr) {
+    CenJetEtaComp_ = ibooker.book1D(
+      "CenJetsEtaDERatio","Data/Emul of Central Jet #eta; Jet i#eta; Counts",
+      229, -114.5, 114.5);
+    CenJetEtaComp_->setEfficiencyFlag();
+  } else {
+    CenJetEtaComp_->Reset();
+  }
+  if (CenJetPhiComp_ == nullptr) {
+    CenJetPhiComp_ = ibooker.book1D(
+      "CenJetsPhiDERatio","Data/Emul of Central Jet #phi; Jet i#phi; Counts",
+      144, -0.5, 143.5);
+    CenJetPhiComp_->setEfficiencyFlag();
+  } else {
+    CenJetPhiComp_->Reset();
+  }
+  if (ForJetRankComp_ == nullptr) {
+    ForJetRankComp_ = ibooker.book1D(
+      "ForJetsRankDERatio","Data/Emul of Forward Jet E_{T}; Jet iE_{T}; Counts",
+      2048, -0.5, 2047.5);
+    ForJetRankComp_->setEfficiencyFlag();
+  } else {
+    ForJetRankComp_->Reset();
+  }
+  if (ForJetEtaComp_ == nullptr) {
+    ForJetEtaComp_ = ibooker.book1D(
+      "ForJetsEtaDERatio","Data/Emul of Forward Jet #eta; Jet i#eta; Counts",
+      229, -114.5, 114.5);
+    ForJetEtaComp_->setEfficiencyFlag();
+  } else {
+    ForJetEtaComp_->Reset();
+  }
+  if (ForJetPhiComp_ == nullptr) {
+    ForJetPhiComp_ = ibooker.book1D(
+      "ForJetsPhiDERatio","Data/Emul of Forward Jet #phi; Jet i#phi; Counts",
+      144, -0.5, 143.5);
+    ForJetPhiComp_->setEfficiencyFlag();
+  } else {
+    ForJetPhiComp_->Reset();
+  }
+  if (IsoEGRankComp_ == nullptr) {
+    IsoEGRankComp_ = ibooker.book1D(
+      "IsoEGRankDERatio","Data/Emul of isolated eg E_{T}; EG iE_{T}; Counts",
+      512, -0.5, 511.5);
+    IsoEGRankComp_->setEfficiencyFlag();
+  } else {
+    IsoEGRankComp_->Reset();
+  }
+  if (IsoEGEtaComp_ == nullptr) {
+    IsoEGEtaComp_ = ibooker.book1D(
+      "IsoEGEtaDERatio","Data/Emul of isolated eg #eta; EG i#eta; Counts",
+      229, -114.5, 114.5);
+    IsoEGEtaComp_->setEfficiencyFlag();
+  } else {
+    IsoEGEtaComp_->Reset();
+  }
+  if (IsoEGPhiComp_ == nullptr) {
+    IsoEGPhiComp_ = ibooker.book1D(
+      "IsoEGPhiDERatio","Data/Emul of isolated eg #phi; EG i#eta; Counts",
+      144, -0.5, 143.5);
+    IsoEGPhiComp_->setEfficiencyFlag();
+  } else {
+    IsoEGPhiComp_->Reset();
+  }
+  if (NonIsoEGRankComp_ == nullptr) {
+    NonIsoEGRankComp_ = ibooker.book1D(
+      "NonIsoEGRankDERatio",
+      "Data/Emul of non-isolated eg E_{T}; EG iE_{T}; Counts",
+      512, -0.5, 511.5);
+    NonIsoEGRankComp_->setEfficiencyFlag();
+  } else {
+    NonIsoEGRankComp_->Reset();
+  }
+  if (NonIsoEGEtaComp_ == nullptr) {
+    NonIsoEGEtaComp_ = ibooker.book1D(
+      "NonIsoEGEtaDERatio","Data/Emul of non-isolated eg #eta; EG i#eta; Counts",
+      229, -114.5, 114.5);
+    NonIsoEGEtaComp_->setEfficiencyFlag();
+  } else {
+    NonIsoEGEtaComp_->Reset();
+  }
+  if (NonIsoEGPhiComp_ == nullptr) {
+    NonIsoEGPhiComp_ = ibooker.book1D(
+      "NonIsoEGPhiDERatio","Data/Emul of non-isolated eg #phi; EG i#phi; Counts",
+      144, -0.5, 143.5);
+    NonIsoEGPhiComp_->setEfficiencyFlag();
+  } else {
+    NonIsoEGPhiComp_->Reset();
+  }
+  if (TauRankComp_ == nullptr) {
+    TauRankComp_ = ibooker.book1D(
+      "TauRankDERatio","Data/Emul of relax tau E_{T}; Tau iE_{T}; Counts",
+      512, -0.5, 511.5);
+    TauRankComp_->setEfficiencyFlag();
+  } else {
+    TauRankComp_->Reset();
+  }
+  if (TauEtaComp_ == nullptr) {
+    TauEtaComp_ = ibooker.book1D(
+      "TauEtaDERatio","Data/Emul of relax tau #eta; Tau i#eta; Counts",
+      229, -114.5, 114.5);
+    TauEtaComp_->setEfficiencyFlag();
+  } else {
+    TauEtaComp_->Reset();
+  }
+  if (TauPhiComp_ == nullptr) {
+    TauPhiComp_ = ibooker.book1D(
+      "TauPhiDERatio","Data/Emul of relax tau eg #phi; Tau i#phi; Counts",
+      144, -0.5, 143.5);
+    TauPhiComp_->setEfficiencyFlag();
+  } else {
+    TauPhiComp_->Reset();
+  }
+  if (IsoTauRankComp_ == nullptr) {
+    IsoTauRankComp_ = ibooker.book1D(
+      "IsoTauRankDERatio","Data/Emul of iso tau E_{T}; ISO Tau iE_{T}; Counts",
+      512, -0.5, 511.5);
+    IsoTauRankComp_->setEfficiencyFlag();
+  } else {
+    IsoTauRankComp_->Reset();
+  }
+  if (IsoTauEtaComp_ == nullptr) {
+    IsoTauEtaComp_ = ibooker.book1D(
+      "IsoTauEtaDERatio","Data/Emul of iso tau #eta; ISO Tau i#eta; Counts",
+      229, -114.5, 114.5);
+    IsoTauEtaComp_->setEfficiencyFlag();
+  } else {
+    IsoTauEtaComp_->Reset();
+  }
+  if (IsoTauPhiComp_ == nullptr) {
+    IsoTauPhiComp_ = ibooker.book1D(
+      "IsoTauPhiDERatio","Data/Emul of iso tau #phi; ISO Tau i#phi; Counts",
+      144, -0.5, 143.5);
+    IsoTauPhiComp_->setEfficiencyFlag();
+  } else {
+    IsoTauPhiComp_->Reset();
+  }
+  if (METComp_ == nullptr) {
+    METComp_ = ibooker.book1D(
+      "METRatio","Data/Emul of MET; iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    METComp_->setEfficiencyFlag();
+  } else {
+    METComp_->Reset();
+  }
+  if (METPhiComp_ == nullptr) {
+    METPhiComp_ = ibooker.book1D(
+      "METPhiRatio","Data/Emul of MET #phi; MET i#phi; Events",
+      1008, -0.5, 1007.5);
+    METPhiComp_->setEfficiencyFlag();
+  } else {
+    METPhiComp_->Reset();
+  }
+  if (METHFComp_ == nullptr) {
+    METHFComp_ = ibooker.book1D(
+      "METHFRatio","Data/Emul of METHF; METHF iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    METHFComp_->setEfficiencyFlag();
+  } else {
+    METHFComp_->Reset();
+  }
+  if (METHFPhiComp_ == nullptr) {
+    METHFPhiComp_ = ibooker.book1D(
+      "METHFPhiRatio","Data/Emul of METHF #phi; METHF i#phi; Events",
+      1008, -0.5, 1007.5);
+    METHFPhiComp_->setEfficiencyFlag();
+  } else {
+    METHFPhiComp_->Reset();
+  }
+  if (MHTComp_ == nullptr) {
+    MHTComp_ = ibooker.book1D(
+      "MHTRatio","Data/Emul of MHT; MHT iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    MHTComp_->setEfficiencyFlag();
+  } else {
+    MHTComp_->Reset();
+  }
+  if (MHTPhiComp_ == nullptr) {
+    MHTPhiComp_ = ibooker.book1D(
+      "MHTPhiRatio","Data/Emul of MHT #phi; MHTHF i#phi; Events",
+      1008, -0.5, 1007.5);
+    MHTPhiComp_->setEfficiencyFlag();
+  } else {
+    MHTPhiComp_->Reset();
+  }
+  if (MHTHFComp_ == nullptr) {
+    MHTHFComp_ = ibooker.book1D(
+      "MHTHFRatio","Data/Emul of MHTHF; MHTHF iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    MHTHFComp_->setEfficiencyFlag();
+  } else {
+    MHTHFComp_->Reset();
+  }
+  if (MHTHFPhiComp_ == nullptr) {
+    MHTHFPhiComp_ = ibooker.book1D(
+      "MHTHFPhiRatio","Data/Emul of MHTHF #phi; MHTHF i#phi; Events",
+      1008, -0.5, 1007.5);
+    MHTHFPhiComp_->setEfficiencyFlag();
+  } else {
+    MHTHFPhiComp_->Reset();
+  }
+  if (ETTComp_ == nullptr) {
+    ETTComp_ = ibooker.book1D(
+      "ETTRatio","Data/Emul of ET Total; ETT iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    ETTComp_->setEfficiencyFlag();
+  } else {
+    ETTComp_->Reset();
+  }
+  if (ETTEMComp_ == nullptr) {
+    ETTEMComp_ = ibooker.book1D(
+      "ETTEMRatio","Data/Emul of ET Total EM; ETTEM iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    ETTEMComp_->setEfficiencyFlag();
+  } else {
+    ETTEMComp_->Reset();
+  }
+  if (HTTComp_ == nullptr) {
+    HTTComp_ = ibooker.book1D(
+      "HTTRatio","Data/Emul of HT Total; HT iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    HTTComp_->setEfficiencyFlag();
+  } else {
+    HTTComp_->Reset();
+  }
 
-  MinBiasHFP0Comp_ = ibooker.book1D(
-    "MinBiasHFP0Ratio", "Data/Emul MinBiasHFP0; N_{towers}; Events",
-    16, -0.5, 15.5);
-  MinBiasHFP0Comp_->setEfficiencyFlag();
-  MinBiasHFM0Comp_ = ibooker.book1D(
-    "MinBiasHFM0Ratio", "Data/Emul MinBiasHFM0; N_{towers}; Events",
-    16, -0.5, 15.5);
-  MinBiasHFM0Comp_->setEfficiencyFlag();
-  MinBiasHFP1Comp_ = ibooker.book1D(
-    "MinBiasHFP1Ratio", "Data/Emul MinBiasHFP1; N_{towers}; Events",
-    16, -0.5, 15.5);
-  MinBiasHFP1Comp_->setEfficiencyFlag();
-  MinBiasHFM1Comp_ = ibooker.book1D(
-    "MinBiasHFM1Ratio", "Data/Emul MinBiasHFM1; N_{towers}; Events",
-    16, -0.5, 15.5);
-  MinBiasHFM1Comp_->setEfficiencyFlag();
+  if (MinBiasHFP0Comp_ == nullptr) {
+    MinBiasHFP0Comp_ = ibooker.book1D(
+      "MinBiasHFP0Ratio", "Data/Emul MinBiasHFP0; N_{towers}; Events",
+      16, -0.5, 15.5);
+    MinBiasHFP0Comp_->setEfficiencyFlag();
+  } else {
+    MinBiasHFP0Comp_->Reset();
+  }
+  if (MinBiasHFM0Comp_ == nullptr) {
+    MinBiasHFM0Comp_ = ibooker.book1D(
+      "MinBiasHFM0Ratio", "Data/Emul MinBiasHFM0; N_{towers}; Events",
+      16, -0.5, 15.5);
+    MinBiasHFM0Comp_->setEfficiencyFlag();
+  } else {
+    MinBiasHFM0Comp_->Reset();
+  }
+  if (MinBiasHFP1Comp_ == nullptr) {
+    MinBiasHFP1Comp_ = ibooker.book1D(
+      "MinBiasHFP1Ratio", "Data/Emul MinBiasHFP1; N_{towers}; Events",
+      16, -0.5, 15.5);
+    MinBiasHFP1Comp_->setEfficiencyFlag();
+  } else {
+    MinBiasHFP1Comp_->Reset();
+  }
+  if (MinBiasHFM1Comp_ == nullptr) {
+    MinBiasHFM1Comp_ = ibooker.book1D(
+      "MinBiasHFM1Ratio", "Data/Emul MinBiasHFM1; N_{towers}; Events",
+      16, -0.5, 15.5);
+    MinBiasHFM1Comp_->setEfficiencyFlag();
+  } else {
+    MinBiasHFM1Comp_->Reset();
+  }
 
-  TowerCountComp_ = ibooker.book1D(
-    "TowCountRatio", "Data/Emul Tower Count; N_{towers}; Events",
-    5904, -0.5, 5903.5);
-  TowerCountComp_->setEfficiencyFlag();
+  if (TowerCountComp_ == nullptr) {
+    TowerCountComp_ = ibooker.book1D(
+      "TowCountRatio", "Data/Emul Tower Count; N_{towers}; Events",
+      5904, -0.5, 5903.5);
+    TowerCountComp_->setEfficiencyFlag();
+  } else {
+    TowerCountComp_->Reset();
+  }
 }
 
 void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){
 
-  // get reference to relevant summary MonitorElement instances
-  // - high level summary
-  // - eg agreement summary
-  // - energy sum agreement summary
-  // - jet agreement summary
-  // - tau agreement summary
-
-  // TH1F * hist;
-  // TH1F * newHist;
-
-  MonitorElement * hlSummary_ = igetter.get(
-    monitor_dir_+"/expert/CaloL2 Object Agreement Summary");
-  MonitorElement * jetSummary_ = igetter.get(
-    monitor_dir_+"/expert/Jet Agreement Summary");
-  MonitorElement * egSummary_ = igetter.get(
-    monitor_dir_+"/expert/EG Agreement Summary");
-  MonitorElement * tauSummary_ = igetter.get(
-    monitor_dir_+"/expert/Tau Agreement Summary");
-  MonitorElement * sumSummary_ = igetter.get(
-    monitor_dir_+"/expert/Energy Sum Agreement Summary");
-
-  // check for existance of object
-  if (hlSummary_) {
-
-    // reference the histogram in MonitorElement
-    // hist = hlSummary_->getTH1F();
-    // newHist = hlSummary->getTH1F();
-
-    // double totalEvents = 0, goodEvents = 0, totalJets = 0, goodJets = 0,
-    //   totalEg = 0, goodEg = 0, totalTau = 0, goodTau = 0, totalSums = 0,
-    //   goodSums = 0;
-
-    // by default show 100% agreement (for edge case when no objects are found)
-    double evtRatio = 1, jetRatio = 1, egRatio = 1, tauRatio = 1, sumRatio = 1;
-
-    double totalEvents = hlSummary_->getBinContent(1);
-    double goodEvents  = hlSummary_->getBinContent(2);
-    double totalJets   = hlSummary_->getBinContent(3);
-    double goodJets    = hlSummary_->getBinContent(4);
-    double totalEg     = hlSummary_->getBinContent(5);
-    double goodEg      = hlSummary_->getBinContent(6);
-    double totalTau    = hlSummary_->getBinContent(7);
-    double goodTau     = hlSummary_->getBinContent(8);
-    double totalSums   = hlSummary_->getBinContent(9);
-    double goodSums    = hlSummary_->getBinContent(10);
-
-    if (totalEvents != 0)
-      evtRatio = goodEvents / totalEvents;
-
-    if (totalJets != 0)
-      jetRatio = goodJets / totalJets;
-
-    if (totalEg != 0)
-      egRatio  = goodEg / totalEg;
-
-    if (totalTau != 0)
-      tauRatio = goodTau / totalTau;
-
-    if (totalSums != 0)
-      sumRatio = goodSums / totalSums;
-
-    hlSummary->setBinContent(1, evtRatio);
-    hlSummary->setBinContent(2, jetRatio);
-    hlSummary->setBinContent(3, egRatio);
-    hlSummary->setBinContent(4, tauRatio);
-    hlSummary->setBinContent(5, sumRatio);
-  }
-
-  if (jetSummary_) {
-
-    // double totalJets = 0, goodJets = 0, jetPosOff = 0, jetEtOff = 0;
-
-    // by default show 100% agreement (for edge case when no objects are found)
-    double goodRatio = 1, posOffRatio = 0, etOffRatio = 0;
-
-    // hist = jetSummary_->getTH1F();
-    // newHist = jetSummary->getTH1F();
-
-    double totalJets = jetSummary_->getBinContent(1);
-    double goodJets  = jetSummary_->getBinContent(2);
-    double jetPosOff = jetSummary_->getBinContent(3);
-    double jetEtOff  = jetSummary_->getBinContent(4);
-
-    if (totalJets != 0) {
-      goodRatio = goodJets / totalJets;
-      posOffRatio = jetPosOff / totalJets;
-      etOffRatio = jetEtOff / totalJets;
-    }
-
-    jetSummary->setBinContent(1, goodRatio);
-    jetSummary->setBinContent(2, posOffRatio);
-    jetSummary->setBinContent(3, etOffRatio);
-  }
-
-  if (egSummary_) {
-
-    // double totalEgs = 0, goodEgs = 0, egPosOff = 0, egEtOff = 0,
-    //   totalIsoEgs = 0, goodIsoEgs = 0, isoEgPosOff = 0, isoEgEtOff = 0;
-
-    // by default show 100% agreement (for edge case when no objects are found)
-    double goodEgRatio = 1, egPosOffRatio = 0, egEtOffRatio = 0,
-       goodIsoEgRatio = 1, isoEgPosOffRatio = 0, isoEgEtOffRatio = 0;
-
-    // hist = egSummary_->getTH1F();
-    // newHist = egSummary->getTH1F();
-
-    double totalEgs = egSummary_->getBinContent(1);
-    double goodEgs  = egSummary_->getBinContent(2);
-    double egPosOff = egSummary_->getBinContent(3);
-    double egEtOff  = egSummary_->getBinContent(4);
-
-    double totalIsoEgs = egSummary_->getBinContent(5);
-    double goodIsoEgs  = egSummary_->getBinContent(6);
-    double isoEgPosOff = egSummary_->getBinContent(7);
-    double isoEgEtOff  = egSummary_->getBinContent(8);
-
-    if (totalEgs != 0) {
-      goodEgRatio = goodEgs / totalEgs;
-      egPosOffRatio = egPosOff / totalEgs;
-      egEtOffRatio = egEtOff / totalEgs;
-    }
-
-    if (totalIsoEgs != 0) {
-      goodIsoEgRatio = goodIsoEgs / totalIsoEgs;
-      isoEgPosOffRatio = isoEgPosOff / totalIsoEgs;
-      isoEgEtOffRatio = isoEgEtOff / totalIsoEgs;
-    }
-
-    egSummary->setBinContent(1, goodEgRatio);
-    egSummary->setBinContent(2, egPosOffRatio);
-    egSummary->setBinContent(3, egEtOffRatio);
-
-    egSummary->setBinContent(4, goodIsoEgRatio);
-    egSummary->setBinContent(5, isoEgPosOffRatio);
-    egSummary->setBinContent(6, isoEgEtOffRatio);
-  }
-
-  if (tauSummary_) {
-
-    // double totalTaus = 0, goodTaus = 0, tauPosOff = 0, tauEtOff = 0,
-    //   totalIsoTaus = 0, goodIsoTaus = 0, isoTauPosOff = 0, isoTauEtOff = 0;
-
-    // by default show 100% agreement (for edge case when no objects are found)
-    double goodTauRatio = 1, tauPosOffRatio = 0, tauEtOffRatio = 0,
-      goodIsoTauRatio = 1, isoTauPosOffRatio= 0, isoTauEtOffRatio = 0;
-
-    // hist = tauSummary_->getTH1F();
-    // newHist = tauSummary->getTH1F();
-
-    double totalTaus = tauSummary_->getBinContent(1);
-    double goodTaus  = tauSummary_->getBinContent(2);
-    double tauPosOff = tauSummary_->getBinContent(3);
-    double tauEtOff  = tauSummary_->getBinContent(4);
-
-    double totalIsoTaus = tauSummary_->getBinContent(5);
-    double goodIsoTaus  = tauSummary_->getBinContent(6);
-    double isoTauPosOff = tauSummary_->getBinContent(7);
-    double isoTauEtOff  = tauSummary_->getBinContent(8);
-
-    if (totalTaus != 0) {
-      goodTauRatio = goodTaus / totalTaus;
-      tauPosOffRatio = tauPosOff / totalTaus;
-      tauEtOffRatio = tauEtOff / totalTaus;
-    }
-
-    if (totalIsoTaus != 0) {
-      goodIsoTauRatio = goodIsoTaus / totalIsoTaus;
-      isoTauPosOffRatio = isoTauPosOff / totalIsoTaus;
-      isoTauEtOffRatio = isoTauEtOff / totalIsoTaus;
-    }
-
-    tauSummary->setBinContent(1, goodTauRatio);
-    tauSummary->setBinContent(2, tauPosOffRatio);
-    tauSummary->setBinContent(3, tauEtOffRatio);
-
-    tauSummary->setBinContent(4, goodIsoTauRatio);
-    tauSummary->setBinContent(5, isoTauPosOffRatio);
-    tauSummary->setBinContent(6, isoTauEtOffRatio);
-  }
-
-  if (sumSummary_) {
-
-    // double totalSums = 0, goodSums = 0, totalETT = 0, goodETT = 0, totalHTT = 0,
-    //   goodHTT = 0, totalMET = 0, goodMET = 0, totalMHT = 0, goodMHT = 0,
-    //   totalMBHF = 0, goodMBHF = 0, totalTowCount = 0, goodTowCount = 0
-
-    // by default show 100% agreement (for edge case when no objects are found)
-    double goodSumRatio = 1, goodETTRatio = 1, goodHTTRatio = 1,
-      goodMETRatio = 1, goodMHTRatio = 1, goodMBHFRatio = 1,
-      goodTowCountRatio = 1;
-
-    double totalSums     = sumSummary_->getBinContent(1);
-    double goodSums      = sumSummary_->getBinContent(2);
-    double totalETT      = sumSummary_->getBinContent(3);
-    double goodETT       = sumSummary_->getBinContent(4);
-    double totalHTT      = sumSummary_->getBinContent(5);
-    double goodHTT       = sumSummary_->getBinContent(6);
-    double totalMET      = sumSummary_->getBinContent(7);
-    double goodMET       = sumSummary_->getBinContent(8);
-    double totalMHT      = sumSummary_->getBinContent(9);
-    double goodMHT       = sumSummary_->getBinContent(10);
-    double totalMBHF     = sumSummary_->getBinContent(11);
-    double goodMBHF      = sumSummary_->getBinContent(12);
-    double totalTowCount = sumSummary_->getBinContent(13);
-    double goodTowCount  = sumSummary_->getBinContent(14);
-
-    if (totalSums)
-      goodSumRatio = goodSums / totalSums;
-
-    if (totalETT)
-      goodETTRatio = goodETT / totalETT;
-
-    if (totalHTT)
-      goodHTTRatio = goodHTT / totalHTT;
-
-    if (totalMET)
-      goodMETRatio = goodMET / totalMET;
-
-    if (totalMHT)
-      goodMHTRatio = goodMHT / totalMHT;
-
-    if (totalMBHF)
-      goodMBHFRatio = goodMBHF / totalMBHF;
-
-    if (totalTowCount)
-      goodTowCountRatio = goodTowCount / totalTowCount;
-
-    sumSummary->setBinContent(1, goodSumRatio);
-    sumSummary->setBinContent(2, goodETTRatio);
-    sumSummary->setBinContent(3, goodHTTRatio);
-    sumSummary->setBinContent(4, goodMETRatio);
-    sumSummary->setBinContent(5, goodMHTRatio);
-    sumSummary->setBinContent(6, goodMBHFRatio);
-    sumSummary->setBinContent(7, goodTowCountRatio);
-  }
-
+ 
   MonitorElement* dataHist_;
   MonitorElement* emulHist_;
 

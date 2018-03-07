@@ -91,6 +91,7 @@ def parseStallMonitorOutput(f):
         stream = int(payload[0])
         time = int(payload[-1])
         trans = None
+        isEvent = True
 
         # 'S' = begin of event creation in source
         # 's' = end of event creation in source
@@ -113,6 +114,8 @@ def parseStallMonitorOutput(f):
                     trans = kPrefetchEnd
                 elif step == 'm':
                     trans = kFinished
+                if step == 'm' or step == 'M':
+                    isEvent = (int(payload[2]) == 0)
                 name = moduleNames[moduleID]
 
             # 'A' = begin of module acquire function
@@ -135,7 +138,7 @@ def parseStallMonitorOutput(f):
         if trans is not None:
             numStreams = max(numStreams, stream+1)
             maxNameSize = max(maxNameSize, len(name))
-            processingSteps.append((name,trans,stream,time))
+            processingSteps.append((name,trans,stream,time, isEvent))
 
     f.close()
     return (processingSteps,numStreams,maxNameSize)
@@ -225,10 +228,10 @@ def parseTracerOutput(f):
             if trans == kFinishedSource and not stream in streamsThatSawFirstEvent:
                 # This is wrong but there is no way to estimate the time better
                 # because there is no previous event for the first event.
-                processingSteps.append((name,kStartedSource,stream,time))
+                processingSteps.append((name,kStartedSource,stream,time,True))
                 streamsThatSawFirstEvent.add(stream)
 
-            processingSteps.append((name,trans,stream,time))
+            processingSteps.append((name,trans,stream,time, True))
             numStreams = max(numStreams, stream+1)
 
     f.close()
@@ -243,8 +246,7 @@ def chooseParser(inputFile):
     # Often the Tracer log file starts with 4 lines not from the Tracer
     fifthLine = inputFile.readline().rstrip()
     inputFile.seek(0) # Rewind back to beginning
-
-    if firstLine.find("# Step") != -1:
+    if (firstLine.find("# Transition") != -1) or (firstLine.find("# Step") != -1):
         print "> ... Parsing StallMonitor output."
         return parseStallMonitorOutput
 
@@ -279,7 +281,7 @@ def findStalledModules(processingSteps, numStreams):
     streamState = [0]*numStreams
     stalledModules = {}
     modulesActiveOnStream = [{} for x in xrange(numStreams)]
-    for n,trans,s,time in processingSteps:
+    for n,trans,s,time,isEvent in processingSteps:
 
         waitTime = None
         modulesOnStream = modulesActiveOnStream[s]
@@ -311,7 +313,7 @@ def createAsciiImage(processingSteps, numStreams, maxNameSize):
     streamTime = [0]*numStreams
     streamState = [0]*numStreams
     modulesActiveOnStreams = [{} for x in xrange(numStreams)]
-    for n,trans,s,time in processingSteps:
+    for n,trans,s,time,isEvent in processingSteps:
         waitTime = None
         modulesActiveOnStream = modulesActiveOnStreams[s]
         if trans == kPrefetchEnd:
@@ -535,7 +537,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     countDelayedSource = [0 for x in xrange(numStreams)]
     countExternalWork = [defaultdict(int) for x in xrange(numStreams)]
 
-    for n,trans,s,time in processingSteps:
+    for n,trans,s,time,isEvent in processingSteps:
 
         startTime = None
 
@@ -636,6 +638,8 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
 
         if startTime is not None:
             c="green"
+            if not isEvent:
+              c="limegreen"
             if not moduleNames:
                 c = "darkviolet"
             elif (kSourceDelayedRead in moduleNames) or (kSourceFindEvent in moduleNames):
@@ -665,7 +669,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     ax.yaxis.set_ticks(xrange(numStreams))
 
     height = 0.8/maxNumberOfConcurrentModulesOnAStream
-    allStackTimes={'green': [], 'red': [], 'blue': [], 'orange': [], 'darkviolet': []}
+    allStackTimes={'green': [],'limegreen':[], 'red': [], 'blue': [], 'orange': [], 'darkviolet': []}
     for iStream,lowestRow in enumerate(streamLowestRow):
         times=[(x.begin/1000., x.delta/1000.) for x in lowestRow] # Scale from msec to sec.
         colors=[x.color for x in lowestRow]
@@ -712,7 +716,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     if shownStacks:
         print "> ... Generating stack"
         stack = Stack()
-        for color in ['green','blue','red','orange','darkviolet']:
+        for color in ['green','limegreen','blue','red','orange','darkviolet']:
             tmp = allStackTimes[color]
             tmp = reduceSortedPoints(adjacentDiff(tmp))
             stack.update(color, tmp)
@@ -739,7 +743,8 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
         axStack.set_xlim(ax.get_xlim())
         axStack.tick_params(top='off')
 
-    fig.text(0.1, 0.95, "modules running", color = "green", horizontalalignment = 'left')
+    fig.text(0.1, 0.95, "modules running event", color = "green", horizontalalignment = 'left')
+    fig.text(0.1, 0.92, "modules running other", color = "limegreen", horizontalalignment = 'left')
     fig.text(0.5, 0.95, "stalled module running", color = "red", horizontalalignment = 'center')
     fig.text(0.9, 0.95, "read from input", color = "orange", horizontalalignment = 'right')
     fig.text(0.5, 0.92, "multiple modules running", color = "blue", horizontalalignment = 'center')

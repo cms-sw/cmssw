@@ -36,7 +36,7 @@ void ElectronMVAEstimatorRun2Spring16HZZ::init(const std::vector <std::string> w
     // when the vector clear() is called in the destructor
 
     edm::FileInPath weightFile( weightFileNames[i] );
-    gbrForest_s.push_back( createSingleReader(i, weightFile ) );
+    gbrForest_s.push_back( GBRForestTools::createGBRForest( weightFile ) );
 
   }
 
@@ -79,7 +79,7 @@ float ElectronMVAEstimatorRun2Spring16HZZ::
 mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const {
   
   const int iCategory = findCategory( particle );
-  const std::vector<float> vars = std::move( fillMVAVariables( particle, iEvent ) );  
+  const std::vector<float> vars = fillMVAVariables( particle, iEvent );
   return mvaValue(iCategory, vars);
 }
 
@@ -90,7 +90,7 @@ mvaValue( const reco::GsfElectron * particle, const edm::EventBase & iEvent) con
   iEvent.getByLabel(conversionsLabelAOD_, conversions);
   iEvent.getByLabel(beamSpotLabel_, beamSpot);
   const int iCategory = findCategory( particle );
-  const std::vector<float> vars = std::move( fillMVAVariables( particle, conversions, beamSpot.product() ) );  
+  const std::vector<float> vars = fillMVAVariables( particle, conversions, beamSpot.product() );
   return mvaValue(iCategory, vars);
 }
 
@@ -180,78 +180,6 @@ isEndcapCategory(int category ) const {
     isEndcap = true;
 
   return isEndcap;
-}
-
-
-std::unique_ptr<const GBRForest> ElectronMVAEstimatorRun2Spring16HZZ::
-createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
-
-  //
-  // Create the reader  
-  //
-  TMVA::Reader tmpTMVAReader( "!Color:Silent:!Error" );
-
-  //
-  // Configure all variables and spectators. Note: the order and names
-  // must match what is found in the xml weights file!
-  //
-
-
-  // Pure ECAL -> shower shapes
-  tmpTMVAReader.AddVariable("ele_oldsigmaietaieta", &allMVAVars_.see);
-  tmpTMVAReader.AddVariable("ele_oldsigmaiphiiphi", &allMVAVars_.spp);
-  tmpTMVAReader.AddVariable("ele_oldcircularity",   &allMVAVars_.OneMinusE1x5E5x5);
-  tmpTMVAReader.AddVariable("ele_oldr9",            &allMVAVars_.R9);
-  tmpTMVAReader.AddVariable("ele_scletawidth",      &allMVAVars_.etawidth);
-  tmpTMVAReader.AddVariable("ele_sclphiwidth",      &allMVAVars_.phiwidth);
-  tmpTMVAReader.AddVariable("ele_oldhe",               &allMVAVars_.HoE);
- 
-  //Pure tracking variables
-  tmpTMVAReader.AddVariable("ele_kfhits",           &allMVAVars_.kfhits);
-  tmpTMVAReader.AddVariable("ele_kfchi2",           &allMVAVars_.kfchi2);
-  tmpTMVAReader.AddVariable("ele_gsfchi2",        &allMVAVars_.gsfchi2);
-
-  // Energy matching
-  tmpTMVAReader.AddVariable("ele_fbrem",           &allMVAVars_.fbrem);
-
-  tmpTMVAReader.AddVariable("ele_gsfhits",         &allMVAVars_.gsfhits);
-  tmpTMVAReader.AddVariable("ele_expected_inner_hits",             &allMVAVars_.expectedMissingInnerHits);
-  tmpTMVAReader.AddVariable("ele_conversionVertexFitProbability",  &allMVAVars_.convVtxFitProbability);
-
-  tmpTMVAReader.AddVariable("ele_ep",              &allMVAVars_.EoP);
-  tmpTMVAReader.AddVariable("ele_eelepout",        &allMVAVars_.eleEoPout);
-  tmpTMVAReader.AddVariable("ele_IoEmIop",         &allMVAVars_.IoEmIoP);
-  
-  // Geometrical matchings
-  tmpTMVAReader.AddVariable("ele_deltaetain",      &allMVAVars_.deta);
-  tmpTMVAReader.AddVariable("ele_deltaphiin",      &allMVAVars_.dphi);
-  tmpTMVAReader.AddVariable("ele_deltaetaseed",    &allMVAVars_.detacalo);
-
-  // Endcap only variables
-  if( isEndcapCategory(iCategory) )
-    tmpTMVAReader.AddVariable("ele_psEoverEraw",    &allMVAVars_.PreShowerOverRaw);
- 
-  
-  // Spectator variables  
-  tmpTMVAReader.AddSpectator("ele_pt",             &allMVAVars_.pt);
-  tmpTMVAReader.AddSpectator("ele_isEE",       &allMVAVars_.isBarrel);
-  tmpTMVAReader.AddSpectator("ele_isEB",       &allMVAVars_.isEndcap);
-  tmpTMVAReader.AddSpectator("ele_isEBEtaGap",       &allMVAVars_.isEndcap);
-  tmpTMVAReader.AddSpectator("ele_isEBPhiGap",       &allMVAVars_.isEndcap);
-  tmpTMVAReader.AddSpectator("ele_isEBEEGap",       &allMVAVars_.isEndcap);
-  tmpTMVAReader.AddSpectator("ele_isEERingGap",       &allMVAVars_.isEndcap);
-  tmpTMVAReader.AddSpectator("ele_isEEDeeGap",       &allMVAVars_.isEndcap);
-  tmpTMVAReader.AddSpectator("ele_isEE",            &allMVAVars_.SCeta);
-  tmpTMVAReader.AddSpectator("scl_eta",            &allMVAVars_.SCeta);
-  tmpTMVAReader.AddSpectator("ele_eClass",                 &allMVAVars_.eClass);
-  tmpTMVAReader.AddSpectator("mc_ele_matchedFromCB", &allMVAVars_.mcCBmatchingCategory);
-
-  //
-  // Book the method and set up the weights file
-  //
-  tmpTMVAReader.BookMVA(MethodName_ , weightFile.fullPath());
-
-  return std::unique_ptr<const GBRForest> ( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmpTMVAReader.FindMVA(MethodName_) ) ) );
 }
 
 // A function that should work on both pat and reco objects
@@ -387,7 +315,7 @@ fillMVAVariables(const reco::GsfElectron* eleRecoPtr,
   std::vector<float> vars;
 
   if( isEndcapCategory( findCategory( eleRecoPtr ) ) ) {
-    vars = std::move( packMVAVariables(allMVAVars.see,
+    vars = packMVAVariables(allMVAVars.see,
                                        allMVAVars.spp,
                                        allMVAVars.OneMinusE1x5E5x5,
                                        allMVAVars.R9,
@@ -423,10 +351,9 @@ fillMVAVariables(const reco::GsfElectron* eleRecoPtr,
                                        allMVAVars.expectedInnerHits,
                                        allMVAVars.vtxconv,
                                        allMVAVars.mcEventWeight,
-                                       allMVAVars.mcCBmatchingCategory)
-                      );
+                                       allMVAVars.mcCBmatchingCategory);
   } else {
-    vars = std::move( packMVAVariables(allMVAVars.see,
+    vars = packMVAVariables(allMVAVars.see,
                                        allMVAVars.spp,
                                        allMVAVars.OneMinusE1x5E5x5,
                                        allMVAVars.R9,
@@ -459,8 +386,7 @@ fillMVAVariables(const reco::GsfElectron* eleRecoPtr,
                                        allMVAVars.expectedInnerHits,
                                        allMVAVars.vtxconv,
                                        allMVAVars.mcEventWeight,
-                                       allMVAVars.mcCBmatchingCategory)
-                      );
+                                       allMVAVars.mcCBmatchingCategory);
   }
   return vars;
 }

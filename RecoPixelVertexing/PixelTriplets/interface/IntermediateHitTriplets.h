@@ -259,14 +259,9 @@ public:
   IntermediateHitTriplets(): seedingLayers_(nullptr) {}
   explicit IntermediateHitTriplets(const SeedingLayerSetsHits *seedingLayers): seedingLayers_(seedingLayers) {}
   IntermediateHitTriplets(const IntermediateHitTriplets& rh); // only to make ROOT dictionary generation happy
+  IntermediateHitTriplets(IntermediateHitTriplets&&) = default;
+  IntermediateHitTriplets& operator=(IntermediateHitTriplets&&) = default;
   ~IntermediateHitTriplets() = default;
-
-  void swap(IntermediateHitTriplets& rh) {
-    std::swap(seedingLayers_, rh.seedingLayers_);
-    std::swap(regions_, rh.regions_);
-    std::swap(layerTriplets_, rh.layerTriplets_);
-    std::swap(hitTriplets_, rh.hitTriplets_);
-  }
 
   void reserve(size_t nregions, size_t nlayersets, size_t ntriplets) {
     regions_.reserve(nregions);

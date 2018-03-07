@@ -33,6 +33,7 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     testHEPlan1  = cms.bool(False),
     killHE = cms.bool(False),
     useLayer0Weight = cms.bool(False),
+    useIeta18depth1 = cms.bool(True),
     hb = cms.PSet(
         pedestal      = cms.double(3.285),
         pedestalWidth = cms.double(0.809),
@@ -96,15 +97,15 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     hbUpgrade = cms.PSet(
         pedestal      = cms.double(17.3),
         pedestalWidth = cms.double(1.5),
-        gain          = cms.vdouble(1/2276.), #51.72 is pe/GeV 44.0 is fC/pe.
+        gain          = cms.vdouble(0.0006252), # average from 2017 HEP17: ~40 is pe/GeV and 40.0 is fC/pe.
         gainWidth     = cms.vdouble(0),
-        zsThreshold   = cms.int32(3),
+        zsThreshold   = cms.int32(16),
         qieType       = cms.int32(2),
         qieOffset     = cms.vdouble(0.,0.,0.,0.),
         qieSlope      = cms.vdouble(0.05376,0.05376,0.05376,0.05376), #1/(3.1*6) where 6 is shunt factor
         mcShape       = cms.int32(206),
         recoShape     = cms.int32(206),
-        photoelectronsToAnalog = cms.double(44.0),
+        photoelectronsToAnalog = cms.double(40.0),
         darkCurrent   = cms.vdouble(0.01,0.015),
         doRadiationDamage = cms.bool(True),
         radiationDamage = cms.PSet(
@@ -119,15 +120,15 @@ es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     heUpgrade = cms.PSet(
         pedestal      = cms.double(17.3),
         pedestalWidth = cms.double(1.5),
-        gain          = cms.vdouble(1/2276.), #51.72 is pe/GeV 44.0 is fC/pe.
+        gain          = cms.vdouble(0.0006252), # average from 2017 HEP17: ~40 is pe/GeV and 40.0 is fC/pe.
         gainWidth     = cms.vdouble(0),
-        zsThreshold   = cms.int32(3),
+        zsThreshold   = cms.int32(16),
         qieType       = cms.int32(2),
         qieOffset     = cms.vdouble(0.,0.,0.,0.),
         qieSlope      = cms.vdouble(0.05376,0.05376,0.05376,0.05376), #1/(3.1*6) where 6 is shunt factor
         mcShape       = cms.int32(206),
         recoShape     = cms.int32(206),
-        photoelectronsToAnalog = cms.double(44.0),
+        photoelectronsToAnalog = cms.double(40.0),
         darkCurrent   = cms.vdouble(0.01,0.015),
         doRadiationDamage = cms.bool(True),
         radiationDamage = cms.PSet(
@@ -211,16 +212,18 @@ from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
 from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
+from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 
-run2_HCAL_2017.toModify( es_hardcode, useLayer0Weight = cms.bool(True) )
+run2_HCAL_2017.toModify( es_hardcode, useLayer0Weight = cms.bool(True), useIeta18depth1 = cms.bool(False) )
 run2_HF_2017.toModify( es_hardcode, useHFUpgrade = cms.bool(True) )
 run2_HE_2017.toModify( es_hardcode, useHEUpgrade = cms.bool(True), HEreCalibCutoff = cms.double(100.0) )
 run2_HEPlan1_2017.toModify( es_hardcode, testHEPlan1 = cms.bool(True), useHEUpgrade = cms.bool(False), HEreCalibCutoff = cms.double(20.0) )
-run3_HB.toModify( es_hardcode, useHBUpgrade = cms.bool(True), HBreCalibCutoff = cms.double(100.0) )
 
+run2_HCAL_2018.toModify( es_hardcode, useLayer0Weight = cms.bool(True), useIeta18depth1 = cms.bool(False) )
+run3_HB.toModify( es_hardcode, useHBUpgrade = cms.bool(True), HBreCalibCutoff = cms.double(100.0) )
 # now that we have an emap
-run3_HB.toModify( es_hardcode, toGet = cms.untracked.vstring(_toGet_noEmap) )
+run3_HB.toModify( es_hardcode, toGet = cms.untracked.vstring(_toGet_noEmap),  )
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 phase2_hgcal.toModify( es_hardcode, killHE = cms.bool(True) )

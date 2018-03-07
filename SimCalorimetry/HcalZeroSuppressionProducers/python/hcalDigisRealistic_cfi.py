@@ -36,3 +36,13 @@ run2_HE_2018.toModify( simHcalDigis,
                              HEregion = cms.vint32(2,5)
 )
 
+# Switch off HCAL ZS in digi for premixing stage1
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(simHcalDigis,
+    markAndPass = True,
+    HBlevel = -999,
+    HElevel = -999,
+    HOlevel = -999,
+    HFlevel = -999,
+    useConfigZSvalues = 1
+)

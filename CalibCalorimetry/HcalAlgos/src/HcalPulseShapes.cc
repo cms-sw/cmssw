@@ -127,6 +127,15 @@ void HcalPulseShapes::beginRun(edm::EventSetup const & es)
   theRecoParams->setTopo(theTopology);
 }
 
+void HcalPulseShapes::beginRun(const HcalTopology* topo, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams)
+{
+  theMCParams = new HcalMCParams(*mcParams.product());
+  theMCParams->setTopo(topo);
+
+  theRecoParams = new HcalRecoParams(*recoParams.product());
+  theRecoParams->setTopo(topo);
+}
+
 
 void HcalPulseShapes::endRun()
 {

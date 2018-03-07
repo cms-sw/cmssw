@@ -174,10 +174,15 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
   }
 }
 
-void CSCMotherboardME3141::correlateLCTs(CSCALCTDigi& bestALCT, CSCALCTDigi& secondALCT,
-                                         CSCCLCTDigi& bestCLCT, CSCCLCTDigi& secondCLCT,
-                                         CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2)
+void CSCMotherboardME3141::correlateLCTs(const CSCALCTDigi& bALCT, const CSCALCTDigi& sALCT,
+                                         const CSCCLCTDigi& bCLCT, const CSCCLCTDigi& sCLCT,
+                                         CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2) const
 {
+  CSCALCTDigi bestALCT = bALCT;
+  CSCALCTDigi secondALCT = sALCT;
+  CSCCLCTDigi bestCLCT = bCLCT;
+  CSCCLCTDigi secondCLCT = sCLCT;
+
   const bool anodeBestValid     = bestALCT.isValid();
   const bool anodeSecondValid   = secondALCT.isValid();
   const bool cathodeBestValid   = bestCLCT.isValid();
@@ -193,16 +198,14 @@ void CSCMotherboardME3141::correlateLCTs(CSCALCTDigi& bestALCT, CSCALCTDigi& sec
   if ((alct_trig_enable  and bestALCT.isValid()) or
       (clct_trig_enable  and bestCLCT.isValid()) or
       (match_trig_enable and bestALCT.isValid() and bestCLCT.isValid())){
-    lct1 = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT);
-    lct1.setTrknmb(1);
+    lct1 = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
   }
 
   if (((secondALCT != bestALCT) or (secondCLCT != bestCLCT)) and
       ((alct_trig_enable  and secondALCT.isValid()) or
        (clct_trig_enable  and secondCLCT.isValid()) or
        (match_trig_enable and secondALCT.isValid() and secondCLCT.isValid()))){
-    lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT);
-    lct2.setTrknmb(2);
+    lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
   }
 }
 

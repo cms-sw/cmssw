@@ -88,6 +88,17 @@ BTagMu_AK8Jet300_Mu5.jetSelection = cms.string('pt>250 & abs(eta)<2.4')
 BTagMu_AK8Jet300_Mu5.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_BTagMu_AK8Jet300_Mu5_v*')
 BTagMu_AK8Jet300_Mu5.histoPSet.jetPtBinning = cms.vdouble(0,250,280,300,320,360,400,700,1000,1500,3000)
 
+BTagMu_AK8Jet170_DoubleMu5 = hltBTVmonitoring.clone()
+BTagMu_AK8Jet170_DoubleMu5.FolderName = cms.string('HLT/BTV/BTagDiMu_Jet/BTagMu_AK8Jet170_DoubleMu5')
+BTagMu_AK8Jet170_DoubleMu5.nmuons = cms.uint32(2)
+BTagMu_AK8Jet170_DoubleMu5.nelectrons = cms.uint32(0)
+BTagMu_AK8Jet170_DoubleMu5.njets = cms.uint32(1)
+BTagMu_AK8Jet170_DoubleMu5.jets = cms.InputTag("ak8PFJetsCHS")
+BTagMu_AK8Jet170_DoubleMu5.muoSelection = cms.string('pt>7 & abs(eta)<2.4 & isPFMuon & isGlobalMuon & innerTrack.hitPattern.numberOfValidTrackerHits>7 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & numberOfMatchedStations>1 &globalTrack.normalizedChi2<10')
+BTagMu_AK8Jet170_DoubleMu5.jetSelection = cms.string('pt>150 & abs(eta)<2.4')
+BTagMu_AK8Jet170_DoubleMu5.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_BTagMu_AK8Jet170_DoubleMu5_v*')
+BTagMu_AK8Jet170_DoubleMu5.histoPSet.jetPtBinning = cms.vdouble(0,150,160,170,180,190,200,400,700,1000,1500,3000)
+
 #PFJet AK4
 PFJet40 = hltBTVmonitoring.clone()
 PFJet40.FolderName = cms.string('HLT/BTV/PFJet/PFJet40')

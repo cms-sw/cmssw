@@ -30,6 +30,26 @@ std::vector<sipixelobjects::CablingPathToDetUnit> SiPixelFedCablingTree::pathToD
   return result;
 }
 
+bool SiPixelFedCablingTree::pathToDetUnitHasDetUnit(uint32_t rawDetId, unsigned int fedId) const {
+  for (auto im = theFedCablings.begin(); im != theFedCablings.end(); ++im) {
+    const PixelFEDCabling & aFed = im->second;
+    if(aFed.id() == fedId) {
+      for (unsigned int idxLink = 1; idxLink <= aFed.numberOfLinks(); idxLink++) {
+        const PixelFEDLink * link = aFed.link(idxLink);
+        if (!link) continue;
+        unsigned int numberOfRocs = link->numberOfROCs();
+        for(unsigned int idxRoc = 1; idxRoc <= numberOfRocs; idxRoc++) {
+          const PixelROC * roc = link->roc(idxRoc);
+          if (rawDetId == roc->rawId() ) {
+            return true;
+          } 
+        }
+      }
+    }
+  }
+  return false;
+}
+
 std::unordered_map<uint32_t, unsigned int> SiPixelFedCablingTree::det2fedMap() const {
   std::unordered_map<uint32_t, unsigned int> result;
   for (auto im = theFedCablings.begin(); im != theFedCablings.end(); ++im) {

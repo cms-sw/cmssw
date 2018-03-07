@@ -216,8 +216,23 @@ postProcessorTrack = DQMEDHarvester("DQMGenericClient",
         "num_simul2_mva3cut descending",
         "num_simul2_mva3cut_hp descending",
     ),
+    noFlowDists = cms.untracked.vstring(),
     outputFileName = cms.untracked.string("")
 )
+def _addNoFlow(module):
+    _noflowSeen = set()
+    for eff in module.efficiency.value():
+        tmp = eff.split(" ")
+        if "cut" in tmp[0]:
+            continue
+        ind = -1
+        if tmp[ind] == "fake" or tmp[ind] == "simpleratio":
+            ind = -2
+        if not tmp[ind] in _noflowSeen:
+            module.noFlowDists.append(tmp[ind])
+        if not tmp[ind-1] in _noflowSeen:
+            module.noFlowDists.append(tmp[ind-1])
+_addNoFlow(postProcessorTrack)
 
 # nrec/nsim makes sense only for
 # - all tracks vs. all in-time TrackingParticles
@@ -229,8 +244,10 @@ postProcessorTrackNrecVsNsim = DQMEDHarvester("DQMGenericClient",
         "nrecPerNsimPt 'Tracks/TrackingParticles vs p_{T}' num_reco2_pT num_simul_pT simpleratio",
         "nrecPerNsim_vs_pu 'Tracks/TrackingParticles vs pu' num_reco2_pu num_simul_pu simpleratio",
     ),
-    resolution = cms.vstring()
+    resolution = cms.vstring(),
+    noFlowDists = cms.untracked.vstring(),
 )
+_addNoFlow(postProcessorTrackNrecVsNsim)
 
 postProcessorTrackSummary = DQMEDHarvester("DQMGenericClient",
     subDirs = cms.untracked.vstring("Tracking/Track", "Tracking/TrackTPPtLess09", "Tracking/TrackFromPV", "Tracking/TrackFromPVAllTP", "Tracking/TrackAllTPEffic", "Tracking/TrackBuilding", "Tracking/TrackConversion", "Tracking/TrackGsf", "Tracking/TrackBHadron"),
@@ -241,8 +258,10 @@ postProcessorTrackSummary = DQMEDHarvester("DQMGenericClient",
     "pileuprate_coll 'Pileup rate vs track collection' num_pileup_coll num_reco_coll",
     "fakerate_vs_coll 'Fake rate vs track collection' num_assoc(recoToSim)_coll num_reco_coll fake",
     ),
-    resolution = cms.vstring()
+    resolution = cms.vstring(),
+    noFlowDists = cms.untracked.vstring(),
 )
+_addNoFlow(postProcessorTrackSummary)
 
 postProcessorTrackSequence = cms.Sequence(
     postProcessorTrack+

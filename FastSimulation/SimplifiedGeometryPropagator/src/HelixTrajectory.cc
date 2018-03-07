@@ -97,7 +97,7 @@ double fastsim::HelixTrajectory::nextCrossingTimeC(const BarrelSimplifiedGeometr
     {   
         // Should not be reached: Full Propagation does always have a solution "if(crosses(layer)) == -1"
         // Even if particle is outside all layers -> can turn around in magnetic field
-        throw cms::Exception("FastSimulation") << "HelixTrajectory: should not be reached (no solution).";
+        return -1;
     }
 
     // Uses a numerically more stable procedure:

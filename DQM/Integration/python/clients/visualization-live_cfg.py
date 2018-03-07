@@ -10,7 +10,7 @@ from DQM.Integration.config.inputsource_cfi import options,runType,source
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
 #scenarios = {'pp_run': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','hi_run':'HeavyIons'}
 #scenarios = {'pp_run': 'ppEra_Run2_2016','pp_run_stage1': 'ppEra_Run2_2016','cosmic_run':'cosmicsEra_Run2_2016','cosmic_run_stage1':'cosmicsEra_Run2_2016','hi_run':'HeavyIonsEra_Run2_HI'}
-scenarios = {'pp_run': 'ppEra_Run2_2017','cosmic_run':'cosmicsEra_Run2_2017','hi_run':'HeavyIonsEra_Run2_HI'}
+scenarios = {'pp_run': 'ppEra_Run2_2018','cosmic_run':'cosmicsEra_Run2_2018','hi_run':'HeavyIonsEra_Run2_HI'}
 
 if not runType.getRunTypeName() in scenarios.keys():
     msg = "Error getting the scenario out of the 'runkey', no mapping for: %s\n"%runType.getRunTypeName()
@@ -19,7 +19,6 @@ if not runType.getRunTypeName() in scenarios.keys():
 scenarioName = scenarios[runType.getRunTypeName()]
 
 print "Using scenario:",scenarioName
-
 
 try:
     scenario = getScenario(scenarioName)
@@ -30,11 +29,18 @@ except Exception as ex:
     raise RuntimeError(msg)
 
 
-kwds = {}
+# A hack necessary to prevert scenario.visualizationProcessing
+# from overriding the connect string
+from DQM.Integration.config.FrontierCondition_GT_autoExpress_cfi import GlobalTag
+kwds = {
+   'globalTag': GlobalTag.globaltag.value(),
+   'globalTagConnect': GlobalTag.connect.value()
+}
+
 # example of how to add a filer IN FRONT of all the paths, eg for HLT selection
 #kwds['preFilter'] = 'DQM/Integration/python/config/visualizationPreFilter.hltfilter'
 
-process = scenario.visualizationProcessing(globalTag='DUMMY', writeTiers=['FEVT'], **kwds)
+process = scenario.visualizationProcessing(writeTiers=['FEVT'], **kwds)
 
 process.source = source
 process.source.inputFileTransitionsEachEvent = cms.untracked.bool(True)
@@ -52,8 +58,6 @@ try:
     os.makedirs(outDir)
 except:
     pass
-
-process.load("DQM.Integration.config.FrontierCondition_GT_autoExpress_cfi")
 
 process.options = cms.untracked.PSet(
         Rethrow = cms.untracked.vstring('ProductNotFound'),

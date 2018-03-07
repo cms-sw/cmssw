@@ -18,7 +18,7 @@ limitations under the License.
 
 /*
 This file is an adaptation of the original direct_session.cc file located at
-https://github.com/tensorflow/tensorflow/blob/v1.3.0/tensorflow/core/common_runtime/direct_session.cc
+https://github.com/tensorflow/tensorflow/blob/v1.5.0/tensorflow/core/common_runtime/direct_session.cc
 to meet the demands of the software environment developed and used by the CMS collaboration.
 
 Changes with respect to the original code are documented in the TBBSession.h header file.
@@ -34,10 +34,9 @@ Changes with respect to the original code are documented in the TBBSession.h hea
 #include <string>
 #include <vector>
 
+#include "tbb/task_group.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
-
-#include "tbb/task_group.h"
 
 #include "tensorflow/core/common_runtime/constant_folding.h"
 #include "tensorflow/core/common_runtime/debugger_state_interface.h"
@@ -47,7 +46,6 @@ Changes with respect to the original code are documented in the TBBSession.h hea
 #include "tensorflow/core/common_runtime/graph_optimizer.h"
 #include "tensorflow/core/common_runtime/memory_types.h"
 #include "tensorflow/core/common_runtime/optimization_registry.h"
-#include "tensorflow/core/common_runtime/simple_placer.h"
 #include "tensorflow/core/common_runtime/step_stats_collector.h"
 #include "tensorflow/core/framework/function.h"
 #include "tensorflow/core/framework/graph.pb_text.h"
@@ -74,15 +72,13 @@ Changes with respect to the original code are documented in the TBBSession.h hea
 #include "tensorflow/core/lib/strings/str_util.h"
 #include "tensorflow/core/lib/strings/strcat.h"
 #include "tensorflow/core/platform/cpu_info.h"
+#include "tensorflow/core/platform/device_tracer.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/mutex.h"
 #include "tensorflow/core/platform/types.h"
 #include "tensorflow/core/util/device_name_utils.h"
 #include "tensorflow/core/util/env_var.h"
 
-#if GOOGLE_CUDA
-#include "tensorflow/core/common_runtime/gpu/gpu_tracer.h"
-#endif  // GOOGLE_CUDA
 
 namespace tensorflow {
 
@@ -91,7 +87,6 @@ namespace {
 CMS_THREAD_SAFE auto* tbb_session_runs = monitoring::Counter<0>::New(
     "/tensorflow/core/tbb_session_runs",
     "The number of times TBBSession::Run() has been called.");
-
 
 // TODO(vrv): Figure out how to unify the many different functions
 // that generate RendezvousKey, since many of them have to be
@@ -121,7 +116,7 @@ class TBBSessionFactory : public SessionFactory {
       EnableCPUAllocatorFullStats(true);
     }
     std::vector<Device*> devices;
-    Status s = DeviceFactory::AddDevices(
+    const Status s = DeviceFactory::AddDevices(
         options, "/job:localhost/replica:0/task:0", &devices);
     if (!s.ok()) {
       LOG(ERROR) << s;
@@ -195,13 +190,14 @@ std::atomic_int_fast64_t TBBSession::step_id_counter_(1);
 // This may change down the road when we add support for multiple
 // devices that run concurrently, in which case we will need to
 // revisit this decision.
+// Override to allow CMSSW FWK to schedule
 void TBBSession::SchedClosure(tbb::task_arena& arena, tbb::task_group& g, std::function<void()> c) {
-  arena.execute( [&g,&c] () {g.run( c ); } );
+  arena.execute( [&g, &c] () {g.run( c ); } );
 }
 
 TBBSession::TBBSession(const SessionOptions& options,
-                             const DeviceMgr* device_mgr,
-                             TBBSessionFactory* const factory)
+                       const DeviceMgr* device_mgr,
+                       TBBSessionFactory* const factory)
     : options_(options),
       device_mgr_(device_mgr),
       factory_(factory),
@@ -209,7 +205,7 @@ TBBSession::TBBSession(const SessionOptions& options,
       operation_timeout_in_ms_(options_.config.operation_timeout_in_ms()) {
   // The default value of sync_on_finish will be flipped soon and this
   // environment variable will be removed as well.
-  Status status =
+  const Status status =
       ReadBoolFromEnvVar("TF_SYNC_ON_FINISH", true, &sync_on_finish_);
   if (!status.ok()) {
     LOG(ERROR) << status.error_message();
@@ -271,20 +267,20 @@ Status TBBSession::MaybeInitializeExecutionState(
   // all subsequent extensions of the graph.
   flib_def_.reset(
       new FunctionLibraryDefinition(OpRegistry::Global(), graph.library()));
-  SimpleGraphExecutionStateOptions options;
+  GraphExecutionStateOptions options;
   options.device_set = &device_set_;
   options.session_options = &options_;
   // TODO(mrry,suharshs): We explicitly copy `graph` so that
   // `MakeForBaseGraph()` can take ownership of its
   // contents. Previously this happened implicitly in calls to the
-  // `SimpleGraphExecutionState`. Other sessions call
+  // `GraphExecutionState`. Other sessions call
   // `MakeForBaseGraph` in such a way that we can destructively read
   // the passed-in `GraphDef`. In principle we could do the same here,
   // with a wider refactoring; we might revise the direct session so
   // that it copies the graph fewer times.
   GraphDef temp(graph);
-  TF_RETURN_IF_ERROR(SimpleGraphExecutionState::MakeForBaseGraph(
-      &temp, options, &execution_state_));
+  TF_RETURN_IF_ERROR(
+      GraphExecutionState::MakeForBaseGraph(&temp, options, &execution_state_));
   graph_created_ = true;
   *out_already_initialized = false;
   return Status::OK();
@@ -317,7 +313,7 @@ Status TBBSession::ExtendLocked(const GraphDef& graph) {
       MaybeInitializeExecutionState(graph, &already_initialized));
   if (already_initialized) {
     TF_RETURN_IF_ERROR(flib_def_->AddLibrary(graph.library()));
-    std::unique_ptr<SimpleGraphExecutionState> state;
+    std::unique_ptr<GraphExecutionState> state;
     TF_RETURN_IF_ERROR(execution_state_->Extend(graph, &state));
     execution_state_.swap(state);
   }
@@ -381,7 +377,6 @@ Status TBBSession::Run(const RunOptions& run_options,
     input_tensor_names.push_back(it.first);
   }
 
-
   // Check if we already have an executor for these arguments.
   ExecutorsAndKeys* executors_and_keys;
   RunStateArgs run_state_args(run_options.debug_options());
@@ -417,7 +412,7 @@ Status TBBSession::Run(const RunOptions& run_options,
       feed_args[executors_and_keys->input_name_to_index[it.first]] = it.second;
     }
   }
-  Status s = call_frame.SetArgs(feed_args);
+  const Status s = call_frame.SetArgs(feed_args);
   if (errors::IsInternal(s)) {
     return errors::InvalidArgument(s.error_message());
   } else if (!s.ok()) {
@@ -434,14 +429,14 @@ Status TBBSession::Run(const RunOptions& run_options,
   // running on this thread (which could start deadlocks)
   tbb::task_arena taskArena;
   tbb::task_group taskGroup;
-  //we are required to always call wait before destructor
+  // we are required to always call wait before destructor
   auto doneWithTaskGroup = [&taskArena, &taskGroup](void *) { taskArena.execute([&taskGroup]() { taskGroup.wait();}); };
   std::unique_ptr<tbb::task_group, decltype(doneWithTaskGroup) > guard(&taskGroup, doneWithTaskGroup);
 
   // Start parallel Executors.
   const size_t num_executors = executors_and_keys->items.size();
   ExecutorBarrier* barrier = new ExecutorBarrier(
-    num_executors, run_state.rendez, [&run_state](const Status& ret) {
+      num_executors, run_state.rendez, [&run_state](const Status& ret) {
         {
           mutex_lock l(run_state.mu_);
           run_state.status.Update(ret);
@@ -451,9 +446,7 @@ Status TBBSession::Run(const RunOptions& run_options,
 
   args.rendezvous = run_state.rendez;
   args.cancellation_manager = &step_cancellation_manager;
-  args.runner = [this, &taskArena, &taskGroup](Executor::Args::Closure c) {
-    SchedClosure(taskArena, taskGroup, std::move(c));
-  };
+
   args.session_state = &session_state_;
   args.tensor_store = &run_state.tensor_store;
   args.step_container = &run_state.step_container;
@@ -476,27 +469,32 @@ Status TBBSession::Run(const RunOptions& run_options,
           ((measure_step_count + 1) % build_cost_model_every == 0);
     }
   }
-  if (do_trace || update_cost_model) {
+  if (do_trace || update_cost_model ||
+      run_options.report_tensor_allocations_upon_oom()) {
     run_state.collector.reset(
         new StepStatsCollector(run_metadata->mutable_step_stats()));
     args.stats_collector = run_state.collector.get();
   }
 
-#if GOOGLE_CUDA
-  std::unique_ptr<GPUTracer> tracer;
+  std::unique_ptr<DeviceTracer> tracer;
   if (run_options.trace_level() >= RunOptions::HARDWARE_TRACE) {
-    tracer.reset(CreateGPUTracer());
-    // tracer will be NULL on non-GPU platforms.
-    // TODO(b/32704451): Don't just ignore the ::tensorflow::Status object!
-    if (tracer) tracer->Start().IgnoreError();
+    tracer = CreateDeviceTracer();
+    // tracer may be NULL on platforms without accelerators.
+    if (tracer) {
+      Status s = tracer->Start();
+      if (!s.ok()) {
+        run_state.executors_done.Notify();
+        delete barrier;
+        return s;
+      }
+    }
   }
-#endif  // GOOGLE_CUDA
 
   // Register this step with session's cancellation manager, so that
   // `Session::Close()` will cancel the step.
-  CancellationToken cancellation_token =
+  const CancellationToken cancellation_token =
       cancellation_manager_->get_cancellation_token();
-  bool already_cancelled = !cancellation_manager_->RegisterCallback(
+  const bool already_cancelled = !cancellation_manager_->RegisterCallback(
       cancellation_token, [&step_cancellation_manager]() {
         step_cancellation_manager.StartCancel();
       });
@@ -509,11 +507,29 @@ Status TBBSession::Run(const RunOptions& run_options,
     return errors::Cancelled("Run call was cancelled");
   }
 
+  // pass taskArena and taskGroup to SchedClosure
+  // consequently, disable TF's own thread logic inside the loop
+  Executor::Args::Runner default_runner = [this, &taskArena, &taskGroup](Executor::Args::Closure c) {
+    SchedClosure(taskArena, taskGroup, std::move(c));
+  };
   for (const auto& item : executors_and_keys->items) {
+    // TODO(zhengxq): support partial run.
+    // TODO(zhengxq): if the device picks its own threadpool, we need to assign
+    //     less threads to the main compute pool by default.
+    // thread::ThreadPool* device_thread_pool =
+    //     item.device->tensorflow_device_thread_pool();
+    // if (!device_thread_pool) {
+    //   args.runner = default_runner;
+    // } else {
+    //   args.runner = [this, device_thread_pool](Executor::Args::Closure c) {
+    //     SchedClosure(device_thread_pool, std::move(c));
+    //   };
+    // }
+    args.runner = default_runner;
     item.executor->RunAsync(args, barrier->Get());
   }
 
-  //WaitForNotification will handle calling wait on taskGroup
+  // WaitForNotification will handle calling wait on taskGroup
   guard.release();
   WaitForNotification(taskArena, taskGroup, &run_state, &step_cancellation_manager,
                       run_options.timeout_in_ms() > 0
@@ -527,13 +543,10 @@ Status TBBSession::Run(const RunOptions& run_options,
     run_state.status.Update(errors::Cancelled("Run call was cancelled"));
   }
 
-#if GOOGLE_CUDA
   if (tracer) {
-    // TODO(b/32704451): Don't just ignore the ::tensorflow::Status object!
-    tracer->Stop().IgnoreError();
-    tracer->Collect(args.stats_collector).IgnoreError();
+    TF_RETURN_IF_ERROR(tracer->Stop());
+    TF_RETURN_IF_ERROR(tracer->Collect(args.stats_collector));
   }
-#endif  // GOOGLE_CUDA
 
   {
     mutex_lock l(run_state.mu_);
@@ -543,7 +556,7 @@ Status TBBSession::Run(const RunOptions& run_options,
   // Receive outputs.
   if (outputs) {
     std::vector<Tensor> sorted_outputs;
-    Status s = call_frame.ConsumeRetvals(&sorted_outputs);
+    const Status s = call_frame.ConsumeRetvals(&sorted_outputs);
     if (errors::IsInternal(s)) {
       return errors::InvalidArgument(s.error_message());
     } else if (!s.ok()) {
@@ -582,6 +595,9 @@ Status TBBSession::Run(const RunOptions& run_options,
   // Save the output tensors of this run we choose to keep.
   TF_RETURN_IF_ERROR(
       run_state.tensor_store.SaveTensors(output_names, &session_state_));
+  if (args.stats_collector) {
+    args.stats_collector->Finalize();
+  }
 
   // Build and return the cost model as instructed.
   mutex_lock l(executor_lock_);
@@ -618,7 +634,6 @@ Status TBBSession::Run(const RunOptions& run_options,
   return Status::OK();
 }
 
-
 Status TBBSession::ResourceHandleToInputTensor(const Tensor& resource_tensor,
                                                   Tensor* retrieved_tensor) {
   if (resource_tensor.dtype() != DT_RESOURCE) {
@@ -627,7 +642,8 @@ Status TBBSession::ResourceHandleToInputTensor(const Tensor& resource_tensor,
         resource_tensor.dtype()));
   }
 
-  ResourceHandle resource_handle = resource_tensor.scalar<ResourceHandle>()();
+  const ResourceHandle& resource_handle =
+      resource_tensor.scalar<ResourceHandle>()();
 
   if (resource_handle.container() ==
       SessionState::kTensorHandleResourceTypeName) {
@@ -636,14 +652,18 @@ Status TBBSession::ResourceHandleToInputTensor(const Tensor& resource_tensor,
     return errors::InvalidArgument(strings::StrCat(
         "Invalid resource type hash code: ", resource_handle.hash_code(),
         "(name: ", resource_handle.name(),
-        " type: ", resource_handle.maybe_type_name(), ")"));
+        " type: ", resource_handle.maybe_type_name(),
+        "). Perhaps a resource tensor was being provided as a feed? That is "
+        "not currently allowed. Please file an issue at "
+        "https://github.com/tensorflow/tensorflow/issues/new, ideally with a "
+        "short code snippet that leads to this error message."));
   }
 }
 
 Status TBBSession::GetOrCreateExecutors(
-    gtl::ArraySlice<string> inputs,
-    gtl::ArraySlice<string> outputs, gtl::ArraySlice<string> target_nodes,
-    ExecutorsAndKeys** executors_and_keys, RunStateArgs* run_state_args) {
+    gtl::ArraySlice<string> inputs, gtl::ArraySlice<string> outputs,
+    gtl::ArraySlice<string> target_nodes, ExecutorsAndKeys** executors_and_keys,
+    RunStateArgs* run_state_args) {
   int64 handle_name_counter_value = -1;
   if (LogMemory::IsEnabled() || run_state_args->is_partial_run) {
     handle_name_counter_value = handle_name_counter_.fetch_add(1);
@@ -732,7 +752,7 @@ Status TBBSession::GetOrCreateExecutors(
 
   if (run_state_args->is_partial_run) {
     ek->graph = std::move(run_state_args->graph);
-    std::unordered_set<StringPiece, StringPiece::Hasher> names;
+    std::unordered_set<StringPiece, StringPieceHasher> names;
     for (const string& input : inputs) {
       TensorId id(ParseTensorName(input));
       names.emplace(id.first);
@@ -750,30 +770,47 @@ Status TBBSession::GetOrCreateExecutors(
   ek->items.reserve(graphs.size());
   const auto& optimizer_opts =
       options_.config.graph_options().optimizer_options();
+
+  int graph_def_version;
+  {
+    mutex_lock l(graph_def_lock_);
+    graph_def_version =
+        execution_state_->original_graph_def().versions().producer();
+  }
+  ek->proc_flr.reset(new ProcessFunctionLibraryRuntime(
+      device_mgr_.get(), options_.env, graph_def_version, ek->flib_def.get(),
+      optimizer_opts));
+
   GraphOptimizer optimizer(optimizer_opts);
   for (auto iter = graphs.begin(); iter != graphs.end(); ++iter) {
     const string& partition_name = iter->first;
     std::unique_ptr<Graph>& partition_graph = iter->second;
-    const int graph_def_version = partition_graph->versions().producer();
 
     Device* device;
     TF_RETURN_IF_ERROR(device_mgr_->LookupDevice(partition_name, &device));
 
     ek->items.resize(ek->items.size() + 1);
     auto* item = &(ek->items.back());
-    item->flib.reset(NewFunctionLibraryRuntime(
-        device_mgr_.get(), options_.env, device, graph_def_version,
-        ek->flib_def.get(), optimizer_opts));
+    auto lib = ek->proc_flr->GetFLR(partition_name);
+    if (lib == nullptr) {
+      return errors::Internal("Could not find device: ", partition_name);
+    }
+    item->flib = lib;
 
     LocalExecutorParams params;
     params.device = device;
-    params.function_library = item->flib.get();
-    auto lib = item->flib.get();
+    params.function_library = lib;
     auto opseg = device->op_segment();
     params.create_kernel = [this, lib, opseg](const NodeDef& ndef,
                                               OpKernel** kernel) {
-      // Caches the kernel only if the node is stateful.
-      if (!lib->IsStateful(ndef.op())) {
+      // We do not share the kernel via the OpSegment if the node is
+      // stateless, or a function.
+      // NOTE(mrry): We must not share function kernels (implemented
+      // using `CallOp`) between subgraphs, because `CallOp::handle_`
+      // is tied to a particular subgraph. Even if the function itself
+      // is stateful, the `CallOp` that invokes it is not.
+      if (!lib->IsStateful(ndef.op()) ||
+          lib->GetFunctionLibraryDefinition()->Find(ndef.op()) != nullptr) {
         return lib->CreateKernel(ndef, kernel);
       }
       auto create_fn = [lib, &ndef](OpKernel** kernel) {
@@ -793,7 +830,8 @@ Status TBBSession::GetOrCreateExecutors(
     };
     params.node_outputs_cb = node_outputs_callback_;
 
-    optimizer.Optimize(lib, options_.env, device, &iter->second);
+    optimizer.Optimize(lib, options_.env, device, &iter->second,
+                       /*shape_map=*/nullptr);
 
     // EXPERIMENTAL: tfdbg inserts debug nodes in the graph.
     if (!options.debug_options.debug_tensor_watch_opts().empty()) {
@@ -807,6 +845,7 @@ Status TBBSession::GetOrCreateExecutors(
     // NewLocalExecutor takes ownership of partition_graph.
     item->graph = partition_graph.get();
     item->executor = nullptr;
+    item->device = device;
     Executor* executor;
     TF_RETURN_IF_ERROR(
         NewLocalExecutor(params, partition_graph.release(), &executor));
@@ -867,19 +906,19 @@ Status TBBSession::CreateGraphs(
     RunStateArgs* run_state_args, DataTypeVector* input_types,
     DataTypeVector* output_types) {
   mutex_lock l(graph_def_lock_);
-  std::unique_ptr<SimpleClientGraph> client_graph;
+  std::unique_ptr<ClientGraph> client_graph;
 
-  std::unique_ptr<SimpleGraphExecutionState> temp_exec_state_holder;
-  SimpleGraphExecutionState* execution_state = nullptr;
+  std::unique_ptr<GraphExecutionState> temp_exec_state_holder;
+  GraphExecutionState* execution_state = nullptr;
   if (options_.config.graph_options().place_pruned_graph()) {
     // Because we are placing pruned graphs, we need to create a
-    // new SimpleGraphExecutionState for every new unseen graph,
+    // new GraphExecutionState for every new unseen graph,
     // and then place it.
-    SimpleGraphExecutionStateOptions prune_options;
+    GraphExecutionStateOptions prune_options;
     prune_options.device_set = &device_set_;
     prune_options.session_options = &options_;
     prune_options.stateful_placements = stateful_placements_;
-    TF_RETURN_IF_ERROR(SimpleGraphExecutionState::MakeForPrunedGraph(
+    TF_RETURN_IF_ERROR(GraphExecutionState::MakeForPrunedGraph(
         execution_state_->original_graph_def().library(), prune_options,
         execution_state_->original_graph_def(), subgraph_options,
         &temp_exec_state_holder, &client_graph));
@@ -947,6 +986,7 @@ Status TBBSession::CreateGraphs(
     // Just return '1'.
     return 1;
   };
+  popts.flib_def = &client_graph->graph.flib_def();
   popts.control_flow_added = false;
 
   std::unordered_map<string, GraphDef> partitions;
@@ -1003,11 +1043,7 @@ Status TBBSession::CreateGraphs(
     Device* d;
     s = device_mgr_->LookupDevice(partition_name, &d);
     if (!s.ok()) break;
-    // TODO(pbar) The library is currently shared and immutable. There
-    // may be possible use cases where a device may want to modify
-    // function definitions - in which case the library would need to be
-    // replicated per device.
-    s = d->MaybeRewriteGraph(client_graph->flib_def->ToProto(), graph);
+    s = d->MaybeRewriteGraph(graph);
     if (!s.ok()) {
       break;
     }
@@ -1090,16 +1126,13 @@ bool TBBSession::RunState::PendingDone() const {
   return true;
 }
 
-void TBBSession::WaitForNotification(tbb::task_arena& arena,
-                                     tbb::task_group& taskGroup,
-                                       RunState* run_state,
-                                        CancellationManager* cm,
-                                        int64 timeout_in_ms) {
+void TBBSession::WaitForNotification(tbb::task_arena& arena, tbb::task_group& taskGroup,
+    RunState* run_state, CancellationManager* cm, int64 timeout_in_ms) {
   // Doing the wait in the arena adds this thread to the arena
   // and therefore tasks associated to the group can run on this thread
   arena.execute([&taskGroup]() { taskGroup.wait();} );
 
-  Status status =
+  const Status status =
       WaitForNotification(&run_state->executors_done, timeout_in_ms);
   if (!status.ok()) {
     {
@@ -1117,8 +1150,9 @@ void TBBSession::WaitForNotification(tbb::task_arena& arena,
 ::tensorflow::Status TBBSession::WaitForNotification(
     Notification* notification, int64 timeout_in_ms) {
   if (timeout_in_ms > 0) {
-    int64 timeout_in_us = timeout_in_ms * 1000;
-    bool notified = WaitForNotificationWithTimeout(notification, timeout_in_us);
+    const int64 timeout_in_us = timeout_in_ms * 1000;
+    const bool notified =
+        WaitForNotificationWithTimeout(notification, timeout_in_us);
     if (!notified) {
       return Status(error::DEADLINE_EXCEEDED,
                     "Timed out waiting for notification");
