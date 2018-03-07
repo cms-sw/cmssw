@@ -335,7 +335,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             self.miniAODConfigurationPre(process, patMetModuleSequence, pfCandCollection, postfix)
 
         #default MET production
-        self.produceMET(process, metType,patMetModuleSequence, jetCollectionUnskimmed, postfix)
+        self.produceMET(process, metType,patMetModuleSequence, postfix)
         
             
         
@@ -440,7 +440,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             process.patDefaultSequence += getattr(process, "fullPatMetSequence"+postfix)
     
 #====================================================================================================
-    def produceMET(self, process,  metType, metModuleSequence, jetCollectionUnskimmed, postfix):
+    def produceMET(self, process,  metType, metModuleSequence, postfix):
 
         task = getPatAlgosToolsTask(process)
 
@@ -450,13 +450,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             task.add(process.patPFMetT2SmearCorrTask)
             task.add(process.patPFMetTxyCorrTask)
             task.add(process.jetCorrectorsTask)
+
         if postfix != "" and metType == "PF" and not hasattr(process, 'pat'+metType+'Met'+postfix):
             noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
             configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix, noClones = noClonesTmp, addToTask = True)
-            #MM FIXME, this could be done in a mch better way, this is not
-            #handled by the above cloning sequence
-            getattr(process,"selectedPatJetsForMetT1T2Corr").src=jetCollectionUnskimmed #cms.InputTag("patJets"+postfix)
-            getattr(process,"selectedPatJetsForMetT2Corr").src=jetCollectionUnskimmed #cms.InputTag("patJets"+postfix)
             addToProcessAndTask('pat'+metType+'Met'+postfix,  getattr(process,'patPFMet' ).clone(), process, task)
             getattr(process, "patPFMet"+postfix).metSource = cms.InputTag("pfMet"+postfix)
             getattr(process, "patPFMet"+postfix).srcPFCands = self._parameters["pfCandCollection"].value
