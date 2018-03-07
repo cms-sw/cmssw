@@ -27,19 +27,17 @@ class GEMDQMSource: public DQMEDAnalyzer
 {
 public:
   GEMDQMSource(const edm::ParameterSet& cfg);
-  ~GEMDQMSource() override;
+  ~GEMDQMSource() override {};
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);  
 protected:
-  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override {};
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override {};
+  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override {};
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override {};
 
 private:
-  int nCh_;
-
   edm::EDGetToken tagRecHit_;
 
   const GEMGeometry* initGeometry(edm::EventSetup const & iSetup);
@@ -92,12 +90,6 @@ void GEMDQMSource::fillDescriptions(edm::ConfigurationDescriptions & description
   descriptions.add("GEMDQMSource", desc);  
 }
 
-
-
-GEMDQMSource::~GEMDQMSource(){}
-
-void GEMDQMSource::dqmBeginRun(edm::Run const &, edm::EventSetup const &){}
-
 void GEMDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const & iSetup)
 {
   GEMGeometry_ = initGeometry(iSetup);
@@ -110,7 +102,6 @@ void GEMDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, 
       gemChambers_.push_back(*sch->chamber(l+1));
     }
   }
-  nCh_ = gemChambers_.size();
   ibooker.cd();
   ibooker.setCurrentFolder("GEM/recHit");
   for (auto ch : gemChambers_){
@@ -132,9 +123,6 @@ void GEMDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, 
     rh_vs_eta_[ ch.id() ] = ibooker.book2D(hName_rh, hTitle_rh, 50, -25, 25, 8, 1,9);
   }
 }
-
-void GEMDQMSource::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
-					edm::EventSetup const& context) {}
 
 void GEMDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
@@ -165,9 +153,5 @@ void GEMDQMSource::analyze(edm::Event const& event, edm::EventSetup const& event
     }   
   }
 }
-
-void GEMDQMSource::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup){}
-
-void GEMDQMSource::endRun(edm::Run const& run, edm::EventSetup const& eSetup){}
 
 DEFINE_FWK_MODULE(GEMDQMSource);
