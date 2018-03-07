@@ -95,7 +95,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     ~SiStripHitEffFromCalibTree() override;
 
   private:
-    virtual void algoBeginJob();
+    void algoBeginJob(const edm::EventSetup&) override;
     void algoEndJob() override;
     void algoAnalyze(const edm::Event& e, const edm::EventSetup& c) override;
     void SetBadComponents(int i, int component,SiStripQuality::BadComponent& BC, std::stringstream ssV[4][19], int NBadComponent[4][19][4]);
@@ -199,7 +199,7 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
 
 SiStripHitEffFromCalibTree::~SiStripHitEffFromCalibTree() { }
 
-void SiStripHitEffFromCalibTree::algoBeginJob() {
+void SiStripHitEffFromCalibTree::algoBeginJob(const edm::EventSetup&) {
   //I have no idea what goes here
   //fs->make<TTree>("HitEffHistos","Tree of the inefficient hit histograms");
 }
@@ -223,7 +223,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   // read bad modules to mask
   ifstream badModules_file;
   set<uint32_t> badModules_list;
-  if(_badModulesFile!="") {
+  if(!_badModulesFile.empty()) {
 	badModules_file.open(_badModulesFile.c_str());
 	uint32_t badmodule_detid;
 	int mods, fiber1, fiber2, fiber3;

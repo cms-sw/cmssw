@@ -12,6 +12,7 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 typedef unsigned Index_t;
 typedef int Barcode_t;
@@ -29,9 +30,7 @@ typedef std::vector<SimHitInfoPerRecoDetId_t> SimHitInfoPerSimTrack_t;
 namespace edm {
   class ParameterSet;
   class ConsumesCollector;
-  namespace stream {
-    class EDProducerBase;
-  }
+  class ProducerBase;
   class Event;
   class EventSetup;
   class StreamID;
@@ -43,7 +42,7 @@ class SimVertex;
 
 class CaloTruthAccumulator : public DigiAccumulatorMixMod {
  public:
-  explicit CaloTruthAccumulator( const edm::ParameterSet& config, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  explicit CaloTruthAccumulator( const edm::ParameterSet& config, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
  private:
   void initializeEvent( const edm::Event& event, const edm::EventSetup& setup ) override;
   void accumulate( const edm::Event& event, const edm::EventSetup& setup ) override;

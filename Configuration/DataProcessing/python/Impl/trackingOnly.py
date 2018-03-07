@@ -38,7 +38,7 @@ class trackingOnly(pp):
                 args['skims'].append('TkAlMinBias')
 
         # reco sequence is limited to tracking => DQM accordingly
-        if not args.has_key('dqmSeq') :
+        if not args.has_key('dqmSeq') or len(args['dqmSeq'])==0:
             args['dqmSeq'] = ['DQMOfflineTracking']
 
         process = pp.expressProcessing(self, globalTag, **args)

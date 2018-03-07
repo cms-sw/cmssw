@@ -85,8 +85,6 @@ GlobalContext: transition = BeginRun
 
 ++++++ starting: global begin run for module: label = 'intVectorProducer' id = 7
 ++++++ finished: global begin run for module: label = 'intVectorProducer' id = 7
-++++++ starting: global begin run for module: label = 'out' id = 5
-++++++ finished: global begin run for module: label = 'out' id = 5
 ++++ finished: global begin run 1 : time = 1
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
@@ -141,8 +139,6 @@ GlobalContext: transition = BeginLuminosityBlock
 
 ++++++ starting: global begin lumi for module: label = 'intVectorProducer' id = 7
 ++++++ finished: global begin lumi for module: label = 'intVectorProducer' id = 7
-++++++ starting: global begin lumi for module: label = 'out' id = 5
-++++++ finished: global begin lumi for module: label = 'out' id = 5
 ++++ finished: global begin lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -683,8 +679,6 @@ GlobalContext: transition = EndLuminosityBlock
 
 ++++++ starting: global end lumi for module: label = 'intVectorProducer' id = 7
 ++++++ finished: global end lumi for module: label = 'intVectorProducer' id = 7
-++++++ starting: global end lumi for module: label = 'out' id = 5
-++++++ finished: global end lumi for module: label = 'out' id = 5
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -739,8 +733,6 @@ GlobalContext: transition = EndRun
 
 ++++++ starting: global end run for module: label = 'intVectorProducer' id = 7
 ++++++ finished: global end run for module: label = 'intVectorProducer' id = 7
-++++++ starting: global end run for module: label = 'out' id = 5
-++++++ finished: global end run for module: label = 'out' id = 5
 ++++ finished: global end run 1 : time = 15000001
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0

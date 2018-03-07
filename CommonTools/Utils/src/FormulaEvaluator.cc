@@ -297,6 +297,11 @@ namespace {
         fullExpression.evaluator.reset();
       }
 
+      if(fullExpression.evaluator == nullptr) {
+        //we had a parsing problem
+        return fullExpression;
+      }
+
       //Now to handle precedence
       auto topNode = fullExpression.top;
       auto binaryEval = dynamic_cast<reco::formula::BinaryOperatorEvaluatorBase*>(fullExpression.evaluator.get());

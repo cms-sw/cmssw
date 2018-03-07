@@ -28,7 +28,9 @@ dqmSaver.workflow = '/Express/PCLTest/ALCAPROMPT'
 #dqmSaver.saveAtJobEnd = True
 
 # workflow definitions
-
+# --------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------
+# BeamSpot by Run
 ALCAHARVESTBeamSpotByRun = alcaBeamSpotHarvester.clone()
 ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.BeamSpotOutputBase = cms.untracked.string("runbased")
 ALCAHARVESTBeamSpotByRun.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.untracked.string("BeamSpotObjectsRcdByRun")
@@ -40,6 +42,8 @@ ALCAHARVESTBeamSpotByRun_dbOutput = cms.PSet(record = cms.string('BeamSpotObject
                                              timetype   = cms.untracked.string('runnumber')
                                              )
 
+# --------------------------------------------------------------------------------------
+# BeamSpot by Lumi
 ALCAHARVESTBeamSpotByLumi = alcaBeamSpotHarvester.clone()
 ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.BeamSpotOutputBase = cms.untracked.string("lumibased")
 ALCAHARVESTBeamSpotByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.untracked.string("BeamSpotObjectsRcdByLumi")
@@ -52,6 +56,35 @@ ALCAHARVESTBeamSpotByLumi_dbOutput = cms.PSet(record = cms.string('BeamSpotObjec
                                               timetype   = cms.untracked.string('lumiid')
                                               )
 
+# --------------------------------------------------------------------------------------
+# BeamSpot HP by Run
+ALCAHARVESTBeamSpotHPByRun = alcaBeamSpotHarvester.clone()
+ALCAHARVESTBeamSpotHPByRun.AlcaBeamSpotHarvesterParameters.BeamSpotOutputBase = cms.untracked.string("runbased")
+ALCAHARVESTBeamSpotHPByRun.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.untracked.string("BeamSpotObjectsRcdHPByRun")
+
+ALCAHARVESTBeamSpotHPByRun_metadata = cms.PSet(record = cms.untracked.string('BeamSpotObjectsRcdHPByRun'))
+
+ALCAHARVESTBeamSpotHPByRun_dbOutput = cms.PSet(record = cms.string('BeamSpotObjectsRcdHPByRun'),
+                                             tag = cms.string('BeamSpotObjectHP_ByRun'),
+                                             timetype   = cms.untracked.string('runnumber')
+                                             )
+
+# --------------------------------------------------------------------------------------
+# BeamSpot HP by Lumi
+ALCAHARVESTBeamSpotHPByLumi = alcaBeamSpotHarvester.clone()
+ALCAHARVESTBeamSpotHPByLumi.AlcaBeamSpotHarvesterParameters.BeamSpotOutputBase = cms.untracked.string("lumibased")
+ALCAHARVESTBeamSpotHPByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.untracked.string("BeamSpotObjectsRcdHPByLumi")
+ALCAHARVESTBeamSpotHPByLumi.AlcaBeamSpotHarvesterParameters.DumpTxt = cms.untracked.bool(True)
+
+# configuration of DropBox metadata and DB output
+ALCAHARVESTBeamSpotHPByLumi_metadata = cms.PSet(record = cms.untracked.string('BeamSpotObjectsRcdHPByLumi'))
+
+ALCAHARVESTBeamSpotHPByLumi_dbOutput = cms.PSet(record = cms.string('BeamSpotObjectsRcdHPByLumi'),
+                                              tag = cms.string('BeamSpotObjectHP_ByLumi'),
+                                              timetype   = cms.untracked.string('lumiid')
+                                              )
+
+# --------------------------------------------------------------------------------------
 # SiStrip Quality
 ALCAHARVESTSiStripQuality_metadata = cms.PSet(record = cms.untracked.string('SiStripBadStripRcd'))
 
@@ -60,6 +93,7 @@ ALCAHARVESTSiStripQuality_dbOutput = cms.PSet(record = cms.string('SiStripBadStr
                                               timetype   = cms.untracked.string('runnumber')
                                               )
 
+# --------------------------------------------------------------------------------------
 # SiStrip Gains
 ALCAHARVESTSiStripGains_metadata = cms.PSet(record = cms.untracked.string('SiStripApvGainRcd'))
 
@@ -68,6 +102,7 @@ ALCAHARVESTSiStripGains_dbOutput = cms.PSet(record = cms.string('SiStripApvGainR
                                             timetype   = cms.untracked.string('runnumber')
                                             )
 
+# --------------------------------------------------------------------------------------
 # SiStrip Gains (AAG)
 ALCAHARVESTSiStripGainsAAG_metadata = cms.PSet(record = cms.untracked.string('SiStripApvGainRcdAAG'))
 
@@ -76,6 +111,7 @@ ALCAHARVESTSiStripGainsAAG_dbOutput = cms.PSet(record = cms.string('SiStripApvGa
                                                          timetype   = cms.untracked.string('runnumber')
                                                          )
 
+# --------------------------------------------------------------------------------------
 # SiPixel Alignment
 ALCAHARVESTSiPixelAli_metadata = cms.PSet(record = cms.untracked.string('TrackerAlignmentRcd'))
 
@@ -84,6 +120,8 @@ ALCAHARVESTSiPixelAli_dbOutput = cms.PSet(record = cms.string('TrackerAlignmentR
                                           timetype   = cms.untracked.string('runnumber')
                                           )
 
+# --------------------------------------------------------------------------------------
+# ECAL Pedestals
 ALCAHARVESTEcalPedestals_metadata = cms.PSet(record = cms.untracked.string('EcalPedestalsRcd'))
 
 ALCAHARVESTEcalPedestals_dbOutput = cms.PSet(record = cms.string('EcalPedestalsRcd'),
@@ -92,9 +130,11 @@ ALCAHARVESTEcalPedestals_dbOutput = cms.PSet(record = cms.string('EcalPedestalsR
                                              )
 
 
-# define the paths
+# define all the paths
 BeamSpotByRun  = cms.Path(ALCAHARVESTBeamSpotByRun)
 BeamSpotByLumi = cms.Path(ALCAHARVESTBeamSpotByLumi)
+BeamSpotHPByRun  = cms.Path(ALCAHARVESTBeamSpotHPByRun)
+BeamSpotHPByLumi = cms.Path(ALCAHARVESTBeamSpotHPByLumi)
 SiStripQuality = cms.Path(ALCAHARVESTSiStripQuality)
 SiStripGains   = cms.Path(ALCAHARVESTSiStripGains)
 SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)

@@ -23,6 +23,7 @@ for testing purposes only.
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 
 namespace edmtest {
 namespace limited {
@@ -47,7 +48,10 @@ struct UnsafeCache {
     edm::limited::EDAnalyzerBase(p),
     edm::limited::EDAnalyzer<edm::StreamCache<UnsafeCache>>(p),
 	trans_(p.getParameter<int>("transitions"))
-    {}
+    {
+      callWhenNewProductsRegistered([](edm::BranchDescription const& desc)
+        { std::cout << "limited::StreamIntAnalyzer " << desc.moduleLabel() << std::endl; });
+    }
     const unsigned int trans_;
     mutable std::atomic<unsigned int> m_count{0};
     

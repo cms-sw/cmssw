@@ -80,16 +80,16 @@ public:
     inline void setScalesName(const std::string & name) { m_ScaleSetName = name; }
     virtual std::string getScalesName() const;
 
-    inline ScaleParameters getMUScales() const    { return m_muScales; }
-    inline ScaleParameters getEGScales() const    { return m_egScales; }
-    inline ScaleParameters getTAUScales() const   { return m_tauScales; }
-    inline ScaleParameters getJETScales() const   { return m_jetScales; }
-    inline ScaleParameters getETTScales() const   { return m_ettScales; }
-    inline ScaleParameters getETTEmScales() const { return m_ettEmScales; }
-    inline ScaleParameters getETMScales() const   { return m_etmScales; }
-    inline ScaleParameters getETMHFScales() const { return m_etmHfScales; }
-    inline ScaleParameters getHTTScales() const   { return m_httScales; }
-    inline ScaleParameters getHTMScales() const   { return m_htmScales; }
+    inline const ScaleParameters& getMUScales() const    { return m_muScales; }
+    inline const ScaleParameters& getEGScales() const    { return m_egScales; }
+    inline const ScaleParameters& getTAUScales() const   { return m_tauScales; }
+    inline const ScaleParameters& getJETScales() const   { return m_jetScales; }
+    inline const ScaleParameters& getETTScales() const   { return m_ettScales; }
+    inline const ScaleParameters& getETTEmScales() const { return m_ettEmScales; }
+    inline const ScaleParameters& getETMScales() const   { return m_etmScales; }
+    inline const ScaleParameters& getETMHFScales() const { return m_etmHfScales; }
+    inline const ScaleParameters& getHTTScales() const   { return m_httScales; }
+    inline const ScaleParameters& getHTMScales() const   { return m_htmScales; }
 
 
     long long getLUT_CalMuEta(const std::string & lutName, int element) const;

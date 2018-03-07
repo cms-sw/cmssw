@@ -55,6 +55,8 @@ namespace edm {
     void doErrorStuff();
 
     void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalTransitionSucceeded);
+    void endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalTranstitionSucceeded, bool cleaningUpAfterException);
+
     void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalTranstitionSucceeded, bool cleaningUpAfterException);
 
     InputSource::ItemType processLumis(std::shared_ptr<void>);

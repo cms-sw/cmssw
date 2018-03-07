@@ -1,6 +1,9 @@
 <use name="CondTools/Ecal"/>
 
 <architecture name="slc.*_amd64_.*">
+  <ifcxx11_abi value="1">
+    <flags SETENV="LD_PRELOAD=$(CMS_ORACLEOCCI_LIB)"/>
+  </ifcxx11_abi>
   <test name="EcalDAQ_O2O_test" command="EcalDAQ_O2O_test.sh"/>
   <test name="EcalDCS_O2O_test" command="EcalDCS_O2O_test.sh"/>
   <test name="EcalLaser_O2O_test" command="EcalLaser_O2O_test.sh"/>
@@ -21,5 +24,6 @@
   <test name="EcalTPGCrystalStatus_O2O_test" command="EcalTPGCrystalStatus_O2O_test.sh"/>
   <test name="EcalTPGTowerStatus_O2O_test" command="EcalTPGTowerStatus_O2O_test.sh"/>
   <test name="EcalADCToGeV_update_test" command="EcalADCToGeV_update_test.sh"/>
+  <test name="EcalIntercalib_update_test" command="EcalIntercalib_update_test.sh"/>
   <test name="EcalIntercalibConstants_O2O_test" command="EcalIntercalibConstants_O2O_test.sh"/>
 </architecture>

@@ -27,6 +27,9 @@ muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
 
+import EventFilter.GEMRawToDigi.muonGEMDigis_cfi
+muonGEMDigis = EventFilter.GEMRawToDigi.muonGEMDigis_cfi.muonGEMDigis.clone()
+
 from EventFilter.CastorRawToDigi.CastorRawToDigi_cff import *
 castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692, 693,722) )
 
@@ -34,6 +37,9 @@ from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 
 from EventFilter.Utilities.tcdsRawToDigi_cfi import *
 tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
+
+from EventFilter.OnlineMetaDataRawToDigi.onlineMetaDataRawToDigi_cfi import *
+onlineMetaDataDigis = EventFilter.OnlineMetaDataRawToDigi.onlineMetaDataRawToDigi_cfi.onlineMetaDataRawToDigi.clone()
 
 from L1Trigger.Configuration.L1TRawToDigi_cff import *
 
@@ -51,6 +57,7 @@ RawToDigi = cms.Sequence(L1TRawToDigi
                          +castorDigis
                          +scalersRawToDigi
                          +tcdsDigis
+                         +onlineMetaDataDigis
                          )
 
 RawToDigi_noTk = cms.Sequence(L1TRawToDigi
@@ -63,6 +70,7 @@ RawToDigi_noTk = cms.Sequence(L1TRawToDigi
                               +castorDigis
                               +scalersRawToDigi
                               +tcdsDigis
+                              +onlineMetaDataDigis
                               )
 
 RawToDigi_pixelOnly = cms.Sequence(siPixelDigis)
@@ -96,3 +104,13 @@ ctpps_2016.toReplaceWith(RawToDigi, _ctpps_2016_RawToDigi)
 _ctpps_2016_RawToDigi_noTk = RawToDigi_noTk.copy()
 _ctpps_2016_RawToDigi_noTk += ctppsRawToDigi
 ctpps_2016.toReplaceWith(RawToDigi_noTk, _ctpps_2016_RawToDigi_noTk)
+
+# GEM settings
+_gem_RawToDigi = RawToDigi.copy()
+_gem_RawToDigi.insert(-1,muonGEMDigis)
+
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+run2_GEM_2017.toReplaceWith(RawToDigi, _gem_RawToDigi)
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toReplaceWith(RawToDigi, _gem_RawToDigi)

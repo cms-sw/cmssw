@@ -75,18 +75,16 @@ private:
   MonitorElement *initialise(Kind kind, TH1 *rootobj);
   MonitorElement *initialise(Kind kind, const std::string &value);
   void globalize() {
-    data_.streamId = 0;
     data_.moduleId = 0;
   }
-  void setLumi(uint32_t ls) {data_.lumi = ls;}
+  void setLumi(uint32_t ls) {
+    data_.lumi = ls;
+  }
 
 public:
   MonitorElement();
-  MonitorElement(const std::string *path,
-                 const std::string &name,
-                 uint32_t run = 0,
-                 uint32_t streamId = 0,
-                 uint32_t moduleId = 0);
+  MonitorElement(const std::string *path, const std::string &name);
+  MonitorElement(const std::string *path, const std::string &name, uint32_t run, uint32_t moduleId);
   MonitorElement(const MonitorElement &, MonitorElementNoCloneTag);
   MonitorElement(const MonitorElement &);
   MonitorElement(MonitorElement &&);
@@ -388,7 +386,6 @@ public:
 
   const uint32_t run() const {return data_.run;}
   const uint32_t lumi() const {return data_.lumi;}
-  const uint32_t streamId() const {return data_.streamId;}
   const uint32_t moduleId() const {return data_.moduleId;}
 };
 

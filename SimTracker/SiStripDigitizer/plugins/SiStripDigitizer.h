@@ -18,9 +18,7 @@ namespace CLHEP {
 
 namespace edm {
   class ConsumesCollector;
-  namespace stream {
-    class EDProducerBase;
-  }
+  class ProducerBase;
   class Event;
   class EventSetup;
   class ParameterSet;
@@ -45,7 +43,7 @@ class TrackerGeometry;
  */
 class SiStripDigitizer : public DigiAccumulatorMixMod {
 public:
-  explicit SiStripDigitizer(const edm::ParameterSet& conf, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  explicit SiStripDigitizer(const edm::ParameterSet& conf, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
   
   ~SiStripDigitizer() override;
   

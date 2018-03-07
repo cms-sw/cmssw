@@ -118,7 +118,7 @@ int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTowe
       int towerIEta = l1t::CaloStage2Nav::offsetIEta(iEta,etaNr);
       int towerIPhi = l1t::CaloStage2Nav::offsetIPhi(iPhi,phiNr);
       if(abs(towerIEta)<=iEtaAbsMax){
-	const l1t::CaloTower& tower = getTower(towers,CaloTools::caloEta(towerIEta),towerIPhi);
+	const l1t::CaloTower& tower = getTower(towers,towerIEta,towerIPhi);
 	if(etMode==ECAL) hwEtSum+=tower.hwEtEm();
 	else if(etMode==HCAL) hwEtSum+=tower.hwEtHad();
 	else if(etMode==CALO) hwEtSum+=tower.hwPt();

@@ -8,7 +8,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 
 //
-HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::stream::EDProducerBase& mixMod, 
+HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::ProducerBase& mixMod,
                                  edm::ConsumesCollector& iC) :
   DigiAccumulatorMixMod(),
   theDigitizer_(new HGCDigitizer(pset, iC) ) 

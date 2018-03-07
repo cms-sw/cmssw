@@ -55,7 +55,6 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
   unsigned int numOfMaxSeeds = numOfMaxSeedsParam_;
   unsigned int numSeedsMade=0;
   bool analysedL2 = false;
-  bool foundHitlessSeed = false; 
   unsigned int layerCount = 0;
 
 
@@ -123,30 +122,28 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
     TrajectoryStateOnSurface tsosAtMuonSystem = trajectoryStateTransform::innerStateOnSurface(*l2, *geometryH, magfieldH.product());
     LogTrace("TSGForOI") << "TSGForOI::produce: Created TSOSatMuonSystem: " << tsosAtMuonSystem <<endl;
     
-    if (useHitLessSeeds_){  
-      LogTrace("TSGForOI") << "TSGForOI::produce: Check the error of the L2 parameter and use hit seeds if big errors" << endl;
-      StateOnTrackerBound fromInside(propagatorAlong.get());
-      TrajectoryStateOnSurface outerTkStateInside = fromInside(fts);
+    LogTrace("TSGForOI") << "TSGForOI::produce: Check the error of the L2 parameter and use hit seeds if big errors" << endl;
+    StateOnTrackerBound fromInside(propagatorAlong.get());
+    TrajectoryStateOnSurface outerTkStateInside = fromInside(fts);
       
-      StateOnTrackerBound fromOutside(&*SmartOpposite);
-      TrajectoryStateOnSurface outerTkStateOutside = fromOutside(tsosAtMuonSystem);
+    StateOnTrackerBound fromOutside(&*SmartOpposite);
+    TrajectoryStateOnSurface outerTkStateOutside = fromOutside(tsosAtMuonSystem);
 
       // for now only checking if the two positions (using updated and not-updated) agree withing certain extent, 
       // will probably have to design something fancier for the future. 
-      auto dist=0.0;
-      if (outerTkStateInside.isValid() && outerTkStateOutside.isValid()){
-        float deta = outerTkStateInside.globalPosition().eta() - outerTkStateOutside.globalPosition().eta();
-        float dphi = outerTkStateInside.globalPosition().phi() - outerTkStateOutside.globalPosition().phi();
-	dist = sqrt(deta*deta+dphi*dphi);
-      }
-      if (dist>tsosDiff_){
-	++numOfMaxSeeds;	// add a hit-based seed
-      }
-    } 
+    auto dist=0.0;
+    bool useBoth = false;
+    if (outerTkStateInside.isValid() && outerTkStateOutside.isValid()){
+	dist = match_Chi2(outerTkStateInside,outerTkStateOutside);
+    }
+    if (dist>tsosDiff_){
+	useBoth = true; 
+    }
 
     numSeedsMade=0;
     analysedL2 = false;
-    foundHitlessSeed = false; 
+
+    // if both TSOSs agree, use only the one at vertex, as it uses more information. If they do not agree, search for seed based on both
 
     //		BARREL
     if (std::abs(l2->eta()) < maxEtaForTOB_) {
@@ -154,11 +151,19 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
       for (auto it=tob.rbegin(); it!=tob.rend(); ++it) {	//This goes from outermost to innermost layer
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TOB layer " << layerCount << endl; 
 	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, 
-			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, foundHitlessSeed, analysedL2, out);
+			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, analysedL2, out);
       }
+      if (useBoth){
+	      numSeedsMade=0;
+	      for (auto it=tob.rbegin(); it!=tob.rend(); ++it) {	//This goes from outermost to innermost layer
+			LogTrace("TSGForOI") << "TSGForOI::produce: looping in TOB layer " << layerCount << endl; 
+			findSeedsOnLayer(tTopo, **it, tsosAtMuonSystem,  *(propagatorOpposite.get()), *(propagatorOpposite.get()), l2, 
+			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, analysedL2, out);
+      		}
+	}
     }
-    
     //		Reset Number of seeds if in overlap region:
+
     if (std::abs(l2->eta())>minEtaForTEC_ && std::abs(l2->eta())<maxEtaForTOB_){
       numSeedsMade=0;
     }
@@ -168,9 +173,17 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
       layerCount = 0;
       for (auto it=tecPositive.rbegin(); it!=tecPositive.rend(); ++it) {
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC+ layer " << layerCount << endl; 
-	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, 
-			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, foundHitlessSeed, analysedL2, out);
-      }
+	findSeedsOnLayer(tTopo, **it, tsosAtIP, *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, 
+			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, analysedL2, out);
+	}
+	if (useBoth){
+		numSeedsMade=0;
+      		for (auto it=tecPositive.rbegin(); it!=tecPositive.rend(); ++it) {
+			LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC+ layer " << layerCount << endl; 
+			findSeedsOnLayer(tTopo, **it, tsosAtMuonSystem,  *(propagatorOpposite.get()), *(propagatorOpposite.get()), l2, 
+			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, analysedL2, out);
+		}
+     	}
     }
 
     //		ENDCAP-
@@ -179,9 +192,19 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
       for (auto it=tecNegative.rbegin(); it!=tecNegative.rend(); ++it) {
 	LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC- layer " << layerCount << endl; 
 	findSeedsOnLayer(tTopo, **it, tsosAtIP,  *(propagatorAlong.get()), *(propagatorOpposite.get()), l2, 
-			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, foundHitlessSeed, analysedL2, out);
-      }
+			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, analysedL2, out);
+	}
+	if (useBoth){
+		numSeedsMade=0;
+	      	for (auto it=tecNegative.rbegin(); it!=tecNegative.rend(); ++it) {
+			LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC- layer " << layerCount << endl; 
+			findSeedsOnLayer(tTopo, **it, tsosAtMuonSystem,  *(propagatorOpposite.get()), *(propagatorOpposite.get()), l2, 
+			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, analysedL2, out);
+		}
+      	}
     }
+
+    
 
     for (std::vector<TrajectorySeed>::iterator it=out->begin(); it!=out->end(); ++it){
       result->push_back(*it);
@@ -204,7 +227,6 @@ void TSGForOI::findSeedsOnLayer(
 				unsigned int& numSeedsMade,
 				unsigned int& numOfMaxSeeds,
 				unsigned int& layerCount,
-				bool& foundHitlessSeed,
 				bool& analysedL2,
 				std::unique_ptr<std::vector<TrajectorySeed> >& out)  const{
   
@@ -218,7 +240,7 @@ void TSGForOI::findSeedsOnLayer(
   if (!adjustErrorsDynamicallyForHitless_) errorSFHitless = fixedErrorRescalingForHitless_;
 
   // Hitless:  TO Be discarded from here at some point. 
-  if (useHitLessSeeds_ && !foundHitlessSeed) {
+  if (useHitLessSeeds_) {
     LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Start hitless" << endl;
     std::vector< GeometricSearchDet::DetWithState > dets;
     layer.compatibleDetsV(tsosAtIP, propagatorAlong, *estimatorH, dets);
@@ -241,7 +263,6 @@ void TSGForOI::findSeedsOnLayer(
 	TrajectorySeed::recHitContainer rHC;
 	out->push_back(TrajectorySeed(ptsod,rHC,oppositeToMomentum));
 	LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: TSOD (Hitless) done " << endl;
-	foundHitlessSeed=true;
         numSeedsMade++;
       }
     }
@@ -250,7 +271,7 @@ void TSGForOI::findSeedsOnLayer(
   // Hits:
   if (layerCount>numOfLayersToTry_) return;
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: Start Hits" <<endl;  
-  if (makeSeedsFromHits(tTopo, layer, tsosAtIP, *out, propagatorAlong, *measurementTrackerH, estimatorH, numSeedsMade, errorSFHits))  ++layerCount; 
+  if (makeSeedsFromHits(tTopo, layer, tsosAtIP, *out, propagatorAlong, *measurementTrackerH, estimatorH, numSeedsMade, errorSFHits, l2->eta()))  ++layerCount; 
 }
 
 double TSGForOI::calculateSFFromL2(const reco::TrackRef track) const{
@@ -287,7 +308,8 @@ int TSGForOI::makeSeedsFromHits(
 				const MeasurementTrackerEvent &measurementTracker,
 				edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
 				unsigned int& numSeedsMade,
-				const double errorSF)  const{
+				const double errorSF,
+				const double l2Eta)  const{
 
   //		Error Rescaling:
   TrajectoryStateOnSurface onLayer(tsosAtIP);
@@ -323,7 +345,7 @@ int TSGForOI::makeSeedsFromHits(
     if (not updatedTSOS.isValid()) continue;
 
     // CHECK if is StereoLayer: 
-    if (useStereoLayersInTEC_) { 
+    if (useStereoLayersInTEC_ && (fabs(l2Eta) > 0.8 && fabs(l2Eta) < 1.6)) { 
       DetId detid = ((*it).recHit()->hit())->geographicalId();
       if (detid.subdetId() == StripSubdetector::TEC) {
 		if (!tTopo->tecIsStereo(detid.rawId())) break;  // try another layer
@@ -341,6 +363,30 @@ int TSGForOI::makeSeedsFromHits(
     if (found == numOfHitsToTry_) break;
   }
   return found;
+}
+//
+//// calculate Chi^2 of two trajectory states
+////
+
+double TSGForOI::match_Chi2(const TrajectoryStateOnSurface& tsos1,
+                  const TrajectoryStateOnSurface& tsos2) const{
+
+  if ( !tsos1.isValid() || !tsos2.isValid() ) return -1.;
+
+  AlgebraicVector5 v(tsos1.localParameters().vector() - tsos2.localParameters().vector());
+  AlgebraicSymMatrix55 m(tsos1.localError().matrix() + tsos2.localError().matrix());
+
+  bool ierr = !m.Invert();
+
+  if ( ierr ) {
+    edm::LogInfo("TSGForOI") << "Error inverting covariance matrix";
+    return -1;
+  }
+
+  double est = ROOT::Math::Similarity(v,m);
+
+  return est;
+
 }
 
 

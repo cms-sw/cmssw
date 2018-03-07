@@ -22,6 +22,10 @@ namespace l1t {
 
   public:
     Tau(){ clear_extended(); }
+
+    // ctor from base allowed, but note that extended variables will be set to zero:
+    Tau(const L1Candidate& rhs):L1Candidate(rhs){ clear_extended(); } 
+    
     Tau( const LorentzVector& p4,
 	    int pt=0,
 	    int eta=0,

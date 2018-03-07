@@ -21,7 +21,7 @@ class L1MuGMTRSKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
       L1MuGMTRSKeysOnlineProd(const edm::ParameterSet& iConfig) ;
       ~L1MuGMTRSKeysOnlineProd() override {}
 
-      void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( FillType pL1TriggerKey ) override ;
    private:
       bool m_enableL1MuGMTChannelMask ;
 };
@@ -33,7 +33,7 @@ L1MuGMTRSKeysOnlineProd::L1MuGMTRSKeysOnlineProd(const edm::ParameterSet& iConfi
 }
 
 void
-L1MuGMTRSKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
+L1MuGMTRSKeysOnlineProd::fillObjectKeys( FillType pL1TriggerKey )
 {
    if( m_enableL1MuGMTChannelMask )
    {
