@@ -214,7 +214,7 @@ void CMSHadronPhysicsFTFP_BERT::ExtraConfiguration()
   auto xs_n_in = (G4NeutronInelasticXS*)G4CrossSectionDataSetRegistry::Instance()->GetCrossSectionDataSet(G4NeutronInelasticXS::Default_Name());
   xs_ds.Push_back(xs_n_in);//TODO: Is this needed? Who owns the pointer?
   G4PhysListUtil::FindInelasticProcess(G4Neutron::Neutron())->AddDataSet( xs_n_in );
-  G4HadronicProcess* capture = 0;
+  G4HadronicProcess* capture = nullptr;
   G4ProcessManager* pmanager = G4Neutron::Neutron()->GetProcessManager();
   G4ProcessVector*  pv = pmanager->GetProcessList();
   for ( size_t i=0; i < static_cast<size_t>(pv->size()); ++i ) {
