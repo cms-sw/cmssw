@@ -12,5 +12,4 @@ OutALCARECOPromptCalibProdSiPixel_noDrop = cms.PSet(
 import copy
 
 OutALCARECOPromptCalibProdSiPixel=copy.deepcopy(OutALCARECOPromptCalibProdSiPixel_noDrop)
-# use * because AlCaPrompt is just a copy of AlCaReco
-OutALCARECOPromptCalibProdSiPixel.outputCommands.insert(0, "keep *")
+OutALCARECOPromptCalibProdSiPixel.outputCommands.insert(0, "drop *")
