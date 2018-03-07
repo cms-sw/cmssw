@@ -516,30 +516,42 @@ void SiPixelDigitizerAlgorithm::PixelEfficiencies::init_from_db(const edm::ESHan
     PixelGeomFactorsROCBigPixels[rawid] = std::vector<double>(16,1);
   }
   
-  // Store ROC level scale factors  (big and standard pixels separatelly)
+  // ROC level inefficiency for phase 1 (disentangle scale factors for big and std size pixels)  
   std::map<uint32_t, double>  PixelGeomFactorsDB;
-  for (auto db_factor : PixelGeomFactorsDBIn){  
-    int shift = DetId(db_factor.first).subdetId() == 1? 6 : 3;    
-    unsigned int rocMask = 0x1F << shift;
-    unsigned int rocId = (((db_factor.first) & rocMask) >> shift);
-    if (rocId != 0) {
-      rocId--;
-      unsigned int rawid = db_factor.first & (~rocMask);      
-      double factor = db_factor.second;
-      double badFraction = 1 - factor;
-      double bigPixelFraction = 210./4160.;      
-      double stdPixelFraction = 3950./4160.;      
-      
-      double badFractionBig = std::min(bigPixelFraction, badFraction);  
-      double badFractionStd = std::max(0., badFraction - badFractionBig);
-      double badFractionBigReNormalized = badFractionBig/bigPixelFraction;
-      double badFractionStdReNormalized = badFractionStd/stdPixelFraction;
-      PixelGeomFactorsROCStdPixels[rawid][rocId] *= (1. - badFractionStdReNormalized);
-      PixelGeomFactorsROCBigPixels[rawid][rocId] *= (1. - badFractionBigReNormalized);            
-    }
-    else{
-      PixelGeomFactorsDB[db_factor.first] = db_factor.second;      
-    }
+  
+  if (geom->isThere(GeomDetEnumerators::P1PXB)
+      || geom->isThere(GeomDetEnumerators::P1PXEC)){
+    for (auto db_factor : PixelGeomFactorsDBIn){  
+      int shift = DetId(db_factor.first).subdetId() == 
+	static_cast<int>(PixelSubdetector::PixelBarrel) ? BPixRocIdShift:FPixRocIdShift;          
+      unsigned int rocMask = rocIdMaskBits << shift;
+      unsigned int rocId = (((db_factor.first) & rocMask) >> shift);
+      if (rocId != 0) {
+	rocId--;
+	unsigned int rawid = db_factor.first & (~rocMask);
+	const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (geom->idToDet(rawid));	
+	PixelTopology const * topology = &(theGeomDet->specificTopology());      
+	const int nPixelsInROC = topology->rowsperroc()*topology->colsperroc();
+	const int nBigPixelsInROC =  2*topology->rowsperroc()+topology->colsperroc()-2;
+	double factor = db_factor.second;
+	double badFraction = 1 - factor;
+	double bigPixelFraction = static_cast<double> (nBigPixelsInROC)/nPixelsInROC;      
+	double stdPixelFraction = 1. - bigPixelFraction;      
+	
+	double badFractionBig = std::min(bigPixelFraction, badFraction);  
+	double badFractionStd = std::max(0., badFraction - badFractionBig);
+	double badFractionBigReNormalized = badFractionBig/bigPixelFraction;
+	double badFractionStdReNormalized = badFractionStd/stdPixelFraction;
+	PixelGeomFactorsROCStdPixels[rawid][rocId] *= (1. - badFractionStdReNormalized);
+	PixelGeomFactorsROCBigPixels[rawid][rocId] *= (1. - badFractionBigReNormalized);     
+      }
+      else{
+	PixelGeomFactorsDB[db_factor.first] = db_factor.second;      
+      }
+    } 
+  } // is Phase 1 geometry
+  else{
+    PixelGeomFactorsDB = PixelGeomFactorsDBIn;
   }
   
   // Loop on all modules, store module level geometrical scale factors 
@@ -1517,7 +1529,8 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   const PixelTopology* topol=&pixdet->specificTopology();
   int numColumns = topol->ncolumns();  // det module number of cols&rows
   int numRows = topol->nrows();
-  
+  bool isPhase1 = pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXB 
+    || pixdet->subDetector()==GeomDetEnumerators::SubDetector::P1PXEC;
   // Predefined efficiencies
   double pixelEfficiency  = 1.0;
   double columnEfficiency = 1.0;
@@ -1583,10 +1596,12 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     pixelEfficiency  = eff.PixelGeomFactors.at(detID);
     columnEfficiency = eff.ColGeomFactors.at(detID)*eff.pu_scale[eff.iPU.at(detID)];
     chipEfficiency   = eff.ChipGeomFactors.at(detID);
-    for (int i_roc=0;i_roc<16;++i_roc){
-      pixelEfficiencyROCStdPixels[i_roc] = eff.PixelGeomFactorsROCStdPixels.at(detID).at(i_roc);
-      pixelEfficiencyROCBigPixels[i_roc] = eff.PixelGeomFactorsROCBigPixels.at(detID).at(i_roc);    
-    }
+    if (isPhase1){
+      for (unsigned int i_roc=0; i_roc<eff.PixelGeomFactorsROCStdPixels.at(detID).size();++i_roc){
+	pixelEfficiencyROCStdPixels[i_roc] = eff.PixelGeomFactorsROCStdPixels.at(detID).at(i_roc);
+	pixelEfficiencyROCBigPixels[i_roc] = eff.PixelGeomFactorsROCBigPixels.at(detID).at(i_roc);    
+      }
+    } // is Phase 1
   }
   
 #ifdef TP_DEBUG
@@ -1620,10 +1635,12 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     
     chips[chipIndex]++;
     columns[dColInDet]++;
-    if (row == 79 || row == 80 || col % 52 == 0 || col % 52 == 51)
-      pixelBig[chipIndex]++;
-    else
-      pixelStd[chipIndex]++;
+    if (isPhase1){
+      if (topol->isItBigPixelInX(row) || topol->isItBigPixelInY(col))    
+	pixelBig[chipIndex]++;
+      else
+	pixelStd[chipIndex]++;
+    }
   }
   
   // Delete some ROC hits.
@@ -1641,16 +1658,18 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
   }
   
   // Delete some pixel hits based on DCDC issue damage.
-  for ( iter = pixelStd.begin(); iter != pixelStd.end() ; iter++ ) {
-    float rand  = CLHEP::RandFlat::shoot(engine);    
-    if( rand > pixelEfficiencyROCStdPixels[iter->first]) pixelStd[iter->first] = 0;
+  if (isPhase1){
+    for ( iter = pixelStd.begin(); iter != pixelStd.end() ; iter++ ) {
+      float rand  = CLHEP::RandFlat::shoot(engine);    
+      if( rand > pixelEfficiencyROCStdPixels[iter->first]) pixelStd[iter->first] = 0;
+    }
+    
+    for ( iter = pixelBig.begin(); iter != pixelBig.end() ; iter++ ) {
+      float rand  = CLHEP::RandFlat::shoot(engine);    
+      if( rand > pixelEfficiencyROCBigPixels[iter->first]) pixelBig[iter->first] = 0;
+    }
   }
   
-  for ( iter = pixelBig.begin(); iter != pixelBig.end() ; iter++ ) {
-    float rand  = CLHEP::RandFlat::shoot(engine);    
-    if( rand > pixelEfficiencyROCBigPixels[iter->first]) pixelBig[iter->first] = 0;
-  }
-
   // Now loop again over pixels to kill some of them.
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
   for(signal_map_iterator i = theSignal.begin();i != theSignal.end(); ++i) {
@@ -1674,7 +1693,13 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
       // make pixel amplitude =0, pixel will be lost at clusterization
       i->second.set(0.); // reset amplitude,      
     } // end if
-    
+    if (isPhase1){
+      if((pixelStd.count(chipIndex) && pixelStd[chipIndex] == 0)
+	 || (pixelBig.count(chipIndex) && pixelBig[chipIndex] == 0)) {
+	// make pixel amplitude =0, pixel will be lost at clusterization
+	i->second.set(0.); // reset amplitude,      
+      } // end if
+    } // is Phase 1
   } // end pixel loop
 } // end pixel_indefficiency
 
