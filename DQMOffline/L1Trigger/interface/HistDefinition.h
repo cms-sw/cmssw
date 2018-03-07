@@ -67,8 +67,10 @@ public:
   double xmax;
   double ymin;
   double ymax;
-  std::vector<double> binsX;
-  std::vector<double> binsY;
+  std::vector<double> binsXtmp;
+  std::vector<double> binsYtmp;
+  std::vector<float> binsX;
+  std::vector<float> binsY;
 };
 
 HistDefinitions

@@ -26,6 +26,7 @@
 #include "CondFormats/HcalObjects/interface/HcalL1TriggerObject.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMnonlinearity.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentCorrection.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/LutXml.h"
 
@@ -34,9 +35,11 @@ const float HcaluLUTTPGCoder::lsb_=1./16;
 const int HcaluLUTTPGCoder::QIE8_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE10_LUT_BITMASK;
 const int HcaluLUTTPGCoder::QIE11_LUT_BITMASK;
+const int HcaluLUTTPGCoder::QIE11_LUT_BITMASK_2017;
 
+constexpr double MaximumFractionalError = 0.002; // 0.2% error allowed from this source
 
-HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGenerationMode_(true), bitToMask_(0), allLinear_(false), linearLSB_QIE8_(1.), linearLSB_QIE11_(1.) {
+HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top, const edm::ESHandle<HcalTimeSlew>& delay, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams) : topo_(top),  delay_(delay), mcParams_(mcParams), recoParams_(recoParams), LUTGenerationMode_(true), bitToMask_(0), allLinear_(false), linearLSB_QIE8_(1.), linearLSB_QIE11_(1.), pulseCorr_(std::make_unique<HcalPulseContainmentManager>(MaximumFractionalError)) {
   firstHBEta_ = topo_->firstHBRing();      
   lastHBEta_  = topo_->lastHBRing();
   nHBEta_     = (lastHBEta_-firstHBEta_+1);
@@ -56,6 +59,7 @@ HcaluLUTTPGCoder::HcaluLUTTPGCoder(const HcalTopology* top) : topo_(top), LUTGen
   inputLUT_   = std::vector<HcaluLUTTPGCoder::Lut>(nluts);
   gain_       = std::vector<float>(nluts, 0.);
   ped_        = std::vector<float>(nluts, 0.);
+  make_cosh_ieta_map();
 }
 
 void HcaluLUTTPGCoder::compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const {
@@ -224,6 +228,49 @@ void HcaluLUTTPGCoder::updateXML(const char* filename) {
   XMLProcessor::getInstance()->terminate();
 }
 
+double HcaluLUTTPGCoder::cosh_ieta(int ieta, int depth, HcalSubdetector subdet) {
+  // ieta = 28 and 29 are both associated with trigger tower 28
+  // so special handling is required. HF ieta=29 channels included in TT30
+  // are already handled correctly in cosh_ieta_
+  if (abs(ieta) >= 28 && subdet == HcalEndcap && allLinear_) {
+    if (abs(ieta) == 29) return cosh_ieta_29_HE_;
+    if (abs(ieta) == 28) {
+      if (depth <= 3) return cosh_ieta_28_HE_low_depths_;
+      else return cosh_ieta_28_HE_high_depths_;
+    }
+  }
+
+  return cosh_ieta_[ieta];
+}
+
+void HcaluLUTTPGCoder::make_cosh_ieta_map(void) {
+
+  cosh_ieta_ = std::vector<double>(lastHFEta_ + 1, -1.0);
+
+  HcalTrigTowerGeometry triggeo(topo_);
+
+  for (int i = 1; i <= firstHFEta_; ++i) {
+    double eta_low = 0., eta_high = 0.;
+    triggeo.towerEtaBounds(i, 0, eta_low, eta_high);
+    cosh_ieta_[i] = cosh((eta_low + eta_high)/2.);
+  }
+  for (int i = firstHFEta_; i <= lastHFEta_; ++i){
+    std::pair<double,double> etas = topo_->etaRange(HcalForward,i);
+    double eta1 = etas.first;
+    double eta2 = etas.second;
+    cosh_ieta_[i] = cosh((eta1 + eta2)/2.);
+  }
+
+  // trigger tower 28 in HE has a more complicated geometry
+  std::pair<double, double> eta28 = topo_->etaRange(HcalEndcap, 28);
+  std::pair<double, double> eta29 = topo_->etaRange(HcalEndcap, 29);
+  cosh_ieta_29_HE_ = cosh((eta29.first + eta29.second)/2.);
+  cosh_ieta_28_HE_low_depths_ = cosh((eta28.first + eta28.second)/2.);
+  // for higher depths in ieta = 28, the trigger tower extends past
+  // the ieta = 29 channels
+  cosh_ieta_28_HE_high_depths_ = cosh((eta28.first + eta29.second)/2.);
+}
+
 void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
     
     HcalCalibrations calibrations;
@@ -231,19 +278,11 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
     assert(metadata !=nullptr);
     float nominalgain_ = metadata->getNominalGain();
 
-    HcalTrigTowerGeometry triggeo(topo_);
-    std::map<int, float> cosh_ieta;
-    for (int i = 1; i <= firstHFEta_; ++i) {
-       double eta_low = 0., eta_high = 0.;
-       triggeo.towerEtaBounds(i, 0, eta_low, eta_high); 
-       cosh_ieta[i] = fabs(cosh((eta_low + eta_high)/2.));
-    }
-    for (int i = firstHFEta_; i <= lastHFEta_; ++i){
-	std::pair<double,double> etas = topo_->etaRange(HcalForward,i);
-	double eta1 = etas.first;
-	double eta2 = etas.second;
-	cosh_ieta[i] = cosh((eta1 + eta2)/2.);
-    }
+    pulseCorr_->beginRun(topo_, delay_, mcParams_, recoParams_);
+    HcalRecoParams *theRecoParams = new HcalRecoParams(*recoParams_.product());
+    theRecoParams->setTopo(topo_);
+
+    make_cosh_ieta_map();
 
     for (const auto& id: metadata->getAllChannels()) {
      
@@ -262,9 +301,9 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	unsigned int mipMax = 0;
 	unsigned int mipMin = 0;
      
-	if (topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2018 or
-		topo_->triggerMode() == HcalTopologyMode::TriggerMode_2018legacy or
-		topo_->dddConstants()->isPlan1(cell)) {
+	bool is2018OrLater = topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2018 or
+	  topo_->triggerMode() == HcalTopologyMode::TriggerMode_2018legacy;
+	if (is2018OrLater or topo_->dddConstants()->isPlan1(cell)) {
 	    const HcalTPChannelParameter *channelParameters = conditions.getHcalTPChannelParameter(cell);
 	    mipMax = channelParameters->getFGBitInfo() >> 16;
 	    mipMin = channelParameters->getFGBitInfo() & 0xFFFF;
@@ -279,7 +318,7 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	if (LUTGenerationMode_){
 	    const HcalCalibrations& calibrations = conditions.getHcalCalibrations(cell);
 	    for (auto capId : {0,1,2,3}){
-		ped += calibrations.pedestal(capId);
+		ped += calibrations.effpedestal(capId);
 		gain += calibrations.LUTrespcorrgain(capId);
 	    }
 	    ped /= 4.0;
@@ -311,7 +350,8 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
 	const size_t SIZE = qieType==QIE8 ? INPUT_LUT_SIZE : UPGRADE_LUT_SIZE;
 	const int MASK = qieType==QIE8 ? QIE8_LUT_BITMASK :
-                         qieType==QIE10 ? QIE10_LUT_BITMASK : QIE11_LUT_BITMASK;
+                         qieType==QIE10 ? QIE10_LUT_BITMASK :
+                         is2018OrLater ? QIE11_LUT_BITMASK : QIE11_LUT_BITMASK_2017;
         double linearLSB = linearLSB_QIE8_;
         if (qieType == QIE11 and cell.ietaAbs() == topo_->lastHBRing())
            linearLSB = linearLSB_QIE11Overlap_;
@@ -325,21 +365,33 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 
 	    int granularity = meta->getLutGranularity();
 
+	    double correctionPhaseNS = theRecoParams->getValues(cell)->correctionPhaseNS();
 	    for (unsigned int adc = 0; adc < SIZE; ++adc) {
 		if (isMasked) lut[adc] = 0;
 		else {
 		    double nonlinearityCorrection = 1.0;
-		    if(qieType==QIE11) {
-		      const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
-		      HcalSiPMnonlinearity corr(conditions.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter.getType()));
-		      const double fcByPE = siPMParameter.getFCByPE();
-		      const double effectivePixelsFired = adc2fC(adc)/fcByPE;
-		      nonlinearityCorrection = corr.getRecoCorrectionFactor(effectivePixelsFired);
+		    double containmentCorrection2TSCorrected = 1.0;
+		    // SiPM nonlinearity was not corrected in 2017
+		    // and containment corrections  were not
+		    // ET-dependent prior to 2018
+		    if(is2018OrLater) {
+		      double containmentCorrection1TS = pulseCorr_->correction(cell, 1, correctionPhaseNS, adc2fC(adc));
+		      // Use the 1-TS containment correction to estimate the charge of the pulse
+		      // from the individual samples
+		      double correctedCharge = containmentCorrection1TS*adc2fC(adc);
+		      containmentCorrection2TSCorrected = pulseCorr_->correction(cell, 2, correctionPhaseNS, correctedCharge);
+		      if(qieType==QIE11) {
+			const HcalSiPMParameter& siPMParameter(*conditions.getHcalSiPMParameter(cell));
+			HcalSiPMnonlinearity corr(conditions.getHcalSiPMCharacteristics()->getNonLinearities(siPMParameter.getType()));
+			const double fcByPE = siPMParameter.getFCByPE();
+			const double effectivePixelsFired = correctedCharge/fcByPE;
+			nonlinearityCorrection = corr.getRecoCorrectionFactor(effectivePixelsFired);
+		      }
 		    }
                     if (allLinear_)
-                       lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / linearLSB / cosh_ieta[cell.ietaAbs()])), MASK);
+		      lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection * containmentCorrection2TSCorrected / linearLSB / cosh_ieta(cell.ietaAbs(), cell.depth(), HcalEndcap))), MASK);
                     else
-                       lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection / nominalgain_ / granularity)), MASK);
+                       lut[adc] = (LutElement) std::min(std::max(0, int((adc2fC(adc) - ped) * gain * rcalib * nonlinearityCorrection * containmentCorrection2TSCorrected / nominalgain_ / granularity)), MASK);
 
 		    if(qieType==QIE11){
 			if (adc >= mipMin and adc < mipMax) lut[adc] |= QIE11_LUT_MSB0;
@@ -352,12 +404,14 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
 	    for (unsigned int adc = 0; adc < SIZE; ++adc) {
 		if (isMasked) lut[adc] = 0;
 		else {
-		    lut[adc] = std::min(std::max(0,int((adc2fC(adc) - ped) * gain * rcalib / lsb_ / cosh_ieta[cell.ietaAbs()] )), MASK);
+		  lut[adc] = std::min(std::max(0,int((adc2fC(adc) - ped) * gain * rcalib / lsb_ / cosh_ieta_[cell.ietaAbs()])), MASK);
 		    if(adc>FG_HF_threshold_) lut[adc] |= QIE10_LUT_MSB;
 		}
 	    }
         }
     } 
+    pulseCorr_->endRun();
+    delete theRecoParams;
 }
 
 void HcaluLUTTPGCoder::adc2Linear(const HBHEDataFrame& df, IntegerCaloSamples& ics) const {

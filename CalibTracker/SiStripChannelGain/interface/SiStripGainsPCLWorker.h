@@ -78,11 +78,11 @@ public:
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-    virtual void beginJob() ;
+    void beginJob() override;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;   
     void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
     void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() ;
+    void endJob() override;
     
     void processEvent(const TrackerTopology* topo); //what really does the job
     virtual void checkBookAPVColls(const edm::EventSetup& setup);
@@ -105,8 +105,6 @@ private:
     std::vector<MonitorElement*>  Charge_Vs_PathlengthTECP2; /*!< Charge vs pathlength in TECP thick */
     std::vector<MonitorElement*>  Charge_Vs_PathlengthTECM1; /*!< Charge vs pathlength in TECP thin */
     std::vector<MonitorElement*>  Charge_Vs_PathlengthTECM2; /*!< Charge vs pathlength in TECP thick */
-
-    
 
     unsigned int NEvent;    
     unsigned int NTrack;

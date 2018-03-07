@@ -4,11 +4,11 @@
 #include "BMTFCollections.h"
 
 namespace l1t{
-	namespace stage2{
-		class BMTFUnpackerOutput : public Unpacker
-		{
-			public:
-				bool unpack(const Block& block, UnpackerCollections *coll) override;
-		};
-	}
+  namespace stage2{
+    class BMTFUnpackerOutput : public Unpacker
+    {
+    public:
+      bool unpack(const Block& block, UnpackerCollections *coll) override;
+    };
+  }
 }

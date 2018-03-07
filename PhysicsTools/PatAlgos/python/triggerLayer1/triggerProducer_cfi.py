@@ -7,7 +7,7 @@ patTrigger = cms.EDProducer( "PATTriggerProducer"
 ,l1GtTriggerMenuLiteInputTag = cms.InputTag("gtDigis")
 ,l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis")
 ,l1tExtBlkInputTag = cms.InputTag("gtStage2Digis")
-,ReadPrescalesFromFile = cms.bool(True)
+,ReadPrescalesFromFile = cms.bool(False)
 
 # ## L1
 # , addL1Algos                     = cms.bool( False )                                 # default; possibly superseded by 'onlyStandAlone' = True
@@ -33,3 +33,5 @@ patTrigger = cms.EDProducer( "PATTriggerProducer"
 , packTriggerLabels = cms.bool(False)
 )
 
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+run2_miniAOD_80XLegacy.toModify(patTrigger, ReadPrescalesFromFile = True)

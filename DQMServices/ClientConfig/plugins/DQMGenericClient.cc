@@ -306,6 +306,43 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     cdOptions_.push_back(opt);
   }
 
+  // move under/overflows to first/last bins
+  vstring noFlowCmds = pset.getUntrackedParameter<vstring>("noFlowDists", vstring());
+  for ( vstring::const_iterator noFlowCmd = noFlowCmds.begin();
+        noFlowCmd != noFlowCmds.end(); ++noFlowCmd )
+  {
+    if ( noFlowCmd->empty() ) continue;
+    boost::tokenizer<elsc> tokens(*noFlowCmd, commonEscapes);
+
+    vector<string> args;
+    for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
+        iToken != tokens.end(); ++iToken) {
+      if ( iToken->empty() ) continue;
+      args.push_back(*iToken);
+    }
+
+    if ( args.empty() || args.size() > 2) {
+      LogInfo("DQMGenericClient") << "Wrong input to noFlowCmds\n";
+      continue;
+    }
+
+    NoFlowOption opt;
+    opt.name = args[0];
+
+    noFlowOptions_.push_back(opt);
+  }
+
+  VPSet noFlowSets = pset.getUntrackedParameter<VPSet>("noFlowDistSets", VPSet());
+  for ( VPSet::const_iterator noFlowSet = noFlowSets.begin();
+        noFlowSet != noFlowSets.end(); ++noFlowSet )
+  {
+    NoFlowOption opt;
+    opt.name = noFlowSet->getUntrackedParameter<string>("name");
+
+    noFlowOptions_.push_back(opt);
+  }
+
+
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
   subDirs_ = pset.getUntrackedParameter<vstring>("subDirs");
 
@@ -364,12 +401,19 @@ void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
       iSubDir != subDirSet.end(); ++iSubDir) {
     const string& dirName = *iSubDir;
 
-    // First normalize, then make cumulative, and only then efficiency
-    // This allows to use the cumulative distributions for efficiency calculation
+    // First normalize, then move under/overflows, then make
+    // cumulative, and only then efficiency This allows to use the
+    // cumulative distributions for efficiency calculation
     for ( vector<NormOption>::const_iterator normOption = normOptions_.begin();
           normOption != normOptions_.end(); ++normOption )
     {
       normalizeToEntries(ibooker, igetter, dirName, normOption->name, normOption->normHistName);
+    }
+
+    for ( vector<NoFlowOption>::const_iterator noFlowOption = noFlowOptions_.begin();
+          noFlowOption != noFlowOptions_.end(); ++noFlowOption )
+    {
+      makeNoFlowDist(ibooker, igetter, dirName, noFlowOption->name);
     }
 
     for ( vector<CDOption>::const_iterator cdOption = cdOptions_.begin();
@@ -809,6 +853,46 @@ void DQMGenericClient::makeCumulativeDist(DQMStore::IBooker& ibooker, DQMStore::
   }
 
   return;
+}
+
+void DQMGenericClient::makeNoFlowDist(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& startDir, const std::string& noFlowName) 
+{
+  if ( ! igetter.dirExists(startDir) ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogInfo("DQMGenericClient") << "makeNoFlowDist() : "
+                                  << "Cannot find sub-directory " << startDir << endl;
+    }
+    return;
+  }
+
+  ibooker.cd();
+
+  ME* element_noFlow = igetter.get(startDir+"/"+noFlowName);
+
+  if ( !element_noFlow ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogInfo("DQMGenericClient") << "makeNoFlowDist() : "
+                                  << "No such element '" << noFlowName << "' found\n";
+    }
+    return;
+  }
+
+  TH1F* noFlow  = element_noFlow->getTH1F();
+
+  if ( !noFlow ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogInfo("DQMGenericClient") << "makeNoFlowDist() : "
+                                  << "Cannot create TH1F from ME\n";
+    }
+    return;
+  }
+
+  noFlow->AddBinContent(1, noFlow->GetBinContent(0));
+  noFlow->SetBinContent(0, 0.);
+
+  const auto lastBin = noFlow->GetNbinsX();
+  noFlow->AddBinContent(lastBin, noFlow->GetBinContent(lastBin+1));
+  noFlow->SetBinContent(lastBin+1, 0.);
 }
 
 void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME)

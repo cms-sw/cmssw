@@ -209,7 +209,8 @@ namespace edm {
 
     void beginRun(ProcessHistoryID const& phid, RunNumber_t run, bool& globalBeginSucceeded);
     void endRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException);
-
+    void endUnfinishedRun(ProcessHistoryID const& phid, RunNumber_t run, bool globalBeginSucceeded, bool cleaningUpAfterException);
+    
     InputSource::ItemType processLumis(std::shared_ptr<void> const& iRunResource);
     void endUnfinishedLumi();
     
@@ -226,9 +227,9 @@ namespace edm {
     std::pair<ProcessHistoryID,RunNumber_t> readAndMergeRun();
     void readLuminosityBlock(LuminosityBlockProcessingStatus&);
     int readAndMergeLumi(LuminosityBlockProcessingStatus&);
-    void writeRun(ProcessHistoryID const& phid, RunNumber_t run);
+    void writeRunAsync(WaitingTaskHolder, ProcessHistoryID const& phid, RunNumber_t run);
     void deleteRunFromCache(ProcessHistoryID const& phid, RunNumber_t run);
-    void writeLumi(LuminosityBlockProcessingStatus& );
+    void writeLumiAsync(WaitingTaskHolder, std::shared_ptr<LuminosityBlockProcessingStatus> );
     void deleteLumiFromCache(LuminosityBlockProcessingStatus&);
 
     bool shouldWeStop() const;

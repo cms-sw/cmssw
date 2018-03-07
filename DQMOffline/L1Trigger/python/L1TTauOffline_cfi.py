@@ -13,7 +13,8 @@ tauEfficiencyBins.extend(list(xrange(300, 400, 50)))
 tauEfficiencyBins.extend(list(xrange(400, 600, 100)))
 tauEfficiencyBins.extend(list(xrange(600, 1200, 200)))
 
-l1tTauOfflineDQM = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tTauOfflineDQM = DQMEDAnalyzer(
     "L1TTauOffline",
     verbose   = cms.untracked.bool(False),
 
@@ -32,13 +33,15 @@ l1tTauOfflineDQM = cms.EDAnalyzer(
     trigProcess        = cms.untracked.string("HLT"),
     trigProcess_token  = cms.untracked.InputTag("TriggerResults","","HLT"),
 
-    histFolder=cms.string('L1T/L1TTau'),
+    histFolder=cms.string('L1T/L1TObjects/L1TTau/L1TriggerVsReco'),
 
     tauEfficiencyThresholds=cms.vint32(tauEfficiencyThresholds),
     tauEfficiencyBins=cms.vdouble(tauEfficiencyBins),
 
     histDefinitions=cms.PSet(
-        nVertex = histDefinitions.nVertex.clone(),
+        nVertex=histDefinitions.nVertex.clone(),
+        ETvsET=histDefinitions.ETvsET.clone(),
+        PHIvsPHI=histDefinitions.PHIvsPHI.clone(),
     ),
 
 )
@@ -46,5 +49,5 @@ l1tTauOfflineDQM = cms.EDAnalyzer(
 l1tTauOfflineDQMEmu = l1tTauOfflineDQM.clone(
     stage2CaloLayer2TauSource=cms.InputTag("simCaloStage2Digis"),
 
-    histFolder=cms.string('L1TEMU/L1TTau'),
+    histFolder=cms.string('L1TEMU/L1TObjects/L1TTau/L1TriggerVsReco'),
 )

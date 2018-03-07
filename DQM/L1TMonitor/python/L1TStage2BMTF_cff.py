@@ -4,7 +4,8 @@ import FWCore.ParameterSet.Config as cms
 from DQM.L1TMonitor.L1TStage2BMTF_cfi import *
 
 # zero suppression DQM
-l1tStage2BmtfZeroSupp = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tStage2BmtfZeroSupp = DQMEDAnalyzer(
     "L1TMP7ZeroSupp",
     fedIds = cms.vint32(1376, 1377),
     rawData = cms.InputTag("rawDataCollector"),

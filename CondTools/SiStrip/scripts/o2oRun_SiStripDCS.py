@@ -28,6 +28,7 @@ def run(args):
     o2ocmd += ' --destTags {destTags}'
     o2ocmd += ' --destDb {destDb}'
     o2ocmd += ' --inputTag {inputTag}'
+    o2ocmd += ' --sourceDb {sourceDb}'
     o2ocmd += ' --condDbRead {condDbRead}'
     if args.debug:
         o2ocmd += ' --debug'

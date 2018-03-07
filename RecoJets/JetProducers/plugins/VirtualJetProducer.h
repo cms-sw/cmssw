@@ -27,6 +27,7 @@
 #include "fastjet/ClusterSequenceArea.hh"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/GhostedAreaSpec.hh"
+#include "fastjet/Selector.hh"
 
 #include <memory>
 #include <vector>
@@ -90,7 +91,7 @@ public:
   typedef boost::shared_ptr<fastjet::JetDefinition>          JetDefPtr;
   typedef boost::shared_ptr<fastjet::GhostedAreaSpec>        ActiveAreaSpecPtr;
   typedef boost::shared_ptr<fastjet::AreaDefinition>         AreaDefinitionPtr;
-  typedef boost::shared_ptr<fastjet::RangeDefinition>        RangeDefPtr;
+  typedef boost::shared_ptr<fastjet::Selector>               SelectorPtr;
   
   //
   // member functions
@@ -202,7 +203,7 @@ protected:
   PluginPtr                       fjPlugin_;        // fastjet plugin
   ActiveAreaSpecPtr               fjActiveArea_;    // fastjet active area definition
   AreaDefinitionPtr               fjAreaDefinition_;// fastjet area definition
-  RangeDefPtr                     fjRangeDef_;      // range definition
+  SelectorPtr                     fjSelector_;      // selector for range definition
   std::vector<fastjet::PseudoJet> fjInputs_;        // fastjet inputs
   std::vector<fastjet::PseudoJet> fjJets_;          // fastjet jets
 

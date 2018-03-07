@@ -945,20 +945,20 @@ void SiStripGainFromCalibTree::algoEndRun(const edm::Run& run, const edm::EventS
                 for (unsigned int i=0;i<tags.size();i++){
                     std::string tag = DQM_dir + "/" + (tags[i]).first + stag;
                     Charge_1[elepos].push_back( APVGain::APVmon(0,0,0,dbe->get( tag) ) );
-                    if ( (Charge_1[elepos][i]).monitor==nullptr ) {
+                    if ( (Charge_1[elepos][i]).getMonitor()==nullptr ) {
                          edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << tag.c_str()
                                                                    << ", statistics will not be summed!" << std::endl;
-                    } else (Charge_1[Harvest][i]).monitor->getTH1D()->Add((Charge_1[elepos][i]).monitor->getTH1D());
+                    } else (Charge_1[Harvest][i]).getMonitor()->getTH1D()->Add((Charge_1[elepos][i]).getMonitor()->getTH1D());
                 }
 
                 tags = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG2");
                 for (unsigned int i=0;i<tags.size();i++){
                     std::string tag = DQM_dir + "/" + (tags[i]).first + stag;
                     Charge_2[elepos].push_back( APVGain::APVmon(0,0,0,dbe->get( tag) ) );
-                    if ( (Charge_2[elepos][i]).monitor==nullptr ) {
+                    if ( (Charge_2[elepos][i]).getMonitor()==nullptr ) {
                          edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << tag.c_str()
                                                                    << ", statistics will not be summed!" << std::endl;
-                    } else (Charge_2[Harvest][i]).monitor->getTH1D()->Add((Charge_2[elepos][i]).monitor->getTH1D());
+                    } else (Charge_2[Harvest][i]).getMonitor()->getTH1D()->Add((Charge_2[elepos][i]).getMonitor()->getTH1D());
 
                 }
 
@@ -966,10 +966,10 @@ void SiStripGainFromCalibTree::algoEndRun(const edm::Run& run, const edm::EventS
                 for (unsigned int i=0;i<tags.size();i++){
                     std::string tag = DQM_dir + "/" + (tags[i]).first + stag;
                     Charge_3[elepos].push_back( APVGain::APVmon(0,0,0,dbe->get( tag) ) );
-                    if ( (Charge_3[elepos][i]).monitor==nullptr ) {
+                    if ( (Charge_3[elepos][i]).getMonitor()==nullptr ) {
                          edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << tag.c_str()
                                                                    << ", statistics will not be summed!" << std::endl;
-                    } else (Charge_3[Harvest][i]).monitor->getTH1D()->Add((Charge_3[elepos][i]).monitor->getTH1D());
+                    } else (Charge_3[Harvest][i]).getMonitor()->getTH1D()->Add((Charge_3[elepos][i]).getMonitor()->getTH1D());
 
                 }
 
@@ -977,10 +977,10 @@ void SiStripGainFromCalibTree::algoEndRun(const edm::Run& run, const edm::EventS
                 for (unsigned int i=0;i<tags.size();i++){
                     std::string tag = DQM_dir + "/" + (tags[i]).first + stag;
                     Charge_4[elepos].push_back( APVGain::APVmon(0,0,0,dbe->get( tag) ) );
-                    if ( (Charge_4[elepos][i]).monitor==nullptr ) {
+                    if ( (Charge_4[elepos][i]).getMonitor()==nullptr ) {
                          edm::LogError("SiStripGainFromCalibTree") << "Harvesting: could not retrieve " << tag.c_str()
                                                                    << ", statistics will not be summed!" << std::endl;
-                    } else (Charge_4[Harvest][i]).monitor->getTH1D()->Add((Charge_4[elepos][i]).monitor->getTH1D());
+                    } else (Charge_4[Harvest][i]).getMonitor()->getTH1D()->Add((Charge_4[elepos][i]).getMonitor()->getTH1D());
                 }
 
             }

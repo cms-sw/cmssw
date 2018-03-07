@@ -38,3 +38,10 @@ l1t::EtSum::EtSumType l1t::EtSum::getType() const
 {
   return type_;
 }
+
+bool l1t::EtSum::operator==(const l1t::EtSum& rhs) const
+{
+  return l1t::L1Candidate::operator==(static_cast<const l1t::L1Candidate &>(rhs))
+      && type_ == rhs.getType();
+}
+

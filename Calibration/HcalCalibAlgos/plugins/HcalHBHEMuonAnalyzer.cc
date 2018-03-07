@@ -196,7 +196,7 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) :
   tok_EB_       = consumes<EcalRecHitCollection>(labelEBRecHit_);
   tok_EE_       = consumes<EcalRecHitCollection>(labelEERecHit_);
   tok_HBHE_     = consumes<HBHERecHitCollection>(labelHBHERecHit_);
-  if (modnam == "") {
+  if (modnam.empty()) {
     tok_Vtx_      = consumes<reco::VertexCollection>(labelVtx_);
     tok_Muon_     = consumes<reco::MuonCollection>(labelMuon_);
     edm::LogVerbatim("HBHEMuon")  << "Labels used: Trig " << hlTriggerResults_
@@ -215,7 +215,7 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) :
 				   << "\n  MU   " << edm::InputTag(modnam,labelMuon_,procnm);
   }
 
-  if (fileInCorr_ != "") {
+  if (!fileInCorr_.empty()) {
     std::ifstream infile(fileInCorr_.c_str());
     if (infile.is_open()) {
       while (true) {
@@ -618,7 +618,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 		  double chg(ene), enec(ene);
 		  if (unCorrect_) {
 		    double corr = (ignoreHECorr_ && (subdet0==HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
-		    if (corr != 0) {ene /= corr; chg /= corr;}
+		    if (corr != 0) ene /= corr;
 #ifdef EDM_ML_DEBUG
 		    HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc_->mergedDepthDetId(hcid0) : hcid0;
 		    edm::LogVerbatim("HBHEMuon") << hcid0 << ":" << id 
@@ -676,7 +676,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 		  double chg(ene);
 		  if (unCorrect_) {
 		    double corr = (ignoreHECorr_ && (subdet0==HcalEndcap)) ? 1.0 : respCorr(DetId(hcid0));
-		    if (corr != 0) {ene /= corr; chg /= corr;}
+		    if (corr != 0) ene /= corr; 
 #ifdef EDM_ML_DEBUG
 		    HcalDetId id = (isItPlan1_ && isItPreRecHit_) ? hdc_->mergedDepthDetId(hcid0) : hcid0;
 		    edm::LogVerbatim("HBHEMuon") << hcid0 << ":" << id 

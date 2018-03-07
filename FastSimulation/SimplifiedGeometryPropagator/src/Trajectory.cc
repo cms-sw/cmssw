@@ -7,6 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FastSimulation/SimplifiedGeometryPropagator/interface/Constants.h"
 
+fastsim::Trajectory::~Trajectory(){}
 
 fastsim::Trajectory::Trajectory(const fastsim::Particle & particle)
 {

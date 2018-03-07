@@ -97,16 +97,16 @@ class MahiFit
 		   float& reconstructedEnergy, 
 		   float& reconstructedTime, 
 		   bool& useTriple,
-		   float& chi2,
-		   const HcalTimeSlew* hcalTimeSlew_delay) const;
+		   float& chi2) const;
 
-  void doFit(std::array<float,3> &correctedOutput, int nbx, const HcalTimeSlew* hcalTimeSlew_delay) const;
+  void doFit(std::array<float,3> &correctedOutput, const int nbx) const;
 
-  void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps);
+  void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps,const HcalTimeSlew * hcalTimeSlewDelay);
   void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
 
   typedef BXVector::Index Index;
   const HcalPulseShapes::Shape* currentPulseShape_=nullptr;
+  const HcalTimeSlew* hcalTimeSlewDelay_=nullptr;
 
  private:
 
@@ -115,8 +115,8 @@ class MahiFit
   void updateCov() const;
   void updatePulseShape(double itQ, FullSampleVector &pulseShape, 
 			FullSampleVector &pulseDeriv,
-			FullSampleMatrix &pulseCov,
-			const HcalTimeSlew* hcalTimeSlew_delay) const;
+			FullSampleMatrix &pulseCov) const;
+
   double calculateArrivalTime() const;
   double calculateChiSq() const;
   void nnls() const;
@@ -127,8 +127,6 @@ class MahiFit
 
   void solveSubmatrix(PulseMatrix& mat, PulseVector& invec, PulseVector& outvec, unsigned nP) const;
 
-  double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const;
-  
   mutable MahiNnlsWorkspace nnlsWork_;
 
   //hard coded in initializer
@@ -137,6 +135,10 @@ class MahiFit
 
   static constexpr int pedestalBX_ = 100;
 
+  // used to restrict returned time value to a 25 ns window centered 
+  // on the nominal arrival time
+  static constexpr float timeLimit_ = 12.5;
+
   // Python-configurables
   bool dynamicPed_;
   float ts4Thresh_; 
@@ -144,6 +146,7 @@ class MahiFit
 
   bool applyTimeSlew_; 
   HcalTimeSlew::BiasSetting slewFlavor_;
+  double tsDelay1GeV_=0;
 
   float meanTime_;
   float timeSigmaHPD_; 

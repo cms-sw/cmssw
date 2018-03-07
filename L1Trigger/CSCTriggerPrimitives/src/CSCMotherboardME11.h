@@ -36,15 +36,15 @@ class CSCMotherboardME11 : public CSCMotherboard
 	   const CSCComparatorDigiCollection* compdc);
 
   /** Returns vectors of found correlated LCTs in ME1a and ME1b, if any. */
-  std::vector<CSCCorrelatedLCTDigi> getLCTs1a();
-  std::vector<CSCCorrelatedLCTDigi> getLCTs1b();
+  std::vector<CSCCorrelatedLCTDigi> getLCTs1a() const;
+  std::vector<CSCCorrelatedLCTDigi> getLCTs1b() const;
 
   /** Returns vectors of found ALCTs in ME1a and ME1b, if any. */
-  std::vector<CSCALCTDigi> getALCTs1b() const {return alctV;}
+  const std::vector<CSCALCTDigi>& getALCTs1b() const {return alctV;}
 
   /** Returns vectors of found CLCTs in ME1a and ME1b, if any. */
-  std::vector<CSCCLCTDigi> getCLCTs1a() const {return clctV1a;}
-  std::vector<CSCCLCTDigi> getCLCTs1b() const {return clctV1b;}
+  const std::vector<CSCCLCTDigi>& getCLCTs1a() const {return clctV1a;}
+  const std::vector<CSCCLCTDigi>& getCLCTs1b() const {return clctV1b;}
 
   /** Clears correlated LCT and passes clear signal on to cathode and anode
       LCT processors. */
@@ -56,9 +56,9 @@ class CSCMotherboardME11 : public CSCMotherboard
   /** additional Cathode LCT processor for ME1a */
   std::unique_ptr<CSCCathodeLCTProcessor> clct1a;
 
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs1a();
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs1b();
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs(int me1ab);
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs1a() const;
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs1b() const;
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs(int me1ab) const;
 
  private:
 
@@ -72,22 +72,19 @@ class CSCMotherboardME11 : public CSCMotherboard
   /** SLHC: special configuration parameters for ME11 treatment. */
   bool smartME1aME1b, disableME1a, gangedME1a;
 
-  bool doesALCTCrossCLCT(CSCALCTDigi &a, CSCCLCTDigi &c, int me);
-
-  /** Container for first correlated LCT in ME1a. */
-  //CSCCorrelatedLCTDigi firstLCT1a[CSCConstants::MAX_LCT_TBINS];
-
-  /** Container for second correlated LCT in ME1a. */
-  //CSCCorrelatedLCTDigi secondLCT1a[CSCConstants::MAX_LCT_TBINS];
+  bool doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c, int me) const;
 
   /** for the case when more than 2 LCTs/BX are allowed;
       maximum match window = 15 */
   CSCCorrelatedLCTDigi allLCTs1b[CSCConstants::MAX_LCT_TBINS][15][2];
   CSCCorrelatedLCTDigi allLCTs1a[CSCConstants::MAX_LCT_TBINS][15][2];
 
-  void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
-		     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
+  void correlateLCTs(const CSCALCTDigi& bestALCT,
+                     const CSCALCTDigi& secondALCT,
+                     const CSCCLCTDigi& bestCLCT,
+                     const CSCCLCTDigi& secondCLCT,
+                     CSCCorrelatedLCTDigi& lct1,
+                     CSCCorrelatedLCTDigi& lct2, int me) const;
 
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV1b;

@@ -335,9 +335,9 @@ bool PVFitter::runFitter() {
     TF1 gausy("localGausY","gaus",0.,1.,TF1::EAddToList::kNo);
     TF1 gausz("localGausZ","gaus",0.,1.,TF1::EAddToList::kNo);
 
-    h1PVx->Fit(&gausx,"QLMN0");
-    h1PVy->Fit(&gausy,"QLMN0");
-    h1PVz->Fit(&gausz,"QLMN0");
+    h1PVx->Fit(&gausx,"QLMN0 SERIAL");
+    h1PVy->Fit(&gausy,"QLMN0 SERIAL");
+    h1PVz->Fit(&gausz,"QLMN0 SERIAL");
 
 
     fwidthX     = gausx.GetParameter(2);

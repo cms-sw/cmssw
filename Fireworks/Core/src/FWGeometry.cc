@@ -148,7 +148,7 @@ FWGeometry::loadMap( const char* fileName )
    }
 
    TNamed* ttopology = static_cast<TNamed*>(file->Get( "TrackerTopology" ));
-   if (producerInfo) {
+   if (ttopology) {
       std::string xml = ttopology->GetTitle();
       m_trackerTopology = std::unique_ptr<TrackerTopology>(new TrackerTopology(StandaloneTrackerTopology::fromTrackerParametersXMLString(xml)));
    }

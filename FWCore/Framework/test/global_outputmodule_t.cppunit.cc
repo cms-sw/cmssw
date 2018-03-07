@@ -19,11 +19,13 @@
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -137,6 +139,9 @@ private:
 };
 
 namespace {
+
+  edm::ActivityRegistry activityRegistry;
+
   struct ShadowStreamID {
     constexpr ShadowStreamID():value(0){}
     unsigned int value;
@@ -216,14 +221,26 @@ m_ep()
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     iBase->doWork<Traits>(*m_lbp,*m_es, edm::StreamID::invalidStreamID(), parentContext, nullptr);
-    iComm->writeLumi(*m_lbp, nullptr);
+    auto t = edm::make_empty_waiting_task();
+    t->increment_ref_count();
+    iComm->writeLumiAsync(edm::WaitingTaskHolder(t.get()), *m_lbp, nullptr, &activityRegistry);
+    t->wait_for_all();
+    if(t->exceptionPtr() != nullptr) {
+      std::rethrow_exception(*t->exceptionPtr());
+    }
   };
 
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext parentContext;
     iBase->doWork<Traits>(*m_rp,*m_es, edm::StreamID::invalidStreamID(), parentContext, nullptr);
-    iComm->writeRun(*m_rp, nullptr);
+    auto t = edm::make_empty_waiting_task();
+    t->increment_ref_count();
+    iComm->writeRunAsync(edm::WaitingTaskHolder(t.get()), *m_rp, nullptr, &activityRegistry);
+    t->wait_for_all();
+    if(t->exceptionPtr() != nullptr) {
+      std::rethrow_exception(*t->exceptionPtr());
+    }
   };
   
   m_transToFunc[Trans::kGlobalCloseInputFile] = [](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
