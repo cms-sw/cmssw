@@ -14,7 +14,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 
 #2023 WFs to run in IB (TTbar, TTbar+Timing)
 numWFIB = [20034.0,20034.1,20034.11] #2023D17 w/ special tracking and timing workflows
-numWFIB.extend([20261.98]) # 2023D7 premixing stage1 (NuGun+PU)
+numWFIB.extend([20261.98]) # 2023D17 premixing stage1 (NuGun+PU)
 numWFIB.extend([20434.0]) #2023D19 (already has timing)
 numWFIB.extend([21234.0,21234.11]) #2023D21  
 for numWF in numWFIB:
