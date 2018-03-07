@@ -12,7 +12,8 @@ L1TLeadingJetTauMatching::L1TLeadingJetTauMatching(const edm::ParameterSet& iCon
     tauSrc_    ( consumes<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>("TauSrc"      ) ) ),
     L1JetSrc_  ( consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<edm::InputTag>("L1JetSrc") ) ),
     matchingR2_ ( iConfig.getParameter<double>("MatchingdR")*iConfig.getParameter<double>("MatchingdR") ),
-    minTauPt_ (iConfig.getParameter<double>("MinTauPt") )
+    minTauPt_ (iConfig.getParameter<double>("MinTauPt") ),
+    minJetPt_ (iConfig.getParameter<double>("MinJetPt") )
 {  
     produces<reco::PFTauCollection>();
 }
@@ -32,12 +33,20 @@ void L1TLeadingJetTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, c
     L1Jets->getObjects(trigger::TriggerL1Jet,jetCandRefVec);
 
     for(unsigned int iTau = 0; iTau < taus->size(); iTau++){  
+        bool isMatched = false;
         if ((*taus)[iTau].pt() > minTauPt_){
-            if(reco::deltaR2((*taus)[iTau].p4(), jetCandRefVec[0]->p4()) < matchingR2_)
-                L1matchedPFTau->push_back((*taus)[iTau]);
-        }
-    }
+            for (unsigned int iJet = 0; iJet < jetCandRefVec.size(); iJet++) {
+                if (jetCandRefVec[iJet]->pt() > minJetPt_){
 
+                    if(reco::deltaR2((*taus)[iTau].p4(), jetCandRefVec[iJet]->p4()) < matchingR2_){
+                        isMatched = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if(isMatched == true) L1matchedPFTau->push_back((*taus)[iTau]);
+    }
     iEvent.put(std::move(L1matchedPFTau));
 }
 

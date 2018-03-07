@@ -24,6 +24,7 @@ class L1TLeadingJetTauMatching: public edm::global::EDProducer<> {
         const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> L1JetSrc_;
         const double matchingR2_;
         const double minTauPt_;
+        const double minJetPt_;
 
     public:
         explicit L1TLeadingJetTauMatching(const edm::ParameterSet&);
