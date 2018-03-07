@@ -1,6 +1,7 @@
 function die { echo $1: status $2 ;  exit $2; }
 
 ids_to_test=(
+    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff'
     'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff'
     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff'
     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_50ns_V1_cff'
