@@ -77,8 +77,8 @@ L2MuonSeedGeneratorFromL1T::L2MuonSeedGeneratorFromL1T(const edm::ParameterSet& 
   matchingDR(iConfig.getParameter<std::vector<double> >("MatchDR")),          
   etaBins(iConfig.getParameter<std::vector<double> >("EtaMatchingBins")),          
   centralBxOnly_( iConfig.getParameter<bool>("CentralBxOnly") ),
-  matchType( iConfig.getParameter<int>("MatchType") ),
-  sortType( iConfig.getParameter<int>("SortType") )
+  matchType( iConfig.getParameter<unsigned int>("MatchType") ),
+  sortType( iConfig.getParameter<unsigned int>("SortType") )
   {
 
   muCollToken_ = consumes<MuonBxCollection>(theSource);
@@ -135,8 +135,8 @@ L2MuonSeedGeneratorFromL1T::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<std::vector<double>>("MatchDR", {0.3});
   desc.add<std::vector<double>>("EtaMatchingBins", {0., 2.5});
   desc.add<bool>("CentralBxOnly", true);
-  desc.add<int>("MatchType", 0)->setComment("MatchType : 0 Old matching,   1 L1 Order(1to1), 2 Min dR(1to1), 3 Higher Q(1to1), 4 All matched L1");
-  desc.add<int>("SortType", 0)->setComment("SortType :  0 not sort,       1 Pt, 2 Q and Pt");
+  desc.add<unsigned int>("MatchType", 0)->setComment("MatchType : 0 Old matching,   1 L1 Order(1to1), 2 Min dR(1to1), 3 Higher Q(1to1), 4 All matched L1");
+  desc.add<unsigned int>("SortType", 0)->setComment("SortType :  0 not sort,       1 Pt, 2 Q and Pt");
   desc.addUntracked<edm::InputTag>("OfflineSeedLabel", edm::InputTag(""));
 
   edm::ParameterSetDescription psd0;
