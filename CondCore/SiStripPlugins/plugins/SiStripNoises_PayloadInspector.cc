@@ -346,52 +346,7 @@ namespace {
       
       SiStripDetSummary summaryNoise{&m_trackerTopo};
 
-      SiStripNoises::RegistryIterator rit=payload->getRegistryVectorBegin(), erit=payload->getRegistryVectorEnd();
-      uint16_t Nstrips;
-      std::vector<float> vstripnoise;
-      double mean,rms,min, max;
-      for(;rit!=erit;++rit){
-	Nstrips = (rit->iend-rit->ibegin)*8/9; //number of strips = number of chars * char size / strip noise size
-	vstripnoise.resize(Nstrips);
-	payload->allNoises(vstripnoise,make_pair(payload->getDataVectorBegin()+rit->ibegin,payload->getDataVectorBegin()+rit->iend));
-	
-	mean=0; rms=0; min=10000; max=0;  
-	
-	DetId detId(rit->detid);
-	
-	for(size_t i=0;i<Nstrips;++i){
-	  mean+=vstripnoise[i];
-	  rms+=vstripnoise[i]*vstripnoise[i];
-	  if(vstripnoise[i]<min) min=vstripnoise[i];
-	  if(vstripnoise[i]>max) max=vstripnoise[i];
-	}
-	
-	mean/=Nstrips;
-	if((rms/Nstrips-mean*mean)>0.){
-	  rms = sqrt(rms/Nstrips-mean*mean);
-	} else {
-	  rms=0.;
-	}       
-
-	switch(est){
-	case SiStripPI::min:
-	  summaryNoise.add(detId,min);
-	  break;
-	case SiStripPI::max:
-	  summaryNoise.add(detId,max);
-	  break;
-	case SiStripPI::mean:
-	  summaryNoise.add(detId,mean);
-	  break;
-	case SiStripPI::rms:
-	  summaryNoise.add(detId,rms);
-	  break;
-	default:
-	  edm::LogWarning("LogicError") << "Unknown estimator: " <<  est; 
-	  break;
-	}
-
-      }
+      SiStripPI::fillNoiseDetSummary(summaryNoise,payload,est);
 
       std::map<unsigned int, SiStripDetSummary::Values> map = summaryNoise.getCounts();
       //=========================

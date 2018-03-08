@@ -854,109 +854,8 @@ namespace {
       //     k: 0=BadModule, 1=BadFiber, 2=BadApv, 3=BadStrips
       int NBadComponent[4][19][4] = {{{0}}};  
     
-      std::vector<SiStripQuality::BadComponent> BC = siStripQuality_->getBadComponentList();
-  
-      for (size_t i=0;i<BC.size();++i){
-	
-	//&&&&&&&&&&&&&
-	//Full Tk
-	//&&&&&&&&&&&&&
-	
-	if (BC[i].BadModule) 
-	  NTkBadComponent[0]++;
-	if (BC[i].BadFibers) 
-	  NTkBadComponent[1]+= ( (BC[i].BadFibers>>2)&0x1 )+ ( (BC[i].BadFibers>>1)&0x1 ) + ( (BC[i].BadFibers)&0x1 );
-	if (BC[i].BadApvs)
-	  NTkBadComponent[2]+= ( (BC[i].BadApvs>>5)&0x1 )+ ( (BC[i].BadApvs>>4)&0x1 ) + ( (BC[i].BadApvs>>3)&0x1 ) + 
-	    ( (BC[i].BadApvs>>2)&0x1 )+ ( (BC[i].BadApvs>>1)&0x1 ) + ( (BC[i].BadApvs)&0x1 );
-	
-	//&&&&&&&&&&&&&&&&&
-	//Single SubSyste
-	//&&&&&&&&&&&&&&&&&
-	int component;
-	DetId detectorId=DetId(BC[i].detid);
-	int subDet = detectorId.subdetId();
-	if ( subDet == StripSubdetector::TIB ){
-	  //&&&&&&&&&&&&&&&&&
-	  //TIB
-	  //&&&&&&&&&&&&&&&&&
-	  
-	  component=m_trackerTopo.tibLayer(BC[i].detid);
-	  SiStripPI::setBadComponents(0, component, BC[i],NBadComponent);         
-
-	} else if ( subDet == StripSubdetector::TID ) {
-	  //&&&&&&&&&&&&&&&&&
-	  //TID
-	  //&&&&&&&&&&&&&&&&&
-	  
-	  component=m_trackerTopo.tidSide(BC[i].detid)==2?m_trackerTopo.tidWheel(BC[i].detid):m_trackerTopo.tidWheel(BC[i].detid)+3;
-	  SiStripPI::setBadComponents(1, component, BC[i],NBadComponent);         
-	  
-	} else if ( subDet == StripSubdetector::TOB ) {
-	  //&&&&&&&&&&&&&&&&&
-	  //TOB
-	  //&&&&&&&&&&&&&&&&&
-	  
-	  component=m_trackerTopo.tobLayer(BC[i].detid);
-	  SiStripPI::setBadComponents(2, component, BC[i],NBadComponent);         
-
-	} else if ( subDet == StripSubdetector::TEC ) {
-	  //&&&&&&&&&&&&&&&&&
-	  //TEC
-	  //&&&&&&&&&&&&&&&&&
-	  
-	  component=m_trackerTopo.tecSide(BC[i].detid)==2?m_trackerTopo.tecWheel(BC[i].detid):m_trackerTopo.tecWheel(BC[i].detid)+9;
-	  SiStripPI::setBadComponents(3, component, BC[i],NBadComponent);         
-	}    
-      }
-
-      //&&&&&&&&&&&&&&&&&&
-      // Single Strip Info
-      //&&&&&&&&&&&&&&&&&&
-
-      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
-
-      float percentage=0;
-      
-      SiStripQuality::RegistryIterator rbegin = siStripQuality_->getRegistryVectorBegin();
-      SiStripQuality::RegistryIterator rend   = siStripQuality_->getRegistryVectorEnd();
-  
-      for (SiStripBadStrip::RegistryIterator rp=rbegin; rp != rend; ++rp) {
-	uint32_t detid=rp->detid;
-	
-	int subdet=-999; int component=-999;
-	DetId detectorId=DetId(detid);
-	int subDet = detectorId.subdetId();
-	if ( subDet == StripSubdetector::TIB ){
-	  subdet=0;
-	  component=m_trackerTopo.tibLayer(detid);
-	} else if ( subDet == StripSubdetector::TID ) {
-	  subdet=1;
-	  component=m_trackerTopo.tidSide(detid)==2?m_trackerTopo.tidWheel(detid):m_trackerTopo.tidWheel(detid)+3;
-	} else if ( subDet == StripSubdetector::TOB ) {
-	  subdet=2;
-	  component=m_trackerTopo.tobLayer(detid);
-	} else if ( subDet == StripSubdetector::TEC ) {
-	  subdet=3;
-	  component=m_trackerTopo.tecSide(detid)==2?m_trackerTopo.tecWheel(detid):m_trackerTopo.tecWheel(detid)+9;
-	} 
-
-	SiStripQuality::Range sqrange = SiStripQuality::Range( siStripQuality_->getDataVectorBegin()+rp->ibegin , siStripQuality_->getDataVectorBegin()+rp->iend );
-        
-	percentage=0;
-	for(int it=0;it<sqrange.second-sqrange.first;it++){
-	  unsigned int range=siStripQuality_->decode( *(sqrange.first+it) ).range;
-	  NTkBadComponent[3]+=range;
-	  NBadComponent[subdet][0][3]+=range;
-	  NBadComponent[subdet][component][3]+=range;
-	  percentage+=range;
-	}
-	if(percentage!=0)
-	  percentage/=128.*reader->getNumberOfApvsAndStripLength(detid).first;
-	if(percentage>1)
-	  edm::LogError("SiStripBadStrip_PayloadInspector") << "PROBLEM detid " << detid << " value " << percentage<< std::endl;
-      }
+      // call the filler
+      SiStripPI::fillBCArrays(siStripQuality_,NTkBadComponent,NBadComponent,m_trackerTopo);
        
       //&&&&&&&&&&&&&&&&&&
       // printout
@@ -1074,7 +973,6 @@ namespace {
       canv.SaveAs(fileName.c_str());
 
       delete siStripQuality_;
-      delete reader;
       return true;
     }
   private:
