@@ -91,21 +91,15 @@ void LHCInfo::setFill( unsigned short const & lhcFill, bool const & fromData ) {
   m_isData = fromData;
   m_intParams.resize( ISIZE, std::vector<unsigned int>(1,0) );
   m_intParams[ LHC_FILL ][0] = lhcFill;
-  m_intParams[ LUMI_SECTION ] = std::vector<unsigned int>();
   m_floatParams.resize( FSIZE, std::vector<float>(1,0.));
   m_floatParams[ LUMI_PER_B ] = std::vector<float>();
-  m_floatParams[ XING_ANGLE ] = std::vector<float>();
   m_floatParams[ BEAM1_VC ] = std::vector<float>();
   m_floatParams[ BEAM2_VC ] = std::vector<float>();
   m_floatParams[ BEAM1_RF ] = std::vector<float>();
   m_floatParams[ BEAM2_RF ] = std::vector<float>();
   m_timeParams.resize( TSIZE, std::vector<unsigned long long>(1,0) );
-  m_timeParams[ DIP_TIME ] = std::vector<unsigned long long>();  
   m_stringParams.resize( SSIZE, std::vector<std::string>() );
-  m_stringParams[ INJECTION_SCHEME ] = std::vector<std::string>(1,"None");
-  m_stringParams[ LHC_STATE ] = std::vector<std::string>();
-  m_stringParams[ LHC_COMMENT ] = std::vector<std::string>();
-  m_stringParams[ CTPPS_STATUS ] = std::vector<std::string>();
+  m_stringParams[ INJECTION_SCHEME ][0] = std::string("None");
   m_bunchConfiguration1.reset();
   m_bunchConfiguration2.reset();
 }
@@ -220,28 +214,20 @@ std::vector<float> const & LHCInfo::lumiPerBX() const {
   return LHCInfoImpl::getParams(m_floatParams, LUMI_PER_B );
 }
 
-std::vector<std::string> const & LHCInfo::lhcState() const {
-  return LHCInfoImpl::getParams(m_stringParams, LHC_STATE );
+std::string const & LHCInfo::lhcState() const {
+  return LHCInfoImpl::getOneParam(m_stringParams, LHC_STATE );
 }
 
-std::vector<std::string> const & LHCInfo::lhcComment() const {
-  return LHCInfoImpl::getParams(m_stringParams, LHC_COMMENT );
+std::string const & LHCInfo::lhcComment() const {
+  return LHCInfoImpl::getOneParam(m_stringParams, LHC_COMMENT );
 }
 
-std::vector<std::string> const & LHCInfo::ctppsStatus() const {
-  return LHCInfoImpl::getParams(m_stringParams, CTPPS_STATUS );
+std::string const & LHCInfo::ctppsStatus() const {
+  return LHCInfoImpl::getOneParam(m_stringParams, CTPPS_STATUS );
 }
 
-std::vector<unsigned int> const & LHCInfo::lumiSection() const {
-  return LHCInfoImpl::getParams(m_intParams, LUMI_SECTION );
-}
-
-std::vector<float> const & LHCInfo::xingAngle() const {
-  return LHCInfoImpl::getParams(m_floatParams, XING_ANGLE );
-}
-
-std::vector<cond::Time_t> const & LHCInfo::dipTime() const {
-  return LHCInfoImpl::getParams(m_timeParams, DIP_TIME );
+unsigned int const & LHCInfo::lumiSection() const {
+  return LHCInfoImpl::getOneParam(m_intParams, LUMI_SECTION );
 }
 
 std::vector<float> const & LHCInfo::beam1VC() const {
@@ -366,28 +352,20 @@ void LHCInfo::setLumiPerBX( std::vector<float> const & lumiPerBX) {
   LHCInfoImpl::setParams( m_floatParams, LUMI_PER_B, lumiPerBX );
 }
 
-void LHCInfo::setLhcState( std::vector<std::string> const & lhcState) {
-  LHCInfoImpl::setParams( m_stringParams, LHC_STATE, lhcState );
+void LHCInfo::setLhcState( std::string const & lhcState) {
+  LHCInfoImpl::setOneParam( m_stringParams, LHC_STATE, lhcState );
 }
 
-void LHCInfo::setLhcComment( std::vector<std::string> const & lhcComment) {
-  LHCInfoImpl::setParams( m_stringParams, LHC_COMMENT, lhcComment );
+void LHCInfo::setLhcComment( std::string const & lhcComment) {
+  LHCInfoImpl::setOneParam( m_stringParams, LHC_COMMENT, lhcComment );
 }
 
-void LHCInfo::setCtppsStatus( std::vector<std::string> const & ctppsStatus) {
-  LHCInfoImpl::setParams( m_stringParams, CTPPS_STATUS, ctppsStatus );
+void LHCInfo::setCtppsStatus( std::string const & ctppsStatus) {
+  LHCInfoImpl::setOneParam( m_stringParams, CTPPS_STATUS, ctppsStatus );
 }
 
-void LHCInfo::setLumiSection( std::vector<unsigned int> const & lumiSection) {
-  LHCInfoImpl::setParams( m_intParams, LUMI_SECTION, lumiSection );
-}
-
-void LHCInfo::setXingAngle( std::vector<float> const & xingAngle) {
-  LHCInfoImpl::setParams( m_floatParams, XING_ANGLE, xingAngle );
-}
-
-void LHCInfo::setDipTime( std::vector<cond::Time_t> const & dipTime) {
-  LHCInfoImpl::setParams( m_timeParams, DIP_TIME, dipTime );
+void LHCInfo::setLumiSection( unsigned int const & lumiSection) {
+  LHCInfoImpl::setOneParam( m_intParams, LUMI_SECTION, lumiSection );
 }
 
 void LHCInfo::setBeam1VC( std::vector<float> const & beam1VC) {
@@ -426,14 +404,12 @@ void LHCInfo::setBeamInfo( unsigned short const & bunches1
 			    ,cond::Time_t const & endTime
 			    ,std::string const & scheme
 			    ,std::vector<float> const & lumiPerBX
-			    ,std::vector<std::string> const & lhcState
-			    ,std::vector<std::string> const & lhcComment
-			    ,std::vector<std::string> const & ctppsStatus
-			    ,std::vector<unsigned int> const & lumiSection
-			    ,std::vector<float> const & xingAngle
-			    ,std::vector<cond::Time_t> const & dipTime
-			    ,std::vector<float> const & beam1VC	
-			    ,std::vector<float> const & beam2VC	
+			    ,std::string const & lhcState
+			    ,std::string const & lhcComment
+			    ,std::string const & ctppsStatus
+			    ,unsigned int const & lumiSection
+			    ,std::vector<float> const & beam1VC
+			    ,std::vector<float> const & beam2VC
 			    ,std::vector<float> const & beam1RF
 			    ,std::vector<float> const & beam2RF
 			    ,std::bitset<bunchSlots+1> const & bunchConf1
@@ -461,8 +437,6 @@ void LHCInfo::setBeamInfo( unsigned short const & bunches1
   this->setLhcComment( lhcComment );
   this->setCtppsStatus( ctppsStatus );
   this->setLumiSection( lumiSection );
-  this->setXingAngle( xingAngle );
-  this->setDipTime( dipTime );
   this->setBeam1VC( beam1VC );
   this->setBeam2VC( beam2VC );
   this->setBeam1RF( beam1RF );
@@ -490,48 +464,29 @@ void LHCInfo::print( std::stringstream & ss ) const {
      << "Creation time of the fill: " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( m_timeParams[CREATE_TIME][0] ) ) << std::endl
      << "Begin time of Stable Beam flag: " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( m_timeParams[BEGIN_TIME][0] ) ) << std::endl
      << "End time of the fill: " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( m_timeParams[END_TIME][0] ) ) << std::endl
-     << "Injection scheme as given by LPC: " << m_stringParams[INJECTION_SCHEME][0] << std::endl;
+     << "Injection scheme as given by LPC: " << m_stringParams[INJECTION_SCHEME][0] << std::endl
+     << "LHC State: " << m_stringParams[LHC_STATE][0] << std::endl
+     << "LHC Comments: " << m_stringParams[LHC_COMMENT][0] << std::endl
+     << "CTPPS Status: " << m_stringParams[CTPPS_STATUS][0] << std::endl
+     << "Lumi sections: " << m_intParams[LUMI_SECTION][0] << std::endl;
+     
   ss << "Luminosity per bunch  (total " << m_floatParams[LUMI_PER_B].size() << "): ";
   std::copy( m_floatParams[LUMI_PER_B].begin(), m_floatParams[LUMI_PER_B].end(), std::ostream_iterator<float>( ss, ", " ) );
   ss << std::endl;
-  
-  ss << "LHC State (total " << m_stringParams[LHC_STATE].size() << "): ";
-  std::copy(  m_stringParams[LHC_STATE].begin(),  m_stringParams[LHC_STATE].end(), std::ostream_iterator<std::string>( ss, "\t" ) );
-  ss << std::endl;
- 
-  ss << "LHC Comments  (total " << m_stringParams[LHC_COMMENT].size() << "): ";
-  std::copy(  m_stringParams[LHC_COMMENT].begin(), m_stringParams[LHC_COMMENT].end(), std::ostream_iterator<std::string>( ss, "\t" ) );
-  ss << std::endl;
-  
-  ss << "CTPPS Status  (total " << m_stringParams[CTPPS_STATUS].size() << "): ";
-  std::copy( m_stringParams[CTPPS_STATUS].begin(), m_stringParams[CTPPS_STATUS].end(), std::ostream_iterator<std::string>( ss, "\t" ) );
-  ss << std::endl;
-  
-  ss << "Lumi sections  (total " << m_intParams[LUMI_SECTION].size() << "): ";
-  std::copy( m_intParams[LUMI_SECTION].begin(), m_intParams[LUMI_SECTION].end(), std::ostream_iterator<unsigned int>( ss, "\t" ) );
-  ss << std::endl;
-
-  ss << "Crossing angle (urad)  (total " << m_floatParams[XING_ANGLE].size() << "): ";
-  std::copy( m_floatParams[XING_ANGLE].begin(), m_floatParams[XING_ANGLE].end(), std::ostream_iterator<float>( ss, "\t" ) );
-  ss << std::endl;
-  
-  ss << "Time stamps  (total " << m_timeParams[DIP_TIME].size() << "): ";
-  std::copy( m_timeParams[DIP_TIME].begin(), m_timeParams[DIP_TIME].end(), std::ostream_iterator<cond::Time_t>( ss, "\t" ) );
-  ss << std::endl;
-  
+    
   ss << "Beam 1 VC  (total " << m_floatParams[BEAM1_VC].size() << "): ";
   std::copy( m_floatParams[BEAM1_VC].begin(), m_floatParams[BEAM1_VC].end(), std::ostream_iterator<float>( ss, "\t" ) );
   ss << std::endl;
   
-  ss << "Beam 1 VC  (total " << m_floatParams[BEAM2_VC].size() << "): ";
+  ss << "Beam 2 VC  (total " << m_floatParams[BEAM2_VC].size() << "): ";
   std::copy( m_floatParams[BEAM2_VC].begin(), m_floatParams[BEAM2_VC].end(), std::ostream_iterator<float>( ss, "\t" ) );
   ss << std::endl;
   
-  ss << "Beam 1 VC  (total " << m_floatParams[BEAM1_RF].size() << "): ";
+  ss << "Beam 1 RF  (total " << m_floatParams[BEAM1_RF].size() << "): ";
   std::copy( m_floatParams[BEAM1_RF].begin(), m_floatParams[BEAM1_RF].end(), std::ostream_iterator<float>( ss, "\t" ) );
   ss << std::endl;
   
-  ss << "Beam 1 VC  (total " << m_floatParams[BEAM2_RF].size() << "): ";
+  ss << "Beam 2 RF  (total " << m_floatParams[BEAM2_RF].size() << "): ";
   std::copy( m_floatParams[BEAM2_RF].begin(), m_floatParams[BEAM2_RF].end(), std::ostream_iterator<float>( ss, "\t" ) );
   ss << std::endl;
   
