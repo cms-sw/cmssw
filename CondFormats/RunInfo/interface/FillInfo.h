@@ -2,7 +2,6 @@
 #define CondFormats_RunInfo_FillInfo_H
 
 #include "CondFormats/Serialization/interface/Serializable.h"
-
 #include "CondFormats/Common/interface/Time.h"
 #include <bitset>
 #include <iostream>
@@ -58,6 +57,10 @@ class FillInfo {
   
   float const energy() const;
   
+  float const delivLumi() const;
+  
+  float const recLumi() const;
+  
   cond::Time_t const createTime() const;
   
   cond::Time_t const beginTime() const;
@@ -65,6 +68,20 @@ class FillInfo {
   cond::Time_t const endTime() const;
   
   std::string const & injectionScheme() const;
+  
+  std::vector<float> const & lumiPerBX() const;
+
+  std::vector<std::string> const & lhcState() const;
+  
+  std::vector<std::string> const & lhcComment() const;
+  
+  std::vector<std::string> const & ctppsStatus() const;
+  
+  std::vector<int> const & lumiSection() const; 
+
+  std::vector<int> const & xingAngle() const;
+  
+  std::vector<cond::Time_t> const & dipTime() const; 
 
   //returns a boolean, true if the injection scheme has a leading 25ns
   //TODO: parse the circulating bunch configuration, instead of the string.
@@ -105,6 +122,10 @@ class FillInfo {
   
   void setEnergy( float const & energy );
   
+  void setDelivLumi( float const & delivLumi );
+
+  void setRecLumi( float const & recLumi );
+
   void setCreationTime( cond::Time_t const & createTime );
   
   void setBeginTime( cond::Time_t const & beginTime );
@@ -112,6 +133,20 @@ class FillInfo {
   void setEndTime( cond::Time_t const & endTime );
   
   void setInjectionScheme( std::string const & injectionScheme );
+  
+  void setLumiPerBX( std::vector<float> const & lumiPerBX);
+  
+  void setLhcState( std::vector<std::string> const & lhcState);
+  
+  void setLhcComment( std::vector<std::string> const & lhcComment);
+  
+  void setCtppsStatus( std::vector<std::string> const & ctppsStatus);
+  
+  void setLumiSection( std::vector<int> const & lumiSection);
+  
+  void setXingAngle( std::vector<int> const & xingAngle);
+  
+  void setDipTime( std::vector<cond::Time_t> const & dipTime);
   
   //sets all values in one go
   void setBeamInfo( unsigned short const & bunches1
@@ -126,16 +161,25 @@ class FillInfo {
 		    ,float const & intensity1
 		    ,float const & intensity2
 		    ,float const & energy
+		    ,float const & delivLumi
+		    ,float const & recLumi
 		    ,cond::Time_t const & createTime
 		    ,cond::Time_t const & beginTime
 		    ,cond::Time_t const & endTime
 		    ,std::string const & scheme
+		    ,std::vector<float> const & lumiPerBX
+			,std::vector<std::string> const & lhcState
+			,std::vector<std::string> const & lhcComment
+			,std::vector<std::string> const & ctppsStatus
+			,std::vector<int> const & lumiSection
+			,std::vector<int> const & xingAngle
+			,std::vector<cond::Time_t> const & dipTime
 		    ,std::bitset<bunchSlots+1> const & bunchConf1 
 		    ,std::bitset<bunchSlots+1> const & bunchConf2 );
   
   //dumping values on output stream
   void print(std::stringstream & ss) const;
-  
+    
  protected:
   std::bitset<bunchSlots+1> const & bunchBitsetForBeam1() const;
   
@@ -151,9 +195,13 @@ class FillInfo {
   unsigned short m_bunches1, m_bunches2, m_collidingBunches, m_targetBunches;
   FillTypeId m_fillType;
   ParticleTypeId m_particles1, m_particles2;
-  float m_crossingAngle, m_betastar, m_intensity1, m_intensity2, m_energy;
+  float m_crossingAngle, m_betastar, m_intensity1, m_intensity2, m_energy, m_delivLumi, m_recLumi;
   cond::Time_t m_createTime, m_beginTime, m_endTime;
   std::string m_injectionScheme;
+  std::vector<float> m_lumiPerBX;
+  std::vector<std::string> m_lhcState, m_lhcComment, m_ctppsStatus;
+  std::vector<int> m_lumiSection, m_xingAngle;
+  std::vector<cond::Time_t> m_dipTime;
   //BEWARE: since CMS counts bunches starting from one,
   //the size of the bitset must be incremented by one,
   //in order to avoid off-by-one

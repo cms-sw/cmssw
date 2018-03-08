@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 process = cms.Process("ProcessOne")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 process.CondDBCommon.connect = 'sqlite_file:fillinfo_pop_test.db'
@@ -32,15 +31,16 @@ process.Test1 = cms.EDAnalyzer("FillInfoPopConAnalyzer",
                                SinceAppendMode = cms.bool(True),
                                record = cms.string('FillInfoRcd'),
                                name = cms.untracked.string('FillInfo'),
-                               Source = cms.PSet(fill = cms.untracked.uint32(902),
-                                                 connectionString = cms.untracked.string("oracle://ora_db/ora_schema"),
-                                                 authenticationPath =  cms.untracked.string(".")
+                               Source = cms.PSet(fill = cms.untracked.uint32(6303),
+                                   firstFill = cms.untracked.uint32( 5500 ),
+                                   lastFill = cms.untracked.uint32( 5510 ),
+                                   connectionString = cms.untracked.string("oracle://cms_orcon_adg/CMS_RUNTIME_LOGGER"),
+                                   DIPSchema = cms.untracked.string("CMS_BEAM_COND"),
+                                   authenticationPath =  cms.untracked.string("."),
+                                   debug=cms.untracked.bool(True)
                                                  ),
                                loggingOn = cms.untracked.bool(True),
                                IsDestDbCheckedInQueryLog = cms.untracked.bool(False)
                                )
 
 process.p = cms.Path(process.Test1)
-
-
-
