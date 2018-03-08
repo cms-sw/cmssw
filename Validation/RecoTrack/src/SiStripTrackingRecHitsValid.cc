@@ -443,9 +443,6 @@ void SiStripTrackingRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,con
 }
 
 
-void SiStripTrackingRecHitsValid::beginJob(const edm::EventSetup& es){
-  
-}
 
 void SiStripTrackingRecHitsValid::endJob() {
 
