@@ -260,12 +260,24 @@ from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 phase2_common.toModify(mixData, input = dict(producers = [])) # we use digis directly, no need for raw2digi producers
 
 # Tracker
-# TODO: Add phase2 OT, but needs code first
 phase2_tracker.toModify(mixData,
     workers = dict(
         # Disable SiStrip
         strip = None,
         stripSimLink = None,
+        # Add Phase2 OT digiSimLink
+        # TODO: Add digis, but needs code first
+        pixelSimLink = dict(
+            labelSig = "simSiPixelDigis:Pixel",
+            pileInputTag = "simSiPixelDigis:Pixel",
+        ),
+        phase2OTSimLink = cms.PSet(
+            workerType = cms.string("PreMixingPixelDigiSimLinkWorker"),
+            #
+            labelSig = cms.InputTag("simSiPixelDigis:Tracker"),
+            pileInputTag = cms.InputTag("simSiPixelDigis:Tracker"),
+            collectionDM = cms.string("Phase2OTDigiSimLink"),
+        ),
     ),
 )
 

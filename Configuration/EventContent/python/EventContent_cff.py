@@ -552,6 +552,7 @@ from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.outputCommands+[
         # Tracker
         'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
+        'keep *_*_Phase2OTDigiSimLink_*',
         'keep *_simSiPixelDigis_*_*', # covers digis and digiSimLinks
         # MTD
         # ???
@@ -749,6 +750,12 @@ RECODEBUGEventContent.outputCommands.extend(RECOSIMEventContent.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
 RECODEBUGEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
 
+from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+(premix_stage2 & phase2_tracker).toModify(FEVTDEBUGHLTEventContent, outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+    'keep *_*_Phase2OTDigiSimLink_*'
+])
+
 REPACKRAWSIMEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
                                                 'drop FEDRawDataCollection_rawDataCollector_*_*'])
 REPACKRAWEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
@@ -896,7 +903,6 @@ for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropPatTrigger)
 
 
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
     phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + [
         'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
