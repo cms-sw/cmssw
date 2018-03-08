@@ -668,30 +668,27 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
       int ieta    = calibId.ieta();
 
       // only check channels having the requested cboxch
-      if (std::find( laserMonCBoxList_.begin(), laserMonCBoxList_.end(),
-                     cboxch ) != laserMonCBoxList_.end() ) {
-        // find the index of this channel by matching cBox, iEta, iPhi
-        for( unsigned idx = 0; idx < laserMonCBoxList_.size(); ++idx ) {
-          if( cboxch == laserMonCBoxList_[idx] &&
-            iphi  == laserMonIPhiList_[idx] && 
-            ieta  == laserMonIEtaList_[idx] ) {
+      // find the index of this channel by matching cBox, iEta, iPhi
+      for( unsigned idx = 0; idx < laserMonCBoxList_.size(); ++idx ) {
+        if( cboxch == laserMonCBoxList_[idx] &&
+          iphi  == laserMonIPhiList_[idx] && 
+          ieta  == laserMonIEtaList_[idx] ) {
 
-            // now get the digis
-            unsigned ts_size = df.samples();
-            if( ts_size > max_nsamples ) max_nsamples = ts_size;
-            for(unsigned i = 0; i < ts_size; i++) {
-              bool ok = df[i].ok();
-              if( !ok ) { // protection against QIE reset
-                lasmon_adcs[idx].push_back( -1 );
-                lasmon_capids[idx].push_back( -1 );
-              } else {
-                lasmon_adcs[idx].push_back( df[i].adc() );
-                lasmon_capids[idx].push_back( df[i].capid() );
-              }
-            } // end digi loop
-          } // end matching channel if
-        } // end fiber order loop
-      } // end cboxch check
+          // now get the digis
+          unsigned ts_size = df.samples();
+          if( ts_size > max_nsamples ) max_nsamples = ts_size;
+          for(unsigned i = 0; i < ts_size; i++) {
+            bool ok = df[i].ok();
+            if( !ok ) { // protection against QIE reset
+              lasmon_adcs[idx].push_back( -1 );
+              lasmon_capids[idx].push_back( -1 );
+            } else {
+              lasmon_adcs[idx].push_back( df[i].adc() );
+              lasmon_capids[idx].push_back( df[i].capid() );
+            }
+          } // end digi loop
+        } // end matching channel if
+      } // end fiber order loop
     } // end loop over digis
 
     // now match the laser monitor data by fiber (in time) 
