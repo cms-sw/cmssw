@@ -4,7 +4,41 @@ L1TStage2CaloLayer2DEClient::L1TStage2CaloLayer2DEClient(
   const edm::ParameterSet& ps):
   monitor_dir_(ps.getUntrackedParameter<std::string>("monitorDir","")),
   input_dir_data_(ps.getUntrackedParameter<std::string>("inputDataDir","")),
-  input_dir_emul_(ps.getUntrackedParameter<std::string>("inputEmulDir",""))
+  input_dir_emul_(ps.getUntrackedParameter<std::string>("inputEmulDir","")),
+  CenJetRankComp_(nullptr),
+  CenJetEtaComp_(nullptr),
+  CenJetPhiComp_(nullptr),
+  ForJetRankComp_(nullptr),
+  ForJetEtaComp_(nullptr),
+  ForJetPhiComp_(nullptr),
+  IsoEGRankComp_(nullptr),
+  IsoEGEtaComp_(nullptr),
+  IsoEGPhiComp_(nullptr),
+  NonIsoEGRankComp_(nullptr),
+  NonIsoEGEtaComp_(nullptr),
+  NonIsoEGPhiComp_(nullptr),
+  IsoTauRankComp_(nullptr),
+  IsoTauEtaComp_(nullptr),
+  IsoTauPhiComp_(nullptr),
+  TauRankComp_(nullptr),
+  TauEtaComp_(nullptr),
+  TauPhiComp_(nullptr),
+  METComp_(nullptr),
+  METPhiComp_(nullptr),
+  METHFComp_(nullptr),
+  METHFPhiComp_(nullptr),
+  MHTComp_(nullptr),
+  MHTPhiComp_(nullptr),
+  MHTHFComp_(nullptr),
+  MHTHFPhiComp_(nullptr),
+  ETTComp_(nullptr),
+  HTTComp_(nullptr),
+  MinBiasHFP0Comp_(nullptr),
+  MinBiasHFM0Comp_(nullptr),
+  MinBiasHFP1Comp_(nullptr),
+  MinBiasHFM1Comp_(nullptr),
+  ETTEMComp_(nullptr),
+  TowerCountComp_(nullptr)
 {}
 
 L1TStage2CaloLayer2DEClient::~L1TStage2CaloLayer2DEClient(){}
@@ -28,151 +62,285 @@ void L1TStage2CaloLayer2DEClient::dqmEndJob(
 
 void L1TStage2CaloLayer2DEClient::book(DQMStore::IBooker &ibooker) {
 
-  
-
   // problemSummary;
 
   ibooker.setCurrentFolder(monitor_dir_);
 
-  CenJetRankComp_ = ibooker.book1D(
-    "CenJetsRankDERatio","Data/Emul of Central Jet E_{T}; Jet iE_{T}; Counts",
-    2048, -0.5, 2047.5);
-  CenJetRankComp_->setEfficiencyFlag();
-  CenJetEtaComp_ = ibooker.book1D(
-    "CenJetsEtaDERatio","Data/Emul of Central Jet #eta; Jet i#eta; Counts",
-    229, -114.5, 114.5);
-  CenJetEtaComp_->setEfficiencyFlag();
-  CenJetPhiComp_ = ibooker.book1D(
-    "CenJetsPhiDERatio","Data/Emul of Central Jet #phi; Jet i#phi; Counts",
-    144, -0.5, 143.5);
-  CenJetPhiComp_->setEfficiencyFlag();
-  ForJetRankComp_ = ibooker.book1D(
-    "ForJetsRankDERatio","Data/Emul of Forward Jet E_{T}; Jet iE_{T}; Counts",
-    2048, -0.5, 2047.5);
-  ForJetRankComp_->setEfficiencyFlag();
-  ForJetEtaComp_ = ibooker.book1D(
-    "ForJetsEtaDERatio","Data/Emul of Forward Jet #eta; Jet i#eta; Counts",
-    229, -114.5, 114.5);
-  ForJetEtaComp_->setEfficiencyFlag();
-  ForJetPhiComp_ = ibooker.book1D(
-    "ForJetsPhiDERatio","Data/Emul of Forward Jet #phi; Jet i#phi; Counts",
-    144, -0.5, 143.5);
-  ForJetPhiComp_->setEfficiencyFlag();
-  IsoEGRankComp_ = ibooker.book1D(
-    "IsoEGRankDERatio","Data/Emul of isolated eg E_{T}; EG iE_{T}; Counts",
-    512, -0.5, 511.5);
-  IsoEGRankComp_->setEfficiencyFlag();
-  IsoEGEtaComp_ = ibooker.book1D(
-    "IsoEGEtaDERatio","Data/Emul of isolated eg #eta; EG i#eta; Counts",
-    229, -114.5, 114.5);
-  IsoEGEtaComp_->setEfficiencyFlag();
-  IsoEGPhiComp_ = ibooker.book1D(
-    "IsoEGPhiDERatio","Data/Emul of isolated eg #phi; EG i#eta; Counts",
-    144, -0.5, 143.5);
-  IsoEGPhiComp_->setEfficiencyFlag();
-  NonIsoEGRankComp_ = ibooker.book1D(
-    "NonIsoEGRankDERatio",
-    "Data/Emul of non-isolated eg E_{T}; EG iE_{T}; Counts",
-    512, -0.5, 511.5);
-  NonIsoEGRankComp_->setEfficiencyFlag();
-  NonIsoEGEtaComp_ = ibooker.book1D(
-    "NonIsoEGEtaDERatio","Data/Emul of non-isolated eg #eta; EG i#eta; Counts",
-    229, -114.5, 114.5);
-  NonIsoEGEtaComp_->setEfficiencyFlag();
-  NonIsoEGPhiComp_ = ibooker.book1D(
-    "NonIsoEGPhiDERatio","Data/Emul of non-isolated eg #phi; EG i#phi; Counts",
-    144, -0.5, 143.5);
-  NonIsoEGPhiComp_->setEfficiencyFlag();
-  TauRankComp_ = ibooker.book1D(
-    "TauRankDERatio","Data/Emul of relax tau E_{T}; Tau iE_{T}; Counts",
-    512, -0.5, 511.5);
-  TauRankComp_->setEfficiencyFlag();
-  TauEtaComp_ = ibooker.book1D(
-    "TauEtaDERatio","Data/Emul of relax tau #eta; Tau i#eta; Counts",
-    229, -114.5, 114.5);
-  TauEtaComp_->setEfficiencyFlag();
-  TauPhiComp_ = ibooker.book1D(
-    "TauPhiDERatio","Data/Emul of relax tau eg #phi; Tau i#phi; Counts",
-    144, -0.5, 143.5);
-  TauPhiComp_->setEfficiencyFlag();
-  IsoTauRankComp_ = ibooker.book1D(
-    "IsoTauRankDERatio","Data/Emul of iso tau E_{T}; ISO Tau iE_{T}; Counts",
-    512, -0.5, 511.5);
-  IsoTauRankComp_->setEfficiencyFlag();
-  IsoTauEtaComp_ = ibooker.book1D(
-    "IsoTauEtaDERatio","Data/Emul of iso tau #eta; ISO Tau i#eta; Counts",
-    229, -114.5, 114.5);
-  IsoTauEtaComp_->setEfficiencyFlag();
-  IsoTauPhiComp_ = ibooker.book1D(
-    "IsoTauPhiDERatio","Data/Emul of iso tau #phi; ISO Tau i#phi; Counts",
-    144, -0.5, 143.5);
-  IsoTauPhiComp_->setEfficiencyFlag();
-  METComp_ = ibooker.book1D(
-    "METRatio","Data/Emul of MET; iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  METComp_->setEfficiencyFlag();
-  METPhiComp_ = ibooker.book1D(
-    "METPhiRatio","Data/Emul of MET #phi; MET i#phi; Events",
-    1008, -0.5, 1007.5);
-  METPhiComp_->setEfficiencyFlag();
-  METHFComp_ = ibooker.book1D(
-    "METHFRatio","Data/Emul of METHF; METHF iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  METHFComp_->setEfficiencyFlag();
-  METHFPhiComp_ = ibooker.book1D(
-    "METHFPhiRatio","Data/Emul of METHF #phi; METHF i#phi; Events",
-    1008, -0.5, 1007.5);
-  METHFPhiComp_->setEfficiencyFlag();
-  MHTComp_ = ibooker.book1D(
-    "MHTRatio","Data/Emul of MHT; MHT iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  MHTComp_->setEfficiencyFlag();
-  MHTPhiComp_ = ibooker.book1D(
-    "MHTPhiRatio","Data/Emul of MHT #phi; MHTHF i#phi; Events",
-    1008, -0.5, 1007.5);
-  MHTPhiComp_->setEfficiencyFlag();
-  MHTHFComp_ = ibooker.book1D(
-    "MHTHFRatio","Data/Emul of MHTHF; MHTHF iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  MHTHFComp_->setEfficiencyFlag();
-  MHTHFPhiComp_ = ibooker.book1D(
-    "MHTHFPhiRatio","Data/Emul of MHTHF #phi; MHTHF i#phi; Events",
-    1008, -0.5, 1007.5);
-  MHTHFPhiComp_->setEfficiencyFlag();
-  ETTComp_ = ibooker.book1D(
-    "ETTRatio","Data/Emul of ET Total; ETT iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  ETTComp_->setEfficiencyFlag();
-  ETTEMComp_ = ibooker.book1D(
-    "ETTEMRatio","Data/Emul of ET Total EM; ETTEM iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  ETTEMComp_->setEfficiencyFlag();
-  HTTComp_ = ibooker.book1D(
-    "HTTRatio","Data/Emul of HT Total; HT iE_{T}; Events",
-    4096, -0.5, 4095.5);
-  HTTComp_->setEfficiencyFlag();
+  if (CenJetRankComp_ == nullptr) {
+    CenJetRankComp_ = ibooker.book1D(
+      "CenJetsRankDERatio","Data/Emul of Central Jet E_{T}; Jet iE_{T}; Counts",
+      2048, -0.5, 2047.5);
+    CenJetRankComp_->setEfficiencyFlag();
+  } else {
+    CenJetRankComp_->Reset();
+  }
+  if (CenJetEtaComp_ == nullptr) {
+    CenJetEtaComp_ = ibooker.book1D(
+      "CenJetsEtaDERatio","Data/Emul of Central Jet #eta; Jet i#eta; Counts",
+      229, -114.5, 114.5);
+    CenJetEtaComp_->setEfficiencyFlag();
+  } else {
+    CenJetEtaComp_->Reset();
+  }
+  if (CenJetPhiComp_ == nullptr) {
+    CenJetPhiComp_ = ibooker.book1D(
+      "CenJetsPhiDERatio","Data/Emul of Central Jet #phi; Jet i#phi; Counts",
+      144, -0.5, 143.5);
+    CenJetPhiComp_->setEfficiencyFlag();
+  } else {
+    CenJetPhiComp_->Reset();
+  }
+  if (ForJetRankComp_ == nullptr) {
+    ForJetRankComp_ = ibooker.book1D(
+      "ForJetsRankDERatio","Data/Emul of Forward Jet E_{T}; Jet iE_{T}; Counts",
+      2048, -0.5, 2047.5);
+    ForJetRankComp_->setEfficiencyFlag();
+  } else {
+    ForJetRankComp_->Reset();
+  }
+  if (ForJetEtaComp_ == nullptr) {
+    ForJetEtaComp_ = ibooker.book1D(
+      "ForJetsEtaDERatio","Data/Emul of Forward Jet #eta; Jet i#eta; Counts",
+      229, -114.5, 114.5);
+    ForJetEtaComp_->setEfficiencyFlag();
+  } else {
+    ForJetEtaComp_->Reset();
+  }
+  if (ForJetPhiComp_ == nullptr) {
+    ForJetPhiComp_ = ibooker.book1D(
+      "ForJetsPhiDERatio","Data/Emul of Forward Jet #phi; Jet i#phi; Counts",
+      144, -0.5, 143.5);
+    ForJetPhiComp_->setEfficiencyFlag();
+  } else {
+    ForJetPhiComp_->Reset();
+  }
+  if (IsoEGRankComp_ == nullptr) {
+    IsoEGRankComp_ = ibooker.book1D(
+      "IsoEGRankDERatio","Data/Emul of isolated eg E_{T}; EG iE_{T}; Counts",
+      512, -0.5, 511.5);
+    IsoEGRankComp_->setEfficiencyFlag();
+  } else {
+    IsoEGRankComp_->Reset();
+  }
+  if (IsoEGEtaComp_ == nullptr) {
+    IsoEGEtaComp_ = ibooker.book1D(
+      "IsoEGEtaDERatio","Data/Emul of isolated eg #eta; EG i#eta; Counts",
+      229, -114.5, 114.5);
+    IsoEGEtaComp_->setEfficiencyFlag();
+  } else {
+    IsoEGEtaComp_->Reset();
+  }
+  if (IsoEGPhiComp_ == nullptr) {
+    IsoEGPhiComp_ = ibooker.book1D(
+      "IsoEGPhiDERatio","Data/Emul of isolated eg #phi; EG i#eta; Counts",
+      144, -0.5, 143.5);
+    IsoEGPhiComp_->setEfficiencyFlag();
+  } else {
+    IsoEGPhiComp_->Reset();
+  }
+  if (NonIsoEGRankComp_ == nullptr) {
+    NonIsoEGRankComp_ = ibooker.book1D(
+      "NonIsoEGRankDERatio",
+      "Data/Emul of non-isolated eg E_{T}; EG iE_{T}; Counts",
+      512, -0.5, 511.5);
+    NonIsoEGRankComp_->setEfficiencyFlag();
+  } else {
+    NonIsoEGRankComp_->Reset();
+  }
+  if (NonIsoEGEtaComp_ == nullptr) {
+    NonIsoEGEtaComp_ = ibooker.book1D(
+      "NonIsoEGEtaDERatio","Data/Emul of non-isolated eg #eta; EG i#eta; Counts",
+      229, -114.5, 114.5);
+    NonIsoEGEtaComp_->setEfficiencyFlag();
+  } else {
+    NonIsoEGEtaComp_->Reset();
+  }
+  if (NonIsoEGPhiComp_ == nullptr) {
+    NonIsoEGPhiComp_ = ibooker.book1D(
+      "NonIsoEGPhiDERatio","Data/Emul of non-isolated eg #phi; EG i#phi; Counts",
+      144, -0.5, 143.5);
+    NonIsoEGPhiComp_->setEfficiencyFlag();
+  } else {
+    NonIsoEGPhiComp_->Reset();
+  }
+  if (TauRankComp_ == nullptr) {
+    TauRankComp_ = ibooker.book1D(
+      "TauRankDERatio","Data/Emul of relax tau E_{T}; Tau iE_{T}; Counts",
+      512, -0.5, 511.5);
+    TauRankComp_->setEfficiencyFlag();
+  } else {
+    TauRankComp_->Reset();
+  }
+  if (TauEtaComp_ == nullptr) {
+    TauEtaComp_ = ibooker.book1D(
+      "TauEtaDERatio","Data/Emul of relax tau #eta; Tau i#eta; Counts",
+      229, -114.5, 114.5);
+    TauEtaComp_->setEfficiencyFlag();
+  } else {
+    TauEtaComp_->Reset();
+  }
+  if (TauPhiComp_ == nullptr) {
+    TauPhiComp_ = ibooker.book1D(
+      "TauPhiDERatio","Data/Emul of relax tau eg #phi; Tau i#phi; Counts",
+      144, -0.5, 143.5);
+    TauPhiComp_->setEfficiencyFlag();
+  } else {
+    TauPhiComp_->Reset();
+  }
+  if (IsoTauRankComp_ == nullptr) {
+    IsoTauRankComp_ = ibooker.book1D(
+      "IsoTauRankDERatio","Data/Emul of iso tau E_{T}; ISO Tau iE_{T}; Counts",
+      512, -0.5, 511.5);
+    IsoTauRankComp_->setEfficiencyFlag();
+  } else {
+    IsoTauRankComp_->Reset();
+  }
+  if (IsoTauEtaComp_ == nullptr) {
+    IsoTauEtaComp_ = ibooker.book1D(
+      "IsoTauEtaDERatio","Data/Emul of iso tau #eta; ISO Tau i#eta; Counts",
+      229, -114.5, 114.5);
+    IsoTauEtaComp_->setEfficiencyFlag();
+  } else {
+    IsoTauEtaComp_->Reset();
+  }
+  if (IsoTauPhiComp_ == nullptr) {
+    IsoTauPhiComp_ = ibooker.book1D(
+      "IsoTauPhiDERatio","Data/Emul of iso tau #phi; ISO Tau i#phi; Counts",
+      144, -0.5, 143.5);
+    IsoTauPhiComp_->setEfficiencyFlag();
+  } else {
+    IsoTauPhiComp_->Reset();
+  }
+  if (METComp_ == nullptr) {
+    METComp_ = ibooker.book1D(
+      "METRatio","Data/Emul of MET; iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    METComp_->setEfficiencyFlag();
+  } else {
+    METComp_->Reset();
+  }
+  if (METPhiComp_ == nullptr) {
+    METPhiComp_ = ibooker.book1D(
+      "METPhiRatio","Data/Emul of MET #phi; MET i#phi; Events",
+      1008, -0.5, 1007.5);
+    METPhiComp_->setEfficiencyFlag();
+  } else {
+    METPhiComp_->Reset();
+  }
+  if (METHFComp_ == nullptr) {
+    METHFComp_ = ibooker.book1D(
+      "METHFRatio","Data/Emul of METHF; METHF iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    METHFComp_->setEfficiencyFlag();
+  } else {
+    METHFComp_->Reset();
+  }
+  if (METHFPhiComp_ == nullptr) {
+    METHFPhiComp_ = ibooker.book1D(
+      "METHFPhiRatio","Data/Emul of METHF #phi; METHF i#phi; Events",
+      1008, -0.5, 1007.5);
+    METHFPhiComp_->setEfficiencyFlag();
+  } else {
+    METHFPhiComp_->Reset();
+  }
+  if (MHTComp_ == nullptr) {
+    MHTComp_ = ibooker.book1D(
+      "MHTRatio","Data/Emul of MHT; MHT iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    MHTComp_->setEfficiencyFlag();
+  } else {
+    MHTComp_->Reset();
+  }
+  if (MHTPhiComp_ == nullptr) {
+    MHTPhiComp_ = ibooker.book1D(
+      "MHTPhiRatio","Data/Emul of MHT #phi; MHTHF i#phi; Events",
+      1008, -0.5, 1007.5);
+    MHTPhiComp_->setEfficiencyFlag();
+  } else {
+    MHTPhiComp_->Reset();
+  }
+  if (MHTHFComp_ == nullptr) {
+    MHTHFComp_ = ibooker.book1D(
+      "MHTHFRatio","Data/Emul of MHTHF; MHTHF iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    MHTHFComp_->setEfficiencyFlag();
+  } else {
+    MHTHFComp_->Reset();
+  }
+  if (MHTHFPhiComp_ == nullptr) {
+    MHTHFPhiComp_ = ibooker.book1D(
+      "MHTHFPhiRatio","Data/Emul of MHTHF #phi; MHTHF i#phi; Events",
+      1008, -0.5, 1007.5);
+    MHTHFPhiComp_->setEfficiencyFlag();
+  } else {
+    MHTHFPhiComp_->Reset();
+  }
+  if (ETTComp_ == nullptr) {
+    ETTComp_ = ibooker.book1D(
+      "ETTRatio","Data/Emul of ET Total; ETT iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    ETTComp_->setEfficiencyFlag();
+  } else {
+    ETTComp_->Reset();
+  }
+  if (ETTEMComp_ == nullptr) {
+    ETTEMComp_ = ibooker.book1D(
+      "ETTEMRatio","Data/Emul of ET Total EM; ETTEM iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    ETTEMComp_->setEfficiencyFlag();
+  } else {
+    ETTEMComp_->Reset();
+  }
+  if (HTTComp_ == nullptr) {
+    HTTComp_ = ibooker.book1D(
+      "HTTRatio","Data/Emul of HT Total; HT iE_{T}; Events",
+      4096, -0.5, 4095.5);
+    HTTComp_->setEfficiencyFlag();
+  } else {
+    HTTComp_->Reset();
+  }
 
-  MinBiasHFP0Comp_ = ibooker.book1D(
-    "MinBiasHFP0Ratio", "Data/Emul MinBiasHFP0; N_{towers}; Events",
-    16, -0.5, 15.5);
-  MinBiasHFP0Comp_->setEfficiencyFlag();
-  MinBiasHFM0Comp_ = ibooker.book1D(
-    "MinBiasHFM0Ratio", "Data/Emul MinBiasHFM0; N_{towers}; Events",
-    16, -0.5, 15.5);
-  MinBiasHFM0Comp_->setEfficiencyFlag();
-  MinBiasHFP1Comp_ = ibooker.book1D(
-    "MinBiasHFP1Ratio", "Data/Emul MinBiasHFP1; N_{towers}; Events",
-    16, -0.5, 15.5);
-  MinBiasHFP1Comp_->setEfficiencyFlag();
-  MinBiasHFM1Comp_ = ibooker.book1D(
-    "MinBiasHFM1Ratio", "Data/Emul MinBiasHFM1; N_{towers}; Events",
-    16, -0.5, 15.5);
-  MinBiasHFM1Comp_->setEfficiencyFlag();
+  if (MinBiasHFP0Comp_ == nullptr) {
+    MinBiasHFP0Comp_ = ibooker.book1D(
+      "MinBiasHFP0Ratio", "Data/Emul MinBiasHFP0; N_{towers}; Events",
+      16, -0.5, 15.5);
+    MinBiasHFP0Comp_->setEfficiencyFlag();
+  } else {
+    MinBiasHFP0Comp_->Reset();
+  }
+  if (MinBiasHFM0Comp_ == nullptr) {
+    MinBiasHFM0Comp_ = ibooker.book1D(
+      "MinBiasHFM0Ratio", "Data/Emul MinBiasHFM0; N_{towers}; Events",
+      16, -0.5, 15.5);
+    MinBiasHFM0Comp_->setEfficiencyFlag();
+  } else {
+    MinBiasHFM0Comp_->Reset();
+  }
+  if (MinBiasHFP1Comp_ == nullptr) {
+    MinBiasHFP1Comp_ = ibooker.book1D(
+      "MinBiasHFP1Ratio", "Data/Emul MinBiasHFP1; N_{towers}; Events",
+      16, -0.5, 15.5);
+    MinBiasHFP1Comp_->setEfficiencyFlag();
+  } else {
+    MinBiasHFP1Comp_->Reset();
+  }
+  if (MinBiasHFM1Comp_ == nullptr) {
+    MinBiasHFM1Comp_ = ibooker.book1D(
+      "MinBiasHFM1Ratio", "Data/Emul MinBiasHFM1; N_{towers}; Events",
+      16, -0.5, 15.5);
+    MinBiasHFM1Comp_->setEfficiencyFlag();
+  } else {
+    MinBiasHFM1Comp_->Reset();
+  }
 
-  TowerCountComp_ = ibooker.book1D(
-    "TowCountRatio", "Data/Emul Tower Count; N_{towers}; Events",
-    5904, -0.5, 5903.5);
-  TowerCountComp_->setEfficiencyFlag();
+  if (TowerCountComp_ == nullptr) {
+    TowerCountComp_ = ibooker.book1D(
+      "TowCountRatio", "Data/Emul Tower Count; N_{towers}; Events",
+      5904, -0.5, 5903.5);
+    TowerCountComp_->setEfficiencyFlag();
+  } else {
+    TowerCountComp_->Reset();
+  }
 }
 
 void L1TStage2CaloLayer2DEClient::processHistograms(DQMStore::IGetter &igetter){

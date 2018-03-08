@@ -184,7 +184,7 @@ void RunList::fetchRuns(int min_run, int max_run, bool withTriggers,
     m_vec_runiov.resize(i);
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunList::fetchRuns:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunList::fetchRuns:  ")+getOraMessage(&e)));
   }
 }
 
@@ -254,7 +254,7 @@ void RunList::fetchLastNRuns( int max_run, int n_runs  )
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunList::fetchLastNRuns:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunList::fetchLastNRuns:  ")+getOraMessage(&e)));
   }
 
 
@@ -324,9 +324,9 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef& 
        
        RunTag atag;
        atag.setLocationDef(locDef);
-       atag.setGeneralTag(rset->getString(7));
+       atag.setGeneralTag(getOraString(rset,7));
        RunTypeDef rundef;
-       rundef.setRunType(rset->getString(8));
+       rundef.setRunType(getOraString(rset,8));
        atag.setRunTypeDef(rundef);
 
        RunIOV r ;
@@ -345,7 +345,7 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef& 
     m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunList::fetchRunsByLocation:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunList::fetchRunsByLocation:  ")+getOraMessage(&e)));
   }
 
 
@@ -415,9 +415,9 @@ void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const Locatio
        
        RunTag atag;
        atag.setLocationDef(locDef);
-       atag.setGeneralTag(rset->getString(7));
+       atag.setGeneralTag(getOraString(rset,7));
        RunTypeDef rundef;
-       rundef.setRunType(rset->getString(8));
+       rundef.setRunType(getOraString(rset,8));
        atag.setRunTypeDef(rundef);
 
        RunIOV r ;
@@ -436,7 +436,7 @@ void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const Locatio
     m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunList::fetchRunsByLocation:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunList::fetchRunsByLocation:  ")+getOraMessage(&e)));
   }
 
 

@@ -26,7 +26,7 @@ class ESFEDIntegrityTask : public DQMEDAnalyzer {
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-  void endJob();
+  void endJob() override;
   
  private:
   

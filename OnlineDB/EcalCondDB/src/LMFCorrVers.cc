@@ -41,7 +41,7 @@ std::string LMFCorrVers::setByIDSql(Statement *stmt, int id)
 }
 
 void LMFCorrVers::getParameters(ResultSet *rset) {
-  setString("description", rset->getString(1));
+  setString("description", getOraString(rset,1));
 }
 
 LMFUnique * LMFCorrVers::createObject() const {
