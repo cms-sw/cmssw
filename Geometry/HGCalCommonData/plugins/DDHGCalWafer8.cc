@@ -12,7 +12,7 @@
 
 DDHGCalWafer8::DDHGCalWafer8() {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8 test: Creating an instance";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWafer8: Creating an instance";
 #endif
 }
 
