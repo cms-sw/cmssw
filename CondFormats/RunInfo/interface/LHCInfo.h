@@ -15,7 +15,7 @@ class LHCInfo {
   enum ParticleType { NONE = 0, PROTON = 1, PB82 = 2, AR18 = 3, D = 4, XE54 = 5 };
 
   enum IntParamIndex { LHC_FILL = 0, BUNCHES_1 = 1, BUNCHES_2 = 2, COLLIDING_BUNCHES = 3, TARGET_BUNCHES = 4, FILL_TYPE = 5, PARTICLES_1 = 6, PARTICLES_2 = 7, LUMI_SECTION = 8, ISIZE = 9 };
-  enum FloatParamIndex { CROSSING_ANGLE = 0, BETA_STAR = 1, INTENSITY_1 = 2, INTENSITY_2 = 3, ENERGY = 4, DELIV_LUMI = 5, REC_LUMI = 7, LUMI_PER_B = 8, XING_ANGLE = 9, FSIZE = 10};
+  enum FloatParamIndex { CROSSING_ANGLE = 0, BETA_STAR = 1, INTENSITY_1 = 2, INTENSITY_2 = 3, ENERGY = 4, DELIV_LUMI = 5, REC_LUMI = 7, LUMI_PER_B = 8, XING_ANGLE = 9, BEAM1_VC = 10, BEAM2_VC = 11, BEAM1_RF = 12, BEAM2_RF = 13, FSIZE = 14};
   enum TimeParamIndex { CREATE_TIME = 0, BEGIN_TIME = 1, END_TIME = 2, DIP_TIME = 3, TSIZE =4};
   enum StringParamIndex { INJECTION_SCHEME = 0, LHC_STATE = 1, LHC_COMMENT = 2, CTPPS_STATUS = 3, SSIZE =4};
 
@@ -89,6 +89,14 @@ std::vector<float> const & xingAngle() const;
 
 std::vector<cond::Time_t> const & dipTime() const;
 
+std::vector<float> const & beam1VC() const;
+
+std::vector<float> const & beam2VC() const;
+
+std::vector<float> const & beam1RF() const;
+
+std::vector<float> const & beam2RF() const;
+
   //returns a boolean, true if the injection scheme has a leading 25ns
   //TODO: parse the circulating bunch configuration, instead of the string.
   bool is25nsBunchSpacing() const;
@@ -154,6 +162,14 @@ std::vector<cond::Time_t> const & dipTime() const;
   
   void setDipTime( std::vector<cond::Time_t> const & dipTime);
   
+  void setBeam1VC( std::vector<float> const & beam1VC);
+  
+  void setBeam2VC( std::vector<float> const & beam2VC);
+  
+  void setBeam1RF( std::vector<float> const & beam1RF);
+  
+  void setBeam2RF( std::vector<float> const & beam2RF);
+  
   //sets all values in one go
   void setBeamInfo( unsigned short const & bunches1
 	,unsigned short const & bunches2
@@ -180,6 +196,10 @@ std::vector<cond::Time_t> const & dipTime() const;
 	,std::vector<unsigned int> const & lumiSection
 	,std::vector<float> const & xingAngle
 	,std::vector<cond::Time_t> const & dipTime
+	,std::vector<float> const & beam1VC
+	,std::vector<float> const & beam2VC
+	,std::vector<float> const & beam1RF
+	,std::vector<float> const & beam2RF
 	,std::bitset<bunchSlots+1> const & bunchConf1 
 	,std::bitset<bunchSlots+1> const & bunchConf2 );
   
