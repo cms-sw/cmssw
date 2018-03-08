@@ -111,15 +111,6 @@ setEnergyAndSystVarations(const float scale,const float smearNrSigma,const float
   const float corrUp = corrPhiUp;
   const float corrDn = corrPhiDn;
 
-  const float scaleShiftStatUp = 1+scaleCorr.scaleErrStat();
-  const float scaleShiftStatDn = 1-scaleCorr.scaleErrStat();
-  const float scaleShiftSystUp = 1+scaleCorr.scaleErrSyst();
-  const float scaleShiftSystDn = 1-scaleCorr.scaleErrSyst();
-  const float scaleShiftGainUp = 1+scaleCorr.scaleErrGain();
-  const float scaleShiftGainDn = 1-scaleCorr.scaleErrGain();
-  const float scaleShiftUp = 1+scaleCorr.scaleErr(EnergyScaleCorrection::kErrStatSystGain);
-  const float scaleShiftDn = 1-scaleCorr.scaleErr(EnergyScaleCorrection::kErrStatSystGain);
-
   
   const double oldEcalEnergy = photon.getCorrectedEnergy(reco::Photon::P4type::regression2);
   const double oldEcalEnergyError = photon.getCorrectedEnergyError(reco::Photon::P4type::regression2);
@@ -131,20 +122,20 @@ setEnergyAndSystVarations(const float scale,const float smearNrSigma,const float
   const double newEcalEnergyError = std::hypot(oldEcalEnergyError * corr, smear * newEcalEnergy);
   photon.setCorrectedEnergy(reco::Photon::P4type::regression2, newEcalEnergy, newEcalEnergyError, true);
   
-  energyData[EGEnergySysIndex::kScaleStatUp]   = oldEcalEnergy * scaleShiftStatUp * corr;
-  energyData[EGEnergySysIndex::kScaleStatDown] = oldEcalEnergy * scaleShiftStatDn * corr;
-  energyData[EGEnergySysIndex::kScaleSystUp]   = oldEcalEnergy * scaleShiftSystUp * corr;
-  energyData[EGEnergySysIndex::kScaleSystDown] = oldEcalEnergy * scaleShiftSystDn * corr;
-  energyData[EGEnergySysIndex::kScaleGainUp]   = oldEcalEnergy * scaleShiftGainUp * corr;
-  energyData[EGEnergySysIndex::kScaleGainDown] = oldEcalEnergy * scaleShiftGainDn * corr;
+  energyData[EGEnergySysIndex::kScaleStatUp]   = oldEcalEnergy * (corr + scaleCorr.scaleErrStat());
+  energyData[EGEnergySysIndex::kScaleStatDown] = oldEcalEnergy * (corr - scaleCorr.scaleErrStat());
+  energyData[EGEnergySysIndex::kScaleSystUp]   = oldEcalEnergy * (corr + scaleCorr.scaleErrSyst());
+  energyData[EGEnergySysIndex::kScaleSystDown] = oldEcalEnergy * (corr - scaleCorr.scaleErrSyst());
+  energyData[EGEnergySysIndex::kScaleGainUp]   = oldEcalEnergy * (corr + scaleCorr.scaleErrGain());
+  energyData[EGEnergySysIndex::kScaleGainDown] = oldEcalEnergy * (corr - scaleCorr.scaleErrGain());
   energyData[EGEnergySysIndex::kSmearRhoUp]    = oldEcalEnergy * corrRhoUp;
   energyData[EGEnergySysIndex::kSmearRhoDown]  = oldEcalEnergy * corrRhoDn;
   energyData[EGEnergySysIndex::kSmearPhiUp]    = oldEcalEnergy * corrPhiUp;
   energyData[EGEnergySysIndex::kSmearPhiDown]  = oldEcalEnergy * corrPhiDn;
   
   // The total variation
-  energyData[EGEnergySysIndex::kScaleUp]   = oldEcalEnergy * scaleShiftUp * corr;
-  energyData[EGEnergySysIndex::kScaleDown] = oldEcalEnergy * scaleShiftDn * corr;
+  energyData[EGEnergySysIndex::kScaleUp]   = oldEcalEnergy * (corr + scaleCorr.scaleErr(EnergyScaleCorrection::kErrStatSystGain));
+  energyData[EGEnergySysIndex::kScaleDown] = oldEcalEnergy * (corr - scaleCorr.scaleErr(EnergyScaleCorrection::kErrStatSystGain));
   energyData[EGEnergySysIndex::kSmearUp]   = oldEcalEnergy * corrUp;
   energyData[EGEnergySysIndex::kSmearDown] = oldEcalEnergy * corrDn;
 
