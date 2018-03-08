@@ -439,8 +439,6 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 	CTPPSDataQuery->addToOutputList( std::string( "LHC_COMMENT" ) );
 	CTPPSDataQuery->addToOutputList( std::string( "CTPPS_STATUS" ) );
 	CTPPSDataQuery->addToOutputList( std::string( "LUMI_SECTION" ) );
-	CTPPSDataQuery->addToOutputList( std::string( "XING_ANGLE_URAD" ) );
-	CTPPSDataQuery->addToOutputList( std::string( "DIP_UPDATE_TIME" ) );
 	//WHERE CLAUSE
 	coral::AttributeList CTPPSDataBindVariables;
 	CTPPSDataBindVariables.extend<int>( std::string( "currentFill" ) );
@@ -455,17 +453,14 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 	CTPPSDataOutput.extend<std::string>( std::string( "LHC_COMMENT" ) );
 	CTPPSDataOutput.extend<std::string>( std::string( "CTPPS_STATUS" ) );
 	CTPPSDataOutput.extend<int>( std::string( "LUMI_SECTION" ) );
-	CTPPSDataOutput.extend<int>( std::string( "XING_ANGLE_URAD" ) );
-	CTPPSDataOutput.extend<coral::TimeStamp>( std::string( "DIP_UPDATE_TIME" ) );
+	CTPPSDataQuery->limitReturnedRows( 1 ); //Only one entry per payload.
 	CTPPSDataQuery->defineOutput( CTPPSDataOutput );
 	//execute the query
 	coral::ICursor& CTPPSDataCursor = CTPPSDataQuery->execute();
-	std::vector<std::string> lhcState, lhcComment, ctppsStatus;
-	std::vector<unsigned int> lumiSection;
-	std::vector<float> xingAngle;
-	std::vector<cond::Time_t> dipTime;
+	std::string lhcState, lhcComment, ctppsStatus;
+	unsigned int lumiSection;
 
-	while( CTPPSDataCursor.next() ) {
+	if( CTPPSDataCursor.next() ) {
 		if( m_debug ) {
 		    std::ostringstream CTPPS;
 		    CTPPSDataCursor.currentRow().toOutputStream( CTPPS );
@@ -473,45 +468,31 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 		}
 		coral::Attribute const & lhcStateAttribute = CTPPSDataCursor.currentRow()[ std::string( "LHC_STATE" ) ];
 		if( lhcStateAttribute.isNull() ) {
-			lhcState.push_back("");
+			lhcState = "";
 		} else {
-			lhcState.push_back(lhcStateAttribute.data<std::string>());
+			lhcState = lhcStateAttribute.data<std::string>();
 		}
 
 		coral::Attribute const & lhcCommentAttribute = CTPPSDataCursor.currentRow()[ std::string( "LHC_COMMENT" ) ];
 		if( lhcCommentAttribute.isNull() ) {
-			lhcComment.push_back("");
+			lhcComment = "";
 		} else {
-			lhcComment.push_back(lhcCommentAttribute.data<std::string>());
+			lhcComment = lhcCommentAttribute.data<std::string>();
 		}
 
 		coral::Attribute const & ctppsStatusAttribute = CTPPSDataCursor.currentRow()[ std::string( "CTPPS_STATUS" ) ];
 		if( ctppsStatusAttribute.isNull() ) {
-			ctppsStatus.push_back("");
+			ctppsStatus = "";
 		} else {
-			ctppsStatus.push_back(ctppsStatusAttribute.data<std::string>());
+			ctppsStatus = ctppsStatusAttribute.data<std::string>();
 		}
 
 		coral::Attribute const & lumiSectionAttribute = CTPPSDataCursor.currentRow()[ std::string( "LUMI_SECTION" ) ];
 		if( lumiSectionAttribute.isNull() ) {
-			lumiSection.push_back(0);
+			lumiSection = 0;
 		} else {
-			lumiSection.push_back(lumiSectionAttribute.data<int>());
+			lumiSection = lumiSectionAttribute.data<int>();
 		}
-
-		coral::Attribute const & xingAngleAttribute = CTPPSDataCursor.currentRow()[ std::string( "XING_ANGLE_URAD" ) ];
-		if( xingAngleAttribute.isNull() ) {
-			xingAngle.push_back(0);
-		} else {
-			xingAngle.push_back(xingAngleAttribute.data<int>());
-		}
-		
-		coral::Attribute const & dipTimeAttribute = CTPPSDataCursor.currentRow()[ std::string( "DIP_UPDATE_TIME" ) ];
-                if( dipTimeAttribute.isNull() ) {
-                        dipTime.push_back(0ULL);
-                } else {
-                        dipTime.push_back(cond::time::from_boost(dipTimeAttribute.data<coral::TimeStamp>().time() ) );
-                }
 	}
 	//commit the transaction against the CTPPS schema
 	session.transaction().commit();
@@ -541,7 +522,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     }
     //construct an instance of LHCInfo and set its values
     std::vector<float> dummy(1, 0.); //The ECal vectors will replace the test dummy.
-
+    
     LHCInfo *lhcInfo = new LHCInfo( currentFill ); 
     lhcInfo->setBeamInfo( const_cast<unsigned short const &>( bunches1 )
 			 , const_cast<unsigned short const &>( bunches2 )
@@ -562,12 +543,10 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 			 , const_cast<cond::Time_t const &>( beamDumpTime )
 			 , const_cast<std::string const &>( injectionScheme )
 			 , const_cast<std::vector<float> const &>( lumiPerBX )
-			 , const_cast<std::vector<std::string> const &>( lhcState )
-			 , const_cast<std::vector<std::string> const &>( lhcComment )
-			 , const_cast<std::vector<std::string> const &>( ctppsStatus )
-			 , const_cast<std::vector<unsigned int> const &>( lumiSection )
-			 , const_cast<std::vector<float> const &>( xingAngle )
-			 , const_cast<std::vector<cond::Time_t> const &>( dipTime )
+			 , const_cast<std::string const &>( lhcState )
+			 , const_cast<std::string const &>( lhcComment )
+			 , const_cast<std::string const &>( ctppsStatus )
+			 , const_cast<unsigned int const &>( lumiSection )
 			 , const_cast<std::vector<float> const &>( dummy )
 			 , const_cast<std::vector<float> const &>( dummy )
 			 , const_cast<std::vector<float> const &>( dummy )
@@ -579,7 +558,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     edm::LogInfo( m_name ) << "The new payload to be inserted into tag " << tagInfo().name
 			   << " with validity " << stableBeamStartTime 
 			   << " ( " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( stableBeamStartTime ) )
-			   << " ) has values:\n" << *lhcInfo
+			   << " ) has values:\n" //<< *lhcInfo Throws Exception!
 			   << "from " << m_name << "::getNewObjects";
     //add log information
     ss << " fill = " << currentFill
