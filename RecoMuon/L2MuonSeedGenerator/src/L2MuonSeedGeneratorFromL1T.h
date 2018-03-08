@@ -80,8 +80,8 @@ class L2MuonSeedGeneratorFromL1T : public edm::stream::EDProducer<> {
 
   /// use central bx only muons
   bool centralBxOnly_;
-  const int matchType;
-  const int sortType;
+  const unsigned matchType;
+  const unsigned sortType;
 
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy *theService;  
