@@ -405,7 +405,7 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw, const HcalElectronicsMap& em
 	  ncurr=0;
 	  valid=true;
 	}      
-	// add the word (if within settings or recent firmware [recent firmware Suppressing startSample/endSample])
+	// add the word (if within settings or recent firmware [recent firmware ignores startSample/endSample])
 	if (valid && ((tpgSOIbitInUse && ncurr<10) || (ncurr>=startSample_ && ncurr<=endSample_))) {
 	  colls.tpCont->back().setSample(colls.tpCont->back().size(),*tp_work);
 	  colls.tpCont->back().setSize(colls.tpCont->back().size()+1);
