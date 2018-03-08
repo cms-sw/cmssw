@@ -14,10 +14,10 @@ class LHCInfo {
   enum FillType { UNKNOWN = 0, PROTONS = 1, IONS = 2, COSMICS = 3, GAP = 4 };
   enum ParticleType { NONE = 0, PROTON = 1, PB82 = 2, AR18 = 3, D = 4, XE54 = 5 };
 
-  enum IntParamIndex { LHC_FILL = 0, BUNCHES_1 = 1, BUNCHES_2 = 2, COLLIDING_BUNCHES = 3, TARGET_BUNCHES = 4, FILL_TYPE = 5, PARTICLES_1 = 6, PARTICLES_2 = 7, ISIZE = 8 };
-  enum FloatParamIndex { CROSSING_ANGLE = 0, BETA_STAR = 1, INTENSITY_1 = 2, INTENSITY_2 = 3, ENERGY = 4, DELIV_LUMI = 5, REC_LUMI = 7, LUMI_PER_B=8, FSIZE=9};
-  enum TimeParamIndex { CREATE_TIME = 0, BEGIN_TIME = 1, END_TIME = 2, TSIZE=3};
-  enum StringParamIndex { INJECTION_SCHEME = 0, SSIZE=1 };
+  enum IntParamIndex { LHC_FILL = 0, BUNCHES_1 = 1, BUNCHES_2 = 2, COLLIDING_BUNCHES = 3, TARGET_BUNCHES = 4, FILL_TYPE = 5, PARTICLES_1 = 6, PARTICLES_2 = 7, LUMI_SECTION = 8, ISIZE = 9 };
+  enum FloatParamIndex { CROSSING_ANGLE = 0, BETA_STAR = 1, INTENSITY_1 = 2, INTENSITY_2 = 3, ENERGY = 4, DELIV_LUMI = 5, REC_LUMI = 7, LUMI_PER_B = 8, XING_ANGLE = 9, FSIZE = 10};
+  enum TimeParamIndex { CREATE_TIME = 0, BEGIN_TIME = 1, END_TIME = 2, DIP_TIME = 3, TSIZE =4};
+  enum StringParamIndex { INJECTION_SCHEME = 0, LHC_STATE = 1, LHC_COMMENT = 2, CTPPS_STATUS = 3, SSIZE =4};
 
   typedef FillType FillTypeId;
   typedef ParticleType ParticleTypeId;
@@ -76,6 +76,18 @@ class LHCInfo {
   std::string const & injectionScheme() const;
   
   std::vector<float> const & lumiPerBX() const;
+  
+  std::vector<std::string> const & lhcState() const;
+
+std::vector<std::string> const & lhcComment() const;
+
+std::vector<std::string> const & ctppsStatus() const;
+
+std::vector<unsigned int> const & lumiSection() const;
+
+std::vector<float> const & xingAngle() const;
+
+std::vector<cond::Time_t> const & dipTime() const;
 
   //returns a boolean, true if the injection scheme has a leading 25ns
   //TODO: parse the circulating bunch configuration, instead of the string.
@@ -130,28 +142,46 @@ class LHCInfo {
   
   void setLumiPerBX( std::vector<float> const & lumiPerBX);
   
+  void setLhcState( std::vector<std::string> const & lhcState);
+  
+  void setLhcComment( std::vector<std::string> const & lhcComment);
+
+  void setCtppsStatus( std::vector<std::string> const & ctppsStatus);
+  
+  void setLumiSection( std::vector<unsigned int> const & lumiSection);
+  
+  void setXingAngle( std::vector<float> const & xingAngle);
+  
+  void setDipTime( std::vector<cond::Time_t> const & dipTime);
+  
   //sets all values in one go
-  void setInfo( unsigned short const & bunches1
-		,unsigned short const & bunches2
-		,unsigned short const & collidingBunches
-		,unsigned short const & targetBunches
-		,FillTypeId const & fillType
-		,ParticleTypeId const & particleType1
-		,ParticleTypeId const & particleType2
-		,float const & angle
-		,float const & beta
-		,float const & intensity1
-		,float const & intensity2
-		,float const & energy
-		,float const & delivLumi
-		,float const & recLumi
-		,cond::Time_t const & createTime
-		,cond::Time_t const & beginTime
-		,cond::Time_t const & endTime
-		,std::string const & scheme
-		,std::vector<float> const & lumiPerBX
-		,std::bitset<bunchSlots+1> const & bunchConf1 
-		,std::bitset<bunchSlots+1> const & bunchConf2 );
+  void setBeamInfo( unsigned short const & bunches1
+	,unsigned short const & bunches2
+	,unsigned short const & collidingBunches
+	,unsigned short const & targetBunches
+	,FillTypeId const & fillType
+	,ParticleTypeId const & particleType1
+	,ParticleTypeId const & particleType2
+	,float const & angle
+	,float const & beta
+	,float const & intensity1
+	,float const & intensity2
+	,float const & energy
+	,float const & delivLumi
+	,float const & recLumi
+	,cond::Time_t const & createTime
+	,cond::Time_t const & beginTime
+	,cond::Time_t const & endTime
+	,std::string const & scheme
+	,std::vector<float> const & lumiPerBX
+	,std::vector<std::string> const & lhcState
+	,std::vector<std::string> const & lhcComment
+	,std::vector<std::string> const & ctppsStatus
+	,std::vector<unsigned int> const & lumiSection
+	,std::vector<float> const & xingAngle
+	,std::vector<cond::Time_t> const & dipTime
+	,std::bitset<bunchSlots+1> const & bunchConf1 
+	,std::bitset<bunchSlots+1> const & bunchConf2 );
   
   //dumping values on output stream
   void print(std::stringstream & ss) const;
@@ -189,6 +219,6 @@ class LHCInfo {
  COND_SERIALIZABLE;
 };
 
-std::ostream & operator<<( std::ostream &, LHCInfo fillInfo );
+std::ostream & operator<<( std::ostream &, LHCInfo lhcInfo );
 
 #endif // CondFormats_RunInfo_LHCInfo_H
