@@ -39,7 +39,22 @@ for year in upgradeKeys:
 
                 for stepType in upgradeSteps.keys():
                     # use variation only when available
-                    if (stepType is not 'baseline') and ( ('PU' in step and step.replace('PU','') in upgradeSteps[stepType]['PU']) or (step in upgradeSteps[stepType]['steps']) ):
+                    if stepType == 'Premix':
+                        # Premixing stage1
+                        #
+                        # This is a hack which should be placed somewhere else, but likely requires more massive changes for "proper" PUPRMX treatment
+                        #
+                        # On one hand the place where upgradeWorkflowComponents.upgradeProperties[year][...PU]
+                        # are defined from the noPU workflows would be a logical place. On the other hand, that
+                        # would need the premixing workflows to be defined in upgradeWorkflowComponents.upgradeKeys[year]
+                        # dictionary, which would further mean that we would get full set of additional workflows for
+                        # premixing, while the preferred solution would be to define the premixing workflows as variations of the PU workflows.
+                        s = step.replace('GenSim', 'Premix')
+                        if not s in upgradeSteps[stepType]['PU']:
+                            continue
+                        s = s + 'PU' # later processing requires to have PU here
+                        stepList[stepType].append(stepMaker(key,frag[:-4],s,upgradeSteps[stepType]['suffix']))
+                    elif (stepType is not 'baseline') and ( ('PU' in step and step.replace('PU','') in upgradeSteps[stepType]['PU']) or (step in upgradeSteps[stepType]['steps']) ):
                         stepList[stepType].append(stepMaker(key,frag[:-4],step,upgradeSteps[stepType]['suffix']))
                     else:
                         stepList[stepType].append(stepMaker(key,frag[:-4],step,upgradeSteps['baseline']['suffix']))
@@ -70,5 +85,19 @@ for year in upgradeKeys:
             # special workflows for HE
             if upgradeDatasetFromFragment[frag]=="TTbar_13" and '2018' in key:
                 workflows[numWF+upgradeSteps['heCollapse']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['heCollapse']]
+
+            # premixing stage1, only for NuGun
+            if upgradeDatasetFromFragment[frag]=="NuGun" and 'PU' in key and '2023' in key:
+                workflows[numWF+upgradeSteps['Premix']['offset']] = [upgradeDatasetFromFragment[frag], stepList['Premix']]
+
+            # premixing stage2, only for ttbar for time being
+            if 'PU' in key and '2023' in key and upgradeDatasetFromFragment[frag]=="TTbar_14TeV":
+                slist = []
+                for step in stepList['baseline']:
+                    s = step
+                    if "Digi" in step or "Reco" in step:
+                        s = s.replace("PU", "PUPRMX", 1)
+                    slist.append(s)
+                workflows[numWF+premixS2_offset] = [upgradeDatasetFromFragment[frag], slist]
 
             numWF+=1

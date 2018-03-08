@@ -43,6 +43,12 @@ namespace online {
     const float errSigmaZ;
   };
 
+  struct CTPPS_v1
+  {
+    uint64_t timestamp;
+    uint64_t status;
+  };
+
   struct DCS_v1
   {
     const uint64_t timestamp;
@@ -55,6 +61,15 @@ namespace online {
     const uint8_t version;
     const Luminosity_v1 luminosity;
     const BeamSpot_v1 beamSpot;
+    const DCS_v1 dcs;
+  };
+
+  struct Data_v2
+  {
+    const uint8_t version;
+    const Luminosity_v1 luminosity;
+    const BeamSpot_v1 beamSpot;
+    const CTPPS_v1 ctpps;
     const DCS_v1 dcs;
   };
 

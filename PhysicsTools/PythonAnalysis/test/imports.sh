@@ -15,7 +15,11 @@ python -c 'import theano; print(theano.config)'
 echo ">>> Cleaning compile cache"
 theano-cache clear
 
-python ${CMSSW_BASE}/src/PhysicsTools/PythonAnalysis/test/imports.py
+for i in $(python ${CMSSW_BASE}/src/PhysicsTools/PythonAnalysis/test/imports.py)
+do
+   echo "importing $i"
+   python -c "import $i"
+done
 
 echo ">>> Cleaning compile cache"
 theano-cache clear

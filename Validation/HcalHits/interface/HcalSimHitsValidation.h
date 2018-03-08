@@ -49,7 +49,7 @@ public:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const & ) override;
 
   void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
-  void endJob() override ;
+  void endJob() override;
 
 private:
   

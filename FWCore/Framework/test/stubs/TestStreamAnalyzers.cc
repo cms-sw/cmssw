@@ -23,6 +23,7 @@ for testing purposes only.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 
 namespace edmtest {
 namespace stream {
@@ -54,6 +55,8 @@ struct Cache {
     GlobalIntAnalyzer(edm::ParameterSet const& p, Cache const * iGlobal)  {
       trans_ = p.getParameter<int>("transitions");
       cvalue_ = p.getParameter<int>("cachevalue");
+      callWhenNewProductsRegistered([](edm::BranchDescription const& desc)
+        { std::cout << "stream::GlobalIntAnalyzer " << desc.moduleLabel() << std::endl; });
     }
 
     void analyze(edm::Event const&, edm::EventSetup const&) {

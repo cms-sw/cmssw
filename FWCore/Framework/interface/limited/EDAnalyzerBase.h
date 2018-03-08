@@ -67,6 +67,10 @@ namespace edm {
       virtual bool wantsStreamRuns() const =0;
       virtual bool wantsStreamLuminosityBlocks() const =0;
 
+      void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
+        callWhenNewProductsRegistered_ = func;
+      }
+
       unsigned int concurrencyLimit() const { return queue_.concurrencyLimit(); }
 
       LimitedTaskQueue& queue() {

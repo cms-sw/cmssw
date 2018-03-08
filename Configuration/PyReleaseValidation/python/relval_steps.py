@@ -394,6 +394,14 @@ steps['ProdTTbar_13']=gen2015('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['ProdZEE_13']=gen2015('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['ProdQCD_Pt_3000_3500_13']=gen2015('QCD_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 
+
+##production 2017
+steps['ProdTTbar_13UP17']=gen2017('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
+steps['ProdMinBias_13UP17']=gen2017('MinBias_13TeV_pythia8_TuneCUETP8M1_cfi',Kby(9,100))
+steps['ProdQCD_Pt_3000_3500_13UP17']=gen2017('QCD_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
+
+
+
 steps['MinBias']=gen('MinBias_8TeV_pythia8_TuneCUETP8M1_cff',Kby(9,300))
 steps['QCD_Pt_3000_3500']=gen('QCD_Pt_3000_3500_8TeV_TuneCUETP8M1_cfi',Kby(9,25))
 steps['QCD_Pt_600_800']=gen('QCD_Pt_600_800_8TeV_TuneCUETP8M1_cfi',Kby(9,50))
@@ -1183,6 +1191,7 @@ steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2016','--eventc
 steps['DIGIUP15_PU25']=merge([PU25,step2Upg2015Defaults])
 steps['DIGIUP15_PU50']=merge([PU50,step2Upg2015Defaults50ns])
 steps['DIGIUP17']=merge([step2Upg2017Defaults])
+steps['DIGIUP17PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval2017','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2017Defaults])
 steps['DIGIUP17_PU25']=merge([PU25UP17,step2Upg2017Defaults])
 steps['DIGIUP18_PU25']=merge([PU25UP18,step2Upg2018Defaults])
 
@@ -1519,7 +1528,7 @@ step3_trackingOnly = {
     '--eventcontent':'RECOSIM,DQM',
 }
 step3_pixelTrackingOnly = {
-    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation',
+    '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
     '--datatier': 'GEN-SIM-RECO,DQMIO',
     '--eventcontent': 'RECOSIM,DQM',
 }
@@ -1634,7 +1643,9 @@ steps['RECOAlCaCalo']=merge([step3DefaultsAlCaCalo])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,MINIAODSIM,DQM'},steps['RECO']])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT', '--datatier' : 'AODSIM,MINIAODSIM', '--eventcontent' : 'AODSIM,MINIAODSIM'},step3Defaults])
 #steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,DQMIO','--eventcontent':'AODSIM,DQM'},step3Up2015Defaults])
-steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,MINIAODSIM,DQMIO','--eventcontent':'AODSIM,MINIAODSIM,DQM'},step3Up2015Defaults])
+steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT','--datatier':'AODSIM,MINIAODSIM','--eventcontent':'AODSIM,MINIAODSIM'},step3Up2015Defaults])
+## for 2017 PROD
+steps['RECOPRODUP17']=merge([{ '--era' :'Run2_2017','--conditions': 'auto:phase1_2017_realistic'},steps['RECOPRODUP15']])
 steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM','--scenario':'cosmics','--datatier':'GEN-SIM-RECO,DQMIO','--eventcontent':'RECOSIM,DQM'},stCond,step3Defaults])
 steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOCOS_UP15']=merge([{'--conditions':'auto:run2_mc_cosmics','-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlGlobalCosmics,DQM','--scenario':'cosmics'},step3Up2015Hal])
@@ -2278,6 +2289,8 @@ for stepType in upgradeSteps.keys():
     for step in upgradeSteps[stepType]['PU']:
         stepName = step+'PU'+upgradeSteps[stepType]['suffix']
         upgradeStepDict[stepName]={}
+        stepNamePmx = step+'PUPRMX'+upgradeSteps[stepType]['suffix']
+        upgradeStepDict[stepNamePmx]={}
 
 # just make all combinations - yes, some will be nonsense.. but then these are not used unless specified above
 # collapse upgradeKeys using list comprehension
@@ -2423,7 +2436,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     for step in upgradeSteps['pixelTrackingOnly']['steps']:
         stepName = step + upgradeSteps['pixelTrackingOnly']['suffix']
         if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_pixelTrackingOnly, upgradeStepDict[step][k]])
-        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation'}, upgradeStepDict[step][k]])
+        elif 'HARVEST' in step: upgradeStepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, upgradeStepDict[step][k]])
 
     for step in upgradeSteps['trackingRun2']['steps']:
         stepName = step + upgradeSteps['trackingRun2']['suffix']
@@ -2462,24 +2475,72 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
     for step in upgradeSteps['heCollapse']['steps']:
         stepName = step + upgradeSteps['heCollapse']['suffix']
-        upgradeStepDict[stepName][k] = merge([{'--procModifier': 'run2_HECollapse_2018'}, upgradeStepDict[step][k]])
+        upgradeStepDict[stepName][k] = merge([{'--procModifiers': 'run2_HECollapse_2018'}, upgradeStepDict[step][k]])
 
     # setup PU
     if k2 in PUDataSets:
+        # Setup premixing stage1
+        #
+        # Has to be done before the overall PU definition in order to benefit from that
+        #
+        # It is a complete overkill to define premixing step for
+        # each generator fragment, but let's worry about
+        # simplification later
+        for step in upgradeSteps['baseline']['steps']:
+            if "GenSim" in step:
+                stepName = step + upgradeSteps['baseline']['suffix']
+                stepNamePmx = step.replace('GenSim', 'Premix') + 'PU' + upgradeSteps['Premix']['suffix']
+                d = merge([{'-s'            : 'GEN,SIM,DIGI:pdigi_valid,L1,DIGI2RAW',
+                            '--datatier'    : 'PREMIX',
+                            '--eventcontent': 'PREMIX',
+                            '--procModifiers': 'premix_stage1',
+                           },
+                           upgradeStepDict[stepName][k]])
+                upgradeStepDict[stepNamePmx][k] = d
+
         for stepType in upgradeSteps.keys():
+            if "Premix" in stepType:
+                # Premix stage1 is already set above, and there are no non-PU steps so has to be ignored here
+                continue
             for step in upgradeSteps[stepType]['PU']:
                 stepName = step + upgradeSteps[stepType]['suffix']
                 stepNamePU = step + 'PU' + upgradeSteps[stepType]['suffix']
                 upgradeStepDict[stepNamePU][k]=merge([PUDataSets[k2],upgradeStepDict[stepName][k]])
 
+                # Setup premixing stage2
+                if "Digi" in step or "Reco" in step:
+                    stepNamePUpmx = step + 'PUPRMX' + upgradeSteps[stepType]['suffix']
+                    d = merge([upgradeStepDict[stepName][k]])
+                    if "Digi" in step:
+                        tmpsteps = []
+                        for s in d["-s"].split(","):
+                            if "L1TrackTrigger" in s: # TODO: ignore TrackTrigger for now
+                                continue
+
+                            if s == "DIGI" or "DIGI:" in s:
+                                tmpsteps.extend([s, "DATAMIX"])
+                            else:
+                                tmpsteps.append(s)
+                        d = merge([{"-s"             : ",".join(tmpsteps),
+                                    "--datamix"      : "PreMix",
+                                    "--procModifiers": "premix_stage2"},
+                                   d])
+                    elif "Reco" in step:
+                        custNew = "SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput"
+                        if "--customise" in d:
+                            d["--customise"] += ","+custNew
+                        else:
+                            d["--customise"] = custNew
+                    upgradeStepDict[stepNamePUpmx][k] = d
+
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
-   if 'Sim' in step:
+   if 'Sim' in step or 'Premix' in step:
         for frag in upgradeFragments:
             howMuch=howMuches[frag]
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
                 k=frag[:-4]+'_'+key+'_'+step
-                if step in upgradeStepDict and key in upgradeStepDict[step]:
+                if (step in upgradeStepDict or step.replace("PUPRMX", "PU")) and key in upgradeStepDict[step]:
                     steps[k]=merge([ {'cfg':frag},howMuch,upgradeStepDict[step][key]])
                     #get inputs in case of -i...but no need to specify in great detail
                     #however, there can be a conflict of beam spots but this is lost in the dataset name

@@ -61,7 +61,7 @@ class LogMessageMonitor : public DQMEDAnalyzer {
    private:
   //      virtual void beginJob() ;
       void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      void endJob() override;
 
   //      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
       void endRun(edm::Run const&, edm::EventSetup const&) override;

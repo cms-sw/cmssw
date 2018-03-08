@@ -29,8 +29,6 @@ typedef TrackingVertex::genv_iterator                   genv_iterator;
 typedef TrackingVertex::g4v_iterator                     g4v_iterator;
 
 
-void TrackingTruthValid::beginJob(const edm::ParameterSet& conf) {}
-
 TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf)
   : runStandalone( conf.getParameter<bool>("runStandalone") )
   , outputFile( conf.getParameter<std::string>( "outputFile" ) )

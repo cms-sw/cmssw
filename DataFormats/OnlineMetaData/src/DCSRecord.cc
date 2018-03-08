@@ -5,6 +5,14 @@
 #include "DataFormats/OnlineMetaData/interface/OnlineMetaDataRaw.h"
 
 
+const DCSRecord::ParitionNames DCSRecord::partitionNames_ =
+{{
+    "EBp","EBm","EEp","EEm","HBHEa","HBHEb","HBHEc","HF","HO",
+    "RPC","DT0","DTp","DTm","CSCp","CSCm","CASTOR","ZDC",
+    "TIBTID","TOB","TECp","TECm","BPIX","FPIX","ESp","ESm"
+  }};
+
+
 DCSRecord::DCSRecord() :
   timestamp_(edm::Timestamp::invalidTimestamp()),
   magnetCurrent_(-1)

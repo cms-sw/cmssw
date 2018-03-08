@@ -3,6 +3,8 @@
 
 #include <memory>
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitQTestBase.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
@@ -52,6 +54,67 @@ protected:
 
   bool pass(const reco::PFRecHit& hit){
     if (hit.energy()>threshold_) return true;
+
+    return false;
+  }
+};
+
+
+
+//
+//  Quality test that checks threshold read from the DB
+//
+class PFRecHitQTestDBThreshold : public PFRecHitQTestBase {
+public:
+    PFRecHitQTestDBThreshold():eventSetup_(nullptr){
+    }
+
+    PFRecHitQTestDBThreshold(const edm::ParameterSet& iConfig):
+     PFRecHitQTestBase(iConfig),
+     applySelectionsToAllCrystals_(iConfig.getParameter<bool>("applySelectionsToAllCrystals")),    
+     eventSetup_(nullptr){
+    }
+
+    void beginEvent(const edm::Event& event, const edm::EventSetup& iSetup) override {
+        eventSetup_=&iSetup;
+    }
+
+    bool test(reco::PFRecHit& hit, const EcalRecHit& rh, bool& clean, bool fullReadOut) override{
+      if (applySelectionsToAllCrystals_) return pass(hit);  
+      return fullReadOut or pass(hit);
+    }
+    bool test(reco::PFRecHit& hit, const HBHERecHit& rh, bool& clean) override{
+      return pass(hit);
+    }
+
+    bool test(reco::PFRecHit& hit, const HFRecHit& rh, bool& clean) override{
+      return pass(hit);
+    }
+    bool test(reco::PFRecHit& hit, const HORecHit& rh, bool& clean) override{
+      return pass(hit);
+    }
+
+    bool test(reco::PFRecHit& hit, const CaloTower& rh, bool& clean) override{
+      return pass(hit);
+    }
+
+    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) override{
+      return pass(hit);
+    }
+
+protected:
+    
+  bool applySelectionsToAllCrystals_;
+  const edm::EventSetup * eventSetup_;
+
+  
+  bool pass(const reco::PFRecHit& hit){
+
+    edm::ESHandle<EcalPFRecHitThresholds> ths;
+    (*eventSetup_).get<EcalPFRecHitThresholdsRcd>().get(ths);
+
+    float threshold = (*ths)[hit.detId()];
+    if (hit.energy()>threshold) return true;
 
     return false;
   }
