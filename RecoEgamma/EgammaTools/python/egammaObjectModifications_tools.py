@@ -67,6 +67,8 @@ def makeEnergyScaleAndSmearingSysModifier(eleProdName,phoProdName):
             energySmearNrSigma = cms.InputTag(eleProdName,"EGMsmearNrSigma"),
             energyEcalPreCorr = cms.InputTag(eleProdName,"EGMecalEnergyPreCorr"),
             energyEcalErrPreCorr = cms.InputTag(eleProdName,"EGMecalEnergyErrPreCorr"),
+            energyEcalPostCorr = cms.InputTag(eleProdName,"EGMecalEnergy"),
+            energyEcalErrPostCorr = cms.InputTag(eleProdName,"EGMecalEnergyErr"),
             energyEcalTrkPreCorr = cms.InputTag(eleProdName,"EGMecalTrkEnergyPreCorr"),
             energyEcalTrkErrPreCorr = cms.InputTag(eleProdName,"EGMecalTrkEnergyErrPreCorr" ),
             energyEcalTrkPostCorr = cms.InputTag(eleProdName,"EGMecalTrkEnergy"),
@@ -92,6 +94,9 @@ def makeEnergyScaleAndSmearingSysModifier(eleProdName,phoProdName):
             energySmearNrSigma = cms.InputTag(phoProdName,"EGMsmearNrSigma"),
             energyEcalPreCorr = cms.InputTag(phoProdName,"EGMecalEnergyPreCorr"),
             energyEcalErrPreCorr = cms.InputTag(phoProdName,"EGMecalEnergyErrPreCorr"),
+            energyEcalPostCorr = cms.InputTag(phoProdName,"EGMecalEnergy"),
+            energyEcalErrPostCorr = cms.InputTag(phoProdName,"EGMecalEnergyErr"),
+
             )
         )
     return energyScaleAndSmearing

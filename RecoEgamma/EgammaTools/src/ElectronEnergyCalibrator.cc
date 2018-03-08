@@ -115,14 +115,14 @@ setEnergyAndSystVarations(const float scale,const float smearNrSigma,const float
   const float corrUp = corrPhiUp;
   const float corrDn = corrPhiDn;
 
-  const float scaleShiftStatUp = 1+scaleCorr.scaleErrStat();
-  const float scaleShiftStatDn = 1-scaleCorr.scaleErrStat();
-  const float scaleShiftSystUp = 1+scaleCorr.scaleErrSyst();
-  const float scaleShiftSystDn = 1-scaleCorr.scaleErrSyst();
-  const float scaleShiftGainUp = 1+scaleCorr.scaleErrGain();
-  const float scaleShiftGainDn = 1-scaleCorr.scaleErrGain();
-  const float scaleShiftUp = 1+scaleCorr.scaleErr(EnergyScaleCorrection::kErrStatSystGain);
-  const float scaleShiftDn = 1-scaleCorr.scaleErr(EnergyScaleCorrection::kErrStatSystGain);
+  const float corrScaleStatUp = corr+scaleCorr.scaleErrStat();
+  const float corrScaleStatDn = corr-scaleCorr.scaleErrStat();
+  const float corrScaleSystUp = corr+scaleCorr.scaleErrSyst();
+  const float corrScaleSystDn = corr-scaleCorr.scaleErrSyst();
+  const float corrScaleGainUp = corr+scaleCorr.scaleErrGain();
+  const float corrScaleGainDn = corr-scaleCorr.scaleErrGain();
+  const float corrScaleUp = corr+scaleCorr.scaleErr(EnergyScaleCorrection::kErrStatSystGain);
+  const float corrScaleDn = corr-scaleCorr.scaleErr(EnergyScaleCorrection::kErrStatSystGain);
   
   const math::XYZTLorentzVector oldP4 = ele.p4();
   energyData[EGEnergySysIndex::kEcalTrkPreCorr] = ele.energy();
@@ -130,20 +130,20 @@ setEnergyAndSystVarations(const float scale,const float smearNrSigma,const float
   energyData[EGEnergySysIndex::kEcalPreCorr] = ele.ecalEnergy();
   energyData[EGEnergySysIndex::kEcalErrPreCorr] = ele.ecalEnergyError();
   
-  energyData[EGEnergySysIndex::kScaleStatUp]   = calCombinedMom(ele,scaleShiftStatUp*corr,smear).first;
-  energyData[EGEnergySysIndex::kScaleStatDown] = calCombinedMom(ele,scaleShiftStatDn*corr,smear).first;
-  energyData[EGEnergySysIndex::kScaleSystUp]   = calCombinedMom(ele,scaleShiftSystUp*corr,smear).first;
-  energyData[EGEnergySysIndex::kScaleSystDown] = calCombinedMom(ele,scaleShiftSystDn*corr,smear).first;
-  energyData[EGEnergySysIndex::kScaleGainUp]   = calCombinedMom(ele,scaleShiftGainUp*corr,smear).first;
-  energyData[EGEnergySysIndex::kScaleGainDown] = calCombinedMom(ele,scaleShiftGainDn*corr,smear).first;
+  energyData[EGEnergySysIndex::kScaleStatUp]   = calCombinedMom(ele,corrScaleStatUp,smear).first;
+  energyData[EGEnergySysIndex::kScaleStatDown] = calCombinedMom(ele,corrScaleStatDn,smear).first;
+  energyData[EGEnergySysIndex::kScaleSystUp]   = calCombinedMom(ele,corrScaleSystUp,smear).first;
+  energyData[EGEnergySysIndex::kScaleSystDown] = calCombinedMom(ele,corrScaleSystDn,smear).first;
+  energyData[EGEnergySysIndex::kScaleGainUp]   = calCombinedMom(ele,corrScaleGainUp,smear).first;
+  energyData[EGEnergySysIndex::kScaleGainDown] = calCombinedMom(ele,corrScaleGainDn,smear).first;
   
   energyData[EGEnergySysIndex::kSmearRhoUp]   = calCombinedMom(ele,corrRhoUp,smearRhoUp).first;
   energyData[EGEnergySysIndex::kSmearRhoDown] = calCombinedMom(ele,corrRhoDn,smearRhoDn).first;
   energyData[EGEnergySysIndex::kSmearPhiUp]   = calCombinedMom(ele,corrPhiUp,smearPhiUp).first;
   energyData[EGEnergySysIndex::kSmearPhiDown] = calCombinedMom(ele,corrPhiDn,smearPhiDn).first;
   
-  energyData[EGEnergySysIndex::kScaleUp]   = calCombinedMom(ele,scaleShiftUp*corr,smear).first;
-  energyData[EGEnergySysIndex::kScaleDown] = calCombinedMom(ele,scaleShiftDn*corr,smear).first;
+  energyData[EGEnergySysIndex::kScaleUp]   = calCombinedMom(ele,corrScaleUp,smear).first;
+  energyData[EGEnergySysIndex::kScaleDown] = calCombinedMom(ele,corrScaleDn,smear).first;
   energyData[EGEnergySysIndex::kSmearUp]   = calCombinedMom(ele,corrUp,smearUp).first;
   energyData[EGEnergySysIndex::kSmearDown] = calCombinedMom(ele,corrDn,smearDn).first;
   
