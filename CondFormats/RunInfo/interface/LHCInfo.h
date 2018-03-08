@@ -15,7 +15,7 @@ class LHCInfo {
   enum ParticleType { NONE = 0, PROTON = 1, PB82 = 2, AR18 = 3, D = 4, XE54 = 5 };
 
   enum IntParamIndex { LHC_FILL = 0, BUNCHES_1 = 1, BUNCHES_2 = 2, COLLIDING_BUNCHES = 3, TARGET_BUNCHES = 4, FILL_TYPE = 5, PARTICLES_1 = 6, PARTICLES_2 = 7, LUMI_SECTION = 8, ISIZE = 9 };
-  enum FloatParamIndex { CROSSING_ANGLE = 0, BETA_STAR = 1, INTENSITY_1 = 2, INTENSITY_2 = 3, ENERGY = 4, DELIV_LUMI = 5, REC_LUMI = 7, LUMI_PER_B = 8, XING_ANGLE = 9, BEAM1_VC = 10, BEAM2_VC = 11, BEAM1_RF = 12, BEAM2_RF = 13, FSIZE = 14};
+  enum FloatParamIndex { CROSSING_ANGLE = 0, BETA_STAR = 1, INTENSITY_1 = 2, INTENSITY_2 = 3, ENERGY = 4, DELIV_LUMI = 5, REC_LUMI = 7, LUMI_PER_B = 8, BEAM1_VC = 9, BEAM2_VC = 10, BEAM1_RF = 11, BEAM2_RF = 12, FSIZE = 13};
   enum TimeParamIndex { CREATE_TIME = 0, BEGIN_TIME = 1, END_TIME = 2, DIP_TIME = 3, TSIZE =4};
   enum StringParamIndex { INJECTION_SCHEME = 0, LHC_STATE = 1, LHC_COMMENT = 2, CTPPS_STATUS = 3, SSIZE =4};
 
@@ -77,25 +77,21 @@ class LHCInfo {
   
   std::vector<float> const & lumiPerBX() const;
   
-  std::vector<std::string> const & lhcState() const;
+  std::string const & lhcState() const;
+  
+  std::string const & lhcComment() const;
+  
+  std::string const & ctppsStatus() const;
+  
+  unsigned int const & lumiSection() const;
+  
+  std::vector<float> const & beam1VC() const;
 
-std::vector<std::string> const & lhcComment() const;
+  std::vector<float> const & beam2VC() const;
 
-std::vector<std::string> const & ctppsStatus() const;
+  std::vector<float> const & beam1RF() const;
 
-std::vector<unsigned int> const & lumiSection() const;
-
-std::vector<float> const & xingAngle() const;
-
-std::vector<cond::Time_t> const & dipTime() const;
-
-std::vector<float> const & beam1VC() const;
-
-std::vector<float> const & beam2VC() const;
-
-std::vector<float> const & beam1RF() const;
-
-std::vector<float> const & beam2RF() const;
+  std::vector<float> const & beam2RF() const;
 
   //returns a boolean, true if the injection scheme has a leading 25ns
   //TODO: parse the circulating bunch configuration, instead of the string.
@@ -150,17 +146,13 @@ std::vector<float> const & beam2RF() const;
   
   void setLumiPerBX( std::vector<float> const & lumiPerBX);
   
-  void setLhcState( std::vector<std::string> const & lhcState);
+  void setLhcState( std::string const & lhcState);
   
-  void setLhcComment( std::vector<std::string> const & lhcComment);
+  void setLhcComment( std::string const & lhcComment);
 
-  void setCtppsStatus( std::vector<std::string> const & ctppsStatus);
+  void setCtppsStatus( std::string const & ctppsStatus);
   
-  void setLumiSection( std::vector<unsigned int> const & lumiSection);
-  
-  void setXingAngle( std::vector<float> const & xingAngle);
-  
-  void setDipTime( std::vector<cond::Time_t> const & dipTime);
+  void setLumiSection( unsigned int const & lumiSection);
   
   void setBeam1VC( std::vector<float> const & beam1VC);
   
@@ -190,12 +182,10 @@ std::vector<float> const & beam2RF() const;
 	,cond::Time_t const & endTime
 	,std::string const & scheme
 	,std::vector<float> const & lumiPerBX
-	,std::vector<std::string> const & lhcState
-	,std::vector<std::string> const & lhcComment
-	,std::vector<std::string> const & ctppsStatus
-	,std::vector<unsigned int> const & lumiSection
-	,std::vector<float> const & xingAngle
-	,std::vector<cond::Time_t> const & dipTime
+	,std::string const & lhcState
+	,std::string const & lhcComment
+	,std::string const & ctppsStatus
+	,unsigned int const & lumiSection
 	,std::vector<float> const & beam1VC
 	,std::vector<float> const & beam2VC
 	,std::vector<float> const & beam1RF
