@@ -181,7 +181,7 @@ namespace sistrip {
       try {
         buffer.reset(new sistrip::FEDBuffer(input.data(),input.size()));
         buffer->setLegacyMode(legacy_);
-        if (!buffer->doChecks()) {
+        if (!buffer->doChecks(bool(1))) {
           if (!unpackBadChannels_ || !buffer->checkNoFEOverflows() )
             throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID " << *ifed << ".";
         }
