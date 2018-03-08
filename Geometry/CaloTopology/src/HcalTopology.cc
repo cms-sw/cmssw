@@ -193,17 +193,12 @@ bool HcalTopology::valid(const DetId& id) const {
 
 bool HcalTopology::validHcal(const HcalDetId& id) const {
   // check the raw rules
-  bool ok=validRaw(id);
-
-  ok=ok && !isExcluded(id);
-
-  return ok;
+  return validRaw(id) && !isExcluded(id);
 }
 
 bool HcalTopology::validDetId(HcalSubdetector subdet, int ieta, int iphi, 
                               int depth) const {
-  HcalDetId id(subdet,ieta,iphi,depth);
-  return validHcal(id);
+  return validHcal(HcalDetId(subdet,ieta,iphi,depth));
 }
 
 bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
@@ -231,6 +226,7 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
 }
 
 bool HcalTopology::validHcal(const HcalDetId& id, const unsigned int flag) const {
+  /* original logic show here because condensed form below is rather terse
   // check the raw rules
   bool ok = validHcal(id);
   if (flag == 0) { // This is all what is needed
@@ -241,6 +237,8 @@ bool HcalTopology::validHcal(const HcalDetId& id, const unsigned int flag) const
     ok = hcons_->isPlan1MergedId(id);
   }
   return ok;
+  */
+  return (flag>0 and hcons_->isPlan1MergedId(id)) or ((flag!=1 or !hcons_->isPlan1ToBeMergedId(id)) and validHcal(id));
 }
 
 bool HcalTopology::isExcluded(const HcalDetId& id) const {
