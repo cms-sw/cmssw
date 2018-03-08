@@ -43,7 +43,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       setWhatProduced (this, &HcalTextCalibrations::producePedestalWidths);
       findingRecord <HcalPedestalWidthsRcd> ();
     }
-    if (objectName == "EffectivePedestals") {
+    else if (objectName == "EffectivePedestals") {
       setWhatProduced (this, &HcalTextCalibrations::produceEffectivePedestals, edm::es::Label("effective"));
       findingRecord <HcalPedestalsRcd> ();
     }
