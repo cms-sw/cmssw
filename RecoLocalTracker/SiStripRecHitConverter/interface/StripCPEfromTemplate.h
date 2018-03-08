@@ -12,6 +12,7 @@ class StripCPEfromTemplate : public StripCPE
 
  public:
   
+  using StripCPE::localParameters;
 
   StripClusterParameterEstimator::LocalValues 
     localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const override;
