@@ -23,9 +23,8 @@ class  SiStripDigiValid: public DQMEDAnalyzer {
 
  protected:
      void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-     void beginJob();
      void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
-     void endJob(void);
+     void endJob(void) override;
 
  private:
 

@@ -33,9 +33,6 @@ SiStripDigiValid::~SiStripDigiValid(){
 }
 
 
-void SiStripDigiValid::beginJob(){
-
-}
 
 void SiStripDigiValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es){
   dbe_ = edm::Service<DQMStore>().operator->();
