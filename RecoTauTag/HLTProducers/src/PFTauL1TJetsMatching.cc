@@ -50,7 +50,7 @@ void PFTauL1TJetsMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const
                 }
             }
         }
-        if(isMatched == true) L1TmatchedPFTau->push_back((*taus)[iTau]);
+        if(isMatched) L1TmatchedPFTau->push_back((*taus)[iTau]);
     }
     iEvent.put(std::move(L1TmatchedPFTau));
 }
