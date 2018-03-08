@@ -244,7 +244,7 @@ namespace sistrip {
 	continue;
       }
       //only check enabled, working channels
-      if (channelGood(iCh)) {
+      if (FEDBuffer::channelGood(iCh, bool(1))) {
 	//if a channel is bad then return false
 	if (channels_[iCh].packetCode() != correctPacketCode) return false;
       }
