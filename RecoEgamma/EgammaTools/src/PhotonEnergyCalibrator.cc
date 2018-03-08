@@ -108,8 +108,8 @@ setEnergyAndSystVarations(const float scale,const float smearNrSigma,const float
   const float corrRhoDn = scale + smearRhoDn * smearNrSigma;
   const float corrPhiUp = scale + smearPhiUp * smearNrSigma;
   const float corrPhiDn = scale + smearPhiDn * smearNrSigma;
-  const float corrUp = corrPhiUp;
-  const float corrDn = corrPhiDn;
+  const float corrUp = corrRhoUp;
+  const float corrDn = corrRhoDn;
 
   
   const double oldEcalEnergy = photon.getCorrectedEnergy(reco::Photon::P4type::regression2);

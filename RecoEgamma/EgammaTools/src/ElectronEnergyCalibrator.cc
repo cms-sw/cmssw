@@ -104,16 +104,16 @@ setEnergyAndSystVarations(const float scale,const float smearNrSigma,const float
   const float smearRhoDn = smearCorr.sigma(et,-1,0);
   const float smearPhiUp = smearCorr.sigma(et,0,1);
   const float smearPhiDn = smearCorr.sigma(et,0,-1);
-  const float smearUp = smearPhiUp;
-  const float smearDn = smearPhiDn;
+  const float smearUp = smearRhoUp;
+  const float smearDn = smearRhoDn;
 
   const float corr = scale + smear * smearNrSigma;
   const float corrRhoUp = scale + smearRhoUp * smearNrSigma;
   const float corrRhoDn = scale + smearRhoDn * smearNrSigma;
   const float corrPhiUp = scale + smearPhiUp * smearNrSigma;
   const float corrPhiDn = scale + smearPhiDn * smearNrSigma;
-  const float corrUp = corrPhiUp;
-  const float corrDn = corrPhiDn;
+  const float corrUp = corrRhoUp;
+  const float corrDn = corrRhoDn;
 
   const float corrScaleStatUp = corr+scaleCorr.scaleErrStat();
   const float corrScaleStatDn = corr-scaleCorr.scaleErrStat();
