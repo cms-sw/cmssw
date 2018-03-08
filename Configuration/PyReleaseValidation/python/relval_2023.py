@@ -16,5 +16,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 numWFIB = [20034.0,20034.1,20034.11] #2023D17 w/ special tracking and timing workflows
 numWFIB.extend([20434.0]) #2023D19 (already has timing)
 numWFIB.extend([21234.0,21234.11]) #2023D21  
+numWFIB.extend([21634.0]) #2023D22  
+numWFIB.extend([22034.0]) #2023D23  
 for numWF in numWFIB:
     workflows[numWF] = _upgrade_workflows[numWF]
