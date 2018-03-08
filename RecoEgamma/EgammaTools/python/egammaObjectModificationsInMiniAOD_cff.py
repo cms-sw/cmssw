@@ -106,6 +106,8 @@ reducedEgammaEnergyScaleAndSmearingModifier = cms.PSet(
         energySmearNrSigma = cms.InputTag("reducedEgamma","calibEleEnergySmearNrSigma"),
         energyEcalPreCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalPreCorr"),
         energyEcalErrPreCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalErrPreCorr"),
+        energyEcalPostCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalPostCorr"),
+        energyEcalErrPostCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalErrPostCorr"),
         energyEcalTrkPreCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalTrkPreCorr"),
         energyEcalTrkErrPreCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalTrkErrPreCorr"),
         energyEcalTrkPostCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalTrkPostCorr"),
@@ -131,6 +133,8 @@ reducedEgammaEnergyScaleAndSmearingModifier = cms.PSet(
         energySmearNrSigma = cms.InputTag("reducedEgamma","calibPhoEnergySmearNrSigma"),
         energyEcalPreCorr = cms.InputTag("reducedEgamma","calibPhoEnergyEcalPreCorr"),
         energyEcalErrPreCorr = cms.InputTag("reducedEgamma","calibPhoEnergyEcalErrPreCorr"),
+        energyEcalPostCorr = cms.InputTag("reducedEgamma","calibPhoEnergyEcalPostCorr"),
+        energyEcalErrPostCorr = cms.InputTag("reducedEgamma","calibPhoEnergyEcalErrPostCorr"),
         )
     )
 
