@@ -5,6 +5,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 class HcalPulseContainmentManager {
 public:
