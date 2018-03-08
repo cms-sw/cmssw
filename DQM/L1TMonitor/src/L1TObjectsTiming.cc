@@ -27,6 +27,7 @@ L1TObjectsTiming::L1TObjectsTiming(const edm::ParameterSet& ps)
     etsum_eta_phi_METHF.reserve(bxrange_);
     etsum_eta_phi_MHT.reserve(bxrange_);
     etsum_eta_phi_MHTHF.reserve(bxrange_);
+
     muons_eta_phi_isolated.reserve(bxrange_);
     jet_eta_phi_isolated.reserve(bxrange_);
     egamma_eta_phi_isolated.reserve(bxrange_);
@@ -35,6 +36,7 @@ L1TObjectsTiming::L1TObjectsTiming(const edm::ParameterSet& ps)
     etsum_eta_phi_METHF_isolated.reserve(bxrange_);
     etsum_eta_phi_MHT_isolated.reserve(bxrange_);
     etsum_eta_phi_MHTHF_isolated.reserve(bxrange_);
+
     muons_eta_phi_firstbunch.reserve(bxrange_);
     jet_eta_phi_firstbunch.reserve(bxrange_);
     egamma_eta_phi_firstbunch.reserve(bxrange_);
@@ -43,6 +45,7 @@ L1TObjectsTiming::L1TObjectsTiming(const edm::ParameterSet& ps)
     etsum_eta_phi_METHF_firstbunch.reserve(bxrange_);
     etsum_eta_phi_MHT_firstbunch.reserve(bxrange_);
     etsum_eta_phi_MHTHF_firstbunch.reserve(bxrange_);
+
     muons_eta_phi_lastbunch.reserve(bxrange_);
     jet_eta_phi_lastbunch.reserve(bxrange_);
     egamma_eta_phi_lastbunch.reserve(bxrange_);
@@ -92,6 +95,9 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
 
   // Subsystem Monitoring and Muon Output
   std::string bx_obj[5]={"minus2","minus1","0","plus1","plus2"};
+  
+  ibooker.setCurrentFolder(monitorDir_);
+  denominator = ibooker.book2D("denominator","Denominator for L1TObjects",25, -2.5, 2.5, 25, -3.2, 3.2);
 
   ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"); 
   for(unsigned int i=0; i<bxrange_; ++i) {
@@ -134,6 +140,9 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
 
 if(algoBitFirstBxInTrain_ > -1 && algoBitLastBxInTrain_ > -1) {
+  ibooker.setCurrentFolder(monitorDir_);
+  denominator_isolated = ibooker.book2D("denominator_isolated","Denominator for Isolated Bunch for L1TObjects",25, -2.5, 2.5, 25, -3.2, 3.2);
+
   ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"+"/Isolated_bunch");  
   for(unsigned int i=0; i<bxrange_; ++i) {
     muons_eta_phi_isolated.push_back(ibooker.book2D("muons_eta_phi_bx_isolated_"+bx_obj[i],"L1T Muon #eta vs #phi for isolated bunch BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
@@ -176,6 +185,9 @@ if(algoBitFirstBxInTrain_ > -1 && algoBitLastBxInTrain_ > -1) {
 }
  
 if(algoBitFirstBxInTrain_ > -1) {
+  ibooker.setCurrentFolder(monitorDir_);
+  denominator_firstbunch = ibooker.book2D("denominator_firstbunch","Denominator for First Bunch for L1TObjects",25, -2.5, 2.5, 25, -3.2, 3.2);
+
   ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"+"/First_bunch");
   for(unsigned int i=0; i<bxrange_-2; ++i) {
     muons_eta_phi_firstbunch.push_back(ibooker.book2D("muons_eta_phi_bx_firstbunch_"+bx_obj[i],"L1T Muon #eta vs #phi for first bunch BX="+bx_obj[i],25, -2.5, 2.5, 25, -3.2, 3.2));
@@ -218,6 +230,9 @@ if(algoBitFirstBxInTrain_ > -1) {
 } 
   
 if(algoBitLastBxInTrain_ > -1) {
+  ibooker.setCurrentFolder(monitorDir_);
+  denominator_lastbunch = ibooker.book2D("denominator_lastbunch","Denominator for Last Bunch for L1TObjects",25, -2.5, 2.5, 25, -3.2, 3.2);
+
   ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"+"/Last_bunch");
   for(unsigned int i=0; i<bxrange_-2; ++i) {
     muons_eta_phi_lastbunch.push_back(ibooker.book2D("muons_eta_phi_bx_lastbunch_"+bx_obj[i+2],"L1T Muon #eta vs #phi for last bunch BX="+bx_obj[i+2],25, -2.5, 2.5, 25, -3.2, 3.2));
@@ -287,6 +302,14 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // Open uGT readout record
   edm::Handle<GlobalAlgBlkBxCollection> uGtAlgs;
   e.getByToken(l1tStage2uGtProducer_, uGtAlgs);
+
+  // Denominator for Ratio Plots for L1T Objects
+  for (int itBX = MuonBxCollection->getFirstBX(); itBX <= MuonBxCollection->getLastBX(); ++itBX) {
+    for (l1t::MuonBxCollection::const_iterator Muon = MuonBxCollection->begin(itBX); Muon != MuonBxCollection->end(
+itBX); ++Muon) {
+      denominator->Fill(Muon->eta(), Muon->phi());
+    }
+  }
           
 
   // Filling eta-phi map for muons for BX=-2,-1,0,+1,+2
@@ -345,6 +368,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
 //    for(GlobalAlgBlkBxCollection::const_iterator itr = uGtAlgs->begin(0); itr != uGtAlgs->end(0); ++itr) 
       for (int itBX = MuonBxCollection->getFirstBX(); itBX <= MuonBxCollection->getLastBX(); ++itBX) {
         for (l1t::MuonBxCollection::const_iterator muon = MuonBxCollection->begin(itBX); muon != MuonBxCollection->end(itBX); ++muon) { // Starting with Muons
+          denominator_isolated->Fill(muon->eta(),muon->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           muons_eta_phi_isolated.at(index)->Fill(muon->eta(),muon->phi());
         }
@@ -390,6 +414,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if(algoBitFirstBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitFirstBxInTrain_)) { // Filling eta-phi map for all objects for first bunch each BX
       for (int itBX = MuonBxCollection->getFirstBX(); itBX <= 0 ; ++itBX) {
         for (l1t::MuonBxCollection::const_iterator muon = MuonBxCollection->begin(itBX); muon != MuonBxCollection->end(itBX); ++muon) { // Starting with Muons
+          denominator_firstbunch->Fill(muon->eta(),muon->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector 
           muons_eta_phi_firstbunch.at(index)->Fill(muon->eta(),muon->phi());
         }
@@ -434,6 +459,7 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if(algoBitLastBxInTrain_ != -1 && itr->getAlgoDecisionInitial(algoBitLastBxInTrain_)) { // Filling eta-phi map for all objects for last bunch each BX
       for (int itBX = 0; itBX <= MuonBxCollection->getLastBX(); ++itBX) {
         for (l1t::MuonBxCollection::const_iterator muon = MuonBxCollection->begin(itBX); muon != MuonBxCollection->end(itBX); ++muon) { // Starting with Muons
+          denominator_lastbunch->Fill(muon->eta(),muon->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 + (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           muons_eta_phi_lastbunch.at(index)->Fill(muon->eta(),muon->phi());
         }
