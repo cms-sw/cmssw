@@ -34,8 +34,6 @@ autoSkimRunI = {
     'Mu' : 'WMu+ZMu+HighMET+LogError',    
     'EG':'WElectron+ZElectron+HighMET+LogError',
     'TopMuEG':'TopMuEG+LogError',
-    'MuonPOG': 'MuonPOGSkim+LogError',
-    'MuonJPsiPOG': 'MuonPOGJPsiSkim+LogError',
     'Electron':'WElectron+ZElectron+HighMET+LogError',
     'Photon':'WElectron+ZElectron+HighMET+LogError+DiPhoton+EXOHPTE',
     'JetMETTau':'LogError+Tau',
