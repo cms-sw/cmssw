@@ -159,6 +159,7 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
     int     laymax = laymin+layers_[i];
     double  zz     = zi;
     double  thickTot(0);
+    std::vector<double> pgonZ(2), pgonRin(2), pgonRout(2);
     for (int ly=laymin; ly<laymax; ++ly) {
       int     ii     = layerType_[ly];
       int     copy   = copyNumber_[ii];
@@ -182,10 +183,9 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
       if (layerSense_[ly] == 0) {
 	double alpha = CLHEP::pi/sectors_;
 	double rmax  = routF*cos(alpha) - tol;
-	std::vector<double> pgonZ, pgonRin, pgonRout;
-	pgonZ.emplace_back(-0.5*thick_[ii]);  pgonZ.emplace_back(0.5*thick_[ii]);
-	pgonRin.emplace_back(rinB);           pgonRin.emplace_back(rinB);   
-	pgonRout.emplace_back(rmax);          pgonRout.emplace_back(rmax);   
+	pgonZ[0]    =-0.5*thick_[ii];  pgonZ[1]    = 0.5*thick_[ii];
+	pgonRin[0]  = rinB;            pgonRin[1]  = rinB;   
+	pgonRout[0] = rmax;            pgonRout[1] = rmax;   
 	DDSolid solid = DDSolidFactory::polyhedra(DDName(name, nameSpace_),
 						  sectors_,-alpha,CLHEP::twopi,
 						  pgonZ, pgonRin, pgonRout);
