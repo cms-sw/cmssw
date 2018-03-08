@@ -181,7 +181,7 @@ namespace sistrip {
       try {
         buffer.reset(new sistrip::FEDBuffer(input.data(),input.size()));
         buffer->setLegacyMode(legacy_);
-        if (!buffer->doChecks(bool(1))) {
+        if (!buffer->doChecks(true)) {
           if (!unpackBadChannels_ || !buffer->checkNoFEOverflows() )
             throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID " << *ifed << ".";
         }
@@ -1246,7 +1246,7 @@ namespace sistrip {
 	std::stringstream ss;
 	ss << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
 	   << " Caught std::exception!" << std::endl;
-	if ( extra_info != "" ) { 
+	if ( !extra_info.empty() ) { 
 	  ss << " Information: " << extra_info << std::endl;
 	}
 	ss << " Caught std::exception in ["
@@ -1261,7 +1261,7 @@ namespace sistrip {
 	std::stringstream ss;
 	ss << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
 	   << " Caught unknown exception!" << std::endl;
-	if ( extra_info != "" ) { 
+	if ( !extra_info.empty() ) { 
 	  ss << " Information: " << extra_info << std::endl;
 	}
 	ss << "Caught unknown exception in ["
