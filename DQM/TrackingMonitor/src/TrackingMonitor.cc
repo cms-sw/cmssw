@@ -216,11 +216,6 @@ TrackingMonitor::~TrackingMonitor()
 }
 
 
-void TrackingMonitor::beginJob(void) 
-{
-
-    
-}
 
 void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 				     edm::Run const & iRun,
@@ -234,7 +229,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
    MEFolderName = conf->getParameter<std::string>("FolderName"); 
 
    // test for the Quality veriable validity
-   if( Quality_ != "") {
+   if( !Quality_.empty()) {
      if( Quality_ != "highPurity" && Quality_ != "tight" && Quality_ != "loose") {
        edm::LogWarning("TrackingMonitor")  << "Qualty Name is invalid, using no quality criterea by default";
        Quality_ = "";
@@ -242,7 +237,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
    }
 
    // use the AlgoName and Quality Name
-   std::string CategoryName = Quality_ != "" ? AlgoName_ + "_" + Quality_ : AlgoName_;
+   std::string CategoryName = !Quality_.empty() ? AlgoName_ + "_" + Quality_ : AlgoName_;
 
    // get binning from the configuration
    int    TKNoBin     = conf->getParameter<int>(   "TkSizeBin");
