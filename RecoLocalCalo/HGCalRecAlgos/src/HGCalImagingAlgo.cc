@@ -76,39 +76,25 @@ void HGCalImagingAlgo::makeClusters()
 
   //assign all hits in each layer to a cluster core or halo
   tbb::parallel_for(size_t(0), size_t(2*maxlayer+2), [&](size_t i) {
-   // for (unsigned int i = 0; i <= 2*maxlayer+1; ++i) {
-    KDTreeBox bounds(minpos[i][0],maxpos[i][0],
-		     minpos[i][1],maxpos[i][1]);
-    KDTree hit_kdtree;
-    hit_kdtree.build(points[i], bounds);
+        KDTreeBox bounds(minpos[i][0],maxpos[i][0],
+             minpos[i][1],maxpos[i][1]);
+        KDTree hit_kdtree;
+        hit_kdtree.build(points[i], bounds);
 
-    unsigned int actualLayer = i > maxlayer ? (i-(maxlayer+1)) : i; // maps back from index used for KD trees to actual layer
+        unsigned int actualLayer = i > maxlayer ? (i-(maxlayer+1)) : i; // maps back from index used for KD trees to actual layer
 
-    double maxdensity = calculateLocalDensity(points[i],hit_kdtree, actualLayer); // also stores rho (energy density) for each point (node)
-    // calculate distance to nearest point with higher density storing distance (delta) and point's index
-    calculateDistanceToHigher(points[i]);
-    findAndAssignClusters(points[i],hit_kdtree,maxdensity,bounds,actualLayer, layerClustersPerLayer[i]);
-    size_t nClusters = layerClustersPerLayer[i].size();
-    for(size_t j=0; j<nClusters;++j)
-    {
-        layersQueue.pushAndWait( [&]{
-        current_v.push_back(layerClustersPerLayer[i][j]);
-    } );
-    }
-// }
-});
-  //make the cluster vector
-
-  // for(auto& layer: layerClustersPerLayer)
-  // {
-  //     for(auto& cluster: layer)
-  //     {
-  //         current_v.push_back(cluster);
-  //     }
-  // }
-
-  tbb::tick_count t1 = tbb::tick_count::now();
-  printf("work took %g seconds, found clusters %lu \n",(t1-t0).seconds(), current_v.size());
+        double maxdensity = calculateLocalDensity(points[i],hit_kdtree, actualLayer); // also stores rho (energy density) for each point (node)
+        // calculate distance to nearest point with higher density storing distance (delta) and point's index
+        calculateDistanceToHigher(points[i]);
+        findAndAssignClusters(points[i],hit_kdtree,maxdensity,bounds,actualLayer, layerClustersPerLayer[i]);
+        size_t nClusters = layerClustersPerLayer[i].size();
+        for(size_t j=0; j<nClusters;++j)
+        {
+            layersQueue.pushAndWait( [&]{
+            current_v.push_back(layerClustersPerLayer[i][j]);
+            } );
+        }
+    });
 }
 
 std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
