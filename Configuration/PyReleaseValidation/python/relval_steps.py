@@ -1431,6 +1431,7 @@ steps['TIER0EXPLP']={'-s': 'ALCAPRODUCER:AlCaPCCRandom',
                         '--eventcontent':'ALCARECO',
                         '--data': '',
                         '--scenario': 'pp',
+                        '--process': 'RECO',
                         # '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
                         }
 
@@ -1438,7 +1439,7 @@ steps['ALCAEXPLP']={'-s':'ALCAOUTPUT:AlCaPCCRandom,ALCA:PromptCalibProdLumiPCC',
                   '--conditions':'auto:run2_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
-                  '--triggerResultsProcess': 'ALCAPRODUCER'}
+                  '--triggerResultsProcess': 'RECO'}
 
 
 steps['TIER0EXPHPBS']={'-s':'RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly,ALCAPRODUCER:TkAlMinBias,DQM:DQMOfflineTracking,ENDJOB',
