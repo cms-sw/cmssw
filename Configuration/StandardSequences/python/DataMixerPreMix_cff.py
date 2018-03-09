@@ -57,6 +57,14 @@ hcalDigiSequenceDM = cms.Sequence(DMHcalTriggerPrimitiveDigis+DMHcalDigis*DMHcal
 
 postDMDigi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM)
 
+# GEM and ME0 have additional digi sequences
+from SimMuon.GEMDigitizer.muonGEMDigi_cff import muonGEMDigiDM
+from SimMuon.GEMDigitizer.muonME0Digi_cff import muonME0DigiDM
+_phase2_postDMDigi = postDMDigi.copy()
+_phase2_postDMDigi += (muonGEMDigiDM+muonME0DigiDM)
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith(postDMDigi, _phase2_postDMDigi)
+
 # disable adding noise to HCAL cells with no MC signal
 #mixData.doEmpty = False
 

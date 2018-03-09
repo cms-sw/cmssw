@@ -318,7 +318,48 @@ phase2_muon.toModify(mixData,
             strip = dict(pileInputTag = "simMuonCSCDigis:MuonCSCStripDigi"),
             wire = dict(pileInputTag = "simMuonCSCDigis:MuonCSCWireDigi"),
             comparator = dict(pileInputTag = "simMuonCSCDigis:MuonCSCComparatorDigi"),
-        )
+        ),
+        gem = cms.PSet(
+            workerType = cms.string("PreMixingGEMWorker"),
+            #
+            digiTagSig = cms.InputTag("simMuonGEMDigis"),
+            pileInputTag = cms.InputTag("simMuonGEMDigis",""),
+            collectionDM = cms.string(''),
+        ),
+        me0 = cms.PSet(
+            workerType = cms.string("PreMixingME0Worker"),
+            #
+            digiTagSig = cms.InputTag("simMuonME0Digis"),
+            pileInputTag = cms.InputTag("simMuonME0Digis",""),
+            collectionDM = cms.string(''),
+        ),
+        gemSimLink = cms.PSet(
+            workerType = cms.string("PreMixingGEMDigiSimLinkWorker"),
+            #
+            labelSig = cms.InputTag("simMuonGEMDigis"),
+            pileInputTag = cms.InputTag("simMuonGEMDigis"),
+            collectionDM = cms.string('GEMDigiSimLink'),
+        ),
+        gemStripSimLink = cms.PSet(
+            workerType = cms.string("PreMixingStripDigiSimLinkWorker"),
+            #
+            labelSig = cms.InputTag("simMuonGEMDigis"),
+            pileInputTag = cms.InputTag("simMuonGEMDigis"),
+            collectionDM = cms.string('GEMStripDigiSimLink'),
+        ),
+        me0SimLink = cms.PSet(
+            workerType = cms.string("PreMixingME0DigiSimLinkWorker"),
+            #
+            labelSig = cms.InputTag("simMuonMe0Digis"),
+            pileInputTag = cms.InputTag("simMuonME0Digis"),
+            collectionDM = cms.string('ME0DigiSimLink'),
+        ),
+        me0StripSimLink = cms.PSet(
+            workerType = cms.string("PreMixingStripDigiSimLinkWorker"),
+            #
+            labelSig = cms.InputTag("simMuonME0Digis"),
+            pileInputTag = cms.InputTag("simMuonME0Digis"),
+            collectionDM = cms.string('ME0StripDigiSimLink'),
+        ),
     )
 )
-# TODO: Add GEM and ME0, but needs code first

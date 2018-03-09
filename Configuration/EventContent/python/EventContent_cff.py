@@ -575,8 +575,12 @@ phase2_common.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.o
         'keep *_simMuonRPCDigis_*_*',
         # GEM
         'keep *_simMuonGEMDigis_*_*',
+        'keep *_*_GEMDigiSimLink_*',
+        'keep *_*_GEMStripDigiSimLink_*',
         # ME0
         'keep *_simMuonME0Digis_*_*',
+        'keep *_*_ME0DigiSimLink_*',
+        'keep *_*_ME0StripDigiSimLink_*',
         # CaloParticles
         'keep *_mix_MergedCaloTruth_*',
 ])
@@ -754,6 +758,13 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 (premix_stage2 & phase2_tracker).toModify(FEVTDEBUGHLTEventContent, outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
     'keep *_*_Phase2OTDigiSimLink_*'
+])
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+(premix_stage2 & phase2_muon).toModify(FEVTDEBUGHLTEventContent, outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
+    'keep *_*_GEMDigiSimLink_*',
+    'keep *_*_GEMStripDigiSimLink_*',
+    'keep *_*_ME0DigiSimLink_*',
+    'keep *_*_ME0StripDigiSimLink_*',
 ])
 
 REPACKRAWSIMEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
