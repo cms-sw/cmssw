@@ -9,6 +9,8 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 //
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+
 #include "tbb/tbb.h"
 void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
   //loop over all hits and create the Hexel structure, skip energies below ecut
@@ -68,8 +70,10 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
 // with different input (reset should be called between events)
 void HGCalImagingAlgo::makeClusters()
 {
-  std::vector<std::vector<std::vector< KDNode> > >  layerClustersPerLayer(2*(maxlayer+1));
-  // tbb::tick_count t0 = tbb::tick_count::now();
+  std::vector<std::vector<std::vector< KDNode> > >  layerClustersPerLayer(2*(maxlayer+2));
+  edm::SerialTaskQueue layersQueue;
+  tbb::tick_count t0 = tbb::tick_count::now();
+
   //assign all hits in each layer to a cluster core or halo
   tbb::parallel_for(size_t(0), size_t(2*maxlayer+2), [&](size_t i) {
    // for (unsigned int i = 0; i <= 2*maxlayer+1; ++i) {
@@ -83,22 +87,28 @@ void HGCalImagingAlgo::makeClusters()
     double maxdensity = calculateLocalDensity(points[i],hit_kdtree, actualLayer); // also stores rho (energy density) for each point (node)
     // calculate distance to nearest point with higher density storing distance (delta) and point's index
     calculateDistanceToHigher(points[i]);
-    std::cout << i << std::endl;
     findAndAssignClusters(points[i],hit_kdtree,maxdensity,bounds,actualLayer, layerClustersPerLayer[i]);
+    size_t nClusters = layerClustersPerLayer[i].size();
+    for(size_t j=0; j<nClusters;++j)
+    {
+        layersQueue.pushAndWait( [&]{
+        current_v.push_back(layerClustersPerLayer[i][j]);
+    } );
+    }
 // }
 });
   //make the cluster vector
 
-  for(auto& layer: layerClustersPerLayer)
-  {
-      for(auto& cluster: layer)
-      {
-          current_v.push_back(cluster);
-      }
-  }
+  // for(auto& layer: layerClustersPerLayer)
+  // {
+  //     for(auto& cluster: layer)
+  //     {
+  //         current_v.push_back(cluster);
+  //     }
+  // }
 
-  // tbb::tick_count t1 = tbb::tick_count::now();
-  // printf("work took %g seconds, found clusters %lu \n",(t1-t0).seconds(), current_v.size());
+  tbb::tick_count t1 = tbb::tick_count::now();
+  printf("work took %g seconds, found clusters %lu \n",(t1-t0).seconds(), current_v.size());
 }
 
 std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
