@@ -418,6 +418,7 @@ struct Dummy {
     explicit TestBeginRunProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
+    produces<unsigned int, edm::InRun>("a");
     }
 
     const unsigned int trans_; 
@@ -458,6 +459,7 @@ struct Dummy {
     explicit TestEndRunProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
+    produces<unsigned int, edm::InRun>("a");
     }
     const unsigned int trans_;
     mutable std::atomic<unsigned int> m_count{0};
@@ -497,6 +499,7 @@ struct Dummy {
     explicit TestBeginLumiBlockProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
+    produces<unsigned int, edm::InLumi>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
@@ -536,6 +539,7 @@ struct Dummy {
     explicit TestEndLumiBlockProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
+    produces<unsigned int, edm::InLumi>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};

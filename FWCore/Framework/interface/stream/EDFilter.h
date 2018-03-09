@@ -63,7 +63,15 @@ namespace edm {
       // ---------- static member functions --------------------
       
       // ---------- member functions ---------------------------
-      
+
+      bool hasAbilityToProduceInRuns() const final {
+        return HasAbilityToProduceInRuns<T...>::value;
+      }
+
+      bool hasAbilityToProduceInLumis() const final {
+        return HasAbilityToProduceInLumis<T...>::value;
+      }
+
     private:
       EDFilter(const EDFilter&) = delete; // stop default
       

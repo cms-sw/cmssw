@@ -41,7 +41,15 @@ public:
   using ProducerBase::resolvePutIndicies;
   using ProducerBase::registerProducts;
   void registerProducts() final;
-  
+
+  bool hasAbilityToProduceInRuns() const final {
+    return true;
+  }
+
+  bool hasAbilityToProduceInLumis() const final {
+    return true;
+  }
+
 protected:
   //If inheriting class overrides, they need to call this function as well
   void beginJob() override;

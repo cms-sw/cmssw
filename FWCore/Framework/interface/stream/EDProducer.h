@@ -57,6 +57,14 @@ namespace edm {
       typedef AbilityChecker<T...> HasAbility;
       
       
+      bool hasAbilityToProduceInRuns() const final {
+        return HasAbilityToProduceInRuns<T...>::value;
+      }
+
+      bool hasAbilityToProduceInLumis() const final {
+        return HasAbilityToProduceInLumis<T...>::value;
+      }
+
       EDProducer() = default;
       //virtual ~EDProducer();
       
