@@ -137,7 +137,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_Output_cff import 
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_Output_cff import *
 
 from Calibration.EcalCalibAlgos.ALCARECOPromptCalibProdEcalPedestals_Output_cff import *
-
+from Calibration.LumiAlCaRecoProducers.ALCARECOPromptCalibProdLumiPCC_Output_cff import *
 # Pixel Cluster Counting ALCARECOs
 # in AlCaLumiPixels stream
 from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixels_Output_cff import *
