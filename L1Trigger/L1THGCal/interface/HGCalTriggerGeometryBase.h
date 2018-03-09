@@ -19,9 +19,9 @@
 
 // Pure virtual trigger geometry class
 // Provides the interface to access trigger cell and module mappings
-class HGCalTriggerGeometryBase 
-{ 
-    public:  
+class HGCalTriggerGeometryBase
+{
+    public:
         typedef std::unordered_map<unsigned,unsigned> geom_map;
         typedef std::unordered_set<unsigned> geom_set;
         typedef std::set<unsigned> geom_ordered_set;
@@ -29,7 +29,7 @@ class HGCalTriggerGeometryBase
         HGCalTriggerGeometryBase(const edm::ParameterSet& conf);
         virtual ~HGCalTriggerGeometryBase() {}
 
-        const std::string& name() const { return name_; } 
+        const std::string& name() const { return name_; }
 
         const edm::ESHandle<CaloGeometry>& caloGeometry() const {return calo_geometry_;}
         const HGCalGeometry* eeGeometry() const {return (static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCEE)));}
@@ -63,6 +63,12 @@ class HGCalTriggerGeometryBase
         virtual bool validTriggerCell( const unsigned trigger_cell_id) const = 0;
         virtual bool disconnectedModule(const unsigned module_id) const = 0;
         virtual unsigned triggerLayer(const unsigned id) const = 0;
+
+        // FIXME: the next two are not pure virtual just to allow me not to implement them in all derived classes...needs to be addressed
+        virtual unsigned short getTriggerTowerFromTriggerCell(const unsigned) const { return 1; };
+        // FIXME: ideally I would like to return a const ref but this poses problems in all classes actuanlly not
+        // implementing this functionality
+        virtual std::vector<unsigned short> getTriggerTowers() const { return std::vector<unsigned short>(); };
 
     protected:
         void setCaloGeometry(const edm::ESHandle<CaloGeometry>& geom) {calo_geometry_=geom;}
