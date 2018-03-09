@@ -21,7 +21,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDBCommon,
                                           logconnect = cms.untracked.string('sqlite_file:loglhcinfo_pop_test.db'),
                                           timetype = cms.untracked.string('timestamp'),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('FillInfoRcd'),
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('LHCInfoRcd'),
                                                                      tag = cms.string('lhcinfo_test')
                                                                      )
                                                             )
@@ -29,8 +29,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 process.Test1 = cms.EDAnalyzer("LHCInfoPopConAnalyzer",
                                SinceAppendMode = cms.bool(True),
-                               record = cms.string('FillInfoRcd'),
-                               name = cms.untracked.string('FillInfo'),
+                               record = cms.string('LHCInfoRcd'),
+                               name = cms.untracked.string('LHCInfo'),
                                Source = cms.PSet(fill = cms.untracked.uint32(6303),
                                    firstFill = cms.untracked.uint32( 6300 ),
                                    lastFill = cms.untracked.uint32( 6310 ),
