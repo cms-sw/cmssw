@@ -68,25 +68,37 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
 // with different input (reset should be called between events)
 void HGCalImagingAlgo::makeClusters()
 {
-
-  // used for speedy search
-  std::vector<KDTree> hit_kdtree(2*(maxlayer+1));
-
+  std::vector<std::vector<std::vector< KDNode> > >  layerClustersPerLayer(2*(maxlayer+1));
+  // tbb::tick_count t0 = tbb::tick_count::now();
   //assign all hits in each layer to a cluster core or halo
-  for (unsigned int i = 0; i <= 2*maxlayer+1; ++i) {
+  // tbb::parallel_for(size_t(0), size_t(2*maxlayer+1), [&](size_t i) {
+   for (unsigned int i = 0; i <= 2*maxlayer+1; ++i) {
     KDTreeBox bounds(minpos[i][0],maxpos[i][0],
 		     minpos[i][1],maxpos[i][1]);
-
-    hit_kdtree[i].build(points[i],bounds);
+    KDTree hit_kdtree;
+    hit_kdtree.build(points[i], bounds);
 
     unsigned int actualLayer = i > maxlayer ? (i-(maxlayer+1)) : i; // maps back from index used for KD trees to actual layer
 
-    double maxdensity = calculateLocalDensity(points[i],hit_kdtree[i], actualLayer); // also stores rho (energy density) for each point (node)
+    double maxdensity = calculateLocalDensity(points[i],hit_kdtree, actualLayer); // also stores rho (energy density) for each point (node)
     // calculate distance to nearest point with higher density storing distance (delta) and point's index
     calculateDistanceToHigher(points[i]);
-    findAndAssignClusters(points[i],hit_kdtree[i],maxdensity,bounds,actualLayer);
-  }
+    std::cout << i << std::endl;
+    findAndAssignClusters(points[i],hit_kdtree,maxdensity,bounds,actualLayer, layerClustersPerLayer[i]);
+}
+// });
   //make the cluster vector
+
+  for(auto& layer: layerClustersPerLayer)
+  {
+      for(auto& cluster: layer)
+      {
+          current_v.push_back(cluster);
+      }
+  }
+
+  // tbb::tick_count t1 = tbb::tick_count::now();
+  // printf("work took %g seconds, found clusters %lu \n",(t1-t0).seconds(), current_v.size());
 }
 
 std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
@@ -282,8 +294,7 @@ double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd){
   }
   return maxdensity;
 }
-
-int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, double maxdensity, KDTreeBox &bounds, const unsigned int layer){
+int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd, KDTree &lp, double maxdensity, KDTreeBox &bounds, const unsigned int layer, std::vector<std::vector<KDNode> >& clustersOnLayer) {
 
   //this is called once per layer and endcap...
   //so when filling the cluster temporary vector of Hexels we resize each time by the number
@@ -315,7 +326,7 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
     nd[ds[i]].data.clusterIndex = clusterIndex;
     if (verbosity < pINFO)
       {
-	    std::cout << "Adding new cluster with index " << clusterIndex+cluster_offset << std::endl;
+	    std::cout << "Adding new cluster with index " << clusterIndex << std::endl;
 	    std::cout << "Cluster center is hit " << ds[i] << std::endl;
       }
     clusterIndex++;
@@ -341,7 +352,7 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
     {
       std::cout << "resizing cluster vector by "<< clusterIndex << std::endl;
     }
-  current_v.resize(cluster_offset+clusterIndex);
+  clustersOnLayer.resize(clusterIndex);
 
   //assign points closer than dc to other clusters to border region
   //and find critical border density
@@ -389,11 +400,10 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
     int ci = nd[i].data.clusterIndex;
     if(ci!=-1) {
       if (nd[i].data.rho <= rho_b[ci]) nd[i].data.isHalo = true;
-      current_v[ci+cluster_offset].push_back(nd[i]);
+      clustersOnLayer[ci].push_back(nd[i]);
       if (verbosity < pINFO)
 	  {
-	    std::cout << "Pushing hit " << i << " into cluster with index " << ci+cluster_offset << std::endl;
-	    std::cout << "Size now " << current_v[ci+cluster_offset].size() << std::endl;
+	    std::cout << "Pushing hit " << i << " into cluster with index " << ci << std::endl;
 	  }
     }
   }
@@ -403,9 +413,9 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd,KDTree &lp, 
     {
       std::cout << "moving cluster offset by " << clusterIndex << std::endl;
     }
-  cluster_offset += clusterIndex;
   return clusterIndex;
 }
+
 
 // find local maxima within delta_c, marking the indices in the cluster
 std::vector<unsigned> HGCalImagingAlgo::findLocalMaximaInCluster(const std::vector<KDNode>& cluster) {
