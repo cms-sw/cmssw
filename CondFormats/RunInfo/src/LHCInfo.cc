@@ -70,19 +70,21 @@ static std::string particleTypeToString( LHCInfo::ParticleTypeId const & particl
   return s_particleType;
 }
 
-LHCInfo::LHCInfo(): m_isData( false )
-		  , m_intParams( ISIZE )
+LHCInfo::LHCInfo(): m_intParams( ISIZE )
 		  , m_floatParams( FSIZE )
 		  , m_timeParams( TSIZE )
 		  , m_stringParams( SSIZE )
-{}
+{
+	setFill(0, false);
+}
 
-LHCInfo::LHCInfo( unsigned short const & lhcFill, bool const & fromData ): m_isData( fromData )
-									 , m_intParams( ISIZE )
+LHCInfo::LHCInfo( unsigned short const & lhcFill, bool const & fromData ): m_intParams( ISIZE )
 									 , m_floatParams( FSIZE )
 									 , m_timeParams( TSIZE )
 									 , m_stringParams( SSIZE )
-{}
+{
+	setFill(lhcFill, fromData);
+}
 
 LHCInfo::~LHCInfo() {}
 
@@ -90,7 +92,7 @@ LHCInfo::~LHCInfo() {}
 void LHCInfo::setFill( unsigned short const & lhcFill, bool const & fromData ) {
   m_isData = fromData;
   m_intParams.resize( ISIZE, std::vector<unsigned int>(1,0) );
-  m_intParams[ LHC_FILL ][0] = lhcFill;
+  m_intParams[ LHC_FILL ].push_back( lhcFill );
   m_floatParams.resize( FSIZE, std::vector<float>(1,0.));
   m_floatParams[ LUMI_PER_B ] = std::vector<float>(1, 0.);
   m_floatParams[ BEAM1_VC ] = std::vector<float>(1, 0.);
@@ -99,7 +101,7 @@ void LHCInfo::setFill( unsigned short const & lhcFill, bool const & fromData ) {
   m_floatParams[ BEAM2_RF ] = std::vector<float>(1, 0.);
   m_timeParams.resize( TSIZE, std::vector<unsigned long long>(1,0ULL) );
   m_stringParams.resize( SSIZE, std::vector<std::string>(1, "") );
-  m_stringParams[ INJECTION_SCHEME ][0] = std::string("None");
+  m_stringParams[ INJECTION_SCHEME ].push_back( std::string("None") );
   m_bunchConfiguration1.reset();
   m_bunchConfiguration2.reset();
 }
@@ -385,7 +387,7 @@ void LHCInfo::setBeam2RF( std::vector<float> const & beam2RF) {
 }
 
 //sets all values in one go
-void LHCInfo::setBeamInfo( unsigned short const & bunches1
+void LHCInfo::setInfo( unsigned short const & bunches1
 			    ,unsigned short const & bunches2
 			    ,unsigned short const & collidingBunches
 			    ,unsigned short const & targetBunches

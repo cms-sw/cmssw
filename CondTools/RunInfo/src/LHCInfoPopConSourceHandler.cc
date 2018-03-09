@@ -524,7 +524,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     std::vector<float> dummy(1, 0.); //The ECal vectors will replace the test dummy.
     
     LHCInfo *lhcInfo = new LHCInfo( currentFill ); 
-    lhcInfo->setBeamInfo( const_cast<unsigned short const &>( bunches1 )
+    lhcInfo->setInfo( const_cast<unsigned short const &>( bunches1 )
 			 , const_cast<unsigned short const &>( bunches2 )
 			 , const_cast<unsigned short const &>( collidingBunches )
 			 , const_cast<unsigned short const &>( targetBunches )
@@ -558,7 +558,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     edm::LogInfo( m_name ) << "The new payload to be inserted into tag " << tagInfo().name
 			   << " with validity " << stableBeamStartTime 
 			   << " ( " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( stableBeamStartTime ) )
-			   << " ) has values:\n" << *lhcInfo //Throws Exception!
+			   << " ) has values:\n" << *lhcInfo
 			   << "from " << m_name << "::getNewObjects";
     //add log information
     ss << " fill = " << currentFill

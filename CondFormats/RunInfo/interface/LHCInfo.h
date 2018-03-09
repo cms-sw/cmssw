@@ -32,7 +32,7 @@ class LHCInfo {
   static size_t const availableBunchSlots = 2808;
   
   //reset instance
-  void setFill( unsigned short const & lhcFill, bool const & fromData = true );
+  void setFill( unsigned short const & lhcFill, bool const & fromData );
   
   //getters
   unsigned short const fillNumber() const;
@@ -163,7 +163,7 @@ class LHCInfo {
   void setBeam2RF( std::vector<float> const & beam2RF);
   
   //sets all values in one go
-  void setBeamInfo( unsigned short const & bunches1
+  void setInfo( unsigned short const & bunches1
 	,unsigned short const & bunches2
 	,unsigned short const & collidingBunches
 	,unsigned short const & targetBunches
@@ -208,22 +208,9 @@ class LHCInfo {
  private:
   bool m_isData;
   std::vector<std::vector<unsigned int> > m_intParams;
-  //unsigned short m_lhcFill;
-  //unsigned short m_bunches1, m_bunches2, m_collidingBunches, m_targetBunches;
-  //FillTypeId m_fillType;
-  //ParticleTypeId m_particles1, m_particles2;
   std::vector<std::vector<float> > m_floatParams;
-  //float m_crossingAngle, m_betastar, m_intensity1, m_intensity2, m_energy, m_delivLumi, m_recLumi;
   std::vector<std::vector<unsigned long long> > m_timeParams;
-  //cond::Time_t m_createTime, m_beginTime, m_endTime;
   std::vector<std::vector<std::string> > m_stringParams;
-  //std::string m_injectionScheme;
-  //std::vector<std::vector<float> > m_farrayParams;
-  //std::vector<std::vector<float> > m_iarrayParams;
-  //std::vector<float> m_lumiPerBX;
-  //BEWARE: since CMS counts bunches starting from one,
-  //the size of the bitset must be incremented by one,
-  //in order to avoid off-by-one
   std::bitset<bunchSlots+1> m_bunchConfiguration1, m_bunchConfiguration2;
 
  COND_SERIALIZABLE;
