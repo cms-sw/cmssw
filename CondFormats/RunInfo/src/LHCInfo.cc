@@ -451,9 +451,9 @@ void LHCInfo::print( std::stringstream & ss ) const {
      << "Bunches in Beam 2: " << this->bunchesInBeam2() << std::endl
      << "Colliding bunches at IP5: " << this->collidingBunches() << std::endl
      << "Target bunches at IP5: " <<this->targetBunches() << std::endl
-     << "Fill type: " << fillTypeToString( static_cast<FillTypeId> (this->fillType()) << std::endl
-     << "Particle type for Beam 1: " << particleTypeToString( static_cast<ParticleTypeId>( this->particleTypeForBeam1()) << std::endl
-     << "Particle type for Beam 2: " << particleTypeToString( static_cast<ParticleTypeId>( this->particleTypeForBeam2()) << std::endl
+     << "Fill type: " << fillTypeToString( static_cast<FillTypeId> (this->fillType() ) ) << std::endl
+     << "Particle type for Beam 1: " << particleTypeToString( static_cast<ParticleTypeId>( this->particleTypeForBeam1() ) ) << std::endl
+     << "Particle type for Beam 2: " << particleTypeToString( static_cast<ParticleTypeId>( this->particleTypeForBeam2() ) ) << std::endl
      << "Crossing angle (urad): " << this->crossingAngle() << std::endl
      << "Beta star (cm): " << this->betaStar() << std::endl
      << "Average Intensity for Beam 1 (number of charges): " << this->intensityForBeam1() << std::endl
@@ -478,16 +478,16 @@ void LHCInfo::print( std::stringstream & ss ) const {
   std::copy( this->beam1VC().begin(), this->beam1VC().end(), std::ostream_iterator<float>( ss, "\t" ) );
   ss << std::endl;
   
-  ss << "Beam 2 VC  (total " << m_beam2VC().size() << "): ";
-  std::copy( m_beam2VC().begin(), m_beam2VC().end(), std::ostream_iterator<float>( ss, "\t" ) );
+  ss << "Beam 2 VC  (total " << beam2VC().size() << "): ";
+  std::copy( beam2VC().begin(), beam2VC().end(), std::ostream_iterator<float>( ss, "\t" ) );
   ss << std::endl;
   
-  ss << "Beam 1 RF  (total " << m_beam1RF().size() << "): ";
-  std::copy( m_beam1RF().begin(), m_beam1RF().end(), std::ostream_iterator<float>( ss, "\t" ) );
+  ss << "Beam 1 RF  (total " << beam1RF().size() << "): ";
+  std::copy( beam1RF().begin(), beam1RF().end(), std::ostream_iterator<float>( ss, "\t" ) );
   ss << std::endl;
   
-  ss << "Beam 2 RF  (total " << m_beam2RF().size() << "): ";
-  std::copy( m_beam2RF().begin(), m_beam2RF().end(), std::ostream_iterator<float>( ss, "\t" ) );
+  ss << "Beam 2 RF  (total " << beam2RF().size() << "): ";
+  std::copy( beam2RF().begin(), beam2RF().end(), std::ostream_iterator<float>( ss, "\t" ) );
   ss << std::endl;
   
   std::vector<unsigned short> bunchVector1 = this->bunchConfigurationForBeam1();
