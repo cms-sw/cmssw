@@ -15,7 +15,6 @@
 
 #include "TMTrackTrigger/l1VertexFinder/interface/InputData.h"
 #include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
-#include "TMTrackTrigger/l1VertexFinder/interface/Histos.h"
 #include "TMTrackTrigger/l1VertexFinder/interface/L1fittedTrack.h"
 #include "TMTrackTrigger/l1VertexFinder/interface/RecoVertexWithTP.h"
 
@@ -1039,7 +1038,7 @@ namespace l1tVertexFinder {
         float rejection = 0.;
         float efficiency_tdr = 0.;
         float rejection_tdr =  0.;
-        float sigma_eff = 0., sigma_eff_tdr = 0., sigma_rej = 0., sigma_rej_tdr = 0.; 
+        float sigma_eff = 0., sigma_eff_tdr = 0., sigma_rej = 0., sigma_rej_tdr = 0.;
 
         float recoEvents = double(noRecoSignalEvents[i][j]);
         float tdrEvents = double(noTDRSignalEvents[i][j]);

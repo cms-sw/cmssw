@@ -14,7 +14,6 @@
 
 
 namespace l1tVertexFinder {
-  // class Histos;
   class Settings;
 }
 
