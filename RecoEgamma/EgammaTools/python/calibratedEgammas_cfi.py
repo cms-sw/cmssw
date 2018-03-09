@@ -49,6 +49,8 @@ calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
                                         src = cms.InputTag('slimmedElectrons'), 
                                         epCombConfig = ecalTrkCombinationRegression,
                                        )
+calibratedPatElectrons.recHitCollectionEB = cms.InputTag("reducedEgamma","reducedEBRecHits")
+calibratedPatElectrons.recHitCollectionEE = cms.InputTag("reducedEgamma","reducedEERecHits")
 
 calibratedPhotons = cms.EDProducer("CalibratedPhotonProducer",
                                    calibratedEgammaSettings,
@@ -60,3 +62,5 @@ calibratedPatPhotons = cms.EDProducer("CalibratedPatPhotonProducer",
                                       # input collections
                                       src = cms.InputTag('slimmedPhotons'),
                                       )
+calibratedPatPhotons.recHitCollectionEB = cms.InputTag("reducedEgamma","reducedEBRecHits")
+calibratedPatPhotons.recHitCollectionEE = cms.InputTag("reducedEgamma","reducedEERecHits")

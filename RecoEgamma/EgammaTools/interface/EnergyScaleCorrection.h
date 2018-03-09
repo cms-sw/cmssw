@@ -109,12 +109,14 @@ public:
       r9Min_(r9),r9Max_(r9),etMin_(et),etMax_(et),gain_(gainSeed){}
     
     bool operator<(const CorrectionCategory& b) const;
-    
+    bool inCategory(const unsigned int runnr, const float et, const float eta, const float r9, 
+		    const unsigned int gainSeed)const;
     
     friend std::ostream& operator << (std::ostream& os, const CorrectionCategory& a){return a.print(os);}
     std::ostream& print(std::ostream &os)const;
     
   private:
+    //all boundaries are inclusive (X<=Y<=Z)
     unsigned int runMin_;
     unsigned int runMax_;
     float etaMin_; ///< min eta value for the bin
