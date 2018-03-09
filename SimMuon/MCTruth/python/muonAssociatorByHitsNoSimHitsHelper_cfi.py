@@ -24,9 +24,3 @@ muonAssociatorByHitsNoSimHitsHelper.DTsimhitsTag  = ""
    
 # use only muon system
 muonAssociatorByHitsNoSimHitsHelper.UseTracker = False
-
-from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-run3_GEM.toModify( muonAssociatorByHitsNoSimHitsHelper, useGEMs = cms.bool(True) )
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify( muonAssociatorByHitsNoSimHitsHelper, usePhase2Tracker = cms.bool(True) )
-phase2_tracker.toModify( muonAssociatorByHitsNoSimHitsHelper, pixelSimLinkSrc = "simSiPixelDigis:Pixel" )
