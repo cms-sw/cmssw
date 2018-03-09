@@ -373,10 +373,6 @@ namespace l1tVertexFinder {
       }
       // cout << "iteration "<< iterations << endl;
       for(unsigned int i = 0; i < NumberOfClusters; ++i){
-        // cout << "vertex z0 " << vertices_[i].z0() << " ntracks " << vertices_[i].numTracks() <<endl;
-        //for(const L1fittedTrackBase * track : vertices_[i].tracks()){
-          // cout << "track z0 "<< track->z0() << endl;
-        //}
         if(vertices_[i].numTracks() >= settings_->vx_minTracks() ) vertices_[i].computeParameters(settings_->vx_weightedmean());
       }
       iterations++;

@@ -4,20 +4,13 @@
 #include <vector>
 #include <set>
 
-// #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-// #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/L1TVertex/interface/Vertex.h"
 
-// #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
-// #include "TMTrackTrigger/l1VertexFinder/interface/InputData.h"
 #include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
-// #include "TMTrackTrigger/l1VertexFinder/interface/Histos.h"
 #include "TMTrackTrigger/l1VertexFinder/interface/VertexFinder.h"
-// #include "TMTrackTrigger/l1VertexFinder/interface/L1fittedTrack.h"
 
 #include "TMTrackTrigger/l1VertexFinder/interface/RecoVertexWithTP.h"
 
@@ -25,10 +18,6 @@ using namespace l1tVertexFinder;
 using namespace std;
 
 VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
-  // tpInputTag( consumes<TrackingParticleCollection>( iConfig.getParameter<edm::InputTag>("tpInputTag") ) ),
-  // stubInputTag( consumes<DetSetVec>( iConfig.getParameter<edm::InputTag>("stubInputTag") ) ),
-  // stubTruthInputTag( consumes<TTStubAssMap>( iConfig.getParameter<edm::InputTag>("stubTruthInputTag") ) ),
-  // clusterTruthInputTag( consumes<TTClusterAssMap>( iConfig.getParameter<edm::InputTag>("clusterTruthInputTag") ) ),
   l1TracksToken_( consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag")) )
 {
   // Get configuration parameters
@@ -38,7 +27,7 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig):
   cout.setf(ios::fixed, ios::floatfield);
   cout.precision(4);
 
-  //--- Define EDM output to be written to file (if required) 
+  //--- Define EDM output to be written to file (if required)
   produces< l1t::VertexCollection >( "l1vertices" );
   produces< l1t::VertexCollection >( "l1vertextdr" );
 }

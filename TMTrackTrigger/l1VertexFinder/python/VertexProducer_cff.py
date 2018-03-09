@@ -2,11 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 VertexProducer = cms.EDProducer('VertexProducer',
 
-#  tpInputTag = cms.InputTag("mix", "MergedTrackTruth"),
-#  stubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
-#  stubTruthInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
-#  clusterTruthInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
-#  l1TracksInputTag = cms.InputTag("TMTrackProducer", "TML1TracksKF4ParamsComb"), # KF
   l1TracksInputTag = cms.InputTag("TMTrackProducer", "TML1TracksSimpleLR"), # SFLR
 
 
