@@ -110,6 +110,16 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                                 QualityTestHist = cms.string("L1T/L1TStage2BMTF/bmtf_wedge_bx"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
+                            cms.PSet(
+                                QualityTestName = cms.string("zeroSupp_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2BMTF/zeroSuppression/AllEvts/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            cms.PSet(
+                                QualityTestName = cms.string("zeroSupp_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2BMTF/zeroSuppression/FatEvts/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
                             )
                         ),
                     cms.PSet(
