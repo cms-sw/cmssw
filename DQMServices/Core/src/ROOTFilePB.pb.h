@@ -66,7 +66,7 @@ namespace dqmstorepb {
 class ROOTFilePB_Histo : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:dqmstorepb.ROOTFilePB.Histo) */ {
  public:
   ROOTFilePB_Histo();
-  virtual ~ROOTFilePB_Histo();
+  ~ROOTFilePB_Histo() override;
 
   ROOTFilePB_Histo(const ROOTFilePB_Histo& from);
 
@@ -114,7 +114,7 @@ class ROOTFilePB_Histo : public ::google::protobuf::Message /* @@protoc_insertio
 
   // implements Message ----------------------------------------------
 
-  inline ROOTFilePB_Histo* New() const PROTOBUF_FINAL { return New(NULL); }
+  inline ROOTFilePB_Histo* New() const PROTOBUF_FINAL { return New(nullptr); }
 
   ROOTFilePB_Histo* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
   void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
@@ -139,10 +139,10 @@ class ROOTFilePB_Histo : public ::google::protobuf::Message /* @@protoc_insertio
   void InternalSwap(ROOTFilePB_Histo* other);
   private:
   inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
+    return nullptr;
   }
   inline void* MaybeArenaPtr() const {
-    return NULL;
+    return nullptr;
   }
   public:
 
@@ -225,7 +225,7 @@ class ROOTFilePB_Histo : public ::google::protobuf::Message /* @@protoc_insertio
 class ROOTFilePB : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:dqmstorepb.ROOTFilePB) */ {
  public:
   ROOTFilePB();
-  virtual ~ROOTFilePB();
+  ~ROOTFilePB() override;
 
   ROOTFilePB(const ROOTFilePB& from);
 
@@ -273,7 +273,7 @@ class ROOTFilePB : public ::google::protobuf::Message /* @@protoc_insertion_poin
 
   // implements Message ----------------------------------------------
 
-  inline ROOTFilePB* New() const PROTOBUF_FINAL { return New(NULL); }
+  inline ROOTFilePB* New() const PROTOBUF_FINAL { return New(nullptr); }
 
   ROOTFilePB* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
   void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
@@ -298,10 +298,10 @@ class ROOTFilePB : public ::google::protobuf::Message /* @@protoc_insertion_poin
   void InternalSwap(ROOTFilePB* other);
   private:
   inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
+    return nullptr;
   }
   inline void* MaybeArenaPtr() const {
-    return NULL;
+    return nullptr;
   }
   public:
 
@@ -378,7 +378,7 @@ inline void ROOTFilePB_Histo::set_full_pathname(::std::string&& value) {
 }
 #endif
 inline void ROOTFilePB_Histo::set_full_pathname(const char* value) {
-  GOOGLE_DCHECK(value != NULL);
+  GOOGLE_DCHECK(value != nullptr);
   set_has_full_pathname();
   full_pathname_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:dqmstorepb.ROOTFilePB.Histo.full_pathname)
@@ -400,7 +400,7 @@ inline ::std::string* ROOTFilePB_Histo::release_full_pathname() {
   return full_pathname_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void ROOTFilePB_Histo::set_allocated_full_pathname(::std::string* full_pathname) {
-  if (full_pathname != NULL) {
+  if (full_pathname != nullptr) {
     set_has_full_pathname();
   } else {
     clear_has_full_pathname();
@@ -465,7 +465,7 @@ inline void ROOTFilePB_Histo::set_streamed_histo(::std::string&& value) {
 }
 #endif
 inline void ROOTFilePB_Histo::set_streamed_histo(const char* value) {
-  GOOGLE_DCHECK(value != NULL);
+  GOOGLE_DCHECK(value != nullptr);
   set_has_streamed_histo();
   streamed_histo_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
   // @@protoc_insertion_point(field_set_char:dqmstorepb.ROOTFilePB.Histo.streamed_histo)
@@ -487,7 +487,7 @@ inline ::std::string* ROOTFilePB_Histo::release_streamed_histo() {
   return streamed_histo_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
 }
 inline void ROOTFilePB_Histo::set_allocated_streamed_histo(::std::string* streamed_histo) {
-  if (streamed_histo != NULL) {
+  if (streamed_histo != nullptr) {
     set_has_streamed_histo();
   } else {
     clear_has_streamed_histo();
