@@ -9,7 +9,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 //
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
-
+#include "tbb/tbb.h"
 void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
   //loop over all hits and create the Hexel structure, skip energies below ecut
 
@@ -71,8 +71,8 @@ void HGCalImagingAlgo::makeClusters()
   std::vector<std::vector<std::vector< KDNode> > >  layerClustersPerLayer(2*(maxlayer+1));
   // tbb::tick_count t0 = tbb::tick_count::now();
   //assign all hits in each layer to a cluster core or halo
-  // tbb::parallel_for(size_t(0), size_t(2*maxlayer+1), [&](size_t i) {
-   for (unsigned int i = 0; i <= 2*maxlayer+1; ++i) {
+  tbb::parallel_for(size_t(0), size_t(2*maxlayer+2), [&](size_t i) {
+   // for (unsigned int i = 0; i <= 2*maxlayer+1; ++i) {
     KDTreeBox bounds(minpos[i][0],maxpos[i][0],
 		     minpos[i][1],maxpos[i][1]);
     KDTree hit_kdtree;
@@ -85,8 +85,8 @@ void HGCalImagingAlgo::makeClusters()
     calculateDistanceToHigher(points[i]);
     std::cout << i << std::endl;
     findAndAssignClusters(points[i],hit_kdtree,maxdensity,bounds,actualLayer, layerClustersPerLayer[i]);
-}
-// });
+// }
+});
   //make the cluster vector
 
   for(auto& layer: layerClustersPerLayer)
