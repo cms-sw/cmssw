@@ -206,14 +206,13 @@ void SiStripBadComponentInfo::bookBadComponentHistos(DQMStore::IBooker &ibooker,
 void SiStripBadComponentInfo::fillBadComponentHistos(int xbin,int component,SiStripQuality::BadComponent& BC){
 
   if (BC.BadApvs){ 
-    int ntot =  ( (BC.BadApvs>>5)&0x1 )+ ( (BC.BadApvs>>4)&0x1 ) + ( (BC.BadApvs>>3)&0x1 ) + 
-      ( (BC.BadApvs>>2)&0x1 )+ ( (BC.BadApvs>>1)&0x1 ) + ( (BC.BadApvs)&0x1);
+    int ntot =  std::bitset<16>(BC.BadApvs&0x3f).count();
     float val = badAPVME_->getBinContent(xbin, component);
     val += ntot;
     badAPVME_->setBinContent(xbin, component, val);
   }
   if (BC.BadFibers){ 
-    int ntot = ( (BC.BadFibers>>2)&0x1 )+ ( (BC.BadFibers>>1)&0x1 ) + ( (BC.BadFibers)&0x1 );
+    int ntot = std::bitset<16>(BC.BadFibers&0x7).count();
     float val = badFiberME_->getBinContent(xbin, component);
     val+= ntot;
     badFiberME_->setBinContent(xbin, component, val);
