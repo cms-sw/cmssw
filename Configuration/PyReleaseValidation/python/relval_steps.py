@@ -307,8 +307,8 @@ steps['RunNoBPTX2017C']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2017C-v1/RAW',lab
 
 
 
-#### run2 2017D ####                                                                                                                                                                               
-Run2017D={302663: [[1, 100]]}  #AVGPU 36                                                                                                                                                          
+#### run2 2017D ####
+Run2017D={302663: [[1, 100]]}  #AVGPU 36
 steps['RunHLTPhy2017D']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017D-v1/RAW',label='hltPhy2017D',events=100000,location='STD', ls=Run2017D)}
 steps['RunDoubleEG2017D']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2017D-v1/RAW',label='doubEG2017D',events=100000,location='STD', ls=Run2017D)}
 steps['RunDoubleMuon2017D']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2017D-v1/RAW',label='doubMu2017D',events=100000,location='STD', ls=Run2017D)}
@@ -323,8 +323,8 @@ steps['RunMuOnia2017D']={'INPUT':InputInfo(dataSet='/MuOnia/Run2017D-v1/RAW',lab
 steps['RunNoBPTX2017D']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2017D-v1/RAW',label='noBptx2017D',events=100000,location='STD', ls=Run2017D)}
 
 
-#### run2 2017E ####                                                                                                                                                                               
-Run2017E={304125: [[1, 100]]} #AVGPU 46                                                                                                                                                           
+#### run2 2017E ####
+Run2017E={304125: [[1, 100]]} #AVGPU 46
 steps['RunHLTPhy2017E']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017E-v1/RAW',label='hltPhy2017E',events=100000,location='STD', ls=Run2017E)}
 steps['RunDoubleEG2017E']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2017E-v1/RAW',label='doubEG2017E',events=100000,location='STD', ls=Run2017E)}
 steps['RunDoubleMuon2017E']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2017E-v1/RAW',label='doubMu2017E',events=100000,location='STD', ls=Run2017E)}
@@ -338,8 +338,8 @@ steps['RunZeroBias2017E']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2017E-v1/RAW'
 steps['RunMuOnia2017E']={'INPUT':InputInfo(dataSet='/MuOnia/Run2017E-v1/RAW',label='muOnia2017E',events=100000,location='STD', ls=Run2017E)}
 steps['RunNoBPTX2017E']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2017E-v1/RAW',label='noBptx2017E',events=100000,location='STD', ls=Run2017E)}
 
-#### run2 2017F ####                                                                                                                                                                               
-Run2017F={305064: [[2, 101]]} #AVGPU 51                                                                                                                                                           
+#### run2 2017F ####
+Run2017F={305064: [[2, 101]]} #AVGPU 51
 steps['RunHLTPhy2017F']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2017F-v1/RAW',label='hltPhy2017F',events=100000,location='STD', ls=Run2017F)}
 steps['RunDoubleEG2017F']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2017F-v1/RAW',label='doubEG2017F',events=100000,location='STD', ls=Run2017F)}
 steps['RunDoubleMuon2017F']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2017F-v1/RAW',label='doubMu2017F',events=100000,location='STD', ls=Run2017F)}
@@ -466,7 +466,7 @@ steps['H125GGgluonfusion_13UP17']=gen2017('H125GGgluonfusion_13TeV_TuneCUETP8M1_
 steps['QQH1352T_13UP17']=gen2017('QQH1352T_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['SMS-T1tttt_mGl-1500_mLSP-100_13UP17']=gen2017('SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi',Kby(9,50))
 
-### 2018 wf: only the ones for premixing (for the moment)      
+### 2018 wf: only the ones for premixing (for the moment)
 steps['NuGun_UP18']=gen2017('SingleNuE10_cfi.py',Kby(9,50))
 steps['TTbar_13UP18']=gen2017('TTbar_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['ProdZEE_13UP18']=gen2017('ZEE_13TeV_TuneCUETP8M1_cfi',Kby(9,50))
@@ -633,7 +633,7 @@ steps['NuGun_UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValNuGun/%s/GEN-SIM'%(b
 steps['SMS-T1tttt_mGl-1500_mLSP-100_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/%s/GEN-SIM'%(baseDataSetRelease[13],),location='STD')}
 
 
-# INPUT commands for 2017 wf                                                                                                      
+# INPUT commands for 2017 wf
 steps['TTbar_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM'%(baseDataSetRelease[16],),location='STD')}
 steps['ZEE_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM'%(baseDataSetRelease[16],),location='STD')}
 steps['ZMM_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValZMM_13/%s/GEN-SIM'%(baseDataSetRelease[16],),location='STD')}
@@ -1161,7 +1161,7 @@ step2Upg2017Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2017'
                  '-n'            :'10',
                   }
 
-#for 2018                                                                                                                         
+#for 2018
 step2Upg2018Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval2018',
                  '--conditions'  :'auto:phase1_2018_realistic',
                  '--datatier'    :'GEN-SIM-DIGI-RAW-HLTDEBUG',
@@ -1404,7 +1404,7 @@ steps['TIER0EXPTE']={'-s': 'ALCAPRODUCER:EcalTestPulsesRaw',
                      #'--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
                      }
 
-steps['TIER0PROMPTLP']={'-s': 'ALCA:AlCaPCCZeroBias+AlCaPCCRandom',
+steps['TIER0EXPLP']={'-s': 'ALCAPRODUCER:AlCaPCCRandom',
                         '--conditions': 'auto:run2_data',
                         '--datatier':'ALCARECO',
                         '--eventcontent':'ALCARECO',
@@ -1412,6 +1412,13 @@ steps['TIER0PROMPTLP']={'-s': 'ALCA:AlCaPCCZeroBias+AlCaPCCRandom',
                         '--scenario': 'pp',
                         # '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
                         }
+
+steps['ALCAEXPLP']={'-s':'ALCAOUTPUT:AlCaPCCRandom,ALCA:PromptCalibProdLumiPCC',
+                  '--conditions':'auto:run2_data',
+                  '--datatier':'ALCARECO',
+                  '--eventcontent':'ALCARECO',
+                  '--triggerResultsProcess': 'ALCAPRODUCER'}
+
 
 steps['TIER0EXPHPBS']={'-s':'RAW2DIGI,L1Reco,RECO:reconstruction_trackingOnly,ALCAPRODUCER:TkAlMinBias,DQM:DQMOfflineTracking,ENDJOB',
                           '--process':'RECO',
