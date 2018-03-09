@@ -44,7 +44,7 @@ using namespace edm;
 //--------------------------------------------------------------------------------------------------
 SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig) :
   outputBase_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<std::string>("outputBase")),
-  aveDigiOcc_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<int>("aveDigiOcc", 1000)),
+  aveDigiOcc_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<int>("aveDigiOcc", 20000)),
   nLumi_(iConfig.getParameter<edm::ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<int>("resetEveryNLumi")),
   moduleName_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<std::string>("moduleName")),
   label_(iConfig.getParameter<ParameterSet>("SiPixelStatusManagerParameters").getUntrackedParameter<std::string>("label")),
@@ -74,7 +74,7 @@ void SiPixelStatusHarvester::beginRun(const edm::Run&, const edm::EventSetup& iS
   siPixelStatusManager_.reset();
 
   edm::ESHandle<SiPixelQuality> qualityInfo;
-  iSetup.get<SiPixelQualityRcd>().get( qualityInfo );
+  iSetup.get<SiPixelQualityFromDbRcd>().get( qualityInfo );
   badPixelInfo_ = qualityInfo.product();
 
 }
