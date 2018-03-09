@@ -91,7 +91,9 @@ Profiler::~Profiler()
 
 // ------------ method called to for each event  ------------
 #pragma GCC diagnostic push
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 void
 Profiler::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {

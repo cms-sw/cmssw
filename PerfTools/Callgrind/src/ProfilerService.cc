@@ -43,7 +43,9 @@ ProfilerService::~ProfilerService(){
 }
 
 #pragma GCC diagnostic push
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 bool ProfilerService::startInstrumentation(){
   // FIXME here or in client?
   if (!doEvent()) return false;

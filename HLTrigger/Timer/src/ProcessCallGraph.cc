@@ -10,7 +10,9 @@
 
 // boost optional (used by boost graph) results in some false positives with -Wmaybe-uninitialized
 #pragma GCC diagnostic push
+#ifndef __clang__ 
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 #include <boost/graph/depth_first_search.hpp>
 #pragma GCC diagnostic pop
 
