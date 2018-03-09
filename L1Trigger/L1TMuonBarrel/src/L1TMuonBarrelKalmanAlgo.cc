@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 #include "L1Trigger/L1TMuonBarrel/interface/L1TMuonBarrelKalmanAlgo.h"
 
 
@@ -755,7 +755,7 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
   //Now for all the pretracks we need only one 
   L1MuKBMTrackCollection cleaned = cleanAndSort(pretracks,1);
 
-  if (cleaned.size()>0)
+  if (!cleaned.empty())
     return std::make_pair(true,cleaned[0]);
   return std::make_pair(false,nullTrack);
 }       
@@ -874,7 +874,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanAlgo::cleanAndSort(const L1MuKBMTrackC
 
 
   TrackSorter sorter;
-  if (out.size()>0)
+  if (!out.empty())
     std::sort(out.begin(),out.end(),sorter);
 
 

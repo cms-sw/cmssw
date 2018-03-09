@@ -18,7 +18,7 @@ class L1MuKBMTrack : public reco::LeafCandidate
 {
 public:
   L1MuKBMTrack();
-  ~L1MuKBMTrack();
+  ~L1MuKBMTrack() override;
   L1MuKBMTrack(const L1MuKBMTCombinedStubRef&,int,int);
 
   //UnConstrained curvature at station 1
