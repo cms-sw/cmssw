@@ -445,7 +445,7 @@ struct Cache {
       cvalue_ = p.getParameter<int>("cachevalue");
       m_count = 0;
       produces<unsigned int>();
-      produces<unsigned int, edm::InRun>("a");
+      produces<unsigned int, edm::Transition::BeginRun>("a");
     }
 
   static std::shared_ptr<Cache> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
@@ -512,7 +512,7 @@ struct Cache {
       cvalue_ = p.getParameter<int>("cachevalue");
       m_count = 0;
       produces<unsigned int>();
-      produces<unsigned int, edm::InRun>("a");
+      produces<unsigned int, edm::Transition::EndRun>("a");
     }
 
     bool filter(edm::Event&, edm::EventSetup const&) override {
@@ -562,7 +562,7 @@ struct Cache {
       cvalue_ = p.getParameter<int>("cachevalue");
       m_count = 0;
       produces<unsigned int>();
-      produces<unsigned int, edm::InLumi>("a");
+      produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
     }
 
     bool filter(edm::Event&, edm::EventSetup const&) override {
@@ -621,7 +621,7 @@ struct Cache {
       cvalue_ = p.getParameter<int>("cachevalue");
       m_count = 0;
       produces<unsigned int>();
-      produces<unsigned int, edm::InLumi>("a");
+      produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
     }
 
     bool filter(edm::Event&, edm::EventSetup const&) override {
