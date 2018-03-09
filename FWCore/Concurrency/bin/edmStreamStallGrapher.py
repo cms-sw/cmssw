@@ -537,10 +537,11 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     countDelayedSource = [0 for x in xrange(numStreams)]
     countExternalWork = [defaultdict(int) for x in xrange(numStreams)]
 
+    timeOffset = processingSteps[0][3]
     for n,trans,s,time,isEvent in processingSteps:
 
         startTime = None
-
+        time -=timeOffset
         # force the time to monotonically increase on each stream
         if time < previousTime[s]:
             time = previousTime[s]
