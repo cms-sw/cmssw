@@ -429,7 +429,7 @@ struct Dummy {
     edm::limited::EDProducer<edm::RunCache<Dummy>,edm::BeginRunProducer>(p),
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
-    produces<unsigned int, edm::InRun>("a");
+    produces<unsigned int, edm::Transition::BeginRun>("a");
     }
 
     const unsigned int trans_; 
@@ -472,7 +472,7 @@ struct Dummy {
     edm::limited::EDProducer<edm::RunCache<Dummy>,edm::EndRunProducer>(p),
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
-    produces<unsigned int, edm::InRun>("a");
+    produces<unsigned int, edm::Transition::EndRun>("a");
     }
     const unsigned int trans_;
     mutable std::atomic<unsigned int> m_count{0};
@@ -514,7 +514,7 @@ struct Dummy {
     edm::limited::EDProducer<edm::LuminosityBlockCache<void>,edm::BeginLuminosityBlockProducer>(p),
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
-    produces<unsigned int, edm::InLumi>("a");
+    produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
@@ -556,7 +556,7 @@ struct Dummy {
     edm::limited::EDProducer<edm::LuminosityBlockCache<void>,edm::EndLuminosityBlockProducer>(p),
 	trans_(p.getParameter<int>("transitions")) {	
     produces<unsigned int>();
-    produces<unsigned int, edm::InLumi>("a");
+    produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
