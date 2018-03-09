@@ -164,7 +164,7 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
 }
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::EventSetup& iSetup){
 
   ftotalevents++;
 

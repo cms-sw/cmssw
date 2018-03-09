@@ -90,25 +90,15 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '92X_dataRun2_Express_v8', '')
-process.GlobalTag.toGet.append(
-  cms.PSet(
-    record = cms.string("SiPixelQualityFromDbRcd"),
-    tag = cms.string("SiPixelQuality_v03_dup_hlt"),
-    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-  )
-)
 
-process.siPixelQualityESProducer = cms.ESProducer("SiPixelQualityESProducer",
-                 ListOfRecordToMerge = cms.VPSet(
-                 cms.PSet(  record = cms.string( "SiPixelQualityFromDbRcd" ),                                           
-                              tag = cms.string( "" )
-                         ),
-                 cms.PSet(  record = cms.string( "SiPixelDetVOffRcd" ),
-                            tag = cms.string( "" )
-                       )
-                 )
-)
-
+#This tag is already in the GT
+#process.GlobalTag.toGet.append(
+#  cms.PSet(
+#    record = cms.string("SiPixelQualityFromDbRcd"),
+#    tag = cms.string("SiPixelQuality_v03_dup_hlt"),
+#    connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+#  )
+#)
 
 # Path and EndPath definitions
 process.ALCAHARVESTSiPixelQuality = cms.EDAnalyzer("SiPixelStatusHarvester",

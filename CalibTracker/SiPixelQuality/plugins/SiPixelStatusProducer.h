@@ -17,7 +17,7 @@ ________________________________________________________________**/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class SiPixelStatusProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProducer,
-                                                         edm::one::WatchLuminosityBlocks> {
+                                                         edm::one::WatchLuminosityBlocks, edm::Accumulator> {
  public:
   explicit SiPixelStatusProducer(const edm::ParameterSet&);
   ~SiPixelStatusProducer() override;
@@ -26,7 +26,7 @@ class SiPixelStatusProducer : public edm::one::EDProducer<edm::EndLuminosityBloc
   void beginLuminosityBlock     (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
   void endLuminosityBlock       (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
   void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) final;
-  void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) final;
+  void accumulate                  (edm::Event const&, const edm::EventSetup& iSetup) final;
   
   virtual void onlineRocColRow(const DetId &detId, int offlineRow, int offlineCol, int &roc, int &row, int &col);
 
