@@ -36,7 +36,7 @@ process.Test1 = cms.EDAnalyzer("LHCInfoPopConAnalyzer",
                                    lastFill = cms.untracked.uint32( 6310 ),
                                    connectionString = cms.untracked.string("oracle://cms_orcon_adg/CMS_RUNTIME_LOGGER"),
                                    DIPSchema = cms.untracked.string("CMS_BEAM_COND"),
-                                   authenticationPath =  cms.untracked.string("/afs/cern.ch/user/a/anoolkar/private/"),
+                                   authenticationPath =  cms.untracked.string("."),
                                    debug=cms.untracked.bool(False)
                                                  ),
                                loggingOn = cms.untracked.bool(True),
