@@ -1,7 +1,6 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/plugins/StripCPEESProducer.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPE.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTrackAngle.h"
-#include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEfromTemplate.h"
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/StripCPEgeometric.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBackPlaneCorrection.h"
 #include "CondFormats/SiStripObjects/interface/SiStripConfObject.h"
@@ -23,7 +22,6 @@ StripCPEESProducer::StripCPEESProducer(const edm::ParameterSet & p)
   enumMap[std::string("SimpleStripCPE")]=SIMPLE;
   enumMap[std::string("StripCPEfromTrackAngle")]=TRACKANGLE;
   enumMap[std::string("StripCPEgeometric")]=GEOMETRIC;
-  enumMap[std::string("StripCPEfromTemplate")]=TEMPLATE;
   if(enumMap.find(type)==enumMap.end()) 
     throw cms::Exception("Unknown StripCPE type") << type;
 
@@ -60,10 +58,6 @@ produce(const TkStripCPERecord & iRecord)
   case GEOMETRIC:  
     cpe = std::make_unique<StripCPEgeometric>(parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency ); 
     break;  
-
-  case TEMPLATE: 
-    cpe = std::make_unique<StripCPEfromTemplate>( parametersPSet, *magfield, *pDD, *lorentzAngle, *backPlaneCorrection, *confObj, *latency ); 
-    break;
 
   }
 
