@@ -20,7 +20,8 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     covarianceVersion = cms.int32(0), #so far: 0 is Phase0, 1 is Phase1   
 #    covariancePackingSchemas = cms.vint32(1,257,513,769,0),  # a cheaper schema in kb/ev 
     covariancePackingSchemas = cms.vint32(8,264,520,776,0),   # more accurate schema +0.6kb/ev   
-    storeTiming = cms.bool(False)
+    storeTiming = cms.bool(False),
+    resyncToEgammaEnergies = cms.bool(False),
 )
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel

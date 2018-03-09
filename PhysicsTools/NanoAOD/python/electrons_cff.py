@@ -81,8 +81,8 @@ ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
 run2_miniAOD_80XLegacy.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsUpdated")
 run2_nanoAOD_92X.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsUpdated")
 
-from EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi import calibratedPatElectrons
-calibratedPatElectrons.correctionFile = cms.string("PhysicsTools/NanoAOD/data/80X_ichepV1_2016_ele") # hack, should go somewhere in EgammaAnalysis
+from EgammaAnalysis.ElectronTools.calibratedPatElectronsRun2_cfi import calibratedPatElectrons
+calibratedPatElectrons.correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc") 
 calibratedPatElectrons.semiDeterministic = cms.bool(True)
 run2_miniAOD_80XLegacy.toModify(calibratedPatElectrons, electrons = "slimmedElectronsUpdated")
 run2_nanoAOD_92X.toModify(calibratedPatElectrons, electrons = "slimmedElectronsUpdated")

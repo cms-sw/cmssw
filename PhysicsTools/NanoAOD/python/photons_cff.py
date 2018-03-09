@@ -47,8 +47,8 @@ isoForPho = cms.EDProducer("PhoIsoValueMapProducer",
     EAFile_PFIso_Pho = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfPhotons_90percentBased.txt"),
 )
 
-from EgammaAnalysis.ElectronTools.calibratedPhotonsRun2_cfi import calibratedPatPhotons
-calibratedPatPhotons.correctionFile = cms.string("PhysicsTools/NanoAOD/data/80X_ichepV2_2016_pho") # hack, should go somewhere in EgammaAnalysis
+from EgammaAnalysis.ElectronTools.calibratedPatPhotonsRun2_cfi import calibratedPatPhotons
+calibratedPatPhotons.correctionFile = cms.string("EgammaAnalysis/ElectronTools/data/ScalesSmearings/Run2017_17Nov2017_v1_ele_unc") 
 calibratedPatPhotons.semiDeterministic = cms.bool(True)
 
 energyCorrForPhoton = cms.EDProducer("PhotonEnergyVarProducer",
