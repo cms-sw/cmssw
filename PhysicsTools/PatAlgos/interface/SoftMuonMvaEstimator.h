@@ -20,7 +20,7 @@ public:
   float pID_;
   float pt_;
   float eta_;
-  float MomID_;
+  float momID_;
   float dummy_;
 
   // MVA VAriables
@@ -37,7 +37,7 @@ public:
   float innerChi2_;
   float trkRelChi2_;
   float vMuonHitComb_;
-  float Qprod_;
+  float qProd_;
 
   };
 }
