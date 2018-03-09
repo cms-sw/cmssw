@@ -26,12 +26,12 @@ void SoftMuonMvaEstimator::initialize(std::string weightsfile)
 	tmvaReader_.AddVariable("innerChi2",			&innerChi2_);
 	tmvaReader_.AddVariable("trkRelChi2",			&trkRelChi2_);
 	tmvaReader_.AddVariable("vMuonHitComb",			&vMuonHitComb_);
-	tmvaReader_.AddVariable("Qprod",			&Qprod_);
+	tmvaReader_.AddVariable("Qprod",			&qProd_);
 
 	tmvaReader_.AddSpectator("pID",			       	&pID_);
 	tmvaReader_.AddSpectator("pt",				&pt_);
 	tmvaReader_.AddSpectator("eta",				&eta_);
-	tmvaReader_.AddSpectator("MomID",			&MomID_);
+	tmvaReader_.AddSpectator("MomID",			&momID_);
 
 	tmvaReader_.BookMVA("BDT", weightsfile);
 	initialized_ = true;	
@@ -58,7 +58,7 @@ void SoftMuonMvaEstimator::computeMva(const pat::Muon& muon)
 	pt_ = muon.pt();
 	eta_ = muon.eta();
 	dummy_ = -1;
-	MomID_ = dummy_;
+	momID_ = dummy_;
 	pID_ = dummy_;
 
 
@@ -77,18 +77,70 @@ void SoftMuonMvaEstimator::computeMva(const pat::Muon& muon)
 	
 	iValidFraction_ =  iTrack->validFraction();
 	innerChi2_ =  iTrack->normalizedChi2();
-	layersWithMeasurement_ = static_cast<float>(iTrack->hitPattern().trackerLayersWithMeasurement());
+	layersWithMeasurement_ = iTrack->hitPattern().trackerLayersWithMeasurement();
 
 	outerChi2_ = oTrack->normalizedChi2();
 
-	Qprod_ =  static_cast<float>(iTrack->charge()) * static_cast<float>(oTrack->charge());
+	qProd_ =  iTrack->charge()*oTrack->charge();
 
-	int vDT, vCSCmax, vRPC;
-	vDT = gTrack->hitPattern().numberOfValidMuonDTHits();
-	vCSCmax = gTrack->hitPattern().numberOfValidMuonCSCHits();
-	if(vCSCmax>6) vCSCmax=6;
-	vRPC = gTrack->hitPattern().numberOfValidMuonRPCHits();
-	vMuonHitComb_ = (vDT/2 + vCSCmax + vRPC);
+	const reco::HitPattern &gMpattern = gTrack->hitPattern();
+
+	std::vector<int> fvDThits = {0,0,0,0};
+	std::vector<int> fvRPChits = {0,0,0,0};
+	std::vector<int> fvCSChits = {0,0,0,0};
+
+	vMuonHitComb_ = 0;
+
+	for (int i=0;i<gMpattern.numberOfAllHits(reco::HitPattern::TRACK_HITS);i++){
+
+	  uint32_t hit = gMpattern.getHitPattern(reco::HitPattern::TRACK_HITS, i);
+	  if ( !gMpattern.validHitFilter(hit) ) continue;
+
+	  if (gMpattern.getMuonStation(hit) == 1){
+	    if (gMpattern.muonDTHitFilter(hit)) fvDThits[0]++;
+	    if (gMpattern.muonRPCHitFilter(hit)) fvRPChits[0]++;
+	    if (gMpattern.muonCSCHitFilter(hit)) fvCSChits[0]++;
+	  }
+  	
+	  if (gMpattern.getMuonStation(hit) == 2){
+	    if (gMpattern.muonDTHitFilter(hit)) fvDThits[1]++;
+	    if (gMpattern.muonRPCHitFilter(hit)) fvRPChits[1]++;
+	    if (gMpattern.muonCSCHitFilter(hit)) fvCSChits[1]++;
+	  }
+
+	  if (gMpattern.getMuonStation(hit) == 3){
+	    if (gMpattern.muonDTHitFilter(hit)) fvDThits[2]++;
+	    if (gMpattern.muonRPCHitFilter(hit)) fvRPChits[2]++;
+	    if (gMpattern.muonCSCHitFilter(hit)) fvCSChits[2]++;
+	  }
+
+	  if (gMpattern.getMuonStation(hit) == 4){
+	    if (gMpattern.muonDTHitFilter(hit)) fvDThits[3]++;
+	    if (gMpattern.muonRPCHitFilter(hit)) fvRPChits[3]++;
+	    if (gMpattern.muonCSCHitFilter(hit)) fvCSChits[3]++;
+	  }
+
+	}
+  
+
+	if (!((fvDThits.size() < 4)
+	   || (fvRPChits.size() < 4)
+	   || (fvCSChits.size() < 4))){
+
+	  for (unsigned int station = 0; station < 4; ++station) {
+
+	    vMuonHitComb_ += (fvDThits[station])/2.;
+	    vMuonHitComb_ += fvRPChits[station];
+
+	    if (fvCSChits[station] > 6){
+	      vMuonHitComb_ += 6; 
+	    }else{
+	      vMuonHitComb_ += fvCSChits[station];
+	    }
+
+	  }
+
+	}
 
 	if(chi2LocalMomentum_ < 5000 and chi2LocalPosition_ < 2000 and
 	   glbTrackProbability_ < 5000 and trkKink_ < 900 and
@@ -98,4 +150,4 @@ void SoftMuonMvaEstimator::computeMva(const pat::Muon& muon)
 	  mva_ = tmvaReader_.EvaluateMVA("BDT");
 	}else{ mva_ = -1; }
 
-};
+}
