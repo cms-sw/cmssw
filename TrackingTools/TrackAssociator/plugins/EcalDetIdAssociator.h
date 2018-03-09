@@ -31,7 +31,7 @@ class EcalDetIdAssociator: public CaloDetIdAssociator{
  protected:
 
    const unsigned int getNumberOfSubdetectors() const override { return 2;}
-   void getValidDetIds(unsigned int subDetectorIndex, std::vector<DetId>& validIds) const  override{
+   void getValidDetIds(unsigned int subDetectorIndex, std::unordered_set<DetId> validIds) const  override{
      if ( subDetectorIndex == 0 )
        validIds = geometry_->getValidDetIds(DetId::Ecal, EcalBarrel);//EB
      else

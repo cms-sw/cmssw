@@ -70,8 +70,7 @@ void EcalTBDigiProducer::initializeEvent(edm::Event const& event, edm::EventSetu
   std::cout<<"====****Entering EcalTBDigiProducer produce()"<<std::endl ;
    edm::ESHandle<CaloGeometry>               hGeometry ;
    eventSetup.get<CaloGeometryRecord>().get( hGeometry ) ;
-   const std::vector<DetId>& theBarrelDets (
-      hGeometry->getValidDetIds(DetId::Ecal, EcalBarrel) ) ;
+   const std::unordered_set<DetId>& theBarrelDets(hGeometry->getValidDetIds(DetId::Ecal, EcalBarrel));
 
    m_theTBReadout->setDetIds( theBarrelDets ) ;
 

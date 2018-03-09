@@ -211,9 +211,9 @@ void HcalTBDigiProducer::updateGeometry() {
   // Get cells for HB and HE
   hbheCells.clear();
   hbheCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
-  std::vector<DetId> heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+  std::unordered_set<DetId> heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
   // combine HB & HE
-  hbheCells.insert(hbheCells.end(), heCells.begin(), heCells.end());
+  for (auto const & id: heCells) hbheCells.emplace(id);
 
   // Get cells for HO
   hoCells.clear();

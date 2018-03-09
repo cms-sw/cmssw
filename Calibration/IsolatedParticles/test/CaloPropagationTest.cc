@@ -72,7 +72,7 @@ void CaloPropagationTest::analyze( const edm::Event& iEvent, const edm::EventSet
   iSetup.get<CaloGeometryRecord>().get(ct);
   const CaloTowerConstituentsMap* ctmap = ct.product();
 
-  const std::vector<DetId>& ids = gHB->getValidDetIds(DetId::Hcal,0);
+  const std::unordered_set<DetId>& ids = gHB->getValidDetIds(DetId::Hcal,0);
   bool debug(false);
   for (const auto& id : ids) {
     if (id.det() == DetId::Hcal && ((id.subdetId() == HcalBarrel) ||

@@ -26,6 +26,7 @@
 #include <vector>
 #include<iostream>
 #include<iterator>
+#include<unordered_set>
 using namespace std;
 using namespace cms;
 
@@ -56,8 +57,8 @@ int main() {
   std::cout<<castorDetId<<std::endl;
   std::cout<<castorHit<<std::endl;
 
-  vector<DetId> hcastorDetIds;
-  hcastorDetIds.push_back(castorDetId);
+  std::unordered_set<DetId> hcastorDetIds;
+  hcastorDetIds.emplace(castorDetId);
 
   /*
     DEBUG
@@ -73,17 +74,17 @@ int main() {
   */
   /*
     DEBUG
-  vector<HcalCastorDetId> hcastorDetIds;
-  hcastorDetIds.push_back(castorDetId);
+  std::unordered_set<HcalCastorDetId> hcastorDetIds;
+  hcastorDetIds.emplace(castorDetId);
 
-  vector<HcalCastorDetId>::iterator testDetId = hcastorDetIds.begin();
+  std::unordered_set<HcalCastorDetId>::iterator testDetId = hcastorDetIds.begin();
   std::cout<< (*testDetId).zside() <<" "
 	   << (*testDetId).sector() <<" "
 	   << (*testDetId).module() <<std::endl;
   */
 
-  vector<DetId> allDetIds;
-  allDetIds.insert(allDetIds.end(), hcastorDetIds.begin(), hcastorDetIds.end());
+  std::unordered_set<DetId> allDetIds;
+  allDetIds.insert(hcastorDetIds.begin(), hcastorDetIds.end());
   vector<PCaloHit> hits;
   hits.push_back(castorHit);
 
@@ -121,7 +122,7 @@ int main() {
   CastorGainWidths gainWidths;
 
   // make a calibration service by hand
-  for(vector<DetId>::const_iterator detItr = allDetIds.begin(); 
+  for(std::unordered_set<DetId>::const_iterator detItr = allDetIds.begin(); 
       detItr != allDetIds.end(); ++detItr) 
   {
 /* check CastorCondObjectContainer!

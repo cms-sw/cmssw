@@ -810,7 +810,7 @@ EcalDigiProducer::updateGeometry()
       m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalPreshower    ) ) ;
     m_ESOldResponse->setGeometry( m_Geometry ) ;
    
-   const std::vector<DetId>* theESDets ( 
+   const std::unordered_set<DetId>* theESDets ( 
       nullptr != m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalPreshower) ?
       &m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalPreshower)->getValidDetIds() : nullptr ) ;
 

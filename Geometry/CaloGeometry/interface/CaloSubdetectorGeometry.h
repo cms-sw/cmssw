@@ -2,6 +2,7 @@
 #define GEOMETRY_CALOGEOMETRY_CALOSUBDETECTORGEOMETRY_H 1
 
 #include <memory>
+#include <unordered_set>
 #include <vector>
 #include <set>
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
@@ -28,7 +29,7 @@ public:
   typedef std::vector<std::shared_ptr<const CaloCellGeometry> > CellSet;
   typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
-  typedef std::set<DetId>       DetIdSet;
+  typedef std::unordered_set<DetId>  DetIdSet;
 
 
   typedef CaloCellGeometry::ParMgr    ParMgr ;
@@ -64,7 +65,7 @@ public:
       \note The implementation in this class is relevant for SubdetectorGeometries which handle only
       a single subdetector at a time.  It does not look at the det and subdet arguments.
   */
-  virtual const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector(0) , int subdet = 0 ) const ;
+  virtual const std::unordered_set<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector(0) , int subdet = 0 ) const ;
 
   // Get closest cell, etc...
   virtual DetId getClosestCell( const GlobalPoint& r ) const;
@@ -123,7 +124,7 @@ protected:
 
   void addValidID(const DetId& id);
 
-  std::vector<DetId> m_validIds ;
+  std::unordered_set<DetId> m_validIds ;
 
 private:
 

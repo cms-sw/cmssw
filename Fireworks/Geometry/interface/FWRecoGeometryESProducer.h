@@ -29,9 +29,10 @@ public:
   
   std::shared_ptr<FWRecoGeometry> produce( const FWRecoGeometryRecord& );
 
-private:
   FWRecoGeometryESProducer( const FWRecoGeometryESProducer& ) = delete;
   const FWRecoGeometryESProducer& operator=( const FWRecoGeometryESProducer& ) = delete;
+
+private:
   
   void addCSCGeometry( void );
   void addDTGeometry( void );

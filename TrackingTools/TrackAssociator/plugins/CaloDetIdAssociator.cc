@@ -201,7 +201,7 @@ GlobalPoint CaloDetIdAssociator::getPosition(const DetId& id) const {
   return geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getPosition();
 }
    
-void CaloDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vector<DetId>& detIds) const 
+void CaloDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::unordered_set<DetId> detIds) const 
 {
   if ( subDectorIndex!=0 ) cms::Exception("FatalError") << "Calo sub-dectors are all handle as one sub-system, but subDetectorIndex is not zero.\n";
   detIds = geometry_->getValidDetIds(DetId::Calo, 1);

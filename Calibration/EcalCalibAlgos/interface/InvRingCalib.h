@@ -114,8 +114,8 @@ class InvRingCalib : public edm::EDLooper {
     std::map<int,int> m_RinginRegion;
     
     //! geometry things used all over the file
-    std::vector<DetId> m_barrelCells;
-    std::vector<DetId> m_endcapCells;
+    std::unordered_set<DetId> m_barrelCells;
+    std::unordered_set<DetId> m_endcapCells;
     //!coeffs filenames
     std::string m_EBcoeffFile;
     std::string m_EEcoeffFile;

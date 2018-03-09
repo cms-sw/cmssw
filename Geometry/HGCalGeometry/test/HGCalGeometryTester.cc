@@ -60,7 +60,7 @@ void HGCalGeometryTester::analyze(const edm::Event& ,
 void HGCalGeometryTester::doTest(const HGCalGeometry* geom, 
 				 ForwardSubdetector subdet) {
   
-  const std::vector<DetId>& ids = geom->getValidDetIds();
+  const std::unordered_set<DetId>& ids = geom->getValidDetIds();
   std::cout << ids.size() << " valid ids for " << geom->cellElement() 
 	    << std::endl;
 

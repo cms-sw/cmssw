@@ -88,7 +88,7 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 			if( 0 == found )
 			{
 			   ++found ;
-			   m_detId.emplace_back( dId ) ;
+			   m_detId.emplace( dId ) ;
 			   m_ctr .emplace_back( GlobalPoint( ctr.x(), ctr.y(), ctr.z() ) ) ;
 			   m_entr.emplace_back( GlobalPoint(  pt.x(),  pt.y(),  pt.z() ) ) ;
 			}

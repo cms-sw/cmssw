@@ -10,6 +10,7 @@ namespace CLHEP {
 }
 
 #include <vector>
+#include <unordered_set>
 
 class ESDigitizer : public EcalTDigitizer< ESDigitizerTraits >
 {
@@ -25,7 +26,7 @@ class ESDigitizer : public EcalTDigitizer< ESDigitizerTraits >
 
       void run( ESDigiCollection& output, CLHEP::HepRandomEngine* ) override;
 
-      void setDetIds( const std::vector<DetId>& detIds ) ;
+      void setDetIds( const std::unordered_set<DetId>& detIds ) ;
 
       void setGain( const int gain ) ;
 
@@ -33,7 +34,7 @@ class ESDigitizer : public EcalTDigitizer< ESDigitizerTraits >
 
       void createNoisyList( std::vector<DetId>& abThreshCh, CLHEP::HepRandomEngine* ) ;
 
-      const std::vector<DetId>* m_detIds      ;
+      const std::unordered_set<DetId>* m_detIds      ;
       CLHEP::RandGeneral*       m_ranGeneral  ;
       int                       m_ESGain      ;
       double                    m_histoBin    ;

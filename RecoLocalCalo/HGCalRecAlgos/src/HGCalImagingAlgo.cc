@@ -560,8 +560,8 @@ void HGCalImagingAlgo::shareEnergy(const std::vector<KDNode>& incluster,
 void HGCalImagingAlgo::computeThreshold() {
 
   if(initialized) return; // only need to calculate thresholds once
-  const std::vector<DetId>& listee(rhtools_.getGeometry()->getValidDetIds(DetId::Forward,ForwardSubdetector::HGCEE));
-  const std::vector<DetId>& listfh(rhtools_.getGeometry()->getValidDetIds(DetId::Forward,ForwardSubdetector::HGCHEF));
+  const std::unordered_set<DetId>& listee(rhtools_.getGeometry()->getValidDetIds(DetId::Forward,ForwardSubdetector::HGCEE));
+  const std::unordered_set<DetId>& listfh(rhtools_.getGeometry()->getValidDetIds(DetId::Forward,ForwardSubdetector::HGCHEF));
 
   std::vector<double> dummy;
   dummy.resize(maxNumberOfWafersPerLayer, 0);
@@ -571,7 +571,7 @@ void HGCalImagingAlgo::computeThreshold() {
 
   for(unsigned icalo=0;icalo<2;++icalo)
     {
-      const std::vector<DetId>& listDetId( icalo==0 ? listee : listfh);
+      const std::unordered_set<DetId>& listDetId( icalo==0 ? listee : listfh);
 
       for(auto& detid: listDetId)
 	{

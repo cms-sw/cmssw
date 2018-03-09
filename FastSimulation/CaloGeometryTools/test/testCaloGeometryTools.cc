@@ -136,47 +136,43 @@ testCaloGeometryTools::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
 void testCaloGeometryTools::checkSM()
 {
-  const std::vector<DetId>& vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
-  unsigned size=vec.size();
-  for(unsigned ic=0;ic<size;++ic)
-    {
-      auto geom=(myGeometry.getEcalBarrelGeometry())->getGeometry(vec[ic]);
-      GlobalPoint p=geom->getPosition();
-      XYZPoint pp(p.x(),p.y(),p.z());
-       // Build the name of the object
-      std::ostringstream oss,oss2;
-      oss << "iM"<< ic;
-      oss2 <<"iSM" << ic;
-      TMarker * myMarker= new TMarker(pp.eta(),pp.phi(),1);
-      myMarker->SetMarkerColor(EBDetId(vec[ic]).im());
-      TMarker * myMarker2= new TMarker(pp.eta(),pp.phi(),1);
-      myMarker2->SetMarkerColor(EBDetId(vec[ic]).ism());
-      myHistos->addObject(oss.str(),myMarker);
-      myHistos->addObject(oss2.str(),myMarker2);
-    }
+  const std::unordered_set<DetId>& vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
+  for (auto const& ic : vec) {
+    auto geom=(myGeometry.getEcalBarrelGeometry())->getGeometry(ic);
+    GlobalPoint p=geom->getPosition();
+    XYZPoint pp(p.x(),p.y(),p.z());
+    // Build the name of the object
+    std::ostringstream oss,oss2;
+    oss << "iM"  << std::hex << ic.rawId() << std::dec;
+    oss2 <<"iSM" << std::hex << ic.rawId() << std::dec;
+    TMarker * myMarker= new TMarker(pp.eta(),pp.phi(),1);
+    myMarker->SetMarkerColor(EBDetId(ic).im());
+    TMarker * myMarker2= new TMarker(pp.eta(),pp.phi(),1);
+    myMarker2->SetMarkerColor(EBDetId(ic).ism());
+    myHistos->addObject(oss.str(),myMarker);
+    myHistos->addObject(oss2.str(),myMarker2);
+  }
 }
 
 void testCaloGeometryTools::checkSC()
 {
-  const std::vector<DetId>& vec(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap));
-  unsigned size=vec.size();
-  for(unsigned ic=0;ic<size;++ic)
-    {
-      auto geom=(myGeometry.getEcalEndcapGeometry())->getGeometry(vec[ic]);
-      GlobalPoint p=geom->getPosition();
-      XYZPoint pp(p.x(),p.y(),p.z());
-       // Build the name of the object
-      std::ostringstream oss,oss2;
-      if(p.z()>0)
-	oss << "iSCP"<< ic;
-      else
-	oss << "iSCN" << ic ;
-      TMarker * myMarker= new TMarker(pp.x(),pp.y(),1);
-      if(pp.perp2()<100.)
-	std::cout << EEDetId(vec[ic]) << " " << pp.x() << " " << pp.y() << std::endl;
-      myMarker->SetMarkerColor(EEDetId(vec[ic]).isc()%100);
-      myMarker->SetMarkerStyle(22);
-      myHistos->addObject(oss.str(),myMarker);
+  const std::unordered_set<DetId>& vec(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap));
+  for (auto const& ic : vec) {
+    auto geom=(myGeometry.getEcalEndcapGeometry())->getGeometry(ic);
+    GlobalPoint p=geom->getPosition();
+    XYZPoint pp(p.x(),p.y(),p.z());
+    // Build the name of the object
+    std::ostringstream oss,oss2;
+    if(p.z()>0)
+      oss << "iSCP" << std::hex << ic.rawId() << std::dec;
+    else
+      oss << "iSCN" << std::hex << ic.rawId() << std::dec;
+    TMarker * myMarker= new TMarker(pp.x(),pp.y(),1);
+    if(pp.perp2()<100.)
+	std::cout << EEDetId(ic) << " " << pp.x() << " " << pp.y() << std::endl;
+    myMarker->SetMarkerColor(EEDetId(ic).isc()%100);
+    myMarker->SetMarkerStyle(22);
+    myHistos->addObject(oss.str(),myMarker);
     }
 }
 
@@ -226,62 +222,54 @@ void testCaloGeometryTools::testpoint(const XYZPoint& point, std::string name, b
 void testCaloGeometryTools::testBorderCrossing()
 {
   // Barrel 
-  const std::vector<DetId>& vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
-  unsigned size=vec.size();
+  const std::unordered_set<DetId>& vec(myGeometry.getEcalBarrelGeometry()->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned counter=0;
-  for(unsigned ic=0;ic<size;++ic)
-    {
-      CaloGeometryHelper::NeiVect neighbours=myGeometry.getNeighbours(vec[ic]);
-      for(unsigned in=0;in<8;++in)
-	{
-	  if(neighbours[in].null()) continue;
-	  if(myGeometry.borderCrossing(vec[ic],neighbours[in]))
-	    {
-	      auto geom=(myGeometry.getEcalBarrelGeometry())->getGeometry(vec[ic]);
-	      GlobalPoint p1=geom->getPosition();
-	      XYZPoint pp1(p1.x(),p1.y(),p1.z());
-	      geom=(myGeometry.getEcalBarrelGeometry())->getGeometry(neighbours[in]);
-	      GlobalPoint p2=geom->getPosition();
-	      XYZPoint pp2(p2.x(),p2.y(),p2.z());
-	      TMarker * myMarker= new TMarker((pp1+pp2).eta()*0.5,((pp1+pp2)*0.5).phi(),22);
-	      std::ostringstream oss;
-	      oss << "iBCB"<< counter;
-	      myHistos->addObject(oss.str(),myMarker);
-	      ++counter;
-	    }
-	}
+  for(auto const & ic : vec)  {
+    CaloGeometryHelper::NeiVect neighbours=myGeometry.getNeighbours(ic);
+    for(unsigned in=0;in<8;++in) {
+      if(neighbours[in].null()) continue;
+      if(myGeometry.borderCrossing(ic,neighbours[in])) {
+	auto geom=(myGeometry.getEcalBarrelGeometry())->getGeometry(ic);
+	GlobalPoint p1=geom->getPosition();
+	XYZPoint pp1(p1.x(),p1.y(),p1.z());
+	geom=(myGeometry.getEcalBarrelGeometry())->getGeometry(neighbours[in]);
+	GlobalPoint p2=geom->getPosition();
+	XYZPoint pp2(p2.x(),p2.y(),p2.z());
+	TMarker * myMarker= new TMarker((pp1+pp2).eta()*0.5,((pp1+pp2)*0.5).phi(),22);
+	std::ostringstream oss;
+	oss << "iBCB"<< counter;
+	myHistos->addObject(oss.str(),myMarker);
+	++counter;
+      }
     }
+  }
   
   // Endcap 
-  const std::vector<DetId>& vec2(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap));
-  size=vec2.size();
+  const std::unordered_set<DetId>& vec2(myGeometry.getEcalEndcapGeometry()->getValidDetIds(DetId::Ecal,EcalEndcap));
   counter=0;
-  for(unsigned ic=0;ic<size;++ic)
-    {
-      CaloGeometryHelper::NeiVect neighbours=myGeometry.getNeighbours(vec2[ic]);
-      for(unsigned in=0;in<8;++in)
-	{
-	  if(neighbours[in].null()) continue;
-	  if(myGeometry.borderCrossing(vec2[ic],neighbours[in]))
-	    {
-	      auto geom=(myGeometry.getEcalEndcapGeometry())->getGeometry(vec2[ic]);
-	      GlobalPoint p1=geom->getPosition();
-	      XYZPoint pp1(p1.x(),p1.y(),p1.z());
-	      geom=(myGeometry.getEcalEndcapGeometry())->getGeometry(neighbours[in]);
-	      GlobalPoint p2=geom->getPosition();
-	      XYZPoint pp2(p2.x(),p2.y(),p2.z());
-	      TMarker * myMarker= new TMarker((pp1+pp2).x()*0.5,(pp1+pp2).y()*0.5,22);
-	      std::ostringstream oss;
-	      if(p1.z()>0)
-		oss << "iBCEN"<< counter;
-	      else
-		oss << "iBCEP" << counter; 
-	      
-	      myHistos->addObject(oss.str(),myMarker);
-	      ++counter;
-	    }
-	}
+  for(auto const ic : vec2) {
+    CaloGeometryHelper::NeiVect neighbours=myGeometry.getNeighbours(ic);
+    for(unsigned in=0;in<8;++in) {
+      if(neighbours[in].null()) continue;
+      if(myGeometry.borderCrossing(ic,neighbours[in])) {
+	auto geom=(myGeometry.getEcalEndcapGeometry())->getGeometry(ic);
+	GlobalPoint p1=geom->getPosition();
+	XYZPoint pp1(p1.x(),p1.y(),p1.z());
+	geom=(myGeometry.getEcalEndcapGeometry())->getGeometry(neighbours[in]);
+	GlobalPoint p2=geom->getPosition();
+	XYZPoint pp2(p2.x(),p2.y(),p2.z());
+	TMarker * myMarker= new TMarker((pp1+pp2).x()*0.5,(pp1+pp2).y()*0.5,22);
+	std::ostringstream oss;
+	if(p1.z()>0)
+	  oss << "iBCEN"<< counter;
+	else
+	  oss << "iBCEP" << counter; 
+	
+	myHistos->addObject(oss.str(),myMarker);
+	++counter;
+      }
     }
+  }
 
 }
 

@@ -85,7 +85,7 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
    const CaloGeometry* geo = pG.product();
 //   iSetup.get<HcalDbRecord>().get(conditions);
    
-   std::vector<DetId> did =  geo->getValidDetIds();
+   const std::unordered_set<DetId> & did =  geo->getValidDetIds();
 
  
     std::map<HcalDetId,float> corrold;
@@ -95,12 +95,11 @@ HcalConstantsASCIIWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
     float coradd,corerr;
      
     std::vector<HcalDetId> theVector; 
-    for(std::vector<DetId>::iterator i = did.begin(); i != did.end(); i++)
-    {
-      if( (*i).det() == DetId::Hcal ) { 
-      HcalDetId hid = HcalDetId(*i);
+    for(auto const i : did) {
+      if( i.det() == DetId::Hcal ) { 
+      HcalDetId hid = HcalDetId(i);
       theVector.push_back(hid);
-      corrold[hid] = (oldRespCorrs->getValues(*i))->getValue();
+      corrold[hid] = (oldRespCorrs->getValues(i))->getValue();
       std::cout<<" Old calibration "<<hid.depth()<<" "<<hid.ieta()<<" "<<hid.iphi()<<std::endl;
       } 
     }

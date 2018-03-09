@@ -881,15 +881,15 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
    TGeoVolume* tv =  GetTopHolder("HCal", kHCal); 
    TGeoVolume *assembly = GetDaughter(tv, "HCalBarrel", kHCal);
    
-   std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalBarrel);
+   std::unordered_set<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalBarrel);
 
    CaloVolMap caloShapeMapP;
    CaloVolMap caloShapeMapN;
-   for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
+   for( auto const &  it : vid)
    {
-     //HcalDetId detid = HcalDetId(it->rawId());
-     HcalDetId detid(*it);
-     const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+     //HcalDetId detid = HcalDetId(it.rawId());
+     HcalDetId detid(it);
+     const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
      const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
      if (!cell) { printf ("HB not oblique !!!\n"); continue; }
@@ -963,12 +963,12 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
    TGeoVolume* tv =  GetTopHolder("HCal", kHCal); 
    TGeoVolume *assembly = GetDaughter(tv, "HCalEndcap", kHCal);
 
-   std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalEndcap);
+   std::unordered_set<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalEndcap);
 
-   for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
+   for( auto const & it : vid )
    {
-      HcalDetId detid = HcalDetId(it->rawId());
-      const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+      HcalDetId detid = HcalDetId(it.rawId());
+      const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
       const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
       if (!cell) { printf ("EC not oblique \n"); continue; }
@@ -1042,12 +1042,12 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryOuter()
   TGeoVolume* tv =  GetTopHolder("HCal", kHCal); 
   TGeoVolume *assembly = GetDaughter(tv, "HCalOuter", kHCal);
 
-  std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalOuter);
+  std::unordered_set<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalOuter);
 
-  for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
+  for( auto const & it : vid)
   {
-    HcalDetId detid = HcalDetId(it->rawId());
-    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+    HcalDetId detid = HcalDetId(it.rawId());
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
     const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
     if (!cell) { printf ("EC not oblique \n"); continue; }
@@ -1110,12 +1110,12 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryForward()
   TGeoVolume* tv =  GetTopHolder("HCal", kHCal); 
   TGeoVolume *assembly = GetDaughter(tv, "HCalForward", kHCal);
 
-  std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalForward);
+  std::unordered_set<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalForward);
 
-  for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
+  for( auto const & it : vid)
   {
-    HcalDetId detid = HcalDetId(it->rawId());
-    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+    HcalDetId detid = HcalDetId(it.rawId());
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
     const IdealZPrism* cell = dynamic_cast<const IdealZPrism*> (cellb);
     
     if (!cell) { printf ("EC not Z prism \n"); continue; }
@@ -1178,11 +1178,11 @@ FWTGeoRecoGeometryESProducer::addCaloTowerGeometry()
   TGeoVolume* tv =  GetTopHolder("CaloTower", kCaloTower); 
   TGeoVolume *assembly = GetDaughter(tv, "CaloTower", kCaloTower);
    
-  std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Calo, CaloTowerDetId::SubdetId);
-  for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
+  std::unordered_set<DetId> vid = m_caloGeom->getValidDetIds(DetId::Calo, CaloTowerDetId::SubdetId);
+  for( auto const & it : vid)
   {
-    CaloTowerDetId detid = CaloTowerDetId(it->rawId());
-    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+    CaloTowerDetId detid = CaloTowerDetId(it.rawId());
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
     const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
     if (!cell) { printf ("EC not oblique \n"); continue; }
       TGeoVolume* volume = nullptr;
@@ -1316,11 +1316,11 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
    {
       TGeoVolume *assembly = GetDaughter(tv, "ECalBarrel", kECal);
 
-      std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalBarrel);
-      for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
+      std::unordered_set<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalBarrel);
+      for( auto const & it : vid)
       {
-	EBDetId detid(*it);
-	const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+	EBDetId detid(it);
+	const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
 	const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*>(cellb);
          if (!cell) { printf("ecalBarrel cell not a TruncatedPyramid !!\n"); return; }
 
@@ -1347,11 +1347,11 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
    {
       TGeoVolume *assembly = GetDaughter(tv, "ECalEndcap", kECal);
 
-      std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalEndcap);
-      for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
+      std::unordered_set<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalEndcap);
+      for( auto const & it : vid)
       {
-         EEDetId detid(*it);
-	 const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+         EEDetId detid(it);
+	 const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(it)).get();
          const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*>(cellb);
          if (!cell) { printf("ecalEndcap cell not a TruncatedPyramid !!\n"); continue;}
 

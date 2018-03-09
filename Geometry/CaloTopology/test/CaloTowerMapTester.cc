@@ -66,7 +66,7 @@ void CaloTowerMapTester::doTest(const CaloGeometry* geo,
 				const CaloTowerConstituentsMap* ctmap) {
 
   HcalGeometry* hgeo = (HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
-  const std::vector<DetId>& dets = hgeo->getValidDetIds(DetId::Hcal,0);
+  const std::unordered_set<DetId>& dets = hgeo->getValidDetIds(DetId::Hcal,0);
 
   for (const auto& id: dets) {
     CaloTowerDetId tower = ctmap->towerOf(id);

@@ -39,30 +39,31 @@ void HcalGeometry::init() {
 void HcalGeometry::fillDetIds() const {
   // this must test the last record filled to avoid a race condition
   if(!m_emptyIds.isSet()) {
-    std::unique_ptr<std::vector<DetId>> p_hbIds{new std::vector<DetId>};
-    std::unique_ptr<std::vector<DetId>> p_heIds{new std::vector<DetId>};
-    std::unique_ptr<std::vector<DetId>> p_hoIds{new std::vector<DetId>};
-    std::unique_ptr<std::vector<DetId>> p_hfIds{new std::vector<DetId>};
-    std::unique_ptr<std::vector<DetId>> p_emptyIds{new std::vector<DetId>};
+    std::unique_ptr<std::unordered_set<DetId>> p_hbIds{new std::unordered_set<DetId>};
+    std::unique_ptr<std::unordered_set<DetId>> p_heIds{new std::unordered_set<DetId>};
+    std::unique_ptr<std::unordered_set<DetId>> p_hoIds{new std::unordered_set<DetId>};
+    std::unique_ptr<std::unordered_set<DetId>> p_hfIds{new std::unordered_set<DetId>};
+    std::unique_ptr<std::unordered_set<DetId>> p_emptyIds{new std::unordered_set<DetId>};
     
-    const std::vector<DetId>& baseIds (CaloSubdetectorGeometry::getValidDetIds());
-    for (unsigned int i ( 0 ) ; i != baseIds.size() ; ++i) {
-      const DetId id ( baseIds[i] );
+    const std::unordered_set<DetId>& baseIds (CaloSubdetectorGeometry::getValidDetIds());
+    for (auto const & id: baseIds) {
       if (id.subdetId() == HcalBarrel) {
-	p_hbIds->emplace_back( id ) ;
+	p_hbIds->emplace( id ) ;
       } else if (id.subdetId() == HcalEndcap) {
-	p_heIds->emplace_back( id ) ;
+	p_heIds->emplace( id ) ;
       } else if (id.subdetId() == HcalOuter)  {
-	p_hoIds->emplace_back( id ) ;
+	p_hoIds->emplace( id ) ;
       } else if (id.subdetId() == HcalForward) {
-	p_hfIds->emplace_back( id ) ;
+	p_hfIds->emplace( id ) ;
       }
     }
+    /*
     std::sort( p_hbIds->begin(), p_hbIds->end() ) ;
     std::sort( p_heIds->begin(), p_heIds->end() ) ;
     std::sort( p_hoIds->begin(), p_hoIds->end() ) ;
     std::sort( p_hfIds->begin(), p_hfIds->end() ) ;
-    p_emptyIds->resize( 0 ) ;
+    */
+    p_emptyIds->clear() ;
 
     m_hbIds.set(std::move(p_hbIds));
     m_heIds.set(std::move(p_heIds));
@@ -72,7 +73,7 @@ void HcalGeometry::fillDetIds() const {
   }
 }
 
-const std::vector<DetId>& 
+const std::unordered_set<DetId>& 
 HcalGeometry::getValidDetIds( DetId::Detector det,
 			      int             subdet ) const {
   if( 0 != subdet ) fillDetIds() ;
@@ -257,7 +258,7 @@ CaloSubdetectorGeometry::DetIdSet HcalGeometry::getCells(const GlobalPoint& r,
 		       const GlobalPoint& p   ( cell->getPosition() ) ;
 		       const double       eta ( p.eta() ) ;
 		       const double       phi ( p.phi() ) ;
-		       if (reco::deltaR2(eta, phi, reta, rphi ) < dR2) dis.insert( did ) ;
+		       if (reco::deltaR2(eta, phi, reta, rphi ) < dR2) dis.emplace( did ) ;
 		     }
 		   }
 		 }
@@ -464,7 +465,7 @@ void HcalGeometry::newCellFast(const GlobalPoint& f1 ,
 
   unsigned int din = newCellImpl(f1,f2,f3,parm,detId);
 
-  m_validIds.emplace_back( detId ) ;
+  m_validIds.emplace( detId ) ;
   m_dins.emplace_back( din );
 }
 
@@ -573,6 +574,6 @@ void HcalGeometry::increaseReserve(unsigned int extra) {
 }
 
 void HcalGeometry::sortValidIds() {
-  std::sort(m_validIds.begin(),m_validIds.end());
+//std::sort(m_validIds.begin(),m_validIds.end());
 }
 

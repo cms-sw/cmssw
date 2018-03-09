@@ -65,16 +65,16 @@ void PileUpSubtractor::setupGeometryMap(edm::Event& iEvent,const edm::EventSetup
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);
     geo_ = pG.product();
-    std::vector<DetId> alldid =  geo_->getValidDetIds();
+    const std::unordered_set<DetId> & alldid =  geo_->getValidDetIds();
 
     int ietaold = -10000;
     ietamax_ = -10000;
     ietamin_ = 10000;
-    for(std::vector<DetId>::const_iterator did=alldid.begin(); did != alldid.end(); did++){
-      if( (*did).det() == DetId::Hcal ){
-        HcalDetId hid = HcalDetId(*did);
+    for(auto const & did : alldid) {
+      if( did.det() == DetId::Hcal ){
+        HcalDetId hid = HcalDetId(did);
         if( (hid).depth() == 1 ) {
-	  allgeomid_.push_back(*did);
+	  allgeomid_.emplace_back(did);
 
           if((hid).ieta() != ietaold){
             ietaold = (hid).ieta();

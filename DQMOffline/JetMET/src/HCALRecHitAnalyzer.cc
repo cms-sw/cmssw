@@ -274,14 +274,14 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
   // Fill Histograms!
   // ==========================================================
 
-  std::vector<DetId>::iterator i;
+  std::unordered_set<DetId>::iterator i;
 
   int HBmin_ieta = 99, HBmax_ieta = -99;
   int HBmin_iphi = 99, HBmax_iphi = -99;
 
   // Loop Over all Hcal Barrel DetId's
   int nHBdetid = 0;
-  std::vector<DetId> HBids = HBgeom->getValidDetIds(DetId::Hcal,HcalBarrel);
+  std::unordered_set<DetId> HBids = HBgeom->getValidDetIds(DetId::Hcal,HcalBarrel);
 
   for (i = HBids.begin(); i != HBids.end(); i++) {
 
@@ -313,7 +313,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
 
   // Loop Over all Hcal Endcap DetId's
   int nHEdetid = 0;
-  std::vector<DetId> HEids = HEgeom->getValidDetIds(DetId::Hcal,HcalEndcap);
+  std::unordered_set<DetId> HEids = HEgeom->getValidDetIds(DetId::Hcal,HcalEndcap);
 
   for (i = HEids.begin(); i != HEids.end(); i++) {
 
@@ -344,7 +344,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
 
   // Loop Over all Hcal Forward DetId's
   int nHFdetid = 0;
-  std::vector<DetId> HFids = HFgeom->getValidDetIds(DetId::Hcal,HcalForward);
+  std::unordered_set<DetId> HFids = HFgeom->getValidDetIds(DetId::Hcal,HcalForward);
 
   for (i = HFids.begin(); i != HFids.end(); i++) {
 
@@ -377,7 +377,7 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup)
 
   // Loop Over all Hcal Outer DetId's
   int nHOdetid = 0;
-  std::vector<DetId> HOids = HOgeom->getValidDetIds(DetId::Hcal,HcalOuter);
+  std::unordered_set<DetId> HOids = HOgeom->getValidDetIds(DetId::Hcal,HcalOuter);
 
   for (i = HOids.begin(); i != HOids.end(); i++) {
 

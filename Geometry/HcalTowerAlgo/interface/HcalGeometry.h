@@ -50,8 +50,8 @@ public:
   /// The HcalGeometry will delete all its cell geometries at destruction time
   ~HcalGeometry() override;
   
-  const std::vector<DetId>& getValidDetIds(DetId::Detector det    = DetId::Detector ( 0 ), 
-					   int             subdet = 0 ) const override;
+  const std::unordered_set<DetId>& getValidDetIds(DetId::Detector det    = DetId::Detector ( 0 ), 
+						  int             subdet = 0 ) const override;
 
   std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) const override ;
   
@@ -159,11 +159,11 @@ private:
   const HcalTopology& m_topology;
   bool                m_mergePosition;
   
-  mutable edm::AtomicPtrCache<std::vector<DetId>> m_hbIds ;
-  mutable edm::AtomicPtrCache<std::vector<DetId>> m_heIds ;
-  mutable edm::AtomicPtrCache<std::vector<DetId>> m_hoIds ;
-  mutable edm::AtomicPtrCache<std::vector<DetId>> m_hfIds ;
-  mutable edm::AtomicPtrCache<std::vector<DetId>> m_emptyIds ;
+  mutable edm::AtomicPtrCache<std::unordered_set<DetId>> m_hbIds ;
+  mutable edm::AtomicPtrCache<std::unordered_set<DetId>> m_heIds ;
+  mutable edm::AtomicPtrCache<std::unordered_set<DetId>> m_hoIds ;
+  mutable edm::AtomicPtrCache<std::unordered_set<DetId>> m_hfIds ;
+  mutable edm::AtomicPtrCache<std::unordered_set<DetId>> m_emptyIds ;
   CaloSubdetectorGeometry::IVec m_dins;
 
   HBCellVec m_hbCellVec ;

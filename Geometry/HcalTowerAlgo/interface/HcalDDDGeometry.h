@@ -29,8 +29,8 @@ public:
   /// The HcalDDDGeometry will delete all its cell geometries at destruction time
   ~HcalDDDGeometry() override;
   
-  const std::vector<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector ( 0 ) , 
-						    int             subdet = 0   ) const override;
+  const std::unordered_set<DetId>& getValidDetIds( DetId::Detector det    = DetId::Detector ( 0 ) , 
+						   int             subdet = 0   ) const override;
 
   DetId getClosestCell(const GlobalPoint& r) const override ;
 
@@ -68,11 +68,11 @@ private:
   void fillDetIds() const ;
 
   std::vector<HcalCellType> hcalCells_;
-  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_hbIds ;
-  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_heIds ;
-  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_hoIds ;
-  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_hfIds ;
-  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_emptyIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::unordered_set<DetId> m_hbIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::unordered_set<DetId> m_heIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::unordered_set<DetId> m_hoIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::unordered_set<DetId> m_hfIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::unordered_set<DetId> m_emptyIds ;
 
   const HcalTopology& topo_;
   double              etaMax_;
