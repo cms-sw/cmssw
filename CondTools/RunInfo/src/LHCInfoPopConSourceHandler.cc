@@ -509,8 +509,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 			     << " ) to " << beforeStableBeamStartTime
 			     << " ( " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( beforeStableBeamStartTime ) )
 			     << " ); from " << m_name << "::getNewObjects";
-	//Include this line to insert blank payload between two consecutive fills.
-      //m_to_transfer.push_back( std::make_pair( new LHCInfo(), afterPreviousFillEndTime ) );
+	m_to_transfer.push_back( std::make_pair( new LHCInfo(), afterPreviousFillEndTime ) );
     } else {
       //the current fill cannot start before the previous one!
       edm::LogError( m_name ) << "WRONG DATA! In the previous fill number " << previousFillNumber
