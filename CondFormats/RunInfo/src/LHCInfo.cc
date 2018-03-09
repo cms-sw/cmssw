@@ -98,7 +98,7 @@ void LHCInfo::setFill( unsigned short const & lhcFill, bool const & fromData ) {
   m_floatParams[ BEAM1_RF ] = std::vector<float>(1, 0.);
   m_floatParams[ BEAM2_RF ] = std::vector<float>(1, 0.);
   m_timeParams.resize( TSIZE, std::vector<unsigned long long>(1,0ULL) );
-  m_stringParams.resize( SSIZE, std::vector<std::string>("") );
+  m_stringParams.resize( SSIZE, std::vector<std::string>(1, "") );
   m_stringParams[ INJECTION_SCHEME ][0] = std::string("None");
   m_bunchConfiguration1.reset();
   m_bunchConfiguration2.reset();

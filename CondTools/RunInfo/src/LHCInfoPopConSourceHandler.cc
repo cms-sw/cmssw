@@ -558,7 +558,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
     edm::LogInfo( m_name ) << "The new payload to be inserted into tag " << tagInfo().name
 			   << " with validity " << stableBeamStartTime 
 			   << " ( " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( stableBeamStartTime ) )
-			   << " ) has values:\n" //<< *lhcInfo Throws Exception!
+			   << " ) has values:\n" << *lhcInfo //Throws Exception!
 			   << "from " << m_name << "::getNewObjects";
     //add log information
     ss << " fill = " << currentFill
