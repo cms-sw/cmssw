@@ -124,6 +124,7 @@ premix_stage2.toModify(muonAssociatorByHitsCommonParameters,
     pixelSimLinkSrc = "mixData:PixelDigiSimLink",
     stripSimLinkSrc = "mixData:StripDigiSimLink",
     phase2TrackerSimLinkSrc = "mixData:Phase2OTDigiSimLink",
+    GEMdigisimlinkTag = "mixData:GEMStripDigiSimLink",
 )
   
 muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
