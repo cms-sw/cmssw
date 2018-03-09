@@ -32,7 +32,7 @@ totemGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/RP_Box/RP_Box_100.xml',
     'Geometry/VeryForwardData/data/RP_Box/RP_Box_101.xml',
     'Geometry/VeryForwardData/data/RP_Box/RP_Box_102.xml',
-    'Geometry/VeryForwardData/data/RP_Box/RP_Box_103.xml',
+    'Geometry/VeryForwardData/data/RP_Box/2018/RP_Box_103.xml',
     'Geometry/VeryForwardData/data/RP_Box/RP_Box_104.xml',
     'Geometry/VeryForwardData/data/RP_Box/RP_Box_105.xml',
     'Geometry/VeryForwardData/data/RP_Box/RP_Box_120.xml',
