@@ -53,13 +53,8 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
         ),
 
     # photon ID
-    addPhotonID = cms.bool(True),
-    photonIDSources = cms.PSet(
-             PhotonCutBasedIDLoose = cms.InputTag('PhotonIDProdGED',
-                                                  'PhotonCutBasedIDLoose'),
-             PhotonCutBasedIDTight = cms.InputTag('PhotonIDProdGED',
-                                                  'PhotonCutBasedIDTight')
-           ),
+    addPhotonID = cms.bool(False),
+    photonIDSources = cms.PSet(),
     # mc matching
     addGenMatch = cms.bool(True),
     embedGenMatch = cms.bool(True),
