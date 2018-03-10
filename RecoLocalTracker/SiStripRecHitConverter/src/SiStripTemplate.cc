@@ -552,7 +552,7 @@ bool SiStripTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
 				qavg_avg = 0.f;
 				for (j=0; j<9; ++j) {
 					
-					for (l=0; l<TSXSIZE; ++k) {db >> theCurrentTemp.entx[k][i].xtemp[j][l]; qavg_avg += theCurrentTemp.entx[k][i].xtemp[j][l];} 
+					for (l=0; l<TSXSIZE; ++l) {db >> theCurrentTemp.entx[k][i].xtemp[j][l]; qavg_avg += theCurrentTemp.entx[k][i].xtemp[j][l];} 
 					
 					if(db.fail()) {LOGERROR("SiStripTemplate") << "Error reading file 20, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
 				}
