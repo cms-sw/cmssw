@@ -50,14 +50,10 @@ HcalDigiProducer::accumulate(PileUpEventPrincipal const& event, edm::EventSetup 
 }
 
 void
-HcalDigiProducer::beginRun(edm::Run const&, edm::EventSetup const& es) {
-  theDigitizer_.beginRun(es);
-}
+HcalDigiProducer::beginRun(edm::Run const&, edm::EventSetup const& es) {}
 
 void
-HcalDigiProducer::endRun(edm::Run const&, edm::EventSetup const&) {
-  theDigitizer_.endRun();
-}
+HcalDigiProducer::endRun(edm::Run const&, edm::EventSetup const&) {}
 
 void
 HcalDigiProducer::setHBHENoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
