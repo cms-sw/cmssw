@@ -17,7 +17,9 @@
 
 // boost optional (used by boost graph) results in some false positives with -Wmaybe-uninitialized
 #pragma GCC diagnostic push
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/graph/lookup_edge.hpp>

@@ -14,8 +14,9 @@
 
 // The compiler knows our default-constructed objects' members
 // may not be initialized when we serialize them.
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-
+#endif
 
 template <typename T>
 void toXML( std::string filename="" )
