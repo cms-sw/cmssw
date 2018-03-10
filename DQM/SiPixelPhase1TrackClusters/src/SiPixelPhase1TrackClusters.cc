@@ -1,4 +1,4 @@
-// -*- C++ -*-
+0;95;0c// -*- C++ -*-
 //
 // Package:     SiPixelPhase1TrackClusters
 // Class  :     SiPixelPhase1TrackClusters
@@ -198,14 +198,11 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
         float pixel_charge = pixelsVec[i].adc;
 
         if (bigInX==true || bigInY==true) {
-          std::cout<<"Failure here 1?"<<std::endl;
-          histo[ON_TRACK_BIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
+                histo[ON_TRACK_BIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
         }
         else {
-          std::cout<<"Failure here 2?"<<std::endl;
-          histo[ON_TRACK_NOTBIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
-          std::cout<<"Did this pass?????"<<std::endl;
-
+                histo[ON_TRACK_NOTBIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
+      
         }
       } // End loop over pixels
       auto const & ltp = trajParams[h];
