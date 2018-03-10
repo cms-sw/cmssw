@@ -24,3 +24,9 @@
 <library   file="FillInfoPopConAnalyzer.cc" name="CondToolsFillInfoPopConAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="LHCInfoESAnalyzer.cc" name="CondToolsLHCInfoESAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="LHCInfoPopConAnalyzer.cc" name="CondToolsLHCInfoPopConAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
