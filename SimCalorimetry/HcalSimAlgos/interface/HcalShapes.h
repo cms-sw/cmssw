@@ -9,12 +9,11 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapes.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCShape.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include <vector>
 #include <map>
 class CaloVShape;
 class DetId;
-class HcalMCParams;
-class HcalTopology;
 
 class HcalShapes : public CaloShapes
 {
@@ -23,8 +22,7 @@ public:
   HcalShapes();
   ~HcalShapes() override;
 
-  void beginRun(edm::EventSetup const & es);
-  void endRun();
+  void setDbService(const HcalDbService * service) {theDbService = service;}
 
   const CaloVShape * shape(const DetId & detId, bool precise=false) const override;
 
@@ -33,8 +31,7 @@ private:
   // hardcoded, if we can't figure it out from the DB
   const CaloVShape * defaultShape(const DetId & detId, bool precise=false) const;
   const ShapeMap& getShapeMap(bool precise) const;
-  HcalMCParams * theMCParams;
-  const HcalTopology * theTopology;
+  const HcalDbService * theDbService;
   ShapeMap theShapes;
   ShapeMap theShapesPrecise;
   ZDCShape theZDCShape;
