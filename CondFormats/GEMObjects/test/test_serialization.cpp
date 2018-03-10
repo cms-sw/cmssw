@@ -3,12 +3,9 @@
 
 int main()
 {
-  testSerialization<GEMEMap>();
-  testSerialization<GEMEMap::GEMEMapItem>();
-  testSerialization<std::vector<GEMEMap::GEMEMapItem>>();
-  testSerialization<GEMEMap::GEMVFatMaptype>();
-  testSerialization<std::vector<GEMEMap::GEMVFatMaptype>>();
-  testSerialization<GEMEMap::GEMVFatMapInPos>();
-  testSerialization<std::vector<GEMEMap::GEMVFatMapInPos>>();
-
+  testSerialization<GEMELMap>();
+  testSerialization<GEMELMap::GEMVFatMap>();
+  testSerialization<std::vector<GEMELMap::GEMVFatMap>>();
+  testSerialization<GEMELMap::GEMStripMap>();
+  testSerialization<std::vector<GEMELMap::GEMStripMap>>();
 }
