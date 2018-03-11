@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-templates = cms.ESProducer("PixelCPEClusterRepairESProducer",
+templates2 = cms.ESProducer("PixelCPEClusterRepairESProducer",
     ComponentName = cms.string('PixelCPEClusterRepair'),
     speed = cms.int32(-2),
     #PixelErrorParametrization = cms.string('NOTcmsim'),
@@ -21,7 +21,7 @@ templates = cms.ESProducer("PixelCPEClusterRepairESProducer",
 
 # This customization will be removed once we get the templates for phase2 pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(templates,
+phase2_tracker.toModify(templates2,
   LoadTemplatesFromDB = False,
   DoLorentz = False,
 )
