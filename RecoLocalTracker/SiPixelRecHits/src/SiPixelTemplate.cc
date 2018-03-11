@@ -1497,10 +1497,9 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta)
    // Interpolate for a new set of track angles
    
    // Local variables
-   float locBx, locBz;
-   locBx = 1.f;
+   float locBx = 1.f;
    if(cotbeta < 0.f) {locBx = -1.f;}
-   locBz = locBx;
+   float locBz = locBx;
    if(cotalpha < 0.f) {locBz = -locBx;}
    return SiPixelTemplate::interpolate(id, cotalpha, cotbeta, locBz, locBx);
 }
@@ -1519,8 +1518,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
    // Interpolate for a new set of track angles
    
    // Local variables
-   float locBx;
-   locBx = 1.f;
+   float locBx = 1.f;
    return SiPixelTemplate::interpolate(id, cotalpha, cotbeta, locBz, locBx);
 }
 
