@@ -65,7 +65,9 @@ class MuonRecoAnalyzer : public DQMEDAnalyzer {
 
   // Switch for verbosity
   std::string metname;
-    
+  std::string theVertexName;  
+  std::string theBeamSpotName;  
+  bool doMVA;
 
   //histo binning parameters
   int etaBin;
