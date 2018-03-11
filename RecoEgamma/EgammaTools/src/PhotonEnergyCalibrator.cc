@@ -4,7 +4,6 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <CLHEP/Random/RandGaussQ.h>
-#include "RecoEgamma/EgammaTools/interface/EGEnergySysIndex.h"
 
 const EnergyScaleCorrection::ScaleCorrection PhotonEnergyCalibrator::defaultScaleCorr_;
 const EnergyScaleCorrection::SmearCorrection PhotonEnergyCalibrator::defaultSmearCorr_;
@@ -22,7 +21,7 @@ void PhotonEnergyCalibrator::initPrivateRng(TRandom *rnd)
   rng_ = rnd;
 }
 
-std::vector<float> PhotonEnergyCalibrator::
+std::array<float,EGEnergySysIndex::kNrSysErrs> PhotonEnergyCalibrator::
 calibrate(reco::Photon &photon,const unsigned int runNumber, 
 	  const EcalRecHitCollection *recHits, 
 	  edm::StreamID const & id, 
@@ -31,7 +30,7 @@ calibrate(reco::Photon &photon,const unsigned int runNumber,
   return calibrate(photon,runNumber,recHits,gauss(id),eventType);
 }
 
-std::vector<float> PhotonEnergyCalibrator::
+std::array<float,EGEnergySysIndex::kNrSysErrs> PhotonEnergyCalibrator::
 calibrate(reco::Photon &photon,const unsigned int runNumber, 
 	  const EcalRecHitCollection *recHits, 
 	  const float smearNrSigma, 
@@ -41,8 +40,8 @@ calibrate(reco::Photon &photon,const unsigned int runNumber,
   const float et = photon.getCorrectedEnergy(reco::Photon::P4type::regression2) / cosh(scEtaAbs);
 
   if (et < minEt_) {
-    std::vector<float> retVal(EGEnergySysIndex::kNrSysErrs,
-			      photon.getCorrectedEnergy(reco::Photon::P4type::regression2));
+    std::array<float,EGEnergySysIndex::kNrSysErrs> retVal;
+    retVal.fill(photon.getCorrectedEnergy(reco::Photon::P4type::regression2));
     retVal[EGEnergySysIndex::kScaleValue]  = 1.0;
     retVal[EGEnergySysIndex::kSmearValue]  = 0.0;
     retVal[EGEnergySysIndex::kSmearNrSigma]  = smearNrSigma;
@@ -70,7 +69,7 @@ calibrate(reco::Photon &photon,const unsigned int runNumber,
   if(smearCorr==nullptr) smearCorr=&defaultSmearCorr_;
  
 
-  std::vector<float> uncertainties(EGEnergySysIndex::kNrSysErrs,0.);
+  std::array<float,EGEnergySysIndex::kNrSysErrs> uncertainties{};
   
   uncertainties[EGEnergySysIndex::kScaleValue]  = scaleCorr->scale();
   uncertainties[EGEnergySysIndex::kSmearValue]  = smearCorr->sigma(et); //even though we use scale = 1.0, we still store the value returned for MC
@@ -94,7 +93,7 @@ setEnergyAndSystVarations(const float scale,const float smearNrSigma,const float
 			  const EnergyScaleCorrection::ScaleCorrection& scaleCorr,
 			  const EnergyScaleCorrection::SmearCorrection& smearCorr,
 			  reco::Photon& photon,
-			  std::vector<float>& energyData)const
+			  std::array<float,EGEnergySysIndex::kNrSysErrs>& energyData)const
 {
  
   const float smear = smearCorr.sigma(et);   

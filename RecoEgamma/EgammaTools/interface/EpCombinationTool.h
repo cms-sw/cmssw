@@ -9,6 +9,7 @@
 
 namespace edm{
   class ParameterSet;
+  class ParameterSetDescription;
   class EventSetup;
 }
 namespace reco{
@@ -21,10 +22,11 @@ public:
   EpCombinationTool(const edm::ParameterSet& iConfig);
   ~EpCombinationTool(){}
 
+  static edm::ParameterSetDescription makePSetDescription();
+
   void setEventContent(const edm::EventSetup& iSetup);
   std::pair<float, float> combine(const reco::GsfElectron& electron) const;
-  
-  
+
 private:
   EgammaRegressionContainer ecalTrkEnergyRegress_;
   EgammaRegressionContainer ecalTrkEnergyRegressUncert_;
