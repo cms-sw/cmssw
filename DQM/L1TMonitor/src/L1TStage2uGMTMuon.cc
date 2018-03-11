@@ -43,10 +43,10 @@ void L1TStage2uGMTMuon::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   ugmtMuonhwEta = ibooker.book1D("ugmtMuonhwEta", (titlePrefix+"#eta").c_str(), 461, -230.5, 230.5);
   ugmtMuonhwEta->setAxisTitle("Hardware Eta", 1);
 
-  ugmtMuonhwPhi = ibooker.book1D("ugmtMuonhwPhi", (titlePrefix+"#phi").c_str(), 576, -0.5, 575.5);
+  ugmtMuonhwPhi = ibooker.book1D("ugmtMuonhwPhi", (titlePrefix+"#phi").c_str(), 577, -1.5, 575.5);
   ugmtMuonhwPhi->setAxisTitle("Hardware Phi", 1);
 
-  ugmtMuonhwCharge = ibooker.book1D("ugmtMuonhwCharge", (titlePrefix+"Charge").c_str(), 2, -0.5, 1.5);
+  ugmtMuonhwCharge = ibooker.book1D("ugmtMuonhwCharge", (titlePrefix+"Charge").c_str(), 4, -1.5, 2.5);
   ugmtMuonhwCharge->setAxisTitle("Hardware Charge", 1);
 
   ugmtMuonhwChargeValid = ibooker.book1D("ugmtMuonhwChargeValid", (titlePrefix+"ChargeValid").c_str(), 2, -0.5, 1.5);
@@ -61,7 +61,7 @@ void L1TStage2uGMTMuon::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   ugmtMuonEta = ibooker.book1D("ugmtMuonEta", (titlePrefix+"#eta").c_str(), 100, -2.5, 2.5);
   ugmtMuonEta->setAxisTitle("#eta", 1);
 
-  ugmtMuonPhi = ibooker.book1D("ugmtMuonPhi", (titlePrefix+"#phi").c_str(), 126, -3.15, 3.15);
+  ugmtMuonPhi = ibooker.book1D("ugmtMuonPhi", (titlePrefix+"#phi").c_str(), 128, -3.20, 3.20);
   ugmtMuonPhi->setAxisTitle("#phi", 1);
 
   ugmtMuonCharge = ibooker.book1D("ugmtMuonCharge", (titlePrefix+"Charge").c_str(), 3, -1.5, 1.5);
@@ -107,13 +107,13 @@ void L1TStage2uGMTMuon::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
     ugmtMuonhwEtaAtVtx = ibooker.book1D("ugmtMuonhwEtaAtVtx", (titlePrefix+"#eta at vertex").c_str(), 461, -230.5, 230.5);
     ugmtMuonhwEtaAtVtx->setAxisTitle("Hardware Eta at Vertex", 1);
 
-    ugmtMuonhwPhiAtVtx = ibooker.book1D("ugmtMuonhwPhiAtVtx", (titlePrefix+"#phi at vertex").c_str(), 576, -0.5, 575.5);
+    ugmtMuonhwPhiAtVtx = ibooker.book1D("ugmtMuonhwPhiAtVtx", (titlePrefix+"#phi at vertex").c_str(), 577, -1.5, 575.5);
     ugmtMuonhwPhiAtVtx->setAxisTitle("Hardware Phi at Vertex", 1);
 
     ugmtMuonEtaAtVtx = ibooker.book1D("ugmtMuonEtaAtVtx", (titlePrefix+"#eta at vertex").c_str(), 100, -2.5, 2.5);
     ugmtMuonEtaAtVtx->setAxisTitle("#eta at Vertex", 1);
 
-    ugmtMuonPhiAtVtx = ibooker.book1D("ugmtMuonPhiAtVtx", (titlePrefix+"#phi at vertex").c_str(), 126, -3.15, 3.15);
+    ugmtMuonPhiAtVtx = ibooker.book1D("ugmtMuonPhiAtVtx", (titlePrefix+"#phi at vertex").c_str(), 128, -3.20, 3.20);
     ugmtMuonPhiAtVtx->setAxisTitle("#phi at Vertex", 1);
 
     ugmtMuonPtvsEtaAtVtx = ibooker.book2D("ugmtMuonPtvsEtaAtVtx", (titlePrefix+"p_{T} vs #eta at vertex").c_str(), 100, -2.5, 2.5, 256, -0.5, 255.5);
