@@ -29,6 +29,10 @@ MuonRecoAnalyzer::MuonRecoAnalyzer(const edm::ParameterSet& pSet) {
   theVertexLabel_   = consumes<reco::VertexCollection>     (pSet.getParameter<InputTag>("inputTagVertex"));
   theBeamSpotLabel_ = consumes<reco::BeamSpot>             (pSet.getParameter<InputTag>("inputTagBeamSpot"));
   dcsStatusCollection_ = consumes<DcsStatusCollection>(pSet.getUntrackedParameter<std::string>("dcsStatusCollection","scalersRawToDigi"));
+  theVertexName = parameters.getParameter<string>("inputTagVertex");
+  theBeamSpotName = parameters.getParameter<string>("inputTagBeamSpot");
+  doMVA = true;
+  if(theVertexName == "" || theBeamSpotName == "") doMVA = false;
 
   ptBin = parameters.getParameter<int>("ptBin");
   ptMin = parameters.getParameter<double>("ptMin");
@@ -393,11 +397,11 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(theMuonCollectionLabel_,muons);
 
   Handle<reco::BeamSpot> beamSpot;
-  iEvent.getByToken(theBeamSpotLabel_, beamSpot);
-
   Handle<reco::VertexCollection> vertex;
-  iEvent.getByToken(theVertexLabel_, vertex);
-
+  if(doMVA) {
+     iEvent.getByToken(theBeamSpotLabel_, beamSpot);
+     iEvent.getByToken(theVertexLabel_, vertex);
+  }
   //In this part we determine if we want to fill the plots for events where the DCS flag was set to bad
   edm::Handle<DcsStatusCollection> dcsStatus;
   bool fillBadLumi = false;
@@ -445,25 +449,29 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       const reco::HitPattern gHits = gTrack->hitPattern();
       const reco::HitPattern iHits = iTrack->hitPattern();
       const reco::MuonQuality muonQuality = muon->combinedQuality();
-      
-      int pvIndex = getPv(iTrack.index(), &(*vertex)); //HFDumpUtitilies
+      int pvIndex = 0;   
       math::XYZPoint refPoint;
-      if (pvIndex > -1) {
-	refPoint = vertex->at(pvIndex).position();
-      } else {
-	if (&(*beamSpot)==NULL) {
-	  refPoint = beamSpot->position();
-	} else {
-	  cout << "ERROR: No beam sport found!" << endl;
-	}
+      if(doMVA) {
+         pvIndex = getPv(iTrack.index(), &(*vertex)); //HFDumpUtitilies
+         if (pvIndex > -1) {
+	   refPoint = vertex->at(pvIndex).position();
+         } else {
+	   if (&(*beamSpot)==NULL) {
+	     refPoint = beamSpot->position();
+	   } else {
+	     cout << "ERROR: No beam sport found!" << endl;
+	   }
+         }
       }
       ptSoftMuonMVA->Fill(iTrack->eta());
       deltaRSoftMuonMVA->Fill(getDeltaR(*iTrack,*oTrack));
       gNchi2SoftMuonMVA->Fill(gTrack->normalizedChi2());
       vMuHitsSoftMuonMVA->Fill(gHits.numberOfValidMuonHits());
       mNuStationsSoftMuonMVA->Fill(muon->numberOfMatchedStations());
-      dxyRefSoftMuonMVA->Fill(iTrack->dxy(refPoint));
-      dzRefSoftMuonMVA->Fill(iTrack->dz(refPoint));
+      if(doMVA) {
+         dxyRefSoftMuonMVA->Fill(iTrack->dxy(refPoint));
+         dzRefSoftMuonMVA->Fill(iTrack->dz(refPoint));
+      }
       LWHSoftMuonMVA->Fill(iHits.trackerLayersWithMeasurement());
       valPixHitsSoftMuonMVA->Fill(iHits.numberOfValidPixelHits());
       innerChi2SoftMuonMVA->Fill(iTrack->normalizedChi2());
