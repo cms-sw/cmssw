@@ -1,6 +1,7 @@
 #include "RecoEgamma/EgammaTools/interface/EgammaRegressionContainer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/GBRDWrapperRcd.h"
@@ -18,6 +19,20 @@ EgammaRegressionContainer::EgammaRegressionContainer(const edm::ParameterSet& iC
   eeLowEtForest_(nullptr),eeHighEtForest_(nullptr)
 {
 
+}
+
+edm::ParameterSetDescription EgammaRegressionContainer::makePSetDescription()
+{
+  edm::ParameterSetDescription desc;
+  desc.add<double>("rangeMin",-1.);
+  desc.add<double>("rangeMax",3.0);
+  desc.add<double>("lowEtHighEtBoundary",50.);
+  desc.add<bool>("forceHighEnergyTrainingIfSaturated",false);
+  desc.add<std::string>("ebLowEtForestName","electron_eb_ECALTRK_lowpt");
+  desc.add<std::string>("ebHighEtForestName","electron_eb_ECALTRK_lowpt");
+  desc.add<std::string>("eeLowEtForestName","electron_ee_ECALTRK_lowpt");
+  desc.add<std::string>("eeHighEtForestName","electron_ee_ECALTRK_lowpt");
+  return desc;
 }
 
 namespace{

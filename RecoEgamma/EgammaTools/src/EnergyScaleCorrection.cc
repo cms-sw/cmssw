@@ -8,11 +8,6 @@
 #include <iomanip>
 #include <algorithm>
 
-#define LOGVERB(x) LogTrace(x)
-#define LOGWARN(x) edm::LogWarning(x)
-#define LOGERR(x) edm::LogError(x)
-#define LOGDRESSED(x) LogDebug(x)
-
 EnergyScaleCorrection::EnergyScaleCorrection(const std::string& correctionFileName, unsigned int genSeed):
   smearingType_(ECALELF)
 {
@@ -86,7 +81,7 @@ EnergyScaleCorrection::getScaleCorr(unsigned int runnr, double et, double eta, d
   auto result = std::equal_range(scales_.begin(),scales_.end(),category,Sorter<CorrectionCategory,ScaleCorrection>()); 
   auto nrFound = std::distance(result.first,result.second);
   if(nrFound==0){
-    LOGWARN("EnergyScaleCorrection") << "[ERROR] Scale category not found: " << category << " Returning uncorrected value.";
+    edm::LogInfo("EnergyScaleCorrection") << "Scale category not found: " << category << " Returning uncorrected value.";
     return nullptr;
   }else if(nrFound>1){
     std::ostringstream foundCats;
@@ -112,7 +107,7 @@ EnergyScaleCorrection::getSmearCorr(unsigned int runnr, double et, double eta, d
   auto result = std::equal_range(smearings_.begin(),smearings_.end(),category,Sorter<CorrectionCategory,SmearCorrection>()); 
   auto nrFound = std::distance(result.first,result.second);
   if(nrFound==0){
-    LOGWARN("EnergyScaleCorrection") << "[ERROR] Smear category not found: " << category << " Returning uncorrected value.";
+    edm::LogInfo("EnergyScaleCorrection") << "Smear category not found: " << category << " Returning uncorrected value.";
     return nullptr;
   }else if(nrFound>1){
     std::ostringstream foundCats;
@@ -137,7 +132,7 @@ void EnergyScaleCorrection::addScale(const std::string& category, int runMin, in
   CorrectionCategory cat(category,runMin,runMax); // build the category from the string
   auto result = std::equal_range(scales_.begin(),scales_.end(),cat,Sorter<CorrectionCategory,ScaleCorrection>());
   if(result.first!=result.second){
-    throw cms::Exception("ConfigError") << "[ERROR] Category already defined! "<<cat;
+    throw cms::Exception("ConfigError") << "Category already defined! "<<cat;
   }
   
   ScaleCorrection corr(energyScale,energyScaleErrStat,energyScaleErrSyst,energyScaleErrGain);
@@ -156,7 +151,7 @@ void EnergyScaleCorrection::addSmearing(const std::string& category,int runMin, 
   auto res = std::equal_range(smearings_.begin(),smearings_.end(),cat,Sorter<CorrectionCategory,SmearCorrection>()); 
 
   if(res.first!=res.second) {
-    throw cms::Exception("EnergyScaleCorrection") << "[ERROR] Smearing category already defined "<<cat;
+    throw cms::Exception("EnergyScaleCorrection") << "Smearing category already defined "<<cat;
   }
   
   SmearCorrection corr(rho,errRho,phi,errPhi,eMean,errEMean);
@@ -179,7 +174,7 @@ void EnergyScaleCorrection::readScalesFromFile(const std::string& filename)
   std::ifstream file(edm::FileInPath(filename).fullPath().c_str());
   
   if(!file.good()) {
-    throw cms::Exception("EnergyScaleCorrection") << "[ERROR] file " << filename << " not readable.";
+    throw cms::Exception("EnergyScaleCorrection") << "file " << filename << " not readable.";
   }
   
   int runMin, runMax;
@@ -203,7 +198,7 @@ void EnergyScaleCorrection::readSmearingsFromFile(const std::string& filename)
 {
   std::ifstream file(edm::FileInPath(filename).fullPath().c_str());
   if(!file.good()) {
-    throw cms::Exception("EnergyScaleCorrection") << "[ERROR] file " << filename << " not readable";
+    throw cms::Exception("EnergyScaleCorrection") << "file " << filename << " not readable";
   }
   
   int runMin = 0;

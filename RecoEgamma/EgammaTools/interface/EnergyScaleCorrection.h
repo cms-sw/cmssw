@@ -86,10 +86,10 @@ public:
    
    
     float sigma(const float et,const float nrSigmaRho=0.,const float nrSigmaPhi=0.)const{
-      const double rhoVal = rho_ + rhoErr_ * nrSigmaRho;
-      const double phiVal = phi_ + phiErr_ * nrSigmaPhi;
-      const double constTerm =  rhoVal * std::sin(phiVal);
-      const double alpha =  rhoVal *  eMean_ * std::cos(phiVal);
+      const float rhoVal = rho_ + rhoErr_ * nrSigmaRho;
+      const float phiVal = phi_ + phiErr_ * nrSigmaPhi;
+      const float constTerm =  rhoVal * std::sin(phiVal);
+      const float alpha =  rhoVal *  eMean_ * std::cos(phiVal);
       return std::sqrt(constTerm * constTerm + alpha * alpha / et);
     }
   private:
