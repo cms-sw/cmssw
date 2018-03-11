@@ -1,7 +1,9 @@
 #include "RecoEgamma/EgammaTools/interface/EpCombinationTool.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
@@ -20,7 +22,20 @@ EpCombinationTool::EpCombinationTool(const edm::ParameterSet& iConfig):
 {
 
 }
-  
+
+edm::ParameterSetDescription EpCombinationTool::makePSetDescription()
+{
+  edm::ParameterSetDescription desc;
+  desc.add<edm::ParameterSetDescription>("ecalTrkRegressionConfig",EgammaRegressionContainer::makePSetDescription());
+  desc.add<edm::ParameterSetDescription>("ecalTrkRegressionUncertConfig",EgammaRegressionContainer::makePSetDescription());
+  desc.add<double>("maxEcalEnergyForComb",200.);
+  desc.add<double>("minEOverPForComb",0.025);
+  desc.add<double>("maxEPDiffInSigmaForComb",15.);
+  desc.add<double>("maxRelTrkMomErrForComb",10.);
+  return desc;
+}
+
+
 void EpCombinationTool::setEventContent(const edm::EventSetup& iSetup)
 {
   ecalTrkEnergyRegress_.setEventContent(iSetup);
@@ -75,8 +90,11 @@ std::pair<float, float> EpCombinationTool::combine(const reco::GsfElectron& ele)
     //why this differs from the defination of corrEcalEnergyErr (it misses the mean) is not clear to me
     //still this is a direct port from EGExtraInfoModifierFromDB, potential bugs and all
     const float ecalSigmaTimesRawEnergy = ecalSigma*(scRawEnergy+esEnergy);
-    const float rawCombEnergy = ( corrEcalEnergy*trkPErr*trkPErr + trkP*ecalSigmaTimesRawEnergy*ecalSigmaTimesRawEnergy ) / ( trkPErr*trkPErr + ecalSigmaTimesRawEnergy*ecalSigmaTimesRawEnergy  );	
-   
+    const float rawCombEnergy = ( corrEcalEnergy*trkPErr*trkPErr +
+				  trkP*ecalSigmaTimesRawEnergy*ecalSigmaTimesRawEnergy ) /
+                                ( trkPErr*trkPErr +
+				  ecalSigmaTimesRawEnergy*ecalSigmaTimesRawEnergy );
+
     return std::make_pair(mean*rawCombEnergy,sigma*rawCombEnergy);
   }else{
     return std::make_pair(corrEcalEnergy, corrEcalEnergyErr);

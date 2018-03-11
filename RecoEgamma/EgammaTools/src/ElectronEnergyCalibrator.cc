@@ -4,7 +4,6 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <CLHEP/Random/RandGaussQ.h>
-#include "RecoEgamma/EgammaTools/interface/EGEnergySysIndex.h"
 
 const EnergyScaleCorrection::ScaleCorrection ElectronEnergyCalibrator::defaultScaleCorr_;
 const EnergyScaleCorrection::SmearCorrection ElectronEnergyCalibrator::defaultSmearCorr_;
@@ -24,7 +23,7 @@ void ElectronEnergyCalibrator::initPrivateRng(TRandom *rnd)
   rng_ = rnd;
 }
 
-std::vector<float> ElectronEnergyCalibrator::
+std::array<float,EGEnergySysIndex::kNrSysErrs> ElectronEnergyCalibrator::
 calibrate(reco::GsfElectron &ele,
 	  const unsigned int runNumber, 
 	  const EcalRecHitCollection *recHits, 
@@ -34,7 +33,7 @@ calibrate(reco::GsfElectron &ele,
   return calibrate(ele,runNumber,recHits,gauss(id),eventType);
 }
 
-std::vector<float> ElectronEnergyCalibrator::
+std::array<float,EGEnergySysIndex::kNrSysErrs> ElectronEnergyCalibrator::
 calibrate(reco::GsfElectron &ele, unsigned int runNumber, 
 	  const EcalRecHitCollection *recHits, 
 	  const float smearNrSigma, 
@@ -44,7 +43,8 @@ calibrate(reco::GsfElectron &ele, unsigned int runNumber,
   const float et = ele.ecalEnergy() / cosh(scEtaAbs);
 
   if (et < minEt_) {
-    std::vector<float> retVal(EGEnergySysIndex::kNrSysErrs,ele.energy());
+    std::array<float,EGEnergySysIndex::kNrSysErrs> retVal;
+    retVal.fill(ele.energy());
     retVal[EGEnergySysIndex::kScaleValue]  = 1.0;
     retVal[EGEnergySysIndex::kSmearValue]  = 0.0;
     retVal[EGEnergySysIndex::kSmearNrSigma] = smearNrSigma;
@@ -72,14 +72,15 @@ calibrate(reco::GsfElectron &ele, unsigned int runNumber,
   if(scaleCorr==nullptr) scaleCorr=&defaultScaleCorr_;
   if(smearCorr==nullptr) smearCorr=&defaultSmearCorr_;
   
-  std::vector<float> uncertainties(EGEnergySysIndex::kNrSysErrs,0.);
+  std::array<float,EGEnergySysIndex::kNrSysErrs> uncertainties{};
   
   uncertainties[EGEnergySysIndex::kScaleValue]  = scaleCorr->scale();
   uncertainties[EGEnergySysIndex::kSmearValue]  = smearCorr->sigma(et); //even though we use scale = 1.0, we still store the value returned for MC
   uncertainties[EGEnergySysIndex::kSmearNrSigma]  = smearNrSigma;
   //MC central values are not scaled (scale = 1.0), data is not smeared (smearNrSigma = 0)
-  //smearing still has a second order effect on data as it enters the E/p combination as an 
-  //extra uncertainty on the calo energy
+  //the smearing (or resolution extra parameter as it might better be called)
+  //still has a second order effect on data as it enters the E/p combination as an adjustment
+  //to the estimate of the resolution contained in caloEnergyError
   //MC gets all the scale systematics
   if(eventType == EventType::DATA){ 
     setEnergyAndSystVarations(scaleCorr->scale(),0.,et,*scaleCorr,*smearCorr,ele,uncertainties);
@@ -96,7 +97,7 @@ setEnergyAndSystVarations(const float scale,const float smearNrSigma,const float
 			  const EnergyScaleCorrection::ScaleCorrection& scaleCorr,
 			  const EnergyScaleCorrection::SmearCorrection& smearCorr,
 			  reco::GsfElectron& ele,
-			  std::vector<float>& energyData)const
+			  std::array<float,EGEnergySysIndex::kNrSysErrs>& energyData)const
 {
  
   const float smear = smearCorr.sigma(et);   
