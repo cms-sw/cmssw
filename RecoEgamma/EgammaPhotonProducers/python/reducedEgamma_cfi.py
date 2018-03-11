@@ -21,30 +21,10 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
   preshowerEcalHits = cms.InputTag("reducedEcalRecHitsES"),
   photonsPFValMap = cms.InputTag("particleBasedIsolation","gedPhotons"),
   gsfElectronsPFValMap = cms.InputTag("particleBasedIsolation","gedGsfElectrons"),
-  photonIDSources = cms.VInputTag(
-    cms.InputTag("PhotonIDProdGED","PhotonCutBasedIDLoose"),
-    cms.InputTag("PhotonIDProdGED","PhotonCutBasedIDLooseEM"),    
-    cms.InputTag("PhotonIDProdGED","PhotonCutBasedIDTight")
-  ),
-  photonIDOutput = cms.vstring(
-    "PhotonCutBasedIDLoose",
-    "PhotonCutBasedIDLooseEM",
-    "PhotonCutBasedIDTight",
-  ),
-  gsfElectronIDSources = cms.VInputTag(
-    cms.InputTag("eidLoose"),
-    cms.InputTag("eidRobustHighEnergy"),
-    cms.InputTag("eidRobustLoose"),
-    cms.InputTag("eidRobustTight"),
-    cms.InputTag("eidTight"),
-  ),
-  gsfElectronIDOutput = cms.vstring(
-    "eidLoose",
-    "eidRobustHighEnergy",
-    "eidRobustLoose",
-    "eidRobustTight",
-    "eidTight",
-    ),
+  photonIDSources = cms.VInputTag(),
+  photonIDOutput = cms.vstring(),
+  gsfElectronIDSources = cms.VInputTag(),
+  gsfElectronIDOutput = cms.vstring(),
   photonPFClusterIsoSources = cms.VInputTag(
         cms.InputTag("photonEcalPFClusterIsolationProducer"),
         cms.InputTag("photonHcalPFClusterIsolationProducer"),
@@ -68,8 +48,19 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
   gsfElectronPFClusterIsoOutput = cms.vstring(
         "eleEcalPFClusIso",
         "eleHcalPFClusIso",
-  ),
+  ), 
+  applyPhotonCalibOnData = cms.bool(False),
+  applyPhotonCalibOnMC = cms.bool(False),
+  applyGsfElectronCalibOnData = cms.bool(False),
+  applyGsfElectronCalibOnMC = cms.bool(False), 
+  photonCalibEnergySource = cms.InputTag(""),
+  photonCalibEnergyErrSource = cms.InputTag(""),
+  gsfElectronCalibEnergySource = cms.InputTag(""),
+  gsfElectronCalibEnergyErrSource = cms.InputTag(""),
+  gsfElectronCalibEcalEnergySource = cms.InputTag(""),
+  gsfElectronCalibEcalEnergyErrSource = cms.InputTag("")
 )
+
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(reducedEgamma, 
