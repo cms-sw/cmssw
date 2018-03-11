@@ -19,6 +19,7 @@ tpTask = DQMEDAnalyzer(
 	#	tags
 	tagData = cms.untracked.InputTag("hcalDigis"),
 	tagEmul = cms.untracked.InputTag("emulTPDigis"),
+	tagEmulNoTDCCut = cms.untracked.InputTag("emulTPDigisNoTDCCut"),
 
 	#	cut to put on Et to get the occupancy
 	cutEt = cms.untracked.int32(3),
