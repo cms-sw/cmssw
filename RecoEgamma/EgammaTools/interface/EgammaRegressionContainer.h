@@ -10,13 +10,13 @@
 //  currently e/gamma also can optionally force saturated electrons
 //  to always be in the high et training
 
-
 #include "RecoEgamma/EgammaTools/interface/EgammaBDTOutputTransformer.h"
 
 #include <string>
 
 namespace edm{
   class ParameterSet;
+  class ParameterSetDescription;
   class EventSetup;
 }
 class GBRForestD;
@@ -26,6 +26,8 @@ public:
   
   EgammaRegressionContainer(const edm::ParameterSet& iConfig);
   ~EgammaRegressionContainer(){}
+
+  static edm::ParameterSetDescription makePSetDescription();
 
   void setEventContent(const edm::EventSetup& iSetup);  
 

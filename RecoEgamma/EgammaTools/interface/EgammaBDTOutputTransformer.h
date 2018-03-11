@@ -12,18 +12,14 @@ class EgammaBDTOutputTransformer {
 
 public:  
   EgammaBDTOutputTransformer(const double limitLow,const double limitHigh):
-    limitLow_(limitLow),
-    limitHigh_(limitHigh),
-    offset_(limitLow_ + 0.5*(limitHigh_-limitLow_)),
-    scale_(0.5*(limitHigh_-limitLow_)){}
+    offset_(limitLow + 0.5*(limitHigh-limitLow)),
+    scale_(0.5*(limitHigh-limitLow)){}
 
   double operator()(const double rawVal)const{return offset_ + scale_*vdt::fast_sin(rawVal);}
  
 private:
-  double limitLow_;
-  double limitHigh_;
-  double offset_;
-  double scale_;
+  const double offset_;
+  const double scale_;
 };
 
 
