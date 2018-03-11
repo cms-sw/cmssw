@@ -5,8 +5,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 
-//#define DEBUG
-
 // MessageLogger
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -47,23 +45,11 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
 					   const SiPixel2DTemplateDBObject * templateDBobject2D )
 : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, nullptr, templateDBobject, nullptr,1)
 {
-   //cout << endl;
-   //cout << "Constructing PixelCPEClusterRepair::PixelCPEClusterRepair(...)................................................." << endl;
-   //cout << endl;
-   
-   // Configurable parameters
-   //DoCosmics_ = conf.getParameter<bool>("DoCosmics"); // Not used in templates
-   //LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB"); // Moved to Base
-   
-   //cout << " PixelCPEClusterRepair : (int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
-   //cout << "field_magnitude = " << field_magnitude << endl;
-   
-   // configuration parameter to decide between DB or text file template access
-   
+   LogDebug("PixelCPEClusterRepair::(constructor)") << endl;
+
+   //--- Parameter to decide between DB or text file template access
    if ( LoadTemplatesFromDB_ )
    {
-      //cout << "PixelCPEClusterRepair: Loading templates from database (DB) --------- " << endl;
-      
       // Initialize template store to the selected ID [Morris, 6/25/08]
       if ( !SiPixelTemplate::pushfile( *templateDBobject_, thePixelTemp_) )
          throw cms::Exception("PixelCPEClusterRepair")
@@ -78,7 +64,7 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const & conf,
    }
    else
    {
-      //cout << "PixelCPEClusterRepair : Loading templates for barrel and forward from ASCII files ----------" << endl;
+      LogDebug("PixelCPEClusterRepair") << "Loading templates for barrel and forward from ASCII files." << endl;
       //--- (Archaic) Get configurable template IDs.  This code executes only if we loading pixels from ASCII
       //    files, and then they are mandatory.
       barrelTemplateID_  = conf.getParameter<int>( "barrelTemplateID" );
@@ -239,7 +225,7 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
       // &&& Do we ever get pixels that are out of bounds ???  Need to check.
       if ( (irow<mrow) & (icol<mcol) ) clustMatrix[irow][icol] =  float(pix.adc);
    }
-   // fillClustMatrix( float * clustMatrix );
+   // &&& Save for later: fillClustMatrix( float * clustMatrix );
 
    //--- Save a copy of clustMatrix into clustMatrix2
    memcpy( clustMatrix2, clustMatrix, sizeof(float)*mrow*mcol);
@@ -348,7 +334,7 @@ PixelCPEClusterRepair::callTempReco2D( DetParam const & theDetParam,
          lorentz_drift = 60.0f; // in microns
       else
          lorentz_drift = 10.0f; // in microns
-      // ggiurgiu@jhu.edu, 21/09/2010 : trk angles needed to correct for bows/kinks
+      // GG: trk angles needed to correct for bows/kinks
       if ( theClusterParam.with_track_angle )
       {
          theClusterParam.templXrec_ = theDetParam.theTopol->localX( theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
@@ -428,13 +414,21 @@ PixelCPEClusterRepair::callTempReco3D( DetParam const & theDetParam,
    //   deltay - (output) template y-length - cluster length [when > 0, possibly missing end]
    //   npixels - ???     &&& Ask Morris
 
-   float deltay = 0;
-   int npixels = 0;
+   float edgeTypeY = theClusterParam.edgeTypeY_ ;  // the default, from PixelCPEBase
+   if ( theClusterParam.recommended3D_ ) {
+     //  Cluster is not on edge, but instead the normal TemplateReco discovered that it is
+     //  shorter than expected.  So let the 3D algorithm try extending it on both sides, in case
+     //  there is a dead double-column on either side.  (We don't know which.)
+     edgeTypeY = 3;
+   }
+
+   float deltay = 0;    // return param
+   int npixels = 0;     // return param
 
    theClusterParam.ierr2 =
    PixelTempReco3D( ID, theClusterParam.cotalpha, theClusterParam.cotbeta,
                    locBz, locBx,
-		   theClusterParam.edgeTypeY_ , theClusterParam.edgeTypeX_ ,
+		   edgeTypeY , theClusterParam.edgeTypeX_ ,
                    clusterPayload,
                    templ2d,
                    theClusterParam.templYrec_, theClusterParam.templSigmaY_, 
@@ -452,7 +446,7 @@ PixelCPEClusterRepair::callTempReco3D( DetParam const & theDetParam,
       LogDebug("PixelCPEClusterRepair::localPosition") <<
       "3D reconstruction failed with error " << theClusterParam.ierr2 << "\n";
       
-      // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
+      // GG: what do we do in this case?  For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift average correction
       // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
       float lorentz_drift = -999.9;
@@ -460,7 +454,7 @@ PixelCPEClusterRepair::callTempReco3D( DetParam const & theDetParam,
          lorentz_drift = 60.0f; // in microns
       else
          lorentz_drift = 10.0f; // in microns
-      // ggiurgiu@jhu.edu, 21/09/2010 : trk angles needed to correct for bows/kinks
+      // GG: trk angles needed to correct for bows/kinks
       if ( theClusterParam.with_track_angle )
       {
          theClusterParam.templXrec_ = theDetParam.theTopol->localX( theClusterParam.theCluster->x(), theClusterParam.loc_trk_pred ) - lorentz_drift * micronsToCm; // rough Lorentz drift correction
@@ -504,16 +498,8 @@ PixelCPEClusterRepair::localError(DetParam const & theDetParam,  ClusterParam & 
    
    ClusterParamTemplate & theClusterParam = static_cast<ClusterParamTemplate &>(theClusterParamBase);
    
-   //cout << endl;
-   //cout << "Set PixelCPETemplate errors .............................................." << endl;
-   
-   //cout << "CPETemplate : " << endl;
-   
    //--- Default is the maximum error used for edge clusters.
    //--- (never used, in fact: let comment it out, shut up the complains of the static analyzer, and save a few CPU cycles)
-   //   const float sig12 = 1./sqrt(12.0);
-   //   float xerr = theDetParam.thePitchX *sig12;
-   //   float yerr = theDetParam.thePitchY *sig12;
    float xerr = 0.0f, yerr = 0.0f;
    
    // Check if the errors were already set at the clusters splitting level
@@ -522,32 +508,15 @@ PixelCPEClusterRepair::localError(DetParam const & theDetParam,  ClusterParam & 
    {
       xerr = theClusterParam.theCluster->getSplitClusterErrorX() * micronsToCm;
       yerr = theClusterParam.theCluster->getSplitClusterErrorY() * micronsToCm;
-      
-      //cout << "Errors set at cluster splitting level : " << endl;
-      //cout << "xerr = " << xerr << endl;
-      //cout << "yerr = " << yerr << endl;
    }
    else
    {
-      // &&& Duplicate from above! Argh!
-      int maxPixelCol = theClusterParam.theCluster->maxPixelCol();
-      int maxPixelRow = theClusterParam.theCluster->maxPixelRow();
-      int minPixelCol = theClusterParam.theCluster->minPixelCol();
-      int minPixelRow = theClusterParam.theCluster->minPixelRow();
-      
-      //--- Are we near either of the edges?
-      bool edgex = ( theDetParam.theRecTopol->isItEdgePixelInX( minPixelRow ) || theDetParam.theRecTopol->isItEdgePixelInX( maxPixelRow ) );
-      bool edgey = ( theDetParam.theRecTopol->isItEdgePixelInY( minPixelCol ) || theDetParam.theRecTopol->isItEdgePixelInY( maxPixelCol ) );
-      
-
       //--- Check status of both template calls.
       if ( (theClusterParam.ierr !=0) || (theClusterParam.ierr2 !=0) )   
       {
          // If reconstruction fails the hit position is calculated from cluster center of gravity
          // corrected in x by average Lorentz drift. Assign huge errors.
-         //xerr = 10.0 * (float)theClusterParam.theCluster->sizeX() * xerr;
-         //yerr = 10.0 * (float)theClusterParam.theCluster->sizeX() * yerr;
-         
+	 //
          if(!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
             throw cms::Exception("PixelCPEClusterRepair::localPosition :")
             << "A non-pixel detector type in here?";
@@ -563,11 +532,6 @@ PixelCPEClusterRepair::localError(DetParam const & theDetParam,  ClusterParam & 
             xerr = 42.0f * micronsToCm;
             yerr = 39.0f * micronsToCm;
          }
-         
-         //cout << "xerr = " << xerr << endl;
-         //cout << "yerr = " << yerr << endl;
-         
-         //return LocalError(xerr*xerr, 0, yerr*yerr);
       }
       else if ( theClusterParam.edgeTypeX_ || theClusterParam.edgeTypeY_ )
       {
@@ -597,14 +561,14 @@ PixelCPEClusterRepair::localError(DetParam const & theDetParam,  ClusterParam & 
          // &&& nonsense (another class static) if the template fit failed.
       }       
       
-      //cout << "xerr = " << xerr << endl;
-      //cout << "yerr = " << yerr << endl;
-
       if (theVerboseLevel > 9) 
       {
-         LogDebug("PixelCPEClusterRepair") <<
-         " Sizex = " << theClusterParam.theCluster->sizeX() << " Sizey = " << theClusterParam.theCluster->sizeY() << " Edgex = " << edgex << " Edgey = " << edgey << 
-         " ErrX  = " << xerr            << " ErrY  = " << yerr;
+         LogDebug("PixelCPEClusterRepair") 
+	   << " Sizex = " << theClusterParam.theCluster->sizeX() 
+	   << " Sizey = " << theClusterParam.theCluster->sizeY() 
+           << " Edgex = " << theClusterParam.edgeTypeX_ 
+           << " Edgey = " << theClusterParam.edgeTypeY_ 
+	   << " ErrX  = " << xerr << " ErrY  = " << yerr;
       }
       
    } // else
@@ -616,12 +580,6 @@ PixelCPEClusterRepair::localError(DetParam const & theDetParam,  ClusterParam & 
    if ( !(yerr > 0.0f) )
       throw cms::Exception("PixelCPEClusterRepair::localError") 
       << "\nERROR: Negative pixel error yerr = " << yerr << "\n\n";
-   
-   //cout << "Final errors set to: " << endl;
-   //cout << "xerr = " << xerr << endl;
-   //cout << "yerr = " << yerr << endl;
-   //cout << "Out of PixelCPETemplateREco..........................................................................." << endl;
-   //cout << endl;
    
    return LocalError(xerr*xerr, 0, yerr*yerr);
 }

@@ -8,6 +8,7 @@
 //--- The CPE ES Producers
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEGenericESProducer.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateRecoESProducer.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEClusterRepairESProducer.h"
 //---- The RecHit ED producer
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelRecHitConverter.h"
 //--- The header files for the Framework infrastructure (macros etc):
