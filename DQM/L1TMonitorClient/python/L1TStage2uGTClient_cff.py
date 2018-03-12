@@ -30,6 +30,8 @@ dqmRatioTimingPlots = DQMEDHarvester("DQMGenericClient",
     resolution = cms.vstring(),
     outputFileName = cms.untracked.string(""),
     verbose = cms.untracked.uint32(0),
+    runOnEndLumi = cms.untracked.bool(True),
+    makeGlobalEffienciesPlot = cms.untracked.bool(False)
 )
     
 
