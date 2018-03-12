@@ -3,6 +3,7 @@
 
 #include "DQM/HcalCommon/interface/DQClient.h"
 #include "DQM/HcalCommon/interface/ElectronicsMap.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 namespace hcaldqm
 {
@@ -37,6 +38,8 @@ namespace hcaldqm
 
 			ContainerXXX<uint32_t> _xDead, _xDigiSize, _xUniHF,
 				_xUni, _xNChs, _xNChsNominal;
+
+			std::map<HcalSubdetector, uint32_t> _refDigiSize;
 
 			//	flag enum
 			enum DigiLSFlag
