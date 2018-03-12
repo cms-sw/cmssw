@@ -203,7 +203,6 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 	  builder != builders_.end(); ++builder) {
       // Get a ptr_vector of taus from the builder
       reco::tau::RecoTauBuilderPlugin::output_type taus((*builder)(jetRef, chargedHadrons, piZeros, uniqueRegionalCands));
-      // JAN - convert reco::Jet ref to PFJet ref (only in direct interaction with PFTau)
 
       // Make sure all taus have their jetref set correctly
       std::for_each(taus.begin(), taus.end(), boost::bind(&reco::PFTau::setjetRef, _1, reco::JetBaseRef(jetRef)));
