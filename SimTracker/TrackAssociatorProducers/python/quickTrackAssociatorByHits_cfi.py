@@ -23,15 +23,8 @@ fastSim.toModify(quickTrackAssociatorByHits,
     useClusterTPAssociation = False
 )
 
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify( 
-    quickTrackAssociatorByHits,
-    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel"),
-    stripSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
-)
-
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-premix_stage2.toModify(quickTrackAssociatorByHits,
+(fastSim & premix_stage2).toModify(quickTrackAssociatorByHits,
     pixelSimLinkSrc = "mixData:PixelDigiSimLink",
     stripSimLinkSrc = "mixData:StripDigiSimLink",
 )
