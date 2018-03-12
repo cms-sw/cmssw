@@ -9,6 +9,8 @@ cmsRun ${LOCAL_TEST_DIR}/PrePoolInputTest_cfg.py PoolInputTest.root 11 561 7 6 3
 cp PoolInputTest.root PoolInputOther.root
 
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolInputTest_cfg.py || die 'Failure using PoolInputTest_cfg.py' $?
+cmsRun  ${LOCAL_TEST_DIR}/PoolInputTest_noDelay_cfg.py >& ${LOCAL_TMP_DIR}/PoolInputTest_noDelay_cfg.txt || die 'Failure using PoolInputTest_noDelay_cfg.py' $?
+grep 'event delayed read from source' ${LOCAL_TMP_DIR}/PoolInputTest_noDelay_cfg.txt && die 'Failure in PoolInputTest_noDelay_cfg.py, found delay reads from source' 1
 
 cmsRun ${LOCAL_TEST_DIR}/PrePool2FileInputTest_cfg.py || die 'Failure using PrePool2FileInputTest_cfg.py' $?
 cmsRun ${LOCAL_TEST_DIR}/Pool2FileInputTest_cfg.py || die 'Failure using Pool2FileInputTest_cfg.py' $?
@@ -110,3 +112,4 @@ cmsRun ${LOCAL_TEST_DIR}/test_make_overlapping_lumis_cfg.py || die 'Failure usin
 cmsRun ${LOCAL_TEST_DIR}/test_read_overlapping_lumis_cfg.py || die 'Failure using test_read_overlapping_lumis_cfg.py' $?
 
 popd
+exit 0
