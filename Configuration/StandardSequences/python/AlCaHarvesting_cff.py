@@ -7,6 +7,8 @@ from Calibration.TkAlCaRecoProducers.AlcaSiStripGainsHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripGainsAAGHarvester_cff import *
 from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvester_cff import *
 from Calibration.EcalCalibAlgos.AlcaEcalPedestalsHarvester_cff import *
+from Calibration.LumiAlCaRecoProducers.AlcaLumiPCCHarvester_cff import *
+
 
 from Calibration.TkAlCaRecoProducers.PCLMetadataWriter_cfi import *
 
@@ -129,6 +131,16 @@ ALCAHARVESTEcalPedestals_dbOutput = cms.PSet(record = cms.string('EcalPedestalsR
                                              timetype   = cms.untracked.string('runnumber')
                                              )
 
+# --------------------------------------------------------------------------------------
+# Lumi PCC
+ALCAHARVESTLumiPCC_metadata = cms.PSet(record = cms.untracked.string('LumiCorrectionsRcd'))
+
+ALCAHARVESTLumiPCC_dbOutput = cms.PSet(record = cms.string('LumiCorrectionsRcd'),
+                                             tag = cms.string('LumiPCCCorrections_pcl'),
+                                             timetype   = cms.untracked.string('lumiid')
+                                             )
+
+
 
 # define all the paths
 BeamSpotByRun  = cms.Path(ALCAHARVESTBeamSpotByRun)
@@ -140,6 +152,7 @@ SiStripGains   = cms.Path(ALCAHARVESTSiStripGains)
 SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)
 EcalPedestals  = cms.Path(ALCAHARVESTEcalPedestals)
 SiStripGainsAAG = cms.Path(ALCAHARVESTSiStripGainsAAG)
+LumiPCC = cms.Path(ALCAHARVESTLumiPCC)
 
 ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(dqmSaver+pclMetadataWriter)
 
