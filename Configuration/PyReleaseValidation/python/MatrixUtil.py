@@ -118,11 +118,11 @@ class InputInfo(object):
             # take at most 5 queries, to avoid sinking das
 
             # do  if you have LS queries
-            # command = ";".join(["das_client.py %s --query '%s'" % (das_options, query) for query in self.queries()[:3] ])
-            command = ";".join(["das_client %s --query '%s'" % (das_options, query) for query in self.queries()[:3] ])
+            # command = ";".join(["dasgoclient.py %s --query '%s'" % (das_options, query) for query in self.queries()[:3] ])
+            command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in self.queries()[:3] ])
             command = "({0})".format(command)
         else:
-            command = "das_client %s --query '%s'" % (das_options, self.queries()[0])
+            command = "dasgoclient %s --query '%s'" % (das_options, self.queries()[0])
        
         # Run filter on DAS output 
         if self.ib_blacklist:
