@@ -6,7 +6,7 @@
  *
  */
 #include "PhysicsTools/CandUtils/interface/NamedCandCombinerBase.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "PhysicsTools/CandUtils/interface/CandSelector.h"
 #include "CommonTools/UtilAlgos/interface/AnyPairSelector.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"

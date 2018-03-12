@@ -1,7 +1,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "PhysicsTools/CandUtils/interface/makeCompositeCandidate.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 using namespace reco;
 using namespace std;
 
