@@ -7,4 +7,5 @@ l1tStage2CaloLayer1 = cms.EDAnalyzer("L1TStage2CaloLayer1",
     hcalTPSourceSent = cms.InputTag("hcalDigis"),
     fedRawDataLabel  = cms.InputTag("rawDataCollector"),
     histFolder = cms.string('L1T/L1TStage2CaloLayer1'),
+    ignoreHFfb2 = cms.untracked.bool(False),
 )
