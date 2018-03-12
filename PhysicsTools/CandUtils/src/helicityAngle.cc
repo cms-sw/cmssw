@@ -1,6 +1,6 @@
 #include "PhysicsTools/CandUtils/interface/helicityAngle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "PhysicsTools/CandUtils/interface/Booster.h"
+#include "CommonTools/CandUtils/interface/Booster.h"
 #include <Math/VectorUtil.h>
 using namespace reco;
 using namespace std;
