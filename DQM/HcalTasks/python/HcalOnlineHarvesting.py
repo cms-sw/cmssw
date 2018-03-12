@@ -12,5 +12,5 @@ hcalOnlineHarvesting = DQMEDHarvester(
 	ptype = cms.untracked.int32(0),
 	mtype = cms.untracked.bool(True),
 	subsystem = cms.untracked.string("Hcal"),
-	refDigiSize = DigiTask.refDigiSize,
+	refDigiSize = digiTask.refDigiSize,
 )
