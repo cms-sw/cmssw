@@ -34,6 +34,8 @@ namespace {
 
   inline const reco::TrackBaseRef getTrackRef(const Candidate& cand)
   {
+    // TauReco@MiniAOD: This version does not work on top of MiniAOD, however,
+    // it is only used for non-default track-vertex associations
     const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
     if (pfCandPtr != nullptr) {
       if      ( pfCandPtr->trackRef().isNonnull()    ) return reco::TrackBaseRef(pfCandPtr->trackRef());
@@ -41,9 +43,6 @@ namespace {
       else return reco::TrackBaseRef();
     }
     
-    // FIXME - JAN - should put an error message somewhere that we use an algo that 
-    // is not supported for PackedCandidates
-
     return reco::TrackBaseRef();
   }
 }
