@@ -29,13 +29,13 @@ digiTask = DQMEDAnalyzer(
 	qie10InConditions = cms.untracked.bool(False),
 
 	# Reference digi sizes
-	refDigiSize = cms.untracked.vint32(10, 10, 10, 4), # HB, HE, HF, HO
+	refDigiSize = cms.untracked.vuint32(10, 10, 10, 4), # HB, HE, HF, HO
 )
 
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
 run2_HF_2017.toModify(digiTask, qie10InConditions=cms.untracked.bool(True))
-run2_HF_2017.toModify(digiTask, refDigiSize=cms.untracked.vint32(10, 10, 10, 3))
+run2_HF_2017.toModify(digiTask, refDigiSize=cms.untracked.vuint32(10, 10, 10, 3))
 
 from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
 run2_HCAL_2018.toModify(digiTask, qie10InConditions=cms.untracked.bool(True))
-run2_HCAL_2018.toModify(digiTask, refDigiSize=cms.untracked.vint32(8, 8, 10, 3))
+run2_HCAL_2018.toModify(digiTask, refDigiSize=cms.untracked.vuint32(8, 8, 10, 3))
