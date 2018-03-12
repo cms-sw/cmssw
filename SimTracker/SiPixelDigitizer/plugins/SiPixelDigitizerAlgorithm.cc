@@ -133,16 +133,16 @@ void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
   if (UseTemplateAgeing){
     edm::ESHandle<SiPixel2DTemplateDBObject> SiPixel2DTemp_den;
     es.get<SiPixel2DTemplateDBObjectRcd>().get("denominator",SiPixel2DTemp_den);
-    SiPixel2DTemplateDBObject dbobject_den = *SiPixel2DTemp_den.product();
+    dbobject_den = SiPixel2DTemp_den.product();
     
     edm::ESHandle<SiPixel2DTemplateDBObject> SiPixel2DTemp_num;
     es.get<SiPixel2DTemplateDBObjectRcd>().get("numerator",SiPixel2DTemp_num);
-    SiPixel2DTemplateDBObject dbobject_num = *SiPixel2DTemp_num.product();
+    dbobject_num = SiPixel2DTemp_num.product();
     
-    int numOfTemplates = dbobject_den.numOfTempl()+dbobject_num.numOfTempl();
+    int numOfTemplates = dbobject_den->numOfTempl()+dbobject_num->numOfTempl();
     templateStores_.reserve(numOfTemplates);
-    SiPixelTemplate2D::pushfile(dbobject_den, templateStores_);
-    SiPixelTemplate2D::pushfile(dbobject_num, templateStores_);
+    SiPixelTemplate2D::pushfile(*dbobject_den, templateStores_);
+    SiPixelTemplate2D::pushfile(*dbobject_num, templateStores_);
     
     track.reserve(6);
   }
@@ -1269,14 +1269,14 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
 #endif
      }
    }else if ((UseTemplateAgeing) && (hit.processType() == 0)) {
-     hitSignalReweight (hit, hit_signal, hitIndex, tofBin, topol, theSignal);
+     hitSignalReweight (hit, hit_signal, hitIndex, tofBin, topol, detID, theSignal);
    }else{
      if (std::abs(hit.particleType()) == 11){ //we are looking for delta rays here which remain in sensor    
        for (std::vector<PSimHit>::const_iterator ibegin = inputBegin; ibegin != inputEnd; ++ibegin) {
 	 // we want to match the actual secondary hit with its parent primary hit      
 	 //when its done, we use its position and direction later instead of the actual secondary hits information
 	 if ( (hit.trackId() == (*ibegin).trackId())&&((*ibegin).processType() == 0) ){
-	   hitSignalReweight ((*ibegin), hit_signal, hitIndex, tofBin, topol, theSignal);
+	   hitSignalReweight ((*ibegin), hit_signal, hitIndex, tofBin, topol, detID, theSignal);
 	 }
        }
      }
@@ -2010,6 +2010,7 @@ void SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
 						  const size_t hitIndex,
 						  const unsigned int tofBin,
 						  const PixelTopology* topol,
+						  uint32_t detID,
 						  signal_map_type& theSignal){
 
   int irow_min = topol->nrows();
@@ -2130,7 +2131,11 @@ void SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
   // for unirradiated: 2nd argument is IDden
   // for irradiated: 2nd argument is IDnum
   if (UseTemplateAgeing == true){
-    ierr = PixelTempRewgt2D(IDden, IDnum, pixrewgt);
+    int ID1 = dbobject_num->getTemplateID(detID);
+    int ID0 = dbobject_den->getTemplateID(detID);
+    std::cout << "IDs: " << ID0 << " " << ID1 << std::endl;
+    //ierr = PixelTempRewgt2D(IDden, IDnum, pixrewgt);
+    ierr = PixelTempRewgt2D(ID0, ID1, pixrewgt);
   }
   else{
     ierr = PixelTempRewgt2D(IDden, IDden, pixrewgt);
