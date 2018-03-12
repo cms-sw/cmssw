@@ -46,6 +46,10 @@ runTest "${LOCAL_TEST_DIR}/RunExpressProcessing.py --scenario AlCaTestEnable --g
 runTest "${LOCAL_TEST_DIR}/RunAlcaSkimming.py --scenario AlCaTestEnable --lfn=/store/whatever --global-tag GLOBALTAG --skims PromptCalibProdEcalPedestals"
 runTest "${LOCAL_TEST_DIR}/RunAlcaHarvesting.py --scenario AlCaTestEnable --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG --alcapromptdataset=PromptCalibProdEcalPedestals"
 
+runTest "${LOCAL_TEST_DIR}/RunExpressProcessing.py --scenario AlCaLumiPixels --global-tag GLOBALTAG --lfn /store/whatever --alcareco AlCaPCCRandom+PromptCalibProdLumiPCC"
+runTest "${LOCAL_TEST_DIR}/RunAlcaSkimming.py --scenario AlCaLumiPixels --lfn=/store/whatever --global-tag GLOBALTAG --skims AlCaPCCRandom+PromptCalibProdLumiPCC"
+runTest "${LOCAL_TEST_DIR}/RunAlcaHarvesting.py --scenario AlCaLumiPixels --lfn /store/whatever --dataset /A/B/C --global-tag GLOBALTAG --alcapromptdataset=PromptCalibProdLumiPCC"
+
 declare -a arr=("trackingOnlyEra_Run2_2017" "trackingOnlyEra_Run2_2018")
 for scenario in "${arr[@]}"
 do
