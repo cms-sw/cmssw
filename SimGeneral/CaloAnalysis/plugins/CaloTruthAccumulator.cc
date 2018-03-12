@@ -23,7 +23,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -124,7 +124,7 @@ using DecayChain = adjacency_list<listS, vecS, directedS, VertexMotherParticlePr
 class CaloTruthAccumulator : public DigiAccumulatorMixMod {
  public:
   explicit CaloTruthAccumulator(const edm::ParameterSet& config,
-      edm::stream::EDProducerBase& mixMod,
+      edm::ProducerBase& mixMod,
       edm::ConsumesCollector& iC);
 
  private:
@@ -361,7 +361,7 @@ class CaloParticle_dfs_visitor : public boost::default_dfs_visitor {
 }
 
 CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet& config,
-                                                             edm::stream::EDProducerBase& mixMod,
+                                                             edm::ProducerBase& mixMod,
                                                              edm::ConsumesCollector& iC)
     : messageCategory_("CaloTruthAccumulator"),
       maximumPreviousBunchCrossing_(
