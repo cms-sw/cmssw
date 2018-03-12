@@ -304,6 +304,9 @@ class SiPixelDigitizerAlgorithm  {
 
     std::vector<SiPixelTemplateStore2D> templateStores_;
 
+    const SiPixel2DTemplateDBObject * dbobject_den;
+    const SiPixel2DTemplateDBObject * dbobject_num;
+
  private:
 
 
@@ -459,6 +462,7 @@ class SiPixelDigitizerAlgorithm  {
 			   const size_t hitIndex,
 			   const unsigned int tofBin,
 			   const PixelTopology* topol,
+			   uint32_t detID,
 			   signal_map_type& theSignal);
     void printCluster(array_2d& cluster);
     void printCluster(float arr[BXM2][BYM2]);
