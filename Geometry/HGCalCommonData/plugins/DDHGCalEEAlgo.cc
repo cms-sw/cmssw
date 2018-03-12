@@ -126,8 +126,8 @@ void DDHGCalEEAlgo::execute(DDCompactView& cpv) {
   
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "==>> Constructing DDHGCalEEAlgo...";
-#endif
   copies_.clear();
+#endif
   constructLayers (parent(), cpv);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << copies_.size() 
@@ -137,9 +137,7 @@ void DDHGCalEEAlgo::execute(DDCompactView& cpv) {
        itr != copies_.end(); ++itr,++k) {
     edm::LogVerbatim("HGCalGeom") << "Copy [" << k << "] : " << (*itr);
   }
-#endif
   copies_.clear();
-#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "<<== End of DDHGCalEEAlgo construction...";
 #endif
 }
@@ -163,9 +161,10 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
     for (int ly=laymin; ly<laymax; ++ly) {
       int     ii     = layerType_[ly];
       int     copy   = copyNumber_[ii];
+      double  hthick = 0.5*thick_[ii];
       double  rinB   = (layerSense_[ly] == 0) ? (zo*slopeB_[0]) :
 	(zo*slopeB_[1]);
-      zz            += (0.5*thick_[ii]);
+      zz            += hthick;
       thickTot      += thick_[ii];
 
       std::string name = "HGCal"+names_[ii]+std::to_string(copy);
@@ -183,9 +182,9 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
       if (layerSense_[ly] == 0) {
 	double alpha = CLHEP::pi/sectors_;
 	double rmax  = routF*cos(alpha) - tol;
-	pgonZ[0]    =-0.5*thick_[ii];  pgonZ[1]    = 0.5*thick_[ii];
-	pgonRin[0]  = rinB;            pgonRin[1]  = rinB;   
-	pgonRout[0] = rmax;            pgonRout[1] = rmax;   
+	pgonZ[0]    =-hthick;  pgonZ[1]    = hthick;
+	pgonRin[0]  = rinB;    pgonRin[1]  = rinB;   
+	pgonRout[0] = rmax;    pgonRout[1] = rmax;   
 	DDSolid solid = DDSolidFactory::polyhedra(DDName(name, nameSpace_),
 						  sectors_,-alpha,CLHEP::twopi,
 						  pgonZ, pgonRin, pgonRout);
@@ -206,14 +205,14 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
 #endif
       } else {
 	DDSolid solid = DDSolidFactory::tubs(DDName(name, nameSpace_), 
-					     0.5*thick_[ii], rinB, routF, 0.0,
+					     hthick, rinB, routF, 0.0,
 					     CLHEP::twopi);
 	glog = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
 	edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << solid.name() 
 				      << " Tubs made of " << matName << ":"
 				      << &matter << " of dimensions " << rinB 
-				      << ", " << routF << ", " <<0.5*thick_[ii]
+				      << ", " << routF << ", " << hthick
 				      << ", 0.0, " << CLHEP::twopi/CLHEP::deg
 				      << " and position " << glog.name() 
 				      << " number " << copy;
@@ -230,7 +229,7 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
 				    << module.name() << " at " << r1 
 				    << " with " << rot;
 #endif
-      zz += (0.5*thick_[ii]);
+      zz += hthick;
     } // End of loop over layers in a block
     zi     = zo;
     laymin = laymax;
@@ -275,10 +274,10 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
   double R    = 2.0*r/sqrt3;
   double dy   = 0.75*R;
   int    N    = (int)(0.5*rout/r) + 2;
-  int    ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
-  std::vector<int>  ntype(6,0);
   double xc[6], yc[6];
 #ifdef EDM_ML_DEBUG
+  int    ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
+  std::vector<int>  ntype(6,0);
   edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.ddname() 
 				<< " rout " << rout << " N " 
 				<< N << " for maximum u, v";
@@ -303,29 +302,35 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
 	if (rpos >= rin && rpos <= rout) cornerOne = true;
 	else                             cornerAll = false;
       }
+#ifdef EDM_ML_DEBUG
       ++ntot;
+#endif
       if (cornerOne) {
 	int copy = iv*100 + iu;
 	if (u < 0) copy += 10000;
 	if (v < 0) copy += 100000;
+#ifdef EDM_ML_DEBUG
 	if (iu > ium) ium = iu;
 	if (iv > ivm) ivm = iv;
 	kount++;
 	if (copies_.count(copy) == 0) copies_.insert(copy);
+#endif
 	if (cornerAll) {
+#ifdef EDM_ML_DEBUG
 	  if (iu > iumAll) iumAll = iu;
 	  if (iv > ivmAll) ivmAll = iv;
+	  ++nin;
+#endif
 	  double rpos = std::sqrt(xpos*xpos+ypos*ypos);
 	  DDTranslation tran(xpos, ypos, 0.0);
 	  DDRotation rotation;
-	  ++nin;
 	  int type = (rpos < rMaxFine_) ? 0 : ((rpos < rMinThick_) ? 1 : 2);
 	  if (layertype > 1) type += 3;
 	  DDName name = DDName(DDSplit(wafers_[type]).first, 
 			       DDSplit(wafers_[type]).second);
 	  cpv.position(name, glog.ddname(), copy, tran, rotation);
-	  ++ntype[type];
 #ifdef EDM_ML_DEBUG
+	  ++ntype[type];
 	  edm::LogVerbatim("HGCalGeom") << " DDHGCalEEAlgo: " << name 
 					<< " number " << copy
 					<< " positioned in " << glog.ddname()
