@@ -83,6 +83,8 @@ void SoftMuonMvaEstimator::computeMva(const pat::Muon& muon)
 
 	qProd_ =  iTrack->charge()*oTrack->charge();
 
+	//vComb Calculation
+
 	const reco::HitPattern &gMpattern = gTrack->hitPattern();
 
 	std::vector<int> fvDThits = {0,0,0,0};
@@ -96,48 +98,25 @@ void SoftMuonMvaEstimator::computeMva(const pat::Muon& muon)
 	  uint32_t hit = gMpattern.getHitPattern(reco::HitPattern::TRACK_HITS, i);
 	  if ( !gMpattern.validHitFilter(hit) ) continue;
 
-	  if (gMpattern.getMuonStation(hit) == 1){
-	    if (gMpattern.muonDTHitFilter(hit)) fvDThits[0]++;
-	    if (gMpattern.muonRPCHitFilter(hit)) fvRPChits[0]++;
-	    if (gMpattern.muonCSCHitFilter(hit)) fvCSChits[0]++;
-	  }
-  	
-	  if (gMpattern.getMuonStation(hit) == 2){
-	    if (gMpattern.muonDTHitFilter(hit)) fvDThits[1]++;
-	    if (gMpattern.muonRPCHitFilter(hit)) fvRPChits[1]++;
-	    if (gMpattern.muonCSCHitFilter(hit)) fvCSChits[1]++;
-	  }
-
-	  if (gMpattern.getMuonStation(hit) == 3){
-	    if (gMpattern.muonDTHitFilter(hit)) fvDThits[2]++;
-	    if (gMpattern.muonRPCHitFilter(hit)) fvRPChits[2]++;
-	    if (gMpattern.muonCSCHitFilter(hit)) fvCSChits[2]++;
-	  }
-
-	  if (gMpattern.getMuonStation(hit) == 4){
-	    if (gMpattern.muonDTHitFilter(hit)) fvDThits[3]++;
-	    if (gMpattern.muonRPCHitFilter(hit)) fvRPChits[3]++;
-	    if (gMpattern.muonCSCHitFilter(hit)) fvCSChits[3]++;
+	  int muStation0 = gMpattern.getMuonStation(hit) - 1;
+	  if (muStation0 >=0 && muStation0 < 4){
+	    if (gMpattern.muonDTHitFilter(hit)) fvDThits[muStation0]++;
+	    if (gMpattern.muonRPCHitFilter(hit)) fvRPChits[muStation0]++;
+	    if (gMpattern.muonCSCHitFilter(hit)) fvCSChits[muStation0]++;
 	  }
 
 	}
   
 
-	if (!((fvDThits.size() < 4)
-	   || (fvRPChits.size() < 4)
-	   || (fvCSChits.size() < 4))){
+	for (unsigned int station = 0; station < 4; ++station) {
 
-	  for (unsigned int station = 0; station < 4; ++station) {
+	  vMuonHitComb_ += (fvDThits[station])/2.;
+	  vMuonHitComb_ += fvRPChits[station];
 
-	    vMuonHitComb_ += (fvDThits[station])/2.;
-	    vMuonHitComb_ += fvRPChits[station];
-
-	    if (fvCSChits[station] > 6){
-	      vMuonHitComb_ += 6; 
-	    }else{
-	      vMuonHitComb_ += fvCSChits[station];
-	    }
-
+	  if (fvCSChits[station] > 6){
+	    vMuonHitComb_ += 6; 
+	  }else{
+	    vMuonHitComb_ += fvCSChits[station];
 	  }
 
 	}
