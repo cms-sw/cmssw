@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
-from DQM.HcalTasks.DigiTask import DigiTask
+from DQM.HcalTasks.DigiTask import digiTask
 
 hcalOnlineHarvesting = DQMEDHarvester(
 	"HcalOnlineHarvesting",
