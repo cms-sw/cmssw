@@ -1,4 +1,4 @@
-0;95;0c// -*- C++ -*-
+// -*- C++ -*-
 //
 // Package:     SiPixelPhase1TrackClusters
 // Class  :     SiPixelPhase1TrackClusters
@@ -202,7 +202,7 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
         }
         else {
                 histo[ON_TRACK_NOTBIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
-      
+
         }
       } // End loop over pixels
       auto const & ltp = trajParams[h];
