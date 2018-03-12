@@ -91,7 +91,7 @@ namespace L1TkElectronTrackMatchAlgo {
 	double rperp = 129.0;
 	double zface =  sqrt( cos( theta ) * cos( theta ) /
 			     ( 1 - cos( theta ) * cos( theta ) ) * 
-			     rperp * rperp ) * fabs( eta ) / eta;  
+			      rperp * rperp );  
 	r = sqrt( rperp * rperp + zface * zface ) + depth;
 	x = r * cos( phi ) * sin( theta );
 	y = r * sin( phi ) * sin( theta );

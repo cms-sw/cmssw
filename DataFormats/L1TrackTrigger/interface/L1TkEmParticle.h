@@ -35,6 +35,15 @@ namespace l1t {
 	 const edm::Ref< EGammaBxCollection >& getEGRef() const
 	 { return egRef_ ; }
 
+         const double l1RefEta() const
+         { return egRef_->eta() ; }
+
+         const double l1RefPhi() const
+         { return egRef_->phi() ; }
+
+         const double l1RefEt() const
+         { return egRef_->et() ; }
+
 	 float getTrkIsol() const { return TrkIsol_ ; } 
 
 

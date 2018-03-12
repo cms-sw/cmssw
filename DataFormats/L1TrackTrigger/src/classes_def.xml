@@ -45,15 +45,15 @@
   <class pattern="edm::Ref<edmNew::DetSetVector<TTTrack<*>>,TTTrack<*>,edmNew::DetSetVector<TTTrack<*>>::FindForDetSetVector>" />
   <class pattern="edm::Wrapper<edm::Ref<edmNew::DetSetVector<TTTrack<*>>,TTTrack<*>,edmNew::DetSetVector<TTTrack<*>>::FindForDetSetVector>>" />
 
- <class name="L1TkPrimaryVertex" ClassVersion="11">
-  <version ClassVersion="11" checksum="863057557"/>
+ <class name="l1t::L1TkPrimaryVertex" ClassVersion="12">
+  <version ClassVersion="12" checksum="515857374"/>
  </class>
- <class name="std::vector<L1TkPrimaryVertex>"/>
- <class name="edm::Wrapper<std::vector<L1TkPrimaryVertex> >"/>
-  <class name="edm::Ref<std::vector<L1TkPrimaryVertex>,L1TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<L1TkPrimaryVertex>,L1TkPrimaryVertex> >"/>
+ <class name="std::vector<l1t::L1TkPrimaryVertex>"/>
+ <class name="edm::Wrapper<std::vector<l1t::L1TkPrimaryVertex> >"/>
+  <class name="edm::Ref<std::vector<l1t::L1TkPrimaryVertex>,l1t::L1TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1TkPrimaryVertex>,l1t::L1TkPrimaryVertex> >"/>
 
-  <class name="l1t::L1TkEtMissParticle" ClassVersion="14">
-   <version ClassVersion="14" checksum="399486037"/>
+  <class name="l1t::L1TkEtMissParticle" ClassVersion="15">
+   <version ClassVersion="15" checksum="2000954037"/>
   </class>
   <class name="std::vector<l1t::L1TkEtMissParticle>"/>
  <class name="edm::Wrapper<l1t::L1TkEtMissParticle>"/>
@@ -83,8 +83,8 @@
 
   <class name="edm::RefProd< std::vector<l1t::L1TkJetParticle> >"/>
 
-  <class name="l1t::L1TkHTMissParticle" ClassVersion="14">
-   <version ClassVersion="14" checksum="3858597526"/>
+  <class name="l1t::L1TkHTMissParticle" ClassVersion="15">
+   <version ClassVersion="15" checksum="1645583494"/>
   </class>
   <class name="std::vector<l1t::L1TkHTMissParticle>"/>
   <class name="edm::Wrapper<l1t::L1TkHTMissParticle>"/>

@@ -41,7 +41,7 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-namespace DataFormats_L1TrackTrigger
+namespace 
 {
   struct dictionary1 {
     /// Main template type
@@ -101,9 +101,9 @@ namespace DataFormats_L1TrackTrigger
 
   struct dictionaryl1tkobj {
     // L1 Primary Vertex
-    L1TkPrimaryVertex trzvtx;
-    edm::Wrapper<L1TkPrimaryVertexCollection> trzvtxColl;
-    edm::Ref< L1TkPrimaryVertexCollection > trkvtxRef ;
+    l1t::L1TkPrimaryVertex trzvtx;
+    edm::Wrapper<l1t::L1TkPrimaryVertexCollection> trzvtxColl;
+    edm::Ref<l1t::L1TkPrimaryVertexCollection > trkvtxRef ;
     
     
     // L1TkEtMiss... following L1EtMiss...

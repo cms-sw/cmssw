@@ -48,6 +48,8 @@
 
 
 
+using namespace l1t ;
+
 //
 // class declaration
 //

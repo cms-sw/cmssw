@@ -45,6 +45,7 @@
 
 #include "DataFormats/L1TrackTrigger/interface/L1TkPrimaryVertex.h"
 
+using namespace l1t ;
 
 //
 // class declaration

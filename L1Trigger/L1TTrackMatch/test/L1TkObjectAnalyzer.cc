@@ -2,7 +2,7 @@
 //
 // Package:    L1TkObjectAnalyzer
 // Class:      L1TkObjectAnalyzer
-//
+// 
 /**\class L1TkObjectAnalyzer L1TkObjectAnalyzer.cc SLHCUpgradeSimulations/L1TkObjectAnalyzer/src/L1TkObjectAnalyzer.cc
 
  Description: [one line class summary]
@@ -53,6 +53,7 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "TH1F.h"
+#include "TH2F.h"
 
 
 using namespace l1t;
@@ -82,52 +83,51 @@ class L1TkObjectAnalyzer : public edm::EDAnalyzer {
 
   explicit L1TkObjectAnalyzer(const edm::ParameterSet&);
   ~L1TkObjectAnalyzer();
-
+  
 private:
   virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  void fillIntegralHistos(TH1F* th, float var);
-  void scaleHistogram(TH1F* th, float fac);
-  void checkMuonEfficiency(const edm::Handle< MuonBxCollection > & muHandle,
-			   const edm::Handle< L1TkMuonParticleCollection >& tkMuHandle,
-			   const edm::Handle<reco::GenParticleCollection>& genH);
-  void checkPhotonEfficiency(const edm::Handle< EGammaBxCollection > & egHandle,
-			   const edm::Handle< L1TkEmParticleCollection >& tkEmHandle,
-			   const edm::Handle<reco::GenParticleCollection>& genH);
-  void checkElectronEfficiency(const edm::Handle< EGammaBxCollection > & egHandle,
-			   const edm::Handle< L1TkElectronParticleCollection >& tkElHandle,
-			   const edm::Handle<reco::GenParticleCollection>& genH);
-  void checkMuonRate(const edm::Handle< MuonBxCollection > & muHandle,
-		 const edm::Handle< L1TkMuonParticleCollection >& tkMuHandle);
-  void checkPhotonRate(const edm::Handle< EGammaBxCollection > & egHandle,
-		 const edm::Handle< L1TkEmParticleCollection >& tkEmHandle);
-  void checkElectronRate(const edm::Handle< EGammaBxCollection > & egHandle,
-		 const edm::Handle< L1TkElectronParticleCollection >& tkElHandle);
-  int matchWithGenParticle(const edm::Handle<reco::GenParticleCollection>& genH,
+  void fillIntegralHistos(TH1F* th, float var);  
+  void checkTrackEfficiency(edm::Handle<L1TTTrackCollectionType> tkHandle);
+  template <class T1, class T2> 
+  void checkEfficiency(const T1 & objCollection, const T2 & tkObjCollection);
+  template<class T1, class T2> 
+  void checkRate(const T1 & objCollection, const T2 & tkObjCollection);
+  int findGenParticle(const edm::Handle<reco::GenParticleCollection>& genH, 
 			     float& pt, float&  eta, float& phi);
   int getMotherParticleId(const reco::Candidate& gp);
 
   int selectedL1ObjTot_;
-  int selectedL1TrkObjTot_;
+  int selectedL1TkObjTot_;
+  int selectedL1ObjEtTot_;
+  int selectedL1TkObjEtTot_;
 
 
   TH1F* etaGenL1Obj;
+  TH1F* etaL1Track;
   TH1F* etaL1Obj;
   TH1F* etaL1TrkObj;
 
-  TH1F* etaTrack_;
-  TH1F* ptTrack_;
+  TH1F* phiGenL1Obj;
+  TH1F* phiL1Track;
+  TH1F* phiL1Obj;
+  TH1F* phiL1TrkObj;
 
   TH1F* etGenL1Obj;
+  TH1F* ptL1Track;
+  TH1F* ptL1TrackTurnOn;
   TH1F* etL1Obj;
   TH1F* etL1ObjTurnOn;
-  TH1F* etL1TrkObj;
+  TH1F* etL1TrkObj;  
   TH1F* etL1TrkObjTurnOn;
   TH1F* etThrL1Obj;
   TH1F* etThrL1TrkObj;
+  TH2F* etGenVsL1Obj;
+  TH2F* etGenVsL1TrkObj;
 
   TH1F* nGenL1Obj;
+  TH1F* nL1Track;
   TH1F* nL1Obj;
   TH1F* nL1TrkObj;
 
@@ -138,23 +138,32 @@ private:
   float genPtThreshold_;
   float etThreshold_;
 
+  int genIndex;
+  float genPt;
+  float genEta;
+  float genPhi;
 
   const edm::EDGetTokenT< MuonBxCollection > muToken;
   const edm::EDGetTokenT< EGammaBxCollection > egToken;
   const edm::EDGetTokenT< std::vector< L1TTTrackType > > trackToken;
+  const edm::EDGetTokenT< RegionalMuonCandBxCollection > bmtfToken;
+  const edm::EDGetTokenT< RegionalMuonCandBxCollection > omtfToken;
+  const edm::EDGetTokenT< RegionalMuonCandBxCollection > emtfToken;
   const edm::EDGetTokenT< L1TkMuonParticleCollection > tkMuToken;
   const edm::EDGetTokenT< L1TkEmParticleCollection > tkPhToken;
   const edm::EDGetTokenT< L1TkElectronParticleCollection > tkElToken;
   const edm::EDGetTokenT< reco::GenParticleCollection > genToken;
 
-  int ievent;
+  int ievent; 
 };
 
 L1TkObjectAnalyzer::L1TkObjectAnalyzer(const edm::ParameterSet& iConfig) :
   muToken(consumes< MuonBxCollection >(iConfig.getParameter<edm::InputTag>("L1MuonInputTag"))),
   egToken(consumes< EGammaBxCollection >(iConfig.getParameter<edm::InputTag>("L1EGammaInputTag"))),
   trackToken(consumes< std::vector<TTTrack< Ref_Phase2TrackerDigi_> > > (iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-  tkMuToken(consumes< L1TkMuonParticleCollection > (iConfig.getParameter<edm::InputTag>("L1TkMuonInputTag"))),
+  bmtfToken(consumes< RegionalMuonCandBxCollection >(iConfig.getParameter<edm::InputTag>("L1BMTFInputTag"))),
+  omtfToken(consumes< RegionalMuonCandBxCollection >(iConfig.getParameter<edm::InputTag>("L1OMTFInputTag"))),
+  emtfToken(consumes< RegionalMuonCandBxCollection >(iConfig.getParameter<edm::InputTag>("L1EMTFInputTag"))),
   tkPhToken(consumes< L1TkEmParticleCollection > (iConfig.getParameter<edm::InputTag>("L1TkPhotonInputTag"))),
   tkElToken(consumes< L1TkElectronParticleCollection > (iConfig.getParameter<edm::InputTag>("L1TkElectronInputTag"))),
   genToken(consumes < reco::GenParticleCollection > (iConfig.getParameter<edm::InputTag>("GenParticleInputTag")))
@@ -162,35 +171,29 @@ L1TkObjectAnalyzer::L1TkObjectAnalyzer(const edm::ParameterSet& iConfig) :
 
   edm::Service<TFileService> fs;
   analysisOption_ = iConfig.getParameter<std::string>("AnalysisOption");
-  objectType_ = iConfig.getParameter<std::string>("ObjectType");
+  objectType_ = iConfig.getParameter<std::string>("ObjectTyp");
   etaCutoff_ = iConfig.getParameter<double>("EtaCutOff");
   trkPtCutoff_ = iConfig.getParameter<double>("TrackPtCutOff");
   genPtThreshold_ = iConfig.getParameter<double>("GenPtThreshold");
   etThreshold_    = iConfig.getParameter<double>("EtThreshold");
 
-
+  
 }
 void L1TkObjectAnalyzer::beginJob() {
   edm::Service<TFileService> fs;
-
-  etaTrack_ = fs->make<TH1F>("Eta_Track","Eta of L1Tracks",90, -4.5, 4.5);
-  ptTrack_ = fs->make<TH1F>("Pt_Track","Pt of L1Tracks",  30, -0.5, 59.5);
-
+  
   std::ostringstream HistoName;
 
   HistoName.str("");
-  HistoName << "NumberOfGen" << objectType_;
-  nGenL1Obj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 100, -0.5, 99.5);
+  HistoName << "NumberOfTrack";
+  nL1Track    = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(),500, -0.5, 499.5);
   HistoName.str("");
   HistoName << "NumberOf" << objectType_;
-  nL1Obj    = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(),100, -0.5, 99.5);
+  nL1Obj    = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(),500, -0.5, 499.5);
   HistoName.str("");
   HistoName << "NumberOfTrk" << objectType_;
-  nL1TrkObj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 100, -0.5, 99.5);
-
-  HistoName.str("");
-  HistoName << "EtaGen" << objectType_;
-  etaGenL1Obj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 90, -4.5, 4.5);
+  nL1TrkObj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 500, -0.5, 499.5);
+  
   HistoName.str("");
   HistoName << "Eta" << objectType_;
   etaL1Obj  = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 90, -4.5, 4.5);
@@ -198,39 +201,81 @@ void L1TkObjectAnalyzer::beginJob() {
   HistoName << "EtaTrk" << objectType_;
   etaL1TrkObj = fs->make<TH1F>(HistoName.str().c_str(),HistoName.str().c_str(), 90, -4.5, 4.5);
 
+  HistoName.str("");
+  HistoName << "Phi" << objectType_;
+  phiL1Obj  = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 64, -3.2, 3.2);
+  HistoName.str("");
+  HistoName << "PhiTrk" << objectType_;
+  phiL1TrkObj = fs->make<TH1F>(HistoName.str().c_str(),HistoName.str().c_str(), 64, -3.2, 3.2);
+
+
+
   if (analysisOption_ == "Efficiency") {
+    HistoName.str("");
+    HistoName << "NumberOfGen" << objectType_;
+    nGenL1Obj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 1000, -0.5, 999.5);
+    HistoName.str("");
+    HistoName << "EtaGen" << objectType_;
+    etaGenL1Obj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 90, -4.5, 4.5);
+    HistoName.str("");
+    HistoName << "PhiGen" << objectType_;
+    phiGenL1Obj = fs->make<TH1F>(HistoName.str().c_str(),HistoName.str().c_str(), 64, -3.2, 3.2);
     HistoName.str("");
     HistoName << "EtGen" << objectType_;
     etGenL1Obj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 30, -0.5, 59.5);
+
+    HistoName.str("");
+    HistoName << "EtaTrack";
+    etaL1Track = fs->make<TH1F>(HistoName.str().c_str(),HistoName.str().c_str(), 90, -4.5, 4.5);
+    HistoName.str("");  
+    HistoName << "PhiTrack";
+    phiL1Track = fs->make<TH1F>(HistoName.str().c_str(),HistoName.str().c_str(), 64, -3.2, 3.2);
+    HistoName.str("");
+    HistoName << "PtTrack";
+    ptL1Track = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 30, -0.5, 59.5);
+    HistoName.str("");
+    HistoName << "PtTrackTurnOn";
+    ptL1TrackTurnOn = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 30, -0.5, 59.5);
+
+    HistoName.str("");
+    HistoName << "EtGenVsEt" << objectType_ ;
+    etGenVsL1Obj = fs->make<TH2F>(HistoName.str().c_str(), HistoName.str().c_str(), 30, -0.5, 59.5,30, -0.5, 59.5);
+    HistoName.str("");
+    HistoName << "EtGenVsEtTrk" << objectType_;
+    etGenVsL1TrkObj = fs->make<TH2F>(HistoName.str().c_str(), HistoName.str().c_str(), 30, -0.5, 59.5, 30, -0.5, 59.5);
+
     HistoName.str("");
     HistoName << "Et" << objectType_;
     etL1Obj    = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 30, -0.5, 59.5);
     HistoName.str("");
-    HistoName << "Et" << objectType_ << "TurnOn";
+    HistoName << "EtTurnOn" << objectType_;
     etL1ObjTurnOn = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 30, -0.5, 59.5);
     HistoName.str("");
     HistoName << "EtTrk" << objectType_;
     etL1TrkObj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 30, -0.5, 59.5);
     HistoName.str("");
-    HistoName << "EtTrk" << objectType_ << "TurnOn";
+    HistoName << "EtTurnOnTrk" << objectType_;
     etL1TrkObjTurnOn = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 30, -0.5, 59.5);
   } else {
-    HistoName.str("");
-    HistoName << "EtThreshold" << objectType_<<"Ref";
+
+    HistoName.str("");  
+    HistoName << "EtThresholdRef" << objectType_;
     etThrL1Obj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 90, 4.5, 94.5);
     HistoName.str("");
     HistoName << "EtThresholdTrk" << objectType_;
     etThrL1TrkObj = fs->make<TH1F>(HistoName.str().c_str(), HistoName.str().c_str(), 90, 4.5, 94.5);
   }
-
+  
   selectedL1ObjTot_ = 0;
-  selectedL1TrkObjTot_ = 0;
+  selectedL1TkObjTot_ = 0;
+  selectedL1ObjEtTot_ = 0;
+  selectedL1TkObjEtTot_ = 0;
   ievent = 0;
 }
 
 L1TkObjectAnalyzer::~L1TkObjectAnalyzer()
 {
-
+ 
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -245,299 +290,208 @@ L1TkObjectAnalyzer::~L1TkObjectAnalyzer()
 void
 L1TkObjectAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  ievent++;
+  ievent++;  
 
+  genIndex = -1;
+  genPt   = -999.9;
+  genEta  = -999.9;
+  genPhi  = -999.9;
+  
+  // Gen Particle 
+  if (analysisOption_ == "Efficiency") {
+    edm::Handle<reco::GenParticleCollection> genParticleHandle;
+    iEvent.getByToken(genToken, genParticleHandle);
+    nGenL1Obj->Fill((*genParticleHandle.product()).size());
+    genIndex = findGenParticle(genParticleHandle, genPt, genEta, genPhi);
+  }
   // the L1Tracks
+
   edm::Handle<L1TTTrackCollectionType> L1TTTrackHandle;
   iEvent.getByToken(trackToken, L1TTTrackHandle);
+  nL1Track->Fill((*L1TTTrackHandle.product()).size());
   L1TTTrackCollectionType::const_iterator trackIter;
-  for (trackIter = L1TTTrackHandle->begin(); trackIter != L1TTTrackHandle->end();
-       ++trackIter) {
-    ptTrack_->Fill(trackIter->getMomentum().perp());
-    etaTrack_->Fill(trackIter->getMomentum().eta());
-  }
-  if (objectType_ == "Muon") { //L1TKMuon
-    edm::Handle< MuonBxCollection > muonHandle;
-    iEvent.getByToken(muToken, muonHandle);
-    nL1Obj->Fill((*muonHandle.product()).size(0));
+  if (analysisOption_ == "Efficiency" && genIndex >= 0) checkTrackEfficiency(L1TTTrackHandle);
+
+  if (objectType_ == "Muon") { //L1TKMuon  
+    /*    edm::Handle< MuonBxCollection > muonHandle;
+    iEvent.getByToken(muToken, muonHandle);  
+    MuonBxCollection muCollection = (*muonHandle.product());
+    nL1Obj->Fill(muCollection.size(0));
 
     edm::Handle< L1TkMuonParticleCollection > l1TkMuonHandle;
     iEvent.getByToken(tkMuToken, l1TkMuonHandle);
-    nL1TrkObj->Fill((*l1TkMuonHandle.product()).size());
+    L1TkMuonParticleCollection l1TkMuCollection = (*l1TkMuonHandle.product()); 
+    nL1TrkObj->Fill(l1TkMuCollection.size());
 
-    if (analysisOption_ == "Efficiency") {
-      edm::Handle<reco::GenParticleCollection> genParticleHandle;
-      iEvent.getByToken(genToken, genParticleHandle);
-      checkMuonEfficiency(muonHandle, l1TkMuonHandle, genParticleHandle);
-    } else checkMuonRate(muonHandle, l1TkMuonHandle);
+    if (analysisOption_ == "Efficiency" && genIndex >= 0) checkEfficiency(muCollection, l1TkMuCollection);
+    else if (analysisOption_ == "Rate") checkRate(muCollection, l1TkMuCollection);    */
+    std::cout << " Analysis with Muons are not supported at the moment " << std::endl;
+
   } else if (objectType_ == "Photon") {     // Level1 EGamma
     edm::Handle< EGammaBxCollection > eGammaHandle;
-    iEvent.getByToken(egToken, eGammaHandle);
-    nL1Obj->Fill((*eGammaHandle.product()).size(0));
+    iEvent.getByToken(egToken, eGammaHandle);  
+    EGammaBxCollection egCollection = (*eGammaHandle.product());
+    nL1Obj->Fill(egCollection.size(0));
 
     edm::Handle< L1TkEmParticleCollection > l1TkPhotonHandle;
     iEvent.getByToken(tkPhToken, l1TkPhotonHandle);
-    nL1TrkObj->Fill((*l1TkPhotonHandle.product()).size());
+    L1TkEmParticleCollection l1TkPhCollection = (*l1TkPhotonHandle.product()); 
+    nL1TrkObj->Fill(l1TkPhCollection.size());
 
-    if (analysisOption_ == "Efficiency") {
-      edm::Handle<reco::GenParticleCollection> genParticleHandle;
-      iEvent.getByToken(genToken, genParticleHandle);
-      checkPhotonEfficiency(eGammaHandle, l1TkPhotonHandle, genParticleHandle);
-    } else checkPhotonRate(eGammaHandle, l1TkPhotonHandle);
+    if (analysisOption_ == "Efficiency" && genIndex >= 0) checkEfficiency(egCollection, l1TkPhCollection);
+    else if (analysisOption_ == "Rate") checkRate(egCollection, l1TkPhCollection);    
+
   } else if (objectType_ == "Electron") {     // Level1 EGamma
     edm::Handle< EGammaBxCollection > eGammaHandle;
-    iEvent.getByToken(egToken, eGammaHandle);
-    nL1Obj->Fill((*eGammaHandle.product()).size(0));
+    iEvent.getByToken(egToken, eGammaHandle);  
+    EGammaBxCollection egCollection = (*eGammaHandle.product());
+    nL1Obj->Fill(egCollection.size(0));
 
     edm::Handle< L1TkElectronParticleCollection > l1TkElectronHandle;
     iEvent.getByToken(tkElToken, l1TkElectronHandle);
-    nL1TrkObj->Fill((*l1TkElectronHandle.product()).size());
+    L1TkElectronParticleCollection l1TkElCollection = (*l1TkElectronHandle.product()); 
+    nL1TrkObj->Fill(l1TkElCollection.size());
 
-    if (analysisOption_ == "Efficiency") {
-      edm::Handle<reco::GenParticleCollection> genParticleHandle;
-      iEvent.getByToken(genToken, genParticleHandle);
-      checkElectronEfficiency(eGammaHandle, l1TkElectronHandle, genParticleHandle);
-    } else checkElectronRate(eGammaHandle, l1TkElectronHandle);
+    if (analysisOption_ == "Efficiency" && genIndex >= 0) checkEfficiency(egCollection, l1TkElCollection);
+    else if (analysisOption_ == "Rate") checkRate(egCollection, l1TkElCollection);    
   }
 }
 void L1TkObjectAnalyzer::endJob() {
   std::cout << " Number of Selected " << objectType_ << " : "  << selectedL1ObjTot_ << std::endl;
-  std::cout << " Number of Selected Track " << objectType_ << " : "<< selectedL1TrkObjTot_ << std::endl;
+  std::cout << " Number of Selected Track " << objectType_ << " : "<< selectedL1TkObjTot_ << std::endl;
   std::cout << " Number of Events Proccessed  " << ievent << std::endl;
 }
-void L1TkObjectAnalyzer::checkMuonEfficiency(const edm::Handle< MuonBxCollection > & muHandle,
-					     const edm::Handle< L1TkMuonParticleCollection >& tkMuHandle,
-					     const edm::Handle<reco::GenParticleCollection>& genH) {
-  MuonBxCollection muCollection = (*muHandle.product());
-  L1TkMuonParticleCollection l1TkMuCollection = (*tkMuHandle.product());
-
-  float genPt;
-  float genEta;
-  float genPhi;
-  int genIndex  = matchWithGenParticle(genH, genPt, genEta, genPhi);
+void L1TkObjectAnalyzer::checkTrackEfficiency(edm::Handle<L1TTTrackCollectionType> tkHandle) {
   if (genIndex < 0 ) return;
 
-  int nL1Obj = 0;
-  int nL1ObjEt = 0;
-  MuonBxCollection::const_iterator muIter;
-  for (muIter = muCollection.begin(0);  muIter != muCollection.end(0); ++muIter) {
-    float eta = muIter->eta();
-    float phi = muIter->phi();
-    float e   = muIter->energy();
-    float et = 0;
-    if (cosh(eta) > 0.0) et = e/cosh(eta);
-    else et = -1.0;
-    if ( fabs(eta) > etaCutoff_ || et <= 0.0) continue;
-    float dPhi = reco::deltaPhi( genPhi, phi);
-    float dEta = (genEta - eta);
-    float dR =  sqrt(dPhi*dPhi + dEta*dEta);
-    if (dR < 0.5) {
-      nL1Obj++;
-      if (et > etThreshold_)  nL1ObjEt++;
-    }
-  }
-  if (genPt > genPtThreshold_) {
-    if (nL1Obj > 0 ) etL1Obj->Fill(genPt);
-    if (nL1ObjEt > 0) {
-      etL1ObjTurnOn->Fill(genPt);
-      etaL1Obj->Fill(genEta);
-    }
-  }
-
-  int nL1TrkObj = 0;
-  int nL1TrkObjEt = 0;
-  L1TkMuonParticleCollection::const_iterator muTrkIter ;
-  for (muTrkIter = l1TkMuCollection.begin(); muTrkIter != l1TkMuCollection.end(); ++muTrkIter) {
-    if (fabs(muTrkIter->eta()) < etaCutoff_ && muTrkIter->pt() > 0) {
-      if ( muTrkIter->getTrkPtr().isNonnull() && muTrkIter->getTrkPtr()->getMomentum().perp() <= trkPtCutoff_) continue;
-      float dPhi = reco::deltaPhi(muTrkIter->phi(), genPhi);
-      float dEta = (muTrkIter->eta() - genEta);
+  int nL1Trk   = 0;
+  int nL1TrkPt = 0;
+  L1TTTrackCollectionType::const_iterator trackIter;
+  for (trackIter = tkHandle->begin(); trackIter != tkHandle->end(); 
+       ++trackIter) {
+    float eta = trackIter->getMomentum().eta(); 
+    float phi = trackIter->getMomentum().phi();
+    float pt  = trackIter->getMomentum().perp(); 
+    if (fabs(eta) < etaCutoff_ && pt > 0) {
+      float dPhi = reco::deltaPhi(phi, genPhi);
+      float dEta = (eta - genEta);
       float dR =  sqrt(dPhi*dPhi + dEta*dEta);
       if  (dR < 0.5) {
-	nL1TrkObj++;
-	if (muTrkIter->pt() > etThreshold_) nL1TrkObjEt++;
+	nL1Trk++;
+	if (pt > etThreshold_) nL1TrkPt++;
       }
     }
   }
-  if (genPt > genPtThreshold_ && nL1TrkObj > 0) {
-    etL1TrkObj->Fill(genPt);
-    if (nL1TrkObjEt > 0 ) {
-      etL1TrkObjTurnOn->Fill(genPt);
-      etaL1TrkObj->Fill(genEta);
+  if (genPt > genPtThreshold_ && nL1Trk > 0) {
+    ptL1Track->Fill(genPt);
+    if (nL1TrkPt > 0 ) {
+      ptL1TrackTurnOn->Fill(genPt);
+      etaL1Track->Fill(genEta);
+      phiL1Track->Fill(genPhi);
     }
   }
-
-  selectedL1ObjTot_ += nL1Obj;
-  selectedL1TrkObjTot_ += nL1TrkObj;
 }
-void L1TkObjectAnalyzer::checkPhotonEfficiency(const edm::Handle< EGammaBxCollection > & egHandle,
-				 	     const edm::Handle< L1TkEmParticleCollection >& tkPhHandle,
-					     const edm::Handle<reco::GenParticleCollection>& genH) {
-  EGammaBxCollection egCollection = (*egHandle.product());
-  L1TkEmParticleCollection l1TkPhCollection = (*tkPhHandle.product());
 
-  float genPt;
-  float genEta;
-  float genPhi;
-  int genIndex  = matchWithGenParticle(genH, genPt, genEta, genPhi);
-  if (genIndex < 0 ) return;
-
-  int nL1Obj = 0;
-  int nL1ObjEt = 0;
-  EGammaBxCollection::const_iterator egIter;
-  for (egIter = egCollection.begin(0);  egIter != egCollection.end(0); ++egIter) {
-    float eta = egIter->eta();
-    float phi = egIter->phi();
-    float e   = egIter->energy();
-    float et = 0;
-    if (cosh(eta) > 0.0) et = e/cosh(eta);
-    else et = -1.0;
-    if ( fabs(eta) > etaCutoff_ || et <= 0.0) continue;
+template<class T1, class T2> 
+void L1TkObjectAnalyzer::checkEfficiency(const T1 & objCollection, const T2 & tkObjCollection) {
+  if (genPt < genPtThreshold_) return;
+  float dRminObj = 999.9; 
+  float etObj  = -1.0;
+  for (auto objIter = objCollection.begin(0);  objIter != objCollection.end(0); ++objIter) {
+    float eta = objIter->hwEta(); 
+    float phi = objIter->hwPhi(); 
+    if ( fabs(eta) > etaCutoff_ ) continue;
     float dPhi = reco::deltaPhi( genPhi, phi);
     float dEta = (genEta - eta);
     float dR =  sqrt(dPhi*dPhi + dEta*dEta);
-    if (dR < 0.5) {
-      nL1Obj++;
-      if (et > etThreshold_)  nL1ObjEt++;
+    if (dR < dRminObj) {
+      dRminObj = dR;
+      etObj  = objIter->et();
     }
   }
-  if (genPt > genPtThreshold_) {
-    if (nL1Obj > 0 ) etL1Obj->Fill(genPt);
-    if (nL1ObjEt > 0) {
-      etL1ObjTurnOn->Fill(genPt);
-      etaL1Obj->Fill(genEta);
-    }
+  if (dRminObj < 0.3) {
+    selectedL1ObjTot_++;  
+    etL1Obj->Fill(etObj);
+    etaL1Obj->Fill(genEta);
+    etGenVsL1Obj->Fill(etObj, genPt);
+    if (etObj > etThreshold_)  {
+      selectedL1ObjEtTot_++;  
+      etL1ObjTurnOn->Fill(etObj);
+      phiL1Obj->Fill(genPhi);
+    }      
   }
-
-  int nL1TrkObj = 0;
-  int nL1TrkObjEt = 0;
-  L1TkEmParticleCollection::const_iterator phTrkIter ;
-  for (phTrkIter = l1TkPhCollection.begin(); phTrkIter != l1TkPhCollection.end(); ++phTrkIter) {
-    if (fabs(phTrkIter->eta()) < etaCutoff_ && phTrkIter->pt() > 0) {
-      float dPhi = reco::deltaPhi(phTrkIter->phi(), genPhi);
-      float dEta = (phTrkIter->eta() - genEta);
+  float dRminTkObj = 999.9; 
+  float etTkObj  = -1.0;
+  for (auto tkObjIter = tkObjCollection.begin(); tkObjIter != tkObjCollection.end(); ++tkObjIter) {
+    if (fabs(tkObjIter->eta()) < etaCutoff_ && tkObjIter->pt() > 0) {
+      //      if ( tkObjIter->getTrkPtr().isNonnull() && tkObjIter->getTrkPtr()->getMomentum().perp() <= trkPtCutoff_) continue;
+      float dPhi = reco::deltaPhi(tkObjIter->phi(), genPhi);
+      float dEta = (tkObjIter->eta() - genEta);
       float dR =  sqrt(dPhi*dPhi + dEta*dEta);
-      if  (dR < 0.5) {
-	nL1TrkObj++;
-	if (phTrkIter->pt() > etThreshold_) nL1TrkObjEt++;
+      if  (dR < dRminTkObj ) {
+        dRminTkObj = dR;
+        etTkObj = tkObjIter->et();
       }
     }
   }
-  if (genPt > genPtThreshold_ && nL1TrkObj > 0) {
-    etL1TrkObj->Fill(genPt);
-    if (nL1TrkObjEt > 0 ) {
-      etL1TrkObjTurnOn->Fill(genPt);
+  if (dRminTkObj < 0.3) {
+    selectedL1TkObjTot_++;
+    etL1TrkObj->Fill(etTkObj);
+    etGenVsL1TrkObj->Fill(etTkObj, genPt);
+    if (etTkObj > etThreshold_)  {
+      selectedL1TkObjEtTot_++;
+      etL1TrkObjTurnOn->Fill(etTkObj);
       etaL1TrkObj->Fill(genEta);
+      phiL1TrkObj->Fill(genPhi);
     }
   }
-
-  selectedL1ObjTot_ += nL1Obj;
-  selectedL1TrkObjTot_ += nL1TrkObj;
+  /*  std::cout << " Gen Info : eta, phi, Et " << genEta << " " <<  genPhi << " " << genPt << std::endl;
+  std::cout << " L1Object Info : dR Gen , et " << dRminObj << " " << etObj << std::endl;
+  std::cout << " L1TkObject Info : dR Gen , et " << dRminTkObj << " " << etTkObj << std::endl;
+  std::cout << " Selected Candidates : L1Object, L1ObjectEt, L1TkObject, L1TkObjectEtThr " << selectedL1ObjTot_ << " " << selectedL1ObjEtTot_
+	                                                                                   <<  " " << selectedL1TkObjTot_  << " " << selectedL1TkObjEtTot_ <<  std::endl;
+  */
 }
-void L1TkObjectAnalyzer::checkElectronEfficiency(const edm::Handle< EGammaBxCollection > & egHandle,
-					     const edm::Handle< L1TkElectronParticleCollection >& tkElHandle,
-					     const edm::Handle<reco::GenParticleCollection>& genH) {
-  EGammaBxCollection egCollection = (*egHandle.product());
-  L1TkElectronParticleCollection l1TkElCollection = (*tkElHandle.product());
+template<class T1, class T2> 
+void L1TkObjectAnalyzer::checkRate(const T1 & objCollection, const T2 & tkObjCollection) {
 
-  float genPt;
-  float genEta;
-  float genPhi;
-  int genIndex  = matchWithGenParticle(genH, genPt, genEta, genPhi);
-  if (genIndex < 0 ) return;
-
-  int nL1Obj = 0;
-  int nL1ObjEt = 0;
-  EGammaBxCollection::const_iterator egIter;
-  for (egIter = egCollection.begin(0);  egIter != egCollection.end(0); ++egIter) {
-    float eta = egIter->eta();
-    float phi = egIter->phi();
-    float e   = egIter->energy();
-    float et = 0;
-    if (cosh(eta) > 0.0) et = e/cosh(eta);
-    else et = -1.0;
-    if ( fabs(eta) > etaCutoff_ || et <= 0.0) continue;
-    float dPhi = reco::deltaPhi( genPhi, phi);
-    float dEta = (genEta - eta);
-    float dR =  sqrt(dPhi*dPhi + dEta*dEta);
-    if (dR < 0.5) {
-      nL1Obj++;
-      if (et > etThreshold_)  nL1ObjEt++;
-    }
-  }
-  if (genPt > genPtThreshold_) {
-    if (nL1Obj > 0 ) etL1Obj->Fill(genPt);
-    if (nL1ObjEt > 0) {
-      etL1ObjTurnOn->Fill(genPt);
-      etaL1Obj->Fill(genEta);
-    }
-  }
-
-  int nL1TrkObj = 0;
-  int nL1TrkObjEt = 0;
-  L1TkElectronParticleCollection::const_iterator elTrkIter ;
-  for (elTrkIter = l1TkElCollection.begin(); elTrkIter != l1TkElCollection.end(); ++elTrkIter) {
-    if (fabs(elTrkIter->eta()) < etaCutoff_ && elTrkIter->pt() > 0) {
-      if ( elTrkIter->getTrkPtr().isNonnull() && elTrkIter->getTrkPtr()->getMomentum().perp() <= trkPtCutoff_) continue;
-      float dPhi = reco::deltaPhi(elTrkIter->phi(), genPhi);
-      float dEta = (elTrkIter->eta() - genEta);
-      float dR =  sqrt(dPhi*dPhi + dEta*dEta);
-      if  (dR < 0.5) {
-	nL1TrkObj++;
-	if (elTrkIter->pt() > etThreshold_) nL1TrkObjEt++;
-      }
-    }
-  }
-  if (genPt > genPtThreshold_ && nL1TrkObj > 0) {
-    etL1TrkObj->Fill(genPt);
-    if (nL1TrkObjEt > 0 ) {
-      etL1TrkObjTurnOn->Fill(genPt);
-      etaL1TrkObj->Fill(genEta);
-    }
-  }
-
-  selectedL1ObjTot_ += nL1Obj;
-  selectedL1TrkObjTot_ += nL1TrkObj;
-}
-void L1TkObjectAnalyzer::checkMuonRate(const edm::Handle< MuonBxCollection > & muHandle, const edm::Handle< L1TkMuonParticleCollection >& tkMuHandle) {
-
-  MuonBxCollection muCollection = (*muHandle.product());
-  L1TkMuonParticleCollection l1TkMuCollection = (*tkMuHandle.product());
+  std::vector<L1Candidate> objLocal;
+  objLocal.reserve(objCollection.size(0));
+  for (auto it = objCollection.begin(0); it != objCollection.end(0); it++) objLocal.push_back(*it);
+  sort(objLocal.begin(), objLocal.end(), L1TkAnal::EtComparator());
 
   int nL1Obj = 0;
   int nL1TrkObj = 0;
-  std::vector<Muon> muonLocal;
-  muonLocal.reserve(muCollection.size(0));
-  MuonBxCollection::const_iterator it;
-  for (it = muCollection.begin(0); it != muCollection.end(0); it++) muonLocal.push_back(*it);
-  sort(muonLocal.begin(), muonLocal.end(), L1TkAnal::EtComparator());
-  std::vector<Muon>::const_iterator muIter;
-  for (muIter = muonLocal.begin();  muIter != muonLocal.end(); ++muIter) {
-
-    float eta = muIter->eta();
-    float phi = muIter->phi();
-    float et  = muIter->et();
+  
+  for (auto objIter = objLocal.begin();  objIter != objLocal.end(); ++objIter) {
+    float eta = objIter->eta(); 
+    float phi = objIter->phi(); 
+    float et  = objIter->et(); 
     if (fabs(eta) >= etaCutoff_) continue;
     nL1Obj++;
     if (nL1Obj == 1) {
       fillIntegralHistos(etThrL1Obj, et);
-      if (et > 20.0) etaL1Obj->Fill(eta);
+      if (et > 20.0) {
+	etaL1Obj->Fill(eta);
+	phiL1Obj->Fill(phi);
+      }
     }
-    float et_min;
+    float et_min; 
+    float eta_min; 
+    float phi_min; 
     float dRmin = 999.9;
-    L1TkMuonParticleCollection::const_iterator muTrkIter ;
-    for (muTrkIter = l1TkMuCollection.begin(); muTrkIter != l1TkMuCollection.end(); ++muTrkIter) {
-      if ( !muTrkIter->getTrkPtr().isNonnull()) continue;
+    
+    for (auto tkObjIter = tkObjCollection.begin(); tkObjIter != tkObjCollection.end(); ++tkObjIter) {
+      if (fabs(tkObjIter->eta()) < etaCutoff_ && tkObjIter->et() > 0) {
+	float dPhi = reco::deltaPhi(phi, tkObjIter->l1RefPhi());
+	float dEta = (eta - tkObjIter->l1RefEta());
 
-      if (fabs(muTrkIter->eta()) < etaCutoff_ && muTrkIter->et() > 0) {
-	if ( muTrkIter->getTrkPtr()->getMomentum().perp() <= trkPtCutoff_) continue;
-
-	float dPhi = reco::deltaPhi(phi, muTrkIter->getMuRef()->hwPhi()*2*M_PI/576.);
-	float dEta = (eta - muTrkIter->getMuRef()->hwEta()*0.010875);
 	float dR =  sqrt(dPhi*dPhi + dEta*dEta);
 	if (dR < dRmin) {
 	  dRmin = dR;
-	  et_min = muTrkIter->et();
+	  et_min = tkObjIter->et();
+	  eta_min = tkObjIter->eta();
+	  phi_min = tkObjIter->phi();
 	}
       }
     }
@@ -545,121 +499,21 @@ void L1TkObjectAnalyzer::checkMuonRate(const edm::Handle< MuonBxCollection > & m
       nL1TrkObj++;
       if (nL1TrkObj == 1) {
 	fillIntegralHistos(etThrL1TrkObj, et_min);
-	if (et_min > 20.0)  etaL1TrkObj->Fill(eta);
+	if (et_min > 20.0) {
+	  etaL1TrkObj->Fill(eta_min);      
+	  phiL1TrkObj->Fill(phi_min);
+	}      
       }
-    }
+    }         
   }
   selectedL1ObjTot_ += nL1Obj;
-  selectedL1TrkObjTot_ += nL1TrkObj;
-}
-void L1TkObjectAnalyzer::checkPhotonRate(const edm::Handle< EGammaBxCollection > & egHandle, const edm::Handle< L1TkEmParticleCollection >& tkPhHandle) {
-
-  EGammaBxCollection egCollection = (*egHandle.product());
-  L1TkEmParticleCollection l1TkPhCollection = (*tkPhHandle.product());
-
-  int nL1Obj = 0;
-  int nL1TrkObj = 0;
-  std::vector<EGamma> egLocal;
-  egLocal.reserve(egCollection.size(0));
-  EGammaBxCollection::const_iterator it;
-  for (it = egCollection.begin(0); it != egCollection.end(0); it++) egLocal.push_back(*it);
-  sort(egLocal.begin(), egLocal.end(), L1TkAnal::EtComparator());
-  std::vector<EGamma>::const_iterator egIter;
-  for (egIter = egLocal.begin();  egIter != egLocal.end(); ++egIter) {
-
-    float eta = egIter->eta();
-    float phi = egIter->phi();
-    float et  = egIter->et();
-    if (fabs(eta) >= etaCutoff_) continue;
-    nL1Obj++;
-    if (nL1Obj == 1) {
-      fillIntegralHistos(etThrL1Obj, et);
-      if (et > 20.0) etaL1Obj->Fill(eta);
-    }
-    float et_min;
-    float dRmin = 999.9;
-    L1TkEmParticleCollection::const_iterator phTrkIter ;
-    for (phTrkIter = l1TkPhCollection.begin(); phTrkIter != l1TkPhCollection.end(); ++phTrkIter) {
-      if (fabs(phTrkIter->eta()) < etaCutoff_ && phTrkIter->et() > 0) {
-
-	float dPhi = reco::deltaPhi(phi, phTrkIter->getEGRef()->phi());
-	float dEta = (eta - phTrkIter->getEGRef()->eta());
-	float dR =  sqrt(dPhi*dPhi + dEta*dEta);
-	if (dR < dRmin) {
-	  dRmin = dR;
-	  et_min = phTrkIter->et();
-	}
-      }
-    }
-    if (dRmin < 0.1) {
-      nL1TrkObj++;
-      if (nL1TrkObj == 1) {
-	fillIntegralHistos(etThrL1TrkObj, et_min);
-	if (et_min > 20.0)  etaL1TrkObj->Fill(eta);
-      }
-    }
-  }
-  selectedL1ObjTot_ += nL1Obj;
-  selectedL1TrkObjTot_ += nL1TrkObj;
-}
-void L1TkObjectAnalyzer::checkElectronRate(const edm::Handle< EGammaBxCollection > & egHandle, const edm::Handle< L1TkElectronParticleCollection >& tkElHandle) {
-
-  EGammaBxCollection egCollection = (*egHandle.product());
-  L1TkElectronParticleCollection l1TkElCollection = (*tkElHandle.product());
-
-  int nL1Obj = 0;
-  int nL1TrkObj = 0;
-  std::vector<EGamma> egLocal;
-  egLocal.reserve(egCollection.size(0));
-  EGammaBxCollection::const_iterator it;
-  for (it = egCollection.begin(0); it != egCollection.end(0); it++) egLocal.push_back(*it);
-  sort(egLocal.begin(), egLocal.end(), L1TkAnal::EtComparator());
-  std::vector<EGamma>::const_iterator egIter;
-  for (egIter = egLocal.begin();  egIter != egLocal.end(); ++egIter) {
-
-    float eta = egIter->eta();
-    float phi = egIter->phi();
-    float et  = egIter->et();
-    if (fabs(eta) >= etaCutoff_) continue;
-    nL1Obj++;
-    if (nL1Obj == 1) {
-      fillIntegralHistos(etThrL1Obj, et);
-      if (et > 20.0) etaL1Obj->Fill(eta);
-    }
-    float et_min;
-    float dRmin = 999.9;
-    L1TkElectronParticleCollection::const_iterator elTrkIter ;
-    for (elTrkIter = l1TkElCollection.begin(); elTrkIter != l1TkElCollection.end(); ++elTrkIter) {
-      if ( !elTrkIter->getTrkPtr().isNonnull()) continue;
-
-      if (fabs(elTrkIter->eta()) < etaCutoff_ && elTrkIter->et() > 0) {
-	if ( elTrkIter->getTrkPtr()->getMomentum().perp() <= trkPtCutoff_) continue;
-
-	float dPhi = reco::deltaPhi(phi, elTrkIter->getEGRef()->phi());
-	float dEta = (eta - elTrkIter->getEGRef()->eta());
-	float dR =  sqrt(dPhi*dPhi + dEta*dEta);
-	if (dR < dRmin) {
-	  dRmin = dR;
-	  et_min = elTrkIter->et();
-	}
-      }
-    }
-    if (dRmin < 0.1) {
-      nL1TrkObj++;
-      if (nL1TrkObj == 1) {
-	fillIntegralHistos(etThrL1TrkObj, et_min);
-	if (et_min > 20.0)  etaL1TrkObj->Fill(eta);
-      }
-    }
-  }
-  selectedL1ObjTot_ += nL1Obj;
-  selectedL1TrkObjTot_ += nL1TrkObj;
+  selectedL1TkObjTot_ += nL1TrkObj;
 }
 void L1TkObjectAnalyzer::fillIntegralHistos(TH1F* th, float var){
-  int nbin = th->FindBin(var);
+  int nbin = th->FindBin(var); 
   for (int ibin = 1; ibin < nbin+1; ibin++) th->Fill(th->GetBinCenter(ibin));
 }
-int L1TkObjectAnalyzer::matchWithGenParticle(const edm::Handle<reco::GenParticleCollection>& genH, float& pt, float & eta, float& phi) {
+int L1TkObjectAnalyzer::findGenParticle(const edm::Handle<reco::GenParticleCollection>& genH, float& pt, float & eta, float& phi) {
   int indx = -1;
   int pId = 0;
   if (objectType_ == "Muon") pId = 13;
@@ -679,20 +533,13 @@ int L1TkObjectAnalyzer::matchWithGenParticle(const edm::Handle<reco::GenParticle
     eta = p.eta();
     phi = p.phi();
     if ( fabs(eta) > etaCutoff_ || pt <= 0.0) return -1;
+    etGenL1Obj->Fill(pt); 
     if (pt > genPtThreshold_) {
-      etGenL1Obj->Fill(pt);
-      etaGenL1Obj->Fill(eta);
+      etaGenL1Obj->Fill(eta); 
+      phiGenL1Obj->Fill(phi); 
     }
   }
   return indx;
-}
-void L1TkObjectAnalyzer::scaleHistogram(TH1F* th, float fac){
-  for (Int_t i = 1; i < th->GetNbinsX()+1; ++i) {
-    Double_t cont = th->GetBinContent(i);
-    Double_t err = th->GetBinError(i);
-    th->SetBinContent(i, cont*fac);
-    th->SetBinError(i, err*fac);
-  }
 }
 int L1TkObjectAnalyzer::getMotherParticleId(const reco::Candidate& gp) {
   int mid = -1;
@@ -707,12 +554,11 @@ int L1TkObjectAnalyzer::getMotherParticleId(const reco::Candidate& gp) {
     if (!m) {
       mid = -1;
       break;
-    }
+    }   
     mid = m->pdgId();
     m0 = m;
   }
   return mid;
 }
-
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1TkObjectAnalyzer);
