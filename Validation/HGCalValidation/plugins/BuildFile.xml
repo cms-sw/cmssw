@@ -3,6 +3,7 @@
 <use name="DataFormats/ForwardDetId"/>
 <use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DetectorDescription/Core"/>
 <use name="DQMServices/Core"/>
 <use name="FWCore/Framework"/>
