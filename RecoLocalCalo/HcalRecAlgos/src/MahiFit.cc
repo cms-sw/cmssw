@@ -206,8 +206,12 @@ void MahiFit::doFit(std::array<float,3> &correctedOutput, int nbx) const {
 
   if (foundintime) {
     correctedOutput.at(0) = nnlsWork_.ampVec.coeff(ipulseintime); //charge
-    double arrivalTime = calculateArrivalTime();
-    correctedOutput.at(1) = arrivalTime; //time
+    if (correctedOutput.at(0)!=0) {
+	double arrivalTime = calculateArrivalTime();
+	correctedOutput.at(1) = arrivalTime; //time
+    }
+    else correctedOutput.at(1) = -9999;//time
+
     correctedOutput.at(2) = chiSq; //chi2
 
   }
@@ -343,7 +347,11 @@ double MahiFit::calculateArrivalTime() const {
   }
 
   PulseVector solution = nnlsWork_.pulseDerivMat.colPivHouseholderQr().solve(nnlsWork_.residuals);
-  return solution.coeff(itIndex)/nnlsWork_.ampVec.coeff(itIndex);
+  float t = solution.coeff(itIndex)/nnlsWork_.ampVec.coeff(itIndex);
+  t = (t>timeLimit_) ?  timeLimit_ : 
+    ((t<-timeLimit_) ? -timeLimit_ : t);
+
+  return t;
 
 }
   

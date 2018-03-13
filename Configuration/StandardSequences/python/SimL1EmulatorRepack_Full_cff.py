@@ -22,6 +22,10 @@ else:
     unpackDttf = EventFilter.DTTFRawToDigi.dttfunpacker_cfi.dttfunpacker.clone(
         DTTF_FED_Source = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess())) 
         
+    import EventFilter.L1TRawToDigi.omtfStage2Digis_cfi
+    unpackOmtf = EventFilter.L1TRawToDigi.omtfStage2Digis_cfi.omtfStage2Digis.clone(
+        inputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
+        
     import EventFilter.L1TRawToDigi.emtfStage2Digis_cfi
     unpackEmtf = EventFilter.L1TRawToDigi.emtfStage2Digis_cfi.emtfStage2Digis.clone(
         InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))    
@@ -86,7 +90,7 @@ else:
 
     # -----------------------------------------------------------
     # change when availalbe simTwinMux and reliable DTTPs, CSCTPs
-    cutlist=['simDtTriggerPrimitiveDigis','simCscTriggerPrimitiveDigis',]
+    cutlist=['simDtTriggerPrimitiveDigis','simCscTriggerPrimitiveDigis']
     for b in cutlist:
         SimL1EmulatorCore.remove(b)
     # -----------------------------------------------------------
@@ -101,7 +105,10 @@ else:
     simOmtfDigis.srcDTTh             = cms.InputTag("unpackBmtf")
     simOmtfDigis.srcCSC              = cms.InputTag("unpackCsctf") 
     if (stage2L1Trigger_2017.isChosen()):
-        simOmtfDigis.srcCSC          = cms.InputTag('unpackEmtf')
+        simOmtfDigis.srcRPC          = cms.InputTag('unpackOmtf')
+        simOmtfDigis.srcCSC          = cms.InputTag('unpackOmtf')
+        simOmtfDigis.srcDTPh         = cms.InputTag('unpackOmtf')
+        simOmtfDigis.srcDTTh         = cms.InputTag('unpackOmtf')
 
     # EMTF
     simEmtfDigis.CSCInput            = cms.InputTag("unpackEmtf") 
@@ -130,7 +137,7 @@ else:
 
 
     
-    SimL1Emulator = cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackRPCTwinMux+unpackTwinMux+unpackEmtf+unpackCsctf+unpackBmtf
+    SimL1Emulator = cms.Sequence(unpackEcal+unpackHcal+unpackCSC+unpackDT+unpackRPC+unpackRPCTwinMux+unpackTwinMux+unpackOmtf+unpackEmtf+unpackCsctf+unpackBmtf
                                  +unpackLayer1
                                  +SimL1EmulatorCore+packCaloStage2
                                  +packGmtStage2+packGtStage2+rawDataCollector)

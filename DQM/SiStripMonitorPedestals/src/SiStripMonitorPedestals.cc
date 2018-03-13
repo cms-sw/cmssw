@@ -85,11 +85,6 @@ SiStripMonitorPedestals::~SiStripMonitorPedestals()
   if (apvFactory_) {delete apvFactory_;} 
 }
 //
-// -- Begin Job
-//
-void SiStripMonitorPedestals::beginJob() {
-}
-//
 // -- BeginRun
 //
 

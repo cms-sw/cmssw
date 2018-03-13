@@ -24,6 +24,8 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "RecoTauTag/HLTProducers/interface/L1TJetsMatching.h"
+#include "RecoTauTag/HLTProducers/interface/PFJetsMaxInvMassModule.h"
+#include "RecoTauTag/HLTProducers/interface/PFTauL1TJetsMatching.h"
 
 typedef L1TJetsMatching<reco::PFJet> L1TPFJetsMatching ;
 typedef L1TJetsMatching<reco::CaloJet> L1TCaloJetsMatching ;
@@ -54,3 +56,5 @@ DEFINE_FWK_MODULE(L2TauPixelIsoTagProducer);
 DEFINE_FWK_MODULE(L1TCaloJetsMatching);
 DEFINE_FWK_MODULE(L1TPFJetsMatching);
 DEFINE_FWK_MODULE(PFJetsTauOverlapRemoval);
+DEFINE_FWK_MODULE(PFJetsMaxInvMassModule);
+DEFINE_FWK_MODULE(PFTauL1TJetsMatching);

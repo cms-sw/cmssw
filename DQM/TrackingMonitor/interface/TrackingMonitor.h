@@ -65,7 +65,6 @@ class TrackingMonitor : public DQMEDAnalyzer
 
         explicit TrackingMonitor(const edm::ParameterSet&);
         ~TrackingMonitor() override;
-        virtual void beginJob(void);
 
 	virtual void setMaxMinBin(std::vector<double> & ,std::vector<double> &  ,std::vector<int> &  ,double, double, int, double, double, int);
 	virtual void setNclus(const edm::Event&, std::vector<int> & );

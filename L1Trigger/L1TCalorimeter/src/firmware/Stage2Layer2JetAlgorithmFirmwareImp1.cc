@@ -19,7 +19,7 @@
 #include <cmath>
 
 namespace l1t {
-  bool operator > ( const l1t::Jet& a, l1t::Jet& b ) {
+  bool operator > ( const l1t::Jet& a, const l1t::Jet& b ) {
     return  a.hwPt() > b.hwPt();
   }
 }
@@ -217,8 +217,8 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet> &
   
   for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
     {
-      if (jets.at(iJet).hwEta() > 0) jetEtaPos.at(jets.at(iJet).hwEta()-1).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
-      else  jetEtaNeg.at(-(jets.at(iJet).hwEta()+1)).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
+      if (jets.at(iJet).hwEta() > 0) jetEtaPos.at(jets.at(iJet).hwEta()-1).at((72-jets.at(iJet).hwPhi())/4) = jets.at(iJet);
+      else  jetEtaNeg.at(-(jets.at(iJet).hwEta()+1)).at((72-jets.at(iJet).hwPhi())/4) = jets.at(iJet);
     }
   
   AccumulatingSort <l1t::Jet> etaPosSorter(7);

@@ -193,6 +193,7 @@ PAYLOAD_2XML_MODULE( pluginUtilities_payload2xml ){
   PAYLOAD_2XML_CLASS( L1TUtmTriggerMenu );
   PAYLOAD_2XML_CLASS( L1TriggerKey );
   PAYLOAD_2XML_CLASS( L1TriggerKeyList );
+  PAYLOAD_2XML_CLASS( LHCInfo );
   PAYLOAD_2XML_CLASS( METCorrectorParametersCollection );
   PAYLOAD_2XML_CLASS( MEtXYcorrectParametersCollection );
   PAYLOAD_2XML_CLASS( MagFieldConfig );

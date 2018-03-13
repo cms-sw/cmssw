@@ -8,6 +8,7 @@
 
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
 #include "CommonTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 
@@ -15,6 +16,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/IsolatedTrack.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/PFParticle.h"
@@ -116,6 +118,17 @@ namespace pat {
               StringCutObjectSelector<CompositeCandidate, true>, // true => lazy parsing => get all methods of daughters
               edm::RefVector<std::vector<CompositeCandidate> >
           > PATCompositeCandidateRefSelector;
+
+  typedef SingleObjectSelector<
+              pat::IsolatedTrackCollection, 
+              StringCutObjectSelector<pat::IsolatedTrack> 
+          > IsoTrackSelector;
+
+  typedef ObjectCountFilter<
+              pat::MuonCollection, 
+              StringCutObjectSelector<pat::Muon>
+	  >::type MuonRefPatCount;
+
 
 
 

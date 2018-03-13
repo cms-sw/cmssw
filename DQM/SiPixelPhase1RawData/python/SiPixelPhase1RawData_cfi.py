@@ -11,27 +11,17 @@ topFolderName = DefaultHisto.topFolderName.value() +"/FED",
   range_min = 0, range_max = 30, range_nbins = 30,
   dimensions = 0,
   specs = VPSet(
-    Specification().groupBy("FED/FED/Event")
-                   .reduce("COUNT")
-                   .groupBy("FED/FED").save(),
-    Specification().groupBy("FED/FED/LinkInFed")
-                   .groupBy("FED/FED", "EXTEND_X")
-                   .save(),
     Specification().groupBy("FED/LinkInFed")
                    .groupBy("FED", "EXTEND_X")
                    .groupBy("", "EXTEND_Y")
-                   .save(),
-    Specification().groupBy("FED/FED/Lumisection")
-    .groupBy("FED/FED","EXTEND_X")
-    .save()
-    .groupBy("")
-    .save()
+                   .save()
   )
 )
 
 SiPixelPhase1RawDataFIFOFull = DefaultHisto.clone(
     topFolderName = DefaultHisto.topFolderName.value() +"/FED", 
     name = "fifofull",
+    enabled=False,
     title = "Type of FIFO full",
     xlabel = "FIFO (data bit #)",
     range_min = -0.5, range_max = 7.5, range_nbins = 8,
@@ -44,6 +34,7 @@ SiPixelPhase1RawDataFIFOFull = DefaultHisto.clone(
 SiPixelPhase1RawDataTBMMessage = DefaultHisto.clone(
   topFolderName = DefaultHisto.topFolderName.value() +"/FED",
   name = "tbmmessage",
+  enabled=False,
   title = "TBM trailer message",
   xlabel = "TBM message (data bit #)",
   range_min = -0.5, range_max = 7.5, range_nbins = 8,
@@ -56,6 +47,7 @@ SiPixelPhase1RawDataTBMMessage = DefaultHisto.clone(
 SiPixelPhase1RawDataTBMType = DefaultHisto.clone(
   topFolderName = DefaultHisto.topFolderName.value() +"/FED",
   name = "tbmtype",
+  enabled=False,
   title = "Type of TBM trailer",
   xlabel = "TBM type",
   range_min = -0.5, range_max = 4.5, range_nbins = 5,
@@ -73,12 +65,8 @@ SiPixelPhase1RawDataTypeNErrors = DefaultHisto.clone(
   range_min = 24.5, range_max = 40.5, range_nbins = 16,
   dimensions = 1,
   specs = VPSet(
-    Specification().groupBy("FED/FED").save(),
     Specification().groupBy("FED")
-                   .groupBy("", "EXTEND_Y").save(),
-    Specification().groupBy("FED/FED/LinkInFed")
-                   .groupBy("FED/FED","EXTEND_Y").save()                  
-
+                   .groupBy("", "EXTEND_Y").save()
   )
 )
 
