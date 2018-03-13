@@ -252,10 +252,5 @@ namespace DataFormats_TauReco {
     edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> >patjet_v_patpc_v_otm_am;
     edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> > > patjet_v_patpc_v_otm_am_w;
     edm::helpers::KeyVal<edm::RefProd<vector<pat::Jet> >,edm::RefProd<vector<pat::PackedCandidate> > > patjet_v_patpc_v_kv;
-
-    // Generic association
-    edm::AssociationMap<edm::OneToOne<edm::View<reco::Jet>,edm::View<reco::Jet>,unsigned int> > v_j_v_j_am;
-    edm::Wrapper<edm::AssociationMap<edm::OneToOne<edm::View<reco::Jet>,edm::View<reco::Jet>,unsigned int> > > v_j_v_j_am_w;
-    edm::helpers::KeyVal<edm::RefToBaseProd<reco::Jet>,edm::RefToBaseProd<reco::Jet> > v_j_v_j_kv;
   };
 }
