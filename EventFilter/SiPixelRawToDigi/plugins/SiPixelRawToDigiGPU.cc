@@ -62,6 +62,13 @@ struct AccretionCluster {
     unsigned int isize=0;
     int charge=0;    
 
+    void clear() {
+      isize=0;
+      charge=0;
+      xmin=16000;
+      ymin=16000;
+    } 
+
     bool add(SiPixelCluster::PixelPos const & p, UShort const iadc) {
       if (isize==MAXSIZE) return false;
       xmin=std::min(xmin,(unsigned short)(p.row()));
@@ -423,6 +430,7 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
   int32_t nclus=-1;
   std::vector<AccretionCluster> aclusters(256);
   auto totCluseFilled=0;
+
   auto fillClusters = [&](uint32_t detId){
     if (nclus<0) return; // this in reality should never happen
     edmNew::DetSetVector<SiPixelCluster>::FastFiller spc(*outputClusters, detId);
@@ -438,6 +446,8 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
       spc.push_back( std::move(cluster) );
       std::push_heap(spc.begin(),spc.end(),[](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
     }
+    for (int32_t ic=0; ic<nclus+1;++ic) aclusters[ic].clear();
+    nclus=-1;                                         
     // sort by row (x)
     std::sort_heap(spc.begin(),spc.end(),[](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
     if ( spc.empty() ) spc.abort();
@@ -449,8 +459,7 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
     if ( (*detDigis).detId() != rawIdArr_h[i])
     {
       fillClusters((*detDigis).detId());
-      nclus=-1; aclusters.clear();aclusters.resize(256);
-
+      assert(nclus==-1);
       detDigis = &(*collection).find_or_insert(rawIdArr_h[i]);
       if ( (*detDigis).empty() )
         (*detDigis).data.reserve(32); // avoid the first relocations
@@ -460,12 +469,12 @@ SiPixelRawToDigiGPU::produce( edm::Event& ev, const edm::EventSetup& es)
     auto const & dig = (*detDigis).data.back();
     // fill clusters
     assert(clus_h[i]>=0);
+    assert(clus_h[i]<256);
     nclus = std::max(clus_h[i],nclus);
     auto row = dig.row();
     auto col = dig.column();
     SiPixelCluster::PixelPos pix(row,col);
     aclusters[clus_h[i]].add(pix,adc_h[i]);
- 
     theDigiCounter++;
   }
 

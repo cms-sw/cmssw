@@ -683,7 +683,7 @@ void RawToDigi_wrapper(
   cudaCheck(cudaMemcpyAsync(clus_h, c.clus_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
 
 
-  cudaDeviceSynchronize();
+  cudaStreamSynchronize(c.stream);
   cudaCheck(cudaGetLastError());
 
   nModulesActive = nModules;
