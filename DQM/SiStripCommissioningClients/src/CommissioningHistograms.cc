@@ -22,7 +22,16 @@ CommissioningHistograms::CommissioningHistograms( const edm::ParameterSet& pset,
     bei_(bei),
     data_(),
     histos_(),
-    pset_(pset)
+    pset_(pset),
+    mask_(pset.existsAs<bool>("vetoModules")?pset.getParameter<bool>("vetoModules"):true),
+    fedMaskVector_(pset.existsAs<std::vector<uint32_t> >("fedMaskVector")?pset.getParameter<std::vector<uint32_t> >("fedMaskVector"):std::vector<uint32_t>()),
+    fecMaskVector_(pset.existsAs<std::vector<uint32_t> >("fecMaskVector")?pset.getParameter<std::vector<uint32_t> >("fecMaskVector"):std::vector<uint32_t>()),
+    ringVector_(pset.existsAs<std::vector<uint32_t> >("ringVector")?pset.getParameter<std::vector<uint32_t> >("ringVector"):std::vector<uint32_t>()),
+    ccuVector_(pset.existsAs<std::vector<uint32_t> >("ccuVector")?pset.getParameter<std::vector<uint32_t> >("ccuVector"):std::vector<uint32_t>()),
+    i2cChanVector_(pset.existsAs<std::vector<uint32_t> >("i2cChanVector")?pset.getParameter<std::vector<uint32_t> >("i2cChanVector"):std::vector<uint32_t>()),
+    lldChanVector_(pset.existsAs<std::vector<uint32_t> >("lldChanVector")?pset.getParameter<std::vector<uint32_t> >("lldChanVector"):std::vector<uint32_t>()),
+    dataWithMask_(),
+    dataWithMaskCached_(false)
 {
   LogTrace(mlDqmClient_)
     << "[" << __PRETTY_FUNCTION__ << "]"
@@ -45,8 +54,11 @@ CommissioningHistograms::CommissioningHistograms()
     task_(sistrip::UNDEFINED_RUN_TYPE),
     bei_(nullptr),
     data_(),
-    histos_()
-{
+    histos_(),
+    mask_(true),
+    dataWithMask_(),
+    dataWithMaskCached_(false){
+
   LogTrace(mlDqmClient_)
     << "[" << __PRETTY_FUNCTION__ << "]"
     << " Constructing object...";
@@ -795,5 +807,41 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
   
   return summary;
   
+}
+
+CommissioningHistograms::Analyses& CommissioningHistograms::data(bool getMaskedData) { 
+  if (!getMaskedData) return data_; 
+  else {
+    if (dataWithMaskCached_) return dataWithMask_;
+    else {
+      Analyses::iterator ianal = data_.begin();
+      Analyses::iterator janal = data_.end();
+      for ( ; ianal != janal; ++ianal ) {
+	CommissioningAnalysis* anal = ianal->second;
+	SiStripFedKey fedkey = anal->fedKey();
+	SiStripFecKey feckey = anal->fecKey();
+	bool maskThisAnal_ = false;
+	for (std::size_t i = 0; i < fedMaskVector_.size(); i++) {
+	  if (fedkey.fedId() == fedMaskVector_[i]) maskThisAnal_ = true;
+	}
+	for (std::size_t i = 0; i < fecMaskVector_.size(); i++) {
+	  if (fecMaskVector_.size() != ringVector_.size() || fecMaskVector_.size() != ccuVector_.size() || fecMaskVector_.size() != i2cChanVector_.size() || fecMaskVector_.size() != lldChanVector_.size()) {
+	    continue;
+	  }
+	  if (feckey.fecSlot() == fecMaskVector_[i] && 
+	      feckey.fecRing() == ringVector_[i] &&
+	      feckey.ccuAddr() == ccuVector_[i] &&
+	      feckey.ccuChan() == i2cChanVector_[i] &&
+	      feckey.lldChan() == lldChanVector_[i]) {
+	    maskThisAnal_ = true;
+	  }
+	}
+	if (mask_ && !maskThisAnal_) dataWithMask_[ianal->first] = ianal->second;
+	else if (!mask_ && maskThisAnal_) dataWithMask_[ianal->first] = ianal->second;
+      }
+      dataWithMaskCached_ = true;
+      return dataWithMask_;
+    } 
+  }
 }
 

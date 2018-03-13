@@ -30,6 +30,9 @@ class PedsFullNoiseHistosUsingDb : public CommissioningHistosUsingDb, public Ped
     bool keepStripsDisabled_;
     bool addBadStrips_;
 
+    // Perform a selective upload either for or excluding a certain set of FEDs                                                                                                                
+    bool allowSelectiveUpload_;
+
 };
 
 #endif // DQM_SiStripCommissioningClients_PedsFullNoiseHistosUsingDb_H

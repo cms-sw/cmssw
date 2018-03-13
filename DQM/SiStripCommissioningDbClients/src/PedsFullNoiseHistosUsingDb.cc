@@ -38,6 +38,11 @@ PedsFullNoiseHistosUsingDb::PedsFullNoiseHistosUsingDb( const edm::ParameterSet 
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
     << " Disabling strips: " << disableBadStrips_
     << " ; keeping previously disabled strips: " << keepStripsDisabled_;
+  allowSelectiveUpload_ = this->pset().existsAs<bool>("doSelectiveUpload")?this->pset().getParameter<bool>("doSelectiveUpload"):false;
+  LogTrace(mlDqmClient_)
+    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << " Selective upload of modules set to : " << allowSelectiveUpload_;
+
 }
 
 // -----------------------------------------------------------------------------
@@ -113,8 +118,8 @@ void PedsFullNoiseHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange f
                              conn.lldChannel() );
 
       // Locate appropriate analysis object 
-      Analyses::const_iterator iter = data().find( fec_key.key() );
-      if ( iter != data().end() ) {
+      Analyses::const_iterator iter = data(allowSelectiveUpload_).find( fec_key.key() );
+      if ( iter != data(allowSelectiveUpload_).end() ) {
       
         PedsFullNoiseAnalysis* anal = dynamic_cast<PedsFullNoiseAnalysis*>( iter->second );
         if ( !anal ) { 
