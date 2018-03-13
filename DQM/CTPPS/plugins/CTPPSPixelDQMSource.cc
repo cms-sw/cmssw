@@ -11,8 +11,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -67,7 +65,7 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
  static constexpr int NRPotBinsInStation = RPn_last-RPn_first;
  static constexpr int NPlaneBins = NplaneMAX*NRPotBinsInStation;
 
-  MonitorElement *hBX, *hBXshort;
+  MonitorElement *hBX, *hBXshort, *h2AllPlanesActive;
 
   MonitorElement *hp2HitsOcc[NArms][NStationMAX];
   MonitorElement *h2HitsMultipl[NArms][NStationMAX];
@@ -95,7 +93,7 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
   int           ClusMultPlane[RPotsTotalNumber][NplaneMAX];
 
 
-  unsigned int rpStatusWord = 0x8000; // 220 fr_hr (stn2rp3)
+  unsigned int rpStatusWord = 0x8008; //220_fr_hr(stn2rp3)+ 210_fr_hr
   int RPstatus[NStationMAX][NRPotsMAX]; // symmetric in both arms
   int StationStatus[NStationMAX]; // symmetric in both arms
   const int IndexNotValid = 0;
@@ -112,6 +110,15 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
     int rc = getRPindex(arm, station, rp);
     if(rc == IndexNotValid) return(IndexNotValid);
     return(rc*NplaneMAX + plane);
+  }
+
+  int getRPInStationBin(int rp) { return(rp - RPn_first +1); }
+
+  
+  static constexpr int NRPglobalBins = 4; //2 arms w. 2 stations w. 1 RP
+  int getRPglobalBin(int arm, int stn) { 
+   static constexpr int stationBinOrder[NStationMAX] = {0, 4, 1};
+   return( arm*2 + stationBinOrder[stn] +1 );
   }
 
   int prIndex(int rp, int plane) // plane index in station
@@ -135,7 +142,7 @@ using namespace edm;
 
 CTPPSPixelDQMSource::CTPPSPixelDQMSource(const edm::ParameterSet& ps) :
   verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
-  rpStatusWord(ps.getUntrackedParameter<unsigned int>("RPStatusWord",0x8000))
+  rpStatusWord(ps.getUntrackedParameter<unsigned int>("RPStatusWord",0x8008))
 {
  tokenDigi = consumes<DetSetVector<CTPPSPixelDigi> >(ps.getParameter<edm::InputTag>("tagRPixDigi"));
  tokenCluster=consumes<DetSetVector<CTPPSPixelCluster>>(ps.getParameter<edm::InputTag>("tagRPixCluster"));
@@ -183,24 +190,34 @@ edm::EventSetup const &)
   ibooker.cd();
   ibooker.setCurrentFolder("CTPPS/TrackingPixel");
   char s[50];
+  string armTitleShort, stnTitleShort;
   hBX = ibooker.book1D("events per BX", "ctpps_pixel;Event.BX", 4002, -1.5, 4000. +0.5);
   hBXshort = ibooker.book1D("events per BX(short)", "ctpps_pixel;Event.BX", 102, -1.5, 100. + 0.5);
+
+  string str1st = "Pixel planes activity";
+  h2AllPlanesActive = ibooker.book2DD(str1st,str1st+";Plane #",
+                NplaneMAX,0,NplaneMAX, NRPglobalBins, 0.5, NRPglobalBins+0.5);
+  TH2D *h1st = h2AllPlanesActive->getTH2D();
+  h1st->SetOption("colz");
+  TAxis *yah1st = h1st->GetYaxis();
 
  for(int arm=0; arm<2; arm++) {
    CTPPSDetId ID(CTPPSDetId::sdTrackingPixel,arm,0);
    string sd, armTitle;
    ID.armName(sd, CTPPSDetId::nPath);
    ID.armName(armTitle, CTPPSDetId::nFull);
+   ID.armName(armTitleShort, CTPPSDetId::nShort);
 
    ibooker.setCurrentFolder(sd);
 
- for(int stn=2; stn<NStationMAX; stn++) {
+ for(int stn=0; stn<NStationMAX; stn++) {
    if(StationStatus[stn]==0) continue;
    ID.setStation(stn);
    string stnd, stnTitle;
 
    CTPPSDetId(ID.getStationId()).stationName(stnd, CTPPSDetId::nPath);
    CTPPSDetId(ID.getStationId()).stationName(stnTitle, CTPPSDetId::nFull);
+   CTPPSDetId(ID.getStationId()).stationName(stnTitleShort, CTPPSDetId::nShort);
 
    ibooker.setCurrentFolder(stnd);
 
@@ -208,7 +225,7 @@ edm::EventSetup const &)
    string st2 = ": " + stnTitle;
 
    h2PlaneActive[arm][stn] = ibooker.book2DD(st,st+st2+";Plane #",
-		NplaneMAX,0,NplaneMAX, NRPotBinsInStation, RPn_first,RPn_last);
+		NplaneMAX,0,NplaneMAX, NRPotBinsInStation, 0.5, NRPotBinsInStation+0.5);
    TH2D *h = h2PlaneActive[arm][stn]->getTH2D();
    h->SetOption("colz");
    TAxis *yah = h->GetYaxis();
@@ -252,8 +269,10 @@ edm::EventSetup const &)
        ID.setRP(rp);
        string rpd, rpTitle;
        CTPPSDetId(ID.getRPId()).rpName(rpTitle, CTPPSDetId::nShort);
-	yah->SetBinLabel(rp - RPn_first +1, rpTitle.c_str()); // h
-       yah2->SetBinLabel(rp - RPn_first +1, rpTitle.c_str()); //h2
+	yah->SetBinLabel(getRPInStationBin(rp), rpTitle.c_str()); // h
+       yah2->SetBinLabel(getRPInStationBin(rp), rpTitle.c_str()); //h2
+       string rpBinName = armTitleShort + "_" + stnTitleShort+"_"+rpTitle;
+       yah1st->SetBinLabel(getRPglobalBin(arm,stn), rpBinName.c_str());
 
        if(RPstatus[stn][rp]==0) continue;
        int indexP = getRPindex(arm,stn,rp);
@@ -361,21 +380,20 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
   int lumiId = event.getLuminosityBlock().id().luminosityBlock();
   if(lumiId<0) lumiId=0;
 
-  int RPactivity[NArms][NRPotsMAX], digiSize[NArms][NRPotsMAX];
-  for(int arm = 0; arm <2; arm++) { 
-    for(int rp=0; rp<NRPotsMAX; rp++) {
-      RPactivity[arm][rp] = digiSize[arm][rp] = 0;
-    }
-  }
-  for(int ind=0; ind<2*3*NRPotsMAX; ind++) { 
+  int RPactivity[RPotsTotalNumber], RPdigiSize[RPotsTotalNumber];
+
+  for(int rp=0; rp<RPotsTotalNumber; rp++)
+    { RPactivity[rp] = RPdigiSize[rp] = 0;}
+
+  for(int ind=0; ind<RPotsTotalNumber; ind++) { 
     for(int p=0; p<NplaneMAX; p++) {
       HitsMultPlane[ind][p] = 0;
       ClusMultPlane[ind][p] = 0;
     }
   }
-  for(int ind=0; ind<2*3*NRPotsMAX*NplaneMAX; ind++)  {
-    for(int rp=0; rp<NROCsMAX; rp++) {
-      HitsMultROC[ind][rp] = 0;
+  for(int ind=0; ind<RPotsTotalNumber*NplaneMAX; ind++)  {
+    for(int roc=0; roc<NROCsMAX; roc++) {
+      HitsMultROC[ind][roc] = 0;
     }
   }
   Handle< DetSetVector<CTPPSPixelDigi> > pixDigi;
@@ -409,14 +427,16 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
       int arm = theId.arm()&0x1;
       int station = theId.station()&0x3;
       int rpot = theId.rp()&0x7;
-      RPactivity[arm][rpot] = 1;
-      ++digiSize[arm][rpot];
+      int rpInd = getRPindex(arm,station,rpot);
+      RPactivity[rpInd] = 1;
+      ++RPdigiSize[rpInd];
 
       if(StationStatus[station] && RPstatus[station][rpot]) {
 
         hp2HitsOcc[arm][station]->Fill(plane,rpot,(int)ds_digi.data.size());
         h2HitsMultipl[arm][station]->Fill(prIndex(rpot,plane),ds_digi.data.size());
-        h2PlaneActive[arm][station]->Fill(plane,rpot);
+        h2PlaneActive[arm][station]->Fill(plane,getRPInStationBin(rpot));
+        h2AllPlanesActive->Fill(plane,getRPglobalBin(arm,station));
 
         int index = getRPindex(arm,station,rpot);
         HitsMultPlane[index][plane] += ds_digi.data.size();
@@ -495,7 +515,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
       for(int rp=0; rp<NRPotsMAX; rp++) {
         int index = getRPindex(arm,stn,rp);
         if(RPindexValid[index]==0) continue;
-        if(RPactivity[arm][rp]==0) continue;
+        if(RPactivity[index]==0) continue;
 
         for(int p=0; p<NplaneMAX; p++)
           h2ClusMultipl[arm][stn]->Fill(prIndex(rp,p),ClusMultPlane[index][p]);
@@ -507,7 +527,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
 	  else hRPotActivPlanes[index]->Fill(p,0.);
 	}
         if(np>5) hRPotActivBX[index]->Fill(event.bunchCrossing());
-        hRPotActivBXall[index]->Fill(event.bunchCrossing(),float(digiSize[arm][rp]));
+        hRPotActivBXall[index]->Fill(event.bunchCrossing(),float(RPdigiSize[index]));
 
         int rocf[NplaneMAX];
         for(int r=0; r<NROCsMAX; r++) rocf[r]=0;
