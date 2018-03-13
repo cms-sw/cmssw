@@ -42,6 +42,14 @@ namespace edm {
         return WantsGlobalLuminosityBlockTransitions<T...>::value;
       }
 
+      bool hasAbilityToProduceInRuns() const final {
+        return HasAbilityToProduceInRuns<T...>::value;
+      }
+
+      bool hasAbilityToProduceInLumis() const final {
+        return HasAbilityToProduceInLumis<T...>::value;
+      }
+
       // ---------- static member functions --------------------
       
       // ---------- member functions ---------------------------

@@ -469,6 +469,7 @@ struct UnsafeCache {
       trans_= p.getParameter<int>("transitions");
       cvalue_ = p.getParameter<int>("cachevalue");
       produces<unsigned int>();
+      produces<unsigned int, edm::Transition::BeginRun>("a");
     }
 
     static std::shared_ptr<bool> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&, GlobalCache const*) {
@@ -533,6 +534,7 @@ struct UnsafeCache {
       trans_= p.getParameter<int>("transitions");
       cvalue_ = p.getParameter<int>("cachevalue");
       produces<unsigned int>();
+      produces<unsigned int, edm::Transition::EndRun>("a");
     }
 
     void produce(edm::Event&, edm::EventSetup const&) override {
@@ -582,6 +584,7 @@ struct UnsafeCache {
       trans_= p.getParameter<int>("transitions");
       cvalue_ = p.getParameter<int>("cachevalue");
       produces<unsigned int>();
+      produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
     }
 
     void produce(edm::Event&, edm::EventSetup const&) override {
@@ -638,6 +641,7 @@ struct UnsafeCache {
       trans_= p.getParameter<int>("transitions");
       cvalue_ = p.getParameter<int>("cachevalue");
       produces<unsigned int>();
+      produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
     }
 
     void produce(edm::Event&, edm::EventSetup const&) override {
