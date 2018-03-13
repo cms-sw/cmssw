@@ -62,7 +62,7 @@ class L1TMuonBarrelKalmanAlgo {
   uint twosCompToBits(int);
 
   //LUT service
-  L1TMuonBarrelKalmanLUTs* lutService_;
+  std::unique_ptr<L1TMuonBarrelKalmanLUTs> lutService_;
 
 
   //Initial Curvature
