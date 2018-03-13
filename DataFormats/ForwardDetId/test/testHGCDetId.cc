@@ -10,7 +10,7 @@
 
 void testCell(int type) {
 
-  int    N  = (type == 0) ? 12 : 8;
+  int    N  = (type == 0) ? HGCSiliconDetId::HGCalFineN : HGCSiliconDetId::HGCalCoarseN;
   const int waferu(0), waferv(0), layer(1), zside(1);
   std::map<std::pair<int,int>,int> triggers;
   int    ntot(0);
@@ -35,10 +35,9 @@ void testCell(int type) {
   std::cout << "Total of " << ntot << " cells in type " << type << " with "
 	    << triggers.size() << " trigger cells" << std::endl;
   int k(0);
-  for (std::map<std::pair<int,int>,int>::iterator itr = triggers.begin();
-       itr != triggers.end(); ++itr) {
-    std::cout << "Trigger[" << k << "]  (" << (itr->first).first << ":"
-	      << (itr->first).second << ")  " << itr->second << std::endl;
+  for (auto itr : triggers) {
+    std::cout << "Trigger[" << k << "]  (" << (itr.first).first << ":"
+	      << (itr.first).second << ")  " << itr.second << std::endl;
     ++k;
   }
 }

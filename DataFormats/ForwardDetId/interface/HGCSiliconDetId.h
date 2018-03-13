@@ -5,6 +5,20 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
+/* \brief description of the bit assigment
+   [0:4]   u-coordinate of the cell (measured from the lower left
+   [5:9]   v-coordinate of the cell  corner of the wafer)
+   [10:13] abs(u) of the wafer (u-axis points along -x axis)
+   [14:14] sign of u (0:+u; 1:-u) (u=0 is at the center of beam line)
+   [15:18] abs(v) of the wafer (v-axis points 60-degree wrt x-axis)
+   [19:19] sign of v (0:+v; 1:-v) (v=0 is at the center of beam line)
+   [20:24] layer number 
+   [25:25] z-side (0 for +z; 1 for -z)
+   [26:27] Type (0 fine divisions of wafer with 120 mum thick silicon
+                 1 coarse divisions of wafer with 200 mum thick silicon
+                 2 coarse divisions of wafer with 300 mum thick silicon)
+   [28:31] Detector type (HGCalEE or HGCalHSi)
+*/
 class HGCSiliconDetId : public DetId {
 
 public:

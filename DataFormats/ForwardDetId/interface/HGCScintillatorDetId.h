@@ -5,6 +5,16 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
+/* \brief description of the bit assigment
+   [0:8]   iphi index wrt x-axis on +z side
+   [9:16]  |ieta| index (starting from |etamin|)
+   [17:21] Layer #
+   [22:22] z-side (0 for +z; 1 for -z)
+   [23:23] Type (0 fine divisions; 1 for coarse division)
+   [24:24] Reserved for future extension
+   [28:31] Detector type (HGCalHSc)
+*/
+
 class HGCScintillatorDetId : public DetId {
 
 public:
@@ -58,11 +68,11 @@ private:
   static const int kHGCalEtaMask        = 0xFF;
   static const int kHGCalLayerOffset    = 17;
   static const int kHGCalLayerMask      = 0x1F;
-  static const int kHGCalZsideOffset    = 24;
+  static const int kHGCalZsideOffset    = 22;
   static const int kHGCalZsideMask      = 0x1;
-  static const int kHGCalZsideMask2     = 0x1000000;
-  static const int kHGCalTypeOffset     = 22;
-  static const int kHGCalTypeMask       = 0x3;
+  static const int kHGCalZsideMask2     = 0x400000;
+  static const int kHGCalTypeOffset     = 23;
+  static const int kHGCalTypeMask       = 0x1;
 };
 
 std::ostream& operator<<(std::ostream&,const HGCScintillatorDetId& id);
