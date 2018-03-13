@@ -1,4 +1,4 @@
-autoCond = { 
+autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
