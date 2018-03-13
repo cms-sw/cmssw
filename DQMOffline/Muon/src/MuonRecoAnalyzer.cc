@@ -22,17 +22,13 @@ MuonRecoAnalyzer::MuonRecoAnalyzer(const edm::ParameterSet& pSet) {
 
   // Input booleans
   IsminiAOD = parameters.getParameter<bool>("IsminiAOD");
-  
+  doMVA     = parameters.getParameter<bool>("doMVA"); 
   // the services:
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
   theMuonCollectionLabel_ = consumes<edm::View<reco::Muon> >  (parameters.getParameter<edm::InputTag>("MuonCollection"));
   theVertexLabel_   = consumes<reco::VertexCollection>     (pSet.getParameter<InputTag>("inputTagVertex"));
   theBeamSpotLabel_ = consumes<reco::BeamSpot>             (pSet.getParameter<InputTag>("inputTagBeamSpot"));
   dcsStatusCollection_ = consumes<DcsStatusCollection>(pSet.getUntrackedParameter<std::string>("dcsStatusCollection","scalersRawToDigi"));
-  theVertexName = parameters.getParameter<string>("inputTagVertex");
-  theBeamSpotName = parameters.getParameter<string>("inputTagBeamSpot");
-  doMVA = true;
-  if(theVertexName == "" || theBeamSpotName == "") doMVA = false;
 
   ptBin = parameters.getParameter<int>("ptBin");
   ptMin = parameters.getParameter<double>("ptMin");
