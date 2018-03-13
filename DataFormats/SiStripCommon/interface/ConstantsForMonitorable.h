@@ -1,4 +1,3 @@
-
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
 
@@ -103,26 +102,43 @@ namespace sistrip {
   static const char calibrationTail_[]         = "CalibrationTail";
   static const char calibrationRiseTime_[]     = "CalibrationRiseTime";
   static const char calibrationTimeConstant_[] = "CalibrationTimeConstant";
+  static const char calibrationTurnOn_[]       = "CalibrationTurnOn";
+  static const char calibrationMaximum_[]      = "CalibrationMaximum";
+  static const char calibrationUndershoot_[]   = "CalibrationUndershoot";
+  static const char calibrationBaseline_[]     = "CalibrationBaseline";
   static const char calibrationSmearing_[]     = "CalibrationSmearing";
   static const char calibrationChi2_[]         = "CalibrationChi2";
   static const char calibrationAmplitudeAS_[]    = "StripCalibrationAmplitude";
   static const char calibrationTailAS_[]         = "StripCalibrationTail";
   static const char calibrationRiseTimeAS_[]     = "StripCalibrationRiseTime";
   static const char calibrationTimeConstantAS_[] = "StripCalibrationTimeConstant";
+  static const char calibrationTurnOnAS_[]       = "StripCalibrationTurnOn";
+  static const char calibrationMaximumAS_[]      = "StripCalibrationMaximum";
+  static const char calibrationUndershootAS_[]   = "StripCalibrationUndershoot";
+  static const char calibrationBaselineAS_[]     = "StripCalibrationBaseline";
   static const char calibrationSmearingAS_[]     = "StripCalibrationSmearing";
   static const char calibrationChi2AS_[]         = "StripCalibrationChi2";
   static const char calibrationAmplitudeMin_[]    = "MinCalibrationAmplitude";
   static const char calibrationTailMin_[]         = "MinCalibrationTail";
   static const char calibrationRiseTimeMin_[]     = "MinCalibrationRiseTime";
   static const char calibrationTimeConstantMin_[] = "MinCalibrationTimeConstant";
+  static const char calibrationTurnOnMin_[]       = "MinCalibrationTurnOn";
+  static const char calibrationMaximumMin_[]      = "MinCalibrationMaximum";
+  static const char calibrationUndershootMin_[]   = "MinCalibrationUndershoot";
+  static const char calibrationBaselineMin_[]     = "MinCalibrationBaseline";
   static const char calibrationSmearingMin_[]     = "MinCalibrationSmearing";
   static const char calibrationChi2Min_[]         = "MinCalibrationChi2";
   static const char calibrationAmplitudeMax_[]    = "MaxCalibrationAmplitude";
   static const char calibrationTailMax_[]         = "MaxCalibrationTail";
   static const char calibrationRiseTimeMax_[]     = "MaxCalibrationRiseTime";
   static const char calibrationTimeConstantMax_[] = "MaxCalibrationTimeConstant";
+  static const char calibrationTurnOnMax_[]       = "MaxCalibrationTurnOn";
+  static const char calibrationMaximumMax_[]      = "MaxCalibrationMaximum";
+  static const char calibrationUndershootMax_[]   = "MaxCalibrationUndershoot";
+  static const char calibrationBaselineMax_[]     = "MaxCalibrationBaseline";
   static const char calibrationSmearingMax_[]     = "MaxCalibrationSmearing";
   static const char calibrationChi2Max_[]         = "MaxCalibrationChi2";
+
 
   // daq scope mode
   static const char daqScopeModeMeanSignal_[] = "DaqScopeMode_MeanSignal";
@@ -196,7 +212,7 @@ namespace sistrip {
 		     NOISE_BIN_84_ALL_STRIPS= 217,
 		     NOISE_CHI2_ALL_STRIPS 	= 218,
 		     NOISE_SIGNIF_ALL_STRIPS= 219,
-             NOISE_RMS_ALL_STRIPS 	= 220,
+		     NOISE_RMS_ALL_STRIPS 	= 220,
 		     FINE_DELAY_POS 		= 601,
 		     FINE_DELAY_ERROR 		= 602,
 
@@ -224,6 +240,22 @@ namespace sistrip {
 		     CALIBRATION_TIMECONSTANT_MAX = 722,
 		     CALIBRATION_SMEARING_MAX     = 723,
 		     CALIBRATION_CHI2_MAX         = 724,
+		     CALIBRATION_TURNON           = 725,
+		     CALIBRATION_MAXIMUM          = 726,
+		     CALIBRATION_UNDERSHOOT       = 727,
+		     CALIBRATION_BASELINE         = 728,
+		     CALIBRATION_TURNON_ALLSTRIPS = 729,
+		     CALIBRATION_MAXIMUM_ALLSTRIPS = 730,
+		     CALIBRATION_UNDERSHOOT_ALLSTRIPS = 731,
+		     CALIBRATION_BASELINE_ALLSTRIPS = 732,
+		     CALIBRATION_TURNON_MIN = 733,
+		     CALIBRATION_MAXIMUM_MIN = 734,
+		     CALIBRATION_UNDERSHOOT_MIN = 735,
+		     CALIBRATION_BASELINE_MIN = 736,
+		     CALIBRATION_TURNON_MAX = 737,
+		     CALIBRATION_MAXIMUM_MAX = 738,
+		     CALIBRATION_UNDERSHOOT_MAX = 739,
+		     CALIBRATION_BASELINE_MAX = 740,
 
 		     DAQ_SCOPE_MODE_MEAN_SIGNAL = 1501
   };
