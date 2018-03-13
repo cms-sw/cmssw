@@ -59,7 +59,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "PhysicsTools/JetMCUtils/interface/CandMCTag.h"
-#include "PhysicsTools/CandUtils/interface/pdgIdUtils.h"
+#include "CommonTools/CandUtils/interface/pdgIdUtils.h"
 #include "PhysicsTools/JetMCAlgos/interface/BasePartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/Pythia6PartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/Pythia8PartonSelector.h"
@@ -79,12 +79,12 @@ typedef boost::shared_ptr<BasePartonSelector> PartonSelectorPtr;
 class HadronAndPartonSelector : public edm::stream::EDProducer<> {
    public:
       explicit HadronAndPartonSelector(const edm::ParameterSet&);
-      ~HadronAndPartonSelector();
+      ~HadronAndPartonSelector() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
       const edm::EDGetTokenT<GenEventInfoProduct>         srcToken_;        // To get handronizer module type
