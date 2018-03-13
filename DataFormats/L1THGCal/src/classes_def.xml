@@ -16,11 +16,18 @@
 
   <class name="l1t::HGCalTower" />
   <class name="std::vector<l1t::HGCalTower>" />
+  <class name="std::unordered_map<int,l1t::HGCalTower>" />
   <class name="l1t::HGCalTowerBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalTowerBxCollection>"/>
 
+  <class name="l1t::HGCalTowerMap" />
+  <class name="std::vector<l1t::HGCalTowerMap>" />
+  <class name="l1t::HGCalTowerMapBxCollection"/>
+  <class name="edm::Wrapper<l1t::HGCalTowerMapBxCollection>"/>
+
   <class name="l1t::HGCalClusterT<l1t::HGCalTriggerCell>" />
-  <class name="l1t::HGCalCluster" ClassVersion="13">
+  <class name="l1t::HGCalCluster" ClassVersion="14">
+  <version ClassVersion="14" checksum="3289642235"/>
   <version ClassVersion="13" checksum="3397489079"/>
   <version ClassVersion="12" checksum="623703096"/>
   <version ClassVersion="11" checksum="354623225"/>
@@ -31,7 +38,8 @@
   <class name="edm::Wrapper<l1t::HGCalClusterBxCollection>"/>
 
   <class name="l1t::HGCalClusterT<l1t::HGCalCluster>" />
-  <class name="l1t::HGCalMulticluster" ClassVersion="13">
+  <class name="l1t::HGCalMulticluster" ClassVersion="14">
+  <version ClassVersion="14" checksum="2315302819"/> 
   <version ClassVersion="13" checksum="816077951"/>
   <version ClassVersion="12" checksum="4221677522"/>
   <version ClassVersion="11" checksum="1508179045"/>
@@ -48,14 +56,21 @@
   <class name="l1t::HGCalTriggerCellBxCollection"/>
   <class name="edm::Wrapper<l1t::HGCalTriggerCellBxCollection>"/>
 
-  <class name="edm::PtrVector<l1t::HGCalTriggerCell>" />
-  <class name="edm::PtrVector<l1t::HGCalCluster>" />
+  <class name="std::vector<edm::Ptr<l1t::HGCalTriggerCell>>" />
+  <class name="std::vector<edm::Ptr<l1t::HGCalCluster>>" />
+  <class name="std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>" />
+  <class name="std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>>" />
+  <class name="std::unordered_map<uint32_t, double>" />
+  <class name="edm::PtrVector<l1t::HGCalTowerMap>" />
   <class name="edm::Ptr<l1t::HGCalTriggerCell>" />
   <class name="edm::Ptr<l1t::HGCalCluster>" />
+  <class name="edm::Ptr<l1t::HGCalTowerMap>" />
   <class name="edm::Wrapper<edm::Ptr<l1t::HGCalTriggerCell>>"/>
   <class name="edm::Wrapper<edm::PtrVector<l1t::HGCalTriggerCell>>"/>
   <class name="edm::Wrapper<edm::Ptr<l1t::HGCalCluster>>"/>
   <class name="edm::Wrapper<edm::PtrVector<l1t::HGCalCluster>>"/>
+  <class name="edm::Wrapper<edm::Ptr<l1t::HGCalTowerMap>>"/>
+  <class name="edm::Wrapper<edm::PtrVector<l1t::HGCalTowerMap>>"/>
 
   <class name="l1t::ClusterShapes"/>
 

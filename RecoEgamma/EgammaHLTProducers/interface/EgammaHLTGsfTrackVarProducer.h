@@ -81,6 +81,8 @@ class EgammaHLTGsfTrackVarProducer : public edm::stream::EDProducer<> {
   TrackExtrapolator trackExtrapolator_;
   const int upperTrackNrToRemoveCut_;
   const int lowerTrackNrToRemoveCut_;
+  const bool useDefaultValuesForBarrel_;
+  const bool useDefaultValuesForEndcap_;
 };
 
 #endif

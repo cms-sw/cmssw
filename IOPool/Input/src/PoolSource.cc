@@ -80,6 +80,7 @@ namespace edm {
     productSelectorRules_(pset, "inputCommands", "InputSource"),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches")),
     labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC")),
+    delayReadingEventProducts_(pset.getUntrackedParameter<bool>("delayReadingEventProducts")),
     runHelper_(makeRunHelper(pset)),
     resourceSharedWithDelayedReaderPtr_(),
     // Note: primaryFileSequence_ and secondaryFileSequence_ need to be initialized last, because they use data members
@@ -247,6 +248,9 @@ namespace edm {
           eventPrincipal.id() << " is not found in the secondary input files\n";
       }
     }
+    if(not delayReadingEventProducts_) {
+      eventPrincipal.readAllFromSourceAndMergeImmediately();
+    }
   }
 
   bool
@@ -322,6 +326,7 @@ namespace edm {
         ->setComment("If True, also drop on input any descendent of any branch dropped on input.");
     desc.addUntracked<bool>("labelRawDataLikeMC", true)
         ->setComment("If True: replace module label for raw data to match MC. Also use 'LHC' as process.");
+    desc.addUntracked<bool>("delayReadingEventProducts",true)->setComment("If True: do not read a data product from the file until it is requested. If False: all event data products are read upfront.");
     ProductSelectorRules::fillDescription(desc, "inputCommands");
     InputSource::fillDescription(desc);
     RootPrimaryFileSequence::fillDescription(desc);

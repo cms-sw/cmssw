@@ -12,7 +12,7 @@ static std::vector<unsigned short> bitsetToVector( std::bitset<LHCInfo::bunchSlo
   vec.reserve( bs.count() );
   for( size_t i = 0; i < bs.size(); ++i ) {
     if( bs.test( i ) )
-      vec.push_back( (unsigned short)i );
+      vec.push_back( (unsigned short) i );
   }
   return vec;
 }
@@ -70,19 +70,21 @@ static std::string particleTypeToString( LHCInfo::ParticleTypeId const & particl
   return s_particleType;
 }
 
-LHCInfo::LHCInfo(): m_isData( false )
-		  , m_intParams( ISIZE )
+LHCInfo::LHCInfo(): m_intParams( ISIZE )
 		  , m_floatParams( FSIZE )
 		  , m_timeParams( TSIZE )
 		  , m_stringParams( SSIZE )
-{}
+{
+	setFill(0, false);
+}
 
-LHCInfo::LHCInfo( unsigned short const & lhcFill, bool const & fromData ): m_isData( fromData )
-									 , m_intParams( ISIZE )
+LHCInfo::LHCInfo( unsigned short const & lhcFill, bool const & fromData ): m_intParams( ISIZE )
 									 , m_floatParams( FSIZE )
 									 , m_timeParams( TSIZE )
 									 , m_stringParams( SSIZE )
-{}
+{
+	setFill(lhcFill, fromData);
+}
 
 LHCInfo::~LHCInfo() {}
 
@@ -90,12 +92,16 @@ LHCInfo::~LHCInfo() {}
 void LHCInfo::setFill( unsigned short const & lhcFill, bool const & fromData ) {
   m_isData = fromData;
   m_intParams.resize( ISIZE, std::vector<unsigned int>(1,0) );
-  m_intParams[ LHC_FILL ][0] = lhcFill;
+  m_intParams[ LHC_FILL ].push_back( lhcFill );
   m_floatParams.resize( FSIZE, std::vector<float>(1,0.));
-  m_floatParams[ LUMI_PER_B ] = std::vector<float>();
-  m_timeParams.resize( TSIZE, std::vector<unsigned long long>(1,0) );
-  m_stringParams.resize( SSIZE, std::vector<std::string>() );
-  m_stringParams[ INJECTION_SCHEME ] = std::vector<std::string>(1,"None");
+  m_floatParams[ LUMI_PER_B ] = std::vector<float>(1, 0.);
+  m_floatParams[ BEAM1_VC ] = std::vector<float>(1, 0.);
+  m_floatParams[ BEAM2_VC ] = std::vector<float>(1, 0.);
+  m_floatParams[ BEAM1_RF ] = std::vector<float>(1, 0.);
+  m_floatParams[ BEAM2_RF ] = std::vector<float>(1, 0.);
+  m_timeParams.resize( TSIZE, std::vector<unsigned long long>(1,0ULL) );
+  m_stringParams.resize( SSIZE, std::vector<std::string>(1, "") );
+  m_stringParams[ INJECTION_SCHEME ].push_back( std::string("None") );
   m_bunchConfiguration1.reset();
   m_bunchConfiguration2.reset();
 }
@@ -109,7 +115,7 @@ namespace LHCInfoImpl {
   template <typename T> const T& getOneParam( const std::vector< std::vector<T> >& params, size_t index ){
     if( index >= params.size() ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" is out of range.");
     const std::vector<T>& inner = params[index];
-    if( inner.empty() ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" has not value stored.");
+    if( inner.empty() ) throw std::out_of_range("Parameter with index "+std::to_string(index)+" has no value stored.");
     return inner[ 0 ];
   }
 
@@ -208,6 +214,38 @@ std::string const & LHCInfo::injectionScheme() const {
 
 std::vector<float> const & LHCInfo::lumiPerBX() const {
   return LHCInfoImpl::getParams(m_floatParams, LUMI_PER_B );
+}
+
+std::string const & LHCInfo::lhcState() const {
+  return LHCInfoImpl::getOneParam(m_stringParams, LHC_STATE );
+}
+
+std::string const & LHCInfo::lhcComment() const {
+  return LHCInfoImpl::getOneParam(m_stringParams, LHC_COMMENT );
+}
+
+std::string const & LHCInfo::ctppsStatus() const {
+  return LHCInfoImpl::getOneParam(m_stringParams, CTPPS_STATUS );
+}
+
+unsigned int const & LHCInfo::lumiSection() const {
+  return LHCInfoImpl::getOneParam(m_intParams, LUMI_SECTION );
+}
+
+std::vector<float> const & LHCInfo::beam1VC() const {
+  return LHCInfoImpl::getParams(m_floatParams, BEAM1_VC );
+}
+
+std::vector<float> const & LHCInfo::beam2VC() const {
+  return LHCInfoImpl::getParams(m_floatParams, BEAM2_VC );
+}
+
+std::vector<float> const & LHCInfo::beam1RF() const {
+  return LHCInfoImpl::getParams(m_floatParams, BEAM1_RF );
+}
+
+std::vector<float> const & LHCInfo::beam2RF() const {
+  return LHCInfoImpl::getParams(m_floatParams, BEAM2_RF );
 }
 
 //returns a boolean, true if the injection scheme has a leading 25ns
@@ -316,28 +354,68 @@ void LHCInfo::setLumiPerBX( std::vector<float> const & lumiPerBX) {
   LHCInfoImpl::setParams( m_floatParams, LUMI_PER_B, lumiPerBX );
 }
 
+void LHCInfo::setLhcState( std::string const & lhcState) {
+  LHCInfoImpl::setOneParam( m_stringParams, LHC_STATE, lhcState );
+}
+
+void LHCInfo::setLhcComment( std::string const & lhcComment) {
+  LHCInfoImpl::setOneParam( m_stringParams, LHC_COMMENT, lhcComment );
+}
+
+void LHCInfo::setCtppsStatus( std::string const & ctppsStatus) {
+  LHCInfoImpl::setOneParam( m_stringParams, CTPPS_STATUS, ctppsStatus );
+}
+
+void LHCInfo::setLumiSection( unsigned int const & lumiSection) {
+  LHCInfoImpl::setOneParam( m_intParams, LUMI_SECTION, lumiSection );
+}
+
+void LHCInfo::setBeam1VC( std::vector<float> const & beam1VC) {
+  LHCInfoImpl::setParams( m_floatParams, BEAM1_VC, beam1VC );
+}
+
+void LHCInfo::setBeam2VC( std::vector<float> const & beam2VC) {
+  LHCInfoImpl::setParams( m_floatParams, BEAM2_VC, beam2VC );
+}
+
+void LHCInfo::setBeam1RF( std::vector<float> const & beam1RF) {
+  LHCInfoImpl::setParams( m_floatParams, BEAM1_RF, beam1RF );
+}
+
+void LHCInfo::setBeam2RF( std::vector<float> const & beam2RF) {
+  LHCInfoImpl::setParams( m_floatParams, BEAM2_RF, beam2RF );
+}
+
 //sets all values in one go
 void LHCInfo::setInfo( unsigned short const & bunches1
-		       ,unsigned short const & bunches2
-		       ,unsigned short const & collidingBunches
-		       ,unsigned short const & targetBunches
-		       ,FillTypeId const & fillType
-		       ,ParticleTypeId const & particleType1
-		       ,ParticleTypeId const & particleType2
-		       ,float const & angle
-		       ,float const & beta
-		       ,float const & intensity1
-		       ,float const & intensity2
-		       ,float const & energy
-		       ,float const & delivLumi
-		       ,float const & recLumi
-		       ,cond::Time_t const & createTime
-		       ,cond::Time_t const & beginTime
-		       ,cond::Time_t const & endTime
-		       ,std::string const & scheme
-		       ,std::vector<float> const & lumiPerBX
-		       ,std::bitset<bunchSlots+1> const & bunchConf1
-		       ,std::bitset<bunchSlots+1> const & bunchConf2 ) {
+			    ,unsigned short const & bunches2
+			    ,unsigned short const & collidingBunches
+			    ,unsigned short const & targetBunches
+			    ,FillTypeId const & fillType
+			    ,ParticleTypeId const & particleType1
+			    ,ParticleTypeId const & particleType2
+			    ,float const & angle
+			    ,float const & beta
+			    ,float const & intensity1
+			    ,float const & intensity2
+			    ,float const & energy
+			    ,float const & delivLumi
+			    ,float const & recLumi
+			    ,cond::Time_t const & createTime
+			    ,cond::Time_t const & beginTime
+			    ,cond::Time_t const & endTime
+			    ,std::string const & scheme
+			    ,std::vector<float> const & lumiPerBX
+			    ,std::string const & lhcState
+			    ,std::string const & lhcComment
+			    ,std::string const & ctppsStatus
+			    ,unsigned int const & lumiSection
+			    ,std::vector<float> const & beam1VC
+			    ,std::vector<float> const & beam2VC
+			    ,std::vector<float> const & beam1RF
+			    ,std::vector<float> const & beam2RF
+			    ,std::bitset<bunchSlots+1> const & bunchConf1
+			    ,std::bitset<bunchSlots+1> const & bunchConf2 ) {
   this->setBunchesInBeam1( bunches1 );
   this->setBunchesInBeam2( bunches2 );
   this->setCollidingBunches( collidingBunches );
@@ -357,32 +435,61 @@ void LHCInfo::setInfo( unsigned short const & bunches1
   this->setEndTime( endTime );
   this->setInjectionScheme( scheme );
   this->setLumiPerBX( lumiPerBX );
+  this->setLhcState( lhcState );
+  this->setLhcComment( lhcComment );
+  this->setCtppsStatus( ctppsStatus );
+  this->setLumiSection( lumiSection );
+  this->setBeam1VC( beam1VC );
+  this->setBeam2VC( beam2VC );
+  this->setBeam1RF( beam1RF );
+  this->setBeam2RF( beam2RF );
   this->setBunchBitsetForBeam1( bunchConf1 );
   this->setBunchBitsetForBeam2( bunchConf2 );
 }
 
 void LHCInfo::print( std::stringstream & ss ) const {
-  ss << "LHC fill: " << fillNumber() << std::endl
-     << "Bunches in Beam 1: " << bunchesInBeam1() << std::endl
-     << "Bunches in Beam 2: " << bunchesInBeam2() << std::endl
-     << "Colliding bunches at IP5: " << collidingBunches() << std::endl
-     << "Target bunches at IP5: " << targetBunches() << std::endl
-     << "Fill type: " << fillTypeToString( fillType() ) << std::endl
-     << "Particle type for Beam 1: " << particleTypeToString( particleTypeForBeam1() ) << std::endl
-     << "Particle type for Beam 2: " << particleTypeToString( particleTypeForBeam2() ) << std::endl
-     << "Crossing angle (urad): " << crossingAngle() << std::endl
-     << "Beta star (cm): " << betaStar() << std::endl
-     << "Average Intensity for Beam 1 (number of charges): " << intensityForBeam1() << std::endl
-     << "Average Intensity for Beam 2 (number of charges): " << intensityForBeam2() << std::endl
-     << "Energy (GeV): " << energy() << std::endl
-     << "Delivered Luminosity (max): " << delivLumi() << std::endl
-     << "Recorded Luminosity (max): " << recLumi() << std::endl
-     << "Creation time of the fill: " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( createTime() ) ) << std::endl
-     << "Begin time of Stable Beam flag: " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( beginTime() ) ) << std::endl
-     << "End time of the fill: " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( endTime() ) ) << std::endl
-     << "Injection scheme as given by LPC: " << injectionScheme() << std::endl;
-  ss << "Luminosity per bunch  (total " << lumiPerBX().size() << "): ";
-  std::copy( lumiPerBX().begin(), lumiPerBX().end(), std::ostream_iterator<float>( ss, ", " ) );
+  ss << "LHC fill: " << this->fillNumber() << std::endl
+     << "Bunches in Beam 1: " << this->bunchesInBeam1() << std::endl
+     << "Bunches in Beam 2: " << this->bunchesInBeam2() << std::endl
+     << "Colliding bunches at IP5: " << this->collidingBunches() << std::endl
+     << "Target bunches at IP5: " <<this->targetBunches() << std::endl
+     << "Fill type: " << fillTypeToString( static_cast<FillTypeId> (this->fillType() ) ) << std::endl
+     << "Particle type for Beam 1: " << particleTypeToString( static_cast<ParticleTypeId>( this->particleTypeForBeam1() ) ) << std::endl
+     << "Particle type for Beam 2: " << particleTypeToString( static_cast<ParticleTypeId>( this->particleTypeForBeam2() ) ) << std::endl
+     << "Crossing angle (urad): " << this->crossingAngle() << std::endl
+     << "Beta star (cm): " << this->betaStar() << std::endl
+     << "Average Intensity for Beam 1 (number of charges): " << this->intensityForBeam1() << std::endl
+     << "Average Intensity for Beam 2 (number of charges): " << this->intensityForBeam2() << std::endl
+     << "Energy (GeV): " << this->energy() << std::endl
+     << "Delivered Luminosity (max): " << this->delivLumi() << std::endl
+     << "Recorded Luminosity (max): " << this->recLumi() << std::endl
+     << "Creation time of the fill: " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( this->createTime() ) ) << std::endl
+     << "Begin time of Stable Beam flag: " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( this->beginTime() ) ) << std::endl
+     << "End time of the fill: " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( this->endTime() ) ) << std::endl
+     << "Injection scheme as given by LPC: " << this->injectionScheme() << std::endl
+     << "LHC State: " << this->lhcState() << std::endl
+     << "LHC Comments: " << this->lhcComment() << std::endl
+     << "CTPPS Status: " << this->ctppsStatus() << std::endl
+     << "Lumi sections: " << this->lumiSection() << std::endl;
+     
+  ss << "Luminosity per bunch  (total " << this->lumiPerBX().size() << "): ";
+  std::copy( this->lumiPerBX().begin(), this->lumiPerBX().end(), std::ostream_iterator<float>( ss, ", " ) );
+  ss << std::endl;
+    
+  ss << "Beam 1 VC  (total " << this->beam1VC().size() << "): ";
+  std::copy( this->beam1VC().begin(), this->beam1VC().end(), std::ostream_iterator<float>( ss, "\t" ) );
+  ss << std::endl;
+  
+  ss << "Beam 2 VC  (total " << beam2VC().size() << "): ";
+  std::copy( beam2VC().begin(), beam2VC().end(), std::ostream_iterator<float>( ss, "\t" ) );
+  ss << std::endl;
+  
+  ss << "Beam 1 RF  (total " << beam1RF().size() << "): ";
+  std::copy( beam1RF().begin(), beam1RF().end(), std::ostream_iterator<float>( ss, "\t" ) );
+  ss << std::endl;
+  
+  ss << "Beam 2 RF  (total " << beam2RF().size() << "): ";
+  std::copy( beam2RF().begin(), beam2RF().end(), std::ostream_iterator<float>( ss, "\t" ) );
   ss << std::endl;
   
   std::vector<unsigned short> bunchVector1 = this->bunchConfigurationForBeam1();
