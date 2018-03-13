@@ -186,7 +186,6 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
     else algo = PFRecoTauChargedHadron::kPFNeutralHadron;
     std::auto_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(**cand, algo));
     
-    // JAN - work on this. This must be adapted carefully to MiniAOD packed candidates
     const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(&**cand);
     if (pfCand) {
       if ( pfCand->trackRef().isNonnull() ) chargedHadron->track_ = edm::refToPtr(pfCand->trackRef());
@@ -194,9 +193,8 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
       else if ( pfCand->muonRef().isNonnull() && pfCand->muonRef()->globalTrack().isNonnull() ) chargedHadron->track_ = edm::refToPtr(pfCand->muonRef()->globalTrack());
       else if ( pfCand->muonRef().isNonnull() && pfCand->muonRef()->outerTrack().isNonnull()  ) chargedHadron->track_ = edm::refToPtr(pfCand->muonRef()->outerTrack());
       else if ( pfCand->gsfTrackRef().isNonnull() ) chargedHadron->track_ = edm::refToPtr(pfCand->gsfTrackRef());
-    
-      
-    }
+    } // TauReco@MiniAOD: Tracks only available dynamically, so no possiblity to save ref here; checked by code downstream
+
     chargedHadron->positionAtECALEntrance_ = atECALEntrance(&**cand, bField_);
     chargedHadron->chargedPFCandidate_ = (*cand);
     chargedHadron->addDaughter(*cand);
@@ -238,7 +236,7 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
 	  maxUnmatchedBlockElements = maxUnmatchedBlockElementsPhoton_;
 	  minMergeEt = minMergeGammaEt_;
 	}
-        // JAN - FIXME - block matching possible in miniAOD? probably not?? but is it important after all?
+        // TauReco@MiniAOD: No access to PF blocks at MiniAOD level, but the code below seems to have very minor impact
         const reco::PFCandidate* pfCHCand = dynamic_cast<const reco::PFCandidate*>(&*chargedHadron->chargedPFCandidate_);
         const reco::PFCandidate* pfJetConstituent = dynamic_cast<const reco::PFCandidate*>(&**jetConstituent);
         if (pfCHCand && pfJetConstituent) {

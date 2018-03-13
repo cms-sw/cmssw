@@ -53,7 +53,7 @@ class TauIdMVAAuxiliaries {
           EcalEnInSignalPFCands += pfcand->ecalEnergy();
           HcalEnInSignalPFCands += pfcand->hcalEnergy();
         }
-        // JAN - FIXME: not calculated for PackedCandidate
+        // TauReco@MiniAOD: recalculate for PackedCandidate if added to MiniAOD event content
       }
       float total = EcalEnInSignalPFCands + HcalEnInSignalPFCands;
       if(total == 0.){ 

@@ -408,16 +408,13 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         else{
 	  const pat::PackedCandidate* packedCandPtr = dynamic_cast<const pat::PackedCandidate*>(it.get());
 	  if(packedCandPtr != nullptr) {
-	    //position at ECAL entrance can be recomputed, but individual ECAL and HCAL energies not
-	    //ecalEnergy += packedCandPtr->ecalEnergy();
-	    //hcalEnergy += packedCandPtr->hcalEnergy();
-	    //sumPhiTimesEnergy += packedCandPtr->positionAtECALEntrance().phi()*packedCandPtr->energy();		
-	    //sumEtaTimesEnergy += packedCandPtr->positionAtECALEntrance().eta()*packedCandPtr->energy();
+	    // TauReco@MiniAOD: individual ECAL and HCAL energies currently not available for PackedCandidates 
+	    // (see above implementation for PFCandidates).
+	    // Should be added if available, as well as on-the-fly computation of position at ECAL entrance
 	    sumEnergy += packedCandPtr->energy();
 	    const reco::Track* track = packedCandPtr->hasTrackDetails() ? &packedCandPtr->pseudoTrack() : nullptr;
 	    if( track != nullptr ) {
 	      if( track->pt() > leadChargedCandPt ) {
-		//leadChargedCandEtaAtEcalEntrance = packedCandPtr->positionAtECALEntrance().eta();
 		leadChargedCandPt = track->pt();
 	      }
 	    }
@@ -473,32 +470,10 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         else {
 	  const pat::PackedCandidate* packedCandPtr = dynamic_cast<const pat::PackedCandidate*>(leadingPFCharged.get());
 	  if (packedCandPtr != nullptr) {
-	    //individual ECAL and HCAL energies not available with packedCandPtridates
-	    //ecalEnergyLeadChargedHadrCand = packedCandPtr->ecalEnergy();
-	    //hcalEnergyLeadChargedHadrCand = packedCandPtr->hcalEnergy(); 
+	    // TauReco@MiniAOD: Update code below if ecal/hcal energies are available.
 	    const reco::Track* track = packedCandPtr->hasTrackDetails() ? &packedCandPtr->pseudoTrack() : nullptr;
 	    if (track != nullptr) {
 	      leadingTrackNormChi2 = track->normalizedChi2();			
-	      //individual ECAL and HCAL energies not available with packedCandidates
-	      /*
-	      for(const auto& tauIt : pfTauRef->isolationPFCands()){
-		const pat::PackedCandidate* packedPtr = dynamic_cast<const pat::PackedCandidate*>(tauIt.get());
-		if(packedPtr != nullptr) {
-		  myHCALenergy += packedPtr->hcalEnergy();
-		  myECALenergy += packedPtr->ecalEnergy();
-		}
-	      }
-	      for(const auto& tauIt : pfTauRef->signalPFCands()){
-		const pat::PackedCandidate* packedPtr = dynamic_cast<const pat::PackedCandidate*>(tauIt.get());
-		if(packedPtr != nullptr) {
-		  myHCALenergy += packedPtr->hcalEnergy();
-		  myECALenergy += packedPtr->ecalEnergy();
-		}
-	      }
-	      if( myHCALenergy + myECALenergy > 0. ) {
-		emFraction = myECALenergy/( myHCALenergy + myECALenergy);    
-	      }
-	      */
 	    }
 	  }
 	}

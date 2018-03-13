@@ -200,9 +200,10 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
 	const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(pfLeadChargedHadron.get());
 	if (pflch != nullptr) {
 	  reco::MuonRef muonRef = pflch->muonRef();      
-	  if (muonRef.isNonnull() && muon == pflch->muonRef() )
-	  if ( verbosity_ ) { edm::LogPrint("PFTauAgainstMuon2") << " matches muonRef of tau --> skipping it."; }
-	  continue;
+	  if (muonRef.isNonnull() && muon == pflch->muonRef() ) {
+	    if ( verbosity_ ) { edm::LogPrint("PFTauAgainstMuon2") << " matches muonRef of tau --> skipping it."; }
+	    continue;
+	  } 
 	} else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and PFRecoTauDiscriminationAgainstMuon2 only works with PFTaus made from PFCandidates. Please use PFRecoTauDiscriminationAgainstMuonSimple instead.\n";
       }
       double dR = deltaR(muon->p4(), pfTau->p4());
