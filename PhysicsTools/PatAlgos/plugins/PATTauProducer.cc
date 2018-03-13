@@ -484,7 +484,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       aTauPFEssential.ecalEnergyLeadChargedHadrCand_ = ecalEnergyLeadChargedHadrCand;
       aTauPFEssential.hcalEnergyLeadChargedHadrCand_ = hcalEnergyLeadChargedHadrCand; 	
       // extraction of tau lifetime information
-      if( tauTransverseImpactParameterSrc_.label() != "" ) {
+      if( !tauTransverseImpactParameterSrc_.label().empty() ) {
         edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
         iEvent.getByToken(tauTransverseImpactParameterToken_, tauLifetimeInfos);
         const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[pfTauRef];

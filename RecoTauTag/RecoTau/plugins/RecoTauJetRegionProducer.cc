@@ -113,7 +113,7 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   // (needed for recinstruction of boosted taus)
   edm::Handle<JetToPFCandidateAssociation> jetToPFCandMap;
   std::vector<std::unordered_set<unsigned> > fastJetToPFCandMap;
-  if ( pfCandAssocMapSrc_.label() != "" ) {
+  if ( !pfCandAssocMapSrc_.label().empty() ) {
     evt.getByToken(pfCandAssocMap_token, jetToPFCandMap);
     fastJetToPFCandMap.resize(nJets);
     for ( size_t ijet = 0; ijet < nJets; ++ijet ) {
