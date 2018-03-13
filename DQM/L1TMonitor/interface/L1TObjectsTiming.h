@@ -103,6 +103,11 @@ class L1TObjectsTiming : public DQMEDAnalyzer {
   std::vector<MonitorElement*> etsum_eta_phi_METHF_lastbunch;
   std::vector<MonitorElement*> etsum_eta_phi_MHT_lastbunch;
   std::vector<MonitorElement*> etsum_eta_phi_MHTHF_lastbunch;
+ 
+  MonitorElement* denominator;
+  MonitorElement* denominator_isolated;
+  MonitorElement* denominator_firstbunch;
+  MonitorElement* denominator_lastbunch;
 
 };
 
