@@ -93,10 +93,6 @@ looseAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 
 pvMonitor.vertexLabel = cms.InputTag("hiSelectedVertex")
 
-muonRecoAnalyzer.inputTagVertex = cms.InputTag("")
-muonRecoAnalyzer.inputTagBeamSpot = cms.InputTag("")
-muonRecoAnalyzer.inputTagVertex = cms.InputTag("")
-muonRecoAnalyzer.inputTagBeamSpot = cms.InputTag("")
 
 
 DQMOfflineHeavyIonsPrePOG = cms.Sequence( muonMonitors
