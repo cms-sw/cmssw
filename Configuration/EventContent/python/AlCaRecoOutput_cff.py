@@ -143,6 +143,7 @@ from Calibration.LumiAlCaRecoProducers.ALCARECOPromptCalibProdLumiPCC_Output_cff
 from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixels_Output_cff import *
 from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCZeroBias_Output_cff import *
 from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCRandom_Output_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECORawPCCProducer_Output_cff import *
 
 # on top of prompt RECO
 from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import *
