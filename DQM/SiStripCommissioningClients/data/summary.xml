@@ -142,6 +142,9 @@
 <SummaryPlot monitorable="CalibrationTail" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="CalibrationRiseTime" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="CalibrationTimeConstant" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationTurnOn" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationMaximum" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationBaseline" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="CalibrationSmearing" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="CalibrationChi2" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="StripCalibrationAmplitude" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
@@ -149,6 +152,9 @@
 <SummaryPlot monitorable="CalibrationTail" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
 <SummaryPlot monitorable="CalibrationRiseTime" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
 <SummaryPlot monitorable="CalibrationTimeConstant" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationTurnOn" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationMaximum" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationBaseline" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
 <SummaryPlot monitorable="CalibrationSmearing" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
 <SummaryPlot monitorable="CalibrationChi2" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
 <SummaryPlot monitorable="StripCalibrationAmplitude" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
@@ -161,6 +167,10 @@
 <SummaryPlot monitorable="CalibrationTail" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="CalibrationRiseTime" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="CalibrationTimeConstant" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationTurnOn" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationMaximum" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationUndershoot" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
+<SummaryPlot monitorable="CalibrationBaseline" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="CalibrationSmearing" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="CalibrationChi2" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
 <SummaryPlot monitorable="StripCalibrationAmplitude" presentation="Histo1D" level="SiStrip/ControlView" granularity=""/>
@@ -168,6 +178,10 @@
 <SummaryPlot monitorable="CalibrationTail" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
 <SummaryPlot monitorable="CalibrationRiseTime" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
 <SummaryPlot monitorable="CalibrationTimeConstant" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationTurnOn" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationMaximum" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationBaseline" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationUndershoot" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
 <SummaryPlot monitorable="CalibrationSmearing" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
 <SummaryPlot monitorable="CalibrationChi2" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
 <SummaryPlot monitorable="StripCalibrationAmplitude" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
@@ -178,6 +192,11 @@
 
 <SummaryPlot monitorable="CalibrationTail" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
 <SummaryPlot monitorable="CalibrationRiseTime" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationTimeConstant" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationTurnOn" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationMaximum" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationBaseline" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
+<SummaryPlot monitorable="CalibrationUndershoot" presentation="Profile1D" level="SiStrip/ControlView" granularity="Apv"/>
 
 </RunType>
 
