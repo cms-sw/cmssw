@@ -1414,6 +1414,18 @@ steps['TIER0EXPLP']={'-s': 'ALCAPRODUCER:AlCaPCCRandom',
                         # '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
                         }
 
+steps['TIER0PROMPTLP']={'-s': 'ALCAPRODUCER:AlCaPCCZeroBias+RawPCCProducer',
+                        '--conditions': 'auto:run2_data',
+                        '--datatier':'ALCARECO',
+                        '--eventcontent':'ALCARECO',
+                        '--data': '',
+                        '--scenario': 'pp',
+                        '--process': 'RECO',
+                        '--filein': 'filelist:step1_dasquery.log'
+                        # '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
+                        }
+
+
 steps['ALCAEXPLP']={'-s':'ALCAOUTPUT:AlCaPCCRandom,ALCA:PromptCalibProdLumiPCC',
                   '--conditions':'auto:run2_data',
                   '--datatier':'ALCARECO',
