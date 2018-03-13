@@ -55,18 +55,18 @@ using Histograms_CaloParticleValidation = std::unordered_map<int, Histogram_Calo
 class CaloParticleValidation : public DQMGlobalEDAnalyzer<Histograms_CaloParticleValidation> {
    public:
       explicit CaloParticleValidation(const edm::ParameterSet&);
-      ~CaloParticleValidation();
+      ~CaloParticleValidation() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 
    private:
-      virtual void bookHistograms(DQMStore::ConcurrentBooker &,
+      void bookHistograms(DQMStore::ConcurrentBooker &,
                                   edm::Run const&,
                                   edm::EventSetup const&,
                                   Histograms_CaloParticleValidation&) const override;
 
-      virtual void dqmAnalyze(edm::Event const&,
+      void dqmAnalyze(edm::Event const&,
                               edm::EventSetup const&,
                               Histograms_CaloParticleValidation const&) const override;
 
