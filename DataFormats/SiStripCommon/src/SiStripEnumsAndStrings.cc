@@ -368,14 +368,35 @@ std::string SiStripEnumsAndStrings::monitorable( const sistrip::Monitorable& mon
   else if ( mon == sistrip::NOISE_SPREAD ) { return sistrip::noiseSpread_; }
   else if ( mon == sistrip::NOISE_MAX ) { return sistrip::noiseMax_; }
   else if ( mon == sistrip::NOISE_MIN ) { return sistrip::noiseMin_; }
-  else if ( mon == sistrip::NUM_OF_DEAD ) { return sistrip::numOfDead_; }
+  else if ( mon == sistrip::NUM_OF_DEAD ) { return sistrip::numOfDeadStrips_; }
   else if ( mon == sistrip::NUM_OF_NOISY ) { return sistrip::numOfNoisy_; }
-  else if ( mon == sistrip::NOISE_GAUS_ALL_STRIPS ) { return sistrip::noiseGausAllStrips_; }
-  else if ( mon == sistrip::NOISE_KS_ALL_STRIPS ) { return sistrip::noiseKSAllStrips_; }
-  else if ( mon == sistrip::NOISE_CHI2_ALL_STRIPS ) { return sistrip::noiseChi2AllStrips_; }
-  else if ( mon == sistrip::NOISE_BIN_84_ALL_STRIPS) { return sistrip::noiseBin84AllStrips_; }
-  else if ( mon == sistrip::NOISE_RMS_ALL_STRIPS) { return sistrip::noiseRMSAllStrips_; }
-  else if ( mon == sistrip::NOISE_SIGNIF_ALL_STRIPS ) { return sistrip::noiseSignif_; }
+  else if ( mon == sistrip::NUM_OF_BAD ) { return sistrip::numOfBadStrips_; }
+  else if ( mon == sistrip::NUM_OF_BAD_SHIFTED ) { return sistrip::numOfBadShiftedStrips_; }
+  else if ( mon == sistrip::NUM_OF_BAD_LOW_NOISE ) { return sistrip::numOfBadLowNoiseStrips_; }
+  else if ( mon == sistrip::NUM_OF_BAD_LARGE_NOISE ) { return sistrip::numOfBadLargeNoiseStrips_; }
+  else if ( mon == sistrip::NUM_OF_BAD_LARGE_SIGNIF ) { return sistrip::numOfBadLargeNoiseSignificanceStrips_; }
+  else if ( mon == sistrip::NUM_OF_BAD_FIT_STATUS ) { return sistrip::numOfBadFitStatusStrips_; }
+  else if ( mon == sistrip::NUM_OF_BAD_AD_PROBAB ) { return sistrip::numOfBadADProbabStrips_; }
+  else if ( mon == sistrip::NUM_OF_BAD_KS_PROBAB ) { return sistrip::numOfBadKSProbabStrips_; }
+  else if ( mon == sistrip::NUM_OF_BAD_JB_PROBAB ) { return sistrip::numOfBadJBProbabStrips_; }
+  else if ( mon == sistrip::NUM_OF_BAD_CHI2_PROBAB ) { return sistrip::numOfBadChi2ProbabStrips_; }
+  else if ( mon == sistrip::NUM_OF_BAD_TAIL ) { return sistrip::numOfBadTailStrips_; }
+  else if ( mon == sistrip::NUM_OF_BAD_DOUBLE_PEAK ) { return sistrip::numOfBadDoublePeakStrips_; }
+  
+  else if ( mon == sistrip::BAD_STRIP_BIT_ALL_STRIPS ) { return sistrip::badStripBit_; }
+  else if ( mon == sistrip::DEAD_STRIP_BIT_ALL_STRIPS ) { return sistrip::deadStripBit_; }
+  else if ( mon == sistrip::AD_PROBAB_ALL_STRIPS ) { return sistrip::adProbabAllStrips_; }
+  else if ( mon == sistrip::KS_PROBAB_ALL_STRIPS ) { return sistrip::ksProbabAllStrips_; }
+  else if ( mon == sistrip::JB_PROBAB_ALL_STRIPS ) { return sistrip::jbProbabAllStrips_; }
+  else if ( mon == sistrip::CHI2_PROBAB_ALL_STRIPS ) { return sistrip::chi2ProbabAllStrips_; }
+  else if ( mon == sistrip::RESIDUAL_RMS_ALL_STRIPS ) { return sistrip::residualRMSAllStrips_; }
+  else if ( mon == sistrip::RESIDUAL_GAUS_ALL_STRIPS ) { return sistrip::residualSigmaGausAllStrips_; }
+  else if ( mon == sistrip::NOISE_SIGNIFICANCE_ALL_STRIPS ) { return sistrip::noiseSignificanceAllStrips_; }
+  else if ( mon == sistrip::RESIDUAL_MEAN_ALL_STRIPS ) { return sistrip::residualMeanAllStrips_; }
+  else if ( mon == sistrip::RESIDUAL_SKEWNESS_ALL_STRIPS ) { return sistrip::residualSkewnessAllStrips_; }
+  else if ( mon == sistrip::RESIDUAL_KURTOSIS_ALL_STRIPS ) { return sistrip::residualKurtosisAllStrips_; }
+  else if ( mon == sistrip::RESIDUAL_INTEGRALNSIGMA_ALL_STRIPS ) { return sistrip::residualIntegralNsigmaAllStrips_; }
+  else if ( mon == sistrip::RESIDUAL_INTEGRAL_ALL_STRIPS ) { return sistrip::residualIntegralAllStrips_; }
 
   // fine delay
   else if ( mon == sistrip::FINE_DELAY_POS) { return sistrip::fineDelayPos_; }
@@ -496,20 +517,41 @@ sistrip::Monitorable SiStripEnumsAndStrings::monitorable( const std::string& mon
   else if ( mon.find( sistrip::pedestalsMin_ ) != std::string::npos ) { return sistrip::PEDESTALS_MIN; }
 
   // noiseKS must come before the more general noiseAllStrips, since it contains that string
-  else if ( mon.find( sistrip::noiseGausAllStrips_ ) != std::string::npos ) { return sistrip::NOISE_GAUS_ALL_STRIPS; }
-  else if ( mon.find( sistrip::noiseKSAllStrips_ ) != std::string::npos ) { return sistrip::NOISE_KS_ALL_STRIPS; }
-  else if ( mon.find( sistrip::noiseChi2AllStrips_ ) != std::string::npos ) { return sistrip::NOISE_CHI2_ALL_STRIPS; }
-  else if ( mon.find( sistrip::noiseBin84AllStrips_ ) != std::string::npos ) { return sistrip::NOISE_BIN_84_ALL_STRIPS;}
-  else if ( mon.find( sistrip::noiseRMSAllStrips_ ) != std::string::npos ) { return sistrip::NOISE_RMS_ALL_STRIPS;}
-  else if ( mon.find( sistrip::noiseSignif_ ) != std::string::npos ) { return sistrip::NOISE_SIGNIF_ALL_STRIPS; }
   else if ( mon.find( sistrip::noiseAllStrips_ ) != std::string::npos ) { return sistrip::NOISE_ALL_STRIPS; }
   else if ( mon.find( sistrip::noiseMean_ ) != std::string::npos ) { return sistrip::NOISE_MEAN; }
   else if ( mon.find( sistrip::noiseSpread_ ) != std::string::npos ) { return sistrip::NOISE_SPREAD; }
   else if ( mon.find( sistrip::noiseMax_ ) != std::string::npos ) { return sistrip::NOISE_MAX; }
   else if ( mon.find( sistrip::noiseMin_ ) != std::string::npos ) { return sistrip::NOISE_MIN; }
-  else if ( mon.find( sistrip::numOfDead_ ) != std::string::npos ) { return sistrip::NUM_OF_DEAD; }
+  else if ( mon.find( sistrip::numOfDeadStrips_ ) != std::string::npos ) { return sistrip::NUM_OF_DEAD; }
   else if ( mon.find( sistrip::numOfNoisy_ ) != std::string::npos ) { return sistrip::NUM_OF_NOISY; }
-
+  else if ( mon.find( sistrip::numOfBadStrips_ ) != std::string::npos ) { return sistrip::NUM_OF_BAD; }
+  else if ( mon.find( sistrip::numOfBadShiftedStrips_ ) != std::string::npos ) { return sistrip::NUM_OF_BAD_SHIFTED; }
+  else if ( mon.find( sistrip::numOfBadLowNoiseStrips_ ) != std::string::npos ) { return sistrip::NUM_OF_BAD_LOW_NOISE; }
+  else if ( mon.find( sistrip::numOfBadLargeNoiseStrips_ ) != std::string::npos ) { return sistrip::NUM_OF_BAD_LARGE_NOISE; }
+  else if ( mon.find( sistrip::numOfBadLargeNoiseSignificanceStrips_ ) != std::string::npos ) { return sistrip::NUM_OF_BAD_LARGE_SIGNIF; }
+  else if ( mon.find( sistrip::numOfBadFitStatusStrips_ ) != std::string::npos ) { return sistrip::NUM_OF_BAD_FIT_STATUS; }
+  else if ( mon.find( sistrip::numOfBadADProbabStrips_ ) != std::string::npos ) { return sistrip::NUM_OF_BAD_AD_PROBAB; }
+  else if ( mon.find( sistrip::numOfBadKSProbabStrips_ ) != std::string::npos ) { return sistrip::NUM_OF_BAD_KS_PROBAB; }
+  else if ( mon.find( sistrip::numOfBadJBProbabStrips_ ) != std::string::npos ) { return sistrip::NUM_OF_BAD_JB_PROBAB; }
+  else if ( mon.find( sistrip::numOfBadChi2ProbabStrips_ ) != std::string::npos ) { return sistrip::NUM_OF_BAD_CHI2_PROBAB; }
+  else if ( mon.find( sistrip::numOfBadTailStrips_ ) != std::string::npos ) { return sistrip::NUM_OF_BAD_TAIL; }
+  else if ( mon.find( sistrip::numOfBadDoublePeakStrips_ ) != std::string::npos ) { return sistrip::NUM_OF_BAD_DOUBLE_PEAK; }
+  
+  else if ( mon.find( sistrip::badStripBit_ ) != std::string::npos ) { return sistrip::BAD_STRIP_BIT_ALL_STRIPS; }
+  else if ( mon.find( sistrip::deadStripBit_ ) != std::string::npos ) { return sistrip::DEAD_STRIP_BIT_ALL_STRIPS; }
+  else if ( mon.find( sistrip::adProbabAllStrips_ ) != std::string::npos ) { return sistrip::AD_PROBAB_ALL_STRIPS; }
+  else if ( mon.find( sistrip::ksProbabAllStrips_ ) != std::string::npos ) { return sistrip::KS_PROBAB_ALL_STRIPS; }
+  else if ( mon.find( sistrip::jbProbabAllStrips_ ) != std::string::npos ) { return sistrip::JB_PROBAB_ALL_STRIPS; }
+  else if ( mon.find( sistrip::chi2ProbabAllStrips_ ) != std::string::npos ) { return sistrip::CHI2_PROBAB_ALL_STRIPS; }
+  else if ( mon.find( sistrip::residualRMSAllStrips_ ) != std::string::npos ) { return sistrip::RESIDUAL_RMS_ALL_STRIPS; }
+  else if ( mon.find( sistrip::residualSigmaGausAllStrips_ ) != std::string::npos ) { return sistrip::RESIDUAL_GAUS_ALL_STRIPS; }
+  else if ( mon.find( sistrip::noiseSignificanceAllStrips_ ) != std::string::npos ) { return sistrip::NOISE_SIGNIFICANCE_ALL_STRIPS; }
+  else if ( mon.find( sistrip::residualMeanAllStrips_ ) != std::string::npos ) { return sistrip::RESIDUAL_MEAN_ALL_STRIPS; }
+  else if ( mon.find( sistrip::residualSkewnessAllStrips_ ) != std::string::npos ) { return sistrip::RESIDUAL_SKEWNESS_ALL_STRIPS; }
+  else if ( mon.find( sistrip::residualKurtosisAllStrips_ ) != std::string::npos ) { return sistrip::RESIDUAL_KURTOSIS_ALL_STRIPS; }
+  else if ( mon.find( sistrip::residualIntegralNsigmaAllStrips_ ) != std::string::npos ) { return sistrip::RESIDUAL_INTEGRALNSIGMA_ALL_STRIPS; }
+  else if ( mon.find( sistrip::residualIntegralAllStrips_ ) != std::string::npos ) { return sistrip::RESIDUAL_INTEGRAL_ALL_STRIPS; }
+ 
   // fine delay
   else if ( mon.find( sistrip::fineDelayPos_ ) != std::string::npos ) { return sistrip::FINE_DELAY_POS; }
   else if ( mon.find( sistrip::fineDelayErr_ ) != std::string::npos ) { return sistrip::FINE_DELAY_ERROR; }
