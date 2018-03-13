@@ -79,20 +79,42 @@ namespace sistrip {
   static const char pedestalsMin_[]       = "PedestalMin";
 
   // noise
-  static const char noiseAllStrips_[]       = "StripNoise";
-  static const char noiseMean_[]            = "NoiseMean";
-  static const char noiseSpread_[]          = "NoiseRmsSpread";
-  static const char noiseMax_[]             = "NoiseMax";
-  static const char noiseMin_[]             = "NoiseMin";
-  static const char numOfDead_[]            = "NumOfDeadStrips";
-  static const char numOfNoisy_[]           = "NumOfNoisyStrips";
-  static const char noiseKSAllStrips_[]     = "StripNoiseKS";
-  static const char noiseChi2AllStrips_[]   = "StripNoiseChi2";
-  static const char noiseGausAllStrips_[]   = "StripNoiseGaus";
-  static const char noiseBin84AllStrips_[]  = "StripNoiseBin84";
-  static const char noiseRMSAllStrips_[]  	= "StripNoiseRMS";
-  static const char noiseSignif_[]  		= "StripNoiseSignif";
+  static const char noiseAllStrips_[]     = "StripNoise";
+  static const char noiseMean_[]          = "NoiseMean";
+  static const char noiseSpread_[]        = "NoiseRmsSpread";
+  static const char noiseMax_[]           = "NoiseMax";
+  static const char noiseMin_[]           = "NoiseMin";
   
+  static const char numOfDeadStrips_[]        = "NumOfDeadStrips";
+  static const char numOfNoisy_[]             = "NumOfNoisyStrips";
+  static const char numOfBadStrips_[]         = "NumOfBadStrips";
+  static const char numOfBadADProbabStrips_[] = "NumOfBadADProbabStrips";
+  static const char numOfBadKSProbabStrips_[] = "NumOfBadKSProbabStrips";
+  static const char numOfBadJBProbabStrips_[] = "NumOfBadJBProbabStrips";
+  static const char numOfBadChi2ProbabStrips_[] = "NumOfBadChi2ProbabStrips";
+  static const char numOfBadShiftedStrips_[]    = "NumOfBadShfitedStrips";
+  static const char numOfBadLowNoiseStrips_[]   = "NumOfBadLowNoiseStrips";
+  static const char numOfBadLargeNoiseStrips_[] = "NumOfBadLargeNoiseStrips";
+  static const char numOfBadLargeNoiseSignificanceStrips_[] = "NumOfBadLargeNoiseSignificanceStrips";
+  static const char numOfBadTailStrips_[]         = "NumOfBadTailStrips";
+  static const char numOfBadFitStatusStrips_[]    = "NumOfBadFitStatusStrips";
+  static const char numOfBadDoublePeakStrips_[]   = "NumOfBadDoublePeakStrips";
+  
+  static const char badStripBit_[]          = "badStripBit";
+  static const char deadStripBit_[]         = "deadStripBit";
+  static const char adProbabAllStrips_[]    = "adProbabStrips";
+  static const char ksProbabAllStrips_[]    = "ksProbabStrips";
+  static const char jbProbabAllStrips_[]    = "jbProbabStrips";
+  static const char chi2ProbabAllStrips_[]  = "chi2ProbabStrips";
+  static const char residualRMSAllStrips_[]       = "residualRMSStrips";
+  static const char residualSigmaGausAllStrips_[] = "residualSigmaGausStrips";
+  static const char noiseSignificanceAllStrips_[] = "noiseSignificanceStrips";
+  static const char residualMeanAllStrips_[]      = "residualMeanStrips";
+  static const char residualSkewnessAllStrips_[]  = "residualSkewnessStrips";
+  static const char residualKurtosisAllStrips_[]  = "residualKurtosisStrips";
+  static const char residualIntegralNsigmaAllStrips_[]  = "residualIntegralNsigmaStrips";
+  static const char residualIntegralAllStrips_[]  = "residualIntegralStrips";  
+
   // Fine Delay
   static const char fineDelayPos_[]       = "FineDelayPosition";
   static const char fineDelayErr_[]       = "FineDelayError";
@@ -204,15 +226,39 @@ namespace sistrip {
 		     NOISE_MEAN       = 207, 
 		     NOISE_SPREAD     = 208, 
 		     NOISE_MAX        = 209, 
-		     NOISE_MIN        = 210, 
+		     NOISE_MIN        = 210,
+
+		     /// Bad strip
 		     NUM_OF_DEAD      = 211, 
-		     NUM_OF_NOISY     = 212,
-		     NOISE_KS_ALL_STRIPS 	= 215,
-		     NOISE_GAUS_ALL_STRIPS  = 216,
-		     NOISE_BIN_84_ALL_STRIPS= 217,
-		     NOISE_CHI2_ALL_STRIPS 	= 218,
-		     NOISE_SIGNIF_ALL_STRIPS= 219,
-		     NOISE_RMS_ALL_STRIPS 	= 220,
+		     NUM_OF_BAD       = 212,
+		     NUM_OF_NOISY     = 213,
+		     NUM_OF_BAD_SHIFTED = 214,
+		     NUM_OF_BAD_LOW_NOISE = 215,
+		     NUM_OF_BAD_LARGE_NOISE  = 216,
+		     NUM_OF_BAD_LARGE_SIGNIF = 217,
+		     NUM_OF_BAD_FIT_STATUS = 218,
+		     NUM_OF_BAD_AD_PROBAB = 219,
+		     NUM_OF_BAD_KS_PROBAB = 220,
+		     NUM_OF_BAD_JB_PROBAB = 221,
+		     NUM_OF_BAD_CHI2_PROBAB = 222,
+		     NUM_OF_BAD_TAIL = 223,
+		     NUM_OF_BAD_DOUBLE_PEAK = 224,
+		     //
+		     BAD_STRIP_BIT_ALL_STRIPS = 225,
+		     DEAD_STRIP_BIT_ALL_STRIPS = 226,
+		     AD_PROBAB_ALL_STRIPS   = 227,
+		     KS_PROBAB_ALL_STRIPS   = 228,
+		     JB_PROBAB_ALL_STRIPS   = 229,
+		     CHI2_PROBAB_ALL_STRIPS = 230,
+		     RESIDUAL_RMS_ALL_STRIPS = 231,
+		     RESIDUAL_GAUS_ALL_STRIPS = 232,
+		     NOISE_SIGNIFICANCE_ALL_STRIPS= 233,
+		     RESIDUAL_MEAN_ALL_STRIPS = 234,
+		     RESIDUAL_SKEWNESS_ALL_STRIPS = 235,
+		     RESIDUAL_KURTOSIS_ALL_STRIPS = 236,
+		     RESIDUAL_INTEGRALNSIGMA_ALL_STRIPS = 237,
+		     RESIDUAL_INTEGRAL_ALL_STRIPS = 238,
+
 		     FINE_DELAY_POS 		= 601,
 		     FINE_DELAY_ERROR 		= 602,
 
