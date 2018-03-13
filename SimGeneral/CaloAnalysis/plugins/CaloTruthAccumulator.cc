@@ -58,6 +58,7 @@
 namespace {
 using Index_t = unsigned;
 using Barcode_t = int;
+const std::string messageCategoryGraph_("CaloTruthAccumulatorGraphProducer");
 }
 
 using boost::adjacency_list;
@@ -75,7 +76,7 @@ using boost::vertex_name;
 
 /* GRAPH DEFINITIONS
 
-   The graph represents the full decay chain.
+   The graphs represent the full decay chain.
 
    The parent-child relationship is the natural one, following "time".
 
@@ -213,7 +214,7 @@ template <typename Edge, typename Graph, typename Visitor>
 void accumulateSimHits_edge(Edge& e, const Graph& g, Visitor* v) {
   auto const edge_property = get(edge_weight, g, e);
   v->total_simHits += edge_property.simHits;
-  IfLogDebug(DEBUG, messageCategory_)
+  IfLogDebug(DEBUG, messageCategoryGraph_)
       << " Examining edges " << e << " --> particle " << edge_property.simTrack->type() << "("
       << edge_property.simTrack->trackId() << ")"
       << " with SimClusters: " << edge_property.simHits
@@ -222,12 +223,12 @@ void accumulateSimHits_edge(Edge& e, const Graph& g, Visitor* v) {
 template <typename Vertex, typename Graph>
 void print_vertex(Vertex& u, const Graph& g) {
   auto const vertex_property = get(vertex_name, g, u);
-  IfLogDebug(DEBUG, messageCategory_) << " At " << u;
+  IfLogDebug(DEBUG, messageCategoryGraph_) << " At " << u;
   // The Mother of all vertices has **no** SimTrack associated.
   if (vertex_property.simTrack)
-    IfLogDebug(DEBUG, messageCategory_) << " [" << vertex_property.simTrack->type() << "]"
+    IfLogDebug(DEBUG, messageCategoryGraph_) << " [" << vertex_property.simTrack->type() << "]"
                                         << "(" << vertex_property.simTrack->trackId() << ")";
-  IfLogDebug(DEBUG, messageCategory_) << std::endl;
+  IfLogDebug(DEBUG, messageCategoryGraph_) << std::endl;
 }
 
 // Graphviz output functions will only be generated in DEBUG mode
@@ -272,19 +273,19 @@ class SimHitsAccumulator_dfs_visitor : public boost::default_dfs_visitor {
         VertexProperty(src_vertex_property.simTrack, cumulative));
     put(get(edge_weight, const_cast<Graph&>(g)), e,
         EdgeProperty(edge_property.simTrack, edge_property.simHits, cumulative));
-    IfLogDebug(DEBUG, messageCategory_)
+    IfLogDebug(DEBUG, messageCategoryGraph_)
         << " Finished edge: " << e << " Track id: " << get(edge_weight, g, e).simTrack->trackId()
         << " has accumulated " << cumulative << " hits" << std::endl;
-    IfLogDebug(DEBUG, messageCategory_)
+    IfLogDebug(DEBUG, messageCategoryGraph_)
         << " SrcVtx: " << src << "\t" << get(vertex_name, g, src).simTrack << "\t"
         << get(vertex_name, g, src).cumulative_simHits << std::endl;
-    IfLogDebug(DEBUG, messageCategory_)
+    IfLogDebug(DEBUG, messageCategoryGraph_)
         << " TrgVtx: " << trg << "\t" << get(vertex_name, g, trg).simTrack << "\t"
         << get(vertex_name, g, trg).cumulative_simHits << std::endl;
   }
 };
 
-typedef std::function<bool(EdgeProperty&)> Selector;
+using Selector = std::function<bool(EdgeProperty&)>;
 
 class CaloParticle_dfs_visitor : public boost::default_dfs_visitor {
  public:
@@ -302,12 +303,12 @@ class CaloParticle_dfs_visitor : public boost::default_dfs_visitor {
   void discover_vertex(Vertex u, const Graph& g) {
     // If we reach the vertex 0, it means that we are backtracking with respect
     // to the first generation of stable particles: simply return;
-    if (u == 0) return;
+    //    if (u == 0) return;
     print_vertex(u, g);
     auto const vertex_property = get(vertex_name, g, u);
     if (!vertex_property.simTrack) return;
     auto trackIdx = vertex_property.simTrack->trackId();
-    IfLogDebug(DEBUG, messageCategory_)
+    IfLogDebug(DEBUG, messageCategoryGraph_)
         << " Found " << simHitBarcodeToIndex_.count(trackIdx) << " associated simHits" << std::endl;
     if (simHitBarcodeToIndex_.count(trackIdx)) {
       output_.pSimClusters->emplace_back(*vertex_property.simTrack);
@@ -324,9 +325,14 @@ class CaloParticle_dfs_visitor : public boost::default_dfs_visitor {
   template <typename Edge, typename Graph>
   void examine_edge(Edge e, const Graph& g) {
     auto src = source(e, g);
-    if (src == 0) {
+    auto vertex_property = get(vertex_name, g, src);
+    if (src == 0 or (vertex_property.simTrack == nullptr)) {
       auto edge_property = get(edge_weight, g, e);
+      IfLogDebug(DEBUG, messageCategoryGraph_)
+        << "Considering CaloParticle: " << edge_property.simTrack->trackId();
       if (selector_(edge_property)) {
+        IfLogDebug(DEBUG, messageCategoryGraph_)
+          << "Adding CaloParticle: " << edge_property.simTrack->trackId();
         output_.pCaloParticles->emplace_back(*(edge_property.simTrack));
         caloParticles_.sc_start_.push_back(output_.pSimClusters->size());
       }
@@ -336,7 +342,8 @@ class CaloParticle_dfs_visitor : public boost::default_dfs_visitor {
   template <typename Edge, typename Graph>
   void finish_edge(Edge e, const Graph& g) {
     auto src = source(e, g);
-    if (src == 0) {
+    auto vertex_property = get(vertex_name, g, src);
+    if (src == 0 or (vertex_property.simTrack == nullptr)) {
       auto edge_property = get(edge_weight, g, e);
       if (selector_(edge_property)) {
         caloParticles_.sc_stop_.push_back(output_.pSimClusters->size());
