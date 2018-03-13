@@ -130,9 +130,9 @@ void PixelCPEFast::fillParamsForGpu() {
   cudaCheck(cudaMalloc((void**) & h_paramsOnGPU.m_detParams, m_detParamsGPU.size()*sizeof(pixelCPEforGPU::DetParams)));
   cudaCheck(cudaMalloc((void**) & d_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU)));
 
-  cudaCheck(cudaMemcpy(d_paramsOnGPU, &h_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU), cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(h_paramsOnGPU.m_commonParams,&m_commonParamsGPU,sizeof(pixelCPEforGPU::CommonParams), cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(h_paramsOnGPU.m_detParams, m_detParamsGPU.data(), m_detParamsGPU.size()*sizeof(pixelCPEforGPU::DetParams), cudaMemcpyHostToDevice));
+  cudaCheck(cudaMemcpy(d_paramsOnGPU, &h_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU), cudaMemcpyDefault));
+  cudaCheck(cudaMemcpy(h_paramsOnGPU.m_commonParams,&m_commonParamsGPU,sizeof(pixelCPEforGPU::CommonParams), cudaMemcpyDefault));
+  cudaCheck(cudaMemcpy(h_paramsOnGPU.m_detParams, m_detParamsGPU.data(), m_detParamsGPU.size()*sizeof(pixelCPEforGPU::DetParams), cudaMemcpyDefault));
   cudaDeviceSynchronize();
 }
 
