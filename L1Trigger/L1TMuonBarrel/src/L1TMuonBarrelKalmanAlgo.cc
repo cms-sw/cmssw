@@ -733,7 +733,7 @@ std::pair<bool,L1MuKBMTrack> L1TMuonBarrelKalmanAlgo::chain(const L1MuKBMTCombin
 	if (verbose_)
 	  printf(" Coordinates before vertex constraint step:%d,phi=%d,dxy=%d,K=%d\n",track.step(),track.phiAtVertex(),track.dxy(),track.curvatureAtVertex());
 	estimateChiSquare(track);
-	if (abs(track.approxChi2())>globalChi2Cut_)
+	if (uint(track.approxChi2())>globalChi2Cut_)
 	  break;
 	vertexConstraint(track);
 	if (verbose_) {
@@ -774,7 +774,7 @@ void L1TMuonBarrelKalmanAlgo::estimateChiSquare(L1MuKBMTrack& track) {
 
   for (const auto& stub: track.stubs()) {
     uint delta=abs(correctedPhi(stub,track.sector())-track.phiAtMuon()+correctedPhiB(stub)-track.phiBAtMuon()-chiSquare_[stub->stNum()-1]*K);
-     chi=chi+abs(delta);    
+     chi=chi+delta;    
    }
   chi=chi/2;
   if (chi>511)
@@ -856,7 +856,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanAlgo::cleanAndSort(const L1MuKBMTrackC
     for(const auto& track2 : pretracks) {
       if (track1==track2)
 	continue;
-      if (!track1.overlap(track2))
+      if (!track1.overlapTrack(track2))
 	continue;
       if (track1.rank()<track2.rank())
 	keep=false;
