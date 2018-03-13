@@ -46,38 +46,34 @@ int main() {
       cudaMalloc(&d_obj_ptr, sizeof(GPU::SimpleVector<int>)) == cudaSuccess
       // ... and copy the object to the device.
       && cudaMemcpy(d_obj_ptr, tmp_obj_ptr, sizeof(GPU::SimpleVector<int>),
-                    cudaMemcpyHostToDevice) == cudaSuccess;
+                    cudaMemcpyDefault) == cudaSuccess;
 
   int numBlocks = 5;
   int numThreadsPerBlock = 256;
   assert(success);
   vector_pushback<<<numBlocks, numThreadsPerBlock>>>(d_obj_ptr);
 
-  cudaMemcpy(obj_ptr, d_obj_ptr, sizeof(GPU::SimpleVector<int>),
-             cudaMemcpyDeviceToHost);
+  cudaMemcpy(obj_ptr, d_obj_ptr, sizeof(GPU::SimpleVector<int>), cudaMemcpyDefault);
 
   assert(obj_ptr->size() == (numBlocks * numThreadsPerBlock < maxN
                                  ? numBlocks * numThreadsPerBlock
                                  : maxN));
   vector_reset<<<numBlocks, numThreadsPerBlock>>>(d_obj_ptr);
 
-  cudaMemcpy(obj_ptr, d_obj_ptr, sizeof(GPU::SimpleVector<int>),
-             cudaMemcpyDeviceToHost);
+  cudaMemcpy(obj_ptr, d_obj_ptr, sizeof(GPU::SimpleVector<int>), cudaMemcpyDefault);
 
   assert(obj_ptr->size() == 0);
 
   vector_emplace_back<<<numBlocks, numThreadsPerBlock>>>(d_obj_ptr);
 
-  cudaMemcpy(obj_ptr, d_obj_ptr, sizeof(GPU::SimpleVector<int>),
-             cudaMemcpyDeviceToHost);
+  cudaMemcpy(obj_ptr, d_obj_ptr, sizeof(GPU::SimpleVector<int>), cudaMemcpyDefault);
 
   assert(obj_ptr->size() == (numBlocks * numThreadsPerBlock < maxN
                                  ? numBlocks * numThreadsPerBlock
                                  : maxN));
 
   success = success and
-            cudaMemcpy(data_ptr, d_data_ptr, obj_ptr->size() * sizeof(int),
-                       cudaMemcpyDeviceToHost) == cudaSuccess and
+            cudaMemcpy(data_ptr, d_data_ptr, obj_ptr->size() * sizeof(int), cudaMemcpyDefault) == cudaSuccess and
             cudaFreeHost(obj_ptr) == cudaSuccess and
             cudaFreeHost(data_ptr) == cudaSuccess and
             cudaFreeHost(tmp_obj_ptr) == cudaSuccess and

@@ -46,7 +46,7 @@ void allocateCablingMap(SiPixelFedCablingMapGPU* & cablingMapHost, SiPixelFedCab
   cudaCheck(cudaMalloc((void**) & cablingMapHost->moduleId, MAX_SIZE_BYTE_INT));
   cudaCheck(cudaMalloc((void**) & cablingMapHost->badRocs,  MAX_SIZE_BYTE_BOOL));
   cudaCheck(cudaMalloc((void**) & cablingMapHost->modToUnp, MAX_SIZE_BYTE_BOOL));
-  cudaCheck(cudaMemcpy(cablingMapDevice, cablingMapHost, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyHostToDevice));
+  cudaCheck(cudaMemcpy(cablingMapDevice, cablingMapHost, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyDefault));
 }
 
 inline

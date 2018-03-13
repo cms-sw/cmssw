@@ -97,15 +97,15 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap,  TrackerGeometry 
   }
 
   cablingMapGPU->size = index-1;
-  cudaCheck(cudaMemcpy(cablingMapGPU->fed,      fedMap.data(),   fedMap.size()   * sizeof(unsigned int), cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(cablingMapGPU->link,     linkMap.data(),  linkMap.size()  * sizeof(unsigned int), cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(cablingMapGPU->roc,      rocMap.data(),   rocMap.size()   * sizeof(unsigned int), cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(cablingMapGPU->RawId,    RawId.data(),    RawId.size()    * sizeof(unsigned int), cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(cablingMapGPU->rocInDet, rocInDet.data(), rocInDet.size() * sizeof(unsigned int), cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(cablingMapGPU->moduleId, moduleId.data(), moduleId.size() * sizeof(unsigned int), cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(cablingMapGPU->badRocs,  badRocs.data(),  badRocs.size()  * sizeof(unsigned char), cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(cablingMapGPU->modToUnp, modToUnp.data(), modToUnp.size() * sizeof(unsigned char), cudaMemcpyHostToDevice));
-  cudaCheck(cudaMemcpy(cablingMapDevice, cablingMapGPU, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyHostToDevice));
+  cudaCheck(cudaMemcpy(cablingMapGPU->fed,      fedMap.data(),   fedMap.size()   * sizeof(unsigned int), cudaMemcpyDefault));
+  cudaCheck(cudaMemcpy(cablingMapGPU->link,     linkMap.data(),  linkMap.size()  * sizeof(unsigned int), cudaMemcpyDefault));
+  cudaCheck(cudaMemcpy(cablingMapGPU->roc,      rocMap.data(),   rocMap.size()   * sizeof(unsigned int), cudaMemcpyDefault));
+  cudaCheck(cudaMemcpy(cablingMapGPU->RawId,    RawId.data(),    RawId.size()    * sizeof(unsigned int), cudaMemcpyDefault));
+  cudaCheck(cudaMemcpy(cablingMapGPU->rocInDet, rocInDet.data(), rocInDet.size() * sizeof(unsigned int), cudaMemcpyDefault));
+  cudaCheck(cudaMemcpy(cablingMapGPU->moduleId, moduleId.data(), moduleId.size() * sizeof(unsigned int), cudaMemcpyDefault));
+  cudaCheck(cudaMemcpy(cablingMapGPU->badRocs,  badRocs.data(),  badRocs.size()  * sizeof(unsigned char), cudaMemcpyDefault));
+  cudaCheck(cudaMemcpy(cablingMapGPU->modToUnp, modToUnp.data(), modToUnp.size() * sizeof(unsigned char), cudaMemcpyDefault));
+  cudaCheck(cudaMemcpy(cablingMapDevice, cablingMapGPU, sizeof(SiPixelFedCablingMapGPU), cudaMemcpyDefault));
   cudaDeviceSynchronize();
 }
 
@@ -133,7 +133,7 @@ processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeomet
   cudaCheck(cudaMalloc((void**) & gainDataOnGPU, gains.data().size()));
   cudaCheck(cudaMalloc((void**) &gainsOnGPU,sizeof(SiPixelGainForHLTonGPU)));
 
-  cudaCheck(cudaMemcpy(gainDataOnGPU,gains.data().data(),gains.data().size(), cudaMemcpyHostToDevice));
+  cudaCheck(cudaMemcpy(gainDataOnGPU,gains.data().data(),gains.data().size(), cudaMemcpyDefault));
 
   gg.v_pedestals = gainDataOnGPU;
 
@@ -174,7 +174,7 @@ processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeomet
   }
 
 
-  cudaCheck(cudaMemcpy(gainsOnGPU,&gg,sizeof(SiPixelGainForHLTonGPU), cudaMemcpyHostToDevice));
+  cudaCheck(cudaMemcpy(gainsOnGPU,&gg,sizeof(SiPixelGainForHLTonGPU), cudaMemcpyDefault));
 
   
   cudaDeviceSynchronize();
