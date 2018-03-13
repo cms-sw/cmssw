@@ -3,31 +3,31 @@
 namespace{
   std::array<std::string,EGEnergySysIndex::kNrSysErrs> makeEGEnergySysNames(){
     std::array<std::string,EGEnergySysIndex::kNrSysErrs> names;
-    names[EGEnergySysIndex::kScaleUp] = "EGMscaleUpUncertainty"; 
-    names[EGEnergySysIndex::kScaleDown] = "EGMscaleDownUncertainty"; 
-    names[EGEnergySysIndex::kScaleStatUp] = "EGMscaleStatUpUncertainty"; 
-    names[EGEnergySysIndex::kScaleStatDown] = "EGMscaleStatDownUncertainty"; 
-    names[EGEnergySysIndex::kScaleSystUp] = "EGMscaleSystUpUncertainty"; 
-    names[EGEnergySysIndex::kScaleSystDown] = "EGMscaleSystDownUncertainty"; 
-    names[EGEnergySysIndex::kScaleGainUp] = "EGMscaleGainUpUncertainty"; 
-    names[EGEnergySysIndex::kScaleGainDown] = "EGMscaleGainDownUncertainty"; 
-    names[EGEnergySysIndex::kSmearUp] = "EGMresolutionUpUncertainty"; 
-    names[EGEnergySysIndex::kSmearDown] = "EGMresolutionDownUncertainty"; 
-    names[EGEnergySysIndex::kSmearRhoUp] = "EGMresolutionRhoUpUncertainty"; 
-    names[EGEnergySysIndex::kSmearRhoDown] = "EGMresolutionRhoDownUncertainty"; 
-    names[EGEnergySysIndex::kSmearPhiUp] = "EGMresolutionPhiUpUncertainty"; 
-    names[EGEnergySysIndex::kSmearPhiDown] = "EGMresolutionPhiDownUncertainty"; 
-    names[EGEnergySysIndex::kScaleValue] = "EGMscale"; 
-    names[EGEnergySysIndex::kSmearValue] = "EGMsmear"; 
-    names[EGEnergySysIndex::kSmearNrSigma] = "EGMsmearNrSigma"; 
-    names[EGEnergySysIndex::kEcalPreCorr] = "EGMecalEnergyPreCorr"; 
-    names[EGEnergySysIndex::kEcalErrPreCorr] = "EGMecalEnergyErrPreCorr"; 
-    names[EGEnergySysIndex::kEcalPostCorr] = "EGMecalEnergy"; 
-    names[EGEnergySysIndex::kEcalErrPostCorr] = "EGMecalEnergyErr"; 
-    names[EGEnergySysIndex::kEcalTrkPreCorr] = "EGMecalTrkEnergyPreCorr"; 
-    names[EGEnergySysIndex::kEcalTrkErrPreCorr] = "EGMecalTrkEnergyErrPreCorr";  
-    names[EGEnergySysIndex::kEcalTrkPostCorr] = "EGMecalTrkEnergy"; 
-    names[EGEnergySysIndex::kEcalTrkErrPostCorr] = "EGMecalTrkEnergyErr";
+    names[EGEnergySysIndex::kScaleUp] = "energyScaleUp"; 
+    names[EGEnergySysIndex::kScaleDown] = "energyScaleDown"; 
+    names[EGEnergySysIndex::kScaleStatUp] = "energyScaleStatUp"; 
+    names[EGEnergySysIndex::kScaleStatDown] = "energyScaleStatDown"; 
+    names[EGEnergySysIndex::kScaleSystUp] = "energyScaleSystUp"; 
+    names[EGEnergySysIndex::kScaleSystDown] = "energyScaleSystDown"; 
+    names[EGEnergySysIndex::kScaleGainUp] = "energyScaleGainUp"; 
+    names[EGEnergySysIndex::kScaleGainDown] = "energyScaleGainDown"; 
+    names[EGEnergySysIndex::kSmearUp] = "energySigmaUp"; 
+    names[EGEnergySysIndex::kSmearDown] = "energySigmaDown"; 
+    names[EGEnergySysIndex::kSmearRhoUp] = "energySigmaRhoUp"; 
+    names[EGEnergySysIndex::kSmearRhoDown] = "energySigmaRhoDown"; 
+    names[EGEnergySysIndex::kSmearPhiUp] = "energySigmaPhiUp"; 
+    names[EGEnergySysIndex::kSmearPhiDown] = "energySigmaPhiDown"; 
+    names[EGEnergySysIndex::kScaleValue] = "energyScaleValue"; 
+    names[EGEnergySysIndex::kSmearValue] = "energySigmaValue"; 
+    names[EGEnergySysIndex::kSmearNrSigma] = "energySmearNrSigma"; 
+    names[EGEnergySysIndex::kEcalPreCorr] = "ecalEnergyPreCorr"; 
+    names[EGEnergySysIndex::kEcalErrPreCorr] = "ecalEnergyErrPreCorr"; 
+    names[EGEnergySysIndex::kEcalPostCorr] = "ecalEnergyPostCorr"; 
+    names[EGEnergySysIndex::kEcalErrPostCorr] = "ecalEnergyErrPostCorr"; 
+    names[EGEnergySysIndex::kEcalTrkPreCorr] = "ecalTrkEnergyPreCorr"; 
+    names[EGEnergySysIndex::kEcalTrkErrPreCorr] = "ecalTrkEnergyErrPreCorr";  
+    names[EGEnergySysIndex::kEcalTrkPostCorr] = "ecalTrkEnergyPostCorr"; 
+    names[EGEnergySysIndex::kEcalTrkErrPostCorr] = "ecalTrkEnergyErrPostCorr";
     return names;
   }
 }
