@@ -149,6 +149,19 @@ namespace edm {
     CheckAbility<module::Abilities::kLuminosityBlockSummaryCache,VArgs...>::kHasIt;
   };
 
+  template<typename... VArgs>
+  struct HasAbilityToProduceInRuns {
+    static constexpr bool value =
+      CheckAbility<module::Abilities::kBeginRunProducer,VArgs...>::kHasIt or
+      CheckAbility<module::Abilities::kEndRunProducer, VArgs...>::kHasIt;
+  };
+
+  template<typename... VArgs>
+  struct HasAbilityToProduceInLumis {
+    static constexpr bool value =
+      CheckAbility<module::Abilities::kBeginLuminosityBlockProducer,VArgs...>::kHasIt or
+      CheckAbility<module::Abilities::kEndLuminosityBlockProducer, VArgs...>::kHasIt;
+  };
 }
 
 #endif

@@ -154,6 +154,7 @@ namespace one {
     explicit TestBeginRunProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
       produces<int>();
+      produces<unsigned int, edm::Transition::BeginRun>("a");
     }
     const unsigned int trans_; 
     unsigned int m_count = 0;
@@ -193,6 +194,7 @@ namespace one {
     explicit TestBeginLumiBlockProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
       produces<int>();
+      produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     unsigned int m_count = 0;
@@ -232,6 +234,7 @@ namespace one {
     explicit TestEndRunProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
       produces<int>();
+      produces<unsigned int, edm::Transition::EndRun>("a");
     }
     const unsigned int trans_;
     bool erp = false; 
@@ -272,6 +275,7 @@ namespace one {
     explicit TestEndLumiBlockProducer(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {	
       produces<int>();
+      produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     bool elbp = false;
