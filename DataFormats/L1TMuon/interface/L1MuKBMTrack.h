@@ -16,6 +16,7 @@ typedef std::vector<L1MuKBMTrack> L1MuKBMTrackCollection;
 
 class L1MuKBMTrack : public reco::LeafCandidate
 {
+
 public:
   L1MuKBMTrack();
   ~L1MuKBMTrack() override;
@@ -82,7 +83,7 @@ public:
   int residual(uint) const;
 
   //check ogverlap
-  bool overlap(const L1MuKBMTrack&) const; 
+  bool overlapTrack(const L1MuKBMTrack&) const; 
 
   bool operator==(const L1MuKBMTrack& t2) const{   
     if (this->stubs().size()!=t2.stubs().size())

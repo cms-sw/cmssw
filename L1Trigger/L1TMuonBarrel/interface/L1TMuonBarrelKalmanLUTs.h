@@ -1,4 +1,4 @@
-#ifndef __L1TMuonBarelKalmanLUTs_h
+#ifndef __L1TMuonBarrelKalmanLUTs_h
 #define __L1TMuonBarrelKalmanLUTs_h
 
 #include <cstdlib>
