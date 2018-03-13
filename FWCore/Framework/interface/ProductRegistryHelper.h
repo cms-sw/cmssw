@@ -21,10 +21,10 @@ namespace edm {
   struct DoNotRecordParents;
   
   class ProductRegistryHelper {
-  public:
-
-    ProductRegistryHelper() : typeLabelList_() {}
+  protected:
     ~ProductRegistryHelper();
+  public:
+    ProductRegistryHelper() : typeLabelList_() {}
 
     // has_donotrecordparents<T>::value is true if we should not
     // record parentage for type T, and false otherwise.
