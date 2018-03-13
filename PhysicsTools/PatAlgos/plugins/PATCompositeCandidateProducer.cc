@@ -4,7 +4,7 @@
 #include "PhysicsTools/PatAlgos/plugins/PATCompositeCandidateProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/View.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "FWCore/Utilities/interface/Exception.h"
