@@ -31,8 +31,8 @@ class L1TMuonBarrelKalmanTrackProducer : public edm::stream::EDProducer<> {
       void endStream() override;
   edm::EDGetTokenT<std::vector<L1MuKBMTCombinedStub> > src_;
   std::vector<int> bx_;
-  L1TMuonBarrelKalmanAlgo *algo_;
-  L1TMuonBarrelKalmanTrackFinder *trackFinder_;
+  std::unique_ptr<L1TMuonBarrelKalmanAlgo> algo_;
+  std::unique_ptr<L1TMuonBarrelKalmanTrackFinder> trackFinder_;
 
   
   
@@ -54,12 +54,6 @@ L1TMuonBarrelKalmanTrackProducer::L1TMuonBarrelKalmanTrackProducer(const edm::Pa
 L1TMuonBarrelKalmanTrackProducer::~L1TMuonBarrelKalmanTrackProducer()
 {
  
-  if (algo_!=nullptr)
-    delete algo_;
-
-  if (trackFinder_!=nullptr)
-    delete trackFinder_;
-    
    // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -92,7 +86,7 @@ L1TMuonBarrelKalmanTrackProducer::produce(edm::Event& iEvent, const edm::EventSe
    outBMTF->setBXRange(-3,3);
    L1MuKBMTrackCollection out;
    for (const auto& bx : bx_) {
-     L1MuKBMTrackCollection tmp = trackFinder_->process(algo_,stubs,bx);
+     L1MuKBMTrackCollection tmp = trackFinder_->process(algo_.get(),stubs,bx);
      for (const auto& track :tmp) {
        algo_->addBMTFMuon(bx,track,outBMTF);
      } 
