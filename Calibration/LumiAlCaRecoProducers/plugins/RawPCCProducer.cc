@@ -42,6 +42,7 @@ class RawPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProduc
             void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) final;
             void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) final;
 
+
             edm::EDGetTokenT<reco::PixelClusterCounts>  pccToken;
             std::string   pccSource_;                   //input file EDproducer module label 
             std::string   prodInst_;                    //input file product instance 

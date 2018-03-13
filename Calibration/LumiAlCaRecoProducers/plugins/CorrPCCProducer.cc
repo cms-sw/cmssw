@@ -60,6 +60,7 @@ class CorrPCCProducer : public edm::one::EDProducer<edm::EndRunProducer,edm::one
         void endJob()  final;
         void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) final;
 
+
         void makeCorrectionTemplate ();
         float getMaximum(std::vector<float>);
         void estimateType1Frac(std::vector<float>, float& );

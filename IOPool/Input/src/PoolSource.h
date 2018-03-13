@@ -84,6 +84,7 @@ namespace edm {
     ProductSelectorRules productSelectorRules_;
     bool dropDescendants_;
     bool labelRawDataLikeMC_;
+    bool delayReadingEventProducts_;
     
     edm::propagate_const<std::unique_ptr<RunHelperBase>> runHelper_;
     std::unique_ptr<SharedResourcesAcquirer> resourceSharedWithDelayedReaderPtr_; // We do not use propagate_const because the acquirer is itself mutable.
