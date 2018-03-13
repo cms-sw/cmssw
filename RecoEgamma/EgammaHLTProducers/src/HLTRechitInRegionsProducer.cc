@@ -35,9 +35,6 @@
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
-// EgammaCoreTools
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
-
 // Class header file
 #include "RecoEgamma/EgammaHLTProducers/interface/HLTRechitInRegionsProducer.h"
 
@@ -120,7 +117,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   es.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
 
-  std::vector<EcalEtaPhiRegion> regions;
+  std::vector<RectangularEtaPhiRegion> regions;
   if(doIsolated_) getEtaPhiRegions(&regions, *emIsolColl, *l1CaloGeom, true);
   
   if(!doIsolated_ or (l1LowerThrIgnoreIsolation_ < 64)) getEtaPhiRegions(&regions, *emNonIsolColl, *l1CaloGeom, false);
@@ -157,7 +154,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 	  for (it = uncalibRecHits->begin(); it != uncalibRecHits->end(); it++){
 	    auto this_cell = geometry_p->getGeometry(it->id());
 	    
-	    std::vector<EcalEtaPhiRegion>::const_iterator region;
+	    std::vector<RectangularEtaPhiRegion>::const_iterator region;
 	    for (region=regions.begin(); region!=regions.end(); region++) {
 	      if (region->inRegion(this_cell->etaPos(),this_cell->phiPos())) {
 		uhits->push_back(*it);
@@ -201,7 +198,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 	  for (it = recHits->begin(); it != recHits->end(); it++){
 	    auto this_cell = geometry_p->getGeometry(it->id());
 	    
-	    std::vector<EcalEtaPhiRegion>::const_iterator region;
+	    std::vector<RectangularEtaPhiRegion>::const_iterator region;
 	    for (region=regions.begin(); region!=regions.end(); region++) {
               if (region->inRegion(this_cell->etaPos(),this_cell->phiPos())) {
 		hits->push_back(*it);
@@ -218,7 +215,7 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 }
 
 template<>
-void HLTRechitInRegionsProducer<l1extra::L1EmParticle>::getEtaPhiRegions(std::vector<EcalEtaPhiRegion> * theRegions, T1Collection theCandidateCollection, const L1CaloGeometry& l1CaloGeom, bool isolatedCase){
+void HLTRechitInRegionsProducer<l1extra::L1EmParticle>::getEtaPhiRegions(std::vector<RectangularEtaPhiRegion> * theRegions, T1Collection theCandidateCollection, const L1CaloGeometry& l1CaloGeom, bool isolatedCase){
     for (unsigned int candItr = 0 ; candItr < theCandidateCollection.size(); candItr++){
         l1extra::L1EmParticle emItr = theCandidateCollection.at(candItr);
         
@@ -245,13 +242,13 @@ void HLTRechitInRegionsProducer<l1extra::L1EmParticle>::getEtaPhiRegions(std::ve
             
             
             
-            theRegions->push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+            theRegions->push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
         }
     }
 }
 
 template<typename T1>
-void HLTRechitInRegionsProducer<T1>::getEtaPhiRegions(std::vector<EcalEtaPhiRegion> * theRegions, T1Collection theCandidateCollection, const L1CaloGeometry& l1CaloGeom, bool isolatedCase){
+void HLTRechitInRegionsProducer<T1>::getEtaPhiRegions(std::vector<RectangularEtaPhiRegion> * theRegions, T1Collection theCandidateCollection, const L1CaloGeometry& l1CaloGeom, bool isolatedCase){
     for (unsigned int candItr = 0 ; candItr < theCandidateCollection.size(); candItr++){
         T1 emItr = theCandidateCollection.at(candItr);
         if ((emItr.et() > l1LowerThr_) and (emItr.et() < l1UpperThr_)) {
@@ -261,7 +258,7 @@ void HLTRechitInRegionsProducer<T1>::getEtaPhiRegions(std::vector<EcalEtaPhiRegi
             double phiLow = emItr.phi() - regionPhiMargin_;
             double phiHigh = emItr.phi() + regionPhiMargin_;
             
-            theRegions->push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+            theRegions->push_back(RectangularEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
         }
     }
 }

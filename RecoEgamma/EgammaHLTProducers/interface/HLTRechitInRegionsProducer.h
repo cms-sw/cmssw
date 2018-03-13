@@ -16,7 +16,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 // Geometry and topology
@@ -50,7 +50,7 @@ class HLTRechitInRegionsProducer : public edm::stream::EDProducer<> {
 
  private:
     
-  void getEtaPhiRegions(std::vector<EcalEtaPhiRegion> *, T1Collection, const L1CaloGeometry&, bool);
+  void getEtaPhiRegions(std::vector<RectangularEtaPhiRegion> *, T1Collection, const L1CaloGeometry&, bool);
     
   const bool useUncalib_;
 
