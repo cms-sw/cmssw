@@ -337,8 +337,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(reco::PFTau& tau) const
 		    << " HCAL = " << (pfCand)->hcalEnergy() << ","
 		    << " HO = " << (pfCand)->hoEnergy() << std::endl;
 	  }
-          // JAN - FIXME - this info is not readily available in miniAOD
-          // This means this sub-algo is currently broken
+          // TauReco@MiniAOD: This info is not yet available in miniAOD.
 	  if ( edm::isFinite(pfCand->ecalEnergy()) ) allNeutralsSumEn += pfCand->ecalEnergy();
 	  if ( edm::isFinite(pfCand->hcalEnergy()) ) allNeutralsSumEn += pfCand->hcalEnergy();
 	  if ( edm::isFinite(pfCand->hoEnergy())   ) allNeutralsSumEn += pfCand->hoEnergy();
