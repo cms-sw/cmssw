@@ -135,6 +135,10 @@ class MahiFit
 
   static constexpr int pedestalBX_ = 100;
 
+  // used to restrict returned time value to a 25 ns window centered 
+  // on the nominal arrival time
+  static constexpr float timeLimit_ = 12.5;
+
   // Python-configurables
   bool dynamicPed_;
   float ts4Thresh_; 

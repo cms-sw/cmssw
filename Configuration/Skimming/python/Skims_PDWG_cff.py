@@ -393,3 +393,33 @@ SKIMStreamEXOEMu = cms.FilteredStream(
     dataTier = cms.untracked.string('AOD')
     )
 """
+
+#####################
+
+from Configuration.Skimming.PDWG_MuonPOGSkim_cff import *
+MuonPOGSkimTrackPath = cms.Path(MuonPOGSkimTrackSequence)
+MuonPOGSkimSTAPath   = cms.Path(MuonPOGSkimSTASequence)
+MuonPOGSkim     = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'MuonPOGSkim',
+    paths = (MuonPOGSkimTrackPath,MuonPOGSkimSTAPath),
+    content = MuonPOG_EventContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
+    )
+
+
+MuonPOGJPsiSkimTrackPath = cms.Path(MuonPOGJPsiSkimTrackSequence)
+MuonPOGJPsiSkimSTAPath   = cms.Path(MuonPOGJPsiSkimSTASequence)
+
+MuonPOGJPsiSkim     = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'MuonPOGJPsiSkim',
+    paths = (MuonPOGJPsiSkimTrackPath,MuonPOGJPsiSkimSTAPath),
+    content = MuonPOG_EventContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
+    )
+
+
+#####################

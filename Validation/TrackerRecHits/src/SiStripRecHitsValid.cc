@@ -175,9 +175,6 @@ void SiStripRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::
   }
 }
 
-void SiStripRecHitsValid::beginJob(const edm::EventSetup& es){
-}
-
 void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
   LogInfo("EventInfo") << " Run = " << e.id().run() << " Event = " << e.id().event();  

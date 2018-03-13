@@ -78,11 +78,11 @@ public:
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-    virtual void beginJob() ;
+    void beginJob() override;
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;   
     void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
     void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() ;
+    void endJob() override;
     
     void processEvent(const TrackerTopology* topo); //what really does the job
     virtual void checkBookAPVColls(const edm::EventSetup& setup);

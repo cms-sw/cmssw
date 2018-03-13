@@ -236,8 +236,9 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
       if(!IDcuts) continue;
 
-      if (egammas_raw.at(iEG).hwEta() > 0) egEtaPos.at( egammas_raw.at(iEG).hwEta()-1).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
-      else                                 egEtaNeg.at( -(egammas_raw.at(iEG).hwEta()+1)).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
+      if (egammas_raw.at(iEG).hwEta() > 0) egEtaPos.at( egammas_raw.at(iEG).hwEta()-1).at((72-egammas_raw.at(iEG).hwPhi())/4) = egammas_raw.at(iEG);
+      else                                 egEtaNeg.at( -(egammas_raw.at(iEG).hwEta()+1)).at((72-egammas_raw.at(iEG).hwPhi())/4) = egammas_raw.at(iEG);
+      
   }
 
   AccumulatingSort <l1t::EGamma> etaPosSorter(6);
