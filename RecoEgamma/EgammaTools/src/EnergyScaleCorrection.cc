@@ -16,7 +16,7 @@ EnergyScaleCorrection::EnergyScaleCorrection(const std::string& correctionFileNa
     std::string filename = correctionFileName+"_scales.dat";
     readScalesFromFile(filename);
     if(scales_.empty()) {
-      throw cms::Exception("EnergyScaleCorrection") << "[ERROR] scale correction map empty";
+      throw cms::Exception("EnergyScaleCorrection") << "scale correction map empty";
     }
   }
   
@@ -24,7 +24,7 @@ EnergyScaleCorrection::EnergyScaleCorrection(const std::string& correctionFileNa
     std::string filename = correctionFileName+"_smearings.dat";
     readSmearingsFromFile(filename);
     if(smearings_.empty()) {
-      throw cms::Exception("EnergyScaleCorrection") << "[ERROR] smearing correction map empty";
+      throw cms::Exception("EnergyScaleCorrection") << "smearing correction map empty";
     }
   }
 
@@ -337,7 +337,6 @@ EnergyScaleCorrection::CorrectionCategory::CorrectionCategory(const std::string&
   
   // Et region
   p1 = category.find("-Et_");
-  p2 = p1 + 1;
   
   if(p1 != std::string::npos) {
     p1 = category.find("_", p1);
