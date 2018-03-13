@@ -21,9 +21,8 @@ namespace edm {
   struct DoNotRecordParents;
   
   class ProductRegistryHelper {
-  protected:
-    ~ProductRegistryHelper();
   public:
+    virtual ~ProductRegistryHelper() noexcept(false);
     ProductRegistryHelper() : typeLabelList_() {}
 
     // has_donotrecordparents<T>::value is true if we should not
