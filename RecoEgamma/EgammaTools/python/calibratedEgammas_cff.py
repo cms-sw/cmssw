@@ -7,6 +7,10 @@ calibratedEgammaSettings = cms.PSet(minEtToCalibrate = cms.double(5.0),
                                     recHitCollectionEE = cms.InputTag('reducedEcalRecHitsEE'),
                                     produceCalibratedObjs = cms.bool(True)
                                     )
+calibratedEgammaPatSettings = calibratedEgammaSettings.clone(
+    recHitCollectionEB = cms.InputTag('reducedEcalRecHitsEB'),
+    recHitCollectionEE = cms.InputTag('reducedEcalRecHitsEE'),
+    )
 
 ecalTrkCombinationRegression = cms.PSet(
     ecalTrkRegressionConfig = cms.PSet(
@@ -37,30 +41,25 @@ ecalTrkCombinationRegression = cms.PSet(
 )
 
 calibratedElectrons = cms.EDProducer("CalibratedElectronProducer",
-                                     calibratedEgammaSettings,
-                                     # input collections
-                                     src = cms.InputTag('gedGsfElectrons'),
+                                     calibratedEgammaSettings,                                   
                                      epCombConfig = ecalTrkCombinationRegression,
+                                     src = cms.InputTag('gedGsfElectrons'),
                                      )
 
 calibratedPatElectrons = cms.EDProducer("CalibratedPatElectronProducer",
-                                        calibratedEgammaSettings,
-                                        # input collections
-                                        src = cms.InputTag('slimmedElectrons'), 
+                                        calibratedEgammaPatSettings,
                                         epCombConfig = ecalTrkCombinationRegression,
+                                        src = cms.InputTag('slimmedElectrons'), 
                                        )
-calibratedPatElectrons.recHitCollectionEB = cms.InputTag("reducedEgamma","reducedEBRecHits")
-calibratedPatElectrons.recHitCollectionEE = cms.InputTag("reducedEgamma","reducedEERecHits")
 
 calibratedPhotons = cms.EDProducer("CalibratedPhotonProducer",
                                    calibratedEgammaSettings,
-                                   # input collections
                                    src = cms.InputTag('gedPhotons'),    
                                   )
 calibratedPatPhotons = cms.EDProducer("CalibratedPatPhotonProducer",
-                                      calibratedEgammaSettings,
-                                      # input collections
+                                      calibratedEgammaPatSettings,
                                       src = cms.InputTag('slimmedPhotons'),
                                       )
-calibratedPatPhotons.recHitCollectionEB = cms.InputTag("reducedEgamma","reducedEBRecHits")
-calibratedPatPhotons.recHitCollectionEE = cms.InputTag("reducedEgamma","reducedEERecHits")
+
+def prefixName(prefix,name):
+    return prefix+name[0].upper()+name[1:]
