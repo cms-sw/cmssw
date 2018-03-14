@@ -26,9 +26,9 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
     const HGCRecHit& hgrh = hits[i];
     DetId detid = hgrh.detid();
     unsigned int layer = rhtools_.getLayerWithOffset(detid);
-    float thickness = 0.;
+    float thickness = 0.f;
     // set sigmaNoise default value 1 to use kappa value directly in case of sensor-independent thresholds
-    float sigmaNoise = 1.;
+    float sigmaNoise = 1.f;
     if(dependSensor){
       if (layer<= lastLayerFH) // only EE and FH have silicon sensors
         thickness = rhtools_.getSiThickness(detid);
@@ -72,8 +72,6 @@ void HGCalImagingAlgo::makeClusters()
 {
   std::vector<std::vector<std::vector< KDNode> > >  layerClustersPerLayer(2*(maxlayer+2));
   edm::SerialTaskQueue layersQueue;
-  tbb::tick_count t0 = tbb::tick_count::now();
-
   //assign all hits in each layer to a cluster core or halo
   tbb::parallel_for(size_t(0), size_t(2*maxlayer+2), [&](size_t i) {
         KDTreeBox bounds(minpos[i][0],maxpos[i][0],
