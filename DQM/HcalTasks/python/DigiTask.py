@@ -28,7 +28,7 @@ digiTask = cms.EDAnalyzer(
 	qie10InConditions = cms.untracked.bool(False),
 
 	# Reference digi sizes
-	refDigiSize = cms.untracked.vuint32(10, 10, 10, 4), # HB, HE, HF, HO
+	refDigiSize = cms.untracked.vuint32(10, 10, 10, 4), # HB, HE, HO, HF
 )
 
 from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
