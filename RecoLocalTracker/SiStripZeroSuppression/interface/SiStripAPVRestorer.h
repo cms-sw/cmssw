@@ -140,10 +140,10 @@ class SiStripAPVRestorer {
   double filteredBaselineDerivativeSumSquare_;
   
   
-  int discontinuity_threshold;
-  int last_gradient;
-  int size_window;
-  int width_cluster;      
+  int gradient_threshold_;
+  int last_gradient_;
+  int size_window_;
+  int width_cluster_;      
                     
                     
 };

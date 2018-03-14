@@ -8,6 +8,7 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
     RawDigiProducersList = cms.VInputTag( cms.InputTag('siStripDigis','VirginRaw'), 
                                           cms.InputTag('siStripDigis','ProcessedRaw'),
                                           cms.InputTag('siStripDigis','ScopeMode')),
+                                       #   cms.InputTag('siStripDigis','ZeroSuppressed')),
 
 
     DigisToMergeZS = cms.InputTag('siStripDigis','ZeroSuppressed'),
@@ -21,7 +22,9 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
     produceCalculatedBaseline = cms.bool(False),
     produceBaselinePoints = cms.bool(False),
     storeInZScollBadAPV = cms.bool(True),
-    mergeCollections = cms.bool(False)
+    mergeCollections = cms.bool(False),
+    produceHybridFormat = cms.bool(False)
+    
     
 )
 

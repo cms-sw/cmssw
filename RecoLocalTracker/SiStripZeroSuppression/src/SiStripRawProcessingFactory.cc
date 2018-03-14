@@ -18,7 +18,7 @@ create(const edm::ParameterSet& conf) {
 						      create_SubtractorPed(conf),
 						      create_SubtractorCMN(conf),
 						      create_Suppressor(conf),
-                                                      create_Restorer(conf),
+                              create_Restorer(conf),
 						      create_doAPVRestorer(conf),
 						      create_useCMMeanMap(conf)));
 }
