@@ -115,7 +115,7 @@ void TauDQMHistEffProducer::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGette
       std::string effHistogramName, effHistogramDirectory, dummy;
       separateHistogramFromDirectoryName(plot->efficiency_, effHistogramName, effHistogramDirectory);
       //if ( effHistogramDirectory == "" ) separateHistogramFromDirectoryName(numeratorHistogramName, dummy, effHistogramDirectory);
-      if ( effHistogramDirectory != "" ) 
+      if ( !effHistogramDirectory.empty() ) 
 	{
 	  if(iget.dirExists(effHistogramDirectory))
 	    ibook.setCurrentFolder(effHistogramDirectory);
