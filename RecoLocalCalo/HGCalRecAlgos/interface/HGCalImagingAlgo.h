@@ -49,7 +49,7 @@ public:
 
 enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 };
 
-HGCalImagingAlgo() : vecDeltas(), kappa(1.), ecut(0.), cluster_offset(0),
+HGCalImagingAlgo() : vecDeltas(), kappa(1.), ecut(0.),
         sigma2(1.0),
         algoId(reco::CaloCluster::undefined),
         verbosity(pERROR),initialized(false){
@@ -67,7 +67,6 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
                  VerbosityLevel the_verbosity = pERROR) :
         vecDeltas(vecDeltas_in), kappa(kappa_in),
         ecut(ecut_in),
-        cluster_offset(0),
         sigma2(1.0),
         algoId(algoId_in),
         dependSensor(dependSensor_in),
@@ -99,7 +98,6 @@ HGCalImagingAlgo(const std::vector<double>& vecDeltas_in, double kappa_in, doubl
                  double noiseMip_in,
                  VerbosityLevel the_verbosity = pERROR) : vecDeltas(vecDeltas_in), kappa(kappa_in),
         ecut(ecut_in),
-        cluster_offset(0),
         sigma2(std::pow(showerSigma,2.0)),
         algoId(algoId_in),
         dependSensor(dependSensor_in),
@@ -142,7 +140,6 @@ void getEventSetup(const edm::EventSetup& es){
 void reset(){
         current_v.clear();
         clusters_v.clear();
-        cluster_offset = 0;
         for( auto& it: points)
         {
                 it.clear();
@@ -176,9 +173,6 @@ double kappa;
 
 // The hit energy cutoff
 double ecut;
-
-// The current offset into the temporary cluster structure
-unsigned int cluster_offset;
 
 // for energy sharing
 double sigma2;   // transverse shower size
