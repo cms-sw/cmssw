@@ -12,6 +12,9 @@
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 
 #include "tbb/tbb.h"
+#include "tbb/task_arena.h"
+
+
 void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
   //loop over all hits and create the Hexel structure, skip energies below ecut
 
@@ -73,6 +76,7 @@ void HGCalImagingAlgo::makeClusters()
   std::vector<std::vector<std::vector< KDNode> > >  layerClustersPerLayer(2*(maxlayer+2));
   edm::SerialTaskQueue layersQueue;
   //assign all hits in each layer to a cluster core or halo
+  tbb::this_task_arena::isolate( [&]{
   tbb::parallel_for(size_t(0), size_t(2*maxlayer+2), [&](size_t i) {
         KDTreeBox bounds(minpos[i][0],maxpos[i][0],
              minpos[i][1],maxpos[i][1]);
@@ -92,6 +96,7 @@ void HGCalImagingAlgo::makeClusters()
             current_v.push_back(layerClustersPerLayer[i][j]);
             } );
         }
+    });
     });
 }
 
