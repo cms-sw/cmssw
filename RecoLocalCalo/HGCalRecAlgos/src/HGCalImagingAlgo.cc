@@ -212,7 +212,7 @@ math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
   return math::XYZPoint(0, 0, 0);
 }
 
-double HGCalImagingAlgo::calculateLocalDensity(std::vector<KDNode> &nd, KDTree &lp, const unsigned int layer){
+double HGCalImagingAlgo::calculateLocalDensity(std::vector<KDNode> &nd, KDTree &lp, const unsigned int layer) const{
 
   double maxdensity = 0.;
   float delta_c; // maximum search distance (critical distance) for local density calculation
@@ -238,7 +238,7 @@ double HGCalImagingAlgo::calculateLocalDensity(std::vector<KDNode> &nd, KDTree &
   return maxdensity;
 }
 
-double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd){
+double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd) const {
 
 
   //sort vector of Hexels by decreasing local density
@@ -288,7 +288,7 @@ double HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd){
   }
   return maxdensity;
 }
-int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd, KDTree &lp, double maxdensity, KDTreeBox &bounds, const unsigned int layer, std::vector<std::vector<KDNode> >& clustersOnLayer) {
+int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd, KDTree &lp, double maxdensity, KDTreeBox &bounds, const unsigned int layer, std::vector<std::vector<KDNode> >& clustersOnLayer) const {
 
   //this is called once per layer and endcap...
   //so when filling the cluster temporary vector of Hexels we resize each time by the number
@@ -451,8 +451,7 @@ math::XYZPoint HGCalImagingAlgo::calculatePositionWithFraction(const std::vector
     z += weight*hits[i].data.z;
   }
   math::XYZPoint result(x,y,z);
-  double norm_inv = 1.0/norm;
-  result *= norm_inv;
+  result /= norm;
   return result;
 }
 
