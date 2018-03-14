@@ -24,7 +24,7 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
 #include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
-#include <assert.h>
+#include <cassert>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -51,12 +51,12 @@ class L1TMuonCPPFDigiProducer : public edm::EDProducer {
   
  public:
   explicit L1TMuonCPPFDigiProducer(const edm::ParameterSet&);
-  virtual ~L1TMuonCPPFDigiProducer();
+  ~L1TMuonCPPFDigiProducer() override;
 
  private:
-  virtual void beginJob() override;
-  virtual void produce(edm::Event& event, const edm::EventSetup& setup) override;
-  virtual void endJob() override;
+  void beginJob() override;
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
+  void endJob() override;
   
  private:
   std::unique_ptr<EmulateCPPF> cppf_emulator_;

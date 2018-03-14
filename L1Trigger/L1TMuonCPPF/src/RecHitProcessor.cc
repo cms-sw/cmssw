@@ -24,7 +24,7 @@ void RecHitProcessor::processLook(
   for ( TrackingGeometry::DetContainer::const_iterator iDet = rpcGeom->dets().begin(); iDet < rpcGeom->dets().end(); iDet++ ) {
     
     // What does this do?  Check whether the chamber is an RPC chamber?
-    if (dynamic_cast<const RPCChamber*>( *iDet ) == 0 ) continue;
+    if (dynamic_cast<const RPCChamber*>( *iDet ) == nullptr ) continue;
     
     auto chamb = dynamic_cast<const RPCChamber* >( *iDet ); 
     std::vector<const RPCRoll*> rolls = (chamb->rolls());
@@ -266,7 +266,7 @@ void RecHitProcessor::process(
   for ( TrackingGeometry::DetContainer::const_iterator iDet = rpcGeom->dets().begin(); iDet < rpcGeom->dets().end(); iDet++ ) {
     
     // What does this do?  Check whether the chamber is an RPC chamber?
-    if (dynamic_cast<const RPCChamber*>( *iDet ) == 0 ) continue;
+    if (dynamic_cast<const RPCChamber*>( *iDet ) == nullptr ) continue;
     
     auto chamb = dynamic_cast<const RPCChamber* >( *iDet ); 
     std::vector<const RPCRoll*> rolls = (chamb->rolls());
