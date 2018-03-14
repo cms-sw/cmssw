@@ -27,7 +27,7 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
   bool ssPhys  = p.getUntrackedParameter<bool>("ExoticaPhysicsSS",false);
   double timeLimit = p.getParameter<double>("MaxTrackTime")*ns;
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_FTFP_BERT_EML for regular particles \n"
+			      << "FTFP_BERT_EMM for regular particles \n"
 			      << "CustomPhysicsList " << ssPhys << " for exotics; "
                               << " tracking cut " << tracking << "  t(ns)= " << timeLimit/ns;
   // EM Physics
