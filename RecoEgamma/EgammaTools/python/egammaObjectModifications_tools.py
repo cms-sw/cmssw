@@ -54,8 +54,8 @@ def makeEnergyScaleAndSmearingSysModifier(eleProdName,phoProdName):
     from RecoEgamma.EgammaTools.calibratedEgammas_cff import prefixName
     import RecoEgamma.EgammaTools.calibratedElectronProducer_cfi
     for valueMapName in RecoEgamma.EgammaTools.calibratedElectronProducer_cfi.calibratedElectronProducer.valueMapsStored:
-        setattr(energyScaleAndSmearingModifier.electron_config,valueMapName,cms.InputTag(eleProdName,valueMapName))
+        setattr(energyScaleAndSmearing.electron_config,valueMapName,cms.InputTag(eleProdName,valueMapName))
     import RecoEgamma.EgammaTools.calibratedPhotonProducer_cfi
     for valueMapName in RecoEgamma.EgammaTools.calibratedPhotonProducer_cfi.calibratedPhotonProducer.valueMapsStored:
-        setattr(reducedEgammaEnergyScaleAndSmearingModifier.electron_config,valueMapName,cms.InputTag(phoProdName,valueMapName))
+        setattr(energyScaleAndSmearing.photon_config,valueMapName,cms.InputTag(phoProdName,valueMapName))
     return energyScaleAndSmearing
