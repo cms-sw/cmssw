@@ -14,8 +14,8 @@
 
 class GhostBuster: public IGhostBuster {
 public:
-  ~GhostBuster() override {};
-  std::vector<AlgoMuon> select(std::vector<AlgoMuon> refHitCands, int charge=0) override;
+  virtual ~GhostBuster() {};
+  virtual std::vector<AlgoMuon> select(std::vector<AlgoMuon> refHitCands, int charge=0);
 
 };
 #endif
