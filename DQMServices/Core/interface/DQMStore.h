@@ -11,6 +11,7 @@
 #include <iosfwd>
 #include <list>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <set>
 #include <string>
@@ -58,7 +59,6 @@ class fastmatch
 
  public:
   fastmatch (std::string  _fastString);
-  ~fastmatch();
 
   bool match (std::string const& s) const;
 
@@ -70,7 +70,7 @@ class fastmatch
   bool compare_strings (std::string const& pattern,
                         std::string const& input) const;
 
-  lat::Regexp * regexp_;
+  std::unique_ptr<lat::Regexp> regexp_{nullptr};
   std::string fastString_;
   MatchingHeuristicEnum matching_;
 };
@@ -842,7 +842,7 @@ class DQMStore
   std::string                   readSelectedDirectory_{};
   uint32_t                      run_{};
   uint32_t                      moduleId_{};
-  std::ofstream *               stream_{nullptr};
+  std::unique_ptr<std::ostream> stream_{nullptr};
 
   std::string                   pwd_{};
   MEMap                         data_;
