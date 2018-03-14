@@ -138,8 +138,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
 	    std::cout << "\t     Eta          = " << position.eta() << std::endl;
 	    std::cout << "\t*****************************" << std::endl;
 	  }
-	clusters_v.push_back(reco::BasicCluster(energy, position, caloID, thisCluster,
-						algoId));
+	clusters_v.emplace_back(energy, position, caloID, thisCluster,algoId);
 	thisCluster.clear();
       }
     }else{
