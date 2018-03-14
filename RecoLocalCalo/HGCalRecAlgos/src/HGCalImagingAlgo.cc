@@ -506,14 +506,15 @@ void HGCalImagingAlgo::shareEnergy(const std::vector<KDNode>& incluster,
   const unsigned iterMax = 50;
   double diff = std::numeric_limits<double>::max();
   const double stoppingTolerance = 1e-8;
-  auto toleranceScaling = seeds.size() > 2 ? (seeds.size()-1)*(seeds.size()-1) : 1;
+  const auto numberOfSeeds = seeds.size();
+  auto toleranceScaling = numberOfSeeds > 2 ? (numberOfSeeds-1)*(numberOfSeeds-1) : 1;
   std::vector<Point> prevCentroids;
-  std::vector<double> frac(seeds.size()), dist2(seeds.size());
+  std::vector<double> frac(numberOfSeeds), dist2(numberOfSeeds);
   while( iter++ < iterMax && diff > stoppingTolerance*toleranceScaling ) {
     for( unsigned i = 0; i < incluster.size(); ++i ) {
       const Hexel& ihit = incluster[i].data;
       double fracTot(0.0);
-      for( unsigned j = 0; j < seeds.size(); ++j ) {
+      for( unsigned j = 0; j < numberOfSeeds; ++j ) {
 	double fraction = 0.0;
 	double d2 = ( std::pow(ihit.x - centroids[j].x(),2.0) +
 	       std::pow(ihit.y - centroids[j].y(),2.0) +
@@ -532,7 +533,7 @@ void HGCalImagingAlgo::shareEnergy(const std::vector<KDNode>& incluster,
       }
       // now that we have calculated all fractions for all hits
       // assign the new fractions
-      for( unsigned j = 0; j < seeds.size(); ++j ) {
+      for( unsigned j = 0; j < numberOfSeeds; ++j ) {
 	if( fracTot > minFracTot ||
 	    ( i == seeds[j] && fracTot > 0.0 ) ) {
 	  outclusters[j][i] = frac[j]/fracTot;
@@ -545,14 +546,14 @@ void HGCalImagingAlgo::shareEnergy(const std::vector<KDNode>& incluster,
     // save previous centroids
     prevCentroids = std::move(centroids);
     // finally update the position of the centroids from the last iteration
-    centroids.resize(seeds.size());
+    centroids.resize(numberOfSeeds);
     double diff2 = 0.0;
-    for( unsigned i = 0; i < seeds.size(); ++i ) {
+    for( unsigned i = 0; i < numberOfSeeds; ++i ) {
       centroids[i] = calculatePositionWithFraction(incluster,outclusters[i]);
       energies[i]  = calculateEnergyWithFraction(incluster,outclusters[i]);
       // calculate convergence parameters
       const double delta2 = (prevCentroids[i]-centroids[i]).perp2();
-      if( delta2 > diff2 ) diff2 = delta2;
+      diff2 = std::max(delta2, diff2);
     }
     //update convergance parameter outside loop
     diff = std::sqrt(diff2);
@@ -589,7 +590,7 @@ void HGCalImagingAlgo::computeThreshold() {
 	  else if( thickness>199. && thickness<201. ) thickIndex=1;
 	  else if( thickness>299. && thickness<301. ) thickIndex=2;
 	  else assert( thickIndex>0 && "ERROR - silicon thickness has a nonsensical value" );
-	  float sigmaNoise = 0.001 * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
+	  float sigmaNoise = 0.001f * fcPerEle * nonAgedNoises[thickIndex] * dEdXweights[layer] / (fcPerMip[thickIndex] * thicknessCorrection[thickIndex]);
 	  thresholds[layer-1][wafer]=sigmaNoise*ecut;
 	  v_sigmaNoise[layer-1][wafer] = sigmaNoise;
 	}
@@ -598,7 +599,7 @@ void HGCalImagingAlgo::computeThreshold() {
   // now BH, much faster
   for ( unsigned ilayer=lastLayerFH+1;ilayer<=maxlayer;++ilayer)
     {
-      float sigmaNoise = 0.001 * noiseMip * dEdXweights[ilayer];
+      float sigmaNoise = 0.001f * noiseMip * dEdXweights[ilayer];
       std::vector<double> bhDummy_thresholds;
       std::vector<double> bhDummy_sigmaNoise;
       bhDummy_thresholds.push_back(sigmaNoise*ecut);
