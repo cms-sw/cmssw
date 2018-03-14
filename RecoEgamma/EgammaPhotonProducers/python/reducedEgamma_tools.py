@@ -6,9 +6,9 @@ def calibrateReducedEgamma(process):
     process.calibratedElectrons.produceCalibratedObjs = False
     process.slimmingTask.add(process.calibratedPhotons)
     process.slimmingTask.add(process.calibratedElectrons)
-    process.reducedEgamma.applyPhotonCalibOnData = True
+    process.reducedEgamma.applyPhotonCalibOnData = False
     process.reducedEgamma.applyPhotonCalibOnMC = False
-    process.reducedEgamma.applyGsfElectronCalibOnData = True
+    process.reducedEgamma.applyGsfElectronCalibOnData = False
     process.reducedEgamma.applyGsfElectronCalibOnMC = False
     process.reducedEgamma.photonCalibEnergySource = cms.InputTag("calibratedPhotons","ecalEnergyPostCorr")
     process.reducedEgamma.photonCalibEnergyErrSource = cms.InputTag("calibratedPhotons","ecalEnergyErrPostCorr")
