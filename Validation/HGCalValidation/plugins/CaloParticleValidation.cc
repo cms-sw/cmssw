@@ -169,12 +169,13 @@ CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup con
   for (auto const caloParticle : caloParticles) {
     int id = caloParticle.pdgId();
     if (histos.count(id)) {
-      histos.at(id).eta_.fill(caloParticle.eta());
-      histos.at(id).pt_.fill(caloParticle.pt());
-      histos.at(id).energy_.fill(caloParticle.energy());
-      histos.at(id).nSimClusters_.fill(caloParticle.simClusters().size());
+      auto & histo = histos.at(id);
+      histo.eta_.fill(caloParticle.eta());
+      histo.pt_.fill(caloParticle.pt());
+      histo.energy_.fill(caloParticle.energy());
+      histo.nSimClusters_.fill(caloParticle.simClusters().size());
       // Find the corresponding vertex.
-      histos.at(id).eta_Zorigin_map_.fill(
+      histo.eta_Zorigin_map_.fill(
           simVertices.at(caloParticle.g4Tracks()[0].vertIndex()).position().z(), caloParticle.eta());
       int simHits = 0;
       float energy = 0.;
@@ -185,9 +186,9 @@ CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup con
             energy += hitmap[h_and_f.first]->energy() * h_and_f.second;
         }
       }
-      histos.at(id).nHitInSimClusters_.fill((float)simHits);
-      histos.at(id).selfEnergy_.fill(energy);
-      histos.at(id).energyDifference_.fill(1.- energy/caloParticle.energy());
+      histo.nHitInSimClusters_.fill((float)simHits);
+      histo.selfEnergy_.fill(energy);
+      histo.energyDifference_.fill(1.- energy/caloParticle.energy());
     }
   }
 
@@ -202,11 +203,12 @@ CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup con
   for (auto const pfc : simPFCandidates) {
     size_t type = offset + pfc.particleId();
     histos.at(offset).pfcandidateType_.fill(type - offset);
-    histos.at(type).pfcandidateEnergy_.fill(pfc.energy());
-    histos.at(type).pfcandidatePt_.fill(pfc.pt());
-    histos.at(type).pfcandidateEta_.fill(pfc.eta());
-    histos.at(type).pfcandidatePhi_.fill(pfc.phi());
-    histos.at(type).pfcandidateElementsInBlocks_.fill(pfc.elementsInBlocks().size());
+    auto & histo = histos.at(type);
+    histo.pfcandidateEnergy_.fill(pfc.energy());
+    histo.pfcandidatePt_.fill(pfc.pt());
+    histo.pfcandidateEta_.fill(pfc.eta());
+    histo.pfcandidatePhi_.fill(pfc.phi());
+    histo.pfcandidateElementsInBlocks_.fill(pfc.elementsInBlocks().size());
   }
 }
 
@@ -219,25 +221,27 @@ CaloParticleValidation::bookHistograms(DQMStore::ConcurrentBooker & ibook,
 {
   for (auto const particle : particles_to_monitor_) {
     ibook.setCurrentFolder(folder_ + "CaloParticles/" + std::to_string(particle));
-    histos[particle].eta_ = ibook.book1D("Eta", "Eta", 80, -4., 4.);
-    histos[particle].energy_ = ibook.book1D("Energy", "Energy", 250, 0., 500.);
-    histos[particle].pt_ = ibook.book1D("Pt", "Pt", 100, 0., 100.);
-    histos[particle].nSimClusters_ = ibook.book1D("NSimClusters", "NSimClusters", 100, 0., 100.);
-    histos[particle].nHitInSimClusters_ = ibook.book1D("NHitInSimClusters", "NHitInSimClusters", 100, 0., 100.);
-    histos[particle].selfEnergy_ = ibook.book1D("SelfEnergy", "SelfEnergy", 250, 0., 500.);
-    histos[particle].energyDifference_ = ibook.book1D("EnergyDifference", "(Energy-SelfEnergy)/Energy", 300, -5., 1.);
-    histos[particle].eta_Zorigin_map_ = ibook.book2D("Eta vs Zorigin", "Eta vs Zorigin", 80, -4., 4., 1100, -550., 550.);
+    auto & histo = histos[particle];
+    histo.eta_ = ibook.book1D("Eta", "Eta", 80, -4., 4.);
+    histo.energy_ = ibook.book1D("Energy", "Energy", 250, 0., 500.);
+    histo.pt_ = ibook.book1D("Pt", "Pt", 100, 0., 100.);
+    histo.nSimClusters_ = ibook.book1D("NSimClusters", "NSimClusters", 100, 0., 100.);
+    histo.nHitInSimClusters_ = ibook.book1D("NHitInSimClusters", "NHitInSimClusters", 100, 0., 100.);
+    histo.selfEnergy_ = ibook.book1D("SelfEnergy", "SelfEnergy", 250, 0., 500.);
+    histo.energyDifference_ = ibook.book1D("EnergyDifference", "(Energy-SelfEnergy)/Energy", 300, -5., 1.);
+    histo.eta_Zorigin_map_ = ibook.book2D("Eta vs Zorigin", "Eta vs Zorigin", 80, -4., 4., 1100, -550., 550.);
   }
   int offset = 100000;
   ibook.setCurrentFolder(folder_ + "PFCandidates");
   histos[offset].pfcandidateType_ = ibook.book1D("PFCandidateType", "PFCandidateType", 10, 0, 10);
   for (size_t type = reco::PFCandidate::h; type <= reco::PFCandidate::egamma_HF; type++) {
     ibook.setCurrentFolder(folder_ + "PFCandidates/" + std::to_string(type));
-    histos[offset + type].pfcandidateEnergy_ = ibook.book1D("PFCandidateEnergy", "PFCandidateEnergy", 250, 0., 250.);
-    histos[offset + type].pfcandidatePt_ = ibook.book1D("PFCandidatePt", "PFCandidatePt", 250, 0., 250.);
-    histos[offset + type].pfcandidateEta_ = ibook.book1D("PFCandidateEta", "PFCandidateEta", 100, -5., 5.);
-    histos[offset + type].pfcandidatePhi_ = ibook.book1D("PFCandidatePhi", "PFCandidatePhi", 100, -4., 4.);
-    histos[offset + type].pfcandidateElementsInBlocks_ = ibook.book1D("PFCandidateElements", "PFCandidateElements", 20, 0., 20.);
+    auto & histo = histos[offset + type];
+    histo.pfcandidateEnergy_ = ibook.book1D("PFCandidateEnergy", "PFCandidateEnergy", 250, 0., 250.);
+    histo.pfcandidatePt_ = ibook.book1D("PFCandidatePt", "PFCandidatePt", 250, 0., 250.);
+    histo.pfcandidateEta_ = ibook.book1D("PFCandidateEta", "PFCandidateEta", 100, -5., 5.);
+    histo.pfcandidatePhi_ = ibook.book1D("PFCandidatePhi", "PFCandidatePhi", 100, -4., 4.);
+    histo.pfcandidateElementsInBlocks_ = ibook.book1D("PFCandidateElements", "PFCandidateElements", 20, 0., 20.);
   }
   // Folder '0' is meant to be cumulative, with no connection to pdgId
   ibook.setCurrentFolder(folder_ + std::to_string(0));
