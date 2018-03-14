@@ -359,7 +359,8 @@ class DQMStore
       run_ = run;
       moduleId_ = moduleId;
     }
-    f(*ibooker_);
+    IBooker booker{this};
+    f(booker);
 
     /* Reset the run number and module id only if multithreading is enabled */
     if (enableMultiThread_) {
@@ -393,7 +394,9 @@ class DQMStore
   // is not needed.
   template <typename iFunc>
   void meBookerGetter(iFunc f) {
-    f(*ibooker_, *igetter_);
+    IBooker booker{this};
+    IGetter getter{this};
+    f(booker, getter);
   }
 
   //-------------------------------------------------------------------------
@@ -850,8 +853,6 @@ class DQMStore
   QTestSpecs                    qtestspecs_;
 
   std::mutex book_mutex_;
-  IBooker * ibooker_{nullptr};
-  IGetter * igetter_{nullptr};
 
   friend class edm::DQMHttpSource;
   friend class DQMService;

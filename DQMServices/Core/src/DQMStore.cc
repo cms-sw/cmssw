@@ -355,13 +355,8 @@ void DQMStore::IGetter::setCurrentFolder(const std::string &fullpath) {
 
 //////////////////////////////////////////////////////////////////////
 DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
+  : DQMStore{pset}
 {
-  if (!ibooker_)
-    ibooker_ = new DQMStore::IBooker(this);
-  if (!igetter_)
-    igetter_ = new DQMStore::IGetter(this);
-  initializeFrom(pset);
-
   ar.preallocateSignal_.connect([this](edm::service::SystemBounds const& iBounds) {
       if(iBounds.maxNumberOfStreams() > 1 ) {
         enableMultiThread_ = true;
@@ -379,10 +374,6 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
 {
-  if (!ibooker_)
-    ibooker_ = new DQMStore::IBooker(this);
-  if (!igetter_)
-    igetter_ = new DQMStore::IGetter(this);
   initializeFrom(pset);
 }
 
