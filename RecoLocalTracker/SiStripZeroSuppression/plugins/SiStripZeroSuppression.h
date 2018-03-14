@@ -56,6 +56,7 @@ class SiStripZeroSuppression : public edm::stream::EDProducer<>
   bool storeInZScollBadAPV;
   bool mergeCollections;
   bool fixCM;
+  bool produceHybridFormat;
   
 };
 #endif

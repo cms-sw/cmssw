@@ -15,7 +15,7 @@
 #include "math.h"
 #include "map"
 
-void  displayBaselineMacro_2types(TString file,const  int limit = 1){
+void  displayBaselineMacro_2types(TString file,const  int limit = 20){
 
   TFile *f;//, *fo;
   TString BaseDir;
