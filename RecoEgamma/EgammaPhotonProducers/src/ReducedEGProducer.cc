@@ -94,9 +94,9 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   outGsfElectronPfCandMap_("reducedGsfElectronPfCandMap"),
   outPhotonIds_(config.getParameter<std::vector<std::string> >("photonIDOutput")),
   outGsfElectronIds_(config.getParameter<std::vector<std::string> >("gsfElectronIDOutput")),
-  outPhotonPFClusterIsos_(config.getParameter<std::vector<std::string> >("photonPFClusterIsoOutput")),
-  outOOTPhotonPFClusterIsos_(config.getParameter<std::vector<std::string> >("ootPhotonPFClusterIsoOutput")),
-  outGsfElectronPFClusterIsos_(config.getParameter<std::vector<std::string> >("gsfElectronPFClusterIsoOutput")),
+  outPhotonFloatValueMaps_(config.getParameter<std::vector<std::string> >("photonFloatValueMapOutput")),
+  outOOTPhotonFloatValueMaps_(config.getParameter<std::vector<std::string> >("ootPhotonFloatValueMapOutput")),
+  outGsfElectronFloatValueMaps_(config.getParameter<std::vector<std::string> >("gsfElectronFloatValueMapOutput")),
   keepPhotonSel_(config.getParameter<std::string>("keepPhotons")),
   slimRelinkPhotonSel_(config.getParameter<std::string>("slimRelinkPhotons")),
   relinkPhotonSel_(config.getParameter<std::string>("relinkPhotons")),
@@ -120,21 +120,21 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   }  
   
   const std::vector<edm::InputTag>&  photonpfclusterisoinputs = 
-    config.getParameter<std::vector<edm::InputTag> >("photonPFClusterIsoSources");
+    config.getParameter<std::vector<edm::InputTag> >("photonFloatValueMapSources");
   for (const edm::InputTag &tag : photonpfclusterisoinputs) {
-    photonPFClusterIsoTs_.emplace_back(consumes<edm::ValueMap<float> >(tag));
+    photonFloatValueMapTs_.emplace_back(consumes<edm::ValueMap<float> >(tag));
   }  
 
   const std::vector<edm::InputTag>&  ootphotonpfclusterisoinputs = 
-    config.getParameter<std::vector<edm::InputTag> >("ootPhotonPFClusterIsoSources");
+    config.getParameter<std::vector<edm::InputTag> >("ootPhotonFloatValueMapSources");
   for (const edm::InputTag &tag : ootphotonpfclusterisoinputs) {
-    ootPhotonPFClusterIsoTs_.emplace_back(consumes<edm::ValueMap<float> >(tag));
+    ootPhotonFloatValueMapTs_.emplace_back(consumes<edm::ValueMap<float> >(tag));
   }  
 
   const std::vector<edm::InputTag>& gsfelectronpfclusterisoinputs = 
-    config.getParameter<std::vector<edm::InputTag> >("gsfElectronPFClusterIsoSources");
+    config.getParameter<std::vector<edm::InputTag> >("gsfElectronFloatValueMapSources");
   for (const edm::InputTag &tag : gsfelectronpfclusterisoinputs) {
-    gsfElectronPFClusterIsoTs_.emplace_back(consumes<edm::ValueMap<float> >(tag));
+    gsfElectronFloatValueMapTs_.emplace_back(consumes<edm::ValueMap<float> >(tag));
   } 
 
   if(applyPhotonCalibOnData_ || applyPhotonCalibOnMC_){
@@ -174,13 +174,13 @@ ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   for (const std::string &outid : outGsfElectronIds_) {
     produces< edm::ValueMap<float> >(outid);   
   }  
-  for (const std::string &outid : outPhotonPFClusterIsos_) {
+  for (const std::string &outid : outPhotonFloatValueMaps_) {
     produces< edm::ValueMap<float> >(outid);   
   }
-  for (const std::string &outid : outOOTPhotonPFClusterIsos_) {
+  for (const std::string &outid : outOOTPhotonFloatValueMaps_) {
     produces< edm::ValueMap<float> >(outid);   
   }
-  for (const std::string &outid : outGsfElectronPFClusterIsos_) {
+  for (const std::string &outid : outGsfElectronFloatValueMaps_) {
     produces< edm::ValueMap<float> >(outid);   
   }
 }
@@ -239,22 +239,22 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     theEvent.getByToken(gsfElectronIdT,gsfElectronIdHandles[index++]);
   }  
   
-  std::vector<edm::Handle<edm::ValueMap<float> > > photonPFClusterIsoHandles(photonPFClusterIsoTs_.size());
+  std::vector<edm::Handle<edm::ValueMap<float> > > photonFloatValueMapHandles(photonFloatValueMapTs_.size());
   index = 0;
-  for (const auto& photonPFClusterIsoT : photonPFClusterIsoTs_) {
-    theEvent.getByToken(photonPFClusterIsoT,photonPFClusterIsoHandles[index++]);
+  for (const auto& photonFloatValueMapT : photonFloatValueMapTs_) {
+    theEvent.getByToken(photonFloatValueMapT,photonFloatValueMapHandles[index++]);
   }  
   
-  std::vector<edm::Handle<edm::ValueMap<float> > > ootPhotonPFClusterIsoHandles(ootPhotonPFClusterIsoTs_.size());
+  std::vector<edm::Handle<edm::ValueMap<float> > > ootPhotonFloatValueMapHandles(ootPhotonFloatValueMapTs_.size());
   index = 0;
-  for (const auto& ootPhotonPFClusterIsoT : ootPhotonPFClusterIsoTs_) {
-    theEvent.getByToken(ootPhotonPFClusterIsoT,ootPhotonPFClusterIsoHandles[index++]);
+  for (const auto& ootPhotonFloatValueMapT : ootPhotonFloatValueMapTs_) {
+    theEvent.getByToken(ootPhotonFloatValueMapT,ootPhotonFloatValueMapHandles[index++]);
   }  
 
-  std::vector<edm::Handle<edm::ValueMap<float> > > gsfElectronPFClusterIsoHandles(gsfElectronPFClusterIsoTs_.size());
+  std::vector<edm::Handle<edm::ValueMap<float> > > gsfElectronFloatValueMapHandles(gsfElectronFloatValueMapTs_.size());
   index = 0;
-  for (const auto& gsfElectronPFClusterIsoT : gsfElectronPFClusterIsoTs_) {
-    theEvent.getByToken(gsfElectronPFClusterIsoT,gsfElectronPFClusterIsoHandles[index++]);
+  for (const auto& gsfElectronFloatValueMapT : gsfElectronFloatValueMapTs_) {
+    theEvent.getByToken(gsfElectronFloatValueMapT,gsfElectronFloatValueMapHandles[index++]);
   }  
  
  
@@ -326,9 +326,9 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   //vectors for id valuemaps
   std::vector<std::vector<bool> > photonIdVals(photonIdHandles.size());
   std::vector<std::vector<float> > gsfElectronIdVals(gsfElectronIdHandles.size());
-  std::vector<std::vector<float> > photonPFClusterIsoVals(photonPFClusterIsoHandles.size());
-  std::vector<std::vector<float> > ootPhotonPFClusterIsoVals(ootPhotonPFClusterIsoHandles.size());
-  std::vector<std::vector<float> > gsfElectronPFClusterIsoVals(gsfElectronPFClusterIsoHandles.size());
+  std::vector<std::vector<float> > photonFloatValueMapVals(photonFloatValueMapHandles.size());
+  std::vector<std::vector<float> > ootPhotonFloatValueMapVals(ootPhotonFloatValueMapHandles.size());
+  std::vector<std::vector<float> > gsfElectronFloatValueMapVals(gsfElectronFloatValueMapHandles.size());
   
   //loop over photons and fill maps
   index = -1;
@@ -362,8 +362,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     }    
 
     subindex = 0;
-    for (const auto& photonPFClusterIsoHandle : photonPFClusterIsoHandles) {
-      photonPFClusterIsoVals[subindex++].push_back((*photonPFClusterIsoHandle)[photonref]);
+    for (const auto& photonFloatValueMapHandle : photonFloatValueMapHandles) {
+      photonFloatValueMapVals[subindex++].push_back((*photonFloatValueMapHandle)[photonref]);
     }    
     
     //link photon core
@@ -392,7 +392,7 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   }
 
   //loop over oot photons and fill maps
-  //special note1: since not PFCand --> no PF isolation, IDs (but we do have PFClusterIso!)
+  //special note1: since not PFCand --> no PF isolation, IDs (but we do have FloatValueMap!)
   //special note2: conversion sequence not run over bcs from oot phos, so skip relinking of oot phos
   //special note3: clusters and superclusters in own collections!
   index = -1;
@@ -408,8 +408,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
         
     //fill photon pfclusteriso valuemap vectors
     int subindex = 0;
-    for (const auto& ootPhotonPFClusterIsoHandle : ootPhotonPFClusterIsoHandles) {
-      ootPhotonPFClusterIsoVals[subindex++].push_back((*ootPhotonPFClusterIsoHandle)[ootPhotonref]);
+    for (const auto& ootPhotonFloatValueMapHandle : ootPhotonFloatValueMapHandles) {
+      ootPhotonFloatValueMapVals[subindex++].push_back((*ootPhotonFloatValueMapHandle)[ootPhotonref]);
     }    
 
     //link photon core
@@ -457,8 +457,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     }    
 
     subindex = 0;
-    for (const auto& gsfElectronPFClusterIsoHandle : gsfElectronPFClusterIsoHandles) {
-      gsfElectronPFClusterIsoVals[subindex++].push_back((*gsfElectronPFClusterIsoHandle)[gsfElectronref]);
+    for (const auto& gsfElectronFloatValueMapHandle : gsfElectronFloatValueMapHandles) {
+      gsfElectronFloatValueMapVals[subindex++].push_back((*gsfElectronFloatValueMapHandle)[gsfElectronref]);
     }    
 
     const reco::GsfElectronCoreRef &gsfElectronCore = gsfElectron.core();
@@ -726,20 +726,20 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   
   // photon iso value maps
   index = 0;
-  for (auto const& vals : photonPFClusterIsoVals){
-    fillMap(outPhotonHandle, vals, theEvent, outPhotonPFClusterIsos_[index++]);
+  for (auto const& vals : photonFloatValueMapVals){
+    fillMap(outPhotonHandle, vals, theEvent, outPhotonFloatValueMaps_[index++]);
   }
 
   //oot photon iso value maps
   index = 0;
-  for (auto const& vals : ootPhotonPFClusterIsoVals){
-    fillMap(outOOTPhotonHandle, vals, theEvent, outOOTPhotonPFClusterIsos_[index++]);
+  for (auto const& vals : ootPhotonFloatValueMapVals){
+    fillMap(outOOTPhotonHandle, vals, theEvent, outOOTPhotonFloatValueMaps_[index++]);
   }
 
   //electron iso value maps
   index = 0;
-  for (auto const& vals : gsfElectronPFClusterIsoVals){
-    fillMap(outGsfElectronHandle, vals, theEvent, outGsfElectronPFClusterIsos_[index++]);
+  for (auto const& vals : gsfElectronFloatValueMapVals){
+    fillMap(outGsfElectronHandle, vals, theEvent, outGsfElectronFloatValueMaps_[index++]);
   }
 }
 
@@ -1020,14 +1020,16 @@ void ReducedEGProducer::calibrateElectron(reco::GsfElectron& electron,
   const float newEnergyErr = energyErrMap[oldEleRef];
   const float newEcalEnergy = ecalEnergyMap[oldEleRef];
   const float newEcalEnergyErr = ecalEnergyErrMap[oldEleRef];
+
+  const math::XYZTLorentzVector& oldP4 = electron.p4();
+  const float corr = newEnergy / oldP4.E();
   
   electron.setCorrectedEcalEnergy(newEcalEnergy);
   electron.setCorrectedEcalEnergyError(newEcalEnergyErr);
  
-  const math::XYZTLorentzVector oldP4 = electron.p4();
-  math::XYZTLorentzVector newP4 = math::XYZTLorentzVector(oldP4.x() * newEnergy / oldP4.t(),
-							  oldP4.y() * newEnergy / oldP4.t(),
-							  oldP4.z() * newEnergy / oldP4.t(),
+  math::XYZTLorentzVector newP4 = math::XYZTLorentzVector(oldP4.x() * corr,
+							  oldP4.y() * corr,
+							  oldP4.z() * corr,
 							  newEnergy);
   electron.correctMomentum(newP4, electron.trackMomentumError(), newEnergyErr); 
 

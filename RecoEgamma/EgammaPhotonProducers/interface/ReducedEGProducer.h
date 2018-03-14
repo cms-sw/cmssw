@@ -162,9 +162,9 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  std::vector<edm::EDGetTokenT<edm::ValueMap<bool> > > photonIdTs_;
  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > gsfElectronIdTs_;
 
- std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > photonPFClusterIsoTs_;
- std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > ootPhotonPFClusterIsoTs_;
- std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > gsfElectronPFClusterIsoTs_;
+ std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > photonFloatValueMapTs_;
+ std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > ootPhotonFloatValueMapTs_;
+ std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > gsfElectronFloatValueMapTs_;
 
  const bool applyPhotonCalibOnData_;
  const bool applyPhotonCalibOnMC_;
@@ -200,9 +200,9 @@ class ReducedEGProducer : public edm::stream::EDProducer<> {
  const std::string outGsfElectronPfCandMap_;
  const std::vector<std::string> outPhotonIds_;
  const std::vector<std::string> outGsfElectronIds_;
- const std::vector<std::string> outPhotonPFClusterIsos_;
- const std::vector<std::string> outOOTPhotonPFClusterIsos_;
- const std::vector<std::string> outGsfElectronPFClusterIsos_;
+ const std::vector<std::string> outPhotonFloatValueMaps_;
+ const std::vector<std::string> outOOTPhotonFloatValueMaps_;
+ const std::vector<std::string> outGsfElectronFloatValueMaps_;
   
  const StringCutObjectSelector<reco::Photon> keepPhotonSel_;
  const StringCutObjectSelector<reco::Photon> slimRelinkPhotonSel_; 

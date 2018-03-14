@@ -117,55 +117,22 @@ setup_mva(egamma_modifications[0].photon_config,
 #############################################################
 reducedEgammaEnergyScaleAndSmearingModifier = cms.PSet(
     modifierName    = cms.string('EGExtraInfoModifierFromFloatValueMaps'),
-    electron_config = cms.PSet(
-        energyScaleUp = cms.InputTag("reducedEgamma","calibEleEnergyScaleUp"),
-        energyScaleDown = cms.InputTag("reducedEgamma","calibEleEnergyScaleDown"),
-        energyScaleStatUp = cms.InputTag("reducedEgamma","calibEleEnergyScaleStatUp"),
-        energyScaleStatDown = cms.InputTag("reducedEgamma","calibEleEnergyScaleStatDown"),
-        energyScaleSystUp = cms.InputTag("reducedEgamma","calibEleEnergyScaleSystUp"),
-        energyScaleSystDown = cms.InputTag("reducedEgamma","calibEleEnergyScaleSystDown"),
-        energyScaleGainUp = cms.InputTag("reducedEgamma","calibEleEnergyScaleGainUp"),
-        energyScaleGainDown = cms.InputTag("reducedEgamma","calibEleEnergyScaleGainDown"),
-        energySmearUp = cms.InputTag("reducedEgamma","calibEleEnergySmearUp"),
-        energySmearDown = cms.InputTag("reducedEgamma","calibEleEnergySmearDown"),
-        energySmearRhoUp = cms.InputTag("reducedEgamma","calibEleEnergySmearRhoUp"),
-        energySmearRhoDown = cms.InputTag("reducedEgamma","calibEleEnergySmearRhoDown"),
-        energySmearPhiUp = cms.InputTag("reducedEgamma","calibEleEnergySmearPhiUp"),
-        energySmearPhiDown = cms.InputTag("reducedEgamma","calibEleEnergySmearPhiDown"),
-        energyScaleValue = cms.InputTag("reducedEgamma","calibEleEnergyScaleValue"),
-        energySmearValue = cms.InputTag("reducedEgamma","calibEleEnergySmearValue"),
-        energySmearNrSigma = cms.InputTag("reducedEgamma","calibEleEnergySmearNrSigma"),
-        energyEcalPreCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalPreCorr"),
-        energyEcalErrPreCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalErrPreCorr"),
-        energyEcalPostCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalPostCorr"),
-        energyEcalErrPostCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalErrPostCorr"),
-        energyEcalTrkPreCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalTrkPreCorr"),
-        energyEcalTrkErrPreCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalTrkErrPreCorr"),
-        energyEcalTrkPostCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalTrkPostCorr"),
-        energyEcalTrkErrPostCorr = cms.InputTag("reducedEgamma","calibEleEnergyEcalTrkErrPostCorr"),
-        ),
-    photon_config   = cms.PSet(
-        energyScaleUp = cms.InputTag("reducedEgamma","calibPhoEnergyScaleUp"),
-        energyScaleDown = cms.InputTag("reducedEgamma","calibPhoEnergyScaleDown"),
-        energyScaleStatUp = cms.InputTag("reducedEgamma","calibPhoEnergyScaleStatUp"),
-        energyScaleStatDown = cms.InputTag("reducedEgamma","calibPhoEnergyScaleStatDown"),
-        energyScaleSystUp = cms.InputTag("reducedEgamma","calibPhoEnergyScaleSystUp"),
-        energyScaleSystDown = cms.InputTag("reducedEgamma","calibPhoEnergyScaleSystDown"),
-        energyScaleGainUp = cms.InputTag("reducedEgamma","calibPhoEnergyScaleGainUp"),
-        energyScaleGainDown = cms.InputTag("reducedEgamma","calibPhoEnergyScaleGainDown"),
-        energySmearUp = cms.InputTag("reducedEgamma","calibPhoEnergySmearUp"),
-        energySmearDown = cms.InputTag("reducedEgamma","calibPhoEnergySmearDown"),
-        energySmearRhoUp = cms.InputTag("reducedEgamma","calibPhoEnergySmearRhoUp"),
-        energySmearRhoDown = cms.InputTag("reducedEgamma","calibPhoEnergySmearRhoDown"),
-        energySmearPhiUp = cms.InputTag("reducedEgamma","calibPhoEnergySmearPhiUp"),
-        energySmearPhiDown = cms.InputTag("reducedEgamma","calibPhoEnergySmearPhiDown"),
-        energyScaleValue = cms.InputTag("reducedEgamma","calibPhoEnergyScaleValue"),
-        energySmearValue = cms.InputTag("reducedEgamma","calibPhoEnergySmearValue"),
-        energySmearNrSigma = cms.InputTag("reducedEgamma","calibPhoEnergySmearNrSigma"),
-        energyEcalPreCorr = cms.InputTag("reducedEgamma","calibPhoEnergyEcalPreCorr"),
-        energyEcalErrPreCorr = cms.InputTag("reducedEgamma","calibPhoEnergyEcalErrPreCorr"),
-        energyEcalPostCorr = cms.InputTag("reducedEgamma","calibPhoEnergyEcalPostCorr"),
-        energyEcalErrPostCorr = cms.InputTag("reducedEgamma","calibPhoEnergyEcalErrPostCorr"),
-        )
-    )
+    electron_config = cms.PSet(),
+    photon_config   = cms.PSet()
+)
+from RecoEgamma.EgammaTools.calibratedEgammas_cff import prefixName
+import RecoEgamma.EgammaTools.calibratedElectronProducer_cfi
+for valueMapName in RecoEgamma.EgammaTools.calibratedElectronProducer_cfi.calibratedElectronProducer.valueMapsStored:
+    setattr(reducedEgammaEnergyScaleAndSmearingModifier.electron_config,valueMapName,cms.InputTag("reducedEgamma",prefixName("calibEle",valueMapName)))
 
+import RecoEgamma.EgammaTools.calibratedPhotonProducer_cfi
+for valueMapName in RecoEgamma.EgammaTools.calibratedPhotonProducer_cfi.calibratedPhotonProducer.valueMapsStored:
+    setattr(reducedEgammaEnergyScaleAndSmearingModifier.photon_config,valueMapName,cms.InputTag("reducedEgamma",prefixName("calibPho",valueMapName)))
+
+
+def appendReducedEgammaEnergyScaleAndSmearingModifier(modifiers):
+    modifiers.append(reducedEgammaEnergyScaleAndSmearingModifier)
+
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+run2_miniAOD_94XFall17.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
+   

@@ -338,14 +338,6 @@ def miniAOD_customizeCommon(process):
     from RecoEgamma.EgammaTools.egammaObjectModifications_tools import makeVIDBitsModifier
     egamma_modifications.append(makeVIDBitsModifier(process,"egmGsfElectronIDs","egmPhotonIDs"))
 
-    #e/gamma scale & smearing
-    #we will run in value map producting mode keyed to the orginal collection
-    from RecoEgamma.EgammaPhotonProducers.reducedEgamma_tools import calibrateReducedEgamma
-    run2_miniAOD_94XFall17.toModify(process,calibrateReducedEgamma)
-    from RecoEgamma.EgammaTools.egammaObjectModifications_tools import appendReducedEgammaEnergyScaleAndSmearingModifier
-    run2_miniAOD_94XFall17.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
-    
-
     #-- Adding boosted taus
     from RecoTauTag.Configuration.boostedHPSPFTaus_cfi import addBoostedTaus
     addBoostedTaus(process)
