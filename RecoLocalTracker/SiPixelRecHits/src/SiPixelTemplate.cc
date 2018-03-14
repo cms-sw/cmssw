@@ -145,7 +145,7 @@ bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
    tempfile = "CalibTracker/SiPixelESProducers/data/" + tempfile; 
    edm::FileInPath file( tempfile.c_str() );
-   tempfile = (file.fullPath()).c_str();
+   tempfile = file.fullPath();
 #endif
    
    //  open the template file
