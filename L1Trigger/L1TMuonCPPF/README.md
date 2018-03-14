@@ -3,7 +3,7 @@
 This is the first version of the CPPF emulator. we use the RPC Digitization and 
 reconstruction as intermedate steps. 
 Under test you can find two examples, one unpacking 2017F RAW Data (cppf_emulator_RAW.py)
-and the another one using generated MC events (cppf_emulator_MC.py). 
+and another one using generated MC events (cppf_emulator_MC.py). 
 The output of the unpacker is an edm branch named emulatorCppfDigis, following
 the CPPFDigi dataformat already committed in CMSSW_10_1_X.
 
