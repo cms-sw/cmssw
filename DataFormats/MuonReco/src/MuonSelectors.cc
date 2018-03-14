@@ -997,7 +997,7 @@ void muon::setCutBasedSelectorFlags(reco::Muon& muon,
   double phoIso = muon.pfIsolationR04().sumPhotonEt;
   double puIso  = muon.pfIsolationR04().sumPUPt;
   double dbCorrectedIsolation = chIso + std::max( nIso + phoIso - .5*puIso, 0. ) ;
-  double dbCorectedRelIso = dbCorrectedIsolation/muon.pt();
+  double dbCorrectedRelIso = dbCorrectedIsolation/muon.pt();
   double tkRelIso = muon.isolationR03().sumPt/muon.pt();
 
   // Base selectors
@@ -1017,12 +1017,12 @@ void muon::setCutBasedSelectorFlags(reco::Muon& muon,
   }
 
   // PF isolation
-  if (dbCorectedRelIso<0.40)    selectors |= reco::Muon::PFIsoVeryLoose;
-  if (dbCorectedRelIso<0.25)    selectors |= reco::Muon::PFIsoLoose;
-  if (dbCorectedRelIso<0.20)    selectors |= reco::Muon::PFIsoMedium;
-  if (dbCorectedRelIso<0.15)    selectors |= reco::Muon::PFIsoTight;
-  if (dbCorectedRelIso<0.10)    selectors |= reco::Muon::PFIsoVeryTight;
-  if (dbCorectedRelIso<0.05)    selectors |= reco::Muon::PFIsoVeryVeryTight;
+  if (dbCorrectedRelIso<0.40)    selectors |= reco::Muon::PFIsoVeryLoose;
+  if (dbCorrectedRelIso<0.25)    selectors |= reco::Muon::PFIsoLoose;
+  if (dbCorrectedRelIso<0.20)    selectors |= reco::Muon::PFIsoMedium;
+  if (dbCorrectedRelIso<0.15)    selectors |= reco::Muon::PFIsoTight;
+  if (dbCorrectedRelIso<0.10)    selectors |= reco::Muon::PFIsoVeryTight;
+  if (dbCorrectedRelIso<0.05)    selectors |= reco::Muon::PFIsoVeryVeryTight;
   
   // Tracker isolation
   if (tkRelIso<0.10)            selectors |= reco::Muon::TkIsoLoose;
