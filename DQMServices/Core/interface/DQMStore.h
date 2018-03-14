@@ -791,8 +791,8 @@ class DQMStore
   void print_trace(const std::string &dir, const std::string &name);
 
   // ----------------------- Unavailable ---------------------------------------
-  DQMStore(const DQMStore&);
-  const DQMStore& operator=(const DQMStore&);
+  DQMStore(DQMStore const&) = delete;
+  DQMStore& operator=(DQMStore const&) = delete;
 
   //-------------------------------------------------------------------------------
   //-------------------------------------------------------------------------------
@@ -828,20 +828,20 @@ class DQMStore
                                     TFile & file,
                                     unsigned int & counter);
 
-  unsigned                      verbose_;
-  unsigned                      verboseQT_;
-  bool                          reset_;
+  unsigned                      verbose_{1};
+  unsigned                      verboseQT_{1};
+  bool                          reset_{false};
   double                        scaleFlag_;
-  bool                          collateHistograms_;
-  bool                          enableMultiThread_;
+  bool                          collateHistograms_{false};
+  bool                          enableMultiThread_{false};
   bool                          LSbasedMode_;
-  bool                          forceResetOnBeginLumi_;
-  std::string                   readSelectedDirectory_;
-  uint32_t                      run_;
-  uint32_t                      moduleId_;
-  std::ofstream *               stream_;
+  bool                          forceResetOnBeginLumi_{false};
+  std::string                   readSelectedDirectory_{};
+  uint32_t                      run_{};
+  uint32_t                      moduleId_{};
+  std::ofstream *               stream_{nullptr};
 
-  std::string                   pwd_;
+  std::string                   pwd_{};
   MEMap                         data_;
   std::set<std::string>         dirs_;
 
@@ -850,8 +850,8 @@ class DQMStore
   QTestSpecs                    qtestspecs_;
 
   std::mutex book_mutex_;
-  IBooker * ibooker_;
-  IGetter * igetter_;
+  IBooker * ibooker_{nullptr};
+  IGetter * igetter_{nullptr};
 
   friend class edm::DQMHttpSource;
   friend class DQMService;
