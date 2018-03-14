@@ -34,7 +34,7 @@ class TauDQMHistEffProducer : public DQMEDHarvester
  public:
   explicit TauDQMHistEffProducer(const edm::ParameterSet&);
   ~TauDQMHistEffProducer() override;
-  void dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& iget);
+  void dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& iget) override;
 
 private:
   std::vector<cfgEntryPlot> cfgEntryPlot_;
