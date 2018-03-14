@@ -111,6 +111,7 @@ _gem_RawToDigi.insert(-1,muonGEMDigis)
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
 run2_GEM_2017.toReplaceWith(RawToDigi, _gem_RawToDigi)
+run2_GEM_2017.toModify(muonGEMDigis, useDBEMap = cms.bool(True))
 
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toReplaceWith(RawToDigi, _gem_RawToDigi)
