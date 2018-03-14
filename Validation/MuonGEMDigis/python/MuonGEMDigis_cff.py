@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 gemStripValidation = DQMEDAnalyzer('GEMStripDigiValidation',
   outputFile = cms.string(''),
-  stripLabel= cms.InputTag('simMuonGEMDigis'),
+  stripLabel= cms.InputTag('muonGEMDigis'),
   simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
   # st1, st2 of xbin, st1, st2 of ybin
   nBinGlobalZR = cms.untracked.vdouble(200,200,150,250), 
@@ -40,7 +40,7 @@ gemDigiTrackValidation = DQMEDAnalyzer('GEMDigiTrackMatch',
   verboseSimHit = cms.untracked.int32(0),
   # GEM digi matching:
   verboseGEMDigi = cms.untracked.int32(0),
-  gemDigiInput = cms.InputTag("simMuonGEMDigis"),
+  gemDigiInput = cms.InputTag("muonGEMDigis"),
   gemPadDigiInput = cms.InputTag("simMuonGEMPadDigis"),
   gemCoPadDigiInput = cms.InputTag("simCscTriggerPrimitiveDigis"),
   minBXGEM = cms.untracked.int32(-1),
