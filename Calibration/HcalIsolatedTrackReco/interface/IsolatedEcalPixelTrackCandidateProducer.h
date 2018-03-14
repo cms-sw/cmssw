@@ -31,8 +31,13 @@ private:
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_trigcand;
   const double coneSizeEta0_;
   const double coneSizeEta1_;
-  const double hitCountEthr_;
-  const double hitEthr_;
+  const double hitCountEthrEB_;
+  const double hitEthrEB_;
+  const double fachitCountEE_;
+  const double hitEthrEE0_;
+  const double hitEthrEE1_;
+  const double hitEthrEE2_;
+  const double hitEthrEE3_;
 };
 
 #endif

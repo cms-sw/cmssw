@@ -7,12 +7,15 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-HLTEcalPixelIsolTrackFilter::HLTEcalPixelIsolTrackFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
-  candTag_             = iConfig.getParameter<edm::InputTag> ("candTag");
-  maxEnergyIn_         = iConfig.getParameter<double> ("MaxEnergyIn");
-  maxEnergyOut_        = iConfig.getParameter<double> ("MaxEnergyOut");
-  nMaxTrackCandidates_ = iConfig.getParameter<int>("NMaxTrackCandidates");
-  dropMultiL2Event_    = iConfig.getParameter<bool> ("DropMultiL2Event");
+HLTEcalPixelIsolTrackFilter::HLTEcalPixelIsolTrackFilter(const edm::ParameterSet& iConfig) : 
+  HLTFilter(iConfig),
+  candTag_(      iConfig.getParameter<edm::InputTag> ("candTag")),
+  maxEnergyInEB_(iConfig.getParameter<double> ("MaxEnergyInEB")),
+  maxEnergyInEE_(iConfig.getParameter<double> ("MaxEnergyInEE")),
+  maxEnergyOutEB_(iConfig.getParameter<double> ("MaxEnergyOutEB")),
+  maxEnergyOutEE_(iConfig.getParameter<double> ("MaxEnergyOutEE")),
+  nMaxTrackCandidates_(iConfig.getParameter<int>("NMaxTrackCandidates")),
+  dropMultiL2Event_(iConfig.getParameter<bool> ("DropMultiL2Event")) {
   candTok = consumes<reco::IsolatedPixelTrackCandidateCollection>(candTag_);
 }
 
@@ -22,8 +25,10 @@ void HLTEcalPixelIsolTrackFilter::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("candTag",edm::InputTag("hltIsolEcalPixelTrackProd"));
-  desc.add<double>("MaxEnergyIn",1.2);
-  desc.add<double>("MaxEnergyOut",1.2);
+  desc.add<double>("MaxEnergyInEB",1.2);
+  desc.add<double>("MaxEnergyInEE",2.0);
+  desc.add<double>("MaxEnergyOutEB",1.2);
+  desc.add<double>("MaxEnergyOutEE",2.0);
   desc.add<int>("NMaxTrackCandidates",10);
   desc.add<bool>("DropMultiL2Event",false);
   descriptions.add("isolEcalPixelTrackFilter",desc);
@@ -47,8 +52,11 @@ bool HLTEcalPixelIsolTrackFilter::hltFilter(edm::Event& iEvent, const edm::Event
     LogDebug("IsoTrk") << "candref.track().isNull() " << candref->track().isNull() << "\n";
     if(candref->track().isNull()) continue;
     // select on transverse momentum
+    double etaAbs = std::abs(candref->track()->eta());
+    double maxEnergyIn = (etaAbs < 1.479) ? maxEnergyInEB_ : maxEnergyInEE_;
+    double maxEnergyOut= (etaAbs < 1.479) ? maxEnergyOutEB_ : maxEnergyOutEE_;
     LogDebug("IsoTrk") << "energyin/out: " << candref->energyIn() << "/" << candref->energyOut() << "\n";
-    if (candref->energyIn()<maxEnergyIn_&& candref->energyOut()<maxEnergyOut_) {
+    if (candref->energyIn()<maxEnergyIn && candref->energyOut()<maxEnergyOut) {
       filterproduct.addObject(trigger::TriggerTrack, candref);
       n++;
       LogDebug("IsoTrk") << "EcalIsol:Candidate[" << n <<"] pt|eta|phi "
