@@ -25,12 +25,12 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
   photonIDOutput = cms.vstring(),
   gsfElectronIDSources = cms.VInputTag(),
   gsfElectronIDOutput = cms.vstring(),
-  photonPFClusterIsoSources = cms.VInputTag(),
-  photonPFClusterIsoOutput = cms.vstring(),
-  ootPhotonPFClusterIsoSources = cms.VInputTag(),
-  ootPhotonPFClusterIsoOutput = cms.vstring(),
-  gsfElectronPFClusterIsoSources = cms.VInputTag(),
-  gsfElectronPFClusterIsoOutput = cms.vstring(),
+  photonFloatValueMapSources = cms.VInputTag(),
+  photonFloatValueMapOutput = cms.vstring(),
+  ootPhotonFloatValueMapSources = cms.VInputTag(),
+  ootPhotonFloatValueMapOutput = cms.vstring(),
+  gsfElectronFloatValueMapSources = cms.VInputTag(),
+  gsfElectronFloatValueMapOutput = cms.vstring(),
   applyPhotonCalibOnData = cms.bool(False),
   applyPhotonCalibOnMC = cms.bool(False),
   applyGsfElectronCalibOnData = cms.bool(False),
@@ -51,25 +51,25 @@ phase2_common.toModify(reducedEgamma,
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 run2_miniAOD_80XLegacy.toModify(
     reducedEgamma, 
-    photonPFClusterIsoSources = cms.VInputTag(
+    photonFloatValueMapSources = cms.VInputTag(
         cms.InputTag("photonEcalPFClusterIsolationProducer"),
         cms.InputTag("photonHcalPFClusterIsolationProducer"),
         ),
-    photonPFClusterIsoOutput = cms.vstring(
+    photonFloatValueMapOutput = cms.vstring(
         "phoEcalPFClusIso",
         "phoHcalPFClusIso",
         ),
-    ootPhotonPFClusterIsoSources = cms.VInputTag(
+    ootPhotonFloatValueMapSources = cms.VInputTag(
         cms.InputTag("ootPhotonEcalPFClusterIsolationProducer"),
         ),
-    ootPhotonPFClusterIsoOutput = cms.vstring(
+    ootPhotonFloatValueMapOutput = cms.vstring(
         "ootPhoEcalPFClusIso",
         ),
-    gsfElectronPFClusterIsoSources = cms.VInputTag(
+    gsfElectronFloatValueMapSources = cms.VInputTag(
         cms.InputTag("electronEcalPFClusterIsolationProducer"),
         cms.InputTag("electronHcalPFClusterIsolationProducer"),
         ),
-    gsfElectronPFClusterIsoOutput = cms.vstring(
+    gsfElectronFloatValueMapOutput = cms.vstring(
         "eleEcalPFClusIso",
         "eleHcalPFClusIso",
         )
@@ -78,28 +78,32 @@ run2_miniAOD_80XLegacy.toModify(
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 run2_miniAOD_94XFall17.toModify(
     reducedEgamma, 
-    photonPFClusterIsoSources = cms.VInputTag(
+    photonFloatValueMapSources = cms.VInputTag(
         cms.InputTag("photonEcalPFClusterIsolationProducer"),
         cms.InputTag("photonHcalPFClusterIsolationProducer"),
         ),
-    photonPFClusterIsoOutput = cms.vstring(
+    photonFloatValueMapOutput = cms.vstring(
         "phoEcalPFClusIso",
         "phoHcalPFClusIso",
         ),
-    ootPhotonPFClusterIsoSources = cms.VInputTag(
+    ootPhotonFloatValueMapSources = cms.VInputTag(
         cms.InputTag("ootPhotonEcalPFClusterIsolationProducer"),
         cms.InputTag("ootPhotonHcalPFClusterIsolationProducer"),
         ),
-    ootPhotonPFClusterIsoOutput = cms.vstring(
+    ootPhotonFloatValueMapOutput = cms.vstring(
         "ootPhoEcalPFClusIso",
         "ootPhoHcalPFClusIso",
         ),
-    gsfElectronPFClusterIsoSources = cms.VInputTag(
+    gsfElectronFloatValueMapSources = cms.VInputTag(
         cms.InputTag("electronEcalPFClusterIsolationProducer"),
         cms.InputTag("electronHcalPFClusterIsolationProducer"),
         ),
-    gsfElectronPFClusterIsoOutput = cms.vstring(
+    gsfElectronFloatValueMapOutput = cms.vstring(
         "eleEcalPFClusIso",
         "eleHcalPFClusIso",
         )
     )
+
+from RecoEgamma.EgammaPhotonProducers.reducedEgamma_tools import calibrateReducedEgamma
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+modifyReducedEGammaRun2MiniAOD9XFall17_ = run2_miniAOD_94XFall17.makeProcessModifier(calibrateReducedEgamma)
