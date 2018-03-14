@@ -139,13 +139,11 @@ fastmatch::fastmatch (std::string  _fastString) :
 {
   try
   {
-    regexp_ = nullptr;
-    regexp_ = new lat::Regexp(fastString_, 0, lat::Regexp::Wildcard);
+    regexp_ = std::make_unique<lat::Regexp>(fastString_, 0, lat::Regexp::Wildcard);
     regexp_->study();
   }
   catch (lat::Error &e)
   {
-    delete regexp_;
     raiseDQMError("DQMStore", "Invalid wildcard pattern '%s' in quality"
                   " test specification", fastString_.c_str());
   }
@@ -202,12 +200,6 @@ fastmatch::fastmatch (std::string  _fastString) :
       return;
     }
   }
-}
-
-fastmatch::~fastmatch()
-{
-  if (regexp_ != nullptr)
-    delete regexp_;
 }
 
 bool fastmatch::compare_strings_reverse(std::string const& pattern,
@@ -384,10 +376,6 @@ DQMStore::~DQMStore()
 
   for (auto & qtestspec : qtestspecs_)
     delete qtestspec.first;
-
-  if (stream_)
-    stream_->close();
-  delete stream_;
 }
 
 void
@@ -459,7 +447,7 @@ DQMStore::print_trace (const std::string &dir, const std::string &name)
   // concurrency problems because the print_trace method is always called behind
   // a lock (see bookTransaction).
   if (!stream_)
-    stream_ = new std::ofstream("histogramBookingBT.log");
+    stream_ = std::make_unique<std::ofstream>("histogramBookingBT.log");
 
   void *array[10];
   size_t size;
