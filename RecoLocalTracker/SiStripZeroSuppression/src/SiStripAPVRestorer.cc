@@ -33,10 +33,10 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
   MeanCM_(conf.getParameter<int32_t>("MeanCM")),
   filteredBaselineMax_(conf.getParameter<double>("filteredBaselineMax")),
   filteredBaselineDerivativeSumSquare_(conf.getParameter<double>("filteredBaselineDerivativeSumSquare")),
-  discontinuity_threshold(conf.getParameter<int>("discontinuityThreshold")),  //new par
-  last_gradient(conf.getParameter<int>("lastGradient")), //new par
-  size_window(conf.getParameter<int>("sizeWindow")), //new par
-  width_cluster(conf.getParameter<int>("widthCluster"))  //new par
+  gradient_threshold_(conf.getParameter<int>("discontinuityThreshold")),  //new par
+  last_gradient_(conf.getParameter<int>("lastGradient")), //new par
+  size_window_(conf.getParameter<int>("sizeWindow")), //new par
+  width_cluster_(conf.getParameter<int>("widthCluster"))  //new par
  
 
 {
@@ -125,17 +125,17 @@ void SiStripAPVRestorer::restore(const uint16_t& firstAPV, std::vector<int16_t>&
     std::string	algoToUse = *( apvFlags_.begin() + APV );
     
     if ( algoToUse != ""){
-   //   if(!SelfSelectRestoreAlgo_) algoToUse = RestoreAlgo_;
+     // if(!SelfSelectRestoreAlgo_) algoToUse = RestoreAlgo_;
       
        
       if(algoToUse=="Flat"){
-	this->FlatRestore(APV, firstAPV, digis);
+		this->FlatRestore(APV, firstAPV, digis);
       }else if(algoToUse=="BaselineFollower"){
-	this->BaselineFollowerRestore(APV, firstAPV, median_[APV], digis);
-	}else if(algoToUse=="DerivativeFollower"){
+		this->BaselineFollowerRestore(APV, firstAPV, median_[APV], digis);
+	  }else if(algoToUse=="DerivativeFollower"){
         this->DerivativeFollowerRestore(APV, firstAPV, digis);
       }else{
-	throw cms::Exception("Unregistered Restore Algorithm") << "SiStripAPVRestorer possibilities: (Flat), (BaselineFollower)";
+		throw cms::Exception("Unregistered Restore Algorithm") << "SiStripAPVRestorer possibilities: (Flat), (BaselineFollower)";
       }
       
       
@@ -1078,7 +1078,7 @@ std::vector<bool>& SiStripAPVRestorer::GetAPVFlags(){
 
 
 
-//NEW implemented algorithm to be put in the fed =============================
+//NEW algorithm designed for implementation in FW=============================
 //============================================================================
 //============================================================================
 //============================================================================
@@ -1086,21 +1086,21 @@ std::vector<bool>& SiStripAPVRestorer::GetAPVFlags(){
 inline
 void SiStripAPVRestorer::DerivativeFollowerRestore(const uint16_t& APVn, const uint16_t& firstAPV, std::vector<int16_t>& digis){
 //std::cout << "++++++++" << "SiStripAPVRestorer::DerivativeFollowe" << std::endl;	
-//	int discontinuity_threshold =12;
-//	std::cout <<"DT: "<< discontinuity_threshold << std::endl;
-//	int last_gradient = 10;
-//	int width_cluster = 64;
-//	int size_window = 1;
-//	std::cout << "LG: " << last_gradient << std::endl;
-//	std::cout << "SW: " << size_window << std::endl;
-//	std::cout << "WC: " << width_cluster << std::endl;
+//	int gradient_threshold_ =12;
+//	std::cout <<"DT: "<< gradient_threshold_ << std::endl;
+//	int last_gradient_ = 10;
+//	int width_cluster_ = 64;
+//	int size_window_ = 1;
+//	std::cout << "LG: " << last_gradient_ << std::endl;
+//	std::cout << "SW: " << size_window_ << std::endl;
+//	std::cout << "WC: " << width_cluster_ << std::endl;
 //	std::cout << "detId: " << detId_ << std::endl;
 	
 	std::vector<int16_t> singleAPVdigi;
     singleAPVdigi.clear();
     for(int16_t strip = (APVn-firstAPV)*128; strip < (APVn-firstAPV+1)*128; ++strip) singleAPVdigi.push_back(digis[strip]+1024);
 	
-	DigiMap discontinuities;   // it will contain the start and the end of each region in which a discontinuity is present
+	DigiMap discontinuities;   // it will contain the start and the end of each region in which a greadient is present
     discontinuities.clear();
     
 	DigiMapIter itdiscontinuities;
@@ -1112,57 +1112,49 @@ void SiStripAPVRestorer::DerivativeFollowerRestore(const uint16_t& APVn, const u
     
     //---Variables of the second part---//
     
+    int actualStripADC = 0;
+    int previousStripADC = 0;
     
-    int valor_anterior = 0;
-    int valor_presente = 0;
-    int valor_discontinuidad;
+    
+    int greadient = 0;
     int maximum_value=0;
     int high_maximun_cluster = 1025 + 1024;
     int number_good_minimum = 0;
     int first_gradient = 0;
     int strip_first_gradient = 0;
     int ADC_start_point_cluster_pw = 0;
-    int counter_width_cluster = 0;
     int auxiliary_end_cluster = 0;
     int first_start_cluster_strip = 0;
     int first_start_cluster_ADC = 0;
-    bool isAuxiliary_Minimum = 0;
-    bool isPossible_wrong_minimum = 0;
-    bool isMinimum_found = 0;
-    bool isMax = 0;
+    bool isAuxiliary_Minimum = false;
+    bool isPossible_wrong_minimum = false;
+    bool isMax =false;
     
     //----------SECOND PART: CLUSTER FINDING--------//
 	
 	for(uint16_t strip=0; strip < singleAPVdigi.size(); ++strip){
 		if (strip == 0) {
-			valor_presente = singleAPVdigi[strip];
-			if (abs(singleAPVdigi[strip]-singleAPVdigi[strip+1])>discontinuity_threshold){
+			actualStripADC = singleAPVdigi[strip];
+			if (abs(singleAPVdigi[strip]-singleAPVdigi[strip+1])>gradient_threshold_){
 				isFirstStrip=true;
 				isMinimumAndNoMax=true;
-				discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip, valor_presente));
-			} else if (valor_presente > (discontinuity_threshold+1024)) {
+				discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip, actualStripADC));
+			} else if (actualStripADC > (gradient_threshold_+1024)) {
 				discontinuities.insert(discontinuities.end(), std::pair<uint16_t, int16_t >(strip, 0+1024));
 				isMinimumAndNoMax=true;
 				first_start_cluster_strip=strip;
 				first_start_cluster_ADC=1024;
 			}
-			counter_width_cluster++;
 		}
 		
 		else if (strip>0) {
-			valor_anterior = valor_presente;
-			valor_presente = singleAPVdigi[strip];
-			valor_discontinuidad = valor_presente - valor_anterior;
+			previousStripADC = actualStripADC;
+			actualStripADC = singleAPVdigi[strip];
+			greadient = actualStripADC - previousStripADC;
 			
-			if (((valor_discontinuidad> discontinuity_threshold)&&(isMax==false)&&(isMinimumAndNoMax==true)&&(abs(valor_anterior- singleAPVdigi[first_start_cluster_strip +1])<=discontinuity_threshold)&&((strip-1)!=(first_start_cluster_ADC+1))&&(isMinimum_found==false))||(counter_width_cluster > width_cluster)){ //agregar el "o" y agregar el || del tamano de cluster
-				isMinimumAndNoMax=false;
-std::cout << "Dicontinuidad: " << valor_discontinuidad <<" " << valor_presente <<"-" << valor_anterior<< std::endl;std::cout << "detId: " << detId_ << std::endl;
-			}
-			
-			if (((valor_discontinuidad> discontinuity_threshold)&&(isMax==false)&&(isMinimumAndNoMax==false))||(counter_width_cluster > width_cluster)){  // agregar el || del tamano de cluster            //----&& (valor_discontinuidad>=aux_discontinuidad)
-				counter_width_cluster=0;
+			if (((greadient> gradient_threshold_)&&(isMax==false)&&(isMinimumAndNoMax==false))){          
 				isMax=false;
-				if (((abs(maximum_value - valor_anterior) < (2*discontinuity_threshold))&&discontinuities.size()>1)||(counter_width_cluster > width_cluster)){ // agregar el || del tamano de cluster                                      //para verificar que el ruido no interfiera y se detecten falsos hits
+				if (((abs(maximum_value - previousStripADC) < (2*gradient_threshold_))&&discontinuities.size()>1)){ // agregar el || del tamano de cluster                                      //para verificar que el ruido no interfiera y se detecten falsos hits
 					isPossible_wrong_minimum=true;
 					itdiscontinuities=discontinuities.end();
 					--itdiscontinuities;
@@ -1185,57 +1177,55 @@ std::cout << "Dicontinuidad: " << valor_discontinuidad <<" " << valor_presente <
 					discontinuities.erase(itdiscontinuities);
 				}
 				
-				discontinuities.insert(discontinuities.end(), std::pair<uint16_t, int16_t >(strip-1, valor_anterior));
+				discontinuities.insert(discontinuities.end(), std::pair<uint16_t, int16_t >(strip-1, previousStripADC));
 				isMinimumAndNoMax=true;
 				maximum_value = 0;
 				first_start_cluster_strip=strip -1;
-				first_start_cluster_ADC=valor_anterior;
+				first_start_cluster_ADC=previousStripADC;
 				
 			}
             
-            else if ((isMax==false)&&((valor_presente-valor_anterior<0)&&isMinimumAndNoMax==true)){
+            else if ((isMax==false)&&((actualStripADC-previousStripADC<0)&&isMinimumAndNoMax==true)){
 				isMax=true;
 				isMinimumAndNoMax=false;
 				high_maximun_cluster = 1025 + 1024;
-				if ((valor_anterior > maximum_value)&&(discontinuities.size()%2==1)) maximum_value = valor_anterior;
+				if ((previousStripADC > maximum_value)&&(discontinuities.size()%2==1)) maximum_value = previousStripADC;
 			}
             
 			if ((isMax==true)&&(strip<126)){
-				if (high_maximun_cluster>(abs(singleAPVdigi[strip+1]- valor_presente))){
-					high_maximun_cluster = singleAPVdigi[strip+1]- valor_presente;
+				if (high_maximun_cluster>(abs(singleAPVdigi[strip+1]- actualStripADC))){
+					high_maximun_cluster = singleAPVdigi[strip+1]- actualStripADC;
 					auxiliary_end_cluster = strip+2;
 				} else {
 					auxiliary_end_cluster = 127;
 				}
 			}
             
-			if ((isMax==true)&&((valor_presente-valor_anterior)>=0)&&(size_window>0)&&(strip<=(127-size_window-1))) {
+			if ((isMax==true)&&((actualStripADC-previousStripADC)>=0)&&(size_window_>0)&&(strip<=(127-size_window_-1))) {
 				number_good_minimum = 0;
-				for (uint16_t wintry=0; wintry <= size_window; wintry++){
-					if (abs(singleAPVdigi[strip+wintry] - singleAPVdigi[strip+wintry+1])<=last_gradient) ++number_good_minimum;
+				for (uint16_t wintry=0; wintry <= size_window_; wintry++){
+					if (abs(singleAPVdigi[strip+wintry] - singleAPVdigi[strip+wintry+1])<=last_gradient_) ++number_good_minimum;
 				}
 				--number_good_minimum;
 				
-				if (size_window!= number_good_minimum) {
-					isMinimum_found=true;
+				if (size_window_!= number_good_minimum) {
 					isMax=false;                // not Valid end Point
 					isMinimumAndNoMax=true;
 				}
 			}
             
-            else if ((isMax==true)&&(strip > (127-size_window-1))) {
+            else if ((isMax==true)&&(strip > (127-size_window_-1))) {
 				isMax=true;
 				isAuxiliary_Minimum=true;//for minimums after strip 127-SW-1
 			}
 			
-			if (first_start_cluster_strip!=0) counter_width_cluster++;
 			
 			if (discontinuities.size()>0){
 				itdiscontinuities=discontinuities.end();
 				--itdiscontinuities;
 			}
             
-			if ((isMax==true)&&(valor_presente<=first_start_cluster_ADC)) {
+			if ((isMax==true)&&(actualStripADC<=first_start_cluster_ADC)) {
                 
 				if ((abs(first_start_cluster_ADC - singleAPVdigi[strip+2])>first_gradient)&&(isPossible_wrong_minimum==true)) {
                     discontinuities.erase(itdiscontinuities);
@@ -1248,19 +1238,17 @@ std::cout << "Dicontinuidad: " << valor_discontinuidad <<" " << valor_presente <
 						--itdiscontinuities;
 						discontinuities.erase(itdiscontinuities);
                     }
-                    discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip, valor_presente));
+                    discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip, actualStripADC));
                 }
 				isMax=false;
-				isMinimum_found=false;
 				ADC_start_point_cluster_pw=0;
 				isPossible_wrong_minimum=false;
 				strip_first_gradient=0;
-				counter_width_cluster=0;
 				first_start_cluster_strip=0;
 				first_start_cluster_ADC=0;
 			}
 			
-			if ((isMax==true)&&((valor_presente-valor_anterior)>=0)&&(isAuxiliary_Minimum==false)){     //For the end Poit when strip >127-SW-1
+			if ((isMax==true)&&((actualStripADC-previousStripADC)>=0)&&(isAuxiliary_Minimum==false)){     //For the end Poit when strip >127-SW-1
 				if ((abs(first_start_cluster_ADC - singleAPVdigi[strip+1])>first_gradient)&&(isPossible_wrong_minimum==true)) {
 					discontinuities.erase(itdiscontinuities);
 					discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip_first_gradient, ADC_start_point_cluster_pw));
@@ -1271,13 +1259,11 @@ std::cout << "Dicontinuidad: " << valor_discontinuidad <<" " << valor_presente <
 					--itdiscontinuities;
 					discontinuities.erase(itdiscontinuities);
 				}
-				discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip-1, valor_anterior));
+				discontinuities.insert(discontinuities.end(), std::pair<int, int >(strip-1, previousStripADC));
 				isMax=false;
-				isMinimum_found=false;
 				ADC_start_point_cluster_pw=0;
 				isPossible_wrong_minimum=false;
 				strip_first_gradient=0;
-				counter_width_cluster=0;
 				first_start_cluster_strip=0;
 				first_start_cluster_ADC=0;
 			}
@@ -1323,7 +1309,7 @@ std::cout << "Dicontinuidad: " << valor_discontinuidad <<" " << valor_presente <
 				++itdiscontinuities;
 			}
 			
-			if ((firstStrip <= strip) && (strip <= lastStrip) && (0 < (singleAPVdigi[strip]- firstADC - ((secondADC-firstADC)/(lastStrip-firstStrip))*(strip-firstStrip)-discontinuity_threshold))){
+			if ((firstStrip <= strip) && (strip <= lastStrip) && (0 < (singleAPVdigi[strip]- firstADC - ((secondADC-firstADC)/(lastStrip-firstStrip))*(strip-firstStrip)-gradient_threshold_))){
 				digis[(APVn-firstAPV)*128+strip]= singleAPVdigi[strip]- firstADC - (((secondADC-firstADC)/(lastStrip-firstStrip))*(strip-firstStrip));
 		std::cout << "no baseline " << digis[(APVn-firstAPV)*128+strip] << std::endl;
 			} else { 

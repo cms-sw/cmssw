@@ -20,6 +20,13 @@ class SiStripRawProcessingAlgorithms {
   
   int16_t SuppressProcessedRawData(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
   int16_t SuppressProcessedRawData(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>&  );
+  
+  
+  int16_t ConvertToHybridVirginRawData(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
+  int16_t ConvertToHybridVirginRawData(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>& );
+  
+  int16_t ConvertToHybridProcessedRawData(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
+  int16_t ConvertToHybridProcessedRawData(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>&  );
 
   inline std::vector<bool>& GetAPVFlags(){return restorer->GetAPVFlags();}
   inline std::map<uint16_t, std::vector < int16_t> >& GetBaselineMap(){return restorer->GetBaselineMap();}
