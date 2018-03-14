@@ -506,7 +506,7 @@ void HGCalImagingAlgo::shareEnergy(const std::vector<KDNode>& incluster,
   const unsigned iterMax = 50;
   double diff = std::numeric_limits<double>::max();
   const double stoppingTolerance = 1e-8;
-  const double toleranceScaling = std::pow(std::max(1.0,seeds.size()-1.0),2.0);
+  auto toleranceScaling = seeds.size() > 2 ? (seeds.size()-1)*(seeds.size()-1) : 1;
   std::vector<Point> prevCentroids;
   std::vector<double> frac(seeds.size()), dist2(seeds.size());
   while( iter++ < iterMax && diff > stoppingTolerance*toleranceScaling ) {
