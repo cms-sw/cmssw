@@ -85,7 +85,6 @@ puppi = cms.EDProducer("PuppiProducer",#cms.PSet(#"PuppiProducer",
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(
     puppi,
-    DeltaZCut = cms.double(0.1),
     algos = cms.VPSet( 
         cms.PSet( 
              etaMin = cms.vdouble(0.,  2.5),
