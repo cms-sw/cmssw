@@ -1021,7 +1021,8 @@ void ReducedEGProducer::calibrateElectron(reco::GsfElectron& electron,
   const float newEcalEnergy = ecalEnergyMap[oldEleRef];
   const float newEcalEnergyErr = ecalEnergyErrMap[oldEleRef];
 
-  const math::XYZTLorentzVector& oldP4 = electron.p4();
+  //make a copy of this as the setCorrectedEcalEnergy call with modifiy the electrons p4
+  const math::XYZTLorentzVector oldP4 = electron.p4(); 
   const float corr = newEnergy / oldP4.E();
   
   electron.setCorrectedEcalEnergy(newEcalEnergy);
