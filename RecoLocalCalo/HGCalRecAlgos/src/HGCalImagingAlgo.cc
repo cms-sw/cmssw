@@ -169,11 +169,11 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
   return clusters_v;
 }
 
-math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
-  float total_weight = 0.;
-  float x = 0.;
-  float y = 0.;
-  float z = 0.;
+math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v) const {
+  float total_weight = 0.f;
+  float x = 0.f;
+  float y = 0.f;
+  float z = 0.f;
   unsigned int v_size = v.size();
   unsigned int maxEnergyIndex = 0;
   float maxEnergyValue = 0;
@@ -200,9 +200,10 @@ math::XYZPoint HGCalImagingAlgo::calculatePosition(std::vector<KDNode> &v){
 
   if (!haloOnlyCluster) {
     if (total_weight != 0) {
-      return math::XYZPoint( x/total_weight,
-			 y/total_weight,
-			 z/total_weight );
+      auto inv_tot_weight = 1./total_weight;
+      return math::XYZPoint( x*inv_tot_weight,
+			 y*inv_tot_weight,
+			 z*inv_tot_weight);
     }
   }
   else if (v_size > 0) {
