@@ -27,8 +27,10 @@ scram b -j6
 ```
 
 ## Run the code (check the input)
+```
 cd L1Trigger/L1TMuonCPPF
 cmsRun test/cppf_emulator_RAW.py
+```
 
 ## Setup your Github space (In case you haven't)
 ```
