@@ -31,7 +31,7 @@ totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSource
     ),
     # 2017
     cms.PSet(
-      validityRange = cms.EventRange("290873:min - 311626:max"),
+      validityRange = cms.EventRange("290873:min - 311625:max"),
       mappingFileNames = cms.vstring("CondFormats/CTPPSReadoutObjects/xml/mapping_tracking_strip_2017.xml"),
       maskFileNames = cms.vstring()
     ),
