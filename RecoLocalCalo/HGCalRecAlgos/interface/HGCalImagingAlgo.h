@@ -257,7 +257,7 @@ typedef KDTreeNodeInfoT<Hexel,2> KDNode;
 // A vector of vectors of KDNodes holding an Hexel in the clusters - to be used to build CaloClusters of DetIds
 std::vector< std::vector<KDNode> > current_v;
 
-std::vector<size_t> sort_by_delta(const std::vector<KDNode> &v){
+std::vector<size_t> sort_by_delta(const std::vector<KDNode> &v) const {
         std::vector<size_t> idx(v.size());
         std::iota (std::begin(idx), std::end(idx), 0);
         sort(idx.begin(), idx.end(),
@@ -275,18 +275,18 @@ std::vector<std::array<float,2> > maxpos;
 
 
 //these functions should be in a helper class.
-inline double distance2(const Hexel &pt1, const Hexel &pt2) {   //distance squared
+inline double distance2(const Hexel &pt1, const Hexel &pt2) const{   //distance squared
         const double dx = pt1.x - pt2.x;
         const double dy = pt1.y - pt2.y;
         return (dx*dx + dy*dy);
 }   //distance squaredq
-inline double distance(const Hexel &pt1, const Hexel &pt2) {   //2-d distance on the layer (x-y)
+inline double distance(const Hexel &pt1, const Hexel &pt2) const{   //2-d distance on the layer (x-y)
         return std::sqrt(distance2(pt1,pt2));
 }
-double calculateLocalDensity(std::vector<KDNode> &, KDTree &, const unsigned int);   //return max density
-double calculateDistanceToHigher(std::vector<KDNode> &);
-int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &, const unsigned int, std::vector<std::vector<KDNode> >&);
-math::XYZPoint calculatePosition(std::vector<KDNode> &);
+double calculateLocalDensity(std::vector<KDNode> &, KDTree &, const unsigned int) const;   //return max density
+double calculateDistanceToHigher(std::vector<KDNode> &) const;
+int findAndAssignClusters(std::vector<KDNode> &, KDTree &, double, KDTreeBox &, const unsigned int, std::vector<std::vector<KDNode> >&) const;
+math::XYZPoint calculatePosition(std::vector<KDNode> &) const;
 
 // attempt to find subclusters within a given set of hexels
 std::vector<unsigned> findLocalMaximaInCluster(const std::vector<KDNode>&);
