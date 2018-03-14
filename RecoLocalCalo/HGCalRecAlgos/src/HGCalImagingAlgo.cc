@@ -418,7 +418,7 @@ std::vector<unsigned> HGCalImagingAlgo::findLocalMaximaInCluster(const std::vect
 
   for( unsigned i = 0; i < cluster.size(); ++i ) {
     for( unsigned j = 0; j < cluster.size(); ++j ) {
-      if( distance(cluster[i].data,cluster[j].data) < delta_c && i != j) {
+      if( i != j and distance(cluster[i].data,cluster[j].data) < delta_c ) {
 	if( cluster[i].data.weight < cluster[j].data.weight ) {
 	  seed[i] = false;
 	  break;
