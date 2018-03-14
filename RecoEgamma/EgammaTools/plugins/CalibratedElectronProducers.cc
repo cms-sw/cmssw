@@ -29,6 +29,8 @@
 #include "RecoEgamma/EgammaTools/interface/EGEnergySysIndex.h"
 #include "RecoEgamma/EgammaTools/interface/EgammaRandomSeeds.h"
 
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+
 #include "TRandom2.h"
 
 #include <vector>
@@ -138,7 +140,7 @@ void CalibratedElectronProducerT<T>::fillDescriptions(edm::ConfigurationDescript
   std::vector<std::string> valMapsProduced;
   for(auto varToStore : valMapsToStore_) valMapsProduced.push_back(EGEnergySysIndex::name(varToStore));
   desc.add<std::vector<std::string> >("valueMapsStored",valMapsProduced)->setComment("provides to python configs the list of valuemaps stored, can not be overriden in the python config");
-  descriptions.addWithDefaultLabel(desc);
+  descriptions.add(defaultModuleLabel<CalibratedElectronProducerT<T>>(),desc);
 }
 
 template<typename T>

@@ -121,12 +121,12 @@ reducedEgammaEnergyScaleAndSmearingModifier = cms.PSet(
     photon_config   = cms.PSet()
 )
 from RecoEgamma.EgammaTools.calibratedEgammas_cff import prefixName
-import RecoEgamma.EgammaTools.calibratedElectronProducer_cfi
-for valueMapName in RecoEgamma.EgammaTools.calibratedElectronProducer_cfi.calibratedElectronProducer.valueMapsStored:
+import RecoEgamma.EgammaTools.calibratedElectronProducerTRecoGsfElectron_cfi
+for valueMapName in RecoEgamma.EgammaTools.calibratedElectronProducerTRecoGsfElectron_cfi.calibratedElectronProducerTRecoGsfElectron.valueMapsStored:
     setattr(reducedEgammaEnergyScaleAndSmearingModifier.electron_config,valueMapName,cms.InputTag("reducedEgamma",prefixName("calibEle",valueMapName)))
 
-import RecoEgamma.EgammaTools.calibratedPhotonProducer_cfi
-for valueMapName in RecoEgamma.EgammaTools.calibratedPhotonProducer_cfi.calibratedPhotonProducer.valueMapsStored:
+import RecoEgamma.EgammaTools.calibratedPhotonProducerTRecoPhoton_cfi
+for valueMapName in RecoEgamma.EgammaTools.calibratedPhotonProducerTRecoPhoton_cfi.calibratedPhotonProducerTRecoPhoton.valueMapsStored:
     setattr(reducedEgammaEnergyScaleAndSmearingModifier.photon_config,valueMapName,cms.InputTag("reducedEgamma",prefixName("calibPho",valueMapName)))
 
 
