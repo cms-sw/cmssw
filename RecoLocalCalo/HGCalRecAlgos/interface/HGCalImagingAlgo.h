@@ -228,7 +228,7 @@ struct Hexel {
                 clusterIndex(-1), sigmaNoise(sigmaNoise_in), thickness(thickness_in),
                 tools(tools_in)
         {
-                const GlobalPoint position( std::move( tools->getPosition( detid ) ) );
+                const GlobalPoint position( tools->getPosition( detid ) );
                 weight = hit.energy();
                 x = position.x();
                 y = position.y();

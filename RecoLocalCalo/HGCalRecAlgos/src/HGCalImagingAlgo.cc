@@ -45,7 +45,7 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
 
     // determine whether this is a half-hexagon
     bool isHalf = rhtools_.isHalfCell(detid);
-    const GlobalPoint position( std::move( rhtools_.getPosition( detid ) ) );
+    const GlobalPoint position( rhtools_.getPosition( detid ) );
 
     //here's were the KDNode is passed its dims arguments - note that these are *copied* from the Hexel
     points[layer].emplace_back(Hexel(hgrh,detid,isHalf,sigmaNoise,thickness,&rhtools_),position.x(),position.y());
