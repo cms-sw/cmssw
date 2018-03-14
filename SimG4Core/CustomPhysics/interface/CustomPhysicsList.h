@@ -7,7 +7,6 @@
 #include <string>
 
 class G4ProcessHelper;
-class G4Decay;
 class CustomParticleFactory;
 
 class CustomPhysicsList : public G4VPhysicsConstructor 
@@ -21,9 +20,7 @@ public:
 
 private:
 
-  static G4ThreadLocal std::unique_ptr<G4Decay> fDecayProcess;
   static G4ThreadLocal std::unique_ptr<G4ProcessHelper> myHelper;
-
   std::unique_ptr<CustomParticleFactory> fParticleFactory;
 
   bool fHadronicInteraction;
