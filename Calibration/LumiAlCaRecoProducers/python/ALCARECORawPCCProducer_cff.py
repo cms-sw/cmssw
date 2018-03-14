@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCZeroBias_cff import ALCARECOZeroBiasHLT,siPixelDigisForLumiZB,siPixelClustersForLumiZB,alcaPCCProducerZeroBias
+
 
 #Make sure that variables match in producer.cc and .h
 ALCARECORawPCCProd = cms.EDProducer("RawPCCProducer",
@@ -19,4 +21,4 @@ ALCARECORawPCCProd.RawPCCProducerParameters.modVeto.extend([302055684,302055688,
 
 
 
-seqALCARECORawPCCProducer = cms.Sequence(ALCARECORawPCCProd)
+seqALCARECORawPCCProducer = cms.Sequence(ALCARECOZeroBiasHLT + siPixelDigisForLumiZB + siPixelClustersForLumiZB + alcaPCCProducerZeroBias + ALCARECORawPCCProd)
