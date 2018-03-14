@@ -137,7 +137,7 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   sort(begin(sorted_tracks_idx),
        end(sorted_tracks_idx),
        [&tracks] (int i, int j) {
-        return tracks.at(i).momentum().eta() < tracks.at(j).momentum().eta();
+        return tracks[i].momentum().eta() < tracks[j].momentum().eta();
         });
 
   iEvent.getByToken(genParticlesToken_, genParticlesH);
@@ -146,7 +146,7 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iota(begin(sorted_genParticles_idx), end(sorted_genParticles_idx), 0);
   sort(begin(sorted_genParticles_idx),
        end(sorted_genParticles_idx), [&genParticles](int i, int j) {
-       return genParticles.at(i).momentum().eta() < genParticles.at(j).momentum().eta();});
+       return genParticles[i].momentum().eta() < genParticles[j].momentum().eta();});
 
   iEvent.getByToken(simVerticesToken_, simVerticesH);
   auto const & vertices = *simVerticesH.product();
@@ -154,7 +154,7 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iota(begin(sorted_vertices_idx), end(sorted_vertices_idx), 0);
   sort(begin(sorted_vertices_idx),
        end(sorted_vertices_idx), [&vertices](int i, int j){
-        return vertices.at(i).vertexId() < vertices.at(j).vertexId();
+        return vertices[i].vertexId() < vertices[j].vertexId();
       });
 
   iEvent.getByToken(trackingParticlesToken_, trackingParticlesH);
@@ -163,7 +163,7 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iota(begin(sorted_tp_idx), end(sorted_tp_idx), 0);
   sort(begin(sorted_tp_idx),
        end(sorted_tp_idx), [&trackingpart] (int i, int j){
-        return trackingpart.at(i).eta() < trackingpart.at(j).eta();
+        return trackingpart[i].eta() < trackingpart[j].eta();
        });
 
   iEvent.getByToken(caloParticlesToken_, caloParticlesH);
@@ -173,7 +173,7 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
        end(sorted_cp_idx), 0);
   sort(begin(sorted_cp_idx),
        end(sorted_cp_idx), [&calopart](int i, int j){
-       return calopart.at(i).eta() < calopart.at(j).eta();});
+       return calopart[i].eta() < calopart[j].eta();});
 
   iEvent.getByToken(simClustersToken_, simClustersH);
   auto const & simclusters = *simClustersH.product();
@@ -182,7 +182,7 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
        end(sorted_simcl_idx), 0);
   sort(begin(sorted_simcl_idx),
        end(sorted_simcl_idx), [&simclusters](int i, int j){
-       return simclusters.at(i).eta() < simclusters.at(j).eta();});
+       return simclusters[i].eta() < simclusters[j].eta();});
 
   // Let's first fill in hits information
   std::map<int, float> detIdToTotalSimEnergy;
@@ -194,7 +194,7 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   std::cout << "Printing SimTracks information" << std::endl;
   std::cout << "IDX\tTrackId\tPDGID\tMOMENTUM(x,y,z,E)\tVertexIdx\tGenPartIdx" << std::endl;
   for (auto i : sorted_tracks_idx) {
-    auto const & t = tracks.at(i);
+    auto const & t = tracks[i];
     std::cout << idx << "\t" << t.trackId() << "\t" << t << std::endl;
     trackid_to_track_index[t.trackId()] = idx;
     idx++;
@@ -203,7 +203,7 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   std::cout << "Printing GenParticles information" << std::endl;
   std::cout << "IDX\tPDGID\tMOMENTUM(x,y,z)\tVertex(x,y,z)" << std::endl;
   for (auto i : sorted_genParticles_idx) {
-    auto const & gp = genParticles.at(i);
+    auto const & gp = genParticles[i];
     std::cout << i
       << "\t" << gp.pdgId()
       << "\t" << gp.momentum()
@@ -213,19 +213,19 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   std::cout << "Printing SimVertex information" << std::endl;
   std::cout << "IDX\tPOSITION(x,y,z)\tPARENT_INDEX\tVERTEX_ID" << std::endl;
   for (auto i : sorted_vertices_idx) {
-    auto const & v = vertices.at(i);
+    auto const & v = vertices[i];
       std::cout << i << "\t" << v << std::endl;
   }
   std::cout << "Printing TrackingParticles information" << std::endl;
   for (auto i : sorted_tp_idx) {
-    auto const & tp = trackingpart.at(i);
+    auto const & tp = trackingpart[i];
     std::cout << i << "\t" << tp << std::endl;
   }
 
   std::cout << "Printing CaloParticles information" << std::endl;
   idx = 0;
   for (auto i : sorted_cp_idx) {
-    auto const & cp = calopart.at(i);
+    auto const & cp = calopart[i];
     std::cout << "\n\n" << idx++ << " |Eta|: " << std::abs(cp.momentum().eta())
               << "\tType: " << cp.pdgId()
               << "\tEnergy: " << cp.energy()
@@ -240,10 +240,10 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     sort(begin(sorted_sc_idx),
         end(sorted_sc_idx),
         [&simcs] (int i, int j) {
-        return simcs.at(i)->momentum().eta() < simcs.at(j)->momentum().eta();
+        return simcs[i]->momentum().eta() < simcs[j]->momentum().eta();
         });
     for (auto i : sorted_sc_idx) {
-      std::cout <<  *(simcs.at(i));
+      std::cout <<  *(simcs[i]);
     }
 
     for (auto const & sc : cp.simClusters()) {
@@ -259,7 +259,7 @@ CaloParticleDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   idx = 0;
   std::cout << "Printing SimClusters information" << std::endl;
   for (auto i : sorted_simcl_idx) {
-    auto const & simcl = simclusters.at(i);
+    auto const & simcl = simclusters[i];
     std::cout << "\n\n" << idx++ << " |Eta|: " << std::abs(simcl.momentum().eta())
               << "\tType: " << simcl.pdgId()
               << "\tEnergy: " << simcl.energy()
