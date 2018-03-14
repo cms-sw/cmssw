@@ -72,26 +72,23 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event & iEvent, edm::Ev
   {
     auto amc13Event = std::make_unique<AMC13Event>();
 
-    uint16_t amcId = 0;
-    uint16_t gebId = 0;    
+    uint16_t amcId = 0, gebId = 0;
     std::unique_ptr<AMCdata> amcData;
     std::unique_ptr<GEBdata> gebData;
 
-    int mapsize =0;
     const std::map<GEMROmap::eCoord,GEMROmap::dCoord> *roMapED = gemROMap->getRoMap();
     for (auto ro=roMapED->begin(); ro!=roMapED->end(); ++ro){
-      mapsize++;
       GEMROmap::eCoord ec = ro->first;
       GEMROmap::dCoord dc = ro->second;
 
-      if (amcId != ec.amcId){
+      if (amcId != ec.amcId || !amcData){
 	amcId = ec.amcId;
 	amcData = std::make_unique<AMCdata>();
 	amcData->setBID(amcId);
  	amcData->setBX(GEMELMap::amcBX_);
       }
       
-      if (gebId != ec.gebId){
+      if (gebId != ec.gebId || !gebData){
 	gebId = ec.gebId;
 	gebData = std::make_unique<GEBdata>();
 	gebData->setInputID(gebId);	
