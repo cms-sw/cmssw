@@ -33,15 +33,14 @@ class SiStripFedZeroSuppression {
   void suppress(const edm::DetSet<SiStripRawDigi>&,edm::DetSet<SiStripDigi>&);
   void suppress(const std::vector<int16_t>&,const uint16_t&, edm::DetSet<SiStripDigi>&);
   
-  
+ uint16_t truncate(int16_t adc) const{
+    if(adc>253 && doTruncate) return ((adc==1023) ? 255 : 254);
+    return adc;
+  };
   
   
  private:
   
-  inline uint16_t truncate(int16_t adc) const{
-    if(adc>253 && doTruncate) return ((adc==1023) ? 255 : 254);
-    return adc;
-  };
   
   edm::ESHandle<SiStripNoises> noiseHandle;
   edm::ESHandle<SiStripThreshold> thresholdHandle;
