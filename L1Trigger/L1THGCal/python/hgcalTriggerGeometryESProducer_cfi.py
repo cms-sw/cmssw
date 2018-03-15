@@ -24,7 +24,7 @@ geometry = cms.PSet( TriggerGeometryName = cms.string('HGCalTriggerGeometryHexLa
                      L1TCellNeighborsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_neighbor_mapping_8inch_aligned_192_432_0.txt"),
                      L1TCellsBHMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_mapping_BH_3x3_30deg_0.txt"),
                      L1TCellNeighborsBHMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggercell_neighbor_mapping_BH_3x3_30deg_0.txt"),
-                     L1TTriggerTowerMapping =  cms.FileInPath("L1Trigger/L1THGCal/data/TCmapping_v1.txt"),
+                     L1TTriggerTowerMapping =  cms.FileInPath("L1Trigger/L1THGCal/data/TCmapping_v2.txt"),
                      DisconnectedModules = cms.vuint32(0),
                      DisconnectedLayers = cms.vuint32(disconnectedTriggerLayers)
                    )
