@@ -67,17 +67,10 @@ kSourceFindEvent = "sourceFindEvent"
 kSourceDelayedRead ="sourceDelayedRead"
 
 #----------------------------------------------
-def parseStallMonitorOutput(f):
-    processingSteps = []
-    numStreams = 0
-    maxNameSize = 0
-    moduleNames = {}
+def processingStepsFromStallMonitorOutput(f,moduleNames):
     for rawl in f:
         l = rawl.strip()
         if not l or l[0] == '#':
-            if len(l) > 5 and l[0:2] == "#M":
-                (id,name)=tuple(l[2:].split())
-                moduleNames[id] = name
             continue
         (step,payload) = tuple(l.split(None,1))
         payload=payload.split()
@@ -93,6 +86,7 @@ def parseStallMonitorOutput(f):
         trans = None
         isEvent = True
 
+        name = None
         # 'S' = begin of event creation in source
         # 's' = end of event creation in source
         if step == 'S' or step == 's':
@@ -136,12 +130,40 @@ def parseStallMonitorOutput(f):
                 name = kSourceDelayedRead
 
         if trans is not None:
-            numStreams = max(numStreams, stream+1)
-            maxNameSize = max(maxNameSize, len(name))
-            processingSteps.append((name,trans,stream,time, isEvent))
+            yield (name,trans,stream,time, isEvent)
+    
+    return
 
-    f.close()
-    return (processingSteps,numStreams,maxNameSize)
+class StallMonitorParser(object):
+    def __init__(self,f):
+        numStreams = 0
+        moduleNames = {}
+        for rawl in f:
+            l = rawl.strip()
+            if l and l[0] == 'M':
+                i = l.split(' ')
+                if i[3] == '4':
+                    #found global begin run
+                    numStreams = int(i[1])+1
+                    break
+            if len(l) > 5 and l[0:2] == "#M":
+                (id,name)=tuple(l[2:].split())
+                moduleNames[id] = name
+                continue
+        self._f = f
+        self.numStreams =numStreams
+        self._moduleNames = moduleNames
+        self.maxNameSize =0
+        for n in moduleNames.iteritems():
+            self.maxNameSize = max(self.maxNameSize,len(n))
+        self.maxNameSize = max(self.maxNameSize,len(kSourceDelayedRead))
+
+    def processingSteps(self):
+        """Create a generator which can step through the file and return each processing step.
+        Using a generator reduces the memory overhead when parsing a large file.
+            """
+        self._f.seek(0)
+        return processingStepsFromStallMonitorOutput(self._f,self._moduleNames)
 
 #----------------------------------------------
 # Utility to get time out of Tracer output text format
@@ -237,6 +259,12 @@ def parseTracerOutput(f):
     f.close()
     return (processingSteps,numStreams,maxNameSize)
 
+class TracerParser(object):
+    def __init__(self,f):
+        self._processingSteps,self.numStreams,self.maxNameSize = parseTracerOutput(f)
+    def processingSteps(self):
+        return self._processingSteps
+
 #----------------------------------------------
 def chooseParser(inputFile):
 
@@ -248,13 +276,13 @@ def chooseParser(inputFile):
     inputFile.seek(0) # Rewind back to beginning
     if (firstLine.find("# Transition") != -1) or (firstLine.find("# Step") != -1):
         print "> ... Parsing StallMonitor output."
-        return parseStallMonitorOutput
+        return StallMonitorParser
 
     if firstLine.find("++") != -1 or fifthLine.find("++") != -1:
         global kTracerInput
         kTracerInput = True
         print "> ... Parsing Tracer output."
-        return parseTracerOutput
+        return TracerParser
     else:
         inputFile.close()
         print "Unknown input format."
@@ -537,9 +565,10 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     countDelayedSource = [0 for x in xrange(numStreams)]
     countExternalWork = [defaultdict(int) for x in xrange(numStreams)]
 
-    timeOffset = processingSteps[0][3]
+    timeOffset = None
     for n,trans,s,time,isEvent in processingSteps:
-
+        if timeOffset is None:
+            timeOffset = time
         startTime = None
         time -=timeOffset
         # force the time to monotonically increase on each stream
@@ -821,15 +850,16 @@ if __name__=="__main__":
         exit(1)
 
     sys.stderr.write(">reading file: '{}'\n".format(inputFile.name))
-    processingSteps,numStreams,maxNameSize = readLogFile(inputFile)
+    reader = readLogFile(inputFile)
     if kTracerInput:
         checkOrder = True
     sys.stderr.write(">processing data\n")
-    stalledModules = findStalledModules(processingSteps, numStreams)
+    stalledModules = findStalledModules(reader.processingSteps(), reader.numStreams)
+
     if not doGraphic:
         sys.stderr.write(">preparing ASCII art\n")
-        createAsciiImage(processingSteps, numStreams, maxNameSize)
+        createAsciiImage(reader.processingSteps(), reader.numStreams, reader.maxNameSize)
     else:
         sys.stderr.write(">creating PDF\n")
-        createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledModules, displayExternalWork, checkOrder)
+        createPDFImage(pdfFile, shownStacks, reader.processingSteps(), reader.numStreams, stalledModules, displayExternalWork, checkOrder)
     printStalledModulesInOrder(stalledModules)
