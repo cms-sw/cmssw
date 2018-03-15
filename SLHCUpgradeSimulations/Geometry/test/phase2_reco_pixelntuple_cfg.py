@@ -34,7 +34,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_10_0_0_pre1/RelValSingleMuPt10/GEN-SIM/94X_upgrade2023_realistic_v2_2023D21noPU-v2/10000/F2B83850-E6CE-E711-8185-0CC47A78A4B0.root'
+	'/store/relval/CMSSW_10_0_0_pre1/RelValSingleMuPt10/GEN-SIM-DIGI-RAW/94X_upgrade2023_realistic_v2_2023D21noPU-v2/10000/0E747454-F7CE-E711-B528-0CC47A7C34C8.root'
     )
 )
 
@@ -83,14 +83,6 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("Phase2PixelNtuple",
 
 # Other statements
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
-
-# This pset is specific for producing simulated events for the designers of the PROC (InnerTracker)
-# They need pixel RecHits where the charge is stored with high-granularity and large dinamic range
-process.mix.digitizers.pixel.PixelDigitizerAlgorithm.AdcFullScale   = cms.int32(255)
-process.mix.digitizers.pixel.PixelDigitizerAlgorithm.ElectronPerAdc = cms.double(135.)
-process.siPixelClusters.ElectronPerADCGain=cms.double(135.)
-process.siPixelClustersPreSplitting.ElectronPerADCGain=cms.double(135.)
-
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
@@ -107,7 +99,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 #process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.digitisation_step,process.L1simulation_step,process.L1TrackTrigger_step,process.digi2raw_step)
+process.schedule = cms.Schedule()
 process.schedule.extend(process.HLTSchedule)
 process.schedule.extend([process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.user_step,process.endjob_step])
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
@@ -140,5 +132,3 @@ process = customiseEarlyDelete(process)
 process.TFileService = cms.Service('TFileService',
 fileName = cms.string("pixelntuple.root")
 )
-
-
