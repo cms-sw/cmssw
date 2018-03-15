@@ -72,6 +72,11 @@ SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescripti
 								  iter->second.pedestalsVersion().first,
 								  iter->second.pedestalsVersion().second,
 								  analysis_type );
+	    } else if ( analysis_type == AnalysisDescription::T_ANALYSIS_PEDSFULLNOISE ) { 
+	      tmp1 = deviceFactory(__func__)->getAnalysisHistory( iter->second.partitionName(), 
+								  iter->second.pedestalsVersion().first,
+								  iter->second.pedestalsVersion().second,
+								  analysis_type );
 	    } else if ( analysis_type == AnalysisDescription::T_ANALYSIS_APVLATENCY ) {
 	      tmp1 = deviceFactory(__func__)->getAnalysisHistory( iter->second.partitionName(), 
 								  iter->second.apvLatencyVersion().first,
@@ -201,7 +206,7 @@ void SiStripConfigDb::addAnalysisDescriptions( std::string partition, AnalysisDe
     
     // Add to local cache
     analyses_.loadNext( partition, tmp );
-
+    
     // Some debug
     std::stringstream ss;
     ss << "[SiStripConfigDb::" << __func__ << "]"
@@ -211,7 +216,6 @@ void SiStripConfigDb::addAnalysisDescriptions( std::string partition, AnalysisDe
        << " (Cache holds analysis descriptions for " 
        << analyses_.size() << " partitions.)";
     LogTrace(mlConfigDb_) << ss.str();
-    
   } else {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]" 
@@ -261,29 +265,46 @@ void SiStripConfigDb::uploadAnalysisDescriptions( bool calibration_for_physics,
     for ( ; iter != jter; ++iter ) {
       
       if ( partition == "" || partition == iter->second.partitionName() ) {
-	
+
 	AnalysisDescriptionsRange range = analyses_.find( iter->second.partitionName() );
 	if ( range != analyses_.emptyRange() ) {
-	  
-	  AnalysisDescriptionsV anals( range.begin(), range.end() );
-	  
-	  AnalysisType analysis_type = AnalysisDescription::T_UNKNOWN;
-	  if ( anals.front() ) { analysis_type = anals.front()->getType(); }
-	  if ( analysis_type == AnalysisDescription::T_UNKNOWN ) {
-	    edm::LogWarning(mlConfigDb_)
-	      << "[SiStripConfigDb::" << __func__ << "]"
-	      << " Analysis type is UNKNOWN. Aborting upload!";
-	    return;
-	  }
-	  
-	  uint32_t version = deviceFactory(__func__)->uploadAnalysis( iter->second.runNumber(), 
-								      iter->second.partitionName(), 
-								      analysis_type,
-								      anals,
-								      calibration_for_physics );
+	  	  
+	  AnalysisDescriptionsV anals( range.begin(), range.end() ); /// list of all analysis type
 
-	  // Update current state with analysis descriptions
-	  if ( calibration_for_physics ) { deviceFactory(__func__)->uploadAnalysisState( version ); }
+	  vector<AnalysisType> analysis_type; // check how many different analysis type we have	--> more than one analysis table could be uploaded in the same job
+	  for(auto element : anals){	    
+	    if(std::find(analysis_type.begin(),analysis_type.end(),element->getType()) == analysis_type.end() and element->getType() != AnalysisDescription::T_UNKNOWN){
+	      analysis_type.push_back(element->getType());
+	    }
+	    else if(element->getType() == AnalysisDescription::T_UNKNOWN){
+	      edm::LogWarning(mlConfigDb_)
+		<< "[SiStripConfigDb::" << __func__ << "]"
+		<< " Analysis type is UNKNOWN. Aborting upload!";
+	      return;
+	    }	      
+	  }
+	
+	  vector<AnalysisDescriptionsV> analysisToUpload; // in case there are more than one analysis type to be uploaded
+	  for(auto type : analysis_type){
+	    AnalysisDescriptionsV ana_temp;
+	    for(auto element : anals){
+	      if(element->getType() == type)
+		ana_temp.push_back(element);
+	    }
+	    analysisToUpload.push_back(ana_temp);
+	  }
+
+	  // perform the upload
+	  for(auto analysis : analysisToUpload){
+
+	    uint32_t version = deviceFactory(__func__)->uploadAnalysis( iter->second.runNumber(), 
+									iter->second.partitionName(), 
+									analysis.front()->getType(),
+									analysis,
+									calibration_for_physics);
+	    // Update current state with analysis descriptions
+	    if ( calibration_for_physics ) { deviceFactory(__func__)->uploadAnalysisState( version );}
+	  }
 	  
 	  // Some debug
 	  std::stringstream ss;
@@ -303,7 +324,7 @@ void SiStripConfigDb::uploadAnalysisDescriptions( bool calibration_for_physics,
 	  continue; 
 	}
 	
-      } else {
+      }else {
 	// 	  stringstream ss; 
 	// 	  ss << "[SiStripConfigDb::" << __func__ << "]" 
 	// 	     << " Cannot find partition \"" << partition
@@ -311,10 +332,8 @@ void SiStripConfigDb::uploadAnalysisDescriptions( bool calibration_for_physics,
 	// 	     << dbParams_.partitionNames( dbParams_.partitionNames() ) 
 	// 	     << "\", therefore aborting upload for this partition!";
 	// 	  edm::LogWarning(mlConfigDb_) << ss.str(); 
-      }
-      
-    }
-    
+      }	
+    }   
   } catch (...) { handleException( __func__ ); }
   
   allowCalibUpload_ = true;
@@ -514,6 +533,7 @@ std::string SiStripConfigDb::analysisType( AnalysisType analysis_type ) const {
   else if ( analysis_type == AnalysisDescription::T_ANALYSIS_TIMING )         { return "APV_TIMING"; }
   else if ( analysis_type == AnalysisDescription::T_ANALYSIS_OPTOSCAN )       { return "OPTO_SCAN"; }
   else if ( analysis_type == AnalysisDescription::T_ANALYSIS_PEDESTALS )      { return "PEDESTALS"; }
+  else if ( analysis_type == AnalysisDescription::T_ANALYSIS_PEDSFULLNOISE )  { return "PEDSFULLNOISE"; }
   else if ( analysis_type == AnalysisDescription::T_ANALYSIS_APVLATENCY )     { return "APV_LATENCY"; }
   else if ( analysis_type == AnalysisDescription::T_ANALYSIS_FINEDELAY )      { return "FINE_DELAY"; }
   else if ( analysis_type == AnalysisDescription::T_ANALYSIS_CALIBRATION )    { return "CALIBRATION"; }
