@@ -86,27 +86,31 @@ int16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::DetS
 
 int16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
       
+      std::vector<int16_t>  processedRawDigisPedSubtracted;
       std::vector<bool> markedVRAPVs;
      
-      for(int16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] += 1024;
+      for(uint16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] += 1024;
 
       
       subtractorPed->subtract( id, firstAPV*128,processedRawDigis);      
-      for(int16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] /= 2;
+      for(uint16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] /= 2;
+      
+      processedRawDigisPedSubtracted.assign(processedRawDigis.begin(), processedRawDigis.end());
       
       subtractorCMN->subtract(id, firstAPV,  processedRawDigis);      
-      int16_t nAPVFlagged = restorer->InspectForHybridFormatEmulation(id, firstAPV, processedRawDigis, subtractorCMN->getAPVsCM(), markedVRAPVs)
+      int16_t nAPVFlagged = restorer->InspectForHybridFormatEmulation(id, firstAPV, processedRawDigis, subtractorCMN->getAPVsCM(), markedVRAPVs);
       
-      for(int16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] *= 2;
-      
-      
+      for(uint16_t strip=0; strip < processedRawDigis.size(); ++strip){
+      	 processedRawDigis[strip] *= 2;
+         processedRawDigisPedSubtracted[strip] *= 2;
+      }
       
       for(uint16_t APV=firstAPV ; APV< processedRawDigis.size()/128 + firstAPV; ++APV){
       	if(markedVRAPVs[APV]){
       		//GB 23/6/08: truncation should be done at the very beginning
-      		for(int16_t strip = (APV-firstAPV)*128; strip < (APV-firstAPV+1)*128; ++strip) suppressedDigis.push_back(SiStripDigi(strip, (rocessedRawDigis[strip] ? 0 : truncate( rocessedRawDigis[strip] ) )));
+      		for(uint16_t strip = (APV-firstAPV)*128; strip < (APV-firstAPV+1)*128; ++strip) suppressedDigis.push_back(SiStripDigi(strip, ( processedRawDigisPedSubtracted[strip] ? 0 : suppressor->truncate(processedRawDigisPedSubtracted[strip]) )));
       	}else{
-      		std::vector<T> singleAPVdigi;
+      		std::vector<int16_t> singleAPVdigi;
   		 	singleAPVdigi.clear();
   		 	for(int16_t strip = (APV-firstAPV)*128; strip < (APV-firstAPV+1)*128; ++strip) singleAPVdigi.push_back(processedRawDigis[strip]); 
       	  	suppressor->suppress(singleAPVdigi, APV,  suppressedDigis );

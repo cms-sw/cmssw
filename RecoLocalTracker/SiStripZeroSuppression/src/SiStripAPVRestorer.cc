@@ -330,7 +330,7 @@ int16_t SiStripAPVRestorer::NullInspect(const uint16_t& firstAPV, std::vector<T>
 //======================================================================================================================================================================================================
 //======================================================================================================================================================================================================
 
-int16_t InspectForHybridFormatEmulation(const uint32_t& detId, const uint16_t& firstAPV, std::vector<int16_t>& digis, const std::vector< std::pair<short,float> >& vmedians, std::vector<bool>& markedVRAPVs){
+int16_t SiStripAPVRestorer::InspectForHybridFormatEmulation(const uint32_t& detId, const uint16_t& firstAPV, std::vector<int16_t>& digis, const std::vector< std::pair<short,float> >& vmedians, std::vector<bool>& markedVRAPVs){
 
 	detId_ = detId;
 	markedVRAPVs.clear();
