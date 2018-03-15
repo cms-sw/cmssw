@@ -17,8 +17,6 @@ detIDsFileName = getFileInPath('DQM/SiStripMonitorClient/data/detids.dat')
 filename_online=sys.argv[1]
 filename_offline=sys.argv[2]
 
-
-
 runNum=filename_offline[19:25]
 
 dir="DQMData/Run " + runNum + "/PixelPhase1/Run summary/Pahse1_MechanicalView/"
@@ -33,15 +31,12 @@ minlad=[-6,-14,-22,-32]
 
 shell=""
 
-
-
 #Barrel
 def BPIX_list(inputFile):
     DQMfile=TFile(inputFile)
     BPIXCounter = []
     BPIXCounter_v0 = []
     for l in range(1,5):
-
         hname=hnameB + str(l)
     
         RocMap=DQMfile.FindObjectAny(hname)
@@ -100,8 +95,7 @@ def BPIX_list(inputFile):
                         if (j%2 ==0): roc=7-(i-1)%8
                         if (j%2 ==1): roc=8+(i-1)%8
 
-                if (lad < 0 and mod > 0):
-
+                if (lad < 0 and mod > 0):     
                     shell= "BpO"
                 
                     if (alad%2==1):
@@ -113,43 +107,38 @@ def BPIX_list(inputFile):
                         if (j%2 ==0): roc=8+(i-1)%8
 
                 f1=open(getFileInPath('DQM/SiStripMonitorClient/data/detids.dat'))
-
-                refName = []      
-                for line in f1:
-                    refName.append(line.split(" ")[1])
-
-                Mod_check = 'LYR'+str(l) + '_LDR' + str(abs(lad)) + 'F_MOD' +str(abs(mod))
+                modwritten=False
+                Mod_check = "LYR"+str(l) + "_LDR" + str(abs(lad)) + "F_MOD" +str(abs(mod))
                 shell_check = "BPix_" + str(shell)
-                for x in range(len(refName)):
-                    shell_ref = refName[x][:8]
-                    module_ref = refName[x][14:]
-                    if Mod_check == module_ref and shell_check == shell_ref:
-                        ModuleName_BPIX = refName[x]+"_ROC "
-                        BmLYR1_check = ModuleName_BPIX.split('_')
 
-                        if BmLYR1_check[1] == 'BmI' or BmLYR1_check[1] == 'BmO' and BmLYR1_check[3] == 'LYR1':
-                            
-                            if int(roc) <= 7:
-                                roc = str(int(roc)+8)
-                            elif int(roc) >= 8:
-                                roc =str(int(roc)-8)
+                for line in f1:
+                    refName=line.split(" ")[1]
+                    if modwritten: break
+                    shell_ref = str(refName[:8]).strip()
+                    module_ref = str(refName[14:]).strip()
+
+                    if (Mod_check == module_ref) and (shell_check == shell_ref):
+
+                        ModuleName_BPIX = refName.strip()+"_ROC "
+                        BmLYR1_check = ModuleName_BPIX.split('_')                        
+                        if ((BmLYR1_check[1] == "BmI" or BmLYR1_check[1] == "BmO") and (BmLYR1_check[3] == "LYR1")):
+                           if int(roc) <= 7:
+                              roc = str(int(roc)+8)
+                           elif int(roc) >= 8:
+                              roc =str(int(roc)-8)
 
                         BPix_Name = ModuleName_BPIX + str(roc)
-
                         BPIXCounter_v0.append(BPix_Name)
                         BPIXCounter = list(set(BPIXCounter_v0))
-
-  
+                        modwritten=True
     return BPIXCounter
 
-
-#End of Barre
+#End of Barrel
 
 #Doing FPix
 
 hnameF="digi_occupancy_per_SignedDiskCoord_per_SignedBladePanelCoord_PXRing_"
 minbld=[-11,-17]
-
 
 def FPIX_list(inputFile):
     FPIXCounter = []
