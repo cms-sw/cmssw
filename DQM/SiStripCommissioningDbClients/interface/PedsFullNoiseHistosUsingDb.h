@@ -15,7 +15,7 @@ class PedsFullNoiseHistosUsingDb : public CommissioningHistosUsingDb, public Ped
 
     ~PedsFullNoiseHistosUsingDb() override;
 
-    virtual void uploadConfigurations() override;
+    void uploadConfigurations() override;
 
    private:
 

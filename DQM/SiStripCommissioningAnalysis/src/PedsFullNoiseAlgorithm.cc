@@ -393,7 +393,7 @@ void PedsFullNoiseAlgorithm::analyse() {
   apvID = 0;
   TH1S* histoResidualStrip = new TH1S("histoResidualStrip","",histoNoise->GetNbinsX(),histoNoise->GetXaxis()->GetXmin(),histoNoise->GetXaxis()->GetXmax());
   histoResidualStrip->Sumw2();
-  histoResidualStrip->SetDirectory(0);
+  histoResidualStrip->SetDirectory(nullptr);
   TF1* fitFunc   = new TF1 ("fitFunc","gaus(0)",histoNoise->GetXaxis()->GetXmin(),histoNoise->GetXaxis()->GetXmax());
   TF1* fit2Gaus  = nullptr;
   TH1F* randomHisto = nullptr;
@@ -478,7 +478,7 @@ void PedsFullNoiseAlgorithm::analyse() {
       if(randomHisto == nullptr)
 	randomHisto = (TH1F*) histoResidualStrip->Clone("randomHisto");
       randomHisto->Reset();
-      randomHisto->SetDirectory(0);
+      randomHisto->SetDirectory(nullptr);
       
       if(generateRandomHisto_){///
 	randomHisto->FillRandom("fitFunc",histoResidualStrip->Integral());
@@ -498,7 +498,7 @@ void PedsFullNoiseAlgorithm::analyse() {
 	  ana->ksProbab_[apvID][stripBin] = histoResidualStrip->KolmogorovTest(randomHisto,"N");
 	  ROOT::Fit::BinData data1;
 	  ROOT::Fit::BinData data2;
-	  ROOT::Fit::FillData(data1,histoResidualStrip,0);
+	  ROOT::Fit::FillData(data1,histoResidualStrip,nullptr);
 	  data2.Initialize(randomHisto->GetNbinsX()+1,1);
 	  for(int ibin = 0; ibin < randomHisto->GetNbinsX(); ibin++){ 
 	    if(histoResidualStrip->GetBinContent(ibin+1) != 0 or randomHisto->GetBinContent(ibin+1) >= 1)

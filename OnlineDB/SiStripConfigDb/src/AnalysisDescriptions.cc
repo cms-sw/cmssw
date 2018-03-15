@@ -34,7 +34,7 @@ SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescripti
       SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
       for ( ; iter != jter; ++iter ) {
 	
-	if ( partition == "" || partition == iter->second.partitionName() ) {
+	if ( partition.empty() || partition == iter->second.partitionName() ) {
 	  
 	  if ( iter->second.partitionName() == SiStripPartition::defaultPartitionName_ ) { continue; }
 
@@ -135,7 +135,7 @@ SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescripti
   uint16_t np = 0;
   uint16_t nc = 0;
   AnalysisDescriptionsRange anals = analyses_.emptyRange();
-  if ( partition != "" ) { 
+  if ( !partition.empty() ) { 
     anals = analyses_.find( partition );
     np = 1;
     nc = anals.size();
@@ -264,7 +264,7 @@ void SiStripConfigDb::uploadAnalysisDescriptions( bool calibration_for_physics,
     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
     for ( ; iter != jter; ++iter ) {
       
-      if ( partition == "" || partition == iter->second.partitionName() ) {
+      if ( partition.empty() || partition == iter->second.partitionName() ) {
 
 	AnalysisDescriptionsRange range = analyses_.find( iter->second.partitionName() );
 	if ( range != analyses_.emptyRange() ) {
@@ -355,7 +355,7 @@ void SiStripConfigDb::clearAnalysisDescriptions( std::string partition ) {
   
   // Reproduce temporary cache for "all partitions except specified one" (or clear all if none specified)
   AnalysisDescriptions temporary_cache;
-  if ( partition == ""  ) { temporary_cache = AnalysisDescriptions(); }
+  if ( partition.empty()  ) { temporary_cache = AnalysisDescriptions(); }
   else {
     SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
     SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
@@ -377,7 +377,7 @@ void SiStripConfigDb::clearAnalysisDescriptions( std::string partition ) {
   
   // Delete objects in local cache for specified partition (or all if not specified) 
   AnalysisDescriptionsRange anals = analyses_.emptyRange();
-  if ( partition == "" ) { 
+  if ( partition.empty() ) { 
     if ( !analyses_.empty() ) {
       anals = AnalysisDescriptionsRange( analyses_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
 					 analyses_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
@@ -396,7 +396,7 @@ void SiStripConfigDb::clearAnalysisDescriptions( std::string partition ) {
   } else {
     stringstream ss; 
     ss << "[SiStripConfigDb::" << __func__ << "]";
-    if ( partition == "" ) { ss << " Found no analysis descriptions in local cache!"; }
+    if ( partition.empty() ) { ss << " Found no analysis descriptions in local cache!"; }
     else { ss << " Found no analysis descriptions in local cache for partition \"" << partition << "\"!"; }
     edm::LogWarning(mlConfigDb_) << ss.str(); 
   }
@@ -422,7 +422,7 @@ void SiStripConfigDb::printAnalysisDescriptions( std::string partition ) {
   for ( ; ianal != janal; ++ianal ) {
 
     cntr++;
-    if ( partition == "" || partition == ianal->first ) {
+    if ( partition.empty() || partition == ianal->first ) {
       
       ss << "  Partition number : " << cntr << " (out of " << analyses_.size() << ")" << std::endl;
       ss << "  Partition name   : \"" << ianal->first << "\"" << std::endl;
