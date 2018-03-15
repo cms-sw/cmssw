@@ -119,6 +119,60 @@
       hgcalcell:HGCalEECellCorner14Coarse2,hgcalcell:HGCalEECellCorner15Coarse2,
       hgcalcell:HGCalEECellCorner16Coarse2</Vector>
   </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWafer8">
+    <rParent name="hgcalwafer:HGCalHEWafer0Fine"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="WaferThick"       value="[WaferThickness]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="MouseBite"        value="[MouseBite]"/>
+    <Numeric name="NCells"           value="[NumberOfCellsFine]"/>
+    <Numeric name="CellType"         value="0"/>
+    <String name="Material"          value="materials:Air"/>
+    <Vector name="CellNames" type="string" nEntries="13">
+      hgcalcell:HGCalHECellFull0Fine,   hgcalcell:HGCalHECellTrunc01Fine,
+      hgcalcell:HGCalHECellTrunc02Fine, hgcalcell:HGCalHECellTrunc03Fine,
+      hgcalcell:HGCalHECellExten01Fine, hgcalcell:HGCalHECellExten02Fine,
+      hgcalcell:HGCalHECellExten03Fine, hgcalcell:HGCalHECellCorner01Fine, 
+      hgcalcell:HGCalHECellCorner02Fine,hgcalcell:HGCalHECellCorner03Fine,
+      hgcalcell:HGCalHECellCorner04Fine,hgcalcell:HGCalHECellCorner05Fine,
+      hgcalcell:HGCalHECellCorner06Fine</Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWafer8">
+    <rParent name="hgcalwafer:HGCalHEWafer0Coarse1"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="WaferThick"       value="[WaferThickness]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="MouseBite"        value="[MouseBite]"/>
+    <Numeric name="NCells"           value="[NumberOfCellsCoarse]"/>
+    <Numeric name="CellType"         value="1"/>
+    <String name="Material"          value="materials:Air"/>
+    <Vector name="CellNames" type="string" nEntries="13">
+      hgcalcell:HGCalHECellFull0Coarse1,   hgcalcell:HGCalHECellTrunc01Coarse1,
+      hgcalcell:HGCalHECellTrunc02Coarse1, hgcalcell:HGCalHECellTrunc03Coarse1,
+      hgcalcell:HGCalHECellExten01Coarse1, hgcalcell:HGCalHECellExten02Coarse1,
+      hgcalcell:HGCalHECellExten03Coarse1, hgcalcell:HGCalHECellCorner01Coarse1, 
+      hgcalcell:HGCalHECellCorner02Coarse1,hgcalcell:HGCalHECellCorner03Coarse1,
+      hgcalcell:HGCalHECellCorner04Coarse1,hgcalcell:HGCalHECellCorner05Coarse1,
+      hgcalcell:HGCalHECellCorner06Coarse1</Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWafer8">
+    <rParent name="hgcalwafer:HGCalHEWafer0Coarse2"/>
+    <Numeric name="WaferSize"        value="[WaferSize]"/>
+    <Numeric name="WaferThick"       value="[WaferThickness]"/>
+    <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
+    <Numeric name="MouseBite"        value="[MouseBite]"/>
+    <Numeric name="NCells"           value="[NumberOfCellsCoarse]"/>
+    <Numeric name="CellType"         value="2"/>
+    <String name="Material"          value="materials:Air"/>
+    <Vector name="CellNames" type="string" nEntries="13">
+      hgcalcell:HGCalHECellFull0Coarse2,   hgcalcell:HGCalHECellTrunc01Coarse2,
+      hgcalcell:HGCalHECellTrunc02Coarse2, hgcalcell:HGCalHECellTrunc03Coarse2,
+      hgcalcell:HGCalHECellExten01Coarse2, hgcalcell:HGCalHECellExten02Coarse2,
+      hgcalcell:HGCalHECellExten03Coarse2, hgcalcell:HGCalHECellCorner01Coarse2, 
+      hgcalcell:HGCalHECellCorner02Coarse2,hgcalcell:HGCalHECellCorner03Coarse2,
+      hgcalcell:HGCalHECellCorner04Coarse2,hgcalcell:HGCalHECellCorner05Coarse2,
+      hgcalcell:HGCalHECellCorner06Coarse2</Vector>
+  </Algorithm>
 </PosPartSection>
 
 </DDDefinition>
