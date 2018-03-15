@@ -270,6 +270,41 @@ mu8diEle12CaloIdLTrackIdL_dz.nmuons = cms.uint32(1)
 mu8diEle12CaloIdLTrackIdL_dz.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_DZ_v*")
 mu8diEle12CaloIdLTrackIdL_dz.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v*")
 
+##ggH triggers##
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring = hltBTVmonitoring.clone()
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.FolderName = cms.string('HLT/Higgs/ggHbb/CSV04/')
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.nmuons = cms.uint32(0)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.nelectrons = cms.uint32(0)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.njets = cms.uint32(1)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.jets = cms.InputTag("ak8PFJetsCHS")
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.jetSelection = cms.string('pt>300 & abs(eta)<2.4')
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.bjetSelection = cms.string('pt>300 & abs(eta)<2.4')
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_AK8PFJet330_TrimMass30_PFAK8BTagCSV_p1_v*')
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.jetPtBinning = cms.vdouble(0,300,310,330,350,370,400,450,500,700,1000,1500,3000)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.lsPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.htPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.ptPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.histoPSet.etaPSet = cms.PSet(
+  nbins = cms.uint32( 1 ),
+  xmin  = cms.double(   0   ),
+  xmax  = cms.double(   1   ),
+)
+
+
+AK8PFJet330_TrimMass30_CSV03_PromptMonitoring = AK8PFJet330_TrimMass30_CSV04_PromptMonitoring.clone()
+AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.FolderName = cms.string('HLT/Higgs/ggHbb/CSV03/')
+AK8PFJet330_TrimMass30_CSV03_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_AK8PFJet330_TrimMass30_PFAK8BTagCSV_p17_v*')
+
 ##VBF triggers##
 QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1 = hltTOPmonitoring.clone()
 QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1.FolderName= cms.string('HLT/Higgs/VBFHbb/HLT_QuadPFJet98_83_71_15_DoubleBTagCSV_p013_p08_VBF1_v')
@@ -476,6 +511,8 @@ higHLTDQMSourceExtra = cms.Sequence(
   + PFMET130_PFMHT130_IDTight_CaloBTagCSV_3p1_TOPmonitoring
   + PFMET140_PFMHT140_IDTight_CaloBTagCSV_3p1_METmonitoring
   + PFMET140_PFMHT140_IDTight_CaloBTagCSV_3p1_TOPmonitoring
+  + AK8PFJet330_TrimMass30_CSV04_PromptMonitoring
+  + AK8PFJet330_TrimMass30_CSV03_PromptMonitoring
   + QuadPFJet98_83_71_15_BTagCSV_p013_VBF1
   + QuadPFJet103_88_75_15_BTagCSV_p013_VBF1
   + QuadPFJet105_88_76_15_BTagCSV_p013_VBF1
