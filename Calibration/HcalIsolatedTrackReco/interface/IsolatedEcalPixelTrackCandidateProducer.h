@@ -23,6 +23,8 @@ public:
   explicit IsolatedEcalPixelTrackCandidateProducer(const edm::ParameterSet&);
   ~IsolatedEcalPixelTrackCandidateProducer() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 

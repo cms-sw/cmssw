@@ -54,6 +54,23 @@ IsolatedEcalPixelTrackCandidateProducer::IsolatedEcalPixelTrackCandidateProducer
 
 IsolatedEcalPixelTrackCandidateProducer::~IsolatedEcalPixelTrackCandidateProducer() { }
 
+void IsolatedEcalPixelTrackCandidateProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("filterLabel",edm::InputTag("hltIsolPixelTrackL2Filter"));
+  desc.add<edm::InputTag>("EBRecHitSource",edm::InputTag("hltEcalRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("EERecHitSource",edm::InputTag("hltEcalRecHit", "EcalRecHitsEE"));
+  desc.add<double>("EBHitEnergyThreshold",0.10);
+  desc.add<double>("EBHitCountEnergyThreshold",0.5);
+  desc.add<double>("EEHitEnergyThreshold0",-20.5332);
+  desc.add<double>("EEHitEnergyThreshold1",34.3975);
+  desc.add<double>("EEHitEnergyThreshold2",-19.0741);
+  desc.add<double>("EEHitEnergyThreshold3",3.52151);
+  desc.add<double>("EEFacHitCountEnergyThreshold",10.0);
+  desc.add<double>("EcalConeSizeEta0",0.09);
+  desc.add<double>("EcalConeSizeEta1",0.14);
+  descriptions.add("isolEcalPixelTrackProd",desc);
+}
+
 // ------------ method called to produce the data  ------------
 void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 #ifdef EDM_ML_DEBUG
