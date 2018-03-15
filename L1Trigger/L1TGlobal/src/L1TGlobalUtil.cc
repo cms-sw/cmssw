@@ -263,35 +263,6 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
 
 	   (m_prescales[algBit]).first  = algName;
 	   (m_prescales[algBit]).second = prescaleSet[algBit];
-
-	   LogDebug("l1t|Global") << "Number of bunch crossings stored: " <<  (*m_triggerMaskAlgoTrig).size() << endl;
-
-	   const std::map<int, std::vector<int> >* triggerAlgoMaskAlgoTrig = m_triggerMaskAlgoTrig;
-	   std::map<int, std::vector<int> >::const_iterator it=triggerAlgoMaskAlgoTrig->begin();
-
-	   std::vector<int> maskedBxs;
-	   (m_masks[algBit]).first  = algName;
-	   (m_masks[algBit]).second = maskedBxs;
-
-	   while(it != triggerAlgoMaskAlgoTrig->end())
-	     {
-	       std::vector<int> masks = it->second;
-	       //std::cout<< "BX: " << it->first<<" VecSize: "<< masks.size();
-	       //std::cout << "\tMasked algos: ";
-	       for ( unsigned int imask=0; imask< masks.size(); imask++){
-		 if (masks.at(imask) == algBit) maskedBxs.push_back(it->first);
-		 // std::cout << "\t" << masks.at(imask);
-	       }
-	       it++;
-	     }
-
-	   if (!maskedBxs.empty()){
-	     LogDebug("l1t|Global") << "Algo: "<< algBit << "\t" << algName << " masked\n";
-	     for ( unsigned int ibx=0; ibx< maskedBxs.size(); ibx++){
-	       // std::cout << "\t" << maskedBxs.at(ibx);
-	       (m_masks[algBit]).second = maskedBxs;
-	     }
-	   }
 	 }
        } else {
 	 //cout << "Error empty AlgBlk recovered.\n";
