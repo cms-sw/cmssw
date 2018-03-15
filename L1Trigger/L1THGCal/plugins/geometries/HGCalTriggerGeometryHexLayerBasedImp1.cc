@@ -575,14 +575,12 @@ fillMaps()
     std::cout << "cells_to_trigger_cells_bh_ size: " << cells_to_trigger_cells_bh_.size() << std::endl;
 
     std::cout << "About to read " << l1tTriggerTowerMapping_.fullPath() << std::endl;
-    // FIXME: remove the index since it is not used
-    unsigned id = 0;
     unsigned trigger_cell_id = 0;
     unsigned short ix = 0;
     unsigned short iy = 0;
 
     std::set<unsigned short> tt_ids;
-    for(; l1tTriggerTowerMappingStream >> id >> trigger_cell_id >> ix >> iy;) {
+    for(; l1tTriggerTowerMappingStream >> trigger_cell_id >> ix >> iy;) {
       // std::cout << trigger_cell_id << " " << ix << " " << iy << std::endl;
       HGCalDetId detId(trigger_cell_id);
       int zside = detId.zside();
