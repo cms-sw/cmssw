@@ -17,6 +17,8 @@
 
 class SimpleHBHEPhase1Algo : public AbsHBHEPhase1Algo
 {
+  friend class SimpleHBHEPhase1AlgoDebug;
+
 public:
     // Constructor arguments:
     //

@@ -9,6 +9,7 @@
 
 // Phase 1 HBHE reco algorithm headers
 #include "RecoLocalCalo/HcalRecAlgos/interface/SimpleHBHEPhase1Algo.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/SimpleHBHEPhase1AlgoDebug.h"
 
 static std::unique_ptr<MahiFit>
 parseHBHEMahiDescription(const edm::ParameterSet& conf)
@@ -108,10 +109,38 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
         std::unique_ptr<HcalDeterministicFit> detFit;
 
 	// only run Mahi OR Method 2 but not both
-	if (ps.getParameter<bool>("useMahi") && ps.getParameter<bool>("useM2")) {
-          throw cms::Exception("ConfigurationError") <<
-            "SimpleHBHEPhase1Algo does not allow both Mahi and Method 2 to be turned on together.";
-        }
+	//if (ps.getParameter<bool>("useMahi") && ps.getParameter<bool>("useM2")) {
+        //  throw cms::Exception("ConfigurationError") <<
+        //    "SimpleHBHEPhase1Algo does not allow both Mahi and Method 2 to be turned on together.";
+        //}
+	if (ps.getParameter<bool>("useMahi"))
+	  mahi = parseHBHEMahiDescription(ps);
+	if (ps.getParameter<bool>("useM2"))
+	  m2 = parseHBHEMethod2Description(ps);
+	if (ps.getParameter<bool>("useM3"))
+	  detFit = parseHBHEMethod3Description(ps);
+	
+        algo = std::unique_ptr<AbsHBHEPhase1Algo>(
+            new SimpleHBHEPhase1Algo(ps.getParameter<int>   ("firstSampleShift"),
+                                     ps.getParameter<int>   ("samplesToAdd"),
+                                     ps.getParameter<double>("correctionPhaseNS"),
+                                     ps.getParameter<double>("tdcTimeShift"),
+                                     ps.getParameter<bool>  ("correctForPhaseContainment"),
+                                     std::move(m2), std::move(detFit), std::move(mahi))
+						  );
+    }
+
+    else if (className == "SimpleHBHEPhase1AlgoDebug") {
+	
+	std::unique_ptr<MahiFit> mahi;
+	std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2;
+	std::unique_ptr<HcalDeterministicFit> detFit;
+
+	// only run Mahi OR Method 2 but not both
+	//if (ps.getParameter<bool>("useMahi") && ps.getParameter<bool>("useM2")) {
+        //  throw cms::Exception("ConfigurationError") <<
+        //    "SimpleHBHEPhase1Algo does not allow both Mahi and Method 2 to be turned on together.";
+        //}
 	if (ps.getParameter<bool>("useMahi"))
 	  mahi = parseHBHEMahiDescription(ps);
 	if (ps.getParameter<bool>("useM2"))
@@ -120,13 +149,13 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
 	  detFit = parseHBHEMethod3Description(ps);
 
         algo = std::unique_ptr<AbsHBHEPhase1Algo>(
-            new SimpleHBHEPhase1Algo(ps.getParameter<int>   ("firstSampleShift"),
-                                     ps.getParameter<int>   ("samplesToAdd"),
-                                     ps.getParameter<double>("correctionPhaseNS"),
-                                     ps.getParameter<double>("tdcTimeShift"),
-                                     ps.getParameter<bool>  ("correctForPhaseContainment"),
-                                     std::move(m2), std::move(detFit), std::move(mahi))
-            );
+						  new SimpleHBHEPhase1Algo(ps.getParameter<int>   ("firstSampleShift"),
+									   ps.getParameter<int>   ("samplesToAdd"),
+									   ps.getParameter<double>("correctionPhaseNS"),
+									   ps.getParameter<double>("tdcTimeShift"),
+									   ps.getParameter<bool>  ("correctForPhaseContainment"),
+									   std::move(m2), std::move(detFit), std::move(mahi))
+						  );
     }
 
     return algo;
