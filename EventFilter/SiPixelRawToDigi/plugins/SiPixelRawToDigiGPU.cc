@@ -176,9 +176,6 @@ SiPixelRawToDigiGPU::SiPixelRawToDigiGPU( const edm::ParameterSet& conf )
   cudaCheck(cudaMallocHost(&error_h_tmp, vsize));
   cudaCheck(cudaMallocHost(&data_h, MAX_FED*MAX_WORD*esize));
 
-  cudaMallocHost(&mIndexStart_h, sizeof(int)*(NMODULE+1));
-  cudaMallocHost(&mIndexEnd_h,   sizeof(int)*(NMODULE+1));
-
   // allocate memory for RawToDigi on GPU
   context_ = initDeviceMemory();
 
@@ -210,8 +207,6 @@ SiPixelRawToDigiGPU::~SiPixelRawToDigiGPU() {
   cudaFreeHost(error_h);
   cudaFreeHost(error_h_tmp);
   cudaFreeHost(data_h);
-  cudaFreeHost(mIndexStart_h);
-  cudaFreeHost(mIndexEnd_h);
 
   // release device memory for cabling map
   deallocateCablingMap(cablingMapGPUHost_, cablingMapGPUDevice_);
