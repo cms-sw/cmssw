@@ -14,6 +14,8 @@
 <use   name="DataFormats/L1TGlobal"/>
 <use   name="IOPool/Provenance"/>
 <use   name="DQMServices/Core"/>
+<use   name="CondFormats/BTauObjects"/>
+<use   name="CondTools/BTau"/>
 <library   file="*.cc" name="PhysicsToolsNanoAODPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
