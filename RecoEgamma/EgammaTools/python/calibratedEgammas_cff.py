@@ -8,8 +8,8 @@ calibratedEgammaSettings = cms.PSet(minEtToCalibrate = cms.double(5.0),
                                     produceCalibratedObjs = cms.bool(True)
                                     )
 calibratedEgammaPatSettings = calibratedEgammaSettings.clone(
-    recHitCollectionEB = cms.InputTag('reducedEcalRecHitsEB'),
-    recHitCollectionEE = cms.InputTag('reducedEcalRecHitsEE'),
+    recHitCollectionEB = cms.InputTag('reducedEgamma','reducedEBRecHits'),
+    recHitCollectionEE = cms.InputTag('reducedEgamma','reducedEERecHits')
     )
 
 ecalTrkCombinationRegression = cms.PSet(
