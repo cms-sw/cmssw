@@ -28,12 +28,13 @@ CalibrationAlgorithm::CalibrationAlgorithm( const edm::ParameterSet & pset, Cali
   deconv_fitter_ = new TF1("deconv_fitter",fdeconv,0,200,6);
   deconv_fitter_->SetParLimits(0,1,70); //x
   deconv_fitter_->SetParLimits(1,0,40); //z = tau
-  deconv_fitter_->SetParLimits(4,35,55); // turn-on-time t_0
-  deconv_fitter_->SetParameters(1,25,0.8000,50,0.8);
+  deconv_fitter_->SetParLimits(4,15,55); // turn-on-time t_0
+  deconv_fitter_->SetParameters(2,25,0.8000,50,40);
+
   peak_fitter_ = new TF1("peak_fitter",fpeak,0,200,5);
   peak_fitter_->SetParLimits(0,1,70); //x
   peak_fitter_->SetParLimits(1,20,70);//z = tau
-  peak_fitter_->SetParLimits(4,20,35); //turn-on-time t_0
+  peak_fitter_->SetParLimits(4,15,35); //turn-on-time t_0
   peak_fitter_->SetParameters(17,50,0,5000,20);
 }
 

@@ -68,6 +68,9 @@ void CalibrationHistograms::histoAnalysis( bool debug ) {
   data().clear();
   
   // Iterate through map containing vectors of profile histograms
+  long int iChannel = 0;
+  long int total = histos().size();
+
   HistosMap::const_iterator iter = histos().begin();
   for ( ; iter != histos().end(); iter++ ) {
     // Check vector of histos is not empty (should be 1 histo)
@@ -77,6 +80,10 @@ void CalibrationHistograms::histoAnalysis( bool debug ) {
  	   << " Zero collation histograms found!";
       continue;
     }
+    
+    std::cout.flush();
+    if(iChannel %10 == 0) std::cout<<"\r"<<"CalibrationHistograms::histoAnalysis: Channel analyzed "<<100*double(iChannel)/(total)<<" % ";
+    iChannel++;    
     
     // Retrieve pointers to 1D histos for this FED channel 
     vector<TH1*> profs;
