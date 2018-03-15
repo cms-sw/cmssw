@@ -1,10 +1,10 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -30,8 +30,7 @@ namespace edm {
     void beginRun(const edm::Run& run, const edm::EventSetup& ES) override;
     void initializeEvent(const edm::Event &e, const edm::EventSetup& ES) override;
     void addSignals(const edm::Event &e, const edm::EventSetup& ES) override;
-    void addPileups(int bcr, const edm::EventPrincipal&, int EventId,
-                    const edm::EventSetup& ES, edm::ModuleCallingContext const*) override;
+    void addPileups(const PileUpEventPrincipal&, const edm::EventSetup& ES) override;
     void put(edm::Event &e,const edm::EventSetup& ES, std::vector<PileupSummaryInfo> const& ps, int bs) override;
 
 
@@ -129,9 +128,9 @@ namespace edm {
     myHcalDigitizer_.accumulate(e, ES);
   }
 
-  void PreMixingHcalWorker::addPileups(int bcr, const EventPrincipal& ep, int eventNr,const edm::EventSetup& ES,
-                                       edm::ModuleCallingContext const* mcc) {
-    LogDebug("PreMixingHcalWorker") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
+  void PreMixingHcalWorker::addPileups(const PileUpEventPrincipal& pep, const edm::EventSetup& ES) {
+    const auto& ep = pep.principal();
+    LogDebug("PreMixingHcalWorker") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<pep.bunchCrossing();
 
     theHBHESignalGenerator.initializeEvent(&ep, &ES);
     theHOSignalGenerator.initializeEvent(&ep, &ES);
@@ -142,6 +141,7 @@ namespace edm {
 
     // put digis from pileup event into digitizer
 
+    const auto *mcc = pep.moduleCallingContext();
     theHBHESignalGenerator.fill(mcc);
     theHOSignalGenerator.fill(mcc);
     theHFSignalGenerator.fill(mcc);

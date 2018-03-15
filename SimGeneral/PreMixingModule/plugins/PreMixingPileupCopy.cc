@@ -2,8 +2,11 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 
 #include <memory>
 
@@ -23,33 +26,32 @@ namespace edm {
     }
   }
 	       
-  void PreMixingPileupCopy::addPileupInfo(const EventPrincipal& ep, unsigned int eventNr, ModuleCallingContext const* mcc) {
+  void PreMixingPileupCopy::addPileupInfo(const PileUpEventPrincipal& pep) {
   
-    LogDebug("PreMixingPileupCopy") <<"\n===============> adding pileup Info from event  "<<ep.id();
+    LogDebug("PreMixingPileupCopy") <<"\n===============> adding pileup Info from event  "<<pep.principal().id();
 
     // find PileupSummaryInfo, CFPlayback information, if it's there
 
     // Pileup info first
+    edm::Handle<std::vector<PileupSummaryInfo>> pileupInfoHandle;
+    pep.getByLabel(pileupInfoInputTag_, pileupInfoHandle);
 
-    std::shared_ptr<Wrapper< std::vector<PileupSummaryInfo> >  const> pileupInfoPTR =
-      getProductByTag<std::vector<PileupSummaryInfo>>(ep, pileupInfoInputTag_, mcc);
+    edm::Handle<int> bsHandle;
+    pep.getByLabel(bunchSpacingInputTag_, bsHandle);
 
-    std::shared_ptr<Wrapper< int >  const> bsPTR =
-      getProductByTag<int>(ep,bunchSpacingInputTag_, mcc);
-
-    if(pileupInfoPTR) {
-      pileupSummaryStorage_ = *(pileupInfoPTR->product());
+    if(pileupInfoHandle.isValid()) {
+      pileupSummaryStorage_ = *pileupInfoHandle;
       LogDebug("PreMixingPileupCopy") << "PileupInfo Size: " << pileupSummaryStorage_.size();
     }
-    bsStorage_ = bsPTR ? *(bsPTR->product()) : 10000;
+    bsStorage_ = bsHandle.isValid() ? *bsHandle : 10000;
 
     // Gen. PU protons
-    std::shared_ptr<edm::Wrapper<std::vector<reco::GenParticle> > const> genPUProtonsPTR;
+    edm::Handle<std::vector<reco::GenParticle>> genPUProtonsHandle;
     for(const auto& tag: genPUProtonsInputTags_) {
-      genPUProtonsPTR = getProductByTag<std::vector<reco::GenParticle> >(ep, tag, mcc);
-      if(genPUProtonsPTR != nullptr) {
-        genPUProtons_.push_back(*(genPUProtonsPTR->product()));
-         genPUProtons_labels_.push_back(tag.label());
+      pep.getByLabel(tag, genPUProtonsHandle);
+      if(genPUProtonsHandle.isValid()) {
+        genPUProtons_.push_back(*genPUProtonsHandle);
+        genPUProtons_labels_.push_back(tag.label());
       }
       else {
         edm::LogWarning("PreMixingPileupCopy") << "Missing product with label: " << tag.label();
@@ -57,11 +59,11 @@ namespace edm {
     }
 
     // Playback
-    std::shared_ptr<Wrapper<CrossingFramePlaybackInfoNew>  const> playbackPTR =
-      getProductByTag<CrossingFramePlaybackInfoNew>(ep,cfPlaybackInputTag_, mcc);
+    edm::Handle<CrossingFramePlaybackInfoNew> playbackHandle;
+    pep.getByLabel(cfPlaybackInputTag_, playbackHandle);
     foundPlayback_ = false;
-    if(playbackPTR ) {
-      crossingFramePlaybackStorage_ = *(playbackPTR->product());
+    if(playbackHandle.isValid()) {
+      crossingFramePlaybackStorage_ = *playbackHandle;
       foundPlayback_ = true;
     }
   }

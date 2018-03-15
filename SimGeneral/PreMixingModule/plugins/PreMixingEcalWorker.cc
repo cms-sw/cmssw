@@ -1,10 +1,10 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -29,7 +29,7 @@ namespace edm {
 
     void initializeEvent(edm::Event const& e, edm::EventSetup const& ES) override;
     void addSignals(edm::Event const& e, edm::EventSetup const& ES) override;
-    void addPileups(int bcr, edm::EventPrincipal const& ep, int EventId, edm::EventSetup const& es, ModuleCallingContext const*) override;
+    void addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& es) override;
     void put(edm::Event &e, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bs) override;
 
   private:
@@ -95,19 +95,18 @@ namespace edm {
     myEcalDigitizer_.accumulate(e, ES);
   }
 
-  void PreMixingEcalWorker::addPileups(int bcr, const EventPrincipal& ep, int eventNr, const edm::EventSetup& ES,
-                                       edm::ModuleCallingContext const* mcc) {
+  void PreMixingEcalWorker::addPileups(const PileUpEventPrincipal& pep, const edm::EventSetup& ES) {
 
-    LogDebug("PreMixingEcalWorker") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
+    LogDebug("PreMixingEcalWorker") <<"\n===============> adding pileups from event  "<<pep.principal().id()<<" for bunchcrossing "<<pep.bunchCrossing();
 
-    theEBSignalGenerator.initializeEvent(&ep, &ES);
-    theEESignalGenerator.initializeEvent(&ep, &ES);
-    theESSignalGenerator.initializeEvent(&ep, &ES);
+    theEBSignalGenerator.initializeEvent(&pep.principal(), &ES);
+    theEESignalGenerator.initializeEvent(&pep.principal(), &ES);
+    theESSignalGenerator.initializeEvent(&pep.principal(), &ES);
 
     // add noise signals using incoming digis
-    theEBSignalGenerator.fill(mcc);
-    theEESignalGenerator.fill(mcc);
-    theESSignalGenerator.fill(mcc);
+    theEBSignalGenerator.fill(pep.moduleCallingContext());
+    theEESignalGenerator.fill(pep.moduleCallingContext());
+    theESSignalGenerator.fill(pep.moduleCallingContext());
   }
 
   void PreMixingEcalWorker::put(edm::Event &e,const edm::EventSetup& ES, std::vector<PileupSummaryInfo> const& ps, int bs) {

@@ -1,9 +1,9 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -19,7 +19,7 @@ namespace edm {
     
     void initializeEvent(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
     void addSignals(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-    void addPileups(int bcr, edm::EventPrincipal const& ep, int eventNr, edm::EventSetup const& iSetup, edm::ModuleCallingContext const *mcc) override;
+    void addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& iSetup) override;
     void put(edm::Event& iEvent, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bunchSpacing) override;
 
   private:
@@ -72,17 +72,17 @@ namespace edm {
     }
   }
 
-  void PreMixingTrackingParticleWorker::addPileups(int bcr, edm::EventPrincipal const& ep, int eventNr, edm::EventSetup const& iSetup, edm::ModuleCallingContext const *mcc) {
-    LogDebug("PreMixingTrackingParticleWorker") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
-                                                                                                                                    
-    std::shared_ptr<Wrapper<std::vector<TrackingParticle> >  const> inputPTR =
-      getProductByTag<std::vector<TrackingParticle> >(ep, TrackingParticlePileInputTag_, mcc);
+  void PreMixingTrackingParticleWorker::addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& iSetup) {
+    LogDebug("PreMixingTrackingParticleWorker") <<"\n===============> adding pileups from event  "<<pep.principal().id()<<" for bunchcrossing "<<pep.bunchCrossing();
 
-    std::shared_ptr<Wrapper<std::vector<TrackingVertex> >  const> inputVPTR =
-      getProductByTag<std::vector<TrackingVertex> >(ep, TrackingParticlePileInputTag_, mcc);
+    edm::Handle<std::vector<TrackingParticle>> inputHandle;
+    pep.getByLabel(TrackingParticlePileInputTag_, inputHandle);
 
-    if(inputPTR && inputVPTR) {
-      add(*(inputPTR->product()), *(inputVPTR->product()));
+    edm::Handle<std::vector<TrackingVertex>> inputVHandle;
+    pep.getByLabel(TrackingParticlePileInputTag_, inputVHandle);
+
+    if(inputHandle.isValid() && inputVHandle.isValid()) {
+      add(*inputHandle, *inputVHandle);
     }
   }
 

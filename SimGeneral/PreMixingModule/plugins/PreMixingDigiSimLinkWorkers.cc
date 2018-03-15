@@ -3,6 +3,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
@@ -22,7 +23,7 @@ namespace edm {
 
     void initializeEvent(edm::Event const& iEvent, edm::EventSetup const& iSetup) override {}
     void addSignals(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-    void addPileups(int bcr, edm::EventPrincipal const& ep, int eventNr, edm::EventSetup const& iSetup, edm::ModuleCallingContext const *mcc) override;
+    void addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& iSetup) override;
     void put(edm::Event& iEvent, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bunchSpacing) override;
     
   private:
@@ -56,10 +57,11 @@ namespace edm {
   }
 
   template <typename DigiSimLinkCollection>
-  void PreMixingDigiSimLinkWorker<DigiSimLinkCollection>::addPileups(int bcr, edm::EventPrincipal const& ep, int eventNr, edm::EventSetup const& iSetup, edm::ModuleCallingContext const *mcc) {
-    std::shared_ptr<Wrapper<DigiSimLinkCollection>  const> digisPTR = getProductByTag<DigiSimLinkCollection>(ep, pileupTag_, mcc);
-    if(digisPTR) {
-      for(const auto& detsetSource: *(digisPTR->product())) {
+  void PreMixingDigiSimLinkWorker<DigiSimLinkCollection>::addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& iSetup) {
+    edm::Handle<DigiSimLinkCollection> digis;
+    pep.getByLabel(pileupTag_, digis);
+    if(digis.isValid()) {
+      for(const auto& detsetSource: *digis) {
         auto& detsetTarget = merged_->find_or_insert(detsetSource.detId());
         std::copy(detsetSource.begin(), detsetSource.end(), std::back_inserter(detsetTarget));
       }
@@ -73,10 +75,11 @@ namespace edm {
 
   // Specialize for DT
   template <>
-  void PreMixingDigiSimLinkWorker<DTDigiSimLinkCollection>::addPileups(int bcr, edm::EventPrincipal const& ep, int eventNr, edm::EventSetup const& iSetup, edm::ModuleCallingContext const *mcc) {
-    std::shared_ptr<Wrapper<DTDigiSimLinkCollection> const> digisPTR = getProductByTag<DTDigiSimLinkCollection>(ep, pileupTag_, mcc);
-    if(digisPTR) {
-      for(const auto& elem: *(digisPTR->product())) {
+  void PreMixingDigiSimLinkWorker<DTDigiSimLinkCollection>::addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& iSetup) {
+    edm::Handle<DTDigiSimLinkCollection> digis;
+    pep.getByLabel(pileupTag_, digis);
+    if(digis.isValid()) {
+      for(const auto& elem: *digis) {
         merged_->put(elem.second, elem.first);
       }
     }
