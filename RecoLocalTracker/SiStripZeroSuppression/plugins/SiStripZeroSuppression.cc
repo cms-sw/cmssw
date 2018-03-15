@@ -16,15 +16,16 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
   : inputTags(conf.getParameter<std::vector<edm::InputTag> >("RawDigiProducersList")),
     algorithms(SiStripRawProcessingFactory::create(conf.getParameter<edm::ParameterSet>("Algorithms"))),
     storeCM(conf.getParameter<bool>("storeCM")),
-    mergeCollections(conf.getParameter<bool>("mergeCollections")),
-    produceHybridFormat(conf.getParameter<bool>("produceHybridFormat")),
-    produceRawDigis(conf.getParameter<bool>("produceRawDigis")),
-    produceCalculatedBaseline(conf.getParameter<bool>("produceCalculatedBaseline")),
-    produceBaselinePoints(conf.getParameter<bool>("produceBaselinePoints")),
-    storeInZScollBadAPV(conf.getParameter<bool>("storeInZScollBadAPV")),
-    fixCM(conf.getParameter<bool>("fixCM"))
-	
+    mergeCollections(conf.getParameter<bool>("mergeCollections"))
+    
 {
+   
+	produceRawDigis= conf.getParameter<bool>("produceRawDigis");
+    produceCalculatedBaseline=conf.getParameter<bool>("produceCalculatedBaseline");
+    produceBaselinePoints=conf.getParameter<bool>("produceBaselinePoints");
+    storeInZScollBadAPV=conf.getParameter<bool>("storeInZScollBadAPV");
+    fixCM=conf.getParameter<bool>("fixCM");
+    produceHybridFormat=conf.getParameter<bool>("produceHybridFormat");	 
    
   if(produceHybridFormat){
    mergeCollections = false;
@@ -126,18 +127,15 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
       int16_t nAPVflagged = 0;
         
       if ( "ProcessedRaw" == inputTag.instance()) {
-      	if(!produceHybridFormat) nAPVflagged = algorithms->SuppressProcessedRawData(*rawDigis, suppressedDigis);
-      	else 
-      	throw cms::Exception("Processed Raw Cannot be converted in hibryd Format") 
-	<< SiStripZeroZuppression can only process types \"VirginRaw\" and \"ProcessedRaw\" ";
+    	nAPVflagged = algorithms->SuppressProcessedRawData(*rawDigis, suppressedDigis);
+      	if(produceHybridFormat) throw cms::Exception("Processed Raw Cannot be converted in hibryd Format") << "SiStripZeroZuppression can only process types \"VirginRaw\" and \"ProcessedRaw\" ";
       }	
       else if ( "VirginRaw" == inputTag.instance()){
        if(!produceHybridFormat) nAPVflagged = algorithms->SuppressVirginRawData(*rawDigis, suppressedDigis); 
-       	else nAPVflagged = algorithms->ConvertToHybridVirginRawData(*rawDigis, suppressedDigis); 
+       	else nAPVflagged = algorithms->ConvertVirginRawToHybrid(*rawDigis, suppressedDigis); 
       }
       else     
-      throw cms::Exception("Unknown input type") 
-	<< inputTag.instance() << " unknown.  SiStripZeroZuppression can only process types \"VirginRaw\" and \"ProcessedRaw\" ";
+      throw cms::Exception("Unknown input type") << inputTag.instance() << " unknown.  SiStripZeroZuppression can only process types \"VirginRaw\" and \"ProcessedRaw\" ";
 
       //here storing the output
       this->storeExtraOutput(rawDigis->id, nAPVflagged);
