@@ -101,6 +101,8 @@ class HBHEReconstructionDebugger : public edm::one::EDAnalyzer<edm::one::SharedR
   int evt;
   int ls;
 
+  int nBxTrain;
+
   int ieta;
   int iphi;
   int depth;
@@ -172,6 +174,9 @@ void HBHEReconstructionDebugger::analyze(const edm::Event& iEvent, const edm::Ev
    evt = iEvent.id().event();
    ls = iEvent.id().luminosityBlock();
 
+   edm::EventBase const & eventbase = iEvent;
+   nBxTrain = int(eventbase.bunchCrossing());
+
    Handle<HBHEChannelInfoCollection> hChannelInfo;
    iEvent.getByToken(token_ChannelInfo_, hChannelInfo);
 
@@ -239,6 +244,8 @@ HBHEReconstructionDebugger::beginJob()
   outTree->Branch("run",  &run,  "run/I");
   outTree->Branch("evt",  &evt,  "evt/I");
   outTree->Branch("ls",  &ls,  "ls/I");
+  outTree->Branch("nBxTrain",  &nBxTrain, "nBxTrain/I");
+
   outTree->Branch("ieta",  &ieta,  "ieta/I");
   outTree->Branch("iphi",  &iphi,  "iphi/I");
   outTree->Branch("depth", &depth, "depth/I");
