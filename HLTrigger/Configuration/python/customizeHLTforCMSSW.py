@@ -17,6 +17,45 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
+
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import recHitEnergyNorms2018,seedFinderThresholdsByDetector2018,initialClusteringStepThresholdsByDetector2018,logWeightDenominatorByDetector2018
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import logWeightDenominatorByDetector2018 as logWeightDenominatorByDetector2018_HCAL
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHE_cfi import cuts2018
+
+def customiseForUncollapsed(process):
+    for producer in producers_by_type(process, "PFClusterProducer"):
+        if producer.seedFinder.thresholdsByDetector[1].detector.value() == 'HCAL_ENDCAP':
+            producer.pfClusterBuilder.recHitEnergyNorms                  = recHitEnergyNorms2018
+            producer.seedFinder.thresholdsByDetector                     = seedFinderThresholdsByDetector2018
+            producer.initialClusteringStep.thresholdsByDetector          = initialClusteringStepThresholdsByDetector2018
+            producer.pfClusterBuilder.positionCalc.logWeightDenominatorByDetector         = logWeightDenominatorByDetector2018
+            producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector = logWeightDenominatorByDetector2018
+
+    for producer in producers_by_type(process, "PFMultiDepthClusterProducer"):
+        producer.pfClusterBuilder.allCellsPositionCalc.logWeightDenominatorByDetector = logWeightDenominatorByDetector2018_HCAL
+    
+    for producer in producers_by_type(process, "PFRecHitProducer"):
+        if producer.producers[0].name.value() == 'PFHBHERecHitCreator':
+            producer.producers[0].qualityTests[0].cuts = cuts2018
+    
+    for producer in producers_by_type(process, "CaloTowersCreator"):
+        producer.HcalPhase     = cms.int32(1)
+        producer.HESThreshold1 = cms.double(0.1)
+        producer.HESThreshold  = cms.double(0.2)
+        producer.HEDThreshold1 = cms.double(0.1)
+        producer.HEDThreshold  = cms.double(0.2)
+
+
+    #remove collapser from sequence
+    process.hltHbhereco = process.hltHbhePhase1Reco.clone()
+    process.HLTDoLocalHcalSequence = cms.Sequence( process.hltHcalDigis + process.hltHbhereco + process.hltHfprereco + process.hltHfreco + process.hltHoreco )
+
+
+    return process    
+
+
+
+
 def customiseFor21664_forMahiOn(process):
     for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
         producer.algorithm.useMahi   = cms.bool(True)
