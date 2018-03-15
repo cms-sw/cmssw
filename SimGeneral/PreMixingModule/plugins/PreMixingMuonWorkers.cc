@@ -1,9 +1,9 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -30,14 +30,11 @@ namespace edm {
 
     void initializeEvent(edm::Event const& iEvent, edm::EventSetup const& iSetup) override {}
     void addSignals(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-    void addPileups(int bcr, edm::EventPrincipal const& ep, int eventNr, edm::EventSetup const& iSetup, edm::ModuleCallingContext const *mcc) override {
-      addPileups(ep, mcc);
-    }
+    void addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& iSetup) override;
     void put(edm::Event& iEvent, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bunchSpacing) override {
       put(iEvent);
     }
 
-    void addPileups(edm::EventPrincipal const& ep, edm::ModuleCallingContext const *mcc);
     void put(edm::Event& iEvent);
   private:
     edm::EDGetTokenT<DigiCollection> signalToken_;
@@ -65,9 +62,10 @@ namespace edm {
   }
 
   template <typename DigiCollection>
-  void PreMixingMuonWorker<DigiCollection>::addPileups(edm::EventPrincipal const& ep, edm::ModuleCallingContext const *mcc) {
-    std::shared_ptr<Wrapper<DigiCollection>  const> digisPTR =  getProductByTag<DigiCollection>(ep, pileupTag_, mcc);
-    for(const auto& elem: *(digisPTR->product())) {
+  void PreMixingMuonWorker<DigiCollection>::addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& iSetup) {
+    edm::Handle<DigiCollection> digis;
+    pep.getByLabel(pileupTag_, digis);
+    for(const auto& elem: *digis) {
       accumulated_->put(elem.second, elem.first);
     }
   }
@@ -185,10 +183,10 @@ namespace edm {
       comparatorWorker_.addSignals(iEvent, iSetup);
     }
 
-    void addPileups(int bcr, edm::EventPrincipal const& ep, int eventNr, edm::EventSetup const& iSetup, edm::ModuleCallingContext const *mcc) override {
-      stripWorker_.addPileups(ep, mcc);
-      wireWorker_.addPileups(ep, mcc);
-      comparatorWorker_.addPileups(ep, mcc);
+    void addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& iSetup) override {
+      stripWorker_.addPileups(pep, iSetup);
+      wireWorker_.addPileups(pep, iSetup);
+      comparatorWorker_.addPileups(pep, iSetup);
     }
 
     void put(edm::Event& iEvent, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bunchSpacing) override {

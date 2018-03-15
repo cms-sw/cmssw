@@ -1,11 +1,11 @@
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 
@@ -48,7 +48,7 @@ namespace edm {
 
     void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
     void addSignals(edm::Event const& e, edm::EventSetup const& es) override;
-    void addPileups(int bcr, edm::EventPrincipal const& ep, int EventId, edm::EventSetup const& es, ModuleCallingContext const*) override;
+    void addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& es) override;
     void put(edm::Event &e, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bs) override;
 
   private:
@@ -270,23 +270,22 @@ namespace edm {
 
 
 
-  void PreMixingSiStripWorker::addPileups(int bcr, edm::EventPrincipal const& ep, int EventId, edm::EventSetup const& es, ModuleCallingContext const* mcc) {
-    LogDebug("PreMixingSiStripWorker") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
+  void PreMixingSiStripWorker::addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& es) {
+    LogDebug("PreMixingSiStripWorker") <<"\n===============> adding pileups from event  "<<pep.principal().id()<<" for bunchcrossing "<<pep.bunchCrossing();
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
-    std::shared_ptr<Wrapper<edm::DetSetVector<SiStripDigi> >  const> inputPTR =
-      getProductByTag<edm::DetSetVector<SiStripDigi> >(ep, SiStripPileInputTag_, mcc);
+    edm::Handle<edm::DetSetVector<SiStripDigi>> inputHandle;
+    pep.getByLabel(SiStripPileInputTag_, inputHandle);
 
-    if(inputPTR ) {
-
-      const edm::DetSetVector<SiStripDigi>  *input = const_cast< edm::DetSetVector<SiStripDigi> * >(inputPTR->product());
+    if(inputHandle.isValid()) {
+      const auto& input = *inputHandle;
 
       OneDetectorMap LocalMap;
 
       //loop on all detsets (detectorIDs) inside the input collection
-      edm::DetSetVector<SiStripDigi>::const_iterator DSViter=input->begin();
-      for (; DSViter!=input->end();DSViter++){
+      edm::DetSetVector<SiStripDigi>::const_iterator DSViter=input.begin();
+      for (; DSViter!=input.end();DSViter++){
 
 #ifdef DEBUG
 	LogDebug("PreMixingSiStripWorker")  << "Pileups: Processing DetID " << DSViter->id;
@@ -319,12 +318,12 @@ namespace edm {
       }
 
       if(APVSaturationFromHIP_) {
-	std::shared_ptr<Wrapper<std::vector<std::pair<int,std::bitset<6>> >  >  const> inputAPVPTR =
-	  getProductByTag< std::vector<std::pair<int,std::bitset<6>> > >(ep, SiStripAPVPileInputTag_, mcc);
+        edm::Handle<std::vector<std::pair<int,std::bitset<6>>>> inputAPVHandle;
+        pep.getByLabel(SiStripAPVPileInputTag_, inputAPVHandle);
 
-	if(inputAPVPTR) {
+	if(inputAPVHandle.isValid()) {
 
-	  const std::vector<std::pair<int,std::bitset<6>> >   *APVinput = const_cast< std::vector<std::pair<int,std::bitset<6>> >  * >(inputAPVPTR->product());
+	  const auto &APVinput = inputAPVHandle;
 
 	  std::vector<std::pair<int,std::bitset<6>> >::const_iterator entry = APVinput->begin();
 	  for( ; entry != APVinput->end(); entry++) {

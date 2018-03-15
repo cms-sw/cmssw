@@ -1,13 +1,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 //Data Formats
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -46,7 +46,7 @@ namespace edm {
 
     void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
     void addSignals(edm::Event const& e, edm::EventSetup const& es) override;
-    void addPileups(int bcr, edm::EventPrincipal const&, int EventId, edm::EventSetup const& es, ModuleCallingContext const*) override;
+    void addPileups(PileUpEventPrincipal const&, edm::EventSetup const& es) override;
     void put(edm::Event &e, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bs) override;
 
   private:
@@ -392,23 +392,21 @@ bool PreMixingSiPixelWorker::PixelEfficiencies::matches(const DetId& detid, cons
 
 
 
-  void PreMixingSiPixelWorker::addPileups(int bcr, EventPrincipal const& ep, int eventNr,
-                                          edm::EventSetup const& es, ModuleCallingContext const* mcc) {
+  void PreMixingSiPixelWorker::addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& es) {
   
-    LogDebug("PreMixingSiPixelWorker") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
+    LogDebug("PreMixingSiPixelWorker") <<"\n===============> adding pileups from event  "<<pep.principal().id()<<" for bunchcrossing "<<pep.bunchCrossing();
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
-    std::shared_ptr<Wrapper<edm::DetSetVector<PixelDigi> >  const> inputPTR =
-      getProductByTag<edm::DetSetVector<PixelDigi> >(ep, pixeldigi_collectionPile_, mcc);
+    edm::Handle<edm::DetSetVector<PixelDigi>> inputHandle;
+    pep.getByLabel(pixeldigi_collectionPile_, inputHandle);
 
-    if(inputPTR ) {
-
-      const edm::DetSetVector<PixelDigi>  *input = inputPTR->product();
+    if(inputHandle.isValid()) {
+      const auto& input = *inputHandle;
 
       //loop on all detsets (detectorIDs) inside the input collection
-      edm::DetSetVector<PixelDigi>::const_iterator DSViter=input->begin();
-      for (; DSViter!=input->end();DSViter++){
+      edm::DetSetVector<PixelDigi>::const_iterator DSViter=input.begin();
+      for (; DSViter!=input.end();DSViter++){
 
 #ifdef DEBUG
 	LogDebug("PreMixingSiPixelWorker")  << "Pileups: Processing DetID " << DSViter->id;
