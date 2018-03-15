@@ -77,50 +77,58 @@ int16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::DetS
    RawDigis.clear();
    edm::DetSet<SiStripRawDigi>::const_iterator itrawDigis = rawDigis.begin();
    for(; itrawDigis != rawDigis.end(); ++itrawDigis) RawDigis.push_back(itrawDigis->adc());
-    return this->SuppressProcessedRawData(rawDigis.id, 0, RawDigis , suppressedDigis );
+   return this->SuppressProcessedRawData(rawDigis.id, 0, RawDigis , suppressedDigis );
 }
 
 
-//Convert to Hybrid Format -- part fo be modified 
+//Convert to Hybrid Format 
 //--------------------------------------------------------
 
-int16_t SiStripRawProcessingAlgorithms::ConvertToVirginHybridRawData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
+int16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
       
-      subtractorPed->subtract( id, firstAPV*128,processedRawDigis);
-      return this->ConvertToHybridProcessedRawData(id, firstAPV, processedRawDigis , suppressedDigis );
+      std::vector<bool> markedVRAPVs;
+     
+      for(int16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] += 1024;
+
+      
+      subtractorPed->subtract( id, firstAPV*128,processedRawDigis);      
+      for(int16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] /= 2;
+      
+      subtractorCMN->subtract(id, firstAPV,  processedRawDigis);      
+      int16_t nAPVFlagged = restorer->InspectForHybridFormatEmulation(id, firstAPV, processedRawDigis, subtractorCMN->getAPVsCM(), markedVRAPVs)
+      
+      for(int16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] *= 2;
+      
+      
+      
+      for(uint16_t APV=firstAPV ; APV< processedRawDigis.size()/128 + firstAPV; ++APV){
+      	if(markedVRAPVs[APV]){
+      		//GB 23/6/08: truncation should be done at the very beginning
+      		for(int16_t strip = (APV-firstAPV)*128; strip < (APV-firstAPV+1)*128; ++strip) suppressedDigis.push_back(SiStripDigi(strip, (rocessedRawDigis[strip] ? 0 : truncate( rocessedRawDigis[strip] ) )));
+      	}else{
+      		std::vector<T> singleAPVdigi;
+  		 	singleAPVdigi.clear();
+  		 	for(int16_t strip = (APV-firstAPV)*128; strip < (APV-firstAPV+1)*128; ++strip) singleAPVdigi.push_back(processedRawDigis[strip]); 
+      	  	suppressor->suppress(singleAPVdigi, APV,  suppressedDigis );
+      	}
+      }
+       
+      
+     
+      return nAPVFlagged;
+
  
 }
 
-int16_t SiStripRawProcessingAlgorithms::ConvertToHybridVirginRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
+int16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
    
    std::vector<int16_t> RawDigis;
    RawDigis.clear();
    edm::DetSet<SiStripRawDigi>::const_iterator itrawDigis = rawDigis.begin();
    for(; itrawDigis != rawDigis.end(); ++itrawDigis) RawDigis.push_back(itrawDigis->adc());
-   return this->ConvertToHybridVirginRawData(rawDigis.id, 0,RawDigis , suppressedDigis);
+   return this->ConvertVirginRawToHybrid(rawDigis.id, 0,RawDigis , suppressedDigis);
 }
   
 
 
 
-int16_t SiStripRawProcessingAlgorithms::ConvertToHybridProcessedRawData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
-      std::vector<int16_t>  processedRawDigisPedSubtracted ;
-      
-      int16_t nAPVFlagged =0;
-      processedRawDigisPedSubtracted.assign(processedRawDigis.begin(), processedRawDigis.end());
-      subtractorCMN->subtract(id, firstAPV,  processedRawDigis);
-      
-      //these are two main part to be modified
-      nAPVFlagged = restorer-> InspectAndRestore(id, firstAPV, processedRawDigisPedSubtracted, processedRawDigis, subtractorCMN->getAPVsCM() );
-      suppressor->suppress( processedRawDigis, firstAPV,  suppressedDigis ); 
-      return nAPVFlagged;
-}
-
-
-int16_t SiStripRawProcessingAlgorithms::ConvertToHybridProcessedRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
-   std::vector<int16_t> RawDigis;
-   RawDigis.clear();
-   edm::DetSet<SiStripRawDigi>::const_iterator itrawDigis = rawDigis.begin();
-   for(; itrawDigis != rawDigis.end(); ++itrawDigis) RawDigis.push_back(itrawDigis->adc());
-    return this->ConvertToHybridProcessedRawData(rawDigis.id, 0, RawDigis , suppressedDigis );
-}

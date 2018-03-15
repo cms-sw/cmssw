@@ -326,6 +326,51 @@ int16_t SiStripAPVRestorer::NullInspect(const uint16_t& firstAPV, std::vector<T>
 }
 
 
+//Hybrid Format emulation ========================================================================================================================================================================
+//======================================================================================================================================================================================================
+//======================================================================================================================================================================================================
+
+int16_t InspectForHybridFormatEmulation(const uint32_t& detId, const uint16_t& firstAPV, std::vector<int16_t>& digis, const std::vector< std::pair<short,float> >& vmedians, std::vector<bool>& markedVRAPVs){
+
+	detId_ = detId;
+	markedVRAPVs.clear();
+    markedVRAPVs.insert(markedVRAPVs.begin(), 6, false);
+ 	
+  	median_.clear();
+  	median_.insert(median_.begin(), 6, -999);
+  	badAPVs_.clear();
+  	badAPVs_.insert(badAPVs_.begin(), 6, false);
+ 
+    for(size_t i=0; i< vmedians.size(); ++i){
+         short APV =  vmedians[i].first;
+         median_[APV]= vmedians[i].second;
+         badAPVs_[APV] = qualityHandle->IsApvBad(detId_, APV);
+    }
+	
+	
+	int16_t nAPVflagged = 0;
+  
+  	CMMap::iterator itCMMap;
+  	if(useRealMeanCM_) itCMMap = MeanCMmap_.find(detId_);
+  	
+  	for(uint16_t APV=firstAPV ; APV< digis.size()/128 + firstAPV; ++APV){
+		if(!badAPVs_[APV]){
+			float MeanAPVCM = MeanCM_;
+			if(useRealMeanCM_&&itCMMap!= MeanCMmap_.end()) MeanAPVCM =(itCMMap->second)[APV];
+			float DeltaCM = median_[APV] - MeanAPVCM; 
+      
+			//std::cout << "Delta CM: " << DeltaCM << " CM: " << median_[APV] << " detId " << (uint32_t) detId_ << std::endl; 	
+			if(DeltaCM < 0 && std::abs(DeltaCM) > DeltaCMThreshold_){
+          		markedVRAPVs[APV]= true;
+	      		nAPVflagged++;
+        	}
+		}	
+      } 
+  
+  return nAPVflagged;
+
+}
+  
 
 //Restore method implementation ========================================================================================================================================================================
 //======================================================================================================================================================================================================

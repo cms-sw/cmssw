@@ -30,8 +30,9 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
    mergeCollections = false;
    produceCalculatedBaseline = false;
    produceBaselinePoints = false;
-   storeInZScollBadAPV = false;
   }  
+  
+  
   if(mergeCollections){
     storeCM = false;
     produceRawDigis = false;
@@ -126,7 +127,9 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
         
       if ( "ProcessedRaw" == inputTag.instance()) {
       	if(!produceHybridFormat) nAPVflagged = algorithms->SuppressProcessedRawData(*rawDigis, suppressedDigis);
-      	else nAPVflagged = algorithms->ConvertToHybridProcessedRawData(*rawDigis, suppressedDigis);
+      	else 
+      	throw cms::Exception("Processed Raw Cannot be converted in hibryd Format") 
+	<< SiStripZeroZuppression can only process types \"VirginRaw\" and \"ProcessedRaw\" ";
       }	
       else if ( "VirginRaw" == inputTag.instance()){
        if(!produceHybridFormat) nAPVflagged = algorithms->SuppressVirginRawData(*rawDigis, suppressedDigis); 

@@ -75,11 +75,11 @@ create_Suppressor(const edm::ParameterSet& conf) {
   uint32_t mode = conf.getParameter<uint32_t>("SiStripFedZeroSuppressionMode");
   bool trunc = conf.getParameter<bool>("TruncateInSuppressor");
   switch(mode) {
-  case 1: case 2: case 3:  case 4:
+  case 1: case 2: case 3:  case 4: case 5:
     return std::auto_ptr<SiStripFedZeroSuppression>( new SiStripFedZeroSuppression(mode,trunc));
   default:
     edm::LogError("SiStripRawProcessingFactory::createSuppressor")
-      << "Unregistered mode: "<<mode<<". Use one of {1,2,3,4}.";
+      << "Unregistered mode: "<<mode<<". Use one of {1,2,3,4,5}.";
     return std::auto_ptr<SiStripFedZeroSuppression>( new SiStripFedZeroSuppression(4,true));
   }
 }
