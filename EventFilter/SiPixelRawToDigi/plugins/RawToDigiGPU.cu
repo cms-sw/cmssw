@@ -584,12 +584,12 @@ void RawToDigi_wrapper(
 
   assert(0 == wordCounter%2);
   // wordCounter is the total no of words in each event to be trasfered on device
-  cudaCheck(cudaMemcpyAsync(&c.word_d[0],     &word[0],     wordCounter*sizeof(uint32_t), cudaMemcpyHostToDevice, c.stream));
-  cudaCheck(cudaMemcpyAsync(&c.fedId_d[0], &fedId_h[0], wordCounter*sizeof(uint8_t)/2, cudaMemcpyHostToDevice, c.stream));
+  cudaCheck(cudaMemcpyAsync(&c.word_d[0],     &word[0],     wordCounter*sizeof(uint32_t), cudaMemcpyDefault, c.stream));
+  cudaCheck(cudaMemcpyAsync(&c.fedId_d[0], &fedId_h[0], wordCounter*sizeof(uint8_t)/2, cudaMemcpyDefault, c.stream));
     
   constexpr uint32_t vsize = sizeof(GPU::SimpleVector<error_obj>);
   constexpr uint32_t esize = sizeof(error_obj);
-  cudaCheck(cudaMemcpyAsync(c.error_d, error_h_tmp, vsize, cudaMemcpyHostToDevice, c.stream));
+  cudaCheck(cudaMemcpyAsync(c.error_d, error_h_tmp, vsize, cudaMemcpyDefault, c.stream));
     
   // Launch rawToDigi kernel
   RawToDigi_kernel<<<blocks, threadsPerBlock, 0, c.stream>>>(
@@ -609,15 +609,15 @@ void RawToDigi_wrapper(
 
   // copy data to host variable
 
-  cudaCheck(cudaMemcpyAsync(pdigi_h, c.pdigi_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
-  cudaCheck(cudaMemcpyAsync(rawIdArr_h, c.rawIdArr_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
+  cudaCheck(cudaMemcpyAsync(pdigi_h, c.pdigi_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, c.stream));
+  cudaCheck(cudaMemcpyAsync(rawIdArr_h, c.rawIdArr_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, c.stream));
 
   if (includeErrors) {
-      cudaCheck(cudaMemcpyAsync(error_h, c.error_d, vsize, cudaMemcpyDeviceToHost, c.stream));
+      cudaCheck(cudaMemcpyAsync(error_h, c.error_d, vsize, cudaMemcpyDefault, c.stream));
       cudaStreamSynchronize(c.stream);
       error_h->set_data(data_h);
       int size = error_h->size();
-      cudaCheck(cudaMemcpyAsync(data_h, c.data_d, size*esize, cudaMemcpyDeviceToHost, c.stream));
+      cudaCheck(cudaMemcpyAsync(data_h, c.data_d, size*esize, cudaMemcpyDefault, c.stream));
   }
   // End  of Raw2Digi and passing data for cluserisation
 
@@ -639,7 +639,7 @@ void RawToDigi_wrapper(
   cudaCheck(cudaGetLastError());
 
   // calibrated adc
-  cudaCheck(cudaMemcpyAsync(adc_h, c.adc_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
+  cudaCheck(cudaMemcpyAsync(adc_h, c.adc_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, c.stream));
 
   /*
   std::cout
@@ -648,12 +648,12 @@ void RawToDigi_wrapper(
   */
 
   uint32_t nModules=0;
-  cudaCheck(cudaMemcpyAsync(c.moduleStart_d, &nModules, sizeof(uint32_t), cudaMemcpyHostToDevice, c.stream));
+  cudaCheck(cudaMemcpyAsync(c.moduleStart_d, &nModules, sizeof(uint32_t), cudaMemcpyDefault, c.stream));
 
   countModules<<<blocks, threadsPerBlock, 0, c.stream>>>(c.moduleInd_d, c.moduleStart_d, c.clus_d, wordCounter);
   cudaCheck(cudaGetLastError());
 
-  cudaCheck(cudaMemcpyAsync(&nModules, c.moduleStart_d, sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
+  cudaCheck(cudaMemcpyAsync(&nModules, c.moduleStart_d, sizeof(uint32_t), cudaMemcpyDefault, c.stream));
 
   // std::cout << "found " << nModules << " Modules active" << std::endl;
 
@@ -680,7 +680,7 @@ void RawToDigi_wrapper(
   );
 
   // clusters
-  cudaCheck(cudaMemcpyAsync(clus_h, c.clus_d, wordCounter*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
+  cudaCheck(cudaMemcpyAsync(clus_h, c.clus_d, wordCounter*sizeof(uint32_t), cudaMemcpyDefault, c.stream));
 
 
   cudaStreamSynchronize(c.stream);

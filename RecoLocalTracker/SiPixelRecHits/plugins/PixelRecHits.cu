@@ -41,14 +41,14 @@ pixelRecHits_wrapper(
  
  uint32_t hitsModuleStart[gpuClustering::MaxNumModules+1];
  hitsModuleStart[0] =0;
- cudaCheck(cudaMemcpyAsync(&hitsModuleStart[1], c.clusInModule_d, gpuClustering::MaxNumModules*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream)); 
+ cudaCheck(cudaMemcpyAsync(&hitsModuleStart[1], c.clusInModule_d, gpuClustering::MaxNumModules*sizeof(uint32_t), cudaMemcpyDefault, c.stream)); 
 
  std::partial_sum(std::begin(hitsModuleStart),std::end(hitsModuleStart),std::begin(hitsModuleStart));
 
  auto nhits = hitsModuleStart[gpuClustering::MaxNumModules];
  // std::cout << " total number of clusters " << nhits << std::endl;
 
- cudaCheck(cudaMemcpyAsync(hh.hitsModuleStart_d, &hitsModuleStart, (gpuClustering::MaxNumModules+1)*sizeof(uint32_t), cudaMemcpyHostToDevice, c.stream));
+ cudaCheck(cudaMemcpyAsync(hh.hitsModuleStart_d, &hitsModuleStart, (gpuClustering::MaxNumModules+1)*sizeof(uint32_t), cudaMemcpyDefault, c.stream));
 
   
  int threadsPerBlock = 256;
@@ -72,7 +72,7 @@ pixelRecHits_wrapper(
   // all this needed only if hits on CPU are required....
   HitsOnCPU hoc(nhits);
   memcpy(hoc.hitsModuleStart,hitsModuleStart,2001*sizeof(uint32_t));
-  cudaCheck(cudaMemcpyAsync(hoc.charge.data(), hh.charge_d, nhits*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
+  cudaCheck(cudaMemcpyAsync(hoc.charge.data(), hh.charge_d, nhits*sizeof(uint32_t), cudaMemcpyDefault, c.stream));
 
   /*
   int ngood=0;
@@ -81,11 +81,11 @@ pixelRecHits_wrapper(
   std::cout << " total number of good clusters " << ngood << std::endl;
   */
 
-  cudaCheck(cudaMemcpyAsync(hoc.xl.data(), hh.xg_d, nhits*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
-  cudaCheck(cudaMemcpyAsync(hoc.yl.data(), hh.yg_d, nhits*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
-  cudaCheck(cudaMemcpyAsync(hoc.xe.data(), hh.xerr_d, nhits*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
-  cudaCheck(cudaMemcpyAsync(hoc.ye.data(), hh.yerr_d, nhits*sizeof(uint32_t), cudaMemcpyDeviceToHost, c.stream));
-  cudaCheck(cudaMemcpyAsync(hoc.mr.data(), hh.mr_d, nhits*sizeof(uint16_t), cudaMemcpyDeviceToHost, c.stream));
+  cudaCheck(cudaMemcpyAsync(hoc.xl.data(), hh.xg_d, nhits*sizeof(uint32_t), cudaMemcpyDefault, c.stream));
+  cudaCheck(cudaMemcpyAsync(hoc.yl.data(), hh.yg_d, nhits*sizeof(uint32_t), cudaMemcpyDefault, c.stream));
+  cudaCheck(cudaMemcpyAsync(hoc.xe.data(), hh.xerr_d, nhits*sizeof(uint32_t), cudaMemcpyDefault, c.stream));
+  cudaCheck(cudaMemcpyAsync(hoc.ye.data(), hh.yerr_d, nhits*sizeof(uint32_t), cudaMemcpyDefault, c.stream));
+  cudaCheck(cudaMemcpyAsync(hoc.mr.data(), hh.mr_d, nhits*sizeof(uint16_t), cudaMemcpyDefault, c.stream));
 
   return hoc;
 }

@@ -9,6 +9,7 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelGenError.h"
 
+#include "HeterogeneousCore/CUDAUtilities/interface/CUDAHostAllocator.h"
 
 #include <utility>
 #include <vector>
@@ -43,6 +44,7 @@ public:
    
    
    ~PixelCPEFast();
+
 private:
    ClusterParam * createClusterParam(const SiPixelCluster & cl) const override;
    
@@ -75,21 +77,11 @@ private:
 
 
 public :
-
    void fillParamsForGpu();
 
    // not needed if not used on CPU...
-   std::vector<pixelCPEforGPU::DetParams> m_detParamsGPU;
+   std::vector<pixelCPEforGPU::DetParams, CUDAHostAllocator<pixelCPEforGPU::DetParams>> m_detParamsGPU;
    pixelCPEforGPU::CommonParams m_commonParamsGPU;     
-
    pixelCPEforGPU::ParamsOnGPU h_paramsOnGPU;
-
    pixelCPEforGPU::ParamsOnGPU * d_paramsOnGPU;  // copy of the above on the Device  
-
-
 };
-
-
-
-
-

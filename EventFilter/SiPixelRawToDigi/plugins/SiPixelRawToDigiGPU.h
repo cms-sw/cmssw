@@ -80,8 +80,6 @@ private:
   error_obj *data_h = nullptr;
   GPU::SimpleVector<error_obj> *error_h = nullptr;
   GPU::SimpleVector<error_obj> *error_h_tmp = nullptr;
-  // store the start and end index for each module (total 1856 modules-phase 1)
-  int *mIndexStart_h, *mIndexEnd_h;
 
   // configuration and memory buffers alocated on the GPU
   context context_;
