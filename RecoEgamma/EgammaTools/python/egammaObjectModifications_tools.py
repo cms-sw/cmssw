@@ -41,3 +41,46 @@ def makeVIDinPATIDsModifier(process,eleVIDModuleName,phoVIDModuleName):
         setattr(vidInPATIDsModifier.electron_config,egid.idDefinition.idName.value(),cms.InputTag(eleVIDModuleName+':'+egid.idDefinition.idName.value()))
     
     return vidInPATIDsModifier
+
+"""
+make a modifer config to load all scale&smearing info into the pat::Electron/pat::Photon 
+takes the names of the electron and photon producer modules
+"""
+def makeEnergyScaleAndSmearingSysModifier(eleProdName,phoProdName):
+    energyScaleAndSmearing = cms.PSet(
+        modifierName    = cms.string('EGExtraInfoModifierFromFloatValueMaps'),
+        electron_config = cms.PSet(),
+        photon_config = cms.PSet()
+        )
+
+    from RecoEgamma.EgammaTools.calibratedEgammas_cff import prefixName
+    import RecoEgamma.EgammaTools.calibratedElectronProducer_cfi
+    for valueMapName in RecoEgamma.EgammaTools.calibratedElectronProducer_cfi.calibratedElectronProducer.valueMapsStored:
+        setattr(energyScaleAndSmearing.electron_config,valueMapName,cms.InputTag(eleProdName,valueMapName))
+    import RecoEgamma.EgammaTools.calibratedPhotonProducer_cfi
+    for valueMapName in RecoEgamma.EgammaTools.calibratedPhotonProducer_cfi.calibratedPhotonProducer.valueMapsStored:
+        setattr(energyScaleAndSmearing.photon_config,valueMapName,cms.InputTag(phoProdName,valueMapName))
+    return energyScaleAndSmearing
+
+"""
+setups up the calibrated egamma producers and then adds a modifier which
+will embed the scale & smearing info into the pat::Electron/Photons
+"""
+def _storeCalibratedEGEnergiesForRun2MiniAOD9XFall17(process):
+    process.load("RecoEgamma.EgammaTools.calibratedEgammas_cfi")
+    process.calibratedPhotons.produceCalibratedObjs = cms.bool(False)
+    process.calibratedElectrons.produceCalibratedObjs = cms.bool(False)
+    process.calibratedElectrons.src = process.patElectrons.electronSource
+    process.calibratedPhotons.src = process.patPhotons.photonSource
+    process.calibratedElectrons.recHitCollectionEB = cms.InputTag("reducedEgamma","reducedEBRecHits")
+    process.calibratedElectrons.recHitCollectionEE = cms.InputTag("reducedEgamma","reducedEERecHits")
+    process.calibratedPhotons.recHitCollectionEB = cms.InputTag("reducedEgamma","reducedEBRecHits")
+    process.calibratedPhotons.recHitCollectionEE = cms.InputTag("reducedEgamma","reducedEERecHits")
+    process.slimmingTask.add(process.calibratedPhotons)
+    process.slimmingTask.add(process.calibratedElectrons)
+    from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import egamma_modifications
+    egamma_modifications.append(makeEnergyScaleAndSmearingSysModifier("calibratedElectrons","calibratedPhotons"))
+
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+modifyEgammaObjectModifications_toolsForRun2MiniAOD9XFall17_ = run2_miniAOD_94XFall17.makeProcessModifier(_storeCalibratedEGEnergiesForRun2MiniAOD9XFall17)
+
