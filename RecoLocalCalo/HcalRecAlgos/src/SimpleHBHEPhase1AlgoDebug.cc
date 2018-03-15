@@ -66,13 +66,13 @@ MahiDebugInfo SimpleHBHEPhase1AlgoDebug::recoDebug(const HBHEChannelInfo& info,
 
 
   HcalTimeSlew* temp = new HcalTimeSlew();
-  temp->addM2ParameterSet(13.307784, -13.307784, 10.0);
+  //currently hardcoded in Mahi file b/c it seems to be randomly segfaulting :(
+  temp->addM2ParameterSet(13.307784, -1.556668, 10.0);
   const HcalTimeSlew* temp2 = *&temp;
   
   const MahiFit* mahi = mahiOOTpuCorr_.get();
   if (mahi) {
-    mahiOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),
-					  temp2);//,
+    mahiOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),temp2);//,
     mahi->phase1Debug(info, mdi);
   }
 
