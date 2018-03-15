@@ -34,16 +34,14 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const & conf,
                                  const TrackerTopology& ttopo,
                                  const SiPixelLorentzAngle * lorentzAngle,
                                  const SiPixelGenErrorDBObject * genErrorDBObject,
-                                 const SiPixelLorentzAngle * lorentzAngleWidth)
-                  : PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, nullptr,lorentzAngleWidth,0) {
-   
+                                 const SiPixelLorentzAngle * lorentzAngleWidth) :
+  PixelCPEBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, nullptr, lorentzAngleWidth, 0)
+{
    EdgeClusterErrorX_ = conf.getParameter<double>("EdgeClusterErrorX");
    EdgeClusterErrorY_ = conf.getParameter<double>("EdgeClusterErrorY");
    
-   
    UseErrorsFromTemplates_    = conf.getParameter<bool>("UseErrorsFromTemplates");
    TruncatePixelCharge_       = conf.getParameter<bool>("TruncatePixelCharge");
-   
    
    // Use errors from templates or from GenError
    if ( UseErrorsFromTemplates_ ) {
@@ -68,15 +66,10 @@ PixelCPEFast::PixelCPEFast(edm::ParameterSet const & conf,
       yerr_endcap_= {0.00210};
       yerr_endcap_def_=0.00075;
 
-
-
    fillParamsForGpu();   
-   
 }
 
 void PixelCPEFast::fillParamsForGpu() {
-
-
   m_commonParamsGPU.theThicknessB = m_DetParams.front().theThickness;
   m_commonParamsGPU.theThicknessE = m_DetParams.back().theThickness;
   m_commonParamsGPU.thePitchX = m_DetParams[0].thePitchX;
@@ -89,7 +82,6 @@ void PixelCPEFast::fillParamsForGpu() {
     auto & g=m_detParamsGPU[i];
 
     assert(p.theDet->index()==int(i));
-
     assert(m_commonParamsGPU.thePitchY==p.thePitchY);    
     assert(m_commonParamsGPU.thePitchX==p.thePitchX);
     // assert(m_commonParamsGPU.theThickness==p.theThickness);
@@ -121,8 +113,7 @@ void PixelCPEFast::fillParamsForGpu() {
 
     auto vv = p.theDet->surface().position();
     auto rr = pixelCPEforGPU::Rotation(p.theDet->surface().rotation());
-    g.frame =  pixelCPEforGPU::Frame(vv.x(),vv.y(),vv.z(),rr);
-
+    g.frame = pixelCPEforGPU::Frame(vv.x(),vv.y(),vv.z(),rr);
   }
 
   // and now copy to device...
@@ -131,27 +122,21 @@ void PixelCPEFast::fillParamsForGpu() {
   cudaCheck(cudaMalloc((void**) & d_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU)));
 
   cudaCheck(cudaMemcpy(d_paramsOnGPU, &h_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU), cudaMemcpyDefault));
-  cudaCheck(cudaMemcpy(h_paramsOnGPU.m_commonParams,&m_commonParamsGPU,sizeof(pixelCPEforGPU::CommonParams), cudaMemcpyDefault));
+  cudaCheck(cudaMemcpy(h_paramsOnGPU.m_commonParams, &m_commonParamsGPU, sizeof(pixelCPEforGPU::CommonParams), cudaMemcpyDefault));
   cudaCheck(cudaMemcpy(h_paramsOnGPU.m_detParams, m_detParamsGPU.data(), m_detParamsGPU.size()*sizeof(pixelCPEforGPU::DetParams), cudaMemcpyDefault));
   cudaDeviceSynchronize();
 }
 
 PixelCPEFast::~PixelCPEFast() {
-
   cudaFree(h_paramsOnGPU.m_commonParams);
   cudaFree(h_paramsOnGPU.m_detParams);
   cudaFree(d_paramsOnGPU);
-
 }
-
-
 
 PixelCPEBase::ClusterParam* PixelCPEFast::createClusterParam(const SiPixelCluster & cl) const
 {
    return new ClusterParamGeneric(cl);
 }
-
-
 
 //-----------------------------------------------------------------------------
 //! Hit position in the local frame (in cm).  Unlike other CPE's, this
@@ -161,7 +146,6 @@ PixelCPEBase::ClusterParam* PixelCPEFast::createClusterParam(const SiPixelCluste
 LocalPoint
 PixelCPEFast::localPosition(DetParam const & theDetParam, ClusterParam & theClusterParamBase) const
 {
-   
    ClusterParamGeneric & theClusterParam = static_cast<ClusterParamGeneric &>(theClusterParamBase);
 
    assert(!theClusterParam.with_track_angle); 
@@ -194,7 +178,6 @@ PixelCPEFast::localPosition(DetParam const & theDetParam, ClusterParam & theClus
                                           dummy, theClusterParam.sy2, dummy, theClusterParam.sx1,
                                           dummy, theClusterParam.sx2, dummy );
       
-      
       theClusterParam.sigmax = theClusterParam.sigmax * micronsToCm;
       theClusterParam.sx1 = theClusterParam.sx1 * micronsToCm;
       theClusterParam.sx2 = theClusterParam.sx2 * micronsToCm;
@@ -218,11 +201,8 @@ PixelCPEFast::localPosition(DetParam const & theDetParam, ClusterParam & theClus
                         UseErrorsFromTemplates_ && TruncatePixelCharge_
                         );
    
-
      // do GPU like ...
-
      pixelCPEforGPU::ClusParams cp;
-
      
      cp.minRow[0] = theClusterParam.theCluster->minPixelRow();
      cp.maxRow[0] = theClusterParam.theCluster->maxPixelRow();
@@ -243,8 +223,6 @@ PixelCPEFast::localPosition(DetParam const & theDetParam, ClusterParam & theClus
    LocalPoint pos_in_local( xPos, yPos );
    return pos_in_local;
 }
-
-
 
 //-----------------------------------------------------------------------------
 //!  Collect the edge charges in x and y, in a single pass over the pixel vector.
@@ -267,13 +245,11 @@ collect_edge_charges(ClusterParam & theClusterParamBase,  //!< input, the cluste
    Q_f_X = Q_l_X = 0;
    Q_f_Y = Q_l_Y = 0;
    
-   
    // Obtain boundaries in index units
    int xmin = theClusterParam.theCluster->minPixelRow();
    int xmax = theClusterParam.theCluster->maxPixelRow();
    int ymin = theClusterParam.theCluster->minPixelCol();
    int ymax = theClusterParam.theCluster->maxPixelCol();
-   
    
    // Iterate over the pixels.
    int isize = theClusterParam.theCluster->size();
