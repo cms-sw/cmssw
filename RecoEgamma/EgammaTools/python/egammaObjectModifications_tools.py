@@ -41,3 +41,21 @@ def makeVIDinPATIDsModifier(process,eleVIDModuleName,phoVIDModuleName):
         setattr(vidInPATIDsModifier.electron_config,egid.idDefinition.idName.value(),cms.InputTag(eleVIDModuleName+':'+egid.idDefinition.idName.value()))
     
     return vidInPATIDsModifier
+
+
+    
+def makeEnergyScaleAndSmearingSysModifier(eleProdName,phoProdName):
+    energyScaleAndSmearing = cms.PSet(
+        modifierName    = cms.string('EGExtraInfoModifierFromFloatValueMaps'),
+        electron_config = cms.PSet(),
+        photon_config = cms.PSet()
+        )
+
+    from RecoEgamma.EgammaTools.calibratedEgammas_cff import prefixName
+    import RecoEgamma.EgammaTools.calibratedElectronProducerTRecoGsfElectron_cfi
+    for valueMapName in RecoEgamma.EgammaTools.calibratedElectronProducerTRecoGsfElectron_cfi.calibratedElectronProducerTRecoGsfElectron.valueMapsStored:
+        setattr(energyScaleAndSmearing.electron_config,valueMapName,cms.InputTag(eleProdName,valueMapName))
+    import RecoEgamma.EgammaTools.calibratedPhotonProducerTRecoPhoton_cfi
+    for valueMapName in RecoEgamma.EgammaTools.calibratedPhotonProducerTRecoPhoton_cfi.calibratedPhotonProducerTRecoPhoton.valueMapsStored:
+        setattr(energyScaleAndSmearing.photon_config,valueMapName,cms.InputTag(phoProdName,valueMapName))
+    return energyScaleAndSmearing

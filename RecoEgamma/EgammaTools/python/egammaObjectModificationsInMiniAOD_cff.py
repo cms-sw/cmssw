@@ -111,3 +111,28 @@ setup_mva(egamma_modifications[0].photon_config,
 #from RecoEgamma.EgammaTools.regressionModifier_cfi import *
 
 #egamma_modifications.append( regressionModifier )
+
+#############################################################
+# Scale and Smearing Modifiers
+#############################################################
+reducedEgammaEnergyScaleAndSmearingModifier = cms.PSet(
+    modifierName    = cms.string('EGExtraInfoModifierFromFloatValueMaps'),
+    electron_config = cms.PSet(),
+    photon_config   = cms.PSet()
+)
+from RecoEgamma.EgammaTools.calibratedEgammas_cff import prefixName
+import RecoEgamma.EgammaTools.calibratedElectronProducerTRecoGsfElectron_cfi
+for valueMapName in RecoEgamma.EgammaTools.calibratedElectronProducerTRecoGsfElectron_cfi.calibratedElectronProducerTRecoGsfElectron.valueMapsStored:
+    setattr(reducedEgammaEnergyScaleAndSmearingModifier.electron_config,valueMapName,cms.InputTag("reducedEgamma",prefixName("calibEle",valueMapName)))
+
+import RecoEgamma.EgammaTools.calibratedPhotonProducerTRecoPhoton_cfi
+for valueMapName in RecoEgamma.EgammaTools.calibratedPhotonProducerTRecoPhoton_cfi.calibratedPhotonProducerTRecoPhoton.valueMapsStored:
+    setattr(reducedEgammaEnergyScaleAndSmearingModifier.photon_config,valueMapName,cms.InputTag("reducedEgamma",prefixName("calibPho",valueMapName)))
+
+
+def appendReducedEgammaEnergyScaleAndSmearingModifier(modifiers):
+    modifiers.append(reducedEgammaEnergyScaleAndSmearingModifier)
+
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+run2_miniAOD_94XFall17.toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
+   
