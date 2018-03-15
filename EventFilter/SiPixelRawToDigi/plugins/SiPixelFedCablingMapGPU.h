@@ -36,7 +36,7 @@ struct SiPixelFedCablingMapGPU {
 
 inline
 void allocateCablingMap(SiPixelFedCablingMapGPU* & cablingMapHost, SiPixelFedCablingMapGPU* & cablingMapDevice) {
-  cablingMapHost = new SiPixelFedCablingMapGPU();
+  cudaCheck(cudaMallocHost((void**) & cablingMapHost, sizeof(SiPixelFedCablingMapGPU)));
   cudaCheck(cudaMalloc((void**) & cablingMapDevice, sizeof(SiPixelFedCablingMapGPU)));
   cudaCheck(cudaMalloc((void**) & cablingMapHost->fed,      MAX_SIZE_BYTE_INT));
   cudaCheck(cudaMalloc((void**) & cablingMapHost->link,     MAX_SIZE_BYTE_INT));
@@ -60,11 +60,11 @@ void deallocateCablingMap(SiPixelFedCablingMapGPU* cablingMapHost, SiPixelFedCab
   cudaCheck(cudaFree(cablingMapHost->modToUnp));
   cudaCheck(cudaFree(cablingMapHost->badRocs));
   cudaCheck(cudaFree(cablingMapDevice));
-  delete cablingMapHost;
+  cudaCheck(cudaFreeHost(cablingMapHost));
 }
 
 void processCablingMap(SiPixelFedCablingMap const& cablingMap, TrackerGeometry const& trackerGeom,
-                       SiPixelFedCablingMapGPU* cablingMapGPU, SiPixelFedCablingMapGPU* cablingMapDevice, const SiPixelQuality* badPixelInfo, std::set<unsigned int> const& modules);
+                       SiPixelFedCablingMapGPU* cablingMapHost, SiPixelFedCablingMapGPU* cablingMapDevice, const SiPixelQuality* badPixelInfo, std::set<unsigned int> const& modules);
 
 void processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeometry const& trackerGeom, SiPixelGainForHLTonGPU * & gainsOnGPU, SiPixelGainForHLTonGPU_DecodingStructure * & gainDataOnGPU);
 
