@@ -55,7 +55,7 @@ DefaultAlgorithms = cms.PSet(
     filteredBaselineDerivativeSumSquare=cms.double(30),
     
     ## Zero suppression --------------------
-    SiStripFedZeroSuppressionMode = cms.uint32(4),
+    SiStripFedZeroSuppressionMode = cms.uint32(4), #case 5 for hybrid mode
     TruncateInSuppressor = cms.bool(True)
     
     

@@ -33,7 +33,8 @@ class SiStripFedZeroSuppression {
   void suppress(const edm::DetSet<SiStripRawDigi>&,edm::DetSet<SiStripDigi>&);
   void suppress(const std::vector<int16_t>&,const uint16_t&, edm::DetSet<SiStripDigi>&);
   
-  bool IsAValidDigi();
+  
+  
   
  private:
   
@@ -47,6 +48,8 @@ class SiStripFedZeroSuppression {
   uint32_t noise_cache_id, threshold_cache_id;
   
   uint16_t theFEDalgorithm;
+  bool IsAValidDigi();
+ 
   bool doTruncate;
 
   int16_t  theFEDlowThresh;
