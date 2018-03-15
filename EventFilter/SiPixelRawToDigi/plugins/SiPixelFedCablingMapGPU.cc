@@ -83,7 +83,9 @@ void processCablingMap(SiPixelFedCablingMap const& cablingMap,  TrackerGeometry 
     if (RawId[i] == 9999) {
       moduleId[i] = 9999;
     } else {
-//      std::cout << RawId[i] << std::endl;
+      /*
+      std::cout << RawId[i] << std::endl;
+      */
       auto gdet = trackerGeom.idToDetUnit(RawId[i]);
       if (!gdet) {
         LogDebug("SiPixelFedCablingMapGPU") << " Not found: " << RawId[i] << std::endl;
@@ -123,8 +125,10 @@ processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeomet
     }
   }
 
+  /*
   std::cout << "caching calibs for " << m_detectors << " pixel detectors of size " << gains.data().size() << std::endl;
   std::cout << "sizes " << sizeof(char) << ' ' << sizeof(uint8_t) << ' ' << sizeof(SiPixelGainForHLTonGPU::DecodingStructure) << std::endl;
+  */
 
   SiPixelGainForHLTonGPU * gg;
   cudaCheck(cudaMallocHost((void**) & gg, sizeof(SiPixelGainForHLTonGPU)));
@@ -158,11 +162,15 @@ processGainCalibration(SiPixelGainCalibrationForHLT const & gains, TrackerGeomet
   gg->pedPrecision  = static_cast<float>(maxPed - minPed) / nBinsToUseForEncoding;
   gg->gainPrecision = static_cast<float>(maxGain - minGain) / nBinsToUseForEncoding;
 
+  /*
   std::cout << "precisions g " << gg->pedPrecision << ' ' << gg->gainPrecision << std::endl;
+  */
 
   // fill the index map
   auto const & ind = gains.getIndexes();  
+  /*
   std::cout << ind.size() << " " << m_detectors << std::endl;
+  */
 
   for (auto i=0U; i<m_detectors; ++i) {
     auto p = std::lower_bound(ind.begin(),ind.end(),dus[i]->geographicalId().rawId(),SiPixelGainCalibrationForHLT::StrictWeakOrdering());
