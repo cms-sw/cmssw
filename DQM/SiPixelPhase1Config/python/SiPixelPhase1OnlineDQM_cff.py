@@ -69,8 +69,8 @@ from DQM.SiPixelPhase1Common.SiPixelPhase1GeometryDebug_cfi import *
 from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 
 # Track cluster                                                                                                                                                                            
-from DQM.SiPixelPhase1TrackClusters.SiPixelPhase1TrackClusters_cfi import *
-from DQM.SiPixelPhase1TrackResiduals.SiPixelPhase1TrackResiduals_cfi import *
+from DQM.SiPixelPhase1Track.SiPixelPhase1TrackClusters_cfi import *
+from DQM.SiPixelPhase1Track.SiPixelPhase1TrackResiduals_cfi import *
 
 siPixelPhase1OnlineDQM_source = cms.Sequence(
    SiPixelPhase1DigisAnalyzer
