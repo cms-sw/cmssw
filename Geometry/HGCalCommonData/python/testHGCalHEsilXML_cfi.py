@@ -8,15 +8,11 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/cms/2019/v1/cms.xml',
         'Geometry/CMSCommonData/data/eta3/etaMax.xml',
         'Geometry/CMSCommonData/data/cmsMother.xml',
-        'Geometry/HGCalCommonData/data/hgcal/v9/hgcal.xml',
-        'Geometry/HGCalCommonData/data/hgcalEE/v9/hgcalEE.xml',
+        'Geometry/HGCalCommonData/data/hgcalHEsil/v9/hgcal.xml',
         'Geometry/HGCalCommonData/data/hgcalHEsil/v9/hgcalHEsil.xml',
-        'Geometry/HGCalCommonData/data/hgcalHEmix/v9/hgcalHEmix.xml',
         'Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml',
         'Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml',
         'Geometry/CMSCommonData/data/FieldParameters.xml',
     ),
     rootNodeName = cms.string('cms:OCMS')
 )
-
-

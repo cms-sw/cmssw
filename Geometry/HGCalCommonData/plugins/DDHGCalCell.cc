@@ -12,7 +12,7 @@
 
 DDHGCalCell::DDHGCalCell() {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalCell test: Creating an instance";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Creating an instance";
 #endif
 }
 
@@ -50,10 +50,11 @@ void DDHGCalCell::initialize(const DDNumericArguments & nArgs,
 				 << cornrSensN_.size();
   if ((truncCN_.size() != 3) || (extenCN_.size() != 3) ||
       (cornrCN_.size() != 6))
-    edm::LogWarning("HGCalGeom") << "The number of cells does not match with "
-				 << "Standard: Truncated " << truncCN_.size() 
-				 << ":3 Extended " << extenCN_.size() <<":3" 
-				 << " Corners " << cornrCN_.size() << ":6";
+    edm::LogWarning("HGCalGeom") << "DDHGCalCell: The number of cells does not"
+				 << " match with Standard: Truncated " 
+				 << truncCN_.size() << ":3 Extended " 
+				 << extenCN_.size() <<":3" << " Corners " 
+				 << cornrCN_.size() << ":6";
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Wafer r " << waferSize_
 				<< " T " << waferT_ << " Cell T " << cellT_
