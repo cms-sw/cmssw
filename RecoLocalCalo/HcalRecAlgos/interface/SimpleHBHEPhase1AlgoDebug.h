@@ -29,7 +29,8 @@ class SimpleHBHEPhase1AlgoDebug : public SimpleHBHEPhase1Algo
   inline ~SimpleHBHEPhase1AlgoDebug() override {}
 
   MahiDebugInfo recoDebug(const HBHEChannelInfo& info,
-			  const bool isRealData);//,
+			  const bool isRealData,
+			  const HcalTimeSlew *hcalTimeSlewDelay);//,
     //const HcalTimeSlew* htsd);
 
 };

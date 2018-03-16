@@ -93,6 +93,8 @@ class HBHEReconstructionDebugger : public edm::one::EDAnalyzer<edm::one::SharedR
   
   std::unique_ptr<AbsHBHEPhase1Algo> reco_;
   edm::EDGetTokenT<HBHEChannelInfoCollection> token_ChannelInfo_;
+
+  const HcalTimeSlew* hcalTimeSlewDelay;
   
   edm::Service<TFileService> FileService;
   TTree *outTree;
@@ -170,6 +172,10 @@ void HBHEReconstructionDebugger::analyze(const edm::Event& iEvent, const edm::Ev
 {
    using namespace edm;
 
+   edm::ESHandle<HcalTimeSlew> delay;
+   iSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
+   hcalTimeSlewDelay = &*delay;
+
    run = iEvent.id().run();
    evt = iEvent.id().event();
    ls = iEvent.id().luminosityBlock();
@@ -191,7 +197,7 @@ void HBHEReconstructionDebugger::analyze(const edm::Event& iEvent, const edm::Ev
      depth = detid.depth();
 
      const bool isRealData = true;
-     MahiDebugInfo mdi = static_cast<SimpleHBHEPhase1AlgoDebug*>(reco_.get())->recoDebug(hci, isRealData);
+     MahiDebugInfo mdi = static_cast<SimpleHBHEPhase1AlgoDebug*>(reco_.get())->recoDebug(hci, isRealData, hcalTimeSlewDelay);
 
      nSamples = mdi.nSamples;
      soi = mdi.soi;

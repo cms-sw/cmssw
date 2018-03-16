@@ -257,9 +257,8 @@ void MahiFit::updatePulseShape(double itQ, FullSampleVector &pulseShape, FullSam
   float t0=meanTime_;
 
   if(applyTimeSlew_) {
-    if(itQ<=1.0) t0+=10;//tsDelay1GeV_;
-    //else t0+=hcalTimeSlewDelay_->delay(itQ,slewFlavor_);
-    else t0+=std::min(10.0, 13.307784-1.556668*log(std::max(1.0,itQ)));
+    if(itQ<=1.0) t0+=tsDelay1GeV_;
+    else t0+=hcalTimeSlewDelay_->delay(itQ,slewFlavor_);
   }
 
   nnlsWork_.pulseN.fill(0);
