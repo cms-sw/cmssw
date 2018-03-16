@@ -45,7 +45,6 @@ namespace btagbtvdeep {
         c_pf_features.btagPf_trackSip2dVal   =catch_infs_and_bound(track_info.getTrackSip2dVal(), 0, -1,70 );
         c_pf_features.btagPf_trackSip2dSig   =catch_infs_and_bound(track_info.getTrackSip2dSig(), 0, -1,4e4 );
         c_pf_features.btagPf_trackJetDistVal =catch_infs_and_bound(track_info.getTrackJetDistVal(),0,-20,1 );
-        std::cout <<  "track_info.getTrackEtaRel() = " << track_info.getTrackEtaRel() << std::endl;
 
         c_pf_features.drminsv = catch_infs_and_bound(drminpfcandsv,0,-0.8,0,-0.8);
 
