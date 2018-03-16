@@ -25,6 +25,7 @@
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <iostream>
 #include <sstream>
@@ -137,10 +138,10 @@ namespace edm {
       CountAndTime countAndTimeZero_;
 
       std::atomic<CountAndTime*> countAndTimeForLock_;
-      double accumulatedTimeForLock_;
+      CMS_THREAD_GUARD(countAndTimeForLock_) double accumulatedTimeForLock_;
 
       std::atomic<CountAndTime*> countAndTimeForGet_;
-      double accumulatedTimeForGet_;
+      CMS_THREAD_GUARD(countAndTimeForGet_)double accumulatedTimeForGet_;
 
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPreEvent_;
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPostEvent_;
@@ -693,7 +694,7 @@ namespace edm {
       CountAndTime* oldStat = countAndTime.load();
       while (oldStat == nullptr ||
              !countAndTime.compare_exchange_strong(oldStat, nullptr)) {
-        oldStat = countAndTime.load();
+        // do nothing
       }
 
       newStat->count_ = oldStat->count_ + 1;
@@ -714,7 +715,7 @@ namespace edm {
       CountAndTime* oldStat = countAndTime.load();
       while (oldStat == nullptr ||
              !countAndTime.compare_exchange_strong(oldStat, nullptr)) {
-        oldStat = countAndTime.load();
+        // do nothing
       }
 
       if (oldStat->count_ == 1) {
