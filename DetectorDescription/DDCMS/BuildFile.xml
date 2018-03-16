@@ -1,2 +1,7 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="dd4hep"/>
+<use   name="rootmath"/>
+<export>
+  <lib   name="1"/>
+</export>
+
