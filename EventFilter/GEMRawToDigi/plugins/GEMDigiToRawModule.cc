@@ -34,7 +34,7 @@ void GEMDigiToRawModule::fillDescriptions(edm::ConfigurationDescriptions & descr
   desc.add<edm::InputTag>("gemDigi", edm::InputTag("simMuonGEMDigis"));
   desc.add<int>("eventType", 0);
   desc.add<bool>("useDBEMap", false);
-  descriptions.add("gemPacker", desc);  
+  descriptions.add("gemPackerDefault", desc);  
 }
 
 std::shared_ptr<GEMROmap> GEMDigiToRawModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const
