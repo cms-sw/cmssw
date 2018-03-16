@@ -30,9 +30,9 @@ void RecHitProcessor::processLook(
     std::vector<const RPCRoll*> rolls = (chamb->rolls());
     
     // Loop over rolls in the chamber
-    for (std::vector<const RPCRoll*>::const_iterator iRoll = rolls.begin(); iRoll != rolls.end(); ++iRoll) {
+    for(auto& iRoll : rolls){
       
-      RPCDetId rpcId = (*iRoll)->id();	
+      RPCDetId rpcId = (*iRoll).id();	
       
       typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
       rangeRecHits recHitCollection =  recHits->get(rpcId);
@@ -67,7 +67,7 @@ void RecHitProcessor::processLook(
 	} 
 	
 	if(clustersize > 3) continue;	
-	//This is just for test CPPFDigis with the RPC Geometry, It must be "False" in the normal runs 
+	//This is just for test CPPFDigis with the RPC Geometry, It must be "true" in the normal runs 
 	bool Geo = true;
 	////:::::::::::::::::::::::::::::::::::::::::::::::::
 	//Set the EMTF Sector 	
@@ -198,9 +198,8 @@ void RecHitProcessor::processLook(
 	    }
 	    //Using the RPCGeometry	
 	    if(Geo){
-	      //RecHitProcessor::print(cppf.int_phi, cppf.int_theta, global_phi, global_theta);
-	      l1t::CPPFDigi* MainVariables1 = new l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector1, EMTFLink1, old_strip, clustersize, global_phi, global_theta);
-	      l1t::CPPFDigi* MainVariables2 = new l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector2, EMTFLink2, old_strip, clustersize, global_phi, global_theta);
+	      auto MainVariables1 = l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector1, EMTFLink1, old_strip, clustersize, global_phi, global_theta);
+	      auto MainVariables2 = l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector2, EMTFLink2, old_strip, clustersize, global_phi, global_theta);
 	      /*
 		if(clustersize == 2 && (*cppf).int_theta == 16 && (*cppf).int_phi == 700){
  		std::cout << "old_rawid "<< (*cppf1).rawId << " strip " << old_strip << 
@@ -211,11 +210,11 @@ void RecHitProcessor::processLook(
 		}
 	      */		
 	      if ((EMTFsector1 > 0) && (EMTFsector2 == 0)){
-		cppfDigis.push_back(*MainVariables1);
+		cppfDigis.push_back(MainVariables1);
 	      } 
 	      else if ((EMTFsector1 > 0) && (EMTFsector2 > 0)){
-		cppfDigis.push_back(*MainVariables1);
-		cppfDigis.push_back(*MainVariables2);
+		cppfDigis.push_back(MainVariables1);
+		cppfDigis.push_back(MainVariables2);
 	      }
 	      else if ((EMTFsector1 == 0) && (EMTFsector2 == 0)) {
 		continue; 
@@ -272,9 +271,9 @@ void RecHitProcessor::process(
     std::vector<const RPCRoll*> rolls = (chamb->rolls());
     
     // Loop over rolls in the chamber
-    for (std::vector<const RPCRoll*>::const_iterator iRoll = rolls.begin(); iRoll != rolls.end(); ++iRoll) {
+    for(auto& iRoll : rolls){
       
-      RPCDetId rpcId = (*iRoll)->id();	
+      RPCDetId rpcId = (*iRoll).id();	
       
       typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
       rangeRecHits recHitCollection =  recHits->get(rpcId);
@@ -435,15 +434,15 @@ void RecHitProcessor::process(
 	  assert(0 <= int_phi && int_phi < 1250);
 	  assert(0 <= int_theta && int_theta < 32);
 	  
-	  l1t::CPPFDigi* MainVariables1 = new l1t::CPPFDigi(rpcId, Bx , int_phi, int_theta, isValid, lb, halfchannel, EMTFsector1, EMTFLink1, firststrip, clustersize, global_phi, global_theta);
-	  l1t::CPPFDigi* MainVariables2 = new l1t::CPPFDigi(rpcId, Bx , int_phi, int_theta, isValid, lb, halfchannel, EMTFsector2, EMTFLink2, firststrip, clustersize, global_phi, global_theta);
+	  auto MainVariables1 = l1t::CPPFDigi(rpcId, Bx , int_phi, int_theta, isValid, lb, halfchannel, EMTFsector1, EMTFLink1, firststrip, clustersize, global_phi, global_theta);
+	  auto MainVariables2 = l1t::CPPFDigi(rpcId, Bx , int_phi, int_theta, isValid, lb, halfchannel, EMTFsector2, EMTFLink2, firststrip, clustersize, global_phi, global_theta);
 	  if(int_theta == 31) continue;
           if ((EMTFsector1 > 0) && (EMTFsector2 == 0)){
-	    cppfDigis.push_back(*MainVariables1);
+	    cppfDigis.push_back(MainVariables1);
 	  } 
           if ((EMTFsector1 > 0) && (EMTFsector2 > 0)){
-	    cppfDigis.push_back(*MainVariables1);
-	    cppfDigis.push_back(*MainVariables2);
+	    cppfDigis.push_back(MainVariables1);
+	    cppfDigis.push_back(MainVariables2);
 	  }
 	  if ((EMTFsector1 == 0) && (EMTFsector2 == 0)){
 	    continue;
