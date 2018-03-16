@@ -210,8 +210,24 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     // unsorted reference to sv
     const auto & svs_unsorted = *svs;     
     // fill collection, from DeepTNtuples plus some styling
-    for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
-        auto cand = jet.daughter(i);
+    std::vector<const pat::PackedCandidate*> daughters;
+    //if (jet.pt() > 200 && std::abs(jet.eta()) < 2.4) std::cout << "jet: " << jet.pt() << " " << jet.eta() << std::endl;
+    for (unsigned int i = 0; i < jet.numberOfDaughters(); i++){
+        auto const *cand = jet.daughter(i);
+	if (cand->numberOfDaughters() > 0){
+	  for (unsigned int k = 0; k < cand->numberOfDaughters(); k++){
+	    daughters.push_back(dynamic_cast<const pat::PackedCandidate*>(cand->daughter(k)));
+	  }
+	}	
+	else {
+	  daughters.push_back(dynamic_cast<const pat::PackedCandidate*>(cand));
+	}
+    }
+    // sort daughters by pt
+    std::sort(daughters.begin(), daughters.end(),
+	      [](const pat::PackedCandidate* p1, const pat::PackedCandidate* p2){return p1->pt()>p2->pt();});
+    unsigned int i = 0;
+    for (const auto * cand : daughters) {	
         if(cand){
           // candidates under 950MeV (configurable) are not considered
           // might change if we use also white-listing
@@ -221,10 +237,12 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
             trackinfo.buildTrackInfo(cand,jet_dir,jet_ref_track_dir,pv);
             c_sorted.emplace_back(i, trackinfo.getTrackSip2dSig(),
                                   -btagbtvdeep::mindrsvpfcand(svs_unsorted,cand,0.8), cand->pt()/jet.pt());
-          }
+	    //if (jet.pt() > 200 && std::abs(jet.eta()) < 2.4) std::cout << "cand: " << cand->pt() << " " << cand->eta() << " " << trackinfo.getTrackSip2dSig() << btagbtvdeep::mindrsvpfcand(svs_unsorted,cand,0.8) << std::endl;
+	    i++;
+	  }
         }
     }
-
+    
     // sort collections (open the black-box if you please) 
     std::sort(c_sorted.begin(),c_sorted.end(),
       btagbtvdeep::SortingClass<std::size_t>::compareByABCInv);
@@ -237,22 +255,17 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     // set right size to vectors
     features.c_pf_features.clear();
     features.c_pf_features.resize(c_sorted.size());
-    std::cout << "c_sorted.size() = " << c_sorted.size() << std::endl;
-    std::cout << "c_sortedindices.size() = " << c_sortedindices.size() << std::endl;
 
-
-  for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
-
-    // get pointer and check that is correct
-    auto cand = dynamic_cast<const reco::Candidate *>(jet.daughter(i));
+    i = 0;
+    for (const auto * cand : daughters) {	
+      // for (unsigned int i = 0; i <  jet.numberOfDaughters(); i++){
+      // get pointer and check that is correct
+      // auto cand = dynamic_cast<const reco::Candidate *>(jet.daughter(i));
     if(!cand) continue;
     // candidates under 950MeV are not considered
     // might change if we use also white-listing
     if (cand->pt()<0.95) continue;
     
-    if (cand->charge() != 0) {
-      std::cout << "cand pt = " << cand->pt() << std::endl;
-    }
     auto packed_cand = dynamic_cast<const pat::PackedCandidate *>(cand);
     auto reco_cand = dynamic_cast<const reco::PFCandidate *>(cand);
 
@@ -278,7 +291,8 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       // fill feature structure 
       if (packed_cand) {
         btagbtvdeep::PackedCandidateToFeatures(packed_cand, jet, trackinfo, 
-                                                                          drminpfcandsv, c_pf_features);
+					       drminpfcandsv, c_pf_features);
+	i++;
       } else if (reco_cand) {
         // get vertex association quality
         int pv_ass_quality = 0; // fallback value
@@ -307,13 +321,23 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         }
         btagbtvdeep::RecoCandidateToFeatures(reco_cand, jet, trackinfo, 
                                            drminpfcandsv, puppiw,
-                                           pv_ass_quality, PV, c_pf_features);
+					     pv_ass_quality, PV, c_pf_features);
+	i++;
       }
-    }     
-  }
-  std::cout << "c_pf_features.size() = " << features.c_pf_features.size() << std::endl;
-  
-    
+    }
+    }
+
+    /*
+    // c_pf candidates                                                                                                               
+    auto max_c_pf_n = features.c_pf_features.size();
+    for (std::size_t c_pf_n=0; c_pf_n < max_c_pf_n; c_pf_n++) {
+      //std::cout << c_pf_n  << std::endl;
+      //std::cout << c_sorted.at(c_pf_n).get()  << std::endl;
+      //auto const *cand = jet.daughter(c_sorted.at(c_pf_n).get());
+      const auto & c_pf_features = features.c_pf_features.at(c_pf_n);
+      //if (jet.pt() > 200 && std::abs(jet.eta()) < 2.4) std::cout << "c_pf_features: " <<  c_pf_features.btagPf_trackPtRel << " " << c_pf_features.btagPf_trackEtaRel <<  " " << c_pf_features.btagPf_trackSip2dSig << " " << c_pf_features.drminsv << std::endl;	
+    }
+    */
 
   output_tag_infos->emplace_back(features, jet_ref);
   }
