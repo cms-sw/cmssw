@@ -396,8 +396,11 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   Handle<reco::VertexCollection> vertex;
   if(doMVA) {
      iEvent.getByToken(theBeamSpotLabel_, beamSpot);
+     if(!beamSpot.isValid()) {edm::LogInfo("MuonRecoAnalyzer") << "Error: Can't get the beamspot" << endl; doMVA = false;} 
      iEvent.getByToken(theVertexLabel_, vertex);
+     if(!vertex.isValid()) {edm::LogInfo("MuonRecoAnalyzer") << "Error: Can't get the vertex collection" << endl; doMVA = false;}
   }
+
   //In this part we determine if we want to fill the plots for events where the DCS flag was set to bad
   edm::Handle<DcsStatusCollection> dcsStatus;
   bool fillBadLumi = false;
