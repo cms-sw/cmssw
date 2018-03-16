@@ -79,82 +79,82 @@ void RecHitProcessor::processLook(
 	  EMTFsector1 = 1;
 	  EMTFsector2 = 6;
 	}
-	if ((global_phi > 16.3) && (global_phi <= 53.)) {
+	else if ((global_phi > 16.3) && (global_phi <= 53.)) {
 	  EMTFsector1 = 1;
 	  EMTFsector2 = 0;
 	}
-	if ((global_phi > 53.) && (global_phi <= 75.)) {
+	else if ((global_phi > 53.) && (global_phi <= 75.)) {
 	  EMTFsector1 = 1;
 	  EMTFsector2 = 2;
 	}
 	//sector 2 
-	if ((global_phi > 75.) && (global_phi <= 76.3)) {
+	else if ((global_phi > 75.) && (global_phi <= 76.3)) {
 	  EMTFsector1 = 1;
 	  EMTFsector2 = 2;
 	}
-	if ((global_phi > 76.3) && (global_phi <= 113.)) {
+	else if ((global_phi > 76.3) && (global_phi <= 113.)) {
 	  EMTFsector1 = 2;
 	  EMTFsector2 = 0;
 	}
-	if ((global_phi > 113.) && (global_phi <= 135.)) {
+	else if ((global_phi > 113.) && (global_phi <= 135.)) {
 	  EMTFsector1 = 2;
 	  EMTFsector2 = 3;
 	}
 	//sector 3
 	//less than 180
-	if ((global_phi > 135.) && (global_phi <= 136.3)) {
+	else if ((global_phi > 135.) && (global_phi <= 136.3)) {
 	  EMTFsector1 = 2;
 	  EMTFsector2 = 3;
 	}
-	if ((global_phi > 136.3) && (global_phi <= 173.)) {
+	else if ((global_phi > 136.3) && (global_phi <= 173.)) {
 	  EMTFsector1 = 3;
 	  EMTFsector2 = 0;
 	}
-	if ((global_phi > 173.) && (global_phi <= 180.)) {
+	else if ((global_phi > 173.) && (global_phi <= 180.)) {
 	  EMTFsector1 = 3;
 	  EMTFsector2 = 4;
 	}
 	//Greater than -180
-	if ((global_phi < -165.) && (global_phi >= -180.)) {
+	else if ((global_phi < -165.) && (global_phi >= -180.)) {
 	  EMTFsector1 = 3;
 	  EMTFsector2 = 4;
 	}
 	//Fourth sector
-	if ((global_phi > -165.) && (global_phi <= -163.7)) {
+	else if ((global_phi > -165.) && (global_phi <= -163.7)) {
 	  EMTFsector1 = 3;
 	  EMTFsector2 = 4;
 	}
-	if ((global_phi > -163.7) && (global_phi <= -127.)) {
+	else if ((global_phi > -163.7) && (global_phi <= -127.)) {
 	  EMTFsector1 = 4;
 	  EMTFsector2 = 0;
 	}
-	if ((global_phi > -127.) && (global_phi <= -105.)) {
+	else if ((global_phi > -127.) && (global_phi <= -105.)) {
 	  EMTFsector1 = 4;
 	  EMTFsector2 = 5;
 	}
 	//fifth sector
-	if ((global_phi > -105.) && (global_phi <= -103.7)) {
+	else if ((global_phi > -105.) && (global_phi <= -103.7)) {
 	  EMTFsector1 = 4;
 	  EMTFsector2 = 5;
 	}
-	if ((global_phi > -103.7) && (global_phi <= -67.)) {
+	else if ((global_phi > -103.7) && (global_phi <= -67.)) {
 	  EMTFsector1 = 5;
 	  EMTFsector2 = 0;
 	}
-	if ((global_phi > -67.) && (global_phi <= -45.)) {
+	else if ((global_phi > -67.) && (global_phi <= -45.)) {
 	  EMTFsector1 = 5;
 	  EMTFsector2 = 6;
 	} 
 	//sixth sector
-	if ((global_phi > -45.) && (global_phi <= -43.7)) {
+	else if ((global_phi > -45.) && (global_phi <= -43.7)) {
 	  EMTFsector1 = 5;
 	  EMTFsector2 = 6;
 	} 
-	if ((global_phi > -43.7) && (global_phi <= -7.)) {
+	else if ((global_phi > -43.7) && (global_phi <= -7.)) {
 	  EMTFsector1 = 6;
 	  EMTFsector2 = 0;
 	}
-	if ((global_phi > -7.) && (global_phi <= 15.)) {
+	else if ((global_phi > -7.) && (global_phi <= 15.)) {
 	  EMTFsector1 = 6;
 	  EMTFsector2 = 1;
 	} 
@@ -190,7 +190,7 @@ void RecHitProcessor::processLook(
 		if(before < after) cppf=(cppf1-1);
                 else if (before > after) cppf=(cppf1+1);
 	      }
-	      if(firststrip > 1){
+	      else if(firststrip > 1){
 		if(before < after) cppf=(cppf1+1);
 		else if (before > after) cppf=(cppf1-1);
 	      }
@@ -221,7 +221,7 @@ void RecHitProcessor::processLook(
 		continue; 
 	      } 
 	    } //Geo is true
-	    else if (!Geo){
+	    else {
 	      global_phi = 0.;
 	      global_theta = 0.;
 	      l1t::CPPFDigi* MainVariables1 = new l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector1, EMTFLink1, old_strip, clustersize, global_phi, global_theta);
@@ -308,7 +308,7 @@ void RecHitProcessor::process(
 	    if(global_theta < 8.5) int_theta = 0;
 	    if(global_theta > 45.) int_theta = 31;
 	  } 
-	  if(region == -1) {
+	  else if(region == -1) {
 	    if(global_theta < 135.) int_theta = 31;
 	    if(global_theta > 171.5) int_theta = 0;
 	  } 
@@ -324,99 +324,99 @@ void RecHitProcessor::process(
 	    EMTFsector1 = 1;
 	    EMTFsector2 = 6;
 	  }
-	  if ((global_phi > 16.3) && (global_phi <= 53.)) {
+	  else if ((global_phi > 16.3) && (global_phi <= 53.)) {
 	    local_phi = global_phi-15.;
 	    EMTFsector1 = 1;
 	    EMTFsector2 = 0;
 	  }
-	  if ((global_phi > 53.) && (global_phi <= 75.)) {
+	  else if ((global_phi > 53.) && (global_phi <= 75.)) {
 	    local_phi = global_phi-15.;
 	    EMTFsector1 = 1;
 	    EMTFsector2 = 2;
 	  }
 	  //sector 2 
-	  if ((global_phi > 75.) && (global_phi <= 76.3)) {
+	  else if ((global_phi > 75.) && (global_phi <= 76.3)) {
 	    local_phi = global_phi-15.;
 	    EMTFsector1 = 1;
 	    EMTFsector2 = 2;
 	  }
-	  if ((global_phi > 76.3) && (global_phi <= 113.)) {
+	  else if ((global_phi > 76.3) && (global_phi <= 113.)) {
 	    local_phi = global_phi-75.;
 	    EMTFsector1 = 2;
 	    EMTFsector2 = 0;
 	  }
-	  if ((global_phi > 113.) && (global_phi <= 135.)) {
+	  else if ((global_phi > 113.) && (global_phi <= 135.)) {
 	    local_phi = global_phi-75.;
 	    EMTFsector1 = 2;
 	    EMTFsector2 = 3;
 	  }
 	  //sector 3
 	  //less than 180
-	  if ((global_phi > 135.) && (global_phi <= 136.3)) {
+	  else if ((global_phi > 135.) && (global_phi <= 136.3)) {
 	    local_phi = global_phi-75.;
 	    EMTFsector1 = 2;
 	    EMTFsector2 = 3;
 	  }
-	  if ((global_phi > 136.3) && (global_phi <= 173.)) {
+	  else if ((global_phi > 136.3) && (global_phi <= 173.)) {
 	    local_phi = global_phi-135.;
 	    EMTFsector1 = 3;
 	    EMTFsector2 = 0;
 	  }
-	  if ((global_phi > 173.) && (global_phi <= 180.)) {
+	  else if ((global_phi > 173.) && (global_phi <= 180.)) {
 	    local_phi = global_phi-135.;
 	    EMTFsector1 = 3;
 	    EMTFsector2 = 4;
 	  }
 	  //Greater than -180
-	  if ((global_phi < -165.) && (global_phi >= -180.)) {
+	  else if ((global_phi < -165.) && (global_phi >= -180.)) {
 	    local_phi = global_phi+225.;
 	    EMTFsector1 = 3;
 	    EMTFsector2 = 4;
 	  }
 	  //Fourth sector
-	  if ((global_phi > -165.) && (global_phi <= -163.7)) {
+	  else if ((global_phi > -165.) && (global_phi <= -163.7)) {
 	    local_phi = global_phi+225.;
 	    EMTFsector1 = 3;
 	    EMTFsector2 = 4;
 	  }
-	  if ((global_phi > -163.7) && (global_phi <= -127.)) {
+	  else if ((global_phi > -163.7) && (global_phi <= -127.)) {
 	    local_phi = global_phi+165.;
 	    EMTFsector1 = 4;
 	    EMTFsector2 = 0;
 	  }
-	  if ((global_phi > -127.) && (global_phi <= -105.)) {
+	  else if ((global_phi > -127.) && (global_phi <= -105.)) {
 	    local_phi = global_phi+165.;
 	    EMTFsector1 = 4;
 	    EMTFsector2 = 5;
 	  }
 	  //fifth sector
-	  if ((global_phi > -105.) && (global_phi <= -103.7)) {
+	  else if ((global_phi > -105.) && (global_phi <= -103.7)) {
 	    local_phi = global_phi+165.;
 	    EMTFsector1 = 4;
 	    EMTFsector2 = 5;
 	  }
-	  if ((global_phi > -103.7) && (global_phi <= -67.)) {
+	  else if ((global_phi > -103.7) && (global_phi <= -67.)) {
 	    local_phi = global_phi+105.;
 	    EMTFsector1 = 5;
 	    EMTFsector2 = 0;
 	  }
-	  if ((global_phi > -67.) && (global_phi <= -45.)) {
+	  else if ((global_phi > -67.) && (global_phi <= -45.)) {
 	    local_phi = global_phi+105.;
 	    EMTFsector1 = 5;
 	    EMTFsector2 = 6;
 	  } 
 	  //sixth sector
-	  if ((global_phi > -45.) && (global_phi <= -43.7)) {
+	  else if ((global_phi > -45.) && (global_phi <= -43.7)) {
 	    local_phi = global_phi+105.;
 	    EMTFsector1 = 5;
 	    EMTFsector2 = 6;
 	  } 
-	  if ((global_phi > -43.7) && (global_phi <= -7.)) {
+	  else if ((global_phi > -43.7) && (global_phi <= -7.)) {
 	    local_phi = global_phi+45.;
 	    EMTFsector1 = 6;
 	    EMTFsector2 = 0;
 	  }
-	  if ((global_phi > -7.) && (global_phi <= 15.)) {
+	  else if ((global_phi > -7.) && (global_phi <= 15.)) {
 	    local_phi = global_phi+45.;
 	    EMTFsector1 = 6;
 	    EMTFsector2 = 1;
@@ -438,14 +438,14 @@ void RecHitProcessor::process(
 	  l1t::CPPFDigi* MainVariables1 = new l1t::CPPFDigi(rpcId, Bx , int_phi, int_theta, isValid, lb, halfchannel, EMTFsector1, EMTFLink1, firststrip, clustersize, global_phi, global_theta);
 	  l1t::CPPFDigi* MainVariables2 = new l1t::CPPFDigi(rpcId, Bx , int_phi, int_theta, isValid, lb, halfchannel, EMTFsector2, EMTFLink2, firststrip, clustersize, global_phi, global_theta);
 	  if(int_theta == 31) continue;
-          else if ((EMTFsector1 > 0) && (EMTFsector2 == 0)){
+          if ((EMTFsector1 > 0) && (EMTFsector2 == 0)){
 	    cppfDigis.push_back(*MainVariables1);
 	  } 
-          else if ((EMTFsector1 > 0) && (EMTFsector2 > 0)){
+          if ((EMTFsector1 > 0) && (EMTFsector2 > 0)){
 	    cppfDigis.push_back(*MainVariables1);
 	    cppfDigis.push_back(*MainVariables2);
 	  }
-	  else if ((EMTFsector1 == 0) && (EMTFsector2 == 0)){
+	  if ((EMTFsector1 == 0) && (EMTFsector2 == 0)){
 	    continue;
 	  } 
         } // No barrel rechits	

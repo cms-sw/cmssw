@@ -5,7 +5,8 @@
 
 
 L1TMuonCPPFDigiProducer::L1TMuonCPPFDigiProducer(const edm::ParameterSet& iConfig) :
-  cppf_emulator_(new EmulateCPPF(iConfig, consumesCollector()))
+  cppf_emulator_(std::make_unique<EmulateCPPF>(iConfig, consumesCollector()))
+  //cppf_emulator_(new EmulateCPPF(iConfig, consumesCollector()))
 {
   // produces<l1t::CPPFDigiCollection>("rpcDigi");
   produces<l1t::CPPFDigiCollection>("recHit");

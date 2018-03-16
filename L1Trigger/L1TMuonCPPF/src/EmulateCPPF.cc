@@ -16,12 +16,11 @@ EmulateCPPF::EmulateCPPF(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   const std::string cppfSource = iConfig.getParameter<std::string>("cppfSource");
   //Look up table
   if (cppfSource == "File"){
-    std::cout << "Running with the Look up table" << std::endl; 
     cppfSource_ = CppfSource::File;
     edm::FileInPath fp = iConfig.getParameter<edm::FileInPath>("cppfvecfile");
     std::ifstream inputFile(fp.fullPath().c_str(), std::ios::in);
     if ( !inputFile ) {
-      std::cerr << "CPPF look up table file cannot not be opened" << std::endl;
+    throw cms::Exception("No LUT") << "Error: CPPF look up table file cannot not be opened";
       exit(1);
     }
     while ( inputFile.good() ) {
@@ -34,12 +33,11 @@ EmulateCPPF::EmulateCPPF(const edm::ParameterSet& iConfig, edm::ConsumesCollecto
   
   //RPC Geometry	
   else if (cppfSource == "Geo") {
-    std::cout << "Running with the RPC Geometry" << std::endl;
     cppfSource_ = CppfSource::EventSetup;
   }
   //Error for wrong input
   else {
-    std::cerr << "Error: Specify in python/simCppfDigis_cfi.py 'File' for look up  table or 'Geo' for RPC Geometry" << std::endl;
+    throw cms::Exception("Invalid option") << "Error: Specify in python/emulatorCppfDigis_cfi 'File' for look up  table or 'Geo' for RPC Geometry";
     exit(1); 
   }
   
@@ -57,12 +55,12 @@ void EmulateCPPF::process(
   if( cppfSource_ == CppfSource::File ){
     //Using the look up table to fill the information
     cppf_recHit.clear();
-    for (unsigned int iBoard = 0; iBoard < recHit_processors_.size(); iBoard++) {
-      recHit_processors_.at(iBoard).processLook( iEvent, iSetup, recHitToken_, CppfVec_1, cppf_recHit );
+    for (auto& recHit_processor : recHit_processors_) {
+      recHit_processor.processLook( iEvent, iSetup, recHitToken_, CppfVec_1, cppf_recHit );
+    //  recHit_processors_.at(recHit_processor).processLook( iEvent, iSetup, recHitToken_, CppfVec_1, cppf_recHit );
     }
-    return; 
   }
-  if (cppfSource_ == CppfSource::EventSetup) {
+  else if (cppfSource_ == CppfSource::EventSetup) {
     // Clear output collections
     // cppf_rpcDigi.clear();
     cppf_recHit.clear();
@@ -80,9 +78,9 @@ void EmulateCPPF::process(
     // for (unsigned int iBoard = 0; iBoard < rpcDigi_processors_.size(); iBoard++) {
     // rpcDigi_processors_.at(iBoard).process( iSetup, rpcDigis, cppf_rpcDigi );
     // }
-    for (unsigned int iBoard = 0; iBoard < recHit_processors_.size(); iBoard++) {
-      recHit_processors_.at(iBoard).process( iEvent, iSetup, recHitToken_, cppf_recHit );
+    for (auto& recHit_processor : recHit_processors_) {
+      recHit_processor.process( iEvent, iSetup, recHitToken_, cppf_recHit );
+      //recHit_processors_.at(recHit_processor).process( iEvent, iSetup, recHitToken_, cppf_recHit );
     } 
-    return;
   }
 } // End void EmulateCPPF::process()					   
