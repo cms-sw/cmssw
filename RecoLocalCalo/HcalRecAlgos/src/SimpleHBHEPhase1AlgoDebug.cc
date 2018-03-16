@@ -15,7 +15,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 MahiDebugInfo SimpleHBHEPhase1AlgoDebug::recoDebug(const HBHEChannelInfo& info,
-						   const bool isData) 
+						   const bool isData,
+						   const HcalTimeSlew *hcalTimeSlewDelay) 
 {
   MahiDebugInfo mdi;
   const HcalDetId channelId(info.id());
@@ -64,19 +65,11 @@ MahiDebugInfo SimpleHBHEPhase1AlgoDebug::recoDebug(const HBHEChannelInfo& info,
   //float m4T = 0.f;
   //bool m4UseTriple=false;
 
-
-  HcalTimeSlew* temp = new HcalTimeSlew();
-  //currently hardcoded in Mahi file b/c it seems to be randomly segfaulting :(
-  temp->addM2ParameterSet(13.307784, -1.556668, 10.0);
-  const HcalTimeSlew* temp2 = *&temp;
-  
   const MahiFit* mahi = mahiOOTpuCorr_.get();
   if (mahi) {
-    mahiOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),temp2);//,
+    mahiOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(info.recoShape()),hcalTimeSlewDelay);//,
     mahi->phase1Debug(info, mdi);
   }
 
-  delete temp;
-  
   return mdi;
 }
