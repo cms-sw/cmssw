@@ -76,9 +76,12 @@ phase2_timing_layer.toModify( theDigitizers,
 premix_stage2.toModify(theDigitizers,
     ecal = None,
     hcal = None,
-    # TODO: what to do with hgcal?
 )
-
+(premix_stage2 & phase2_hgcal).toModify(theDigitizers,
+    hgceeDigitizer = dict(premixStage1 = True),
+    hgchebackDigitizer = dict(premixStage1 = True),
+    hgchefrontDigitizer = dict(premixStage1 = True),
+)
 
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True

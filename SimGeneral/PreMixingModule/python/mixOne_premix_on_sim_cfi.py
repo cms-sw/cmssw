@@ -11,6 +11,7 @@ from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlo
 from SimGeneral.MixingModule.SiStripSimParameters_cfi import SiStripSimBlock
 from SimGeneral.MixingModule.SiPixelSimParameters_cfi import SiPixelSimBlock
 from SimGeneral.MixingModule.ecalDigitizer_cfi import ecalDigitizer
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer
 
 import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
 import EventFilter.ESRawToDigi.esRawToDigi_cfi
@@ -307,7 +308,34 @@ phase2_hcal.toModify(mixData,
     )
 )
 
-# TODO: Add HGCAL, but needs code first
+phase2_hgcal.toModify(mixData,
+    workers = dict(
+        hgcee = cms.PSet(
+            hgceeDigitizer,
+            #
+            workerType = cms.string("PreMixingHGCalWorker"),
+            #
+            digiTagSig = cms.InputTag("mix", "HGCDigisEE"),
+            pileInputTag = cms.InputTag("mix", "HGCDigisEE"),
+        ),
+        hgchefront = cms.PSet(
+            hgchefrontDigitizer,
+            #
+            workerType = cms.string("PreMixingHGCalWorker"),
+            #
+            digiTagSig = cms.InputTag("mix", "HGCDigisHEfront"),
+            pileInputTag = cms.InputTag("mix", "HGCDigisHEfront"),
+        ),
+        hgcheback = cms.PSet(
+            hgchebackDigitizer,
+            #
+            workerType = cms.string("PreMixingHGCalWorker"),
+            #
+            digiTagSig = cms.InputTag("mix", "HGCDigisHEback"),
+            pileInputTag = cms.InputTag("mix", "HGCDigisHEback"),
+        ),
+    )
+)
 
 # Muon
 phase2_muon.toModify(mixData,

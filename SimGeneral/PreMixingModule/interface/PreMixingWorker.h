@@ -17,6 +17,7 @@ public:
   virtual ~PreMixingWorker() = default;
 
   virtual void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
+  virtual void endRun() {}
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const& iSetup) {}
   virtual void initializeBunchCrossing(edm::Event const& iEvent, edm::EventSetup const& iSetup, int bunchCrossing) {}
   virtual void finalizeBunchCrossing(edm::Event& iEvent, edm::EventSetup const& iSetup, int bunchCrossing) {}

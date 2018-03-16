@@ -15,6 +15,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
+#include "DataFormats/Math/interface/liblogintpack.h"
 
 #include <algorithm>
 #include <boost/foreach.hpp>
@@ -125,6 +126,59 @@ namespace {
     return 1.f;
   }
 
+  // Dumps the internals of the SimHit accumulator to the digis for premixing
+  void saveSimHitAccumulator(PHGCSimAccumulator& simResult, const hgc::HGCSimHitDataAccumulator& simData, const std::unordered_set<DetId>& validIds, const float minCharge, const float maxCharge) {
+    constexpr auto nEnergies = std::tuple_size<decltype(hgc_digi::HGCCellInfo().hit_info)>::value;
+    static_assert(nEnergies <= PHGCSimAccumulator::Data::energyMask+1, "PHGCSimAccumulator bit pattern needs to updated");
+    static_assert(hgc_digi::nSamples <= PHGCSimAccumulator::Data::sampleMask+1, "PHGCSimAccumulator bit pattern needs to updated");
+
+    const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
+    const float maxPackChargeLog = std::log(maxCharge);
+    constexpr uint16_t base = 1<<PHGCSimAccumulator::Data::sampleOffset;
+
+    simResult.reserve(simData.size());
+    // mimicing the digitization
+    for(const auto& id: validIds) {
+      auto found = simData.find(id);
+      if(found == simData.end())
+        continue;
+      // store only non-zero
+      for(size_t iEn = 0; iEn < nEnergies; ++iEn) {
+        const auto& samples = found->second.hit_info[iEn];
+        for(size_t iSample = 0; iSample < hgc_digi::nSamples; ++iSample) {
+          if(samples[iSample] > minCharge) {
+            const auto packed = logintpack::pack16log(samples[iSample], minPackChargeLog, maxPackChargeLog, base);
+            simResult.emplace_back(id.rawId(), iEn, iSample, packed);
+          }
+        }
+      }
+    }
+    simResult.shrink_to_fit();
+  }
+
+  // Loads the internals of the SimHit accumulator from the digis for premixing
+  void loadSimHitAccumulator(hgc::HGCSimHitDataAccumulator& simData, const PHGCSimAccumulator& simAccumulator, const float minCharge, const float maxCharge, bool setIfZero) {
+    const float minPackChargeLog = minCharge > 0.f ? std::log(minCharge) : -2;
+    const float maxPackChargeLog = std::log(maxCharge);
+    constexpr uint16_t base = 1<<PHGCSimAccumulator::Data::sampleOffset;
+
+    for(const auto& detIdIndexHitInfo: simAccumulator) {
+      auto simIt = simData.emplace(detIdIndexHitInfo.detId(), HGCCellInfo()).first;
+      auto& hit_info = simIt->second.hit_info;
+
+      size_t iEn = detIdIndexHitInfo.energyIndex();
+      size_t iSample = detIdIndexHitInfo.sampleIndex();
+
+      float value = logintpack::unpack16log(detIdIndexHitInfo.data(), minPackChargeLog, maxPackChargeLog, base);
+
+      if(iEn == 0 || !setIfZero) {
+        hit_info[iEn][iSample] += value;
+      }
+      else if(hit_info[iEn][iSample] == 0) {
+        hit_info[iEn][iSample] = value;
+      }
+    }
+  }
 }
 
 //
@@ -144,6 +198,9 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
   digitizationType_  = ps.getParameter< uint32_t >("digitizationType");
   verbosity_         = ps.getUntrackedParameter< uint32_t >("verbosity",0);
   tofDelay_          = ps.getParameter< double >("tofDelay");
+  premixStage1_      = ps.getParameter<bool>("premixStage1");
+  premixStage1MinCharge_ = ps.getParameter<double>("premixStage1MinCharge");
+  premixStage1MaxCharge_ = ps.getParameter<double>("premixStage1MaxCharge");
 
   std::unordered_set<DetId>().swap(validIds_);
 
@@ -229,27 +286,34 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
   const double thisOcc = simHitAccumulator_->size()/((double)validIds_.size());
   averageOccupancies_[idx] = (averageOccupancies_[idx]*(nEvents_-1) + thisOcc)/nEvents_;
 
-  if( producesEEDigis() )
-    {
+  if(premixStage1_) {
+    std::unique_ptr<PHGCSimAccumulator> simResult;
+    if(!simHitAccumulator_->empty()) {
+      simResult = std::make_unique<PHGCSimAccumulator>(simHitAccumulator_->begin()->first);
+      saveSimHitAccumulator(*simResult, *simHitAccumulator_, validIds_, premixStage1MinCharge_, premixStage1MaxCharge_);
+    }
+    e.put(std::move(simResult), digiCollection());
+  }
+  else {
+    if( producesEEDigis() ) {
       std::unique_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
       theHGCEEDigitizer_->run(digiResult,*simHitAccumulator_,theGeom,validIds_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";
       e.put(std::move(digiResult),digiCollection());
     }
-  if( producesHEfrontDigis())
-    {
+    if( producesHEfrontDigis()) {
       std::unique_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
       theHGCHEfrontDigitizer_->run(digiResult,*simHitAccumulator_,theGeom,validIds_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE front hits";
       e.put(std::move(digiResult),digiCollection());
     }
-  if( producesHEbackDigis() )
-    {
+    if( producesHEbackDigis() ) {
       std::unique_ptr<HGCBHDigiCollection> digiResult(new HGCBHDigiCollection() );
       theHGCHEbackDigitizer_->run(digiResult,*simHitAccumulator_,theGeom,validIds_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
       e.put(std::move(digiResult),digiCollection());
     }
+  }
 
   hgc::HGCSimHitDataAccumulator().swap(*simHitAccumulator_);
 }
@@ -451,6 +515,25 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 
   }
   hitRefs.clear();
+}
+
+void HGCDigitizer::accumulate(const PHGCSimAccumulator& simAccumulator) {
+  //configuration to apply for the computation of time-of-flight
+  bool weightToAbyEnergy(false);
+  switch( mySubDet_ ) {
+  case ForwardSubdetector::HGCEE:
+    weightToAbyEnergy = theHGCEEDigitizer_->toaModeByEnergy();
+    break;
+  case ForwardSubdetector::HGCHEF:
+    weightToAbyEnergy = theHGCHEfrontDigitizer_->toaModeByEnergy();
+    break;
+  case ForwardSubdetector::HGCHEB:
+    weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
+    break;
+  default:
+    break;
+  }
+  loadSimHitAccumulator(*simHitAccumulator_, simAccumulator, premixStage1MinCharge_, premixStage1MaxCharge_, !weightToAbyEnergy);
 }
 
 //

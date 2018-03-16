@@ -111,6 +111,9 @@ namespace edm {
   }
 
   void PreMixingModule::endRun(edm::Run const& run, const edm::EventSetup& ES) { 
+    for(auto& w: workers_) {
+      w->endRun();
+    }
     BMixingModule::endRun( run, ES);
   }
 

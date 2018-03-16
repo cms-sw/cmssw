@@ -124,7 +124,7 @@ void HGCalDigiValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<bool>("ifHCAL",false);
   desc.addUntracked<int>("Verbosity",0);
   desc.addUntracked<int>("SampleIndx",0);
-  descriptions.add("hgcalDigiValidationEE",desc);
+  descriptions.add("hgcalDigiValidationEEDefault",desc);
 }
 
 void HGCalDigiValidation::analyze(const edm::Event& iEvent, 
