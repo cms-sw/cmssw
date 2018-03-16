@@ -109,10 +109,11 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
         std::unique_ptr<HcalDeterministicFit> detFit;
 
 	// only run Mahi OR Method 2 but not both
-	//if (ps.getParameter<bool>("useMahi") && ps.getParameter<bool>("useM2")) {
-        //  throw cms::Exception("ConfigurationError") <<
-        //    "SimpleHBHEPhase1Algo does not allow both Mahi and Method 2 to be turned on together.";
-        //}
+	if (ps.getParameter<bool>("useMahi") && ps.getParameter<bool>("useM2")) {
+          throw cms::Exception("ConfigurationError") <<
+            "SimpleHBHEPhase1Algo does not allow both Mahi and Method 2 to be turned on together.";
+        }
+
 	if (ps.getParameter<bool>("useMahi"))
 	  mahi = parseHBHEMahiDescription(ps);
 	if (ps.getParameter<bool>("useM2"))
@@ -136,18 +137,19 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps)
 	std::unique_ptr<PulseShapeFitOOTPileupCorrection> m2;
 	std::unique_ptr<HcalDeterministicFit> detFit;
 
-	// only run Mahi OR Method 2 but not both
-	//if (ps.getParameter<bool>("useMahi") && ps.getParameter<bool>("useM2")) {
-        //  throw cms::Exception("ConfigurationError") <<
-        //    "SimpleHBHEPhase1Algo does not allow both Mahi and Method 2 to be turned on together.";
-        //}
+	//only run Mahi OR Method 2 but not both
+	if (ps.getParameter<bool>("useMahi") && ps.getParameter<bool>("useM2")) {
+          throw cms::Exception("ConfigurationError") <<
+            "SimpleHBHEPhase1Algo does not allow both Mahi and Method 2 to be turned on together.";
+        }
+
 	if (ps.getParameter<bool>("useMahi"))
 	  mahi = parseHBHEMahiDescription(ps);
 	if (ps.getParameter<bool>("useM2"))
 	  m2 = parseHBHEMethod2Description(ps);
 	if (ps.getParameter<bool>("useM3"))
 	  detFit = parseHBHEMethod3Description(ps);
-
+	
         algo = std::unique_ptr<AbsHBHEPhase1Algo>(
 						  new SimpleHBHEPhase1Algo(ps.getParameter<int>   ("firstSampleShift"),
 									   ps.getParameter<int>   ("samplesToAdd"),

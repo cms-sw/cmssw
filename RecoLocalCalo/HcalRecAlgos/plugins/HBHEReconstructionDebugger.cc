@@ -5,7 +5,7 @@
 // 
 /**\class HBHEReconstructionDebugger HBHEReconstructionDebugger.cc RecoLocalCalo/HcalRecAlgos/plugins/HBHEReconstructionDebugger.cc
 
- Description: Tool to extract and store debugging information from various HBHE Reconstruction algorithms
+ Description: Tool to extract and store debugging information from the HBHE Reconstruction algorithm Mahi
 
  Implementation:
      [Notes on implementation]
@@ -70,12 +70,6 @@
 //
 // class declaration
 //
-
-// If the analyzer does not use TFileService, please remove
-// the template argument to the base class so the class inherits
-// from  edm::one::EDAnalyzer<> and also remove the line from
-// constructor "usesResource("TFileService");"
-// This will improve performance in multithreaded jobs.
 
 class HBHEReconstructionDebugger : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
