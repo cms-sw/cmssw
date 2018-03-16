@@ -148,10 +148,11 @@ void SiPixelStatusHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&
              for(std::vector<uint32_t>::iterator iter = BadRocList.begin(); iter != BadRocList.end(); ++iter){
                    badrocs +=  1 << *iter; // 1 << *iter = 2^{*iter} using bitwise shift
              }
-             BadModule.BadRocs = badrocs;
-
-             siPixelQuality->addDisabledModule(BadModule);
-
+             // fill the badmodule only if there is(are) bad ROC(s) in it
+             if(badrocs!=0){
+               BadModule.BadRocs = badrocs;
+               siPixelQuality->addDisabledModule(BadModule);
+             }
           }
 
           if (poolDbService->isNewTagRequest(recordName_+"_stuckTBM") ) {
@@ -250,22 +251,31 @@ void SiPixelStatusHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&
                for(std::vector<uint32_t>::iterator iterPCL = BadRocListPCL.begin(); iterPCL != BadRocListPCL.end(); ++iterPCL){
                    badrocsPCL +=  1 << *iterPCL; // 1 << *iter = 2^{*iter} using bitwise shift 
                } 
-               BadModulePCL.BadRocs = badrocsPCL;
-               siPixelQualityPCL->addDisabledModule(BadModulePCL);
+               // fill the badmodule only if there is(are) bad ROC(s) in it
+               if(badrocsPCL!=0){
+                 BadModulePCL.BadRocs = badrocsPCL;
+                 siPixelQualityPCL->addDisabledModule(BadModulePCL);
+               }
 
                short badrocsPrompt = 0;
                for(std::vector<uint32_t>::iterator iterPrompt = BadRocListPrompt.begin(); iterPrompt != BadRocListPrompt.end(); ++iterPrompt){
                    badrocsPrompt +=  1 << *iterPrompt; // 1 << *iter = 2^{*iter} using bitwise shift
                }
-               BadModulePrompt.BadRocs = badrocsPrompt;
-               siPixelQualityPrompt->addDisabledModule(BadModulePrompt);
+               // fill the badmodule only if there is(are) bad ROC(s) in it
+               if(badrocsPrompt!=0){
+                 BadModulePrompt.BadRocs = badrocsPrompt;
+                 siPixelQualityPrompt->addDisabledModule(BadModulePrompt);
+               }
 
                short badrocsOther = 0;
                for(std::vector<uint32_t>::iterator iterOther = BadRocListOther.begin(); iterOther != BadRocListOther.end(); ++iterOther){
                    badrocsOther +=  1 << *iterOther; // 1 << *iter = 2^{*iter} using bitwise shift
                }
-               BadModuleOther.BadRocs = badrocsOther;
-               siPixelQualityOther->addDisabledModule(BadModuleOther);
+               // fill the badmodule only if there is(are) bad ROC(s) in it
+               if(badrocsOther!=0){
+                 BadModuleOther.BadRocs = badrocsOther;
+                 siPixelQualityOther->addDisabledModule(BadModuleOther);
+               }
 
          } // end module loop
           
