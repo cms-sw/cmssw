@@ -45,7 +45,7 @@ namespace dd4hep {
     class Namespace  {
     public:
       /// Reference to the global parsing context
-      ParsingContext* context = 0;
+      ParsingContext* context = nullptr;
       std::string     name;
       bool            pop = false;
     public:
@@ -206,7 +206,7 @@ namespace dd4hep {
       LogDebug& operator=(const LogDebug& copy) = delete;
       LogDebug(const std::string& tag_value, bool /* set_context */);
       LogDebug(const std::string& tag_value);
-      ~LogDebug();
+      ~LogDebug() override;
       static void setDebugAlgorithms(bool value);
     };
 
