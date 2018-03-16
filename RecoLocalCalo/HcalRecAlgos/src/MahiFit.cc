@@ -532,8 +532,6 @@ void MahiFit::phase1Debug(const HBHEChannelInfo& channelData,
   mdi.use3        = use3;
 
   mdi.inTimeConst = nnlsWork_.dt;
-  //mdi.inDarkCurrent = getSiPMDarkCurrent(channelData.darkCurrent(), channelData.fcByPE(),
-  //channelData.lambda());
   mdi.inPedAvg    = 0.25*( channelData.tsPedestalWidth(0)*channelData.tsPedestalWidth(0)+
 			   channelData.tsPedestalWidth(1)*channelData.tsPedestalWidth(1)+
 			   channelData.tsPedestalWidth(2)*channelData.tsPedestalWidth(2)+
@@ -546,11 +544,6 @@ void MahiFit::phase1Debug(const HBHEChannelInfo& channelData,
     double ped = channelData.tsPedestal(iTS);
 
     mdi.inNoiseADC[iTS]  = (1./sqrt(12))*channelData.tsDFcPerADC(iTS);
-
-    //if(channelData.hasTimeInfo() && !channelData.hasEffectivePedestals() && (charge-ped)>channelData.tsPedestalWidth(iTS)) {
-    //  mdi.inNoiseDC[iTS] = mdi.inDarkCurrent;
-    //}
-    //else { mdi.inNoiseDC[iTS] = 0; }
 
     if ( (charge-ped)>channelData.tsPedestalWidth(iTS)) {
       mdi.inNoisePhoto[iTS] = sqrt((charge-ped)*channelData.fcByPE());
@@ -567,7 +560,6 @@ void MahiFit::phase1Debug(const HBHEChannelInfo& channelData,
 
   }
 
-  //mdi.mahiEnergy  = recoEnergy;
   mdi.arrivalTime = recoTime;
   mdi.chiSq       = chi2;
 
@@ -595,9 +587,7 @@ void MahiFit::phase1Debug(const HBHEChannelInfo& channelData,
 	mdi.nPulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
       }
     }
-  }
-  
-  
+  }  
 }
 
 

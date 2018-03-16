@@ -30,9 +30,7 @@ class SimpleHBHEPhase1AlgoDebug : public SimpleHBHEPhase1Algo
 
   MahiDebugInfo recoDebug(const HBHEChannelInfo& info,
 			  const bool isRealData,
-			  const HcalTimeSlew *hcalTimeSlewDelay);//,
-    //const HcalTimeSlew* htsd);
-
+			  const HcalTimeSlew *hcalTimeSlewDelay);
 };
 
 #endif // RecoLocalCalo_HcalRecAlgos_SimpleHBHEPhase1AlgoDebug_h_

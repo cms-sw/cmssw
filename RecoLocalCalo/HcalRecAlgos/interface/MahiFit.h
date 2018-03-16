@@ -14,42 +14,6 @@
 
 #include <Math/Functor.h>
 
-struct MahiDebugInfo {
-
-  int   nSamples;
-  int   soi;
-
-  bool  use3;
-
-  float inTimeConst;
-  float inDarkCurrent;
-  float inPedAvg;
-  float inGain;
-  
-  float inNoiseADC[10];
-  float inNoiseDC[10];
-  float inNoisePhoto[10];
-  float inPedestal[10];
-
-  float totalUCNoise[10];
-
-  float mahiEnergy;
-  float chiSq;
-  float arrivalTime;
-
-  float pEnergy;
-  float nEnergy;
-  float pedEnergy;
-
-  float count[10];
-  float inputTS[10];
-  int inputTDC[10];
-  float itPulse[10];
-  float pPulse[10];
-  float nPulse[10];
-  
-};
-
 struct MahiNnlsWorkspace {
 
   unsigned int nPulseTot;
@@ -115,6 +79,42 @@ struct MahiNnlsWorkspace {
   PulseMatrix topleft_work;
   PulseDecompLDLT pulseDecomp;
 
+};
+
+struct MahiDebugInfo {
+
+  int   nSamples;
+  int   soi;
+
+  bool  use3;
+
+  float inTimeConst;
+  float inDarkCurrent;
+  float inPedAvg;
+  float inGain;
+  
+  float inNoiseADC[10];
+  float inNoiseDC[10];
+  float inNoisePhoto[10];
+  float inPedestal[10];
+
+  float totalUCNoise[10];
+
+  float mahiEnergy;
+  float chiSq;
+  float arrivalTime;
+
+  float pEnergy;
+  float nEnergy;
+  float pedEnergy;
+
+  float count[10];
+  float inputTS[10];
+  int inputTDC[10];
+  float itPulse[10];
+  float pPulse[10];
+  float nPulse[10];
+  
 };
 
 class MahiFit
