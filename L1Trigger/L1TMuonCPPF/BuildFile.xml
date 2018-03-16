@@ -1,8 +1,6 @@
 <export>
   <lib name="1"/>
 </export>
-<flags ADD_SUBDIR="1"/>
-<flags LDFLAGS="-lXMLIO"/>
 
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>

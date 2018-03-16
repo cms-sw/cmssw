@@ -24,7 +24,6 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
 #include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
-#include <cassert>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -34,14 +33,13 @@
 
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "L1Trigger/L1TMuonEndCap/interface/PrimitiveConversion.h"
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
-#include "L1Trigger/L1TMuonEndCap/interface/TrackTools.h"
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
+#include <cassert>
 #include <string>
 #include <fstream>
 #include "TVector3.h"
