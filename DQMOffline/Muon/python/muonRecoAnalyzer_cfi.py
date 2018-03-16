@@ -6,8 +6,8 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 muonRecoAnalyzer = DQMEDAnalyzer('MuonRecoAnalyzer',
                                   MuonServiceProxy, 
                                   MuonCollection       = cms.InputTag("muons"),
-                                  inputTagVertex       = cms.InputTag("offlinePrimaryVerticescaca"),
-                                  inputTagBeamSpot     = cms.InputTag("offlineBeamSpotcaca"),
+                                  inputTagVertex       = cms.InputTag("offlinePrimaryVertices"),
+                                  inputTagBeamSpot     = cms.InputTag("offlineBeamSpot"),
                                   IsminiAOD            = cms.bool( False ),
                                   doMVA                = cms.bool( False ),
                                   # histograms parameters
