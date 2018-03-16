@@ -129,9 +129,9 @@ static long algorithm(Detector& /* description */,
     LogDebug("TOBGeom") << " copies " << aohCopies[i] << "\tx = " << aohX[i]
                         << "\ty = " << aohY[i] << "\tz = " << aohZ[i];
 
-  string centName = central;
+  const string& centName = central;
   string child;
-  string rodName = parentName;
+  const string& rodName = parentName;
   Volume rod = ns.volume(rodName);
 
   // Side Rods
@@ -220,7 +220,7 @@ static long algorithm(Detector& /* description */,
   //Modules
   for (int i=0; i<(int)(moduleRot.size()); i++) {
     Position r(0, moduleY[i], shift+moduleZ[i]);
-    Rotation3D rot = ns.rotation(moduleRot[i]);
+    const Rotation3D& rot = ns.rotation(moduleRot[i]);
     child = module;
     cent.placeVolume(ns.volume(child), i+1, Transform3D(rot,r));
     LogDebug("TOBGeom") << child << " number " 
