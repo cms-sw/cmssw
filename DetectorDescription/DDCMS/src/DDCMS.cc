@@ -243,7 +243,7 @@ Volume Namespace::volume(const string& nam, bool exc)  const   {
   if ( exc )  {
     throw runtime_error("Unknown volume identifier:"+nam);
   }
-  return 0;
+  return nullptr;
 }
 
 /// Add solid to current namespace as fully indicated by the name

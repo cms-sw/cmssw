@@ -13,7 +13,7 @@ namespace dd4hep {
     Detector&    description;
     Atom         silicon;
     struct Data {
-      PlacedVolume pv {0};
+      PlacedVolume pv {nullptr};
       DetElement   element {};
       bool         sensitive = false;
       bool         has_sensitive = false;
@@ -58,11 +58,11 @@ namespace dd4hep {
     /// Initializing constructor
     DDCMSDetElementCreator(Detector& desc);
     /// Default destructor
-    virtual ~DDCMSDetElementCreator();
+    ~DDCMSDetElementCreator() override;
     /// Callback to output PlacedVolume information of an single Placement
-    virtual int operator()(PlacedVolume pv, int level);
+    int operator()(PlacedVolume pv, int level) override;
     /// Callback to output PlacedVolume information of an entire Placement
-    virtual int process(PlacedVolume pv, int level, bool recursive);
+    int process(PlacedVolume pv, int level, bool recursive) override;
   };
 }
 

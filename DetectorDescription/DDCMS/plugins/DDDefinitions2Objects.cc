@@ -29,7 +29,7 @@ namespace dd4hep {
 
   namespace {
 
-    static UInt_t unique_mat_id = 0xAFFEFEED;
+    UInt_t unique_mat_id = 0xAFFEFEED;
 
 
     class disabled_algo;
@@ -320,7 +320,7 @@ template <> void Converter<elementarymaterial>::operator()(xml_h element) const 
   string        nam = _ns.prepend(xmat.nameStr());
   TGeoManager&  mgr = description.manager();
   TGeoMaterial* mat = mgr.GetMaterial(nam.c_str());
-  if ( 0 == mat )   {
+  if ( nullptr == mat )   {
     const char* matname = nam.c_str();
     double density      = xmat.density();
     //double atomicWeight = xmat.attr<double>(_CMU(atomicWeight));
@@ -351,7 +351,7 @@ template <> void Converter<elementarymaterial>::operator()(xml_h element) const 
     mix->SetRadLen(0e0);
     /// Create medium from the material
     TGeoMedium* medium = mgr.GetMedium(matname);
-    if (0 == medium) {
+    if (nullptr == medium) {
       --unique_mat_id;
       medium = new TGeoMedium(matname, unique_mat_id, mix);
       medium->SetTitle("material");
@@ -367,7 +367,7 @@ template <> void Converter<compositematerial>::operator()(xml_h element) const  
   string        nam = _ns.prepend(xmat.nameStr());
   TGeoManager&  mgr = description.manager();
   TGeoMaterial* mat = mgr.GetMaterial(nam.c_str());
-  if ( 0 == mat )   {
+  if ( nullptr == mat )   {
     const char*  matname = nam.c_str();
     double       density = xmat.density();
     xml_coll_t   composites(xmat,_CMU(MaterialFraction));
@@ -394,7 +394,7 @@ template <> void Converter<compositematerial>::operator()(xml_h element) const  
     mix->SetRadLen(0e0);
     /// Create medium from the material
     TGeoMedium* medium = mgr.GetMedium(matname);
-    if (0 == medium) {
+    if (nullptr == medium) {
       --unique_mat_id;
       medium = new TGeoMedium(matname, unique_mat_id, mix);
       medium->SetTitle("material");
@@ -661,7 +661,7 @@ template <> void Converter<include_load>::operator()(xml_h element) const   {
 /// DD4hep specific Converter for <Include/> tags: process only the constants
 template <> void Converter<include_unload>::operator()(xml_h element) const   {
   string fname = xml::DocumentHandler::system_path(element);
-  xml::DocumentHolder(xml_elt_t(element).document()).assign(0);
+  xml::DocumentHolder(xml_elt_t(element).document()).assign(nullptr);
   printout(_param<ParsingContext>()->debug_includes ? ALWAYS : DEBUG,
            "MyDDCMS","+++ Finished processing %s",fname.c_str());
 }

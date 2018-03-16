@@ -132,7 +132,7 @@ static long algorithm(Detector& /* description */,
     }
   }
 
-  string idName = mother;
+  const string& idName = mother;
   double rmin = MFRingInR;
   double rmax = MFRingOutR;
   Solid  solid = ns.addSolidNS(idName,Tube(rmin, rmax, 0.5*layerL));
