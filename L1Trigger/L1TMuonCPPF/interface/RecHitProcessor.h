@@ -25,6 +25,7 @@
 #include<iostream>
 #include<sstream>
 #include<string> 
+#include<memory>
 
 class RecHitProcessor {
  public:

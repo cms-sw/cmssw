@@ -198,8 +198,8 @@ void RecHitProcessor::processLook(
 	    }
 	    //Using the RPCGeometry	
 	    if(Geo){
-	      auto MainVariables1 = l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector1, EMTFLink1, old_strip, clustersize, global_phi, global_theta);
-	      auto MainVariables2 = l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector2, EMTFLink2, old_strip, clustersize, global_phi, global_theta);
+	      std::shared_ptr<l1t::CPPFDigi> MainVariables1(new l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector1, EMTFLink1, old_strip, clustersize, global_phi, global_theta));
+	      std::shared_ptr<l1t::CPPFDigi> MainVariables2(new l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector2, EMTFLink2, old_strip, clustersize, global_phi, global_theta));
 	      /*
 		if(clustersize == 2 && (*cppf).int_theta == 16 && (*cppf).int_phi == 700){
  		std::cout << "old_rawid "<< (*cppf1).rawId << " strip " << old_strip << 
@@ -210,11 +210,11 @@ void RecHitProcessor::processLook(
 		}
 	      */		
 	      if ((EMTFsector1 > 0) && (EMTFsector2 == 0)){
-		cppfDigis.push_back(MainVariables1);
+		cppfDigis.push_back(*MainVariables1.get());
 	      } 
 	      else if ((EMTFsector1 > 0) && (EMTFsector2 > 0)){
-		cppfDigis.push_back(MainVariables1);
-		cppfDigis.push_back(MainVariables2);
+		cppfDigis.push_back(*MainVariables1.get());
+		cppfDigis.push_back(*MainVariables2.get());
 	      }
 	      else if ((EMTFsector1 == 0) && (EMTFsector2 == 0)) {
 		continue; 
@@ -223,14 +223,14 @@ void RecHitProcessor::processLook(
 	    else {
 	      global_phi = 0.;
 	      global_theta = 0.;
-	      l1t::CPPFDigi* MainVariables1 = new l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector1, EMTFLink1, old_strip, clustersize, global_phi, global_theta);
-	      l1t::CPPFDigi* MainVariables2 = new l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector2, EMTFLink2, old_strip, clustersize, global_phi, global_theta);
+	      std::shared_ptr<l1t::CPPFDigi> MainVariables1(new l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector1, EMTFLink1, old_strip, clustersize, global_phi, global_theta));
+	      std::shared_ptr<l1t::CPPFDigi> MainVariables2(new l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector2, EMTFLink2, old_strip, clustersize, global_phi, global_theta));
 	      if ((EMTFsector1 > 0) && (EMTFsector2 == 0)){
-		cppfDigis.push_back(*MainVariables1);
+		cppfDigis.push_back(*MainVariables1.get());
 	      } 
 	      else if ((EMTFsector1 > 0) && (EMTFsector2 > 0)){
-		cppfDigis.push_back(*MainVariables1);
-		cppfDigis.push_back(*MainVariables2);
+		cppfDigis.push_back(*MainVariables1.get());
+		cppfDigis.push_back(*MainVariables2.get());
 	      }
 	      else if ((EMTFsector1 == 0) && (EMTFsector2 == 0)) {
 		continue;
@@ -434,15 +434,15 @@ void RecHitProcessor::process(
 	  assert(0 <= int_phi && int_phi < 1250);
 	  assert(0 <= int_theta && int_theta < 32);
 	  
-	  auto MainVariables1 = l1t::CPPFDigi(rpcId, Bx , int_phi, int_theta, isValid, lb, halfchannel, EMTFsector1, EMTFLink1, firststrip, clustersize, global_phi, global_theta);
-	  auto MainVariables2 = l1t::CPPFDigi(rpcId, Bx , int_phi, int_theta, isValid, lb, halfchannel, EMTFsector2, EMTFLink2, firststrip, clustersize, global_phi, global_theta);
+	  std::shared_ptr<l1t::CPPFDigi> MainVariables1(new l1t::CPPFDigi(rpcId, Bx , int_phi, int_theta, isValid, lb, halfchannel, EMTFsector1, EMTFLink1, firststrip, clustersize, global_phi, global_theta));
+	  std::shared_ptr<l1t::CPPFDigi> MainVariables2(new l1t::CPPFDigi(rpcId, Bx , int_phi, int_theta, isValid, lb, halfchannel, EMTFsector2, EMTFLink2, firststrip, clustersize, global_phi, global_theta));
 	  if(int_theta == 31) continue;
           if ((EMTFsector1 > 0) && (EMTFsector2 == 0)){
-	    cppfDigis.push_back(MainVariables1);
+	    cppfDigis.push_back(*MainVariables1.get());
 	  } 
           if ((EMTFsector1 > 0) && (EMTFsector2 > 0)){
-	    cppfDigis.push_back(MainVariables1);
-	    cppfDigis.push_back(MainVariables2);
+	    cppfDigis.push_back(*MainVariables1.get());
+	    cppfDigis.push_back(*MainVariables2.get());
 	  }
 	  if ((EMTFsector1 == 0) && (EMTFsector2 == 0)){
 	    continue;
