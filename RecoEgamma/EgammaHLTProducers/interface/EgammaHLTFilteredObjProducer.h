@@ -16,8 +16,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
-#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
-
 namespace {
   template<typename T> edm::Handle<T> getHandle(const edm::Event& event,const edm::EDGetTokenT<T>& token)
   {
@@ -147,7 +145,7 @@ fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   defaults.addParameter<edm::ParameterSet>("barrelCut",cutDefaults);
   defaults.addParameter<edm::ParameterSet>("endcapCut",cutDefaults);
   desc.addVPSet("cuts",cutsDesc,std::vector<edm::ParameterSet>{defaults});
-  descriptions.add(defaultModuleLabel<EgammaHLTFilteredObjProducer<OutCollType>>(),desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 template<typename OutCollType>
