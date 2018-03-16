@@ -141,7 +141,7 @@ namespace edm {
       CMS_THREAD_GUARD(countAndTimeForLock_) double accumulatedTimeForLock_;
 
       std::atomic<CountAndTime*> countAndTimeForGet_;
-      CMS_THREAD_GUARD(countAndTimeForGet_)double accumulatedTimeForGet_;
+      CMS_THREAD_GUARD(countAndTimeForGet_) double accumulatedTimeForGet_;
 
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPreEvent_;
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPostEvent_;
