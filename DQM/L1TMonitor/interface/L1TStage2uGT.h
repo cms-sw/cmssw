@@ -76,12 +76,24 @@ private:
    const std::string algoNameFirstBxInTrain_;
    const std::string algoNameLastBxInTrain_;
  
+<<<<<<< HEAD
    std::vector<std::string> unprescaledAlgoShortList_ ;
    std::vector<std::string> prescaledAlgoShortList_; 
    const unsigned int range_;
    // Booking of histograms for the module
    std::vector<int> unprescaledAlgoBit_;
    std::vector<int> prescaledAlgoBit_; 
+=======
+   int algoBitUnpre_;
+   int algoBitDis_; 
+   std::vector<std::string> unprescaledAlgoShortList_ ;
+   std::vector<std::string> disabledAlgoShortList_; 
+   const unsigned int range_;
+   // Booking of histograms for the module
+   std::vector<int> unprescaledAlgoBit_;
+   std::vector<int> disabledAlgoBit_;
+
+>>>>>>> 5a16db481b4233cc8fd224c3a3171cab12bef459
    // Algorithm bits
    MonitorElement* algoBits_before_bxmask_;
    MonitorElement* algoBits_before_prescale_;
