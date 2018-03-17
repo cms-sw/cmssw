@@ -17,19 +17,19 @@
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4
   </Vector>
   <Vector name="layerGroupRecEta16" type="numeric" nEntries="19">
-    1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+    1, 1, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4
   </Vector>
   <Vector name="layerGroupRecEta17" type="numeric" nEntries="19">
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+    2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
   </Vector>
   <Vector name="layerGroupRecEta18" type="numeric" nEntries="19">
-    1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
+    1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5
   </Vector>
   <Vector name="layerGroupRecEta19" type="numeric" nEntries="19">
-    1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
+    1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6
   </Vector>
-  <Vector name="layerGroupRecEta27" type="numeric" nEntries="19">
-    1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+  <Vector name="layerGroupRecEta26" type="numeric" nEntries="19">
+    1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7
   </Vector>
 </ConstantsSection>
 
