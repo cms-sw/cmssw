@@ -81,6 +81,8 @@ public:
   HcalID                    getHCID(int subdet, int ieta, int iphi, int lay, int idepth) const;
   std::vector<HFCellParameters>    getHFCellParameters() const;
   void                      getLayerDepth(const int& ieta, std::map<int,int>& layers) const;
+  int                       getLayerBack(const int& det, const int& eta, const int& phi,
+					 const int& depth) const;
   int                       getLayerFront(const int& det, const int& eta, const int& phi,
 					  const int& depth) const;
   double                    getLayer0Wt(const int& det, const int& phi,
@@ -104,6 +106,7 @@ public:
   double                    getRZ(const int& subdet, const int& ieta, const int& iphi,
 				  const int& depth) const;
   double                    getRZ(const int& subdet, const int& layer) const;
+  std::pair<double,double>  getRZ(const HcalDetId& id) const;
   std::vector<HcalActiveLength>    getThickActive(const int& type) const;
   int                       getTopoMode() const {return ((hpar->topologyMode)&0xFF);}
   int                       getTriggerMode() const {return (((hpar->topologyMode)>>8)&0xFF);}
