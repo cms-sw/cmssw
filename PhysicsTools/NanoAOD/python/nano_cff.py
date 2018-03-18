@@ -48,37 +48,29 @@ simpleCleanerTable = cms.EDProducer("NanoAODSimpleCrossCleaner",
    tauName=cms.string("Tau"),photonName=cms.string("Photon")
 )
 
-BTagCSVv2WeightTable = cms.EDProducer("BTagSFProducer",
+btagWeightTable = cms.EDProducer("BTagSFProducer",
     src = cms.InputTag("linkedObjects","jets"),
     cut = cms.string("pt > 25. && abs(eta) < 2.4"),
-    discName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-    discShortName = cms.string("CSVV2"),
-    weightFile = cms.string("/src/PhysicsTools/NanoAOD/data/btagSF/CSVv2_94XSF_V1_B_F.csv"),
-    operatingPoint = cms.string("1"),                #loose = 0, medium = 1, tight = 2, reshaping = 3
-    measurementType = cms.string("comb"),            #e.g. "ttbar", or "comb" for combination
-    sysType = cms.string("central")
-)
-
-BTagcMVAWeightTable = cms.EDProducer("BTagSFProducer",
-    src = cms.InputTag("linkedObjects","jets"),
-    cut = cms.string("pt > 25. && abs(eta) < 2.4"),
-    discName = cms.string("pfCombinedMVAV2BJetTags"),
-    discShortName = cms.string("CMVA"),
-    weightFile = cms.string("/src/PhysicsTools/NanoAOD/data/btagSF/btagSF_cMVAv2_ichep2016.csv"),
-    operatingPoint = cms.string("1"),                #loose = 0, medium = 1, tight = 2, reshaping = 3
-    measurementType = cms.string("incl"),            #e.g. "ttbar", or "comb" for combination
-    sysType = cms.string("central")
-)
-
-BTagDeepCSVWeightTable = cms.EDProducer("BTagSFProducer",
-    src = cms.InputTag("linkedObjects","jets"),
-    cut = cms.string("pt > 25. && abs(eta) < 2.4"),
-    discName = cms.string("pfDeepCSVJetTags:probb"),
-    discShortName = cms.string("DeepCSVB"),
-    weightFile = cms.string("/src/PhysicsTools/NanoAOD/data/btagSF/DeepCSV_94XSF_V1_B_F.csv"),
-    operatingPoint = cms.string("1"),                #loose = 0, medium = 1, tight = 2, reshaping = 3
-    measurementType = cms.string("comb"),            #e.g. "ttbar", or "comb" for combination
-    sysType = cms.string("central")
+    discNames = cms.vstring(
+        "pfCombinedInclusiveSecondaryVertexV2BJetTags",
+        "pfCombinedMVAV2BJetTags",
+        "pfDeepCSVJetTags:probb+pfDeepCSVJetTags:probbb"        #if multiple MiniAOD branches need to be summed up (e.g., DeepCSV b+bb), separate them using '+' delimiter
+    ),
+    discShortNames = cms.vstring(
+        "CSVV2",
+        "CMVA",
+        "DeepCSVB"
+    ),
+    weightFiles = cms.vstring(
+        "/src/PhysicsTools/NanoAOD/data/btagSF/CSVv2_94XSF_V1_B_F.csv",
+        "/src/PhysicsTools/NanoAOD/data/btagSF/btagSF_cMVAv2_ichep2016.csv",
+        "/src/PhysicsTools/NanoAOD/data/btagSF/DeepCSV_94XSF_V1_B_F.csv"
+    ),
+    operatingPoints = cms.vstring("1","1","1"),                  #loose = 0, medium = 1, tight = 2, reshaping = 3
+    measurementTypesB = cms.vstring("comb","ttbar","comb"),      #e.g. "ttbar", "comb", "incl", "iterativefit"
+    measurementTypesC = cms.vstring("comb","ttbar","comb"),
+    measurementTypesUDSG = cms.vstring("incl","incl","incl"),
+    sysTypes = cms.vstring("central","central","central")
 )
 
 genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
@@ -111,7 +103,7 @@ nanoSequence = cms.Sequence(
         jetTables + muonTables + tauTables + electronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + triggerObjectTables + isoTrackTables +
 	l1bits)
 
-nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + BTagCSVv2WeightTable + BTagcMVAWeightTable + BTagDeepCSVWeightTable + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
+nanoSequenceMC = cms.Sequence(genParticleSequence + particleLevelSequence + nanoSequence + jetMC + muonMC + electronMC + photonMC + tauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
 
 
 def nanoAOD_customizeCommon(process):
