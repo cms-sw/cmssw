@@ -1,13 +1,12 @@
 import FWCore.ParameterSet.Config as cms
+import math
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 OuterTrackerMonitorTTStub = DQMEDAnalyzer('OuterTrackerMonitorTTStub',
-    
-    TopFolderName = cms.string('Phase2OuterTracker'),
+
+    TopFolderName = cms.string('OuterTrackerL1'),
     TTStubs       = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
 
-
-# TTStub barrel y vs x
 # TTStub forward/backward endcap y vs x
     TH2TTStub_Position = cms.PSet(
         Nbinsx = cms.int32(960),
@@ -16,16 +15,6 @@ OuterTrackerMonitorTTStub = DQMEDAnalyzer('OuterTrackerMonitorTTStub',
         Nbinsy = cms.int32(960),
         ymax = cms.double(120),
         ymin = cms.double(-120)
-        ),
-
-#TTStub barrel y vs x zoomed
-    TH2TTStub_Barrel_XY_Zoom = cms.PSet(
-        Nbinsx = cms.int32(960),
-        xmax = cms.double(60),
-        xmin = cms.double(30),
-        Nbinsy = cms.int32(960),
-        ymax = cms.double(15),
-        ymin = cms.double(-15)
         ),
 
 #TTStub #rho vs z
@@ -38,31 +27,25 @@ OuterTrackerMonitorTTStub = DQMEDAnalyzer('OuterTrackerMonitorTTStub',
         ymin = cms.double(0)
         ),
 
-#TTStub Forward Endcap #rho vs. z
-    TH2TTStub_Endcap_Fw_RZ_Zoom = cms.PSet(
-        Nbinsx = cms.int32(960),
-        xmax = cms.double(170),
-        xmin = cms.double(140),
-        Nbinsy = cms.int32(960),
-        ymax = cms.double(60),
-        ymin = cms.double(30)
-        ),
-
-#TTStub Backward Endcap #rho vs. z
-    TH2TTStub_Endcap_Bw_RZ_Zoom = cms.PSet(
-        Nbinsx = cms.int32(960),
-        xmax = cms.double(-140),
-        xmin = cms.double(-170),
-        Nbinsy = cms.int32(960),
-        ymax = cms.double(100),
-        ymin = cms.double(70)
-        ),
-
 #TTStub eta distribution
     TH1TTStub_Eta = cms.PSet(
         Nbinsx = cms.int32(45),
-        xmin = cms.double(-3),
-        xmax = cms.double(3)
+        xmin = cms.double(-5),
+        xmax = cms.double(5)
+        ),
+
+#TTStub phi distribution
+    TH1TTStub_Phi = cms.PSet(
+        Nbinsx = cms.int32(60),
+        xmin = cms.double(-math.pi),
+        xmax = cms.double(math.pi)
+        ),
+
+#TTStub R distribution
+    TH1TTStub_R = cms.PSet(
+        Nbinsx = cms.int32(45),
+        xmin = cms.double(0),
+        xmax = cms.double(120)
         ),
 
 #TTStub Barrel Layers
@@ -115,5 +98,4 @@ OuterTrackerMonitorTTStub = DQMEDAnalyzer('OuterTrackerMonitorTTStub',
         ymax = cms.double(10.75),
         ymin = cms.double(-10.75)
         ),
-
 )
