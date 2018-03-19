@@ -216,7 +216,7 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
 
 	// check if channel is good
 
-	if (!buffer->channelGood(ichan)) {channel_construct[ifed].push_back(ichan);continue;}
+	if (!buffer->channelGood(ichan, true)) {channel_construct[ifed].push_back(ichan);continue;}
 
 	// find channel data
 
