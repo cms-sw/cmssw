@@ -50,16 +50,16 @@ OuterTrackerMonitorTrackingParticles::OuterTrackerMonitorTrackingParticles(const
   ttTrackMCTruthToken_ = consumes< TTTrackAssociationMap< Ref_Phase2TrackerDigi_ > > (conf_.getParameter<edm::InputTag>("MCTruthTrackInputTag"));
   ttStubToken_ = consumes < edmNew::DetSetVector < TTStub < Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("StubInputTag"));
   ttTrackToken_ = consumes< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > (conf_.getParameter<edm::InputTag>("TTTracksTag"));
-  L1Tk_nPar        = conf_.getParameter< int >("L1Tk_nPar");
-  L1Tk_minNStub    = conf_.getParameter< int >("L1Tk_minNStub");
-  L1Tk_maxChi2     = conf_.getParameter< double >("L1Tk_maxChi2");
-  L1Tk_maxChi2dof  = conf_.getParameter< double >("L1Tk_maxChi2dof");
-  TP_minNStub      = conf_.getParameter< int >("TP_minNStub");
-  TP_minPt         = conf_.getParameter< double >("TP_minPt");
-  TP_maxPt         = conf_.getParameter< double >("TP_maxPt");
-  TP_maxEta        = conf_.getParameter< double >("TP_maxEta");
-  TP_maxVtxZ         = conf_.getParameter< double >("TP_maxVtxZ");
-  TP_select_eventid= conf_.getParameter< int >("TP_select_eventid");}
+  L1Tk_nPar        = conf_.getParameter< int >("L1Tk_nPar"); //4 or 5(d0) track parameters
+  L1Tk_minNStub    = conf_.getParameter< int >("L1Tk_minNStub"); //min number of stubs in the track
+  L1Tk_maxChi2     = conf_.getParameter< double >("L1Tk_maxChi2"); //maximum chi2 of the track
+  L1Tk_maxChi2dof  = conf_.getParameter< double >("L1Tk_maxChi2dof"); //maximum chi2/dof of the track
+  TP_minNStub      = conf_.getParameter< int >("TP_minNStub"); //min number of stubs in the tracking particle to consider matching
+  TP_minPt         = conf_.getParameter< double >("TP_minPt"); //min pT to consider matching
+  TP_maxPt         = conf_.getParameter< double >("TP_maxPt"); //max pT to consider matching
+  TP_maxEta        = conf_.getParameter< double >("TP_maxEta"); //max eta to consider matching
+  TP_maxVtxZ         = conf_.getParameter< double >("TP_maxVtxZ"); //max vertZ (or z0) to consider matching
+  TP_select_eventid= conf_.getParameter< int >("TP_select_eventid");} //PI or not
 
 OuterTrackerMonitorTrackingParticles::~OuterTrackerMonitorTrackingParticles()
 {
@@ -70,16 +70,17 @@ OuterTrackerMonitorTrackingParticles::~OuterTrackerMonitorTrackingParticles()
 //
 // member functions
 // The following adds a variable that is the number of layers hit for each tracking particle
-struct TpValidity{
+struct TpStruct{
   int TpId;
   std::vector<bool> layer;
-  int Nlayers(){
+  int Nlayers(){ //Counts how many layers are set to "true" for their hit status
     int layers=0;
     for(unsigned l=0; l<layer.size(); ++l) if(layer[l]) ++layers;
     return layers;
   }
 };
 
+//Function to determine which layer of the detector the stub is in
 int Layer(const float R_, const float Z_){
   const float Rmin[6]={20.,33.,48.,65.,82.,105.};
   const float Rmax[6]={30.,40.,58.,75.,91.,120.};
@@ -138,34 +139,19 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
   std::vector<float> TTStubs_r;
   std::vector<float> TTStubs_eta;
   std::vector<float> TTStubs_phi;
-  std::vector<int>   TTStubs_tpId;
+  std::vector<int>   TTStubs_tpId; //Relates the stub to its tracking particle
 
-  // Tracking particle distribution
+  // Tracking particle distribution, to be used for 1D distribution plots with pT>2, abs(eta)<2.4, and num layers hit >=4
+  // These are slightly different quantitites than those used in the track matching!! They have different cuts
   std::vector<float> v_tp_pt;
   std::vector<float> v_tp_eta;
   std::vector<float> v_tp_phi;
-  std::vector<float> v_tp_nLayers;
+  std::vector<float> v_tp_nLayers; //Calculated as the number of layers hit
 
-  // Matching for efficiency and resolution
-  std::vector<float> trkParts_eta;
-  std::vector<float> trkParts_phi;
-  std::vector<float> trkParts_pt;
-  std::vector<float> trkParts_VtxZ;
-  std::vector<float> trkParts_d0;
-  std::vector<float> trkParts_VtxR;
-  std::vector<int> trkParts_pdgId;
-  std::vector<int> trkParts_nMatch;
-  std::vector<int> trkParts_nStub;
-  std::vector<int> trkParts_eventId;
-  std::vector<float> matchTrk_pt;
-  std::vector<float> matchTrk_eta;
-  std::vector<float> matchTrk_phi;
-  std::vector<float> matchTrk_VtxZ;
-  std::vector<float> matchTrk_d0;
-  std::vector<float> matchTrk_chi2;
-  std::vector<int> matchTrk_nStub;
-
+  // Add protection
   if ( !TTStubHandle.isValid() ) return;
+
+  // Loop through stubs to determine a link to each stub's tracking particle
   for (inputIter = TTStubHandle->begin(); inputIter != TTStubHandle->end();++inputIter){
     for (contentIter = inputIter->begin(); contentIter != inputIter->end(); ++contentIter){
       edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > tempStubRef = edmNew::makeRefTo(TTStubHandle, contentIter);    /// Positions, directions
@@ -190,7 +176,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
       TTStubs_eta.push_back(stubs_eta);
       TTStubs_phi.push_back(stubs_phi);
 
-      // Set to dummy values first
+      // Set to dummy values first, in case the tp Id cannot be determined
       TTStubs_tpId.push_back(-1);
 
       // Retrieve MC association
@@ -209,6 +195,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
           float pz = tpPtr->p4().pz();
           int idx = -1;
           int counter = 0;
+          // Determine to which tracking particle the stub is associated
           for (TrackingParticleCollection::const_iterator it = trackingParticleHandle->begin(); it != trackingParticleHandle->end(); ++it) // Loop over TPs
           {
             counter++;
@@ -221,31 +208,38 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
 
             idx=counter;
           }
-          TTStubs_tpId.back() = idx;
+          TTStubs_tpId.back() = idx; // Set the tpId: a link between the stub and its tracking particle
         }
       }
     } // End content iterator
   } // End input iterator
 
-  // Assign a tracking particle identifier to each stub
-  std::vector<TpValidity> TPVs;
+  // Effectively, a loop through all tracking particles through their stubs
+  // For each tracking particle, will determine whether the layer has a stub (true) or not (false)
+  std::vector<TpStruct> TPStructs;
   for (unsigned j=0;j<TTStubs_tpId.size();j++){ // Loop over all stubs
-    const int ID=TTStubs_tpId.at(j); if(ID<0) continue;
-    int pos=-1;
-    for(unsigned p=0; p<TPVs.size(); ++p){
-      if(ID==TPVs[p].TpId){pos=p; break;}
+    const int ID = TTStubs_tpId.at(j);
+    if(ID<0) continue;
+    int pos = -1;
+    for(unsigned p=0; p<TPStructs.size(); ++p){ // make sure you only assign one tracking particle to one TpStruct
+      if(ID == TPStructs[p].TpId) {
+        pos = p; break;
+      }
     }
 
-    if(pos<0){
-      TpValidity element; element.TpId=ID;
-      std::vector<bool> layerElement(11,false); element.layer=layerElement;
-      TPVs.push_back(element); pos=TPVs.size()-1;
+    if (pos<0) { // if you have not yet looped through this tracking particle...
+      TpStruct thisTPStruct;
+      thisTPStruct.TpId = ID;
+      std::vector<bool> layerElement(11,false); //set each layer's "hit" status to false
+      thisTPStruct.layer=layerElement;
+      TPStructs.push_back(thisTPStruct);
+      pos=TPStructs.size()-1;
     }
-    int l=Layer(TTStubs_r.at(j),TTStubs_z.at(j));
-    if(l>=0)TPVs[pos].layer[l]=true;
+    int l=Layer( TTStubs_r.at(j),TTStubs_z.at(j) ); // Send through function Layer, which determines which layer the stub is in
+    if (l>=0) TPStructs[pos].layer[l] = true; // Set the layer that is "hit" to true
   } // End loop over stubs
 
-  // Fill the tracking particle quantities now in case the TTTracks don't exist
+  // Fill the tracking particle quantities
   std::vector< TrackingParticle >::const_iterator iterTP1;
   for (iterTP1 = trackingParticleHandle->begin(); iterTP1 != trackingParticleHandle->end(); ++iterTP1) {
     v_tp_pt.push_back(iterTP1->pt());
@@ -255,29 +249,50 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
   }
 
   // Fill nLayers variable for tracking particles
-  for (unsigned k=0; k<TPVs.size(); k++){
-    int id = TPVs[k].TpId;
-    v_tp_nLayers.at(id-1) = TPVs[k].Nlayers();
+  // Loop through tracking particles in special container (TPStructs), add up the number of layers set "true" as an integer value
+  for (unsigned k=0; k<TPStructs.size(); k++){
+    int id = TPStructs[k].TpId;
+    v_tp_nLayers.at(id-1) = TPStructs[k].Nlayers();
   }
-
+  // Includes all tracking particles, different cuts than those used in the efficiency
   for (unsigned j=0;j<v_tp_eta.size();j++) { //Over all TPs
-    double t_eta = v_tp_eta.at(j); // Includes all tracking particles
-    double t_pt  = v_tp_pt.at(j);  // Includes all tracking particles
-    double t_phi = v_tp_phi.at(j); // Includes all tracking particles
-    double t_nLayers = v_tp_nLayers.at(j); // Includes all tracking particles
+    double trkParts_eta = v_tp_eta.at(j);
+    double trkParts_pt  = v_tp_pt.at(j);
+    double trkParts_phi = v_tp_phi.at(j);
+    double trkParts_nLayers = v_tp_nLayers.at(j); // the number of layers hit for each tracking particle
 
-    if (fabs(t_eta)<2.4 && t_pt>2 && t_nLayers>=4) {
+    // Fill the 1D distribution plots for tracking particles, to monitor change in stub definition
+    if (fabs(trkParts_eta)<2.4 && trkParts_pt>2 && trkParts_nLayers>=4) {
       // Fill 1D distributions
-      trackParts_Pt ->Fill(t_pt);
-      trackParts_Eta->Fill(t_eta);
-      trackParts_Phi->Fill(t_phi);
+      trackParts_Pt ->Fill(trkParts_pt);
+      trackParts_Eta->Fill(trkParts_eta);
+      trackParts_Phi->Fill(trkParts_phi);
     }
   }
 
-  // Efficiency and resolution
+  // Efficiency and resolution for the L1 tracks
+  std::vector<float> trkParts_eta;
+  std::vector<float> trkParts_phi;
+  std::vector<float> trkParts_pt;
+  std::vector<float> trkParts_VtxZ;
+  std::vector<float> trkParts_d0;
+  std::vector<float> trkParts_VtxR;
+  std::vector<int> trkParts_pdgId;
+  std::vector<int> trkParts_nMatch;
+  std::vector<int> trkParts_nStub;
+  std::vector<int> trkParts_eventId;
+  std::vector<float> matchTrk_pt;
+  std::vector<float> matchTrk_eta;
+  std::vector<float> matchTrk_phi;
+  std::vector<float> matchTrk_VtxZ;
+  std::vector<float> matchTrk_d0;
+  std::vector<float> matchTrk_chi2;
+  std::vector<int> matchTrk_nStub;
+
+  // Add protection
   if ( !TTTrackHandle.isValid() ) return;
 
-
+  // Loop over tracking particles
   int this_tp = 0;
   std::vector< TrackingParticle >::const_iterator iterTP;
   for (iterTP = trackingParticleHandle->begin(); iterTP != trackingParticleHandle->end(); ++iterTP) {
@@ -291,17 +306,15 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
     float tmp_tp_vz  = iterTP->vz();
     float tmp_tp_vx  = iterTP->vx();
     float tmp_tp_vy  = iterTP->vy();
+    float tmp_tp_charge = tp_ptr->charge();
     int tmp_tp_pdgid = iterTP->pdgId();
 
     // ----------------------------------------------------------------------------------------------
-    // get d0/VtxZ propagated back to the IP, pass if greater than max VtxZ
+    // calculate d0 and VtxZ propagated back to the IP, pass if greater than max VtxZ
     float tmp_tp_t = tan(2.0*atan(1.0)-2.0*atan(exp(-tmp_tp_eta)));
     float delx = -tmp_tp_vx;
     float dely = -tmp_tp_vy;
-    float A = 0.01*0.5696;
-    float Kmagnitude = A / tmp_tp_pt;
-    float tmp_tp_charge = tp_ptr->charge();
-    float K = Kmagnitude * tmp_tp_charge;
+    float K = 0.01*0.5696 / tmp_tp_pt * tmp_tp_charge; // curvature correction
     float tmp_tp_x0p = delx - (1./(2. * K)*sin(tmp_tp_phi));
     float tmp_tp_y0p = dely + (1./(2. * K)*cos(tmp_tp_phi));
     float tmp_tp_rp = sqrt(tmp_tp_x0p*tmp_tp_x0p + tmp_tp_y0p*tmp_tp_y0p);
@@ -314,6 +327,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
     float VtxR = sqrt(tmp_tp_vx*tmp_tp_vx + tmp_tp_vy*tmp_tp_vy);
     float tmp_tp_VtxR = VtxR;
     float tmp_tp_d0 = tmp_tp_charge*tmp_tp_rp - (1. / (2. * K));
+
     //simpler formula for d0, in cases where the charge is zero: https://github.com/cms-sw/cmssw/blob/master/DataFormats/TrackReco/interface/TrackBase.h
     float other_d0 = -tmp_tp_vx*sin(tmp_tp_phi)+tmp_tp_vy*cos(tmp_tp_phi);
     tmp_tp_d0 = tmp_tp_d0*(-1); //fix d0 sign
@@ -339,12 +353,11 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
       if (MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr).size() < 1) continue;
     }
 
-    // To make efficiency plots where the denominator has no stub cuts
+    // To make efficiency plots where the denominator has NO stub cuts
     if (VtxR < 1.0) tp_pt->Fill(tmp_tp_pt); // pT efficiency has no cut on pT, but includes VtxR cut
     if (tmp_tp_pt < TP_minPt) continue;
-    tp_VtxR->Fill(tmp_tp_VtxR); //VtxR efficiency has no cut on VtxR
+    tp_VtxR->Fill(tmp_tp_VtxR); // VtxR efficiency has no cut on VtxR
     if (VtxR > 1.0) continue;
-
     tp_eta->Fill(tmp_tp_eta);
     tp_d0->Fill(tmp_tp_d0);
     tp_VtxZ->Fill(tmp_tp_VtxZ);
@@ -396,6 +409,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
     } // end has at least 1 matched L1 track
     // ----------------------------------------------------------------------------------------------
 
+    // Get information on the matched tracks
     float tmp_matchtrk_pt   = -999;
     float tmp_matchtrk_eta  = -999;
     float tmp_matchtrk_phi  = -999;
@@ -459,11 +473,10 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
     if (pt < 2) continue;
     if (pt > TP_maxPt) continue;
     if (fabs(eta) > TP_maxEta) continue;
-
     if (trkParts_nMatch.at(j) < 1) continue; // was the tracking particle matched to a L1 track?
     if (matchTrk_nStub.at(j) < L1Tk_minNStub) continue;     // use only tracks with min X stubs
 
-    //for matched track
+    // for matched track, retain info on chi2 and chi2/dof
     float chi2 = matchTrk_chi2.at(j);
     int ndof = 2*matchTrk_nStub.at(j)-4;
     float chi2dof = (float)chi2/ndof;
@@ -494,6 +507,8 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
     double tP_eta = trkParts_eta.at(j);
     double tP_pt = trkParts_pt.at(j);
 
+    // Fill resolution plots for different abs(eta) bins:
+    // (0, 0.7), (0.7, 1.0), (1.0, 1.2), (1.2, 1.6), (1.6, 2.0), (2.0, 2.4)
     if (abs(tP_eta) >= 0  && abs(tP_eta) < 0.7){
       reseta_eta0to0p7->Fill(eta_res);
       resphi_eta0to0p7->Fill(phi_res);
@@ -550,7 +565,7 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
     }
   }
 
-  //Clear vectors
+  //Clear all vectors
   TTStubs_x.clear();
   TTStubs_y.clear();
   TTStubs_z.clear();
