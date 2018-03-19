@@ -48,11 +48,14 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
     'phase1_2017_cosmics_peak' : '101X_mc2017cosmics_realistic_peak_v4',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
-    'phase1_2018_design'       : '101X_upgrade2018_design_v4',
+    # Candidate created based on 101X_upgrade2018_design_v4
+    'phase1_2018_design'       : '101X_upgrade2018_design_Candidate_2018_03_19_07_17_19',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
-    'phase1_2018_realistic'    : '101X_upgrade2018_realistic_v3',
+    # Candidate created based on 101X_upgrade2018_realistic_v3
+    'phase1_2018_realistic'    : '101X_upgrade2018_realistic_Candidate_2018_03_19_07_20_14',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
-    'phase1_2018_cosmics'      :   '101X_upgrade2018cosmics_realistic_deco_v4',
+    # Candidate created based on 101X_upgrade2018cosmics_realistic_deco_v4
+    'phase1_2018_cosmics'      :   '101X_upgrade2018cosmics_realistic_Candidate_2018_03_19_07_20_31',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'       : '101X_postLS2_design_v2', # GT containing design conditions for postLS2
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
