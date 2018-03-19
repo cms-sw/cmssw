@@ -13,7 +13,10 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.Services_cff')
 
 #for data in 720pre7
-process.GlobalTag.globaltag ='76X_mcRun2_asymptotic_v5'
+#process.GlobalTag.globaltag =auto:run2_mc
+
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # check # of bins
 process.load("DQMServices.Components.DQMStoreStats_cfi")
@@ -22,8 +25,9 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
-       '/store/relval/CMSSW_7_6_0_pre7/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/76X_mcRun2_asymptotic_v5-v1/00000/7E692CF1-2971-E511-9609-0025905A497A.root',
-       '/store/relval/CMSSW_7_6_0_pre7/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/76X_mcRun2_asymptotic_v5-v1/00000/B4DD46D7-2971-E511-B4DD-0025905A4964.root' 
+        '/store/relval/CMSSW_10_1_0_pre1/RelValTTbar_13/GEN-SIM-RECO/PUpmx25ns_100X_upgrade2018_realistic_v10-v1/20000/E402A2A7-9513-E811-AB6D-0CC47A4C8EBA.root'
+        #'/store/relval/CMSSW_7_6_0_pre7/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/76X_mcRun2_asymptotic_v5-v1/00000/7E692CF1-2971-E511-9609-0025905A497A.root',
+       #'/store/relval/CMSSW_7_6_0_pre7/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/76X_mcRun2_asymptotic_v5-v1/00000/B4DD46D7-2971-E511-B4DD-0025905A4964.root' 
        #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/7CEB618B-8151-E511-8D05-002618943857.root',
        #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/8A6ED13D-8351-E511-A6E1-0025905964C2.root',
        #'/store/relval/CMSSW_7_5_2/JetHT/MINIAOD/75X_dataRun1_HLT_frozen_v2_RelVal_jet2012D-v1/00000/9A6F45A5-8251-E511-8BB5-0025905964A6.root',

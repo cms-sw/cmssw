@@ -324,6 +324,10 @@ class METAnalyzer : public DQMEDAnalyzer{
 
   MonitorElement* hMET_logx;
   MonitorElement* hSumET_logx;
+  MonitorElement* hMonitorMETPhi_vs_JetEta;
+  MonitorElement* hMonitorMETPhi_vs_EleEta;
+  MonitorElement* hMonitorMETPhi_vs_MuEta;
+  MonitorElement* hMonitorMETPhi_vs_PhoEta;
 
   //CaloMET specific stuff
   MonitorElement* hCaloMETPhi020;
