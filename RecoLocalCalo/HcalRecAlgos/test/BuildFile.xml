@@ -2,6 +2,9 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="CommonTools/UtilAlgos"/>
+<use   name="DataFormats/HcalDigi"/>
+<use   name="DataFormats/HcalRecHit"/>
+<use   name="CalibCalorimetry/HcalAlgos"/>
 <use   name="RecoLocalCalo/HcalRecAlgos"/>
 
 <library   file="HcalSevLvlAnalyzer.cc" name="HcalSevLvlAnalyzer">
@@ -12,6 +15,6 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 
-<library   file="HBHEReconstructionDebugger.cc" name="HBHEReconstructionDebugger">
+<library   file="MahiDebugger.cc" name="MahiDebugger">
   <flags   EDM_PLUGIN="1"/>
 </library>
