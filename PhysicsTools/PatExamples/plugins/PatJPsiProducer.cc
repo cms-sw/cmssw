@@ -34,7 +34,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 
@@ -50,12 +50,12 @@
 class PatJPsiProducer : public edm::EDProducer {
    public:
       explicit PatJPsiProducer(const edm::ParameterSet&);
-      ~PatJPsiProducer();
+      ~PatJPsiProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
 

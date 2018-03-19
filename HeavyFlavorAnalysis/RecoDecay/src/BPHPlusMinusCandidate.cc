@@ -18,14 +18,14 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMomentumSelect.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "PhysicsTools/CandUtils/interface/AddFourMomenta.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 
@@ -104,8 +104,8 @@ vector<BPHPlusMinusConstCandPtr> BPHPlusMinusCandidate::build(
   class ChargeSelect: public BPHRecoSelect {
    public:
     ChargeSelect( int c ): charge ( c ) {}
-    ~ChargeSelect() {}
-    virtual bool accept( const reco::Candidate& cand ) const {
+    ~ChargeSelect() override {}
+    bool accept( const reco::Candidate& cand ) const override {
       return ( ( charge * cand.charge() ) > 0 );
     }
    private:
