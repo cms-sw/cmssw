@@ -139,7 +139,7 @@ PixelCPEClusterRepair::localPosition(DetParam const & theDetParam, ClusterParam 
    if ( LoadTemplatesFromDB_ ) {
       int ID0 = templateDBobject_->getTemplateID(theDetParam.theDet->geographicalId()); // just to comapre
       ID = theDetParam.detTemplateId;
-      if(ID0!=ID) cout<<" different id"<< ID<<" "<<ID0<<endl;
+      if(ID0!=ID) edm::LogError("PixelCPEClusterRepair") <<" different id"<< ID<<" "<<ID0<<endl;
    } else { // from asci file
       if ( ! GeomDetEnumerators::isEndcap(theDetParam.thePart) )
 	ID = barrelTemplateID_  ; // barrel
@@ -448,10 +448,9 @@ PixelCPEClusterRepair::callTempReco3D( DetParam const & theDetParam,
       
       // GG: what do we do in this case?  For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift average correction
-      // To do: call PixelCPEGeneric whenever PixelTempReco2D fails
       float lorentz_drift = -999.9;
       if ( ! GeomDetEnumerators::isEndcap(theDetParam.thePart) )
-         lorentz_drift = 60.0f; // in microns
+         lorentz_drift = 60.0f; // in microns  // &&& replace with a constant (globally)
       else
          lorentz_drift = 10.0f; // in microns
       // GG: trk angles needed to correct for bows/kinks
@@ -501,77 +500,60 @@ PixelCPEClusterRepair::localError(DetParam const & theDetParam,  ClusterParam & 
    //--- Default is the maximum error used for edge clusters.
    //--- (never used, in fact: let comment it out, shut up the complains of the static analyzer, and save a few CPU cycles)
    float xerr = 0.0f, yerr = 0.0f;
-   
-   // Check if the errors were already set at the clusters splitting level
-   if ( theClusterParam.theCluster->getSplitClusterErrorX() > 0.0f && theClusterParam.theCluster->getSplitClusterErrorX() < 7777.7f &&
-       theClusterParam.theCluster->getSplitClusterErrorY() > 0.0f && theClusterParam.theCluster->getSplitClusterErrorY() < 7777.7f )
-   {
-      xerr = theClusterParam.theCluster->getSplitClusterErrorX() * micronsToCm;
-      yerr = theClusterParam.theCluster->getSplitClusterErrorY() * micronsToCm;
+
+   //--- Check status of both template calls.
+   if unlikely ( (theClusterParam.ierr !=0) || (theClusterParam.ierr2 !=0) ) {
+     // If reconstruction fails the hit position is calculated from cluster center of gravity
+     // corrected in x by average Lorentz drift. Assign huge errors.
+     //
+     if unlikely (!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
+       throw cms::Exception("PixelCPEClusterRepair::localPosition :")
+	 << "A non-pixel detector type in here?";
+     
+     // Assign better errors based on the residuals for failed template cases
+     if ( GeomDetEnumerators::isBarrel(theDetParam.thePart)) {
+         xerr = 55.0f * micronsToCm;      // &&& get errors from elsewhere?
+	 yerr = 36.0f * micronsToCm;
+       }
+       else {
+	 xerr = 42.0f * micronsToCm;
+	 yerr = 39.0f * micronsToCm;
+       }
    }
-   else
-   {
-      //--- Check status of both template calls.
-      if ( (theClusterParam.ierr !=0) || (theClusterParam.ierr2 !=0) )   
-      {
-         // If reconstruction fails the hit position is calculated from cluster center of gravity
-         // corrected in x by average Lorentz drift. Assign huge errors.
-	 //
-         if(!GeomDetEnumerators::isTrackerPixel(theDetParam.thePart))
-            throw cms::Exception("PixelCPEClusterRepair::localPosition :")
-            << "A non-pixel detector type in here?";
-         
-         // Assign better errors based on the residuals for failed template cases
-         if ( GeomDetEnumerators::isBarrel(theDetParam.thePart) )
-         {
-            xerr = 55.0f * micronsToCm;
-            yerr = 36.0f * micronsToCm;
-         }
-         else
-         {
-            xerr = 42.0f * micronsToCm;
-            yerr = 39.0f * micronsToCm;
-         }
-      }
-      else if ( theClusterParam.edgeTypeX_ || theClusterParam.edgeTypeY_ )
-      {
-         // for edge pixels assign errors according to observed residual RMS
-         if      ( theClusterParam.edgeTypeX_ && !theClusterParam.edgeTypeY_ )
-         {
-            xerr = 23.0f * micronsToCm;
-            yerr = 39.0f * micronsToCm;
-         }
-         else if ( !theClusterParam.edgeTypeX_ && theClusterParam.edgeTypeY_ )
-         {
-            xerr = 24.0f * micronsToCm;
-            yerr = 96.0f * micronsToCm;
-         }
-         else if ( theClusterParam.edgeTypeX_ && theClusterParam.edgeTypeY_ )
-         {
-            xerr = 31.0f * micronsToCm;
-            yerr = 90.0f * micronsToCm;
-         }
-      }
-      else 
-      {
-         xerr = theClusterParam.templSigmaX_ * micronsToCm;
-         yerr = theClusterParam.templSigmaY_ * micronsToCm;
-                  
-         // &&& should also check ierr (saved as class variable) and return
-         // &&& nonsense (another class static) if the template fit failed.
-      }       
-      
-      if (theVerboseLevel > 9) 
-      {
-         LogDebug("PixelCPEClusterRepair") 
-	   << " Sizex = " << theClusterParam.theCluster->sizeX() 
-	   << " Sizey = " << theClusterParam.theCluster->sizeY() 
-           << " Edgex = " << theClusterParam.edgeTypeX_ 
-           << " Edgey = " << theClusterParam.edgeTypeY_ 
-	   << " ErrX  = " << xerr << " ErrY  = " << yerr;
-      }
-      
-   } // else
+   // Leave commented for now, until we study the interplay of failure modes
+   // of 1D template reco and edges.  For edge hits we run 3D reco by default!
+   //
+   // else if ( theClusterParam.edgeTypeX_ || theClusterParam.edgeTypeY_ )  {
+   //   // for edge pixels assign errors according to observed residual RMS
+   //   if      ( theClusterParam.edgeTypeX_ && !theClusterParam.edgeTypeY_ ) {
+   //     xerr = 23.0f * micronsToCm;
+   //     yerr = 39.0f * micronsToCm;
+   //   }
+   //   else if ( !theClusterParam.edgeTypeX_ && theClusterParam.edgeTypeY_ ) {
+   //     xerr = 24.0f * micronsToCm;
+   //     yerr = 96.0f * micronsToCm;
+   //   }
+   //   else if ( theClusterParam.edgeTypeX_ && theClusterParam.edgeTypeY_ ) {
+   //     xerr = 31.0f * micronsToCm;
+   //     yerr = 90.0f * micronsToCm;
+   //   }
+   // }
+   else {
+     xerr = theClusterParam.templSigmaX_ * micronsToCm;
+     yerr = theClusterParam.templSigmaY_ * micronsToCm;
+     // &&& should also check ierr (saved as class variable) and return
+     // &&& nonsense (another class static) if the template fit failed.
+   }       
+   
+   if (theVerboseLevel > 9) {
+     LogDebug("PixelCPEClusterRepair") 
+       << " Sizex = " << theClusterParam.theCluster->sizeX() 
+       << " Sizey = " << theClusterParam.theCluster->sizeY() 
+       << " Edgex = " << theClusterParam.edgeTypeX_ 
+       << " Edgey = " << theClusterParam.edgeTypeY_ 
+       << " ErrX  = " << xerr << " ErrY  = " << yerr;
+   }
+   
    
    if ( !(xerr > 0.0f) )
       throw cms::Exception("PixelCPEClusterRepair::localError") 

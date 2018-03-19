@@ -20,7 +20,8 @@ from RecoLocalTracker.SiPixelRecHits.PixelCPETemplateReco_cfi import *
 #
 from RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi import *
 #
-# 5. The new ESProducer for the Magnetic-field dependent template record
+# 5. ESProducer for the Magnetic-field dependent template records
 #
 from CalibTracker.SiPixelESProducers.SiPixelTemplateDBObjectESProducer_cfi import *
+from CalibTracker.SiPixelESProducers.SiPixel2DTemplateDBObjectESProducer_cfi import *
 
