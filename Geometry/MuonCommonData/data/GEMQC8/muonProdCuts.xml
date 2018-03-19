@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SpecParSection label="ProductionCuts" eval="true">
+  <SpecPar name="cms">
+   <PartSelector path="//CMSE"/>
+   <Parameter name="CMSCutsRegion" value="CMSE" eval="false"/>
+   <Parameter name="ProdCutsForGamma" value="100.*mm"/>
+   <Parameter name="ProdCutsForElectrons" value="10.*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="10.*mm"/>
+  </SpecPar>
+  <SpecPar name="MuonChamber">
+   <PartSelector path="//GE.*"/>
+   <Parameter name="CMSCutsRegion" value="MuonChamber" eval="false"/>
+   <Parameter name="ProdCutsForGamma" value="1.*mm"/>
+   <Parameter name="ProdCutsForElectrons" value="0.002*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="0.002*mm"/>
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>

@@ -37,10 +37,10 @@ const GEMGeometry* GEMBaseValidation::initGeometry(edm::EventSetup const & iSetu
   LogDebug("MuonBaseValidation") << "GEMGeometry_->chambers().size() " << GEMGeometry_->chambers().size() << "\n";
   LogDebug("MuonBaseValidation") << "GEMGeometry_->etaPartitions().size() " << GEMGeometry_->etaPartitions().size() << "\n"; 
 
-  nregion  = GEMGeometry_->regions().size();
-  nstation = GEMGeometry_->regions().front()->stations().size() ;
+  nregion  = 1;//GEMGeometry_->regions().size();
+  nstation = 1;//GEMGeometry_->regions().front()->stations().size() ;
   nstationForLabel = nstation;
-  npart    = GEMGeometry_->chambers().front()->etaPartitions().size();
+  npart    = 8;//GEMGeometry_->chambers().front()->etaPartitions().size();
 
   return GEMGeometry_;
 }

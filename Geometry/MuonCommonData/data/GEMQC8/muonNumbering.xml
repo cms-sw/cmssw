@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <ConstantsSection label="muonconstants">
+  <Constant name="xml_starts_with_copyno" value="1"/>
+  <Constant name="level" value="1000"/>
+  <Constant name="super" value="100"/>
+  <Constant name="base" value="1"/>
+  <Constant name="mg_region" value="1*[level]"/>
+  <Constant name="mg_station" value="2*[level]"/> 
+  <Constant name="mg_ring" value="3*[level]"/>
+  <Constant name="mg_sector" value="4*[level]"/>
+  <Constant name="mg_roll" value="5*[level]"/>
+ </ConstantsSection>
+ <SpecParSection label="muonregionnumbering" eval="true">
+  <SpecPar name="MuonCommonNumbering">
+   <PartSelector path="//MUON"/>
+   <Parameter name="OnlyForMuonNumbering" value="justputsomethingheretonotfind" eval="false"/>
+   <Parameter name="xml_starts_with_copyno" value="[xml_starts_with_copyno]"/>
+   <Parameter name="level" value="[level]"/>
+   <Parameter name="super" value="[super]"/>
+   <Parameter name="base" value="[base]"/>
+   <Parameter name="mg_region"     value="[mg_region]"/>
+   <Parameter name="mg_station"    value="[mg_station]"/>
+   <Parameter name="mg_ring"       value="[mg_ring]"/>
+   <Parameter name="mg_sector"     value="[mg_sector]"/>
+   <Parameter name="mg_roll"       value="[mg_roll]"/>
+  </SpecPar>
+ </SpecParSection>
+ <SpecParSection label="muonendcapnumbering" eval="true">
+  <SpecPar name="MuonEndcapStation1">
+    <PartSelector path="//cms:MUON"/>
+   <Parameter name="CopyNoTag" value="[mg_station]"/>
+   <Parameter name="CopyNoOffset" value="2*[super]"/>    
+  </SpecPar>
+ </SpecParSection>
+
+  <SpecParSection label="muonGEMnumbering" eval="true">
+  <SpecPar name="MuonGEMSector">
+   <PartSelector path="//GEMBox11.*"/>
+   <Parameter name="CopyNoTag" value="[mg_sector]"/>
+   <Parameter name="CopyNoOffset" value="4*[super]"/>
+  </SpecPar>
+  <SpecPar name="MuonGEMChamber">
+   <PartSelector path="//GHA1.*"/>
+   <Parameter name="CopyNoTag" value="[mg_roll]"/>
+   <Parameter name="CopyNoOffset" value="5*[super]"/>
+  </SpecPar>
+ </SpecParSection>
+
+ <!--
+ <SpecParSection label="muonGEMnumbering" eval="true">
+  <SpecPar name="MuonGEMEndcap">
+   <PartSelector path="//GEMBox11L"/>
+   <PartSelector path="//GEMBox11S"/>
+   <PartSelector path="//GEMBox11L"/>
+   <PartSelector path="//GEMBox11S"/>
+   <PartSelector path="//GEMBox11L"/>
+  </SpecPar>
+  <SpecPar name="MuonGEMSector">
+   <PartSelector path="//GEMBox.*"/>
+  </SpecPar>
+  <SpecPar name="MuonGEMChamber">
+   <PartSelector path="//GHA.*"/>
+  </SpecPar>
+ </SpecParSection>
+       -->
+
+</DDDefinition>
