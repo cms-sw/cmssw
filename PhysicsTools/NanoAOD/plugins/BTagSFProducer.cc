@@ -108,7 +108,7 @@ class BTagSFProducer : public edm::stream::EDProducer<> {
                     readers.push_back(reader);          //dummy, so that index of vectors still match
                     
                     // report
-                    std::cout << "Skipped loading BTagCalibration for "+discShortNames_[iDisc]+" as it was marked as unavailable in the configuration file. All b-tag event weights will be stored as 1.\n" << std::endl;
+                    std::cout << "Skipped loading BTagCalibration for "+discShortNames_[iDisc]+" as it was marked as unavailable in the configuration file. Event weights will not be stored.\n" << std::endl;
                 }
             }
         }
@@ -178,15 +178,17 @@ BTagSFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     for (unsigned int iDisc = 0; iDisc < nDiscs; ++iDisc)  {        // loop over b-tagging algorithms
         
-        EventWt=1.;
-        
-        if (weightFiles_[iDisc]!="unavailable")  {        
+        if (weightFiles_[iDisc]!="unavailable")  {     
+            EventWt=1.;
             for (const pat::Jet & jet : *jets) {                    // loop over jets and accumulate product of SF for each jet
                 pt=jet.pt();
                 eta=jet.eta();
                 bdisc=0.;
-                for (string inBranch : inBranchNames[iDisc])  {     //sum up the discriminator values if multiple, e.g. DeepCSV b+bb
-                    bdisc+=jet.bDiscriminator(inBranch);
+                
+                if (op==BTagEntry::OP_RESHAPING) {
+                    for (string inBranch : inBranchNames[iDisc])  {     //sum up the discriminator values if multiple, e.g. DeepCSV b+bb
+                        bdisc+=jet.bDiscriminator(inBranch);
+                    }
                 }
                           
                 flavour=jet.partonFlavour();
@@ -213,9 +215,9 @@ BTagSFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 
                 EventWt *= SF;
             }
-        }
         
-        out->addColumnValue<float>(discShortNames_[iDisc], EventWt, "b-tag event weight for "+discShortNames_[iDisc], nanoaod::FlatTable::FloatColumn);
+            out->addColumnValue<float>(discShortNames_[iDisc], EventWt, "b-tag event weight for "+discShortNames_[iDisc], nanoaod::FlatTable::FloatColumn);
+        }
     }
     
     iEvent.put(move(out));
