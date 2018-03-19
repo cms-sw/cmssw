@@ -99,9 +99,10 @@ process.emulTPDigis.RunZS = cms.bool(True)
 process.emulTPDigis.ZS_threshold = cms.uint32(0)
 process.hcalDigis.InputLabel = rawTag
 process.emulTPDigisNoTDCCut = process.emulTPDigis.clone()
-process.emulTPDigisNoTDCCut.ADCThresholdHF = cms.uint32(255)
-process.emulTPDigisNoTDCCut.TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
-
+process.emulTPDigisNoTDCCut.parameters = cms.untracked.PSet(
+	ADCThresholdHF = cms.uint32(255),
+	TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
+)
 
 
 # Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
