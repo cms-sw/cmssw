@@ -259,7 +259,7 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
    // Add template stored in external dbobject to theTemplateStore
    
    // Local variables
-   int i, j, k, l, iy, jx;
+   int i, j, k, l, iy, jx;       // &&& Do we need them?  Move to the lowest scope...
    //	const char *tempfile;
    const int code_version={21};
    

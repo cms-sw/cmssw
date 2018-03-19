@@ -319,7 +319,7 @@ bool SiPixelGenError::pushfile(const SiPixelGenErrorDBObject& dbobject,
       
       // next, layout the 1-d/2-d structures needed to store GenError
       
-      
+      // &&&  Who is going to delete these?  Are we leaking memory?
       theCurrentTemp.cotbetaY = new float[theCurrentTemp.head.NTy];
       theCurrentTemp.cotbetaX = new float[theCurrentTemp.head.NTyx];
       theCurrentTemp.cotalphaX = new float[theCurrentTemp.head.NTxx];

@@ -132,7 +132,7 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
    if ( LoadTemplatesFromDB_ ) {
       int ID0 = templateDBobject_->getTemplateID(theDetParam.theDet->geographicalId()); // just to comapre
       ID = theDetParam.detTemplateId;
-      if(ID0!=ID) cout<<" different id"<< ID<<" "<<ID0<<endl;
+      if(ID0!=ID) edm::LogError("PixelCPETemplateReco") <<" different id"<< ID<<" "<<ID0<<endl;
    } else { // from asci file
       if ( !fpix )
 	ID = barrelTemplateID_  ; // barrel

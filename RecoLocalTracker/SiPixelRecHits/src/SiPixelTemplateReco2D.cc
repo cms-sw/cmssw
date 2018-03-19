@@ -133,7 +133,9 @@ int SiPixelTemplateReco2D::PixelTempReco3D(int id, float cotalpha, float cotbeta
    
    float clusxy[BXM2][BYM2];
    for(j=0; j<BXM2; ++j) {for(i=0; i<BYM2; ++i) {clusxy[j][i] = 0.f;}}
-   
+
+   const unsigned int NPIXMAX = 200;
+
    int indexxy[2][NPIXMAX];
    float pixel[NPIXMAX];
    float sigma2[NPIXMAX];

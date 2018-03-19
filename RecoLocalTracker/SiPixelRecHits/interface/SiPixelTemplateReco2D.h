@@ -23,8 +23,6 @@
 #include "SiPixelTemplate2D.h"
 #endif
 
-#define NPIXMAX 200
-
 #include <vector>
 
 #ifndef SiPixelTemplateClusMatrix2D
