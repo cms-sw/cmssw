@@ -36,8 +36,6 @@ process.schedule = cms.Schedule(
   process.end_path
 )
 
-process.schedule = cms.Schedule(process.path)
-
 process.dqmProvInfo.runType = process.runType.getRunTypeName()
 
 from DQM.Integration.config.online_customizations_cfi import *
