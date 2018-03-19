@@ -446,7 +446,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 	conditionStr = std::string( "FILL_NUMBER = :currentFill" );
 	CTPPSDataQuery->setCondition( conditionStr, CTPPSDataBindVariables );
 	//ORDER BY clause
-	CTPPSDataQuery->addToOrderList( std::string( "DIP_UPDATE_TIME" ) );
+	CTPPSDataQuery->addToOrderList( std::string( "DIP_UPDATE_TIME DESC" ) ); //Only the latest value is fetched.
 	//define query output
 	coral::AttributeList CTPPSDataOutput;
 	CTPPSDataOutput.extend<std::string>( std::string( "LHC_STATE" ) );
@@ -512,12 +512,6 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 	ECALDataQuery->addToOutputList( std::string( "element_nr" ) );
 	//WHERE CLAUSE
 	coral::AttributeList ECALDataBindVariables;
-	/*ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "stableBeamStartTimeStamp" ) );
-	ECALDataBindVariables[ std::string( "stableBeamStartTimeStamp" ) ].data<coral::TimeStamp>() = stableBeamStartTimeStamp;
-	ECALDataBindVariables.extend<coral::TimeStamp>( std::string( "beamDumpTimeStamp" ) );
-	ECALDataBindVariables[ std::string( "beamDumpTimeStamp" ) ].data<coral::TimeStamp>() = beamDumpTimeStamp;
-	conditionStr = std::string( "CHANGE_DATE BETWEEN :stableBeamStartTimeStamp AND :beamDumpTimeStamp AND (DIP_value LIKE '%beamPhaseMean%' OR DIP_value LIKE '%cavPhaseMean%') " );
-	*/
 	conditionStr = std::string( "DIP_value LIKE '%beamPhaseMean%' OR DIP_value LIKE '%cavPhaseMean%'" );
 	
 	ECALDataQuery->setCondition( conditionStr, ECALDataBindVariables );
@@ -569,7 +563,7 @@ void LHCInfoPopConSourceHandler::getNewObjects() {
 				beam1RF.push_back(elementNrAttribute.data<float>());
 				break;
 			case 4:
-				beam1RF.push_back(elementNrAttribute.data<float>());
+				beam2RF.push_back(elementNrAttribute.data<float>());
 				break;
 			default:
 				break;
