@@ -11,7 +11,8 @@ void RecHitProcessor::processLook(
 				  const edm::EventSetup& iSetup,
 				  const edm::EDGetToken& recHitToken,
 				  std::vector<RecHitProcessor::CppfItem>& CppfVec1,
-				  l1t::CPPFDigiCollection& cppfDigis
+				  l1t::CPPFDigiCollection& cppfDigis,
+				  const int MaxClusterSize
 				  ) const {
   
   edm::Handle<RPCRecHitCollection> recHits;
@@ -66,7 +67,7 @@ void RecHitProcessor::processLook(
 	  rechitstrip += medium; 
 	} 
 	
-	if(clustersize > 3) continue;	
+	if(clustersize > MaxClusterSize) continue;	
 	//This is just for test CPPFDigis with the RPC Geometry, It must be "true" in the normal runs 
 	bool Geo = true;
 	////:::::::::::::::::::::::::::::::::::::::::::::::::

@@ -31,10 +31,10 @@ void L1TMuonCPPFDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.put(std::move(cppf_recHit),  "recHit");
 }
 
-void L1TMuonCPPFDigiProducer::beginJob() {
+void L1TMuonCPPFDigiProducer::beginStream(edm::StreamID iID) {
 }
 
-void L1TMuonCPPFDigiProducer::endJob() {
+void L1TMuonCPPFDigiProducer::endStream(){
 }
 
 // Define this as a plug-in

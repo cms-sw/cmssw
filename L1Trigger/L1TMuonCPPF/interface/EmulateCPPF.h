@@ -30,7 +30,7 @@ class EmulateCPPF {
   const edm::EDGetToken recHitToken_;
   enum class CppfSource { File, EventSetup } cppfSource_;
   std::vector<RecHitProcessor::CppfItem> CppfVec_1;
-  
+  int MaxClusterSize_; 
 }; // End class EmulateCPPF
 
 #endif // #define L1Trigger_L1TMuonCPPF_EmulateCPPF_h

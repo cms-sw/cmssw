@@ -11,7 +11,8 @@
 
 // User include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+//#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -45,16 +46,17 @@
 #include "TVector3.h"
 
 // Class declaration
-class L1TMuonCPPFDigiProducer : public edm::EDProducer {
+class L1TMuonCPPFDigiProducer : public edm::stream::EDProducer<> {
   
  public:
   explicit L1TMuonCPPFDigiProducer(const edm::ParameterSet&);
   ~L1TMuonCPPFDigiProducer() override;
 
  private:
-  void beginJob() override;
+  
+  void beginStream(edm::StreamID) override;
+  void endStream() override;
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
-  void endJob() override;
   
  private:
   std::unique_ptr<EmulateCPPF> cppf_emulator_;

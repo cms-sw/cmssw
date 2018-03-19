@@ -55,7 +55,8 @@ class RecHitProcessor {
 		   const edm::EDGetToken& recHitToken,
 		   std::vector<RecHitProcessor::CppfItem>& CppfVec1, 
 		   // Output
-		   l1t::CPPFDigiCollection& cppfDigis
+		   l1t::CPPFDigiCollection& cppfDigis,
+		   const int MaxClusterSize
 		   ) const;
   
   void process(
