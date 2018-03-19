@@ -68,12 +68,13 @@ namespace l1t
 	  RegionalMuonCand muCand;
 	  RegionalMuonRawDigiTranslator::fillRegionalMuonCand(muCand, raw_first, raw_secnd, processor, tftype::bmtf);
 
-<<<<<<< HEAD
 	  if (muCand.hwQual() == 0 && !isKalman)
 	    continue;//though away muons with Zero-Quality (ONLY BMTF)
-=======
+	  if (muCand.hwQual() == 0)
+	    continue;//though away muons with Zero-Quality
+
 	  if (isKalman) {
-	    //muCand.setLink(????????); to be filled later
+	    muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
 	    muCand.setHwPt2((raw_secnd >> 23) & 0xFF);
 	    muCand.setHwDXY((raw_secnd >> 18) & 0x3);
 	    LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi() << " diplacedPt = " << muCand.hwPt2();
@@ -82,16 +83,6 @@ namespace l1t
 	    muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
 	    LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi();
 	  }
->>>>>>> kalmanUnpacker_v0
-
-	  muCand.setLink(48 + processor);	//the link corresponds to the uGMT input
-	  if (isKalman) {
-	    muCand.setHwPt2((raw_secnd >> 23) & 0xFF);
-	    muCand.setHwDXY((raw_secnd >> 2) & 0x3);
-	    LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi() << " diplacedPt = " << muCand.hwPt2();
-	  }
-	  else
-	    LogDebug("L1T") << "Pt = " << muCand.hwPt() << " eta: " << muCand.hwEta() << " phi: " << muCand.hwPhi();
 
 	  res->push_back(ibx, muCand);
 
@@ -101,8 +92,6 @@ namespace l1t
       return true;
     }//unpack
 
-<<<<<<< HEAD
-=======
     bool BMTFUnpackerOutput::unpack(const Block& block, UnpackerCollections *coll) {
       return unpacking(block, coll);
     }
@@ -111,7 +100,6 @@ namespace l1t
       return unpacking(block, coll, true);
     }
 
->>>>>>> kalmanUnpacker_v0
   }//ns stage2
 }//ns lt1
 
