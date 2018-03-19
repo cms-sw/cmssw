@@ -4,69 +4,65 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 process = cms.Process("SiStripQualityStatJob")
 
 #prepare options
-
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                  "DONOTEXIST",
-                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  "auto:run2_data",
+                  VarParsing.VarParsing.multiplicity.singleton,  # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
+
 options.register ('runNumber',
                   1,
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                  VarParsing.VarParsing.varType.int,          # string, int, or float
+                  VarParsing.VarParsing.varType.int,            # string, int, or float
                   "Run Number")
 
 options.parseArguments()
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('WARNING')
-    ),
-    SiStripQualityStatSummary = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO'),
-        default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
-        SiStripQualityStatistics = cms.untracked.PSet(limit=cms.untracked.int32(100000))
-    ),
-    destinations = cms.untracked.vstring('cout','SiStripQualityStatSummary'),
-    categories = cms.untracked.vstring('SiStripQualityStatistics')
-)
+###################################################################
+# Messages
+###################################################################
+process.load('FWCore.MessageService.MessageLogger_cfi')   
+process.MessageLogger.categories.append("SiStripQualityStatistics")  
+process.MessageLogger.destinations = cms.untracked.vstring("cout")
+process.MessageLogger.cout = cms.untracked.PSet(
+    threshold = cms.untracked.string("WARNING"),
+    default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
+    FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
+                                   reportEvery = cms.untracked.int32(1000)
+                                   ),                                                      
+    SiStripQualityStatistics = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    )
+process.MessageLogger.statistics.append('cout') 
+
+# process.MessageLogger = cms.Service("MessageLogger",
+#                                     cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING')),
+#                                     SiStripQualityStatSummary = cms.untracked.PSet(threshold = cms.untracked.string('INFO'),
+#                                                                                    default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
+#                                                                                    SiStripQualityStatistics = cms.untracked.PSet(limit=cms.untracked.int32(100000))
+#                                                                                    ),
+#                                     destinations = cms.untracked.vstring('cout','SiStripQualityStatSummary'),                                    
+#                                     categories = cms.untracked.vstring('SiStripQualityStatistics')
+#                                     )
 
 process.source = cms.Source("EmptyIOVSource",
-    timetype = cms.string('runnumber'),
-    # The RunInfo for this run is NOT in the globalTag
-    firstValue = cms.uint64(options.runNumber),
-    lastValue = cms.uint64(options.runNumber),
-    interval = cms.uint64(1)
-)
+                            timetype = cms.string('runnumber'),
+                            # The RunInfo for this run is NOT in the globalTag
+                            firstValue = cms.uint64(options.runNumber),
+                            lastValue = cms.uint64(options.runNumber),
+                            interval = cms.uint64(1)
+                            )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
-)
+    )
 
 # You can get the bad channel records from a GlobalTag or from specific tags using a PoolDBESSource and an ESPrefer
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
-
-# process.poolDBESSource = cms.ESSource("PoolDBESSource",
-#                                       BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
-#                                       DBParameters = cms.PSet(
-#     messageLevel = cms.untracked.int32(0),
-#     authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
-#     ),
-#                                       timetype = cms.untracked.string('runnumber'),
-#                                       connect = cms.string('oracle://cms_orcon_prod/cms_cond_31x_run_info'),
-#                                       toGet = cms.VPSet(
-#     cms.PSet(
-#     record = cms.string('RunInfoRcd'),
-#     tag = cms.string('runinfo_start_31X_hlt')
-#     ),
-#     )
-# )
-# process.es_prefer = cms.ESPrefer("PoolDBESSource", "poolDBESSource")
 
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
@@ -81,7 +77,7 @@ process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(
     , cms.PSet(record=cms.string('SiStripBadFiberRcd'),tag=cms.string(''))
     , cms.PSet(record=cms.string('SiStripBadStripRcd' ),tag=cms.string(''))
     , cms.PSet(record=cms.string('RunInfoRcd'),tag=cms.string(''))
-)
+    )
 
 process.siStripQualityESProducer.ReduceGranularity = cms.bool(False)
 # True means all the debug output from adding the RunInfo (default is False)
@@ -91,28 +87,6 @@ process.siStripQualityESProducer.PrintDebugOutput = cms.bool(True)
 # With "False", instead, in that case the RunInfo information is discarded.
 # Default is "False".
 process.siStripQualityESProducer.UseEmptyRunInfo = cms.bool(False)
-
-#process.onlineSiStripQualityProducer = cms.ESProducer("SiStripQualityESProducer",
-#   appendToDataLabel = cms.string('OnlineMasking'),
-#   PrintDebugOutput = cms.bool(False),
-#   PrintDebug = cms.untracked.bool(True),
-#   ListOfRecordToMerge = cms.VPSet(cms.PSet(
-#       record = cms.string('SiStripBadChannelRcd'),
-#       tag = cms.string('')
-#   ), 
-#       cms.PSet(
-#           record = cms.string('SiStripDetCablingRcd'),
-#           tag = cms.string('')
-#       ), 
-#       cms.PSet(
-#           record = cms.string('RunInfoRcd'),
-#           tag = cms.string('')
-#       )),
-#   UseEmptyRunInfo = cms.bool(False),
-#   ReduceGranularity = cms.bool(True),
-#   ThresholdForReducedGranularity = cms.double(0.3)
-#)
-
 
 #-------------------------------------------------
 # Services for the TkHistoMap
@@ -124,7 +98,7 @@ process.load("DQM.SiStripCommon.TkHistoMap_cff")
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
                              dataLabel = cms.untracked.string(""),
-                             SaveTkHistoMap = cms.untracked.bool(True),
+                             SaveTkHistoMap = cms.untracked.bool(False),
                              TkMapFileName = cms.untracked.string("TkMapBadComponents.pdf")  #available filetypes: .pdf .png .jpg .svg
                              )
 
