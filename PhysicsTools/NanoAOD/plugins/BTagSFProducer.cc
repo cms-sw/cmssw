@@ -55,50 +55,62 @@ class BTagSFProducer : public edm::stream::EDProducer<> {
             
             for (unsigned int iDisc = 0; iDisc < nDiscs; ++iDisc)  {
                 
-                // setup calibration                
-                BTagCalibration calib;
-                calib=BTagCalibration(discShortNames_[iDisc],std::string(std::getenv("CMSSW_BASE"))+weightFiles_[iDisc]);
-                
-                std::string opname;
-                if (operatingPoints_[iDisc] == "0" || operatingPoints_[iDisc] == "loose") {
-                    op=BTagEntry::OP_LOOSE;    
-                    opname="loose";
+                if (weightFiles_[iDisc]!="unavailable")  {
+                    // setup calibration                
+                    BTagCalibration calib;
+                    calib=BTagCalibration(discShortNames_[iDisc],std::string(std::getenv("CMSSW_BASE"))+weightFiles_[iDisc]);
+                    
+                    // determine op
+                    std::string opname;
+                    if (operatingPoints_[iDisc] == "0" || operatingPoints_[iDisc] == "loose") {
+                        op=BTagEntry::OP_LOOSE;    
+                        opname="loose";
+                    }
+                    else if (operatingPoints_[iDisc] == "1" || operatingPoints_[iDisc] == "medium") {
+                        op=BTagEntry::OP_MEDIUM;     
+                        opname="medium";
+                    }
+                    else if (operatingPoints_[iDisc] == "2" || operatingPoints_[iDisc] == "tight") {
+                        op=BTagEntry::OP_TIGHT;
+                        opname="tight";
+                    }
+                    else if (operatingPoints_[iDisc] == "3" || operatingPoints_[iDisc] == "reshaping") {
+                        op=BTagEntry::OP_RESHAPING;
+                        opname="discriminator reshaping";
+                    }
+                    
+                    // setup reader
+                    BTagCalibrationReader reader;
+                    reader=BTagCalibrationReader(op, sysTypes_[iDisc]);
+                    reader.load(calib, BTagEntry::FLAV_B, measurementTypesB_[iDisc]);
+                    reader.load(calib, BTagEntry::FLAV_C, measurementTypesC_[iDisc]);
+                    reader.load(calib, BTagEntry::FLAV_UDSG, measurementTypesUDSG_[iDisc]);
+                    
+                    //calibs.push_back(calib);
+                    readers.push_back(reader);
+                    
+                    // report
+                    std::cout << "Loaded "+discShortNames_[iDisc]+" SFs from weight file "+weightFiles_[iDisc]+" with\noperating point: "+opname+",\nmeasurement type: B="+measurementTypesB_[iDisc]+", C="+measurementTypesC_[iDisc]+", UDSG="+measurementTypesUDSG_[iDisc]+",\nsystematic type: "+sysTypes_[iDisc]+".\n" << std::endl;
+        
+                    // find if multiple MiniAOD branches need to be summed up (e.g., DeepCSV b+bb) and separate them using '+' delimiter from config                
+                    std::stringstream dName(discNames_[iDisc]);
+                    std::string branch;
+                    std::vector<std::string> branches;
+                    while (std::getline(dName, branch, '+')) {
+                        branches.push_back(branch);
+                    }
+                    inBranchNames.push_back(branches);
                 }
-                else if (operatingPoints_[iDisc] == "1" || operatingPoints_[iDisc] == "medium") {
-                    op=BTagEntry::OP_MEDIUM;     
-                    opname="medium";
+                else {
+                    //BTagCalibration calib;
+                    BTagCalibrationReader reader;
+                    //calibs.push_back(calib);            //dummy, so that index of vectors still match
+                    readers.push_back(reader);          //dummy, so that index of vectors still match
+                    
+                    // report
+                    std::cout << "Skipped loading BTagCalibration for "+discShortNames_[iDisc]+" as it was marked as unavailable in the configuration file. All b-tag event weights will be stored as 1.\n" << std::endl;
                 }
-                else if (operatingPoints_[iDisc] == "2" || operatingPoints_[iDisc] == "tight") {
-                    op=BTagEntry::OP_TIGHT;
-                    opname="tight";
-                }
-                else if (operatingPoints_[iDisc] == "3" || operatingPoints_[iDisc] == "reshaping") {
-                    op=BTagEntry::OP_RESHAPING;
-                    opname="discriminator reshaping";
-                }
-                
-                // setup reader
-                BTagCalibrationReader reader;
-                reader=BTagCalibrationReader(op, sysTypes_[iDisc]);
-                reader.load(calib, BTagEntry::FLAV_B, measurementTypesB_[iDisc]);
-                reader.load(calib, BTagEntry::FLAV_C, measurementTypesC_[iDisc]);
-                reader.load(calib, BTagEntry::FLAV_UDSG, measurementTypesUDSG_[iDisc]);
-                
-                calibs.push_back(calib);
-                readers.push_back(reader);
-                
-                // report
-                std::cout << "Loaded "+discShortNames_[iDisc]+" SFs from weight file "+weightFiles_[iDisc]+" with\noperating point: "+opname+",\nmeasurement type: B="+measurementTypesB_[iDisc]+", C="+measurementTypesC_[iDisc]+", UDSG="+measurementTypesUDSG_[iDisc]+",\nsystematic type: "+sysTypes_[iDisc]+".\n" << std::endl;
-    
-                // find if multiple MiniAOD branches need to be summed up (e.g., DeepCSV b+bb) and separate them using '+' delimiter from config                
-                std::stringstream dName(discNames_[iDisc]);
-                std::string branch;
-                std::vector<std::string> branches;
-                while (std::getline(dName, branch, '+')) {
-                    branches.push_back(branch);
-                }
-                inBranchNames.push_back(branches);
-             }
+            }
         }
 
       ~BTagSFProducer() override {};
@@ -137,7 +149,7 @@ class BTagSFProducer : public edm::stream::EDProducer<> {
 
       BTagEntry::OperatingPoint op;
       std::vector<std::vector<std::string>> inBranchNames;
-      std::vector<BTagCalibration> calibs;
+      //std::vector<BTagCalibration> calibs;
       std::vector<BTagCalibrationReader> readers;
       unsigned int nDiscs;
 };
@@ -164,40 +176,43 @@ BTagSFProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     auto out = std::make_unique<nanoaod::FlatTable>(1, "btagWeight", true);
     out->setDoc("b-tagging event weights");
     
-    for (unsigned int iDisc = 0; iDisc < nDiscs; ++iDisc)  {    // loop over b-tagging algorithms
+    for (unsigned int iDisc = 0; iDisc < nDiscs; ++iDisc)  {        // loop over b-tagging algorithms
         
-        EventWt=1.;        
-        for (const pat::Jet & jet : *jets) {                    // loop over jets and accumulate product of SF for each jet
-            pt=jet.pt();
-            eta=jet.eta();
-            bdisc=0.;
-            for (string inBranch : inBranchNames[iDisc])  {     //sum up the discriminator values if multiple, e.g. DeepCSV b+bb
-                bdisc+=jet.bDiscriminator(inBranch);
-            }
-                      
-            flavour=jet.partonFlavour();
+        EventWt=1.;
+        
+        if (weightFiles_[iDisc]!="unavailable")  {        
+            for (const pat::Jet & jet : *jets) {                    // loop over jets and accumulate product of SF for each jet
+                pt=jet.pt();
+                eta=jet.eta();
+                bdisc=0.;
+                for (string inBranch : inBranchNames[iDisc])  {     //sum up the discriminator values if multiple, e.g. DeepCSV b+bb
+                    bdisc+=jet.bDiscriminator(inBranch);
+                }
+                          
+                flavour=jet.partonFlavour();
 
-            if (cut_(jet)) {                                    //multiply SF of only the jets that pass the cut
-                if (fabs(flavour) == 5) {           // b jets
-                    SF = readers[iDisc].eval_auto_bounds(sysTypes_[iDisc],BTagEntry::FLAV_B,eta,pt,bdisc);
-                }
-                else if (fabs(flavour) == 4) {      // c jets
-                    SF = readers[iDisc].eval_auto_bounds(sysTypes_[iDisc],BTagEntry::FLAV_C,eta,pt,bdisc);
-                }
-                else {                              // others
-                    SF = readers[iDisc].eval_auto_bounds(sysTypes_[iDisc],BTagEntry::FLAV_UDSG,eta,pt,bdisc);
+                if (cut_(jet)) {                                    //multiply SF of only the jets that pass the cut
+                    if (fabs(flavour) == 5) {           // b jets
+                        SF = readers[iDisc].eval_auto_bounds(sysTypes_[iDisc],BTagEntry::FLAV_B,eta,pt,bdisc);
                     }
+                    else if (fabs(flavour) == 4) {      // c jets
+                        SF = readers[iDisc].eval_auto_bounds(sysTypes_[iDisc],BTagEntry::FLAV_C,eta,pt,bdisc);
+                    }
+                    else {                              // others
+                        SF = readers[iDisc].eval_auto_bounds(sysTypes_[iDisc],BTagEntry::FLAV_UDSG,eta,pt,bdisc);
+                        }
+                }
+                else {
+                    SF=1.;
+                }
+                
+                if (SF==0.) {                                       // default value of SF is set to 1 in case BTagCalibration returns 0
+                    cout << discShortNames_[iDisc]+" SF not found for jet with pT="+to_string(pt)+", eta="+to_string(eta)+", discValue="+to_string(bdisc)+", flavour="+to_string(flavour) +". Setting SF to 1." << endl;
+                    SF=1.;
+                }
+                
+                EventWt *= SF;
             }
-            else {
-                SF=1.;
-            }
-            
-            if (SF==0.) {                                       // default value of SF is set to 1 in case BTagCalibration returns 0
-                cout << discShortNames_[iDisc]+" SF not found for jet with pT="+to_string(pt)+", eta="+to_string(eta)+", discValue="+to_string(bdisc)+", flavour="+to_string(flavour) +". Setting SF to 1." << endl;
-                SF=1.;
-            }
-            
-            EventWt *= SF;
         }
         
         out->addColumnValue<float>(discShortNames_[iDisc], EventWt, "b-tag event weight for "+discShortNames_[iDisc], nanoaod::FlatTable::FloatColumn);
