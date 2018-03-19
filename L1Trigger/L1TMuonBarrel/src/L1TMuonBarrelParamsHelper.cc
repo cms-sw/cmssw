@@ -333,7 +333,7 @@ enum PtAssMethod { PT12L,  PT12H,  PT13L,  PT13H,  PT14L,  PT14H,
     }
 
     // assemble file name
-    const string& lutpath = AssLUTpath;
+    string& lutpath = AssLUTpath;
     edm::FileInPath lut_f = edm::FileInPath(string(lutpath + pta_str + ".lut"));
     string pta_file = lut_f.fullPath();
 
