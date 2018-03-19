@@ -26,10 +26,11 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("CalibTracker.SiStripESProducers.fake.SiStripQualityFakeESSource_cfi")
 
-process.reader = cms.EDAnalyzer("SiStripQualityStatistics",
-                              dataLabel = cms.untracked.string(""),
-                              TkMapFileName = cms.untracked.string("")
-                              )
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.reader = DQMEDAnalyzer("SiStripQualityStatistics",
+                               dataLabel = cms.untracked.string(""),
+                               TkMapFileName = cms.untracked.string("")
+                               )
 
 process.p = cms.Path(process.reader)
 
