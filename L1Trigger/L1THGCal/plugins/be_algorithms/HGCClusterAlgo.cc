@@ -26,7 +26,8 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
     private:
         enum ClusterType{
             dRC2d,
-            NNC2d
+            NNC2d,
+            dRNNC2d
         };
         enum MulticlusterType{
             dRC3d,
@@ -51,6 +52,8 @@ class HGCClusterAlgo : public Algorithm<FECODEC>
                 clusteringAlgorithmType_ = dRC2d;
             }else if(typeCluster=="NNC2d"){
                 clusteringAlgorithmType_ = NNC2d;
+            }else if(typeCluster=="dRNNC2d"){
+                clusteringAlgorithmType_ = dRNNC2d;
             }else {
                 throw cms::Exception("HGCTriggerParameterError")
                     << "Unknown clustering type '" << typeCluster;
@@ -156,7 +159,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     triggerCellsHandle = evt.put( std::move( trgcell_product_ ), "calibratedTriggerCells");
 
     /* create a persistent vector of pointers to the trigger-cells */
-    edm::PtrVector<l1t::HGCalTriggerCell> triggerCellsPtrs;
+    std::vector<edm::Ptr<l1t::HGCalTriggerCell>> triggerCellsPtrs;
     for( unsigned i = 0; i < triggerCellsHandle->size(); ++i ) {
         edm::Ptr<l1t::HGCalTriggerCell> ptr(triggerCellsHandle,i);
         triggerCellsPtrs.push_back(ptr);
@@ -170,6 +173,9 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
         case NNC2d:
             clustering_.clusterizeNN( triggerCellsPtrs, *cluster_product_, *triggerGeometry_ );
             break;
+        case dRNNC2d:
+            clustering_.clusterizeDRNN( triggerCellsPtrs, *cluster_product_, *triggerGeometry_ );
+            break;
         default:
             // Should not happen, clustering type checked in constructor
             break;
@@ -179,7 +185,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
     clustersHandle = evt.put( std::move( cluster_product_ ), "cluster2D");
 
     /* create a persistent vector of pointers to the trigger-cells */
-    edm::PtrVector<l1t::HGCalCluster> clustersPtrs;
+    std::vector<edm::Ptr<l1t::HGCalCluster>> clustersPtrs;
     for( unsigned i = 0; i < clustersHandle->size(); ++i ) {
         edm::Ptr<l1t::HGCalCluster> ptr(clustersHandle,i);
         clustersPtrs.push_back(ptr);

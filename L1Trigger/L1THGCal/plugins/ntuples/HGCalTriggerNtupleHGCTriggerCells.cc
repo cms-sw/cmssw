@@ -9,7 +9,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
-
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 
 
@@ -18,19 +18,25 @@ class HGCalTriggerNtupleHGCTriggerCells : public HGCalTriggerNtupleBase
 
   public:
     HGCalTriggerNtupleHGCTriggerCells(const edm::ParameterSet& conf);
-    ~HGCalTriggerNtupleHGCTriggerCells(){};
-    virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
-    virtual void fill(const edm::Event& e, const edm::EventSetup& es) override final;
+    ~HGCalTriggerNtupleHGCTriggerCells() override{};
+    void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
+    void fill(const edm::Event& e, const edm::EventSetup& es) final;
 
   private:
+    double calibrate(double, int, int);
     void simhits(const edm::Event& e, std::unordered_map<uint32_t, double>& simhits_ee, std::unordered_map<uint32_t, double>& simhits_fh, std::unordered_map<uint32_t, double>& simhits_bh);
-    virtual void clear() override final;
+    void clear() final;
 
+    HGCalTriggerTools triggerTools_;
 
     edm::EDGetToken trigger_cells_token_, multiclusters_token_;
     edm::EDGetToken simhits_ee_token_, simhits_fh_token_, simhits_bh_token_;
     bool fill_simenergy_;
     bool filter_cells_in_multiclusters_;
+    double keV2fC_;
+    std::vector<double> fcPerMip_;
+    std::vector<double> layerWeights_;
+    std::vector<double> thicknessCorrections_;
     edm::ESHandle<HGCalTriggerGeometryBase> geometry_;
 
 
@@ -68,6 +74,12 @@ HGCalTriggerNtupleHGCTriggerCells(const edm::ParameterSet& conf):HGCalTriggerNtu
   fill_simenergy_(conf.getParameter<bool>("FillSimEnergy")),
   filter_cells_in_multiclusters_(conf.getParameter<bool>("FilterCellsInMulticlusters"))
 {
+  fill_simenergy_ = conf.getParameter<bool>("FillSimEnergy");
+  filter_cells_in_multiclusters_ = conf.getParameter<bool>("FilterCellsInMulticlusters");
+  keV2fC_ = conf.getParameter<double>("keV2fC");
+  fcPerMip_ = conf.getParameter<std::vector<double>>("fcPerMip");
+  layerWeights_ = conf.getParameter<std::vector<double>>("layerWeights");
+  thicknessCorrections_ = conf.getParameter<std::vector<double>>("thicknessCorrections");
 }
 
 void
@@ -91,7 +103,7 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("tc_layer", &tc_layer_);
   tree.Branch("tc_wafer", &tc_wafer_);
   tree.Branch("tc_wafertype", &tc_wafertype_);
-  tree.Branch("tc_cell", &tc_cell_);    
+  tree.Branch("tc_cell", &tc_cell_);
   tree.Branch("tc_data", &tc_data_);
   tree.Branch("tc_pt", &tc_pt_);
   tree.Branch("tc_mipPt", &tc_mipPt_);
@@ -141,13 +153,15 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     for(const auto& cl_ptr : mcl_itr->constituents())
     {
       // loop on TC inside 2D clusters
-      for(const auto& tc_ptr : cl_ptr->constituents())
+      for(const auto& tc_ptr : cl_ptr.second->constituents())
       {
-        cell2cluster.emplace(tc_ptr->detId(), cl_ptr->detId());
-        cell2multicluster.emplace(tc_ptr->detId(), mcl_itr);
+        cell2cluster.emplace(tc_ptr.second->detId(), cl_ptr.second->detId());
+        cell2multicluster.emplace(tc_ptr.second->detId(), mcl_itr);
       }
     }
   }
+
+  triggerTools_.eventSetup(es);
 
   clear();
   for(auto tc_itr=trigger_cells.begin(0); tc_itr!=trigger_cells.end(0); tc_itr++)
@@ -167,7 +181,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
       tc_id_.emplace_back(tc_itr->detId());
       tc_subdet_.emplace_back(id.subdetId());
       tc_side_.emplace_back(id.zside());
-      tc_layer_.emplace_back(id.layer());
+      tc_layer_.emplace_back(triggerTools_.layerWithOffset(id));
       tc_wafer_.emplace_back(id.wafer());
       tc_wafertype_.emplace_back(id.waferType());
       tc_cell_.emplace_back(id.cell());
@@ -198,13 +212,25 @@ fill(const edm::Event& e, const edm::EventSetup& es)
             case ForwardSubdetector::HGCEE:
               {
                 auto itr = simhits_ee.find(c_id);
-                if(itr!=simhits_ee.end()) energy += itr->second;
+                if(itr!=simhits_ee.end())
+                {
+                  HGCalDetId detid(c_id);
+                  int thickness = geometry_->eeTopology().dddConstants().waferTypeL(detid.wafer())-1;
+                  int layer = detid.layer();
+                  energy += calibrate(itr->second, thickness, layer);
+                }
                 break;
               }
             case ForwardSubdetector::HGCHEF:
               {
                 auto itr = simhits_fh.find(c_id);
-                if(itr!=simhits_fh.end()) energy += itr->second;
+                if(itr!=simhits_fh.end())
+                {
+                  HGCalDetId detid(c_id);
+                  int thickness = geometry_->fhTopology().dddConstants().waferTypeL(detid.wafer())-1;
+                  int layer = detid.layer();
+                  energy += calibrate(itr->second, thickness, layer);
+                }
                 break;
               }
             case ForwardSubdetector::HGCHEB:
@@ -223,6 +249,16 @@ fill(const edm::Event& e, const edm::EventSetup& es)
   }
 }
 
+double
+HGCalTriggerNtupleHGCTriggerCells::
+calibrate(double energy, int thickness, int layer)
+{
+  double fcPerMip = fcPerMip_[thickness];
+  double thicknessCorrection = thicknessCorrections_[thickness];
+  double layerWeight = layerWeights_[layer];
+  double TeV2GeV = 1.e3;
+  return energy*keV2fC_/fcPerMip*layerWeight*TeV2GeV/thicknessCorrection;
+}
 
 void
 HGCalTriggerNtupleHGCTriggerCells::
@@ -304,7 +340,3 @@ clear()
   tc_multicluster_id_.clear();
   tc_multicluster_pt_.clear();
 }
-
-
-
-

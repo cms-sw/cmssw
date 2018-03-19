@@ -6,6 +6,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
 
 
@@ -21,8 +22,11 @@ class HGCalTriggerNtupleHGCClusters : public HGCalTriggerNtupleBase
   private:
     virtual void clear() override final;
 
+
     bool filter_clusters_in_multiclusters_;
     edm::EDGetToken clusters_token_, multiclusters_token_;
+    HGCalTriggerTools triggerTools_;
+
 
     int cl_n_ ;
     std::vector<uint32_t> cl_id_;
@@ -37,6 +41,7 @@ class HGCalTriggerNtupleHGCClusters : public HGCalTriggerNtupleBase
     std::vector<std::vector<uint32_t>> cl_cells_id_;   
     std::vector<uint32_t> cl_multicluster_id_;
     std::vector<float> cl_multicluster_pt_;
+
 
 };
 
@@ -64,7 +69,7 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("cl_pt", &cl_pt_);
   tree.Branch("cl_energy", &cl_energy_);
   tree.Branch("cl_eta", &cl_eta_);
-  tree.Branch("cl_phi", &cl_phi_);  
+  tree.Branch("cl_phi", &cl_phi_);
   tree.Branch("cl_layer", &cl_layer_);
   tree.Branch("cl_subdet", &cl_subdet_);
   tree.Branch("cl_cells_n", &cl_cells_n_);
@@ -90,6 +95,8 @@ fill(const edm::Event& e, const edm::EventSetup& es)
   edm::ESHandle<HGCalTriggerGeometryBase> geometry;
   es.get<CaloGeometryRecord>().get(geometry);
 
+  triggerTools_.eventSetup(es);
+
   // Associate cells to clusters
   std::unordered_map<uint32_t, l1t::HGCalMulticlusterBxCollection::const_iterator> cluster2multicluster;
   for(auto mcl_itr=multiclusters.begin(0); mcl_itr!=multiclusters.end(0); mcl_itr++)
@@ -97,9 +104,11 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     // loop on 2D clusters inside 3D clusters
     for(const auto& cl_ptr : mcl_itr->constituents())
     {
-      cluster2multicluster.emplace(cl_ptr->detId(), mcl_itr);
+      cluster2multicluster.emplace(cl_ptr.second->detId(), mcl_itr);
     }
   }
+
+
 
   clear();
   for(auto cl_itr=clusters.begin(0); cl_itr!=clusters.end(0); cl_itr++)
@@ -115,14 +124,15 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl_energy_.emplace_back(cl_itr->energy());
     cl_eta_.emplace_back(cl_itr->eta());
     cl_phi_.emplace_back(cl_itr->phi());
+
     cl_id_.emplace_back(cl_itr->detId());
-    cl_layer_.emplace_back(cl_itr->layer());
+    cl_layer_.emplace_back(triggerTools_.layerWithOffset(cl_itr->detId()));
     cl_subdet_.emplace_back(cl_itr->subdetId());
     cl_cells_n_.emplace_back(cl_itr->constituents().size());
     // Retrieve indices of trigger cells inside cluster
     cl_cells_id_.emplace_back(cl_itr->constituents().size());
     std::transform(cl_itr->constituents_begin(), cl_itr->constituents_end(),
-        cl_cells_id_.back().begin(), [](const edm::Ptr<l1t::HGCalTriggerCell>& tc){return tc->detId();}
+        cl_cells_id_.back().begin(), [](const std::pair<uint32_t,edm::Ptr<l1t::HGCalTriggerCell>>& id_tc){return id_tc.second->detId();}
         );
     cl_multicluster_id_.emplace_back(mcl_id);
     cl_multicluster_pt_.emplace_back(mcl_pt);
@@ -148,7 +158,3 @@ clear()
   cl_multicluster_id_.clear();
   cl_multicluster_pt_.clear();
 }
-
-
-
-

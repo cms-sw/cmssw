@@ -11,6 +11,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 
+
+bool distanceSorter (pair<edm::Ptr<l1t::HGCalTriggerCell>,float> i,pair<edm::Ptr<l1t::HGCalTriggerCell>,float> j) { return (i.second<j.second); }
+
+
 class HGCalClusteringImpl{
 
 private:
@@ -27,8 +31,8 @@ public:
                       const l1t::HGCalCluster & clu, 
                       double distXY) const;
 
-    void clusterizeDR( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
-                     l1t::HGCalClusterBxCollection & clusters 
+    void clusterizeDR( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs,
+                       l1t::HGCalClusterBxCollection & clusters
         );
 
     /* NN-algorithms */    
@@ -40,11 +44,18 @@ public:
                    const HGCalTriggerGeometryBase & triggerGeometry
         );
         
-    void clusterizeNN( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs,
+    void clusterizeNN( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs,
                      l1t::HGCalClusterBxCollection & clusters,
                      const HGCalTriggerGeometryBase & triggerGeometry 
         );
 
+    /* FW-algorithms */
+    void clusterizeDRNN( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs,
+                         l1t::HGCalClusterBxCollection & clusters,
+                         const HGCalTriggerGeometryBase & triggerGeometry
+        );
+
+    
 
 private:
     
@@ -54,10 +65,21 @@ private:
     double scintillatorTriggerCellThreshold_;
     double dr_;
     std::string clusteringAlgorithmType_;
-    void triggerCellReshuffling( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs, 
+    double calibSF_;
+    std::vector<double> layerWeights_;
+    bool applyLayerWeights_;
+    HGCalTriggerTools triggerTools_;
+
+    void triggerCellReshuffling( const std::vector<edm::Ptr<l1t::HGCalTriggerCell>> & triggerCellsPtrs, 
                                  std::array<std::vector<std::vector<edm::Ptr<l1t::HGCalTriggerCell>>>, kNSides_> & reshuffledTriggerCells );
 
-    HGCalTriggerTools triggerTools_;
+    bool areTCneighbour( uint32_t detIDa, uint32_t detIDb, const HGCalTriggerGeometryBase & triggerGeometry );
+    
+    void removeUnconnectedTCinCluster( l1t::HGCalCluster & cluster,
+                                        const HGCalTriggerGeometryBase & triggerGeometry
+        );
+    
+    void calibratePt( l1t::HGCalCluster & cluster );
 
 };
 

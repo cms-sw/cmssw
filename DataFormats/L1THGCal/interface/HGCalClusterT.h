@@ -1,14 +1,17 @@
 #ifndef DataFormats_L1Trigger_HGCalClusterT_h
 #define DataFormats_L1Trigger_HGCalClusterT_h
 
+/* CMSSW */
 #include "DataFormats/Common/interface/Ptr.h"
-#include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/ClusterShapes.h"
+
+/* ROOT */
 #include "Math/Vector3D.h"
 
+#include <unordered_map>
 
 namespace l1t 
 {
@@ -16,7 +19,7 @@ namespace l1t
   {
 
     public:
-      typedef typename edm::PtrVector<C>::const_iterator const_iterator;
+      typedef typename std::unordered_map<uint32_t, edm::Ptr<C>>::const_iterator const_iterator;
 
     public:
       HGCalClusterT(){}
@@ -44,63 +47,65 @@ namespace l1t
         addConstituent(c);
       }
       
-      ~HGCalClusterT() {};
+      ~HGCalClusterT() override {};
       
-      const edm::PtrVector<C>& constituents() const {return constituents_;}        
-      const_iterator constituents_begin() const {return constituents_.begin();}
-      const_iterator constituents_end() const {return constituents_.end();}
+      const std::unordered_map<uint32_t, edm::Ptr<C>>& constituents() const { return constituents_; }
+      const_iterator constituents_begin() const { return constituents_.begin(); }
+      const_iterator constituents_end() const { return constituents_.end(); }
       unsigned size() const { return constituents_.size(); }
 
-      void addConstituent( const edm::Ptr<C>& c )
+
+      void addConstituent( const edm::Ptr<C>& c, bool updateCentre=true, float fraction=1. )
       {
+
+        double cMipt = c->mipPt()*fraction;
+
         if( constituents_.empty() )
-        { 
-          detId_ = HGCalDetId(c->detId());
-          seedMipPt_ = c->mipPt();
-        }
-
-        /* update cluster positions */
-        Basic3DVector<float> constituentCentre( c->position() );
-        Basic3DVector<float> clusterCentre( centre_ );
-
-        clusterCentre = clusterCentre*mipPt_ + constituentCentre*c->mipPt();
-        if( mipPt_ + c->mipPt()!=0 ) 
         {
-          clusterCentre /= ( mipPt_ + c->mipPt() ) ;
+          detId_ = HGCalDetId( c->detId() );
+          seedMipPt_ = cMipt;
+          /* if the centre will not be dynamically calculated
+             the seed centre is considere as cluster centre */
+          if( !updateCentre )
+          {
+            centre_ = c->position();
+          }
         }
-        centre_ = GlobalPoint( clusterCentre );
+        updateP4AndPosition(c, updateCentre, fraction);
 
-        if( clusterCentre.z()!=0 ) 
-        {
-          centreProj_= GlobalPoint( clusterCentre / clusterCentre.z() );
-        }
-        /* update cluster energies */
-        mipPt_ += c->mipPt();
 
-        int updatedPt = hwPt() + c->hwPt();
-        setHwPt(updatedPt);
-
-        math::PtEtaPhiMLorentzVector updatedP4 ( p4() );
-        updatedP4 += c->p4(); 
-        setP4( updatedP4 );
-
-        constituents_.push_back( c );
+        constituents_.emplace( c->detId(), c );
+        constituentsFraction_.emplace( c->detId(), fraction );
 
       }
-      
-      bool valid() const { return valid_;}
-      void setValid(bool valid) { valid_ = valid;}
-      
+
+      void removeConstituent( const edm::Ptr<C>& c, bool updateCentre=true ){
+
+        /* remove the pointer to c from the std::vector */
+        double fraction=0;
+        const auto& constituent_itr = constituents_.find(c->detId());
+        const auto& fraction_itr = constituentsFraction_.find(c->detId());
+        if(constituent_itr!=constituents_.end())
+        {
+          // remove constituent and get its fraction in the cluster
+          fraction = fraction_itr->second;
+          constituents_.erase(constituent_itr);
+          constituentsFraction_.erase(fraction_itr);
+
+          updateP4AndPosition(c, updateCentre, -fraction);
+        }
+      }
+
+      bool valid() const { return valid_; }
+      void setValid(bool valid) { valid_ = valid; }
+
       double mipPt() const { return mipPt_; }
       double seedMipPt() const { return seedMipPt_; }
       uint32_t detId() const { return detId_.rawId(); }
 
 
       /* distance in 'cm' */
-      double distance( const l1t::HGCalTriggerCell &tc ) const 
-      {
-        return ( tc.position() - centre_ ).mag();
-      }
+      double distance( const l1t::HGCalTriggerCell &tc ) const { return ( tc.position() - centre_ ).mag(); }
 
       const GlobalPoint& position() const { return centre_; } 
       const GlobalPoint& centre() const { return centre_; }
@@ -178,11 +183,15 @@ namespace l1t
       bool operator<=(const HGCalClusterT<C>& cl) const { return !(cl>*this); }
       bool operator>=(const HGCalClusterT<C>& cl) const { return !(cl<*this); }
 
+
     private:
-        
+
       bool valid_;
-      HGCalDetId detId_;     
-      edm::PtrVector<C> constituents_;
+      HGCalDetId detId_;
+
+      std::unordered_map<uint32_t, edm::Ptr<C>> constituents_;
+      std::unordered_map<uint32_t, double> constituentsFraction_;
+
       GlobalPoint centre_;
       GlobalPoint centreProj_; // centre projected onto the first HGCal layer
 
@@ -206,6 +215,39 @@ namespace l1t
       float sigmaZZ_;
 
       ClusterShapes shapes_;
+
+
+      void updateP4AndPosition(const edm::Ptr<C>& c, bool updateCentre=true, float fraction=1.)
+      {
+        double cMipt = c->mipPt()*fraction;
+        /* update cluster positions (IF requested) */
+        if( updateCentre ){
+          Basic3DVector<float> constituentCentre( c->position() );
+          Basic3DVector<float> clusterCentre( centre_ );
+
+          clusterCentre = clusterCentre*mipPt_ + constituentCentre*cMipt;
+          if( (mipPt_ + cMipt ) > 0 )
+          {
+            clusterCentre /= ( mipPt_ +  cMipt );
+          }
+          centre_ = GlobalPoint( clusterCentre );
+
+          if( clusterCentre.z()!=0 )
+          {
+            centreProj_= GlobalPoint( clusterCentre / clusterCentre.z() );
+          }
+        }
+
+        /* update cluster energies */
+        mipPt_ += cMipt;
+
+        int updatedPt = hwPt() + (int)(c->hwPt()*fraction);
+        setHwPt( updatedPt );
+
+        math::PtEtaPhiMLorentzVector updatedP4 ( p4() );
+        updatedP4 += (c->p4()*fraction);
+        setP4( updatedP4 );
+      }
 
   };
 
