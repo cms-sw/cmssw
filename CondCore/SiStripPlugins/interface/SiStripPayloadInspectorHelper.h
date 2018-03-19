@@ -10,7 +10,14 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"   
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"   
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
+
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h" 
+#include "FWCore/MessageLogger/interface/MessageLogger.h" 
 
 namespace SiStripPI {
   
@@ -267,7 +274,7 @@ namespace SiStripPI {
   // code is mutuated from CalibTracker/SiStripQuality/plugins/SiStripQualityStatistics
 
   /*--------------------------------------------------------------------*/
-  void setBadComponents(int i, int component, SiStripQuality::BadComponent& BC,int NBadComponent[4][19][4])
+  void setBadComponents(int i, int component,const SiStripQuality::BadComponent& BC,int NBadComponent[4][19][4])
   /*--------------------------------------------------------------------*/
   {
    
@@ -287,7 +294,267 @@ namespace SiStripPI {
     }
   }
   
-  enum palette {HALFGRAY,GRAY,BLUES,REDS,ANTIGRAY,FIRE,ANTIFIRE,LOGREDBLUE,LOGBLUERED,DEFAULT};
+
+  // generic code to fill a SiStripDetSummary with Noise payload info
+  /*--------------------------------------------------------------------*/
+  void fillNoiseDetSummary(SiStripDetSummary &summaryNoise,std::shared_ptr<SiStripNoises> payload,SiStripPI::estimator est)
+  /*--------------------------------------------------------------------*/
+  {
+    SiStripNoises::RegistryIterator rit=payload->getRegistryVectorBegin(), erit=payload->getRegistryVectorEnd();
+    uint16_t Nstrips;
+    std::vector<float> vstripnoise;
+    double mean,rms,min, max;
+    for(;rit!=erit;++rit){
+      Nstrips = (rit->iend-rit->ibegin)*8/9; //number of strips = number of chars * char size / strip noise size
+      vstripnoise.resize(Nstrips);
+      payload->allNoises(vstripnoise,make_pair(payload->getDataVectorBegin()+rit->ibegin,payload->getDataVectorBegin()+rit->iend));
+	
+      mean=0; rms=0; min=10000; max=0;  
+	
+      DetId detId(rit->detid);
+	
+      for(size_t i=0;i<Nstrips;++i){
+	mean+=vstripnoise[i];
+	rms+=vstripnoise[i]*vstripnoise[i];
+	if(vstripnoise[i]<min) min=vstripnoise[i];
+	if(vstripnoise[i]>max) max=vstripnoise[i];
+      }
+	
+      mean/=Nstrips;
+      if((rms/Nstrips-mean*mean)>0.){
+	rms = sqrt(rms/Nstrips-mean*mean);
+      } else {
+	rms=0.;
+      }       
+      
+      switch(est){
+      case SiStripPI::min:
+	summaryNoise.add(detId,min);
+	break;
+      case SiStripPI::max:
+	summaryNoise.add(detId,max);
+	break;
+      case SiStripPI::mean:
+	summaryNoise.add(detId,mean);
+	break;
+      case SiStripPI::rms:
+	summaryNoise.add(detId,rms);
+	break;
+      default:
+	edm::LogWarning("LogicError") << "Unknown estimator: " <<  est; 
+	break;
+      } 
+    }
+  }
+
+  /*--------------------------------------------------------------------*/
+  void fillTotalComponents(int NTkComponents[4], int NComponents[4][19][4],const TrackerTopology  m_trackerTopo)
+  /*--------------------------------------------------------------------*/  
+  {
+    edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+    SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+    const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >& DetInfos = reader->getAllData();
+    for (const auto& det : DetInfos){
+
+      int nAPVs   = reader->getNumberOfApvsAndStripLength(det.first).first;	     
+      // one fiber connects to 2 APVs
+      int nFibers = nAPVs/2;
+      int nStrips = (128*reader->getNumberOfApvsAndStripLength(det.first).first);
+      NTkComponents[0]++;
+      NTkComponents[1]+=nFibers;
+      NTkComponents[2]+=nAPVs;
+      NTkComponents[3]+=nStrips;
+
+      DetId detectorId=DetId(det.first);
+      int subDet = detectorId.subdetId();
+
+      int subDetIndex = -1;
+      int component = -1;	    
+      if ( subDet == StripSubdetector::TIB ){		
+	subDetIndex=0;
+	component=m_trackerTopo.tibLayer(det.first);
+      } else if ( subDet == StripSubdetector::TID ){
+	subDetIndex=1;
+	component=m_trackerTopo.tidSide(det.first)==2?m_trackerTopo.tidWheel(det.first):m_trackerTopo.tidWheel(det.first)+3;	
+      } else if ( subDet == StripSubdetector::TOB ){
+	subDetIndex=2;
+	component=m_trackerTopo.tobLayer(det.first);
+      } else if ( subDet == StripSubdetector::TEC ){
+	subDetIndex=3;
+	component=m_trackerTopo.tecSide(det.first)==2?m_trackerTopo.tecWheel(det.first):m_trackerTopo.tecWheel(det.first)+9;
+      }
+      
+      NComponents[subDetIndex][0][0]++;
+      NComponents[subDetIndex][0][1]+=nFibers;
+      NComponents[subDetIndex][0][2]+=nAPVs;
+      NComponents[subDetIndex][0][3]+=nStrips;
+      
+      NComponents[subDetIndex][component][0]++;
+      NComponents[subDetIndex][component][1]+=nFibers;
+      NComponents[subDetIndex][component][2]+=nAPVs;
+      NComponents[subDetIndex][component][3]+=nStrips;
+    }
+    delete reader;
+  }
+
+  // generic code to fill the vectors of bad components
+  /*--------------------------------------------------------------------*/
+  void fillBCArrays (const SiStripQuality* siStripQuality_,int NTkBadComponent[4], int NBadComponent[4][19][4],const TrackerTopology  m_trackerTopo)
+  /*--------------------------------------------------------------------*/
+  { 
+
+    std::vector<SiStripQuality::BadComponent> BC = siStripQuality_->getBadComponentList();
+
+    for (size_t i=0;i<BC.size();++i){
+	
+      //&&&&&&&&&&&&&
+      //Full Tk
+      //&&&&&&&&&&&&&
+      
+      if (BC.at(i).BadModule) 
+	NTkBadComponent[0]++;
+      if (BC.at(i).BadFibers) 
+	NTkBadComponent[1]+= ( (BC.at(i).BadFibers>>2)&0x1 )+ ( (BC.at(i).BadFibers>>1)&0x1 ) + ( (BC.at(i).BadFibers)&0x1 );
+      if (BC.at(i).BadApvs)
+	NTkBadComponent[2]+= ( (BC.at(i).BadApvs>>5)&0x1 )+ ( (BC.at(i).BadApvs>>4)&0x1 ) + ( (BC.at(i).BadApvs>>3)&0x1 ) + 
+	  ( (BC.at(i).BadApvs>>2)&0x1 )+ ( (BC.at(i).BadApvs>>1)&0x1 ) + ( (BC.at(i).BadApvs)&0x1 );
+      
+      //&&&&&&&&&&&&&&&&&
+      //Single SubSyste
+      //&&&&&&&&&&&&&&&&&
+      int component;
+      DetId detectorId=DetId(BC.at(i).detid);
+      int subDet = detectorId.subdetId();
+      if ( subDet == StripSubdetector::TIB ){
+	//&&&&&&&&&&&&&&&&&
+	//TIB
+	//&&&&&&&&&&&&&&&&&
+	
+	component=m_trackerTopo.tibLayer(BC.at(i).detid);
+	SiStripPI::setBadComponents(0, component, BC.at(i),NBadComponent);         
+	  
+      } else if ( subDet == StripSubdetector::TID ) {
+	//&&&&&&&&&&&&&&&&&
+	//TID
+	//&&&&&&&&&&&&&&&&&
+	  
+	component=m_trackerTopo.tidSide(BC.at(i).detid)==2?m_trackerTopo.tidWheel(BC.at(i).detid):m_trackerTopo.tidWheel(BC.at(i).detid)+3;
+	SiStripPI::setBadComponents(1, component, BC.at(i),NBadComponent);         
+	
+      } else if ( subDet == StripSubdetector::TOB ) {
+	//&&&&&&&&&&&&&&&&&
+	//TOB
+	//&&&&&&&&&&&&&&&&&
+	
+	component=m_trackerTopo.tobLayer(BC.at(i).detid);
+	SiStripPI::setBadComponents(2, component, BC.at(i),NBadComponent);         
+	
+      } else if ( subDet == StripSubdetector::TEC ) {
+	//&&&&&&&&&&&&&&&&&
+	//TEC
+	//&&&&&&&&&&&&&&&&&
+	  
+	component=m_trackerTopo.tecSide(BC.at(i).detid)==2?m_trackerTopo.tecWheel(BC.at(i).detid):m_trackerTopo.tecWheel(BC.at(i).detid)+9;
+	SiStripPI::setBadComponents(3, component, BC.at(i),NBadComponent);         
+      }    
+    }
+
+    //&&&&&&&&&&&&&&&&&&
+    // Single Strip Info
+    //&&&&&&&&&&&&&&&&&&
+
+    edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+    SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+
+    float percentage=0;
+    
+    SiStripQuality::RegistryIterator rbegin = siStripQuality_->getRegistryVectorBegin();
+    SiStripQuality::RegistryIterator rend   = siStripQuality_->getRegistryVectorEnd();
+    
+    for (SiStripBadStrip::RegistryIterator rp=rbegin; rp != rend; ++rp) {
+      uint32_t detid=rp->detid;
+      
+      int subdet=-999; int component=-999;
+      DetId detectorId=DetId(detid);
+      int subDet = detectorId.subdetId();
+      if ( subDet == StripSubdetector::TIB ){
+	subdet=0;
+	component=m_trackerTopo.tibLayer(detid);
+      } else if ( subDet == StripSubdetector::TID ) {
+	subdet=1;
+	component=m_trackerTopo.tidSide(detid)==2?m_trackerTopo.tidWheel(detid):m_trackerTopo.tidWheel(detid)+3;
+      } else if ( subDet == StripSubdetector::TOB ) {
+	subdet=2;
+	component=m_trackerTopo.tobLayer(detid);
+      } else if ( subDet == StripSubdetector::TEC ) {
+	subdet=3;
+	component=m_trackerTopo.tecSide(detid)==2?m_trackerTopo.tecWheel(detid):m_trackerTopo.tecWheel(detid)+9;
+      } 
+      
+      SiStripQuality::Range sqrange = SiStripQuality::Range( siStripQuality_->getDataVectorBegin()+rp->ibegin , siStripQuality_->getDataVectorBegin()+rp->iend );
+        
+      percentage=0;
+      for(int it=0;it<sqrange.second-sqrange.first;it++){
+	unsigned int range=siStripQuality_->decode( *(sqrange.first+it) ).range;
+	NTkBadComponent[3]+=range;
+	NBadComponent[subdet][0][3]+=range;
+	NBadComponent[subdet][component][3]+=range;
+	percentage+=range;
+      }
+      if(percentage!=0)
+	percentage/=128.*reader->getNumberOfApvsAndStripLength(detid).first;
+      if(percentage>1)
+	edm::LogError("SiStripBadStrip_PayloadInspector") << "PROBLEM detid " << detid << " value " << percentage<< std::endl;
+    }
+
+    delete reader;
+    
+  }
+
+  /*--------------------------------------------------------------------*/
+  void printBCDebug(int NTkBadComponent[4], int NBadComponent[4][19][4])
+  /*--------------------------------------------------------------------*/
+  {
+    //&&&&&&&&&&&&&&&&&&
+    // printout
+    //&&&&&&&&&&&&&&&&&&
+      
+    std::stringstream ss;
+    ss.str("");
+    ss << "\n-----------------\nGlobal Info\n-----------------";
+    ss << "\nBadComponent \t   Modules \tFibers \tApvs\tStrips\n----------------------------------------------------------------";
+    ss << "\nTracker:\t\t"<<NTkBadComponent[0]<<"\t"<<NTkBadComponent[1]<<"\t"<<NTkBadComponent[2]<<"\t"<<NTkBadComponent[3];
+    ss<< "\n";
+    ss << "\nTIB:\t\t\t"<<NBadComponent[0][0][0]<<"\t"<<NBadComponent[0][0][1]<<"\t"<<NBadComponent[0][0][2]<<"\t"<<NBadComponent[0][0][3];
+    ss << "\nTID:\t\t\t"<<NBadComponent[1][0][0]<<"\t"<<NBadComponent[1][0][1]<<"\t"<<NBadComponent[1][0][2]<<"\t"<<NBadComponent[1][0][3];
+    ss << "\nTOB:\t\t\t"<<NBadComponent[2][0][0]<<"\t"<<NBadComponent[2][0][1]<<"\t"<<NBadComponent[2][0][2]<<"\t"<<NBadComponent[2][0][3];
+    ss << "\nTEC:\t\t\t"<<NBadComponent[3][0][0]<<"\t"<<NBadComponent[3][0][1]<<"\t"<<NBadComponent[3][0][2]<<"\t"<<NBadComponent[3][0][3];
+    ss << "\n";
+      
+    for (int i=1;i<5;++i)
+      ss << "\nTIB Layer " << i   << " :\t\t"<<NBadComponent[0][i][0]<<"\t"<<NBadComponent[0][i][1]<<"\t"<<NBadComponent[0][i][2]<<"\t"<<NBadComponent[0][i][3];
+    ss << "\n";
+    for (int i=1;i<4;++i)
+      ss << "\nTID+ Disk " << i   << " :\t\t"<<NBadComponent[1][i][0]<<"\t"<<NBadComponent[1][i][1]<<"\t"<<NBadComponent[1][i][2]<<"\t"<<NBadComponent[1][i][3];
+    for (int i=4;i<7;++i)
+      ss << "\nTID- Disk " << i-3 << " :\t\t"<<NBadComponent[1][i][0]<<"\t"<<NBadComponent[1][i][1]<<"\t"<<NBadComponent[1][i][2]<<"\t"<<NBadComponent[1][i][3];
+    ss << "\n";
+    for (int i=1;i<7;++i)
+      ss << "\nTOB Layer " << i   << " :\t\t"<<NBadComponent[2][i][0]<<"\t"<<NBadComponent[2][i][1]<<"\t"<<NBadComponent[2][i][2]<<"\t"<<NBadComponent[2][i][3];
+    ss << "\n";
+    for (int i=1;i<10;++i)
+      ss << "\nTEC+ Disk " << i   << " :\t\t"<<NBadComponent[3][i][0]<<"\t"<<NBadComponent[3][i][1]<<"\t"<<NBadComponent[3][i][2]<<"\t"<<NBadComponent[3][i][3];
+    for (int i=10;i<19;++i)
+      ss << "\nTEC- Disk " << i-9 << " :\t\t"<<NBadComponent[3][i][0]<<"\t"<<NBadComponent[3][i][1]<<"\t"<<NBadComponent[3][i][2]<<"\t"<<NBadComponent[3][i][3];
+    ss<< "\n";
+    
+    //edm::LogInfo("SiStripBadStrip_PayloadInspector") << ss.str() << std::endl;
+    std::cout<<  ss.str() << std::endl;
+
+  }
+
+
+  enum palette {HALFGRAY,GRAY,BLUES,REDS,ANTIGRAY,FIRE,ANTIFIRE,LOGREDBLUE,BLUERED,LOGBLUERED,DEFAULT};
 
   /*--------------------------------------------------------------------*/
   void setPaletteStyle(SiStripPI::palette palette) 
@@ -385,6 +652,16 @@ namespace SiStripPI {
     case LOGBLUERED:
       {
 	double stops[NRGBs] = {0.0001, 0.0010, 0.0100, 0.1000,  1.0000};
+	double red[NRGBs]   = {0.00,   0.25,   0.50,   0.75,    1.00};
+	double green[NRGBs] = {0.00,   0.00,   0.00,   0.00,    0.00};
+	double blue[NRGBs]  = {1.00,   0.75,   0.50,   0.25,    0.00};
+	TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);			
+      } 
+      break;
+
+    case BLUERED:
+      {
+	double stops[NRGBs] = {0.00,   0.34,   0.61,   0.84,    1.00};
 	double red[NRGBs]   = {0.00,   0.25,   0.50,   0.75,    1.00};
 	double green[NRGBs] = {0.00,   0.00,   0.00,   0.00,    0.00};
 	double blue[NRGBs]  = {1.00,   0.75,   0.50,   0.25,    0.00};
