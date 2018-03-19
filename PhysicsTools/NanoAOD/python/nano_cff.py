@@ -77,10 +77,6 @@ btagWeightTable = cms.EDProducer("BTagSFProducer",
     sysTypes = cms.vstring("central","central","central")
 )
 
-#run2_miniAOD_80XLegacy.toModify(btagWeightTable,                
-    #cut = cms.string("pt > 25. && abs(eta) < 2.4"),
-#)
-
 run2_miniAOD_80XLegacy.toModify(btagWeightTable,                
     cut = cms.string("pt > 25. && abs(eta) < 2.4"),             #80X corresponds to 2016, |eta| < 2.4
     weightFiles = cms.vstring(                                  #80X corresponds to 2016 SFs
