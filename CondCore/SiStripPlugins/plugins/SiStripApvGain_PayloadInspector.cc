@@ -848,6 +848,72 @@ namespace {
   };
 
   /************************************************
+    time history of SiStripApvGains properties
+  *************************************************/
+
+  template<SiStripPI::estimator est> class SiStripApvGainProperties : public cond::payloadInspector::HistoryPlot<SiStripApvGain,float> {
+  public:
+    SiStripApvGainProperties() : cond::payloadInspector::HistoryPlot<SiStripApvGain,float>( "SiStripApv Gains "+estimatorType(est),estimatorType(est)+" Strip APV gain value"){}
+    ~SiStripApvGainProperties() override = default;
+
+    float getFromPayload( SiStripApvGain& payload ) override{
+     
+      std::vector<uint32_t> detid;
+      payload.getDetIds(detid);
+      
+      float nAPVs=0;
+      float sumOfGains=0;
+      float meanOfGains=0;
+      float rmsOfGains=0;
+      float min(0.),max(0.);
+
+      for (const auto & d : detid) {
+	SiStripApvGain::Range range=payload.getRange(d);
+	for(int it=0;it<range.second-range.first;it++){
+	  nAPVs+=1;
+	  float gain=payload.getApvGain(it,range);
+	  if(gain<min) min=gain;
+	  if(gain>max) max=gain;
+	  sumOfGains+=gain;
+	  rmsOfGains+=(gain*gain);
+	} // loop over APVs
+      } // loop over detIds
+
+
+      meanOfGains=sumOfGains/nAPVs;
+
+      switch(est){
+      case SiStripPI::min:
+	return min;
+	break;
+      case SiStripPI::max:
+	return max;
+	break;
+      case SiStripPI::mean:
+	return meanOfGains;
+	break;
+      case SiStripPI::rms:
+	if((rmsOfGains/nAPVs-meanOfGains*meanOfGains)>0.){
+	  return sqrt(rmsOfGains/nAPVs-meanOfGains*meanOfGains);
+	} else {
+	  return 0.;
+	}       
+	break;
+      default:
+	edm::LogWarning("LogicError") << "Unknown estimator: " <<  est; 
+	break;
+      }
+      
+    } // payload
+  };
+
+  typedef SiStripApvGainProperties<SiStripPI::min>  SiStripApvGainMin_History;
+  typedef SiStripApvGainProperties<SiStripPI::max>  SiStripApvGainMax_History;
+  typedef SiStripApvGainProperties<SiStripPI::mean> SiStripApvGainMean_History;
+  typedef SiStripApvGainProperties<SiStripPI::rms>  SiStripApvGainRMS_History;
+
+
+  /************************************************
     time history histogram of TIB SiStripApvGains 
   *************************************************/
 
@@ -1868,7 +1934,11 @@ PAYLOAD_INSPECTOR_MODULE(SiStripApvGain){
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatio1sigmaTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatio2sigmaTrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsMaxDeviationRatio3sigmaTrackerMap);
-  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainByRunMeans);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainByRunMeans);  
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainMin_History);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainMax_History);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainMean_History);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainRMS_History);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvTIBGainByRunMeans);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvTIDGainByRunMeans);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvTOBGainByRunMeans);

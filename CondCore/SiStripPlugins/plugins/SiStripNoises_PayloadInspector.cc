@@ -131,6 +131,109 @@ namespace {
   };
   
   /************************************************
+    1d histogram comparison of SiStripNoises of 1 IOV 
+  *************************************************/
+
+  // inherit from one of the predefined plot class: PlotImage
+  class SiStripNoiseValueComparison : public cond::payloadInspector::PlotImage<SiStripNoises> {
+    
+  public:
+    SiStripNoiseValueComparison() : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise values comparison"){
+      setSingleIov( false );
+    }
+    
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+      
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);
+	});
+      
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+
+      std::shared_ptr<SiStripNoises> f_payload = fetchPayload( std::get<1>(firstiov) );
+      std::shared_ptr<SiStripNoises> l_payload = fetchPayload( std::get<1>(lastiov) );
+	 
+      auto h_first = std::unique_ptr<TH1F>(new TH1F("f_Noise",Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",std::to_string(std::get<0>(firstiov)).c_str(),std::to_string(std::get<0>(lastiov)).c_str()),100,0.1,10.));
+      h_first->SetStats(false);
+      
+      auto h_last = std::unique_ptr<TH1F>(new TH1F("l_Noise",Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",std::to_string(std::get<0>(firstiov)).c_str(),std::to_string(std::get<0>(lastiov)).c_str()),100,0.1,10.));
+      h_last->SetStats(false);
+
+      std::vector<uint32_t> f_detid;
+      f_payload->getDetIds(f_detid);
+	  
+      // loop on first payload
+      for (const auto & d : f_detid) {
+	SiStripNoises::Range range=f_payload->getRange(d);
+	for( int it=0; it < (range.second-range.first)*8/9; ++it ){
+	  float noise = f_payload->getNoise(it,range);
+	  //to be used to fill the histogram
+	  h_first->Fill(noise);
+	}// loop over strips
+      }
+
+      std::vector<uint32_t> l_detid;
+      l_payload->getDetIds(l_detid);
+	  
+      // loop on first payload
+      for (const auto & d : l_detid) {
+	SiStripNoises::Range range=l_payload->getRange(d);
+	for( int it=0; it < (range.second-range.first)*8/9; ++it ){
+	  float noise = l_payload->getNoise(it,range);
+	  //to be used to fill the histogram
+	  h_last->Fill(noise);
+	}// loop over strips
+      }
+      
+
+      h_first->GetYaxis()->CenterTitle(true);
+      h_last->GetYaxis()->CenterTitle(true);
+
+      h_first->GetXaxis()->CenterTitle(true);
+      h_last->GetXaxis()->CenterTitle(true);
+
+      h_first->SetLineWidth(2);
+      h_last->SetLineWidth(2);
+
+      h_first->SetLineColor(kBlack);
+      h_last->SetLineColor(kBlue);
+
+      //=========================      
+      TCanvas canvas("Partion summary","partition summary",1200,1000); 
+      canvas.cd();
+      canvas.SetBottomMargin(0.11);
+      canvas.SetLeftMargin(0.13);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+      
+      float theMax = (h_first->GetMaximum() > h_last->GetMaximum()) ? h_first->GetMaximum() : h_last->GetMaximum();
+
+      h_first->SetMaximum(theMax*1.30);
+      h_last->SetMaximum(theMax*1.30);
+
+      h_first->Draw();
+      h_last->Draw("same");
+
+      TLegend legend = TLegend(0.52,0.82,0.95,0.9);
+      legend.SetHeader("SiStrip Noise comparison","C"); // option "C" allows to center the header
+      legend.AddEntry(h_first.get(),("IOV: "+std::to_string(std::get<0>(firstiov))).c_str(),"F");
+      legend.AddEntry(h_last.get(), ("IOV: "+std::to_string(std::get<0>(lastiov))).c_str(),"F");
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+
+    }
+  };
+
+  /************************************************
     SiStrip Noise Tracker Map 
   *************************************************/
 
@@ -243,52 +346,7 @@ namespace {
       
       SiStripDetSummary summaryNoise{&m_trackerTopo};
 
-      SiStripNoises::RegistryIterator rit=payload->getRegistryVectorBegin(), erit=payload->getRegistryVectorEnd();
-      uint16_t Nstrips;
-      std::vector<float> vstripnoise;
-      double mean,rms,min, max;
-      for(;rit!=erit;++rit){
-	Nstrips = (rit->iend-rit->ibegin)*8/9; //number of strips = number of chars * char size / strip noise size
-	vstripnoise.resize(Nstrips);
-	payload->allNoises(vstripnoise,make_pair(payload->getDataVectorBegin()+rit->ibegin,payload->getDataVectorBegin()+rit->iend));
-	
-	mean=0; rms=0; min=10000; max=0;  
-	
-	DetId detId(rit->detid);
-	
-	for(size_t i=0;i<Nstrips;++i){
-	  mean+=vstripnoise[i];
-	  rms+=vstripnoise[i]*vstripnoise[i];
-	  if(vstripnoise[i]<min) min=vstripnoise[i];
-	  if(vstripnoise[i]>max) max=vstripnoise[i];
-	}
-	
-	mean/=Nstrips;
-	if((rms/Nstrips-mean*mean)>0.){
-	  rms = sqrt(rms/Nstrips-mean*mean);
-	} else {
-	  rms=0.;
-	}       
-
-	switch(est){
-	case SiStripPI::min:
-	  summaryNoise.add(detId,min);
-	  break;
-	case SiStripPI::max:
-	  summaryNoise.add(detId,max);
-	  break;
-	case SiStripPI::mean:
-	  summaryNoise.add(detId,mean);
-	  break;
-	case SiStripPI::rms:
-	  summaryNoise.add(detId,rms);
-	  break;
-	default:
-	  edm::LogWarning("LogicError") << "Unknown estimator: " <<  est; 
-	  break;
-	}
-
-      }
+      SiStripPI::fillNoiseDetSummary(summaryNoise,payload,est);
 
       std::map<unsigned int, SiStripDetSummary::Values> map = summaryNoise.getCounts();
       //=========================
@@ -385,6 +443,176 @@ namespace {
   typedef SiStripNoiseByRegion<SiStripPI::min>  SiStripNoiseMinByRegion;
   typedef SiStripNoiseByRegion<SiStripPI::max>  SiStripNoiseMaxByRegion;
   typedef SiStripNoiseByRegion<SiStripPI::rms>  SiStripNoiseRMSByRegion;
+
+  /************************************************
+  SiStrip Noise Comparator
+  *************************************************/
+
+  template<SiStripPI::estimator est> class SiStripNoiseComparatorByRegion : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  public:
+     SiStripNoiseComparatorByRegion() : cond::payloadInspector::PlotImage<SiStripNoises>( "SiStrip Noise "+estimatorType(est)+" comparator by Region" ),
+      m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())}
+    {
+      setSingleIov( false );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+      
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);
+	});
+      
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+
+      std::shared_ptr<SiStripNoises> f_payload = fetchPayload( std::get<1>(firstiov) );
+      std::shared_ptr<SiStripNoises> l_payload = fetchPayload( std::get<1>(lastiov) );
+      
+      SiStripDetSummary f_summaryNoise{&m_trackerTopo};
+      SiStripDetSummary l_summaryNoise{&m_trackerTopo};
+
+      SiStripPI::fillNoiseDetSummary(f_summaryNoise,f_payload,est);
+      SiStripPI::fillNoiseDetSummary(l_summaryNoise,l_payload,est);
+   
+      std::map<unsigned int, SiStripDetSummary::Values> f_map = f_summaryNoise.getCounts();
+      std::map<unsigned int, SiStripDetSummary::Values> l_map = l_summaryNoise.getCounts();
+
+      //=========================      
+      TCanvas canvas("Partion summary","partition summary",1200,1000); 
+      canvas.cd();
+
+      auto hfirst = std::unique_ptr<TH1F>(new TH1F("f_byRegion",Form("Average by partition of %s SiStrip Noise per module;;average SiStrip Noise %s [ADC counts]",estimatorType(est).c_str(),estimatorType(est).c_str()),f_map.size(),0.,f_map.size()));
+      hfirst->SetStats(false);
+      
+      auto hlast = std::unique_ptr<TH1F>(new TH1F("l_byRegion",Form("Average by partition of %s SiStrip Noise per module;;average SiStrip Noise %s [ADC counts]",estimatorType(est).c_str(),estimatorType(est).c_str()),l_map.size(),0.,l_map.size()));
+      hlast->SetStats(false);
+
+      canvas.SetBottomMargin(0.18);
+      canvas.SetLeftMargin(0.17);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+
+      std::vector<int> boundaries;
+      unsigned int iBin=0;
+
+      std::string detector;
+      std::string currentDetector;
+
+      for (const auto &element : f_map){
+	iBin++;
+	int count   = element.second.count;
+	double mean = (element.second.mean)/count;
+	double rms  = (element.second.rms)/count - mean*mean;
+
+	if(rms <= 0)
+	  rms = 0;
+	else
+	  rms = sqrt(rms);
+
+	if(currentDetector.empty()) currentDetector="TIB";
+	
+	switch ((element.first)/1000) 
+	  {
+	  case 1:
+	    detector = "TIB";
+	    break;
+	  case 2:
+	    detector = "TOB";
+	    break;
+	  case 3:
+	    detector = "TEC";
+	    break;
+	  case 4:
+	    detector = "TID";
+	    break;
+	  }
+
+	hfirst->SetBinContent(iBin,mean);
+	//hfirst->SetBinError(iBin,rms);
+	hfirst->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
+	hfirst->GetXaxis()->LabelsOption("v");
+	
+	if(detector!=currentDetector) {
+	  boundaries.push_back(iBin);
+	  currentDetector=detector;
+	}
+      }
+
+      // second payload
+      // reset the counter
+      iBin=0;
+      for (const auto &element : l_map){
+	iBin++;
+	int count   = element.second.count;
+	double mean = (element.second.mean)/count;
+	double rms  = (element.second.rms)/count - mean*mean;
+
+	if(rms <= 0)
+	  rms = 0;
+	else
+	  rms = sqrt(rms);
+
+	hlast->SetBinContent(iBin,mean);
+	//hlast->SetBinError(iBin,rms);
+	hlast->GetXaxis()->SetBinLabel(iBin,SiStripPI::regionType(element.first).second);
+	hlast->GetXaxis()->LabelsOption("v");
+      }
+      
+      float theMax = (hfirst->GetMaximum() > hlast->GetMaximum()) ? hfirst->GetMaximum() : hlast->GetMaximum();
+      float theMin = (hfirst->GetMinimum() < hlast->GetMinimum()) ? hfirst->GetMinimum() : hlast->GetMinimum();
+
+      hfirst->SetMarkerStyle(20);
+      hfirst->SetMarkerSize(1);
+      hfirst->GetYaxis()->SetTitleOffset(1.3);
+      hfirst->GetYaxis()->SetRangeUser(theMin*0.9,theMax*1.1);
+      hfirst->Draw("HIST");
+      hfirst->Draw("Psame");
+
+      hlast->SetMarkerStyle(21);
+      hlast->SetMarkerSize(1);
+      hlast->SetMarkerColor(kBlue);
+      hlast->SetLineColor(kBlue);
+      hlast->GetYaxis()->SetTitleOffset(1.3);
+      hlast->GetYaxis()->SetRangeUser(theMin*0.9,theMax*1.1);
+      hlast->Draw("HISTsame");
+      hlast->Draw("Psame");
+	    
+      canvas.Update();
+      
+      TLine l[boundaries.size()];
+      unsigned int i=0;
+      for (const auto & line : boundaries){
+	l[i] = TLine(hfirst->GetBinLowEdge(line),canvas.GetUymin(),hfirst->GetBinLowEdge(line),canvas.GetUymax());
+	l[i].SetLineWidth(1);
+	l[i].SetLineStyle(9);
+	l[i].SetLineColor(2);
+	l[i].Draw("same");
+	i++;
+      }
+      
+      TLegend legend = TLegend(0.52,0.82,0.95,0.9);
+      legend.SetHeader(("SiStrip Noise "+estimatorType(est)+" by region").c_str(),"C"); // option "C" allows to center the header
+      legend.AddEntry(hfirst.get(),("IOV: "+std::to_string(std::get<0>(firstiov))).c_str(),"PL");
+      legend.AddEntry(hlast.get(), ("IOV: "+std::to_string(std::get<0>(lastiov))).c_str(),"PL");
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  private:
+    TrackerTopology m_trackerTopo;
+  };
+
+  typedef SiStripNoiseComparatorByRegion<SiStripPI::mean> SiStripNoiseComparatorMeanByRegion;
+  typedef SiStripNoiseComparatorByRegion<SiStripPI::min>  SiStripNoiseComparatorMinByRegion;
+  typedef SiStripNoiseComparatorByRegion<SiStripPI::max>  SiStripNoiseComparatorMaxByRegion;
+  typedef SiStripNoiseComparatorByRegion<SiStripPI::rms>  SiStripNoiseComparatorRMSByRegion;  
 
   /************************************************
     Noise linearity
@@ -634,6 +862,7 @@ namespace {
 PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
   PAYLOAD_INSPECTOR_CLASS(SiStripNoisesTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValue);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValueComparison);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMin_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMax_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMean_TrackerMap);
@@ -642,6 +871,10 @@ PAYLOAD_INSPECTOR_MODULE(SiStripNoises){
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMinByRegion);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseMaxByRegion);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseRMSByRegion);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMeanByRegion); 
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMinByRegion);  
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorMaxByRegion);  
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseComparatorRMSByRegion);  
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseLinearity);
   PAYLOAD_INSPECTOR_CLASS(TIBNoiseHistory);
   PAYLOAD_INSPECTOR_CLASS(TOBNoiseHistory);
