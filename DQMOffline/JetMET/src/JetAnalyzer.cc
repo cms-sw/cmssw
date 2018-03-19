@@ -207,6 +207,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   cleaningParameters_ = pSet.getParameter<ParameterSet>("CleaningParameters");
 
   bypassAllPVChecks_= cleaningParameters_.getParameter<bool>("bypassAllPVChecks");
+  bypassAllDCSChecks_    = cleaningParameters_.getParameter<bool>("bypassAllDCSChecks");
   vertexLabel_      = cleaningParameters_.getParameter<edm::InputTag>("vertexCollection");
   vertexToken_      = consumes<std::vector<reco::Vertex> >(edm::InputTag(vertexLabel_));
 
@@ -409,22 +410,45 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
 
 
-  mPt_Barrel_Hi            = ibooker.book1D("Pt_Barrel_Hi", "Pt Barrel (Pass Hi Pt Jet Trigger)", 60, 0, 300);   
-  mPhi_Barrel_Hi           = ibooker.book1D("Phi_Barrel_Hi", "Phi Barrel (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  //mPt_Barrel_Hi            = ibooker.book1D("Pt_Barrel_Hi", "Pt Barrel (Pass Hi Pt Jet Trigger)", 60, 0, 300);   
+  //mPhi_Barrel_Hi           = ibooker.book1D("Phi_Barrel_Hi", "Phi Barrel (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  //
+  //mPt_EndCap_Hi            = ibooker.book1D("Pt_EndCap_Hi", "Pt EndCap (Pass Hi Pt Jet Trigger)", 60, 0, 300);  
+  //mPhi_EndCap_Hi           = ibooker.book1D("Phi_EndCap_Hi", "Phi EndCap (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  //
+  //mPt_Forward_Hi           = ibooker.book1D("Pt_Forward_Hi", "Pt Forward (Pass Hi Pt Jet Trigger)", 60, 0, 300);  
+  //mPhi_Forward_Hi          = ibooker.book1D("Phi_Forward_Hi", "Phi Forward (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  //
+  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_Barrel_Hi" ,mPt_Barrel_Hi));
+  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_Barrel_Hi",mPhi_Barrel_Hi));
+  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_EndCap_Hi" ,mPt_EndCap_Hi));
+  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_EndCap_Hi",mPhi_EndCap_Hi));
+  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_Forward_Hi" ,mPt_Forward_Hi));
+  //map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_Forward_Hi",mPhi_Forward_Hi));
   
-  mPt_EndCap_Hi            = ibooker.book1D("Pt_EndCap_Hi", "Pt EndCap (Pass Hi Pt Jet Trigger)", 60, 0, 300);  
-  mPhi_EndCap_Hi           = ibooker.book1D("Phi_EndCap_Hi", "Phi EndCap (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
   
-  mPt_Forward_Hi           = ibooker.book1D("Pt_Forward_Hi", "Pt Forward (Pass Hi Pt Jet Trigger)", 60, 0, 300);  
-  mPhi_Forward_Hi          = ibooker.book1D("Phi_Forward_Hi", "Phi Forward (Pass Hi Pt Jet Trigger)", phiBin_, phiMin_, phiMax_);
+  mPhi_HEP17_SoftPt          = ibooker.book1D("Phi_HEP17_SoftPt",   "Phi_HEP17_SoftPt",    phiBin_, phiMin_, phiMax_);
+  mPhi_HEP17_LowPt           = ibooker.book1D("Phi_HEP17_LowPt",    "Phi_HEP17_LowPt",     phiBin_, phiMin_, phiMax_);
+  mPhi_HEP17_MediumPt        = ibooker.book1D("Phi_HEP17_MediumPt", "Phi_HEP17_MediumPt",  phiBin_, phiMin_, phiMax_);
+  mPhi_HEP17_HighPt          = ibooker.book1D("Phi_HEP17_HighPt",    "Phi_HEP17_HighPt",    phiBin_, phiMin_, phiMax_);
+  
+  mPhi_HEM17_SoftPt          = ibooker.book1D("Phi_HEM17_SoftPt",   "Phi_HEM17_SoftPt",    phiBin_, phiMin_, phiMax_);
+  mPhi_HEM17_LowPt           = ibooker.book1D("Phi_HEM17_LowPt",    "Phi_HEM17_LowPt",     phiBin_, phiMin_, phiMax_);
+  mPhi_HEM17_MediumPt        = ibooker.book1D("Phi_HEM17_MediumPt", "Phi_HEM17_MediumPt",  phiBin_, phiMin_, phiMax_);
+  mPhi_HEM17_HighPt          = ibooker.book1D("Phi_HEM17_HighPt", "Phi_HEM17_HighPt",    phiBin_, phiMin_, phiMax_);
+  
+  
+    // For HEP17 Monitoring 
+  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_HEP17_SoftPt" ,mPhi_HEP17_SoftPt));
+  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_HEP17_LowPt" ,mPhi_HEP17_LowPt));
+  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_HEP17_MediumPt" ,mPhi_HEP17_MediumPt));
+  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_HEP17_HighPt" ,mPhi_HEP17_HighPt));
 
-  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_Barrel_Hi" ,mPt_Barrel_Hi));
-  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_Barrel_Hi",mPhi_Barrel_Hi));
-  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_EndCap_Hi" ,mPt_EndCap_Hi));
-  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_EndCap_Hi",mPhi_EndCap_Hi));
-  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_Forward_Hi" ,mPt_Forward_Hi));
-  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_Forward_Hi",mPhi_Forward_Hi));
-  
+  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_HEM17_SoftPt" ,mPhi_HEM17_SoftPt));
+  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_HEM17_LowPt" ,mPhi_HEM17_LowPt));
+  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_HEM17_MediumPt" ,mPhi_HEM17_MediumPt));
+  map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Phi_HEM17_HighPt" ,mPhi_HEM17_HighPt));
+
   mPhi_Barrel              = ibooker.book1D("Phi_Barrel", "Phi_Barrel", phiBin_, phiMin_, phiMax_);
   mPt_Barrel               = ibooker.book1D("Pt_Barrel", "Pt_Barrel", ptBin_, ptMin_, ptMax_);
   
@@ -588,15 +612,21 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
       }
     }*/
     //PFJet specific histograms
-    mCHFracVSeta_lowPt= ibooker.bookProfile("CHFracVSeta_lowPt","CHFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mNHFracVSeta_lowPt= ibooker.bookProfile("NHFacVSeta_lowPt","NHFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mPhFracVSeta_lowPt= ibooker.bookProfile("PhFracVSeta_lowPt","PhFracVSeta_lowPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mCHFracVSeta_mediumPt= ibooker.bookProfile("CHFracVSeta_mediumPt","CHFracVSeta_mediumPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mNHFracVSeta_mediumPt= ibooker.bookProfile("NHFracVSeta_mediumPt","NHFracVSeta_mediumPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mPhFracVSeta_mediumPt= ibooker.bookProfile("PhFracVSeta_mediumPt","PhFracVSeta_mediumPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mCHFracVSeta_highPt= ibooker.bookProfile("CHFracVSeta_highPt","CHFracVSeta_highPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mNHFracVSeta_highPt= ibooker.bookProfile("NHFracVSeta_highPt","NHFracVSeta_highPt",etaBin_, etaMin_, etaMax_,0.,1.2);
-    mPhFracVSeta_highPt= ibooker.bookProfile("PhFracVSeta_highPt","PhFracVSeta_highPt",etaBin_, etaMin_, etaMax_,0.,1.2);
+    
+    // new binning for energy fraction plots for JERC
+    /*const int etaBin__  = 109;
+    const double etaBinning__[etaBin__] = {-5.191, -4.740333333333333, -4.289666666666666, -3.839, -3.7223333333333333, -3.6056666666666666, -3.489, -3.372333333333333, -3.2556666666666665, -3.139, -3.0806666666666667, -3.022333333333333, -2.964, -2.927, -2.89, -2.853, -2.7853333333333334, -2.7176666666666667, -2.65, -2.6, -2.55, -2.5, -2.4406666666666665, -2.3813333333333335, -2.322, -2.2720000000000002, -2.222, -2.172, -2.0913333333333335, -2.010666666666667, -1.93, -1.8376666666666666, -1.7453333333333334, -1.653, -1.595, -1.5370000000000001, -1.479, -1.421, -1.363, -1.305, -1.218, -1.131, -1.044, -0.9570000000000001, -0.87, -0.783, -0.6960000000000001, -0.609, -0.522, -0.43500000000000005, -0.34800000000000003, -0.261, -0.17400000000000002, -0.08700000000000001, 0.0, 0.08700000000000001, 0.17400000000000002, 0.261, 0.34800000000000003, 0.43500000000000005, 0.522, 0.609, 0.6960000000000001, 0.783, 0.87, 0.9570000000000001, 1.044, 1.131, 1.218, 1.305, 1.363, 1.421, 1.479, 1.5370000000000001, 1.595, 1.653, 1.7453333333333334, 1.8376666666666666, 1.93, 2.010666666666667, 2.0913333333333335, 2.172, 2.222, 2.2720000000000002, 2.322, 2.3813333333333335, 2.4406666666666665, 2.5, 2.55, 2.6, 2.65, 2.7176666666666667, 2.7853333333333334, 2.853, 2.89, 2.927, 2.964, 3.022333333333333, 3.0806666666666667, 3.139, 3.2556666666666665, 3.372333333333333, 3.489, 3.6056666666666666, 3.7223333333333333, 3.839, 4.289666666666666, 4.740333333333333, 5.191};
+    */
+    // etaBin_,etaMin_,etaMax_
+    mCHFracVSeta_lowPt= ibooker.bookProfile("CHFracVSeta_lowPt","CHFracVSeta_lowPt",etaBin_,etaMin_,etaMax_,0.,1.2);
+    mNHFracVSeta_lowPt= ibooker.bookProfile("NHFacVSeta_lowPt","NHFracVSeta_lowPt",etaBin_,etaMin_,etaMax_,0.,1.2);
+    mPhFracVSeta_lowPt= ibooker.bookProfile("PhFracVSeta_lowPt","PhFracVSeta_lowPt",etaBin_,etaMin_,etaMax_,0.,1.2);
+    mCHFracVSeta_mediumPt= ibooker.bookProfile("CHFracVSeta_mediumPt","CHFracVSeta_mediumPt",etaBin_,etaMin_,etaMax_,0.,1.2);
+    mNHFracVSeta_mediumPt= ibooker.bookProfile("NHFracVSeta_mediumPt","NHFracVSeta_mediumPt",etaBin_,etaMin_,etaMax_,0.,1.2);
+    mPhFracVSeta_mediumPt= ibooker.bookProfile("PhFracVSeta_mediumPt","PhFracVSeta_mediumPt",etaBin_,etaMin_,etaMax_,0.,1.2);
+    mCHFracVSeta_highPt= ibooker.bookProfile("CHFracVSeta_highPt","CHFracVSeta_highPt",etaBin_,etaMin_,etaMax_,0.,1.2);
+    mNHFracVSeta_highPt= ibooker.bookProfile("NHFracVSeta_highPt","NHFracVSeta_highPt",etaBin_,etaMin_,etaMax_,0.,1.2);
+    mPhFracVSeta_highPt= ibooker.bookProfile("PhFracVSeta_highPt","PhFracVSeta_highPt",etaBin_,etaMin_,etaMax_,0.,1.2);
 
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFracVSeta_lowPt" ,mCHFracVSeta_lowPt));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFracVSeta_lowPt" ,mNHFracVSeta_lowPt));
@@ -795,23 +825,41 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   if(isPFJet_){
     //endcap monitoring
     //energy fractions
+    
     mCHFrac_lowPt_EndCap     = ibooker.book1D("CHFrac_lowPt_EndCap", "CHFrac_lowPt_EndCap", 120, -0.1, 1.1);
+    mCHFrac_lowPt_EndCap_InTrk     = ibooker.book1D("CHFrac_lowPt_EndCap_InTrk", "CHFrac_lowPt_EndCap_InTrk", 120, -0.1, 1.1);
+    mCHFrac_lowPt_EndCap_OutTrk    = ibooker.book1D("CHFrac_lowPt_EndCap_OutTrk", "CHFrac_lowPt_EndCap_OutTrk", 120, -0.1, 1.1);
     mNHFrac_lowPt_EndCap     = ibooker.book1D("NHFrac_lowPt_EndCap", "NHFrac_lowPt_EndCap", 120, -0.1, 1.1);
     mPhFrac_lowPt_EndCap     = ibooker.book1D("PhFrac_lowPt_EndCap", "PhFrac_lowPt_EndCap", 120, -0.1, 1.1);
+    
     mCHFrac_mediumPt_EndCap  = ibooker.book1D("CHFrac_mediumPt_EndCap", "CHFrac_mediumPt_EndCap", 120, -0.1, 1.1);
+    mCHFrac_mediumPt_EndCap_InTrk     = ibooker.book1D("CHFrac_mediumPt_EndCap_InTrk", "CHFrac_mediumPt_EndCap_InTrk", 120, -0.1, 1.1);
+    mCHFrac_mediumPt_EndCap_OutTrk    = ibooker.book1D("CHFrac_mediumPt_EndCap_OutTrk", "CHFrac_mediumPt_EndCap_OutTrk", 120, -0.1, 1.1);
     mNHFrac_mediumPt_EndCap  = ibooker.book1D("NHFrac_mediumPt_EndCap", "NHFrac_mediumPt_EndCap", 120, -0.1, 1.1);
     mPhFrac_mediumPt_EndCap  = ibooker.book1D("PhFrac_mediumPt_EndCap", "PhFrac_mediumPt_EndCap", 120, -0.1, 1.1);
+
     mCHFrac_highPt_EndCap    = ibooker.book1D("CHFrac_highPt_EndCap", "CHFrac_highPt_EndCap", 120, -0.1, 1.1);
+    mCHFrac_highPt_EndCap_InTrk     = ibooker.book1D("CHFrac_highPt_EndCap_InTrk", "CHFrac_highPt_EndCap_InTrk", 120, -0.1, 1.1);
+    mCHFrac_highPt_EndCap_OutTrk    = ibooker.book1D("CHFrac_highPt_EndCap_OutTrk", "CHFrac_highPt_EndCap_OutTrk", 120, -0.1, 1.1);
     mNHFrac_highPt_EndCap    = ibooker.book1D("NHFrac_highPt_EndCap", "NHFrac_highPt_EndCap", 120, -0.1, 1.1);
     mPhFrac_highPt_EndCap    = ibooker.book1D("PhFrac_highPt_EndCap", "PhFrac_highPt_EndCap", 120, -0.1, 1.1);
-
+    
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_lowPt_EndCap" ,mCHFrac_lowPt_EndCap));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_lowPt_EndCap_InTrk" ,mCHFrac_lowPt_EndCap_InTrk));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_lowPt_EndCap_OutTrk" ,mCHFrac_lowPt_EndCap_OutTrk));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFrac_lowPt_EndCap" ,mNHFrac_lowPt_EndCap));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFrac_lowPt_EndCap" ,mPhFrac_lowPt_EndCap));
+    
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_mediumPt_EndCap" ,mCHFrac_mediumPt_EndCap));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_mediumPt_EndCap" ,mCHFrac_mediumPt_EndCap_InTrk));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_mediumPt_EndCap" ,mCHFrac_mediumPt_EndCap_InTrk));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_mediumPt_EndCap" ,mCHFrac_mediumPt_EndCap_OutTrk));    
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFrac_mediumPt_EndCap" ,mNHFrac_mediumPt_EndCap));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFrac_mediumPt_EndCap" ,mPhFrac_mediumPt_EndCap));
+    
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_highPt_EndCap" ,mCHFrac_highPt_EndCap));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_highPt_EndCap" ,mCHFrac_highPt_EndCap_InTrk));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CHFrac_highPt_EndCap" ,mCHFrac_highPt_EndCap_OutTrk));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NHFrac_highPt_EndCap" ,mNHFrac_highPt_EndCap));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PhFrac_highPt_EndCap" ,mPhFrac_highPt_EndCap));
 
@@ -1314,6 +1362,8 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   cleanupME->setBinLabel(7,"DCS::HF");
   cleanupME->setBinLabel(8,"DCS::HO");
   cleanupME->setBinLabel(9,"DCS::Muon");
+  cleanupME->setBinLabel(10,"DCS::All");
+  
   map_of_MEs.insert(std::pair<std::string,MonitorElement*>("JetMET/cleanup" ,cleanupME));
 
   verticesME = ibooker.book1D("vertices", "vertices", 100, 0, 100);
@@ -1430,9 +1480,11 @@ void JetAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker & ib
   if(DirName.find("DiJet")!=std::string::npos){
     mDPhi                   = ibooker.book1D("DPhi", "dPhi btw the two leading jets", 100, 0., acos(-1.));
     mDijetAsymmetry                   = ibooker.book1D("DijetAsymmetry", "DijetAsymmetry", 100, -1., 1.);
+    mdiJetAlpha                   = ibooker.book1D("diJetAlpha", "diJetAlpha", 100, 0., 1.);
     mDijetBalance                     = ibooker.book1D("DijetBalance",   "DijetBalance",   100, -2., 2.);
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"DPhi" ,mDPhi));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"DijetAsymmetry" ,mDijetAsymmetry));
+    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"diJetAlpha" ,mdiJetAlpha));
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"DijetBalance"   ,mDijetBalance));
     
     if(isPFJet_|| isMiniAODJet_){ 
@@ -1726,7 +1778,15 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     DirName = "JetMET/Jet/Uncleaned"+mInputCollection_.label();
   }
  
-
+  
+  int myLuminosityBlock;
+  myLuminosityBlock = iEvent.luminosityBlock();
+  
+  
+  if (myLuminosityBlock<LSBegin_) return;
+  if (myLuminosityBlock>LSEnd_ && LSEnd_>0) return;
+  
+  
   Handle<ValueMap<float> > puJetIdMva;
   Handle<ValueMap<int> > puJetIdFlagMva;
   Handle<ValueMap<float> > puJetId;
@@ -1845,6 +1905,17 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if ( DCSFilterForDCSMonitoring_->passHF       ) cleanupME->Fill(6.5);
       if ( DCSFilterForDCSMonitoring_->passHO       ) cleanupME->Fill(7.5);
       if ( DCSFilterForDCSMonitoring_->passMuon     ) cleanupME->Fill(8.5);
+
+      // check the number of events when all the DCS bits are high. 
+      if (bPrimaryVertex 
+	  && DCSFilterForDCSMonitoring_->passPIX
+	  && DCSFilterForDCSMonitoring_->passSiStrip  
+	  && DCSFilterForDCSMonitoring_->passECAL     
+	  && DCSFilterForDCSMonitoring_->passES       
+	  && DCSFilterForDCSMonitoring_->passHBHE     
+	  && DCSFilterForDCSMonitoring_->passHF       
+	  && DCSFilterForDCSMonitoring_->passHO       
+	  && DCSFilterForDCSMonitoring_->passMuon) cleanupME->Fill(9.5);
     }
   }
   edm::Handle<CaloJetCollection> caloJets;
@@ -1921,7 +1992,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   //check for collections AND DCS filters
-  bool dcsDecision = DCSFilterForJetMonitoring_->filter(iEvent, iSetup);
+  bool dcsDecision = (bypassAllDCSChecks_ || DCSFilterForJetMonitoring_->filter(iEvent, iSetup));
+  //bool dcsDecision = DCSFilterForJetMonitoring_->filter(iEvent, iSetup);
   bool jetCollectionIsValid = false;
   if (isCaloJet_)  jetCollectionIsValid = caloJets.isValid();
   //if (isJPTJet_)   jetCollectionIsValid = jptJets.isValid();
@@ -2303,6 +2375,18 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mMVAPUJIDDiscriminant_lowPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap"]; if(mMVAPUJIDDiscriminant_lowPt_EndCap && mMVAPUJIDDiscriminant_lowPt_EndCap->getRootObject()) mMVAPUJIDDiscriminant_lowPt_EndCap->Fill(puidmva); 
 	    mCutPUJIDDiscriminant_lowPt_EndCap=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_lowPt_EndCap"]; if(mCutPUJIDDiscriminant_lowPt_EndCap && mCutPUJIDDiscriminant_lowPt_EndCap->getRootObject()) mCutPUJIDDiscriminant_lowPt_EndCap->Fill(puidcut); 
 	    mCHFrac_lowPt_EndCap = map_of_MEs[DirName+"/"+"CHFrac_lowPt_EndCap"]; if (mCHFrac_lowPt_EndCap &&  mCHFrac_lowPt_EndCap->getRootObject()) mCHFrac_lowPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+
+	    	    // inside tracker volume 
+	    if(fabs(correctedJet.eta()) <= 2.5) {
+	      mCHFrac_lowPt_EndCap_InTrk = map_of_MEs[DirName+"/"+"CHFrac_lowPt_EndCap_InTrk"]; if (mCHFrac_lowPt_EndCap_InTrk &&  mCHFrac_lowPt_EndCap_InTrk->getRootObject()) mCHFrac_lowPt_EndCap_InTrk->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    }
+	    
+	    // outside tracker volume 
+	    if(fabs(correctedJet.eta()) >= 2.5) {
+	      mCHFrac_lowPt_EndCap_OutTrk = map_of_MEs[DirName+"/"+"CHFrac_lowPt_EndCap_OutTrk"]; if (mCHFrac_lowPt_EndCap_OutTrk &&  mCHFrac_lowPt_EndCap_OutTrk->getRootObject()) mCHFrac_lowPt_EndCap_OutTrk->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    }
+	    
+	    
 	    mNHFrac_lowPt_EndCap = map_of_MEs[DirName+"/"+"NHFrac_lowPt_EndCap"]; if (mNHFrac_lowPt_EndCap &&  mNHFrac_lowPt_EndCap->getRootObject()) mNHFrac_lowPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
 	    mPhFrac_lowPt_EndCap = map_of_MEs[DirName+"/"+"PhFrac_lowPt_EndCap"]; if (mPhFrac_lowPt_EndCap &&  mPhFrac_lowPt_EndCap->getRootObject()) mPhFrac_lowPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
 	    mCHEn_lowPt_EndCap = map_of_MEs[DirName+"/"+"CHEn_lowPt_EndCap"]; if (mCHEn_lowPt_EndCap &&  mCHEn_lowPt_EndCap->getRootObject()) mCHEn_lowPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergy());
@@ -2323,6 +2407,17 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mMVAPUJIDDiscriminant_mediumPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_EndCap"]; if(mMVAPUJIDDiscriminant_mediumPt_EndCap && mMVAPUJIDDiscriminant_mediumPt_EndCap->getRootObject()) mMVAPUJIDDiscriminant_mediumPt_EndCap->Fill(puidmva); 
 	    mCutPUJIDDiscriminant_mediumPt_EndCap=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_mediumPt_EndCap"]; if(mCutPUJIDDiscriminant_mediumPt_EndCap && mCutPUJIDDiscriminant_mediumPt_EndCap->getRootObject()) mCutPUJIDDiscriminant_mediumPt_EndCap->Fill(puidcut); 
 	    mCHFrac_mediumPt_EndCap = map_of_MEs[DirName+"/"+"CHFrac_mediumPt_EndCap"]; if (mCHFrac_mediumPt_EndCap &&  mCHFrac_mediumPt_EndCap->getRootObject()) mCHFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    
+	    // inside tracker volume 
+	    if(fabs(correctedJet.eta()) <= 2.5) {
+	      mCHFrac_mediumPt_EndCap_InTrk = map_of_MEs[DirName+"/"+"CHFrac_mediumPt_EndCap_InTrk"]; if (mCHFrac_mediumPt_EndCap_InTrk &&  mCHFrac_mediumPt_EndCap_InTrk->getRootObject()) mCHFrac_mediumPt_EndCap_InTrk->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    }
+	    
+	    // outside tracker volume 
+	    if(fabs(correctedJet.eta()) >= 2.5) {
+	      mCHFrac_mediumPt_EndCap_OutTrk = map_of_MEs[DirName+"/"+"CHFrac_mediumPt_EndCap_OutTrk"]; if (mCHFrac_mediumPt_EndCap_OutTrk &&  mCHFrac_mediumPt_EndCap_OutTrk->getRootObject()) mCHFrac_mediumPt_EndCap_OutTrk->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    }
+	    
 	    mNHFrac_mediumPt_EndCap = map_of_MEs[DirName+"/"+"NHFrac_mediumPt_EndCap"]; if (mNHFrac_mediumPt_EndCap &&  mNHFrac_mediumPt_EndCap->getRootObject()) mNHFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
 	    mPhFrac_mediumPt_EndCap = map_of_MEs[DirName+"/"+"PhFrac_mediumPt_EndCap"]; if (mPhFrac_mediumPt_EndCap &&  mPhFrac_mediumPt_EndCap->getRootObject()) mPhFrac_mediumPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
 	    mCHEn_mediumPt_EndCap = map_of_MEs[DirName+"/"+"CHEn_mediumPt_EndCap"]; if (mCHEn_mediumPt_EndCap &&  mCHEn_mediumPt_EndCap->getRootObject()) mCHEn_mediumPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergy());
@@ -2343,6 +2438,18 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    mMVAPUJIDDiscriminant_highPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_EndCap"]; if(mMVAPUJIDDiscriminant_highPt_EndCap && mMVAPUJIDDiscriminant_highPt_EndCap->getRootObject()) mMVAPUJIDDiscriminant_highPt_EndCap->Fill(puidmva); 
 	    mCutPUJIDDiscriminant_highPt_EndCap=map_of_MEs[DirName+"/"+"CutPUJIDDiscriminant_highPt_EndCap"]; if(mCutPUJIDDiscriminant_highPt_EndCap && mCutPUJIDDiscriminant_highPt_EndCap->getRootObject()) mCutPUJIDDiscriminant_highPt_EndCap->Fill(puidcut); 
 	    mCHFrac_highPt_EndCap = map_of_MEs[DirName+"/"+"CHFrac_highPt_EndCap"]; if (mCHFrac_highPt_EndCap &&  mCHFrac_highPt_EndCap->getRootObject()) mCHFrac_highPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    
+	    	    // inside tracker volume 
+	    if(fabs(correctedJet.eta()) <= 2.5) {
+	      mCHFrac_highPt_EndCap_InTrk = map_of_MEs[DirName+"/"+"CHFrac_highPt_EndCap_InTrk"]; if (mCHFrac_highPt_EndCap_InTrk &&  mCHFrac_highPt_EndCap_InTrk->getRootObject()) mCHFrac_highPt_EndCap_InTrk->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    }
+	    
+	    // outside tracker volume 
+	    if(fabs(correctedJet.eta()) >= 2.5) {
+	      mCHFrac_highPt_EndCap_OutTrk = map_of_MEs[DirName+"/"+"CHFrac_highPt_EndCap_OutTrk"]; if (mCHFrac_highPt_EndCap_OutTrk &&  mCHFrac_highPt_EndCap_OutTrk->getRootObject()) mCHFrac_highPt_EndCap_OutTrk->Fill((*pfJets)[ijet].chargedHadronEnergyFraction());
+	    }
+	    
+	    
 	    mNHFrac_highPt_EndCap = map_of_MEs[DirName+"/"+"NHFrac_highPt_EndCap"]; if (mNHFrac_highPt_EndCap &&  mNHFrac_highPt_EndCap->getRootObject()) mNHFrac_highPt_EndCap->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
 	    mPhFrac_highPt_EndCap = map_of_MEs[DirName+"/"+"PhFrac_highPt_EndCap"]; if (mPhFrac_highPt_EndCap &&  mPhFrac_highPt_EndCap->getRootObject()) mPhFrac_highPt_EndCap->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
 	    mCHEn_highPt_EndCap = map_of_MEs[DirName+"/"+"CHEn_highPt_EndCap"]; if (mCHEn_highPt_EndCap &&  mCHEn_highPt_EndCap->getRootObject()) mCHEn_highPt_EndCap->Fill((*pfJets)[ijet].chargedHadronEnergy());
@@ -2694,6 +2801,81 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       //if(!isJPTJet_){
       mConstituents_profile = map_of_MEs[DirName+"/"+"Constituents_profile"]; if (mConstituents_profile && mConstituents_profile->getRootObject())  mConstituents_profile->Fill(numPV, correctedJet.nConstituents());
       //}
+      
+      if (fabs(correctedJet.eta()) <= 1.3) {
+	mPt_Barrel = map_of_MEs[DirName+"/"+"Pt_Barrel"]; if (mPt_Barrel && mPt_Barrel->getRootObject()) mPt_Barrel->Fill (correctedJet.pt());
+	mPhi_Barrel = map_of_MEs[DirName+"/"+"Phi_Barrel"]; if (mPhi_Barrel && mPhi_Barrel->getRootObject()) mPhi_Barrel->Fill (correctedJet.phi());
+	//if (mE_Barrel)    mE_Barrel->Fill (correctedJet.energy());
+	//if(!isJPTJet_){
+	mConstituents_Barrel = map_of_MEs[DirName+"/"+"Constituents_Barrel"]; if (mConstituents_Barrel && mConstituents_Barrel->getRootObject()) mConstituents_Barrel->Fill(correctedJet.nConstituents());
+	//}
+      }else if (fabs(correctedJet.eta()) <= 3) {
+	mPt_EndCap = map_of_MEs[DirName+"/"+"Pt_EndCap"]; if (mPt_EndCap && mPt_EndCap->getRootObject()) mPt_EndCap->Fill (correctedJet.pt());
+	mPhi_EndCap = map_of_MEs[DirName+"/"+"Phi_EndCap"]; if (mPhi_EndCap && mPhi_EndCap->getRootObject())  mPhi_EndCap->Fill (correctedJet.phi());
+	//if (mE_EndCap)    mE_EndCap->Fill (correctedJet.energy());
+	//if(!isJPTJet_){
+	mConstituents_EndCap = map_of_MEs[DirName+"/"+"Constituents_EndCap"]; if (mConstituents_EndCap && mConstituents_EndCap->getRootObject())  mConstituents_EndCap->Fill(correctedJet.nConstituents());
+	//}
+      }else{
+	mPt_Forward = map_of_MEs[DirName+"/"+"Pt_Forward"]; if (mPt_Forward && mPt_Forward->getRootObject()) mPt_Forward->Fill (correctedJet.pt());
+	mPhi_Forward = map_of_MEs[DirName+"/"+"Phi_Forward"]; if (mPhi_Forward && mPhi_Forward->getRootObject()) mPhi_Forward->Fill (correctedJet.phi());
+	//if (mE_Forward)    mE_Forward->Fill (correctedJet.energy());
+	//if(!isJPTJet_){
+	mConstituents_Forward = map_of_MEs[DirName+"/"+"Constituents_Forward"]; if (mConstituents_Forward && mConstituents_Forward->getRootObject())   mConstituents_Forward->Fill(correctedJet.nConstituents());
+	//}
+      }
+	
+      // HEP17 Monitoring 
+      // -- soft jets 
+      if   (correctedJet.eta() > 1.3  && correctedJet.eta() < 3.0 ) {
+	
+	if (correctedJet.pt() > 20.0 && correctedJet.pt() < 30.0 ){
+	  mPhi_HEP17_SoftPt = map_of_MEs[DirName+"/"+"Phi_HEP17_SoftPt"]; if (mPhi_HEP17_SoftPt && mPhi_HEP17_SoftPt->getRootObject()) mPhi_HEP17_SoftPt->Fill (correctedJet.phi());
+	  mPhi_HEM17_SoftPt = map_of_MEs[DirName+"/"+"Phi_HEM17_SoftPt"]; if (mPhi_HEM17_SoftPt && mPhi_HEM17_SoftPt->getRootObject()) mPhi_HEM17_SoftPt->Fill (correctedJet.phi());
+	}
+	
+	if (correctedJet.pt() > 30.0 && correctedJet.pt() < 50.0 ){
+	  mPhi_HEP17_LowPt = map_of_MEs[DirName+"/"+"Phi_HEP17_LowPt"]; if (mPhi_HEP17_LowPt && mPhi_HEP17_LowPt->getRootObject()) mPhi_HEP17_LowPt->Fill (correctedJet.phi());
+	  mPhi_HEM17_LowPt = map_of_MEs[DirName+"/"+"Phi_HEM17_LowPt"]; if (mPhi_HEM17_LowPt && mPhi_HEM17_LowPt->getRootObject()) mPhi_HEM17_LowPt->Fill (correctedJet.phi());
+	}
+
+	if (correctedJet.pt() > 50.0 && correctedJet.pt() < 140.0 ){
+	  mPhi_HEP17_MediumPt = map_of_MEs[DirName+"/"+"Phi_HEP17_MediumPt"]; if (mPhi_HEP17_MediumPt && mPhi_HEP17_MediumPt->getRootObject()) mPhi_HEP17_MediumPt->Fill (correctedJet.phi());
+	  mPhi_HEM17_MediumPt = map_of_MEs[DirName+"/"+"Phi_HEM17_MediumPt"]; if (mPhi_HEM17_MediumPt && mPhi_HEM17_MediumPt->getRootObject()) mPhi_HEM17_MediumPt->Fill (correctedJet.phi());
+	}
+	
+	if (correctedJet.pt() > 140.0 ){
+	  mPhi_HEP17_HighPt = map_of_MEs[DirName+"/"+"Phi_HEP17_HighPt"]; if (mPhi_HEP17_HighPt && mPhi_HEP17_HighPt->getRootObject()) mPhi_HEP17_HighPt->Fill (correctedJet.phi());
+	  mPhi_HEM17_HighPt = map_of_MEs[DirName+"/"+"Phi_HEM17_HighPt"]; if (mPhi_HEM17_HighPt && mPhi_HEM17_HighPt->getRootObject()) mPhi_HEM17_HighPt->Fill (correctedJet.phi());
+	}
+      }
+
+      
+      if   (correctedJet.eta() > -3.0  && correctedJet.eta() < -1.3 ) {
+	
+	if (correctedJet.pt() > 20.0 && correctedJet.pt() < 30.0 ){
+	  mPhi_HEP17_SoftPt = map_of_MEs[DirName+"/"+"Phi_HEP17_SoftPt"]; if (mPhi_HEP17_SoftPt && mPhi_HEP17_SoftPt->getRootObject()) mPhi_HEP17_SoftPt->Fill (correctedJet.phi());
+	  mPhi_HEM17_SoftPt = map_of_MEs[DirName+"/"+"Phi_HEM17_SoftPt"]; if (mPhi_HEM17_SoftPt && mPhi_HEM17_SoftPt->getRootObject()) mPhi_HEM17_SoftPt->Fill (correctedJet.phi());
+	}
+	
+	if (correctedJet.pt() > 30.0 && correctedJet.pt() < 50.0 ){
+	  mPhi_HEP17_LowPt = map_of_MEs[DirName+"/"+"Phi_HEP17_LowPt"]; if (mPhi_HEP17_LowPt && mPhi_HEP17_LowPt->getRootObject()) mPhi_HEP17_LowPt->Fill (correctedJet.phi());
+	  mPhi_HEM17_LowPt = map_of_MEs[DirName+"/"+"Phi_HEM17_LowPt"]; if (mPhi_HEM17_LowPt && mPhi_HEM17_LowPt->getRootObject()) mPhi_HEM17_LowPt->Fill (correctedJet.phi());
+	}
+
+	if (correctedJet.pt() > 50.0 && correctedJet.pt() < 140.0 ){
+	  mPhi_HEP17_MediumPt = map_of_MEs[DirName+"/"+"Phi_HEP17_MediumPt"]; if (mPhi_HEP17_MediumPt && mPhi_HEP17_MediumPt->getRootObject()) mPhi_HEP17_MediumPt->Fill (correctedJet.phi());
+	  mPhi_HEM17_MediumPt = map_of_MEs[DirName+"/"+"Phi_HEM17_MediumPt"]; if (mPhi_HEM17_MediumPt && mPhi_HEM17_MediumPt->getRootObject()) mPhi_HEM17_MediumPt->Fill (correctedJet.phi());
+	}
+	
+	if (correctedJet.pt() > 140.0 ){
+	  mPhi_HEP17_HighPt = map_of_MEs[DirName+"/"+"Phi_HEP17_HighPt"]; if (mPhi_HEP17_HighPt && mPhi_HEP17_HighPt->getRootObject()) mPhi_HEP17_HighPt->Fill (correctedJet.phi());
+	  mPhi_HEM17_HighPt = map_of_MEs[DirName+"/"+"Phi_HEM17_HighPt"]; if (mPhi_HEM17_HighPt && mPhi_HEM17_HighPt->getRootObject()) mPhi_HEM17_HighPt->Fill (correctedJet.phi());
+	}
+	
+	
+      }
+      
       if (fabs(correctedJet.eta()) <= 1.3) {
 	mPt_Barrel = map_of_MEs[DirName+"/"+"Pt_Barrel"]; if (mPt_Barrel && mPt_Barrel->getRootObject()) mPt_Barrel->Fill (correctedJet.pt());
 	mPhi_Barrel = map_of_MEs[DirName+"/"+"Phi_Barrel"]; if (mPhi_Barrel && mPhi_Barrel->getRootObject()) mPhi_Barrel->Fill (correctedJet.phi());
@@ -2717,7 +2899,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	//}
       }
     }// pass ID for corrected jets --> inclusive selection
-  }//loop over uncorrected jets 
+    }//loop over uncorrected jets 
   
   
   mNJets = map_of_MEs[DirName+"/"+"NJets"]; if (mNJets && mNJets->getRootObject())  mNJets->Fill (numofjets);
@@ -3127,6 +3309,10 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      } 
 	    }
 	    if(thirdJetCut){
+	      float dijetalphs = pt3*2.0/((recoJets[jet1].pt() + recoJets[jet2].pt()));
+	      mdiJetAlpha =  map_of_MEs[DirName+"/"+"diJetAlpha"]; if (mdiJetAlpha && mdiJetAlpha->getRootObject()) mdiJetAlpha->Fill(dijetalphs);
+
+	      
 	      double dijetAsymmetry =(recoJets[jet1].pt() - recoJets[jet2].pt()) / (recoJets[jet1].pt() + recoJets[jet2].pt());
 	      mDijetAsymmetry = map_of_MEs[DirName+"/"+"DijetAsymmetry"]; if (mDijetAsymmetry && mDijetAsymmetry->getRootObject()) mDijetAsymmetry->Fill(dijetAsymmetry);
 	    }// end restriction on third jet pt in asymmetry calculation

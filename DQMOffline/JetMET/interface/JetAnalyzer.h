@@ -214,6 +214,28 @@ class JetAnalyzer : public DQMEDAnalyzer {
   std::string m_l1algoname_;
   int m_bitAlgTechTrig_;
 
+  
+  /* New elements added for 2018 Data taking */
+  MonitorElement* mPhi_HEP17_SoftPt;
+  MonitorElement* mPhi_HEP17_LowPt;
+  MonitorElement* mPhi_HEP17_MediumPt;
+  MonitorElement* mPhi_HEP17_HighPt;
+  
+  MonitorElement* mPhi_HEM17_SoftPt;
+  MonitorElement* mPhi_HEM17_LowPt;
+  MonitorElement* mPhi_HEM17_MediumPt;
+  MonitorElement* mPhi_HEM17_HighPt;
+  int LSBegin_;
+  int LSEnd_;
+  bool bypassAllDCSChecks_;
+  MonitorElement* mCHFrac_lowPt_EndCap_InTrk;
+  MonitorElement* mCHFrac_lowPt_EndCap_OutTrk;
+  MonitorElement* mCHFrac_mediumPt_EndCap_InTrk;
+  MonitorElement* mCHFrac_mediumPt_EndCap_OutTrk;
+  MonitorElement* mCHFrac_highPt_EndCap_InTrk;
+  MonitorElement* mCHFrac_highPt_EndCap_OutTrk;
+  
+
   //the histos
   MonitorElement* jetME;
 
@@ -257,20 +279,20 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mEFrac_Forward;
 
 
-  MonitorElement* mPt_Barrel_Hi;
-  MonitorElement* mPhi_Barrel_Hi;
-  MonitorElement* mConstituents_Barrel_Hi;
-  MonitorElement* mHFrac_Barrel_Hi;
-
-  MonitorElement* mPt_EndCap_Hi;
-  MonitorElement* mPhi_EndCap_Hi;
-  MonitorElement* mConstituents_EndCap_Hi;
-  MonitorElement* mHFrac_EndCap_Hi;
-
-  MonitorElement* mPt_Forward_Hi;
-  MonitorElement* mPhi_Forward_Hi;
-  MonitorElement* mConstituents_Forward_Hi;
-  MonitorElement* mHFrac_Forward_Hi;
+//  MonitorElement* mPt_Barrel_Hi;
+//  MonitorElement* mPhi_Barrel_Hi;
+//  MonitorElement* mConstituents_Barrel_Hi;
+//  MonitorElement* mHFrac_Barrel_Hi;
+//
+//  MonitorElement* mPt_EndCap_Hi;
+//  MonitorElement* mPhi_EndCap_Hi;
+//  MonitorElement* mConstituents_EndCap_Hi;
+//  MonitorElement* mHFrac_EndCap_Hi;
+//
+//  MonitorElement* mPt_Forward_Hi;
+//  MonitorElement* mPhi_Forward_Hi;
+//  MonitorElement* mConstituents_Forward_Hi;
+//  MonitorElement* mHFrac_Forward_Hi;
 
   MonitorElement* mNJets;
   MonitorElement* mDPhi;
@@ -328,6 +350,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
 
   //dijet analysis quantities
   MonitorElement* mDijetBalance;
+  MonitorElement* mdiJetAlpha;
   MonitorElement* mDijetAsymmetry;
 
   // NPV profiles

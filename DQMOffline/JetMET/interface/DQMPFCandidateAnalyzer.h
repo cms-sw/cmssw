@@ -133,6 +133,8 @@ class DQMPFCandidateAnalyzer : public DQMEDAnalyzer {
   MonitorElement* m_HOverTrackPVsTrackP_Barrel;
   MonitorElement* m_HOverTrackPVsTrackP_EndCap;
 
+  MonitorElement* mProfileIsoPFChHad_HcalOccupancyCentral_5GeV;
+
   MonitorElement* m_HOverTrackPVsTrackPt_Barrel;
   MonitorElement* m_HOverTrackPVsTrackPt_EndCap;
 
