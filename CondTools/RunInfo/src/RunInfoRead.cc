@@ -251,6 +251,7 @@ RunInfoRead::readData( const std::string & runinfo_schema
     std::vector<double> time_curr;
 
     bool changeFound = false;
+    // first process the changes found within the run boundaries
     while( magnetCurrentCursor.next() ) {
       std::ostringstream oscurrentdebug;
       magnetCurrentCursor.currentRow().toOutputStream( oscurrentdebug );
@@ -283,6 +284,7 @@ RunInfoRead::readData( const std::string & runinfo_schema
       edm::LogInfo( "RunInfoReader" ) << ostrans.str() << std::endl;
     }
 
+    // if not change is found within run boundaries, search for the most recent change 
     if ( !changeFound ){ 
       // we should deal with stable currents... so the query is returning no value and we should take the last modified current value...
       edm::LogInfo( "RunInfoReader" ) << "[RunInfoRead::" << __func__ << "]: The magnet current did not change during run " << r_number
