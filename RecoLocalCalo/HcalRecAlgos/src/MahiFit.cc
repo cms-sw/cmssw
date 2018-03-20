@@ -572,7 +572,7 @@ void MahiFit::phase1Debug(const HBHEChannelInfo& channelData,
 	mdi.itPulse[iTS] = nnlsWork_.pulseMat.col(iBX).coeff(iTS);
       }
     }
-    else if (nnlsWork_.bxs.coeff(iBX)==100) {
+    else if (nnlsWork_.bxs.coeff(iBX)==pedestalBX_) {
       mdi.pedEnergy=nnlsWork_.ampVec.coeff(iBX);
     }
     else if (nnlsWork_.bxs.coeff(iBX)==-1) {
