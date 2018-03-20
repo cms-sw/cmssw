@@ -56,14 +56,8 @@ void PedsFullNoiseHistograms::histoAnalysis( bool debug ) {
   data().clear();
 
   // Iterate through map containing histograms
-  long int total = histos().size();
-  long int iChannel = 0;
   for ( iter = histos().begin(); 
 	iter != histos().end(); iter++ ) {
-
-    std::cout.flush();
-    if(iChannel %10 == 0) std::cout<<"\r"<<"PedsFullNoiseHistograms::histoAnalysis: strip analyzed "<<100*double(iChannel)/(total)<<" % ";
-    iChannel++;
 
     // Check vector of histos is not empty
     if ( iter->second.empty() ) {
