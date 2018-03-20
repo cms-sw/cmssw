@@ -34,7 +34,7 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 
 	float eta_bins[]={0.0,0.7,1.0,1.2,1.6,2.0,2.4};
 	int eta_binnum = 6;
-
+	std::vector<int> sigma_range = {0,1,2,3,4,5};
 	dbe = nullptr;
 	dbe = edm::Service<DQMStore>().operator->();
 
@@ -257,8 +257,8 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 				int testNumEntries1 = resPt1a->GetEntries();
 				if (testNumEntries1>0) {
 					// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-					resPt1a->Fit("fit2","R"); resPt2a->Fit("fit2","R"); resPt3a->Fit("fit2","R");
-					resPt4a->Fit("fit2","R"); resPt5a->Fit("fit2","R"); resPt6a->Fit("fit2","R");
+					resPt1a->Fit(fit2,"R"); resPt2a->Fit(fit2,"R"); resPt3a->Fit(fit2,"R");
+					resPt4a->Fit(fit2,"R"); resPt5a->Fit(fit2,"R"); resPt6a->Fit(fit2,"R");
 					sigma_pt1.push_back(resPt1a->GetFunction("fit2")->GetParameter(2));
 					sigma_pt1.push_back(resPt2a->GetFunction("fit2")->GetParameter(2));
 					sigma_pt1.push_back(resPt3a->GetFunction("fit2")->GetParameter(2));
@@ -273,14 +273,14 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 					error_pt1.push_back(resPt6a->GetFunction("fit2")->GetParError(2));
 
 					// Fill the new histogram to create resolution plot
-					for(int i=0;i<6;i++) {
+					for (auto i : sigma_range) {
 						resPt1->SetBinContent(i+1,sigma_pt1[i]);
 						resPt1->SetBinError(i+1,error_pt1[i]);
 					}
 				}
 				else {
 					edm::LogWarning("DataNotFound")<<"L1 tracks not found for pT resolution (2-3)!\n";
-					for(int i=0;i<6;i++) {
+					for (auto i : sigma_range) {
 						resPt1->SetBinContent(i+1,-1);
 						resPt1->SetBinError(i+1,-1);
 					}
@@ -312,8 +312,8 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 					int testNumEntries2 = resPt1b->GetEntries();
 					if (testNumEntries2>0) {
 						// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-						resPt1b->Fit("fit2","R"); resPt2b->Fit("fit2","R"); resPt3b->Fit("fit2","R");
-						resPt4b->Fit("fit2","R"); resPt5b->Fit("fit2","R"); resPt6b->Fit("fit2","R");
+						resPt1b->Fit(fit2,"R"); resPt2b->Fit(fit2,"R"); resPt3b->Fit(fit2,"R");
+						resPt4b->Fit(fit2,"R"); resPt5b->Fit(fit2,"R"); resPt6b->Fit(fit2,"R");
 						sigma_pt2.push_back(resPt1b->GetFunction("fit2")->GetParameter(2));
 						sigma_pt2.push_back(resPt2b->GetFunction("fit2")->GetParameter(2));
 						sigma_pt2.push_back(resPt3b->GetFunction("fit2")->GetParameter(2));
@@ -328,14 +328,14 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 						error_pt2.push_back(resPt6b->GetFunction("fit2")->GetParError(2));
 
 						// Fill the new histogram to create resolution plot
-						for(int i=0;i<6;i++) {
+						for (auto i : sigma_range) {
 							resPt2->SetBinContent(i+1,sigma_pt2[i]);
 							resPt2->SetBinError(i+1,error_pt2[i]);
 						}
 					}
 					else {
 						edm::LogWarning("DataNotFound")<<"L1 tracks not found for pT resolution (3-8)!\n";
-						for(int i=0;i<6;i++) {
+						for (auto i : sigma_range) {
 							resPt2->SetBinContent(i+1,-1);
 							resPt2->SetBinError(i+1,-1);
 						}
@@ -367,8 +367,8 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 						int testNumEntries3 = resPt1c->GetEntries();
 						if (testNumEntries3>0) {
 							// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-							resPt1c->Fit("fit2","R"); resPt2c->Fit("fit2","R"); resPt3c->Fit("fit2","R");
-							resPt4c->Fit("fit2","R"); resPt5c->Fit("fit2","R"); resPt6c->Fit("fit2","R");
+							resPt1c->Fit(fit2,"R"); resPt2c->Fit(fit2,"R"); resPt3c->Fit(fit2,"R");
+							resPt4c->Fit(fit2,"R"); resPt5c->Fit(fit2,"R"); resPt6c->Fit(fit2,"R");
 							sigma_pt3.push_back(resPt1c->GetFunction("fit2")->GetParameter(2));
 							sigma_pt3.push_back(resPt2c->GetFunction("fit2")->GetParameter(2));
 							sigma_pt3.push_back(resPt3c->GetFunction("fit2")->GetParameter(2));
@@ -383,14 +383,14 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 							error_pt3.push_back(resPt6c->GetFunction("fit2")->GetParError(2));
 
 							// Fill the new histogram to create resolution plot
-							for(int i=0;i<6;i++) {
+							for (auto i : sigma_range) {
 								resPt3->SetBinContent(i+1,sigma_pt3[i]);
 								resPt3->SetBinError(i+1,error_pt3[i]);
 							}
 						}
 						else {
 							edm::LogWarning("DataNotFound")<<"L1 tracks not found for pT resolution (8-inf)!\n";
-							for(int i=0;i<6;i++) {
+							for (auto i : sigma_range) {
 								resPt3->SetBinContent(i+1,-1);
 								resPt3->SetBinError(i+1,-1);
 							}
@@ -423,8 +423,8 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 						if (testNumEntries4>0) {
 
 							// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-							resEta1->Fit("fit","R"); resEta2->Fit("fit","R"); resEta3->Fit("fit","R");
-							resEta4->Fit("fit","R"); resEta5->Fit("fit","R"); resEta6->Fit("fit","R");
+							resEta1->Fit(fit,"R"); resEta2->Fit(fit,"R"); resEta3->Fit(fit,"R");
+							resEta4->Fit(fit,"R"); resEta5->Fit(fit,"R"); resEta6->Fit(fit,"R");
 							sigma_eta.push_back(resEta1->GetFunction("fit")->GetParameter(2));
 							sigma_eta.push_back(resEta2->GetFunction("fit")->GetParameter(2));
 							sigma_eta.push_back(resEta3->GetFunction("fit")->GetParameter(2));
@@ -439,14 +439,14 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 							error_eta.push_back(resEta6->GetFunction("fit")->GetParError(2));
 
 							// Fill the new histogram to create resolution plot
-							for(int i=0;i<6;i++) {
+							for (auto i : sigma_range) {
 								resEta->SetBinContent(i+1,sigma_eta[i]);
 								resEta->SetBinError(i+1,error_eta[i]);
 							}
 						}
 						else {
 							edm::LogWarning("DataNotFound")<<"L1 tracks not found for eta resolution!\n";
-							for(int i=0;i<6;i++) {
+							for (auto i : sigma_range) {
 								resEta->SetBinContent(i+1,-1);
 								resEta->SetBinError(i+1,-1);
 							}
@@ -477,8 +477,8 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 						int testNumEntries5 = resPhi1->GetEntries();
 						if (testNumEntries5>0) {
 							// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-							resPhi1->Fit("fit","R"); resPhi2->Fit("fit","R"); resPhi3->Fit("fit","R");
-							resPhi4->Fit("fit","R"); resPhi5->Fit("fit","R"); resPhi6->Fit("fit","R");
+							resPhi1->Fit(fit,"R"); resPhi2->Fit(fit,"R"); resPhi3->Fit(fit,"R");
+							resPhi4->Fit(fit,"R"); resPhi5->Fit(fit,"R"); resPhi6->Fit(fit,"R");
 							sigma_phi.push_back(resPhi1->GetFunction("fit")->GetParameter(2));
 							sigma_phi.push_back(resPhi2->GetFunction("fit")->GetParameter(2));
 							sigma_phi.push_back(resPhi3->GetFunction("fit")->GetParameter(2));
@@ -493,14 +493,14 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 							error_phi.push_back(resPhi6->GetFunction("fit")->GetParError(2));
 
 							// Fill the new histogram to create resolution plot
-							for(int i=0;i<6;i++) {
+							for (auto i : sigma_range) {
 								resPhi->SetBinContent(i+1,sigma_phi[i]);
 								resPhi->SetBinError(i+1,error_phi[i]);
 							}
 						}
 						else {
 							edm::LogWarning("DataNotFound")<<"L1 tracks not found for phi resolution!\n";
-							for(int i=0;i<6;i++) {
+							for (auto i : sigma_range) {
 								resPhi->SetBinContent(i+1,-1);
 								resPhi->SetBinError(i+1,-1);
 							}
@@ -531,8 +531,8 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 						int testNumEntries6 = resVtxZ_1->GetEntries();
 						if (testNumEntries6>0) {
 							// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-							resVtxZ_1->Fit("fit3","R"); resVtxZ_2->Fit("fit3","R"); resVtxZ_3->Fit("fit3","R");
-							resVtxZ_4->Fit("fit3","R"); resVtxZ_5->Fit("fit3","R"); resVtxZ_6->Fit("fit3","R");
+							resVtxZ_1->Fit(fit3,"R"); resVtxZ_2->Fit(fit3,"R"); resVtxZ_3->Fit(fit3,"R");
+							resVtxZ_4->Fit(fit3,"R"); resVtxZ_5->Fit(fit3,"R"); resVtxZ_6->Fit(fit3,"R");
 							sigma_VtxZ.push_back(resVtxZ_1->GetFunction("fit3")->GetParameter(2));
 							sigma_VtxZ.push_back(resVtxZ_2->GetFunction("fit3")->GetParameter(2));
 							sigma_VtxZ.push_back(resVtxZ_3->GetFunction("fit3")->GetParameter(2));
@@ -547,14 +547,14 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 							error_VtxZ.push_back(resVtxZ_6->GetFunction("fit3")->GetParError(2));
 
 							// Fill the new histogram to create resolution plot
-							for(int i=0;i<6;i++) {
+							for (auto i : sigma_range) {
 								resVtxZ->SetBinContent(i+1,sigma_VtxZ[i]);
 								resVtxZ->SetBinError(i+1,error_VtxZ[i]);
 							}
 						}
 						else {
 							edm::LogWarning("DataNotFound")<<"L1 tracks not found for VtxZ resolution!\n";
-							for(int i=0;i<6;i++) {
+							for (auto i : sigma_range) {
 								resVtxZ->SetBinContent(i+1,-1);
 								resVtxZ->SetBinError(i+1,-1);
 							}
@@ -585,8 +585,8 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 						int testNumEntries7 = resd0_1->GetEntries();
 						if (testNumEntries7>0) {
 							// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-							resd0_1->Fit("fit","R"); resd0_2->Fit("fit","R"); resd0_3->Fit("fit","R");
-							resd0_4->Fit("fit","R"); resd0_5->Fit("fit","R"); resd0_6->Fit("fit","R");
+							resd0_1->Fit(fit,"R"); resd0_2->Fit(fit,"R"); resd0_3->Fit(fit,"R");
+							resd0_4->Fit(fit,"R"); resd0_5->Fit(fit,"R"); resd0_6->Fit(fit,"R");
 							sigma_d0.push_back(resd0_1->GetFunction("fit")->GetParameter(2));
 							sigma_d0.push_back(resd0_2->GetFunction("fit")->GetParameter(2));
 							sigma_d0.push_back(resd0_3->GetFunction("fit")->GetParameter(2));
@@ -601,14 +601,14 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 							error_d0.push_back(resd0_6->GetFunction("fit")->GetParError(2));
 
 							// Fill the new histogram to create resolution plot
-							for(int i=0;i<6;i++) {
+							for (auto i : sigma_range) {
 								resd0->SetBinContent(i+1,sigma_d0[i]);
 								resd0->SetBinError(i+1,error_d0[i]);
 							}
 						}
 						else {
 							edm::LogWarning("DataNotFound")<<"L1 tracks not found for d0 resolution!\n";
-							for(int i=0;i<6;i++) {
+							for (auto i : sigma_range) {
 								resd0->SetBinContent(i+1,-1);
 								resd0->SetBinError(i+1,-1);
 							}
