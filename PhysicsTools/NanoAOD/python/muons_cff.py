@@ -63,10 +63,10 @@ muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
     variables = cms.PSet(
         LepGood_pt = cms.string("pt"),
         LepGood_eta = cms.string("eta"),
-        LepGood_jetNDauChargedMVASel = cms.string("userFloat('jetNDauChargedMVASel')"),
+        LepGood_jetNDauChargedMVASel = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0"),
         LepGood_miniRelIsoCharged = cms.string("userFloat('miniIsoChg')/pt"),
         LepGood_miniRelIsoNeutral = cms.string("(userFloat('miniIsoAll')-userFloat('miniIsoChg'))/pt"),
-        LepGood_jetPtRelv2 = cms.string("userFloat('ptRel')"),
+        LepGood_jetPtRelv2 = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0"),
         LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt)"),
         LepGood_jetBTagCSV = cms.string("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags'),0.0):0.0"),
         LepGood_sip3d = cms.string("abs(dB('PV3D')/edB('PV3D'))"),
@@ -78,7 +78,7 @@ muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
 run2_miniAOD_80XLegacy.toModify(muonMVATTH,
     weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG.weights.xml",
     variablesOrder = ["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetPtRatio","LepGood_jetBTagCSV","LepGood_sip3d","LepGood_dxy","LepGood_dz","LepGood_segmentCompatibility"],
-    variables = cms.PSet(LepGood_jetPtRatio = cms.string("min(userFloat('ptRatio'),1.5)"))
+    variables = cms.PSet(LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1"))
 )
 
 
