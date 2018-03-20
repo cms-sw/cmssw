@@ -178,10 +178,10 @@ finalElectrons = cms.EDFilter("PATElectronRefSelector",
 
 electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
     src = cms.InputTag("linkedObjects","electrons"),
-    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/el_BDTG.weights.xml"),
+    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/el_BDTG_94X.weights.xml"),
     name = cms.string("electronMVATTH"),
     isClassifier = cms.bool(True),
-    variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetPtRatio","LepGood_jetBTagCSV","LepGood_sip3d","LepGood_dxy","LepGood_dz","LepGood_mvaIdSpring16HZZ"]),
+    variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetBTagCSV","LepGood_jetPtRatio","LepGood_sip3d","LepGood_dxy","LepGood_dz","LepGood_mvaIdFall17noIso"]),
     variables = cms.PSet(
         LepGood_pt = cms.string("pt"),
         LepGood_eta = cms.string("eta"),
@@ -189,14 +189,21 @@ electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
         LepGood_miniRelIsoCharged = cms.string("userFloat('miniIsoChg')/pt"),
         LepGood_miniRelIsoNeutral = cms.string("(userFloat('miniIsoAll')-userFloat('miniIsoChg'))/pt"),
         LepGood_jetPtRelv2 = cms.string("userFloat('ptRel')"),
-        LepGood_jetPtRatio = cms.string("min(userFloat('ptRatio'),1.5)"),
-        LepGood_jetBTagCSV = cms.string("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags'),0.0):-99.0"),
+        LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+userFloat('PFIsoAll04')/pt)"),
+        LepGood_jetBTagCSV = cms.string("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags'),0.0):0.0"),
         LepGood_sip3d = cms.string("abs(dB('PV3D')/edB('PV3D'))"),
         LepGood_dxy = cms.string("log(abs(dB('PV2D')))"),
         LepGood_dz = cms.string("log(abs(dB('PVDZ')))"),
-        LepGood_mvaIdSpring16HZZ = cms.string("userFloat('mvaSpring16HZZ')"),
+        LepGood_mvaIdFall17noIso = cms.string("userFloat('mvaFall17noIso')"),
     )
 )
+run2_miniAOD_80XLegacy.toModify(electronMVATTH.variables,
+    LepGood_jetPtRatio = cms.string("min(userFloat('ptRatio'),1.5)"),
+    LepGood_mvaIdSpring16HZZ = cms.string("userFloat('mvaSpring16HZZ')"),
+    LepGood_mvaIdFall17noIso = None)
+run2_miniAOD_80XLegacy.toModify(electronMVATTH,
+    weightFile = "PhysicsTools/NanoAOD/data/el_BDTG.weights.xml",
+    variablesOrder = ["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetPtRatio","LepGood_jetBTagCSV","LepGood_sip3d","LepGood_dxy","LepGood_dz","LepGood_mvaIdSpring16HZZ"])
 
 electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("linkedObjects","electrons"),
