@@ -21,10 +21,10 @@ void RecHitProcessor::processLook(
   edm::ESHandle<RPCGeometry> rpcGeom;
   iSetup.get<MuonGeometryRecord>().get(rpcGeom);
   
-  // Loop over ... what, exactly?
+  // The loop is over the detector container in the rpc geometry collection. We are interested in the RPDdetID (inside of RPCChamber vectors), specifically, the RPCrechits. to assignment the CPPFDigis.
   for ( TrackingGeometry::DetContainer::const_iterator iDet = rpcGeom->dets().begin(); iDet < rpcGeom->dets().end(); iDet++ ) {
-    
-    // What does this do?  Check whether the chamber is an RPC chamber?
+   
+  //  we do a cast over the class RPCChamber to obtain the RPCroll vectors, inside of them, the RPCRechits are found. in other words, the method ->rolls() does not exist for other kind of vector within DetContainer and we can not obtain the rpcrechits in a suitable way. 
     if (dynamic_cast<const RPCChamber*>( *iDet ) == nullptr ) continue;
     
     auto chamb = dynamic_cast<const RPCChamber* >( *iDet ); 
@@ -176,7 +176,6 @@ void RecHitProcessor::processLook(
         std::vector<RecHitProcessor::CppfItem>::iterator cppf;
         for(cppf1 = CppfVec1.begin(); cppf1 != CppfVec1.end(); cppf1++){
 	  
-	  //for (auto& cppf : CppfVec1 ) {
           
 	  
 	  //Condition to save the CPPFDigi
@@ -216,15 +215,7 @@ void RecHitProcessor::processLook(
 	    if(Geo){
 	      std::shared_ptr<l1t::CPPFDigi> MainVariables1(new l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector1, EMTFLink1, old_strip, clustersize, global_phi, global_theta));
 	      std::shared_ptr<l1t::CPPFDigi> MainVariables2(new l1t::CPPFDigi(rpcId, Bx , (*cppf).int_phi, (*cppf).int_theta, isValid, (*cppf).lb, (*cppf).halfchannel, EMTFsector2, EMTFLink2, old_strip, clustersize, global_phi, global_theta));
-	      /*
-		if(clustersize == 2 && (*cppf).int_theta == 16 && (*cppf).int_phi == 700){
- 		std::cout << "old_rawid "<< (*cppf1).rawId << " strip " << old_strip << 
-		" firststrip "<< firststrip <<" cppf.int_phi " << (*cppf).int_phi << 
-		" cppf.int_theta " << (*cppf).int_theta << 
-		" clustersize " << clustersize << std::endl;
-                std::cout << "--------------------------------------" << std::endl;
-		}
-	      */		
+
 	      if ((EMTFsector1 > 0) && (EMTFsector2 == 0)){
 		cppfDigis.push_back(*MainVariables1.get());
 	      } 
@@ -276,11 +267,11 @@ void RecHitProcessor::process(
   edm::Handle<RPCRecHitCollection> recHits;
   iEvent.getByToken(recHitToken, recHits);
   
-  
-  // Loop over ... what, exactly?
+ 
+  // The loop is over the detector container in the rpc geometry collection. We are interested in the RPDdetID (inside of RPCChamber vectors), specifically, the RPCrechits. to assignment the CPPFDigis.
   for ( TrackingGeometry::DetContainer::const_iterator iDet = rpcGeom->dets().begin(); iDet < rpcGeom->dets().end(); iDet++ ) {
-    
-    // What does this do?  Check whether the chamber is an RPC chamber?
+  
+  //  we do a cast over the class RPCChamber to obtain the RPCroll vectors, inside of them, the RPCRechits are found. in other words, the method ->rolls() does not exist for other kind of vector within DetContainer and we can not obtain the rpcrechits in a suitable way.   
     if (dynamic_cast<const RPCChamber*>( *iDet ) == nullptr ) continue;
     
     auto chamb = dynamic_cast<const RPCChamber* >( *iDet ); 
