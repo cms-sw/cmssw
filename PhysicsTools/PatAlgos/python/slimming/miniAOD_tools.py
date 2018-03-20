@@ -306,6 +306,7 @@ def miniAOD_customizeCommon(process):
                 pset.electron_config.heepTrkPtIso = cms.InputTag("heepIDVarValueMaps","eleTrkPtIso")
                 break
                
+
     #VID Photon IDs
     process.patPhotons.addPhotonID = cms.bool(True)
     photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V1_TrueVtx_cff',
@@ -335,7 +336,6 @@ def miniAOD_customizeCommon(process):
     #add the cut base IDs bitmaps of which cuts passed
     from RecoEgamma.EgammaTools.egammaObjectModifications_tools import makeVIDBitsModifier
     egamma_modifications.append(makeVIDBitsModifier(process,"egmGsfElectronIDs","egmPhotonIDs"))
-
 
     #-- Adding boosted taus
     from RecoTauTag.Configuration.boostedHPSPFTaus_cfi import addBoostedTaus

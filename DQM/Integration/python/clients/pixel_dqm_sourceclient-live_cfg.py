@@ -2,14 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("PIXELDQMLIVE", eras.Run2_2017)
+process = cms.Process("PIXELDQMLIVE", eras.Run2_2018)
 
 live=True  #set to false for lxplus offline testing
 offlineTesting=not live
 
 TAG ="PixelPhase1" 
-
-process = cms.Process("PIXELDQMLIVE")
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis',
@@ -90,6 +88,9 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
 process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_RealData_cfi")
 
+process.load("DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi")
+process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
+
 # PixelPhase1 Real data raw to digi
 process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 process.siPixelDigis.IncludeErrors = True
@@ -100,11 +101,11 @@ process.siStripDigis.InputLabel   = cms.InputTag("rawDataCollector")
 #--------------------------------
 # Heavy Ion Configuration Changes
 #--------------------------------
-
-if (process.runType.getRunType() == process.runType.hi_run):    
-    process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
-    process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
-    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
+#
+#if (process.runType.getRunType() == process.runType.hi_run):    
+#    process.load('Configuration.StandardSequences.ReconstructionHeavyIons_cff')
+#    process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
+#    process.siPixelDigis.InputLabel   = cms.InputTag("rawDataRepacker")
 
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
@@ -113,7 +114,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
     process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
     process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
-
+    process.load("RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi")
 else:
     process.load("Configuration.StandardSequences.Reconstruction_cff")
 
@@ -124,12 +125,8 @@ process.load("DQM.SiPixelPhase1Config.SiPixelPhase1OnlineDQM_cff")
 
 process.PerModule.enabled=True
 process.PerReadout.enabled=True
-process.OverlayCurvesForTiming.enabled=False
+process.OverlayCurvesForTiming.enabled=True
 process.IsOffline.enabled=False
-
-
-#import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-#process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
 
 #--------------------------
 # Service
@@ -147,7 +144,7 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 )
 
 process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*')
+process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias_*' , 'HLT_ZeroBias1_*' , 'HLT_PAZeroBias_*' , 'HLT_PAZeroBias1_*', 'HLT_PAL1MinimumBiasHF_OR_SinglePixelTrack_*','HLT*SingleMu*')
 process.hltHighLevel.andOr = cms.bool(True)
 process.hltHighLevel.throw =  cms.bool(False)
 
@@ -155,9 +152,9 @@ process.hltHighLevel.throw =  cms.bool(False)
 # Scheduling
 #--------------------------
 
-process.DQMmodules = cms.Sequence(process.dqmEnv*
-                                  process.dqmSaver)
+process.DQMmodules = cms.Sequence(process.dqmEnv* process.dqmSaver)
 
+process.RecoForDQM_LocalReco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.gtDigis*process.trackerlocalreco)
 
 ### COSMIC RUN SETTING
 if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
@@ -167,7 +164,9 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
     process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 450
     process.combinatorialcosmicseedfinderP5.MaxNumberOfCosmicClusters = 450
 
-    process.RecoForDQM_TrkReco_cosmic = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.tracksP5)
+    
+
+    process.RecoForDQM_TrkReco_cosmic = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.ctftracksP5*process.siPixelClusterShapeCache)
     
     process.p = cms.Path(
                          ##### TRIGGER SELECTION #####
@@ -177,7 +176,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run or process.runTyp
                          process.consecutiveHEs*
                          process.hltTriggerTypeFilter*
                          process.RecoForDQM_LocalReco*
-                         process.DQMCommon*
+                         process.DQMmodules*
                          process.RecoForDQM_TrkReco_cosmic*
                          process.siPixelPhase1OnlineDQM_source_cosmics*
                          process.siPixelPhase1OnlineDQM_harvesting
@@ -212,15 +211,14 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
         process.Reco = cms.Sequence(process.siPixelDigis*process.pixeltrackerlocalreco)
 
     else:
-        process.Reco = cms.Sequence(process.siPixelDigis*process.siStripDigis
-                                    #*process.siStripZeroSuppression
-                                    *process.trackerlocalreco)
-                                    #*process.siStripClusters*process.siPixelClusters)
-
+        process.Reco = cms.Sequence(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco)
+                          
 
     process.p = cms.Path(
       process.hltHighLevel #trigger selection
      *process.scalersRawToDigi
+     *process.APVPhases
+     *process.consecutiveHEs
      *process.Reco
      *process.siPixelClusters
      *process.DQMmodules
@@ -228,7 +226,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
      *process.siPixelPhase1OnlineDQM_source_pprun
      *process.siPixelPhase1OnlineDQM_harvesting
     )
-    
+
+### FIXME: to add the HI Track Reconstruction    
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

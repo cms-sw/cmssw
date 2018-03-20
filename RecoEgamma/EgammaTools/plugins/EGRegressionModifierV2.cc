@@ -20,7 +20,7 @@ namespace {
 
 #include <unordered_map>
 
-class EGExtraInfoModifierFromDB : public ModifyObjectValueBase {
+class EGRegressionModifierV2 : public ModifyObjectValueBase {
 public:
   typedef edm::EDGetTokenT<edm::ValueMap<float> > ValMapFloatToken;
   typedef edm::EDGetTokenT<edm::ValueMap<int> > ValMapIntToken;
@@ -49,8 +49,8 @@ public:
     std::vector<std::string> condnames_ecalonly_sigma;
   };
 
-  EGExtraInfoModifierFromDB(const edm::ParameterSet& conf);
-  ~EGExtraInfoModifierFromDB() override;
+  EGRegressionModifierV2(const edm::ParameterSet& conf);
+  ~EGRegressionModifierV2() override;
     
   void setEvent(const edm::Event&) final;
   void setEventContent(const edm::EventSetup&) final;
@@ -96,10 +96,10 @@ private:
 };
 
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
-		  EGExtraInfoModifierFromDB,
-		  "EGExtraInfoModifierFromDB");
+		  EGRegressionModifierV2,
+		  "EGRegressionModifierV2");
 
-EGExtraInfoModifierFromDB::EGExtraInfoModifierFromDB(const edm::ParameterSet& conf) :
+EGRegressionModifierV2::EGRegressionModifierV2(const edm::ParameterSet& conf) :
   ModifyObjectValueBase(conf) {
 
   lowEnergy_ECALonlyThr_ = conf.getParameter<double>("lowEnergy_ECALonlyThr");
@@ -195,9 +195,9 @@ namespace {
   }
 }
 
-EGExtraInfoModifierFromDB::~EGExtraInfoModifierFromDB() {}
+EGRegressionModifierV2::~EGRegressionModifierV2() {}
 
-void EGExtraInfoModifierFromDB::setEvent(const edm::Event& evt) {
+void EGRegressionModifierV2::setEvent(const edm::Event& evt) {
 
   eles_by_oop.clear();
   phos_by_oop.clear();  
@@ -257,7 +257,7 @@ void EGExtraInfoModifierFromDB::setEvent(const edm::Event& evt) {
    
 }
 
-void EGExtraInfoModifierFromDB::setEventContent(const edm::EventSetup& evs) {
+void EGRegressionModifierV2::setEventContent(const edm::EventSetup& evs) {
 
   iSetup_ = &evs;
 
@@ -309,7 +309,7 @@ namespace {
   }
 }
 
-void EGExtraInfoModifierFromDB::setConsumes(edm::ConsumesCollector& sumes) {
+void EGRegressionModifierV2::setConsumes(edm::ConsumesCollector& sumes) {
  
   rhoToken_ = sumes.consumes<double>(rhoTag_);
 
@@ -353,7 +353,7 @@ namespace {
   }
 }
 
-void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
+void EGRegressionModifierV2::modifyObject(reco::GsfElectron& ele) const {
 
   // regression calculation needs no additional valuemaps
 
@@ -550,11 +550,11 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   ele.correctMomentum(newFourMomentum, ele.trackMomentumError(), combinedEnergyError);
 }
 
-void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
+void EGRegressionModifierV2::modifyObject(pat::Electron& ele) const {
   modifyObject(static_cast<reco::GsfElectron&>(ele));
 }
 
-void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
+void EGRegressionModifierV2::modifyObject(reco::Photon& pho) const {
   // regression calculation needs no additional valuemaps
   
   const reco::SuperClusterRef& the_sc = pho.superCluster();
@@ -676,6 +676,6 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   pho.setCorrectedEnergy(reco::Photon::P4type::regression2, ecor, sigmacor, true);     
 }
 
-void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
+void EGRegressionModifierV2::modifyObject(pat::Photon& pho) const {
   modifyObject(static_cast<reco::Photon&>(pho));
 }
