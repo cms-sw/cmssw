@@ -75,17 +75,17 @@ void SiStripAPVRestorer::init(const edm::EventSetup& es){
     pedestal_cache_id = p_cache_id;
   }
   
-}
+} 
 
  
-int16_t SiStripAPVRestorer::InspectAndRestore( const uint32_t& detId, const uint16_t& firstAPV, std::vector<int16_t>& rawDigisPedSubtracted,  std::vector<int16_t>& processedRawDigi, const std::vector< std::pair<short,float> >& vmedians ){
-  int16_t nAPVFlagged = this->inspect(detId, firstAPV, rawDigisPedSubtracted, vmedians);
+uint16_t SiStripAPVRestorer::InspectAndRestore( const uint32_t& detId, const uint16_t& firstAPV, std::vector<int16_t>& rawDigisPedSubtracted,  std::vector<int16_t>& processedRawDigi, const std::vector< std::pair<short,float> >& vmedians ){
+  uint16_t nAPVFlagged = this->inspect(detId, firstAPV, rawDigisPedSubtracted, vmedians);
   this->restore(firstAPV, processedRawDigi);
   return nAPVFlagged;
 }
 
 
-int16_t SiStripAPVRestorer::inspect( const uint32_t& detId, const uint16_t& firstAPV, std::vector<int16_t>& digis, const std::vector< std::pair<short,float> >& vmedians) {
+uint16_t SiStripAPVRestorer::inspect( const uint32_t& detId, const uint16_t& firstAPV, std::vector<int16_t>& digis, const std::vector< std::pair<short,float> >& vmedians) {
   
   detId_ = detId;
   
@@ -151,9 +151,9 @@ void SiStripAPVRestorer::restore(const uint16_t& firstAPV, std::vector<int16_t>&
 
 template<typename T>
 inline
-int16_t SiStripAPVRestorer::BaselineFollowerInspect(const uint16_t& firstAPV, std::vector<T>& digis){
+uint16_t SiStripAPVRestorer::BaselineFollowerInspect(const uint16_t& firstAPV, std::vector<T>& digis){
   std::vector<T> singleAPVdigi;  
-  int16_t nAPVflagged = 0;
+  uint16_t nAPVflagged = 0;
   
   CMMap::iterator itCMMap;
   if(useRealMeanCM_) itCMMap = MeanCMmap_.find(detId_);
@@ -196,8 +196,8 @@ int16_t SiStripAPVRestorer::BaselineFollowerInspect(const uint16_t& firstAPV, st
 
 template<typename T>
 inline
-int16_t SiStripAPVRestorer::ForceRestoreInspect(const uint16_t& firstAPV, std::vector<T>& digis){
-	int16_t nAPVflagged = 0;
+uint16_t SiStripAPVRestorer::ForceRestoreInspect(const uint16_t& firstAPV, std::vector<T>& digis){
+	uint16_t nAPVflagged = 0;
 	for(uint16_t APV=firstAPV ; APV< digis.size()/128 + firstAPV; ++APV){
     	if(!badAPVs_[APV]){
     		apvFlags_[APV]= RestoreAlgo_;    //specify any algo to make the restore
@@ -210,12 +210,12 @@ int16_t SiStripAPVRestorer::ForceRestoreInspect(const uint16_t& firstAPV, std::v
 //======================================================================================================================================================================================================
 template<typename T>
 inline
-int16_t SiStripAPVRestorer::BaselineAndSaturationInspect(const uint16_t& firstAPV, std::vector<T>& digis){
+uint16_t SiStripAPVRestorer::BaselineAndSaturationInspect(const uint16_t& firstAPV, std::vector<T>& digis){
   std::vector<T> singleAPVdigi;
   singleAPVdigi.clear();
   
   
-  int16_t nAPVflagged = 0;
+  uint16_t nAPVflagged = 0;
   
   CMMap::iterator itCMMap;
   if(useRealMeanCM_) itCMMap = MeanCMmap_.find(detId_);
@@ -250,13 +250,13 @@ int16_t SiStripAPVRestorer::BaselineAndSaturationInspect(const uint16_t& firstAP
 //======================================================================================================================================================================================================
 template<typename T>
 inline
-int16_t SiStripAPVRestorer::AbnormalBaselineInspect( const uint16_t& firstAPV, std::vector<T>& digis){
+uint16_t SiStripAPVRestorer::AbnormalBaselineInspect( const uint16_t& firstAPV, std::vector<T>& digis){
 
   SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId_);
   
   typename std::vector<T>::iterator fs;
   
-  int16_t nAPVflagged=0;
+  uint16_t nAPVflagged=0;
   
   CMMap::iterator itCMMap;
   if(useRealMeanCM_) itCMMap = MeanCMmap_.find(detId_);
@@ -294,13 +294,13 @@ int16_t SiStripAPVRestorer::AbnormalBaselineInspect( const uint16_t& firstAPV, s
 //======================================================================================================================================================================================================
 template<typename T>
 inline
-int16_t SiStripAPVRestorer::NullInspect(const uint16_t& firstAPV, std::vector<T>& digis){
+uint16_t SiStripAPVRestorer::NullInspect(const uint16_t& firstAPV, std::vector<T>& digis){
 
   SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId_);
 
   typename std::vector<T>::iterator fs;
 
-  int16_t nAPVflagged = 0;
+  uint16_t nAPVflagged = 0;
 
   for(uint16_t APV=firstAPV ; APV< digis.size()/128 + firstAPV; ++APV){
    apvFlags_.push_back( "" );
@@ -330,7 +330,7 @@ int16_t SiStripAPVRestorer::NullInspect(const uint16_t& firstAPV, std::vector<T>
 //======================================================================================================================================================================================================
 //======================================================================================================================================================================================================
 
-int16_t SiStripAPVRestorer::InspectForHybridFormatEmulation(const uint32_t& detId, const uint16_t& firstAPV, std::vector<int16_t>& digis, const std::vector< std::pair<short,float> >& vmedians, std::vector<bool>& markedVRAPVs){
+uint16_t SiStripAPVRestorer::InspectForHybridFormatEmulation(const uint32_t& detId, const uint16_t& firstAPV, std::vector<int16_t>& digis, const std::vector< std::pair<short,float> >& vmedians, std::vector<bool>& markedVRAPVs){
 
 	detId_ = detId;
 	markedVRAPVs.clear();
@@ -358,12 +358,13 @@ int16_t SiStripAPVRestorer::InspectForHybridFormatEmulation(const uint32_t& detI
 			float MeanAPVCM = MeanCM_;
 			if(useRealMeanCM_&&itCMMap!= MeanCMmap_.end()) MeanAPVCM =(itCMMap->second)[APV];
 			float DeltaCM = median_[APV] - MeanAPVCM; 
-      
+            
 			//std::cout << "Delta CM: " << DeltaCM << " CM: " << median_[APV] << " detId " << (uint32_t) detId_ << std::endl; 	
 			if(DeltaCM < 0 && std::abs(DeltaCM) > DeltaCMThreshold_){
           		markedVRAPVs[APV]= true;
 	      		nAPVflagged++;
-        	}
+	      		//std::cout << "and it is APV: " << APV << "Delta CM: " << DeltaCM << " median " << median_[APV] << " Mean APV " << MeanAPVCM << " marked bad " << markedVRAPVs[APV] << std::endl; //to be removed
+	      	}
 		}	
       } 
   

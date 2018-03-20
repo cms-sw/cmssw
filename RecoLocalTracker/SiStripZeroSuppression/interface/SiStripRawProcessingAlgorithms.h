@@ -15,15 +15,19 @@ class SiStripRawProcessingAlgorithms {
  public: 
   void initialize(const edm::EventSetup&);
   void initialize(const edm::EventSetup&, const edm::Event&);
-  int16_t SuppressVirginRawData(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
-  int16_t SuppressVirginRawData(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>& );
   
-  int16_t SuppressProcessedRawData(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
-  int16_t SuppressProcessedRawData(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>&  );
+  //uint16_t SuppressRawData(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>&, uint16_t  );
+  //uint16_t SuppressHybridData(const edm::DetSet<SiStripDigi>&, edm::DetSet<SiStripDigi>&  );
+  
+  uint16_t SuppressVirginRawData(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
+  uint16_t SuppressVirginRawData(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>& );
+  
+  uint16_t SuppressProcessedRawData(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
+  uint16_t SuppressProcessedRawData(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>&  );
   
   
-  int16_t ConvertVirginRawToHybrid(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
-  int16_t ConvertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>& );
+  uint16_t ConvertVirginRawToHybrid(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
+  uint16_t ConvertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>& );
   
   inline std::vector<bool>& GetAPVFlags(){return restorer->GetAPVFlags();}
   inline std::map<uint16_t, std::vector < int16_t> >& GetBaselineMap(){return restorer->GetBaselineMap();}
@@ -45,6 +49,8 @@ class SiStripRawProcessingAlgorithms {
                                  std::auto_ptr<SiStripAPVRestorer> res,
 				 bool doAPVRest,
 				 bool useCMMap); 
+ 
+  
    
 };
 #endif

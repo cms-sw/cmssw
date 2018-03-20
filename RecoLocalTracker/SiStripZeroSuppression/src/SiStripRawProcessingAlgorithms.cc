@@ -39,16 +39,17 @@ void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es, const
   
 }
 
-//Suppressors 
+
+//Suppressors Specific
 //--------------------------------------------------------
-int16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
+uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
       
       subtractorPed->subtract( id, firstAPV*128,processedRawDigis);
       return this->SuppressProcessedRawData(id, firstAPV, processedRawDigis , suppressedDigis );
  
 }
 
-int16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
+uint16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
    
    std::vector<int16_t> RawDigis;
    RawDigis.clear();
@@ -60,7 +61,7 @@ int16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const edm::DetSet<
 
 
 
-int16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
+uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
       std::vector<int16_t>  processedRawDigisPedSubtracted ;
       
       int16_t nAPVFlagged =0;
@@ -72,7 +73,7 @@ int16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const uint32_t&
 }
 
 
-int16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
+uint16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
    std::vector<int16_t> RawDigis;
    RawDigis.clear();
    edm::DetSet<SiStripRawDigi>::const_iterator itrawDigis = rawDigis.begin();
@@ -84,17 +85,17 @@ int16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::DetS
 //Convert to Hybrid Format 
 //--------------------------------------------------------
 
-int16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
-      
+uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
+
       std::vector<int16_t>  processedRawDigisPedSubtracted;
       std::vector<bool> markedVRAPVs;
      
-      for(uint16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] += 1024;
+      for(uint16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] += 1024;   //adding one MSB
 
       
       subtractorPed->subtract( id, firstAPV*128,processedRawDigis);      
-      for(uint16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] /= 2;
       
+      for(uint16_t strip=0; strip < processedRawDigis.size(); ++strip) processedRawDigis[strip] /= 2;
       processedRawDigisPedSubtracted.assign(processedRawDigis.begin(), processedRawDigis.end());
       
       subtractorCMN->subtract(id, firstAPV,  processedRawDigis);      
@@ -102,13 +103,15 @@ int16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const uint32_t&
       
       for(uint16_t strip=0; strip < processedRawDigis.size(); ++strip){
       	 processedRawDigis[strip] *= 2;
-         processedRawDigisPedSubtracted[strip] *= 2;
       }
       
       for(uint16_t APV=firstAPV ; APV< processedRawDigis.size()/128 + firstAPV; ++APV){
+      	
       	if(markedVRAPVs[APV]){
       		//GB 23/6/08: truncation should be done at the very beginning
-      		for(uint16_t strip = (APV-firstAPV)*128; strip < (APV-firstAPV+1)*128; ++strip) suppressedDigis.push_back(SiStripDigi(strip, ( processedRawDigisPedSubtracted[strip] ? 0 : suppressor->truncate(processedRawDigisPedSubtracted[strip]) )));
+      		for(uint16_t strip = (APV-firstAPV)*128; strip < (APV-firstAPV+1)*128; ++strip) {
+      			suppressedDigis.push_back(SiStripDigi(strip, ( processedRawDigisPedSubtracted[strip] < 0 ? 0 : suppressor->truncate(processedRawDigisPedSubtracted[strip]))));   		   			
+      		}
       	}else{
       		std::vector<int16_t> singleAPVdigi;
   		 	singleAPVdigi.clear();
@@ -117,14 +120,18 @@ int16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const uint32_t&
       	}
       }
        
-      
-     
+     // edm::DetSet<SiStripDigi>::const_iterator itDigi = suppressedDigis.begin();
+     //for(; itDigi != suppressedDigis.end(); ++itDigi){
+   	 //		uint16_t strip = itDigi->strip();
+     // 	    uint16_t adc = itDigi->adc();
+     // 	    uint16_t APV = strip/128;
+     //  		std::cout << "final id: " << id << " APVn " << APV << " strip: " << strip << " ADC: " << adc << std::endl; // to be removed
+     // }
       return nAPVFlagged;
 
- 
 }
 
-int16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
+uint16_t SiStripRawProcessingAlgorithms::ConvertVirginRawToHybrid(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
    
    std::vector<int16_t> RawDigis;
    RawDigis.clear();
