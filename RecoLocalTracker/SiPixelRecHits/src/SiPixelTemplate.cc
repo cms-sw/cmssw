@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.cc  Version 10.13
+//  SiPixelTemplate.cc  Version 10.21
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -78,7 +78,8 @@
 //  V10.11 - Allow subdetector ID=5 for FPix R2P2 [allows better internal labeling of templates]
 //  V10.12 - Enforce minimum signal size in pixel charge uncertainty calculation
 //  V10.13 - Update the variable size [SI_PIXEL_TEMPLATE_USE_BOOST] option so that it works with VI's enhancements
-
+//  V10.20 - Add directory path selection to the ascii pushfile method
+//  V10.21 - Address runtime issues in pushfile() for gcc 7.X due to using tempfile as char string + misc. cleanup [Petar]
 
 
 //  Created by Morris Swartz on 10/27/06.
@@ -126,43 +127,43 @@ using namespace edm;
 //! digits of filenum.
 //! \param filenum - an integer NNNN used in the filename template_summary_zpNNNN
 //****************************************************************
-bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > & thePixelTemp_)
+bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > & thePixelTemp_ , std::string dir)
 {
    // Add template stored in external file numbered filenum to theTemplateStore
    
    // Local variables
    int i, j, k, l;
    float qavg_avg;
-   const char *tempfile;
-   //	char title[80]; remove this
    char c;
    const int code_version={17};
    
-   
-   
    //  Create a filename for this run
-   
-   std::ostringstream tout;
-   
-   //  Create different path in CMSSW than standalone
+   std::string tempfile = std::to_string(filenum);
    
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-   tout << "CalibTracker/SiPixelESProducers/data/template_summary_zp"
-   << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
-   std::string tempf = tout.str();
-   edm::FileInPath file( tempf.c_str() );
-   tempfile = (file.fullPath()).c_str();
+   // If integer filenum has less than 4 digits, prepend 0's until we have four numerical characters, e.g. "0292"
+   int nzeros = 4-tempfile.length();
+   if (nzeros > 0)
+     tempfile = std::string(nzeros, '0') + tempfile;
+   /// Alt implementation: for (unsigned cnt=4-tempfile.length(); cnt > 0; cnt-- ){ tempfile = "0" + tempfile; }
+
+   tempfile = dir + "template_summary_zp" + tempfile + ".out";
+   edm::FileInPath file( tempfile );         // Find the file in CMSSW
+   tempfile = file.fullPath();               // Put it back with the whole path.
+
 #else
+   // This is the same as above, but more elegant.  (Elegance not allowed in CMSSW...)
+   std::ostringstream tout;
    tout << "template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
-   std::string tempf = tout.str();
-   tempfile = tempf.c_str();
+   tempfile = tout.str();
+
 #endif
    
-   //  open the template file
+   //  Open the template file
+   //
+   std::ifstream in_file(tempfile);
+   if(in_file.is_open() && in_file.good()) {
    
-   std::ifstream in_file(tempfile, std::ios::in);
-   
-   if(in_file.is_open()) {
       
       // Create a local template storage entry
       
@@ -555,7 +556,6 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
    // Local variables
    int i, j, k, l;
    float qavg_avg;
-   //	const char *tempfile;
    const int code_version={17};
    
    // We must create a new object because dbobject must be a const and our stream must not be
@@ -1496,10 +1496,9 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta)
    // Interpolate for a new set of track angles
    
    // Local variables
-   float locBx, locBz;
-   locBx = 1.f;
+   float locBx = 1.f;
    if(cotbeta < 0.f) {locBx = -1.f;}
-   locBz = locBx;
+   float locBz = locBx;
    if(cotalpha < 0.f) {locBz = -locBx;}
    return SiPixelTemplate::interpolate(id, cotalpha, cotbeta, locBz, locBx);
 }
@@ -1518,8 +1517,7 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
    // Interpolate for a new set of track angles
    
    // Local variables
-   float locBx;
-   locBx = 1.f;
+   float locBx = 1.f;
    return SiPixelTemplate::interpolate(id, cotalpha, cotbeta, locBz, locBx);
 }
 
@@ -2573,6 +2571,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    
    
+   // Unneded:  ilow = ihigh = 0;
    auto xxratio = 0.f;
    
    {
