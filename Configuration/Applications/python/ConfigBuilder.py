@@ -2006,18 +2006,23 @@ class ConfigBuilder(object):
 
  	from Configuration.AlCa.autoPCL import autoPCL
  	self.expandMapping(harvestingList,autoPCL)
-	
+
         for name in harvestingConfig.__dict__:
             harvestingstream = getattr(harvestingConfig,name)
             if name in harvestingList and isinstance(harvestingstream,cms.Path):
                self.schedule.append(harvestingstream)
-               self.executeAndRemember("process.PoolDBOutputService.toPut.append(process.ALCAHARVEST" + name + "_dbOutput)")
-               self.executeAndRemember("process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVEST" + name + "_metadata)")
+               if type(getattr(harvestingConfig,"ALCAHARVEST" + name + "_dbOutput")) == cms.VPSet and \
+                  type(getattr(harvestingConfig,"ALCAHARVEST" + name + "_metadata")) == cms.VPSet:
+                   self.executeAndRemember("process.PoolDBOutputService.toPut.extend(process.ALCAHARVEST" + name + "_dbOutput)")
+                   self.executeAndRemember("process.pclMetadataWriter.recordsToMap.extend(process.ALCAHARVEST" + name + "_metadata)")
+               else:
+                   self.executeAndRemember("process.PoolDBOutputService.toPut.append(process.ALCAHARVEST" + name + "_dbOutput)")
+                   self.executeAndRemember("process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVEST" + name + "_metadata)")
                harvestingList.remove(name)
 	# append the common part at the end of the sequence
 	lastStep = getattr(harvestingConfig,"ALCAHARVESTDQMSaveAndMetadataWriter")
 	self.schedule.append(lastStep)
-	
+
         if len(harvestingList) != 0 and 'dummyHarvesting' not in harvestingList :
             print "The following harvesting could not be found : ", harvestingList
             raise Exception("The following harvesting could not be found : "+str(harvestingList))
