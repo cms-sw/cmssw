@@ -22,10 +22,13 @@ class HGCalTriggerNtupleGenTau : public HGCalTriggerNtupleBase
         bool isStableLepton( const reco::GenParticle & daughter ) const;
         bool isElectron( const reco::GenParticle & daughter ) const;
         bool isMuon( const reco::GenParticle & daughter ) const;
-        bool isChargedPion( const reco::GenParticle & daughter ) const;
+        bool isChargedHadron( const reco::GenParticle & daughter ) const;
+        bool isChargedHadronFromResonance( const reco::GenParticle & daughter ) const;
         bool isNeutralPion( const reco::GenParticle & daughter ) const;
+        bool isNeutralPionFromResonance( const reco::GenParticle & daughter ) const;
         bool isIntermediateResonance( const reco::GenParticle & daughter ) const;
         bool isGamma( const reco::GenParticle & daughter ) const;
+        bool isStableNeutralHadron( const reco::GenParticle & daughter ) const;
 
         edm::EDGetToken gen_token_;
         bool isPythia8generator_;
@@ -44,6 +47,7 @@ class HGCalTriggerNtupleGenTau : public HGCalTriggerNtupleBase
         std::vector<int> gentau_decayMode_;
         std::vector<int> gentau_totNproducts_;
         std::vector<int> gentau_totNgamma_;
+        std::vector<int> gentau_totNpiZero_;
         std::vector<int> gentau_totNcharged_;
 
         std::vector<std::vector<float> > gentau_products_pt_;
@@ -92,6 +96,7 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
     tree.Branch("gentau_decayMode", &gentau_decayMode_);
     tree.Branch("gentau_totNproducts", &gentau_totNproducts_);
     tree.Branch("gentau_totNgamma", &gentau_totNgamma_);
+    tree.Branch("gentau_totNpiZero", &gentau_totNpiZero_);
     tree.Branch("gentau_totNcharged", &gentau_totNcharged_);
 
 }
@@ -101,9 +106,14 @@ bool HGCalTriggerNtupleGenTau::isGoodTau( const reco::GenParticle& candidate ) c
 }
 
 
-bool HGCalTriggerNtupleGenTau::isChargedPion( const reco::GenParticle& candidate ) const {
-    return ( std::abs(candidate.pdgId()) == 211 && candidate.status()==1 
+bool HGCalTriggerNtupleGenTau::isChargedHadron( const reco::GenParticle& candidate ) const {
+    return ( (std::abs(candidate.pdgId()) == 211 || std::abs(candidate.pdgId()) == 321 ) && candidate.status()==1 
              && candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() );
+}
+
+bool HGCalTriggerNtupleGenTau::isChargedHadronFromResonance( const reco::GenParticle& candidate ) const {
+    return ( (std::abs(candidate.pdgId()) == 211 || std::abs(candidate.pdgId()) == 321 ) && candidate.status()==1 
+             && candidate.isLastCopy() );
 }
 
 
@@ -133,17 +143,29 @@ bool HGCalTriggerNtupleGenTau::isNeutralPion( const reco::GenParticle& candidate
 }
 
 
+bool HGCalTriggerNtupleGenTau::isNeutralPionFromResonance( const reco::GenParticle& candidate ) const
+{
+    return ( std::abs(candidate.pdgId()) == 111 && candidate.status()==2 && candidate.statusFlags().isTauDecayProduct() );
+}
+
+
 bool HGCalTriggerNtupleGenTau::isGamma( const reco::GenParticle& candidate ) const
 {
     return ( std::abs(candidate.pdgId()) == 22 && candidate.status()==1 && candidate.statusFlags().isTauDecayProduct() 
              && !candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() );
 }
 
-
 bool HGCalTriggerNtupleGenTau::isIntermediateResonance( const reco::GenParticle& candidate ) const
 {
     return ( ( std::abs(candidate.pdgId()) == 213 || std::abs(candidate.pdgId()) == 20213 || std::abs(candidate.pdgId()) == 24 )
-             && candidate.isDirectPromptTauDecayProductFinalState() && candidate.status() == 2 );
+             && candidate.status() == 2 );
+}
+
+
+bool HGCalTriggerNtupleGenTau::isStableNeutralHadron( const reco::GenParticle& candidate ) const
+{
+    return ( !( std::abs(candidate.pdgId())>10 && std::abs(candidate.pdgId())<17) && !isChargedHadron(candidate)
+             && candidate.isDirectPromptTauDecayProductFinalState() && candidate.status() == 1 );
 }
 
 
@@ -159,10 +181,8 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     
     for(const auto& particle : gen_particles)
     {
-        
         /* select good taus */
         if( isGoodTau( particle ) ){
-
             LorentzVector tau_p4vis(0.,0.,0.,0.);
             gentau_pt_.emplace_back( particle.pt() );
             gentau_eta_.emplace_back( particle.eta() );
@@ -201,13 +221,13 @@ fill(const edm::Event& e, const edm::EventSetup& es)
                     finalProds.push_back( daughter );
                 }        
 
-                if( isChargedPion( *daughter ) ){
+                else if( isChargedHadron( *daughter ) ){
                     n_pi++;
                     tau_p4vis+=(daughter->p4());
                     finalProds.push_back( daughter );
                 }                
 
-                if( isNeutralPion( *daughter ) ){
+                else if( isNeutralPion( *daughter ) ){
                     n_piZero++;
                     const reco::GenParticleRefVector& grandaughters = daughter->daughterRefVector();
                     for( const auto& grandaughter : grandaughters ){
@@ -219,17 +239,21 @@ fill(const edm::Event& e, const edm::EventSetup& es)
                     }
                 }
                                 
+                else if( isStableNeutralHadron( *daughter ) ){
+                    tau_p4vis+=(daughter->p4());
+                    finalProds.push_back( daughter );
+                }
                 /* Here the selection of the decay product according to the Pythia6 decayTree */                
                 if( !isPythia8generator_ ){            
                     if( isIntermediateResonance( *daughter ) ){
                         const reco::GenParticleRefVector& grandaughters = daughter->daughterRefVector();
                         for( const auto& grandaughter : grandaughters ){
-                            if( isChargedPion( *grandaughter ) ){
+                            if( isChargedHadron( *grandaughter ) || isChargedHadronFromResonance( *grandaughter ) ){
                                 n_pi++;
                                 tau_p4vis+=(grandaughter->p4());         
                                 finalProds.push_back( daughter );
                             }                            
-                            if( isNeutralPion( *grandaughter ) ){
+                            else if( isNeutralPion( *grandaughter ) || isNeutralPionFromResonance( *grandaughter ) ){
                                 n_piZero++;
                                 const reco::GenParticleRefVector& descendants = grandaughter->daughterRefVector();
                                 for( const auto& descendant : descendants ){
@@ -264,6 +288,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
             gentau_vis_mass_.emplace_back(tau_p4vis.M());
             gentau_totNproducts_.emplace_back(n_pi + n_gamma);
             gentau_totNgamma_.emplace_back(n_gamma);
+            gentau_totNpiZero_.emplace_back(n_piZero);
             gentau_totNcharged_.emplace_back(n_pi);
    
             gentau_products_pt_.emplace_back(tau_products_pt);

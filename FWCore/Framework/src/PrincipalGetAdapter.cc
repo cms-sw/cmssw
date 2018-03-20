@@ -19,12 +19,13 @@
 namespace edm {
 
   PrincipalGetAdapter::PrincipalGetAdapter(Principal const& pcpl,
-	ModuleDescription const& md)  :
+	ModuleDescription const& md, bool isComplete)  :
     //putProducts_(),
     principal_(pcpl),
     md_(md),
     consumer_(nullptr),
-    resourcesAcquirer_(nullptr)
+    resourcesAcquirer_(nullptr),
+    isComplete_(isComplete)
   {
   }
 
@@ -310,13 +311,13 @@ namespace edm {
       return Transition::Event;
     }
     if(principal().branchType() == InRun) {
-      if(principal().atEndTransition()) {
+      if(isComplete()) {
         return Transition::EndRun;
       } else {
         return Transition::BeginRun;
       }
     }
-    if(principal().atEndTransition()) {
+    if(isComplete()) {
       return Transition::EndLuminosityBlock;
     }
     return Transition::BeginLuminosityBlock;
@@ -364,10 +365,5 @@ namespace edm {
   EDProductGetter const*
   PrincipalGetAdapter::prodGetter() const{
     return principal_.prodGetter();
-  }
-
-  bool
-  PrincipalGetAdapter::isComplete() const {
-    return principal_.isComplete();
   }
 }

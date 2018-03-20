@@ -49,7 +49,7 @@ public:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const & ) override;
 
   void analyze(edm::Event const& ev, edm::EventSetup const& c) override;
-  virtual void endJob() ;
+  void endJob() override;
 
 private:
   
@@ -58,6 +58,7 @@ private:
   double dPhiWsign(double phi1,double phi2);  
 
   std::string outputFile_;
+  std::string g4Label_,hcalHits_,ebHits_,eeHits_;
 
   edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
@@ -69,6 +70,7 @@ private:
   int                                      maxDepthHO_, maxDepthHF_;
 
   bool                                     testNumber_;
+  bool                                     auxPlots_;
 
   // Hits counters
   std::vector<MonitorElement*> Nhb;

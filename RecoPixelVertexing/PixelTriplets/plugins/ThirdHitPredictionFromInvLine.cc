@@ -30,7 +30,6 @@ ThirdHitPredictionFromInvLine::ThirdHitPredictionFromInvLine(
 
   add(P1, errorRPhiP1);
   add(P2, errorRPhiP2);
-
 }
 
 GlobalPoint ThirdHitPredictionFromInvLine::crossing(double radius) const
@@ -62,6 +61,7 @@ void ThirdHitPredictionFromInvLine::add(const ThirdHitPredictionFromInvLine::Poi
   theSumV += point.v()*weigth;
   theSumUV +=  point.u()*point.v()*weigth; 
   theSumVV += sqr(point.v())*weigth;
+  check();
 }
 
 void ThirdHitPredictionFromInvLine::remove(const GlobalPoint &p, double errorRPhi)
@@ -76,6 +76,7 @@ void ThirdHitPredictionFromInvLine::remove(const GlobalPoint &p, double errorRPh
   theSumV -= point.v()*weigth;
   theSumUV -=  point.u()*point.v()*weigth;
   theSumVV -= sqr(point.v())*weigth;
+  check();
 }
 
 void ThirdHitPredictionFromInvLine::print() const
@@ -84,7 +85,7 @@ void ThirdHitPredictionFromInvLine::print() const
                                       <<" theSumV: "<< theSumV <<" theSumUV: "<<theSumUV<<std::endl;
 }
 
-void ThirdHitPredictionFromInvLine::check() const
+void ThirdHitPredictionFromInvLine::check()
 {
   if (hasParameters) return;
 

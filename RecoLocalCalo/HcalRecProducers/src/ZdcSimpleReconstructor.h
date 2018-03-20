@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/ZdcSimpleRecAlgo.h"
 
@@ -37,7 +38,9 @@
 
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
       
-       HcalLongRecoParams* myobject; //noiseTS and signalTS from db
+      HcalLongRecoParams* myobject; //noiseTS and signalTS from db
+      
+      const HcalTimeSlew* hcalTimeSlew_delay_;
     };
 
 #endif

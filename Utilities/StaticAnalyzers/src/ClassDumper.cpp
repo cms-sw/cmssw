@@ -86,7 +86,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
                                    for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
                                         if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
                                              std::string taname;
-                                             const Type * tt = SD->getTemplateArgs().get(J).getAsType().getTypePtr();
+                                             const clang::Type * tt = SD->getTemplateArgs().get(J).getAsType().getTypePtr();
                                              if ( tt->isRecordType() ) {
                                                   const clang::CXXRecordDecl * TAD = tt->getAsCXXRecordDecl();
                                                   if (TAD) taname = TAD->getQualifiedNameAsString();

@@ -40,7 +40,7 @@ private:
 
   static const int NFILES = 2;
   
-  // void applyAllSurveyInfo( std::vector<Alignable*> alignables, 
+  // void applyAllSurveyInfo( align::Alignables alignables,
   //			   const MapType map );
   
   void applyCoarseSurveyInfo(TrackerAlignment& tr_align);

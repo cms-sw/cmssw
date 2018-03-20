@@ -31,12 +31,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
@@ -668,38 +662,7 @@ info(const DetId& id) {
    switch ( id.det() ) {
     
       case DetId::Tracker:
-         switch ( id.subdetId() ) {
-            case StripSubdetector::TIB:
-	    {
-	       oss <<"TIB "<<TIBDetId(id).layer();
-	    }
-	    break;
-            case StripSubdetector::TOB:
-	    {
-	       oss <<"TOB "<<TOBDetId(id).layer();
-	    }
-	    break;
-            case StripSubdetector::TEC:
-	    {
-	       oss <<"TEC "<<TECDetId(id).wheel();
-	    }
-	    break;
-            case StripSubdetector::TID:
-	    {
-	       oss <<"TID "<<TIDDetId(id).wheel();
-	    }
-	    break;
-            case (int) PixelSubdetector::PixelBarrel:
-	    {
-	       oss <<"PixBarrel "<< PXBDetId(id).layer();
-	    }
-	    break;
-            case (int) PixelSubdetector::PixelEndcap:
-	    {
-	       oss <<"PixEndcap "<< PXBDetId(id).layer();
-	    }
-	    break;
-	 }
+         oss << fireworks::Context::getInstance()->getGeom()->getTrackerTopology()->print(id.rawId());
 	 break;
 
       case DetId::Muon:

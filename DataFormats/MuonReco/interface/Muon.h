@@ -207,8 +207,8 @@ namespace reco {
       MiniIsoLoose           = 1UL<<18,  // reliso<0.40
       MiniIsoMedium          = 1UL<<19,  // reliso<0.20
       MiniIsoTight           = 1UL<<20,  // reliso<0.10
-      MiniIsoVeryTight       = 1UL<<21   // reliso<0.05
-
+      MiniIsoVeryTight       = 1UL<<21,  // reliso<0.05
+      TriggerIdLoose         = 1UL<<22   // robust selector for HLT
     };
     
     bool passed( unsigned int selection ) const { return (selectors_ & selection)==selection; }
@@ -234,6 +234,9 @@ namespace reco {
     /// get number of stations with matched segments
     /// just adds the bits returned by stationMask
     int numberOfMatchedStations( ArbitrationType type = SegmentAndTrackArbitration ) const;
+    /// expected number of stations with matching segments based on the absolute 
+    /// distance from the edge of a chamber
+    unsigned int expectedNnumberOfMatchedStations( float minDistanceFromEdge = 10.0 ) const;
     /// get bit map of stations with matched segments
     /// bits 0-1-2-3 = DT stations 1-2-3-4
     /// bits 4-5-6-7 = CSC stations 1-2-3-4

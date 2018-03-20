@@ -21,7 +21,7 @@ TkAlIsoProdFilter.applyNHighestPt = False
 TkAlIsoProdFilter.applyIsolationCut = False
 TkAlIsoProdFilter.applyChargeCheck = False
 
-seqALCARECOHcalCalIsoTrkFilter = cms.Sequence(ALCARECOHcalCalIsoTrkFilterHLT * AlcaIsoTracksFilter*TkAlIsoProdFilter)
+seqALCARECOHcalCalIsoTrkFilter = cms.Sequence(ALCARECOHcalCalIsoTrkFilterHLT * alcaIsoTracksFilter*TkAlIsoProdFilter)
 
 
 

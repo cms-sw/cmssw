@@ -190,13 +190,13 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup, Al
   if (alignableTracker == nullptr) m_alignableNavigator = new AlignableNavigator(alignableMuon);
   else m_alignableNavigator = new AlignableNavigator(alignableTracker, alignableMuon);
 
-  for (std::vector<Alignable*>::const_iterator alignable = m_alignables.begin();  alignable != m_alignables.end();  ++alignable) {
-    DetId id = (*alignable)->geomDetId();
+  for (const auto& alignable: m_alignables) {
+    DetId id = alignable->geomDetId();
     if (id.det() != DetId::Muon  ||  id.subdetId() != MuonSubdetId::CSC  ||  CSCDetId(id.rawId()).layer() != 0) {
       throw cms::Exception("BadConfig") << "Only CSC chambers may be alignable" << std::endl;
     }
 
-    std::vector<bool> selector = (*alignable)->alignmentParameters()->selector();
+    std::vector<bool> selector = alignable->alignmentParameters()->selector();
     for (std::vector<bool>::const_iterator i = selector.begin();  i != selector.end();  ++i) {
       if (!(*i)) throw cms::Exception("BadConfig") << "All selector strings should be \"111111\"" << std::endl;
     }

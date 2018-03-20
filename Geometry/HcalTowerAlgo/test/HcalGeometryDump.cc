@@ -70,7 +70,7 @@ HcalGeometryDump::analyze(const edm::Event& /*iEvent*/,
     for (std::vector<unsigned int>::const_iterator i = detIds.begin();  
 	 i != detIds.end(); ++i, ++counter)  {
       HcalDetId hid = HcalDetId(*i);
-      const CaloCellGeometry * cell = caloGeom->getGeometry(*i);
+      auto cell = caloGeom->getGeometry(*i);
       std::cout << hid << "\tCaloCellGeometry " << cell->getPosition() 
 		<< "\tHcalGeometry " << caloGeom->getPosition(hid) 
 		<< std::endl;

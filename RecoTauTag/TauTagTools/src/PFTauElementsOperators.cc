@@ -340,7 +340,6 @@ PFTauElementsOperators::computeInsideOutContents(const std::vector<reco::PFCandi
    double totalEnergySoFar                                    = (**signalObjectCandidate).energy();
    double totalEtSoFar                                        = (**signalObjectCandidate).et();
    math::XYZVector axisVectorSoFar                            = leadTrackVector;
-   double currentDelToCenter = ptrToMetricFunction(leadTrackVector, axisVectorSoFar);
    //advance to next object
    ++signalObjectCandidate;
    bool doneBuilding = false;
@@ -350,7 +349,7 @@ PFTauElementsOperators::computeInsideOutContents(const std::vector<reco::PFCandi
       math::XYZVector testAxis       = axisVectorSoFar;
       if (useScanningAxis)
          testAxis           += (**signalObjectCandidate).momentum();
-      currentDelToCenter    = ptrToMetricFunction((**signalObjectCandidate).momentum(), testAxis);
+      double currentDelToCenter    = ptrToMetricFunction((**signalObjectCandidate).momentum(), testAxis);
       double testEnergy     = totalEnergySoFar + (**signalObjectCandidate).energy();
       double testEt         = totalEtSoFar     + (**signalObjectCandidate).et();
       bool isCharged        = (**signalObjectCandidate).charge();

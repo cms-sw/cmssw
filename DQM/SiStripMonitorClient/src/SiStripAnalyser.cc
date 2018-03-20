@@ -141,7 +141,7 @@ void SiStripAnalyser::beginRun(edm::Run const& run, edm::EventSetup const& eSetu
     eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
     eSetup.get<SiStripDetCablingRcd>().get(detCabling_);
   } 
-  if (condDataMon_) condDataMon_->beginRun(eSetup);
+  if (condDataMon_) condDataMon_->beginRun(run.run(), eSetup);
   if (globalStatusFilling_) actionExecutor_->createStatus(dqmStore_);
 }
 //

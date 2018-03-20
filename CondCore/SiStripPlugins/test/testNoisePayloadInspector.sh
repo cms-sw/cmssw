@@ -13,7 +13,7 @@ cd $W_DIR;
 ####################
 # Test Noise
 ####################
-/afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+getPayloadData.py \
     --plugin pluginSiStripNoises_PayloadInspector \
     --plot plot_SiStripNoisesTest \
     --tag SiStripNoise_v2_prompt \
@@ -35,7 +35,7 @@ do
 
     #// TrackerMaps
 
-    /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+    getPayloadData.py \
 	--plugin pluginSiStripNoises_PayloadInspector \
 	--plot plot_SiStripNoise${i}_TrackerMap \
 	--tag SiStripNoise_v2_prompt \
@@ -48,7 +48,7 @@ do
 
     #// Summaries
 
-    /afs/cern.ch/user/c/condbpro/public/BROWSER_PI/getPayloadData.py \
+    getPayloadData.py \
 	--plugin pluginSiStripNoises_PayloadInspector \
 	--plot plot_SiStripNoise${i}ByRegion \
 	--tag SiStripNoise_v2_prompt \

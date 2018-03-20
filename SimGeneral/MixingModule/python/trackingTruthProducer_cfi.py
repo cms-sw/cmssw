@@ -46,10 +46,10 @@ fastSim.toModify(trackingParticles,
         muon = cms.VInputTag( cms.InputTag('MuonSimHits','MuonDTHits'),
                               cms.InputTag('MuonSimHits','MuonCSCHits'),
                               cms.InputTag('MuonSimHits','MuonRPCHits') ),
-        trackerAndPixel = cms.VInputTag( cms.InputTag('famosSimHits','TrackerHits') )
+        trackerAndPixel = cms.VInputTag( cms.InputTag('fastSimProducer','TrackerHits') )
     ),
-    simTrackCollection = 'famosSimHits',
-    simVertexCollection = 'famosSimHits'
+    simTrackCollection = 'fastSimProducer',
+    simVertexCollection = 'fastSimProducer'
 )
 
 from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017

@@ -42,7 +42,7 @@ InOutConversionSeedFinder::~InOutConversionSeedFinder() {
 
 
 
-void InOutConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::CaloCluster> > &  allBC )  const  {
+void InOutConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::CaloCluster> > &  allBC ) {
   
 
   //std::cout << "  InOutConversionSeedFinder::makeSeeds() " << "\n";
@@ -65,7 +65,7 @@ void InOutConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::Cal
 }
 
 
-void InOutConversionSeedFinder::fillClusterSeeds() const {
+void InOutConversionSeedFinder::fillClusterSeeds() {
   
   std::vector<Trajectory>::const_iterator outInTrackItr;
   
@@ -311,7 +311,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 
 
 
-void InOutConversionSeedFinder::startSeed( const FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int ilayer  )  const {
+void InOutConversionSeedFinder::startSeed( const FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int ilayer  ) {
   
   //std::cout << "InOutConversionSeedFinder::startSeed ilayer " << ilayer <<  "\n";
   // Get a list of basic clusters that are consistent with a track 
@@ -410,7 +410,7 @@ std::vector<const reco::CaloCluster*> InOutConversionSeedFinder::getSecondCaloCl
 
 void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & startingState,
 					  float transverseCurvature, 
-					  unsigned int startingLayer) const {
+					  unsigned int startingLayer) {
   
   
   std::vector<const DetLayer*> allLayers=layerList();
@@ -592,7 +592,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 
 
 void InOutConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
-					     FreeTrajectoryState & fts, const Propagator* propagator, int ilayer) const {
+					     const FreeTrajectoryState & fts, const Propagator* propagator, int ilayer) {
   
  //std::cout<<  "InOutConversionSeedFinder::completeSeed ilayer " << ilayer <<  "\n";
   // A seed is made from 2 Trajectory Measuremennts.  The 1st is the input
@@ -665,7 +665,7 @@ void InOutConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
 
 
 
-void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  const TrajectoryMeasurement & m2) const {
+void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  const TrajectoryMeasurement & m2) {
   
  //std::cout << "InOutConversionSeedFinder::createSeed " << "\n";
 

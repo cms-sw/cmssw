@@ -329,8 +329,8 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
          m_->reader_->setEntry(iEntry);
          auto runAux = std::make_shared<edm::RunAuxiliary>(aux.run(), aux.time(), aux.time());
          auto rp = std::make_shared<edm::RunPrincipal>(runAux, m_->reg(), m_->pc_, nullptr, 0);
-         auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, aux.time(), aux.time());
-         auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, m_->reg(), m_->pc_, nullptr, 0);
+         auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(m_->reg(), m_->pc_, nullptr, 0);
+        lbp->setAux(edm::LuminosityBlockAuxiliary(rp->run(), 1, aux.time(), aux.time()));
         m_->ep_->fillEventPrincipal(*eaux,
                                     *m_->phreg_,
                                     std::move(eventSelectionIDs),
@@ -338,7 +338,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
                                     *(m_->provRetriever_),
                                     m_->reader_.get());
          lbp->setRunPrincipal(rp);
-         m_->ep_->setLuminosityBlockPrincipal(lbp);
+         m_->ep_->setLuminosityBlockPrincipal(lbp.get());
          m_->processNames_ = m_->ep_->processHistory();
 
          edm::Event event(*m_->ep_, m_->md_, nullptr);

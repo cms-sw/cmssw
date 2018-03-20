@@ -18,19 +18,17 @@ AlignableCSCRing::AlignableCSCRing( const std::vector<AlignableCSCChamber*>& csc
 
   theCSCChambers.insert( theCSCChambers.end(), cscChambers.begin(), cscChambers.end() );
 
+  // maintain also list of components
+  for (const auto& chamber: cscChambers) {
+    const auto mother = chamber->mother();
+    this->addComponent(chamber); // components will be deleted by dtor of AlignableComposite
+    chamber->setMother(mother); // restore previous behaviour where mother is not set
+  }
+
   setSurface( computeSurface() );
   compConstraintType_ = Alignable::CompConstraintType::POSITION_Z;
 }
-      
 
-/// Clean delete of the vector and its elements
-AlignableCSCRing::~AlignableCSCRing() 
-{
-  for ( std::vector<AlignableCSCChamber*>::iterator iter = theCSCChambers.begin(); 
-	iter != theCSCChambers.end(); iter++)
-    delete *iter;
-
-}
 
 /// Return Alignable CSC Chamber at given index
 AlignableCSCChamber &AlignableCSCRing::chamber(int i) 

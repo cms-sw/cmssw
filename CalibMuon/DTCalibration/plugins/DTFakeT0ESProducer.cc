@@ -43,10 +43,10 @@ DTFakeT0ESProducer::~DTFakeT0ESProducer(){
 
 
 // ------------ method called to produce the data  ------------
-DTT0* DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord){
+std::unique_ptr<DTT0> DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord){
   
   parseDDD(iRecord);
-  DTT0* t0Map = new DTT0();
+  auto t0Map = std::make_unique<DTT0>();
   
   //Loop on layerId-nwires map
  for(map<DTLayerId, pair <unsigned int,unsigned int> >::const_iterator lIdWire = theLayerIdWiresMap.begin();

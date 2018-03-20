@@ -261,7 +261,7 @@ DQMFileSaver::saveForOnline(int run, const std::string &suffix, const std::strin
 
 
 boost::property_tree::ptree
-DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, const std::string transferDestinationStr, const std::string mergeTypeStr, evf::FastMonitoringService *fms)
+DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, const std::string& transferDestinationStr, const std::string& mergeTypeStr, evf::FastMonitoringService *fms)
 {
   namespace bpt = boost::property_tree;
   namespace bfs = boost::filesystem;
@@ -391,8 +391,7 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
              lumi,
              (DQMStore::SaveReferenceTag) saveReference_,
              saveReferenceQMin_,
-             fileUpdate_ ? "UPDATE" : "RECREATE",
-             true);
+             fileUpdate_ ? "UPDATE" : "RECREATE");
     }
     else if (fileFormat == PB)
     {
@@ -400,8 +399,7 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
       dbe_->savePB(openHistoFilePathName,
         filterName_,
         enableMultiThread_ ? run : 0,
-        lumi,
-        true);
+        lumi);
     }
     else
       throw cms::Exception("DQMFileSaver")
@@ -818,7 +816,7 @@ DQMFileSaver::globalEndRun(const edm::Run & iRun, const edm::EventSetup &) const
 }
 
 void
-DQMFileSaver::endJob(void)
+DQMFileSaver::endJob()
 {
   if (saveAtJobEnd_)
     {

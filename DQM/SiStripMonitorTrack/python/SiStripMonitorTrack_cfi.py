@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # MonitorTrackGlobal
-SiStripMonitorTrack = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiStripMonitorTrack = DQMEDAnalyzer(
     "SiStripMonitorTrack",
 
     TopFolderName = cms.string('SiStrip'),

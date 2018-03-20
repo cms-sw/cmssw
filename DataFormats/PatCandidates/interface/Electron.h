@@ -77,11 +77,11 @@ namespace pat {
       /// override the reco::GsfElectron::superCluster method, to access the internal storage of the supercluster
       reco::SuperClusterRef superCluster() const override;
       /// override the reco::GsfElectron::pflowSuperCluster method, to access the internal storage of the pflowSuperCluster
-      reco::SuperClusterRef parentSuperCluster() const;
+      reco::SuperClusterRef parentSuperCluster() const override;
       /// returns nothing. Use either gsfTrack or closestCtfTrack
       reco::TrackRef track() const override;
       /// override the reco::GsfElectron::closestCtfTrackRef method, to access the internal storage of the track
-      reco::TrackRef closestCtfTrackRef() const;
+      reco::TrackRef closestCtfTrackRef() const override;
       /// direct access to the seed cluster
       reco::CaloClusterPtr seed() const; 
 
@@ -154,11 +154,6 @@ namespace pat {
       float hcalIso()  const { return dr04HcalTowerSumEt(); }
       /// Overload of pat::Lepton::caloIso(); returns the sum of ecalIso() and hcalIso
       float caloIso()  const { return ecalIso()+hcalIso(); }
-      /// get and set PFCluster Isolation                                                                                                                                      
-      float ecalPFClusterIso() const { return ecalPFClusIso_; };
-      float hcalPFClusterIso() const { return hcalPFClusIso_; };
-      void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_ = ecalPFClus; };
-      void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_ = hcalPFClus; };
       /// returns PUPPI isolations			
       float puppiChargedHadronIso() const {return puppiChargedHadronIso_; }
       float puppiNeutralHadronIso() const {return puppiNeutralHadronIso_; }
@@ -363,10 +358,6 @@ namespace pat {
       double ecalTrackRegressionScale_;
       double ecalTrackRegressionSmear_;
       
-      /// PFCluster Isolation (a la HLT)
-      float ecalPFClusIso_;
-      float hcalPFClusIso_;
-
       /// PUPPI isolations
       float puppiChargedHadronIso_;
       float puppiNeutralHadronIso_;

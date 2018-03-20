@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 # SiStripMonitorCluster
-SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiStripMonitorCluster = DQMEDAnalyzer('SiStripMonitorCluster',
     ClusterProducerStrip = cms.InputTag('siStripClusters'),
     ClusterProducerPix = cms.InputTag('siPixelClusters'),
 
@@ -25,17 +26,17 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
     StripDCSfilter = cms.PSet(),
 
     CreateTrendMEs = cms.bool(False),
-    TrendVsLS = cms.bool(True),
+    TrendVs10LS = cms.bool(False),
 
     Trending = cms.PSet(
-        Nbins = cms.int32(600),
+        Nbins = cms.int32(2400),
         xmin = cms.double(0.0),
-        xmax = cms.double(3600.),
-        xaxis = cms.string('Event Time in Seconds')
+        xmax = cms.double(150.),
+        xaxis = cms.string('Lumisection')
     ),
 
     TrendingLS = cms.PSet(
-        Nbins = cms.int32(2400),
+        Nbins = cms.int32(600),
         xmin = cms.double(0.0),
         xmax = cms.double(150),
         xaxis = cms.string('Lumisection')

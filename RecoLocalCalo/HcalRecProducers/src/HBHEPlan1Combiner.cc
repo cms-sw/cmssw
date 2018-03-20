@@ -104,7 +104,7 @@ HBHEPlan1Combiner::produce(edm::Event& iEvent, const edm::EventSetup& eventSetup
 
     // Are we using "Plan 1" geometry?
     const bool plan1Mode = ignorePlan1Topology_ ? usePlan1Mode_
-                                                : htopo->withSpecialRBXHBHE();
+                                                : htopo->getMergePositionFlag();
 
     // Find the input rechit collection
     Handle<HBHERecHitCollection> inputRechits;

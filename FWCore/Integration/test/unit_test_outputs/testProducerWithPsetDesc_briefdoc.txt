@@ -726,6 +726,9 @@
         noDefault22 untracked VLuminosityBlockRange  none (do not write to cfi)
         noDefault23 untracked EventRange             none (do not write to cfi)
         noDefault24 untracked VEventRange            none (do not write to cfi)
-  1.3 description without a module label
+  1.3 producerWithPSetDesc
+    p_int    int32                      3
+    mightGet untracked vstring optional none (do not write to cfi)
+  1.4 description without a module label
     p_int    int32                      2
     mightGet untracked vstring optional none (do not write to cfi)

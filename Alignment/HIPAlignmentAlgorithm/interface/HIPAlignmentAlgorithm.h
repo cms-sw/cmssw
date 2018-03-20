@@ -89,7 +89,7 @@ private:
 
   std::unique_ptr<AlignableObjectId> alignableObjectId_;
   AlignmentParameterStore* theAlignmentParameterStore;
-  std::vector<Alignable*> theAlignables;
+  align::Alignables theAlignables;
   std::unique_ptr<AlignableNavigator> theAlignableDetAccessor;
 
   AlignmentIORoot theIO;
@@ -113,7 +113,7 @@ private:
   // alignment position error parameters
   bool theApplyAPE;
   std::vector<edm::ParameterSet> theAPEParameterSet;
-  std::vector<std::pair<std::vector<Alignable*>, std::vector<double> > > theAPEParameters;
+  std::vector<std::pair<align::Alignables, std::vector<double> > > theAPEParameters;
 
   // Default alignment specifications
   // - min number of hits on alignable to calc parameters

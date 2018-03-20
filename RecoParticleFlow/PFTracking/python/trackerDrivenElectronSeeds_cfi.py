@@ -55,7 +55,9 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(trackerDrivenElectronSeeds, TTRHBuilder  = 'WithTrackAngle') # FIXME
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-pp_on_XeXe_2017.toModify(trackerDrivenElectronSeeds, MinPt = 5.0) 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(trackerDrivenElectronSeeds, MinPt = 5.0) 
 
 # tracker driven electron seeds depend on the generalTracks trajectory collection
 # However, in FastSim jobs, trajectories are only available for the 'before mixing' track collections

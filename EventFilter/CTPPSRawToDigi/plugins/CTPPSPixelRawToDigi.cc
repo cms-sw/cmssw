@@ -15,7 +15,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
 
 #include "EventFilter/CTPPSRawToDigi/interface/CTPPSPixelDataFormatter.h"
 
@@ -29,14 +28,17 @@ CTPPSPixelRawToDigi::CTPPSPixelRawToDigi( const edm::ParameterSet& conf )
 
 {
 
-  FEDRawDataCollection_ = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("InputLabel"));
+  FEDRawDataCollection_ = consumes <FEDRawDataCollection> (config_.getParameter<edm::InputTag>("inputLabel"));
 
-// Products
+
   produces< edm::DetSetVector<CTPPSPixelDigi> >();
 
-//CablingMap could have a label //Tav
-  mappingLabel_ = config_.getParameter<std::string> ("mappingLabel"); //RPix
+  includeErrors_ = config_.getParameter<bool> ("includeErrors");
+  mappingLabel_ = config_.getParameter<std::string> ("mappingLabel"); 
 
+  if(includeErrors_){
+    produces< edm::DetSetVector<CTPPSPixelDataError> >();
+  }
 }
 
 
@@ -45,10 +47,18 @@ CTPPSPixelRawToDigi::~CTPPSPixelRawToDigi() {
 
 }
 
+void CTPPSPixelRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("includeErrors",true);
+  desc.add<edm::InputTag>("inputLabel",edm::InputTag("rawDataCollector"));
+  desc.add<std::string>("mappingLabel","RPix");
+  descriptions.add("ctppsPixelDigis", desc);
+}
+
+
 void CTPPSPixelRawToDigi::produce( edm::Event& ev,
 				   const edm::EventSetup& es) 
 {
-
 
   edm::Handle<FEDRawDataCollection> buffers;
   ev.getByToken(FEDRawDataCollection_, buffers);
@@ -66,30 +76,56 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
 /// create product (digis & errors)
   auto collection = std::make_unique<edm::DetSetVector<CTPPSPixelDigi>>();
 
+  auto errorcollection = std::make_unique<edm::DetSetVector<CTPPSPixelDataError>>();
 
   if(data_exist){
   es.get<CTPPSPixelDAQMappingRcd>().get( mapping);
 
-
     fedIds_   = mapping->fedIds();
 
     CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
-    
-    bool errorsInEvent = false; 
+    formatter.setErrorStatus(includeErrors_);
+
+    bool errorsInEvent = false;
+    CTPPSPixelDataFormatter::DetErrors nodeterrors;
+
+
     for (auto aFed = fedIds_.begin(); aFed != fedIds_.end(); ++aFed) {
       int fedId = *aFed;
       
       edm::LogInfo("CTPPSPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  dec <<fedId << endl;
 
+      CTPPSPixelDataFormatter::Errors errors;
 /// get event data for this fed
       const FEDRawData& fedRawData = buffers->FEDData( fedId );
       
-      formatter.interpretRawData( errorsInEvent, fedId, fedRawData, *collection);
+      formatter.interpretRawData( errorsInEvent, fedId, fedRawData, *collection, errors);
+    
+      if(includeErrors_) {
+	for(auto const &is : errors){ 
+	  uint32_t errordetid = is.first;
+	/// errors given dummy detId must be sorted by Fed
+	  if (errordetid==RPixErrorChecker::dummyDetId) {          
+	    nodeterrors.insert( nodeterrors.end(), errors[errordetid].begin(), errors[errordetid].end() );
+	  } else {
+	    edm::DetSet<CTPPSPixelDataError>& errorDetSet = errorcollection->find_or_insert(errordetid);
+	    errorDetSet.data.insert(errorDetSet.data.end(), is.second.begin(), is.second.end());	  
+	  }
+	}
+      }
     }
+
+    if(includeErrors_) {
+      errorcollection->find_or_insert(RPixErrorChecker::dummyDetId).data = nodeterrors;
+    }
+    if (errorsInEvent) LogDebug("CTPPSPixelRawToDigi") << "Error words were stored in this event";
   }
 ///send digis and errors back to framework 
   ev.put(std::move(collection));
 
+  if(includeErrors_){
+    ev.put(std::move(errorcollection));
+  }
 }
 
 DEFINE_FWK_MODULE( CTPPSPixelRawToDigi);

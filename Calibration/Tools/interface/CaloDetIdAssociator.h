@@ -40,8 +40,7 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
    
    GlobalPoint getPosition(const DetId& id) override{
       GlobalPoint point = (id.det() == DetId::Hcal) ? 
-	((HcalGeometry*)(geometry_->getSubdetectorGeometry(id)))->getPosition(id) : 
-	geometry_->getPosition(id);
+	(static_cast<const HcalGeometry*>(geometry_->getSubdetectorGeometry(id)))->getPosition(id) : geometry_->getPosition(id);
       return point;
    };
    
@@ -59,10 +58,10 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
       if(! geometry_->getSubdetectorGeometry(id)){
 	 LogDebug("CaloDetIdAssociator") << "Cannot find sub-detector geometry for " << id.rawId() <<"\n";
       } else {
-	 if(! geometry_->getSubdetectorGeometry(id)->getGeometry(id)) {
+	if(!(geometry_->getSubdetectorGeometry(id))->getGeometry(id)) {
 	    LogDebug("CaloDetIdAssociator") << "Cannot find CaloCell geometry for " << id.rawId() <<"\n";
 	 } else {
-	    const CaloCellGeometry::CornersVec& cor ( geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getCorners() );
+	  const CaloCellGeometry::CornersVec& cor ( geometry_->getSubdetectorGeometry(id)->getGeometry(id)->getCorners() );
 	    points.assign( cor.begin(), cor.end() ) ;
 	    points.push_back(getPosition(id));
 	 }
@@ -72,7 +71,7 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
    };
 
    bool insideElement(const GlobalPoint& point, const DetId& id) override{
-      return  geometry_->getSubdetectorGeometry(id)->getGeometry(id)->inside(point);
+     return  geometry_->getSubdetectorGeometry(id)->getGeometry(id)->inside(point);
    };
 
    const CaloGeometry* geometry_;

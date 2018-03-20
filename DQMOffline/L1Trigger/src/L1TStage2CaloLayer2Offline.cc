@@ -1,5 +1,6 @@
 #include "DQMOffline/L1Trigger/interface/L1TStage2CaloLayer2Offline.h"
 #include "DQMOffline/L1Trigger/interface/L1TFillWithinLimits.h"
+#include "DQMOffline/L1Trigger/interface/L1TCommon.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -8,6 +9,13 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "TLorentzVector.h"
+
+
+const std::map<std::string, unsigned int> L1TStage2CaloLayer2Offline::PlotConfigNames = {
+  {"nVertex", PlotConfig::nVertex},
+  {"ETvsET", PlotConfig::ETvsET},
+  {"PHIvsPHI", PlotConfig::PHIvsPHI}
+};
 
 //
 // -------------------------------------- Constructor --------------------------------------------
@@ -21,12 +29,14 @@ L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& 
             consumes < reco::CaloMETCollection > (ps.getParameter < edm::InputTag > ("caloETMHFCollection"))),
         thePVCollection_(consumes < reco::VertexCollection > (ps.getParameter < edm::InputTag > ("PVCollection"))),
         theBSCollection_(consumes < reco::BeamSpot > (ps.getParameter < edm::InputTag > ("beamSpotCollection"))),
-        triggerEvent_(consumes < trigger::TriggerEvent > (ps.getParameter < edm::InputTag > ("TriggerEvent"))),
-        triggerResults_(consumes < edm::TriggerResults > (ps.getParameter < edm::InputTag > ("TriggerResults"))),
-        triggerFilter_(ps.getParameter < edm::InputTag > ("TriggerFilter")),
-        triggerPath_(ps.getParameter < std::string > ("TriggerPath")),
-        histFolder_(ps.getParameter < std::string > ("histFolder")),
-        efficiencyFolder_(histFolder_ + "/efficiency_raw"),
+        triggerInputTag_(consumes < trigger::TriggerEvent > (ps.getParameter < edm::InputTag > ("triggerInputTag"))),
+        triggerResultsInputTag_(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"))),
+        triggerProcess_(ps.getParameter < std::string > ("triggerProcess")),
+        triggerNames_(ps.getParameter < std::vector<std::string> > ("triggerNames")),
+        histFolderEtSum_(ps.getParameter < std::string > ("histFolderEtSum")),
+        histFolderJet_(ps.getParameter < std::string > ("histFolderJet")),
+        efficiencyFolderEtSum_(histFolderEtSum_ + "/efficiency_raw"),
+        efficiencyFolderJet_(histFolderJet_ + "/efficiency_raw"),
         stage2CaloLayer2JetToken_(
             consumes < l1t::JetBxCollection > (ps.getParameter < edm::InputTag > ("stage2CaloLayer2JetSource"))),
         stage2CaloLayer2EtSumToken_(
@@ -43,6 +53,11 @@ L1TStage2CaloLayer2Offline::L1TStage2CaloLayer2Offline(const edm::ParameterSet& 
         httEfficiencyBins_(ps.getParameter < std::vector<double> > ("httEfficiencyBins")),
         recoHTTMaxEta_(ps.getParameter <double>("recoHTTMaxEta")),
         recoMHTMaxEta_(ps.getParameter <double>("recoMHTMaxEta")),
+        hltConfig_(),
+        triggerIndices_(),
+        triggerResults_(),
+        triggerEvent_(),
+        histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames)),
         h_controlPlots_()
 {
   edm::LogInfo("L1TStage2CaloLayer2Offline") << "Constructor "
@@ -61,9 +76,18 @@ L1TStage2CaloLayer2Offline::~L1TStage2CaloLayer2Offline()
 //
 // -------------------------------------- beginRun --------------------------------------------
 //
-void L1TStage2CaloLayer2Offline::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
-{
-  edm::LogInfo("L1TStage2CaloLayer2Offline") << "L1TStage2CaloLayer2Offline::beginRun" << std::endl;
+void L1TStage2CaloLayer2Offline::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
+  edm::LogInfo("L1TStage2CaloLayer2Offline")
+      << "L1TStage2CaloLayer2Offline::beginRun" << std::endl;
+  bool changed(true);
+  if (!hltConfig_.init(iRun, iSetup, triggerProcess_, changed)) {
+    edm::LogError("L1TStage2CaloLayer2Offline")
+        << " HLT config extraction failure with process name "
+        << triggerProcess_<< std::endl;
+    triggerNames_.clear();
+  } else {
+    triggerIndices_ = dqmoffline::l1t::getTriggerIndices(triggerNames_, hltConfig_.triggerNames());
+  }
 }
 //
 // -------------------------------------- bookHistos --------------------------------------------
@@ -91,10 +115,26 @@ void L1TStage2CaloLayer2Offline::analyze(edm::Event const& e, edm::EventSetup co
 {
   edm::LogInfo("L1TStage2CaloLayer2Offline") << "L1TStage2CaloLayer2Offline::analyze" << std::endl;
 
+  edm::Handle<edm::TriggerResults> triggerResultHandle;
+  e.getByToken(triggerResultsInputTag_, triggerResultHandle);
+  if (!triggerResultHandle.isValid()) {
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid edm::TriggerResults handle" << std::endl;
+    return;
+  }
+  triggerResults_ = *triggerResultHandle;
+
+  edm::Handle<trigger::TriggerEvent> triggerEventHandle;
+  e.getByToken(triggerInputTag_, triggerEventHandle);
+  if (!triggerEventHandle.isValid()) {
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid trigger::TriggerEvent handle" << std::endl;
+    return;
+  }
+  triggerEvent_ = *triggerEventHandle;
+
   edm::Handle<reco::VertexCollection> vertexHandle;
   e.getByToken(thePVCollection_, vertexHandle);
   if (!vertexHandle.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: vertex " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: vertex " << std::endl;
     return;
   }
 
@@ -102,6 +142,9 @@ void L1TStage2CaloLayer2Offline::analyze(edm::Event const& e, edm::EventSetup co
   dqmoffline::l1t::fillWithinLimits(h_nVertex_, nVertex);
 
   // L1T
+  if(!dqmoffline::l1t::passesAnyTriggerFromList(triggerIndices_, triggerResults_)){
+    return;
+  }
   fillEnergySums(e, nVertex);
   fillJets(e, nVertex);
 }
@@ -121,19 +164,19 @@ void L1TStage2CaloLayer2Offline::fillEnergySums(edm::Event const& e, const unsig
   e.getByToken(thecaloETMHFCollection_, caloETMHFs);
 
   if (!caloJets.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
     return;
   }
   if (!caloMETs.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} " << std::endl;
     return;
   }
   if (!caloETMHFs.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} (HF) " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: Offline E_{T}^{miss} (HF) " << std::endl;
     return;
   }
   if (!l1EtSums.isValid()) {
-    //edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: L1 ET sums " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: L1 ET sums " << std::endl;
     return;
   }
 
@@ -290,11 +333,11 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
   e.getByToken(theCaloJetCollection_, caloJets);
 
   if (!caloJets.isValid()) {
-    edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: calo jets " << std::endl;
     return;
   }
   if (!l1Jets.isValid()) {
-    //edm::LogError("L1TStage2CaloLayer2Offline") << "invalid collection: L1 jets " << std::endl;
+    edm::LogWarning("L1TStage2CaloLayer2Offline") << "invalid collection: L1 jets " << std::endl;
     return;
   }
 
@@ -331,7 +374,11 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
 //	}
 
   if (!foundMatch) {
-    edm::LogWarning("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 Jet " << std::endl;
+    LogDebug("L1TStage2CaloLayer2Offline") << "Could not find a matching L1 Jet " << std::endl;
+    return;
+  }
+
+  if(!doesNotOverlapWithHLTObjects(closestL1Jet)){
     return;
   }
 
@@ -371,8 +418,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     fillWithinLimits(h_resolutionJetPhi_HB_, resolutionPhi);
     fillWithinLimits(h_resolutionJetPhi_HB_HE_, resolutionPhi);
 
-    // turn-ons
-
+    // efficiencies
     for (auto threshold : jetEfficiencyThresholds_) {
       fillWithinLimits(h_efficiencyJetEt_HB_total_[threshold], recoEt);
       fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
@@ -396,7 +442,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     fillWithinLimits(h_resolutionJetPhi_HE_, resolutionPhi);
     fillWithinLimits(h_resolutionJetPhi_HB_HE_, resolutionPhi);
 
-    // turn-ons
+    // efficiencies
     for (auto threshold : jetEfficiencyThresholds_) {
       fillWithinLimits(h_efficiencyJetEt_HE_total_[threshold], recoEt);
       fillWithinLimits(h_efficiencyJetEt_HB_HE_total_[threshold], recoEt);
@@ -414,7 +460,7 @@ void L1TStage2CaloLayer2Offline::fillJets(edm::Event const& e, const unsigned in
     fill2DWithinLimits(h_L1JetPhivsCaloJetPhi_HF_, recoPhi, l1Phi);
     // resolution
     fillWithinLimits(h_resolutionJetPhi_HF_, resolutionPhi);
-    // turn-ons
+    // efficiencies
     for (auto threshold : jetEfficiencyThresholds_) {
       fillWithinLimits(h_efficiencyJetEt_HF_total_[threshold], recoEt);
       if (l1Et > threshold) {
@@ -452,9 +498,12 @@ void L1TStage2CaloLayer2Offline::bookHistos(DQMStore::IBooker & ibooker)
 void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
-  ibooker.setCurrentFolder(histFolder_);
+  ibooker.setCurrentFolder(histFolderEtSum_);
 
-  h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
+  dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_[PlotConfig::nVertex];
+  h_nVertex_ = ibooker.book1D(
+    nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax
+  );
 
   // energy sums control plots (monitor beyond the limits of the 2D histograms)
   h_controlPlots_[ControlPlots::L1MET] = ibooker.book1D("L1MET", "L1 E_{T}^{miss}; L1 E_{T}^{miss} (GeV); events", 500,
@@ -477,28 +526,34 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
       500, -0.5, 4999.5);
 
   // energy sums reco vs L1
+  dqmoffline::l1t::HistDefinition templateETvsET = histDefinitions_[PlotConfig::ETvsET];
   h_L1METvsCaloMET_ = ibooker.book2D("L1METvsCaloMET",
-      "L1 E_{T}^{miss} vs Offline E_{T}^{miss};Offline E_{T}^{miss} (GeV);L1 E_{T}^{miss} (GeV)", 500, -0.5, 499.5, 500,
-      -0.5, 499.5);
+      "L1 E_{T}^{miss} vs Offline E_{T}^{miss};Offline E_{T}^{miss} (GeV);L1 E_{T}^{miss} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1ETMHFvsCaloETMHF_ = ibooker.book2D("L1ETMHFvsCaloETMHF",
       "L1 E_{T}^{miss} vs Offline E_{T}^{miss} (HF);Offline E_{T}^{miss} (HF) (GeV);L1 E_{T}^{miss} (HF) (GeV)",
-      500, -0.5, 499.5, 500, -0.5, 499.5);
-  h_L1MHTvsRecoMHT_ = ibooker.book2D("L1MHTvsRecoMHT", "L1 MHT vs reco MHT;reco MHT (GeV);L1 MHT (GeV)", 500, -0.5,
-      499.5, 500, -0.5, 499.5);
-  h_L1METTvsCaloETT_ = ibooker.book2D("L1ETTvsCaloETT", "L1 ETT vs calo ETT;calo ETT (GeV);L1 ETT (GeV)", 500, -0.5,
-      499.5, 500, -0.5, 499.5);
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
+  h_L1MHTvsRecoMHT_ = ibooker.book2D("L1MHTvsRecoMHT", "L1 MHT vs reco MHT;reco MHT (GeV);L1 MHT (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
+  h_L1METTvsCaloETT_ = ibooker.book2D("L1ETTvsCaloETT", "L1 ETT vs calo ETT;calo ETT (GeV);L1 ETT (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1HTTvsRecoHTT_ = ibooker.book2D("L1HTTvsRecoHTT",
-      "L1 Total H_{T} vs Offline Total H_{T};Offline Total H_{T} (GeV);L1 Total H_{T} (GeV)", 500, -0.5, 499.5, 500,
-      -0.5, 499.5);
+      "L1 Total H_{T} vs Offline Total H_{T};Offline Total H_{T} (GeV);L1 Total H_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
 
+  dqmoffline::l1t::HistDefinition templatePHIvsPHI = histDefinitions_[PlotConfig::PHIvsPHI];
   h_L1METPhivsCaloMETPhi_ = ibooker.book2D("L1METPhivsCaloMETPhi",
-      "L1 E_{T}^{miss} #phi vs Offline E_{T}^{miss} #phi;Offline E_{T}^{miss} #phi;L1 E_{T}^{miss} #phi", 100, -4, 4,
-      100, -4, 4);
+      "L1 E_{T}^{miss} #phi vs Offline E_{T}^{miss} #phi;Offline E_{T}^{miss} #phi;L1 E_{T}^{miss} #phi",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1ETMHFPhivsCaloETMHFPhi_ = ibooker.book2D("L1ETMHFPhivsCaloETMHFPhi",
       "L1 E_{T}^{miss} #phi vs Offline E_{T}^{miss} (HF) #phi;Offline E_{T}^{miss} (HF) #phi;L1 E_{T}^{miss} #phi",
-      100, -4, 4, 100, -4, 4);
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1MHTPhivsRecoMHTPhi_ = ibooker.book2D("L1MHTPhivsRecoMHTPhi",
-      "L1 MHT #phi vs reco MHT #phi;reco MHT #phi;L1 MHT #phi", 100, -4, 4, 100, -4, 4);
+      "L1 MHT #phi vs reco MHT #phi;reco MHT #phi;L1 MHT #phi",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
 
   // energy sum resolutions
   h_resolutionMET_ = ibooker.book1D("resolutionMET",
@@ -520,7 +575,7 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
       "MET #phi resolution; (L1 MHT #phi - reco MHT #phi)/reco MHT #phi; events", 120, -0.3, 0.3);
 
   // energy sum turn ons
-  ibooker.setCurrentFolder(efficiencyFolder_);
+  ibooker.setCurrentFolder(efficiencyFolderEtSum_);
 
   std::vector<float> metBins(metEfficiencyBins_.begin(), metEfficiencyBins_.end());
   std::vector<float> mhtBins(mhtEfficiencyBins_.begin(), mhtEfficiencyBins_.end());
@@ -569,31 +624,44 @@ void L1TStage2CaloLayer2Offline::bookEnergySumHistos(DQMStore::IBooker & ibooker
 void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
-  ibooker.setCurrentFolder(histFolder_);
+  ibooker.setCurrentFolder(histFolderJet_);
   // jets control plots (monitor beyond the limits of the 2D histograms)
   h_controlPlots_[ControlPlots::L1JetET] = ibooker.book1D("L1JetET", "L1 Jet E_{T}; L1 Jet E_{T} (GeV); events", 500, 0,
       5e3);
   h_controlPlots_[ControlPlots::OfflineJetET] = ibooker.book1D("OfflineJetET",
       "Offline Jet E_{T}; Offline Jet E_{T} (GeV); events", 500, 0, 5e3);
   // jet reco vs L1
+  dqmoffline::l1t::HistDefinition templateETvsET = histDefinitions_[PlotConfig::ETvsET];
   h_L1JetETvsCaloJetET_HB_ = ibooker.book2D("L1JetETvsCaloJetET_HB",
-      "L1 Jet E_{T} vs Offline Jet E_{T} (HB); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HB); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1JetETvsCaloJetET_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HE",
-      "L1 Jet E_{T} vs Offline Jet E_{T} (HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1JetETvsCaloJetET_HF_ = ibooker.book2D("L1JetETvsCaloJetET_HF",
-      "L1 Jet E_{T} vs Offline Jet E_{T} (HF); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HF); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1JetETvsCaloJetET_HB_HE_ = ibooker.book2D("L1JetETvsCaloJetET_HB_HE",
-      "L1 Jet E_{T} vs Offline Jet E_{T} (HB+HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)", 300, 0, 300, 300, 0,
-      300);
+      "L1 Jet E_{T} vs Offline Jet E_{T} (HB+HE); Offline Jet E_{T} (GeV); L1 Jet E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
 
+  dqmoffline::l1t::HistDefinition templatePHIvsPHI = histDefinitions_[PlotConfig::PHIvsPHI];
   h_L1JetPhivsCaloJetPhi_HB_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HB",
-      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB); #phi_{jet}^{offline}; #phi_{jet}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1JetPhivsCaloJetPhi_HE_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HE",
-      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1JetPhivsCaloJetPhi_HF_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HF",
-      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HF); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HF); #phi_{jet}^{offline}; #phi_{jet}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1JetPhivsCaloJetPhi_HB_HE_ = ibooker.book2D("L1JetPhivsCaloJetPhi_HB_HE",
-      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB+HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}", 100, -4, 4, 100, -4, 4);
+      "#phi_{jet}^{L1} vs #phi_{jet}^{offline} (HB+HE); #phi_{jet}^{offline}; #phi_{jet}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
 
   h_L1JetEtavsCaloJetEta_ = ibooker.book2D("L1JetEtavsCaloJetEta_HB",
       "L1 Jet #eta vs Offline Jet #eta; Offline Jet #eta; L1 Jet #eta", 100, -10, 10, 100, -10, 10);
@@ -625,7 +693,7 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
       "jet #eta resolution  (HB); (L1 Jet #eta - Offline Jet #eta)/Offline Jet #eta; events", 120, -0.3, 0.3);
 
   // jet turn-ons
-  ibooker.setCurrentFolder(efficiencyFolder_);
+  ibooker.setCurrentFolder(efficiencyFolderJet_);
   std::vector<float> jetBins(jetEfficiencyBins_.begin(), jetEfficiencyBins_.end());
   int nBins = jetBins.size() - 1;
   float* jetBinArray = &(jetBins[0]);
@@ -654,6 +722,25 @@ void L1TStage2CaloLayer2Offline::bookJetHistos(DQMStore::IBooker & ibooker)
   }
 
   ibooker.cd();
+}
+
+bool L1TStage2CaloLayer2Offline::doesNotOverlapWithHLTObjects(const l1t::Jet & jet) const{
+  // get HLT objects of fired triggers
+  using namespace dqmoffline::l1t;
+  std::vector<bool> results = getTriggerResults(triggerIndices_, triggerResults_);
+  std::vector<unsigned int> firedTriggers = getFiredTriggerIndices(triggerIndices_, results);
+  std::vector<edm::InputTag> hltFilters = getHLTFilters(firedTriggers, hltConfig_, triggerProcess_);
+  const trigger::TriggerObjectCollection hltObjects = getTriggerObjects(hltFilters, triggerEvent_);
+  // only take objects with et() > 27 GeV
+  trigger::TriggerObjectCollection filteredHltObjects;
+  std::copy_if(hltObjects.begin(), hltObjects.end(),
+             std::back_inserter(filteredHltObjects),
+             [](auto obj) { return obj.et() > 27; });
+  double l1Eta = jet.eta();
+  double l1Phi = jet.phi();
+  const trigger::TriggerObjectCollection matchedObjects = getMatchedTriggerObjects(l1Eta, l1Phi, 0.3, hltObjects);
+
+  return matchedObjects.empty();
 }
 
 //define this as a plug-in

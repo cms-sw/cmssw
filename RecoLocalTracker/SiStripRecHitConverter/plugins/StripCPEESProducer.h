@@ -16,7 +16,7 @@ class  StripCPEESProducer: public edm::ESProducer {
  public:
 
   StripCPEESProducer(const edm::ParameterSet&);
-  std::shared_ptr<StripClusterParameterEstimator> produce(const TkStripCPERecord&);
+  std::unique_ptr<StripClusterParameterEstimator> produce(const TkStripCPERecord&);
 
  private:
 
@@ -25,7 +25,6 @@ class  StripCPEESProducer: public edm::ESProducer {
 
   CPE_t cpeNum;
   edm::ParameterSet parametersPSet;
-  std::shared_ptr<StripClusterParameterEstimator> cpe;
 
 };
 #endif

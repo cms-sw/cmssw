@@ -2,15 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 nEvtLumi = 4
 nEvtRun = 2*nEvtLumi
-nStreams = 16 
-nEvt = nStreams*nEvtRun*nEvtLumi
+nRuns = 64
+nStreams = 4
+nEvt = nRuns*nEvtRun
 
 process = cms.Process("TESTGLOBALMODULES")
 
 import FWCore.Framework.test.cmsExceptionsFatalOption_cff
 
 process.options = cms.untracked.PSet(
-    numberOfStreams = cms.untracked.uint32(nStreams)
+    numberOfStreams = cms.untracked.uint32(nStreams),
+    numberOfThreads = cms.untracked.uint32(nStreams)
 )
 
 
@@ -24,8 +26,6 @@ process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(nEvtRun),
     numberEventsInLuminosityBlock = cms.untracked.uint32(nEvtLumi) 
 )
-
-#process.Tracer = cms.Service("Tracer")
 
 process.StreamIntProd = cms.EDProducer("edmtest::global::StreamIntProducer",
     transitions = cms.int32(nEvt+nStreams*(2*(nEvt/nEvtRun)+2*(nEvt/nEvtLumi)+2))
@@ -134,6 +134,20 @@ process.TestEndLumiBlockFil = cms.EDFilter("edmtest::global::TestEndLumiBlockFil
     transitions = cms.int32((nEvt/nEvtLumi))
 )
 
+process.TestAccumulator1 = cms.EDProducer("edmtest::global::TestAccumulator",
+  expectedCount = cms.uint32(512)
+)
 
-process.p = cms.Path(process.StreamIntProd+process.RunIntProd+process.LumiIntProd+process.RunSumIntProd+process.LumiSumIntProd+process.TestBeginRunProd+process.TestEndRunProd+process.TestBeginLumiBlockProd+process.TestEndLumiBlockProd+process.StreamIntAn+process.RunIntAn+process.LumiIntAn+process.RunSumIntAn+process.LumiSumIntAn+process.StreamIntFil+process.RunIntFil+process.LumiIntFil+process.RunSumIntFil+process.LumiSumIntFil+process.TestBeginRunFil+process.TestEndRunFil+process.TestBeginLumiBlockFil+process.TestEndLumiBlockFil)
+process.TestAccumulator2 = cms.EDProducer("edmtest::global::TestAccumulator",
+  expectedCount = cms.uint32(35)
+)
 
+process.testFilterModule = cms.EDFilter("TestFilterModule",
+  acceptValue = cms.untracked.int32(5),
+  onlyOne = cms.untracked.bool(False)
+)
+
+process.task = cms.Task(process.TestAccumulator1)
+
+
+process.p = cms.Path(process.StreamIntProd+process.RunIntProd+process.LumiIntProd+process.RunSumIntProd+process.LumiSumIntProd+process.TestBeginRunProd+process.TestEndRunProd+process.TestBeginLumiBlockProd+process.TestEndLumiBlockProd+process.StreamIntAn+process.RunIntAn+process.LumiIntAn+process.RunSumIntAn+process.LumiSumIntAn+process.StreamIntFil+process.RunIntFil+process.LumiIntFil+process.RunSumIntFil+process.LumiSumIntFil+process.TestBeginRunFil+process.TestEndRunFil+process.TestBeginLumiBlockFil+process.TestEndLumiBlockFil+process.testFilterModule+process.TestAccumulator2, process.task)

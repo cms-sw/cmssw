@@ -3,9 +3,9 @@
 
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/ptr_container/ptr_deque.hpp>
+#include <deque>
 
+#include <boost/shared_ptr.hpp>
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "GeneratorInterface/LHEInterface/plugins/LHEProvenanceHelper.h"
 #include "FWCore/Sources/interface/ProducerSourceFromFiles.h"
@@ -37,9 +37,8 @@ public:
   ~LHESource() override;
 
 private:
+
   void endJob() override;
-  void beginRun(edm::Run &run) override;
-  void endRun(edm::Run &run) override;
   bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
   void readRun_(edm::RunPrincipal& runPrincipal) override;
   void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lumiPrincipal) override;
@@ -50,17 +49,17 @@ private:
 
   void nextEvent();
 
-  std::auto_ptr<lhef::LHEReader>		reader;
+  void putRunInfoProduct(edm::RunPrincipal&);
+  void fillRunInfoProduct(lhef::LHERunInfo const&, LHERunInfoProduct& );
 
-  boost::shared_ptr<lhef::LHERunInfo>	runInfoLast;
-  boost::shared_ptr<lhef::LHERunInfo>	runInfo;
-  boost::shared_ptr<lhef::LHEEvent>	partonLevel;
+  std::unique_ptr<lhef::LHEReader>      reader_;
 
-  boost::ptr_deque<LHERunInfoProduct>	runInfoProducts;
-  bool					wasMerged;
+  boost::shared_ptr<lhef::LHERunInfo>	runInfoLast_;
+  boost::shared_ptr<lhef::LHEEvent>	partonLevel_;
+
+  std::unique_ptr<LHERunInfoProduct>	runInfoProductLast_;
   edm::LHEProvenanceHelper		lheProvenanceHelper_;
   edm::ProcessHistoryID			phid_;
-  edm::RunPrincipal*	                runPrincipal_;
 };
 
 #endif // GeneratorInterface_LHEInterface_LHESource_h

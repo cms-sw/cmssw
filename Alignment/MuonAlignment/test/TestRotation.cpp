@@ -122,37 +122,36 @@ TestRotation::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
   // Apply alignment
  
-  std::vector<Alignable*> theDTWheels = theAlignableMuon->DTWheels();
+  const auto& theDTWheels = theAlignableMuon->DTWheels();
   std::cout << "Number of wheels=" << theDTWheels.size() << std::endl;
 
-  for ( std::vector<Alignable*>::iterator iter = theDTWheels.begin();
-		iter != theDTWheels.end(); iter++ )
+  for (const auto& iter: theDTWheels)
   {
     std::cout << "------------------------" << std::endl
               << " BEFORE ROTATION " << std::endl;
 
-    align::GlobalPoint  pos_i  = (*iter)->globalPosition() ;
-    align::RotationType dir_i  = (*iter)->globalRotation();
+    align::GlobalPoint  pos_i  = iter->globalPosition() ;
+    align::RotationType dir_i  = iter->globalRotation();
 
     std::cout << "x=" << pos_i.x() << ",  y=" << pos_i.y() << ",  z=" << pos_i.z() << std::endl;
     std::cout << "xx=" << dir_i.xx() << ",  yx=" << dir_i.yx() << ",  zx=" << dir_i.zx()  << std::endl;
     std::cout << "xy=" << dir_i.xy() << ",  yy=" << dir_i.yy() << ",  zy=" << dir_i.zy()  << std::endl;
     std::cout << "xz=" << dir_i.xz() << ",  yz=" << dir_i.yz() << ",  zz=" << dir_i.zz()  << std::endl;
 
-    // x      = (*iter)->surface().position().x();
-    // y      = (*iter)->surface().position().y();
-    // z      = (*iter)->surface().position().z();
+    // x      = iter->surface().position().x();
+    // y      = iter->surface().position().y();
+    // z      = iter->surface().position().z();
     // std::cout << "X=" << x << ", Y= " <<  y << ", Z=" << z  << std::endl ;
 
     double deltaPhi = 3.1415926/180*45;
 
-    (*iter)->rotateAroundGlobalZ( deltaPhi );
+    iter->rotateAroundGlobalZ( deltaPhi );
 
     std::cout << "------------------------" << std::endl
 	      << " AFTER ROTATION " << std::endl;
 
-    align::GlobalPoint  pos_f  = (*iter)->globalPosition() ;
-    align::RotationType dir_f = (*iter)->globalRotation();
+    align::GlobalPoint  pos_f = iter->globalPosition() ;
+    align::RotationType dir_f = iter->globalRotation();
 
     std::cout << "x=" << pos_f.x() << ",  y=" << pos_f.y() << ",  z=" << pos_f.z()  << std::endl ;
     std::cout << "xx=" << dir_f.xx() << ",  yx=" << dir_f.yx() << ",  zx=" << dir_f.zx()   << std::endl ;

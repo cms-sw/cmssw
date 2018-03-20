@@ -44,6 +44,7 @@ Monitoring source for general quantities related to tracks.
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionsSeedingLayerSets.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
@@ -64,7 +65,6 @@ class TrackingMonitor : public DQMEDAnalyzer
 
         explicit TrackingMonitor(const edm::ParameterSet&);
         ~TrackingMonitor() override;
-        virtual void beginJob(void);
 
 	virtual void setMaxMinBin(std::vector<double> & ,std::vector<double> &  ,std::vector<int> &  ,double, double, int, double, double, int);
 	virtual void setNclus(const edm::Event&, std::vector<int> & );
@@ -82,6 +82,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 
         // ----------member data ---------------------------
 
+        std::string MEFolderName;
         std::string histname;  //for naming the histograms according to algorithm used
 
 	//        DQMStore * dqmStore_;
@@ -100,6 +101,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
 	edm::EDGetTokenT<std::vector<SeedStopInfo> > seedStopInfoToken_;
 	edm::EDGetTokenT<edm::OwnVector<TrackingRegion> > regionToken_;
+	edm::EDGetTokenT<TrackingRegionsSeedingLayerSets> regionLayerSetsToken_;
 	edm::EDGetTokenT<reco::CandidateView> regionCandidateToken_;
 
 	edm::EDGetTokenT<LumiScalersCollection>  lumiscalersToken_;	
@@ -204,6 +206,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	bool doTkCandPlots;
 	bool doMVAPlots;
 	bool doRegionPlots;
+	bool doRegionCandidatePlots;
 	bool doSeedNumberPlot;
 	bool doSeedLumiAnalysis_;
 	bool doSeedVsClusterPlot;

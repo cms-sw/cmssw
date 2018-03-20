@@ -492,9 +492,9 @@ void MuonGeometryArrange::compare(Alignable* refAli, Alignable* curAli,
   if(refAli==nullptr){return;}	
   if(curAli==nullptr){return;}
   
-  const std::vector<Alignable*>& refComp = refAli->components();
-  const std::vector<Alignable*>& curComp = curAli->components();
-  const std::vector<Alignable*>& curComp2 = curAliCopy2->components();
+  const auto& refComp = refAli->components();
+  const auto& curComp = curAli->components();
+  const auto& curComp2 = curAliCopy2->components();
   compareGeometries(refAli, curAli, curAliCopy2);
 
   int nComp=refComp.size();
@@ -517,8 +517,8 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
  // the layers of the chambers.  So, if the mother of this is also an approved
  // mother, bail.
   if(isMother(refAli->mother() )) return;
-  const std::vector<Alignable*>& refComp = refAli->components();
-  const std::vector<Alignable*>& curComp = curCopy->components();
+  const auto& refComp = refAli->components();
+  const auto& curComp = curCopy->components();
   if(refComp.size()!=curComp.size()){
      return;
   }
@@ -667,7 +667,7 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
    align::moveAlignable(curAli, change);	// move as a chunk
 
   // Now get the components again.  They should be in new locations
-   const std::vector<Alignable*>& curComp2 = curAli->components();
+   const auto& curComp2 = curAli->components();
 
   for(int ich=0; ich<nComp; ich++){
      CLHEP::Hep3Vector Rtotal, Wtotal;
@@ -877,7 +877,7 @@ void MuonGeometryArrange::fillTree(Alignable *refAli, const AlgebraicVector& dif
 bool MuonGeometryArrange::isMother(Alignable* ali){
   // Is this the mother ring?
  if(ali==nullptr) return false;	// elementary sanity
- const std::vector<Alignable*>& aliComp = ali->components();
+ const auto& aliComp = ali->components();
 
  int size=aliComp.size();
  if(size<=0) return false;	// no subcomponents
@@ -931,7 +931,7 @@ bool MuonGeometryArrange::passChosen( Alignable* ali ){
  if(ali==nullptr) return false;
  if(checkChosen(ali)) return true;	// If this is one of the desired
  					// CSC chambers, accept it
- const std::vector<Alignable*>& aliComp = ali->components();
+ const auto& aliComp = ali->components();
 
  int size=aliComp.size();
  if(size<=0) return false;	// no subcomponents

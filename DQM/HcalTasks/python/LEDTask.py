@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ledTask = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ledTask = DQMEDAnalyzer(
 	"LEDTask",
 	
 	#	standard parameters

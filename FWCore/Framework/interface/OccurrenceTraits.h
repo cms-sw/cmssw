@@ -34,9 +34,9 @@ namespace edm {
   public:
     typedef EventPrincipal MyPrincipal;
     typedef StreamContext Context;
-    static BranchType const branchType_ = InEvent;
-    static bool const begin_ = true;
-    static bool const isEvent_ = true;
+    static BranchType constexpr branchType_ = InEvent;
+    static bool constexpr begin_ = true;
+    static bool constexpr isEvent_ = true;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kEvent);
@@ -67,9 +67,9 @@ namespace edm {
   public:
     typedef RunPrincipal MyPrincipal;
     typedef GlobalContext Context;
-    static BranchType const branchType_ = InRun;
-    static bool const begin_ = true;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InRun;
+    static bool constexpr begin_ = true;
+    static bool constexpr isEvent_ = false;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kBeginRun,
@@ -106,9 +106,9 @@ namespace edm {
   public:
     typedef RunPrincipal MyPrincipal;
     typedef StreamContext Context;
-    static BranchType const branchType_ = InRun;
-    static bool const begin_ = true;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InRun;
+    static bool constexpr begin_ = true;
+    static bool constexpr isEvent_ = false;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kBeginRun);
@@ -144,9 +144,9 @@ namespace edm {
   public:
     typedef RunPrincipal MyPrincipal;
     typedef StreamContext Context;
-    static BranchType const branchType_ = InRun;
-    static bool const begin_ = false;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InRun;
+    static bool constexpr begin_ = false;
+    static bool constexpr isEvent_ = false;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kEndRun);
@@ -182,9 +182,9 @@ namespace edm {
   public:
     typedef RunPrincipal MyPrincipal;
     typedef GlobalContext Context;
-    static BranchType const branchType_ = InRun;
-    static bool const begin_ = false;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InRun;
+    static bool constexpr begin_ = false;
+    static bool constexpr isEvent_ = false;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kEndRun,
@@ -221,9 +221,9 @@ namespace edm {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
     typedef GlobalContext Context;
-    static BranchType const branchType_ = InLumi;
-    static bool const begin_ = true;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InLumi;
+    static bool constexpr begin_ = true;
+    static bool constexpr isEvent_ = false;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kBeginLuminosityBlock,
@@ -260,9 +260,9 @@ namespace edm {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
     typedef StreamContext Context;
-    static BranchType const branchType_ = InLumi;
-    static bool const begin_ = true;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InLumi;
+    static bool constexpr begin_ = true;
+    static bool constexpr isEvent_ = false;
 
     static void setStreamContext(StreamContext& streamContext, MyPrincipal const& principal) {
       streamContext.setTransition(StreamContext::Transition::kBeginLuminosityBlock);
@@ -298,9 +298,9 @@ namespace edm {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
     typedef StreamContext Context;
-    static BranchType const branchType_ = InLumi;
-    static bool const begin_ = false;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InLumi;
+    static bool constexpr begin_ = false;
+    static bool constexpr isEvent_ = false;
 
     static StreamContext const* context(StreamContext const* s, GlobalContext const*) { return s; }
 
@@ -338,9 +338,9 @@ namespace edm {
   public:
     typedef LuminosityBlockPrincipal MyPrincipal;
     typedef GlobalContext Context;
-    static BranchType const branchType_ = InLumi;
-    static bool const begin_ = false;
-    static bool const isEvent_ = false;
+    static BranchType constexpr branchType_ = InLumi;
+    static bool constexpr begin_ = false;
+    static bool constexpr isEvent_ = false;
 
     static GlobalContext makeGlobalContext(MyPrincipal const& principal, ProcessContext const* processContext) {
       return GlobalContext(GlobalContext::Transition::kEndLuminosityBlock,

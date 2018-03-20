@@ -1,9 +1,9 @@
-/** 
+/**
  *  @file     L1TTauOffline.cc
  *  @authors  Olivier Davignon (University of Bristol), Cécile Caillol (University of Wisconsin - Madison)
- *  @date     24/05/2017  
- *  @version  1.1 
- *  
+ *  @date     24/05/2017
+ *  @version  1.1
+ *
  */
 
 #include "DQMOffline/L1Trigger/interface/L1TTauOffline.h"
@@ -28,8 +28,8 @@ using namespace std;
 
 TauL1TPair::TauL1TPair(const TauL1TPair& tauL1tPair) {
 
-  m_tau    = tauL1tPair.m_tau;			
-  m_regTau  = tauL1tPair.m_regTau;		
+  m_tau    = tauL1tPair.m_tau;
+  m_regTau  = tauL1tPair.m_regTau;
 
   m_eta     = tauL1tPair.m_eta;
   m_phi_bar = tauL1tPair.m_phi_bar;
@@ -41,6 +41,11 @@ double TauL1TPair::dR() {
   return deltaR(m_regTau->eta(),m_regTau->phi(),eta(),phi());
 }
 
+const std::map<std::string, unsigned int> L1TTauOffline::PlotConfigNames = {
+  {"nVertex", PlotConfig::nVertex},
+  {"ETvsET", PlotConfig::ETvsET},
+  {"PHIvsPHI", PlotConfig::PHIvsPHI}
+};
 
 //
 // -------------------------------------- Constructor --------------------------------------------
@@ -63,7 +68,8 @@ L1TTauOffline::L1TTauOffline(const edm::ParameterSet& ps) :
         efficiencyFolder_(histFolder_ + "/efficiency_raw"),
         stage2CaloLayer2TauToken_(consumes < l1t::TauBxCollection > (ps.getUntrackedParameter < edm::InputTag > ("l1tInputTag"))),
         tauEfficiencyThresholds_(ps.getParameter < std::vector<int> > ("tauEfficiencyThresholds")),
-        tauEfficiencyBins_(ps.getParameter < std::vector<double> > ("tauEfficiencyBins"))
+        tauEfficiencyBins_(ps.getParameter < std::vector<double> > ("tauEfficiencyBins")),
+  histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames))
 {
   edm::LogInfo("L1TTauOffline") << "Constructor " << "L1TTauOffline::L1TTauOffline " << std::endl;
 }
@@ -97,23 +103,23 @@ void L1TTauOffline::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &
 
   //book at beginRun
   bookTauHistos(ibooker);
- 
+
   for ( auto trigNamesIt = triggerPath_.begin() ; trigNamesIt!=triggerPath_.end() ; trigNamesIt++){
 
-    std::string tNameTmp = (*trigNamesIt); 
+    std::string tNameTmp = (*trigNamesIt);
     std::string tNamePattern = "";
     std::size_t found0 = tNameTmp.find("*");
     if(found0!=std::string::npos) tNamePattern = tNameTmp.substr(0,tNameTmp.size()-1);
     else tNamePattern = tNameTmp;
 
     int tIndex = -1;
-    
+
     for (unsigned ipath = 0; ipath < m_hltConfig.size(); ++ipath) {
-      
+
       std::string tmpName = m_hltConfig.triggerName(ipath);
-      
+
       std::size_t found=tmpName.find(tNamePattern);
-      if (found!=std::string::npos){  
+      if (found!=std::string::npos){
 	tIndex = int(ipath);
 	m_trigIndices.push_back(tIndex);
       }
@@ -143,8 +149,8 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
   if(!taus.isValid())
     {
-      //edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauCollection " << std::endl;
-      return; 
+      edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauCollection " << std::endl;
+      return;
     }
 
   edm::Handle<reco::MuonCollection> muons;
@@ -152,17 +158,17 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
   if(!muons.isValid())
     {
-      //edm::LogError("L1TTauOffline") << "invalid collection: reco::MuonCollection " << std::endl;
-      return; 
-    }    
+      edm::LogWarning("L1TTauOffline") << "invalid collection: reco::MuonCollection " << std::endl;
+      return;
+    }
 
   edm::Handle<reco::BeamSpot> beamSpot;
   e.getByToken(BsInputTag_, beamSpot);
 
   if(!beamSpot.isValid())
     {
-      //edm::LogError("L1TTauOffline") << "invalid collection: reco::BeamSpot " << std::endl;
-      return; 
+      edm::LogWarning("L1TTauOffline") << "invalid collection: reco::BeamSpot " << std::endl;
+      return;
     }
 
   edm::Handle<reco::VertexCollection> vertex;
@@ -170,46 +176,46 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
   if(!vertex.isValid())
     {
-      //edm::LogError("L1TTauOffline") << "invalid collection: reco::VertexCollection " << std::endl;
-      return; 
+      edm::LogWarning("L1TTauOffline") << "invalid collection: reco::VertexCollection " << std::endl;
+      return;
     }
 
-  edm::Handle<l1t::TauBxCollection> l1tCands;				
+  edm::Handle<l1t::TauBxCollection> l1tCands;
   e.getByToken(stage2CaloLayer2TauToken_,l1tCands);
-  
+
   if(!l1tCands.isValid())
     {
-      //edm::LogError("L1TTauOffline") << "invalid collection: l1t::TauBxCollection " << std::endl;
-      return;        
+      edm::LogWarning("L1TTauOffline") << "invalid collection: l1t::TauBxCollection " << std::endl;
+      return;
     }
-  
+
   edm::Handle<edm::TriggerResults> trigResults;
   e.getByToken(triggerResults_,trigResults);
 
   if(!trigResults.isValid())
     {
-      //edm::LogError("L1TTauOffline") << "invalid collection: edm::TriggerResults " << std::endl;
-      return;      
+      edm::LogWarning("L1TTauOffline") << "invalid collection: edm::TriggerResults " << std::endl;
+      return;
     }
-  
+
   edm::Handle<trigger::TriggerEvent> trigEvent;
   e.getByToken(triggerEvent_,trigEvent);
 
   if(!trigEvent.isValid())
     {
-      //edm::LogError("L1TTauOffline") << "invalid collection: trigger::TriggerEvent " << std::endl;
-      return;      
+      edm::LogWarning("L1TTauOffline") << "invalid collection: trigger::TriggerEvent " << std::endl;
+      return;
     }
 
   edm::Handle<reco::PFMETCollection> mets;
   e.getByToken(MetInputTag_, mets);
 
   if(!mets.isValid()) {
-    //edm::LogError("L1TTauOffline") << "invalid collection: reco::PFMETCollection " << std::endl;
+    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFMETCollection " << std::endl;
     return;
   }
 
-  eSetup.get<IdealMagneticFieldRecord>().get(m_BField);									
+  eSetup.get<IdealMagneticFieldRecord>().get(m_BField);
   const reco::Vertex primaryVertex = getPrimaryVertex(vertex,beamSpot);
 
   getTightMuons(muons,mets,primaryVertex,trigEvent);
@@ -221,15 +227,15 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 
   for (auto tau = l1tCands->begin(0); tau != l1tCands->end(0); ++tau) {
     l1tContainer.push_back(*tau);
-  } 
-     
+  }
+
   for(auto tauL1tPairsIt=m_TauL1tPairs.begin(); tauL1tPairsIt!=m_TauL1tPairs.end(); ++tauL1tPairsIt) {
 
     float eta = tauL1tPairsIt->eta();
     float phi = tauL1tPairsIt->phi();
     float pt  = tauL1tPairsIt->pt();
 
-    // unmatched gmt cands have l1tPt = -1.	
+    // unmatched gmt cands have l1tPt = -1.
     float l1tPt  = tauL1tPairsIt->l1tPt();
 
     int counter = 0;
@@ -315,28 +321,36 @@ void L1TTauOffline::bookTauHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
-  h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
+  dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_[PlotConfig::nVertex];
+  h_nVertex_ = ibooker.book1D(
+    nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax
+  );
   h_tagAndProbeMass_ = ibooker.book1D("tagAndProbeMass", "Invariant mass of tag & probe pair", 100, 40, 140);
 
+  dqmoffline::l1t::HistDefinition templateETvsET = histDefinitions_[PlotConfig::ETvsET];
   h_L1TauETvsTauET_EB_ = ibooker.book2D("L1TauETvsTauET_EB",
-      "L1 Tau E_{T} vs PFTau E_{T} (EB); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)", 300, 0, 300, 300,
-      0, 300);
+      "L1 Tau E_{T} vs PFTau E_{T} (EB); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1TauETvsTauET_EE_ = ibooker.book2D("L1TauETvsTauET_EE",
-      "L1 Tau E_{T} vs PFTau E_{T} (EE); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)", 300, 0, 300, 300,
-      0, 300);
+      "L1 Tau E_{T} vs PFTau E_{T} (EE); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1TauETvsTauET_EB_EE_ = ibooker.book2D("L1TauETvsTauET_EB_EE",
-      "L1 Tau E_{T} vs PFTau E_{T} (EB+EE); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)", 300, 0, 300,
-      300, 0, 300);
+      "L1 Tau E_{T} vs PFTau E_{T} (EB+EE); PFTau E_{T} (GeV); L1 Tau E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
 
+  dqmoffline::l1t::HistDefinition templatePHIvsPHI = histDefinitions_[PlotConfig::PHIvsPHI];
   h_L1TauPhivsTauPhi_EB_ = ibooker.book2D("L1TauPhivsTauPhi_EB",
-      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EB); #phi_{tau}^{offline}; #phi_{tau}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EB); #phi_{tau}^{offline}; #phi_{tau}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1TauPhivsTauPhi_EE_ = ibooker.book2D("L1TauPhivsTauPhi_EE",
-      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EE); #phi_{tau}^{offline}; #phi_{tau}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EE); #phi_{tau}^{offline}; #phi_{tau}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1TauPhivsTauPhi_EB_EE_ = ibooker.book2D("L1TauPhivsTauPhi_EB_EE",
-      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EB+EE); #phi_{tau}^{offline}; #phi_{tau}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{tau}^{L1} vs #phi_{tau}^{offline} (EB+EE); #phi_{tau}^{offline}; #phi_{tau}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
 
   h_L1TauEtavsTauEta_ = ibooker.book2D("L1TauEtavsTauEta",
       "L1 Tau #eta vs PFTau #eta; PFTau #eta; L1 Tau #eta", 100, -3, 3, 100, -3, 3);
@@ -424,22 +438,22 @@ void L1TTauOffline::bookTauHistos(DQMStore::IBooker & ibooker)
 }
 
 const reco::Vertex L1TTauOffline::getPrimaryVertex( edm::Handle<reco::VertexCollection> const& vertex, edm::Handle<reco::BeamSpot> const& beamSpot ) {
-  
+
   reco::Vertex::Point posVtx;
   reco::Vertex::Error errVtx;
-  
+
   bool hasPrimaryVertex = false;
 
   if (vertex.isValid())
     {
-      for (auto vertexIt=vertex->begin();vertexIt!=vertex->end();++vertexIt) 
+      for (auto vertexIt=vertex->begin();vertexIt!=vertex->end();++vertexIt)
 	{
-	  if (vertexIt->isValid() && 
-	      !vertexIt->isFake()) 
+	  if (vertexIt->isValid() &&
+	      !vertexIt->isFake())
 	    {
 	      posVtx = vertexIt->position();
 	      errVtx = vertexIt->error();
-	      hasPrimaryVertex = true;	      
+	      hasPrimaryVertex = true;
 	      break;
 	    }
 	}
@@ -453,7 +467,7 @@ const reco::Vertex L1TTauOffline::getPrimaryVertex( edm::Handle<reco::VertexColl
   }
 
   const reco::Vertex primaryVertex(posVtx,errVtx);
-  
+
   return primaryVertex;
 }
 
@@ -470,42 +484,42 @@ bool L1TTauOffline::matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEv
     const unsigned moduleIndex = m_hltConfig.size((*trigIndexIt))-2;
 
     const unsigned hltFilterIndex = triggerEvent->filterIndex(InputTag(moduleLabels[moduleIndex],"",trigProcess_));
-    
+
     if (hltFilterIndex < triggerEvent->sizeFilters()) {
       const Keys triggerKeys(triggerEvent->filterKeys(hltFilterIndex));
       const Vids triggerVids(triggerEvent->filterIds(hltFilterIndex));
-      
+
       const unsigned nTriggers = triggerVids.size();
       for (size_t iTrig = 0; iTrig < nTriggers; ++iTrig) {
         const TriggerObject trigObject = trigObjs[triggerKeys[iTrig]];
-	
+
         double dRtmp = deltaR((*muon),trigObject);
         if (dRtmp < matchDeltaR) matchDeltaR = dRtmp;
       }
     }
   }
-  
+
   return (matchDeltaR < m_MaxHltTauDR);
 
 }
 
-void L1TTauOffline::getTauL1tPairs(edm::Handle<l1t::TauBxCollection> const& l1tCands) {					
+void L1TTauOffline::getTauL1tPairs(edm::Handle<l1t::TauBxCollection> const& l1tCands) {
 
   m_TauL1tPairs.clear();
-  
+
   vector<l1t::Tau> l1tContainer;
   l1tContainer.reserve(l1tCands->size()+1);
-  
+
   for (auto tau = l1tCands->begin(0); tau != l1tCands->end(0); ++tau) {
     l1tContainer.push_back(*tau);
   }
-			
-  for (auto probeTauIt = m_ProbeTaus.begin(); probeTauIt!=m_ProbeTaus.end(); ++probeTauIt) {    
 
-    TauL1TPair pairBestCand((*probeTauIt),nullptr);    
-    
+  for (auto probeTauIt = m_ProbeTaus.begin(); probeTauIt!=m_ProbeTaus.end(); ++probeTauIt) {
+
+    TauL1TPair pairBestCand((*probeTauIt),nullptr);
+
     for(auto l1tIt =  l1tContainer.begin() ; l1tIt!=l1tContainer.end(); ++l1tIt) {
-      
+
       TauL1TPair pairTmpCand((*probeTauIt),&(*l1tIt));
 
       if (pairTmpCand.dR() < m_MaxL1tTauDR && pairTmpCand.l1tPt() > pairBestCand.l1tPt())
@@ -514,7 +528,7 @@ void L1TTauOffline::getTauL1tPairs(edm::Handle<l1t::TauBxCollection> const& l1tC
     }
 
     m_TauL1tPairs.push_back(pairBestCand);
-  
+
   }
 
 }
@@ -543,7 +557,7 @@ void L1TTauOffline::getTightMuons(edm::Handle<reco::MuonCollection> const& muons
       if (mt<30){
          m_TightMuons.push_back(&(*muonIt));
          foundTightMu=true;
-      } 
+      }
     }
   }
 }
@@ -556,32 +570,32 @@ void L1TTauOffline::getProbeTaus(const edm::Event & iEvent,edm::Handle<reco::PFT
   iEvent.getByToken(AntiMuInputTag_, antimu);
   if(!antimu.isValid())
     {
-      //edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
-      return;  
+      edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+      return;
     }
 
   edm::Handle<reco::PFTauDiscriminator> dmf;
   iEvent.getByToken(DecayModeFindingInputTag_, dmf);
   if(!dmf.isValid())
     {
-      //edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
-      return;  
+      edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+      return;
     }
 
   edm::Handle<reco::PFTauDiscriminator> antiele;
   iEvent.getByToken(AntiEleInputTag_, antiele);
   if(!antiele.isValid())
     {
-      //edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
-      return;  
+      edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+      return;
     }
 
   edm::Handle<reco::PFTauDiscriminator> comb3T;
   iEvent.getByToken(comb3TInputTag_, comb3T);
   if(!comb3T.isValid())
     {
-      //edm::LogError("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
-      return;  
+      edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+      return;
     }
 
   if (!m_TightMuons.empty()){

@@ -24,7 +24,7 @@ class CSCNoiseMatrixConditions: public edm::ESProducer, public edm::EventSetupRe
   static CSCNoiseMatrix * prefillNoiseMatrix();
   
 
-  typedef const  CSCNoiseMatrix * ReturnType;
+  typedef std::unique_ptr<CSCNoiseMatrix> ReturnType;
   
   ReturnType produceNoiseMatrix(const CSCNoiseMatrixRcd&);
   

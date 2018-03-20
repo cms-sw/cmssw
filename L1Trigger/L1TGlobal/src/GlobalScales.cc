@@ -169,10 +169,12 @@ long long l1t::GlobalScales::getLUT_CalMuEta(const std::string & lutName, int el
 {
    long long value = 0;
 
-   if(element < (int)m_lut_CalMuEta.find(lutName)->second.size()) {
-     value = m_lut_CalMuEta.find(lutName)->second.at(element);
+   if(element < 0) {
+     edm::LogError("GlobalScales") << "Error: Negative index, " << element << ", requested for CalMuEta LUT ( " << lutName <<")"<< std::endl;
+   }else if(element >= (int)m_lut_CalMuEta.find(lutName)->second.size()) {
+     edm::LogError("GlobalScales") << "Error: Element Requested " << element << " too large for CalMuEta LUT (" << lutName <<") size = " << m_lut_CalMuEta.find(lutName)->second.size() << std::endl;
    } else {
-     edm::LogError("GlobalScales") << "Warning: Element Requested " << element << " too large for CalMuEta LUT (" << lutName <<") size = " << m_lut_CalMuEta.find(lutName)->second.size() << std::endl;
+     value = m_lut_CalMuEta.find(lutName)->second.at(element);
    }
    return value;
 }
@@ -181,10 +183,12 @@ long long l1t::GlobalScales::getLUT_CalMuPhi(const std::string & lutName, int el
 {
    long long value = 0;
 
-   if(element < (int)m_lut_CalMuPhi.find(lutName)->second.size()) {
-     value = m_lut_CalMuPhi.find(lutName)->second.at(element);
+   if(element < 0) {
+     edm::LogError("GlobalScales") << "Error: Negative index, " << element << ", requested for CalMuPhi LUT ( " << lutName <<")"<< std::endl;
+   } else if(element >= (int)m_lut_CalMuPhi.find(lutName)->second.size()) {
+     edm::LogError("GlobalScales") << "Error: Element Requested " << element << " too large for CalMuPhi LUT (" << lutName <<") size = " << m_lut_CalMuPhi.find(lutName)->second.size() << std::endl;
    } else {
-     edm::LogError("GlobalScales") << "Warning: Element Requested " << element << " too large for CalMuPhi LUT (" << lutName <<") size = " << m_lut_CalMuPhi.find(lutName)->second.size() << std::endl;
+     value = m_lut_CalMuPhi.find(lutName)->second.at(element);
    }
    return value;
 }
@@ -212,11 +216,12 @@ long long l1t::GlobalScales::getLUT_DeltaEta(std::string lutName, int element) c
       }
    }
 
-
-   if(element < (int)m_lut_DeltaEta.find(lutName)->second.size()) {
-     value = m_lut_DeltaEta.find(lutName)->second.at(element);
+   if(element < 0) {
+     edm::LogError("GlobalScales") << "Error: Negative index, " << element << ", requested for DeltaEta LUT ( " << lutName <<")"<< std::endl;
+   } else if (element >= (int)m_lut_DeltaEta.find(lutName)->second.size()) {
+     edm::LogError("GlobalScales") << "Error: Element Requested " << element << " too large for DeltaEta LUT (" << lutName <<") size = " << m_lut_DeltaEta.find(lutName)->second.size() << std::endl;
    } else {
-     edm::LogError("GlobalScales") << "Warning: Element Requested " << element << " too large for DeltaEta LUT (" << lutName <<") size = " << m_lut_DeltaEta.find(lutName)->second.size() << std::endl;
+     value = m_lut_DeltaEta.find(lutName)->second.at(element);
    }
    return value;
 }
@@ -267,11 +272,12 @@ long long l1t::GlobalScales::getLUT_DeltaPhi(std::string lutName, int element) c
       }
    }
 
-
-   if(element < (int)m_lut_DeltaPhi.find(lutName)->second.size()) {
-     value = m_lut_DeltaPhi.find(lutName)->second.at(element);
+   if(element < 0) {
+     edm::LogError("GlobalScales") << "Error: Negative index, " << element << ", requested for DeltaPhi LUT ( " << lutName <<")"<< std::endl;
+   } else if(element >= (int)m_lut_DeltaPhi.find(lutName)->second.size()) {
+     edm::LogError("GlobalScales") << "Error: Element Requested " << element << " too large for DeltaPhi LUT (" << lutName <<") size = " << m_lut_DeltaPhi.find(lutName)->second.size() << std::endl;
    } else {
-     edm::LogError("GlobalScales") << "Warning: Element Requested " << element << " too large for DeltaPhi LUT (" << lutName <<") size = " << m_lut_DeltaPhi.find(lutName)->second.size() << std::endl;
+     value = m_lut_DeltaPhi.find(lutName)->second.at(element);
    }
    return value;
 }
@@ -304,10 +310,12 @@ long long l1t::GlobalScales::getLUT_Pt(const std::string & lutName, int element)
 {
    long long value = 0;
 
-   if(element < (int)m_lut_Pt.find(lutName)->second.size()) {
-     value = m_lut_Pt.find(lutName)->second.at(element);
+   if(element < 0) {
+     edm::LogError("GlobalScales") << "Error: Negative index, " << element << ", requested for Pt LUT ( " << lutName <<")"<< std::endl;
+   } else if(element >= (int)m_lut_Pt.find(lutName)->second.size()) {
+     edm::LogError("GlobalScales") << "Error: Element Requested " << element << " too large for Pt LUT (" << lutName <<") size = " << m_lut_Pt.find(lutName)->second.size() << std::endl;
    } else {
-     edm::LogError("GlobalScales") << "Warning: Element Requested " << element << " too large for Pt LUT (" << lutName <<") size = " << m_lut_Pt.find(lutName)->second.size() << std::endl;
+     value = m_lut_Pt.find(lutName)->second.at(element);
    }
    return value;
 }
@@ -346,10 +354,12 @@ long long l1t::GlobalScales::getLUT_DeltaEta_Cosh(std::string lutName, int eleme
       }
    }
 
-   if(element < (int)m_lut_Cosh.find(lutName)->second.size()) {
-     value = m_lut_Cosh.find(lutName)->second.at(element);
+   if(element < 0) {
+     edm::LogError("GlobalScales") << "Error: Negative index, " << element << ", requested for Cosh LUT ( " << lutName <<")"<< std::endl;
+   } else if(element >= (int)m_lut_Cosh.find(lutName)->second.size()) {
+     edm::LogError("GlobalScales") << "Error: Element Requested " << element << " too large for Cosh LUT (" << lutName <<") size = " << m_lut_Cosh.find(lutName)->second.size() << std::endl;
    } else {
-     edm::LogError("GlobalScales") << "Warning: Element Requested " << element << " too large for Cosh LUT (" << lutName <<") size = " << m_lut_Cosh.find(lutName)->second.size() << std::endl;
+     value = m_lut_Cosh.find(lutName)->second.at(element);
    }
    return value;
 }
@@ -399,10 +409,12 @@ long long l1t::GlobalScales::getLUT_DeltaPhi_Cos(std::string lutName, int elemen
       }
    }
 
-   if(element < (int)m_lut_Cos.find(lutName)->second.size()) {
-     value = m_lut_Cos.find(lutName)->second.at(element);
+   if(element < 0) {
+     edm::LogError("GlobalScales") << "Error: Negative index, " << element << ", requested for Cos LUT ( " << lutName <<")"<< std::endl;
+   } else if(element >= (int)m_lut_DeltaPhi.find(lutName)->second.size()) {
+     edm::LogError("GlobalScales") << "Error: Element Requested " << element << " too large for Cos LUT (" << lutName <<") size = " << m_lut_Cos.find(lutName)->second.size() << std::endl;
    } else {
-     edm::LogError("GlobalScales") << "Warning: Element Requested " << element << " too large for Cos LUT (" << lutName <<") size = " << m_lut_Cos.find(lutName)->second.size() << std::endl;
+     value = m_lut_Cos.find(lutName)->second.at(element);
    }
    return value;
 }
@@ -417,10 +429,12 @@ long long l1t::GlobalScales::getLUT_Cos(const std::string & lutName, int element
      return value;
    }
 
-   if(element < (int)m_lut_Cos.find(lutName)->second.size()) {
-     value = m_lut_Cos.find(lutName)->second.at(element);
+   if(element < 0) {
+     edm::LogError("GlobalScales") << "Error: Negative index, " << element << ", requested for Cos LUT ( " << lutName <<")"<< std::endl;
+   } else if (element >= (int)m_lut_Cos.find(lutName)->second.size()) {
+     edm::LogError("GlobalScales") << "Error: Element Requested " << element << " too large for Cos LUT (" << lutName <<") size = " << m_lut_Cos.find(lutName)->second.size() << std::endl;
    } else {
-     edm::LogError("GlobalScales") << "Warning: Element Requested " << element << " too large for Cos LUT (" << lutName <<") size = " << m_lut_Cos.find(lutName)->second.size() << std::endl;
+     value = m_lut_Cos.find(lutName)->second.at(element);
    }
    return value;
 }
@@ -435,10 +449,12 @@ long long l1t::GlobalScales::getLUT_Sin(const std::string & lutName, int element
      return value;
    }
 
-   if(element < (int)m_lut_Sin.find(lutName)->second.size()) {
-     value = m_lut_Sin.find(lutName)->second.at(element);
+   if(element < 0) {
+     edm::LogError("GlobalScales") << "Error: Negative index, " << element << ", requested for Sin LUT ( " << lutName <<")"<< std::endl;
+   } else if(element >= (int)m_lut_Sin.find(lutName)->second.size()) {
+     edm::LogError("GlobalScales") << "Error: Element Requested " << element << " too large for Sin LUT (" << lutName <<") size = " << m_lut_Sin.find(lutName)->second.size() << std::endl;
    } else {
-     edm::LogError("GlobalScales") << "Warning: Element Requested " << element << " too large for Sin LUT (" << lutName <<") size = " << m_lut_Sin.find(lutName)->second.size() << std::endl;
+     value = m_lut_Sin.find(lutName)->second.at(element);
    }
    return value;
 }
@@ -684,14 +700,33 @@ void l1t::GlobalScales::printScale(ScaleParameters scale, std::ostream& myCout) 
 	   << "      Pt Max   = "  << std::setw(10) << scale.etMax
 	   << "      Pt Step  = "  << std::setw(10) << scale.etStep
 	   << "      Number   = "  << std::setw(10) << scale.etBins.size()
-           << "\n    Phi Min  = "  << std::setw(10) << scale.phiMin
+           << std::endl;
+    myCout << "\n";
+    for (int i=0; i< int(scale.etBins.size()); i++){
+      std::pair<double, double> binEdges = scale.etBins.at(i);
+      myCout << "        etBins[" << i << "]\trange:\t" << binEdges.first << " - " << binEdges.second << std::endl;
+    }
+
+    myCout << "\n    Phi Min  = "  << std::setw(10) << scale.phiMin
 	   << "      Phi Max  = "  << std::setw(10) << scale.phiMax
 	   << "      Phi Step = "  << std::setw(10) << scale.phiStep
 	   << "      Number   = "  << std::setw(10) << scale.phiBins.size()
-           << "\n    Eta Min  = "  << std::setw(10) << scale.etaMin
+           << std::endl;
+    myCout << "\n";
+    for (int i=0; i< int(scale.phiBins.size()); i++){
+      std::pair<double, double> binEdges = scale.phiBins.at(i);
+      myCout << "        phiBins[" << i << "]\trange:\t" << binEdges.first << " - " << binEdges.second << std::endl;
+    }
+
+    myCout << "\n    Eta Min  = "  << std::setw(10) << scale.etaMin
 	   << "      Eta Max  = "  << std::setw(10) << scale.etaMax
 	   << "      Eta Step = "  << std::setw(10) << scale.etaStep
 	   << "      Number   = "  << std::setw(10) << scale.etaBins.size()
            << std::endl;
+    myCout << "\n";
+    for (int i=0; i< int(scale.etaBins.size()); i++){
+      std::pair<double, double> binEdges = scale.etaBins.at(i);
+      myCout << "        etaBins[" << i << "]\trange:\t" << binEdges.first << " - " << binEdges.second << std::endl;
+    }
 
 }

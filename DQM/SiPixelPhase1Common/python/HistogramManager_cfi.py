@@ -39,7 +39,7 @@ PerModule = cms.PSet(enabled = cms.bool(True)) # normal histos per module
 PerLadder = cms.PSet(enabled = cms.bool(True)) # histos per ladder, profiles
 PerLayer2D = cms.PSet(enabled = cms.bool(True)) # 2D maps/profiles of layers
 PerLayer1D = cms.PSet(enabled = cms.bool(True)) # normal histos per layer
-PerReadout = cms.PSet(enabled = cms.bool(True)) # "Readout view", also for initial timing
+PerReadout = cms.PSet(enabled = cms.bool(False)) # "Readout view", also for initial timing
 OverlayCurvesForTiming= cms.PSet(enabled = cms.bool(False)) #switch to overlay digi/clusters curves for timing scan
 IsOffline = cms.PSet(enabled = cms.bool(True)) # should be switch off for Online
 

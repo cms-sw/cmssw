@@ -39,7 +39,7 @@ namespace {
 
   inline const HcalDDDRecConstants* get_ddd(const CaloSubdetectorGeometry* geom,
 					    const HcalDetId& detid) {
-    const HcalGeometry* hc = static_cast<const HcalGeometry*>(geom);
+    const HcalGeometry* hc = dynamic_cast<const HcalGeometry*>(geom);
     const HcalDDDRecConstants* ddd = hc->topology().dddConstants();
     check_ddd(ddd);
     return ddd;
@@ -47,7 +47,7 @@ namespace {
 
   inline const HGCalDDDConstants* get_ddd(const CaloSubdetectorGeometry* geom,
 					  const HGCalDetId& detid) {
-    const HGCalGeometry* hg = static_cast<const HGCalGeometry*>(geom);
+    const HGCalGeometry* hg = dynamic_cast<const HGCalGeometry*>(geom);
     const HGCalDDDConstants* ddd = &(hg->topology().dddConstants());
     check_ddd(ddd);
     return ddd;
@@ -64,10 +64,10 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
   es.get<CaloGeometryRecord>().get(geom);
 
   geom_ = geom.product();
-  auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+  auto geomEE = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
   fhOffset_ = (geomEE->topology().dddConstants()).layers(true);
   unsigned int wmaxEE = 1 + (geomEE->topology().dddConstants()).waferMax();
-  auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+  auto geomFH = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
   bhOffset_ = fhOffset_ + (geomFH->topology().dddConstants()).layers(true);
   unsigned int wmaxFH = 1 + (geomFH->topology().dddConstants()).waferMax();
   maxNumberOfWafersPerLayer_ = std::max(wmaxEE,wmaxFH);
@@ -81,7 +81,7 @@ GlobalPoint RecHitTools::getPosition(const DetId& id) const {
   if( id.det() == DetId::Hcal ) {
     position = geom->getGeometry(id)->getPosition();
   } else {
-    const auto* hg = static_cast<const HGCalGeometry*>(geom);
+    auto hg = dynamic_cast<const HGCalGeometry*>(geom);
     position = hg->getPosition(id);
   }
   return position;
@@ -105,7 +105,9 @@ std::float_t RecHitTools::getSiThickness(const DetId& id) const {
   check_geom(geom);
   if( id.det() != DetId::Forward ) {
     LogDebug("getSiThickness::InvalidSiliconDetid")
-      << "det id: " << id.rawId() << " is not HGCal silicon!";
+      << "det id: " << std::hex << id.rawId() << std::dec << ":" 
+      << id.det() << " is not HGCal silicon!";
+    return 0.37;
   }
   const HGCalDetId hid(id);
   auto ddd = get_ddd(geom,hid);
@@ -119,7 +121,8 @@ std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
   check_geom(geom);
   if( id.det() != DetId::Forward ) {
     edm::LogError("getRadiusToSide::InvalidSiliconDetid")
-      << "det id: " << id.rawId() << " is not HGCal silicon!";
+      << "det id: " << std::hex << id.rawId() << std::dec << ":" 
+      << id.det() << " is not HGCal silicon!";
     return std::numeric_limits<std::float_t>::max();
   }
   const HGCalDetId hid(id);
@@ -133,26 +136,26 @@ unsigned int RecHitTools::getLayer(const ForwardSubdetector type) const {
   int layer;
   switch (type) {
     case(ForwardSubdetector::HGCEE): {
-      auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+      auto geomEE = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
       layer       = (geomEE->topology().dddConstants()).layers(true);
       break;
     }
     case (ForwardSubdetector::HGCHEF): {
-      auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+      auto geomFH = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
       layer       = (geomFH->topology().dddConstants()).layers(true);
       break;
     }
     case (ForwardSubdetector::HGCHEB): {
-      auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+      auto geomBH = dynamic_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
       layer       = (geomBH->topology().dddConstants())->getMaxDepth(1);
       break;
     }
     case (ForwardSubdetector::ForwardEmpty): {
-      auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+      auto geomEE = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
       layer       = (geomEE->topology().dddConstants()).layers(true);
-      auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+      auto geomFH = dynamic_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
       layer      += (geomFH->topology().dddConstants()).layers(true);
-      auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+      auto geomBH = dynamic_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
       layer      += (geomBH->topology().dddConstants())->getMaxDepth(1);
       break;
     }
@@ -186,7 +189,8 @@ unsigned int RecHitTools::getLayerWithOffset(const DetId& id) const {
 unsigned int RecHitTools::getWafer(const DetId& id) const {
   if( id.det() != DetId::Forward ) {
     edm::LogError("getWafer::InvalidSiliconDetid")
-      << "det id: " << id.rawId() << " is not HGCal silicon!";
+      << "det id: " << std::hex << id.rawId() << std::dec << ":" 
+      << id.det() << " is not HGCal silicon!";
     return std::numeric_limits<unsigned int>::max();
   }
   const HGCalDetId hid(id);
@@ -197,7 +201,8 @@ unsigned int RecHitTools::getWafer(const DetId& id) const {
 unsigned int RecHitTools::getCell(const DetId& id) const {
   if( id.det() != DetId::Forward ) {
     edm::LogError("getCell::InvalidSiliconDetid")
-      << "det id: " << id.rawId() << " is not HGCal silicon!";
+      << "det id: " << std::hex << id.rawId() << std::dec << ":" 
+      << id.det() << " is not HGCal silicon!";
     return std::numeric_limits<unsigned int>::max();
   }
   const HGCalDetId hid(id);

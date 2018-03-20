@@ -197,7 +197,7 @@ void SerialTaskQueueChain_test::stressTest()
 	    while(waitToStart.load()) {};
             for(unsigned int i = 0; i<nTasks;++i) {
                pWaitTask->increment_ref_count();
-               chain.push([i,&count,pWaitTask] {
+               chain.push([&count,pWaitTask] {
                   ++count;
                   pWaitTask->decrement_ref_count();
                });
@@ -209,7 +209,7 @@ void SerialTaskQueueChain_test::stressTest()
          waitToStart=false;
          for(unsigned int i=0; i<nTasks;++i) {
             pWaitTask->increment_ref_count();
-            chain.push([i,&count,pWaitTask] {
+            chain.push([&count,pWaitTask] {
                ++count;
                pWaitTask->decrement_ref_count();
             });

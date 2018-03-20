@@ -34,6 +34,7 @@
 #include "FWCore/Framework/interface/DataProxyProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryTemplate.h"
 #include "FWCore/Framework/test/DummyEventSetupRecordRetriever.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 using namespace edm;
 namespace {
@@ -100,20 +101,22 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testEventsetup);
 
+namespace {
+  edm::ActivityRegistry activityRegistry;
+}
 
 void testEventsetup::constructTest()
 {
-   eventsetup::EventSetupProvider provider;
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    const Timestamp time(1);
    const IOVSyncValue timestamp(time);
    EventSetup const& eventSetup = provider.eventSetupForInstance(timestamp);
    CPPUNIT_ASSERT(non_null(&eventSetup));
-   CPPUNIT_ASSERT(eventSetup.iovSyncValue() == timestamp);
 }
 
 void testEventsetup::getTest()
 {
-   eventsetup::EventSetupProvider provider;
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
    CPPUNIT_ASSERT(non_null(&eventSetup));
    //eventSetup.get<DummyRecord>();
@@ -128,7 +131,7 @@ void testEventsetup::getTest()
 
 void testEventsetup::tryToGetTest()
 {
-  eventsetup::EventSetupProvider provider;
+  eventsetup::EventSetupProvider provider(&activityRegistry);
   EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
   CPPUNIT_ASSERT(non_null(&eventSetup));
   //eventSetup.get<DummyRecord>();
@@ -143,7 +146,7 @@ void testEventsetup::tryToGetTest()
 
 void testEventsetup::getExcTest()
 {
-   eventsetup::EventSetupProvider provider;
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    EventSetup const& eventSetup = provider.eventSetupForInstance(IOVSyncValue::invalidIOVSyncValue());
    CPPUNIT_ASSERT(non_null(&eventSetup));
    eventSetup.get<DummyRecord>();
@@ -153,6 +156,9 @@ void testEventsetup::getExcTest()
 
 class DummyEventSetupProvider : public edm::eventsetup::EventSetupProvider {
 public:
+
+   DummyEventSetupProvider(ActivityRegistry* activityRegistry) : EventSetupProvider(activityRegistry) { }
+
    template<class T>
    void insert(std::unique_ptr<T> iRecord) {
       edm::eventsetup::EventSetupProvider::insert(std::move(iRecord));
@@ -161,7 +167,7 @@ public:
 
 void testEventsetup::recordProviderTest()
 {
-   DummyEventSetupProvider provider;
+   DummyEventSetupProvider provider(&activityRegistry);
    typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
    auto dummyRecordProvider = std::make_unique<DummyRecordProvider>();
    
@@ -204,7 +210,7 @@ private:
 
 void testEventsetup::recordValidityTest()
 {
-   DummyEventSetupProvider provider;
+   DummyEventSetupProvider provider(&activityRegistry);
    typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
    auto dummyRecordProvider = std::make_unique<DummyRecordProvider>();
 
@@ -241,7 +247,7 @@ void testEventsetup::recordValidityTest()
 
 void testEventsetup::recordValidityExcTest()
 {
-   DummyEventSetupProvider provider;
+   DummyEventSetupProvider provider(&activityRegistry);
    typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
    auto dummyRecordProvider = std::make_unique<DummyRecordProvider>();
 
@@ -278,7 +284,7 @@ static eventsetup::EventSetupRecordProviderFactoryTemplate<DummyRecord> s_factor
 
 void testEventsetup::proxyProviderTest()
 {
-   eventsetup::EventSetupProvider provider;
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    std::shared_ptr<eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
    provider.add(dummyProv);
    
@@ -291,7 +297,7 @@ void testEventsetup::producerConflictTest()
 {
    edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
    using edm::eventsetup::test::DummyProxyProvider;
-   eventsetup::EventSetupProvider provider;
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    {
       std::shared_ptr<eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
       dummyProv->setDescription(description);
@@ -310,7 +316,7 @@ void testEventsetup::sourceConflictTest()
 {
    edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
    using edm::eventsetup::test::DummyProxyProvider;
-   eventsetup::EventSetupProvider provider;
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    {
       std::shared_ptr<eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
       dummyProv->setDescription(description);
@@ -331,7 +337,7 @@ void testEventsetup::twoSourceTest()
 {
   edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
   using edm::eventsetup::test::DummyProxyProvider;
-  eventsetup::EventSetupProvider provider;
+  eventsetup::EventSetupProvider provider(&activityRegistry);
   {
     std::shared_ptr<eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
     dummyProv->setDescription(description);
@@ -357,7 +363,7 @@ void testEventsetup::provenanceTest()
    DummyData kGood; kGood.value_ = 1;
    DummyData kBad; kBad.value_=0;
 
-   eventsetup::EventSetupProvider provider;
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    try {
       {
          edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
@@ -398,7 +404,7 @@ void testEventsetup::getDataWithLabelTest()
    DummyData kGood; kGood.value_ = 1;
    DummyData kBad; kBad.value_=0;
    
-   eventsetup::EventSetupProvider provider;
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    try {
       {
          edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
@@ -441,7 +447,7 @@ void testEventsetup::getDataWithESInputTagTest()
    DummyData kGood; kGood.value_ = 1;
    DummyData kBad; kBad.value_=0;
    
-   eventsetup::EventSetupProvider provider;
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    try {
       {
          edm::eventsetup::ComponentDescription description("DummyProxyProvider","testOne",true);
@@ -516,7 +522,7 @@ void testEventsetup::sourceProducerResolutionTest()
    DummyData kBad; kBad.value_=0;
 
    {
-      eventsetup::EventSetupProvider provider;
+      eventsetup::EventSetupProvider provider(&activityRegistry);
       {
          edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
          std::shared_ptr<eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>(kBad);
@@ -542,7 +548,7 @@ void testEventsetup::sourceProducerResolutionTest()
 
    //reverse order
    {
-      eventsetup::EventSetupProvider provider;
+      eventsetup::EventSetupProvider provider(&activityRegistry);
       {
          edm::eventsetup::ComponentDescription description("DummyProxyProvider","",false);
          std::shared_ptr<eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>(kGood);
@@ -584,7 +590,7 @@ void testEventsetup::preferTest()
          //default means use all proxies
          preferInfo[ComponentDescription("DummyProxyProvider","",false)]=recordToData;
          
-         eventsetup::EventSetupProvider provider(0U, &preferInfo);
+         eventsetup::EventSetupProvider provider(&activityRegistry, 0U, &preferInfo);
          {
             edm::eventsetup::ComponentDescription description("DummyProxyProvider","bad",false);
             std::shared_ptr<eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>(kBad);
@@ -615,7 +621,7 @@ void testEventsetup::preferTest()
          EventSetupProvider::RecordToDataMap recordToData;
          //default means use all proxies
          preferInfo[ComponentDescription("DummyProxyProvider","",false)]=recordToData;
-         eventsetup::EventSetupProvider provider(0U, &preferInfo);
+         eventsetup::EventSetupProvider provider(&activityRegistry, 0U, &preferInfo);
          {
             edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
             std::shared_ptr<eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>(kGood);
@@ -647,7 +653,7 @@ void testEventsetup::preferTest()
          recordToData.insert(std::make_pair(std::string("DummyRecord"),
                                             std::make_pair(std::string("DummyData"),std::string())));
          preferInfo[ComponentDescription("DummyProxyProvider","",false)]=recordToData;
-         eventsetup::EventSetupProvider provider(0U, &preferInfo);
+         eventsetup::EventSetupProvider provider(&activityRegistry, 0U, &preferInfo);
          {
             edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
             std::shared_ptr<eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>(kGood);
@@ -684,7 +690,7 @@ void testEventsetup::introspectionTest()
   DummyData kGood; kGood.value_ = 1;
   DummyData kBad; kBad.value_=0;
   
-  eventsetup::EventSetupProvider provider;
+  eventsetup::EventSetupProvider provider(&activityRegistry);
   try {
   {
     edm::eventsetup::ComponentDescription description("DummyProxyProvider","",true);
@@ -722,7 +728,7 @@ void testEventsetup::introspectionTest()
 
 void testEventsetup::iovExtentionTest()
 {
-  DummyEventSetupProvider provider;
+  DummyEventSetupProvider provider(&activityRegistry);
   typedef eventsetup::EventSetupRecordProviderTemplate<DummyRecord> DummyRecordProvider;
   auto dummyRecordProvider = std::make_unique<DummyRecordProvider>();
   

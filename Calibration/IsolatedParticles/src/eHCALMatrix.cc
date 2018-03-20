@@ -164,7 +164,7 @@ namespace spr{
 #endif
   }
 
-  HcalDetId getHotCell(std::vector<HBHERecHitCollection::const_iterator>& hit, bool includeHO, bool useRaw, bool) {
+  HcalDetId getHotCell(std::vector<HBHERecHitCollection::const_iterator>& hit, bool includeHO, int useRaw, bool) {
 
     std::vector<HcalDetId> dets;
     std::vector<double> energies;
@@ -198,7 +198,7 @@ namespace spr{
     return hotCell;
   }
 
-  HcalDetId getHotCell(std::vector<std::vector<PCaloHit>::const_iterator>& hit, bool includeHO, bool useRaw, bool) {
+  HcalDetId getHotCell(std::vector<std::vector<PCaloHit>::const_iterator>& hit, bool includeHO, int useRaw, bool) {
 
     std::vector<HcalDetId> dets;
     std::vector<double> energies;

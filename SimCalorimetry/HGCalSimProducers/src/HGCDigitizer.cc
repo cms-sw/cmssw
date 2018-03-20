@@ -1,6 +1,4 @@
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizer.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"

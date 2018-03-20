@@ -46,12 +46,11 @@ void PFCandCommonVertexFitterBase::set(VertexCompositeCandidate & c) const {
     }
     c.setP4(mp4);
     Vertex v = vertex;
-    c.setChi2AndNdof(chi2_ = v.chi2(), ndof_ = v.ndof());
-    v.fill(cov_);
-    c.setCovariance(cov_);
+    c.setChi2AndNdof(v.chi2(), v.ndof());
+    c.setCovariance(v.covariance());
   } else {
-    c.setChi2AndNdof(chi2_ = -1, ndof_ = 0);
-    c.setCovariance(cov_ = CovarianceMatrix(ROOT::Math::SMatrixIdentity())); 
+    c.setChi2AndNdof(-1, 0);
+    c.setCovariance(CovarianceMatrix(ROOT::Math::SMatrixIdentity())); 
   }
 }
 

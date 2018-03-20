@@ -116,6 +116,10 @@ namespace edm
     void read(std::istream& is);
 
     void readFromParameterSetBlob(std::istream& is);
+
+    /// Should only be called while the edmWriteConfigs executable runs
+    static void disableFileLookup();
+
   private:
     std::string    relativePath_;
     std::string    canonicalFilename_;

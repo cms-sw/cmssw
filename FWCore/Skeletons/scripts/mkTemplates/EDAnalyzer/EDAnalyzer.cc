@@ -2,7 +2,7 @@
 //
 // Package:    __subsys__/__pkgname__
 // Class:      __class__
-// 
+//
 /**\class __class__ __class__.cc __subsys__/__pkgname__/plugins/__class__.cc
 
  Description: [one line class summary]
@@ -28,9 +28,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-@example_track #include "FWCore/Utilities/interface/InputTag.h"
-@example_track #include "DataFormats/TrackReco/interface/Track.h"
-@example_track #include "DataFormats/TrackReco/interface/TrackFwd.h"
+ #include "FWCore/Utilities/interface/InputTag.h"
+ #include "DataFormats/TrackReco/interface/Track.h"
+ #include "DataFormats/TrackReco/interface/TrackFwd.h"
 @example_histo #include "FWCore/ServiceRegistry/interface/Service.h"
 @example_histo #include "CommonTools/UtilAlgos/interface/TFileService.h"
 @example_histo #include "TH1.h"
@@ -40,9 +40,11 @@
 
 // If the analyzer does not use TFileService, please remove
 // the template argument to the base class so the class inherits
-// from  edm::one::EDAnalyzer<> and also remove the line from
-// constructor "usesResource("TFileService");"
+// from  edm::one::EDAnalyzer<>
 // This will improve performance in multithreaded jobs.
+
+
+using reco::TrackCollection;
 
 class __class__ : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
@@ -58,8 +60,8 @@ class __class__ : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
       virtual void endJob() override;
 
       // ----------member data ---------------------------
-@example_track       edm::InputTag trackTags_; //used to select what tracks to read from configuration file
-@example_histo       TH1D * histo; 
+      edm::EDGetTokenT<TrackCollection> tracksToken_;  //used to select what tracks to read from configuration file
+@example_histo       TH1I * histo;
 };
 
 //
@@ -74,21 +76,21 @@ class __class__ : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 // constructors and destructor
 //
 __class__::__class__(const edm::ParameterSet& iConfig)
-@example_track :
-@example_track  trackTags_(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))
+ :
+  tracksToken_(consumes<TrackCollection>(iConfig.getUntrackedParameter<edm::InputTag>("tracks")))
 
 {
    //now do what ever initialization is needed
-   usesResource("TFileService");
+@example_histo   usesResource("TFileService");
 @example_histo   edm::Service<TFileService> fs;
-@example_histo   histo = fs->make<TH1D>("charge" , "Charges" , 200 , -2 , 2 );
+@example_histo   histo = fs->make<TH1I>("charge" , "Charges" , 2 , -1 , 1 );
 
 }
 
 
 __class__::~__class__()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -105,23 +107,21 @@ __class__::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-@example_track   using reco::TrackCollection;
-
-@example_track    Handle<TrackCollection> tracks;
-@example_track    iEvent.getByLabel(trackTags_,tracks);
-@example_track    for(TrackCollection::const_iterator itTrack = tracks->begin();
-@example_track        itTrack != tracks->end();                      
-@example_track        ++itTrack) {
-@example_track       int charge = 0;
-@example_track       charge = itTrack->charge();  
-@example_histo       histo->Fill( charge );
-@example_track    }
+    Handle<TrackCollection> tracks;
+    iEvent.getByToken(tracksToken_, tracks);
+    for(TrackCollection::const_iterator itTrack = tracks->begin();
+        itTrack != tracks->end();
+        ++itTrack) {
+      // do something with track parameters, e.g, plot the charge.
+      // int charge = itTrack->charge();
+@example_histo       histo->Fill( itTrack->charge() );
+    }
 
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
    iEvent.getByLabel("example",pIn);
 #endif
-   
+
 #ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
    ESHandle<SetupData> pSetup;
    iSetup.get<SetupRecord>().get(pSetup);
@@ -130,14 +130,14 @@ __class__::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 __class__::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-__class__::endJob() 
+void
+__class__::endJob()
 {
 }
 
@@ -149,12 +149,12 @@ __class__::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
-@example_track
-@example_track  //Specify that only 'tracks' is allowed
-@example_track  //To use, remove the default given above and uncomment below
-@example_track  //ParameterSetDescription desc;
-@example_track  //desc.addUntracked<edm::InputTag>("tracks","ctfWithMaterialTracks");
-@example_track  //descriptions.addDefault(desc);
+
+  //Specify that only 'tracks' is allowed
+  //To use, remove the default given above and uncomment below
+  //ParameterSetDescription desc;
+  //desc.addUntracked<edm::InputTag>("tracks","ctfWithMaterialTracks");
+  //descriptions.addDefault(desc);
 }
 
 //define this as a plug-in

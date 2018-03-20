@@ -3,8 +3,6 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
-
-#include <vector>
 #include <string>
 
 class SensitiveTkDetector : public SensitiveDetector
@@ -15,6 +13,7 @@ public:
 			       edm::ParameterSet const & p) : 
   SensitiveDetector(iname, cpv, clg, p) {}
   virtual void fillHits(edm::PSimHitContainer &, const std::string& hname) = 0;
+
 };
 
 #endif

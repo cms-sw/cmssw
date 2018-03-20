@@ -10,7 +10,7 @@ CSCChamberDataItr::CSCChamberDataItr(const char * buf) :
     = reinterpret_cast<const CSCDCCHeader *>(buf);
   if(dccHeader->check())
     {
-      theDCCData = new CSCDCCEventData((unsigned short *)buf);
+      theDCCData = new CSCDCCEventData((const uint16_t *)buf);
       theNumberOfDDUs = theDCCData->dduData().size();
       theDDUItr = new CSCDDUDataItr( &(theDCCData->dduData()[theCurrentDDU]) );
     }

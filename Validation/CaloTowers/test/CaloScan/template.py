@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("TEST")
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process('TEST',eras.Run2_2017)
 
 ### RANDOM setting (change last digit(s) to make runs different !)
 process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
@@ -12,8 +14,10 @@ process.load('Configuration/StandardSequences/DigiToRaw_cff')
 process.load('Configuration/StandardSequences/RawToDigi_cff')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['run2_mc']
+# from Configuration.AlCa.autoCond import autoCond
+# process.GlobalTag.globaltag = autoCond['run2_mc']
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
@@ -42,44 +46,21 @@ process.VtxSmeared.SigmaX = 0.00001
 process.VtxSmeared.SigmaY = 0.00001
 process.VtxSmeared.SigmaZ = 0.00001
 
-process.HcalSimHitsAnalyser = cms.EDAnalyzer("HcalSimHitsValidation",
-    outputFile = cms.untracked.string('HcalSimHitsValidation.root')
-)   
+process.load("Validation.HcalHits.HcalSimHitsValidation_cfi")
+process.HcalSimHitsAnalyser.outputFile = cms.untracked.string('HcalSimHitsValidation.root')
 
-process.hcalDigiAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
-    outputFile		      = cms.untracked.string('HcalDigisValidationRelVal.root'),
-    digiLabel   = cms.string("hcalDigis"),
-    mode        = cms.untracked.string('multi'),
-    hcalselector= cms.untracked.string('all'),
-    mc          = cms.untracked.string('yes'),
-    simHits     = cms.untracked.InputTag("g4SimHits","HcalHits"),
-    emulTPs     = cms.InputTag("emulDigis"),
-    dataTPs     = cms.InputTag("simHcalTriggerPrimitiveDigis")
-)   
+process.load("Validation.HcalDigis.HcalDigisParam_cfi")
+process.hcaldigisAnalyzer.outputFile = cms.untracked.string('HcalDigisValidationRelVal.root')
 
-process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
-    outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
-    HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
-    HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
-    HORecHitCollectionLabel   = cms.untracked.InputTag("horeco"),
-    eventype                  = cms.untracked.string('single'),
-    ecalselector              = cms.untracked.string('yes'),
-    hcalselector              = cms.untracked.string('all'),
-    mc                        = cms.untracked.string('yes')  # default !
-)
+process.load("Validation.HcalRecHits.HcalRecHitParam_cfi")
 
-process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
-    outputFile               = cms.untracked.string('CaloTowersValidationRelVal.root'),
-    CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
-    hcalselector             = cms.untracked.string('all'),
-    mc                       = cms.untracked.string('yes')  # default!
-)
+process.load("Validation.CaloTowers.CaloTowersParam_cfi")
+process.calotowersAnalyzer.outputFile = cms.untracked.string('CaloTowersValidationRelVal.root')
 
 #--- replace hbhereco with hbheprereco
 delattr(process,"hbhereco")
 process.hbhereco = process.hbheprereco.clone()
-process.hcalLocalRecoSequence = cms.Sequence(process.hbhereco+process.hfreco+process.horeco)
-
+process.hcalLocalRecoSequence = cms.Sequence(process.hbhereco+process.hfprereco+process.hfreco+process.horeco)
 
 #--- post-LS1 customization 
 process.mix.digitizers.hcal.minFCToDelay=cms.double(5.) # new TS model
@@ -90,8 +71,6 @@ process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
 process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.67)
 process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.67)
 process.g4SimHits.HFShowerLibrary.FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v4.root'
-
-
 
 #---------- PATH
 # -- NB: for vertex smearing the Label should be: "unsmeared" 
@@ -120,8 +99,8 @@ process.p = cms.Path(
  process.caloTowersRec *
  process.hcalnoise *
  process.HcalSimHitsAnalyser *
- process.hcalDigiAnalyzer *
- process.hcalTowerAnalyzer *
+ process.hcaldigisAnalyzer *
+ process.calotowersAnalyzer *
  process.hcalRecoAnalyzer *
  process.MEtoEDMConverter
 )

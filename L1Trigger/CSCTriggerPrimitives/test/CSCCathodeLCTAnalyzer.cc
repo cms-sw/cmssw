@@ -147,10 +147,10 @@ vector<CSCCathodeLayerInfo> CSCCathodeLCTAnalyzer::lctDigis(
     // Loop over all the strips in a pattern.
     int max_pattern_strips, layer, strip;
     if (!isTMB07) {
-      max_pattern_strips = CSCCathodeLCTProcessor::NUM_PATTERN_STRIPS;
+      max_pattern_strips = CSCConstants::MAX_STRIPS_IN_PATTERN;
     }
     else {
-      max_pattern_strips = CSCCathodeLCTProcessor::NUM_PATTERN_HALFSTRIPS;
+      max_pattern_strips = CSCConstants::MAX_HALFSTRIPS_IN_PATTERN;
     }
     for (int i_strip = 0; i_strip < max_pattern_strips; i_strip++) {
       if (!isTMB07) {
@@ -249,7 +249,7 @@ int CSCCathodeLCTAnalyzer::preselectDigis(const int clct_bx,
 	}
 
 	if (time[i_strip] <= 0 || time[i_strip] > bx_time) {
- 
+
 	  // @ Switch to maps; check for match in time.
 	  int i_hfstrip = 2*i_strip + (*digiIt).getComparator() + stagger;
 	  hfstripDigis[i_hfstrip] = digi_num;

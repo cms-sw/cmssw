@@ -35,7 +35,6 @@ namespace edm {
     typedef LuminosityBlockAuxiliary Auxiliary;
     typedef Principal Base;
     LuminosityBlockPrincipal(
-        std::shared_ptr<LuminosityBlockAuxiliary> aux,
         std::shared_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
@@ -75,15 +74,16 @@ namespace edm {
     }
 
     void setEndTime(Timestamp const& time) {
-      aux_->setEndTime(time);
+      aux_.setEndTime(time);
     }
 
     LuminosityBlockNumber_t luminosityBlock() const {
       return aux().luminosityBlock();
     }
 
+    void setAux( LuminosityBlockAuxiliary iAux) { aux_ = std::move(iAux);}
     LuminosityBlockAuxiliary const& aux() const {
-      return *aux_;
+      return aux_;
     }
 
     RunNumber_t run() const {
@@ -91,7 +91,7 @@ namespace edm {
     }
 
     void mergeAuxiliary(LuminosityBlockAuxiliary const& aux) {
-      return aux_->mergeAuxiliary(aux);
+      return aux_.mergeAuxiliary(aux);
     }
 
     void put(
@@ -101,23 +101,15 @@ namespace edm {
     void put(ProductResolverIndex index,
              std::unique_ptr<WrapperBase> edp) const;
 
-    void setComplete() {
-      complete_ = true;
-    }
-
   private:
-
-    bool isComplete_() const override {return complete_;}
 
     unsigned int transitionIndex_() const override;
 
     edm::propagate_const<std::shared_ptr<RunPrincipal>> runPrincipal_;
 
-    edm::propagate_const<std::shared_ptr<LuminosityBlockAuxiliary>> aux_;
+    LuminosityBlockAuxiliary aux_;
 
     LuminosityBlockIndex index_;
-    
-    bool complete_;
   };
 }
 #endif

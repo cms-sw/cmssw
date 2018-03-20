@@ -213,7 +213,7 @@ float EcalClusterLazyToolsBase::BasicClusterTime(const reco::BasicCluster &clust
 	// std::cout << "icalconst set to: " << icalconst << std::endl;
       } else {
 	edm::LogError("EcalClusterLazyTools") << "No intercalib const found for xtal "  << (detitr->first).rawId() << "bailing out";
-	assert(0);
+	assert(false);
       }
       // 3) get adc2GeV
       float adcToGeV = 1.;
@@ -313,8 +313,7 @@ std::vector<float> EcalClusterLazyToolsBase::getESHits(double X, double Y, doubl
 
   const GlobalPoint point(X,Y,Z);
 
-  const CaloSubdetectorGeometry *geometry_p ;
-  geometry_p = geometry->getSubdetectorGeometry (DetId::Ecal,EcalPreshower) ;
+  const CaloSubdetectorGeometry *geometry_p = geometry->getSubdetectorGeometry (DetId::Ecal,EcalPreshower);
 
   DetId esId = (dynamic_cast<const EcalPreshowerGeometry*>(geometry_p))->getClosestCellInPlane(point, plane);
   ESDetId esDetId = (esId == DetId(0)) ? ESDetId(0) : ESDetId(esId);

@@ -24,6 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 
 // forward declarations
 
@@ -32,7 +33,20 @@ namespace edm {
    
    namespace one {
       namespace impl {
+         template<bool V>
+         struct OptionalSerialTaskQueueHolder;
          
+         template<>
+         struct OptionalSerialTaskQueueHolder<true> {
+            edm::SerialTaskQueue* queue() { return &queue_;}
+            edm::SerialTaskQueue queue_;
+         };
+
+         template<>
+         struct OptionalSerialTaskQueueHolder<false> {
+            edm::SerialTaskQueue* queue() { return nullptr;}
+         };
+
          template<typename T>
          class SharedResourcesUser : public virtual T {
          public:
@@ -140,6 +154,25 @@ namespace edm {
             void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c) final;
 
             virtual void endLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) = 0;
+         };
+
+         template <typename T>
+         class Accumulator : public virtual T {
+         public:
+            Accumulator() = default;
+            Accumulator(Accumulator const&) = delete;
+            Accumulator& operator=(Accumulator const&) = delete;
+            ~Accumulator() noexcept(false) override {};
+
+         private:
+
+            bool hasAccumulator() const override { return true; }
+
+            void produce(Event& ev, EventSetup const& es) final {
+               accumulate(ev, es);
+            }
+
+            virtual void accumulate(Event const& ev, EventSetup const& es) = 0;
          };
       }
    }

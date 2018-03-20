@@ -29,7 +29,7 @@ public:
 
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripConfObject> ReturnType;
+  typedef std::unique_ptr<SiStripConfObject> ReturnType;
   ReturnType produce(const SiStripConfObjectRcd&);
 
 private:
@@ -61,7 +61,7 @@ SiStripConfObjectFakeESSource::produce(const SiStripConfObjectRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::shared_ptr<SiStripConfObject> confObject{new SiStripConfObject};
+  auto confObject = std::make_unique<SiStripConfObject>();
 
   for ( const auto& param : m_parameters ) {
     const std::string paramType{param.getParameter<std::string>("ParameterType")};

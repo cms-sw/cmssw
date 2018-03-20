@@ -1,11 +1,12 @@
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
-#include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
+#include "DataFormats/L1THGCal/interface/HGCFETriggerDigiDefs.h"
 
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalTower.h"
+#include "DataFormats/L1THGCal/interface/HGCalTowerMap.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 
 #include "DataFormats/L1THGCal/interface/ClusterShapes.h"
@@ -26,15 +27,22 @@ namespace DataFormats {
     edm::Wrapper<l1t::HGCFETriggerDigiPtrVector> w_v_p_hgcfetd;
 
     l1t::HGCalTowerBxCollection   hgcalTowerBxColl;
+    l1t::HGCalTowerMapBxCollection   hgcalTowerMapBxColl;
     l1t::HGCalTriggerCellBxCollection   hgcalTriggerCellBxColl;
     l1t::HGCalClusterBxCollection hgcalClusterBxColl;
     l1t::HGCalMulticlusterBxCollection hgcalMulticlusterBxColl;
+
     edm::Ptr<l1t::HGCalTriggerCell> hgcalTriggerCellPtr;
     edm::Ptr<l1t::HGCalCluster> hgcalClusterPtr;
-    edm::PtrVector<l1t::HGCalTriggerCell>  hgcalTriggerCellList;
-    edm::PtrVector<l1t::HGCalCluster>  hgcalClusterList;
+    edm::Ptr<l1t::HGCalTowerMap> hgcalTowerMapPtr;
+    std::vector<edm::Ptr<l1t::HGCalTriggerCell>>  hgcalTriggerCellList;
+    std::vector<edm::Ptr<l1t::HGCalCluster>>  hgcalClusterList;
+    std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>  hgcalTriggerCellMap;
+    std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>>  hgcalClusterMap;
+    edm::PtrVector<l1t::HGCalTowerMap>  hgcalTowerMapList;
 
     edm::Wrapper<l1t::HGCalTowerBxCollection>   w_hgcalTowerBxColl;
+    edm::Wrapper<l1t::HGCalTowerMapBxCollection>   w_hgcalTowerMapBxColl;
     edm::Wrapper<l1t::HGCalClusterBxCollection> w_hgcalClusterBxColl;
     edm::Wrapper<l1t::HGCalMulticlusterBxCollection> w_hgcalMulticlusterBxColl;
     edm::Wrapper<l1t::HGCalTriggerCellBxCollection>   w_hgcalTriggerCellBxColl;

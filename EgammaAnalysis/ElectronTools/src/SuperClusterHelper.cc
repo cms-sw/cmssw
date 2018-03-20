@@ -1,6 +1,6 @@
 #include "EgammaAnalysis/ElectronTools/interface/SuperClusterHelper.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
-
+#include "FWCore/Utilities/interface/isFinite.h"
 
 
 
@@ -103,7 +103,7 @@ void SuperClusterHelper::computeLocalCovariances() {
     covComputed_ = true;
     
     spp_ = 0;
-    if (!isnan(vCov_[2])) spp_ = sqrt (vCov_[2]);
+    if (edm::isFinite(vCov_[2])) spp_ = sqrt (vCov_[2]);
     
     if (theElectron_->sigmaIetaIeta()*spp_ > 0) {
       sep_ = vCov_[1] / (theElectron_->sigmaIetaIeta() * spp_);

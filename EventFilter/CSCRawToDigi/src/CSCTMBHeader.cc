@@ -201,7 +201,7 @@ CSCTMBHeader2006 CSCTMBHeader::tmbHeader2006()   const
 
 void CSCTMBHeader::selfTest()
 {
-  static bool debug = false;
+  constexpr bool debug = false;
 
   // tests packing and unpacking
   for(int station = 1; station <= 4; ++station)

@@ -8,7 +8,7 @@
 #include "classlib/utils/DebugAids.h"
 #include "classlib/utils/Signal.h"
 #include <iostream>
-#include <signal.h>
+#include <csignal>
 #include <unistd.h>
 #include <cstdlib>
 
@@ -27,7 +27,7 @@ interrupt (int /*sig*/)
 class DQMCollector : public DQMBasicNet
 {
 public:
-  bool shouldStop(void) override
+  bool shouldStop() override
     {
       return s_stop != 0;
     }
@@ -59,7 +59,7 @@ onAssertFail (const char *message)
 int main (int argc, char **argv)
 {
   lat::DebugAids::failHook(&onAssertFail);
-  lat::Signal::handleFatal(argv[0], IOFD_INVALID, 0, 0, FATAL_OPTS);
+  lat::Signal::handleFatal(argv[0], IOFD_INVALID, nullptr, nullptr, FATAL_OPTS);
   lat::Signal::handle(SIGINT, (lat::Signal::HandlerType) &interrupt);
   lat::Signal::ignore(SIGPIPE);
 

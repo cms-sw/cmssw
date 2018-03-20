@@ -1,9 +1,5 @@
-
 /*
  *  See header file for a description of this class.
- *
- *  \author A. Vilela Pereira
- *
  */
 
 #include "DTT0Correction.h"
@@ -64,8 +60,8 @@ void DTT0Correction::endJob() {
   DTT0* t0NewMap = new DTT0();  
 
   // Loop over all channels
-  for(auto sl = muonGeom_->superLayers().begin();
-          sl != muonGeom_->superLayers().end(); ++sl) {
+  for(vector<const DTSuperLayer*>::const_iterator sl = muonGeom_->superLayers().begin();
+	                                    sl != muonGeom_->superLayers().end(); ++sl) {
      for(vector<const DTLayer*>::const_iterator layer = (*sl)->layers().begin();
 	                                        layer != (*sl)->layers().end(); ++layer) {
 	// Access layer topology

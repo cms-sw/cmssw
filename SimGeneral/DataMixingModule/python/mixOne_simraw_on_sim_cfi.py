@@ -265,5 +265,5 @@ fastSim.toModify(mixData,
     tracker = _recoTrackAccumulator.clone(
         pileUpTracks = "mix:generalTracks"
     ),
-    hitsProducer = "famosSimHits"
+    hitsProducer = "fastSimProducer"
 )

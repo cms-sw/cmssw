@@ -15,7 +15,7 @@ hgceeDigitizer = cms.PSet(
     maxSimHitsAccTime = cms.uint32(100),
     bxTime            = cms.double(25),
     eVPerEleHolePair = cms.double(eV_per_eh_pair),
-    tofDelay          = cms.double(1),
+    tofDelay          = cms.double(5),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
     useAllChannels    = cms.bool(True),
@@ -40,9 +40,9 @@ hgceeDigitizer = cms.PSet(
             # the tdc resolution smearing (in picoseconds)
             tdcResolutionInPs = cms.double( 0.001 ),
             # jitter for timing noise term ns
-            jitterNoise_ns = cms.vdouble(0., 0., 0.),
+            jitterNoise_ns = cms.vdouble(25., 25., 25.),
             # jitter for timing noise term ns
-            jitterConstant_ns = cms.vdouble(0.00, 0.00, 0.00),
+            jitterConstant_ns = cms.vdouble(0.0004, 0.0004, 0.0004),
             # LSB for TDC, assuming 12 bit dynamic range to 10 pC
             tdcNbits          = cms.uint32(12),
             # TDC saturation
@@ -54,9 +54,9 @@ hgceeDigitizer = cms.PSet(
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60),
             # raise usage of TDC for TOA only
-            tdcForToAOnset_fC = cms.vdouble(60., 60., 60.),
+            tdcForToAOnset_fC = cms.vdouble(12., 12., 12.),
             # LSB for time of arrival estimate from TDC in ns
-            toaLSB_ns         = cms.double(0.005),
+            toaLSB_ns         = cms.double(0.0244),
             #toa computation mode (0=by weighted energy, 1=simple threshold)
             toaMode           = cms.uint32(1),
             # TDC charge drain parameterisation (from J. Kaplon)
@@ -76,7 +76,7 @@ hgchefrontDigitizer = cms.PSet(
     digiCollection = cms.string("HGCDigisHEfront"),
     maxSimHitsAccTime = cms.uint32(100),
     bxTime            = cms.double(25),
-    tofDelay          = cms.double(1),
+    tofDelay          = cms.double(5),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
     useAllChannels    = cms.bool(True),
@@ -99,9 +99,9 @@ hgchefrontDigitizer = cms.PSet(
             # the tdc resolution smearing (in picoseconds)
             tdcResolutionInPs = cms.double( 0.001 ),
             # jitter for timing noise term ns
-            jitterNoise_ns = cms.vdouble(0., 0., 0.),
+            jitterNoise_ns = cms.vdouble(25., 25., 25.),
             # jitter for timing noise term ns
-            jitterConstant_ns = cms.vdouble(0.00, 0.00, 0.00),
+            jitterConstant_ns = cms.vdouble(0.0004, 0.0004, 0.0004),
             # LSB for TDC, assuming 12 bit dynamic range to 10 pC
             tdcNbits          = cms.uint32(12),
             # TDC saturation
@@ -113,9 +113,9 @@ hgchefrontDigitizer = cms.PSet(
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60), 
             # raise usage of TDC for TOA only                                                                                                                            
-            tdcForToAOnset_fC = cms.vdouble(60., 60., 60.),
+            tdcForToAOnset_fC = cms.vdouble(12., 12., 12.),
             # LSB for time of arrival estimate from TDC in ns
-            toaLSB_ns         = cms.double(0.005),
+            toaLSB_ns         = cms.double(0.0244),
             #toa computation mode (0=by weighted energy, 1=simple threshold)
             toaMode           = cms.uint32(1),
             # TDC charge drain parameterisation (from J. Kaplon)

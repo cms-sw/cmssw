@@ -155,7 +155,6 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     Generator = cms.PSet(
         HectorEtaCut,
-        # string HepMCProductLabel = "generatorSmeared"
         HepMCProductLabel = cms.InputTag('generatorSmeared'),
         ApplyPCuts = cms.bool(True),
         ApplyPtransCut = cms.bool(False),
@@ -168,9 +167,13 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         LDecLenCut = cms.double(30.0), ## (cm) decay volume length
         ApplyPhiCuts = cms.bool(False),
         MinPhiCut = cms.double(-3.14159265359), ## (radians)
-        MaxPhiCut = cms.double(3.14159265359), ## according to CMS conventions
+        MaxPhiCut = cms.double(3.14159265359),  ## according to CMS conventions
         ApplyLumiMonitorCuts = cms.bool(False), ## primary for lumi monitors
-        Verbosity = cms.untracked.int32(0)
+        Verbosity = cms.untracked.int32(0),
+        PDGselection = cms.PSet(
+            PDGfilterSel = cms.bool(False),        ## filter out unwanted particles
+            PDGfilter = cms.vint32(21,1,2,3,4,5,6) ## list of unwanted particles (gluons and quarks)
+        )
     ),
     RunAction = cms.PSet(
         StopFile = cms.string('StopRun')

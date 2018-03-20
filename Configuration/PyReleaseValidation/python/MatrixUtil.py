@@ -101,7 +101,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
 
 InputInfoNDefault=2000000    
 class InputInfo(object):
-    def __init__(self,dataSet,label='',run=[],ls={},files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None) :
+    def __init__(self,dataSet,dataSetParent='',label='',run=[],ls={},files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None) :
         self.run = run
         self.ls = ls
         self.files = files
@@ -112,10 +112,11 @@ class InputInfo(object):
         self.split = split
         self.ib_blacklist = ib_blacklist
         self.ib_block = ib_block
+        self.dataSetParent = dataSetParent
         
-    def das(self, das_options):
+    def das(self, das_options, dataset):
         if len(self.run) is not 0 or self.ls:
-            queries = self.queries()[:3]
+            queries = self.queries(dataset)[:3]
             if len(self.run) != 0:
               command = ";".join(["dasgoclient %s --query '%s'" % (das_options, query) for query in queries])
             else:
@@ -126,14 +127,15 @@ class InputInfo(object):
               command = ";".join(commands)
             command = "({0})".format(command)
         else:
-            command = "dasgoclient %s --query '%s'" % (das_options, self.queries()[0])
+            command = "dasgoclient %s --query '%s'" % (das_options, self.queries(dataset)[0])
        
         # Run filter on DAS output 
         if self.ib_blacklist:
             command += " | grep -E -v "
             command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
-        command += " | sort -u"
-        return command
+        from os import getenv
+        if getenv("CMSSW_USE_IBEOS","false")=="true": return command + " | ibeos-lfn-sort"
+        return command + " | sort -u"
 
     def lumiRanges(self):
         if len(self.run) != 0:
@@ -151,9 +153,9 @@ class InputInfo(object):
           query_lumis.append(":".join(run_lumis))
       return query_lumis
 
-    def queries(self):
+    def queries(self, dataset):
         query_by = "block" if self.ib_block else "dataset"
-        query_source = "{0}#{1}".format(self.dataSet, self.ib_block) if self.ib_block else self.dataSet
+        query_source = "{0}#{1}".format(dataset, self.ib_block) if self.ib_block else dataset
 
         if self.ls :
             the_queries = []

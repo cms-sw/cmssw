@@ -172,13 +172,13 @@ float EcalBarrelClusterFastTimer::correctTimeToVertex(const float intime, const 
                                                       const CaloSubdetectorGeometry* ecalGeom) const {
   if( timeDet.rawId() == 0 ) return -999.;
   // correct the cluster time from 0,0,0 to the primary vertex given
-  const CaloCellGeometry* cellGeometry ( ecalGeom->getGeometry( timeDet ) ) ;
+  auto cellGeometry = ecalGeom->getGeometry(timeDet);
   if( nullptr == cellGeometry ) {
     throw cms::Exception("BadECALBarrelCell")
       << timeDet << " is not a valid ECAL Barrel DetId!";
   }
   //depth in mm in the middle of the layer position;
-  GlobalPoint layerPos = (dynamic_cast<const TruncatedPyramid*>(cellGeometry))->getPosition( ecalDepth_+0.5 ); 
+  GlobalPoint layerPos = cellGeometry->getPosition( ecalDepth_+0.5 ); 
   const math::XYZPoint layerPos_cm( layerPos.x(), layerPos.y(), layerPos.z() );
   const math::XYZVector to_center = layerPos_cm - math::XYZPoint(0.,0.,0.);
   const math::XYZVector to_vtx = layerPos_cm - vtx.position();

@@ -48,12 +48,10 @@ public:
 private:
 
   // Analyzer Methods
-  virtual void beginJob();
   void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void endRun(const edm::Run &, const edm::EventSetup &) override;
-  virtual void endJob();
 
   // Extra Methods
   std::vector<std::string> moduleLabels(std::string);
@@ -236,13 +234,6 @@ HLTMuonValidator::analyze(const Event& iEvent,
 
 
 
-void 
-HLTMuonValidator::beginJob()
-{
-
-}
-
-
 
 void 
 HLTMuonValidator::endRun(const edm::Run & iRun, 
@@ -257,12 +248,6 @@ HLTMuonValidator::endRun(const edm::Run & iRun,
 }
 
 
-
-void 
-HLTMuonValidator::endJob()
-{
-
-}
 
 
 

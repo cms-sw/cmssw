@@ -28,7 +28,7 @@ public:
   ~MuonTransientTrackingRecHitBuilderESProducer() override;
 
   // Operations
-  std::shared_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord&);
+  std::unique_ptr<TransientTrackingRecHitBuilder> produce(const TransientRecHitRecord&);
 
 protected:
 

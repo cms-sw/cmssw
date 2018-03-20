@@ -179,12 +179,14 @@ namespace edm {
     void processOneEventAsync(WaitingTaskHolder iTask,
                               EventPrincipal& ep,
                               EventSetup const& es,
+                              ServiceToken const& token,
                               std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters);
 
     template <typename T>
     void processOneStreamAsync(WaitingTaskHolder iTask,
                                typename T::MyPrincipal& principal,
                                EventSetup const& eventSetup,
+                               ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
     void beginStream();
@@ -336,7 +338,7 @@ namespace edm {
 
     WorkerManager            workerManager_;
     std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
-
+    
     edm::propagate_const<TrigResPtr> results_;
 
     edm::propagate_const<WorkerPtr> results_inserter_;
@@ -384,16 +386,14 @@ namespace edm {
   void StreamSchedule::processOneStreamAsync(WaitingTaskHolder iHolder,
                                              typename T::MyPrincipal& ep,
                                              EventSetup const& es,
+                                             ServiceToken const& token,
                                              bool cleaningUpAfterException) {
-    ServiceToken token = ServiceRegistry::instance().presentToken();
-
     T::setStreamContext(streamContext_, ep);
 
     auto id = ep.id();
     auto doneTask = make_waiting_task(tbb::task::allocate_root(),
                                       [this,iHolder, id,cleaningUpAfterException,token](std::exception_ptr const* iPtr) mutable
     {
-      ServiceRegistry::Operate op(token);
       std::exception_ptr excpt;
       if(iPtr) {
         excpt = *iPtr;
@@ -408,14 +408,17 @@ namespace edm {
           if(ex.context().empty()) {
             ost<<"Processing "<<T::transitionName()<<" "<<id;
           }
+          ServiceRegistry::Operate op(token);
           addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
           excpt = std::current_exception();
         }
         
+        ServiceRegistry::Operate op(token);
         actReg_->preStreamEarlyTerminationSignal_(streamContext_,TerminationOrigin::ExceptionFromThisContext);
       }
       
       try {
+        ServiceRegistry::Operate op(token);
         T::postScheduleSignal(actReg_.get(), &streamContext_);
       } catch(...) {
         if(not excpt) {
@@ -426,22 +429,27 @@ namespace edm {
       
     });
     
-    auto task = make_functor_task(tbb::task::allocate_root(), [this,doneTask,&ep,&es,cleaningUpAfterException,token] () mutable {
+    auto task = make_functor_task(tbb::task::allocate_root(), [this,doneTask, h =WaitingTaskHolder(doneTask) ,&ep,&es,token] () mutable {
       ServiceRegistry::Operate op(token);
-      T::preScheduleSignal(actReg_.get(), &streamContext_);
-      WaitingTaskHolder h(doneTask);
+      try {
+        T::preScheduleSignal(actReg_.get(), &streamContext_);
 
-      workerManager_.resetAll();
+        workerManager_.resetAll();
+      }catch(...) {
+        h.doneWaiting(std::current_exception());
+        return;
+      }
+
       for(auto& p : end_paths_) {
-        p.runAllModulesAsync<T>(doneTask, ep, es, streamID_, &streamContext_);
+        p.runAllModulesAsync<T>(doneTask, ep, es, token, streamID_, &streamContext_);
       }
 
       for(auto& p : trig_paths_) {
-        p.runAllModulesAsync<T>(doneTask, ep, es, streamID_, &streamContext_);
+        p.runAllModulesAsync<T>(doneTask, ep, es, token, streamID_, &streamContext_);
       }
       
       workerManager_.processOneOccurrenceAsync<T>(doneTask,
-                                                  ep, es, streamID_, &streamContext_, &streamContext_);
+                                                  ep, es, token, streamID_, &streamContext_, &streamContext_);
     });
     
     if(streamID_.value() == 0) {

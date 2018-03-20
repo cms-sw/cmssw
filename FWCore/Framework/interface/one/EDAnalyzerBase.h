@@ -68,6 +68,8 @@ namespace edm {
       bool wantsStreamRuns() const {return false;}
       bool wantsStreamLuminosityBlocks() const {return false;};
 
+      virtual SerialTaskQueue* globalRunsQueue();
+      virtual SerialTaskQueue* globalLuminosityBlocksQueue();
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 
     private:
@@ -111,6 +113,9 @@ namespace edm {
       virtual void doEndRun_(Run const& rp, EventSetup const& c);
       virtual void doBeginLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c);
       virtual void doEndLuminosityBlock_(LuminosityBlock const& lbp, EventSetup const& c);
+
+      bool hasAcquire() const { return false; }
+      bool hasAccumulator() const { return false; }
 
       virtual SharedResourcesAcquirer createAcquirer();
 

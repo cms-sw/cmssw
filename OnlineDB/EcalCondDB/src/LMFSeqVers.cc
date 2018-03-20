@@ -38,7 +38,7 @@ std::string LMFSeqVers::setByIDSql(Statement *stmt, int id)
 }
 
 void LMFSeqVers::getParameters(ResultSet *rset) {
-  setString("description", rset->getString(1));
+  setString("description", getOraString(rset,1));
 }
 
 LMFUnique * LMFSeqVers::createObject() const {

@@ -41,6 +41,7 @@ namespace edm {
       
       Signal() = default;
       ~Signal() = default;
+      Signal(Signal&&) = default;
       
       // ---------- const member functions ---------------------
       template<typename... Args>

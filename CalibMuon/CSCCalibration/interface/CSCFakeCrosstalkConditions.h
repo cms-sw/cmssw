@@ -24,16 +24,15 @@ class CSCFakeCrosstalkConditions: public edm::ESProducer, public edm::EventSetup
   float mean,min,minchi;
   int seed;long int M;
 
-  void prefillCrosstalk();
+  CSCcrosstalk * prefillCrosstalk();
   
-  typedef const  CSCcrosstalk * ReturnType;
+  typedef std::unique_ptr<CSCcrosstalk> ReturnType;
   
   ReturnType produceCrosstalk(const CSCcrosstalkRcd&);
   
  private:
   // ----------member data ---------------------------
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
-  CSCcrosstalk *cncrosstalk ;
   
 };
 

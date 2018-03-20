@@ -15,14 +15,14 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 #include "DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h"
 #include "L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h"
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 
 #include "CondFormats/L1TObjects/interface/L1MuTriggerScales.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerScalesRcd.h"
@@ -56,10 +56,8 @@ CSCMakePTLUT::~CSCMakePTLUT()
 void CSCMakePTLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 {
   edm::ESHandle<CSCGeometry> pDD;
-
   iSetup.get<MuonGeometryRecord>().get( pDD );
-  CSCTriggerGeometry::setGeometry(pDD);
-  
+
   edm::ESHandle< L1MuTriggerScales > scales ;
   iSetup.get< L1MuTriggerScalesRcd >().get( scales ) ;
 

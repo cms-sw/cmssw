@@ -43,8 +43,8 @@ public:
 
   ~FlatTrd() override ;
   
-  const GlobalPoint& getPosition() const override { return m_global; }
-  GlobalPoint getPosition( const Pt3D& local ) const;
+  GlobalPoint const & getPosition() const override { return m_global; }
+  GlobalPoint getPosition( const Pt3D& local ) const override;
   virtual float etaPos() const { return m_global.eta(); }
   virtual float phiPos() const { return m_global.phi(); }
   Pt3D getLocal( const GlobalPoint& global ) const;
@@ -56,8 +56,8 @@ public:
   CCGFloat getPhiAxis() const ;
 
   void vocalCorners( Pt3DVec&        vec ,
-                             const CCGFloat* pv  ,
-                             Pt3D&           ref  ) const override;
+		     const CCGFloat* pv  ,
+		     Pt3D&           ref  ) const override;
   
   const GlobalVector& axis() const ;
   
@@ -71,13 +71,15 @@ public:
   
   void getTransform( Tr3D& tr, Pt3DVec* lptr ) const override;
 
+  void setPosition ( const GlobalPoint& p ) { m_global = p;  setRefPoint(p); }
+
 private:
 
   void initCorners(CornersVec& ) override;
   
   GlobalVector makeAxis( void );
   
-  const GlobalPoint backCtr( void ) const;    
+  GlobalPoint backCtr( void ) const;    
   GlobalVector m_axis;
   Pt3D         m_corOne, m_local;
   GlobalPoint  m_global;

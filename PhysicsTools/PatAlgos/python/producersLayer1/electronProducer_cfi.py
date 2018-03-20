@@ -63,16 +63,8 @@ patElectrons = cms.EDProducer("PATElectronProducer",
     userIsolation = cms.PSet(),
 
     # electron ID
-    addElectronID = cms.bool(True),
-    electronIDSources = cms.PSet(
-        # configure many IDs as InputTag <someName> = <someTag> you
-        # can comment out those you don't want to save some disk space
-        eidRobustLoose      = cms.InputTag("eidRobustLoose"),
-        eidRobustTight      = cms.InputTag("eidRobustTight"),
-        eidLoose            = cms.InputTag("eidLoose"),
-        eidTight            = cms.InputTag("eidTight"),
-        eidRobustHighEnergy = cms.InputTag("eidRobustHighEnergy"),
-    ),
+    addElectronID = cms.bool(False),
+    electronIDSources = cms.PSet(),
 
     # mc matching
     addGenMatch      = cms.bool(True),

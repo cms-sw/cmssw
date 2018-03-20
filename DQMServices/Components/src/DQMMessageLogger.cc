@@ -66,17 +66,17 @@ void DQMMessageLogger::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   
  
   // MAKE MODULEMAP
-  typedef Service<edm::service::TriggerNamesService>  TNS;
-  typedef vector<std::string> stringvec;
+  using TNS = Service<edm::service::TriggerNamesService>;
+  using stringvec = vector<std::string>;
   TNS tns;
   stringvec const& trigpaths = tns->getTrigPaths();
   
   
-  for (stringvec::const_iterator i = trigpaths.begin(), e =trigpaths.end() ;  i != e;  ++i){
-      stringvec strings =  tns->getTrigPathModules(*i);
+  for (auto const & trigpath : trigpaths){
+      stringvec strings =  tns->getTrigPathModules(trigpath);
 
-      for(unsigned int k=0; k<strings.size(); ++k){      
-	moduleMap.insert(pair<string,int>(strings[k],moduleMap.size()+1));
+      for(auto & k : strings){      
+	moduleMap.insert(pair<string,int>(k,moduleMap.size()+1));
       }    
   }
 
@@ -90,7 +90,7 @@ void DQMMessageLogger::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     
     modules_warnings = ibooker.book1D("modules_warnings","Warnings per module",moduleMap.size(),0,moduleMap.size());
     
-    for(map<string,int>::const_iterator it = moduleMap.begin(); it!=moduleMap.end();++it){ 
+    for(auto it = moduleMap.begin(); it!=moduleMap.end();++it){ 
       modules_errors->setBinLabel((*it).second,(*it).first);
       modules_warnings->setBinLabel((*it).second,(*it).first);
     }
@@ -105,7 +105,7 @@ void DQMMessageLogger::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
     ibooker.setCurrentFolder(directoryName +"/Warnings"); 
     categories_warnings = ibooker.book1D("categories_warnings", "Warnings per category", categoryMap.size(), 0, categoryMap.size());
       
-    for(map<string,int>::const_iterator it = categoryMap.begin(); it!=categoryMap.end();++it){
+    for(auto it = categoryMap.begin(); it!=categoryMap.end();++it){
       categories_errors->setBinLabel((*it).second,(*it).first);
 	  categories_warnings->setBinLabel((*it).second,(*it).first);
     }
@@ -182,7 +182,7 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
       // IF THIS IS AN ERROR on the ELseverityLevel SCALE, FILL ERROR HISTS
       if((*errors)[i].severity.getLevel() >= el.getLevel()){
 	if(categories_errors!=nullptr){
-	  map<string,int>::const_iterator it = categoryMap.find((*errors)[i].category);
+	  auto it = categoryMap.find((*errors)[i].category);
 	  if (it!=categoryMap.end()){
 	    // FILL THE RIGHT BIN
 	    categories_errors->Fill((*it).second - 1, (*errors)[i].count);
@@ -196,7 +196,7 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	  string s = (*errors)[i].module;
 	  size_t pos = s.find(':');
 	  string s_temp = s.substr(pos+1,s.size());
-	  map<string,int>::const_iterator it = moduleMap.find(s_temp);
+	  auto it = moduleMap.find(s_temp);
 	  if(it!=moduleMap.end()){
 	    // FILL THE RIGHT BIN
 	    modules_errors->Fill((*it).second - 1, (*errors)[i].count);
@@ -205,7 +205,7 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	// IF ONLY WARNING, FILL WARNING HISTS
       }else{
 	if(categories_warnings!=nullptr){
-	  map<string,int>::const_iterator it = categoryMap.find((*errors)[i].category);
+	  auto it = categoryMap.find((*errors)[i].category);
 	  if (it!=categoryMap.end()){
 	    // FILL THE RIGHT BIN
 	    categories_warnings->Fill((*it).second - 1, (*errors)[i].count);
@@ -220,7 +220,7 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
 	  string s = (*errors)[i].module;
 	  size_t pos = s.find(':');
 	  string s_temp = s.substr(pos+1,s.size());
-	  map<string,int>::const_iterator it = moduleMap.find(s_temp);
+	  auto it = moduleMap.find(s_temp);
 	  if(it!=moduleMap.end()){
 	    // FILL THE RIGHT BIN
 	    modules_warnings->Fill((*it).second - 1, (*errors)[i].count);

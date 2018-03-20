@@ -64,9 +64,10 @@ void HcalGeometryPlan1Tester::analyze(const edm::Event& /*iEvent*/,
     if (topology.valid(*itr)) {
       ++nall;
       HcalDetId idnew = hcons.mergedDepthDetId(*itr);
-      GlobalPoint pt1 = ((HcalGeometry*)(geom))->getGeometryBase(*itr)->getPosition();
-      GlobalPoint pt2 = geom->getGeometry(idnew)->getPosition();
-      GlobalPoint pt0 = ((HcalGeometry*)(geom))->getPosition(idnew);
+      GlobalPoint pt1 = (dynamic_cast<const HcalGeometry*>(geom))->getGeometryBase(*itr)->getPosition();
+      auto        ptr = geom->getGeometry(idnew);
+      GlobalPoint pt2 = ptr->getPosition();
+      GlobalPoint pt0 = (dynamic_cast<const HcalGeometry*>(geom))->getPosition(idnew);
       double     deta = std::abs(pt1.eta() - pt2.eta());
       double     dphi = std::abs(pt1.phi() - pt2.phi());
       if (dphi > M_PI) dphi -= (2*M_PI);

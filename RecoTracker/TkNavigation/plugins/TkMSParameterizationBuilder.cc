@@ -66,11 +66,10 @@ public:
      descriptions.add("TkMSParameterizationBuilder",desc);
   }
   
-  using ReturnType = std::shared_ptr<TkMSParameterization>;
+  using ReturnType = std::unique_ptr<TkMSParameterization>;
   ReturnType produce(TkMSParameterizationRecord const&);
 
   std::string theNavigationSchoolName;
-  ReturnType product;
 };
 
 TkMSParameterizationBuilder::TkMSParameterizationBuilder(edm::ParameterSet const& pset): 
@@ -83,7 +82,7 @@ TkMSParameterizationBuilder::produce(TkMSParameterizationRecord const& iRecord) 
 
   using namespace tkMSParameterization;
 
-  product = std::make_shared<TkMSParameterization>();  
+  ReturnType product = std::make_unique<TkMSParameterization>();  
 
   auto & msParam = *product;
 

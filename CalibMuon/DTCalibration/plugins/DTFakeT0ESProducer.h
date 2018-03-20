@@ -36,7 +36,7 @@ public:
 
   ~DTFakeT0ESProducer() override;
 
-  DTT0* produce(const DTT0Rcd& iRecord);
+  std::unique_ptr<DTT0> produce(const DTT0Rcd& iRecord);
 
 private:
 

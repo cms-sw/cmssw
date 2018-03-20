@@ -68,32 +68,26 @@ namespace ecaldqm
   void
   EcalDQMonitor::ecaldqmGetSetupObjects(edm::EventSetup const& _es)
   {
-    if(!checkElectronicsMap(false)){
-      // set up electronicsMap in EcalDQMCommonUtils
-      edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
-      _es.get<EcalMappingRcd>().get(elecMapHandle);
-      setElectronicsMap(elecMapHandle.product());
-    }
+    //NB: a more minimal solution may rely on ESWatchers
+    //    but then here the cost is rather minimal
+    // set up electronicsMap in EcalDQMCommonUtils
+    edm::ESHandle<EcalElectronicsMapping> elecMapHandle;
+    _es.get<EcalMappingRcd>().get(elecMapHandle);
+    setElectronicsMap(elecMapHandle.product());
 
-    if(!checkTrigTowerMap(false)){
-      // set up trigTowerMap in EcalDQMCommonUtils
-      edm::ESHandle<EcalTrigTowerConstituentsMap> ttMapHandle;
-      _es.get<IdealGeometryRecord>().get(ttMapHandle);
-      setTrigTowerMap(ttMapHandle.product());
-    }
+    // set up trigTowerMap in EcalDQMCommonUtils
+    edm::ESHandle<EcalTrigTowerConstituentsMap> ttMapHandle;
+    _es.get<IdealGeometryRecord>().get(ttMapHandle);
+    setTrigTowerMap(ttMapHandle.product());
 
-    if(!checkGeometry(false)){
-      edm::ESHandle<CaloGeometry> geomHandle;
-      _es.get<CaloGeometryRecord>().get(geomHandle);
-      setGeometry(geomHandle.product());
-    }
+    edm::ESHandle<CaloGeometry> geomHandle;
+    _es.get<CaloGeometryRecord>().get(geomHandle);
+    setGeometry(geomHandle.product());
 
-    if(!checkTopology(false)){
-      // set up trigTowerMap in EcalDQMCommonUtils
-      edm::ESHandle<CaloTopology> topoHandle;
-      _es.get<CaloTopologyRecord>().get(topoHandle);
-      setTopology(topoHandle.product());
-    }
+    // set up trigTowerMap in EcalDQMCommonUtils
+    edm::ESHandle<CaloTopology> topoHandle;
+    _es.get<CaloTopologyRecord>().get(topoHandle);
+    setTopology(topoHandle.product());
   }
 
   void

@@ -137,6 +137,7 @@ class HcalRecHitsAnalyzer : public DQMEDAnalyzer {
   MonitorElement* map_ecal;
 
   std::vector<MonitorElement*> emap;
+  MonitorElement              *emap_HO;
 
   std::vector<MonitorElement*> emean_vs_ieta_HB;
   std::vector<MonitorElement*> emean_vs_ieta_HBM0;

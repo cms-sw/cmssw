@@ -1,4 +1,4 @@
-#include "CSCTFTrackProducer.h"
+#include "L1Trigger/CSCTrackFinder/plugins/CSCTFTrackProducer.h"
 
 #include "L1Trigger/CSCTrackFinder/src/CSCTFTrackBuilder.h"
 
@@ -9,7 +9,7 @@
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 
-#include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -77,15 +77,13 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
 
   // set geometry pointer
   edm::ESHandle<CSCGeometry> pDD;
-
   c.get<MuonGeometryRecord>().get( pDD );
-  CSCTriggerGeometry::setGeometry(pDD);
 
   edm::Handle<CSCCorrelatedLCTDigiCollection> LCTs;
   std::unique_ptr<L1CSCTrackCollection> track_product(new L1CSCTrackCollection);
   e.getByToken(input_module, LCTs);
   std::unique_ptr<CSCTriggerContainer<csctf::TrackStub> > dt_stubs(new CSCTriggerContainer<csctf::TrackStub>);
- 
+
   // Either emulate or directly read in DT stubs based on switch
   //////////////////////////////////////////////////////////////
   CSCTriggerContainer<csctf::TrackStub> emulStub;
@@ -100,7 +98,7 @@ void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
 	e.getByToken(directProd, stubsFromDaq);
 	const CSCTriggerContainer<csctf::TrackStub>* stubPointer = stubsFromDaq.product();
 	emulStub.push_many(*stubPointer);
-  } 
+  }
 
   my_builder->buildTracks(LCTs.product(), (useDT?&emulStub:nullptr), track_product.get(), dt_stubs.get());
 

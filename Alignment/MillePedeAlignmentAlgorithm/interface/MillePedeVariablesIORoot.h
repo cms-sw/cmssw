@@ -12,6 +12,7 @@
 ///  (last update by $Author: flucke $)
 
 
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORootBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentUserVariablesIO.h"
 
@@ -34,12 +35,12 @@ class MillePedeVariablesIORoot : public AlignmentIORootBase, public AlignmentUse
   ~MillePedeVariablesIORoot() override {}
 
   /** write user variables */
-  void writeMillePedeVariables(const std::vector<Alignable*> &alivec, const char *filename,
+  void writeMillePedeVariables(const align::Alignables &alivec, const char *filename,
 			       int iter, bool validCheck, int &ierr);
 
   /** read user variables (not that their memory is owned by this class!) */
   std::vector<AlignmentUserVariables*> readMillePedeVariables
-    (const std::vector<Alignable*> &alivec, const char *filename, int iter, int &ierr);
+    (const align::Alignables &alivec, const char *filename, int iter, int &ierr);
 
  protected:
 

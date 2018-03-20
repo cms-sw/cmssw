@@ -12,6 +12,7 @@
 
 #include <string>
 #include <sstream>
+#include <utility>
 #include <vector>
 #include <iostream>
 #include <iomanip>
@@ -55,7 +56,7 @@ class DQMStoreStatsSubfolder {
 ///
 class DQMStoreStatsSubsystem : public std::vector<DQMStoreStatsSubfolder> {
  public:
-  DQMStoreStatsSubsystem() {}
+  DQMStoreStatsSubsystem() = default;
   std::string subsystemName_;
 };
 
@@ -66,7 +67,7 @@ class DQMStoreStatsSubsystem : public std::vector<DQMStoreStatsSubfolder> {
 ///
 class DQMStoreStatsTopLevel : public std::vector<DQMStoreStatsSubsystem> {
  public:
-  DQMStoreStatsTopLevel() {}
+  DQMStoreStatsTopLevel() = default;
 };
 
 template <class Item>
@@ -78,14 +79,14 @@ class Iterator {
     virtual bool IsDone() const = 0;
     virtual Item CurrentItem() const = 0;
    protected:
-      Iterator(){;}
+      Iterator() = default;
 };
 
 template <class Item>
 class VIterator : public Iterator<Item> 
 {
   public:
-    VIterator(const std::vector<Item>* aVector):vector_(aVector),index(0) {;} 
+    VIterator(const std::vector<Item>* aVector):vector_(aVector),index(0) {}
     ~VIterator() override = default; 
     void First() override     {index=0;}
     void Next() override      { ++index;}
@@ -108,7 +109,7 @@ class VIterator : public Iterator<Item>
       unsigned int index ;
 };
 
-static unsigned int getId(void)
+static unsigned int getId()
 {
   static unsigned int id=10;
   return ++id;
@@ -117,33 +118,33 @@ static unsigned int getId(void)
 
 class Folder {
 public:
-  Folder(const std::string name):totalHistos_(0),totalBins_(0),
+  Folder(std::string  name):totalHistos_(0),totalBins_(0),
                                  totalEmptyBins_(0),totalMemory_(0),
-                                 id_(10),level_(0),folderName_(name),
-                                 father_(nullptr){;}
+                                 id_(10),level_(0),folderName_(std::move(name)),
+                                 father_(nullptr) {}
 
-  ~Folder(void) {
-    for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
-      delete (*i);
+  ~Folder() {
+    for(auto & subfolder : subfolders_)
+      delete subfolder;
   }	
   
   void setFather(Folder* e) {father_ = e;}
   Folder * getFather() {return father_;}
-  const std::string & name(void)  {return folderName_;}
+  const std::string & name()  {return folderName_;}
 
   Folder * cd(const std::string &name) {
-    for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
-      if ( (*i)->name()==name )
-        return (*i);
-    Folder * tmp = new Folder(name);
+    for(auto & subfolder : subfolders_)
+      if ( subfolder->name()==name )
+        return subfolder;
+    auto * tmp = new Folder(name);
     this->add(tmp);
     return tmp;
   }
 
   void setId(unsigned int id)  {id_ = id;}
-  unsigned int id(void)  {return id_;}
+  unsigned int id()  {return id_;}
   void setLevel(unsigned int value) {level_=value;}
-  unsigned int level(void) {return level_;}
+  unsigned int level() {return level_;}
   
   
   void add(Folder * f) {
@@ -153,28 +154,28 @@ public:
     f->setId(getId());
   }
 
-  unsigned int getHistos(void) {
+  unsigned int getHistos() {
     unsigned int result=totalHistos_;
-    for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
-      result += (*i)->getHistos();
+    for(auto & subfolder : subfolders_)
+      result += subfolder->getHistos();
     return result;
   }
-  unsigned int getBins(void) {
+  unsigned int getBins() {
     unsigned int result=totalBins_;
-    for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
-      result += (*i)->getBins();
+    for(auto & subfolder : subfolders_)
+      result += subfolder->getBins();
     return result;
   }
-  unsigned int getEmptyBins(void) {
+  unsigned int getEmptyBins() {
     unsigned int result=totalEmptyBins_;
-    for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
-      result += (*i)->getEmptyBins();
+    for(auto & subfolder : subfolders_)
+      result += subfolder->getEmptyBins();
     return result;
   }
-  unsigned int getMemory(void) {
+  unsigned int getMemory() {
     unsigned int result=totalMemory_;
-    for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
-      result += (*i)->getMemory();
+    for(auto & subfolder : subfolders_)
+      result += subfolder->getMemory();
     return result;
   }
   void update(unsigned int bins, 
@@ -193,8 +194,8 @@ public:
                 << " Histo: " << getHistos() << " Bins: " << getBins()
                 << " EmptyBins: " << getEmptyBins() << " Memory: " << getMemory()  
                 << " and my children are: " << std::endl;
-      for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i )
-        (*i)->dump(indent) ;
+      for(auto & subfolder : subfolders_)
+        subfolder->dump(indent) ;
     }
   VIterator<Folder*> CreateIterator()
     {
@@ -210,8 +211,8 @@ public:
         << getBins() - getEmptyBins() << ", " << getBins() << ", "
         << getHistos() << ", " << getHistos() << ", 0.0);\n";
       sql_statement.append(s.str());
-      for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i )
-        (*i)->mainrows(sql_statement) ;
+      for(auto & subfolder : subfolders_)
+        subfolder->mainrows(sql_statement) ;
     }
 
   void symbols(std::string & sql_statement)
@@ -221,8 +222,8 @@ public:
       s << "INSERT INTO symbols(id, name, filename_id) VALUES (" << id_ << ",\"" << folderName_ << "\", "
         << parentid << ");\n" ;
       sql_statement.append(s.str());
-      for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i )
-        (*i)->symbols(sql_statement) ;
+      for(auto & subfolder : subfolders_)
+        subfolder->symbols(sql_statement) ;
     }
 
   void parents(std::string & sql_statement)
@@ -233,8 +234,8 @@ public:
         << parentid << "," << id_ << "," << totalMemory_ << ","
         << totalBins_ << "," << totalHistos_ << ",0" << ");\n";
       sql_statement.append(s.str());
-      for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i )
-        (*i)->parents(sql_statement) ;
+      for(auto & subfolder : subfolders_)
+        subfolder->parents(sql_statement) ;
     }
 
   void children(std::string & sql_statement)
@@ -246,8 +247,8 @@ public:
         << getMemory() << "," << getBins() - getEmptyBins()
         << "," << totalHistos_ << ",0" << ");\n";
       sql_statement.append(s.str());
-      for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i )
-        (*i)->children(sql_statement) ;
+      for(auto & subfolder : subfolders_)
+        subfolder->children(sql_statement) ;
     }
 
   void mainrows_cumulative(std::string & sql_statement)
@@ -325,8 +326,8 @@ private:
 
   int calcstats( int );
   void calcIgProfDump(Folder &);
-  void dumpMemoryProfile( void );
-  std::pair<unsigned int, unsigned int> readMemoryEntry( void ) const;
+  void dumpMemoryProfile( );
+  std::pair<unsigned int, unsigned int> readMemoryEntry( ) const;
   void print();
   
   DQMStore* dbe_;

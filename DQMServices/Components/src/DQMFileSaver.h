@@ -21,18 +21,18 @@ public:
   // used by the JsonWritingTimedPoolOutputModule,
   // fms will be nullptr in such case
   static boost::property_tree::ptree fillJson(
-      int run, int lumi, const std::string &dataFilePathName, const std::string transferDestinationStr,
-      const std::string mergeTypeStr, evf::FastMonitoringService *fms);
+      int run, int lumi, const std::string &dataFilePathName, const std::string& transferDestinationStr,
+      const std::string& mergeTypeStr, evf::FastMonitoringService *fms);
 
   
 protected:
-  void beginJob(void) override;
+  void beginJob() override;
   std::shared_ptr<saverDetails::NoCache> globalBeginRun(const edm::Run &, const edm::EventSetup &) const override;
   std::shared_ptr<saverDetails::NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) const override;
   void analyze(edm::StreamID, const edm::Event &e, const edm::EventSetup &) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) const override;
   void globalEndRun(const edm::Run &, const edm::EventSetup &) const override;
-  void endJob(void) override;
+  void endJob() override;
 
 public:
   enum Convention

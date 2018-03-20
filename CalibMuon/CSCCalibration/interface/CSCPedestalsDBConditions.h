@@ -24,7 +24,7 @@ class CSCPedestalsDBConditions: public edm::ESProducer, public edm::EventSetupRe
   
   inline static CSCDBPedestals * prefillDBPedestals();
 
-  typedef const  CSCDBPedestals * ReturnType;
+  typedef std::unique_ptr<CSCDBPedestals> ReturnType;
   
   ReturnType produceDBPedestals(const CSCDBPedestalsRcd&);
   

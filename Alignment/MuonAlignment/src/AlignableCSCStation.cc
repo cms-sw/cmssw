@@ -18,19 +18,17 @@ AlignableCSCStation::AlignableCSCStation( const std::vector<AlignableCSCRing*>& 
 
   theCSCRings.insert( theCSCRings.end(), cscRings.begin(), cscRings.end() );
 
+  // maintain also list of components
+  for (const auto& ring: cscRings) {
+    const auto mother = ring->mother();
+    this->addComponent(ring); // components will be deleted by dtor of AlignableComposite
+    ring->setMother(mother); // restore previous behaviour where mother is not set
+  }
+
   setSurface( computeSurface() );
   compConstraintType_ = Alignable::CompConstraintType::POSITION_Z;
 }
-      
 
-/// Clean delete of the vector and its elements
-AlignableCSCStation::~AlignableCSCStation() 
-{
-  for ( std::vector<AlignableCSCRing*>::iterator iter = theCSCRings.begin(); 
-	iter != theCSCRings.end(); iter++)
-    delete *iter;
-
-}
 
 /// Return Alignable CSC Ring at given index
 AlignableCSCRing &AlignableCSCStation::ring(int i) 

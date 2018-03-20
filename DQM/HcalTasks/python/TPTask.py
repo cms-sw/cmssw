@@ -3,7 +3,8 @@ import FWCore.ParameterSet.Config as cms
 fgbits = [1 for x in range(5)]
 fgbits.append(0)
 
-tpTask = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+tpTask = DQMEDAnalyzer(
 	"TPTask",
 	
 	#	standard parameters
@@ -18,6 +19,7 @@ tpTask = cms.EDAnalyzer(
 	#	tags
 	tagData = cms.untracked.InputTag("hcalDigis"),
 	tagEmul = cms.untracked.InputTag("emulTPDigis"),
+	tagEmulNoTDCCut = cms.untracked.InputTag("emulTPDigisNoTDCCut"),
 
 	#	cut to put on Et to get the occupancy
 	cutEt = cms.untracked.int32(3),

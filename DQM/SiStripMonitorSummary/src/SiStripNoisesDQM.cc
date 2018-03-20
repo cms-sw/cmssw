@@ -7,8 +7,9 @@
 
 // -----
 SiStripNoisesDQM::SiStripNoisesDQM(const edm::EventSetup & eSetup,
+                                   edm::RunNumber_t iRun,
                                    edm::ParameterSet const& hPSet,
-                                   edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){  
+                                   edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, iRun, hPSet, fPSet){  
   gainRenormalisation_ = hPSet_.getParameter<bool>("GainRenormalisation");
   simGainRenormalisation_ = hPSet_.getParameter<bool>("SimGainRenormalisation");
   if( gainRenormalisation_ && !simGainRenormalisation_){ eSetup.get<SiStripApvGainRcd>().get(gainHandle_);}

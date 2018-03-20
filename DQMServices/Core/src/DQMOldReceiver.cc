@@ -5,22 +5,21 @@ DQMOldReceiver::DQMOldReceiver(const std::string &, int, const std::string &, in
   : store_ (nullptr)
 {}
 
-DQMOldReceiver::DQMOldReceiver(void)
+DQMOldReceiver::DQMOldReceiver()
   : store_ (nullptr)
 {}
 
-DQMOldReceiver::~DQMOldReceiver(void)
-{}
+DQMOldReceiver::~DQMOldReceiver() = default;
 
 bool
-DQMOldReceiver::update(void)
+DQMOldReceiver::update()
 {
   raiseDQMError("DQMOldReceiver", "DQMOldReceiver::update() is obsolete");
   return true;
 }
 
 bool
-DQMOldReceiver::doMonitoring(void)
+DQMOldReceiver::doMonitoring()
 {
   raiseDQMError("DQMOldReceiver", "DQMOldReceiver::doMonitoring() is obsolete");
   return true;

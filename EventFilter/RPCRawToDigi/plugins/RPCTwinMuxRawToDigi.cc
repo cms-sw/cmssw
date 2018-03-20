@@ -19,6 +19,7 @@
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "EventFilter/RPCRawToDigi/interface/RPCTwinMuxRecord.h"
+#include "EventFilter/RPCRawToDigi/interface/RPCAMCLinkEvents.h"
 
 RPCTwinMuxRawToDigi::RPCTwinMuxRawToDigi(edm::ParameterSet const & config)
     : calculate_crc_(config.getParameter<bool>("calculateCRC"))
@@ -85,7 +86,7 @@ void RPCTwinMuxRawToDigi::produce(edm::Event & event, edm::EventSetup const & se
     for (int fed : feds_) {
 
         if (fill_counters_) {
-            counters->add(RPCAMCLinkCounters::fed_event_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
+            counters->add(RPCAMCLinkEvents::fed_event_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
         }
 
         std::uint16_t crc(0xffff);
@@ -133,7 +134,7 @@ void RPCTwinMuxRawToDigi::produce(edm::Event & event, edm::EventSetup const & se
             FEDTrailer trailer(reinterpret_cast<unsigned char const *>(word_end));
             if ((unsigned int)(trailer.crc()) != crc) {
                 if (fill_counters_) {
-                    counters->add(RPCAMCLinkCounters::fed_trailer_crc_mismatch_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
+                    counters->add(RPCAMCLinkEvents::fed_trailer_crc_mismatch_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
                 }
                 edm::LogWarning("RPCTwinMuxRawToDigi") << "FED Trailer CRC doesn't match for FED id " << fed;
             }
@@ -161,7 +162,7 @@ bool RPCTwinMuxRawToDigi::processCDFHeaders(int fed
         FEDHeader header(reinterpret_cast<unsigned char const *>(word));
         if (!header.check()) {
             if (fill_counters_) {
-                counters.add(RPCAMCLinkCounters::fed_header_check_fail_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
+                counters.add(RPCAMCLinkEvents::fed_header_check_fail_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
             }
             edm::LogWarning("RPCTwinMuxRawToDigi") << "FED Header check failed for FED id " << fed;
             ++word;
@@ -169,7 +170,7 @@ bool RPCTwinMuxRawToDigi::processCDFHeaders(int fed
         }
         if (header.sourceID() != fed) {
             if (fill_counters_) {
-                counters.add(RPCAMCLinkCounters::fed_header_id_mismatch_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
+                counters.add(RPCAMCLinkEvents::fed_header_id_mismatch_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
             }
             edm::LogWarning("RPCTwinMuxRawToDigi") << "FED Header Source ID " << header.sourceID()
                                                    << " does not match requested FED id " << fed;
@@ -193,20 +194,20 @@ bool RPCTwinMuxRawToDigi::processCDFTrailers(int fed, unsigned int nwords
     for (--word_end ; word_end > word && more_trailers ; --word_end) {
         FEDTrailer trailer(reinterpret_cast<unsigned char const *>(word_end));
         LogDebug("RPCTwinMuxRawToDigi") << "CDF Trailer " << std::hex << *word_end << std::dec
-                                        << ", length " << trailer.lenght();
+                                        << ", length " << trailer.fragmentLength();
         if (!trailer.check()) {
             if (fill_counters_) {
-                counters.add(RPCAMCLinkCounters::fed_trailer_check_fail_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
+                counters.add(RPCAMCLinkEvents::fed_trailer_check_fail_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
             }
             edm::LogWarning("RPCTwinMuxRawToDigi") << "FED Trailer check failed for FED id " << fed;
             --word_end;
             break;
         }
-        if (trailer.lenght() != (int)nwords) {
+        if (trailer.fragmentLength() != nwords) {
             if (fill_counters_) {
-                counters.add(RPCAMCLinkCounters::fed_trailer_length_mismatch_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
+                counters.add(RPCAMCLinkEvents::fed_trailer_length_mismatch_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
             }
-            edm::LogWarning("RPCTwinMuxRawToDigi") << "FED Trailer length " << trailer.lenght()
+            edm::LogWarning("RPCTwinMuxRawToDigi") << "FED Trailer length " << trailer.fragmentLength()
                                                    << " does not match actual data size " << nwords
                                                    << " for FED id " << fed;
             --word_end;
@@ -239,7 +240,7 @@ bool RPCTwinMuxRawToDigi::processBlock(int fed
     unsigned int n_amc(block_header.getNAMC());
     if (word + n_amc + 1 >= word_end) {
         if (fill_counters_) {
-            counters.add(RPCAMCLinkCounters::fed_block_length_invalid_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
+            counters.add(RPCAMCLinkEvents::fed_amc13_block_incomplete_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
         }
         edm::LogWarning("RPCTwinMuxRawToDigi") << "Block can not be complete for FED " << fed;
         word = word_end;
@@ -258,7 +259,7 @@ bool RPCTwinMuxRawToDigi::processBlock(int fed
         amc_size_map.push_back(std::make_pair(amc_content.getAMCNumber(), amc_content.getSize()));
         if (!amc_content.isValid()) {
             if (fill_counters_) {
-                counters.add(RPCAMCLinkCounters::amc_evc_bc_invalid_, RPCAMCLink(fed, amc_content.getAMCNumber()));
+                counters.add(RPCAMCLinkEvents::amc_amc13_evc_bc_invalid_, RPCAMCLink(fed, amc_content.getAMCNumber()));
             }
             edm::LogWarning("RPCTwinMuxRawToDigi") << "BlockAMCContent is reporting an invalid "
                                                    << "Event Counter or Bunch Counter for FED " << fed
@@ -297,7 +298,7 @@ bool RPCTwinMuxRawToDigi::processTwinMux(int fed, unsigned int amc_number, unsig
     }
     if (amc_number > (unsigned int)RPCAMCLink::max_amcnumber_) {
         if (fill_counters_) {
-            counters.add(RPCAMCLinkCounters::fed_block_amc_number_invalid_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
+            counters.add(RPCAMCLinkEvents::fed_amc13_amc_number_invalid_, RPCAMCLink(fed, RPCAMCLink::wildcard_));
         }
         edm::LogWarning("RPCTwinMuxRawToDigi") << "Invalid AMC Number " << amc_number
                                                << " for FED " << fed;
@@ -312,7 +313,7 @@ bool RPCTwinMuxRawToDigi::processTwinMux(int fed, unsigned int amc_number, unsig
     }
     if (word + size >= word_end || size < 3) {
         if (fill_counters_) {
-            counters.add(RPCAMCLinkCounters::amc_payload_length_invalid_, RPCAMCLink(fed, amc_number));
+            counters.add(RPCAMCLinkEvents::amc_payload_incomplete_, RPCAMCLink(fed, amc_number));
         }
         edm::LogWarning("RPCTwinMuxRawToDigi") << "TwinMux Data can not be complete for FED " << fed << " AMC #" << amc_number;
         if (calculate_crc_) {
@@ -337,7 +338,7 @@ bool RPCTwinMuxRawToDigi::processTwinMux(int fed, unsigned int amc_number, unsig
 
     if (amc_number != header.getAMCNumber()) {
         if (fill_counters_) {
-            counters.add(RPCAMCLinkCounters::amc_number_mismatch_, RPCAMCLink(fed, amc_number));
+            counters.add(RPCAMCLinkEvents::amc_number_mismatch_, RPCAMCLink(fed, amc_number));
         }
         edm::LogWarning("RPCTwinMuxRawToDigi") << "AMC Number inconsistent in TwinMuxHeader vs BlockAMCContent: " << header.getAMCNumber()
                                                << " vs " << amc_number;
@@ -414,13 +415,13 @@ void RPCTwinMuxRawToDigi::processRPCRecord(int fed, unsigned int amc_number
 
         if (link_record.isError()) {
             if (fill_counters_ && bx_offset == 0) {
-                counters.add(RPCAMCLinkCounters::input_link_error_, tm_link);
+                counters.add(RPCAMCLinkEvents::input_link_error_, tm_link);
             }
             LogDebug("RPCTwinMuxRawToDigi") << "Link in error for " << tm_link;
             continue;
         } else if (!link_record.isAcknowledge()) {
             if (fill_counters_ && bx_offset == 0) {
-                counters.add(RPCAMCLinkCounters::input_link_ack_fail_, tm_link);
+                counters.add(RPCAMCLinkEvents::input_link_ack_fail_, tm_link);
             }
             LogDebug("RPCTwinMuxRawToDigi") << "Link without acknowledge for " << tm_link;
             continue;
@@ -434,13 +435,13 @@ void RPCTwinMuxRawToDigi::processRPCRecord(int fed, unsigned int amc_number
         LogDebug("RPCTwinMuxRawToDigi") << "RPC BX " << bx << " for offset " << bx_offset;
 
         if (fill_counters_ && bx == 0 && link_record.isEOD()) { // EOD comes at the last delay
-            counters.add(RPCAMCLinkCounters::input_eod_, tm_link);
+            counters.add(RPCAMCLinkEvents::input_eod_, tm_link);
         }
 
         RPCAMCLinkMap::map_type::const_iterator tm_link_it = es_tm_link_map_->getMap().find(tm_link);
         if (tm_link_it == es_tm_link_map_->getMap().end()) {
             if (fill_counters_ && bx_offset == 0) {
-                counters.add(RPCAMCLinkCounters::amc_link_invalid_, RPCAMCLink(fed, amc_number));
+                counters.add(RPCAMCLinkEvents::amc_link_invalid_, RPCAMCLink(fed, amc_number));
             }
             LogDebug("RPCTwinMuxRawToDigi") << "Skipping unknown TwinMuxLink " << tm_link;
             continue;
@@ -450,7 +451,7 @@ void RPCTwinMuxRawToDigi::processRPCRecord(int fed, unsigned int amc_number
 
         if (link_record.getLinkBoard() > (unsigned int)RPCLBLink::max_linkboard_) {
             if (fill_counters_ && bx_offset == 0) {
-                counters.add(RPCAMCLinkCounters::input_lb_invalid_, tm_link);
+                counters.add(RPCAMCLinkEvents::input_lb_invalid_, tm_link);
             }
             LogDebug("RPCTwinMuxRawToDigi") << "Skipping invalid LinkBoard " << link_record.getLinkBoard()
                                             << " for record " << link << " (" << std::hex << link_record.getRecord()
@@ -461,7 +462,7 @@ void RPCTwinMuxRawToDigi::processRPCRecord(int fed, unsigned int amc_number
 
         if (link_record.getConnector() > (unsigned int)RPCLBLink::max_connector_) {
             if (fill_counters_ && bx_offset == 0) {
-                counters.add(RPCAMCLinkCounters::input_connector_invalid_, tm_link);
+                counters.add(RPCAMCLinkEvents::input_connector_invalid_, tm_link);
             }
             LogDebug("RPCTwinMuxRawToDigi") << "Skipping invalid Connector " << link_record.getConnector()
                                             << " for record " << link << " (" << std::hex << link_record.getRecord()
@@ -476,7 +477,7 @@ void RPCTwinMuxRawToDigi::processRPCRecord(int fed, unsigned int amc_number
         RPCLBLinkMap::map_type::const_iterator lb_link_it = es_lb_link_map_->getMap().find(lb_link);
         if (lb_link_it == es_lb_link_map_->getMap().end()) {
             if (fill_counters_ && bx_offset == 0) {
-                counters.add(RPCAMCLinkCounters::input_connector_not_used_, tm_link);
+                counters.add(RPCAMCLinkEvents::input_connector_not_used_, tm_link);
             }
             LogDebug("RPCTwinMuxRawToDigi") << "Could not find " << lb_link
                                             << " for record " << link << " (" << std::hex << link_record.getRecord()
@@ -490,8 +491,8 @@ void RPCTwinMuxRawToDigi::processRPCRecord(int fed, unsigned int amc_number
         }
 
         if (fill_counters_ && bx == 0) {
-            counters.add(RPCAMCLinkCounters::amc_data_, RPCAMCLink(fed, amc_number));
-            counters.add(RPCAMCLinkCounters::input_data_, tm_link);
+            counters.add(RPCAMCLinkEvents::amc_event_, RPCAMCLink(fed, amc_number));
+            counters.add(RPCAMCLinkEvents::input_event_, tm_link);
         }
 
         RPCFebConnector const & feb_connector(lb_link_it->second);

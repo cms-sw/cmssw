@@ -25,16 +25,13 @@ class CSCCrosstalkDBConditions: public edm::ESProducer, public edm::EventSetupRe
 
   inline static CSCDBCrosstalk * prefillDBCrosstalk();
 
-  typedef const  CSCDBCrosstalk * ReturnType;
+  typedef std::unique_ptr<CSCDBCrosstalk> ReturnType;
   
   ReturnType produceDBCrosstalk(const CSCDBCrosstalkRcd&);
   
  private:
   // ----------member data ---------------------------
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
-
-
-  CSCDBCrosstalk *cndbCrosstalk ;
 
 };
 

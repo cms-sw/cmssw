@@ -34,10 +34,10 @@ public:
 
   // Using this constructor will require InputTags to be specified in the configuration
   L1TGlobalUtil(edm::ParameterSet const& pset,
-		edm::ConsumesCollector&& iC);
+                edm::ConsumesCollector&& iC);
 
   L1TGlobalUtil(edm::ParameterSet const& pset,
-		edm::ConsumesCollector& iC);
+                edm::ConsumesCollector& iC);
 
   // Using this constructor will cause it to look for valid InputTags in
   // the following ways in the specified order until they are found.
@@ -46,13 +46,13 @@ public:
   //   3. Search all products from any other process for the required type
   template <typename T>
   L1TGlobalUtil(edm::ParameterSet const& pset,
-		edm::ConsumesCollector&& iC,
-		T& module);
+                edm::ConsumesCollector&& iC,
+                T& module);
 
   template <typename T>
   L1TGlobalUtil(edm::ParameterSet const& pset,
-		edm::ConsumesCollector& iC,
-		T& module);
+                edm::ConsumesCollector& iC,
+                T& module);
 
   // Using this constructor will cause it to look for valid InputTags in
   // the following ways in the specified order until they are found.
@@ -62,20 +62,23 @@ public:
   //   4. Search all products from any other process for the required type
   template <typename T>
   L1TGlobalUtil(edm::ParameterSet const& pset,
-		edm::ConsumesCollector&& iC,
-		T& module,
-		edm::InputTag const& l1tAlgBlkInputTag,
-		edm::InputTag const& l1tExtBlkInputTag);
+                edm::ConsumesCollector&& iC,
+                T& module,
+                edm::InputTag const& l1tAlgBlkInputTag,
+                edm::InputTag const& l1tExtBlkInputTag);
 
   template <typename T>
   L1TGlobalUtil(edm::ParameterSet const& pset,
-		edm::ConsumesCollector& iC,
-		T& module,
-		edm::InputTag const& l1tAlgBlkInputTag,
-		edm::InputTag const& l1tExtBlkInputTag);
+                edm::ConsumesCollector& iC,
+                T& module,
+                edm::InputTag const& l1tAlgBlkInputTag,
+                edm::InputTag const& l1tExtBlkInputTag);
 
   /// destructor
   virtual ~L1TGlobalUtil();
+
+  /// check that the L1TGlobalUtil has been properly initialised
+  bool valid() const;
 
   static void fillDescription(edm::ParameterSetDescription & desc) {
     L1TGlobalUtilHelper::fillDescription(desc);
@@ -95,7 +98,7 @@ public:
     void retrieveL1Event(const edm::Event& iEvent, const edm::EventSetup& evSetup); // using helper
     void retrieveL1Event(const edm::Event& iEvent, const edm::EventSetup& evSetup, edm::EDGetToken gtAlgToken);
 
-    inline void setUnprescaledUnmasked(const bool unprescale, const bool unmask) {
+    inline void setUnprescaledUnmasked(bool unprescale, bool unmask) {
       m_algorithmTriggersUnprescaled = unprescale;
       m_algorithmTriggersUnmasked = unmask;
     }
@@ -137,7 +140,7 @@ public:
     const bool getPrescaleByName(const std::string& algName,           int& prescale) const;
 
     // Access Masks (see note) above
-    const bool getMaskByName(const std::string& algName,              std::vector<int>&     mask) const;
+    const bool getMaskByName(const std::string& algName,              std::vector<int>& mask) const;
 
     // Some inline commands to return the full vectors
     inline const std::vector<std::pair<std::string, bool> >& decisionsInitial()   { return m_decisionsInitial; }
@@ -226,41 +229,41 @@ private:
 
 template <typename T>
 L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
-			     edm::ConsumesCollector&& iC,
-			     T& module) :
+                             edm::ConsumesCollector&& iC,
+                             T& module) :
  L1TGlobalUtil(pset, iC, module) { }
 
 template <typename T>
 L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
-			     edm::ConsumesCollector& iC,
-			     T& module) :
+                             edm::ConsumesCollector& iC,
+                             T& module) :
  L1TGlobalUtil() {
    m_l1tGlobalUtilHelper.reset(new L1TGlobalUtilHelper(pset,
-						       iC,
-						       module));
+                                                       iC,
+                                                       module));
    m_readPrescalesFromFile=m_l1tGlobalUtilHelper->readPrescalesFromFile();
  }
 
 template <typename T>
 L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
-			     edm::ConsumesCollector&& iC,
-			     T& module,
-			     edm::InputTag const& l1tAlgBlkInputTag,
-			     edm::InputTag const& l1tExtBlkInputTag) :
+                             edm::ConsumesCollector&& iC,
+                             T& module,
+                             edm::InputTag const& l1tAlgBlkInputTag,
+                             edm::InputTag const& l1tExtBlkInputTag) :
  L1TGlobalUtil(pset, iC, module, l1tAlgBlkInputTag, l1tExtBlkInputTag) { }
 
 template <typename T>
 L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
-			     edm::ConsumesCollector& iC,
-			     T& module,
-			     edm::InputTag const& l1tAlgBlkInputTag,
-			     edm::InputTag const& l1tExtBlkInputTag) :
+                             edm::ConsumesCollector& iC,
+                             T& module,
+                             edm::InputTag const& l1tAlgBlkInputTag,
+                             edm::InputTag const& l1tExtBlkInputTag) :
  L1TGlobalUtil() {
    m_l1tGlobalUtilHelper.reset(new L1TGlobalUtilHelper(pset,
-						       iC,
-						       module,
-						       l1tAlgBlkInputTag,
-						       l1tExtBlkInputTag));
+                                                       iC,
+                                                       module,
+                                                       l1tAlgBlkInputTag,
+                                                       l1tExtBlkInputTag));
    m_readPrescalesFromFile=m_l1tGlobalUtilHelper->readPrescalesFromFile();
  }
 }

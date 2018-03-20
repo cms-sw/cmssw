@@ -93,6 +93,16 @@ namespace edm {
     typedef module::Empty Type;
   };
 
+  struct ExternalWork {
+    static constexpr module::Abilities kAbilities=module::Abilities::kExternalWork;
+    typedef module::Empty Type;
+  };
+
+  struct Accumulator {
+    static constexpr module::Abilities kAbilities=module::Abilities::kAccumulator;
+    typedef module::Empty Type;
+  };
+
   //Recursively checks VArgs template arguments looking for the ABILITY
   template<module::Abilities ABILITY, typename... VArgs> struct CheckAbility;
 
@@ -139,6 +149,19 @@ namespace edm {
     CheckAbility<module::Abilities::kLuminosityBlockSummaryCache,VArgs...>::kHasIt;
   };
 
+  template<typename... VArgs>
+  struct HasAbilityToProduceInRuns {
+    static constexpr bool value =
+      CheckAbility<module::Abilities::kBeginRunProducer,VArgs...>::kHasIt or
+      CheckAbility<module::Abilities::kEndRunProducer, VArgs...>::kHasIt;
+  };
+
+  template<typename... VArgs>
+  struct HasAbilityToProduceInLumis {
+    static constexpr bool value =
+      CheckAbility<module::Abilities::kBeginLuminosityBlockProducer,VArgs...>::kHasIt or
+      CheckAbility<module::Abilities::kEndLuminosityBlockProducer, VArgs...>::kHasIt;
+  };
 }
 
 #endif

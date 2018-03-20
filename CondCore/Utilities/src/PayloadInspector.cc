@@ -1,5 +1,7 @@
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 
 #include <sstream>
 #include <iostream>
@@ -45,6 +47,14 @@ namespace cond {
 
     bool PlotBase::process( const std::string& connectionString,  const std::string& tag, const std::string& timeType, cond::Time_t begin, cond::Time_t end ){
       init();
+
+      std::vector<edm::ParameterSet> psets;
+      edm::ParameterSet pSet;
+      pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
+      psets.push_back(pSet);
+      static const edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
+      static const edm::ServiceRegistry::Operate operate(services);
+
       m_tagTimeType = cond::time::timeTypeFromName(timeType);
       cond::persistency::ConnectionPool connection;
       m_dbSession = connection.createSession( connectionString );

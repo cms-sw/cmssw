@@ -9,7 +9,8 @@ EDMtoMEConvertSiStrip.runInputTag = cms.InputTag("MEtoEDMConvertSiStrip","MEtoED
 
 DQMStore = cms.Service("DQMStore")
 
-dqmEnvSiStripQuality = cms.EDAnalyzer("DQMEventInfo",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmEnvSiStripQuality = DQMEDAnalyzer('DQMEventInfo',
                                       subSystemFolder = cms.untracked.string('AlCaReco'),  
                                       )
 

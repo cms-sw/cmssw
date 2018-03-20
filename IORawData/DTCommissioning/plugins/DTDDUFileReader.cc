@@ -135,7 +135,7 @@ int DTDDUFileReader::fillRawData(Event& e,
   
   //     FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
   //     cout<<"EventSize: pushed back "<<eventData.size()
-  // 	<<";  From trailer "<<candidate.lenght()<<endl;
+  // 	<<";  From trailer "<<candidate.fragmentLength()<<endl;
   
   // next event reading will start with meaningless trailer+header from DTLocalDAQ
   // those will be skipped automatically when seeking for the DDU header
@@ -228,14 +228,14 @@ bool DTDDUFileReader::isHeader(uint64_t word, bool dataTag) {
 }
 
 
-bool DTDDUFileReader::isTrailer(uint64_t word, bool dataTag, int wordCount) {
+bool DTDDUFileReader::isTrailer(uint64_t word, bool dataTag, unsigned int wordCount) {
 
   bool it_is = false;
   FEDTrailer candidate(reinterpret_cast<const unsigned char*>(&word));
   if ( candidate.check() ) {
     //  if ( candidate.check() && !dataTag) {
-    //cout<<"[DTDDUFileReader] "<<wordCount<<" - "<<candidate.lenght()<<endl;
-    if ( wordCount == candidate.lenght())
+    //cout<<"[DTDDUFileReader] "<<wordCount<<" - "<<candidate.fragmentLength()<<endl;
+    if ( wordCount == candidate.fragmentLength())
       it_is = true;
   }
  

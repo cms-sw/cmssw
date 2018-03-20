@@ -54,6 +54,7 @@ edm::ParameterSet ReconstructorFromFitter::defaults() const
 
 void ReconstructorFromFitter::configure ( const edm::ParameterSet & s )
 {
+  //this looks better than changing the data member to be non-const ptr and allow changes in all calls
   const_cast < AbstractConfFitter *> (theFitter)->configure (s );
 }
 

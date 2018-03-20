@@ -43,7 +43,7 @@ from DQM.TrackingMonitorClient.TrackingClientConfig_Tier0_Cosmic_cff import *
 DQMOfflineCosmics_SecondStep_PrePOG = cms.Sequence( TrackingCosmicDQMClient *
                                                     cosmicMuonQualityTests *
                                                     photonOfflineDQMClient *
-#                                                    l1TriggerDqmOfflineClient * 
+                                                    l1TriggerDqmOfflineCosmicsClient *
                                                     triggerOfflineDQMClient *
                                                     hltOfflineDQMClient *
                                                     SusyPostProcessorSequence )

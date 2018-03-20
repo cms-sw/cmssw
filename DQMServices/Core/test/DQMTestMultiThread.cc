@@ -14,16 +14,15 @@ class DQMTestMultiThread
  public:
   explicit DQMTestMultiThread(const edm::ParameterSet&);
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void bookHistograms(DQMStore::IBooker&,
+  void bookHistograms(DQMStore::IBooker&,
                               edm::Run const &,
                               edm::EventSetup const &) override;
 
   void dumpMe(MonitorElement const&, bool printStat = false);
 
  private:
-  DQMTestMultiThread(void) = delete;
   MonitorElement * myHisto;
   std::string folder_;
   double fill_value_;
@@ -64,7 +63,6 @@ void DQMTestMultiThread::dumpMe(MonitorElement const& me,
   std::cout << "Run: " << me.run()
             << " Lumi: " << me.lumi()
             << " LumiFlag: " << me.getLumiFlag()
-            << " streamId: " << me.streamId()
             << " moduleId: " << me.moduleId()
             << " fullpathname: " << me.getPathname();
   if (printStat)

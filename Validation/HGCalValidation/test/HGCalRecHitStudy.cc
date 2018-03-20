@@ -1,5 +1,10 @@
 // system include files
-#include <memory>
+#include <cmath>
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <vector>
+#include <string>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -36,19 +41,12 @@
 #include "TH1D.h"
 #include "TH2D.h"
 
-#include <cmath>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <map>
-#include <string>
-
 class HGCalRecHitStudy : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
 public:
 
   explicit HGCalRecHitStudy(const edm::ParameterSet&);
-  ~HGCalRecHitStudy();
+  ~HGCalRecHitStudy() override {}
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -83,8 +81,8 @@ private:
   // ----------member data ---------------------------
   std::string           nameDetector_;
   edm::EDGetToken       recHitSource_;
-  int                   verbosity_;
   bool                  ifHCAL_;
+  int                   verbosity_;
   unsigned int          layers_;
   std::map<int, int>    OccupancyMap_plus;
   std::map<int, int>    OccupancyMap_minus;
@@ -98,14 +96,15 @@ private:
 };
 
 
-HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig) {
+HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig) :
+  nameDetector_(iConfig.getParameter<std::string>("DetectorName")), 
+  ifHCAL_(iConfig.getParameter<bool>("ifHCAL")),
+  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)) {
 
-  usesResource("TFileService");
+  usesResource(TFileService::kSharedResource);
+
   layers_       = 0;
-  nameDetector_ = iConfig.getParameter<std::string>("DetectorName");
-  verbosity_    = iConfig.getUntrackedParameter<int>("Verbosity",0);
   auto temp     = iConfig.getParameter<edm::InputTag>("RecHitSource");
-  ifHCAL_       = iConfig.getParameter<bool>("ifHCAL");
   if (nameDetector_ == "HGCalEESensitive" || 
       nameDetector_ == "HGCalHESiliconSensitive" ||
       nameDetector_ == "HGCalHEScintillatorSensitive" ) {
@@ -125,8 +124,14 @@ HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig) {
 				      << verbosity_;
 }
 
-
-HGCalRecHitStudy::~HGCalRecHitStudy() { }
+void HGCalRecHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("DetectorName","HGCalEESensitive");
+  desc.add<edm::InputTag>("RecHitSource",edm::InputTag("HGCalRecHit","HGCEERecHits"));
+  desc.add<bool>("ifHCAL",false);
+  desc.addUntracked<int>("Verbosity",0);
+  descriptions.add("hgcalRecHitStudyEE",desc);
+}
 
 void HGCalRecHitStudy::analyze(const edm::Event& iEvent, 
 			       const edm::EventSetup& iSetup) {
@@ -149,13 +154,13 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
 	if (verbosity_>0) 
 	  edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
 					      << hbhecoll->size() << " element(s)";
-	for (auto it=hbhecoll->begin(); it != hbhecoll->end(); ++it) {
-	  DetId detId = it->id();
+	for (const auto & it : *(hbhecoll.product())) {
+	  DetId detId = it.id();
 	  ntot++;
 	  if (detId.subdetId() == HcalEndcap) {
 	    nused++;
 	    int   layer = HcalDetId(detId).depth();
-	    recHitValidation(detId, layer, geom0, it);
+	    recHitValidation(detId, layer, geom0, &it);
 	  }
 	}
       } else {
@@ -169,11 +174,11 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
 	if (verbosity_>0) 
 	  edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
 					      << hbhecoll->size() << " element(s)";
-	for (auto it=hbhecoll->begin(); it != hbhecoll->end(); ++it) {
-	  DetId detId = it->id();
+	for (const auto & it : *(hbhecoll.product())) {
+	  DetId detId = it.id();
 	  ntot++; nused++;
 	  int   layer = HcalDetId(detId).depth();
-	  recHitValidation(detId, layer, geom0, it);
+	  recHitValidation(detId, layer, geom0, &it);
 	}
       } else {
 	ok = false;
@@ -193,12 +198,11 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent,
 	edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
 					    << theRecHitContainers->size()
 					    << " element(s)";
-      for (auto it=theRecHitContainers->begin();
-	   it !=theRecHitContainers->end(); ++it) {
+      for (const auto & it : *(theRecHitContainers.product())) {
 	ntot++; nused++;
-	DetId detId = it->id();
-	int layer   = (detId.subdetId() == HGCEE) ? (HGCEEDetId(detId).layer()) : (HGCHEDetId(detId).layer());
-	recHitValidation(detId, layer, geom0, it);
+	DetId detId = it.id();
+	int layer   = HGCalDetId(detId).layer();
+	recHitValidation(detId, layer, geom0, &it);
       }
     } else {
       ok = false;
@@ -316,14 +320,6 @@ void HGCalRecHitStudy::beginRun(edm::Run const&,
 
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void HGCalRecHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<std::string>("DetectorName","HGCalEESensitive");
-  desc.add<edm::InputTag>("RecHitSource",edm::InputTag("HGCalRecHit","HGCEERecHits"));
-  desc.add<bool>("ifHCAL",false);
-  desc.addUntracked<int>("Verbosity",0);
-  descriptions.add("hgcalRecHitStudyEE",desc);
-}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

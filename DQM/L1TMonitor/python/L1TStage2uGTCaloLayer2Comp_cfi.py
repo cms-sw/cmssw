@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tStage2uGTCaloLayer2Comp = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1tStage2uGTCaloLayer2Comp = DQMEDAnalyzer(
     "L1TStage2uGTCaloLayer2Comp",
     calol2JetCollection    = cms.InputTag("caloStage2Digis", "Jet"),
     uGTJetCollection       = cms.InputTag("gtStage2Digis", "Jet"),

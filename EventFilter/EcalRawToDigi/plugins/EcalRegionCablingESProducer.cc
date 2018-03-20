@@ -16,8 +16,7 @@ EcalRegionCablingESProducer::produce(const EcalRegionCablingRecord & iRecord)
    edm::ESHandle<EcalElectronicsMapping> mapping;
    iRecord.getRecord<EcalMappingRcd>().get(mapping);
 
-   ReturnType erc( new EcalRegionCabling(conf_,
-					 mapping.product()));
+   return std::make_unique<EcalRegionCabling>(conf_,
+					 mapping.product());
 
-   return erc;
 }

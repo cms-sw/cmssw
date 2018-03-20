@@ -12,12 +12,12 @@
 #include <memory>
 
 class  CosmicParametersDefinerForTPESProducer: public edm::ESProducer{
-  typedef std::shared_ptr<CosmicParametersDefinerForTP> ReturnType;
+  typedef std::unique_ptr<CosmicParametersDefinerForTP> ReturnType;
 
  public:
   CosmicParametersDefinerForTPESProducer(const edm::ParameterSet & p);
   ~CosmicParametersDefinerForTPESProducer() override; 
-  std::shared_ptr<CosmicParametersDefinerForTP> produce(const TrackAssociatorRecord &);
+  std::unique_ptr<CosmicParametersDefinerForTP> produce(const TrackAssociatorRecord &);
 
 };
 

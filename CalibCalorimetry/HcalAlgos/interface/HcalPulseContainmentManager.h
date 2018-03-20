@@ -4,6 +4,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentCorrection.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 
 class HcalPulseContainmentManager {
 public:
@@ -12,8 +13,12 @@ public:
   const HcalPulseContainmentCorrection * get(const HcalDetId & detId, int toAdd, float fixedphase_ns);
 
   void beginRun(edm::EventSetup const & es);
+  void beginRun(const HcalTopology *topo, const edm::ESHandle<HcalTimeSlew>& delay, const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams);
   void endRun();
 
+  void setTimeSlew(const HcalTimeSlew* timeSlew) {
+    hcalTimeSlew_delay_ = timeSlew;
+  }
 private:
 
   struct HcalPulseContainmentEntry {
@@ -29,6 +34,8 @@ private:
   HcalPulseShapes shapes_;
   float fixedphase_ns_;
   float max_fracerror_;
+
+  const HcalTimeSlew* hcalTimeSlew_delay_;
 };
 
 #endif

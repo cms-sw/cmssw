@@ -1,7 +1,7 @@
 /**  \class L3MuonCandidateProducerFromMuons
  * 
- *   This class takes the tracker muons (which are reco::Muons) 
- *   and creates the correspondent reco::RecoChargedCandidate.
+ *   This class takes reco::Muons and creates
+ *   the correspondent reco::RecoChargedCandidate.
  *
  */
 
@@ -60,7 +60,7 @@ void L3MuonCandidateProducerFromMuons::produce(StreamID, Event& event, const Eve
     LogError(category) << muons.whyFailed()->what();
   } else { 
     for (unsigned int i=0; i<muons->size(); i++) {
-      TrackRef tkref = (*muons)[i].innerTrack();
+      TrackRef tkref = (*muons)[i].muonBestTrack();  // avoids crashing in case the muon is SA only. 
 
       Particle::Charge q = tkref->charge();
       Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());

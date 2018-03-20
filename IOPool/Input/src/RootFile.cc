@@ -7,7 +7,6 @@
 #include "ProvenanceAdaptor.h"
 #include "RunHelper.h"
 
-#include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
@@ -501,8 +500,6 @@ namespace edm {
 
     // Determine if this file is fast clonable.
     setIfFastClonable(remainingEvents, remainingLumis);
-
-    setRefCoreStreamer(true);  // backward compatibility
 
     // We are done with our initial reading of EventAuxiliary.
     indexIntoFile_.doneFileInitialization();
@@ -1529,7 +1526,8 @@ namespace edm {
       return;
     }
     // End code for backward compatibility before the existence of run trees.
-    runTree_.insertEntryForIndex(runPrincipal.transitionIndex());
+    // NOTE: we use 0 for the index since do not do delayed reads for RunPrincipals
+    runTree_.insertEntryForIndex(0);
     runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.resetAndGetRootDelayedReader());
     // Read in all the products now.
     runPrincipal.readAllFromSourceAndMergeImmediately();
@@ -1585,7 +1583,8 @@ namespace edm {
     }
     // End code for backward compatibility before the existence of lumi trees.
     lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
-    lumiTree_.insertEntryForIndex(lumiPrincipal.transitionIndex());
+    // NOTE: we use 0 for the index since do not do delayed reads for LuminosityBlockPrincipals
+    lumiTree_.insertEntryForIndex(0);
     lumiPrincipal.fillLuminosityBlockPrincipal(*processHistoryRegistry_, lumiTree_.resetAndGetRootDelayedReader());
     // Read in all the products now.
     lumiPrincipal.readAllFromSourceAndMergeImmediately();
@@ -1879,20 +1878,15 @@ private:
                                  SignalType const* post) {
       if(nullptr == writeTo.load()) {
         //need to be sure the task isn't run until after the read
-        task->increment_ref_count();
+        WaitingTaskHolder taskHolder{task};
         auto pWriteTo = &writeTo;
         
         auto serviceToken = ServiceRegistry::instance().presentToken();
 
-        chain.push([task,pWriteTo,iThis,transitionIndex, iContext, pre,post, serviceToken]() {
-          WaitingTaskHolder holder(task);
-          //the holder is now responsible for the task
-          // and has already incremented the count
-          task->decrement_ref_count();
-          
-          ServiceRegistry::Operate operate(serviceToken);
+        chain.push([holder = std::move(taskHolder), pWriteTo,iThis,transitionIndex, iContext, pre,post, serviceToken]() mutable {
 
           if(nullptr == pWriteTo->load()) {
+            ServiceRegistry::Operate operate(serviceToken);
             std::unique_ptr<const std::set<ProductProvenance>> prov;
             try {
               if(pre) {pre->emit(*(iContext->getStreamContext()),*iContext);}
@@ -1939,7 +1933,6 @@ private:
       std::lock_guard<std::recursive_mutex> guard(*mutex_);
       ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
       me->rootTree_->fillBranchEntry(me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
-      setRefCoreStreamer(true);
     }
     std::set<ProductProvenance> retValue;
     if(daqProvenanceHelper_) {
@@ -2015,7 +2008,6 @@ private:
     {
       std::lock_guard<std::recursive_mutex> guard(*mutex_);
       rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex), pInfoVector_);
-      setRefCoreStreamer(true);
     }
     std::set<ProductProvenance> retValue;
     if(daqProvenanceHelper_) {
@@ -2086,7 +2078,6 @@ private:
       std::lock_guard<std::recursive_mutex> guard(*mutex_);
       rootTree_->branchEntryInfoBranch()->SetAddress(&pInfoVector_);
       roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumberForIndex(transitionIndex));
-      setRefCoreStreamer(true);
     }
     std::set<ProductProvenance> retValue;
     for(auto const& info : infoVector_) {

@@ -11,9 +11,8 @@
 
 #include <vector>
 
-class CastorGeometry : public CaloSubdetectorGeometry 
-{
-   public:
+class CastorGeometry : public CaloSubdetectorGeometry {
+public:
 
       typedef std::vector<IdealCastorTrapezoid> CellVec ;
 
@@ -61,15 +60,14 @@ class CastorGeometry : public CaloSubdetectorGeometry
 				Pt3D&           ref  ) ;
 
       void newCell( const GlobalPoint& f1 ,
-			    const GlobalPoint& f2 ,
-			    const GlobalPoint& f3 ,
-			    const CCGFloat*    parm,
-			    const DetId&       detId     ) override ;
+		    const GlobalPoint& f2 ,
+		    const GlobalPoint& f3 ,
+		    const CCGFloat*    parm,
+		    const DetId&       detId     ) override ;
+protected:
 
-   protected:
-
-      const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override ;
-
+      // Modify the RawPtr class
+      const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
 
 private:
 

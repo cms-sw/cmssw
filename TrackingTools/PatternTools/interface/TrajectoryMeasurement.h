@@ -204,7 +204,7 @@ private:
   TrajectoryStateOnSurface theBwdPredictedState;
   TrajectoryStateOnSurface theUpdatedState;
   ConstRecHitPointer       theRecHit;
-  mutable DetLayer const * theLayer;
+  DetLayer const * theLayer;
   float theEstimate;
 };
 

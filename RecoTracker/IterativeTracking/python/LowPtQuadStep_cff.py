@@ -21,20 +21,20 @@ lowPtQuadStepTrackingRegions = _globalTrackingRegionFromBeamSpot.clone(RegionPSe
     originRadius = 0.02,
     nSigmaZ = 4.0
 ))
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
-trackingPhase1QuadProp.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.2))
 trackingPhase2PU140.toModify(lowPtQuadStepTrackingRegions, RegionPSet = dict(ptMin = 0.35,originRadius = 0.025))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-pp_on_XeXe_2017.toReplaceWith(lowPtQuadStepTrackingRegions, 
-                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-            fixedError = 0.5,
-            ptMin = 0.25,
-            originRadius = 0.02
-            )
-                                                                      )
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toReplaceWith(lowPtQuadStepTrackingRegions, 
+                    _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+                fixedError = 0.5,
+                ptMin = 0.25,
+                originRadius = 0.02
+                )
+                                                            )
 )
 
 # seeding
@@ -71,35 +71,6 @@ lowPtQuadStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = "lowPtQuadStepHitQuadruplets",
 )
 
-trackingPhase1QuadProp.toModify(lowPtQuadStepHitDoublets, layerPairs = [0])
-lowPtQuadStepHitTriplets = _pixelTripletHLTEDProducer.clone(
-    doublets = "lowPtQuadStepHitDoublets",
-    produceIntermediateHitTriplets = True,
-    SeedComparitorPSet = lowPtQuadStepHitQuadruplets.SeedComparitorPSet,
-)
-from RecoPixelVertexing.PixelTriplets.pixelQuadrupletEDProducer_cfi import pixelQuadrupletEDProducer as _pixelQuadrupletEDProducer
-_lowPtQuadStepHitQuadruplets_propagation = _pixelQuadrupletEDProducer.clone(
-    triplets = "lowPtQuadStepHitTriplets",
-    extraHitRZtolerance = lowPtQuadStepHitTriplets.extraHitRZtolerance,
-    extraHitRPhitolerance = lowPtQuadStepHitTriplets.extraHitRPhitolerance,
-    maxChi2 = dict(
-        pt1    = 0.8  , pt2    = 2,
-        value1 = 2000, value2 = 100,
-        enabled = True,
-    ),
-    extraPhiTolerance = dict(
-        pt1    = 0.3, pt2    = 1,
-        value1 = 0.4, value2 = 0.05,
-        enabled = True,
-    ),
-    useBendingCorrection = True,
-    fitFastCircle = True,
-    fitFastCircleChi2Cut = True,
-    SeedComparitorPSet = lowPtQuadStepHitTriplets.SeedComparitorPSet,
-)
-trackingPhase1QuadProp.toReplaceWith(lowPtQuadStepHitQuadruplets, _lowPtQuadStepHitQuadruplets_propagation)
-
-
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff as _TrajectoryFilter_cff
@@ -113,7 +84,8 @@ lowPtQuadStepTrajectoryFilterBase = _lowPtQuadStepTrajectoryFilterBase.clone(
 )
 trackingPhase2PU140.toReplaceWith(lowPtQuadStepTrajectoryFilterBase, _lowPtQuadStepTrajectoryFilterBase)
 
-pp_on_XeXe_2017.toModify(lowPtQuadStepTrajectoryFilterBase, minPt=0.3)
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(lowPtQuadStepTrajectoryFilterBase, minPt=0.3)
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter
@@ -255,10 +227,6 @@ LowPtQuadStepTask = cms.Task(lowPtQuadStepClusters,
                              lowPtQuadStepTracks,
                              lowPtQuadStep)
 LowPtQuadStep = cms.Sequence(LowPtQuadStepTask)
-
-_LowPtQuadStepTask_Phase1Prop = LowPtQuadStepTask.copy()
-_LowPtQuadStepTask_Phase1Prop.replace(lowPtQuadStepHitDoublets, cms.Task(lowPtQuadStepHitDoublets,lowPtQuadStepHitTriplets))
-trackingPhase1QuadProp.toReplaceWith(LowPtQuadStepTask, _LowPtQuadStepTask_Phase1Prop)
 
 _LowPtQuadStepTask_Phase2PU140 = LowPtQuadStepTask.copy()
 _LowPtQuadStepTask_Phase2PU140.replace(lowPtQuadStep, lowPtQuadStepSelector)

@@ -38,7 +38,7 @@ _localMaxSeeds_ECAL = cms.PSet(
     algoName = cms.string("LocalMaximumSeedFinder"),
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("ECAL_ENDCAP"),
-              seedingThreshold = cms.double(0.6),
+              seedingThreshold = cms.double(0.60),
               seedingThresholdPt = cms.double(0.15)
               ),
     cms.PSet( detector = cms.string("ECAL_BARREL"),

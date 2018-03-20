@@ -34,7 +34,7 @@ template<class DataType, class MyRecord>
 class BufferedBoostIOESProducer : public edm::ESProducer
 {
 public:
-    typedef std::shared_ptr<DataType> ReturnType;
+    typedef std::unique_ptr<DataType> ReturnType;
 
     inline BufferedBoostIOESProducer(const edm::ParameterSet&)
         {setWhatProduced(this);}
@@ -52,7 +52,7 @@ BufferedBoostIOESProducer<DataType,MyRecord>::produce(const MyRecord& iRecord)
     iRecord.get(handle);
     std::istringstream is(handle->str());
     eos::portable_iarchive ar(is);
-    ReturnType ret(new DataType());
+    auto ret = std::make_unique<DataType>();
     ar & *ret;
     return ret;
 }

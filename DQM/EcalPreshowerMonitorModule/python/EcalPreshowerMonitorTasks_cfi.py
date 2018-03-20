@@ -11,7 +11,8 @@ from DQM.EcalPreshowerMonitorModule.ESDataCertificationTask_cfi import *
 from DQM.EcalPreshowerMonitorModule.ESDaqInfoTask_cfi import *
 from DQM.EcalPreshowerMonitorModule.ESTrendTask_cfi import *
 
-dqmInfoES = cms.EDAnalyzer("DQMEventInfo",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmInfoES = DQMEDAnalyzer('DQMEventInfo',
                          subSystemFolder = cms.untracked.string('EcalPreshower')
                          )
 

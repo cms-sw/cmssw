@@ -181,32 +181,14 @@ void DTTTrigOffsetCalibration::bookHistos(DTChamberId chId) {
   LogTrace("Calibration") << "   Booking histos for Chamber: " << chId;
 
   // Compose the chamber name
-  stringstream wheel; wheel << chId.wheel();
-  stringstream station; station << chId.station();
-  stringstream sector; sector << chId.sector();
+  std::string wheel = std::to_string(chId.wheel());
+  std::string station = std::to_string(chId.station());
+  std::string sector = std::to_string(chId.sector());
 
   string chHistoName =
-    "_W" + wheel.str() +
-    "_St" + station.str() +
-    "_Sec" + sector.str();
-
-  /*// Define the step
-  stringstream Step; Step << step;
-
-  string chHistoName =
-    "_STEP" + Step.str() +
-    "_W" + wheel.str() +
-    "_St" + station.str() +
-    "_Sec" + sector.str();
-
-  theDbe->setCurrentFolder("DT/DTCalibValidation/Wheel" + wheel.str() +
-                           "/Station" + station.str() +
-                           "/Sector" + sector.str());
-  // Create the monitor elements
-  vector<MonitorElement *> histos;
-  // Note hte order matters
-  histos.push_back(theDbe->book1D("hRPhiSegT0"+chHistoName, "t0 from Phi segments", 200, -25., 25.));
-  histos.push_back(theDbe->book1D("hRZSegT0"+chHistoName, "t0 from Z segments", 200, -25., 25.));*/
+    "_W" + wheel +
+    "_St" + station +
+    "_Sec" +  sector;
 
   vector<TH1F*> histos;
   // Note the order matters

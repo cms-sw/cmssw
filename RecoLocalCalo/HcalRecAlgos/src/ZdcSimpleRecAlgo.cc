@@ -23,9 +23,10 @@ ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(int recoMethod) :
   recoMethod_(recoMethod),
   correctForTimeslew_(false) {
 }
-void ZdcSimpleRecAlgo::initPulseCorr(int toadd) {
+
+void ZdcSimpleRecAlgo::initPulseCorr(int toadd, const HcalTimeSlew* hcalTimeSlew_delay) {
   if (correctForPulse_) {    
-    pulseCorr_ = std::make_unique<HcalPulseContainmentCorrection>(toadd,phaseNS_,MaximumFractionalError);
+    pulseCorr_ = std::make_unique<HcalPulseContainmentCorrection>(toadd,phaseNS_,MaximumFractionalError, hcalTimeSlew_delay);
   }
 }
 //static float timeshift_ns_zdc(float wpksamp);
@@ -143,6 +144,7 @@ namespace ZdcSimpleRecAlgoImpl {
     for(unsigned int iv = 0; iv<myNoiseTS.size(); ++iv)
     {
       CurrentTS = myNoiseTS[iv];
+      if ( CurrentTS >= digi.size() ) continue;
       Allnoise += tool[CurrentTS];
       noiseslices++;
     }
@@ -154,6 +156,7 @@ namespace ZdcSimpleRecAlgoImpl {
     for(unsigned int ivs = 0; ivs<mySignalTS.size(); ++ivs)
     {
       CurrentTS = mySignalTS[ivs];
+      if ( CurrentTS >= digi.size() ) continue;
       int capid=digi[CurrentTS].capid();
 //       if(noise<0){
 //       // flag hit as having negative noise, and don't subtract anything, because
@@ -173,6 +176,7 @@ namespace ZdcSimpleRecAlgoImpl {
     for(unsigned int iLGvs = 0; iLGvs<mySignalTS.size(); ++iLGvs)
     {
       CurrentTS = mySignalTS[iLGvs]+lowGainOffset;
+      if ( CurrentTS >= digi.size() ) continue;
       int capid=digi[CurrentTS].capid();
       TempLGAmp = tool[CurrentTS]-noise;
       lowGfc_ampl+=TempLGAmp; 

@@ -10,12 +10,14 @@
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 
 // alignment
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignmentLevelBuilder.h"
 
 
 
 class AlignableTrackerBuilder {
+  using Alignables = align::Alignables;
 
   //========================== PUBLIC METHODS =================================
   public: //===================================================================

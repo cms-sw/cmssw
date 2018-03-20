@@ -1,5 +1,6 @@
 #include "DQMOffline/L1Trigger/interface/L1TEGammaOffline.h"
 #include "DQMOffline/L1Trigger/interface/L1TFillWithinLimits.h"
+#include "DQMOffline/L1Trigger/interface/L1TCommon.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,6 +18,13 @@
 #include <cmath>
 #include <algorithm>
 
+
+const std::map<std::string, unsigned int> L1TEGammaOffline::PlotConfigNames = {
+  {"nVertex", PlotConfig::nVertex},
+  {"ETvsET", PlotConfig::ETvsET},
+  {"PHIvsPHI", PlotConfig::PHIvsPHI}
+};
+
 //
 // -------------------------------------- Constructor --------------------------------------------
 //
@@ -27,10 +35,10 @@ L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
             consumes < std::vector<reco::Photon> > (ps.getParameter < edm::InputTag > ("photonCollection"))),
         thePVCollection_(consumes < reco::VertexCollection > (ps.getParameter < edm::InputTag > ("PVCollection"))),
         theBSCollection_(consumes < reco::BeamSpot > (ps.getParameter < edm::InputTag > ("beamSpotCollection"))),
-        triggerEvent_(consumes < trigger::TriggerEvent > (ps.getParameter < edm::InputTag > ("TriggerEvent"))),
-        triggerResults_(consumes < edm::TriggerResults > (ps.getParameter < edm::InputTag > ("TriggerResults"))),
-        triggerFilter_(ps.getParameter < edm::InputTag > ("TriggerFilter")),
-        triggerPath_(ps.getParameter < std::string > ("TriggerPath")),
+        triggerInputTag_(consumes < trigger::TriggerEvent > (ps.getParameter < edm::InputTag > ("triggerInputTag"))),
+        triggerResultsInputTag_(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"))),
+        triggerProcess_(ps.getParameter < std::string > ("triggerProcess")),
+        triggerNames_(ps.getParameter < std::vector<std::string> > ("triggerNames")),
         histFolder_(ps.getParameter < std::string > ("histFolder")),
         efficiencyFolder_(histFolder_ + "/efficiency_raw"),
         stage2CaloLayer2EGammaToken_(
@@ -43,7 +51,12 @@ L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
         photonEfficiencyBins_(ps.getParameter < std::vector<double> > ("photonEfficiencyBins")),
         tagElectron_(),
         probeElectron_(),
-        tagAndProbleInvariantMass_(-1.)
+        tagAndProbleInvariantMass_(-1.),
+        hltConfig_(),
+        triggerIndices_(),
+        triggerResults_(),
+        triggerEvent_(),
+        histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames))
 {
   edm::LogInfo("L1TEGammaOffline") << "Constructor " << "L1TEGammaOffline::L1TEGammaOffline " << std::endl;
 }
@@ -59,9 +72,18 @@ L1TEGammaOffline::~L1TEGammaOffline()
 //
 // -------------------------------------- beginRun --------------------------------------------
 //
-void L1TEGammaOffline::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
+void L1TEGammaOffline::dqmBeginRun(edm::Run const & iRun, edm::EventSetup const & iSetup)
 {
   edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::beginRun" << std::endl;
+  bool changed(true);
+  if (!hltConfig_.init(iRun, iSetup, triggerProcess_, changed)) {
+    edm::LogError("L1TEGammaOffline")
+        << " HLT config extraction failure with process name "
+        << triggerProcess_<< std::endl;
+    triggerNames_.clear();
+  } else {
+    triggerIndices_ = dqmoffline::l1t::getTriggerIndices(triggerNames_, hltConfig_.triggerNames());
+  }
 }
 
 //
@@ -90,16 +112,35 @@ void L1TEGammaOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 {
   edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::analyze" << std::endl;
 
+  edm::Handle<edm::TriggerResults> triggerResultHandle;
+  e.getByToken(triggerResultsInputTag_, triggerResultHandle);
+  if (!triggerResultHandle.isValid()) {
+    edm::LogWarning("L1TEGammaOffline") << "invalid edm::TriggerResults handle" << std::endl;
+    return;
+  }
+  triggerResults_ = *triggerResultHandle;
+
+  edm::Handle<trigger::TriggerEvent> triggerEventHandle;
+  e.getByToken(triggerInputTag_, triggerEventHandle);
+  if (!triggerEventHandle.isValid()) {
+    edm::LogWarning("L1TEGammaOffline") << "invalid trigger::TriggerEvent handle" << std::endl;
+    return;
+  }
+  triggerEvent_ = *triggerEventHandle;
+
   edm::Handle < reco::VertexCollection > vertexHandle;
   e.getByToken(thePVCollection_, vertexHandle);
   if (!vertexHandle.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: vertex " << std::endl;
+    edm::LogWarning("L1TEGammaOffline") << "invalid collection: vertex " << std::endl;
     return;
   }
 
   unsigned int nVertex = vertexHandle->size();
   dqmoffline::l1t::fillWithinLimits(h_nVertex_, nVertex);
 
+  if(!dqmoffline::l1t::passesAnyTriggerFromList(triggerIndices_, triggerResults_)){
+    return;
+  }
   // L1T
   fillElectrons(e, nVertex);
   fillPhotons(e, nVertex);
@@ -114,7 +155,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
   e.getByToken(theGsfElectronCollection_, gsfElectrons);
 
   if (!gsfElectrons.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: GSF electrons " << std::endl;
+    edm::LogWarning("L1TEGammaOffline") << "invalid collection: GSF electrons " << std::endl;
     return;
   }
   if (gsfElectrons->empty()) {
@@ -122,7 +163,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
     return;
   }
   if (!l1EGamma.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
+    edm::LogWarning("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
     return;
   }
   if (!findTagAndProbePair(gsfElectrons)) {
@@ -287,14 +328,16 @@ bool L1TEGammaOffline::findTagAndProbePair(edm::Handle<reco::GsfElectronCollecti
       bool tagPassesMediumID = passesMediumEleId(tagElectron) && tagElectron.et() > 30.;
       bool probePassesLooseID = passesLooseEleId(probeElectron);
       bool passesInvariantMass = combined.M() > 60 && combined.M() < 120;
+      bool tagMatchesHLTObject = matchesAnHLTObject(tagElectron.eta(), tagElectron.phi());
 
-      if (passesEta && passesInvariantMass && passesCharge && tagPassesMediumID && probePassesLooseID) {
+      if (passesEta && passesInvariantMass && passesCharge && tagPassesMediumID &&
+          probePassesLooseID && tagMatchesHLTObject) {
         foundBoth = true;
         tagElectron_ = tagElectron;
         probeElectron_ = probeElectron;
         // plot tag & probe invariant mass
         dqmoffline::l1t::fillWithinLimits(h_tagAndProbeMass_, combined.M());
-        break;
+        return foundBoth;
       }
     }
 
@@ -372,6 +415,18 @@ bool L1TEGammaOffline::passesMediumEleId(reco::GsfElectron const& electron) cons
   return true;
 }
 
+bool L1TEGammaOffline::matchesAnHLTObject(double eta, double phi) const{
+  // get HLT objects of fired triggers
+  using namespace dqmoffline::l1t;
+  std::vector<bool> results = getTriggerResults(triggerIndices_, triggerResults_);
+  std::vector<unsigned int> firedTriggers = getFiredTriggerIndices(triggerIndices_, results);
+  std::vector<edm::InputTag> hltFilters = getHLTFilters(firedTriggers, hltConfig_, triggerProcess_);
+  const trigger::TriggerObjectCollection hltObjects = getTriggerObjects(hltFilters, triggerEvent_);
+  const trigger::TriggerObjectCollection matchedObjects = getMatchedTriggerObjects(eta, phi, 0.3, hltObjects);
+
+  return !matchedObjects.empty();
+}
+
 void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVertex)
 {
   // TODO - just an example here
@@ -382,11 +437,11 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
   e.getByToken(thePhotonCollection_, photons);
 
   if (!photons.isValid()) {
-    edm::LogError("L1TEGammaOffline") << "invalid collection: reco::Photons " << std::endl;
+    edm::LogWarning("L1TEGammaOffline") << "invalid collection: reco::Photons " << std::endl;
     return;
   }
   if (!l1EGamma.isValid()) {
-    //  edm::LogError("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
+     edm::LogWarning("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
     return;
   }
 
@@ -510,28 +565,37 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
-  h_nVertex_ = ibooker.book1D("nVertex", "Number of event vertices in collection", 40, -0.5, 39.5);
+
+  dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_[PlotConfig::nVertex];
+  h_nVertex_ = ibooker.book1D(
+    nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax
+  );
   h_tagAndProbeMass_ = ibooker.book1D("tagAndProbeMass", "Invariant mass of tag & probe pair", 100, 40, 140);
   // electron reco vs L1
+  dqmoffline::l1t::HistDefinition templateETvsET = histDefinitions_[PlotConfig::ETvsET];
   h_L1EGammaETvsElectronET_EB_ = ibooker.book2D("L1EGammaETvsElectronET_EB",
-      "L1 EGamma E_{T} vs GSF Electron E_{T} (EB); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300,
-      0, 300);
+      "L1 EGamma E_{T} vs GSF Electron E_{T} (EB); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1EGammaETvsElectronET_EE_ = ibooker.book2D("L1EGammaETvsElectronET_EE",
-      "L1 EGamma E_{T} vs GSF Electron E_{T} (EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300,
-      0, 300);
+      "L1 EGamma E_{T} vs GSF Electron E_{T} (EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
   h_L1EGammaETvsElectronET_EB_EE_ = ibooker.book2D("L1EGammaETvsElectronET_EB_EE",
-      "L1 EGamma E_{T} vs GSF Electron E_{T} (EB+EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300,
-      300, 0, 300);
+      "L1 EGamma E_{T} vs GSF Electron E_{T} (EB+EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
 
+  dqmoffline::l1t::HistDefinition templatePHIvsPHI = histDefinitions_[PlotConfig::PHIvsPHI];
   h_L1EGammaPhivsElectronPhi_EB_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EB",
-      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB); #phi_{electron}^{offline}; #phi_{electron}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1EGammaPhivsElectronPhi_EE_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EE",
-      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1EGammaPhivsElectronPhi_EB_EE_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EB_EE",
-      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB+EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}", 100,
-      -4, 4, 100, -4, 4);
+      "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB+EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
 
   h_L1EGammaEtavsElectronEta_ = ibooker.book2D("L1EGammaEtavsElectronEta",
       "L1 EGamma #eta vs GSF Electron #eta; GSF Electron #eta; L1 EGamma #eta", 100, -3, 3, 100, -3, 3);
@@ -628,22 +692,31 @@ void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker & ibooker)
 {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
-  h_L1EGammaETvsPhotonET_EB_ = ibooker.book2D("L1EGammaETvsPhotonET_EB",
-      "L1 EGamma E_{T} vs  Photon E_{T} (EB);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
-  h_L1EGammaETvsPhotonET_EE_ = ibooker.book2D("L1EGammaETvsPhotonET_EE",
-      "L1 EGamma E_{T} vs  Photon E_{T} (EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
-  h_L1EGammaETvsPhotonET_EB_EE_ = ibooker.book2D("L1EGammaETvsPhotonET_EB_EE",
-      "L1 EGamma E_{T} vs  Photon E_{T} (EB+EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)", 300, 0, 300, 300, 0, 300);
 
+  dqmoffline::l1t::HistDefinition templateETvsET = histDefinitions_[PlotConfig::ETvsET];
+  h_L1EGammaETvsPhotonET_EB_ = ibooker.book2D("L1EGammaETvsPhotonET_EB",
+      "L1 EGamma E_{T} vs  Photon E_{T} (EB);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
+  h_L1EGammaETvsPhotonET_EE_ = ibooker.book2D("L1EGammaETvsPhotonET_EE",
+      "L1 EGamma E_{T} vs  Photon E_{T} (EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
+  h_L1EGammaETvsPhotonET_EB_EE_ = ibooker.book2D("L1EGammaETvsPhotonET_EB_EE",
+      "L1 EGamma E_{T} vs  Photon E_{T} (EB+EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
+
+  dqmoffline::l1t::HistDefinition templatePHIvsPHI = histDefinitions_[PlotConfig::PHIvsPHI];
   h_L1EGammaPhivsPhotonPhi_EB_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EB",
-      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 100, -4, 4,
-      100, -4, 4);
+      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB); #phi_{photon}^{offline}; #phi_{photon}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1EGammaPhivsPhotonPhi_EE_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EE",
-      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 100, -4, 4,
-      100, -4, 4);
+      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
   h_L1EGammaPhivsPhotonPhi_EB_EE_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EB_EE",
-      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB+EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}", 100, -4, 4,
-      100, -4, 4);
+      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB+EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}",
+      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
 
   h_L1EGammaEtavsPhotonEta_ = ibooker.book2D("L1EGammaEtavsPhotonEta",
       "L1 EGamma #eta vs  Photon #eta;  Photon #eta; L1 EGamma #eta", 100, -3, 3, 100, -3, 3);

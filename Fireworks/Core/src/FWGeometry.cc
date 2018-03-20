@@ -10,6 +10,10 @@
 #include "Fireworks/Core/interface/fwLog.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
+
+// AMT deprication of tracker specific DetIds
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
+
 #include <iostream>
 #include <cassert>
 #include <sstream>
@@ -142,6 +146,13 @@ FWGeometry::loadMap( const char* fileName )
    if (producerInfo) {
       m_producerVersion = atoi(producerInfo->GetTitle());
    }
+
+   TNamed* ttopology = static_cast<TNamed*>(file->Get( "TrackerTopology" ));
+   if (ttopology) {
+      std::string xml = ttopology->GetTitle();
+      m_trackerTopology = std::unique_ptr<TrackerTopology>(new TrackerTopology(StandaloneTrackerTopology::fromTrackerParametersXMLString(xml)));
+   }
+
    file->Close();
 }
 

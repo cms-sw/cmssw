@@ -91,7 +91,7 @@ else:
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 
-process.load('DQMOffline.L1Trigger.L1TStage2CaloLayer2Offline_cfi')
+process.load('DQMOffline.L1Trigger.L1TEtSumJetOffline_cfi')
 process.load('DQMOffline.L1Trigger.L1TEGammaOffline_cfi')
 process.load('DQMOffline.L1Trigger.L1TTauOffline_cfi')
 
@@ -102,13 +102,18 @@ if os.environ.get('DEBUG', False):
     )
 
 process.dqmoffline_step = cms.Path(
-    process.l1tStage2CaloLayer2OfflineDQMEmu +
-    process.l1tStage2CaloLayer2OfflineDQM +
+    process.l1tEtSumJetOfflineDQMEmu +
+    process.l1tEtSumJetOfflineDQM +
     process.l1tEGammaOfflineDQM +
     process.l1tEGammaOfflineDQMEmu +
     process.l1tTauOfflineDQM +
     process.l1tTauOfflineDQMEmu
 )
+if options.sample != 'TTJet':
+    process.dqmoffline_step.remove(process.l1tEtSumJetOfflineDQMEmu)
+    process.dqmoffline_step.remove(process.l1tEGammaOfflineDQMEmu)
+    process.dqmoffline_step.remove(process.l1tTauOfflineDQMEmu)
+
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 # Schedule definition
 process.schedule = cms.Schedule(

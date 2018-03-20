@@ -5,8 +5,9 @@
 
 // -----
 SiStripQualityDQM::SiStripQualityDQM(const edm::EventSetup & eSetup,
-                                         edm::ParameterSet const& hPSet,
-                                         edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
+                                     edm::RunNumber_t iRun,
+                                     edm::ParameterSet const& hPSet,
+                                     edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, iRun, hPSet, fPSet){
   qualityLabel_ = fPSet.getParameter<std::string>("StripQualityLabel");
 
   // Build the Histo_TkMap:

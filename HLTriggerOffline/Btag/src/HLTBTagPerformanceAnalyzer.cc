@@ -21,6 +21,7 @@ int closestJet(const RefToBase<reco::Jet>   jet, const edm::AssociationVector<T,
 // constructors and destructor
 HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet& iConfig)
 {
+	mainFolder_                     = iConfig.getParameter<std::string>("mainFolder");
 	hlTriggerResults_   		= consumes<edm::TriggerResults>(iConfig.getParameter<InputTag> ("TriggerResults"));
 	JetTagCollection_ 			= edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "JetTag" ), [this](edm::InputTag const & tag){return mayConsume< reco::JetTagCollection>(tag);});
 	m_mcPartons 				= consumes<JetFlavourMatchingCollection>(iConfig.getParameter<InputTag> ("mcPartons") ); 
@@ -203,7 +204,7 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 		float btagL = 0.;
 		float btagU = 1.;
 		int   btagBins = 100;
-		dqmFolder = Form("HLT/BTag/Discriminator/%s",hltPathNames_[ind].c_str());
+		dqmFolder = Form("%s/Discriminator/%s",mainFolder_.c_str(),hltPathNames_[ind].c_str());
 		H1_.push_back(std::map<std::string, MonitorElement *>());
 		H2_.push_back(std::map<std::string, MonitorElement *>());
 		H1mod_.push_back(std::map<std::string, std::map<HCALSpecials, MonitorElement *> > ());

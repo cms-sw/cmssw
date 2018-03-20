@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
 import RecoLocalCalo.HcalRecProducers.HBHEMethod2Parameters_cfi as method2
 import RecoLocalCalo.HcalRecProducers.HBHEMethod0Parameters_cfi as method0
+import RecoLocalCalo.HcalRecProducers.HBHEMahiParameters_cfi as mahi
 import RecoLocalCalo.HcalRecProducers.HBHEPulseShapeFlagSetter_cfi as pulseShapeFlag
 import RecoLocalCalo.HcalRecProducers.HBHEStatusBitSetter_cfi as hbheStatusFlag
 
@@ -56,6 +57,7 @@ hbheprereco = cms.EDProducer(
         method3.m3Parameters,
         method2.m2Parameters,
         method0.m0Parameters,
+        mahi.mahiParameters,
 
         Class = cms.string("SimpleHBHEPhase1Algo"),
 
@@ -66,10 +68,13 @@ hbheprereco = cms.EDProducer(
         firstSampleShift = cms.int32(0),
 
         # Use "Method 2"?
-        useM2 = cms.bool(True),
+        useM2 = cms.bool(False),
 
         # Use "Method 3"?
-        useM3 = cms.bool(True)
+        useM3 = cms.bool(True),
+
+        # Use Mahi?
+        useMahi = cms.bool(True)
     ),
 
     # Reconstruction algorithm configuration data to fetch from DB, if any

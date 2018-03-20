@@ -171,3 +171,28 @@ phase2TrackerDigitizer = cms.PSet(
       CellsToKill = cms.VPSet()
     )
 )
+
+# TODO: values are copied from phase0/1 pixel configuration, they can be wrong
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toModify(phase2TrackerDigitizer,
+    PixelDigitizerAlgorithm = dict(
+        AddNoise = True,
+        AddNoisyPixels = False,
+        makeDigiSimLinks = False,
+    ),
+    PSPDigitizerAlgorithm = dict(
+        AddNoise = True,
+        AddNoisyPixels = False,
+        makeDigiSimLinks = False,
+    ),
+    PSSDigitizerAlgorithm = dict(
+        AddNoise = True,
+        AddNoisyPixels = False,
+        makeDigiSimLinks = False,
+    ),
+    SSDigitizerAlgorithm = dict(
+        AddNoise = True,
+        AddNoisyPixels = False,
+        makeDigiSimLinks = False,
+    ),
+)

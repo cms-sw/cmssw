@@ -6,8 +6,9 @@
 
 // -----
 SiStripBackPlaneCorrectionDQM::SiStripBackPlaneCorrectionDQM(const edm::EventSetup & eSetup,
-					       edm::ParameterSet const& hPSet,
-					       edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
+                                                             edm::RunNumber_t iRun,
+                                                             edm::ParameterSet const& hPSet,
+                                                             edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, iRun, hPSet, fPSet){
 
   // Build the Histo_TkMap:
   if ( HistoMaps_On_ ) {

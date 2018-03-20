@@ -25,7 +25,7 @@ class CSCBadWiresConditions: public edm::ESProducer, public edm::EventSetupRecor
 
   inline static CSCBadWires *  prefillBadWires();
 
-  typedef const  CSCBadWires * ReturnType;
+  typedef std::unique_ptr<CSCBadWires> ReturnType;
   
   ReturnType produceBadWires(const CSCBadWiresRcd&);
   

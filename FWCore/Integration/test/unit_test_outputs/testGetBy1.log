@@ -120,8 +120,6 @@ GlobalContext: transition = BeginRun
 ++++++ finished: global begin run for module: label = 'a2' id = 6
 ++++++ starting: global begin run for module: label = 'a3' id = 7
 ++++++ finished: global begin run for module: label = 'a3' id = 7
-++++++ starting: global begin run for module: label = 'out' id = 8
-++++++ finished: global begin run for module: label = 'out' id = 8
 ++++ finished: global begin run 1 : time = 1
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
@@ -214,8 +212,6 @@ GlobalContext: transition = BeginLuminosityBlock
 ++++++ finished: global begin lumi for module: label = 'a2' id = 6
 ++++++ starting: global begin lumi for module: label = 'a3' id = 7
 ++++++ finished: global begin lumi for module: label = 'a3' id = 7
-++++++ starting: global begin lumi for module: label = 'out' id = 8
-++++++ finished: global begin lumi for module: label = 'out' id = 8
 ++++ finished: global begin lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = BeginLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -890,8 +886,6 @@ GlobalContext: transition = EndLuminosityBlock
 ++++++ finished: global end lumi for module: label = 'a2' id = 6
 ++++++ starting: global end lumi for module: label = 'a3' id = 7
 ++++++ finished: global end lumi for module: label = 'a3' id = 7
-++++++ starting: global end lumi for module: label = 'out' id = 8
-++++++ finished: global end lumi for module: label = 'out' id = 8
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1
 GlobalContext: transition = EndLuminosityBlock
     run: 1 luminosityBlock: 1
@@ -912,6 +906,8 @@ GlobalContext: transition = EndLuminosityBlock
     ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
     parent ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
 
+++++++ starting: write lumi for module: label = 'out' id = 8
+++++++ finished: write lumi for module: label = 'out' id = 8
 ++++ starting: end run: stream = 0 run = 1 time = 15000001
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
@@ -982,8 +978,6 @@ GlobalContext: transition = EndRun
 ++++++ finished: global end run for module: label = 'a2' id = 6
 ++++++ starting: global end run for module: label = 'a3' id = 7
 ++++++ finished: global end run for module: label = 'a3' id = 7
-++++++ starting: global end run for module: label = 'out' id = 8
-++++++ finished: global end run for module: label = 'out' id = 8
 ++++ finished: global end run 1 : time = 15000001
 GlobalContext: transition = EndRun
     run: 1 luminosityBlock: 0
@@ -1004,6 +998,8 @@ GlobalContext: transition = EndRun
     ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
     parent ProcessContext: PROD1 2f9cb7fb91f77860cb45771073f1116b
 
+++++++ starting: write run for module: label = 'out' id = 8
+++++++ finished: write run for module: label = 'out' id = 8
 ++++ starting: end stream for module: stream = 0 label = 'intProducer' id = 4
 ++++ finished: end stream for module: stream = 0 label = 'intProducer' id = 4
 ++++ starting: end stream for module: stream = 0 label = 'a1' id = 5

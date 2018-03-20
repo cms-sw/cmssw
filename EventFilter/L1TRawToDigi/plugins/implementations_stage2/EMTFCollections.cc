@@ -6,6 +6,10 @@ namespace l1t {
     EMTFCollections::~EMTFCollections()
     {
       // std::cout << "Inside EMTFCollections.cc: ~EMTFCollections" << std::endl;
+
+      // Sort by processor to match uGMT unpacked order
+      L1TMuonEndCap::sort_uGMT_muons(*regionalMuonCands_);
+
       event_.put(std::move(regionalMuonCands_));
       event_.put(std::move(EMTFDaqOuts_));
       event_.put(std::move(EMTFHits_));

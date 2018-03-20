@@ -33,7 +33,8 @@ namespace edm {
     using FromFiles::incrementFileIndex;
 
   private:
-    using FromFiles::fileIndex;
+    size_t fileIndex() const override;
+
   };
 }
 #endif

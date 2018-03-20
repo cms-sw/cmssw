@@ -256,11 +256,6 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 ),
                             cms.PSet(
-                                QualityTestName = cms.string("uGMTvsuGT_MismatchRatioMax0"),
-                                QualityTestHist = cms.string("L1T/L1TStage2uGMT/uGMToutput_vs_uGTinput/mismatchRatio"),
-                                QualityTestSummaryEnabled = cms.uint32(1)
-                                ),
-                            cms.PSet(
                                 QualityTestName = cms.string("BMTFvsuGMT_MismatchRatioMax0"),
                                 QualityTestHist = cms.string("L1T/L1TStage2uGMT/BMTFoutput_vs_uGMTinput/mismatchRatio"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
@@ -311,7 +306,13 @@ l1tStage2EventInfoClient = DQMEDHarvester("L1TEventInfoClient",
                         SystemLabel = cms.string("uGT"),
                         HwValLabel = cms.string("Stage2uGT"),
                         SystemDisable  = cms.uint32(0),
-                        QualityTests = cms.VPSet()
+                        QualityTests = cms.VPSet(
+                            cms.PSet(
+                                QualityTestName = cms.string("uGMTvsuGT_MismatchRatioMax0"),
+                                QualityTestHist = cms.string("L1T/L1TStage2uGT/uGMToutput_vs_uGTinput/mismatchRatio"),
+                                QualityTestSummaryEnabled = cms.uint32(1)
+                                ),
+                            )
                         )
                     ),
 

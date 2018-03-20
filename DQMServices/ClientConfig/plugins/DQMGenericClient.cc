@@ -40,6 +40,9 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   elsc commonEscapes("\\", " \t", "\'");
 
   verbose_ = pset.getUntrackedParameter<unsigned int>("verbose", 0);
+  runOnEndLumi_ = pset.getUntrackedParameter<bool>("runOnEndLumi", false);
+  runOnEndJob_ = pset.getUntrackedParameter<bool>("runOnEndJob", true);
+  makeGlobalEffPlot_ = pset.getUntrackedParameter<bool>("makeGlobalEffienciesPlot", true);
 
   // Parse efficiency commands
   vstring effCmds = pset.getParameter<vstring>("efficiency");
@@ -306,6 +309,43 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
     cdOptions_.push_back(opt);
   }
 
+  // move under/overflows to first/last bins
+  vstring noFlowCmds = pset.getUntrackedParameter<vstring>("noFlowDists", vstring());
+  for ( vstring::const_iterator noFlowCmd = noFlowCmds.begin();
+        noFlowCmd != noFlowCmds.end(); ++noFlowCmd )
+  {
+    if ( noFlowCmd->empty() ) continue;
+    boost::tokenizer<elsc> tokens(*noFlowCmd, commonEscapes);
+
+    vector<string> args;
+    for(boost::tokenizer<elsc>::const_iterator iToken = tokens.begin();
+        iToken != tokens.end(); ++iToken) {
+      if ( iToken->empty() ) continue;
+      args.push_back(*iToken);
+    }
+
+    if ( args.empty() || args.size() > 2) {
+      LogInfo("DQMGenericClient") << "Wrong input to noFlowCmds\n";
+      continue;
+    }
+
+    NoFlowOption opt;
+    opt.name = args[0];
+
+    noFlowOptions_.push_back(opt);
+  }
+
+  VPSet noFlowSets = pset.getUntrackedParameter<VPSet>("noFlowDistSets", VPSet());
+  for ( VPSet::const_iterator noFlowSet = noFlowSets.begin();
+        noFlowSet != noFlowSets.end(); ++noFlowSet )
+  {
+    NoFlowOption opt;
+    opt.name = noFlowSet->getUntrackedParameter<string>("name");
+
+    noFlowOptions_.push_back(opt);
+  }
+
+
   outputFileName_ = pset.getUntrackedParameter<string>("outputFileName", "");
   subDirs_ = pset.getUntrackedParameter<vstring>("subDirs");
 
@@ -313,9 +353,13 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   isWildcardUsed_ = false;
 }
 
-void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+void DQMGenericClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) {
+  if (runOnEndLumi_) {
+    makeAllPlots(ibooker, igetter);
+  }
+}
 
-  typedef vector<string> vstring;
+void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   // Update 2014-04-02
   // Migrated back to the endJob. the DQMFileSaver logic has
@@ -334,6 +378,17 @@ void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
   // needed to access the DQMStore::save method
   theDQM = nullptr;
   theDQM = Service<DQMStore>().operator->();
+
+  if (runOnEndJob_) {
+    makeAllPlots(ibooker, igetter);
+  }
+
+  if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);
+
+}
+
+void DQMGenericClient::makeAllPlots(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+  typedef vector<string> vstring;
 
   // Process wildcard in the sub-directory
   set<string> subDirSet;
@@ -364,12 +419,19 @@ void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
       iSubDir != subDirSet.end(); ++iSubDir) {
     const string& dirName = *iSubDir;
 
-    // First normalize, then make cumulative, and only then efficiency
-    // This allows to use the cumulative distributions for efficiency calculation
+    // First normalize, then move under/overflows, then make
+    // cumulative, and only then efficiency This allows to use the
+    // cumulative distributions for efficiency calculation
     for ( vector<NormOption>::const_iterator normOption = normOptions_.begin();
           normOption != normOptions_.end(); ++normOption )
     {
       normalizeToEntries(ibooker, igetter, dirName, normOption->name, normOption->normHistName);
+    }
+
+    for ( vector<NoFlowOption>::const_iterator noFlowOption = noFlowOptions_.begin();
+          noFlowOption != noFlowOptions_.end(); ++noFlowOption )
+    {
+      makeNoFlowDist(ibooker, igetter, dirName, noFlowOption->name);
     }
 
     for ( vector<CDOption>::const_iterator cdOption = cdOptions_.begin();
@@ -398,8 +460,7 @@ void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
 
   }
 
-  if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);
-  
+
 }
 
 void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const string& startDir, const string& efficMEName,
@@ -473,7 +534,7 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
       const double nReco = hReco->GetBinContent(i);
       const double nSim  = hSim->GetBinContent(i);
 
-      if(std::string(hSim->GetXaxis()->GetBinLabel(i)) != "")
+      if(!std::string(hSim->GetXaxis()->GetBinLabel(i)).empty())
         efficHist->GetXaxis()->SetBinLabel(i, hSim->GetXaxis()->GetBinLabel(i));
       
       if (nSim == 0 or nReco < 0 or nReco > nSim) continue;
@@ -485,7 +546,8 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
       efficHist->SetBinEntries(i, 1);
       efficHist->SetBinError(i, std::hypot(effVal, errVal));
     }
-    ibooker.bookProfile(newEfficMEName.c_str(),efficHist);
+    removeMEIfBooked(newEfficMEName, igetter);
+    ibooker.bookProfile(newEfficMEName, efficHist);
     delete efficHist;  
   }
 
@@ -505,10 +567,13 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
     TString histClassName = myHistClass->GetName();
   
     if (histClassName == "TH1F"){
+      removeMEIfBooked(newEfficMEName, igetter);
       efficME = ibooker.book1D(newEfficMEName, (TH1F*)efficHist);
     } else if (histClassName == "TH2F"){
+      removeMEIfBooked(newEfficMEName, igetter);
       efficME = ibooker.book2D(newEfficMEName, (TH2F*)efficHist);    
     } else if (histClassName == "TH3F"){
+      removeMEIfBooked(newEfficMEName, igetter);
       efficME = ibooker.book3D(newEfficMEName, (TH3F*)efficHist);    
     } 
   
@@ -542,39 +607,41 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
   }
 
   // Global efficiency
-  ME* globalEfficME = igetter.get(efficDir+"/globalEfficiencies");
-  if ( !globalEfficME ) globalEfficME = ibooker.book1D("globalEfficiencies", "Global efficiencies", 1, 0, 1);
-  if ( !globalEfficME ) {
-    LogInfo("DQMGenericClient") << "computeEfficiency() : "
-                              << "Cannot book globalEffic-ME from the DQM\n";
-    return;
-  }
-  globalEfficME->setEfficiencyFlag();
-  TH1F* hGlobalEffic = globalEfficME->getTH1F();
-  if ( !hGlobalEffic ) {
-    LogInfo("DQMGenericClient") << "computeEfficiency() : "
-                              << "Cannot create TH1F from ME, globalEfficME\n";
-    return;
-  }
-
-  const float nSimAll = hSim->GetEntries();
-  const float nRecoAll = hReco->GetEntries();
-  float efficAll=0; 
-  if ( type == EfficType::efficiency || type == EfficType::simpleratio ) efficAll = nSimAll ? nRecoAll/nSimAll : 0;
-  else if ( type == EfficType::fakerate ) efficAll = nSimAll ? 1-nRecoAll/nSimAll : 0;
-  float errorAll=0;
-  if ( type == EfficType::simpleratio ) {
-    if(nSimAll) {
-      const float x = nRecoAll/nSimAll;
-      errorAll = std::sqrt(1.f/nSimAll*x*(1+x));
+  if (makeGlobalEffPlot_) {
+    ME* globalEfficME = igetter.get(efficDir+"/globalEfficiencies");
+    if ( !globalEfficME ) globalEfficME = ibooker.book1D("globalEfficiencies", "Global efficiencies", 1, 0, 1);
+    if ( !globalEfficME ) {
+      LogInfo("DQMGenericClient") << "computeEfficiency() : "
+                                << "Cannot book globalEffic-ME from the DQM\n";
+      return;
     }
-  }
-  else
-    errorAll = nSimAll && efficAll < 1 ? sqrt(efficAll*(1-efficAll)/nSimAll) : 0;
+    globalEfficME->setEfficiencyFlag();
+    TH1F* hGlobalEffic = globalEfficME->getTH1F();
+    if ( !hGlobalEffic ) {
+      LogInfo("DQMGenericClient") << "computeEfficiency() : "
+                                << "Cannot create TH1F from ME, globalEfficME\n";
+      return;
+    }
 
-  const int iBin = hGlobalEffic->Fill(newEfficMEName.c_str(), 0);
-  hGlobalEffic->SetBinContent(iBin, efficAll);
-  hGlobalEffic->SetBinError(iBin, errorAll);
+    const float nSimAll = hSim->GetEntries();
+    const float nRecoAll = hReco->GetEntries();
+    float efficAll=0;
+    if ( type == EfficType::efficiency || type == EfficType::simpleratio ) efficAll = nSimAll ? nRecoAll/nSimAll : 0;
+    else if ( type == EfficType::fakerate ) efficAll = nSimAll ? 1-nRecoAll/nSimAll : 0;
+    float errorAll=0;
+    if ( type == EfficType::simpleratio ) {
+      if(nSimAll) {
+        const float x = nRecoAll/nSimAll;
+        errorAll = std::sqrt(1.f/nSimAll*x*(1+x));
+      }
+    }
+    else
+      errorAll = nSimAll && efficAll < 1 ? sqrt(efficAll*(1-efficAll)/nSimAll) : 0;
+
+    const int iBin = hGlobalEffic->Fill(newEfficMEName.c_str(), 0);
+    hGlobalEffic->SetBinContent(iBin, efficAll);
+    hGlobalEffic->SetBinError(iBin, errorAll);
+  }
 }
 
 void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const string& startDir, const string& namePrefix, const string& titlePrefix,
@@ -623,6 +690,8 @@ void DQMGenericClient::computeResolution(DQMStore::IBooker& ibooker, DQMStore::I
   float * lowedgesfloats = new float[nBin+1];
   ME* meanME;
   ME* sigmaME;
+  removeMEIfBooked(newPrefix+"_Mean", igetter);
+  removeMEIfBooked(newPrefix+"_Sigme", igetter);
   if (hSrc->GetXaxis()->GetXbins()->GetSize())
   {
     for (int j=0; j<nBin+1; ++j)
@@ -697,6 +766,7 @@ void DQMGenericClient::computeProfile(DQMStore::IBooker& ibooker, DQMStore::IGet
 
   std::unique_ptr<TProfile> profile(hSrc->ProfileX()); // We own the pointer
   profile->SetTitle(profileMETitle.c_str());
+  removeMEIfBooked(profileMEName, igetter);
   ibooker.bookProfile(profileMEName, profile.get()); // ibooker makes a copy
 }
 
@@ -809,6 +879,46 @@ void DQMGenericClient::makeCumulativeDist(DQMStore::IBooker& ibooker, DQMStore::
   }
 
   return;
+}
+
+void DQMGenericClient::makeNoFlowDist(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& startDir, const std::string& noFlowName) 
+{
+  if ( ! igetter.dirExists(startDir) ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogInfo("DQMGenericClient") << "makeNoFlowDist() : "
+                                  << "Cannot find sub-directory " << startDir << endl;
+    }
+    return;
+  }
+
+  ibooker.cd();
+
+  ME* element_noFlow = igetter.get(startDir+"/"+noFlowName);
+
+  if ( !element_noFlow ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogInfo("DQMGenericClient") << "makeNoFlowDist() : "
+                                  << "No such element '" << noFlowName << "' found\n";
+    }
+    return;
+  }
+
+  TH1F* noFlow  = element_noFlow->getTH1F();
+
+  if ( !noFlow ) {
+    if ( verbose_ >= 2 || (verbose_ == 1 && !isWildcardUsed_) ) {
+      LogInfo("DQMGenericClient") << "makeNoFlowDist() : "
+                                  << "Cannot create TH1F from ME\n";
+    }
+    return;
+  }
+
+  noFlow->AddBinContent(1, noFlow->GetBinContent(0));
+  noFlow->SetBinContent(0, 0.);
+
+  const auto lastBin = noFlow->GetNbinsX();
+  noFlow->AddBinContent(lastBin, noFlow->GetBinContent(lastBin+1));
+  noFlow->SetBinContent(lastBin+1, 0.);
 }
 
 void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME)
@@ -951,5 +1061,10 @@ void DQMGenericClient::generic_eff (TH1* denom, TH1* numer, MonitorElement* effi
   //efficiencyHist->setMaximum(1.0);
 }
 
+void DQMGenericClient::removeMEIfBooked(const std::string& meName, DQMStore::IGetter& igetter) {
+  if (igetter.get(meName)) {
+    igetter.removeElement(meName);
+  }
+}
 
 /* vim:set ts=2 sts=2 sw=2 expandtab: */

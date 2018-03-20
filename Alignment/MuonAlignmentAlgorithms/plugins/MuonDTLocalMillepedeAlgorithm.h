@@ -125,7 +125,7 @@ class MuonDTLocalMillepedeAlgorithm : public AlignmentAlgorithmBase
 
 
   AlignmentParameterStore* theAlignmentParameterStore;
-  std::vector<Alignable*> theAlignables;
+  align::Alignables theAlignables;
   AlignableNavigator* theAlignableDetAccessor;
   
   //Service for histograms

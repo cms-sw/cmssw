@@ -60,34 +60,26 @@ _phase2_hgcal_particleFlowReco = cms.Sequence( _phase2_hgcal_simPFSequence * par
 _phase2_hgcal_particleFlowReco.replace( particleFlowTmpSeq, cms.Sequence( particleFlowTmpBarrel * particleFlowTmp ) )
 
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
-phase2_hgcal.toModify( quickTrackAssociatorByHits,
-                            pixelSimLinkSrc = cms.InputTag("simSiPixelDigis","Pixel"),
-                            stripSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
-                            )
-
-phase2_hgcal.toModify( tpClusterProducer,
-                            pixelSimLinkSrc = cms.InputTag("simSiPixelDigis", "Pixel"),
-                            phase2OTSimLinkSrc = cms.InputTag("simSiPixelDigis","Tracker")
-                            )
-
 phase2_hgcal.toReplaceWith( particleFlowTmp, _phase2_hgcal_particleFlowTmp )
 phase2_hgcal.toReplaceWith( particleFlowReco, _phase2_hgcal_particleFlowReco )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 
-pp_on_XeXe_2017.toModify(particleFlowDisplacedVertexCandidate,
-                         tracksSelectorParameters = dict(pt_min = 999999.0,
-                                                         nChi2_max = 0.0,
-                                                         pt_min_prim = 999999.0,
-                                                         dxy = 999999.0)
-                         )
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(particleFlowDisplacedVertexCandidate,
+               tracksSelectorParameters = dict(pt_min = 999999.0,
+                                               nChi2_max = 0.0,
+                                               pt_min_prim = 999999.0,
+                                               dxy = 999999.0)
+               )
 
-pp_on_XeXe_2017.toModify(particleFlowBlock, useNuclear = cms.bool(False))
+    e.toModify(particleFlowBlock, useNuclear = cms.bool(False))
 
-pp_on_XeXe_2017.toModify(pfNoPileUpIso, enable = cms.bool(False))
-pp_on_XeXe_2017.toModify(pfPileUpIso, enable = cms.bool(False))
-pp_on_XeXe_2017.toModify(pfNoPileUp, enable = cms.bool(False))
-pp_on_XeXe_2017.toModify(pfPileUp, enable = cms.bool(False))
-
+    e.toModify(pfNoPileUpIso, enable = cms.bool(False))
+    e.toModify(pfPileUpIso, enable = cms.bool(False))
+    e.toModify(pfNoPileUp, enable = cms.bool(False))
+    e.toModify(pfPileUp, enable = cms.bool(False))
+    
 
 

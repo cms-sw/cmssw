@@ -17,7 +17,7 @@ CSCDMBTrailer::CSCDMBTrailer(uint16_t firmware_version)
 
 }
 
-CSCDMBTrailer::CSCDMBTrailer(unsigned short * buf, uint16_t firmware_version)
+CSCDMBTrailer::CSCDMBTrailer(const uint16_t * buf, uint16_t firmware_version)
 : theTrailerFormat(), theFirmwareVersion(firmware_version) 
 {
   if (theFirmwareVersion == 2013) {

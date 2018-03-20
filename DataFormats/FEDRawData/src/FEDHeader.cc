@@ -1,70 +1,77 @@
 /** \file
  *
- *  \author N. Amapane - CERN
+ *  \author N. Amapane - CERN, R. Mommsen - FNAL
  */
 
-#include <DataFormats/FEDRawData/interface/FEDHeader.h>
-#include "fed_header.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/src/fed_header.h"
 
-FEDHeader::FEDHeader(const unsigned char* header) : 
+
+FEDHeader::FEDHeader(const unsigned char* header) :
   theHeader(reinterpret_cast<const fedh_t*>(header)) {}
 
 
-FEDHeader::~FEDHeader(){}
+FEDHeader::~FEDHeader() {}
 
 
-int FEDHeader::triggerType(){
-  return ((theHeader->eventid & FED_EVTY_MASK) >> FED_EVTY_SHIFT);
+uint8_t FEDHeader::triggerType() const {
+  return FED_EVTY_EXTRACT(theHeader->eventid);
 }
 
-int FEDHeader::lvl1ID(){
-  return (theHeader->eventid & FED_LVL1_MASK);
+
+uint32_t FEDHeader::lvl1ID() const {
+  return FED_LVL1_EXTRACT(theHeader->eventid);
 }
 
-int FEDHeader::bxID(){
-  return ((theHeader->sourceid & FED_BXID_MASK) >> FED_BXID_SHIFT);
+
+uint16_t FEDHeader::bxID() const {
+  return FED_BXID_EXTRACT(theHeader->sourceid);
 }
 
-int FEDHeader::sourceID(){
-  return ((theHeader->sourceid & FED_SOID_MASK) >> FED_SOID_SHIFT);
+
+uint16_t FEDHeader::sourceID() const {
+  return FED_SOID_EXTRACT(theHeader->sourceid);
 }
 
-int FEDHeader::version(){
-  return ((theHeader->sourceid & FED_VERSION_MASK) >> FED_VERSION_SHIFT);
+
+uint8_t FEDHeader::version() const {
+  return FED_VERSION_EXTRACT(theHeader->sourceid);
 }
 
-bool FEDHeader::moreHeaders(){
-  return ((theHeader->sourceid & FED_MORE_HEADERS)!=0);
+
+bool FEDHeader::moreHeaders() const {
+  return ( FED_MORE_HEADERS_EXTRACT(theHeader->sourceid) != 0 );
 }
+
 
 void FEDHeader::set(unsigned char* header,
-		    int evt_ty,	   
-		    int lvl1_ID,
-		    int bx_ID,
-		    int source_ID,
-		    int version,
-		    bool H){
+		    uint8_t triggerType,
+		    uint32_t lvl1ID,
+		    uint16_t bxID,
+		    uint16_t sourceID,
+		    uint8_t version,
+		    bool moreHeaders) {
 
   // FIXME: should check that input ranges are OK!!!
   fedh_t* h = reinterpret_cast<fedh_t*>(header);
-  h->eventid = 
-    ( FED_HCTRLID & FED_HCTRLID_MASK) | 
-    ( ( evt_ty    << FED_EVTY_SHIFT) & FED_EVTY_MASK ) | 
-    ( ( lvl1_ID   << FED_LVL1_SHIFT) & FED_LVL1_MASK );
+  h->eventid =
+    (FED_SLINK_START_MARKER << FED_HCTRLID_SHIFT) |
+    ( (triggerType << FED_EVTY_SHIFT   ) & FED_EVTY_MASK    ) |
+    ( (lvl1ID      << FED_LVL1_SHIFT   ) & FED_LVL1_MASK    );
 
   h->sourceid =
-    ( ( bx_ID     << FED_BXID_SHIFT) & FED_BXID_MASK ) |
-    ( ( source_ID << FED_SOID_SHIFT) & FED_SOID_MASK ) |
-    ( ( version   << FED_VERSION_SHIFT) & FED_VERSION_MASK );
-  
-  if (H) h->sourceid |= FED_MORE_HEADERS;
-    
+    ( (bxID        << FED_BXID_SHIFT   ) & FED_BXID_MASK    ) |
+    ( (sourceID    << FED_SOID_SHIFT   ) & FED_SOID_MASK    ) |
+    ( (version     << FED_VERSION_SHIFT) & FED_VERSION_MASK );
+
+  if (moreHeaders)
+    h->sourceid |= (FED_MORE_HEADERS_WIDTH << FED_MORE_HEADERS_SHIFT);
 }
 
-bool FEDHeader::check() {
-  // ...may report with finer detail
-  bool result = true;
-  result &= ((theHeader->eventid & FED_HCTRLID_MASK) == FED_HCTRLID);  
 
-  return result;
+bool FEDHeader::check() const {
+  return ( FED_HCTRLID_EXTRACT(theHeader->eventid) == FED_SLINK_START_MARKER );
 }
+
+
+const uint32_t FEDHeader::length = sizeof(fedh_t);

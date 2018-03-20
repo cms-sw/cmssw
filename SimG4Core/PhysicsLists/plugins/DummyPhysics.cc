@@ -10,12 +10,12 @@ DummyPhysics::DummyPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
 			   const edm::ParameterSet & p) : PhysicsList(map, table_, chordFinderSetter_, p) {
 
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
-  RegisterPhysics(new G4DecayPhysics("decay"));
-  if (emPhys) 
-    RegisterPhysics(new DummyEMPhysics("dummyEM"));
+  int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
+  if (emPhys) {
+    RegisterPhysics(new DummyEMPhysics(ver));
+  }
+  RegisterPhysics(new G4DecayPhysics(ver));
   edm::LogInfo("PhysicsList") << "DummyPhysics constructed with EM Physics "
 			      << emPhys << " and Decay";
 }
-
-DummyPhysics::~DummyPhysics() {}
 

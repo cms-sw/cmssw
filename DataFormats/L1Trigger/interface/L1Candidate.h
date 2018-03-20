@@ -51,6 +51,9 @@ namespace l1t {
     int hwQual() const {return hwQual_;}
     int hwIso() const {return hwIso_;}
 
+    virtual bool operator==(const l1t::L1Candidate & rhs) const;
+    virtual inline bool operator!=(const l1t::L1Candidate & rhs) const { return !(operator==(rhs)); };
+
   private:
 
     // integer "hardware" values

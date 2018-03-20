@@ -10,7 +10,6 @@ OutALCARECOHcalCalHBHEMuonFilter_noDrop = cms.PSet(
         ),
     outputCommands = cms.untracked.vstring(
         'keep *_hbhereco_*_*',
-        'keep *_hbheprereco_*_*',
         'keep *_ecalRecHit_*_*',
         'keep *_offlineBeamSpot_*_*',
         'keep *_TriggerResults_*_*',
@@ -23,6 +22,7 @@ OutALCARECOHcalCalHBHEMuonFilter_noDrop = cms.PSet(
         'keep recoTracks_tevMuons_*_*',
         'keep recoTrackExtras_tevMuons_*_*',
         'keep *_offlinePrimaryVertices_*_*',
+        'keep *_scalersRawToDigi_*_*',
         'keep *_muons_*_*',
         )
     )

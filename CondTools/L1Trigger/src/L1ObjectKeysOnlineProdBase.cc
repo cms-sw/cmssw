@@ -95,10 +95,10 @@ L1ObjectKeysOnlineProdBase::produce(const L1TriggerKeyRcd& iRecord)
     }
 
   // Copy L1TriggerKey to new object.
-  std::shared_ptr<L1TriggerKey> pL1TriggerKey = std::make_shared< L1TriggerKey >( *subsystemKeys ) ;
+  std::unique_ptr<L1TriggerKey> pL1TriggerKey = std::make_unique< L1TriggerKey >( *subsystemKeys ) ;
 
   // Get object keys.
-  fillObjectKeys( pL1TriggerKey ) ;
+  fillObjectKeys( pL1TriggerKey.get() ) ;
 
   return pL1TriggerKey ;
 }

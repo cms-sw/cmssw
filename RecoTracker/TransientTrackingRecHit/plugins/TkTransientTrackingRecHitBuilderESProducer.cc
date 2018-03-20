@@ -26,7 +26,7 @@ TkTransientTrackingRecHitBuilderESProducer::TkTransientTrackingRecHitBuilderESPr
 
 TkTransientTrackingRecHitBuilderESProducer::~TkTransientTrackingRecHitBuilderESProducer() {}
 
-std::shared_ptr<TransientTrackingRecHitBuilder> 
+std::unique_ptr<TransientTrackingRecHitBuilder> 
 TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord & iRecord){ 
 //   if (_propagator){
 //     delete _propagator;
@@ -89,12 +89,10 @@ TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord 
   if (p2OTname != "") {
     iRecord.getRecord<TkStripCPERecord>().get( p2OTname, p2OTe );
     p2OTp = p2OTe.product();
-    _builder  = std::make_shared<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, p2OTp);
-  } else {
-    _builder  = std::make_shared<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, sp, mp, computeCoarseLocalPositionFromDisk);
-  }
+    return std::make_unique<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, p2OTp);
+  } 
+  return std::make_unique<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, sp, mp, computeCoarseLocalPositionFromDisk);
 
-  return _builder;
 }
 
 

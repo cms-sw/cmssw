@@ -222,7 +222,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
     c.get<CaloGeometryRecord>().get(pG);
     geo = pG.product();
 
-    gHcal = (const HcalGeometry*)(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
+    gHcal = static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel));
     
     parameters_.useEcal = true;
     parameters_.useHcal = true;

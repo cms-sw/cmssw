@@ -46,6 +46,7 @@ class SiStripBaseCondObjDQM {
 		 
 
   SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
+                        edm::RunNumber_t iRun,
 			edm::ParameterSet const& hPSet,
 			edm::ParameterSet const& fPSet );
   
@@ -158,6 +159,7 @@ class SiStripBaseCondObjDQM {
     SiStripHistoId hidmanager;                        
     SiStripFolderOrganizer folder_organizer;         
     DQMStore* dqmStore_;
+    edm::RunNumber_t runNumber_;
 
 };
 

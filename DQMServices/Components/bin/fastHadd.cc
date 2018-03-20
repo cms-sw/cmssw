@@ -113,8 +113,8 @@ int debug = 0;
 struct MicroME {
   MicroME(
           TObject *o,
-          const std::string dir,
-          const std::string obj,
+          const std::string& dir,
+          const std::string& obj,
           uint32_t flags = 0)
       : obj(o), dirname(dir), objname(obj), flags(flags) {}
 
@@ -153,7 +153,7 @@ struct MicroME {
 
 };
 
-typedef std::set<MicroME> MEStore;
+using MEStore = std::set<MicroME>;
 
 enum TaskType {
   TASK_ADD,
@@ -238,8 +238,8 @@ void writeMessage(const dqmstorepb::ROOTFilePB &dqmstore_output_msg,
 
 void fillMessage(dqmstorepb::ROOTFilePB &dqmstore_output_msg,
                  const MEStore & micromes) {
-  MEStore::iterator mi = micromes.begin();
-  MEStore::iterator me = micromes.end();
+  auto mi = micromes.begin();
+  auto me = micromes.end();
 
   DEBUG(1, "Streaming ROOT objects" << std::endl);
   for (; mi != me; ++mi) {
@@ -409,7 +409,7 @@ int addFile(MEStore& micromes, int fd) {
     return ERR_NOFILE;
   }
 
-  MEStore::iterator hint = micromes.begin();
+  auto hint = micromes.begin();
   for (int i = 0; i < dqmstore_msg.histo_size(); i++) {
     std::string path;
     std::string objname;
@@ -466,7 +466,7 @@ void tryRootPreload() {
 }
 
 /* fork_id represents the position in a node (node number). */
-void addFilesWithFork(int parent_fd, const int fork_id, const int fork_total, const std::vector<std::string> filenames) {
+void addFilesWithFork(int parent_fd, const int fork_id, const int fork_total, const std::vector<std::string>& filenames) {
   DEBUG(1, "Start process: " << fork_id << " parent: " << (fork_id / 2) << std::endl);
 
   std::list<std::pair<int, int> > children;
@@ -553,7 +553,7 @@ int addFiles(const std::string &output_filename,
 }
 
 static int
-showusage(void)
+showusage()
 {
   static const std::string app_name("fasthadd");
 
@@ -640,7 +640,7 @@ int main(int argc, char * argv[]) {
       return showusage();
     }
     for (; arg < argc; ++arg) {
-      filenames.push_back(argv[arg]);
+      filenames.emplace_back(argv[arg]);
     }
   }
 
@@ -650,7 +650,7 @@ int main(int argc, char * argv[]) {
       return showusage();
     }
     for (; arg < argc; ++arg) {
-      filenames.push_back(argv[arg]);
+      filenames.emplace_back(argv[arg]);
     }
   }
 

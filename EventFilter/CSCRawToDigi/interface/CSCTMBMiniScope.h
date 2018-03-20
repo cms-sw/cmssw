@@ -15,7 +15,7 @@ class CSCTMBMiniScope {
 public:
 
   CSCTMBMiniScope() {size_ = 0;}  //default constructor
-  CSCTMBMiniScope(unsigned short *buf,int Line6b07,int Line6E07);
+  CSCTMBMiniScope(const uint16_t *buf,int Line6b07,int Line6E07);
   int getSize() const {return size_;}
   int getTbinCount() const {return miniScopeTbinCount;}
   int getTbinPreTrigger() const {return miniScopeTbinPreTrigger;}
@@ -27,7 +27,7 @@ public:
   
 private:
 
-  int UnpackMiniScope(unsigned short *buf,int Line6b07,int Line6E07);
+  int UnpackMiniScope(const uint16_t *buf,int Line6b07,int Line6E07);
 
   std::vector <int> miniScopeAdress;                /// stores all mini scope adresses
   std::vector <int> miniScopeData;                  /// stores all mini scope data

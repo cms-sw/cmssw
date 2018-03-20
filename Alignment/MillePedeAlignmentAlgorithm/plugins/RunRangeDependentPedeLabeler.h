@@ -20,6 +20,7 @@
 
 #include "CondFormats/Common/interface/Time.h"
 
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {
@@ -95,7 +96,7 @@ class RunRangeDependentPedeLabeler : public PedeLabelerBase
 				     const edm::ParameterSet &config);
 
   /// returns size of map
-  unsigned int buildMap(const std::vector<Alignable*> &alis);
+  unsigned int buildMap(const align::Alignables&);
   /// returns size of map
   unsigned int buildReverseMap();
 

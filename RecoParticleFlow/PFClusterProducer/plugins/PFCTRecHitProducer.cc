@@ -187,7 +187,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
       if(hit.det()==DetId::Hcal) { 
 	foundHCALConstituent = true;
 	detid = hit;
-	if (theHcalTopology->withSpecialRBXHBHE() && 
+	if (theHcalTopology->getMergePositionFlag() && 
 	    detid.subdet() == HcalEndcap) {
 	  detid = theHcalTopology->idFront(detid);
 	}
@@ -856,7 +856,7 @@ PFCTRecHitProducer::createHcalRecHit( const DetId& detid,
 					const CaloSubdetectorGeometry* geom,
 					const CaloTowerDetId& newDetId ) {
   
-  const CaloCellGeometry *thisCell = geom->getGeometry(detid);
+  std::shared_ptr<const CaloCellGeometry> thisCell = geom->getGeometry(detid);
   if(!thisCell) {
     edm::LogError("PFRecHitProducerHCAL")
       <<"warning detid "<<detid.rawId()<<" not found in layer "
@@ -868,7 +868,7 @@ PFCTRecHitProducer::createHcalRecHit( const DetId& detid,
   case PFLayer::HF_EM:
   case PFLayer::HF_HAD:
   {
-    auto zp = dynamic_cast<IdealZPrism const*>(thisCell);
+    auto zp = dynamic_cast<IdealZPrism const*>(thisCell.get());
     assert(zp);
     thisCell = zp->forPF();
   }
