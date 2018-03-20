@@ -11,6 +11,7 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include <cassert>
+#include <unordered_set>
 #include <vector>
 
 namespace CLHEP {
@@ -24,7 +25,7 @@ public:
   typedef typename Traits::Digi Digi;
   typedef typename Traits::DigiCollection DigiCollection;
 
-  void operator()(DigiCollection & output, CLHEP::HepRandomEngine* engine, CaloSamples * analogSignal, std::vector<DetId>::const_iterator idItr, ElectronicsSim* theElectronicsSim){
+  void operator()(DigiCollection & output, CLHEP::HepRandomEngine* engine, CaloSamples * analogSignal, std::unordered_set<DetId>::const_iterator idItr, ElectronicsSim* theElectronicsSim){
     Digi digi(*idItr);
     theElectronicsSim->analogToDigital(engine, *analogSignal , digi);
     output.push_back(std::move(digi));
@@ -59,8 +60,8 @@ public:
   ~CaloTDigitizer() {}
 
   /// tell the digitizer which cells exist
-  const std::vector<DetId>&  detIds() const {assert( 0 != theDetIds ) ; return *theDetIds;}
-  void setDetIds(const std::vector<DetId> & detIds) {theDetIds = &detIds;}
+  const std::unordered_set<DetId>&  detIds() const {assert( 0 != theDetIds ) ; return *theDetIds;}
+  void setDetIds(const std::unordered_set<DetId> & detIds) {theDetIds = &detIds;}
 
   void setNoiseSignalGenerator(CaloVNoiseSignalGenerator * generator)
   {
@@ -114,8 +115,8 @@ public:
     }
 
     // make a raw digi for evey cell
-    for(std::vector<DetId>::const_iterator idItr = theDetIds->begin();
-        idItr != theDetIds->end(); ++idItr)
+    for(std::unordered_set<DetId>::const_iterator idItr = theDetIds->begin();
+	idItr != theDetIds->end(); ++idItr)
     {
        CaloSamples * analogSignal = theHitResponse->findSignal(*idItr);
        if(analogSignal && debugCS_) csColl_.push_back(*analogSignal);
@@ -155,7 +156,7 @@ private:
   CaloHitResponse * theHitResponse;
   CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
   ElectronicsSim * theElectronicsSim;
-  const std::vector<DetId>* theDetIds;
+  const std::unordered_set<DetId>* theDetIds;
   bool addNoise_;
   bool debugCS_;
   CaloSamplesCollection csColl_;

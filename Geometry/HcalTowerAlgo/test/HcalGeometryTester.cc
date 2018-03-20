@@ -91,11 +91,11 @@ void HcalGeometryTester::testValidDetIds(CaloSubdetectorGeometry* caloGeom,
 
   std::stringstream s;
   s << label << " : " << std::endl;
-  const std::vector<DetId>& idshb = caloGeom->getValidDetIds(det, subdet);
+  const std::unordered_set<DetId>& idshb = caloGeom->getValidDetIds(det, subdet);
  
   int counter = 0;
-  for (std::vector<DetId>::const_iterator i=idshb.begin(); i!=idshb.end(); 
-       i++, ++counter) {
+  for (std::unordered_set<DetId>::const_iterator i=idshb.begin(); 
+       i!=idshb.end(); i++, ++counter) {
     HcalDetId hid=(*i);
     s << counter << ": din " << topology.detId2denseId(*i) << ":" 
 	      << hid;
@@ -125,12 +125,12 @@ void HcalGeometryTester::testClosestCells(CaloSubdetectorGeometry* g,
   if (topology.valid(forwardDet1)) testClosestCell(forwardDet1, g);
   if (topology.valid(forwardDet3)) testClosestCell(forwardDet3, g);
   
-  const std::vector<DetId>& idsb=g->getValidDetIds(DetId::Hcal,HcalBarrel);
+  const std::unordered_set<DetId>& idsb=g->getValidDetIds(DetId::Hcal,HcalBarrel);
   for (auto id : idsb) {
     testClosestCell(HcalDetId(id), g);
   }
   
-  const std::vector<DetId>& idse=g->getValidDetIds(DetId::Hcal,HcalEndcap);
+  const std::unordered_set<DetId>& idse=g->getValidDetIds(DetId::Hcal,HcalEndcap);
   for (auto id : idse) {
     testClosestCell(HcalDetId(id), g);
   }
@@ -218,11 +218,11 @@ void HcalGeometryTester::testFlexiValidDetIds(CaloSubdetectorGeometry* caloGeom,
 
   std::stringstream s;
   s << label << " : " << std::endl;
-  const std::vector<DetId>& idshb = caloGeom->getValidDetIds(det, subdet);
+  const std::unordered_set<DetId>& idshb = caloGeom->getValidDetIds(det, subdet);
     
   int counter = 0;
-  for (std::vector<DetId>::const_iterator i=idshb.begin(); i!=idshb.end(); 
-       i++, ++counter) {
+  for (std::unordered_set<DetId>::const_iterator i=idshb.begin(); 
+       i!=idshb.end(); i++, ++counter) {
     HcalDetId hid=(*i);
     s << counter << ": din " << topology.detId2denseId(*i) << ":" << hid;
     dins.emplace_back( topology.detId2denseId(*i));

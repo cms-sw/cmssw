@@ -606,9 +606,9 @@ CaloGeometryAnalyzer::buildHcal( const CaloGeometry*       cg      ,
     f << "  geoManager->SetTopVolume(world); " << std::endl;
     f << "  TGeoVolume* box; " << std::endl;
     int n=0;
-    const std::vector< DetId >& ids ( geom->getValidDetIds( det, subdetn ) ) ;
+    const std::unordered_set< DetId >& ids ( geom->getValidDetIds( det, subdetn ) ) ;
 
-    const std::vector< DetId >& ids2 ( cg->getValidDetIds( det, subdetn ) ) ;
+    const std::unordered_set< DetId >& ids2 ( cg->getValidDetIds( det, subdetn ) ) ;
 
     if( ids != ids2 )
     {
@@ -755,9 +755,9 @@ CaloGeometryAnalyzer::build( const CaloGeometry* cg      ,
    f << "  geoManager->SetTopVolume(world); " << std::endl;
    f << "  TGeoVolume* box; " << std::endl;
    int n=0;
-   const std::vector< DetId >& ids ( geom->getValidDetIds( det, subdetn ) ) ;
+   const std::unordered_set< DetId >& ids ( geom->getValidDetIds( det, subdetn ) ) ;
 
-   const std::vector< DetId >& ids2 ( cg->getValidDetIds( det, subdetn ) ) ;
+   const std::unordered_set< DetId >& ids2 ( cg->getValidDetIds( det, subdetn ) ) ;
    
    if( ids != ids2 )
    {
@@ -1149,20 +1149,20 @@ CaloGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
    edm::ESHandle<HcalTopology> pT;
    iSetup.get<HcalRecNumberingRecord>().get(pT);
 
-   const std::vector<DetId> allDetId ( pG->getValidDetIds() ) ;
+   const std::unordered_set<DetId> allDetId ( pG->getValidDetIds() ) ;
 
-   const std::vector<DetId>& deb ( pG->getValidDetIds(DetId::Ecal,EcalBarrel                     ));
-   const std::vector<DetId>& dee ( pG->getValidDetIds(DetId::Ecal,EcalEndcap                     ));
-   const std::vector<DetId>& des ( pG->getValidDetIds(DetId::Ecal,EcalPreshower                  ));
-   const std::vector<DetId>& dhb ( pG->getValidDetIds(DetId::Hcal,HcalBarrel                     ));
-   const std::vector<DetId>& dhe ( pG->getValidDetIds(DetId::Hcal,HcalEndcap                     ));
-   const std::vector<DetId>& dho ( pG->getValidDetIds(DetId::Hcal,HcalOuter                      ));
-   const std::vector<DetId>& dhf ( pG->getValidDetIds(DetId::Hcal,HcalForward                    ));
-   const std::vector<DetId>& dct ( pG->getValidDetIds(DetId::Calo,CaloTowerDetId::SubdetId       ));
-   const std::vector<DetId>& dca ( pG->getValidDetIds(DetId::Calo,HcalCastorDetId::SubdetectorId ));
-   const std::vector<DetId>& dzd ( pG->getValidDetIds(DetId::Calo,HcalZDCDetId::SubdetectorId    ));
+   const std::unordered_set<DetId>& deb ( pG->getValidDetIds(DetId::Ecal,EcalBarrel                     ));
+   const std::unordered_set<DetId>& dee ( pG->getValidDetIds(DetId::Ecal,EcalEndcap                     ));
+   const std::unordered_set<DetId>& des ( pG->getValidDetIds(DetId::Ecal,EcalPreshower                  ));
+   const std::unordered_set<DetId>& dhb ( pG->getValidDetIds(DetId::Hcal,HcalBarrel                     ));
+   const std::unordered_set<DetId>& dhe ( pG->getValidDetIds(DetId::Hcal,HcalEndcap                     ));
+   const std::unordered_set<DetId>& dho ( pG->getValidDetIds(DetId::Hcal,HcalOuter                      ));
+   const std::unordered_set<DetId>& dhf ( pG->getValidDetIds(DetId::Hcal,HcalForward                    ));
+   const std::unordered_set<DetId>& dct ( pG->getValidDetIds(DetId::Calo,CaloTowerDetId::SubdetId       ));
+   const std::unordered_set<DetId>& dca ( pG->getValidDetIds(DetId::Calo,HcalCastorDetId::SubdetectorId ));
+   const std::unordered_set<DetId>& dzd ( pG->getValidDetIds(DetId::Calo,HcalZDCDetId::SubdetectorId    ));
 
-   const std::vector<DetId>& dha ( pG->getSubdetectorGeometry(DetId::Hcal,1)->getValidDetIds());
+   const std::unordered_set<DetId>& dha ( pG->getSubdetectorGeometry(DetId::Hcal,1)->getValidDetIds());
 
 
    const unsigned int sum ( deb.size() +

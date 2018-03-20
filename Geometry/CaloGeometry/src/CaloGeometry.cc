@@ -4,7 +4,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-const std::vector<DetId> CaloGeometry::k_emptyVec ( 0 ) ;
+const std::unordered_set<DetId> CaloGeometry::k_emptyVec ( 0 ) ;
 
 CaloGeometry::CaloGeometry() :
    m_geos ( kLength, nullptr )
@@ -94,9 +94,9 @@ CaloGeometry::present( const DetId& id ) const
   return ( nullptr == geom ? false : geom->present( id ) ) ;
 }
 
-std::vector<DetId> CaloGeometry::getValidDetIds() const
+std::unordered_set<DetId> CaloGeometry::getValidDetIds() const
 {
-   std::vector<DetId> returnValue ;
+   std::unordered_set<DetId> returnValue ;
    returnValue.reserve( kLength ) ;
 
    bool doneHcal ( false ) ;
@@ -104,15 +104,16 @@ std::vector<DetId> CaloGeometry::getValidDetIds() const
    {     
       if( nullptr != m_geos[i] )
       {
-	 const std::vector< DetId >& aVec = m_geos[i]->getValidDetIds();	 
+	 const std::unordered_set<DetId>& aVec = m_geos[i]->getValidDetIds();
 	 if( aVec.empty() ) {
 	   edm::LogWarning("EmptyDetIdList") << "Valid det id list at index " << i << " is empty!" << std::endl;
 	 }
-	 const bool isHcal ( !aVec.empty() && DetId::Hcal == aVec.front().det() ) ;
+	 const bool isHcal ( !aVec.empty() && DetId::Hcal == aVec.begin()->det() ) ;
 	 if( !doneHcal ||
 	     !isHcal      )
 	 {
-	    returnValue.insert( returnValue.end(), aVec.begin(), aVec.end() ) ;
+	    for (const auto& id : aVec) returnValue.emplace(id);
+	   //	    returnValue.merge(aVec) ;
 	    if( !doneHcal &&
 		isHcal        ) doneHcal = true ;
 	 }
@@ -121,7 +122,7 @@ std::vector<DetId> CaloGeometry::getValidDetIds() const
    return returnValue ;
 }
 
-const std::vector<DetId>&
+const std::unordered_set<DetId>&
 CaloGeometry::getValidDetIds( DetId::Detector det    , 
 			      int             subdet  ) const 
 {

@@ -450,15 +450,15 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   std::unique_ptr<QIE10DigiCollection> hfQIE10Result(
     new QIE10DigiCollection(
       !theHFQIE10DetIds.empty() ? 
-      theParameterMap->simParameters(theHFQIE10DetIds[0]).readoutFrameSize() : 
+      theParameterMap->simParameters(*theHFQIE10DetIds.begin()).readoutFrameSize() : 
       QIE10DigiCollection::MAXSAMPLES
     )
   );
   std::unique_ptr<QIE11DigiCollection> hbheQIE11Result(
     new QIE11DigiCollection(
       !theHBHEQIE11DetIds.empty() ? 
-      ((HcalSiPMHitResponse *)theHBHESiPMResponse)->getReadoutFrameSize(theHBHEQIE11DetIds[0]) :
-//      theParameterMap->simParameters(theHBHEQIE11DetIds[0]).readoutFrameSize() : 
+      ((HcalSiPMHitResponse *)theHBHESiPMResponse)->getReadoutFrameSize(*theHBHEQIE11DetIds.begin()) :
+//      theParameterMap->simParameters(*theHBHEQIE11DetIds.begin()).readoutFrameSize() : 
       QIE11DigiCollection::MAXSAMPLES
     )
   );
@@ -583,13 +583,13 @@ void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
 
 
 void HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
-  const std::vector<DetId>& hbCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
-  const std::vector<DetId>& heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
-  const std::vector<DetId>& hoCells = theGeometry->getValidDetIds(DetId::Hcal, HcalOuter);
-  const std::vector<DetId>& hfCells = theGeometry->getValidDetIds(DetId::Hcal, HcalForward);
-  const std::vector<DetId>& zdcCells = theGeometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
-  //const std::vector<DetId>& hcalTrigCells = geometry->getValidDetIds(DetId::Hcal, HcalTriggerTower);
-  //const std::vector<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
+  const std::unordered_set<DetId>& hbCells = theGeometry->getValidDetIds(DetId::Hcal, HcalBarrel);
+  const std::unordered_set<DetId>& heCells = theGeometry->getValidDetIds(DetId::Hcal, HcalEndcap);
+  const std::unordered_set<DetId>& hoCells = theGeometry->getValidDetIds(DetId::Hcal, HcalOuter);
+  const std::unordered_set<DetId>& hfCells = theGeometry->getValidDetIds(DetId::Hcal, HcalForward);
+  const std::unordered_set<DetId>& zdcCells = theGeometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
+  //const std::unordered_set<DetId>& hcalTrigCells = geometry->getValidDetIds(DetId::Hcal, HcalTriggerTower);
+  //const std::unordered_set<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
 //  std::cout<<"HcalDigitizer::CheckGeometry number of cells: "<<zdcCells.size()<<std::endl;
   if(zdcCells.empty()) zdcgeo = false;
   if(hbCells.empty() && heCells.empty()) hbhegeo = false;
@@ -599,7 +599,7 @@ void HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
 
   hbheCells = hbCells;
   if( !killHE_) {
-    hbheCells.insert(hbheCells.end(), heCells.begin(), heCells.end());
+    for (const auto& cell : heCells) hbheCells.emplace(cell);
   }
   //handle mixed QIE8/11 scenario in HBHE
   buildHBHEQIECells(hbheCells,eventSetup);
@@ -620,12 +620,12 @@ void HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   //fill test hits collection if desired and empty
   if(injectTestHits_ && injectedHits_.empty() && !injectedHitsCells_.empty() && !injectedHitsEnergy_.empty()){
     //make list of specified cells if desired
-    std::vector<DetId> testCells;
+    std::unordered_set<DetId> testCells;
     if(injectedHitsCells_.size()>=4){
       testCells.reserve(injectedHitsCells_.size()/4);
       for(unsigned ic = 0; ic < injectedHitsCells_.size(); ic += 4){
         if(ic+4 > injectedHitsCells_.size()) break;
-        testCells.push_back(HcalDetId((HcalSubdetector)injectedHitsCells_[ic],injectedHitsCells_[ic+1],
+        testCells.emplace(HcalDetId((HcalSubdetector)injectedHitsCells_[ic],injectedHitsCells_[ic+1],
                             injectedHitsCells_[ic+2],injectedHitsCells_[ic+3]));
       }
     }
@@ -648,92 +648,92 @@ void HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   }
 }
 
-void HcalDigitizer::buildHFQIECells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup) {
-	//if results are already cached, no need to look again
-	if(!theHFQIE8DetIds.empty() || !theHFQIE10DetIds.empty()) return;
+void HcalDigitizer::buildHFQIECells(const std::unordered_set<DetId>& allCells, const edm::EventSetup & eventSetup) {
+  //if results are already cached, no need to look again
+  if(!theHFQIE8DetIds.empty() || !theHFQIE10DetIds.empty()) return;
 	
-	//get the QIETypes
-	edm::ESHandle<HcalQIETypes> q;
-    eventSetup.get<HcalQIETypesRcd>().get(q);
-	edm::ESHandle<HcalTopology> htopo;
-    eventSetup.get<HcalRecNumberingRecord>().get(htopo);
+  //get the QIETypes
+  edm::ESHandle<HcalQIETypes> q;
+  eventSetup.get<HcalQIETypesRcd>().get(q);
+  edm::ESHandle<HcalTopology> htopo;
+  eventSetup.get<HcalRecNumberingRecord>().get(htopo);
    
-    HcalQIETypes qieTypes(*q.product());
-    if (qieTypes.topo()==nullptr) {
-      qieTypes.setTopo(htopo.product());
+  HcalQIETypes qieTypes(*q.product());
+  if (qieTypes.topo()==nullptr) {
+    qieTypes.setTopo(htopo.product());
+  }
+	
+  for (const auto & detItr : allCells) {
+    HcalQIENum qieType = HcalQIENum(qieTypes.getValues(detItr)->getValue());
+    if(qieType == QIE8) {
+        theHFQIE8DetIds.emplace(detItr);
+    } else if(qieType == QIE10) {
+      theHFQIE10DetIds.emplace(detItr);
+    } else { //default is QIE8
+      theHFQIE8DetIds.emplace(detItr);
     }
+  }
 	
-	for(std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
-      HcalQIENum qieType = HcalQIENum(qieTypes.getValues(*detItr)->getValue());
-      if(qieType == QIE8) {
-        theHFQIE8DetIds.push_back(*detItr);
-      } else if(qieType == QIE10) {
-        theHFQIE10DetIds.push_back(*detItr);
-      } else { //default is QIE8
-        theHFQIE8DetIds.push_back(*detItr);
-      }
-    }
+  if(!theHFQIE8DetIds.empty()) theHFDigitizer->setDetIds(theHFQIE8DetIds);
+  else {
+    delete theHFDigitizer;
+    theHFDigitizer = nullptr;
+  }
 	
-	if(!theHFQIE8DetIds.empty()) theHFDigitizer->setDetIds(theHFQIE8DetIds);
-	else {
-		delete theHFDigitizer;
-		theHFDigitizer = nullptr;
-	}
-	
-	if(!theHFQIE10DetIds.empty()) theHFQIE10Digitizer->setDetIds(theHFQIE10DetIds);
-	else {
-		delete theHFQIE10Digitizer;
-		theHFQIE10Digitizer = nullptr;
-	}
+  if(!theHFQIE10DetIds.empty()) theHFQIE10Digitizer->setDetIds(theHFQIE10DetIds);
+  else {
+    delete theHFQIE10Digitizer;
+    theHFQIE10Digitizer = nullptr;
+  }
 }
 
-void HcalDigitizer::buildHBHEQIECells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup) {
-	//if results are already cached, no need to look again
-	if(!theHBHEQIE8DetIds.empty() || !theHBHEQIE11DetIds.empty()) return;
+void HcalDigitizer::buildHBHEQIECells(const std::unordered_set<DetId>& allCells, const edm::EventSetup & eventSetup) {
+  //if results are already cached, no need to look again
+  if(!theHBHEQIE8DetIds.empty() || !theHBHEQIE11DetIds.empty()) return;
 	
-	//get the QIETypes
-	edm::ESHandle<HcalQIETypes> q;
-    eventSetup.get<HcalQIETypesRcd>().get(q);
-	edm::ESHandle<HcalTopology> htopo;
-    eventSetup.get<HcalRecNumberingRecord>().get(htopo);
-   
-    HcalQIETypes qieTypes(*q.product());
-    if (qieTypes.topo()==nullptr) {
-      qieTypes.setTopo(htopo.product());
+  //get the QIETypes
+  edm::ESHandle<HcalQIETypes> q;
+  eventSetup.get<HcalQIETypesRcd>().get(q);
+  edm::ESHandle<HcalTopology> htopo;
+  eventSetup.get<HcalRecNumberingRecord>().get(htopo);
+  
+  HcalQIETypes qieTypes(*q.product());
+  if (qieTypes.topo()==nullptr) {
+    qieTypes.setTopo(htopo.product());
+  }
+	
+  for (auto const & detItr : allCells) {
+    HcalQIENum qieType = HcalQIENum(qieTypes.getValues(detItr)->getValue());
+    if(qieType == QIE8) {
+      theHBHEQIE8DetIds.emplace(detItr);
     }
-	
-	for(std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
-      HcalQIENum qieType = HcalQIENum(qieTypes.getValues(*detItr)->getValue());
-      if(qieType == QIE8) {
-        theHBHEQIE8DetIds.push_back(*detItr);
-      }
-      else if(qieType == QIE11) {
-        theHBHEQIE11DetIds.push_back(*detItr);
-      }
-      else { //default is QIE8
-        theHBHEQIE8DetIds.push_back(*detItr);
-      }
+    else if(qieType == QIE11) {
+      theHBHEQIE11DetIds.emplace(detItr);
     }
+    else { //default is QIE8
+      theHBHEQIE8DetIds.emplace(detItr);
+    }
+  }
+  
+  if(!theHBHEQIE8DetIds.empty()) theHBHEDigitizer->setDetIds(theHBHEQIE8DetIds);
+  else {
+    delete theHBHEDigitizer;
+    theHBHEDigitizer = nullptr;
+  }
 	
-	if(!theHBHEQIE8DetIds.empty()) theHBHEDigitizer->setDetIds(theHBHEQIE8DetIds);
-	else {
-		delete theHBHEDigitizer;
-		theHBHEDigitizer = nullptr;
-	}
+  if(!theHBHEQIE11DetIds.empty()) theHBHEQIE11Digitizer->setDetIds(theHBHEQIE11DetIds);
+  else {
+    delete theHBHEQIE11Digitizer;
+    theHBHEQIE11Digitizer = nullptr;
+  }
 	
-	if(!theHBHEQIE11DetIds.empty()) theHBHEQIE11Digitizer->setDetIds(theHBHEQIE11DetIds);
-	else {
-		delete theHBHEQIE11Digitizer;
-		theHBHEQIE11Digitizer = nullptr;
-	}
-	
-	if(!theHBHEQIE8DetIds.empty() && !theHBHEQIE11DetIds.empty()){
-		theHBHEHitFilter.setDetIds(theHBHEQIE8DetIds);
-		theHBHEQIE11HitFilter.setDetIds(theHBHEQIE11DetIds);
-	}
+  if(!theHBHEQIE8DetIds.empty() && !theHBHEQIE11DetIds.empty()){
+    theHBHEHitFilter.setDetIds(theHBHEQIE8DetIds);
+    theHBHEQIE11HitFilter.setDetIds(theHBHEQIE11DetIds);
+  }
 }
 
-void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup) {
+void HcalDigitizer::buildHOSiPMCells(const std::unordered_set<DetId>& allCells, const edm::EventSetup & eventSetup) {
   // all HPD
 
   if(theHOSiPMCode == 0) {
@@ -742,7 +742,7 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const e
     theHOSiPMDigitizer->setDetIds(allCells);
     // FIXME pick Zecotek or hamamatsu?
   } else if(theHOSiPMCode == 2) {
-    std::vector<HcalDetId> zecotekDetIds, hamamatsuDetIds;
+    std::unordered_set<DetId> zecotekDetIds, hamamatsuDetIds;
     edm::ESHandle<HcalMCParams> p;
     eventSetup.get<HcalMCParamsRcd>().get(p);
     edm::ESHandle<HcalTopology> htopo;
@@ -753,16 +753,16 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const e
       mcParams.setTopo(htopo.product());
     }
 
-    for(std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
-      int shapeType = mcParams.getValues(*detItr)->signalShape();
+    for(auto const & detItr : allCells) {
+      int shapeType = mcParams.getValues(detItr)->signalShape();
       if(shapeType == HcalShapes::ZECOTEK) {
-        zecotekDetIds.emplace_back(*detItr);
-        theHOSiPMDetIds.push_back(*detItr);
+        zecotekDetIds.emplace(detItr);
+        theHOSiPMDetIds.emplace(detItr);
       } else if(shapeType == HcalShapes::HAMAMATSU) {
-        hamamatsuDetIds.emplace_back(*detItr);
-        theHOSiPMDetIds.push_back(*detItr);
+        hamamatsuDetIds.emplace(detItr);
+        theHOSiPMDetIds.emplace(detItr);
       } else {
-        theHOHPDDetIds.push_back(*detItr);
+        theHOHPDDetIds.emplace(detItr);
       }
     }
 
@@ -771,21 +771,21 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const e
       delete theHODigitizer;
       theHODigitizer = nullptr;
     }
-	
+    
     if(!theHOSiPMDetIds.empty()) theHOSiPMDigitizer->setDetIds(theHOSiPMDetIds);
     else {
       delete theHOSiPMDigitizer;
       theHOSiPMDigitizer = nullptr;
     }
 	
-	if(!theHOHPDDetIds.empty() && !theHOSiPMDetIds.empty()){
+    if(!theHOHPDDetIds.empty() && !theHOSiPMDetIds.empty()){
       theHOSiPMHitFilter.setDetIds(theHOSiPMDetIds);
       theHOHitFilter.setDetIds(theHOHPDDetIds);
     }
 	
     theParameterMap->setHOZecotekDetIds(zecotekDetIds);
     theParameterMap->setHOHamamatsuDetIds(hamamatsuDetIds);
-
+    
     // make sure we don't got through this exercise again
     theHOSiPMCode = -2;
   }

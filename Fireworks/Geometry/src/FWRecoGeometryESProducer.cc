@@ -533,17 +533,15 @@ FWRecoGeometryESProducer::addTECGeometry( void )
 void
 FWRecoGeometryESProducer::addCaloGeometry( void )
 {
-  std::vector<DetId> vid = m_caloGeom->getValidDetIds(); // Calo
-  for( std::vector<DetId>::const_iterator it = vid.begin(),
-	 end = vid.end();
-       it != end; ++it ) {
-    unsigned int id = insert_id( it->rawId());
-    if( DetId::Forward != it->det() ) {
-      const CaloCellGeometry::CornersVec& cor = m_caloGeom->getGeometry( *it )->getCorners();      
+  std::unordered_set<DetId> vid = m_caloGeom->getValidDetIds(); // Calo
+  for( auto const & it: vid) {
+    unsigned int id = insert_id( it.rawId());
+    if( DetId::Forward != it.det() ) {
+      const CaloCellGeometry::CornersVec& cor = m_caloGeom->getGeometry( it )->getCorners();      
       fillPoints( id, cor.begin(), cor.end());
     } else {
-      const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(m_caloGeom->getSubdetectorGeometry( *it ) );
-      const auto& cor = geom->getCorners( *it );
+      const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(m_caloGeom->getSubdetectorGeometry( it ) );
+      const auto& cor = geom->getCorners( it );
       fillPoints( id, cor.begin(), cor.end() );
     }
   }
@@ -553,21 +551,17 @@ void
 FWRecoGeometryESProducer::addFTLGeometry( void )
 {
   // do the barrel
-  std::vector<DetId> vid = std::move(m_ftlBarrelGeom->getValidDetIds()); 
-  for( std::vector<DetId>::const_iterator it = vid.begin(),
-	 end = vid.end();
-       it != end; ++it ) {
-    unsigned int id = insert_id( it->rawId());
-    const auto& cor =  m_ftlBarrelGeom->getCorners( *it );      
+  std::unordered_set<DetId> vid = std::move(m_ftlBarrelGeom->getValidDetIds());
+  for( auto const & it : vid) {
+    unsigned int id = insert_id( it.rawId());
+    const auto& cor =  m_ftlBarrelGeom->getCorners( it );      
     fillPoints( id, cor.begin(), cor.end());    
   }
   // do the endcap
   vid = std::move(m_ftlEndcapGeom->getValidDetIds()); 
-  for( std::vector<DetId>::const_iterator it = vid.begin(),
-	 end = vid.end();
-       it != end; ++it ) {
-    unsigned int id = insert_id( it->rawId());
-    const auto& cor =  m_ftlEndcapGeom->getCorners( *it );      
+  for( auto const it : vid) {
+    unsigned int id = insert_id( it.rawId());
+    const auto& cor =  m_ftlEndcapGeom->getCorners( it );      
     fillPoints( id, cor.begin(), cor.end());    
   }
 }

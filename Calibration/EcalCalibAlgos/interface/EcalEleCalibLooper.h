@@ -133,8 +133,8 @@ class EcalEleCalibLooper : public edm::EDLooper {
 
   std::vector<int> m_regions;
   
-  std::vector<DetId> m_barrelCells;
-  std::vector<DetId> m_endcapCells;
+  std::unordered_set<DetId> m_barrelCells;
+  std::unordered_set<DetId> m_endcapCells;
 
   std::map<int,int> m_xtalRegionId ;
   std::map<int,int> m_xtalPositionInRegion ;
