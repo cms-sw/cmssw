@@ -17,7 +17,6 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-<<<<<<< HEAD
 
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import recHitEnergyNorms2018,seedFinderThresholdsByDetector2018,initialClusteringStepThresholdsByDetector2018,logWeightDenominatorByDetector2018
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import logWeightDenominatorByDetector2018 as logWeightDenominatorByDetector2018_HCAL
@@ -56,69 +55,34 @@ def customiseForUncollapsed(process):
     return process    
 
 
-=======
 def customiseFor22621_forIsoTrackHBHE(process):
     """Adapt the HLT to run with different setting
     of thresholds for EB/EE in """
 
-    if hasattr(process,'hltIsolEcalPixelTrackProdHB'):
-        process.hltIsolEcalPixelTrackProdHB = cms.EDProducer( "IsolatedEcalPixelTrackCandidateProducer",
-            filterLabel = cms.InputTag( "hltIsolPixelTrackL2FilterHB" ),
-            EBRecHitSource = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
-            EERecHitSource = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
-            EBHitEnergyThreshold      = cms.double( 0.10 ),
-            EBHitCountEnergyThreshold = cms.double( 0.5 ),
-            EEHitEnergyThreshold0     = cms.double(-20.5332),
-            EEHitEnergyThreshold1     = cms.double(34.3975),
-            EEHitEnergyThreshold2     = cms.double(-19.0741),
-            EEHitEnergyThreshold3     = cms.double(3.52151),
-            EEFacHitCountEnergyThreshold = cms.double(10.0),
-            EcalConeSizeEta0 = cms.double( 0.09 ),
-            EcalConeSizeEta1 = cms.double( 0.14 )
-        )
+    for producer in producers_by_type(process, "IsolatedEcalPixelTrackCandidateProducer"):
+        del producer.ECHitEnergyThreshold
+        del producer.ECHitCountEnergyThreshold
+        del producer.EcalConeSizeEta0
+        del producer.EcalConeSizeEta1
+        producer.EBHitEnergyThreshold = cms.double(0.10)   
+        producer.EBHitCountEnergyThreshold = cms.double(0.5)
+        producer.EEHitEnergyThreshold0     = cms.double(-20.5332)
+        producer.EEHitEnergyThreshold1     = cms.double(34.3975)
+        producer.EEHitEnergyThreshold2     = cms.double(-19.0741)
+        producer.EEHitEnergyThreshold3     = cms.double(3.52151)
+        producer.EEFacHitCountEnergyThreshold= cms.double(10.0)
+        producer.EcalConeSizeEta0          = cms.double(0.09)
+        producer.EcalConeSizeEta1          = cms.double(0.14)
 
-    if hasattr(process,'hltIsolEcalPixelTrackProdHE'):
-        process.hltIsolEcalPixelTrackProdHE = cms.EDProducer( "IsolatedEcalPixelTrackCandidateProducer",
-            filterLabel = cms.InputTag( "hltIsolPixelTrackL2FilterHE" ),
-            EBRecHitSource = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEB' ),
-            EERecHitSource = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
-            EBHitEnergyThreshold      = cms.double( 0.10 ),
-            EBHitCountEnergyThreshold = cms.double( 0.5 ),
-            EEHitEnergyThreshold0     = cms.double(-20.5332),
-            EEHitEnergyThreshold1     = cms.double(34.3975),
-            EEHitEnergyThreshold2     = cms.double(-19.0741),
-            EEHitEnergyThreshold3     = cms.double(3.52151),
-            EEFacHitCountEnergyThreshold = cms.double(10.0),
-            EcalConeSizeEta0 = cms.double( 0.09 ),
-            EcalConeSizeEta1 = cms.double( 0.14 )
-        )
-
-    if hasattr(process,'hltEcalIsolPixelTrackL2FilterHB'):
-        process.hltEcalIsolPixelTrackL2FilterHB = cms.EDFilter( "HLTEcalPixelIsolTrackFilter",
-            saveTags = cms.bool( True ),
-            DropMultiL2Event = cms.bool( False ),
-            MaxEnergyInEB  = cms.double( 1.2 ),
-            MaxEnergyInEE  = cms.double( 2.0 ),
-            MaxEnergyOutEB = cms.double( 1.2 ),
-            MaxEnergyOutEE = cms.double( 2.0 ),
-            NMaxTrackCandidates = cms.int32( 10 ),
-            candTag = cms.InputTag( "hltIsolEcalPixelTrackProdHB" )
-        )
-
-    if hasattr(process,'hltEcalIsolPixelTrackL2FilterHB'):
-        process.hltEcalIsolPixelTrackL2FilterHE = cms.EDFilter( "HLTEcalPixelIsolTrackFilter",
-            saveTags = cms.bool( True ),
-            DropMultiL2Event = cms.bool( False ),
-            MaxEnergyInEB  = cms.double( 1.2 ),
-            MaxEnergyInEE  = cms.double( 2.0 ),
-            MaxEnergyOutEB = cms.double( 1.2 ),
-            MaxEnergyOutEE = cms.double( 2.0 ),
-            NMaxTrackCandidates = cms.int32( 10 ),
-            candTag = cms.InputTag( "hltIsolEcalPixelTrackProdHE" )
-        )
+    for filter in filters_by_type(process, "HLTEcalPixelIsolTrackFilter"):
+        del filter.MaxEnergyIn
+        del filter.MaxEnergyOut
+        filter.MaxEnergyInEB = cms.double( 2.0 )     
+        filter.MaxEnergyOutEB = cms.double( 1.2 )
+        filter.MaxEnergyInEE = cms.double( 2.0 )
+        filter.MaxEnergyOutEE = cms.double( 1.2 )
 
     return process
->>>>>>> Take Martin's suggestions
 
 
 def customiseFor21664_forMahiOn(process):
