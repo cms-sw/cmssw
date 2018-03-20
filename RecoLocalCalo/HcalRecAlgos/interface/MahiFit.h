@@ -93,12 +93,12 @@ struct MahiDebugInfo {
   float inPedAvg;
   float inGain;
   
-  float inNoiseADC[10];
-  float inNoiseDC[10];
-  float inNoisePhoto[10];
-  float inPedestal[10];
+  float inNoiseADC[MaxSVSize];
+  float inNoiseDC[MaxSVSize];
+  float inNoisePhoto[MaxSVSize];
+  float inPedestal[MaxSVSize];
 
-  float totalUCNoise[10];
+  float totalUCNoise[MaxSVSize];
 
   float mahiEnergy;
   float chiSq;
@@ -108,12 +108,12 @@ struct MahiDebugInfo {
   float nEnergy;
   float pedEnergy;
 
-  float count[10];
-  float inputTS[10];
-  int inputTDC[10];
-  float itPulse[10];
-  float pPulse[10];
-  float nPulse[10];
+  float count[MaxSVSize];
+  float inputTS[MaxSVSize];
+  int inputTDC[MaxSVSize];
+  float itPulse[MaxSVSize];
+  float pPulse[MaxSVSize];
+  float nPulse[MaxSVSize];
   
 };
 
