@@ -22,9 +22,8 @@ namespace edm {
   
   class ProductRegistryHelper {
   public:
-
+    virtual ~ProductRegistryHelper() noexcept(false);
     ProductRegistryHelper() : typeLabelList_() {}
-    ~ProductRegistryHelper();
 
     // has_donotrecordparents<T>::value is true if we should not
     // record parentage for type T, and false otherwise.

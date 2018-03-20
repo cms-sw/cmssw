@@ -60,11 +60,12 @@ process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
 process.trackerTopology = cms.ESProducer("TrackerTopologyEP")
 ####
 
-process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
-    TkMapFileName = cms.untracked.string('TkMapBadComponents_offline.png'),
-    #TkMapFileName = cms.untracked.string(''),
-    dataLabel = cms.untracked.string('test')
-)
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
+                             TkMapFileName = cms.untracked.string('TkMapBadComponents_offline.png'),
+                             #TkMapFileName = cms.untracked.string(''),
+                             dataLabel = cms.untracked.string('test')
+                             )
 
 process.out = cms.OutputModule("AsciiOutputModule")
 
