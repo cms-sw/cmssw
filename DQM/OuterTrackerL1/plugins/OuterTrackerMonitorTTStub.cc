@@ -272,8 +272,7 @@ void OuterTrackerMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::
   Stub_Endcap_Ring->setAxisTitle("Endcap Ring",1);
   Stub_Endcap_Ring->setAxisTitle("# L1 Stubs ",2);
 
-  std::vector<int> histo_range = {0,1,2,3,4};
-  for (auto i : histo_range) {
+  for (int i = 0; i < 5; i++) {
     HistoName = "NStubs_Disc+"+std::to_string(i+1);
     //TTStub Endcap stack
     Stub_Endcap_Ring_Fw[i] = iBooker.book1D(HistoName, HistoName,
@@ -284,7 +283,7 @@ void OuterTrackerMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::
     Stub_Endcap_Ring_Fw[i]->setAxisTitle("# L1 Stubs ",2);
   }
 
-  for (auto i : histo_range) {
+  for (int i = 0; i < 5; i++) {
     HistoName = "NStubs_Disc-"+std::to_string(i+1);
     //TTStub Endcap stack
     Stub_Endcap_Ring_Bw[i] = iBooker.book1D(HistoName, HistoName,
@@ -334,7 +333,7 @@ void OuterTrackerMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::
   Stub_Endcap_Ring_W->setAxisTitle("Endcap Ring",1);
   Stub_Endcap_Ring_W->setAxisTitle("Trigger Offset",2);
 
-  for (auto i : histo_range) {
+  for (int i = 0; i < 5; i++) {
     HistoName = "Stub_Width_Disc+"+std::to_string(i+1);
     Stub_Endcap_Ring_W_Fw[i] = iBooker.book2D(HistoName, HistoName,
         psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
@@ -347,7 +346,7 @@ void OuterTrackerMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::
     Stub_Endcap_Ring_W_Fw[i]->setAxisTitle("Displacement - Offset",2);
   }
 
-  for (auto i : histo_range) {
+  for (int i = 0; i < 5; i++) {
     HistoName = "Stub_Width_Disc-"+std::to_string(i+1);
     Stub_Endcap_Ring_W_Bw[i] = iBooker.book2D(HistoName, HistoName,
         psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
@@ -394,7 +393,7 @@ void OuterTrackerMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::
   Stub_Endcap_Ring_O->setAxisTitle("Endcap Ring",1);
   Stub_Endcap_Ring_O->setAxisTitle("Trigger Offset",2);
 
-  for (auto i : histo_range) {
+  for (int i = 0; i < 5; i++) {
     HistoName = "Stub_Offset_Disc+"+std::to_string(i+1);
     Stub_Endcap_Ring_O_Fw[i] = iBooker.book2D(HistoName, HistoName,
         psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
@@ -407,7 +406,7 @@ void OuterTrackerMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::
     Stub_Endcap_Ring_O_Fw[i]->setAxisTitle("Trigger Offset",2);
   }
 
-  for (auto i : histo_range) {
+  for (int i = 0; i < 5; i++) {
     HistoName = "Stub_Offset_Disc-"+std::to_string(i+1);
     Stub_Endcap_Ring_O_Bw[i] = iBooker.book2D(HistoName, HistoName,
         psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
