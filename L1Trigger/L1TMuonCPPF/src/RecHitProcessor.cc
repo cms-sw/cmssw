@@ -28,13 +28,16 @@ void RecHitProcessor::processLook(
     if (dynamic_cast<const RPCChamber*>( *iDet ) == nullptr ) continue;
     
     auto chamb = dynamic_cast<const RPCChamber* >( *iDet ); 
+
     std::vector<const RPCRoll*> rolls = (chamb->rolls());
-    
+ 
     // Loop over rolls in the chamber
     for(auto& iRoll : rolls){
       
       RPCDetId rpcId = (*iRoll).id();	
       
+        
+    
       typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
       rangeRecHits recHitCollection =  recHits->get(rpcId);
       
@@ -180,16 +183,28 @@ void RecHitProcessor::processLook(
 	  if(((*cppf1).rawId == rawId) && ((*cppf1).strip == rechitstrip)){
 	    
 	    int old_strip = (*cppf1).strip;
+            int before = 0;
+	    int after = 0;
+	  
+            if(cppf1 != CppfVec1.begin())	    
+	    	before = (*(cppf1-2)).strip;
 	    
-	    int before = (*(cppf1-2)).strip;
-	    int after = (*(cppf1+2)).strip;
+	    else if (cppf1 == CppfVec1.begin())
+		before = (*cppf1).strip;
+		
+            if(cppf1 != CppfVec1.end())
+ 	    	after = (*(cppf1+2)).strip;
+		
+            else if (cppf1 == CppfVec1.end())
+		after = (*cppf1).strip;	
+
 	    cppf = cppf1;
 	    
 	    if(clustersize == 2){
 	      
 	      if(firststrip == 1){
 		if(before < after) cppf=(cppf1-1);
-                else if (before > after) cppf=(cppf1+1);
+                else if (before > after) cppf=(cppf1+1); 
 	      }
 	      else if(firststrip > 1){
 		if(before < after) cppf=(cppf1+1);
