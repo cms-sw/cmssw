@@ -469,13 +469,24 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 		iend = patJet->end(), isub = ibegin;
 	      isub != iend; ++isub ) {
 	  reco::PFJet const * pfsub = dynamic_cast<reco::PFJet const *>( &*isub );
-	  e_chf += pfsub->chargedHadronEnergy();
-	  e_nhf += pfsub->neutralHadronEnergy();
-	  e_cef += pfsub->chargedEmEnergy();
-	  e_nef += pfsub->neutralEmEnergy();
-	  nch += pfsub->chargedMultiplicity();
-	  nconstituents += pfsub->numberOfDaughters();
-	  nneutrals += pfsub->neutralMultiplicity();
+	  pat::Jet const * patsub = dynamic_cast<pat::Jet const *>( &*isub );
+	  if ( patsub ) {
+	    e_chf += patsub->chargedHadronEnergy();
+	    e_nhf += patsub->neutralHadronEnergy();
+	    e_cef += patsub->chargedEmEnergy();
+	    e_nef += patsub->neutralEmEnergy();
+	    nch += patsub->chargedMultiplicity();
+            nconstituents += patsub->numberOfDaughters();
+	    nneutrals += patsub->neutralMultiplicity();
+	  } else if ( pfsub ) {
+            e_chf += pfsub->chargedHadronEnergy();
+	    e_nhf += pfsub->neutralHadronEnergy();
+	    e_cef += pfsub->chargedEmEnergy();
+	    e_nef += pfsub->neutralEmEnergy();
+	    nch += pfsub->chargedMultiplicity();
+            nconstituents += pfsub->numberOfDaughters();
+	    nneutrals += pfsub->neutralMultiplicity();
+	  } else assert(0);
 	}
 	double e = patJet->energy();
 	if ( e > 0.000001 ) {
