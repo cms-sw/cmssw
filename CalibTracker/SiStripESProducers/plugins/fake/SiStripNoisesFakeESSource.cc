@@ -33,7 +33,7 @@ public:
 
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripNoises> ReturnType;
+  typedef std::unique_ptr<SiStripNoises> ReturnType;
   ReturnType produce(const SiStripNoisesRcd&);
 
 private:
@@ -98,7 +98,7 @@ SiStripNoisesFakeESSource::produce(const SiStripNoisesRcd& iRecord)
   edm::ESHandle<TrackerTopology> tTopo;
   iRecord.getRecord<TrackerTopologyRcd>().get(tTopo);
 
-  std::shared_ptr<SiStripNoises> noises{new SiStripNoises};
+  auto noises = std::make_unique<SiStripNoises>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 

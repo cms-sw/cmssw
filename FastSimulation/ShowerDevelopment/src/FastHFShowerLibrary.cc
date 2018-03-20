@@ -6,6 +6,7 @@
 #include "FastSimulation/ShowerDevelopment/interface/FastHFShowerLibrary.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
@@ -70,6 +71,15 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
     });
   G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
   hfshower->initRun(partTable, hcalConstants); // init particle code
+}
+
+void FastHFShowerLibrary::SetRandom(const RandomEngineAndDistribution * rnd)
+{
+  // define Geant4 engine per thread
+  G4Random::setTheEngine(&(rnd->theEngine()));
+  LogDebug("FastHFShowerLibrary::recoHFShowerLibrary") 
+    << "Begin of event " << G4UniformRand() << "  " 
+    << rnd->theEngine().name() << "  " << rnd->theEngine();
 }
 
 void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {

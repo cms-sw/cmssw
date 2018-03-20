@@ -76,8 +76,17 @@ namespace edm {
     void setConsumer(EDConsumerBase const* iConsumer);
 
     void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer);
-    
-    void setProducer( ProducerBase const* iProd, std::vector<BranchID>* previousParentage );
+
+    void setProducerCommon(ProducerBase const* iProd,
+                           std::vector<BranchID>* previousParentage);
+
+    void setProducer(ProducerBase const* iProd,
+                     std::vector<BranchID>* previousParentage,
+                     std::vector<BranchID>* gotBranchIDsFromAcquire = nullptr);
+
+    void setProducerForAcquire(ProducerBase const* iProd,
+                               std::vector<BranchID>* previousParentage,
+                               std::vector<BranchID>& gotBranchIDsFromAcquire);
 
     // AUX functions are defined in EventBase
     EventAuxiliary const& eventAuxiliary() const override {return aux_;}
@@ -313,8 +322,10 @@ namespace edm {
     mutable BranchIDSet gotBranchIDs_;
     mutable std::vector<bool> gotBranchIDsFromPrevious_;
     std::vector<BranchID>* previousBranchIDs_ = nullptr;
-    
+    std::vector<BranchID>* gotBranchIDsFromAcquire_ = nullptr;
+
     void addToGotBranchIDs(Provenance const& prov) const;
+    void addToGotBranchIDs(BranchID const& branchID) const;
 
     // We own the retrieved Views, and have to destroy them.
     mutable std::vector<std::shared_ptr<ViewBase> > gotViews_;
@@ -611,5 +622,34 @@ namespace edm {
     Handle<View<ELEMENT> > h(&*newview, bh.provenance());
     result.swap(h);
   }
+
+  // Free functions to retrieve a collection from the Event.
+  // Will throw an exception if the collection is not available.
+
+  template <typename T>
+  T const& get(Event const& event, InputTag const& tag) {
+    Handle<T> handle;
+    event.getByLabel(tag, handle);
+    // throw if the handle is not valid
+    return * handle.product();
+  }
+
+  template <typename T>
+  T const& get(Event const& event, EDGetToken const& token) {
+    Handle<T> handle;
+    event.getByToken(token, handle);
+    // throw if the handle is not valid
+    return * handle.product();
+  }
+
+  template <typename T>
+  T const& get(Event const& event, EDGetTokenT<T> const& token) {
+    Handle<T> handle;
+    event.getByToken(token, handle);
+    // throw if the handle is not valid
+    return * handle.product();
+  }
+
 }
-#endif
+
+#endif // FWCore_Framework_Event_h

@@ -47,11 +47,12 @@ public:
 
   ReturnType produce(const HcalTPGRecord&);
 private:
-  void buildCoder(const HcalTopology*);
+  void buildCoder(const HcalTopology*, const edm::ESHandle<HcalTimeSlew>&, const edm::ESHandle<HcalMCParams>&, const edm::ESHandle<HcalRecoParams>&);
   // ----------member data ---------------------------
   ReturnType coder_;  
   HcaluLUTTPGCoder* theCoder_;
-  bool read_FGLut_, read_Ascii_,read_XML_,LUTGenerationMode_;
+  bool read_FGLut_, read_Ascii_,read_XML_,LUTGenerationMode_,linearLUTs_;
+  double linearLSB_QIE8_, linearLSB_QIE11Overlap_, linearLSB_QIE11_;
   int maskBit_;
   unsigned int FG_HF_threshold_;
   edm::FileInPath fgfile_,ifilename_;
@@ -79,6 +80,11 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
   if (!(read_Ascii_ || read_XML_)) {
     setWhatProduced(this,(dependsOn(&HcalTPGCoderULUT::dbRecordCallback)));
     LUTGenerationMode_ = iConfig.getParameter<bool>("LUTGenerationMode");
+    linearLUTs_ = iConfig.getParameter<bool>("linearLUTs");
+    auto scales = iConfig.getParameter<edm::ParameterSet>("tpScales").getParameter<edm::ParameterSet>("HBHE");
+    linearLSB_QIE8_ = scales.getParameter<double>("LSBQIE8");
+    linearLSB_QIE11_ = scales.getParameter<double>("LSBQIE11");
+    linearLSB_QIE11Overlap_ = scales.getParameter<double>("LSBQIE11Overlap");
     maskBit_ = iConfig.getParameter<int>("MaskBit");
     FG_HF_threshold_ = iConfig.getParameter<uint32_t>("FG_HF_threshold"); 
   } else {
@@ -90,9 +96,10 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
 }
 
   
-void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo) {  
+void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const edm::ESHandle<HcalTimeSlew>& delay,
+				  const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams) {
   using namespace edm::es;
-  theCoder_ = new HcaluLUTTPGCoder(topo);
+  theCoder_ = new HcaluLUTTPGCoder(topo, delay, mcParams, recoParams);
   if (read_Ascii_ || read_XML_){
     edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename_.fullPath() << " for HcalTPGCoderULUT initialization";
     if (read_Ascii_) {
@@ -105,6 +112,7 @@ void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo) {
       theCoder_->update(fgfile_.fullPath().c_str(), true);
     } 
   } else {
+    theCoder_->setAllLinear(linearLUTs_, linearLSB_QIE8_, linearLSB_QIE11_, linearLSB_QIE11Overlap_);
     theCoder_->setLUTGenerationMode(LUTGenerationMode_);
     theCoder_->setMaskBit(maskBit_);
     theCoder_->setFGHFthreshold(FG_HF_threshold_);
@@ -128,11 +136,21 @@ HcalTPGCoderULUT::~HcalTPGCoderULUT() {
 HcalTPGCoderULUT::ReturnType
 HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
 {
-  if (theCoder_==nullptr) {
+  if (theCoder_==nullptr || (read_Ascii_ || read_XML_)) {// !(read_Ascii_ || read_XML_) goes via dbRecordCallback
     edm::ESHandle<HcalTopology> htopo;
     iRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
-    buildCoder(topo);
+
+    edm::ESHandle<HcalTimeSlew> delay;
+    iRecord.getRecord<HcalDbRecord>().getRecord<HcalTimeSlewRecord>().get("HBHE", delay);
+
+    edm::ESHandle<HcalMCParams> mcParams;
+    iRecord.getRecord<HcalDbRecord>().getRecord<HcalMCParamsRcd>().get(mcParams);
+
+    edm::ESHandle<HcalRecoParams> recoParams;
+    iRecord.getRecord<HcalDbRecord>().getRecord<HcalRecoParamsRcd>().get(recoParams);
+
+    buildCoder(topo, delay, mcParams, recoParams);
   }
   
 
@@ -146,9 +164,14 @@ void HcalTPGCoderULUT::dbRecordCallback(const HcalDbRecord& theRec) {
   theRec.getRecord<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* topo=&(*htopo);
 
-  if (theCoder_==nullptr) {
-    buildCoder(topo);
-  }
+  edm::ESHandle<HcalTimeSlew> delay;
+  theRec.getRecord<HcalTimeSlewRecord>().get("HBHE", delay);
+  edm::ESHandle<HcalMCParams> mcParams;
+  theRec.getRecord<HcalMCParamsRcd>().get(mcParams);
+  edm::ESHandle<HcalRecoParams> recoParams;
+  theRec.getRecord<HcalRecoParamsRcd>().get(recoParams);
+
+  buildCoder(topo, delay, mcParams, recoParams);
 
   theCoder_->update(*conditions);
 

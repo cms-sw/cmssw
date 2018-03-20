@@ -45,12 +45,12 @@ class HcalRecAlgoESProducer : public edm::ESProducer {
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-      typedef std::shared_ptr<HcalSeverityLevelComputer> ReturnType;
+      typedef std::unique_ptr<HcalSeverityLevelComputer> ReturnType;
 
       ReturnType produce(const HcalSeverityLevelComputerRcd&);
    private:
       // ----------member data ---------------------------
-  ReturnType myComputer;
+  const edm::ParameterSet mConfig;
 };
 
 //
@@ -64,14 +64,13 @@ class HcalRecAlgoESProducer : public edm::ESProducer {
 //
 // constructors and destructor
 //
-HcalRecAlgoESProducer::HcalRecAlgoESProducer(const edm::ParameterSet& iConfig)
+HcalRecAlgoESProducer::HcalRecAlgoESProducer(const edm::ParameterSet& iConfig): mConfig(iConfig)
 {
    //the following line is needed to tell the framework what
    // data is being produced
    setWhatProduced(this);
 
    //now do what ever other initialization is needed
-   myComputer = std::make_shared<HcalSeverityLevelComputer>(iConfig);
 }
 
 
@@ -93,8 +92,7 @@ HcalRecAlgoESProducer::ReturnType
 HcalRecAlgoESProducer::produce(const HcalSeverityLevelComputerRcd& iRecord)
 {
    using namespace edm::es;
-
-   return myComputer ;
+   return std::make_unique<HcalSeverityLevelComputer>(mConfig);
 }
 
 void HcalRecAlgoESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

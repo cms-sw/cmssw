@@ -96,7 +96,7 @@ FastTimerServiceClient::fillSummaryPlots(DQMStore::IBooker & booker, DQMStore::I
     // the plots are directly in the configured folder
     fillProcessSummaryPlots(booker, getter, m_dqm_path);
   } else {
-    static const boost::regex running_n_processes(".*/Running [0-9]+ processes");
+    static const boost::regex running_n_processes(".*/Running .*");
 
     booker.setCurrentFolder(m_dqm_path);
     std::vector<std::string> subdirs = getter.getSubdirs();

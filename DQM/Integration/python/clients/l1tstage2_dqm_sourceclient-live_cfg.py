@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
-process = cms.Process("L1TStage2DQM", eras.Run2_2017)
+process = cms.Process("L1TStage2DQM", eras.Run2_2018)
 
 #--------------------------------------------------
 # Event Source and Condition
@@ -9,11 +9,17 @@ process = cms.Process("L1TStage2DQM", eras.Run2_2017)
 # Live Online DQM in P5
 process.load("DQM.Integration.config.inputsource_cfi")
 
-# Testing in lxplus
-#process.load("DQM.Integration.config.fileinputsource_cfi")
+# # Testing in lxplus
+# process.load("DQM.Integration.config.fileinputsource_cfi")
+# process.load("FWCore.MessageLogger.MessageLogger_cfi")
+# process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 # Required to load Global Tag
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi") 
+
+# # Condition for lxplus: change and possibly customise the GT
+# from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
+# process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
 
 # Required to load EcalMappingRecord
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")

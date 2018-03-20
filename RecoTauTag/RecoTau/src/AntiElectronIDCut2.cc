@@ -137,11 +137,8 @@ AntiElectronIDCut2::Discriminator(float TauPt,
 {
 
   double sumPt  = 0.;
-  double dEta   = 0.;
   double dEta2  = 0.;
-  double dPhi   = 0.;
   double dPhi2  = 0.;
-  double sumPt2 = 0.;
   for ( unsigned int i = 0 ; i < GammasPt.size() ; ++i ) {
     double pt_i  = GammasPt[i];
     double phi_i = GammasdPhi[i];
@@ -149,18 +146,13 @@ AntiElectronIDCut2::Discriminator(float TauPt,
     else if ( GammasdPhi[i] < -TMath::Pi() ) phi_i = GammasdPhi[i] + 2*TMath::Pi();
     double eta_i = GammasdEta[i];
     sumPt  +=  pt_i;
-    sumPt2 += (pt_i*pt_i);
-    dEta   += (pt_i*eta_i);
     dEta2  += (pt_i*eta_i*eta_i);
-    dPhi   += (pt_i*phi_i);
     dPhi2  += (pt_i*phi_i*phi_i);
   }
 
   float TauGammaEnFrac = sumPt/TauPt;
 
   if ( sumPt > 0. ) {
-    dEta  /= sumPt;
-    dPhi  /= sumPt;
     dEta2 /= sumPt;
     dPhi2 /= sumPt;
   }

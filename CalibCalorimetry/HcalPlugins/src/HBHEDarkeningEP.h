@@ -21,7 +21,7 @@ class HBHEDarkeningEP : public edm::ESProducer, public edm::EventSetupRecordInte
 		HBHEDarkeningEP(const edm::ParameterSet&);
 		~HBHEDarkeningEP() override;
 
-		typedef std::shared_ptr<HBHEDarkening> ReturnType;
+		typedef std::unique_ptr<HBHEDarkening> ReturnType;
 
 		static void fillDescriptions( edm::ConfigurationDescriptions & descriptions );
     

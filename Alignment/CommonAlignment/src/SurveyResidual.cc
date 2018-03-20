@@ -149,7 +149,7 @@ void SurveyResidual::findSisters(const Alignable* ali,
   theSisters.clear();
   theSisters.reserve(1000);
 
-  const std::vector<Alignable*>& comp = ali->mother()->components();
+  const auto& comp = ali->mother()->components();
 
   unsigned int nComp = comp.size();
 

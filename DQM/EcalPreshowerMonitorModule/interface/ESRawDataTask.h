@@ -25,7 +25,7 @@ class ESRawDataTask : public DQMEDAnalyzer {
       void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
       /// EndJob
-      void endJob(void);
+      void endJob(void) override;
 
       /// Setup
       void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;

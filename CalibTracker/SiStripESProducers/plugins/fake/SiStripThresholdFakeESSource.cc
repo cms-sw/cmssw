@@ -29,7 +29,7 @@ public:
 
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripThreshold> ReturnType;
+  typedef std::unique_ptr<SiStripThreshold> ReturnType;
   ReturnType produce(const SiStripThresholdRcd&);
 
 private:
@@ -66,7 +66,7 @@ SiStripThresholdFakeESSource::produce(const SiStripThresholdRcd& iRecord)
 {
   using namespace edm::es;
 
-  std::shared_ptr<SiStripThreshold> threshold{new SiStripThreshold};
+  auto threshold = std::make_unique<SiStripThreshold>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 

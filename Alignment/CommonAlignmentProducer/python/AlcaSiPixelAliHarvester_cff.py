@@ -51,7 +51,8 @@ SiPixelAliPedeAlignmentProducer.algoConfig.pedeSteerer.options = cms.vstring(
 SiPixelAliPedeAlignmentProducer.algoConfig.minNumHits = 10
 SiPixelAliPedeAlignmentProducer.saveToDB = True
 
-dqmEnvSiPixelAli = cms.EDAnalyzer("DQMEventInfo",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmEnvSiPixelAli = DQMEDAnalyzer('DQMEventInfo',
                                   subSystemFolder = cms.untracked.string('AlCaReco'),  
                                   )
 

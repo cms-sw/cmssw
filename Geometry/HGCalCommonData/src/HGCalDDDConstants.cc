@@ -15,26 +15,8 @@ constexpr double k_ScaleFromDDD = 0.1;
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
 				     const std::string& name) : hgpar_(hp) {
   mode_ = hgpar_->mode_;
-  if (mode_ == HGCalGeometryMode::Square) {
-    rmax_    = 0;
-    modHalf_ = sectors()*layers(true);
-    for (int simreco = 0; simreco < 2; ++simreco ) {
-      tot_layers_[simreco] = layersInit((bool)simreco);
-    }
-
-    edm::LogInfo("HGCalGeom") << "HGCalDDDConstants initialized for " << name
-			      << " with " << layers(false) << ":" 
-			      << layers(true) << " layers, " << sectors() 
-			      << " sectors " << 2*modHalf_ << " modules and "
-			      << "maximum of " << maxCells(false) << ":" 
-			      << maxCells(true) << " cells";
-#ifdef EDM_ML_DEBUG
-    std::cout << "HGCalDDDConstants initialized for " << name << " with " 
-	      << layers(false) << ":" << layers(true) << " layers, " 
-	      << sectors() << " sectors and maximum of " << maxCells(false)
-	      << ":" << maxCells(true) << " cells" << std::endl;
-#endif
-  } else {
+  if ((mode_ == HGCalGeometryMode::Hexagon) ||
+      (mode_ == HGCalGeometryMode::HexagonFull)) {
     rmax_     = k_ScaleFromDDD * (hgpar_->waferR_) * std::cos(30.0*CLHEP::deg);
     hexside_  = 2.0 * rmax_ * tan30deg_;
 #ifdef EDM_ML_DEBUG
@@ -113,59 +95,13 @@ std::pair<int,int> HGCalDDDConstants::assignCell(float x, float y, int lay,
   std::pair<int,int> cellAssignment(-1,-1);
   int i = index.first;
   if (i < 0) return cellAssignment;
-  if (mode_ == HGCalGeometryMode::Square) {
-    float alpha, h, bl, tl;
-    getParameterSquare(i,subSec,reco,h,bl,tl,alpha);
-    cellAssignment = assignCellSquare(x, y, h, bl, tl, alpha, index.second);
-  } else {
+  if ((mode_ == HGCalGeometryMode::Hexagon) ||
+      (mode_ == HGCalGeometryMode::HexagonFull)) {
     float xx = (reco) ? x : k_ScaleFromDDD*x;
     float yy = (reco) ? y : k_ScaleFromDDD*y;
     cellAssignment = assignCellHexagon(xx,yy);
   }
   return cellAssignment;
-}
-  
-std::pair<int,int> HGCalDDDConstants::assignCellSquare(float x, float y, 
-						       float h, float bl,
-						       float tl, float alpha,
-						       float cellSize) const {
-
-  float a     = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
-  float b     = 2*h*bl/(tl-bl);
- 
-  float x0(x);
-  int phiSector = (x0 > 0) ? 1 : 0;
-  if      (alpha < 0) {x0 -= 0.5*(tl+bl); phiSector = 0;}
-  else if (alpha > 0) {x0 += 0.5*(tl+bl); phiSector = 1;}
-  
-    //determine the i-y
-  int ky    = floor((y+h)/cellSize);
-  if (ky*cellSize> y+h) ky--;
-  if (ky<0)             return std::pair<int,int>(-1,-1);
-  if ((ky+1)*cellSize < (y+h) ) ky++;
-  int max_ky_allowed=floor(2*h/cellSize);
-  if (ky>max_ky_allowed-1) return std::pair<int,int>(-1,-1);
-    
-  //determine the i-x
-  //notice we substitute y by the top of the candidate cell to reduce the dead zones
-  int kx    = floor(fabs(x0)/cellSize);
-  if (kx*cellSize > fabs(x0) ) kx--;
-  if (kx<0)                    return std::pair<int,int>(-1,-1);
-  if ((kx+1)*cellSize < fabs(x0)) kx++;
-  int max_kx_allowed=floor( ((ky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize) );
-  if (kx>max_kx_allowed-1) return std::pair<int,int>(-1,-1);
-  
-  //count cells summing in rows until required height
-  //notice the bottom of the cell must be used
-  int icell(0);
-  for (int iky=0; iky<ky; ++iky) {
-    int cellsInRow( floor( ((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize) ) );
-    icell += cellsInRow;
-  }
-  icell += kx;
-
-  //return result
-  return std::pair<int,int>(phiSector,icell);
 }
 
 std::pair<int,int> HGCalDDDConstants::assignCellHexagon(float x, 
@@ -188,49 +124,6 @@ double HGCalDDDConstants::cellSizeHex(int type) const {
   int    indx = (type == 1) ? 0 : 1;
   double cell = (0.5*k_ScaleFromDDD*hgpar_->cellSize_[indx]);
   return cell;
-}
-
-std::pair<int,int> HGCalDDDConstants::findCell(int cell, int lay, int subSec,
-					       bool reco) const {
-
-  std::pair<int,float> index = getIndex(lay, reco);
-  int i = index.first;
-  if (i < 0) return std::pair<int,int>(-1,-1);
-  if (mode_ != HGCalGeometryMode::Square) {
-    return std::pair<int,int>(-1,-1);
-  } else {
-    float alpha, h, bl, tl;
-    getParameterSquare(i,subSec,reco,h,bl,tl,alpha);
-    return findCellSquare(cell, h, bl, tl, alpha, index.second);
-  }
-}
-
-std::pair<int,int> HGCalDDDConstants::findCellSquare(int cell, float h,
-						     float bl, float tl, 
-						     float alpha, 
-						     float cellSize) const {
-
-  //check if cell number is meaningful
-  if(cell<0) return std::pair<int,int>(-1,-1);
-    
-  //parameterization of the boundary of the trapezoid
-  float a     = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
-  float b     = 2*h*bl/(tl-bl);
-  int kx(cell), ky(0);
-  int kymax( floor((2*h)/cellSize) );
-  int testCell(0);
-  for (int iky=0; iky<kymax; ++iky) {
-
-    //check if adding all the cells in this row is above the required cell
-    //notice the top of the cell is used to maximize space
-    int cellsInRow(floor(((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize)));
-    if (testCell+cellsInRow > cell) break;
-    testCell += cellsInRow;
-    ky++;
-    kx -= cellsInRow;
-  }
-
-  return std::pair<int,int>(kx,ky);
 }
 
 HGCalParameters::hgtrap HGCalDDDConstants::getModule(unsigned int indx, 
@@ -268,22 +161,17 @@ std::vector<HGCalParameters::hgtrform> HGCalDDDConstants::getTrForms() const {
 
 bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
 
-  bool ok(false);
-  int  cellmax(0), modmax(0);
-  if (mode_ == HGCalGeometryMode::Square) {
-    cellmax = maxCells(lay,reco);
-    modmax  = sectors();
-    ok      = ((lay > 0 && lay <= (int)(layers(reco))) && 
-	       (mod > 0 && mod <= modmax) &&
-	       (cell >=0 && cell <= cellmax));
-  } else {
+  bool ok(false), okMod(false);
+  int  cellmax(0);
+  if ((mode_ == HGCalGeometryMode::Hexagon) ||
+      (mode_ == HGCalGeometryMode::HexagonFull)) {
     int32_t copyNumber = hgpar_->waferCopy_[mod];
     ok = ((lay > 0 && lay <= (int)(layers(reco))));
     if (ok) {
       const int32_t lay_idx = reco ? (lay-1)*3 + 1 : lay;
       const auto& the_modules = hgpar_->copiesInLayers_[lay_idx];
       auto moditr = the_modules.find(copyNumber);
-      ok = (moditr != the_modules.end());
+      ok = okMod = (moditr != the_modules.end());
 #ifdef EDM_ML_DEBUG
       if (!ok) std::cout << "HGCalDDDConstants: Layer " << lay << ":" 
 			 << lay_idx << " Copy " << copyNumber << ":" << mod
@@ -304,8 +192,7 @@ bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
 #ifdef EDM_ML_DEBUG
   if (!ok) std::cout << "HGCalDDDConstants: Layer " << lay << ":" 
 		     << (lay > 0 && (lay <= (int)(layers(reco)))) << " Module "
-		     << mod << ":" << modmax << ":" 
-		     << (mod > 0 && mod <= modmax) << " Cell " << cell << ":"
+		     << mod << ":" << okMod << " Cell " << cell << ":"
 		     << cellmax << ":" << (cell >=0 && cell <= cellmax)
 		     << ":" << maxCells(reco) << std::endl; 
 #endif
@@ -347,22 +234,13 @@ unsigned int HGCalDDDConstants::layersInit(bool reco) const {
 
 std::pair<float,float> HGCalDDDConstants::locateCell(int cell, int lay, 
 						     int type, bool reco) const {
-  // type refers to subsector # for square cell and wafer # for hexagon cell
+  // type refers to wafer # for hexagon cell
   float x(999999.), y(999999.);
   std::pair<int,float> index = getIndex(lay, reco);
   int i = index.first;
   if (i < 0) return std::pair<float,float>(x,y);
-  if (mode_ == HGCalGeometryMode::Square) {
-    std::pair<int,int> kxy = findCell(cell, lay, type, reco);
-    float alpha, h, bl, tl;
-    getParameterSquare(i,type,reco,h,bl,tl,alpha);
-    float cellSize = index.second;
-    x              = (kxy.first+0.5)*cellSize;
-    if      (alpha < 0) x -= 0.5*(tl+bl);
-    else if (alpha > 0) x -= 0.5*(tl+bl);
-    if (type != 1) x = -x;
-    y              = ((kxy.second+0.5)*cellSize-h);
-  } else {
+  if ((mode_ == HGCalGeometryMode::Hexagon) ||
+      (mode_ == HGCalGeometryMode::HexagonFull)) {
     x              = hgpar_->waferPosX_[type];
     y              = hgpar_->waferPosY_[type];
     if (hgpar_->waferTypeT_[type] == 1) {
@@ -412,11 +290,8 @@ int HGCalDDDConstants::maxCells(int lay, bool reco) const {
   std::pair<int,float> index = getIndex(lay, reco);
   int i = index.first;
   if (i < 0) return 0;
-  if (mode_ == HGCalGeometryMode::Square) {
-    float h, bl, tl, alpha;
-    getParameterSquare(i,0,reco,h,bl,tl,alpha);
-    return maxCellsSquare(h, bl, tl, alpha, index.second);
-  } else {
+  if ((mode_ == HGCalGeometryMode::Hexagon) ||
+      (mode_ == HGCalGeometryMode::HexagonFull)) {
     unsigned int cells(0);
     for (unsigned int k=0; k<hgpar_->waferTypeT_.size(); ++k) {
       if (waferInLayer(k,index.first)) {
@@ -426,24 +301,9 @@ int HGCalDDDConstants::maxCells(int lay, bool reco) const {
       }
     }
     return (int)(cells);
+  } else {
+    return 0;
   }
-}
-
-int HGCalDDDConstants::maxCellsSquare(float h, float bl, float tl, 
-				      float alpha, float cellSize) const {
-
-  float a     = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
-  float b     = 2*h*bl/(tl-bl);
-  
-  int   ncells(0);
-  //always use the top of the cell to maximize space
-  int   kymax = floor((2*h)/cellSize);
-  for (int iky=0; iky<kymax; ++iky) {
-    int cellsInRow=floor(((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize));
-    ncells += cellsInRow;
-  }
-
-  return ncells;
 }
 
 int HGCalDDDConstants::maxRows(int lay, bool reco) const {
@@ -452,10 +312,8 @@ int HGCalDDDConstants::maxRows(int lay, bool reco) const {
   std::pair<int,float> index = getIndex(lay, reco);
   int i = index.first;
   if (i < 0) return kymax;
-  if (mode_ == HGCalGeometryMode::Square) {
-    float h = (reco) ? hgpar_->moduleHR_[i] : hgpar_->moduleHS_[i];
-    kymax   = floor((2*h)/index.second);
-  } else {
+  if ((mode_ == HGCalGeometryMode::Hexagon) ||
+      (mode_ == HGCalGeometryMode::HexagonFull)) {
     for (unsigned int k=0; k<hgpar_->waferCopy_.size(); ++k) {
       if (waferInLayer(k,i)) {
 	int ky = ((hgpar_->waferCopy_[k])/100)%100;
@@ -481,72 +339,14 @@ int HGCalDDDConstants::modulesInit(int lay, bool reco) const {
   return nmod;
 }
 
-std::pair<int,int> HGCalDDDConstants::newCell(int cell, int layer, int sector, 
-					      int subsector, int incrx, 
-					      int incry, bool half) const {
-
-  int subSec = half ? subsector : 0;
-  std::pair<int,int> kxy = findCell(cell, layer, subSec, true);
-  int kx = kxy.first + incrx;
-  int ky = kxy.second + incry;
-  if (ky < 0 || ky > maxRows(layer, true)) {
-    cell = maxCells(true);
-    return std::pair<int,int>(cell,sector*subsector);
-  } else if (kx < 0) {
-    kx        =-kx;
-    subsector =-subsector;
-  } else if (kx > maxCells(layer, true)) {
-    kx       -= maxCells(layer, true);
-    sector   += subsector;
-    subsector =-subsector;
-    if (sector < 1)                      sector = hgpar_->nSectors_;
-    else if (sector > hgpar_->nSectors_) sector = 1;
-  }
-  cell = newCell(kx, ky, layer, subSec);
-  return std::pair<int,int>(cell,sector*subsector);
-}
-
-std::pair<int,int> HGCalDDDConstants::newCell(int cell, int lay, int subsector,
-					      int incrz, bool half) const {
- 
-  int layer = lay + incrz;
-  if (layer <= 0 || layer > (int)(layers(true))) return std::pair<int,int>(cell,0);
-  int subSec = half ? subsector : 0;
-  std::pair<float,float> xy = locateCell(cell, lay, subSec, true);
-  std::pair<int,int>     kcell = assignCell(xy.first, xy.second, layer, subSec,
-					    true);
-  return std::pair<int,int>(kcell.second,layer);
-}
-  
-int HGCalDDDConstants::newCell(int kx, int ky, int lay, int subSec) const {
-
-  std::pair<int,float> index = getIndex(lay, true);
-  int i = index.first;
-  if (i < 0) return maxCells(true);
-  float alpha    = (subSec == 0) ? hgpar_->moduleAlphaS_[i] : subSec;
-  float cellSize = index.second;
-  float a        = (alpha==0) ? 
-    (2*hgpar_->moduleHR_[i]/(hgpar_->moduleTlR_[i]-hgpar_->moduleBlR_[i])) :
-    (hgpar_->moduleHR_[i]/(hgpar_->moduleTlR_[i]-hgpar_->moduleBlR_[i]));
-  float b        = 2*hgpar_->moduleHR_[i]*hgpar_->moduleBlR_[i]/
-    (hgpar_->moduleTlR_[i]-hgpar_->moduleBlR_[i]);
-  int icell(kx);
-  for (int iky=0; iky<ky; ++iky)
-    icell += floor(((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize));
-  return icell;
-}
-
 std::vector<int> HGCalDDDConstants::numberCells(int lay, bool reco) const {
 
   std::pair<int,float> index = getIndex(lay, reco);
   int i = index.first;
   std::vector<int> ncell;
   if (i >= 0) {
-    if (mode_ == HGCalGeometryMode::Square) {
-      float h, bl, tl, alpha;
-      getParameterSquare(i,0,reco,h,bl,tl,alpha);
-      return numberCellsSquare(h, bl, tl, alpha, index.second);
-    } else {
+    if ((mode_ == HGCalGeometryMode::Hexagon) ||
+	(mode_ == HGCalGeometryMode::HexagonFull)) {
       for (unsigned int k=0; k<hgpar_->waferTypeT_.size(); ++k) {
 	if (waferInLayer(k,i)) {
 	  unsigned int cell = (hgpar_->waferTypeT_[k]==1) ? 
@@ -556,19 +356,6 @@ std::vector<int> HGCalDDDConstants::numberCells(int lay, bool reco) const {
       }
     }
   }
-  return ncell;
-}
-
-std::vector<int> HGCalDDDConstants::numberCellsSquare(float h, float bl, 
-						      float tl, float alpha, 
-						      float cellSize) const {
-
-  float a     = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
-  float b     = 2*h*bl/(tl-bl);
-  int   kymax = floor((2*h)/cellSize);
-  std::vector<int> ncell;
-  for (int iky=0; iky<kymax; ++iky)
-    ncell.emplace_back(floor(((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize)));
   return ncell;
 }
 
@@ -605,29 +392,8 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay, int mod,
     return std::pair<int,int>(-1,-1);
   }
   int kx(-1), depth(-1);
-  if (mode_ == HGCalGeometryMode::Square) {
-    float h  = hgpar_->moduleHS_[i];
-    float bl = hgpar_->moduleBlS_[i];
-    float tl = hgpar_->moduleTlS_[i];
-    float cellSize = hgpar_->cellFactor_[i]*index.second;
-  
-    std::pair<int,int> kxy = findCellSquare(cell, h, bl, tl, hgpar_->moduleAlphaS_[i], index.second);
-    depth       = hgpar_->layerGroup_[i];
-    if (depth<0) return std::pair<int,int>(-1,-1);
-    kx          = kxy.first/hgpar_->cellFactor_[i];
-    int ky      = kxy.second/hgpar_->cellFactor_[i];
-
-    float a     = (half) ? (h/(tl-bl)) : (2*h/(tl-bl));
-    float b     = 2*h*bl/(tl-bl);
-    for (int iky=0; iky<ky; ++iky)
-      kx += floor(((iky+1)*cellSize+b+k_horizontalShift*cellSize)/(a*cellSize));
-#ifdef EDM_ML_DEBUG
-    std::cout << "simToReco: input " << cell << ":" << lay << ":" << half
-	      << " kxy " << kxy.first << ":" << kxy.second << " output "
-	      << kx << ":" << depth << " cell factor=" 
-	      << hgpar_->cellFactor_[i] << std::endl;
-#endif
-  } else {
+  if ((mode_ == HGCalGeometryMode::Hexagon) ||
+      (mode_ == HGCalGeometryMode::HexagonFull)) {
     kx  = cell;
     int type = hgpar_->waferTypeL_[mod];
     if (type == 1) {
@@ -784,31 +550,12 @@ std::pair<int,float> HGCalDDDConstants::getIndex(int lay, bool reco) const {
   if (reco && lay>(int)(hgpar_->depthIndex_.size()))  return std::pair<int,float>(-1,0);
   int   indx(0);
   float cell(0);
-  if (mode_ == HGCalGeometryMode::Square) {
-    indx = (reco ? hgpar_->depthIndex_[lay-1] : hgpar_->layerIndex_[lay-1]);
-    cell = (reco ? hgpar_->moduleCellR_[indx] : hgpar_->moduleCellS_[indx]);
-  } else {
+  if ((mode_ == HGCalGeometryMode::Hexagon) ||
+      (mode_ == HGCalGeometryMode::HexagonFull)) { 
     indx = (reco ? hgpar_->depthLayerF_[lay-1] : hgpar_->layerIndex_[lay-1]);
     cell = (reco ? hgpar_->moduleCellR_[0] : hgpar_->moduleCellS_[0]);
   }
   return std::pair<int,float>(indx,cell);
-}
-
-void HGCalDDDConstants::getParameterSquare(int lay, int subSec, bool reco, 
-					   float& h, float& bl, float& tl,
-					   float& alpha) const {
-  if (reco) {
-    h    =  hgpar_->moduleHR_[lay];
-    bl   =  hgpar_->moduleBlR_[lay];
-    tl   =  hgpar_->moduleTlR_[lay];
-    alpha=  hgpar_->moduleAlphaR_[lay];
-    if ((subSec>0 && alpha<0) || (subSec<=0 && alpha>0)) alpha = -alpha;
-  } else {
-    h    =  hgpar_->moduleHS_[lay];
-    bl   =  hgpar_->moduleBlS_[lay];
-    tl   =  hgpar_->moduleTlS_[lay];
-    alpha=  hgpar_->moduleAlphaS_[lay];
-  }
 }
 
 bool HGCalDDDConstants::waferInLayer(int wafer, int lay) const {

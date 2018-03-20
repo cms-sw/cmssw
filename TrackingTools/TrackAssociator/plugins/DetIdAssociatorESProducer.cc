@@ -39,7 +39,7 @@ public:
   DetIdAssociatorESProducer(const edm::ParameterSet&);
   ~DetIdAssociatorESProducer() override;
   
-  typedef std::shared_ptr<DetIdAssociator> ReturnType;
+  typedef std::unique_ptr<DetIdAssociator> ReturnType;
   
   ReturnType produce(const DetIdAssociatorRecord&);
 private:

@@ -5,9 +5,9 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-#include "EventFilter/FEDInterface/interface/FEDHeader.h"
-#include "EventFilter/FEDInterface/interface/FEDTrailer.h"
 #include "FWCore/Utilities/interface/CRC16.h"
 
 #include "EventFilter/ESDigiToRaw/src/ESDataFormatterV4.h"

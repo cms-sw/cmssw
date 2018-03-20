@@ -129,7 +129,7 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
       }
       
       //Select the correct value of the T0 parameter depending on subdetector       
-      const CaloCellGeometry* center_cell ( iSubGeom->getGeometry( maxId ) ) ;
+      auto center_cell ( iSubGeom->getGeometry( maxId ) ) ;
       const double ctreta (center_cell->getPosition().eta());
       
       // for barrel, use barrel T0; 
@@ -176,10 +176,10 @@ PositionCalc::Calculate_Location( const PositionCalc::HitsAndFractions& iDetIds 
 	  weight = e_j*eTot_inv;
 	}
 	
-	const CaloCellGeometry* cell ( iSubGeom->getGeometry( dId ) ) ;
+	auto cell ( iSubGeom->getGeometry( dId ) ) ;
 	const float depth ( maxDepth + maxToFront - cell->getPosition().mag() ) ;
 	
-	const GlobalPoint pos (static_cast<const TruncatedPyramid*>( cell )->getPosition( depth ) );
+	const GlobalPoint pos (cell->getPosition( depth ) );
 	
 	xw += weight*pos.x() ;
 	yw += weight*pos.y() ;

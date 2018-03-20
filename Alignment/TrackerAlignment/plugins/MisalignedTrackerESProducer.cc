@@ -45,7 +45,7 @@ public:
   ~MisalignedTrackerESProducer() override; 
   
   /// Produce the misaligned tracker geometry and store it
-  std::shared_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord& iRecord);
+  std::unique_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord& iRecord);
 
 private:
   const bool theSaveToDB; /// whether or not writing to DB
@@ -53,7 +53,6 @@ private:
   const edm::ParameterSet theScenario; /// misalignment scenario
   const std::string theAlignRecordName, theErrorRecordName;
   
-  std::shared_ptr<TrackerGeometry> theTracker;
 };
 
 //__________________________________________________________________________________________________
@@ -80,7 +79,7 @@ MisalignedTrackerESProducer::~MisalignedTrackerESProducer() {}
 
 
 //__________________________________________________________________________________________________
-std::shared_ptr<TrackerGeometry> 
+std::unique_ptr<TrackerGeometry> 
 MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
 { 
   //Retrieve tracker topology from geometry
@@ -96,7 +95,7 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
   edm::ESHandle<PTrackerParameters> ptp;
   iRecord.getRecord<PTrackerParametersRcd>().get( ptp );
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
-  theTracker  = std::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*gD), *ptp, tTopo));
+  std::unique_ptr<TrackerGeometry> theTracker( trackerBuilder.build(&(*gD), *ptp, tTopo));
  
   // Create the alignable hierarchy
   auto theAlignableTracker = std::make_unique<AlignableTracker>( &(*theTracker), tTopo );

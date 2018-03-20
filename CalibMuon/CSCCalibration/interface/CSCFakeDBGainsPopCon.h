@@ -25,9 +25,9 @@ class CSCFakeDBGainsPopCon: public edm::ESProducer, public edm::EventSetupRecord
       float mean,min,minchi;
       int seed;long int M;
 
-      void prefillDBGains(); 
+      CSCDBGains * prefillDBGains(); 
 
-      typedef const  CSCDBGains * ReturnType;
+      typedef std::unique_ptr<CSCDBGains> ReturnType;
 
       ReturnType produceDBGains(const CSCDBGainsRcd&);
 

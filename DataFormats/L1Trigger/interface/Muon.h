@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
 
 namespace l1t {
 
@@ -12,6 +13,10 @@ namespace l1t {
   typedef edm::Ref< MuonBxCollection > MuonRef ;
   typedef edm::RefVector< MuonBxCollection > MuonRefVector ;
   typedef std::vector< MuonRef > MuonVectorRef ;
+
+  typedef ObjectRefBxCollection<Muon> MuonRefBxCollection;
+  typedef ObjectRefPair<Muon> MuonRefPair;
+  typedef ObjectRefPairBxCollection<Muon> MuonRefPairBxCollection;
 
   class Muon : public L1Candidate {
     
@@ -95,7 +100,10 @@ namespace l1t {
     inline int hwRank() const { return hwRank_; };
 
     inline bool debug() const { return debug_; };
-    
+
+    virtual bool operator==(const l1t::Muon& rhs) const;
+    virtual inline bool operator!=(const l1t::Muon& rhs) const { return !(operator==(rhs)); };
+ 
   private:
     
     // additional hardware quantities common to L1 global jet

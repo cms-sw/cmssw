@@ -97,6 +97,7 @@ namespace edm {
     void processOneGlobalAsync(WaitingTaskHolder holder,
                                typename T::MyPrincipal& principal,
                                EventSetup const& eventSetup,
+                               ServiceToken const& token,
                                bool cleaningUpAfterException = false);
 
     void beginJob(ProductRegistry const&);
@@ -122,7 +123,7 @@ namespace edm {
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const {
-      return workerManager_.allWorkers();
+      return workerManagers_[0].allWorkers();
     }
 
   private:
@@ -150,17 +151,12 @@ namespace edm {
 
     /// returns the action table
     ExceptionToActionTable const& actionTable() const {
-      return workerManager_.actionTable();
+      return workerManagers_[0].actionTable();
     }
     
-    void addToAllWorkers(Worker* w);
-    
-    WorkerManager                         workerManager_;
+    std::vector<WorkerManager>            workerManagers_;
     std::shared_ptr<ActivityRegistry>     actReg_; // We do not use propagate_const because the registry itself is mutable.
-    edm::propagate_const<WorkerPtr>       results_inserter_;
-    std::vector<edm::propagate_const<WorkerPtr>> pathStatusInserterWorkers_;
-    std::vector<edm::propagate_const<WorkerPtr>> endPathStatusInserterWorkers_;
-
+    std::vector<edm::propagate_const<WorkerPtr>> extraWorkers_;
     ProcessContext const*                 processContext_;
   };
 
@@ -170,75 +166,74 @@ namespace edm {
   GlobalSchedule::processOneGlobalAsync(WaitingTaskHolder iHolder,
                                         typename T::MyPrincipal& ep,
                                         EventSetup const& es,
+                                        ServiceToken const& token,
                                         bool cleaningUpAfterException) {
-    ServiceToken token = ServiceRegistry::instance().presentToken();
-    
-    //need the doneTask to own the memory
-    auto globalContext = std::make_shared<GlobalContext>(T::makeGlobalContext(ep, processContext_));
-    
-    if(actReg_) {
-      T::preScheduleSignal(actReg_.get(), globalContext.get());
-    }
-    
-    
-    //If we are in an end transition, we need to reset failed items since they might
-    // be set this time around
-    if( not T::begin_) {
-      ep.resetFailedFromThisProcess();
-    }
-    
-    auto doneTask = make_waiting_task(tbb::task::allocate_root(),
-                                      [this,iHolder, cleaningUpAfterException, globalContext, token](std::exception_ptr const* iPtr) mutable
-                                      {
-                                        ServiceRegistry::Operate op(token);
-                                        std::exception_ptr excpt;
-                                        if(iPtr) {
-                                          excpt = *iPtr;
-                                          //add context information to the exception and print message
-                                          try {
-                                            convertException::wrap([&]() {
-                                              std::rethrow_exception(excpt);
-                                            });
-                                          } catch(cms::Exception& ex) {
-                                            //TODO: should add the transition type info
-                                            std::ostringstream ost;
-                                            if(ex.context().empty()) {
-                                              ost<<"Processing "<<T::transitionName()<<" ";
-                                            }
-                                            addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
-                                            excpt = std::current_exception();
-                                          }
-                                          if(actReg_) {
-                                            actReg_->preGlobalEarlyTerminationSignal_(*globalContext,TerminationOrigin::ExceptionFromThisContext);
-                                          }
-                                        }
-                                        if(actReg_) {
-                                          try {
-                                            T::postScheduleSignal(actReg_.get(), globalContext.get());
-                                          } catch(...) {
-                                            if(not excpt) {
+    try {
+      //need the doneTask to own the memory
+      auto globalContext = std::make_shared<GlobalContext>(T::makeGlobalContext(ep, processContext_));
+      
+      if(actReg_) {
+        //Services may depend upon each other
+        ServiceRegistry::Operate op(token);
+        T::preScheduleSignal(actReg_.get(), globalContext.get());
+      }
+      
+      auto doneTask = make_waiting_task(tbb::task::allocate_root(),
+                                        [this,iHolder, cleaningUpAfterException, globalContext, token](std::exception_ptr const* iPtr) mutable
+                                        {
+                                          std::exception_ptr excpt;
+                                          if(iPtr) {
+                                            excpt = *iPtr;
+                                            //add context information to the exception and print message
+                                            try {
+                                              convertException::wrap([&]() {
+                                                std::rethrow_exception(excpt);
+                                              });
+                                            } catch(cms::Exception& ex) {
+                                              //TODO: should add the transition type info
+                                              std::ostringstream ost;
+                                              if(ex.context().empty()) {
+                                                ost<<"Processing "<<T::transitionName()<<" ";
+                                              }
+                                              ServiceRegistry::Operate op(token);
+                                              addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
                                               excpt = std::current_exception();
                                             }
+                                            if(actReg_) {
+                                              ServiceRegistry::Operate op(token);
+                                              actReg_->preGlobalEarlyTerminationSignal_(*globalContext,TerminationOrigin::ExceptionFromThisContext);
+                                            }
                                           }
-                                        }
-                                        iHolder.doneWaiting(excpt);
-                                        
-                                      });
-    workerManager_.resetAll();
-    
-    ParentContext parentContext(globalContext.get());
-    //make sure the ProductResolvers know about their
-    // workers to allow proper data dependency handling
-    workerManager_.setupOnDemandSystem(ep,es);
-    
-    //make sure the task doesn't get run until all workers have beens started
-    WaitingTaskHolder holdForLoop(doneTask);
-    for(auto& worker: boost::adaptors::reverse((allWorkers()))) {
-      worker->doWorkAsync<T>(doneTask,ep,es,StreamID::invalidStreamID(),parentContext,globalContext.get());
+                                          if(actReg_) {
+                                            try {
+                                              ServiceRegistry::Operate op(token);
+                                              T::postScheduleSignal(actReg_.get(), globalContext.get());
+                                            } catch(...) {
+                                              if(not excpt) {
+                                                excpt = std::current_exception();
+                                              }
+                                            }
+                                          }
+                                          iHolder.doneWaiting(excpt);
+                                          
+                                        });
+      workerManagers_[ep.index()].resetAll();
+      
+      ParentContext parentContext(globalContext.get());
+      //make sure the ProductResolvers know about their
+      // workers to allow proper data dependency handling
+      workerManagers_[ep.index()].setupOnDemandSystem(ep,es);
+      
+      //make sure the task doesn't get run until all workers have beens started
+      WaitingTaskHolder holdForLoop(doneTask);
+      auto& aw = workerManagers_[ep.index()].allWorkers();
+      for(Worker* worker: boost::adaptors::reverse(aw) ) {
+        worker->doWorkAsync<T>(doneTask,ep,es,token, StreamID::invalidStreamID(),parentContext,globalContext.get());
+      }
+    } catch(...) {
+      iHolder.doneWaiting(std::current_exception());
     }
-
   }
-
 }
 
 #endif

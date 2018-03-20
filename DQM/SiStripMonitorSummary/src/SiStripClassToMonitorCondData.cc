@@ -103,10 +103,11 @@ SiStripClassToMonitorCondData::~SiStripClassToMonitorCondData(){
 //
 // ----- beginRun
 //    
-void SiStripClassToMonitorCondData::beginRun(edm::EventSetup const& eSetup) {
+void SiStripClassToMonitorCondData::beginRun(edm::RunNumber_t iRun, edm::EventSetup const& eSetup) {
   
   if(monitorPedestals_){
     pedestalsDQM_ = new SiStripPedestalsDQM(eSetup,
+                                            iRun,
                                             conf_.getParameter<edm::ParameterSet>("SiStripPedestalsDQM_PSet"),
                                             conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
@@ -114,6 +115,7 @@ void SiStripClassToMonitorCondData::beginRun(edm::EventSetup const& eSetup) {
   
   if(monitorNoises_){
     noisesDQM_ = new SiStripNoisesDQM(eSetup,
+                                      iRun,
                                       conf_.getParameter<edm::ParameterSet>("SiStripNoisesDQM_PSet"),
                                       conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
@@ -121,6 +123,7 @@ void SiStripClassToMonitorCondData::beginRun(edm::EventSetup const& eSetup) {
   
   if(monitorQuality_){
     qualityDQM_ = new SiStripQualityDQM(eSetup,
+                                        iRun,
                                         conf_.getParameter<edm::ParameterSet>("SiStripQualityDQM_PSet"),
                                         conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   } 
@@ -128,36 +131,42 @@ void SiStripClassToMonitorCondData::beginRun(edm::EventSetup const& eSetup) {
  
   if(monitorApvGains_){
     apvgainsDQM_ = new SiStripApvGainsDQM(eSetup,
+                                          iRun,
                                           conf_.getParameter<edm::ParameterSet>("SiStripApvGainsDQM_PSet"),
                                           conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
   
   if(monitorLorentzAngle_){
     lorentzangleDQM_ = new SiStripLorentzAngleDQM(eSetup,
+                                                  iRun,
                                                   conf_.getParameter<edm::ParameterSet>("SiStripLorentzAngleDQM_PSet"),
                                                   conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
 
   if(monitorBackPlaneCorrection_){
     bpcorrectionDQM_ = new SiStripBackPlaneCorrectionDQM(eSetup,
+                                                         iRun,
                                                   conf_.getParameter<edm::ParameterSet>("SiStripBackPlaneCorrectionDQM_PSet"),
                                                   conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
   
   if(monitorLowThreshold_){
     lowthresholdDQM_ = new SiStripThresholdDQM(eSetup,
+                                               iRun,
                                                conf_.getParameter<edm::ParameterSet>("SiStripLowThresholdDQM_PSet"),
                                                conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
 
   if(monitorHighThreshold_){
     highthresholdDQM_ = new SiStripThresholdDQM(eSetup,
+                                                iRun,
                                                 conf_.getParameter<edm::ParameterSet>("SiStripHighThresholdDQM_PSet"),
                                                 conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }
 
   if(monitorCabling_){
     cablingDQM_ = new SiStripCablingDQM(eSetup,
+                                        iRun,
                                         conf_.getParameter<edm::ParameterSet>("SiStripCablingDQM_PSet"),
                                         conf_.getParameter<edm::ParameterSet>("FillConditions_PSet"));
   }

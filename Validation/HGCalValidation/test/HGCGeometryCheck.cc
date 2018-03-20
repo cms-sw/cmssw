@@ -29,14 +29,12 @@
 
 #include <TH2.h>
 
-//#define EDM_ML_DEBUG
-
 class HGCGeometryCheck : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
 public:
 
   explicit HGCGeometryCheck( const edm::ParameterSet& );
-  ~HGCGeometryCheck();
+  ~HGCGeometryCheck() override { }
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -64,28 +62,27 @@ private:
 
 HGCGeometryCheck::HGCGeometryCheck(const edm::ParameterSet &cfg) : hcons_(0) {
 
-  usesResource("TFileService");
+  usesResource(TFileService::kSharedResource);
 
   g4Token_ = consumes<PHGCalValidInfo>(cfg.getParameter<edm::InputTag>("g4Source"));
   geometrySource_ = cfg.getUntrackedParameter< std::vector<std::string> >("geometrySource");
-#ifdef EDM_ML_DEBUG
-  std::cout << "HGCGeometryCheck:: use information from "
-	    << cfg.getParameter<edm::InputTag>("g4Source") << " and "
-	    << geometrySource_.size() << " geometry records:";
+
+  edm::LogVerbatim("HGCalValidation") << "HGCGeometryCheck:: use information from "
+				      << cfg.getParameter<edm::InputTag>("g4Source") << " and "
+				      << geometrySource_.size() << " geometry records:";
   for (unsigned int k=0; k<geometrySource_.size(); ++k)
-    std::cout << " " << geometrySource_[k];
-  std::cout << std::endl;
-#endif
+    edm::LogVerbatim("HGCalValidation") << "[ " << k << "] " 
+					<< geometrySource_[k];
 }
 
-HGCGeometryCheck::~HGCGeometryCheck() { }
-
 void HGCGeometryCheck::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  std::vector<std::string> names = {"HGCalEESensitive",
+				    "HGCalHESiliconSensitive",
+				    "Hcal"};
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.addUntracked<std::vector<std::string> >("geometrySource",names);
+  desc.add<edm::InputTag>("g4Source",edm::InputTag("g4SimHits","HGCalInfoLayer"));
+  descriptions.add("hgcGeomCheck",desc);
 }
 
 void HGCGeometryCheck::beginJob() {
@@ -137,13 +134,12 @@ void HGCGeometryCheck::beginRun(const edm::Run&, const edm::EventSetup& iSetup) 
 void HGCGeometryCheck::analyze(const edm::Event &iEvent, 
 			       const edm::EventSetup &iSetup) {
 
-#ifdef EDM_ML_DEBUG
-  std::cout << "HGCGeometryCheck::Run " << iEvent.id().run() << " Event " 
-	    << iEvent.id().event() << " Luminosity " 
-	    << iEvent.luminosityBlock() << " Bunch " 
-	    << iEvent.bunchCrossing() << std::endl;
+  edm::LogVerbatim("HGCalValidation") << "HGCGeometryCheck::Run "
+				      << iEvent.id().run() << " Event " 
+				      << iEvent.id().event() << " Luminosity " 
+				      << iEvent.luminosityBlock() << " Bunch " 
+				      << iEvent.bunchCrossing();
 
-#endif
   //Accessing G4 information
   edm::Handle<PHGCalValidInfo> infoLayer;
   iEvent.getByToken(g4Token_,infoLayer);
@@ -169,24 +165,28 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent,
 	if (subdet==(int)(HGCEE)) {
 	  double zp = hgcGeometry_[0]->waferZ(layer,false); //cm 
 	  if (zside < 0) zp = -zp;
-#ifdef EDM_ML_DEBUG
-	  std::cout << "Info[" << i << "] Detector Information " << hitDet[i]
-		    << ":" << subdet << ":" << zside << ":" << layer << ":"
-		    << wafer << ":" << celltype << ":" << cell << " Z "
-		    << zp << ":" << zz << " R " << rr << std::endl;
-#endif
+	  edm::LogVerbatim("HGCalValidation") << "Info[" << i 
+					      << "] Detector Information " 
+					      << hitDet[i] << ":" << subdet 
+					      << ":" << zside << ":" << layer 
+					      << ":" << wafer << ":" 
+					      << celltype << ":" << cell 
+					      << " Z " << zp << ":" << zz 
+					      << " R " << rr;
 	  heedzVsZ->Fill(zp, (zz-zp));
 	  heezVsLayer->Fill(layer,zz);
 	  heerVsLayer->Fill(layer,rr);
 	} else if (subdet==(int)(HGCHEF)) {
 	  double zp = hgcGeometry_[1]->waferZ(layer,false); //cm 
 	  if (zside < 0) zp = -zp;
-#ifdef EDM_ML_DEBUG
-	  std::cout << "Info[" << i << "] Detector Information " << hitDet[i]
-		    << ":" << subdet << ":" << zside << ":" << layer << ":"
-		    << wafer << ":" << celltype << ":" << cell << " z "
-		    << zp << ":" << zz << " R " << rr << std::endl;
-#endif
+	  edm::LogVerbatim("HGCalValidation") << "Info[" << i 
+					      << "] Detector Information " 
+					      << hitDet[i] << ":" << subdet
+					      << ":" << zside << ":" << layer
+					      << ":" << wafer << ":" 
+					      << celltype << ":" << cell 
+					      << " z " << zp << ":" << zz 
+					      << " R " << rr;
 	  hefdzVsZ->Fill(zp, (zz-zp));
 	  hefzVsLayer->Fill(layer,zz);
 	  hefrVsLayer->Fill(layer,rr);
@@ -199,12 +199,13 @@ void HGCGeometryCheck::analyze(const edm::Event &iEvent,
 	HcalCellType::HcalCell cell = hcons_->cell(subdet, zside, lay, eta, phi);
 	double zp = cell.rz/10; //mm --> cm
 	if (zside == 0) zp = -zp;
-#ifdef EDM_ML_DEBUG
-	std::cout << "Info[" << i << "] Detector Information " << hitDet[i]
-		  << ":" << subdet << ":" << zside << ":" << depth << ":"
-		  << eta << ":" << phi << ":" << lay << " z "  << zp << ":"
-		  << zz << " R " << rr << std::endl;
-#endif
+	edm::LogVerbatim("HGCalValidation") << "Info[" << i 
+					    << "] Detector Information " 
+					    << hitDet[i] << ":" << subdet 
+					    << ":" << zside << ":" << depth 
+					    << ":" << eta << ":" << phi << ":"
+					    << lay << " z "  << zp << ":"
+					    << zz << " R " << rr;
 	hebdzVsZ->Fill(zp, (zz-zp));
 	hebzVsLayer->Fill(lay,zz);
 	hebrVsLayer->Fill(lay,rr);

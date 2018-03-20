@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-dtTriggerBaseMonitor = cms.EDAnalyzer("DTLocalTriggerBaseTask",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dtTriggerBaseMonitor = DQMEDAnalyzer('DTLocalTriggerBaseTask',
     testPulseMode = cms.untracked.bool(False),
     detailedAnalysis = cms.untracked.bool(False),
     targetBXTM = cms.untracked.int32(0), 

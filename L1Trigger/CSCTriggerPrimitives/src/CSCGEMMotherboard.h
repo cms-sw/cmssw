@@ -275,7 +275,7 @@ void CSCGEMMotherboard::matchingPads(const CSCALCTDigi& alct,
     if (part==CSCPart::ME1A and !isPadInOverlap(padRoll)) continue;
 
     // pad bx needs to match to ALCT bx
-    int pad_bx = getBX(p.second)+lct_central_bx;
+    int pad_bx = getBX(p.second)+CSCConstants::LCT_CENTRAL_BX;
     if (std::abs(alct.getBX()-pad_bx)>getMaxDeltaBX<T>()) continue;
 
     // gem roll number if invalid
@@ -318,7 +318,7 @@ void CSCGEMMotherboard::matchingPads(const CSCCLCTDigi& clct,
   for (const auto& p: lut.at(clct.getBX())){
 
     // pad bx needs to match to CLCT bx
-    int pad_bx = getBX(p.second)+lct_central_bx;
+    int pad_bx = getBX(p.second)+CSCConstants::LCT_CENTRAL_BX;
     if (std::abs(clct.getBX()-pad_bx)>getMaxDeltaBX<T>()) continue;
 
     // pad number must match

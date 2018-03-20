@@ -10,7 +10,6 @@ CSCL1TPParametersConditions::CSCL1TPParametersConditions(const edm::ParameterSet
 {
   //the following line is needed to tell the framework what
   // data is being produced
-   CSCl1TPParameters = prefillCSCL1TPParameters();
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCL1TPParametersConditions::produceCSCL1TPParameters);
   findingRecord<CSCL1TPParametersRcd>();
@@ -23,7 +22,6 @@ CSCL1TPParametersConditions::~CSCL1TPParametersConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete CSCl1TPParameters;
 }
 
 
@@ -36,8 +34,7 @@ CSCL1TPParametersConditions::ReturnType
 CSCL1TPParametersConditions::produceCSCL1TPParameters(const CSCL1TPParametersRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCL1TPParameters* mydata=new CSCL1TPParameters( *CSCl1TPParameters);
-  return mydata;
+  return CSCL1TPParametersConditions::ReturnType( prefillCSCL1TPParameters());
   
 }
 

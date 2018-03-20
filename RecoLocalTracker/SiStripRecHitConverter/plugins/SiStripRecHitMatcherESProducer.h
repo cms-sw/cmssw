@@ -10,9 +10,8 @@
 class SiStripRecHitMatcherESProducer: public edm::ESProducer {
  public:
   SiStripRecHitMatcherESProducer(const edm::ParameterSet&);
-  std::shared_ptr<SiStripRecHitMatcher> produce(const TkStripCPERecord&);
+  std::unique_ptr<SiStripRecHitMatcher> produce(const TkStripCPERecord&);
  private:
-  std::shared_ptr<SiStripRecHitMatcher> matcher_;
   edm::ParameterSet pset_;
 };
 #endif

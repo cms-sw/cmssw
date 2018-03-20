@@ -23,7 +23,7 @@ CSCDDUDataItr::CSCDDUDataItr(const char * buf) :
   const CSCDDUHeader * dduHeader
     = reinterpret_cast<const CSCDDUHeader *>(buf);
   if(dduHeader->check()){
-    theDDUData = new CSCDDUEventData((unsigned short *)buf);
+    theDDUData = new CSCDDUEventData((const uint16_t *)buf);
     theNumberOfCSCs = theDDUData->cscData().size();
   } else {
     LogTrace ("CSCDDUDataItr|CSCRawToDigi") << "Failed DDU header check.";
@@ -67,7 +67,7 @@ CSCDDUDataItr::CSCDDUDataItr(const CSCDDUDataItr & i) :
 
 void CSCDDUDataItr::operator=(const CSCDDUDataItr & i) 
 {
-  if(theDataIsOwnedByMe) 
+  if(theDataIsOwnedByMe && theDDUData != i.theDDUData) 
     {
       delete theDDUData;
       if(i.theDDUData != nullptr) 

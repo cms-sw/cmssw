@@ -41,25 +41,26 @@ public:
 			const GlobalPoint& f3 ,
 			const CCGFloat*    parm,
 			const DetId&       detId     ) override ;
-					
+
 protected:
 
-  const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override ;
+  // Modify the RawPtr class
+  const CaloCellGeometry* getGeometryRawPtr (uint32_t index) const override;
 
 private:
 
   void newCellImpl( const GlobalPoint& f1 ,
-			const GlobalPoint& f2 ,
-			const GlobalPoint& f3 ,
-			const CCGFloat*    parm,
-			const DetId&       detId     ) ;
+		    const GlobalPoint& f2 ,
+		    const GlobalPoint& f3 ,
+		    const CCGFloat*    parm,
+		    const DetId&       detId     ) ;
 
   //can only be used by friend classes, to ensure sorting is done at the end					
   void newCellFast( const GlobalPoint& f1 ,
-			const GlobalPoint& f2 ,
-			const GlobalPoint& f3 ,
-			const CCGFloat*    parm,
-			const DetId&       detId     ) ;
+		    const GlobalPoint& f2 ,
+		    const GlobalPoint& f3 ,
+		    const CCGFloat*    parm,
+		    const DetId&       detId     ) ;
 
   void increaseReserve(unsigned int extra);
   void sortValidIds();

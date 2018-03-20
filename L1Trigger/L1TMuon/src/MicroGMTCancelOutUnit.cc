@@ -196,7 +196,7 @@ MicroGMTCancelOutUnit::getTrackAddrCancelBits(std::vector<std::shared_ptr<GMTInt
   if (coll1.empty() || coll2.empty()) {
     return;
   }
-  // Address based cancel out is implemented for BMTF only
+  // Address based cancel out for BMTF
   if ((*coll1.begin())->trackFinderType() == tftype::bmtf && (*coll2.begin())->trackFinderType() == tftype::bmtf) {
     for (auto mu_w1 = coll1.begin(); mu_w1 != coll1.end(); ++mu_w1) {
       std::map<int, int> trkAddr_w1 = (*mu_w1)->origin().trackAddress();
@@ -271,6 +271,60 @@ MicroGMTCancelOutUnit::getTrackAddrCancelBits(std::vector<std::shared_ptr<GMTInt
             (*mu_w2)->setHwCancelBit(1);
           } else {
             (*mu_w1)->setHwCancelBit(1);
+          }
+        }
+      }
+    }
+  // Address based cancel out for EMTF
+  } else if (((*coll1.begin())->trackFinderType() == tftype::emtf_pos && (*coll2.begin())->trackFinderType() == tftype::emtf_pos)
+          || ((*coll1.begin())->trackFinderType() == tftype::emtf_neg && (*coll2.begin())->trackFinderType() == tftype::emtf_neg)) {
+    for (auto mu_s1 = coll1.begin(); mu_s1 != coll1.end(); ++mu_s1) {
+      std::map<int, int> trkAddr_s1 = (*mu_s1)->origin().trackAddress();
+      int me1_ch_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME1Ch];
+      int me2_ch_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME2Ch];
+      int me3_ch_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME3Ch];
+      int me4_ch_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME4Ch];
+      if (me1_ch_s1 + me2_ch_s1 + me3_ch_s1 + me4_ch_s1 == 0) {
+        continue;
+      }
+      int me1_seg_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME1Seg];
+      int me2_seg_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME2Seg];
+      int me3_seg_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME3Seg];
+      int me4_seg_s1 = trkAddr_s1[l1t::RegionalMuonCand::emtfAddress::kME4Seg];
+      for (auto mu_s2 = coll2.begin(); mu_s2 != coll2.end(); ++mu_s2) {
+        std::map<int, int> trkAddr_s2 = (*mu_s2)->origin().trackAddress();
+        int me1_ch_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME1Ch];
+        int me2_ch_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME2Ch];
+        int me3_ch_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME3Ch];
+        int me4_ch_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME4Ch];
+        if (me1_ch_s2 + me2_ch_s2 + me3_ch_s2 + me4_ch_s2 == 0) {
+          continue;
+        }
+        int me1_seg_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME1Seg];
+        int me2_seg_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME2Seg];
+        int me3_seg_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME3Seg];
+        int me4_seg_s2 = trkAddr_s2[l1t::RegionalMuonCand::emtfAddress::kME4Seg];
+
+        int nMatchedStations = 0;
+        if (me1_ch_s2 != 0 && me1_ch_s1 == me1_ch_s2+3 && me1_seg_s1 == me1_seg_s2) {
+          ++nMatchedStations;
+        }
+        if (me2_ch_s2 != 0 && me2_ch_s1 == me2_ch_s2+2 && me2_seg_s1 == me2_seg_s2) {
+          ++nMatchedStations;
+        }
+        if (me3_ch_s2 != 0 && me3_ch_s1 == me3_ch_s2+2 && me3_seg_s1 == me3_seg_s2) {
+          ++nMatchedStations;
+        }
+        if (me4_ch_s2 != 0 && me4_ch_s1 == me4_ch_s2+2 && me4_seg_s1 == me4_seg_s2) {
+          ++nMatchedStations;
+        }
+
+        //std::cout << "Shared hits found: " << nMatchedStations << std::endl;
+        if (nMatchedStations > 0) {
+          if ((*mu_s1)->origin().hwQual() >= (*mu_s2)->origin().hwQual()) {
+            (*mu_s2)->setHwCancelBit(1);
+          } else {
+            (*mu_s1)->setHwCancelBit(1);
           }
         }
       }

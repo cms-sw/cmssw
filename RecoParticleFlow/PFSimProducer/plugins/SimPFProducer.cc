@@ -358,8 +358,8 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 	default:
 	  part_type = reco::PFCandidate::h0;
 	}
-	const auto three_mom = (ref->position() - math::XYZPoint(0,0,0)).unit()*ref->energy();
-	math::XYZTLorentzVector clu_p4(three_mom.x(),three_mom.y(),three_mom.z(),ref->energy());
+	const auto three_mom = (ref->position() - math::XYZPoint(0,0,0)).unit()*ref->correctedEnergy();
+	math::XYZTLorentzVector clu_p4(three_mom.x(),three_mom.y(),three_mom.z(),ref->correctedEnergy());
 	candidates->emplace_back(0, clu_p4, part_type);
 	auto& candidate = candidates->back();
 	candidate.addElementInBlock(blref,elem.index());

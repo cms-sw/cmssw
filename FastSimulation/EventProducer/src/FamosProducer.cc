@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -52,7 +53,7 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
 }
 
 FamosProducer::~FamosProducer() 
-{ if ( famosManager_ ) delete famosManager_; }
+{ delete famosManager_; }
 
 void
 FamosProducer::beginRun(edm::Run const& run, const edm::EventSetup & es) {
@@ -117,7 +118,6 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    iEvent.put(std::move(p5),"EcalHitsEE");
    iEvent.put(std::move(p6),"EcalHitsES");
    iEvent.put(std::move(p7),"HcalHits");
-
 }
 
 DEFINE_FWK_MODULE(FamosProducer);

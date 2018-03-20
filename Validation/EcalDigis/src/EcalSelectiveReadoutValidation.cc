@@ -285,7 +285,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
   es.get<CaloGeometryRecord>().get(geoHandle);
   const CaloSubdetectorGeometry *geometry_p
     = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-  CaloSubdetectorGeometry const& geometry = *geometry_p;
+//CaloSubdetectorGeometry const& geometry = *geometry_p;
 
   //EE unsupressed digis:
   for (unsigned int digis=0; digis<eeNoZsDigis_->size(); ++digis){
@@ -313,7 +313,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event,
     }
 
     const GlobalPoint xtalPos
-      = geometry.getGeometry(frame.id())->getPosition();
+      = geometry_p->getGeometry(frame.id())->getPosition();
 
     eeEnergies[iZ0][iX0][iY0].phi = rad2deg*((double)xtalPos.phi());
     eeEnergies[iZ0][iX0][iY0].eta = xtalPos.eta();
@@ -566,7 +566,7 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
   es.get<CaloGeometryRecord>().get(geoHandle);
   const CaloSubdetectorGeometry *geometry_p
     = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-  CaloSubdetectorGeometry const& geometry = *geometry_p;
+//CaloSubdetectorGeometry const& geometry = *geometry_p;
 
   //EB unsuppressed digis:
   for(EBDigiCollection::const_iterator it = ebNoZsDigis_->begin();
@@ -597,7 +597,7 @@ EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event,
     }
 
     const GlobalPoint xtalPos
-      = geometry.getGeometry(frame.id())->getPosition();
+      = geometry_p->getGeometry(frame.id())->getPosition();
 
     ebEnergies[iEta0][iPhi0].phi = rad2deg*((double)xtalPos.phi());
     ebEnergies[iEta0][iPhi0].eta = xtalPos.eta();
@@ -1715,15 +1715,13 @@ EcalSelectiveReadoutValidation::setTtEtSums(const edm::EventSetup& es,
 					    const EBDigiCollection& ebDigis,
 					    const EEDigiCollection& eeDigis){
   //ecal geometry:
-  static const CaloSubdetectorGeometry* eeGeometry = nullptr;
-  static const CaloSubdetectorGeometry* ebGeometry = nullptr;
+  const CaloSubdetectorGeometry* eeGeometry = nullptr;
+  const CaloSubdetectorGeometry* ebGeometry = nullptr;
   if(eeGeometry==nullptr || ebGeometry==nullptr){
     edm::ESHandle<CaloGeometry> geoHandle;
     es.get<CaloGeometryRecord>().get(geoHandle);
-    eeGeometry
-      = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-    ebGeometry
-      = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+    eeGeometry = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+    ebGeometry = (*geoHandle).getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   }
 
   //init etSum array:

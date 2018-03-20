@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 
-hcaldigisAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hcaldigisAnalyzer = DQMEDAnalyzer('HcalDigisValidation',
     outputFile	= cms.untracked.string(''),
     digiTag	= cms.InputTag("hcalDigis"),
     QIE10digiTag= cms.InputTag("hcalDigis"),
@@ -15,11 +16,12 @@ hcaldigisAnalyzer = cms.EDAnalyzer("HcalDigisValidation",
     TestNumber  = cms.bool(False),
     hep17       = cms.bool(False),
     HEPhase1  	= cms.bool(False),
-    HBPhase1	= cms.bool(False)
+    HBPhase1	= cms.bool(False),
+    Plot_TP_ver = cms.bool(False)
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(hcaldigisAnalyzer, simHits = "famosSimHits:HcalHits")
+fastSim.toModify(hcaldigisAnalyzer, simHits = "fastSimProducer:HcalHits")
 
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify(hcaldigisAnalyzer,
@@ -31,8 +33,8 @@ run2_HEPlan1_2017.toModify(hcaldigisAnalyzer,
     hep17 = cms.bool(True)
 )
 
-from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
-run2_HCAL_2017.toModify(hcaldigisAnalyzer,
+from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
+run2_HE_2018.toModify(hcaldigisAnalyzer,
     HEPhase1 = cms.bool(True)
 )
     

@@ -5,9 +5,6 @@ globalTag = {
   'Fake2': 'auto:run2_mc_Fake2',
   'FULL' : 'auto:run2_mc_FULL',
   'GRun' : 'auto:run2_mc_GRun',       # used as default
-  '2e34v22' : 'auto:run2_mc_2e34v22',
-  '2e34v31' : 'auto:run2_mc_2e34v31',
-  '2e34v40' : 'auto:run2_mc_2e34v40',
   'HIon' : 'auto:run2_mc_HIon',
   'PIon' : 'auto:run2_mc_PIon',
   'PRef' : 'auto:run2_mc_PRef',

@@ -1,8 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-hfTPScaleShift =cms.PSet(
-    NCT= cms.int32(1),
-    RCT= cms.int32(3)
+tpScales = cms.PSet(
+    HF=cms.PSet(
+        NCTShift=cms.int32(1),
+        RCTShift=cms.int32(3),
+    ),
+    HBHE=cms.PSet(
+        LSBQIE8=cms.double(1/8.),
+        LSBQIE11=cms.double(1/16.),
+        LSBQIE11Overlap=cms.double(1/8.),
+    )
 )
 
 CaloTPGTranscoder = cms.ESProducer("CaloTPGTranscoderULUTs",
@@ -14,7 +21,8 @@ CaloTPGTranscoder = cms.ESProducer("CaloTPGTranscoderULUTs",
     ietaUpperBound = cms.vint32(17,26,28,32),
     ZS = cms.vint32(4,2,1,0),
     LUTfactor = cms.vint32(1,2,5,0),
+    linearLUTs = cms.bool(False),
     nominal_gain = cms.double(0.177),
     RCTLSB = cms.double(0.25),
-    HFTPScaleShift = hfTPScaleShift,
+    tpScales = tpScales,
 )

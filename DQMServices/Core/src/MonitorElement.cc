@@ -10,7 +10,7 @@
 #include <iostream>
 #include <cassert>
 #include <cfloat>
-#include <inttypes.h>
+#include <cinttypes>
 
 #if !WITHOUT_CMS_FRAMEWORK
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -24,7 +24,7 @@ checkRootObject(const std::string &name, TObject *tobj, const char *func, int re
                   " element '%s' because it is not a ROOT object.",
                   func, name.c_str());
 
-  TH1 *h = static_cast<TH1 *>(tobj);
+  auto *h = static_cast<TH1 *>(tobj);
   int ndim = h->GetDimension();
   if (reqdim < 0 || reqdim > ndim)
     raiseDQMError("MonitorElement", "Method '%s' cannot be invoked on monitor"
@@ -148,13 +148,13 @@ MonitorElement::initialise(Kind kind, const std::string &value)
   return this;
 }
 
-MonitorElement::MonitorElement(void)
-  : object_(0),
-    reference_(0),
-    refvalue_(0)
+MonitorElement::MonitorElement()
+  : object_(nullptr),
+    reference_(nullptr),
+    refvalue_(nullptr)
 {
   data_.version  = 0;
-  data_.dirname  = 0;
+  data_.dirname  = nullptr;
   data_.run      = 0;
   data_.lumi     = 0;
   data_.streamId = 0;
@@ -166,18 +166,36 @@ MonitorElement::MonitorElement(void)
 }
 
 MonitorElement::MonitorElement(const std::string *path,
+                               const std::string &name)
+  : object_(nullptr),
+    reference_(nullptr),
+    refvalue_(nullptr)
+{
+  data_.version  = 0;
+  data_.run      = 0;
+  data_.lumi     = 0;
+  data_.streamId = 0;
+  data_.moduleId = 0;
+  data_.dirname  = path;
+  data_.objname  = name;
+  data_.tag = 0;
+  data_.flags = DQM_KIND_INVALID | DQMNet::DQM_PROP_NEW;
+  scalar_.num = 0;
+  scalar_.real = 0;
+}
+
+MonitorElement::MonitorElement(const std::string *path,
                                const std::string &name,
-                               uint32_t run /* = 0 */,
-                               uint32_t streamId /* = 0 */,
-                               uint32_t moduleId /* = 0 */)
-  : object_(0),
-    reference_(0),
-    refvalue_(0)
+                               uint32_t run,
+                               uint32_t moduleId)
+  : object_(nullptr),
+    reference_(nullptr),
+    refvalue_(nullptr)
 {
   data_.version  = 0;
   data_.run      = run;
   data_.lumi     = 0;
-  data_.streamId = streamId;
+  data_.streamId = 0;
   data_.moduleId = moduleId;
   data_.dirname  = path;
   data_.objname  = name;
@@ -217,7 +235,7 @@ MonitorElement::MonitorElement(MonitorElement &&o)
   o.refvalue_ = nullptr;
 }
 
-MonitorElement::~MonitorElement(void)
+MonitorElement::~MonitorElement()
 {
   delete object_;
   delete refvalue_;
@@ -348,7 +366,7 @@ MonitorElement::ShiftFillLast(double y, double ye, int xscale)
       || kind() == DQM_KIND_TH1D)
   {
     int nbins = getNbinsX();
-    int entries = (int)getEntries();
+    auto entries = (int)getEntries();
     // first fill bins from left to right
     int index = entries + 1 ;
     int xlow = 2 ; int xup = nbins ;
@@ -454,7 +472,7 @@ MonitorElement::Fill(double x, double y, double z, double w)
 
 /// reset ME (ie. contents, errors, etc)
 void
-MonitorElement::Reset(void)
+MonitorElement::Reset()
 {
   update();
   if (kind() == DQM_KIND_INT)
@@ -503,7 +521,7 @@ MonitorElement::packQualityData(std::string &into) const
 /// returns value of ME in string format (eg. "f = 3.14151926" for double numbers);
 /// relevant only for scalar or string MEs
 std::string
-MonitorElement::valueString(void) const
+MonitorElement::valueString() const
 {
   std::string result;
   if (kind() == DQM_KIND_INT)
@@ -522,7 +540,7 @@ MonitorElement::valueString(void) const
 /// (eg. <name>f=3.14151926</name> for double numbers);
 /// relevant only for sending scalar or string MEs over TSocket
 std::string
-MonitorElement::tagString(void) const
+MonitorElement::tagString() const
 {
   std::string result;
   std::string val(valueString());
@@ -535,7 +553,7 @@ MonitorElement::tagString(void) const
 
 /// return label string for the monitor element tag (eg. <name>t=12345</name>)
 std::string
-MonitorElement::tagLabelString(void) const
+MonitorElement::tagLabelString() const
 {
   char buf[32];
   std::string result;
@@ -550,7 +568,7 @@ MonitorElement::tagLabelString(void) const
 
 /// return label string for the monitor element tag (eg. <name>t=12345</name>)
 std::string
-MonitorElement::effLabelString(void) const
+MonitorElement::effLabelString() const
 {
   std::string result;
 
@@ -586,7 +604,7 @@ MonitorElement::getQReport(const std::string &qtname) const
 }
 
 std::vector<QReport *>
-MonitorElement::getQReports(void) const
+MonitorElement::getQReports() const
 {
   std::vector<QReport *> result;
   result.reserve(qreports_.size());
@@ -600,7 +618,7 @@ MonitorElement::getQReports(void) const
 }
 
 std::vector<QReport *>
-MonitorElement::getQWarnings(void) const
+MonitorElement::getQWarnings() const
 {
   std::vector<QReport *> result;
   result.reserve(qreports_.size());
@@ -615,7 +633,7 @@ MonitorElement::getQWarnings(void) const
 }
 
 std::vector<QReport *>
-MonitorElement::getQErrors(void) const
+MonitorElement::getQErrors() const
 {
   std::vector<QReport *> result;
   result.reserve(qreports_.size());
@@ -630,7 +648,7 @@ MonitorElement::getQErrors(void) const
 }
 
 std::vector<QReport *>
-MonitorElement::getQOthers(void) const
+MonitorElement::getQOthers() const
 {
   std::vector<QReport *> result;
   result.reserve(qreports_.size());
@@ -648,7 +666,7 @@ MonitorElement::getQOthers(void) const
 
 /// run all quality tests
 void
-MonitorElement::runQTests(void)
+MonitorElement::runQTests()
 {
   assert(qreports_.size() == data_.qreports.size());
 
@@ -726,19 +744,19 @@ MonitorElement::getRMSError(int axis /* = 1 */) const
 
 /// get # of bins in X-axis
 int
-MonitorElement::getNbinsX(void) const
+MonitorElement::getNbinsX() const
 { return accessRootObject(__PRETTY_FUNCTION__, 1)
     ->GetNbinsX(); }
 
 /// get # of bins in Y-axis
 int
-MonitorElement::getNbinsY(void) const
+MonitorElement::getNbinsY() const
 { return accessRootObject(__PRETTY_FUNCTION__, 2)
     ->GetNbinsY(); }
 
 /// get # of bins in Z-axis
 int
-MonitorElement::getNbinsZ(void) const
+MonitorElement::getNbinsZ() const
 { return accessRootObject(__PRETTY_FUNCTION__, 3)
     ->GetNbinsZ(); }
 
@@ -780,7 +798,7 @@ MonitorElement::getBinError(int binx, int biny, int binz) const
 
 /// get # of entries
 double
-MonitorElement::getEntries(void) const
+MonitorElement::getEntries() const
 { return accessRootObject(__PRETTY_FUNCTION__, 1)
     ->GetEntries(); }
 
@@ -803,7 +821,7 @@ MonitorElement::getBinEntries(int bin) const
 
 /// get min Y value (for profiles)
 double
-MonitorElement::getYmin(void) const
+MonitorElement::getYmin() const
 {
   if (kind() == DQM_KIND_TPROFILE)
     return static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1))
@@ -817,7 +835,7 @@ MonitorElement::getYmin(void) const
 
 /// get max Y value (for profiles)
 double
-MonitorElement::getYmax(void) const
+MonitorElement::getYmax() const
 {
   if (kind() == DQM_KIND_TPROFILE)
     return static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1))
@@ -837,7 +855,7 @@ MonitorElement::getAxisTitle(int axis /* = 1 */) const
 
 /// get MonitorElement title
 std::string
-MonitorElement::getTitle(void) const
+MonitorElement::getTitle() const
 { return accessRootObject(__PRETTY_FUNCTION__, 1)
     ->GetTitle(); }
 
@@ -999,7 +1017,7 @@ TAxis *
 MonitorElement::getAxis(const char *func, int axis) const
 {
   TH1 *h = accessRootObject(func, axis-1);
-  TAxis *a = 0;
+  TAxis *a = nullptr;
   if (axis == 1)
     a = h->GetXaxis();
   else if (axis == 2)
@@ -1020,7 +1038,7 @@ MonitorElement::getAxis(const char *func, int axis) const
 /// reset contents (does not erase contents permanently)
 /// (makes copy of current contents; will be subtracted from future contents)
 void
-MonitorElement::softReset(void)
+MonitorElement::softReset()
 {
   update();
 
@@ -1030,12 +1048,12 @@ MonitorElement::softReset(void)
   // future contents will have the reference "subtracted".
   if (kind() == DQM_KIND_TH1F)
   {
-    TH1F *orig = static_cast<TH1F *>(object_);
-    TH1F *r = static_cast<TH1F *>(refvalue_);
+    auto *orig = static_cast<TH1F *>(object_);
+    auto *r = static_cast<TH1F *>(refvalue_);
     if (! r)
     {
       refvalue_ = r = (TH1F*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1044,12 +1062,12 @@ MonitorElement::softReset(void)
   }
   else if (kind() == DQM_KIND_TH1S)
   {
-    TH1S *orig = static_cast<TH1S *>(object_);
-    TH1S *r = static_cast<TH1S *>(refvalue_);
+    auto *orig = static_cast<TH1S *>(object_);
+    auto *r = static_cast<TH1S *>(refvalue_);
     if (! r)
     {
       refvalue_ = r = (TH1S*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1058,12 +1076,12 @@ MonitorElement::softReset(void)
   }
   else if (kind() == DQM_KIND_TH1D)
   {
-    TH1D *orig = static_cast<TH1D *>(object_);
-    TH1D *r = static_cast<TH1D *>(refvalue_);
+    auto *orig = static_cast<TH1D *>(object_);
+    auto *r = static_cast<TH1D *>(refvalue_);
     if (! r)
     {
       refvalue_ = r = (TH1D*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1072,12 +1090,12 @@ MonitorElement::softReset(void)
   }
   else if (kind() == DQM_KIND_TH2F)
   {
-    TH2F *orig = static_cast<TH2F *>(object_);
-    TH2F *r = static_cast<TH2F *>(refvalue_);
+    auto *orig = static_cast<TH2F *>(object_);
+    auto *r = static_cast<TH2F *>(refvalue_);
     if (! r)
     {
       refvalue_ = r = (TH2F*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1086,12 +1104,12 @@ MonitorElement::softReset(void)
   }
   else if (kind() == DQM_KIND_TH2S)
   {
-    TH2S *orig = static_cast<TH2S *>(object_);
-    TH2S *r = static_cast<TH2S *>(refvalue_);
+    auto *orig = static_cast<TH2S *>(object_);
+    auto *r = static_cast<TH2S *>(refvalue_);
     if (! r)
     {
       refvalue_ = r = (TH2S*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1100,12 +1118,12 @@ MonitorElement::softReset(void)
   }
   else if (kind() == DQM_KIND_TH2D)
   {
-    TH2D *orig = static_cast<TH2D *>(object_);
-    TH2D *r = static_cast<TH2D *>(refvalue_);
+    auto *orig = static_cast<TH2D *>(object_);
+    auto *r = static_cast<TH2D *>(refvalue_);
     if (! r)
     {
       refvalue_ = r = (TH2D*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1114,12 +1132,12 @@ MonitorElement::softReset(void)
   }
   else if (kind() == DQM_KIND_TH3F)
   {
-    TH3F *orig = static_cast<TH3F *>(object_);
-    TH3F *r = static_cast<TH3F *>(refvalue_);
+    auto *orig = static_cast<TH3F *>(object_);
+    auto *r = static_cast<TH3F *>(refvalue_);
     if (! r)
     {
       refvalue_ = r = (TH3F*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1128,12 +1146,12 @@ MonitorElement::softReset(void)
   }
   else if (kind() == DQM_KIND_TPROFILE)
   {
-    TProfile *orig = static_cast<TProfile *>(object_);
-    TProfile *r = static_cast<TProfile *>(refvalue_);
+    auto *orig = static_cast<TProfile *>(object_);
+    auto *r = static_cast<TProfile *>(refvalue_);
     if (! r)
     {
       refvalue_ = r = (TProfile*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1142,12 +1160,12 @@ MonitorElement::softReset(void)
   }
   else if (kind() == DQM_KIND_TPROFILE2D)
   {
-    TProfile2D *orig = static_cast<TProfile2D *>(object_);
-    TProfile2D *r = static_cast<TProfile2D *>(refvalue_);
+    auto *orig = static_cast<TProfile2D *>(object_);
+    auto *r = static_cast<TProfile2D *>(refvalue_);
     if (! r)
     {
       refvalue_ = r = (TProfile2D*)orig->Clone((std::string(orig->GetName()) + "_ref").c_str());
-      r->SetDirectory(0);
+      r->SetDirectory(nullptr);
       r->Reset();
     }
 
@@ -1160,7 +1178,7 @@ MonitorElement::softReset(void)
 
 /// reverts action of softReset
 void
-MonitorElement::disableSoftReset(void)
+MonitorElement::disableSoftReset()
 {
   if (refvalue_)
   {
@@ -1172,26 +1190,26 @@ MonitorElement::disableSoftReset(void)
         || kind() == DQM_KIND_TH2D
         || kind() == DQM_KIND_TH3F)
     {
-      TH1 *orig = static_cast<TH1 *>(object_);
+      auto *orig = static_cast<TH1 *>(object_);
       orig->Add(refvalue_);
     }
     else if (kind() == DQM_KIND_TPROFILE)
     {
-      TProfile *orig = static_cast<TProfile *>(object_);
-      TProfile *r = static_cast<TProfile *>(refvalue_);
+      auto *orig = static_cast<TProfile *>(object_);
+      auto *r = static_cast<TProfile *>(refvalue_);
       addProfiles(orig, r, orig, 1, 1);
     }
     else if (kind() == DQM_KIND_TPROFILE2D)
     {
-      TProfile2D *orig = static_cast<TProfile2D *>(object_);
-      TProfile2D *r = static_cast<TProfile2D *>(refvalue_);
+      auto *orig = static_cast<TProfile2D *>(object_);
+      auto *r = static_cast<TProfile2D *>(refvalue_);
       addProfiles(orig, r, orig, 1, 1);
     }
     else
       incompatible(__PRETTY_FUNCTION__);
 
     delete refvalue_;
-    refvalue_ = 0;
+    refvalue_ = nullptr;
   }
 }
 
@@ -1315,7 +1333,7 @@ MonitorElement::copyFunctions(TH1 *from, TH1 *to)
     if (!strcmp(obj->IsA()->GetName(), "TPaveStats"))
       continue;
 
-    if (TF1 *fn = dynamic_cast<TF1 *>(obj))
+    if (auto *fn = dynamic_cast<TF1 *>(obj))
       tof->Add(new TF1(*fn));
     //else if (dynamic_cast<TPaveStats *>(obj))
     //  ; // FIXME? tof->Add(new TPaveStats(*stats));
@@ -1374,8 +1392,8 @@ MonitorElement::getQReport(bool create, const std::string &qtname, QReport *&qr,
 {
   assert(qreports_.size() == data_.qreports.size());
 
-  qr = 0;
-  qv = 0;
+  qr = nullptr;
+  qv = nullptr;
 
   size_t pos = 0, end = qreports_.size();
   while (pos < end && data_.qreports[pos].qtname != qtname)
@@ -1385,8 +1403,8 @@ MonitorElement::getQReport(bool create, const std::string &qtname, QReport *&qr,
     return;
   else if (pos == end)
   {
-    data_.qreports.push_back(DQMNet::QValue());
-    qreports_.push_back(QReport(0, 0));
+    data_.qreports.emplace_back();
+    qreports_.push_back(QReport(nullptr, nullptr));
 
     DQMNet::QValue &q = data_.qreports.back();
     q.code = dqm::qstatus::DID_NOT_RUN;
@@ -1426,11 +1444,11 @@ MonitorElement::addQReport(QCriterion *qc)
 
 /// Refresh QReport stats, usually after MEs were read in from a file.
 void
-MonitorElement::updateQReportStats(void)
+MonitorElement::updateQReportStats()
 {
   data_.flags &= ~DQMNet::DQM_PROP_REPORT_ALARM;
-  for (size_t i = 0, e = data_.qreports.size(); i < e; ++i)
-    switch (data_.qreports[i].code)
+  for (auto & qreport : data_.qreports)
+    switch (qreport.code)
     {
     case dqm::qstatus::STATUS_OK:
       break;
@@ -1448,21 +1466,21 @@ MonitorElement::updateQReportStats(void)
 
 // -------------------------------------------------------------------
 TObject *
-MonitorElement::getRootObject(void) const
+MonitorElement::getRootObject() const
 {
   const_cast<MonitorElement *>(this)->update();
   return object_;
 }
 
 TH1 *
-MonitorElement::getTH1(void) const
+MonitorElement::getTH1() const
 {
   const_cast<MonitorElement *>(this)->update();
   return accessRootObject(__PRETTY_FUNCTION__, 0);
 }
 
 TH1F *
-MonitorElement::getTH1F(void) const
+MonitorElement::getTH1F() const
 {
   assert(kind() == DQM_KIND_TH1F);
   const_cast<MonitorElement *>(this)->update();
@@ -1470,7 +1488,7 @@ MonitorElement::getTH1F(void) const
 }
 
 TH1S *
-MonitorElement::getTH1S(void) const
+MonitorElement::getTH1S() const
 {
   assert(kind() == DQM_KIND_TH1S);
   const_cast<MonitorElement *>(this)->update();
@@ -1478,7 +1496,7 @@ MonitorElement::getTH1S(void) const
 }
 
 TH1D *
-MonitorElement::getTH1D(void) const
+MonitorElement::getTH1D() const
 {
   assert(kind() == DQM_KIND_TH1D);
   const_cast<MonitorElement *>(this)->update();
@@ -1486,7 +1504,7 @@ MonitorElement::getTH1D(void) const
 }
 
 TH2F *
-MonitorElement::getTH2F(void) const
+MonitorElement::getTH2F() const
 {
   assert(kind() == DQM_KIND_TH2F);
   const_cast<MonitorElement *>(this)->update();
@@ -1494,7 +1512,7 @@ MonitorElement::getTH2F(void) const
 }
 
 TH2S *
-MonitorElement::getTH2S(void) const
+MonitorElement::getTH2S() const
 {
   assert(kind() == DQM_KIND_TH2S);
   const_cast<MonitorElement *>(this)->update();
@@ -1502,7 +1520,7 @@ MonitorElement::getTH2S(void) const
 }
 
 TH2D *
-MonitorElement::getTH2D(void) const
+MonitorElement::getTH2D() const
 {
   assert(kind() == DQM_KIND_TH2D);
   const_cast<MonitorElement *>(this)->update();
@@ -1510,7 +1528,7 @@ MonitorElement::getTH2D(void) const
 }
 
 TH3F *
-MonitorElement::getTH3F(void) const
+MonitorElement::getTH3F() const
 {
   assert(kind() == DQM_KIND_TH3F);
   const_cast<MonitorElement *>(this)->update();
@@ -1518,7 +1536,7 @@ MonitorElement::getTH3F(void) const
 }
 
 TProfile *
-MonitorElement::getTProfile(void) const
+MonitorElement::getTProfile() const
 {
   assert(kind() == DQM_KIND_TPROFILE);
   const_cast<MonitorElement *>(this)->update();
@@ -1526,7 +1544,7 @@ MonitorElement::getTProfile(void) const
 }
 
 TProfile2D *
-MonitorElement::getTProfile2D(void) const
+MonitorElement::getTProfile2D() const
 {
   assert(kind() == DQM_KIND_TPROFILE2D);
   const_cast<MonitorElement *>(this)->update();
@@ -1535,21 +1553,21 @@ MonitorElement::getTProfile2D(void) const
 
 // -------------------------------------------------------------------
 TObject *
-MonitorElement::getRefRootObject(void) const
+MonitorElement::getRefRootObject() const
 {
   const_cast<MonitorElement *>(this)->update();
   return reference_;
 }
 
 TH1 *
-MonitorElement::getRefTH1(void) const
+MonitorElement::getRefTH1() const
 {
   const_cast<MonitorElement *>(this)->update();
   return checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 0);
 }
 
 TH1F *
-MonitorElement::getRefTH1F(void) const
+MonitorElement::getRefTH1F() const
 {
   assert(kind() == DQM_KIND_TH1F);
   const_cast<MonitorElement *>(this)->update();
@@ -1558,7 +1576,7 @@ MonitorElement::getRefTH1F(void) const
 }
 
 TH1S *
-MonitorElement::getRefTH1S(void) const
+MonitorElement::getRefTH1S() const
 {
   assert(kind() == DQM_KIND_TH1S);
   const_cast<MonitorElement *>(this)->update();
@@ -1567,7 +1585,7 @@ MonitorElement::getRefTH1S(void) const
 }
 
 TH1D *
-MonitorElement::getRefTH1D(void) const
+MonitorElement::getRefTH1D() const
 {
   assert(kind() == DQM_KIND_TH1D);
   const_cast<MonitorElement *>(this)->update();
@@ -1576,7 +1594,7 @@ MonitorElement::getRefTH1D(void) const
 }
 
 TH2F *
-MonitorElement::getRefTH2F(void) const
+MonitorElement::getRefTH2F() const
 {
   assert(kind() == DQM_KIND_TH2F);
   const_cast<MonitorElement *>(this)->update();
@@ -1585,7 +1603,7 @@ MonitorElement::getRefTH2F(void) const
 }
 
 TH2S *
-MonitorElement::getRefTH2S(void) const
+MonitorElement::getRefTH2S() const
 {
   assert(kind() == DQM_KIND_TH2S);
   const_cast<MonitorElement *>(this)->update();
@@ -1594,7 +1612,7 @@ MonitorElement::getRefTH2S(void) const
 }
 
 TH2D *
-MonitorElement::getRefTH2D(void) const
+MonitorElement::getRefTH2D() const
 {
   assert(kind() == DQM_KIND_TH2D);
   const_cast<MonitorElement *>(this)->update();
@@ -1603,7 +1621,7 @@ MonitorElement::getRefTH2D(void) const
 }
 
 TH3F *
-MonitorElement::getRefTH3F(void) const
+MonitorElement::getRefTH3F() const
 {
   assert(kind() == DQM_KIND_TH3F);
   const_cast<MonitorElement *>(this)->update();
@@ -1612,7 +1630,7 @@ MonitorElement::getRefTH3F(void) const
 }
 
 TProfile *
-MonitorElement::getRefTProfile(void) const
+MonitorElement::getRefTProfile() const
 {
   assert(kind() == DQM_KIND_TPROFILE);
   const_cast<MonitorElement *>(this)->update();
@@ -1621,7 +1639,7 @@ MonitorElement::getRefTProfile(void) const
 }
 
 TProfile2D *
-MonitorElement::getRefTProfile2D(void) const
+MonitorElement::getRefTProfile2D() const
 {
   assert(kind() == DQM_KIND_TPROFILE2D);
   const_cast<MonitorElement *>(this)->update();

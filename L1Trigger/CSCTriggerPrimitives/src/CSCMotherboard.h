@@ -64,10 +64,10 @@ class CSCMotherboard
   void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc);
 
   /** Returns vector of correlated LCTs in the read-out time window, if any. */
-  std::vector<CSCCorrelatedLCTDigi> readoutLCTs();
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs() const;
 
   /** Returns vector of all found correlated LCTs, if any. */
-  std::vector<CSCCorrelatedLCTDigi> getLCTs();
+  std::vector<CSCCorrelatedLCTDigi> getLCTs() const;
 
   /** Clears correlated LCT and passes clear signal on to cathode and anode
       LCT processors. */
@@ -115,11 +115,11 @@ class CSCMotherboard
   unsigned int alct_trig_enable, clct_trig_enable, match_trig_enable;
   unsigned int match_trig_window_size, tmb_l1a_window_size;
 
-  /** Central BX */
-  int lct_central_bx;
-
   /** SLHC: whether to not reuse ALCTs that were used by previous matching CLCTs */
   bool drop_used_alcts;
+
+  /** SLHC: whether to not reuse CLCTs that were used by previous matching ALCTs */
+  bool drop_used_clcts;
 
   /** SLHC: separate handle for early time bins */
   int early_tbins;
@@ -127,30 +127,40 @@ class CSCMotherboard
   /** SLHC: whether to readout only the earliest two LCTs in readout window */
   bool readout_earliest_2;
 
+  /** if true: use regular CLCT-to-ALCT matching in TMB
+      if false: do ALCT-to-CLCT matching */
+  bool clct_to_alct;
+
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;
   static const unsigned int def_alct_trig_enable, def_clct_trig_enable;
   static const unsigned int def_match_trig_enable, def_match_trig_window_size;
   static const unsigned int def_tmb_l1a_window_size;
 
-  /** Maximum number of time bins. */
-  enum {MAX_LCT_BINS = 16};
-
   /** Container for first correlated LCT. */
-  CSCCorrelatedLCTDigi firstLCT[MAX_LCT_BINS];
+  CSCCorrelatedLCTDigi firstLCT[CSCConstants::MAX_LCT_TBINS];
 
   /** Container for second correlated LCT. */
-  CSCCorrelatedLCTDigi secondLCT[MAX_LCT_BINS];
+  CSCCorrelatedLCTDigi secondLCT[CSCConstants::MAX_LCT_TBINS];
 
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
-  void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-                     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT);
+  void correlateLCTs(const CSCALCTDigi& bestALCT, const CSCALCTDigi& secondALCT,
+                     const CSCCLCTDigi& bestCLCT, const CSCCLCTDigi& secondCLCT,
+                     int type);
+
+  // This method calculates all the TMB words and then passes them to the
+  // constructor of correlated LCTs.
   CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT,
                                      const CSCCLCTDigi& cLCT,
-                                     int type) const;
+                                     int type, int trknmb) const;
+
+  // CLCT pattern number: encodes the pattern number itself and
+  // whether the pattern consists of half-strips or di-strips.
   unsigned int encodePattern(const int ptn, const int highPt) const;
+
+  // 4-bit LCT quality number.Made by TMB lookup tables and used for MPC sorting.
   unsigned int findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const;
 
   enum LCT_Quality{

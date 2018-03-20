@@ -36,7 +36,7 @@ void CSCGEMMotherboardME21::clear()
   CSCMotherboard::clear();
   CSCGEMMotherboard::clear();
 
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++) {
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
       for (int i=0;i<CSCConstants::MAX_LCTS_PER_CSC;i++) {
 	allLCTs(bx,mbx,i).clear();
@@ -96,7 +96,7 @@ CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
   const bool hasCoPads(!coPads_.empty());
 
   // ALCT centric matching
-  for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)
+  for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++)
   {
     if (alct->bestALCT[bx_alct].isValid())
     {
@@ -125,7 +125,7 @@ CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
       int nSuccessFulMatches = 0;
       for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++)
       {
-        if (bx_clct < 0 or bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
+        if (bx_clct < 0 or bx_clct >= CSCConstants::MAX_CLCT_TBINS) continue;
         if (drop_used_clcts and used_clct_mask[bx_clct]) continue;
         if (clct->bestCLCT[bx_clct].isValid())
         {
@@ -258,7 +258,7 @@ CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
         int nSuccessFulMatches = 0;
         for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++)
           {
-            if (bx_clct < 0 or bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
+            if (bx_clct < 0 or bx_clct >= CSCConstants::MAX_CLCT_TBINS) continue;
             if (drop_used_clcts and used_clct_mask[bx_clct]) continue;
             if (clct->bestCLCT[bx_clct].isValid())
               {
@@ -269,7 +269,7 @@ CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
 	     ++nSuccessFulMatches;
 
 	     int mbx = std::abs(clct->bestCLCT[bx_clct].getBX()-bx_alct);
-	     int bx_gem = (coPads[0].second).bx(1)+lct_central_bx;
+	     int bx_gem = (coPads[0].second).bx(1)+CSCConstants::LCT_CENTRAL_BX;
 	     CSCGEMMotherboard::correlateLCTsGEM(clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct], coPads,
 						 allLCTs(bx_gem,mbx,0), allLCTs(bx_gem,mbx,1), CSCPart::ME21);
 	     if (debug_matching) {
@@ -292,7 +292,7 @@ CSCGEMMotherboardME21::run(const CSCWireDigiCollection* wiredc,
     }
   }
   // reduction of nLCTs per each BX
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++)
     {
       // counting
       unsigned int n=0;
@@ -424,10 +424,7 @@ void CSCGEMMotherboardME21::correlateLCTsGEM(CSCALCTDigi& bestALCT, CSCALCTDigi&
     }
   } else {
     // run without gems - happens in less than 0.04% of the time
-    lct1 = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT);
-    lct1.setTrknmb(1);
-
-    lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT);
-    lct2.setTrknmb(2);
+    lct1 = constructLCTs(bestALCT, bestCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 1);
+    lct2 = constructLCTs(secondALCT, secondCLCT, CSCCorrelatedLCTDigi::ALCTCLCT, 2);
   }
 }

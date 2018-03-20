@@ -25,7 +25,7 @@ CSCUpgradeMotherboard::LCTContainer::getTimeMatched(const int bx,
 void
 CSCUpgradeMotherboard::LCTContainer::getMatched(std::vector<CSCCorrelatedLCTDigi>& lcts) const
 {
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++){
+  for (int bx = 0; bx < CSCConstants::MAX_LCT_TBINS; bx++){
     std::vector<CSCCorrelatedLCTDigi> temp_lcts;
     CSCUpgradeMotherboard::LCTContainer::getTimeMatched(bx,temp_lcts);
     lcts.insert(std::end(lcts), std::begin(temp_lcts), std::end(temp_lcts));
@@ -48,6 +48,7 @@ CSCUpgradeMotherboard::CSCUpgradeMotherboard(unsigned endcap, unsigned station,
   commonParams_ = conf.getParameter<edm::ParameterSet>("commonParam");
   if (theStation==1) tmbParams_ = conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM");
   else if (theStation==2) tmbParams_ = conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM");
+  else if (theStation==3 or theStation==4) tmbParams_ = conf.getParameter<edm::ParameterSet>("me3141tmbSLHC");
 
   generator_.reset(new CSCUpgradeMotherboardLUTGenerator());
 

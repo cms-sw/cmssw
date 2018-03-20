@@ -63,11 +63,11 @@ public:
 private:
   enum Charge { hh, hl, ll };
   Mode theModus;
-  mutable Charge theCharge;
+  Charge theCharge;
   ClosestApproachInRPhi theIniAlgo;
-  mutable TwoTrackMinimumDistanceHelixHelix theTTMDhh;
-  mutable TwoTrackMinimumDistanceLineLine theTTMDll;
-  mutable TwoTrackMinimumDistanceHelixLine theTTMDhl;
+  TwoTrackMinimumDistanceHelixHelix theTTMDhh;
+  TwoTrackMinimumDistanceLineLine theTTMDll;
+  TwoTrackMinimumDistanceHelixLine theTTMDhl;
   bool status_;
   std::pair<GlobalPoint, GlobalPoint> points_;
 

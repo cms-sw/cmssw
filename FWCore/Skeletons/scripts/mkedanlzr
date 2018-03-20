@@ -24,7 +24,7 @@ def pkg_help():
     "mkedanlzr help function"
     msg  = '\nmkedanlzr script generates CMS EDAnalyzer code'
     msg += '\nUsage  : mkedanlzr MyAnalyzer -author "FirstName LastName"'
-    msg += ' <example_track> <example_histo>'
+    msg += ' <example_histo>'
     msg += '\nOutput : '
     msg += """
         MyAnalyzer/
@@ -42,8 +42,6 @@ def pkg_help():
     msg += '\n        mkedanlzr MyAnalyzer'
     msg += '\n        # create new EDAnalyzer code with given author'
     msg += '\n        mkedanlzr MyAnalyzer -author "First Last"'
-    msg += '\n        # create new EDAnalyzer code with track example'
-    msg += '\n        mkedanlzr MyAnalyzer example_track'
     msg += '\n        # create new EDAnalyzer code with histo example'
     msg += '\n        mkedanlzr MyAnalyzer example_histo'
     msg += '\n'

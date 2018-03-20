@@ -32,12 +32,12 @@ class HGCalTriggerGeometryBase
         const std::string& name() const { return name_; } 
 
         const edm::ESHandle<CaloGeometry>& caloGeometry() const {return calo_geometry_;}
-        const HGCalGeometry& eeGeometry() const {return *static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCEE));}
-        const HGCalGeometry& fhGeometry() const {return *static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCHEF));}
-        const HcalGeometry& bhGeometry() const {return *static_cast<const HcalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Hcal,HcalEndcap));}
-        const HGCalTopology& eeTopology() const {return eeGeometry().topology();}
-        const HGCalTopology& fhTopology() const {return fhGeometry().topology();}
-        const HcalTopology& bhTopology() const {return bhGeometry().topology();}
+        const HGCalGeometry* eeGeometry() const {return (static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCEE)));}
+        const HGCalGeometry* fhGeometry() const {return (static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCHEF)));}
+        const HcalGeometry* bhGeometry()  const {return (static_cast<const HcalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Hcal,HcalEndcap)));}
+        const HGCalTopology& eeTopology() const {return eeGeometry()->topology();}
+        const HGCalTopology& fhTopology() const {return fhGeometry()->topology();}
+        const HcalTopology& bhTopology() const {return bhGeometry()->topology();}
 
         // non-const access to the geometry class
         virtual void initialize(const edm::ESHandle<CaloGeometry>&) = 0;
@@ -62,6 +62,7 @@ class HGCalTriggerGeometryBase
 
         virtual bool validTriggerCell( const unsigned trigger_cell_id) const = 0;
         virtual bool disconnectedModule(const unsigned module_id) const = 0;
+        virtual unsigned triggerLayer(const unsigned id) const = 0;
 
     protected:
         void setCaloGeometry(const edm::ESHandle<CaloGeometry>& geom) {calo_geometry_=geom;}

@@ -30,7 +30,7 @@ MomentumDependentPedeLabeler::MomentumDependentPedeLabeler(const PedeLabelerBase
     theOpenMomentumRange(std::pair<float,float>(0.0, 10000.0)),
     theMaxNumberOfParameterInstances(0)
 {
-  std::vector<Alignable*> alis;
+  align::Alignables alis;
   alis.push_back(alignables.aliTracker_);
   alis.push_back(alignables.aliMuon_);
   
@@ -354,7 +354,7 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
       selector.clear();
       selector.addSelection(decompSel[0], paramSelDumthe);
 
-      const std::vector<Alignable*> &alis = selector.selectedAlignables();
+      const auto& alis = selector.selectedAlignables();
       for (const auto& iAli: alis) {
 
         if(iAli->alignmentParameters() == nullptr) {
@@ -396,11 +396,11 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
 }
 
 //_________________________________________________________________________
-unsigned int MomentumDependentPedeLabeler::buildMap(const std::vector<Alignable*> &alis)
+unsigned int MomentumDependentPedeLabeler::buildMap(const align::Alignables& alis)
 {
   theAlignableToIdMap.clear(); // just in case of re-use...
 
-  std::vector<Alignable*> allComps;
+  align::Alignables allComps;
   
   for (const auto& iAli: alis) {
     if (iAli) {

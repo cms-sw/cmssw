@@ -46,7 +46,7 @@ namespace edm {
   class LuminosityBlock : public LuminosityBlockBase {
   public:
     LuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
-                    ModuleCallingContext const*);
+                    ModuleCallingContext const*, bool isAtEnd);
     ~LuminosityBlock() override;
 
     // AUX functions are defined in LuminosityBlockBase
@@ -311,5 +311,33 @@ namespace edm {
     return provRecorder_.getManyByType(results, moduleCallingContext_);
   }
 
+  // Free functions to retrieve a collection from the LuminosityBlock.
+  // Will throw an exception if the collection is not available.
+
+  template <typename T>
+  T const& get(LuminosityBlock const& event, InputTag const& tag) {
+    Handle<T> handle;
+    event.getByLabel(tag, handle);
+    // throw if the handle is not valid
+    return * handle.product();
+  }
+
+  template <typename T>
+  T const& get(LuminosityBlock const& event, EDGetToken const& token) {
+    Handle<T> handle;
+    event.getByToken(token, handle);
+    // throw if the handle is not valid
+    return * handle.product();
+  }
+
+  template <typename T>
+  T const& get(LuminosityBlock const& event, EDGetTokenT<T> const& token) {
+    Handle<T> handle;
+    event.getByToken(token, handle);
+    // throw if the handle is not valid
+    return * handle.product();
+  }
+
 }
-#endif
+
+#endif // FWCore_Framework_LuminosityBlock_h

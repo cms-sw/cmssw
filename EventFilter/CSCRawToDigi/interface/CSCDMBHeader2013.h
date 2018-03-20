@@ -46,7 +46,7 @@ struct CSCDMBHeader2013: public CSCVDMBHeaderFormat  {
   
   CSCDMBHeader2013();
   
-  CSCDMBHeader2013(unsigned short * buf);
+  CSCDMBHeader2013(const uint16_t * buf);
 /*
   CSCDMBHeader2013(const CSCDMBStatusDigi & digi)
     {

@@ -66,14 +66,14 @@ string DTTTrigT0SegCorrection::getHistoName(const DTSuperLayerId& slId) {
   DTChamberId chId = slId.chamberId();
 
   // Compose the chamber name
-  stringstream wheel; wheel << chId.wheel();
-  stringstream station; station << chId.station();
-  stringstream sector; sector << chId.sector();
+  std::string wheel = std::to_string(chId.wheel());
+  std::string station = std::to_string(chId.station());
+  std::string sector = std::to_string(chId.sector());
 
   string chHistoName =
-    "_W" + wheel.str() +
-    "_St" + station.str() +
-    "_Sec" + sector.str();
+    "_W" + wheel +
+    "_St" + station +
+    "_Sec" +  sector;
 
   return (slId.superLayer() != 2)?("hRPhiSegT0"+chHistoName):("hRZSegT0"+chHistoName);
 }

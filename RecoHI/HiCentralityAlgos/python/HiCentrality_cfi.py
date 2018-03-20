@@ -35,8 +35,11 @@ hiCentrality = cms.EDProducer("CentralityProducer",
                             )
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
-pp_on_XeXe_2017.toModify(hiCentrality,
-                         producePixelTracks = False,
-                         srcTracks = cms.InputTag("generalTracks"),
-                         srcVertex = cms.InputTag("offlinePrimaryVertices")
-                         )
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(hiCentrality,
+               producePixelTracks = False,
+               srcTracks = cms.InputTag("generalTracks"),
+               srcVertex = cms.InputTag("offlinePrimaryVertices")
+               )
+

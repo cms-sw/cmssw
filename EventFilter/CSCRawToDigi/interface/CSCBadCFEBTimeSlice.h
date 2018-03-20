@@ -13,7 +13,7 @@ class CSCBadCFEBTimeSlice {
 public:
   unsigned sizeInWords() const {return 4;}
   /// count from zero
-  CSCBadCFEBWord & word(int i);
+  const CSCBadCFEBWord & word(int i) const;
 
   bool check() const;
 

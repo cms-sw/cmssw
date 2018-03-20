@@ -10,22 +10,18 @@ public:
   G4ProcessTypeEnumerator();
   ~G4ProcessTypeEnumerator();
 
-  inline unsigned int processId(const G4VProcess* p)
+  inline unsigned int processId(const G4VProcess* p) const
     {
-      unsigned int id = 0;
-      if(p) { id = p->GetProcessSubType(); }
-      return id;
+      return (p) ? p->GetProcessSubType() : 0;
     }
-  inline int processIdLong(const G4VProcess* p) 
+  inline int processIdLong(const G4VProcess* p) const
     {
-      int id = 0;
-      if(p) { id = p->GetProcessSubType(); }
-      return id;
+      return (p) ? p->GetProcessSubType() : 0;
     }
 
-  std::string processG4Name(int);
+  std::string processG4Name(int) const;
 
-  int processId(const std::string& name);
+  int processId(const std::string& name) const;
 
 };
 #endif 

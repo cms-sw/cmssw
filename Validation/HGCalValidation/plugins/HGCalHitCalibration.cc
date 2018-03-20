@@ -12,8 +12,6 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
@@ -159,7 +157,14 @@ void HGCalHitCalibration::fillWithRecHits(
   if (hitmap.find(hitid) == hitmap.end()) {
     // Hit was not reconstructed
     IfLogTrace(debug_ > 0, "HGCalHitCalibration")
-      << ">>> Failed to find detid " << hitid.rawId()
+      << ">>> Failed to find detid " << std::hex << hitid.rawId() << std::dec
+      << " Det " << hitid.det()
+      << " Subdet " << hitid.subdetId() << std::endl;
+    return;
+  }
+  if (hitid.det() != DetId::Forward) {
+    IfLogTrace(debug_ > 0, "HGCalHitCalibration")
+      << ">>> Wrong type of detid " << std::hex << hitid.rawId() << std::dec
       << " Det " << hitid.det()
       << " Subdet " << hitid.subdetId() << std::endl;
     return;
@@ -272,8 +277,8 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent,
         // dump raw RecHits and match
         if (rawRecHits_) {
           if ((hitid.det() == DetId::Forward &&
-              (hitid.subdetId() == HGCEE or hitid.subdetId() == HGCHEF or
-               hitid.subdetId() == HGCHEB)) ||
+	       (hitid.subdetId() == HGCEE || hitid.subdetId() == HGCHEF ||
+		hitid.subdetId() == HGCHEB)) ||
 	      (hitid.det() == DetId::Hcal && hitid.subdetId() == HcalEndcap))
             fillWithRecHits(hitmap, hitid, hitlayer, it_haf.second, seedDet,
                             seedEnergy);

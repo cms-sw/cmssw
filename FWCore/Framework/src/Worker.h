@@ -28,6 +28,8 @@ the worker is reset().
 #include "FWCore/Framework/interface/ModuleContextSentry.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
+#include "FWCore/Concurrency/interface/WaitingTask.h"
+#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -69,7 +71,6 @@ namespace edm {
   class StreamContext;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
-  class WaitingTask;
 
   namespace workerhelper {
     template< typename O> class CallImpl;
@@ -118,6 +119,9 @@ namespace edm {
     virtual bool wantsGlobalLuminosityBlocks() const = 0;
     virtual bool wantsStreamRuns() const = 0;
     virtual bool wantsStreamLuminosityBlocks() const = 0;
+    
+    virtual SerialTaskQueue* globalRunsQueue() = 0;
+    virtual SerialTaskQueue* globalLuminosityBlocksQueue() = 0;
 
     template <typename T>
     bool doWork(typename T::MyPrincipal const&, EventSetup const& c,
@@ -126,17 +130,19 @@ namespace edm {
                 typename T::Context const* context);
     
     void prePrefetchSelectionAsync(WaitingTask* task,
+                                   ServiceToken const&,
                                       StreamID stream,
                                       EventPrincipal const*);
 
     void prePrefetchSelectionAsync(WaitingTask* task,
+                                   ServiceToken const&,
                                    StreamID stream,
                                    void const*) {assert(false);}
 
     template <typename T>
     void doWorkAsync(WaitingTask* task,
                      typename T::MyPrincipal const&, EventSetup const& c,
-                     StreamID stream,
+                     ServiceToken const& token, StreamID stream,
                      ParentContext const& parentContext,
                      typename T::Context const* context);
 
@@ -144,6 +150,7 @@ namespace edm {
     void doWorkNoPrefetchingAsync(WaitingTask* task,
                                   typename T::MyPrincipal const&,
                                   EventSetup const& c,
+                                  ServiceToken const& token,
                                   StreamID stream,
                                   ParentContext const& parentContext,
                                   typename T::Context const* context);
@@ -223,13 +230,21 @@ namespace edm {
 
     int timesPass() const { return timesPassed(); } // for backward compatibility only - to be removed soon
 
+    virtual bool hasAccumulator() const = 0;
+
   protected:
     template<typename O> friend class workerhelper::CallImpl;
     virtual std::string workerType() const = 0;
     virtual bool implDo(EventPrincipal const&, EventSetup const& c,
                         ModuleCallingContext const* mcc) = 0;
+
     virtual void itemsToGetForSelection(std::vector<ProductResolverIndexAndSkipBit>&) const = 0;
     virtual bool implNeedToRunSelection() const = 0;
+
+    virtual void implDoAcquire(EventPrincipal const&, EventSetup const& c,
+                               ModuleCallingContext const* mcc,
+                               WaitingTaskWithArenaHolder& holder) = 0;
+
     virtual bool implDoPrePrefetchSelection(StreamID id,
                                             EventPrincipal const& ep,
                                             ModuleCallingContext const* mcc) = 0;
@@ -345,13 +360,16 @@ namespace edm {
     }
         
     void prefetchAsync(WaitingTask*,
+                       ServiceToken const&,
                        ParentContext const& parentContext,
                        Principal const& );
         
     void emitPostModuleEventPrefetchingSignal() {
       actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),moduleCallingContext_);
     }
-    
+
+    virtual bool hasAcquire() const = 0;
+
     template<typename T>
     std::exception_ptr runModuleAfterAsyncPrefetch(std::exception_ptr const * iEPtr,
                                                    typename T::MyPrincipal const& ep,
@@ -359,13 +377,28 @@ namespace edm {
                                                    StreamID streamID,
                                                    ParentContext const& parentContext,
                                                    typename T::Context const* context);
-        
+
+    void runAcquire(EventPrincipal const& ep,
+                    EventSetup const& es,
+                    ParentContext const& parentContext,
+                    WaitingTaskWithArenaHolder& holder);
+
+    void runAcquireAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
+                                      EventPrincipal const& ep,
+                                      EventSetup const& es,
+                                      ParentContext const& parentContext,
+                                      WaitingTaskWithArenaHolder holder);
+
+    std::exception_ptr handleExternalWorkException(std::exception_ptr const* iEPtr,
+                                                   ParentContext const& parentContext);
+
     template< typename T>
     class RunModuleTask : public WaitingTask {
     public:
       RunModuleTask(Worker* worker,
                     typename T::MyPrincipal const& ep,
                     EventSetup const& es,
+                    ServiceToken const& token,
                     StreamID streamID,
                     ParentContext const& parentContext,
                     typename T::Context const* context):
@@ -375,8 +408,18 @@ namespace edm {
       m_streamID(streamID),
       m_parentContext(parentContext),
       m_context(context),
-      m_serviceToken(ServiceRegistry::instance().presentToken()) {}
+      m_serviceToken(token) {}
       
+      struct EnableQueueGuard {
+        SerialTaskQueue* queue_;
+        EnableQueueGuard(SerialTaskQueue* iQueue): queue_{iQueue} {}
+        EnableQueueGuard(EnableQueueGuard const&) = delete;
+        EnableQueueGuard& operator=(EnableQueueGuard const&) = delete;
+        EnableQueueGuard& operator=(EnableQueueGuard&&) = delete;
+        EnableQueueGuard(EnableQueueGuard&& iGuard): queue_{iGuard.queue_} {iGuard.queue_ = nullptr;}
+        ~EnableQueueGuard() { if(queue_) {queue_->resume();} }
+      };
+
       tbb::task* execute() override {
         //Need to make the services available early so other services can see them
         ServiceRegistry::Operate guard(m_serviceToken);
@@ -385,7 +428,7 @@ namespace edm {
         // to hold the exception_ptr
         std::exception_ptr temp_excptr;
         auto excptr = exceptionPtr();
-        if(T::isEvent_) {
+        if(T::isEvent_ && !m_worker->hasAcquire()) {
           try {
             //pre was called in prefetchAsync
             m_worker->emitPostModuleEventPrefetchingSignal();
@@ -399,26 +442,37 @@ namespace edm {
 
         if( not excptr) {
           if(auto queue = m_worker->serializeRunModule()) {
-            Worker* worker = m_worker;
             auto const & principal = m_principal;
             auto& es = m_es;
-            auto streamID = m_streamID;
-            auto parentContext = m_parentContext;
-            auto serviceToken = m_serviceToken;
-            auto sContext = m_context;
-            queue.push( [worker, &principal, &es, streamID,parentContext,sContext, serviceToken]()
+            auto f = [worker = m_worker, &principal,
+                      &es, streamID = m_streamID,
+                      parentContext = m_parentContext,
+                      sContext = m_context, serviceToken = m_serviceToken]()
             {
               //Need to make the services available
               ServiceRegistry::Operate guard(serviceToken);
-
+              
+              //If needed, we pause the queue in begin transition and resume it
+              // at the end transition. This guarantees that the module
+              // only processes one transition at a time
+              EnableQueueGuard enableQueueGuard{ workerhelper::CallImpl<T>::enableGlobalQueue(worker)};
               std::exception_ptr* ptr = nullptr;
-              worker->runModuleAfterAsyncPrefetch<T>(ptr,
-                                                    principal,
-                                                    es,
-                                                    streamID,
-                                                    parentContext,
-                                                    sContext);
-            });
+              worker->template runModuleAfterAsyncPrefetch<T>(ptr,
+                                                     principal,
+                                                     es,
+                                                     streamID,
+                                                     parentContext,
+                                                     sContext);
+            };
+            //keep another global transition from running if necessary
+            auto gQueue = workerhelper::CallImpl<T>::pauseGlobalQueue(m_worker);
+            if(gQueue) {
+              gQueue->push( [queue,gQueue, f]() mutable {
+                gQueue->pause();
+                queue.push(std::move(f));} );
+            } else {
+              queue.push( std::move(f) );
+            }
             return nullptr;
           }
         }
@@ -441,7 +495,114 @@ namespace edm {
       typename T::Context const* m_context;
       ServiceToken m_serviceToken;
     };
-    
+
+    // AcquireTask is only used for the Event case, but we define
+    // it as a template so all cases will compile.
+    // DUMMY exists to work around the C++ Standard prohibition on
+    // fully specializing templates nested in other classes.
+    template <typename T, typename DUMMY = void>
+    class AcquireTask : public WaitingTask {
+    public:
+      AcquireTask(Worker* worker,
+                  typename T::MyPrincipal const& ep,
+                  EventSetup const& es,
+                  ServiceToken const& token,
+                  ParentContext const& parentContext,
+                  WaitingTaskWithArenaHolder holder) {}
+      tbb::task* execute() override { return nullptr; }
+    };
+
+    template <typename DUMMY>
+    class AcquireTask<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>, DUMMY> : public WaitingTask {
+    public:
+      AcquireTask(Worker* worker,
+                  EventPrincipal const& ep,
+                  EventSetup const& es,
+                  ServiceToken const& token,
+                  ParentContext const& parentContext,
+                  WaitingTaskWithArenaHolder holder):
+      m_worker(worker),
+      m_principal(ep),
+      m_es(es),
+      m_parentContext(parentContext),
+        m_holder(std::move(holder)),
+      m_serviceToken(token) {}
+
+      tbb::task* execute() override {
+        //Need to make the services available early so other services can see them
+        ServiceRegistry::Operate guard(m_serviceToken);
+
+        //incase the emit causes an exception, we need a memory location
+        // to hold the exception_ptr
+        std::exception_ptr temp_excptr;
+        auto excptr = exceptionPtr();
+        try {
+          //pre was called in prefetchAsync
+          m_worker->emitPostModuleEventPrefetchingSignal();
+        } catch(...) {
+          temp_excptr = std::current_exception();
+          if(not excptr) {
+            excptr = &temp_excptr;
+          }
+        }
+
+        if( not excptr) {
+          if(auto queue = m_worker->serializeRunModule()) {
+            auto const & principal = m_principal;
+            auto& es = m_es;
+            queue.push( [worker = m_worker, &principal,
+                         &es, parentContext = m_parentContext,
+                         serviceToken = m_serviceToken, holder = m_holder]()
+            {
+              //Need to make the services available
+              ServiceRegistry::Operate guard(serviceToken);
+
+              std::exception_ptr* ptr = nullptr;
+              worker->runAcquireAfterAsyncPrefetch(ptr,
+                                                   principal,
+                                                   es,
+                                                   parentContext,
+                                                   holder);
+            });
+            return nullptr;
+          }
+        }
+
+        m_worker->runAcquireAfterAsyncPrefetch(excptr,
+                                               m_principal,
+                                               m_es,
+                                               m_parentContext,
+                                               std::move(m_holder));
+        return nullptr;
+      }
+
+    private:
+      Worker* m_worker;
+      EventPrincipal const& m_principal;
+      EventSetup const& m_es;
+      ParentContext const m_parentContext;
+      WaitingTaskWithArenaHolder m_holder;
+      ServiceToken m_serviceToken;
+    };
+
+    // This class does nothing unless there is an exception originating
+    // in an "External Worker". In that case, it handles converting the
+    // exception to a CMS exception and adding context to the exception.
+    class HandleExternalWorkExceptionTask : public WaitingTask {
+    public:
+
+      HandleExternalWorkExceptionTask(Worker* worker,
+                                      WaitingTask* runModuleTask,
+                                      ParentContext const& parentContext);
+
+      tbb::task* execute() override;
+
+    private:
+      Worker* m_worker;
+      WaitingTask* m_runModuleTask;
+      ParentContext const m_parentContext;
+    };
+
     std::atomic<int> timesRun_;
     std::atomic<int> timesVisited_;
     std::atomic<int> timesPassed_;
@@ -462,6 +623,7 @@ namespace edm {
     
     edm::WaitingTaskList waitingTasks_;
     std::atomic<bool> workStarted_;
+    bool ranAcquireWithoutException_;
   };
 
   namespace {
@@ -507,6 +669,9 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return iWorker->implNeedToRunSelection();
       }
+      
+      static SerialTaskQueue* pauseGlobalQueue(Worker*) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
     };
 
     template<>
@@ -527,6 +692,9 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return iWorker->globalRunsQueue();}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
+
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>>{
@@ -546,6 +714,9 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
+
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>>{
@@ -565,6 +736,8 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) { return iWorker->globalRunsQueue();}
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>>{
@@ -584,6 +757,8 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
     };
 
     template<>
@@ -604,6 +779,8 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return iWorker->globalLuminosityBlocksQueue();}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
     };
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>>{
@@ -623,6 +800,8 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
 };
 
     template<>
@@ -643,6 +822,8 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker* iWorker) { return iWorker->globalLuminosityBlocksQueue();}
     };
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>>{
@@ -662,14 +843,16 @@ namespace edm {
       static bool needToRunSelection( Worker const* iWorker) {
         return false;
       }
+      static SerialTaskQueue* pauseGlobalQueue(Worker* iWorker) { return nullptr;}
+      static SerialTaskQueue* enableGlobalQueue(Worker*) { return nullptr;}
     };
   }
-
 
   template <typename T>
   void Worker::doWorkAsync(WaitingTask* task,
                            typename T::MyPrincipal const& ep,
                            EventSetup const& es,
+                           ServiceToken const& token,
                            StreamID streamID,
                            ParentContext const& parentContext,
                            typename T::Context const* context) {
@@ -691,7 +874,7 @@ namespace edm {
         //We need to run the selection in a different task so that
         // we can prefetch the data needed for the selection
         auto runTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
-                                                                         this, ep,es,streamID,parentContext,context);
+                                                                         this, ep,es,token,streamID,parentContext,context);
 
         //make sure the task is either run or destroyed
         struct DestroyTask {
@@ -715,21 +898,29 @@ namespace edm {
         };
 
         auto ownRunTask = std::make_shared<DestroyTask>(runTask);
-        auto token = ServiceRegistry::instance().presentToken();
         auto selectionTask = make_waiting_task(tbb::task::allocate_root(), [ownRunTask,parentContext,&ep,token, this] (std::exception_ptr const* ) mutable {
           
           ServiceRegistry::Operate guard(token);
-          prefetchAsync(ownRunTask->release(), parentContext, ep);
+          prefetchAsync(ownRunTask->release(), token, parentContext, ep);
         });
-        prePrefetchSelectionAsync(selectionTask,streamID, &ep);
+        prePrefetchSelectionAsync(selectionTask,token,streamID, &ep);
       } else {
-        auto runTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
-                           this, ep,es,streamID,parentContext,context);
-        prefetchAsync(runTask, parentContext, ep);
+        WaitingTask* moduleTask = new (tbb::task::allocate_root()) RunModuleTask<T>(
+          this, ep, es, token, streamID, parentContext, context);
+        if (T::isEvent_ && hasAcquire()) {
+          WaitingTaskWithArenaHolder runTaskHolder(
+            new (tbb::task::allocate_root())
+              HandleExternalWorkExceptionTask(this,
+                                              moduleTask,
+                                              parentContext));
+          moduleTask = new (tbb::task::allocate_root()) AcquireTask<T>(
+            this, ep, es, token, parentContext, std::move(runTaskHolder));
+        }
+        prefetchAsync(moduleTask, token, parentContext, ep);
       }
     }
   }
-   
+
   template<typename T>
   std::exception_ptr Worker::runModuleAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
                                                          typename T::MyPrincipal const& ep,
@@ -763,6 +954,7 @@ namespace edm {
   void Worker::doWorkNoPrefetchingAsync(WaitingTask* task,
                            typename T::MyPrincipal const& principal,
                            EventSetup const& es,
+                           ServiceToken const& serviceToken,
                            StreamID streamID,
                            ParentContext const& parentContext,
                            typename T::Context const* context) {
@@ -772,7 +964,6 @@ namespace edm {
     waitingTasks_.add(task);
     bool expected = false;
     if(workStarted_.compare_exchange_strong(expected,true)) {
-      auto serviceToken = ServiceRegistry::instance().presentToken();
       
       auto toDo =[this, &principal, &es, streamID,parentContext,context, serviceToken]()
       {
@@ -852,7 +1043,9 @@ namespace edm {
       if ( workerhelper::CallImpl<T>::needToRunSelection(this)) {
         auto waitTask = edm::make_empty_waiting_task();
         waitTask->set_ref_count(2);
-        prePrefetchSelectionAsync(waitTask.get(), streamID, &ep);
+        prePrefetchSelectionAsync(waitTask.get(),
+                                  ServiceRegistry::instance().presentToken(),
+                                  streamID, &ep);
         waitTask->decrement_ref_count();
         waitTask->wait_for_all();
         
@@ -874,7 +1067,7 @@ namespace edm {
         //set count to 2 since wait_for_all requires value to not go to 0
         waitTask->set_ref_count(2);
         
-        prefetchAsync(waitTask.get(),parentContext, ep);
+        prefetchAsync(waitTask.get(),ServiceRegistry::instance().presentToken(), parentContext, ep);
         waitTask->decrement_ref_count();
         waitTask->wait_for_all();
       }

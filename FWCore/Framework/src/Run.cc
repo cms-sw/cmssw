@@ -9,8 +9,8 @@ namespace edm {
   std::string const Run::emptyString_;
 
   Run::Run(RunPrincipal const& rp, ModuleDescription const& md,
-           ModuleCallingContext const* moduleCallingContext) :
-        provRecorder_(rp, md),
+           ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
+        provRecorder_(rp, md, isAtEnd),
         aux_(rp.aux()),
         moduleCallingContext_(moduleCallingContext)  {
   }
@@ -101,7 +101,8 @@ namespace edm {
       auto& p = provRecorder_.principal();
       for(auto index: iShouldPut){
         auto resolver = p.getProductResolverByIndex(index);
-        if(not resolver->productResolved()) {
+        if(not resolver->productResolved() and
+           isEndTransition(provRecorder_.transition()) == resolver->branchDescription().availableOnlyAtEndTransition()) {
           resolver->putProduct(std::unique_ptr<WrapperBase>());
         }
       }

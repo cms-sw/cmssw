@@ -14,14 +14,14 @@ bool CSCTMBScope::debug = false;
 std::atomic<bool> CSCTMBScope::debug{false};
 #endif
 
-CSCTMBScope::CSCTMBScope(unsigned short *buf,int b05Line,int e05Line) {
+CSCTMBScope::CSCTMBScope(const uint16_t *buf,int b05Line,int e05Line) {
 
   size_ = UnpackScope(buf,b05Line,e05Line);
 
 } //CSCTMBScope
 
 
-int CSCTMBScope::UnpackScope(unsigned short *buf,int b05Line,int e05Line) {
+int CSCTMBScope::UnpackScope(const uint16_t *buf,int b05Line,int e05Line) {
 
   int pretrig_chan[4]={0,0,0,0};
   unsigned int tbin_strt,tbin_stop;

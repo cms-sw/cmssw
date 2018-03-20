@@ -39,7 +39,7 @@ static const Regexp s_rxmeval("<(.*)>(i|f|s|qr)=(.*)</\\1>");
 //////////////////////////////////////////////////////////////////////
 // Generate log prefix.
 std::ostream &
-DQMNet::logme (void)
+DQMNet::logme ()
 {
   Time now = Time::current();
   return std::cout
@@ -87,7 +87,7 @@ DQMNet::losePeer(const char *reason,
 
   Socket *s = peer->socket;
 
-  for (WaitList::iterator i = waiting_.begin(), e = waiting_.end(); i != e; )
+  for (auto i = waiting_.begin(), e = waiting_.end(); i != e; )
     if (i->peer == peer)
       waiting_.erase(i++);
     else
@@ -163,7 +163,7 @@ DQMNet::releaseFromWait(WaitList::iterator i, Object *o)
 void
 DQMNet::releaseWaiters(const std::string &name, Object *o)
 {
-  for (WaitList::iterator i = waiting_.begin(), e = waiting_.end(); i != e; )
+  for (auto i = waiting_.begin(), e = waiting_.end(); i != e; )
     if (i->name == name)
       releaseFromWait(i++, o);
     else
@@ -222,7 +222,7 @@ DQMNet::unpackQualityData(QReports &qr, uint32_t &flags, const char *from)
   qr.reserve(nqv);
   while (*qdata)
   {
-    qr.push_back(DQMNet::QValue());
+    qr.emplace_back();
     DQMNet::QValue &qv = qr.back();
 
     qv.code = atoi(qdata);
@@ -386,7 +386,7 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
 //////////////////////////////////////////////////////////////////////
 // Check if the network layer should stop.
 bool
-DQMNet::shouldStop(void)
+DQMNet::shouldStop()
 {
   return shutdown_;
 }
@@ -858,7 +858,7 @@ DQMNet::onPeerData(IOSelectEvent *ev, Peer *p)
     }
     catch (Error &e)
     {
-      SystemError *next = dynamic_cast<SystemError *>(e.next());
+      auto *next = dynamic_cast<SystemError *>(e.next());
       if (next && next->portable() == SysErr::ErrTryAgain)
 	sz = 1; // Ignore it, and fake no end of data.
       else
@@ -962,7 +962,7 @@ DQMNet::onPeerConnect(IOSelectEvent *ev)
   lock();
   Peer *p = createPeer(s);
   std::string localaddr;
-  if (InetSocket *inet = dynamic_cast<InetSocket *>(s))
+  if (auto *inet = dynamic_cast<InetSocket *>(s))
   {
     InetAddress peeraddr = inet->peername();
     InetAddress myaddr = inet->sockname();
@@ -973,7 +973,7 @@ DQMNet::onPeerConnect(IOSelectEvent *ev)
 		.arg(myaddr.hostname())
 		.arg(myaddr.port()).value();
   }
-  else if (LocalSocket *local = dynamic_cast<LocalSocket *>(s))
+  else if (auto *local = dynamic_cast<LocalSocket *>(s))
   {
     p->peeraddr = local->peername().path();
     localaddr = local->sockname().path();
@@ -1017,7 +1017,7 @@ DQMNet::onLocalNotify(IOSelectEvent *ev)
   }
   catch (Error &e)
   {
-    SystemError *next = dynamic_cast<SystemError *>(e.next());
+    auto *next = dynamic_cast<SystemError *>(e.next());
     if (next && next->portable() == SysErr::ErrTryAgain)
       ; // Ignore it
     else
@@ -1092,7 +1092,7 @@ DQMNet::DQMNet (const std::string &appname /* = "" */)
   upstream_.update = downstream_.update = false;
 }
 
-DQMNet::~DQMNet(void)
+DQMNet::~DQMNet()
 {
   // FIXME
 }
@@ -1138,7 +1138,7 @@ DQMNet::startLocalServer(int port)
   try
   {
     InetAddress addr("0.0.0.0", port);
-    InetSocket *s = new InetSocket(SOCK_STREAM, 0, addr.family());
+    auto *s = new InetSocket(SOCK_STREAM, 0, addr.family());
     s->bind(addr);
     s->listen(10);
     s->setopt(SO_SNDBUF, SOCKET_BUF_SIZE);
@@ -1236,7 +1236,7 @@ DQMNet::listenToCollector(const std::string &host, int port)
 
 /// Stop the network layer and wait it to finish.
 void
-DQMNet::shutdown(void)
+DQMNet::shutdown()
 {
   shutdown_ = 1;
   if (communicate_ != (pthread_t) -1)
@@ -1259,7 +1259,7 @@ static void *communicate(void *obj)
 
 /// Acquire a lock on the DQM net layer.
 void
-DQMNet::lock(void)
+DQMNet::lock()
 {
   if (communicate_ != (pthread_t) -1)
     pthread_mutex_lock(&lock_);
@@ -1267,7 +1267,7 @@ DQMNet::lock(void)
 
 /// Release the lock on the DQM net layer.
 void
-DQMNet::unlock(void)
+DQMNet::unlock()
 {
   if (communicate_ != (pthread_t) -1)
     pthread_mutex_unlock(&lock_);
@@ -1277,7 +1277,7 @@ DQMNet::unlock(void)
 /// exclusive alternative to the run() method, which runs the network
 /// layer in the caller's thread.
 void
-DQMNet::start(void)
+DQMNet::start()
 {
   if (communicate_ != (pthread_t) -1)
   {
@@ -1292,7 +1292,7 @@ DQMNet::start(void)
 
 /** Run the actual I/O processing loop. */
 void
-DQMNet::run(void)
+DQMNet::run()
 {
   Time now;
   Time nextFlush = 0;
@@ -1301,10 +1301,8 @@ DQMNet::run(void)
   // Perform I/O.  Every once in a while flush updates to peers.
   while (! shouldStop())
   {
-    for (int i = 0; i < 2; ++i)
+    for (auto ap : automatic)
     {
-      AutoPeer *ap = automatic[i];
-
       // If we need a server connection and don't have one yet,
       // initiate asynchronous connection creation.  Swallow errors
       // in case the server won't talk to us.
@@ -1325,7 +1323,7 @@ DQMNet::run(void)
 	}
 	catch (Error &e)
 	{
-	  SystemError *sys = dynamic_cast<SystemError *>(e.next());
+	  auto *sys = dynamic_cast<SystemError *>(e.next());
 	  if (! sys || sys->portable() != SysErr::ErrOperationInProgress)
 	  {
 	    // "In progress" just means the connection is in progress.
@@ -1397,7 +1395,7 @@ DQMNet::run(void)
     // Release peers that have been waiting for data for too long.
     Time waitold = now - waitMax_;
     Time waitstale = now - waitStale_;
-    for (WaitList::iterator i = waiting_.begin(), e = waiting_.end(); i != e; )
+    for (auto i = waiting_.begin(), e = waiting_.end(); i != e; )
     {
       Object *o = findObject(nullptr, i->name);
 
@@ -1432,7 +1430,7 @@ DQMNet::run(void)
 // Tell the network cache that there have been local changes that
 // should be advertised to the downstream listeners.
 void
-DQMNet::sendLocalChanges(void)
+DQMNet::sendLocalChanges()
 {
   char byte = 0;
   wakeup_.sink()->write(&byte, 1);
@@ -1466,7 +1464,7 @@ DQMBasicNet::updateLocalObject(Object &o)
     // Somewhat hackish. Sets are supposedly immutable, but we
     // need to change the non-key parts of the object. Erasing
     // and re-inserting would produce too much memory churn.
-    Object &old = const_cast<Object &>(*info.first);
+    auto &old = const_cast<Object &>(*info.first);
     std::swap(old.flags,     o.flags);
     std::swap(old.tag,       o.tag);
     std::swap(old.version,   o.version);

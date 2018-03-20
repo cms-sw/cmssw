@@ -58,7 +58,7 @@ int main(int argc, char** argv)
     profiles.push_back(std::make_unique<TProfile>(s.str().c_str(),s.str().c_str(), 100,10,11,0,10));
     profiles.back()->SetCanExtend(TH1::kAllAxes);
     auto profile = profiles.back().get();
-    threads.emplace_back([i,profile,&canStart]() {
+    threads.emplace_back([profile,&canStart]() {
         static thread_local TThread guard;
         while(not canStart) {}
         for(int x=10; x>0; --x) {

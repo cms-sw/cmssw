@@ -27,9 +27,9 @@ void QGLikelihoodSystematicsESProducer::setIntervalFor(const edm::eventsetup::Ev
 }
 
 // Produce the data
-std::shared_ptr<QGLikelihoodSystematicsObject> QGLikelihoodSystematicsESProducer::produce(const QGLikelihoodSystematicsRcd& iRecord){
+std::unique_ptr<QGLikelihoodSystematicsObject> QGLikelihoodSystematicsESProducer::produce(const QGLikelihoodSystematicsRcd& iRecord){
    edm::ESHandle<QGLikelihoodSystematicsObject> qglObj;
    iRecord.get(mAlgo, qglObj);
 
-   return std::make_shared<QGLikelihoodSystematicsObject>(*qglObj);
+   return std::make_unique<QGLikelihoodSystematicsObject>(*qglObj);
 }

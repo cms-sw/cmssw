@@ -2,8 +2,6 @@
 #define Geometry_CaloTopology_FastTimeTopology_h 1
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h"

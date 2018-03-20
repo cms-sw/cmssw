@@ -63,8 +63,8 @@ PileupJetAnalyzer::PileupJetAnalyzer(const edm::ParameterSet &params) :
 {
 	jetTracksAssocToken = consumes<JetTracksAssociationCollection>(params.getParameter<edm::InputTag>("jetTracksAssoc"));
 	jetTagToken = consumes<JetFloatAssociation::Container>(params.getParameter<edm::InputTag>("jetTagLabel"));
-	tokenSimTrack = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
-	tokenSimVertex = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
+	tokenSimTrack = consumes<edm::SimTrackContainer>(edm::InputTag("fastSimProducer"));
+	tokenSimVertex = consumes<edm::SimVertexContainer>(edm::InputTag("fastSimProducer"));
 
 	edm::Service<TFileService> fs;
 	ntuple = fs->make<TNtuple>("jets", "", "mc:tag:et:eta");

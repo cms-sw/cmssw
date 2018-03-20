@@ -44,7 +44,6 @@ trackingLowPU.toModify(earlyGeneralTracks,
     ]
 )
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 _forPhase1 = dict(
     trackProducers = [
         'initialStepTracks',
@@ -74,7 +73,6 @@ _forPhase1 = dict(
     ],
 )
 trackingPhase1.toModify(earlyGeneralTracks, **_forPhase1)
-trackingPhase1QuadProp.toModify(earlyGeneralTracks, **_forPhase1)
 
 # For Phase2PU140
 from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140

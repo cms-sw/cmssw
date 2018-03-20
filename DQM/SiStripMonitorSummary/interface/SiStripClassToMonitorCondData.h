@@ -47,7 +47,7 @@ class SiStripClassToMonitorCondData{
    ~SiStripClassToMonitorCondData();
    
    void beginJob() ;  
-   void beginRun(edm::EventSetup const& eSetup);
+   void beginRun(edm::RunNumber_t iRun, edm::EventSetup const& eSetup);
    void analyseCondData(const edm::EventSetup&);
    void endRun(edm::EventSetup const& eSetup);
    void endJob() ;

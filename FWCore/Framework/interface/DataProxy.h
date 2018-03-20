@@ -27,6 +27,8 @@
 
 // forward declarations
 namespace edm {
+   class ActivityRegistry;
+
    namespace eventsetup {
       struct ComponentDescription;
       class DataKey;
@@ -41,8 +43,8 @@ namespace edm {
          // ---------- const member functions ---------------------
          bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
 
-         void doGet(EventSetupRecord const& iRecord, DataKey const& iKey, bool iTransiently) const;
-         void const* get(EventSetupRecord const&, DataKey const& iKey, bool iTransiently) const;
+         void doGet(EventSetupRecord const& iRecord, DataKey const& iKey, bool iTransiently, ActivityRegistry*) const;
+         void const* get(EventSetupRecord const&, DataKey const& iKey, bool iTransiently, ActivityRegistry*) const;
 
          ///returns the description of the DataProxyProvider which owns this Proxy
          ComponentDescription const* providerDescription() const {

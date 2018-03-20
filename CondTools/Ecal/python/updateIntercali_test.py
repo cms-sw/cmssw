@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+import CondTools.Ecal.conddb_init as conddb_init
+import CondTools.Ecal.db_credentials as auth
 
 process = cms.Process("ProcessOne")
 
@@ -17,30 +19,42 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
-process.CondDBCommon.connect = 'sqlite_file:EcalIntercalibConstants_test.db'
+process.CondDB.DBParameters.authenticationPath = ''
+process.CondDB.connect = conddb_init.options.destinationDatabase
+if process.CondDB.connect == '':
+    process.CondDB.connect = 'sqlite_file:EcalIntercalibConstants_test.db'
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-  process.CondDBCommon, 
-  logconnect = cms.untracked.string('sqlite_file:log.db'),   
-  toPut = cms.VPSet(
-    cms.PSet(
-      record = cms.string('EcalIntercalibConstantsRcd'),
-      tag = cms.string('EcalIntercalibConstants_V1_hlt')
-    )
-  )
+    process.CondDB, 
+    toPut = cms.VPSet(cms.PSet(
+        record = cms.string('EcalIntercalibConstantsRcd'),
+        tag = cms.string('EcalIntercalib_test')
+    ))
 )
 
+db_service,db_user,db_pwd = auth.get_readOnly_db_credentials()
+
 process.Test1 = cms.EDAnalyzer("ExTestEcalIntercalibAnalyzer",
-  record = cms.string('EcalIntercalibConstantsRcd'),
-  loggingOn= cms.untracked.bool(True),
-  IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
-  SinceAppendMode=cms.bool(True),
-  Source=cms.PSet(
-    InputFile = cms.string('IC_FLT_MeanPizPhiABCD_EleABCD_HR9EtaScaleD_Phis_203830.xml'),
-    firstRun = cms.string('100000'),
-  )                            
+    record = cms.string('EcalIntercalibConstantsRcd'),
+    loggingOn= cms.untracked.bool(True),
+    IsDestDbCheckedInQueryLog=cms.untracked.bool(True),
+    SinceAppendMode=cms.bool(True),
+    Source=cms.PSet(
+     FileLowField = cms.string('Intercalib_Boff.xml'),
+     FileHighField = cms.string('Intercalib_Bon.xml'),
+     Value_Bon = cms.untracked.double(0.7041),
+     firstRun = cms.string('207149'),
+     lastRun = cms.string('10000000'),
+     OnlineDBSID = cms.string(db_service),
+     OnlineDBUser = cms.string(db_user),
+     OnlineDBPassword = cms.string( db_pwd ),
+     LocationSource = cms.string('P5'),
+     Location = cms.string('P5_Co'),
+     GenTag = cms.string('GLOBAL'),
+     RunType = cms.string('COSMICS')
+    )                            
 )
 
 process.p = cms.Path(process.Test1)

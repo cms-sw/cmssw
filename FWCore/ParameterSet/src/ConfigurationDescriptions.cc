@@ -12,6 +12,7 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/DocFormatHelper.h"
+#include "FWCore/ParameterSet/interface/defaultModuleLabel.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -37,8 +38,9 @@ static const char* const k_source = "source";
 
 namespace edm {
 
-  ConfigurationDescriptions::ConfigurationDescriptions(std::string const& baseType) :
+  ConfigurationDescriptions::ConfigurationDescriptions(std::string const& baseType, std::string const& pluginName) :
     baseType_(baseType),
+    pluginName_(pluginName),
     defaultDescDefined_(false)
   { }
 
@@ -91,6 +93,21 @@ namespace edm {
     pair.first = label;
     pair.second = psetDescription;
     
+  }
+
+  void
+  ConfigurationDescriptions::addWithDefaultLabel(ParameterSetDescription const& psetDescription) {
+    std::string label;
+    if(kService == baseType_) {
+      label = pluginName_;
+    }
+    else if(kSource == baseType_) {
+      label = "source";
+    }
+    else {
+      label = defaultModuleLabel(pluginName_);
+    }
+    add(label, psetDescription);
   }
 
   void
@@ -151,14 +168,12 @@ namespace edm {
   }
 
   void
-  ConfigurationDescriptions::writeCfis(std::string const& baseType,
-                                       std::string const& pluginName,
-                                       std::set<std::string>& usedCfiFileNames) const {
+  ConfigurationDescriptions::writeCfis(std::set<std::string>& usedCfiFileNames) const {
 
     for_all(descriptions_, std::bind(&ConfigurationDescriptions::writeCfiForLabel,
                                        std::placeholders::_1,
-                                       std::cref(baseType),
-                                       std::cref(pluginName),
+                                       std::cref(baseType_),
+                                       std::cref(pluginName_),
                                        std::ref(usedCfiFileNames)));
   }
 

@@ -25,7 +25,7 @@ namespace reco {
 
   /// Make CaloJet specifics. Assumes PseudoJet is made from CaloTowerCandidates
   bool makeSpecific(std::vector<reco::CandidatePtr> const & towers, 
-		    const CaloSubdetectorGeometry& towerGeometry,
+		    const CaloSubdetectorGeometry* towerGeometry,
 		    reco::CaloJet::Specific* caloJetSpecific,
 		    const HcalTopology &topology);
 

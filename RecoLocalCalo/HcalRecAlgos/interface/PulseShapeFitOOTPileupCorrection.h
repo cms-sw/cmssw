@@ -18,6 +18,7 @@
 
 #include "RecoLocalCalo/HcalRecAlgos/src/HybridMinimizer.h"
 
+class HcalTimeSlew;
 
 class PulseShapeFitOOTPileupCorrection
 {
@@ -40,14 +41,13 @@ public:
 		     const std::vector<double> & its4Chi2, HcalTimeSlew::BiasSetting slewFlavor, int iFitTimes);
 
     const HcalPulseShapes::Shape* currentPulseShape_=nullptr;
-    void setChi2Term( bool isHPD );
+    const HcalTimeSlew* hcalTimeSlewDelay_=nullptr;
+    double tsDelay1GeV_=0;
 
-    void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD, unsigned nSamples);
+    void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps, bool isHPD, unsigned nSamples, const HcalTimeSlew* hcalTimeSlewDelay);
     void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, unsigned nSamples);
 
 private:
-
-    double getSiPMDarkCurrent(double darkCurrent, double fcByPE, double lambda) const;
 
     int pulseShapeFit(const double * energyArr, const double * pedenArr, const double *chargeArr, 
 		      const double *pedArr, const double *gainArr, const double tsTOTen, std::vector<float> &fitParsVec, const double * ADCnoise, unsigned int soi) const;
@@ -83,11 +83,6 @@ private:
     double timeSigSiPM_;
     double pedMean_;
     double pedSig_;
-    double pedSigHPD_;
-    double pedSigSiPM_;
-    double noise_;    
-    double noiseHPD_;
-    double noiseSiPM_;
     HcalTimeSlew::BiasSetting slewFlavor_;    
 
     bool isCurrentChannelHPD_;

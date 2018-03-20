@@ -117,7 +117,11 @@ stage2L1Trigger.toModify(L1TriggerFEVTDEBUG, func=_appendStage2Digis)
 # adding HGCal L1 trigger digis
 def _appendHGCalDigis(obj):
     l1HGCalDigis = [
-        'keep *_hgcalTriggerPrimitiveDigiProducer__*',
+        'keep *_hgcalTriggerPrimitiveDigiProducer_calibratedTriggerCells_*',
+        'keep *_hgcalTriggerPrimitiveDigiProducer_cluster2D_*',
+        'keep *_hgcalTriggerPrimitiveDigiProducer_cluster3D_*',
+        'keep *_hgcalTriggerPrimitiveDigiProducer_towerMap_*',
+        'keep *_hgcalTriggerPrimitiveDigiProducer_tower_*',
         ]
     obj.outputCommands += l1HGCalDigis
 

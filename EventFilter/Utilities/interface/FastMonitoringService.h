@@ -181,7 +181,7 @@ namespace evf{
       {
         unsigned int processed = getEventsProcessedForLumi(lumi);
         if (proc) *proc = processed;
-        return !getAbortFlagForLumi(lumi) && (processed || emptyLumisectionMode_);
+        return !getAbortFlagForLumi(lumi);
       }
       std::string getRunDirName() const { return runDirectory_.stem().string(); }
       void setInputSource(FedRawDataInputSource *inputSource) {inputSource_=inputSource;}
@@ -263,8 +263,6 @@ namespace evf{
       timeval fileLookStart_, fileLookStop_;//this could also be calculated in the input source
 
       unsigned int lastGlobalLumi_;
-      std::queue<unsigned int> lastGlobalLumisClosed_;
-      bool isGlobalLumiTransition_;
       std::atomic<bool> isInitTransition_;
       unsigned int lumiFromSource_;
 
@@ -314,7 +312,6 @@ namespace evf{
       std::atomic<bool> monInit_;
       bool exception_detected_ = false;
       std::vector<unsigned int> exceptionInLS_;
-      bool emptyLumisectionMode_ = false;
       std::vector<std::string> fastPathList_;
 
     };

@@ -68,7 +68,7 @@ namespace edm {
     Source_type_(config->sourcename_),
     averageNumber_(config->averageNumber_),
     intAverage_(static_cast<int>(averageNumber_)),
-    histo_(config->histo_),
+    histo_(std::make_shared<TH1F>(*config->histo_)),
     histoDistribution_(type_ == "histo"),
     probFunctionDistribution_(type_ == "probFunction"),
     poisson_(type_ == "poisson"),
@@ -202,8 +202,8 @@ namespace edm {
   }
   void PileUp::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      auto aux = std::make_shared<LuminosityBlockAuxiliary>(lumi.luminosityBlockAuxiliary());
-      lumiPrincipal_.reset(new LuminosityBlockPrincipal(aux, productRegistry_, *processConfiguration_, nullptr, 0));
+      lumiPrincipal_.reset(new LuminosityBlockPrincipal(productRegistry_, *processConfiguration_, nullptr, 0));
+      lumiPrincipal_->setAux(lumi.luminosityBlockAuxiliary());
       lumiPrincipal_->setRunPrincipal(runPrincipal_);
       provider_->beginLuminosityBlock(*lumiPrincipal_, setup, lumi.moduleCallingContext(), *streamContext_);
     }
@@ -223,7 +223,7 @@ namespace edm {
   void PileUp::setupPileUpEvent(const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
       // note:  run and lumi numbers must be modified to match lumiPrincipal_
-      eventPrincipal_->setLuminosityBlockPrincipal(lumiPrincipal_);
+      eventPrincipal_->setLuminosityBlockPrincipal(lumiPrincipal_.get());
       eventPrincipal_->setRunAndLumiNumber(lumiPrincipal_->run(), lumiPrincipal_->luminosityBlock());
       provider_->setupPileUpEvent(*eventPrincipal_, setup, *streamContext_);
     }

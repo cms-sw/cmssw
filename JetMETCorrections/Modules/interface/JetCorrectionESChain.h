@@ -25,10 +25,9 @@ public:
   JetCorrectionESChain(edm::ParameterSet const& fParameters);
   ~JetCorrectionESChain() override;
 
-  std::shared_ptr<JetCorrector> produce(JetCorrectionsRecord const& );
+  std::unique_ptr<JetCorrector> produce(JetCorrectionsRecord const& );
 
 private:
   std::vector <std::string> mCorrectors;
-  std::shared_ptr<JetCorrector> mChainCorrector;
 };
 #endif

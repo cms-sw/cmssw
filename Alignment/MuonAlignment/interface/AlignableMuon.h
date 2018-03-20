@@ -50,7 +50,7 @@ public:
   void update(const DTGeometry* , const CSCGeometry*);
 
   /// Return all components
-  align::Alignables components() const override { return theMuonComponents; }
+  const align::Alignables& components() const final { return theMuonComponents; }
 
   /// Alignable tracker has no mother
   virtual Alignable* mother() { return nullptr; }

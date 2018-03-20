@@ -46,7 +46,7 @@ HcalFeatureHFEMBit::getE(const T& f, int idx) const
    CaloSamples samples;
    db.adc2fC(f, samples);
 
-   auto ped = calibrations.pedestal(f[idx].capid());
+   auto ped = calibrations.effpedestal(f[idx].capid());
    auto corr = calibrations.respcorrgain(f[idx].capid());
 
    return (samples[idx] - ped) * corr;

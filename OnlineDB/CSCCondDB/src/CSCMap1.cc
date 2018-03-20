@@ -55,7 +55,7 @@
 
     stmt->execute(); //execute procedure
 
-    item->chamberLabel = stmt->getString(10);
+    item->chamberLabel = getOraString(stmt,10);
     item->chamberId = chamberid;
      int chamber = chamberid/10%100;
      int rest = (chamberid - chamber*10)/1000;
@@ -73,7 +73,7 @@
     item->anodeIndex = stmt->getInt(16);
     item->strips = stmt->getInt(11);
     item->anodes = stmt->getInt(12);
-    item->crateLabel = stmt->getString(2);
+    item->crateLabel = getOraString(stmt,2);
     item->crateid  = stmt->getInt(3);
     item->sector = stmt->getInt(8);
     item->trig_sector = stmt->getInt(9);
@@ -110,10 +110,10 @@
 
     item->fed_crate = stmt->getInt(3);
     item->ddu_slot = stmt->getInt(4);
-    item->dcc_fifo = stmt->getString(6);
+    item->dcc_fifo = getOraString(stmt,6);
     item->fiber_crate = stmt->getInt(8);
     item->fiber_pos = stmt->getInt(9);
-    item->fiber_socket = stmt->getString(10);
+    item->fiber_socket = getOraString(stmt,10);
 
     con->terminateStatement (stmt);
   } //end of chamber
@@ -144,7 +144,7 @@
 
     stmt->execute(); //execute procedure
 
-    item->chamberLabel = stmt->getString(3);
+    item->chamberLabel = getOraString(stmt,3);
     item->chamberId = stmt->getInt(4);
      int chamberid = item->chamberId;
      int chamber = chamberid/10%100;
@@ -163,7 +163,7 @@
     item->anodeIndex = stmt->getInt(17);
     item->strips = stmt->getInt(12);
     item->anodes = stmt->getInt(13);
-    item->crateLabel = stmt->getString(11);
+    item->crateLabel = getOraString(stmt,11);
     item->crateid  = stmt->getInt(9);
     item->sector = stmt->getInt(7);
     item->trig_sector = stmt->getInt(8);
@@ -200,10 +200,10 @@
 
     item->fed_crate = stmt->getInt(3);
     item->ddu_slot = stmt->getInt(4);
-    item->dcc_fifo = stmt->getString(6);
+    item->dcc_fifo = getOraString(stmt,6);
     item->fiber_crate = stmt->getInt(8);
     item->fiber_pos = stmt->getInt(9);
-    item->fiber_socket = stmt->getString(10);
+    item->fiber_socket = getOraString(stmt,10);
 
     con->terminateStatement (stmt);
   } //end of cratedmb
@@ -242,10 +242,10 @@
 
     item->fed_crate = stmt->getInt(3);
     item->ddu_slot = stmt->getInt(4);
-    item->dcc_fifo = stmt->getString(5);
+    item->dcc_fifo = getOraString(stmt,5);
     item->fiber_crate = stmt->getInt(7);
     item->fiber_pos = stmt->getInt(8);
-    item->fiber_socket = stmt->getString(9);
+    item->fiber_socket = getOraString(stmt,9);
     int chamberid = stmt->getInt(14);
 
     stmt->setSQL("begin cms_emu_cern.cscmap.chamberid_crate(:1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13, :14, :15, :16, :17, :18, :19, :20); end;");
@@ -273,7 +273,7 @@
 
     stmt->execute(); //execute procedure
 
-    item->chamberLabel = stmt->getString(10);
+    item->chamberLabel = getOraString(stmt,10);
     item->chamberId = chamberid;
      int chamber = chamberid/10%100;
      int rest = (chamberid - chamber*10)/1000;
@@ -291,7 +291,7 @@
     item->anodeIndex = stmt->getInt(16);
     item->strips = stmt->getInt(11);
     item->anodes = stmt->getInt(12);
-    item->crateLabel = stmt->getString(2);
+    item->crateLabel = getOraString(stmt,2);
     item->crateid  = stmt->getInt(3);
     item->sector = stmt->getInt(8);
     item->trig_sector = stmt->getInt(9);

@@ -17,52 +17,144 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-# Add new parameters to RecoTrackRefSelector
-def customiseFor19029(process):
-    for producer in producers_by_type(process, "RecoTrackRefSelector"):
-        if not hasattr(producer, "minPhi"):
-            producer.minPhi = cms.double(-3.2)
-            producer.maxPhi = cms.double(3.2)
+def customiseFor21664_forMahiOn(process):
+    for producer in producers_by_type(process, "HBHEPhase1Reconstructor"):
+        producer.algorithm.useMahi   = cms.bool(True)
+        producer.algorithm.useM2     = cms.bool(False)
+        producer.algorithm.useM3     = cms.bool(False)
     return process
 
-def customiseFor20269(process) :
-    for producer in esproducers_by_type(process, "ClusterShapeHitFilterESProducer"):
-         producer.PixelShapeFile   = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par')
-         producer.PixelShapeFileL1 = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_loose.par')
+def customiseFor2017DtUnpacking(process):
+    """Adapt the HLT to run the legacy DT unpacking
+    for pre2018 data/MC workflows as the default"""
+
+    if hasattr(process,'hltMuonDTDigis'):
+        process.hltMuonDTDigis = cms.EDProducer( "DTUnpackingModule",
+            useStandardFEDid = cms.bool( True ),
+            maxFEDid = cms.untracked.int32( 779 ),
+            inputLabel = cms.InputTag( "rawDataCollector" ),
+            minFEDid = cms.untracked.int32( 770 ),
+            dataType = cms.string( "DDU" ),
+            readOutParameters = cms.PSet(
+                localDAQ = cms.untracked.bool( False ),
+                debug = cms.untracked.bool( False ),
+                rosParameters = cms.PSet(
+                    localDAQ = cms.untracked.bool( False ),
+                    debug = cms.untracked.bool( False ),
+                    writeSC = cms.untracked.bool( True ),
+                    readDDUIDfromDDU = cms.untracked.bool( True ),
+                    readingDDU = cms.untracked.bool( True ),
+                    performDataIntegrityMonitor = cms.untracked.bool( False )
+                    ),
+                performDataIntegrityMonitor = cms.untracked.bool( False )
+                ),
+            dqmOnly = cms.bool( False )
+        )
+
     return process
 
-# Migrate uGT non-CondDB parameters to new cff: remove StableParameters dependence in favour of GlobalParameters
-def customiseFor19989(process):
-    if hasattr(process,'StableParametersRcdSource'):
-        delattr(process,'StableParametersRcdSource')
-    if hasattr(process,'StableParameters'):
-        delattr(process,'StableParameters')
-    if not hasattr(process,'GlobalParameters'):
-        from L1Trigger.L1TGlobal.GlobalParameters_cff import GlobalParameters
-        process.GlobalParameters = GlobalParameters
+
+
+# particleFlowRechitECAL new default value "false" flag to be added
+def customiseForEcalTestPR22254Default(process):
+
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
+        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+            module = getattr(process,hltParticleFlowRecHitECAL)
+
+            for producer in module.producers: 
+                if hasattr(producer,'srFlags'):
+                    producer.srFlags = cms.InputTag("")
+                if hasattr(producer,'qualityTests'):
+                    for qualityTest in producer.qualityTests:
+                        if hasattr(qualityTest,'thresholds'):
+                            qualityTest.applySelectionsToAllCrystals = cms.bool(True)
+                        
     return process
 
-# Refactor track MVA classifiers
-def customiseFor20429(process):
-    for producer in producers_by_type(process, "TrackMVAClassifierDetached", "TrackMVAClassifierPrompt"):
-        producer.mva.GBRForestLabel = producer.GBRForestLabel
-        producer.mva.GBRForestFileName = producer.GBRForestFileName
-        del producer.GBRForestLabel
-        del producer.GBRForestFileName
-    for producer in producers_by_type(process, "TrackCutClassifier"):
-        del producer.GBRForestLabel
-        del producer.GBRForestFileName
+
+
+# 
+# The three different set of thresholds will be used to study
+# possible new thresholds of pfrechits and effects on high level objects
+# The values proposed (A, B, C) are driven by expected noise levels
+#
+
+# Test thresholds for particleFlowRechitECAL   ~ 0.5 sigma
+def customiseForEcalTestPR22254thresholdA(process):
+    from Configuration.Eras.Modifier_run2_ECAL_2017_cff import run2_ECAL_2017
+    from RecoParticleFlow.PFClusterProducer.particleFlowZeroSuppressionECAL_cff import _particle_flow_zero_suppression_ECAL_2018_A
+
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
+        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+            module = getattr(process,hltParticleFlowRecHitECAL)
+
+            for producer in module.producers: 
+                if hasattr(producer,'srFlags'):
+                    producer.srFlags = cms.InputTag("")
+                if hasattr(producer,'qualityTests'):
+                    for qualityTest in producer.qualityTests:
+                        if hasattr(qualityTest,'thresholds'):
+                            qualityTest.thresholds = _particle_flow_zero_suppression_ECAL_2018_A.thresholds 
+                            qualityTest.applySelectionsToAllCrystals = cms.bool(True)
+                        
     return process
+
+                   
+
+
+
+# Test thresholds for particleFlowRechitECAL   ~ 1 sigma
+def customiseForEcalTestPR22254thresholdB(process):
+    from Configuration.Eras.Modifier_run2_ECAL_2017_cff import run2_ECAL_2017
+    from RecoParticleFlow.PFClusterProducer.particleFlowZeroSuppressionECAL_cff import _particle_flow_zero_suppression_ECAL_2018_B
+
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
+        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+            module = getattr(process,hltParticleFlowRecHitECAL)
+
+            for producer in module.producers: 
+                if hasattr(producer,'srFlags'):
+                    producer.srFlags = cms.InputTag("")
+                if hasattr(producer,'qualityTests'):
+                    for qualityTest in producer.qualityTests:
+                        if hasattr(qualityTest,'thresholds'):
+                            qualityTest.thresholds = _particle_flow_zero_suppression_ECAL_2018_B.thresholds 
+                            qualityTest.applySelectionsToAllCrystals = cms.bool(True)
+                        
+    return process
+
+
+
+
+# Test thresholds for particleFlowRechitECAL   ~ 2 sigma
+def customiseForEcalTestPR22254thresholdC(process):
+    from Configuration.Eras.Modifier_run2_ECAL_2017_cff import run2_ECAL_2017
+    from RecoParticleFlow.PFClusterProducer.particleFlowZeroSuppressionECAL_cff import _particle_flow_zero_suppression_ECAL_2018_C
+
+    for hltParticleFlowRecHitECAL in ['hltParticleFlowRecHitECALUnseeded', 'hltParticleFlowRecHitECALL1Seeded', 'hltParticleFlowRecHitECALForMuonsMF', 'hltParticleFlowRecHitECALForTkMuonsMF']: 
+        if hasattr(process,hltParticleFlowRecHitECAL):                                                 
+            module = getattr(process,hltParticleFlowRecHitECAL)
+
+            for producer in module.producers: 
+                if hasattr(producer,'srFlags'):
+                    producer.srFlags = cms.InputTag("")
+                if hasattr(producer,'qualityTests'):
+                    for qualityTest in producer.qualityTests:
+                        if hasattr(qualityTest,'thresholds'):
+                            qualityTest.thresholds = _particle_flow_zero_suppression_ECAL_2018_C.thresholds 
+                            qualityTest.applySelectionsToAllCrystals = cms.bool(True)
+                        
+    return process
+
+
+
+
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-
-    process = customiseFor19029(process)
-    process = customiseFor20269(process)
-    process = customiseFor19989(process)
-    process = customiseFor20429(process)
 
     return process

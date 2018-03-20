@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tiblayer2.xml" eval="true">
+		<Constant name="RadiusUp" value="([tiblayerpar:RadiusLo2]+                                          [tiblayerpar:DRUpLo])"/>
+		<Constant name="CylinderT" value="0.80*cm"/>
+		<Constant name="CylinderInR" value="415.5*mm"/>
+		<Constant name="MFRingInR" value="382.75*mm"/>
+		<Constant name="MFRingOutR" value="71.5*mm+[MFRingInR]"/>
+	</ConstantsSection>
+	<Algorithm name="track:DDTIBLayerAlgo">
+		<rParent name="tiblayer2:TIBLayer2"/>
+		<String name="GeneralMaterial" value="materials:Air"/>
+		<Numeric name="DetectorTilt" value="[tiblayerpar:DetTilt]"/>
+		<Numeric name="LayerL" value="[tibstringpar:StringL]"/>
+		<Numeric name="RadiusLo" value="[tiblayerpar:RadiusLo2]"/>
+		<Numeric name="StringsLo" value="44"/>
+		<String name="StringDetLoName" value="tibstring2:TIBString2Lo1"/>
+		<Numeric name="RadiusUp" value="[tiblayer2:RadiusUp]"/>
+		<Numeric name="StringsUp" value="46"/>
+		<String name="StringDetUpName" value="tibstring2:TIBString2Up1"/>
+		<Numeric name="CylinderThickness" value="[CylinderT]"/>
+		<Numeric name="CylinderInnerRadius" value="[CylinderInR]"/>
+		<String name="CylinderMaterial" value="tibmaterial:TIB_CFCylinder"/>
+		<Numeric name="MFRingInnerRadius" value="[MFRingInR]"/>
+		<Numeric name="MFRingOuterRadius" value="[MFRingOutR]"/>
+		<Numeric name="MFRingThickness" value="[tiblayerpar:MFRingT]"/>
+		<Numeric name="MFRingDeltaz" value="[tiblayerpar:MFRingDz]"/>
+		<String name="MFIntRingMaterial" value="tibmaterial:TIB_MFIntRing"/>
+		<String name="MFExtRingMaterial" value="tibmaterial:TIB_MFExtRing"/>
+		<Numeric name="SupportThickness" value="[tiblayerpar:SupportT]"/>
+		<String name="CentRingMaterial" value="tibmaterial:TIB_CentRing"/>
+		<Vector name="CentRing1" type="numeric" nEntries="4">
+			-15.00*mm, 4.*mm, [MFRingOutR]-[tiblayerpar:MFRingT], [MFRingOutR]
+		</Vector>
+		<Vector name="CentRing2" type="numeric" nEntries="4">
+			-6.00*mm, 4.*mm, [MFRingOutR]-[tiblayerpar:MFRingT], [MFRingOutR]
+		</Vector>
+		<String name="FillerMaterial" value="trackermaterial:T_G10"/>
+		<Numeric name="FillerDeltaz" value="11.5*mm"/>
+		<String name="RibMaterial" value="trackermaterial:T_CarbonFibreStr"/>
+		<Vector name="RibWidth" type="numeric" nEntries="6">
+			[tiblayerpar:RibWidth1], [tiblayerpar:RibWidth2], [tiblayerpar:RibWidth2], 
+			[tiblayerpar:RibWidth1], [tiblayerpar:RibWidth2], [tiblayerpar:RibWidth2] 
+		</Vector>
+		<Vector name="RibPhi" type="numeric" nEntries="6">
+			0*deg, 62.6*deg, 117.4*deg, 180.0*deg, 242.6*deg, 297.4*deg
+		</Vector>
+		<!-- DOHM Position in #string in the upper half shell; negative means place an AUX -->
+		<!-- NB String numbering here starts from 1 -->
+		<Vector name="DOHMListFW" type="numeric" nEntries="6">
+			3, -6, 10, -13, 18, -21
+		</Vector>
+		<Vector name="DOHMListBW" type="numeric" nEntries="6">
+			3, -6, 10, -13, 18, -21
+		</Vector>
+		<Numeric name="DOHMtoMFDist" value="[tiblayerpar:DOHMtoMF]"/>
+		<Numeric name="DOHMCarrierPhiOffset" value="[tiblayerpar:DOHMCarrierPhiOff]"/>
+		<String name="StringDOHMPrimName" value="tiblayerpar:TIBDOHMPrim"/>
+		<String name="StringDOHMAuxName" value="tiblayerpar:TIBDOHMAux"/>
+		<String name="DOHMCarrierMaterial" value="tibmaterial:TIB_DOHMCarrier"/>
+		<String name="DOHMCableMaterial" value="tibmaterial:TIB_DOHM_cable"/>
+		<String name="DOHMPRIMMaterial" value="tibmaterial:TIB_DOHM_PRIM"/>
+		<Numeric name="DOHMPRIMLength" value="[tiblayerpar:DOHM_PRIM_L]"/>
+		<String name="DOHMAUXMaterial" value="tibmaterial:TIB_DOHM_AUX"/>
+		<Numeric name="DOHMAUXLength" value="[tiblayerpar:DOHM_AUX_L]"/>
+		<!-- Pillar Material -->
+		<String name="PillarMaterial" value="tibmaterial:TIB_Pillar"/>
+		<!-- FW Internal Pillar Parameters -->
+		<Numeric name="FWIntPillarDz" value="14.*mm"/>
+		<Numeric name="FWIntPillarDPhi" value="7.5*deg"/>
+		<Vector name="FWIntPillarPhi" type="numeric" nEntries="4">
+			34.*deg, 146.*deg, 214.*deg, 326.*deg 
+		</Vector>
+		<Vector name="FWIntPillarZ" type="numeric" nEntries="4">
+			254.*mm, 254.*mm, 254.*mm, 254.*mm
+		</Vector>
+		<!-- BW Internal Pillar Parameters -->
+		<Numeric name="BWIntPillarDz" value="24.*mm"/>
+		<Numeric name="BWIntPillarDPhi" value="7.5*deg"/>
+		<Vector name="BWIntPillarPhi" type="numeric" nEntries="4">
+			34.*deg, 146.*deg, 214.*deg, 326.*deg 
+		</Vector>
+		<Vector name="BWIntPillarZ" type="numeric" nEntries="4">
+			-181.*mm, -181.*mm, -181.*mm, -181.*mm
+		</Vector>
+		<!-- FW External Pillar Parameters -->
+		<Numeric name="FWExtPillarDz" value="14.5*mm"/>
+		<Numeric name="FWExtPillarDPhi" value="4.5*deg"/>
+		<Vector name="FWExtPillarPhi" type="numeric" nEntries="4">
+			52.*deg, 128.*deg, 232.*deg, 308.*deg 
+		</Vector>
+		<Vector name="FWExtPillarZ" type="numeric" nEntries="4">
+			201.*mm, 201.*mm, 201.*mm, 201.*mm
+		</Vector>
+		<!-- BW External Pillar Parameters -->
+		<Numeric name="BWExtPillarDz" value="18.5*mm"/>
+		<Numeric name="BWExtPillarDPhi" value="4.5*deg"/>
+		<Vector name="BWExtPillarPhi" type="numeric" nEntries="4">
+			52.*deg, 128.*deg, 232.*deg, 308.*deg 
+		</Vector>
+		<Vector name="BWExtPillarZ" type="numeric" nEntries="4">
+			-256.5*mm, -256.5*mm, -256.5*mm, -256.5*mm
+		</Vector>
+	</Algorithm>
+</DDDefinition>

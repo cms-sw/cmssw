@@ -115,13 +115,15 @@ trackingLowPU.toModify(pixelLessStepTrackingRegions, RegionPSet = dict(
 ))
 
 from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cff import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-pp_on_XeXe_2017.toReplaceWith(pixelLessStepTrackingRegions, 
-                              _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
-            fixedError = 3.0,
-            ptMin = 2.0,
-            originRadius = 1.0
-            )                                                                      )
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toReplaceWith(pixelLessStepTrackingRegions, 
+                    _globalTrackingRegionWithVertices.clone(RegionPSet=dict(
+                fixedError = 3.0,
+                ptMin = 2.0,
+                originRadius = 1.0
+                )                                                                      )
 )
 
 # seeding
@@ -198,7 +200,8 @@ pixelLessStepTrajectoryFilter = _pixelLessStepTrajectoryFilterBase.clone(
     seedPairPenalty = 1,
 )
 trackingLowPU.toReplaceWith(pixelLessStepTrajectoryFilter, _pixelLessStepTrajectoryFilterBase)
-pp_on_XeXe_2017.toModify(pixelLessStepTrajectoryFilter, minPt=2.0)
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(pixelLessStepTrajectoryFilter, minPt=2.0)
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi
 pixelLessStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimator_cfi.Chi2ChargeMeasurementEstimator.clone(
@@ -283,12 +286,7 @@ pixelLessStep = ClassifierMerger.clone()
 pixelLessStep.inputClassifiers=['pixelLessStepClassifier1','pixelLessStepClassifier2']
 
 from Configuration.Eras.Modifier_trackingPhase1_cff import trackingPhase1
-from Configuration.Eras.Modifier_trackingPhase1QuadProp_cff import trackingPhase1QuadProp
 trackingPhase1.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
-     mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1'),
-     qualityCuts = [-0.4,0.0,0.4],
-))
-trackingPhase1QuadProp.toReplaceWith(pixelLessStep, pixelLessStepClassifier1.clone(
      mva = dict(GBRForestLabel = 'MVASelectorPixelLessStep_Phase1'),
      qualityCuts = [-0.4,0.0,0.4],
 ))

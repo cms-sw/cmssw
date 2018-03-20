@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-eventshapeDQM_Q2_top05_cent1030 = cms.EDAnalyzer('EventShapeDQM',
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+eventshapeDQM_Q2_top05_cent1030 = DQMEDAnalyzer('EventShapeDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         EPlabel = cms.InputTag("hltEvtPlaneProducer"),
         triggerPath = cms.string('HLT_HIQ2Top005_Centrality1030_v'),
@@ -9,7 +10,7 @@ eventshapeDQM_Q2_top05_cent1030 = cms.EDAnalyzer('EventShapeDQM',
         EPlvl = cms.int32(0)
 )
 
-eventshapeDQM_Q2_bottom05_cent1030 = cms.EDAnalyzer('EventShapeDQM',
+eventshapeDQM_Q2_bottom05_cent1030 = DQMEDAnalyzer('EventShapeDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         EPlabel = cms.InputTag("hltEvtPlaneProducer"),
         triggerPath = cms.string('HLT_HIQ2Bottom005_Centrality1030_v'),
@@ -18,7 +19,7 @@ eventshapeDQM_Q2_bottom05_cent1030 = cms.EDAnalyzer('EventShapeDQM',
         EPlvl = cms.int32(0)
 )
 
-eventshapeDQM_Q2_top05_cent3050 = cms.EDAnalyzer('EventShapeDQM',
+eventshapeDQM_Q2_top05_cent3050 = DQMEDAnalyzer('EventShapeDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         EPlabel = cms.InputTag("hltEvtPlaneProducer"),
         triggerPath = cms.string('HLT_HIQ2Top005_Centrality3050_v'),
@@ -27,7 +28,7 @@ eventshapeDQM_Q2_top05_cent3050 = cms.EDAnalyzer('EventShapeDQM',
         EPlvl = cms.int32(0)
 )
 
-eventshapeDQM_Q2_bottom05_cent3050 = cms.EDAnalyzer('EventShapeDQM',
+eventshapeDQM_Q2_bottom05_cent3050 = DQMEDAnalyzer('EventShapeDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         EPlabel = cms.InputTag("hltEvtPlaneProducer"),
         triggerPath = cms.string('HLT_HIQ2Bottom005_Centrality3050_v'),
@@ -36,7 +37,7 @@ eventshapeDQM_Q2_bottom05_cent3050 = cms.EDAnalyzer('EventShapeDQM',
         EPlvl = cms.int32(0)
 )
 
-eventshapeDQM_Q2_top05_cent5070 = cms.EDAnalyzer('EventShapeDQM',
+eventshapeDQM_Q2_top05_cent5070 = DQMEDAnalyzer('EventShapeDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         EPlabel = cms.InputTag("hltEvtPlaneProducer"),
         triggerPath = cms.string('HLT_HIQ2Top005_Centrality5070_v'),
@@ -45,7 +46,7 @@ eventshapeDQM_Q2_top05_cent5070 = cms.EDAnalyzer('EventShapeDQM',
         EPlvl = cms.int32(0)
 )
 
-eventshapeDQM_Q2_bottom05_cent5070 = cms.EDAnalyzer('EventShapeDQM',
+eventshapeDQM_Q2_bottom05_cent5070 = DQMEDAnalyzer('EventShapeDQM',
         triggerResults = cms.InputTag('TriggerResults','','HLT'),
         EPlabel = cms.InputTag("hltEvtPlaneProducer"),
         triggerPath = cms.string('HLT_HIQ2Bottom005_Centrality5070_v'),

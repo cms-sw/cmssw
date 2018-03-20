@@ -41,8 +41,7 @@ public:
   CompositeAlignmentParameters
     selectParameters( const std::vector <AlignableDetOrUnitPtr>& alignabledets ) const;
   /// select parameters 
-  CompositeAlignmentParameters
-    selectParameters( const std::vector <Alignable*>& alignables ) const;
+  CompositeAlignmentParameters selectParameters(const align::Alignables&) const;
 
   /// update parameters 
   void updateParameters(const CompositeAlignmentParameters& aap, bool updateCorrelations = true);

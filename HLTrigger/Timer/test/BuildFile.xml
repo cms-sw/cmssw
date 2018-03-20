@@ -5,10 +5,3 @@
   <use   name="FWCore/Framework"/>
   <use   name="root"/>
 </bin>
-
-<bin name="testChrono" file="chrono/test/chrono.cc chrono/src/*.cc chrono/src/native/*.cc">
-  <use   name="boost"/>
-  <use   name="tbb"/>
-  <flags CXXFLAGS="-I${CMSSW_BASE}/src/HLTrigger/Timer/test/chrono -fopenmp -DHAVE_TBB -DHAVE_BOOST_CHRONO -lboost_chrono"/>
-  <flags NO_TESTRUN="1"/>
-</bin>

@@ -52,29 +52,49 @@ namespace {
   }
 }
 
-GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) : 
+GEDPhotonProducer::RecoStepInfo::RecoStepInfo(const std::string& step):
+  flags_(0)
+{
+  if(step=="final") flags_ = kFinal;
+  else if(step=="oot") flags_ = kOOT;
+  else if(step=="ootfinal") flags_ = (kOOT|kFinal);
+  else if(step=="tmp") flags_ = 0;
+  else{
+    throw cms::Exception("InvalidConfig") <<" reconstructStep "<<step<<" is invalid, the options are: tmp, final,oot or ootfinal"<<std::endl;
+  }
+}
 
+GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) : 
+  recoStep_(config.getParameter<std::string>("reconstructionStep")),
   conf_(config)
 {
 
   // use configuration file to setup input/output collection names
   //
   photonProducer_       = conf_.getParameter<edm::InputTag>("photonProducer");
-  reconstructionStep_   = conf_.getParameter<std::string>("reconstructionStep");
-
-  if (  reconstructionStep_ == "final" ) {
+  
+  if (  recoStep_.isFinal() ) {
     photonProducerT_   = 
       consumes<reco::PhotonCollection>(photonProducer_);
     pfCandidates_      = 
       consumes<reco::PFCandidateCollection>(conf_.getParameter<edm::InputTag>("pfCandidates"));
 
-    phoChargedIsolationToken_CITK      = 
+    phoChargedIsolationTokenCITK_      = 
       consumes<edm::ValueMap<float>>(conf_.getParameter<edm::InputTag>("chargedHadronIsolation"));
-    phoNeutralHadronIsolationToken_CITK      = 
+    phoNeutralHadronIsolationTokenCITK_      = 
       consumes<edm::ValueMap<float>>(conf_.getParameter<edm::InputTag>("neutralHadronIsolation"));
-    phoPhotonIsolationToken_CITK      = 
+    phoPhotonIsolationTokenCITK_      = 
       consumes<edm::ValueMap<float>>(conf_.getParameter<edm::InputTag>("photonIsolation"));   
-
+    //OOT photons in legacy 80X re-miniAOD do not have PF cluster embeded into the reco object
+    //to preserve 80X behaviour
+    if(conf_.exists("pfECALClusIsolation")){ 
+      phoPFECALClusIsolationToken_ = 
+	consumes<edm::ValueMap<float>>(conf_.getParameter<edm::InputTag>("pfECALClusIsolation")); 
+    }
+    if(conf_.exists("pfHCALClusIsolation")){ 
+      phoPFHCALClusIsolationToken_ = 
+	consumes<edm::ValueMap<float>>(conf_.getParameter<edm::InputTag>("pfHCALClusIsolation"));
+    }
   } else {
 
     photonCoreProducerT_   = 
@@ -191,7 +211,7 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
   //
 
   //moved from beginRun to here, I dont see how this could cause harm as its just reading in the exactly same parameters each run
-  if ( reconstructionStep_ != "final"){
+  if ( !recoStep_.isFinal()){
     thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
     edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
     thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_,consumesCollector());
@@ -223,7 +243,7 @@ GEDPhotonProducer::~GEDPhotonProducer()
 
 void  GEDPhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
- if ( reconstructionStep_ != "final" ) { 
+  if ( !recoStep_.isFinal() ) { 
     thePhotonEnergyCorrector_ -> init(theEventSetup); 
   }
 
@@ -249,16 +269,26 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   bool validPhotonHandle= false;
   Handle<reco::PhotonCollection> photonHandle;
   //value maps for isolation
-  edm::Handle<edm::ValueMap<float> > phoChargedIsolationMap_CITK;
-  edm::Handle<edm::ValueMap<float> > phoNeutralHadronIsolationMap_CITK;
-  edm::Handle<edm::ValueMap<float> > phoPhotonIsolationMap_CITK;
+  edm::Handle<edm::ValueMap<float> > phoChargedIsolationMapCITK;
+  edm::Handle<edm::ValueMap<float> > phoNeutralHadronIsolationMapCITK;
+  edm::Handle<edm::ValueMap<float> > phoPhotonIsolationMapCITK;
+  edm::Handle<edm::ValueMap<float> > phoPFECALClusIsolationMap;
+  edm::Handle<edm::ValueMap<float> > phoPFHCALClusIsolationMap;
 
-  if ( reconstructionStep_ == "final" ) { 
+  if ( recoStep_.isFinal() ) { 
     theEvent.getByToken(photonProducerT_,photonHandle);
     //get isolation objects
-    theEvent.getByToken(phoChargedIsolationToken_CITK,phoChargedIsolationMap_CITK);
-    theEvent.getByToken(phoNeutralHadronIsolationToken_CITK,phoNeutralHadronIsolationMap_CITK);
-    theEvent.getByToken(phoPhotonIsolationToken_CITK,phoPhotonIsolationMap_CITK);
+    theEvent.getByToken(phoChargedIsolationTokenCITK_,phoChargedIsolationMapCITK);
+    theEvent.getByToken(phoNeutralHadronIsolationTokenCITK_,phoNeutralHadronIsolationMapCITK);
+    theEvent.getByToken(phoPhotonIsolationTokenCITK_,phoPhotonIsolationMapCITK);
+    //OOT photons in legacy 80X re-miniAOD workflow dont have cluster isolation embed in them
+    if(!phoPFECALClusIsolationToken_.isUninitialized()) {
+      theEvent.getByToken(phoPFECALClusIsolationToken_,phoPFECALClusIsolationMap);
+    }
+    if(!phoPFHCALClusIsolationToken_.isUninitialized()){
+      theEvent.getByToken(phoPFHCALClusIsolationToken_,phoPFHCALClusIsolationMap);
+    }
+    
     if ( photonHandle.isValid()) {
       validPhotonHandle=true;  
     } else {
@@ -271,7 +301,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       validPhotonCoreHandle=true;
     } else {
       throw cms::Exception("GEDPhotonProducer") 
-	<< "Error! Can't get the photonCoreProducer" <<  photonProducer_.label() << "\n";
+	<< "Error! Can't get the photonCoreProducer " <<  photonProducer_.label() << "\n";
     } 
   }
 
@@ -319,10 +349,11 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 
   Handle<reco::PFCandidateCollection> pfCandidateHandle;
 
-  if ( reconstructionStep_ == "final" ) {  
+  if ( recoStep_.isFinal() ) {  
     // Get the  PF candidates collection
     theEvent.getByToken(pfCandidates_,pfCandidateHandle);
-    if (!pfCandidateHandle.isValid()) {
+    //OOT photons have no PF candidates so its not an error in this case
+    if (!pfCandidateHandle.isValid() && !recoStep_.isOOT()) {
       throw cms::Exception("GEDPhotonProducer") 
 	<< "Error! Can't get the pfCandidates";
     }
@@ -393,7 +424,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 			 iSC);
 
   iSC=0;
-  if ( validPhotonHandle &&  reconstructionStep_ == "final" )
+  if ( validPhotonHandle &&  recoStep_.isFinal() )
     fillPhotonCollection(theEvent,
 			 theEventSetup,
 			 photonHandle,
@@ -403,9 +434,11 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 			 vertexHandle,
 			 outputPhotonCollection,
 			 iSC,
-       phoChargedIsolationMap_CITK,
-       phoNeutralHadronIsolationMap_CITK,
-       phoPhotonIsolationMap_CITK);
+			 phoChargedIsolationMapCITK,
+			 phoNeutralHadronIsolationMapCITK,
+			 phoPhotonIsolationMapCITK,
+			 phoPFECALClusIsolationMap,
+			 phoPFHCALClusIsolationMap);
 
 
 
@@ -415,7 +448,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   const edm::OrphanHandle<reco::PhotonCollection> photonOrphHandle = theEvent.put(std::move(outputPhotonCollection_p), photonCollection_);
 
 
-  if ( reconstructionStep_ != "final" && not pfEgammaCandidates_.isUninitialized()) { 
+  if ( !recoStep_.isFinal() && not pfEgammaCandidates_.isUninitialized()) { 
     //// Define the value map which associate to each  Egamma-unbiassaed candidate (key-ref) the corresponding PhotonRef 
     auto pfEGCandToPhotonMap_p = std::make_unique<edm::ValueMap<reco::PhotonRef>>();
     edm::ValueMap<reco::PhotonRef>::Filler filler(*pfEGCandToPhotonMap_p);
@@ -759,7 +792,12 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 					     const edm::Handle<reco::PFCandidateCollection> pfEGCandidateHandle,
 					     edm::ValueMap<reco::PhotonRef> pfEGCandToPhotonMap,
 					     edm::Handle< reco::VertexCollection >  & vertexHandle,
-					     reco::PhotonCollection & outputPhotonCollection, int& iSC, const edm::Handle<edm::ValueMap<float>>& chargedHadrons_, const edm::Handle<edm::ValueMap<float>>& neutralHadrons_, const edm::Handle<edm::ValueMap<float>>& photons_) {
+					     reco::PhotonCollection & outputPhotonCollection, int& iSC, 
+					     const edm::Handle<edm::ValueMap<float>>& chargedHadrons, 
+					     const edm::Handle<edm::ValueMap<float>>& neutralHadrons, 
+					     const edm::Handle<edm::ValueMap<float>>& photons,
+					     const edm::Handle<edm::ValueMap<float>>& pfEcalClusters,
+					     const edm::Handle<edm::ValueMap<float>>& pfHcalClusters){
 
   
  
@@ -798,12 +836,23 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     //get the pointer for the photon object
     edm::Ptr<reco::Photon> photonPtr(photonHandle, lSC);
 
-    pfIso.chargedHadronIso = (*chargedHadrons_)[photonPtr] ;
-    pfIso.neutralHadronIso = (*neutralHadrons_)[photonPtr];
-    pfIso.photonIso        = (*photons_)[photonPtr];
+    if(!recoStep_.isOOT()){ //out of time photons do not have PF info so skip in this case
+      pfIso.chargedHadronIso = (*chargedHadrons)[photonPtr] ;
+      pfIso.neutralHadronIso = (*neutralHadrons)[photonPtr];
+      pfIso.photonIso        = (*photons)[photonPtr];
+    }
+    
+    //OOT photons in legacy 80X reminiAOD workflow dont have pf cluster isolation embeded into them at this stage
+    if(!phoPFECALClusIsolationToken_.isUninitialized()){
+      pfIso.sumEcalClusterEt = (*pfEcalClusters)[photonPtr];
+    }else pfIso.sumEcalClusterEt = 0.;
+    
+    if(!phoPFHCALClusIsolationToken_.isUninitialized()){
+      pfIso.sumHcalClusterEt = (*pfHcalClusters)[photonPtr];
+    }else pfIso.sumHcalClusterEt = 0.;
+
     newCandidate.setPflowIsolationVariables(pfIso);
     newCandidate.setPflowIDVariables(pfID);
-
 
     // do the regression
     thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, *vertexHandle, es);

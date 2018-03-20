@@ -463,7 +463,8 @@ namespace reco {
       float sumNeutralHadronEtHighThreshold;  //!< sum pt of neutral hadrons with a higher threshold
       float sumPhotonEtHighThreshold;  //!< sum pt of PF photons with a higher threshold
       float sumPUPt;  //!< sum pt of charged Particles not from PV  (for Pu corrections)
-
+      float sumEcalClusterEt; //sum pt of ecal clusters, vetoing clusters part of photon
+      float sumHcalClusterEt; //sum pt of hcal clusters, vetoing clusters part of photon
       PflowIsolationVariables():
 	
 	chargedHadronIso(0),
@@ -474,7 +475,9 @@ namespace reco {
 	sumChargedParticlePt(0),
       	sumNeutralHadronEtHighThreshold(0),
 	sumPhotonEtHighThreshold(0),
-	sumPUPt(0)	   
+	sumPUPt(0),
+	sumEcalClusterEt(0),
+	sumHcalClusterEt(0)
       {}
       
       
@@ -488,7 +491,11 @@ namespace reco {
     float sumChargedParticlePt() const {return pfIsolation_.sumChargedParticlePt;}
     float sumNeutralHadronEtHighThreshold() const {return pfIsolation_.sumNeutralHadronEtHighThreshold;}
     float sumPhotonEtHighThreshold() const {return pfIsolation_.sumPhotonEtHighThreshold;}
-    float sumPUPt() const {return pfIsolation_.sumPUPt;}
+    float sumPUPt() const {return pfIsolation_.sumPUPt;} 
+    
+    //backwards compat functions for pat::Photon
+    float ecalPFClusterIso() const { return pfIsolation_.sumEcalClusterEt; };
+    float hcalPFClusterIso() const { return pfIsolation_.sumHcalClusterEt; };
 
     /// Get Particle Flow Isolation variables block
     const PflowIsolationVariables& getPflowIsolationVariables() const { return pfIsolation_; }

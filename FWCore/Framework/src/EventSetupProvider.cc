@@ -61,8 +61,10 @@ namespace edm {
 //
 // constructors and destructor
 //
-EventSetupProvider::EventSetupProvider(unsigned subProcessIndex, const PreferredProviderInfo* iInfo) :
-eventSetup_(),
+EventSetupProvider::EventSetupProvider(ActivityRegistry* activityRegistry,
+                                       unsigned subProcessIndex,
+                                       const PreferredProviderInfo* iInfo) :
+eventSetup_(activityRegistry),
 providers_(),
 knownRecordsSupplier_( std::make_unique<KnownRecordsSupplierImpl>(providers_)),
 mustFinishConfiguration_(true),
@@ -743,8 +745,6 @@ EventSetupProvider::addRecordToEventSetup(EventSetupRecord& iRecord) {
 EventSetup const&
 EventSetupProvider::eventSetupForInstance(const IOVSyncValue& iValue)
 {
-   eventSetup_.setIOVSyncValue(iValue);
-
    eventSetup_.clear();
 
    // In a cmsRun job this does nothing because the EventSetupsController
@@ -781,6 +781,17 @@ EventSetupProvider::proxyProviderDescriptions() const
    return descriptions;
 }
 
+bool
+EventSetupProvider::isWithinValidityInterval(IOVSyncValue const& iSync) const {
+  for( auto const& provider: providers_) {
+    auto const& iov =provider.second->validityInterval();
+    if( (iov != ValidityInterval::invalidInterval()) and
+        (not provider.second->validityInterval().validFor(iSync)) ) {
+      return false;
+    }
+  }
+  return true;
+}
 //
 // static member functions
 //

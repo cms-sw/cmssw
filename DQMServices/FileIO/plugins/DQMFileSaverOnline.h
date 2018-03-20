@@ -17,8 +17,8 @@ class DQMFileSaverOnline : public DQMFileSaverBase {
   DQMFileSaverOnline(const edm::ParameterSet& ps);
   ~DQMFileSaverOnline() override;
 
-  static const std::string fillOrigin(const std::string filename,
-                                      const std::string final_filename);
+  static const std::string fillOrigin(const std::string& filename,
+                                      const std::string& final_filename);
 
  protected:
   void saveLumi(const FileParameters& fp) const override;
@@ -40,7 +40,7 @@ class DQMFileSaverOnline : public DQMFileSaverBase {
   mutable std::mutex snapshots_lock_;
   mutable std::list<SnapshotFiles> snapshots_;
 
-  void checkError(const char* msg, const std::string file, int status) const;
+  void checkError(const char* msg, const std::string& file, int status) const;
 
  public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

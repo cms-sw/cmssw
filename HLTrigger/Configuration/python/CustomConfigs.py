@@ -112,7 +112,7 @@ def L1REPACK(process,sequence="Full"):
 
     from Configuration.StandardSequences.Eras import eras
 
-    l1repack = cms.Process('L1REPACK',eras.Run2_2017)
+    l1repack = cms.Process('L1REPACK',eras.Run2_2018)
     l1repack.load('Configuration.StandardSequences.SimL1EmulatorRepack_'+sequence+'_cff')
 
     for module in l1repack.es_sources_():
@@ -134,7 +134,7 @@ def L1REPACK(process,sequence="Full"):
         getattr(process,path).insert(0,process.SimL1Emulator)
 
     # special L1T cleanup
-    for obj in ('SimL1TCalorimeter','SimL1TMuonCommon','SimL1TMuon','SimL1TechnicalTriggers','SimL1EmulatorCore','ecalDigiSequence','hcalDigiSequence','calDigi'):
+    for obj in ('SimL1TCalorimeter','SimL1TMuonCommon','SimL1TMuon','SimL1TechnicalTriggers','SimL1EmulatorCore','ecalDigiSequence','hcalDigiSequence','calDigi','me0TriggerPseudoDigiSequence'):
         if hasattr(process,obj):
             delattr(process,obj)
 

@@ -28,6 +28,7 @@ namespace edm {
   class Principal;
   class UnscheduledConfigurator;
   class WaitingTask;
+  class ServiceToken;
 
   class ProductResolverBase {
   public:
@@ -66,17 +67,16 @@ namespace edm {
     void prefetchAsync(WaitingTask* waitTask,
                        Principal const& principal,
                        bool skipCurrentProcess,
+                       ServiceToken const& token,
                        SharedResourcesAcquirer* sra,
                        ModuleCallingContext const* mcc) const {
-      return prefetchAsync_(waitTask, principal, skipCurrentProcess, sra, mcc);
+      return prefetchAsync_(waitTask, principal, skipCurrentProcess, token, sra, mcc);
     }
 
     void retrieveAndMerge(Principal const& principal) const {
       retrieveAndMerge_(principal);
     }
     void resetProductData() { resetProductData_(false); }
-
-    virtual void resetFailedFromThisProcess();
 
     void unsafe_deleteProduct() const {
       const_cast<ProductResolverBase*>(this)->resetProductData_(true);
@@ -170,6 +170,7 @@ namespace edm {
     virtual void prefetchAsync_(WaitingTask* waitTask,
                                 Principal const& principal,
                                 bool skipCurrentProcess,
+                                ServiceToken const& token,
                                 SharedResourcesAcquirer* sra,
                                 ModuleCallingContext const* mcc) const = 0;
     

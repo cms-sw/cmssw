@@ -9,13 +9,15 @@
 
 
 SiStripBaseCondObjDQM::SiStripBaseCondObjDQM(const edm::EventSetup & eSetup,
+                                             edm::RunNumber_t iRun,
                                              edm::ParameterSet const& hPSet,
                                              edm::ParameterSet const& fPSet ):
   eSetup_(eSetup),
   hPSet_(hPSet),
   fPSet_(fPSet),
   cacheID_memory(0),
-  dqmStore_(edm::Service<DQMStore>().operator->()){
+  dqmStore_(edm::Service<DQMStore>().operator->()),
+  runNumber_(iRun) {
 
   reader = new SiStripDetInfoFileReader(edm::FileInPath(std::string("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat") ).fullPath());
   
@@ -76,8 +78,9 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
   if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")) {
     std::string filename = hPSet_.getParameter<std::string>("TkMapName");
     if (filename!=""){
-      char sRun[128];
-      sprintf(sRun,"_Run_%d",eSetup_.iovSyncValue().eventID().run());
+      constexpr unsigned int kSLen = 128;
+      char sRun[kSLen];
+      snprintf(sRun,kSLen, "_Run_%d",runNumber_);
       filename.insert(filename.find("."),sRun);
       
       saveTkMap(filename, minValue, maxValue);

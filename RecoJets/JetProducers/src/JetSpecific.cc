@@ -55,7 +55,7 @@ void reco::writeSpecific(reco::CaloJet & jet,
 
   // Make the specific
   reco::CaloJet::Specific specific;
-  makeSpecific (constituents, *towerGeometry, &specific, *topology);
+  makeSpecific (constituents, towerGeometry, &specific, *topology);
   // Set the calo jet
   jet = reco::CaloJet( p4, point, specific, constituents);  
 }
@@ -133,7 +133,7 @@ void reco::writeSpecific(reco::PFClusterJet & jet,
 
 //______________________________________________________________________________
 bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
-			const CaloSubdetectorGeometry& towerGeometry,
+			const CaloSubdetectorGeometry* towerGeometry,
 			CaloJet::Specific* caloJetSpecific,
 			const HcalTopology &topology)
 {
@@ -189,7 +189,7 @@ bool reco::makeSpecific(vector<reco::CandidatePtr> const & towers,
 	break;
       }
       // get area of the tower (++ minus --)
-      const CaloCellGeometry* geometry = towerGeometry.getGeometry(tower->id());
+      auto geometry = towerGeometry->getGeometry(tower->id());
       if (geometry) {
 	jetArea += geometry->etaSpan() * geometry->phiSpan();
       }

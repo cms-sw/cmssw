@@ -1,7 +1,7 @@
 #ifndef CastorDigiProducer_h
 #define CastorDigiProducer_h
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,6 +22,7 @@
 
 namespace edm {
   class StreamID;
+  class ConsumesCollector;
 }
 
 namespace CLHEP {
@@ -34,7 +35,7 @@ class PileUpEventPrincipal;
 class CastorDigiProducer : public DigiAccumulatorMixMod {
 public:
 
-  explicit CastorDigiProducer(const edm::ParameterSet& ps, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  explicit CastorDigiProducer(const edm::ParameterSet& ps, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC);
   ~CastorDigiProducer() override;
 
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;

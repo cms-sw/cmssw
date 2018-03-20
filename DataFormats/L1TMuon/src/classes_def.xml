@@ -39,6 +39,12 @@
   <class name="edm::Wrapper<l1t::EMTFTrackCollection>"/>
   <class name="l1t::EMTFPtLUT"/>
 
+  <class name="l1t::CPPFDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="1846750827"/>
+  </class>
+  <class name="l1t::CPPFDigiCollection"/>
+  <class name="edm::Wrapper<l1t::CPPFDigiCollection>"/>
+
   <class name="L1MuBMTrackSegPhi" ClassVersion="10">
     <version ClassVersion="10" checksum="3818011888"/>
   </class>
@@ -70,6 +76,15 @@
   <class name="edm::Wrapper<L1MuBMTrackCollection >"/>
   <class name="edm::Wrapper<L1MuBMTrackSegPhiCollection >"/>
   <class name="edm::Wrapper<L1MuBMTrackSegEtaCollection >"/>
+
+  <class name="l1t::RegionalMuonCandRef"/>
+  <class name="std::vector<l1t::RegionalMuonCandRef>"/>
+  <class name="l1t::RegionalMuonCandRefBxCollection"/>
+  <class name="edm::Wrapper<l1t::RegionalMuonCandRefBxCollection>"/>
+  <class name="l1t::RegionalMuonCandRefPair"/>
+  <class name="std::vector<l1t::RegionalMuonCandRefPair>"/>
+  <class name="l1t::RegionalMuonCandRefPairBxCollection"/>
+  <class name="edm::Wrapper<l1t::RegionalMuonCandRefPairBxCollection>"/>
 
  </selection>
 </lcgdict>

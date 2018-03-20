@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
 import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi as recoparam
 import RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi as recocalibparam 
+import hgcalLayersCalibrationCoefficients_cfi as layercalibparam
 
 # Digitization parameters
 adcSaturation_fC = digiparam.hgceeDigitizer.digiCfg.feCfg.adcSaturation_fC
@@ -14,7 +15,7 @@ adcNbitsBH = digiparam.hgchebackDigitizer.digiCfg.feCfg.adcNbits
 # Reco calibration parameters
 fCPerMIPee = recoparam.HGCalUncalibRecHit.HGCEEConfig.fCPerMIP
 fCPerMIPfh = recoparam.HGCalUncalibRecHit.HGCHEFConfig.fCPerMIP
-layerWeights = recocalibparam.HGCalRecHit.layerWeights
+layerWeights = layercalibparam.TrgLayer_dEdX_weights
 thicknessCorrection = recocalibparam.HGCalRecHit.thicknessCorrection
 
 # Parameters used in several places
@@ -31,13 +32,13 @@ thicknessCorrection_200 = thicknessCorrection[1]
 fe_codec = cms.PSet( CodecName  = cms.string('HGCalTriggerCellThresholdCodec'),
                      CodecIndex = cms.uint32(2),
                      MaxCellsInModule = cms.uint32(288),
-                     DataLength = cms.uint32(16),
+                     DataLength = cms.uint32(20),
                      linLSB = cms.double(triggerCellLsbBeforeCompression),
                      linnBits = cms.uint32(16),
                      triggerCellTruncationBits = cms.uint32(triggerCellTruncationBits),
                      NData = cms.uint32(999),
-                     TCThreshold_fC = cms.double(1.),
-                     TCThresholdBH_MIP = cms.double(1.),
+                     TCThreshold_fC = cms.double(0.),
+                     TCThresholdBH_MIP = cms.double(0.),
                      #take the following parameters from the digitization config file
                      adcsaturation = adcSaturation_fC,
                      adcnBits = adcNbits,
@@ -55,24 +56,49 @@ calib_parValues = cms.PSet( siliconCellLSB_fC =  cms.double( triggerCellLsbBefor
                             dEdXweights = layerWeights,
                             thickCorr = cms.double(thicknessCorrection_200)
                             )
+
 C2d_parValues = cms.PSet( seeding_threshold_silicon = cms.double(5), # MipT
                           seeding_threshold_scintillator = cms.double(5), # MipT
                           clustering_threshold_silicon = cms.double(2), # MipT
                           clustering_threshold_scintillator = cms.double(2), # MipT
-                          dR_cluster = cms.double(3.), # in cm
-                          clusterType = cms.string('NNC2d') # clustering type: dRC2d--> Geometric-dR clustering; NNC2d-->Nearest Neighbors clustering
+                          dR_cluster=cms.double(6.),
+                          clusterType = cms.string('dRNNC2d'), 
+                          applyLayerCalibration = cms.bool(True),
+                          layerWeights = layercalibparam.TrgLayer_weights,
+                          # Parameters not used by this clustering
+                          calibSF_cluster=cms.double(0.)
                           )
 
 C3d_parValues = cms.PSet( dR_multicluster = cms.double(0.01), # dR in normalized plane used to clusterize C2d
                           minPt_multicluster = cms.double(0.5), # minimum pt of the multicluster (GeV)
-                          calibSF_multicluster = cms.double(1.084)
-                          )
+                          type_multicluster = cms.string('dRC3d'),
+                          # Parameters not used by this clustering
+                          dist_dbscan_multicluster=cms.double(0.),
+                          minN_dbscan_multicluster=cms.uint32(0)
+)
+
 cluster_algo =  cms.PSet( AlgorithmName = cms.string('HGCClusterAlgoThreshold'),
                           FECodec = fe_codec.clone(),
                           calib_parameters = calib_parValues.clone(),
+                          triggercell_threshold_silicon = cms.double(2.), # MipT
+                          triggercell_threshold_scintillator = cms.double(2.), # MipT
                           C2d_parameters = C2d_parValues.clone(),
                           C3d_parameters = C3d_parValues.clone()
                           )
+
+towerMap2D_parValues = cms.PSet( nEtaBins = cms.int32(18),
+                                 nPhiBins = cms.int32(72),
+                                 etaBins = cms.vdouble(),
+                                 phiBins = cms.vdouble(),
+                                 useLayerWeights = cms.bool(False),
+                                 layerWeights = cms.vdouble()
+                                 )
+
+tower_algo =  cms.PSet( AlgorithmName = cms.string('HGCTowerAlgoThreshold'),
+                        FECodec = fe_codec.clone(),
+                        calib_parameters = calib_parValues.clone(),
+                        towermap_parameters = towerMap2D_parValues.clone()
+                        )
 
 hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     "HGCalTriggerDigiProducer",
@@ -81,7 +107,8 @@ hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     bhDigis = cms.InputTag('mix:HGCDigisHEback'),
     FECodec = fe_codec.clone(),
     BEConfiguration = cms.PSet( 
-        algorithms = cms.VPSet( cluster_algo )
+        algorithms = cms.VPSet( cluster_algo,
+                                tower_algo )
         )
     )
 
@@ -90,6 +117,7 @@ hgcalTriggerPrimitiveDigiFEReproducer = cms.EDProducer(
     feDigis = cms.InputTag('hgcalTriggerPrimitiveDigiProducer'),
     FECodec = fe_codec.clone(),
     BEConfiguration = cms.PSet( 
-        algorithms = cms.VPSet( cluster_algo )
+        algorithms = cms.VPSet( cluster_algo,
+                                tower_algo)
         )
     )

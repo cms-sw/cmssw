@@ -22,7 +22,7 @@ ecalDigitizer = cms.PSet(
 )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(ecalDigitizer, hitsProducer = "famosSimHits")
+fastSim.toModify(ecalDigitizer, hitsProducer = "fastSimProducer")
     
 ecalDigitizer.doEB = cms.bool(True)
 ecalDigitizer.doEE = cms.bool(True)

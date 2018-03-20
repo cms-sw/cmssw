@@ -20,7 +20,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/DetId/interface/DetId.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -122,6 +123,7 @@ class HLTCaloObjInRegionsProducer : public edm::stream::EDProducer<> {
   makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
 		   const edm::ESHandle<CaloGeometry>& caloGeomHandle,
 		   const std::vector<EtaPhiRegion>& regions);
+  static bool validIDForGeom(const DetId& id);
   std::vector<std::string> outputProductNames_;
   std::vector<edm::InputTag> inputCollTags_;
   std::vector<edm::EDGetTokenT<CaloObjCollType>> inputTokens_;
@@ -225,13 +227,18 @@ makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
     const CaloSubdetectorGeometry* subDetGeom=caloGeomHandle->getSubdetectorGeometry(inputColl->begin()->id());
     if(!regions.empty()){
       for(const CaloObjType& obj : *inputColl){
-	const CaloCellGeometry* objGeom = subDetGeom->getGeometry(obj.id());
+	auto objGeom = subDetGeom->getGeometry(obj.id());
 	if(objGeom==nullptr){
 	  //wondering what to do here
-	  //something is very very wrong
-	  //given HLT should never crash or throw, decided to log an error and 
-	  edm::LogError("HLTCaloObjInRegionsProducer") << "for an object of type "<<typeid(CaloObjType).name()<<" the geometry returned null for id "<<DetId(obj.id()).rawId()<<" in HLTCaloObjsInRegion, this shouldnt be possible and something has gone wrong, auto accepting hit";
+	  //something is very very wrong  
+	  //given HLT should never crash or throw, decided to log an error 
+	  //update: so turns out HCAL can pass through calibration channels in QIE11 so for that module, its an expected behaviour	
+	  //so we check if the ID is valid
+	  if(validIDForGeom(obj.id())) {
+	    edm::LogError("HLTCaloObjInRegionsProducer") << "for an object of type "<<typeid(CaloObjType).name()<<" the geometry returned null for id "<<DetId(obj.id()).rawId()<<" with initial ID "<<DetId(inputColl->begin()->id()).rawId()<<" in HLTCaloObjsInRegion, this shouldnt be possible and something has gone wrong, auto accepting hit";
+	  }
 	  outputColl->push_back(obj);
+	  continue;
 	}
 	float eta = objGeom->getPosition().eta();
 	float phi = objGeom->getPosition().phi();
@@ -249,6 +256,22 @@ makeFilteredColl(const edm::Handle<CaloObjCollType>& inputColl,
 
 }
 
+//tells us if an ID should have a valid geometry
+//it assumes that all IDs do except those specifically mentioned
+//HCAL for example have laser calibs in the digi collection so 
+//so we have to ensure that HCAL is HB,HE or HO
+template<typename CaloObjType,typename CaloObjCollType>
+bool HLTCaloObjInRegionsProducer<CaloObjType,CaloObjCollType>::
+validIDForGeom(const DetId& id)
+{
+  if(id.det()==DetId::Hcal){
+    if(id.subdetId() == HcalSubdetector::HcalEmpty ||
+       id.subdetId() == HcalSubdetector::HcalOther){
+      return false;
+    }
+  }
+  return true;
+}
 
 
 

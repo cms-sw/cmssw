@@ -70,14 +70,12 @@
 #include <string>
 #include <vector>
 
-//#define EDM_ML_DEBUG
-
 class HGCHitValidation : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
 
 public:
 
   explicit HGCHitValidation( const edm::ParameterSet& );
-  ~HGCHitValidation();
+  ~HGCHitValidation() override { }
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
@@ -130,7 +128,8 @@ private:
 
 HGCHitValidation::HGCHitValidation( const edm::ParameterSet &cfg ) {
 
-  usesResource("TFileService");
+  usesResource(TFileService::kSharedResource);
+
   geometrySource_ = cfg.getUntrackedParameter< std::vector<std::string> >("geometrySource");
   eeSimHitToken_  = consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("eeSimHitSource"));
   fhSimHitToken_  = consumes<std::vector<PCaloHit>>(cfg.getParameter<edm::InputTag>("fhSimHitSource"));
@@ -153,23 +152,29 @@ HGCHitValidation::HGCHitValidation( const edm::ParameterSet &cfg ) {
   hebSimEta= hebRecEta= hebSimPhi= hebRecPhi    = 0;
   heeDetID = hefDetID = hebDetID = 0;
 
-#ifdef EDM_ML_DEBUG
-  edm::LogInfo("HGCalValid") << "Exclude the following " 
-			     << ietaExcludeBH_.size()
-			     << " ieta values from BH plots";
+  edm::LogVerbatim("HGCalValid") << "Exclude the following " 
+				 << ietaExcludeBH_.size()
+				 << " ieta values from BH plots";
   for (unsigned int k=0; k<ietaExcludeBH_.size(); ++k) 
-    edm::LogInfo("HGCalValid") << " [" << k << "] " << ietaExcludeBH_[k];
-#endif
+    edm::LogVerbatim("HGCalValid") << " [" << k << "] " << ietaExcludeBH_[k];
 }
 
-HGCHitValidation::~HGCHitValidation() { }
-
 void HGCHitValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  std::vector<std::string> names = {"HGCalEESensitive",
+				    "HGCalHESiliconSensitive",
+				    "Hcal"};
+  std::vector<int> etas;
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.addUntracked<std::vector<std::string>>("geometrySource",names);
+  desc.add<edm::InputTag>("eeSimHitSource",edm::InputTag("g4SimHits","HGCHitsEE"));
+  desc.add<edm::InputTag>("fhSimHitSource",edm::InputTag("g4SimHits","HGCHitsHEfront"));
+  desc.add<edm::InputTag>("bhSimHitSource",edm::InputTag("g4SimHits","HcalHits"));
+  desc.add<edm::InputTag>("eeRecHitSource",edm::InputTag("HGCalRecHit","HGCEERecHits"));
+  desc.add<edm::InputTag>("fhRecHitSource",edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
+  desc.add<edm::InputTag>("bhRecHitSource",edm::InputTag("HGCalRecHit","HGCHEBRecHits"));
+  desc.add<std::vector<int> >("ietaExcludeBH",etas);
+  desc.add<bool>("ifHCAL",false);
+  descriptions.add("hgcHitAnalysis",desc);
 }
 
 void HGCHitValidation::beginJob() {
@@ -275,18 +280,16 @@ void HGCHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetup 
 
   if (eeSimHits.isValid()) {
     analyzeHGCalSimHit(eeSimHits, 0, eeHitRefs);
-#ifdef EDM_ML_DEBUG
     for (std::map<unsigned int,HGCHitTuple>::iterator itr=eeHitRefs.begin();
 	 itr != eeHitRefs.end(); ++itr) {
       int idx = std::distance(eeHitRefs.begin(),itr);
-      edm::LogInfo("HGCalValid") << "EEHit[" << idx << "] " << std::hex 
-				 << itr->first << std::dec << "; Energy "
-				 << std::get<0>(itr->second) << "; Position ("
-				 << std::get<1>(itr->second) << ", "
-				 << std::get<2>(itr->second) <<", " 
-				 << std::get<3>(itr->second) << ")" <<std::endl;
+      edm::LogVerbatim("HGCalValid") << "EEHit[" << idx << "] " << std::hex 
+				     << itr->first << std::dec << "; Energy "
+				     << std::get<0>(itr->second) <<"; Position"
+				     << " (" << std::get<1>(itr->second) <<", "
+				     << std::get<2>(itr->second) <<", " 
+				     << std::get<3>(itr->second) << ")";
     }
-#endif
   } else {   
     edm::LogWarning("HGCalValid") << "No EE SimHit Found " << std::endl;
   }
@@ -296,18 +299,16 @@ void HGCHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetup 
   iEvent.getByToken(fhSimHitToken_, fhSimHits);
   if (fhSimHits.isValid()) {
     analyzeHGCalSimHit(fhSimHits, 1, fhHitRefs);
-#ifdef EDM_ML_DEBUG
     for (std::map<unsigned int,HGCHitTuple>::iterator itr=fhHitRefs.begin();
 	 itr != fhHitRefs.end(); ++itr) {
       int idx = std::distance(fhHitRefs.begin(),itr);
-      edm::LogInfo("HGCalValid") << "FHHit[" << idx << "] " << std::hex 
-				 << itr->first << std::dec << "; Energy "
-				 << std::get<0>(itr->second) << "; Position (" 
-				 << std::get<1>(itr->second) << ", "
-				 << std::get<2>(itr->second) <<", " 
-				 << std::get<3>(itr->second) << ")" <<std::endl;
+      edm::LogVerbatim("HGCalValid") << "FHHit[" << idx << "] " << std::hex 
+				     << itr->first << std::dec << "; Energy "
+				     << std::get<0>(itr->second) <<"; Position"
+				     << " ("  << std::get<1>(itr->second)<<", "
+				     << std::get<2>(itr->second) <<", " 
+				     << std::get<3>(itr->second) << ")";
     }
-#endif
   } else {
     edm::LogWarning("HGCalValid") << "No FH SimHit Found " << std::endl;
   }
@@ -337,27 +338,23 @@ void HGCHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetup 
 	if (std::find(ietaExcludeBH_.begin(),ietaExcludeBH_.end(),idx.eta) == ietaExcludeBH_.end()) {
 
 	  bhHitRefs[id.rawId()] = std::make_tuple(energySum,cell.eta,cell.phi,zp);
-#ifdef EDM_ML_DEBUG
-	  edm::LogInfo("HGCalValid") << "Accept " << id << std::endl;
+	  edm::LogVerbatim("HGCalValid") << "Accept " << id << std::endl;
 	} else {
-	  edm::LogInfo("HGCalValid") << "Rejected cell " << idx.eta
-				     << "," << id << std::endl;
-#endif
+	  edm::LogVerbatim("HGCalValid") << "Rejected cell " << idx.eta
+					 << "," << id << std::endl;
 	}
       }
     }
-#ifdef EDM_ML_DEBUG
     for (std::map<unsigned int,HGCHitTuple>::iterator itr=bhHitRefs.begin();
 	 itr != bhHitRefs.end(); ++itr) {
       int idx = std::distance(bhHitRefs.begin(),itr);
-      edm::LogInfo("HGCalValid") << "BHHit[" << idx << "] " << std::hex 
-				 << itr->first << std::dec << "; Energy " 
-				 << std::get<0>(itr->second) << "; Position ("
-				 << std::get<1>(itr->second) << ", "
-				 << std::get<2>(itr->second) <<", " 
-				 << std::get<3>(itr->second) << ")" <<std::endl;
+      edm::LogVerbatim("HGCalValid") << "BHHit[" << idx << "] " << std::hex 
+				     << itr->first << std::dec << "; Energy " 
+				     << std::get<0>(itr->second) <<"; Position"
+				     << " (" << std::get<1>(itr->second) <<", "
+				     << std::get<2>(itr->second) <<", " 
+				     << std::get<3>(itr->second) << ")";
     }
-#endif
   } else {
     edm::LogWarning("HGCalValid") << "No BH SimHit Found " << std::endl;
   }
@@ -384,16 +381,15 @@ void HGCHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetup 
         heeSimEnergy->push_back(std::get<0>(itr->second));
 
 	heeDetID->push_back(itr->first);
-#ifdef EDM_ML_DEBUG
-	edm::LogInfo("HGCalValid") << "EEHit: " << std::hex << it->id().rawId()
-				   << std::dec << " Sim (" 
-				   << std::get<0>(itr->second) << ", "
-				   << std::get<1>(itr->second) << ", " 
-				   << std::get<2>(itr->second) << ", " 
-				   << std::get<3>(itr->second) << ") Rec ("
-				   << energy << ", " << xyz.x() << ", " 
-				   << xyz.y() << ", " << xyz.z() << ")\n";
-#endif
+	edm::LogVerbatim("HGCalValid") << "EEHit: " << std::hex 
+				       << it->id().rawId() << std::dec 
+				       << " Sim (" << std::get<0>(itr->second)
+				       << ", " << std::get<1>(itr->second) 
+				       << ", " << std::get<2>(itr->second) 
+				       << ", " << std::get<3>(itr->second) 
+				       << ") Rec (" << energy << ", " 
+				       << xyz.x() << ", " << xyz.y() << ", "
+				       << xyz.z();
       }
     }
   } else {
@@ -422,16 +418,15 @@ void HGCHitValidation::analyze( const edm::Event &iEvent, const edm::EventSetup 
         hefSimEnergy->push_back(std::get<0>(itr->second));
 
 	hefDetID->push_back(itr->first);
-#ifdef EDM_ML_DEBUG
-	edm::LogInfo("HGCalValid") << "FHHit: " << std::hex << it->id().rawId()
-				   << std::dec << " Sim (" 
-				   << std::get<0>(itr->second) << ", "
-				   << std::get<1>(itr->second) << ", " 
-				   << std::get<2>(itr->second) << ", " 
-				   << std::get<3>(itr->second) << ") Rec (" 
-				   << energy << ","  << xyz.x() << ", " 
-				   << xyz.y() << ", " << xyz.z() << ")\n";
-#endif
+	edm::LogVerbatim("HGCalValid") << "FHHit: " << std::hex 
+				       << it->id().rawId() << std::dec 
+				       << " Sim (" << std::get<0>(itr->second)
+				       << ", " << std::get<1>(itr->second)
+				       << ", " << std::get<2>(itr->second)
+				       << ", " << std::get<3>(itr->second)
+				       << ") Rec (" << energy << ","
+				       << xyz.x() << ", " << xyz.y() << ", "
+				       << xyz.z();
       }
     }
   } else {
@@ -545,16 +540,14 @@ void HGCHitValidation::analyzeHGCalRecHit(T1 const & theHits,
 	hebRecPhi->push_back(ang3);
 
 	hebDetID->push_back(itr->first);
-#ifdef EDM_ML_DEBUG
-	edm::LogInfo("HGCalValid") << "BHHit: " << std::hex << id.rawId() 
-				   << std::dec << " Sim (" 
-				   << std::get<0>(itr->second) << ", "
-				   << std::get<1>(itr->second) << ", " 
-				   << std::get<2>(itr->second) << ", " 
-				   << std::get<3>(itr->second) << ") Rec (" 
-				   << energy << ", " << xyz.eta() << ", " 
-				   << ang3 << ", " << xyz.z() << ")\n";
-#endif
+	edm::LogVerbatim("HGCalValid") << "BHHit: " << std::hex << id.rawId() 
+				       << std::dec << " Sim (" 
+				       << std::get<0>(itr->second) << ", "
+				       << std::get<1>(itr->second) << ", " 
+				       << std::get<2>(itr->second) << ", " 
+				       << std::get<3>(itr->second) << ") Rec ("
+				       << energy << ", " << xyz.eta() << ", " 
+				       << ang3 << ", " << xyz.z() << ")";
       }
     }
   }

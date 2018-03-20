@@ -10,10 +10,10 @@ namespace edm {
   std::string const LuminosityBlock::emptyString_;
 
   LuminosityBlock::LuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleDescription const& md,
-                                   ModuleCallingContext const* moduleCallingContext) :
-        provRecorder_(lbp, md),
+                                   ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
+        provRecorder_(lbp, md,isAtEnd),
         aux_(lbp.aux()),
-        run_(new Run(lbp.runPrincipal(), md, moduleCallingContext)),
+        run_(new Run(lbp.runPrincipal(), md, moduleCallingContext,false)),
         moduleCallingContext_(moduleCallingContext) {
   }
 
@@ -85,7 +85,8 @@ namespace edm {
       auto& p = provRecorder_.principal();
       for(auto index: iShouldPut){
         auto resolver = p.getProductResolverByIndex(index);
-        if(not resolver->productResolved()) {
+        if(not resolver->productResolved() and
+           isEndTransition(provRecorder_.transition()) == resolver->branchDescription().availableOnlyAtEndTransition()) {
           resolver->putProduct(std::unique_ptr<WrapperBase>());
         }
       }

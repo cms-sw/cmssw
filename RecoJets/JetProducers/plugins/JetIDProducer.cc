@@ -61,7 +61,7 @@ JetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	ijet != jetsEnd; ++ijet ) {
 
     // get the id from each jet
-    helper_.calculate( iEvent, *ijet );
+    helper_.calculate( iEvent, iSetup, *ijet );
 
     muHelper_.calculate( iEvent, iSetup, *ijet );
 

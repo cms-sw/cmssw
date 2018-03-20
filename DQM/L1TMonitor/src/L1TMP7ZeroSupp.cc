@@ -128,6 +128,10 @@ void L1TMP7ZeroSupp::bookCapIdHistograms(DQMStore::IBooker& ibooker, const unsig
   errorSummaryDenMap_[id]->setBinLabel(RBXBLKS+1, "# BX blocks", 1);
   errorSummaryDenMap_[id]->setBinLabel(RBXBLKSFALSEPOS+1, "# BX blocks", 1);
   errorSummaryDenMap_[id]->setBinLabel(RBXBLKSFALSENEG+1, "# BX blocks", 1);
+  // Setting canExtend to false is needed to get the correct behaviour when running multithreaded.
+  // Otherwise, when merging the histgrams of the threads, TH1::Merge sums bins that have the same label in one bin.
+  // This needs to come after the calls to setBinLabel.
+  errorSummaryDenMap_[id]->getTH1F()->GetXaxis()->SetCanExtend(false);
 
   readoutSizeNoZSMap_[id] = ibooker.book1D("readoutSize", sizeTitleText + "size", 100, 0, maxFedReadoutSize_);
   readoutSizeNoZSMap_[id]->setAxisTitle("size (byte)", 1);
@@ -201,7 +205,7 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     FEDTrailer trailer(data + (l1tRcd.size() - slinkTrailerSize_));
 
     if (trailer.check()) {
-      edm::LogInfo("L1TDQM") << "Found SLink trailer:" << " Length " << trailer.lenght() << " CRC " << trailer.crc() << " Status " << trailer.evtStatus() << " Throttling bits " << trailer.ttsBits();
+      edm::LogInfo("L1TDQM") << "Found SLink trailer:" << " Length " << trailer.fragmentLength() << " CRC " << trailer.crc() << " Status " << trailer.evtStatus() << " Throttling bits " << trailer.ttsBits();
     } else {
       edm::LogWarning("L1TDQM") << "Did not find a SLink trailer!";
     }
@@ -472,4 +476,3 @@ void L1TMP7ZeroSupp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 }
-

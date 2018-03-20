@@ -147,44 +147,39 @@ uint32_t HGCSD::setDetUnitId(const G4Step * aStep) {
   //get the det unit id with 
   ForwardSubdetector subdet = myFwdSubdet_;
 
-  int layer(0), module(0), cell(0);
-  if (m_mode == HGCalGeometryMode::Square) {
+  int layer, module, cell;
+  if (touch->GetHistoryDepth() == levelT_) {
     layer  = touch->GetReplicaNumber(0);
-    module = touch->GetReplicaNumber(1);
+    module = -1;
+    cell   = -1;
+#ifdef EDM_ML_DEBUG
+    edm::LogInfo("HGCSim") << "Depths: " << touch->GetHistoryDepth() 
+			   << " name " << touch->GetVolume(0)->GetName() 
+			   << " layer:module:cell " << layer << ":" 
+			   << module << ":" << cell << std::endl;
+#endif
   } else {
-    if (touch->GetHistoryDepth() == levelT_) {
-      layer  = touch->GetReplicaNumber(0);
-      module = -1;
-      cell   = -1;
-#ifdef EDM_ML_DEBUG
-      edm::LogInfo("HGCSim") << "Depths: " << touch->GetHistoryDepth() 
-			     << " name " << touch->GetVolume(0)->GetName() 
-			     << " layer:module:cell " << layer << ":" 
-			     << module << ":" << cell << std::endl;
-#endif
-    } else {
-      layer  = touch->GetReplicaNumber(2);
-      module = touch->GetReplicaNumber(1);
-      cell   = touch->GetReplicaNumber(0);
-    }
-#ifdef EDM_ML_DEBUG
-    edm::LogInfo("HGCSim") << "Depths: " << touch->GetHistoryDepth() <<" name "
-			   << touch->GetVolume(0)->GetName() 
-			   << ":" << touch->GetReplicaNumber(0) << "   "
-			   << touch->GetVolume(1)->GetName() 
-			   << ":" << touch->GetReplicaNumber(1) << "   "
-			   << touch->GetVolume(2)->GetName() 
-			   << ":" << touch->GetReplicaNumber(2) << "   "
-			   << " layer:module:cell " << layer << ":" << module 
-			   << ":" << cell <<" Material " << mat->GetName()<<":"
-			   << aStep->GetPreStepPoint()->GetMaterial()->GetRadlen()
-			   << std::endl;
-#endif
-    if (aStep->GetPreStepPoint()->GetMaterial()->GetRadlen() > 100000.) return 0;
+    layer  = touch->GetReplicaNumber(2);
+    module = touch->GetReplicaNumber(1);
+    cell   = touch->GetReplicaNumber(0);
   }
-
+#ifdef EDM_ML_DEBUG
+  edm::LogInfo("HGCSim") << "Depths: " << touch->GetHistoryDepth() <<" name "
+			 << touch->GetVolume(0)->GetName() 
+			 << ":" << touch->GetReplicaNumber(0) << "   "
+			 << touch->GetVolume(1)->GetName() 
+			 << ":" << touch->GetReplicaNumber(1) << "   "
+			 << touch->GetVolume(2)->GetName() 
+			 << ":" << touch->GetReplicaNumber(2) << "   "
+			 << " layer:module:cell " << layer << ":" << module 
+			 << ":" << cell <<" Material " << mat->GetName()<<":"
+			 << aStep->GetPreStepPoint()->GetMaterial()->GetRadlen();
+#endif
+  // The following statement should be examined later before elimination
+  if (aStep->GetPreStepPoint()->GetMaterial()->GetRadlen() > 100000.) return 0;
+  
   uint32_t id = setDetUnitId (subdet, layer, module, cell, iz, localpos);
-  if (rejectMB_ && m_mode != HGCalGeometryMode::Square && id != 0) {
+  if (rejectMB_ && id != 0) {
     int det, z, lay, wafer, type, ic;
     HGCalTestNumbering::unpackHexagonIndex(id, det, z, lay, wafer, type, ic);
 #ifdef EDM_ML_DEBUG

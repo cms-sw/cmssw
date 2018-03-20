@@ -65,7 +65,8 @@ SiPixelPhase1GeometryDebugConf = cms.VPSet(
   SiPixelPhase1GeometryDebugFED,
 )
 
-SiPixelPhase1GeometryDebugAnalyzer = cms.EDAnalyzer("SiPixelPhase1GeometryDebug",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelPhase1GeometryDebugAnalyzer = DQMEDAnalyzer('SiPixelPhase1GeometryDebug',
     histograms = SiPixelPhase1GeometryDebugConf,
     geometry = SiPixelPhase1Geometry
 )

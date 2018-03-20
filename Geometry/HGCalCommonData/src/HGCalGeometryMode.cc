@@ -2,7 +2,6 @@
 
 template<>
 HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode>::HGCalStringToEnumParser() {
-  enumMap["HGCalGeometryMode::Square"]  = HGCalGeometryMode::Square;
   enumMap["HGCalGeometryMode::Hexagon"] = HGCalGeometryMode::Hexagon;
   enumMap["HGCalGeometryMode::HexagonFull"] = HGCalGeometryMode::HexagonFull;
 }

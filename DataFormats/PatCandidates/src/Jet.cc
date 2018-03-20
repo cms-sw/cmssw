@@ -599,7 +599,7 @@ pat::JetPtrCollection const & Jet::subjets( unsigned int index) const {
 
 
 /// String access to subjet list
-pat::JetPtrCollection const & Jet::subjets( std::string label ) const { 
+pat::JetPtrCollection const & Jet::subjets( std::string const & label ) const { 
   auto found = find( subjetLabels_.begin(), subjetLabels_.end(), label );
   if ( found != subjetLabels_.end() ){
     auto index = std::distance( subjetLabels_.begin(), found );
@@ -611,7 +611,7 @@ pat::JetPtrCollection const & Jet::subjets( std::string label ) const {
 }
 
 /// Add new set of subjets
-void Jet::addSubjets( pat::JetPtrCollection const & pieces, std::string label  ) {
+void Jet::addSubjets( pat::JetPtrCollection const & pieces, std::string const & label  ) {
   subjetCollections_.push_back( pieces );
   subjetLabels_.push_back( label );
 }

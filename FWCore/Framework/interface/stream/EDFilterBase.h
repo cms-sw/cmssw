@@ -30,8 +30,10 @@
 
 // forward declarations
 namespace edm {
+
   class ProductRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTaskWithArenaHolder;
 
   namespace stream {
     class EDFilterAdaptorBase;
@@ -74,12 +76,17 @@ namespace edm {
       virtual void registerThinnedAssociations(ProductRegistry const&,
                                                ThinnedAssociationsHelper&) { }
 
+      virtual void doAcquire_(Event const&,
+                              EventSetup const&,
+                              WaitingTaskWithArenaHolder&) = 0;
+
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) {
         moduleDescriptionPtr_ = iDesc;
       }
       // ---------- member data --------------------------------
 
       std::vector<BranchID> previousParentage_;
+      std::vector<BranchID> gotBranchIDsFromAcquire_;
       ParentageID previousParentageId_;
       ModuleDescription const* moduleDescriptionPtr_;
     };

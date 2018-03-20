@@ -95,7 +95,7 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
       if (verbosity > 0)
         fes << "    invalid footprint" << endl;
 
-      if ((testFootprint == tfErr))
+      if (testFootprint == tfErr)
       {
         record.status.setFootprintError();
         stopProcessing = true;
@@ -280,7 +280,7 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
     if (record.status.isOK())
     {
       const VFATFrame *fr = record.frame;
-      DiamondVFATFrame *diamondframe = (DiamondVFATFrame*) fr;
+      const DiamondVFATFrame *diamondframe = static_cast<const DiamondVFATFrame*>(fr);
 
       // update Event Counter in status
       record.status.setEC(record.frame->getEC() & 0xFF);

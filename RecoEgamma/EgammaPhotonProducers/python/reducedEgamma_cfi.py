@@ -21,54 +21,16 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
   preshowerEcalHits = cms.InputTag("reducedEcalRecHitsES"),
   photonsPFValMap = cms.InputTag("particleBasedIsolation","gedPhotons"),
   gsfElectronsPFValMap = cms.InputTag("particleBasedIsolation","gedGsfElectrons"),
-  photonIDSources = cms.VInputTag(
-    cms.InputTag("PhotonIDProdGED","PhotonCutBasedIDLoose"),
-    cms.InputTag("PhotonIDProdGED","PhotonCutBasedIDLooseEM"),    
-    cms.InputTag("PhotonIDProdGED","PhotonCutBasedIDTight")
-  ),
-  photonIDOutput = cms.vstring(
-    "PhotonCutBasedIDLoose",
-    "PhotonCutBasedIDLooseEM",
-    "PhotonCutBasedIDTight",
-  ),
-  gsfElectronIDSources = cms.VInputTag(
-    cms.InputTag("eidLoose"),
-    cms.InputTag("eidRobustHighEnergy"),
-    cms.InputTag("eidRobustLoose"),
-    cms.InputTag("eidRobustTight"),
-    cms.InputTag("eidTight"),
-  ),
-  gsfElectronIDOutput = cms.vstring(
-    "eidLoose",
-    "eidRobustHighEnergy",
-    "eidRobustLoose",
-    "eidRobustTight",
-    "eidTight",
-    ),
-  photonPFClusterIsoSources = cms.VInputTag(
-        cms.InputTag("photonEcalPFClusterIsolationProducer"),
-        cms.InputTag("photonHcalPFClusterIsolationProducer"),
-  ),
-  photonPFClusterIsoOutput = cms.vstring(
-        "phoEcalPFClusIso",
-        "phoHcalPFClusIso",
-  ),
-  ootPhotonPFClusterIsoSources = cms.VInputTag(
-        cms.InputTag("ootPhotonEcalPFClusterIsolationProducer"),
-        cms.InputTag("ootPhotonHcalPFClusterIsolationProducer"),
-  ),
-  ootPhotonPFClusterIsoOutput = cms.vstring(
-        "ootPhoEcalPFClusIso",
-        "ootPhoHcalPFClusIso",
-  ),
-  gsfElectronPFClusterIsoSources = cms.VInputTag(
-        cms.InputTag("electronEcalPFClusterIsolationProducer"),
-        cms.InputTag("electronHcalPFClusterIsolationProducer"),
-  ),
-  gsfElectronPFClusterIsoOutput = cms.vstring(
-        "eleEcalPFClusIso",
-        "eleHcalPFClusIso",
-  ),
+  photonIDSources = cms.VInputTag(),
+  photonIDOutput = cms.vstring(),
+  gsfElectronIDSources = cms.VInputTag(),
+  gsfElectronIDOutput = cms.vstring(),
+  photonPFClusterIsoSources = cms.VInputTag(),
+  photonPFClusterIsoOutput = cms.vstring(),
+  ootPhotonPFClusterIsoSources = cms.VInputTag(),
+  ootPhotonPFClusterIsoOutput = cms.vstring(),
+  gsfElectronPFClusterIsoSources = cms.VInputTag(),
+  gsfElectronPFClusterIsoOutput = cms.vstring(),
 )
 
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
@@ -79,6 +41,55 @@ phase2_common.toModify(reducedEgamma,
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 run2_miniAOD_80XLegacy.toModify(
     reducedEgamma, 
-    ootPhotonPFClusterIsoSources = [ "ootPhotonEcalPFClusterIsolationProducer" ],
-    ootPhotonPFClusterIsoOutput = [ "ootPhoEcalPFClusIso" ]
-)
+    photonPFClusterIsoSources = cms.VInputTag(
+        cms.InputTag("photonEcalPFClusterIsolationProducer"),
+        cms.InputTag("photonHcalPFClusterIsolationProducer"),
+        ),
+    photonPFClusterIsoOutput = cms.vstring(
+        "phoEcalPFClusIso",
+        "phoHcalPFClusIso",
+        ),
+    ootPhotonPFClusterIsoSources = cms.VInputTag(
+        cms.InputTag("ootPhotonEcalPFClusterIsolationProducer"),
+        ),
+    ootPhotonPFClusterIsoOutput = cms.vstring(
+        "ootPhoEcalPFClusIso",
+        ),
+    gsfElectronPFClusterIsoSources = cms.VInputTag(
+        cms.InputTag("electronEcalPFClusterIsolationProducer"),
+        cms.InputTag("electronHcalPFClusterIsolationProducer"),
+        ),
+    gsfElectronPFClusterIsoOutput = cms.vstring(
+        "eleEcalPFClusIso",
+        "eleHcalPFClusIso",
+        )
+    )
+
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+run2_miniAOD_94XFall17.toModify(
+    reducedEgamma, 
+    photonPFClusterIsoSources = cms.VInputTag(
+        cms.InputTag("photonEcalPFClusterIsolationProducer"),
+        cms.InputTag("photonHcalPFClusterIsolationProducer"),
+        ),
+    photonPFClusterIsoOutput = cms.vstring(
+        "phoEcalPFClusIso",
+        "phoHcalPFClusIso",
+        ),
+    ootPhotonPFClusterIsoSources = cms.VInputTag(
+        cms.InputTag("ootPhotonEcalPFClusterIsolationProducer"),
+        cms.InputTag("ootPhotonHcalPFClusterIsolationProducer"),
+        ),
+    ootPhotonPFClusterIsoOutput = cms.vstring(
+        "ootPhoEcalPFClusIso",
+        "ootPhoHcalPFClusIso",
+        ),
+    gsfElectronPFClusterIsoSources = cms.VInputTag(
+        cms.InputTag("electronEcalPFClusterIsolationProducer"),
+        cms.InputTag("electronHcalPFClusterIsolationProducer"),
+        ),
+    gsfElectronPFClusterIsoOutput = cms.vstring(
+        "eleEcalPFClusIso",
+        "eleHcalPFClusIso",
+        )
+    )

@@ -67,7 +67,8 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
             break;
           }
           // adding trigger primitive digi to the collection
-          (*tps_)->push_back(*pTP_);
+          if (pTP_) (*tps_)->push_back(*pTP_);
+          else edm::LogError("IncorrectBlock")<<"trigger primitive digi was not aquired";
         }
         
         
@@ -138,7 +139,8 @@ void DCCEETCCBlock::addTriggerPrimitivesToCollection(){
             break;
           }
           // adding trigger primitive digi to the collection
-          (*tps_)->push_back(*pTP_);
+          if (pTP_) (*tps_)->push_back(*pTP_);
+          else edm::LogError("IncorrectBlock")<<"trigger primitive digi was not aquired";
         }
         
         if(processTPG2){

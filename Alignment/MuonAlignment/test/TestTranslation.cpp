@@ -129,31 +129,11 @@ TestTranslation::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   AlignableMuon* theAlignableMuon = new AlignableMuon( &(*dtGeometry), &(*cscGeometry) );
 
-
-
   // Apply  alignment
+  for (const auto& iter: theAlignableMuon->DTChambers()) apply(iter); 
+  for (const auto& iter: theAlignableMuon->CSCEndcaps()) apply(iter); 
 
-  std::vector<Alignable*> theDTAlignables = theAlignableMuon->DTChambers();
-  std::vector<Alignable*> theCSCAlignables = theAlignableMuon->CSCEndcaps();
-
-
-  for ( std::vector<Alignable*>::iterator iter = theDTAlignables.begin();
-		                          iter != theDTAlignables.end(); iter++ ){ 
-    apply( *iter ); 
-  }
-
-  theDTAlignables.clear();
-
-  for ( std::vector<Alignable*>::iterator iter = theCSCAlignables.begin();
-		                          iter != theCSCAlignables.end(); iter++ ){ 
-    apply( *iter ); 
-  }
-
-  theCSCAlignables.clear();
-
-
-edm::LogInfo("MuonAlignment") << "Done!";
-
+  edm::LogInfo("MuonAlignment") << "Done!";
 }
 
 

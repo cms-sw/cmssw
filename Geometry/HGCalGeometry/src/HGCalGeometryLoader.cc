@@ -3,8 +3,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 //#define EDM_ML_DEBUG
@@ -31,7 +30,6 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
   geom->allocatePar(HGCalGeometry::k_NumberOfShapes,
 		    HGCalGeometry::k_NumberOfParametersPerShape);
   ForwardSubdetector subdet  = topology.subDetector();
-  bool               detType = topology.detectorType();
 
   // loop over modules
   ParmVec params(HGCalGeometry::k_NumberOfParametersPerShape,0);
@@ -51,39 +49,8 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
     std::cout << "HGCalGeometryLoader:: Z:Layer " << zside << ":" << layer 
 	      << std::endl;
 #endif
-    if (topology.geomMode() == HGCalGeometryMode::Square) {
-      int sector = mytr.sec;
-      int subSec = (detType ? mytr.subsec : 0);
-      const HepGeom::Transform3D ht3d (mytr.hr, mytr.h3v);
-      DetId detId= ((subdet ==  HGCEE) ?
-		    (DetId)(HGCEEDetId(subdet,zside,layer,sector,subSec,0)) :
-		    (DetId)(HGCHEDetId(subdet,zside,layer,sector,subSec,0)));
-#ifdef EDM_ML_DEBUG
-      std::cout << "HGCalGeometryLoader:: Sector:Subsector " << sector << ":" 
-		<< subSec << " transf " << ht3d.getTranslation() << " and " 
-		<< ht3d.getRotation();
-#endif
-      for (unsigned int k=0; k<topology.dddConstants().volumes(); ++k) {
-	HGCalParameters::hgtrap vol = topology.dddConstants().getModule(k,false,true);
-	if (vol.lay == layer) {
-	  double alpha = ((detType && subSec == 0) ? -fabs(vol.alpha) :
-			  fabs(vol.alpha));
-	  params[0] = vol.dz;
-	  params[1] = params[2] = 0;
-	  params[3] = params[7] = vol.h;
-	  params[4] = params[8] = vol.bl;
-	  params[5] = params[9] = vol.tl;
-	  params[6] = params[10]= alpha;
-	  params[11]= vol.cellSize;
-	  buildGeom(params, ht3d, detId, geom);
-	  counter++;
-#ifdef EDM_ML_DEBUG
-	  ++kount;
-#endif
-	  break;
-	}
-      }
-    } else {
+    if ((topology.geomMode() == HGCalGeometryMode::Hexagon) || 
+	(topology.geomMode() == HGCalGeometryMode::HexagonFull)) {
       for (int wafer=0; wafer<topology.dddConstants().sectors(); ++wafer) {
 	if (topology.dddConstants().waferInLayer(wafer,layer,true)) {
 	  int type = topology.dddConstants().waferTypeT(wafer);

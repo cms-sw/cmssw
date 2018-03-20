@@ -109,7 +109,10 @@ class WorkFlowRunner(Thread):
                     cmd2 =cmd+cmd2+closeCmd(istep,'lumiRanges')
                     lumiRangeFile='step%d_lumiRanges.log'%(istep,)
                     retStep = self.doCmd(cmd2)
-                cmd+=com.das(self.dasOptions)
+                if (com.dataSetParent):
+                    cmd3=cmd+com.das(self.dasOptions,com.dataSetParent)+closeCmd(istep,'dasparentquery')
+                    retStep = self.doCmd(cmd3)
+                cmd+=com.das(self.dasOptions,com.dataSet)
                 cmd+=closeCmd(istep,'dasquery')
                 retStep = self.doCmd(cmd)
                 #don't use the file list executed, but use the das command of cmsDriver for next step
@@ -150,7 +153,7 @@ class WorkFlowRunner(Thread):
                         cmd+=' --fileout file:step%s.root '%(istep,)
                 if self.jobReport:
                   cmd += ' --suffix "-j JobReport%s.xml " ' % istep
-                if (self.nThreads > 1) and ('HARVESTING' not in cmd) :
+                if (self.nThreads > 1) and ('HARVESTING' not in cmd) and ('ALCAHARVEST' not in cmd):
                   cmd += ' --nThreads %s' % self.nThreads
                 cmd+=closeCmd(istep,self.wf.nameId)            
                 retStep = 0

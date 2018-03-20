@@ -13,7 +13,6 @@ CSCChipSpeedCorrectionDBConditions::CSCChipSpeedCorrectionDBConditions(const edm
   isForMC = iConfig.getUntrackedParameter<bool>("isForMC",true);
   dataCorrFileName= iConfig.getUntrackedParameter<std::string>("dataCorrFileName","empty.txt");
   dataOffset=170.;
-  cndbChipCorr = prefillDBChipSpeedCorrection(isForMC,dataCorrFileName,dataOffset);
   // added by Zhen (changed since 1_2_0)
   setWhatProduced(this,&CSCChipSpeedCorrectionDBConditions::produceDBChipSpeedCorrection);
   findingRecord<CSCDBChipSpeedCorrectionRcd>();
@@ -27,7 +26,6 @@ CSCChipSpeedCorrectionDBConditions::~CSCChipSpeedCorrectionDBConditions()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete cndbChipCorr;
 }
 
 
@@ -40,8 +38,7 @@ CSCChipSpeedCorrectionDBConditions::ReturnType
 CSCChipSpeedCorrectionDBConditions::produceDBChipSpeedCorrection(const CSCDBChipSpeedCorrectionRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCDBChipSpeedCorrection* mydata=new CSCDBChipSpeedCorrection( *cndbChipCorr );
-  return mydata;
+  return CSCChipSpeedCorrectionDBConditions::ReturnType( prefillDBChipSpeedCorrection(isForMC,dataCorrFileName,dataOffset) );
   
 }
 

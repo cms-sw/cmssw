@@ -2,15 +2,17 @@
 #define SimG4Core_SensitiveDetector_FrameRotation_H
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
 
-#include "G4VPhysicalVolume.hh"
+class G4VPhysicalVolume;
 
 class FrameRotation 
 {
 public:
+
+    static constexpr double invcm = 0.1; // from Geant4 unit of coordinates to CMS
+
     virtual ~FrameRotation() = default;
-    virtual Local3DPoint transformPoint(Local3DPoint &,G4VPhysicalVolume *) const = 0;
+    virtual Local3DPoint transformPoint(const Local3DPoint &,const G4VPhysicalVolume *v=nullptr) const = 0;
 };
 
 #endif

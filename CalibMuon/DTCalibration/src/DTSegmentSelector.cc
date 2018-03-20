@@ -22,7 +22,7 @@ bool DTSegmentSelector::operator() (DTRecSegment4D const& segment, edm::Event co
   ESHandle<DTGeometry> dtGeom;
   eventSetup.get<MuonGeometryRecord>().get(dtGeom);
   */
- 
+
   edm::ESHandle<DTStatusFlag> statusMap;
   if(checkNoisyChannels_) setup.get<DTStatusFlagRcd>().get(statusMap);
 
@@ -36,6 +36,7 @@ bool DTSegmentSelector::operator() (DTRecSegment4D const& segment, edm::Event co
      std::vector<DTRecHit1D> phiRecHits = phiSeg->specificRecHits();
      nPhiHits = phiRecHits.size(); 
      if(checkNoisyChannels_) segmentNoisyPhi = checkNoisySegment(statusMap,phiRecHits);
+  //} else result = false;
   }
   // Get the Theta 2D segment
   int nZHits = -1;
@@ -53,29 +54,29 @@ bool DTSegmentSelector::operator() (DTRecSegment4D const& segment, edm::Event co
   // Segment selection 
   // Discard segment if it has a noisy cell
   if(segmentNoisyPhi || segmentNoisyZ)
-     result = false;
+    result = false;
 
   // 2D-segment number of hits
   if(segment.hasPhi() && nPhiHits < minHitsPhi_)
-     result = false;
+    result = false;
 
   if(segment.hasZed() && nZHits < minHitsZ_)
-     result = false;
+    result = false;
 
   // Segment chi2
   double chiSquare = segment.chi2()/segment.degreesOfFreedom();
   if(chiSquare > maxChi2_)
-     result = false;
+    result = false;
 
   // Segment angle
   LocalVector segment4DLocalDir = segment.localDirection();
   double angleZ = fabs( atan(segment4DLocalDir.y()/segment4DLocalDir.z())*180./Geom::pi() ); 
   if( angleZ > maxAngleZ_)
-     result = false;
+    result = false;
 
   double anglePhi = fabs( atan(segment4DLocalDir.x()/segment4DLocalDir.z())*180./Geom::pi() );
   if( anglePhi > maxAnglePhi_)
-     result = false;
+    result = false;
 
   return result;
 }

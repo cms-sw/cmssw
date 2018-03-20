@@ -27,7 +27,9 @@
 
 
 // constructor
-l1t::L1TGlobalUtil::L1TGlobalUtil(){
+l1t::L1TGlobalUtil::L1TGlobalUtil() : 
+    m_l1GtMenu(nullptr)
+{
     // initialize cached IDs
     m_l1GtMenuCacheID = 0ULL;
     m_l1GtPfAlgoCacheID = 0ULL;
@@ -59,9 +61,12 @@ l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
 
 // destructor
 l1t::L1TGlobalUtil::~L1TGlobalUtil() {
-
   // empty
+}
 
+/// check that the L1TGlobalUtil has been properly initialised
+bool l1t::L1TGlobalUtil::valid() const {
+  return m_l1GtMenuCacheID != 0ULL and m_l1GtMenu != nullptr;
 }
 
 void l1t::L1TGlobalUtil::OverridePrescalesAndMasks(std::string filename, unsigned int psColumn){
@@ -167,8 +172,9 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup) {
       int algBit = (itAlgo->second).getIndex(); //algoBitNumber();
 
       (m_prescales[algBit]).first  = algName;
-      (m_prescales[algBit]).second = prescaleSet[algBit];
-
+      if( size_t(algBit) < prescaleSet.size() ) {
+        (m_prescales[algBit]).second = prescaleSet[algBit];
+      }
       LogDebug("l1t|Global")<< "Number of bunch crossings stored: " << (*m_triggerMaskAlgoTrig).size() << endl;
 
       const std::map<int, std::vector<int> >* triggerAlgoMaskAlgoTrig = m_triggerMaskAlgoTrig;
@@ -219,6 +225,22 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
        if (algBlk != m_uGtAlgBlk->end(0)){
 	 if (! m_readPrescalesFromFile){
 	   m_PreScaleColumn = static_cast<unsigned int>(algBlk->getPreScColumn());
+
+	   // Fix for MC prescale column being set to index+1 in early versions of uGT emulator
+	   if (iEvent.run() == 1){
+	     if (m_prescaleFactorsAlgoTrig->size() == 1 && m_PreScaleColumn ==1) m_PreScaleColumn = 0;
+	   }
+
+	   // add protection against out-of-bound index for prescale column
+	   if(m_PreScaleColumn >= m_prescaleFactorsAlgoTrig->size()) {
+	     LogDebug("l1t|Global")
+	       << "Prescale column extracted from GlobalAlgBlk too large: " << m_PreScaleColumn
+	       << "\tMaximum value allowed: " << m_prescaleFactorsAlgoTrig->size()-1
+	       << "\tResetting prescale column to 0"
+	       << std::endl;
+	     m_PreScaleColumn = 0;
+	   }
+
 	 }
 	 const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn];
 
@@ -246,7 +268,9 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent, const edm::Ev
 	   (m_decisionsFinal[algBit]).second = decisionFinal;
 
 	   (m_prescales[algBit]).first  = algName;
-	   (m_prescales[algBit]).second = prescaleSet[algBit];
+           if(size_t(algBit) < prescaleSet.size()) {
+             (m_prescales[algBit]).second = prescaleSet[algBit];
+           }
 
 	   LogDebug("l1t|Global") << "Number of bunch crossings stored: " <<  (*m_triggerMaskAlgoTrig).size() << endl;
 

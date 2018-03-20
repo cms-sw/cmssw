@@ -40,7 +40,10 @@ protected:
 private:
 
   bool bookingdone;
-  
+
+  // Check FEDs from uROS, otherwise standard ROS
+  bool checkUros;
+
   MonitorElement*  totalDAQFraction;
   MonitorElement*  daqMap;
   std::map<int, MonitorElement*> daqFractions;

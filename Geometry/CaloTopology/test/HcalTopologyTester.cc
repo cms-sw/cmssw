@@ -65,6 +65,8 @@ void HcalTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetu
 void HcalTopologyTester::doTest(const HcalTopology& topology) {
 
   // First test on movements along eta/phi directions
+  std::cout << "\nTest on movements along eta/phi directions" << std::endl
+	    << "==========================================" << std::endl;
   for (int idet=0; idet<4; idet++) {
     HcalSubdetector subdet = HcalBarrel;
     if (idet == 1)      subdet = HcalOuter;
@@ -108,7 +110,8 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
   }
 
   // Check on Dense Index
-
+  std::cout << "\nCheck on Dense Index" << std::endl
+	    << "=====================" << std::endl;
   int maxDepthHB = topology.maxDepthHB();
   int maxDepthHE = topology.maxDepthHE();
   for (int det = 1; det <= HcalForward; det++) {
@@ -128,6 +131,26 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
 			<< " o/p " << HcalDetId(id) << " **** ERROR *****" 
 			<< std::endl;
 	  }
+	}
+      }
+    }
+  }
+
+  // Check list of depths
+  std::cout << "\nCheck list of Depths" << std::endl
+	    << "====================" << std::endl;
+  for (int eta=topology.lastHERing()-2; eta<=topology.lastHERing(); ++eta) {
+    for (int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
+      for (int depth = 1; depth <=  maxDepthHE; depth++) {
+	HcalDetId cell (HcalEndcap, eta, phi, depth);
+	if (topology.valid(cell)) {
+	  std::vector<int> depths = topology.mergedDepthList29(cell);
+	  std::cout << cell << " is with merge depth flag " 
+		    << topology.mergedDepth29(cell) << " having " << depths.size()
+		    << " merged depths:";
+	  for (unsigned int k=0; k<depths.size(); ++k) 
+	    std::cout << " [" << k << "]:" << depths[k];
+	  std::cout << std::endl;
 	}
       }
     }

@@ -62,6 +62,7 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 
 		// variables from python configuration
 		edm::EDGetTokenT<edm::TriggerResults> hlTriggerResults_;
+		std::string mainFolder_;
 		std::vector<std::string> hltPathNames_;
 		HLTConfigProvider hltConfigProvider_;
 		bool triggerConfChanged_;

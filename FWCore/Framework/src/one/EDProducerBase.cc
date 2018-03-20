@@ -67,6 +67,9 @@ namespace edm {
         std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
     }
 
+    SerialTaskQueue* EDProducerBase::globalRunsQueue() {return nullptr;}
+    SerialTaskQueue* EDProducerBase::globalLuminosityBlocksQueue() {return nullptr;};
+
     void
     EDProducerBase::doBeginJob() {
       resourcesAcquirer_ = createAcquirer();
@@ -88,7 +91,7 @@ namespace edm {
     void
     EDProducerBase::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                                ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doBeginRun_(cnstR, c);
@@ -100,7 +103,7 @@ namespace edm {
     void
     EDProducerBase::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) {
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(this);
       Run const& cnstR = r;
       this->doEndRun_(cnstR, c);
@@ -112,7 +115,7 @@ namespace edm {
     void
     EDProducerBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                            ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doBeginLuminosityBlock_(cnstLb, c);
@@ -124,7 +127,7 @@ namespace edm {
     void
     EDProducerBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                          ModuleCallingContext const* mcc) {
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(this);
       LuminosityBlock const& cnstLb = lb;
       this->doEndLuminosityBlock_(cnstLb, c);

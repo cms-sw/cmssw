@@ -2195,7 +2195,6 @@ int CSCValidation::getWidth(const CSCStripDigiCollection& stripdigis, CSCDetId i
 void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn, 
                               const CSCStripDigiCollection&   strpcltn,
                               const CSCRecHit2DCollection& rechitcltn) {
-     float y;
      int channel=0,mult,wire,layer,idlayer,idchamber,ring;
      int wire_strip_rechit_present;
      std::string name,title,endcapstr;
@@ -2395,7 +2394,6 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
                  int hvsgmtnmb=m_wire_hvsegm[chambertype][wire];
                  int nmbofhvsegm=nmbhvsegm[chambertype-1];
                  int location= (layer-1)*nmbofhvsegm+hvsgmtnmb;
-                 float x=location;
                 
                  ss<<"gas_gain_rechit_adc_3_3_sum_location_ME_"<<idchamber;
                  name=ss.str(); ss.str("");
@@ -2406,8 +2404,8 @@ void CSCValidation::doGasGain(const CSCWireDigiCollection& wirecltn,
                  ss<<"Gas Gain Rechit ADC3X3 Sum ME"<<endcapstr<<
                    id.station()<<"/"<<ring<<"/"<<id.chamber();
                  title=ss.str(); ss.str("");
-                 x=location;
-                 y=adc_3_3_sum;
+                 float x=location;
+                 float y=adc_3_3_sum;
                  histos->fill2DHist(x,y,name,title,30,1.0,31.0,50,0.0,2000.0,"GasGain");
 
                  /*

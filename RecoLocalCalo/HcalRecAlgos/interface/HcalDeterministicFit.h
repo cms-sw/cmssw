@@ -19,11 +19,13 @@ class HcalDeterministicFit {
   ~HcalDeterministicFit();
 
   enum FType {shapeLandau, shape205, shape206, shape207};
-  void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr);
+
+  void init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, double respCorr);
 
   void phase1Apply(const HBHEChannelInfo& channelData,
 		   float& reconstructedEnergy,
-		   float& reconstructedTime) const;
+		   float& reconstructedTime,
+		   const HcalTimeSlew* hcalTimeSlew_delay) const;
 
   // This is the CMSSW Implementation of the apply function
   void getLandauFrac(float tStart, float tEnd, float &sum) const;
@@ -33,13 +35,11 @@ class HcalDeterministicFit {
   void getFrac(float,float,float&,FType) const;
 
  private:
-  HcalTimeSlew::ParaSource fTimeSlew;
-  HcalTimeSlew::BiasSetting fTimeSlewBias;
+  HcalTimeSlew::ParaSource fTimeSlew_;
+  HcalTimeSlew::BiasSetting fTimeSlewBias_;
   PedestalSub fPedestalSubFxn_;
   bool applyTimeSlew_;
-
-  double fpars[9];
-  double frespCorr;
+  double frespCorr_;
  
   static constexpr int HcalRegion[2] = {16, 17};
   static constexpr int tsWidth = 25;
@@ -109,6 +109,5 @@ class HcalDeterministicFit {
     0.0194635, 0.0190053, 0.0185629, 0.0181354, 0.0177223, 0.0173229, 0.0169366, 0.0165628, 0.0162011};
   
 };
-
 
 #endif // HLTAnalyzer_h

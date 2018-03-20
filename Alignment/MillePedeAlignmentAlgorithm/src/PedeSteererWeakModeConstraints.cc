@@ -58,7 +58,7 @@ GeometryConstraintConfigData::GeometryConstraintConfigData(const std::vector<dou
                                                            const std::string& c,
                                                            const std::vector<std::pair<Alignable*,std::string> >& alisFile,
                                                            const int sd,
-                                                           const std::vector<Alignable*>& ex,
+                                                           const align::Alignables& ex,
                                                            const int instance,
 							   const bool downToLowestLevel
                                                            ) :
@@ -190,7 +190,7 @@ PedeSteererWeakModeConstraints::createAlignablesDataStructure()
     //loop over all HLS for which the constraint is to be determined
     for(const auto& iHLS: iC.levelsFilenames_) {
       //determine next active sub-alignables for iHLS
-      std::vector<Alignable*> aliDaughts;
+      align::Alignables aliDaughts;
       if (iC.downToLowestLevel_) {
 	if (!iHLS.first->lastCompsWithParams(aliDaughts)) {
 	  edm::LogWarning("Alignment")
@@ -565,7 +565,7 @@ PedeSteererWeakModeConstraints::getX0(const std::pair<Alignable*, std::list<Alig
 
 //_________________________________________________________________________
 unsigned int
-PedeSteererWeakModeConstraints::constructConstraints(const std::vector<Alignable*> &alis)
+PedeSteererWeakModeConstraints::constructConstraints(const align::Alignables& alis)
 {
   //FIXME: split the code of the method into smaller pieces/submethods
 
@@ -731,7 +731,7 @@ PedeSteererWeakModeConstraints::verifyParameterNames(const edm::ParameterSet &ps
 //_________________________________________________________________________
 const std::vector<std::pair<Alignable*, std::string> >
 PedeSteererWeakModeConstraints::makeLevelsFilenames(std::set<std::string> &steerFilePrefixContainer,
-                                                    const std::vector<Alignable*> &alis,
+                                                    const align::Alignables& alis,
                                                     const std::string &steerFilePrefix) const
 {
   //check whether the prefix is unique

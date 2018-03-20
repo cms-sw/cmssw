@@ -13,7 +13,6 @@
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 
 #include "G4Step.hh"
-#include "G4StepPoint.hh"
 #include "G4Track.hh"
 
 #include <string>
@@ -46,56 +45,50 @@ public:
     void fillHits(edm::PSimHitContainer&, const std::string&) override;
     void clearHits() override;
 
-    std::string type();
-
 private:
-    virtual void sendHit();
-    virtual void updateHit(G4Step *);
-    virtual bool newHit(G4Step *);
-    virtual bool closeHit(G4Step *);
-    virtual void createHit(G4Step *);
-    void checkExitPoint(Local3DPoint);
+    void createHit(const G4Step *);
+    void sendHit();
+    void updateHit(const G4Step *);
+    bool newHit   (const G4Step *);
+    bool closeHit (const G4Step *);
+
     void update(const BeginOfEvent *) override;
     void update(const BeginOfTrack *) override;
     void update(const BeginOfJob *) override;
-    Local3DPoint toOrcaRef(Local3DPoint ,G4VPhysicalVolume *);
-    int tofBin(float);
 
-    TrackingSlaveSD * slaveLowTof;
-    TrackingSlaveSD * slaveHighTof;
-    FrameRotation * myRotation;
-    UpdatablePSimHit * mySimHit;
-    std::string pname;
-    Local3DPoint globalEntryPoint;
-    Local3DPoint globalExitPoint;
+    Local3DPoint RotateAndScale(const Local3DPoint&);
+    TrackInformation* getTrackInformation(const G4Track *);
+
+    // data members initialised before run
     const SimTrackManager* theManager;
-    G4VPhysicalVolume * oldVolume;
-    G4ProcessTypeEnumerator * theG4ProcessTypeEnumerator;
-    double theSigma;
-    uint32_t lastId;
-    unsigned int lastTrack;
-    int eventno;
-    // cache stuff for debugging
-    float px,py,pz;
+    std::unique_ptr<TrackingSlaveSD> slaveLowTof;
+    std::unique_ptr<TrackingSlaveSD> slaveHighTof;
+    std::unique_ptr<FrameRotation>   theRotation;
+    std::unique_ptr<const G4ProcessTypeEnumerator> theG4ProcTypeEnumerator;
+    std::unique_ptr<const G4TrackToParticleID> theG4TrackToParticleID;
+    std::unique_ptr<TrackerG4SimHitNumberingScheme> theNumberingScheme;
     bool allowZeroEnergyLoss;
     bool printHits;
     bool neverAccumulate;
-    G4TrackToParticleID * myG4TrackToParticleID;
-    TrackInformation* getOrCreateTrackInformation(const G4Track *);
+    double rTracker2;   // tracker volume R^2
+    double rTracker;    // tracker volume R
+    double zTracker;    // tracker volume Z
+    float theTofLimit;
     float energyCut;
     float energyHistoryCut;
-    //
-    // definition of Tracker volume
-    //
-    float rTracker;
-    float zTracker;
 
-    TrackerG4SimHitNumberingScheme* numberingScheme_;
+    // run time cache
+    UpdatablePSimHit * mySimHit;
+    uint32_t lastId;
+    int lastTrack;
+
+    // cache stuff for debugging and printout
+    Local3DPoint globalEntryPoint;
+    Local3DPoint globalExitPoint;
+    const G4VPhysicalVolume* oldVolume;
+    float px,py,pz;
+    int eventno;
+    std::string pname;
 };
 
 #endif
-
-
-
-
-

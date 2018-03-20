@@ -308,10 +308,44 @@ _globalTags = {
     "CMSSW_9_4_0_pre3_phase1": {"default": "94X_mc2017_realistic_v4",
                                 "fullsim_25ns_PU50": "94X_mc2017_realistic_v4_highPU_AVE50",
                                 "Design": "94X_mc2017_design_IdealBS_v4"},
+    "CMSSW_9_4_0": {"default": "94X_mcRun2_asymptotic_v0"},
+    "CMSSW_9_4_0_phase1": {"default": "94X_mc2017_realistic_v10",
+                           "fullsim_25ns_PU50": "94X_mc2017_realistic_v10_highPU_AVE50",
+                           "Design": "94X_mc2017_design_IdealBS_v5"},
+    "CMSSW_10_0_0_pre1": {"default": "94X_mcRun2_asymptotic_v0"},
+    "CMSSW_10_0_0_pre1_phase1": {"default": "94X_mc2017_realistic_v10",
+                                 "fullsim_25ns_PU50": "94X_mc2017_realistic_v10_highPU_AVE50",
+                                 "Design": "94X_mc2017_design_IdealBS_v5"},
+    "CMSSW_10_0_0_pre2": {"default": "100X_mcRun2_asymptotic_v2"},
+    "CMSSW_10_0_0_pre2_2017": {"default": "100X_mc2017_realistic_v1",
+                               "fullsim_25ns": "100X_mc2017_realistic_v1_resub",
+                               "fullsim_25ns_PU50": "100X_mc2017_realistic_v1_highPU_AVE50",
+                               "Design": "100X_mc2017_design_IdealBS_v1",
+                               "Design_fullsim_25ns_PU50": "Does_not_exist"}, # to avoid 2018 Design PU=50 matching to 2017 Design PU35
+    "CMSSW_10_0_0_pre2_2017_pmx": {"default": "100X_mc2017_realistic_v1"},
+    "CMSSW_10_0_0_pre2_2018": {"default": "100X_upgrade2018_realistic_v1",
+                               "fullsim_25ns": "100X_upgrade2018_realistic_v1_resub",
+                               "Design": "100X_upgrade2018_design_IdealBS_v1",
+                               "Design_fullsim_25ns": "100X_upgrade2018_design_IdealBS_v1_resub"},
+    "CMSSW_10_0_0_pre3": {"default": "100X_mcRun2_asymptotic_v2"},
+    "CMSSW_10_0_0_pre3_2017": {"default": "100X_mc2017_realistic_v1_mahiOFF",
+                               "fullsim_25ns_PU50": "100X_mc2017_realistic_v1_highPU_AVE50_mahiOFF",
+                               "Design": "100X_mc2017_design_IdealBS_v1_mahiOFF"},
+    "CMSSW_10_0_0_pre3_2018": {"default": "100X_upgrade2018_realistic_v4_mahiOFF",
+                               "Design": "100X_upgrade2018_design_IdealBS_v3_mahiOFF"},
+    "CMSSW_10_0_0_pre3_2018_pmx": {"default": "100X_upgrade2018_realistic_v4",
+                                   "Design": "100X_upgrade2018_design_IdealBS_v3"},
+    "CMSSW_10_0_0_pre3_2017_mahi": {"default": "100X_mc2017_realistic_v1_mahiON",
+                                    "fullsim_25ns_PU50": "100X_mc2017_realistic_v1_highPU_AVE50_mahiON",
+                                    "Design": "100X_mc2017_design_IdealBS_v1_mahiON"},
+    "CMSSW_10_0_0_pre3_2018_mahi": {"default": "100X_upgrade2018_realistic_v4_mahiON",
+                                    "Design": "100X_upgrade2018_design_IdealBS_v3_mahiON"},
+    "CMSSW_10_0_0_pre3_GEANT4_2018_mahi": {"default": "100X_upgrade2018_realistic_v4_mahiON"},
+    "CMSSW_10_0_0_pre3_G4VecGeom2_2018": {"default": "100X_upgrade2018_realistic_v4"},
 }
 
 _releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_v2", "_v3", "_pmx", "_Fall14DR", "_FIXGT", "_PU", "_PXbest", "_PXworst", "_hcal", "_tec", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
-                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC", "_MT", "_GS", "_rereco", "_pythia8", "_13TeV", "_realGT", "_newGT2", "_newGT", "_phase1", "_phase2", "_ecal15fb", "_ecal30fb", "_ecalsrb5", "_ecalsrc1", "_ecalsrd7", "_pixDynIneff", "_PXmap", "_gcc530", "_gcc630", "_cc7", "_Tranche4GT", "_newBPixFPixHCAL", "_newBPixFPix", "_newBPixHCAL", "_newBPix", "_newHCAL", "_HIP", "_run1"]
+                     "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC", "_MT", "_GS", "_rereco", "_pythia8", "_13TeV", "_realGT", "_newGT2", "_newGT", "_phase1", "_phase2", "_2017", "_2018", "_ecal15fb", "_ecal30fb", "_ecalsrb5", "_ecalsrc1", "_ecalsrd7", "_pixDynIneff", "_PXmap", "_gcc530", "_gcc630", "_cc7", "_Tranche4GT", "_newBPixFPixHCAL", "_newBPixFPix", "_newBPixHCAL", "_newBPix", "_newHCAL", "_HIP", "_run1", "_mahi"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
         if pf in release:
@@ -395,6 +429,7 @@ _relvalUrls = {
     "9_2_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_9_2_x/",
     "9_3_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_9_3_x/",
     "9_4_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_9_4_x/",
+    "10_0_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_10_0_x/",
 }
 
 _doElectronSamples = [
@@ -699,7 +734,7 @@ class Validation:
             print "Private key file {keyfile} does not exist, unable to download RelVal files from {url}".format(keyfile=keyfile, url=relvalUrl)
             sys.exit(1)
         
-        # curl --cert-type PEM --cert $HOME/.globus/usercert.pem --key $HOME/.globus/userkye.pem -k -O <url> -O <url>
+        # curl --cert-type PEM --cert $HOME/.globus/usercert.pem --key $HOME/.globus/userkey.pem -k -O <url> -O <url>
         cmd = ["curl", "--cert-type", "PEM", "--cert", certfile, "--key", keyfile, "-k"]
         for u in urls:
             cmd.extend(["-O", u])

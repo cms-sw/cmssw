@@ -14,6 +14,11 @@ namespace reco {
 	  EtaRangeSelector( cfg.getParameter<double>( "etaMin" ),
 			    cfg.getParameter<double>( "etaMax" ) );
       }
+
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {
+        desc.add<double>("etaMin", 0.);
+        desc.add<double>("etaMax", 0.);
+      }
     };
 
   }

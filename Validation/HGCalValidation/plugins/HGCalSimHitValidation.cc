@@ -1,56 +1,134 @@
-// -*- C++ -*-
-//
-// Package:    HGCalSimHitValidation
-// Class:      HGCalSimHitValidation
-// 
-/**\class HGCalSimHitValidation HGCalSimHitValidation.cc Validaion/HGCalValidation/plugins/HGCalSimHitValidation.cc
- Description: Validates SimHits of High Granularity Calorimeter
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Raman Khurana
-////      and Kalyanmoy Chatterjee
-//         Created:  Fri, 31 Jan 2014 18:35:18 GMT
-// $Id$
-
 // system include files
 #include <cmath>
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <map>
+#include <string>
+
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
-#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
 #include "CLHEP/Geometry/Point3D.h"
+#include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "Validation/HGCalValidation/plugins/HGCalSimHitValidation.h"
+
+class HGCalSimHitValidation : public DQMEDAnalyzer {
+  
+public:
+  
+  struct energysum{
+    energysum() {etotal=0; for (int i=0; i<6; ++i) eTime[i] = 0.;}
+    double eTime[6], etotal;
+  };
+  
+  struct hitsinfo{
+    hitsinfo() {
+      x=y=z=phi=eta=0.0;
+      cell=sector=layer=0;
+    }
+    double x, y, z, phi, eta;
+    int    cell, sector, layer;
+  };
+  
+  
+  explicit HGCalSimHitValidation(const edm::ParameterSet&);
+  ~HGCalSimHitValidation() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+protected:
+
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  
+private:
+
+  void analyzeHits (std::vector<PCaloHit>& hits);
+  void fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer);
+  void fillHitsInfo(std::pair<hitsinfo,energysum> hit_, unsigned int itimeslice, double esum); 
+  bool defineGeometry(edm::ESTransientHandle<DDCompactView> &ddViewH);
+  
+  // ----------member data ---------------------------
+  std::string                nameDetector_, caloHitSource_;
+  const HGCalDDDConstants   *hgcons_;
+  const HcalDDDRecConstants *hcons_;
+  std::vector<double>        times_;
+  int                        verbosity_;
+  bool                       heRebuild_, testNumber_, symmDet_;
+  unsigned int               nTimes_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
+  edm::EDGetTokenT<edm::HepMCProduct>      tok_hepMC_;
+  unsigned int              layers_;
+  std::map<uint32_t, HepGeom::Transform3D> transMap_;
+  
+  std::vector<MonitorElement*> HitOccupancy_Plus_, HitOccupancy_Minus_;
+  std::vector<MonitorElement*> EtaPhi_Plus_,  EtaPhi_Minus_;
+  MonitorElement              *MeanHitOccupancy_Plus_, *MeanHitOccupancy_Minus_;
+  std::vector<MonitorElement*> energy_[6];
+};
 
 HGCalSimHitValidation::HGCalSimHitValidation(const edm::ParameterSet& iConfig) :
+  nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
+  caloHitSource_(iConfig.getParameter<std::string>("CaloHitSource")),
+  times_(iConfig.getParameter<std::vector<double> >("TimeSlices")),
+  verbosity_(iConfig.getUntrackedParameter<int>("Verbosity",0)),
+  testNumber_(iConfig.getUntrackedParameter<bool>("TestNumber",true)),
   symmDet_(true) {
 
-  nameDetector_  = iConfig.getParameter<std::string>("DetectorName");
-  caloHitSource_ = iConfig.getParameter<std::string>("CaloHitSource");
-  times_         = iConfig.getParameter<std::vector<double> >("TimeSlices");
-  verbosity_     = iConfig.getUntrackedParameter<int>("Verbosity",0);
-  testNumber_    = iConfig.getUntrackedParameter<bool>("TestNumber", true);
   heRebuild_     = (nameDetector_ == "HCal") ? true : false;
-  tok_hepMC_     = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
+  tok_hepMC_     = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
   tok_hits_      = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits",caloHitSource_));
   nTimes_        = (times_.size() > 6) ? 6 : times_.size();
 }
 
-HGCalSimHitValidation::~HGCalSimHitValidation() {}
+void HGCalSimHitValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  std::vector<double> times = {25.0,1000.0};
+  desc.add<std::string>("DetectorName","HGCalEESensitive");
+  desc.add<std::string>("CaloHitSource","HGCHitsEE");
+  desc.add<std::vector<double> >("TimeSlices",times);
+  desc.addUntracked<int>("Verbosity",0);
+  desc.addUntracked<bool>("TestNumber",true);
+  descriptions.add("hgcalSimHitValidationEE",desc);
+}
 
 void HGCalSimHitValidation::analyze(const edm::Event& iEvent, 
 				    const edm::EventSetup& iSetup) {
@@ -65,10 +143,10 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent,
     unsigned int k(0);
     for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin();
 	 p != myGenEvent->particles_end(); ++p, ++k) {
-      edm::LogInfo("HGCalValidation") << "Particle[" << k << "] with pt "
-				      << (*p)->momentum().perp() << " eta "
-				      << (*p)->momentum().eta() << " phi "
-				      << (*p)->momentum().phi() << std::endl;
+      edm::LogVerbatim("HGCalValidation") << "Particle[" << k << "] with pt "
+					  << (*p)->momentum().perp() << " eta "
+					  << (*p)->momentum().eta() << " phi "
+					  << (*p)->momentum().phi();
     }
   }
 
@@ -77,8 +155,8 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent,
   iEvent.getByToken(tok_hits_, theCaloHitContainers);
   if (theCaloHitContainers.isValid()) {
     if (verbosity_>0) 
-      edm::LogInfo("HGCalValidation") << " PcalohitItr = " 
-				      << theCaloHitContainers->size() << "\n";
+      edm::LogVerbatim("HGCalValidation") << " PcalohitItr = " 
+					  << theCaloHitContainers->size();
     std::vector<PCaloHit>               caloHits;
     caloHits.insert(caloHits.end(), theCaloHitContainers->begin(), 
                          	    theCaloHitContainers->end());
@@ -89,12 +167,12 @@ void HGCalSimHitValidation::analyze(const edm::Event& iEvent,
     if(hid.subdet()!=int(HcalEndcap)) hid = HcalDetId(HcalEmpty,hid.ieta(),hid.iphi(),hid.depth());
 	caloHits[i].setID(hid.rawId());
 	if (verbosity_>0)
-	  edm::LogInfo("HGCalValidation") << "Hit[" << i << "] " << hid <<"\n";
+	  edm::LogVerbatim("HGCalValidation") << "Hit[" << i << "] " << hid;
       }
     }
     analyzeHits(caloHits);
   } else if (verbosity_>0) {
-    edm::LogInfo("HGCalValidation") << "PCaloHitContainer does not exist !!!\n";
+    edm::LogVerbatim("HGCalValidation") << "PCaloHitContainer does not exist!";
   }
 }
 
@@ -107,8 +185,8 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
   map_hits.clear();
   
   if (verbosity_ > 0) 
-    edm::LogInfo("HGCalValidation") << nameDetector_ << " with " << hits.size()
-				    << " PcaloHit elements\n";
+    edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
+					<< hits.size() << " PcaloHit elements";
   unsigned int nused(0);
   for (unsigned int i=0; i<hits.size(); i++) {
     double energy      = hits[i].energy();
@@ -134,22 +212,27 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
     }
     nused++;
     if (verbosity_>1) 
-      edm::LogInfo("HGCalValidation") << "Detector "     << nameDetector_
-				      << " zside = "     << zside
-				      << " sector|wafer = "   << sector
-				      << " subsector|type = " << subsector
-				      << " layer = "     << layer
-				      << " cell = "      << cell
-				      << " energy = "    << energy
-				      << " energyem = "  << hits[i].energyEM()
-				      << " energyhad = " << hits[i].energyHad()
-				      << " time = "      << time << "\n";
+      edm::LogVerbatim("HGCalValidation") << "Detector "     << nameDetector_
+					  << " zside = "     << zside
+					  << " sector|wafer = "   << sector
+					  << " subsector|type = " << subsector
+					  << " layer = "     << layer
+					  << " cell = "      << cell
+					  << " energy = "    << energy
+					  << " energyem = "  << hits[i].energyEM()
+					  << " energyhad = " << hits[i].energyHad()
+					  << " time = "      << time;
 
     HepGeom::Point3D<float> gcoord;
     if (heRebuild_) {
       std::pair<double,double> etaphi = hcons_->getEtaPhi(subdet,zside*cell,sector);
       double rz = hcons_->getRZ(subdet,zside*cell,layer);
-//    std::cout << "i/p " << subdet << ":" << zside << ":" << cell << ":" << sector << ":" << layer << " o/p " << etaphi.first << ":" << etaphi.second << ":" << rz << std::endl;
+      if (verbosity_>2) 
+	edm::LogVerbatim("HGCalValidation") << "i/p " << subdet << ":" 
+					    << zside << ":" << cell << ":" 
+					    << sector << ":" << layer <<" o/p "
+					    << etaphi.first << ":" 
+					    << etaphi.second << ":" << rz;
       gcoord = HepGeom::Point3D<float>(rz*cos(etaphi.second)/cosh(etaphi.first),
 				       rz*sin(etaphi.second)/cosh(etaphi.first),
 				       rz*tanh(etaphi.first));
@@ -170,9 +253,9 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
     }
     double tof = (gcoord.mag()*CLHEP::mm)/CLHEP::c_light; 
     if (verbosity_>1) 
-      edm::LogInfo("HGCalValidation") << std::hex << id_ << std::dec
-				      << " global coordinate " << gcoord
-				      << " time " << time << ":" << tof <<"\n";
+      edm::LogVerbatim("HGCalValidation") << std::hex << id_ << std::dec
+					  << " global coordinate " << gcoord
+					  << " time " << time << ":" << tof;
     time -= tof;
     
     energysum  esum;
@@ -195,17 +278,16 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
       if (time > 0 && time < times_[k]) esum.eTime[k] += energy;
     }
     if (verbosity_>1) 
-      edm::LogInfo("HGCalValidation") << " --------------------------   gx = " 
-				      << hinfo.x << " gy = "  << hinfo.y 
-				      << " gz = " << hinfo.z << " phi = " 
-				      << hinfo.phi << " eta = " << hinfo.eta
-				      << std::endl;
+      edm::LogVerbatim("HGCalValidation") << " -----------------------   gx = "
+					  << hinfo.x << " gy = "  << hinfo.y 
+					  << " gz = " << hinfo.z << " phi = " 
+					  << hinfo.phi << " eta = " << hinfo.eta;
     map_hits[id_] = std::pair<hitsinfo,energysum>(hinfo,esum);
   }
   if (verbosity_>0) 
-    edm::LogInfo("HGCalValidation") << nameDetector_ << " with " 
-				    << map_hits.size()
-				    << " detector elements being hit\n";
+    edm::LogVerbatim("HGCalValidation") << nameDetector_ << " with " 
+					<< map_hits.size()
+					<< " detector elements being hit";
   
   std::map<uint32_t,std::pair<hitsinfo,energysum> >::iterator itr;
   for (itr = map_hits.begin() ; itr != map_hits.end(); ++itr)   {
@@ -222,9 +304,9 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
     if (eta > 0.0)        fillOccupancyMap(OccupancyMap_plus, layer-1);
     else                  fillOccupancyMap(OccupancyMap_minus, layer-1);
   }
-  edm::LogInfo("HGCalValidation") << "With map:used:total " << hits.size()
-				  << "|" << nused << "|" << map_hits.size()
-				  << " hits\n";
+  edm::LogVerbatim("HGCalValidation") << "With map:used:total " << hits.size()
+				      << "|" << nused << "|" << map_hits.size()
+				      << " hits";
 
   for (auto itr = OccupancyMap_plus.begin() ; itr != OccupancyMap_plus.end(); ++itr) {
     int layer     = (*itr).first;
@@ -258,19 +340,19 @@ void HGCalSimHitValidation::fillHitsInfo(std::pair<hitsinfo,energysum> hits,
     }
   } else {
     if (verbosity_>0) 
-      edm::LogInfo("HGCalValidation") << "Problematic Hit for " 
-				      << nameDetector_ << " at sector " 
-				      << hits.first.sector << " layer " 
-				      << hits.first.layer << " cell " 
-				      << hits.first.cell << " energy "
-				      << hits.second.etotal << std::endl;
+      edm::LogVerbatim("HGCalValidation") << "Problematic Hit for " 
+					  << nameDetector_ << " at sector " 
+					  << hits.first.sector << " layer " 
+					  << hits.first.layer << " cell " 
+					  << hits.first.cell << " energy "
+					  << hits.second.etotal;
   }
 }
 
 bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<DDCompactView> &ddViewH){
   if (verbosity_>0) 
-    edm::LogInfo("HGCalValidation") << "Initialize HGCalDDDConstants for " 
-				    << nameDetector_ << " : " << hgcons_ <<"\n";
+    edm::LogVerbatim("HGCalValidation") << "Initialize HGCalDDDConstants for " 
+					<< nameDetector_ << " : " << hgcons_;
   
   if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
     const DDCompactView & cview = *ddViewH;
@@ -308,16 +390,16 @@ bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<DDCompactView>
 	const HepGeom::Transform3D ht3d (hr, h3v);
 	transMap_.insert(std::make_pair(id,ht3d));
 	if (verbosity_>2) 
-	  edm::LogInfo("HGCalValidation") << HGCalDetId(id) 
-					  << " Transform using " << h3v 
-					  << " and " << hr << std::endl;
+	  edm::LogVerbatim("HGCalValidation") << HGCalDetId(id) 
+					      << " Transform using " << h3v 
+					      << " and " << hr;
       }
       dodet = fv.next();
     }
     if (verbosity_>0) 
-      edm::LogInfo("HGCalValidation") << "Finds " << transMap_.size() 
-				      << " elements and SymmDet_ = " 
-				      << symmDet_ << std::endl;
+      edm::LogVerbatim("HGCalValidation") << "Finds " << transMap_.size() 
+					  << " elements and SymmDet_ = " 
+					  << symmDet_;
   }
   return true;
 }
@@ -340,8 +422,8 @@ void HGCalSimHitValidation::dqmBeginRun(const edm::Run&,
     defineGeometry(pDD);
   }
   if (verbosity_>0) 
-    edm::LogInfo("HGCalValidation") << nameDetector_ << " defined with "
-				    << layers_ << " Layers\n";
+    edm::LogVerbatim("HGCalValidation") << nameDetector_ << " defined with "
+					<< layers_ << " Layers";
 }
 
 void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker& iB, 
@@ -370,15 +452,6 @@ void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker& iB,
 
   MeanHitOccupancy_Plus_ = iB.book1D("MeanHitOccupancy_Plus", "MeanHitOccupancy_Plus", layers_, 0.5, layers_ + 0.5);
   MeanHitOccupancy_Minus_ = iB.book1D("MeanHitOccupancy_Minus", "MeanHitOccupancy_Minus", layers_, 0.5, layers_ + 0.5);
-}
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void HGCalSimHitValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

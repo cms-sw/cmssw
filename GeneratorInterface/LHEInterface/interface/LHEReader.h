@@ -43,6 +43,7 @@ class LHEReader {
 	std::unique_ptr<XMLDocument>	curDoc;
 	boost::shared_ptr<LHERunInfo>	curRunInfo;
 	std::unique_ptr<XMLHandler>	handler;
+	std::shared_ptr<void>           platform;
 };
 
 } // namespace lhef

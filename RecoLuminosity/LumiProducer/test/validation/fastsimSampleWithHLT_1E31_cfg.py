@@ -79,8 +79,11 @@ process.source = cms.Source("EmptySource",
 process.simulation = cms.Sequence(process.generator*process.simulationWithFamos)
 
 # You many not want to simulate everything
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
+process.fastSimProducer.SimulateCalorimetry = True
+for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
 # Number of pileup events per crossing
 process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 

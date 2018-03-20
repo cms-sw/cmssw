@@ -321,25 +321,9 @@ void DQMSourcePi0::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & 
 
   hS4S92EtaEE_ = ibooker.book1D("S4S92EtaEE","S4S9 2nd most energetic Pi0 photon in EE",50,0.,1.);
   hS4S92EtaEE_->setAxisTitle("S4S9 of the 2nd Eta Photon",1);
-
-  
-
-
-}
-
-//--------------------------------------------------------
-//void DQMSourcePi0::beginRun(const edm::Run& r, const EventSetup& context) {
-//
-//}
-
-//--------------------------------------------------------
-void DQMSourcePi0::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
-     const EventSetup& context) {
-  
 }
 
 //-------------------------------------------------------------
-
 void DQMSourcePi0::analyze(const Event& iEvent, 
 			       const EventSetup& iSetup ){  
  
@@ -375,22 +359,15 @@ void DQMSourcePi0::analyze(const Event& iEvent,
   if(isMonEEeta_) iEvent.getByToken(productMonitoredEEeta_, rhEEeta);
 
   // Initialize the Position Calc
-  const CaloSubdetectorGeometry *geometry_p; 
-  const CaloSubdetectorGeometry *geometryEE_p;    
-  const CaloSubdetectorGeometry *geometryES_p;
-  
-  const CaloSubdetectorTopology *topology_p;
-  const CaloSubdetectorTopology *topology_ee;
-  
-
 
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);     
-  geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-  geometryEE_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
-  geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
-  topology_p = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
-  topology_ee = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
+  const CaloSubdetectorGeometry* geometry_p   = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
+  const CaloSubdetectorGeometry* geometryEE_p = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+  const CaloSubdetectorGeometry* geometryES_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+
+  const CaloSubdetectorTopology* topology_p  = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
+  const CaloSubdetectorTopology* topology_ee = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
   
   EcalRecHitCollection::const_iterator itb;
   
@@ -1506,28 +1483,6 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 
 
 } 
-
-
-
-
-//--------------------------------------------------------
-void DQMSourcePi0::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
-                                          const EventSetup& context) {
-}
-//--------------------------------------------------------
-void DQMSourcePi0::endRun(const Run& r, const EventSetup& context){
-
-}
-//--------------------------------------------------------
-void DQMSourcePi0::endJob(){
-
-//  if(dbe_) {  
-//    if (saveToFile_) {
-//      dbe_->save(fileName_);
-//    }
-//  }
-}
-
 
 void DQMSourcePi0::convxtalid(Int_t &nphi,Int_t &neta)
 {

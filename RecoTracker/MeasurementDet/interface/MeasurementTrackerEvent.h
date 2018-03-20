@@ -41,11 +41,8 @@ public:
 
    MeasurementTrackerEvent(const MeasurementTrackerEvent & other) = delete;
    MeasurementTrackerEvent & operator=(const MeasurementTrackerEvent & other) = delete;
-   MeasurementTrackerEvent(MeasurementTrackerEvent && other) = delete;
-   MeasurementTrackerEvent & operator=(MeasurementTrackerEvent && other) = delete;
-
-   //  for the edm wrapper...
-   void swap(MeasurementTrackerEvent &other) ;
+   MeasurementTrackerEvent(MeasurementTrackerEvent && other);
+   MeasurementTrackerEvent & operator=(MeasurementTrackerEvent && other);
 
 
    const MeasurementTracker & measurementTracker() const { return * theTracker; }
@@ -74,7 +71,5 @@ private:
    std::vector<bool> thePixelClustersToSkip;
    std::vector<bool> thePhase2OTClustersToSkip;
 };
-
-inline void swap(MeasurementTrackerEvent &a, MeasurementTrackerEvent &b) { a.swap(b); }
 
 #endif // MeasurementTrackerEvent_H

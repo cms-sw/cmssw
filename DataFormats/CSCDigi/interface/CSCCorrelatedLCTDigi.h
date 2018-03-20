@@ -116,24 +116,26 @@ class CSCCorrelatedLCTDigi
 
   /// SIMULATION ONLY ////
   enum Type{CLCTALCT, // CLCT-centric
-	    ALCTCLCT, // ALCT-centric
-	    ALCTCLCTGEM, // ALCT-CLCT-1 GEM pad
-	    ALCTCLCT2GEM, // ALCT-CLCT-2 GEM pads in coincidence
-	    ALCT2GEM, // ALCT-2 GEM pads in coincidence
-	    CLCT2GEM  // CLCT-2 GEM pads in coincidence
+            ALCTCLCT, // ALCT-centric
+            ALCTCLCTGEM, // ALCT-CLCT-1 GEM pad
+            ALCTCLCT2GEM, // ALCT-CLCT-2 GEM pads in coincidence
+            ALCT2GEM, // ALCT-2 GEM pads in coincidence
+            CLCT2GEM,  // CLCT-2 GEM pads in coincidence
+            CLCTONLY, // Missing ALCT
+            ALCTONLY // Missing CLCT
   };
   
-  int getType() {return type_;}
+  int getType() const {return type_;}
   void setType(int type) {type_ = type;}
   
   void setALCT(const CSCALCTDigi& alct) {alct_ = alct;}
   void setCLCT(const CSCCLCTDigi& clct) {clct_ = clct;}
   void setGEM1(const GEMPadDigi& gem) {gem1_ = gem;}
   void setGEM2(const GEMPadDigi& gem) {gem2_ = gem;}
-  const CSCALCTDigi&  getALCT() {return alct_;}
-  const CSCCLCTDigi&  getCLCT() {return clct_;}
-  const GEMPadDigi&  getGEM1() {return gem1_;}
-  const GEMPadDigi&  getGEM2() {return gem2_;}
+  const CSCALCTDigi&  getALCT() const {return alct_;}
+  const CSCCLCTDigi&  getCLCT() const {return clct_;}
+  const GEMPadDigi&  getGEM1() const {return gem1_;}
+  const GEMPadDigi&  getGEM2() const {return gem2_;}
 
 private:
   uint16_t trknmb;

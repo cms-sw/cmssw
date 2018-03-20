@@ -1,6 +1,5 @@
 #include <sys/time.h>
 
-#include "EventFilter/FEDInterface/interface/fed_header.h"
 #include "EventFilter/Utilities/interface/AuxiliaryMakers.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -9,9 +8,10 @@ namespace evf{
 
 	edm::EventAuxiliary makeEventAuxiliary(const tcds::Raw_v1* tcds,
 					     unsigned int runNumber,
-                                             unsigned int lumiSection,
-					     std::string const &processGUID,
-                                             bool verifyLumiSection){
+					     unsigned int lumiSection,
+					     const edm::EventAuxiliary::ExperimentType& eventType,
+					     const std::string& processGUID,
+					     bool verifyLumiSection){
 	edm::EventID eventId(runNumber, // check that runnumber from record is consistent
                              lumiSection,
 			     tcds->header.eventNumber);
@@ -36,7 +36,7 @@ namespace evf{
 				   processGUID,
 				   edm::Timestamp(time),
 				   true,
-                                   (edm::EventAuxiliary::ExperimentType)FED_EVTY_EXTRACT(tcds->fedHeader.eventid),
+                                   eventType,
 				   (int)tcds->header.bxid,
 				   ((uint32_t)(tcds->bst.lhcFillHigh)<<16)|tcds->bst.lhcFillLow,
 				   (int)(orbitnr&0x7fffffffU));//framework supports only 32-bit signed

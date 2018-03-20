@@ -124,12 +124,6 @@ namespace pat {
       /// and hcal 
       float caloIso()  const { return ecalIso()+hcalIso(); }
 
-      /// get and set PFCluster isolation
-      float ecalPFClusterIso() const { return ecalPFClusIso_;}
-      float hcalPFClusterIso() const { return hcalPFClusIso_;}
-      void setEcalPFClusterIso(float ecalPFClus) { ecalPFClusIso_=ecalPFClus;}
-      void setHcalPFClusterIso(float hcalPFClus) { hcalPFClusIso_=hcalPFClus;}
-
       /// PARTICLE FLOW ISOLATION
       /// Returns the isolation calculated with all the PFCandidates
       float patParticleIso() const { return userIsolation(pat::PfAllParticleIso); }
@@ -401,9 +395,6 @@ namespace pat {
       float cryPhi_;
       float iEta_;
       float iPhi_;
-
-      float ecalPFClusIso_;
-      float hcalPFClusIso_;
 
       //PUPPI isolations
       float puppiChargedHadronIso_;

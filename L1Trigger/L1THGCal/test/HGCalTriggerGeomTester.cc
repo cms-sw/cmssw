@@ -363,7 +363,7 @@ void HGCalTriggerGeomTester::checkMappingConsistency()
     std::unordered_map<uint32_t, std::unordered_set<uint32_t>> triggercells_to_cells;
 
     // EE
-    for(const auto& id : triggerGeometry_->eeGeometry().getValidGeomDetIds())
+    for(const auto& id : triggerGeometry_->eeGeometry()->getValidGeomDetIds())
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferid(id); 
@@ -383,7 +383,7 @@ void HGCalTriggerGeomTester::checkMappingConsistency()
         }
     }
     // FH
-    for(const auto& id : triggerGeometry_->fhGeometry().getValidGeomDetIds())
+    for(const auto& id : triggerGeometry_->fhGeometry()->getValidGeomDetIds())
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferid(id); 
@@ -512,7 +512,7 @@ void HGCalTriggerGeomTester::checkNeighborConsistency()
     std::unordered_map<uint32_t, std::unordered_set<uint32_t>> triggercells_to_cells;
 
     // EE
-    for(const auto& id : triggerGeometry_->eeGeometry().getValidGeomDetIds())
+    for(const auto& id : triggerGeometry_->eeGeometry()->getValidGeomDetIds())
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferid(id); 
@@ -531,7 +531,7 @@ void HGCalTriggerGeomTester::checkNeighborConsistency()
         }
     }
     // FH
-    for(const auto& id : triggerGeometry_->fhGeometry().getValidGeomDetIds())
+    for(const auto& id : triggerGeometry_->fhGeometry()->getValidGeomDetIds())
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferid(id); 
@@ -600,7 +600,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry()
     // Loop over cells
     edm::LogPrint("TreeFilling")<<"Filling cells tree";
     // EE
-    for(const auto& id : triggerGeometry_->eeGeometry().getValidGeomDetIds())
+    for(const auto& id : triggerGeometry_->eeGeometry()->getValidGeomDetIds())
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferid(id); 
@@ -620,11 +620,11 @@ void HGCalTriggerGeomTester::fillTriggerGeometry()
             cellWaferColumn_ = row_column.second;
             cell_           = id.cell();
             //
-            GlobalPoint center = triggerGeometry_->eeGeometry().getPosition(id);
+            GlobalPoint center = triggerGeometry_->eeGeometry()->getPosition(id);
             cellX_      = center.x();
             cellY_      = center.y();
             cellZ_      = center.z();
-            std::vector<GlobalPoint> corners = triggerGeometry_->eeGeometry().getCorners(id);
+            std::vector<GlobalPoint> corners = triggerGeometry_->eeGeometry()->getCorners(id);
             if(corners.size()>=4)
             {
                 cellX1_      = corners.at(0).x();
@@ -650,7 +650,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry()
         }
     }
     // FH
-    for(const auto& id : triggerGeometry_->fhGeometry().getValidGeomDetIds())
+    for(const auto& id : triggerGeometry_->fhGeometry()->getValidGeomDetIds())
     {
         if(id.rawId()==0) continue;
         HGCalDetId waferid(id); 
@@ -670,11 +670,11 @@ void HGCalTriggerGeomTester::fillTriggerGeometry()
             cellWaferColumn_ = row_column.second;
             cell_           = id.cell();
             //
-            GlobalPoint center = triggerGeometry_->fhGeometry().getPosition(id);
+            GlobalPoint center = triggerGeometry_->fhGeometry()->getPosition(id);
             cellX_      = center.x();
             cellY_      = center.y();
             cellZ_      = center.z();
-            std::vector<GlobalPoint> corners = triggerGeometry_->fhGeometry().getCorners(id);
+            std::vector<GlobalPoint> corners = triggerGeometry_->fhGeometry()->getCorners(id);
             if(corners.size()>=4)
             {
                 cellX1_      = corners.at(0).x();
@@ -712,13 +712,13 @@ void HGCalTriggerGeomTester::fillTriggerGeometry()
         cellBHIEta_ = cellid.ieta();
         cellBHIPhi_ = cellid.iphi();
         //
-        GlobalPoint center = triggerGeometry_->bhGeometry().getGeometry(id)->getPosition();
+        GlobalPoint center = triggerGeometry_->bhGeometry()->getGeometry(id)->getPosition();
         cellBHEta_      = center.eta();
         cellBHPhi_      = center.phi();
         cellBHX_      = center.x();
         cellBHY_      = center.y();
         cellBHZ_      = center.z();
-        auto corners = triggerGeometry_->bhGeometry().getGeometry(id)->getCorners();
+        auto corners = triggerGeometry_->bhGeometry()->getGeometry(id)->getCorners();
         if(corners.size()>=4)
         {
             cellBHX1_      = corners[0].x();
@@ -770,7 +770,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry()
             if(id.subdetId()==ForwardSubdetector::HGCHEB)
             {
                 HcalDetId cId(c);
-                GlobalPoint cell_position = triggerGeometry_->bhGeometry().getGeometry(cId)->getPosition();
+                GlobalPoint cell_position = triggerGeometry_->bhGeometry()->getGeometry(cId)->getPosition();
                 triggerCellCell_id_    .get()[ic] = c;
                 triggerCellCell_zside_ .get()[ic] = cId.zside();
                 triggerCellCell_subdet_.get()[ic] = cId.subdetId();
@@ -786,7 +786,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry()
             else
             {
                 HGCalDetId cId(c);
-                GlobalPoint cell_position = (cId.subdetId()==ForwardSubdetector::HGCEE ? triggerGeometry_->eeGeometry().getPosition(cId) :  triggerGeometry_->fhGeometry().getPosition(cId));
+                GlobalPoint cell_position = (cId.subdetId()==ForwardSubdetector::HGCEE ? triggerGeometry_->eeGeometry()->getPosition(cId) :  triggerGeometry_->fhGeometry()->getPosition(cId));
                 triggerCellCell_id_    .get()[ic] = c;
                 triggerCellCell_zside_ .get()[ic] = cId.zside();
                 triggerCellCell_subdet_.get()[ic] = cId.subdetId();
@@ -870,7 +870,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry()
         for(const auto& c : cells_in_module)
         {
             HGCalDetId cId(c);
-            const GlobalPoint position = (cId.subdetId()==ForwardSubdetector::HGCEE ? triggerGeometry_->eeGeometry().getPosition(cId) :  triggerGeometry_->fhGeometry().getPosition(cId));
+            const GlobalPoint position = (cId.subdetId()==ForwardSubdetector::HGCEE ? triggerGeometry_->eeGeometry()->getPosition(cId) :  triggerGeometry_->fhGeometry()->getPosition(cId));
             moduleCell_id_    .get()[ic] = c;
             moduleCell_zside_ .get()[ic] = cId.zside();
             moduleCell_subdet_.get()[ic] = cId.subdetId();

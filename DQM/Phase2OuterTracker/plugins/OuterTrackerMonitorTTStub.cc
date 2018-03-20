@@ -28,7 +28,6 @@
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQM/Phase2OuterTracker/interface/OuterTrackerMonitorTTStub.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -37,12 +36,13 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
+#include "OuterTrackerMonitorTTStub.h"
 
 //
 // constructors and destructor
 //
 OuterTrackerMonitorTTStub::OuterTrackerMonitorTTStub(const edm::ParameterSet& iConfig)
-: dqmStore_(edm::Service<DQMStore>().operator->()), conf_(iConfig)
+:conf_(iConfig)
 {
    //now do what ever initialization is needed
    topFolderName_ = conf_.getParameter<std::string>("TopFolderName");
@@ -162,12 +162,10 @@ OuterTrackerMonitorTTStub::analyze(const edm::Event& iEvent, const edm::EventSet
 
 
 // ------------ method called when starting to processes a run  ------------
-void 
-OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
-{
+void OuterTrackerMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const & run, edm::EventSetup const & es) {
   std::string HistoName;    
 
-  dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/Position");
+  iBooker.setCurrentFolder(topFolderName_+"/Stubs/Position");
   
   
   ////////////////////////////////////////
@@ -176,7 +174,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   
   edm::ParameterSet psTTStub_Barrel_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Position");
   HistoName = "Stub_Barrel_XY";
-  Stub_Barrel_XY = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Barrel_XY = iBooker.book2D(HistoName, HistoName,
       psTTStub_Barrel_XY.getParameter<int32_t>("Nbinsx"),
       psTTStub_Barrel_XY.getParameter<double>("xmin"),
       psTTStub_Barrel_XY.getParameter<double>("xmax"),
@@ -188,7 +186,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   
   edm::ParameterSet psTTStub_Barrel_XY_Zoom =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Barrel_XY_Zoom");
   HistoName = "Stub_Barrel_XY_Zoom";
-  Stub_Barrel_XY_Zoom = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Barrel_XY_Zoom = iBooker.book2D(HistoName, HistoName,
       psTTStub_Barrel_XY_Zoom.getParameter<int32_t>("Nbinsx"),
       psTTStub_Barrel_XY_Zoom.getParameter<double>("xmin"),
       psTTStub_Barrel_XY_Zoom.getParameter<double>("xmax"),
@@ -201,7 +199,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   
   edm::ParameterSet psTTStub_Endcap_Fw_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Position");
   HistoName = "Stub_Endcap_Fw_XY";
-  Stub_Endcap_Fw_XY = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_Fw_XY = iBooker.book2D(HistoName, HistoName,
       psTTStub_Endcap_Fw_XY.getParameter<int32_t>("Nbinsx"),
       psTTStub_Endcap_Fw_XY.getParameter<double>("xmin"),
       psTTStub_Endcap_Fw_XY.getParameter<double>("xmax"),
@@ -214,7 +212,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   
   edm::ParameterSet psTTStub_Endcap_Bw_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Position");
   HistoName = "Stub_Endcap_Bw_XY";
-  Stub_Endcap_Bw_XY = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_Bw_XY = iBooker.book2D(HistoName, HistoName,
       psTTStub_Endcap_Bw_XY.getParameter<int32_t>("Nbinsx"),
       psTTStub_Endcap_Bw_XY.getParameter<double>("xmin"),
       psTTStub_Endcap_Bw_XY.getParameter<double>("xmax"),
@@ -227,7 +225,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   //TTStub #rho vs. z
   edm::ParameterSet psTTStub_RZ =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_RZ");
   HistoName = "Stub_RZ";
-  Stub_RZ = dqmStore_->book2D(HistoName, HistoName,
+  Stub_RZ = iBooker.book2D(HistoName, HistoName,
       psTTStub_RZ.getParameter<int32_t>("Nbinsx"),
       psTTStub_RZ.getParameter<double>("xmin"),
       psTTStub_RZ.getParameter<double>("xmax"),
@@ -240,7 +238,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   //TTStub Forward Endcap #rho vs. z
   edm::ParameterSet psTTStub_Endcap_Fw_RZ_Zoom =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Endcap_Fw_RZ_Zoom");
   HistoName = "Stub_Endcap_Fw_RZ_Zoom";
-  Stub_Endcap_Fw_RZ_Zoom = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_Fw_RZ_Zoom = iBooker.book2D(HistoName, HistoName,
       psTTStub_Endcap_Fw_RZ_Zoom.getParameter<int32_t>("Nbinsx"),
       psTTStub_Endcap_Fw_RZ_Zoom.getParameter<double>("xmin"),
       psTTStub_Endcap_Fw_RZ_Zoom.getParameter<double>("xmax"),
@@ -253,7 +251,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   //TTStub Backward Endcap #rho vs. z
   edm::ParameterSet psTTStub_Endcap_Bw_RZ_Zoom =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Endcap_Bw_RZ_Zoom");
   HistoName = "Stub_Endcap_Bw_RZ_Zoom";
-  Stub_Endcap_Bw_RZ_Zoom = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_Bw_RZ_Zoom = iBooker.book2D(HistoName, HistoName,
       psTTStub_Endcap_Bw_RZ_Zoom.getParameter<int32_t>("Nbinsx"),
       psTTStub_Endcap_Bw_RZ_Zoom.getParameter<double>("xmin"),
       psTTStub_Endcap_Bw_RZ_Zoom.getParameter<double>("xmax"),
@@ -263,24 +261,24 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   Stub_Endcap_Bw_RZ_Zoom->setAxisTitle("L1 Stub Endcap position z [cm]", 1);
   Stub_Endcap_Bw_RZ_Zoom->setAxisTitle("L1 Stub Endcap position #rho [cm]", 2);  
 
-  dqmStore_->setCurrentFolder(topFolderName_+"/Stubs");
+  iBooker.setCurrentFolder(topFolderName_+"/Stubs");
   
   //TTStub eta 
   edm::ParameterSet psTTStub_Eta =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Eta");
   HistoName = "Stub_Eta"; 
-  Stub_Eta = dqmStore_ ->book1D(HistoName,HistoName,
+  Stub_Eta = iBooker.book1D(HistoName,HistoName,
       psTTStub_Eta.getParameter<int32_t>("Nbinsx"), 
       psTTStub_Eta.getParameter<double>("xmin"), 
       psTTStub_Eta.getParameter<double>("xmax"));
   Stub_Eta->setAxisTitle("#eta",1); 
   Stub_Eta->setAxisTitle("# L1 Stubs ",2);
 
-  dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/NStubs");
+  iBooker.setCurrentFolder(topFolderName_+"/Stubs/NStubs");
   
   //TTStub barrel stack
   edm::ParameterSet psTTStub_Barrel =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Layers");
   HistoName = "NStubs_Barrel"; 
-  Stub_Barrel = dqmStore_ ->book1D(HistoName,HistoName,
+  Stub_Barrel = iBooker.book1D(HistoName,HistoName,
       psTTStub_Barrel.getParameter<int32_t>("Nbinsx"), 
       psTTStub_Barrel.getParameter<double>("xmin"), 
       psTTStub_Barrel.getParameter<double>("xmax"));
@@ -290,7 +288,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   //TTStub Endcap stack
   edm::ParameterSet psTTStub_ECDisc =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Discs");
   HistoName = "NStubs_Endcap_Disc"; 
-  Stub_Endcap_Disc = dqmStore_ ->book1D(HistoName,HistoName,
+  Stub_Endcap_Disc = iBooker.book1D(HistoName,HistoName,
       psTTStub_ECDisc.getParameter<int32_t>("Nbinsx"), 
       psTTStub_ECDisc.getParameter<double>("xmin"), 
       psTTStub_ECDisc.getParameter<double>("xmax"));
@@ -299,7 +297,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   
   //TTStub Endcap stack
   HistoName = "NStubs_Endcap_Disc_Fw"; 
-  Stub_Endcap_Disc_Fw = dqmStore_ ->book1D(HistoName,HistoName,
+  Stub_Endcap_Disc_Fw = iBooker.book1D(HistoName,HistoName,
       psTTStub_ECDisc.getParameter<int32_t>("Nbinsx"), 
       psTTStub_ECDisc.getParameter<double>("xmin"), 
       psTTStub_ECDisc.getParameter<double>("xmax"));
@@ -308,7 +306,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   
   //TTStub Endcap stack
   HistoName = "NStubs_Endcap_Disc_Bw"; 
-  Stub_Endcap_Disc_Bw = dqmStore_ ->book1D(HistoName,HistoName,
+  Stub_Endcap_Disc_Bw = iBooker.book1D(HistoName,HistoName,
       psTTStub_ECDisc.getParameter<int32_t>("Nbinsx"), 
       psTTStub_ECDisc.getParameter<double>("xmin"), 
       psTTStub_ECDisc.getParameter<double>("xmax"));
@@ -318,7 +316,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   edm::ParameterSet psTTStub_ECRing =  conf_.getParameter<edm::ParameterSet>("TH1TTStub_Rings");
   
   HistoName = "NStubs_Endcap_Ring"; 
-  Stub_Endcap_Ring = dqmStore_ ->book1D(HistoName,HistoName,
+  Stub_Endcap_Ring = iBooker.book1D(HistoName,HistoName,
       psTTStub_ECRing.getParameter<int32_t>("Nbinsx"), 
       psTTStub_ECRing.getParameter<double>("xmin"), 
       psTTStub_ECRing.getParameter<double>("xmax"));
@@ -329,7 +327,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   {
     HistoName = "NStubs_Disc+"+std::to_string(i+1);
     //TTStub Endcap stack
-    Stub_Endcap_Ring_Fw[i] = dqmStore_ ->book1D(HistoName, HistoName,
+    Stub_Endcap_Ring_Fw[i] = iBooker.book1D(HistoName, HistoName,
         psTTStub_ECRing.getParameter<int32_t>("Nbinsx"), 
         psTTStub_ECRing.getParameter<double>("xmin"), 
         psTTStub_ECRing.getParameter<double>("xmax")); 
@@ -341,7 +339,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   {
     HistoName = "NStubs_Disc-"+std::to_string(i+1);
     //TTStub Endcap stack
-    Stub_Endcap_Ring_Bw[i] = dqmStore_ ->book1D(HistoName, HistoName,
+    Stub_Endcap_Ring_Bw[i] = iBooker.book1D(HistoName, HistoName,
         psTTStub_ECRing.getParameter<int32_t>("Nbinsx"), 
         psTTStub_ECRing.getParameter<double>("xmin"), 
         psTTStub_ECRing.getParameter<double>("xmax")); 
@@ -354,10 +352,10 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   edm::ParameterSet psTTStub_ECDisc_2D =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf_Disc");
   edm::ParameterSet psTTStub_ECRing_2D =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_DisOf_Ring");
 
-  dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/Width");
+  iBooker.setCurrentFolder(topFolderName_+"/Stubs/Width");
   
   HistoName = "Stub_Width_Barrel";
-  Stub_Barrel_W = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Barrel_W = iBooker.book2D(HistoName, HistoName,
       psTTStub_Barrel_2D.getParameter<int32_t>("Nbinsx"),
       psTTStub_Barrel_2D.getParameter<double>("xmin"),
       psTTStub_Barrel_2D.getParameter<double>("xmax"),
@@ -368,7 +366,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   Stub_Barrel_W->setAxisTitle("Displacement - Offset",2);
   
   HistoName = "Stub_Width_Endcap_Disc";
-  Stub_Endcap_Disc_W = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_Disc_W = iBooker.book2D(HistoName, HistoName,
       psTTStub_ECDisc_2D.getParameter<int32_t>("Nbinsx"),
       psTTStub_ECDisc_2D.getParameter<double>("xmin"),
       psTTStub_ECDisc_2D.getParameter<double>("xmax"),
@@ -379,7 +377,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   Stub_Endcap_Disc_W->setAxisTitle("Displacement - Offset",2);
   
   HistoName = "Stub_Width_Endcap_Ring";
-  Stub_Endcap_Ring_W = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_Ring_W = iBooker.book2D(HistoName, HistoName,
       psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
       psTTStub_ECRing_2D.getParameter<double>("xmin"),
       psTTStub_ECRing_2D.getParameter<double>("xmax"),
@@ -392,7 +390,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   for (int i = 0; i < 5; i++)
   {
     HistoName = "Stub_Width_Disc+"+std::to_string(i+1);
-    Stub_Endcap_Ring_W_Fw[i] = dqmStore_->book2D(HistoName, HistoName,
+    Stub_Endcap_Ring_W_Fw[i] = iBooker.book2D(HistoName, HistoName,
         psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
         psTTStub_ECRing_2D.getParameter<double>("xmin"),
         psTTStub_ECRing_2D.getParameter<double>("xmax"),
@@ -406,7 +404,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   for (int i = 0; i < 5; i++)
   {
     HistoName = "Stub_Width_Disc-"+std::to_string(i+1);
-    Stub_Endcap_Ring_W_Bw[i] = dqmStore_->book2D(HistoName, HistoName,
+    Stub_Endcap_Ring_W_Bw[i] = iBooker.book2D(HistoName, HistoName,
         psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
         psTTStub_ECRing_2D.getParameter<double>("xmin"),
         psTTStub_ECRing_2D.getParameter<double>("xmax"),
@@ -417,10 +415,10 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
     Stub_Endcap_Ring_W_Bw[i]->setAxisTitle("Displacement - Offset",2);
   }
 
-  dqmStore_->setCurrentFolder(topFolderName_+"/Stubs/Offset");
+  iBooker.setCurrentFolder(topFolderName_+"/Stubs/Offset");
   
   HistoName = "Stub_Offset_Barrel";
-  Stub_Barrel_O = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Barrel_O = iBooker.book2D(HistoName, HistoName,
       psTTStub_Barrel_2D.getParameter<int32_t>("Nbinsx"),
       psTTStub_Barrel_2D.getParameter<double>("xmin"),
       psTTStub_Barrel_2D.getParameter<double>("xmax"),
@@ -431,7 +429,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   Stub_Barrel_O->setAxisTitle("Trigger Offset",2);
   
   HistoName = "Stub_Offset_Endcap_Disc";
-  Stub_Endcap_Disc_O = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_Disc_O = iBooker.book2D(HistoName, HistoName,
       psTTStub_ECDisc_2D.getParameter<int32_t>("Nbinsx"),
       psTTStub_ECDisc_2D.getParameter<double>("xmin"),
       psTTStub_ECDisc_2D.getParameter<double>("xmax"),
@@ -442,7 +440,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   Stub_Endcap_Disc_O->setAxisTitle("Trigger Offset",2);
   
   HistoName = "Stub_Offset_Endcap_Ring";
-  Stub_Endcap_Ring_O = dqmStore_->book2D(HistoName, HistoName,
+  Stub_Endcap_Ring_O = iBooker.book2D(HistoName, HistoName,
       psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
       psTTStub_ECRing_2D.getParameter<double>("xmin"),
       psTTStub_ECRing_2D.getParameter<double>("xmax"),
@@ -455,7 +453,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   for (int i = 0; i < 5; i++)
   {
     HistoName = "Stub_Offset_Disc+"+std::to_string(i+1);
-    Stub_Endcap_Ring_O_Fw[i] = dqmStore_->book2D(HistoName, HistoName,
+    Stub_Endcap_Ring_O_Fw[i] = iBooker.book2D(HistoName, HistoName,
         psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
         psTTStub_ECRing_2D.getParameter<double>("xmin"),
         psTTStub_ECRing_2D.getParameter<double>("xmax"),
@@ -469,7 +467,7 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
   for (int i = 0; i < 5; i++)
   {
     HistoName = "Stub_Offset_Disc-"+std::to_string(i+1);
-    Stub_Endcap_Ring_O_Bw[i] = dqmStore_->book2D(HistoName, HistoName,
+    Stub_Endcap_Ring_O_Bw[i] = iBooker.book2D(HistoName, HistoName,
         psTTStub_ECRing_2D.getParameter<int32_t>("Nbinsx"),
         psTTStub_ECRing_2D.getParameter<double>("xmin"),
         psTTStub_ECRing_2D.getParameter<double>("xmax"),
@@ -480,13 +478,6 @@ OuterTrackerMonitorTTStub::beginRun(edm::Run const&, edm::EventSetup const&)
     Stub_Endcap_Ring_O_Bw[i]->setAxisTitle("Trigger Offset",2);
   }
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-OuterTrackerMonitorTTStub::endJob() 
-{
-}
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(OuterTrackerMonitorTTStub);

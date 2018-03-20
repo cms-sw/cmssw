@@ -12,8 +12,6 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 

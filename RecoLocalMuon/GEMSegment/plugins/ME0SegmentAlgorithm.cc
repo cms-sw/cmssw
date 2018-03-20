@@ -51,12 +51,13 @@ ME0SegmentAlgorithm::~ME0SegmentAlgorithm() {
 std::vector<ME0Segment> ME0SegmentAlgorithm::run(const ME0Chamber * chamber, const HitAndPositionContainer& rechits) {
 
   #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
-  ME0DetId chId((ensemble.first)->id());
+  ME0DetId chId(chamber->id());
   edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegmentAlgorithm::run] build segments in chamber " << chId << " which contains "<<rechits.size()<<" rechits";
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
-    auto me0id = (*rh)->rh->me0Id();
-    auto rhLP = (*rh)->lp;
-    edm::LogVerbatim("ME0SegmentAlgorithm") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()<<" Time = "<<std::showpos<<(*rh)->rh->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
+    auto me0id = rh->rh->me0Id();
+    auto rhLP = rh->lp;
+    edm::LogVerbatim("ME0SegmentAlgorithm") << "[RecHit :: Loc x = "<<std::showpos<<std::setw(9)<<rhLP.x()<<" Loc y = "<<std::showpos<<std::setw(9)<<rhLP.y()
+                                            <<" Time = "<<std::showpos<<rh->rh->tof()<<" -- "<<me0id.rawId()<<" = "<<me0id<<" ]";
   }
   #endif
 

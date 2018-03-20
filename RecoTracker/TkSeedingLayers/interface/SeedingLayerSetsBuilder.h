@@ -2,6 +2,7 @@
 #define TkSeedingLayers_SeedingLayerSetsBuilder_H
 
 #include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsLooper.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -23,6 +24,7 @@ class DetLayer;
 class SeedingLayerSetsBuilder {
 
 public:
+  using SeedingLayerId = std::tuple<GeomDetEnumerators::SubDetector, TrackerDetSide, int>;
 
   SeedingLayerSetsBuilder() = default;
   SeedingLayerSetsBuilder(const edm::ParameterSet & cfg, edm::ConsumesCollector& iC);
@@ -32,9 +34,14 @@ public:
   static void fillDescriptions(edm::ParameterSetDescription& desc);
 
   unsigned short numberOfLayers() const { return theLayers.size(); }
+  unsigned short numberOfLayerSets() const { return theNumberOfLayersInSet > 0 ? theLayerSetIndices.size()/theNumberOfLayersInSet : 0; }
+  std::vector<SeedingLayerId> layers() const; // please call at most once per job per client
+  SeedingLayerSetsLooper seedingLayerSetsLooper() const { return SeedingLayerSetsLooper(theNumberOfLayersInSet, &theLayerSetIndices); }
+
+  const std::vector<SeedingLayerSetsHits::LayerSetIndex>& layerSetIndices() const { return theLayerSetIndices; }
+
   std::unique_ptr<SeedingLayerSetsHits> hits(const edm::Event& ev, const edm::EventSetup& es);
 
-  using SeedingLayerId = std::tuple<GeomDetEnumerators::SubDetector, TrackerDetSide, int>;
   static SeedingLayerId nameToEnumId(const std::string& name);
   static std::vector<std::vector<std::string> > layerNamesInSets(const std::vector<std::string> & namesPSet) ;
 
@@ -71,4 +78,5 @@ private:
   std::vector<const TransientTrackingRecHitBuilder *> theTTRHBuilders;
   std::vector<LayerSpec> theLayers;
 };
+
 #endif

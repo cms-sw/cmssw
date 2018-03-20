@@ -18,7 +18,7 @@
  * \author Slava Valuev, UCLA.
  *
  * The trigger primitive emulator has been expanded with options to
- * use both ALCTs, CLCTs and GEM pads or RPC digis. The GEM-CSC integrated
+ * use both ALCTs, CLCTs and GEM pads. The GEM-CSC integrated
  * local trigger combines ALCT, CLCT and GEM information to produce integrated
  * stubs. The available stub types can be found in the class definition of
  * CSCCorrelatedLCTDigi (DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h)

@@ -36,6 +36,7 @@ class HGCalTriggerGeometryHexImp2 : public HGCalTriggerGeometryBase
 
         bool validTriggerCell( const unsigned ) const final;
         bool disconnectedModule(const unsigned) const final;
+        unsigned triggerLayer(const unsigned) const final;
 
     private:
         edm::FileInPath l1tCellsMapping_;
@@ -471,7 +472,7 @@ getTriggerCellPosition(const unsigned trigger_cell_det_id) const
     for(const auto& cell : cell_ids)
     {
         HGCalDetId cellDetId(cell);
-        triggerCellVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? eeGeometry().getPosition(cellDetId) :  fhGeometry().getPosition(cellDetId)).basicVector();
+        triggerCellVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? eeGeometry()->getPosition(cellDetId) :  fhGeometry()->getPosition(cellDetId)).basicVector();
     }
     return GlobalPoint( triggerCellVector/cell_ids.size() );
 
@@ -488,7 +489,7 @@ getModulePosition(const unsigned module_det_id) const
     for(const auto& cell : cell_ids)
     {
         HGCalDetId cellDetId(cell);
-        moduleVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? eeGeometry().getPosition(cellDetId) :  fhGeometry().getPosition(cellDetId)).basicVector();
+        moduleVector += (cellDetId.subdetId()==ForwardSubdetector::HGCEE ? eeGeometry()->getPosition(cellDetId) :  fhGeometry()->getPosition(cellDetId)).basicVector();
     }
     return GlobalPoint( moduleVector/cell_ids.size() );
 }
@@ -771,6 +772,14 @@ HGCalTriggerGeometryHexImp2::
 disconnectedModule(const unsigned module_id) const
 {
     return false;
+}
+
+
+unsigned 
+HGCalTriggerGeometryHexImp2::
+triggerLayer(const unsigned id) const
+{
+    return HGCalDetId(id).layer();
 }
 
 bool 

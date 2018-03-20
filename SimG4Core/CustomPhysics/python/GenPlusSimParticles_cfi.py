@@ -18,7 +18,7 @@ def customizeKeep (process):
 
 def customizeProduce (process):
     process.genParticlePlusGeant = cms.EDProducer("GenPlusSimParticleProducer",
-                                                  src = cms.InputTag("g4SimHits"),            # use "famosSimHits" for FAMOS
+                                                  src = cms.InputTag("g4SimHits"),            # use "fastSimProducer" for FastSim
                                                   setStatus = cms.int32(8),                   # set status = 8 for GEANT GPs 
                                                   filter = cms.vstring("pt > 10.0"),          # just for testing (optional) 
                                                   genParticles = cms.InputTag("genParticles") # original genParticle list 

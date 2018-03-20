@@ -45,6 +45,7 @@ from DQMOffline.RecoB.dqmCollector_cff import *
 from DQMOffline.JetMET.SusyPostProcessor_cff import *
 from DQMOffline.JetMET.dataCertificationJetMET_cff import *
 from DQM.TrackingMonitorClient.TrackingClientConfig_Tier0_cff import *
+from DQM.TrackingMonitorClient.pixelTrackingEffFromHitPattern_cff import *
 from DQM.Phase2OuterTracker.OuterTrackerClientConfig_cff import *
 
 DQMOffline_SecondStep_PrePOG = cms.Sequence( TrackingOfflineDQMClient *
@@ -93,7 +94,6 @@ DQMHarvestCommon = cms.Sequence( dqmRefHistoRootFileGetter *
                                  PixelOfflineDQMClientNoDataCertification *
                                  triggerOfflineDQMClient *
                                  hltOfflineDQMClient *
-                                 l1TriggerDqmOfflineClient *
                                  dqmFEDIntegrityClient *
                                  alcaBeamMonitorClient *
                                  runTauEff *
@@ -116,6 +116,8 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(dqmRefHistoRootFileGetter *
 
 DQMHarvestTracking = cms.Sequence( TrackingOfflineDQMClient *
                                    dqmFastTimerServiceClient )
+
+DQMHarvestPixelTracking = cms.Sequence( pixelTrackingEffFromHitPattern )
 
 DQMHarvestOuterTracker = cms.Sequence( dqmRefHistoRootFileGetter *
                                  dqmDcsInfoClient *
@@ -147,4 +149,11 @@ DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
 DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD)
 DQMHarvestNanoAOD = cms.Sequence( nanoHarvest )
+
+# L1 trigger sequences
+DQMHarvestL1TMonitoring = cms.Sequence( l1TriggerDqmOfflineClient )
+
+DQMHarvestL1TEgamma = cms.Sequence( l1TriggerEgDqmOfflineClient )
+
+DQMHarvestL1TMuon = cms.Sequence( l1TriggerMuonDqmOfflineClient )
 

@@ -23,6 +23,7 @@ RecoCTPPSAOD = cms.PSet(
 
     #tracking pixels
     'keep CTPPSPixelDigiedmDetSetVector_ctppsPixelDigis_*_*',
+    'keep CTPPSPixelDataErroredmDetSetVector_ctppsPixelDigis_*_*',
     'keep CTPPSPixelClusteredmDetSetVector_ctppsPixelClusters_*_*',
     'keep CTPPSPixelRecHitedmDetSetVector_ctppsPixelRecHits_*_*',
     'keep CTPPSPixelLocalTrackedmDetSetVector_ctppsPixelLocalTracks_*_*',

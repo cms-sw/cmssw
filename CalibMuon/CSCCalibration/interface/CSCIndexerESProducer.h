@@ -11,7 +11,7 @@
 class CSCIndexerESProducer : public edm::ESProducer {
 
  public:
-  typedef std::shared_ptr<CSCIndexerBase> BSP_TYPE;
+  typedef std::unique_ptr<CSCIndexerBase> BSP_TYPE;
 
   CSCIndexerESProducer(const edm::ParameterSet&);
   ~CSCIndexerESProducer() override;

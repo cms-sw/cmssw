@@ -65,7 +65,7 @@ void ConversionSeedFinder::setEventSetup(const edm::EventSetup& es  )  {
 }
 
 
-void ConversionSeedFinder::findLayers() const {
+void ConversionSeedFinder::findLayers() {
   
 
   int charge;
@@ -124,7 +124,7 @@ FreeTrajectoryState ConversionSeedFinder::trackStateFromClusters( int charge, co
 
 }
 
-void ConversionSeedFinder::findLayers(const FreeTrajectoryState & traj) const {
+void ConversionSeedFinder::findLayers(const FreeTrajectoryState & traj) {
 
 
 

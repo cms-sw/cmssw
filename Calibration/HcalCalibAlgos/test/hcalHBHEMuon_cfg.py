@@ -32,7 +32,7 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.hcalTopologyIdeal.MergePosition = False
-process.hcalHBHEMuon.UseRaw = False
+process.hcalHBHEMuon.UseRaw = 0
 process.hcalHBHEMuon.UnCorrect = True
 process.hcalHBHEMuon.GetCharge = True
 process.hcalHBHEMuon.CollapseDepth = False

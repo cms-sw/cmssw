@@ -2,8 +2,6 @@
 #define Geometry_CaloTopology_HGCalTopology_h 1
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
-#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
-#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"

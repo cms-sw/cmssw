@@ -98,9 +98,9 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
       EcalUncalibratedRecHit uhit_p = *itt;
 
       // looking for cluster seeds	  
-	  if (uhit_p.amplitude() <  (inEB ? ecalBarrelSeedThreshold : ecalEndcapSeedThreshold) ) continue; // 
+      if (uhit_p.amplitude() <  (inEB ? ecalBarrelSeedThreshold : ecalEndcapSeedThreshold) ) continue; // 
 	  
-	  const CaloCellGeometry & thisCell = *geometry_p->getGeometry(it->id());
+      auto thisCell = geometry_p->getGeometry(it->id());
 
 	// Require that RecHit is within clustering region in case
 	// of regional reconstruction
@@ -108,7 +108,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 	if (regional) {
 	  std::vector<EcalEtaPhiRegion>::const_iterator region;
 	  for (region=regions.begin(); region!=regions.end(); region++) {
-	    if (region->inRegion(thisCell.etaPos(),thisCell.phiPos())) {
+	    if (region->inRegion(thisCell->etaPos(),thisCell->phiPos())) {
 	      withinRegion =  true;
 	      break;
 	    }

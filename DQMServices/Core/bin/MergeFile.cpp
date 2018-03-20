@@ -6,7 +6,7 @@
 #include "TROOT.h"
 #include <iostream>
 #include <cstdlib>
-#include <errno.h>
+#include <cerrno>
 
 #ifndef _NSIG
 #define _NSIG NSIG
@@ -34,15 +34,15 @@ int main(int argc, char **argv)
 {
   // Install base debugging support.
   lat::DebugAids::failHook(&onAssertFail);
-  lat::Signal::handleFatal(argv[0], IOFD_INVALID, 0, 0, FATAL_OPTS);
+  lat::Signal::handleFatal(argv[0], IOFD_INVALID, nullptr, nullptr, FATAL_OPTS);
 
   // Re-capture signals from ROOT after ROOT has initialised.
   ROOT::GetROOT();
   for (int sig = 1; sig < _NSIG; ++sig) lat::Signal::revert(sig);
-  lat::Signal::handleFatal(argv[0], IOFD_INVALID, 0, 0, FATAL_OPTS);
+  lat::Signal::handleFatal(argv[0], IOFD_INVALID, nullptr, nullptr, FATAL_OPTS);
 
   // Check command line arguments.
-  char *output = (argc > 1 ? argv[1] : 0);
+  char *output = (argc > 1 ? argv[1] : nullptr);
   if (! output)
   {
     std::cerr << "Usage: " << argv[0]

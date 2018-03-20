@@ -10,9 +10,10 @@
  */
 
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/FlatTrd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -60,12 +61,14 @@ public:
 			const DetId&       detId ) override;
   
   /// Get the cell geometry of a given detector id.  Should return false if not found.
-  const CaloCellGeometry* getGeometry( const DetId& id ) const override;
+  std::shared_ptr<const CaloCellGeometry> getGeometry( const DetId& id ) const override;
+
+  bool present (const DetId& id) const override;
 
   void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
-			   CaloSubdetectorGeometry::IVec&   iVector,
-			   CaloSubdetectorGeometry::DimVec& dimVector,
-			   CaloSubdetectorGeometry::IVec& dinsVector ) const override;
+		   CaloSubdetectorGeometry::IVec&   iVector,
+		   CaloSubdetectorGeometry::DimVec& dimVector,
+		   CaloSubdetectorGeometry::IVec& dinsVector ) const override;
   
   GlobalPoint getPosition( const DetId& id ) const;
       
@@ -102,12 +105,18 @@ protected:
   using CaloSubdetectorGeometry::sizeForDenseIndex;
   unsigned int sizeForDenseIndex() const;
   
-  const CaloCellGeometry* cellGeomPtr( uint32_t index ) const override;
+  // Modify the RawPtr class
+  const CaloCellGeometry* getGeometryRawPtr(uint32_t index) const override;
+
+  std::shared_ptr<const CaloCellGeometry> cellGeomPtr(uint32_t index) const override;
   
   void addValidID(const DetId& id);
   unsigned int getClosestCellIndex ( const GlobalPoint& r ) const;
-  
+
 private:
+
+  std::shared_ptr<const CaloCellGeometry> cellGeomPtr( uint32_t index, const GlobalPoint& p) const;
+
   const HGCalTopology&    m_topology;
   
   CellVec                 m_cellVec ; 

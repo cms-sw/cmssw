@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.AlCa.GlobalTag import GlobalTag
 
 process = cms.Process('SPYFEDEMULATOR')
 
@@ -6,19 +7,21 @@ process = cms.Process('SPYFEDEMULATOR')
 process.source = cms.Source(
     'PoolSource',
     fileNames = cms.untracked.vstring(
-        'rfio:/castor/cern.ch/user/w/whyntie/data/spychannel/121834/edm/spydata_0001.root',
-        #'file:SpyRawToDigis.root'
+#        'file:/eos/cms/store/user/jblee/SpyRawToDigis234824.root',
+        'file:SpyMatchedEvents234824_TEST1.root'
+#'file:/eos/cms/store/user/jblee/SpyRawToDigis234824_TEST.root'
         )
     )
 
 ## ---- Services ----
 process.load("DQM.SiStripCommon.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
 
 ## Global tag - see http://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR09_P_V8_34X::All' # CMSSW 341
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 # --- The unpacking configuration ---
 process.load('DQM.SiStripMonitorHardware.SiStripSpyUnpacker_cfi')
@@ -27,7 +30,7 @@ process.load('DQM.SiStripMonitorHardware.SiStripSpyDigiConverter_cfi')
 ## * Scope digi settings
 process.SiStripSpyUnpacker.FEDIDs = cms.vuint32()                   #use a subset of FEDs or leave empty for all.
 #process.SiStripSpy.FEDIDs = cms.vuint32(50, 187, 260, 356) #one from each partition
-process.SiStripSpyUnpacker.InputProductLabel = cms.InputTag('source')
+process.SiStripSpyUnpacker.InputProductLabel = cms.InputTag('rawDataCollector')
 process.SiStripSpyUnpacker.AllowIncompleteEvents = True
 process.SiStripSpyUnpacker.StoreCounters = True
 process.SiStripSpyUnpacker.StoreScopeRawDigis = cms.bool(True)      # Note - needs to be True for use in other modules.
@@ -48,15 +51,15 @@ process.SiStripSpyDigiConverter.DiscardDigisWithWrongAPVAddress = True
 
 ## ---- FED Emulation ----
 process.load('DQM.SiStripMonitorHardware.SiStripFEDEmulator_cfi')
-process.SiStripFEDEmulator.SpyReorderedDigisTag = cms.InputTag('SiStripSpyDigiConverter','Reordered')
-process.SiStripFEDEmulator.SpyVirginRawDigisTag = cms.InputTag('SiStripSpyDigiConverter','VirginRaw')
+process.SiStripFEDEmulator.SpyReorderedDigisTag = cms.InputTag('SiStripSpyEventMatcher','SpyReordered')
+process.SiStripFEDEmulator.SpyVirginRawDigisTag = cms.InputTag('SiStripSpyEventMatcher','SpyVirginRaw')
 process.SiStripFEDEmulator.ByModule = cms.bool(True) #use the digis stored by module (i.e. detId)
 
 #process.load('PerfTools.Callgrind.callgrindSwitch_cff')
 
 process.p = cms.Path(
-    process.SiStripSpyUnpacker
-    *process.SiStripSpyDigiConverter
+#     process.SiStripSpyUnpacker
+#     *process.SiStripSpyDigiConverter
     #*process.profilerStart*
     process.SiStripFEDEmulator
     #*process.profilerStop 
@@ -65,7 +68,7 @@ process.p = cms.Path(
 ## --- What to output ---
 process.output = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string("SpyZeroSuppressed.root"),
+    fileName = cms.untracked.string("SpyMatched_FEDemulated234824_TEST.root"),
     outputCommands = cms.untracked.vstring(
        'keep *',
        #drop whatever collections from the above here - to save disk space!

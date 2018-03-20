@@ -56,6 +56,7 @@ PFCandidate::PFCandidate() :
   
   setPdgId( translateTypeToPdgId( X ) );
   refsInfo_.reserve(3);
+  std::fill(hcalDepthEnergyFractions_.begin(), hcalDepthEnergyFractions_.end(), 0.f);
 }
 
 
@@ -63,6 +64,7 @@ PFCandidate::PFCandidate( const PFCandidatePtr& sourcePtr ):
   PFCandidate(*sourcePtr)
 {
   sourcePtr_ = sourcePtr;
+  hcalDepthEnergyFractions_ = sourcePtr->hcalDepthEnergyFractions_; // GP not sure it's needed
 }
 
 
@@ -96,6 +98,7 @@ PFCandidate::PFCandidate( Charge charge,
   refsInfo_.reserve(3);
   blocksStorage_.reserve(10);
   elementsStorage_.reserve(10);
+  std::fill(hcalDepthEnergyFractions_.begin(), hcalDepthEnergyFractions_.end(), 0.f);
 
   muonTrackType_ = reco::Muon::None;
 
@@ -155,7 +158,8 @@ PFCandidate::PFCandidate( PFCandidate const& iOther) :
   storedRefsBitPattern_(iOther.storedRefsBitPattern_),
   refsInfo_(iOther.refsInfo_),
   refsCollectionCache_(iOther.refsCollectionCache_),
-  time_(iOther.time_),timeError_(iOther.timeError_)
+  time_(iOther.time_),timeError_(iOther.timeError_),
+  hcalDepthEnergyFractions_(iOther.hcalDepthEnergyFractions_)
 {
   auto tmp = iOther.elementsInBlocks_.load(std::memory_order_acquire);
   if(nullptr != tmp) {
@@ -200,7 +204,7 @@ PFCandidate& PFCandidate::operator=(PFCandidate const& iOther) {
   refsCollectionCache_=iOther.refsCollectionCache_;
   time_=iOther.time_;
   timeError_=iOther.timeError_;
-
+  hcalDepthEnergyFractions_=iOther.hcalDepthEnergyFractions_;
   return *this;
 }
 

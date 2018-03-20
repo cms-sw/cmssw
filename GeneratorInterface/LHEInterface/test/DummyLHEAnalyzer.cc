@@ -19,8 +19,10 @@ class DummyLHEAnalyzer : public EDAnalyzer {
 private: 
   bool dumpLHE_;
   bool checkPDG_;
+  bool dumpHeader_;
 public:
-  explicit DummyLHEAnalyzer( const ParameterSet & cfg ) : 
+  explicit DummyLHEAnalyzer( const ParameterSet & cfg ) :
+    dumpHeader_( cfg.getUntrackedParameter<bool>("dumpHeader",false) ),
     src_( cfg.getParameter<InputTag>( "src" ) ),
     tokenLHERunInfo_(consumes<LHERunInfoProduct,edm::InRun>(cfg.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")) ) ),
     tokenLHEEvent_(consumes<LHEEventProduct>(cfg.getUntrackedParameter<edm::InputTag>("moduleLabel", std::string("source")) ) )
@@ -104,6 +106,16 @@ private:
                  << std::endl;
     }
     std::cout << " " << std::endl;
+
+    if(dumpHeader_) {
+      std::cout <<" HEADER "<<std::endl;
+      for(auto it = run->headers_begin(); it != run->headers_end(); ++it) {
+        std::cout <<"tag: '"<<it->tag()<<"'"<<std::endl;
+        for(auto const& l : it->lines()) {
+          std::cout<<"   "<<l<<std::endl;
+        }
+      }
+    }
 
   }
 

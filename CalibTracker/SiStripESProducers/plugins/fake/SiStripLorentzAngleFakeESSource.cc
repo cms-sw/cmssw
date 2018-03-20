@@ -38,7 +38,7 @@ public:
 
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
 
-  typedef std::shared_ptr<SiStripLorentzAngle> ReturnType;
+  typedef std::unique_ptr<SiStripLorentzAngle> ReturnType;
   ReturnType produce(const SiStripLorentzAngleRcd&);
 
 private:
@@ -169,7 +169,7 @@ SiStripLorentzAngleFakeESSource::produce(const SiStripLorentzAngleRcd& iRecord)
   edm::ESHandle<TrackerTopology> tTopo;
   iRecord.getRecord<TrackerTopologyRcd>().get(tTopo);
 
-  std::shared_ptr<SiStripLorentzAngle> lorentzAngle{new SiStripLorentzAngle};
+  auto lorentzAngle = std::make_unique<SiStripLorentzAngle>();
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 

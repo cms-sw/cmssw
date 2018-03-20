@@ -25,7 +25,7 @@ process.source = cms.Source("PoolSource",
         )
                             )
 
-process.load('Validation.HGCalValidation.test.hgcGeometryCheck_cfi')
+process.load('Validation.HGCalValidation.hgcGeomCheck_cfi')
 
 process.TFileService = cms.Service("TFileService",
                                 fileName = cms.string('hgcGeomCheck.root'),

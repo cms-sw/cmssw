@@ -4,10 +4,6 @@
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
@@ -269,8 +265,11 @@ FWTGeoRecoGeometryESProducer::produce( const FWTGeoRecoGeometryRecord& record )
 
    m_fwGeometry = std::make_shared<FWTGeoRecoGeometry>();
   
-   if( m_calo )
-     record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
+   if( m_calo ) {
+     edm::ESHandle<CaloGeometry> caloH;
+     record.getRecord<CaloGeometryRecord>().get(caloH);
+     m_caloGeom = caloH.product();
+   }
 
    TGeoManager* geom = new TGeoManager( "cmsGeo", "CMS Detector" );
    if( nullptr == gGeoIdentity )
@@ -510,9 +509,7 @@ FWTGeoRecoGeometryESProducer::addTIBGeometry()
     unsigned int order = m_trackerTopology->tibOrder( detid );
     unsigned int side = m_trackerTopology->tibSide( detid );
 
-    std::stringstream s;
-    s << TIBDetId( detid );
-    std::string name = s.str();
+    std::string name = m_trackerTopology->print(detid);
     
     TGeoVolume* child = createVolume( name, it, kSiStrip );
     TGeoVolume* holder = GetDaughter( assembly, "Module", kSiStrip, module );
@@ -534,9 +531,7 @@ FWTGeoRecoGeometryESProducer::addTIDGeometry()
     unsigned int wheel = m_trackerTopology->tidWheel( detid );
     unsigned int ring = m_trackerTopology->tidRing( detid );
 
-    std::stringstream s;
-    s << TIDDetId( detid );
-    std::string name = s.str();
+    std::string name = m_trackerTopology->print(detid);
 
     TGeoVolume* child = createVolume( name, it, kSiStrip );
     TGeoVolume* holder = GetDaughter( assembly, "Side", kSiStrip, side );
@@ -557,10 +552,8 @@ FWTGeoRecoGeometryESProducer::addTOBGeometry()
     unsigned int rod = m_trackerTopology->tobRod( detid );
     unsigned int side = m_trackerTopology->tobSide( detid );
     unsigned int module = m_trackerTopology->tobModule( detid );
-    
-    std::stringstream s;
-    s << TOBDetId( detid );
-    std::string name = s.str();
+
+    std::string name = m_trackerTopology->print(detid);
 
     TGeoVolume* child = createVolume( name, it, kSiStrip );
     TGeoVolume* holder = GetDaughter( assembly, "Rod", kSiStrip, rod );
@@ -582,9 +575,7 @@ FWTGeoRecoGeometryESProducer::addTECGeometry()
     unsigned int ring = m_trackerTopology->tecRing( detid );
     unsigned int module = m_trackerTopology->tecModule( detid );
 
-    std::stringstream s;
-    s << TECDetId( detid );
-    std::string name = s.str();
+    std::string name = m_trackerTopology->print(detid);
 
     TGeoVolume* child = createVolume( name, it, kSiStrip );
 
@@ -898,7 +889,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
    {
      //HcalDetId detid = HcalDetId(it->rawId());
      HcalDetId detid(*it);
-     const CaloCellGeometry* cellb= m_caloGeom->getGeometry(*it);
+     const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
      const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
      if (!cell) { printf ("HB not oblique !!!\n"); continue; }
@@ -977,7 +968,8 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
    for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
    {
       HcalDetId detid = HcalDetId(it->rawId());
-      const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> ( m_caloGeom->getGeometry(*it));
+      const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+      const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
       if (!cell) { printf ("EC not oblique \n"); continue; }
 
@@ -1055,7 +1047,8 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryOuter()
   for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
   {
     HcalDetId detid = HcalDetId(it->rawId());
-    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> ( m_caloGeom->getGeometry(*it));
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
    
     if (!cell) { printf ("EC not oblique \n"); continue; }
 
@@ -1122,7 +1115,8 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryForward()
   for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
   {
     HcalDetId detid = HcalDetId(it->rawId());
-    const IdealZPrism* cell = dynamic_cast<const IdealZPrism*> ( m_caloGeom->getGeometry(*it));
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+    const IdealZPrism* cell = dynamic_cast<const IdealZPrism*> (cellb);
     
     if (!cell) { printf ("EC not Z prism \n"); continue; }
     
@@ -1188,7 +1182,8 @@ FWTGeoRecoGeometryESProducer::addCaloTowerGeometry()
   for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
   {
     CaloTowerDetId detid = CaloTowerDetId(it->rawId());
-    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> ( m_caloGeom->getGeometry(*it));
+    const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*> (cellb);
     if (!cell) { printf ("EC not oblique \n"); continue; }
       TGeoVolume* volume = nullptr;
       CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
@@ -1324,8 +1319,9 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
       std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalBarrel);
       for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
       {
-         EBDetId detid(*it);
-         const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*> ( m_caloGeom->getGeometry( *it ));
+	EBDetId detid(*it);
+	const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+	const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*>(cellb);
          if (!cell) { printf("ecalBarrel cell not a TruncatedPyramid !!\n"); return; }
 
          TGeoVolume* volume = nullptr;
@@ -1355,7 +1351,8 @@ FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
       for( std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it)
       {
          EEDetId detid(*it);
-         const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*> (m_caloGeom->getGeometry( *it ));
+	 const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
+         const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*>(cellb);
          if (!cell) { printf("ecalEndcap cell not a TruncatedPyramid !!\n"); continue;}
 
          TGeoVolume* volume = nullptr;

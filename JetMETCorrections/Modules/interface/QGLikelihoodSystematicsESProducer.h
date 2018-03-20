@@ -21,7 +21,7 @@ class QGLikelihoodSystematicsESProducer : public edm::ESProducer{
       QGLikelihoodSystematicsESProducer(const edm::ParameterSet&);
       ~QGLikelihoodSystematicsESProducer() override{};
 
-      std::shared_ptr<QGLikelihoodSystematicsObject> produce(const QGLikelihoodSystematicsRcd&);
+      std::unique_ptr<QGLikelihoodSystematicsObject> produce(const QGLikelihoodSystematicsRcd&);
       void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &, edm::ValidityInterval &);
    private:
       std::string mAlgo;

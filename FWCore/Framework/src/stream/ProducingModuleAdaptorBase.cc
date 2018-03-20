@@ -57,8 +57,10 @@ namespace edm {
       m_streamModules.resize(iPrealloc.numberOfStreams(),
                              static_cast<T*>(nullptr));
       setupStreamModules();
+      preallocLumis(iPrealloc.numberOfLuminosityBlocks());
     }
 
+    
     template< typename T>
     void
     ProducingModuleAdaptorBase<T>::registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg) {
@@ -183,7 +185,7 @@ namespace edm {
       auto mod = m_streamModules[id];
       setupRun(mod, rp.index());
       
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, false);
       r.setConsumer(mod);
       mod->beginRun(r, c);
       
@@ -196,7 +198,7 @@ namespace edm {
                                                   ModuleCallingContext const* mcc)
     {
       auto mod = m_streamModules[id];
-      Run r(rp, moduleDescription_, mcc);
+      Run r(rp, moduleDescription_, mcc, true);
       r.setConsumer(mod);
       mod->endRun(r, c);
       streamEndRunSummary(mod,r,c);
@@ -211,7 +213,7 @@ namespace edm {
       auto mod = m_streamModules[id];
       setupLuminosityBlock(mod,lbp.index());
       
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, false);
       lb.setConsumer(mod);
       mod->beginLuminosityBlock(lb, c);
     }
@@ -224,7 +226,7 @@ namespace edm {
                                                               ModuleCallingContext const* mcc)
     {
       auto mod = m_streamModules[id];
-      LuminosityBlock lb(lbp, moduleDescription_, mcc);
+      LuminosityBlock lb(lbp, moduleDescription_, mcc, true);
       lb.setConsumer(mod);
       mod->endLuminosityBlock(lb, c);
       streamEndLuminosityBlockSummary(mod,lb, c);

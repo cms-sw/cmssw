@@ -56,8 +56,6 @@ class TauA1NuConstrainedFitter : public MultiProngTauSolver{
   std::vector<LorentzVectorParticle> particles_;
   unsigned int ambiguity_;
 
-  static  unsigned int static_amb;
-
 };
 }
 #endif

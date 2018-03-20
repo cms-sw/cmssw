@@ -209,30 +209,35 @@ namespace edm {
   Path::processOneOccurrenceAsync(WaitingTask* iTask,
                                   EventPrincipal const& iEP,
                                   EventSetup const& iES,
+                                  ServiceToken const& iToken,
                                   StreamID const& iStreamID,
                                   StreamContext const* iStreamContext) {
     waitingTasks_.reset();
     ++timesRun_;
     waitingTasks_.add(iTask);
     if(actReg_) {
+      ServiceRegistry::Operate guard(iToken);
       actReg_->prePathEventSignal_(*iStreamContext, pathContext_);
     }
     state_ = hlt::Ready;
     
     if(workers_.empty()) {
+      ServiceRegistry::Operate guard(iToken);
       finished(-1, true, std::exception_ptr(), iStreamContext, iEP, iES, iStreamID);
       return;
     }
     
-    runNextWorkerAsync(0,iEP,iES,iStreamID, iStreamContext);
+    runNextWorkerAsync(0,iEP,iES, iToken, iStreamID, iStreamContext);
   }
 
   void
   Path::workerFinished(std::exception_ptr const* iException,
                        unsigned int iModuleIndex,
                        EventPrincipal const& iEP, EventSetup const& iES,
+                       ServiceToken const& iToken,
                        StreamID const& iID, StreamContext const* iContext) {
-    
+    ServiceRegistry::Operate guard(iToken);
+
     //This call also allows the WorkerInPath to update statistics
     // so should be done even if an exception happened
     auto& worker = workers_[iModuleIndex];
@@ -263,7 +268,7 @@ namespace edm {
     }
     auto const nextIndex = iModuleIndex +1;
     if (shouldContinue and nextIndex < workers_.size()) {
-      runNextWorkerAsync(nextIndex, iEP, iES, iID, iContext);
+      runNextWorkerAsync(nextIndex, iEP, iES, iToken, iID, iContext);
       return;
     }
     
@@ -275,7 +280,7 @@ namespace edm {
       }
       handleEarlyFinish(iEP);
     }
-    finished(iModuleIndex, shouldContinue, finalException, iContext, iEP, iES, iID);
+    finished(iModuleIndex, shouldContinue, finalException, iContext, iEP, iES,iID);
   }
   
   void
@@ -314,22 +319,20 @@ namespace edm {
   void
   Path::runNextWorkerAsync(unsigned int iNextModuleIndex,
                            EventPrincipal const& iEP, EventSetup const& iES,
+                           ServiceToken const& iToken,
                            StreamID const& iID, StreamContext const* iContext) {
     
-    //need to make sure Service system is activated on the reading thread
-    auto token = ServiceRegistry::instance().presentToken();
-
     auto nextTask = make_waiting_task( tbb::task::allocate_root(),
-                                      [this, iNextModuleIndex, &iEP,&iES, iID, iContext, token](std::exception_ptr const* iException)
+                                      [this, iNextModuleIndex, &iEP,&iES, iID, iContext, token=iToken](std::exception_ptr const* iException)
     {
-      ServiceRegistry::Operate guard(token);
-      this->workerFinished(iException, iNextModuleIndex, iEP,iES,iID,iContext);
+      this->workerFinished(iException, iNextModuleIndex, iEP,iES,token,iID,iContext);
     });
     
     workers_[iNextModuleIndex].runWorkerAsync<
     OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>>(nextTask,
                                                                 iEP,
                                                                 iES,
+                                                                iToken,
                                                                 iID,
                                                                 iContext);
   }

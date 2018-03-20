@@ -29,8 +29,10 @@ HcalTB06Histo::HcalTB06Histo(const edm::ParameterSet& ps) {
   double em2 = ps.getUntrackedParameter<double>("EHCalMax", 4.0);
   mkTree_    = ps.getUntrackedParameter<bool>("MakeTree", false);
   eBeam_     = 50.;
-
-  mip_ = ps.getParameter<double>("MIP");
+  mip_       = ps.getParameter<double>("MIP");
+  edm::LogInfo("HcalTBSim") << "Verbose :" << verbose_ << " MakeTree: "
+			    << mkTree_ << " EMax: " << em1 << ":" << em2
+			    << " MIP " << mip_;
 
   // Book histograms
   edm::Service<TFileService> tfile;

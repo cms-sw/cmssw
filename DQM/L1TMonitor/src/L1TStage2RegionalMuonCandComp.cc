@@ -95,22 +95,19 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
       errorSummaryNum->setBinLabel(i, "Ignored", 1);
     }
   }
+  // Setting canExtend to false is needed to get the correct behaviour when running multithreaded.
+  // Otherwise, when merging the histgrams of the threads, TH1::Merge sums bins that have the same label in one bin.
+  // This needs to come after the calls to setBinLabel.
+  errorSummaryNum->getTH1F()->GetXaxis()->SetCanExtend(false);
 
   errorSummaryDen = ibooker.book1D("errorSummaryDen", "denominators", 14, 1, 15); // range to match bin numbering
   errorSummaryDen->setBinLabel(RBXRANGE, "# events", 1);
   errorSummaryDen->setBinLabel(RNMUON, "# muon collections", 1);
-  errorSummaryDen->setBinLabel(RMUON, "# muons", 1);
-  errorSummaryDen->setBinLabel(RPT, "# muons", 1);
-  errorSummaryDen->setBinLabel(RETA, "# muons", 1);
-  errorSummaryDen->setBinLabel(RLOCALPHI, "# muons", 1);
-  errorSummaryDen->setBinLabel(RSIGN, "# muons", 1);
-  errorSummaryDen->setBinLabel(RSIGNVAL, "# muons", 1);
-  errorSummaryDen->setBinLabel(RQUAL, "# muons", 1);
-  errorSummaryDen->setBinLabel(RHF, "# muons", 1);
-  errorSummaryDen->setBinLabel(RLINK, "# muons", 1);
-  errorSummaryDen->setBinLabel(RPROC, "# muons", 1);
-  errorSummaryDen->setBinLabel(RTF, "# muons", 1);
-  errorSummaryDen->setBinLabel(RTRACKADDR, "# muons", 1);
+  for (int i = RMUON; i <= RTRACKADDR; ++i) {
+    errorSummaryDen->setBinLabel(i, "# muons", 1);
+  }
+  // Needed for correct histogram summing in multithreaded running.
+  errorSummaryDen->getTH1F()->GetXaxis()->SetCanExtend(false);
 
   muColl1BxRange = ibooker.book1D("muBxRangeColl1", (muonColl1Title+" mismatching BX range").c_str(), 11, -5.5, 5.5);
   muColl1BxRange->setAxisTitle("BX range", 1);
@@ -130,7 +127,7 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   muColl1hwQual->setAxisTitle("Hardware quality", 1);
   muColl1link = ibooker.book1D("muLinkColl1", (muonColl1Title+" mismatching muon link"+trkAddrIgnoreText).c_str(), 36, 35.5, 71.5);
   muColl1link->setAxisTitle("Link", 1);
-  muColl1processor = ibooker.book1D("muProcessorColl1", (muonColl1Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 15.5);
+  muColl1processor = ibooker.book1D("muProcessorColl1", (muonColl1Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 11.5);
   muColl1processor->setAxisTitle("Processor", 1);
   muColl1trackFinderType = ibooker.book1D("muTrackFinderTypeColl1", (muonColl1Title+" mismatching muon track finder type"+trkAddrIgnoreText).c_str(), 5, -0.5, 4.5);
   muColl1trackFinderType->setAxisTitle("Track finder type", 1);
@@ -165,7 +162,7 @@ void L1TStage2RegionalMuonCandComp::bookHistograms(DQMStore::IBooker& ibooker, c
   muColl2hwQual->setAxisTitle("Hardware quality", 1);
   muColl2link = ibooker.book1D("muLinkColl2", (muonColl2Title+" mismatching muon link"+trkAddrIgnoreText).c_str(), 36, 35.5, 71.5);
   muColl2link->setAxisTitle("Link", 1);
-  muColl2processor = ibooker.book1D("muProcessorColl2", (muonColl2Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 15.5);
+  muColl2processor = ibooker.book1D("muProcessorColl2", (muonColl2Title+" mismatching muon processor"+trkAddrIgnoreText).c_str(), 12, -0.5, 11.5);
   muColl2processor->setAxisTitle("Processor", 1);
   muColl2trackFinderType = ibooker.book1D("muTrackFinderTypeColl2", (muonColl2Title+" mismatching muon track finder type"+trkAddrIgnoreText).c_str(), 5, -0.5, 4.5);
   muColl2trackFinderType->setAxisTitle("Track finder type", 1);

@@ -19,7 +19,7 @@ class MeasureLA : public edm::ESProducer {
  public:
 
   explicit MeasureLA(const edm::ParameterSet&);
-  std::shared_ptr<SiStripLorentzAngle> produce(const SiStripLorentzAngleRcd&);
+  std::unique_ptr<SiStripLorentzAngle> produce(const SiStripLorentzAngleRcd&);
   
  private:
 
