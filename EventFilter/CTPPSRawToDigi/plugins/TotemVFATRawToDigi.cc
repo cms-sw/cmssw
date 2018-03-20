@@ -31,6 +31,8 @@
 #include "EventFilter/CTPPSRawToDigi/interface/RawDataUnpacker.h"
 #include "EventFilter/CTPPSRawToDigi/interface/RawToDigiConverter.h"
 
+#include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
+
 #include <string>
 
 //----------------------------------------------------------------------------------------------------
@@ -47,7 +49,7 @@ class TotemVFATRawToDigi : public edm::stream::EDProducer<>
   private:
     std::string subSystemName;
 
-    enum { ssUndefined, ssTrackingStrip, ssTimingDiamond } subSystem;
+    enum { ssUndefined, ssTrackingStrip, ssTimingDiamond, ssTotemTiming } subSystem;
 
     std::vector<unsigned int> fedIds;
 
@@ -81,6 +83,8 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
     subSystem = ssTrackingStrip;
   if (subSystemName == "TimingDiamond")
     subSystem = ssTimingDiamond;
+  if (subSystemName == "TotemTiming")
+    subSystem = ssTotemTiming;
 
   if (subSystem == ssUndefined)
     throw cms::Exception("TotemVFATRawToDigi::TotemVFATRawToDigi") << "Unknown sub-system string " << subSystemName << "." << endl;
@@ -94,6 +98,9 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
 
   if (subSystem == ssTimingDiamond)
     produces< DetSetVector<CTPPSDiamondDigi> >(subSystemName);
+  
+  if (subSystem == ssTotemTiming)
+    produces< DetSetVector<TotemTimingDigi> >(subSystemName);
 
   // set default IDs
   if (fedIds.empty())
@@ -111,6 +118,13 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
     {
 
       for (int id = FEDNumbering::MINCTPPSDiamondFEDID; id <= FEDNumbering::MAXCTPPSDiamondFEDID; ++id)
+        fedIds.push_back(id);
+    }
+    
+    if (subSystem == ssTotemTiming)
+    {
+
+      for (int id = FEDNumbering::MINTotemRPTimingVerticalFEDID; id <= FEDNumbering::MAXTotemRPTimingVerticalFEDID; ++id)
         fedIds.push_back(id);
     }
   }
@@ -134,6 +148,9 @@ void TotemVFATRawToDigi::produce(edm::Event& event, const edm::EventSetup &es)
 
   if (subSystem == ssTimingDiamond)
     run< DetSetVector<CTPPSDiamondDigi> >(event, es);
+  
+  if (subSystem == ssTotemTiming)
+    run< DetSetVector<TotemTimingDigi> >(event, es);
 }
 
 //----------------------------------------------------------------------------------------------------
