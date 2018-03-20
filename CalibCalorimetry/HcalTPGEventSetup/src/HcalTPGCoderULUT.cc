@@ -47,7 +47,7 @@ public:
 
   ReturnType produce(const HcalTPGRecord&);
 private:
-  void buildCoder(const HcalTopology*, const edm::ESHandle<HcalTimeSlew>&, const edm::ESHandle<HcalMCParams>&, const edm::ESHandle<HcalRecoParams>&);
+  void buildCoder(const HcalTopology*, const edm::ESHandle<HcalTimeSlew>&);
   // ----------member data ---------------------------
   ReturnType coder_;  
   HcaluLUTTPGCoder* theCoder_;
@@ -96,10 +96,9 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
 }
 
   
-void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const edm::ESHandle<HcalTimeSlew>& delay,
-				  const edm::ESHandle<HcalMCParams>& mcParams, const edm::ESHandle<HcalRecoParams>& recoParams) {
+void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const edm::ESHandle<HcalTimeSlew>& delay) {
   using namespace edm::es;
-  theCoder_ = new HcaluLUTTPGCoder(topo, delay, mcParams, recoParams);
+  theCoder_ = new HcaluLUTTPGCoder(topo, delay);
   if (read_Ascii_ || read_XML_){
     edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename_.fullPath() << " for HcalTPGCoderULUT initialization";
     if (read_Ascii_) {
@@ -144,13 +143,7 @@ HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
     edm::ESHandle<HcalTimeSlew> delay;
     iRecord.getRecord<HcalDbRecord>().getRecord<HcalTimeSlewRecord>().get("HBHE", delay);
 
-    edm::ESHandle<HcalMCParams> mcParams;
-    iRecord.getRecord<HcalDbRecord>().getRecord<HcalMCParamsRcd>().get(mcParams);
-
-    edm::ESHandle<HcalRecoParams> recoParams;
-    iRecord.getRecord<HcalDbRecord>().getRecord<HcalRecoParamsRcd>().get(recoParams);
-
-    buildCoder(topo, delay, mcParams, recoParams);
+    buildCoder(topo, delay);
   }
   
 
@@ -166,12 +159,8 @@ void HcalTPGCoderULUT::dbRecordCallback(const HcalDbRecord& theRec) {
 
   edm::ESHandle<HcalTimeSlew> delay;
   theRec.getRecord<HcalTimeSlewRecord>().get("HBHE", delay);
-  edm::ESHandle<HcalMCParams> mcParams;
-  theRec.getRecord<HcalMCParamsRcd>().get(mcParams);
-  edm::ESHandle<HcalRecoParams> recoParams;
-  theRec.getRecord<HcalRecoParamsRcd>().get(recoParams);
 
-  buildCoder(topo, delay, mcParams, recoParams);
+  buildCoder(topo, delay);
 
   theCoder_->update(*conditions);
 

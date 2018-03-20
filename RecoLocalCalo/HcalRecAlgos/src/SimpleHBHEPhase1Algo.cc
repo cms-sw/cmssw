@@ -54,7 +54,6 @@ void SimpleHBHEPhase1Algo::beginRun(const edm::Run& r,
 void SimpleHBHEPhase1Algo::endRun()
 {
     runnum_ = 0;
-    pulseCorr_.endRun();
 }
 
 HBHERecHit SimpleHBHEPhase1Algo::reconstruct(const HBHEChannelInfo& info,
