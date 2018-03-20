@@ -185,10 +185,10 @@ electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
     variables = cms.PSet(
         LepGood_pt = cms.string("pt"),
         LepGood_eta = cms.string("eta"),
-        LepGood_jetNDauChargedMVASel = cms.string("userFloat('jetNDauChargedMVASel')"),
+        LepGood_jetNDauChargedMVASel = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0"),
         LepGood_miniRelIsoCharged = cms.string("userFloat('miniIsoChg')/pt"),
         LepGood_miniRelIsoNeutral = cms.string("(userFloat('miniIsoAll')-userFloat('miniIsoChg'))/pt"),
-        LepGood_jetPtRelv2 = cms.string("userFloat('ptRel')"),
+        LepGood_jetPtRelv2 = cms.string("?userCand('jetForLepJetVar').isNonnull()?userFloat('ptRel'):0"),
         LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1.0/(1.0+userFloat('PFIsoAll04')/pt)"),
         LepGood_jetBTagCSV = cms.string("?userCand('jetForLepJetVar').isNonnull()?max(userCand('jetForLepJetVar').bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags'),0.0):0.0"),
         LepGood_sip3d = cms.string("abs(dB('PV3D')/edB('PV3D'))"),
@@ -198,7 +198,7 @@ electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
     )
 )
 run2_miniAOD_80XLegacy.toModify(electronMVATTH.variables,
-    LepGood_jetPtRatio = cms.string("min(userFloat('ptRatio'),1.5)"),
+    LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1"),
     LepGood_mvaIdSpring16HZZ = cms.string("userFloat('mvaSpring16HZZ')"),
     LepGood_mvaIdFall17noIso = None)
 run2_miniAOD_80XLegacy.toModify(electronMVATTH,
