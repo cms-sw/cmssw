@@ -69,7 +69,7 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event& iEvent, const edm::Ev
   //  if ( TTTrackHandle.isValid() ) return;
 
   /// Go on only if there are TTTracks from Phase2TrackerDigis
-  if (TTTrackHandle->size() > 0)
+  if (!TTTrackHandle->empty())
   {
     /// Loop over TTTracks
     unsigned int tkCnt = 0;
