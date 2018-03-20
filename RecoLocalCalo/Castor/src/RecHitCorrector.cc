@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,15 +44,13 @@
 // class declaration
 //
 
-class RecHitCorrector : public edm::EDProducer {
+class RecHitCorrector : public edm::stream::EDProducer<> {
    public:
       explicit RecHitCorrector(const edm::ParameterSet&);
       ~RecHitCorrector() override;
 
    private:
-      void beginJob() override ;
       void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
       
       // ----------member data ---------------------------
       edm::EDGetTokenT<CastorRecHitCollection> tok_input_;
@@ -122,18 +120,14 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    for (unsigned int i=0;i<rechits->size();i++) {
    	CastorRecHit rechit = (*rechits)[i];
-	double fC = factor_*rechit.energy();
 	double time = rechit.time();
+	double correctedenergy = factor_*rechit.energy();
 	
-	// do proper gain calibration reading the latest entries in the condDB
-	const CastorCalibrations& calibrations=conditions->getCastorCalibrations(rechit.id());
-	int capid = 0; // take some capid, gains are the same for all capid's
-	
-	double correctedenergy = 0;
 	if (doInterCalib_) {
-		correctedenergy = fC*calibrations.gain(capid);
-	} else {
-		correctedenergy = fC;
+		// do proper gain calibration reading the latest entries in the condDB
+		const CastorCalibrations& calibrations=conditions->getCastorCalibrations(rechit.id());
+		int capid = 0; // take some capid, gains are the same for all capid's
+		correctedenergy *= calibrations.gain(capid);
 	}
 	
 	// now check the channelquality of this rechit
@@ -143,7 +137,10 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	for (auto channel : channels) {	
 		if (channel.rawId() == detcell.rawId()) {
 			const CastorChannelStatus* mydigistatus=myqual->getValues(channel);
-			if (mydigistatus->getValue() == 2989) ok = false; // 2989 = BAD
+			if (mydigistatus->getValue() == 2989) {
+				ok = false; // 2989 = BAD
+				break;
+			}
 		}
 	}
 	
@@ -158,16 +155,6 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-RecHitCorrector::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-RecHitCorrector::endJob() {
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(RecHitCorrector);
