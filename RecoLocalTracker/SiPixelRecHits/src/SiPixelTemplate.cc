@@ -133,36 +133,24 @@ bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > 
    // Local variables
    int i, j, k, l;
    float qavg_avg;
-   const char *tempfile;
    //	char title[80]; remove this
    char c;
    const int code_version={17};
-   
-   
-   
    //  Create a filename for this run
-   
-   std::ostringstream tout;
-   
    //  Create different path in CMSSW than standalone
-   
+   std::string tempfile=std::to_string(filenum);
+   for (unsigned cnt=4-tempfile.length(); cnt > 0; cnt-- ){ tempfile ="0"+tempfile; }
+   tempfile = "template_summary_zp" + tempfile + ".out";
+
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-   tout << "CalibTracker/SiPixelESProducers/data/template_summary_zp"
-   << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
-   std::string tempf = tout.str();
-   edm::FileInPath file( tempf.c_str() );
-   tempfile = (file.fullPath()).c_str();
-#else
-   tout << "template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
-   std::string tempf = tout.str();
-   tempfile = tempf.c_str();
+   tempfile = "CalibTracker/SiPixelESProducers/data/" + tempfile; 
+   edm::FileInPath file( tempfile.c_str() );
+   tempfile = file.fullPath();
 #endif
    
    //  open the template file
-   
-   std::ifstream in_file(tempfile, std::ios::in);
-   
-   if(in_file.is_open()) {
+   std::ifstream in_file(tempfile);
+   if(in_file.is_open() && in_file.good()) {
       
       // Create a local template storage entry
       
@@ -555,7 +543,6 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
    // Local variables
    int i, j, k, l;
    float qavg_avg;
-   //	const char *tempfile;
    const int code_version={17};
    
    // We must create a new object because dbobject must be a const and our stream must not be
