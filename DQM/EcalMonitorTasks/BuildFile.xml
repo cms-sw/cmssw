@@ -7,6 +7,7 @@
 <use   name="DataFormats/EcalRecHit"/>
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/Math"/>
+<use   name="DataFormats/TCDS"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
 <use   name="FWCore/Framework"/>

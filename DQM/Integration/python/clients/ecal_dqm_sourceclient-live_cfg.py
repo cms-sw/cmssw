@@ -1,5 +1,6 @@
 ### AUTO-GENERATED CMSRUN CONFIGURATION FOR ECAL DQM ###
 import FWCore.ParameterSet.Config as cms
+from EventFilter.Utilities.tcdsRawToDigi_cfi import * # To monitor LHC status, e.g. to mask trigger primitives quality alarm during Cosmics
 
 process = cms.Process("process")
 
@@ -92,6 +93,9 @@ process.GlobalTag.toGet = cms.VPSet(cms.PSet(
 
 process.preScaler.prescaleFactor = 1
 
+process.tcdsDigis = tcdsRawToDigi.clone()
+process.tcdsDigis.InputLabel = cms.InputTag("rawDataCollector")
+
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecal_reference.root"
 
 process.dqmEnv.subSystemFolder = cms.untracked.string('Ecal')
@@ -122,7 +126,7 @@ process.hybridClusteringSequence = cms.Sequence(process.cleanedHybridSuperCluste
 
 ### Paths ###
 
-process.ecalMonitorPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalRecoSequence+process.ecalMonitorTask)
+process.ecalMonitorPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalRecoSequence+process.tcdsDigis+process.ecalMonitorTask)
 process.ecalClientPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalMonitorClient)
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv)
