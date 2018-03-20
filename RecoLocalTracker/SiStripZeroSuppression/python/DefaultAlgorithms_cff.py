@@ -55,9 +55,9 @@ DefaultAlgorithms = cms.PSet(
     filteredBaselineDerivativeSumSquare=cms.double(30),
     
     ## Zero suppression --------------------
-    SiStripFedZeroSuppressionMode = cms.uint32(4), #case 5 for hybrid mode
-    TruncateInSuppressor = cms.bool(True)
-    
+    SiStripFedZeroSuppressionMode = cms.uint32(4),
+    TruncateInSuppressor = cms.bool(True),      #it truncates at 8 bits if Use10bitsTRuncation is off
+    Use10bitsTruncation = cms.bool(False)      #it needs to be false in case of 8 bit ZS input or output 
     
     )
 

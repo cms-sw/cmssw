@@ -37,12 +37,12 @@ class SiStripAPVRestorer {
   virtual ~SiStripAPVRestorer() {};
 
   void     init(const edm::EventSetup& es);
-  int16_t  inspect(const uint32_t&, const uint16_t&, std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
+  uint16_t  inspect(const uint32_t&, const uint16_t&, std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
   void     restore(const uint16_t&, std::vector<int16_t>&);
   
-  int16_t InspectForHybridFormatEmulation(const uint32_t&, const uint16_t&,std::vector<int16_t>&, const std::vector< std::pair<short,float> >&, std::vector<bool>&);
+  uint16_t InspectForHybridFormatEmulation(const uint32_t&, const uint16_t&,std::vector<int16_t>&, const std::vector< std::pair<short,float> >&, std::vector<bool>&);
   
-  int16_t  InspectAndRestore(const uint32_t&, const uint16_t&, std::vector<int16_t>&,  std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
+  uint16_t  InspectAndRestore(const uint32_t&, const uint16_t&, std::vector<int16_t>&,  std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
   //void     fixAPVsCM(edm::DetSet<SiStripProcessedRawDigi>& );
   void     LoadMeanCMMap(const edm::Event&);
   
@@ -60,11 +60,11 @@ class SiStripAPVRestorer {
   //template<typename T>float median( std::vector<T>& );
   //template<typename T>void IterativeMedian(std::vector<T>&, uint16_t); 
   
-  template<typename T >int16_t NullInspect(const uint16_t&, std::vector<T>&);
-  template<typename T >int16_t AbnormalBaselineInspect(const uint16_t&, std::vector<T>&);
-  template<typename T >int16_t BaselineFollowerInspect(const uint16_t&, std::vector<T>&);  
-  template<typename T >int16_t BaselineAndSaturationInspect(const uint16_t&, std::vector<T>&);
-  template<typename T >int16_t ForceRestoreInspect(const uint16_t&, std::vector<T>&);
+  template<typename T >uint16_t NullInspect(const uint16_t&, std::vector<T>&);
+  template<typename T >uint16_t AbnormalBaselineInspect(const uint16_t&, std::vector<T>&);
+  template<typename T >uint16_t BaselineFollowerInspect(const uint16_t&, std::vector<T>&);  
+  template<typename T >uint16_t BaselineAndSaturationInspect(const uint16_t&, std::vector<T>&);
+  template<typename T >uint16_t ForceRestoreInspect(const uint16_t&, std::vector<T>&);
 
   void FlatRestore(const uint16_t&, const uint16_t&, std::vector<int16_t>& );
   bool CheckBaseline(const std::vector<int16_t> &) const;

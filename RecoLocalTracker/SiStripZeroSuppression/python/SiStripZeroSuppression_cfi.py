@@ -21,7 +21,7 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
     produceRawDigis = cms.bool(True),     # if mergeCollection is True, produceRawDigi is not considered
     produceCalculatedBaseline = cms.bool(False),
     produceBaselinePoints = cms.bool(False),
-    storeInZScollBadAPV = cms.bool(True),
+    storeInZScollBadAPV = cms.bool(True), # it selects if in the ZS collection the bad APVs are written. To be kept for ZS
     mergeCollections = cms.bool(False),
     produceHybridFormat = cms.bool(False)
     
