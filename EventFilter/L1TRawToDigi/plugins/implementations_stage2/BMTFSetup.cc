@@ -88,7 +88,8 @@ namespace l1t {
       BMTFSetup::getUnpackers(int fed, int board, int amc, unsigned int fw)
       {
 
-         auto outputMuon = UnpackerFactory::get()->make("stage2::BMTFUnpackerOutput");
+         auto outputMuon = std::make_shared<BMTFUnpackerOutput>();
+         auto outputKalmanMuon = std::make_shared<BMTFUnpackerOutput>(true);
          auto inputMuonsOld = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsOldQual");
          auto inputMuonsNew = UnpackerFactory::get()->make("stage2::BMTFUnpackerInputsNewQual");
 
