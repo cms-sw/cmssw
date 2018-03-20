@@ -1,6 +1,7 @@
 #include "../interface/PNDiodeTask.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace ecaldqm {
 
@@ -59,7 +60,15 @@ namespace ecaldqm {
     }
 
     std::for_each(_ids.begin(), _ids.end(), [&](EcalElectronicsIdCollection::value_type const& id){
-        set->fill(EcalElectronicsId(id.dccId(), id.towerId(), 1, id.xtalId()));
+        try {
+          set->fill(EcalElectronicsId(id.dccId(), id.towerId(), 1, id.xtalId()));
+        }
+        catch(cms::Exception e) {
+          if (e.category() == "InvalidDetId") {
+            edm::LogWarning("EcalDQM") << "PNDiodeTask::runOnErrors : one of the ids in the electronics ID collection is unphysical in lumi number " << timestamp_.iLumi << ". Exception message: " << e.message();
+          }
+          else throw e;
+        }
       });
   }
 
