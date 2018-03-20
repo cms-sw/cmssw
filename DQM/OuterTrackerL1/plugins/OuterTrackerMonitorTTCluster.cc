@@ -208,8 +208,8 @@ void OuterTrackerMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker, ed
   Cluster_OMem_Endcap_Ring->setAxisTitle("Endcap Ring", 1);
   Cluster_OMem_Endcap_Ring->setAxisTitle("# L1 Clusters", 2);
 
-  for (int i = 0; i < 5; i++)
-  {
+  std::vector<int> histo_range = {0,1,2,3,4};
+  for (auto i : histo_range) {
     HistoName = "NClusters_IMem_Disc+"+std::to_string(i+1);
     Cluster_IMem_Endcap_Ring_Fw[i] = iBooker.book1D(HistoName, HistoName,
         psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"),
@@ -219,8 +219,7 @@ void OuterTrackerMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker, ed
     Cluster_IMem_Endcap_Ring_Fw[i]->setAxisTitle("# L1 Clusters ",2);
   }
 
-  for (int i = 0; i < 5; i++)
-  {
+  for (auto i : histo_range) {
     HistoName = "NClusters_IMem_Disc-"+std::to_string(i+1);
     Cluster_IMem_Endcap_Ring_Bw[i] = iBooker.book1D(HistoName, HistoName,
         psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"),
@@ -230,8 +229,7 @@ void OuterTrackerMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker, ed
     Cluster_IMem_Endcap_Ring_Bw[i]->setAxisTitle("# L1 Clusters ",2);
   }
 
-  for (int i = 0; i < 5; i++)
-  {
+  for (auto i : histo_range) {
     HistoName = "NClusters_OMem_Disc+"+std::to_string(i+1);
     Cluster_OMem_Endcap_Ring_Fw[i] = iBooker.book1D(HistoName, HistoName,
         psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"),
@@ -241,8 +239,7 @@ void OuterTrackerMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker, ed
     Cluster_OMem_Endcap_Ring_Fw[i]->setAxisTitle("# L1 Clusters ",2);
   }
 
-  for (int i = 0; i < 5; i++)
-  {
+  for (auto i : histo_range) {
     HistoName = "NClusters_OMem_Disc-"+std::to_string(i+1);
     Cluster_OMem_Endcap_Ring_Bw[i] = iBooker.book1D(HistoName, HistoName,
         psTTCluster_ECRing.getParameter<int32_t>("Nbinsx"),
