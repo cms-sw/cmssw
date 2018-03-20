@@ -8,7 +8,8 @@ namespace l1t
 {
   namespace stage2
   {
-    bool unpacking(const Block& block, UnpackerCollections *coll, const bool isKalman = false)
+
+    bool BMTFUnpackerOutput::unpack(const Block& block, UnpackerCollections *coll)
     {
       unsigned int blockId = block.header().getID();
       LogDebug("L1T") << "Block ID: " << blockId << " size: " << block.header().getSize();
@@ -104,4 +105,3 @@ namespace l1t
 }//ns lt1
 
 DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerOutput);
-DEFINE_L1T_UNPACKER(l1t::stage2::BMTFUnpackerKalmanOutput);
