@@ -24,6 +24,9 @@ class SiStripZeroSuppression : public edm::stream::EDProducer<>
  private:
 
   void processRaw(const edm::InputTag&, const edm::DetSetVector<SiStripRawDigi>&);
+  void processHybrid(const edm::InputTag&, const edm::DetSetVector<SiStripDigi>&);
+  
+  
   void storeExtraOutput(uint32_t, int16_t);
   void formatRawDigis(edm::DetSetVector<SiStripRawDigi>::const_iterator, edm::DetSet<SiStripRawDigi>&);
   void storeCMN(uint32_t, const std::vector< std::pair<short,float> >&);

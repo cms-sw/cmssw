@@ -93,6 +93,7 @@ class SiStripBaselineAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedReso
           bool plotBaseline_;
           bool plotBaselinePoints_;
           bool plotRawDigi_;
+          bool plotDigis_;
           bool plotAPVCM_;
           bool plotPedestals_;
 	  
@@ -100,7 +101,7 @@ class SiStripBaselineAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedReso
           edm::InputTag srcBaselinePoints_;
           edm::InputTag srcAPVCM_;
 	  edm::InputTag srcProcessedRawDigi_;
-      
+      edm::InputTag srcDigis_;
           edm::Service<TFileService> fs_;
   
 	  TH1F* h1BadAPVperEvent_;
@@ -128,6 +129,7 @@ SiStripBaselineAnalyzer::SiStripBaselineAnalyzer(const edm::ParameterSet& conf){
   srcBaseline_ =  conf.getParameter<edm::InputTag>( "srcBaseline" );
   srcBaselinePoints_ = conf.getParameter<edm::InputTag>( "srcBaselinePoints" );
   srcProcessedRawDigi_ =  conf.getParameter<edm::InputTag>( "srcProcessedRawDigi" );
+  srcDigis_ =  conf.getParameter<edm::InputTag>( "srcDigis" );
   srcAPVCM_ =  conf.getParameter<edm::InputTag>( "srcAPVCM" );
   subtractorPed_ = SiStripRawProcessingFactory::create_SubtractorPed(conf.getParameter<edm::ParameterSet>("Algorithms"));
   nModuletoDisplay_ = conf.getParameter<uint32_t>( "nModuletoDisplay" );
@@ -137,6 +139,7 @@ SiStripBaselineAnalyzer::SiStripBaselineAnalyzer(const edm::ParameterSet& conf){
   plotRawDigi_ = conf.getParameter<bool>( "plotRawDigi" );
   plotAPVCM_ = conf.getParameter<bool>( "plotAPVCM" );
   plotPedestals_ = conf.getParameter<bool>( "plotPedestals" );
+  plotDigis_ = conf.getParameter<bool>( "plotDigis" );
 
   h1BadAPVperEvent_ = fs_->make<TH1F>("BadAPV/Event","BadAPV/Event", 2001, -0.5, 2000.5);
   h1BadAPVperEvent_->SetXTitle("# Modules with Bad APVs");
@@ -204,19 +207,22 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
      }
    }
    
-   if(!plotRawDigi_) return;
+   //if(!plotRawDigi_) return;
    subtractorPed_->init(es);
    
    
  
    edm::Handle< edm::DetSetVector<SiStripRawDigi> > moduleRawDigi;
-   e.getByLabel(srcProcessedRawDigi_,moduleRawDigi);
+   if(plotRawDigi_) e.getByLabel(srcProcessedRawDigi_,moduleRawDigi);
  
    edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi> > moduleBaseline;
    if(plotBaseline_) e.getByLabel(srcBaseline_, moduleBaseline); 
 
    edm::Handle<edm::DetSetVector<SiStripDigi> > moduleBaselinePoints;
    if(plotBaselinePoints_) e.getByLabel(srcBaseline_, moduleBaselinePoints); 
+   
+   edm::Handle<edm::DetSetVector<SiStripDigi> >moduleDigis;
+   if(plotDigis_) e.getByLabel(srcDigis_, moduleDigis); 
    
    edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
    if(plotClusters_){
@@ -233,7 +239,7 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
    TFileDirectory sdBaseline_= fs_->mkdir("Baseline");
    TFileDirectory sdBaselinePoints_= fs_->mkdir("BaselinePoints");
    TFileDirectory sdClusters_= fs_->mkdir("Clusters");
-   
+   TFileDirectory sdDigis_= fs_->mkdir("Digis");
 
    edm::DetSetVector<SiStripProcessedRawDigi>::const_iterator itDSBaseline;
    if(plotBaseline_) itDSBaseline = moduleBaseline->begin();
