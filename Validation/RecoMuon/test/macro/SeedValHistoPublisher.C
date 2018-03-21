@@ -120,7 +120,7 @@ void SeedValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="R
     /*
     const char* plots [] = {"", "", "", ""};
     const char* plotsl[] = {"", "", "", ""};
-    Plot4Histograms(newDir + "/muonIso1.pdf",
+    Plot4Histograms(newDir + "/muonIso1",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "", "",
@@ -132,7 +132,7 @@ void SeedValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="R
     //===== muon seeds plots, first page:
     const char* plots1 [] = {"seedEta_", "seedEtaErr_", "seedPhi_", "seedPhiErr_"};
     const char* plotsl1[] = {"seed #eta", "seed #eta error", "seed #phi", "seed #phi error"};
-    Plot4Histograms(newDir + "/muonSeed1.pdf",
+    Plot4Histograms(newDir + "/muonSeed1",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "Seeds1", "Seeds eta and phi",
@@ -145,7 +145,7 @@ void SeedValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="R
     // NOTE: Originally in one page, now split in two pages
     // const char* plots2 [] = {"seedPt_", "seedPtErrOverPt_", "seedPz_", "seedPzErrOverPz_"};
     // const char* plotsl2[] = {"seed P_{T}", "seed P_{T} Err/P_{T}", "seed P_{Z}", "seed P_{Z} Err/P_{Z}"};
-    // Plot4Histograms(newDir + "/muonSeed2.pdf",
+    // Plot4Histograms(newDir + "/muonSeed2",
     // 		    rdir, sdir, 
     // 		    rcollname, scollname,
     // 		    "Seeds2", "Seeds momenta",
@@ -155,7 +155,7 @@ void SeedValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="R
 
     // const char* plots3 [] = {"NumberOfRecHitsPerSeed_", "seedPErrOverP_", "", ""};
     // const char* plotsl3[] = {"Nr RecHits per seed", "seed P Err/P", "", ""};
-    // Plot4Histograms(newDir + "/muonSeed3.pdf",
+    // Plot4Histograms(newDir + "/muonSeed3",
     // 		    rdir, sdir, 
     // 		    rcollname, scollname,
     // 		    "Seeds3", "Seeds hits and momentum",
@@ -169,7 +169,7 @@ void SeedValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="R
 			      "NumberOfRecHitsPerSeed_", "seedPErrOverP_"};
     const char* plotsl2 [] = {"seed P_{T}", "seed P_{T} Err/P_{T}", "seed P_{Z}", "seed P_{Z} Err/P_{Z}",
 			      "Nr RecHits per seed", "seed P Err/P"};
-    Plot6Histograms(newDir + "/muonSeed2.pdf",
+    Plot6Histograms(newDir + "/muonSeed2",
 		    rdir, sdir, 
 		    rcollname, scollname,
 		    "Seeds2", "Seeds momenta and hits",
@@ -194,7 +194,7 @@ void SeedValHistoPublisher(const char* newFile="NEW_FILE",const char* refFile="R
     gSystem->Rename(mergefile, destfile);
     
     cout << ">> Deleting partial pdf files" << endl;
-    gSystem->Exec("rm -r "+newDir);
+    gSystem->Exec("rm -r "+newDir+"/*.pdf");
     cout << "   ... Done" << endl;
     
   }  // end of "while loop"
