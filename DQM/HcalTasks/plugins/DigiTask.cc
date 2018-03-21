@@ -745,7 +745,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				continue;
 		}
 
-		_cSumQ_SubdetPM.fill(did, sumQ);
+		_cSumQ_SubdetPM_QIE1011.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
 		if (_ptype == fOnline || _ptype == fLocal) {
 			_cOccupancy_Crate.fill(eid);
