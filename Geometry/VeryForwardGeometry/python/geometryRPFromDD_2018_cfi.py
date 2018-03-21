@@ -123,8 +123,8 @@ ctppsPixelGeomXMLFiles = cms.vstring(
     'Geometry/VeryForwardData/data/ppstrackerMaterials.xml',
     'Geometry/VeryForwardData/data/CTPPS_Pixel_Module.xml',
     'Geometry/VeryForwardData/data/CTPPS_Pixel_Module_2x2.xml',
-    'Geometry/VeryForwardData/data/CTPPS_Pixel_Assembly_Box_Real_023.xml',
-    'Geometry/VeryForwardData/data/CTPPS_Pixel_Assembly_Box_Real_123.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_023.xml',
+    'Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_123.xml',
     'Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_003.xml',
     'Geometry/VeryForwardData/data/CTPPS_Pixel_2018/CTPPS_Pixel_Assembly_Box_Real_103.xml',
     'Geometry/VeryForwardData/data/CTPPS_Pixel_Sens.xml'
