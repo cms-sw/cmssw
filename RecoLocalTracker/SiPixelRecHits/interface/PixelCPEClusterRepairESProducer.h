@@ -11,9 +11,8 @@ class  PixelCPEClusterRepairESProducer: public edm::ESProducer{
  public:
   PixelCPEClusterRepairESProducer(const edm::ParameterSet & p);
   ~PixelCPEClusterRepairESProducer() override; 
-  std::shared_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &);
+  std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &);
  private:
-  std::shared_ptr<PixelClusterParameterEstimator> cpe_;
   edm::ParameterSet pset_;
   bool DoLorentz_;
 };
