@@ -37,7 +37,7 @@ PixelCPEClusterRepairESProducer::PixelCPEClusterRepairESProducer(const edm::Para
 
 PixelCPEClusterRepairESProducer::~PixelCPEClusterRepairESProducer() {}
 
-std::shared_ptr<PixelClusterParameterEstimator> 
+std::unique_ptr<PixelClusterParameterEstimator> 
 PixelCPEClusterRepairESProducer::produce(const TkPixelCPERecord & iRecord){ 
 
   ESHandle<MagneticField> magfield;
@@ -65,16 +65,14 @@ PixelCPEClusterRepairESProducer::produce(const TkPixelCPERecord & iRecord){
   ESHandle<SiPixel2DTemplateDBObject> templateDBobject2D;
   iRecord.getRecord<SiPixel2DTemplateDBObjectESProducerRcd>().get(templateDBobject2D);
 
-  //  cpe_  = std::make_shared<PixelCPEClusterRepair>(pset_,magfield.product(),lorentzAngle.product(),templateDBobject.product() );
-  cpe_  =
-    std::make_shared<PixelCPEClusterRepair>(pset_,
+  return
+    std::make_unique<PixelCPEClusterRepair>(pset_,
 					    magfield.product(),
 					    *pDD.product(),
 					    *hTT.product(),
 					    lorentzAngleProduct,
 					    templateDBobject.product(),
 					    templateDBobject2D.product() );
-  return cpe_;
 }
 
 
