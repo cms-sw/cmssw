@@ -276,6 +276,10 @@ namespace pat {
       float mvaValue() const { return mvaValue_; }
       void  setMvaValue(float mva){ mvaValue_ = mva; }
 
+      /// Soft Muon MVA
+      float softMvaValue() const { return softMvaValue_; }
+      void  setSoftMvaValue(float softmva){ softMvaValue_ = softmva; }
+
       /// MC matching information
       reco::MuonSimType simType() const { return simType_; }
       reco::ExtendedMuonSimType simExtType() const { return simExtType_; }
@@ -381,6 +385,7 @@ namespace pat {
 
       /// Muon MVA
       float mvaValue_;
+      float softMvaValue_;
 
       /// MC matching information
       reco::MuonSimType simType_;
