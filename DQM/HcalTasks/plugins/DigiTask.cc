@@ -9,7 +9,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 {
 	_tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE",
 		edm::InputTag("hcalDigis"));
-	_tagHEP17 = ps.getUntrackedParameter<edm::InputTag>("tagHEP17",
+	_tagHE = ps.getUntrackedParameter<edm::InputTag>("tagHE",
 		edm::InputTag("hcalDigis"));
 	_tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO",
 		edm::InputTag("hcalDigis"));
@@ -17,12 +17,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		edm::InputTag("hcalDigis"));
 
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
-	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHEP17);
+	_tokHE = consumes<QIE11DigiCollection>(_tagHE);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
 	_tokHF = consumes<QIE10DigiCollection>(_tagHF);
 
 	_cutSumQ_HBHE = ps.getUntrackedParameter<double>("cutSumQ_HBHE", 20);
-	_cutSumQ_HEP17 = ps.getUntrackedParameter<double>("cutSumQ_HEP17", 20);
+	_cutSumQ_HE = ps.getUntrackedParameter<double>("cutSumQ_HE", 20);
 	_cutSumQ_HO = ps.getUntrackedParameter<double>("cutSumQ_HO", 20);
 	_cutSumQ_HF = ps.getUntrackedParameter<double>("cutSumQ_HF", 20);
 	_thresh_unihf = ps.getUntrackedParameter<double>("thresh_unihf", 0.2);
@@ -63,20 +63,14 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_filter_uTCA.initialize(filter::fFilter, hcaldqm::hashfunctions::fElectronics,
 		vuTCA);
 
-	// Filters for HEP17 and HF, aka QIE10/11
-	std::vector<uint32_t> vhashHF; 
-	vhashHF.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalForward, 29,1,1)));
-	_filter_HF.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet,
-		vhashHF);
-	_filter_notHF.initialize(filter::fFilter, hcaldqm::hashfunctions::fSubdet,
-		vhashHF);
-
-	std::vector<uint32_t> vhashHEP17;
-	vhashHEP17.push_back(HcalDetId(HcalEndcap, 1, 63, 1));
-	vhashHEP17.push_back(HcalDetId(HcalEndcap, 1, 64, 1));
-	vhashHEP17.push_back(HcalDetId(HcalEndcap, 1, 65, 1));
-	vhashHEP17.push_back(HcalDetId(HcalEndcap, 1, 66, 1));
-	_filter_HEP17.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdetPMiphi, vhashHEP17);
+	// Filters for QIE8 vs QIE10/11
+	std::vector<uint32_t> vhashQIE1011; 
+	vhashQIE1011.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalEndcap, 20,1,1)));
+	vhashQIE1011.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalForward, 29,1,1)));
+	_filter_QIE1011.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet,
+		vhashQIE1011);
+	_filter_QIE8.initialize(filter::fFilter, hcaldqm::hashfunctions::fSubdet,
+		vhashQIE1011);
 
 	//	INITIALIZE FIRST
 	_cADC_SubdetPM.initialize(_name, "ADC", hcaldqm::hashfunctions::fSubdetPM,
@@ -97,16 +91,16 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::LumiSection(_maxLS),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000),0);
 
-	_cADC_SubdetPM_HF.initialize(_name, "ADC", hcaldqm::hashfunctions::fSubdetPM,
+	_cADC_SubdetPM_QIE1011.initialize(_name, "ADC", hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	_cfC_SubdetPM_HF.initialize(_name, "fC", hcaldqm::hashfunctions::fSubdetPM,
+	_cfC_SubdetPM_QIE1011.initialize(_name, "fC", hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	_cSumQ_SubdetPM_HF.initialize(_name, "SumQ", hcaldqm::hashfunctions::fSubdetPM,
+	_cSumQ_SubdetPM_QIE1011.initialize(_name, "SumQ", hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	_cSumQvsLS_SubdetPM_HF.initialize(_name, "SumQvsLS",
+	_cSumQvsLS_SubdetPM_QIE1011.initialize(_name, "SumQvsLS",
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::LumiSection(_maxLS),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),0);
@@ -157,11 +151,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fADC_128),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cADCvsTS_SubdetPM_HF.initialize(_name, "ADCvsTS",
+	_cADCvsTS_SubdetPM_QIE1011.initialize(_name, "ADCvsTS",
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+
 	_cLETDCTimevsADC_SubdetPM.initialize(_name, "LETDCTimevsADC",
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
@@ -181,15 +176,16 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cBadTDCValues_SubdetPM_HF.initialize(_name, "BadTDCValues", 
+
+	_cBadTDCValues_SubdetPM.initialize(_name, "BadTDCValues", 
 		hcaldqm::hashfunctions::fSubdetPM,
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBadTDC),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cBadTDCvsBX_SubdetPM_HF.initialize(_name, "BadTDCvsBX", 
+	_cBadTDCvsBX_SubdetPM.initialize(_name, "BadTDCvsBX", 
 		hcaldqm::hashfunctions::fSubdetPM, 
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cBadTDCvsLS_SubdetPM_HF.initialize(_name, "BadTDCvsLS", 
+	_cBadTDCvsLS_SubdetPM.initialize(_name, "BadTDCvsLS", 
 		hcaldqm::hashfunctions::fSubdetPM, 
 		new hcaldqm::quantity::LumiSection(_maxLS),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
@@ -198,18 +194,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
-	_cBadTDCValues_SubdetPM_HEP17.initialize(_name, "BadTDCValues", 
-		hcaldqm::hashfunctions::fSubdetPM,
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBadTDC),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cBadTDCvsBX_SubdetPM_HEP17.initialize(_name, "BadTDCvsBX", 
-		hcaldqm::hashfunctions::fSubdetPM, 
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
-	_cBadTDCvsLS_SubdetPM_HEP17.initialize(_name, "BadTDCvsLS", 
-		hcaldqm::hashfunctions::fSubdetPM, 
-		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true));
 
 	if (_ptype == fOnline || _ptype == fLocal) {
 		_cOccupancy_Crate.initialize(_name,
@@ -236,7 +220,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			hcaldqm::hashfunctions::fSubdetPM,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_10000),0);
-		_cSumQvsBX_SubdetPM_HF.initialize(_name, "SumQvsBX",
+		_cSumQvsBX_SubdetPM_QIE1011.initialize(_name, "SumQvsBX",
 			hcaldqm::hashfunctions::fSubdetPM,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_10000),0);
@@ -428,18 +412,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	char cutstr2[200];
 	sprintf(cutstr2, "_SumQHF%d", int(_cutSumQ_HF));
 
-	_cADC_SubdetPM.book(ib, _emap, _filter_notHF, _subsystem);
-	_cADC_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
-	_cfC_SubdetPM.book(ib, _emap, _filter_notHF, _subsystem);
-	_cfC_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
-	_cSumQ_SubdetPM.book(ib, _emap, _filter_notHF, _subsystem);
-	_cSumQ_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
+	_cADC_SubdetPM.book(ib, _emap, _filter_QIE8, _subsystem);
+	_cADC_SubdetPM_QIE1011.book(ib, _emap, _filter_QIE1011, _subsystem);
+	_cfC_SubdetPM.book(ib, _emap, _filter_QIE8, _subsystem);
+	_cfC_SubdetPM_QIE1011.book(ib, _emap, _filter_QIE1011, _subsystem);
+	_cSumQ_SubdetPM.book(ib, _emap, _filter_QIE8, _subsystem);
+	_cSumQ_SubdetPM_QIE1011.book(ib, _emap, _filter_QIE1011, _subsystem);
 	_cSumQ_depth.book(ib, _emap, _subsystem);
-	_cSumQvsLS_SubdetPM.book(ib, _emap, _filter_notHF, _subsystem);
-	_cSumQvsLS_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
+	_cSumQvsLS_SubdetPM.book(ib, _emap, _filter_QIE8, _subsystem);
+	_cSumQvsLS_SubdetPM_QIE1011.book(ib, _emap, _filter_QIE1011, _subsystem);
 	_cDigiSize_Crate.book(ib, _emap, _subsystem);
-	_cADCvsTS_SubdetPM.book(ib, _emap, _filter_notHF, _subsystem);
-	_cADCvsTS_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
+	_cADCvsTS_SubdetPM.book(ib, _emap, _filter_QIE8, _subsystem);
+	_cADCvsTS_SubdetPM_QIE1011.book(ib, _emap, _filter_QIE1011, _subsystem);
 
 	if (_ptype != fOffline) { // hidefed2crate
 		_cShapeCut_FED.book(ib, _emap, _subsystem);
@@ -467,17 +451,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cOccupancy_depth.book(ib, _emap, _subsystem);
 	_cOccupancyCut_depth.book(ib, _emap, _subsystem);
 
-	_cLETDCTimevsADC_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
-	_cLETDCvsADC_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
-	_cLETDCvsTS_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
-	_cLETDCTime_SubdetPM.book(ib, _emap, _filter_HF, _subsystem);
-	_cBadTDCValues_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
-	_cBadTDCvsBX_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
-	_cBadTDCvsLS_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
-	_cBadTDCCount_depth.book(ib, _emap, _filter_HF, _subsystem);
-	_cBadTDCValues_SubdetPM_HEP17.book(ib, _emap, _filter_HEP17, _subsystem);
-	_cBadTDCvsBX_SubdetPM_HEP17.book(ib, _emap, _filter_HEP17, _subsystem);
-	_cBadTDCvsLS_SubdetPM_HEP17.book(ib, _emap, _filter_HEP17, _subsystem);
+	_cLETDCTimevsADC_SubdetPM.book(ib, _emap, _subsystem);
+	_cLETDCvsADC_SubdetPM.book(ib, _emap, _subsystem);
+	_cLETDCvsTS_SubdetPM.book(ib, _emap, _subsystem);
+	_cLETDCTime_SubdetPM.book(ib, _emap, _subsystem);
+
+	_cBadTDCValues_SubdetPM.book(ib, _emap, _subsystem);
+	_cBadTDCvsBX_SubdetPM.book(ib, _emap, _subsystem);
+	_cBadTDCvsLS_SubdetPM.book(ib, _emap, _subsystem);
+	_cBadTDCCount_depth.book(ib, _emap, _subsystem);
 
 	//	BOOK HISTOGRAMS that are only for Online
 	_ehashmap.initialize(_emap, electronicsmap::fD2EHashMap);
@@ -491,8 +473,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	if (_ptype==fOnline)
 	{
 		_cQ2Q12CutvsLS_FEDHF.book(ib, _emap, _filter_FEDHF, _subsystem);
-		_cSumQvsBX_SubdetPM.book(ib, _emap, _filter_notHF, _subsystem);
-		_cSumQvsBX_SubdetPM_HF.book(ib, _emap, _filter_HF, _subsystem);
+		_cSumQvsBX_SubdetPM.book(ib, _emap, _filter_QIE8, _subsystem);
+		_cSumQvsBX_SubdetPM_QIE1011.book(ib, _emap, _filter_QIE1011, _subsystem);
 		_cDigiSizevsLS_FED.book(ib, _emap, _subsystem);
 		_cTimingCutvsiphi_SubdetPM.book(ib, _emap, _subsystem);
 		_cTimingCutvsieta_Subdet.book(ib, _emap, _subsystem);
@@ -502,7 +484,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_cOccupancyvsieta_Subdet.book(ib, _emap, _subsystem);
 		_cOccupancyCutvsiphi_SubdetPM.book(ib, _emap, _subsystem);
 		_cOccupancyCutvsieta_Subdet.book(ib, _emap, _subsystem);
-//		_cOccupancyCutvsSlotvsLS_HFPM.book(ib, _emap, _filter_HF, _subsystem);
+//		_cOccupancyCutvsSlotvsLS_HFPM.book(ib, _emap, _filter_QIE1011, _subsystem);
 		_cOccupancyCutvsiphivsLS_SubdetPM.book(ib, _emap, _subsystem);
 		_cSummaryvsLS_FED.book(ib, _emap, _subsystem);
 		_cSummaryvsLS.book(ib, _subsystem);
@@ -583,16 +565,16 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	edm::EventSetup const&)
 {
 	edm::Handle<HBHEDigiCollection>     chbhe;
-	edm::Handle<QIE11DigiCollection>     chep17;
+	edm::Handle<QIE11DigiCollection>     che_qie11;
 	edm::Handle<HODigiCollection>       cho;
 	edm::Handle<QIE10DigiCollection>       chf;
 
 	if (!e.getByToken(_tokHBHE, chbhe))
 		_logger.dqmthrow("Collection HBHEDigiCollection isn't available"
 			+ _tagHBHE.label() + " " + _tagHBHE.instance());
-	if (!e.getByToken(_tokHEP17, chep17))
-		_logger.dqmthrow("Collection HEP17DigiCollection isn't available"
-			+ _tagHEP17.label() + " " + _tagHEP17.instance());
+	if (!e.getByToken(_tokHE, che_qie11))
+		_logger.dqmthrow("Collection QIE11DigiCollection isn't available"
+			+ _tagHE.label() + " " + _tagHE.instance());
 	if (!e.getByToken(_tokHO, cho))
 		_logger.dqmthrow("Collection HODigiCollection isn't available"
 			+ _tagHO.label() + " " + _tagHO.instance());
@@ -733,15 +715,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		did.subdet()==HcalBarrel?numChs++:numChsHE++;
 	}
 
-	// HEP17 collection
-	// The following are filled w.r.t. HBHE digis
-	// - All eta-phi maps
-	// - Occupancy in electronics coordinates
-	// - Digi size
-	// 
-	// The following are not filled:
-	// - ADC, fC, sumQ, timing. These are different for QIE11 vs. QIE8. Find them in QIE11Task instead.
-	for (QIE11DigiCollection::const_iterator it=chep17->begin(); it!=chep17->end();
+	// HE QIE11 collection
+	for (QIE11DigiCollection::const_iterator it=che_qie11->begin(); it!=che_qie11->end();
 		++it)
 	{
 		const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
@@ -752,12 +727,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		if (rawid==0) 
 		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
 		HcalElectronicsId const& eid(rawid);
-		if (did.subdet()==HcalBarrel) // Note: since this is HEP17, we obviously expect did.subdet() always to be HcalEndcap, but QIE11DigiCollection may someday expand.
+		if (did.subdet()==HcalBarrel) // Note: since this is HE, we obviously expect did.subdet() always to be HcalEndcap, but QIE11DigiCollection may someday expand.
 			rawidHBValid = did.rawId();
 		else if (did.subdet()==HcalEndcap) 
 			rawidHEValid = did.rawId();
 
-		//double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.samples()-1);
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
 		double sumQ = hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
 
@@ -771,7 +745,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				continue;
 		}
 
+		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
+		if (_ptype == fOnline || _ptype == fLocal) {
+			_cOccupancy_Crate.fill(eid);
+			_cOccupancy_CrateSlot.fill(eid);
+		}
 		if (_ptype==fOnline)
 		{
 			_cDigiSizevsLS_FED.fill(eid, _currentLS, digi.samples());
@@ -801,27 +780,49 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			}
 		}
 		for (int i=0; i<digi.samples(); i++) {
-			if (!_filter_HEP17.filter(did)) {
-				// Bad TDC values: 50-61 should never happen in QIE10 or QIE11, but we are seeing some in 2017 data.
-				if ((50 <= digi[i].tdc()) && (digi[i].tdc() <= 61)) {
-					_cBadTDCValues_SubdetPM_HEP17.fill(did, digi[i].tdc());
-					_cBadTDCvsBX_SubdetPM_HEP17.fill(did, bx);
-					_cBadTDCvsLS_SubdetPM_HEP17.fill(did, _currentLS);
-					_cBadTDCCount_depth.fill(did);
-				}
+			double q = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, digi, i);
+			_cADC_SubdetPM_QIE1011.fill(did, digi[i].adc());
+			_cfC_SubdetPM_QIE1011.fill(did, q);
+			_cLETDCvsADC_SubdetPM.fill(did, digi[i].adc(), digi[i].tdc());
+			_cLETDCvsTS_SubdetPM.fill(did, (int)i, digi[i].tdc());
+			if (digi[i].tdc() <50) {
+				double time = i*25. + (digi[i].tdc() / 2.);
+				_cLETDCTime_SubdetPM.fill(did, time);
+				_cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
 			}
+			// Bad TDC values: 50-61 should never happen in QIE10 or QIE11, but we saw some in 2017 data.
+			if ((50 <= digi[i].tdc()) && (digi[i].tdc() <= 61)) {
+				_cBadTDCValues_SubdetPM.fill(did, digi[i].tdc());
+				_cBadTDCvsBX_SubdetPM.fill(did, bx);
+				_cBadTDCvsLS_SubdetPM.fill(did, _currentLS);
+				_cBadTDCCount_depth.fill(did);
+			}
+			if (_ptype != fOffline) { // hidefed2crate
+				_cADCvsTS_SubdetPM_QIE1011.fill(did, i, q);
+				if (sumQ>_cutSumQ_HE) {
+					_cShapeCut_FED.fill(eid, i, q);
+				}
+			}			
 		}
 
-		if (sumQ>_cutSumQ_HEP17)
+		if (sumQ>_cutSumQ_HE)
 		{
 			//double timing = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,digi.samples()-1);
 			double timing = hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
-
-			_cOccupancyCut_depth.fill(did);
+			_cTimingCut_SubdetPM.fill(did, timing);
 			_cTimingCut_depth.fill(did, timing);
+			_cOccupancyCut_depth.fill(did);
+			_cTimingCutvsLS_SubdetPM.fill(did, _currentLS, timing);
+			if (_ptype != fOffline) { // hidefed2crate
+				_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
+			}
 			_cSumQ_depth.fill(did, sumQ);
+			_cSumQvsLS_SubdetPM_QIE1011.fill(did, _currentLS, sumQ);
 			if (_ptype==fOnline)
 			{
+				_cSumQvsBX_SubdetPM_QIE1011.fill(did, bx, sumQ);
+				_cTimingCutvsiphi_SubdetPM.fill(did, timing);
+				_cTimingCutvsieta_Subdet.fill(did, timing);
 				_cOccupancyCutvsiphi_SubdetPM.fill(did);
 				_cOccupancyCutvsieta_Subdet.fill(did);
 				_cOccupancyCutvsiphivsLS_SubdetPM.fill(did, _currentLS);
@@ -829,11 +830,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			if (_ptype != fOffline) { // hidefed2crate
 				if (eid.isVMEid())
 				{
+					_cTimingCut_FEDVME.fill(eid, timing);
+					_cTimingCut_ElectronicsVME.fill(eid, timing);
 					_cOccupancyCut_FEDVME.fill(eid);
 					_cOccupancyCut_ElectronicsVME.fill(eid);
 				}
 				else 
 				{
+					_cTimingCut_FEDuTCA.fill(eid, timing);
+					_cTimingCut_ElectronicsuTCA.fill(eid, timing);
 					_cOccupancyCut_FEDuTCA.fill(eid);
 					_cOccupancyCut_ElectronicsuTCA.fill(eid);
 				}
@@ -1038,9 +1043,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 					cs.isBitSet(HcalChannelStatus::HcalCellDead))
 					continue;
 			}
-			if (!_filter_HF.filter(did)) {
-				_cSumQ_SubdetPM_HF.fill(did, sumQ);
-			}
+			//if (!_filter_QIE1011.filter(did)) {
+			_cSumQ_SubdetPM_QIE1011.fill(did, sumQ);
+			//}
 			_cOccupancy_depth.fill(did);
 			if (_ptype==fOnline)
 			{
@@ -1075,31 +1080,30 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			for (int i=0; i<digi.samples(); i++)
 			{
 				double q = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, i);
-				if (!_filter_HF.filter(did)) {
-					_cADC_SubdetPM_HF.fill(did, digi[i].adc());
-					_cfC_SubdetPM_HF.fill(did, q);
-					_cLETDCvsADC_SubdetPM.fill(did, digi[i].adc(), digi[i].le_tdc());
-					_cLETDCvsTS_SubdetPM.fill(did, (int)i, digi[i].le_tdc());
-					if (digi[i].le_tdc() <50) {
-						double time = i*25. + (digi[i].le_tdc() / 2.);
-						_cLETDCTime_SubdetPM.fill(did, time);
-						_cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
-					}
-
-					// Bad TDC values: 50-61 should never happen in QIE10 or QIE11, but we are seeing some in 2017 data.
-					if ((50 <= digi[i].le_tdc()) && (digi[i].le_tdc() <= 61)) {
-						_cBadTDCValues_SubdetPM_HF.fill(did, digi[i].le_tdc());
-						_cBadTDCvsBX_SubdetPM_HF.fill(did, bx);
-						_cBadTDCvsLS_SubdetPM_HF.fill(did, _currentLS);
-						_cBadTDCCount_depth.fill(did);
-					}
+				//if (!_filter_QIE1011.filter(did)) {
+				_cADC_SubdetPM_QIE1011.fill(did, digi[i].adc());
+				_cfC_SubdetPM_QIE1011.fill(did, q);
+				_cLETDCvsADC_SubdetPM.fill(did, digi[i].adc(), digi[i].le_tdc());
+				_cLETDCvsTS_SubdetPM.fill(did, (int)i, digi[i].le_tdc());
+				if (digi[i].le_tdc() <50) {
+					double time = i*25. + (digi[i].le_tdc() / 2.);
+					_cLETDCTime_SubdetPM.fill(did, time);
+					_cLETDCTimevsADC_SubdetPM.fill(did, digi[i].adc(), time);
 				}
 
+				// Bad TDC values: 50-61 should never happen in QIE10 or QIE11, but we are seeing some in 2017 data.
+				if ((50 <= digi[i].le_tdc()) && (digi[i].le_tdc() <= 61)) {
+					_cBadTDCValues_SubdetPM.fill(did, digi[i].le_tdc());
+					_cBadTDCvsBX_SubdetPM.fill(did, bx);
+					_cBadTDCvsLS_SubdetPM.fill(did, _currentLS);
+					_cBadTDCCount_depth.fill(did);
+				}
 				if (_ptype != fOffline) { // hidefed2crate
-					_cADCvsTS_SubdetPM_HF.fill(did, (int)i, q);
+					_cADCvsTS_SubdetPM_QIE1011.fill(did, (int)i, q);
 					if (sumQ>_cutSumQ_HF)
 						_cShapeCut_FED.fill(eid, (int)i, q);
 				}
+				//}
 			}
 
 			if (sumQ>_cutSumQ_HF)
@@ -1110,14 +1114,17 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				double q2 = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, 2);
 				double q2q12 = q2/(q1+q2);
 				_cSumQ_depth.fill(did, sumQ);
-				if (!_filter_HF.filter(did)) {
-					_cSumQvsLS_SubdetPM_HF.fill(did, _currentLS, sumQ);
-				}
+				//if (!_filter_QIE1011.filter(did)) {
+				_cSumQvsLS_SubdetPM_QIE1011.fill(did, _currentLS, sumQ);
+				//}
+				_cTimingCut_SubdetPM.fill(did, timing);
+				_cTimingCut_depth.fill(did, timing);
+				_cTimingCutvsLS_SubdetPM.fill(did, _currentLS, timing);
 				if (_ptype==fOnline)
 				{
-					if (!_filter_HF.filter(did)) {
-						_cSumQvsBX_SubdetPM_HF.fill(did, bx, sumQ);
-					}
+					//if (!_filter_QIE1011.filter(did)) {
+					_cSumQvsBX_SubdetPM_QIE1011.fill(did, bx, sumQ);
+					//}
 					_cTimingCutvsiphi_SubdetPM.fill(did, timing);
 					_cTimingCutvsieta_Subdet.fill(did, timing);
 					_cOccupancyCutvsiphi_SubdetPM.fill(did);
@@ -1126,9 +1133,6 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	//				_cOccupancyCutvsSlotvsLS_HFPM.fill(did, _currentLS);
 					_xUniHF.get(eid)++;
 				}
-				_cTimingCut_SubdetPM.fill(did, timing);
-				_cTimingCut_depth.fill(did, timing);
-				_cTimingCutvsLS_SubdetPM.fill(did, _currentLS, timing);
 				if (_ptype != fOffline) { // hidefed2crate
 					_cTimingCutvsLS_FED.fill(eid, _currentLS, timing);
 				}
