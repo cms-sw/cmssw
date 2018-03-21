@@ -28,10 +28,10 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    #fileNames = cms.untracked.vstring('file:/afs/cern.ch/user/r/rekovic/release/CMSSW_9_3_2/src/step2_DIGI_PU200_10ev.root'),
-    fileNames = cms.untracked.vstring('/store/group/upgrade/sandhya/SMP-PhaseIIFall17D-00001.root'),
+    fileNames = cms.untracked.vstring(' /store/relval/CMSSW_9_3_7/RelValQCD_Pt-15To7000_Flat_14TeV/GEN-SIM-DIGI-RAW/93X_upgrade2023_realistic_v5_2023D17noPU-v2/10000/02FA84D0-8D2C-E811-A9EA-0CC47A4D767A.root'),
     secondaryFileNames = cms.untracked.vstring(),
     inputCommands = cms.untracked.vstring("keep *", 
+        "drop l1tHGCalTowerMapBXVector_hgcalTriggerPrimitiveDigiProducer_towerMap_HLT",
         "drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT",
         "drop l1tEMTFHit2016Extras_simEmtfDigis_RPC_HLT",
         "drop l1tEMTFHit2016s_simEmtfDigis__HLT",
@@ -57,8 +57,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW'),
         filterName = cms.untracked.string('')
     ),
-    #fileName = cms.untracked.string('file:step2_ZEE_PU200_1ev_rerun-L1.root'),
-    fileName = cms.untracked.string('file:test_reprocess_SMP-PhaseIIFall17D-00001_withTracklet.root'),
+    fileName = cms.untracked.string('file:test_reprocess.root'),
     splitLevel = cms.untracked.int32(0)
 )
 
