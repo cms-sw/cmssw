@@ -10,7 +10,7 @@ const Int_t kEBChannels = 61200, kEEChannels = 14648;
 popcon::EcalIntercalibHandler::EcalIntercalibHandler(const edm::ParameterSet & ps)
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalIntercalibHandler")) {
 
-  std::cout << "EcalIntercalib Source handler constructor\n" << std::endl;
+  edm::LogInfo("EcalIntercalib Source handler constructor\n");
   m_firstRun = static_cast<unsigned int>(atoi( ps.getParameter<std::string>("firstRun").c_str()));
   m_file_type = ps.getParameter<std::string>("type");           // xml/txt
   m_file_name = ps.getParameter<std::string>("fileName");
@@ -19,13 +19,13 @@ popcon::EcalIntercalibHandler::EcalIntercalibHandler(const edm::ParameterSet & p
 popcon::EcalIntercalibHandler::~EcalIntercalibHandler() {}
 
 void popcon::EcalIntercalibHandler::getNewObjects() {
-  std::cout << "------- Ecal - > getNewObjects\n";
+  //  std::cout << "------- Ecal - > getNewObjects\n";
   std::ostringstream ss; 
   ss<<"ECAL ";
 	
   unsigned long long  irun;
   std::string file_= m_file_name;
-  std::cout << "going to open file "<< file_ << std::endl;
+  edm::LogInfo("going to open file ") << file_;
 	    	    
   //      EcalCondHeader   header;
   EcalIntercalibConstants * payload = new EcalIntercalibConstants;
@@ -45,7 +45,7 @@ void popcon::EcalIntercalibHandler::readXML(const std::string& file_,
   std::ifstream fxml;
   fxml.open(file_);
   if(!fxml.is_open()) {
-    std::cout << "ERROR : cannot open file " << file_ << std::endl;
+    edm::LogInfo("ERROR : cannot open file ") << file_;
     exit (1);
   }
   // header
@@ -54,13 +54,12 @@ void popcon::EcalIntercalibHandler::readXML(const std::string& file_,
     //	std::cout << dummyLine << std::endl;
   }
   fxml >> bid;
-  //  std::cout << bid << std::endl;
   std::string stt = bid.substr(7,5);
   std::istringstream iEB(stt);
   int nEB;
   iEB >> nEB;
   if(nEB != kEBChannels) {
-    std::cout << " strange number of EB channels " << nEB << std::endl;
+    edm::LogInfo("strange number of EB channels ") << nEB;
     exit(-1);
   }
   fxml >> bid;   // <item_version>0</item_version>
@@ -77,13 +76,12 @@ void popcon::EcalIntercalibHandler::readXML(const std::string& file_,
     //	std::cout << dummyLine << std::endl;
   }
   fxml >> bid;
-  //    cout << bid << endl;
   stt = bid.substr(7,5);
   std::istringstream iEE(stt);
   int nEE;
   iEE >> nEE;
   if(nEE != kEEChannels) {
-    std::cout << " strange number of EE channels " << nEE << std::endl;
+    edm::LogInfo("strange number of EE channels ") << nEE;
     exit(-1);
   }
   fxml >> bid;   // <item_version>0</item_version>
@@ -103,7 +101,7 @@ void popcon::EcalIntercalibHandler::readTXT(const std::string& file_,
   std::ifstream ftxt;
   ftxt.open(file_);
   if(!ftxt.is_open()) {
-    std::cout << "ERROR : cannot open file " << file_ << std::endl;
+    edm::LogInfo("ERROR : cannot open file ") << file_;
     exit (1);
   }
   int number_of_lines = 0, eta, phi, x, y, z;
@@ -122,10 +120,8 @@ void popcon::EcalIntercalibHandler::readTXT(const std::string& file_,
     }
     number_of_lines++;
   }
-  std::cout << "Number of lines in text file: " << number_of_lines << std::endl;
+  edm::LogInfo("Number of lines in text file: ") << number_of_lines;
   int kChannels = kEBChannels + kEEChannels;
-  if(number_of_lines != kChannels) std:: cout <<
-      "***************************************************************" <<
-      "***         wrong number of channels!  Please check         ***" <<
-      "***************************************************************" << std::endl;
+  if(number_of_lines != kChannels)
+  edm::LogInfo("wrong number of channels!  Please check ");
 }
