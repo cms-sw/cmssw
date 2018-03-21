@@ -280,11 +280,33 @@ namespace sistrip {
 	
           try {
 	    /// create unpacker
-	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()));
-	    
-	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-            
-	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc())); unpacker++;}
+            /// unpack -> add check to make sure strip < nstrips && strip > last strip......
+            const uint8_t packet_code = buffer->packetCode(legacy_, iconn->fedCh());
+            switch (packet_code) {
+              case PACKET_CODE_ZERO_SUPPRESSED: {
+                sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()));
+                while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc())); unpacker++;}
+                break; }
+              case PACKET_CODE_ZERO_SUPPRESSED10: {
+                sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()), 10);
+                while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc())); unpacker++;}
+                break; }
+              case PACKET_CODE_ZERO_SUPPRESSED8_BOTBOT: {
+                sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()), 8);
+                while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()<<2)); unpacker++;}
+                break; }
+              case PACKET_CODE_ZERO_SUPPRESSED8_TOPBOT: {
+                sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()), 8);
+                while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()<<1)); unpacker++;}
+                break; }
+              default: {
+                if ( edm::isDebugEnabled() ) {
+                  edm::LogWarning(sistrip::mlRawToDigi_)
+                    << "[sistrip::RawToDigiUnpacker::" << __func__ << "]"
+                    << " Invalid packet code " << buffer->packetCode(legacy_, iconn->fedCh())
+                    << " for " << *ifed << " channel " << iconn->fedCh();
+                } }
+            }
           } catch (const cms::Exception& e) {
             if ( edm::isDebugEnabled() ) {
               edm::LogWarning(sistrip::mlRawToDigi_)
