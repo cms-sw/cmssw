@@ -33,6 +33,7 @@
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
+#include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
 
 namespace pat {
   /// foward declarations
@@ -165,6 +166,7 @@ namespace pat {
     edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_photons_;
     /// standard muon selectors
     bool computeMuonMVA_;
+    bool computeSoftMuonMVA_;
     bool recomputeBasicSelectors_;
     double mvaDrMax_;
     bool mvaUseJec_;
@@ -174,6 +176,8 @@ namespace pat {
     edm::EDGetTokenT<double> rho_;
     pat::MuonMvaEstimator mvaEstimator_;
     std::string mvaTrainingFile_;
+    pat::SoftMuonMvaEstimator softMvaEstimator_;
+    std::string softMvaTrainingFile_;
     
     /// --- tools ---
     /// comparator for pt ordering
