@@ -12,7 +12,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	//	tags
 	_tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE",
 		edm::InputTag("hcalDigis"));
-	_tagHEP17 = ps.getUntrackedParameter<edm::InputTag>("tagHEP17",
+	_tagHE = ps.getUntrackedParameter<edm::InputTag>("tagHE",
 		edm::InputTag("hcalDigis"));
 	_tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO",
 		edm::InputTag("hcalDigis"));
@@ -21,7 +21,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN",
 		edm::InputTag("hcalDigis"));
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
-	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHEP17);
+	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHE);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
 	_tokHF = consumes<QIE10DigiCollection>(_tagHF);
 	_tokuMN = consumes<HcalUMNioDigi>(_taguMN);
@@ -350,7 +350,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			+ _tagHBHE.label() + " " + _tagHBHE.instance());
 	if (!e.getByToken(_tokHEP17, chep17))
 		_logger.dqmthrow("Collection QIE11DigiCollection isn't available "
-			+ _tagHEP17.label() + " " + _tagHEP17.instance());
+			+ _tagHE.label() + " " + _tagHE.instance());
 	if (!e.getByToken(_tokHO, cho))
 		_logger.dqmthrow("Collection HODigiCollection isn't available "
 			+ _tagHO.label() + " " + _tagHO.instance());
