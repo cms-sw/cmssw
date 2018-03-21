@@ -14,7 +14,7 @@
 #include <typeindex>
 
 namespace edm {
-  ProductRegistryHelper::~ProductRegistryHelper() { }
+  ProductRegistryHelper::~ProductRegistryHelper() noexcept(false) { }
 
   ProductRegistryHelper::TypeLabelList const& ProductRegistryHelper::typeLabelList() const {
     return typeLabelList_;

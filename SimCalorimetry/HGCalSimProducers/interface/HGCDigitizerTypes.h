@@ -7,15 +7,6 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
-namespace std {
-  template<>
-  struct hash<DetId> {
-    std::size_t operator()(const DetId& id) const {      
-      return std::hash<uint32_t>()(id.rawId());
-    }
-  };
-}
-
 namespace hgc_digi {
 
   //15 time samples: 9 pre-samples, 1 in-time, 5 post-samples

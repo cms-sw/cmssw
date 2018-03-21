@@ -86,11 +86,11 @@ class LMFUnique: public IUniqueDBObject {
   virtual std::string setByIDSql(Statement *stmt, 
 				 int id) { return ""; }
 
-  virtual void getParameters(ResultSet *rset) {}
   virtual void fetchParentIDs() {}
   virtual LMFUnique * createObject() const;
 
  protected:
+  virtual void getParameters(ResultSet *rset) {}
   virtual int writeDB() noexcept(false);
   virtual int writeForeignKeys() noexcept(false);
   virtual void setClassName(std::string s) { m_className = s; }
