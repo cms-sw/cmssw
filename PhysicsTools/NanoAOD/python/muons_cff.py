@@ -75,12 +75,13 @@ muonMVATTH= cms.EDProducer("MuonBaseMVAValueMapProducer",
         LepGood_segmentCompatibility = cms.string("segmentCompatibility"),
     )
 )
+run2_miniAOD_80XLegacy.toModify(muonMVATTH.variables,
+    LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1"),
+)
 run2_miniAOD_80XLegacy.toModify(muonMVATTH,
     weightFile = "PhysicsTools/NanoAOD/data/mu_BDTG.weights.xml",
     variablesOrder = ["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetPtRatio","LepGood_jetBTagCSV","LepGood_sip3d","LepGood_dxy","LepGood_dz","LepGood_segmentCompatibility"],
-    variables = cms.PSet(LepGood_jetPtRatio = cms.string("?userCand('jetForLepJetVar').isNonnull()?min(userFloat('ptRatio'),1.5):1"))
 )
-
 
 muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("linkedObjects","muons"),
