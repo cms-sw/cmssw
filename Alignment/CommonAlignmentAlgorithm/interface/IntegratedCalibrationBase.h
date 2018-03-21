@@ -92,6 +92,10 @@ public:
 			  AlignableMuon *muon,
 			  AlignableExtras *extras) {};
 
+  /// Call at beginning of run:
+  /// default implementation is dummy, to be overwritten in derived class if useful.
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) {};
+
   /// Called at beginning of a loop of the AlignmentProducer,
   /// to be used for iterative algorithms, default does nothing.
   /// FIXME: move call to algorithm?
