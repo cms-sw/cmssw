@@ -96,8 +96,9 @@ class jobdatabase:
 
 
         for line in DBFILE:
-            line = line.rstrip('\n')                #removes the pesky \n from line
-            parts = line.split(":")                 #read each line and split into parts list
+            if line.strip() == "": continue # ignore empty lines
+            line = line.rstrip('\n')        # removes the pesky \n from line
+            parts = line.split(":")         # read each line and split into parts list
             self.JOBNUMBER.append(int(parts[0]))
             self.JOBDIR.append(parts[1].strip())
             self.JOBID.append(parts[2])
