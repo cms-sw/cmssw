@@ -105,7 +105,6 @@ process.ALCARECOStreamPromptCalibProdSiStripGains = cms.OutputModule("PoolOutput
                                                                      eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
                                                                      fileName = cms.untracked.string('PromptCalibProdSiStripGains.root'),
                                                                      outputCommands = cms.untracked.vstring('drop *', 
-                                                                                                            'keep *_alcaBeamSpotProducer_*_*', 
                                                                                                             'keep *_MEtoEDMConvertSiStripGains_*_*'
                                                                                                             )
                                                                      )
