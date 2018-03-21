@@ -148,12 +148,9 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     unsigned index = triggerNames_.triggerIndex(v.getPath());
     if (index < triggerNames_.size() ){
      float DR  = 9999.;
-//                                                                                _|_|_|    _|_|_|_|
-//                                                                                _|    _|  _|
-//                                                                                _|_|_|    _|_|_|
-//                                                                                _|        _|
-//                                                                                _|        _|
-     if (csvPfTags.isValid() && v.getTriggerType() == "PF")
+
+    // PF btagging
+    if (csvPfTags.isValid() && v.getTriggerType() == "PF")
      {
       auto iter = csvPfTags->begin();
 
@@ -216,12 +213,7 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         }
       }
 
-//                                                                    _|_|_|            _|
-//                                                                  _|          _|_|_|  _|    _|_|
-//                                                                  _|        _|    _|  _|  _|    _|
-//                                                                  _|        _|    _|  _|  _|    _|
-//                                                                    _|_|_|    _|_|_|  _|    _|_|
-
+     // Calo b-tagging
      if (csvCaloTags.isValid() && v.getTriggerType() == "Calo" && !csvCaloTags->empty())
      {
 
