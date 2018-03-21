@@ -412,14 +412,18 @@ genSubJetAK8Table = cms.EDProducer("SimpleCandidateFlatTableProducer",
 )
 ### Era dependent customization
 run2_miniAOD_80XLegacy.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
-
 run2_nanoAOD_92X.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
 
 #before cross linking
 jetSequence = cms.Sequence(tightJetId+tightJetIdLepVeto+slimmedJetsWithUserData+jetCorrFactors+updatedJets+tightJetIdAK8+tightJetIdLepVetoAK8+slimmedJetsAK8WithUserData+jetCorrFactorsAK8+updatedJetsAK8+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
+
+from RecoJets.JetProducers.QGTagger_cfi import  QGTagger
+qgtagger80x=QGTagger.clone(srcJets="slimmedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
+
 _jetSequence_80X = jetSequence.copy()
 _jetSequence_80X.replace(tightJetIdLepVeto, looseJetId)
 _jetSequence_80X.replace(tightJetIdLepVetoAK8, looseJetIdAK8)
+_jetSequence_80X.insert(1,qgtagger80x)
 run2_miniAOD_80XLegacy.toReplaceWith(jetSequence, _jetSequence_80X)
 
 #after cross linkining
@@ -427,3 +431,10 @@ jetTables = cms.Sequence(bjetMVA+ jetTable+fatJetTable+subJetTable+saJetTable+sa
 
 #MC only producers and tables
 jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+genSubJetAK8Table)
+_jetMC_pre94X = jetMC.copy()
+_jetMC_pre94X.insert(_jetMC_pre94X.index(genJetFlavourTable),genJetFlavourAssociation)
+_jetMC_pre94X.remove(genSubJetAK8Table)
+run2_miniAOD_80XLegacy.toReplaceWith(jetMC, _jetMC_pre94X)
+run2_nanoAOD_92X.toReplaceWith(jetMC, _jetMC_pre94X)
+
+
