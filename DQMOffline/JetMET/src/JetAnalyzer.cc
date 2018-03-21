@@ -516,7 +516,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     // new binning for energy fraction plots for JERC
     // etaBin_,etaMin_,etaMax_
     mCHFracVSeta_lowPt= ibooker.bookProfile("CHFracVSeta_lowPt","CHFracVSeta_lowPt",etaBin_,etaMin_,etaMax_,0.,1.2);
-    mNHFracVSeta_lowPt= ibooker.bookProfile("NHFacVSeta_lowPt","NHFracVSeta_lowPt",etaBin_,etaMin_,etaMax_,0.,1.2);
+    mNHFracVSeta_lowPt= ibooker.bookProfile("NHFracVSeta_lowPt","NHFracVSeta_lowPt",etaBin_,etaMin_,etaMax_,0.,1.2);
     mPhFracVSeta_lowPt= ibooker.bookProfile("PhFracVSeta_lowPt","PhFracVSeta_lowPt",etaBin_,etaMin_,etaMax_,0.,1.2);
     mCHFracVSeta_mediumPt= ibooker.bookProfile("CHFracVSeta_mediumPt","CHFracVSeta_mediumPt",etaBin_,etaMin_,etaMax_,0.,1.2);
     mNHFracVSeta_mediumPt= ibooker.bookProfile("NHFracVSeta_mediumPt","NHFracVSeta_mediumPt",etaBin_,etaMin_,etaMax_,0.,1.2);
