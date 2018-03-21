@@ -24,11 +24,21 @@ looseJetId = cms.EDProducer("PatJetIDValueMapProducer",
 )
 tightJetId = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
-			    version = cms.string('WINTER16'),
+			    version = cms.string('WINTER17'),
 			    quality = cms.string('TIGHT'),
 			  ),
                           src = cms.InputTag("slimmedJets")
 )
+run2_miniAOD_80XLegacy.toModify( tightJetId.filterParams, version = "WINTER16" )
+
+tightJetIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
+			  filterParams=cms.PSet(
+			    version = cms.string('WINTER17'),
+			    quality = cms.string('TIGHTLEPVETO'),
+			  ),
+                          src = cms.InputTag("slimmedJets")
+)
+
 looseJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
 			    version = cms.string('WINTER16'),
@@ -38,20 +48,32 @@ looseJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 )
 tightJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
-			    version = cms.string('WINTER16'),
+			    version = cms.string('WINTER17'),
 			    quality = cms.string('TIGHT'),
 			  ),
                           src = cms.InputTag("slimmedJetsAK8")
 )
+run2_miniAOD_80XLegacy.toModify( tightJetIdAK8.filterParams, version = "WINTER16" )
 
+tightJetIdLepVetoAK8 = cms.EDProducer("PatJetIDValueMapProducer",
+			  filterParams=cms.PSet(
+			    version = cms.string('WINTER17'),
+			    quality = cms.string('TIGHTLEPVETO'),
+			  ),
+                          src = cms.InputTag("slimmedJetsAK8")
+)
 
 slimmedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      src = cms.InputTag("slimmedJets"),
      userFloats = cms.PSet(),
      userInts = cms.PSet(
         tightId = cms.InputTag("tightJetId"),
-        looseId = cms.InputTag("looseJetId"),
+        tightIdLepVeto = cms.InputTag("tightJetIdLepVeto"),
      ),
+)
+run2_miniAOD_80XLegacy.toModify( slimmedJetsWithUserData.userInts, 
+        looseId = cms.InputTag("looseJetId"),
+        tightIdLepVeto = None,
 )
 
 slimmedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
@@ -59,8 +81,12 @@ slimmedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",
      userFloats = cms.PSet(),
      userInts = cms.PSet(
         tightId = cms.InputTag("tightJetIdAK8"),
-        looseId = cms.InputTag("looseJetIdAK8"),
+        tightIdLepVeto = cms.InputTag("tightJetIdLepVetoAK8"),
      ),
+)
+run2_miniAOD_80XLegacy.toModify( slimmedJetsAK8WithUserData.userInts, 
+        looseId = cms.InputTag("looseJetIdAK8"),
+        tightIdLepVeto = None,
 )
 
 from  PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import *
@@ -134,7 +160,7 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         btagDeepC = Var("bDiscriminator('pfDeepCSVJetTags:probc')",float,doc="DeepCSV charm btag discriminator",precision=10),
         #puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pilup ID discriminant",precision=10),
         puId = Var("userInt('pileupJetId:fullId')",int,doc="Pilup ID flags"),
-        jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"),
+        jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')",int,doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto"),
         qgl = Var("userFloat('QGTagger:qgLikelihood')",float,doc="Quark vs Gluon likelihood discriminator",precision=10),
         nConstituents = Var("numberOfDaughters()",int,doc="Number of particles in the jet"),
         rawFactor = Var("1.-jecFactor('Uncorrected')",float,doc="1 - Factor to get back to raw pT",precision=6),
@@ -144,12 +170,14 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         neEmEF = Var("neutralEmEnergyFraction()", float, doc="neutral Electromagnetic Energy Fraction", precision= 6)
     )
 )
+
 #jets are not as precise as muons
 jetTable.variables.pt.precision=10
 
 ### Era dependent customization
 run2_miniAOD_80XLegacy.toModify( slimmedJetsWithUserData, userFloats=cms.PSet(qgl=cms.InputTag('qgtagger80x:qgLikelihood')))
 run2_miniAOD_80XLegacy.toModify( jetTable.variables.qgl, expr="userFloat('qgl')" )
+run2_miniAOD_80XLegacy.toModify( jetTable.variables, jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"))
 
 bjetMVA= cms.EDProducer("BJetEnergyRegressionMVA",
     src = cms.InputTag("linkedObjects","jets"),
@@ -214,7 +242,7 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     singleton = cms.bool(False), # the number of entries is variable
     extension = cms.bool(False), # this is the main table for the jets
     variables = cms.PSet(P4Vars,
-        jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"),
+        jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')",int,doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto"),
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
         tau1 = Var("userFloat('NjettinessAK8Puppi:tau1')",float, doc="Nsubjettiness (1 axis)",precision=10),
         tau2 = Var("userFloat('NjettinessAK8Puppi:tau2')",float, doc="Nsubjettiness (2 axis)",precision=10),
@@ -246,6 +274,7 @@ run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau3, expr = cms.string("
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau4, expr = cms.string("-1"),)
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.n2b1, expr = cms.string("-1"),)
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.n3b1, expr = cms.string("-1"),)
+run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"))
 
 run2_nanoAOD_92X.toModify( fatJetTable.variables.tau4, expr = cms.string("-1"),)
 run2_nanoAOD_92X.toModify( fatJetTable.variables.n2b1, expr = cms.string("-1"),)
@@ -387,10 +416,14 @@ run2_miniAOD_80XLegacy.toModify( genJetFlavourTable, jetFlavourInfos = cms.Input
 run2_nanoAOD_92X.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
 
 #before cross linking
-jetSequence = cms.Sequence(looseJetId+tightJetId+slimmedJetsWithUserData+jetCorrFactors+updatedJets+looseJetIdAK8+tightJetIdAK8+slimmedJetsAK8WithUserData+jetCorrFactorsAK8+updatedJetsAK8+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
+jetSequence = cms.Sequence(tightJetId+tightJetIdLepVeto+slimmedJetsWithUserData+jetCorrFactors+updatedJets+tightJetIdAK8+tightJetIdLepVetoAK8+slimmedJetsAK8WithUserData+jetCorrFactorsAK8+updatedJetsAK8+chsForSATkJets+softActivityJets+softActivityJets2+softActivityJets5+softActivityJets10+finalJets+finalJetsAK8)
+_jetSequence_80X = jetSequence.copy()
+_jetSequence_80X.replace(tightJetIdLepVeto, looseJetId)
+_jetSequence_80X.replace(tightJetIdLepVetoAK8, looseJetIdAK8)
+run2_miniAOD_80XLegacy.toReplaceWith(jetSequence, _jetSequence_80X)
+
 #after cross linkining
 jetTables = cms.Sequence(bjetMVA+ jetTable+fatJetTable+subJetTable+saJetTable+saTable)
 
 #MC only producers and tables
 jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+genSubJetAK8Table)
-
