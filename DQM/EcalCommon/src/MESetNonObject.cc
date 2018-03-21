@@ -265,6 +265,13 @@ namespace ecaldqm
   }
 
   double
+  MESetNonObject::getFloatValue() const
+  {
+    if(kind_ == MonitorElement::DQM_KIND_REAL) return mes_[0]->getFloatValue();
+    else return 0.;
+  }
+
+  double
   MESetNonObject::getBinError(int _bin, int) const
   {
     if(!active_) return 0.;
