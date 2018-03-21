@@ -2245,9 +2245,11 @@ defaultDataSets['2018']='CMSSW_10_0_2-100X_upgrade2018_realistic_v10-v'
 defaultDataSets['2018Design']='CMSSW_10_0_2-100X_upgrade2018_design_IdealBS_v6-v'
 #defaultDataSets['2019']=''
 #defaultDataSets['2019Design']=''
-defaultDataSets['2023D17']=''
+defaultDataSets['2023D17']='CMSSW_9_3_2-93X_upgrade2023_realistic_v2_2023D17noPU-v'
 defaultDataSets['2023D19']=''
 defaultDataSets['2023D21']=''
+defaultDataSets['2023D22']=''
+defaultDataSets['2023D23']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
@@ -2490,12 +2492,12 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
             if "GenSim" in step:
                 stepName = step + upgradeSteps['baseline']['suffix']
                 stepNamePmx = step.replace('GenSim', 'Premix') + 'PU' + upgradeSteps['Premix']['suffix']
-                d = merge([{'-s'            : 'GEN,SIM,DIGI:pdigi_valid,L1,DIGI2RAW',
+                d = merge([{'-s'            : 'GEN,SIM,DIGI:pdigi_valid,L1',
                             '--datatier'    : 'PREMIX',
                             '--eventcontent': 'PREMIX',
                             '--procModifiers': 'premix_stage1',
                            },
-                           upgradeStepDict[stepName][k]])
+                           PUDataSets[k2],upgradeStepDict[stepName][k]])
                 upgradeStepDict[stepNamePmx][k] = d
 
         for stepType in upgradeSteps.keys():
@@ -2546,7 +2548,7 @@ for step in upgradeStepDict.keys():
                     #however, there can be a conflict of beam spots but this is lost in the dataset name
                     #so please be careful
                     s=frag[:-4]+'_'+key
-                    if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '': # exclude upgradeKeys without input dataset
+                    if 'FastSim' not in k and 'Premix' not in step and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '': # exclude upgradeKeys without input dataset
                         steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+upgradeDatasetFromFragment[frag]+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
