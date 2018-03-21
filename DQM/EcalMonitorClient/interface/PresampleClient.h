@@ -17,7 +17,8 @@ namespace ecaldqm
 
     int minChannelEntries_;
     float expectedMean_;
-    float toleranceMean_;
+    float toleranceLow_;
+    float toleranceHigh_;
     float toleranceRMS_;
     float toleranceRMSFwd_;
   };
