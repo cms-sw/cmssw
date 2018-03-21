@@ -1094,7 +1094,8 @@ namespace edm {
     auto waitTask = make_empty_waiting_task();
     waitTask->increment_ref_count();
     
-    if(streamLumiStatus_[0]) {
+    if(streamLumiActive_> 0) {
+      assert(streamLumiActive_ == preallocations_.numberOfStreams());
       continueLumiAsync(WaitingTaskHolder{waitTask.get()});
     } else {
       beginLumiAsync(IOVSyncValue(EventID(input_->run(), input_->luminosityBlock(), 0),
@@ -1181,6 +1182,7 @@ namespace edm {
                   });
                   auto& event = principalCache_.eventPrincipal(i);
                   streamLumiStatus_[i] = status;
+                  ++streamLumiActive_;
                   auto lp = status->lumiPrincipal();
                   event.setLuminosityBlockPrincipal(lp.get());
                   beginStreamTransitionAsync<Traits>(WaitingTaskHolder{eventTask},
@@ -1236,7 +1238,7 @@ namespace edm {
   EventProcessor::continueLumiAsync(edm::WaitingTaskHolder iHolder) {
     {
       //all streams are sharing the same status at the moment
-      auto status = streamLumiStatus_[0];
+      auto status = streamLumiStatus_[0]; //read from streamLumiActive_ happened in calling routine
       status->needToContinueLumi();
       status->startProcessingEvents();
     }
@@ -1333,6 +1335,7 @@ namespace edm {
       auto status =streamLumiStatus_[iStreamIndex];
       //reset status before releasing queue else get race condtion
       streamLumiStatus_[iStreamIndex].reset();
+      --streamLumiActive_;
       streamQueues_[iStreamIndex].resume();
       
       //are we the last one?
@@ -1365,14 +1368,7 @@ namespace edm {
 
   
   void EventProcessor::endUnfinishedLumi() {
-    bool needToEnd = false;
-    for(auto const& status: streamLumiStatus_) {
-      if(status) {
-        needToEnd = true;
-        break;
-      }
-    }
-    if(needToEnd) {
+    if(streamLumiActive_.load() > 0) {
       auto globalWaitTask = make_empty_waiting_task();
       globalWaitTask->increment_ref_count();
       {
