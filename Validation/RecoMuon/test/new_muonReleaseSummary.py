@@ -338,6 +338,9 @@ for sample in new_userparams.samples :
                 else:
                     print('ERROR: Could not find "' + newpath + '/RecoMuonV.pdf')
 
+    os.system('mkdir '+newpath+'/PDF')
+    os.system('mv '+newpath+'/*.pdf '+newpath+'/PDF/.')
+
     if(new_userparams.Publish):
         newpath = GetSamplePath(new_userparams.NewParams,sample)
         newlocalsample = GetLocalSampleName(new_userparams.NewParams, sample)

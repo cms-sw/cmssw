@@ -526,7 +526,8 @@ void PlotNHistograms(const TString& pdfFile,
   l->Draw();
   
   // Print Canvas
-  canvas->Print(pdfFile);
+  canvas->SaveAs(pdfFile+".pdf");
+  canvas->SaveAs(pdfFile+".png");
 
   // Clean memory
   // delete l;
