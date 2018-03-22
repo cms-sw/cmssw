@@ -23,23 +23,24 @@
 
 //#include <algorithm>
 
-MuonIDFilterProducerForHLT::MuonIDFilterProducerForHLT(const edm::ParameterSet& iConfig)
+MuonIDFilterProducerForHLT::MuonIDFilterProducerForHLT(const edm::ParameterSet& iConfig):
+  muonTag_             ( iConfig.getParameter<edm::InputTag>("inputMuonCollection") ),
+  applyTriggerIdLoose_ ( iConfig.getParameter<bool>("applyTriggerIdLoose") ),  
+  type_                ( muon::SelectionType(iConfig.getParameter<unsigned int>("typeMuon")) ),
+  allowedTypeMask_     ( iConfig.getParameter<unsigned int>("allowedTypeMask") ),
+  requiredTypeMask_    ( iConfig.getParameter<unsigned int>("requiredTypeMask") ),
+  min_NMuonHits_       ( iConfig.getParameter<int>("minNMuonHits") ),    
+  min_NMuonStations_   ( iConfig.getParameter<int>("minNMuonStations") ),
+  min_NTrkLayers_      ( iConfig.getParameter<int>("minNTrkLayers") ), 
+  min_NTrkHits_        ( iConfig.getParameter<int>("minTrkHits") ), 
+  min_PixLayers_       ( iConfig.getParameter<int>("minPixLayer") ),
+  min_PixHits_         ( iConfig.getParameter<int>("minPixHits") ),
+  min_Pt_              ( iConfig.getParameter<double>("minPt") ),           
+  max_NormalizedChi2_  ( iConfig.getParameter<double>("maxNormalizedChi2") )
 {
    produces<reco::MuonCollection>();
-   muonTag_             = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
+
    muonToken_           = consumes<reco::MuonCollection>(muonTag_);
-   applyTriggerIdLoose_ = iConfig.getParameter<bool>("applyTriggerIdLoose");
-   type_                = muon::SelectionType(iConfig.getParameter<unsigned int>("typeMuon"));
-   allowedTypeMask_     = iConfig.getParameter<unsigned int>("allowedTypeMask");
-   requiredTypeMask_    = iConfig.getParameter<unsigned int>("requiredTypeMask");
-   min_NMuonHits_       = iConfig.getParameter<int>("minNMuonHits");    
-   min_NMuonStations_   = iConfig.getParameter<int>("minNMuonStations");
-   min_NTrkLayers_      = iConfig.getParameter<int>("minNTrkLayers"); 
-   min_NTrkHits_        = iConfig.getParameter<int>("minTrkHits"); 
-   min_PixLayers_       = iConfig.getParameter<int>("minPixLayer");
-   min_PixHits_         = iConfig.getParameter<int>("minPixHits");
-   min_Pt_              = iConfig.getParameter<double>("minPt");           
-   max_NormalizedChi2_  = iConfig.getParameter<double>("maxNormalizedChi2"); 
 }
 
 MuonIDFilterProducerForHLT::~MuonIDFilterProducerForHLT()
@@ -64,40 +65,38 @@ void MuonIDFilterProducerForHLT::fillDescriptions(edm::ConfigurationDescriptions
 }
 void MuonIDFilterProducerForHLT::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
-   auto output = std::make_unique<reco::MuonCollection>();
-
-   edm::Handle<reco::MuonCollection> muons; 
-   iEvent.getByToken(muonToken_, muons);
-   
-   for ( unsigned int i=0; i<muons->size(); ++i ){
-     const reco::Muon& muon(muons->at(i));
-     if (applyTriggerIdLoose_ && muon::isLooseTriggerMuon(muon)) { 
-       output->push_back(muon);
-     }
-     else {  // Implement here manually all the required/desired cuts 
-
-       
-       if ( (muon.type() & allowedTypeMask_) == 0 )                  continue;
-       if ( (muon.type() & requiredTypeMask_) != requiredTypeMask_ ) continue;
-       // tracker cuts
-       if ( !muon.innerTrack().isNull() ){
-	 if (muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() < min_NTrkLayers_) continue;
-	 if (muon.innerTrack()->numberOfValidHits()<  min_NTrkHits_) continue;
-	 if (muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() < min_PixLayers_) continue;
-	 if (muon.innerTrack()->hitPattern().numberOfValidPixelHits()<  min_PixHits_) continue;
-       }
-       // muon cuts
-       if ( muon.numberOfMatchedStations()< min_NMuonStations_ )     continue;
-       if ( !muon.globalTrack().isNull() ){
-	 if (muon.globalTrack()->normalizedChi2() > max_NormalizedChi2_) continue;
-	 if (muon.globalTrack()->hitPattern().numberOfValidMuonHits() < min_NMuonHits_) continue;
-       }
-       if ( !muon::isGoodMuon(muon,type_) ) continue;
-       if ( muon.pt() < min_Pt_ ) continue;
-
-       output->push_back(muon);
-     }
-   }
-     
-   iEvent.put(std::move(output));
+  auto output = std::make_unique<reco::MuonCollection>();
+  
+  edm::Handle<reco::MuonCollection> muons; 
+  iEvent.getByToken(muonToken_, muons);
+  
+  for ( unsigned int i=0; i<muons->size(); ++i ){
+    const reco::Muon& muon(muons->at(i));
+    if (applyTriggerIdLoose_ && muon::isLooseTriggerMuon(muon)) { 
+      output->push_back(muon);
+    }
+    else {  // Implement here manually all the required/desired cuts 
+      if ( (muon.type() & allowedTypeMask_) == 0 )                  continue;
+      if ( (muon.type() & requiredTypeMask_) != requiredTypeMask_ ) continue;
+      // tracker cuts
+      if ( !muon.innerTrack().isNull() ){
+	if (muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() < min_NTrkLayers_) continue;
+	if (muon.innerTrack()->numberOfValidHits()<  min_NTrkHits_) continue;
+	if (muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() < min_PixLayers_) continue;
+	if (muon.innerTrack()->hitPattern().numberOfValidPixelHits()<  min_PixHits_) continue;
+      }
+      // muon cuts
+      if ( muon.numberOfMatchedStations()< min_NMuonStations_ )     continue;
+      if ( !muon.globalTrack().isNull() ){
+	if (muon.globalTrack()->normalizedChi2() > max_NormalizedChi2_) continue;
+	if (muon.globalTrack()->hitPattern().numberOfValidMuonHits() < min_NMuonHits_) continue;
+      }
+      if ( !muon::isGoodMuon(muon,type_) ) continue;
+      if ( muon.pt() < min_Pt_ ) continue;
+      
+      output->push_back(muon);
+    }
+  }
+  
+  iEvent.put(std::move(output));
 }

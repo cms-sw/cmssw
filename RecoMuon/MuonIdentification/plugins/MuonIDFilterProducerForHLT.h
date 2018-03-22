@@ -31,18 +31,18 @@ class MuonIDFilterProducerForHLT : public edm::global::EDProducer<> {
  private:
    edm::InputTag muonTag_;
    edm::EDGetTokenT<reco::MuonCollection> muonToken_;
-   
-   bool applyTriggerIdLoose_;
-   muon::SelectionType  type_;
-   unsigned int allowedTypeMask_;
-   unsigned int requiredTypeMask_;
-   int    min_NMuonHits_;    // threshold on number of hits on muon
-   int    min_NMuonStations_;    // threshold on number of hits on muon
-   int    min_NTrkLayers_; 
-   int    min_NTrkHits_; 
-   int    min_PixLayers_;
-   int    min_PixHits_;
-   double min_Pt_;           // pt threshold in GeV
-   double max_NormalizedChi2_; // cutoff in normalized chi2
+    
+   const bool applyTriggerIdLoose_;
+   const muon::SelectionType  type_;
+   const unsigned int allowedTypeMask_;
+   const unsigned int requiredTypeMask_;
+   const int    min_NMuonHits_;    // threshold on number of hits on muon
+   const int    min_NMuonStations_;    // threshold on number of hits on muon
+   const int    min_NTrkLayers_; 
+   const int    min_NTrkHits_; 
+   const int    min_PixLayers_;
+   const int    min_PixHits_;
+   const double min_Pt_;           // pt threshold in GeV
+   const double max_NormalizedChi2_; // cutoff in normalized chi2
 };
 #endif
