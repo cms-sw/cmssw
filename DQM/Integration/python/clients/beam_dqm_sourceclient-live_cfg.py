@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("BeamMonitor", eras.Run2_2017)
+process = cms.Process("BeamMonitor", eras.Run2_2018)
 
 #----------------------------------------------                                                                                                                                    
 # Switch to change between firstStep and Pixel
@@ -131,7 +131,6 @@ process.pixelTracksCutClassifier = cms.EDProducer( "TrackCutClassifier",
       minLayers = cms.vint32( 0, 2, 3 )
     ),
     ignoreVertices = cms.bool( True ),
-    GBRForestFileName = cms.string( "" )
 )
 process.pixelTracksHP = cms.EDProducer( "TrackCollectionFilterCloner",
     minQuality = cms.string( "highPurity" ),
