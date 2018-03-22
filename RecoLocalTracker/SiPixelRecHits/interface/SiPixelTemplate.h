@@ -77,6 +77,8 @@
 //  V10.12 - Enforce minimum signal size in pixel charge uncertainty calculation
 //  V10.13 - Update the variable size [SI_PIXEL_TEMPLATE_USE_BOOST] option so that it works with VI's enhancements
 //  V10.20 - Add directory path selection to the ascii pushfile method
+//  V10.21 - Address runtime issues in pushfile() for gcc 7.X due to using tempfile as char string + misc. cleanup [Petar]
+//  V10.22 - Move templateStore to the heap, fix variable name in pushfile() [Petar]
 
 
 
@@ -260,10 +262,10 @@ public:
 // Load the private store with info from the file with the index (int) filenum from directory dir:
 //   ${dir}template_summary_zp${filenum}.out
 #ifdef SI_PIXEL_TEMPLATE_STANDALONE
-   static bool pushfile(int filenum, std::vector< SiPixelTemplateStore > & thePixelTemp_ , std::string dir = "");
+   static bool pushfile(int filenum, std::vector< SiPixelTemplateStore > & pixelTemp , std::string dir = "");
 #else   
-   static bool pushfile(int filenum, std::vector< SiPixelTemplateStore > & thePixelTemp_ , std::string dir = "CalibTracker/SiPixelESProducers/data/");   // *&^%$#@!  Different default dir -- remove once FastSim is updated.
-   static bool pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore > & thePixelTemp_);     // load the private store with info from db
+   static bool pushfile(int filenum, std::vector< SiPixelTemplateStore > & pixelTemp , std::string dir = "CalibTracker/SiPixelESProducers/data/");   // *&^%$#@!  Different default dir -- remove once FastSim is updated.
+   static bool pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore > & pixelTemp);     // load the private store with info from db
 #endif
    
    // initialize the rest;
