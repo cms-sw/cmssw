@@ -10,9 +10,12 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		edm::InputTag("hcalDigis"));
 	_tagEmul = ps.getUntrackedParameter<edm::InputTag>("tagEmul",
 		edm::InputTag("emulDigis"));
+	_tagEmulNoTDCCut = ps.getUntrackedParameter<edm::InputTag>("tagEmulNoTDCCut",
+		edm::InputTag("emulTPDigisNoTDCCut"));
 
 	_tokData = consumes<HcalTrigPrimDigiCollection>(_tagData);
 	_tokEmul = consumes<HcalTrigPrimDigiCollection>(_tagEmul);
+	_tokEmulNoTDCCut = consumes<HcalTrigPrimDigiCollection>(_tagEmulNoTDCCut);
 
 	_skip1x1 = ps.getUntrackedParameter<bool>("skip1x1", true);
 	_cutEt = ps.getUntrackedParameter<int>("cutEt", 3);
@@ -283,6 +286,21 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			hcaldqm::hashfunctions::fTTSubdet,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN),0);
+
+		_cOccupancy_HF_depth.initialize(_name, "OccupancyDataHF_depth", 
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cOccupancyNoTDC_HF_depth.initialize(_name, "OccupancyEmulHFNoTDC_depth", 
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTiphi),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cOccupancy_HF_ieta.initialize(_name, "OccupancyDataHF_ieta", 
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0),
+		_cOccupancyNoTDC_HF_ieta.initialize(_name, "OccupancyEmulHFNoTDC_ieta", 
+			new hcaldqm::quantity::TrigTowerQuantity(hcaldqm::quantity::fTTieta),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	}
 
 	// FED-based containers
@@ -438,7 +456,6 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			_xDataTotal.initialize(hcaldqm::hashfunctions::fFED);
 			_xEmulMsn.initialize(hcaldqm::hashfunctions::fFED);
 			_xEmulTotal.initialize(hcaldqm::hashfunctions::fFED);
-
 		}
 	}
 
@@ -538,6 +555,12 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		_xDataTotal.book(_emap);
 		_xEmulMsn.book(_emap);
 		_xEmulTotal.book(_emap);
+
+		_cOccupancy_HF_depth.book(ib, _subsystem);
+		_cOccupancyNoTDC_HF_depth.book(ib, _subsystem);
+		_cOccupancy_HF_ieta.book(ib, _subsystem);
+		_cOccupancyNoTDC_HF_ieta.book(ib, _subsystem);
+
 	}
 	
 	//	initialize the hash map
@@ -569,12 +592,19 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 {
 	edm::Handle<HcalTrigPrimDigiCollection> cdata;
 	edm::Handle<HcalTrigPrimDigiCollection> cemul;
+	edm::Handle<HcalTrigPrimDigiCollection> cemul_noTDCCut;
 	if (!e.getByToken(_tokData, cdata))
-		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
+		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available: "
 			+ _tagData.label() + " " + _tagData.instance());
 	if (!e.getByToken(_tokEmul, cemul))
-		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available"
+		_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available: "
 			+ _tagEmul.label() + " " + _tagEmul.instance());
+	if (_ptype == fOnline) {
+		if (!e.getByToken(_tokEmulNoTDCCut, cemul_noTDCCut)) {
+			_logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available: "
+				+ _tagEmulNoTDCCut.label() + " " + _tagEmulNoTDCCut.instance());
+		}
+	}
 
 	//	extract some info per event
 	int bx = e.bunchCrossing();
@@ -604,8 +634,11 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		//	Explicit check on the DetIds present in the Collection
 		HcalTrigTowerDetId tid = it->id();
 		uint32_t rawid = _ehashmap.lookup(tid);
-		if (rawid==0)
-		{meUnknownIds1LS->Fill(1); _unknownIdsPresent = true; continue;}
+		if (rawid==0) {
+			meUnknownIds1LS->Fill(1); 
+			_unknownIdsPresent = true; 
+			continue;
+		}
 		HcalElectronicsId const& eid(rawid);
 		if (tid.ietaAbs()>=29)
 			rawidHFValid = tid.rawId();
@@ -618,7 +651,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		if (tid.version()==0 && tid.ietaAbs()>=29)
 		{
 			//	do this only for online processing
-			if (_ptype==fOnline)
+			if (_ptype == fOnline)
 			{
 				_cOccupancyData2x3_depthlike.fill(tid);
 				HcalTrigPrimDigiCollection::const_iterator jt=cemul->find(tid);
@@ -642,6 +675,15 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		_cEtData_TTSubdet.fill(tid, soiEt_d);
 		_cEtData_depthlike.fill(tid, soiEt_d);
 		_cOccupancyData_depthlike.fill(tid);
+
+		if (_ptype == fOnline) {
+			if (tid.ietaAbs()>=29) {
+				if (soiEt_d > 0) {
+					_cOccupancy_HF_depth.fill(tid);
+					_cOccupancy_HF_ieta.fill(tid);
+				}
+			}
+		}
 		if (_ptype != fOffline) { // hidefed2crate
 			if (eid.isVMEid())
 			{
@@ -654,7 +696,7 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 				_cEtData_ElectronicsuTCA.fill(eid, soiEt_d);
 			}
 		}
-		
+
 		//	FILL w/a CUT
 		if (soiEt_d>_cutEt)
 		{
@@ -772,6 +814,28 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		}
 	}
 	
+	if (_ptype == fOnline) {
+		for (HcalTrigPrimDigiCollection::const_iterator it=cemul_noTDCCut->begin(); it!=cemul_noTDCCut->end(); ++it)	{
+			//	Explicit check on the DetIds present in the Collection
+			HcalTrigTowerDetId tid = it->id();
+			uint32_t rawid = _ehashmap.lookup(tid);
+			if (rawid==0) {
+				continue;
+			}
+			if (tid.version()==0 && tid.ietaAbs()>=29)
+			{
+				continue;
+			}
+			int soiEt_e = it->SOI_compressedEt();
+			if (tid.ietaAbs() >= 29) {
+				if (soiEt_e > 0) {
+					_cOccupancyNoTDC_HF_depth.fill(tid);
+					_cOccupancyNoTDC_HF_ieta.fill(tid);
+				}
+			}
+		}
+	}
+
 	if (rawidHFValid!=0 && rawidHBHEValid!=0)
 	{
 		//	ONLINE ONLY!
