@@ -135,6 +135,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_cff import *
 
 from Calibration.EcalCalibAlgos.ALCARECOPromptCalibProdEcalPedestals_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOPromptCalibProdLumiPCC_cff import *
 ###############################################################
 # hotline skim workflows
 ###############################################################
@@ -226,6 +227,7 @@ pathALCARECOPromptCalibProdSiStripGains = cms.Path(seqALCARECOPromptCalibProdSiS
 pathALCARECOPromptCalibProdSiStripGainsAAG = cms.Path(seqALCARECOPromptCalibProdSiStripGainsAAG)
 pathALCARECOPromptCalibProdSiPixelAli = cms.Path(seqALCARECOPromptCalibProdSiPixelAli)
 pathALCARECOPromptCalibProdEcalPedestals = cms.Path(seqALCARECOPromptCalibProdEcalPedestals)
+pathALCARECOPromptCalibProdLumiPCC = cms.Path(seqALCARECOPromptCalibProdLumiPCC)
 pathALCARECOSiStripPCLHistos = cms.Path(seqALCARECOSiStripPCLHistos)
 pathHotlineSkimSingleMuon = cms.Path(seqHotlineSkimSingleMuon)
 pathHotlineSkimDoubleMuon = cms.Path(seqHotlineSkimDoubleMuon)
@@ -797,6 +799,17 @@ ALCARECOStreamPromptCalibProdEcalPedestals = cms.FilteredStream(
 	selectEvents = OutALCARECOPromptCalibProdEcalPedestals.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
+
+
+ALCARECOStreamPromptCalibProdLumiPCC = cms.FilteredStream(
+	responsible = 'Chris Palmer',
+	name = 'PromptCalibProdLumiPCC',
+	paths  = (pathALCARECOPromptCalibProdLumiPCC),
+	content = OutALCARECOPromptCalibProdLumiPCC.outputCommands,
+	selectEvents = OutALCARECOPromptCalibProdLumiPCC.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
+
 
 ALCARECOStreamHotline = cms.FilteredStream(
         responsible = 'Dustin Anderson',

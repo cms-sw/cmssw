@@ -34,13 +34,14 @@ class RawPCCProducer : public edm::one::EDProducer<edm::EndLuminosityBlockProduc
     edm::one::WatchLuminosityBlocks> {
         public:
             explicit RawPCCProducer(const edm::ParameterSet&);
-            ~RawPCCProducer();
+            ~RawPCCProducer() override;
 
         private:
-            virtual void beginLuminosityBlock     (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override final;
-            virtual void endLuminosityBlock       (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override final;
-            virtual void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) override final;
-            virtual void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) override final;
+            void beginLuminosityBlock     (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
+            void endLuminosityBlock       (edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
+            void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) final;
+            void produce                  (edm::Event& iEvent, const edm::EventSetup& iSetup) final;
+
 
             edm::EDGetTokenT<reco::PixelClusterCounts>  pccToken;
             std::string   pccSource_;                   //input file EDproducer module label 
