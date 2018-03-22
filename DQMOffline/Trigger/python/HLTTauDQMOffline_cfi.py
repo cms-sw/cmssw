@@ -86,6 +86,7 @@ hltTauOfflineMonitor_PFTaus = DQMEDAnalyzer('HLTTauDQMOfflineSource',
         L1ETMMin              = cms.untracked.double(50),
     ),
     Paths = cms.untracked.string("PFTau"),
+    PtHistoBins = cms.untracked.int32(50),
     PtHistoMax = cms.untracked.double(500),
     PathSummaryPlotter = cms.untracked.PSet(
         DQMFolder             = cms.untracked.string('Summary'),
@@ -191,7 +192,7 @@ hltTauOfflineMonitor_TagAndProbe = hltTauOfflineMonitor_PFTaus.clone(
         cms.untracked.PSet(
             name        = cms.string('TauMETTemplate'),
             xvariable   = cms.string('MET'),
-            nPtBins     = cms.int32(20),
+            nPtBins     = cms.int32(50),
             ptmin       = cms.double(0.),
             ptmax       = cms.double(500.),
             nPhiBins    = cms.int32(20),
