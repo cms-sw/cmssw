@@ -7,6 +7,40 @@
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
 #include "DataFormats/Math/interface/ProjectMatrix.h"
 
+#include<atomic>
+#include<iostream>
+namespace {
+
+  struct Stat {
+    Stat(): tot(0),
+    nopd(0), jnopd(0), fnopd(0),
+    inopd(0), ijnopd(0), ifnopd(0)
+    {}
+
+    std::atomic<long long> tot;
+    std::atomic<long long> nopd;
+    std::atomic<long long> jnopd;
+    std::atomic<long long> fnopd;
+    std::atomic<long long> inopd;
+    std::atomic<long long> ijnopd;
+    std::atomic<long long> ifnopd;
+
+    ~Stat() {
+       std::cout << "KF " << tot 
+         << " " << nopd << " " << jnopd << " " << fnopd
+         << " " << inopd << " " << ijnopd << " " << ifnopd
+         << std::endl;
+     }
+  };
+
+  Stat stat;
+
+  bool isNopd(AlgebraicSymMatrix55 const & m) {
+    return m(0,0)<0 || m(1,1)<0 || m(2,2)<0 || m(3,3)<0 || m(4,4)<0;
+  }
+}
+
+
 namespace {
 
 template <unsigned int D>
@@ -50,6 +84,28 @@ TrajectoryStateOnSurface lupdate(const TrajectoryStateOnSurface& tsos,
   AlgebraicVector5 fsv = x + K * r;
   // Compute covariance matrix of local filtered state vector
   AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M, C) + ROOT::Math::Similarity(K, V);
+
+  AlgebraicSymMatrix55 fse2;  ROOT::Math::AssignSym::Evaluate(fse2, M*C);
+
+  // std::cout << "Joseph Form \n" << fse << std::endl;
+  // std::cout << "Fast Form \n"	<< fse2 << std::endl;
+
+
+  stat.tot++;
+  auto n1 = isNopd(fse);
+  auto n2 = isNopd(fse2);
+  if (n1&&n2) stat.nopd++;
+  if (n1) stat.jnopd++;
+  if (n2) stat.fnopd++;
+
+  AlgebraicSymMatrix55 ifse = fse; invertPosDefMatrix(ifse);
+  AlgebraicSymMatrix55 ifse2 = fse2; invertPosDefMatrix(ifse2);
+  n1 = isNopd(ifse);
+  n2 = isNopd(ifse2);
+  if (n1&&n2) stat.inopd++;
+  if (n1) stat.ijnopd++;
+  if (n2) stat.ifnopd++;
+
 
 
   /*
