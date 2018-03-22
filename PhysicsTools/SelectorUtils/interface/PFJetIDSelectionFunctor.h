@@ -25,8 +25,8 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 
  public: // interface
 
-  enum Version_t { FIRSTDATA, RUNIISTARTUP, WINTER16, N_VERSIONS };
-  enum Quality_t { LOOSE, TIGHT, N_QUALITY};
+  enum Version_t { FIRSTDATA, RUNIISTARTUP, WINTER16, WINTER17, N_VERSIONS };
+  enum Quality_t { LOOSE, TIGHT, TIGHTLEPVETO, N_QUALITY};
 
   PFJetIDSelectionFunctor() {}
 
@@ -48,17 +48,20 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
    // WINTER16 implements most recent (as of Feb 2017) JetID criteria
    // See: https://twiki.cern.ch/twiki/bin/view/CMS/JetID13TeVRun2016
    else if( versionStr == "WINTER16") 
-     version_ = WINTER16;  
-   else version_ = WINTER16;//set WINTER16 as default
+     version_ = WINTER16; 
+   else if( versionStr == "WINTER17") 
+     version_ = WINTER17;   
+   else version_ = WINTER17;//set WINTER17 as default
    
 
    if      ( qualityStr == "LOOSE") quality_ = LOOSE;
    else if ( qualityStr == "TIGHT") quality_ = TIGHT;
-   else quality_ = LOOSE;
+   else if ( qualityStr == "TIGHTLEPVETO") quality_ = TIGHTLEPVETO;
+   else quality_ = TIGHT;
 
     push_back("CHF" );
     push_back("NHF" );
-    push_back("CEF" );
+    if( version_ != WINTER17 || quality_ != TIGHT ) push_back("CEF" );
     push_back("NEF" );
     push_back("NCH" );
     push_back("nConstituents");
@@ -73,7 +76,26 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       push_back("NEF_FW");
       push_back("nNeutrals_FW");
     }
+    if(version_ == WINTER17 ){
+      push_back("NEF_EC_L");
+      push_back("NEF_EC_U");
+      push_back("nNeutrals_EC");
+      push_back("NEF_FW");
+      push_back("NHF_FW");
+      push_back("nNeutrals_FW");
+      if (quality_ == TIGHTLEPVETO) push_back("MUF");;
+    }
  
+
+    if(version_ == WINTER17 && quality_ == LOOSE ){
+      edm::LogWarning("BadJetIDVersion") << "Winter17 JetID version does not support the LOOSE operating point -- defaulting to TIGHT";
+      quality_ = TIGHT;
+      }
+
+   if(version_ != WINTER17 && quality_ ==  TIGHTLEPVETO){
+      edm::LogWarning("BadJetIDVersion") << "JetID version does not support the TIGHTLEPVETO operating point -- defaulting to TIGHT";
+      quality_ = TIGHT;
+      }
  
 
     // Set some default cuts for LOOSE, TIGHT
@@ -100,7 +122,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     } else if ( quality_ == TIGHT ) {
       set("CHF", 0.0);
       set("NHF", 0.9);
-      set("CEF", 0.99);
+      if(version_ != WINTER17 ) set("CEF", 0.99);
       set("NEF", 0.9);
       set("NCH", 0);
       set("nConstituents", 1);
@@ -115,6 +137,31 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	set("NEF_FW",0.90);
 	set("nNeutrals_FW",10);
       }
+      if(version_ == WINTER17){
+	set("NEF_EC_L",0.02);
+	set("NEF_EC_U",0.99);
+	set("nNeutrals_EC",2);
+	set("NHF_FW",0.02);
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+      }
+
+    }else if ( quality_ == TIGHTLEPVETO ) {
+      set("CHF", 0.0);
+      set("NHF", 0.9);
+      set("CEF", 0.8);
+      set("NEF", 0.9);
+      set("NCH", 0);
+      set("nConstituents", 1);
+      if(version_ == WINTER17){
+	set("NEF_EC_L",0.02);
+	set("NEF_EC_U",0.99);
+	set("nNeutrals_EC",2);
+	set("NHF_FW",0.02);
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+        set("MUF", 0.8);
+      }
 
     }
 
@@ -122,7 +169,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     // Now check the configuration to see if the user changed anything
     if ( params.exists("CHF") ) set("CHF", params.getParameter<double>("CHF") );
     if ( params.exists("NHF") ) set("NHF", params.getParameter<double>("NHF") );
-    if ( params.exists("CEF") ) set("CEF", params.getParameter<double>("CEF") );
+    if(version_ != WINTER17  || quality_ != TIGHT ) {if ( params.exists("CEF") ) set("CEF", params.getParameter<double>("CEF") );}
     if ( params.exists("NEF") ) set("NEF", params.getParameter<double>("NEF") );
     if ( params.exists("NCH") ) set("NCH", params.getParameter<int>   ("NCH") );
     if ( params.exists("nConstituents") ) set("nConstituents", params.getParameter<int> ("nConstituents") );
@@ -137,6 +184,15 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       if ( params.exists("NEF_FW") ) set("NEF_FW", params.getParameter<double> ("NEF_FW") );
       if ( params.exists("nNeutrals_FW") ) set("nNeutrals_FW", params.getParameter<int> ("nNeutrals_FW") );
     }
+    if(version_ == WINTER17){
+      if ( params.exists("NEF_EC_L") ) set("NEF_EC_L", params.getParameter<int> ("NEF_EC_L") );
+      if ( params.exists("NEF_EC_U") ) set("NEF_EC_U", params.getParameter<int> ("NEF_EC_U") );
+      if ( params.exists("nNeutrals_EC") ) set("nNeutrals_EC", params.getParameter<int> ("nNeutrals_EC") );
+      if ( params.exists("NHF_FW") ) set("NHF_FW", params.getParameter<double> ("NHF_FW") );
+      if ( params.exists("NEF_FW") ) set("NEF_FW", params.getParameter<double> ("NEF_FW") );
+      if ( params.exists("nNeutrals_FW") ) set("nNeutrals_FW", params.getParameter<int> ("nNeutrals_FW") );
+      if ( quality_ == TIGHTLEPVETO ) {if ( params.exists("MUF") ) set("MUF", params.getParameter<int> ("MUF") );}
+    }
 
 
     if ( params.exists("cutsToIgnore") )
@@ -146,7 +202,8 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     indexNConstituents_ = index_type (&bits_, "nConstituents");
     indexNEF_ = index_type (&bits_, "NEF");
     indexNHF_ = index_type (&bits_, "NHF");
-    indexCEF_ = index_type (&bits_, "CEF");
+    if(version_ != WINTER17 || quality_ != TIGHT ) indexCEF_ = index_type (&bits_, "CEF");
+
     indexCHF_ = index_type (&bits_, "CHF");
     indexNCH_ = index_type (&bits_, "NCH");
     if(version_ == RUNIISTARTUP){
@@ -160,6 +217,19 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       indexNEF_FW_ = index_type (&bits_, "NEF_FW");
       indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
     }
+    if(version_ == WINTER17){
+      indexNEF_EC_L_ = index_type (&bits_, "NEF_EC_L");
+      indexNEF_EC_U_ = index_type (&bits_, "NEF_EC_U");
+      indexNNeutrals_EC_ = index_type (&bits_, "nNeutrals_EC");
+      indexNHF_FW_ = index_type (&bits_, "NHF_FW");
+      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
+      indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
+      if ( quality_ == TIGHTLEPVETO ) {indexMUF_ = index_type (&bits_, "MUF");}
+
+
+    }
+
+
 
     retInternal_ = getBitTemplate();
 
@@ -173,7 +243,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 
     push_back("CHF" );
     push_back("NHF" );
-    push_back("CEF" );
+    if(version_ != WINTER17 || quality_ != TIGHT ) push_back("CEF" );
     push_back("NEF" );
     push_back("NCH" );
     push_back("nConstituents");
@@ -188,8 +258,25 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       push_back("NEF_FW");
       push_back("nNeutrals_FW");
     }
+    if(version_ == WINTER17){
+      push_back("NEF_EC_L");
+      push_back("NEF_EC_U");
+      push_back("nNeutrals_EC");
+      push_back("NHF_FW");
+      push_back("NEF_FW");
+      push_back("nNeutrals_FW");
+      if ( quality_ == TIGHTLEPVETO ) { push_back("MUF");}
+    }
 
 
+    if(version_ == WINTER17 && quality_ == LOOSE ){
+      edm::LogWarning("BadJetIDVersion") << "Winter17 JetID version does not support the LOOSE operating point -- defaulting to TIGHT";
+      quality_ = TIGHT;
+      }
+   if(version_ != WINTER17 && quality_ ==  TIGHTLEPVETO){
+      edm::LogWarning("BadJetIDVersion") << "JetID version does not support the TIGHTLEPVETO operating point -- defaulting to TIGHT";
+      quality_ = TIGHT;
+      }
     // Set some default cuts for LOOSE, TIGHT
     if ( quality_ == LOOSE ) {
       set("CHF", 0.0);
@@ -210,10 +297,14 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	set("nNeutrals_FW",10);
       }
 
+
+
+
+
     } else if ( quality_ == TIGHT ) {
       set("CHF", 0.0);
       set("NHF", 0.9);
-      set("CEF", 0.99);
+      if(version_ != WINTER17) set("CEF", 0.99);
       set("NEF", 0.9);
       set("NCH", 0);
       set("nConstituents", 1);
@@ -228,13 +319,41 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	set("NEF_FW",0.90);
 	set("nNeutrals_FW",10);
       }
+      if(version_ == WINTER17){
+	set("NEF_EC_L",0.02);
+	set("NEF_EC_U",0.99);
+	set("nNeutrals_EC",2);
+	set("NHF_FW",0.02);
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+      }
+
+    } else if ( quality_ == TIGHTLEPVETO ) {
+      set("CHF", 0.0);
+      set("NHF", 0.9);
+      set("CEF", 0.8);
+      set("NEF", 0.9);
+      set("NCH", 0);
+      set("nConstituents", 1);
+      if(version_ == WINTER17){
+	set("NEF_EC_L",0.02);
+	set("NEF_EC_U",0.99);
+	set("nNeutrals_EC",2);
+	set("NHF_FW",0.02);
+	set("NEF_FW",0.90);
+	set("nNeutrals_FW",10);
+        set("MUF", 0.8);
+      }
+
     }
+
+
 
 
     indexNConstituents_ = index_type (&bits_, "nConstituents");
     indexNEF_ = index_type (&bits_, "NEF");
     indexNHF_ = index_type (&bits_, "NHF");
-    indexCEF_ = index_type (&bits_, "CEF");
+    if(version_ != WINTER17 || quality_ != TIGHT ) indexCEF_ = index_type (&bits_, "CEF");
     indexCHF_ = index_type (&bits_, "CHF");
     indexNCH_ = index_type (&bits_, "NCH");
     if(version_ == RUNIISTARTUP){
@@ -248,6 +367,16 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       indexNEF_FW_ = index_type (&bits_, "NEF_FW");
       indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
     }
+    if(version_ == WINTER17){
+
+      indexNEF_EC_L_ = index_type (&bits_, "NEF_EC_L");
+      indexNEF_EC_U_ = index_type (&bits_, "NEF_EC_U");
+      indexNNeutrals_EC_ = index_type (&bits_, "nNeutrals_EC");
+      indexNHF_FW_ = index_type (&bits_, "NHF_FW");
+      indexNEF_FW_ = index_type (&bits_, "NEF_FW");
+      indexNNeutrals_FW_ = index_type (&bits_, "nNeutrals_FW");
+      if ( quality_ == TIGHTLEPVETO ) { indexMUF_ = index_type (&bits_, "MUF"); }
+    }
 
 
     retInternal_ = getBitTemplate();
@@ -257,9 +386,9 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   //
   // Accessor from PAT jets
   //
-  bool operator()( const pat::Jet & jet, pat::strbitset & ret )
+  bool operator()( const pat::Jet & jet, pat::strbitset & ret ) override
   {
-    if ( version_ == FIRSTDATA || version_ == RUNIISTARTUP || version_ == WINTER16) {
+    if ( version_ == FIRSTDATA || version_ == RUNIISTARTUP || version_ == WINTER16 || version_ == WINTER17) {
       if ( jet.currentJECLevel() == "Uncorrected" || !jet.jecSetsAvailable() )
 	return firstDataCuts( jet, ret, version_);
       else
@@ -277,7 +406,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   //
   bool operator()( const reco::PFJet & jet, pat::strbitset & ret )
   {
-    if ( version_ == FIRSTDATA || version_ == RUNIISTARTUP || version_ == WINTER16  ){ return firstDataCuts( jet, ret, version_);
+    if ( version_ == FIRSTDATA || version_ == RUNIISTARTUP || version_ == WINTER16 || version_ == WINTER17  ){ return firstDataCuts( jet, ret, version_);
     }
     else {
       return false;
@@ -305,6 +434,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     double nhf = 0.0;
     double cef = 0.0;
     double nef = 0.0;
+    double muf = 0.0;
     int    nch = 0;
     int    nconstituents = 0;
     int    nneutrals = 0;
@@ -314,7 +444,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     pat::Jet const * patJet = dynamic_cast<pat::Jet const *>(&jet);
     reco::BasicJet const * basicJet = dynamic_cast<reco::BasicJet const *>(&jet);
 
-    if ( patJet != 0 ) {
+    if ( patJet != nullptr ) {
       if ( patJet->isPFJet() ) {
 	chf = patJet->chargedHadronEnergyFraction();
 	nhf = patJet->neutralHadronEnergyFraction();
@@ -369,7 +499,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	}
       }
     } // end if pat jet
-    else if ( pfJet != 0 ) {
+    else if ( pfJet != nullptr ) {
       // CV: need to compute energy fractions in a way that works for corrected as well as for uncorrected PFJets
       double jetEnergyUncorrected =
 	pfJet->chargedHadronEnergy()
@@ -383,6 +513,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
         nhf = pfJet->neutralHadronEnergy() / jetEnergyUncorrected;
         cef = pfJet->chargedEmEnergy() / jetEnergyUncorrected;
         nef = pfJet->neutralEmEnergy() / jetEnergyUncorrected;
+        muf = pfJet->muonEnergy() / jetEnergyUncorrected;
       }
       nch = pfJet->chargedMultiplicity();
       nconstituents = pfJet->numberOfDaughters();
@@ -390,7 +521,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     } // end if PF jet
     // Handle the special case where this is a composed jet for
     // subjet analyses
-    else if ( basicJet != 0 ) {
+    else if ( basicJet != nullptr ) {
       double e_chf = 0.0;
       double e_nhf = 0.0;
       double e_cef = 0.0;
@@ -418,8 +549,10 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       }
     } // end if basic jet
 
-   // Cuts for |eta| < 2.4 for FIRSTDATA, RUNIISTARTUP and WINTER16
-    if ( ignoreCut(indexCEF_)           || ( cef < cut(indexCEF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCEF_);
+
+
+   // Cuts for |eta| < 2.4 for FIRSTDATA, RUNIISTARTUP, WINTER16 and WINTER17
+    if(version_ != WINTER17 ||  quality_ != TIGHT ) {if ( ignoreCut(indexCEF_)           || ( cef < cut(indexCEF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCEF_);}
     if ( ignoreCut(indexCHF_)           || ( chf > cut(indexCHF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCHF_);
     if ( ignoreCut(indexNCH_)           || ( nch > cut(indexNCH_, int())    || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexNCH_);
 
@@ -451,6 +584,25 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       if ( ignoreCut(indexNEF_FW_)           || ( nef < cut(indexNEF_FW_, double()) || std::abs(jet.eta()) <= 3.0 ) ) passCut( ret, indexNEF_FW_);
       if ( ignoreCut(indexNNeutrals_FW_) || ( nneutrals > cut(indexNNeutrals_FW_, int())    || std::abs(jet.eta()) <= 3.0 ) ) passCut( ret, indexNNeutrals_FW_);
     }
+    else if(version_ == WINTER17){
+      // Cuts for |eta| <= 2.7 for WINTER17 scenario
+      if ( ignoreCut(indexNConstituents_) || ( nconstituents > cut(indexNConstituents_, int()) || std::abs(jet.eta()) > 2.7 ) ) passCut( ret, indexNConstituents_);
+      if ( ignoreCut(indexNEF_)           || ( nef < cut(indexNEF_, double())  || std::abs(jet.eta()) > 2.7 ) ) passCut( ret, indexNEF_);
+      if ( ignoreCut(indexNHF_)           || ( nhf < cut(indexNHF_, double())  || std::abs(jet.eta()) > 2.7 ) ) passCut( ret, indexNHF_);
+      if ( quality_ == TIGHTLEPVETO ) {if ( ignoreCut(indexMUF_)           || ( muf < cut(indexMUF_, double()) || std::abs(jet.eta()) > 2.7 ) ) passCut( ret, indexMUF_);}
+
+      // Cuts for 2.7 < |eta| <= 3.0 for WINTER17 scenario
+
+      if ( ignoreCut(indexNEF_EC_L_)        || ( nef > cut(indexNEF_EC_L_, double())  || std::abs(jet.eta()) <= 2.7 || std::abs(jet.eta()) > 3.0)  ) passCut( ret, indexNEF_EC_L_);
+      if ( ignoreCut(indexNEF_EC_U_)        || ( nef < cut(indexNEF_EC_U_, double())  || std::abs(jet.eta()) <= 2.7 || std::abs(jet.eta()) > 3.0)  ) passCut( ret, indexNEF_EC_U_);  
+      if ( ignoreCut(indexNNeutrals_EC_)  || ( nneutrals > cut(indexNNeutrals_EC_, int())  || std::abs(jet.eta()) <= 2.7 || std::abs(jet.eta()) > 3.0)  ) passCut( ret, indexNNeutrals_EC_);
+
+      // Cuts for |eta| > 3.0 for WINTER17 scenario
+      if ( ignoreCut(indexNHF_FW_)           || ( nhf > cut(indexNHF_FW_, double()) || std::abs(jet.eta()) <= 3.0 ) ) passCut( ret, indexNHF_FW_);
+      if ( ignoreCut(indexNEF_FW_)           || ( nef < cut(indexNEF_FW_, double()) || std::abs(jet.eta()) <= 3.0 ) ) passCut( ret, indexNEF_FW_);
+      if ( ignoreCut(indexNNeutrals_FW_) || ( nneutrals > cut(indexNNeutrals_FW_, int())    || std::abs(jet.eta()) <= 3.0 ) ) passCut( ret, indexNNeutrals_FW_);
+
+    }
 
     //std::cout << "<PFJetIDSelectionFunctor::firstDataCuts>:" << std::endl;
     //std::cout << " jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << std::endl;
@@ -467,16 +619,20 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 
   index_type indexNConstituents_;
   index_type indexNEF_;
+  index_type indexMUF_;
   index_type indexNHF_;
   index_type indexCEF_;
   index_type indexCHF_;
   index_type indexNCH_;
 
+  index_type indexNHF_FW_;
   index_type indexNEF_FW_;
   index_type indexNNeutrals_FW_;
 
   index_type indexNHF_EC_;
   index_type indexNEF_EC_;
+  index_type indexNEF_EC_L_;
+  index_type indexNEF_EC_U_;
   index_type indexNNeutrals_EC_;
 
 
