@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from PhysicsTools.NanoAOD.common_cff import *
 from math import ceil,log
 
@@ -15,28 +16,44 @@ from RecoEgamma.EgammaIsolationAlgos.egmPhotonIsolationMiniAOD_cff import *
 egmPhotonIDSequence = cms.Sequence(cms.Task(egmPhotonIsolationMiniAODTask,photonIDValueMapProducer,photonMVAValueMapProducer,egmPhotonIDs,photonRegressionValueMapProducer))
 egmPhotonIDs.physicsObjectIDs = cms.VPSet()
 egmPhotonIDs.physicsObjectSrc = cms.InputTag('slimmedPhotons')
-_photon_id_vid_modules=[
-'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
-'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff',
-]
-_bitmapVIDForPho_WorkingPoints = cms.vstring(
+
+_photon_id_vid_modules_WorkingPoints = cms.PSet(
+    modules = cms.vstring(
+        'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Fall17_94X_V1_TrueVtx_cff',
+        'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V1_cff',
+   ),
+   WorkingPoints = cms.vstring(
+# can run only for one working point for the moment, as the working points are not nested
+#    "egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V1-loose",
+    "egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V1-medium",
+#    "egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V1-tight",
+   )
+)
+run2_miniAOD_80XLegacy.toModify(_photon_id_vid_modules_WorkingPoints,
+    modules = cms.vstring(
+        'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff',
+        'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff',
+   ),
+   WorkingPoints = cms.vstring(
     "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose",
     "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium",
     "egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight",
+   )
 )
+
 _bitmapVIDForPho_docstring = ''
-for modname in _photon_id_vid_modules: 
+for modname in _photon_id_vid_modules_WorkingPoints.modules:
     ids= __import__(modname, globals(), locals(), ['idName','cutFlow'])
     for name in dir(ids):
         _id = getattr(ids,name)
         if hasattr(_id,'idName') and hasattr(_id,'cutFlow'):
             setupVIDSelection(egmPhotonIDs,_id)
-            if (len(_bitmapVIDForPho_WorkingPoints)>0 and _id.idName==_bitmapVIDForPho_WorkingPoints[0].split(':')[-1]):
-                _bitmapVIDForPho_docstring = 'VID compressed bitmap (%s), %d bits per cut'%(','.join([cut.cutName.value() for cut in _id.cutFlow]),int(ceil(log(len(_bitmapVIDForPho_WorkingPoints)+1,2))))
+            if (len(_photon_id_vid_modules_WorkingPoints.WorkingPoints)>0 and _id.idName==_photon_id_vid_modules_WorkingPoints.WorkingPoints[0].split(':')[-1]):
+                _bitmapVIDForPho_docstring = 'VID compressed bitmap (%s), %d bits per cut'%(','.join([cut.cutName.value() for cut in _id.cutFlow]),int(ceil(log(len(_photon_id_vid_modules_WorkingPoints.WorkingPoints)+1,2))))
 
 bitmapVIDForPho = cms.EDProducer("PhoVIDNestedWPBitmapProducer",
     src = cms.InputTag("slimmedPhotons"),
-    WorkingPoints = _bitmapVIDForPho_WorkingPoints,
+    WorkingPoints = _photon_id_vid_modules_WorkingPoints.WorkingPoints,
 )
 
 isoForPho = cms.EDProducer("PhoIsoValueMapProducer",
@@ -46,6 +63,11 @@ isoForPho = cms.EDProducer("PhoIsoValueMapProducer",
     mapIsoChg = cms.InputTag("photonIDValueMapProducer:phoChargedIsolation"),
     mapIsoNeu = cms.InputTag("photonIDValueMapProducer:phoNeutralHadronIsolation"),
     mapIsoPho = cms.InputTag("photonIDValueMapProducer:phoPhotonIsolation"),
+    EAFile_PFIso_Chg = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfChargedHadrons_90percentBased_TrueVtx.txt"),
+    EAFile_PFIso_Neu = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfNeutralHadrons_90percentBased_TrueVtx.txt"),
+    EAFile_PFIso_Pho = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Fall17/effAreaPhotons_cone03_pfPhotons_90percentBased_TrueVtx.txt"),
+)
+run2_miniAOD_80XLegacy.toModify(isoForPho,
     EAFile_PFIso_Chg = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfChargedHadrons_90percentBased.txt"),
     EAFile_PFIso_Neu = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfNeutralHadrons_90percentBased.txt"),
     EAFile_PFIso_Pho = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfPhotons_90percentBased.txt"),
@@ -69,23 +91,31 @@ calibratedPatPhotons94Xv1 = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibra
 slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
     src = cms.InputTag("slimmedPhotons"),
     userFloats = cms.PSet(
-        mvaID = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring16NonTrigV1Values"),
+        mvaID = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRunIIFall17v1Values"),
         PFIsoChg = cms.InputTag("isoForPho:PFIsoChg"),
         PFIsoAll = cms.InputTag("isoForPho:PFIsoAll"),
     ),
     userIntFromBools = cms.PSet(
-        cutbasedID_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose"),
-        cutbasedID_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium"),
-        cutbasedID_tight = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight"),
-        mvaID_WP90 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp90"),
-        mvaID_WP80 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp80"),
+        cutbasedID_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V1-loose"),
+        cutbasedID_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V1-medium"),
+        cutbasedID_tight = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Fall17-94X-V1-tight"),
+        mvaID_WP90 = cms.InputTag("egmPhotonIDs:mvaPhoID-RunIIFall17-v1-wp90"),
+        mvaID_WP80 = cms.InputTag("egmPhotonIDs:mvaPhoID-RunIIFall17-v1-wp80"),
     ),
     userInts = cms.PSet(
         VIDNestedWPBitmap = cms.InputTag("bitmapVIDForPho"),
     ),
 )
 run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userFloats,
+    mvaID = cms.InputTag("photonMVAValueMapProducer:PhotonMVAEstimatorRun2Spring16NonTrigV1Values"),
     eCorr = cms.InputTag("energyCorrForPhoton80X","eCorr")
+)
+run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userIntFromBools,
+    cutbasedID_loose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose"),
+    cutbasedID_medium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium"),
+    cutbasedID_tight = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight"),
+    mvaID_WP90 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp90"),
+    mvaID_WP80 = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp80"),
 )
 run2_nanoAOD_94XMiniAODv1.toModify(slimmedPhotonsWithUserData.userFloats,
     ecalEnergyErrPostCorr = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyErrPostCorr"),
