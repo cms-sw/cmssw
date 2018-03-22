@@ -57,7 +57,7 @@ private:
   void checkBadComponents(edm::EventSetup const& eSetup);
   void bookBadComponentHistos(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
   void fillBadComponentMaps(int xbin, int component,SiStripQuality::BadComponent& BC);
-  void createSummary(MonitorElement* me,std::map<std::pair<int,int>,float > map);
+  void createSummary(MonitorElement* me,const std::map<std::pair<int,int>,float >& map);
 
   MonitorElement * badAPVME_;
   MonitorElement * badFiberME_;

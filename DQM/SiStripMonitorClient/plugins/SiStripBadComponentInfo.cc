@@ -34,7 +34,9 @@ SiStripBadComponentInfo::SiStripBadComponentInfo(edm::ParameterSet const& pSet) 
 //
 SiStripBadComponentInfo::~SiStripBadComponentInfo() {
   LogDebug("SiStripBadComponentInfo") << "SiStripBadComponentInfo::Deleting SiStripBadComponentInfo ";
-
+  mapBadAPV.clear();
+  mapBadFiber.clear();
+  mapBadStrip.clear();
 }
 //
 // -- Begin Run
@@ -226,12 +228,15 @@ void SiStripBadComponentInfo::fillBadComponentMaps(int xbin,int component,SiStri
     mapBadStrip[index]=val;
   }   
 }
-void SiStripBadComponentInfo::createSummary(MonitorElement* me,std::map<std::pair<int,int>,float > map) {
+void SiStripBadComponentInfo::createSummary(MonitorElement* me,const std::map<std::pair<int,int>,float >& map) {
   for (int i=1; i<nSubSystem_+1; i++) {
     float sum = 0.0;
     for (int k=1; k<me->getNbinsY(); k++) {
-      me->setBinContent(i,k,map[std::make_pair(i,k)]); // fill the layer/wheel bins
-      if (map[std::make_pair(i,k)]) sum+= map[std::make_pair(i,k)];      
+      auto index = std::make_pair(i,k);
+      if (map.find(index)!=map.end()){
+	me->setBinContent(i,k,map.at(index)); // fill the layer/wheel bins
+	sum += map.at(index);      
+      }
     }
     me->setBinContent(i,me->getNbinsY(), sum); // fill the summary bin (last one)
   }
