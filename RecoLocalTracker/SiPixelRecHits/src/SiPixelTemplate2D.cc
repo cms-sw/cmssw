@@ -267,14 +267,14 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
    SiPixel2DTemplateDBObject db = dbobject;
    
    // Create a local template storage entry
-   SiPixelTemplateStore2D theCurrentTemp;
-   
+   /// SiPixelTemplateStore2D theCurrentTemp;   // can't do this (crashes): too large (14 MB) for stack!
+   auto tmpPtr = std::make_unique<SiPixelTemplateStore2D>(); // must be allocated on the heap instead
+   auto & theCurrentTemp = *tmpPtr;
+
    // Fill the template storage for each template calibration stored in the db
    for(int m=0; m<db.numOfTempl(); ++m)
    {
-      
       // Read-in a header string first and print it
-      
       SiPixel2DTemplateDBObject::char2float temp;
       for (i=0; i<20; ++i) {
          temp.f = db.sVector()[db.index()];
