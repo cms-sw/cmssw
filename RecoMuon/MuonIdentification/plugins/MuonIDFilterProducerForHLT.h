@@ -29,8 +29,8 @@ class MuonIDFilterProducerForHLT : public edm::global::EDProducer<> {
    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
-   edm::InputTag muonTag_;
-   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+   const edm::InputTag muonTag_;
+   const edm::EDGetTokenT<reco::MuonCollection> muonToken_;
     
    const bool applyTriggerIdLoose_;
    const muon::SelectionType  type_;
