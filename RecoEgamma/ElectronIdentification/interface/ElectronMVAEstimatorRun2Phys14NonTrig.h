@@ -2,19 +2,13 @@
 #define RecoEgamma_ElectronIdentification_ElectronMVAEstimatorRun2Phys14NonTrig_H
 
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
-
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
 
 #include <vector>
 #include <string>
 #include <memory>
 #include <TROOT.h>
-#include "TMVA/Factory.h"
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
-#include "TMVA/MethodBDT.h"
 
 class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
   
@@ -71,10 +65,8 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
 
   // Calculation of the MVA value
   float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& evt) const override;
- 
-  // Utility functions
-  std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, const edm::FileInPath &weightFile) ;
   
+  // Utility functions
   int getNCategories() const final { return nCategories; }
   bool isEndcapCategory( int category ) const;
   const std::string& getName() const final { return _name; } 
