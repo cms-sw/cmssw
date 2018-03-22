@@ -25,6 +25,7 @@
 
 MuonIDFilterProducerForHLT::MuonIDFilterProducerForHLT(const edm::ParameterSet& iConfig):
   muonTag_             ( iConfig.getParameter<edm::InputTag>("inputMuonCollection") ),
+  muonToken_           ( consumes<reco::MuonCollection>(muonTag_)),
   applyTriggerIdLoose_ ( iConfig.getParameter<bool>("applyTriggerIdLoose") ),  
   type_                ( muon::SelectionType(iConfig.getParameter<unsigned int>("typeMuon")) ),
   allowedTypeMask_     ( iConfig.getParameter<unsigned int>("allowedTypeMask") ),
@@ -39,8 +40,6 @@ MuonIDFilterProducerForHLT::MuonIDFilterProducerForHLT(const edm::ParameterSet& 
   max_NormalizedChi2_  ( iConfig.getParameter<double>("maxNormalizedChi2") )
 {
    produces<reco::MuonCollection>();
-
-   muonToken_           = consumes<reco::MuonCollection>(muonTag_);
 }
 
 MuonIDFilterProducerForHLT::~MuonIDFilterProducerForHLT()
