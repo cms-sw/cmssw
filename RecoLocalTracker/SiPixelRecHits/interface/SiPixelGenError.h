@@ -9,10 +9,8 @@
 //  V2.01 - Allow subdetector ID=5 for FPix R2P2, Fix error message
 //  V2.10 - Update the variable size [SI_PIXEL_TEMPLATE_USE_BOOST] option so that it works with VI's enhancements
 //  V2.20 - Add directory path selection to the ascii pushfile method
+//  V2.21 - Move templateStore to the heap, fix variable name in pushfile()
 
-
-
-//
 
 // Build the template storage structure from several pieces
 
@@ -121,10 +119,10 @@ public:
    
 // Load the private store with info from the file with the index (int) filenum from directory dir:
 //   ${dir}generror_summary_zp${filenum}.out
-   static bool pushfile(int filenum, std::vector< SiPixelGenErrorStore > & thePixelTemp_ , std::string dir = "");
+   static bool pushfile(int filenum, std::vector< SiPixelGenErrorStore > & pixelTemp , std::string dir = "");
     
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-   static bool pushfile(const SiPixelGenErrorDBObject& dbobject, std::vector< SiPixelGenErrorStore > & thePixelTemp_);     // load the private store with info from db
+   static bool pushfile(const SiPixelGenErrorDBObject& dbobject, std::vector< SiPixelGenErrorStore > & pixelTemp);     // load the private store with info from db
 #endif
    
    // initialize the binary search information;

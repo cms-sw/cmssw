@@ -16,7 +16,7 @@
 // v2.25 - Resize template store to accommodate FPix Templates
 // v2.30 - Fix bug found by P. Shuetze that compromises sqlite file loading
 // v2.35 - Add directory path selection to the ascii pushfile method
-//
+// V2.36 - Move templateStore to the heap, fix variable name in pushfile()
 //
 
 //#include <stdlib.h>
@@ -57,7 +57,7 @@ using namespace edm;
 //! digits of filenum.
 //! \param filenum - an integer NNNN used in the filename template_summary_zpNNNN
 //****************************************************************
-bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2D > & thePixelTemp_, std::string dir)
+bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2D > & pixelTemp, std::string dir)
 {
    // Add template stored in external file numbered filenum to theTemplateStore
    
@@ -231,7 +231,7 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
       
       // Add this template to the store
       
-      thePixelTemp_.push_back(theCurrentTemp);
+      pixelTemp.push_back(theCurrentTemp);
       
       return true;
       
@@ -254,7 +254,7 @@ bool SiPixelTemplate2D::pushfile(int filenum, std::vector< SiPixelTemplateStore2
 //! external file template_summary_zpNNNN where NNNN are four digits
 //! \param dbobject - db storing multiple template calibrations
 //****************************************************************
-bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore2D > & thePixelTemp_)
+bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore2D > & pixelTemp)
 {
    // Add template stored in external dbobject to theTemplateStore
    
@@ -421,7 +421,7 @@ bool SiPixelTemplate2D::pushfile(const SiPixel2DTemplateDBObject& dbobject, std:
          
 // Add this template to the store
    
-   thePixelTemp_.push_back(theCurrentTemp);    
+   pixelTemp.push_back(theCurrentTemp);    
      
    }
    

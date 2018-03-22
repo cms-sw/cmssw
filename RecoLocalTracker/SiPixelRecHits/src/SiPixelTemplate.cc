@@ -80,6 +80,7 @@
 //  V10.13 - Update the variable size [SI_PIXEL_TEMPLATE_USE_BOOST] option so that it works with VI's enhancements
 //  V10.20 - Add directory path selection to the ascii pushfile method
 //  V10.21 - Address runtime issues in pushfile() for gcc 7.X due to using tempfile as char string + misc. cleanup [Petar]
+//  V10.22 - Move templateStore to the heap, fix variable name in pushfile() [Petar]
 
 
 //  Created by Morris Swartz on 10/27/06.
@@ -127,7 +128,7 @@ using namespace edm;
 //! digits of filenum.
 //! \param filenum - an integer NNNN used in the filename template_summary_zpNNNN
 //****************************************************************
-bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > & thePixelTemp_ , std::string dir)
+bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > & pixelTemp , std::string dir)
 {
    // Add template stored in external file numbered filenum to theTemplateStore
    
@@ -524,9 +525,9 @@ bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > 
       
       // Add this template to the store
       
-      thePixelTemp_.push_back(theCurrentTemp);
+      pixelTemp.push_back(theCurrentTemp);
       
-      postInit(thePixelTemp_);
+      postInit(pixelTemp);
       return true;
       
    } else {
@@ -549,7 +550,7 @@ bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > 
 //! external file template_summary_zpNNNN where NNNN are four digits
 //! \param dbobject - db storing multiple template calibrations
 //****************************************************************
-bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore > & thePixelTemp_)
+bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vector< SiPixelTemplateStore > & pixelTemp)
 {
    // Add template stored in external dbobject to theTemplateStore
    
@@ -562,8 +563,10 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
    auto db(dbobject.reader());
    
    // Create a local template storage entry
-   SiPixelTemplateStore theCurrentTemp;
-   
+   /// SiPixelTemplateStore theCurrentTemp;    // large, don't allocate it on the stack
+   auto tmpPtr = std::make_unique<SiPixelTemplateStore>(); // must be allocated on the heap instead
+   auto & theCurrentTemp = *tmpPtr;
+
    // Fill the template storage for each template calibration stored in the db
    for(int m=0; m<db.numOfTempl(); ++m) {
       
@@ -942,10 +945,10 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
       
       // Add this template to the store
       
-      thePixelTemp_.push_back(theCurrentTemp);
+      pixelTemp.push_back(theCurrentTemp);
       
    }
-   postInit(thePixelTemp_);
+   postInit(pixelTemp);
    return true;
    
 } // TempInit
