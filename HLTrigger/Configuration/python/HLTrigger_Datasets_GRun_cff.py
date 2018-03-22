@@ -84,6 +84,12 @@ streamPhysicsCommissioning_datasetIsolatedBunch_selector.l1tResults = cms.InputT
 streamPhysicsCommissioning_datasetIsolatedBunch_selector.throw      = cms.bool(False)
 streamPhysicsCommissioning_datasetIsolatedBunch_selector.triggerConditions = cms.vstring('HLT_HcalIsolatedbunch_v4')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetMinimumBias_selector
+streamPhysicsCommissioning_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsCommissioning_datasetMinimumBias_selector.l1tResults = cms.InputTag('')
+streamPhysicsCommissioning_datasetMinimumBias_selector.throw      = cms.bool(False)
+streamPhysicsCommissioning_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_CaloJet500_NoJetID_v11')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetMonteCarlo_selector
 streamPhysicsCommissioning_datasetMonteCarlo_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsCommissioning_datasetMonteCarlo_selector.l1tResults = cms.InputTag('')
@@ -420,8 +426,8 @@ streamPhysicsHadronsTaus_datasetBTagCSV_selector.triggerConditions = cms.vstring
     'HLT_Mu12_DoublePFJets40_CaloBTagCSV_p79_v1', 
     'HLT_Mu12_DoublePFJets54MaxDeta1p6_DoubleCaloBTagCSV_p79_v1', 
     'HLT_Mu12_DoublePFJets62MaxDeta1p6_DoubleCaloBTagCSV_p79_v1', 
-    'HLT_PFHT300PT30_QuadPFJet_75_60_45_40_TriplePFBTagCSV_3p0_v7', 
-    'HLT_PFHT300PT30_QuadPFJet_75_60_45_40_v7', 
+    'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_TriplePFBTagDeepCSV_4p5_v1', 
+    'HLT_PFHT330PT30_QuadPFJet_75_60_45_40_v7', 
     'HLT_QuadPFJet103_88_75_15_BTagCSV_p013_VBF2_v7', 
     'HLT_QuadPFJet103_88_75_15_DoubleBTagCSV_p013_p08_VBF1_v7', 
     'HLT_QuadPFJet105_88_76_15_BTagCSV_p013_VBF2_v7', 
@@ -721,6 +727,12 @@ streamPhysicsMuons_datasetDoubleMuon_selector.hltResults = cms.InputTag('Trigger
 streamPhysicsMuons_datasetDoubleMuon_selector.l1tResults = cms.InputTag('')
 streamPhysicsMuons_datasetDoubleMuon_selector.throw      = cms.bool(False)
 streamPhysicsMuons_datasetDoubleMuon_selector.triggerConditions = cms.vstring(
+    'HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_v1', 
+    'HLT_DoubleL2Mu23NoVtx_2Cha_v1', 
+    'HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_Eta2p4_v1', 
+    'HLT_DoubleL2Mu25NoVtx_2Cha_CosmicSeed_v1', 
+    'HLT_DoubleL2Mu25NoVtx_2Cha_Eta2p4_v1', 
+    'HLT_DoubleL2Mu25NoVtx_2Cha_v1', 
     'HLT_DoubleL2Mu50_v2', 
     'HLT_DoubleMu3_DCA_PFMET50_PFMHT60_v8', 
     'HLT_DoubleMu3_DZ_PFMET50_PFMHT60_v8', 
