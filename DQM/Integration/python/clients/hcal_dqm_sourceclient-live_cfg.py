@@ -49,7 +49,6 @@ process = customise(process)
 process.DQMStore.verbose = 0
 process.source.minEventsPerLumi=100
 
-
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
 #-------------------------------------
@@ -99,6 +98,12 @@ process.emulTPDigis.inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis")
 process.emulTPDigis.RunZS = cms.bool(True)
 process.emulTPDigis.ZS_threshold = cms.uint32(0)
 process.hcalDigis.InputLabel = rawTag
+process.emulTPDigisNoTDCCut = process.emulTPDigis.clone()
+process.emulTPDigisNoTDCCut.parameters = cms.untracked.PSet(
+	ADCThresholdHF = cms.uint32(255),
+	TDCMaskHF = cms.uint64(0xFFFFFFFFFFFFFFFF)
+)
+
 
 # Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 
 #from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
@@ -177,6 +182,7 @@ process.preRecoPath = cms.Path(
 		process.hcalDigis
 		*process.castorDigis
 		*process.emulTPDigis
+		*process.emulTPDigisNoTDCCut
 )
 
 process.dqmPath = cms.EndPath(
