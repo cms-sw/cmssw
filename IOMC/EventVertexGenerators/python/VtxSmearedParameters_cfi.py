@@ -575,8 +575,7 @@ Realistic25ns13TeVEarly2017CollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.82054  )
 )
 
-# Placeholder for beam spot extracted from data for 2017 pp run @ 5 TeV
-# For now using the same parameters as Realistic25ns13TeVEarly2017Collision
+# Beam spot extracted from data for 2017 pp run @ 5 TeV
 Realistic5TeVppCollision2017VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(311),
