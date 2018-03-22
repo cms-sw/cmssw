@@ -581,18 +581,17 @@ Realistic25ns13TeVEarly2017CollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.82054  )
 )
 
-# Placeholder for beam spot extracted from data for 2017 pp run @ 5 TeV
-# For now using the same parameters as Realistic25ns13TeVEarly2017Collision
+# Beam spot extracted from data for 2017 pp run @ 5 TeV
 Realistic5TeVppCollision2017VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
-    BetaStar = cms.double(40.0),
-    Emittance = cms.double(3.319e-8),
+    BetaStar = cms.double(311),
+    Emittance = cms.double(3.8e-8),
     Alpha = cms.double(0.0),
-    SigmaZ = cms.double(3.5),
+    SigmaZ = cms.double(5.82),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(-0.024755),
-    Y0 = cms.double(0.069233 ),
-    Z0 = cms.double(0.82054  )
+    X0 = cms.double(-0.0228),
+    Y0 = cms.double(0.0795),
+    Z0 = cms.double(0.619)
 )
 
 # Test HF offset
