@@ -31,6 +31,8 @@ process.load('RecoLocalMuon.GEMRecHit.gemLocalReco_cff')
 process.load('Validation.MuonGEMHits.MuonGEMHits_cff')
 process.load('Validation.MuonGEMDigis.MuonGEMDigis_cff')
 process.load('Validation.MuonGEMRecHits.MuonGEMRecHits_cff')
+process.load('Configuration.StandardSequences.Validation_cff')
+process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 
 #process.load('Configuration.StandardSequences.Validation_cff')
 #process.load('Configuration.StandardSequences.Harvesting_cff')
@@ -38,7 +40,6 @@ process.load('Validation.MuonGEMRecHits.MuonGEMRecHits_cff')
 #process.load('DQMServices.Components.EDMtoMEConverter_cff')
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(5000))
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -65,6 +66,17 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring( ('keep *')),
     splitLevel = cms.untracked.int32(0)
 )
+
+process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('DQMIO'),
+        filterName = cms.untracked.string('')
+    ),
+    fileName = cms.untracked.string('file:dqm.root'),
+    outputCommands = process.DQMEventContent.outputCommands,
+    splitLevel = cms.untracked.int32(0)
+)
+
 #process.FEVTDEBUGHLToutput.outputCommands.append()
 
 # Additional output definition
@@ -137,12 +149,12 @@ process.DQMStore = cms.Service("DQMStore",
     verbose = cms.untracked.int32(1)
 )
 
-process.gemSimHitValidation.detailPlot = cms.bool(True)
-process.gemSimTrackValidation.detailPlot = cms.bool(True)
-process.gemStripValidation.detailPlot = cms.bool(True)
-process.gemDigiTrackValidation.detailPlot = cms.bool(True)
-process.gemRecHitsValidation.detailPlot = cms.bool(True)
-process.gemRecHitTrackValidation.detailPlot = cms.bool(True)
+#process.gemSimHitValidation.detailPlot = cms.bool(True)
+#process.gemSimTrackValidation.detailPlot = cms.bool(True)
+#process.gemStripValidation.detailPlot = cms.bool(True)
+#process.gemDigiTrackValidation.detailPlot = cms.bool(True)
+#process.gemRecHitsValidation.detailPlot = cms.bool(True)
+#process.gemRecHitTrackValidation.detailPlot = cms.bool(True)
 
 process.rawDataCollector.RawCollectionList = cms.VInputTag(cms.InputTag("gemPacker"))
 # Path and EndPath definitions
@@ -153,20 +165,22 @@ process.raw2digi_step = cms.Path(process.muonGEMDigis)
 process.digitisation_step = cms.Path(process.randomEngineStateProducer+process.mix+process.simMuonGEMDigis)
 process.reconstruction_step = cms.Path(process.gemLocalReco+process.GEMCosmicMuon+process.GEMCosmicMuonInSide)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
-process.endjob_step = cms.EndPath(process.endOfProcess)
+#process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 process.validation_step = cms.Path(process.gemSimValidation
                                 +process.gemStripValidation+process.gemDigiTrackValidation
                                 +process.gemLocalRecoValidation)
+process.dqmoffline_step = cms.EndPath(process.DQMOffline)
+process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,
                                 process.digitisation_step,
                                 process.digi2raw_step,process.raw2digi_step,process.reconstruction_step,
-                                process.validation_step,process.endjob_step,
+                                process.validation_step,#process.endjob_step,
                                 #process.genHarvesting,
-                                #process.dqmsave_step,
+                                process.DQMoutput_step,
                                 process.FEVTDEBUGHLToutput_step
-                                    )
+                                )
 
 
 process.RandomNumberGeneratorService.simMuonGEMDigis = cms.PSet(

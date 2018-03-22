@@ -1,4 +1,4 @@
-#include "Validation/MuonGEMRecHits/interface/GEMRecHitsValidation.h"
+#include "Validation/MuonGEMRecHits/interface/GEMEfficiencyValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -6,32 +6,32 @@
 
 using namespace std;
 
-GEMRecHitsValidation::GEMRecHitsValidation(const edm::ParameterSet& cfg): GEMBaseValidation(cfg)
+GEMEfficiencyValidation::GEMEfficiencyValidation(const edm::ParameterSet& cfg): GEMBaseValidation(cfg)
 {
   InputTagToken_   = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("simInputLabel"));
   InputTagToken_RH = consumes<GEMRecHitCollection>(cfg.getParameter<edm::InputTag>("recHitsInputLabel"));
   detailPlot_ = cfg.getParameter<bool>("detailPlot");
 }
 
-MonitorElement* GEMRecHitsValidation::BookHist1D( DQMStore::IBooker& ibooker, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num, const unsigned int Nbin, const Float_t xMin, const Float_t xMax) {                                                                            
+MonitorElement* GEMEfficiencyValidation::BookHist1D( DQMStore::IBooker& ibooker, const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num, const unsigned int Nbin, const Float_t xMin, const Float_t xMax) {                                                                            
   string hist_name  = name+getSuffixName( region_num, station_num+1, layer_num+1);
   string hist_label = label+string(" : ")+getSuffixTitle( region_num, station_num+1, layer_num+1);
   return ibooker.book1D( hist_name, hist_label,Nbin,xMin,xMax ); 
 }
 
-MonitorElement* GEMRecHitsValidation::BookHist1D( DQMStore::IBooker& ibooker, const char* name, const char* label, unsigned int region_num, const unsigned int Nbin, const Float_t xMin, const Float_t xMax) {
+MonitorElement* GEMEfficiencyValidation::BookHist1D( DQMStore::IBooker& ibooker, const char* name, const char* label, unsigned int region_num, const unsigned int Nbin, const Float_t xMin, const Float_t xMax) {
   string hist_name  = name+getSuffixName( region_num);
   string hist_label = label+string(" : ")+getSuffixName( region_num ) ;
   return ibooker.book1D( hist_name, hist_label,Nbin,xMin,xMax );
 }
 
-void GEMRecHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
+void GEMEfficiencyValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
   const GEMGeometry* GEMGeometry_ = initGeometry(iSetup);
   if ( GEMGeometry_ == nullptr) return ;  
 
-  LogDebug("GEMRecHitsValidation")<<"Geometry is acquired from MuonGeometryRecord\n";
+  LogDebug("GEMEfficiencyValidation")<<"Geometry is acquired from MuonGeometryRecord\n";
   ibooker.setCurrentFolder("MuonGEMRecHitsV/GEMRecHitsTask");
-  LogDebug("GEMRecHitsValidation")<<"ibooker set current folder\n";
+  LogDebug("GEMEfficiencyValidation")<<"ibooker set current folder\n";
 
 
   gem_cls_tot = ibooker.book1D("gem_cls_tot","ClusterSize Distribution",11,-0.5,10.5);
@@ -86,14 +86,14 @@ void GEMRecHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
       }
     }
   }
-  LogDebug("GEMRecHitsValidation")<<"Booking End.\n";
+  LogDebug("GEMEfficiencyValidation")<<"Booking End.\n";
 }
 
 
-GEMRecHitsValidation::~GEMRecHitsValidation() {
+GEMEfficiencyValidation::~GEMEfficiencyValidation() {
 }
 
-void GEMRecHitsValidation::analyze(const edm::Event& e,
+void GEMEfficiencyValidation::analyze(const edm::Event& e,
     const edm::EventSetup& iSetup)
 {
   const GEMGeometry* GEMGeometry_  = initGeometry(iSetup);
@@ -104,7 +104,7 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
   e.getByToken( this->InputTagToken_, gemSimHits);
   e.getByToken( this->InputTagToken_RH,gemRecHits);
   if (!gemRecHits.isValid()) {
-    edm::LogError("GEMRecHitsValidation") << "Cannot get strips by Token RecHits Token.\n";
+    edm::LogError("GEMEfficiencyValidation") << "Cannot get strips by Token RecHits Token.\n";
     return ;
   }
   for (edm::PSimHitContainer::const_iterator hits = gemSimHits->begin(); hits!=gemSimHits->end(); ++hits) {
@@ -183,7 +183,7 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
       const bool cond3(std::find(stripsFired.begin(), stripsFired.end(), (sh_strip + 1)) != stripsFired.end());
 
       if(cond1 and cond2 and cond3){
-        LogDebug("GEMRecHitsValidation")<< " Region : " << rh_region << "\t Station : " << rh_station
+        LogDebug("GEMEfficiencyValidation")<< " Region : " << rh_region << "\t Station : " << rh_station
           << "\t Layer : "<< rh_layer << "\n Radius: " << rh_g_R << "\t X : " << rh_g_X << "\t Y : "<< rh_g_Y << "\t Z : " << rh_g_Z << std::endl;	
 
         // int region_num=0 ;
@@ -197,18 +197,18 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
         // Fill normal plots.
         TString histname_suffix = TString::Format("_r%d",rh_region);
         TString simple_zr_histname = TString::Format("rh_simple_zr%s",histname_suffix.Data());
-        LogDebug("GEMRecHitsValidation")<< " simpleZR!\n";
+        LogDebug("GEMEfficiencyValidation")<< " simpleZR!\n";
         recHits_simple_zr[simple_zr_histname.Hash()]->Fill( fabs(rh_g_Z), rh_g_R);
 
         histname_suffix = TString::Format("_r%d_st%d",rh_region, rh_station);
         TString dcEta_histname = TString::Format("rh_dcEta%s",histname_suffix.Data());
-        LogDebug("GEMRecHitsValidation")<< " dcEta\n";
+        LogDebug("GEMEfficiencyValidation")<< " dcEta\n";
         recHits_dcEta[dcEta_histname.Hash()]->Fill( binX, binY);
 
         gem_cls_tot->Fill(clusterSize);
         gem_region_pullX[0]->Fill(rh_pullX);
         gem_region_pullY[0]->Fill(rh_pullY);
-        LogDebug("GEMRecHitsValidation")<< " Begin detailPlot!\n";
+        LogDebug("GEMEfficiencyValidation")<< " Begin detailPlot!\n";
 
         if(detailPlot_){
           gem_cls[0][station_num][layer_num]->Fill(clusterSize);
