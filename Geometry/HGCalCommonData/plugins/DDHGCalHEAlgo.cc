@@ -14,13 +14,15 @@
 
 //#define EDM_ML_DEBUG
 
-DDHGCalHEAlgo::DDHGCalHEAlgo() {
+DDHGCalHEAlgo::DDHGCalHEAlgo() : waferType_(nullptr) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Creating an instance";
 #endif
 }
 
-DDHGCalHEAlgo::~DDHGCalHEAlgo() {}
+DDHGCalHEAlgo::~DDHGCalHEAlgo() {
+  delete waferType_;
+}
 
 void DDHGCalHEAlgo::initialize(const DDNumericArguments & nArgs,
 			       const DDVectorArguments & vArgs,
@@ -131,18 +133,24 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments & nArgs,
 				  << layerSenseBot_[i];
 #endif
   zMinBlock_    = nArgs["zMinBlock"];
-  rMaxFine_     = nArgs["rMaxFine"];
-  rMinThick_    = nArgs["rMinThick"];
+  rad100to200_  = vArgs["rad100to200"];
+  rad200to300_  = vArgs["rad200to300"];
+  zMinRadPar_   = nArgs["zMinForRadPar"];
+  nCutRadPar_   = (int)(nArgs["nCornerCut"]);
   waferSize_    = nArgs["waferSize"];
   waferSepar_   = nArgs["SensorSeparation"];
   sectors_      = (int)(nArgs["Sectors"]);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: zStart " << zMinBlock_ 
-				<< " rFineCoarse " << rMaxFine_ 
-				<< " rMaxThick " << rMinThick_
+				<< " radius for wafer type separation uses "
+				<< rad100to200_.size() << " parameters; zmin "
+				<< zMinRadPar_ << " cutoff " << nCutRadPar_
 				<< " wafer width " << waferSize_ 
 				<< " separations " << waferSepar_
 				<< " sectors " << sectors_;
+  for (unsigned int k=0; k<rad100to200_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] 100-200 " <<rad100to200_[k]
+				  << " 200-300 " << rad200to300_[k];
 #endif
   slopeB_       = vArgs["SlopeBottom"];
   slopeT_       = vArgs["SlopeTop"];
@@ -161,6 +169,10 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments & nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: NameSpace " << nameSpace_;
 #endif
+
+  waferType_ = new HGCalWaferType(rad100to200_, rad200to300_,
+				  (waferSize_+waferSepar_), zMinRadPar_, 
+				  nCutRadPar_);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -261,7 +273,7 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module,
 				      << " number "	<< copy;
 #endif
 	positionMix(glog, name, copy, thick_[ii], matter, rinB, rMixLayer_[i],
-		    routF, cpv);
+		    routF, zz, cpv);
       }
       DDTranslation r1(0,0,zz);
       DDRotation rot;
@@ -314,7 +326,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
 				const std::string& nameM, int copyM, 
 				double thick, const DDMaterial& matter,
 				double rin, double rmid, double rout, 
-				DDCompactView& cpv) {
+				double zz, DDCompactView& cpv) {
   
   DDLogicalPart glog1;
   DDTranslation tran;
@@ -449,10 +461,10 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
 				  << glog1.name() << " at " << r1
 				  << " with " << rot;
 #endif
+    if (layerSenseBot_[ly] != 0)
+      positionSensitive(glog2,rin,rmid,zz+zpos,layerSenseBot_[ly],cpv);
     zpos += hthickl;
     ++copyNumberBot_[ii];
-    if (layerSenseBot_[ly] != 0)
-      positionSensitive(glog2,rin,rmid,layerSenseBot_[ly],cpv);
   }
   if (fabs(thickTot-thick) < 0.00001) {
   } else if (thickTot > thick) {
@@ -468,7 +480,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
 }
 
 void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
-				      double rout, int layertype,
+				      double rout, double zpos, int layertype,
 				      DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
   double r    = 0.5*(waferSize_ + waferSepar_);
@@ -507,7 +519,8 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
       ++ntot;
 #endif
       if (cornerOne) {
-	int copy = iv*100 + iu;
+	int type = waferType_->getType(xpos,ypos,zpos);
+	int copy = type*1000000 + iv*100 + iu;
 	if (u < 0) copy += 10000;
 	if (v < 0) copy += 100000;
 #ifdef EDM_ML_DEBUG
@@ -522,10 +535,8 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
 	  if (iv > ivmAll) ivmAll = iv;
 	  ++nin;
 #endif
-	  double rpos = std::sqrt(xpos*xpos+ypos*ypos);
 	  DDTranslation tran(xpos, ypos, 0.0);
 	  DDRotation rotation;
-	  int type = (rpos < rMaxFine_) ? 0 : ((rpos < rMinThick_) ? 1 : 2);
 	  if (layertype > 1) type += 3;
 	  DDName name = DDName(DDSplit(wafers_[type]).first, 
 			       DDSplit(wafers_[type]).second);
