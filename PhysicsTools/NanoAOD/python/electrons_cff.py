@@ -100,20 +100,6 @@ ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
 run2_miniAOD_80XLegacy.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsUpdated")
 run2_nanoAOD_92X.toModify(ptRatioRelForEle, srcLep = "slimmedElectronsUpdated")
 
-from EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi import calibratedPatElectrons
-calibratedPatElectrons.correctionFile = cms.string("PhysicsTools/NanoAOD/data/80X_ichepV1_2016_ele") # hack, should go somewhere in EgammaAnalysis
-calibratedPatElectrons.semiDeterministic = cms.bool(True)
-run2_miniAOD_80XLegacy.toModify(calibratedPatElectrons, electrons = "slimmedElectronsUpdated")
-run2_nanoAOD_92X.toModify(calibratedPatElectrons, electrons = "slimmedElectronsUpdated")
-
-energyCorrForEle =  cms.EDProducer("ElectronEnergyVarProducer",
-    srcRaw = cms.InputTag("slimmedElectrons"),
-    srcCorr = cms.InputTag("calibratedPatElectrons"),
-)
-run2_miniAOD_80XLegacy.toModify(energyCorrForEle, srcRaw = "slimmedElectronsUpdated")
-run2_nanoAOD_92X.toModify(energyCorrForEle, srcRaw = "slimmedElectronsUpdated")
-
-
 slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
     src = cms.InputTag("slimmedElectrons"),
     userFloats = cms.PSet(
@@ -127,7 +113,6 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
         ptRatio = cms.InputTag("ptRatioRelForEle:ptRatio"),
         ptRel = cms.InputTag("ptRatioRelForEle:ptRel"),
         jetNDauChargedMVASel = cms.InputTag("ptRatioRelForEle:jetNDauChargedMVASel"),
-        eCorr = cms.InputTag("energyCorrForEle:eCorr"),
     ),
     userIntFromBools = cms.PSet(
         mvaFall17Iso_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V1-wp90"),
@@ -215,8 +200,8 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     variables = cms.PSet(CandVars,
         jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
         photonIdx = Var("?overlaps('photons').size()>0?overlaps('photons')[0].key():-1", int, doc="index of the associated photon (-1 if none)"),
-        energyErr = Var("p4Error('P4_COMBINATION')*userFloat('eCorr')",float,doc="energy error of the cluster-track combination",precision=6),
-        eCorr = Var("userFloat('eCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
+        energyErr = Var("userFloat('ecalTrkEnergyErrPostCorr')",float,doc="energy error of the cluster-track combination",precision=6),
+        eCorr = Var("userFloat('ecalTrkEnergyPostCorr')/userFloat('ecalTrkEnergyPreCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
         dz = Var("dB('PVDZ')",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
         dzErr = Var("abs(edB('PVDZ'))",float,doc="dz uncertainty, in cm",precision=6),
         dxy = Var("dB('PV2D')",float,doc="dxy (with sign) wrt first PV, in cm",precision=10),
@@ -255,7 +240,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         mvaTTH = ExtVar(cms.InputTag("electronMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
     ),
 )
-electronTable.variables.pt = Var("pt*userFloat('eCorr')",  float, precision=-1, doc="p_{T} after energy correction & smearing")
+electronTable.variables.pt = Var("pt*userFloat('ecalTrkEnergyPostCorr')/userFloat('ecalTrkEnergyPreCorr')",  float, precision=-1, doc="p_{T} after energy correction & smearing")
 run2_miniAOD_80XLegacy.toModify(electronTable.variables,
     cutBased_HLTPreSel = Var("userInt('cutbasedID_HLT')",int,doc="cut-based HLT pre-selection ID"),
     mvaSpring16GP = Var("userFloat('mvaSpring16GP')",float,doc="MVA general-purpose ID score"),
@@ -294,7 +279,7 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 electrons or photons"),
 )
 
-electronSequence = cms.Sequence(heepIDVarValueMaps + egmGsfElectronIDSequence + bitmapVIDForEle + isoForEle + ptRatioRelForEle + calibratedPatElectrons + energyCorrForEle + slimmedElectronsWithUserData + finalElectrons)
+electronSequence = cms.Sequence(heepIDVarValueMaps + egmGsfElectronIDSequence + bitmapVIDForEle + isoForEle + ptRatioRelForEle + slimmedElectronsWithUserData + finalElectrons)
 electronTables = cms.Sequence (electronMVATTH + electronTable)
 electronMC = cms.Sequence(electronsMCMatchForTable + electronMCTable)
 
