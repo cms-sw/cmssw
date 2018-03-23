@@ -41,3 +41,22 @@ muonlocalreco = cms.Sequence(dtlocalreco+csclocalreco+rpcRecHits)
 muonlocalrecoT0Seg = cms.Sequence(dtlocalrecoT0Seg+csclocalreco+rpcRecHits)
 # all sequences to be used for GR
 muonLocalRecoGR = cms.Sequence(muonlocalreco+muonlocalrecoT0Seg)
+
+from RecoLocalMuon.GEMRecHit.gemLocalReco_cff import *
+from RecoLocalMuon.GEMRecHit.me0LocalReco_cff import *
+
+_run2_GEM_2017_muonlocalreco = muonlocalreco.copy()
+_run2_GEM_2017_muonlocalreco += gemLocalReco
+
+_run3_muonlocalreco = muonlocalreco.copy()
+_run3_muonlocalreco += gemLocalReco
+
+_phase2_muonlocalreco = _run3_muonlocalreco.copy()
+_phase2_muonlocalreco += me0LocalReco
+
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+run2_GEM_2017.toReplaceWith( muonlocalreco , _run2_GEM_2017_muonlocalreco )
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toReplaceWith( muonlocalreco , _run3_muonlocalreco )
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toReplaceWith( muonlocalreco , _phase2_muonlocalreco )
