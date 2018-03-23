@@ -14,8 +14,8 @@ namespace {
   struct Stat {
     Stat(): tot(0),
     nopd(0), jnopd(0), fnopd(0),
-    inopd(0), ijnopd(0), ifnopd(0)
-    {}
+    inopd(0), ijnopd(0), ifnopd(0),dtot(0)
+    {for (int i=0;i<5;++i) idmm[i]=0; }
 
     std::atomic<long long> tot;
     std::atomic<long long> nopd;
@@ -25,8 +25,17 @@ namespace {
     std::atomic<long long> ijnopd;
     std::atomic<long long> ifnopd;
 
+    std::atomic<unsigned long long> dtot;
+    std::atomic<unsigned long long> idmm[5];
+    double mm = 0;
+    double dmm[5] = {0};
+    bool ok=true;
     ~Stat() {
-       std::cout << "KF " << tot 
+       double n = 1.e-3/double(dtot);
+       std::cout << "KF " << tot*1.e-9 << "G " << mm <<" "
+         <<dmm[0]<<'/'<<dmm[1]<<'/'<<dmm[2]<<'/'<<dmm[3]<<'/'<<dmm[4]<< '\n' 
+         <<dtot << ' ' <<idmm[0]<<'/'<<idmm[1]<<'/'<<idmm[2]<<'/'<<idmm[3]<<'/'<<idmm[4]<< '\n'
+         <<std::sqrt(idmm[0]*n)<<'/'<<std::sqrt(idmm[1]*n)<<'/'<<std::sqrt(idmm[2]*n)<<'/'<<std::sqrt(idmm[3]*n)<<'/'<<std::sqrt(idmm[4]*n)
          << " " << nopd << " " << jnopd << " " << fnopd
          << " " << inopd << " " << ijnopd << " " << ifnopd
          << std::endl;
@@ -98,6 +107,23 @@ TrajectoryStateOnSurface lupdate(const TrajectoryStateOnSurface& tsos,
   if (n1) stat.jnopd++;
   if (n2) stat.fnopd++;
 
+  AlgebraicSymMatrix55 dd = fse2-fse;
+  auto dda = dd.Array();
+  auto fsa = fse.Array();
+  double ddd[15];
+  for (int i=0; i<15; ++i) ddd[i] = std::abs(dda[i])/std::abs(fsa[i]);
+  auto mm = *std::max_element(ddd,ddd+15);
+  stat.mm = std::max(stat.mm,mm);
+  if (stat.ok && !(n1||n2)) {
+   stat.dtot++;
+   for (int i=0; i<5; ++i) {
+     auto dmm = std::sqrt(fse2(i,i)) - std::sqrt(fse(i,i));
+     stat.dmm[i] = std::max(stat.dmm[i],std::abs(dmm));
+     stat.idmm[i] += (unsigned long long)(1000.*dmm*dmm);
+     if (stat.idmm[i] > std::numeric_limits<long long>::max() ) stat.ok=false;
+   }
+  }
+
   AlgebraicSymMatrix55 ifse = fse; invertPosDefMatrix(ifse);
   AlgebraicSymMatrix55 ifse2 = fse2; invertPosDefMatrix(ifse2);
   n1 = isNopd(ifse);
@@ -105,7 +131,6 @@ TrajectoryStateOnSurface lupdate(const TrajectoryStateOnSurface& tsos,
   if (n1&&n2) stat.inopd++;
   if (n1) stat.ijnopd++;
   if (n2) stat.ifnopd++;
-
 
 
   /*
