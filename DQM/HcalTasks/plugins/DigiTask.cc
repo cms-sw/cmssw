@@ -602,6 +602,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	{
 		//	Explicit check on the DetIds present in the Collection
 		HcalDetId const& did = it->id();
+		if (did.subdet() != HcalBarrel) {
+			continue;
+		}
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (rawid==0) 
 		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
