@@ -16,10 +16,8 @@ class HGCalBackendLayer1Processor : public HGCalBackendLayer1ProcessorBase
 		HGCalBackendLayer1ProcessorBase(conf),
 		HGCalEESensitive_( conf.getParameter<std::string>("HGCalEESensitive_tag") ),
                 HGCalHESiliconSensitive_( conf.getParameter<std::string>("HGCalHESiliconSensitive_tag") ),
-		//calibration_( conf.getParameterSet("calib_parameters") ),
 		clustering_( conf.getParameterSet("C2d_parameters") )
-		//emi multiclustering_( conf.getParameterSet("C3d_parameters" ) )
-       {
+        {
             std::string typeCluster(conf.getParameterSet("C2d_parameters").getParameter<std::string>("clusterType"));
             if(typeCluster=="dRC2d"){
                 clusteringAlgorithmType_ = dRC2d;

@@ -4,9 +4,6 @@
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
-//#include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
-#include "L1Trigger/L1THGCal/interface/backend/HGCalTriggerCellCalibration.h"
-#include "L1Trigger/L1THGCal/interface/backend/HGCalClusteringImpl.h"
 #include "L1Trigger/L1THGCal/interface/backend/HGCalMulticlusteringImpl.h"    
 
 
@@ -72,19 +69,19 @@ class HGCalBackendLayer2Processor : public HGCalBackendLayer2ProcessorBase
     
     private:
     
-        /* pointers to collections of trigger-cells, clusters and multiclusters */
-        std::unique_ptr<l1t::HGCalMulticlusterBxCollection> multicluster_product_;
+       /* pointers to collections of trigger-cells, clusters and multiclusters */
+       std::unique_ptr<l1t::HGCalMulticlusterBxCollection> multicluster_product_;
     
-        edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
+       edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
 
-        /* algorithms instances */
-        HGCalMulticlusteringImpl multiclustering_;
+       /* algorithms instances */
+       HGCalMulticlusteringImpl multiclustering_;
 
-        /* algorithm type */
-        ClusterType clusteringAlgorithmType_;
-        double triggercell_threshold_silicon_;
-        double triggercell_threshold_scintillator_;
-        MulticlusterType multiclusteringAlgoType_;
+       /* algorithm type */
+       ClusterType clusteringAlgorithmType_;
+       double triggercell_threshold_silicon_;
+       double triggercell_threshold_scintillator_;
+       MulticlusterType multiclusteringAlgoType_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalBackendLayer2Factory, 
