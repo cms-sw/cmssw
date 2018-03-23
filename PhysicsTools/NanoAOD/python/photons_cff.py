@@ -2,6 +2,10 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 from math import ceil,log
 
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.Eras.Modifier_run2_nanoAOD_92X_cff import run2_nanoAOD_92X
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import setupVIDSelection
 from RecoEgamma.PhotonIdentification.egmPhotonIDs_cfi import *
 from RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi import *
@@ -47,6 +51,21 @@ isoForPho = cms.EDProducer("PhoIsoValueMapProducer",
     EAFile_PFIso_Pho = cms.FileInPath("RecoEgamma/PhotonIdentification/data/Spring16/effAreaPhotons_cone03_pfPhotons_90percentBased.txt"),
 )
 
+import EgammaAnalysis.ElectronTools.calibratedPhotonsRun2_cfi
+calibratedPatPhotons80X = EgammaAnalysis.ElectronTools.calibratedPhotonsRun2_cfi.calibratedPatPhotons.clone(
+    correctionFile = cms.string("PhysicsTools/NanoAOD/data/80X_ichepV2_2016_pho"), # hack, should go somewhere in EgammaAnalysis
+    semiDeterministic = cms.bool(True),
+)
+energyCorrForPhoton80X = cms.EDProducer("PhotonEnergyVarProducer",
+    srcRaw = cms.InputTag("slimmedPhotons"),
+    srcCorr = cms.InputTag("calibratedPatPhotons80X"),
+)
+import RecoEgamma.EgammaTools.calibratedEgammas_cff
+calibratedPatPhotons94Xv1 = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatPhotons.clone(
+    produceCalibratedObjs = False
+)
+
+
 slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
     src = cms.InputTag("slimmedPhotons"),
     userFloats = cms.PSet(
@@ -64,6 +83,14 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
     userInts = cms.PSet(
         VIDNestedWPBitmap = cms.InputTag("bitmapVIDForPho"),
     ),
+)
+run2_miniAOD_80XLegacy.toModify(slimmedPhotonsWithUserData.userFloats,
+    eCorr = cms.InputTag("energyCorrForPhoton80X","eCorr")
+)
+run2_nanoAOD_94XMiniAODv1.toModify(slimmedPhotonsWithUserData.userFloats,
+    ecalEnergyErrPostCorr = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyErrPostCorr"),
+    ecalEnergyPreCorr     = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPreCorr"),
+    ecalEnergyPostCorr    = cms.InputTag("calibratedPatPhotons94Xv1","ecalEnergyPostCorr"),
 )
 
 finalPhotons = cms.EDFilter("PATPhotonRefSelector",
@@ -100,6 +127,22 @@ photonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     )
 )
 photonTable.variables.pt = Var("pt*userFloat('ecalEnergyPostCorr')/userFloat('ecalEnergyPreCorr')",  float, precision=-1)
+run2_miniAOD_80XLegacy.toModify(photonTable.variables,
+    pt = Var("pt*userFloat('eCorr')",  float, precision=-1, doc="p_{T} (no energy correction & smearing)"),
+    energyErr = Var("getCorrectedEnergyError('regression2')*userFloat('eCorr')",float,doc="energy error of the cluster from regression",precision=6),
+    eCorr = Var("userFloat('eCorr')",float,doc="ratio of the calibrated energy/miniaod energy"),
+)
+run2_nanoAOD_92X.toModify(photonTable.variables,
+    pt = Var("pt",  float, precision=-1, doc="p_{T} (no energy correction & smearing)"),
+    energyErr = Var("getCorrectedEnergyError('regression2')",float,doc="energy error of the cluster from regression",precision=6),
+    eCorr = None,
+)
+#run2_nanoAOD_94XMiniAODv1.toModify(photonTable.variables,
+#    pt = Var("pt",  float, precision=-1, doc="p_{T} (no energy correction & smearing)"),
+#    energyErr = Var("getCorrectedEnergyError('regression2')",float,doc="energy error of the cluster from regression",precision=6),
+#    eCorr = None,
+#)
+
 
 photonsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = photonTable.src,                 # final reco collection
@@ -125,3 +168,12 @@ photonMCTable = cms.EDProducer("CandMCMatchTableProducer",
 photonSequence = cms.Sequence(egmPhotonIDSequence + bitmapVIDForPho + isoForPho + slimmedPhotonsWithUserData + finalPhotons)
 photonTables = cms.Sequence ( photonTable)
 photonMC = cms.Sequence(photonsMCMatchForTable + photonMCTable)
+
+_with80XScale_sequence = photonSequence.copy()
+_with80XScale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotons80X + energyCorrForPhoton80X + slimmedPhotonsWithUserData)
+run2_miniAOD_80XLegacy.toReplaceWith(photonSequence, _with80XScale_sequence)
+
+_with94Xv1Scale_sequence = photonSequence.copy()
+_with94Xv1Scale_sequence.replace(slimmedPhotonsWithUserData, calibratedPatPhotons94Xv1 + slimmedPhotonsWithUserData)
+run2_nanoAOD_94XMiniAODv1.toReplaceWith(photonSequence, _with94Xv1Scale_sequence)
+
