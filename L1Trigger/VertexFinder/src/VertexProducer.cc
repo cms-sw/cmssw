@@ -1,4 +1,4 @@
-#include <TMTrackTrigger/l1VertexFinder/interface/VertexProducer.h>
+#include <L1Trigger/VertexFinder/interface/VertexProducer.h>
 
 #include <iostream>
 #include <vector>
@@ -9,10 +9,10 @@
 
 #include "DataFormats/L1TVertex/interface/Vertex.h"
 
-#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
-#include "TMTrackTrigger/l1VertexFinder/interface/VertexFinder.h"
+#include "L1Trigger/VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/VertexFinder.h"
 
-#include "TMTrackTrigger/l1VertexFinder/interface/RecoVertexWithTP.h"
+#include "L1Trigger/VertexFinder/interface/RecoVertexWithTP.h"
 
 using namespace l1tVertexFinder;
 using namespace std;

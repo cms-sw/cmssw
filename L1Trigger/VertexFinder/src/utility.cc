@@ -1,12 +1,12 @@
 
-#include "TMTrackTrigger/l1VertexFinder/interface/utility.h"
+#include "L1Trigger/VertexFinder/interface/utility.h"
 
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "TMTrackTrigger/l1VertexFinder/interface/TP.h"
-#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
-#include "TMTrackTrigger/l1VertexFinder/interface/Stub.h"
+#include "L1Trigger/VertexFinder/interface/TP.h"
+#include "L1Trigger/VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/Stub.h"
 
 
 

@@ -1,11 +1,11 @@
-#ifndef __TMTrackTrigger_VertexFinder_Vertex_h__
-#define __TMTrackTrigger_VertexFinder_Vertex_h__
+#ifndef __L1Trigger_VertexFinder_Vertex_h__
+#define __L1Trigger_VertexFinder_Vertex_h__
 
 
 #include <vector>
 
-#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
-#include "TMTrackTrigger/l1VertexFinder/interface/TP.h"
+#include "L1Trigger/VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/TP.h"
 
 
 

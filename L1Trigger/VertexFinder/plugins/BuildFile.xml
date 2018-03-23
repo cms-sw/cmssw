@@ -22,9 +22,9 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="CondFormats/DataRecord"/>
-<use name="TMTrackTrigger/l1VertexFinder"/>
+<use name="L1Trigger/VertexFinder"/>
 <flags CXXFLAGS="-g -Wno-unused-variable"/>
-<library   file="*.cc" name="TMTMTrackTriggerVertexFinderPlugins">
-  <flags   EDM_PLUGIN="1"/>
+<library file="*.cc" name="L1TriggerVertexFinderPlugins">
+  <flags EDM_PLUGIN="1"/>
 </library>
 

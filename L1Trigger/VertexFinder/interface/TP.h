@@ -1,11 +1,11 @@
-#ifndef __TMTrackTrigger_VertexFinder_TP_h__
-#define __TMTrackTrigger_VertexFinder_TP_h__
+#ifndef __L1Trigger_VertexFinder_TP_h__
+#define __L1Trigger_VertexFinder_TP_h__
 
 
 #include "DataFormats/Common/interface/Ptr.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-#include "TMTrackTrigger/l1VertexFinder/interface/utility.h"
+#include "L1Trigger/VertexFinder/interface/utility.h"
 
 
 

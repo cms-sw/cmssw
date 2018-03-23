@@ -1,5 +1,5 @@
-#ifndef __TMTrackTrigger_VertexFinder_L1fittedTrack_h__
-#define __TMTrackTrigger_VertexFinder_L1fittedTrack_h__
+#ifndef __L1Trigger_VertexFinder_L1fittedTrack_h__
+#define __L1Trigger_VertexFinder_L1fittedTrack_h__
 
 
 #include <vector>
@@ -12,7 +12,7 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 
-#include "TMTrackTrigger/l1VertexFinder/interface/L1fittedTrackBase.h"
+#include "L1Trigger/VertexFinder/interface/L1fittedTrackBase.h"
 
 class TrackerGeometry;
 class TrackerTopology;

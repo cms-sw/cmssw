@@ -1,8 +1,8 @@
 
-#include "TMTrackTrigger/l1VertexFinder/interface/VertexFinder.h"
+#include "L1Trigger/VertexFinder/interface/VertexFinder.h"
 
 
-#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/Settings.h"
 
 
 

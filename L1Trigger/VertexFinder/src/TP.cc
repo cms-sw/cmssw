@@ -1,11 +1,11 @@
 
-#include "TMTrackTrigger/l1VertexFinder/interface/TP.h"
+#include "L1Trigger/VertexFinder/interface/TP.h"
 
 
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 
-#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
-#include "TMTrackTrigger/l1VertexFinder/interface/Stub.h"
+#include "L1Trigger/VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/Stub.h"
 
 
 

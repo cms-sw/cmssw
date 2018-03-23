@@ -1,5 +1,5 @@
 
-#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/Settings.h"
 
 
 #include "FWCore/Utilities/interface/Exception.h"

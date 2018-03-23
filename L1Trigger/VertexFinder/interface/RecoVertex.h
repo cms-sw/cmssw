@@ -1,12 +1,12 @@
-#ifndef __TMTrackTrigger_VertexFinder_RecoVertex_h__
-#define __TMTrackTrigger_VertexFinder_RecoVertex_h__
+#ifndef __L1Trigger_VertexFinder_RecoVertex_h__
+#define __L1Trigger_VertexFinder_RecoVertex_h__
 
 
 #include <set>
 #include <vector>
 
-#include "TMTrackTrigger/l1VertexFinder/interface/TP.h"
-#include "TMTrackTrigger/l1VertexFinder/interface/L1fittedTrack.h"
+#include "L1Trigger/VertexFinder/interface/TP.h"
+#include "L1Trigger/VertexFinder/interface/L1fittedTrack.h"
 
 
 

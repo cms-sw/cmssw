@@ -1,5 +1,5 @@
-#ifndef __TMTrackTrigger_VertexFinder_utility_h__
-#define __TMTrackTrigger_VertexFinder_utility_h__
+#ifndef __L1Trigger_VertexFinder_utility_h__
+#define __L1Trigger_VertexFinder_utility_h__
 
 
 #include <vector>

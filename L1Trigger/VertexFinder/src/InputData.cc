@@ -1,5 +1,5 @@
 
-#include "TMTrackTrigger/l1VertexFinder/interface/InputData.h"
+#include "L1Trigger/VertexFinder/interface/InputData.h"
 
 
 #include <map>
@@ -22,7 +22,7 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 
-#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/Settings.h"
 
 
 

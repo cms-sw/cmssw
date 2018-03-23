@@ -1,4 +1,4 @@
-#include "TMTrackTrigger/l1VertexFinder/interface/RecoVertex.h"
+#include "L1Trigger/VertexFinder/interface/RecoVertex.h"
 
 namespace l1tVertexFinder {
 

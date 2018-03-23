@@ -1,5 +1,5 @@
 
-#include "TMTrackTrigger/l1VertexFinder/interface/Stub.h"
+#include "L1Trigger/VertexFinder/interface/Stub.h"
 
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -7,7 +7,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "TMTrackTrigger/l1VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/Settings.h"
 
 
 
