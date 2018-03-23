@@ -14,15 +14,13 @@
 
 //#define EDM_ML_DEBUG
 
-DDHGCalHEAlgo::DDHGCalHEAlgo() : waferType_(nullptr) {
+DDHGCalHEAlgo::DDHGCalHEAlgo() {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Creating an instance";
 #endif
 }
 
-DDHGCalHEAlgo::~DDHGCalHEAlgo() {
-  delete waferType_;
-}
+DDHGCalHEAlgo::~DDHGCalHEAlgo() { }
 
 void DDHGCalHEAlgo::initialize(const DDNumericArguments & nArgs,
 			       const DDVectorArguments & vArgs,
@@ -170,9 +168,9 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments & nArgs,
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: NameSpace " << nameSpace_;
 #endif
 
-  waferType_ = new HGCalWaferType(rad100to200_, rad200to300_,
-				  (waferSize_+waferSepar_), zMinRadPar_, 
-				  nCutRadPar_);
+  waferType_ = std::make_unique<HGCalWaferType>(rad100to200_, rad200to300_,
+						(waferSize_+waferSepar_), 
+						zMinRadPar_, nCutRadPar_);
 }
 
 ////////////////////////////////////////////////////////////////////

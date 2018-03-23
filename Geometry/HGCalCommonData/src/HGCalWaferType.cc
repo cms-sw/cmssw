@@ -15,7 +15,7 @@ HGCalWaferType::HGCalWaferType(const std::vector<double>& rad100,
 					       zMin_(zMin),
 					       cutValue_(cutValue) {
   r_ = 0.5*waferSize_;
-  R_ = waferSize_/std::sqrt(3.0);
+  R_ = sqrt3_*waferSize_;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalWaferType: initialized with waferR's "
 				<< waferSize_ << ":" << r_ << ":" << R_

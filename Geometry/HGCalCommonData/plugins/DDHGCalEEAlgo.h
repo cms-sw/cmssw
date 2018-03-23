@@ -1,6 +1,7 @@
 #ifndef HGCalCommonData_DDHGCalEEAlgo_h
 #define HGCalCommonData_DDHGCalEEAlgo_h
 
+#include <memory>
 #include <string>
 #include <unordered_set>
 #include <vector>
@@ -34,7 +35,7 @@ protected:
 
 private:
 
-  HGCalWaferType*          waferType_;
+  std::unique_ptr<HGCalWaferType> waferType_;
 
   std::vector<std::string> wafers_;       //Wafers
   std::vector<std::string> materials_;    //Materials
