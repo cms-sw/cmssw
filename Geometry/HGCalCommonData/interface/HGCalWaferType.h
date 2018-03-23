@@ -13,6 +13,7 @@
  *
  */
 
+#include <cmath>
 #include <vector>
 #include <iostream>
 
@@ -29,6 +30,7 @@ public:
 
 private:
 
+  const double              sqrt3_ = 1.0/std::sqrt(3.0);
   const std::vector<double> rad100_;
   const std::vector<double> rad200_;
   const double              waferSize_;
