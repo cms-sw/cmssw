@@ -76,14 +76,11 @@ void SiPixelStatusManager::createBadComponents(){
 
   std::map<LuminosityBlockNumber_t,SiPixelDetectorStatus> tmpSiPixelStatusMap_;
 
-  if(outputBase_ == "nLumibased" && nLumi_>1){ // can't be equal to 1
+  if(outputBase_ == "nLumibased" && nLumi_>1){ // doesn't work for nLumi_=1 cos any integer can be completely divided by 1
 
-    int iterationLumi = 0;
-    // number of IOV 
     // if the total number of Lumi Blocks can't be completely divided by nLumi_,
     // the residual Lumi Blocks will be as the last IOV
-    int nIOV = siPixelStatusMap_.size()/nLumi_;
-    if(siPixelStatusMap_.size()%nLumi_!=0) nIOV = nIOV + 1;
+    int iterationLumi = 0;
 
     LuminosityBlockNumber_t tmpLumi;
     SiPixelDetectorStatus tmpSiPixelStatus;
@@ -112,15 +109,24 @@ void SiPixelStatusManager::createBadComponents(){
         iterationLumi=iterationLumi+1;
     }
 
-    // check if not enough number of Lumi in the last IOV
+    // check whether there is not enough number of Lumi in the last IOV
+    // (only when siPixelStatusMap_.size() > nLumi_ or equivalently tmpSiPixelStatusMap_.size()>1
+    //            (otherwise there will be only one IOV, and not previous IOV before the last IOV)
+    //            and the number of lumi can not be completely divided by the nLumi_.
+    //                (then the number of lumis in the last IOV is equal to the residual, which is less than nLumi_)
     // if it is, combine last IOV with the IOV before it
-    if(siPixelStatusMap_.size()%nLumi_!=0){
+    if(siPixelStatusMap_.size()%nLumi_!=0 && tmpSiPixelStatusMap_.size()>1){
 
+       // start from the iterator of the end of std::map
        siPixelStatusMap_iterator iterEnd = tmpSiPixelStatusMap_.end();
+       // the last IOV
        siPixelStatusMap_iterator iterLastIOV = std::prev(iterEnd);
+       // the IOV before the last IOV
        siPixelStatusMap_iterator iterBeforeLastIOV = std::prev(iterLastIOV);
 
+       // combine the last IOV data to the IOV before the last IOV
        (iterBeforeLastIOV->second).updateDetectorStatus(iterLastIOV->second);
+       // delete the last IOV, so the IOV before the last IOV becomes the new last IOV
        tmpSiPixelStatusMap_.erase(iterLastIOV);
 
     }
@@ -164,13 +170,24 @@ void SiPixelStatusManager::createBadComponents(){
    } // end of siPixelStatusMap
 
    // check whether last IOV has enough statistics
+   // (ONLY when there are more than oneIOV(otherwise there is NO previous IOV before the last IOV) )
    // if not, combine with previous IOV
-   siPixelStatusMap_iterator iterEnd = tmpSiPixelStatusMap_.end();
-   siPixelStatusMap_iterator iterLastIOV = std::prev(iterEnd);
-   siPixelStatusMap_iterator iterBeforeLastIOV = std::prev(iterLastIOV);
-   if((iterLastIOV->second).perRocDigiOcc()<aveDigiOcc){
-      (iterBeforeLastIOV->second).updateDetectorStatus(iterLastIOV->second);
-      tmpSiPixelStatusMap_.erase(iterLastIOV);
+   if(tmpSiPixelStatusMap_.size()>1){
+
+      // start from the end iterator of the std::map
+      siPixelStatusMap_iterator iterEnd = tmpSiPixelStatusMap_.end();
+      // the last IOV
+      siPixelStatusMap_iterator iterLastIOV = std::prev(iterEnd);
+      // if the statistics of the last IOV is not enough
+      if((iterLastIOV->second).perRocDigiOcc()<aveDigiOcc){
+         // the IOV before the last IOV of the map
+         siPixelStatusMap_iterator iterBeforeLastIOV = std::prev(iterLastIOV);
+         // combine the last IOV data to the IOV before the last IOV
+         (iterBeforeLastIOV->second).updateDetectorStatus(iterLastIOV->second);
+         // erase the last IOV, so the IOV before the last IOV becomes the new last IOV
+         tmpSiPixelStatusMap_.erase(iterLastIOV);
+      }
+ 
    }
 
    siPixelStatusMap_.clear();
