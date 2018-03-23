@@ -285,7 +285,7 @@ def miniAOD_customizeCommon(process):
 
     addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
                     jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], ''),
-                    pfCandidates = cms.InputTag('puppi'), # using Puppi candidates as input for b tagging of Puppi jets
+                    pfCandidates = cms.InputTag("particleFlow"),
                     algo= 'AK', rParam = 0.4, btagDiscriminators = map(lambda x: x.value() ,process.patJets.discriminatorSources)
                     )
     
