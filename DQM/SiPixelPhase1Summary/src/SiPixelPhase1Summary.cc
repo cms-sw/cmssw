@@ -139,7 +139,7 @@ void SiPixelPhase1Summary::bookSummaries(DQMStore::IBooker & iBooker){
 
   if (runOnEndLumi_){
   //New less granular summary plot - this is currently only done online
-    summaryMap_["Grand"] = iBooker.book2D("reportSummaryMap_new","Pixel Summary Map",2,0,2,4,0,4);
+    summaryMap_["Grand"] = iBooker.book2D("reportSummaryMap","Pixel Summary Map",2,0,2,4,0,4);
     summaryMap_["Grand"]->setAxisTitle("Subdetector",1);
     for (unsigned int i = 0; i < xAxisLabelsReduced_.size(); i++){
       summaryMap_["Grand"]->setBinLabel(i+1,xAxisLabelsReduced_[i]);
