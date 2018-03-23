@@ -4,11 +4,10 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOSiPixelCalZeroBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-     HLTPaths = [
-     #"regular" Zero Bias
-     "HLT_ZeroBias_v*"
-     ],
+    #"regular" Zero Bias
+    #HLTPaths = ["HLT_ZeroBias_v*"],
     #eventSetupPathsKey = 'SiPixelCalZeroBias',
+    eventSetupPathsKey = 'SiStripCalZeroBias',# use the trigger bit of SiStripCalZeroBias
     throw = False # tolerate triggers stated above, but not available
     )
 

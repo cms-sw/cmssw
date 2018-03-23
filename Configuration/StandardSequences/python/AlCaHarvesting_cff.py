@@ -146,40 +146,24 @@ ALCAHARVESTLumiPCC_dbOutput = cms.PSet(record = cms.string('LumiCorrectionsRcd')
 ALCAHARVESTSiPixelQuality = siPixelStatusHarvester.clone()
 ALCAHARVESTSiPixelQuality.SiPixelStatusManagerParameters.outputBase = cms.untracked.string("dynamicLumibased")
 ALCAHARVESTSiPixelQuality.SiPixelStatusManagerParameters.aveDigiOcc = cms.untracked.int32(20000)
+ALCAHARVESTSiPixelQuality.debug = cms.untracked.bool(False)
 
-ALCAHARVESTSiPixelQuality_metadata = cms.PSet(record = cms.untracked.string('SiPixelQualityFromDbRcd_prompt'))
-ALCAHARVESTSiPixelQuality_dbOutput = cms.PSet(
-                                         record = cms.string('SiPixelQualityFromDbRcd_prompt'),
-                                         tag = cms.string('SiPixelQualityFromDbRcd_prompt'),
-                                         timetype = cms.untracked.string('lumiid')
-                                         )
-
-ALCAHARVESTSiPixelQualityMonitor_dbOutput = cms.VPSet(
-        cms.PSet(
-            record = cms.string('SiPixelQualityFromDbRcd_PCL'),
-            tag = cms.string('SiPixelQualityFromDbRcd_PCL'),
-            timetype = cms.untracked.string('lumiid')
-        ),
-        cms.PSet(
-            record = cms.string('SiPixelQualityFromDbRcd_permanentBad'),
-            tag = cms.string('SiPixelQualityFromDbRcd_permanentBad'),
-            timetype = cms.untracked.string('runnumber')
-        ),
-        cms.PSet(
-            record = cms.string('SiPixelQualityFromDbRcd_stuckTBM'),
-            tag = cms.string('SiPixelQualityFromDbRcd_stuckTBM'),
-            timetype = cms.untracked.string('lumiid'),
-        ),
-        cms.PSet(
-            record = cms.string('SiPixelQualityFromDbRcd_other'),
-            tag = cms.string('SiPixelQualityFromDbRcd_other'),
-            timetype = cms.untracked.string('lumiid')
-        )
-
-)
-
-#other payloads produced in SiPixeQuality Harvestor for monitoring
-PoolDBOutputService.toPut = ALCAHARVESTSiPixelQualityMonitor_dbOutput
+ALCAHARVESTSiPixelQuality_metadata = cms.VPSet(cms.PSet(record = cms.untracked.string('SiPixelQualityFromDbRcd_prompt')),
+                                               cms.PSet(record = cms.untracked.string('SiPixelQualityFromDbRcd_stuckTBM')),
+                                               cms.PSet(record = cms.untracked.string('SiPixelQualityFromDbRcd_other')))
+ALCAHARVESTSiPixelQuality_dbOutput = cms.VPSet(cms.PSet(record = cms.string('SiPixelQualityFromDbRcd_prompt'),
+                                                        tag = cms.string('SiPixelQualityFromDbRcd_prompt'),
+                                                        timetype = cms.untracked.string('lumiid')
+                                                        ),
+                                               cms.PSet(record = cms.string('SiPixelQualityFromDbRcd_stuckTBM'),
+                                                        tag = cms.string('SiPixelQualityFromDbRcd_stuckTBM'),
+                                                        timetype = cms.untracked.string('lumiid'),
+                                                        ),
+                                               cms.PSet(record = cms.string('SiPixelQualityFromDbRcd_other'),
+                                                        tag = cms.string('SiPixelQualityFromDbRcd_other'),
+                                                        timetype = cms.untracked.string('lumiid')
+                                                        )
+                                               )
 
 # define all the paths
 BeamSpotByRun  = cms.Path(ALCAHARVESTBeamSpotByRun)

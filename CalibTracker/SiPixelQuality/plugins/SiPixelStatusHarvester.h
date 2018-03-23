@@ -33,23 +33,27 @@ class SiPixelStatusHarvester : public edm::EDAnalyzer {
  protected:
 
  private:
+  bool debug_;
   // Parameters
-  std::string 	      outputBase_;
+  std::string outputBase_;
   int aveDigiOcc_;
   int nLumi_;
   std::string moduleName_;
   std::string label_;  
   // harvest helper classs that setup the IOV structure
   SiPixelStatusManager siPixelStatusManager_;
-
-  std::string         recordName_;
-  bool                dumpTxt_;
-  std::string 	      outTxtFileName_;
+  // for DB output naming
+  std::string recordName_;
 
   // permanent known bad components
   const SiPixelQuality* badPixelInfo_;
 
-  SiPixelCoordinates coord_;
+  // last lumi section of the SiPixeDetectorStatus data
+  edm::LuminosityBlockNumber_t endLumiBlock_;
+
+  // only for debugging
+  bool dumpTxt_;
+  std::string outTxtFileName_;
 
 };
 
