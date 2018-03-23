@@ -132,6 +132,8 @@ private:
   const int                      useRaw_, dataType_, mode_;
   const bool                     ignoreTrigger_, useL1Trigger_;
   const bool                     unCorrect_, collapseDepth_;
+  const double                   hitEthrEB_, hitEthrEE0_, hitEthrEE1_;
+  const double                   hitEthrEE2_, hitEthrEE3_;
   const edm::InputTag            triggerEvent_, theTriggerResultsLabel_;
   const std::string              labelGenTrack_, labelRecVtx_, labelEB_; 
   const std::string              labelEE_, labelHBHE_, labelTower_,l1TrigName_;
@@ -154,6 +156,7 @@ private:
   edm::EDGetTokenT<BXVector<GlobalAlgBlk>>      tok_alg_;
 
   TTree                     *tree, *tree2;
+  unsigned int               t_RunNo, t_EventNo;
   int                        t_Run, t_Event, t_DataType, t_ieta, t_iphi; 
   int                        t_goodPV, t_nVtx, t_nTrk;
   double                     t_EventWeight, t_p, t_pt, t_phi;
@@ -169,7 +172,7 @@ private:
   std::vector<bool>         *t_trgbits, *t_hltbits; 
   bool                       t_L1Bit;
   int                        t_Tracks, t_TracksProp, t_TracksSaved;
-  int                        t_TracksLoose, t_TracksTight;
+  int                        t_TracksLoose, t_TracksTight, t_allvertex;
   std::vector<int>          *t_ietaAll, *t_ietaGood, *t_trackType;
 };
 
@@ -199,6 +202,11 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   useL1Trigger_(iConfig.getUntrackedParameter<bool>("useL1Trigger",false)),
   unCorrect_(iConfig.getUntrackedParameter<bool>("unCorrect",false)),
   collapseDepth_(iConfig.getUntrackedParameter<bool>("collapseDepth",false)),
+  hitEthrEB_(iConfig.getParameter<double>("EBHitEnergyThreshold") ),
+  hitEthrEE0_(iConfig.getParameter<double>("EEHitEnergyThreshold0") ),
+  hitEthrEE1_(iConfig.getParameter<double>("EEHitEnergyThreshold1") ),
+  hitEthrEE2_(iConfig.getParameter<double>("EEHitEnergyThreshold2") ),
+  hitEthrEE3_(iConfig.getParameter<double>("EEHitEnergyThreshold3") ),
   triggerEvent_(iConfig.getParameter<edm::InputTag>("labelTriggerEvent")),
   theTriggerResultsLabel_(iConfig.getParameter<edm::InputTag>("labelTriggerResult")),
   labelGenTrack_(iConfig.getParameter<std::string>("labelTrack")),
@@ -409,6 +417,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   if (t_goodPV == 0 && beamSpotH.isValid()) {
     leadPV = beamSpotH->position();
   }
+  t_allvertex = t_goodPV;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalIsoTrack") << "Primary Vertex " << leadPV << " out of "
 				   << t_goodPV << " vertex";
@@ -446,6 +455,8 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_,
 		     trkCaloDirections, false);
   std::vector<math::XYZTLorentzVector> vecL1, vecL3;
+  t_RunNo      = iEvent.id().run();
+  t_EventNo    = iEvent.id().event();
   t_Tracks     = trkCollection->size();
   t_TracksProp = trkCaloDirections.size();
   t_ietaAll->clear(); t_ietaGood->clear(); t_trackType->clear();
@@ -693,6 +704,8 @@ void HcalIsoTrkAnalyzer::beginJob() {
   }
   tree2 = fs->make<TTree>("EventInfo", "Event Information");
      
+  tree2->Branch("t_RunNo",       &t_RunNo,       "t_RunNo/i");
+  tree2->Branch("t_EventNo",     &t_EventNo,     "t_EventNo/i");
   tree2->Branch("t_Tracks",      &t_Tracks,      "t_Tracks/I");
   tree2->Branch("t_TracksProp",  &t_TracksProp,  "t_TracksProp/I");
   tree2->Branch("t_TracksSaved", &t_TracksSaved, "t_TracksSaved/I");
@@ -701,6 +714,7 @@ void HcalIsoTrkAnalyzer::beginJob() {
   tree2->Branch("t_TrigPass",    &t_TrigPass,    "t_TrigPass/O");
   tree2->Branch("t_TrigPassSel", &t_TrigPassSel, "t_TrigPassSel/O");
   tree2->Branch("t_L1Bit",       &t_L1Bit,       "t_L1Bit/O");
+  tree2->Branch("t_allvertex",   &t_allvertex,   "t_allvertex/I");
   t_hltbits     = new std::vector<bool>();
   t_ietaAll     = new std::vector<int>();
   t_ietaGood    = new std::vector<int>();
@@ -786,6 +800,12 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("slopeTrackP",0.05090504066);
   desc.add<double>("isolationEnergyTight",2.0);
   desc.add<double>("isolationEnergyLoose",10.0);
+  // energy thershold for ECAL (from Egamma group)
+  desc.add<double>("EBHitEnergyThreshold",0.10);
+  desc.add<double>("EEHitEnergyThreshold0",-41.0664);
+  desc.add<double>("EEHitEnergyThreshold1",68.7950);
+  desc.add<double>("EEHitEnergyThreshold2",-38.1482);
+  desc.add<double>("EEHitEnergyThreshold3",7.04352);
   // various labels for collections used in the code
   desc.add<edm::InputTag>("labelTriggerEvent",edm::InputTag("hltTriggerSummaryAOD","","HLT"));
   desc.add<edm::InputTag>("labelTriggerResult",edm::InputTag("TriggerResults","","HLT"));
@@ -890,11 +910,26 @@ std::array<int,3> HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVec
     t_qltyFlag = (qltyFlag && trkDetItr->okECAL && trkDetItr->okHCAL);
     if (t_qltyFlag) {
       nselTracks++;
-      int nRH_eMipDR(0), nNearTRKs(0);
+      int nNearTRKs(0);
+      std::vector<DetId>  eIds;
+      std::vector<double> eHit;
       t_eMipDR = spr::eCone_ecal(geo, barrelRecHitsHandle, 
 				 endcapRecHitsHandle, trkDetItr->pointHCAL,
 				 trkDetItr->pointECAL, a_mipR_, 
-				 trkDetItr->directionECAL, nRH_eMipDR);
+				 trkDetItr->directionECAL, eIds, eHit);
+      double eEcal(0);
+      for (unsigned int k=0; k<eIds.size(); ++k) {
+        const GlobalPoint& pos = geo->getPosition(eIds[k]);
+	double eta  = std::abs(pos.eta());
+	double eThr = (eIds[k].subdetId() == EcalBarrel) ? hitEthrEB_ :
+	  (((eta*hitEthrEE3_+hitEthrEE2_)*eta+hitEthrEE1_)*eta+hitEthrEE0_);
+	if (eHit[k] > eThr) eEcal += eHit[k];
+      }
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalIsoTrack") << "eMIP befor and after: " << t_eMipDR
+				       << ":" << eEcal;
+#endif
+      t_eMipDR = eEcal;
       t_hmaxNearP = spr::chargeIsolationCone(nTracks, trkCaloDirections,
 					     a_charIsoR_, nNearTRKs, false);
       t_gentrackP = trackP(pTrack, genParticles);

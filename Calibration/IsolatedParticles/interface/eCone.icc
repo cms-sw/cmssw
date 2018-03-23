@@ -16,11 +16,11 @@ namespace spr{
     nRecHits = -99;
     double energySum = 0.0;
     std::set<int> uniqueIdset;
-    for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
-      int    subdet = DetId(hit[ihit]->id()).subdetId();
+    for (auto const& ihit : hit) {
+      int    subdet = DetId(ihit->id()).subdetId();
       if (detOnly < 0 || subdet == detOnly) {
-        double eTower = spr::getEnergy(hit[ihit],useRaw);
-        double tt     = hit[ihit]->time();
+        double eTower = spr::getEnergy(ihit,useRaw);
+        double tt     = ihit->time();
         bool   ok     = (eTower>hbThr);
         if      (subdet == (int)(HcalEndcap))  ok = (eTower>heThr);
         else if (subdet == (int)(HcalForward)) ok = (eTower>hfThr);
@@ -29,7 +29,7 @@ namespace spr{
           energySum += eTower;
           int eta(-99); 
           int phi(-99);
-          spr::getEtaPhi(hit[ihit], eta, phi);
+          spr::getEtaPhi(ihit, eta, phi);
           int uniqueEtaPhiId = 100*eta+phi;
           uniqueIdset.insert(uniqueEtaPhiId);
         }
@@ -76,7 +76,7 @@ namespace spr{
         int uniqueEtaPhiId = 100*eta+phi;
         uniqueIdset.insert(uniqueEtaPhiId);
         // Get list of det ids
-        coneRecHitDetIds.push_back(hit[ihit]->id());
+        coneRecHitDetIds.emplace_back(hit[ihit]->id());
       }
     }
 
@@ -106,18 +106,18 @@ namespace spr{
     nRecHits = -99;
     double energySum = 0.0;
     std::set<int> uniqueIdset;
-    for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
+    for (auto const& ihit : hit) {
       // Sum energy getting hottest cell for later
-      double energy = spr::getEnergy(hit.at(ihit),useRaw);
+      double energy = spr::getEnergy(ihit,useRaw);
       energySum += energy;
       // Don't double count depth in rechit multiplicity
       int eta(-99), phi(-99);
-      spr::getEtaPhi(hit[ihit], eta, phi);
+      spr::getEtaPhi(ihit, eta, phi);
       int uniqueEtaPhiId = 100*eta+phi;
       uniqueIdset.insert(uniqueEtaPhiId);
       // Get list of det ids
-      coneRecHitDetIds.push_back(hit[ihit]->id());
-      eHit.push_back(energy);
+      coneRecHitDetIds.emplace_back(ihit->id());
+      eHit.emplace_back(energy);
     }
     
     nRecHits = uniqueIdset.size();
@@ -168,7 +168,7 @@ namespace spr{
         int uniqueEtaPhiId = 100*eta+phi;
         uniqueIdset.insert(uniqueEtaPhiId);
         // Get vector of detids.
-        coneRecHitDetIds.push_back(hit[ihit]->id());
+        coneRecHitDetIds.emplace_back(hit[ihit]->id());
       }
     }
     nRecHits = uniqueIdset.size();
@@ -200,14 +200,44 @@ namespace spr{
     // No depth in Ecal so nRecHits = hit.size()
     nRecHits = hit.size();
     double energySum = 0.0;
-    for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
+    for (auto const& ihit : hit) {
       bool   ok     = true;
-      double eTower = hit[ihit]->energy(); 
-      double tt     = hit[ihit]->time();
-      if      (DetId(hit[ihit]->id()).subdetId()==EcalBarrel) ok = (eTower > ebThr);
-      else if (DetId(hit[ihit]->id()).subdetId()==EcalEndcap) ok = (eTower > eeThr);
+      double eTower = ihit->energy(); 
+      double tt     = ihit->time();
+      if      (DetId(ihit->id()).subdetId()==EcalBarrel) ok = (eTower > ebThr);
+      else if (DetId(ihit->id()).subdetId()==EcalEndcap) ok = (eTower > eeThr);
       // No need for hcal sampling weight
       if (ok && tt > tMin && tt < tMax) energySum += eTower;
+    }
+    
+    if (debug) {
+      std::cout << "eCone_ecal: Energy " << energySum << " from " << hit.size()
+                << " hits" << std::endl;
+    }
+    return energySum;
+  }
+
+  // 
+  template <typename T>
+  double eCone_ecal(const CaloGeometry* geo, edm::Handle<T>& barrelhits, edm::Handle<T>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, std::vector<DetId>& coneRecHitDetIds, std::vector<double>& eHit, double ebThr, double eeThr, double tMin, double tMax, bool debug) {
+
+    std::vector< typename T::const_iterator> hit = spr::findHitCone(geo, barrelhits, endcaphits, hpoint1, point1, dR, trackMom, debug);
+
+    // No depth in Ecal 
+    double energySum = 0.0;
+    for (auto const& ihit : hit) {
+      bool   ok     = true;
+      double eTower = ihit->energy(); 
+      double tt     = ihit->time();
+      if      (DetId(ihit->id()).subdetId()==EcalBarrel) ok = (eTower > ebThr);
+      else if (DetId(ihit->id()).subdetId()==EcalEndcap) ok = (eTower > eeThr);
+      // No need for hcal sampling weight
+      if (tt > tMin && tt < tMax) {
+        if (ok) energySum += eTower;
+        // Get list of det ids
+        coneRecHitDetIds.emplace_back(ihit->id());
+        eHit.emplace_back(eTower);
+      }
     }
     
     if (debug) {
