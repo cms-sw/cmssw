@@ -287,11 +287,6 @@ run2_nanoAOD_92X.toModify(electronTable.variables,
     energyErr = Var("p4Error('P4_COMBINATION')",float,doc="energy error of the cluster-track combination",precision=6),
     eCorr = None,
 )
-#run2_nanoAOD_94XMiniAODv1.toModify(electronTable.variables,
-#    pt = Var("pt",  float, precision=-1, doc="p_{T} (no energy correction & smearing)"),
-#    energyErr = Var("p4Error('P4_COMBINATION')",float,doc="energy error of the cluster-track combination",precision=6),
-#    eCorr = None,
-#)
 
 electronsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
     src         = electronTable.src,                 # final reco collection
