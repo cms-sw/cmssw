@@ -77,10 +77,10 @@ namespace hcaldqm
 			{ffC_1000,"fC (QIE8)"},
 			{ffC_3000,"fC (QIE8)"},
 			{ffC_10000,"fC (QIE8)"},
-			{fQIE8fC_1000_50,"fC (QIE8)"},
-			{fQIE10fC_2000,"fC (QIE10/11)"},
-			{fQIE10fC_10000,"fC (QIE10/11)"},
-			{fQIE10fC_400000,"fC (QIE10/11)"},
+			{fQIE8fC_1000_50,"fC"},
+			{fQIE10fC_2000,"fC"},
+			{fQIE10fC_10000,"fC"},
+			{fQIE10fC_400000,"fC"},
 			{ffC_generic_10000,"fC (QIE8/10/11)"},
 			{ffC_generic_400000,"fC (QIE8/10/11)"},			
 			{fTiming_TS,"Timing"},
@@ -112,7 +112,7 @@ namespace hcaldqm
 			{fTime_ns_250,"Time (ns)"},
 			{fDualAnodeAsymmetry, "(q_{1}-q_{2})/(q_{1}+q_{2})"},
 			{fTimingRatio, "q_{SOI+1}/q_{SOI}"},
-			{fQIE10fC_100000Coarse,"fC (QIE10/11)"},
+			{fQIE10fC_100000Coarse,"fC"},
 			{fBadTDC, "TDC"},
 		};
 		const std::map<ValueQuantityType, double> min_value = {
