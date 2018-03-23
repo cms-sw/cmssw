@@ -84,14 +84,16 @@ def nanoAOD_customizeCommon(process):
 
 def nanoAOD_customizeData(process):
     process = nanoAOD_customizeCommon(process)
-    process.calibratedPatElectrons.isMC = cms.bool(False)
-    process.calibratedPatPhotons.isMC = cms.bool(False)
+    if hasattr(process,'calibratedPatElectrons80X'):
+        process.calibratedPatElectrons80X.isMC = cms.bool(False)
+        process.calibratedPatPhotons80X.isMC = cms.bool(False)
     return process
 
 def nanoAOD_customizeMC(process):
     process = nanoAOD_customizeCommon(process)
-    process.calibratedPatElectrons.isMC = cms.bool(True)
-    process.calibratedPatPhotons.isMC = cms.bool(True)
+    if hasattr(process,'calibratedPatElectrons80X'):
+        process.calibratedPatElectrons80X.isMC = cms.bool(True)
+        process.calibratedPatPhotons80X.isMC = cms.bool(True)
     return process
 
 ### Era dependent customization
