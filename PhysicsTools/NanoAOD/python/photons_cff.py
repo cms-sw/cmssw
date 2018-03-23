@@ -137,11 +137,6 @@ run2_nanoAOD_92X.toModify(photonTable.variables,
     energyErr = Var("getCorrectedEnergyError('regression2')",float,doc="energy error of the cluster from regression",precision=6),
     eCorr = None,
 )
-#run2_nanoAOD_94XMiniAODv1.toModify(photonTable.variables,
-#    pt = Var("pt",  float, precision=-1, doc="p_{T} (no energy correction & smearing)"),
-#    energyErr = Var("getCorrectedEnergyError('regression2')",float,doc="energy error of the cluster from regression",precision=6),
-#    eCorr = None,
-#)
 
 
 photonsMCMatchForTable = cms.EDProducer("MCMatcher",  # cut on deltaR, deltaPt/Pt; pick best by deltaR
