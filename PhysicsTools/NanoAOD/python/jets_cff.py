@@ -252,6 +252,11 @@ bjetMVA= cms.EDProducer("BJetEnergyRegressionMVA",
     )
 
 )
+EnergyRingsTable = cms.EDProducer("EnergyRingsTableProducer",
+    name = cms.string("Jet"),
+   # src = cms.InputTag("slimmedJets"),
+    src = cms.InputTag("linkedObjects","jets"),
+)
 
 ##### Soft Activity tables
 saJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
@@ -479,7 +484,7 @@ _jetSequence_80X.insert(1,qgtagger80x)
 run2_miniAOD_80XLegacy.toReplaceWith(jetSequence, _jetSequence_80X)
 
 #after cross linkining
-jetTables = cms.Sequence(bjetMVA+ jetTable+fatJetTable+subJetTable+saJetTable+saTable)
+jetTables = cms.Sequence(bjetMVA+ jetTable+EnergyRingsTable+fatJetTable+subJetTable+saJetTable+saTable)
 
 #MC only producers and tables
 jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+genSubJetAK8Table)
