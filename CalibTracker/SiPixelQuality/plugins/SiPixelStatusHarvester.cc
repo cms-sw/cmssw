@@ -51,19 +51,20 @@ SiPixelStatusHarvester::SiPixelStatusHarvester(const edm::ParameterSet& iConfig)
   siPixelStatusManager_(iConfig, consumesCollector()) {  
 
   recordName_ = iConfig.getUntrackedParameter<std::string>("recordName", "SiPixelQualityFromDbRcd");
+  debug_ = iConfig.getUntrackedParameter<bool>("debug",false);
   dumpTxt_ = iConfig.getUntrackedParameter<bool>("dumpTxt",false);
   outTxtFileName_ = iConfig.getUntrackedParameter<std::string>("txtFileName");
-
+  
 }
 
 //--------------------------------------------------------------------------------------------------
 SiPixelStatusHarvester::~SiPixelStatusHarvester(){}
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusHarvester::beginJob() {}
+void SiPixelStatusHarvester::beginJob() { }
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusHarvester::endJob() {}  
+void SiPixelStatusHarvester::endJob() { }  
 
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -72,6 +73,7 @@ void SiPixelStatusHarvester::analyze(const edm::Event& iEvent, const edm::EventS
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::beginRun(const edm::Run&, const edm::EventSetup& iSetup){
   siPixelStatusManager_.reset();
+  endLumiBlock_ = 0;
 
   edm::ESHandle<SiPixelQuality> qualityInfo;
   iSetup.get<SiPixelQualityFromDbRcd>().get( qualityInfo );
@@ -89,26 +91,14 @@ void SiPixelStatusHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&
   std::map<edm::LuminosityBlockNumber_t,SiPixelDetectorStatus> siPixelStatusMap = siPixelStatusManager_.getBadComponents();
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
 
-  if(poolDbService.isAvailable() ) {
+  if(poolDbService.isAvailable() ) {// if(poolDbService.isAvailable() )
 
     // start producing tag for permanent component removed
-    cond::Time_t thisIOV = (cond::Time_t) iRun.id().run();
     SiPixelQuality *siPixelQualityPermBad = new SiPixelQuality();
     const std::vector<SiPixelQuality::disabledModuleType> badComponentList = badPixelInfo_->getBadComponentList();
     for(unsigned int i = 0; i<badComponentList.size();i++){
         siPixelQualityPermBad->addDisabledModule(badComponentList[i]);
     }
-    if (poolDbService->isNewTagRequest(recordName_+"_permanentBad") ) {
-              edm::LogInfo("SiPixelStatusHarvester")
-                 << "new tag requested for permanent bad components" << std::endl;
-              poolDbService->writeOne<SiPixelQuality>(siPixelQualityPermBad, thisIOV, recordName_+"_permanentBad");
-    }
-    else {
-             edm::LogInfo("SiPixelStatusHarvester")
-                << "no new tag requested, appending IOV for permanent bad components" << std::endl;
-              poolDbService->writeOne<SiPixelQuality>(siPixelQualityPermBad, thisIOV, recordName_+"_permanentBad");
-    }
-
 
     // stuckTBM tag from FED error 25 with permanent component removed
     for(SiPixelStatusManager::stuckTBMsMap_iterator it=stuckTBMsMap.begin(); it!=stuckTBMsMap.end();it++){
@@ -171,21 +161,38 @@ void SiPixelStatusHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&
     // Payload for PCL combines permanent bad/stuckTBM/other
     for(SiPixelStatusManager::siPixelStatusMap_iterator it=siPixelStatusMap.begin(); it!=siPixelStatusMap.end();it++){
 
-          SiPixelDetectorStatus tmpSiPixelStatus = it->second;
-          double DetAverage = tmpSiPixelStatus.perRocDigiOcc();
-          // drop the IOV if the statistics is too low
-          if(DetAverage<aveDigiOcc_) continue;
-
           cond::Time_t thisIOV = 1;
 
-          // run based
           if (outputBase_ == "runbased") {
                thisIOV = (cond::Time_t) iRun.id().run();
           }
           else if (outputBase_ == "nLumibased" || outputBase_ == "dynamicLumibased" ) {
-	     edm::LuminosityBlockID lu(iRun.id().run(),it->first);
-	     thisIOV = (cond::Time_t)(lu.value()); 
+             edm::LuminosityBlockID lu(iRun.id().run(),it->first);
+             thisIOV = (cond::Time_t)(lu.value());
           }
+
+          SiPixelDetectorStatus tmpSiPixelStatus = it->second;
+          double DetAverage = tmpSiPixelStatus.perRocDigiOcc();
+
+          // For the IOV of which the statistics is too low, for e.g., a cosmic run
+          // When using dynamicLumibased harvester or runbased harvester
+          // this only happens when the full run is lack of statistics 
+          if(DetAverage<aveDigiOcc_) {
+
+            edm::LogInfo("SiPixelStatusHarvester")
+                 << "Tag requested for prompt in low statistics IOV in the "<<outputBase_<<" harvester"<< std::endl;
+            poolDbService->writeOne<SiPixelQuality>(siPixelQualityPermBad, thisIOV, recordName_+"_prompt");
+            // add empty bad components to "other" tag
+            SiPixelQuality* siPixelQualityDummy = new SiPixelQuality();
+            edm::LogInfo("SiPixelStatusHarvester")
+                 << "Tag requested for other in low statistics IOV in the "<<outputBase_<<" harvester"<< std::endl;
+            poolDbService->writeOne<SiPixelQuality>(siPixelQualityDummy, thisIOV, recordName_+"_other");
+
+            continue;
+
+          } 
+
+          ///////////////////////////////////////////////////////////////////////////////////////////////////
 
           // create the DB object
           // payload including all : permanent bad + other + stuckTBM
@@ -278,49 +285,54 @@ void SiPixelStatusHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&
                }
 
          } // end module loop
-          
-         if (poolDbService->isNewTagRequest(recordName_+"_PCL")) {
-             edm::LogInfo("SiPixelStatusHarvester")
-                 << "new tag requested" << std::endl;
+
+         if(debug_) // only produce the tag for all sources of bad components for debugging reason
 	     poolDbService->writeOne<SiPixelQuality>(siPixelQualityPCL, thisIOV, recordName_+"_PCL");
-         } 
-         else {
-            edm::LogInfo("SiPixelStatusHarvester")
-               << "no new tag requested, appending IOV" << std::endl;
-             poolDbService->writeOne<SiPixelQuality>(siPixelQualityPCL, thisIOV, recordName_+"_PCL");
-         }
 
          if (poolDbService->isNewTagRequest(recordName_+"_prompt")) {
              edm::LogInfo("SiPixelStatusHarvester")
-                 << "new tag requested" << std::endl;
+                 << "new tag requested for prompt" << std::endl;
              poolDbService->writeOne<SiPixelQuality>(siPixelQualityPrompt, thisIOV, recordName_+"_prompt");
          }
          else {
             edm::LogInfo("SiPixelStatusHarvester")
-               << "no new tag requested, appending IOV" << std::endl;
+               << "no new tag requested, appending IOV for prompt" << std::endl;
              poolDbService->writeOne<SiPixelQuality>(siPixelQualityPrompt, thisIOV, recordName_+"_prompt");
          }
 
          if (poolDbService->isNewTagRequest(recordName_+"_other")) {
              edm::LogInfo("SiPixelStatusHarvester")
-                 << "new tag requested" << std::endl;
+                 << "new tag requested for other" << std::endl;
              poolDbService->writeOne<SiPixelQuality>(siPixelQualityOther, thisIOV, recordName_+"_other");
          }
          else {
             edm::LogInfo("SiPixelStatusHarvester")
-               << "no new tag requested, appending IOV" << std::endl;
+               << "no new tag requested, appending IOV for other" << std::endl;
              poolDbService->writeOne<SiPixelQuality>(siPixelQualityOther, thisIOV, recordName_+"_other");
          }
 
-         if (dumpTxt_){ 
+         if (dumpTxt_){ // text dump for the DIGI occuancy for all pixels in all ROCs for the pixle detector
             std::string outTxt = Form("%s_Run%d_Lumi%d_SiPixelStatus.txt", outTxtFileName_.c_str(), iRun.id().run(),it->first);
             tmpSiPixelStatus.dumpToFile(outTxt); 
          }
 
      }// loop over IOV-structured Map (payloads)
 
-  } // if DB serverice is available
+     // Add a dummy IOV starting from last lumisection+1 to close the tag for the run
+     if(outputBase_ == "nLumibased" || outputBase_ == "dynamicLumibased"){
 
+         edm::LuminosityBlockID lu(iRun.id().run(),endLumiBlock_+1);
+         cond::Time_t thisIOV = (cond::Time_t)(lu.value());
+
+         poolDbService->writeOne<SiPixelQuality>(siPixelQualityPermBad, thisIOV, recordName_+"_prompt");
+
+         // add empty bad components to "other" tag
+         SiPixelQuality* siPixelQualityDummy = new SiPixelQuality();
+         poolDbService->writeOne<SiPixelQuality>(siPixelQualityDummy, thisIOV, recordName_+"_other");
+
+     }
+
+  } // end of if(poolDbService.isAvailable() )
 
 }
 
@@ -332,6 +344,9 @@ void SiPixelStatusHarvester::beginLuminosityBlock(const edm::LuminosityBlock& iL
 void SiPixelStatusHarvester::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iEVentSetup) {
 
   siPixelStatusManager_.readLumi(iLumi);
+  // update endLumiBlock_ by current lumi block
+  if(endLumiBlock_<iLumi.luminosityBlock())
+    endLumiBlock_ = iLumi.luminosityBlock();
 
 }
 

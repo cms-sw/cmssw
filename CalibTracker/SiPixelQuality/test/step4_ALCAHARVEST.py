@@ -35,19 +35,6 @@ process.options = cms.untracked.PSet(
     fileMode = cms.untracked.string('FULLMERGE')
 )
 
-# Production Info
-process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.381.2.28 $'),
-)
-
-# Output definition
-
-# Additional output definition
-
-# Other statements
-
-process.metadata = cms.PSet(record = cms.untracked.string('SiPixelQualityFromDbRcd'))
-
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     DBParameters = cms.PSet(
         authenticationPath = cms.untracked.string(''),
@@ -89,7 +76,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '92X_dataRun2_Express_v8', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '100X_dataRun2_Express_v2', '')
 
 #This tag is already in the GT
 #process.GlobalTag.toGet.append(
@@ -110,17 +97,13 @@ process.ALCAHARVESTSiPixelQuality = cms.EDAnalyzer("SiPixelStatusHarvester",
         moduleName = cms.untracked.string("siPixelStatusProducer"),
         label      = cms.untracked.string("siPixelStatus"),
     ),
+    debug = cms.untracked.bool(True),
     recordName   = cms.untracked.string("SiPixelQualityFromDbRcd"),
-    dumpTxt            = cms.untracked.bool(True),
+    dumpTxt            = cms.untracked.bool(False),
     txtFileName        = cms.untracked.string("SiPixelBadComponent"),
 )
 
 process.SiPixelQuality = cms.Path(process.ALCAHARVESTSiPixelQuality)
 
-
 # Schedule definition
 process.schedule = cms.Schedule(process.SiPixelQuality)
-
-#from FWCore.ParameterSet.Utilities import convertToUnscheduled
-#process=convertToUnscheduled(process)
-
