@@ -7,10 +7,13 @@
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
 #include "DataFormats/Math/interface/ProjectMatrix.h"
 
+
+// test of joseph form
+#ifdef KU_JF_TEST
+
 #include<atomic>
 #include<iostream>
 namespace {
-
   struct Stat {
     Stat(): tot(0),
     nopd(0), jnopd(0), fnopd(0),
@@ -48,6 +51,7 @@ namespace {
     return m(0,0)<0 || m(1,1)<0 || m(2,2)<0 || m(3,3)<0 || m(4,4)<0;
   }
 }
+#endif
 
 
 namespace {
@@ -94,6 +98,9 @@ TrajectoryStateOnSurface lupdate(const TrajectoryStateOnSurface& tsos,
   // Compute covariance matrix of local filtered state vector
   AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M, C) + ROOT::Math::Similarity(K, V);
 
+// test	of joseph form
+#ifdef KU_JF_TEST
+
   AlgebraicSymMatrix55 fse2;  ROOT::Math::AssignSym::Evaluate(fse2, M*C);
 
   // std::cout << "Joseph Form \n" << fse << std::endl;
@@ -131,7 +138,7 @@ TrajectoryStateOnSurface lupdate(const TrajectoryStateOnSurface& tsos,
   if (n1&&n2) stat.inopd++;
   if (n1) stat.ijnopd++;
   if (n2) stat.ifnopd++;
-
+#endif
 
   /*
   // expanded similariy
