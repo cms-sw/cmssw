@@ -62,6 +62,7 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "PhysicsTools/NanoAOD/interface/MatchingUtils.h"
 
@@ -78,7 +79,8 @@ class BJetEnergyRegressionVarProducer : public edm::global::EDProducer<> {
 //     srcMu_(consumes<edm::View<pat::Muon>>(iConfig.getParameter<edm::InputTag>("musrc"))),
 //     srcEle_(consumes<edm::View<pat::Electron>>(iConfig.getParameter<edm::InputTag>("elesrc"))),
     srcVtx_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("pvsrc"))),
-    srcSV_(consumes<edm::View<reco::VertexCompositePtrCandidate>>(iConfig.getParameter<edm::InputTag>("svsrc")))
+    srcSV_(consumes<edm::View<reco::VertexCompositePtrCandidate>>(iConfig.getParameter<edm::InputTag>("svsrc"))),
+	srcGP_(consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("gpsrc")))
   {
     //un prodotto da copiare
     produces<edm::ValueMap<float>>("leptonPtRel");
@@ -97,6 +99,7 @@ class BJetEnergyRegressionVarProducer : public edm::global::EDProducer<> {
     produces<edm::ValueMap<float>>("vtx3deL");
     produces<edm::ValueMap<int>>("vtxNtrk");
     produces<edm::ValueMap<float>>("ptD");
+	produces<edm::ValueMap<float>>("genPtwNu");
     
     
   }
@@ -117,6 +120,7 @@ class BJetEnergyRegressionVarProducer : public edm::global::EDProducer<> {
 //   edm::EDGetTokenT<edm::View<pat::Muon>> srcMu_;
   edm::EDGetTokenT<std::vector<reco::Vertex>> srcVtx_;
   edm::EDGetTokenT<edm::View<reco::VertexCompositePtrCandidate>> srcSV_;
+  edm::EDGetTokenT<std::vector<reco::GenParticle>> srcGP_;
 };
 
 //
@@ -147,6 +151,8 @@ BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID, edm::Event& 
   iEvent.getByToken(srcVtx_, srcVtx);  
   edm::Handle<edm::View<reco::VertexCompositePtrCandidate>> srcSV;
   iEvent.getByToken(srcSV_, srcSV);
+  edm::Handle<std::vector<reco::GenParticle>> srcGP;
+  iEvent.getByToken(srcGP_, srcGP);
   
   unsigned int nJet = srcJet->size();
 //   unsigned int nLep = srcLep->size();
@@ -167,13 +173,32 @@ BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID, edm::Event& 
   std::vector<float> vtx3deL(nJet,0);
   std::vector<int> vtxNtrk(nJet,0);
   std::vector<float> ptD(nJet,0);
+  std::vector<float> genPtwNu(nJet,0);
   
   
   const auto & pv = (*srcVtx)[0];
   for (unsigned int ij = 0; ij<nJet; ij++){
 
       auto jet = srcJet->ptrAt(ij);
-      
+
+      if (jet->genJet()!=NULL){
+          auto genp4 = jet->genJet()->p4(); 
+          auto gep4wNu = genp4;
+          for(const auto & gp : *srcGP){
+            if(abs(gp.pdgId())==12 || abs(gp.pdgId())==14 || abs(gp.pdgId())==16){
+                if (Geom::deltaR( genp4, gp.p4() )<0.4) {
+//                    std::cout<<" from "<<gep4wNu.pt()<<std::endl; 
+                    gep4wNu=gep4wNu+gp.p4(); 
+//                    std::cout<<" to "<<gep4wNu.pt()<<std::endl;
+                    }
+            }
+          }
+
+          genPtwNu[ij]=gep4wNu.pt();
+
+      }
+
+
       float ptMax=0;
       float sumWeight=0;
       float sumPt=0;
@@ -339,6 +364,12 @@ BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID, edm::Event& 
   fillerPtD.insert(srcJet,ptD.begin(),ptD.end());
   fillerPtD.fill();
   iEvent.put(std::move(ptDV),"ptD");
+  
+  std::unique_ptr<edm::ValueMap<float>> genptV(new edm::ValueMap<float>());
+  edm::ValueMap<float>::Filler fillergenpt(*genptV);
+  fillergenpt.insert(srcJet,genPtwNu.begin(),genPtwNu.end());
+  fillergenpt.fill();
+  iEvent.put(std::move(genptV),"genPtwNu");
 
 }
 
@@ -393,6 +424,7 @@ BJetEnergyRegressionVarProducer<T>::fillDescriptions(edm::ConfigurationDescripti
 //   desc.add<edm::InputTag>("elesrc")->setComment("electrons input collection");
   desc.add<edm::InputTag>("pvsrc")->setComment("primary vertex input collection");
   desc.add<edm::InputTag>("svsrc")->setComment("secondary vertex input collection");
+  desc.add<edm::InputTag>("gpsrc")->setComment("genparticles for nu recovery");
   std::string modname;
   if (typeid(T) == typeid(pat::Jet)) modname+="Jet";
   modname+="RegressionVarProducer";
