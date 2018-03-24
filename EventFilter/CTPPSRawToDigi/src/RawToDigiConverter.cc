@@ -14,8 +14,8 @@
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
+#include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
 
-#include "EventFilter/CTPPSRawToDigi/interface/DiamondVFATFrame.h"
 
 //----------------------------------------------------------------------------------------------------
 
@@ -279,6 +279,9 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
 
     if (record.status.isOK())
     {
+      const TotemFramePosition* framepos = &p.first;
+      std::cout<< "Subsystem: " << framepos->getSubSystemId() << "\tTOTFED: "<< framepos->getTOTFEDId()<< "\tGOH: "<< framepos->getGOHId() << "\tIdxInFiber: " << framepos->getIdxInFiber() << std::endl;
+
       const VFATFrame *fr = record.frame;
       const DiamondVFATFrame *diamondframe = static_cast<const DiamondVFATFrame*>(fr);
 
@@ -295,6 +298,74 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
     statusDetSet.push_back(record.status);
   }
 }
+
+//----------------------------------------------------------------------------------------------------
+
+void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
+      edm::DetSetVector<TotemTimingDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status)
+{
+  // structure merging vfat frame data with the mapping
+  map<TotemFramePosition, Record> records;
+
+  // common processing - frame validation 
+  RunCommon(coll, mapping, records);
+  
+  // second loop over data
+  for (auto &p : records)
+  {
+    Record &record = p.second;
+    if (!record.status.isOK()) continue;
+    
+    const TotemFramePosition* framepos = &p.first;
+
+    if(((framepos->getIdxInFiber()%2)==0)&&(framepos->getIdxInFiber()<14))
+    {
+      //corresponding channel data are always in the neighbouring idx in fiber
+
+      TotemFramePosition frameposdata(framepos->getSubSystemId(),framepos->getTOTFEDId(),framepos->getOptoRxId(),framepos->getGOHId(),(framepos->getIdxInFiber()+1));
+      TotemFramePosition frameposEvtInfo(framepos->getSubSystemId(),framepos->getTOTFEDId(),framepos->getOptoRxId(),framepos->getGOHId(),0xe);
+
+
+//       std::cout<< "Framing: GOH " << framepos->getGOHId()<< " Idx " << framepos->getIdxInFiber() << " Ch Info" << std::endl;
+//       record.frame->Print();
+      auto channelwaveformPtr = records.find(frameposdata);
+      auto eventInfoPtr = records.find(frameposEvtInfo);
+      
+      if ( channelwaveformPtr != records.end() && eventInfoPtr != records.end() ) {
+        Record &channelwaveform = records[frameposdata];
+  //       std::cout<< "Ch Data" << std::endl;
+  //       channelwaveform.frame->Print();
+        Record &eventInfo = records[frameposEvtInfo];  
+  //       std::cout<< "Event Info" << std::endl;
+  //       eventInfo.frame->Print();
+
+        // Extract all the waveform information from the raw data
+        TotemSampicFrame totemSampicFrame((uint8_t*) record.frame->getData(), (uint8_t*) channelwaveform.frame->getData(), (uint8_t*) eventInfo.frame->getData());
+        
+  //       totemSampicFrame.PrintRaw();
+//         if (totemSampicFrame.isOK()) totemSampicFrame.Print();
+
+        if (totemSampicFrame.isOK())
+        {
+          // create the digi
+          TotemTimingEventInfo eventInfoTmp( totemSampicFrame.getEventHardwareId(), totemSampicFrame.getL1ATimeStamp(), totemSampicFrame.getBunchNumber(), totemSampicFrame.getOrbitNumber(), totemSampicFrame.getEventNumber(), totemSampicFrame.getChannelMap(), totemSampicFrame.getL1ALatency(), totemSampicFrame.getNumberOfSentSamples(), totemSampicFrame.getOffsetOfSamples() );
+          TotemTimingDigi digiTmp( totemSampicFrame.getHardwareId(), totemSampicFrame.getFPGATimeStamp(), totemSampicFrame.getTimeStampA(), totemSampicFrame.getTimeStampB(), totemSampicFrame.getCellInfo(), totemSampicFrame.getSamples(), eventInfoTmp);
+          // calculate ids
+          TotemTimingDetId detId(record.info->symbolicID.symbolicID);
+          std::cout << "Plane: " << digiTmp.getHardwareSampicId() % 4 << "    Ch: " << digiTmp.getHardwareChannelId() << std::endl;
+          detId.setPlane( digiTmp.getHardwareSampicId() % 4 );
+          detId.setChannel( digiTmp.getHardwareChannelId() );
+          
+          
+          
+          DetSet<TotemTimingDigi> &digiDetSet = digi.find_or_insert(detId);       //TODO: ID!!
+          digiDetSet.push_back(digiTmp);
+        }
+      }
+    }
+  }
+}
+
 
 //----------------------------------------------------------------------------------------------------
 

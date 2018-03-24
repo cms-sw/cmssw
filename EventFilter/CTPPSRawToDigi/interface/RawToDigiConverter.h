@@ -20,6 +20,10 @@
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
+#include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
+
+#include "EventFilter/CTPPSRawToDigi/interface/TotemSampicFrame.h" 
+#include "EventFilter/CTPPSRawToDigi/interface/DiamondVFATFrame.h"
 
 /// \brief Collection of code to convert TOTEM raw data into digi.
 class RawToDigiConverter
@@ -34,6 +38,10 @@ class RawToDigiConverter
     /// Creates Diamond digi.
     void Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
       edm::DetSetVector<CTPPSDiamondDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status);
+    
+    /// Creates Totem Timing digi.
+    void Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
+      edm::DetSetVector<TotemTimingDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status);
 
     /// Print error summaries.
     void PrintSummaries() const;
