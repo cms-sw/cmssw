@@ -46,6 +46,27 @@
   <class name="edm::Wrapper<edm::DetSet<CTPPSDiamondDigi> >"/>
   <class name="edm::Wrapper<edm::DetSetVector<CTPPSDiamondDigi> >"/>
 
+  
+  <class name="TotemTimingDigi" ClassVersion="3">
+    <version ClassVersion="3" checksum="3244142456"/>
+  </class>
+  <class name="edm::DetSet<TotemTimingDigi>"/>
+  <class name="std::vector<edm::DetSet<TotemTimingDigi> >"/>
+  <class name="std::vector<TotemTimingDigi>"/>
+  <class name="edm::DetSetVector<TotemTimingDigi>"/>
+  <class name="edm::Wrapper<edm::DetSet<TotemTimingDigi> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemTimingDigi> >"/>
+  
+  <class name="TotemTimingEventInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="3527714887"/>
+  </class>
+  <class name="edm::DetSet<TotemTimingEventInfo>"/>
+  <class name="std::vector<edm::DetSet<TotemTimingEventInfo> >"/>
+  <class name="std::vector<TotemTimingEventInfo>"/>
+  <class name="edm::DetSetVector<TotemTimingEventInfo>"/>
+  <class name="edm::Wrapper<edm::DetSet<TotemTimingEventInfo> >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<TotemTimingEventInfo> >"/>
+  
   <class name="HPTDCErrorFlags" ClassVersion="3">
     <version ClassVersion="3" checksum="508529379"/>
   </class>
