@@ -79,6 +79,7 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
   fedDataToken = consumes<FEDRawDataCollection>(conf.getParameter<edm::InputTag>("rawDataTag"));
 
   // validate chosen subSystem
+  std::cout << subSystemName << std::endl;
   if (subSystemName == "TrackingStrip")
     subSystem = ssTrackingStrip;
   if (subSystemName == "TimingDiamond")
@@ -116,14 +117,12 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
 
     if (subSystem == ssTimingDiamond)
     {
-
       for (int id = FEDNumbering::MINCTPPSDiamondFEDID; id <= FEDNumbering::MAXCTPPSDiamondFEDID; ++id)
         fedIds.push_back(id);
     }
     
     if (subSystem == ssTotemTiming)
     {
-
       for (int id = FEDNumbering::MINTotemRPTimingVerticalFEDID; id <= FEDNumbering::MAXTotemRPTimingVerticalFEDID; ++id)
         fedIds.push_back(id);
     }

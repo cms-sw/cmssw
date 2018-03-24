@@ -1,0 +1,115 @@
+<top>   
+  <arm id="0">  <!-- 45 -->
+    <station id="1">        <!-- 215 m -->
+      <rp_detector_set id="6">        <!-- Timing -->
+        <rp_sampic_board id="0">
+          <rp_sampic_channel       id="0"        FEDId="587"     GOHId="0"       IdxInFiber="0"/>
+          <rp_sampic_channel       id="1"        FEDId="587"     GOHId="0"       IdxInFiber="1"/>
+          <rp_sampic_channel       id="2"        FEDId="587"     GOHId="0"       IdxInFiber="2"/>
+          <rp_sampic_channel       id="3"        FEDId="587"     GOHId="0"       IdxInFiber="3"/>
+          <rp_sampic_channel       id="4"        FEDId="587"     GOHId="0"       IdxInFiber="4"/>
+          <rp_sampic_channel       id="5"        FEDId="587"     GOHId="0"       IdxInFiber="5"/>
+          <rp_sampic_channel       id="6"        FEDId="587"     GOHId="0"       IdxInFiber="6"/>
+          <rp_sampic_channel       id="7"        FEDId="587"     GOHId="0"       IdxInFiber="7"/>
+          <rp_sampic_channel       id="8"        FEDId="587"     GOHId="0"       IdxInFiber="8"/>
+          <rp_sampic_channel       id="9"        FEDId="587"     GOHId="0"       IdxInFiber="9"/>
+          <rp_sampic_channel       id="10"       FEDId="587"     GOHId="0"       IdxInFiber="10"/>
+          <rp_sampic_channel       id="11"       FEDId="587"     GOHId="0"       IdxInFiber="11"/>
+          <rp_sampic_channel       id="12"       FEDId="587"     GOHId="0"       IdxInFiber="12"/>
+          <rp_sampic_channel       id="13"       FEDId="587"     GOHId="0"       IdxInFiber="13"/>
+          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="0"       IdxInFiber="14"/>          
+        </rp_sampic_board>
+        <rp_sampic_board id="1">
+          <rp_sampic_channel       id="0"        FEDId="587"     GOHId="1"       IdxInFiber="0"/>
+          <rp_sampic_channel       id="1"        FEDId="587"     GOHId="1"       IdxInFiber="1"/>
+          <rp_sampic_channel       id="2"        FEDId="587"     GOHId="1"       IdxInFiber="2"/>
+          <rp_sampic_channel       id="3"        FEDId="587"     GOHId="1"       IdxInFiber="3"/>
+          <rp_sampic_channel       id="4"        FEDId="587"     GOHId="1"       IdxInFiber="4"/>
+          <rp_sampic_channel       id="5"        FEDId="587"     GOHId="1"       IdxInFiber="5"/>
+          <rp_sampic_channel       id="6"        FEDId="587"     GOHId="1"       IdxInFiber="6"/>
+          <rp_sampic_channel       id="7"        FEDId="587"     GOHId="1"       IdxInFiber="7"/>
+          <rp_sampic_channel       id="8"        FEDId="587"     GOHId="1"       IdxInFiber="8"/>
+          <rp_sampic_channel       id="9"        FEDId="587"     GOHId="1"       IdxInFiber="9"/>
+          <rp_sampic_channel       id="10"       FEDId="587"     GOHId="1"       IdxInFiber="10"/>
+          <rp_sampic_channel       id="11"       FEDId="587"     GOHId="1"       IdxInFiber="11"/>
+          <rp_sampic_channel       id="12"       FEDId="587"     GOHId="1"       IdxInFiber="12"/>
+          <rp_sampic_channel       id="13"       FEDId="587"     GOHId="1"       IdxInFiber="13"/>
+          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="1"       IdxInFiber="14"/>          
+        </rp_sampic_board>
+        <rp_sampic_board id="2">
+          <rp_sampic_channel       id="0"        FEDId="587"     GOHId="2"       IdxInFiber="0"/>
+          <rp_sampic_channel       id="1"        FEDId="587"     GOHId="2"       IdxInFiber="1"/>
+          <rp_sampic_channel       id="2"        FEDId="587"     GOHId="2"       IdxInFiber="2"/>
+          <rp_sampic_channel       id="3"        FEDId="587"     GOHId="2"       IdxInFiber="3"/>
+          <rp_sampic_channel       id="4"        FEDId="587"     GOHId="2"       IdxInFiber="4"/>
+          <rp_sampic_channel       id="5"        FEDId="587"     GOHId="2"       IdxInFiber="5"/>
+          <rp_sampic_channel       id="6"        FEDId="587"     GOHId="2"       IdxInFiber="6"/>
+          <rp_sampic_channel       id="7"        FEDId="587"     GOHId="2"       IdxInFiber="7"/>
+          <rp_sampic_channel       id="8"        FEDId="587"     GOHId="2"       IdxInFiber="8"/>
+          <rp_sampic_channel       id="9"        FEDId="587"     GOHId="2"       IdxInFiber="9"/>
+          <rp_sampic_channel       id="10"       FEDId="587"     GOHId="2"       IdxInFiber="10"/>
+          <rp_sampic_channel       id="11"       FEDId="587"     GOHId="2"       IdxInFiber="11"/>
+          <rp_sampic_channel       id="12"       FEDId="587"     GOHId="2"       IdxInFiber="12"/>
+          <rp_sampic_channel       id="13"       FEDId="587"     GOHId="2"       IdxInFiber="13"/>
+          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="2"       IdxInFiber="14"/>          
+        </rp_sampic_board>
+      </rp_detector_set>
+    </station>
+    <station id="2">        <!-- 215 m -->
+      <rp_detector_set id="6">        <!-- Timing -->
+        <rp_sampic_board id="3">
+          <rp_sampic_channel       id="0"        FEDId="587"     GOHId="3"       IdxInFiber="0"/>
+          <rp_sampic_channel       id="1"        FEDId="587"     GOHId="3"       IdxInFiber="1"/>
+          <rp_sampic_channel       id="2"        FEDId="587"     GOHId="3"       IdxInFiber="2"/>
+          <rp_sampic_channel       id="3"        FEDId="587"     GOHId="3"       IdxInFiber="3"/>
+          <rp_sampic_channel       id="4"        FEDId="587"     GOHId="3"       IdxInFiber="4"/>
+          <rp_sampic_channel       id="5"        FEDId="587"     GOHId="3"       IdxInFiber="5"/>
+          <rp_sampic_channel       id="6"        FEDId="587"     GOHId="3"       IdxInFiber="6"/>
+          <rp_sampic_channel       id="7"        FEDId="587"     GOHId="3"       IdxInFiber="7"/>
+          <rp_sampic_channel       id="8"        FEDId="587"     GOHId="3"       IdxInFiber="8"/>
+          <rp_sampic_channel       id="9"        FEDId="587"     GOHId="3"       IdxInFiber="9"/>
+          <rp_sampic_channel       id="10"       FEDId="587"     GOHId="3"       IdxInFiber="10"/>
+          <rp_sampic_channel       id="11"       FEDId="587"     GOHId="3"       IdxInFiber="11"/>
+          <rp_sampic_channel       id="12"       FEDId="587"     GOHId="3"       IdxInFiber="12"/>
+          <rp_sampic_channel       id="13"       FEDId="587"     GOHId="3"       IdxInFiber="13"/>
+          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="3"       IdxInFiber="14"/>          
+        </rp_sampic_board>
+        <rp_sampic_board id="4">
+          <rp_sampic_channel       id="0"        FEDId="587"     GOHId="4"       IdxInFiber="0"/>
+          <rp_sampic_channel       id="1"        FEDId="587"     GOHId="4"       IdxInFiber="1"/>
+          <rp_sampic_channel       id="2"        FEDId="587"     GOHId="4"       IdxInFiber="2"/>
+          <rp_sampic_channel       id="3"        FEDId="587"     GOHId="4"       IdxInFiber="3"/>
+          <rp_sampic_channel       id="4"        FEDId="587"     GOHId="4"       IdxInFiber="4"/>
+          <rp_sampic_channel       id="5"        FEDId="587"     GOHId="4"       IdxInFiber="5"/>
+          <rp_sampic_channel       id="6"        FEDId="587"     GOHId="4"       IdxInFiber="6"/>
+          <rp_sampic_channel       id="7"        FEDId="587"     GOHId="4"       IdxInFiber="7"/>
+          <rp_sampic_channel       id="8"        FEDId="587"     GOHId="4"       IdxInFiber="8"/>
+          <rp_sampic_channel       id="9"        FEDId="587"     GOHId="4"       IdxInFiber="9"/>
+          <rp_sampic_channel       id="10"       FEDId="587"     GOHId="4"       IdxInFiber="10"/>
+          <rp_sampic_channel       id="11"       FEDId="587"     GOHId="4"       IdxInFiber="11"/>
+          <rp_sampic_channel       id="12"       FEDId="587"     GOHId="4"       IdxInFiber="12"/>
+          <rp_sampic_channel       id="13"       FEDId="587"     GOHId="4"       IdxInFiber="13"/>
+          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="4"       IdxInFiber="14"/>          
+        </rp_sampic_board>
+        <rp_sampic_board id="5">
+          <rp_sampic_channel       id="0"        FEDId="587"     GOHId="5"       IdxInFiber="0"/>
+          <rp_sampic_channel       id="1"        FEDId="587"     GOHId="5"       IdxInFiber="1"/>
+          <rp_sampic_channel       id="2"        FEDId="587"     GOHId="5"       IdxInFiber="2"/>
+          <rp_sampic_channel       id="3"        FEDId="587"     GOHId="5"       IdxInFiber="3"/>
+          <rp_sampic_channel       id="4"        FEDId="587"     GOHId="5"       IdxInFiber="4"/>
+          <rp_sampic_channel       id="5"        FEDId="587"     GOHId="5"       IdxInFiber="5"/>
+          <rp_sampic_channel       id="6"        FEDId="587"     GOHId="5"       IdxInFiber="6"/>
+          <rp_sampic_channel       id="7"        FEDId="587"     GOHId="5"       IdxInFiber="7"/>
+          <rp_sampic_channel       id="8"        FEDId="587"     GOHId="5"       IdxInFiber="8"/>
+          <rp_sampic_channel       id="9"        FEDId="587"     GOHId="5"       IdxInFiber="9"/>
+          <rp_sampic_channel       id="10"       FEDId="587"     GOHId="5"       IdxInFiber="10"/>
+          <rp_sampic_channel       id="11"       FEDId="587"     GOHId="5"       IdxInFiber="11"/>
+          <rp_sampic_channel       id="12"       FEDId="587"     GOHId="5"       IdxInFiber="12"/>
+          <rp_sampic_channel       id="13"       FEDId="587"     GOHId="5"       IdxInFiber="13"/>
+          <rp_sampic_channel       id="14"       FEDId="587"     GOHId="5"       IdxInFiber="14"/>          
+        </rp_sampic_board>
+      </rp_detector_set>
+    </station>
+  </arm>
+</top>
+

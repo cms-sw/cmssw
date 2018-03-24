@@ -8,4 +8,15 @@ totemTimingRawToDigi = totemVFATRawToDigi.clone(
     # IMPORTANT: leave empty to load the default configuration from
     #    DataFormats/FEDRawData/interface/FEDNumbering.h
     fedIds = cms.vuint32(),
+    
+    RawToDigi = cms.PSet(
+    verbosity = cms.untracked.uint32(0),
+
+    # disable all the checks
+    testFootprint = cms.uint32(0),
+    testCRC = cms.uint32(0),
+    testID = cms.uint32(0),               # compare the ID from data and mapping
+    testECMostFrequent = cms.uint32(0),   # compare frame's EC with the most frequent value in the event
+    testBCMostFrequent = cms.uint32(0),   # compare frame's BC with the most frequent value in the event
+  )
 )
