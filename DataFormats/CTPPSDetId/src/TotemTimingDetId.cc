@@ -24,14 +24,14 @@ TotemTimingDetId::TotemTimingDetId(uint32_t id) : CTPPSDetId(id)
       throw cms::Exception("InvalidDetId") << "TotemTimingDetId ctor:"
 					   << " channel: " << channel()
 					   << " subdet: " << subdetId()
-					   << " is not a valid CTPPS Timing Diamond id";  
+					   << " is not a valid Totem Timing id";  
     }
 }
 
 //----------------------------------------------------------------------------------------------------
 
 TotemTimingDetId::TotemTimingDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot, uint32_t Plane, uint32_t Channel) :       
-  CTPPSDetId(sdTimingDiamond, Arm, Station, RomanPot)
+  CTPPSDetId(sdTimingFastSilicon, Arm, Station, RomanPot)
 {
   if (Arm > maxArm || Station > maxStation || RomanPot > maxRP || Plane > maxPlane || Channel > maxChannel)
     {
