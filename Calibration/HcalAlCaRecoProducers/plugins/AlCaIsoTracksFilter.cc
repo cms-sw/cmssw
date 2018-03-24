@@ -465,8 +465,8 @@ void AlCaIsoTracksFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("EBHitEnergyThreshold",0.10);
   desc.add<double>("EEHitEnergyThreshold0",-41.0664);
   desc.add<double>("EEHitEnergyThreshold1",68.7950);
-  desc.add<double>("EEHitEnergyThreshold2",-38.1482);
-  desc.add<double>("EEHitEnergyThreshold3",7.04352);
+  desc.add<double>("EEHitEnergyThreshold2",-38.1483);
+  desc.add<double>("EEHitEnergyThreshold3",7.04303);
   // Prescale events only containing isolated tracks in the range
   desc.add<double>("momentumRangeLow",20.0);
   desc.add<double>("momentumRangeHigh",40.0);

@@ -804,8 +804,8 @@ void HcalIsoTrkAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("EBHitEnergyThreshold",0.10);
   desc.add<double>("EEHitEnergyThreshold0",-41.0664);
   desc.add<double>("EEHitEnergyThreshold1",68.7950);
-  desc.add<double>("EEHitEnergyThreshold2",-38.1482);
-  desc.add<double>("EEHitEnergyThreshold3",7.04352);
+  desc.add<double>("EEHitEnergyThreshold2",-38.1483);
+  desc.add<double>("EEHitEnergyThreshold3",7.04303);
   // various labels for collections used in the code
   desc.add<edm::InputTag>("labelTriggerEvent",edm::InputTag("hltTriggerSummaryAOD","","HLT"));
   desc.add<edm::InputTag>("labelTriggerResult",edm::InputTag("TriggerResults","","HLT"));
