@@ -16,7 +16,7 @@ simGmtStage2Digis = cms.EDProducer('L1TMuonProducer',
     bxMin = cms.int32(-2),
     bxMax = cms.int32(2),
     autoCancelMode = cms.bool(False), # if True the cancel out methods are configured depending on the FW version number and 'emtfCancelMode' is ignored
-    emtfCancelMode = cms.string("coordinate") # 'tracks' or 'coordinate'
+    emtfCancelMode = cms.string("coordinate"), # 'tracks' or 'coordinate'
     runPhase2 = cms.bool(False)
 )
 
