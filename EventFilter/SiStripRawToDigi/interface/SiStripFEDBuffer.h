@@ -221,6 +221,7 @@ namespace sistrip {
       oldWordOffset_(0), currentWordOffset_(channelPayloadOffset),
       currentBitOffset_(0), currentLocalBitOffset_(0),
       bitOffsetIncrement_(offsetIncrement),
+      currentStrip_(0),
       channelPayloadOffset_(channelPayloadOffset),
       channelPayloadLength_(channelPayloadLength),
       useZS_(useZS), valuesLeftInCluster_(0)
