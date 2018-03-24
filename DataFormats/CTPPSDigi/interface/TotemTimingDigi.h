@@ -13,10 +13,12 @@
 #include <cstdint>
 #include <vector>
 
+#include <DataFormats/CTPPSDigi/interface/TotemTimingEventInfo.h>
+
 class TotemTimingDigi{
 
   public:  
-    TotemTimingDigi(const uint8_t hwId, const uint64_t FPGATimeStamp, const uint16_t TimeStampA, const uint16_t TimeStampB, const uint16_t CellInfo, const std::vector< uint8_t>& Samples);
+    TotemTimingDigi(const uint8_t hwId, const uint64_t FPGATimeStamp, const uint16_t TimeStampA, const uint16_t TimeStampB, const uint16_t CellInfo, const std::vector< uint8_t>& Samples, const TotemTimingEventInfo& totemTimingEventInfo);
     TotemTimingDigi(const TotemTimingDigi& digi);
     TotemTimingDigi();
     ~TotemTimingDigi() {};
@@ -93,6 +95,11 @@ class TotemTimingDigi{
       if ( i < samples_.size() ) sampleValue = (int) samples_.at(i);
       return sampleValue;
     }
+    
+    inline TotemTimingEventInfo getEventInfo() const
+    {
+      return totemTimingEventInfo_;
+    }
        
 
     /// Set digi values
@@ -155,7 +162,12 @@ class TotemTimingDigi{
       if ( i < samples_.size() ) samples_.at(i) = sampleValue;
     }
     
+    inline void setEventInfo( const TotemTimingEventInfo& totemTimingEventInfo )
+    {
+      totemTimingEventInfo_ = totemTimingEventInfo;
+    }
     
+
 
 
   private:
@@ -166,6 +178,8 @@ class TotemTimingDigi{
     uint16_t CellInfo_;
     
     std::vector< uint8_t > samples_;
+    
+    TotemTimingEventInfo totemTimingEventInfo_;
     
 };
 
@@ -190,7 +204,7 @@ inline std::ostream & operator<<(std::ostream & o, const TotemTimingDigi& digi)
            << "\nTimeStampA:\t" << std::hex << digi.getTimeStampA()
            << "\nCellInfo:\t" << std::hex << digi.getCellInfo()
            << "\nNumberOfSamples:\t" << std::dec << digi.getNumberOfSamples()
-           << std::endl;
+           << std::endl << digi.getEventInfo() << std::endl;
            
 }
 

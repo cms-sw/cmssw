@@ -14,6 +14,7 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
 #include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
@@ -53,6 +54,9 @@ namespace ctpps
 
       /// Process one Opto-Rx frame in parallel (new) format
       int ProcessOptoRxFrameParallel(const word *buffer, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const;
+      
+      /// Process one Opto-Rx frame that contains SAMPIC frames
+      int ProcessOptoRxFrameSampic(const word *buffer, unsigned int frameSize, TotemFEDInfo &fedInfo, SimpleVFATFrameCollection *fc) const;
 
       /// Process data from one VFAT in parallel (new) format
       int ProcessVFATDataParallel(const uint16_t *buf, unsigned int maxWords, unsigned int OptoRxId, SimpleVFATFrameCollection *fc) const;
