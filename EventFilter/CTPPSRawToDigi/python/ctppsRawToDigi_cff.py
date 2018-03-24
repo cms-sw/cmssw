@@ -109,7 +109,7 @@ totemDAQMappingESSourceXML_TotemTiming = cms.ESSource("TotemDAQMappingESSourceXM
   )
 )
 
-from EventFilter.CTPPSRawToDigi.ctppsTotemTimingRawToDigi_cfi import totemTimingRawToDigi
+from EventFilter.CTPPSRawToDigi.totemTimingRawToDigi_cfi import totemTimingRawToDigi
 totemTimingRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 
@@ -124,5 +124,6 @@ ctppsRawToDigi = cms.Sequence(
   totemTriggerRawToDigi *
   totemRPRawToDigi *
   ctppsDiamondRawToDigi*
+  totemTimingRawToDigi*
   ctppsPixelDigis
 )
