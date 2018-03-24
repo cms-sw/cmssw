@@ -95,8 +95,14 @@ TrajectoryStateOnSurface lupdate(const TrajectoryStateOnSurface& tsos,
 
   // Compute local filtered state vector
   AlgebraicVector5 fsv = x + K * r;
-  // Compute covariance matrix of local filtered state vector
+
+  // Compute covariance matrix of local filtered state vector 
+#define KU_JosephForm
+#ifdef KU_JosephForm
   AlgebraicSymMatrix55 fse = ROOT::Math::Similarity(M, C) + ROOT::Math::Similarity(K, V);
+#else
+  AlgebraicSymMatrix55 fse;  ROOT::Math::AssignSym::Evaluate(fse, M*C);
+#endif
 
 // test	of joseph form
 #ifdef KU_JF_TEST
