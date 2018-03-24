@@ -25,8 +25,8 @@ void HLTEcalPixelIsolTrackFilter::fillDescriptions(edm::ConfigurationDescription
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
   desc.add<edm::InputTag>("candTag",edm::InputTag("hltIsolEcalPixelTrackProd"));
-  desc.add<double>("MaxEnergyInEB",1.2);
-  desc.add<double>("MaxEnergyInEE",2.0);
+  desc.add<double>("MaxEnergyInEB",2.0);
+  desc.add<double>("MaxEnergyInEE",4.0);
   desc.add<double>("MaxEnergyOutEB",1.2);
   desc.add<double>("MaxEnergyOutEE",2.0);
   desc.add<int>("NMaxTrackCandidates",10);
