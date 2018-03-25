@@ -10,9 +10,6 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-# geometry
-process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi")
-
 # load alignment correction
 process.load("Geometry.VeryForwardGeometryBuilder.ctppsIncludeAlignmentsFromXML_cfi")
 process.ctppsIncludeAlignmentsFromXML.RealFiles = cms.vstring("Geometry/VeryForwardGeometryBuilder/test/sample_alignment_corrections.xml")
@@ -24,12 +21,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.ctppsGeometryInfo = cms.EDAnalyzer("CTPPSGeometryInfo",
-    geometryType = cms.untracked.string("real"),
-    printRPInfo = cms.untracked.bool(True),
-    printSensorInfo = cms.untracked.bool(True)
+process.ctppsAlignmentInfo = cms.EDAnalyzer("CTPPSAlignmentInfo",
+    alignmentType = cms.untracked.string("real"),
 )
 
 process.p = cms.Path(
-    process.ctppsGeometryInfo
+    process.ctppsAlignmentInfo
 )
