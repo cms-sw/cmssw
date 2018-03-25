@@ -60,8 +60,9 @@ int HGCalTriggerDetId::triggerCellX() const {
   int N  = nT*HGCalTriggerCell;
   std::vector<int> vc = cellV();
   int x(0);
-  for (auto const & v : vc) 
+  for (auto const & v : vc) {
     x += (3*(v-N)+2);
+  }
   return (x/vc.size());
 }
 
@@ -72,8 +73,9 @@ int HGCalTriggerDetId::triggerCellY() const {
   std::vector<int> uc = cellU();
   std::vector<int> vc = cellV();
   int y(0);
-  for (unsigned int k=0; k<uc.size(); ++k) 
+  for (unsigned int k=0; k<uc.size(); ++k) {
     y += (2*uc[k]-(N+vc[k]));
+  }
   return (y/vc.size());
 }
 

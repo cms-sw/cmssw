@@ -19,15 +19,15 @@ HGCSiliconDetId::HGCSiliconDetId(DetId::Detector det, int zp, int type,
   int waferUsign = (waferU >= 0) ? 0 : 1;
   int waferVsign = (waferV >= 0) ? 0 : 1;
   int zside      = (zp < 0) ? 1 : 0;
-  id_ |= ((cellU     & kHGCalCellUMask) << kHGCalCellUOffset);
-  id_ |= ((cellV     & kHGCalCellVMask) << kHGCalCellVOffset);
-  id_ |= ((waferUabs & kHGCalWaferUMask) << kHGCalWaferUOffset);
-  id_ |= ((waferUsign& kHGCalWaferUSignMask) << kHGCalWaferUSignOffset);
-  id_ |= ((waferVabs & kHGCalWaferVMask) << kHGCalWaferVOffset);
-  id_ |= ((waferVsign& kHGCalWaferVSignMask) << kHGCalWaferVSignOffset);
-  id_ |= ((layer     & kHGCalLayerMask) << kHGCalLayerOffset);
-  id_ |= ((zside     & kHGCalZsideMask) << kHGCalZsideOffset);
-  id_ |= ((type      & kHGCalTypeMask)  << kHGCalTypeOffset);
+  id_ |= (((cellU     & kHGCalCellUMask) << kHGCalCellUOffset) |
+	  ((cellV     & kHGCalCellVMask) << kHGCalCellVOffset) |
+	  ((waferUabs & kHGCalWaferUMask) << kHGCalWaferUOffset) |
+	  ((waferUsign& kHGCalWaferUSignMask) << kHGCalWaferUSignOffset) |
+	  ((waferVabs & kHGCalWaferVMask) << kHGCalWaferVOffset) |
+	  ((waferVsign& kHGCalWaferVSignMask) << kHGCalWaferVSignOffset) |
+	  ((layer     & kHGCalLayerMask) << kHGCalLayerOffset) |
+	  ((zside     & kHGCalZsideMask) << kHGCalZsideOffset) |
+	  ((type      & kHGCalTypeMask)  << kHGCalTypeOffset));
 }
 
 HGCSiliconDetId::HGCSiliconDetId(const DetId& gen) {
