@@ -15,19 +15,28 @@ process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2017_cfi")
 
 # load alignment correction
 process.load("Geometry.VeryForwardGeometryBuilder.ctppsIncludeAlignmentsFromXML_cfi")
-process.ctppsIncludeAlignmentsFromXML.RealFiles = cms.vstring("Geometry/VeryForwardGeometryBuilder/test/sample_alignment_corrections.xml")
+process.ctppsIncludeAlignmentsFromXML.RealFiles = cms.vstring(
+    "Geometry/VeryForwardGeometryBuilder/test/CTPPSIncludeAlignmentCorrectionsXML/alignment_file_2.xml",
+)
+process.ctppsIncludeAlignmentsFromXML.verbosity = 1
 
 # no events to process
-process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource",
+  firstRun = cms.untracked.uint32(123),
+  firstLuminosityBlock = cms.untracked.uint32(1),
+  firstEvent = cms.untracked.uint32(1),
+  numberEventsInLuminosityBlock = cms.untracked.uint32(3),
+  numberEventsInRun = cms.untracked.uint32(30)
+)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(50)
 )
 
 process.ctppsGeometryInfo = cms.EDAnalyzer("CTPPSGeometryInfo",
     geometryType = cms.untracked.string("real"),
-    printRPInfo = cms.untracked.bool(True),
-    printSensorInfo = cms.untracked.bool(True)
+    printRPInfo = cms.untracked.bool(False),
+    printSensorInfo = cms.untracked.bool(False)
 )
 
 process.p = cms.Path(
