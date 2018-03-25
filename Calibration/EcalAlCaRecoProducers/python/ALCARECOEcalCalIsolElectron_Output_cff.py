@@ -24,8 +24,8 @@ OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     ),
     outputCommands = cms.untracked.vstring( 
     'keep *_pfMet_*_*', # met for Wenu selection
-    'keep *_kt6PFJetsForRhoCorrection_rho_*', #rho for effective area subtraction
-    'keep *_kt6PFJets_rho_*', #rho for effective area subtraction
+    #'keep *_kt6PFJetsForRhoCorrection_rho_*', #rho for effective area subtraction
+    #'keep *_kt6PFJets_rho_*', #rho for effective area subtraction
     #'keep recoVertexs_offlinePrimaryVertices*_*_*',
     'keep recoVertexs_offlinePrimaryVertices_*_*',
     'keep recoVertexs_offlinePrimaryVerticesWithBS_*_*',
@@ -34,14 +34,14 @@ OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     'keep *_conversions_*_*',
     #'keep *GsfTrack*_*_*_*',
     'keep *GsfTrack*_electronGsfTracks_*_*',
-    'keep *GsfTrack*_uncleanedOnlyElectronGsfTracks_*_*',
+#    'keep *GsfTrack*_uncleanedOnlyElectronGsfTracks_*_*',
     'keep *_generator_*_*',
     'keep *_addPileupInfo_*_*',
     'keep *_genParticles_*_*',
     'keep recoGsfElectron*_gsfElectron*_*_*',
     #'keep recoGsfElectron*_gedGsfElectron*_*_*',
     'keep recoGsfElectron*_gedGsfElectrons_*_*',
-    'keep recoGsfElectron*_gedGsfElectronsTmp_*_*',
+#    'keep recoGsfElectron*_gedGsfElectronsTmp_*_*',
     'keep recoGsfElectron*_gedGsfElectronCores_*_*',
     'keep recoPhoton*_gedPhoton_*_*',
     #'keep recoCaloClusters_*_*_*',
@@ -94,6 +94,8 @@ OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     # pfisolation CMSSW_5_3_X
     'keep *EcalRecHit*_alCaIsolatedElectrons_*_*',
     'keep *EcalRecHit*_reducedEcalRecHitsES_alCaRecHitsES_*',
+    'keep *_fixedGridRhoFastjetAll_*_*'
+    
     )
 )
 
