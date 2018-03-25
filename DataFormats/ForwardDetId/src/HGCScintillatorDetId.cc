@@ -16,11 +16,11 @@ HGCScintillatorDetId::HGCScintillatorDetId(int type, int layer, int eta,
 
   int zside      = (eta < 0) ? 1 : 0;
   int etaAbs     = std::abs(eta);
-  id_ |= ((type&kHGCalTypeMask)<<kHGCalTypeOffset) | 
-    ((zside&kHGCalZsideMask)<<kHGCalZsideOffset) |
-    ((layer&kHGCalLayerMask)<<kHGCalLayerOffset) |
-    ((etaAbs&kHGCalEtaMask)<<kHGCalEtaOffset) |
-    ((phi&kHGCalPhiMask)<<kHGCalPhiOffset);
+  id_ |= (((type&kHGCalTypeMask)<<kHGCalTypeOffset) | 
+	  ((zside&kHGCalZsideMask)<<kHGCalZsideOffset) |
+	  ((layer&kHGCalLayerMask)<<kHGCalLayerOffset) |
+	  ((etaAbs&kHGCalEtaMask)<<kHGCalEtaOffset) |
+	  ((phi&kHGCalPhiMask)<<kHGCalPhiOffset));
 }
 
 HGCScintillatorDetId::HGCScintillatorDetId(const DetId& gen) {
