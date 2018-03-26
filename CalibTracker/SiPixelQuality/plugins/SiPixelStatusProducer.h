@@ -4,7 +4,7 @@
 /**_________________________________________________________________
    class:   SiPixelStatusProducer.h
    package: CalibTracker/SiPixelQuality
-   
+
 ________________________________________________________________**/
 
 
@@ -28,7 +28,7 @@ class SiPixelStatusProducer : public edm::one::EDProducer<edm::EndLuminosityBloc
   void endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) final;
   void accumulate                  (edm::Event const&, const edm::EventSetup& iSetup) final;
   
-  virtual void onlineRocColRow(const DetId &detId, int offlineRow, int offlineCol, int &roc, int &row, int &col);
+  virtual void onlineRocColRow(const DetId &detId, int offlineRow, int offlineCol, int &roc, int &row, int &col) final;
 
   virtual int indexROC(int irow, int icol, int nROCcolumns) final;
 
@@ -48,12 +48,12 @@ class SiPixelStatusProducer : public edm::one::EDProducer<edm::EndLuminosityBloc
   // CablingMaps
   edm::ESWatcher<SiPixelFedCablingMapRcd> siPixelFedCablingMapWatcher_;
   edm::ESHandle<SiPixelFedCablingMap> fCablingMap;
-  const SiPixelFedCablingMap* fCablingMap_;  
+  const SiPixelFedCablingMap* fCablingMap_;
 
   // TrackerDIGIGeo
   edm::ESWatcher<TrackerDigiGeometryRecord> trackerDIGIGeoWatcher_;
   edm::ESHandle<TrackerGeometry> fTG;
-  // TrackerTopology 
+  // TrackerTopology
   edm::ESWatcher<TrackerTopologyRcd> trackerTopoWatcher_;
 
   // SiPixel offline<->online conversion
