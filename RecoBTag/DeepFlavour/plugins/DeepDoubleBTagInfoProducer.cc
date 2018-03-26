@@ -236,7 +236,7 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
             auto & trackinfo = trackinfos.emplace(i,track_builder).first->second;
             trackinfo.buildTrackInfo(cand,jet_dir,jet_ref_track_dir,pv);
             c_sorted.emplace_back(i, trackinfo.getTrackSip2dSig(),
-                                  -btagbtvdeep::mindrsvpfcand(svs_unsorted,cand,0.8), cand->pt()/jet.pt());
+                                  -btagbtvdeep::mindrsvpfcand(svs_unsorted,cand,jet_radius_), cand->pt()/jet.pt());
 	    //if (jet.pt() > 200 && std::abs(jet.eta()) < 2.4) std::cout << "cand: " << cand->pt() << " " << cand->eta() << " " << trackinfo.getTrackSip2dSig() << btagbtvdeep::mindrsvpfcand(svs_unsorted,cand,0.8) << std::endl;
 	    i++;
 	  }
@@ -279,7 +279,7 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
     // get PUPPI weight from value map
     float puppiw = 1.0; // fallback value
 
-    float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, cand, 0.8);
+    float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, cand, jet_radius_);
     
     if (cand->charge() != 0) {
       // is charged candidate
@@ -291,7 +291,7 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
       // fill feature structure 
       if (packed_cand) {
         btagbtvdeep::PackedCandidateToFeatures(packed_cand, jet, trackinfo, 
-					       drminpfcandsv, c_pf_features);
+					       drminpfcandsv, jet_radius_, c_pf_features);
 	i++;
       } else if (reco_cand) {
         // get vertex association quality
@@ -320,7 +320,7 @@ void DeepDoubleBTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
                                              << "dz closest PV will be used as default";
         }
         btagbtvdeep::RecoCandidateToFeatures(reco_cand, jet, trackinfo, 
-                                           drminpfcandsv, puppiw,
+					     drminpfcandsv, jet_radius_, puppiw,
 					     pv_ass_quality, PV, c_pf_features);
 	i++;
       }
