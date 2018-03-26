@@ -110,7 +110,7 @@ namespace btagbtvdeep {
     float* ptr = &tensor.tensor<float, 3>()(jet_n, c_pf_n, 0);
 
     *ptr     = c_pf_features.btagPf_trackEtaRel;
-    *(++ptr) = c_pf_features.btagPf_trackPtRel;
+    *(++ptr) = c_pf_features.btagPf_trackPtRatio;
     *(++ptr) = c_pf_features.btagPf_trackPParRatio;
     *(++ptr) = c_pf_features.btagPf_trackSip2dVal;
     *(++ptr) = c_pf_features.btagPf_trackSip2dSig;
