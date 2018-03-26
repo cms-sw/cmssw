@@ -26,7 +26,7 @@ using namespace edm;
 
 RawToDigiConverter::RawToDigiConverter(const edm::ParameterSet &conf) :
   verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
-  printErrorSummary(conf.getUntrackedParameter<unsigned int>("printErrorSummary", 1)),
+  printErrorSummary(conf.getUntrackedParameter<unsigned int>("printErrorSummary", 0)),
   printUnknownFrameSummary(conf.getUntrackedParameter<unsigned int>("printUnknownFrameSummary", 1)),
 
   testFootprint(conf.getParameter<unsigned int>("testFootprint")),
@@ -279,9 +279,6 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
 
     if (record.status.isOK())
     {
-      const TotemFramePosition* framepos = &p.first;
-      std::cout<< "Subsystem: " << framepos->getSubSystemId() << "\tTOTFED: "<< framepos->getTOTFEDId()<< "\tGOH: "<< framepos->getGOHId() << "\tIdxInFiber: " << framepos->getIdxInFiber() << std::endl;
-
       const VFATFrame *fr = record.frame;
       const DiamondVFATFrame *diamondframe = static_cast<const DiamondVFATFrame*>(fr);
 
@@ -342,7 +339,7 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
         // Extract all the waveform information from the raw data
         TotemSampicFrame totemSampicFrame((uint8_t*) record.frame->getData(), (uint8_t*) channelwaveform.frame->getData(), (uint8_t*) eventInfo.frame->getData());
         
-  //       totemSampicFrame.PrintRaw();
+//         totemSampicFrame.PrintRaw();
 //         if (totemSampicFrame.isOK()) totemSampicFrame.Print();
 
         if (totemSampicFrame.isOK())
@@ -352,13 +349,31 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
           TotemTimingDigi digiTmp( totemSampicFrame.getHardwareId(), totemSampicFrame.getFPGATimeStamp(), totemSampicFrame.getTimeStampA(), totemSampicFrame.getTimeStampB(), totemSampicFrame.getCellInfo(), totemSampicFrame.getSamples(), eventInfoTmp);
           // calculate ids
           TotemTimingDetId detId(record.info->symbolicID.symbolicID);
-          std::cout << "Plane: " << digiTmp.getHardwareSampicId() % 4 << "    Ch: " << digiTmp.getHardwareChannelId() << std::endl;
-          detId.setPlane( digiTmp.getHardwareSampicId() % 4 );
-          detId.setChannel( digiTmp.getHardwareChannelId() );
           
+          if ( totemSampicFrame.getFWVersion() == 0 ) {
+//             detId.setPlane( digiTmp.getHardwareSampicId() % 4 );
+//             detId.setChannel( digiTmp.getHardwareChannelId() );
+            const TotemDAQMapping::TotemTimingPlaneChannelPair pair = mapping.getTimingChannel( totemSampicFrame.getHardwareId() );
+            
+//             std::cout << "RawToDigi: adding plane: " << std::dec << pair.plane << " ch: " << pair.channel << " hwId: " << std::hex << (unsigned int) totemSampicFrame.getHardwareId() << std::endl;
+
+            if ( pair.plane == -1 || pair.channel == -1 ) {
+              if (verbosity > 1)
+                LogWarning("Totem") << "Error in RawToDigiConverter::TotemTiming > " << "HwId not recognized!  hwId: " << std::hex << (unsigned int) totemSampicFrame.getHardwareId() << endl;
+            }
+            else {
+              detId.setPlane( pair.plane );
+              detId.setChannel( pair.channel );
+            }
+              
+
+          }
+          else {
+            detId.setPlane( totemSampicFrame.getDetPlane() % 4 );
+            detId.setChannel( totemSampicFrame.getDetChannel() % 32 );
+          }
           
-          
-          DetSet<TotemTimingDigi> &digiDetSet = digi.find_or_insert(detId);       //TODO: ID!!
+          DetSet<TotemTimingDigi> &digiDetSet = digi.find_or_insert(detId);
           digiDetSet.push_back(digiTmp);
         }
       }

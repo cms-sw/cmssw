@@ -43,7 +43,18 @@ class TotemDAQMapping
   public:
     std::map<TotemFramePosition, TotemVFATInfo> VFATMapping;
     
+    // Hw Id mapping for Totem Timing (dynamicla mapping in Sampic)
+    struct TotemTimingPlaneChannelPair {
+      int channel;
+      int plane;
+      
+      TotemTimingPlaneChannelPair(const int& channel=-1, const int& plane=-1) : channel(channel), plane(plane) {};
+    };
+    std::map<uint8_t, TotemTimingPlaneChannelPair> totemTimingChannelMap;
+    
     void insert(const TotemFramePosition &fp, const TotemVFATInfo &vi);
+    
+    const TotemTimingPlaneChannelPair getTimingChannel( const uint8_t hwId ) const;
 };
 
 #endif
