@@ -2,10 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.SiPixelPhase1Common.HistogramManager_cfi import *
 
-SuperimoposePlotsInOnlineBlocks=False
+SuperimoposePlotsInOnlineBlocks=True
 IsOffline.enabled=False
-
-
 
 
 StandardSpecifications1D.append(
@@ -31,38 +29,12 @@ StandardSpecifications1D.append(
                      .save()
   )
   
-StandardSpecifications1D_Num.append(
-      Specification(OverlayCurvesForTiming).groupBy("DetId/Event") # per-layer with history for online
-                               .reduce("COUNT")
-                               .groupBy("PXBarrel/PXLayer/OnlineBlock") 
-                               .groupBy("PXBarrel/PXLayer", "EXTEND_Y")
-                               .save()
-  )
-StandardSpecifications1D_Num.append(
-      Specification(OverlayCurvesForTiming).groupBy("DetId/Event") # per-layer with history for online
-                               .reduce("COUNT")
-                               .groupBy("PXForward/PXDisk/OnlineBlock") 
-                               .groupBy("PXForward/PXDisk", "EXTEND_Y")
-                               .save()
-  )
-StandardSpecifications1D_Num.append(
-      Specification(OverlayCurvesForTiming).groupBy("DetId/Event") # per-layer with history for online
-                     .reduce("COUNT")
-                     .groupBy("PXBarrel/OnlineBlock") 
-                     .groupBy("PXBarrel", "EXTEND_Y")
-                     .save()
-  )
-StandardSpecifications1D_Num.append(
-      Specification(OverlayCurvesForTiming).groupBy("DetId/Event") # per-layer with history for online
-                     .reduce("COUNT")
-                     .groupBy("PXForward/OnlineBlock") 
-                     .groupBy("PXForward", "EXTEND_Y")
-                     .save()
-  )
-
   
 # To Configure Phase1 DQM for Phase0 data
 SiPixelPhase1Geometry.upgradePhase = 1
+
+#define number of lumis for overlayed plots
+SiPixelPhase1Geometry.onlineblock = 50
 
 # Turn on 'online' harvesting. This has to be set before other configs are 
 # loaded (due to how the DefaultHisto PSet is later cloned), therefore it is
@@ -95,10 +67,16 @@ from DQM.SiPixelPhase1Common.SiPixelPhase1GeometryDebug_cfi import *
 #Summary maps
 from DQM.SiPixelPhase1Summary.SiPixelPhase1Summary_cfi import *
 
+# Track cluster                                                                                                                                                                            
+from DQM.SiPixelPhase1TrackClusters.SiPixelPhase1TrackClusters_cfi import *
+from DQM.SiPixelPhase1TrackResiduals.SiPixelPhase1TrackResiduals_cfi import *
+
 siPixelPhase1OnlineDQM_source = cms.Sequence(
    SiPixelPhase1DigisAnalyzer
  + SiPixelPhase1ClustersAnalyzer
  + SiPixelPhase1RawDataAnalyzer
+ + SiPixelPhase1TrackClustersAnalyzer
+ + SiPixelPhase1TrackResidualsAnalyzer
 # + SiPixelPhase1GeometryDebugAnalyzer
 )
 
@@ -106,9 +84,50 @@ siPixelPhase1OnlineDQM_harvesting = cms.Sequence(
    SiPixelPhase1DigisHarvester 
  + SiPixelPhase1ClustersHarvester
  + SiPixelPhase1RawDataHarvester
+ + SiPixelPhase1TrackClustersHarvester
+ + SiPixelPhase1TrackResidualsHarvester
  + RunQTests_online
  + SiPixelPhase1SummaryOnline
 # + SiPixelPhase1GeometryDebugHarvester
+)
+
+## Additional settings for cosmic runs                                                                                                                                                     
+
+SiPixelPhase1TrackClustersAnalyzer_cosmics = SiPixelPhase1TrackClustersAnalyzer.clone()
+SiPixelPhase1TrackClustersAnalyzer_cosmics.tracks  = cms.InputTag( "ctfWithMaterialTracksP5" )
+SiPixelPhase1TrackClustersAnalyzer_cosmics.VertexCut = cms.untracked.bool(False)
+
+SiPixelPhase1TrackResidualsAnalyzer_cosmics = SiPixelPhase1TrackResidualsAnalyzer.clone()
+SiPixelPhase1TrackResidualsAnalyzer_cosmics.Tracks = cms.InputTag( "ctfWithMaterialTracksP5" )
+SiPixelPhase1TrackResidualsAnalyzer_cosmics.trajectoryInput = "ctfWithMaterialTracksP5"
+SiPixelPhase1TrackResidualsAnalyzer_cosmics.VertexCut = cms.untracked.bool(False)
+
+siPixelPhase1OnlineDQM_source_cosmics = cms.Sequence(
+   SiPixelPhase1DigisAnalyzer
+ + SiPixelPhase1ClustersAnalyzer
+ + SiPixelPhase1RawDataAnalyzer
+ + SiPixelPhase1TrackClustersAnalyzer_cosmics
+ + SiPixelPhase1TrackResidualsAnalyzer_cosmics
+)
+
+## Additional settings for pp_run                                                                                                                                         
+SiPixelPhase1TrackClustersAnalyzer_pprun = SiPixelPhase1TrackClustersAnalyzer.clone()
+SiPixelPhase1TrackClustersAnalyzer_pprun.tracks  = cms.InputTag( "initialStepTracksPreSplitting" )
+SiPixelPhase1TrackClustersAnalyzer_pprun.clusterShapeCache = cms.InputTag("siPixelClusterShapeCachePreSplitting")
+SiPixelPhase1TrackClustersAnalyzer_pprun.vertices = cms.InputTag('firstStepPrimaryVerticesPreSplitting')
+SiPixelPhase1TrackClustersAnalyzer_pprun.VertexCut = cms.untracked.bool(False)
+
+SiPixelPhase1TrackResidualsAnalyzer_pprun = SiPixelPhase1TrackResidualsAnalyzer.clone()
+SiPixelPhase1TrackResidualsAnalyzer_pprun.Tracks = cms.InputTag( "initialStepTracksPreSplitting" )
+SiPixelPhase1TrackResidualsAnalyzer_pprun.trajectoryInput = "initialStepTracksPreSplitting"
+SiPixelPhase1TrackResidualsAnalyzer_pprun.VertexCut = cms.untracked.bool(False)
+
+siPixelPhase1OnlineDQM_source_pprun = cms.Sequence(
+   SiPixelPhase1DigisAnalyzer
+ + SiPixelPhase1ClustersAnalyzer
+ + SiPixelPhase1RawDataAnalyzer
+ + SiPixelPhase1TrackClustersAnalyzer_pprun
+ + SiPixelPhase1TrackResidualsAnalyzer_pprun
 )
 
 siPixelPhase1OnlineDQM_timing_harvesting = siPixelPhase1OnlineDQM_harvesting.copyAndExclude([

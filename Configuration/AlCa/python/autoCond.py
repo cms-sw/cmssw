@@ -1,4 +1,4 @@
-autoCond = { 
+autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
@@ -24,9 +24,9 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '100X_mcRun2_pA_v2',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '100X_dataRun2_v3',
+    'run1_data'         :   '100X_dataRun2_v4',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '100X_dataRun2_v3',
+    'run2_data'         :   '100X_dataRun2_v4',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
     'run2_data_relval'  :   '100X_dataRun2_relval_v3',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)

@@ -5,17 +5,13 @@ process = cms.Process('GEMDQM')
 process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
-
-
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "GEM"
 process.dqmSaver.tag = "GEM"
 
 process.load("DQM.Integration.config.inputsource_cfi")
 
-process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(8000)
-)
+process.load("DQMServices.Components.DQMProvInfo_cfi")
 
 process.load("EventFilter.GEMRawToDigi.muonGEMDigis_cfi")
 process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
@@ -39,8 +35,6 @@ process.schedule = cms.Schedule(
   process.path,
   process.end_path
 )
-
-process.schedule = cms.Schedule(process.path)
 
 process.dqmProvInfo.runType = process.runType.getRunTypeName()
 
