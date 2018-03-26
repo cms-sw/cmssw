@@ -231,6 +231,18 @@ namespace ecaldqm
         me->getTH1()->SetBit(uint32_t(actualObject + 1) << 20);
         if(isMap) me->getTH1()->SetBit(0x1 << 19);
         */
+
+        // The render plugin requires some metadata in order to set the correct rendering for each plot.
+        // The original solution was to use bits number 19 to 23 in TH1::fBits, but these were meant for ROOT's internal usage and eventually started breaking things, see: https://github.com/cms-sw/cmssw/issues/21423
+        // The current solution is to use the UniqueID field in the parent TObject, which is expected to work if there is no TRef pointing to the TObject.
+
+        // To check that indeed there is no such TRef, one can use TestBit(kIsReferenced), e.g.
+        // std::cout << "Need to set unique ID at path = " << path << "; for this path, TestBit(kIsReferenced) is: " << (me->getTH1()->TestBit(kIsReferenced)? "true": "false") << std::endl; // should always output false for the solution to work
+
+        // Originally, bit 19 in TH1::fBits was set to isMap, while bits 20-23 contained (actualObject+1).
+        // The idea is to make sure that both these variables are easily recoverable in the render plugin,
+        // as in this solution, where isMap is the last bit.
+        me->getTH1()->SetUniqueID(uint32_t(2*(actualObject + 1) + (isMap? 1: 0)));
       }
 
       if(lumiFlag_) me->setLumiFlag();
