@@ -29,7 +29,7 @@ namespace btagbtvdeep {
       void CommonCandidateToFeatures(const CandidateType * c_pf,
                                             const reco::Jet & jet,
                                             const TrackInfoBuilder & track_info,
-                                            const float & drminpfcandsv,
+				            const float & drminpfcandsv, const double & jetR,
                                             ChargedCandidateFeatures & c_pf_features) {
 
         c_pf_features.ptrel = catch_infs_and_bound(c_pf->pt()/jet.pt(),
@@ -47,21 +47,21 @@ namespace btagbtvdeep {
         c_pf_features.btagPf_trackSip2dSig   =catch_infs_and_bound(track_info.getTrackSip2dSig(), 0, -1,4e4 );
         c_pf_features.btagPf_trackJetDistVal =catch_infs_and_bound(track_info.getTrackJetDistVal(),0,-20,1 );
 
-        c_pf_features.drminsv = catch_infs_and_bound(drminpfcandsv,0,-0.8,0,-0.8);
+        c_pf_features.drminsv = catch_infs_and_bound(drminpfcandsv,0,-1.*jetR,0,-1.*jetR);
 
       }
     
       void PackedCandidateToFeatures(const pat::PackedCandidate * c_pf,
                                             const pat::Jet & jet,
                                             const TrackInfoBuilder & track_info,
-                                            const float drminpfcandsv,
+				            const float drminpfcandsv, const double jetR, 
                                             ChargedCandidateFeatures & c_pf_features) ;
 
     
       void RecoCandidateToFeatures(const reco::PFCandidate * c_pf,
                                           const reco::Jet & jet,
                                           const TrackInfoBuilder & track_info,
-                                          const float drminpfcandsv, const float puppiw,
+				          const float drminpfcandsv, const double jetR, const float puppiw,
                                           const int pv_ass_quality,
                                           const reco::VertexRef & pv, 
                                           ChargedCandidateFeatures & c_pf_features) ;
