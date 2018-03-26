@@ -1415,7 +1415,6 @@ steps['TIER0EXPLP']={'-s': 'ALCAPRODUCER:AlCaPCCRandom',
                         }
 
 steps['TIER0PROMPTLP']={'-s': 'ALCAPRODUCER:AlCaPCCZeroBias+RawPCCProducer',
-                        '--nThreads':'1',
                         '--conditions': 'auto:run2_data',
                         '--datatier':'ALCARECO',
                         '--eventcontent':'ALCARECO',
