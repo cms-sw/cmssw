@@ -23,12 +23,10 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring(),
-    processingMode = cms.untracked.string('RunsAndLumis')
+    fileNames = cms.untracked.vstring('file:SiPixelCalZeroBias.root'),
+    processingMode = cms.untracked.string('RunsAndLumis'),
+    secondaryFileNames = cms.untracked.vstring()
 )
-
-process.source.fileNames.extend(['file:SiPixelCalZeroBias.root'])
 
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound'),
@@ -101,4 +99,4 @@ process.ALCAHARVESTSiPixelQuality = cms.EDAnalyzer("SiPixelStatusHarvester",
 process.SiPixelQuality = cms.Path(process.ALCAHARVESTSiPixelQuality)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.SiPixelQuality)
+process.schedule = cms.Schedule(process.SiPixelQuality,process.ALCAHARVESTDQMSaveAndMetadataWriter)
