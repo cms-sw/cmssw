@@ -911,6 +911,20 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
     }
   }
 }
+
+// For premixing
+void Phase2TrackerDigitizerAlgorithm::loadAccumulator(unsigned int detId, const std::map<int, float>& accumulator) {
+  auto& theSignal = _signal[detId];
+  // the input channel is always with PixelDigi definition
+  // if needed, that has to be converted to Phase2TrackerDigi convention
+  for(const auto& elem: accumulator) {
+    auto inserted = theSignal.emplace(elem.first, DigitizerUtility::Amplitude(elem.second, nullptr));
+    if(!inserted.second) {
+      throw cms::Exception("LogicError") << "Signal was already set for DetId " << detId;
+    }
+  }
+}
+
 void Phase2TrackerDigitizerAlgorithm::digitize(const Phase2TrackerGeomDetUnit* pixdet,
 	std::map<int, DigitizerUtility::DigiSimInfo> & digi_map,
 	     const TrackerTopology* tTopo) 

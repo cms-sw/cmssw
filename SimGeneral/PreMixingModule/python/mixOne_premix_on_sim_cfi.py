@@ -10,6 +10,7 @@ import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlock
 from SimGeneral.MixingModule.SiStripSimParameters_cfi import SiStripSimBlock
 from SimGeneral.MixingModule.SiPixelSimParameters_cfi import SiPixelSimBlock
+from SimTracker.SiPhase2Digitizer.phase2TrackerDigitizer_cfi import phase2TrackerDigitizer, _premixStage1ModifyDict as _phase2TrackerPremixStage1ModifyDict
 from SimGeneral.MixingModule.ecalDigitizer_cfi import ecalDigitizer
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchebackDigitizer, hgchefrontDigitizer
 
@@ -266,8 +267,18 @@ phase2_tracker.toModify(mixData,
         # Disable SiStrip
         strip = None,
         stripSimLink = None,
-        # Add Phase2 OT digiSimLink
-        # TODO: Add digis, but needs code first
+        # Replace pixel with Phase2 tracker
+        pixel = cms.PSet(
+            phase2TrackerDigitizer,
+            #
+            workerType = cms.string("PreMixingPhase2TrackerWorker"),
+            #
+            pixelLabelSig = cms.InputTag("simSiPixelDigis:Pixel"),
+            pixelPileInputTag = cms.InputTag("simSiPixelDigis:Pixel"),
+            trackerLabelSig = cms.InputTag("simSiPixelDigis:Tracker"),
+            trackerPileInputTag = cms.InputTag("simSiPixelDigis:Tracker"),
+            premixStage1ElectronPerAdc = cms.double(_phase2TrackerPremixStage1ModifyDict["PixelDigitizerAlgorithm"]["ElectronPerAdc"])
+        ),
         pixelSimLink = dict(
             labelSig = "simSiPixelDigis:Pixel",
             pileInputTag = "simSiPixelDigis:Pixel",

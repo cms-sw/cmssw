@@ -12,6 +12,7 @@ phase2TrackerDigitizer = cms.PSet(
     GeometryType = cms.string('idealForDigi'),
     isOTreadoutAnalog = cms.bool(False),#set this to true if you want analog readout for OT
 # Common for Algos
+    premixStage1 = cms.bool(False),
     AlgorithmCommon = cms.PSet(
       DeltaProductionCut = cms.double(0.03)
     ),
@@ -172,27 +173,43 @@ phase2TrackerDigitizer = cms.PSet(
     )
 )
 
-# TODO: values are copied from phase0/1 pixel configuration, they can be wrong
+# For premixing stage1
+# - add noise as by default
+# - do not add noisy pixels (to be done in stage2)
+# - do not apply inefficiency (to be done in stage2)
+# - disable threshold smearing
+#
+# For inner pixel
+# - extend the dynamic range of ADCs
+#
+# For outer tracker
+# - force analog readout to get the ADCs
+#
+# NOTE: It is currently assumed that all sub-digitizers have the same ElectronPerAdc.
 from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
-premix_stage1.toModify(phase2TrackerDigitizer,
+_premixStage1ModifyDict = dict(
+    premixStage1 = True,
     PixelDigitizerAlgorithm = dict(
-        AddNoise = True,
         AddNoisyPixels = False,
-        makeDigiSimLinks = False,
+        AddInefficiency = False,
+        AddThresholdSmearing = False,
+        ElectronPerAdc = phase2TrackerDigitizer.PSPDigitizerAlgorithm.ElectronPerAdc.value(),
+        AdcFullScale = phase2TrackerDigitizer.PSPDigitizerAlgorithm.AdcFullScale.value(),
     ),
     PSPDigitizerAlgorithm = dict(
-        AddNoise = True,
         AddNoisyPixels = False,
-        makeDigiSimLinks = False,
+        AddInefficiency = False,
+        AddThresholdSmearing = False,
     ),
     PSSDigitizerAlgorithm = dict(
-        AddNoise = True,
         AddNoisyPixels = False,
-        makeDigiSimLinks = False,
+        AddInefficiency = False,
+        AddThresholdSmearing = False,
     ),
     SSDigitizerAlgorithm = dict(
-        AddNoise = True,
         AddNoisyPixels = False,
-        makeDigiSimLinks = False,
+        AddInefficiency = False,
+        AddThresholdSmearing = False,
     ),
 )
+premix_stage1.toModify(phase2TrackerDigitizer, **_premixStage1ModifyDict)
