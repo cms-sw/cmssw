@@ -287,7 +287,7 @@ void DDHGCalHEAlgo::constructLayers(const DDLogicalPart& module,
     } // End of loop over layers in a block
     zi     = zo;
     laymin = laymax;
-    if (fabs(thickTot-layerThick_[i]) < 0.00001) {
+    if (std::abs(thickTot-layerThick_[i]) < 0.00001) {
     } else if (thickTot > layerThick_[i]) {
       edm::LogError("HGCalGeom") << "Thickness of the partition " 
 				 << layerThick_[i] << " is smaller than "
@@ -394,7 +394,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     ++copyNumberTop_[ii];
     zpos += hthickl;
   }
-  if (fabs(thickTot-thick) < 0.00001) {
+  if (std::abs(thickTot-thick) < 0.00001) {
   } else if (thickTot > thick) {
     edm::LogError("HGCalGeom") << "Thickness of the partition "  << thick 
 			       << " is smaller than " << thickTot 
@@ -464,7 +464,7 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     zpos += hthickl;
     ++copyNumberBot_[ii];
   }
-  if (fabs(thickTot-thick) < 0.00001) {
+  if (std::abs(thickTot-thick) < 0.00001) {
   } else if (thickTot > thick) {
     edm::LogError("HGCalGeom") << "Thickness of the partition "  << thick 
 			       << " is smaller than " << thickTot 
