@@ -4,13 +4,10 @@
 /** \class SiPixelStatusHarvester
  *  harvest per-lumi prduced SiPixelDetector status and make the payload for SiPixelQualityFromDB
  *
- *  \author 
  */
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 
 class SiPixelStatusHarvester : public edm::EDAnalyzer {
  public:

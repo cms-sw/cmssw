@@ -7,7 +7,7 @@ OutALCARECOSiPixelCalZeroBias_noDrop = cms.PSet(
     ),
     outputCommands=cms.untracked.vstring(   
         'keep *_ALCARECOSiPixelCalZeroBias_*_*',
-        'keep *_siPixelStatusProducer_*_*')
+        'keep *_siPixelStatusProducer_siPixelStatus_*')
 )
 
 import copy

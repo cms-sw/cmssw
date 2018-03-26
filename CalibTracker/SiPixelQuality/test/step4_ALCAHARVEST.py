@@ -55,11 +55,6 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
             timetype = cms.untracked.string('lumiid')
         ),
         cms.PSet(
-            record = cms.string('SiPixelQualityFromDbRcd_permanentBad'),
-            tag = cms.string('SiPixelQualityFromDbRcd_permanentBad'),
-            timetype = cms.untracked.string('runnumber')
-        ),
-        cms.PSet(
             record = cms.string('SiPixelQualityFromDbRcd_stuckTBM'),
             tag = cms.string('SiPixelQualityFromDbRcd_stuckTBM'),
             timetype = cms.untracked.string('lumiid'),

@@ -1,8 +1,6 @@
 /**_________________________________________________________________
    class:   SiPixelStatusProducer.cc
-   package: CalibTracker/SiPixelQuality/SiPixelStatusProducer
-
-   author:
+   package: CalibTracker/SiPixelQuality
 
    ________________________________________________________________**/
 
@@ -43,7 +41,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-// Producer related dataformat
+// EDProducer related dataformat
 #include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 #include "CalibTracker/SiPixelQuality/interface/SiPixelDetectorStatus.h"
 
@@ -58,9 +56,9 @@ SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig){
 
   // badPixelFEDChannelCollections
   std::vector<edm::InputTag> badPixelFEDChannelCollectionLabels_ = iConfig.getParameter<edm::ParameterSet>("SiPixelStatusProducerParameters").getParameter<std::vector<edm::InputTag> >("badPixelFEDChannelCollections");
-  for (auto &t : badPixelFEDChannelCollectionLabels_) 
+  for (auto &t : badPixelFEDChannelCollectionLabels_)
       theBadPixelFEDChannelsTokens_.push_back(consumes<PixelFEDChannelCollection>(t));
-  //  badPixelFEDChannelCollections = cms.VInputTag(cms.InputTag('siPixelDigis')) 
+  //  badPixelFEDChannelCollections = cms.VInputTag(cms.InputTag('siPixelDigis'))
 
   fPixelClusterLabel_   = iConfig.getParameter<edm::ParameterSet>("SiPixelStatusProducerParameters").getUntrackedParameter<edm::InputTag>("pixelClusterLabel");
   fSiPixelClusterToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(fPixelClusterLabel_);
@@ -72,7 +70,7 @@ SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig){
 
   beginLumi_ = endLumi_ = -1;
   endLumi_ = endRun_ = -1;
-  
+  produces<SiPixelDetectorStatus>("siPixelStatusPerEvent"); // have to have a per-event collection to put into the event; otherwise function produce() will not run in unScheduled mode
   produces<SiPixelDetectorStatus, edm::Transition::EndLuminosityBlock>("siPixelStatus");
 }
 
@@ -80,7 +78,6 @@ SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig){
 SiPixelStatusProducer::~SiPixelStatusProducer(){
 
 }
-
 
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup){
@@ -110,7 +107,7 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
 
     fFedIds = fCablingMap_->det2fedMap();
 
-  } // if conditionWatcher_.check(iSetup)  
+  } // if conditionWatcher_.check(iSetup)
 
   // init the SiPixelDetectorStatus fDet and sensor size fSensors in the begining (when countLumi is zero)
   if(countLumi_ == 0){
@@ -147,24 +144,25 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
 
                  int roc(-1), rocR(-1), rocC(-1);
                  onlineRocColRow(detId, dummyOfflineRow, dummeOfflineColumn, roc, rocR, rocC);
-    
+
                  int value = roc;
                  rocIdMap[key] = value;
              }
+
           }
-         
-         fRocIds[detid] = rocIdMap; 
-    
+
+         fRocIds[detid] = rocIdMap;
+
      }
 
   } // init when countLumi = 0
 
   countLumi_++;
-  
+
 }
 
 //--------------------------------------------------------------------------------------------------
-void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::EventSetup& iSetup){
+void SiPixelStatusProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   ftotalevents++;
 
@@ -174,7 +172,7 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
   // ----------------------------------------------------------------------
   // -- Pixel cluster analysis
   // ----------------------------------------------------------------------
-  //
+
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
   iEvent.getByToken(fSiPixelClusterToken_, hClusterColl);
   //const edmNew::DetSetVector<SiPixelCluster> *clustColl(0);
@@ -202,7 +200,7 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
            const vector<SiPixelCluster::Pixel>& pixvector = clu.pixels();
            for (unsigned int i = 0; i < pixvector.size(); ++i) {
 
-                int mr0 = pixvector[i].x; // constant column direction is along x-axis, 
+                int mr0 = pixvector[i].x; // constant column direction is along x-axis,
                 int mc0 = pixvector[i].y; // constant row direction is along y-axis
 
                 if(monitorOnDoubleColumn_) onlineRocColRow(detId, mr0, mc0, roc, rocR, rocC);
@@ -220,7 +218,8 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
                      // just use the "center" of the ROC as a dummy local row/column
                      rocR = rowsperroc/2-1;
                      rocC = colsperroc/2-1;
-                }                                                         
+
+                }
 
                 fDet.fillDIGI(detid, roc, rocC/2);
 
@@ -247,7 +246,7 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
         for (const auto& disabledChannels: *pixelFEDChannelCollectionHandle) {
             //loop over different PixelFED in a PixelFED vector (module)
             for(const auto& ch: disabledChannels) {
-                  
+
                 DetId detId = disabledChannels.detId();
                 int detid = detId.rawId();
                 fDet.fillStuckTBM(detid,ch,ftmptime);
@@ -258,12 +257,16 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
 
    }   // look over different resouces of takens
 
+  // save result
+  auto result = std::make_unique<SiPixelDetectorStatus>();
+  *result = fDet;
+  iEvent.put(std::move(result), std::string("siPixelStatusPerEvent"));
 
 }
 
-
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup){
+
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,9 +278,9 @@ void SiPixelStatusProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumi
   const edm::TimeValue_t fendtimestamp = lumiSeg.endTime().value();
   const std::time_t fendtime = fendtimestamp >> 32;
   refTime_[1] = fendtime;
-    
+
   endLumi_ = lumiSeg.luminosityBlock();
-  endRun_  = lumiSeg.run();  
+  endRun_  = lumiSeg.run();
 
   // check if countLumi_ is large enough to read out/save data and reset for the next round
   if ( resetNLumi_ == -1 ) return;
@@ -327,7 +330,6 @@ void SiPixelStatusProducer::onlineRocColRow(const DetId &detId, int offlineRow, 
   sipixelobjects::LocalPixel locpixel(loc);
   col = locpixel.rocCol();
   row = locpixel.rocRow();
-
   //sipixelobjects::CablingPathToDetUnit path = {(unsigned int) fedId, (unsigned int)cabling.link, (unsigned int)cabling.roc};
   //const sipixelobjects::PixelROC *theRoc = fCablingMap->findItem(path);
   const sipixelobjects::PixelROC *theRoc = converter.toRoc(cabling.link, cabling.roc);
@@ -335,21 +337,22 @@ void SiPixelStatusProducer::onlineRocColRow(const DetId &detId, int offlineRow, 
 
   // has to be BPIX; has to be minus side; has to be half module
   // for phase-I, there is no half module
-  if (detId.subdetId() == PixelSubdetector::PixelBarrel && coord_.side(detId)==1 && coord_.half(detId))     
+  if (detId.subdetId() == PixelSubdetector::PixelBarrel && coord_.side(detId)==1 && coord_.half(detId))
   {
       roc += 8;
   }
 
 }
 
-
+//--------------------------------------------------------------------------------------------------
 int SiPixelStatusProducer::indexROC(int irow, int icol, int nROCcolumns){
 
     return int(icol+irow*nROCcolumns);
 
-    // generate the folling roc index that is going to map with ROC id
+    // generate the folling roc index that is going to map with ROC id as
     // 8  9  10 11 12 13 14 15
-    // 0  1  2  3  4  5  6  7 
+    // 0  1  2  3  4  5  6  7
+
 }
 
 DEFINE_FWK_MODULE(SiPixelStatusProducer);
