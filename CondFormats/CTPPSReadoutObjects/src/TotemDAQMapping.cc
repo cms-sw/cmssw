@@ -37,4 +37,14 @@ void TotemDAQMapping::insert(const TotemFramePosition &fp, const TotemVFATInfo &
 
 //----------------------------------------------------------------------------------------------------
 
+const TotemDAQMapping::TotemTimingPlaneChannelPair TotemDAQMapping::getTimingChannel( const uint8_t hwId ) const {
+    TotemTimingPlaneChannelPair pair;
+    auto iterator = totemTimingChannelMap.find( hwId );
+    if ( iterator != totemTimingChannelMap.end() ) pair = iterator->second;
+//     std::cout << "inside: adding plane: " << std::dec << pair.plane << " ch: " << pair.channel << " hwId: " << std::hex << (unsigned int) hwId << "   size: " << totemTimingChannelMap.size() << std::endl;
+    return pair;   
+}
+
+//----------------------------------------------------------------------------------------------------
+
 TYPELOOKUP_DATA_REG(TotemDAQMapping);

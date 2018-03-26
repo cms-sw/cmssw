@@ -27,10 +27,12 @@
 class TotemTimingDetId : public CTPPSDetId
 {  
  public:
+  enum { ID_NOT_SET = 28 }; 
+  
   /// Construct from a raw id
   explicit TotemTimingDetId(uint32_t id);
 
- TotemTimingDetId(const CTPPSDetId &id) : CTPPSDetId(id)
+  TotemTimingDetId(const CTPPSDetId &id) : CTPPSDetId(id)
   {
   }
   

@@ -37,7 +37,9 @@ struct TotemSampicInfo{
   uint16_t      TimeStampA;
   uint16_t      TimeStampB;
   uint16_t      CellInfo;
-  uint16_t      reserved[3];
+  uint8_t       PlaneId;
+  uint8_t       ChannelId;
+  uint16_t      reserved[2];
    
   TotemSampicInfo() {};
 };
@@ -54,7 +56,8 @@ struct TotemSampicEventInfo{
   uint16_t      L1ALatency;
   uint8_t       numberOfSamples;
   uint8_t       offsetOfSamples;
-  uint8_t       reserved[2];
+  uint8_t       FWVersion;
+  uint8_t       reserved;
    
   TotemSampicEventInfo() {};
 };
@@ -94,7 +97,7 @@ class TotemSampicFrame
         TotemSampicData_ = (TotemSampicData*) chDataPtr;
         TotemSampicEventInfo_ = (TotemSampicEventInfo*) eventInfoPtr;
       }
-      if ( TotemSampicEventInfo_->numberOfSamples == TotemSampicConstant::NumberOfSamples || TotemSampicEventInfo_->numberOfSamples == 0)
+      if ( TotemSampicEventInfo_->numberOfSamples == TotemSampicConstant::NumberOfSamples || TotemSampicInfo_->controlBits[3] == 0x69 )
         status_ = 1;
     }
     ~TotemSampicFrame() {}
@@ -117,6 +120,7 @@ class TotemSampicFrame
     void Print() const
     {
       std::bitset<16> bitsCellInfo( getCellInfo() );
+      std::bitset<16> bitsChannelMap( getChannelMap() );
       std::cout << "TotemSampicFrame:\nEvent:"
           << "HardwareId (Event):\t" << std::hex << (unsigned int) getEventHardwareId()
           << "\nL1A Time Stamp:\t" << std::dec << getL1ATimeStamp()
@@ -124,14 +128,17 @@ class TotemSampicFrame
           << "\nBunch Number:\t" << std::dec << getBunchNumber()
           << "\nOrbit Number:\t" << std::dec << getOrbitNumber()
           << "\nEvent Number:\t" << std::dec << getEventNumber()
-          << "\nChannels fired:\t" << std::hex << getChannelMap()
+          << "\nChannels fired:\t" << std::hex << bitsChannelMap.to_string()
           << "\nNumber of Samples:\t" << std::dec << getNumberOfSentSamples()
           << "\nOffset of Samples:\t" << std::dec << (int) getOffsetOfSamples()
+          << "\nFW Version:\t" << std::dec << (int) getFWVersion()
           << "\nChannel:\nHardwareId:\t" << std::hex << (unsigned int) getHardwareId()
           << "\nFPGATimeStamp:\t" << std::dec << getFPGATimeStamp()
           << "\nTimeStampA:\t" << std::dec << getTimeStampA()
           << "\nTimeStampA:\t" << std::dec << getTimeStampA()
           << "\nCellInfo:\t" << bitsCellInfo.to_string()
+          << "\nPlane:\t" << std::dec << getDetPlane()
+          << "\nChannel:\t" << std::dec << getDetChannel()
           << std::endl << std::endl; 
     }
               
@@ -162,6 +169,21 @@ class TotemSampicFrame
     inline uint16_t getCellInfo() const
     {
       return status_ * TotemSampicInfo_->CellInfo;
+    }
+    
+    inline int getDetPlane() const
+    {
+      return status_ * TotemSampicInfo_->PlaneId;
+    }
+    
+    inline int getDetChannel() const
+    {
+      return status_ * TotemSampicInfo_->ChannelId;
+    }
+    
+    inline int getFWVersion() const
+    {
+      return status_ * TotemSampicEventInfo_->FWVersion;
     }
     
     const std::vector< uint8_t > getSamples() const
@@ -207,7 +229,7 @@ class TotemSampicFrame
     
     inline uint32_t getEventNumber() const
     {
-      return status_ * TotemSampicEventInfo_->orbitNumber;
+      return status_ * TotemSampicEventInfo_->eventNumber;
     }
     
     inline uint16_t getChannelMap() const
