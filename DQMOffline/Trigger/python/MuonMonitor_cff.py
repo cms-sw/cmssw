@@ -34,6 +34,20 @@ DoubleMu48NoFiltersNoVtx_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vs
 DoubleMu48NoFiltersNoVtx_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
 
 
+#--------------------------------------------------
+DoubleL2Mu23NoVtx_2Cha_monitoring = hltMuonmonitoring.clone()
+DoubleL2Mu23NoVtx_2Cha_monitoring.FolderName = cms.string('HLT/EXO/DoubleL2Mu23NoVtx_2Cha/')
+DoubleL2Mu23NoVtx_2Cha_monitoring.nmuons = cms.uint32(2)
+DoubleL2Mu23NoVtx_2Cha_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleL2Mu23NoVtx_2Cha_v*")
+DoubleL2Mu23NoVtx_2Cha_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
+
+DoubleL2Mu23NoVtx_2Cha_CosmicSeed_monitoring = hltMuonmonitoring.clone()
+DoubleL2Mu23NoVtx_2Cha_CosmicSeed_monitoring.FolderName = cms.string('HLT/EXO/DoubleL2Mu23NoVtx_2Cha_CosmicSeed/')
+DoubleL2Mu23NoVtx_2Cha_CosmicSeed_monitoring.nmuons = cms.uint32(2)
+DoubleL2Mu23NoVtx_2Cha_CosmicSeed_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_v*")
+DoubleL2Mu23NoVtx_2Cha_CosmicSeed_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+#--------------------------------------------------
 
 Mu43NoFiltersNoVtx_Photon43_CaloIdL_monitoring = hltMuonmonitoring.clone()
 Mu43NoFiltersNoVtx_Photon43_CaloIdL_monitoring.FolderName = cms.string('HLT/EXO/Mu43NoFiltersNoVtx_Photon43_CaloIdL/')
@@ -106,6 +120,8 @@ exoHLTMuonmonitoring = cms.Sequence(
     + Mu48NoFiltersNoVtx_Photon48_CaloIdL_MuLeg_monitoring
     + Mu43NoFiltersNoVtx_Photon43_CaloIdL_EleLeg_monitoring
     + Mu48NoFiltersNoVtx_Photon48_CaloIdL_EleLeg_monitoring
+    + DoubleL2Mu23NoVtx_2Cha_monitoring
+    + DoubleL2Mu23NoVtx_2Cha_CosmicSeed_monitoring
 )
 
 
