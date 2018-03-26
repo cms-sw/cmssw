@@ -1,7 +1,7 @@
-#ifndef EcalEBTrigPrimProducer_h
-#define EcalEBTrigPrimProducer_h
+#ifndef EcalEBCluTrigPrimProducer_h
+#define EcalEBCluTrigPrimProducer_h
   
-/** \class EcalEBTrigPrimProducer
+/** \class EcalEBCluTrigPrimProducer
  *  For Phase II 
  *
  ************************************************************/
@@ -23,13 +23,13 @@ class EcalEBTrigPrimBaseAlgo;
 
 
  
-class EcalEBTrigPrimProducer : public edm::stream::EDProducer<>
+class EcalEBCluTrigPrimProducer : public edm::stream::EDProducer<>
 {
  public:
   
-  explicit EcalEBTrigPrimProducer(const edm::ParameterSet& conf);
+  explicit EcalEBCluTrigPrimProducer(const edm::ParameterSet& conf);
   
-  virtual ~EcalEBTrigPrimProducer();
+  virtual ~EcalEBCluTrigPrimProducer();
   
 
   void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
@@ -44,6 +44,8 @@ class EcalEBTrigPrimProducer : public edm::stream::EDProducer<>
   bool famos_;
   int  nSamples_;
   int binOfMaximum_;
+  int dEta_;
+  int dPhi_;
   int  tpAlgo_; 
   int  nEvent_;
   

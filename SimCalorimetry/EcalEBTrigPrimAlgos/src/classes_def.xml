@@ -1,0 +1,4 @@
+<lcgdict>
+         <class name="EcalEBTPCluster"/>
+        <class name="std::vector<EcalEBTPCluster>"/>
+</lcgdict>

@@ -32,26 +32,31 @@
 
 
 
-#include <TTree.h>
-#include <TMath.h>
-
-
 //----------------------------------------------------------------------
 
-const unsigned int EcalEBTrigPrimTestAlgo::nrSamples_=5;
-const unsigned int EcalEBTrigPrimTestAlgo::maxNrTowers_=2448;
-const unsigned int EcalEBTrigPrimTestAlgo::maxNrSamplesOut_=10;
+//const unsigned int EcalEBTrigPrimTestAlgo::nrSamples_=5;
+//const unsigned int EcalEBTrigPrimTestAlgo::maxNrTowers_=2448;
+//const unsigned int EcalEBTrigPrimTestAlgo::maxNrSamplesOut_=10;
 
 
-EcalEBTrigPrimTestAlgo::EcalEBTrigPrimTestAlgo(const edm::EventSetup & setup,int nSam, int binofmax,bool tcpFormat, bool barrelOnly,bool debug, bool famos): 
-  nSamples_(nSam),binOfMaximum_(binofmax), tcpFormat_(tcpFormat), barrelOnly_(barrelOnly), debug_(debug), famos_(famos)
+EcalEBTrigPrimTestAlgo::EcalEBTrigPrimTestAlgo(const edm::EventSetup & setup,int nSam, int binofmax,bool tcpFormat, bool barrelOnly,bool debug, bool famos)
 
 {
 
- maxNrSamples_=10;
- this->init(setup);
+  nSamples_=nSam;
+  binOfMaximum_=binofmax;
+  tcpFormat_=tcpFormat;
+  barrelOnly_=barrelOnly;
+  debug_=debug; 
+  famos_=famos;
+  maxNrSamples_=10;
+  this->init(setup   );
+  fenixTcpFormat_ = new EcalFenixTcpFormat(tcpFormat_, debug_, famos_, binOfMaximum_);
+  tcpformat_out_.resize(maxNrSamples_);   
+
 }
 
+/*
 //----------------------------------------------------------------------
 void EcalEBTrigPrimTestAlgo::init(const edm::EventSetup & setup) {
   if (!barrelOnly_) {
@@ -91,6 +96,7 @@ void EcalEBTrigPrimTestAlgo::init(const edm::EventSetup & setup) {
 
 }
 //----------------------------------------------------------------------
+*/
 
 EcalEBTrigPrimTestAlgo::~EcalEBTrigPrimTestAlgo() 
 {
@@ -107,23 +113,23 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
 				 EcalEBTrigPrimDigiCollection & result,
 				 EcalEBTrigPrimDigiCollection & resultTcp)
 {
-
+  
   //typedef typename Coll::Digi Digi;
   if (debug_) {
     std::cout << "  EcalEBTrigPrimTestAlgo: Testing that the algorythm with digis is well plugged " << std::endl;
     std::cout << "  EcalEBTrigPrimTestAlgo: digi size " << digi->size() << std::endl;
   }
-
+  
   uint16_t etInADC;
   EcalEBTriggerPrimitiveDigi tp;
   int firstSample = binOfMaximum_-1 -nrSamples_/2;
   int lastSample = binOfMaximum_-1 +nrSamples_/2;
-
+  
   if (debug_) {
     std::cout << "  binOfMaximum_ " <<  binOfMaximum_ << " nrSamples_" << nrSamples_ << std::endl;
     std::cout << " first sample " << firstSample << " last " << lastSample <<std::endl;
   }
-
+  
   clean(towerMapEB_);
   fillMap(digi,towerMapEB_);
 
@@ -210,7 +216,7 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
 	  this->getFormatterEB()->process(fgvb_out_,peak_out_,filt_out_,format_out_); 
 
 	  if (debug_) {
-	    std::cout<< "output of formatter is a vector of size: "<<format_out_.size()<<std::endl; 
+	    std::cout<< "output of formatterEB is a vector of size: "<<format_out_.size()<<std::endl; 
 	    for (unsigned int i =0; i<format_out_.size();i++){
 	      std::cout <<" "<<std::dec<<format_out_[i] << " " ;
 	    }    
@@ -225,14 +231,14 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
 	  int nSam=0;
 	  for (int iSample=firstSample;iSample<=lastSample;++iSample) {
 	    etInADC= tcpformat_out_[iSample];
-	    if (debug_) std::cout << " format_out " << tcpformat_out_[iSample] <<  " etInADC " << etInADC << std::endl;
+	    //if (debug_) std::cout << " format_out " << tcpformat_out_[iSample] <<  " etInADC " << etInADC << std::endl;
 
-	    bool isASpike=false; // no spikes for now 
-            int timing=0;   //  set to 0  value for now
+	    bool isASpike=0; 
+            int timing=0;
 	    tp.setSample(nSam,  EcalEBTriggerPrimitiveSample(etInADC,isASpike,timing)  );
 
 	    nSam++;
-	    if (debug_) std::cout << "in TestAlgo" <<" tp size "<<tp.size() << std::endl;
+	    //if (debug_) std::cout << "in TestAlgo" <<" tp size "<<tp.size() << std::endl;
 	  }
 
 
@@ -243,81 +249,31 @@ void EcalEBTrigPrimTestAlgo::run(const edm::EventSetup & setup,
 	    resultTcp.push_back(tp);
 	  
 
-
-	} // Loop over the xStals
-
+	} // Loop over the xStals in  a sztrip
 
 
+      } //loop over strips in one tower
 
-      }//loop over strips in one tower
+
+
+
+  } // loop over the towers
   
 
 
-
-  }
-
-
-
-
-  /*
-  for (unsigned int i=0;i<digi->size();i++) {
-    EBDataFrame myFrame((*digi)[i]);  
-    const EBDetId & myid1 = myFrame.id();
-    tp=  EcalTriggerPrimitiveDigi(  myid1);   
-    tp.setSize( myFrame.size());
-    int nSam=0;
-
-    if (debug_) {
-      std::cout << " data frame size " << myFrame.size() << " Id " <<  myFrame.id()  << std::endl;
-      std::cout << " Sample data ADC: " << std::endl;
-      for (int iSample=0; iSample<myFrame.size(); iSample++) {
-	std::cout << " " << std::dec<< myFrame.sample(iSample).adc() ;
-      }
-      std::cout<<std::endl;
-    }
-
-    
-    this->getLinearizer(i)->setParameters( myFrame.id().rawId(),ecaltpPed_,ecaltpLin_,ecaltpgBadX_) ; 
-    //this->getLinearizer(i)->process( myFrame,lin_out_[i]);
-
-    if (debug_) {
-      std::cout<< "cryst: "<< i <<"  value : "<<std::dec<<std::endl;
-      std::cout<<" lin_out[i].size()= "<<std::dec<<lin_out_[i].size()<<std::endl;
-      for (unsigned int j =0; j<lin_out_[i].size();j++){
-	std::cout <<" "<<std::dec<<(lin_out_[i])[j];
-      }
-      std::cout<<std::endl;
-    }
-
-
-    for (int iSample=0; iSample<myFrame.size(); iSample++) {
-      etInADC= myFrame.sample(iSample).adc();
-      EcalEBTriggerPrimitiveSample mysam(etInADC);
-      tp.setSample(nSam, mysam );
-      nSam++;
-      if (debug_) std::cout << "in TestAlgo" <<" tp size "<<tp.size() << std::endl;
-    }
-
-    if (!tcpFormat_)
-      result.push_back(tp);
-    else 
-      resultTcp.push_back(tp);
-    
-   
-    if (debug_) std::cout << " result size " << result.size() << std::endl;
-    
-    
-    
-  }
-  */
 
 }
 
 
+
+
+
+
+
   
 
 
-
+/*
 //----------------------------------------------------------------------
 
 int  EcalEBTrigPrimTestAlgo::findStripNr(const EBDetId &id){
@@ -327,4 +283,4 @@ int  EcalEBTrigPrimTestAlgo::findStripNr(const EBDetId &id){
   else stripnr =nbMaxStrips_ - n; 
   return stripnr;
 }
-
+*/

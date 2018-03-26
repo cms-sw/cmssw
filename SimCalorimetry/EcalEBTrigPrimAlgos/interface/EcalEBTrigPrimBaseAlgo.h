@@ -1,6 +1,6 @@
-#ifndef EcalEBTrigPrimTestAlgo_h
-#define EcalEBTrigPrimTestAlgo_h
-/** \class EcalEBTrigPrimTestAlgo
+#ifndef EcalEBTrigPrimBaseAlgo_h
+#define EcalEBTrigPrimBaseAlgo_h
+/** \class EcalEBTrigPrimBaseAlgo
 \author N. Marinelli - Univ. of Notre Dame
  * transforming the existing algo (Run I-II) forPhase II 
  * While the new digitization is not yet implemented, we use the old Digis to make TP per crystal
@@ -31,8 +31,10 @@
 #include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixPeakFinder.h>
 #include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixStripFormatEB.h> 
 #include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixTcpFormat.h>
+#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalFenixTcpFormatCluster.h>
 
-#include <SimCalorimetry/EcalEBTrigPrimAlgos/interface/EcalEBTrigPrimBaseAlgo.h>
+
+
 
 #include <map>
 #include <utility>
@@ -46,24 +48,18 @@ class EBDataFrame;
 
 
  
-class EcalEBTrigPrimTestAlgo : public  EcalEBTrigPrimBaseAlgo
+class EcalEBTrigPrimBaseAlgo
 {  
  public:
   
-  explicit EcalEBTrigPrimTestAlgo(const edm::EventSetup & setup, int nSamples, int binofmax, bool tcpFormat, bool barrelOnly, bool debug, bool famos);
+  explicit EcalEBTrigPrimBaseAlgo() {};
 
-  virtual ~EcalEBTrigPrimTestAlgo();
-
-  void run(const edm::EventSetup &, const EBDigiCollection *col, EcalEBTrigPrimDigiCollection & result, EcalEBTrigPrimDigiCollection & resultTcp);
-
- private:
-  EcalFenixTcpFormat *fenixTcpFormat_;
-  EcalFenixTcpFormat *getFormatter() const {return fenixTcpFormat_;}
+  virtual ~EcalEBTrigPrimBaseAlgo();
 
   
-};
-
-  /*
+  virtual void run(const edm::EventSetup &, const EBDigiCollection *col, EcalEBTrigPrimDigiCollection & result, EcalEBTrigPrimDigiCollection & resultTcp){;}
+  virtual void run(const edm::EventSetup &, const EBDigiCollection *col, EcalEBClusterTrigPrimDigiCollection & result, EcalEBClusterTrigPrimDigiCollection & resultTcp, int deta, int dphi){;}
+  
   void setPointers(const EcalTPGLinearizationConst *ecaltpLin,
 		   const EcalTPGPedestals *ecaltpPed,
 		   const EcalTPGCrystalStatus * ecaltpgBadX,
@@ -88,7 +84,8 @@ class EcalEBTrigPrimTestAlgo : public  EcalEBTrigPrimBaseAlgo
   }
 
 
- private:
+  // private:
+ protected:
 
   void init(const edm::EventSetup&);
   template <class T>  
@@ -111,10 +108,15 @@ class EcalEBTrigPrimTestAlgo : public  EcalEBTrigPrimBaseAlgo
 
   edm::ESHandle<EcalTrigTowerConstituentsMap> eTTmap_;
   //  const CaloSubdetectorGeometry *theEndcapGeometry;
-  edm::ESHandle<CaloGeometry> theGeometry;
+  edm::ESHandle<CaloGeometry> theGeometry_;
 
 
-
+  //  float threshold;
+  int nSamples_;
+  int binOfMaximum_;
+  int maxNrSamples_;
+  int firstSample_;
+  int lastSample_; 
 
   bool tcpFormat_;
   bool barrelOnly_;
@@ -145,7 +147,9 @@ class EcalEBTrigPrimTestAlgo : public  EcalEBTrigPrimBaseAlgo
   EcalFenixAmplitudeFilter *amplitude_filter_; 
   EcalFenixPeakFinder *peak_finder_; 
   EcalFenixStripFormatEB *fenixFormatterEB_;
-  EcalFenixTcpFormat *fenixTcpFormat_;
+  // EcalFenixTcpFormat *fenixTcpFormat_;
+  
+
   
   //
   const EcalTPGPedestals * ecaltpPed_;
@@ -175,7 +179,8 @@ class EcalEBTrigPrimTestAlgo : public  EcalEBTrigPrimBaseAlgo
   EcalFenixPeakFinder *getPeakFinder() const { return peak_finder_;}
   EcalFenixStripFormatEB *getFormatterEB() const { return fenixFormatterEB_;}
   //
-  EcalFenixTcpFormat *getFormatter() const {return fenixTcpFormat_;}
+  // EcalFenixTcpFormat *getFormatter() const {return fenixTcpFormat_;}
+  
   std::vector<int> tcpformat_out_;
 
 
@@ -184,7 +189,7 @@ class EcalEBTrigPrimTestAlgo : public  EcalEBTrigPrimBaseAlgo
 
 
 template <class T> 
-void EcalEBTrigPrimTestAlgo::clean( std::vector<std::vector<std::pair<int,std::vector<T> > > > & towMap) {  
+void EcalEBTrigPrimBaseAlgo::clean( std::vector<std::vector<std::pair<int,std::vector<T> > > > & towMap) {  
   // clean internal data structures
   for (unsigned int i=0;i<maxNrTowers_;++i) 
     for (int j=0;j<nbMaxStrips_ ;++j) (towMap[i])[j].first=0;
@@ -193,7 +198,7 @@ void EcalEBTrigPrimTestAlgo::clean( std::vector<std::vector<std::pair<int,std::v
 
 
 template <class Coll> 
-void EcalEBTrigPrimTestAlgo::fillMap(Coll const * col, 
+void EcalEBTrigPrimBaseAlgo::fillMap(Coll const * col, 
 					 std::vector<std::vector<std::pair<int,std::vector<typename Coll::Digi> > > > &towerMap)
 {
   typedef typename Coll::Digi Digi;
@@ -233,7 +238,7 @@ void EcalEBTrigPrimTestAlgo::fillMap(Coll const * col,
 }
 
 template <class T> 
-void EcalEBTrigPrimTestAlgo::initStructures( std::vector<std::vector<std::pair<int,std::vector<T> > > > & towMap) {  
+void EcalEBTrigPrimBaseAlgo::initStructures( std::vector<std::vector<std::pair<int,std::vector<T> > > > & towMap) {  
   //initialise internal data structures
 
   std::vector <T> vec0(nbMaxXtals_ );
@@ -248,6 +253,6 @@ void EcalEBTrigPrimTestAlgo::initStructures( std::vector<std::vector<std::pair<i
   
 }
 
-*/
+
 
 #endif

@@ -8,9 +8,9 @@
 
 EcalFenixLinearizer::EcalFenixLinearizer(bool famos)
   : famos_(famos), init_(false),
-    linConsts_(nullptr),
-    peds_(nullptr),
-    badXStatus_(nullptr)
+    linConsts_(NULL),
+    peds_(NULL),
+    badXStatus_(NULL)
 {
 }
 
