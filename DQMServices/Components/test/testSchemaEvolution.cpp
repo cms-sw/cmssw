@@ -6,11 +6,12 @@
 #include "TDataMember.h"
 
 #include <string>
-#include <set>
-#include <tuple>
+#include <unordered_map>
 #include <iostream>
 #include <cassert>
 
+using std::unordered_map;
+using std::string;
 
 class TestSchemaEvolution : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestSchemaEvolution);
@@ -31,52 +32,55 @@ private:
   void loopOnDataMembers(TClass *);
   void loopOnBases(TClass *);
   void analyseClass(TClass *);
-  std::set<std::tuple<std::string, short>> unique_classes_;
-  std::set<std::tuple<std::string, short>> unique_classes_current_;
+
+
+  unordered_map<string, short> unique_classes_;
+  unordered_map<string, short> unique_classes_current_;
 
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( TestSchemaEvolution );
 
 void TestSchemaEvolution::fillBaseline() {
-  unique_classes_current_.insert(std::make_tuple("TArray", 1));
-  unique_classes_current_.insert(std::make_tuple("TArrayD", 1));
-  unique_classes_current_.insert(std::make_tuple("TArrayF", 1));
-  unique_classes_current_.insert(std::make_tuple("TArrayI", 1));
-  unique_classes_current_.insert(std::make_tuple("TArrayS", 1));
-  unique_classes_current_.insert(std::make_tuple("TAtt3D", 1));
-  unique_classes_current_.insert(std::make_tuple("TAttAxis", 4));
-  unique_classes_current_.insert(std::make_tuple("TAttFill", 2));
-  unique_classes_current_.insert(std::make_tuple("TAttLine", 2));
-  unique_classes_current_.insert(std::make_tuple("TAttMarker", 2));
-  unique_classes_current_.insert(std::make_tuple("TAxis", 10));
-  unique_classes_current_.insert(std::make_tuple("TH1", 8));
-  unique_classes_current_.insert(std::make_tuple("TH1D", 2));
-  unique_classes_current_.insert(std::make_tuple("TH1F", 2));
-  unique_classes_current_.insert(std::make_tuple("TH1I", 2));
-  unique_classes_current_.insert(std::make_tuple("TH1S", 2));
-  unique_classes_current_.insert(std::make_tuple("TH2", 4));
-  unique_classes_current_.insert(std::make_tuple("TH2D", 3));
-  unique_classes_current_.insert(std::make_tuple("TH2F", 3));
-  unique_classes_current_.insert(std::make_tuple("TH2I", 3));
-  unique_classes_current_.insert(std::make_tuple("TH2S", 3));
-  unique_classes_current_.insert(std::make_tuple("TH3", 5));
-  unique_classes_current_.insert(std::make_tuple("TH3D", 3));
-  unique_classes_current_.insert(std::make_tuple("TH3F", 3));
-  unique_classes_current_.insert(std::make_tuple("TH3I", 3));
-  unique_classes_current_.insert(std::make_tuple("TH3S", 3));
-  unique_classes_current_.insert(std::make_tuple("TNamed", 1));
-  unique_classes_current_.insert(std::make_tuple("TObject", 1));
-  unique_classes_current_.insert(std::make_tuple("TProfile", 6));
-  unique_classes_current_.insert(std::make_tuple("TProfile2D", 7));
-  unique_classes_current_.insert(std::make_tuple("TString", 2));
+  unique_classes_current_.insert(std::make_pair("TArray", 1));
+  unique_classes_current_.insert(std::make_pair("TArrayD", 1));
+  unique_classes_current_.insert(std::make_pair("TArrayF", 1));
+  unique_classes_current_.insert(std::make_pair("TArrayI", 1));
+  unique_classes_current_.insert(std::make_pair("TArrayS", 1));
+  unique_classes_current_.insert(std::make_pair("TAtt3D", 1));
+  unique_classes_current_.insert(std::make_pair("TAttAxis", 4));
+  unique_classes_current_.insert(std::make_pair("TAttFill", 2));
+  unique_classes_current_.insert(std::make_pair("TAttLine", 2));
+  unique_classes_current_.insert(std::make_pair("TAttMarker", 2));
+  unique_classes_current_.insert(std::make_pair("TAxis", 10));
+  unique_classes_current_.insert(std::make_pair("TH1", 8));
+  unique_classes_current_.insert(std::make_pair("TH1D", 2));
+  unique_classes_current_.insert(std::make_pair("TH1F", 2));
+  unique_classes_current_.insert(std::make_pair("TH1I", 2));
+  unique_classes_current_.insert(std::make_pair("TH1S", 2));
+  unique_classes_current_.insert(std::make_pair("TH2", 4));
+  unique_classes_current_.insert(std::make_pair("TH2D", 3));
+  unique_classes_current_.insert(std::make_pair("TH2F", 3));
+  unique_classes_current_.insert(std::make_pair("TH2I", 3));
+  unique_classes_current_.insert(std::make_pair("TH2S", 3));
+  unique_classes_current_.insert(std::make_pair("TH3", 5));
+  unique_classes_current_.insert(std::make_pair("TH3D", 3));
+  unique_classes_current_.insert(std::make_pair("TH3F", 3));
+  unique_classes_current_.insert(std::make_pair("TH3I", 3));
+  unique_classes_current_.insert(std::make_pair("TH3S", 3));
+  unique_classes_current_.insert(std::make_pair("TNamed", 1));
+  unique_classes_current_.insert(std::make_pair("TObject", 1));
+  unique_classes_current_.insert(std::make_pair("TProfile", 6));
+  unique_classes_current_.insert(std::make_pair("TProfile2D", 7));
+  unique_classes_current_.insert(std::make_pair("TString", 2));
 }
 
 void TestSchemaEvolution::runComparison() {
   CPPUNIT_ASSERT(unique_classes_current_.size() == unique_classes_.size());
   for (auto cl : unique_classes_current_) {
-    std::cout << "Checking " << std::get<0>(cl) << " " << std::get<1>(cl) << std::endl;
-    CPPUNIT_ASSERT(unique_classes_.find(cl) != unique_classes_.end());
+    std::cout << "Checking " << cl.first << " " << cl.second << std::endl;
+    CPPUNIT_ASSERT(unique_classes_.find(cl.first) != unique_classes_.end());
+    CPPUNIT_ASSERT(unique_classes_[cl.first] <= unique_classes_current_[cl.first]);
   }
 }
 
@@ -101,7 +105,7 @@ void TestSchemaEvolution::gatherAllClasses() {
     TClass *tcl = TClass::GetClass(classes[i]);
     if (!tcl)
       continue;
-    unique_classes_.insert(std::make_tuple(classes[i], tcl->GetClassVersion()));
+    unique_classes_.insert(std::make_pair(classes[i], tcl->GetClassVersion()));
     analyseClass(tcl);
     ++i;
   }
@@ -114,7 +118,7 @@ void TestSchemaEvolution::loopOnDataMembers(TClass *tcl)
   while (TObject *obj = next()) {
     TClass *cl = TClass::GetClass(((TDataMember *)obj)->GetFullTypeName());
     if (cl && cl->HasDictionary()) {
-      unique_classes_.insert(std::make_tuple(cl->GetName(), cl->GetClassVersion()));
+      unique_classes_.insert(std::make_pair(cl->GetName(), cl->GetClassVersion()));
       analyseClass(cl);
     }
   }
@@ -128,7 +132,7 @@ void TestSchemaEvolution::loopOnBases(TClass *tcl)
   while (TObject *obj = next()) {
     TClass *cl = TClass::GetClass(obj->GetName());
     if (cl && cl->HasDictionary()) {
-      unique_classes_.insert(std::make_tuple(cl->GetName(), cl->GetClassVersion()));
+      unique_classes_.insert(std::make_pair(cl->GetName(), cl->GetClassVersion()));
       analyseClass(cl);
     }
   }
