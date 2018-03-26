@@ -10,7 +10,6 @@
 <use   name="CondCore/DBOutputService"/>
 <use name="CondCore/ESSources"/>
 
-<use   name="Calibration/LumiAlCaRecoProducers"/>
 <use   name="DataFormats/Luminosity"/>
 <use name="CondFormats/DataRecord"/>
 <flags EDM_PLUGIN="1"/>
