@@ -245,8 +245,12 @@ void DeepDoubleBTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
       const auto & features = tag_infos->at(jet_n).features();
       db_tensor_filler(input_tensors.at(kGlobal).second, jet_bn, features);
 
-      //std::cout << "db tensor" << std::endl;
-      //std::cout<< (input_tensors.at(kGlobal).second).tensor<float, (3)>() << std::endl;
+      /*
+	if (features.jet_features.pt > 200 && std::abs(features.jet_features.eta) < 2.4) {
+	std::cout << "db tensor" << std::endl;
+	std::cout<< (input_tensors.at(kGlobal).second).tensor<float, (3)>() << std::endl;
+      }
+      */
         
       // c_pf candidates
       auto max_c_pf_n = std::min(features.c_pf_features.size(),
@@ -259,10 +263,12 @@ void DeepDoubleBTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
         c_pf_reduced_tensor_filler(input_tensors.at(kChargedCandidates).second,
                            jet_bn, c_pf_n, c_pf_features);
       }
-
-      //std::cout << "c_pf tensor" << std::endl;
-      //std::cout<< (input_tensors.at(kChargedCandidates).second).tensor<float, (3)>() << std::endl;
-        
+      /*
+      if (features.jet_features.pt > 200 && std::abs(features.jet_features.eta) < 2.4) {
+	std::cout << "c_pf tensor" << std::endl;
+	std::cout<< (input_tensors.at(kChargedCandidates).second).tensor<float, (3)>() << std::endl;
+      }
+      */
       // sv candidates
       auto max_sv_n = std::min(features.sv_features.size(),
         (std::size_t) input_sizes.at(kVertices).dim_size(1));
@@ -271,11 +277,13 @@ void DeepDoubleBTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
         sv_reduced_tensor_filler(input_tensors.at(kVertices).second,
                          jet_bn, sv_n, sv_features);
       }
+      /*
+      if (features.jet_features.pt > 200 && std::abs(features.jet_features.eta) < 2.4) {
+	std::cout << "sv tensor" << std::endl;
+	std::cout<< (input_tensors.at(kVertices).second).tensor<float, (3)>() << std::endl;
+      }
+      */
     }
-    
-    //std::cout << "sv tensor" << std::endl;
-    //std::cout<< (input_tensors.at(kVertices).second).tensor<float, (3)>() << std::endl;
-
     // run the session
     std::vector<tensorflow::Tensor> outputs;
     tensorflow::run(session_, input_tensors, output_names_, &outputs);

@@ -15,21 +15,21 @@ namespace btagbtvdeep {
 
 
       void PackedCandidateToFeatures(const pat::PackedCandidate * n_pf,
-                                            const pat::Jet & jet,
-                                            const float drminpfcandsv,
-                                            NeutralCandidateFeatures & n_pf_features) ;
+				     const pat::Jet & jet,
+				     const float drminpfcandsv, const double jetR,
+				     NeutralCandidateFeatures & n_pf_features) ;
 
     
       void RecoCandidateToFeatures(const reco::PFCandidate * n_pf,
-                                          const reco::Jet & jet,
-                                          const float drminpfcandsv, const float puppiw,
-                                          NeutralCandidateFeatures & n_pf_features) ;
+				   const reco::Jet & jet,
+				   const float drminpfcandsv, const double jetR, const float puppiw,
+				   NeutralCandidateFeatures & n_pf_features) ;
 
 
       template <typename CandidateType>
       static void CommonCandidateToFeatures(const CandidateType * n_pf,
                                             const reco::Jet & jet,
-                                            const float & drminpfcandsv,
+                                            const float & drminpfcandsv, const double & jetR,
                                             NeutralCandidateFeatures & n_pf_features) {
 
         n_pf_features.ptrel = catch_infs_and_bound(n_pf->pt()/jet.pt(),
