@@ -3,9 +3,9 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
+#include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
 #include <CLHEP/Matrix/Vector.h>
 #include <CLHEP/Vector/LorentzVector.h>
-#include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruth.h"
 #include <vector>
 
 /** \class PhotonMCTruth
@@ -16,6 +16,7 @@
  *  \author N. Marinelli  University of Notre Dame
  *
  */
+
 
 
 

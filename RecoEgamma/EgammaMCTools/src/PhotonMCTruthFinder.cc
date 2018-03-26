@@ -230,7 +230,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
 	     math::XYZTLorentzVectorD motherMomentum(primEleMom);  
 	     unsigned int eleId = (*iEleTk).trackId();     
              int eleVtxIndex= (*iEleTk).vertIndex();
-           
+             int hasBrem=0;           
     
 	     bremPos.clear();
 	     pBrem.clear();
@@ -263,7 +263,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
 		 float eLoss = remainingEnergy - ( (*iSimTk).momentum() + trLast.momentum()).e();
 		 //std::cout << " eLoss " << eLoss << std::endl;              
 		 
-		 
+		 hasBrem=1;
 		 if ( vertex1.parentIndex() != -1  ) {
 		   
 		   unsigned  motherGeantId = vertex1.parentIndex(); 
@@ -312,7 +312,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
 	     CLHEP::HepLorentzVector tmpVtxPos(primVtxPos.x(),primVtxPos.y(),
 	                                primVtxPos.z(),primVtxPos.t() );
 	     electronsFromConversions.push_back ( 
-	        ElectronMCTruth( tmpEleMom, eleVtxIndex,  bremPos, pBrem, 
+						 ElectronMCTruth( tmpEleMom, eleVtxIndex, hasBrem, bremPos, pBrem, 
 		                 xBrem,  tmpVtxPos , const_cast<SimTrack&>(*iEleTk)  )  ) ;
 	   }   //// Electron from conversion found
  

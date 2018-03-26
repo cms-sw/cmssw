@@ -124,12 +124,14 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
   std::vector<CLHEP::Hep3Vector> bremPos;  
   std::vector<CLHEP::HepLorentzVector> pBrem;
   std::vector<float> xBrem;
- 
+
+
   
   for (std::vector<SimTrack>::iterator iEleTk = electronTracks.begin(); iEleTk != electronTracks.end(); ++iEleTk){
     //std::cout << " Looping on the primary electron pt  " << std::sqrt((*iEleTk).momentum().perp2()) << " electron track ID " << (*iEleTk).trackId() << std::endl;
     
-    
+    int hasBrem=0; 
+    float totalBrem=0.;    
     
     SimTrack trLast =(*iEleTk); 
     unsigned int eleId = (*iEleTk).trackId();
@@ -175,6 +177,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
 	float eLoss = remainingEnergy - ( (*iSimTk).momentum() + trLast.momentum()).e();
 	//std::cout << " eLoss " << eLoss << std::endl;              
 
+        hasBrem=1;
 
 	if ( vertex1.parentIndex()  ) {
 	  
@@ -197,7 +200,8 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
 	                                      trLast.momentum().pz(),trLast.momentum().e()) );
 	    bremPos.push_back( CLHEP::HepLorentzVector(vertex1.position().x(),vertex1.position().y(),
 	                                        vertex1.position().z(),vertex1.position().t()) );
-	    xBrem.push_back(eLoss);
+	    //	    xBrem.push_back(eLoss);
+            totalBrem+=eLoss;
 	    
 	  }
 	  
@@ -214,10 +218,11 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
     } // End loop over all SimTracks 
     //std::cout << " Going to build the ElectronMCTruth: pBrem size " << pBrem.size() << std::endl;
     /// here fill the electron
+    xBrem.push_back(totalBrem);
     CLHEP::HepLorentzVector tmpEleMom(primEleMom.px(),primEleMom.py(),
                                primEleMom.pz(),primEleMom.e() ) ;
     CLHEP::HepLorentzVector tmpVtxPos(primVtxPos.x(),primVtxPos.y(),primVtxPos.z(),primVtxPos.t());
-    result.push_back ( ElectronMCTruth( tmpEleMom, eleVtxIndex,  bremPos, pBrem, xBrem,  tmpVtxPos,(*iEleTk)  )  ) ;
+    result.push_back ( ElectronMCTruth( tmpEleMom, eleVtxIndex, hasBrem,  bremPos, pBrem, xBrem,  tmpVtxPos,(*iEleTk)  )  ) ;
 
     
   } // End loop over primary electrons 

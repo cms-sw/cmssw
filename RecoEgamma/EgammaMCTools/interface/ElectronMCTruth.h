@@ -21,6 +21,7 @@ class ElectronMCTruth {
     ElectronMCTruth();
     ElectronMCTruth( CLHEP::HepLorentzVector&  v, 
 		     int vertIndex,
+                     int hasBrem,
 		     std::vector<CLHEP::Hep3Vector>& bremPos, 
 		     std::vector<CLHEP::HepLorentzVector>& pBrem, 
 		     std::vector<float>& xbrem, 
@@ -35,16 +36,19 @@ class ElectronMCTruth {
     std::vector<float>  eloss() const {return theELoss_;}
     SimTrack simTracks() const {return eTrack_;}     
     int vertexInd() const {return theVertexIndex_;}
-
+    int hasBrem() const {return hasBrem_;}
+ 
  private:
     CLHEP::HepLorentzVector theElectron_;
     int theVertexIndex_;
+    int hasBrem_;
     std::vector<CLHEP::Hep3Vector> theBremPosition_;
     std::vector<CLHEP::HepLorentzVector> theBremMomentum_;
     std::vector<float> theELoss_;
     CLHEP::HepLorentzVector thePrimaryVertex_;
     SimTrack eTrack_;
-
+    
+    
 
 
 };

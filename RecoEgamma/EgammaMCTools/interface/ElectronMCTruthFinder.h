@@ -21,6 +21,8 @@ class ElectronMCTruthFinder {
 
     std::vector<ElectronMCTruth> find(const std::vector<SimTrack>& simTracks, const std::vector<SimVertex>& simVertices);
 
+    void clear() {geantToIndex_.clear();}
+
   private:
 
     void fill(const std::vector<SimTrack>& theSimTracks, const std::vector<SimVertex>& theSimVertices);

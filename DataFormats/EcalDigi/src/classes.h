@@ -8,6 +8,8 @@ namespace DataFormats_EcalDigi {
     std::vector<ESSample> vESSample_;
     std::vector<float> vETS_;
     std::vector<EcalTriggerPrimitiveSample> vETPS_;
+    std::vector<EcalEBTriggerPrimitiveSample> vEBTPS_;
+    std::vector<EcalEBClusterTriggerPrimitiveSample> vEBCTPS_;
     std::vector<EcalPseudoStripInputSample> vEPSIS_;
     std::vector<EcalMatacqDigi> vMD_;
     std::vector<EcalTimeDigi> vTD_;
@@ -16,6 +18,7 @@ namespace DataFormats_EcalDigi {
     edm::SortedCollection<EcalTimeDigi> vETDP_;
     edm::SortedCollection<EcalTriggerPrimitiveDigi> vETP_;
     edm::SortedCollection<EcalEBTriggerPrimitiveDigi> vEEBTP_;
+    edm::SortedCollection<EcalEBClusterTriggerPrimitiveDigi> vEEBCTP_;
     edm::SortedCollection<EcalPseudoStripInputDigi> vEPSI_;
     edm::SortedCollection<EBSrFlag> vEBSRF_;
     edm::SortedCollection<EESrFlag> vEESRF_;
@@ -54,6 +57,7 @@ namespace DataFormats_EcalDigi {
     edm::Wrapper< edm::SortedCollection<EcalTimeDigi> > theETDw_;
     edm::Wrapper< edm::SortedCollection<EcalTriggerPrimitiveDigi> > theETPw_;
     edm::Wrapper< edm::SortedCollection<EcalEBTriggerPrimitiveDigi> > theEEBTPw_;
+    edm::Wrapper< edm::SortedCollection<EcalEBClusterTriggerPrimitiveDigi> > theEEBCTPw_;
     edm::Wrapper< edm::SortedCollection<EcalPseudoStripInputDigi> > theEPSIw_;
     edm::Wrapper< edm::SortedCollection<EBSrFlag> > theEBSRFw_;
     edm::Wrapper< edm::SortedCollection<EESrFlag> > theEESRFw_;
