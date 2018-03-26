@@ -122,7 +122,7 @@ class TotemSampicFrame
       std::bitset<16> bitsCellInfo( getCellInfo() );
       std::bitset<16> bitsChannelMap( getChannelMap() );
       std::cout << "TotemSampicFrame:\nEvent:"
-          << "HardwareId (Event):\t" << std::hex << (unsigned int) getEventHardwareId()
+          << "\nHardwareId (Event):\t" << std::hex << (unsigned int) getEventHardwareId()
           << "\nL1A Time Stamp:\t" << std::dec << getL1ATimeStamp()
           << "\nL1A Latency:\t" << std::dec << getL1ALatency()
           << "\nBunch Number:\t" << std::dec << getBunchNumber()

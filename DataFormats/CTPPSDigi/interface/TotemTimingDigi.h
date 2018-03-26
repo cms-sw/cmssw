@@ -188,7 +188,9 @@ class TotemTimingDigi{
 
 inline bool operator< (const TotemTimingDigi& one, const TotemTimingDigi& other)
 {
-  if( one.getHardwareId() < other.getHardwareId() )                                     
+  if ( one.getEventInfo() < other.getEventInfo() )
+    return true;
+  if ( one.getHardwareId() < other.getHardwareId() )                                     
     return true; 
   return false;
 }  
