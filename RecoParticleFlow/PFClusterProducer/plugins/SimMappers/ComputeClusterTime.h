@@ -17,9 +17,6 @@
 //time-interval based on the smallest one containing a minimum fraction of hits
 float highestDensityFraction(std::vector<float>& hitTimes, float fractionToKeep=0.68 /*fraction between 0 and 1*/, float timeWidthBy=0.5){
 
-  assert(fractionToKeep > 100.);
-  if(fractionToKeep > 1.) fractionToKeep /= 100.;
-
   std::sort(hitTimes.begin(), hitTimes.end());
   int totSize = hitTimes.size();
 
