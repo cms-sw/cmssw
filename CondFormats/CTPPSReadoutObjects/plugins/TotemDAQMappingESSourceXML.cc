@@ -38,6 +38,9 @@
 
 #include <memory>
 #include <sstream>
+#include <iomanip>
+#include <map>
+
 
 // #define DEBUG 1
 
@@ -74,11 +77,15 @@ public:
   /// totem timing specific tags
   static const std::string tagSampicBoard;
   static const std::string tagSampicCh;
+  static const std::string tagTotemTimingCh;
+  static const std::string tagTotemTimingPlane;
 
   TotemDAQMappingESSourceXML(const edm::ParameterSet &);
   ~TotemDAQMappingESSourceXML() override;
 
   edm::ESProducts< std::shared_ptr<TotemDAQMapping>, std::shared_ptr<TotemAnalysisMask> > produce( const TotemReadoutRcd & );
+   
+  
 
 private:
   unsigned int verbosity;
@@ -111,7 +118,7 @@ private:
   bool currentBlockValid;
 
   /// enumeration of XML node types
-  enum NodeType { nUnknown, nSkip, nTop, nArm, nRPStation, nRPPot, nRPPlane, nDiamondPlane, nChip, nDiamondCh, nChannel, nSampicBoard, nSampicChannel };
+  enum NodeType { nUnknown, nSkip, nTop, nArm, nRPStation, nRPPot, nRPPlane, nDiamondPlane, nChip, nDiamondCh, nChannel, nSampicBoard, nSampicChannel, nTotemTimingPlane, nTotemTimingCh };
 
   /// whether to parse a mapping of a mask XML
   enum ParseType { pMapping, pMask };
@@ -173,7 +180,7 @@ private:
   
   bool TotemTimingNode(NodeType type)
   {
-    return ((type == nArm)||(type == nRPStation)||(type == nRPPot)||(type == nSampicBoard)||(type == nSampicChannel));
+    return ((type == nArm)||(type == nRPStation)||(type == nRPPot)||(type == nSampicBoard)||(type == nSampicChannel)||(type == nTotemTimingPlane)||(type == nTotemTimingCh));
   }
   
   bool CommonNode(NodeType type)
@@ -215,6 +222,8 @@ const string TotemDAQMappingESSourceXML::tagDiamondCh = "diamond_channel";
 // specific tags for totem timing
 const string TotemDAQMappingESSourceXML::tagSampicBoard = "rp_sampic_board";
 const string TotemDAQMappingESSourceXML::tagSampicCh = "rp_sampic_channel";
+const string TotemDAQMappingESSourceXML::tagTotemTimingCh = "timing_channel";
+const string TotemDAQMappingESSourceXML::tagTotemTimingPlane = "timing_plane";
 
 //----------------------------------------------------------------------------------------------------
 
@@ -633,6 +642,40 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType, xercesc::
 #endif
 
   DOMNodeList *children = parent->getChildNodes();
+  
+  // Create map plane/ch -> hwId
+  for (unsigned int i = 0; i < children->getLength(); i++)
+  {  
+    DOMNode *child = children->item(i);
+    if ( (child->getNodeType() != DOMNode::ELEMENT_NODE) || (GetNodeType(child)!=nTotemTimingCh) )
+      continue;
+    
+    int plane = -1;
+    DOMNamedNodeMap* attr = parent->getAttributes();
+    for (unsigned int j = 0; j < attr->getLength(); j++)
+    {
+      DOMNode *a = attr->item(j);
+
+      if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "id"))
+        sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%d", &plane);
+    }
+  
+
+    int channel = -1;
+    unsigned int hwId = 0;
+    attr = child->getAttributes();
+    for (unsigned int j = 0; j < attr->getLength(); j++)
+    {
+      DOMNode *a = attr->item(j);
+
+      if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "id"))
+        sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%d", &channel);
+      if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "hwId"))
+        sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%x", &hwId);
+    }
+  
+    mapping->totemTimingChannelMap[ (uint8_t) hwId ] = TotemDAQMapping::TotemTimingPlaneChannelPair(plane, channel);    
+  }
 
   for (unsigned int i = 0; i < children->getLength(); i++)
   {  
@@ -657,6 +700,8 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType, xercesc::
       case nRPPot: expectedParentType = nRPStation; break;
       case nSampicBoard: expectedParentType = nRPPot; break;
       case nSampicChannel: expectedParentType = nSampicBoard; break;
+      case nTotemTimingPlane: expectedParentType = nRPPot; break;
+      case nTotemTimingCh: expectedParentType = nTotemTimingPlane; break;
       default: expectedParentType = nUnknown; break;
     }
 
@@ -670,6 +715,7 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType, xercesc::
     unsigned int id =0; 
     bool id_set = false;
     DOMNamedNodeMap* attr = n->getAttributes();
+    
 
     for (unsigned int j = 0; j < attr->getLength(); j++)
     {
@@ -708,7 +754,7 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType, xercesc::
       unsigned int StationNum = (parentID / 1000) % 10;
       unsigned int RpNum = (parentID/ 100) % 10;
 
-      vfatInfo.symbolicID.symbolicID = TotemTimingDetId(ArmNum, StationNum, RpNum, 0, 0);      //Dynamical: it is encoded in the frame
+      vfatInfo.symbolicID.symbolicID = TotemTimingDetId(ArmNum, StationNum, RpNum, 0, TotemTimingDetId::ID_NOT_SET);      //Dynamical: it is encoded in the frame
 
       mapping->insert(framepos, vfatInfo);
 
@@ -778,6 +824,8 @@ TotemDAQMappingESSourceXML::NodeType TotemDAQMappingESSourceXML::GetNodeType(xer
   //totem timing specifics
   if (Test(n, tagSampicBoard)) return nSampicBoard;
   if (Test(n, tagSampicCh)) return nSampicChannel;
+  if (Test(n, tagTotemTimingCh)) return nTotemTimingCh;
+  if (Test(n, tagTotemTimingPlane)) return nTotemTimingPlane;
 
   // for backward compatibility
   if (Test(n, "trigger_vfat")) return nSkip;

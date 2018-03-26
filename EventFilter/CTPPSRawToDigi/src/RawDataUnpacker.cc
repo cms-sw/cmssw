@@ -11,7 +11,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-#define DEBUG 0
+// #define DEBUG 0
 
 //----------------------------------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ using namespace ctpps;
 //----------------------------------------------------------------------------------------------------
 
 RawDataUnpacker::RawDataUnpacker(const edm::ParameterSet& iConfig) :
-  verbosity(iConfig.getUntrackedParameter<unsigned int>("verbosity", 10))
+  verbosity(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0))
 {}
 
 //----------------------------------------------------------------------------------------------------
@@ -37,8 +37,6 @@ int RawDataUnpacker::Run(int fedId, const FEDRawData &data, vector<TotemFEDInfo>
         "Data in FED " << fedId << " too short (size = " << size_in_words << " words).";
     return 1;
   }
-  LogWarning("Totem") << "RawDataUnpacker::Run > " <<
-        "Data in FED " << fedId << " (size = " << size_in_words << " words).";
 
   fedInfoColl.push_back(TotemFEDInfo(fedId));
 
@@ -81,14 +79,6 @@ int RawDataUnpacker::ProcessOptoRxFrame(const word *buf, unsigned int frameSize,
     return 0;
   }
   
-  
-  LogWarning("Totem") << "RawDataUnpacker::ProcessOptoRxFrame > " << "Structure of OptoRx header/footer: "
-        << "BOE=" << BOE << ", H0=" << H0 << ", EOE=" << EOE << ", F0=" << F0
-        << ", size (OptoRx)=" << FSize << ", size (DATE)=" << frameSize
-        << ". OptoRxID=" << OptoRxId << ", FOV= " << FOV << endl;
-//   for (unsigned int i = 0; i < frameSize; ++i ) {
-//     std::cout<< setfill('0') << setw(16)<<std::hex<<buf[i]<<std::endl;
-//   }
 
   #ifdef DEBUG
     printf(">> RawDataUnpacker::ProcessOptoRxFrame > OptoRxId = %u, BX = %lu, LV1 = %lu, frameSize = %u)\n",
