@@ -14,6 +14,7 @@
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
+#include "EventFilter/CTPPSRawToDigi/interface/DiamondVFATFrame.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
 
 
@@ -26,7 +27,7 @@ using namespace edm;
 
 RawToDigiConverter::RawToDigiConverter(const edm::ParameterSet &conf) :
   verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
-  printErrorSummary(conf.getUntrackedParameter<unsigned int>("printErrorSummary", 0)),
+  printErrorSummary(conf.getUntrackedParameter<unsigned int>("printErrorSummary", 1)),
   printUnknownFrameSummary(conf.getUntrackedParameter<unsigned int>("printUnknownFrameSummary", 1)),
 
   testFootprint(conf.getParameter<unsigned int>("testFootprint")),
@@ -372,6 +373,8 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
             detId.setPlane( totemSampicFrame.getDetPlane() % 4 );
             detId.setChannel( totemSampicFrame.getDetChannel() % 32 );
           }
+          
+          std::cout << digiTmp << std::endl;
           
           DetSet<TotemTimingDigi> &digiDetSet = digi.find_or_insert(detId);
           digiDetSet.push_back(digiTmp);

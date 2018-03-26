@@ -113,7 +113,7 @@
     </station>
     <station id="2">        <!-- 220 m -->
       <rp_detector_set id="1">       <!-- Near Bottom -->
-        <rp_sampic_board id="0">
+        <rp_sampic_board id="3">
           <rp_sampic_channel       id="0"        FEDId="587"     GOHId="3"       IdxInFiber="0"/>
           <rp_sampic_channel       id="1"        FEDId="587"     GOHId="3"       IdxInFiber="1"/>
           <rp_sampic_channel       id="2"        FEDId="587"     GOHId="3"       IdxInFiber="2"/>
@@ -163,6 +163,174 @@
           <rp_sampic_channel       id="12"       FEDId="587"     GOHId="5"       IdxInFiber="12"/>
           <rp_sampic_channel       id="13"       FEDId="587"     GOHId="5"       IdxInFiber="13"/>
           <rp_sampic_channel       id="14"       FEDId="587"     GOHId="5"       IdxInFiber="14"/>          
+        </rp_sampic_board>
+      </rp_detector_set>
+    </station>
+  </arm>
+  <arm id="1">  <!-- 56 -->
+    <station id="2">        <!-- 220 m -->
+      <rp_detector_set id="0">       <!-- Near Top -->
+        <timing_plane id="0">
+          <timing_channel id="0" hwId="0x60"/>
+          <timing_channel id="1" hwId="0x61"/>
+          <timing_channel id="2" hwId="0x62"/>
+          <timing_channel id="3" hwId="0x63"/>
+          <timing_channel id="4" hwId="0x64"/>
+          <timing_channel id="5" hwId="0x65"/>
+          <timing_channel id="6" hwId="0x66"/>
+          <timing_channel id="7" hwId="0x67"/>
+          <timing_channel id="8" hwId="0x68"/>
+          <timing_channel id="9" hwId="0x69"/>
+          <timing_channel id="10" hwId="0x6A"/>
+          <timing_channel id="11" hwId="0x6B"/>.
+        </timing_plane>
+        <timing_plane id="1">
+          <timing_channel id="0" hwId="0x6C"/>
+          <timing_channel id="1" hwId="0x6D"/>
+          <timing_channel id="2" hwId="0x6E"/>
+          <timing_channel id="3" hwId="0x6F"/>
+          <timing_channel id="4" hwId="0x70"/>
+          <timing_channel id="5" hwId="0x71"/>
+          <timing_channel id="6" hwId="0x72"/>
+          <timing_channel id="7" hwId="0x73"/>
+          <timing_channel id="8" hwId="0x74"/>
+          <timing_channel id="9" hwId="0x75"/>
+          <timing_channel id="10" hwId="0x76"/>
+          <timing_channel id="11" hwId="0x77"/>.
+        </timing_plane>
+        <timing_plane id="2">
+          <timing_channel id="0" hwId="0x78"/>
+          <timing_channel id="1" hwId="0x79"/>
+          <timing_channel id="2" hwId="0x7A"/>
+          <timing_channel id="3" hwId="0x7B"/>
+          <timing_channel id="4" hwId="0x7C"/>
+          <timing_channel id="5" hwId="0x7D"/>
+          <timing_channel id="6" hwId="0x7E"/>
+          <timing_channel id="7" hwId="0x7F"/>
+          <timing_channel id="8" hwId="0x80"/>
+          <timing_channel id="9" hwId="0x81"/>
+          <timing_channel id="10" hwId="0x82"/>
+          <timing_channel id="11" hwId="0x83"/>.
+        </timing_plane>
+        <timing_plane id="3">
+          <timing_channel id="0" hwId="0x84"/>
+          <timing_channel id="1" hwId="0x85"/>
+          <timing_channel id="2" hwId="0x86"/>
+          <timing_channel id="3" hwId="0x87"/>
+          <timing_channel id="4" hwId="0x88"/>
+          <timing_channel id="5" hwId="0x89"/>
+          <timing_channel id="6" hwId="0x8A"/>
+          <timing_channel id="7" hwId="0x8B"/>
+          <timing_channel id="8" hwId="0x8C"/>
+          <timing_channel id="9" hwId="0x8D"/>
+          <timing_channel id="10" hwId="0x8E"/>
+          <timing_channel id="11" hwId="0x8F"/>.
+        </timing_plane>     
+        <rp_sampic_board id="0">
+          <rp_sampic_channel       id="0"        FEDId="586"     GOHId="0"       IdxInFiber="0"/>
+          <rp_sampic_channel       id="1"        FEDId="586"     GOHId="0"       IdxInFiber="1"/>
+          <rp_sampic_channel       id="2"        FEDId="586"     GOHId="0"       IdxInFiber="2"/>
+          <rp_sampic_channel       id="3"        FEDId="586"     GOHId="0"       IdxInFiber="3"/>
+          <rp_sampic_channel       id="4"        FEDId="586"     GOHId="0"       IdxInFiber="4"/>
+          <rp_sampic_channel       id="5"        FEDId="586"     GOHId="0"       IdxInFiber="5"/>
+          <rp_sampic_channel       id="6"        FEDId="586"     GOHId="0"       IdxInFiber="6"/>
+          <rp_sampic_channel       id="7"        FEDId="586"     GOHId="0"       IdxInFiber="7"/>
+          <rp_sampic_channel       id="8"        FEDId="586"     GOHId="0"       IdxInFiber="8"/>
+          <rp_sampic_channel       id="9"        FEDId="586"     GOHId="0"       IdxInFiber="9"/>
+          <rp_sampic_channel       id="10"       FEDId="586"     GOHId="0"       IdxInFiber="10"/>
+          <rp_sampic_channel       id="11"       FEDId="586"     GOHId="0"       IdxInFiber="11"/>
+          <rp_sampic_channel       id="12"       FEDId="586"     GOHId="0"       IdxInFiber="12"/>
+          <rp_sampic_channel       id="13"       FEDId="586"     GOHId="0"       IdxInFiber="13"/>
+          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="0"       IdxInFiber="14"/>          
+        </rp_sampic_board>
+        <rp_sampic_board id="1">
+          <rp_sampic_channel       id="0"        FEDId="586"     GOHId="1"       IdxInFiber="0"/>
+          <rp_sampic_channel       id="1"        FEDId="586"     GOHId="1"       IdxInFiber="1"/>
+          <rp_sampic_channel       id="2"        FEDId="586"     GOHId="1"       IdxInFiber="2"/>
+          <rp_sampic_channel       id="3"        FEDId="586"     GOHId="1"       IdxInFiber="3"/>
+          <rp_sampic_channel       id="4"        FEDId="586"     GOHId="1"       IdxInFiber="4"/>
+          <rp_sampic_channel       id="5"        FEDId="586"     GOHId="1"       IdxInFiber="5"/>
+          <rp_sampic_channel       id="6"        FEDId="586"     GOHId="1"       IdxInFiber="6"/>
+          <rp_sampic_channel       id="7"        FEDId="586"     GOHId="1"       IdxInFiber="7"/>
+          <rp_sampic_channel       id="8"        FEDId="586"     GOHId="1"       IdxInFiber="8"/>
+          <rp_sampic_channel       id="9"        FEDId="586"     GOHId="1"       IdxInFiber="9"/>
+          <rp_sampic_channel       id="10"       FEDId="586"     GOHId="1"       IdxInFiber="10"/>
+          <rp_sampic_channel       id="11"       FEDId="586"     GOHId="1"       IdxInFiber="11"/>
+          <rp_sampic_channel       id="12"       FEDId="586"     GOHId="1"       IdxInFiber="12"/>
+          <rp_sampic_channel       id="13"       FEDId="586"     GOHId="1"       IdxInFiber="13"/>
+          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="1"       IdxInFiber="14"/>          
+        </rp_sampic_board>
+        <rp_sampic_board id="2">
+          <rp_sampic_channel       id="0"        FEDId="586"     GOHId="2"       IdxInFiber="0"/>
+          <rp_sampic_channel       id="1"        FEDId="586"     GOHId="2"       IdxInFiber="1"/>
+          <rp_sampic_channel       id="2"        FEDId="586"     GOHId="2"       IdxInFiber="2"/>
+          <rp_sampic_channel       id="3"        FEDId="586"     GOHId="2"       IdxInFiber="3"/>
+          <rp_sampic_channel       id="4"        FEDId="586"     GOHId="2"       IdxInFiber="4"/>
+          <rp_sampic_channel       id="5"        FEDId="586"     GOHId="2"       IdxInFiber="5"/>
+          <rp_sampic_channel       id="6"        FEDId="586"     GOHId="2"       IdxInFiber="6"/>
+          <rp_sampic_channel       id="7"        FEDId="586"     GOHId="2"       IdxInFiber="7"/>
+          <rp_sampic_channel       id="8"        FEDId="586"     GOHId="2"       IdxInFiber="8"/>
+          <rp_sampic_channel       id="9"        FEDId="586"     GOHId="2"       IdxInFiber="9"/>
+          <rp_sampic_channel       id="10"       FEDId="586"     GOHId="2"       IdxInFiber="10"/>
+          <rp_sampic_channel       id="11"       FEDId="586"     GOHId="2"       IdxInFiber="11"/>
+          <rp_sampic_channel       id="12"       FEDId="586"     GOHId="2"       IdxInFiber="12"/>
+          <rp_sampic_channel       id="13"       FEDId="586"     GOHId="2"       IdxInFiber="13"/>
+          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="2"       IdxInFiber="14"/> 
+        </rp_sampic_board>
+      </rp_detector_set>
+    </station>
+    <station id="2">        <!-- 220 m -->
+      <rp_detector_set id="1">       <!-- Near Bottom -->
+        <rp_sampic_board id="3">
+          <rp_sampic_channel       id="0"        FEDId="586"     GOHId="3"       IdxInFiber="0"/>
+          <rp_sampic_channel       id="1"        FEDId="586"     GOHId="3"       IdxInFiber="1"/>
+          <rp_sampic_channel       id="2"        FEDId="586"     GOHId="3"       IdxInFiber="2"/>
+          <rp_sampic_channel       id="3"        FEDId="586"     GOHId="3"       IdxInFiber="3"/>
+          <rp_sampic_channel       id="4"        FEDId="586"     GOHId="3"       IdxInFiber="4"/>
+          <rp_sampic_channel       id="5"        FEDId="586"     GOHId="3"       IdxInFiber="5"/>
+          <rp_sampic_channel       id="6"        FEDId="586"     GOHId="3"       IdxInFiber="6"/>
+          <rp_sampic_channel       id="7"        FEDId="586"     GOHId="3"       IdxInFiber="7"/>
+          <rp_sampic_channel       id="8"        FEDId="586"     GOHId="3"       IdxInFiber="8"/>
+          <rp_sampic_channel       id="9"        FEDId="586"     GOHId="3"       IdxInFiber="9"/>
+          <rp_sampic_channel       id="10"       FEDId="586"     GOHId="3"       IdxInFiber="10"/>
+          <rp_sampic_channel       id="11"       FEDId="586"     GOHId="3"       IdxInFiber="11"/>
+          <rp_sampic_channel       id="12"       FEDId="586"     GOHId="3"       IdxInFiber="12"/>
+          <rp_sampic_channel       id="13"       FEDId="586"     GOHId="3"       IdxInFiber="13"/>
+          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="3"       IdxInFiber="14"/>          
+        </rp_sampic_board>
+        <rp_sampic_board id="4">
+          <rp_sampic_channel       id="0"        FEDId="586"     GOHId="4"       IdxInFiber="0"/>
+          <rp_sampic_channel       id="1"        FEDId="586"     GOHId="4"       IdxInFiber="1"/>
+          <rp_sampic_channel       id="2"        FEDId="586"     GOHId="4"       IdxInFiber="2"/>
+          <rp_sampic_channel       id="3"        FEDId="586"     GOHId="4"       IdxInFiber="3"/>
+          <rp_sampic_channel       id="4"        FEDId="586"     GOHId="4"       IdxInFiber="4"/>
+          <rp_sampic_channel       id="5"        FEDId="586"     GOHId="4"       IdxInFiber="5"/>
+          <rp_sampic_channel       id="6"        FEDId="586"     GOHId="4"       IdxInFiber="6"/>
+          <rp_sampic_channel       id="7"        FEDId="586"     GOHId="4"       IdxInFiber="7"/>
+          <rp_sampic_channel       id="8"        FEDId="586"     GOHId="4"       IdxInFiber="8"/>
+          <rp_sampic_channel       id="9"        FEDId="586"     GOHId="4"       IdxInFiber="9"/>
+          <rp_sampic_channel       id="10"       FEDId="586"     GOHId="4"       IdxInFiber="10"/>
+          <rp_sampic_channel       id="11"       FEDId="586"     GOHId="4"       IdxInFiber="11"/>
+          <rp_sampic_channel       id="12"       FEDId="586"     GOHId="4"       IdxInFiber="12"/>
+          <rp_sampic_channel       id="13"       FEDId="586"     GOHId="4"       IdxInFiber="13"/>
+          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="4"       IdxInFiber="14"/>          
+        </rp_sampic_board>
+        <rp_sampic_board id="5">
+          <rp_sampic_channel       id="0"        FEDId="586"     GOHId="5"       IdxInFiber="0"/>
+          <rp_sampic_channel       id="1"        FEDId="586"     GOHId="5"       IdxInFiber="1"/>
+          <rp_sampic_channel       id="2"        FEDId="586"     GOHId="5"       IdxInFiber="2"/>
+          <rp_sampic_channel       id="3"        FEDId="586"     GOHId="5"       IdxInFiber="3"/>
+          <rp_sampic_channel       id="4"        FEDId="586"     GOHId="5"       IdxInFiber="4"/>
+          <rp_sampic_channel       id="5"        FEDId="586"     GOHId="5"       IdxInFiber="5"/>
+          <rp_sampic_channel       id="6"        FEDId="586"     GOHId="5"       IdxInFiber="6"/>
+          <rp_sampic_channel       id="7"        FEDId="586"     GOHId="5"       IdxInFiber="7"/>
+          <rp_sampic_channel       id="8"        FEDId="586"     GOHId="5"       IdxInFiber="8"/>
+          <rp_sampic_channel       id="9"        FEDId="586"     GOHId="5"       IdxInFiber="9"/>
+          <rp_sampic_channel       id="10"       FEDId="586"     GOHId="5"       IdxInFiber="10"/>
+          <rp_sampic_channel       id="11"       FEDId="586"     GOHId="5"       IdxInFiber="11"/>
+          <rp_sampic_channel       id="12"       FEDId="586"     GOHId="5"       IdxInFiber="12"/>
+          <rp_sampic_channel       id="13"       FEDId="586"     GOHId="5"       IdxInFiber="13"/>
+          <rp_sampic_channel       id="14"       FEDId="586"     GOHId="5"       IdxInFiber="14"/>          
         </rp_sampic_board>
       </rp_detector_set>
     </station>

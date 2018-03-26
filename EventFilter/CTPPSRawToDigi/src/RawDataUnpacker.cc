@@ -10,9 +10,6 @@
 #include "EventFilter/CTPPSRawToDigi/interface/RawDataUnpacker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-// #define DEBUG 0
-
 //----------------------------------------------------------------------------------------------------
 
 using namespace std;
@@ -232,7 +229,6 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int m
 
   // check header flag
   unsigned int hFlag = (buf[0] >> 8) & 0xFF;
-  std::cout<<"hFlag " << hFlag << "   OptoRxId " << OptoRxId << std::endl;
   if (hFlag != vmCluster && hFlag != vmRaw && hFlag != vmDiamondCompact)
   {
     if (verbosity)

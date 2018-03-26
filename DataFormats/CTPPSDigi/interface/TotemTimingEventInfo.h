@@ -176,7 +176,11 @@ class TotemTimingEventInfo{
 
 inline bool operator< (const TotemTimingEventInfo& one, const TotemTimingEventInfo& other)
 {
-  if( one.getHardwareId() < other.getHardwareId() )                                     
+  if ( one.getEventNumber() < other.getEventNumber() )
+    return true;
+  if ( one.getL1ATimeStamp() < other.getL1ATimeStamp() )
+    return true;
+  if ( one.getHardwareId() < other.getHardwareId() )                                     
     return true; 
   return false;
 }  
