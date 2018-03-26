@@ -1,6 +1,7 @@
 #ifndef HGCalCommonData_DDHGCalHEAlgo_h
 #define HGCalCommonData_DDHGCalHEAlgo_h
 
+#include <cmath>
 #include <memory>
 #include <string>
 #include <unordered_set>
