@@ -59,7 +59,7 @@ namespace ecaldqm
   MESetEcal::clone(std::string const& _path/* = ""*/) const
   {
     std::string path(path_);
-    if(_path != "") path_ = _path;
+    if(!_path.empty()) path_ = _path;
     MESet* copy(new MESetEcal(*this));
     path_ = path;
     return copy;
@@ -94,7 +94,7 @@ namespace ecaldqm
         
         if(xaxis.nbins == 0){ // uses preset
           binning::AxisSpecs xdef(binning::getBinning(actualObject, btype_, isMap, 1, iME));
-          if(xaxis.labels || xaxis.title != ""){ // PSet specifies title / label only
+          if(xaxis.labels || !xaxis.title.empty()){ // PSet specifies title / label only
             std::string* labels(xaxis.labels);
             std::string title(xaxis.title);
             xaxis = xdef;
@@ -108,7 +108,7 @@ namespace ecaldqm
 
         if(isMap && yaxis.nbins == 0){
           binning::AxisSpecs ydef(binning::getBinning(actualObject, btype_, isMap, 2, iME));
-          if(yaxis.labels || yaxis.title != ""){ // PSet specifies title / label only
+          if(yaxis.labels || !yaxis.title.empty()){ // PSet specifies title / label only
             std::string* labels(yaxis.labels);
             std::string title(yaxis.title);
             yaxis = ydef;
