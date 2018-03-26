@@ -11,6 +11,8 @@
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "RealisticHitToClusterAssociator.h"
+#include "ComputeClusterTime.h"
+#include "RealisticCluster.h"
 
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
@@ -116,6 +118,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
         reco::PFCluster& back = output.back();
         edm::Ref < std::vector<reco::PFRecHit> > seed;
         float energyCorrection = 1.f;
+        float timeRealisticSC = -99.;
         if (realisticClusters[ic].isVisible())
         {
             int pdgId = simClusters[ic].pdgId();
@@ -139,6 +142,8 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
                 }
 
             }
+	    std::vector<float> timeHits;
+	    timeHits.clear();
             const auto& hitsIdsAndFractions = realisticClusters[ic].hitsIdsAndFractions();
             for (const auto& idAndF : hitsIdsAndFractions)
             {
@@ -153,14 +158,26 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
                         highest_energy = hit_energy;
                         seed = ref;
                     }
+                    //select hits good for timing
+                    if(ref->time() > -1. ){
+		      int rhLayer = rhtools_.getLayerWithOffset(ref->detId());
+		      std::array<float,3> scPosition = realisticClusters[ic].getCenterOfGravity(rhLayer);
+		      float distanceSquared = std::pow((ref->position().x() - scPosition[0]),2) + std::pow((ref->position().y() - scPosition[1]),2);
+		      if(distanceSquared < maxDforTimingSquared_){
+			timeHits.push_back(ref->time() - timeOffset_);
+		      }
+		    }
                 }
             }
+	    //assign time if minimum number of hits
+	    if(timeHits.size() >= minNHitsforTiming_) timeRealisticSC = highestDensityTimeDiff(timeHits);
         }
         if (!back.hitsAndFractions().empty())
         {
             back.setSeed(seed->detId());
             back.setEnergy(realisticClusters[ic].getEnergy());
             back.setCorrectedEnergy(energyCorrection*realisticClusters[ic].getEnergy()); //applying energy correction
+	    back.setTime(timeRealisticSC);
         }
         else
         {
