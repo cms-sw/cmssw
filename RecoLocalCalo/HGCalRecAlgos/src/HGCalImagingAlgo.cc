@@ -90,12 +90,14 @@ void HGCalImagingAlgo::makeClusters()
         calculateDistanceToHigher(points[i]);
         findAndAssignClusters(points[i],hit_kdtree,maxdensity,bounds,actualLayer, layerClustersPerLayer[i]);
         size_t nClusters = layerClustersPerLayer[i].size();
+        layersQueue.pushAndWait( [&]{
+        current_v.reserve(current_v.size()+nClusters);
         for(size_t j=0; j<nClusters;++j)
         {
-            layersQueue.pushAndWait( [&]{
             current_v.push_back(layerClustersPerLayer[i][j]);
-            } );
+
         }
+        } );
     });
     });
 }
@@ -169,6 +171,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
       thisCluster.clear();
     }
   }
+  std::cout << "found clusters: "<< clusters_v.size() << std::endl;
   return clusters_v;
 }
 
@@ -298,7 +301,7 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd, KDTree &lp,
   //so when filling the cluster temporary vector of Hexels we resize each time by the number
   //of clusters found. This is always equal to the number of cluster centers...
 
-  unsigned int clusterIndex = 0;
+  unsigned int nClustersOnLayer = 0;
   float delta_c; // critical distance
   if( layer<=lastLayerEE ) delta_c = vecDeltas[0];
   else if( layer<=lastLayerFH ) delta_c = vecDeltas[1];
@@ -321,18 +324,18 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd, KDTree &lp,
       continue;
 
 
-    nd[ds[i]].data.clusterIndex = clusterIndex;
+    nd[ds[i]].data.clusterIndex = nClustersOnLayer;
     if (verbosity < pINFO)
       {
-	    std::cout << "Adding new cluster with index " << clusterIndex << std::endl;
+	    std::cout << "Adding new cluster with index " << nClustersOnLayer << std::endl;
 	    std::cout << "Cluster center is hit " << ds[i] << std::endl;
       }
-    clusterIndex++;
+    nClustersOnLayer++;
   }
 
-  //at this point clusterIndex is equal to the number of cluster centers - if it is zero we are
+  //at this point nClustersOnLayer is equal to the number of cluster centers - if it is zero we are
   //done
-  if(clusterIndex==0) return clusterIndex;
+  if(nClustersOnLayer==0) return nClustersOnLayer;
 
   //assign remaining points to clusters, using the nearestHigher set from previous step (always set except
   // for top density hit that is skipped...)
@@ -348,13 +351,13 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd, KDTree &lp,
   // from this layer
   if (verbosity < pINFO)
     {
-      std::cout << "resizing cluster vector by "<< clusterIndex << std::endl;
+      std::cout << "resizing cluster vector by "<< nClustersOnLayer << std::endl;
     }
-  clustersOnLayer.resize(clusterIndex);
+  clustersOnLayer.resize(nClustersOnLayer);
 
   //assign points closer than dc to other clusters to border region
   //and find critical border density
-  std::vector<double> rho_b(clusterIndex,0.);
+  std::vector<double> rho_b(nClustersOnLayer,0.);
   lp.clear();
   lp.build(nd,bounds);
   //now loop on all hits again :( and check: if there are hits from another cluster within d_c -> flag as border hit
@@ -409,9 +412,9 @@ int HGCalImagingAlgo::findAndAssignClusters(std::vector<KDNode> &nd, KDTree &lp,
   //prepare the offset for the next layer if there is one
   if (verbosity < pINFO)
     {
-      std::cout << "moving cluster offset by " << clusterIndex << std::endl;
+      std::cout << "moving cluster offset by " << nClustersOnLayer << std::endl;
     }
-  return clusterIndex;
+  return nClustersOnLayer;
 }
 
 
