@@ -14,7 +14,7 @@
           <timing_channel id="8" hwId="0x08"/>
           <timing_channel id="9" hwId="0x09"/>
           <timing_channel id="10" hwId="0x0A"/>
-          <timing_channel id="11" hwId="0x0B"/>.
+          <timing_channel id="11" hwId="0x0B"/>
         </timing_plane>
         <timing_plane id="1">
           <timing_channel id="0" hwId="0x0C"/>
@@ -28,7 +28,7 @@
           <timing_channel id="8" hwId="0x14"/>
           <timing_channel id="9" hwId="0x15"/>
           <timing_channel id="10" hwId="0x16"/>
-          <timing_channel id="11" hwId="0x17"/>.
+          <timing_channel id="11" hwId="0x17"/>
         </timing_plane>
         <timing_plane id="2">
           <timing_channel id="0" hwId="0x18"/>
@@ -42,7 +42,7 @@
           <timing_channel id="8" hwId="0x20"/>
           <timing_channel id="9" hwId="0x21"/>
           <timing_channel id="10" hwId="0x22"/>
-          <timing_channel id="11" hwId="0x23"/>.
+          <timing_channel id="11" hwId="0x23"/>
         </timing_plane>
         <timing_plane id="3">
           <timing_channel id="0" hwId="0x24"/>
@@ -56,8 +56,64 @@
           <timing_channel id="8" hwId="0x2C"/>
           <timing_channel id="9" hwId="0x2D"/>
           <timing_channel id="10" hwId="0x2E"/>
-          <timing_channel id="11" hwId="0x2F"/>.
+          <timing_channel id="11" hwId="0x2F"/>
         </timing_plane>     
+        <timing_plane id="4">
+          <timing_channel id="0" hwId="0x30"/>
+          <timing_channel id="1" hwId="0x31"/>
+          <timing_channel id="2" hwId="0x32"/>
+          <timing_channel id="3" hwId="0x33"/>
+          <timing_channel id="4" hwId="0x34"/>
+          <timing_channel id="5" hwId="0x35"/>
+          <timing_channel id="6" hwId="0x36"/>
+          <timing_channel id="7" hwId="0x37"/>
+          <timing_channel id="8" hwId="0x38"/>
+          <timing_channel id="9" hwId="0x39"/>
+          <timing_channel id="10" hwId="0x3A"/>
+          <timing_channel id="11" hwId="0x3B"/>
+        </timing_plane>
+        <timing_plane id="5">
+          <timing_channel id="0" hwId="0x3C"/>
+          <timing_channel id="1" hwId="0x3D"/>
+          <timing_channel id="2" hwId="0x3E"/>
+          <timing_channel id="3" hwId="0x3F"/>
+          <timing_channel id="4" hwId="0x40"/>
+          <timing_channel id="5" hwId="0x41"/>
+          <timing_channel id="6" hwId="0x42"/>
+          <timing_channel id="7" hwId="0x43"/>
+          <timing_channel id="8" hwId="0x44"/>
+          <timing_channel id="9" hwId="0x45"/>
+          <timing_channel id="10" hwId="0x46"/>
+          <timing_channel id="11" hwId="0x47"/>
+        </timing_plane>
+        <timing_plane id="6">
+          <timing_channel id="0" hwId="0x48"/>
+          <timing_channel id="1" hwId="0x49"/>
+          <timing_channel id="2" hwId="0x4A"/>
+          <timing_channel id="3" hwId="0x4B"/>
+          <timing_channel id="4" hwId="0x4C"/>
+          <timing_channel id="5" hwId="0x4D"/>
+          <timing_channel id="6" hwId="0x4E"/>
+          <timing_channel id="7" hwId="0x4F"/>
+          <timing_channel id="8" hwId="0x50"/>
+          <timing_channel id="9" hwId="0x51"/>
+          <timing_channel id="10" hwId="0x52"/>
+          <timing_channel id="11" hwId="0x53"/>
+        </timing_plane>
+        <timing_plane id="7">
+          <timing_channel id="0" hwId="0x54"/>
+          <timing_channel id="1" hwId="0x55"/>
+          <timing_channel id="2" hwId="0x56"/>
+          <timing_channel id="3" hwId="0x57"/>
+          <timing_channel id="4" hwId="0x58"/>
+          <timing_channel id="5" hwId="0x59"/>
+          <timing_channel id="6" hwId="0x5A"/>
+          <timing_channel id="7" hwId="0x5B"/>
+          <timing_channel id="8" hwId="0x5C"/>
+          <timing_channel id="9" hwId="0x5D"/>
+          <timing_channel id="10" hwId="0x5E"/>
+          <timing_channel id="11" hwId="0x5F"/>
+        </timing_plane> 
         <rp_sampic_board id="0">
           <rp_sampic_channel       id="0"        FEDId="587"     GOHId="0"       IdxInFiber="0"/>
           <rp_sampic_channel       id="1"        FEDId="587"     GOHId="0"       IdxInFiber="1"/>
@@ -182,7 +238,7 @@
           <timing_channel id="8" hwId="0x68"/>
           <timing_channel id="9" hwId="0x69"/>
           <timing_channel id="10" hwId="0x6A"/>
-          <timing_channel id="11" hwId="0x6B"/>.
+          <timing_channel id="11" hwId="0x6B"/>
         </timing_plane>
         <timing_plane id="1">
           <timing_channel id="0" hwId="0x6C"/>
@@ -196,7 +252,7 @@
           <timing_channel id="8" hwId="0x74"/>
           <timing_channel id="9" hwId="0x75"/>
           <timing_channel id="10" hwId="0x76"/>
-          <timing_channel id="11" hwId="0x77"/>.
+          <timing_channel id="11" hwId="0x77"/>
         </timing_plane>
         <timing_plane id="2">
           <timing_channel id="0" hwId="0x78"/>
@@ -210,7 +266,7 @@
           <timing_channel id="8" hwId="0x80"/>
           <timing_channel id="9" hwId="0x81"/>
           <timing_channel id="10" hwId="0x82"/>
-          <timing_channel id="11" hwId="0x83"/>.
+          <timing_channel id="11" hwId="0x83"/>
         </timing_plane>
         <timing_plane id="3">
           <timing_channel id="0" hwId="0x84"/>
@@ -224,8 +280,64 @@
           <timing_channel id="8" hwId="0x8C"/>
           <timing_channel id="9" hwId="0x8D"/>
           <timing_channel id="10" hwId="0x8E"/>
-          <timing_channel id="11" hwId="0x8F"/>.
+          <timing_channel id="11" hwId="0x8F"/>
         </timing_plane>     
+        <timing_plane id="4">
+          <timing_channel id="0" hwId="0x90"/>
+          <timing_channel id="1" hwId="0x91"/>
+          <timing_channel id="2" hwId="0x92"/>
+          <timing_channel id="3" hwId="0x93"/>
+          <timing_channel id="4" hwId="0x94"/>
+          <timing_channel id="5" hwId="0x95"/>
+          <timing_channel id="6" hwId="0x96"/>
+          <timing_channel id="7" hwId="0x97"/>
+          <timing_channel id="8" hwId="0x98"/>
+          <timing_channel id="9" hwId="0x99"/>
+          <timing_channel id="10" hwId="0x9A"/>
+          <timing_channel id="11" hwId="0x9B"/>
+        </timing_plane>
+        <timing_plane id="5">
+          <timing_channel id="0" hwId="0x9C"/>
+          <timing_channel id="1" hwId="0x9D"/>
+          <timing_channel id="2" hwId="0x9E"/>
+          <timing_channel id="3" hwId="0x9F"/>
+          <timing_channel id="4" hwId="0xA0"/>
+          <timing_channel id="5" hwId="0xA1"/>
+          <timing_channel id="6" hwId="0xA2"/>
+          <timing_channel id="7" hwId="0xA3"/>
+          <timing_channel id="8" hwId="0xA4"/>
+          <timing_channel id="9" hwId="0xA5"/>
+          <timing_channel id="10" hwId="0xA6"/>
+          <timing_channel id="11" hwId="0xA7"/>
+        </timing_plane>
+        <timing_plane id="6">
+          <timing_channel id="0" hwId="0xA8"/>
+          <timing_channel id="1" hwId="0xA9"/>
+          <timing_channel id="2" hwId="0xAA"/>
+          <timing_channel id="3" hwId="0xAB"/>
+          <timing_channel id="4" hwId="0xAC"/>
+          <timing_channel id="5" hwId="0xAD"/>
+          <timing_channel id="6" hwId="0xAE"/>
+          <timing_channel id="7" hwId="0xAF"/>
+          <timing_channel id="8" hwId="0xB0"/>
+          <timing_channel id="9" hwId="0xB1"/>
+          <timing_channel id="10" hwId="0xB2"/>
+          <timing_channel id="11" hwId="0xB3"/>
+        </timing_plane>
+        <timing_plane id="7">
+          <timing_channel id="0" hwId="0xB4"/>
+          <timing_channel id="1" hwId="0xB5"/>
+          <timing_channel id="2" hwId="0xB6"/>
+          <timing_channel id="3" hwId="0xB7"/>
+          <timing_channel id="4" hwId="0xB8"/>
+          <timing_channel id="5" hwId="0xB9"/>
+          <timing_channel id="6" hwId="0xBA"/>
+          <timing_channel id="7" hwId="0xBB"/>
+          <timing_channel id="8" hwId="0xBC"/>
+          <timing_channel id="9" hwId="0xBD"/>
+          <timing_channel id="10" hwId="0xBE"/>
+          <timing_channel id="11" hwId="0xBF"/>
+        </timing_plane> 
         <rp_sampic_board id="0">
           <rp_sampic_channel       id="0"        FEDId="586"     GOHId="0"       IdxInFiber="0"/>
           <rp_sampic_channel       id="1"        FEDId="586"     GOHId="0"       IdxInFiber="1"/>
