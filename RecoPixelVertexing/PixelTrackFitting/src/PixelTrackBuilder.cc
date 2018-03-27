@@ -33,28 +33,29 @@ namespace {
 		    int   charge)
   {
     ostringstream str;
-    str <<"\t pt: "  << pt.value() <<"+/-"<<pt.error()  
+    str <<"\t pt: "  << pt.value() <<"+/-"<<pt.error()
         <<"\t phi: " << phi.value() <<"+/-"<<phi.error()
         <<"\t cot: " << cotTheta.value() <<"+/-"<<cotTheta.error()
         <<"\t tip: " << tip.value() <<"+/-"<<tip.error()
         <<"\t zip: " << zip.value() <<"+/-"<<zip.error()
+        <<"\t chi2: " << chi2
         <<"\t charge: " << charge;
     return str.str();
   }
 
   std::string print(const reco::Track & track, const GlobalPoint & origin)
   {
-    
+
     math::XYZPoint bs(origin.x(), origin.y(), origin.z());
-    
+
     Measurement1D phi( track.phi(), track.phiError());
-    
+
     float theta = track.theta();
     float cosTheta = cos(theta);
     float sinTheta = sin(theta);
     float errLambda2 = sqr( track.lambdaError() );
     Measurement1D cotTheta(cosTheta/sinTheta, sqrt(errLambda2)/sqr(sinTheta));
-    
+
     float pt_v = track.pt();
     float errInvP2 = sqr(track.qoverpError());
     float covIPtTheta = track.covariance(TrackBase::i_qoverp, TrackBase::i_lambda);
@@ -63,21 +64,21 @@ namespace {
 			  + 2*(cosTheta/pt_v)*covIPtTheta
 			  ) / sqr(sinTheta);
     Measurement1D pt(pt_v, sqr(pt_v)*sqrt(errInvPt2));
-    
+
     Measurement1D tip(track.dxy(bs), track.d0Error());
-    
+
     Measurement1D zip(track.dz(bs), track.dzError());
-    
+
     return print(pt, phi, cotTheta, tip, zip, track.chi2(),  track.charge());
   }
-  
+
   std::string print(const  BasicTrajectoryStateOnSurface & state)
   {
     // TrajectoryStateOnSurface state(bstate);
     float pt_v = state.globalMomentum().perp();
     float phi_v = state.globalMomentum().phi();
     float theta_v = state.globalMomentum().theta();
-    
+
     CurvilinearTrajectoryError curv = state.curvilinearError();
     float errPhi2 = curv.matrix()(3,3);
     float errLambda2 = curv.matrix()(2,2);
@@ -92,16 +93,16 @@ namespace {
     Measurement1D pt(pt_v, sqr(pt_v) * sqrt(errInvPt2));
     Measurement1D phi(phi_v, sqrt(errPhi2) );
     Measurement1D cotTheta(cosTheta/sinTheta, errCotTheta);
-    
+
     float zip_v = state.globalPosition().z();
     float zip_e = sqrt( state.localError().matrix()(4,4));
     Measurement1D zip(zip_v, zip_e);
-    
-    float tip_v  = state.localPosition().x(); 
+
+    float tip_v  = state.localPosition().x();
     int tip_sign = (state.localMomentum().y()*cotTheta.value() > 0) ? -1 : 1;
     float tip_e  = sqrt( state.localError().matrix()(3,3) );
     Measurement1D tip( tip_sign*tip_v, tip_e);
-    
+
     return print(pt, phi, cotTheta, tip, zip, 0., state.charge());
   }
 
@@ -109,16 +110,16 @@ namespace {
   inline void checkState(const  BasicTrajectoryStateOnSurface & bstate, const MagneticField* mf, const GlobalPoint & origin)
   {
     TrajectoryStateOnSurface state(bstate.clone());
-    
+
     LogTrace("")<<" *** PixelTrackBuilder::checkState: ";
     LogTrace("")<<"INPUT,  ROTATION" << endl<<state.surface().rotation();
     LogTrace("")<<"INPUT,  TSOS:"<<endl<<state;
-    
+
     TransverseImpactPointExtrapolator tipe(mf);
     TrajectoryStateOnSurface test= tipe.extrapolate(state, origin);
     LogTrace("")<<"CHECK-1 ROTATION" << endl<<"\n"<<test.surface().rotation();
     LogTrace("")<<"CHECK-1 TSOS" << endl<<test;
-    
+
     TSCPBuilderNoMaterial tscpBuilder;
     TrajectoryStateClosestToPoint tscp =
       tscpBuilder(*(state.freeState()), origin);
@@ -131,19 +132,19 @@ namespace {
 
 reco::Track * PixelTrackBuilder::build(
       const Measurement1D & pt,
-      const Measurement1D & phi, 
+      const Measurement1D & phi,
       const Measurement1D & cotTheta,
-      const Measurement1D & tip,  
+      const Measurement1D & tip,
       const Measurement1D & zip,
       float chi2,
       int   charge,
       const std::vector<const TrackingRecHit* >& hits,
       const MagneticField * mf,
-      const GlobalPoint   & origin) const 
+      const GlobalPoint   & origin) const
 {
 
   LogDebug("PixelTrackBuilder::build");
-  LogTrace("")<<"reconstructed TRIPLET kinematics:\n"<<print(pt,phi,cotTheta,tip,zip,chi2,charge);
+  std::cout <<"RECONSTRUCTED TRIPLET kinematics: "<<print(pt,phi,cotTheta,tip,zip,chi2,charge) << std::endl;
 
   double sinTheta = 1/std::sqrt(1+sqr(cotTheta.value()));
   double cosTheta = cotTheta.value()*sinTheta;
@@ -167,7 +168,7 @@ reco::Track * PixelTrackBuilder::build(
     LocalVector(0., -tipSign*pt.value()*cotTheta.value(), pt.value()),
     charge);
 
-  
+
   float sp = std::sin(phi.value());
   float cp = std::cos(phi.value());
   Surface::RotationType rot(
@@ -176,13 +177,13 @@ reco::Track * PixelTrackBuilder::build(
 			    cp        ,  sp        ,           0);
 
   // BTSOS hold Surface in a shared pointer and  will be autodeleted when BTSOS goes out of scope...
-  // to avoid memory churn we allocate it locally and just avoid it be deleted by refcount... 
+  // to avoid memory churn we allocate it locally and just avoid it be deleted by refcount...
   Plane impPointPlane(origin, rot);
   // (twice just to be sure!)
   impPointPlane.addReference(); impPointPlane.addReference();
-  // use Base (to avoid a useless new) 
+  // use Base (to avoid a useless new)
   BasicTrajectoryStateOnSurface impactPointState( lpar , error, impPointPlane, mf);
-  
+
   //checkState(impactPointState,mf);
   LogTrace("")<<"constructed TSOS :\n"<<print(impactPointState);
 
@@ -192,11 +193,9 @@ reco::Track * PixelTrackBuilder::build(
   GlobalVector pp = impactPointState.globalMomentum();
   math::XYZVector mom( pp.x(), pp.y(), pp.z() );
 
-  reco::Track * track = new reco::Track( chi2, ndof, pos, mom, 
+  reco::Track * track = new reco::Track( chi2, ndof, pos, mom,
         impactPointState.charge(), impactPointState.curvilinearError());
 
-  LogTrace("") <<"RECONSTRUCTED TRACK (0,0,0):\n"<< print(*track,GlobalPoint(0,0,0))<<std::endl;
-  LogTrace("") <<"RECONSTRUCTED TRACK "<<origin<<"\n"<< print(*track,origin)<<std::endl;
 
   return track;
 }
