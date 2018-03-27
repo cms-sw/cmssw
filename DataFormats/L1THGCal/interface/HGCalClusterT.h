@@ -120,18 +120,20 @@ namespace l1t
         double pt_had = 0.;
         double hOe = 0.;
 
-        for(const auto& constituent : constituents())
+        for(const auto& id_constituent : constituents())
         {
-          switch( constituent->subdetId() )
+          auto id_fraction = constituentsFraction_.find(id_constituent.first);
+          double fraction = (id_fraction!=constituentsFraction_.end() ? id_fraction->second : 1.);
+          switch( id_constituent.second->subdetId() )
           {
             case HGCEE:
-              pt_em += constituent->pt();
+              pt_em += id_constituent.second->pt() * fraction;
               break;
             case HGCHEF:
-              pt_had += constituent->pt();
+              pt_had += id_constituent.second->pt() * fraction;
               break;
             case HGCHEB:
-              pt_had += constituent->pt();
+              pt_had += id_constituent.second->pt() * fraction;
               break;
             default:
               break;
