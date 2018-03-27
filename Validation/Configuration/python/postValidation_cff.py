@@ -20,13 +20,12 @@ from Validation.RecoMET.METPostProcessor_cff import *
 from Validation.L1T.postProcessorL1Gen_cff import *
 from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_harvestingV_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
-from Validation.OuterTrackerL1V.OuterTrackerL1MCHarvesting_cff import *
+from Validation.SiOuterTrackerV.SiOuterTrackerMCHarvesting_cff import *
 
 
 postValidationTracking = cms.Sequence(
       postProcessorTrackSequence
     + postProcessorVertexSequence
-    + OuterTrackerL1HarvesterV
 )
 postValidation = cms.Sequence(
       recoMuonPostProcessors
@@ -74,7 +73,6 @@ postValidation_common = cms.Sequence()
 postValidation_trackingOnly = cms.Sequence(
       postProcessorTrackSequenceTrackingOnly
     + postProcessorVertexSequence
-    + OuterTrackerL1HarvesterV
 )
 
 postValidation_muons = cms.Sequence(
@@ -110,6 +108,8 @@ postValidationMiniAOD = cms.Sequence(
     electronPostValidationSequenceMiniAOD
 )
 
+postValidationOuterTracker = cms.Sequence( OuterTracker_harvestingV )
+
 _phase1_postValidation = postValidation.copy()
 _phase1_postValidation += siPixelPhase1OfflineDQM_harvestingV
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
@@ -124,7 +124,6 @@ _phase2_postValidation = _run3_postValidation.copy()
 _phase2_postValidation += hgcalPostProcessor
 _phase2_postValidation += MuonME0DigisPostProcessors
 _phase2_postValidation += MuonME0SegPostProcessors
-_phase2_postValidation += OuterTrackerL1HarvesterV
 
 from Configuration.Eras.Modifier_run2_GEM_2017_MCTest_cff import run2_GEM_2017_MCTest
 run2_GEM_2017_MCTest.toReplaceWith( postValidation, _run3_postValidation )

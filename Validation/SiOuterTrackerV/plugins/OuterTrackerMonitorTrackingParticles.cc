@@ -598,6 +598,8 @@ void OuterTrackerMonitorTrackingParticles::analyze(const edm::Event& iEvent, con
 
 // ------------ method called once each job just before starting event loop  ------------
 void OuterTrackerMonitorTrackingParticles::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const & run, edm::EventSetup const & es) {
+  std::cout<<"Is this running???"<<std::endl;
+  
   // Histogram setup and definitions
   std::string HistoName;
   iBooker.setCurrentFolder(topFolderName_+"/trackParticles");

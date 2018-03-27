@@ -41,8 +41,7 @@ from Validation.SiPixelPhase1ConfigV.SiPixelPhase1OfflineDQM_sourceV_cff import 
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from Validation.RecoB.BDHadronTrackValidation_cff import *
 from Validation.Configuration.hgcalSimValid_cff import *
-from Validation.OuterTrackerL1V.OuterTrackerSourceConfigV_cff import *
-
+from Validation.SiOuterTrackerV.OuterTrackerSourceConfigV_cff import *
 
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidationTracking = cms.Sequence(
@@ -97,8 +96,6 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + bTagPlotsMCbcl
                                  + L1Validator
                                  + bdHadronTrackValidationSeq
-                                 + OuterTrackerSourceV
-
 )
 
 
@@ -130,11 +127,8 @@ globalPrevalidationTrackingOnly = cms.Sequence(
       simHitTPAssocProducer
     + tracksValidationTrackingOnly
     + vertexValidationTrackingOnly
-    + OuterTrackerSourceV
 )
 globalValidationTrackingOnly = cms.Sequence(
-      OuterTrackerSourceV
-
 )
 # Pixel tracking only validation
 globalPrevalidationPixelTrackingOnly = cms.Sequence(
@@ -166,6 +160,8 @@ globalValidationHCAL = cms.Sequence(
 
 globalValidationHGCal = cms.Sequence(hgcalValidation)
 
+globalValidationOuterTracker = cms.Sequence(OuterTrackerSourceV)
+
 globalPrevalidationMuons = cms.Sequence(
       gemSimValid
     + me0SimValid
@@ -191,7 +187,6 @@ _run3_globalValidation += gemSimValid
 
 _phase2_globalValidation = _run3_globalValidation.copy()
 _phase2_globalValidation += me0SimValid
-_phase2_globalValidation += OuterTrackerSourceV
 
 from Configuration.Eras.Modifier_run2_GEM_2017_MCTest_cff import run2_GEM_2017_MCTest
 run2_GEM_2017_MCTest.toReplaceWith( globalValidation, _run3_globalValidation )
