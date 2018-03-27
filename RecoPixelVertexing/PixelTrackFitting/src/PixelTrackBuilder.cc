@@ -23,6 +23,7 @@ using namespace reco;
 template <class T> T inline sqr( T t) {return t*t;}
 
 namespace {
+  __attribute__((unused))
   std::string print(
 		    const Measurement1D & pt,
 		    const Measurement1D & phi,
@@ -33,16 +34,17 @@ namespace {
 		    int   charge)
   {
     ostringstream str;
-    str <<"\t pt: "  << pt.value() <<"+/-"<<pt.error()
-        <<"\t phi: " << phi.value() <<"+/-"<<phi.error()
-        <<"\t cot: " << cotTheta.value() <<"+/-"<<cotTheta.error()
-        <<"\t tip: " << tip.value() <<"+/-"<<tip.error()
-        <<"\t zip: " << zip.value() <<"+/-"<<zip.error()
+    str <<"\t pt: "  << pt.value() <<"+/-"<< pt.error()
+        <<"\t phi: " << phi.value() <<"+/-"<< phi.error()
+        <<"\t cot: " << cotTheta.value() <<"+/-"<< cotTheta.error()
+        <<"\t tip: " << tip.value() <<"+/-"<< tip.error()
+        <<"\t zip: " << zip.value() <<"+/-"<< zip.error()
         <<"\t chi2: " << chi2
         <<"\t charge: " << charge;
     return str.str();
   }
 
+  __attribute__((unused))
   std::string print(const reco::Track & track, const GlobalPoint & origin)
   {
 
@@ -69,10 +71,11 @@ namespace {
 
     Measurement1D zip(track.dz(bs), track.dzError());
 
-    return print(pt, phi, cotTheta, tip, zip, track.chi2(),  track.charge());
+    return print(pt, phi, cotTheta, tip, zip, track.chi2(), track.charge());
   }
 
-  std::string print(const  BasicTrajectoryStateOnSurface & state)
+  __attribute__((unused))
+  std::string print(const BasicTrajectoryStateOnSurface & state)
   {
     // TrajectoryStateOnSurface state(bstate);
     float pt_v = state.globalMomentum().perp();
@@ -111,20 +114,20 @@ namespace {
   {
     TrajectoryStateOnSurface state(bstate.clone());
 
-    LogTrace("")<<" *** PixelTrackBuilder::checkState: ";
-    LogTrace("")<<"INPUT,  ROTATION" << endl<<state.surface().rotation();
-    LogTrace("")<<"INPUT,  TSOS:"<<endl<<state;
+    LogTrace("") << " *** PixelTrackBuilder::checkState: ";
+    LogTrace("") << "INPUT,  ROTATION" << '\n' << state.surface().rotation();
+    LogTrace("") << "INPUT,  TSOS:"<< '\n' << state;
 
     TransverseImpactPointExtrapolator tipe(mf);
     TrajectoryStateOnSurface test= tipe.extrapolate(state, origin);
-    LogTrace("")<<"CHECK-1 ROTATION" << endl<<"\n"<<test.surface().rotation();
-    LogTrace("")<<"CHECK-1 TSOS" << endl<<test;
+    LogTrace("") << "CHECK-1 ROTATION" << '\n' << test.surface().rotation();
+    LogTrace("") << "CHECK-1 TSOS" << '\n' << test;
 
     TSCPBuilderNoMaterial tscpBuilder;
     TrajectoryStateClosestToPoint tscp =
       tscpBuilder(*(state.freeState()), origin);
     const FreeTrajectoryState& fs = tscp.theState();
-    LogTrace("")<<"CHECK-2 FTS: " << fs;
+    LogTrace("") << "CHECK-2 FTS: " << fs;
   }
 
 }
@@ -144,7 +147,7 @@ reco::Track * PixelTrackBuilder::build(
 {
 
   LogDebug("PixelTrackBuilder::build");
-  std::cout <<"RECONSTRUCTED TRIPLET kinematics: "<<print(pt,phi,cotTheta,tip,zip,chi2,charge) << std::endl;
+  LogTrace("") << "Reconstructed triplet kinematics: " << print(pt,phi,cotTheta,tip,zip,chi2,charge);
 
   double sinTheta = 1/std::sqrt(1+sqr(cotTheta.value()));
   double cosTheta = cotTheta.value()*sinTheta;
@@ -185,7 +188,7 @@ reco::Track * PixelTrackBuilder::build(
   BasicTrajectoryStateOnSurface impactPointState( lpar , error, impPointPlane, mf);
 
   //checkState(impactPointState,mf);
-  LogTrace("")<<"constructed TSOS :\n"<<print(impactPointState);
+  LogTrace("") << "constructed TSOS:\n" << print(impactPointState);
 
   int ndof = 2*hits.size()-5;
   GlobalPoint vv = impactPointState.globalPosition();
