@@ -12,9 +12,9 @@ errHistDenStr = 'errorSummaryDen'
 
 # Muons
 l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient = DQMEDHarvester("L1TStage2RatioClient",
-    monitorDir = cms.untracked.string(ugmtDqmDir+'/uGMTMuonCopy1'),
-    inputNum = cms.untracked.string(ugmtDqmDir+'/uGMTMuonCopy1/'+errHistNumStr),
-    inputDen = cms.untracked.string(ugmtDqmDir+'/uGMTMuonCopy1/'+errHistDenStr),
+    monitorDir = cms.untracked.string(ugmtMuCpyDqmDir+'/uGMTMuonCopy1'),
+    inputNum = cms.untracked.string(ugmtMuCpyDqmDir+'/uGMTMuonCopy1/'+errHistNumStr),
+    inputDen = cms.untracked.string(ugmtMuCpyDqmDir+'/uGMTMuonCopy1/'+errHistDenStr),
     ratioName = cms.untracked.string('mismatchRatio'),
     ratioTitle = cms.untracked.string('Summary of mismatch rates between uGMT muons and uGMT muon copy 1'),
     yAxisTitle = cms.untracked.string('# mismatch / # total'),
