@@ -1,0 +1,1 @@
+<test name="test_GREAtAlgorithm" command="cmsRun ${LOCALTOP}/src/Alignment/GREAtAlgorithm/test/greatAlgorithm_cfg.py"/>

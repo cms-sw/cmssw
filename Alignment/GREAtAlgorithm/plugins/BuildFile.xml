@@ -1,0 +1,12 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CondCore/DBOutputService"/>
+<use name="CondFormats/Alignment"/>
+<use name="CondFormats/AlignmentRecord"/>
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/SiPixelObjects"/>
+<use name="CondFormats/SiStripObjects"/>
+<use name="clhep"/>
+<flags EDM_PLUGIN="1"/>
