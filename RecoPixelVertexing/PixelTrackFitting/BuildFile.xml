@@ -1,4 +1,5 @@
 <use   name="root"/>
+<use   name="eigen"/>
 <use   name="CommonTools/Statistics"/>
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
