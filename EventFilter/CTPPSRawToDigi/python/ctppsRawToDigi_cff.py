@@ -85,7 +85,7 @@ ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 # ---------- Totem Timing ----------
 totemDAQMappingESSourceXML_TotemTiming = cms.ESSource("TotemDAQMappingESSourceXML",
-  verbosity = cms.untracked.uint32(0),
+  verbosity = cms.untracked.uint32(10),
   subSystem = cms.untracked.string("TotemTiming"),
   configuration = cms.VPSet(
     # 2017, before detector inserted in DAQ

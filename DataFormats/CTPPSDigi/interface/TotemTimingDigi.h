@@ -144,7 +144,7 @@ class TotemTimingDigi{
     
     inline void setCellInfo(const uint16_t CellInfo)
     {
-      CellInfo_ = CellInfo;
+      CellInfo_ = CellInfo & 0x3F;
     }
     
     inline void setSamples(const std::vector< uint8_t >& samples)
