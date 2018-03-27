@@ -170,8 +170,8 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
                 }
             }
 	    //assign time if minimum number of hits
-	    if(timeHits.size() >= minNHitsforTiming_) timeRealisticSC = highestDensityTimeDiff(timeHits);
-        }
+	    if(timeHits.size() >= minNHitsforTiming_) timeRealisticSC = fixSizeHighestDensity(timeHits);
+	}
         if (!back.hitsAndFractions().empty())
         {
             back.setSeed(seed->detId());

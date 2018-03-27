@@ -62,57 +62,53 @@ float highestDensityFraction(std::vector<float>& hitTimes, float fractionToKeep=
 
 
 //time-interval based on that ~210ps wide and with the highest number of hits
-float highestDensityTimeDiff(std::vector<float>& hitTimes, float deltaToKeep=0.210 /*time window in ns*/, float timeWidthBy=0.5){
+float fixSizeHighestDensity(std::vector<float>& t, float deltaT=0.210 /*time window in ns*/, float timeWidthBy=0.5){
 
-  std::sort(hitTimes.begin(), hitTimes.end());
-  int totSize = hitTimes.size();
+  float tolerance = 0.05;
+  std::sort(t.begin(), t.end());
+  auto start = t.begin();
+  int max_elements = 0;
+  int start_el = 0;
+  int end_el = 0;
+  float timeW = 0;
+  while (start != t.end()) {
+    int c = count_if(start, t.end(), [&](float el) {return el-(*start) <= deltaT + tolerance;});
 
-  float minEntries = 0;
-  float deltaEpsilon = 0.05; //TDCfor ToA has bins of 24.5ps
-
-  int startBin = 0;
-  int endBin = 0;
-
-  float timeDiff = 0.;
-
-  int num = 0.;
-  float sum = 0.;
-
-  for(int iS=0; iS<totSize; ++iS){
-    for(int jS=iS; jS<totSize; ++jS){
-      
-      float wTime = hitTimes.at(jS) - hitTimes.at(iS);
-      int wEntries = (jS - iS) + 1;
-      
-      if( std::abs(wTime - deltaToKeep) <= deltaEpsilon || (wTime < deltaToKeep && wEntries > minEntries) ){
-	if(wEntries > minEntries){
-	  if(std::abs(wTime - deltaToKeep) <= deltaEpsilon) deltaEpsilon = std::abs(wTime - deltaToKeep);
-	  startBin = iS;
-	  endBin = jS;
-	  timeDiff = wTime;
-	  minEntries = wEntries;
-	}
+    if (c  > max_elements) {
+      max_elements = c;
+      auto last_el = find_if_not(start, t.end(), [&](float el){ return el-(*start) <= deltaT + tolerance;});
+      auto val = *(--last_el);
+      if (std::abs(deltaT - (val - *start)) < tolerance) {
+        tolerance = std::abs(deltaT - (val - *start));
       }
+      start_el = distance(t.begin(), start);
+      end_el = distance(t.begin(), last_el);
+      timeW = val - (*start);
     }
+    ++start;
   }
 
   // further adjust time width around the chosen one based on the hits density
   // proved to improve the resolution: get as many hits as possible provided they are close in time
-  float HalfTimeDiff = timeDiff * timeWidthBy;
+  float HalfTimeDiff = timeW * timeWidthBy;
 
-  for(int ij=0; ij<=startBin; ++ij){     
-    if(hitTimes.at(ij) > (hitTimes.at(startBin) - HalfTimeDiff) ){  
+  float sum = 0.;
+  int num = 0;
+  int totSize = t.size();
+
+  for(int ij=0; ij<=start_el; ++ij){
+    if(t.at(ij) > (t.at(start_el) - HalfTimeDiff) ){
       for(int kl=ij; kl<totSize; ++kl){
-        if(hitTimes.at(kl) < (hitTimes.at(endBin) + HalfTimeDiff) ){
-          sum += hitTimes.at(kl);
+        if(t.at(kl) < (t.at(end_el) + HalfTimeDiff) ){
+          sum += t.at(kl);
           ++num;
         }
-        else  break; 
+        else  break;
       }
       break;
     }
   }
 
-  if(num == 0) return -99.;  
+  if(num == 0) return -99.;
   return sum/num;
 }
