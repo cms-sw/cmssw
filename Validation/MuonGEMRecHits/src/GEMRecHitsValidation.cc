@@ -107,6 +107,7 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
     edm::LogError("GEMRecHitsValidation") << "Cannot get strips by Token RecHits Token.\n";
     return ;
   }
+
   for (edm::PSimHitContainer::const_iterator hits = gemSimHits->begin(); hits!=gemSimHits->end(); ++hits) {
 
     const GEMDetId id(hits->detUnitId());
@@ -137,6 +138,7 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
     Float_t sh_l_x = hitLP.x();
     Float_t sh_l_y = hitLP.y();
     //Float_t sh_l_z = hitLP.z();
+
 
     for (GEMRecHitCollection::const_iterator recHit = gemRecHits->begin(); recHit != gemRecHits->end(); ++recHit){
       Float_t  rh_l_x = recHit->localPosition().x();
@@ -186,9 +188,9 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
         LogDebug("GEMRecHitsValidation")<< " Region : " << rh_region << "\t Station : " << rh_station
           << "\t Layer : "<< rh_layer << "\n Radius: " << rh_g_R << "\t X : " << rh_g_X << "\t Y : "<< rh_g_Y << "\t Z : " << rh_g_Z << std::endl;	
 
-        // int region_num=0 ;
-        // if ( rh_region ==-1 ) region_num = 0 ;
-        // else if ( rh_region==1) region_num = 1;
+        int region_num=0 ;
+        if ( rh_region ==-1 ) region_num = 0 ;
+        else if ( rh_region==1) region_num = 1;
         int layer_num = rh_layer-1;
         int binX = (rh_chamber-1)*2+layer_num;
         int binY = rh_roll;
@@ -200,22 +202,23 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
         LogDebug("GEMRecHitsValidation")<< " simpleZR!\n";
         recHits_simple_zr[simple_zr_histname.Hash()]->Fill( fabs(rh_g_Z), rh_g_R);
 
+
         histname_suffix = TString::Format("_r%d_st%d",rh_region, rh_station);
         TString dcEta_histname = TString::Format("rh_dcEta%s",histname_suffix.Data());
         LogDebug("GEMRecHitsValidation")<< " dcEta\n";
         recHits_dcEta[dcEta_histname.Hash()]->Fill( binX, binY);
 
         gem_cls_tot->Fill(clusterSize);
-        gem_region_pullX[0]->Fill(rh_pullX);
-        gem_region_pullY[0]->Fill(rh_pullY);
+        gem_region_pullX[region_num]->Fill(rh_pullX);
+        gem_region_pullY[region_num]->Fill(rh_pullY);
         LogDebug("GEMRecHitsValidation")<< " Begin detailPlot!\n";
 
         if(detailPlot_){
-          gem_cls[0][station_num][layer_num]->Fill(clusterSize);
-          gem_pullX[0][station_num][layer_num]->Fill(rh_pullX);
-          gem_pullY[0][station_num][layer_num]->Fill(rh_pullY);
-          gem_rh_zr[0][station_num][layer_num]->Fill(rh_g_Z ,rh_g_R);
-          gem_rh_xy[0][station_num][layer_num]->Fill(rh_g_X ,rh_g_Y);
+          gem_cls[region_num][station_num][layer_num]->Fill(clusterSize);
+          gem_pullX[region_num][station_num][layer_num]->Fill(rh_pullX);
+          gem_pullY[region_num][station_num][layer_num]->Fill(rh_pullY);
+          gem_rh_zr[region_num][station_num][layer_num]->Fill(rh_g_Z ,rh_g_R);
+          gem_rh_xy[region_num][station_num][layer_num]->Fill(rh_g_X ,rh_g_Y);
         }
       }
     } //End loop on RecHits

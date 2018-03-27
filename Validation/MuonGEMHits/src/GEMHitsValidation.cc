@@ -212,14 +212,14 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     if( detailPlot_ ){
       // First, fill variable has no condition.
       LogDebug("GEMHitsValidation")<<"gzgr"<<std::endl;
-      gem_sh_zr[0][station-1][layer_num]->Fill(g_z,g_r);
+      gem_sh_zr[(int)(region/2.+0.5)][station-1][layer_num]->Fill(g_z,g_r);
       LogDebug("GEMHitsValidation")<<"gxgy"<<std::endl;
-      gem_sh_xy[0][station-1][layer_num]->Fill(g_x,g_y);
-      gem_sh_tof[0][station-1][layer_num]->Fill(timeOfFlight);
-      gem_sh_eloss[0][station-1][layer_num]->Fill(energyLoss*1.e9);
+      gem_sh_xy[(int)(region/2.+0.5)][station-1][layer_num]->Fill(g_x,g_y);
+      gem_sh_tof[(int)(region/2.+0.5)][station-1][layer_num]->Fill(timeOfFlight);
+      gem_sh_eloss[(int)(region/2.+0.5)][station-1][layer_num]->Fill(energyLoss*1.e9);
       if (abs(hits-> particleType()) == 13) {
-        gem_sh_tofMu[0][station-1][layer_num]->Fill(timeOfFlight);
-        gem_sh_elossMu[0][station-1][layer_num]->Fill(energyLoss*1.e9);
+        gem_sh_tofMu[(int)(region/2.+0.5)][station-1][layer_num]->Fill(timeOfFlight);
+        gem_sh_elossMu[(int)(region/2.+0.5)][station-1][layer_num]->Fill(energyLoss*1.e9);
       }
       std::string chamber ="";
       if ( id.chamber() %2 == 1 ) chamber = "odd";
@@ -227,7 +227,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
       TString hist_name = TString::Format("gem_sh_xy%s",(getSuffixName( id.region(), station)+"_"+chamber).c_str());
 
       LogDebug("GEMHitsValidation")<<hist_name<<std::endl;
-      //gem_sh_xy_st_ch[hist_name.Hash()]->Fill( g_x, g_y); 
+      gem_sh_xy_st_ch[hist_name.Hash()]->Fill( g_x, g_y); 
     }
   }
 }
