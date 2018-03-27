@@ -368,7 +368,7 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
           else 
           {
             detId.setPlane( totemSampicFrame.getDetPlane() % 4 );
-            detId.setChannel( totemSampicFrame.getDetChannel() % 32 );
+            detId.setChannel( totemSampicFrame.getDetChannel() % 16 );
           }
                     
           DetSet<TotemTimingDigi> &digiDetSet = digi.find_or_insert(detId);
