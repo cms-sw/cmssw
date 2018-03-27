@@ -9,8 +9,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 //
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
-#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
-
 #include "tbb/tbb.h"
 #include "tbb/task_arena.h"
 
@@ -73,8 +71,7 @@ void HGCalImagingAlgo::populate(const HGCRecHitCollection& hits){
 // with different input (reset should be called between events)
 void HGCalImagingAlgo::makeClusters()
 {
-  std::vector<std::vector<std::vector< KDNode> > >  layerClustersPerLayer(2*(maxlayer+2));
-  edm::SerialTaskQueue layersQueue;
+  layerClustersPerLayer.resize(2*maxlayer+2);
   //assign all hits in each layer to a cluster core or halo
   tbb::this_task_arena::isolate( [&]{
   tbb::parallel_for(size_t(0), size_t(2*maxlayer+2), [&](size_t i) {
@@ -89,15 +86,6 @@ void HGCalImagingAlgo::makeClusters()
         // calculate distance to nearest point with higher density storing distance (delta) and point's index
         calculateDistanceToHigher(points[i]);
         findAndAssignClusters(points[i],hit_kdtree,maxdensity,bounds,actualLayer, layerClustersPerLayer[i]);
-        size_t nClusters = layerClustersPerLayer[i].size();
-        layersQueue.pushAndWait( [&]{
-        current_v.reserve(current_v.size()+nClusters);
-        for(size_t j=0; j<nClusters;++j)
-        {
-            current_v.push_back(layerClustersPerLayer[i][j]);
-
-        }
-        } );
     });
     });
 }
@@ -106,18 +94,20 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
 
   reco::CaloID caloID = reco::CaloID::DET_HGCAL_ENDCAP;
   std::vector< std::pair<DetId, float> > thisCluster;
-  for (unsigned int i = 0; i < current_v.size(); ++i){
+  for(auto& clsOnLayer : layerClustersPerLayer)
+  {
+  for (unsigned int i = 0; i < clsOnLayer.size(); ++i){
     double energy = 0;
     Point position;
 
     if( doSharing ) {
 
-      std::vector<unsigned> seeds = findLocalMaximaInCluster(current_v[i]);
+      std::vector<unsigned> seeds = findLocalMaximaInCluster(clsOnLayer[i]);
       // sharing found seeds.size() sub-cluster seeds in cluster i
 
       std::vector<std::vector<double> > fractions;
       // first pass can have noise it in
-      shareEnergy(current_v[i],seeds,fractions);
+      shareEnergy(clsOnLayer[i],seeds,fractions);
 
       // reset and run second pass after vetoing seeds
       // that result in trivial clusters (less than 2 effective cells)
@@ -125,14 +115,14 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
 
       for( unsigned isub = 0; isub < fractions.size(); ++isub ) {
 	double effective_hits = 0.0;
-	double energy  = calculateEnergyWithFraction(current_v[i],fractions[isub]);
-	Point position = calculatePositionWithFraction(current_v[i],fractions[isub]);
+	double energy  = calculateEnergyWithFraction(clsOnLayer[i],fractions[isub]);
+	Point position = calculatePositionWithFraction(clsOnLayer[i],fractions[isub]);
 
 	for( unsigned ihit = 0; ihit < fractions[isub].size(); ++ihit ) {
 	  const double fraction = fractions[isub][ihit];
 	  if( fraction > 1e-7 ) {
 	    effective_hits += fraction;
-	    thisCluster.emplace_back(current_v[i][ihit].data.detid,fraction);
+	    thisCluster.emplace_back(clsOnLayer[i][ihit].data.detid,fraction);
 	  }
 	}
 
@@ -149,9 +139,9 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
 	thisCluster.clear();
       }
     }else{
-      position = calculatePosition(current_v[i]); // energy-weighted position
+      position = calculatePosition(clsOnLayer[i]); // energy-weighted position
     //   std::vector< KDNode >::iterator it;
-      for (auto& it: current_v[i])
+      for (auto& it: clsOnLayer[i])
 	  {
 	    energy += it.data.isHalo ? 0. : it.data.weight;
       // use fraction to store whether this is a Halo hit or not
@@ -161,7 +151,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
 	{
 	  std::cout << "******** NEW CLUSTER (HGCIA) ********" << std::endl;
 	  std::cout << "Index          " << i                   << std::endl;
-	  std::cout << "No. of cells = " << current_v[i].size() << std::endl;
+	  std::cout << "No. of cells = " << clsOnLayer[i].size() << std::endl;
 	  std::cout << "     Energy     = " << energy << std::endl;
 	  std::cout << "     Phi        = " << position.phi() << std::endl;
 	  std::cout << "     Eta        = " << position.eta() << std::endl;
@@ -171,7 +161,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing){
       thisCluster.clear();
     }
   }
-  std::cout << "found clusters: "<< clusters_v.size() << std::endl;
+}
   return clusters_v;
 }
 
