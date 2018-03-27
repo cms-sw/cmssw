@@ -1,5 +1,5 @@
-#ifndef OuterTrackerL1_OuterTrackerMonitorTTStub_h
-#define OuterTrackerL1_OuterTrackerMonitorTTStub_h
+#ifndef SiOuterTracker_OuterTrackerMonitorTTStub_h
+#define SiOuterTracker_OuterTrackerMonitorTTStub_h
 
 #include <vector>
 #include <memory>

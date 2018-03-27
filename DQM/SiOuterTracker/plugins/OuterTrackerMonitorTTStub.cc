@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    OuterTrackerL1
-// Class:      OuterTrackerL1
+// Package:    SiOuterTracker
+// Class:      SiOuterTracker
 //
-/**\class OuterTrackerL1 OuterTrackerMonitorTTStub.cc DQM/OuterTrackerL1/plugins/OuterTrackerMonitorTTStub.cc
+/**\class SiOuterTracker OuterTrackerMonitorTTStub.cc DQM/SiOuterTracker/plugins/OuterTrackerMonitorTTStub.cc
 
  Description: [one line class summary]
 
@@ -26,7 +26,7 @@
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQM/OuterTrackerL1/interface/OuterTrackerMonitorTTStub.h"
+#include "DQM/SiOuterTracker/interface/OuterTrackerMonitorTTStub.h"
 #include "DataFormats/L1TrackTrigger/interface/TTStub.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"

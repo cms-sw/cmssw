@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    OuterTrackerL1
-// Class:      OuterTrackerL1
+// Package:    SiOuterTracker
+// Class:      SiOuterTracker
 //
-/**\class OuterTrackerL1 OuterTrackerMonitorTTCluster.cc DQM/OuterTrackerL1/plugins/OuterTrackerMonitorTTCluster.cc
+/**\class SiOuterTracker OuterTrackerMonitorTTCluster.cc DQM/SiOuterTracker/plugins/OuterTrackerMonitorTTCluster.cc
 
  Description: [one line class summary]
 
@@ -33,7 +33,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
-#include "DQM/OuterTrackerL1/interface/OuterTrackerMonitorTTCluster.h"
+#include "DQM/SiOuterTracker/interface/OuterTrackerMonitorTTCluster.h"
 
 
 //

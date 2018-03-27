@@ -3,7 +3,7 @@ import math
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 OuterTrackerMonitorTrackingParticles = DQMEDAnalyzer('OuterTrackerMonitorTrackingParticles',
-    TopFolderName = cms.string('OuterTrackerL1V'),
+    TopFolderName = cms.string('SiOuterTrackerV'),
     trackingParticleToken = cms.InputTag("mix","MergedTrackTruth"), #tracking particles
     StubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"), #stubs
     TTTracksTag       = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"), #tracks (currently from tracklet)

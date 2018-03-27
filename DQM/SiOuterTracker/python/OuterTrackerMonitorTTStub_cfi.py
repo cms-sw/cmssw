@@ -4,7 +4,7 @@ import math
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 OuterTrackerMonitorTTStub = DQMEDAnalyzer('OuterTrackerMonitorTTStub',
 
-    TopFolderName = cms.string('OuterTrackerL1'),
+    TopFolderName = cms.string('SiOuterTracker'),
     TTStubs       = cms.InputTag("TTStubsFromPhase2TrackerDigis", "StubAccepted"),
 
 # TTStub forward/backward endcap y vs x

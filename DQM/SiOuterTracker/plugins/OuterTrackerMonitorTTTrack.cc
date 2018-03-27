@@ -1,5 +1,5 @@
-// Package:    OuterTrackerL1
-// Class:      OuterTrackerL1
+// Package:    SiOuterTracker
+// Class:      SiOuterTracker
 //
 // Original Author:  Isis Marina Van Parijs
 // Modified by: Emily MacDonald (emily.kaelyn.macdonald@cern.ch)
@@ -22,7 +22,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DQM/OuterTrackerL1/interface/OuterTrackerMonitorTTTrack.h"
+#include "DQM/SiOuterTracker/interface/OuterTrackerMonitorTTTrack.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
