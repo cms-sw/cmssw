@@ -119,7 +119,6 @@ class TotemSampicFrame
     
     void Print() const
     {
-      std::bitset<16> bitsCellInfo( getCellInfo() );
       std::bitset<16> bitsChannelMap( getChannelMap() );
       std::cout << "TotemSampicFrame:\nEvent:"
           << "\nHardwareId (Event):\t" << std::hex << (unsigned int) getEventHardwareId()
@@ -136,7 +135,7 @@ class TotemSampicFrame
           << "\nFPGATimeStamp:\t" << std::dec << getFPGATimeStamp()
           << "\nTimeStampA:\t" << std::dec << getTimeStampA()
           << "\nTimeStampA:\t" << std::dec << getTimeStampA()
-          << "\nCellInfo:\t" << bitsCellInfo.to_string()
+          << "\nCellInfo:\t" << std::dec << getCellInfo()
           << "\nPlane:\t" << std::dec << getDetPlane()
           << "\nChannel:\t" << std::dec << getDetChannel()
           << std::endl << std::endl; 
@@ -168,7 +167,7 @@ class TotemSampicFrame
     
     inline uint16_t getCellInfo() const
     {
-      return status_ * TotemSampicInfo_->CellInfo;
+      return status_ * (TotemSampicInfo_->CellInfo & 0x3F);
     }
     
     inline int getDetPlane() const
