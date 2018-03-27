@@ -28,16 +28,8 @@ process.load('EventFilter.GEMRawToDigi.gemPacker_cfi')
 process.load('EventFilter.RawDataCollector.rawDataCollector_cfi')
 process.load('EventFilter.GEMRawToDigi.muonGEMDigis_cfi')
 process.load('RecoLocalMuon.GEMRecHit.gemLocalReco_cff')
-process.load('Validation.MuonGEMHits.MuonGEMHits_cff')
-process.load('Validation.MuonGEMDigis.MuonGEMDigis_cff')
-process.load('Validation.MuonGEMRecHits.MuonGEMRecHits_cff')
 process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
-
-#process.load('Configuration.StandardSequences.Validation_cff')
-#process.load('Configuration.StandardSequences.Harvesting_cff')
-#process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
-#process.load('DQMServices.Components.EDMtoMEConverter_cff')
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(5000))
 
@@ -148,13 +140,8 @@ process.DQMStore = cms.Service("DQMStore",
     referenceFileName = cms.untracked.string(''),
     verbose = cms.untracked.int32(1)
 )
-
-#process.gemSimHitValidation.detailPlot = cms.bool(True)
-#process.gemSimTrackValidation.detailPlot = cms.bool(True)
-#process.gemStripValidation.detailPlot = cms.bool(True)
-#process.gemDigiTrackValidation.detailPlot = cms.bool(True)
-#process.gemRecHitsValidation.detailPlot = cms.bool(True)
-#process.gemRecHitTrackValidation.detailPlot = cms.bool(True)
+process.load('Validation.GEMCosmicMuonStand.GEMCosmicMuonStandEfficiency_cff')
+process.load('Validation.GEMCosmicMuonStand.GEMCosmicMuonStandSim_cff')
 
 process.rawDataCollector.RawCollectionList = cms.VInputTag(cms.InputTag("gemPacker"))
 # Path and EndPath definitions
@@ -167,17 +154,14 @@ process.reconstruction_step = cms.Path(process.gemLocalReco+process.GEMCosmicMuo
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 #process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
-process.validation_step = cms.Path(process.gemSimValidation
-                                +process.gemStripValidation+process.gemDigiTrackValidation
-                                +process.gemLocalRecoValidation)
+process.validation_step = cms.Path(process.gemCosmicMuonStandSim+process.gemCosmicMuonStandEfficiency)
 process.dqmoffline_step = cms.EndPath(process.DQMOffline)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,
                                 process.digitisation_step,
                                 process.digi2raw_step,process.raw2digi_step,process.reconstruction_step,
-                                process.validation_step,#process.endjob_step,
-                                #process.genHarvesting,
+                                process.validation_step,
                                 process.DQMoutput_step,
                                 process.FEVTDEBUGHLToutput_step
                                 )
