@@ -26,6 +26,7 @@ public:
       const reco::TrackCollection & tracks) override;
   reco::IsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup,
       const reco::Track & track) const override;
+  using reco::isodeposit::IsoDepositExtractor::deposit;
   virtual reco::IsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup,
       const reco::TrackRef & track) const;
 
