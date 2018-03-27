@@ -11,6 +11,8 @@
  */
 
 #include <cstdint>
+#include <bitset>
+
 
 class TotemTimingEventInfo{
  
@@ -86,6 +88,11 @@ class TotemTimingEventInfo{
       return offsetOfSamples_;
     }
     
+    inline uint8_t getPLLInfo() const
+    {
+      return PLLInfo_;
+    }
+    
        
 
     /// Set digi values
@@ -153,6 +160,11 @@ class TotemTimingEventInfo{
       offsetOfSamples_ = offsetOfSamples;
     }
     
+    inline void setPLLInfo(const uint8_t PLLInfo)
+    {
+      PLLInfo_ = PLLInfo;
+    }
+    
     
     
     
@@ -168,6 +180,7 @@ class TotemTimingEventInfo{
     uint16_t L1ALatency_;
     uint8_t numberOfSamples_;
     uint8_t offsetOfSamples_;
+    uint8_t PLLInfo_;
     
 };
 
@@ -188,6 +201,7 @@ inline bool operator< (const TotemTimingEventInfo& one, const TotemTimingEventIn
 
 inline std::ostream & operator<<(std::ostream & o, const TotemTimingEventInfo& digi)
 {
+  std::bitset<16> bitsPLLInfo( digi.getPLLInfo() );
   return o << "TotemTimingEventInfo:"
 	   << "\nHardwareId:\t" << std::hex << digi.getHardwareId()
            << "\nDB: " << std::dec << digi.getHardwareBoardId() << "\tSampic: " << digi.getHardwareSampicId() << "\tChannel: " << digi.getHardwareChannelId() 
@@ -199,6 +213,7 @@ inline std::ostream & operator<<(std::ostream & o, const TotemTimingEventInfo& d
            << "\nChannels fired:\t" << std::hex << digi.getChannelMap()
            << "\nNumber of Samples:\t" << std::dec << digi.getNumberOfSamples()
            << "\nOffset of Samples:\t" << std::dec << digi.getOffsetOfSamples()
+           << "\\nPLL Info:\t" << bitsPLLInfo.to_string()
            << std::endl;
            
 }
