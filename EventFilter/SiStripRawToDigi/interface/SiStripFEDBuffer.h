@@ -158,7 +158,6 @@ namespace sistrip {
       const uint8_t* data_;
       uint16_t oldWordOffset_;
       uint16_t currentWordOffset_;
-      uint16_t currentBitOffset_;
       uint16_t currentLocalBitOffset_;
       uint16_t bitOffsetIncrement_;
       uint8_t currentStrip_;
@@ -209,7 +208,7 @@ namespace sistrip {
   inline FEDBSChannelUnpacker::FEDBSChannelUnpacker()
     : data_(nullptr),
       oldWordOffset_(0), currentWordOffset_(0),
-      currentBitOffset_(0), currentLocalBitOffset_(0),
+      currentLocalBitOffset_(0),
       bitOffsetIncrement_(10),
       currentStrip_(0),
       channelPayloadOffset_(0), channelPayloadLength_(0),
@@ -219,7 +218,7 @@ namespace sistrip {
   inline FEDBSChannelUnpacker::FEDBSChannelUnpacker(const uint8_t* payload, const uint16_t channelPayloadOffset, const int16_t channelPayloadLength, const uint16_t offsetIncrement, bool useZS)
     : data_(payload),
       oldWordOffset_(0), currentWordOffset_(channelPayloadOffset),
-      currentBitOffset_(0), currentLocalBitOffset_(0),
+      currentLocalBitOffset_(0),
       bitOffsetIncrement_(offsetIncrement),
       currentStrip_(0),
       channelPayloadOffset_(channelPayloadOffset),
@@ -227,6 +226,7 @@ namespace sistrip {
       useZS_(useZS), valuesLeftInCluster_(0)
     {
       if (bitOffsetIncrement_>16) throwBadWordLength(bitOffsetIncrement_); // more than 2 words... still to be implemented
+      if (channelPayloadLength_) readNewClusterInfo();
     }
 
   inline FEDBSChannelUnpacker FEDBSChannelUnpacker::virginRawModeUnpacker(const FEDChannel& channel, uint16_t num_bits)
@@ -271,13 +271,12 @@ namespace sistrip {
 
   inline bool FEDBSChannelUnpacker::hasData() const
     {
-      return (currentWordOffset_<channelPayloadOffset_+channelPayloadLength_);
+      return (currentWordOffset_+(currentLocalBitOffset_?1:2)<channelPayloadOffset_+channelPayloadLength_);
     }
 
   inline FEDBSChannelUnpacker& FEDBSChannelUnpacker::operator ++ ()
     {
       oldWordOffset_ = currentWordOffset_;
-      currentBitOffset_ += bitOffsetIncrement_;
       currentLocalBitOffset_ += bitOffsetIncrement_;
       while (currentLocalBitOffset_>=8) {
         currentWordOffset_++;
@@ -303,6 +302,10 @@ namespace sistrip {
 
   inline void FEDBSChannelUnpacker::readNewClusterInfo()
     {
+      if ( currentLocalBitOffset_ ) {
+        ++currentWordOffset_;
+        currentLocalBitOffset_ = 0;
+      }
       currentStrip_ = data_[(currentWordOffset_++)^7];
       valuesLeftInCluster_ = data_[(currentWordOffset_++)^7]-1;
     }
