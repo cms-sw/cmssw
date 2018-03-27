@@ -240,7 +240,7 @@ double PFResolutionMap::getRes(double eta, double phi, double e, int MapEta){
   if( e<fMinE ) e = fMinE+0.001;
   if( e>fMaxE ) e = fMaxE-0.001;
 
-  unsigned bin = FindBin(TMath::Abs(eta),e, 0);
+  unsigned bin = FindBin(TMath::Abs(eta),e);
 
   double res= GetBinContent(bin);
   if(MapEta>-1){
@@ -258,7 +258,7 @@ int PFResolutionMap::FindBin(double eta, double e, double z) {
   if(e >= GetYaxis()->GetXmax() )
     e = GetYaxis()->GetXmax() - 0.001;
   
-  return TH2D::FindBin(eta,e,z);
+  return TH2D::FindBin(eta,e);
 }
 
 
