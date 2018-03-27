@@ -3,7 +3,7 @@ import math
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 OuterTrackerMonitorTTTrack = DQMEDAnalyzer('OuterTrackerMonitorTTTrack',
-    TopFolderName  = cms.string('OuterTrackerL1'),
+    TopFolderName  = cms.string('SiOuterTracker'),
     TTTracksTag    = cms.InputTag("TTTracksFromTracklet", "Level1TTTracks"), #tracks (currently from tracklet)
     HQNStubs       = cms.int32(5),  #cut for "high quality" tracks
     HQChi2dof      = cms.double(10.0), #cut for "high quality" tracks

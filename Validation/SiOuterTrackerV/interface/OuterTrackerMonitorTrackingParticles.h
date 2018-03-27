@@ -1,5 +1,5 @@
-#ifndef OuterTrackerL1V_OuterTrackerMonitorTrackingParticles_h
-#define OuterTrackerL1V_OuterTrackerMonitorTrackingParticles_h
+#ifndef SiOuterTrackerV_OuterTrackerMonitorTrackingParticles_h
+#define SiOuterTrackerV_OuterTrackerMonitorTrackingParticles_h
 
 #include <vector>
 #include <memory>

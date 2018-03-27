@@ -1,5 +1,5 @@
-// Package:    OuterTrackerL1V
-// Class:      OuterTrackerL1V
+// Package:    SiOuterTrackerV
+// Class:      SiOuterTrackerV
 
 
 // Original Author:  Emily MacDonald
@@ -34,7 +34,7 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
-#include "Validation/OuterTrackerL1V/interface/OuterTrackerMonitorTrackingParticles.h"
+#include "Validation/SiOuterTrackerV/interface/OuterTrackerMonitorTrackingParticles.h"
 
 
 //

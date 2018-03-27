@@ -4,7 +4,7 @@ import math
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 OuterTrackerMonitorTTCluster = DQMEDAnalyzer('OuterTrackerMonitorTTCluster',
 
-    TopFolderName = cms.string('OuterTrackerL1'),
+    TopFolderName = cms.string('SiOuterTracker'),
     TTClusters    = cms.InputTag("TTClustersFromPhase2TrackerDigis", "ClusterInclusive"),
 
 # Number of clusters per layer
