@@ -279,20 +279,6 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mEFrac_Forward;
 
 
-//  MonitorElement* mPt_Barrel_Hi;
-//  MonitorElement* mPhi_Barrel_Hi;
-//  MonitorElement* mConstituents_Barrel_Hi;
-//  MonitorElement* mHFrac_Barrel_Hi;
-//
-//  MonitorElement* mPt_EndCap_Hi;
-//  MonitorElement* mPhi_EndCap_Hi;
-//  MonitorElement* mConstituents_EndCap_Hi;
-//  MonitorElement* mHFrac_EndCap_Hi;
-//
-//  MonitorElement* mPt_Forward_Hi;
-//  MonitorElement* mPhi_Forward_Hi;
-//  MonitorElement* mConstituents_Forward_Hi;
-//  MonitorElement* mHFrac_Forward_Hi;
 
   MonitorElement* mNJets;
   MonitorElement* mDPhi;
