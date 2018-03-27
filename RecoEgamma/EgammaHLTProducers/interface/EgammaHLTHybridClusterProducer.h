@@ -11,6 +11,7 @@
 
 #include "RecoEcal/EgammaClusterAlgos/interface/HybridClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"

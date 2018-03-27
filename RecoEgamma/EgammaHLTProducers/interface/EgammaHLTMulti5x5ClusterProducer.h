@@ -18,6 +18,7 @@
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -67,7 +68,7 @@ class EgammaHLTMulti5x5ClusterProducer : public edm::EDProducer {
   void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
 			  edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
 			  const std::string& clusterCollection,
-			  const std::vector<EcalEtaPhiRegion>& regions,
+			  const std::vector<RectangularEtaPhiRegion>& regions,
 			  const reco::CaloID::Detectors detector);
 
   void outputValidationInfo(reco::CaloClusterPtrVector &clusterPtrVector);
