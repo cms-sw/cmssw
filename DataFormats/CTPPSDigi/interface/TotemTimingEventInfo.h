@@ -63,7 +63,7 @@ class TotemTimingEventInfo{
     
     inline unsigned int getEventNumber() const
     {
-      return orbitNumber_;
+      return eventNumber_;
     }
     
     inline uint16_t getChannelMap() const
