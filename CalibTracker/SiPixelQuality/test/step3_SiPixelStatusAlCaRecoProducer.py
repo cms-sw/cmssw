@@ -54,7 +54,7 @@ process.siPixelStatusProducer = cms.EDProducer("SiPixelStatusProducer",
 process.ALCARECOStreamSiPixelCalZeroBias = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('SiPixelCalZeroBias.root'),
     outputCommands = cms.untracked.vstring('drop *',
-        'keep *_siPixelStatusProducer_siPixelStatus_*',
+        'keep *_siPixelStatusProducer_*_*',
     )
 )
 

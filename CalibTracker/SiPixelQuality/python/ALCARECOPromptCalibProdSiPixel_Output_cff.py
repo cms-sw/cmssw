@@ -6,7 +6,8 @@ OutALCARECOPromptCalibProdSiPixel_noDrop = cms.PSet(
     ),
     outputCommands=cms.untracked.vstring(
         'keep *_ALCARECOPromptCalibProdSiPixel_*_*',
-        'keep *_siPixelStatusProducer_*_*')
+        'keep *_siPixelStatusProducer_*_*'
+    )
 )
 
 import copy

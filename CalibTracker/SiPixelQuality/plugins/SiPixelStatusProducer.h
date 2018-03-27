@@ -55,6 +55,9 @@ class SiPixelStatusProducer : public edm::one::EDProducer<edm::EndLuminosityBloc
   edm::ESHandle<TrackerGeometry> fTG;
   // TrackerTopology
   edm::ESWatcher<TrackerTopologyRcd> trackerTopoWatcher_;
+  // ALCARECO triggerbit
+  edm::ESWatcher<AlCaRecoTriggerBitsRcd> triggerBitWatcher_;
+  AlCaRecoTriggerBits lastTriggerBits_;
 
   // SiPixel offline<->online conversion
   // -- map (for each detid) of the map from offline col/row to the online roc/col/row
@@ -79,6 +82,8 @@ class SiPixelStatusProducer : public edm::one::EDProducer<edm::EndLuminosityBloc
 
   // Producer production (output collection)
   SiPixelDetectorStatus                                    fDet;
+  // ALCARECO trigger bit
+  std::string HLTPaths;
 
 };
 

@@ -41,6 +41,9 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
+#include "CondFormats/HLTObjects/interface/AlCaRecoTriggerBits.h"
+#include "CondFormats/DataRecord/interface/AlCaRecoTriggerBitsRcd.h"
+
 // EDProducer related dataformat
 #include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 #include "CalibTracker/SiPixelQuality/interface/SiPixelDetectorStatus.h"
@@ -70,7 +73,7 @@ SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig){
 
   beginLumi_ = endLumi_ = -1;
   endLumi_ = endRun_ = -1;
-  produces<SiPixelDetectorStatus>("siPixelStatusPerEvent"); // have to have a per-event collection to put into the event; otherwise function produce() will not run in unScheduled mode
+  produces<std::string>("HLTPaths"); // have to have a per-event collection to put into the event; otherwise function produce() will not run in unScheduled mode
   produces<SiPixelDetectorStatus, edm::Transition::EndLuminosityBlock>("siPixelStatus");
 }
 
@@ -158,6 +161,34 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
   } // init when countLumi = 0
 
   countLumi_++;
+
+  HLTPaths="SiPixelCalZeroBias_";
+  // trigger bit
+  if (triggerBitWatcher_.check(iSetup)) {
+
+     // Get AlCaRecoTriggerBits from EventSetup:
+     edm::ESHandle<AlCaRecoTriggerBits> triggerBits;
+     iSetup.get<AlCaRecoTriggerBitsRcd>().get(triggerBits);
+
+     typedef std::map<std::string, std::string> TriggerMap;
+     const TriggerMap &triggerMap = triggerBits->m_alcarecoToTrig;
+ 
+     for (TriggerMap::const_iterator i = triggerMap.begin(); i != triggerMap.end(); ++i) {
+
+          if(std::strstr((i->first).c_str(),"SiStripCalZeroBias")){
+              // list all HLTPaths for SiPixelCalZeroBias - equal to SiStripCalZeroBias trigger bit
+              const std::vector<std::string> paths = triggerBits->decompose(i->second);
+              for (unsigned int iPath = 0; iPath < paths.size(); ++iPath) {
+                  HLTPaths+=paths[iPath];
+                  if(iPath!=(paths.size()-1)) HLTPaths+="_or_";
+              }
+              return;
+          }
+
+
+     }// loop over trigger bit for different ALCARECO/ALCAPROMPT
+
+  }//if (triggerBitWatcher_.check(iSetup))
 
 }
 
@@ -257,10 +288,10 @@ void SiPixelStatusProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
    }   // look over different resouces of takens
 
-  // save result
-  auto result = std::make_unique<SiPixelDetectorStatus>();
-  *result = fDet;
-  iEvent.put(std::move(result), std::string("siPixelStatusPerEvent"));
+  // save the ALCARECO trigger bit
+  auto result = std::make_unique<std::string>();
+  *result = HLTPaths;
+  iEvent.put(std::move(result), std::string("HLTPaths"));
 
 }
 
