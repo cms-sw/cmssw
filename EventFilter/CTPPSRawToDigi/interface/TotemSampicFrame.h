@@ -57,7 +57,7 @@ struct TotemSampicEventInfo{
   uint8_t       numberOfSamples;
   uint8_t       offsetOfSamples;
   uint8_t       FWVersion;
-  uint8_t       reserved;
+  uint8_t       PLLInfo;
    
   TotemSampicEventInfo() {};
 };
@@ -120,6 +120,7 @@ class TotemSampicFrame
     void Print() const
     {
       std::bitset<16> bitsChannelMap( getChannelMap() );
+      std::bitset<16> bitsPLLInfo( getPLLInfo() );
       std::cout << "TotemSampicFrame:\nEvent:"
           << "\nHardwareId (Event):\t" << std::hex << (unsigned int) getEventHardwareId()
           << "\nL1A Time Stamp:\t" << std::dec << getL1ATimeStamp()
@@ -138,6 +139,7 @@ class TotemSampicFrame
           << "\nCellInfo:\t" << std::dec << getCellInfo()
           << "\nPlane:\t" << std::dec << getDetPlane()
           << "\nChannel:\t" << std::dec << getDetChannel()
+          << "\\nPLL Info:\t" << bitsPLLInfo.to_string()
           << std::endl << std::endl; 
     }
               
@@ -178,6 +180,11 @@ class TotemSampicFrame
     inline int getDetChannel() const
     {
       return status_ * TotemSampicInfo_->ChannelId;
+    }
+    
+    inline int getPLLInfo() const
+    {
+      return status_ * TotemSampicEventInfo_->PLLInfo;
     }
     
     inline int getFWVersion() const
