@@ -58,7 +58,7 @@
   <class name="edm::Wrapper<edm::DetSetVector<TotemTimingDigi> >"/>
   
   <class name="TotemTimingEventInfo" ClassVersion="3">
-    <version ClassVersion="3" checksum="3527714887"/>
+    <version ClassVersion="3" checksum="2132000625"/>
   </class>
   <class name="edm::DetSet<TotemTimingEventInfo>"/>
   <class name="std::vector<edm::DetSet<TotemTimingEventInfo> >"/>
