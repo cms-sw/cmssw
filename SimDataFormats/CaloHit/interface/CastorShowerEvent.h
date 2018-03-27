@@ -21,8 +21,7 @@
 
     CastorShowerEvent();
     ~CastorShowerEvent() override;
-    
-    void Clear();
+    void Clear(Option_t *) override;
     
 //  private:
   
