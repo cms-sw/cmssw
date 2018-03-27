@@ -1,5 +1,4 @@
 // user include files
-#include <TH1F.h>
 #include <vector>
 
 
@@ -28,9 +27,12 @@ float highestDensityFraction(std::vector<float>& hitTimes, float fractionToKeep=
   
   int startBin = 0;
   int endBin = totSize;
-  
-  for(int ij=0; ij<int(totSize*(1.-fractionToKeep)); ++ij){
-    float localDiff = fabs(hitTimes.at(ij) - hitTimes.at(int(ij+totSize*fractionToKeep)));
+
+  int totToKeep = int(totSize*fractionToKeep);
+  int maxStart = totSize - totToKeep;
+
+  for(int ij=0; ij<maxStart; ++ij){
+    float localDiff = fabs(hitTimes[ij] - hitTimes[int(ij+totToKeep)]);
     if(localDiff < minTimeDiff){
       minTimeDiff = localDiff;
       startTimeBin = ij;
@@ -41,18 +43,19 @@ float highestDensityFraction(std::vector<float>& hitTimes, float fractionToKeep=
   // proved to improve the resolution: get as many hits as possible provided they are close in time
   startBin = startTimeBin;
   endBin = int(startBin+totSize*fractionToKeep);
-  float HalfTimeDiff = std::abs(hitTimes.at(startBin) - hitTimes.at(endBin)) * timeWidthBy;
+  float HalfTimeDiff = std::abs(hitTimes[startBin] - hitTimes[endBin]) * timeWidthBy;
 
-  for(int ij=0; ij<startBin; ++ij){  
-    if(hitTimes.at(ij) > (hitTimes.at(startBin) - HalfTimeDiff) ){
-      for(int kl=ij; kl<totSize; ++kl){   
-	if(hitTimes.at(kl) < (hitTimes.at(endBin) + HalfTimeDiff) ){	 	  
-	  sum += hitTimes.at(kl); 
+  for(int ij=0; ij<startBin; ++ij){
+    if(hitTimes[ij] > (hitTimes[startBin] - HalfTimeDiff) ){
+      for(int kl=ij; kl<totSize; ++kl){
+        if(hitTimes[kl] < (hitTimes[endBin] + HalfTimeDiff) ){
+	  sum += hitTimes[kl];
 	  ++num;
 	}
-	else  break;                                                                                                                                                                                                          }
+	else  break;
+      }
       break;
-    }                                                                                                                                                                                                          
+    }
   }
   
   if(num == 0) return -99.;  
@@ -102,10 +105,10 @@ float fixSizeHighestDensity(std::vector<float>& t, float deltaT=0.210 /*time win
   int totSize = t.size();
 
   for(int ij=0; ij<=start_el; ++ij){
-    if(t.at(ij) > (t.at(start_el) - HalfTimeDiff) ){
+    if(t[ij] > (t[start_el] - HalfTimeDiff) ){
       for(int kl=ij; kl<totSize; ++kl){
-        if(t.at(kl) < (t.at(end_el) + HalfTimeDiff) ){
-          sum += t.at(kl);
+        if(t[kl] < (t[end_el] + HalfTimeDiff) ){
+          sum += t[kl];
           ++num;
         }
         else  break;
