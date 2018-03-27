@@ -23,7 +23,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 				  const CaloSubdetectorGeometry *geometryES_p,
 				  EcalPart ecalPart,
 				  bool regional,
-				  const std::vector<EcalEtaPhiRegion>& regions)
+				  const std::vector<RectangularEtaPhiRegion>& regions)
 {
   seeds.clear();
   used_s.clear();
@@ -106,7 +106,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(
 	// of regional reconstruction
 	bool withinRegion = false;
 	if (regional) {
-	  std::vector<EcalEtaPhiRegion>::const_iterator region;
+	  std::vector<RectangularEtaPhiRegion>::const_iterator region;
 	  for (region=regions.begin(); region!=regions.end(); region++) {
 	    if (region->inRegion(thisCell->etaPos(),thisCell->phiPos())) {
 	      withinRegion =  true;

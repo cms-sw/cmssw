@@ -24,7 +24,6 @@
 
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 
 #include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
 
