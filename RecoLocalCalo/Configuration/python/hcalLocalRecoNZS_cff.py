@@ -4,6 +4,7 @@ import RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi
 hbherecoMB = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbheprereco.clone(
     dropZSmarkedPassed = cms.bool(False),
     algorithm = dict(
+        useMahi = cms.bool(False),
         useM2 = cms.bool(False),
         useM3 = cms.bool(False)
     ),
