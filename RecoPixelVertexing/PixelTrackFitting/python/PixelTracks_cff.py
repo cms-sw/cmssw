@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoLocalTracker.SiPixelRecHits.PixelCPEParmError_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.StripCPEfromTrackAngle_cfi import *
 from RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitMatcher_cfi import *
 from RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder_cfi import *
@@ -11,6 +12,7 @@ myTTRHBuilderWithoutAngle = RecoTracker.TransientTrackingRecHit.TransientTrackin
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
 from RecoTracker.TkSeedingLayers.TTRHBuilderWithoutAngle4PixelTriplets_cfi import *
 from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import pixelFitterByHelixProjections
+from RecoPixelVertexing.PixelTrackFitting.pixelFitterByRiemannParaboloid_cfi import pixelFitterByRiemannParaboloid
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics
 from RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi import pixelTrackCleanerBySharedHits
 from RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi import pixelTracks as _pixelTracks
@@ -63,17 +65,22 @@ pixelTracks = _pixelTracks.clone(
 )
 trackingLowPU.toModify(pixelTracks, SeedingHitSets = "pixelTracksHitTriplets")
 
-pixelTracksTask = cms.Task(
-    pixelTracksTrackingRegions,
-    pixelFitterByHelixProjections,
-    pixelTrackFilterByKinematics,
-    pixelTracksSeedLayers,
-    pixelTracksHitDoublets,
-    pixelTracksHitQuadruplets,
+pixelTracksSequence = cms.Sequence(
+    pixelTracksTrackingRegions +
+    pixelFitterByHelixProjections +
+    pixelTrackFilterByKinematics +
+    pixelTracksSeedLayers +
+    pixelTracksHitDoublets +
+    pixelTracksHitQuadruplets +
     pixelTracks
 )
-_pixelTracksTask_lowPU = pixelTracksTask.copy()
-_pixelTracksTask_lowPU.replace(pixelTracksHitQuadruplets, pixelTracksHitTriplets)
-trackingLowPU.toReplaceWith(pixelTracksTask, _pixelTracksTask_lowPU)
+_pixelTracksSequence_lowPU = pixelTracksSequence.copy()
+_pixelTracksSequence_lowPU.replace(pixelTracksHitQuadruplets, pixelTracksHitTriplets)
+trackingLowPU.toReplaceWith(pixelTracksSequence, _pixelTracksSequence_lowPU)
 
-pixelTracksSequence = cms.Sequence(pixelTracksTask)
+# Use Riemann fit and substitute previous Fitter producer with the Riemann one
+from Configuration.ProcessModifiers.riemannFit_cff import riemannFit
+riemannFit.toModify(pixelTracks, Fitter = "pixelFitterByRiemannParaboloid")
+_pixelTracksSequence_riemannFit = pixelTracksSequence.copy()
+_pixelTracksSequence_riemannFit.replace(pixelFitterByHelixProjections, pixelFitterByRiemannParaboloid)
+riemannFit.toReplaceWith(pixelTracksSequence, _pixelTracksSequence_riemannFit)
