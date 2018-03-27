@@ -50,7 +50,7 @@ from DQM.TrackingMonitorSource.pixelTracksMonitoring_cff import *
 from DQM.SiOuterTracker.OuterTrackerSourceConfig_cff import *
 # miniAOD DQM validation
 from Validation.RecoParticleFlow.miniAODDQM_cff import *
-from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import *
+from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import * 
 from DQM.TrackingMonitor.trackingRecoMaterialAnalyzer_cfi import materialDumperAnalyzer
 materialDumperAnalyzer.usePV = True
 
@@ -150,6 +150,9 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  pfTauRunDQMValidation
                                  )
 DQMOfflineLumi = cms.Sequence ( zcounting )
+
+muonRecoAnalyzer.doMVA =         cms.bool( True )
+muonRecoAnalyzer_miniAOD.doMVA = cms.bool( True )
 
 DQMOfflineMuon = cms.Sequence( dtSources *
                                rpcTier0Source *
