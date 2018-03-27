@@ -1,13 +1,13 @@
-#ifndef RecoEcal_EgammaCoreTools_EcalEtaPhiRegion_h
-#define RecoEcal_EgammaCoreTools_EcalEtaPhiRegion_h
+#ifndef DataFormats_Math_RectangularEtaPhiRegion_h
+#define DataFormats_Math_RectangularEtaPhiRegion_h
 
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
-class EcalEtaPhiRegion
+class RectangularEtaPhiRegion
 {
  public:
 
-  EcalEtaPhiRegion(float etaLow, float etaHigh, float phiLow, float phiHigh) :
+  RectangularEtaPhiRegion(float etaLow, float etaHigh, float phiLow, float phiHigh) :
    ceta(0.5f*(etaHigh+etaLow)),deta(0.5f*std::abs(etaHigh-etaLow))
   {
    phiHigh = proxim(phiHigh,phiLow);
