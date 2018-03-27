@@ -23,8 +23,8 @@
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
-#include "PreMixingWorker.h"
-#include "PreMixingWorkerFactory.h"
+#include "SimGeneral/PreMixingModule/interface/PreMixingWorker.h"
+#include "SimGeneral/PreMixingModule/interface/PreMixingWorkerFactory.h"
 #include "PreMixingPileupCopy.h"
 
 #include <functional>

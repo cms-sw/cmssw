@@ -8,7 +8,8 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
-#include "PreMixingWorker.h"
+#include "SimGeneral/PreMixingModule/interface/PreMixingWorker.h"
+#include "SimGeneral/PreMixingModule/interface/PreMixingWorkerFactory.h"
 
 namespace edm {
   class PreMixingDigiAccumulatorWorker: public PreMixingWorker {
@@ -44,5 +45,4 @@ namespace edm {
   };
 }
 
-#include "PreMixingWorkerFactory.h"
 DEFINE_EDM_PLUGIN(PreMixingWorkerFactory, edm::PreMixingDigiAccumulatorWorker, "PreMixingDigiAccumulatorWorker");
