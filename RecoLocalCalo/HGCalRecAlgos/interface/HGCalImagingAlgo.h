@@ -255,7 +255,7 @@ typedef KDTreeNodeInfoT<Hexel,2> KDNode;
 
 
 // A vector of vectors of KDNodes holding an Hexel in the clusters - to be used to build CaloClusters of DetIds
-std::vector< std::vector<KDNode> > current_v;
+tbb::concurrent_vector< std::vector<KDNode> > current_v;
 
 std::vector<size_t> sort_by_delta(const std::vector<KDNode> &v) const {
         std::vector<size_t> idx(v.size());
