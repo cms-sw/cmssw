@@ -37,9 +37,8 @@ struct TotemSampicInfo{
   uint16_t      TimeStampA;
   uint16_t      TimeStampB;
   uint16_t      CellInfo;
-  uint8_t       PlaneId;
-  uint8_t       ChannelId;
-  uint16_t      reserved[2];
+  uint8_t       PlaneChannelId;
+  uint8_t       reserved[5];
    
   TotemSampicInfo() {};
 };
@@ -131,7 +130,7 @@ class TotemSampicFrame
           << "\nChannels fired:\t" << std::hex << bitsChannelMap.to_string()
           << "\nNumber of Samples:\t" << std::dec << getNumberOfSentSamples()
           << "\nOffset of Samples:\t" << std::dec << (int) getOffsetOfSamples()
-          << "\nFW Version:\t" << std::dec << (int) getFWVersion()
+          << "\nFW Version:\t" << std::hex << (int) getFWVersion()
           << "\nChannel:\nHardwareId:\t" << std::hex << (unsigned int) getHardwareId()
           << "\nFPGATimeStamp:\t" << std::dec << getFPGATimeStamp()
           << "\nTimeStampA:\t" << std::dec << getTimeStampA()
@@ -174,12 +173,12 @@ class TotemSampicFrame
     
     inline int getDetPlane() const
     {
-      return status_ * TotemSampicInfo_->PlaneId;
+      return status_ * ((TotemSampicInfo_->PlaneChannelId & 0xF0)>>4);
     }
     
     inline int getDetChannel() const
     {
-      return status_ * TotemSampicInfo_->ChannelId;
+      return status_ * (TotemSampicInfo_->PlaneChannelId & 0xF0);
     }
     
     inline int getPLLInfo() const
