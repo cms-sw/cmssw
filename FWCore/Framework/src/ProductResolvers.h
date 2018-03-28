@@ -329,6 +329,9 @@ namespace edm {
                         Principal const& principal,
                         bool iSkipCurrentProcess,
                         std::exception_ptr iExceptPtr) const;
+
+    void resetFailedFromThisProcess() override;
+
     private:
       unsigned int unsetIndexValue() const;
       Resolution resolveProduct_(Principal const& principal,
