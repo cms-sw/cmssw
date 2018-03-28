@@ -89,7 +89,6 @@ class TotemSampicFrame
   public:
     TotemSampicFrame(const uint8_t* chInfoPtr, const uint8_t* chDataPtr, const uint8_t* eventInfoPtr) : 
     TotemSampicInfo_(nullptr), TotemSampicData_(nullptr), TotemSampicEventInfo_(nullptr), status_(0)
-//     chInfoPtr_(chInfoPtr), chDataPtr_(chDataPtr), eventInfoPtr_(eventInfoPtr)
     {
       if ( chInfoPtr!=nullptr && chDataPtr!=nullptr && eventInfoPtr!=nullptr) {
         TotemSampicInfo_ = (TotemSampicInfo*) chInfoPtr;
@@ -268,39 +267,12 @@ class TotemSampicFrame
     
     
   protected:
-    /** Raw data frame as sent by electronics.
-    * The container is organized as follows:
-    * Odd IndexinFiber: Ch Info
-    * \verbatim
-    * buffer index      content         size
-    * ---------------------------------------------------------------
-    *   0->5            Empty           48 bit
-    *   6->7            Cell Info       16 bit 
-    *   8->9            TimestampA      16 bit 
-    *   10->11          TimestampB      16 bit 
-    *   12->16          FPGATime        40 bit 
-    *   17->19          ADC EOC         16 bit 
-    *   20->22          controlBits     32 bit 
-    *   23              hwId            8 bit 
-    * \endverbatim
-    * 
-    * Even IndexinFiber: Ch Data
-    * \verbatim
-    * buffer index      content         size
-    * ---------------------------------------------------------------
-    *   0->23           Channel data    sampic 8bit samples
-    * \endverbatim
-    *    
-    **/
     const TotemSampicInfo* TotemSampicInfo_;
     const TotemSampicData* TotemSampicData_;
     const TotemSampicEventInfo* TotemSampicEventInfo_;
     
     int status_;
     
-//     uint8_t* chInfoPtr_;
-//     uint8_t* chDataPtr_;
-//     uint8_t* eventInfoPtr_;
     
     inline void PrintRawBuffer(uint16_t const* buffer, const bool binary=false, const unsigned int size=12) const {
       for (unsigned int i = 0; i < size; i++) { 
