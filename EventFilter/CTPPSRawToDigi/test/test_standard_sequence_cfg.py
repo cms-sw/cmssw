@@ -40,7 +40,7 @@ process.output = cms.OutputModule("PoolOutputModule",
   fileName = cms.untracked.string("file:./reco_digi.root"),
   outputCommands = cms.untracked.vstring(
     'drop *',
-    'keep *_*RawToDigi_*_*',
+    'keep *_*totemTimingRawToDigi_*_*',
   )
 )
 
