@@ -14,12 +14,12 @@ phase2TrackerDigitizer = cms.PSet(
 # Common for Algos
     premixStage1 = cms.bool(False),
     AlgorithmCommon = cms.PSet(
-      DeltaProductionCut = cms.double(0.03)
+      DeltaProductionCut = cms.double(0.03),
+      makeDigiSimLinks = cms.untracked.bool(True),
     ),
 # Specific parameters
 #Pixel Digitizer Algorithm
     PixelDigitizerAlgorithm = cms.PSet(
-      makeDigiSimLinks = cms.untracked.bool(True),
       ElectronPerAdc = cms.double(600.0),
       ReadoutNoiseInElec = cms.double(0.0),
       ThresholdInElectrons_Barrel = cms.double(1200.0),
@@ -57,7 +57,6 @@ phase2TrackerDigitizer = cms.PSet(
     ),
 #Pixel in PS Module
     PSPDigitizerAlgorithm = cms.PSet(
-      makeDigiSimLinks = cms.untracked.bool(True),
       ElectronPerAdc = cms.double(135.0),
       ReadoutNoiseInElec = cms.double(200.0),#D.B.:Fill readout noise, including all readout chain, relevant for smearing
       ThresholdInElectrons_Barrel = cms.double(6300.), #(0.4 MIP = 0.4 * 16000 e)
@@ -95,7 +94,6 @@ phase2TrackerDigitizer = cms.PSet(
     ),
 #Strip in PS module
     PSSDigitizerAlgorithm = cms.PSet(
-      makeDigiSimLinks = cms.untracked.bool(True),
       ElectronPerAdc = cms.double(135.0),
 #D.B.:the noise should be a function of strip capacitance, roughly: ReadoutNoiseInElec=500+(64*Cdet[pF]) ~= 500+(64*1.5[cm])
       ReadoutNoiseInElec = cms.double(700.0),#D.B.:Fill readout noise, including all readout chain, relevant for smearing
@@ -134,7 +132,6 @@ phase2TrackerDigitizer = cms.PSet(
     ),
 #Two Strip Module
     SSDigitizerAlgorithm = cms.PSet(
-      makeDigiSimLinks = cms.untracked.bool(True),
       ElectronPerAdc = cms.double(135.0),
 #D.B.:the noise should be a function of strip capacitance, roughly: ReadoutNoiseInElec=500+(64*Cdet[pF]) ~= 500+(64*1.5[cm])
       ReadoutNoiseInElec = cms.double(1000.0),#D.B.:Fill readout noise, including all readout chain, relevant for smearing

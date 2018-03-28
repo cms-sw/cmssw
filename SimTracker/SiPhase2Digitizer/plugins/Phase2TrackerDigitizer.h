@@ -111,6 +111,7 @@ namespace cms
     edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
     const bool isOuterTrackerReadoutAnalog; 
     const bool premixStage1_;
+    const bool makeDigiSimLinks_;
     // cache for detector types
     ModuleTypeCache moduleTypeCache_;
     

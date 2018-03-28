@@ -83,12 +83,15 @@ namespace cms
     trackerContainers_(iConfig.getParameter<std::vector<std::string> >("ROUList")),
     geometryType_(iConfig.getParameter<std::string>("GeometryType")),
     isOuterTrackerReadoutAnalog(iConfig.getParameter<bool>("isOTreadoutAnalog")),
-    premixStage1_(iConfig.getParameter<bool>("premixStage1"))
+    premixStage1_(iConfig.getParameter<bool>("premixStage1")),
+    makeDigiSimLinks_(iConfig.getParameter<edm::ParameterSet>("AlgorithmCommon").getUntrackedParameter<bool>("makeDigiSimLinks"))
   {
     //edm::LogInfo("Phase2TrackerDigitizer") << "Initialize Digitizer Algorithms";
     const std::string alias1("simSiPixelDigis"); 
     mixMod.produces<edm::DetSetVector<PixelDigi> >("Pixel").setBranchAlias(alias1);
-    mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >("Pixel").setBranchAlias(alias1);
+    if(makeDigiSimLinks_) {
+      mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >("Pixel").setBranchAlias(alias1);
+    }
 
     if(!iConfig.getParameter<bool>("isOTreadoutAnalog")) {
       const std::string alias2("simSiTrackerDigis");
@@ -100,7 +103,9 @@ namespace cms
       else {
         mixMod.produces<edm::DetSetVector<Phase2TrackerDigi> >("Tracker").setBranchAlias(alias2);
       }
-      mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >("Tracker").setBranchAlias(alias2);
+      if(makeDigiSimLinks_) {
+        mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >("Tracker").setBranchAlias(alias2);
+      }
     }
     // creating algorithm objects and pushing them into the map
     algomap_[AlgorithmType::InnerPixel] = std::make_unique<PixelDigitizerAlgorithm>(iConfig);
@@ -317,7 +322,9 @@ namespace cms
     
     // Step D: write output to file 
     iEvent.put(std::move(output), "Pixel");
-    iEvent.put(std::move(outputlink), "Pixel");
+    if(makeDigiSimLinks_) {
+      iEvent.put(std::move(outputlink), "Pixel");
+    }
   }
 }
 namespace {
@@ -373,7 +380,9 @@ namespace cms {
     
     // Step D: write output to file 
     iEvent.put(std::move(output), "Tracker");
-    iEvent.put(std::move(outputlink), "Tracker");
+    if(makeDigiSimLinks_) {
+      iEvent.put(std::move(outputlink), "Tracker");
+    }
   }
 }
 
