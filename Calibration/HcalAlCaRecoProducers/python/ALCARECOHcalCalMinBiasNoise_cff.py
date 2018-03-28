@@ -24,6 +24,7 @@ hbherecoNoise = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbhep
     tsFromDB = cms.bool(False),
     dropZSmarkedPassed = cms.bool(False),
     algorithm = dict(
+        useMahi = cms.bool(False),
         useM2 = cms.bool(False),
         useM3 = cms.bool(False)
     ),
