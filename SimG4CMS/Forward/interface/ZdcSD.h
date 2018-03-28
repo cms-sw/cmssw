@@ -20,7 +20,7 @@ public:
   ~ZdcSD() override;
   bool ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
   uint32_t setDetUnitId(const G4Step* step) override;
-  double getEnergyDeposit(const G4Step*, edm::ParameterSet const &);
+  double getEnergyDeposit(G4Step*) override;
  
   void setNumberingScheme(ZdcNumberingScheme* scheme);
   void getFromLibrary(G4Step * step);
@@ -28,7 +28,7 @@ public:
 protected:
   void initRun() override;
 private:    
-
+  edm::ParameterSet m_ZdcSD;
   int verbosity;
   bool  useShowerLibrary,useShowerHits; 
   int   setTrackID(G4Step * step);
