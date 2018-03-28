@@ -26,8 +26,8 @@ hltDiDispStaMuonMonitoring.histoPSet.muonPhiPSet = cms.PSet(
     )
 hltDiDispStaMuonMonitoring.histoPSet.muonDxyPSet = cms.PSet(
     nbins = cms.uint32(50),
-    xmin  = cms.double(-50.),
-    xmax  = cms.double(50.),
+    xmin  = cms.double(-120.),
+    xmax  = cms.double(120.),
     )
 
 hltDiDispStaMuonMonitoring.muons     = cms.InputTag("displacedStandAloneMuons")
@@ -35,8 +35,8 @@ hltDiDispStaMuonMonitoring.nmuons     = cms.uint32(2)
 
 hltDiDispStaMuonMonitoring.muonSelection = cms.PSet(
     general = cms.string("hitPattern.muonStationsWithValidHits() > 1"),
-    pt      = cms.string("pt() > 2 && pt() < 200"),
-    dxy     = cms.string("dxy() > 5"),
+    pt      = cms.string("pt > 2 "),
+    dxy     = cms.string("dxy > 5"),
     )
 
 hltDiDispStaMuonMonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )

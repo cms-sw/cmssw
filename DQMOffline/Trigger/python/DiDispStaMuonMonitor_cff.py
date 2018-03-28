@@ -11,12 +11,10 @@ hltDiDispStaMuonCosmicMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstri
 hltDispStaMuon23Monitoring = hltDiDispStaMuonMonitoring.clone()
 hltDispStaMuon23Monitoring.FolderName = cms.string('HLT/EXO/DiDispStaMuon/singlePpSeed23/')
 hltDispStaMuon23Monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_L2Mu23NoVtx_2Cha_v*") #HLT_ZeroBias_v*
-hltDispStaMuon23Monitoring.nmuons = cms.uint32(1)
 
 hltDispStaMuon23CosmicMonitoring = hltDiDispStaMuonMonitoring.clone()
 hltDispStaMuon23CosmicMonitoring.FolderName = cms.string('HLT/EXO/DiDispStaMuon/singleCosmicSeed23/')
 hltDispStaMuon23CosmicMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_L2Mu23NoVtx_2Cha_CosmicSeed_v*") #HLT_ZeroBias_v*
-hltDispStaMuon23CosmicMonitoring.nmuons = cms.uint32(1)
 
 ## Backup trigger
 hltDiDispStaMuon25Monitoring = hltDiDispStaMuonMonitoring.clone()

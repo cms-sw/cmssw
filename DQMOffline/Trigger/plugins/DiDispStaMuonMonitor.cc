@@ -15,7 +15,6 @@ DiDispStaMuonMonitor::DiDispStaMuonMonitor( const edm::ParameterSet& iConfig ) :
   , ls_binning_           ( getHistoPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>   ("lsPSet")     ) )
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"),consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"),consumesCollector(), *this))
-  //, muonSelection_ ( iConfig.getParameter<std::string>("muonSelection") )
   , muonSelectionGeneral_ ( iConfig.getParameter<edm::ParameterSet>("muonSelection").getParameter<std::string>("general") )
   , muonSelectionPt_ ( iConfig.getParameter<edm::ParameterSet>("muonSelection").getParameter<std::string>("pt") )
   , muonSelectionDxy_ ( iConfig.getParameter<edm::ParameterSet>("muonSelection").getParameter<std::string>("dxy") )
@@ -205,7 +204,6 @@ void DiDispStaMuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup con
 
   int ls = iEvent.id().luminosityBlock();
 
-
   edm::Handle<reco::TrackCollection> DSAHandle;
   iEvent.getByToken( muonToken_, DSAHandle );
   if ((unsigned int)(DSAHandle->size()) < nmuons_ ) return;
@@ -214,107 +212,96 @@ void DiDispStaMuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup con
     dsaMuonPtrs_.emplace_back(DSAHandle, i);
   }
   std::vector<edm::Ptr<reco::Track>> muons{}, muonsCutOnPt{}, muonsCutOnDxy{}, muonsCutOnPtAndDxy{};
-  //std::vector<reco::Track> muons;
-  //for ( auto const & m : *DSAHandle ) {
-  //  if ( muonSelectionGeneral_( m ) ) muons.push_back(m);
-  //}
-  std::copy_if(dsaMuonPtrs_.begin(), dsaMuonPtrs_.end(), back_inserter(muons), [this](const edm::Ptr<reco::Track>& m){ return muonSelectionGeneral_(*m); });
+ 
+  // general selection
+  auto selectGeneral_([this](edm::Ptr<reco::Track> const& m)->bool {return muonSelectionGeneral_(*m);});
+  std::copy_if(dsaMuonPtrs_.begin(), dsaMuonPtrs_.end(), back_inserter(muons), selectGeneral_);
   if ((unsigned int)(muons.size()) < nmuons_ ) return;
-  std::copy_if(muons.begin(), muons.end(), back_inserter(muonsCutOnPt), [this](const edm::Ptr<reco::Track>& m){ return muonSelectionPt_(*m); });
-  std::copy_if(muons.begin(), muons.end(), back_inserter(muonsCutOnDxy), [this](const edm::Ptr<reco::Track>& m){ return muonSelectionDxy_(*m); });
-  std::copy_if(muons.begin(), muons.end(), back_inserter(muonsCutOnPtAndDxy), [this](const edm::Ptr<reco::Track>& m){ return muonSelectionPt_(*m) && muonSelectionDxy_(*m); });
-  //double muonPt = -999;
-  //double muonEta = -999;
-  //double muonPhi = -999;
-  //double muonDxy = -999;
 
+  // cut on pt
+  auto selectOnPt_([this](edm::Ptr<reco::Track> const& m)->bool {return muonSelectionPt_(*m);});
+  std::copy_if(muons.begin(), muons.end(), back_inserter(muonsCutOnPt), selectOnPt_);
+  // cut on dxy
+  auto selectOnDxy_([this](edm::Ptr<reco::Track> const& m)->bool {return muonSelectionDxy_(*m);});
+  std::copy_if(muons.begin(), muons.end(), back_inserter(muonsCutOnDxy), selectOnDxy_);
+  // cut on pt and dxy
+  auto selectOnPtAndDxy_([this](edm::Ptr<reco::Track> const& m)->bool {return muonSelectionPt_(*m) && muonSelectionDxy_(*m);});
+  std::copy_if(muons.begin(), muons.end(), back_inserter(muonsCutOnPtAndDxy), selectOnPtAndDxy_);
+
+  // --------------------------------
   // filling histograms (denominator)
+  // --------------------------------
   if(!muons.empty()){
-    if(!muonsCutOnDxy.empty()) { // pt has cut on dxy
+    if(!muonsCutOnDxy.empty()) {
+        // pt has cut on dxy
         muonPtME_.denominator->Fill( muonsCutOnDxy[0]->pt() );
         muonPtME_variableBinning_.denominator->Fill( muonsCutOnDxy[0]->pt() );
         muonPtVsLS_.denominator->Fill( ls, muonsCutOnDxy[0]->pt() );
     }
-    if(!muonsCutOnPtAndDxy.empty()) { // eta, phi have cut on pt and dxy
+    if(!muonsCutOnPtAndDxy.empty()) {
+        // eta, phi have cut on pt and dxy
         muonEtaME_.denominator->Fill( muonsCutOnPtAndDxy[0]->eta() );
         muonPhiME_.denominator->Fill( muonsCutOnPtAndDxy[0]->phi() );
     }
-    if(!muonsCutOnPt.empty()){ // dxy has cut on pt
+    if(!muonsCutOnPt.empty()){
+        // dxy has cut on pt
         muonDxyME_.denominator->Fill( muonsCutOnPt[0]->dxy() );
     }
   }
 
-  //muonPtME_.denominator -> Fill(muonPt);
-  //muonPtME_variableBinning_.denominator -> Fill(muonPt);
-  //muonEtaME_.denominator -> Fill(muonEta);
-  //muonPhiME_.denominator -> Fill(muonPhi);
-  //muonDxyME_.denominator -> Fill(muonDxy);
-  //muonPtVsLS_.denominator-> Fill(ls, muonPt);
-
-  /*if (nmuons_>1) {
-    subMuonPtME_.denominator  -> Fill(muons[1].pt());
-    subMuonPtME_variableBinning_.denominator -> Fill(muons[1].pt());
-    subMuonEtaME_.denominator -> Fill(muons[1].eta());
-    subMuonPhiME_.denominator -> Fill(muons[1].phi()); 
-    subMuonDxyME_.denominator -> Fill(muons[1].dxy()); 
-  }*/
-  if(muonsCutOnDxy.size() > 1) { // pt has cut on dxy
+  if(muonsCutOnDxy.size() > 1) {
+      // pt has cut on dxy
       subMuonPtME_.denominator->Fill( muonsCutOnDxy[1]->pt() );
       subMuonPtME_variableBinning_.denominator->Fill( muonsCutOnDxy[1]->pt() );
   }
-  if(muonsCutOnPtAndDxy.size() > 1) { // eta, phi have cut on pt and dxy
+  if(muonsCutOnPtAndDxy.size() > 1) {
+      // eta, phi have cut on pt and dxy
       subMuonEtaME_.denominator->Fill( muonsCutOnPtAndDxy[1]->eta() );
       subMuonPhiME_.denominator->Fill( muonsCutOnPtAndDxy[1]->phi() );
   }
-  if(muonsCutOnPt.size() > 1){ // dxy has cut on pt
+  if(muonsCutOnPt.size() > 1){
+      // dxy has cut on pt
       subMuonDxyME_.denominator->Fill( muonsCutOnPt[1]->dxy() );
   }
 
 
+  // --------------------------------
   // filling histograms (numerator)
-  /*if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
-  muonPtME_.numerator -> Fill(muonPt);
-  muonPtME_variableBinning_.numerator -> Fill(muonPt);
-  muonPtVsLS_.numerator -> Fill(ls, muonPt);
-  muonEtaME_.numerator -> Fill(muonEta);
-  muonPhiME_.numerator -> Fill(muonPhi);
-  muonDxyME_.numerator -> Fill(muonDxy);
-
-  if (nmuons_>1) {
-    subMuonPtME_.numerator  -> Fill(muons[1].pt());
-    subMuonPtME_variableBinning_.numerator -> Fill(muons[1].pt());
-    subMuonEtaME_.numerator -> Fill(muons[1].eta());
-    subMuonPhiME_.numerator -> Fill(muons[1].phi()); 
-    subMuonDxyME_.numerator -> Fill(muons[1].dxy()); 
-  }*/
+  // --------------------------------
+  if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
   
   if(!muons.empty()){
-    if(!muonsCutOnDxy.empty()) { // pt has cut on dxy
+    if(!muonsCutOnDxy.empty()) {
+        // pt has cut on dxy
         muonPtME_.numerator->Fill( muonsCutOnDxy[0]->pt() );
         muonPtME_variableBinning_.numerator->Fill( muonsCutOnDxy[0]->pt() );
         muonPtVsLS_.numerator->Fill( ls, muonsCutOnDxy[0]->pt() );
     }
-    if(!muonsCutOnPtAndDxy.empty()) { // eta, phi have cut on pt and dxy
+    if(!muonsCutOnPtAndDxy.empty()) {
+        // eta, phi have cut on pt and dxy
         muonEtaME_.numerator->Fill( muonsCutOnPtAndDxy[0]->eta() );
         muonPhiME_.numerator->Fill( muonsCutOnPtAndDxy[0]->phi() );
     }
-    if(!muonsCutOnPt.empty()){ // dxy has cut on pt
+    if(!muonsCutOnPt.empty()){
+        // dxy has cut on pt
         muonDxyME_.numerator->Fill( muonsCutOnPt[0]->dxy() );
     }
   }
 
-  if(muonsCutOnDxy.size() > 1) { // pt has cut on dxy
+  if(muonsCutOnDxy.size() > 1) {
+      // pt has cut on dxy
       subMuonPtME_.numerator->Fill( muonsCutOnDxy[1]->pt() );
       subMuonPtME_variableBinning_.numerator->Fill( muonsCutOnDxy[1]->pt() );
   }
-  if(muonsCutOnPtAndDxy.size() > 1) { // eta, phi have cut on pt and dxy
+  if(muonsCutOnPtAndDxy.size() > 1) {
+      // eta, phi have cut on pt and dxy
       subMuonEtaME_.numerator->Fill( muonsCutOnPtAndDxy[1]->eta() );
       subMuonPhiME_.numerator->Fill( muonsCutOnPtAndDxy[1]->phi() );
   }
-  if(muonsCutOnPt.size() > 1){ // dxy has cut on pt
+  if(muonsCutOnPt.size() > 1){
+      // dxy has cut on pt
       subMuonDxyME_.numerator->Fill( muonsCutOnPt[1]->dxy() );
   }
-
 
 
 }
