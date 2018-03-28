@@ -24,9 +24,13 @@
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
 #include <memory>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 
 // include ROOT 
 #include "TH2F.h"
@@ -91,7 +95,7 @@ namespace {
   };
 
   /************************************************
-    1d histogram of SiStripNoises of 1 IOV 
+    1d histogram of SiStripPedestals of 1 IOV 
   *************************************************/
 
   // inherit from one of the predefined plot class: Histogram1D
@@ -124,6 +128,65 @@ namespace {
       return true;
     }// fill
   };
+
+  /************************************************
+    1d histogram of fraction of Zero SiStripPedestals of 1 IOV 
+  *************************************************/
+
+  // inherit from one of the predefined plot class: Histogram1D
+  class SiStripZeroPedestalsFraction_TrackerMap : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+    
+  public:
+    SiStripZeroPedestalsFraction_TrackerMap() : cond::payloadInspector::PlotImage<SiStripPedestals> ( "Tracker Map of Zero SiStripPedestals fraction per module" )
+    {
+      setSingleIov( true );
+    }
+     
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override {
+      auto iov = iovs.front();
+      std::shared_ptr<SiStripPedestals> payload = fetchPayload( std::get<1>(iov) );
+
+      edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
+      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+
+      std::string titleMap = "Tracker Map of Zero SiStrip Pedestals fraction per module (payload : "+std::get<1>(iov)+")";
+      
+      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripPedestals"));
+      tmap->setTitle(titleMap);
+      tmap->setPalette(1);
+
+      std::vector<uint32_t> detid;
+      payload->getDetIds(detid);
+
+      std::map<uint32_t,int> zeropeds_per_detid;
+      
+      for (const auto & d : detid) {
+	int nstrips=0;
+	SiStripPedestals::Range range = payload->getRange(d);
+	for( int it=0; it < (range.second-range.first)*8/10; ++it ){
+	  nstrips++;
+	  auto ped = payload->getPed(it,range);
+	  if(ped==0.) {
+	    zeropeds_per_detid[d]+=1; 
+	  }
+	} // end of loop on strips
+	float fraction = zeropeds_per_detid[d]/(128.*reader->getNumberOfApvsAndStripLength(d).first);
+	if(fraction>0.) {
+	  tmap->fill(d,fraction);
+	  std::cout<<"detid: "<< d << " (n. APVs="<< reader->getNumberOfApvsAndStripLength(d).first << ") has " << std::setw(4) << zeropeds_per_detid[d]  << " zero-pedestals strips (i.e. a fraction:"<< std::setprecision(5)  << fraction <<")" << std::endl;
+	}
+      } // end of loop on detids
+
+      std::string fileName(m_imageFileName);
+      tmap->save(true,0.,0.,fileName);
+
+      return true;
+    }
+
+
+  };
+
+
 
   /************************************************
     Tracker Map of SiStrip Pedestals
@@ -368,6 +431,7 @@ namespace {
 PAYLOAD_INSPECTOR_MODULE(SiStripPedestals){
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsValue);
+  PAYLOAD_INSPECTOR_CLASS(SiStripZeroPedestalsFraction_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMin_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMax_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMean_TrackerMap);
