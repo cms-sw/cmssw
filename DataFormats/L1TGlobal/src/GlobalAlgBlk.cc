@@ -176,22 +176,22 @@ bool GlobalAlgBlk::operator==(const GlobalAlgBlk& rhs) const
         //&& m_algoDecisionFinal == rhs.getAlgoDecisionFinal()
         ;
 
-    if (not eq) {
-        std::cout << "m_orbitNr: " << m_orbitNr << " : " << rhs.getL1MenuUUID() << std::endl
-                  << "m_bxNr: " << m_bxNr << " : " << rhs.getL1FirmwareUUID() << std::endl
-                  << "m_bxInEvent: " << m_bxInEvent << " : " << rhs.getbxInEventNr() << std::endl
-                  << "m_finalOR: " << m_finalOR << " : " << rhs.getFinalOR() << std::endl
-                  << "m_finalORPreVeto: " << m_finalORPreVeto << " : " << rhs.getFinalORPreVeto() << std::endl
-                  << "m_finalORVeto: " << m_finalORVeto << " : " << rhs.getFinalORVeto() << std::endl
-                  << "m_preScColumn: " << m_preScColumn << " : " << rhs.getPreScColumn() << std::endl
-                  << std::endl;
-        std::cout << "algoDecisions" << std::endl;
-        for (size_t i = 0; i < m_algoDecisionInitial.size(); ++i) {
-            std::cout << "bit " << i << ":   " << m_algoDecisionInitial.at(i) << " : " << rhs.getAlgoDecisionInitial(i)
-                      << "     " << m_algoDecisionPreScaled.at(i) << " : " << rhs.getAlgoDecisionInterm(i)
-                      << "     " << m_algoDecisionFinal.at(i) << " : " << rhs.getAlgoDecisionFinal(i) << std::endl;
-        }
-    }
+    //if (not eq) {
+    //    std::cout << "m_orbitNr: " << m_orbitNr << " : " << rhs.getL1MenuUUID() << std::endl
+    //              << "m_bxNr: " << m_bxNr << " : " << rhs.getL1FirmwareUUID() << std::endl
+    //              << "m_bxInEvent: " << m_bxInEvent << " : " << rhs.getbxInEventNr() << std::endl
+    //              << "m_finalOR: " << m_finalOR << " : " << rhs.getFinalOR() << std::endl
+    //              << "m_finalORPreVeto: " << m_finalORPreVeto << " : " << rhs.getFinalORPreVeto() << std::endl
+    //              << "m_finalORVeto: " << m_finalORVeto << " : " << rhs.getFinalORVeto() << std::endl
+    //              << "m_preScColumn: " << m_preScColumn << " : " << rhs.getPreScColumn() << std::endl
+    //              << std::endl;
+    //    std::cout << "algoDecisions" << std::endl;
+    //    for (size_t i = 0; i < m_algoDecisionInitial.size(); ++i) {
+    //        std::cout << "bit " << i << ":   " << m_algoDecisionInitial.at(i) << " : " << rhs.getAlgoDecisionInitial(i)
+    //                  << "     " << m_algoDecisionPreScaled.at(i) << " : " << rhs.getAlgoDecisionInterm(i)
+    //                  << "     " << m_algoDecisionFinal.at(i) << " : " << rhs.getAlgoDecisionFinal(i) << std::endl;
+    //    }
+    //}
 
     return eq;
 }
