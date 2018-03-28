@@ -8,8 +8,8 @@ CastorShowerLibraryInfo::CastorShowerLibraryInfo() {
 
 CastorShowerLibraryInfo::~CastorShowerLibraryInfo() {}
 
-void CastorShowerLibraryInfo::Clear(Option_t *) {
-   Energy.Clear("");
-   Eta.Clear("");
-   Phi.Clear("");
+void CastorShowerLibraryInfo::Clear(Option_t * option) {
+   Energy.Clear();
+   Eta.Clear();
+   Phi.Clear();
 }
