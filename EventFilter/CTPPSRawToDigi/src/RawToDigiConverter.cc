@@ -345,30 +345,40 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
           // calculate ids
           TotemTimingDetId detId(record.info->symbolicID.symbolicID);
           
+          const TotemDAQMapping::TotemTimingPlaneChannelPair SWpair = mapping.getTimingChannel( totemSampicFrame.getHardwareId() );
           // for FW Version > 0 plane and channel are encoded in the dataframe
-          if ( totemSampicFrame.getFWVersion() == 0 ) 
+          if ( totemSampicFrame.getFWVersion() == 0 )  // Mapping not present in HW, read from SW
           {
-            const TotemDAQMapping::TotemTimingPlaneChannelPair pair = mapping.getTimingChannel( totemSampicFrame.getHardwareId() );
-            
-
-            if ( pair.plane == -1 || pair.channel == -1 ) 
+            if ( SWpair.plane == -1 || SWpair.channel == -1 ) 
             {
               if (verbosity>0)
                 LogWarning("Totem") << "Error in RawToDigiConverter::TotemTiming > " << "HwId not recognized!  hwId: " << std::hex << (unsigned int) totemSampicFrame.getHardwareId() << endl;
-              std::cout << digiTmp << std::endl;
             }
             else 
             {
-              detId.setPlane( pair.plane );
-              detId.setChannel( pair.channel );
+              detId.setPlane( SWpair.plane % 4);
+              detId.setChannel( SWpair.channel );
+              detId.setRP( SWpair.plane / 4 ); // Top:0 or Bottom:1
             }
-              
-
           }
-          else 
+          else // Mapping read from HW, checked by SW
           {
-            detId.setPlane( totemSampicFrame.getDetPlane() % 4 );
-            detId.setChannel( totemSampicFrame.getDetChannel() % 16 );
+            const int HWplane = totemSampicFrame.getDetPlane() % 16;
+            const int HWchannel = totemSampicFrame.getDetChannel() % 16;
+            
+            if ( SWpair.plane == -1 || SWpair.channel == -1 ) 
+            {
+              if ( verbosity>0 )
+                LogWarning("Totem") << "Warning in RawToDigiConverter::TotemTiming > " << "HwId not recognized!  hwId: " << std::hex << (unsigned int) totemSampicFrame.getHardwareId() << "\tUsing plane and ch from HW without check!" << endl;
+            }
+            else 
+            {
+              if ( verbosity>0 && ( SWpair.plane != HWplane || SWpair.channel != HWchannel ) )
+                LogWarning("Totem") << "Warning in RawToDigiConverter::TotemTiming > " << "Hw mapping different from SW mapping. hwId: " << std::hex << (unsigned int) totemSampicFrame.getHardwareId() << "HW: " << std::dec << HWplane << ":" << HWchannel << "\tSW " << SWpair.plane << ":" << SWpair.channel << "\tUsing plane and ch from HW!" << endl;
+            }
+            detId.setPlane( HWplane % 4 );
+            detId.setChannel( HWchannel );
+            detId.setRP( HWplane / 4 ); // Top:0 or Bottom:1
           }
                     
           DetSet<TotemTimingDigi> &digiDetSet = digi.find_or_insert(detId);

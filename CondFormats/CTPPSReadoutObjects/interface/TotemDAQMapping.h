@@ -46,10 +46,10 @@ class TotemDAQMapping
     /// Hw Id mapping for Totem Timing (dynamical mapping in Sampic)
     struct TotemTimingPlaneChannelPair
     {
-      int channel;
       int plane;
+      int channel;
       
-      TotemTimingPlaneChannelPair(const int& channel=-1, const int& plane=-1) : channel(channel), plane(plane) {};
+      TotemTimingPlaneChannelPair(const int& plane=-1, const int& channel=-1) : plane(plane), channel(channel) {};
     };
     std::map<uint8_t, TotemTimingPlaneChannelPair> totemTimingChannelMap;
     
