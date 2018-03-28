@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process("BeamPixel", eras.Run2_2017)
+process = cms.Process("BeamPixel", eras.Run2_2018)
 
 
 #----------------------------
@@ -60,7 +60,6 @@ process.physTrigger = cms.Sequence(process.hltTriggerTypeFilter)
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
 #----------------------------
 # Proton-Proton Specific Part
@@ -93,7 +92,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     # pixelVertexDQM Config
     #----------------------------
-    process.pixelVertexDQM = DQMEDAnalyzer('Vx3DHLTAnalyzer',
+    process.pixelVertexDQM = cms.EDAnalyzer("Vx3DHLTAnalyzer",
                                             vertexCollection   = cms.untracked.InputTag("pixelVertices"),
                                             pixelHitCollection = cms.untracked.InputTag("siPixelRecHitsPreSplitting"),
                                             debugMode          = cms.bool(True),
@@ -128,7 +127,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
     process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
     process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
-    process.load("RecoPixelVertexing.PixelTrackFitting.PixelTracks_2017_cff")
+    process.load("RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff")
     process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
     process.recopixelvertexing = cms.Sequence(process.pixelTracksSequence + process.pixelVertices)
     process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
@@ -189,7 +188,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     #----------------------------
     # pixelVertexDQM Config
     #----------------------------
-    process.pixelVertexDQM = DQMEDAnalyzer('Vx3DHLTAnalyzer',
+    process.pixelVertexDQM = cms.EDAnalyzer("Vx3DHLTAnalyzer",
                                             vertexCollection   = cms.untracked.InputTag("hiSelectedVertexPreSplitting"),
                                             pixelHitCollection = cms.untracked.InputTag("siPixelRecHitsPreSplitting"),
                                             debugMode          = cms.bool(True),
