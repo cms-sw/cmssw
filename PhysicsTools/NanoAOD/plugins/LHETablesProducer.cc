@@ -33,7 +33,12 @@ class LHETablesProducer : public edm::global::EDProducer<> {
             if (iEvent.getByToken(lheTag_, lheInfo)) {
               auto lhePartTab = fillLHEObjectTable(*lheInfo, *lheTab);
               if (storeLHEParticles_) iEvent.put(std::move(lhePartTab), "LHEPart");
-            } 
+            } else {
+              if (storeLHEParticles_) { // need to store a dummy table anyway to make the framework happy
+                  auto lhePartTab = std::make_unique<nanoaod::FlatTable>(1, "LHEPart", true);
+                  iEvent.put(std::move(lhePartTab), "LHEPart");
+              }
+            }
             iEvent.put(std::move(lheTab), "LHE");
 
         }
