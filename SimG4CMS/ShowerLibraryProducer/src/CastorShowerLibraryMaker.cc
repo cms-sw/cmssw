@@ -531,7 +531,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent * evt) {
         NHitInEvent+=shower->getNhit();
         NEvtAccepted++;
       }
-      else {shower->Clear();}
+      else {shower->Clear("");}
   }
 // Check for unassociated energy
      
@@ -588,8 +588,8 @@ void CastorShowerLibraryMaker::update(const EndOfRun * run)
   hadInfo= &hadSLHolder.SLInfo;
 
   while(nEvtInTree<maxEvtInTree) {
-    if (emShower) emShower->Clear();
-    if (hadShower) hadShower->Clear();
+    if (emShower) emShower->Clear("");
+    if (hadShower) hadShower->Clear("");
     while(ibine<emSLHolder.SLEnergyBins.size()&&nEMevt>0){
       emShower = &(emSLHolder.SLCollection.at(ibine).at(ibineta).at(ibinphi).at(ievt));
       ievt++;
