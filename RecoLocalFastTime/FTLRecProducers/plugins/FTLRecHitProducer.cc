@@ -72,7 +72,7 @@ FTLRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   barrelRechits->reserve(hBarrel->size()/2);
   for(const auto& uhit : *hBarrel) {
     uint32_t flags = FTLRecHit::kGood;
-    auto rechit = std::move(barrel_->makeRecHit(uhit, flags));
+    auto rechit = barrel_->makeRecHit(uhit, flags);
     if( flags == FTLRecHit::kGood ) barrelRechits->push_back( std::move(rechit) );
   }
 
@@ -81,7 +81,7 @@ FTLRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   endcapRechits->reserve(hEndcap->size()/2);
   for(const auto& uhit : *hEndcap) {
     uint32_t flags = FTLRecHit::kGood;
-    auto rechit = std::move(endcap_->makeRecHit(uhit, flags));
+    auto rechit = endcap_->makeRecHit(uhit, flags);
     if( flags == FTLRecHit::kGood ) endcapRechits->push_back( std::move(rechit) );
   }
       
