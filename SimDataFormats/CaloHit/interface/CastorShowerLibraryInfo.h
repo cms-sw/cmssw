@@ -14,7 +14,7 @@ class SLBin: public TObject {
              SLBin() {};
              ~SLBin() override {};
 // Setters
-             void Clear(Option_t * option = "") override final {NEvts=NBins=NEvtPerBin=0;Bins.clear();};
+             void Clear(Option_t * option = "") override {NEvts=NBins=NEvtPerBin=0;Bins.clear();};
              void setNEvts(unsigned int n)      {NEvts = n;};
              void setNBins(unsigned int n)      {NBins = n;};
              void setNEvtPerBin(unsigned int n) {NEvtPerBin=n;};
