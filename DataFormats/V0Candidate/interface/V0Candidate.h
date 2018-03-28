@@ -19,8 +19,7 @@ namespace reco{
     const Vertex::CovarianceMatrix vtxCovariance() { 
       return recoVertex.covariance(); 
     }
-    using LeafCandidate::setVertex;
-    void setVertex( const Vertex & vtxIn );
+    void setRecoVertex( const Vertex & vtxIn );
     //    virtual int pdgId() const { return PDGid; }
     //    void setPdgId( const int & Id ) { PDGid = Id; }
   private:
