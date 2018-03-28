@@ -99,11 +99,8 @@ def _customizePremixStage1(mod):
     # To avoid this if-else structure we'd need an "_InverseModifier"
     # to customize pixel/strip for everything else than fastSim.
     if hasattr(mod, "pixel"):
-        if hasattr(mod.pixel, "PixelDigitizerAlgorithm"):
-            mod.pixel.PixelDigitizerAlgorithm.makeDigiSimLinks = True
-            mod.pixel.PSPDigitizerAlgorithm.makeDigiSimLinks = True
-            mod.pixel.PSSDigitizerAlgorithm.makeDigiSimLinks = True
-            mod.pixel.SSDigitizerAlgorithm.makeDigiSimLinks = True
+        if hasattr(mod.pixel, "AlgorithmCommon"):
+            mod.pixel.AlgorithmCommon.makeDigiSimLinks = True
         else:
             mod.pixel.makeDigiSimLinks = True
     if hasattr(mod, "strip"):

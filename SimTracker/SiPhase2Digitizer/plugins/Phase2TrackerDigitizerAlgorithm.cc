@@ -59,7 +59,7 @@ using namespace sipixelobjects;
 Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::ParameterSet& conf_common, 
 								 const edm::ParameterSet& conf_specific):
   _signal(),
-  makeDigiSimLinks_(conf_specific.getUntrackedParameter<bool>("makeDigiSimLinks", true)),
+  makeDigiSimLinks_(conf_common.getUntrackedParameter<bool>("makeDigiSimLinks", true)),
   use_ineff_from_db_(conf_specific.getParameter<bool>("Inefficiency_DB")),
   use_module_killing_(conf_specific.getParameter<bool>("KillModules")), // boolean to kill or not modules
   use_deadmodule_DB_(conf_specific.getParameter<bool>("DeadModules_DB")), // boolean to access dead modules from DB
