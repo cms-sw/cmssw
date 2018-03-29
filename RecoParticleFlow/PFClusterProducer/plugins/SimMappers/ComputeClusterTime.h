@@ -103,7 +103,7 @@ namespace hgcalSimClusterTime {
     // proved to improve the resolution: get as many hits as possible provided they are close in time
 
     int startBin = startTimeBin;
-    int endBin = int(startBin+totToKeep);
+    int endBin = startBin+totToKeep;
     float HalfTimeDiff = std::abs(hitTimes[startBin] - hitTimes[endBin]) * timeWidthBy;
 
     for(int ij=0; ij<startBin; ++ij){
