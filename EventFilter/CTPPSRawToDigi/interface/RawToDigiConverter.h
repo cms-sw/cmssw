@@ -22,9 +22,6 @@
 #include "DataFormats/CTPPSDigi/interface/CTPPSDiamondDigi.h"
 #include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
 
-#include "EventFilter/CTPPSRawToDigi/interface/TotemSampicFrame.h" 
-#include "EventFilter/CTPPSRawToDigi/interface/DiamondVFATFrame.h"
-
 /// \brief Collection of code to convert TOTEM raw data into digi.
 class RawToDigiConverter
 {

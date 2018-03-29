@@ -14,7 +14,6 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/CTPPSDigi/interface/TotemFEDInfo.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
 #include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
