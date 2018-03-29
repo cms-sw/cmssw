@@ -34,6 +34,13 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_vflags[fUnknownIds]=hcaldqm::flag::Flag("UnknownIds");
 
 	_qie10InConditions = ps.getUntrackedParameter<bool>("qie10InConditions", true);
+
+	// Get reference digi sizes. Convert from unsigned to signed int, because <digi>::size()/samples() return ints for some reason.
+	std::vector<uint32_t> vrefDigiSize = ps.getUntrackedParameter<std::vector<uint32_t>>("refDigiSize");
+	_refDigiSize[HcalBarrel]  = (int)vrefDigiSize[0];
+	_refDigiSize[HcalEndcap]  = (int)vrefDigiSize[1];
+	_refDigiSize[HcalOuter]   = (int)vrefDigiSize[2];
+	_refDigiSize[HcalForward] = (int)vrefDigiSize[3];
 }
 
 /* virtual */ void DigiTask::bookHistograms(DQMStore::IBooker& ib,
@@ -645,7 +652,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		if (_ptype==fOnline)
 		{
 			_cDigiSizevsLS_FED.fill(eid, _currentLS, it->size());
-			it->size()!=constants::DIGISIZE[did.subdet()-1]?
+			it->size()!=_refDigiSize[did.subdet()]?
 				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
 			_cOccupancyvsiphi_SubdetPM.fill(did);
 			_cOccupancyvsieta_Subdet.fill(did);
@@ -768,7 +775,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		if (_ptype==fOnline)
 		{
 			_cDigiSizevsLS_FED.fill(eid, _currentLS, digi.samples());
-			digi.samples()!=constants::DIGISIZE[did.subdet()-1]?
+			digi.samples()!=_refDigiSize[did.subdet()]?
 				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
 			_cOccupancyvsiphi_SubdetPM.fill(did);
 			_cOccupancyvsieta_Subdet.fill(did);
@@ -895,7 +902,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		if (_ptype==fOnline)
 		{
 			_cDigiSizevsLS_FED.fill(eid, _currentLS, it->size());
-			it->size()!=constants::DIGISIZE[did.subdet()-1]?
+			it->size()!=_refDigiSize[did.subdet()]?
 				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
 			_cOccupancyvsiphi_SubdetPM.fill(did);
 			_cOccupancyvsieta_Subdet.fill(did);
@@ -1039,7 +1046,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			{
 				_xNChs.get(eid)++;
 				_cDigiSizevsLS_FED.fill(eid, _currentLS, digi.samples());
-				digi.samples()!=constants::DIGISIZE[did.subdet()-1]?
+				digi.samples()!=_refDigiSize[did.subdet()]?
 					_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
 				_cOccupancyvsiphi_SubdetPM.fill(did);
 				_cOccupancyvsieta_Subdet.fill(did);
