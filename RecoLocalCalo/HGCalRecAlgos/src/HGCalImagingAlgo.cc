@@ -169,7 +169,7 @@ std::vector<reco::BasicCluster> HGCalImagingAlgo::getClusters(bool doSharing) {
           energy += it.data.isHalo ? 0. : it.data.weight;
           // use fraction to store whether this is a Halo hit or not
           thisCluster.emplace_back(it.data.detid, (it.data.isHalo ? 0.f : 1.f));
-        };
+        }
         if (verbosity < pINFO) {
           std::cout << "******** NEW CLUSTER (HGCIA) ********" << std::endl;
           std::cout << "Index          " << i << std::endl;
