@@ -15,7 +15,7 @@
 // System include files
 #include <memory>
 #include <vector>
-
+#include <utility>
 // User include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -78,10 +78,11 @@ private:
  
    std::vector<std::string> unprescaledAlgoShortList_ ;
    std::vector<std::string> prescaledAlgoShortList_; 
-   const unsigned int range_;
+
    // Booking of histograms for the module
-   std::vector<int> unprescaledAlgoBit_;
-   std::vector<int> prescaledAlgoBit_; 
+   std::vector<std::pair<std::string,int>> unprescaledAlgoBit_;
+   std::vector<std::pair<std::string,int>> prescaledAlgoBit_; 
+
    // Algorithm bits
    MonitorElement* algoBits_before_bxmask_;
    MonitorElement* algoBits_before_prescale_;
