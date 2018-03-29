@@ -49,6 +49,8 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
   triggerResultsToken     = consumes <edm::TriggerResults>   (triggerResultsLabel_);
   triggerSummaryFUToken   = consumes <trigger::TriggerEvent> (edm::InputTag(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(),std::string("FU")));
   triggerResultsFUToken   = consumes <edm::TriggerResults>   (edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(),std::string("FU")));
+  csvCaloTagInfosToken_   = consumes<vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > > (
+                                edm::InputTag("hltInclusiveSecondaryVertexFinderTagInfos"));
   csvPfTagInfosToken_     = consumes<vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > > (
                                 edm::InputTag("hltSecondaryVertexTagInfosPF"));
   csvCaloTagsToken_       = consumes<reco::JetTagCollection> (edm::InputTag("hltCombinedSecondaryVertexBJetTagsCalo"));
@@ -146,12 +148,9 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     unsigned index = triggerNames_.triggerIndex(v.getPath());
     if (index < triggerNames_.size() ){
      float DR  = 9999.;
-//                                                                                _|_|_|    _|_|_|_|
-//                                                                                _|    _|  _|
-//                                                                                _|_|_|    _|_|_|
-//                                                                                _|        _|
-//                                                                                _|        _|
-     if (csvPfTags.isValid() && v.getTriggerType() == "PF")
+
+    // PF btagging
+    if (csvPfTags.isValid() && v.getTriggerType() == "PF")
      {
       auto iter = csvPfTags->begin();
 
@@ -214,12 +213,7 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         }
       }
 
-//                                                                    _|_|_|            _|
-//                                                                  _|          _|_|_|  _|    _|_|
-//                                                                  _|        _|    _|  _|  _|    _|
-//                                                                  _|        _|    _|  _|  _|    _|
-//                                                                    _|_|_|    _|_|_|  _|    _|_|
-
+     // Calo b-tagging
      if (csvCaloTags.isValid() && v.getTriggerType() == "Calo" && !csvCaloTags->empty())
      {
 
@@ -260,6 +254,38 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	if (offlineVertexHandler.isValid()) v.getMEhisto_PVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
        }
 
+      }
+
+      iEvent.getByToken(csvCaloTagInfosToken_, csvCaloTagInfos);
+      if (csvCaloTagInfos.isValid() && v.getTriggerType() == "Calo") {
+
+        // loop over secondary vertex tag infos
+        for (const auto & csvCaloTagInfo : *csvCaloTagInfos) {
+          v.getMEhisto_n_vtx()->Fill(csvCaloTagInfo.nVertexCandidates());
+          v.getMEhisto_n_sel_tracks()->Fill(csvCaloTagInfo.nSelectedTracks());
+
+          // loop over selected tracks in each tag info
+          for (unsigned i_trk=0; i_trk < csvCaloTagInfo.nSelectedTracks(); i_trk++) {
+            const auto & ip3d = csvCaloTagInfo.trackIPData(i_trk).ip3d;
+            v.getMEhisto_h_3d_ip_distance()->Fill(ip3d.value());
+            v.getMEhisto_h_3d_ip_error()->Fill(ip3d.error());
+            v.getMEhisto_h_3d_ip_sig()->Fill(ip3d.significance());
+          }
+
+          // loop over vertex candidates in each tag info
+          for (unsigned i_sv=0; i_sv < csvCaloTagInfo.nVertexCandidates(); i_sv++) {
+            const auto & sv = csvCaloTagInfo.secondaryVertex(i_sv);
+            v.getMEhisto_vtx_mass()->Fill(sv.p4().mass());
+            v.getMEhisto_n_vtx_trks()->Fill(sv.nTracks());
+
+            // loop over tracks for number of pixel and total hits
+            const auto & trkIPTagInfo = csvCaloTagInfo.trackIPTagInfoRef().get();
+            for (const auto & trk : trkIPTagInfo->selectedTracks()) {
+              v.getMEhisto_n_pixel_hits()->Fill(trk.get()->hitPattern().numberOfValidPixelHits());
+              v.getMEhisto_n_total_hits()->Fill(trk.get()->hitPattern().numberOfValidHits());
+            }
+          }
+        }
       }
 
 
