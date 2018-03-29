@@ -28,6 +28,8 @@ class PedestalsHistosUsingDb : public CommissioningHistosUsingDb, public Pedesta
   float lowThreshold_;
   bool disableBadStrips_;
   bool keepStripsDisabled_;
+  // Perform a selective upload either for or excluding a certain set of FEDs                                                                                                                          
+  bool allowSelectiveUpload_;
 
 };
 
