@@ -10,9 +10,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "SimDataFormats/CaloAnalysis/interface/SimCluster.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
-#include "RealisticHitToClusterAssociator.h"
-#include "ComputeClusterTime.h"
-#include "RealisticCluster.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/RealisticHitToClusterAssociator.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/ComputeClusterTime.h"
+#include "RecoParticleFlow/PFClusterProducer/plugins/SimMappers/RealisticCluster.h"
 
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)

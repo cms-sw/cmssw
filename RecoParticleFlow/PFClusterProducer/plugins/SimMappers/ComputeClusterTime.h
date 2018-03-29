@@ -1,5 +1,5 @@
-#ifndef ComputeClusterTime_h
-#define ComputeClusterTime_h
+#ifndef RecoParticleFlow_PFClusterProducer_ComputeClusterTime_h
+#define RecoParticleFlow_PFClusterProducer_ComputeClusterTime_h
 
 // user include files
 #include <vector>
@@ -40,19 +40,19 @@ namespace hgcalSimClusterTime {
 	    return el - startRef <= deltaT + tolerance;
 	  });
 	auto val = *(--last_el);
-      if (std::abs(deltaT - (val - startRef)) < tolerance) {
-        tolerance = std::abs(deltaT - (val - startRef));
-      }
-      start_el = distance(t.begin(), start);
-      end_el = distance(t.begin(), last_el);
-      timeW = val - startRef;
+	if (std::abs(deltaT - (val - startRef)) < tolerance) {
+	  tolerance = std::abs(deltaT - (val - startRef));
+	}
+	start_el = distance(t.begin(), start);
+	end_el = distance(t.begin(), last_el);
+	timeW = val - startRef;
       }
     }
 
     // further adjust time width around the chosen one based on the hits density
     // proved to improve the resolution: get as many hits as possible provided they are close in time
-    float HalfTimeDiff = timeW * timeWidthBy;
 
+    float HalfTimeDiff = timeW * timeWidthBy;
     float sum = 0.;
     int num = 0;
     int totSize = t.size();
@@ -65,7 +65,7 @@ namespace hgcalSimClusterTime {
 	    ++num;
 	  }
 	  else  break;
-      }
+	}
 	break;
       }
     }
@@ -73,7 +73,6 @@ namespace hgcalSimClusterTime {
     if(num == 0) return -99.;
     return sum/num;
   }
-
 
 
   //useful for future developments - baseline for 0PU
@@ -84,15 +83,10 @@ namespace hgcalSimClusterTime {
 
     std::sort(hitTimes.begin(), hitTimes.end());
     int totSize = hitTimes.size();
-
     int num = 0.;
     float sum = 0.;
-
     float minTimeDiff = 999.;
     int startTimeBin = 0;
-
-    int startBin = 0;
-    int endBin = totSize;
 
     int totToKeep = int(totSize*fractionToKeep);
     int maxStart = totSize - totToKeep;
@@ -107,8 +101,9 @@ namespace hgcalSimClusterTime {
 
     // further adjust time width around the chosen one based on the hits density
     // proved to improve the resolution: get as many hits as possible provided they are close in time
-    startBin = startTimeBin;
-    endBin = int(startBin+totSize*fractionToKeep);
+
+    int startBin = startTimeBin;
+    int endBin = int(startBin+totToKeep);
     float HalfTimeDiff = std::abs(hitTimes[startBin] - hitTimes[endBin]) * timeWidthBy;
 
     for(int ij=0; ij<startBin; ++ij){
