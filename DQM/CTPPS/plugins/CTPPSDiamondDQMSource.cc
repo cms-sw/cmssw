@@ -414,14 +414,9 @@ CTPPSDiamondDQMSource::dqmBeginRun( const edm::Run& iRun, const edm::EventSetup&
   
   // Rough alignement of pixel detector for diamond thomography
   const CTPPSPixelDetId pixid(0, CTPPS_PIXEL_STATION_ID, CTPPS_FAR_RP_ID, 0);
-  try {
+  if ( iRun.run()>300000 ) {    //Pixel installed
     det = geom->getSensor( pixid );
     horizontalShiftBwDiamondPixels_ = det->translation().x() - det->params().at( 0 ) - horizontalShiftOfDiamond_ - 3;
-  }
-  catch (...)
-  {
-    // Pixel not yet installed... tomography will be empty
-    horizontalShiftBwDiamondPixels_ = 0;
   }
 }
 
