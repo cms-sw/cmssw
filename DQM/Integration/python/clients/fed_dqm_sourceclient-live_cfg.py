@@ -29,7 +29,7 @@ process.dqmSaver.tag = 'FED'
 folder_name = 'FEDIntegrity_EvF'
 
 # L1T sequence:
-process.load('DQM.L1TMonitor.L1Tstage2FED_cff') # stage2 L1T
+process.load('DQM.L1TMonitor.L1TStage2FED_cff') # stage2 L1T
 path = 'L1T/%s/' % folder_name
 process.l1tStage2Fed.FEDDirName = cms.untracked.string(path)
 # Pixel sequence:
