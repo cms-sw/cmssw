@@ -687,10 +687,8 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
 	//Non compensation 
 	if (isHAD){
 		scale=scale*non_compensation_factor; // if hadronic extend the scale with the non-compensation factor
-	} else {
-		scale=scale; // if electromagnetic, don't do anything
-	}
-	
+	} 
+
   
 /*    double theTrackEnergy = theTrack->GetTotalEnergy() ; 
   

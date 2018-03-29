@@ -24,7 +24,7 @@ ZdcSD::ZdcSD(const std::string& name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg,
 	     edm::ParameterSet const & p,const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager), numberingScheme(nullptr) {
-  edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");
+  m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");
   useShowerLibrary = m_ZdcSD.getParameter<bool>("UseShowerLibrary");
   useShowerHits    = m_ZdcSD.getParameter<bool>("UseShowerHits");
   zdcHitEnergyCut  = m_ZdcSD.getParameter<double>("ZdcHitEnergyCut")*GeV;
@@ -179,7 +179,8 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
   }
 }
 
-double ZdcSD::getEnergyDeposit(const G4Step * aStep, edm::ParameterSet const & p ) {
+double ZdcSD::getEnergyDeposit(G4Step * aStep //, edm::ParameterSet const & p
+ ) {
 
   float NCherPhot = 0.;
   //std::cout<<"I go through here"<<std::endl;
@@ -260,8 +261,7 @@ double ZdcSD::getEnergyDeposit(const G4Step * aStep, edm::ParameterSet const & p
       float thFullRefl = 23.;
       float thFullReflRad = thFullRefl*pi/180.;
 
-      edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");
-      thFibDir  = m_ZdcSD.getParameter<double>("FiberDirection");
+      auto thFibDir  = m_ZdcSD.getParameter<double>("FiberDirection");
       //float thFibDir = 90.;
       float thFibDirRad = thFibDir*pi/180.;
 
