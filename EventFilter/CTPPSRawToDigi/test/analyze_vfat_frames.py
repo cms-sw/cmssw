@@ -41,3 +41,4 @@ process.totemVFATFrameAnalyzer = cms.EDAnalyzer("TotemVFATFrameAnalyzer",
 process.p = cms.Path(
     process.totemVFATFrameAnalyzer
 )
+
