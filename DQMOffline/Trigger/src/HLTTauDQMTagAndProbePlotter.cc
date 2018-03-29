@@ -86,8 +86,8 @@ LV HLTTauDQMTagAndProbePlotter::findTrgObject(std::string pathName, const trigge
     const unsigned hltFilterIndex = triggerEvent.filterIndex(edm::InputTag(moduleLabels[moduleIndex],"","HLT"));
 
     if (hltFilterIndex < triggerEvent.sizeFilters()) {
-       const trigger::Keys triggerKeys(triggerEvent.filterKeys(hltFilterIndex));
-       const trigger::Vids triggerVids(triggerEvent.filterIds(hltFilterIndex));
+       const trigger::Keys& triggerKeys(triggerEvent.filterKeys(hltFilterIndex));
+       const trigger::Vids& triggerVids(triggerEvent.filterIds(hltFilterIndex));
 
        const unsigned nTriggers = triggerVids.size();
        for (size_t iTrig = 0; iTrig < nTriggers; ++iTrig) {
