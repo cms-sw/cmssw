@@ -132,7 +132,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.recopixelvertexing = cms.Sequence(process.pixelTracksSequence + process.pixelVertices)
     process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
     process.pixelTracksTrackingRegions.RegionPSet.originRadius     = 0.4
-    process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 12.
+    process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 15.
     process.pixelTracksTrackingRegions.RegionPSet.originXPos       = 0.08
     process.pixelTracksTrackingRegions.RegionPSet.originYPos       = -0.03
     process.pixelTracksTrackingRegions.RegionPSet.originZPos       = 0.
