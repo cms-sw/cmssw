@@ -38,8 +38,6 @@
 
 #include <memory>
 #include <sstream>
-#include <map>
-
 
 //#define DEBUG 1
 
@@ -83,7 +81,7 @@ public:
   ~TotemDAQMappingESSourceXML() override;
 
   edm::ESProducts< std::shared_ptr<TotemDAQMapping>, std::shared_ptr<TotemAnalysisMask> > produce( const TotemReadoutRcd & );
-   
+
 private:
   unsigned int verbosity;
 
@@ -753,9 +751,7 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType, xercesc::
     ParseTreeTotemTiming(pType,n ,type ,childId ,mapping ,mask);
    
   }
-
 }
-
 
 //----------------------------------------------------------------------------------------------------
 
