@@ -29,7 +29,8 @@ class ApvTimingHistosUsingDb : public CommissioningHistosUsingDb, public ApvTimi
   bool skipFecUpdate_;
   // switch for uploading the frame finding thresholds
   bool skipFedUpdate_;
-  
+  // Perform a selective upload either for or excluding a certain set of FEDs
+  bool allowSelectiveUpload_;      
 };
 
 
