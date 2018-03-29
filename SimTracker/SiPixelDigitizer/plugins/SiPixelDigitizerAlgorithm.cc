@@ -1254,8 +1254,17 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
   } // loop over charge distributions
 
   // Fill the global map with all hit pixels from this event
-      
-   if (!UseTemplateAgeing) {
+
+   bool reweighted = false;
+   if (UseTemplateAgeing){
+     if(hit.processType()==0){
+       reweighted = hitSignalReweight (hit, hit_signal, hitIndex, tofBin, topol, detID, theSignal, hit.processType());
+     }else{
+       // If it's not the primary particle, use the first hit in the collection as SimHit, which should be the corresponding primary.
+       reweighted = hitSignalReweight ((*inputBegin), hit_signal, hitIndex, tofBin, topol, detID, theSignal, hit.processType());
+     }
+   }
+   if (!reweighted){
      for ( hit_map_type::const_iterator im = hit_signal.begin();
 	   im != hit_signal.end(); ++im) {
        int chan =  (*im).first;
@@ -1267,18 +1276,6 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
 	 << " pixel " << ip.first << " " << ip.second << " "
 	 << theSignal[chan];
 #endif
-     }
-   }else if ((UseTemplateAgeing) && (hit.processType() == 0)) {
-     hitSignalReweight (hit, hit_signal, hitIndex, tofBin, topol, detID, theSignal);
-   }else{
-     if (std::abs(hit.particleType()) == 11){ //we are looking for delta rays here which remain in sensor    
-       for (std::vector<PSimHit>::const_iterator ibegin = inputBegin; ibegin != inputEnd; ++ibegin) {
-	 // we want to match the actual secondary hit with its parent primary hit      
-	 //when its done, we use its position and direction later instead of the actual secondary hits information
-	 if ( (hit.trackId() == (*ibegin).trackId())&&((*ibegin).processType() == 0) ){
-	   hitSignalReweight ((*ibegin), hit_signal, hitIndex, tofBin, topol, detID, theSignal);
-	 }
-       }
      }
    }
 
@@ -2005,13 +2002,15 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
 }
 
 
-void SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit, 
+
+bool SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit, 
 						  std::map< int, float, std::less<int> >& hit_signal, 
 						  const size_t hitIndex,
 						  const unsigned int tofBin,
 						  const PixelTopology* topol,
 						  uint32_t detID,
-						  signal_map_type& theSignal){
+						  signal_map_type& theSignal,
+						  unsigned short int processType){
 
   int irow_min = topol->nrows();
   int irow_max = 0;
@@ -2060,6 +2059,25 @@ void SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
   
   MeasurementPoint hitEntryPointPixel = topol->measurementPosition(hit.entryPoint() );
   MeasurementPoint hitExitPointPixel = topol->measurementPosition(hit.exitPoint() );
+  std::pair<int,int> entryPixel = std::pair<int,int>( int( floor(hitEntryPointPixel.x() ) ), int ( floor(hitEntryPointPixel.y() ) )); 
+  std::pair<int,int> exitPixel = std::pair<int,int>( int( floor(hitExitPointPixel.x() ) ), int ( floor(hitExitPointPixel.y() ) )); 
+
+  int hitcol_min, hitcol_max, hitrow_min, hitrow_max;
+  if(entryPixel.first>exitPixel.first){
+    hitrow_min = exitPixel.first;
+    hitrow_max = entryPixel.first;
+  }else{
+    hitrow_min = entryPixel.first;
+    hitrow_max = exitPixel.first;
+  }
+
+  if(entryPixel.second>exitPixel.second){
+    hitcol_min = exitPixel.second;
+    hitcol_max = entryPixel.second;
+  }else{
+    hitcol_min = entryPixel.second;
+    hitcol_max = exitPixel.second;
+  }
 
   
 #ifdef TP_DEBUG
@@ -2075,7 +2093,7 @@ void SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
   << "Cart.Cor. - X: " << CMSSWhitPosition.x() << " Y: " << CMSSWhitPosition.y() << "\n"
   << "Z=0 Pos - X: " << hitPosition.x() << " Y: " << hitPosition.y() << "\n"
   
-  << "Origin:" << "\n"
+  << "Origin of the template:" << "\n"
   << "Pixel Pos - X: " << originPixel.x() << " Y: " << originPixel.y() << "\n"
   << "Cart.Cor. - X: " << origin.x() << " Y: " << origin.y() << "\n"
   << "\n"
@@ -2088,6 +2106,12 @@ void SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
   
   << "row min: " << irow_min << " col min: " << icol_min << "\n";
 #endif
+
+  if(!(irow_min<=hitrow_max && irow_max>=hitrow_min && icol_min<=hitcol_max && icol_max>=hitcol_min)){
+    // The clusters do not have an overlap, hence the hit is NOT reweighted
+    return false;
+  }
+
   
   float cmToMicrons = 10000;
   
@@ -2164,6 +2188,8 @@ void SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
     std::cout << "Charges (before->after): " << chargeBefore << " -> " << chargeAfter << std::endl;
     std::cout << "Charge loss: " << (1 - chargeAfter/chargeBefore)*100 << " %" << std::endl << std::endl;
   }
+
+  return true;
 
 }
 

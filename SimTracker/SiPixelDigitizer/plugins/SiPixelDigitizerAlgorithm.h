@@ -457,13 +457,14 @@ class SiPixelDigitizerAlgorithm  {
     // methods for charge reweighting in irradiated sensors
     int PixelTempRewgt2D( int id_gen, int id_rewgt,
 			  array_2d& cluster);
-    void hitSignalReweight(const PSimHit& hit,
+    bool hitSignalReweight(const PSimHit& hit,
 			   std::map< int, float, std::less<int> >& hit_signal,
 			   const size_t hitIndex,
 			   const unsigned int tofBin,
 			   const PixelTopology* topol,
 			   uint32_t detID,
-			   signal_map_type& theSignal);
+			   signal_map_type& theSignal,
+			   unsigned short int processType);
     void printCluster(array_2d& cluster);
     void printCluster(float arr[BXM2][BYM2]);
     void printCluster(float arr[TXSIZE][TYSIZE]);
