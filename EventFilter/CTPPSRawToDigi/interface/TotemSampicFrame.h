@@ -25,7 +25,7 @@ enum TotemSampicConstant {
 struct TotemSampicData{
   uint8_t      samples[TotemSampicConstant::NumberOfSamples];
    
-  TotemSampicData() {};
+  TotemSampicData() {}
 };
 #pragma pack(pop)
 
@@ -40,7 +40,7 @@ struct TotemSampicInfo{
   uint8_t       PlaneChannelId;
   uint8_t       reserved[5];
    
-  TotemSampicInfo() {};
+  TotemSampicInfo() {}
 };
 #pragma pack(pop)
 
@@ -58,7 +58,7 @@ struct TotemSampicEventInfo{
   uint8_t       FWVersion;
   uint8_t       PLLInfo;
    
-  TotemSampicEventInfo() {};
+  TotemSampicEventInfo() {}
 };
 #pragma pack(pop)
 
@@ -79,8 +79,6 @@ uint8_t GrayToBinary_8bit(const uint8_t &gcode_data)
   return binary_byte;
 }
 
-
-
 /** 
  * This class is intended to handle the timing infromation of SAMPIC in the TOTEM implementation
 **/
@@ -88,8 +86,7 @@ class TotemSampicFrame
 {
   public:
     TotemSampicFrame(const uint8_t* chInfoPtr, const uint8_t* chDataPtr, const uint8_t* eventInfoPtr) : 
-    TotemSampicInfo_(nullptr), TotemSampicData_(nullptr), TotemSampicEventInfo_(nullptr), status_(0)
-    {
+    TotemSampicInfo_(nullptr), TotemSampicData_(nullptr), TotemSampicEventInfo_(nullptr), status_(0) {
       if ( chInfoPtr!=nullptr && chDataPtr!=nullptr && eventInfoPtr!=nullptr) {
         TotemSampicInfo_ = (TotemSampicInfo*) chInfoPtr;
         TotemSampicData_ = (TotemSampicData*) chDataPtr;
@@ -100,11 +97,9 @@ class TotemSampicFrame
     }
     ~TotemSampicFrame() {}
 
-    
     /// Prints the frame.
     /// If binary is true, binary format is used.
-    void PrintRaw(bool binary = false) const
-    {
+    void PrintRaw(bool binary = false) const {
       std::cout << "Event Info: " << std::endl;
       PrintRawBuffer( (uint16_t*) TotemSampicEventInfo_ );
       
@@ -114,9 +109,8 @@ class TotemSampicFrame
       std::cout << "Channel Data: " << std::endl;
       PrintRawBuffer( (uint16_t*) TotemSampicData_ );
     }
-    
-    void Print() const
-    {
+
+    void Print() const {
       std::bitset<16> bitsChannelMap( getChannelMap() );
       std::bitset<16> bitsPLLInfo( getPLLInfo() );
       std::cout << "TotemSampicFrame:\nEvent:"
@@ -140,87 +134,72 @@ class TotemSampicFrame
           << "\\nPLL Info:\t" << bitsPLLInfo.to_string()
           << std::endl << std::endl; 
     }
-              
+
     // All getters
-    inline uint8_t getHardwareId() const 
-    { 
+    inline uint8_t getHardwareId() const { 
       return status_ * TotemSampicInfo_->hwId; 
     }
-  
-    inline uint64_t getFPGATimeStamp() const
-    {
+
+    inline uint64_t getFPGATimeStamp() const {
       uint64_t time = 0;
-      for (int i=0; i<5; ++i) 
+      for (int i=0; i<5; ++i)
         time += TotemSampicInfo_->FPGATime[i] << 8*1;
       return status_ * time;
     }
-    
-    inline uint16_t getTimeStampA() const
-    {
+
+    inline uint16_t getTimeStampA() const {
       return status_ * GrayToBinary_8bit(TotemSampicInfo_->TimeStampA);
     }
-    
-    inline uint16_t getTimeStampB() const
-    {
+
+    inline uint16_t getTimeStampB() const {
       return status_ * GrayToBinary_8bit(TotemSampicInfo_->TimeStampB);
     }
-    
-    inline uint16_t getCellInfo() const
-    {
+
+    inline uint16_t getCellInfo() const {
       return status_ * (TotemSampicInfo_->CellInfo & 0x3F);
     }
-    
-    inline int getDetPlane() const
-    {
+
+    inline int getDetPlane() const {
       return status_ * ((TotemSampicInfo_->PlaneChannelId & 0xF0)>>4);
     }
-    
-    inline int getDetChannel() const
-    {
+
+    inline int getDetChannel() const {
       return status_ * (TotemSampicInfo_->PlaneChannelId & 0xF0);
     }
-    
-    inline int getPLLInfo() const
-    {
+
+    inline int getPLLInfo() const {
       return status_ * TotemSampicEventInfo_->PLLInfo;
     }
-    
-    inline int getFWVersion() const
-    {
+
+    inline int getFWVersion() const {
       return status_ * TotemSampicEventInfo_->FWVersion;
     }
-    
-    const std::vector< uint8_t > getSamples() const
-    {
-      std::vector< uint8_t > samples;
+
+    const std::vector< uint8_t > getSamples() const {
+      std::vector<uint8_t> samples;
       if (status_) {
         samples.assign( TotemSampicData_->samples, TotemSampicData_->samples + TotemSampicConstant::NumberOfSamples);
         std::for_each(samples.begin(), samples.end(), &GrayToBinary_8bit);
       }
       return samples;
     }
-    
-    inline unsigned int getNumberOfSamples() const
-    {
+
+    inline unsigned int getNumberOfSamples() const {
       return status_ * TotemSampicConstant::NumberOfSamples;
     }
-    
-    
-    
+
     // Event Info
-    inline uint8_t getEventHardwareId() const 
-    { 
+    inline uint8_t getEventHardwareId() const { 
       return status_ * TotemSampicEventInfo_->hwId; 
     }
-        
-    inline uint64_t getL1ATimeStamp() const
-    {
+
+    inline uint64_t getL1ATimeStamp() const {
       uint64_t time = 0;
       for (int i=0; i<5; ++i) 
         time += TotemSampicEventInfo_->L1ATimeStamp[i] << 8*1;
       return status_ * time;
     }
-    
+
     inline uint16_t getBunchNumber() const
     {
       return status_ * TotemSampicEventInfo_->bunchNumber;
@@ -255,25 +234,18 @@ class TotemSampicFrame
     {
       return status_ * TotemSampicEventInfo_->offsetOfSamples;
     }
-        
-    
-    
-    inline bool isOK() const
-    {
+
+    inline bool isOK() const {
       return status_;
     }
-    
-    
-    
-    
+
   protected:
     const TotemSampicInfo* TotemSampicInfo_;
     const TotemSampicData* TotemSampicData_;
     const TotemSampicEventInfo* TotemSampicEventInfo_;
-    
+
     int status_;
-    
-    
+
     inline void PrintRawBuffer(uint16_t const* buffer, const bool binary=false, const unsigned int size=12) const {
       for (unsigned int i = 0; i < size; i++) { 
         if (binary) {
@@ -285,7 +257,6 @@ class TotemSampicFrame
       }
       std::cout << std::endl;
     }
-    
 };   
 
 

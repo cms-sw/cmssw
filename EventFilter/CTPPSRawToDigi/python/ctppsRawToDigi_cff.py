@@ -4,8 +4,6 @@ import FWCore.ParameterSet.Config as cms
 from EventFilter.CTPPSRawToDigi.totemTriggerRawToDigi_cfi import totemTriggerRawToDigi
 totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
-
-
 # ---------- Si strips ----------
 totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
@@ -47,8 +45,6 @@ totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 #  totemRPRawToDigi.RawToDigi.printErrorSummary = 1
 #  totemRPRawToDigi.RawToDigi.printUnknownFrameSummary = 1
 
-
-
 # ---------- diamonds ----------
 totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
@@ -78,11 +74,6 @@ totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSource
 from EventFilter.CTPPSRawToDigi.ctppsDiamondRawToDigi_cfi import ctppsDiamondRawToDigi
 ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
-
-
-
-
-
 # ---------- Totem Timing ----------
 totemDAQMappingESSourceXML_TotemTiming = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(10),
@@ -106,10 +97,7 @@ totemDAQMappingESSourceXML_TotemTiming = cms.ESSource("TotemDAQMappingESSourceXM
 from EventFilter.CTPPSRawToDigi.totemTimingRawToDigi_cfi import totemTimingRawToDigi
 totemTimingRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
-
-
 # ---------- pixels ----------
-
 from EventFilter.CTPPSRawToDigi.ctppsPixelDigis_cfi import ctppsPixelDigis
 ctppsPixelDigis.inputLabel = cms.InputTag("rawDataCollector")
 

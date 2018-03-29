@@ -6,17 +6,16 @@
 *   Seyed Mohsen Etesami (setesami@cern.ch)
 ****************************************************************************/
 
-#include "EventFilter/CTPPSRawToDigi/interface/RawToDigiConverter.h"
-
-#include "EventFilter/CTPPSRawToDigi/interface/CounterChecker.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "EventFilter/CTPPSRawToDigi/interface/RawToDigiConverter.h"
+#include "EventFilter/CTPPSRawToDigi/interface/CounterChecker.h"
+#include "EventFilter/CTPPSRawToDigi/interface/DiamondVFATFrame.h"
+#include "EventFilter/CTPPSRawToDigi/interface/TotemSampicFrame.h" 
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
-#include "EventFilter/CTPPSRawToDigi/interface/DiamondVFATFrame.h"
 #include "DataFormats/CTPPSDetId/interface/TotemTimingDetId.h"
-
 
 //----------------------------------------------------------------------------------------------------
 
