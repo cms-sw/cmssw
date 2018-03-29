@@ -429,7 +429,7 @@ std::cerr << "ERROR in BTagCalibration: "
             << ost;
 throw std::exception();
     }
-    otherSysTypeReaders_[ost] = std::auto_ptr<BTagCalibrationReaderImpl>(
+    otherSysTypeReaders_[ost] = std::unique_ptr<BTagCalibrationReaderImpl>(
         new BTagCalibrationReaderImpl(op, ost)
     );
   }
@@ -526,7 +526,7 @@ double BTagCalibrationReader::BTagCalibrationReaderImpl::eval_auto_bounds(
   float pt_for_eval = pt;
   bool is_out_of_bounds = false;
 
-  if (pt < sf_bounds.first) {
+  if (pt <= sf_bounds.first) {
     pt_for_eval = sf_bounds.first + .0001;
     is_out_of_bounds = true;
   } else if (pt > sf_bounds.second) {

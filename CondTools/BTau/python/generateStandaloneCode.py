@@ -5,7 +5,7 @@ from os.path import join
 
 
 def main():
-    path_cms = join(os.environ['CMSSW_BASE'], 'src')
+    path_cms = join(os.environ['CMSSW_BASE'], 'src/cmssw')
     path_tools = join(path_cms, 'CondTools/BTau/test')
 
     #  headers
