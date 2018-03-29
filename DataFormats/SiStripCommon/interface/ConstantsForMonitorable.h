@@ -1,4 +1,3 @@
-
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
 
@@ -80,20 +79,42 @@ namespace sistrip {
   static const char pedestalsMin_[]       = "PedestalMin";
 
   // noise
-  static const char noiseAllStrips_[]       = "StripNoise";
-  static const char noiseMean_[]            = "NoiseMean";
-  static const char noiseSpread_[]          = "NoiseRmsSpread";
-  static const char noiseMax_[]             = "NoiseMax";
-  static const char noiseMin_[]             = "NoiseMin";
-  static const char numOfDead_[]            = "NumOfDeadStrips";
-  static const char numOfNoisy_[]           = "NumOfNoisyStrips";
-  static const char noiseKSAllStrips_[]     = "StripNoiseKS";
-  static const char noiseChi2AllStrips_[]   = "StripNoiseChi2";
-  static const char noiseGausAllStrips_[]   = "StripNoiseGaus";
-  static const char noiseBin84AllStrips_[]  = "StripNoiseBin84";
-  static const char noiseRMSAllStrips_[]  	= "StripNoiseRMS";
-  static const char noiseSignif_[]  		= "StripNoiseSignif";
+  static const char noiseAllStrips_[]     = "StripNoise";
+  static const char noiseMean_[]          = "NoiseMean";
+  static const char noiseSpread_[]        = "NoiseRmsSpread";
+  static const char noiseMax_[]           = "NoiseMax";
+  static const char noiseMin_[]           = "NoiseMin";
   
+  static const char numOfDeadStrips_[]        = "NumOfDeadStrips";
+  static const char numOfNoisy_[]             = "NumOfNoisyStrips";
+  static const char numOfBadStrips_[]         = "NumOfBadStrips";
+  static const char numOfBadADProbabStrips_[] = "NumOfBadADProbabStrips";
+  static const char numOfBadKSProbabStrips_[] = "NumOfBadKSProbabStrips";
+  static const char numOfBadJBProbabStrips_[] = "NumOfBadJBProbabStrips";
+  static const char numOfBadChi2ProbabStrips_[] = "NumOfBadChi2ProbabStrips";
+  static const char numOfBadShiftedStrips_[]    = "NumOfBadShfitedStrips";
+  static const char numOfBadLowNoiseStrips_[]   = "NumOfBadLowNoiseStrips";
+  static const char numOfBadLargeNoiseStrips_[] = "NumOfBadLargeNoiseStrips";
+  static const char numOfBadLargeNoiseSignificanceStrips_[] = "NumOfBadLargeNoiseSignificanceStrips";
+  static const char numOfBadTailStrips_[]         = "NumOfBadTailStrips";
+  static const char numOfBadFitStatusStrips_[]    = "NumOfBadFitStatusStrips";
+  static const char numOfBadDoublePeakStrips_[]   = "NumOfBadDoublePeakStrips";
+  
+  static const char badStripBit_[]          = "badStripBit";
+  static const char deadStripBit_[]         = "deadStripBit";
+  static const char adProbabAllStrips_[]    = "adProbabStrips";
+  static const char ksProbabAllStrips_[]    = "ksProbabStrips";
+  static const char jbProbabAllStrips_[]    = "jbProbabStrips";
+  static const char chi2ProbabAllStrips_[]  = "chi2ProbabStrips";
+  static const char residualRMSAllStrips_[]       = "residualRMSStrips";
+  static const char residualSigmaGausAllStrips_[] = "residualSigmaGausStrips";
+  static const char noiseSignificanceAllStrips_[] = "noiseSignificanceStrips";
+  static const char residualMeanAllStrips_[]      = "residualMeanStrips";
+  static const char residualSkewnessAllStrips_[]  = "residualSkewnessStrips";
+  static const char residualKurtosisAllStrips_[]  = "residualKurtosisStrips";
+  static const char residualIntegralNsigmaAllStrips_[]  = "residualIntegralNsigmaStrips";
+  static const char residualIntegralAllStrips_[]  = "residualIntegralStrips";  
+
   // Fine Delay
   static const char fineDelayPos_[]       = "FineDelayPosition";
   static const char fineDelayErr_[]       = "FineDelayError";
@@ -103,26 +124,43 @@ namespace sistrip {
   static const char calibrationTail_[]         = "CalibrationTail";
   static const char calibrationRiseTime_[]     = "CalibrationRiseTime";
   static const char calibrationTimeConstant_[] = "CalibrationTimeConstant";
+  static const char calibrationTurnOn_[]       = "CalibrationTurnOn";
+  static const char calibrationMaximum_[]      = "CalibrationMaximum";
+  static const char calibrationUndershoot_[]   = "CalibrationUndershoot";
+  static const char calibrationBaseline_[]     = "CalibrationBaseline";
   static const char calibrationSmearing_[]     = "CalibrationSmearing";
   static const char calibrationChi2_[]         = "CalibrationChi2";
   static const char calibrationAmplitudeAS_[]    = "StripCalibrationAmplitude";
   static const char calibrationTailAS_[]         = "StripCalibrationTail";
   static const char calibrationRiseTimeAS_[]     = "StripCalibrationRiseTime";
   static const char calibrationTimeConstantAS_[] = "StripCalibrationTimeConstant";
+  static const char calibrationTurnOnAS_[]       = "StripCalibrationTurnOn";
+  static const char calibrationMaximumAS_[]      = "StripCalibrationMaximum";
+  static const char calibrationUndershootAS_[]   = "StripCalibrationUndershoot";
+  static const char calibrationBaselineAS_[]     = "StripCalibrationBaseline";
   static const char calibrationSmearingAS_[]     = "StripCalibrationSmearing";
   static const char calibrationChi2AS_[]         = "StripCalibrationChi2";
   static const char calibrationAmplitudeMin_[]    = "MinCalibrationAmplitude";
   static const char calibrationTailMin_[]         = "MinCalibrationTail";
   static const char calibrationRiseTimeMin_[]     = "MinCalibrationRiseTime";
   static const char calibrationTimeConstantMin_[] = "MinCalibrationTimeConstant";
+  static const char calibrationTurnOnMin_[]       = "MinCalibrationTurnOn";
+  static const char calibrationMaximumMin_[]      = "MinCalibrationMaximum";
+  static const char calibrationUndershootMin_[]   = "MinCalibrationUndershoot";
+  static const char calibrationBaselineMin_[]     = "MinCalibrationBaseline";
   static const char calibrationSmearingMin_[]     = "MinCalibrationSmearing";
   static const char calibrationChi2Min_[]         = "MinCalibrationChi2";
   static const char calibrationAmplitudeMax_[]    = "MaxCalibrationAmplitude";
   static const char calibrationTailMax_[]         = "MaxCalibrationTail";
   static const char calibrationRiseTimeMax_[]     = "MaxCalibrationRiseTime";
   static const char calibrationTimeConstantMax_[] = "MaxCalibrationTimeConstant";
+  static const char calibrationTurnOnMax_[]       = "MaxCalibrationTurnOn";
+  static const char calibrationMaximumMax_[]      = "MaxCalibrationMaximum";
+  static const char calibrationUndershootMax_[]   = "MaxCalibrationUndershoot";
+  static const char calibrationBaselineMax_[]     = "MaxCalibrationBaseline";
   static const char calibrationSmearingMax_[]     = "MaxCalibrationSmearing";
   static const char calibrationChi2Max_[]         = "MaxCalibrationChi2";
+
 
   // daq scope mode
   static const char daqScopeModeMeanSignal_[] = "DaqScopeMode_MeanSignal";
@@ -188,15 +226,39 @@ namespace sistrip {
 		     NOISE_MEAN       = 207, 
 		     NOISE_SPREAD     = 208, 
 		     NOISE_MAX        = 209, 
-		     NOISE_MIN        = 210, 
+		     NOISE_MIN        = 210,
+
+		     /// Bad strip
 		     NUM_OF_DEAD      = 211, 
-		     NUM_OF_NOISY     = 212,
-		     NOISE_KS_ALL_STRIPS 	= 215,
-		     NOISE_GAUS_ALL_STRIPS  = 216,
-		     NOISE_BIN_84_ALL_STRIPS= 217,
-		     NOISE_CHI2_ALL_STRIPS 	= 218,
-		     NOISE_SIGNIF_ALL_STRIPS= 219,
-             NOISE_RMS_ALL_STRIPS 	= 220,
+		     NUM_OF_BAD       = 212,
+		     NUM_OF_NOISY     = 213,
+		     NUM_OF_BAD_SHIFTED = 214,
+		     NUM_OF_BAD_LOW_NOISE = 215,
+		     NUM_OF_BAD_LARGE_NOISE  = 216,
+		     NUM_OF_BAD_LARGE_SIGNIF = 217,
+		     NUM_OF_BAD_FIT_STATUS = 218,
+		     NUM_OF_BAD_AD_PROBAB = 219,
+		     NUM_OF_BAD_KS_PROBAB = 220,
+		     NUM_OF_BAD_JB_PROBAB = 221,
+		     NUM_OF_BAD_CHI2_PROBAB = 222,
+		     NUM_OF_BAD_TAIL = 223,
+		     NUM_OF_BAD_DOUBLE_PEAK = 224,
+		     //
+		     BAD_STRIP_BIT_ALL_STRIPS = 225,
+		     DEAD_STRIP_BIT_ALL_STRIPS = 226,
+		     AD_PROBAB_ALL_STRIPS   = 227,
+		     KS_PROBAB_ALL_STRIPS   = 228,
+		     JB_PROBAB_ALL_STRIPS   = 229,
+		     CHI2_PROBAB_ALL_STRIPS = 230,
+		     RESIDUAL_RMS_ALL_STRIPS = 231,
+		     RESIDUAL_GAUS_ALL_STRIPS = 232,
+		     NOISE_SIGNIFICANCE_ALL_STRIPS= 233,
+		     RESIDUAL_MEAN_ALL_STRIPS = 234,
+		     RESIDUAL_SKEWNESS_ALL_STRIPS = 235,
+		     RESIDUAL_KURTOSIS_ALL_STRIPS = 236,
+		     RESIDUAL_INTEGRALNSIGMA_ALL_STRIPS = 237,
+		     RESIDUAL_INTEGRAL_ALL_STRIPS = 238,
+
 		     FINE_DELAY_POS 		= 601,
 		     FINE_DELAY_ERROR 		= 602,
 
@@ -224,6 +286,22 @@ namespace sistrip {
 		     CALIBRATION_TIMECONSTANT_MAX = 722,
 		     CALIBRATION_SMEARING_MAX     = 723,
 		     CALIBRATION_CHI2_MAX         = 724,
+		     CALIBRATION_TURNON           = 725,
+		     CALIBRATION_MAXIMUM          = 726,
+		     CALIBRATION_UNDERSHOOT       = 727,
+		     CALIBRATION_BASELINE         = 728,
+		     CALIBRATION_TURNON_ALLSTRIPS = 729,
+		     CALIBRATION_MAXIMUM_ALLSTRIPS = 730,
+		     CALIBRATION_UNDERSHOOT_ALLSTRIPS = 731,
+		     CALIBRATION_BASELINE_ALLSTRIPS = 732,
+		     CALIBRATION_TURNON_MIN = 733,
+		     CALIBRATION_MAXIMUM_MIN = 734,
+		     CALIBRATION_UNDERSHOOT_MIN = 735,
+		     CALIBRATION_BASELINE_MIN = 736,
+		     CALIBRATION_TURNON_MAX = 737,
+		     CALIBRATION_MAXIMUM_MAX = 738,
+		     CALIBRATION_UNDERSHOOT_MAX = 739,
+		     CALIBRATION_BASELINE_MAX = 740,
 
 		     DAQ_SCOPE_MODE_MEAN_SIGNAL = 1501
   };

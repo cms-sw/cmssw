@@ -22,6 +22,9 @@ class VpspScanHistosUsingDb : public CommissioningHistosUsingDb, public VpspScan
   void update( SiStripConfigDb::DeviceDescriptionsRange );
   
   void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
+
+  // Perform a selective upload either for or excluding a certain set of FEDs                                                                                                                      
+  bool allowSelectiveUpload_;
   
 };
 
