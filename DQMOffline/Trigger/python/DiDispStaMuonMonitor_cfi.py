@@ -3,31 +3,31 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.DiDispStaMuonMonitoring_cfi import DiDispStaMuonMonitoring
 
 hltDiDispStaMuonMonitoring = DiDispStaMuonMonitoring.clone()
-hltDiDispStaMuonMonitoring.FolderName = cms.string('HLT/EXO/DiDispStaMuon/ppSeed/')
+hltDiDispStaMuonMonitoring.FolderName = cms.string('HLT/EXO/DiDispStaMuon/DoubleL2Mu23NoVtx_2Cha/')
 hltDiDispStaMuonMonitoring.histoPSet.lsPSet = cms.PSet(
   nbins = cms.uint32 ( 250 ),
   xmin  = cms.double(    0.),
   xmax  = cms.double( 2500.),
 )
 hltDiDispStaMuonMonitoring.histoPSet.muonPtPSet = cms.PSet(
-    nbins = cms.uint32(100),
+    nbins = cms.uint32(25),
     xmin  = cms.double(-0.5),
-    xmax  = cms.double(999.5),
+    xmax  = cms.double(99.5),
     )
 hltDiDispStaMuonMonitoring.histoPSet.muonEtaPSet = cms.PSet(
-    nbins = cms.uint32(100),
-    xmin  = cms.double(-5.),
-    xmax  = cms.double(5.),
+    nbins = cms.uint32(24),
+    xmin  = cms.double(-2.4),
+    xmax  = cms.double(2.4),
     )
 hltDiDispStaMuonMonitoring.histoPSet.muonPhiPSet = cms.PSet(
-    nbins = cms.uint32(64),
+    nbins = cms.uint32(24),
     xmin  = cms.double(-3.2),
     xmax  = cms.double(3.2),
     )
 hltDiDispStaMuonMonitoring.histoPSet.muonDxyPSet = cms.PSet(
-    nbins = cms.uint32(50),
-    xmin  = cms.double(-120.),
-    xmax  = cms.double(120.),
+    nbins = cms.uint32(25),
+    xmin  = cms.double(-60.),
+    xmax  = cms.double(60.),
     )
 
 hltDiDispStaMuonMonitoring.muons     = cms.InputTag("displacedStandAloneMuons")
@@ -42,7 +42,7 @@ hltDiDispStaMuonMonitoring.muonSelection = cms.PSet(
 hltDiDispStaMuonMonitoring.numGenericTriggerEventPSet.andOr         = cms.bool( False )
 #hltDiDispStaMuonMonitoring.numGenericTriggerEventPSet.dbLabel       = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !                                                                                                           
 hltDiDispStaMuonMonitoring.numGenericTriggerEventPSet.andOrHlt      = cms.bool(True)# True:=OR; False:=AND 
-hltDiDispStaMuonMonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::HLT" )
+hltDiDispStaMuonMonitoring.numGenericTriggerEventPSet.hltInputTag   = cms.InputTag( "TriggerResults::reHLT" )
 hltDiDispStaMuonMonitoring.numGenericTriggerEventPSet.hltPaths      = cms.vstring("HLT_DoubleL2Mu23NoVtx_2Cha_v*") # HLT_ZeroBias_v*
 hltDiDispStaMuonMonitoring.numGenericTriggerEventPSet.errorReplyHlt = cms.bool( False )
 hltDiDispStaMuonMonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
