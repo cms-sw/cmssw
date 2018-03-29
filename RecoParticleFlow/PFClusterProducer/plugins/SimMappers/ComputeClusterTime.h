@@ -16,7 +16,7 @@
 
 
 
-namespace hgcalSimClusterTime {
+namespace hgcalsimclustertime {
 
   //time-interval based on that ~210ps wide and with the highest number of hits
   float fixSizeHighestDensity(std::vector<float>& t, float deltaT=0.210 /*time window in ns*/, float timeWidthBy=0.5){
