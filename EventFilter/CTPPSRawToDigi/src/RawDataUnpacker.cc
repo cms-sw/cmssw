@@ -9,6 +9,7 @@
 
 #include "EventFilter/CTPPSRawToDigi/interface/RawDataUnpacker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 //----------------------------------------------------------------------------------------------------
 
