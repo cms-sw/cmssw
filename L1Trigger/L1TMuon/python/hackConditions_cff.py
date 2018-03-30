@@ -28,5 +28,5 @@ if stage2L1Trigger.isChosen():
     from L1Trigger.L1TTwinMux.fakeTwinMuxParams_cff import *
     from L1Trigger.L1TMuonBarrel.fakeBmtfParams_cff import *
     from L1Trigger.L1TMuonOverlap.fakeOmtfParams_cff import *
-    from L1Trigger.L1TMuonEndCap.fakeEmtfParams_cff import *
+    #from L1Trigger.L1TMuonEndCap.fakeEmtfParams_cff import *
     from L1Trigger.L1TMuon.fakeGmtParams_cff import *
