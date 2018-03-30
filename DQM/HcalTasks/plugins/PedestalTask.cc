@@ -8,7 +8,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	//	tags
 	_tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE",
 		edm::InputTag("hcalDigis"));
-	_tagHEP17 = ps.getUntrackedParameter<edm::InputTag>("tagHEP17",
+	_tagHE = ps.getUntrackedParameter<edm::InputTag>("tagHE",
 		edm::InputTag("hcalDigis"));
 	_tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO",
 		edm::InputTag("hcalDigis"));
@@ -19,7 +19,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN",
 		edm::InputTag("hcalDigis"));
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
-	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHEP17);
+	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHE);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
 	_tokHF = consumes<QIE10DigiCollection>(_tagHF);
 	_tokTrigger = consumes<HcalTBTriggerData>(_tagTrigger);
@@ -858,7 +858,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 			+ _tagHF.label() + " " + _tagHF.instance());
 	if (!e.getByToken(_tokHEP17, chep17))
 		_logger.dqmthrow("Collection QIE11DigiCollection isn't available"
-			+ _tagHEP17.label() + " " + _tagHEP17.instance());
+			+ _tagHE.label() + " " + _tagHE.instance());
 
 	int nHB(0), nHE(0), nHO(0), nHF(0);
 	for (HBHEDigiCollection::const_iterator it=chbhe->begin();

@@ -12,7 +12,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	//	tags
 	_tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE",
 		edm::InputTag("hcalDigis"));
-	_tagHEP17 = ps.getUntrackedParameter<edm::InputTag>("tagHEP17",
+	_tagHE = ps.getUntrackedParameter<edm::InputTag>("tagHE",
 		edm::InputTag("hcalDigis"));
 	_tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO",
 		edm::InputTag("hcalDigis"));
@@ -21,7 +21,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN",
 		edm::InputTag("hcalDigis"));
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
-	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHEP17);
+	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHE);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
 	_tokHF = consumes<QIE10DigiCollection>(_tagHF);
 	_tokuMN = consumes<HcalUMNioDigi>(_taguMN);
@@ -66,7 +66,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	//	INITIALIZE
 	_cSignalMean_Subdet.initialize(_name, "SignalMean",
 		hcaldqm::hashfunctions::fSubdet, 
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_100000Coarse),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 	_cSignalRMS_Subdet.initialize(_name, "SignalRMS",
 		hcaldqm::hashfunctions::fSubdet, 
@@ -91,12 +91,12 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			hcaldqm::hashfunctions::fFED,
 			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
 			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberVMEFiberCh),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),0);
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_100000Coarse),0);
 		_cSignalMean_FEDuTCA.initialize(_name, "SignalMean",
 			hcaldqm::hashfunctions::fFED,
 			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSlotuTCA),
 			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fFiberuTCAFiberCh),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),0);
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_100000Coarse),0);
 		_cSignalRMS_FEDVME.initialize(_name, "SignalRMS",
 			hcaldqm::hashfunctions::fFED,
 			new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fSpigot),
@@ -162,7 +162,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		hcaldqm::hashfunctions::fdepth, 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta), 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::ffC_3000),0);
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_100000Coarse),0);
 	_cSignalRMS_depth.initialize(_name, "SignalRMS",
 		hcaldqm::hashfunctions::fdepth, 
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta), 
@@ -293,11 +293,6 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		HcalDetId did = HcalDetId(it->rawId());
 		HcalElectronicsId eid(_ehashmap.lookup(*it));
 		int n = _xEntries.get(did);
-		double msig = _xSignalSum.get(did)/n; 
-		double mtim = _xTimingSum.get(did)/n;
-		double rsig = sqrt(_xSignalSum2.get(did)/n-msig*msig);
-		double rtim = sqrt(_xTimingSum2.get(did)/n-mtim*mtim);
-
 		//	channels missing or low signal
 		if (n==0)
 		{
@@ -310,6 +305,12 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			}
 			continue;
 		}
+
+		double msig = _xSignalSum.get(did)/n; 
+		double mtim = _xTimingSum.get(did)/n;
+		double rsig = sqrt(_xSignalSum2.get(did)/n-msig*msig);
+		double rtim = sqrt(_xTimingSum2.get(did)/n-mtim*mtim);
+
 		_cSignalMean_Subdet.fill(did, msig);
 		_cSignalMean_depth.fill(did, msig);
 		_cSignalRMS_Subdet.fill(did, rsig);
@@ -350,7 +351,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			+ _tagHBHE.label() + " " + _tagHBHE.instance());
 	if (!e.getByToken(_tokHEP17, chep17))
 		_logger.dqmthrow("Collection QIE11DigiCollection isn't available "
-			+ _tagHEP17.label() + " " + _tagHEP17.instance());
+			+ _tagHE.label() + " " + _tagHE.instance());
 	if (!e.getByToken(_tokHO, cho))
 		_logger.dqmthrow("Collection HODigiCollection isn't available "
 			+ _tagHO.label() + " " + _tagHO.instance());
