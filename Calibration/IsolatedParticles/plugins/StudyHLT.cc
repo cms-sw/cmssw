@@ -104,7 +104,7 @@ private:
 		const edm::Handle<reco::GenParticleCollection>&);
 
   // ----------member data ---------------------------
-  static const int                 nPBin_=10, nEtaBin_=4, nPVBin_=4;
+  static const int                 nPBin_=15, nEtaBin_=4, nPVBin_=4;
   static const int                 nGen_=(nPVBin_+12);
   HLTConfigProvider                hltConfig_;
   edm::Service<TFileService>       fs_;
@@ -113,7 +113,7 @@ private:
   const std::string                theTrackQuality_;
   const double                     minTrackP_, maxTrackEta_;
   const double                     tMinE_, tMaxE_, tMinH_, tMaxH_;
-  const bool                       isItAOD_, doTree_;
+  const bool                       isItAOD_, vetoTrigger_, doTree_;
   const std::vector<double>        puWeights_;
   const edm::InputTag              triggerEvent_, theTriggerResultsLabel_;
   spr::trackSelectionParameters    selectionParameters_;
@@ -135,8 +135,8 @@ private:
   TH1I                      *h_goodPV, *h_goodRun;
   TH2I                      *h_nHLTvsRN;
   std::vector<TH1I*>         h_HLTAccepts;
-  TH1D                      *h_p[nGen_+2],   *h_pt[nGen_+2];
-  TH1D                      *h_eta[nGen_+2], *h_phi[nGen_+2];
+  TH1D                      *h_p[nGen_+2],   *h_pt[nGen_+2], *h_counter[8];
+  TH1D                      *h_eta[nGen_+2], *h_phi[nGen_+2], *h_h_pNew[8];
   TH1I                      *h_ntrk[2];
   TH1D                      *h_maxNearP[2], *h_ene1[2], *h_ene2[2], *h_ediff[2];
   TH1D                      *h_energy[nPVBin_+8][nPBin_][nEtaBin_][6];
@@ -166,6 +166,7 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) :
   tMinH_(iConfig.getUntrackedParameter<double>("timeMinCutHCAL",-500.)),
   tMaxH_(iConfig.getUntrackedParameter<double>("timeMaxCutHCAL",500.)),
   isItAOD_(iConfig.getUntrackedParameter<bool>("isItAOD",false)),
+  vetoTrigger_(iConfig.getUntrackedParameter<bool>("vetoTrigger",false)),
   doTree_(iConfig.getUntrackedParameter<bool>("doTree",false)),
   puWeights_(iConfig.getUntrackedParameter<std::vector<double> >("puWeights")),
   triggerEvent_(edm::InputTag("hltTriggerSummaryAOD","","HLT")),
@@ -221,9 +222,11 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) :
 			   << minTrackP_ << " maxTrackEta " << maxTrackEta_
 			   << " tMinE_ " << tMinE_ << " tMaxE " << tMaxE_ 
 			   << " tMinH_ " << tMinH_ << " tMaxH_ " << tMaxH_ 
-			   << " isItAOD " << isItAOD_ << " doTree " << doTree_;
+			   << " isItAOD " << isItAOD_ << " doTree " << doTree_
+			   << " vetoTrigger " << vetoTrigger_;
 
-  double pBins[nPBin_+1] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,9.0,11.0,15.0,20.0};
+  double pBins[nPBin_+1] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,9.0,11.0,15.0,20.0,
+			    25.0,30.0,40.0,60.0,100.0};
   int    etaBins[nEtaBin_+1] = {1, 7, 13, 17, 23};
   int    pvBins[nPVBin_+1] = {1, 2, 3, 5, 100};
   for (int i=0; i<=nPBin_; ++i)   pBin_[i]   = pBins[i];
@@ -262,6 +265,7 @@ void StudyHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.addUntracked<double>("timeMinCutHCAL",-500.0);
   desc.addUntracked<double>("timeMaxCutHCAL", 500.0);
   desc.addUntracked<bool>("isItAOD",          false);
+  desc.addUntracked<bool>("vetoTrigger",      false);
   desc.addUntracked<bool>("doTree",           false);
   desc.addUntracked<std::vector<double> >("puWeights", weights);
   descriptions.add("studyHLT",desc);
@@ -269,6 +273,14 @@ void StudyHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
 void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
   clear();
+  int counter0[1000] = {0};
+  int counter1[1000] = {0};
+  int counter2[1000] = {0};
+  int counter3[1000] = {0};
+  int counter4[1000] = {0};
+  int counter5[1000] = {0};
+  int counter6[1000] = {0};
+  int counter7[1000] = {0};
   if (verbosity_ > 0) 
     edm::LogInfo("IsoTrack") << "Event starts===================================="; 
   int RunNo = iEvent.id().run();
@@ -310,8 +322,6 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
       const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);      
       const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
       for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
-	//        unsigned int triggerindx = hltConfig_.triggerIndex(triggerNames_[iHLT]);
-	//        const std::vector<std::string>& moduleLabels(hltConfig_.moduleLabels(triggerindx));
         int ipos=-1;
 	std::string newtriggerName = truncate_str(triggerNames_[iHLT]);
 	for (unsigned int i=0; i<HLTNames_.size(); ++i) {
@@ -350,6 +360,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	      }
 	    }
 	  }
+	  if (vetoTrigger_) ok = !ok;
 	  for (unsigned int i=0; i<newNames_.size(); ++i) {
 	    if (newtriggerName.find(newNames_[i]) != std::string::npos) {
 	      if (verbosity_%10 > 0)
@@ -470,6 +481,10 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
       bool quality       = pTrack->quality(selectionParameters_.minQuality);
       fillTrack(0, pt1,p1,eta1,phi1);
       if (quality) fillTrack(1, pt1,p1,eta1,phi1);
+      if (p1<1000) {
+	h_h_pNew[0]->Fill(p1);
+	++counter0[(int)(p1)];
+      }
     }
     h_ntrk[0]->Fill(ntrk,tr_eventWeight);
 
@@ -568,15 +583,53 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 		    fillTrack(nPVBin_+trackID+7, pt1,p1,eta1,phi1);
 		    fillEnergy(nPVBin_+trackID+3,ieta,p1,e7x7P.first,h3x3,e11x11P.first,h5x5);
 		  }
+		  if (p1<1000) {
+		    h_h_pNew[7]->Fill(p1);
+		    ++counter7[(int)(p1)];
+		  }
+		}
+		if (p1<1000) {
+		  h_h_pNew[6]->Fill(p1);
+		  ++counter6[(int)(p1)];
 		}
 	      }
+	      if (p1<1000) {
+		h_h_pNew[5]->Fill(p1);
+		++counter5[(int)(p1)];
+	      }
+	    }
+	    if (p1<1000) {
+	      h_h_pNew[4]->Fill(p1);
+	      ++counter4[(int)(p1)];
 	    }
 	  }
+	  if (p1<1000) {
+	    h_h_pNew[3]->Fill(p1);
+	    ++counter3[(int)(p1)];
+	  }
 	}
+	if (p1<1000) {
+	  h_h_pNew[2]->Fill(p1);
+	  ++counter2[(int)(p1)];
+	}
+      }
+      if (p1<1000) {
+	h_h_pNew[1]->Fill(p1);
+	++counter1[(int)(p1)];
       }
     }
     h_ntrk[1]->Fill(ntrk,tr_eventWeight);
     if ((!tr_TrkPt.empty()) && doTree_) tree_->Fill();
+    for (int i=0; i <1000; ++i) {
+      if (counter0[i]) h_counter[0]->Fill(i, counter0[i]);
+      if (counter1[i]) h_counter[1]->Fill(i, counter1[i]);
+      if (counter2[i]) h_counter[2]->Fill(i, counter2[i]);
+      if (counter3[i]) h_counter[3]->Fill(i, counter3[i]);
+      if (counter4[i]) h_counter[4]->Fill(i, counter4[i]);
+      if (counter5[i]) h_counter[5]->Fill(i, counter5[i]);
+      if (counter6[i]) h_counter[6]->Fill(i, counter6[i]);
+      if (counter7[i]) h_counter[7]->Fill(i, counter7[i]);
+    }
   }
   firstEvent_ = false;
 }
@@ -709,11 +762,20 @@ void StudyHLT::beginJob() {
 		    (etaBin_[ie+1]-1), particle[i-4-nPVBin_].c_str(),
 		    TrkNames[7].c_str());
 	  }
-	  h_energy[i][ip][ie][j] = fs_->make<TH1D>(hname, htit, 500, -0.1, 4.9);
+	  h_energy[i][ip][ie][j] = fs_->make<TH1D>(hname, htit, 5000,-0.1,49.9);
 	  h_energy[i][ip][ie][j]->Sumw2();
 	}
       }
     }
+  }
+
+  for (int i=0; i<8; ++i) {
+    sprintf(hname,"counter%d",i);
+    sprintf(htit,"Counter with cut %d",i);
+    h_counter[i] = fs_->make<TH1D>(hname, htit, 1000, 0, 1000);
+    sprintf(hname,"h_pTNew%d",i);
+    sprintf(htit,"Track momentum with cut %d",i);
+    h_h_pNew[i] = fs_->make<TH1D>(hname, htit, 1000, 0, 1000);
   }
 
   // Now the tree
