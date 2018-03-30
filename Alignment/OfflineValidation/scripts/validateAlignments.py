@@ -297,7 +297,7 @@ def createMergeScript( path, validations, options ):
     for validation in validations:
         for referenceName in validation.filesToCompare:
             validationtype = type(validation)
-            if isinstance(validationtype, PreexistingValidation):
+            if issubclass(validationtype, PreexistingValidation):
                 #find the actual validationtype
                 for parentclass in validationtype.mro():
                     if not issubclass(parentclass, PreexistingValidation):
