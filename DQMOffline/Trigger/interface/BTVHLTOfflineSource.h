@@ -25,6 +25,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
+#include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
@@ -72,6 +73,12 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   edm::EDGetTokenT <edm::TriggerResults> triggerResultsFUToken;
   edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
   edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryFUToken;
+
+  edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenCalo_;
+  edm::EDGetTokenT<std::vector<reco::ShallowTagInfo> > shallowTagInfosTokenPf_;
+
+  edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosCalo;
+  edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosPf;
 
   edm::EDGetTokenT<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > >
        csvCaloTagInfosToken_;

@@ -49,6 +49,8 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
   triggerResultsToken     = consumes <edm::TriggerResults>   (triggerResultsLabel_);
   triggerSummaryFUToken   = consumes <trigger::TriggerEvent> (edm::InputTag(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(),std::string("FU")));
   triggerResultsFUToken   = consumes <edm::TriggerResults>   (edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(),std::string("FU")));
+  shallowTagInfosTokenCalo_ = consumes<vector<reco::ShallowTagInfo> > (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfosCalo"));
+  shallowTagInfosTokenPf_   = consumes<vector<reco::ShallowTagInfo> > (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfos"));
   csvCaloTagInfosToken_   = consumes<vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > > (
                                 edm::InputTag("hltInclusiveSecondaryVertexFinderTagInfos"));
   csvPfTagInfosToken_     = consumes<vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > > (
@@ -181,37 +183,6 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         }
       }
 
-      iEvent.getByToken(csvPfTagInfosToken_, csvPfTagInfos);
-      if (csvPfTagInfos.isValid() && v.getTriggerType() == "PF") {
-
-        // loop over secondary vertex tag infos
-        for (const auto & csvPfTagInfo : *csvPfTagInfos) {
-          v.getMEhisto_n_vtx()->Fill(csvPfTagInfo.nVertexCandidates());
-          v.getMEhisto_n_sel_tracks()->Fill(csvPfTagInfo.nSelectedTracks());
-
-          // loop over selected tracks in each tag info
-          for (unsigned i_trk=0; i_trk < csvPfTagInfo.nSelectedTracks(); i_trk++) {
-            const auto & ip3d = csvPfTagInfo.trackIPData(i_trk).ip3d;
-            v.getMEhisto_h_3d_ip_distance()->Fill(ip3d.value());
-            v.getMEhisto_h_3d_ip_error()->Fill(ip3d.error());
-            v.getMEhisto_h_3d_ip_sig()->Fill(ip3d.significance());
-          }
-
-          // loop over vertex candidates in each tag info
-          for (unsigned i_sv=0; i_sv < csvPfTagInfo.nVertexCandidates(); i_sv++) {
-            const auto & sv = csvPfTagInfo.secondaryVertex(i_sv);
-            v.getMEhisto_vtx_mass()->Fill(sv.p4().mass());
-            v.getMEhisto_n_vtx_trks()->Fill(sv.nTracks());
-
-            // loop over tracks for number of pixel and total hits
-            const auto & trkIPTagInfo = csvPfTagInfo.trackIPTagInfoRef().get();
-            for (const auto & trk : trkIPTagInfo->selectedTracks()) {
-              v.getMEhisto_n_pixel_hits()->Fill(trk.get()->hitPattern().numberOfValidPixelHits());
-              v.getMEhisto_n_total_hits()->Fill(trk.get()->hitPattern().numberOfValidHits());
-            }
-          }
-        }
-      }
 
      // Calo b-tagging
      if (csvCaloTags.isValid() && v.getTriggerType() == "Calo" && !csvCaloTags->empty())
@@ -256,30 +227,83 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
       }
 
+      // additional plots from tag info collections
+      /////////////////////////////////////////////
+
+      iEvent.getByToken(shallowTagInfosTokenPf_, shallowTagInfosPf);
+      iEvent.getByToken(csvPfTagInfosToken_, csvPfTagInfos);
+      iEvent.getByToken(shallowTagInfosTokenCalo_, shallowTagInfosCalo);
       iEvent.getByToken(csvCaloTagInfosToken_, csvCaloTagInfos);
-      if (csvCaloTagInfos.isValid() && v.getTriggerType() == "Calo") {
+
+      // first try to get info from shallowTagInfos ...
+      if (   (v.getTriggerType() == "PF"   && shallowTagInfosPf.isValid())
+          || (v.getTriggerType() == "Calo" && shallowTagInfosCalo.isValid()) )
+      {
+        const auto & shallowTagInfoCollection = (v.getTriggerType() == "PF") ? shallowTagInfosPf : shallowTagInfosCalo;
+        for (const auto & shallowTagInfo : *shallowTagInfoCollection) {
+          const auto & tagVars = shallowTagInfo.taggingVariables();
+
+          // n secondary vertices and n selected tracks
+          for (const auto & tagVar : tagVars.getList(reco::btau::jetNSecondaryVertices, false)) {
+            v.getMEhisto_n_vtx()->Fill(tagVar);
+          }
+          for (const auto & tagVar : tagVars.getList(reco::btau::jetNSelectedTracks, false)) {
+            v.getMEhisto_n_sel_tracks()->Fill(tagVar);}
+
+          // impact parameter
+          const auto & trackSip3dVal = tagVars.getList(reco::btau::trackSip3dVal, false);
+          const auto & trackSip3dSig = tagVars.getList(reco::btau::trackSip3dSig, false);
+          for (unsigned i_trk=0; i_trk < trackSip3dVal.size(); i_trk++) {
+            float val = trackSip3dVal[i_trk];
+            float sig = trackSip3dSig[i_trk];
+            v.getMEhisto_h_3d_ip_distance()->Fill(val);
+            v.getMEhisto_h_3d_ip_error()->Fill(val/sig);
+            v.getMEhisto_h_3d_ip_sig()->Fill(sig);
+          }
+
+          // vertex mass and tracks per vertex
+          for (const auto & tagVar : tagVars.getList(reco::btau::vertexMass, false)) {
+            v.getMEhisto_vtx_mass()->Fill(tagVar);}
+          for (const auto & tagVar : tagVars.getList(reco::btau::vertexNTracks, false)) {
+            if (tagVar > 0.) {
+              v.getMEhisto_n_vtx_trks()->Fill(tagVar);}}
+
+          // track N total/pixel hits
+          for (const auto & tagVar : tagVars.getList(reco::btau::trackNPixelHits, false)) {
+            v.getMEhisto_n_pixel_hits()->Fill(tagVar);}
+          for (const auto & tagVar : tagVars.getList(reco::btau::trackNTotalHits, false)) {
+            v.getMEhisto_n_total_hits()->Fill(tagVar);}
+        }
+      }
+
+      // ... otherwise from usual tag infos.
+      else
+      if (   (v.getTriggerType() == "PF"   && csvPfTagInfos.isValid())
+          || (v.getTriggerType() == "Calo" && csvCaloTagInfos.isValid()) )
+      {
+        const auto & csvTagInfoCollection = (v.getTriggerType() == "PF") ? csvPfTagInfos : csvCaloTagInfos;
 
         // loop over secondary vertex tag infos
-        for (const auto & csvCaloTagInfo : *csvCaloTagInfos) {
-          v.getMEhisto_n_vtx()->Fill(csvCaloTagInfo.nVertexCandidates());
-          v.getMEhisto_n_sel_tracks()->Fill(csvCaloTagInfo.nSelectedTracks());
+        for (const auto & csvTagInfo : *csvTagInfoCollection) {
+          v.getMEhisto_n_vtx()->Fill(csvTagInfo.nVertexCandidates());
+          v.getMEhisto_n_sel_tracks()->Fill(csvTagInfo.nSelectedTracks());
 
           // loop over selected tracks in each tag info
-          for (unsigned i_trk=0; i_trk < csvCaloTagInfo.nSelectedTracks(); i_trk++) {
-            const auto & ip3d = csvCaloTagInfo.trackIPData(i_trk).ip3d;
+          for (unsigned i_trk=0; i_trk < csvTagInfo.nSelectedTracks(); i_trk++) {
+            const auto & ip3d = csvTagInfo.trackIPData(i_trk).ip3d;
             v.getMEhisto_h_3d_ip_distance()->Fill(ip3d.value());
             v.getMEhisto_h_3d_ip_error()->Fill(ip3d.error());
             v.getMEhisto_h_3d_ip_sig()->Fill(ip3d.significance());
           }
 
           // loop over vertex candidates in each tag info
-          for (unsigned i_sv=0; i_sv < csvCaloTagInfo.nVertexCandidates(); i_sv++) {
-            const auto & sv = csvCaloTagInfo.secondaryVertex(i_sv);
+          for (unsigned i_sv=0; i_sv < csvTagInfo.nVertexCandidates(); i_sv++) {
+            const auto & sv = csvTagInfo.secondaryVertex(i_sv);
             v.getMEhisto_vtx_mass()->Fill(sv.p4().mass());
             v.getMEhisto_n_vtx_trks()->Fill(sv.nTracks());
 
             // loop over tracks for number of pixel and total hits
-            const auto & trkIPTagInfo = csvCaloTagInfo.trackIPTagInfoRef().get();
+            const auto & trkIPTagInfo = csvTagInfo.trackIPTagInfoRef().get();
             for (const auto & trk : trkIPTagInfo->selectedTracks()) {
               v.getMEhisto_n_pixel_hits()->Fill(trk.get()->hitPattern().numberOfValidPixelHits());
               v.getMEhisto_n_total_hits()->Fill(trk.get()->hitPattern().numberOfValidHits());
@@ -287,7 +311,6 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           }
         }
       }
-
 
     }
    }
