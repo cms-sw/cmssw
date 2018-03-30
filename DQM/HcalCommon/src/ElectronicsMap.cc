@@ -20,7 +20,7 @@ namespace hcaldqm
 					for (std::vector<HcalElectronicsId>::const_iterator it=
 						eids.begin(); it!=eids.end(); ++it)
 					{
-						HcalGenericDetId did = HcalGenericDetId(
+						HcalDetId did = HcalDetId(
 							_emap->lookup(*it));
 						EMapType::iterator dit = _ids.find(did.rawId());
 						if (dit!=_ids.end())
@@ -56,7 +56,7 @@ namespace hcaldqm
 					for (std::vector<HcalElectronicsId>::const_iterator
 						it=eids.begin(); it!=eids.end(); ++it)
 					{
-						HcalGenericDetId did = HcalGenericDetId(_emap->lookup(*it));
+						HcalDetId did = HcalDetId(_emap->lookup(*it));
 						uint32_t hash = it->rawId();
 						EMapType::iterator eit = _ids.find(hash);
 						if (eit!=_ids.end())
@@ -107,7 +107,7 @@ namespace hcaldqm
 					for (std::vector<HcalElectronicsId>::const_iterator it=
 						eids.begin(); it!=eids.end(); ++it)
 					{
-						HcalGenericDetId did = HcalGenericDetId(
+						HcalDetId did = HcalDetId(
 							_emap->lookup(*it));
 						if (filter.filter(*it))
 							continue;
@@ -138,7 +138,7 @@ namespace hcaldqm
 					for (std::vector<HcalElectronicsId>::const_iterator it=
 						eids.begin(); it!=eids.end(); ++it)
 					{
-						HcalGenericDetId did = HcalGenericDetId(
+						HcalDetId did = HcalDetId(
 							_emap->lookup(*it));
 						uint32_t hash = hashfunctions::hash_EChannel(
 							*it);
