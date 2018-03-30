@@ -246,11 +246,12 @@ void DeepDoubleBTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
       db_tensor_filler(input_tensors.at(kGlobal).second, jet_bn, features);
 
       /*
-	if (features.jet_features.pt > 200 && std::abs(features.jet_features.eta) < 2.4) {
+      if (features.jet_features.pt > 200 && std::abs(features.jet_features.eta) < 2.4) {
 	std::cout << "db tensor" << std::endl;
 	std::cout<< (input_tensors.at(kGlobal).second).tensor<float, (3)>() << std::endl;
-      }
+	}
       */
+      
         
       // c_pf candidates
       auto max_c_pf_n = std::min(features.c_pf_features.size(),
@@ -269,6 +270,7 @@ void DeepDoubleBTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
 	std::cout<< (input_tensors.at(kChargedCandidates).second).tensor<float, (3)>() << std::endl;
       }
       */
+      
       // sv candidates
       auto max_sv_n = std::min(features.sv_features.size(),
         (std::size_t) input_sizes.at(kVertices).dim_size(1));
@@ -283,6 +285,7 @@ void DeepDoubleBTFJetTagsProducer::produce(edm::Event& iEvent, const edm::EventS
 	std::cout<< (input_tensors.at(kVertices).second).tensor<float, (3)>() << std::endl;
       }
       */
+      
     }
     // run the session
     std::vector<tensorflow::Tensor> outputs;
