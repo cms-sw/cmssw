@@ -726,11 +726,13 @@ namespace ecaldqm
         case kEB:
           xbin = 4 * ((iDCC - 9) % 18) + (isEBm ? towerid - 1 : 68 - towerid) % 4 + 1;
           ybin = (towerid - 1) / 4 * (isEBm ? -1 : 1) + (isEBm ? 18 : 17);
+          nbinsX = 72;
           break;
         case kSM:
         case kEBSM:
           xbin = (towerid - 1) / 4 + 1;
           ybin = (isEBm ? towerid - 1 : 68 - towerid) % 4 + 1;
+          nbinsX = 17;
           break;
         default:
           break;
