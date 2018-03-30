@@ -34,6 +34,19 @@ DoubleMu48NoFiltersNoVtx_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vs
 DoubleMu48NoFiltersNoVtx_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
 
 
+
+DoubleMu33NoFiltersNoVtxDisplaced_monitoring = hltMuonmonitoring.clone()
+DoubleMu33NoFiltersNoVtxDisplaced_monitoring.FolderName = cms.string('HLT/EXO/DoubleMu33NoFiltersNoVtxDisplaced/')
+DoubleMu33NoFiltersNoVtxDisplaced_monitoring.nmuons = cms.uint32(2)
+DoubleMu33NoFiltersNoVtxDisplaced_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleMu33NoFiltersNoVtxDisplaced_v*")
+DoubleMu33NoFiltersNoVtxDisplaced_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
+DoubleMu40NoFiltersNoVtxDisplaced_monitoring = hltMuonmonitoring.clone()
+DoubleMu40NoFiltersNoVtxDisplaced_monitoring.FolderName = cms.string('HLT/EXO/DoubleMu40NoFiltersNoVtxDisplaced/')
+DoubleMu40NoFiltersNoVtxDisplaced_monitoring.nmuons = cms.uint32(2)
+DoubleMu40NoFiltersNoVtxDisplaced_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleMu40NoFiltersNoVtxDisplaced_v*")
+DoubleMu40NoFiltersNoVtxDisplaced_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
 #--------------------------------------------------
 DoubleL2Mu23NoVtx_2Cha_monitoring = hltMuonmonitoring.clone()
 DoubleL2Mu23NoVtx_2Cha_monitoring.FolderName = cms.string('HLT/EXO/DoubleL2Mu23NoVtx_2Cha/')
@@ -108,18 +121,84 @@ Mu48NoFiltersNoVtx_Photon48_CaloIdL_EleLeg_monitoring.denGenericTriggerEventPSet
 
 
 
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_monitoring = hltMuonmonitoring.clone()
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_monitoring.FolderName = cms.string('HLT/EXO/Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL/')
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_monitoring.nmuons = cms.uint32(1)
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_monitoring.nelectrons = cms.uint32(1)
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_v*")
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
+
+
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_MuLeg_monitoring = hltMuonmonitoring.clone()
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_MuLeg_monitoring.FolderName = cms.string('HLT/EXO/Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_MuLeg/')
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_MuLeg_monitoring.nmuons = cms.uint32(1)
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_MuLeg_monitoring.nelectrons = cms.uint32(1)
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_MuLeg_monitoring.eleSelection = cms.string('pt > 38')
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_MuLeg_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_v*")
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_MuLeg_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
+
+
+
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_EleLeg_monitoring = hltMuonmonitoring.clone()
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_EleLeg_monitoring.FolderName = cms.string('HLT/EXO/Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_EleLeg/')
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_EleLeg_monitoring.nmuons = cms.uint32(1)
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_EleLeg_monitoring.nelectrons = cms.uint32(1)
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_EleLeg_monitoring.muonSelection = cms.string('pt > 38')
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_EleLeg_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_v*")
+Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_EleLeg_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
+
+
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_monitoring = hltMuonmonitoring.clone()
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_monitoring.FolderName = cms.string('HLT/EXO/Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL/')
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_monitoring.nmuons = cms.uint32(1)
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_monitoring.nelectrons = cms.uint32(1)
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_v*")
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
+
+
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_MuLeg_monitoring = hltMuonmonitoring.clone()
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_MuLeg_monitoring.FolderName = cms.string('HLT/EXO/Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_MuLeg/')
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_MuLeg_monitoring.nmuons = cms.uint32(1)
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_MuLeg_monitoring.nelectrons = cms.uint32(1)
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_MuLeg_monitoring.eleSelection = cms.string('pt > 43')
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_MuLeg_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_v*")
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_MuLeg_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
+
+
+
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_EleLeg_monitoring = hltMuonmonitoring.clone()
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_EleLeg_monitoring.FolderName = cms.string('HLT/EXO/Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_EleLeg/')
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_EleLeg_monitoring.nmuons = cms.uint32(1)
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_EleLeg_monitoring.nelectrons = cms.uint32(1)
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_EleLeg_monitoring.muonSelection = cms.string('pt > 43')
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_EleLeg_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_v*")
+Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_EleLeg_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
 exoHLTMuonmonitoring = cms.Sequence(
     TrkMu12_DoubleTrkMu5NoFiltersNoVtx_monitoring 
     + TrkMu16_DoubleTrkMu6NoFiltersNoVtx_monitoring
     + TrkMu17_DoubleTrkMu8NoFiltersNoVtx_monitoring
     + DoubleMu43NoFiltersNoVtx_monitoring
-    + Mu43NoFiltersNoVtx_Photon43_CaloIdL_monitoring
     + DoubleMu48NoFiltersNoVtx_monitoring
+    + DoubleMu33NoFiltersNoVtxDisplaced_monitoring
+    + DoubleMu40NoFiltersNoVtxDisplaced_monitoring
+    + Mu43NoFiltersNoVtx_Photon43_CaloIdL_monitoring
     + Mu48NoFiltersNoVtx_Photon48_CaloIdL_monitoring
     + Mu43NoFiltersNoVtx_Photon43_CaloIdL_MuLeg_monitoring
     + Mu48NoFiltersNoVtx_Photon48_CaloIdL_MuLeg_monitoring
     + Mu43NoFiltersNoVtx_Photon43_CaloIdL_EleLeg_monitoring
     + Mu48NoFiltersNoVtx_Photon48_CaloIdL_EleLeg_monitoring
+    + Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_monitoring
+    + Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_monitoring
+    + Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_MuLeg_monitoring
+    + Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_MuLeg_monitoring
+    + Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_EleLeg_monitoring
+    + Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_EleLeg_monitoring
     + DoubleL2Mu23NoVtx_2Cha_monitoring
     + DoubleL2Mu23NoVtx_2Cha_CosmicSeed_monitoring
 )
