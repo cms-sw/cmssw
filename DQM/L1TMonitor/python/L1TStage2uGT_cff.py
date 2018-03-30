@@ -14,6 +14,7 @@ l1tStage2uGMTOutVsuGTIn = DQMEDAnalyzer(
     muonCollection1Title = cms.untracked.string("uGMT output muons"),
     muonCollection2Title = cms.untracked.string("uGT input muons"),
     summaryTitle = cms.untracked.string("Summary of comparison between uGMT output muons and uGT input muons"),
+    ignoreBin = cms.untracked.vint32([1]), # ignore the BX range bin
     verbose = cms.untracked.bool(False),
 )
 
