@@ -1,4 +1,3 @@
-
 #include "DQM/HcalTasks/interface/LaserTask.h"
 
 using namespace hcaldqm;
@@ -21,7 +20,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	_taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN",
 		edm::InputTag("hcalDigis"));
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
-	_tokHEP17 = consumes<QIE11DigiCollection>(_tagHE);
+	_tokHE = consumes<QIE11DigiCollection>(_tagHE);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
 	_tokHF = consumes<QIE10DigiCollection>(_tagHF);
 	_tokuMN = consumes<HcalUMNioDigi>(_taguMN);
@@ -29,7 +28,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	//	constants
 	_lowHBHE = ps.getUntrackedParameter<double>("lowHBHE",
 		20);
-	_lowHEP17 = ps.getUntrackedParameter<double>("lowHEP17",
+	_lowHE = ps.getUntrackedParameter<double>("lowHE",
 		20);
 	_lowHO = ps.getUntrackedParameter<double>("lowHO",
 		20);
@@ -342,14 +341,14 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 	edm::EventSetup const& es)
 {
 	edm::Handle<HBHEDigiCollection>		chbhe;
-	edm::Handle<QIE11DigiCollection>		chep17;
+	edm::Handle<QIE11DigiCollection>		cHE;
 	edm::Handle<HODigiCollection>		cho;
 	edm::Handle<QIE10DigiCollection>		chf;
 
 	if (!e.getByToken(_tokHBHE, chbhe))
 		_logger.dqmthrow("Collection HBHEDigiCollection isn't available "
 			+ _tagHBHE.label() + " " + _tagHBHE.instance());
-	if (!e.getByToken(_tokHEP17, chep17))
+	if (!e.getByToken(_tokHE, cHE))
 		_logger.dqmthrow("Collection QIE11DigiCollection isn't available "
 			+ _tagHE.label() + " " + _tagHE.instance());
 	if (!e.getByToken(_tokHO, cho))
@@ -405,7 +404,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
 		}
 	}
-	for (QIE11DigiCollection::const_iterator it=chep17->begin(); it!=chep17->end();
+	for (QIE11DigiCollection::const_iterator it=cHE->begin(); it!=cHE->end();
 		++it)
 	{
 		const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
@@ -419,7 +418,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
 		//double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.samples()-1);
 		double sumQ = hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
-		if (sumQ<_lowHEP17)
+		if (sumQ<_lowHE)
 			continue;
 
 
