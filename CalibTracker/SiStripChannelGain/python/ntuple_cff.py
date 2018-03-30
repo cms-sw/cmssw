@@ -6,29 +6,23 @@ from CalibTracker.SiStripCommon.ShallowGainCalibration_cfi import *
 from CalibTracker.SiStripCommon.SiStripBFieldFilter_cfi import *
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import *
-AAGFilter = triggerResultsFilter.clone(
-#                       triggerConditions = cms.vstring("HLT_ZeroBias_*"),
-                        triggerConditions = cms.vstring("HLT_ZeroBias_FirstCollisionAfterAbortGap_*"),
-                        hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
-                        l1tResults = cms.InputTag( "" ),
-                        throw = cms.bool(False)
-                   )
+AAGFilter = triggerResultsFilter.clone(triggerConditions = cms.vstring("HLT_ZeroBias_FirstCollisionAfterAbortGap_*"),
+                                       hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+                                       l1tResults = cms.InputTag( "" ),
+                                       throw = cms.bool(False)
+                                       )
 
-IsolatedMuonFilter = triggerResultsFilter.clone(
-#                       triggerConditions = cms.vstring("HLT_ZeroBias_*"),
-                        triggerConditions = cms.vstring("HLT_IsoMu20_*"),
-                        hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
-                        l1tResults = cms.InputTag( "" ),
-                        throw = cms.bool(False)
-                   )
+IsolatedMuonFilter = triggerResultsFilter.clone(triggerConditions = cms.vstring("HLT_IsoMu20_*"),
+                                                hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+                                                l1tResults = cms.InputTag( "" ),
+                                                throw = cms.bool(False)
+                                                )
 
-ZeroBiasFilter = triggerResultsFilter.clone(
-#                       triggerConditions = cms.vstring("HLT_ZeroBias_*"),
-                        triggerConditions = cms.vstring("HLT_ZeroBias_*"),
-                        hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
-                        l1tResults = cms.InputTag( "" ),
-                        throw = cms.bool(False)
-                   )
+ZeroBiasFilter = triggerResultsFilter.clone(triggerConditions = cms.vstring("HLT_ZeroBias_*",),
+                                            hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
+                                            l1tResults = cms.InputTag( "" ),
+                                            throw = cms.bool(False)
+                                            )
 
 
 OfflineChannelGainOutputCommands =  [
@@ -65,10 +59,10 @@ gainCalibrationTreeIsoMuon0T.outputCommands += OfflineChannelGainOutputCommands
 
 inputDataSequence = cms.Sequence( shallowEventRun + shallowTracks + shallowGainCalibration )
 
-OfflineGainNtuple_StdBunch = cms.Sequence( ZeroBiasFilter + siStripBFieldOnFilter + 
+OfflineGainNtuple_StdBunch = cms.Sequence( ZeroBiasFilter + ~AAGFilter + siStripBFieldOnFilter + 
                                            inputDataSequence * gainCalibrationTreeStdBunch )
 
-OfflineGainNtuple_StdBunch0T = cms.Sequence( ZeroBiasFilter + siStripBFieldOffFilter + 
+OfflineGainNtuple_StdBunch0T = cms.Sequence( ZeroBiasFilter + ~AAGFilter + siStripBFieldOffFilter + 
                                            inputDataSequence * gainCalibrationTreeStdBunch0T )
 
 OfflineGainNtuple_AagBunch = cms.Sequence( siStripBFieldOnFilter + AAGFilter +
@@ -77,10 +71,10 @@ OfflineGainNtuple_AagBunch = cms.Sequence( siStripBFieldOnFilter + AAGFilter +
 OfflineGainNtuple_AagBunch0T = cms.Sequence( siStripBFieldOffFilter + AAGFilter +
                                              inputDataSequence * gainCalibrationTreeAagBunch0T )
 
-OfflineGainNtuple_IsoMuon = cms.Sequence( siStripBFieldOnFilter + AAGFilter +
+OfflineGainNtuple_IsoMuon = cms.Sequence( siStripBFieldOnFilter + IsolatedMuonFilter +
                                            inputDataSequence * gainCalibrationTreeIsoMuon )
 
-OfflineGainNtuple_IsoMuon0T = cms.Sequence( siStripBFieldOffFilter + AAGFilter +
+OfflineGainNtuple_IsoMuon0T = cms.Sequence( siStripBFieldOffFilter + IsolatedMuonFilter +
                                              inputDataSequence * gainCalibrationTreeIsoMuon0T )
 
 #OfflineGainNtuple = cms.Sequence( (shallowEventRun+
