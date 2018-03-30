@@ -4,6 +4,8 @@ DisplacedMuEGPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
         "HLT_Mu43NoFiltersNoVtx_Photon43_CaloIdL_v", # 2017 displaced e-mu (main)
         "HLT_Mu48NoFiltersNoVtx_Photon48_CaloIdL_v", # 2017 displaced e-mu (backup)
+        "HLT_Mu38NoFiltersNoVtxDisplaced_Photon38_CaloIdL_v", # 2017 displaced e-mu, muon with dxy> 0.01cm (main)
+        "HLT_Mu43NoFiltersNoVtxDisplaced_Photon43_CaloIdL_v", # 2017 displaced e-mu, muon with dxy> 0.01cm (backup)
         ),
     recElecLabel  = cms.InputTag("gedGsfElectrons"),
     recMuonLabel  = cms.InputTag("muons"),
