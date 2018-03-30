@@ -93,6 +93,8 @@ TopMonitor::TopMonitor( const edm::ParameterSet& iConfig ) :
   , invMassCutInAllMuPairs_ (iConfig.getParameter<bool>("invMassCutInAllMuPairs"))
   //Menglei
   , enablePhotonPlot_ ( iConfig.getParameter<bool>("enablePhotonPlot")  )
+  //Mateusz
+  , enableMETplot_(iConfig.getParameter<bool>("enableMETplot"))
 {
 
     std::string metcut_str = iConfig.getParameter<std::string>("metSelection");
@@ -163,7 +165,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string currentFolder = folderName_ ;
   ibooker.setCurrentFolder(currentFolder);
 
-  if (applyMETcut_){
+  if (applyMETcut_ || enableMETplot_){
 
       histname = "met"; histtitle = "PFMET";
       bookME(ibooker,metME_,histname,histtitle,met_binning_.nbins,met_binning_.xmin, met_binning_.xmax);
@@ -553,7 +555,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   edm::Handle<reco::PFMETCollection> metHandle;
   iEvent.getByToken( metToken_, metHandle );
-  if (!metHandle.isValid() && applyMETcut_){
+  if (!metHandle.isValid() && (applyMETcut_ || enableMETplot_)){
       edm::LogWarning("TopMonitor") << "MET handle not valid \n";
       return;
   }
@@ -561,7 +563,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   float met = 0;
   float phi = 0;
 
-  if (applyMETcut_){
+  if (applyMETcut_ || enableMETplot_){
       reco::PFMET pfmet = metHandle->front();
       if ( ! metSelection_( pfmet ) ) return;
       met = pfmet.pt();
@@ -741,7 +743,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   int ls = iEvent.id().luminosityBlock();
 
   // filling histograms (denominator)
-  if (applyMETcut_){
+  if (applyMETcut_ || enableMETplot_){
       metME_.denominator -> Fill(met);
       metME_variableBinning_.denominator -> Fill(met);
       metPhiME_.denominator -> Fill(phi);
@@ -884,7 +886,7 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
   // filling histograms (num_genTriggerEventFlag_)
 
-  if (applyMETcut_>0){
+  if (applyMETcut_>0 || enableMETplot_){
       metME_.numerator -> Fill(met);
       metME_variableBinning_.numerator -> Fill(met);
       metPhiME_.numerator -> Fill(phi);
@@ -1069,6 +1071,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
   desc.add<bool>("invMassCutInAllMuPairs",false);
   //Menglei
   desc.add<bool>("enablePhotonPlot",  false);
+  //Mateusz
+  desc.add<bool>("enableMETplot",  false);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
