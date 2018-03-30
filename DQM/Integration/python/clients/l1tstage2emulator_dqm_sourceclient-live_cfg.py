@@ -140,6 +140,9 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.gtStage2Digis.InputLabel = cms.InputTag("rawDataRepacker")
     process.selfFatEventFilter.rawInput = cms.InputTag("rawDataRepacker")
 
+process.valGtStage2Digis.EmulateBxInEvent = cms.int32(5)
+process.valGtStage2Digis.PrescaleSet = cms.uint32(7)
+
 #--------------------------------------------------
 # L1T Emulator Online DQM Schedule
 
