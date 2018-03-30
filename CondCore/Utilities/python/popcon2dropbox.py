@@ -9,8 +9,8 @@ import logging
 from datetime import datetime
 
 errorInImportFileFolder = 'import_errors'
-dateformatForFolder = "%y-%m-%d-%H-%M-%S"
-dateformatForLabel = "%y-%m-%d %H:%M:%S"
+dateformatForFolder = "%Y-%m-%d-%H-%M-%S"
+dateformatForLabel = "%Y-%m-%d %H:%M:%S"
 
 auth_path_key = 'COND_AUTH_PATH'
 
@@ -129,8 +129,11 @@ def copy( args, dbName ):
     if destDb.lower() in destMap.keys():
         destDb = destMap[destDb.lower()]
     else:
-        logger.error( 'Destination connection %s is not supported.' %destDb )
-        return 
+        if destDb.startswith('sqlite'):
+            destDb = destDb.split(':')[1]
+        else:
+            logger.error( 'Destination connection %s is not supported.' %destDb )
+            return 
     # run the copy
     note = '"Importing data with O2O execution"'
     commandOptions = '--force --yes --db %s copy %s %s --destdb %s --synchronize --note %s' %(dbFileName,destTag,destTag,destDb,note)
@@ -180,10 +183,10 @@ def run( args ):
        return retCode
 
     ret = checkFile( dbName )
-    if ret < 0:
-        return ret
-    elif ret == 0:
-        return 0
-    if args.copy:
-        return copy( args, dbName )
-    return upload( args, dbName )
+    if ret > 0:
+        if args.copy:
+            ret = copy( args, dbName )
+        else:
+            ret = upload( args, dbName )
+    os.remove( '%s.db' %dbName )
+    return ret
