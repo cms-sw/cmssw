@@ -121,3 +121,6 @@ DEFINE_FWK_MODULE(L1TStage2uGTCaloLayer2Comp);
 
 #include "DQM/L1TMonitor/interface/L1TdeStage2CaloLayer2.h"
 DEFINE_FWK_MODULE(L1TdeStage2CaloLayer2);
+
+#include <DQM/L1TMonitor/interface/L1TdeStage2uGT.h>
+DEFINE_FWK_MODULE(L1TdeStage2uGT);
