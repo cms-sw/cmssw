@@ -757,6 +757,10 @@ namespace edm {
     }
   }
 
+  void NoProcessProductResolver::resetFailedFromThisProcess() {
+    resetProductData_(false);
+  }
+
   namespace {
     class TryNextResolverWaitingTask : public edm::WaitingTask {
     public:
