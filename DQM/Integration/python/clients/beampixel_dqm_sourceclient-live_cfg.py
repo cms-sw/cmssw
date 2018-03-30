@@ -127,8 +127,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
     process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(src = 'siPixelClustersPreSplitting')
+    process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
     process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
-    process.recopixelvertexing = cms.Sequence(process.pixelTracksSequence + process.pixelVertices)
     process.pixelVertices.TkFilterParameters.minPt = process.pixelTracksTrackingRegions.RegionPSet.ptMin
     process.pixelTracksTrackingRegions.RegionPSet.originRadius     = 0.4
     process.pixelTracksTrackingRegions.RegionPSet.originHalfLength = 15.
