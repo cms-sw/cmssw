@@ -28,7 +28,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 	//	constants
 	_lowHBHE = ps.getUntrackedParameter<double>("lowHBHE",
 		20);
-	_lowHE = ps.getUntrackedParameter<double>("lowQIE11",
+	_lowHE = ps.getUntrackedParameter<double>("lowHE",
 		20);
 	_lowHO = ps.getUntrackedParameter<double>("lowHO",
 		20);
