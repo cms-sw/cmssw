@@ -83,6 +83,7 @@ l1tStage2uGMTZeroSuppFatEvts.monitorDir = cms.untracked.string("L1T/L1TStage2uGM
 # List of bins to ignore
 ignoreBins = {
     'Bmtf' : [1],
+    'Omtf' : [1],
     'Emtf' : [1]
     }
 
@@ -110,6 +111,7 @@ l1tStage2OmtfOutVsuGMTIn = cms.EDAnalyzer(
     regionalMuonCollection1Title = cms.untracked.string("OMTF output data"),
     regionalMuonCollection2Title = cms.untracked.string("uGMT input data from OMTF"),
     summaryTitle = cms.untracked.string("Summary of comparison between OMTF output muons and uGMT input muons from OMTF"),
+    ignoreBin = cms.untracked.vint32(ignoreBins['Omtf']),
     verbose = cms.untracked.bool(False),
 )
 

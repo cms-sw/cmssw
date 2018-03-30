@@ -58,6 +58,7 @@ l1tStage2OmtfOutVsuGMTInRatioClient.monitorDir = cms.untracked.string(ugmtDqmDir
 l1tStage2OmtfOutVsuGMTInRatioClient.inputNum = cms.untracked.string(ugmtDqmDir+'/OMTFoutput_vs_uGMTinput/'+errHistNumStr)
 l1tStage2OmtfOutVsuGMTInRatioClient.inputDen = cms.untracked.string(ugmtDqmDir+'/OMTFoutput_vs_uGMTinput/'+errHistDenStr)
 l1tStage2OmtfOutVsuGMTInRatioClient.ratioTitle = cms.untracked.string('Summary of mismatch rates between OMTF output muons and uGMT input muons from OMTF')
+l1tStage2OmtfOutVsuGMTInRatioClient.ignoreBin = cms.untracked.vint32(ignoreBins['Omtf'])
 
 l1tStage2EmtfOutVsuGMTInRatioClient = l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient.clone()
 l1tStage2EmtfOutVsuGMTInRatioClient.monitorDir = cms.untracked.string(ugmtDqmDir+'/EMTFoutput_vs_uGMTinput')
