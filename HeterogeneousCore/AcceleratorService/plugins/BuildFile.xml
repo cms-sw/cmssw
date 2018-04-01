@@ -1,0 +1,4 @@
+<library file="*.cc" name="HeterogeneousCoreAcceleratorServicePlugins">
+  <use   name="HeterogeneousCore/AcceleratorService"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
