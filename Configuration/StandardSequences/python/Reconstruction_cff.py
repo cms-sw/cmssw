@@ -12,10 +12,12 @@ from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
+from Configuration.ProcessModifiers.gpu_cff import gpu
 
 siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
     src = 'siPixelClustersPreSplitting'
-    )
+)
+gpu.toModify(siPixelClusterShapeCachePreSplitting, src = "siPixelDigis")
 
 # Global  reco
 from RecoEcal.Configuration.RecoEcal_cff import *
