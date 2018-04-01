@@ -80,8 +80,8 @@ private:
    std::vector<std::string> prescaledAlgoShortList_; 
 
    // Booking of histograms for the module
-   std::vector<std::pair<std::string,int>> unprescaledAlgoBit_;
-   std::vector<std::pair<std::string,int>> prescaledAlgoBit_; 
+   std::vector<std::pair<std::string,int>> unprescaledAlgoBitName_;
+   std::vector<std::pair<std::string,int>> prescaledAlgoBitName_; 
 
    // Algorithm bits
    MonitorElement* algoBits_before_bxmask_;
