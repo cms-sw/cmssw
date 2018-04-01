@@ -67,15 +67,12 @@ void CaloTowersValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
 
 	//These the single pion scan histos
 	//-------------------------------------------------------------------------------------------
-	//The first three are not used
-	if (useAllHistos_){
-		sprintf  (histo, "emean_vs_ieta_E" );
-		emean_vs_ieta_E = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
-		sprintf  (histo, "emean_vs_ieta_H" );
-		emean_vs_ieta_H = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
-		sprintf  (histo, "emean_vs_ieta_EH" );
-		emean_vs_ieta_EH = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
-	}
+	sprintf  (histo, "emean_vs_ieta_E" );
+	emean_vs_ieta_E = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
+	sprintf  (histo, "emean_vs_ieta_H" );
+	emean_vs_ieta_H = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
+	sprintf  (histo, "emean_vs_ieta_EH" );
+	emean_vs_ieta_EH = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
 	//These are drawn
 	sprintf  (histo, "emean_vs_ieta_E1" );
 	emean_vs_ieta_E1 = ibooker.bookProfile(histo, histo, 83, -41.5, 41.5, -100., 2000., " ");
@@ -721,12 +718,10 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 
 	} // end of Towers cycle 
 
-	//These are the six single pion histos; only the second set is used
-	if (useAllHistos_){
-		emean_vs_ieta_E  -> Fill(double(ieta_MC), Econe); 
-		emean_vs_ieta_H  -> Fill(double(ieta_MC), Hcone); 
-		emean_vs_ieta_EH -> Fill(double(ieta_MC), Econe+Hcone); 
-	}
+	//These are the six single pion histos
+	emean_vs_ieta_E  -> Fill(double(ieta_MC), Econe); 
+	emean_vs_ieta_H  -> Fill(double(ieta_MC), Hcone); 
+	emean_vs_ieta_EH -> Fill(double(ieta_MC), Econe+Hcone); 
 	emean_vs_ieta_E1  -> Fill(double(ieta_MC), Ee1); 
 	emean_vs_ieta_H1  -> Fill(double(ieta_MC), Eh1); 
 	emean_vs_ieta_EH1 -> Fill(double(ieta_MC), Ee1+Eh1); 
