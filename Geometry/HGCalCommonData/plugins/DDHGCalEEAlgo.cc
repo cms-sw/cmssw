@@ -21,7 +21,7 @@ DDHGCalEEAlgo::DDHGCalEEAlgo() {
 #endif
 }
 
-DDHGCalEEAlgo::~DDHGCalEEAlgo() {}
+DDHGCalEEAlgo::~DDHGCalEEAlgo() { }
 
 void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
 			       const DDVectorArguments & vArgs,
@@ -87,17 +87,24 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
 				  << layerSense_[i];
 #endif
   zMinBlock_    = nArgs["zMinBlock"];
-  rMaxFine_     = nArgs["rMaxFine"];
-  rMinThick_    = nArgs["rMinThick"];
+  rad100to200_  = vArgs["rad100to200"];
+  rad200to300_  = vArgs["rad200to300"];
+  zMinRadPar_   = nArgs["zMinForRadPar"];
+  nCutRadPar_   = (int)(nArgs["nCornerCut"]);
   waferSize_    = nArgs["waferSize"];
   waferSepar_   = nArgs["SensorSeparation"];
   sectors_      = (int)(nArgs["Sectors"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "zStart " << zMinBlock_ << " rFineCoarse " 
-				<< rMaxFine_ << " rMaxThick " << rMinThick_
+  edm::LogVerbatim("HGCalGeom") << "zStart " << zMinBlock_ 
+				<< " radius for wafer type separation uses "
+				<< rad100to200_.size() << " parameters; zmin "
+				<< zMinRadPar_ << " cutoff " << nCutRadPar_
 				<< " wafer width " << waferSize_ 
 				<< " separations " << waferSepar_
 				<< " sectors " << sectors_;
+  for (unsigned int k=0; k<rad100to200_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] 100-200 " <<rad100to200_[k]
+				  << " 200-300 " << rad200to300_[k];
 #endif
   slopeB_       = vArgs["SlopeBottom"];
   slopeT_       = vArgs["SlopeTop"];
@@ -116,6 +123,10 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: NameSpace " << nameSpace_;
 #endif
+
+  waferType_ = std::make_unique<HGCalWaferType>(rad100to200_, rad200to300_,
+						(waferSize_+waferSepar_), 
+						zMinRadPar_, nCutRadPar_);
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -217,7 +228,7 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
 				      << " and position " << glog.name() 
 				      << " number " << copy;
 #endif
-	positionSensitive(glog,rinB,routF,layerSense_[ly],cpv);
+	positionSensitive(glog,rinB,routF,zz,layerSense_[ly],cpv);
       }
       DDTranslation r1(0,0,zz);
       DDRotation rot;
@@ -233,7 +244,7 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module,
     } // End of loop over layers in a block
     zi     = zo;
     laymin = laymax;
-    if (fabs(thickTot-layerThick_[i]) < 0.00001) {
+    if (std::abs(thickTot-layerThick_[i]) < 0.00001) {
     } else if (thickTot > layerThick_[i]) {
       edm::LogError("HGCalGeom") << "Thickness of the partition " 
 				 << layerThick_[i] << " is smaller than "
@@ -267,7 +278,7 @@ double DDHGCalEEAlgo::rMax(double z) {
 }
 
 void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
-				      double rout, int layertype,
+				      double rout, double zpos, int layertype,
 				      DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
   double r    = 0.5*(waferSize_ + waferSepar_);
@@ -306,7 +317,8 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
       ++ntot;
 #endif
       if (cornerOne) {
-	int copy = iv*100 + iu;
+	int type = waferType_->getType(xpos,ypos,zpos);
+	int copy = type*1000000 + iv*100 + iu;
 	if (u < 0) copy += 10000;
 	if (v < 0) copy += 100000;
 #ifdef EDM_ML_DEBUG
@@ -321,10 +333,8 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog, double rin,
 	  if (iv > ivmAll) ivmAll = iv;
 	  ++nin;
 #endif
-	  double rpos = std::sqrt(xpos*xpos+ypos*ypos);
 	  DDTranslation tran(xpos, ypos, 0.0);
 	  DDRotation rotation;
-	  int type = (rpos < rMaxFine_) ? 0 : ((rpos < rMinThick_) ? 1 : 2);
 	  if (layertype > 1) type += 3;
 	  DDName name = DDName(DDSplit(wafers_[type]).first, 
 			       DDSplit(wafers_[type]).second);
