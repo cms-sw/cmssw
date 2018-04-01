@@ -6,32 +6,41 @@
 TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap):
   HistoNumber(35)
 {
-  LogTrace("TkHistoMap") <<"TkHistoMap::constructor without parameters";   
+  LogTrace("TkHistoMap") <<"TkHistoMap::constructor without parameters";
   load(tkDetMap, "", 0.0f, false, false, false);
 }
 
 TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap, const std::string& path, const std::string& MapName, float baseline, bool mechanicalView):
-  HistoNumber(35), 
+  HistoNumber(35),
   MapName_(MapName)
 {
-  LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters";   
+  LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters";
   load(tkDetMap, path, baseline, mechanicalView, false);
+  dqmStore_->meBookerGetter([this, &path, &baseline, mechanicalView](DQMStore::IBooker& ibooker,
+                                                                     DQMStore::IGetter&){
+      this->createTkHistoMap(ibooker, path, MapName_, baseline, mechanicalView);
+    });
 }
 
 TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap, const std::string& path, const std::string& MapName, float baseline, bool mechanicalView, bool isTH2F):
   HistoNumber(35),
   MapName_(MapName)
 {
-  LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters";   
+  LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters";
   load(tkDetMap, path, baseline, mechanicalView, isTH2F);
+  dqmStore_->meBookerGetter([this, &path, &baseline, mechanicalView](DQMStore::IBooker& ibooker,
+                                                                     DQMStore::IGetter&){
+      this->createTkHistoMap(ibooker, path, MapName_, baseline, mechanicalView);
+    });
 }
 
 TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap, DQMStore::IBooker& ibooker, const std::string& path, const std::string& MapName, float baseline, bool mechanicalView):
   HistoNumber(35),
   MapName_(MapName)
 {
-  LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters"; 
+  LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters";
   load(tkDetMap, path, baseline, mechanicalView, false);
+  createTkHistoMap(ibooker, path, MapName_, baseline, mechanicalView);
 }
 
 void TkHistoMap::load(const TkDetMap* tkDetMap, const std::string& path, float baseline, bool mechanicalView, bool isTH2F, bool createTkMap)
@@ -41,7 +50,6 @@ void TkHistoMap::load(const TkDetMap* tkDetMap, const std::string& path, float b
   loadServices();
   tkdetmap_ = tkDetMap;
   isTH2F_ = isTH2F;
-  if (createTkMap) createTkHistoMap(path, MapName_, baseline, mechanicalView);
 }
 
 void TkHistoMap::loadServices(){
@@ -51,12 +59,8 @@ void TkHistoMap::loadServices(){
       "\nUnAvailable Service DQMStore: please insert in the configuration file an instance like"
       "\n\tprocess.load(\"DQMServices.Core.DQMStore_cfg\")"
       "\n------------------------------------------";
-  }  
+  }
   dqmStore_ = edm::Service<DQMStore>().operator->();
-  dqmStore_->meBookerGetter([this](DQMStore::IBooker &b, DQMStore::IGetter &g){
-    this->ibooker_ = &b;
-    this->igetter_ = &g;
-  });
 }
 
 void TkHistoMap::save(const std::string& filename){
@@ -66,24 +70,27 @@ void TkHistoMap::save(const std::string& filename){
 
 void TkHistoMap::loadTkHistoMap(const std::string& path, const std::string& MapName, bool mechanicalView){
   MapName_=MapName;
-  std::string fullName, folder;
   tkHistoMap_.resize(HistoNumber);
-  for(int layer=1;layer<HistoNumber;++layer){
-    folder=folderDefinition(path, MapName_, layer, mechanicalView, fullName);
-
+  auto loadMap = [this, &path, mechanicalView](DQMStore::IBooker& ibooker,
+                                               DQMStore::IGetter& igetter) {
+    std::string fullName, folder;
+    for (int layer=1;layer<HistoNumber;++layer) {
+      folder=folderDefinition(ibooker, path, MapName_, layer, mechanicalView, fullName);
 #ifdef debug_TkHistoMap
-    LogTrace("TkHistoMap")  << "[TkHistoMap::loadTkHistoMap] folder " << folder << " histoName " << fullName << " find " << folder.find_last_of("/") << "  length " << folder.length();
+      LogTrace("TkHistoMap")  << "[TkHistoMap::loadTkHistoMap] folder " << folder << " histoName " << fullName << " find " << folder.find_last_of("/") << "  length " << folder.length();
 #endif
-    if(folder.find_last_of("/")!=folder.length()-1)
-      folder+="/";
-    tkHistoMap_[layer]=igetter_->get(folder+fullName);
+      if (folder.find_last_of("/")!=folder.length()-1)
+        folder+="/";
+      tkHistoMap_[layer]=igetter.get(folder+fullName);
 #ifdef debug_TkHistoMap
-    LogTrace("TkHistoMap")  << "[TkHistoMap::loadTkHistoMap] folder " << folder << " histoName " << fullName << " layer " << layer << " ptr " << tkHistoMap_[layer] << " find " << folder.find_last_of("/") << "  length " << folder.length();
+      LogTrace("TkHistoMap")  << "[TkHistoMap::loadTkHistoMap] folder " << folder << " histoName " << fullName << " layer " << layer << " ptr " << tkHistoMap_[layer] << " find " << folder.find_last_of("/") << "  length " << folder.length();
 #endif
-  }
+    }
+  };
+  dqmStore_->meBookerGetter(loadMap);
 }
 
-void TkHistoMap::createTkHistoMap(const std::string& path, const std::string& MapName, float baseline, bool mechanicalView){
+void TkHistoMap::createTkHistoMap(DQMStore::IBooker& ibooker, const std::string& path, const std::string& MapName, float baseline, bool mechanicalView){
 
   int nchX;
   int nchY;
@@ -94,17 +101,17 @@ void TkHistoMap::createTkHistoMap(const std::string& path, const std::string& Ma
   tkHistoMap_.resize(HistoNumber);
   const bool bookTH2F = isTH2F_;
   for(int layer=1;layer<HistoNumber;++layer){
-    folder=folderDefinition(path, MapName,layer,mechanicalView,fullName);
+    folder=folderDefinition(ibooker, path, MapName,layer,mechanicalView,fullName);
     tkdetmap_->getComponents(layer,nchX,lowX,highX,nchY,lowY,highY);
     MonitorElement* me;
     if(bookTH2F==false){
-	      me  = ibooker_->bookProfile2D(fullName.c_str(),fullName.c_str(),
+              me  = ibooker.bookProfile2D(fullName.c_str(),fullName.c_str(),
                                     nchX,lowX,highX,
                                     nchY,lowY,highY,
                                     0.0, 0.0);
     }
     else{
-        me  = ibooker_->book2D(fullName.c_str(),fullName.c_str(),
+        me  = ibooker.book2D(fullName.c_str(),fullName.c_str(),
                               nchX,lowX,highX,
                               nchY,lowY,highY);
     }
@@ -123,11 +130,10 @@ void TkHistoMap::createTkHistoMap(const std::string& path, const std::string& Ma
   }
 }
 
-std::string TkHistoMap::folderDefinition(std::string folder, const std::string& MapName, int layer , bool mechanicalView,std::string& fullName ){
+std::string TkHistoMap::folderDefinition(DQMStore::IBooker& ibooker, std::string folder, const std::string& MapName, int layer , bool mechanicalView,std::string& fullName ){
 
   std::string name = MapName+std::string("_");
   fullName=name+TkDetMap::getLayerName(layer);
-  //  std::cout << "[TkHistoMap::folderDefinition] fullName: " << fullName << std::endl;
 
   if(mechanicalView){
     std::stringstream ss;
@@ -140,9 +146,8 @@ std::string TkHistoMap::folderDefinition(std::string folder, const std::string& 
     TkDetMap::getSubDetLayerSide(layer,subDet,subdetlayer,side);
     folderOrg.getSubDetLayerFolderName(ss,subDet,subdetlayer,side);
     folder = ss.str();
-    //    std::cout << "[TkHistoMap::folderDefinition] folder: " << folder << std::endl;
   }
-  ibooker_->setCurrentFolder(folder);
+  ibooker.setCurrentFolder(folder);
   return folder;
 }
 
