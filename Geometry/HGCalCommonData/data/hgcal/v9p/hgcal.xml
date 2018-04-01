@@ -23,22 +23,22 @@
   <Constant name="rad200300P4"          value="-1.64217E+04"/>
   <Constant name="zMinForRadPar"        value="330.0*cm"/>
   <Constant name="NCornerCut"           value="2"/>
-  <Constant name="radMixL0"             value="1365.0*mm"/>
-  <Constant name="radMixL1"             value="1304.0*mm"/>
-  <Constant name="radMixL2"             value="1190.0*mm"/>
-  <Constant name="radMixL3"             value="1190.0*mm"/>
-  <Constant name="radMixL4"             value="1147.0*mm"/>
-  <Constant name="radMixL5"             value="1051.0*mm"/>
-  <Constant name="radMixL6"             value="902.0*mm"/>
-  <Constant name="radMixL7"             value="902.0*mm"/>
-  <Constant name="radMixL8"             value="902.0*mm"/>
-  <Constant name="radMixL9"             value="902.0*mm"/>
-  <Constant name="radMixL10"            value="902.0*mm"/>
-  <Constant name="radMixL11"            value="902.0*mm"/>
-  <Constant name="radMixL12"            value="902.0*mm"/>
-  <Constant name="radMixL13"            value="902.0*mm"/>
-  <Constant name="radMixL14"            value="902.0*mm"/>
-  <Constant name="radMixL15"            value="902.0*mm"/>
+  <Constant name="radMixL0"             value="1462.9*mm"/>
+  <Constant name="radMixL1"             value="1424.1*mm"/>
+  <Constant name="radMixL2"             value="1300.6*mm"/>
+  <Constant name="radMixL3"             value="1300.6*mm"/>
+  <Constant name="radMixL4"             value="1267.8*mm"/>
+  <Constant name="radMixL5"             value="1139.7*mm"/>
+  <Constant name="radMixL6"             value="981.0*mm"/>
+  <Constant name="radMixL7"             value="981.0*mm"/>
+  <Constant name="radMixL8"             value="981.0*mm"/>
+  <Constant name="radMixL9"             value="981.0*mm"/>
+  <Constant name="radMixL10"            value="981.0*mm"/>
+  <Constant name="radMixL11"            value="981.0*mm"/>
+  <Constant name="radMixL12"            value="981.0*mm"/>
+  <Constant name="radMixL13"            value="981.0*mm"/>
+  <Constant name="radMixL14"            value="981.0*mm"/>
+  <Constant name="radMixL15"            value="981.0*mm"/>
   <Constant name="slope2"               value="tan(19.3*deg)"/>
   <Constant name="slope3"               value="tan(53.0*deg)"/>
   <Constant name="zHGCal1"              value="3170.0*mm"/>
