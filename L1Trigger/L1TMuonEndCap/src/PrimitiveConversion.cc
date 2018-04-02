@@ -446,7 +446,7 @@ void PrimitiveConversion::convert_rpc(
   int tp_station   = tp_detId.station();    // 1 - 4
   int tp_ring      = tp_detId.ring();       // 2 - 3 (increasing theta)
   int tp_roll      = tp_detId.roll();       // 1 - 3 (decreasing theta; aka A - C; space between rolls is 9 - 15 in theta_fp)
-  // int tp_layer     = tp_detId.layer();
+  //int tp_layer     = tp_detId.layer();
 
   int tp_bx        = tp_data.bx;
   int tp_strip     = ((tp_data.strip_low + tp_data.strip_hi) / 2);  // in full-strip unit
@@ -533,8 +533,8 @@ void PrimitiveConversion::convert_rpc_details(EMTFHit& conv_hit) const {
   const int pc_chamber = conv_hit.PC_chamber();
   const int pc_segment = conv_hit.PC_segment();
 
-  // const int fw_endcap  = (endcap_-1);
-  // const int fw_sector  = (sector_-1);
+  //const int fw_endcap  = (endcap_-1);
+  //const int fw_sector  = (sector_-1);
   const int fw_station = (conv_hit.Station() == 1) ? (is_neighbor ? 0 : pc_station) : conv_hit.Station();
 
   int fw_cscid = pc_chamber;
@@ -613,7 +613,7 @@ void PrimitiveConversion::convert_gem(
   int tp_station   = tp_detId.station();
   int tp_ring      = tp_detId.ring();
   int tp_roll      = tp_detId.roll();
-  // int tp_layer     = tp_detId.layer();
+  //int tp_layer     = tp_detId.layer();
   int tp_chamber   = tp_detId.chamber();
 
   int tp_bx        = tp_data.bx;
