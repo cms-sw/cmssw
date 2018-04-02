@@ -48,6 +48,8 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
   bool doInnerSeeding_;
   double trackChi2_, trackResX_, trackResY_;
+
+  multimap<float,const GEMChamber*> detLayerMap_;
   
 private:
   int iev; // events through
@@ -55,9 +57,13 @@ private:
   CosmicMuonSmoother* theSmoother_;
   MuonServiceProxy* theService_;
   KFUpdator* theUpdator_;
-  unique_ptr<std::vector<TrajectorySeed> > findSeeds(MuonTransientTrackingRecHit::MuonRecHitContainer &topSeeds,
-						     MuonTransientTrackingRecHit::MuonRecHitContainer &bottomSeeds);
-  Trajectory makeTrajectory(TrajectorySeed& seed, const GEMRecHitCollection* gemHits, vector<const GEMChamber*>& gemChambers);
+
+  MuonTransientTrackingRecHit::MuonRecHitContainer getHitsFromLayer(vector<const GEMChamber*> &chambers,
+								    const GEMRecHitCollection* gemHits);
+  
+  unique_ptr<vector<TrajectorySeed> > findSeeds(MuonTransientTrackingRecHit::MuonRecHitContainer &topSeeds,
+						MuonTransientTrackingRecHit::MuonRecHitContainer &bottomSeeds);
+  Trajectory makeTrajectory(TrajectorySeed& seed, const GEMRecHitCollection* gemHits);
 };
 
 GEMCosmicMuon::GEMCosmicMuon(const edm::ParameterSet& ps) : iev(0) {
@@ -102,75 +108,39 @@ void GEMCosmicMuon::produce(edm::Event& ev, const edm::EventSetup& setup) {
   ev.getByToken(theGEMRecHitToken_,gemRecHits);
 
   if (gemRecHits->size() <3){
-    ev.put(std::move(trajectorySeeds));
-    ev.put(std::move(trackCollection));
-    ev.put(std::move(trackingRecHitCollection));
-    ev.put(std::move(trackExtraCollection));
-    ev.put(std::move(trajectorys));
+    ev.put(move(trajectorySeeds));
+    ev.put(move(trackCollection));
+    ev.put(move(trackingRecHitCollection));
+    ev.put(move(trackExtraCollection));
+    ev.put(move(trajectorys));
     return;
   }
-  
-  //  cout << "GEMCosmicMuon::gemRecHits " << gemRecHits->size() << endl;
-  vector<const GEMChamber*> gemChambers;
-  vector<int> topChambers, bottomChambers;
-  // get all exisiting chamber and find top and bottom chambers
-  for (int irow = 0; irow < 3; ++irow){
-    int itopChamber = -1, ibottomChamber = -1;
-    for (int ichamber = 1; ichamber < 10; ++ichamber){
-      int chamberNo = ichamber+irow*10;
-      for (int ilayer = 1; ilayer < 3; ++ilayer){
-	GEMDetId chamberID(1,1,1, ilayer, chamberNo, 0);
-	const GEMChamber* ch = mgeom->chamber(chamberID);
-	if (!ch) continue;
-	gemChambers.emplace_back(ch);
-	if ( ibottomChamber < 0 ) ibottomChamber = chamberNo;
-	itopChamber = chamberNo;
-      }
+
+  detLayerMap_.clear();
+  for (auto ch : mgeom->chambers()){    
+    //cout << ch->id() << " y = " <<ch->position().y() <<endl;
+    // save key as neg to sort from top to bottom
+    detLayerMap_.insert( make_pair(-ch->position().y(), ch) );
+  }
+
+  vector<const GEMChamber*> topChamb(3), botChamb(3);
+  for (auto map: detLayerMap_){
+    //cout <<" y = " <<map.first << " det " << map.second->id()<<endl;
+    int col = map.second->id().chamber()/10;
+    if (!topChamb[col]){
+      topChamb[col] = map.second;
     }
-    if ( itopChamber > 0 )
-      topChambers.emplace_back(itopChamber);
-    if ( ibottomChamber > 0 )
-      bottomChambers.emplace_back(ibottomChamber);
-  }
-  int topLayer = 1, bottomLayer = 2;
-  if (doInnerSeeding_){
-    topLayer = 2; bottomLayer = 1;
+    botChamb[col] = map.second;
   }
   
-  MuonTransientTrackingRecHit::MuonRecHitContainer topSeeds, bottomSeeds;  
-  // get top seeds
-  for (auto cham : topChambers){
-    GEMDetId chamberID(1,1,1, topLayer, cham, 0);
-    const GEMChamber* ch = mgeom->chamber(chamberID);
-    for (auto etaPart : ch->etaPartitions()){
-      GEMDetId etaPartID = etaPart->id();
-      
-      GEMRecHitCollection::range range = gemRecHits->get(etaPartID);
-      //cout<< "Number of GEM rechits available , from chamber: "<< etaPartID<<endl;
-      for (GEMRecHitCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
-	const GeomDet* geomDet(etaPart);
-	cout<< "top seed: chamber "<< etaPartID <<", clusterSize = "<< (*rechit).clusterSize() <<endl;
-	topSeeds.emplace_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
-      }
-    }
-  }
+  // int topLayer = 2, bottomLayer = 1;
+  // if (doInnerSeeding_){
+  //   topLayer = 1; bottomLayer = 2;
+  // }
   
-  for (auto cham : bottomChambers){
-    GEMDetId chamberID(1,1,1, bottomLayer, cham, 0);
-    const GEMChamber* ch = mgeom->chamber(chamberID);
-    for (auto etaPart : ch->etaPartitions()){
-      GEMDetId etaPartID = etaPart->id();
-      
-      GEMRecHitCollection::range range = gemRecHits->get(etaPartID);
-      //cout<< "Number of GEM rechits available , from chamber: "<< etaPartID<<endl;
-      for (GEMRecHitCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
-	const GeomDet* geomDet(etaPart);
-	cout<< "bottom seed: chamber "<< etaPartID <<", clusterSize = "<< (*rechit).clusterSize() <<endl;
-	bottomSeeds.emplace_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
-      }
-    }
-  }
-  
+  auto topSeeds = getHitsFromLayer(topChamb, gemRecHits.product());
+  auto bottomSeeds = getHitsFromLayer(botChamb, gemRecHits.product());
+    
   trajectorySeeds = findSeeds(topSeeds, bottomSeeds);
   //  cout << "GEMCosmicMuon::trajectorySeeds->size() " << trajectorySeeds->size() << endl;
 
@@ -180,7 +150,7 @@ void GEMCosmicMuon::produce(edm::Event& ev, const edm::EventSetup& setup) {
   TrajectorySeed bestSeed;
   float maxChi2 = trackChi2_;
   for (auto seed : *trajectorySeeds){
-    Trajectory smoothed = makeTrajectory(seed, gemRecHits.product(), gemChambers);
+    Trajectory smoothed = makeTrajectory(seed, gemRecHits.product());
     if (smoothed.isValid()){
       trajectorys->emplace_back(smoothed);
       //      cout << "GEMCosmicMuon::Trajectory " << smoothed.foundHits() << endl;
@@ -194,11 +164,11 @@ void GEMCosmicMuon::produce(edm::Event& ev, const edm::EventSetup& setup) {
     }
   }
   if (!bestTrajectory.isValid()){
-    ev.put(std::move(trajectorySeeds));
-    ev.put(std::move(trackCollection));
-    ev.put(std::move(trackingRecHitCollection));
-    ev.put(std::move(trackExtraCollection));
-    ev.put(std::move(trajectorys));
+    ev.put(move(trajectorySeeds));
+    ev.put(move(trackCollection));
+    ev.put(move(trackingRecHitCollection));
+    ev.put(move(trackExtraCollection));
+    ev.put(move(trajectorys));
     return;
   }
   //cout << maxChi2 << endl;
@@ -252,30 +222,32 @@ void GEMCosmicMuon::produce(edm::Event& ev, const edm::EventSetup& setup) {
   // put collection in event
   trajectorySeeds->emplace_back(bestSeed);
 
-  ev.put(std::move(trajectorySeeds));
-  ev.put(std::move(trackCollection));
-  ev.put(std::move(trackingRecHitCollection));
-  ev.put(std::move(trackExtraCollection));
-  ev.put(std::move(trajectorys));
+  ev.put(move(trajectorySeeds));
+  ev.put(move(trackCollection));
+  ev.put(move(trackingRecHitCollection));
+  ev.put(move(trackExtraCollection));
+  ev.put(move(trajectorys));
   
 }
 
-unique_ptr<std::vector<TrajectorySeed> > GEMCosmicMuon::findSeeds(MuonTransientTrackingRecHit::MuonRecHitContainer &topSeeds,
-								  MuonTransientTrackingRecHit::MuonRecHitContainer &bottomSeeds)
+unique_ptr<vector<TrajectorySeed> > GEMCosmicMuon::findSeeds(MuonTransientTrackingRecHit::MuonRecHitContainer &topSeeds,
+							     MuonTransientTrackingRecHit::MuonRecHitContainer &bottomSeeds)
 {
-  unique_ptr<std::vector<TrajectorySeed> > trajectorySeeds( new vector<TrajectorySeed>());
+  unique_ptr<vector<TrajectorySeed> > trajectorySeeds( new vector<TrajectorySeed>());
   if (topSeeds.size() > 0 && bottomSeeds.size() > 0){
     
     for (auto bottomhit : bottomSeeds){
       for (auto tophit : topSeeds){
 	if (bottomhit->globalPosition().y() < tophit->globalPosition().y()){
-	  LocalPoint segPos = bottomhit->localPosition();
+	  LocalPoint segPos = tophit->localPosition();
 	  GlobalVector segDirGV(tophit->globalPosition().x() - bottomhit->globalPosition().x(),
 				tophit->globalPosition().y() - bottomhit->globalPosition().y(),
 				tophit->globalPosition().z() - bottomhit->globalPosition().z());
 
-	  segDirGV *=10;
+	  segDirGV *=-1;
 	  LocalVector segDir = bottomhit->det()->toLocal(segDirGV);
+	  // cout << "GEMCosmicMuon::tophit       " << tophit->globalPosition() << endl;
+	  // cout << "GEMCosmicMuon::bottomhit    " << bottomhit->globalPosition() << endl;
 	  // cout << "GEMCosmicMuon::GlobalVector " << segDirGV << endl;
 	  // cout << "GEMCosmicMuon::LocalVector  " << segDir << endl;
   
@@ -295,8 +267,8 @@ unique_ptr<std::vector<TrajectorySeed> > GEMCosmicMuon::findSeeds(MuonTransientT
 	  PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState(tsos, id);
 	
 	  edm::OwnVector<TrackingRecHit> seedHits;
-	  seedHits.push_back(bottomhit->hit()->clone());
 	  seedHits.push_back(tophit->hit()->clone());
+	  seedHits.push_back(bottomhit->hit()->clone());
 
 	  TrajectorySeed seed(seedTSOS,seedHits,alongMomentum);
 	  trajectorySeeds->emplace_back(seed);
@@ -308,8 +280,7 @@ unique_ptr<std::vector<TrajectorySeed> > GEMCosmicMuon::findSeeds(MuonTransientT
 }
 
 Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
-					 const GEMRecHitCollection* gemHits,
-					 vector<const GEMChamber*>& gemChambers)
+					 const GEMRecHitCollection* gemHits)
 {
   PTrajectoryStateOnDet ptsd1(seed.startingState());
   DetId did(ptsd1.detId());
@@ -319,68 +290,114 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
   TrajectoryStateOnSurface tsosCurrent = tsos;
   
   TransientTrackingRecHit::ConstRecHitContainer consRecHits;
-  for (auto ch : gemChambers){
+
+  float previousLayer = -1000;
+  for (auto chmap : detLayerMap_){
+    // skip same layers
+    if (chmap.first == previousLayer) continue;
+    previousLayer = chmap.first;
+    auto refChamber = chmap.second;
     //const DetLayer* layer = theService_->detLayerGeometry()->idToLayer( ch->id().rawId() );
-    std::shared_ptr<MuonTransientTrackingRecHit> tmpRecHit;
+    shared_ptr<MuonTransientTrackingRecHit> tmpRecHit;
     
-    tsosCurrent = theService_->propagator("StraightLinePropagator")->propagate(tsosCurrent,ch->surface());
+    tsosCurrent = theService_->propagator("StraightLinePropagator")->propagate(tsosCurrent,refChamber->surface());
     if (!tsosCurrent.isValid()) return Trajectory();
     GlobalPoint tsosGP = tsosCurrent.freeTrajectoryState()->position();
-    //TrackingRecHit *tmpRecHit = new TrackingRecHit(ch);
-    //cout << "tsosGP "<< tsosGP <<endl;
-    float maxR = 9999;
+    cout << "tsos "<< refChamber->id() <<" gp "<< tsosGP <<endl;
 
-    for (auto etaPart : ch->etaPartitions()){
-      GEMDetId etaPartID = etaPart->id();
+    float maxR = 50;
+    // find best in all layers
+    for (auto col : detLayerMap_){
+      // only look in same layer
+      if (chmap.first != col.first) continue;
+      auto ch = col.second;
+      for (auto etaPart : ch->etaPartitions()){
+	GEMDetId etaPartID = etaPart->id();
       
-      GEMRecHitCollection::range range = gemHits->get(etaPartID);
-      //cout<< "Number of GEM rechits available , from chamber: "<< etaPartID<<endl;
-      for (GEMRecHitCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
+	GEMRecHitCollection::range range = gemHits->get(etaPartID);
+	//cout<< "Number of GEM rechits available , from chamber: "<< etaPartID<<endl;
+	for (GEMRecHitCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
 
-	LocalPoint tsosLP = etaPart->toLocal(tsosGP);
-	LocalPoint rhLP = (*rechit).localPosition();
-	double y_err = (*rechit).localPositionError().yy();
+	  LocalPoint tsosLP = etaPart->toLocal(tsosGP);
+	  LocalPoint rhLP = (*rechit).localPosition();
+	  double y_err = (*rechit).localPositionError().yy();
 	
-	if (abs(rhLP.x() - tsosLP.x()) > trackResX_) continue;
+	  if (abs(rhLP.x() - tsosLP.x()) > trackResX_) continue;
 	
-	if (abs(rhLP.z() - tsosLP.z()) > y_err*trackResY_) continue;
-	// need to find best hits per chamber
-	float deltaR = (rhLP - tsosLP).mag();
-	if (maxR > deltaR){
-	  const GeomDet* geomDet(etaPart);	  
-	  tmpRecHit = MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit);
-	  maxR = deltaR;
+	  if (abs(rhLP.z() - tsosLP.z()) > y_err*trackResY_) continue;
+	  // need to find best hits per chamber
+	  float deltaR = (rhLP - tsosLP).mag();
+	  if (maxR > deltaR){
+	    cout << "found hit "<< etaPartID<< " R = "<<rhLP.mag()   <<endl;
+	  
+	    const GeomDet* geomDet(etaPart);	  
+	    tmpRecHit = MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit);
+	    maxR = deltaR;
+	  }
 	}
       }
     }
-    // no rechit, make missing hit
-    if (!tmpRecHit){
-      for (auto etaPart : ch->etaPartitions()){
-	GEMDetId etaPartID = etaPart->id();
-	const LocalPoint pos = etaPart->toLocal(tsosGP);
-	const BoundPlane& bp(etaPart->surface());
+    cout << "make missing hit " <<endl;
 
-	if (!bp.bounds().inside(pos)) continue;
-	
-	GEMRecHit* missingHit = new GEMRecHit(etaPartID, -10, pos);
-	//missingHit->setType(TrackingRecHit::missing);
-	const GeomDet* geomDet(etaPart);	  
-	//auto missingHit = std::make_shared<InvalidTrackingRecHit>(etaPartID.rawId(), TrackingRecHit::missing);
-	//InvalidTrackingRecHit* missingHit = new InvalidTrackingRecHit(*geomDet, TrackingRecHit::missing);
-	tmpRecHit = MuonTransientTrackingRecHit::specificBuild(geomDet,missingHit);
-	tmpRecHit->invalidateHit();	
+    ////no rechit, make missing hit
+    if (!tmpRecHit){
+      for (auto col : detLayerMap_){
+    	// only look in same layer
+    	if (chmap.first != col.first) continue;
+    	auto ch = col.second;
+    	for (auto etaPart : ch->etaPartitions()){	
+    	  const LocalPoint pos = etaPart->toLocal(tsosGP);
+    	  const BoundPlane& bp(etaPart->surface());
+
+    	  cout << "missing hit "<< etaPart->id()<< " R = "<<pos.mag() <<" inside "<<  bp.bounds().inside(pos) <<endl;
+	  
+    	  if (maxR > pos.mag()){
+	    
+    	    //if (!bp.bounds().inside(pos)) continue;
+    	    //cout << "makde missing hit "<<etaPartID   <<endl;
+	    
+    	    auto missingHit = make_unique<GEMRecHit>(etaPart->id(), -10, pos);
+    	    //missingHit->setType(TrackingRecHit::missing);
+    	    const GeomDet* geomDet(etaPart);	  
+    	    //auto missingHit = make_shared<InvalidTrackingRecHit>(etaPartID.rawId(), TrackingRecHit::missing);
+    	    //InvalidTrackingRecHit* missingHit = new InvalidTrackingRecHit(*geomDet, TrackingRecHit::missing);
+    	    tmpRecHit = MuonTransientTrackingRecHit::specificBuild(geomDet,missingHit.get());
+    	    tmpRecHit->invalidateHit();
+    	    maxR = pos.mag();
+    	  }
+    	}
       }
     }
     
-    if (tmpRecHit){
+    if (tmpRecHit){      
       cout << "hit gp "<< tmpRecHit->globalPosition()<< " isValid() "<<tmpRecHit->isValid() <<endl;
-      tsosCurrent = theUpdator_->update(tsosCurrent, *tmpRecHit);
+      if (tmpRecHit->isValid())
+	tsosCurrent = theUpdator_->update(tsosCurrent, *tmpRecHit);
       consRecHits.emplace_back(tmpRecHit);
     }
   }
   if (consRecHits.size() <3) return Trajectory();
   vector<Trajectory> fitted = theSmoother_->trajectories(seed, consRecHits, tsos);
   return fitted.front();
+}
+
+MuonTransientTrackingRecHit::MuonRecHitContainer GEMCosmicMuon::getHitsFromLayer(vector<const GEMChamber*> &chambers, const GEMRecHitCollection* gemHits)
+{
+  MuonTransientTrackingRecHit::MuonRecHitContainer hits;
+  for (auto ch : chambers){
+    if (!ch) continue;
+    for (auto etaPart : ch->etaPartitions()){
+      GEMDetId etaPartID = etaPart->id();
+      
+      GEMRecHitCollection::range range = gemHits->get(etaPartID);
+      //cout<< "Number of GEM rechits available , from chamber: "<< etaPartID<<endl;
+      for (GEMRecHitCollection::const_iterator rechit = range.first; rechit!=range.second; ++rechit){
+	const GeomDet* geomDet(etaPart);
+	hits.emplace_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+      }
+    }
+  }
+  return hits;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
