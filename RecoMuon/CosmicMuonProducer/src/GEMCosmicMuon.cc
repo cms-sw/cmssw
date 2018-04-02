@@ -25,6 +25,8 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
+
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
@@ -351,9 +353,27 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
 	}
       }
     }
+    // no rechit, make missing hit
+    if (!tmpRecHit){
+      for (auto etaPart : ch->etaPartitions()){
+	GEMDetId etaPartID = etaPart->id();
+	const LocalPoint pos = etaPart->toLocal(tsosGP);
+	const BoundPlane& bp(etaPart->surface());
+
+	if (!bp.bounds().inside(pos)) continue;
+	
+	GEMRecHit* missingHit = new GEMRecHit(etaPartID, -10, pos);
+	//missingHit->setType(TrackingRecHit::missing);
+	const GeomDet* geomDet(etaPart);	  
+	//auto missingHit = std::make_shared<InvalidTrackingRecHit>(etaPartID.rawId(), TrackingRecHit::missing);
+	//InvalidTrackingRecHit* missingHit = new InvalidTrackingRecHit(*geomDet, TrackingRecHit::missing);
+	tmpRecHit = MuonTransientTrackingRecHit::specificBuild(geomDet,missingHit);
+	tmpRecHit->invalidateHit();	
+      }
+    }
     
     if (tmpRecHit){
-      //cout << "hit gp "<< tmpRecHit->globalPosition() <<endl;
+      cout << "hit gp "<< tmpRecHit->globalPosition()<< " isValid() "<<tmpRecHit->isValid() <<endl;
       tsosCurrent = theUpdator_->update(tsosCurrent, *tmpRecHit);
       consRecHits.emplace_back(tmpRecHit);
     }
