@@ -41,6 +41,9 @@ namespace spr{
   template <typename T>
   double eCone_ecal(const CaloGeometry* geo, edm::Handle<T>& barrelhits, edm::Handle<T>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500, bool debug=false);
 
+  template <typename T>
+  double eCone_ecal(const CaloGeometry* geo, edm::Handle<T>& barrelhits, edm::Handle<T>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, std::vector<DetId>& coneRecHitDetIds, std::vector<double>& eHit, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500, bool debug=false);
+
 }
 
 #include "eCone.icc"
