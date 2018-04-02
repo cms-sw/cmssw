@@ -72,7 +72,7 @@ void BestTrackSelection::cancel_one_bx(
     const std::deque<EMTFTrackCollection>& extended_best_track_cands,
     EMTFTrackCollection& best_tracks
 ) const {
-  const int max_z = emtf::NUM_ZONES;        // = 4 zones
+  const int max_z = emtf::NUM_ZONES;  // = 4 zones
   const int max_n = maxRoadsPerZone_; // = 3 candidates per zone
   const int max_zn = max_z * max_n;   // = 12 total candidates
   if (not (maxTracks_ <= max_zn))
@@ -259,7 +259,7 @@ void BestTrackSelection::cancel_multi_bx(
     EMTFTrackCollection& best_tracks
 ) const {
   const int max_h = bxWindow_;        // = 3 bx history
-  const int max_z = emtf::NUM_ZONES;        // = 4 zones
+  const int max_z = emtf::NUM_ZONES;  // = 4 zones
   const int max_n = maxRoadsPerZone_; // = 3 candidates per zone
   const int max_zn = max_z * max_n;   // = 12 total candidates
   const int max_hzn = max_h * max_zn; // = 36 total candidates

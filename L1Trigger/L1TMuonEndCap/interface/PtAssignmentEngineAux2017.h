@@ -29,10 +29,10 @@ public:
   void unpack2bRPC(int rpc_2b, int& rpcA, int& rpcB, int& rpcC) const;
 
   int get8bMode15(int theta, int st1_ring2, int endcap, int sPhiAB,
-		  int clctA, int clctB, int clctC, int clctD) const;
+                  int clctA, int clctB, int clctC, int clctD) const;
 
   void unpack8bMode15( int mode15_8b, int& theta, int& st1_ring2, int endcap, int sPhiAB,
-		       int& clctA, int& rpcA, int& rpcB, int& rpcC, int& rpcD) const;
+                       int& clctA, int& rpcA, int& rpcB, int& rpcC, int& rpcD) const;
 
   // Need to re-check / verify this - AWB 17.03.17
   // int getFRLUT(int sector, int station, int chamber) const;
