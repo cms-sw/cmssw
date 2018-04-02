@@ -6,7 +6,6 @@
 
 #include <cstdint>
 #include <vector>
-#include <cmath>
 
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFRoad.h"
@@ -51,17 +50,21 @@ namespace l1t {
     void ImportSP( const emtf::SP _SP, int _sector );
     // void ImportPtLUT( int _mode, unsigned long _address );
 
-    void clear_Hits() { 
-      _Hits.clear();  numHits = 0;
-      mode_CSC = 0;  mode_RPC = 0;  mode_neighbor = 0;
+
+    void clear_Hits() {
+      _Hits.clear();
+      numHits       = 0;
+      mode_CSC      = 0;
+      mode_RPC      = 0;
+      mode_neighbor = 0;
     }
 
     void push_Hit(const EMTFHit& hit) {
-      _Hits.push_back( hit );  
-      numHits = _Hits.size();  
-      mode_CSC      += ( hit.Is_CSC()   ? pow(2, 4 - hit.Station()) : 0 ); 
-      mode_RPC      += ( hit.Is_RPC()   ? pow(2, 4 - hit.Station()) : 0 ); 
-      mode_neighbor += ( hit.Neighbor() ? pow(2, 4 - hit.Station()) : 0 ); 
+      _Hits.push_back( hit );
+      numHits       = _Hits.size();
+      if (hit.Is_CSC())   mode_CSC      |= (1 << (4 - hit.Station()));
+      if (hit.Is_RPC())   mode_RPC      |= (1 << (4 - hit.Station()));
+      if (hit.Neighbor()) mode_neighbor |= (1 << (4 - hit.Station()));
     }
 
     void set_Hits(const EMTFHitCollection& hits) {
@@ -70,9 +73,9 @@ namespace l1t {
         push_Hit( hit );
     }
 
-    void set_HitIdx(const std::vector<unsigned int>& bits) { _HitIdx = bits;          }
     void clear_HitIdx()                                    { _HitIdx.clear();         }
     void push_HitIdx(unsigned int bits)                    { _HitIdx.push_back(bits); }
+    void set_HitIdx(const std::vector<unsigned int>& bits) { _HitIdx = bits;          }
 
     int NumHits                      () const { return numHits; }
     EMTFHitCollection Hits           () const { return _Hits;   }
