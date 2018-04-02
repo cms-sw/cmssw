@@ -21,8 +21,8 @@ namespace {
 
 //constructors from DT data
 TriggerPrimitive::TriggerPrimitive(const DTChamberId& detid,
-				   const L1MuDTChambPhDigi& digi_phi,
-				   const int segment_number):
+                                   const L1MuDTChambPhDigi& digi_phi,
+                                   const int segment_number):
   _id(detid),
   _subsystem(TriggerPrimitive::kDT) {
   calculateDTGlobalSector(detid,_globalsector,_subsector);
@@ -44,8 +44,8 @@ TriggerPrimitive::TriggerPrimitive(const DTChamberId& detid,
 }
 
 TriggerPrimitive::TriggerPrimitive(const DTChamberId& detid,
-				   const L1MuDTChambThDigi& digi_th,
-				   const int theta_bti_group):
+                                   const L1MuDTChambThDigi& digi_th,
+                                   const int theta_bti_group):
   _id(detid),
   _subsystem(TriggerPrimitive::kDT) {
   calculateDTGlobalSector(detid,_globalsector,_subsector);
@@ -67,9 +67,9 @@ TriggerPrimitive::TriggerPrimitive(const DTChamberId& detid,
 }
 
 TriggerPrimitive::TriggerPrimitive(const DTChamberId& detid,
-				   const L1MuDTChambPhDigi& digi_phi,
-				   const L1MuDTChambThDigi& digi_th,
-				   const int theta_bti_group):
+                                   const L1MuDTChambPhDigi& digi_phi,
+                                   const L1MuDTChambThDigi& digi_th,
+                                   const int theta_bti_group):
   _id(detid),
   _subsystem(TriggerPrimitive::kDT) {
   calculateDTGlobalSector(detid,_globalsector,_subsector);
@@ -92,7 +92,7 @@ TriggerPrimitive::TriggerPrimitive(const DTChamberId& detid,
 
 //constructor from CSC data
 TriggerPrimitive::TriggerPrimitive(const CSCDetId& detid,
-				   const CSCCorrelatedLCTDigi& digi):
+                                   const CSCCorrelatedLCTDigi& digi):
   _id(detid),
   _subsystem(TriggerPrimitive::kCSC) {
   calculateCSCGlobalSector(detid,_globalsector,_subsector);
@@ -132,6 +132,7 @@ TriggerPrimitive::TriggerPrimitive(const RPCDetId& detid,
   _rpc.bx = bx;
   _rpc.valid = 1;
 }
+
 
 // constructor from GEM data
 TriggerPrimitive::TriggerPrimitive(const GEMDetId& detid,

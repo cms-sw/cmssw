@@ -95,10 +95,10 @@ L1TMuonEndCapForestESProducer::produce(const L1TMuonEndCapForestRcd& iRecord)
   PtAssignmentEngine* pt_assign_engine_;
   std::unique_ptr<PtAssignmentEngine> pt_assign_engine_2016_;
   std::unique_ptr<PtAssignmentEngine> pt_assign_engine_2017_;
-  
+
   pt_assign_engine_2016_.reset(new PtAssignmentEngine2016());
   pt_assign_engine_2017_.reset(new PtAssignmentEngine2017());
-  
+
   if (ptLUTVersion <= 5) pt_assign_engine_ = pt_assign_engine_2016_.get();
   else                   pt_assign_engine_ = pt_assign_engine_2017_.get();
 
@@ -125,7 +125,7 @@ L1TMuonEndCapForestESProducer::produce(const L1TMuonEndCapForestRcd& iRecord)
     // of course, move has no effect here, but I'll keep it in case move constructor will be provided some day
     pEMTFForest->forest_coll_.push_back( std::move( cond_forest ) );
   }
-  
+
   return pEMTFForest;
 }
 
