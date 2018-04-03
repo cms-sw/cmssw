@@ -69,8 +69,6 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event& iEvent, const edm::Ev
 
   /// Loop over TTTracks
   unsigned int tkCnt = 0;
-  //std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator iterTTTrack;
-  //for (iterTTTrack = TTTrackHandle->begin();iterTTTrack != TTTrackHandle->end();++iterTTTrack){
   for(auto iterTTTrack: *TTTrackHandle){
     edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > tempTrackPtr(TTTrackHandle, tkCnt++); /// Make the pointer
 
@@ -86,9 +84,7 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event& iEvent, const edm::Ev
     Track_NStubs->Fill(nStubs);
     Track_Eta_NStubs->Fill(tempTrackPtr->getMomentum().eta(), nStubs);
 
-    //std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = iterTTTrack -> getStubRefs() ;
     std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = iterTTTrack.getStubRefs() ;
-    //for (unsigned int istub=0; istub<(unsigned int)theStubs.size(); istub++) {
     for (auto istub: theStubs) {
       bool inTIB = false;
       bool inTOB = false;
@@ -152,10 +148,8 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event& iEvent, const edm::Ev
 
 // ------------ method called once each job just before starting event loop  ------------
 //Creating all histograms for DQM file output
-
 void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const & run, edm::EventSetup const & es) {
   std::string HistoName;
-
   iBooker.setCurrentFolder(topFolderName_+"/Tracks/");
 
   //Number of stubs
