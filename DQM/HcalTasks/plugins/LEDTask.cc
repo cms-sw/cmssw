@@ -179,7 +179,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 			hcaldqm::hashfunctions::fSubdetPM,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-		_cTDCTime_SubdetPM.initialize(_name, "SumQ", 
+		_cTDCTime_SubdetPM.initialize(_name, "TDCTime", 
 			hcaldqm::hashfunctions::fSubdetPM,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
@@ -411,7 +411,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 				}
 			}
 			if (_ptype == fOnline) {
-				for (unsigned int iTS = 0; iTS < digi.size(); ++iTS) {
+				for (int iTS = 0; iTS < digi.samples(); ++iTS) {
 					_cADCvsTS_SubdetPM.fill(did, iTS, digi[iTS].adc());					
 					if (digi[iTS].tdc() <50) {
 						double time = iTS*25. + (digi[iTS].tdc() / 2.);
