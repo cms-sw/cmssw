@@ -35,8 +35,8 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
  
 
   // loop over all barrel crystals
-  const std::vector<DetId>& barrelCells = geometry->getValidDetIds(DetId::Ecal, EcalBarrel);
-  std::vector<DetId>::const_iterator barrelIt;
+  const std::unordered_set<DetId>& barrelCells = geometry->getValidDetIds(DetId::Ecal, EcalBarrel);
+  std::unordered_set<DetId>::const_iterator barrelIt;
 
   for (barrelIt=barrelCells.begin(); barrelIt!=barrelCells.end(); barrelIt++) {
     EBDetId eb(*barrelIt);
@@ -66,8 +66,8 @@ void EcalGeomPhiSymHelper::setup(const CaloGeometry* geometry,
     }
   }
 
-  const std::vector<DetId>& endcapCells = geometry->getValidDetIds(DetId::Ecal, EcalEndcap);
-  std::vector<DetId>::const_iterator endcapIt;
+  const std::unordered_set<DetId>& endcapCells = geometry->getValidDetIds(DetId::Ecal, EcalEndcap);
+  std::unordered_set<DetId>::const_iterator endcapIt;
   for (endcapIt=endcapCells.begin(); endcapIt!=endcapCells.end(); endcapIt++) {
 
     auto cellGeometry = endcapGeometry->getGeometry(*endcapIt);

@@ -19,6 +19,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
+#include <unordered_set>
 #include <vector>
 
 class CaloHitResponse;
@@ -76,9 +77,9 @@ private:
   const HcalDDDRecConstants * theRecNumber;
   void updateGeometry(const edm::EventSetup& eventSetup);
 
-  void buildHOSiPMCells(const std::vector<DetId>& allCells, const edm::EventSetup& eventSetup);
-  void buildHFQIECells(const std::vector<DetId>& allCells, const edm::EventSetup& eventSetup);
-  void buildHBHEQIECells(const std::vector<DetId>& allCells, const edm::EventSetup& eventSetup);
+  void buildHOSiPMCells(const std::unordered_set<DetId>& allCells, const edm::EventSetup& eventSetup);
+  void buildHFQIECells(const std::unordered_set<DetId>& allCells, const edm::EventSetup& eventSetup);
+  void buildHBHEQIECells(const std::unordered_set<DetId>& allCells, const edm::EventSetup& eventSetup);
 
   //function to evaluate aging at the digi level
   void darkening(std::vector<PCaloHit>& hcalHits);
@@ -142,11 +143,11 @@ private:
 
   // need to cache some DetIds for the digitizers,
   // if they don't come straight from the geometry
-  std::vector<DetId> hbheCells;
-  std::vector<DetId> theHBHEQIE8DetIds, theHBHEQIE11DetIds;
-  std::vector<DetId> theHOHPDDetIds;
-  std::vector<DetId> theHOSiPMDetIds;
-  std::vector<DetId> theHFQIE8DetIds, theHFQIE10DetIds;
+  std::unordered_set<DetId> hbheCells;
+  std::unordered_set<DetId> theHBHEQIE8DetIds, theHBHEQIE11DetIds;
+  std::unordered_set<DetId> theHOHPDDetIds;
+  std::unordered_set<DetId> theHOSiPMDetIds;
+  std::unordered_set<DetId> theHFQIE8DetIds, theHFQIE10DetIds;
 
   bool isZDC,isHCAL,zdcgeo,hbhegeo,hogeo,hfgeo;
   bool testNumbering_;

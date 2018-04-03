@@ -204,15 +204,13 @@ EcalEleCalibLooper::duringLoop (const edm::Event& iEvent,
   const CaloGeometry& geometry = *geoHandle;
   m_barrelCells = geometry.getValidDetIds (DetId::Ecal, EcalBarrel);
   m_endcapCells = geometry.getValidDetIds (DetId::Ecal, EcalEndcap);
-    for (std::vector<DetId>::const_iterator barrelIt=m_barrelCells.begin();
-	 barrelIt!=m_barrelCells.end();++barrelIt){
-      m_barrelMap[*barrelIt]=1;
-      m_xtalNumOfHits[barrelIt->rawId()]=0;
-    }
-    for (std::vector<DetId>::const_iterator endcapIt=m_endcapCells.begin();
-	 endcapIt!=m_endcapCells.end();++endcapIt){
-      m_endcapMap[*endcapIt]=1;
-      m_xtalNumOfHits[endcapIt->rawId()]=0;
+  for (auto const & barrelIt : m_barrelCells) {
+    m_barrelMap[barrelIt]=1;
+    m_xtalNumOfHits[barrelIt.rawId()]=0;
+  }
+  for (auto const & endcapIt : m_endcapCells) {
+      m_endcapMap[endcapIt]=1;
+      m_xtalNumOfHits[endcapIt.rawId()]=0;
     }
     
     isfirstcall_=false; 
@@ -298,7 +296,7 @@ edm::EDLooper::Status EcalEleCalibLooper::endOfLoop (const edm::EventSetup& dumb
   TH2F * EEPcoeffMap = new TH2F ("EEPcoeffMap","EEPcoeffMap",101,1,101,101,0,101);
   TH2F * EEMcoeffMap = new TH2F ("EEMcoeffMap","EEMcoeffMap",101,1,101,101,0,101);
  //loop over the barrel xtals to get the coeffs
- for (std::vector<DetId>::const_iterator barrelIt=m_barrelCells.begin();
+  for (std::unordered_set<DetId>::const_iterator barrelIt=m_barrelCells.begin();
        barrelIt!=m_barrelCells.end();++barrelIt)
         {
           EBDetId ee (*barrelIt);
@@ -311,8 +309,8 @@ edm::EDLooper::Status EcalEleCalibLooper::endOfLoop (const edm::EventSetup& dumb
         } //PG loop over phi
 
   // loop over the EndCap to get the recalib coefficients
-    for(std::vector<DetId>::const_iterator endcapIt=m_endcapCells.begin();
-         endcapIt!=m_endcapCells.end();++endcapIt)
+  for(std::unordered_set<DetId>::const_iterator endcapIt=m_endcapCells.begin();
+      endcapIt!=m_endcapCells.end();++endcapIt)
     {
      EEDetId ee (*endcapIt);
      int index =endcapIt->rawId(); 
@@ -369,14 +367,14 @@ EcalEleCalibLooper::endOfJob ()
 //Writes the coeffs 
  calibXMLwriter barrelWriter (EcalBarrel);
  calibXMLwriter endcapWriter (EcalEndcap);
- for (std::vector<DetId>::const_iterator barrelIt = m_barrelCells.begin (); 
+ for (std::unordered_set<DetId>::const_iterator barrelIt = m_barrelCells.begin (); 
        barrelIt!=m_barrelCells.end (); 
        ++barrelIt) 
    {
      EBDetId eb (*barrelIt);
      barrelWriter.writeLine (eb,m_barrelMap[*barrelIt]);
    }
- for (std::vector<DetId>::const_iterator endcapIt = m_endcapCells.begin ();
+ for (std::unordered_set<DetId>::const_iterator endcapIt = m_endcapCells.begin ();
       endcapIt!=m_endcapCells.end ();
       ++endcapIt) 
    {

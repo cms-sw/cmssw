@@ -2,6 +2,7 @@
 #define HcalSimAlgos_HcalDigitizerTraits_h
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalElectronicsSim.h"
+#include <unordered_set>
 
 class HBHEDigitizerTraits {
 public:
@@ -49,7 +50,7 @@ public:
   typedef typename Traits::Digi Digi;
   typedef typename Traits::DigiCollection DigiCollection;
 
-  void operator()(DigiCollection & output, CLHEP::HepRandomEngine* engine, CaloSamples * analogSignal, std::vector<DetId>::const_iterator idItr, ElectronicsSim* theElectronicsSim){
+  void operator()(DigiCollection & output, CLHEP::HepRandomEngine* engine, CaloSamples * analogSignal, std::unordered_set<DetId>::const_iterator idItr, ElectronicsSim* theElectronicsSim){
     Digi digi(*idItr);
     theElectronicsSim->analogToDigital(engine, *analogSignal , digi, Traits::PreMixFactor, Traits::PreMixBits);
     output.push_back(std::move(digi));

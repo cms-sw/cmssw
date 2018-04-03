@@ -846,7 +846,7 @@ ValidateGeometry::validateCaloGeometry(DetId::Detector detector,
   const CaloSubdetectorGeometry* geometry = 
     caloGeometry_->getSubdetectorGeometry(detector, subdetector);
 
-  const std::vector<DetId>& ids = geometry->getValidDetIds(detector, subdetector);
+  const std::unordered_set<DetId>& ids = geometry->getValidDetIds(detector, subdetector);
 
   for (auto it = ids.begin(), 
 	 iEnd = ids.end(); 

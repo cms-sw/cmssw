@@ -14,22 +14,22 @@ public:
   }
   ~HcalHitFilter() override {}
 
-  void setDetIds(const std::vector<DetId> & detIds){
+  void setDetIds(const std::unordered_set<DetId> & detIds){
     theDetIds = detIds;
-    std::sort(theDetIds.begin(),theDetIds.end());
+//   std::sort(theDetIds.begin(),theDetIds.end());
   }
 
   bool accepts(const PCaloHit & hit) const override {
     HcalDetId hcalDetId(hit.id());
-    return ( (theSubdets.empty() || std::binary_search(theSubdets.begin(), theSubdets.end(), hcalDetId.subdet()))
-          && (theDetIds.empty() || std::binary_search(theDetIds.begin(), theDetIds.end(), DetId(hit.id())))
-    );
+    bool ok = ((theSubdets.empty() || std::binary_search(theSubdets.begin(), theSubdets.end(), hcalDetId.subdet())) &&
+	       (theDetIds.empty() || (theDetIds.find(hit.id()) != theDetIds.end())));
+    return ok;
   }
 
 protected:
   std::vector<HcalSubdetector> theSubdets;
   // empty DetIds will always be accepted
-  std::vector<DetId> theDetIds;
+  std::unordered_set<DetId> theDetIds;
 };
 
 typedef HcalHitFilter<HcalBarrel,HcalEndcap> HBHEHitFilter;

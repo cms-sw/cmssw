@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <unordered_set>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -24,7 +25,7 @@ class EcalTBReadout
       ~EcalTBReadout(){};
 
       /// tell the readout which cells exist
-      void setDetIds(const std::vector<DetId> & detIds) {theDetIds = &detIds;}
+      void setDetIds(const std::unordered_set<DetId> & detIds) {theDetIds = &detIds;}
 
       /// search for the TT to be read
       void findTTlist( const int& crysId , 
@@ -60,7 +61,7 @@ class EcalTBReadout
 
       static const int NCRYMATRIX = 7;
   
-      const std::vector<DetId>* theDetIds;
+      const std::unordered_set<DetId>* theDetIds;
 
       std::string ecalTBInfoLabel_;
 };

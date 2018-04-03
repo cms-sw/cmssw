@@ -875,10 +875,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   for (int i=0 ; i<108 ; i++)
     for (int j=0 ; j<68 ; j++) 
       NbOfStripPerTCC[i][j] = 0 ;
-  const std::vector<DetId> & ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
-  const std::vector<DetId> & eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
-    EBDetId id(*it) ;
+  const std::unordered_set<DetId> & ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
+  const std::unordered_set<DetId> & eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
+  for (auto const& it : ebCells) {
+    EBDetId id(it) ;
     const EcalTrigTowerDetId towid= id.tower();
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
     int tccNb = theMapping_->TCCid(towid) ;
@@ -886,8 +886,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int stripInTower = elId.pseudoStripId() ;  
     if (stripInTower>NbOfStripPerTCC[tccNb-1][towerInTCC-1]) NbOfStripPerTCC[tccNb-1][towerInTCC-1] = stripInTower ;
   }
-  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
-    EEDetId id(*it) ;
+  for (auto const& it : eeCells) {
+    EEDetId id(it) ;
     const EcalTrigTowerDetId towid= (*eTTmap_).towerOf(id) ;
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
     int tccNb = theMapping_->TCCid(towid) ;
@@ -902,8 +902,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== barrel crystals ====== "<<std::endl ;
 
   // special case of eta slices
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
-    EBDetId id(*it) ;
+  for (auto const & it : ebCells) {
+    EBDetId id(it) ;
     double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
     if (!useTransverseEnergy_) theta = acos(0.) ;
     const EcalTrigTowerDetId towid= id.tower();
@@ -976,8 +976,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
   // general case
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
-    EBDetId id(*it) ;
+  for (auto const & it : ebCells) {
+    EBDetId id(it) ;
     double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
     if (!useTransverseEnergy_) theta = acos(0.) ;
     const EcalTrigTowerDetId towid= id.tower();
@@ -1167,8 +1167,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== endcap crystals ====== "<<std::endl ;
   
   // special case of eta slices
-  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
-    EEDetId id(*it) ;
+  for (auto const & it : eeCells) {
+    EEDetId id(it) ;
     double theta = theEndcapGeometry_->getGeometry(id)->getPosition().theta() ;
     if (!useTransverseEnergy_) theta = acos(0.) ;
     const EcalTrigTowerDetId towid= (*eTTmap_).towerOf(id) ;
@@ -1257,8 +1257,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
   // general case
-  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
-    EEDetId id(*it);
+  for (auto const & it : eeCells) {
+    EEDetId id(it);
     double theta = theEndcapGeometry_->getGeometry(id)->getPosition().theta() ;
     if (!useTransverseEnergy_) theta = acos(0.) ;
     const EcalTrigTowerDetId towid= (*eTTmap_).towerOf(id) ;

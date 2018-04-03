@@ -40,7 +40,7 @@ void MinBias::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
   geo_ = pG.product();
-  std::vector<DetId> did =  geo_->getValidDetIds();
+  std::unordered_set<DetId> did =  geo_->getValidDetIds();
   
   for (auto const& id : did) {
     if( (id).det() == DetId::Hcal ) {
@@ -55,7 +55,7 @@ void MinBias::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
 
 void MinBias::endJob() {
   const HcalGeometry* hgeo = static_cast<const HcalGeometry*>(geo_->getSubdetectorGeometry(DetId::Hcal,1));
-  const std::vector<DetId>& did =  hgeo->getValidDetIds() ;
+  const std::unordered_set<DetId>& did =  hgeo->getValidDetIds() ;
   int i=0;
   for (const auto& id : did) {
     //      if( id.det() == DetId::Hcal ) {

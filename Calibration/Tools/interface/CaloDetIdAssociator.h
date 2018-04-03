@@ -46,9 +46,9 @@ class HCaloDetIdAssociator: public HDetIdAssociator{
    
    std::set<DetId> getASetOfValidDetIds() override{
       std::set<DetId> setOfValidIds;
-      const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Calo, 1);
-      for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
-         setOfValidIds.insert(*it);
+      const std::unordered_set<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Calo, 1);
+      for(auto const & it : vectOfValidIds)
+         setOfValidIds.insert(it);
 
       return setOfValidIds;
    };

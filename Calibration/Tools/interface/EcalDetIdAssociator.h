@@ -25,14 +25,14 @@ class HEcalDetIdAssociator: public HCaloDetIdAssociator{
  protected:
    std::set<DetId> getASetOfValidDetIds() override{
       std::set<DetId> setOfValidIds;
-      const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, 1);//EB
-      for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
-         setOfValidIds.insert(*it);
+      const std::unordered_set<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, 1);//EB
+      for(auto const & it : vectOfValidIds)
+         setOfValidIds.insert(it);
 
 //      vectOfValidIds.clear();
-      const std::vector<DetId>& vectOfValidIdsEE = geometry_->getValidDetIds(DetId::Ecal, 2);//EE
-      for(std::vector<DetId>::const_iterator it = vectOfValidIdsEE.begin(); it != vectOfValidIdsEE.end(); ++it)
-         setOfValidIds.insert(*it);
+      const std::unordered_set<DetId>& vectOfValidIdsEE = geometry_->getValidDetIds(DetId::Ecal, 2);//EE
+      for(auto const & it : vectOfValidIdsEE)
+         setOfValidIds.insert(it);
 
       return setOfValidIds;
 

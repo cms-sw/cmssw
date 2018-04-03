@@ -42,6 +42,7 @@
 #include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 #include <set>
 #include <vector>
+#include <unordered_set>
 
 class DetIdAssociator{
  public:
@@ -131,7 +132,7 @@ class DetIdAssociator{
    
    virtual GlobalPoint getPosition(const DetId&) const = 0;
    virtual const unsigned int getNumberOfSubdetectors() const { return 1;}
-   virtual void getValidDetIds(unsigned int subDetectorIndex, std::vector<DetId>&) const = 0;
+   virtual void getValidDetIds(unsigned int subDetectorIndex, std::unordered_set<DetId>) const = 0;
    virtual std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId&, std::vector<GlobalPoint>&) const = 0;
    
    virtual bool insideElement(const GlobalPoint&, const DetId&) const = 0;

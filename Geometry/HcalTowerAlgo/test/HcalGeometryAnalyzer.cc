@@ -57,11 +57,12 @@ HcalGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSet
     HcalFlexiHardcodeGeometryLoader m_loader(ps0_);
     caloGeom = m_loader.load(topology, hcons);
   }
-  const std::vector<DetId>& ids = caloGeom->getValidDetIds();
+  const std::unordered_set<DetId>& ids = caloGeom->getValidDetIds();
 
   std::vector<int> dins;
   int counter = 0;
-  for( std::vector<DetId>::const_iterator i = ids.begin(), iEnd = ids.end(); i != iEnd; ++i, ++counter )  {
+  for (std::unordered_set<DetId>::const_iterator i = ids.begin();
+       i != ids.end(); ++i, ++counter )  {
     HcalDetId hid = (*i);
     std::cout << counter << ": din " << topology.detId2denseId(*i) << ":" << hid;
     dins.emplace_back( topology.detId2denseId(*i));

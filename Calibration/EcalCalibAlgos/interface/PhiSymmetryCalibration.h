@@ -99,8 +99,8 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   double miscalEB_[kNMiscalBinsEB];
   double miscalEE_[kNMiscalBinsEE]; 
 
-  std::vector<DetId> barrelCells;
-  std::vector<DetId> endcapCells;
+  std::unordered_set<DetId> barrelCells;
+  std::unordered_set<DetId> endcapCells;
 
   // input calibration constants
   double oldCalibs_barl[kBarlRings  ][kBarlWedges][kSides];

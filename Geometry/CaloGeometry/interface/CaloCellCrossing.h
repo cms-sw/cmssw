@@ -6,6 +6,7 @@
 
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
+#include <unordered_set>
 #include <vector>
 #include <string>
 
@@ -13,7 +14,7 @@ class CaloCellCrossing
 {
    public:
 
-      typedef std::vector< DetId >        DetIds ;
+      typedef std::unordered_set< DetId > DetIds ;
       typedef std::vector< GlobalPoint >  Points;
       typedef std::vector< double >       Lengths ;
 

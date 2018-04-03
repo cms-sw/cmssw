@@ -128,7 +128,7 @@ class Pi0FixedMassWindowCalibration :  public edm::ESProducerLooper
 
 
 
-  std::vector<DetId> barrelCells;
+  std::unordered_set<DetId> barrelCells;
 
   // input calibration constants
   double oldCalibs_barl[85][360][2];

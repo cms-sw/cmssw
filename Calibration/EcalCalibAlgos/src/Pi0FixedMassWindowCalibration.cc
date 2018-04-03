@@ -125,7 +125,7 @@ void Pi0FixedMassWindowCalibration::endOfJob()
 
   Pi0CalibXMLwriter barrelWriter(EcalBarrel,99);
 
-  std::vector<DetId>::const_iterator barrelIt=barrelCells.begin();
+  std::unordered_set<DetId>::const_iterator barrelIt=barrelCells.begin();
   for (; barrelIt!=barrelCells.end(); barrelIt++) {
     EBDetId eb(*barrelIt);
     int ieta = eb.ieta();
@@ -180,7 +180,7 @@ Pi0FixedMassWindowCalibration::endOfLoop(const edm::EventSetup& iSetup, unsigned
     
   Pi0CalibXMLwriter barrelWriter(EcalBarrel,iLoop+1);
 
-  std::vector<DetId>::const_iterator barrelIt=barrelCells.begin();
+  std::unordered_set<DetId>::const_iterator barrelIt=barrelCells.begin();
   for (; barrelIt!=barrelCells.end(); barrelIt++) {
     EBDetId eb(*barrelIt);
     int ieta = eb.ieta();
@@ -260,7 +260,7 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
     
     // loop over all barrel crystals
     barrelCells = geometry.getValidDetIds(DetId::Ecal, EcalBarrel);
-    std::vector<DetId>::const_iterator barrelIt;
+    std::unordered_set<DetId>::const_iterator barrelIt;
     for (barrelIt=barrelCells.begin(); barrelIt!=barrelCells.end(); barrelIt++) {
       EBDetId eb(*barrelIt);
       

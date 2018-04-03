@@ -31,7 +31,7 @@ public:
   typedef CaloCellGeometry::Pt3D     Pt3D     ;
   typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
-  typedef std::set<DetId>            DetIdSet;
+  typedef std::unordered_set<DetId>  DetIdSet;
   typedef std::vector<GlobalPoint>   CornersVec ;
 
   typedef FastTimeGeometryRecord     AlignedRecord   ; // NOTE: not aligned yet
@@ -73,7 +73,7 @@ public:
   CornersVec getCorners(const DetId& id) const; 
 
   // avoid sorting set in base class  
-  const std::vector<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
+  const std::unordered_set<DetId>& getValidDetIds( DetId::Detector det = DetId::Detector(0), int subdet = 0) const override { return m_validIds; }
   const std::vector<DetId>& getValidGeomDetIds( void ) const { return m_validGeomIds; }
 					       
   // Get closest cell, etc...

@@ -7,6 +7,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include <unordered_set>
+
 class HcalSimParameterMap : public CaloVSimParameterMap
 {
 public:
@@ -31,11 +33,11 @@ public:
 
   void setFrameSize(const DetId & detId, int frameSize);
   
-  void setHOZecotekDetIds(const std::vector<HcalDetId> & ids)
+  void setHOZecotekDetIds(const std::unordered_set<DetId> & ids)
   {
     theHOZecotekDetIds = ids;
   }
-  void setHOHamamatsuDetIds(const std::vector<HcalDetId> & ids)
+  void setHOHamamatsuDetIds(const std::unordered_set<DetId> & ids)
   {
     theHOHamamatsuDetIds = ids;
   }
@@ -51,8 +53,8 @@ private:
   HFSimParameters theHFParameters1;
   HFSimParameters theHFParameters2;
   HFSimParameters theZDCParameters;
-  std::vector<HcalDetId> theHOZecotekDetIds;
-  std::vector<HcalDetId> theHOHamamatsuDetIds;
+  std::unordered_set<DetId> theHOZecotekDetIds;
+  std::unordered_set<DetId> theHOHamamatsuDetIds;
 };
 
 #endif

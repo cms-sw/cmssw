@@ -282,11 +282,11 @@ ParticleTowerProducer::endJob() {
 void ParticleTowerProducer::resetTowers(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
   
-  std::vector<DetId> alldid =  geo_->getValidDetIds();
+  const std::unordered_set<DetId> & alldid =  geo_->getValidDetIds();
 
-  for(std::vector<DetId>::const_iterator did=alldid.begin(); did != alldid.end(); did++){
-    if( (*did).det() == DetId::Hcal ){
-       HcalDetId hid = HcalDetId(*did);
+  for(auto const did : alldid) {
+    if( did.det() == DetId::Hcal ){
+       HcalDetId hid = HcalDetId(did);
        if( hid.depth() == 1 ) {
 	 
 	 if(!useHF_){
@@ -294,7 +294,7 @@ void ParticleTowerProducer::resetTowers(edm::Event& iEvent,const edm::EventSetup
 	   //if((hid).iphi()==1)std::cout<<" ieta "<<(hid).ieta()<<" eta "<<pos.eta()<<" iphi "<<(hid).iphi()<<" phi "<<pos.phi()<<std::endl;
 	   if(fabs(pos.eta())>3.) continue;
 	 }
-	  towers_[(*did)] = 0.;
+	  towers_[did] = 0.;
        }
        
     }
@@ -328,13 +328,13 @@ DetId ParticleTowerProducer::getNearestTower(const reco::PFCandidate & in) const
 
   double minDeltaR = 9999;
 
-  std::vector<DetId> alldid =  geo_->getValidDetIds();
+  std::unordered_set<DetId> alldid =  geo_->getValidDetIds();
 
   DetId returnId;
   
   //int nclosetowers=0;
 
-  for(std::vector<DetId>::const_iterator did=alldid.begin(); did != alldid.end(); did++){
+  for(std::unordered_set<DetId>::const_iterator did=alldid.begin(); did != alldid.end(); did++){
     if( (*did).det() == DetId::Hcal ){
 
       HcalDetId hid(*did);
@@ -398,13 +398,13 @@ DetId ParticleTowerProducer::getNearestTower(double eta, double phi) const {
 
   double minDeltaR = 9999;
 
-  std::vector<DetId> alldid =  geo_->getValidDetIds();
+  std::unordered_set<DetId> alldid =  geo_->getValidDetIds();
 
   DetId returnId;
   
   //int nclosetowers=0;
 
-  for(std::vector<DetId>::const_iterator did=alldid.begin(); did != alldid.end(); did++){
+  for(std::unordered_set<DetId>::const_iterator did=alldid.begin(); did != alldid.end(); did++){
     if( (*did).det() == DetId::Hcal ){
 
       HcalDetId hid(*did);

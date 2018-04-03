@@ -49,7 +49,7 @@ GlobalPoint MuonDetIdAssociator::getPosition(const DetId& id) const {
    return GlobalPoint(point.x(),point.y(),point.z());
 }
 
-void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vector<DetId>& validIds) const {
+void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::unordered_set<DetId> validIds) const {
   validIds.clear();
   if (geometry_==nullptr) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
   if (subDectorIndex!=0) throw cms::Exception("FatalError") << 
@@ -61,14 +61,14 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
   for(auto it = geomDetsCSC.begin(); it != geomDetsCSC.end(); ++it)
     if (auto csc = dynamic_cast<const CSCChamber*>(*it)) {
       if ((! includeBadChambers_) && (cscbadchambers_->isInBadChamber(CSCDetId(csc->id())))) continue;
-      validIds.push_back(csc->id());
+      validIds.emplace(csc->id());
     }
   
   // DT
   if (! geometry_->slaveGeometry(DTChamberId()) ) throw cms::Exception("FatalError") << "Cannnot DTGeometry\n";
   auto const & geomDetsDT = geometry_->slaveGeometry(DTChamberId())->dets();
   for(auto it = geomDetsDT.begin(); it != geomDetsDT.end(); ++it)
-    if (auto dt = dynamic_cast<const DTChamber*>(*it)) validIds.push_back(dt->id());
+    if (auto dt = dynamic_cast<const DTChamber*>(*it)) validIds.emplace(dt->id());
 
   // RPC
   if (! geometry_->slaveGeometry(RPCDetId()) ) throw cms::Exception("FatalError") << "Cannnot RPCGeometry\n";
@@ -77,7 +77,7 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
     if (auto rpc = dynamic_cast<const RPCChamber*>(*it)) {
       std::vector< const RPCRoll*> rolls = (rpc->rolls());
       for(std::vector<const RPCRoll*>::iterator r = rolls.begin(); r != rolls.end(); ++r)
-	validIds.push_back((*r)->id().rawId());
+	validIds.emplace((*r)->id().rawId());
     }
 
   // GEM
@@ -86,7 +86,7 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
     auto const & geomDetsGEM = geometry_->slaveGeometry(GEMDetId())->dets();
     for(auto it = geomDetsGEM.begin(); it != geomDetsGEM.end(); ++it){
       if (auto gem = dynamic_cast<const GEMSuperChamber*>(*it)) {
-	validIds.push_back(gem->id());
+	validIds.emplace(gem->id());
       }
     }
   }
@@ -96,7 +96,7 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
     auto const & geomDetsME0 = geometry_->slaveGeometry(ME0DetId())->dets();
     for(auto it = geomDetsME0.begin(); it != geomDetsME0.end(); ++it){
       if (auto me0 = dynamic_cast<const ME0Chamber*>(*it)) {
-	validIds.push_back(me0->id());
+	validIds.emplace(me0->id());
       }
     }
   }

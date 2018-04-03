@@ -30,46 +30,29 @@ HcalDDDGeometry::fillDetIds() const
      //another thread already did the work
      return;
    }
-   const std::vector<DetId>& baseIds ( CaloSubdetectorGeometry::getValidDetIds() ) ;
-   for( unsigned int i ( 0 ) ; i != baseIds.size() ; ++i ) 
-   {
-      const DetId id ( baseIds[i] );
-      if( id.subdetId() == HcalBarrel )
-      { 
-	 m_hbIds.emplace_back( id ) ;
-      }
-      else
-      {
-	 if( id.subdetId() == HcalEndcap )
-	 { 
-	    m_heIds.emplace_back( id ) ;
-	 }
-	 else
-	 {
-	    if( id.subdetId() == HcalOuter )
-	    { 
-	       m_hoIds.emplace_back( id ) ;
-	    }
-	    else
-	    {
-	       if( id.subdetId() == HcalForward )
-	       { 
-		  m_hfIds.emplace_back( id ) ;
-	       }
-	    }
-	 }
-      }
+   const std::unordered_set<DetId>& baseIds ( CaloSubdetectorGeometry::getValidDetIds() ) ;
+   for( auto const & id : baseIds) {
+     if (id.subdetId() == HcalBarrel) { 
+	 m_hbIds.emplace( id ) ;
+     } else if (id.subdetId() == HcalEndcap) { 
+       m_heIds.emplace( id ) ;
+     } else if (id.subdetId() == HcalOuter) { 
+       m_hoIds.emplace(id) ;
+     } else if (id.subdetId() == HcalForward) { 
+       m_hfIds.emplace(id) ;
+     }
    }
+   /*
    std::sort( m_hbIds.begin(), m_hbIds.end() ) ;
    std::sort( m_heIds.begin(), m_heIds.end() ) ;
    std::sort( m_hoIds.begin(), m_hoIds.end() ) ;
    std::sort( m_hfIds.begin(), m_hfIds.end() ) ;
-       
-   m_emptyIds.resize( 0 ) ;
+   */  
+   m_emptyIds.clear() ;
    m_filledDetIds = true;
 }
 
-std::vector<DetId> const &
+std::unordered_set<DetId> const &
 HcalDDDGeometry::getValidDetIds(DetId::Detector det,
 				int subdet) const
 {
@@ -216,7 +199,7 @@ HcalDDDGeometry::newCellFast( const GlobalPoint& f1 ,
 			      const DetId&       detId   )
 {
   newCellImpl(f1,f2,f3,parm,detId);
-  m_validIds.emplace_back(detId);
+  m_validIds.emplace(detId);
 }
 
 const CaloCellGeometry* HcalDDDGeometry::getGeometryRawPtr (uint32_t din) const {
@@ -245,5 +228,5 @@ void HcalDDDGeometry::increaseReserve(unsigned int extra) {
 }
 
 void HcalDDDGeometry::sortValidIds() {
-  std::sort(m_validIds.begin(),m_validIds.end());
+//std::sort(m_validIds.begin(),m_validIds.end());
 }

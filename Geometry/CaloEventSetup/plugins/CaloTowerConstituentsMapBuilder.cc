@@ -128,9 +128,9 @@ void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry,
   const CaloSubdetectorGeometry* geomHE = geometry->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
   
   //get list of EE detids
-  const std::vector<DetId>& vec(geomEE->getValidDetIds());
+  const std::unordered_set<DetId>& vec(geomEE->getValidDetIds());
   //loop over EE detids
-  for(auto detId_itr : vec){
+  for(auto const & detId_itr : vec){
     //get detid position
     auto cellGeometry = geomEE->getGeometry(detId_itr);
     const GlobalPoint& gp (cellGeometry->getPosition()) ;

@@ -59,7 +59,7 @@ void FastTimeGeometryTester::analyze(const edm::Event& ,
 void FastTimeGeometryTester::doTest(const FastTimeGeometry* geom, 
 				    ForwardSubdetector subdet) {
   
-  const std::vector<DetId>& ids = geom->getValidDetIds();
+  const std::unordered_set<DetId>& ids = geom->getValidDetIds();
   std::cout << ids.size() << " valid ids for " << geom->cellElement() 
 	    << std::endl;
 

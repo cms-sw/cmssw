@@ -23,7 +23,7 @@ typedef std::vector<float> ParmVec;
 HGCalGeometry::HGCalGeometry( const HGCalTopology& topology_ )
   : m_topology( topology_ ),
     m_cellVec( topology_.totalGeomModules()),
-    m_validGeomIds( topology_.totalGeomModules()),
+    m_validGeomIds(topology_.totalGeomModules()),
     m_halfType( topology_.detectorType()),
     m_subdet( topology_.subDetector()) {
   
@@ -83,11 +83,11 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
     id.iCell  = cell;
     DetId idc = topology().encode(id);
     if (topology().valid(idc)) {
-      m_validIds.emplace_back(idc);
+      m_validIds.emplace(idc);
       if ((topology().dddConstants().geomMode() == HGCalGeometryMode::Square) &&
 	  (!m_halfType)) {
 	id.iSubSec = -id.iSubSec;
-	m_validIds.emplace_back( topology().encode(id));
+	m_validIds.emplace( topology().encode(id));
 	id.iSubSec = -id.iSubSec;
       }
     }
@@ -337,8 +337,10 @@ namespace {
 }
 
 void HGCalGeometry::sortDetIds( void ) {
+  /*
   m_validIds.shrink_to_fit();
   std::sort( m_validIds.begin(), m_validIds.end(), rawIdSort());
+  */
 }
 
 void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,

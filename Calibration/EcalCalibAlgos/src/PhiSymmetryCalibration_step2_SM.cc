@@ -91,16 +91,14 @@ void PhiSymmetryCalibration_step2_SM::setUp(const edm::EventSetup& se){
     if (ret) edm::LogError("PhiSym")<<"Error reading XML files"<<endl;
   } else {
 
-    for (vector<DetId>::iterator it=barrelCells.begin(); it!=barrelCells.end(); ++it){
-      miscalib_[*it]=1;
-     }
+    for (auto const & it : barrelCells)
+      miscalib_[it]=1;
 
-    for (vector<DetId>::iterator it=endcapCells.begin(); it!=endcapCells.end(); ++it){
-      miscalib_[*it]=1;
+    for (auto const & it : endcapCells)
+      miscalib_[it]=1;
  
-    }
   }
-    
+  
   // if we are reiterating, read constants from previous iter
   // if not put them to one
   if (reiteration_){
@@ -120,16 +118,14 @@ void PhiSymmetryCalibration_step2_SM::setUp(const edm::EventSetup& se){
     
   } else {
     
-    for (vector<DetId>::iterator it=barrelCells.begin(); 
-	 it!=barrelCells.end(); ++it)
-      oldCalibs_[*it]=1;
-     
+    for (auto const &  it : barrelCells)
+      oldCalibs_[it]=1;
+    
 
-    for (vector<DetId>::iterator it=endcapCells.begin(); 
-	 it!=endcapCells.end(); ++it)
-      oldCalibs_[*it]=1;
-      
-   
+    for (auto const &  it : endcapCells)
+      oldCalibs_[it]=1;
+    
+    
   } // else 
   
 }
@@ -290,7 +286,7 @@ void PhiSymmetryCalibration_step2_SM::endJob(){
 
   TH1D ebhisto("eb","eb",100, 0.,2.);
 
-  std::vector<DetId>::const_iterator barrelIt=barrelCells.begin();
+  std::unordered_set<DetId>::const_iterator barrelIt=barrelCells.begin();
   for (; barrelIt!=barrelCells.end(); barrelIt++) {
     EBDetId eb(*barrelIt);
     int ieta = abs(eb.ieta())-1;
@@ -314,7 +310,7 @@ void PhiSymmetryCalibration_step2_SM::endJob(){
   }// barrelit
 
   TH1D eehisto("ee","ee",100, 0.,2.);
-  std::vector<DetId>::const_iterator endcapIt=endcapCells.begin();
+  std::unordered_set<DetId>::const_iterator endcapIt=endcapCells.begin();
 
   for (; endcapIt!=endcapCells.end(); endcapIt++) {
     EEDetId ee(*endcapIt);

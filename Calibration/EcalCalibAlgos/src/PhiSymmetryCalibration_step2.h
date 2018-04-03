@@ -67,8 +67,8 @@ class PhiSymmetryCalibration_step2 :  public edm::EDAnalyzer
 
   EcalGeomPhiSymHelper e_; 
 
-  std::vector<DetId> barrelCells;
-  std::vector<DetId> endcapCells;
+  std::unordered_set<DetId> barrelCells;
+  std::unordered_set<DetId> endcapCells;
 
   bool firstpass_;
   int statusThreshold_;

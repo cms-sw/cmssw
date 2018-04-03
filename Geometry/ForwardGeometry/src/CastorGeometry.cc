@@ -35,7 +35,7 @@ DetId
 CastorGeometry::getClosestCell(const GlobalPoint& r) const
 {
   DetId returnId ( 0 ) ;
-  const std::vector<DetId>& detIds ( getValidDetIds() ) ;
+  const std::unordered_set<DetId>& detIds ( getValidDetIds() ) ;
   for(auto detId : detIds)  {
     auto cell = getGeometry(detId);
     if( nullptr != cell &&

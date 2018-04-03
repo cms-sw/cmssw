@@ -109,10 +109,10 @@ EcalSimple2007H4TBAnalyzer::beginRun(edm::Run const &, edm::EventSetup const& iS
 
   
   theTBGeometry_ =  pG.product();
-//  const std::vector<DetId>& validIds=theTBGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
+//  const std::unordered_set<DetId>& validIds=theTBGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
 //   std::cout << "Found " << validIds.size() << " channels in the geometry" << std::endl;
-//   for (unsigned int i=0;i<validIds.size();++i)
-//     std::cout << EEDetId(validIds[i]) << std::endl;
+//   for (auto const & id : validIds)
+//     std::cout << EEDetId(id) << std::endl;
 
 // Amplitude vs TDC offset
   h_ampltdc = new TH2F("h_ampltdc","Max Amplitude vs TDC offset", 100,0.,1.,1000, 0., 4000.);

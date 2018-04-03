@@ -51,7 +51,7 @@ class CaloDetIdAssociator: public DetIdAssociator{
    
    GlobalPoint getPosition(const DetId& id) const override;
    
-   void getValidDetIds( unsigned int subDetectorIndex, std::vector<DetId>& ) const override;
+   void getValidDetIds( unsigned int subDetectorIndex, std::unordered_set<DetId> ) const override;
    
    std::pair<const_iterator, const_iterator> getDetIdPoints(const DetId& id, std::vector<GlobalPoint>& points) const override;
 

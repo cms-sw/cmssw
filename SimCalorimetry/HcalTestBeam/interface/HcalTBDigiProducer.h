@@ -18,6 +18,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalTimeSlewSim.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
+#include<unordered_set>
 #include<vector>
 #include<string>
 
@@ -85,8 +86,8 @@ private:
   HODigitizer   * theHODigitizer;
  
   const CaloGeometry * theGeometry;
-  std::vector<DetId>   hbheCells;
-  std::vector<DetId>   hoCells;
+  std::unordered_set<DetId>   hbheCells;
+  std::unordered_set<DetId>   hoCells;
 
   std::vector<PCaloHit> theHBHEHits, theHOHits;
 

@@ -65,7 +65,7 @@ void FastTimeGeometry::newCell( const GlobalPoint& f1 ,
       id.iPhi  = phi;
       DetId idc = topology().encode(id);
       if (topology().valid(idc)) {
-	m_validIds.emplace_back(idc);
+	m_validIds.emplace(idc);
       }
     }
   }
@@ -210,8 +210,10 @@ namespace {
 }
 
 void FastTimeGeometry::sortDetIds( void ) {
+  /*
   m_validIds.shrink_to_fit();
   std::sort( m_validIds.begin(), m_validIds.end(), rawIdSort());
+  */
 }
 
 void FastTimeGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,

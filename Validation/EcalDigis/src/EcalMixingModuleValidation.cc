@@ -743,13 +743,13 @@ void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup & even
 
   // vector of DetId with energy above a fraction of the gun's energy
 
-  const std::vector<DetId>& theSDId = theGeometry->getValidDetIds( DetId::Ecal, thisDet );
+  const std::unordered_set<DetId>& theSDId = theGeometry->getValidDetIds( DetId::Ecal, thisDet );
 
   std::vector<DetId> theOverThresholdId;
-  for ( unsigned int i = 0 ; i < theSDId.size() ; i++ ) {
+  for (auto const & i : theSDId) {
 
-    int sdId = theSDId[i].rawId();
-    if ( SignalSimMap[sdId] > theSimThreshold ) theOverThresholdId.push_back( theSDId[i] );
+    int sdId = i.rawId();
+    if (SignalSimMap[sdId] > theSimThreshold) theOverThresholdId.push_back(i);
 
   }
 

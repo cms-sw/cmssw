@@ -53,7 +53,7 @@ HcalGeometryDump::analyze(const edm::Event& /*iEvent*/,
     caloGeom = (HcalGeometry*)(m_loader.load(topology, hcons));
   }
 
-  const std::vector<DetId>& ids = caloGeom->getValidDetIds();
+  const std::unordered_set<DetId>& ids = caloGeom->getValidDetIds();
 
   for (int subdet=1; subdet<= 4; ++subdet) {
     std::vector<unsigned int> detIds;

@@ -8,6 +8,7 @@
 
 #include <map>
 #include <set>
+#include <unordered_set>
 #include <vector>
 
 namespace CLHEP {
@@ -45,7 +46,7 @@ public:
 
   virtual CaloSamples makeBlankSignal(const DetId & detId) const;
 
-  virtual void setDetIds(const std::vector<DetId> & detIds);
+  virtual void setDetIds(const std::unordered_set<DetId> & detIds);
 
   virtual int getReadoutFrameSize(const DetId& id) const;
 
@@ -61,7 +62,7 @@ private:
 
   photonTimeMap precisionTimedPhotons;
 
-  const std::vector<DetId>* theDetIds;
+  const std::unordered_set<DetId>* theDetIds;
 
   std::map<int,HcalSiPMShape> shapeMap;
 };
