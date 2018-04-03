@@ -30,7 +30,19 @@ namespace btagbtvdeep {
                                             const reco::Jet & jet,
                                             const TrackInfoBuilder & track_info,
                                             const float & drminpfcandsv,
-                                            ChargedCandidateFeatures & c_pf_features) {
+                                            ChargedCandidateFeatures & c_pf_features,
+					    const bool flip) {
+
+	float TrackSip2dVal = track_info.getTrackSip2dVal();
+	float TrackSip2dSig = track_info.getTrackSip2dSig();
+	float TrackSip3dVal = track_info.getTrackSip3dVal();
+	float TrackSip3dSig = track_info.getTrackSip3dSig();
+	if(flip == true){
+	  TrackSip2dVal = -1.0*TrackSip2dVal;
+	  TrackSip2dSig = -1.0*TrackSip2dSig;
+	  TrackSip3dSig = -1.0*TrackSip3dSig;
+	  TrackSip3dVal = -1.0*TrackSip3dVal;
+	}
 
         c_pf_features.ptrel = catch_infs_and_bound(c_pf->pt()/jet.pt(),
                                                           0,-1,0,-1);
@@ -40,10 +52,10 @@ namespace btagbtvdeep {
         c_pf_features.btagPf_trackPPar       =catch_infs_and_bound(track_info.getTrackPPar(),    0,-1e5,1e5 );
         c_pf_features.btagPf_trackDeltaR     =catch_infs_and_bound(track_info.getTrackDeltaR(),  0,-5,5 );
         c_pf_features.btagPf_trackPParRatio  =catch_infs_and_bound(track_info.getTrackPParRatio(),0,-10,100);
-        c_pf_features.btagPf_trackSip3dVal   =catch_infs_and_bound(track_info.getTrackSip3dVal(), 0, -1,1e5 );
-        c_pf_features.btagPf_trackSip3dSig   =catch_infs_and_bound(track_info.getTrackSip3dSig(), 0, -1,4e4 );
-        c_pf_features.btagPf_trackSip2dVal   =catch_infs_and_bound(track_info.getTrackSip2dVal(), 0, -1,70 );
-        c_pf_features.btagPf_trackSip2dSig   =catch_infs_and_bound(track_info.getTrackSip2dSig(), 0, -1,4e4 );
+        c_pf_features.btagPf_trackSip3dVal   =catch_infs_and_bound(TrackSip3dVal, 0, -1,1e5 );
+        c_pf_features.btagPf_trackSip3dSig   =catch_infs_and_bound(TrackSip3dSig, 0, -1,4e4 );
+        c_pf_features.btagPf_trackSip2dVal   =catch_infs_and_bound(TrackSip2dVal, 0, -1,70 );
+        c_pf_features.btagPf_trackSip2dSig   =catch_infs_and_bound(TrackSip2dSig, 0, -1,4e4 );
         c_pf_features.btagPf_trackJetDistVal =catch_infs_and_bound(track_info.getTrackJetDistVal(),0,-20,1 );
 
 
@@ -56,9 +68,10 @@ namespace btagbtvdeep {
                                             const pat::Jet & jet,
                                             const TrackInfoBuilder & track_info,
                                             const float drminpfcandsv,
-                                            ChargedCandidateFeatures & c_pf_features) {
+                                            ChargedCandidateFeatures & c_pf_features,
+					    const bool flip) {
 
-        CommonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, c_pf_features);
+        CommonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, c_pf_features, flip);
     
         c_pf_features.vtx_ass = c_pf->pvAssociationQuality();
 
@@ -85,9 +98,10 @@ namespace btagbtvdeep {
                                           const float drminpfcandsv, const float puppiw,
                                           const int pv_ass_quality,
                                           const reco::VertexRef & pv, 
-                                          ChargedCandidateFeatures & c_pf_features) {
+                                          ChargedCandidateFeatures & c_pf_features,
+					  const bool flip) {
 
-        CommonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, c_pf_features);
+        CommonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, c_pf_features, flip);
     
         c_pf_features.vtx_ass = (float) pat::PackedCandidate::PVAssociationQuality(qualityMap[pv_ass_quality]);
         if (c_pf->trackRef().isNonnull() && 
