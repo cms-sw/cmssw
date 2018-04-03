@@ -18,6 +18,8 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		edm::InputTag("hcalDigis"));
 	_tagTrigger = ps.getUntrackedParameter<edm::InputTag>("tagTrigger",
 		edm::InputTag("tbunpacker"));
+	_taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN",
+		edm::InputTag("hcalDigis"));
 	_tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
 	_tokHE = consumes<QIE11DigiCollection>(_tagHE);
 	_tokHO = consumes<HODigiCollection>(_tagHO);
