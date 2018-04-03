@@ -26,7 +26,6 @@ bool PythiaFilterGammaGamma::filter(edm::StreamID, edm::Event& iEvent, const edm
 
   const HepMC::GenEvent *myGenEvent = evt->GetEvent();
 
-  std::cout << "FILTERING EVENT " << iEvent.id().event() << "/" << iEvent.id().luminosityBlock() << "/" << iEvent.id().run()  << std::endl;
   return hepMCFilter_->filter(myGenEvent);
 
 }
