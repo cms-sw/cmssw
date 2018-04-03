@@ -62,7 +62,6 @@ SiPixelStatusProducer::SiPixelStatusProducer(const edm::ParameterSet& iConfig){
 
   fPixelClusterLabel_   = iConfig.getParameter<edm::ParameterSet>("SiPixelStatusProducerParameters").getUntrackedParameter<edm::InputTag>("pixelClusterLabel");
   fSiPixelClusterToken_ = consumes<edmNew::DetSetVector<SiPixelCluster>>(fPixelClusterLabel_);
-  monitorOnDoubleColumn_ = iConfig.getParameter<edm::ParameterSet>("SiPixelStatusProducerParameters").getUntrackedParameter<bool>("monitorOnDoubleColumn",false);
   resetNLumi_   = iConfig.getParameter<edm::ParameterSet>("SiPixelStatusProducerParameters").getUntrackedParameter<int>("resetEveryNLumi",1);
 
   ftotalevents = 0;
@@ -85,14 +84,10 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
   edm::LogInfo("SiPixelStatusProducer")
                  << "beginlumi setup "<<endl;
 
-  const edm::TimeValue_t fbegintimestamp = lumiSeg.beginTime().value();
-  const std::time_t ftmptime = fbegintimestamp >> 32;
-
   if ( countLumi_ == 0 && resetNLumi_ > 0 ) {
 
     beginLumi_ = lumiSeg.luminosityBlock();
     beginRun_ = lumiSeg.run();
-    refTime_[0] = ftmptime;
     ftotalevents = 0;
 
   }
@@ -129,6 +124,7 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
           int nrocs = nROCrows*nROCcolumns;
 
           fDet.addModule(detid, nrocs);
+
           fSensors[detid] = std::make_pair(rowsperroc,colsperroc);
           fSensorLayout[detid] = std::make_pair(nROCrows,nROCcolumns);
 
@@ -152,7 +148,6 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
           }
 
          fRocIds[detid] = rocIdMap;
-
      }
 
   } // init when countLumi = 0
@@ -174,65 +169,49 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
   // ----------------------------------------------------------------------
 
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
-  iEvent.getByToken(fSiPixelClusterToken_, hClusterColl);
-  //const edmNew::DetSetVector<SiPixelCluster> *clustColl(0);
-  //clustColl = hClusterColl.product();
 
-  for (const auto& clusters: *hClusterColl) {
-        //loop over different clusters in a clusters vector (module)
-        for(const auto& clu: clusters) {
-           // loop over cluster in a given detId (module)
-           int detid = clusters.detId();
-           DetId detId = DetId(detid);
-           int rowsperroc = fSensors[detid].first;
-           int colsperroc = fSensors[detid].second;
+  if (iEvent.getByToken(fSiPixelClusterToken_, hClusterColl)){
 
-           int nROCcolumns = fSensorLayout[detid].second;
+     for (const auto& clusters: *hClusterColl) {
+           //loop over different clusters in a clusters vector (module)
+           for(const auto& clu: clusters) {
+              // loop over cluster in a given detId (module)
+              int detid = clusters.detId();
+              int rowsperroc = fSensors[detid].first;
+              int colsperroc = fSensors[detid].second;
 
-           //const SiPixelCluster* siPixelCluster = dynamic_cast<const SiPixelCluster*>(&clu);
-           int roc(-1), rocC(-1), rocR(-1);
+              int nROCcolumns = fSensorLayout[detid].second;
 
-           std::map<int,int> fRocIds_detid;
-           if(fRocIds.find(detid)!=fRocIds.end()){
-              fRocIds_detid = fRocIds[detid];
-           }
+              int roc(-1);
+              std::map<int,int> fRocIds_detid;
+              if(fRocIds.find(detid)!=fRocIds.end()){
+                fRocIds_detid = fRocIds[detid];
+              }
 
-           const vector<SiPixelCluster::Pixel>& pixvector = clu.pixels();
-           for (unsigned int i = 0; i < pixvector.size(); ++i) {
+              const vector<SiPixelCluster::Pixel>& pixvector = clu.pixels();
+              for (unsigned int i = 0; i < pixvector.size(); ++i) {
 
-                int mr0 = pixvector[i].x; // constant column direction is along x-axis,
-                int mc0 = pixvector[i].y; // constant row direction is along y-axis
+                   int mr0 = pixvector[i].x; // constant column direction is along x-axis,
+                   int mc0 = pixvector[i].y; // constant row direction is along y-axis
 
-                if(monitorOnDoubleColumn_) onlineRocColRow(detId, mr0, mc0, roc, rocR, rocC);
-                else {
+                   int irow = mr0/rowsperroc;
+                   int icol = mc0/colsperroc;
 
-                     int irow = mr0/rowsperroc;
-                     int icol = mc0/colsperroc;
+                   int key = indexROC(irow,icol,nROCcolumns);
+                   if(fRocIds_detid.find(key)!=fRocIds_detid.end()){
+                      roc = fRocIds_detid[key];
+                   }
 
-                     int key = indexROC(irow,icol,nROCcolumns);
-                     if(fRocIds_detid.find(key)!=fRocIds_detid.end()){
-                        roc = fRocIds_detid[key];
-                     }
+                   fDet.fillDIGI(detid, roc);
 
-                     // if monitor on whole ROC DIGI occupancy, so pixel column and row are nuisances
-                     // just use the "center" of the ROC as a dummy local row/column
-                     rocR = rowsperroc/2-1;
-                     rocC = colsperroc/2-1;
+              }// loop over pixels in a given cluster
 
-                }
+           }// loop over cluster in a given detId (module)
 
-                fDet.fillDIGI(detid, roc, rocC/2);
+    }// loop over detId-grouped clusters in cluster detId-grouped clusters-vector
 
-            }// loop over pixels in a given cluster
-
-        }// loop over cluster in a given detId (module)
-
-  }// loop over detId-grouped clusters in cluster detId-grouped clusters-vector
-
+  } // 
   //////////////////////////////////////////////////////////////////////
-
-  const edm::TimeValue_t ftimestamp = iEvent.time().value();
-  std::time_t ftmptime = ftimestamp >> 32;
 
   // the error given by FED due to stuck TBM
   edm::Handle<PixelFEDChannelCollection> pixelFEDChannelCollectionHandle;
@@ -249,7 +228,7 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
 
                 DetId detId = disabledChannels.detId();
                 int detid = detId.rawId();
-                fDet.fillStuckTBM(detid,ch,ftmptime);
+                fDet.fillStuckTBM(detid,ch);
 
             } // loop over different PixelFED in a PixelFED vector (different channel for a given module)
 
@@ -275,10 +254,6 @@ void SiPixelStatusProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumi
   edm::LogInfo("SiPixelStatusProducer")
                  << "endlumi producer "<<endl;
 
-  const edm::TimeValue_t fendtimestamp = lumiSeg.endTime().value();
-  const std::time_t fendtime = fendtimestamp >> 32;
-  refTime_[1] = fendtime;
-
   endLumi_ = lumiSeg.luminosityBlock();
   endRun_  = lumiSeg.run();
 
@@ -288,7 +263,6 @@ void SiPixelStatusProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumi
 
   fDet.setRunRange(beginRun_,endRun_);
   fDet.setLSRange(beginLumi_,endLumi_);
-  fDet.setRefTime(refTime_[0],refTime_[1]);
   fDet.setNevents(ftotalevents);
 
   // save result

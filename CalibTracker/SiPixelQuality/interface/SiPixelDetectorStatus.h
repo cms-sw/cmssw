@@ -25,9 +25,9 @@ public:
   void addModule(int detid, SiPixelModuleStatus a);
 
   // fill hit in double idc in ROC roc into module detid
-  void fillDIGI(int detid, int roc, int idc);
+  void fillDIGI(int detid, int roc);
   // fill stuck TBM info
-  void fillStuckTBM(int detid, PixelFEDChannel ch, std::time_t time);
+  void fillStuckTBM(int detid, PixelFEDChannel ch);
 
   std::map<int, std::vector<int>> getStuckTBMsRocs();
 
@@ -54,8 +54,6 @@ public:
   std::pair<int,int> getRunRange() {return std::make_pair(fRun0,fRun1);}
   void setLSRange(int ls0, int ls1)  {fLS0 = ls0; fLS1 = ls1;}
   std::pair<int,int> getLSRange() {return std::make_pair(fLS0,fLS1);}
-  void setRefTime(std::time_t refTime0, std::time_t refTime1) {fTime0 = refTime0; fTime1 = refTime1;}
-  std::pair<std::time_t,std::time_t> getRefTime() {return std::make_pair(fTime0,fTime1);}
 
   // total processed events
   void setNevents(unsigned long int N){ fNevents = N; }
@@ -63,12 +61,10 @@ public:
 
   void resetDetectorStatus() { fModules.clear(); fDetAverage=0; fDetSigma=0; fDetHits=0; fNevents=0;
                                fRun0 = 99999999; fRun1 = 0; fLS0 = 99999999; fLS1 = 0; 
-                               fTime0 = 0; fTime1 = 0;
                              }
 
   // combine detector status
   void updateDetectorStatus(SiPixelDetectorStatus newData);
-  SiPixelDetectorStatus combineDetectorStatus(SiPixelDetectorStatus newData);
 
   // detector status
   std::map<int, SiPixelModuleStatus> getDetectorStatus(){ return fModules; }
@@ -83,9 +79,6 @@ public:
   // first and last run seen in this instance (likely to be the same number!)
   int fRun0, fRun1;
 
-  // being and end time stamp
-  std::time_t fTime0, fTime1;
-  
   // number of events processed
   unsigned long int fNevents;
 
