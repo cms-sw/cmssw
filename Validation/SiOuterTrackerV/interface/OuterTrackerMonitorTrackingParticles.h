@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -30,6 +31,8 @@ public:
   ~OuterTrackerMonitorTrackingParticles() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  int Layer(const float R_, const float Z_);
+
 
   // Tracking particle distributions
   MonitorElement* trackParts_Eta = nullptr;
@@ -120,5 +123,17 @@ public:
    double TP_maxVtxZ;
    int TP_select_eventid;
    std::string topFolderName_;
+
+   // The following adds a variable that is the number of layers hit for each tracking particle
+   struct TpStruct{
+     int TpId;
+     std::vector<bool> layer;
+     int Nlayers(){ //Counts how many layers are set to "true" for their hit status
+       int layers=0;
+       for(unsigned l=0; l<layer.size(); ++l) if(layer[l]) ++layers;
+       return layers;
+     }
+   };
+
 };
 #endif
