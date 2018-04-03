@@ -248,15 +248,16 @@ void SiPixelStatusManager::createStuckTBMs(){
             // if the badroc list differs for any detid, update the payload
             if(tmpBadRocLists[detid]!=(stuckTBMsMap_[previousLumi])[detid]){
                sameAsLastIOV = false;
-               return;
+               break; // jump out of the loop once a new payload is found
             }       
         }
 
         if(sameAsLastIOV==false){
             //only write new IOV when this Lumi is not equal to the previous one
-
             stuckTBMsMap_[tmpLumi] = tmpBadRocLists; 
+            // and reset
             previousLumi = tmpLumi;
+            sameAsLastIOV = true;
 
         }
 
