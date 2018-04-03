@@ -67,6 +67,7 @@ l1t::GlobalBoard::GlobalBoard() :
     m_candL1External( new BXVector<const GlobalExtBlk*>),
     m_firstEv(true),
     m_firstEvLumiSegment(true),
+    m_currentLumi(0),
     m_isDebugEnabled(edm::isDebugEnabled())
 {
 
@@ -957,10 +958,13 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
 	m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
       }
       m_firstEv = false;
+      m_currentLumi=iEvent.luminosityBlock();
+      std::cout << "CCLA GlobalBoard -- First event. Lumi block: " << iEvent.luminosityBlock() << std::endl;
     }
 
     // TODO FIXME find the beginning of the luminosity segment
-    if( m_firstEvLumiSegment ){
+    if( m_firstEvLumiSegment || m_currentLumi != iEvent.luminosityBlock() ){
+      std::cout << "CCLA GlobalBoard -- New Lumi Segment: " << iEvent.luminosityBlock() << std::endl;
 
       m_prescaleCounterAlgoTrig.clear();
       for( int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent ){
@@ -968,6 +972,7 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
       }
 
       m_firstEvLumiSegment = false;
+      m_currentLumi=iEvent.luminosityBlock();
     }
 
     // Copy Algorithm bits to Prescaled word 
