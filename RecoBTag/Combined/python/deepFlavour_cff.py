@@ -15,8 +15,8 @@ pfDeepCSVNegativeTagInfos = pfDeepCSVTagInfos.clone(
 	)
 pfDeepCSVNegativeTagInfos.computer.vertexFlip = True
 pfDeepCSVNegativeTagInfos.computer.trackFlip = True
-pfDeepCSVNegativeTagInfos.computer.trackSelection.sip3dSigMax = 0
-pfDeepCSVNegativeTagInfos.computer.trackPseudoSelection.sip3dSigMax = 0
+pfDeepCSVNegativeTagInfos.computer.trackSelection.sip3dSigMax = 10.0
+pfDeepCSVNegativeTagInfos.computer.trackPseudoSelection.sip3dSigMax = 10.0
 pfDeepCSVNegativeTagInfos.computer.trackPseudoSelection.sip2dSigMin = -99999.9
 pfDeepCSVNegativeTagInfos.computer.trackPseudoSelection.sip2dSigMax = -2.0
 
