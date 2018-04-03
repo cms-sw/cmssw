@@ -78,6 +78,8 @@ TagProbeFitter::TagProbeFitter(const std::vector<std::string>& inputFileNames, s
   // make integration very precise
   RooAbsReal::defaultIntegratorConfig()->setEpsAbs(1e-13);
   RooAbsReal::defaultIntegratorConfig()->setEpsRel(1e-13);
+
+  split_mode = 0;
 }
 
 TagProbeFitter::~TagProbeFitter(){
@@ -95,6 +97,11 @@ void TagProbeFitter::setQuiet(bool quiet_) {
         RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
     }
 }
+
+void TagProbeFitter::setSplitMode(unsigned int nevents) { 
+  split_mode = nevents; 
+}
+
 bool TagProbeFitter::addVariable(string name, string title, double low, double hi, string units){
   RooRealVar temp(name.c_str(), title.c_str(), low, hi, units.c_str());
   temp.setBins(5000,"cache");
