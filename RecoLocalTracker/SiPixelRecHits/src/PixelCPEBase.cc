@@ -239,9 +239,24 @@ PixelCPEBase::setTheClu( DetParam const & theDetParam, ClusterParam & theCluster
    minInY = theClusterParam.theCluster->minPixelCol();
    maxInX = theClusterParam.theCluster->maxPixelRow();
    maxInY = theClusterParam.theCluster->maxPixelCol();
+
+   if      ( theDetParam.theRecTopol->isItEdgePixelInX(minInX) )
+     theClusterParam.edgeTypeX_ = 1;
+   else if ( theDetParam.theRecTopol->isItEdgePixelInX(maxInX) )
+     theClusterParam.edgeTypeX_ = 2;
+   else
+     theClusterParam.edgeTypeX_ = 0;
+     
+   if      ( theDetParam.theRecTopol->isItEdgePixelInY(minInY) )
+     theClusterParam.edgeTypeY_ = 1;
+   else if ( theDetParam.theRecTopol->isItEdgePixelInY(maxInY) )
+     theClusterParam.edgeTypeY_ = 2;
+   else
+     theClusterParam.edgeTypeY_ = 0;
    
-   theClusterParam.isOnEdge_ = theDetParam.theRecTopol->isItEdgePixelInX(minInX) | theDetParam.theRecTopol->isItEdgePixelInX(maxInX) |
-   theDetParam.theRecTopol->isItEdgePixelInY(minInY) | theDetParam.theRecTopol->isItEdgePixelInY(maxInY) ;
+   theClusterParam.isOnEdge_ = ( theClusterParam.edgeTypeX_ || theClusterParam.edgeTypeY_ );
+   // theClusterParam.isOnEdge_ = theDetParam.theRecTopol->isItEdgePixelInX(minInX) | theDetParam.theRecTopol->isItEdgePixelInX(maxInX) |
+   // theDetParam.theRecTopol->isItEdgePixelInY(minInY) | theDetParam.theRecTopol->isItEdgePixelInY(maxInY) ;
    
    // FOR NOW UNUSED. KEEP IT IN CASE WE WANT TO USE IT IN THE FUTURE
    // Bad Pixels have their charge set to 0 in the clusterizer

@@ -73,15 +73,18 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
    }
    else
    {
-      //cout << "PixelCPETemplateReco : Loading templates 40 and 41 from ASCII files ------------------------" << endl;
-      
-      if ( !SiPixelTemplate::pushfile( 40, thePixelTemp_ ) )
+      //cout << "PixelCPETemplateReco : Loading templates for barrel and forward from ASCII files ----------" << endl;
+      barrelTemplateID_  = conf.getParameter<int>( "barrelTemplateID" );
+      forwardTemplateID_ = conf.getParameter<int>( "forwardTemplateID" );
+      templateDir_       = conf.getParameter<int>( "directoryWithTemplates" );
+     
+      if ( !SiPixelTemplate::pushfile( barrelTemplateID_  , thePixelTemp_ , templateDir_ ) )
          throw cms::Exception("PixelCPETemplateReco")
-         << "\nERROR: Templates 40 not loaded correctly from text file. Reconstruction will fail.\n\n";
+	 << "\nERROR: Template ID " << barrelTemplateID_ << " not loaded correctly from text file. Reconstruction will fail.\n\n";
       
-      if ( !SiPixelTemplate::pushfile( 41, thePixelTemp_ ) )
+      if ( !SiPixelTemplate::pushfile( forwardTemplateID_ , thePixelTemp_ , templateDir_ ) )
          throw cms::Exception("PixelCPETemplateReco")
-         << "\nERROR: Templates 41 not loaded correctly from text file. Reconstruction will fail.\n\n";
+	 << "\nERROR: Template ID " << forwardTemplateID_ << " not loaded correctly from text file. Reconstruction will fail.\n\n";
    }
    
    speed_ = conf.getParameter<int>( "speed");
@@ -131,8 +134,10 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
       ID = theDetParam.detTemplateId;
       if(ID0!=ID) cout<<" different id"<< ID<<" "<<ID0<<endl;
    } else { // from asci file
-      if ( !fpix ) ID = 40; // barrel
-      else ID = 41; // endcap
+      if ( !fpix )
+	ID = barrelTemplateID_  ; // barrel
+      else
+	ID = forwardTemplateID_ ; // forward
    }
    //cout << "PixelCPETemplateReco : ID = " << ID << endl;
    

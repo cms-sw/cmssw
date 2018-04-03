@@ -1,5 +1,5 @@
-#ifndef RecoLocalTracker_SiPixelRecHits_PixelCPETemplateReco_H
-#define RecoLocalTracker_SiPixelRecHits_PixelCPETemplateReco_H
+#ifndef RecoLocalTracker_SiPixelRecHits_PixelCPEClusterRepair_H
+#define RecoLocalTracker_SiPixelRecHits_PixelCPEClusterRepair_H
 
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 
@@ -12,26 +12,27 @@
 //#include "Geometry/Surface/interface/GloballyPositioned.h"
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+// The template header files
+//
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplateReco2D.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate.h"
-#else
-#include "SiPixelTemplate.h"
-#endif
+#include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelTemplate2D.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
 
 #include <utility>
 #include <vector>
 
 
 #if 0
-/** \class PixelCPETemplateReco
+/** \class PixelCPEClusterRepair
  * Perform the position and error evaluation of pixel hits using
  * the Det angle to estimate the track impact angle
  */
 #endif
 
 class MagneticField;
-class PixelCPETemplateReco : public PixelCPEBase
+class PixelCPEClusterRepair : public PixelCPEBase
 {
 public:
    struct ClusterParamTemplate : ClusterParam
@@ -46,35 +47,50 @@ public:
       // These can only be accessed if we change silicon pixel data formats and add them to the rechit
       float templProbX_ ;
       float templProbY_ ;
-      
       float templProbQ_;
-      
-      int templQbin_ ;
-      
-      int ierr;
-      
+      int   templQbin_ ;
+      int   ierr;
+
+
+      // 2D fit stuff.
+      float templProbXY_ ;
+      bool  recommended3D_ ;
+      int   ierr2;
    };
    
-   // PixelCPETemplateReco( const DetUnit& det );
-   PixelCPETemplateReco(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&, const TrackerTopology&,
-                        const SiPixelLorentzAngle *, const SiPixelTemplateDBObject *);
+   // PixelCPEClusterRepair( const DetUnit& det );
+   PixelCPEClusterRepair(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&, const TrackerTopology&,
+			 const SiPixelLorentzAngle *, const SiPixelTemplateDBObject *, const SiPixel2DTemplateDBObject * );
    
-   ~PixelCPETemplateReco() override;
+   ~PixelCPEClusterRepair() override;
    
 private:
    ClusterParam * createClusterParam(const SiPixelCluster & cl) const override;
    
-   // We only need to implement measurementPosition, since localPosition() from
-   // PixelCPEBase will call it and do the transformation
-   // Gavril : put it back
+   // Calculate local position.  (Calls TemplateReco)
    LocalPoint localPosition (DetParam const & theDetParam, ClusterParam & theClusterParam) const override;
-   
-   // However, we do need to implement localError().
+   // Calculate local error. Note: it MUST be called AFTER localPosition() !!!
    LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const override;
    
-   // Template storage
-   std::vector< SiPixelTemplateStore > thePixelTemp_;
+   // Helper functions: 
+
+   // Call vanilla template reco, then clean-up
+   void callTempReco2D( DetParam const & theDetParam, 
+			ClusterParamTemplate & theClusterParam, 
+			SiPixelTemplateReco::ClusMatrix & clusterPayload,
+			int ID, LocalPoint & lp ) const;
+
+   // Call 2D template reco, then clean-up
+   void callTempReco3D( DetParam const & theDetParam, 
+			ClusterParamTemplate & theClusterParam, 
+			SiPixelTemplateReco2D::ClusMatrix & clusterPayload,
+			int ID, LocalPoint & lp ) const;
    
+
+   // Template storage
+   std::vector< SiPixelTemplateStore >   thePixelTemp_;
+   std::vector< SiPixelTemplateStore2D > thePixelTemp2D_;
+
    int speed_ ;
    
    bool UseClusterSplitter_;
@@ -83,6 +99,10 @@ private:
    int barrelTemplateID_ ;
    int forwardTemplateID_ ;
    std::string templateDir_ ;
+
+   // Configure 3D reco.
+   float minProbY_ ;
+   int   maxSizeMismatchInY_ ;
    
    //bool DoCosmics_;
    //bool LoadTemplatesFromDB_;

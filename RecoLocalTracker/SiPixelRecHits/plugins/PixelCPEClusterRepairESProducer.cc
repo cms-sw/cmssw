@@ -1,11 +1,13 @@
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateRecoESProducer.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateReco.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEClusterRepairESProducer.h"
+#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEClusterRepair.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
+#include "CalibTracker/Records/interface/SiPixel2DTemplateDBObjectESProducerRcd.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,7 +21,7 @@
 
 using namespace edm;
 
-PixelCPETemplateRecoESProducer::PixelCPETemplateRecoESProducer(const edm::ParameterSet & p) 
+PixelCPEClusterRepairESProducer::PixelCPEClusterRepairESProducer(const edm::ParameterSet & p) 
 {
   std::string myname = p.getParameter<std::string>("ComponentName");
 
@@ -33,10 +35,10 @@ PixelCPETemplateRecoESProducer::PixelCPETemplateRecoESProducer(const edm::Parame
 
 }
 
-PixelCPETemplateRecoESProducer::~PixelCPETemplateRecoESProducer() {}
+PixelCPEClusterRepairESProducer::~PixelCPEClusterRepairESProducer() {}
 
 std::shared_ptr<PixelClusterParameterEstimator> 
-PixelCPETemplateRecoESProducer::produce(const TkPixelCPERecord & iRecord){ 
+PixelCPEClusterRepairESProducer::produce(const TkPixelCPERecord & iRecord){ 
 
   ESHandle<MagneticField> magfield;
   iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
@@ -60,8 +62,18 @@ PixelCPETemplateRecoESProducer::produce(const TkPixelCPERecord & iRecord){
   ESHandle<SiPixelTemplateDBObject> templateDBobject;
   iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
 
-  //  cpe_  = std::make_shared<PixelCPETemplateReco>(pset_,magfield.product(),lorentzAngle.product(),templateDBobject.product() );
-  cpe_  = std::make_shared<PixelCPETemplateReco>(pset_,magfield.product(),*pDD.product(),*hTT.product(),lorentzAngleProduct,templateDBobject.product() );
+  ESHandle<SiPixel2DTemplateDBObject> templateDBobject2D;
+  iRecord.getRecord<SiPixel2DTemplateDBObjectESProducerRcd>().get(templateDBobject2D);
+
+  //  cpe_  = std::make_shared<PixelCPEClusterRepair>(pset_,magfield.product(),lorentzAngle.product(),templateDBobject.product() );
+  cpe_  =
+    std::make_shared<PixelCPEClusterRepair>(pset_,
+					    magfield.product(),
+					    *pDD.product(),
+					    *hTT.product(),
+					    lorentzAngleProduct,
+					    templateDBobject.product(),
+					    templateDBobject2D.product() );
   return cpe_;
 }
 

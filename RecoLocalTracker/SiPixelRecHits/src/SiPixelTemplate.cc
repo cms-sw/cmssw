@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.cc  Version 10.13
+//  SiPixelTemplate.cc  Version 10.20
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -78,6 +78,7 @@
 //  V10.11 - Allow subdetector ID=5 for FPix R2P2 [allows better internal labeling of templates]
 //  V10.12 - Enforce minimum signal size in pixel charge uncertainty calculation
 //  V10.13 - Update the variable size [SI_PIXEL_TEMPLATE_USE_BOOST] option so that it works with VI's enhancements
+//  V10.20 - Add directory path selection to the ascii pushfile method
 
 
 
@@ -126,7 +127,7 @@ using namespace edm;
 //! digits of filenum.
 //! \param filenum - an integer NNNN used in the filename template_summary_zpNNNN
 //****************************************************************
-bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > & thePixelTemp_)
+bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > & thePixelTemp_ , std::string dir)
 {
    // Add template stored in external file numbered filenum to theTemplateStore
    
@@ -147,8 +148,8 @@ bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > 
    //  Create different path in CMSSW than standalone
    
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-   tout << "CalibTracker/SiPixelESProducers/data/template_summary_zp"
-   << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
+   tout << dir << "template_summary_zp"
+	<< std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
    std::string tempf = tout.str();
    edm::FileInPath file( tempf.c_str() );
    tempfile = (file.fullPath()).c_str();
@@ -2573,6 +2574,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    
    
+   ilow = ihigh = 0;
    auto xxratio = 0.f;
    
    {
