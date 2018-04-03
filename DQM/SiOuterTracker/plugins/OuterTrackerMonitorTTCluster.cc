@@ -152,7 +152,7 @@ void OuterTrackerMonitorTTCluster::analyze(const edm::Event& iEvent, const edm::
 // ------------ method called once each job just before starting event loop  ------------
 void OuterTrackerMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const & run, edm::EventSetup const & es) {
   std::string HistoName;
-  int numDiscs = 5;
+  const int numDiscs = 5;
 
   iBooker.setCurrentFolder(topFolderName_+"/Clusters/NClusters");
 

@@ -139,7 +139,7 @@ OuterTrackerMonitorTTStub::analyze(const edm::Event& iEvent, const edm::EventSet
 // ------------ method called when starting to processes a run  ------------
 void OuterTrackerMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const & run, edm::EventSetup const & es) {
   std::string HistoName;
-  int numDiscs = 5;
+  const int numDiscs = 5;
   iBooker.setCurrentFolder(topFolderName_+"/Stubs/Position");
 
   edm::ParameterSet psTTStub_Barrel_XY =  conf_.getParameter<edm::ParameterSet>("TH2TTStub_Position");

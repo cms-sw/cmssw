@@ -235,389 +235,389 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 
 		if (merespt_eta0to0p7_pt2to3 && merespt_eta0p7to1_pt2to3 && merespt_eta1to1p2_pt2to3
 			&& merespt_eta1p2to1p6_pt2to3 && merespt_eta1p6to2_pt2to3 && merespt_eta2to2p4_pt2to3) {
-				// Set the current directoy
-				dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
+			// Set the current directoy
+			dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
 
-				// Grab the histograms
-				TH1F *resPt1a = merespt_eta0to0p7_pt2to3->getTH1F();
-				TH1F *resPt2a = merespt_eta0p7to1_pt2to3->getTH1F();
-				TH1F *resPt3a = merespt_eta1to1p2_pt2to3->getTH1F();
-				TH1F *resPt4a = merespt_eta1p2to1p6_pt2to3->getTH1F();
-				TH1F *resPt5a = merespt_eta1p6to2_pt2to3->getTH1F();
-				TH1F *resPt6a = merespt_eta2to2p4_pt2to3->getTH1F();
+			// Grab the histograms
+			TH1F *resPt1a = merespt_eta0to0p7_pt2to3->getTH1F();
+			TH1F *resPt2a = merespt_eta0p7to1_pt2to3->getTH1F();
+			TH1F *resPt3a = merespt_eta1to1p2_pt2to3->getTH1F();
+			TH1F *resPt4a = merespt_eta1p2to1p6_pt2to3->getTH1F();
+			TH1F *resPt5a = merespt_eta1p6to2_pt2to3->getTH1F();
+			TH1F *resPt6a = merespt_eta2to2p4_pt2to3->getTH1F();
 
-				// Book the new histogram to contain the results
-				MonitorElement *me_res_pt1 = ibooker.book1D("pTResVsEta_2-3","p_{T} resolution vs |#eta|, for p_{T}: 2-3 GeV",eta_binnum,eta_bins);
-				TH1F *resPt1 = me_res_pt1->getTH1F();
-				resPt1->GetXaxis()->SetTitle("tracking particle |#eta|");
-				resPt1->GetYaxis()->SetTitle("#sigma(#Deltap_{T}/p_{T})");
-				resPt1->SetMinimum(0.0);
-				resPt1->SetStats(false);
+			// Book the new histogram to contain the results
+			MonitorElement *me_res_pt1 = ibooker.book1D("pTResVsEta_2-3","p_{T} resolution vs |#eta|, for p_{T}: 2-3 GeV",eta_binnum,eta_bins);
+			TH1F *resPt1 = me_res_pt1->getTH1F();
+			resPt1->GetXaxis()->SetTitle("tracking particle |#eta|");
+			resPt1->GetYaxis()->SetTitle("#sigma(#Deltap_{T}/p_{T})");
+			resPt1->SetMinimum(0.0);
+			resPt1->SetStats(false);
 
-				int testNumEntries1 = resPt1a->GetEntries();
-				if (testNumEntries1>0) {
-					// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-					resPt1a->Fit(fit2,"R"); resPt2a->Fit(fit2,"R"); resPt3a->Fit(fit2,"R");
-					resPt4a->Fit(fit2,"R"); resPt5a->Fit(fit2,"R"); resPt6a->Fit(fit2,"R");
-					sigma_pt1.push_back(resPt1a->GetFunction("fit2")->GetParameter(2));
-					sigma_pt1.push_back(resPt2a->GetFunction("fit2")->GetParameter(2));
-					sigma_pt1.push_back(resPt3a->GetFunction("fit2")->GetParameter(2));
-					sigma_pt1.push_back(resPt4a->GetFunction("fit2")->GetParameter(2));
-					sigma_pt1.push_back(resPt5a->GetFunction("fit2")->GetParameter(2));
-					sigma_pt1.push_back(resPt6a->GetFunction("fit2")->GetParameter(2));
-					error_pt1.push_back(resPt1a->GetFunction("fit2")->GetParError(2));
-					error_pt1.push_back(resPt2a->GetFunction("fit2")->GetParError(2));
-					error_pt1.push_back(resPt3a->GetFunction("fit2")->GetParError(2));
-					error_pt1.push_back(resPt4a->GetFunction("fit2")->GetParError(2));
-					error_pt1.push_back(resPt5a->GetFunction("fit2")->GetParError(2));
-					error_pt1.push_back(resPt6a->GetFunction("fit2")->GetParError(2));
+			int testNumEntries1 = resPt1a->GetEntries();
+			if (testNumEntries1>0) {
+				// Fit the histograms with a gaussian curve - take sigma and the error from the fit
+				resPt1a->Fit(fit2,"R"); resPt2a->Fit(fit2,"R"); resPt3a->Fit(fit2,"R");
+				resPt4a->Fit(fit2,"R"); resPt5a->Fit(fit2,"R"); resPt6a->Fit(fit2,"R");
+				sigma_pt1.push_back(resPt1a->GetFunction("fit2")->GetParameter(2));
+				sigma_pt1.push_back(resPt2a->GetFunction("fit2")->GetParameter(2));
+				sigma_pt1.push_back(resPt3a->GetFunction("fit2")->GetParameter(2));
+				sigma_pt1.push_back(resPt4a->GetFunction("fit2")->GetParameter(2));
+				sigma_pt1.push_back(resPt5a->GetFunction("fit2")->GetParameter(2));
+				sigma_pt1.push_back(resPt6a->GetFunction("fit2")->GetParameter(2));
+				error_pt1.push_back(resPt1a->GetFunction("fit2")->GetParError(2));
+				error_pt1.push_back(resPt2a->GetFunction("fit2")->GetParError(2));
+				error_pt1.push_back(resPt3a->GetFunction("fit2")->GetParError(2));
+				error_pt1.push_back(resPt4a->GetFunction("fit2")->GetParError(2));
+				error_pt1.push_back(resPt5a->GetFunction("fit2")->GetParError(2));
+				error_pt1.push_back(resPt6a->GetFunction("fit2")->GetParError(2));
 
-					// Fill the new histogram to create resolution plot
-					for(int i=0;i<6;i++) {
-						resPt1->SetBinContent(i+1,sigma_pt1[i]);
-						resPt1->SetBinError(i+1,error_pt1[i]);
-					}
+				// Fill the new histogram to create resolution plot
+				for(int i=0;i<6;i++) {
+					resPt1->SetBinContent(i+1,sigma_pt1[i]);
+					resPt1->SetBinError(i+1,error_pt1[i]);
 				}
-				else {
-					edm::LogWarning("DataNotFound")<<"L1 tracks not found for pT resolution (2-3)!\n";
-					for(int i=0;i<6;i++) {
-						resPt1->SetBinContent(i+1,-1);
-						resPt1->SetBinError(i+1,-1);
-					}
+			}
+			else {
+				edm::LogWarning("DataNotFound")<<"L1 tracks not found for pT resolution (2-3)!\n";
+				for(int i=0;i<6;i++) {
+					resPt1->SetBinContent(i+1,-1);
+					resPt1->SetBinError(i+1,-1);
 				}
-			} //if ME found
-			else {edm::LogWarning("DataNotFound")<<"Monitor elements for pT resolution (2-3) cannot be found!\n";}
+			}
+		} //if ME found
+		else {edm::LogWarning("DataNotFound")<<"Monitor elements for pT resolution (2-3) cannot be found!\n";}
 
-			if (merespt_eta0to0p7_pt3to8 && merespt_eta0p7to1_pt3to8 && merespt_eta1to1p2_pt3to8
-				&& merespt_eta1p2to1p6_pt3to8 && merespt_eta1p6to2_pt3to8 && merespt_eta2to2p4_pt3to8) {
-					// Set the current directoy
-					dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
+		if (merespt_eta0to0p7_pt3to8 && merespt_eta0p7to1_pt3to8 && merespt_eta1to1p2_pt3to8
+			&& merespt_eta1p2to1p6_pt3to8 && merespt_eta1p6to2_pt3to8 && merespt_eta2to2p4_pt3to8) {
+			// Set the current directoy
+			dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
 
-					// Grab the histograms
-					TH1F *resPt1b = merespt_eta0to0p7_pt3to8->getTH1F();
-					TH1F *resPt2b = merespt_eta0p7to1_pt3to8->getTH1F();
-					TH1F *resPt3b = merespt_eta1to1p2_pt3to8->getTH1F();
-					TH1F *resPt4b = merespt_eta1p2to1p6_pt3to8->getTH1F();
-					TH1F *resPt5b = merespt_eta1p6to2_pt3to8->getTH1F();
-					TH1F *resPt6b = merespt_eta2to2p4_pt3to8->getTH1F();
+			// Grab the histograms
+			TH1F *resPt1b = merespt_eta0to0p7_pt3to8->getTH1F();
+			TH1F *resPt2b = merespt_eta0p7to1_pt3to8->getTH1F();
+			TH1F *resPt3b = merespt_eta1to1p2_pt3to8->getTH1F();
+			TH1F *resPt4b = merespt_eta1p2to1p6_pt3to8->getTH1F();
+			TH1F *resPt5b = merespt_eta1p6to2_pt3to8->getTH1F();
+			TH1F *resPt6b = merespt_eta2to2p4_pt3to8->getTH1F();
 
-					// Book the new histogram to contain the results
-					MonitorElement *me_res_pt2 = ibooker.book1D("pTResVsEta_3-8","p_{T} resolution vs |#eta|, for p_{T}: 3-8 GeV",eta_binnum,eta_bins);
-					TH1F *resPt2 = me_res_pt2->getTH1F();
-					resPt2->GetXaxis()->SetTitle("tracking particle |#eta|");
-					resPt2->GetYaxis()->SetTitle("#sigma(#Deltap_{T}/p_{T})");
-					resPt2->SetMinimum(0.0);
-					resPt2->SetStats(false);
+			// Book the new histogram to contain the results
+			MonitorElement *me_res_pt2 = ibooker.book1D("pTResVsEta_3-8","p_{T} resolution vs |#eta|, for p_{T}: 3-8 GeV",eta_binnum,eta_bins);
+			TH1F *resPt2 = me_res_pt2->getTH1F();
+			resPt2->GetXaxis()->SetTitle("tracking particle |#eta|");
+			resPt2->GetYaxis()->SetTitle("#sigma(#Deltap_{T}/p_{T})");
+			resPt2->SetMinimum(0.0);
+			resPt2->SetStats(false);
 
-					int testNumEntries2 = resPt1b->GetEntries();
-					if (testNumEntries2>0) {
-						// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-						resPt1b->Fit(fit2,"R"); resPt2b->Fit(fit2,"R"); resPt3b->Fit(fit2,"R");
-						resPt4b->Fit(fit2,"R"); resPt5b->Fit(fit2,"R"); resPt6b->Fit(fit2,"R");
-						sigma_pt2.push_back(resPt1b->GetFunction("fit2")->GetParameter(2));
-						sigma_pt2.push_back(resPt2b->GetFunction("fit2")->GetParameter(2));
-						sigma_pt2.push_back(resPt3b->GetFunction("fit2")->GetParameter(2));
-						sigma_pt2.push_back(resPt4b->GetFunction("fit2")->GetParameter(2));
-						sigma_pt2.push_back(resPt5b->GetFunction("fit2")->GetParameter(2));
-						sigma_pt2.push_back(resPt6b->GetFunction("fit2")->GetParameter(2));
-						error_pt2.push_back(resPt1b->GetFunction("fit2")->GetParError(2));
-						error_pt2.push_back(resPt2b->GetFunction("fit2")->GetParError(2));
-						error_pt2.push_back(resPt3b->GetFunction("fit2")->GetParError(2));
-						error_pt2.push_back(resPt4b->GetFunction("fit2")->GetParError(2));
-						error_pt2.push_back(resPt5b->GetFunction("fit2")->GetParError(2));
-						error_pt2.push_back(resPt6b->GetFunction("fit2")->GetParError(2));
+			int testNumEntries2 = resPt1b->GetEntries();
+			if (testNumEntries2>0) {
+				// Fit the histograms with a gaussian curve - take sigma and the error from the fit
+				resPt1b->Fit(fit2,"R"); resPt2b->Fit(fit2,"R"); resPt3b->Fit(fit2,"R");
+				resPt4b->Fit(fit2,"R"); resPt5b->Fit(fit2,"R"); resPt6b->Fit(fit2,"R");
+				sigma_pt2.push_back(resPt1b->GetFunction("fit2")->GetParameter(2));
+				sigma_pt2.push_back(resPt2b->GetFunction("fit2")->GetParameter(2));
+				sigma_pt2.push_back(resPt3b->GetFunction("fit2")->GetParameter(2));
+				sigma_pt2.push_back(resPt4b->GetFunction("fit2")->GetParameter(2));
+				sigma_pt2.push_back(resPt5b->GetFunction("fit2")->GetParameter(2));
+				sigma_pt2.push_back(resPt6b->GetFunction("fit2")->GetParameter(2));
+				error_pt2.push_back(resPt1b->GetFunction("fit2")->GetParError(2));
+				error_pt2.push_back(resPt2b->GetFunction("fit2")->GetParError(2));
+				error_pt2.push_back(resPt3b->GetFunction("fit2")->GetParError(2));
+				error_pt2.push_back(resPt4b->GetFunction("fit2")->GetParError(2));
+				error_pt2.push_back(resPt5b->GetFunction("fit2")->GetParError(2));
+				error_pt2.push_back(resPt6b->GetFunction("fit2")->GetParError(2));
 
-						// Fill the new histogram to create resolution plot
-						for(int i=0;i<6;i++) {
-							resPt2->SetBinContent(i+1,sigma_pt2[i]);
-							resPt2->SetBinError(i+1,error_pt2[i]);
-						}
-					}
-					else {
-						edm::LogWarning("DataNotFound")<<"L1 tracks not found for pT resolution (3-8)!\n";
-						for(int i=0;i<6;i++) {
-							resPt2->SetBinContent(i+1,-1);
-							resPt2->SetBinError(i+1,-1);
-						}
-					}
-				} //if ME found
-				else {edm::LogWarning("DataNotFound")<<"Monitor elements for pT resolution (3-8) cannot be found!\n";}
+				// Fill the new histogram to create resolution plot
+				for(int i=0;i<6;i++) {
+					resPt2->SetBinContent(i+1,sigma_pt2[i]);
+					resPt2->SetBinError(i+1,error_pt2[i]);
+				}
+			}
+			else {
+				edm::LogWarning("DataNotFound")<<"L1 tracks not found for pT resolution (3-8)!\n";
+				for(int i=0;i<6;i++) {
+					resPt2->SetBinContent(i+1,-1);
+					resPt2->SetBinError(i+1,-1);
+				}
+			}
+		} //if ME found
+		else {edm::LogWarning("DataNotFound")<<"Monitor elements for pT resolution (3-8) cannot be found!\n";}
 
-				if (merespt_eta0to0p7_pt8toInf && merespt_eta0p7to1_pt8toInf && merespt_eta1to1p2_pt8toInf
-					&& merespt_eta1p2to1p6_pt8toInf && merespt_eta1p6to2_pt8toInf && merespt_eta2to2p4_pt8toInf) {
-						// Set the current directoy
-						dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
+		if (merespt_eta0to0p7_pt8toInf && merespt_eta0p7to1_pt8toInf && merespt_eta1to1p2_pt8toInf
+			&& merespt_eta1p2to1p6_pt8toInf && merespt_eta1p6to2_pt8toInf && merespt_eta2to2p4_pt8toInf) {
+			// Set the current directoy
+			dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
 
-						// Grab the histograms
-						TH1F *resPt1c = merespt_eta0to0p7_pt8toInf->getTH1F();
-						TH1F *resPt2c = merespt_eta0p7to1_pt8toInf->getTH1F();
-						TH1F *resPt3c = merespt_eta1to1p2_pt8toInf->getTH1F();
-						TH1F *resPt4c = merespt_eta1p2to1p6_pt8toInf->getTH1F();
-						TH1F *resPt5c = merespt_eta1p6to2_pt8toInf->getTH1F();
-						TH1F *resPt6c = merespt_eta2to2p4_pt8toInf->getTH1F();
+			// Grab the histograms
+			TH1F *resPt1c = merespt_eta0to0p7_pt8toInf->getTH1F();
+			TH1F *resPt2c = merespt_eta0p7to1_pt8toInf->getTH1F();
+			TH1F *resPt3c = merespt_eta1to1p2_pt8toInf->getTH1F();
+			TH1F *resPt4c = merespt_eta1p2to1p6_pt8toInf->getTH1F();
+			TH1F *resPt5c = merespt_eta1p6to2_pt8toInf->getTH1F();
+			TH1F *resPt6c = merespt_eta2to2p4_pt8toInf->getTH1F();
 
-						// Book the new histogram to contain the results
-						MonitorElement *me_res_pt3 = ibooker.book1D("pTResVsEta_8-inf","p_{T} resolution vs |#eta|, for p_{T}: >8 GeV",eta_binnum,eta_bins);
-						TH1F *resPt3 = me_res_pt3->getTH1F();
-						resPt3->GetXaxis()->SetTitle("tracking particle |#eta|");
-						resPt3->GetYaxis()->SetTitle("#sigma(#Deltap_{T}/p_{T})");
-						resPt3->SetMinimum(0.0);
-						resPt3->SetStats(false);
+			// Book the new histogram to contain the results
+			MonitorElement *me_res_pt3 = ibooker.book1D("pTResVsEta_8-inf","p_{T} resolution vs |#eta|, for p_{T}: >8 GeV",eta_binnum,eta_bins);
+			TH1F *resPt3 = me_res_pt3->getTH1F();
+			resPt3->GetXaxis()->SetTitle("tracking particle |#eta|");
+			resPt3->GetYaxis()->SetTitle("#sigma(#Deltap_{T}/p_{T})");
+			resPt3->SetMinimum(0.0);
+			resPt3->SetStats(false);
 
-						int testNumEntries3 = resPt1c->GetEntries();
-						if (testNumEntries3>0) {
-							// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-							resPt1c->Fit(fit2,"R"); resPt2c->Fit(fit2,"R"); resPt3c->Fit(fit2,"R");
-							resPt4c->Fit(fit2,"R"); resPt5c->Fit(fit2,"R"); resPt6c->Fit(fit2,"R");
-							sigma_pt3.push_back(resPt1c->GetFunction("fit2")->GetParameter(2));
-							sigma_pt3.push_back(resPt2c->GetFunction("fit2")->GetParameter(2));
-							sigma_pt3.push_back(resPt3c->GetFunction("fit2")->GetParameter(2));
-							sigma_pt3.push_back(resPt4c->GetFunction("fit2")->GetParameter(2));
-							sigma_pt3.push_back(resPt5c->GetFunction("fit2")->GetParameter(2));
-							sigma_pt3.push_back(resPt6c->GetFunction("fit2")->GetParameter(2));
-							error_pt3.push_back(resPt1c->GetFunction("fit2")->GetParError(2));
-							error_pt3.push_back(resPt2c->GetFunction("fit2")->GetParError(2));
-							error_pt3.push_back(resPt3c->GetFunction("fit2")->GetParError(2));
-							error_pt3.push_back(resPt4c->GetFunction("fit2")->GetParError(2));
-							error_pt3.push_back(resPt5c->GetFunction("fit2")->GetParError(2));
-							error_pt3.push_back(resPt6c->GetFunction("fit2")->GetParError(2));
+			int testNumEntries3 = resPt1c->GetEntries();
+			if (testNumEntries3>0) {
+				// Fit the histograms with a gaussian curve - take sigma and the error from the fit
+				resPt1c->Fit(fit2,"R"); resPt2c->Fit(fit2,"R"); resPt3c->Fit(fit2,"R");
+				resPt4c->Fit(fit2,"R"); resPt5c->Fit(fit2,"R"); resPt6c->Fit(fit2,"R");
+				sigma_pt3.push_back(resPt1c->GetFunction("fit2")->GetParameter(2));
+				sigma_pt3.push_back(resPt2c->GetFunction("fit2")->GetParameter(2));
+				sigma_pt3.push_back(resPt3c->GetFunction("fit2")->GetParameter(2));
+				sigma_pt3.push_back(resPt4c->GetFunction("fit2")->GetParameter(2));
+				sigma_pt3.push_back(resPt5c->GetFunction("fit2")->GetParameter(2));
+				sigma_pt3.push_back(resPt6c->GetFunction("fit2")->GetParameter(2));
+				error_pt3.push_back(resPt1c->GetFunction("fit2")->GetParError(2));
+				error_pt3.push_back(resPt2c->GetFunction("fit2")->GetParError(2));
+				error_pt3.push_back(resPt3c->GetFunction("fit2")->GetParError(2));
+				error_pt3.push_back(resPt4c->GetFunction("fit2")->GetParError(2));
+				error_pt3.push_back(resPt5c->GetFunction("fit2")->GetParError(2));
+				error_pt3.push_back(resPt6c->GetFunction("fit2")->GetParError(2));
 
-							// Fill the new histogram to create resolution plot
-							for(int i=0;i<6;i++) {
-								resPt3->SetBinContent(i+1,sigma_pt3[i]);
-								resPt3->SetBinError(i+1,error_pt3[i]);
-							}
-						}
-						else {
-							edm::LogWarning("DataNotFound")<<"L1 tracks not found for pT resolution (8-inf)!\n";
-							for(int i=0;i<6;i++) {
-								resPt3->SetBinContent(i+1,-1);
-								resPt3->SetBinError(i+1,-1);
-							}
-						}
-					} //if ME found
-					else {edm::LogWarning("DataNotFound")<<"Monitor elements for pT resolution (8-inf) cannot be found!\n";}
+				// Fill the new histogram to create resolution plot
+				for(int i=0;i<6;i++) {
+					resPt3->SetBinContent(i+1,sigma_pt3[i]);
+					resPt3->SetBinError(i+1,error_pt3[i]);
+				}
+			}
+			else {
+				edm::LogWarning("DataNotFound")<<"L1 tracks not found for pT resolution (8-inf)!\n";
+				for(int i=0;i<6;i++) {
+					resPt3->SetBinContent(i+1,-1);
+					resPt3->SetBinError(i+1,-1);
+				}
+			}
+		} //if ME found
+		else {edm::LogWarning("DataNotFound")<<"Monitor elements for pT resolution (8-inf) cannot be found!\n";}
 
 
-					if (mereseta_eta0to0p7 && mereseta_eta0p7to1 && mereseta_eta1to1p2 && mereseta_eta1p2to1p6 && mereseta_eta1p6to2 && mereseta_eta2to2p4) {
-						// Set the current directoy
-						dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
+		if (mereseta_eta0to0p7 && mereseta_eta0p7to1 && mereseta_eta1to1p2 && mereseta_eta1p2to1p6 && mereseta_eta1p6to2 && mereseta_eta2to2p4) {
+			// Set the current directoy
+			dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
 
-						// Grab the histograms
-						TH1F *resEta1 = mereseta_eta0to0p7->getTH1F();
-						TH1F *resEta2 = mereseta_eta0p7to1->getTH1F();
-						TH1F *resEta3 = mereseta_eta1to1p2->getTH1F();
-						TH1F *resEta4 = mereseta_eta1p2to1p6->getTH1F();
-						TH1F *resEta5 = mereseta_eta1p6to2->getTH1F();
-						TH1F *resEta6 = mereseta_eta2to2p4->getTH1F();
+			// Grab the histograms
+			TH1F *resEta1 = mereseta_eta0to0p7->getTH1F();
+			TH1F *resEta2 = mereseta_eta0p7to1->getTH1F();
+			TH1F *resEta3 = mereseta_eta1to1p2->getTH1F();
+			TH1F *resEta4 = mereseta_eta1p2to1p6->getTH1F();
+			TH1F *resEta5 = mereseta_eta1p6to2->getTH1F();
+			TH1F *resEta6 = mereseta_eta2to2p4->getTH1F();
 
-						// Book the new histogram to contain the results
-						MonitorElement *me_res_eta = ibooker.book1D("EtaResolution","#eta resolution vs |#eta|",eta_binnum,eta_bins);
-						TH1F *resEta = me_res_eta->getTH1F();
-						resEta->GetXaxis()->SetTitle("tracking particle |#eta|");
-						resEta->GetYaxis()->SetTitle("#sigma(#Delta#eta)");
-						resEta->SetMinimum(0.0);
-						resEta->SetStats(false);
+			// Book the new histogram to contain the results
+			MonitorElement *me_res_eta = ibooker.book1D("EtaResolution","#eta resolution vs |#eta|",eta_binnum,eta_bins);
+			TH1F *resEta = me_res_eta->getTH1F();
+			resEta->GetXaxis()->SetTitle("tracking particle |#eta|");
+			resEta->GetYaxis()->SetTitle("#sigma(#Delta#eta)");
+			resEta->SetMinimum(0.0);
+			resEta->SetStats(false);
 
-						int testNumEntries4 = resEta1->GetEntries();
-						if (testNumEntries4>0) {
+			int testNumEntries4 = resEta1->GetEntries();
+			if (testNumEntries4>0) {
 
-							// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-							resEta1->Fit(fit,"R"); resEta2->Fit(fit,"R"); resEta3->Fit(fit,"R");
-							resEta4->Fit(fit,"R"); resEta5->Fit(fit,"R"); resEta6->Fit(fit,"R");
-							sigma_eta.push_back(resEta1->GetFunction("fit")->GetParameter(2));
-							sigma_eta.push_back(resEta2->GetFunction("fit")->GetParameter(2));
-							sigma_eta.push_back(resEta3->GetFunction("fit")->GetParameter(2));
-							sigma_eta.push_back(resEta4->GetFunction("fit")->GetParameter(2));
-							sigma_eta.push_back(resEta5->GetFunction("fit")->GetParameter(2));
-							sigma_eta.push_back(resEta6->GetFunction("fit")->GetParameter(2));
-							error_eta.push_back(resEta1->GetFunction("fit")->GetParError(2));
-							error_eta.push_back(resEta2->GetFunction("fit")->GetParError(2));
-							error_eta.push_back(resEta3->GetFunction("fit")->GetParError(2));
-							error_eta.push_back(resEta4->GetFunction("fit")->GetParError(2));
-							error_eta.push_back(resEta5->GetFunction("fit")->GetParError(2));
-							error_eta.push_back(resEta6->GetFunction("fit")->GetParError(2));
+				// Fit the histograms with a gaussian curve - take sigma and the error from the fit
+				resEta1->Fit(fit,"R"); resEta2->Fit(fit,"R"); resEta3->Fit(fit,"R");
+				resEta4->Fit(fit,"R"); resEta5->Fit(fit,"R"); resEta6->Fit(fit,"R");
+				sigma_eta.push_back(resEta1->GetFunction("fit")->GetParameter(2));
+				sigma_eta.push_back(resEta2->GetFunction("fit")->GetParameter(2));
+				sigma_eta.push_back(resEta3->GetFunction("fit")->GetParameter(2));
+				sigma_eta.push_back(resEta4->GetFunction("fit")->GetParameter(2));
+				sigma_eta.push_back(resEta5->GetFunction("fit")->GetParameter(2));
+				sigma_eta.push_back(resEta6->GetFunction("fit")->GetParameter(2));
+				error_eta.push_back(resEta1->GetFunction("fit")->GetParError(2));
+				error_eta.push_back(resEta2->GetFunction("fit")->GetParError(2));
+				error_eta.push_back(resEta3->GetFunction("fit")->GetParError(2));
+				error_eta.push_back(resEta4->GetFunction("fit")->GetParError(2));
+				error_eta.push_back(resEta5->GetFunction("fit")->GetParError(2));
+				error_eta.push_back(resEta6->GetFunction("fit")->GetParError(2));
 
-							// Fill the new histogram to create resolution plot
-							for(int i=0;i<6;i++) {
-								resEta->SetBinContent(i+1,sigma_eta[i]);
-								resEta->SetBinError(i+1,error_eta[i]);
-							}
-						}
-						else {
-							edm::LogWarning("DataNotFound")<<"L1 tracks not found for eta resolution!\n";
-							for(int i=0;i<6;i++) {
-								resEta->SetBinContent(i+1,-1);
-								resEta->SetBinError(i+1,-1);
-							}
-						}
-					} //if ME found
-					else {edm::LogWarning("DataNotFound")<<"Monitor elements for eta resolution cannot be found!\n";}
+				// Fill the new histogram to create resolution plot
+				for(int i=0;i<6;i++) {
+					resEta->SetBinContent(i+1,sigma_eta[i]);
+					resEta->SetBinError(i+1,error_eta[i]);
+				}
+			}
+			else {
+				edm::LogWarning("DataNotFound")<<"L1 tracks not found for eta resolution!\n";
+				for(int i=0;i<6;i++) {
+					resEta->SetBinContent(i+1,-1);
+					resEta->SetBinError(i+1,-1);
+				}
+			}
+		} //if ME found
+		else {edm::LogWarning("DataNotFound")<<"Monitor elements for eta resolution cannot be found!\n";}
 
-					if (meresphi_eta0to0p7 && meresphi_eta0p7to1 && meresphi_eta1to1p2 && meresphi_eta1p2to1p6 && meresphi_eta1p6to2 && meresphi_eta2to2p4) {
-						// Set the current directoy
-						dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
+		if (meresphi_eta0to0p7 && meresphi_eta0p7to1 && meresphi_eta1to1p2 && meresphi_eta1p2to1p6 && meresphi_eta1p6to2 && meresphi_eta2to2p4) {
+			// Set the current directoy
+			dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
 
-						// Grab the histograms
-						TH1F *resPhi1 = meresphi_eta0to0p7->getTH1F();
-						TH1F *resPhi2 = meresphi_eta0p7to1->getTH1F();
-						TH1F *resPhi3 = meresphi_eta1to1p2->getTH1F();
-						TH1F *resPhi4 = meresphi_eta1p2to1p6->getTH1F();
-						TH1F *resPhi5 = meresphi_eta1p6to2->getTH1F();
-						TH1F *resPhi6 = meresphi_eta2to2p4->getTH1F();
+			// Grab the histograms
+			TH1F *resPhi1 = meresphi_eta0to0p7->getTH1F();
+			TH1F *resPhi2 = meresphi_eta0p7to1->getTH1F();
+			TH1F *resPhi3 = meresphi_eta1to1p2->getTH1F();
+			TH1F *resPhi4 = meresphi_eta1p2to1p6->getTH1F();
+			TH1F *resPhi5 = meresphi_eta1p6to2->getTH1F();
+			TH1F *resPhi6 = meresphi_eta2to2p4->getTH1F();
 
-						// Book the new histogram to contain the results
-						MonitorElement *me_res_phi = ibooker.book1D("PhiResolution","#phi resolution vs |#eta|",eta_binnum,eta_bins);
-						TH1F *resPhi = me_res_phi->getTH1F();
-						resPhi->GetXaxis()->SetTitle("tracking particle |#eta|");
-						resPhi->GetYaxis()->SetTitle("#sigma(#Delta#phi)");
-						resPhi->SetMinimum(0.0);
-						resPhi->SetStats(false);
+			// Book the new histogram to contain the results
+			MonitorElement *me_res_phi = ibooker.book1D("PhiResolution","#phi resolution vs |#eta|",eta_binnum,eta_bins);
+			TH1F *resPhi = me_res_phi->getTH1F();
+			resPhi->GetXaxis()->SetTitle("tracking particle |#eta|");
+			resPhi->GetYaxis()->SetTitle("#sigma(#Delta#phi)");
+			resPhi->SetMinimum(0.0);
+			resPhi->SetStats(false);
 
-						int testNumEntries5 = resPhi1->GetEntries();
-						if (testNumEntries5>0) {
-							// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-							resPhi1->Fit(fit,"R"); resPhi2->Fit(fit,"R"); resPhi3->Fit(fit,"R");
-							resPhi4->Fit(fit,"R"); resPhi5->Fit(fit,"R"); resPhi6->Fit(fit,"R");
-							sigma_phi.push_back(resPhi1->GetFunction("fit")->GetParameter(2));
-							sigma_phi.push_back(resPhi2->GetFunction("fit")->GetParameter(2));
-							sigma_phi.push_back(resPhi3->GetFunction("fit")->GetParameter(2));
-							sigma_phi.push_back(resPhi4->GetFunction("fit")->GetParameter(2));
-							sigma_phi.push_back(resPhi5->GetFunction("fit")->GetParameter(2));
-							sigma_phi.push_back(resPhi6->GetFunction("fit")->GetParameter(2));
-							error_phi.push_back(resPhi1->GetFunction("fit")->GetParError(2));
-							error_phi.push_back(resPhi2->GetFunction("fit")->GetParError(2));
-							error_phi.push_back(resPhi3->GetFunction("fit")->GetParError(2));
-							error_phi.push_back(resPhi4->GetFunction("fit")->GetParError(2));
-							error_phi.push_back(resPhi5->GetFunction("fit")->GetParError(2));
-							error_phi.push_back(resPhi6->GetFunction("fit")->GetParError(2));
+			int testNumEntries5 = resPhi1->GetEntries();
+			if (testNumEntries5>0) {
+				// Fit the histograms with a gaussian curve - take sigma and the error from the fit
+				resPhi1->Fit(fit,"R"); resPhi2->Fit(fit,"R"); resPhi3->Fit(fit,"R");
+				resPhi4->Fit(fit,"R"); resPhi5->Fit(fit,"R"); resPhi6->Fit(fit,"R");
+				sigma_phi.push_back(resPhi1->GetFunction("fit")->GetParameter(2));
+				sigma_phi.push_back(resPhi2->GetFunction("fit")->GetParameter(2));
+				sigma_phi.push_back(resPhi3->GetFunction("fit")->GetParameter(2));
+				sigma_phi.push_back(resPhi4->GetFunction("fit")->GetParameter(2));
+				sigma_phi.push_back(resPhi5->GetFunction("fit")->GetParameter(2));
+				sigma_phi.push_back(resPhi6->GetFunction("fit")->GetParameter(2));
+				error_phi.push_back(resPhi1->GetFunction("fit")->GetParError(2));
+				error_phi.push_back(resPhi2->GetFunction("fit")->GetParError(2));
+				error_phi.push_back(resPhi3->GetFunction("fit")->GetParError(2));
+				error_phi.push_back(resPhi4->GetFunction("fit")->GetParError(2));
+				error_phi.push_back(resPhi5->GetFunction("fit")->GetParError(2));
+				error_phi.push_back(resPhi6->GetFunction("fit")->GetParError(2));
 
-							// Fill the new histogram to create resolution plot
-							for(int i=0;i<6;i++) {
-								resPhi->SetBinContent(i+1,sigma_phi[i]);
-								resPhi->SetBinError(i+1,error_phi[i]);
-							}
-						}
-						else {
-							edm::LogWarning("DataNotFound")<<"L1 tracks not found for phi resolution!\n";
-							for(int i=0;i<6;i++) {
-								resPhi->SetBinContent(i+1,-1);
-								resPhi->SetBinError(i+1,-1);
-							}
-						}
-					} //if ME found
-					else {edm::LogWarning("DataNotFound")<<"Monitor elements for phi resolution cannot be found!\n";}
+				// Fill the new histogram to create resolution plot
+				for(int i=0;i<6;i++) {
+					resPhi->SetBinContent(i+1,sigma_phi[i]);
+					resPhi->SetBinError(i+1,error_phi[i]);
+				}
+			}
+			else {
+				edm::LogWarning("DataNotFound")<<"L1 tracks not found for phi resolution!\n";
+				for(int i=0;i<6;i++) {
+					resPhi->SetBinContent(i+1,-1);
+					resPhi->SetBinError(i+1,-1);
+				}
+			}
+		} //if ME found
+		else {edm::LogWarning("DataNotFound")<<"Monitor elements for phi resolution cannot be found!\n";}
 
-					if (meresVtxZ_eta0to0p7 && meresVtxZ_eta0p7to1 && meresVtxZ_eta1to1p2 && meresVtxZ_eta1p2to1p6 && meresVtxZ_eta1p6to2 && meresVtxZ_eta2to2p4) {
-						// Set the current directoy
-						dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
+		if (meresVtxZ_eta0to0p7 && meresVtxZ_eta0p7to1 && meresVtxZ_eta1to1p2 && meresVtxZ_eta1p2to1p6 && meresVtxZ_eta1p6to2 && meresVtxZ_eta2to2p4) {
+			// Set the current directoy
+			dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
 
-						// Grab the histograms
-						TH1F *resVtxZ_1 = meresVtxZ_eta0to0p7->getTH1F();
-						TH1F *resVtxZ_2 = meresVtxZ_eta0p7to1->getTH1F();
-						TH1F *resVtxZ_3 = meresVtxZ_eta1to1p2->getTH1F();
-						TH1F *resVtxZ_4 = meresVtxZ_eta1p2to1p6->getTH1F();
-						TH1F *resVtxZ_5 = meresVtxZ_eta1p6to2->getTH1F();
-						TH1F *resVtxZ_6 = meresVtxZ_eta2to2p4->getTH1F();
+			// Grab the histograms
+			TH1F *resVtxZ_1 = meresVtxZ_eta0to0p7->getTH1F();
+			TH1F *resVtxZ_2 = meresVtxZ_eta0p7to1->getTH1F();
+			TH1F *resVtxZ_3 = meresVtxZ_eta1to1p2->getTH1F();
+			TH1F *resVtxZ_4 = meresVtxZ_eta1p2to1p6->getTH1F();
+			TH1F *resVtxZ_5 = meresVtxZ_eta1p6to2->getTH1F();
+			TH1F *resVtxZ_6 = meresVtxZ_eta2to2p4->getTH1F();
 
-						// Book the new histogram to contain the results
-						MonitorElement *me_res_VtxZ = ibooker.book1D("VtxZResolution","VtxZ resolution vs |#eta|",eta_binnum,eta_bins);
-						TH1F *resVtxZ = me_res_VtxZ->getTH1F();
-						resVtxZ->GetXaxis()->SetTitle("tracking particle |#eta|");
-						resVtxZ->GetYaxis()->SetTitle("#sigma(#DeltaVtxZ) [cm]");
-						resVtxZ->SetMinimum(0.0);
-						resVtxZ->SetStats(false);
+			// Book the new histogram to contain the results
+			MonitorElement *me_res_VtxZ = ibooker.book1D("VtxZResolution","VtxZ resolution vs |#eta|",eta_binnum,eta_bins);
+			TH1F *resVtxZ = me_res_VtxZ->getTH1F();
+			resVtxZ->GetXaxis()->SetTitle("tracking particle |#eta|");
+			resVtxZ->GetYaxis()->SetTitle("#sigma(#DeltaVtxZ) [cm]");
+			resVtxZ->SetMinimum(0.0);
+			resVtxZ->SetStats(false);
 
-						int testNumEntries6 = resVtxZ_1->GetEntries();
-						if (testNumEntries6>0) {
-							// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-							resVtxZ_1->Fit(fit3,"R"); resVtxZ_2->Fit(fit3,"R"); resVtxZ_3->Fit(fit3,"R");
-							resVtxZ_4->Fit(fit3,"R"); resVtxZ_5->Fit(fit3,"R"); resVtxZ_6->Fit(fit3,"R");
-							sigma_VtxZ.push_back(resVtxZ_1->GetFunction("fit3")->GetParameter(2));
-							sigma_VtxZ.push_back(resVtxZ_2->GetFunction("fit3")->GetParameter(2));
-							sigma_VtxZ.push_back(resVtxZ_3->GetFunction("fit3")->GetParameter(2));
-							sigma_VtxZ.push_back(resVtxZ_4->GetFunction("fit3")->GetParameter(2));
-							sigma_VtxZ.push_back(resVtxZ_5->GetFunction("fit3")->GetParameter(2));
-							sigma_VtxZ.push_back(resVtxZ_6->GetFunction("fit3")->GetParameter(2));
-							error_VtxZ.push_back(resVtxZ_1->GetFunction("fit3")->GetParError(2));
-							error_VtxZ.push_back(resVtxZ_2->GetFunction("fit3")->GetParError(2));
-							error_VtxZ.push_back(resVtxZ_3->GetFunction("fit3")->GetParError(2));
-							error_VtxZ.push_back(resVtxZ_4->GetFunction("fit3")->GetParError(2));
-							error_VtxZ.push_back(resVtxZ_5->GetFunction("fit3")->GetParError(2));
-							error_VtxZ.push_back(resVtxZ_6->GetFunction("fit3")->GetParError(2));
+			int testNumEntries6 = resVtxZ_1->GetEntries();
+			if (testNumEntries6>0) {
+				// Fit the histograms with a gaussian curve - take sigma and the error from the fit
+				resVtxZ_1->Fit(fit3,"R"); resVtxZ_2->Fit(fit3,"R"); resVtxZ_3->Fit(fit3,"R");
+				resVtxZ_4->Fit(fit3,"R"); resVtxZ_5->Fit(fit3,"R"); resVtxZ_6->Fit(fit3,"R");
+				sigma_VtxZ.push_back(resVtxZ_1->GetFunction("fit3")->GetParameter(2));
+				sigma_VtxZ.push_back(resVtxZ_2->GetFunction("fit3")->GetParameter(2));
+				sigma_VtxZ.push_back(resVtxZ_3->GetFunction("fit3")->GetParameter(2));
+				sigma_VtxZ.push_back(resVtxZ_4->GetFunction("fit3")->GetParameter(2));
+				sigma_VtxZ.push_back(resVtxZ_5->GetFunction("fit3")->GetParameter(2));
+				sigma_VtxZ.push_back(resVtxZ_6->GetFunction("fit3")->GetParameter(2));
+				error_VtxZ.push_back(resVtxZ_1->GetFunction("fit3")->GetParError(2));
+				error_VtxZ.push_back(resVtxZ_2->GetFunction("fit3")->GetParError(2));
+				error_VtxZ.push_back(resVtxZ_3->GetFunction("fit3")->GetParError(2));
+				error_VtxZ.push_back(resVtxZ_4->GetFunction("fit3")->GetParError(2));
+				error_VtxZ.push_back(resVtxZ_5->GetFunction("fit3")->GetParError(2));
+				error_VtxZ.push_back(resVtxZ_6->GetFunction("fit3")->GetParError(2));
 
-							// Fill the new histogram to create resolution plot
-							for(int i=0;i<6;i++) {
-								resVtxZ->SetBinContent(i+1,sigma_VtxZ[i]);
-								resVtxZ->SetBinError(i+1,error_VtxZ[i]);
-							}
-						}
-						else {
-							edm::LogWarning("DataNotFound")<<"L1 tracks not found for VtxZ resolution!\n";
-							for(int i=0;i<6;i++) {
-								resVtxZ->SetBinContent(i+1,-1);
-								resVtxZ->SetBinError(i+1,-1);
-							}
-						}
-					} //if ME found
-					else {edm::LogWarning("DataNotFound")<<"Monitor elements for VtxZ resolution cannot be found!\n";}
+				// Fill the new histogram to create resolution plot
+				for(int i=0;i<6;i++) {
+					resVtxZ->SetBinContent(i+1,sigma_VtxZ[i]);
+					resVtxZ->SetBinError(i+1,error_VtxZ[i]);
+				}
+			}
+			else {
+				edm::LogWarning("DataNotFound")<<"L1 tracks not found for VtxZ resolution!\n";
+				for(int i=0;i<6;i++) {
+					resVtxZ->SetBinContent(i+1,-1);
+					resVtxZ->SetBinError(i+1,-1);
+				}
+			}
+		} //if ME found
+		else {edm::LogWarning("DataNotFound")<<"Monitor elements for VtxZ resolution cannot be found!\n";}
 
-					if (meresd0_eta0to0p7 && meresd0_eta0p7to1 && meresd0_eta1to1p2 && meresd0_eta1p2to1p6 && meresd0_eta1p6to2 && meresd0_eta2to2p4) {
-						// Set the current directoy
-						dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
+		if (meresd0_eta0to0p7 && meresd0_eta0p7to1 && meresd0_eta1to1p2 && meresd0_eta1p2to1p6 && meresd0_eta1p6to2 && meresd0_eta2to2p4) {
+			// Set the current directoy
+			dbe->setCurrentFolder("SiOuterTrackerV/Tracks/FinalResolution");
 
-						// Grab the histograms
-						TH1F *resd0_1 = meresd0_eta0to0p7->getTH1F();
-						TH1F *resd0_2 = meresd0_eta0p7to1->getTH1F();
-						TH1F *resd0_3 = meresd0_eta1to1p2->getTH1F();
-						TH1F *resd0_4 = meresd0_eta1p2to1p6->getTH1F();
-						TH1F *resd0_5 = meresd0_eta1p6to2->getTH1F();
-						TH1F *resd0_6 = meresd0_eta2to2p4->getTH1F();
+			// Grab the histograms
+			TH1F *resd0_1 = meresd0_eta0to0p7->getTH1F();
+			TH1F *resd0_2 = meresd0_eta0p7to1->getTH1F();
+			TH1F *resd0_3 = meresd0_eta1to1p2->getTH1F();
+			TH1F *resd0_4 = meresd0_eta1p2to1p6->getTH1F();
+			TH1F *resd0_5 = meresd0_eta1p6to2->getTH1F();
+			TH1F *resd0_6 = meresd0_eta2to2p4->getTH1F();
 
-						// Book the new histogram to contain the results
-						MonitorElement *me_res_d0 = ibooker.book1D("d0Resolution","d_{0} resolution vs |#eta|",eta_binnum,eta_bins);
-						TH1F *resd0 = me_res_d0->getTH1F();
-						resd0->GetXaxis()->SetTitle("tracking particle |#eta|");
-						resd0->GetYaxis()->SetTitle("#sigma(#Deltad_{0}) [cm]");
-						resd0->SetMinimum(0.0);
-						resd0->SetStats(false);
+			// Book the new histogram to contain the results
+			MonitorElement *me_res_d0 = ibooker.book1D("d0Resolution","d_{0} resolution vs |#eta|",eta_binnum,eta_bins);
+			TH1F *resd0 = me_res_d0->getTH1F();
+			resd0->GetXaxis()->SetTitle("tracking particle |#eta|");
+			resd0->GetYaxis()->SetTitle("#sigma(#Deltad_{0}) [cm]");
+			resd0->SetMinimum(0.0);
+			resd0->SetStats(false);
 
-						int testNumEntries7 = resd0_1->GetEntries();
-						if (testNumEntries7>0) {
-							// Fit the histograms with a gaussian curve - take sigma and the error from the fit
-							resd0_1->Fit(fit,"R"); resd0_2->Fit(fit,"R"); resd0_3->Fit(fit,"R");
-							resd0_4->Fit(fit,"R"); resd0_5->Fit(fit,"R"); resd0_6->Fit(fit,"R");
-							sigma_d0.push_back(resd0_1->GetFunction("fit")->GetParameter(2));
-							sigma_d0.push_back(resd0_2->GetFunction("fit")->GetParameter(2));
-							sigma_d0.push_back(resd0_3->GetFunction("fit")->GetParameter(2));
-							sigma_d0.push_back(resd0_4->GetFunction("fit")->GetParameter(2));
-							sigma_d0.push_back(resd0_5->GetFunction("fit")->GetParameter(2));
-							sigma_d0.push_back(resd0_6->GetFunction("fit")->GetParameter(2));
-							error_d0.push_back(resd0_1->GetFunction("fit")->GetParError(2));
-							error_d0.push_back(resd0_2->GetFunction("fit")->GetParError(2));
-							error_d0.push_back(resd0_3->GetFunction("fit")->GetParError(2));
-							error_d0.push_back(resd0_4->GetFunction("fit")->GetParError(2));
-							error_d0.push_back(resd0_5->GetFunction("fit")->GetParError(2));
-							error_d0.push_back(resd0_6->GetFunction("fit")->GetParError(2));
+			int testNumEntries7 = resd0_1->GetEntries();
+			if (testNumEntries7>0) {
+				// Fit the histograms with a gaussian curve - take sigma and the error from the fit
+				resd0_1->Fit(fit,"R"); resd0_2->Fit(fit,"R"); resd0_3->Fit(fit,"R");
+				resd0_4->Fit(fit,"R"); resd0_5->Fit(fit,"R"); resd0_6->Fit(fit,"R");
+				sigma_d0.push_back(resd0_1->GetFunction("fit")->GetParameter(2));
+				sigma_d0.push_back(resd0_2->GetFunction("fit")->GetParameter(2));
+				sigma_d0.push_back(resd0_3->GetFunction("fit")->GetParameter(2));
+				sigma_d0.push_back(resd0_4->GetFunction("fit")->GetParameter(2));
+				sigma_d0.push_back(resd0_5->GetFunction("fit")->GetParameter(2));
+				sigma_d0.push_back(resd0_6->GetFunction("fit")->GetParameter(2));
+				error_d0.push_back(resd0_1->GetFunction("fit")->GetParError(2));
+				error_d0.push_back(resd0_2->GetFunction("fit")->GetParError(2));
+				error_d0.push_back(resd0_3->GetFunction("fit")->GetParError(2));
+				error_d0.push_back(resd0_4->GetFunction("fit")->GetParError(2));
+				error_d0.push_back(resd0_5->GetFunction("fit")->GetParError(2));
+				error_d0.push_back(resd0_6->GetFunction("fit")->GetParError(2));
 
-							// Fill the new histogram to create resolution plot
-							for(int i=0;i<6;i++) {
-								resd0->SetBinContent(i+1,sigma_d0[i]);
-								resd0->SetBinError(i+1,error_d0[i]);
-							}
-						}
-						else {
-							edm::LogWarning("DataNotFound")<<"L1 tracks not found for d0 resolution!\n";
-							for(int i=0;i<6;i++) {
-								resd0->SetBinContent(i+1,-1);
-								resd0->SetBinError(i+1,-1);
-							}
-						}
-					} //if ME found
-					else {edm::LogWarning("DataNotFound")<<"Monitor elements for d0 resolution cannot be found!\n";}
+				// Fill the new histogram to create resolution plot
+				for(int i=0;i<6;i++) {
+					resd0->SetBinContent(i+1,sigma_d0[i]);
+					resd0->SetBinError(i+1,error_d0[i]);
+				}
+			}
+			else {
+				edm::LogWarning("DataNotFound")<<"L1 tracks not found for d0 resolution!\n";
+				for(int i=0;i<6;i++) {
+					resd0->SetBinContent(i+1,-1);
+					resd0->SetBinError(i+1,-1);
+				}
+			}
+		} //if ME found
+		else {edm::LogWarning("DataNotFound")<<"Monitor elements for d0 resolution cannot be found!\n";}
 
-				} //if dbe found
-				else {edm::LogWarning("DataNotFound")<<"Cannot find valid DQM back end \n";}
-			} //end dqmEndJob
+	} //if dbe found
+	else {edm::LogWarning("DataNotFound")<<"Cannot find valid DQM back end \n";}
+} //end dqmEndJob
 
-			DEFINE_FWK_MODULE(OuterTrackerMCHarvester);
+DEFINE_FWK_MODULE(OuterTrackerMCHarvester);

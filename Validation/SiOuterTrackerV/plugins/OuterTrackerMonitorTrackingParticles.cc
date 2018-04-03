@@ -1147,7 +1147,7 @@ void OuterTrackerMonitorTrackingParticles::bookHistograms(DQMStore::IBooker &iBo
 } //end of method
 
 //Function to determine which layer of the detector the stub is in
-int OuterTrackerMonitorTrackingParticles::Layer(const float R_, const float Z_){
+const int OuterTrackerMonitorTrackingParticles::Layer(const float R_, const float Z_){
   int sectionNum = 6; //6 layers, 5 discs (per EC) + 1 "disc" for barrel
   const float Rmin[sectionNum]={20.,33.,48.,65.,82.,105.};
   const float Rmax[sectionNum]={30.,40.,58.,75.,91.,120.};

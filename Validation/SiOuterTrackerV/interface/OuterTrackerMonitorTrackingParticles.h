@@ -31,7 +31,7 @@ public:
   ~OuterTrackerMonitorTrackingParticles() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  int Layer(const float R_, const float Z_);
+  const int Layer(const float R_, const float Z_);
 
 
   // Tracking particle distributions
