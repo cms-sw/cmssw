@@ -495,6 +495,12 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_xUni.book(_emap);
 		_xDigiSize.book(_emap);
 
+		// Manually book LED monitoring histogram, to get custom axis
+		ib.setCurrentFolder(_subsystem+"/"+_name);
+		_meLEDMon = ib.book2D("LED_ADCvsBX", "ADC vs BX", 99, -0.5, 3564-0.5, 64, -0.5, 255.5);
+		_meLEDMon->setAxisTitle("BX", 1);
+		_meLEDMon->setAxisTitle("ADC", 2);
+
 		// just PER HF FED RECORD THE #CHANNELS
 		// ONLY WAY TO DO THAT AUTOMATICALLY AND W/O HARDCODING 1728
 		// or ANY OTHER VALUES LIKE 2592, 2192
@@ -734,6 +740,18 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		}
 		HcalElectronicsId const& eid(rawid);
 		if (did.subdet() != HcalEndcap) {
+			// LED monitoring from calibration channels
+			if (did.subdet() == HcalOther) {
+				HcalOtherDetId hodid(digi.detid());
+				if (hodid.subdet() == HcalCalibration) {
+					if (did.depth() == 0) {
+						for (int i=0; i<digi.samples(); i++) {
+							_meLEDMon->Fill(bx, digi[i].adc());
+						}
+					}
+				}
+			}
+
 			continue;
 		}
 		if (did.subdet()==HcalBarrel) { // Note: since this is HE, we obviously expect did.subdet() always to be HcalEndcap, but QIE11DigiCollection will have HB for Run 3.
