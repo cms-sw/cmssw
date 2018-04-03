@@ -18,17 +18,17 @@
 #include <iostream>
 using namespace std;
 
-class L1TMuonOverlapReader: public edm::EDAnalyzer {
+class L1TMuonOverlapParamsViewer: public edm::EDAnalyzer {
 private:
     bool printLayerMap;
 public:
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void analyze(const edm::Event&, const edm::EventSetup&) override ;
     string hash(void *buf, size_t len) const ;
 
-    explicit L1TMuonOverlapReader(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
+    explicit L1TMuonOverlapParamsViewer(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
        printLayerMap   = pset.getUntrackedParameter<bool>("printLayerMap",  false);
     }
-    ~L1TMuonOverlapReader(void) override{}
+    ~L1TMuonOverlapParamsViewer(void) override {}
 };
 
 
@@ -37,19 +37,19 @@ public:
 #include <iostream>
 using namespace std;
 
-string L1TMuonOverlapReader::hash(void *buf, size_t len) const {
+string L1TMuonOverlapParamsViewer::hash(void *buf, size_t len) const {
     char tmp[SHA_DIGEST_LENGTH*2+1];
     bzero(tmp,sizeof(tmp));
     SHA_CTX ctx;
     if( !SHA1_Init( &ctx ) )
-        throw cms::Exception("L1TCaloParamsReader::hash")<<"SHA1 initialization error";
+        throw cms::Exception("L1TCaloParamsViewer::hash")<<"SHA1 initialization error";
 
     if( !SHA1_Update( &ctx, buf, len ) )
-        throw cms::Exception("L1TCaloParamsReader::hash")<<"SHA1 processing error";
+        throw cms::Exception("L1TCaloParamsViewer::hash")<<"SHA1 processing error";
 
     unsigned char hash[SHA_DIGEST_LENGTH];
     if( !SHA1_Final(hash, &ctx) )
-        throw cms::Exception("L1TCaloParamsReader::hash")<<"SHA1 finalization error";
+        throw cms::Exception("L1TCaloParamsViewer::hash")<<"SHA1 finalization error";
 
     // re-write bytes in hex
     for(unsigned int i=0; i<20; i++)
@@ -59,14 +59,14 @@ string L1TMuonOverlapReader::hash(void *buf, size_t len) const {
     return string(tmp);
 }
 
-void L1TMuonOverlapReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
+void L1TMuonOverlapParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){
 
     // Pull the config from the ES
     edm::ESHandle<L1TMuonOverlapParams> handle1;
     evSetup.get<L1TMuonOverlapParamsRcd>().get( handle1 ) ;
     boost::shared_ptr<L1TMuonOverlapParams> ptr1(new L1TMuonOverlapParams(*(handle1.product ())));
 
-    cout<<"Some fields in L1TMuonOverlapParams: "<<endl;
+    cout<<"Some fields in L1TMuonOverlapParamsParams: "<<endl;
 
     cout<<" fwVersion() = "<<ptr1->fwVersion()<<endl;
     cout<<" nPdfAddrBits() = "<<ptr1->nPdfAddrBits()<<endl;
@@ -230,5 +230,5 @@ void L1TMuonOverlapReader::analyze(const edm::Event& iEvent, const edm::EventSet
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 
-DEFINE_FWK_MODULE(L1TMuonOverlapReader);
+DEFINE_FWK_MODULE(L1TMuonOverlapParamsViewer);
 
