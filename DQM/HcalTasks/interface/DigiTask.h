@@ -176,6 +176,9 @@ class DigiTask : public hcaldqm::DQTask
 		hcaldqm::Container1D _cBadTDCvsBX;
 		hcaldqm::Container1D _cBadTDCvsLS;
 
+		// For monitoring LED misfires: ADC vs BX
+		MonitorElement* _meLEDMon;
+
 		//	#events counters
 		MonitorElement *meNumEvents1LS; // to transfer the #events to harvesting
 		MonitorElement *meUnknownIds1LS;
