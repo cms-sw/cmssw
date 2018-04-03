@@ -330,13 +330,13 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
     //const DetLayer* layer = theService_->detLayerGeometry()->idToLayer( ch->id().rawId() );
     shared_ptr<MuonTransientTrackingRecHit> tmpRecHit;
     
-    auto tsosNew = theService_->propagator("StraightLinePropagator")->propagate(tsosCurrent,refChamber->surface());
-    if (!tsosNew.isValid()) return Trajectory();
-    GlobalPoint tsosGP = tsosNew.freeTrajectoryState()->position();
+    tsosCurrent = theService_->propagator("StraightLinePropagator")->propagate(tsosCurrent,refChamber->surface());
+    if (!tsosCurrent.isValid()) return Trajectory();
+    GlobalPoint tsosGP = tsosCurrent.freeTrajectoryState()->position();
 
     //cout << "tsos gp   "<< tsosGP << refChamber->id() <<endl;
     
-    float maxR = 50;
+    float maxR = 500;
     // find best in all layers
     for (auto col : detLayerMap_){
       // only look in same layer
@@ -351,11 +351,11 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
 
 	  LocalPoint tsosLP = etaPart->toLocal(tsosGP);
 	  LocalPoint rhLP = (*rechit).localPosition();
-	  double y_err = (*rechit).localPositionError().yy();
+	  //double y_err = (*rechit).localPositionError().yy();
 	
-	  if (abs(rhLP.x() - tsosLP.x()) > trackResX_) continue;
+	  //if (abs(rhLP.x() - tsosLP.x()) > trackResX_) continue;
 	
-	  if (abs(rhLP.z() - tsosLP.z()) > y_err*trackResY_) continue;
+	  //if (abs(rhLP.y() - tsosLP.y()) > y_err*trackResY_) continue;
 	  // need to find best hits per chamber
 	  float deltaR = (rhLP - tsosLP).mag();
 	  if (maxR > deltaR){
@@ -400,7 +400,7 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
     if (tmpRecHit){      
       cout << "hit isValid "<<tmpRecHit->isValid() <<" gp "<< tmpRecHit->globalPosition()<<endl;
       if (tmpRecHit->isValid()){
-	tsosCurrent = theUpdator_->update(tsosCurrent, *tmpRecHit);
+	//tsosCurrent = theUpdator_->update(tsosCurrent, *tmpRecHit);
 	++validHits;
       }
       consRecHits.emplace_back(tmpRecHit);
