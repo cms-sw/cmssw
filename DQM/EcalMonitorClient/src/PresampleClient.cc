@@ -15,7 +15,8 @@ namespace ecaldqm
     DQWorkerClient(),
     minChannelEntries_(0),
     expectedMean_(0.),
-    toleranceMean_(0.),
+    toleranceLow_(0.),
+    toleranceHigh_(0.),
     toleranceRMS_(0.),
     toleranceRMSFwd_(0.)
   {
@@ -28,7 +29,8 @@ namespace ecaldqm
   {
     minChannelEntries_ = _params.getUntrackedParameter<int>("minChannelEntries");
     expectedMean_ = _params.getUntrackedParameter<double>("expectedMean");
-    toleranceMean_ = _params.getUntrackedParameter<double>("toleranceMean");
+    toleranceLow_ = _params.getUntrackedParameter<double>("toleranceLow");
+    toleranceHigh_ = _params.getUntrackedParameter<double>("toleranceHigh");
     toleranceRMS_ = _params.getUntrackedParameter<double>("toleranceRMS");
     toleranceRMSFwd_ = _params.getUntrackedParameter<double>("toleranceRMSFwd");
   }
@@ -93,7 +95,7 @@ namespace ecaldqm
       meRMSMap.setBinContent(id, rms);
       meRMSMapAllByLumi.setBinContent(id, rmsLS);
 
-      if(std::abs(mean - expectedMean_) > toleranceMean_ || rms > rmsThresh){
+      if(((mean > expectedMean_ + toleranceHigh_) || (mean < expectedMean_ - toleranceLow_)) || rms > rmsThresh){
         qItr->setBinContent(doMask ? kMBad : kBad);
         meQualitySummary.setBinContent(id, doMask ? kMBad : kBad);
         if(!doMask) meErrorsSummary.fill(id);
