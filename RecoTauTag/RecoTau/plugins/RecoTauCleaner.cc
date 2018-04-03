@@ -95,7 +95,7 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset)
   // Check if we want to apply a final output selection
   if ( pset.exists("outputSelection") ) {
     std::string selection = pset.getParameter<std::string>("outputSelection");
-    if ( selection != "" ) {
+    if ( !selection.empty() ) {
       outputSelector_.reset(new StringCutObjectSelector<reco::PFTau>(selection));
     }
   }
@@ -179,11 +179,11 @@ namespace
 	const reco::RecoTauPiZero& piZero = signalPiZeroCandidates.at(iPiZero);
 	std::cout << " piZero #" << iPiZero << ": Pt = " << piZero.pt() << ", eta = " << piZero.eta() << ", phi = " << piZero.phi() << ", mass = " << piZero.mass() << std::endl;
       }
-      const std::vector<reco::PFCandidatePtr>& isolationPFCands = tauRef_->isolationPFCands();
+      const auto& isolationPFCands = tauRef_->isolationPFCands();
       size_t numPFCands = isolationPFCands.size();
       std::cout << "isolationPFCands = " << numPFCands << std::endl;
       for ( size_t iPFCand = 0; iPFCand < numPFCands; ++iPFCand ) {
-	const reco::PFCandidatePtr& pfCand = isolationPFCands.at(iPFCand);
+	const auto& pfCand = isolationPFCands.at(iPFCand);
 	std::cout << " pfCand #" << iPFCand << " (" << pfCand.id() << ":" << pfCand.key() << "):" 
 		  << " Pt = " << pfCand->pt() << ", eta = " << pfCand->eta() << ", phi = " << pfCand->phi() << std::endl;
       }

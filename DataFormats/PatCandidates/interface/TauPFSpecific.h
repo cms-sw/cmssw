@@ -24,21 +24,21 @@ struct TauPFSpecific {
 // constructor from PFTau
   TauPFSpecific(const reco::PFTau& tau);
 // datamembers 
-  reco::PFJetRef pfJetRef_;
-  reco::PFCandidatePtr leadPFChargedHadrCand_;
+  reco::JetBaseRef pfJetRef_;
+  reco::CandidatePtr leadPFChargedHadrCand_;
   float leadPFChargedHadrCandsignedSipt_;
-  reco::PFCandidatePtr leadPFNeutralCand_;
-  reco::PFCandidatePtr leadPFCand_;
-  std::vector<reco::PFCandidatePtr> selectedSignalPFCands_;
-  std::vector<reco::PFCandidatePtr> selectedSignalPFChargedHadrCands_;
-  std::vector<reco::PFCandidatePtr> selectedSignalPFNeutrHadrCands_;
-  std::vector<reco::PFCandidatePtr> selectedSignalPFGammaCands_;
+  reco::CandidatePtr leadPFNeutralCand_;
+  reco::CandidatePtr leadPFCand_;
+  std::vector<reco::CandidatePtr> selectedSignalPFCands_;
+  std::vector<reco::CandidatePtr> selectedSignalPFChargedHadrCands_;
+  std::vector<reco::CandidatePtr> selectedSignalPFNeutrHadrCands_;
+  std::vector<reco::CandidatePtr> selectedSignalPFGammaCands_;
   std::vector<reco::PFRecoTauChargedHadron> signalTauChargedHadronCandidates_;
   std::vector<reco::RecoTauPiZero> signalPiZeroCandidates_;
-  std::vector<reco::PFCandidatePtr> selectedIsolationPFCands_;
-  std::vector<reco::PFCandidatePtr> selectedIsolationPFChargedHadrCands_;
-  std::vector<reco::PFCandidatePtr> selectedIsolationPFNeutrHadrCands_;
-  std::vector<reco::PFCandidatePtr> selectedIsolationPFGammaCands_;
+  std::vector<reco::CandidatePtr> selectedIsolationPFCands_;
+  std::vector<reco::CandidatePtr> selectedIsolationPFChargedHadrCands_;
+  std::vector<reco::CandidatePtr> selectedIsolationPFNeutrHadrCands_;
+  std::vector<reco::CandidatePtr> selectedIsolationPFGammaCands_;
   std::vector<reco::PFRecoTauChargedHadron> isolationTauChargedHadronCandidates_;
   std::vector<reco::RecoTauPiZero> isolationPiZeroCandidates_;
   float isolationPFChargedHadrCandsPtSum_;

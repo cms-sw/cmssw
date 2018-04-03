@@ -184,17 +184,28 @@ double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau) 
   mvaInput_[0]  = TMath::Abs(tau->eta());
   double tauCaloEnECAL = 0.;
   double tauCaloEnHCAL = 0.;
-  const std::vector<reco::PFCandidatePtr>& tauSignalPFCands = tau->signalPFCands();
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator tauSignalPFCand = tauSignalPFCands.begin();
+  const std::vector<reco::CandidatePtr>& tauSignalPFCands = tau->signalPFCands();
+  for ( std::vector<reco::CandidatePtr>::const_iterator tauSignalPFCand = tauSignalPFCands.begin();
 	tauSignalPFCand != tauSignalPFCands.end(); ++tauSignalPFCand ) {
-    tauCaloEnECAL += (*tauSignalPFCand)->ecalEnergy();
-    tauCaloEnHCAL += (*tauSignalPFCand)->hcalEnergy();
+    const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(tauSignalPFCand->get());
+    if (pfcand != nullptr) {
+      tauCaloEnECAL += pfcand->ecalEnergy();
+      tauCaloEnHCAL += pfcand->hcalEnergy();
+    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
   }
+  
+  const reco::PFCandidate* pflch = nullptr;
+  if (tau->leadPFChargedHadrCand().isNonnull()) {
+    pflch = dynamic_cast<const reco::PFCandidate*>(tau->leadPFChargedHadrCand().get());
+    if (pflch == nullptr)
+      throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+  }
+
   mvaInput_[1]  = TMath::Sqrt(TMath::Max(0., tauCaloEnECAL));
   mvaInput_[2]  = TMath::Sqrt(TMath::Max(0., tauCaloEnHCAL));
   mvaInput_[3]  = tau->leadPFChargedHadrCand()->pt()/TMath::Max(1.,Double_t(tau->pt()));
-  mvaInput_[4]  = TMath::Sqrt(TMath::Max(0., tau->leadPFChargedHadrCand()->ecalEnergy()));
-  mvaInput_[5]  = TMath::Sqrt(TMath::Max(0., tau->leadPFChargedHadrCand()->hcalEnergy()));
+  mvaInput_[4]  = TMath::Sqrt(TMath::Max(0., pflch->ecalEnergy()));
+  mvaInput_[5]  = TMath::Sqrt(TMath::Max(0., pflch->hcalEnergy()));
   int numMatches = 0;
   std::vector<int> numHitsDT(4);
   std::vector<int> numHitsCSC(4);
@@ -204,17 +215,17 @@ double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau) 
     numHitsCSC[iStation] = 0;
     numHitsRPC[iStation] = 0;
   }
-  if ( tau->leadPFChargedHadrCand().isNonnull() ) {
-    reco::MuonRef muonRef = tau->leadPFChargedHadrCand()->muonRef();      
-    if ( muonRef.isNonnull() ) {
-      numMatches = muonRef->numberOfMatches(reco::Muon::NoArbitration);
-      countHits(*muonRef, numHitsDT, numHitsCSC, numHitsRPC);
-    }
+
+  reco::MuonRef muonRef = pflch->muonRef();      
+  if ( muonRef.isNonnull() ) {
+    numMatches = muonRef->numberOfMatches(reco::Muon::NoArbitration);
+    countHits(*muonRef, numHitsDT, numHitsCSC, numHitsRPC);
   }
+
   size_t numMuons = muons_->size();
   for ( size_t idxMuon = 0; idxMuon < numMuons; ++idxMuon ) {
     reco::MuonRef muon(muons_, idxMuon);
-    if ( tau->leadPFChargedHadrCand().isNonnull() && tau->leadPFChargedHadrCand()->muonRef().isNonnull() && muon == tau->leadPFChargedHadrCand()->muonRef() ) {	
+    if (pflch->muonRef().isNonnull() && muon == pflch->muonRef()) {	
       continue;
     }
     double dR = deltaR(muon->p4(), tau->p4());
