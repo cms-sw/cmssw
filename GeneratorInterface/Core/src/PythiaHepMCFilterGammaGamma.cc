@@ -45,9 +45,6 @@ PythiaHepMCFilterGammaGamma::PythiaHepMCFilterGammaGamma(const edm::ParameterSet
 
 PythiaHepMCFilterGammaGamma::~PythiaHepMCFilterGammaGamma() 
 {  
-  cout << "Number of Selected Events: " << nSelectedEvents << endl;
-  cout << "Number of Generated Events: " << nGeneratedEvents << endl;
-  cout << "Number of Prompt photons: " << counterPrompt << endl;
 }
 
 bool PythiaHepMCFilterGammaGamma::filter(const HepMC::GenEvent* myGenEvent) {
