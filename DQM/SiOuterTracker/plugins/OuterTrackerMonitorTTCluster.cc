@@ -98,14 +98,13 @@ void OuterTrackerMonitorTTCluster::analyze(const edm::Event& iEvent, const edm::
       const GeomDet* theGeomDet = theTrackerGeometry->idToDet(detIdClu);
       Global3DPoint posClu = theGeomDet->surface().toGlobal( theGeomDet->topology().localPosition(mp) );
 
-      double eta = posClu.eta();
-      double phi = posClu.phi();
+
       double r = posClu.perp();
       double z = posClu.z();
 
       Cluster_W->Fill(widClu, memberClu);
-      Cluster_Eta->Fill(eta);
-      Cluster_Phi->Fill(phi);
+      Cluster_Eta->Fill(posClu.eta());
+      Cluster_Phi->Fill(posClu.phi());
       Cluster_R->Fill(r);
       Cluster_RZ->Fill( z , r );
 
@@ -153,6 +152,7 @@ void OuterTrackerMonitorTTCluster::analyze(const edm::Event& iEvent, const edm::
 // ------------ method called once each job just before starting event loop  ------------
 void OuterTrackerMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const & run, edm::EventSetup const & es) {
   std::string HistoName;
+  int numDiscs = 5;
 
   iBooker.setCurrentFolder(topFolderName_+"/Clusters/NClusters");
 
@@ -208,7 +208,7 @@ void OuterTrackerMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker, ed
   Cluster_OMem_Endcap_Ring->setAxisTitle("Endcap Ring", 1);
   Cluster_OMem_Endcap_Ring->setAxisTitle("# L1 Clusters", 2);
 
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < numDiscs; i++)
   {
     HistoName = "NClusters_IMem_Disc+"+std::to_string(i+1);
     Cluster_IMem_Endcap_Ring_Fw[i] = iBooker.book1D(HistoName, HistoName,
@@ -219,7 +219,7 @@ void OuterTrackerMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker, ed
     Cluster_IMem_Endcap_Ring_Fw[i]->setAxisTitle("# L1 Clusters ",2);
   }
 
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < numDiscs; i++)
   {
     HistoName = "NClusters_IMem_Disc-"+std::to_string(i+1);
     Cluster_IMem_Endcap_Ring_Bw[i] = iBooker.book1D(HistoName, HistoName,
@@ -230,7 +230,7 @@ void OuterTrackerMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker, ed
     Cluster_IMem_Endcap_Ring_Bw[i]->setAxisTitle("# L1 Clusters ",2);
   }
 
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < numDiscs; i++)
   {
     HistoName = "NClusters_OMem_Disc+"+std::to_string(i+1);
     Cluster_OMem_Endcap_Ring_Fw[i] = iBooker.book1D(HistoName, HistoName,
@@ -241,7 +241,7 @@ void OuterTrackerMonitorTTCluster::bookHistograms(DQMStore::IBooker &iBooker, ed
     Cluster_OMem_Endcap_Ring_Fw[i]->setAxisTitle("# L1 Clusters ",2);
   }
 
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < numDiscs; i++)
   {
     HistoName = "NClusters_OMem_Disc-"+std::to_string(i+1);
     Cluster_OMem_Endcap_Ring_Bw[i] = iBooker.book1D(HistoName, HistoName,

@@ -10,6 +10,7 @@
 #include <numeric>
 #include <iostream>
 #include <fstream>
+#include <string>
 
 // user include files
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
@@ -62,102 +63,89 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event& iEvent, const edm::Ev
   /// Track Trigger Tracks
   unsigned int numHQTracks = 0;
   unsigned int numLQTracks = 0;
-  unsigned int numTracks = 0;
 
   // Adding protection
   if ( !TTTrackHandle.isValid() ) return;
-  //  if ( TTTrackHandle.isValid() ) return;
 
-  /// Go on only if there are TTTracks from Phase2TrackerDigis
-  if (!TTTrackHandle->empty())
-  {
-    /// Loop over TTTracks
-    unsigned int tkCnt = 0;
-    std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator iterTTTrack;
-    for (iterTTTrack = TTTrackHandle->begin();iterTTTrack != TTTrackHandle->end();++iterTTTrack)
-    {
-      edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > tempTrackPtr(TTTrackHandle, tkCnt++); /// Make the pointer
-      numTracks++;
+  /// Loop over TTTracks
+  unsigned int tkCnt = 0;
+  //std::vector< TTTrack< Ref_Phase2TrackerDigi_ > >::const_iterator iterTTTrack;
+  //for (iterTTTrack = TTTrackHandle->begin();iterTTTrack != TTTrackHandle->end();++iterTTTrack){
+  for(auto iterTTTrack: *TTTrackHandle){
+    edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > tempTrackPtr(TTTrackHandle, tkCnt++); /// Make the pointer
 
-      unsigned int nStubs = tempTrackPtr->getStubRefs().size();
-      int nBarrelStubs = 0;
-      int nECStubs = 0;
+    unsigned int nStubs = tempTrackPtr->getStubRefs().size();
+    int nBarrelStubs = 0;
+    int nECStubs = 0;
 
-      double trackPt = tempTrackPtr->getMomentum().perp();
-      double trackPhi = tempTrackPtr->getMomentum().phi();
-      double trackEta = tempTrackPtr->getMomentum().eta();
-      double trackVtxZ = tempTrackPtr->getPOCA().z();
-      double track_x0 = tempTrackPtr->getPOCA().x();
-      double track_y0 = tempTrackPtr->getPOCA().y();
 
-      double track_d0 = sqrt(track_x0*track_x0 + track_y0*track_y0);
-      double trackChi2 = tempTrackPtr->getChi2();
-      double trackChi2R = tempTrackPtr->getChi2Red();
-      float chi2_prob = ChiSquaredProbability(trackChi2, nStubs);
+    double track_d0 = sqrt(tempTrackPtr->getPOCA().x()*tempTrackPtr->getPOCA().x() + tempTrackPtr->getPOCA().y()*tempTrackPtr->getPOCA().y());
+    double trackChi2 = tempTrackPtr->getChi2();
+    double trackChi2R = tempTrackPtr->getChi2Red();
 
-      Track_NStubs->Fill(nStubs);
-      Track_Eta_NStubs->Fill(trackEta, nStubs);
+    Track_NStubs->Fill(nStubs);
+    Track_Eta_NStubs->Fill(tempTrackPtr->getMomentum().eta(), nStubs);
 
-      std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = iterTTTrack -> getStubRefs() ;
-      for (unsigned int istub=0; istub<(unsigned int)theStubs.size(); istub++) {
-        bool inTIB = false;
-        bool inTOB = false;
-        bool inTEC = false;
-        bool inTID = false;
+    //std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = iterTTTrack -> getStubRefs() ;
+    std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > >  theStubs = iterTTTrack.getStubRefs() ;
+    //for (unsigned int istub=0; istub<(unsigned int)theStubs.size(); istub++) {
+    for (auto istub: theStubs) {
+      bool inTIB = false;
+      bool inTOB = false;
+      bool inTEC = false;
+      bool inTID = false;
 
-        // Verify if stubs are in EC or barrel
-        DetId detId(theStubs.at(istub)->getDetId());
-        if (detId.det() == DetId::Detector::Tracker) {
+      // Verify if stubs are in EC or barrel
+      DetId detId(istub->getDetId());
+      if (detId.det() == DetId::Detector::Tracker) {
 
-          if      (detId.subdetId() == StripSubdetector::TIB) inTIB=true;
-          else if (detId.subdetId() == StripSubdetector::TOB) inTOB=true;
-          else if (detId.subdetId() == StripSubdetector::TEC) inTEC=true;
-          else if (detId.subdetId() == StripSubdetector::TID) inTID=true;
-        }
-        if (inTIB) nBarrelStubs++;
-        else if (inTOB) nBarrelStubs++;
-        else if (inTEC) nECStubs++;
-        else if (inTID) nECStubs++;
-      } //end loop over stubs
-
-      //HQ tracks: >=5 stubs and chi2/dof < 10
-      if (nStubs >= HQNStubs_ && trackChi2R <= HQChi2dof_) {
-        numHQTracks++;
-
-        Track_HQ_Pt->Fill(trackPt);
-        Track_HQ_Eta->Fill(trackEta);
-        Track_HQ_Phi->Fill(trackPhi);
-        Track_HQ_VtxZ->Fill(trackVtxZ);
-        Track_HQ_Chi2->Fill(trackChi2);
-        Track_HQ_Chi2Red->Fill(trackChi2R);
-        Track_HQ_D0->Fill(track_d0);
-        Track_HQ_Chi2Red_NStubs->Fill(nStubs, trackChi2R);
-        Track_HQ_Chi2Red_Eta->Fill(trackEta, trackChi2R);
-        Track_HQ_Eta_BarrelStubs->Fill(trackEta, nBarrelStubs);
-        Track_HQ_Eta_ECStubs->Fill(trackEta, nECStubs);
-        Track_HQ_Chi2_Probability->Fill(chi2_prob);
+        if      (detId.subdetId() == StripSubdetector::TIB) inTIB=true;
+        else if (detId.subdetId() == StripSubdetector::TOB) inTOB=true;
+        else if (detId.subdetId() == StripSubdetector::TEC) inTEC=true;
+        else if (detId.subdetId() == StripSubdetector::TID) inTID=true;
       }
+      if (inTIB) nBarrelStubs++;
+      else if (inTOB) nBarrelStubs++;
+      else if (inTEC) nECStubs++;
+      else if (inTID) nECStubs++;
+    } //end loop over stubs
 
-      //LQ: now defined as all tracks (including HQ tracks)
-      numLQTracks++;
+    //HQ tracks: >=5 stubs and chi2/dof < 1
+    if (nStubs >= HQNStubs_ && trackChi2R <= HQChi2dof_) {
+      numHQTracks++;
 
-      Track_LQ_Pt->Fill(trackPt);
-      Track_LQ_Eta->Fill(trackEta);
-      Track_LQ_Phi->Fill(trackPhi);
-      Track_LQ_VtxZ->Fill(trackVtxZ);
-      Track_LQ_Chi2->Fill(trackChi2);
-      Track_LQ_Chi2Red->Fill(trackChi2R);
-      Track_LQ_D0->Fill(track_d0);
-      Track_LQ_Chi2Red_NStubs->Fill(nStubs, trackChi2R);
-      Track_LQ_Chi2Red_Eta->Fill(trackEta, trackChi2R);
-      Track_LQ_Eta_BarrelStubs->Fill(trackEta, nBarrelStubs);
-      Track_LQ_Eta_ECStubs->Fill(trackEta,  nECStubs);
-      Track_LQ_Chi2_Probability->Fill(chi2_prob);
+      Track_HQ_Pt->Fill(tempTrackPtr->getMomentum().perp());
+      Track_HQ_Eta->Fill(tempTrackPtr->getMomentum().eta());
+      Track_HQ_Phi->Fill(tempTrackPtr->getMomentum().phi());
+      Track_HQ_VtxZ->Fill(tempTrackPtr->getPOCA().z());
+      Track_HQ_Chi2->Fill(trackChi2);
+      Track_HQ_Chi2Red->Fill(trackChi2R);
+      Track_HQ_D0->Fill(track_d0);
+      Track_HQ_Chi2Red_NStubs->Fill(nStubs, trackChi2R);
+      Track_HQ_Chi2Red_Eta->Fill(tempTrackPtr->getMomentum().eta(), trackChi2R);
+      Track_HQ_Eta_BarrelStubs->Fill(tempTrackPtr->getMomentum().eta(), nBarrelStubs);
+      Track_HQ_Eta_ECStubs->Fill(tempTrackPtr->getMomentum().eta(), nECStubs);
+      Track_HQ_Chi2_Probability->Fill(ChiSquaredProbability(trackChi2, nStubs));
+    }
 
-    } // End of loop over TTTracks
-  } // End TTTracks from pixeldigis
+    //LQ: now defined as all tracks (including HQ tracks)
+    numLQTracks++;
 
-  Track_N->Fill(numTracks);
+    Track_LQ_Pt->Fill(tempTrackPtr->getMomentum().perp());
+    Track_LQ_Eta->Fill(tempTrackPtr->getMomentum().eta());
+    Track_LQ_Phi->Fill(tempTrackPtr->getMomentum().phi());
+    Track_LQ_VtxZ->Fill(tempTrackPtr->getPOCA().z());
+    Track_LQ_Chi2->Fill(trackChi2);
+    Track_LQ_Chi2Red->Fill(trackChi2R);
+    Track_LQ_D0->Fill(track_d0);
+    Track_LQ_Chi2Red_NStubs->Fill(nStubs, trackChi2R);
+    Track_LQ_Chi2Red_Eta->Fill(tempTrackPtr->getMomentum().eta(), trackChi2R);
+    Track_LQ_Eta_BarrelStubs->Fill(tempTrackPtr->getMomentum().eta(), nBarrelStubs);
+    Track_LQ_Eta_ECStubs->Fill(tempTrackPtr->getMomentum().eta(),  nECStubs);
+    Track_LQ_Chi2_Probability->Fill(ChiSquaredProbability(trackChi2, nStubs));
+
+  } // End of loop over TTTracks
+
   Track_HQ_N->Fill(numHQTracks);
   Track_LQ_N->Fill(numLQTracks);
 } // end of method
@@ -169,15 +157,6 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker, edm:
   std::string HistoName;
 
   iBooker.setCurrentFolder(topFolderName_+"/Tracks/");
-  //Number of tracks
-  edm::ParameterSet psTrack_N =  conf_.getParameter<edm::ParameterSet>("TH1_NTracks");
-  HistoName = "Track_N";
-  Track_N = iBooker.book1D(HistoName, HistoName,
-      psTrack_N.getParameter<int32_t>("Nbinsx"),
-      psTrack_N.getParameter<double>("xmin"),
-      psTrack_N.getParameter<double>("xmax"));
-  Track_N->setAxisTitle("# L1 Tracks", 1);
-  Track_N->setAxisTitle("# Events", 2);
 
   //Number of stubs
   edm::ParameterSet psTrack_NStubs =  conf_.getParameter<edm::ParameterSet>("TH1_NStubs");
@@ -205,6 +184,7 @@ void OuterTrackerMonitorTTTrack::bookHistograms(DQMStore::IBooker &iBooker, edm:
   iBooker.setCurrentFolder(topFolderName_+"/Tracks/LQ");
   // Nb of L1Tracks
   HistoName = "Track_LQ_N";
+  edm::ParameterSet psTrack_N =  conf_.getParameter<edm::ParameterSet>("TH1_NTracks");
   Track_LQ_N = iBooker.book1D(HistoName, HistoName,
       psTrack_N.getParameter<int32_t>("Nbinsx"),
       psTrack_N.getParameter<double>("xmin"),

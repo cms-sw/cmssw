@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -27,7 +28,6 @@ public:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   // Distributions of all tracks
-  MonitorElement* Track_N = nullptr; // Number of tracks per event
   MonitorElement* Track_NStubs = nullptr; // Number of stubs per track
   MonitorElement* Track_Eta_NStubs = nullptr; //Number of stubs per track vs eta
 
