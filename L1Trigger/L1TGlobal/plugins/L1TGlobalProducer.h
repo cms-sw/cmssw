@@ -99,6 +99,8 @@ private:
     /// CSV file for prescales
     std::string m_prescalesFile;
 
+    uint m_currentLumi;
+
     /// trigger masks & veto masks
     const L1GtTriggerMask* m_l1GtTmAlgo;
     unsigned long long m_l1GtTmAlgoCacheID;
@@ -173,7 +175,11 @@ private:
     int m_verbosity;
     bool m_printL1Menu;
     bool m_isDebugEnabled;
-    
+
+    bool m_getPrescaleColumnFromData;    
+    edm::InputTag m_algoblkInputTag;
+    edm::EDGetToken m_algoblkInputToken;
+
 
 };
 
