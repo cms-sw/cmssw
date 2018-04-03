@@ -1,7 +1,7 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauBinnedIsolationPlugin.h"
 #include <boost/foreach.hpp>
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
@@ -73,9 +73,9 @@ std::vector<double> RecoTauDiscriminationBinnedIsolation::operator()(
   // Create our output spectrum
   std::vector<double> output(bins->size(), 0.0);
   // Get the desired isolation objects
-  std::vector<reco::PFCandidatePtr> isoObjects = extractIsoObjects(tau);
+  std::vector<reco::CandidatePtr> isoObjects = extractIsoObjects(tau);
   // Loop over each and histogram their pt
-  BOOST_FOREACH(const reco::PFCandidatePtr& cand, isoObjects) {
+  BOOST_FOREACH(const reco::CandidatePtr& cand, isoObjects) {
     int highestBinLessThan = -1;
     for (size_t ibin = 0; ibin < bins->size(); ++ibin) {
       if (cand->pt() > bins->at(ibin)) {
