@@ -165,11 +165,10 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
   for(map<string, vector<double> >::iterator v=binnedReals.begin(); v!=binnedReals.end(); v++){
     TString name = v->first;
     if (variables.find(name) == nullptr) { cerr << "Binned variable '"<<name<<"' not found." << endl; return "Error"; }
-    binnedVariables.addClone(variables[name]);
+    binnedVariables.add(*dataVars.addClone(variables[name]));
    ((RooRealVar&)binnedVariables[name]).setBinning( RooBinning(v->second.size()-1, &v->second[0]) );
     binCategories.addClone( RooBinningCategory(name+"_bins", name+"_bins", (RooRealVar&)binnedVariables[name]) );
   }
-  dataVars.addClone(binnedVariables, true);
 
   //collect the category variables and the corresponding mapped categories
   RooArgSet categories;
@@ -177,13 +176,12 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
   for(map<string, vector<string> >::iterator v=binnedCategories.begin(); v!=binnedCategories.end(); v++){
     TString name = v->first;
     if (variables.find(name) == nullptr) { cerr << "Binned category '"<<name<<"' not found." << endl; return "Error"; }
-    categories.addClone(variables[name]);
+    categories.add(*dataVars.addClone(variables[name]));
     mappedCategories.addClone(RooMappedCategory(name+"_bins", name+"_bins", (RooCategory&)categories[name]));
     for(unsigned int i = 0; i<v->second.size(); i++){
       ((RooMappedCategory&)mappedCategories[name+"_bins"]).map(v->second[i].c_str(), name+"_"+TString(v->second[i].c_str()).ReplaceAll(",","_"));
     }
   }
-  dataVars.addClone(categories, true);
 
   // add the efficiency category if it's not a dynamic one
   for (vector<string>::const_iterator effCat = effCats.begin(); effCat != effCats.end(); ++effCat) {
