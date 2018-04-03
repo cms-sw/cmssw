@@ -4,7 +4,7 @@ BTVHLTOfflineSource = cms.EDAnalyzer(
     "BTVHLTOfflineSource",
     #
     dirname = cms.untracked.string("HLT/BTV"),
-    processname = cms.string("HLT"),  
+    processname = cms.string("HLT"),
     verbose = cms.untracked.bool(False),
     #
     triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
@@ -13,9 +13,9 @@ BTVHLTOfflineSource = cms.EDAnalyzer(
     offlineCSVLabelCalo = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
     hltFastPVLabel = cms.InputTag("hltFastPrimaryVertex"),
     hltPFPVLabel = cms.InputTag("hltVerticesPFSelector"),
-    hltCaloPVLabel = cms.InputTag("hltVerticesL3"),    
-    offlinePVLabel = cms.InputTag("offlinePrimaryVertices"),    
-    
+    hltCaloPVLabel = cms.InputTag("hltVerticesL3"),
+    offlinePVLabel = cms.InputTag("offlinePrimaryVertices"),
+
     #
     pathPairs = cms.VPSet(
         cms.PSet(
@@ -25,8 +25,8 @@ BTVHLTOfflineSource = cms.EDAnalyzer(
         cms.PSet(
             #pathname = cms.string("HLT_PFMET120_NoiseCleaned_BTagCSV07"),
             pathname = cms.string("HLT_PFMET120_"),
-	    pathtype = cms.string("Calo"),
-        )    
+            pathtype = cms.string("Calo"),
+        )
     )
 )
 
