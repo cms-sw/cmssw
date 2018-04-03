@@ -493,6 +493,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
         coder.adc2fC(frame, cs);
 
         // Prepare to iterate over time slices
+        const bool saveEffectivePeds = channelInfo->hasEffectivePedestals();
         const int nRead = cs.size();
         const int maxTS = std::min(nRead, static_cast<int>(HBHEChannelInfo::MAXSAMPLES));
         const int soi = tsFromDB_ ? param_ts->firstSample() : frame.presamples();
@@ -508,8 +509,8 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
             const int capid = s.capid();
             //optionally store "effective" pedestal (measured with bias voltage on)
             // = QIE contribution + SiPM contribution (from dark current + crosstalk)
-            const double pedestal = saveEffectivePedestal_ ? calib.effpedestal(capid) : calib.pedestal(capid);
-            const double pedestalWidth = saveEffectivePedestal_ ? calibWidth.effpedestal(capid) : calibWidth.pedestal(capid);
+            const double pedestal = saveEffectivePeds ? calib.effpedestal(capid) : calib.pedestal(capid);
+            const double pedestalWidth = saveEffectivePeds ? calibWidth.effpedestal(capid) : calibWidth.pedestal(capid);
             const double gain = calib.respcorrgain(capid);
             const double gainWidth = calibWidth.gain(capid);
             //always use QIE-only pedestal for this computation
