@@ -29,24 +29,24 @@ class SiPixelStatusManager {
   void reset();   
   void readLumi(const edm::LuminosityBlock&);   
 
-  void createStuckTBMs();
-  void createBadComponents();
-
   void createPayloads(){
-      createStuckTBMs();
+      createFEDerror25();
       createBadComponents();
   }
 
   const std::map<edm::LuminosityBlockNumber_t,SiPixelDetectorStatus>& getBadComponents(){return siPixelStatusMap_; } 
-  const std::map<edm::LuminosityBlockNumber_t,std::map<int, std::vector<int>> >& getStuckTBMsRocs(){return stuckTBMsMap_;}
+  const std::map<edm::LuminosityBlockNumber_t,std::map<int, std::vector<int>> >& getFEDerror25Rocs(){return FEDerror25Map_;}
 
   typedef std::map<edm::LuminosityBlockNumber_t,SiPixelDetectorStatus>::iterator siPixelStatusMap_iterator;
-  typedef std::map<edm::LuminosityBlockNumber_t,std::map<int, std::vector<int>> >::iterator stuckTBMsMap_iterator;
+  typedef std::map<edm::LuminosityBlockNumber_t,std::map<int, std::vector<int>> >::iterator FEDerror25Map_iterator;
 
  private:
 
+  void createFEDerror25();
+  void createBadComponents();
+
   std::map<edm::LuminosityBlockNumber_t, SiPixelDetectorStatus> siPixelStatusMap_;
-  std::map<edm::LuminosityBlockNumber_t, std::map<int, std::vector<int>> > stuckTBMsMap_;
+  std::map<edm::LuminosityBlockNumber_t, std::map<int, std::vector<int>> > FEDerror25Map_;
 
   std::string outputBase_;
   int aveDigiOcc_;

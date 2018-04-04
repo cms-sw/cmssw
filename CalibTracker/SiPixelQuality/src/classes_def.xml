@@ -1,6 +1,6 @@
 <lcgdict>
-   <class name="SiPixelRocStatus" ClassVersion="7">
-    <version ClassVersion="7" checksum="4239451"/>
+   <class name="SiPixelRocStatus" ClassVersion="8">
+    <version ClassVersion="8" checksum="4171659340"/>
    </class>
    <class name="std::vector<SiPixelRocStatus>"/>
    <class name="SiPixelModuleStatus" ClassVersion="6">

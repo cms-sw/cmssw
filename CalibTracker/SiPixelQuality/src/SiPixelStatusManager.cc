@@ -221,13 +221,13 @@ void SiPixelStatusManager::createBadComponents(){
 }
 
 
-void SiPixelStatusManager::createStuckTBMs(){
+void SiPixelStatusManager::createFEDerror25(){
 
     // initialize the first IOV and SiPixelDetector status (in the first IOV)
     siPixelStatusMap_iterator firstStatus = siPixelStatusMap_.begin();
     LuminosityBlockNumber_t   firstLumi = firstStatus->first;
-    SiPixelDetectorStatus     firstStuckTBMs = firstStatus->second;
-    stuckTBMsMap_[firstLumi] = firstStuckTBMs.getStuckTBMsRocs();   
+    SiPixelDetectorStatus     firstFEDerror25 = firstStatus->second;
+    FEDerror25Map_[firstLumi] = firstFEDerror25.getFEDerror25Rocs();   
 
     siPixelStatusMap_iterator lastStatus     = siPixelStatusMap_.end();
 
@@ -238,15 +238,15 @@ void SiPixelStatusManager::createStuckTBMs(){
     for (siPixelStatusMap_iterator it = secondStatus; it != lastStatus; it++) {
        
         LuminosityBlockNumber_t tmpLumi = it->first;
-        SiPixelDetectorStatus tmpStuckTBMs = it->second;
-        std::map<int,std::vector<int> >tmpBadRocLists = tmpStuckTBMs.getStuckTBMsRocs();
+        SiPixelDetectorStatus tmpFEDerror25 = it->second;
+        std::map<int,std::vector<int> >tmpBadRocLists = tmpFEDerror25.getFEDerror25Rocs();
 
-        std::map<int, SiPixelModuleStatus>::iterator itModEnd = tmpStuckTBMs.end();
-        for (std::map<int, SiPixelModuleStatus>::iterator itMod = tmpStuckTBMs.begin(); itMod != itModEnd; ++itMod) 
+        std::map<int, SiPixelModuleStatus>::iterator itModEnd = tmpFEDerror25.end();
+        for (std::map<int, SiPixelModuleStatus>::iterator itMod = tmpFEDerror25.begin(); itMod != itModEnd; ++itMod) 
         {
             int detid = itMod->first;
             // if the badroc list differs for any detid, update the payload
-            if(tmpBadRocLists[detid]!=(stuckTBMsMap_[previousLumi])[detid]){
+            if(tmpBadRocLists[detid]!=(FEDerror25Map_[previousLumi])[detid]){
                sameAsLastIOV = false;
                break; // jump out of the loop once a new payload is found
             }       
@@ -254,7 +254,7 @@ void SiPixelStatusManager::createStuckTBMs(){
 
         if(sameAsLastIOV==false){
             //only write new IOV when this Lumi is not equal to the previous one
-            stuckTBMsMap_[tmpLumi] = tmpBadRocLists; 
+            FEDerror25Map_[tmpLumi] = tmpBadRocLists; 
             // and reset
             previousLumi = tmpLumi;
             sameAsLastIOV = true;

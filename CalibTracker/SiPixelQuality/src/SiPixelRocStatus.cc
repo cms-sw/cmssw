@@ -10,7 +10,7 @@ using namespace std;
 // ----------------------------------------------------------------------
 SiPixelRocStatus::SiPixelRocStatus() {
   fDC = 0;
-  isStuckTBM_ = false;
+  isFEDerror25_ = false;
 }
 
 
@@ -34,9 +34,9 @@ void SiPixelRocStatus::updateDIGI(unsigned int hits) {
 }
 
 // ----------------------------------------------------------------------
-void SiPixelRocStatus::fillStuckTBM(){
+void SiPixelRocStatus::fillFEDerror25(){
 
-     isStuckTBM_ = true;
+     isFEDerror25_ = true;
 
 }
 
