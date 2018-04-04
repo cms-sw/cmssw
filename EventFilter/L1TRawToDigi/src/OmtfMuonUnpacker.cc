@@ -27,8 +27,20 @@ void MuonUnpacker::unpack(unsigned int fed, unsigned int amc, const MuonDataWord
   digi.setTrackAddress(trackAddr);
   digi.setTFIdentifiers(iProcessor, overlap);
   int bx = data.bxNum()-3;
-  LogTrace("")  <<"OMTF Muon, BX="<<bx<<", hwPt="<<digi.hwPt()<< std::endl;
-  if(std::abs(bx) <= 3) producedMuonDigis->push_back(bx,digi);
+  LogTrace("")  <<"OMTF Muon, BX="<<bx<<", hwPt="<<digi.hwPt()<<", link: "<<digi.link() << std::endl;
+
+  // add digi to collection, keep fixed ascending link orderi (insert in proper place)
+  if(std::abs(bx) <= 3) {
+    l1t::RegionalMuonCandBxCollection::const_iterator itb=producedMuonDigis->begin(bx);
+    l1t::RegionalMuonCandBxCollection::const_iterator ite=producedMuonDigis->end(bx);
+    unsigned int indeks = 0;
+    while (indeks < ite-itb) {
+      if (digi.link()<(itb+indeks)->link()) break;
+      indeks++;
+    }
+    producedMuonDigis->insert(bx,indeks,digi);
+  }
+  
 }
  
 }
