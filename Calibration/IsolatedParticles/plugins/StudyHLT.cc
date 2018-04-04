@@ -113,7 +113,7 @@ private:
   const std::string                theTrackQuality_;
   const double                     minTrackP_, maxTrackEta_;
   const double                     tMinE_, tMaxE_, tMinH_, tMaxH_;
-  const bool                       isItAOD_, doTree_;
+  const bool                       isItAOD_, vetoTrigger_, doTree_;
   const std::vector<double>        puWeights_;
   const edm::InputTag              triggerEvent_, theTriggerResultsLabel_;
   spr::trackSelectionParameters    selectionParameters_;
@@ -166,6 +166,7 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) :
   tMinH_(iConfig.getUntrackedParameter<double>("timeMinCutHCAL",-500.)),
   tMaxH_(iConfig.getUntrackedParameter<double>("timeMaxCutHCAL",500.)),
   isItAOD_(iConfig.getUntrackedParameter<bool>("isItAOD",false)),
+  vetoTrigger_(iConfig.getUntrackedParameter<bool>("vetoTrigger",false)),
   doTree_(iConfig.getUntrackedParameter<bool>("doTree",false)),
   puWeights_(iConfig.getUntrackedParameter<std::vector<double> >("puWeights")),
   triggerEvent_(edm::InputTag("hltTriggerSummaryAOD","","HLT")),
@@ -221,7 +222,8 @@ StudyHLT::StudyHLT(const edm::ParameterSet& iConfig) :
 			   << minTrackP_ << " maxTrackEta " << maxTrackEta_
 			   << " tMinE_ " << tMinE_ << " tMaxE " << tMaxE_ 
 			   << " tMinH_ " << tMinH_ << " tMaxH_ " << tMaxH_ 
-			   << " isItAOD " << isItAOD_ << " doTree " << doTree_;
+			   << " isItAOD " << isItAOD_ << " doTree " << doTree_
+			   << " vetoTrigger " << vetoTrigger_;
 
   double pBins[nPBin_+1] = {1.0,2.0,3.0,4.0,5.0,6.0,7.0,9.0,11.0,15.0,20.0,
 			    25.0,30.0,40.0,60.0,100.0};
@@ -263,6 +265,7 @@ void StudyHLT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.addUntracked<double>("timeMinCutHCAL",-500.0);
   desc.addUntracked<double>("timeMaxCutHCAL", 500.0);
   desc.addUntracked<bool>("isItAOD",          false);
+  desc.addUntracked<bool>("vetoTrigger",      false);
   desc.addUntracked<bool>("doTree",           false);
   desc.addUntracked<std::vector<double> >("puWeights", weights);
   descriptions.add("studyHLT",desc);
@@ -319,8 +322,6 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
       const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);      
       const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
       for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
-	//        unsigned int triggerindx = hltConfig_.triggerIndex(triggerNames_[iHLT]);
-	//        const std::vector<std::string>& moduleLabels(hltConfig_.moduleLabels(triggerindx));
         int ipos=-1;
 	std::string newtriggerName = truncate_str(triggerNames_[iHLT]);
 	for (unsigned int i=0; i<HLTNames_.size(); ++i) {
@@ -359,6 +360,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	      }
 	    }
 	  }
+	  if (vetoTrigger_) ok = !ok;
 	  for (unsigned int i=0; i<newNames_.size(); ++i) {
 	    if (newtriggerName.find(newNames_[i]) != std::string::npos) {
 	      if (verbosity_%10 > 0)
