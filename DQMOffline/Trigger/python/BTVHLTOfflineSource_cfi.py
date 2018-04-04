@@ -17,9 +17,9 @@ BTVHLTOfflineSource = cms.EDAnalyzer(
     hltPFPVLabel            = cms.InputTag("hltVerticesPFSelector"),
     hltCaloPVLabel          = cms.InputTag("hltVerticesL3"),
     offlinePVLabel          = cms.InputTag("offlinePrimaryVertices"),
-    turnon_threshold_low    = cms.float32(0.2),
-    turnon_threshold_medium = cms.float32(0.5),
-    turnon_threshold_high   = cms.float32(0.8),
+    turnon_threshold_loose  = cms.double(0.2),
+    turnon_threshold_medium = cms.double(0.5),
+    turnon_threshold_tight  = cms.double(0.8),
     #
     pathPairs = cms.VPSet(
         cms.PSet(
