@@ -180,8 +180,8 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       auto pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
       if (!pixhit) continue;
 
-      // auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
-      // auto const & topol = geomdetunit->specificTopology();
+       auto geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(pixhit->detUnit());
+       auto const & topol = geomdetunit->specificTopology();
       
       // get the cluster
       auto clustp = pixhit->cluster();
