@@ -87,7 +87,6 @@ PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){
                          pset_,magfield.product(),*pDD.product(),
 			 *hTT.product(),lorentzAngle.product(),
 			 genErrorDBObjectProduct,lorentzAngleWidthProduct);
-
 }
 
 
