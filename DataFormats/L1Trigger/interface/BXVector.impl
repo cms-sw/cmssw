@@ -171,7 +171,7 @@ void BXVector<T>::clear()
 template < class T >
 void BXVector<T>::insert(int bx, unsigned i,T object)
 {
-  if(i >= size(bx)){	
+  if(i > size(bx)){	
      //cout<<"ERROR: bx "<<bx<<" is only "<<size(bx)<<" long"<<endl;
   }
   else{
