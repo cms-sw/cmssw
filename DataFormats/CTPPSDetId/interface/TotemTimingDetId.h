@@ -30,82 +30,76 @@ class TotemTimingDetId : public CTPPSDetId
   enum { ID_NOT_SET = 28 };
 
   /// Construct from a raw id
-  explicit TotemTimingDetId(uint32_t id);
+  explicit TotemTimingDetId( uint32_t id );
+  TotemTimingDetId( const CTPPSDetId&id ) : CTPPSDetId( id ) {}
 
-  TotemTimingDetId(const CTPPSDetId &id) : CTPPSDetId(id)
-  {
-  }
+  /// Construct from hierarchy indices.
+  TotemTimingDetId( uint32_t arm, uint32_t station, uint32_t romanPot = 0, uint32_t plane = 0, uint32_t channel = 0 );
 
-  /// Construct from hierarchy indeces.
-  TotemTimingDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot=0, uint32_t Plane=0, uint32_t Channel=0);
-
-  static const uint32_t startPlaneBit, maskPlane, maxPlane, lowMaskPlane;
-  static const uint32_t startDetBit, maskChannel, maxChannel, lowMaskChannel;
+  static constexpr uint32_t startPlaneBit = 17, maskPlane = 0x3, maxPlane = 3, lowMaskPlane = 0x1FFFF;
+  static constexpr uint32_t startDetBit = 12, maskChannel = 0x1F, maxChannel = 31, lowMaskChannel = 0xFFF;
 
   /// returns true if the raw ID is a PPS-timing one
-  static bool check(unsigned int raw)
+  static bool check( unsigned int raw )
   {
-    return (((raw >>DetId::kDetOffset) & 0xF) == DetId::VeryForward &&
-	    ((raw >> DetId::kSubdetOffset) & 0x7) == sdTimingFastSilicon);
+    return ( ( ( raw >> DetId::kDetOffset ) & 0xF ) == DetId::VeryForward
+          && ( ( raw >> DetId::kSubdetOffset ) & 0x7 ) == sdTimingFastSilicon );
   }
   //-------------------- getting and setting methods --------------------
 
   uint32_t plane() const
   {
-    return ((id_>>startPlaneBit) & maskPlane);
+    return ( ( id_ >> startPlaneBit ) & maskPlane );
   }
 
-  void setPlane(uint32_t channel)
+  void setPlane( uint32_t channel )
   {
-    id_ &= ~(maskPlane << startPlaneBit);
-    id_ |= ((channel & maskPlane) << startPlaneBit);
+    id_ &= ~( maskPlane << startPlaneBit );
+    id_ |= ( ( channel & maskPlane ) << startPlaneBit );
   }
 
   uint32_t channel() const
   {
-    return ((id_>>startDetBit) & maskChannel);
+    return ( ( id_ >> startDetBit ) & maskChannel );
   }
 
-  void setChannel(uint32_t channel)
+  void setChannel( uint32_t channel )
   {
-    id_ &= ~(maskChannel << startDetBit);
-    id_ |= ((channel & maskChannel) << startDetBit);
+    id_ &= ~( maskChannel << startDetBit );
+    id_ |= ( ( channel & maskChannel ) << startDetBit );
   }
 
   //-------------------- id getters for higher-level objects --------------------
 
   TotemTimingDetId getPlaneId() const
   {
-    return TotemTimingDetId( rawId() & (~lowMaskPlane) );
+    return TotemTimingDetId( rawId() & ( ~lowMaskPlane ) );
   }
 
   //-------------------- name methods --------------------
 
-    inline void planeName(std::string &name, NameFlag flag = nFull) const
-    {
-      switch (flag)
-      {
-        case nShort: name = ""; break;
-        case nFull: rpName(name, flag); name += "_"; break;
-        case nPath: rpName(name, flag); name += "/plane "; break;
-      }
-
-      name += std::to_string(plane());
+  inline void planeName( std::string& name, NameFlag flag = nFull ) const
+  {
+    switch ( flag ) {
+      case nShort: name = ""; break;
+      case nFull: rpName( name, flag ); name += "_"; break;
+      case nPath: rpName( name, flag ); name += "/plane "; break;
     }
+    name += std::to_string( plane() );
+  }
 
-    inline void channelName(std::string &name, NameFlag flag = nFull) const
-    {
-      switch (flag)
-      {
-        case nShort: name = ""; break;
-        case nFull: planeName(name, flag); name += "_"; break;
-        case nPath: planeName(name, flag); name += "/channel "; break;
-      }
-
-      name += std::to_string(channel());
+  inline void channelName( std::string& name, NameFlag flag = nFull ) const
+  {
+    switch ( flag ) {
+      case nShort: name = ""; break;
+      case nFull: planeName( name, flag ); name += "_"; break;
+      case nPath: planeName( name, flag ); name += "/channel "; break;
     }
+    name += std::to_string( channel() );
+  }
 };
 
-std::ostream& operator<<(std::ostream& os, const TotemTimingDetId& id);
+std::ostream& operator<<( std::ostream& os, const TotemTimingDetId& id );
 
 #endif
+
