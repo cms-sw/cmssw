@@ -1,0 +1,26 @@
+<lcgdict>
+                      
+  <class name="l1t::PFCluster" ClassVersion="3">
+        <version ClassVersion="3" checksum="2630618461"/>
+  </class> 
+  <class name="l1t::PFClusterCollection"/>
+  <class name="edm::Wrapper<l1t::PFClusterCollection>" />
+  <class name="edm::Ref<l1t::PFClusterCollection>" />
+
+  <class name="l1t::PFTrack::TrackRef" />
+  <class name="l1t::PFTrack"  ClassVersion="3">
+        <version ClassVersion="3" checksum="2332162612"/>
+  </class>
+  <class name="l1t::PFTrackCollection" />
+  <class name="edm::Wrapper<l1t::PFTrackCollection>" />
+  <class name="edm::Ref<l1t::PFTrackCollection>" />
+
+  <class name="l1t::PFCandidate"  ClassVersion="3">
+        <version ClassVersion="3" checksum="4253860178"/>
+  </class>
+  <class name="l1t::PFCandidateCollection" />
+  <class name="edm::Wrapper<l1t::PFCandidateCollection>" />
+
+
+</lcgdict>
+
