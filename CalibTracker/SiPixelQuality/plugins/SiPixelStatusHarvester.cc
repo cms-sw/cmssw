@@ -86,7 +86,7 @@ void SiPixelStatusHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&
 
   siPixelStatusManager_.createPayloads();
 
-  std::map<edm::LuminosityBlockNumber_t,std::map<int,std::vector<int>> > stuckTBMsMap = siPixelStatusManager_.getStuckTBMsRocs();
+  std::map<edm::LuminosityBlockNumber_t,std::map<int,std::vector<int>> > FEDerror25Map = siPixelStatusManager_.getFEDerror25Rocs();
 
   std::map<edm::LuminosityBlockNumber_t,SiPixelDetectorStatus> siPixelStatusMap = siPixelStatusManager_.getBadComponents();
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -101,7 +101,7 @@ void SiPixelStatusHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&
     }
 
     // stuckTBM tag from FED error 25 with permanent component removed
-    for(SiPixelStatusManager::stuckTBMsMap_iterator it=stuckTBMsMap.begin(); it!=stuckTBMsMap.end();it++){
+    for(SiPixelStatusManager::FEDerror25Map_iterator it=FEDerror25Map.begin(); it!=FEDerror25Map.end();it++){
 
           cond::Time_t thisIOV = 1;
           edm::LuminosityBlockID lu(iRun.id().run(),it->first);
@@ -109,8 +109,8 @@ void SiPixelStatusHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&
 
           SiPixelQuality *siPixelQuality = new SiPixelQuality();
 
-          std::map<int, std::vector<int> > tmpStuckTBMs = it->second;
-          for(std::map<int, std::vector<int> >::iterator ilist = tmpStuckTBMs.begin(); ilist!=tmpStuckTBMs.end();ilist++){
+          std::map<int, std::vector<int> > tmpFEDerror25 = it->second;
+          for(std::map<int, std::vector<int> >::iterator ilist = tmpFEDerror25.begin(); ilist!=tmpFEDerror25.end();ilist++){
 
              int detid = ilist->first;
 
@@ -195,15 +195,15 @@ void SiPixelStatusHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&
           ///////////////////////////////////////////////////////////////////////////////////////////////////
 
           // create the DB object
-          // payload including all : permanent bad + other + stuckTBM
+          // payload including all : PCL = permanent bad + other + stuckTBM
           SiPixelQuality *siPixelQualityPCL = new SiPixelQuality();
           // payload for prompt reco : permanent bad + other sources of bad components
           SiPixelQuality *siPixelQualityPrompt = new SiPixelQuality();
           // payload for : other sources of bad components
           SiPixelQuality *siPixelQualityOther = new SiPixelQuality();
 
-          // get badROC list due to stuck TBM
-          std::map<int, std::vector<int> > tmpStuckTBMs = tmpSiPixelStatus.getStuckTBMsRocs();
+          // get badROC list due to FEDerror25 = stuckTBM + permanent bad components
+          std::map<int, std::vector<int> > tmpFEDerror25 = tmpSiPixelStatus.getFEDerror25Rocs();
 
           std::map<int, SiPixelModuleStatus> detectorStatus = tmpSiPixelStatus.getDetectorStatus();
           std::map<int, SiPixelModuleStatus>::iterator itModEnd = detectorStatus.end();
@@ -225,7 +225,7 @@ void SiPixelStatusHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&
                std::vector<uint32_t> BadRocListPCL, BadRocListPrompt, BadRocListOther;
 
                SiPixelModuleStatus modStatus = itMod->second;
-               std::vector<int> listStuckTBM = tmpStuckTBMs[detid];
+               std::vector<int> listFEDerror25 = tmpFEDerror25[detid];
 
                for (int iroc = 0; iroc < modStatus.nrocs(); ++iroc) {
 
@@ -235,16 +235,16 @@ void SiPixelStatusHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&
                    if(rocOccupancy<1.e-4*DetAverage){
 
                      BadRocListPCL.push_back(uint32_t(iroc));
-                     std::vector<int>::iterator it = std::find(listStuckTBM.begin(), listStuckTBM.end(),iroc);
+                     std::vector<int>::iterator it = std::find(listFEDerror25.begin(), listFEDerror25.end(),iroc);
 
                      // from prompt =  permanent bad + other
-                     if(it==listStuckTBM.end() || badPixelInfo_->IsRocBad(detid, iroc)) 
-                     // if permanent or not stuck TBM( in the stuckTBM list but not permanent)
+                     if(it==listFEDerror25.end() || badPixelInfo_->IsRocBad(detid, iroc)) 
+                     // if permanent or not stuck TBM( this is to say either in the FEDerror25 list or permanent bdd)
                        BadRocListPrompt.push_back(uint32_t(iroc));
 
                      // other source of bad components
-                     if(it==listStuckTBM.end() && !(badPixelInfo_->IsRocBad(detid, iroc))) 
-                     // if not permanent and not stuck TBM
+                     if(it==listFEDerror25.end() && !(badPixelInfo_->IsRocBad(detid, iroc))) 
+                     // if not permanent and not stuck TBM( this is to say either in the FEDerror25 list or permanent bdd)
                        BadRocListOther.push_back(uint32_t(iroc));                     
                     
                    }
@@ -343,6 +343,7 @@ void SiPixelStatusHarvester::beginLuminosityBlock(const edm::LuminosityBlock& iL
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iEVentSetup) {
 
+  std::cout<<"lumi "<<iLumi.luminosityBlock()<<std::endl;
   siPixelStatusManager_.readLumi(iLumi);
   // update endLumiBlock_ by current lumi block
   if(endLumiBlock_<iLumi.luminosityBlock())

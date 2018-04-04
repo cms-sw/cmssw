@@ -10,10 +10,10 @@ public:
   ~SiPixelRocStatus();
   void fillDIGI();
   void updateDIGI(unsigned int hits);
-  void fillStuckTBM();
+  void fillFEDerror25();
 
   // stuckTBM
-  bool isStuckTBM(){ return isStuckTBM_; }
+  bool isFEDerror25(){ return isFEDerror25_; }
 
   // occpancy
   unsigned int digiOccROC();
@@ -21,7 +21,7 @@ public:
 private:
 
   unsigned int fDC;
-  bool isStuckTBM_;
+  bool isFEDerror25_;
  
 };
 

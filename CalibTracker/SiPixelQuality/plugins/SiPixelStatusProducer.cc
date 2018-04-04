@@ -28,7 +28,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-// "FED error 25" - stuck TBM
+// "FED error 25"
 #include "DataFormats/SiPixelDetId/interface/PixelFEDChannel.h"
 
 // CMSSW CondFormats
@@ -213,7 +213,7 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
   } // 
   //////////////////////////////////////////////////////////////////////
 
-  // the error given by FED due to stuck TBM
+  // FEDerror25 per-ROC per-event
   edm::Handle<PixelFEDChannelCollection> pixelFEDChannelCollectionHandle;
 
   // look over different resouces of takens
@@ -228,7 +228,7 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
 
                 DetId detId = disabledChannels.detId();
                 int detid = detId.rawId();
-                fDet.fillStuckTBM(detid,ch);
+                fDet.fillFEDerror25(detid,ch);
 
             } // loop over different PixelFED in a PixelFED vector (different channel for a given module)
 
