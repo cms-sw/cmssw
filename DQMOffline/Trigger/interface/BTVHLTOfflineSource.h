@@ -61,8 +61,12 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   edm::InputTag triggerSummaryLabel_;
   edm::InputTag triggerResultsLabel_;
 
-  edm::EDGetTokenT<reco::JetTagCollection> offlineCSVTokenPF_;
-  edm::EDGetTokenT<reco::JetTagCollection> offlineCSVTokenCalo_;
+  float turnon_threshold_low_;
+  float turnon_threshold_medium_;
+  float turnon_threshold_high_;
+
+  edm::EDGetTokenT<reco::JetTagCollection> offlineDiscrTokenPF_;
+  edm::EDGetTokenT<reco::JetTagCollection> offlineDiscrTokenCalo_;
 
   edm::EDGetTokenT<std::vector<reco::Vertex> > hltFastPVToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > hltPFPVToken_;
@@ -80,20 +84,20 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosCalo;
   edm::Handle<std::vector<reco::ShallowTagInfo> > shallowTagInfosPf;
 
-  edm::EDGetTokenT<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > >
-       csvCaloTagInfosToken_;
-  edm::EDGetTokenT<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > >
-       csvPfTagInfosToken_;
+  // edm::EDGetTokenT<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > >
+  //      caloTagInfosToken_;
+  // edm::EDGetTokenT<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > >
+  //      pfTagInfosToken_;
 
   edm::Handle<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > >
-       csvCaloTagInfos;
+       caloTagInfos;
   edm::Handle<std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > >
-       csvPfTagInfos;
+       pfTagInfos;
 
-  edm::EDGetTokenT<reco::JetTagCollection> csvCaloTagsToken_;
-  edm::EDGetTokenT<reco::JetTagCollection> csvPfTagsToken_;
-  edm::Handle<reco::JetTagCollection> csvCaloTags;
-  edm::Handle<reco::JetTagCollection> csvPfTags;
+  edm::EDGetTokenT<reco::JetTagCollection> caloTagsToken_;
+  edm::EDGetTokenT<reco::JetTagCollection> pfTagsToken_;
+  edm::Handle<reco::JetTagCollection> caloTags;
+  edm::Handle<reco::JetTagCollection> pfTags;
 
   HLTConfigProvider hltConfig_;
   edm::Handle<edm::TriggerResults> triggerResults_;
@@ -112,20 +116,20 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
 
   public:
     void setHistos(
-       MonitorElement* const CSV, MonitorElement* const Pt, MonitorElement* const Eta,
-       MonitorElement* const CSV_RECOvsHLT, MonitorElement* const PVz, MonitorElement* const fastPVz,
+       MonitorElement* const Discr, MonitorElement* const Pt, MonitorElement* const Eta,
+       MonitorElement* const Discr_HLTvsRECO, MonitorElement* const PVz, MonitorElement* const fastPVz,
        MonitorElement* const PVz_HLTMinusRECO, MonitorElement* const fastPVz_HLTMinusRECO,
        MonitorElement* const n_vtx, MonitorElement* const vtx_mass, MonitorElement* const n_vtx_trks,
        MonitorElement* const n_sel_tracks, MonitorElement* const h_3d_ip_distance,
-       MonitorElement* const h_3d_ip_error, MonitorElement* const h_3d_ip_sig,
-       MonitorElement* const n_pixel_hits, MonitorElement* const n_total_hits
+       MonitorElement* const h_3d_ip_error, MonitorElement* const h_3d_ip_sig  // ,
+       // MonitorElement* const n_pixel_hits, MonitorElement* const n_total_hits
     )
-    { CSV_ = CSV; Pt_ = Pt; Eta_ = Eta; CSV_RECOvsHLT_ = CSV_RECOvsHLT; PVz_ = PVz; fastPVz_ = fastPVz;
+    { Discr_ = Discr; Pt_ = Pt; Eta_ = Eta; Discr_HLTvsRECO_ = Discr_HLTvsRECO; PVz_ = PVz; fastPVz_ = fastPVz;
       PVz_HLTMinusRECO_ = PVz_HLTMinusRECO; fastPVz_HLTMinusRECO_ = fastPVz_HLTMinusRECO;
       n_vtx_ = n_vtx; vtx_mass_ = vtx_mass; n_vtx_trks_ = n_vtx_trks;
       n_sel_tracks_ = n_sel_tracks; h_3d_ip_distance_ = h_3d_ip_distance;
       h_3d_ip_error_ = h_3d_ip_error; h_3d_ip_sig_ = h_3d_ip_sig;
-      n_pixel_hits_ = n_pixel_hits; n_total_hits_ = n_total_hits;
+      // n_pixel_hits_ = n_pixel_hits; n_total_hits_ = n_total_hits;
     };
 
 
@@ -145,23 +149,23 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
     {
     }
 
-      MonitorElement * getMEhisto_CSV()               { return CSV_;}
-      MonitorElement * getMEhisto_Pt()                { return Pt_; }
-      MonitorElement * getMEhisto_Eta()               { return Eta_;}
-      MonitorElement * getMEhisto_CSV_RECOvsHLT()     { return CSV_RECOvsHLT_;}
-      MonitorElement * getMEhisto_PVz()               { return PVz_;}
-      MonitorElement * getMEhisto_fastPVz()           { return fastPVz_;}
+      MonitorElement * getMEhisto_Discr()                 { return Discr_;}
+      MonitorElement * getMEhisto_Pt()                    { return Pt_; }
+      MonitorElement * getMEhisto_Eta()                   { return Eta_;}
+      MonitorElement * getMEhisto_Discr_HLTvsRECO()       { return Discr_HLTvsRECO_;}
+      MonitorElement * getMEhisto_PVz()                   { return PVz_;}
+      MonitorElement * getMEhisto_fastPVz()               { return fastPVz_;}
       MonitorElement * getMEhisto_PVz_HLTMinusRECO()      { return PVz_HLTMinusRECO_;}
       MonitorElement * getMEhisto_fastPVz_HLTMinusRECO()  { return fastPVz_HLTMinusRECO_;}
-      MonitorElement * getMEhisto_n_vtx()             { return n_vtx_; }
-      MonitorElement * getMEhisto_vtx_mass()          { return vtx_mass_; }
-      MonitorElement * getMEhisto_n_vtx_trks()        { return n_vtx_trks_; }
-      MonitorElement * getMEhisto_n_sel_tracks()      { return n_sel_tracks_; }
-      MonitorElement * getMEhisto_h_3d_ip_distance()  { return h_3d_ip_distance_; }
-      MonitorElement * getMEhisto_h_3d_ip_error()     { return h_3d_ip_error_; }
-      MonitorElement * getMEhisto_h_3d_ip_sig()       { return h_3d_ip_sig_; }
-      MonitorElement * getMEhisto_n_pixel_hits()      { return n_pixel_hits_; }
-      MonitorElement * getMEhisto_n_total_hits()            { return n_total_hits_; }
+      MonitorElement * getMEhisto_n_vtx()                 { return n_vtx_; }
+      MonitorElement * getMEhisto_vtx_mass()              { return vtx_mass_; }
+      MonitorElement * getMEhisto_n_vtx_trks()            { return n_vtx_trks_; }
+      MonitorElement * getMEhisto_n_sel_tracks()          { return n_sel_tracks_; }
+      MonitorElement * getMEhisto_h_3d_ip_distance()      { return h_3d_ip_distance_; }
+      MonitorElement * getMEhisto_h_3d_ip_error()         { return h_3d_ip_error_; }
+      MonitorElement * getMEhisto_h_3d_ip_sig()           { return h_3d_ip_sig_; }
+      // MonitorElement * getMEhisto_n_pixel_hits()          { return n_pixel_hits_; }
+      // MonitorElement * getMEhisto_n_total_hits()          { return n_total_hits_; }
 
       const std::string getLabel( ) const {
           return filterName_;
@@ -203,10 +207,14 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
       int objectType_;
       std::string triggerType_;
 
-      MonitorElement*  CSV_;
+      MonitorElement*  Discr_;
       MonitorElement*  Pt_;
       MonitorElement*  Eta_;
-      MonitorElement*  CSV_RECOvsHLT_;
+      MonitorElement*  Discr_HLTvsRECO_;
+      MonitorElement*  Discr_HLTMinusRECO_;
+      MonitorElement*  Discr_turnon_low_;
+      MonitorElement*  Discr_turnon_medium_;
+      MonitorElement*  Discr_turnon_tight_;
       MonitorElement*  PVz_;
       MonitorElement*  fastPVz_;
       MonitorElement*  PVz_HLTMinusRECO_;
@@ -218,8 +226,8 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
       MonitorElement*  h_3d_ip_distance_;
       MonitorElement*  h_3d_ip_error_;
       MonitorElement*  h_3d_ip_sig_;
-      MonitorElement*  n_pixel_hits_;
-      MonitorElement*  n_total_hits_;
+      // MonitorElement*  n_pixel_hits_;
+      // MonitorElement*  n_total_hits_;
 
 
       };
