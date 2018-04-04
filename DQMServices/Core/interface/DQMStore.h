@@ -801,7 +801,8 @@ class DQMStore
   //-------------------------------------------------------------------------------
   using QTestSpec             = std::pair<fastmatch *, QCriterion *>;
   using QTestSpecs            = std::list<QTestSpec>;
-  using MEMap                 = std::set<MonitorElement>;
+  using KeyObject             = DQMNet::KeyObject;
+  using MEMap                 = std::map<KeyObject, MonitorElement>;
   using QCMap                 = std::map<std::string, QCriterion *>;
   using QAMap                 = std::map<std::string, QCriterion *(*)(const std::string &)>;
 

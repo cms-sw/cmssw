@@ -68,6 +68,8 @@ namespace {
   const lat::Regexp s_rxself  ("^[^()]*DQMStore::.*");
   const lat::Regexp s_rxpbfile (".*\\.pb$");
 
+  const std::string empty_str{};
+
   //////////////////////////////////////////////////////////////////////
   /// Check whether the @a path is a subdirectory of @a ofdir.  Returns
   /// true both for an exact match and any nested subdirectory.
@@ -654,9 +656,10 @@ DQMStore::book_(const std::string &dir, const std::string &name,
   {
     // Create and initialise core object.
     assert(dirs_.count(dir));
-    MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
-    me = const_cast<MonitorElement &>(*data_.insert(std::move(proto)).first)
-      .initialise((MonitorElement::Kind)kind, h);
+    KeyObject key{&*dirs_.find(dir), name, run_, 0, moduleId_};
+    MonitorElement proto{&*dirs_.find(dir), name, run_, moduleId_};
+    auto it = data_.emplace(std::move(key), std::move(proto)).first;
+    me = it->second.initialise((MonitorElement::Kind)kind, h);
 
     // Initialise quality test information.
     for (auto const& q : qtestspecs_)
@@ -716,8 +719,10 @@ DQMStore::book_(const std::string &dir,
   {
     // Create it and return for initialisation.
     assert(dirs_.count(dir));
-    MonitorElement proto(&*dirs_.find(dir), name, run_, moduleId_);
-    return &const_cast<MonitorElement &>(*data_.insert(std::move(proto)).first);
+    KeyObject key{&*dirs_.find(dir), name, run_, 0, moduleId_};
+    MonitorElement proto{&*dirs_.find(dir), name, run_, moduleId_};
+    auto it = data_.emplace(std::move(key), std::move(proto)).first;
+    return &it->second;
   }
 }
 
@@ -1526,11 +1531,11 @@ DQMStore::tag(const std::string &path, unsigned int myTag)
 void
 DQMStore::tagContents(const std::string &path, unsigned int myTag)
 {
-  MonitorElement proto(&path, std::string());
+  KeyObject const proto{&path, empty_str};
   auto e = data_.end();
   auto i = data_.lower_bound(proto);
-  for ( ; i != e && path == *i->data_.dirname; ++i)
-    tag(const_cast<MonitorElement *>(&*i), myTag);
+  for ( ; i != e && path == *i->second.data_.dirname; ++i)
+    tag(&i->second, myTag);
 }
 
 /// tag all children of folder, including all subfolders and their children;
@@ -1541,14 +1546,14 @@ DQMStore::tagAllContents(const std::string &path, unsigned int myTag)
   std::string clean;
   const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
-  MonitorElement proto(cleaned, std::string());
+  KeyObject const proto{cleaned, empty_str};
 
   // FIXME: WILDCARDS? Old one supported them, but nobody seemed to use them.
   auto e = data_.end();
   auto i = data_.lower_bound(proto);
-  while (i != e && isSubdirectory(*cleaned, *i->data_.dirname))
+  while (i != e && isSubdirectory(*cleaned, *i->second.data_.dirname))
   {
-    tag(const_cast<MonitorElement *>(&*i), myTag);
+    tag(&i->second, myTag);
     ++i;
   }
 }
@@ -1583,13 +1588,13 @@ DQMStore::getSubdirs() const
 std::vector<std::string>
 DQMStore::getMEs() const
 {
-  MonitorElement proto(&pwd_, std::string());
+  KeyObject const proto{&pwd_, empty_str};
   std::vector<std::string> result;
   auto e = data_.end();
   auto i = data_.lower_bound(proto);
-  for ( ; i != e && isSubdirectory(pwd_, *i->data_.dirname); ++i)
-    if (pwd_ == *i->data_.dirname)
-      result.push_back(i->getName());
+  for ( ; i != e && isSubdirectory(pwd_, *i->second.data_.dirname); ++i)
+    if (pwd_ == *i->second.data_.dirname)
+      result.push_back(i->second.getName());
 
   return result;
 }
@@ -1599,10 +1604,10 @@ DQMStore::getMEs() const
 bool
 DQMStore::containsAnyMonitorable(const std::string &path) const
 {
-  MonitorElement proto(&path, std::string());
+  KeyObject const proto{&path, empty_str};
   auto e = data_.end();
   auto i = data_.lower_bound(proto);
-  return (i != e && isSubdirectory(path, *i->data_.dirname));
+  return (i != e && isSubdirectory(path, *i->second.data_.dirname));
 }
 
 /// get ME from full pathname (e.g. "my/long/dir/my_histo")
@@ -1612,10 +1617,10 @@ DQMStore::get(const std::string &path) const
   std::string dir;
   std::string name;
   splitPath(dir, name, path);
-  MonitorElement proto(&dir, name);
-  auto mepos = data_.find(proto);
-  return (mepos == data_.end() ? nullptr
-          : const_cast<MonitorElement *>(&*mepos));
+  KeyObject proto(&dir, name);
+  auto it = data_.find(proto);
+  return (it == data_.end() ? nullptr
+          : const_cast<MonitorElement*>(&it->second));
 }
 
 /// get all MonitorElements tagged as <tag>
@@ -1624,8 +1629,9 @@ DQMStore::get(unsigned int tag) const
 {
   // FIXME: Use reverse map [tag -> path] / [tag -> dir]?
   std::vector<MonitorElement *> result;
-  for (auto const & me : data_)
+  for (auto const& pr : data_)
   {
+    auto const& me = pr.second;
     if ((me.data_.flags & DQMNet::DQM_PROP_TAGGED) && me.data_.tag == tag)
       result.push_back(const_cast<MonitorElement *>(&me));
   }
@@ -1640,14 +1646,14 @@ DQMStore::getContents(const std::string &path) const
   std::string clean;
   const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
-  MonitorElement proto(cleaned, std::string());
+  KeyObject const proto{cleaned, empty_str};
 
   std::vector<MonitorElement *> result;
   auto e = data_.end();
   auto i = data_.lower_bound(proto);
-  for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i)
-    if (*cleaned == *i->data_.dirname)
-      result.push_back(const_cast<MonitorElement *>(&*i));
+  for ( ; i != e && isSubdirectory(*cleaned, *i->second.data_.dirname); ++i)
+    if (*cleaned == *i->second.data_.dirname)
+      result.push_back(const_cast<MonitorElement*>(&i->second));
 
   return result;
 }
@@ -1659,16 +1665,16 @@ DQMStore::getContents(const std::string &path, unsigned int tag) const
   std::string clean;
   const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
-  MonitorElement proto(cleaned, std::string());
+  KeyObject const proto{cleaned, empty_str};
 
   std::vector<MonitorElement *> result;
   auto e = data_.end();
   auto i = data_.lower_bound(proto);
-  for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i)
-    if (*cleaned == *i->data_.dirname
-        && (i->data_.flags & DQMNet::DQM_PROP_TAGGED)
-        && i->data_.tag == tag)
-      result.push_back(const_cast<MonitorElement *>(&*i));
+  for ( ; i != e && isSubdirectory(*cleaned, *i->second.data_.dirname); ++i)
+    if (*cleaned == *i->second.data_.dirname
+        && (i->second.data_.flags & DQMNet::DQM_PROP_TAGGED)
+        && i->second.data_.tag == tag)
+      result.push_back(const_cast<MonitorElement*>(&i->second));
 
   return result;
 }
@@ -1680,55 +1686,51 @@ DQMStore::getContents(const std::string &path, unsigned int tag) const
 void
 DQMStore::getContents(std::vector<std::string> &into, bool showContents /* = true */) const
 {
-  into.clear();
-  into.reserve(dirs_.size());
+  std::vector<std::string> result;
+  result.reserve(dirs_.size());
 
   auto me = data_.end();
-  for (auto const& dir : dirs_)
-  {
-    MonitorElement proto(&dir, std::string());
+  for (auto const& dir : dirs_) {
+    KeyObject const proto{&dir, empty_str};
     auto mi = data_.lower_bound(proto);
     auto m = mi;
     size_t sz = dir.size() + 2;
     size_t nfound = 0;
-    for ( ; m != me && isSubdirectory(dir, *m->data_.dirname); ++m)
-      if (dir == *m->data_.dirname)
-      {
-        sz += m->data_.objname.size() + 1;
+    for ( ; m != me && isSubdirectory(dir, *m->second.data_.dirname); ++m) {
+      if (dir == *m->second.data_.dirname) {
+        sz += m->second.data_.objname.size() + 1;
         ++nfound;
       }
+    }
 
-    if (! nfound)
+    if (!nfound)
       continue;
 
-    auto istr
-      = into.insert(into.end(), std::string());
+    std::string str;
+    if (showContents) {
+      str.reserve(sz);
 
-    if (showContents)
-    {
-      istr->reserve(sz);
-
-      *istr += dir;
-      *istr += ':';
-      for (sz = 0; mi != m; ++mi)
-      {
-        if (dir != *mi->data_.dirname)
+      str += dir;
+      str += ':';
+      for (sz = 0; mi != m; ++mi) {
+        if (dir != *mi->second.data_.dirname)
           continue;
 
         if (sz > 0)
-          *istr += ',';
+          str += ',';
 
-        *istr += mi->data_.objname;
+        str += mi->second.data_.objname;
         ++sz;
       }
     }
-    else
-    {
-      istr->reserve(dir.size() + 2);
-      *istr += dir;
-      *istr += ':';
+    else {
+      str.reserve(dir.size() + 2);
+      str += dir;
+      str += ':';
     }
+    result.push_back(move(str));
   }
+  into.swap(result);
 }
 
 /// get MonitorElement <name> in directory <dir>
@@ -1747,16 +1749,10 @@ DQMStore::findObject(const std::string &dir,
     raiseDQMError("DQMStore", "Monitor element path name '%s' uses"
                   " unacceptable characters", name.c_str());
 
-  MonitorElement proto;
-  proto.data_.dirname  = &dir;
-  proto.data_.objname  = name;
-  proto.data_.run      = run;
-  proto.data_.lumi     = lumi;
-  proto.data_.moduleId = moduleId;
-
-  auto mepos = data_.find(proto);
-  return (mepos == data_.end() ? nullptr
-          : const_cast<MonitorElement *>(&*mepos));
+  KeyObject const proto{&dir, name, run, lumi, moduleId};
+  auto it = data_.find(proto);
+  return (it == data_.end() ? nullptr
+          : const_cast<MonitorElement*>(&it->second));
 }
 
 /// get vector with children of folder, including all subfolders + their children;
@@ -1769,37 +1765,39 @@ DQMStore::getAllContents(const std::string &path,
   std::string clean;
   const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
-  MonitorElement proto(cleaned, std::string(), run, 0);
-  proto.setLumi(lumi);
+
+  KeyObject const proto{cleaned, empty_str, run, lumi, 0};
 
   std::vector<MonitorElement *> result;
   auto e = data_.end();
   auto i = data_.lower_bound(proto);
-  for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i) {
+  for ( ; i != e && isSubdirectory(*cleaned, *i->second.data_.dirname); ++i) {
+    auto const& me = i->second;
     if (run != 0) {
-      if (i->data_.run > run // TODO[rovere]: pleonastic? first we encounter local ME of the same run ...
-          || i->data_.moduleId != 0)
+      if (me.data_.run > run // TODO[rovere]: pleonastic? first we encounter local ME of the same run ...
+          || me.data_.moduleId != 0)
         break;
     }
     if (lumi != 0) {
-      if (i->data_.lumi > lumi
-          || i->data_.moduleId != 0)
+      if (me.data_.lumi > lumi
+          || me.data_.moduleId != 0)
         break;
     }
     if (run != 0 or lumi !=0) {
-      assert(i->data_.moduleId == 0);
+      assert(me.data_.moduleId == 0);
     }
-    result.push_back(const_cast<MonitorElement *>(&*i));
+    result.push_back(const_cast<MonitorElement*>(&me));
   }
 
   if (enableMultiThread_)
     {
       //save legacy modules when running MT
       i = data_.begin();
-      for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i) {
-        if (i->data_.run != 0 or i->data_.moduleId != 0)
+      for ( ; i != e && isSubdirectory(*cleaned, *i->second.data_.dirname); ++i) {
+        auto const& me = i->second;
+        if (me.data_.run != 0 or me.data_.moduleId != 0)
           break;
-        result.push_back(const_cast<MonitorElement *>(&*i));
+        result.push_back(const_cast<MonitorElement*>(&me));
       }
     }
 
@@ -1825,8 +1823,9 @@ DQMStore::getMatchingContents(const std::string &pattern, lat::Regexp::Syntax sy
 
   std::string path;
   std::vector<MonitorElement *> result;
-  for (auto const& me : data_)
+  for (auto const& pr : data_)
   {
+    auto const& me = pr.second;
     path.clear();
     mergePath(path, *me.data_.dirname, me.data_.objname);
     if (rx.match(path))
@@ -1845,9 +1844,9 @@ DQMStore::getMatchingContents(const std::string &pattern, lat::Regexp::Syntax sy
 void
 DQMStore::reset()
 {
-  for (auto const& m : data_)
+  for (auto& pr : data_)
   {
-    auto &me = const_cast<MonitorElement &>(m);
+    auto& me = pr.second;
     if (me.wasUpdated())
     {
       if (me.resetMe())
@@ -1867,11 +1866,11 @@ DQMStore::reset()
 void
 DQMStore::forceReset()
 {
-  for (auto const& m : data_)
+  for (auto& pr : data_)
   {
-    if (forceResetOnBeginLumi_ && (m.getLumiFlag() == false))
+    auto& me = pr.second;
+    if (forceResetOnBeginLumi_ && (me.getLumiFlag() == false))
       continue;
-    auto &me = const_cast<MonitorElement &>(m);
     me.Reset();
     me.resetUpdate();
   }
@@ -1890,19 +1889,17 @@ DQMStore::forceReset()
 void
 DQMStore::postGlobalBeginLumi(const edm::GlobalContext &gc)
 {
-  static const std::string null_str("");
-
   auto const& lumiblock = gc.luminosityBlockID();
   uint32_t run = lumiblock.run();
 
   // find the range of non-legacy global MEs for the current run:
   // run != 0, lumi == 0 (implicit), stream id == 0, module id == 0
-  const MonitorElement begin(&null_str, null_str, run, 0);
-  const MonitorElement end(&null_str, null_str, run, 1);
+  KeyObject const begin{&empty_str, empty_str, run, 0, 0};
+  KeyObject const end{&empty_str, empty_str, run, 0, 1};
   auto i = data_.lower_bound(begin);
-  const auto e = data_.lower_bound(end);
-  while (i != e) {
-    auto& me = const_cast<MonitorElement&>(*i++);
+  auto const e = data_.lower_bound(end);
+  for (; i != e; ++i) {
+    auto& me = i->second;
     // skip per-run MEs
     if (not LSbasedMode_ and not me.getLumiFlag())
       continue;
@@ -1935,23 +1932,24 @@ DQMStore::cloneLumiHistograms(uint32_t run, uint32_t lumi, uint32_t moduleId)
   // MEs are sorted by (run, lumi, stream id, module id, directory, name)
   // lumi deafults to 0
   // stream id is always 0
-  std::string null_str("");
-  auto i = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId));
-  auto e = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId + 1));
+  auto i = data_.lower_bound(KeyObject(&empty_str, empty_str, run, 0, moduleId));
+  auto e = data_.lower_bound(KeyObject(&empty_str, empty_str, run, 0, moduleId + 1));
   for (; i != e; ++i) {
+    auto& me = i->second;
     // handle only lumisection-based histograms
-    if (not LSbasedMode_ and not i->getLumiFlag())
+    if (not LSbasedMode_ and not me.getLumiFlag())
       continue;
 
     // clone the lumisection-based histograms
-    MonitorElement clone{*i};
+    MonitorElement clone{me};
+    KeyObject key{&me.getPathname(), me.getName(), me.run(), lumi, 0}; // modId is 0 to correspond to a globalize action
     clone.globalize();
     clone.setLumi(lumi);
     clone.markToDelete();
-    data_.insert(std::move(clone));
+    data_.emplace(std::move(key), std::move(clone));
 
     // reset the ME for the next lumisection
-    const_cast<MonitorElement*>(&*i)->Reset();
+    me.Reset();
   }
 }
 
@@ -1972,22 +1970,23 @@ DQMStore::cloneRunHistograms(uint32_t run, uint32_t moduleId)
   // MEs are sorted by (run, lumi, stream id, module id, directory, name)
   // lumi deafults to 0
   // stream id is always 0
-  std::string null_str("");
-  auto i = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId));
-  auto e = data_.lower_bound(MonitorElement(&null_str, null_str, run, moduleId + 1));
+  auto i = data_.lower_bound(KeyObject{&empty_str, empty_str, run, 0, moduleId});
+  auto e = data_.lower_bound(KeyObject{&empty_str, empty_str, run, 0, moduleId + 1});
   for (; i != e; ++i) {
+    auto& me = i->second;
     // handle only non lumisection-based histograms
-    if (LSbasedMode_ or i->getLumiFlag())
+    if (LSbasedMode_ or me.getLumiFlag())
       continue;
 
     // clone the lumisection-based histograms
-    MonitorElement clone{*i};
+    MonitorElement clone{me};
+    KeyObject key{&me.getPathname(), me.getName(), me.run(), 0, 0}; // modId is 0 to correspond to a globalize action
     clone.globalize();
     clone.markToDelete();
-    data_.insert(std::move(clone));
+    data_.emplace(std::move(key), std::move(clone));
 
     // reset the ME for the next lumisection
-    const_cast<MonitorElement*>(&*i)->Reset();
+    me.Reset();
   }
 }
 
@@ -2004,29 +2003,28 @@ DQMStore::deleteUnusedLumiHistograms(uint32_t run, uint32_t lumi)
 
   std::lock_guard<std::mutex> guard(book_mutex_);
 
-  std::string null_str("");
-  MonitorElement proto(&null_str, null_str, run, 0);
-  proto.setLumi(lumi);
+  KeyObject const proto{&empty_str, empty_str, run, lumi, 0};
 
   auto e = data_.end();
   auto i = data_.lower_bound(proto);
 
   while (i != e) {
-    if (i->data_.moduleId != 0)
+    auto& me = i->second;
+    if (me.data_.moduleId != 0)
       break;
-    if (i->data_.lumi != lumi)
+    if (me.data_.lumi != lumi)
       break;
-    if (i->data_.run != run)
+    if (me.data_.run != run)
       break;
-    if (not i->markedToDelete()) {
+    if (not me.markedToDelete()) {
       ++i;
       continue;
     }
 
     if (verbose_ > 1) {
       std::cout << "DQMStore::deleteUnusedLumiHistograms: deleted monitor element '"
-                << *i->data_.dirname << "/" << i->data_.objname << "'"
-                << "flags " << i->data_.flags << "\n";
+                << *me.data_.dirname << "/" << me.data_.objname << "'"
+                << "flags " << me.data_.flags << "\n";
     }
 
     i = data_.erase(i);
@@ -2425,8 +2423,9 @@ DQMStore::saveMonitorElementRangeToROOT(
     TFile & file,
     unsigned int & counter)
 {
-  for (auto const& me: boost::make_iterator_range(begin, end))
+  for (auto const& pr: boost::make_iterator_range(begin, end))
   {
+    auto const& me = pr.second;
     if (not isSubdirectory(dir, *me.data_.dirname))
       break;
 
@@ -2577,17 +2576,14 @@ DQMStore::save(const std::string &filename,
 
     // Loop over monitor elements in this directory.
     if (not enableMultiThread_) {
-      MonitorElement proto(&dir, std::string(), run, 0);
+      KeyObject const proto{&dir, empty_str, run, 0, 0};
       auto begin = data_.lower_bound(proto);
       auto end   = data_.end();
       saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
     } else {
       // Restrict the loop to the monitor elements for the current lumisection
-      MonitorElement proto(&dir, std::string(), run, 0);
-      proto.setLumi(lumi);
-      auto begin = data_.lower_bound(proto);
-      proto.setLumi(lumi+1);
-      auto end   = data_.lower_bound(proto);
+      auto begin = data_.lower_bound(KeyObject{&dir, empty_str, run, lumi, 0});
+      auto end   = data_.lower_bound(KeyObject{&dir, empty_str, run, lumi+1, 0});
       saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
     }
 
@@ -2596,8 +2592,8 @@ DQMStore::save(const std::string &filename,
     // counterparts after the streamEndRun transition - but they are not
     // produced in LSbasedMode.
     if (enableMultiThread_ and LSbasedMode_ and lumi != 0) {
-      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0));
-      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 1));
+      auto begin = data_.lower_bound(KeyObject{&dir, empty_str, run, 0, 0});
+      auto end   = data_.lower_bound(KeyObject{&dir, empty_str, run, 0, 1});
       saveMonitorElementRangeToROOT(dir, refpath, ref, minStatus, run, begin, end, f, nme);
     }
   }
@@ -2650,8 +2646,9 @@ DQMStore::saveMonitorElementRangeToPB(
     dqmstorepb::ROOTFilePB & file,
     unsigned int & counter)
 {
-  for (auto const& me: boost::make_iterator_range(begin, end))
+  for (auto const& pr: boost::make_iterator_range(begin, end))
   {
+    auto const& me = pr.second;
     if (not isSubdirectory(dir, *me.data_.dirname))
       break;
 
@@ -2724,17 +2721,14 @@ DQMStore::savePB(const std::string &filename,
 
     // Loop over monitor elements in this directory.
     if (not enableMultiThread_) {
-      MonitorElement proto(&dir, std::string(), run, 0);
+      KeyObject const proto{&dir, empty_str, run, 0, 0};
       auto begin = data_.lower_bound(proto);
       auto end   = data_.end();
       saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
     } else {
       // Restrict the loop to the monitor elements for the current lumisection
-      MonitorElement proto(&dir, std::string(), run, 0);
-      proto.setLumi(lumi);
-      auto begin = data_.lower_bound(proto);
-      proto.setLumi(lumi+1);
-      auto end   = data_.lower_bound(proto);
+      auto begin = data_.lower_bound(KeyObject{&dir, empty_str, run, lumi, 0});
+      auto end   = data_.lower_bound(KeyObject{&dir, empty_str, run, lumi+1, 0});
       saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
     }
 
@@ -2743,8 +2737,8 @@ DQMStore::savePB(const std::string &filename,
     // counterparts after the streamEndRun transition - but they are not
     // produced in LSbasedMode.
     if (enableMultiThread_ and LSbasedMode_ and lumi != 0) {
-      auto begin = data_.lower_bound(MonitorElement(&dir, std::string(), run, 0));
-      auto end   = data_.lower_bound(MonitorElement(&dir, std::string(), run, 1));
+      auto begin = data_.lower_bound(KeyObject{&dir, empty_str, run, 0, 0});
+      auto end   = data_.lower_bound(KeyObject{&dir, empty_str, run, 0, 1});
       saveMonitorElementRangeToPB(dir, run, begin, end, dqmstore_message, nme);
     }
   }
@@ -3009,8 +3003,9 @@ DQMStore::readFile(const std::string &filename,
   unsigned n = readDirectory(f.get(), overwrite, onlypath, prepend, "", stripdirs);
   f->Close();
 
-  for (auto const& me : data_)
-    const_cast<MonitorElement &>(me).updateQReportStats();
+  for (auto& pr : data_) {
+    pr.second.updateQReportStats();
+  }
 
   if (verbose_)
   {
@@ -3143,11 +3138,11 @@ DQMStore::rmdir(const std::string &path)
   std::string clean;
   const std::string *cleaned = nullptr;
   cleanTrailingSlashes(path, clean, cleaned);
-  MonitorElement proto(cleaned, std::string());
+  KeyObject const proto{cleaned, empty_str};
 
   auto e = data_.end();
   auto i = data_.lower_bound(proto);
-  while (i != e && isSubdirectory(*cleaned, *i->data_.dirname))
+  while (i != e && isSubdirectory(*cleaned, *i->second.data_.dirname))
     data_.erase(i++);
 
   auto de = dirs_.end();
@@ -3160,11 +3155,11 @@ DQMStore::rmdir(const std::string &path)
 void
 DQMStore::removeContents(const std::string &dir)
 {
-  MonitorElement proto(&dir, std::string());
+  KeyObject const proto{&dir, empty_str};
   auto e = data_.end();
   auto i = data_.lower_bound(proto);
-  while (i != e && isSubdirectory(dir, *i->data_.dirname))
-    if (dir == *i->data_.dirname)
+  while (i != e && isSubdirectory(dir, *i->second.data_.dirname))
+    if (dir == *i->second.data_.dirname)
       data_.erase(i++);
     else
       ++i;
@@ -3190,7 +3185,7 @@ DQMStore::removeElement(const std::string &name)
 void
 DQMStore::removeElement(const std::string &dir, const std::string &name, bool warning /* = true */)
 {
-  MonitorElement proto(&dir, name);
+  KeyObject const proto{&dir, name};
   auto pos = data_.find(proto);
   if (pos != data_.end())
     data_.erase(pos);
@@ -3272,14 +3267,15 @@ DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
   // Apply the quality test.
   std::string path;
   int cases = 0;
-  for (auto const& me : data_)
+  for (auto& pr : data_)
   {
+    auto& me = pr.second;
     path.clear();
     mergePath(path, *me.data_.dirname, me.data_.objname);
     if (fm->match(path))
     {
       ++cases;
-      const_cast<MonitorElement &>(me).addQReport(qts.second);
+      me.addQReport(qts.second);
     }
   }
 
@@ -3297,9 +3293,11 @@ DQMStore::runQTests()
               << ( reset_ ? "true" : "false" ) << std::endl;
 
   // Apply quality tests to each monitor element, skipping references.
-  for (auto const& me : data_)
+  for (auto& pr : data_) {
+    auto& me = pr.second;
     if (! isSubdirectory(s_referenceDirName, *me.data_.dirname))
-      const_cast<MonitorElement &>(me).runQTests();
+      me.runQTests();
+  }
 
   reset_ = false;
 }
@@ -3315,8 +3313,9 @@ DQMStore::getStatus(const std::string &path /* = "" */) const
   cleanTrailingSlashes(path, clean, cleaned);
 
   int status = dqm::qstatus::STATUS_OK;
-  for (auto const& me : data_)
+  for (auto const& pr : data_)
   {
+    auto const& me = pr.second;
     if (! cleaned->empty() && ! isSubdirectory(*cleaned, *me.data_.dirname))
       continue;
 
@@ -3418,9 +3417,9 @@ DQMStore::scaleElements()
   }
   factor = factor/(events*1.0);
 
-  for (auto const& m : data_)
+  for (auto& pr : data_)
   {
-    auto &me = const_cast<MonitorElement &>(m);
+    auto& me = pr.second;
     switch (me.kind())
       {
       case MonitorElement::DQM_KIND_TH1F:

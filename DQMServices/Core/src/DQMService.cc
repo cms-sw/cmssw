@@ -36,7 +36,7 @@ DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
   ar.watchPostEvent(this, &DQMService::flush);
   ar.watchPostStreamEndLumi(this, &DQMService::flush);
 
-  std::string host = pset.getUntrackedParameter<std::string>("collectorHost", ""); 
+  std::string host = pset.getUntrackedParameter<std::string>("collectorHost", "");
   int port = pset.getUntrackedParameter<int>("collectorPort", 9090);
   bool verbose = pset.getUntrackedParameter<bool>("verbose", false);
   publishFrequency_ = pset.getUntrackedParameter<double>("publishFrequency", publishFrequency_);
@@ -56,17 +56,17 @@ DQMService::DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar)
     {
       filter_ = new lat::Regexp(filter);
       if (! filter_->valid())
-	throw cms::Exception("DQMService")
-	  << "Invalid 'filter' parameter value '" << filter << "':"
-	  << " bad regular expression syntax at character "
-	  << filter_->errorOffset() << ": " << filter_->errorMessage();
+        throw cms::Exception("DQMService")
+          << "Invalid 'filter' parameter value '" << filter << "':"
+          << " bad regular expression syntax at character "
+          << filter_->errorOffset() << ": " << filter_->errorMessage();
       filter_->study();
     }
     catch (lat::Error &e)
     {
       throw cms::Exception("DQMService")
-	<< "Invalid regular expression 'filter' parameter value '"
-	<< filter << "': " << e.explain();
+        << "Invalid regular expression 'filter' parameter value '"
+        << filter << "': " << e.explain();
     }
   }
 }
@@ -103,7 +103,7 @@ void DQMService::flushStandalone()
     net_->reserveLocalSpace(store_->data_.size());
     for (i = store_->data_.begin(), e = store_->data_.end(); i != e; ++i)
     {
-      const MonitorElement &me = *i;
+      const MonitorElement &me = i->second;
       fullpath.clear();
       fullpath += *me.data_.dirname;
       if (! me.data_.dirname->empty())
@@ -111,11 +111,11 @@ void DQMService::flushStandalone()
       fullpath += me.data_.objname;
 
       if (filter_ && filter_->search(fullpath) < 0)
-	continue;
+        continue;
 
       seen.insert(fullpath);
       if (! me.wasUpdated())
-	continue;
+        continue;
 
       o.lastreq = 0;
       o.hash = DQMNet::dqmhash(fullpath.c_str(), fullpath.size());
@@ -134,22 +134,22 @@ void DQMService::flushStandalone()
       case MonitorElement::DQM_KIND_INT:
       case MonitorElement::DQM_KIND_REAL:
       case MonitorElement::DQM_KIND_STRING:
-	me.packScalarData(o.scalar, "");
-	break;
+        me.packScalarData(o.scalar, "");
+        break;
 
       default:
-	{
+        {
           TBufferFile buffer(TBufferFile::kWrite);
           buffer.WriteObject(me.object_);
           if (me.reference_)
-	    buffer.WriteObject(me.reference_);
+            buffer.WriteObject(me.reference_);
           else
-	    buffer.WriteObjectAny(nullptr, nullptr);
+            buffer.WriteObjectAny(nullptr, nullptr);
           o.rawdata.resize(buffer.Length());
           memcpy(&o.rawdata[0], buffer.Buffer(), buffer.Length());
           DQMNet::packQualityData(o.qdata, me.data_.qreports);
-	  break;
-	}
+          break;
+        }
       }
 
       // Update.
