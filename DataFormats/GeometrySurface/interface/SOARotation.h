@@ -1,4 +1,3 @@
-#pragma once
 #ifndef DataFormats_GeometrySurface_SOARotation_h
 #define DataFormats_GeometrySurface_SOARotation_h
 
