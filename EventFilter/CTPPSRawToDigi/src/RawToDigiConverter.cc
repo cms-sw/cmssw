@@ -334,13 +334,11 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
         // Extract all the waveform information from the raw data
         TotemSampicFrame totemSampicFrame((uint8_t*) record.frame->getData(), (uint8_t*) channelwaveform.frame->getData(), (uint8_t*) eventInfo.frame->getData());
         
-//         if (totemSampicFrame.isOK()) totemSampicFrame.Print();
-
-        if (totemSampicFrame.isOK())
+        if (totemSampicFrame.valid())
         {
           // create the digi
-          TotemTimingEventInfo eventInfoTmp( totemSampicFrame.getEventHardwareId(), totemSampicFrame.getL1ATimeStamp(), totemSampicFrame.getBunchNumber(), totemSampicFrame.getOrbitNumber(), totemSampicFrame.getEventNumber(), totemSampicFrame.getChannelMap(), totemSampicFrame.getL1ALatency(), totemSampicFrame.getNumberOfSentSamples(), totemSampicFrame.getOffsetOfSamples() );
-          TotemTimingDigi digiTmp( totemSampicFrame.getHardwareId(), totemSampicFrame.getFPGATimeStamp(), totemSampicFrame.getTimeStampA(), totemSampicFrame.getTimeStampB(), totemSampicFrame.getCellInfo(), totemSampicFrame.getSamples(), eventInfoTmp);
+          TotemTimingEventInfo eventInfoTmp( totemSampicFrame.getEventHardwareId(), totemSampicFrame.getL1ATimestamp(), totemSampicFrame.getBunchNumber(), totemSampicFrame.getOrbitNumber(), totemSampicFrame.getEventNumber(), totemSampicFrame.getChannelMap(), totemSampicFrame.getL1ALatency(), totemSampicFrame.getNumberOfSentSamples(), totemSampicFrame.getOffsetOfSamples() );
+          TotemTimingDigi digiTmp( totemSampicFrame.getHardwareId(), totemSampicFrame.getFPGATimestamp(), totemSampicFrame.getTimestampA(), totemSampicFrame.getTimestampB(), totemSampicFrame.getCellInfo(), totemSampicFrame.getSamples(), eventInfoTmp);
           // calculate ids
           TotemTimingDetId detId(record.info->symbolicID.symbolicID);
           
