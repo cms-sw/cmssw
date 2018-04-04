@@ -61,6 +61,10 @@ def L1TSettingsToCaloStage2Params_2017_v1_8_4(process):
     process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_4_cfi")
     return process
 
+def L1TSettingsToCaloStage2Params_2017_v1_8_5(process):
+    process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_5_cfi")
+    return process
+
 def L1TSettingsToCaloStage2Params_2017_v1_8_2_updateHFSF_v6MET(process):
     process.load("L1Trigger.L1TCalorimeter.caloStage2Params_2017_v1_8_2_updateHFSF_v6MET_cfi")
     return process
