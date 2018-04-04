@@ -108,6 +108,11 @@ class LEDTask : public hcaldqm::DQTask
 		hcaldqm::Container2D _cADCvsTS_SubdetPM;
 		hcaldqm::Container1D _cSumQ_SubdetPM;
 		hcaldqm::Container1D _cTDCTime_SubdetPM;
+		hcaldqm::ContainerProf2D _cTDCTime_depth;
+
+		// For monitoring LED firing: ADC vs BX
+		MonitorElement* _meLEDMon;
+		
 };
 
 #endif
