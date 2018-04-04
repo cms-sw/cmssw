@@ -66,11 +66,11 @@ public:
   /// COMMON Chip XML tags
   static const std::string tagChip1;
   static const std::string tagChip2;
- 
+
   /// diamond specific tags
   static const std::string tagDiamondPlane;
-  static const std::string tagDiamondCh; 
-  
+  static const std::string tagDiamondCh;
+
   /// totem timing specific tags
   static const std::string tagSampicBoard;
   static const std::string tagSampicCh;
@@ -128,7 +128,7 @@ private:
   /// recursive method to extract RP-related information from the DOM tree
   void ParseTreeDiamond(ParseType, xercesc::DOMNode *, NodeType, unsigned int parentID,
     const std::shared_ptr<TotemDAQMapping>&, const std::shared_ptr<TotemAnalysisMask>&);
-  
+
   /// recursive method to extract RP-related information from the DOM tree
   void ParseTreeTotemTiming(ParseType, xercesc::DOMNode *, NodeType, unsigned int parentID,
     const std::shared_ptr<TotemDAQMapping>&, const std::shared_ptr<TotemAnalysisMask>&);
@@ -172,12 +172,12 @@ private:
   {
     return ((type == nArm)||(type == nRPStation)||(type == nRPPot)||(type == nDiamondPlane)||(type == nDiamondCh));
   }
-  
+
   bool TotemTimingNode(NodeType type)
   {
     return ((type == nArm)||(type == nRPStation)||(type == nRPPot)||(type == nSampicBoard)||(type == nSampicChannel)||(type == nTotemTimingPlane)||(type == nTotemTimingCh));
   }
-  
+
   bool CommonNode(NodeType type)
   {
     return ((type==nChip)||(type==nArm));
@@ -269,11 +269,11 @@ void TotemDAQMappingESSourceXML::setIntervalFor(const edm::eventsetup::EventSetu
     {
       currentBlockValid = true;
       currentBlock = idx;
-  
+
       const IOVSyncValue begin(range.startEventID());
       const IOVSyncValue end(range.endEventID());
       oValidity = edm::ValidityInterval(begin, end);
-      
+
       LogVerbatim("TotemDAQMappingESSourceXML")
         << "    block found: index=" << currentBlock
         << ", interval=(" << range.startEventID() << " - " << range.endEventID() << ")";
@@ -292,7 +292,7 @@ void TotemDAQMappingESSourceXML::setIntervalFor(const edm::eventsetup::EventSetu
 //----------------------------------------------------------------------------------------------------
 
 TotemDAQMappingESSourceXML::~TotemDAQMappingESSourceXML()
-{ 
+{
 }
 
 //----------------------------------------------------------------------------------------------------
@@ -350,18 +350,18 @@ void TotemDAQMappingESSourceXML::ParseXML(ParseType pType, const string &file,
 
   if (!domDoc)
     throw cms::Exception("TotemDAQMappingESSourceXML::ParseXML") << "Cannot parse file `" << file
-      << "' (domDoc = NULL)." << endl;
+      << "' (domDoc = NULL).";
 
   DOMElement* elementRoot = domDoc->getDocumentElement();
 
   if (!elementRoot)
     throw cms::Exception("TotemDAQMappingESSourceXML::ParseXML") << "File `" <<
-      file << "' is empty." << endl;
+      file << "' is empty.";
 
   ParseTreeRP(pType, elementRoot, nTop, 0, mapping, mask);
 
   ParseTreeDiamond(pType, elementRoot, nTop, 0, mapping, mask);
-  
+
   ParseTreeTotemTiming(pType, elementRoot, nTop, 0, mapping, mask);
 }
 
@@ -393,7 +393,7 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
     // structure control
     if (!RPNode(type))
       continue;
-  
+
     NodeType expectedParentType;
     switch (type)
     {
@@ -441,15 +441,15 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
     // content control
     if (!id_set)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeRP") << "id not given for element `"
-       << cms::xerces::toString(n->getNodeName()) << "'" << endl;
+       << cms::xerces::toString(n->getNodeName()) << "'";
 
     if (!hw_id_set && type == nChip && pType == pMapping)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeRP") << "hw_id not given for element `"
-       << cms::xerces::toString(n->getNodeName()) << "'" << endl;
+       << cms::xerces::toString(n->getNodeName()) << "'";
 
     if (type == nRPPlane && id > 9)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeRP") <<
-        "Plane IDs range from 0 to 9. id = " << id << " is invalid." << endl;
+        "Plane IDs range from 0 to 9. id = " << id << " is invalid.";
 
 #ifdef DEBUG
     printf("\tID found: 0x%x\n", id);
@@ -462,10 +462,10 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
       TotemVFATInfo vfatInfo;
       vfatInfo.hwID = hw_id;
 
-      const unsigned int armIdx = (parentID / 1000) % 10; 
-      const unsigned int stIdx = (parentID / 100) % 10; 
-      const unsigned int rpIdx = (parentID / 10) % 10; 
-      const unsigned int plIdx = parentID % 10; 
+      const unsigned int armIdx = (parentID / 1000) % 10;
+      const unsigned int stIdx = (parentID / 100) % 10;
+      const unsigned int rpIdx = (parentID / 10) % 10;
+      const unsigned int plIdx = parentID % 10;
 
       vfatInfo.symbolicID.symbolicID = TotemRPDetId(armIdx, stIdx, rpIdx, plIdx, id);
 
@@ -477,10 +477,10 @@ void TotemDAQMappingESSourceXML::ParseTreeRP(ParseType pType, xercesc::DOMNode *
     // store mask data
     if (pType == pMask && type == nChip)
     {
-      const unsigned int armIdx = (parentID / 1000) % 10; 
-      const unsigned int stIdx = (parentID / 100) % 10; 
-      const unsigned int rpIdx = (parentID / 10) % 10; 
-      const unsigned int plIdx = parentID % 10; 
+      const unsigned int armIdx = (parentID / 1000) % 10;
+      const unsigned int stIdx = (parentID / 100) % 10;
+      const unsigned int rpIdx = (parentID / 10) % 10;
+      const unsigned int plIdx = parentID % 10;
 
       TotemSymbID symbId;
       symbId.symbolicID = TotemRPDetId(armIdx, stIdx, rpIdx, plIdx, id);
@@ -514,11 +514,11 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
   DOMNodeList *children = parent->getChildNodes();
 
   for (unsigned int i = 0; i < children->getLength(); i++)
-  {  
+  {
     DOMNode *n = children->item(i);
     if (n->getNodeType() != DOMNode::ELEMENT_NODE)
       continue;
-  
+
     NodeType type = GetNodeType(n);
 #ifdef DEBUG
       printf("\tname = %s, type = %u\n", cms::xerces::toString(n->getNodeName()), type);
@@ -546,8 +546,8 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
     }
 
     // parse tag attributes
-    unsigned int id =0,hw_id = 0; 
-    bool id_set = false,hw_id_set = false; 
+    unsigned int id =0,hw_id = 0;
+    bool id_set = false,hw_id_set = false;
     DOMNamedNodeMap* attr = n->getAttributes();
 
     for (unsigned int j = 0; j < attr->getLength(); j++)
@@ -569,17 +569,17 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
     }
 
       // content control
-    if (!id_set) 
+    if (!id_set)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeDiamond") << "id not given for element `"
-                                                                               << cms::xerces::toString(n->getNodeName())                                                                              << "'" << endl;
+                                                                               << cms::xerces::toString(n->getNodeName())                                                                              << "'";
 
     if (!hw_id_set && type == nDiamondCh && pType == pMapping)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeDiamond") << "hw_id not given for element `"
-                                                                               << cms::xerces::toString(n->getNodeName())                                                                              << "'" << endl;
- 
+                                                                               << cms::xerces::toString(n->getNodeName())                                                                              << "'";
+
     if (type == nDiamondPlane && id > 3)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeDiamond") <<
-          "Plane IDs range from 0 to 3. id = " << id << " is invalid." << endl;
+          "Plane IDs range from 0 to 3. id = " << id << " is invalid.";
 
 #ifdef DEBUG
       printf("\tID found: 0x%x\n", id);
@@ -590,16 +590,16 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
     {
 
       const TotemFramePosition &framepos = ChipFramePosition(n);
-      
+
       TotemVFATInfo vfatInfo;
-      vfatInfo.hwID = hw_id;     
+      vfatInfo.hwID = hw_id;
 
       if (type == nDiamondCh)
       {
         unsigned int ArmNum = (parentID/ 10000) % 10;
         unsigned int StationNum = (parentID / 1000) % 10;
         unsigned int RpNum = (parentID/ 100) % 10;
-        unsigned int PlaneNum = (parentID % 100) ;       
+        unsigned int PlaneNum = (parentID % 100) ;
 
         vfatInfo.symbolicID.symbolicID = CTPPSDiamondDetId(ArmNum, StationNum, RpNum, PlaneNum, id);
 
@@ -619,7 +619,7 @@ void TotemDAQMappingESSourceXML::ParseTreeDiamond(ParseType pType, xercesc::DOMN
       childId = parentID * 10 + id;
 
     ParseTreeDiamond(pType,n ,type ,childId ,mapping ,mask);
-   
+
   }
 
 }
@@ -632,14 +632,14 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType, xercesc::
   const std::shared_ptr<TotemAnalysisMask>& mask)
 {
   DOMNodeList *children = parent->getChildNodes();
-  
+
   // Fill map hwId -> TotemTimingPlaneChannelPair
   for (unsigned int i = 0; i < children->getLength(); i++)
-  {  
+  {
     DOMNode *child = children->item(i);
     if ( (child->getNodeType() != DOMNode::ELEMENT_NODE) || (GetNodeType(child)!=nTotemTimingCh) )
       continue;
-    
+
     int plane = -1;
     DOMNamedNodeMap* attr = parent->getAttributes();
     for (unsigned int j = 0; j < attr->getLength(); j++)
@@ -649,7 +649,7 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType, xercesc::
       if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "id"))
         sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%d", &plane);
     }
-  
+
 
     int channel = -1;
     unsigned int hwId = 0;
@@ -663,16 +663,16 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType, xercesc::
       if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "hwId"))
         sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%x", &hwId);
     }
-  
-    mapping->totemTimingChannelMap[ (uint8_t) hwId ] = TotemDAQMapping::TotemTimingPlaneChannelPair(plane, channel);    
+
+    mapping->totemTimingChannelMap[ (uint8_t) hwId ] = TotemDAQMapping::TotemTimingPlaneChannelPair(plane, channel);
   }
 
   for (unsigned int i = 0; i < children->getLength(); i++)
-  {  
+  {
     DOMNode *n = children->item(i);
     if (n->getNodeType() != DOMNode::ELEMENT_NODE)
       continue;
-  
+
     NodeType type = GetNodeType(n);
 
       // structure control
@@ -699,10 +699,10 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType, xercesc::
     }
 
     // parse tag attributes
-    unsigned int id =0; 
+    unsigned int id =0;
     bool id_set = false;
     DOMNamedNodeMap* attr = n->getAttributes();
-    
+
 
     for (unsigned int j = 0; j < attr->getLength(); j++)
     {
@@ -717,19 +717,19 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType, xercesc::
     }
 
       // content control
-    if (!id_set) 
+    if (!id_set)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeTotemTiming") << "id not given for element `"
-                                                                               << cms::xerces::toString(n->getNodeName()) << "'" << endl;          
+                                                                               << cms::xerces::toString(n->getNodeName()) << "'";
     if (type == nSampicBoard && id > 5)
       throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeTotemTiming") <<
-          "SampicBoard IDs range from 0 to 5. id = " << id << " is invalid." << endl;
+          "SampicBoard IDs range from 0 to 5. id = " << id << " is invalid.";
 
     // store mapping data
     if (pType == pMapping &&type == nSampicChannel)
     {
 
       const TotemFramePosition &framepos = ChipFramePosition(n);
-      
+
       TotemVFATInfo vfatInfo;
       unsigned int ArmNum = (parentID/ 10000) % 10;
       unsigned int StationNum = (parentID / 1000) % 10;
@@ -749,7 +749,7 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType, xercesc::
       childId = parentID * 10 + id;
 
     ParseTreeTotemTiming(pType,n ,type ,childId ,mapping ,mask);
-   
+
   }
 }
 
@@ -769,14 +769,14 @@ TotemFramePosition TotemDAQMappingESSourceXML::ChipFramePosition(xercesc::DOMNod
       throw cms::Exception("TotemDAQMappingESSourceXML") <<
         "Unrecognized tag `" << cms::xerces::toString(a->getNodeName()) <<
         "' or incompatible value `" << cms::xerces::toString(a->getNodeValue()) <<
-        "'." << endl;
+        "'.";
     }
   }
 
   if (!fp.checkXMLAttributeFlag(attributeFlag))
   {
     throw cms::Exception("TotemDAQMappingESSourceXML") <<
-      "Wrong/incomplete DAQ channel specification (attributeFlag = " << attributeFlag << ")." << endl;
+      "Wrong/incomplete DAQ channel specification (attributeFlag = " << attributeFlag << ").";
   }
 
   return fp;
@@ -799,7 +799,7 @@ TotemDAQMappingESSourceXML::NodeType TotemDAQMappingESSourceXML::GetNodeType(xer
   //diamond specifics
   if (Test(n, tagDiamondCh)) return nDiamondCh;
   if (Test(n, tagDiamondPlane)) return nDiamondPlane;
-  
+
   //totem timing specifics
   if (Test(n, tagSampicBoard)) return nSampicBoard;
   if (Test(n, tagSampicCh)) return nSampicChannel;
