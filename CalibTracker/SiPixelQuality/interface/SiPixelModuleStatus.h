@@ -21,8 +21,8 @@ public:
   /// fill with online coordinates (nhit > 1)
   void updateDIGI(int iroc, unsigned int nhit);
 
-  /// fill stuck TBM
-  void fillStuckTBM( PixelFEDChannel ch );
+  /// fill FEDerror25
+  void fillFEDerror25( PixelFEDChannel ch );
 
   /// return ROC status (= hits on ROC iroc)
   unsigned int digiOccROC(int iroc);

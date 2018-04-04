@@ -26,10 +26,10 @@ public:
 
   // fill hit in double idc in ROC roc into module detid
   void fillDIGI(int detid, int roc);
-  // fill stuck TBM info
-  void fillStuckTBM(int detid, PixelFEDChannel ch);
+  // fill FEDerror25 info
+  void fillFEDerror25(int detid, PixelFEDChannel ch);
 
-  std::map<int, std::vector<int>> getStuckTBMsRocs();
+  std::map<int, std::vector<int>> getFEDerror25Rocs();
 
   // determine detector average nhits and RMS
   void digiOccupancy();

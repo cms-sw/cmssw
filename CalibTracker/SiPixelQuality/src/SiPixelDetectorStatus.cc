@@ -139,16 +139,16 @@ void SiPixelDetectorStatus::fillDIGI(int detid, int roc) {
 }
 
 // ----------------------------------------------------------------------
-void SiPixelDetectorStatus::fillStuckTBM(int detid,PixelFEDChannel ch){
+void SiPixelDetectorStatus::fillFEDerror25(int detid,PixelFEDChannel ch){
 
    if (fModules.find(detid) != fModules.end()){
-        fModules[detid].fillStuckTBM(ch);
+        fModules[detid].fillFEDerror25(ch);
    }
 
 }
 
-// stuck TBM effected ROCs in for each module
-std::map<int, std::vector<int>> SiPixelDetectorStatus::getStuckTBMsRocs(){
+// FEDerror25 effected ROCs in for each module
+std::map<int, std::vector<int>> SiPixelDetectorStatus::getFEDerror25Rocs(){
 
     std::map<int, std::vector<int>> badRocLists_;
 
@@ -156,13 +156,13 @@ std::map<int, std::vector<int>> SiPixelDetectorStatus::getStuckTBMsRocs(){
     for (std::map<int, SiPixelModuleStatus>::iterator itMod = begin(); itMod != itModEnd; ++itMod) {
 
          int detid = itMod->first;
-         // stuck TBM effected ROCs in a given module
+         // FEDerror25 effected ROCs in a given module
          std::vector<int> list;
          SiPixelModuleStatus modStatus = itMod->second;
          for (int iroc = 0; iroc < modStatus.nrocs(); ++iroc) {
 
               SiPixelRocStatus* roc = modStatus.getRoc(iroc);
-              if(roc->isStuckTBM()){
+              if(roc->isFEDerror25()){
                  list.push_back(iroc);
               }
               badRocLists_[detid]=list;

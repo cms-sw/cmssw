@@ -44,12 +44,12 @@ void SiPixelModuleStatus::updateDIGI(int iroc, unsigned int nhit) {
 }
 
 // ----------------------------------------------------------------------
-void SiPixelModuleStatus::fillStuckTBM( PixelFEDChannel ch){
+void SiPixelModuleStatus::fillFEDerror25( PixelFEDChannel ch){
 
      int roc_first = int(ch.roc_first); int roc_last = int(ch.roc_last);
      for (int iroc = 0; iroc < fNrocs; iroc++){
           if(iroc>=roc_first && iroc<=roc_last){
-             fRocs[iroc].fillStuckTBM();
+             fRocs[iroc].fillFEDerror25();
           }
      }
 
@@ -160,10 +160,10 @@ void SiPixelModuleStatus::updateModuleStatus(SiPixelModuleStatus newData) {
         for (int iroc = 0; iroc < fNrocs; ++iroc) {
              //update occupancy
              fRocs[iroc].updateDIGI(newData.digiOccROC(iroc));
-             //update stuckTBM
+             //update FEDerror25
              SiPixelRocStatus* rocStatus = newData.getRoc(iroc);
-             if(rocStatus->isStuckTBM()){
-                 fRocs[iroc].fillStuckTBM();
+             if(rocStatus->isFEDerror25()){
+                 fRocs[iroc].fillFEDerror25();
              }
         }
         
