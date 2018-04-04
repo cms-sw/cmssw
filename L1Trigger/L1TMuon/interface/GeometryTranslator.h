@@ -7,7 +7,7 @@
 //       digi information into local or global CMS coordinates for all
 //       types of L1 trigger primitives that we want to consider for
 //       use in the integrated muon trigger.
-//       
+//
 // Note: This should be considered as a base class to some sort of global
 //       look-up table
 //
