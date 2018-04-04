@@ -183,6 +183,16 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 			hcaldqm::hashfunctions::fSubdetPM,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
+		_cTDCTime_depth.initialize(_name, "TDCTime", 
+			hcaldqm::hashfunctions::fdepth,
+			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
+			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),			
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),0);
+		// Manually book LED monitoring histogram, to get custom axis
+		ib.setCurrentFolder(_subsystem+"/"+_name);
+		_meLEDMon = ib.book2D("LED_ADCvsBX", "ADC vs BX", 99, -0.5, 3564-0.5, 64, -0.5, 255.5);
+		_meLEDMon->setAxisTitle("BX", 1);
+		_meLEDMon->setAxisTitle("ADC", 2);
 	}
 	
 	//	initialize compact containers
@@ -222,6 +232,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		_cADCvsTS_SubdetPM.book(ib, _emap, _subsystem);
 		_cSumQ_SubdetPM.book(ib, _emap, _subsystem);
 		_cTDCTime_SubdetPM.book(ib, _emap, _subsystem);
+		_cTDCTime_depth.book(ib, _emap, _subsystem);
 	}
 
 	_xSignalSum.book(_emap);
@@ -379,6 +390,18 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
 		HcalDetId const& did = digi.detid();
 		if (did.subdet() != HcalEndcap) {
+			// LED monitoring from calibration channels
+			if (did.subdet() == HcalOther) {
+				HcalOtherDetId hodid(digi.detid());
+				if (hodid.subdet() == HcalCalibration) {
+					if (did.depth() == 0) {
+						for (int i=0; i<digi.samples(); i++) {
+							_meLEDMon->Fill(e.bunchCrossing(), digi[i].adc());
+						}
+					}
+				}
+			}
+
 			continue;
 		}
 		uint32_t rawid = _ehashmap.lookup(did);
@@ -416,6 +439,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 					if (digi[iTS].tdc() <50) {
 						double time = iTS*25. + (digi[iTS].tdc() / 2.);
 						_cTDCTime_SubdetPM.fill(did, time);
+						_cTDCTime_depth.fill(did, time);
 					}
 				}
 				_cSumQ_SubdetPM.fill(did, sumQ);
@@ -492,6 +516,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 					if (digi[iTS].le_tdc() <50) {
 						double time = iTS*25. + (digi[iTS].le_tdc() / 2.);
 						_cTDCTime_SubdetPM.fill(did, time);
+						_cTDCTime_depth.fill(did, time);
 					}
 				}
 				_cSumQ_SubdetPM.fill(did, sumQ);
