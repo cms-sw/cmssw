@@ -61,9 +61,6 @@ private:
     bool tagAndProbe_;
     std::vector<edm::ParameterSet> tagAndProbePaths;
 
-    //std::vector<std::unique_ptr<GenericTriggerEventFlag> > num_genTriggerEventFlag_;
-    //std::vector<std::unique_ptr<GenericTriggerEventFlag> > den_genTriggerEventFlag_;
-
     //DQM Prescaler
     int counterEvt_;      //counter
     const int prescaleEvt_;     //every n events 

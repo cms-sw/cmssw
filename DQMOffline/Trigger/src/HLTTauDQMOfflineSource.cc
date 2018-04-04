@@ -45,12 +45,6 @@ HLTTauDQMOfflineSource::HLTTauDQMOfflineSource( const edm::ParameterSet& ps ):
   if(ps.exists("TagAndProbe")) {
     tagAndProbePaths = ps.getUntrackedParameter<std::vector<edm::ParameterSet> >("TagAndProbe");
     tagAndProbe_ = true;
-    //    tagandprobePlotters_.reserve(tagAndProbePaths.size()); 
-    //for(const edm::ParameterSet& tpset: tagAndProbePaths) {
-    //  num_genTriggerEventFlag_.emplace_back(new GenericTriggerEventFlag(tpset.getParameter<edm::ParameterSet>("numerator"),consumesCollector(), *this));
-    //  den_genTriggerEventFlag_.emplace_back(new GenericTriggerEventFlag(tpset.getParameter<edm::ParameterSet>("denominator"),consumesCollector(), *this));
-    //  tagandprobePlotters_.emplace_back( new HLTTauDQMTagAndProbePlotter(tpset,std::move(num_genTriggerEventFlag_.back()),std::move(den_genTriggerEventFlag_.back()),dqmBaseFolder_));
-    //}
   }
 
   if(doRefAnalysis_) {

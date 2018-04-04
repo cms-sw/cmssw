@@ -21,16 +21,11 @@ HLTTauDQMTagAndProbePlotter::HLTTauDQMTagAndProbePlotter(const edm::ParameterSet
   nbinsPt_(iConfig.getParameter<int>("nPtBins")),
   ptmin_(iConfig.getParameter<double>("ptmin")),
   ptmax_(iConfig.getParameter<double>("ptmax")),
-//  nbinsEta_(iConfig.getParameter<int>("nEtaBins")),
-//  etamin_(iConfig.getParameter<double>("etamin")),
-//  etamax_(iConfig.getParameter<double>("etamax")),
   nbinsPhi_(iConfig.getParameter<int>("nPhiBins")),
   phimin_(iConfig.getParameter<double>("phimin")),
   phimax_(iConfig.getParameter<double>("phimax")),
   xvariable(iConfig.getParameter<std::string>("xvariable"))
 {
-  //num_genTriggerEventFlag_ = std::move(numFlag);
-  //den_genTriggerEventFlag_ = std::move(denFlag);
   numTriggers = iConfig.getParameter<edm::ParameterSet>("numerator").getParameter<std::vector<std::string> >("hltPaths");
   denTriggers = iConfig.getParameter<edm::ParameterSet>("denominator").getParameter<std::vector<std::string> >("hltPaths");
 
@@ -51,10 +46,6 @@ HLTTauDQMTagAndProbePlotter::HLTTauDQMTagAndProbePlotter(const edm::ParameterSet
 void HLTTauDQMTagAndProbePlotter::bookHistograms(DQMStore::IBooker &iBooker,edm::Run const &iRun, edm::EventSetup const &iSetup) {
   if(!isValid())
     return;
-
-  // Initialize the GenericTriggerEventFlag
-  //if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
-  //if ( den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on() ) den_genTriggerEventFlag_->initRun( iRun, iSetup );
 
   // Efficiency helpers
   iBooker.setCurrentFolder(triggerTag()+"/helpers");
