@@ -1,7 +1,7 @@
 /****************************************************************************
 *
 * This is a part of TOTEM offline software.
-* Authors: 
+* Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
 *
 ****************************************************************************/
@@ -98,7 +98,7 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
 
   if (subSystem == ssTimingDiamond)
     produces< DetSetVector<CTPPSDiamondDigi> >(subSystemName);
-  
+
   if (subSystem == ssTotemTiming)
     produces< DetSetVector<TotemTimingDigi> >(subSystemName);
 
@@ -116,7 +116,7 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
       for (int id = FEDNumbering::MINCTPPSDiamondFEDID; id <= FEDNumbering::MAXCTPPSDiamondFEDID; ++id)
         fedIds.push_back(id);
     }
-    
+
     else if (subSystem == ssTotemTiming) {
       for (int id = FEDNumbering::MINTotemRPTimingVerticalFEDID; id <= FEDNumbering::MAXTotemRPTimingVerticalFEDID; ++id)
         fedIds.push_back(id);
@@ -142,7 +142,7 @@ void TotemVFATRawToDigi::produce(edm::Event& event, const edm::EventSetup &es)
 
   else if (subSystem == ssTimingDiamond)
     run< DetSetVector<CTPPSDiamondDigi> >(event, es);
-  
+
   else if (subSystem == ssTotemTiming)
     run< DetSetVector<TotemTimingDigi> >(event, es);
 }
@@ -175,11 +175,11 @@ void TotemVFATRawToDigi::run(edm::Event& event, const edm::EventSetup &es)
   {
     const FEDRawData &data = rawData->FEDData(fedId);
     if (data.size() > 0)
-      rawDataUnpacker.Run(fedId, data, fedInfo, vfatCollection);
+      rawDataUnpacker.run(fedId, data, fedInfo, vfatCollection);
   }
 
   // raw-to-digi conversion
-  rawToDigiConverter.Run(vfatCollection, *mapping, *analysisMask, digi, conversionStatus);
+  rawToDigiConverter.run(vfatCollection, *mapping, *analysisMask, digi, conversionStatus);
 
   // commit products to event
   event.put(make_unique<vector<TotemFEDInfo>>(fedInfo), subSystemName);
@@ -191,7 +191,7 @@ void TotemVFATRawToDigi::run(edm::Event& event, const edm::EventSetup &es)
 
 void TotemVFATRawToDigi::endStream()
 {
-  rawToDigiConverter.PrintSummaries();
+  rawToDigiConverter.printSummaries();
 }
 
 DEFINE_FWK_MODULE(TotemVFATRawToDigi);
