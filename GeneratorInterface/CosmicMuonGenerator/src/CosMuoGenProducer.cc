@@ -52,7 +52,7 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
     if(MinP_CMS < 0) MinP_CMS = MinP;
 
     // set up the generator
-    CosMuoGen = new CosmicMuonGenerator();
+    CosMuoGen = std::make_unique<CosmicMuonGenerator>();
 // Begin JMM change
 //  CosMuoGen->setNumberOfEvents(numberEventsInRun());
     CosMuoGen->setNumberOfEvents(999999999);
@@ -97,9 +97,6 @@ edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
   }
 
 edm::CosMuoGenProducer::~CosMuoGenProducer(){
-  //CosMuoGen->terminate();
-  delete CosMuoGen;
-  //  delete fEvt;
   clear();
 }
 
@@ -107,7 +104,7 @@ void edm::CosMuoGenProducer::beginLuminosityBlock(LuminosityBlock const& lumi, E
 {
   if(!isInitialized_) {
     isInitialized_ = true;
-    RandomEngineSentry<CosmicMuonGenerator> randomEngineSentry(CosMuoGen, lumi.index());
+    RandomEngineSentry<CosmicMuonGenerator> randomEngineSentry(CosMuoGen.get(), lumi.index());
     CosMuoGen->initialize(randomEngineSentry.randomEngine());
   }
 }
@@ -131,7 +128,7 @@ void edm::CosMuoGenProducer::clear(){}
 
 void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 {  
-  RandomEngineSentry<CosmicMuonGenerator> randomEngineSentry(CosMuoGen, e.streamID());
+  RandomEngineSentry<CosmicMuonGenerator> randomEngineSentry(CosMuoGen.get(), e.streamID());
 
   // generate event
   if (!MultiMuon) {
@@ -177,7 +174,7 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
   }
 
 
-  fEvt = new HepMC::GenEvent();
+  auto fEvt = std::make_unique<HepMC::GenEvent>();
   
   HepMC::GenVertex* Vtx_at = new  HepMC::GenVertex(HepMC::FourVector(CosMuoGen->Vx_at, //[mm]
   							     CosMuoGen->Vy_at, //[mm]
@@ -232,11 +229,11 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 
   if (cmVerbosity_) fEvt->print();
 
-  std::unique_ptr<HepMCProduct> CMProduct(new HepMCProduct());
-  CMProduct->addHepMCData( fEvt );
-  e.put(std::move(CMProduct), "unsmeared");
-
-  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( fEvt ));
+  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( fEvt.get() ));
   e.put(std::move(genEventInfo));
 
+  //This causes fEvt to be deleted
+  std::unique_ptr<HepMCProduct> CMProduct(new HepMCProduct());
+  CMProduct->addHepMCData( fEvt.release() );
+  e.put(std::move(CMProduct), "unsmeared");
 }
