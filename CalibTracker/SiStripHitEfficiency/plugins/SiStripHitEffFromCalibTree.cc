@@ -141,6 +141,13 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
 	
     unsigned int nTEClayers;
 	
+	TH1F* bxHisto;
+	TH1F* instLumiHisto;
+	TH1F* PUHisto;
+	
+	// for association of informations of the hitEff tree and the event infos tree
+	map< pair< unsigned int, unsigned int>,  array<double, 3> > eventInfos;
+	
     vector<hit> hits[23];
     vector<TH2F*> HotColdMaps;
     map< unsigned int, pair< unsigned int, unsigned int> > modCounter[23];
@@ -246,6 +253,12 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 
 
   // initialze counters and histos
+  
+  bxHisto = fs->make<TH1F>("bx","bx",3600,0,3600);
+  instLumiHisto = fs->make<TH1F>("instLumi","inst. lumi.",250,0,25000);
+  PUHisto = fs->make<TH1F>("PU","PU",200,0,200);
+  
+  
   for(int l=0; l < 35; l++) {
     goodlayertotal[l] = 0;
     goodlayerfound[l] = 0;
@@ -270,16 +283,70 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   }
 
   cout << "A module is bad if efficiency < " << threshold << " and has at least " << nModsMin << " nModsMin." << endl;
-
+  
+  
+  unsigned int run, evt, bx;
+  double instLumi, PU;
 
   //Open the ROOT Calib Tree
   for( unsigned int ifile=0; ifile < CalibTreeFilenames.size(); ifile++) {
 
     cout<<"Loading file: "<<CalibTreeFilenames[ifile]<<endl;
 	TFile* CalibTreeFile = TFile::Open(CalibTreeFilenames[ifile].c_str(),"READ");
+	
+    // Get event infos
+    bool foundEventInfos=false;
+    try {
+      CalibTreeFile->cd("testTree");
+    }
+    catch(exception& e) {
+      cout << "No event infos tree" << endl;
+    }
+    TTree* EventTree = (TTree*)(gDirectory->Get("tree"));
+
+    TLeaf* runLf;
+    TLeaf* evtLf;
+    TLeaf* BunchLf;
+    TLeaf* InstLumiLf;
+    TLeaf* PULf;
+    if(EventTree){
+
+      cout << "Found event infos tree" << endl;
+
+      runLf = EventTree->GetLeaf("run");
+      evtLf = EventTree->GetLeaf("event");
+
+      BunchLf = EventTree->GetLeaf("bx");
+      InstLumiLf = EventTree->GetLeaf("instLumi");
+      PULf = EventTree->GetLeaf("PU");
+
+      int nevt = EventTree->GetEntries();
+      if(nevt) foundEventInfos=true;
+
+      for(int j =0; j < nevt; j++) {
+        EventTree->GetEntry(j);
+        run = runLf->GetValue();
+        evt = evtLf->GetValue();
+        bx = BunchLf->GetValue();
+        instLumi = InstLumiLf->GetValue();
+        PU = PULf->GetValue();
+
+        bxHisto->Fill(bx);
+        instLumiHisto->Fill(instLumi);
+        PUHisto->Fill(PU);
+
+        eventInfos[ make_pair(run, evt) ] = array<double, 3> {{ (double) bx, instLumi, PU}};
+      }
+
+    }
+	
+	
+	// Get hit infos
 	CalibTreeFile->cd("anEff");
 	CalibTree = (TTree*)(gDirectory->Get("traj"));
 	
+	runLf = CalibTree->GetLeaf("run");
+	evtLf = CalibTree->GetLeaf("event");
 	TLeaf* BadLf = CalibTree->GetLeaf("ModIsBad");
 	TLeaf* sistripLf = CalibTree->GetLeaf("SiStripQualBad");
 	TLeaf* idLf = CalibTree->GetLeaf("Id");
@@ -293,19 +360,24 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 	TLeaf* TrajLocXLf = CalibTree->GetLeaf("TrajLocX");
 	TLeaf* TrajLocYLf = CalibTree->GetLeaf("TrajLocY");
 	TLeaf* ClusterLocXLf = CalibTree->GetLeaf("ClusterLocX");
-	TLeaf* BunchLf = CalibTree->GetLeaf("bunchx");
-	TLeaf* InstLumiLf = CalibTree->GetLeaf("instLumi");
-	TLeaf* PULf = CalibTree->GetLeaf("PU");
+	BunchLf = CalibTree->GetLeaf("bunchx");
+	InstLumiLf = CalibTree->GetLeaf("instLumi");
+	PULf = CalibTree->GetLeaf("PU");
 	TLeaf* CMLf = nullptr;
 	if(_useCM) CMLf = CalibTree->GetLeaf("commonMode");
 
 	int nevents = CalibTree->GetEntries();
 	cout << "Successfully loaded analyze function with " << nevents << " events!\n";
+	
+	
+	map< pair< unsigned int, unsigned int>,  array<double, 3> >::iterator itEventInfos;
 
 
 	//Loop through all of the events
 	for(int j =0; j < nevents; j++) {
       CalibTree->GetEntry(j);
+	  run = (unsigned int)runLf->GetValue();
+	  evt = (unsigned int)evtLf->GetValue();
       unsigned int isBad = (unsigned int)BadLf->GetValue();
       unsigned int quality = (unsigned int)sistripLf->GetValue();
       unsigned int id = (unsigned int)idLf->GetValue();
@@ -328,17 +400,37 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       double stripTrajMid;
       double stripCluster;
       bool badquality = false;
-      unsigned int bx = (unsigned int)BunchLf->GetValue();
-      if(_bunchx > 0 && _bunchx != bx) continue;
-	  double instLumi = 0;
-	  if(InstLumiLf!=nullptr) instLumi = InstLumiLf->GetValue();
-	  double PU = 0;
-	  if(PULf!=nullptr) PU = PULf->GetValue();
+	  
+	  instLumi = 0;
+	  PU = 0;
+	  
+	  // if no special tree with event infos, they may be stored in the hit eff tree
+	  if(!foundEventInfos){
+		bx = (unsigned int)BunchLf->GetValue();
+		if(InstLumiLf!=0) instLumi = InstLumiLf->GetValue(); // branch not filled by default
+		if(PULf!=0) PU = PULf->GetValue(); // branch not filled by default
+	  }
 	  int CM = -100;
 	  if(_useCM) CM = CMLf->GetValue();
 
+
+	  // Get infos from eventInfos if they exist
+	  if(foundEventInfos){
+
+		itEventInfos = eventInfos.find( make_pair(run, evt) );
+		if(itEventInfos!=eventInfos.end()){
+		  bx = itEventInfos->second[0];
+		  instLumi = itEventInfos->second[1];
+		  PU = itEventInfos->second[2];
+		}
+	  }
+
+
+
       //We have two things we want to do, both an XY color plot, and the efficiency measurement
       //First, ignore anything that isn't in acceptance and isn't good quality
+	  
+	  if(_bunchx > 0 && _bunchx != bx) continue;
 
       //if(quality == 1 || accept != 1 || nHits < 8) continue;
       if(accept != 1 || nHits < 8) continue;
@@ -886,14 +978,14 @@ void SiStripHitEffFromCalibTree::makeTKMap() {
         //We have a bad module, put it in the list!
 		BadModules[(*ih).first] = myeff;
 		tkmapbad->fillc((*ih).first,255,0,0);
-		cout << "Layer " << i << " module " << (*ih).first << " efficiency " << myeff << " " << (((*ih).second).second) << "/" << (((*ih).second).first) << endl;
+		cout << "Layer " << i <<" ("<< GetLayerName(i) << ")  module " << (*ih).first << " efficiency: " << myeff << " , " << mynum << "/" << myden << endl;
       }
       else {
         //Fill the bad list with empty results for every module
         tkmapbad->fillc((*ih).first,255,255,255);
       }
       if(myden < 50 ) {
-        cout << "Module " << (*ih).first << " layer " << i << " is under occupancy at " << (((*ih).second).first) << endl;
+        cout << "Layer " << i <<" ("<< GetLayerName(i) << ")  module " << (*ih).first << " is under occupancy at " << myden << endl;
       }
       //Put any module into the TKMap
       //Should call module ID, and then 1- efficiency for that module
@@ -959,7 +1051,7 @@ void SiStripHitEffFromCalibTree::totalStatistics() {
   
   for(Long_t i=1; i<=22; i++) {
     layereff = double(layerfound[i])/double(layertotal[i]);
-    cout << "Layer " << i << " has total efficiency " << layereff << " " << layerfound[i] << "/" << layertotal[i] << endl;
+    cout << "Layer " << i << " (" << GetLayerName(i) << ") has total efficiency " << layereff << " " << layerfound[i] << "/" << layertotal[i] << endl;
     totalfound += layerfound[i];
     totaltotal += layertotal[i];
 	if(i<5) {subdetfound[1]+=layerfound[i]; subdettotal[1]+=layertotal[i];}
@@ -1282,28 +1374,35 @@ void SiStripHitEffFromCalibTree::ComputeEff(vector< TH1F* > &vhfound, vector< TH
 void SiStripHitEffFromCalibTree::makeSummaryVsLumi() {
   cout<<"Computing efficiency vs lumi"<<endl;
   
-  unsigned int nLayers = 22;
-  if(_showRings) nLayers = 20;
-  unsigned int nLayersForAvg = 0;
-  float layerLumi = 0;
-  float layerPU = 0;
-  float avgLumi = 0;
-  float avgPU = 0;
+  if(instLumiHisto->GetEntries()) // from infos per event
+    cout<<"Avg conditions (avg+/-rms):   lumi :"<<instLumiHisto->GetMean()<<"+/-"<<instLumiHisto->GetRMS()
+	    <<"   pu: "<<PUHisto->GetMean()<<"+/-"<<PUHisto->GetRMS()<<endl;
+
+  else { // from infos per hit
   
-  cout<<"Lumi summary:  (avg over trajectory measurements)"<<endl; 
-  for(unsigned int ilayer=1; ilayer<nLayers; ilayer++) {
-	layerLumi=layertotal_vsLumi[ilayer]->GetMean();
-	layerPU=layertotal_vsPU[ilayer]->GetMean();
-	//cout<<" layer "<<ilayer<<"  lumi: "<<layerLumi<<"  pu: "<<layerPU<<endl;	
-	if(layerLumi!=0 && layerPU!=0) {
-	  avgLumi+=layerLumi;
-	  avgPU+=layerPU;
-	  nLayersForAvg++;
+	unsigned int nLayers = 22;
+	if(_showRings) nLayers = 20;
+	unsigned int nLayersForAvg = 0;
+	float layerLumi = 0;
+	float layerPU = 0;
+	float avgLumi = 0;
+	float avgPU = 0;
+
+	cout<<"Lumi summary:  (avg over trajectory measurements)"<<endl; 
+	for(unsigned int ilayer=1; ilayer<nLayers; ilayer++) {
+	  layerLumi=layertotal_vsLumi[ilayer]->GetMean();
+	  layerPU=layertotal_vsPU[ilayer]->GetMean();
+	  //cout<<" layer "<<ilayer<<"  lumi: "<<layerLumi<<"  pu: "<<layerPU<<endl;	
+	  if(layerLumi!=0 && layerPU!=0) {
+		avgLumi+=layerLumi;
+		avgPU+=layerPU;
+		nLayersForAvg++;
+	  }
 	}
+	avgLumi/=nLayersForAvg;
+	avgPU/=nLayersForAvg;
+	cout<<"Avg conditions:   lumi :"<<avgLumi<<"  pu: "<<avgPU<<endl;
   }
-  avgLumi/=nLayersForAvg;
-  avgPU/=nLayersForAvg;
-  cout<<"Avg conditions:   lumi :"<<avgLumi<<"  pu: "<<avgPU<<endl;
   
   ComputeEff(layerfound_vsLumi, layertotal_vsLumi, "effVsLumi");
   ComputeEff(layerfound_vsPU, layertotal_vsPU, "effVsPU");
