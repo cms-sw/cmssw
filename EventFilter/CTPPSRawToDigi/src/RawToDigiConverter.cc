@@ -331,7 +331,7 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll, const TotemDAQMapp
         Record &eventInfo = records[frameposEvtInfo];
 
         // Extract all the waveform information from the raw data
-        TotemSampicFrame totemSampicFrame((uint8_t*) record.frame->getData(), (uint8_t*) channelwaveform.frame->getData(), (uint8_t*) eventInfo.frame->getData());
+        TotemSampicFrame totemSampicFrame((const uint8_t*) record.frame->getData(), (uint8_t*) channelwaveform.frame->getData(), (uint8_t*) eventInfo.frame->getData());
 
         if (totemSampicFrame.valid())
         {
