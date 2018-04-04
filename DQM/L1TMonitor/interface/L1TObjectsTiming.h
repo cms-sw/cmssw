@@ -104,10 +104,26 @@ class L1TObjectsTiming : public DQMEDAnalyzer {
   std::vector<MonitorElement*> etsum_eta_phi_MHT_lastbunch;
   std::vector<MonitorElement*> etsum_eta_phi_MHTHF_lastbunch;
  
-  MonitorElement* denominator;
-  MonitorElement* denominator_isolated;
-  MonitorElement* denominator_firstbunch;
-  MonitorElement* denominator_lastbunch;
+  MonitorElement* denominator_muons;
+  MonitorElement* denominator_muons_isolated;
+  MonitorElement* denominator_muons_firstbunch;
+  MonitorElement* denominator_muons_lastbunch;
+  MonitorElement* denominator_jet;
+  MonitorElement* denominator_jet_isolated;
+  MonitorElement* denominator_jet_firstbunch;
+  MonitorElement* denominator_jet_lastbunch;
+  MonitorElement* denominator_egamma;
+  MonitorElement* denominator_egamma_isolated;
+  MonitorElement* denominator_egamma_firstbunch;
+  MonitorElement* denominator_egamma_lastbunch;
+  MonitorElement* denominator_tau;
+  MonitorElement* denominator_tau_isolated;
+  MonitorElement* denominator_tau_firstbunch;
+  MonitorElement* denominator_tau_lastbunch;
+  MonitorElement* denominator_etsum;
+  MonitorElement* denominator_etsum_isolated;
+  MonitorElement* denominator_etsum_firstbunch;
+  MonitorElement* denominator_etsum_lastbunch;
 
 };
 
