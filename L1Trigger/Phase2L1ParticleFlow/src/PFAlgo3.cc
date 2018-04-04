@@ -16,7 +16,7 @@ using namespace l1tpf_impl;
 PFAlgo3::PFAlgo3( const edm::ParameterSet & iConfig ) :
     PFAlgoBase(iConfig)
 {
-    debug_ = iConfig.getUntrackedParameter<int>("altDebug", debug_);
+    debug_ = iConfig.getUntrackedParameter<int>("debugPFAlgo3", iConfig.getUntrackedParameter<int>("debug", 0));
     edm::ParameterSet linkcfg = iConfig.getParameter<edm::ParameterSet>("linking");
     drMatchMu_ = linkcfg.getParameter<double>("trackMuDR");
 
