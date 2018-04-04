@@ -1,4 +1,3 @@
-#pragma once
 #ifndef Geometry_TrackerGeometryBuilder_phase1PixelTopology_h
 #define Geometry_TrackerGeometryBuilder_phase1PixelTopology_h
 
