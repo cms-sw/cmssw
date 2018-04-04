@@ -310,6 +310,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             self.extractMET(process, "raw", patMetModuleSequence, postfix)
 
         #jet AK4 reclustering if needed for JECs
+        
         if reclusterJets:
             jetCollectionUnskimmed = self.ak4JetReclustering(process, pfCandCollection, 
                                                              patMetModuleSequence, postfix)
@@ -318,7 +319,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if onMiniAOD:
             if not reclusterJets and reapplyJEC:
                 jetCollectionUnskimmed = self.updateJECs(process, jetCollectionUnskimmed, patMetModuleSequence, postfix)
-                    
+                
 
         #getting the jet collection that will be used for corrections 
         #and uncertainty computation
@@ -328,7 +329,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                             autoJetCleaning,
                                                             patMetModuleSequence,
                                                             postfix)
-
+        
         #pre-preparation to run over miniAOD 
         if onMiniAOD:            
             self.miniAODConfigurationPre(process, patMetModuleSequence, pfCandCollection, postfix)
@@ -449,6 +450,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             task.add(process.patPFMetT2SmearCorrTask)
             task.add(process.patPFMetTxyCorrTask)
             task.add(process.jetCorrectorsTask)
+
         if postfix != "" and metType == "PF" and not hasattr(process, 'pat'+metType+'Met'+postfix):
             noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
             configtools.cloneProcessingSnippet(process, getattr(process,"producePatPFMETCorrections"), postfix, noClones = noClonesTmp, addToTask = True)
@@ -1443,8 +1445,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             pfCHS=None
             if self._parameters["onMiniAOD"].value: 
                 pfCHS = cms.EDFilter("CandPtrSelector", src = pfCandCollection, cut = cms.string("fromPV"))
-                setattr(process,"pfNoPileUpJME"+postfix,pfCHS)
                 pfCandColl = cms.InputTag("pfNoPileUpJME"+postfix)
+                addToProcessAndTask("pfNoPileUpJME"+postfix, pfCHS, process, task)
+                patMetModuleSequence += getattr(process, "pfNoPileUpJME"+postfix)
             else:
                 addToProcessAndTask("tmpPFCandCollPtr"+postfix,
                                     cms.EDProducer("PFCandidateFwdPtrProducer",
@@ -1459,6 +1462,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                         bottomCollection = cms.InputTag("tmpPFCandCollPtr"+postfix) ),
                         process, task )
                 pfCandColl = cms.InputTag("pfNoPileUpJME"+postfix)
+                patMetModuleSequence += getattr(process, "tmpPFCandCollPtr"+postfix)
+                patMetModuleSequence += getattr(process, "pfNoPileUpJME"+postfix)
 
         jetColName+=postfix
         if not hasattr(process, jetColName):
@@ -1513,10 +1518,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         
             #extractor for caloMET === temporary for the beginning of the data taking
             self.extractMET(process,"rawCalo",patMetModuleSequence,postfix)
+            caloMetName="metrawCalo" if hasattr(process,"metrawCalo") else "metrawCalo"+postfix
             from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
             addMETCollection(process,
                              labelName = "patCaloMet",
-                             metSource = "metrawCalo"
+                             metSource = caloMetName
                              )
             getattr(process,"patCaloMet").addGenMET = False
 

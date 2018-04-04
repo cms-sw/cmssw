@@ -752,34 +752,46 @@ hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWdR03oldDMwLT.mapping[0].cut = 
 hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT.clone()
 hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAPWdR03oldDMwLTv1_WPEff40")
 
-hpsPFTauMVAIsolation2Task = cms.Task(
+hpsPFTauIsolationSumsTask = cms.Task(
     hpsPFTauChargedIsoPtSum,
     hpsPFTauNeutralIsoPtSum,
     hpsPFTauPUcorrPtSum,
     hpsPFTauNeutralIsoPtSumWeight,
     hpsPFTauFootprintCorrection,
-    hpsPFTauPhotonPtSumOutsideSignalCone,
+    hpsPFTauPhotonPtSumOutsideSignalCone,    
+    )
+
+hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT,
     hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT,
     hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT,
     hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT,
-    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT,
+    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT
+    )
+
+hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT,
     hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT,
     hpsPFTauDiscriminationByTightIsolationMVArun2v1DBnewDMwLT,
     hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBnewDMwLT,
-    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT,
+    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT
+    )
+
+hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTraw,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWoldDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWoldDMwLT,
     hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWoldDMwLT,
     hpsPFTauDiscriminationByTightIsolationMVArun2v1PWoldDMwLT,
     hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWoldDMwLT,
-    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWoldDMwLT,
+    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWoldDMwLT
+    )
+
+hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTraw,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWnewDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWnewDMwLT,
@@ -787,19 +799,28 @@ hpsPFTauMVAIsolation2Task = cms.Task(
     hpsPFTauDiscriminationByTightIsolationMVArun2v1PWnewDMwLT,
     hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWnewDMwLT,
     hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWnewDMwLT,
+    )
+
+hpsPFTauIsolationSums03Task = cms.Task(
     hpsPFTauChargedIsoPtSumdR03,
     hpsPFTauNeutralIsoPtSumdR03,
     hpsPFTauPUcorrPtSumdR03,
     hpsPFTauNeutralIsoPtSumWeightdR03,
     hpsPFTauFootprintCorrectiondR03,
-    hpsPFTauPhotonPtSumOutsideSignalConedR03,
+    hpsPFTauPhotonPtSumOutsideSignalConedR03
+    )
+
+hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT,
     hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBdR03oldDMwLT,
     hpsPFTauDiscriminationByTightIsolationMVArun2v1DBdR03oldDMwLT,
     hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBdR03oldDMwLT,
-    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBdR03oldDMwLT,
+    hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBdR03oldDMwLT
+    )
+
+hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLTraw,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWdR03oldDMwLT,
@@ -807,10 +828,22 @@ hpsPFTauMVAIsolation2Task = cms.Task(
     hpsPFTauDiscriminationByTightIsolationMVArun2v1PWdR03oldDMwLT,
     hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWdR03oldDMwLT,
     hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWdR03oldDMwLT
-)    
+    )
+
+hpsPFTauMVAIsolation2Task = cms.Task(
+    hpsPFTauIsolationSumsTask,
+    hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask,
+    hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTTask,
+    hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLTTask,    
+    hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTTask,
+    hpsPFTauIsolationSums03Task,
+    hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTTask,
+    hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLTTask    
+    )
+
 hpsPFTauMVAIsolation2Seq = cms.Sequence(
     hpsPFTauMVAIsolation2Task
-)
+    )
 
 produceHPSPFTausTask = cms.Task(
     hpsSelectionDiscriminator,
@@ -820,10 +853,12 @@ produceHPSPFTausTask = cms.Task(
     #hpsVLooseIsolationCleaner,
     hpsPFTauProducerSansRefs,
     hpsPFTauProducer
-)
+    )
+
 produceHPSPFTaus = cms.Sequence(
     produceHPSPFTausTask
-)
+    )
+
 produceAndDiscriminateHPSPFTausTask = cms.Task(
     produceHPSPFTausTask,
     hpsPFTauDiscriminationByDecayModeFindingNewDMs,
@@ -848,7 +883,71 @@ produceAndDiscriminateHPSPFTausTask = cms.Task(
     hpsPFTauDiscriminationByTightMuonRejection3,
     hpsPFTauVertexAndImpactParametersTask,
     hpsPFTauMVAIsolation2Task
-)
+    )
+
 produceAndDiscriminateHPSPFTaus = cms.Sequence(
     produceAndDiscriminateHPSPFTausTask
-)
+    )
+
+hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT.clone()
+_hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTaskExt = hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask.copy()
+_hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTaskExt.add(hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT)
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+for era in [ run2_miniAOD_80XLegacy, run2_miniAOD_94XFall17]:
+    era.toModify(hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw,
+                 mvaName = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1",
+                 mvaOpt  = "DBoldDMwLTwGJ")
+    era.toModify(hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                 mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                              cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff95"),
+                                            variable = cms.string("pt")),))
+    era.toReplaceWith(
+        hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask,
+        _hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTaskExt
+    )
+    era.toModify(hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                 mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                              cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff90"),
+                                            variable = cms.string("pt")),))
+    era.toModify(hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                 mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                              cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff80"),
+                                              variable = cms.string("pt")),))
+    era.toModify(hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                 mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                              cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff70"),
+                                              variable = cms.string("pt")),))    
+    era.toModify(hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                        mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                                     cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff60"),
+                                                     variable = cms.string("pt")),))
+    era.toModify(hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                 mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                              cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff50"),
+                                              variable = cms.string("pt")),))
+    era.toModify(hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT,
+                 mvaOutput_normalization = "RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_mvaOutput_normalization",
+                 key = cms.InputTag("hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw","category"),
+                 toMultiplex = "hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw",
+                 mapping = cms.VPSet(cms.PSet(category = cms.uint32(0),
+                                              cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMwLT2017v1_WPEff40"),
+                                              variable = cms.string("pt")),))

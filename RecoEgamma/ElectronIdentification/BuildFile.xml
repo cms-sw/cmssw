@@ -9,6 +9,7 @@
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="PhysicsTools/SelectorUtils"/>
+<use   name="FWCore/Utilities"/>
 
 <export>
   <lib   name="1"/>

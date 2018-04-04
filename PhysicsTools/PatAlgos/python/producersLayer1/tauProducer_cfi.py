@@ -133,7 +133,7 @@ patTaus = cms.EDProducer("PATTauProducer",
         againstElectronTightMVA6 = cms.InputTag("hpsPFTauDiscriminationByMVA6TightElectronRejection"),
         againstElectronVTightMVA6 = cms.InputTag("hpsPFTauDiscriminationByMVA6VTightElectronRejection"),
     ),
-
+    skipMissingTauID = cms.bool(False), #Allow to skip a tau ID variable when not present in the event"
     # mc matching configurables
     addGenMatch      = cms.bool(True),
     embedGenMatch    = cms.bool(True),
@@ -151,3 +151,9 @@ patTaus = cms.EDProducer("PATTauProducer",
     resolutions     = cms.PSet()
 )
 
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+for era in [ run2_miniAOD_80XLegacy, run2_miniAOD_94XFall17]:
+    _extTauIDSources = patTaus.tauIDSources.clone()
+    _extTauIDSources.byVVLooseIsolationMVArun2v1DBoldDMwLT = cms.InputTag("hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT")
+    era.toModify(patTaus, tauIDSources = _extTauIDSources)

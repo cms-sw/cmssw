@@ -119,15 +119,19 @@ def applyPostfix(process, label, postfix):
     return result
 
 def removeIfInSequence(process, target,  sequenceLabel, postfix=""):
-    labels = __labelsInSequence(process, sequenceLabel, postfix)
+    labels = __labelsInSequence(process, sequenceLabel, postfix, True)
     if target+postfix in labels:
         getattr(process, sequenceLabel+postfix).remove(
             getattr(process, target+postfix)
             )
 
-def __labelsInSequence(process, sequenceLabel, postfix=""):
-    result = [ m.label()[:-len(postfix)] for m in listModules( getattr(process,sequenceLabel+postfix))]
-    result.extend([ m.label()[:-len(postfix)] for m in listSequences( getattr(process,sequenceLabel+postfix))]  )
+def __labelsInSequence(process, sequenceLabel, postfix="", keepPostFix=False):
+    position = -len(postfix)
+    if keepPostFix: 
+        position = None
+
+    result = [ m.label()[:position] for m in listModules( getattr(process,sequenceLabel+postfix))]
+    result.extend([ m.label()[:position] for m in listSequences( getattr(process,sequenceLabel+postfix))]  )
     if postfix == "":
         result = [ m.label() for m in listModules( getattr(process,sequenceLabel+postfix))]
         result.extend([ m.label() for m in listSequences( getattr(process,sequenceLabel+postfix))]  )

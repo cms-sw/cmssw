@@ -169,7 +169,12 @@ namespace DataFormats_PatCandidates {
   edm::Ptr<pat::Muon> ptr_Muon;
   edm::Ptr<pat::Tau> ptr_Tau;
   edm::Ptr<pat::PackedCandidate> ptr_PackedCandidate;
+  edm::Ptr<pat::PackedGenParticle> ptr_PackedGenParticle;
+  edm::Wrapper< edm::Ptr<pat::PackedCandidate> > w_ptr_pc;
+  std::vector< edm::Ptr<pat::PackedCandidate> > v_ptr_pc;
+  edm::Wrapper< std::vector< edm::Ptr<pat::PackedCandidate> > > wv_ptr_pc;
 
+    
   edm::FwdPtr<pat::PackedCandidate> fwdptr_pc;
   edm::Wrapper< edm::FwdPtr<pat::PackedCandidate> > w_fwdptr_pc;
   std::vector< edm::FwdPtr<pat::PackedCandidate> > v_fwdptr_pc;
@@ -179,6 +184,10 @@ namespace DataFormats_PatCandidates {
   edm::Wrapper< edm::FwdPtr<pat::PackedGenParticle> > w_fwdptr_pgp;
   std::vector< edm::FwdPtr<pat::PackedGenParticle> > v_fwdptr_pgp;
   edm::Wrapper< std::vector< edm::FwdPtr<pat::PackedGenParticle> > > wv_fwdptr_pgp;
+
+  edm::Wrapper< edm::Ptr<pat::PackedGenParticle> > w_ptr_pgp;
+  std::vector< edm::Ptr<pat::PackedGenParticle> > v_ptr_pgp;
+  edm::Wrapper< std::vector< edm::Ptr<pat::PackedGenParticle> > > wv_ptr_pgp;
 
     
   edm::Wrapper<edm::Association<pat::PackedCandidateCollection > > w_asso_pc;

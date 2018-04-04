@@ -254,6 +254,9 @@ workflows[136.801] = ['',['RunZeroBias2017C','HLTDR2_2017','RECODR2_2017reHLT_Pr
 workflows[136.802] = ['',['RunMuOnia2017C','HLTDR2_2017','RECODR2_2017reHLT_skimMuOnia_Prompt','HARVEST2017']]
 workflows[136.803] = ['',['RunNoBPTX2017C','HLTDR2_2017','RECODR2_2017reHLTAlCaTkCosmics_Prompt','HARVEST2017']]
 
+# reminiAOD wf on 2017F 94X input
+workflows[136.8311] = ['',['RunJetHT2017F_reminiaod','REMINIAOD_data2017','HARVEST2017_REMINIAOD_data2017']]
+
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
 workflows[5.2] = ['SingleMuPt10', ['SingleMuPt10FS','HARVESTFS']]
@@ -373,13 +376,16 @@ workflows[1325.2] = ['', ['TTbar_13','DIGIUP15','RECOUP15_trackingLowPU','HARVES
 workflows[1325.3] = ['', ['TTbar_13','DIGIUP15','RECOUP15_trackingOnlyLowPU','HARVESTUP15_trackingOnly']]
 workflows[1325.4] = ['', ['TTbar_13','DIGIUP15','RECOUP15_HIPM','HARVESTUP15']]
 # reminiaod wf on 80X MC
-workflows[1325.5] = ['', ['TTbar_13_reminiaodINPUT','REMINIAOD_mc2016','HARVESTDR2_REMINIAOD_mc2016']]
+workflows[1325.5] = ['', ['ProdZEE_13_reminiaodINPUT','REMINIAOD_mc2016','HARVESTDR2_REMINIAOD_mc2016']]
+# reminiaod wf on 94X MC
+workflows[1325.51] = ['', ['TTbar_13_94XreminiaodINPUT','REMINIAOD_mc2017','HARVESTUP17_REMINIAOD_mc2017']]
 
 # nanoaod wf without intermediate EDM,  starting from existing MINIAOD inputs
-workflows[1325.6] = ['', ['TTbar_13_94XNanoAODINPUT','NANOAODMC2017']]
+workflows[1325.6] = ['', ['TTbar_13_94Xv1NanoAODINPUT','NANOAODMC2017_94XMiniAODv1']]
 # nanoaod wf with intermediate EDM and merge step, starting from existing MINIAOD inputs
-workflows[1325.7] = ['', ['TTbar_13_94XNanoAODINPUT','NANOEDMMC2017','HARVESTNANOAODMC2017']]
-workflows[1325.8] = ['', ['TTbar_13_92XNanoAODINPUT','NANOEDMMC2017_92X','HARVESTNANOAODMC2017_92X']]
+workflows[1325.7] = ['', ['TTbar_13_94Xv2NanoAODINPUT','NANOEDMMC2017_94XMiniAODv2','HARVESTNANOAODMC2017_94XMiniAODv2']]
+workflows[1325.8] = ['', ['TTbar_13_94Xv1NanoAODINPUT','NANOEDMMC2017_94XMiniAODv1','HARVESTNANOAODMC2017_94XMiniAODv1']]
+workflows[1325.9] = ['', ['TTbar_13_92XNanoAODINPUT','NANOEDMMC2017_92X','HARVESTNANOAODMC2017_92X']]
 #using ZEE as I cannot find TT at CERN
 workflows[1329.1] = ['', ['ZEE_13_80XNanoAODINPUT','NANOEDMMC2016_80X','HARVESTNANOAODMC2016_80X']]
 

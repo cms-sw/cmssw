@@ -21,12 +21,17 @@ def addBoostedTaus(process):
     process.ak4PFJetsRecoTauChargedHadronsBoosted.builders[1].dRcone = cms.double(0.3)
     process.ak4PFJetsRecoTauChargedHadronsBoosted.builders[1].dRconeLimitedToJetArea = cms.bool(True)
     process.combinatoricRecoTausBoosted.jetSrc = cms.InputTag('boostedTauSeeds')
+    _allModifiers = cms.VPSet()
+    for modifier in process.combinatoricRecoTausBoosted.modifiers:
+        _allModifiers.append(modifier)
     process.combinatoricRecoTausBoosted.modifiers.remove(process.combinatoricRecoTausBoosted.modifiers[3])
-    #process.combinatoricRecoTausBoosted.builders[0].pfCandSrc = cms.InputTag('pfNoPileUpForBoostedTaus')
+    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    for era in [ run2_miniAOD_80XLegacy, run2_miniAOD_94XFall17]:
+        era.toModify(process.combinatoricRecoTausBoosted, modifiers = _allModifiers)
     process.combinatoricRecoTausBoosted.builders[0].pfCandSrc = cms.InputTag('particleFlow')
-    #Note JetArea is not defined for subjets and restiction to jetArea is turned to dRMatch=0.1, so better use the latter explicitely
-    #process.hpsPFTauDiscriminationByLooseMuonRejection3Boosted.dRmuonMatchLimitedToJetArea = cms.bool(True)
-    #process.hpsPFTauDiscriminationByTightMuonRejection3Boosted.dRmuonMatchLimitedToJetArea = cms.bool(True)
+    ## Note JetArea is not defined for subjets (-> do not switch to True in hpsPFTauDiscriminationByLooseMuonRejection3Boosted, False is default)
+    ## The restiction to jetArea is turned to dRMatch=0.1 (-> use explicitly this modified value)
     process.hpsPFTauDiscriminationByLooseMuonRejection3Boosted.dRmuonMatch = 0.1
     process.hpsPFTauDiscriminationByTightMuonRejection3Boosted.dRmuonMatch = 0.1
     massSearchReplaceAnyInputTag(process.PATTauSequenceBoosted,cms.InputTag("ak4PFJets"),cms.InputTag("boostedTauSeeds"))  

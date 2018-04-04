@@ -212,6 +212,14 @@ def switchToPFTauHPS(process,
     if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
         getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = preselection
 
+    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    for era in [ run2_miniAOD_80XLegacy, run2_miniAOD_94XFall17]:
+        _patTaus = getattr(process, "patTaus"+patTauLabel+postfix)
+        _extTauIDSources = _patTaus.tauIDSources.clone()
+        _extTauIDSources.byVVLooseIsolationMVArun2v1DBoldDMwLT = cms.InputTag("hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBoldDMwLT")
+        era.toModify(_patTaus, tauIDSources = _extTauIDSources)
+        
 # Select switcher by string
 def switchToPFTauByType(process,
                         pfTauType = None,

@@ -5,4 +5,7 @@
   <class pattern="MakePtrFromCollection<*>"/>
   <class name="ElectronMVAEstimatorRun2Spring16GeneralPurpose" transient="true"/>
   <class name="ElectronMVAEstimatorRun2Spring16HZZ" transient="true"/>
+  <class name="ElectronMVAEstimatorRun2Fall17" transient="true"/>
+  <class name="ElectronMVAEstimatorRun2Fall17NoIso" transient="true"/>
+  <class name="ElectronMVAEstimatorRun2Fall17Iso" transient="true"/>
 </lcgdict>

@@ -10,14 +10,10 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
 
 #include <vector>
 #include <string>
-#include "TMVA/Factory.h"
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
 
 class ElectronMVAEstimatorRun2Spring16HZZ : public AnyMVAEstimatorRun2Base{
   
@@ -100,9 +96,6 @@ class ElectronMVAEstimatorRun2Spring16HZZ : public AnyMVAEstimatorRun2Base{
   float mvaValue( const int iCategory, const std::vector<float> & vars) const ;
 
   // Utility functions
-  std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, 
-                                                      const edm::FileInPath &weightFile);
-
   int getNCategories() const override { return nCategories; }
   bool isEndcapCategory( int category ) const;
   const std::string& getName() const final { return name_; }

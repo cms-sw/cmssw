@@ -11,14 +11,11 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
-#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "RecoEgamma/EgammaTools/interface/GBRForestTools.h"
 
 #include <vector>
 #include <string>
 #include <TROOT.h>
-#include "TMVA/Factory.h"
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
 
 class ElectronMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   
@@ -90,11 +87,8 @@ class ElectronMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
 
   // Calculation of the MVA value
   float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
- 
-  // Utility functions
-  std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, 
-                                                      const edm::FileInPath &weightFile);
 
+  // Utility functions
   int getNCategories() const override { return nCategories; }
   bool isEndcapCategory( int category ) const;
   const std::string& getName() const final { return _name; }
