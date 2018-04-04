@@ -63,6 +63,7 @@ ALCAHARVESTBeamSpotByLumi_dbOutput = cms.PSet(record = cms.string('BeamSpotObjec
 ALCAHARVESTBeamSpotHPByRun = alcaBeamSpotHarvester.clone()
 ALCAHARVESTBeamSpotHPByRun.AlcaBeamSpotHarvesterParameters.BeamSpotOutputBase = cms.untracked.string("runbased")
 ALCAHARVESTBeamSpotHPByRun.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.untracked.string("BeamSpotObjectsRcdHPByRun")
+ALCAHARVESTBeamSpotHPByRun.AlcaBeamSpotHarvesterParameters.BeamSpotModuleName = cms.untracked.string('alcaBeamSpotProducerHP')
 
 ALCAHARVESTBeamSpotHPByRun_metadata = cms.PSet(record = cms.untracked.string('BeamSpotObjectsRcdHPByRun'))
 
@@ -76,6 +77,7 @@ ALCAHARVESTBeamSpotHPByRun_dbOutput = cms.PSet(record = cms.string('BeamSpotObje
 ALCAHARVESTBeamSpotHPByLumi = alcaBeamSpotHarvester.clone()
 ALCAHARVESTBeamSpotHPByLumi.AlcaBeamSpotHarvesterParameters.BeamSpotOutputBase = cms.untracked.string("lumibased")
 ALCAHARVESTBeamSpotHPByLumi.AlcaBeamSpotHarvesterParameters.outputRecordName = cms.untracked.string("BeamSpotObjectsRcdHPByLumi")
+ALCAHARVESTBeamSpotHPByLumi.AlcaBeamSpotHarvesterParameters.BeamSpotModuleName = cms.untracked.string('alcaBeamSpotProducerHP')
 ALCAHARVESTBeamSpotHPByLumi.AlcaBeamSpotHarvesterParameters.DumpTxt = cms.untracked.bool(True)
 
 # configuration of DropBox metadata and DB output
