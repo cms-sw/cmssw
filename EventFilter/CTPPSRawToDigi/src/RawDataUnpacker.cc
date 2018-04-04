@@ -440,7 +440,7 @@ int RawDataUnpacker::processOptoRxFrameSampic(const word *buf, unsigned int fram
   unsigned int orbitCounterVFATFrameWords = 6;
   unsigned int sizeofVFATPayload = 12;
 
-  VFATFrame::word *VFATFrameWordPtr = (VFATFrame::word *) buf;
+  const VFATFrame::word *VFATFrameWordPtr = (const VFATFrame::word *) buf;
   VFATFrameWordPtr += orbitCounterVFATFrameWords - 1;
 
   LogDebug( "RawDataUnpacker::processOptoRxFrameSampic" )
