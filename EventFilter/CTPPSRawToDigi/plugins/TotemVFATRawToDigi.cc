@@ -96,10 +96,10 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
   if (subSystem == ssTrackingStrip)
     produces< DetSetVector<TotemRPDigi> >(subSystemName);
 
-  if (subSystem == ssTimingDiamond)
+  else if (subSystem == ssTimingDiamond)
     produces< DetSetVector<CTPPSDiamondDigi> >(subSystemName);
 
-  if (subSystem == ssTotemTiming)
+  else if (subSystem == ssTotemTiming)
     produces< DetSetVector<TotemTimingDigi> >(subSystemName);
 
   // set default IDs
