@@ -101,7 +101,10 @@ void L1TObjectsTiming::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   denominator_jet = ibooker.book2D("denominator_jet","Denominator for L1TJet",25, -2.5, 2.5, 25, -3.2, 3.2);
   denominator_egamma = ibooker.book2D("denominator_egamma","Denominator for L1TEGamma",25, -2.5, 2.5, 25, -3.2, 3.2);
   denominator_tau = ibooker.book2D("denominator_tau","Denominator for L1TTau",25, -2.5, 2.5, 25, -3.2, 3.2);
-  denominator_etsum = ibooker.book1D("denominator_etsum","Denominator for L1TEtSum", 25, -3.2, 3.2);
+  denominator_etsum_MET = ibooker.book1D("denominator_etsum_MET","Denominator for L1TEtSum MET", 25, -3.2, 3.2);
+  denominator_etsum_METHF = ibooker.book1D("denominator_etsum_METHF","Denominator for L1TEtSum METHF", 25, -3.2, 3.2);
+  denominator_etsum_MHT = ibooker.book1D("denominator_etsum_METHT","Denominator for L1TEtSum MHT", 25, -3.2, 3.2);
+  denominator_etsum_MHTHF = ibooker.book1D("denominator_etsum_MHTHF","Denominator for L1TEtSum MHTHF", 25, -3.2, 3.2);
 
   ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"); 
   for(unsigned int i=0; i<bxrange_; ++i) {
@@ -153,8 +156,10 @@ if(algoBitFirstBxInTrain_ > -1 && algoBitLastBxInTrain_ > -1) {
   ibooker.setCurrentFolder(monitorDir_+"/L1TTau"+"/timing"+"/Isolated_bunch");
   denominator_tau_isolated = ibooker.book2D("denominator_tau_isolated","Denominator for Isolated Bunch for L1TTau",25, -2.5, 2.5, 25, -3.2, 3.2);
   ibooker.setCurrentFolder(monitorDir_+"/L1TEtSum"+"/timing"+"/Isolated_bunch");
-  denominator_etsum_isolated = ibooker.book1D("denominator_etsum_isolated","Denominator for Isolated Bunch for L1TEtSum", 25, -3.2, 3.2);
-
+  denominator_etsum_isolated_MET = ibooker.book1D("denominator_etsum_isolated_MET","Denominator for Isolated Bunch for L1TEtSum MET", 25, -3.2, 3.2);
+  denominator_etsum_isolated_METHF = ibooker.book1D("denominator_etsum_isolated_METHF","Denominator for Isolated Bunch for L1TEtSum METHF", 25, -3.2, 3.2); 
+  denominator_etsum_isolated_MHT = ibooker.book1D("denominator_etsum_isolated_MHT","Denominator for Isolated Bunch for L1TEtSum MHT", 25, -3.2, 3.2);
+  denominator_etsum_isolated_MHTHF = ibooker.book1D("denominator_etsum_isolated_MHTHF","Denominator for Isolated Bunch for L1TEtSum MHTHF", 25, -3.2, 3.2);
 
   ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"+"/Isolated_bunch");  
   for(unsigned int i=0; i<bxrange_; ++i) {
@@ -207,8 +212,10 @@ if(algoBitFirstBxInTrain_ > -1) {
   ibooker.setCurrentFolder(monitorDir_+"/L1TTau"+"/timing"+"/First_bunch");
   denominator_tau_firstbunch = ibooker.book2D("denominator_tau_firstbunch","Denominator for First Bunch for L1TTau",25, -2.5, 2.5, 25, -3.2, 3.2);
   ibooker.setCurrentFolder(monitorDir_+"/L1TEtSum"+"/timing"+"/First_bunch");
-  denominator_etsum_firstbunch = ibooker.book1D("denominator_etsum_firstbunch","Denominator for First Bunch for L1TEtSum", 25, -3.2, 3.2);
-
+  denominator_etsum_firstbunch_MET = ibooker.book1D("denominator_etsum_firstbunch_MET","Denominator for First Bunch for L1TEtSum MET", 25, -3.2, 3.2);
+  denominator_etsum_firstbunch_METHF = ibooker.book1D("denominator_etsum_firstbunch_METHF","Denominator for First Bunch for L1TEtSum METHF", 25, -3.2, 3.2);
+  denominator_etsum_firstbunch_MHT = ibooker.book1D("denominator_etsum_firstbunch_MHT","Denominator for First Bunch for L1TEtSum MHT", 25, -3.2, 3.2);
+  denominator_etsum_firstbunch_MHTHF = ibooker.book1D("denominator_etsum_firstbunch_MHTHF","Denominator for First Bunch for L1TEtSum MHTHF", 25, -3.2, 3.2);
 
   ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"+"/First_bunch");
   for(unsigned int i=0; i<bxrange_-2; ++i) {
@@ -261,7 +268,10 @@ if(algoBitLastBxInTrain_ > -1) {
   ibooker.setCurrentFolder(monitorDir_+"/L1TTau"+"/timing"+"/Last_bunch");
   denominator_tau_lastbunch = ibooker.book2D("denominator_tau_lastbunch","Denominator for Last Bunch for L1TTau",25, -2.5, 2.5, 25, -3.2, 3.2);
   ibooker.setCurrentFolder(monitorDir_+"/L1TEtSum"+"/timing"+"/Last_bunch");
-  denominator_etsum_lastbunch = ibooker.book1D("denominator_etsum_lastbunch","Denominator for Last Bunch for L1TEtSum", 25, -3.2, 3.2);
+  denominator_etsum_lastbunch_MET = ibooker.book1D("denominator_etsum_lastbunch_MET","Denominator for Last Bunch for L1TEtSum MET", 25, -3.2, 3.2);
+  denominator_etsum_lastbunch_METHF = ibooker.book1D("denominator_etsum_lastbunch_METHF","Denominator for Last Bunch for L1TEtSum METHF", 25, -3.2, 3.2);
+  denominator_etsum_lastbunch_MHT = ibooker.book1D("denominator_etsum_lastbunch_MHT","Denominator for Last Bunch for L1TEtSum MHT", 25, -3.2, 3.2);
+  denominator_etsum_lastbunch_MHTHF = ibooker.book1D("denominator_etsum_lastbunch_MHTHF","Denominator for Last Bunch for L1TEtSum MHTHF", 25, -3.2, 3.2);
 
   ibooker.setCurrentFolder(monitorDir_+"/L1TMuon"+"/timing"+"/Last_bunch");
   for(unsigned int i=0; i<bxrange_-2; ++i) {
@@ -373,19 +383,30 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // Filling eta-phi map for etsum for BX=-2,-1,0,+1,+2
   for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
     for (l1t::EtSumBxCollection::const_iterator EtSum = EtSumBxCollection->begin(itBX); EtSum != EtSumBxCollection->end(itBX); ++EtSum) {
-      denominator_etsum->Fill(EtSum->phi());
       int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
       if (l1t::EtSum::EtSumType::kMissingEt == EtSum->getType()) {
         etsum_eta_phi_MET.at(index)->Fill(EtSum->phi());
+        for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+          denominator_etsum_MET->Fill(EtSum->phi());
+        }
       }
       else if (l1t::EtSum::EtSumType::kMissingEtHF == EtSum->getType()) {
         etsum_eta_phi_METHF.at(index)->Fill(EtSum->phi());
+        for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+          denominator_etsum_METHF->Fill(EtSum->phi());
+        }
       }
       else if(l1t::EtSum::EtSumType::kMissingHt == EtSum->getType()) {
         etsum_eta_phi_MHT.at(index)->Fill(EtSum->phi());
+        for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+          denominator_etsum_MHT->Fill(EtSum->phi());
+        }
       }
       else if(l1t::EtSum::EtSumType::kMissingHtHF == EtSum->getType()) {
         etsum_eta_phi_MHTHF.at(index)->Fill(EtSum->phi());
+        for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+          denominator_etsum_MHTHF->Fill(EtSum->phi());
+        }
       }
     }
   }
@@ -423,19 +444,30 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
       }
       for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
         for (l1t::EtSumBxCollection::const_iterator EtSum = EtSumBxCollection->begin(itBX); EtSum != EtSumBxCollection->end(itBX); ++EtSum) {
-          denominator_etsum_isolated->Fill(EtSum->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           if (l1t::EtSum::EtSumType::kMissingEt == EtSum->getType()) {
             etsum_eta_phi_MET_isolated.at(index)->Fill(EtSum->phi());
+            for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+              denominator_etsum_isolated_MET->Fill(EtSum->phi());
+            }
           }
           else if (l1t::EtSum::EtSumType::kMissingEtHF == EtSum->getType()) {
             etsum_eta_phi_METHF_isolated.at(index)->Fill(EtSum->phi());
+            for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+              denominator_etsum_isolated_METHF->Fill(EtSum->phi());
+            }
           }
           else if(l1t::EtSum::EtSumType::kMissingHt == EtSum->getType()) {
             etsum_eta_phi_MHT_isolated.at(index)->Fill(EtSum->phi());
+            for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+              denominator_etsum_isolated_MHT->Fill(EtSum->phi());
+            }
           }
           else if(l1t::EtSum::EtSumType::kMissingHtHF == EtSum->getType()) {
             etsum_eta_phi_MHTHF_isolated.at(index)->Fill(EtSum->phi());
+            for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+              denominator_etsum_isolated_MHTHF->Fill(EtSum->phi());
+            }
           }
         }
       }
@@ -473,19 +505,30 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
       }
       for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= 0; ++itBX) {
         for (l1t::EtSumBxCollection::const_iterator EtSum = EtSumBxCollection->begin(itBX); EtSum != EtSumBxCollection->end(itBX); ++EtSum) {
-          denominator_etsum_firstbunch->Fill(EtSum->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 - (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           if (l1t::EtSum::EtSumType::kMissingEt == EtSum->getType()) {
             etsum_eta_phi_MET_firstbunch.at(index)->Fill(EtSum->phi());
+            for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+              denominator_etsum_firstbunch_MET->Fill(EtSum->phi());
+            }
           }
           else if (l1t::EtSum::EtSumType::kMissingEtHF == EtSum->getType()) {
             etsum_eta_phi_METHF_firstbunch.at(index)->Fill(EtSum->phi());
+            for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+              denominator_etsum_firstbunch_METHF->Fill(EtSum->phi());
+            }
           }
           else if(l1t::EtSum::EtSumType::kMissingHt == EtSum->getType()) {
             etsum_eta_phi_MHT_firstbunch.at(index)->Fill(EtSum->phi());
+            for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+              denominator_etsum_firstbunch_MHT->Fill(EtSum->phi());
+            }
           }
           else if(l1t::EtSum::EtSumType::kMissingHtHF == EtSum->getType()) {
             etsum_eta_phi_MHTHF_firstbunch.at(index)->Fill(EtSum->phi());
+            for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+              denominator_etsum_firstbunch_MHTHF->Fill(EtSum->phi());
+            }
           }
         }
       } 
@@ -523,19 +566,30 @@ void L1TObjectsTiming::analyze(const edm::Event& e, const edm::EventSetup& c) {
       }
       for (int itBX = 0; itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
         for (l1t::EtSumBxCollection::const_iterator EtSum = EtSumBxCollection->begin(itBX); EtSum != EtSumBxCollection->end(itBX); ++EtSum) {
-          denominator_etsum_lastbunch->Fill(EtSum->phi());
           int index = itBX - std::min(0, 1 - (int)bxrange_%2 + (int)std::floor(bxrange_/2.)); // the correlation from itBX to respective index of the vector
           if (l1t::EtSum::EtSumType::kMissingEt == EtSum->getType()) {
             etsum_eta_phi_MET_lastbunch.at(index)->Fill(EtSum->phi());
+            for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+              denominator_etsum_lastbunch_MET->Fill(EtSum->phi());
+            }
           }
           else if (l1t::EtSum::EtSumType::kMissingEtHF == EtSum->getType()) {
             etsum_eta_phi_METHF_lastbunch.at(index)->Fill(EtSum->phi());
+            for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+              denominator_etsum_lastbunch_METHF->Fill(EtSum->phi());
+            }
           }
           else if(l1t::EtSum::EtSumType::kMissingHt == EtSum->getType()) {
             etsum_eta_phi_MHT_lastbunch.at(index)->Fill(EtSum->phi());
+            for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+              denominator_etsum_lastbunch_MHT->Fill(EtSum->phi());
+            }
           }
           else if(l1t::EtSum::EtSumType::kMissingHtHF == EtSum->getType()) {
             etsum_eta_phi_MHTHF_lastbunch.at(index)->Fill(EtSum->phi());
+            for (int itBX = EtSumBxCollection->getFirstBX(); itBX <= EtSumBxCollection->getLastBX(); ++itBX) {
+              denominator_etsum_lastbunch_MHTHF->Fill(EtSum->phi());
+            }
           }
         }
       }

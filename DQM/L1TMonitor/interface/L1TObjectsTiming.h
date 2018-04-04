@@ -120,10 +120,23 @@ class L1TObjectsTiming : public DQMEDAnalyzer {
   MonitorElement* denominator_tau_isolated;
   MonitorElement* denominator_tau_firstbunch;
   MonitorElement* denominator_tau_lastbunch;
-  MonitorElement* denominator_etsum;
-  MonitorElement* denominator_etsum_isolated;
-  MonitorElement* denominator_etsum_firstbunch;
-  MonitorElement* denominator_etsum_lastbunch;
+  MonitorElement* denominator_etsum_MET;
+  MonitorElement* denominator_etsum_isolated_MET;
+  MonitorElement* denominator_etsum_firstbunch_MET;
+  MonitorElement* denominator_etsum_lastbunch_MET;
+  MonitorElement* denominator_etsum_METHF;
+  MonitorElement* denominator_etsum_isolated_METHF;
+  MonitorElement* denominator_etsum_firstbunch_METHF;
+  MonitorElement* denominator_etsum_lastbunch_METHF;
+  MonitorElement* denominator_etsum_MHT;
+  MonitorElement* denominator_etsum_isolated_MHT;
+  MonitorElement* denominator_etsum_firstbunch_MHT;
+  MonitorElement* denominator_etsum_lastbunch_MHT;
+  MonitorElement* denominator_etsum_MHTHF;
+  MonitorElement* denominator_etsum_isolated_MHTHF;
+  MonitorElement* denominator_etsum_firstbunch_MHTHF;
+  MonitorElement* denominator_etsum_lastbunch_MHTHF;
+
 
 };
 
