@@ -30,14 +30,16 @@ void MuonUnpacker::unpack(unsigned int fed, unsigned int amc, const MuonDataWord
   LogTrace("")  <<"OMTF Muon, BX="<<bx<<", hwPt="<<digi.hwPt()<<", link: "<<digi.link() << std::endl;
 
   // add digi to collection, keep fixed ascending link orderi (insert in proper place)
-  l1t::RegionalMuonCandBxCollection::const_iterator itb=producedMuonDigis->begin(bx);
-  l1t::RegionalMuonCandBxCollection::const_iterator ite=producedMuonDigis->end(bx);
-  unsigned int indeks = 0;
-  while (indeks < ite-itb) {
-    if (digi.link()<(itb+indeks)->link()) break;
-    indeks++;
+  if(std::abs(bx) <= 3) {
+    l1t::RegionalMuonCandBxCollection::const_iterator itb=producedMuonDigis->begin(bx);
+    l1t::RegionalMuonCandBxCollection::const_iterator ite=producedMuonDigis->end(bx);
+    unsigned int indeks = 0;
+    while (indeks < ite-itb) {
+      if (digi.link()<(itb+indeks)->link()) break;
+      indeks++;
+    }
+    producedMuonDigis->insert(bx,indeks,digi);
   }
-  producedMuonDigis->insert(bx,indeks,digi);
   
 }
  
