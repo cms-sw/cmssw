@@ -274,4 +274,8 @@
   <class name="std::vector<l1t::L1DataEmulResult>"/>
   <class name="edm::Wrapper<l1t::L1DataEmulResultBxCollection>"/>
 
+  <class name="edm::Ptr<l1t::Muon>" />
+  <class name="edm::Ptr<l1t::L1Candidate>" />
+  <class name="std::pair<edm::Ptr<l1t::L1Candidate>, float>" />
+  <class name="std::vector<std::pair<edm::Ptr<l1t::L1Candidate>, float>>" />
 </lcgdict>

@@ -222,5 +222,11 @@ namespace DataFormats_L1Trigger {
     L1TriggerError l1tErr;
     L1TriggerErrorCollection l1tErrColl;
     edm::Wrapper<L1TriggerErrorCollection> w_l1terr;
+
+    // these below are used by phase 2 only, at the moment
+    edm::Ptr<l1t::L1Candidate>  l1candptr;
+    edm::Ptr<l1t::Muon> l1muptr;
+    std::vector<std::pair<edm::Ptr<l1t::L1Candidate>, float>> l1candptrfloatpair;
+     
   };
 }
