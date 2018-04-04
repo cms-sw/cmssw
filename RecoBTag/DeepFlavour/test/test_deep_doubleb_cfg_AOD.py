@@ -5,6 +5,7 @@ process = cms.Process("PAT")
 
 ## MessageLogger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 ## Options and Output Report
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
@@ -112,7 +113,7 @@ process.out.outputCommands.append('keep *_pfDeepDoubleBTagInfos*_*_*')
 process.out.outputCommands.append('keep *_updatedPatJets*_*_*')
 
 print process.out.outputCommands
-process.out.fileName = 'test_deep_doubleb_AODSIM_ttbar.root'
+process.out.fileName = 'test_deep_doubleb_AODSIM.root'
 
 #                                         ##
 #   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
