@@ -4,7 +4,7 @@
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <iosfwd>
 
 
