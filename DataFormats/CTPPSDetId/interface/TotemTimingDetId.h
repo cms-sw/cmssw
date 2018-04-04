@@ -17,25 +17,25 @@
 /**
  *\brief Detector ID class for CTPPS Totem Timing detectors.
  * Bits [19:31] : Assigend in CTPPSDetId Calss
- * Bits [17:18] : 2 bits for UFSD plane 0,1,2,3 
+ * Bits [17:18] : 2 bits for UFSD plane 0,1,2,3
  * Bits [12:16] : 5 bits for UFSD channel numbers 1,2,3,..16
  * Bits [0:11]  : unspecified yet
- * 
+ *
  * This class is very similar to CTPPSDiamondDetId; however the detector is completely separated, therefore it is useful to keep them separate and independent.
  **/
 
 class TotemTimingDetId : public CTPPSDetId
-{  
+{
  public:
-  enum { ID_NOT_SET = 28 }; 
-  
+  enum { ID_NOT_SET = 28 };
+
   /// Construct from a raw id
   explicit TotemTimingDetId(uint32_t id);
 
   TotemTimingDetId(const CTPPSDetId &id) : CTPPSDetId(id)
   {
   }
-  
+
   /// Construct from hierarchy indeces.
   TotemTimingDetId(uint32_t Arm, uint32_t Station, uint32_t RomanPot=0, uint32_t Plane=0, uint32_t Channel=0);
 
@@ -47,9 +47,9 @@ class TotemTimingDetId : public CTPPSDetId
   {
     return (((raw >>DetId::kDetOffset) & 0xF) == DetId::VeryForward &&
 	    ((raw >> DetId::kSubdetOffset) & 0x7) == sdTimingFastSilicon);
-  }    
+  }
   //-------------------- getting and setting methods --------------------
-     
+
   uint32_t plane() const
   {
     return ((id_>>startPlaneBit) & maskPlane);
@@ -108,4 +108,4 @@ class TotemTimingDetId : public CTPPSDetId
 
 std::ostream& operator<<(std::ostream& os, const TotemTimingDetId& id);
 
-#endif 
+#endif
