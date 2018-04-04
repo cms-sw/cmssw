@@ -744,7 +744,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			if (did.subdet() == HcalOther) {
 				HcalOtherDetId hodid(digi.detid());
 				if (hodid.subdet() == HcalCalibration) {
-					if (did.depth() == 0) {
+					if (did.depth() == 10) {
 						for (int i=0; i<digi.samples(); i++) {
 							_meLEDMon->Fill(bx, digi[i].adc());
 						}
