@@ -32,9 +32,9 @@ public:
   std::map<int, std::vector<int>> getFEDerror25Rocs();
 
   // determine detector average nhits and RMS
-  void digiOccupancy();
-  double perRocDigiOcc(){ digiOccupancy(); return fDetAverage; }
-  double perRocDigiOccVar(){ digiOccupancy(); return fDetSigma; }
+  double perRocDigiOcc();
+  double perRocDigiOccVar();
+
   unsigned long int digiOccDET(){ return fDetHits; }
 
   // number of modules in detector
@@ -59,7 +59,7 @@ public:
   void setNevents(unsigned long int N){ fNevents = N; }
   unsigned long int getNevents(){ return fNevents; }
 
-  void resetDetectorStatus() { fModules.clear(); fDetAverage=0; fDetSigma=0; fDetHits=0; fNevents=0;
+  void resetDetectorStatus() { fModules.clear(); fDetHits=0; fNevents=0;
                                fRun0 = 99999999; fRun1 = 0; fLS0 = 99999999; fLS1 = 0; 
                              }
 
@@ -75,15 +75,11 @@ public:
 
   // first and last lumisection seen in this instance
   int fLS0, fLS1;
-
-  // first and last run seen in this instance (likely to be the same number!)
+  // first and last run seen in this instance (should be the same number!)
   int fRun0, fRun1;
 
   // number of events processed
   unsigned long int fNevents;
-
-  // average (per module) number of hits over entire detector
-  double fDetAverage, fDetSigma;
 
   // total hits in detector
   unsigned long int fDetHits;
