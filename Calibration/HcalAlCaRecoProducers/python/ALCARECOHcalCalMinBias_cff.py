@@ -35,13 +35,14 @@ hbherecoMBNZS = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbhep
     setLegacyFlagsQIE11 = cms.bool(False),
 )
 
-hbherecoMBNZS.algorithm.firstSample = 4
-hbherecoMBNZS.algorithm.samplesToAdd = 4
+hbherecoMBNZS.algorithm.firstSample = 3
+hbherecoMBNZS.algorithm.firstSampleShift = 0
+hbherecoMBNZS.algorithm.samplesToAdd = 3
 
 import RecoLocalCalo.HcalRecProducers.hosimplereco_cfi
 horecoMBNZS = RecoLocalCalo.HcalRecProducers.hosimplereco_cfi.hosimplereco.clone()
 
-horecoMBNZS.firstSample = 4
+horecoMBNZS.firstSample = 3
 horecoMBNZS.samplesToAdd = 4
 horecoMBNZS.digiLabel = 'hcalDigiAlCaMB'
 horecoMBNZS.tsFromDB = cms.bool(False)
