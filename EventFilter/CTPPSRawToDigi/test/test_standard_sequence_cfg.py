@@ -12,19 +12,15 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # raw data source
-process.source = cms.Source("NewEventStreamFileReader",
+process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
 #    '/store/express/Run2016H/ExpressPhysics/FEVT/Express-v2/000/283/877/00000/4EE44B0E-2499-E611-A155-02163E011938.root'
-    'file:/eos/cms/store/group/dpg_ctpps/comm_ctpps/TotemTiming/Minidaq/519/run312519_ls0002_streamA_StorageManager.dat'
+    '/store/data/Run2016H/ZeroBias/RAW/v1/000/283/820/00000/462D2A5B-B19A-E611-B100-02163E01382E.root'
   )
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
-)
-
-process.verbosity = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
 
 # raw-to-digi conversion
@@ -40,9 +36,8 @@ process.output = cms.OutputModule("PoolOutputModule",
   fileName = cms.untracked.string("file:./reco_digi.root"),
   outputCommands = cms.untracked.vstring(
     'drop *',
-    'keep *_*totemTimingRawToDigi_*_*',
+    'keep *_*RawToDigi_*_*',
   )
 )
 
 process.outpath = cms.EndPath(process.output)
-
