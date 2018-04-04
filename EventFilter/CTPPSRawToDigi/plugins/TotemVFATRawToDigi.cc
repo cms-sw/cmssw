@@ -81,9 +81,9 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
   // validate chosen subSystem
   if (subSystemName == "TrackingStrip")
     subSystem = ssTrackingStrip;
-  if (subSystemName == "TimingDiamond")
+  else if (subSystemName == "TimingDiamond")
     subSystem = ssTimingDiamond;
-  if (subSystemName == "TotemTiming")
+  else if (subSystemName == "TotemTiming")
     subSystem = ssTotemTiming;
 
   if (subSystem == ssUndefined)
@@ -103,10 +103,8 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
     produces< DetSetVector<TotemTimingDigi> >(subSystemName);
 
   // set default IDs
-  if (fedIds.empty())
-  {
-    if (subSystem == ssTrackingStrip)
-    {
+  if (fedIds.empty()) {
+    if (subSystem == ssTrackingStrip) {
       for (int id = FEDNumbering::MINTotemRPHorizontalFEDID; id <= FEDNumbering::MAXTotemRPHorizontalFEDID; ++id)
         fedIds.push_back(id);
 
@@ -114,14 +112,12 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf):
         fedIds.push_back(id);
     }
 
-    if (subSystem == ssTimingDiamond)
-    {
+    else if (subSystem == ssTimingDiamond) {
       for (int id = FEDNumbering::MINCTPPSDiamondFEDID; id <= FEDNumbering::MAXCTPPSDiamondFEDID; ++id)
         fedIds.push_back(id);
     }
     
-    if (subSystem == ssTotemTiming)
-    {
+    else if (subSystem == ssTotemTiming) {
       for (int id = FEDNumbering::MINTotemRPTimingVerticalFEDID; id <= FEDNumbering::MAXTotemRPTimingVerticalFEDID; ++id)
         fedIds.push_back(id);
     }
@@ -144,10 +140,10 @@ void TotemVFATRawToDigi::produce(edm::Event& event, const edm::EventSetup &es)
   if (subSystem == ssTrackingStrip)
     run< DetSetVector<TotemRPDigi> >(event, es);
 
-  if (subSystem == ssTimingDiamond)
+  else if (subSystem == ssTimingDiamond)
     run< DetSetVector<CTPPSDiamondDigi> >(event, es);
   
-  if (subSystem == ssTotemTiming)
+  else if (subSystem == ssTotemTiming)
     run< DetSetVector<TotemTimingDigi> >(event, es);
 }
 
