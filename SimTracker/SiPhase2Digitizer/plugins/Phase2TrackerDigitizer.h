@@ -104,7 +104,6 @@ namespace cms
     edm::ESHandle<TrackerGeometry> pDD_;
     edm::ESHandle<MagneticField> pSetup_;
     std::map<unsigned int, const Phase2TrackerGeomDetUnit*> detectorUnits_;
-    CLHEP::HepRandomEngine* rndEngine_;
     edm::ESHandle<TrackerTopology> tTopoHand;
     edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
     const edm::ParameterSet& iconfig_;
