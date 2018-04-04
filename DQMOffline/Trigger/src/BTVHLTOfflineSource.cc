@@ -77,33 +77,31 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
 
 BTVHLTOfflineSource::~BTVHLTOfflineSource() = default;
 
+
 void BTVHLTOfflineSource::dqmBeginRun(const edm::Run& run, const edm::EventSetup& c)
 {
-    bool changed(true);
-    if (!hltConfig_.init(run, c, processname_, changed)) {
-    LogDebug("BTVHLTOfflineSource") << "HLTConfigProvider failed to initialize.";
-    }
+  bool changed = true;
+  if (!hltConfig_.init(run, c, processname_, changed)) {
+  LogDebug("BTVHLTOfflineSource") << "HLTConfigProvider failed to initialize.";
+  }
 
-  const unsigned int numberOfPaths(hltConfig_.size());
-  for(unsigned int i=0; i!=numberOfPaths; ++i){
+  for (unsigned int i=0; i!=hltConfig_.size(); ++i) {
     pathname_      = hltConfig_.triggerName(i);
     filtername_    = "dummy";
     unsigned int usedPrescale = 1;
     unsigned int objectType = 0;
     std::string triggerType = "";
-    bool trigSelected = false;
 
-    for (auto & custompathnamepair : custompathnamepairs_){
-       if(pathname_.find(custompathnamepair.first)!=std::string::npos) { trigSelected = true; triggerType = custompathnamepair.second;}
+    for (auto & custompathnamepair : custompathnamepairs_) {
+      if(pathname_.find(custompathnamepair.first) != std::string::npos) {
+        triggerType = custompathnamepair.second;
+        hltPathsAll_.push_back(
+          PathInfo(usedPrescale, pathname_, "dummy", processname_, objectType, triggerType));
       }
-
-    if (!trigSelected) continue;
-
-    hltPathsAll_.push_back(PathInfo(usedPrescale, pathname_, "dummy", processname_, objectType, triggerType));
-   }
-
-
+    }
+  }
 }
+
 
 void
 BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -150,7 +148,10 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(!triggerResults_.isValid()) return;
 
   for(auto & v : hltPathsAll_) {
-    float DR  = 9999.;
+    unsigned index = triggerNames_.triggerIndex(v.getPath());
+    if (!(index < triggerNames_.size())) {
+      continue;
+    }
 
     // PF and Calo btagging
     if (   (v.getTriggerType() == "PF"   &&   pfTags.isValid())
@@ -166,7 +167,7 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       v.getMEhisto_Pt()->Fill(iter->first->pt());
       v.getMEhisto_Eta()->Fill(iter->first->eta());
 
-      DR  = 9999.;
+      float DR  = 9999.;
       if(offlineJetTagHandler.isValid()){
           for (auto const & iterO : *offlineJetTagHandler){
             float Discr_offline = iterO.second;
@@ -197,10 +198,11 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (VertexHandler.isValid()) {
         v.getMEhisto_fastPVz()->Fill(VertexHandler->begin()->z());
 	      if (offlineVertexHandler.isValid()) {
-          v.getMEhisto_PVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
+          v.getMEhisto_fastPVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
         }
       }
     }
+
 
     // additional plots from tag info collections
     /////////////////////////////////////////////

@@ -127,9 +127,9 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
        // MonitorElement* const n_pixel_hits, MonitorElement* const n_total_hits
     )
     { Discr_ = Discr; Pt_ = Pt; Eta_ = Eta;
-      Discr_HLTvsRECO_ = Discr_HLTvsRECO; Discr_HLTvsRECO_ = Discr_HLTMinusRECO;
+      Discr_HLTvsRECO_ = Discr_HLTvsRECO; Discr_HLTMinusRECO_ = Discr_HLTMinusRECO;
       Discr_turnon_loose_ = Discr_turnon_loose; Discr_turnon_medium_ = Discr_turnon_medium; Discr_turnon_tight_ = Discr_turnon_tight;
-      PVz_ = PVz; fastPVz_ = fastPVz; fastPVz_HLTMinusRECO_ = fastPVz_HLTMinusRECO;
+      PVz_ = PVz; fastPVz_ = fastPVz; PVz_HLTMinusRECO_ = PVz_HLTMinusRECO; fastPVz_HLTMinusRECO_ = fastPVz_HLTMinusRECO;
       n_vtx_ = n_vtx; vtx_mass_ = vtx_mass; n_vtx_trks_ = n_vtx_trks;
       n_sel_tracks_ = n_sel_tracks; h_3d_ip_distance_ = h_3d_ip_distance;
       h_3d_ip_error_ = h_3d_ip_error; h_3d_ip_sig_ = h_3d_ip_sig;
@@ -158,9 +158,9 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
       MonitorElement * getMEhisto_Eta()                   { return Eta_;}
       MonitorElement * getMEhisto_Discr_HLTvsRECO()       { return Discr_HLTvsRECO_;}
       MonitorElement * getMEhisto_Discr_HLTMinusRECO()    { return Discr_HLTMinusRECO_;}
-      MonitorElement * getMEhisto_Discr_turnon_loose()      { return Discr_turnon_loose_;}
+      MonitorElement * getMEhisto_Discr_turnon_loose()    { return Discr_turnon_loose_;}
       MonitorElement * getMEhisto_Discr_turnon_medium()   { return Discr_turnon_medium_;}
-      MonitorElement * getMEhisto_Discr_turnon_tight()     { return Discr_turnon_tight_;}
+      MonitorElement * getMEhisto_Discr_turnon_tight()    { return Discr_turnon_tight_;}
       MonitorElement * getMEhisto_PVz()                   { return PVz_;}
       MonitorElement * getMEhisto_fastPVz()               { return fastPVz_;}
       MonitorElement * getMEhisto_PVz_HLTMinusRECO()      { return PVz_HLTMinusRECO_;}
