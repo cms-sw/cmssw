@@ -53,6 +53,7 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
  static constexpr int NplaneMAX=6;	// per RPot
  static constexpr int NROCsMAX = 6;	// per plane
  static constexpr int RPn_first = 3, RPn_last = 4;
+ static constexpr int ADCMax = 256;
  const int hitMultMAX = 300; // tuned
  const int ClusMultMAX = 10; // tuned
 
@@ -86,7 +87,7 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
   MonitorElement    *h2xyHits[RPotsTotalNumber][NplaneMAX];
   MonitorElement    *hp2xyADC[RPotsTotalNumber][NplaneMAX];
   MonitorElement *h2xyROCHits[RPotsTotalNumber*NplaneMAX][NROCsMAX];
-  MonitorElement  *h2xyROCadc[RPotsTotalNumber*NplaneMAX][NROCsMAX];
+  MonitorElement  *hROCadc[RPotsTotalNumber*NplaneMAX][NROCsMAX];
   MonitorElement *hRPotActivBXall[RPotsTotalNumber];
   int		  HitsMultROC[RPotsTotalNumber*NplaneMAX][NROCsMAX];
   int           HitsMultPlane[RPotsTotalNumber][NplaneMAX];
@@ -357,11 +358,8 @@ edm::EventSetup const &)
            h2xyROCHits[index][roc]=ibooker.book2DD("hits",st2+";pix col;pix row",
 		ROCSizeInY,0,ROCSizeInY, ROCSizeInX,0,ROCSizeInX);
            h2xyROCHits[index][roc]->getTH2D()->SetOption("colz");
-
-           string st = "adc average value";
-           h2xyROCadc[index][roc]=ibooker.bookProfile2D(st,st2+";pix col;pix row",
-		ROCSizeInY,0,ROCSizeInY,ROCSizeInX,0,ROCSizeInX, 0.,512.,"");
-           h2xyROCadc[index][roc]->getTProfile2D()->SetOption("colz");
+           hROCadc[index][roc]=ibooker.book1D("adc value",st2+";ADC;number of ROCs",
+		ADCMax, 0.,float(ADCMax));
          }
        } // end of for(int p=0; p<NplaneMAX;..
 
@@ -459,7 +457,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
             if(!thePixIndices.transformToROC(col,row, trocId, colROC, rowROC)) {
               if(trocId>=0 && trocId<NROCsMAX) {
                 h2xyROCHits[rocHistIndex][trocId]->Fill(colROC,rowROC);
-                h2xyROCadc[rocHistIndex][trocId]->Fill(colROC,rowROC,adc);
+                hROCadc[rocHistIndex][trocId]->Fill(adc);
                 ++HitsMultROC[rocHistIndex][trocId];
               }
             }
