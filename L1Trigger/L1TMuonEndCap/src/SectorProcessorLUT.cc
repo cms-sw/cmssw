@@ -26,7 +26,7 @@ void SectorProcessorLUT::read(unsigned pc_lut_version) {
     coord_lut_dir = "ph_lut_v1";  // All year 2016
   else if (pc_lut_version == 1)
     coord_lut_dir = "ph_lut_v2";  // Beginning of 2017
-  else 
+  else
     throw cms::Exception("SectorProcessorLUT")
       << "Trying to use EMTF pc_lut_version = " << pc_lut_version << ", does not exist!";
   // Will catch user trying to run with Global Tag settings on 2016 data, rather than fakeEmtfParams. - AWB 08.06.17

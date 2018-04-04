@@ -8,7 +8,7 @@
 //     Tibshirani, and Friedman.                                        //
 //    *Greedy Function Approximation: A Gradient Boosting Machine.      //
 //     Friedman. The Annals of Statistics, Vol. 29, No. 5. Oct 2001.    //
-//    *Inductive Learning of Tree-based Regression Models. Luis Torgo.  //    
+//    *Inductive Learning of Tree-based Regression Models. Luis Torgo.  //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +80,7 @@ Forest::Forest(const Forest &forest)
 Forest& Forest::operator=(const Forest &forest)
 {
     for(unsigned int i=0; i < trees.size(); i++)
-    { 
+    {
         if(trees[i]) delete trees[i];
     }
     trees.resize(0);
@@ -104,14 +104,14 @@ void Forest::setTrainingEvents(std::vector<Event*>& trainingEvents)
     Event* e = trainingEvents[0];
     // Unused variable
     // unsigned int numrows = e->data.size();
-   
-    // Reset the events matrix. 
+
+    // Reset the events matrix.
     events = std::vector< std::vector<Event*> >();
 
-    for(unsigned int i=0; i<e->data.size(); i++) 
-    {    
+    for(unsigned int i=0; i<e->data.size(); i++)
+    {
         events.push_back(trainingEvents);
-    }    
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -127,8 +127,8 @@ std::vector<Event*> Forest::getTrainingEvents(){ return events[0]; }
 
 // return the ith tree
 Tree* Forest::getTree(unsigned int i)
-{ 
-    if(/*i>=0 && */i<trees.size()) return trees[i]; 
+{
+    if(/*i>=0 && */i<trees.size()) return trees[i];
     else
     {
       //std::cout << i << "is an invalid input for getTree. Out of range." << std::endl;
@@ -169,7 +169,7 @@ void Forest::listEvents(std::vector< std::vector<Event*> >& e)
         for(unsigned int j=0; j<e[i].size(); j++)
         {
             e[i][j]->outputEvent();
-        }   
+        }
        std::cout << std::endl;
     }
 }
@@ -221,7 +221,7 @@ void Forest::rankVariables(std::vector<int>& rank)
 // This function ranks the determining variables according to their importance
 // in determining the fit. Use a low learning rate for better results.
 // Separates completely useless variables from useful ones well,
-// but isn't the best at separating variables of similar importance. 
+// but isn't the best at separating variables of similar importance.
 // This is calculated using the error reduction on the training set. The function
 // should be changed to use the testing set, but this works fine for now.
 // I will try to change this in the future.
@@ -234,18 +234,18 @@ void Forest::rankVariables(std::vector<int>& rank)
 
     for(unsigned int j=0; j < trees.size(); j++)
     {
-        trees[j]->rankVariables(v); 
+        trees[j]->rankVariables(v);
     }
 
     double max = *std::max_element(v.begin(), v.end());
-   
+
     // Scale the importance. Maximum importance = 100.
     for(unsigned int i=0; i < v.size(); i++)
     {
         v[i] = 100*v[i]/max;
     }
 
-    // Change the storage format so that we can keep the index 
+    // Change the storage format so that we can keep the index
     // and the value associated after sorting.
     std::vector< std::pair<double, int> > w(events.size());
 
@@ -261,9 +261,9 @@ void Forest::rankVariables(std::vector<int>& rank)
     for(int i=(v.size()-1); i>=0; i--)
     {
         rank.push_back(w[i].second);
-       // std::cout << "x" << w[i].second  << ": " << w[i].first  << std::endl; 
+       // std::cout << "x" << w[i].second  << ": " << w[i].first  << std::endl;
     }
-    
+
     // std::cout << std::endl << "Done." << std::endl << std::endl;
 }
 
@@ -287,7 +287,7 @@ void Forest::saveSplitValues(const char* savefilename)
     // Gather the split values from each tree in the forest.
     for(unsigned int j=0; j<trees.size(); j++)
     {
-        trees[j]->getSplitValues(v); 
+        trees[j]->getSplitValues(v);
     }
 
     // Sort the lists of split values and remove the duplicates.
@@ -307,7 +307,7 @@ void Forest::saveSplitValues(const char* savefilename)
         std::stringstream ss;
         ss.precision(14);
         ss << std::scientific << v[i][j];
-        splitValues+=","; 
+        splitValues+=",";
         splitValues+=ss.str().c_str();
       }
 
@@ -330,7 +330,7 @@ void Forest::updateRegTargets(Tree* tree, double learningRate, LossFunction* l)
 
     // Loop through the terminal nodes.
     for(std::list<Node*>::iterator it=tn.begin(); it!=tn.end(); it++)
-    {   
+    {
         // Get the events in the current terminal region.
         std::vector<Event*>& v = (*it)->getEvents()[0];
 
@@ -370,21 +370,21 @@ void Forest::updateEvents(Tree* tree)
 
     // Loop through the terminal nodes.
     for(std::list<Node*>::iterator it=tn.begin(); it!=tn.end(); it++)
-    {   
+    {
         std::vector<Event*>& v = (*it)->getEvents()[0];
         double fit = (*it)->getFitValue();
 
         // Loop through each event in the terminal region and update the
         // the global event it maps to.
         for(unsigned int j=0; j<v.size(); j++)
-        {   
+        {
             Event* e = v[j];
             e->predictedValue += fit;
-        }   
+        }
 
         // Release memory.
         (*it)->getEvents() = std::vector< std::vector<Event*> >();
-    }   
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -414,14 +414,14 @@ void Forest::doRegression(int nodeLimit, int treeLimit, double learningRate, Los
     {
        // std::cout << "++Building Tree " << i << "... " << std::endl;
         Tree* tree = new Tree(events);
-        trees.push_back(tree);    
+        trees.push_back(tree);
         tree->buildTree(nodeLimit);
 
         // Update the targets for the next tree to fit.
         updateRegTargets(tree, learningRate, l);
 
         // Save trees to xml in some directory.
-        std::ostringstream ss; 
+        std::ostringstream ss;
         ss << savetreesdirectory << "/" << i << ".xml";
         std::string s = ss.str();
         const char* c = s.c_str();
@@ -450,7 +450,7 @@ void Forest::predictEvents(std::vector<Event*>& eventsp, unsigned int numtrees)
     }
 
     // i iterates through the trees in the forest. Each tree corrects the last prediction.
-    for(unsigned int i=0; i < numtrees; i++) 
+    for(unsigned int i=0; i < numtrees; i++)
     {
         //std::cout << "++Tree " << i << "..." << std::endl;
         appendCorrection(eventsp, i);
@@ -466,7 +466,7 @@ void Forest::appendCorrection(std::vector<Event*>& eventsp, int treenum)
 // Update the prediction by appending the next correction.
 
     Tree* tree = trees[treenum];
-    tree->filterEvents(eventsp); 
+    tree->filterEvents(eventsp);
 
     // Update the events with their new prediction.
     updateEvents(tree);
@@ -488,10 +488,10 @@ void Forest::predictEvent(Event* e, unsigned int numtrees)
     }
 
     // just like in line #2470 of https://root.cern.ch/doc/master/MethodBDT_8cxx_source.html for gradient boosting
-    e->predictedValue = trees[0]->getBoostWeight(); 
+    e->predictedValue = trees[0]->getBoostWeight();
 
     // i iterates through the trees in the forest. Each tree corrects the last prediction.
-    for(unsigned int i=0; i < numtrees; i++) 
+    for(unsigned int i=0; i < numtrees; i++)
     {
         //std::cout << "++Tree " << i << "..." << std::endl;
         appendCorrection(e, i);
@@ -507,7 +507,7 @@ void Forest::appendCorrection(Event* e, int treenum)
 // Update the prediction by appending the next correction.
 
     Tree* tree = trees[treenum];
-    Node* terminalNode = tree->filterEvent(e); 
+    Node* terminalNode = tree->filterEvent(e);
 
     // Update the event with its new prediction.
     double fit = terminalNode->getFitValue();
@@ -526,15 +526,15 @@ void Forest::loadForestFromXML(const char* directory, unsigned int numTrees)
 
     // Load the Forest.
     // std::cout << std::endl << "Loading Forest from XML ... " << std::endl;
-    for(unsigned int i=0; i < numTrees; i++) 
-    {   
-        trees[i] = new Tree(); 
+    for(unsigned int i=0; i < numTrees; i++)
+    {
+        trees[i] = new Tree();
 
         std::stringstream ss;
         ss << directory << "/" << i << ".xml";
 
         trees[i]->loadFromXML(edm::FileInPath(ss.str().c_str()).fullPath().c_str());
-    }   
+    }
 
     //std::cout << "Done." << std::endl << std::endl;
 }
@@ -579,14 +579,14 @@ void Forest::prepareRandomSubsample(double fraction)
     shuffle(events[0].begin(), events[0].end(), subSampleSize);
 
     // Get a copy of the random subset we just made.
-    std::vector<Event*> v(events[0].begin(), events[0].begin()+subSampleSize); 
+    std::vector<Event*> v(events[0].begin(), events[0].begin()+subSampleSize);
 
     // Initialize and sort the subSample collection.
     for(unsigned int i=0; i<subSample.size(); i++)
     {
         subSample[i] = v;
     }
-    
+
     sortEventVectors(subSample);
 }
 
@@ -597,7 +597,7 @@ void Forest::prepareRandomSubsample(double fraction)
 void Forest::doStochasticRegression(int nodeLimit, int treeLimit, double learningRate, double fraction, LossFunction* l)
 {
 // If the fraction of events to use is one then this algorithm is slower than doRegression due to the fact
-// that we have to sort the events every time we extract a subsample. Without random sampling we simply 
+// that we have to sort the events every time we extract a subsample. Without random sampling we simply
 // use all of the events and keep them sorted.
 
 // Anyways, this algorithm uses a portion of the events to train each tree. All of the events are updated
@@ -609,7 +609,7 @@ void Forest::doStochasticRegression(int nodeLimit, int treeLimit, double learnin
 
     // See how long the regression takes.
     TStopwatch timer;
-    timer.Start(kTRUE); 
+    timer.Start(kTRUE);
 
     // Output the current settings.
    // std::cout << std::endl << "Running stochastic regression ... " << std::endl;
@@ -617,13 +617,13 @@ void Forest::doStochasticRegression(int nodeLimit, int treeLimit, double learnin
     //std::cout << "Learning Rate: " << learningRate << std::endl;
     //std::cout << "Bagging Fraction: " << fraction << std::endl;
     //std::cout << std::endl;
-    
+
 
     for(unsigned int i=0; i< (unsigned) treeLimit; i++)
     {
         // Build the tree using a random subsample.
         prepareRandomSubsample(fraction);
-        trees[i] = new Tree(subSample);    
+        trees[i] = new Tree(subSample);
         trees[i]->buildTree(nodeLimit);
 
         // Fit all of the events based upon the tree we built using
@@ -634,7 +634,7 @@ void Forest::doStochasticRegression(int nodeLimit, int treeLimit, double learnin
         updateRegTargets(trees[i], learningRate, l);
 
         // Save trees to xml in some directory.
-        std::ostringstream ss; 
+        std::ostringstream ss;
         ss << "trees/" << i << ".xml";
         std::string s = ss.str();
         const char* c = s.c_str();

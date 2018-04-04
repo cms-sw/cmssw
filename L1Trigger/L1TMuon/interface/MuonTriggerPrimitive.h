@@ -70,8 +70,8 @@ namespace L1TMuon {
 
     struct CSCData {
       CSCData() : trknmb(0), valid(0), quality(0), keywire(0), strip(0),
-		  pattern(0), bend(0), bx(0), mpclink(0), bx0(0), syncErr(0),
-		  cscID(0) {}
+                  pattern(0), bend(0), bx(0), mpclink(0), bx0(0), syncErr(0),
+                  cscID(0) {}
       uint16_t trknmb;
       uint16_t valid;
       uint16_t quality;
@@ -88,9 +88,9 @@ namespace L1TMuon {
 
     struct DTData {
       DTData() : bx(0), wheel(0), sector(0), station(0), radialAngle(0),
-		 bendingAngle(0), qualityCode(0), Ts2TagCode(0), BxCntCode(0),
-		 theta_bti_group(0), segment_number(0), theta_code(0),
-		 theta_quality(0) {}
+                 bendingAngle(0), qualityCode(0), Ts2TagCode(0), BxCntCode(0),
+                 theta_bti_group(0), segment_number(0), theta_code(0),
+                 theta_quality(0) {}
       // from ChambPhDigi (corresponds to a TRACO)
       // this gives us directly the phi
       int bx; // relative? bx number
@@ -126,18 +126,18 @@ namespace L1TMuon {
 
     //DT
     TriggerPrimitive(const DTChamberId&,
-		     const L1MuDTChambPhDigi&,
-		     const int segment_number);
+                     const L1MuDTChambPhDigi&,
+                     const int segment_number);
     TriggerPrimitive(const DTChamberId&,
-		     const L1MuDTChambThDigi&,
-		     const int segment_number);
+                     const L1MuDTChambThDigi&,
+                     const int segment_number);
     TriggerPrimitive(const DTChamberId&,
-		     const L1MuDTChambPhDigi&,
-		     const L1MuDTChambThDigi&,
-		     const int theta_bti_group);
+                     const L1MuDTChambPhDigi&,
+                     const L1MuDTChambThDigi&,
+                     const int theta_bti_group);
     //CSC
     TriggerPrimitive(const CSCDetId&,
-		     const CSCCorrelatedLCTDigi&);
+                     const CSCCorrelatedLCTDigi&);
     //RPC
     TriggerPrimitive(const RPCDetId& detid,
                      const unsigned strip,
