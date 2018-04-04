@@ -40,29 +40,32 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
 {
   LogDebug("BTVHLTOfflineSource") << "constructor....";
 
-  dirname_                = iConfig.getUntrackedParameter("dirname",std::string("HLT/BTV/"));
-  processname_            = iConfig.getParameter<std::string>("processname");
-  verbose_                = iConfig.getUntrackedParameter< bool >("verbose", false);
-  triggerSummaryLabel_    = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
-  triggerResultsLabel_    = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
-  triggerSummaryToken     = consumes <trigger::TriggerEvent> (triggerSummaryLabel_);
-  triggerResultsToken     = consumes <edm::TriggerResults>   (triggerResultsLabel_);
-  triggerSummaryFUToken   = consumes <trigger::TriggerEvent> (edm::InputTag(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(),std::string("FU")));
-  triggerResultsFUToken   = consumes <edm::TriggerResults>   (edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(),std::string("FU")));
+  dirname_                  = iConfig.getUntrackedParameter("dirname",std::string("HLT/BTV/"));
+  processname_              = iConfig.getParameter<std::string>("processname");
+  verbose_                  = iConfig.getUntrackedParameter< bool >("verbose", false);
+  triggerSummaryLabel_      = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
+  triggerResultsLabel_      = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
+  turnon_threshold_low_     = iConfig.getParameter<double>("turnon_threshold_low");
+  turnon_threshold_medium_  = iConfig.getParameter<double>("turnon_threshold_medium");
+  turnon_threshold_high_    = iConfig.getParameter<double>("turnon_threshold_high");
+  triggerSummaryToken       = consumes <trigger::TriggerEvent> (triggerSummaryLabel_);
+  triggerResultsToken       = consumes <edm::TriggerResults>   (triggerResultsLabel_);
+  triggerSummaryFUToken     = consumes <trigger::TriggerEvent> (edm::InputTag(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(),std::string("FU")));
+  triggerResultsFUToken     = consumes <edm::TriggerResults>   (edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(),std::string("FU")));
   shallowTagInfosTokenCalo_ = consumes<vector<reco::ShallowTagInfo> > (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfosCalo"));
   shallowTagInfosTokenPf_   = consumes<vector<reco::ShallowTagInfo> > (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfos"));
-  csvCaloTagInfosToken_   = consumes<vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > > (
-                                edm::InputTag("hltInclusiveSecondaryVertexFinderTagInfos"));
-  csvPfTagInfosToken_     = consumes<vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > > (
-                                edm::InputTag("hltSecondaryVertexTagInfosPF"));
-  csvCaloTagsToken_       = consumes<reco::JetTagCollection> (edm::InputTag("hltCombinedSecondaryVertexBJetTagsCalo"));
-  csvPfTagsToken_         = consumes<reco::JetTagCollection> (edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF"));
-  offlineCSVTokenPF_      = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineCSVLabelPF"));
-  offlineCSVTokenCalo_    = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineCSVLabelCalo"));
-  hltFastPVToken_         = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("hltFastPVLabel"));
-  hltPFPVToken_           = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("hltPFPVLabel"));
-  hltCaloPVToken_         = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("hltCaloPVLabel"));
-  offlinePVToken_         = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("offlinePVLabel"));
+  // caloTagInfosToken_       = consumes<vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > > (
+  //                               edm::InputTag("hltCombinedSecondaryVertexBJetTagsCalo"));
+  // pfTagInfosToken_         = consumes<vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > > (
+  //                               edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF"));
+  caloTagsToken_            = consumes<reco::JetTagCollection> (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsCalo", "probb"));
+  pfTagsToken_              = consumes<reco::JetTagCollection> (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsPF", "probb"));
+  offlineDiscrTokenPF_      = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineDiscrLabelPF"));
+  offlineDiscrTokenCalo_    = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineDiscrLabelCalo"));
+  hltFastPVToken_           = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("hltFastPVLabel"));
+  hltPFPVToken_             = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("hltPFPVLabel"));
+  hltCaloPVToken_           = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("hltCaloPVLabel"));
+  offlinePVToken_           = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("offlinePVLabel"));
 
   std::vector<edm::ParameterSet> paths =  iConfig.getParameter<std::vector<edm::ParameterSet> >("pathPairs");
   for(auto & path : paths) {
@@ -127,16 +130,16 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
 
-  iEvent.getByToken(csvCaloTagsToken_, csvCaloTags);
-  iEvent.getByToken(csvPfTagsToken_, csvPfTags);
+  iEvent.getByToken(caloTagsToken_, caloTags);
+  iEvent.getByToken(pfTagsToken_, pfTags);
 
   Handle<reco::VertexCollection> VertexHandler;
 
   Handle<reco::JetTagCollection> offlineJetTagHandlerPF;
-  iEvent.getByToken(offlineCSVTokenPF_, offlineJetTagHandlerPF);
+  iEvent.getByToken(offlineDiscrTokenPF_, offlineJetTagHandlerPF);
 
   Handle<reco::JetTagCollection> offlineJetTagHandlerCalo;
-  iEvent.getByToken(offlineCSVTokenCalo_, offlineJetTagHandlerCalo);
+  iEvent.getByToken(offlineDiscrTokenCalo_, offlineJetTagHandlerCalo);
 
   Handle<reco::VertexCollection> offlineVertexHandler;
   iEvent.getByToken(offlinePVToken_, offlineVertexHandler);
@@ -152,25 +155,25 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
      float DR  = 9999.;
 
     // PF btagging
-    if (csvPfTags.isValid() && v.getTriggerType() == "PF")
+    if (pfTags.isValid() && v.getTriggerType() == "PF")
      {
-      auto iter = csvPfTags->begin();
+      auto iter = pfTags->begin();
 
-      float CSV_online = iter->second;
-      if (CSV_online<0) CSV_online = -0.05;
+      float Discr_online = iter->second;
+      if (Discr_online<0) Discr_online = -0.05;
 
-      v.getMEhisto_CSV()->Fill(CSV_online);
+      v.getMEhisto_Discr()->Fill(Discr_online);
       v.getMEhisto_Pt()->Fill(iter->first->pt());
       v.getMEhisto_Eta()->Fill(iter->first->eta());
 
       DR  = 9999.;
       if(offlineJetTagHandlerPF.isValid()){
           for (auto const & iterO : *offlineJetTagHandlerPF){
-            float CSV_offline = iterO.second;
-            if (CSV_offline<0) CSV_offline = -0.05;
+            float Discr_offline = iterO.second;
+            if (Discr_offline<0) Discr_offline = -0.05;
             DR = reco::deltaR(iterO.first->eta(),iterO.first->phi(),iter->first->eta(),iter->first->phi());
             if (DR<0.3) {
-               v.getMEhisto_CSV_RECOvsHLT()->Fill(CSV_offline,CSV_online); continue;
+               v.getMEhisto_Discr_HLTvsRECO()->Fill(Discr_online,Discr_offline); continue;
                }
           }
       }
@@ -185,15 +188,15 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 
      // Calo b-tagging
-     if (csvCaloTags.isValid() && v.getTriggerType() == "Calo" && !csvCaloTags->empty())
+     if (caloTags.isValid() && v.getTriggerType() == "Calo" && !caloTags->empty())
      {
 
-      auto iter = csvCaloTags->begin();
+      auto iter = caloTags->begin();
 
-      float CSV_online = iter->second;
-      if (CSV_online<0) CSV_online = -0.05;
+      float Discr_online = iter->second;
+      if (Discr_online<0) Discr_online = -0.05;
 
-      v.getMEhisto_CSV()->Fill(CSV_online);
+      v.getMEhisto_Discr()->Fill(Discr_online);
       v.getMEhisto_Pt()->Fill(iter->first->pt());
       v.getMEhisto_Eta()->Fill(iter->first->eta());
 
@@ -201,12 +204,12 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if(offlineJetTagHandlerCalo.isValid()){
           for (auto const & iterO : *offlineJetTagHandlerCalo)
           {
-            float CSV_offline = iterO.second;
-            if (CSV_offline<0) CSV_offline = -0.05;
+            float Discr_offline = iterO.second;
+            if (Discr_offline<0) Discr_offline = -0.05;
             DR = reco::deltaR(iterO.first->eta(),iterO.first->phi(),iter->first->eta(),iter->first->phi());
             if (DR<0.3)
             {
-                v.getMEhisto_CSV_RECOvsHLT()->Fill(CSV_offline,CSV_online); continue;
+                v.getMEhisto_Discr_HLTvsRECO()->Fill(Discr_online,Discr_offline); continue;
             }
           }
       }
@@ -231,9 +234,9 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       /////////////////////////////////////////////
 
       iEvent.getByToken(shallowTagInfosTokenPf_, shallowTagInfosPf);
-      iEvent.getByToken(csvPfTagInfosToken_, csvPfTagInfos);
       iEvent.getByToken(shallowTagInfosTokenCalo_, shallowTagInfosCalo);
-      iEvent.getByToken(csvCaloTagInfosToken_, csvCaloTagInfos);
+      // iEvent.getByToken(pfTagInfosToken_, pfTagInfos);
+      // iEvent.getByToken(caloTagInfosToken_, caloTagInfos);
 
       // first try to get info from shallowTagInfos ...
       if (   (v.getTriggerType() == "PF"   && shallowTagInfosPf.isValid())
@@ -265,52 +268,51 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           for (const auto & tagVar : tagVars.getList(reco::btau::vertexMass, false)) {
             v.getMEhisto_vtx_mass()->Fill(tagVar);}
           for (const auto & tagVar : tagVars.getList(reco::btau::vertexNTracks, false)) {
-            if (tagVar > 0.) {
-              v.getMEhisto_n_vtx_trks()->Fill(tagVar);}}
+            v.getMEhisto_n_vtx_trks()->Fill(tagVar);}
 
-          // track N total/pixel hits
-          for (const auto & tagVar : tagVars.getList(reco::btau::trackNPixelHits, false)) {
-            v.getMEhisto_n_pixel_hits()->Fill(tagVar);}
-          for (const auto & tagVar : tagVars.getList(reco::btau::trackNTotalHits, false)) {
-            v.getMEhisto_n_total_hits()->Fill(tagVar);}
+          // // track N total/pixel hits
+          // for (const auto & tagVar : tagVars.getList(reco::btau::trackNPixelHits, false)) {
+          //   v.getMEhisto_n_pixel_hits()->Fill(tagVar);}
+          // for (const auto & tagVar : tagVars.getList(reco::btau::trackNTotalHits, false)) {
+          //   v.getMEhisto_n_total_hits()->Fill(tagVar);}
         }
       }
 
       // ... otherwise from usual tag infos.
-      else
-      if (   (v.getTriggerType() == "PF"   && csvPfTagInfos.isValid())
-          || (v.getTriggerType() == "Calo" && csvCaloTagInfos.isValid()) )
-      {
-        const auto & csvTagInfoCollection = (v.getTriggerType() == "PF") ? csvPfTagInfos : csvCaloTagInfos;
+      // else
+      // if (   (v.getTriggerType() == "PF"   && pfTagInfos.isValid())
+      //     || (v.getTriggerType() == "Calo" && caloTagInfos.isValid()) )
+      // {
+      //   const auto & DiscrTagInfoCollection = (v.getTriggerType() == "PF") ? pfTagInfos : caloTagInfos;
 
-        // loop over secondary vertex tag infos
-        for (const auto & csvTagInfo : *csvTagInfoCollection) {
-          v.getMEhisto_n_vtx()->Fill(csvTagInfo.nVertexCandidates());
-          v.getMEhisto_n_sel_tracks()->Fill(csvTagInfo.nSelectedTracks());
+      //   // loop over secondary vertex tag infos
+      //   for (const auto & DiscrTagInfo : *DiscrTagInfoCollection) {
+      //     v.getMEhisto_n_vtx()->Fill(DiscrTagInfo.nVertexCandidates());
+      //     v.getMEhisto_n_sel_tracks()->Fill(DiscrTagInfo.nSelectedTracks());
 
-          // loop over selected tracks in each tag info
-          for (unsigned i_trk=0; i_trk < csvTagInfo.nSelectedTracks(); i_trk++) {
-            const auto & ip3d = csvTagInfo.trackIPData(i_trk).ip3d;
-            v.getMEhisto_h_3d_ip_distance()->Fill(ip3d.value());
-            v.getMEhisto_h_3d_ip_error()->Fill(ip3d.error());
-            v.getMEhisto_h_3d_ip_sig()->Fill(ip3d.significance());
-          }
+      //     // loop over selected tracks in each tag info
+      //     for (unsigned i_trk=0; i_trk < DiscrTagInfo.nSelectedTracks(); i_trk++) {
+      //       const auto & ip3d = DiscrTagInfo.trackIPData(i_trk).ip3d;
+      //       v.getMEhisto_h_3d_ip_distance()->Fill(ip3d.value());
+      //       v.getMEhisto_h_3d_ip_error()->Fill(ip3d.error());
+      //       v.getMEhisto_h_3d_ip_sig()->Fill(ip3d.significance());
+      //     }
 
-          // loop over vertex candidates in each tag info
-          for (unsigned i_sv=0; i_sv < csvTagInfo.nVertexCandidates(); i_sv++) {
-            const auto & sv = csvTagInfo.secondaryVertex(i_sv);
-            v.getMEhisto_vtx_mass()->Fill(sv.p4().mass());
-            v.getMEhisto_n_vtx_trks()->Fill(sv.nTracks());
+      //     // loop over vertex candidates in each tag info
+      //     for (unsigned i_sv=0; i_sv < DiscrTagInfo.nVertexCandidates(); i_sv++) {
+      //       const auto & sv = DiscrTagInfo.secondaryVertex(i_sv);
+      //       v.getMEhisto_vtx_mass()->Fill(sv.p4().mass());
+      //       v.getMEhisto_n_vtx_trks()->Fill(sv.nTracks());
 
-            // loop over tracks for number of pixel and total hits
-            const auto & trkIPTagInfo = csvTagInfo.trackIPTagInfoRef().get();
-            for (const auto & trk : trkIPTagInfo->selectedTracks()) {
-              v.getMEhisto_n_pixel_hits()->Fill(trk.get()->hitPattern().numberOfValidPixelHits());
-              v.getMEhisto_n_total_hits()->Fill(trk.get()->hitPattern().numberOfValidHits());
-            }
-          }
-        }
-      }
+      //       // loop over tracks for number of pixel and total hits
+      //       const auto & trkIPTagInfo = DiscrTagInfo.trackIPTagInfoRef().get();
+      //       for (const auto & trk : trkIPTagInfo->selectedTracks()) {
+      //         v.getMEhisto_n_pixel_hits()->Fill(trk.get()->hitPattern().numberOfValidPixelHits());
+      //         v.getMEhisto_n_total_hits()->Fill(trk.get()->hitPattern().numberOfValidHits());
+      //       }
+      //     }
+      //   }
+      // }
 
     }
    }
@@ -331,9 +333,9 @@ BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
      std::string histoname(labelname+"");
      std::string title(labelname+"");
 
-     histoname = labelname+"_CSV";
-     title = labelname+"_CSV "+trigPath;
-     MonitorElement * CSV =  iBooker.book1D(histoname.c_str(),title.c_str(),110,-0.1,1);
+     histoname = labelname+"_Discr";
+     title = labelname+"_Discr "+trigPath;
+     MonitorElement * Discr =  iBooker.book1D(histoname.c_str(),title.c_str(),110,-0.1,1);
 
      histoname = labelname+"_Pt";
      title = labelname+"_Pt "+trigPath;
@@ -343,9 +345,9 @@ BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
      title = labelname+"_Eta "+trigPath;
      MonitorElement * Eta =  iBooker.book1D(histoname.c_str(),title.c_str(),60,-3.0,3.0);
 
-     histoname = "RECOvsHLT_CSV";
-     title = "offline CSV vs online CSV "+trigPath;
-     MonitorElement * CSV_RECOvsHLT =  iBooker.book2D(histoname.c_str(),title.c_str(),110,-0.1,1,110,-0.1,1);
+     histoname = "HLTvsRECO_Discr";
+     title = "online Discr vs offline Discr "+trigPath;
+     MonitorElement * Discr_HLTvsRECO =  iBooker.book2D(histoname.c_str(),title.c_str(),110,-0.1,1,110,-0.1,1);
 
      histoname = labelname+"_PVz";
      title = "online z(PV) "+trigPath;
@@ -391,18 +393,18 @@ BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
      title = "3D IP significance of tracks (cm)"+trigPath;
      MonitorElement * h_3d_ip_sig = iBooker.book1D(histoname.c_str(), title.c_str(), 40, -40, 40);
 
-     histoname = "n_pixel_hits";
-     title = "N pixel hits"+trigPath;
-     MonitorElement * n_pixel_hits = iBooker.book1D(histoname.c_str(), title.c_str(), 16, -0.5, 15.5);
+     // histoname = "n_pixel_hits";
+     // title = "N pixel hits"+trigPath;
+     // MonitorElement * n_pixel_hits = iBooker.book1D(histoname.c_str(), title.c_str(), 16, -0.5, 15.5);
 
-     histoname = "n_total_hits";
-     title = "N hits"+trigPath;
-     MonitorElement * n_total_hits = iBooker.book1D(histoname.c_str(), title.c_str(), 40, -0.5, 39.5);
+     // histoname = "n_total_hits";
+     // title = "N hits"+trigPath;
+     // MonitorElement * n_total_hits = iBooker.book1D(histoname.c_str(), title.c_str(), 40, -0.5, 39.5);
 
 
      v.setHistos(
-        CSV,Pt,Eta,CSV_RECOvsHLT,PVz,fastPVz,PVz_HLTMinusRECO,fastPVz_HLTMinusRECO,
-        n_vtx, vtx_mass, n_vtx_trks, n_sel_tracks, h_3d_ip_distance, h_3d_ip_error, h_3d_ip_sig, n_pixel_hits, n_total_hits
+        Discr, Pt, Eta, Discr_HLTvsRECO, PVz, fastPVz, PVz_HLTMinusRECO, fastPVz_HLTMinusRECO,
+        n_vtx, vtx_mass, n_vtx_trks, n_sel_tracks, h_3d_ip_distance, h_3d_ip_error, h_3d_ip_sig // , n_pixel_hits, n_total_hits
      );
    }
 }
