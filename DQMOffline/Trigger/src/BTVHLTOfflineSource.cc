@@ -58,8 +58,8 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
   //                               edm::InputTag("hltCombinedSecondaryVertexBJetTagsCalo"));
   // pfTagInfosToken_         = consumes<vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<vector<reco::Track>,reco::Track> >,reco::JTATagInfo>,reco::Vertex> > > (
   //                               edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF"));
-  caloTagsToken_            = consumes<reco::JetTagCollection> (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsCalo", "probb"));
-  pfTagsToken_              = consumes<reco::JetTagCollection> (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsPF", "probb"));
+  pfTagsToken_              = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("onlineDiscrLabelPF"));
+  caloTagsToken_            = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("onlineDiscrLabelCalo"));
   offlineDiscrTokenPF_      = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineDiscrLabelPF"));
   offlineDiscrTokenCalo_    = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineDiscrLabelCalo"));
   hltFastPVToken_           = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("hltFastPVLabel"));
@@ -149,15 +149,20 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   if(!triggerResults_.isValid()) return;
 
-  for(auto & v : hltPathsAll_){
+  for(auto & v : hltPathsAll_) {
     unsigned index = triggerNames_.triggerIndex(v.getPath());
-    if (index < triggerNames_.size() ){
-     float DR  = 9999.;
+    if (index >= triggerNames_.size()) {
+      continue;
+    }
+
+    float DR  = 9999.;
 
     // PF btagging
-    if (pfTags.isValid() && v.getTriggerType() == "PF")
-     {
-      auto iter = pfTags->begin();
+    if (   (  pfTags.isValid() && v.getTriggerType() == "PF")
+        || (caloTags.isValid() && v.getTriggerType() == "Calo" && !caloTags->empty()) )
+    {
+      const auto & iter = (v.getTriggerType() == "PF") ? pfTags->begin() : caloTags->begin();
+      const auto & offlineJetTagHandler = (v.getTriggerType() == "PF") ? offlineJetTagHandlerPF : offlineJetTagHandlerCalo;
 
       float Discr_online = iter->second;
       if (Discr_online<0) Discr_online = -0.05;
@@ -167,155 +172,125 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       v.getMEhisto_Eta()->Fill(iter->first->eta());
 
       DR  = 9999.;
-      if(offlineJetTagHandlerPF.isValid()){
-          for (auto const & iterO : *offlineJetTagHandlerPF){
+      if(offlineJetTagHandler.isValid()){
+          for (auto const & iterO : *offlineJetTagHandler){
             float Discr_offline = iterO.second;
             if (Discr_offline<0) Discr_offline = -0.05;
             DR = reco::deltaR(iterO.first->eta(),iterO.first->phi(),iter->first->eta(),iter->first->phi());
             if (DR<0.3) {
-               v.getMEhisto_Discr_HLTvsRECO()->Fill(Discr_online,Discr_offline); continue;
-               }
-          }
-      }
-
-      iEvent.getByToken(hltPFPVToken_, VertexHandler);
-      if (VertexHandler.isValid())
-      {
-        v.getMEhisto_PVz()->Fill(VertexHandler->begin()->z());
-        if (offlineVertexHandler.isValid()) v.getMEhisto_PVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
-        }
-      }
-
-
-     // Calo b-tagging
-     if (caloTags.isValid() && v.getTriggerType() == "Calo" && !caloTags->empty())
-     {
-
-      auto iter = caloTags->begin();
-
-      float Discr_online = iter->second;
-      if (Discr_online<0) Discr_online = -0.05;
-
-      v.getMEhisto_Discr()->Fill(Discr_online);
-      v.getMEhisto_Pt()->Fill(iter->first->pt());
-      v.getMEhisto_Eta()->Fill(iter->first->eta());
-
-      DR  = 9999.;
-      if(offlineJetTagHandlerCalo.isValid()){
-          for (auto const & iterO : *offlineJetTagHandlerCalo)
-          {
-            float Discr_offline = iterO.second;
-            if (Discr_offline<0) Discr_offline = -0.05;
-            DR = reco::deltaR(iterO.first->eta(),iterO.first->phi(),iter->first->eta(),iter->first->phi());
-            if (DR<0.3)
-            {
-                v.getMEhisto_Discr_HLTvsRECO()->Fill(Discr_online,Discr_offline); continue;
+              v.getMEhisto_Discr_HLTvsRECO()->Fill(Discr_online,Discr_offline); continue;
             }
           }
       }
 
-      iEvent.getByToken(hltFastPVToken_, VertexHandler);
-      if (VertexHandler.isValid())
-      {
-        v.getMEhisto_PVz()->Fill(VertexHandler->begin()->z());
-	if (offlineVertexHandler.isValid()) v.getMEhisto_fastPVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
-       }
-
-      iEvent.getByToken(hltCaloPVToken_, VertexHandler);
-      if (VertexHandler.isValid())
-      {
-        v.getMEhisto_fastPVz()->Fill(VertexHandler->begin()->z());
-	if (offlineVertexHandler.isValid()) v.getMEhisto_PVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
-       }
-
+      if (v.getTriggerType() == "PF") {
+        iEvent.getByToken(hltPFPVToken_, VertexHandler);
+      } else {
+        iEvent.getByToken(hltFastPVToken_, VertexHandler);
       }
-
-      // additional plots from tag info collections
-      /////////////////////////////////////////////
-
-      iEvent.getByToken(shallowTagInfosTokenPf_, shallowTagInfosPf);
-      iEvent.getByToken(shallowTagInfosTokenCalo_, shallowTagInfosCalo);
-      // iEvent.getByToken(pfTagInfosToken_, pfTagInfos);
-      // iEvent.getByToken(caloTagInfosToken_, caloTagInfos);
-
-      // first try to get info from shallowTagInfos ...
-      if (   (v.getTriggerType() == "PF"   && shallowTagInfosPf.isValid())
-          || (v.getTriggerType() == "Calo" && shallowTagInfosCalo.isValid()) )
-      {
-        const auto & shallowTagInfoCollection = (v.getTriggerType() == "PF") ? shallowTagInfosPf : shallowTagInfosCalo;
-        for (const auto & shallowTagInfo : *shallowTagInfoCollection) {
-          const auto & tagVars = shallowTagInfo.taggingVariables();
-
-          // n secondary vertices and n selected tracks
-          for (const auto & tagVar : tagVars.getList(reco::btau::jetNSecondaryVertices, false)) {
-            v.getMEhisto_n_vtx()->Fill(tagVar);
-          }
-          for (const auto & tagVar : tagVars.getList(reco::btau::jetNSelectedTracks, false)) {
-            v.getMEhisto_n_sel_tracks()->Fill(tagVar);}
-
-          // impact parameter
-          const auto & trackSip3dVal = tagVars.getList(reco::btau::trackSip3dVal, false);
-          const auto & trackSip3dSig = tagVars.getList(reco::btau::trackSip3dSig, false);
-          for (unsigned i_trk=0; i_trk < trackSip3dVal.size(); i_trk++) {
-            float val = trackSip3dVal[i_trk];
-            float sig = trackSip3dSig[i_trk];
-            v.getMEhisto_h_3d_ip_distance()->Fill(val);
-            v.getMEhisto_h_3d_ip_error()->Fill(val/sig);
-            v.getMEhisto_h_3d_ip_sig()->Fill(sig);
-          }
-
-          // vertex mass and tracks per vertex
-          for (const auto & tagVar : tagVars.getList(reco::btau::vertexMass, false)) {
-            v.getMEhisto_vtx_mass()->Fill(tagVar);}
-          for (const auto & tagVar : tagVars.getList(reco::btau::vertexNTracks, false)) {
-            v.getMEhisto_n_vtx_trks()->Fill(tagVar);}
-
-          // // track N total/pixel hits
-          // for (const auto & tagVar : tagVars.getList(reco::btau::trackNPixelHits, false)) {
-          //   v.getMEhisto_n_pixel_hits()->Fill(tagVar);}
-          // for (const auto & tagVar : tagVars.getList(reco::btau::trackNTotalHits, false)) {
-          //   v.getMEhisto_n_total_hits()->Fill(tagVar);}
+      if (VertexHandler.isValid()) {
+        v.getMEhisto_PVz()->Fill(VertexHandler->begin()->z());
+        if (offlineVertexHandler.isValid()) {
+          v.getMEhisto_PVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
         }
       }
-
-      // ... otherwise from usual tag infos.
-      // else
-      // if (   (v.getTriggerType() == "PF"   && pfTagInfos.isValid())
-      //     || (v.getTriggerType() == "Calo" && caloTagInfos.isValid()) )
-      // {
-      //   const auto & DiscrTagInfoCollection = (v.getTriggerType() == "PF") ? pfTagInfos : caloTagInfos;
-
-      //   // loop over secondary vertex tag infos
-      //   for (const auto & DiscrTagInfo : *DiscrTagInfoCollection) {
-      //     v.getMEhisto_n_vtx()->Fill(DiscrTagInfo.nVertexCandidates());
-      //     v.getMEhisto_n_sel_tracks()->Fill(DiscrTagInfo.nSelectedTracks());
-
-      //     // loop over selected tracks in each tag info
-      //     for (unsigned i_trk=0; i_trk < DiscrTagInfo.nSelectedTracks(); i_trk++) {
-      //       const auto & ip3d = DiscrTagInfo.trackIPData(i_trk).ip3d;
-      //       v.getMEhisto_h_3d_ip_distance()->Fill(ip3d.value());
-      //       v.getMEhisto_h_3d_ip_error()->Fill(ip3d.error());
-      //       v.getMEhisto_h_3d_ip_sig()->Fill(ip3d.significance());
-      //     }
-
-      //     // loop over vertex candidates in each tag info
-      //     for (unsigned i_sv=0; i_sv < DiscrTagInfo.nVertexCandidates(); i_sv++) {
-      //       const auto & sv = DiscrTagInfo.secondaryVertex(i_sv);
-      //       v.getMEhisto_vtx_mass()->Fill(sv.p4().mass());
-      //       v.getMEhisto_n_vtx_trks()->Fill(sv.nTracks());
-
-      //       // loop over tracks for number of pixel and total hits
-      //       const auto & trkIPTagInfo = DiscrTagInfo.trackIPTagInfoRef().get();
-      //       for (const auto & trk : trkIPTagInfo->selectedTracks()) {
-      //         v.getMEhisto_n_pixel_hits()->Fill(trk.get()->hitPattern().numberOfValidPixelHits());
-      //         v.getMEhisto_n_total_hits()->Fill(trk.get()->hitPattern().numberOfValidHits());
-      //       }
-      //     }
-      //   }
-      // }
-
     }
-   }
+
+    // specific to Calo b-tagging
+    if (caloTags.isValid() && v.getTriggerType() == "Calo" && !caloTags->empty()) {
+      iEvent.getByToken(hltCaloPVToken_, VertexHandler);
+      if (VertexHandler.isValid()) {
+        v.getMEhisto_fastPVz()->Fill(VertexHandler->begin()->z());
+	      if (offlineVertexHandler.isValid()) {
+          v.getMEhisto_PVz_HLTMinusRECO()->Fill(VertexHandler->begin()->z()-offlineVertexHandler->begin()->z());
+        }
+      }
+    }
+
+    // additional plots from tag info collections
+    /////////////////////////////////////////////
+
+    iEvent.getByToken(shallowTagInfosTokenPf_, shallowTagInfosPf);
+    iEvent.getByToken(shallowTagInfosTokenCalo_, shallowTagInfosCalo);
+    // iEvent.getByToken(pfTagInfosToken_, pfTagInfos);
+    // iEvent.getByToken(caloTagInfosToken_, caloTagInfos);
+
+    // first try to get info from shallowTagInfos ...
+    if (   (v.getTriggerType() == "PF"   && shallowTagInfosPf.isValid())
+        || (v.getTriggerType() == "Calo" && shallowTagInfosCalo.isValid()) )
+    {
+      const auto & shallowTagInfoCollection = (v.getTriggerType() == "PF") ? shallowTagInfosPf : shallowTagInfosCalo;
+      for (const auto & shallowTagInfo : *shallowTagInfoCollection) {
+        const auto & tagVars = shallowTagInfo.taggingVariables();
+
+        // n secondary vertices and n selected tracks
+        for (const auto & tagVar : tagVars.getList(reco::btau::jetNSecondaryVertices, false)) {
+          v.getMEhisto_n_vtx()->Fill(tagVar);
+        }
+        for (const auto & tagVar : tagVars.getList(reco::btau::jetNSelectedTracks, false)) {
+          v.getMEhisto_n_sel_tracks()->Fill(tagVar);}
+
+        // impact parameter
+        const auto & trackSip3dVal = tagVars.getList(reco::btau::trackSip3dVal, false);
+        const auto & trackSip3dSig = tagVars.getList(reco::btau::trackSip3dSig, false);
+        for (unsigned i_trk=0; i_trk < trackSip3dVal.size(); i_trk++) {
+          float val = trackSip3dVal[i_trk];
+          float sig = trackSip3dSig[i_trk];
+          v.getMEhisto_h_3d_ip_distance()->Fill(val);
+          v.getMEhisto_h_3d_ip_error()->Fill(val/sig);
+          v.getMEhisto_h_3d_ip_sig()->Fill(sig);
+        }
+
+        // vertex mass and tracks per vertex
+        for (const auto & tagVar : tagVars.getList(reco::btau::vertexMass, false)) {
+          v.getMEhisto_vtx_mass()->Fill(tagVar);}
+        for (const auto & tagVar : tagVars.getList(reco::btau::vertexNTracks, false)) {
+          v.getMEhisto_n_vtx_trks()->Fill(tagVar);}
+
+        // // track N total/pixel hits
+        // for (const auto & tagVar : tagVars.getList(reco::btau::trackNPixelHits, false)) {
+        //   v.getMEhisto_n_pixel_hits()->Fill(tagVar);}
+        // for (const auto & tagVar : tagVars.getList(reco::btau::trackNTotalHits, false)) {
+        //   v.getMEhisto_n_total_hits()->Fill(tagVar);}
+      }
+    }
+
+    // ... otherwise from usual tag infos.
+    // else
+    // if (   (v.getTriggerType() == "PF"   && pfTagInfos.isValid())
+    //     || (v.getTriggerType() == "Calo" && caloTagInfos.isValid()) )
+    // {
+    //   const auto & DiscrTagInfoCollection = (v.getTriggerType() == "PF") ? pfTagInfos : caloTagInfos;
+
+    //   // loop over secondary vertex tag infos
+    //   for (const auto & DiscrTagInfo : *DiscrTagInfoCollection) {
+    //     v.getMEhisto_n_vtx()->Fill(DiscrTagInfo.nVertexCandidates());
+    //     v.getMEhisto_n_sel_tracks()->Fill(DiscrTagInfo.nSelectedTracks());
+
+    //     // loop over selected tracks in each tag info
+    //     for (unsigned i_trk=0; i_trk < DiscrTagInfo.nSelectedTracks(); i_trk++) {
+    //       const auto & ip3d = DiscrTagInfo.trackIPData(i_trk).ip3d;
+    //       v.getMEhisto_h_3d_ip_distance()->Fill(ip3d.value());
+    //       v.getMEhisto_h_3d_ip_error()->Fill(ip3d.error());
+    //       v.getMEhisto_h_3d_ip_sig()->Fill(ip3d.significance());
+    //     }
+
+    //     // loop over vertex candidates in each tag info
+    //     for (unsigned i_sv=0; i_sv < DiscrTagInfo.nVertexCandidates(); i_sv++) {
+    //       const auto & sv = DiscrTagInfo.secondaryVertex(i_sv);
+    //       v.getMEhisto_vtx_mass()->Fill(sv.p4().mass());
+    //       v.getMEhisto_n_vtx_trks()->Fill(sv.nTracks());
+
+    //       // loop over tracks for number of pixel and total hits
+    //       const auto & trkIPTagInfo = DiscrTagInfo.trackIPTagInfoRef().get();
+    //       for (const auto & trk : trkIPTagInfo->selectedTracks()) {
+    //         v.getMEhisto_n_pixel_hits()->Fill(trk.get()->hitPattern().numberOfValidPixelHits());
+    //         v.getMEhisto_n_total_hits()->Fill(trk.get()->hitPattern().numberOfValidHits());
+    //       }
+    //     }
+    //   }
+    // }
+  }
 }
 
 void
@@ -346,7 +321,7 @@ BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
      MonitorElement * Eta =  iBooker.book1D(histoname.c_str(),title.c_str(),60,-3.0,3.0);
 
      histoname = "HLTvsRECO_Discr";
-     title = "online Discr vs offline Discr "+trigPath;
+     title = "online discr vs offline discr "+trigPath;
      MonitorElement * Discr_HLTvsRECO =  iBooker.book2D(histoname.c_str(),title.c_str(),110,-0.1,1,110,-0.1,1);
 
      histoname = labelname+"_PVz";
