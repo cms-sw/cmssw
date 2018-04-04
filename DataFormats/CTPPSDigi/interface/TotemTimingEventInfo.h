@@ -4,7 +4,7 @@
 /** \class TotemTimingEventInfo
  *
  * Event Info Class for CTPPS Timing Detector
- *  
+ *
  * \author Mirko Berretti
  * \author Nicola Minafra
  * \date March 2018
@@ -15,41 +15,41 @@
 
 class TotemTimingEventInfo
 {
-  public:  
-    TotemTimingEventInfo(const uint8_t hwId, const uint64_t L1ATimeStamp, const uint16_t bunchNumber, const uint32_t orbitNumber, const uint32_t eventNumber, const uint16_t channelMap, const uint16_t L1ALatency, const uint8_t numberOfSamples, const uint8_t offsetOfSamples );
-    TotemTimingEventInfo(const TotemTimingEventInfo& eventInfo);
+  public:
+    TotemTimingEventInfo( const uint8_t hwId, const uint64_t l1ATimestamp, const uint16_t bunchNumber, const uint32_t orbitNumber, const uint32_t eventNumber, const uint16_t channelMap, const uint16_t l1ALatency, const uint8_t numberOfSamples, const uint8_t offsetOfSamples );
+    TotemTimingEventInfo( const TotemTimingEventInfo& eventInfo );
     TotemTimingEventInfo();
     ~TotemTimingEventInfo() {};
-  
+
     /// Digis are equal if they have all the same values, NOT checking the samples!
-    bool operator==(const TotemTimingEventInfo& eventInfo) const;
+    bool operator==( const TotemTimingEventInfo& eventInfo ) const;
 
     /// Return digi values number
- 
+
     /// Hardware Id formatted as: bits 0-3 Channel Id, bit 4 Sampic Id, bits 5-7 Digitizer Board Id
-    inline unsigned int getHardwareId() const 
-    { 
-      return hwId_; 
+    inline unsigned int getHardwareId() const
+    {
+      return hwId_;
     }
 
     inline unsigned int getHardwareBoardId() const
     {
-      return (hwId_&0xE0)>>5;
+      return ( hwId_ & 0xE0 ) >> 5;
     }
 
     inline unsigned int getHardwareSampicId() const
     {
-      return (hwId_&0x10)>>4;
+      return ( hwId_ & 0x10 ) >> 4;
     }
 
     inline unsigned int getHardwareChannelId() const
     {
-      return (hwId_&0x0F);
+      return ( hwId_ & 0x0F );
     }
 
-    inline unsigned int getL1ATimeStamp() const
+    inline unsigned int getL1ATimestamp() const
     {
-      return L1ATimeStamp_;
+      return l1ATimestamp_;
     }
 
     inline unsigned int getBunchNumber() const
@@ -74,7 +74,7 @@ class TotemTimingEventInfo
 
     inline unsigned int getL1ALatency() const
     {
-      return L1ALatency_;
+      return l1ALatency_;
     }
 
     inline unsigned int getNumberOfSamples() const
@@ -89,112 +89,112 @@ class TotemTimingEventInfo
 
     inline uint8_t getPLLInfo() const
     {
-      return PLLInfo_;
+      return pllInfo_;
     }
 
     /// Set digi values
     /// Hardware Id formatted as: bits 0-3 Channel Id, bit 4 Sampic Id, bits 5-7 Digitizer Board Id
-    inline void setHardwareId(const uint8_t hwId) 
-    { 
-      hwId_ = hwId; 
+    inline void setHardwareId( const uint8_t hwId )
+    {
+      hwId_ = hwId;
     }
 
-    inline void setHardwareBoardId(const unsigned int BoardId)
+    inline void setHardwareBoardId( const unsigned int boardId )
     {
       hwId_ &= 0x1F;      // Set board bits to 0
-      hwId_ |= ((BoardId&0x07)<<5) & 0xE0;
+      hwId_ |= ( ( boardId & 0x07 ) << 5 ) & 0xE0;
     }
 
-    inline void setHardwareSampicId(const unsigned int SampicId)
+    inline void setHardwareSampicId( const unsigned int sampicId )
     {
-      hwId_ &= 0xEF;      // Set sampic bit to 0
-      hwId_ |= ((SampicId&0x01)<<4) & 0x10;
+      hwId_ &= 0xEF; // set Sampic bit to 0
+      hwId_ |= ( ( sampicId & 0x01 ) << 4 ) & 0x10;
     }
 
-    inline void setHardwareChannelId(const unsigned int ChannelId)
+    inline void setHardwareChannelId( const unsigned int channelId )
     {
-      hwId_ &= 0xF0;      // Set sampic bit to 0
-      hwId_ |= (ChannelId&0x0F) & 0x0F;
+      hwId_ &= 0xF0; // set Sampic bit to 0
+      hwId_ |= ( channelId & 0x0F ) & 0x0F;
     }
 
-    inline void setL1ATimeStamp(const uint64_t L1ATimeStamp)
+    inline void setL1ATimestamp( const uint64_t l1ATimestamp )
     {
-      L1ATimeStamp_ = L1ATimeStamp;
+      l1ATimestamp_ = l1ATimestamp;
     }
 
-    inline void setBunchNumber(const uint16_t bunchNumber)
+    inline void setBunchNumber( const uint16_t bunchNumber )
     {
       bunchNumber_ = bunchNumber;
     }
 
-    inline void setOrbitNumber(const uint32_t orbitNumber)
+    inline void setOrbitNumber( const uint32_t orbitNumber )
     {
       orbitNumber_ = orbitNumber;
     }
 
-    inline void setEventNumber(const uint32_t eventNumber)
+    inline void setEventNumber( const uint32_t eventNumber )
     {
       eventNumber_ = eventNumber;
     }
 
-    inline void setChannelMap(const uint16_t channelMap)
+    inline void setChannelMap( const uint16_t channelMap )
     {
       channelMap_ = channelMap;
     }
 
-    inline void setL1ALatency(const uint16_t L1ALatency)
+    inline void setL1ALatency( const uint16_t l1ALatency )
     {
-      L1ALatency_ = L1ALatency;
+      l1ALatency_ = l1ALatency;
     }
 
-    inline void setNumberOfSamples(const uint8_t numberOfSamples)
+    inline void setNumberOfSamples( const uint8_t numberOfSamples )
     {
       numberOfSamples_ = numberOfSamples;
     }
 
-    inline void setOffsetOfSamples(const uint8_t offsetOfSamples)
+    inline void setOffsetOfSamples( const uint8_t offsetOfSamples )
     {
       offsetOfSamples_ = offsetOfSamples;
     }
 
-    inline void setPLLInfo(const uint8_t PLLInfo)
+    inline void setPLLInfo( const uint8_t pllInfo )
     {
-      PLLInfo_ = PLLInfo;
+      pllInfo_ = pllInfo;
     }
 
   private:
     uint8_t hwId_;
-    uint64_t L1ATimeStamp_;
+    uint64_t l1ATimestamp_;
     uint16_t bunchNumber_;
     uint32_t orbitNumber_;
     uint32_t eventNumber_;
     uint16_t channelMap_;
-    uint16_t L1ALatency_;
+    uint16_t l1ALatency_;
     uint8_t numberOfSamples_;
     uint8_t offsetOfSamples_;
-    uint8_t PLLInfo_;
+    uint8_t pllInfo_;
 };
 
 #include <iostream>
 
-inline bool operator< (const TotemTimingEventInfo& one, const TotemTimingEventInfo& other)
+inline bool operator<( const TotemTimingEventInfo& one, const TotemTimingEventInfo& other )
 {
   if ( one.getEventNumber() < other.getEventNumber() )
     return true;
-  if ( one.getL1ATimeStamp() < other.getL1ATimeStamp() )
+  if ( one.getL1ATimestamp() < other.getL1ATimestamp() )
     return true;
-  if ( one.getHardwareId() < other.getHardwareId() )                                     
-    return true; 
+  if ( one.getHardwareId() < other.getHardwareId() )
+    return true;
   return false;
-}  
+}
 
-inline std::ostream & operator<<(std::ostream & o, const TotemTimingEventInfo& digi)
+inline std::ostream& operator<<( std::ostream& o, const TotemTimingEventInfo& digi )
 {
   std::bitset<16> bitsPLLInfo( digi.getPLLInfo() );
   return o << "TotemTimingEventInfo:"
-	   << "\nHardwareId:\t" << std::hex << digi.getHardwareId()
-           << "\nDB: " << std::dec << digi.getHardwareBoardId() << "\tSampic: " << digi.getHardwareSampicId() << "\tChannel: " << digi.getHardwareChannelId() 
-           << "\nL1A Time Stamp:\t" << std::dec << digi.getL1ATimeStamp()
+           << "\nHardwareId:\t" << std::hex << digi.getHardwareId()
+           << "\nDB: " << std::dec << digi.getHardwareBoardId() << "\tSampic: " << digi.getHardwareSampicId() << "\tChannel: " << digi.getHardwareChannelId()
+           << "\nL1A Timestamp:\t" << std::dec << digi.getL1ATimestamp()
            << "\nL1A Latency:\t" << std::dec << digi.getL1ALatency()
            << "\nBunch Number:\t" << std::dec << digi.getBunchNumber()
            << "\nOrbit Number:\t" << std::dec << digi.getOrbitNumber()
