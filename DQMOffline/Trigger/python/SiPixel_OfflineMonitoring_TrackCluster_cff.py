@@ -3,7 +3,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_HistogramManager_cfi import *
 
-# order is important and it should follow ordering in .h !!!
+# order is important and it should follow ordering in hltSiPixelPhase1ClustersConf VPSet
 hltSiPixelPhase1TrackClustersOnTrackCharge = hltDefaultHistoTrack.clone(
   name = "charge",
   title = "Corrected Cluster Charge (OnTrack)",
@@ -12,6 +12,36 @@ hltSiPixelPhase1TrackClustersOnTrackCharge = hltDefaultHistoTrack.clone(
   specs = VPSet(
     hltStandardSpecifications1D,
     StandardSpecification2DProfile
+  )
+)
+
+hltSiPixelPhase1TrackClustersOnTrackBigPixelCharge = DefaultHistoTrack.clone(
+  name = "bigpixelcharge",
+  title = "Corrected Big Pixel Charge (OnTrack)",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+  enabled=False,
+
+  specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
+  )
+)
+
+hltSiPixelPhase1TrackClustersOnTrackNotBigPixelCharge = DefaultHistoTrack.clone(
+  name = "notbigpixelcharge",
+  title = "Corrected Not Big Pixel Charge (OnTrack)",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+  enabled=False,
+
+  specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
   )
 )
 
@@ -275,6 +305,8 @@ hltSiPixelPhase1TrackClustersConf = cms.VPSet(
 ### THE LIST DEFINED IN THE ENUM
 ### https://cmssdt.cern.ch/lxr/source/DQM/SiPixelPhase1TrackClusters/src/SiPixelPhase1TrackClusters.cc#0063
    hltSiPixelPhase1TrackClustersOnTrackCharge,
+   hltSiPixelPhase1TrackClustersOnTrackBigPixelCharge,
+   hltSiPixelPhase1TrackClustersOnTrackNotBigPixelCharge,
    hltSiPixelPhase1TrackClustersOnTrackSize,
    hltSiPixelPhase1TrackClustersOnTrackShape,
    hltSiPixelPhase1TrackClustersOnTrackNClusters,

@@ -37,6 +37,8 @@ namespace {
 class SiPixelPhase1TrackClusters final : public SiPixelPhase1Base {
 enum {  
   ON_TRACK_CHARGE,
+  ON_TRACK_BIGPIXELCHARGE,
+  ON_TRACK_NOTBIGPIXELCHARGE,  
   ON_TRACK_SIZE,
   ON_TRACK_SHAPE,
   ON_TRACK_NCLUSTERS,
@@ -185,7 +187,24 @@ void SiPixelPhase1TrackClusters::analyze(const edm::Event& iEvent, const edm::Ev
       auto clustp = pixhit->cluster();
       if (clustp.isNull()) continue; 
       auto const & cluster = *clustp;
+      const std::vector<SiPixelCluster::Pixel> pixelsVec = cluster.pixels();
+      for (unsigned int i = 0;  i < pixelsVec.size(); ++i) {
 
+	float pixx = pixelsVec[i].x; // index as float=iteger, row index
+	float pixy = pixelsVec[i].y; // same, col index
+
+	bool bigInX = topol.isItBigPixelInX(int(pixx));
+	bool bigInY = topol.isItBigPixelInY(int(pixy));
+	float pixel_charge = pixelsVec[i].adc;
+
+	if (bigInX==true || bigInY==true) {
+		histo[ON_TRACK_BIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
+	}
+	else {
+		histo[ON_TRACK_NOTBIGPIXELCHARGE].fill(pixel_charge, id, &iEvent);
+
+	}
+      } // End loop over pixels
       auto const & ltp = trajParams[h];
       
       auto localDir = ltp.momentum() / ltp.momentum().mag();

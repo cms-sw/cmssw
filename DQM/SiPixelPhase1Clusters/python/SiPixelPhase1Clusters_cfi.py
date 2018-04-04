@@ -18,6 +18,35 @@ SiPixelPhase1ClustersCharge = DefaultHistoDigiCluster.clone(
   )
 )
 
+SiPixelPhase1ClustersBigPixelCharge = DefaultHistoDigiCluster.clone(
+  name = "bigpixelcharge",
+  title = "Big Pixel Charge",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+
+  specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
+  )
+)
+
+SiPixelPhase1ClustersNotBigPixelCharge = DefaultHistoDigiCluster.clone(
+  name = "notbigpixelcharge",
+  title = "Not Big Pixel Charge",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+  enabled=False,
+
+  specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
+  )
+)
+
 SiPixelPhase1ClustersSize = DefaultHistoDigiCluster.clone(
   name = "size",
   title = "Total Cluster Size",
@@ -238,6 +267,8 @@ SiPixelPhase1ClustersPixelToStripRatio = DefaultHistoDigiCluster.clone(
 
 SiPixelPhase1ClustersConf = cms.VPSet(
   SiPixelPhase1ClustersCharge,
+  SiPixelPhase1ClustersBigPixelCharge,
+  SiPixelPhase1ClustersNotBigPixelCharge,
   SiPixelPhase1ClustersSize,
   SiPixelPhase1ClustersSizeX,
   SiPixelPhase1ClustersSizeY,

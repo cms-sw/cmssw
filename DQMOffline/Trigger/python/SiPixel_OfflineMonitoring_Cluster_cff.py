@@ -3,7 +3,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQMOffline.Trigger.SiPixel_OfflineMonitoring_HistogramManager_cfi import *
 
-# order is important and it should follow ordering in .h !!!
+# order is important and it should follow ordering in hltSiPixelPhase1ClustersConf VPSet
 hltSiPixelPhase1ClustersCharge = hltDefaultHistoDigiCluster.clone(
   name = "charge",
   title = "Cluster Charge",
@@ -17,6 +17,36 @@ hltSiPixelPhase1ClustersCharge = hltDefaultHistoDigiCluster.clone(
 #    StandardSpecifications1D,
     hltStandardSpecifications1D,
     StandardSpecificationTrend2D
+  )
+)
+
+hltSiPixelPhase1ClustersBigPixelCharge = DefaultHistoDigiCluster.clone(
+  name = "bigpixelcharge",
+  title = "Big Pixel Charge",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+  enabled=False,
+
+  specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
+  )
+)
+
+hltSiPixelPhase1ClustersNotBigPixelCharge = DefaultHistoDigiCluster.clone(
+  name = "notbigpixelcharge",
+  title = "Not Big Pixel Charge",
+  range_min = 0, range_max = 80e3, range_nbins = 100,
+  xlabel = "Charge (electrons)",
+  enabled=False,
+
+  specs = VPSet(
+    Specification().groupBy("PXBarrel").save(),
+    Specification().groupBy("PXForward").save(),
+    Specification().groupBy("PXBarrel/PXLayer").save(),
+    Specification().groupBy("PXForward/PXDisk").save()
   )
 )
 
@@ -239,6 +269,8 @@ hltSiPixelPhase1ClustersPixelToStripRatio = hltDefaultHistoDigiCluster.clone(
 
 hltSiPixelPhase1ClustersConf = cms.VPSet(
   hltSiPixelPhase1ClustersCharge,
+  hltSiPixelPhase1ClustersBigPixelCharge,
+  hltSiPixelPhase1ClustersNotBigPixelCharge,
   hltSiPixelPhase1ClustersSize,
   hltSiPixelPhase1ClustersSizeX,
   hltSiPixelPhase1ClustersSizeY,
