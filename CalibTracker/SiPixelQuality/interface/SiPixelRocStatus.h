@@ -1,8 +1,6 @@
 #ifndef SIPIXELROCSTATUS_h
 #define SIPIXELROCSTATUS_h
 
-#include <ctime>
-
 // ----------------------------------------------------------------------
 class SiPixelRocStatus {
 public:

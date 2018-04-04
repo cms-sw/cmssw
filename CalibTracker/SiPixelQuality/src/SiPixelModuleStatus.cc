@@ -8,8 +8,6 @@
 
 #include "CalibTracker/SiPixelQuality/interface/SiPixelModuleStatus.h"
 
-using namespace std;
-
 // ----------------------------------------------------------------------
 SiPixelModuleStatus::SiPixelModuleStatus(int detId, int nrocs): fDetid(detId), fNrocs(nrocs) {
 
@@ -17,8 +15,6 @@ SiPixelModuleStatus::SiPixelModuleStatus(int detId, int nrocs): fDetid(detId), f
     SiPixelRocStatus a;
     fRocs.push_back(a);
   }
-
-  fModAverage = fModSigma = 0.;
 
 };
 
@@ -94,42 +90,30 @@ void SiPixelModuleStatus::setNrocs(int iroc) {
 
 }
 
-
 // ----------------------------------------------------------------------
 double SiPixelModuleStatus::perRocDigiOcc() {
 
-  digiOccupancy();
-  return fModAverage;
-
-}
-
-
-// ----------------------------------------------------------------------
-double SiPixelModuleStatus::perRocDigiOccVar() {
-
-  digiOccupancy();
-  return fModSigma;
-
-}
-
-// ----------------------------------------------------------------------
-void SiPixelModuleStatus::digiOccupancy() {
-
-  fModAverage = fModSigma = 0.;
   unsigned int ave(0), sig(0);
   for (int iroc = 0; iroc < fNrocs; ++iroc) {
     unsigned int inc = digiOccROC(iroc);
     ave += inc;
   }
-  fModAverage = (1.0*ave)/fNrocs;
+  return (1.0*ave)/fNrocs;
 
+}
+
+double SiPixelModuleStatus::perRocDigiOccVar() {
+
+  double fModAverage = SiPixelModuleStatus::perRocDigiOcc();
+
+  double sig = 1.0;
   for (int iroc = 0; iroc < fNrocs; ++iroc) {
     unsigned int inc = digiOccROC(iroc);
     sig += (fModAverage-inc)*(fModAverage-inc);
   }
 
-  fModSigma   = sig/(fNrocs-1);
-  fModSigma   = TMath::Sqrt(fModSigma);
+  double fModSigma   = sig/(fNrocs-1);
+  return TMath::Sqrt(fModSigma);
 
 }
 

@@ -39,7 +39,6 @@ public:
   void   setNrocs(int iroc);
 
   /// calculate (averaged over this module's ROCs) mean hit number and its sigma
-  void digiOccupancy();
   double perRocDigiOcc();
   double perRocDigiOccVar();
 
@@ -50,7 +49,6 @@ public:
 private:
 
   int fDetid, fNrocs;
-  double fModAverage, fModSigma;
   std::vector<SiPixelRocStatus> fRocs;
 
 };
