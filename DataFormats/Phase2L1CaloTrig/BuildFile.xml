@@ -5,6 +5,7 @@
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/L1Trigger"/>
 <use   name="boost"/>
 <use   name="rootrflx"/>
 <use   name="hepmc"/>
