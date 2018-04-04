@@ -45,9 +45,9 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
   verbose_                  = iConfig.getUntrackedParameter< bool >("verbose", false);
   triggerSummaryLabel_      = iConfig.getParameter<edm::InputTag>("triggerSummaryLabel");
   triggerResultsLabel_      = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
-  turnon_threshold_low_     = iConfig.getParameter<double>("turnon_threshold_low");
+  turnon_threshold_loose_   = iConfig.getParameter<double>("turnon_threshold_loose");
   turnon_threshold_medium_  = iConfig.getParameter<double>("turnon_threshold_medium");
-  turnon_threshold_high_    = iConfig.getParameter<double>("turnon_threshold_high");
+  turnon_threshold_tight_    = iConfig.getParameter<double>("turnon_threshold_tight");
   triggerSummaryToken       = consumes <trigger::TriggerEvent> (triggerSummaryLabel_);
   triggerResultsToken       = consumes <edm::TriggerResults>   (triggerResultsLabel_);
   triggerSummaryFUToken     = consumes <trigger::TriggerEvent> (edm::InputTag(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(),std::string("FU")));
@@ -150,16 +150,11 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(!triggerResults_.isValid()) return;
 
   for(auto & v : hltPathsAll_) {
-    unsigned index = triggerNames_.triggerIndex(v.getPath());
-    if (index >= triggerNames_.size()) {
-      continue;
-    }
-
     float DR  = 9999.;
 
-    // PF btagging
-    if (   (  pfTags.isValid() && v.getTriggerType() == "PF")
-        || (caloTags.isValid() && v.getTriggerType() == "Calo" && !caloTags->empty()) )
+    // PF and Calo btagging
+    if (   (v.getTriggerType() == "PF"   &&   pfTags.isValid())
+        || (v.getTriggerType() == "Calo" && caloTags.isValid() && !caloTags->empty()) )
     {
       const auto & iter = (v.getTriggerType() == "PF") ? pfTags->begin() : caloTags->begin();
       const auto & offlineJetTagHandler = (v.getTriggerType() == "PF") ? offlineJetTagHandlerPF : offlineJetTagHandlerCalo;
@@ -324,6 +319,22 @@ BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
      title = "online discr vs offline discr "+trigPath;
      MonitorElement * Discr_HLTvsRECO =  iBooker.book2D(histoname.c_str(),title.c_str(),110,-0.1,1,110,-0.1,1);
 
+     histoname = "HLTMinusRECO_Discr";
+     title = "online discr minus offline discr "+trigPath;
+     MonitorElement * Discr_HLTMinusRECO =  iBooker.book1D(histoname.c_str(),title.c_str(),100,-1,1);
+
+     histoname = "Turnon_loose_Discr";
+     title = "turn-on with loose threshold "+trigPath;
+     MonitorElement * Discr_turnon_loose =  iBooker.book1D(histoname.c_str(),title.c_str(),20,0,1);
+
+     histoname = "Turnon_medium_Discr";
+     title = "turn-on with medium threshold "+trigPath;
+     MonitorElement * Discr_turnon_medium =  iBooker.book1D(histoname.c_str(),title.c_str(),20,0,1);
+
+     histoname = "Turnon_tight_Discr";
+     title = "turn-on with tight threshold "+trigPath;
+     MonitorElement * Discr_turnon_tight =  iBooker.book1D(histoname.c_str(),title.c_str(),20,0,1);
+
      histoname = labelname+"_PVz";
      title = "online z(PV) "+trigPath;
      MonitorElement * PVz =  iBooker.book1D(histoname.c_str(),title.c_str(),80,-20,20);
@@ -378,7 +389,8 @@ BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
 
 
      v.setHistos(
-        Discr, Pt, Eta, Discr_HLTvsRECO, PVz, fastPVz, PVz_HLTMinusRECO, fastPVz_HLTMinusRECO,
+        Discr, Pt, Eta, Discr_HLTvsRECO, Discr_HLTMinusRECO, Discr_turnon_loose, Discr_turnon_medium, Discr_turnon_tight,
+        PVz, fastPVz, PVz_HLTMinusRECO, fastPVz_HLTMinusRECO,
         n_vtx, vtx_mass, n_vtx_trks, n_sel_tracks, h_3d_ip_distance, h_3d_ip_error, h_3d_ip_sig // , n_pixel_hits, n_total_hits
      );
    }
