@@ -11,7 +11,7 @@
 #include "EventFilter/CTPPSRawToDigi/interface/RawToDigiConverter.h"
 #include "EventFilter/CTPPSRawToDigi/interface/CounterChecker.h"
 #include "EventFilter/CTPPSRawToDigi/interface/DiamondVFATFrame.h"
-#include "EventFilter/CTPPSRawToDigi/interface/TotemSampicFrame.h" 
+#include "EventFilter/CTPPSRawToDigi/interface/TotemSampicFrame.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
@@ -45,7 +45,7 @@ RawToDigiConverter::RawToDigiConverter(const edm::ParameterSet &conf) :
 
 //----------------------------------------------------------------------------------------------------
 
-void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const TotemDAQMapping &mapping,
+void RawToDigiConverter::runCommon(const VFATFrameCollection &input, const TotemDAQMapping &mapping,
       map<TotemFramePosition, RawToDigiConverter::Record> &records)
 {
   // EC and BC checks (wrt. the most frequent value), BC checks per subsystem
@@ -175,9 +175,9 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
   if (verbosity > 0 && !ees.rdbuf()->str().empty())
   {
     if (verbosity > 1)
-      LogWarning("Totem") << "Error in RawToDigiConverter::RunCommon > " << "event contains the following problems:" << endl << ees.rdbuf() << endl;
+      LogWarning("Totem") << "Error in RawToDigiConverter::runCommon > " << "event contains the following problems:" << endl << ees.rdbuf() << endl;
     else
-      LogWarning("Totem") << "Error in RawToDigiConverter::RunCommon > " << "event contains problems." << endl;
+      LogWarning("Totem") << "Error in RawToDigiConverter::runCommon > " << "event contains problems." << endl;
   }
 
   // increase error counters
@@ -196,7 +196,7 @@ void RawToDigiConverter::RunCommon(const VFATFrameCollection &input, const Totem
 
 //----------------------------------------------------------------------------------------------------
 
-void RawToDigiConverter::Run(const VFATFrameCollection &input,
+void RawToDigiConverter::run(const VFATFrameCollection &input,
   const TotemDAQMapping &mapping, const TotemAnalysisMask &analysisMask,
   DetSetVector<TotemRPDigi> &rpData, DetSetVector<TotemVFATStatus> &finalStatus)
 {
@@ -204,7 +204,7 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
   map<TotemFramePosition, Record> records;
 
   // common processing - frame validation
-  RunCommon(input, mapping, records);
+  runCommon(input, mapping, records);
 
   // second loop over data
   for (auto &p : records)
@@ -260,14 +260,14 @@ void RawToDigiConverter::Run(const VFATFrameCollection &input,
 
 //----------------------------------------------------------------------------------------------------
 
-void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
+void RawToDigiConverter::run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
       edm::DetSetVector<CTPPSDiamondDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status)
 {
   // structure merging vfat frame data with the mapping
   map<TotemFramePosition, Record> records;
 
   // common processing - frame validation
-  RunCommon(coll, mapping, records);
+  runCommon(coll, mapping, records);
 
   // second loop over data
   for (auto &p : records)
@@ -298,21 +298,21 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
 
 //----------------------------------------------------------------------------------------------------
 
-void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
+void RawToDigiConverter::run(const VFATFrameCollection &coll, const TotemDAQMapping &mapping, const TotemAnalysisMask &mask,
       edm::DetSetVector<TotemTimingDigi> &digi, edm::DetSetVector<TotemVFATStatus> &status)
 {
   // structure merging vfat frame data with the mapping
   map<TotemFramePosition, Record> records;
 
-  // common processing - frame validation 
-  RunCommon(coll, mapping, records);
-  
+  // common processing - frame validation
+  runCommon(coll, mapping, records);
+
   // second loop over data
   for (auto &p : records)
   {
     Record &record = p.second;
     if (!record.status.isOK()) continue;
-    
+
     const TotemFramePosition* framepos = &p.first;
 
     if(((framepos->getIdxInFiber()%2)==0)&&(framepos->getIdxInFiber()<14))
@@ -324,16 +324,15 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
 
       auto channelwaveformPtr = records.find(frameposdata);
       auto eventInfoPtr = records.find(frameposEvtInfo);
-      
-      if ( channelwaveformPtr != records.end() && eventInfoPtr != records.end() ) 
+
+      if ( channelwaveformPtr != records.end() && eventInfoPtr != records.end() )
       {
         Record &channelwaveform = records[frameposdata];
-        Record &eventInfo = records[frameposEvtInfo];  
-
+        Record &eventInfo = records[frameposEvtInfo];
 
         // Extract all the waveform information from the raw data
         TotemSampicFrame totemSampicFrame((uint8_t*) record.frame->getData(), (uint8_t*) channelwaveform.frame->getData(), (uint8_t*) eventInfo.frame->getData());
-        
+
         if (totemSampicFrame.valid())
         {
           // create the digi
@@ -341,17 +340,17 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
           TotemTimingDigi digiTmp( totemSampicFrame.getHardwareId(), totemSampicFrame.getFPGATimestamp(), totemSampicFrame.getTimestampA(), totemSampicFrame.getTimestampB(), totemSampicFrame.getCellInfo(), totemSampicFrame.getSamples(), eventInfoTmp);
           // calculate ids
           TotemTimingDetId detId(record.info->symbolicID.symbolicID);
-          
+
           const TotemDAQMapping::TotemTimingPlaneChannelPair SWpair = mapping.getTimingChannel( totemSampicFrame.getHardwareId() );
           // for FW Version > 0 plane and channel are encoded in the dataframe
           if ( totemSampicFrame.getFWVersion() == 0 )  // Mapping not present in HW, read from SW
           {
-            if ( SWpair.plane == -1 || SWpair.channel == -1 ) 
+            if ( SWpair.plane == -1 || SWpair.channel == -1 )
             {
               if (verbosity>0)
                 LogWarning("Totem") << "Error in RawToDigiConverter::TotemTiming > " << "HwId not recognized!  hwId: " << std::hex << (unsigned int) totemSampicFrame.getHardwareId() << endl;
             }
-            else 
+            else
             {
               detId.setPlane( SWpair.plane % 4);
               detId.setChannel( SWpair.channel );
@@ -362,13 +361,13 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
           {
             const int HWplane = totemSampicFrame.getDetPlane() % 16;
             const int HWchannel = totemSampicFrame.getDetChannel() % 16;
-            
-            if ( SWpair.plane == -1 || SWpair.channel == -1 ) 
+
+            if ( SWpair.plane == -1 || SWpair.channel == -1 )
             {
               if ( verbosity>0 )
                 LogWarning("Totem") << "Warning in RawToDigiConverter::TotemTiming > " << "HwId not recognized!  hwId: " << std::hex << (unsigned int) totemSampicFrame.getHardwareId() << "\tUsing plane and ch from HW without check!" << endl;
             }
-            else 
+            else
             {
               if ( verbosity>0 && ( SWpair.plane != HWplane || SWpair.channel != HWchannel ) )
                 LogWarning("Totem") << "Warning in RawToDigiConverter::TotemTiming > " << "Hw mapping different from SW mapping. hwId: " << std::hex << (unsigned int) totemSampicFrame.getHardwareId() << "HW: " << std::dec << HWplane << ":" << HWchannel << "\tSW " << SWpair.plane << ":" << SWpair.channel << "\tUsing plane and ch from HW!" << endl;
@@ -377,7 +376,7 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
             detId.setChannel( HWchannel );
             detId.setRP( HWplane / 4 ); // Top:0 or Bottom:1
           }
-                    
+
           DetSet<TotemTimingDigi> &digiDetSet = digi.find_or_insert(detId);
           digiDetSet.push_back(digiTmp);
         }
@@ -389,7 +388,7 @@ void RawToDigiConverter::Run(const VFATFrameCollection &coll, const TotemDAQMapp
 
 //----------------------------------------------------------------------------------------------------
 
-void RawToDigiConverter::PrintSummaries() const
+void RawToDigiConverter::printSummaries() const
 {
   // print error summary
   if (printErrorSummary)
