@@ -49,6 +49,7 @@ l1TStage2Clients = cms.Sequence(
                       + l1tStage2uGMTClient
                       + l1tStage2uGTClient
                       + l1tStage2EMTFEventInfoClient
+                      + l1tObjectsTimingClient
                         )
 
 l1tStage2MonitorClient = cms.Sequence(
