@@ -9,6 +9,8 @@ BTVHLTOfflineSource = cms.EDAnalyzer(
     #
     triggerSummaryLabel     = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
     triggerResultsLabel     = cms.InputTag("TriggerResults","","HLT"),
+    onlineDiscrLabelPF      = cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsPF", "probb"),
+    onlineDiscrLabelCalo    = cms.InputTag("hltDeepCombinedSecondaryVertexBJetTagsCalo", "probb"),
     offlineDiscrLabelPF     = cms.InputTag("pfDeepCSVJetTags", "probb"),
     offlineDiscrLabelCalo   = cms.InputTag("pfDeepCSVJetTags", "probb"),
     hltFastPVLabel          = cms.InputTag("hltFastPrimaryVertex"),
