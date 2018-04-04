@@ -54,30 +54,44 @@ if [ "$use_gridpack_env" = false -a -n "$scram_arch_version" -a -n  "$cmssw_vers
   cd $LHEWORKDIR
 fi
 
-if [[ -d lheevent ]]
-    then
-    echo 'lheevent directory found'
-    echo 'Setting up the environment'
-    rm -rf lheevent
-fi
-mkdir lheevent; cd lheevent
+##########################
+# multithread loop start
+##########################
+for (( thread=0; thread<$ncpu; thread++ ))
+do
 
-#untar the tarball directly from cvmfs
-tar -xaf ${path} 
+    if [[ -d lheevent_$thread ]]
+        then
+        echo 'lheevent_$thread directory found'
+        echo 'Setting up the environment'
+        rm -rf lheevent_$thread
+    fi
+    mkdir lheevent_$thread; cd lheevent_$thread
 
-# If TMPDIR is unset, set it to the condor scratch area if present
-# and fallback to /tmp
-export TMPDIR=${TMPDIR:-${_CONDOR_SCRATCH_DIR:-/tmp}}
+    #untar the tarball directly from cvmfs
+    tar -xaf ${path} 
 
-#generate events
-./runcmsgrid.sh $nevt $rnum $ncpu ${@:5}
+    #generate events
+    ./runcmsgrid.sh $nevt $rnum 1 ${@:5} &
+    
+    cd $LHEWORKDIR
 
-mv cmsgrid_final.lhe $LHEWORKDIR/
+done
+##########################
+# multithread loop end
+##########################
+
+wait # wait for all the subprocesses to finish
+
+for (( thread=0; thread<$ncpu; thread++ ))
+do
+    mv lheevent_$thread/cmsgrid_final.lhe $LHEWORKDIR/cmsgrid_final_$thread.lhe
+done
 
 cd $LHEWORKDIR
 
 #cleanup working directory (save space on worker node for edm output)
-rm -rf lheevent
+rm -rf lheevent_*
 
 exit 0
 
