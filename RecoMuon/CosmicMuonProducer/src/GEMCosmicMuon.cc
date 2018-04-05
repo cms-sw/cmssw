@@ -255,33 +255,35 @@ unique_ptr<vector<TrajectorySeed> > GEMCosmicMuon::findSeeds(MuonTransientTracki
       for (auto bottomhit : bottomSeeds){
 	//cout << "GEMCosmicMuon::bottomhit    " << bottomhit->globalPosition() << endl;
 	
-	GlobalVector segDirGV(tophit->globalPosition().x() - bottomhit->globalPosition().x(),
-			      tophit->globalPosition().y() - bottomhit->globalPosition().y(),
-			      tophit->globalPosition().z() - bottomhit->globalPosition().z());
+	GlobalVector segDirGV = bottomhit->globalPosition() - tophit->globalPosition();
 
-	segDirGV *=-1;
-
-	LocalPoint segPos = tophit->localPosition();
-	LocalVector segDir = tophit->det()->toLocal(segDirGV);
 	// if (doInnerSeeding_){	  
 	//cout << "GEMCosmicMuon::GlobalVector " << segDirGV << endl;
 	// }
 	int charge= 1;
-	LocalTrajectoryParameters param(segPos, segDir, charge);
+	
   
 	AlgebraicSymMatrix mat(5,0);
 	mat = tophit->parametersError().similarityT( tophit->projectionMatrix() );
-	//float p_err = 0.2;
-	//mat[0][0]= p_err;
+	mat[0][0] = 0.1;
+	mat[1][1] = 0.1;
+	mat[2][2] = 0.1;
 	LocalTrajectoryError error(asSMatrix<5>(mat));
-	// get first hit
+	// get first hit	
+	LocalPoint segPos = tophit->localPosition();
+	LocalVector segDir = tophit->det()->toLocal(segDirGV);
+	LocalTrajectoryParameters param(segPos, segDir, charge);
 	TrajectoryStateOnSurface tsos(param, error, tophit->det()->surface(), &*theService_->magneticField());
+
+	// GlobalTrajectoryParameters globalTrajParams(tophit->globalPosition(), segDirGV, charge, &*theService_->magneticField() );
+	// TrajectoryStateOnSurface tsos(globalTrajParams, error, tophit->det()->surface());
+	
+	auto tsosBot = theService_->propagator("StraightLinePropagator")->propagate(tsos,bottomhit->det()->surface());
+
 	// cout << "GEMCosmicMuon::tsos        " << tsos << endl;
-	// tsos = theUpdator_->update(tsos, *bottomhit);
+	tsos = theUpdator_->update(tsosBot, *bottomhit);
 	// cout << "GEMCosmicMuon::tsos update " << tsos << endl;
 
-	//GlobalTrajectoryParameters globalTrajParams(tophit->globalPosition(), segDirGV, charge, &*theService_->magneticField() );
-	//TrajectoryStateOnSurface tsos(globalTrajParams, error, tophit->det()->surface());
 	  
 	uint32_t id = tophit->rawId();
 	PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState(tsos, id);
@@ -311,12 +313,14 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
   
   cout << "tsos gp   "<< predTsos.freeTrajectoryState()->position() <<endl;
   auto seedhit = seed.recHits().first;
-  cout << "first  gp "<< seedhit->localPosition() <<endl;
+  cout << "first  gp "<< GEMDetId(seedhit->rawId()) <<endl;
   seedhit++;
-  cout << "second gp "<< seedhit->localPosition() <<endl;
-    
+  cout << "second gp "<< GEMDetId(seedhit->rawId()) <<endl;
+  
   float previousLayer = -200;//skip first layer
   int validHits = 0;
+  int invalidHits = 0;
+  bool firstHit = true;
   for (auto chmap : detLayerMap_){
     //// skip same layers
     if (chmap.first == previousLayer) continue;
@@ -327,10 +331,10 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
     shared_ptr<MuonTransientTrackingRecHit> tmpRecHit;
 
     //if (currTsos != predTsos)
-      predTsos = theService_->propagator("StraightLinePropagator")->propagate(currTsos,refChamber->surface());
-    // if (!predTsos.isValid()){
-    //   continue;
-    // }
+    predTsos = theService_->propagator("StraightLinePropagator")->propagate(currTsos,refChamber->surface());
+    if (!predTsos.isValid()){
+      continue;
+    }
     
     GlobalPoint tsosGP = predTsos.freeTrajectoryState()->position();
 
@@ -359,8 +363,8 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
 	  // need to find best hits per chamber
 	  float deltaR = (rhLP - tsosLP).mag();
 	  if (maxR > deltaR){
-	    //cout << "found hit "<< etaPartID<< " R = "<<rhLP.mag()   <<endl;
 	  
+	    cout << " found hit   "<< etaPartID << " pos = "<< rhLP  <<endl;
 	    const GeomDet* geomDet(etaPart);	  
 	    tmpRecHit = MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit);
 	    maxR = deltaR;
@@ -378,11 +382,10 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
     	  const LocalPoint pos = etaPart->toLocal(tsosGP);
     	  const LocalPoint pos2D(pos.x(), pos.y(), 0);
     	  const BoundPlane& bps(etaPart->surface());
-
-	  if (pos.mag() < 50){
-	  cout << "missing hit "<< etaPart->id()<< " R = "<<pos.mag() <<" inside "<<  bps.bounds().inside(pos2D) <<endl;
-	  cout << "  tsosGP "<< tsosGP << " pos = "<<pos <<endl;
-	  }
+	  
+	  if(abs(pos.y()) < 17)
+	    cout << " missing hit "<< etaPart->id() << " pos = "<<pos<< " R = "<<pos.mag() <<" inside "<<  bps.bounds().inside(pos2D) <<endl;
+	  
 	  if (bps.bounds().inside(pos2D)){
 	    
 	    
@@ -400,15 +403,24 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
     }
     
     if (tmpRecHit){      
-      cout << "hit isValid "<<tmpRecHit->isValid() <<" gp "<< tmpRecHit->globalPosition()<<endl;
+      //cout << "hit isValid "<<tmpRecHit->isValid() <<" gp "<< tmpRecHit->globalPosition()<<endl;
       if (tmpRecHit->isValid()){
-	//currTsos = theUpdator_->update(predTsos, *tmpRecHit);
+	if (!firstHit){
+	  // cout << "GEMCosmicMuon::tsos predTsos " << currTsos << endl;
+	  // currTsos = theUpdator_->update(currTsos, *tmpRecHit);
+	  // cout << "GEMCosmicMuon::tsos currTsos " << currTsos << endl;
+
+	}
 	++validHits;
+	firstHit = false;
+      }
+      else{
+	++invalidHits;
       }
       consRecHits.emplace_back(tmpRecHit);
     }
   }
-  cout << "validHits "<<validHits << endl;
+  cout << "validHits "<<validHits <<" invalidHits "<<invalidHits<< " total Hits "<< validHits+invalidHits<< endl;
   if (consRecHits.size() <3) return Trajectory();
   if (validHits <3) return Trajectory();
   vector<Trajectory> fitted = theSmoother_->trajectories(seed, consRecHits, currTsos);
