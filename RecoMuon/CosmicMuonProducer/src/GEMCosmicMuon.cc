@@ -247,7 +247,7 @@ unique_ptr<vector<TrajectorySeed> > GEMCosmicMuon::findSeeds(MuonTransientTracki
       for (auto bottomhit : bottomSeeds){
 	//cout << "GEMCosmicMuon::bottomhit    " << bottomhit->globalPosition() << endl;
 	
-	GlobalVector segDirGV = bottomhit->globalPosition() - tophit->globalPosition();
+	GlobalVector segDirGV = tophit->globalPosition() - bottomhit->globalPosition();
 
 	// if (doInnerSeeding_){	  
 	//cout << "GEMCosmicMuon::GlobalVector " << segDirGV << endl;
@@ -284,7 +284,7 @@ unique_ptr<vector<TrajectorySeed> > GEMCosmicMuon::findSeeds(MuonTransientTracki
 	seedHits.push_back(tophit->cloneHit());
 	seedHits.push_back(bottomhit->cloneHit());
 
-	TrajectorySeed seed(seedTSOS,seedHits,alongMomentum);
+	TrajectorySeed seed(seedTSOS,seedHits,oppositeToMomentum);
 	trajectorySeeds->emplace_back(seed);
       }
     }
