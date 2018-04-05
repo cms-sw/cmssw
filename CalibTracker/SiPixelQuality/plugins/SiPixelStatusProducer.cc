@@ -110,7 +110,7 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
      for (TrackerGeometry::DetContainer::const_iterator it = fTG->dets().begin(); it != fTG->dets().end(); it++){
 
           const PixelGeomDetUnit *pgdu = dynamic_cast<const PixelGeomDetUnit*>((*it));
-          if (nullptr == pgdu) continue;
+          if (pgdu == nullptr) continue;
           DetId detId = (*it)->geographicalId();
           int detid = detId.rawId();
 
@@ -169,13 +169,17 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
   // ----------------------------------------------------------------------
 
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
+  if(!iEvent.getByToken(fSiPixelClusterToken_, hClusterColl)){
+     edm::LogWarning("SiPixelStatusProducer") << " edmNew::DetSetVector<SiPixelCluster> "<<fPixelClusterLabel_<<" does not exist!"<<endl;
+     return;
+  }
 
-  if (iEvent.getByToken(fSiPixelClusterToken_, hClusterColl)){
+  iEvent.getByToken(fSiPixelClusterToken_, hClusterColl);
 
-     for (const auto& clusters: *hClusterColl) {
-           //loop over different clusters in a clusters vector (module)
-           for(const auto& clu: clusters) {
-              // loop over cluster in a given detId (module)
+  if (hClusterColl.isValid()){
+
+     for (const auto& clusters: *hClusterColl) { //loop over different clusters in a clusters vector (module)
+           for(const auto& clu: clusters) { // loop over cluster in a given detId (module)
               int detid = clusters.detId();
               int rowsperroc = fSensors[detid].first;
               int colsperroc = fSensors[detid].second;
@@ -210,7 +214,10 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
 
     }// loop over detId-grouped clusters in cluster detId-grouped clusters-vector
 
-  } // 
+  } // hClusterColl.isValid()
+  else{
+      edm::LogWarning("SiPixelStatusProducer") << " edmNew::DetSetVector<SiPixelCluster> "<<fPixelClusterLabel_<<" is NOT Valid!"<<endl;
+  }
   //////////////////////////////////////////////////////////////////////
 
   // FEDerror25 per-ROC per-event
@@ -219,9 +226,17 @@ void SiPixelStatusProducer::accumulate(edm::Event const& iEvent, const edm::Even
   // look over different resouces of takens
   for (const edm::EDGetTokenT<PixelFEDChannelCollection>& tk: theBadPixelFEDChannelsTokens_) {
 
-        if (!iEvent.getByToken(tk, pixelFEDChannelCollectionHandle)) continue;
+        // collection has to exist
+        if (!iEvent.getByToken(tk, pixelFEDChannelCollectionHandle)) {
+           edm::LogWarning("SiPixelStatusProducer") << " PixelFEDChannelCollection with index "<<tk.index()<<" does NOT exist!"<<endl;
+           continue;
+        }
         iEvent.getByToken(tk, pixelFEDChannelCollectionHandle);
-
+        // collection has to be valid
+        if(!pixelFEDChannelCollectionHandle.isValid()) {
+           edm::LogWarning("SiPixelStatusProducer") << " PixelFEDChannelCollection with index "<<tk.index()<<" is NOT valid!"<<endl;
+           continue;
+        }
         for (const auto& disabledChannels: *pixelFEDChannelCollectionHandle) {
             //loop over different PixelFED in a PixelFED vector (module)
             for(const auto& ch: disabledChannels) {
@@ -270,11 +285,9 @@ void SiPixelStatusProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lumi
   *result = fDet;
 
   // only save for the lumi sections with NON-ZERO events
-  if(ftotalevents>0) {
-    lumiSeg.put(std::move(result), std::string("siPixelStatus"));
-    edm::LogInfo("SiPixelStatusProducer")
+  lumiSeg.put(std::move(result), std::string("siPixelStatus"));
+  edm::LogInfo("SiPixelStatusProducer")
                  << "new lumi-based data stored for run "<<beginRun_<<" lumi from "<<beginLumi_<<" to "<<endLumi_<<std::endl;
-  }
 
   // reset detector status and lumi-counter
   fDet.resetDetectorStatus();
