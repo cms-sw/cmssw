@@ -329,12 +329,13 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
       unsigned int first_entry = 0;
       while (first_entry<n_entries){
 	TTree* copyTree = inputTree->CopyTree("","",split_mode,first_entry);
-	RooTreeDataStore store("reader","reader",dataVars,*copyTree); // FIXME (weight)
-	// store.loadValues(copyTree);
+	RooTreeDataStore store("reader","reader",dataVars,*copyTree,
+			       /*selExpr=*/"", /*wgtVarName=*/(weightVar.empty() ? 0 : weightVar.c_str()));
 	for (unsigned int i=0; i<store.GetEntries(); ++i){
 	  store.get(i);
 	  if (allCats.getIndex()==iCat){
-	    data_bin->add(dataVars); // FIXME (weight)
+	    data_bin->add(dataVars,
+			  weightVar.empty() ? 1.0 : dataVars.getRealValue(weightVar.c_str()));
 	  }
 	}
 	delete copyTree;
