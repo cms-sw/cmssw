@@ -42,13 +42,13 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   }
 #endif
 
-  int maxLevel = theRollLevel;
-  if (num.getLevels()!=maxLevel) {
-    std::cout << "MuonGEMNS::BNToUN "
-	      << "BaseNumber has " << num.getLevels() << " levels,"
-	      << "need "<<maxLevel<<std::endl;
-    return 0;
-  }
+  // int maxLevel = theRollLevel;
+  // if (num.getLevels()!=maxLevel) {
+  //   std::cout << "MuonGEMNS::BNToUN "
+  // 	      << "BaseNumber has " << num.getLevels() << " levels,"
+  // 	      << "need "<<maxLevel<<std::endl;
+  //   return 0;
+  // }
 
   int region(0), ring(0), station(0), layer(0), chamber(0), roll(0);
 
@@ -64,7 +64,7 @@ int GEMNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) {
   //  ring    = num.getSuperNo(theRingLevel);
   // GEM are only on the first ring
   ring = 1;
-  station = num.getSuperNo(theStationLevel);
+  station = 1;//num.getSuperNo(theStationLevel);
 #ifdef LOCAL_DEBUG
   std::cout << "GEMNumbering: Ring " << ring << " Station " 
 	    << num.getSuperNo(theStationLevel) << ":" << station << std::endl;
