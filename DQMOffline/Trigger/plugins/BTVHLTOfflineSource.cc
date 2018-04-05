@@ -47,7 +47,7 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
   triggerResultsLabel_      = iConfig.getParameter<edm::InputTag>("triggerResultsLabel");
   turnon_threshold_loose_   = iConfig.getParameter<double>("turnon_threshold_loose");
   turnon_threshold_medium_  = iConfig.getParameter<double>("turnon_threshold_medium");
-  turnon_threshold_tight_    = iConfig.getParameter<double>("turnon_threshold_tight");
+  turnon_threshold_tight_   = iConfig.getParameter<double>("turnon_threshold_tight");
   triggerSummaryToken       = consumes <trigger::TriggerEvent> (triggerSummaryLabel_);
   triggerResultsToken       = consumes <edm::TriggerResults>   (triggerResultsLabel_);
   triggerSummaryFUToken     = consumes <trigger::TriggerEvent> (edm::InputTag(triggerSummaryLabel_.label(),triggerSummaryLabel_.instance(),std::string("FU")));
@@ -60,8 +60,8 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
   //                               edm::InputTag("hltCombinedSecondaryVertexBJetTagsPF"));
   pfTagsToken_              = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("onlineDiscrLabelPF"));
   caloTagsToken_            = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("onlineDiscrLabelCalo"));
-  offlineDiscrTokenPF_      = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineDiscrLabelPF"));
-  offlineDiscrTokenCalo_    = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineDiscrLabelCalo"));
+  offlineDiscrTokenb_       = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineDiscrLabelb"));
+  offlineDiscrTokenbb_      = consumes<reco::JetTagCollection> (iConfig.getParameter<edm::InputTag>("offlineDiscrLabelbb"));
   hltFastPVToken_           = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("hltFastPVLabel"));
   hltPFPVToken_             = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("hltPFPVLabel"));
   hltCaloPVToken_           = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("hltCaloPVLabel"));
@@ -133,11 +133,11 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   Handle<reco::VertexCollection> VertexHandler;
 
-  Handle<reco::JetTagCollection> offlineJetTagHandlerPF;
-  iEvent.getByToken(offlineDiscrTokenPF_, offlineJetTagHandlerPF);
+  Handle<reco::JetTagCollection> offlineJetTagHandlerb;
+  iEvent.getByToken(offlineDiscrTokenb_, offlineJetTagHandlerb);
 
-  Handle<reco::JetTagCollection> offlineJetTagHandlerCalo;
-  iEvent.getByToken(offlineDiscrTokenCalo_, offlineJetTagHandlerCalo);
+  Handle<reco::JetTagCollection> offlineJetTagHandlerbb;
+  iEvent.getByToken(offlineDiscrTokenbb_, offlineJetTagHandlerbb);
 
   Handle<reco::VertexCollection> offlineVertexHandler;
   iEvent.getByToken(offlinePVToken_, offlineVertexHandler);
@@ -158,7 +158,6 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         || (v.getTriggerType() == "Calo" && caloTags.isValid() && !caloTags->empty()) )
     {
       const auto & iter = (v.getTriggerType() == "PF") ? pfTags->begin() : caloTags->begin();
-      const auto & offlineJetTagHandler = (v.getTriggerType() == "PF") ? offlineJetTagHandlerPF : offlineJetTagHandlerCalo;
 
       float Discr_online = iter->second;
       if (Discr_online<0) Discr_online = -0.05;
@@ -167,11 +166,23 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       v.Pt->Fill(iter->first->pt());
       v.Eta->Fill(iter->first->eta());
 
-      if(offlineJetTagHandler.isValid()){
-        for (auto const & iterO : *offlineJetTagHandler){
-          float DR = reco::deltaR(iterO.first->eta(),iterO.first->phi(),iter->first->eta(),iter->first->phi());
+      if(offlineJetTagHandlerb.isValid()){
+        for (auto const & iterOffb : *offlineJetTagHandlerb){
+          float DR = reco::deltaR(iterOffb.first->eta(),iterOffb.first->phi(),iter->first->eta(),iter->first->phi());
           if (DR<0.3) {
-            float Discr_offline = iterO.second;
+            float Discr_offline = iterOffb.second;
+
+            // offline probb and probbb must be added (if probbb isn't specified, it'll just use probb)
+            if(offlineJetTagHandlerbb.isValid()){
+              for (auto const & iterOffbb : *offlineJetTagHandlerbb){
+                DR = reco::deltaR(iterOffbb.first->eta(),iterOffbb.first->phi(),iter->first->eta(),iter->first->phi());
+                if (DR<0.3) {
+                  Discr_offline += iterOffbb.second;
+                  break;
+                }
+              }
+            }
+
             if (Discr_offline<0) Discr_offline = -0.05;
             v.Discr_HLTvsRECO->Fill(Discr_online, Discr_offline);
             v.Discr_HLTMinusRECO->Fill(Discr_online - Discr_offline);
@@ -183,6 +194,8 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
             if (Discr_online > turnon_threshold_loose_) v.Discr_turnon_loose .numerator->Fill(Discr_offline);
             if (Discr_online > turnon_threshold_medium_)v.Discr_turnon_medium.numerator->Fill(Discr_offline);
             if (Discr_online > turnon_threshold_tight_) v.Discr_turnon_tight .numerator->Fill(Discr_offline);
+
+            break;
           }
         }
       }

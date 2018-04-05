@@ -66,8 +66,8 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   float turnon_threshold_medium_;
   float turnon_threshold_tight_;
 
-  edm::EDGetTokenT<reco::JetTagCollection> offlineDiscrTokenPF_;
-  edm::EDGetTokenT<reco::JetTagCollection> offlineDiscrTokenCalo_;
+  edm::EDGetTokenT<reco::JetTagCollection> offlineDiscrTokenb_;
+  edm::EDGetTokenT<reco::JetTagCollection> offlineDiscrTokenbb_;
 
   edm::EDGetTokenT<std::vector<reco::Vertex> > hltFastPVToken_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > hltPFPVToken_;
