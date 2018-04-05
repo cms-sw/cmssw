@@ -21,7 +21,7 @@ import RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi
 hbherecoNoise = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbheprereco.clone(
     digiLabelQIE8  = cms.InputTag("hcalDigiAlCaMB"),
     digiLabelQIE11 = cms.InputTag("hcalDigiAlCaMB"),
-    tsFromDB = cms.bool(False),
+###    tsFromDB = cms.bool(False),
     dropZSmarkedPassed = cms.bool(False),
     algorithm = dict(
         useMahi = cms.bool(False),
@@ -39,15 +39,13 @@ hbherecoNoise = RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi.hbhep
     setLegacyFlagsQIE11 = cms.bool(False),
 )
 
-hbherecoNoise.algorithm.firstSample = 0
-hbherecoNoise.algorithm.firstSampleShift = -3
-hbherecoNoise.algorithm.samplesToAdd = 3
+hbherecoNoise.algorithm.firstSampleShift = -100 # to set reco window at very beginning of the TS array
 
 import RecoLocalCalo.HcalRecProducers.hosimplereco_cfi
 horecoNoise = RecoLocalCalo.HcalRecProducers.hosimplereco_cfi.hosimplereco.clone()
 
 horecoNoise.firstSample = 0
-horecoNoise.samplesToAdd = 3
+horecoNoise.samplesToAdd = 4
 horecoNoise.digiLabel = 'hcalDigiAlCaMB'
 horecoNoise.tsFromDB = cms.bool(False)
 horecoNoise.dropZSmarkedPassed = cms.bool(False)
