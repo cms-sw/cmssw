@@ -142,7 +142,7 @@ void OmtfUnpacker::produce(edm::Event& event, const edm::EventSetup& setup)
   auto producedRPCDigis = std::make_unique<RPCDigiCollection>();
   auto producedCscLctDigis = std::make_unique<CSCCorrelatedLCTDigiCollection>();
   auto producedMuonDigis = std::make_unique<l1t::RegionalMuonCandBxCollection>(); 
-  producedMuonDigis->setBXRange(-3,3);
+  producedMuonDigis->setBXRange(-3,4);
   auto producedDTPhDigis = std::make_unique<L1MuDTChambPhContainer>();
   auto producedDTThDigis = std::make_unique<L1MuDTChambThContainer>();
   std::vector<L1MuDTChambPhDigi> phi_Container;
