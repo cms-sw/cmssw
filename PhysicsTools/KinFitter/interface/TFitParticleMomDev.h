@@ -36,7 +36,8 @@ protected :
 
 
 private:
-  
+
+  ClassDef(TFitParticleMomDev, 0)
 };
 
 #endif
