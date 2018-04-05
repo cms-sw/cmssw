@@ -28,8 +28,6 @@ from DQMOffline.Trigger.TopMonitoring_Client_cff import *
 from DQMOffline.Trigger.BTaggingMonitoring_Client_cff import *
 from DQMOffline.Trigger.BPHMonitoring_Client_cff import *
 from DQMOffline.Trigger.JetMETPromptMonitoring_Client_cff import *
-
-
 hltOfflineDQMClient = cms.Sequence(
 #    hltGeneralSeqClient *
     sipixelHarvesterHLTsequence *
@@ -37,7 +35,7 @@ hltOfflineDQMClient = cms.Sequence(
     hltMuonPostVal *
     jetMETHLTOfflineClient *
     fsqClient *
-    HiJetClient *
+    HiJetClient * 
     #tagAndProbeEfficiencyPostProcessor *
     HLTTauPostSeq *
     dqmOfflineHLTCert *
