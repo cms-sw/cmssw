@@ -261,7 +261,7 @@ namespace hcaldqm
 			{fQIE10fC_2000,100},
 			{fQIE10fC_10000,500},
 			{fQIE8fC_1000_50,50},
-			{fTime_ns_250,250},
+			{fTime_ns_250,100},
 			{fADC_256,256},
 			{ffC_generic_10000,10000},
 			{ffC_generic_400000,10000},	
