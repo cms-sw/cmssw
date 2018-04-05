@@ -72,7 +72,7 @@ def cleanPfCandidates(process, verbose=False):
     #                               timetype = cms.string('runnumber'),
     #                               toGet = cms.VPSet(
     #                                            cms.PSet(record = cms.string("HcalRespCorrsRcd"),
-    #                                            tag = cms.string("HcalRespCorrs_2016legacy_fixBadCalib")
+    #                                            tag = cms.string("HcalRespCorrs_2016legacy_fixBadCalib")  #based on HcalRespCorrs_v6.3_offline
     #                                                     )
     #                                            ),
     #                               connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
@@ -121,6 +121,14 @@ def customizeAll(process, verbose=False):
 
     cleanPfCandidates(process, verbose)
     addDiscardedPFCandidates(process, cms.InputTag("pfCandidatesBadHadRecalibrated","discarded"), verbose=verbose)
+
+    #=== TMP FOR TESTING ONLY
+    #addKeepStatement(process, "keep patPackedCandidates_packedPFCandidates_*_*",
+    #                         ["keep patPackedCandidates_packedPFCandidatesDiscarded_*_*",
+    #                          "keep *_particleFlow__*",
+    #                          "keep *_pfCandidatesBadHadRecalibrated__*"],
+    #                          verbose=verbose)
+    #=== END - TMP FOR TESTING ONLY
 
 
     return process
