@@ -3,7 +3,7 @@
 #include <iomanip>
 #include <limits>
 
-#include "DataFormats/PatCandidates/interface/liblogintpack.h"
+#include "DataFormats/Math/interface/liblogintpack.h"
 
 class testlogintpack : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testlogintpack);
