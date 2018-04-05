@@ -25,6 +25,7 @@ caloStage2Params.regionPUSParams  = cms.vdouble()
 
 # EG
 caloStage2Params.egLsb                      = cms.double(0.5)
+caloStage2Params.egEtaCut                   = cms.int32(28)
 caloStage2Params.egSeedThreshold            = cms.double(2.)
 caloStage2Params.egNeighbourThreshold       = cms.double(1.)
 caloStage2Params.egHcalThreshold            = cms.double(0.)
@@ -55,6 +56,7 @@ caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalor
 
 # Tau
 caloStage2Params.tauLsb                        = cms.double(0.5)
+caloStage2Params.isoTauEtaMax                  = cms.int32(25)
 caloStage2Params.tauSeedThreshold              = cms.double(0.)
 caloStage2Params.tauNeighbourThreshold         = cms.double(0.)
 caloStage2Params.tauIsoAreaNrTowersEta         = cms.uint32(2)
