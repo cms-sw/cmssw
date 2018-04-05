@@ -167,8 +167,8 @@ void GEMCosmicMuon::produce(edm::Event& ev, const edm::EventSetup& setup) {
   for (auto seed : *trajectorySeedCands){
     Trajectory smoothed = makeTrajectory(seed, gemRecHits.product());
     if (smoothed.isValid()){
-      //cout << "GEMCosmicMuon::Trajectory " << smoothed.foundHits() << endl;
-      //cout << "GEMCosmicMuon::Trajectory chiSquared/ ndof " << smoothed.chiSquared()/float(smoothed.ndof()) << endl;
+      cout << "GEMCosmicMuon::Trajectory " << smoothed.foundHits() << endl;
+      cout << "GEMCosmicMuon::Trajectory chiSquared/ndof " << smoothed.chiSquared()/float(smoothed.ndof()) << endl;
       //if (( maxChi2 > smoothed.chiSquared()/float(smoothed.ndof())) and ( smoothed.chiSquared()/float(smoothed.ndof()) > 7.0)){
       if (maxChi2 > smoothed.chiSquared()/float(smoothed.ndof())){
 	maxChi2 = smoothed.chiSquared()/float(smoothed.ndof());
@@ -249,17 +249,12 @@ unique_ptr<vector<TrajectorySeed> > GEMCosmicMuon::findSeeds(MuonTransientTracki
 	
 	GlobalVector segDirGV = tophit->globalPosition() - bottomhit->globalPosition();
 
-	// if (doInnerSeeding_){	  
-	//cout << "GEMCosmicMuon::GlobalVector " << segDirGV << endl;
-	// }
 	int charge= 1;
-	
-  
 	AlgebraicSymMatrix mat(5,0);
 	mat = tophit->parametersError().similarityT( tophit->projectionMatrix() );
-	mat[0][0] = 0.1;
-	mat[1][1] = 0.1;
-	mat[2][2] = 0.1;
+	mat[0][0] = 0.5;
+	mat[1][1] = 0.5;
+	mat[2][2] = 0.5;
 	LocalTrajectoryError error(asSMatrix<5>(mat));
 	// get first hit	
 	LocalPoint segPos = tophit->localPosition();
@@ -267,24 +262,18 @@ unique_ptr<vector<TrajectorySeed> > GEMCosmicMuon::findSeeds(MuonTransientTracki
 	LocalTrajectoryParameters param(segPos, segDir, charge);
 	TrajectoryStateOnSurface tsos(param, error, tophit->det()->surface(), &*theService_->magneticField());
 
-	// GlobalTrajectoryParameters globalTrajParams(tophit->globalPosition(), segDirGV, charge, &*theService_->magneticField() );
-	// TrajectoryStateOnSurface tsos(globalTrajParams, error, tophit->det()->surface());
-	
-	auto tsosBot = theService_->propagator("StraightLinePropagator")->propagate(tsos,bottomhit->det()->surface());
-
-	// cout << "GEMCosmicMuon::tsos        " << tsos << endl;
-	tsos = theUpdator_->update(tsosBot, *bottomhit);
-	// cout << "GEMCosmicMuon::tsos update " << tsos << endl;
-
+	// auto tsosBot = theService_->propagator("StraightLinePropagator")->propagate(tsos,bottomhit->det()->surface());
+	// // cout << "GEMCosmicMuon::tsos        " << tsos << endl;
+	// tsos = theUpdator_->update(tsosBot, *bottomhit);
+	// // cout << "GEMCosmicMuon::tsos update " << tsos << endl;
 	  
-	uint32_t id = tophit->rawId();
-	PTrajectoryStateOnDet const & seedTSOS = trajectoryStateTransform::persistentState(tsos, id);
+	PTrajectoryStateOnDet seedTSOS = trajectoryStateTransform::persistentState(tsos, tophit->rawId());
 	
 	edm::OwnVector<TrackingRecHit> seedHits;
 	seedHits.push_back(tophit->cloneHit());
 	seedHits.push_back(bottomhit->cloneHit());
 
-	TrajectorySeed seed(seedTSOS,seedHits,oppositeToMomentum);
+	TrajectorySeed seed(seedTSOS,seedHits,alongMomentum);
 	trajectorySeeds->emplace_back(seed);
       }
     }
@@ -356,7 +345,7 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
 	  float deltaR = (rhLP - tsosLP).mag();
 	  if (maxR > deltaR){
 	  
-	    cout << " found hit   "<< etaPartID << " pos = "<< rhLP  <<endl;
+	    cout << " found hit   "<< etaPartID << " pos = "<< rhLP << " R = "<<deltaR <<endl;
 	    const GeomDet* geomDet(etaPart);	  
 	    tmpRecHit = MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit);
 	    maxR = deltaR;
@@ -399,7 +388,7 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
       if (tmpRecHit->isValid()){
 	if (!firstHit){
 	  // cout << "GEMCosmicMuon::tsos predTsos " << currTsos << endl;
-	  // currTsos = theUpdator_->update(currTsos, *tmpRecHit);
+	  // currTsos = theUpdator_->update(predTsos, *tmpRecHit);
 	  // cout << "GEMCosmicMuon::tsos currTsos " << currTsos << endl;
 
 	}
@@ -413,9 +402,13 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
     }
   }
   cout << "validHits "<<validHits <<" invalidHits "<<invalidHits<< " total Hits "<< validHits+invalidHits<< endl;
+  cout << "consRecHits.size() "<<consRecHits.size()<< endl;
   if (consRecHits.size() <3) return Trajectory();
+  cout << "validHits "<<validHits<< endl;
   if (validHits <3) return Trajectory();
   vector<Trajectory> fitted = theSmoother_->trajectories(seed, consRecHits, currTsos);
+  
+  cout << "fitted.size() "<<fitted.size()<< endl;
   return fitted.front();
 }
 
