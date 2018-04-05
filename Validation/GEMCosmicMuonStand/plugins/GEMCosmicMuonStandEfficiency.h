@@ -9,6 +9,8 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 class GEMCosmicMuonStandEfficiency : public DQMEDAnalyzer
@@ -22,8 +24,15 @@ MonitorElement* BookHist1D( DQMStore::IBooker &, const char* name, const char* l
 
 private:
 
-MonitorElement* gem_vfat_eff[3][5];
+MonitorElement* gem_vfat_eff[30];
+MonitorElement* gem_vfat_tot[30];
 MonitorElement* gem_vfat_total_eff;
+MonitorElement* isuperChamber;
+MonitorElement* ilayers;
+MonitorElement* ichamber;
+MonitorElement* iroll;
+MonitorElement* ipartition;
+MonitorElement* ichi2;
 
 edm::EDGetTokenT<reco::TrackCollection> insideOutTracks_, outsideInTracks_;
 
@@ -31,3 +40,7 @@ edm::EDGetTokenT<reco::TrackCollection> insideOutTracks_, outsideInTracks_;
 
 DEFINE_FWK_MODULE (GEMCosmicMuonStandEfficiency) ;
 #endif
+
+/* Track -> seedRef() :::: RefToBase<TrajectorySeed> :::: range
+ * recHits
+ */

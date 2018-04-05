@@ -27,10 +27,22 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Input source
+# Input source
+import os
+dqm_input_dir = "./"
+entries = [each for each in os.listdir(dqm_input_dir)]
+entries = [each for each in entries if each.endswith(".root")]
+entries = [each for each in entries if each.startswith("dqm")]
+entries = ["file:" + os.path.join(dqm_input_dir, each) for each in entries]
+
+process.source = cms.Source("DQMRootSource",
+    fileNames = cms.untracked.vstring(*entries)
+    )
+"""
 process.source = cms.Source("DQMRootSource",
     fileNames = cms.untracked.vstring('file:dqm.root')
 )
-
+"""
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound'),
     fileMode = cms.untracked.string('FULLMERGE')
