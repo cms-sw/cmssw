@@ -139,7 +139,7 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetch(bool puppi, floa
             }
             if (p.floatPt() > ptMin) {
                 reco::Particle::PolarLorentzVector p4(p.floatPt(), r.globalEta(p.floatVtxEta()), r.globalPhi(p.floatVtxPhi()), 0.13f);
-                ret->emplace_back( l1t::PFCandidate::Kind(p.hwId), p.intCharge(), reco::Particle::LorentzVector(p4), p.floatPuppiW() );
+                ret->emplace_back( l1t::PFCandidate::Kind(p.hwId), p.intCharge(), p4, p.floatPuppiW() );
                 ret->back().setVertex(reco::Particle::Point(0,0,p.floatDZ()));
                 ret->back().setStatus(p.hwStatus);
                 if (p.cluster.src) {
@@ -180,7 +180,7 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetchCalo(float ptMin,
             if (p.floatPt() > ptMin) {
                 reco::Particle::PolarLorentzVector p4(p.floatPt(), r.globalEta(p.floatEta()), r.globalPhi(p.floatPhi()), 0.13f);
                 l1t::PFCandidate::Kind kind = (p.isEM || emcalo) ? l1t::PFCandidate::Photon : l1t::PFCandidate::NeutralHadron;
-                ret->emplace_back( kind, 0, reco::Particle::LorentzVector(p4) );
+                ret->emplace_back( kind, 0, p4 );
             }
         }
     }
@@ -204,7 +204,7 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetchTracks(float ptMi
             if (p.floatPt() > ptMin) {
                 reco::Particle::PolarLorentzVector p4(p.floatVtxPt(), r.globalEta(p.floatVtxEta()), r.globalPhi(p.floatVtxPhi()), 0.13f);
                 l1t::PFCandidate::Kind kind = p.muonLink ? l1t::PFCandidate::Muon : l1t::PFCandidate::ChargedHadron;
-                ret->emplace_back( kind, p.intCharge(), reco::Particle::LorentzVector(p4) );
+                ret->emplace_back( kind, p.intCharge(), p4 );
                 ret->back().setVertex(reco::Particle::Point(0,0,p.floatDZ()));
             }
         }

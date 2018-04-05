@@ -16,12 +16,9 @@ namespace l1t
           enum Kind { ChargedHadron=0, Electron=1, NeutralHadron=2, Photon=3, Muon=4 };
 
           PFCandidate() {}
-          PFCandidate(Kind kind, int charge, const LorentzVector & p, float puppiWeight=-1, int hwpt=0, int hweta=0, int hwphi=0) : 
-              L1Candidate(p, hwpt, hweta, hwphi, /*hwQuality=*/int(kind)),
-              puppiWeight_(puppiWeight)
-              {
-                  setPdgIdFromKind_(charge,kind);
-              }
+          PFCandidate(Kind kind, int charge, const LorentzVector & p, float puppiWeight=-1, int hwpt=0, int hweta=0, int hwphi=0) :
+                PFCandidate(kind, charge, PolarLorentzVector(p), puppiWeight, hwpt, hweta, hwphi) {}
+          PFCandidate(Kind kind, int charge, const PolarLorentzVector & p, float puppiWeight=-1, int hwpt=0, int hweta=0, int hwphi=0) ; 
 
           Kind id() const { return Kind(hwQual()); }
 
