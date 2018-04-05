@@ -23,6 +23,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 #include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
@@ -104,7 +105,7 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   edm::TriggerNames triggerNames_;
   edm::Handle<trigger::TriggerEvent> triggerObj_;
 
-  class PathInfo {
+  class PathInfo : public TriggerDQMBase {
     PathInfo():
       prescaleUsed_(-1),
       pathName_("unset"),
@@ -115,28 +116,6 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
       {};
 
   public:
-    void setHistos(
-       MonitorElement* const Discr, MonitorElement* const Pt, MonitorElement* const Eta,
-       MonitorElement* const Discr_HLTvsRECO, MonitorElement* const Discr_HLTMinusRECO,
-       MonitorElement* const Discr_turnon_loose, MonitorElement* const Discr_turnon_medium, MonitorElement* const Discr_turnon_tight,
-       MonitorElement* const PVz, MonitorElement* const fastPVz,
-       MonitorElement* const PVz_HLTMinusRECO, MonitorElement* const fastPVz_HLTMinusRECO,
-       MonitorElement* const n_vtx, MonitorElement* const vtx_mass, MonitorElement* const n_vtx_trks,
-       MonitorElement* const n_sel_tracks, MonitorElement* const h_3d_ip_distance,
-       MonitorElement* const h_3d_ip_error, MonitorElement* const h_3d_ip_sig  // ,
-       // MonitorElement* const n_pixel_hits, MonitorElement* const n_total_hits
-    )
-    { Discr_ = Discr; Pt_ = Pt; Eta_ = Eta;
-      Discr_HLTvsRECO_ = Discr_HLTvsRECO; Discr_HLTMinusRECO_ = Discr_HLTMinusRECO;
-      Discr_turnon_loose_ = Discr_turnon_loose; Discr_turnon_medium_ = Discr_turnon_medium; Discr_turnon_tight_ = Discr_turnon_tight;
-      PVz_ = PVz; fastPVz_ = fastPVz; PVz_HLTMinusRECO_ = PVz_HLTMinusRECO; fastPVz_HLTMinusRECO_ = fastPVz_HLTMinusRECO;
-      n_vtx_ = n_vtx; vtx_mass_ = vtx_mass; n_vtx_trks_ = n_vtx_trks;
-      n_sel_tracks_ = n_sel_tracks; h_3d_ip_distance_ = h_3d_ip_distance;
-      h_3d_ip_error_ = h_3d_ip_error; h_3d_ip_sig_ = h_3d_ip_sig;
-      // n_pixel_hits_ = n_pixel_hits; n_total_hits_ = n_total_hits;
-    };
-
-
     ~PathInfo() = default;;
     PathInfo(int prescaleUsed,
         std::string pathName,
@@ -149,96 +128,48 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
       filterName_(std::move(filterName)),
       processName_(std::move(processName)),
       objectType_(type),
-      triggerType_(std::move(triggerType))
-    {
-    }
+      triggerType_(std::move(triggerType)) {}
 
-      MonitorElement * getMEhisto_Discr()                 { return Discr_;}
-      MonitorElement * getMEhisto_Pt()                    { return Pt_; }
-      MonitorElement * getMEhisto_Eta()                   { return Eta_;}
-      MonitorElement * getMEhisto_Discr_HLTvsRECO()       { return Discr_HLTvsRECO_;}
-      MonitorElement * getMEhisto_Discr_HLTMinusRECO()    { return Discr_HLTMinusRECO_;}
-      MonitorElement * getMEhisto_Discr_turnon_loose()    { return Discr_turnon_loose_;}
-      MonitorElement * getMEhisto_Discr_turnon_medium()   { return Discr_turnon_medium_;}
-      MonitorElement * getMEhisto_Discr_turnon_tight()    { return Discr_turnon_tight_;}
-      MonitorElement * getMEhisto_PVz()                   { return PVz_;}
-      MonitorElement * getMEhisto_fastPVz()               { return fastPVz_;}
-      MonitorElement * getMEhisto_PVz_HLTMinusRECO()      { return PVz_HLTMinusRECO_;}
-      MonitorElement * getMEhisto_fastPVz_HLTMinusRECO()  { return fastPVz_HLTMinusRECO_;}
-      MonitorElement * getMEhisto_n_vtx()                 { return n_vtx_; }
-      MonitorElement * getMEhisto_vtx_mass()              { return vtx_mass_; }
-      MonitorElement * getMEhisto_n_vtx_trks()            { return n_vtx_trks_; }
-      MonitorElement * getMEhisto_n_sel_tracks()          { return n_sel_tracks_; }
-      MonitorElement * getMEhisto_h_3d_ip_distance()      { return h_3d_ip_distance_; }
-      MonitorElement * getMEhisto_h_3d_ip_error()         { return h_3d_ip_error_; }
-      MonitorElement * getMEhisto_h_3d_ip_sig()           { return h_3d_ip_sig_; }
-      // MonitorElement * getMEhisto_n_pixel_hits()          { return n_pixel_hits_; }
-      // MonitorElement * getMEhisto_n_total_hits()          { return n_total_hits_; }
+    const std::string getLabel( )                const  {return filterName_;}
+    void setLabel(std::string labelName)                {filterName_ = std::move(labelName);}
+    const std::string getPath( )                 const  {return pathName_;}
+    const int getprescaleUsed()                  const  {return prescaleUsed_;}
+    const std::string getProcess( )              const  {return processName_;}
+    const int getObjectType( )                   const  {return objectType_;}
+    const std::string getTriggerType( )          const  {return triggerType_;}
+    const edm::InputTag getTag()                 const  {return edm::InputTag(filterName_,"",processName_);}
+    const bool operator== (const std::string& v) const  {return v==pathName_;}
 
-      const std::string getLabel( ) const {
-          return filterName_;
-      }
-      void setLabel(std::string labelName){
-          filterName_ = std::move(labelName);
-          return;
-      }
-      const std::string getPath( ) const {
-          return pathName_;
-      }
-      const int getprescaleUsed() const {
-          return prescaleUsed_;
-      }
-      const std::string getProcess( ) const {
-          return processName_;
-      }
-      const int getObjectType( ) const {
-          return objectType_;
-      }
-      const std::string getTriggerType( ) const {
-          return triggerType_;
-      }
-      const edm::InputTag getTag() const{
-          edm::InputTag tagName(filterName_,"",processName_);
-          return tagName;
-      }
-      bool operator==(const std::string& v)
-      {
-          return v==pathName_;
-      }
+    MonitorElement*  Discr;
+    MonitorElement*  Pt;
+    MonitorElement*  Eta;
+    MonitorElement*  Discr_HLTvsRECO;
+    MonitorElement*  Discr_HLTMinusRECO;
+    ObjME            Discr_turnon_loose;
+    ObjME            Discr_turnon_medium;
+    ObjME            Discr_turnon_tight;
+    MonitorElement*  PVz;
+    MonitorElement*  fastPVz;
+    MonitorElement*  PVz_HLTMinusRECO;
+    MonitorElement*  fastPVz_HLTMinusRECO;
+    MonitorElement*  n_vtx;
+    MonitorElement*  vtx_mass;
+    MonitorElement*  n_vtx_trks;
+    MonitorElement*  n_sel_tracks;
+    MonitorElement*  h_3d_ip_distance;
+    MonitorElement*  h_3d_ip_error;
+    MonitorElement*  h_3d_ip_sig;
+    // MonitorElement*  n_pixel_hits_;
+    // MonitorElement*  n_total_hits_;
 
   private:
-
-      int prescaleUsed_;
-      std::string pathName_;
-      std::string filterName_;
-      std::string processName_;
-      int objectType_;
-      std::string triggerType_;
-
-      MonitorElement*  Discr_;
-      MonitorElement*  Pt_;
-      MonitorElement*  Eta_;
-      MonitorElement*  Discr_HLTvsRECO_;
-      MonitorElement*  Discr_HLTMinusRECO_;
-      MonitorElement*  Discr_turnon_loose_;
-      MonitorElement*  Discr_turnon_medium_;
-      MonitorElement*  Discr_turnon_tight_;
-      MonitorElement*  PVz_;
-      MonitorElement*  fastPVz_;
-      MonitorElement*  PVz_HLTMinusRECO_;
-      MonitorElement*  fastPVz_HLTMinusRECO_;
-      MonitorElement*  n_vtx_;
-      MonitorElement*  vtx_mass_;
-      MonitorElement*  n_vtx_trks_;
-      MonitorElement*  n_sel_tracks_;
-      MonitorElement*  h_3d_ip_distance_;
-      MonitorElement*  h_3d_ip_error_;
-      MonitorElement*  h_3d_ip_sig_;
-      // MonitorElement*  n_pixel_hits_;
-      // MonitorElement*  n_total_hits_;
-
-
-      };
+    int prescaleUsed_;
+    std::string pathName_;
+    std::string filterName_;
+    std::string processName_;
+    int objectType_;
+    std::string triggerType_;
+  };
 
   class PathInfoCollection: public std::vector<PathInfo> {
   public:
