@@ -305,7 +305,7 @@ BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
   for(auto & v : hltPathsAll_){
     //
     std::string trgPathName = HLTConfigProvider::removeVersion(v.getPath());
-    std::string subdirName  = dirname_ +"/"+ trgPathName;
+    std::string subdirName  = dirname_ +"/"+ trgPathName + v.getTriggerType();
     std::string trigPath    = "("+trgPathName+")";
     iBooker.setCurrentFolder(subdirName);
 
