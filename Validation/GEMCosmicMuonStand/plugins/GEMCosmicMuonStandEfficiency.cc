@@ -14,6 +14,8 @@ GEMCosmicMuonStandEfficiency::GEMCosmicMuonStandEfficiency(const edm::ParameterS
 {
   insideOutTracks_ = consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>("insideOutTracks"));
   outsideInTracks_ = consumes<reco::TrackCollection>(cfg.getParameter<edm::InputTag>("outsideInTracks"));
+  seedInside_ = consumes<vector<TrajectorySeed>>(cfg.getParameter<edm::InputTag>("insideOutTracks"));
+  seedOutside_ = consumes<vector<TrajectorySeed>>(cfg.getParameter<edm::InputTag>("outsideInTracks"));
 }
 
 MonitorElement* GEMCosmicMuonStandEfficiency::BookHist1D( DQMStore::IBooker &ibooker, const char* name, const char* label, unsigned int row, unsigned int coll, unsigned int layer_num, unsigned int vfat_num, const unsigned int Nbin, const Float_t xMin, const Float_t xMax)
@@ -76,16 +78,25 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
 
   edm::Handle<reco::TrackCollection> outsideInTracks;
   e.getByToken( outsideInTracks_, outsideInTracks);
+
+  edm::Handle<vector<TrajectorySeed>> seedInside;
+  e.getByToken( seedInside_, seedInside);
+
+  edm::Handle<vector<TrajectorySeed>> seedOutside;
+  e.getByToken( seedOutside_, seedOutside);
 //Test Lines
   
   for (std::vector<reco::Track>::const_iterator track = insideOutTracks->begin(); track != insideOutTracks->end(); ++track)
   {
-    cout << "track->recHitsSize() "<< track->recHitsSize() <<endl;
-    
-    ichi2->Fill(track->chi2());
+    vector<TrajectorySeed>::const_iterator seeds = seedInside->begin();
+    auto seed = ((*seeds).recHits()).first;
+    auto firstHit = seed->rawId();
+    seed++;
+    auto secondHit = seed->rawId();
     for (trackingRecHit_iterator recHit = track->recHitsBegin(); recHit != track->recHitsEnd(); ++recHit)
     {
       auto rawId = (*recHit)->rawId();
+      if(rawId == firstHit or rawId == secondHit) continue;
       auto etaPartition = GEMGeometry_->etaPartition(rawId);
       auto superChamber = GEMGeometry_->superChamber(rawId);
 
@@ -113,20 +124,16 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
  }
   for (std::vector<reco::Track>::const_iterator track = outsideInTracks->begin(); track != outsideInTracks->end(); ++track)
   {
-    ichi2->Fill(track->chi2());
-
-//// Below lines have error
-    cout << "track->recHitsSize() "<< track->recHitsSize() <<endl;
-    // auto seed = track->seedRef();
-    // auto seedhit = seed->recHits().first;
-    // cout << "first  gp "<< GEMDetId(seedhit->rawId()) <<endl;
-    // seedhit++;
-    // cout << "second gp "<< GEMDetId(seedhit->rawId()) <<endl;
+    vector<TrajectorySeed>::const_iterator seeds = seedOutside->begin();
+    auto seed = ((*seeds).recHits()).first;
+    auto firstHit = seed->rawId();
+    seed++;
+    auto secondHit = seed->rawId();
     
     for (trackingRecHit_iterator recHit = track->recHitsBegin(); recHit != track->recHitsEnd(); ++recHit)
     {
       auto rawId = (*recHit)->rawId();
-
+      if(rawId == firstHit or rawId == secondHit) continue;
       auto etaPartition = GEMGeometry_->etaPartition(rawId);
       auto superChamber = GEMGeometry_->superChamber(rawId);
 
