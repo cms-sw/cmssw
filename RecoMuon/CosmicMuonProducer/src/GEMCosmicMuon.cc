@@ -33,6 +33,7 @@
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneMuonSmoother.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "RecoTracker/TrackProducer/src/TrajectoryToResiduals.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
@@ -140,21 +141,21 @@ void GEMCosmicMuon::produce(edm::Event& ev, const edm::EventSetup& setup) {
       auto sc = mgeom->superChamber(id);
       int layer = 3-id.layer(); //2->1 and 1->2      
       topChamb[i] = sc->chamber(layer);      
-      cout <<"topChamb["<<i<<"]" << topChamb[i]->id()<<endl;;
+      //cout <<"topChamb["<<i<<"]" << topChamb[i]->id()<<endl;;
     }
     for (int i = 0; i<3; ++i){
       GEMDetId id = botChamb[i]->id();
       auto sc = mgeom->superChamber(id);
       int layer = 3-id.layer(); //2->1 and 1->2      
       botChamb[i] = sc->chamber(layer);
-      cout <<"botChamb["<<i<<"]" << botChamb[i]->id()<< endl;
+      //cout <<"botChamb["<<i<<"]" << botChamb[i]->id()<< endl;
     }
   }
   
   auto topSeeds    = getHitsFromLayer(topChamb, gemRecHits.product());
   auto bottomSeeds = getHitsFromLayer(botChamb, gemRecHits.product());
     
-  trajectorySeeds = findSeeds(topSeeds, bottomSeeds);
+  auto trajectorySeedCands = findSeeds(topSeeds, bottomSeeds);
   //cout << "GEMCosmicMuon::topSeeds->size() " << topSeeds.size() << endl;
   //  cout << "GEMCosmicMuon::trajectorySeeds->size() " << trajectorySeeds->size() << endl;
 
@@ -163,12 +164,11 @@ void GEMCosmicMuon::produce(edm::Event& ev, const edm::EventSetup& setup) {
   Trajectory bestTrajectory;
   TrajectorySeed bestSeed;
   float maxChi2 = trackChi2_;
-  for (auto seed : *trajectorySeeds){
+  for (auto seed : *trajectorySeedCands){
     Trajectory smoothed = makeTrajectory(seed, gemRecHits.product());
     if (smoothed.isValid()){
-      trajectorys->emplace_back(smoothed);
-      //      cout << "GEMCosmicMuon::Trajectory " << smoothed.foundHits() << endl;
-      //      cout << "GEMCosmicMuon::Trajectory chiSquared/ ndof " << smoothed.chiSquared()/float(smoothed.ndof()) << endl;
+      //cout << "GEMCosmicMuon::Trajectory " << smoothed.foundHits() << endl;
+      //cout << "GEMCosmicMuon::Trajectory chiSquared/ ndof " << smoothed.chiSquared()/float(smoothed.ndof()) << endl;
       //if (( maxChi2 > smoothed.chiSquared()/float(smoothed.ndof())) and ( smoothed.chiSquared()/float(smoothed.ndof()) > 7.0)){
       if (maxChi2 > smoothed.chiSquared()/float(smoothed.ndof())){
 	maxChi2 = smoothed.chiSquared()/float(smoothed.ndof());
@@ -186,12 +186,12 @@ void GEMCosmicMuon::produce(edm::Event& ev, const edm::EventSetup& setup) {
     return;
   }
   //cout << maxChi2 << endl;
-  //cout << "GEMCosmicMuon::bestTrajectory " << bestTrajectory.foundHits() << endl;
-  //cout << "GEMCosmicMuon::bestTrajectory chiSquared/ ndof " << bestTrajectory.chiSquared()/float(bestTrajectory.ndof()) << endl;
+  cout << "GEMCosmicMuon::bestTrajectory " << bestTrajectory.foundHits() << endl;
+  cout << "GEMCosmicMuon::bestTrajectory chiSquared/ ndof " << bestTrajectory.chiSquared()/float(bestTrajectory.ndof()) << endl;
   //cout << maxChi2 << endl;
   // make track
   const FreeTrajectoryState* ftsAtVtx = bestTrajectory.geometricalInnermostState().freeState();
-   
+  
   GlobalPoint pca = ftsAtVtx->position();
   math::XYZPoint persistentPCA(pca.x(),pca.y(),pca.z());
   GlobalVector p = ftsAtVtx->momentum();
@@ -204,17 +204,7 @@ void GEMCosmicMuon::produce(edm::Event& ev, const edm::EventSetup& setup) {
 		    ftsAtVtx->charge(),
 		    ftsAtVtx->curvilinearError());
  
-  // create empty collection of Segments
-  //cout << "GEMCosmicMuon::track " << track.pt() << endl;
-  
-  // reco::TrackExtra tx(track.outerPosition(), track.outerMomentum(), track.outerOk(),
-  // 		      track.innerPosition(), track.innerMomentum(), track.innerOk(),
-  // 		      track.outerStateCovariance(), track.outerDetId(),
-  // 		      track.innerStateCovariance(), track.innerDetId(),
-  // 		      track.seedDirection(), edm::RefToBase<TrajectorySeed>());
-  // 		      //, bestTrajectory.seedRef() );
   reco::TrackExtra tx;
-  //tx.setResiduals(track.residuals());
   //adding rec hits
   Trajectory::RecHitContainer transHits = bestTrajectory.recHits();
   unsigned int nHitsAdded = 0;
@@ -224,17 +214,19 @@ void GEMCosmicMuon::produce(edm::Event& ev, const edm::EventSetup& setup) {
     ++nHitsAdded;
   }
   tx.setHits(recHitCollectionRefProd, recHitsIndex, nHitsAdded);
+  tx.setResiduals(trajectoryToResiduals(bestTrajectory));
+  tx.setSeedRef(bestTrajectory.seedRef());
   recHitsIndex +=nHitsAdded;
 
   trackExtraCollection->emplace_back(tx );
-
   reco::TrackExtraRef trackExtraRef(trackExtraCollectionRefProd, trackExtraIndex++ );
   track.setExtra(trackExtraRef);
   trackCollection->emplace_back(track);
+  trajectorySeeds->emplace_back(bestSeed);
+  trajectorys->emplace_back(bestTrajectory);      
   
   // fill the collection
   // put collection in event
-  trajectorySeeds->emplace_back(bestSeed);
 
   ev.put(move(trajectorySeeds));
   ev.put(move(trackCollection));
@@ -293,7 +285,7 @@ unique_ptr<vector<TrajectorySeed> > GEMCosmicMuon::findSeeds(MuonTransientTracki
 	seedHits.push_back(bottomhit->cloneHit());
 
 	TrajectorySeed seed(seedTSOS,seedHits,alongMomentum);
-	trajectorySeeds->push_back(seed);
+	trajectorySeeds->emplace_back(seed);
       }
     }
   }

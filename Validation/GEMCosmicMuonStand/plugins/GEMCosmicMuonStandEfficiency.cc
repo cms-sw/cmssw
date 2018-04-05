@@ -80,6 +80,8 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
   
   for (std::vector<reco::Track>::const_iterator track = insideOutTracks->begin(); track != insideOutTracks->end(); ++track)
   {
+    cout << "track->recHitsSize() "<< track->recHitsSize() <<endl;
+    
     ichi2->Fill(track->chi2());
     for (trackingRecHit_iterator recHit = track->recHitsBegin(); recHit != track->recHitsEnd(); ++recHit)
     {
@@ -114,14 +116,13 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
     ichi2->Fill(track->chi2());
 
 //// Below lines have error
-
-    /*edm::RefToBase<TrajectorySeed> seedRef = tracks->seedRef();
-    std::pair<edm::OwnVector<TrackingRecHit>::const_iterator, edm::OwnVector<TrackingRecHit>::const_iterator> seeds = seedRef->recHits();
-    edm::OwnVector<TrackingRecHit>::const_iterator seed = seeds.first;
-    unsigned int seed1 = (*seed).det()->index();
-    seed++;
-    unsigned int seed2 = (*seed).det()->index();
-    std::cout << "seed1 Id : " << seed1 << " seed2 Id : " << seed2 << endl;*/
+    cout << "track->recHitsSize() "<< track->recHitsSize() <<endl;
+    // auto seed = track->seedRef();
+    // auto seedhit = seed->recHits().first;
+    // cout << "first  gp "<< GEMDetId(seedhit->rawId()) <<endl;
+    // seedhit++;
+    // cout << "second gp "<< GEMDetId(seedhit->rawId()) <<endl;
+    
     for (trackingRecHit_iterator recHit = track->recHitsBegin(); recHit != track->recHitsEnd(); ++recHit)
     {
       auto rawId = (*recHit)->rawId();
