@@ -4,7 +4,6 @@
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: SingleMuPt100_cfi -s GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,L1Reco,RECO --conditions auto:run2_mc --magField 38T_PostLS1 --datatier GEN-SIM --geometry GEMCosmicStand --eventcontent FEVTDEBUGHLT --era phase2_muon -n 100 --fileout out_reco.root
 import FWCore.ParameterSet.Config as cms
-
 from Configuration.StandardSequences.Eras import eras
 
 process = cms.Process('RECO',eras.phase2_muon)
@@ -168,7 +167,7 @@ process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary
 
 
 process.RandomNumberGeneratorService.simMuonGEMDigis = cms.PSet(
-        initialSeed = cms.untracked.uint32(1234567),
+        initialSeed = cms.untracked.uint32(123456789),
         engineName = cms.untracked.string('HepJamesRandom')
 )
 
