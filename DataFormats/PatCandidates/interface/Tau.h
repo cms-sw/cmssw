@@ -453,6 +453,8 @@ namespace pat {
 
 
   private:
+      /// helper to avoid code duplication in constructors
+      void initFromBaseTau(const reco::BaseTau& aTau);
       // ---- for content embedding ----
       bool embeddedIsolationTracks_;
       std::vector<reco::Track> isolationTracks_;

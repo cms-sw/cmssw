@@ -335,7 +335,7 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
 
   if ( minPixelHits_ > 0 ) {
     int numPixelHits = 0;
-    for (const auto& chargedHadrCand : tau->signalPFChargedHadrCands()) {
+    for (const auto& chargedHadrCand : tau->signalChargedHadrCands()) {
       const reco::Track* track = getTrack(*chargedHadrCand);
       if (track != nullptr) {
 	numPixelHits += track->hitPattern().numberOfValidPixelHits();

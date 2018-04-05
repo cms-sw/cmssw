@@ -97,13 +97,9 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
   float tauEtaAtEcalEntrance = -99.;
   float sumEtaTimesEnergy = 0.;
   float sumEnergy = 0.;
-  for (const auto& cand : thePFTauRef->signalPFCands()) {
-    const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand.get());
-    if (pfcand != nullptr) {
-      sumEtaTimesEnergy += (pfcand->positionAtECALEntrance().eta()*pfcand->energy());
-      sumEnergy += pfcand->energy();
-    }
-    else throw cms::Exception("Type Mismatch") << "FIXME.\n";
+  for (const auto& pfcand : thePFTauRef->signalPFCands()) {
+    sumEtaTimesEnergy += (pfcand->positionAtECALEntrance().eta()*pfcand->energy());
+    sumEnergy += pfcand->energy();
   }
   if ( sumEnergy > 0. ) {
     tauEtaAtEcalEntrance = sumEtaTimesEnergy/sumEnergy;
@@ -111,38 +107,35 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 
   float leadChargedPFCandEtaAtEcalEntrance = -99.;
   float leadChargedPFCandPt = -99.;
-  for (const auto& cand : thePFTauRef->signalPFCands()) {
-    const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand.get());
-    if (pfcand != nullptr) {
-      const reco::Track* track = nullptr;
-      if ( pfcand->trackRef().isNonnull() ) track = pfcand->trackRef().get();
-      else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->innerTrack().isNonnull()  ) track = pfcand->muonRef()->innerTrack().get();
-      else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->globalTrack().isNonnull() ) track = pfcand->muonRef()->globalTrack().get();
-      else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->outerTrack().isNonnull()  ) track = pfcand->muonRef()->outerTrack().get();
-      else if ( pfcand->gsfTrackRef().isNonnull() ) track = pfcand->gsfTrackRef().get();
-      if ( track ) {
-        if ( track->pt() > leadChargedPFCandPt ) {
-	  leadChargedPFCandEtaAtEcalEntrance = pfcand->positionAtECALEntrance().eta();
-	  leadChargedPFCandPt = track->pt();
-        }
+  for (const auto& pfcand : thePFTauRef->signalPFCands()) {
+    const reco::Track* track = nullptr;
+    if ( pfcand->trackRef().isNonnull() ) track = pfcand->trackRef().get();
+    else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->innerTrack().isNonnull()  ) track = pfcand->muonRef()->innerTrack().get();
+    else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->globalTrack().isNonnull() ) track = pfcand->muonRef()->globalTrack().get();
+    else if ( pfcand->muonRef().isNonnull() && pfcand->muonRef()->outerTrack().isNonnull()  ) track = pfcand->muonRef()->outerTrack().get();
+    else if ( pfcand->gsfTrackRef().isNonnull() ) track = pfcand->gsfTrackRef().get();
+    if ( track ) {
+      if ( track->pt() > leadChargedPFCandPt ) {
+	leadChargedPFCandEtaAtEcalEntrance = pfcand->positionAtECALEntrance().eta();
+	leadChargedPFCandPt = track->pt();
       }
     } else throw cms::Exception("Type Mismatch") << "FIXME.\n";
   }
 
-  if( (*thePFTauRef).leadPFChargedHadrCand().isNonnull()) {
+  if( (*thePFTauRef).leadChargedHadrCand().isNonnull()) {
 
-    int numSignalPFGammaCandsInSigCone = 0;
-    const std::vector<reco::CandidatePtr>& signalPFGammaCands = thePFTauRef->signalPFGammaCands();
+    int numSignalGammaCandsInSigCone = 0;
+    const std::vector<reco::CandidatePtr>& signalGammaCands = thePFTauRef->signalGammaCands();
     
-    for ( std::vector<reco::CandidatePtr>::const_iterator pfGamma = signalPFGammaCands.begin();
-	  pfGamma != signalPFGammaCands.end(); ++pfGamma ) {
+    for ( std::vector<reco::CandidatePtr>::const_iterator pfGamma = signalGammaCands.begin();
+	  pfGamma != signalGammaCands.end(); ++pfGamma ) {
             
-      double dR = deltaR((*pfGamma)->p4(), thePFTauRef->leadPFChargedHadrCand()->p4());
+      double dR = deltaR((*pfGamma)->p4(), thePFTauRef->leadChargedHadrCand()->p4());
       double signalrad = std::max(0.05, std::min(0.10, 3.0/std::max(1.0, thePFTauRef->pt())));
             
       // pfGammas inside the tau signal cone
       if (dR < signalrad) {
-        numSignalPFGammaCandsInSigCone += 1;
+        numSignalGammaCandsInSigCone += 1;
       }
     }
     
@@ -154,7 +147,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	deltaRDummy = deltaREleTau;
 	if ( deltaREleTau < 0.3 ) {
 	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron, usePhiAtEcalEntranceExtrapolation_);
-	  const reco::PFCandidate* lpfch = dynamic_cast<const reco::PFCandidate*>(thePFTauRef->leadPFChargedHadrCand().get());
+	  const reco::PFCandidate* lpfch = dynamic_cast<const reco::PFCandidate*>(thePFTauRef->leadChargedHadrCand().get());
 	  bool hasGsfTrack = false;
 	  if (lpfch) {
 	    hasGsfTrack = lpfch->gsfTrackRef().isNonnull();
@@ -173,17 +166,17 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	  //// Veto taus that go to Ecal crack
 
 	  if ( std::abs(tauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder ) { // Barrel
-	    if ( numSignalPFGammaCandsInSigCone == 0 && hasGsfTrack ) {
+	    if ( numSignalGammaCandsInSigCone == 0 && hasGsfTrack ) {
 	      category = 5.;
 	    }
-	    else if ( numSignalPFGammaCandsInSigCone >= 1 && hasGsfTrack ) {
+	    else if ( numSignalGammaCandsInSigCone >= 1 && hasGsfTrack ) {
 	      category = 7.;
 	    }
 	  } else { // Endcap
-	    if ( numSignalPFGammaCandsInSigCone == 0 && hasGsfTrack ) {
+	    if ( numSignalGammaCandsInSigCone == 0 && hasGsfTrack ) {
 	      category = 13.;
 	    }
-	    else if ( numSignalPFGammaCandsInSigCone >= 1 && hasGsfTrack ) {
+	    else if ( numSignalGammaCandsInSigCone >= 1 && hasGsfTrack ) {
 	      category = 15.;
 	    }
 	  }
@@ -196,7 +189,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 
     if ( !isGsfElectronMatched ) {
       mvaValue = mva_->MVAValue(*thePFTauRef, usePhiAtEcalEntranceExtrapolation_);
-      const reco::PFCandidate* lpfch = dynamic_cast<const reco::PFCandidate*>(thePFTauRef->leadPFChargedHadrCand().get());
+      const reco::PFCandidate* lpfch = dynamic_cast<const reco::PFCandidate*>(thePFTauRef->leadChargedHadrCand().get());
       bool hasGsfTrack = false;
       if (lpfch) {
 	hasGsfTrack = lpfch->gsfTrackRef().isNonnull();
@@ -212,17 +205,17 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
       //// Veto taus that go to Ecal crack
       
       if ( std::abs(tauEtaAtEcalEntrance) < ECALBarrelEndcapEtaBorder ) { // Barrel
-	if ( numSignalPFGammaCandsInSigCone == 0 && !hasGsfTrack ) {
+	if ( numSignalGammaCandsInSigCone == 0 && !hasGsfTrack ) {
 	  category = 0.;
 	}
-	else if ( numSignalPFGammaCandsInSigCone >= 1 && !hasGsfTrack ) {
+	else if ( numSignalGammaCandsInSigCone >= 1 && !hasGsfTrack ) {
 	  category = 2.;
 	}
       } else { // Endcap
-	if ( numSignalPFGammaCandsInSigCone == 0 && !hasGsfTrack ) {
+	if ( numSignalGammaCandsInSigCone == 0 && !hasGsfTrack ) {
 	  category = 8.;
 	}
-	else if ( numSignalPFGammaCandsInSigCone >= 1 && !hasGsfTrack ) {
+	else if ( numSignalGammaCandsInSigCone >= 1 && !hasGsfTrack ) {
 	  category = 10.;
 	}
       }
@@ -233,7 +226,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
     edm::LogPrint("PFTauAgainstEleMVA6") << "<PFRecoTauDiscriminationAgainstElectronMVA6::discriminate>:" ;
     edm::LogPrint("PFTauAgainstEleMVA6") << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi();
     edm::LogPrint("PFTauAgainstEleMVA6") << " deltaREleTau = " << deltaRDummy << ", isGsfElectronMatched = " << isGsfElectronMatched;
-    edm::LogPrint("PFTauAgainstEleMVA6") << " #Prongs = " << thePFTauRef->signalPFChargedHadrCands().size();
+    edm::LogPrint("PFTauAgainstEleMVA6") << " #Prongs = " << thePFTauRef->signalChargedHadrCands().size();
     edm::LogPrint("PFTauAgainstEleMVA6") << " MVA = " << mvaValue << ", category = " << category;
   }
 

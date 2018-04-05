@@ -143,7 +143,7 @@ template<typename InputIterator> int sumPFCandCharge(InputIterator begin,
     return sumPFVector(begin, end, &Candidate::charge, 0);
   }
 
-template<typename InputIterator> InputIterator leadPFCand(InputIterator begin,
+template<typename InputIterator> InputIterator leadCand(InputIterator begin,
     InputIterator end) {
     double max_pt = 0;
     InputIterator max_cand = begin;

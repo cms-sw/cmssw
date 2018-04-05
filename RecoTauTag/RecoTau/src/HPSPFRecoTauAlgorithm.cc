@@ -60,21 +60,15 @@ HPSPFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& tagInfo,const Vertex& v
     pfTau = getBestTauCandidate(pfTaus_);
 
     //Set the IP for the leading track
-    if(TransientTrackBuilder_!=nullptr) {
-      const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(pfTau.leadPFChargedHadrCand().get());
-      if (pflch != nullptr) {
-        if (pflch->trackRef().isNonnull()) {
-          const TransientTrack leadTrack=TransientTrackBuilder_->build(pflch->trackRef());
-          if(pfTau.pfTauTagInfoRef().isNonnull()) {
-            if(pfTau.pfTauTagInfoRef()->pfjetRef().isNonnull()) {
-              JetBaseRef jet = pfTau.pfTauTagInfoRef()->pfjetRef();
-              GlobalVector jetDir(jet->px(),jet->py(),jet->pz());
-              if(IPTools::signedTransverseImpactParameter(leadTrack,jetDir,vertex).first)
-                pfTau.setleadPFChargedHadrCandsignedSipt(IPTools::signedTransverseImpactParameter(leadTrack,jetDir,vertex).second.significance());
-            }
-          }
+    if(TransientTrackBuilder_!=nullptr &&pfTau.leadPFChargedHadrCand()->trackRef().isNonnull()) {
+      const TransientTrack leadTrack=TransientTrackBuilder_->build(pfTau.leadPFChargedHadrCand()->trackRef());
+      if(pfTau.pfTauTagInfoRef().isNonnull())
+        if(pfTau.pfTauTagInfoRef()->pfjetRef().isNonnull()) {
+          JetBaseRef jet = pfTau.pfTauTagInfoRef()->pfjetRef();
+          GlobalVector jetDir(jet->px(),jet->py(),jet->pz());
+          if(IPTools::signedTransverseImpactParameter(leadTrack,jetDir,vertex).first)
+            pfTau.setleadPFChargedHadrCandsignedSipt(IPTools::signedTransverseImpactParameter(leadTrack,jetDir,vertex).second.significance());
         }
-      } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
     }
   }
   else {      //null PFTau
@@ -116,10 +110,10 @@ HPSPFRecoTauAlgorithm::buildOneProng(const reco::PFTauTagInfoRef& tagInfo,const 
             signal.push_back(hadron);
 
             //Set The signal candidates of the PF Tau
-            tau.setsignalPFChargedHadrCands(signal);
-            tau.setsignalPFCands(signal);
-            tau.setleadPFChargedHadrCand(hadron);
-            tau.setleadPFCand(hadron);
+            tau.setsignalChargedHadrCands(signal);
+            tau.setsignalCands(signal);
+            tau.setleadChargedHadrCand(hadron);
+            tau.setleadCand(hadron);
 
             //Fill isolation variables
             associateIsolationCandidates(tau,0.0);
@@ -204,17 +198,17 @@ HPSPFRecoTauAlgorithm::buildOneProngStrip(const reco::PFTauTagInfoRef& tagInfo,c
                 }
 
               //Set the PFTau
-              tau.setsignalPFChargedHadrCands(signalH);
-              tau.setsignalPFGammaCands(signalG);
-              tau.setsignalPFCands(signal);
-              tau.setleadPFChargedHadrCand(*hadron);
-              tau.setleadPFNeutralCand(emConstituents[0]);
+              tau.setsignalChargedHadrCands(signalH);
+              tau.setsignalGammaCands(signalG);
+              tau.setsignalCands(signal);
+              tau.setleadChargedHadrCand(*hadron);
+              tau.setleadNeutralCand(emConstituents[0]);
 
               //Set the lead Candidate->Can be the hadron or the leading PFGamma(When we clear the Dataformat we will put the strip)
               if((*hadron)->pt()>emConstituents[0]->pt())
-                tau.setleadPFCand(*hadron);
+                tau.setleadCand(*hadron);
               else
-                tau.setleadPFCand(emConstituents[0]);
+                tau.setleadCand(emConstituents[0]);
 
               //Apply the signal cone size formula
               if(isNarrowTau(tau,tauCone)) {
@@ -317,16 +311,16 @@ HPSPFRecoTauAlgorithm::buildOneProngTwoStrips(const reco::PFTauTagInfoRef& tagIn
                   }
 
                   //Set the PFTau
-                  tau.setsignalPFChargedHadrCands(signalH);
-                  tau.setsignalPFGammaCands(signalG);
-                  tau.setsignalPFCands(signal);
-                  tau.setleadPFChargedHadrCand(*hadron);
+                  tau.setsignalChargedHadrCands(signalH);
+                  tau.setsignalGammaCands(signalG);
+                  tau.setsignalCands(signal);
+                  tau.setleadChargedHadrCand(*hadron);
 
                   //Set the lead Candidate->Can be the hadron or the leading PFGamma(When we clear the Dataformat we will put the strip)
                   if((*hadron)->pt()>emConstituents1[0]->pt())
-                    tau.setleadPFCand(*hadron);
+                    tau.setleadCand(*hadron);
                   else
-                    tau.setleadPFCand(emConstituents1[0]);
+                    tau.setleadCand(emConstituents1[0]);
 
                   //Apply the cone size formula
                   if(isNarrowTau(tau,tauCone)) {
@@ -377,7 +371,7 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,con
           const reco::PFCandidate* h2 = dynamic_cast<const reco::PFCandidate*>(c_h2.get());
           const reco::PFCandidate* h3 = dynamic_cast<const reco::PFCandidate*>(c_h3.get());
           if (h1 == nullptr || h2 == nullptr || h3 == nullptr) {
-            throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+            throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm as not updated to cope with PFTaus made from other Candidates.\n";
           }
 
           //check charge Compatibility and lead track
@@ -395,9 +389,9 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,con
                 if(ROOT::Math::VectorUtil::DeltaR(tau.p4(),tagInfo->pfjetRef()->p4())<matchingCone_) {//Matching Cone
 
                   std::vector<CandidatePtr> signal;
-                  signal.push_back(h1->masterClone().castTo<edm::Ptr<reco::Candidate> >());
-                  signal.push_back(h2->masterClone().castTo<edm::Ptr<reco::Candidate> >());
-                  signal.push_back(h3->masterClone().castTo<edm::Ptr<reco::Candidate> >());
+                  signal.push_back(c_h1);
+                  signal.push_back(c_h2);
+                  signal.push_back(c_h3);
                   //calculate the tau cone by getting the maximum distance
                   double tauCone = 10000.0;
                   if(coneMetric_=="DR")
@@ -414,10 +408,10 @@ HPSPFRecoTauAlgorithm::buildThreeProngs(const reco::PFTauTagInfoRef& tagInfo,con
                   }
 
                   //Set The PFTau
-                  tau.setsignalPFChargedHadrCands(signal);
-                  tau.setsignalPFCands(signal);
-                  tau.setleadPFChargedHadrCand(h1->masterClone().castTo<edm::Ptr<reco::Candidate> >());
-                  tau.setleadPFCand(h1->masterClone().castTo<edm::Ptr<reco::Candidate> >());
+                  tau.setsignalChargedHadrCands(signal);
+                  tau.setsignalCands(signal);
+                  tau.setleadChargedHadrCand(c_h1);
+                  tau.setleadCand(c_h1);
 
                   if(isNarrowTau(tau,tauCone)) {
                     //calculate the isolation Deposits
@@ -525,12 +519,12 @@ HPSPFRecoTauAlgorithm::associateIsolationCandidates(reco::PFTau& tau,
   }
 
   //remove the signal Constituents from the collections
-  for(std::vector<CandidatePtr>::const_iterator i=tau.signalPFChargedHadrCands().begin();i!=tau.signalPFChargedHadrCands().end();++i)
+  for(std::vector<CandidatePtr>::const_iterator i=tau.signalChargedHadrCands().begin();i!=tau.signalChargedHadrCands().end();++i)
   {
     removeCandidateFromRefVector(*i,hadrons);
   }
 
-  for(std::vector<CandidatePtr>::const_iterator i=tau.signalPFGammaCands().begin();i!=tau.signalPFGammaCands().end();++i)
+  for(std::vector<CandidatePtr>::const_iterator i=tau.signalGammaCands().begin();i!=tau.signalGammaCands().end();++i)
   {
     removeCandidateFromRefVector(*i,gammas);
     removeCandidateFromRefVector(*i,hadrons);//special case where we included a hadron if the strip!
@@ -551,9 +545,9 @@ HPSPFRecoTauAlgorithm::associateIsolationCandidates(reco::PFTau& tau,
 
   tau.setisolationPFChargedHadrCandsPtSum(sumPT);
   tau.setisolationPFGammaCandsEtSum(sumET);
-  tau.setisolationPFChargedHadrCands(hadrons);
-  tau.setisolationPFNeutrHadrCands(neutral);
-  tau.setisolationPFGammaCands(gammas);
+  tau.setisolationChargedHadrCands(hadrons);
+  tau.setisolationNeutrHadrCands(neutral);
+  tau.setisolationGammaCands(gammas);
 
   std::vector<CandidatePtr> isoAll = hadrons;
   for(unsigned int i=0;i<gammas.size();++i)
@@ -562,7 +556,7 @@ HPSPFRecoTauAlgorithm::associateIsolationCandidates(reco::PFTau& tau,
   for(unsigned int i=0;i<neutral.size();++i)
     isoAll.push_back(neutral[i]);
 
-  tau.setisolationPFCands(isoAll);
+  tau.setisolationCands(isoAll);
 }
 
 void
@@ -579,11 +573,7 @@ HPSPFRecoTauAlgorithm::applyMuonRejection(reco::PFTau& tau)
   float segComp=0.0;
 
   if(tau.leadPFChargedHadrCand().isNonnull()) {
-    const reco::PFCandidate* leadCharged = dynamic_cast<const reco::PFCandidate*>(tau.leadPFChargedHadrCand().get());
-    if (leadCharged == nullptr) {
-      throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
-    }
-    MuonRef mu =leadCharged->muonRef();
+    MuonRef mu =tau.leadPFChargedHadrCand()->muonRef();
     if(mu.isNonnull()){
       segComp=(float)(mu->matches().size());
       if(mu->caloCompatibility()>caloComp)
@@ -610,11 +600,7 @@ HPSPFRecoTauAlgorithm::applyElectronRejection(reco::PFTau& tau,double stripEnerg
 
 
   if(tau.leadPFChargedHadrCand().isNonnull()) {
-    const reco::PFCandidate* leadCharged = dynamic_cast<const reco::PFCandidate*>(tau.leadPFChargedHadrCand().get());
-    if (leadCharged == nullptr) {
-      throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
-    }
-
+    PFCandidatePtr leadCharged = tau.leadPFChargedHadrCand();
     math::XYZVector caloDir(leadCharged->positionAtECALEntrance().x(),
                             leadCharged->positionAtECALEntrance().y(),
                             leadCharged->positionAtECALEntrance().z());
@@ -735,14 +721,11 @@ HPSPFRecoTauAlgorithm::refitThreeProng(reco::PFTau& tau)
 {
   bool response=false;
   //Get Hadrons
-  std::vector<reco::CandidatePtr> hadrons = tau.signalPFChargedHadrCands();
-  const reco::PFCandidate* h1 = dynamic_cast<const reco::PFCandidate*>(hadrons[0].get());
-  const reco::PFCandidate* h2 = dynamic_cast<const reco::PFCandidate*>(hadrons[1].get());
-  const reco::PFCandidate* h3 = dynamic_cast<const reco::PFCandidate*>(hadrons[2].get());
+  std::vector<reco::PFCandidatePtr> hadrons = tau.signalPFChargedHadrCands();
+  PFCandidatePtr h1 = hadrons[0];
+  PFCandidatePtr h2 = hadrons[1];
+  PFCandidatePtr h3 = hadrons[2];
 
-  if (h1 == nullptr || h2 == nullptr || h3 == nullptr)
-    throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
-  
   //Make transient tracks
   std::vector<TransientTrack> transientTracks;
   transientTracks.push_back(TransientTrackBuilder_->build(h1->trackRef()));
@@ -795,4 +778,3 @@ HPSPFRecoTauAlgorithm::getBestTauCandidate(reco::PFTauCollection& taus)
 
   return *it;
 }
-

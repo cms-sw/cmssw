@@ -53,24 +53,21 @@ class AntiElectronIDCut2
       {
 	float TauLeadChargedPFCandEtaAtEcalEntrance = -99.;
 	float TauLeadChargedPFCandPt = -99.;
-	const std::vector<reco::CandidatePtr>& signalPFCands = thePFTau.signalPFCands();
-	for (const auto& cand : signalPFCands) {
-	  const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand.get());
-	  if (pfcand != nullptr) {
-	    const reco::Track* track = nullptr;
-	    if (pfcand->trackRef().isNonnull()) track = pfcand->trackRef().get();
-	    else if (pfcand->muonRef().isNonnull() && pfcand->muonRef()->innerTrack().isNonnull()) track = pfcand->muonRef()->innerTrack().get();
-	    else if (pfcand->muonRef().isNonnull() && pfcand->muonRef()->globalTrack().isNonnull()) track = pfcand->muonRef()->globalTrack().get();
-	    else if (pfcand->muonRef().isNonnull() && pfcand->muonRef()->outerTrack().isNonnull()) track = pfcand->muonRef()->outerTrack().get();
-	    else if (pfcand->gsfTrackRef().isNonnull()) track = pfcand->gsfTrackRef().get();
-	    if ( track ) {
-	      if ( track->pt() > TauLeadChargedPFCandPt ) {
-	        TauLeadChargedPFCandEtaAtEcalEntrance = pfcand->positionAtECALEntrance().eta();
-	        TauLeadChargedPFCandPt = track->pt();
-	      }
+	const std::vector<reco::PFCandidatePtr>& signalPFCands = thePFTau.signalPFCands();
+	for ( std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
+	      pfCandidate != signalPFCands.end(); ++pfCandidate ) {
+	  const reco::Track* track = nullptr;
+	  if ( (*pfCandidate)->trackRef().isNonnull() ) track = (*pfCandidate)->trackRef().get();
+	  else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->innerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->innerTrack().get();
+	  else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->globalTrack().isNonnull() ) track = (*pfCandidate)->muonRef()->globalTrack().get();
+	  else if ( (*pfCandidate)->muonRef().isNonnull() && (*pfCandidate)->muonRef()->outerTrack().isNonnull()  ) track = (*pfCandidate)->muonRef()->outerTrack().get();
+	  else if ( (*pfCandidate)->gsfTrackRef().isNonnull() ) track = (*pfCandidate)->gsfTrackRef().get();
+	  if ( track ) {
+	    if ( track->pt() > TauLeadChargedPFCandPt ) {
+	      TauLeadChargedPFCandEtaAtEcalEntrance = (*pfCandidate)->positionAtECALEntrance().eta();
+	      TauLeadChargedPFCandPt = track->pt();
 	    }
 	  }
-	  else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
 	}
 	
 	float TauPt = thePFTau.pt();
@@ -79,20 +76,17 @@ class AntiElectronIDCut2
 	float TauLeadPFChargedHadrEoP = 0.;
 	if ( thePFTau.leadPFChargedHadrCand()->p() > 0. ) {
 	  //TauLeadPFChargedHadrHoP = thePFTau.leadPFChargedHadrCand()->hcalEnergy()/thePFTau.leadPFChargedHadrCand()->p();
-	  const reco::PFCandidate* leadPFCHCand = dynamic_cast<const reco::PFCandidate*>(thePFTau.leadPFChargedHadrCand().get());
-	  if (leadPFCHCand != nullptr)
-	    TauLeadPFChargedHadrEoP = leadPFCHCand->ecalEnergy()/leadPFCHCand->p();
-	  else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+	  TauLeadPFChargedHadrEoP = thePFTau.leadPFChargedHadrCand()->ecalEnergy()/thePFTau.leadPFChargedHadrCand()->p();
 	}
 	
 	std::vector<float> GammasdEta;
 	std::vector<float> GammasdPhi;
 	std::vector<float> GammasPt;
-	for ( unsigned i = 0 ; i < thePFTau.signalPFGammaCands().size(); ++i ) {
-	  reco::CandidatePtr gamma = thePFTau.signalPFGammaCands().at(i);
-	  if ( thePFTau.leadPFChargedHadrCand().isNonnull() ) {
-	    GammasdEta.push_back(gamma->eta() - thePFTau.leadPFChargedHadrCand()->eta());
-	    GammasdPhi.push_back(gamma->phi() - thePFTau.leadPFChargedHadrCand()->phi());
+	for ( unsigned i = 0 ; i < thePFTau.signalGammaCands().size(); ++i ) {
+	  reco::CandidatePtr gamma = thePFTau.signalGammaCands().at(i);
+	  if ( thePFTau.leadChargedHadrCand().isNonnull() ) {
+	    GammasdEta.push_back(gamma->eta() - thePFTau.leadChargedHadrCand()->eta());
+	    GammasdPhi.push_back(gamma->phi() - thePFTau.leadChargedHadrCand()->phi());
 	  } else {
 	    GammasdEta.push_back(gamma->eta() - thePFTau.eta());
 	    GammasdPhi.push_back(gamma->phi() - thePFTau.phi());

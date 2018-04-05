@@ -134,8 +134,8 @@ void RecoTauBuilderConePlugin::setTauQuantities(reco::PFTau& aTau,
   
   // Set charge
   int charge = 0;
-  int leadCharge = aTau.leadPFChargedHadrCand().isNonnull() ? aTau.leadPFChargedHadrCand()->charge() : 0;
-  const std::vector<reco::CandidatePtr>& pfChs = aTau.signalPFChargedHadrCands();
+  int leadCharge = aTau.leadChargedHadrCand().isNonnull() ? aTau.leadChargedHadrCand()->charge() : 0;
+  const std::vector<reco::CandidatePtr>& pfChs = aTau.signalChargedHadrCands();
   for(const reco::CandidatePtr& pfCh : pfChs){
     charge += pfCh->charge();
   }
@@ -250,7 +250,7 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   if (leadPFCH_iter != pfchs.end()) {
     leadPFCH = *leadPFCH_iter;
     // Set leading candidate
-    tau.setleadPFChargedHadrCand(leadPFCH);
+    tau.setleadChargedHadrCand(leadPFCH);
   } else {
     // If there is no leading charged candidate at all, return nothing - the
     // producer class that owns the plugin will build a null tau if desired.
@@ -265,7 +265,7 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   if (leadPFGamma_iter != pfGammas.end()) {
     leadPFGamma = *leadPFGamma_iter;
     // Set leading neutral candidate
-    tau.setleadPFNeutralCand(leadPFGamma);
+    tau.setleadNeutralCand(leadPFGamma);
   }
 
   CandidatePtr leadPFCand;
@@ -281,7 +281,7 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
     leadPFCand = leadPFCH;
   }
 
-  tau.setleadPFCand(leadPFCand);
+  tau.setleadCand(leadPFCand);
 
   // Our cone axis is defined about the lead charged hadron
   reco::Candidate::LorentzVector coneAxis = leadPFCH->p4();

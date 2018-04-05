@@ -227,7 +227,7 @@ void PFTau3ProngReco::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
 	    // use Track Helix
 	    std::vector<TrackParticle> pions;
 	    GlobalPoint pvpoint(primaryVertex->position().x(),primaryVertex->position().y(),primaryVertex->position().z());
-	    const std::vector<edm::Ptr<reco::Candidate> > cands = tau->signalPFChargedHadrCands();
+	    const std::vector<edm::Ptr<reco::Candidate> > cands = tau->signalChargedHadrCands();
 	    for (std::vector<edm::Ptr<reco::Candidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); ++iter) {
 	      const reco::Track* track = getTrack(**iter);
 	      if (track != nullptr) {

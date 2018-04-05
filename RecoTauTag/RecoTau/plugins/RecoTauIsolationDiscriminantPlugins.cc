@@ -28,7 +28,7 @@ class TrackExtractor {
   public:
     TrackExtractor(const edm::ParameterSet& pset){};
     std::vector<reco::CandidatePtr> operator()(const reco::PFTauRef& tau) const {
-      return tau->isolationPFChargedHadrCands();
+      return tau->isolationChargedHadrCands();
     }
 };
 
@@ -36,7 +36,7 @@ class ECALExtractor {
   public:
     ECALExtractor(const edm::ParameterSet& pset){};
     std::vector<reco::CandidatePtr> operator()(const reco::PFTauRef& tau) const {
-      return tau->isolationPFGammaCands();
+      return tau->isolationGammaCands();
     }
 };
 
@@ -62,7 +62,7 @@ class HCALExtractor {
   public:
     HCALExtractor(const edm::ParameterSet& pset){};
     std::vector<reco::CandidatePtr> operator()(const reco::PFTauRef& tau) const {
-      return tau->isolationPFNeutrHadrCands();
+      return tau->isolationNeutrHadrCands();
     }
 };
 

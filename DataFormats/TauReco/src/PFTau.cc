@@ -64,34 +64,34 @@ const PFTauTagInfoRef& PFTau::pfTauTagInfoRef() const {
 
 void PFTau::setpfTauTagInfoRef(const PFTauTagInfoRef x) { PFTauTagInfoRef_ = x; }
 
-const CandidatePtr& PFTau::leadPFChargedHadrCand() const { return leadPFChargedHadrCand_; }
-const CandidatePtr& PFTau::leadPFNeutralCand() const { return leadPFNeutralCand_; }
-const CandidatePtr& PFTau::leadPFCand() const { return leadPFCand_; }
+const CandidatePtr& PFTau::leadChargedHadrCand() const { return leadChargedHadrCand_; }
+const CandidatePtr& PFTau::leadNeutralCand() const { return leadNeutralCand_; }
+const CandidatePtr& PFTau::leadCand() const { return leadCand_; }
 
-void PFTau::setleadPFChargedHadrCand(const CandidatePtr& myLead) { leadPFChargedHadrCand_ = myLead;}
-void PFTau::setleadPFNeutralCand(const CandidatePtr& myLead) { leadPFNeutralCand_ = myLead;}
-void PFTau::setleadPFCand(const CandidatePtr& myLead) { leadPFCand_ = myLead;}
+void PFTau::setleadChargedHadrCand(const CandidatePtr& myLead) { leadChargedHadrCand_ = myLead;}
+void PFTau::setleadNeutralCand(const CandidatePtr& myLead) { leadNeutralCand_ = myLead;}
+void PFTau::setleadCand(const CandidatePtr& myLead) { leadCand_ = myLead;}
 
 float PFTau::leadPFChargedHadrCandsignedSipt() const { return leadPFChargedHadrCandsignedSipt_; }
 void PFTau::setleadPFChargedHadrCandsignedSipt(const float& x){ leadPFChargedHadrCandsignedSipt_ = x; }
 
-const std::vector<CandidatePtr>& PFTau::signalPFCands() const { return selectedSignalPFCands_; }
-void PFTau::setsignalPFCands(const std::vector<CandidatePtr>& myParts)  { selectedSignalPFCands_ = myParts; }
-const std::vector<CandidatePtr>& PFTau::signalPFChargedHadrCands() const { return selectedSignalPFChargedHadrCands_; }
-void PFTau::setsignalPFChargedHadrCands(const std::vector<CandidatePtr>& myParts)  { selectedSignalPFChargedHadrCands_ = myParts; }
-const std::vector<CandidatePtr>& PFTau::signalPFNeutrHadrCands() const {return selectedSignalPFNeutrHadrCands_; }
-void PFTau::setsignalPFNeutrHadrCands(const std::vector<CandidatePtr>& myParts)  { selectedSignalPFNeutrHadrCands_ = myParts; }
-const std::vector<CandidatePtr>& PFTau::signalPFGammaCands() const { return selectedSignalPFGammaCands_; }
-void PFTau::setsignalPFGammaCands(const std::vector<CandidatePtr>& myParts)  { selectedSignalPFGammaCands_ = myParts; }
+const std::vector<CandidatePtr>& PFTau::signalCands() const { return selectedSignalCands_; }
+void PFTau::setsignalCands(const std::vector<CandidatePtr>& myParts)  { selectedSignalCands_ = myParts; }
+const std::vector<CandidatePtr>& PFTau::signalChargedHadrCands() const { return selectedSignalChargedHadrCands_; }
+void PFTau::setsignalChargedHadrCands(const std::vector<CandidatePtr>& myParts)  { selectedSignalChargedHadrCands_ = myParts; }
+const std::vector<CandidatePtr>& PFTau::signalNeutrHadrCands() const {return selectedSignalNeutrHadrCands_; }
+void PFTau::setsignalNeutrHadrCands(const std::vector<CandidatePtr>& myParts)  { selectedSignalNeutrHadrCands_ = myParts; }
+const std::vector<CandidatePtr>& PFTau::signalGammaCands() const { return selectedSignalGammaCands_; }
+void PFTau::setsignalGammaCands(const std::vector<CandidatePtr>& myParts)  { selectedSignalGammaCands_ = myParts; }
 
-const std::vector<CandidatePtr>& PFTau::isolationPFCands() const { return selectedIsolationPFCands_; }
-void PFTau::setisolationPFCands(const std::vector<CandidatePtr>& myParts)  { selectedIsolationPFCands_ = myParts;} 
-const std::vector<CandidatePtr>& PFTau::isolationPFChargedHadrCands() const { return selectedIsolationPFChargedHadrCands_; }
-void PFTau::setisolationPFChargedHadrCands(const std::vector<CandidatePtr>& myParts)  { selectedIsolationPFChargedHadrCands_ = myParts; }
-const std::vector<CandidatePtr>& PFTau::isolationPFNeutrHadrCands() const { return selectedIsolationPFNeutrHadrCands_; }
-void PFTau::setisolationPFNeutrHadrCands(const std::vector<CandidatePtr>& myParts)  { selectedIsolationPFNeutrHadrCands_ = myParts; }
-const std::vector<CandidatePtr>& PFTau::isolationPFGammaCands() const { return selectedIsolationPFGammaCands_; }
-void PFTau::setisolationPFGammaCands(const std::vector<CandidatePtr>& myParts)  { selectedIsolationPFGammaCands_ = myParts; }
+const std::vector<CandidatePtr>& PFTau::isolationCands() const { return selectedIsolationCands_; }
+void PFTau::setisolationCands(const std::vector<CandidatePtr>& myParts)  { selectedIsolationCands_ = myParts;} 
+const std::vector<CandidatePtr>& PFTau::isolationChargedHadrCands() const { return selectedIsolationChargedHadrCands_; }
+void PFTau::setisolationChargedHadrCands(const std::vector<CandidatePtr>& myParts)  { selectedIsolationChargedHadrCands_ = myParts; }
+const std::vector<CandidatePtr>& PFTau::isolationNeutrHadrCands() const { return selectedIsolationNeutrHadrCands_; }
+void PFTau::setisolationNeutrHadrCands(const std::vector<CandidatePtr>& myParts)  { selectedIsolationNeutrHadrCands_ = myParts; }
+const std::vector<CandidatePtr>& PFTau::isolationGammaCands() const { return selectedIsolationGammaCands_; }
+void PFTau::setisolationGammaCands(const std::vector<CandidatePtr>& myParts)  { selectedIsolationGammaCands_ = myParts; }
 
 
 namespace {
@@ -121,7 +121,102 @@ namespace {
     oCache.reset();
     oCache.set( std::make_unique<T>(std::move(iFrom)));
   }
+
+  reco::PFCandidatePtr convertToPFPtr(const reco::CandidatePtr& ptr) {
+    const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*ptr);
+    if (pf_cand) {
+      return edm::Ptr<reco::PFCandidate>(ptr);
+    } else throw cms::Exception("Type Mismatch") << "This PFTau was not made from PFCandidates, but it is being tried to access a PFCandidate.\n";
+    return reco::PFCandidatePtr();
+  }
+
+  std::unique_ptr<std::vector<reco::PFCandidatePtr> > convertToPFPtrs(const std::vector<reco::CandidatePtr>& cands) {
+    std::unique_ptr<std::vector<reco::PFCandidatePtr> > newSignalPFCands{new std::vector<reco::PFCandidatePtr>{}};
+    bool isPF = false;
+    for (auto& cand : cands) {
+      // Check for first Candidate if it is a PFCandidate; if yes, skip for the rest
+      if (!isPF) {
+        const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*cand);
+        if (pf_cand != nullptr) {
+          isPF = true;
+          newSignalPFCands->reserve(cands.size());
+        } else throw cms::Exception("Type Mismatch") << "This PFTau was not made from PFCandidates, but it is being tried to access PFCandidates.\n";
+      }
+      const auto& newPtr = edm::Ptr<reco::PFCandidate>(cand);
+      newSignalPFCands->push_back(newPtr);
+    }
+    return newSignalPFCands;
+  }
 }
+
+const PFCandidatePtr PFTau::leadPFChargedHadrCand() const {
+  return convertToPFPtr(leadChargedHadrCand_);
+}
+
+const PFCandidatePtr PFTau::leadPFNeutralCand() const {
+  return convertToPFPtr(leadNeutralCand_);
+}
+
+const PFCandidatePtr PFTau::leadPFCand() const {
+  return convertToPFPtr(leadCand_);
+}
+
+const std::vector<reco::PFCandidatePtr>& PFTau::signalPFCands() const {
+  if (!selectedTransientSignalPFCands_.isSet()) {
+    selectedTransientSignalPFCands_.set(std::move(convertToPFPtrs(selectedSignalCands_)));
+  }
+  return *selectedTransientSignalPFCands_;
+}
+
+const std::vector<reco::PFCandidatePtr>& PFTau::signalPFChargedHadrCands() const {
+  if (!selectedTransientSignalPFChargedHadrCands_.isSet()) {
+    selectedTransientSignalPFChargedHadrCands_.set(std::move(convertToPFPtrs(selectedSignalChargedHadrCands_)));
+  }
+  return *selectedTransientSignalPFChargedHadrCands_;
+}
+
+const std::vector<reco::PFCandidatePtr>& PFTau::signalPFNeutrHadrCands() const {
+  if (!selectedTransientSignalPFNeutrHadrCands_.isSet()) {
+    selectedTransientSignalPFNeutrHadrCands_.set(std::move(convertToPFPtrs(selectedSignalNeutrHadrCands_)));
+  }
+  return *selectedTransientSignalPFNeutrHadrCands_;
+}
+
+const std::vector<reco::PFCandidatePtr>& PFTau::signalPFGammaCands() const {
+  if (!selectedTransientSignalPFGammaCands_.isSet()) {
+    selectedTransientSignalPFGammaCands_.set(std::move(convertToPFPtrs(selectedSignalGammaCands_)));
+  }
+  return *selectedTransientSignalPFGammaCands_;
+}
+
+const std::vector<reco::PFCandidatePtr>& PFTau::isolationPFCands() const {
+  if (!selectedTransientIsolationPFCands_.isSet()) {
+    selectedTransientIsolationPFCands_.set(std::move(convertToPFPtrs(selectedIsolationCands_)));
+  }
+  return *selectedTransientIsolationPFCands_;
+}
+
+const std::vector<reco::PFCandidatePtr>& PFTau::isolationPFChargedHadrCands() const {
+  if (!selectedTransientIsolationPFChargedHadrCands_.isSet()) {
+    selectedTransientIsolationPFChargedHadrCands_.set(std::move(convertToPFPtrs(selectedIsolationChargedHadrCands_)));
+  }
+  return *selectedTransientIsolationPFChargedHadrCands_;
+}
+
+const std::vector<reco::PFCandidatePtr>& PFTau::isolationPFNeutrHadrCands() const {
+  if (!selectedTransientIsolationPFNeutrHadrCands_.isSet()) {
+    selectedTransientIsolationPFNeutrHadrCands_.set(std::move(convertToPFPtrs(selectedIsolationNeutrHadrCands_)));
+  }
+  return *selectedTransientIsolationPFNeutrHadrCands_;
+}
+
+const std::vector<reco::PFCandidatePtr>& PFTau::isolationPFGammaCands() const {
+  if (!selectedTransientIsolationPFGammaCands_.isSet()) {
+    selectedTransientIsolationPFGammaCands_.set(std::move(convertToPFPtrs(selectedIsolationGammaCands_)));
+  }
+  return *selectedTransientIsolationPFGammaCands_;
+}
+
 
 // PiZero and decay mode information
 const std::vector<RecoTauPiZero>& PFTau::signalPiZeroCandidates() const {
@@ -246,9 +341,9 @@ void PFTau::setelectronPreIDDecision(const bool& x) {electronPreIDDecision_ = x;
 
 // Muon variables
 bool PFTau::hasMuonReference() const { // check if muon ref exists
-    if( leadPFChargedHadrCand_.isNull() ) return false;
-    else if( leadPFChargedHadrCand_.isNonnull() ){
-        const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*leadPFChargedHadrCand_);
+    if( leadChargedHadrCand_.isNull() ) return false;
+    else if( leadChargedHadrCand_.isNonnull() ){
+        const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*leadChargedHadrCand_);
         if (pf_cand) {
             reco::MuonRef muonRef = pf_cand->muonRef();
             if( muonRef.isNull() )   return false;
@@ -290,20 +385,20 @@ void PFTau::dump(std::ostream& out) const {
     out<<"in detail :"<<std::endl;
 
     out<<"Pt of the PFTau "<<pt()<<std::endl;
-    const CandidatePtr& theLeadPFCand = leadPFChargedHadrCand();
-    if(!theLeadPFCand){
-        out<<"No Lead PFCand "<<std::endl;
+    const CandidatePtr& theLeadCand = leadChargedHadrCand();
+    if(!theLeadCand){
+        out<<"No Lead Cand "<<std::endl;
     }else{
-        out<<"Lead PFCand PDG Id " << (*theLeadPFCand).pdgId() << std::endl;
-        out<<"Lead PFCand Pt "<<(*theLeadPFCand).pt()<<std::endl;
-        out<<"Lead PFCand Charge "<<(*theLeadPFCand).charge()<<std::endl;
+        out<<"Lead Cand PDG Id " << (*theLeadCand).pdgId() << std::endl;
+        out<<"Lead Cand Pt "<<(*theLeadCand).pt()<<std::endl;
+        out<<"Lead Cand Charge "<<(*theLeadCand).charge()<<std::endl;
         out<<"Inner point position (x,y,z) of the PFTau ("<<vx()<<","<<vy()<<","<<vz()<<")"<<std::endl;
         out<<"Charge of the PFTau "<<charge()<<std::endl;
         out<<"Et of the highest Et HCAL PFCluster "<<maximumHCALPFClusterEt()<<std::endl;
-        out<<"Number of SignalPFChargedHadrCands = "<<signalPFChargedHadrCands().size()<<std::endl;
-        out<<"Number of SignalPFGammaCands = "<<signalPFGammaCands().size()<<std::endl;
-        out<<"Number of IsolationPFChargedHadrCands = "<<isolationPFChargedHadrCands().size()<<std::endl;
-        out<<"Number of IsolationPFGammaCands = "<<isolationPFGammaCands().size()<<std::endl;
+        out<<"Number of SignalChargedHadrCands = "<<signalChargedHadrCands().size()<<std::endl;
+        out<<"Number of SignalGammaCands = "<<signalGammaCands().size()<<std::endl;
+        out<<"Number of IsolationChargedHadrCands = "<<isolationChargedHadrCands().size()<<std::endl;
+        out<<"Number of IsolationGammaCands = "<<isolationGammaCands().size()<<std::endl;
         out<<"Sum of Pt of charged hadr. PFCandidates in isolation annulus around Lead PF = "<<isolationPFChargedHadrCandsPtSum()<<std::endl;
         out<<"Sum of Et of gamma PFCandidates in other isolation annulus around Lead PF = "<<isolationPFGammaCandsEtSum()<<std::endl;
 
@@ -323,17 +418,17 @@ std::ostream& operator<<(std::ostream& out, const reco::PFTau& tau) {
      << " phi:" <<tau.phi()<<" "
      << " mass:" << tau.mass() << " "
      << " dm: " << tau.decayMode() << " "
-     <<tau.signalPFCands().size()<<","
-     <<tau.signalPFChargedHadrCands().size()<<","
-     <<tau.signalPFGammaCands().size()<<","
+     <<tau.signalCands().size()<<","
+     <<tau.signalChargedHadrCands().size()<<","
+     <<tau.signalGammaCands().size()<<","
      <<tau.signalPiZeroCandidates().size()<<","
-     <<tau.signalPFNeutrHadrCands().size()<<"  "
+     <<tau.signalNeutrHadrCands().size()<<"  "
 
-     <<tau.isolationPFCands().size()<<","
-     <<tau.isolationPFChargedHadrCands().size()<<","
-     <<tau.isolationPFGammaCands().size()<<","
+     <<tau.isolationCands().size()<<","
+     <<tau.isolationChargedHadrCands().size()<<","
+     <<tau.isolationGammaCands().size()<<","
      <<tau.isolationPiZeroCandidates().size()<<","
-     <<tau.isolationPFNeutrHadrCands().size();
+     <<tau.isolationNeutrHadrCands().size();
 
    return out;
 }
