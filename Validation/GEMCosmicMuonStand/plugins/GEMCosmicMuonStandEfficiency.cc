@@ -46,12 +46,12 @@ void GEMCosmicMuonStandEfficiency::bookHistograms(DQMStore::IBooker & ibooker, e
   // }
   for(int i = 0; i < 30; i++)
   {
-    std::string temp1 = "vfatValidChamber" + to_string(i+1); 
+    std::string temp1 = "vfatValidHitChamber" + to_string(i+1); 
     gem_vfat_eff[i] = BookHist1D(ibooker, temp1.c_str(), temp1.c_str(), 24, -0.5, 23.5);
-    std::string temp2 = "vfatInValidChamber" + to_string(i+1);
+    std::string temp2 = "vfatMissingHitChamber" + to_string(i+1);
     gem_vfat_tot[i] = BookHist1D(ibooker, temp2.c_str(), temp2.c_str(), 24, -0.5, 23.5);
   }
-  gem_vfat_total_eff = BookHist1D(ibooker, "vfatTotChambers", "vfatTotChambers", 24, -0.5, 23.5);
+  gem_vfat_total_eff = BookHist1D(ibooker, "vfatTotHit", "vfatTotHit", 24, -0.5, 23.5);
   
 
   isuperChamber = BookHist1D(ibooker, "superChamber", "superChamber", 15, 0.5, 15.5);
