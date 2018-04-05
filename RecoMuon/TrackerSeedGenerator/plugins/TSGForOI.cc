@@ -6,7 +6,7 @@
 
 #include "RecoMuon/TrackerSeedGenerator/plugins/TSGForOI.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-
+#include "DataFormats/Math/interface/deltaR.h"
 #include <memory>
 
 using namespace edm;
@@ -38,7 +38,8 @@ TSGForOI::TSGForOI(const edm::ParameterSet & iConfig) :
   SF3_(iConfig.getParameter<double>("SF3")),
   SF4_(iConfig.getParameter<double>("SF4")),
   SF5_(iConfig.getParameter<double>("SF5")),
-  tsosDiff_(iConfig.getParameter<double>("tsosDiff")),
+  tsosDiff1_(iConfig.getParameter<double>("tsosDiff1")),
+  tsosDiff2_(iConfig.getParameter<double>("tsosDiff2")),
   propagatorName_(iConfig.getParameter<std::string>("propagatorName")), 
   theCategory(string("Muon|RecoMuon|TSGForOI"))
 {
@@ -126,19 +127,22 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
     StateOnTrackerBound fromInside(propagatorAlong.get());
     TrajectoryStateOnSurface outerTkStateInside = fromInside(fts);
       
-    StateOnTrackerBound fromOutside(&*SmartOpposite);
+    StateOnTrackerBound fromOutside(&*SHPOpposite);
     TrajectoryStateOnSurface outerTkStateOutside = fromOutside(tsosAtMuonSystem);
 
       // for now only checking if the two positions (using updated and not-updated) agree withing certain extent, 
       // will probably have to design something fancier for the future. 
-    auto dist=0.0;
-    bool useBoth = false;
-    if (outerTkStateInside.isValid() && outerTkStateOutside.isValid()){
-	dist = match_Chi2(outerTkStateInside,outerTkStateOutside);
-    }
-    if (dist>tsosDiff_){
-	useBoth = true; 
-    }
+     bool useBoth = false;
+
+     if(outerTkStateInside.isValid() && outerTkStateOutside.isValid()) {
+
+      auto dist1 = match_Chi2(outerTkStateInside,outerTkStateOutside);
+
+      auto dist2 = deltaR(outerTkStateInside.globalMomentum(),outerTkStateOutside.globalMomentum());
+
+      if (dist1 > tsosDiff1_ || dist2 > tsosDiff2_) useBoth = true;
+
+      }
 
     numSeedsMade=0;
     analysedL2 = false;
@@ -157,7 +161,7 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
 	      numSeedsMade=0;
 	      for (auto it=tob.rbegin(); it!=tob.rend(); ++it) {	//This goes from outermost to innermost layer
 			LogTrace("TSGForOI") << "TSGForOI::produce: looping in TOB layer " << layerCount << endl; 
-			findSeedsOnLayer(tTopo, **it, tsosAtMuonSystem,  *(propagatorOpposite.get()), *(propagatorOpposite.get()), l2, 
+			findSeedsOnLayer(tTopo, **it, outerTkStateOutside,  *(propagatorOpposite.get()), *(propagatorOpposite.get()), l2, 
 			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, analysedL2, out);
       		}
 	}
@@ -180,7 +184,7 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
 		numSeedsMade=0;
       		for (auto it=tecPositive.rbegin(); it!=tecPositive.rend(); ++it) {
 			LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC+ layer " << layerCount << endl; 
-			findSeedsOnLayer(tTopo, **it, tsosAtMuonSystem,  *(propagatorOpposite.get()), *(propagatorOpposite.get()), l2, 
+			findSeedsOnLayer(tTopo, **it, outerTkStateOutside,  *(propagatorOpposite.get()), *(propagatorOpposite.get()), l2, 
 			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, analysedL2, out);
 		}
      	}
@@ -198,7 +202,7 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
 		numSeedsMade=0;
 	      	for (auto it=tecNegative.rbegin(); it!=tecNegative.rend(); ++it) {
 			LogTrace("TSGForOI") << "TSGForOI::produce: looping in TEC- layer " << layerCount << endl; 
-			findSeedsOnLayer(tTopo, **it, tsosAtMuonSystem,  *(propagatorOpposite.get()), *(propagatorOpposite.get()), l2, 
+			findSeedsOnLayer(tTopo, **it,outerTkStateOutside,  *(propagatorOpposite.get()), *(propagatorOpposite.get()), l2, 
 			 estimatorH, measurementTrackerH, numSeedsMade, numOfMaxSeeds, layerCount, analysedL2, out);
 		}
       	}
@@ -417,7 +421,8 @@ void TSGForOI::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("SF3",5.0);
   desc.add<double>("SF4",7.0);
   desc.add<double>("SF5",10.0);
-  desc.add<double>("tsosDiff",0.03);
+  desc.add<double>("tsosDiff1",0.2);
+  desc.add<double>("tsosDiff2",0.02);
   desc.add<std::string>("propagatorName","PropagatorWithMaterial");
   descriptions.add("TSGForOI",desc);
 }
