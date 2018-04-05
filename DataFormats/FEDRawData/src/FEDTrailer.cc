@@ -1,70 +1,88 @@
 /** \file
  *
- *  \author N. Amapane - CERN
+ *  \author N. Amapane - CERN, R. Mommsen - FNAL
  */
 
-#include <DataFormats/FEDRawData/interface/FEDTrailer.h>
-#include "fed_trailer.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "DataFormats/FEDRawData/src/fed_trailer.h"
+
 
 FEDTrailer::FEDTrailer(const unsigned char* trailer) :
   theTrailer(reinterpret_cast<const fedt_t*>(trailer)) {}
 
 
-FEDTrailer::~FEDTrailer(){}
+FEDTrailer::~FEDTrailer() {}
 
 
-
-int FEDTrailer::lenght(){
-  return (theTrailer->eventsize & FED_EVSZ_MASK) >> FED_EVSZ_SHIFT;
+uint32_t FEDTrailer::fragmentLength() const {
+  return FED_EVSZ_EXTRACT(theTrailer->eventsize);
 }
 
 
-int FEDTrailer::crc(){
-  return ((theTrailer->conscheck & FED_CRCS_MASK) >> FED_CRCS_SHIFT);
+uint16_t FEDTrailer::crc() const {
+  return FED_CRCS_EXTRACT(theTrailer->conscheck);
 }
 
 
-int FEDTrailer::evtStatus(){
-  return ((theTrailer->conscheck & FED_STAT_MASK) >> FED_STAT_SHIFT);
+uint8_t FEDTrailer::evtStatus() const {
+  return FED_STAT_EXTRACT(theTrailer->conscheck);
 }
 
 
-int FEDTrailer::ttsBits(){
-  return ((theTrailer->conscheck & FED_TTSI_MASK) >> FED_TTSI_SHIFT);  
+uint8_t FEDTrailer::ttsBits() const {
+  return FED_TTSI_EXTRACT(theTrailer->conscheck);
 }
 
- 
-bool FEDTrailer::moreTrailers(){
-  return ((theTrailer->conscheck & FED_MORE_TRAILERS)!=0);
+
+bool FEDTrailer::moreTrailers() const {
+  return ( FED_MORE_TRAILERS_EXTRACT(theTrailer->conscheck) != 0 );
 }
 
+
+bool FEDTrailer::crcModified() const {
+  return ( FED_CRC_MODIFIED_EXTRACT(theTrailer->conscheck) != 0 );
+}
+
+
+bool FEDTrailer::slinkError() const {
+  return ( FED_SLINK_ERROR_EXTRACT(theTrailer->conscheck) != 0 );
+}
+
+
+bool FEDTrailer::wrongFedId() const {
+  return ( FED_WRONG_FEDID_EXTRACT(theTrailer->conscheck) != 0 );
+}
+
+uint32_t FEDTrailer::conscheck() const {
+  return theTrailer->conscheck;
+}
 
 void FEDTrailer::set(unsigned char* trailer,
-		     int evt_lgth,
-		     int crc,  
-		     int evt_stat,
-		     int tts,
-		     bool T){
+		     uint32_t lenght,
+		     uint16_t crc,
+		     uint8_t evtStatus,
+		     uint8_t ttsBits,
+		     bool moreTrailers) {
   // FIXME: should check that input ranges are OK!!!
   fedt_t* t = reinterpret_cast<fedt_t*>(trailer);
 
-  t->eventsize = 
-    FED_TCTRLID |
-    evt_lgth << FED_EVSZ_SHIFT;
- 
-  t->conscheck = 
-    crc       << FED_CRCS_SHIFT |
-    evt_stat  << FED_STAT_SHIFT |
-    tts       << FED_TTSI_SHIFT;
-  
-  if (T) t->conscheck |= FED_MORE_TRAILERS;
+  t->eventsize =
+    (FED_SLINK_END_MARKER << FED_TCTRLID_SHIFT) |
+    ( (lenght    << FED_EVSZ_SHIFT) & FED_EVSZ_MASK);
+
+  t->conscheck =
+    ( (crc       << FED_CRCS_SHIFT) & FED_CRCS_MASK ) |
+    ( (evtStatus << FED_STAT_SHIFT) & FED_STAT_MASK ) |
+    ( (ttsBits   << FED_TTSI_SHIFT) & FED_TTSI_MASK );
+
+  if (moreTrailers)
+    t->conscheck |= (FED_MORE_TRAILERS_WIDTH << FED_MORE_TRAILERS_SHIFT);
 }
 
 
-bool FEDTrailer::check(){
-  // ...may report with finer detail
-  bool result = true;
-  result &= ((theTrailer->eventsize & FED_TCTRLID_MASK) == FED_TCTRLID);
-
-  return result;
+bool FEDTrailer::check() const {
+  return ( FED_TCTRLID_EXTRACT(theTrailer->eventsize) == FED_SLINK_END_MARKER );
 }
+
+
+const uint32_t FEDTrailer::length = sizeof(fedt_t);

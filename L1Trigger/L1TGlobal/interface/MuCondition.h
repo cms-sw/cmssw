@@ -1,5 +1,5 @@
-#ifndef GlobalTrigger_MuCondition_h
-#define GlobalTrigger_MuCondition_h
+#ifndef L1Trigger_L1TGlobal_MuCondition_h
+#define L1Trigger_L1TGlobal_MuCondition_h
 
 /**
  * \class MuCondition
@@ -10,6 +10,7 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *   
+ *          Vladimir Rekovic - extend for indexing
  */
 
 // system include files
@@ -23,14 +24,14 @@
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
 // forward declarations
-class GtCondition;
+class GlobalCondition;
 class MuonTemplate;
 
 namespace l1t {
 
 class L1MuGMTCand;
 
-class GtBoard;
+class GlobalBoard;
 
 // class declaration
 class MuCondition : public ConditionEvaluation
@@ -43,7 +44,7 @@ public:
     MuCondition();
 
     ///     from base template condition (from event setup usually)
-    MuCondition(const GtCondition*, const GtBoard*,
+    MuCondition(const GlobalCondition*, const GlobalBoard*,
             const int nrL1Mu,
             const int ifMuEtaNumberBits);
 
@@ -51,7 +52,7 @@ public:
     MuCondition(const MuCondition&);
 
     // destructor
-    virtual ~MuCondition();
+    ~MuCondition() override;
 
     // assign operator
     MuCondition& operator=(const MuCondition&);
@@ -59,10 +60,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition(const int bxEval) const;
+    const bool evaluateCondition(const int bxEval) const override;
 
     /// print condition
-    void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
 public:
 
@@ -74,11 +75,11 @@ public:
     void setGtMuonTemplate(const MuonTemplate*);
 
     ///   get / set the pointer to GTL
-    inline const GtBoard* gtGTL() const {
+    inline const GlobalBoard* gtGTL() const {
         return m_gtGTL;
     }
 
-    void setGtGTL(const GtBoard*);
+    void setGtGTL(const GlobalBoard*);
 
 
     ///   get / set the number of bits for eta of muon objects
@@ -107,7 +108,7 @@ private:
 
     /// function to check a single object if it matches a condition
     const bool checkObjectParameter(const int iCondition,
-        const l1t::Muon& cand) const;
+        const l1t::Muon& cand, const unsigned int index) const;
 
 private:
 
@@ -115,7 +116,7 @@ private:
     const MuonTemplate* m_gtMuonTemplate;
 
     /// pointer to GTL, to be able to get the trigger objects
-    const GtBoard* m_gtGTL;
+    const GlobalBoard* m_gtGTL;
 
     /// number of bits for eta of muon objects
     int m_ifMuEtaNumberBits;

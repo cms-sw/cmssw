@@ -38,7 +38,7 @@ namespace{
 
 
 PythiaFilterGammaJet::PythiaFilterGammaJet(const edm::ParameterSet& iConfig) :
-token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 etaMax(iConfig.getUntrackedParameter<double>("MaxPhotonEta", 2.8)),
 ptSeed(iConfig.getUntrackedParameter<double>("PhotonSeedPt", 5.)),
 ptMin(iConfig.getUntrackedParameter<double>("MinPhotonPt")),
@@ -117,10 +117,10 @@ bool PythiaFilterGammaJet::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     if (eta2<-etaPhotonCut2) eta2=-etaPhotonCut2;
     if (etaPhoton<eta1 ||etaPhoton>eta2) continue;
 
-    bool inEB(0);
+    bool inEB(false);
     double tgx(0);
     double tgy(0);
-    if( std::abs(etaPhoton)<ebEtaMax) inEB=1;
+    if( std::abs(etaPhoton)<ebEtaMax) inEB=true;
     else{
       tgx=(*is)->momentum().px()/(*is)->momentum().pz();
       tgy=(*is)->momentum().py()/(*is)->momentum().pz();

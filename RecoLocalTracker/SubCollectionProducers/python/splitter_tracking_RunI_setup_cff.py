@@ -3,14 +3,8 @@ from RecoLocalTracker.SubCollectionProducers.SeedClusterRemover_cfi import *
 from RecoTracker.IterativeTracking.ElectronSeeds_cff  import *
 from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *#new in 700pre8
-from RecoTracker.IterativeTracking.RunI_InitialStep_cff import *
+raise Exception("Please migrate to use Run2_2016_trackingLowPU era (or otherwise use trackingLowPU sub-era)")
 from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
-from RecoTracker.IterativeTracking.RunI_MixedTripletStep_cff import *
-from RecoTracker.IterativeTracking.RunI_LowPtTripletStep_cff import *
-from RecoTracker.IterativeTracking.RunI_PixelPairStep_cff import *
-from RecoTracker.IterativeTracking.RunI_DetachedTripletStep_cff import *
-from RecoTracker.IterativeTracking.RunI_PixelLessStep_cff import *
-from RecoTracker.IterativeTracking.RunI_TobTecStep_cff import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
 
 def customizeTracking(newpixclusters, newstripclusters, newpixrechits, newstriprechits):

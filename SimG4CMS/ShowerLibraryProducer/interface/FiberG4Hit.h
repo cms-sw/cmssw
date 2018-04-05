@@ -9,7 +9,6 @@
 #include "G4Allocator.hh"
 #include "G4LogicalVolume.hh"
 
-#include <boost/cstdint.hpp>
 #include <vector>
 
 class FiberG4Hit : public G4VHit {
@@ -18,7 +17,7 @@ public:
 
   FiberG4Hit();
   FiberG4Hit(G4LogicalVolume* logVol, G4int tower, G4int depth, G4int tkID);
-  virtual ~FiberG4Hit();
+  ~FiberG4Hit() override;
   FiberG4Hit(const FiberG4Hit &right);
   const FiberG4Hit& operator=(const FiberG4Hit &right);
   G4int operator==(const FiberG4Hit &right) const;

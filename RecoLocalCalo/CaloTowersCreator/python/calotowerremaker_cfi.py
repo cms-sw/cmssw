@@ -59,7 +59,10 @@ ct2ct = cms.EDProducer("CaloTowersReCreator",
     MomHBDepth = cms.double(0.2),
     MomHEDepth = cms.double(0.4),   
     MomEBDepth = cms.double(0.3),
-    MomEEDepth = cms.double(0.0)
+    MomEEDepth = cms.double(0.0),
+	HcalPhase = cms.int32(0)
 )
 
+from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
+run2_HE_2018.toModify(ct2ct, HcalPhase = cms.int32(1))
 

@@ -1,15 +1,16 @@
 #ifndef DetectorDescription_Core_DDValue_h
 #define DetectorDescription_Core_DDValue_h
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <memory>
 #include <atomic>
-#include "tbb/concurrent_vector.h"
-#include "tbb/concurrent_unordered_map.h"
+#include <iostream>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "DetectorDescription/Core/interface/DDValuePair.h"
+#include "tbb/concurrent_unordered_map.h"
+#include "tbb/concurrent_vector.h"
 
 /** A DDValue std::maps a std::vector of DDValuePair (std::string,double) to a name. Names of DDValues are stored
  transiently. Furthermore, an ID is assigned std::mapping to the name.
@@ -42,8 +43,6 @@ public:
   explicit DDValue( const std::string & name, const std::string & val );
   
   explicit DDValue( unsigned int );
-  
-  ~DDValue( void );
   
   //! returns the ID of the DDValue
   unsigned int id( void ) const { return id_; }
@@ -86,6 +85,7 @@ public:
   //! A DDValue a is smaller than a DDValue b if (a.id()<b.id()) OR (a.id()==b.id() and value(a)<value(b))
   bool operator<( const DDValue & ) const;
 
+private:
   ///Only used internally
   struct StringHolder {
     StringHolder() {}
@@ -110,7 +110,6 @@ public:
     std::atomic<unsigned int> value_;
   };
   
-private:  
   void init( const std::string & );
  
   using Names = tbb::concurrent_vector<StringHolder,tbb::zero_allocator<StringHolder>>;

@@ -57,7 +57,7 @@ void prefillMap(){
 }
 
 
-virtual void addCell(const DetId &cell, float scaling_factor)
+void addCell(const DetId &cell, float scaling_factor) override
 {
 map_.setValue(cell.rawId(),scaling_factor);
 }

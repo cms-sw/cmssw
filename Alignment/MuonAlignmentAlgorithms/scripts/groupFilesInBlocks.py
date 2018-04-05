@@ -33,7 +33,7 @@ parser.add_option("-v", "--verbose",
 options,args=parser.parse_args()
 
 if len(sys.argv) < 4:
-    raise SystemError, "Too few arguments.\n\n"+parser.format_help()
+    raise SystemError("Too few arguments.\n\n"+parser.format_help())
 
 NBLOCKS = int(sys.argv[1])
 INFILE = sys.argv[2]

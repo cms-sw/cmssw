@@ -6,5 +6,5 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.EgammaHFProducers.hfClusterShapes_cfi import *
 #create RecoEcalCandidates
 from RecoEgamma.EgammaHFProducers.hfRecoEcalCandidate_cfi import *
-hfEMClusteringSequence = cms.Sequence(hfEMClusters+hfRecoEcalCandidate)
-
+hfEMClusteringTask = cms.Task(hfEMClusters,hfRecoEcalCandidate)
+hfEMClusteringSequence = cms.Sequence(hfEMClusteringTask)

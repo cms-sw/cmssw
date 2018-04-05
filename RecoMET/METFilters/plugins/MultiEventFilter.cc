@@ -24,11 +24,11 @@ class MultiEventFilter : public edm::EDFilter {
   public:
 
     explicit MultiEventFilter(const edm::ParameterSet & iConfig);
-    ~MultiEventFilter() {}
+    ~MultiEventFilter() override {}
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
     
     std::vector<Event> events_;
     const std::vector<std::string> eventList_;
@@ -79,7 +79,7 @@ bool MultiEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetu
         events_[i].lumi == iEvent.id().luminosityBlock()) pass = false; 
   }
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;
 

@@ -124,7 +124,7 @@ if __name__ == '__main__':
         sys.exit()
     if len (args) != 1:
         parser.print_usage()
-        raise RuntimeError, "Please specify an output file as your last argument"
+        raise RuntimeError("Please specify an output file as your last argument")
     output = args[0]
 
     ## Let's start the fun
@@ -251,8 +251,7 @@ if __name__ == '__main__':
 
         outputfile = open(output,'w')
         if not outputfile:
-            raise RuntimeError, \
-               "Could not open '%s' as an output JSON file" % output
+            raise RuntimeError("Could not open '%s' as an output JSON file" % output)
                     
         outputfile.write(OUTPUTLINE)
         outputfile.close()

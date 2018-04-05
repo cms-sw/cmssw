@@ -1,18 +1,23 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripThresholdDQM.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TCanvas.h"
 
 // -----
 SiStripThresholdDQM::SiStripThresholdDQM(const edm::EventSetup & eSetup,
+                                         edm::RunNumber_t iRun,
                                          edm::ParameterSet const& hPSet,
-                                         edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
+                                         edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, iRun, hPSet, fPSet){
   WhichThreshold=hPSet.getParameter<std::string>("WhichThreshold");
 
   // Build the Histo_TkMap:
   if(HistoMaps_On_ ){
-    if(WhichThreshold=="Low") Tk_HM_L = new TkHistoMap("SiStrip/Histo_Map","LowThresh_TkMap",0.);
-    if(WhichThreshold=="High") Tk_HM_H = new TkHistoMap("SiStrip/Histo_Map","HighThresh_TkMap",0.);
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    const TkDetMap* tkDetMap = tkDetMapHandle.product();
+    if(WhichThreshold=="Low") Tk_HM_L = std::make_unique<TkHistoMap>(tkDetMap, "SiStrip/Histo_Map","LowThresh_TkMap",0.);
+    if(WhichThreshold=="High") Tk_HM_H = std::make_unique<TkHistoMap>(tkDetMap, "SiStrip/Histo_Map","HighThresh_TkMap",0.);
   }
 }
 
@@ -41,7 +46,7 @@ void SiStripThresholdDQM::fillModMEs(const std::vector<uint32_t> & selectedDetId
    
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   ModMEs CondObj_ME;
@@ -100,7 +105,7 @@ void SiStripThresholdDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedD
    
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHandle;
-   es.get<IdealGeometryRecord>().get(tTopoHandle);
+   es.get<TrackerTopologyRcd>().get(tTopoHandle);
    const TrackerTopology* const tTopo = tTopoHandle.product();
 
    for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();

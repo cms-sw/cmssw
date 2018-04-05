@@ -30,8 +30,8 @@
 // constructors and destructor
 //
 FWEnumParameterSetter::FWEnumParameterSetter() :
-   m_param(0),
-   m_widget(0)
+   m_param(nullptr),
+   m_widget(nullptr)
 {}
 
 // FWEnumParameterSetter::FWEnumParameterSetter(const FWEnumParameterSetter& rhs)
@@ -62,7 +62,7 @@ void
 FWEnumParameterSetter::attach(FWParameterBase* iParam)
 {
    m_param = dynamic_cast<FWEnumParameter*>(iParam);
-   assert(0!=m_param);
+   assert(nullptr!=m_param);
 }
 
 TGFrame*
@@ -102,8 +102,8 @@ FWEnumParameterSetter::build(TGFrame* iParent, bool labelBack)
 void
 FWEnumParameterSetter::doUpdate(Int_t id)
 {
-   assert(0!=m_param);
-   assert(0!=m_widget);
+   assert(nullptr!=m_param);
+   assert(nullptr!=m_widget);
    m_param->set((Long_t) id);
    update();
 }

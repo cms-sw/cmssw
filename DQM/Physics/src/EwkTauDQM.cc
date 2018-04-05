@@ -252,7 +252,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt,
   if (readError) return;
 
   const reco::Vertex* theEventVertex =
-      (vertexCollection->size() > 0) ? &(vertexCollection->at(0)) : 0;
+      (!vertexCollection->empty()) ? &(vertexCollection->at(0)) : nullptr;
 
   //--- get beam-spot (expected vertex position) for the event
   edm::Handle<reco::BeamSpot> beamSpot;
@@ -412,7 +412,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt,
     cutFlowStatus = kPassedPreselection;
   }
   if (cutFlowStatus == kPassedPreselection &&
-      (isTriggered || hltPaths_.size() == 0)) {
+      (isTriggered || hltPaths_.empty())) {
     cutFlowStatus = kPassedTrigger;
   }
   if (cutFlowStatus == kPassedTrigger && passesElectronId(*theElectron)) {
@@ -718,7 +718,7 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt,
   if (readError) return;
 
   const reco::Vertex* theEventVertex =
-      (vertexCollection->size() > 0) ? &(vertexCollection->at(0)) : 0;
+      (!vertexCollection->empty()) ? &(vertexCollection->at(0)) : nullptr;
 
   //--- get beam-spot (expected vertex position) for the event
   edm::Handle<reco::BeamSpot> beamSpot;
@@ -874,7 +874,7 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt,
     cutFlowStatus = kPassedPreselection;
   }
   if (cutFlowStatus == kPassedPreselection &&
-      (isTriggered || hltPaths_.size() == 0)) {
+      (isTriggered || hltPaths_.empty())) {
     cutFlowStatus = kPassedTrigger;
   }
   if (cutFlowStatus == kPassedTrigger &&
@@ -1104,13 +1104,13 @@ bool passesElectronId(const reco::GsfElectron& electron) {
 const reco::GsfElectron* getTheElectron(
     const reco::GsfElectronCollection& electrons, double electronEtaCut,
     double electronPtCut) {
-  const reco::GsfElectron* theElectron = 0;
+  const reco::GsfElectron* theElectron = nullptr;
 
   for (reco::GsfElectronCollection::const_iterator electron = electrons.begin();
        electron != electrons.end(); ++electron) {
     if (TMath::Abs(electron->eta()) < electronEtaCut &&
         electron->pt() > electronPtCut && passesElectronPreId(*electron)) {
-      if (theElectron == 0 || electron->pt() > theElectron->pt())
+      if (theElectron == nullptr || electron->pt() > theElectron->pt())
         theElectron = &(*electron);
     }
   }
@@ -1120,12 +1120,12 @@ const reco::GsfElectron* getTheElectron(
 
 const reco::Muon* getTheMuon(const reco::MuonCollection& muons,
                              double muonEtaCut, double muonPtCut) {
-  const reco::Muon* theMuon = 0;
+  const reco::Muon* theMuon = nullptr;
 
   for (reco::MuonCollection::const_iterator muon = muons.begin();
        muon != muons.end(); ++muon) {
     if (TMath::Abs(muon->eta()) < muonEtaCut && muon->pt() > muonPtCut) {
-      if (theMuon == 0 || muon->pt() > theMuon->pt()) theMuon = &(*muon);
+      if (theMuon == nullptr || muon->pt() > theMuon->pt()) theMuon = &(*muon);
     }
   }
 
@@ -1135,7 +1135,7 @@ const reco::Muon* getTheMuon(const reco::MuonCollection& muons,
 const reco::PFTau* getTheTauJet(const reco::PFTauCollection& tauJets,
                                 double tauJetEtaCut, double tauJetPtCut,
                                 int& theTauJetIndex) {
-  const reco::PFTau* theTauJet = 0;
+  const reco::PFTau* theTauJet = nullptr;
   theTauJetIndex = -1;
 
   int numTauJets = tauJets.size();
@@ -1143,7 +1143,7 @@ const reco::PFTau* getTheTauJet(const reco::PFTauCollection& tauJets,
     const reco::PFTau& tauJet = tauJets.at(iTauJet);
 
     if (fabs(tauJet.eta()) < tauJetEtaCut && tauJet.pt() > tauJetPtCut) {
-      if (theTauJet == 0 || tauJet.pt() > theTauJet->pt()) {
+      if (theTauJet == nullptr || tauJet.pt() > theTauJet->pt()) {
         theTauJet = &tauJet;
         theTauJetIndex = iTauJet;
       }

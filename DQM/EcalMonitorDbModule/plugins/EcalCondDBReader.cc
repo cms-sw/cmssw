@@ -8,9 +8,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const& _ps) :
-  db_(0),
+  db_(nullptr),
   monIOV_(),
-  worker_(0),
+  worker_(nullptr),
   formula_(_ps.getUntrackedParameter<std::string>("formula")),
   meSet_(ecaldqm::createMESet(_ps.getUntrackedParameterSet("plot"))),
   verbosity_(_ps.getUntrackedParameter<int>("verbosity"))
@@ -56,7 +56,7 @@ EcalCondDBReader::EcalCondDBReader(edm::ParameterSet const& _ps) :
   std::string userName(_ps.getUntrackedParameter<std::string>("userName"));
   std::string password(_ps.getUntrackedParameter<std::string>("password"));
 
-  std::auto_ptr<EcalCondDBInterface> db(0);
+  std::auto_ptr<EcalCondDBInterface> db(nullptr);
 
   if(verbosity_ > 0) edm::LogInfo("EcalDQM") << "Establishing DB connection";
 

@@ -1,5 +1,5 @@
 #include "Geometry/ForwardGeometry/interface/IdealZDCTrapezoid.h"
-#include <math.h>
+#include <cmath>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;
@@ -78,7 +78,7 @@ IdealZDCTrapezoid::localCorners( Pt3DVec&        lc  ,
 				 Pt3D&           ref   )
 {
    assert( 8 == lc.size() ) ;
-   assert( 0 != pv ) ;
+   assert( nullptr != pv ) ;
 
    const CCGFloat an ( pv[0] ) ;
    const CCGFloat dx ( pv[1] ) ;

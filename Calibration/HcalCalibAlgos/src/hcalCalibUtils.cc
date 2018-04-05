@@ -8,6 +8,8 @@
 
 //#include "Calibration/HcalCalibAlgos/plugins/CommonUsefulStuff.h"
 #include "Calibration/HcalCalibAlgos/interface/CommonUsefulStuff.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 using namespace std;
 
@@ -17,7 +19,7 @@ void sumDepths(vector<TCell> &selectCells) {
   // All cells with depth>1 are removed form the container. If
   // the cell at depth=1 is not present: create it and follow the procedure. 
     
-  if (selectCells.size()==0) return;
+  if (selectCells.empty()) return;
 
   vector<TCell> selectCellsDepth1;
   vector<TCell> selectCellsHighDepth;
@@ -96,7 +98,7 @@ void combinePhi(vector<TCell> &selectCells) {
   // Map: NxN -> N cluster
   // Comine the targetE of cells with the same iEta
 
-  if (selectCells.size()==0) return;
+  if (selectCells.empty()) return;
     
   // new container for the TCells
   // dummy cell id created with iEta; iPhi=1; depth
@@ -129,7 +131,7 @@ void combinePhi(vector<TCell> &selectCells, vector<TCell> &combinedCells) {
   // Map: NxN -> N cluster
   // Comine the targetE of cells with the same iEta
 
-  if (selectCells.size()==0) return;
+  if (selectCells.empty()) return;
     
   map<UInt_t, vector<Float_t> > etaSliceE; // keyed by id of cell with iEta and **iPhi=1**
     
@@ -279,7 +281,7 @@ void filterCells5x5(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE)
 
 void sumSmallDepths(vector<TCell> &selectCells) {
        
-  if (selectCells.size()==0) return;
+  if (selectCells.empty()) return;
     
   vector<TCell> newCells; // holds unaffected cells to which the modified ones are added
   vector<TCell> manipulatedCells; // the ones that are combined
@@ -299,7 +301,7 @@ void sumSmallDepths(vector<TCell> &selectCells) {
   // if the list is empty there is nothing to manipulate
   // leave the original vector unchanged
 
-  if (manipulatedCells.size()<1) {
+  if (manipulatedCells.empty()) {
     newCells.clear();    
     return;
   }
@@ -348,7 +350,13 @@ void filterCellsInCone(std::vector<TCell>& selectCells, const GlobalPoint hitPos
       
   for (vector<TCell>::iterator it=selectCells.begin(); it!=selectCells.end(); ++it) {
 
-    const GlobalPoint recHitPoint = theCaloGeometry->getPosition(it->id());
+    GlobalPoint recHitPoint;
+    DetId id = it->id(); 
+    if (id.det() == DetId::Hcal) {
+      recHitPoint = (static_cast<const HcalGeometry*>(theCaloGeometry->getSubdetectorGeometry(id)))->getPosition(id);
+    } else {
+      recHitPoint = GlobalPoint(theCaloGeometry->getPosition(id));
+    }
 
     if (getDistInPlaneSimple(hitPositionHcal, recHitPoint)<= maxConeDist) 
       filteredCells.push_back(*it);

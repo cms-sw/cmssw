@@ -23,17 +23,17 @@ namespace reco {
     RecoCaloTowerCandidate( Charge q , const PolarLorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) :
       RecoCandidate( q, p4, vtx ) { }
     /// destructor
-    virtual ~RecoCaloTowerCandidate();
+    ~RecoCaloTowerCandidate() override;
     /// returns a clone of the candidate
-    virtual RecoCaloTowerCandidate * clone() const;
+    RecoCaloTowerCandidate * clone() const override;
     /// set CaloTower reference
     void setCaloTower( const CaloTowerRef & r ) { caloTower_ = r; }
     /// reference to a CaloTower
-    virtual CaloTowerRef caloTower() const;
+    CaloTowerRef caloTower() const override;
 
   private:
     /// check overlap with another candidate
-    virtual bool overlap( const Candidate & ) const;
+    bool overlap( const Candidate & ) const override;
     /// reference to a CaloTower
     CaloTowerRef caloTower_;
   };

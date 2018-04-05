@@ -14,6 +14,7 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Common/interface/Ref.h"
 
 /**
@@ -41,7 +42,7 @@ using namespace edm;
 class ParticleListDrawer : public edm::EDAnalyzer {
   public:
     explicit ParticleListDrawer(const edm::ParameterSet & );
-    ~ParticleListDrawer() {};
+    ~ParticleListDrawer() override {};
     void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   private:
@@ -54,6 +55,7 @@ class ParticleListDrawer : public edm::EDAnalyzer {
     unsigned int nEventAnalyzed_;
     bool printOnlyHardInteraction_;
     bool printVertex_;
+    bool printFlags_;
     bool useMessageLogger_;
 };
 
@@ -64,6 +66,7 @@ ParticleListDrawer::ParticleListDrawer(const edm::ParameterSet & pset) :
   nEventAnalyzed_(0),
   printOnlyHardInteraction_(pset.getUntrackedParameter<bool>("printOnlyHardInteraction", false)),
   printVertex_(pset.getUntrackedParameter<bool>("printVertex", false)),
+  printFlags_(pset.getUntrackedParameter<bool>("printFlags", false)),
   useMessageLogger_(pset.getUntrackedParameter<bool>("useMessageLogger", false)) {
 }
 
@@ -90,10 +93,10 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
     out << endl
 	<< "[ParticleListDrawer] analysing particle collection " << src_.label() << endl;
 
-    snprintf(buf, 256, " idx  |    ID -       Name |Stat|  Mo1  Mo2  Da1  Da2 |nMo nDa|    pt       eta     phi   |     px         py         pz        m     |");
+    snprintf(buf, sizeof(buf), " idx  |    ID -       Name |Stat|  Mo1  Mo2  Da1  Da2 |nMo nDa|    pt       eta     phi   |     px         py         pz        m     |");
     out << buf;
     if (printVertex_) {
-      snprintf(buf, 256, "        vx       vy        vz     |");
+      snprintf(buf, sizeof(buf), "        vx       vy        vz     |");
       out << buf;
     }
     out << endl;
@@ -142,8 +145,8 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
       found = find(cands.begin(), cands.end(), p->daughter(nDa-1));
       if(found != cands.end()) iDa2 = found - cands.begin() ;
 
-      char buf[256];
-      snprintf(buf, 256,
+      char buf[2400];
+      snprintf(buf, sizeof(buf),
 	     " %4d | %5d - %10s | %2d | %4d %4d %4d %4d | %2d %2d | %7.3f %10.3f %6.3f | %10.3f %10.3f %10.3f %8.3f |",
              idx,
              p->pdgId(),
@@ -161,11 +164,24 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
       out << buf;
 
       if (printVertex_) {
-        snprintf(buf, 256, " %10.3f %10.3f %10.3f |",
+        snprintf(buf, sizeof(buf), " %10.3f %10.3f %10.3f |",
                  p->vertex().x(),
                  p->vertex().y(),
                  p->vertex().z());
         out << buf;
+      }
+
+      if (printFlags_) {
+          const reco::GenParticle *gp = dynamic_cast<const reco::GenParticle *>(&*p);
+          if (!gp) throw cms::Exception("Unsupported", "Status flags can be printed only for reco::GenParticle objects\n");
+          if (gp->isPromptFinalState()) out << "  PromptFinalState";
+          if (gp->isDirectPromptTauDecayProductFinalState()) out << "  DirectPromptTauDecayProductFinalState";
+          if (gp->isHardProcess()) out << "  HardProcess";
+          if (gp->fromHardProcessFinalState()) out << "  HardProcessFinalState";
+          if (gp->fromHardProcessBeforeFSR()) out << "  HardProcessBeforeFSR";
+          if (gp->statusFlags().isFirstCopy()) out << "  FirstCopy";
+          if (gp->isLastCopy()) out << "  LastCopy";
+          if (gp->isLastCopyBeforeFSR()) out << "  LastCopyBeforeFSR";
       }
 
       out << endl;

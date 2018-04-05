@@ -34,6 +34,8 @@ namespace spr {
   template <typename T>
   std::vector<typename T::const_iterator> findHit(edm::Handle<T>& hits, DetId thisDet, bool debug=false);
 
+  std::vector<std::vector<PCaloHit>::const_iterator> findHit(std::vector<PCaloHit>& hits, DetId thisDet, bool debug=false);
+
   template <typename T>
   void findHit(edm::Handle<T>& hits, DetId thisDet, std::vector<typename T::const_iterator>& hit,  bool debug=false);
 

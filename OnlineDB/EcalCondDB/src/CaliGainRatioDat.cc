@@ -11,9 +11,9 @@ using namespace oracle::occi;
 
 CaliGainRatioDat::CaliGainRatioDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
 
   m_g1_g12 = 0;
   m_g6_g12 = 0;
@@ -29,7 +29,7 @@ CaliGainRatioDat::~CaliGainRatioDat()
 
 
 void CaliGainRatioDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   
@@ -40,14 +40,14 @@ void CaliGainRatioDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliGainRatioDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliGainRatioDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void CaliGainRatioDat::writeDB(const EcalLogicID* ecid, const CaliGainRatioDat* item, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -68,14 +68,14 @@ void CaliGainRatioDat::writeDB(const EcalLogicID* ecid, const CaliGainRatioDat* 
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliGainRatioDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliGainRatioDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void CaliGainRatioDat::fetchData(std::map< EcalLogicID, CaliGainRatioDat >* fillMap, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -100,12 +100,12 @@ void CaliGainRatioDat::fetchData(std::map< EcalLogicID, CaliGainRatioDat >* fill
     std::pair< EcalLogicID, CaliGainRatioDat > p;
     CaliGainRatioDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
       
       dat.setG1G12( rset->getFloat(7) );
       dat.setG6G12( rset->getFloat(8) );
@@ -115,12 +115,12 @@ void CaliGainRatioDat::fetchData(std::map< EcalLogicID, CaliGainRatioDat >* fill
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliGainRatioDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliGainRatioDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
 void CaliGainRatioDat::writeArrayDB(const std::map< EcalLogicID, CaliGainRatioDat >* data, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -202,6 +202,6 @@ void CaliGainRatioDat::writeArrayDB(const std::map< EcalLogicID, CaliGainRatioDa
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliGainRatio::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliGainRatio::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

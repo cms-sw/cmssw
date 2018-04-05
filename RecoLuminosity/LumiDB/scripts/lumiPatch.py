@@ -47,11 +47,11 @@ def missingTimeRuns(dbsession,c):
         queryOutput.extend('runnum','unsigned int')
         query.defineOutput(queryOutput)
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             result.append(cursor.currentRow()['runnum'].data())
         del query
         dbsession.transaction().commit()
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -96,14 +96,14 @@ def getTimeForRun(dbsession,c,runnums):
             startTQuery.setCondition('RUNNUMBER=:runnum AND NAME=:name',startTQueryCondition)
             startTQuery.defineOutput(startTQueryOutput)
             startTCursor=startTQuery.execute()
-            while startTCursor.next():
+            while next(startTCursor):
                 startTime=startTCursor.currentRow()['starttime'].data()           
             stopTQueryCondition['runnum'].setData(int(runnum))
             stopTQueryCondition['name'].setData('CMS.LVL0:STOP_TIME_T')
             stopTQuery.setCondition('RUNNUMBER=:runnum AND NAME=:name',stopTQueryCondition)
             stopTQuery.defineOutput(stopTQueryOutput)
             stopTCursor=stopTQuery.execute()
-            while stopTCursor.next():
+            while next(stopTCursor):
                 stopTime=stopTCursor.currentRow()['stoptime'].data()
             if not startTime or not stopTime:
                 print 'Warning: no startTime or stopTime found for run ',runnum
@@ -112,7 +112,7 @@ def getTimeForRun(dbsession,c,runnums):
             del startTQuery
             del stopTQuery
         dbsession.transaction().commit()
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -152,7 +152,7 @@ def addTimeForRun(dbsession,c,runtimedict):
             dbsession.transaction().rollback()
         else:
             dbsession.transaction().commit()   
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -183,7 +183,7 @@ def recalibrateLumiForRun(dbsession,c,delta,runnums):
         else:
             dbsession.transaction().commit()
         return nchanged
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -223,14 +223,14 @@ def GTdeadtimeBeamActiveForRun(dbsession,c,runnum):
         query.defineOutput(deadOutput)
 
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['lsnr'].data()
             deadcount=cursor.currentRow()['deadcount'].data()
             result[cmslsnum]=deadcount
             #print 'deadcount',deadcount
         del query
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -267,14 +267,14 @@ def WBMdeadtimeBeamActiveForRun(dbsession,c,runnum):
         query.defineOutput(deadOutput)
         
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['lsnr'].data()
             deadcount=cursor.currentRow()['deadcount'].data()
             result[cmslsnum]=deadcount
             #print 'deadcount',deadcount
         del query
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -308,7 +308,7 @@ def patchDeadtimeForRun(dbsession,c,runnum,deadtimeDict):
             totalchanged+=nchanged
         dbsession.transaction().commit()
         return totalchanged
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -373,7 +373,7 @@ def main():
             #print 'max key: ',max( [ x for x in deadresult.keys()])
             print 'alert: missing Lumi Sections in the middle'
             for x in range(1,max( [ x for x in deadresult.keys()] ) ):
-                if not deadresult.has_key(x):
+                if x not in deadresult:
                     print 'filling up LS deadtime with 0: LS : ',x
                     deadresult[x]=0
         #print deadresult
@@ -400,7 +400,7 @@ def main():
         if len(deadresult)!=max( [ (deadresult[x],x) for x in deadresult])[1]:
             print 'alert: missing Lumi Sections in the middle'
             for x in range(1,max( [ (deadresult[x],x) for x in deadresult])[1]):
-                if not deadresult.has_key(x):
+                if x not in deadresult:
                     print 'filling up LS deadtime with 0: LS : ',x
                     deadresult[x]=0
         print deadresult

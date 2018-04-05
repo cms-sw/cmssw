@@ -76,7 +76,7 @@ class FactorizedJetCorrectorCalculator
     };
 
     enum VarTypes   {kJetPt,kJetEta,kJetPhi,kJetE,kJetEMF,kRelLepPt,kPtRel,kNPV,kJetA,kRho,kJPTrawE,kJPTrawEt,kJPTrawPt,kJPTrawEta,kJPTrawOff};
-    enum LevelTypes {kL1,kL2,kL3,kL4,kL5,kL6,kL7,kL1fj,kL1JPT};
+    enum LevelTypes {kL1,kL2,kL3,kL4,kL5,kL6,kL7,kL1fj,kL1JPT,kL2L3Res};
     FactorizedJetCorrectorCalculator();
     FactorizedJetCorrectorCalculator(const std::string& fLevels, const std::string& fTags, const std::string& fOptions="");
     FactorizedJetCorrectorCalculator(const std::vector<JetCorrectorParameters>& fParameters);
@@ -87,8 +87,8 @@ class FactorizedJetCorrectorCalculator
        
   private:
   //---- Member Functions ----  
-    FactorizedJetCorrectorCalculator(const FactorizedJetCorrectorCalculator&);
-    FactorizedJetCorrectorCalculator& operator= (const FactorizedJetCorrectorCalculator&);
+    FactorizedJetCorrectorCalculator(const FactorizedJetCorrectorCalculator&) = delete;
+    FactorizedJetCorrectorCalculator& operator= (const FactorizedJetCorrectorCalculator&) = delete;
     float getLepPt(const VariableValues&)    const;
     float getRelLepPt(const VariableValues&) const;
     float getPtRel(const VariableValues&)    const;

@@ -11,7 +11,6 @@
    <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::GsfElectron>, std::vector<reco::ElectronID>, unsigned int > >">
      <field name="transientMap_" transient="true" />
    </class>
-   <class pattern="edm::KeyVal<*>" />
    <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
    <class pattern="edm::Ref<edm::AssociationMap<*>" />
    <class pattern="edm::RefProd<edm::AssociationMap<*>" />

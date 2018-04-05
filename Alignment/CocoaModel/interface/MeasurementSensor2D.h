@@ -20,16 +20,16 @@ class MeasurementSensor2D : public Measurement
 public:
   MeasurementSensor2D( const ALIint measdim, ALIstring& type, ALIstring& name ) : Measurement( measdim, type, name ){ };
   MeasurementSensor2D(){ };   
-  ~MeasurementSensor2D(){ };
+  ~MeasurementSensor2D() override{ };
     
   // Get simulated value (called every time a parameter is displaced)
-  virtual void calculateSimulatedValue( ALIbool firstTime );
+  void calculateSimulatedValue( ALIbool firstTime ) override;
 
   //---------- Add any correction between the measurement data and the default format in COCOA
-  virtual void correctValueAndSigma();
+  void correctValueAndSigma() override;
 
   //---------- Convert from V to rad
-  virtual void setConversionFactor( const std::vector<ALIstring>& wordlist );
+  void setConversionFactor( const std::vector<ALIstring>& wordlist ) override;
 
  private:
 

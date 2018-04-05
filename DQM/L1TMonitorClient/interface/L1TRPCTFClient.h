@@ -27,11 +27,11 @@ public:
   L1TRPCTFClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~L1TRPCTFClient();
+  ~L1TRPCTFClient() override;
  
 protected:
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&);  //performed in the endLumi
+  void dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override;  //performed in the endLumi
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
 

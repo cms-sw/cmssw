@@ -178,7 +178,7 @@ void L1GlobalTriggerGTL::run(
         const L1GlobalTriggerPSB* ptrGtPSB,
         const bool produceL1GtObjectMapRecord,
         const int iBxInEvent,
-        std::auto_ptr<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord,
+        L1GlobalTriggerObjectMapRecord* gtObjectMapRecord,
         const unsigned int numberPhysTriggers,
         const int nrL1Mu,
         const int nrL1NoIsoEG, const int nrL1IsoEG,
@@ -197,10 +197,7 @@ void L1GlobalTriggerGTL::run(
         edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
         evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu) ;
         m_l1GtMenu =  l1GtMenu.product();
-        (const_cast<L1GtTriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
-
         m_l1GtMenuCacheID = l1GtMenuCacheID;
-
     }
 
     const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();
@@ -515,8 +512,8 @@ void L1GlobalTriggerGTL::run(
                     const int cond0Ind = corrTemplate->cond0Index();
                     const int cond1Ind = corrTemplate->cond1Index();
 
-                    const L1GtCondition* cond0Condition = 0;
-                    const L1GtCondition* cond1Condition = 0;
+                    const L1GtCondition* cond0Condition = nullptr;
+                    const L1GtCondition* cond1Condition = nullptr;
 
                     // maximum number of objects received for evaluation of Type1s condition
                     int cond0NrL1Objects = 0;
@@ -727,7 +724,7 @@ void L1GlobalTriggerGTL::run(
                 itCond != itCondOnChip->end(); itCond++) {
 
             delete itCond->second;
-            itCond->second = 0;
+            itCond->second = nullptr;
         }
     }
 

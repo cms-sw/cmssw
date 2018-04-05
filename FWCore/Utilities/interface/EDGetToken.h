@@ -47,7 +47,9 @@ namespace edm {
     bool isUninitialized() const { return m_value == s_uninitializedValue; }
 
   private:
-
+    //for testing
+    friend class TestEDGetToken;
+    
     static const unsigned int s_uninitializedValue = 0xFFFFFFFF;
 
     explicit EDGetToken(unsigned int iValue) : m_value(iValue) { }
@@ -71,6 +73,8 @@ namespace edm {
     bool isUninitialized() const { return m_value == s_uninitializedValue; }
 
   private:
+    //for testing
+    friend class TestEDGetToken;
 
     static const unsigned int s_uninitializedValue = 0xFFFFFFFF;
 

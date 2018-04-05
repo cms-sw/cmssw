@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -46,15 +46,14 @@
 // class declaration
 //
 
-class HiSpikeCleaner : public edm::EDProducer {
+class HiSpikeCleaner : public edm::stream::EDProducer<> {
 public:
   explicit HiSpikeCleaner(const edm::ParameterSet&);
-  ~HiSpikeCleaner();
+  ~HiSpikeCleaner() override;
   
 private:
-  virtual void beginJob() override ;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
   
@@ -152,7 +151,7 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    EcalClusterLazyTools lazyTool(iEvent, iSetup, rHInputProducerBToken_,rHInputProducerEToken_);
 
    // Define a collection of corrected SuperClusters to put back into the event
-   std::auto_ptr<reco::SuperClusterCollection> corrClusters(new reco::SuperClusterCollection);
+   auto corrClusters = std::make_unique<reco::SuperClusterCollection>();
    
    //  Loop over raw clusters and make corrected ones
    reco::SuperClusterCollection::const_iterator aClus;
@@ -206,19 +205,8 @@ HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
    
    // Put collection of corrected SuperClusters into the event
-   iEvent.put(corrClusters, outputCollection_);   
+   iEvent.put(std::move(corrClusters), outputCollection_);   
    
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HiSpikeCleaner::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HiSpikeCleaner::endJob() {
 }
 
 //define this as a plug-in

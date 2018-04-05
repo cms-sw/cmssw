@@ -11,9 +11,11 @@
 
 
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 // JetIDHelper needs a much more detailed description that the one in HcalTopology, 
 // so to be consistent, all needed constants are hardwired in JetIDHelper.cc itself
-// #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "TMath.h"
 #include <vector>
@@ -95,7 +97,7 @@ void reco::helper::JetIDHelper::fillDescription(edm::ParameterSetDescription& iD
 }
 
 
-void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::CaloJet &jet, const int iDbg )
+void reco::helper::JetIDHelper::calculate( const edm::Event& event, const edm::EventSetup& setup, const reco::CaloJet &jet, const int iDbg )
 {
   initValues();
 
@@ -157,8 +159,8 @@ void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::
     max_RBX_energy = *it_max_RBX_energy;
   }
   if( jet.energy() > 0 ) {
-    if( HPD_energies.size() > 0 ) approximatefHPD_ = max_HPD_energy / jet.energy();
-    if( RBX_energies.size() > 0 ) approximatefRBX_ = max_HPD_energy / jet.energy();
+    if( !HPD_energies.empty() ) approximatefHPD_ = max_HPD_energy / jet.energy();
+    if( !RBX_energies.empty() ) approximatefRBX_ = max_HPD_energy / jet.energy();
   }
 
   // -----------------------
@@ -167,7 +169,7 @@ void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::
   if( useRecHits_ ) {
     vector<double> energies, subdet_energies, Ecal_energies, Hcal_energies, HO_energies;
     double LS_bad_energy, HF_OOT_energy;
-    classifyJetComponents( event, jet, 
+    classifyJetComponents( event, setup, jet, 
 			   energies, subdet_energies, Ecal_energies, Hcal_energies, HO_energies, 
 			   HPD_energies, RBX_energies, LS_bad_energy, HF_OOT_energy, iDbg );
 
@@ -176,9 +178,9 @@ void reco::helper::JetIDHelper::calculate( const edm::Event& event, const reco::
 
     // energy fractions
     if( jet.energy() > 0 ) {
-      if( HPD_energies.size() > 0 ) fHPD_ = max_HPD_energy / jet.energy();
-      if( RBX_energies.size() > 0 ) fRBX_ = max_RBX_energy / jet.energy();
-      if( subdet_energies.size() > 0 ) fSubDetector1_ = subdet_energies.at( 0 ) / jet.energy();
+      if( !HPD_energies.empty() ) fHPD_ = max_HPD_energy / jet.energy();
+      if( !RBX_energies.empty() ) fRBX_ = max_RBX_energy / jet.energy();
+      if( !subdet_energies.empty() ) fSubDetector1_ = subdet_energies.at( 0 ) / jet.energy();
       if( subdet_energies.size() > 1 ) fSubDetector2_ = subdet_energies.at( 1 ) / jet.energy();
       if( subdet_energies.size() > 2 ) fSubDetector3_ = subdet_energies.at( 2 ) / jet.energy();
       if( subdet_energies.size() > 3 ) fSubDetector4_ = subdet_energies.at( 3 ) / jet.energy();
@@ -243,7 +245,8 @@ unsigned int reco::helper::JetIDHelper::hitsInNCarrying( double fraction, const 
   return NH;
 }
 
-void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, const reco::CaloJet &jet, 
+void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, const edm::EventSetup& setup,
+						       const reco::CaloJet &jet, 
 						       vector< double > &energies,      
 						       vector< double > &subdet_energies,      
 						       vector< double > &Ecal_energies, 
@@ -257,6 +260,9 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
   HPD_energies.clear(); RBX_energies.clear();
   LS_bad_energy = HF_OOT_energy = 0.;
   
+  edm::ESHandle<HcalTopology> theHcalTopology;
+  setup.get<HcalRecNumberingRecord>().get( theHcalTopology );
+
   std::map< int, double > HPD_energy_map, RBX_energy_map;
   vector< double > EB_energies, EE_energies, HB_energies, HE_energies, short_energies, long_energies;
   edm::Handle<HBHERecHitCollection> HBHERecHits;
@@ -341,15 +347,15 @@ void reco::helper::JetIDHelper::classifyJetComponents( const edm::Event& event, 
 	  hitE = theRecHit->energy();
 	  int iEta = theRecHit->id().ieta();
 	  int depth = theRecHit->id().depth();
-	  Region region = HBHE_region( iEta, depth );
+	  Region region = HBHE_region( theRecHit->id().rawId() );
 	  int hitIPhi = theRecHit->id().iphi();
 	  if( iDbg>3 ) cout<<"hit #"<<iCell<<" is HBHE, E: "<<hitE<<" iEta: "<<iEta
 			   <<", depth: "<<depth<<", iPhi: "<<theRecHit->id().iphi()
 			   <<" -> "<<region;
-	  int absIEta = TMath::Abs( theRecHit->id().ieta() );
-	  if( depth == 3 && (absIEta == 28 || absIEta == 29) ) {
-	    hitE /= 2; // Depth 3 at the HE forward edge is split over tower 28 & 29, and jet reco. assigns half each
-	  }
+
+	  if(theHcalTopology->mergedDepth29(theRecHit->id()))
+	    hitE /= 2;  // Depth 3 at the HE forward edge is split over tower 28 & 29, and jet reco. assigns half each
+	  
 	  int iHPD = 100 * region;
 	  int iRBX = 100 * region + ((hitIPhi + 1) % 72) / 4; // 71,72,1,2 are in the same RBX module
 	  
@@ -597,13 +603,16 @@ int reco::helper::JetIDHelper::HBHE_oddness( int iEta, int depth )
  return ae & 0x1;
 }
 
-reco::helper::JetIDHelper::Region reco::helper::JetIDHelper::HBHE_region( int iEta, int depth )
+reco::helper::JetIDHelper::Region reco::helper::JetIDHelper::HBHE_region( uint32_t rawid )
 {
-  // no error checking for HO indices (depth 2 & |ieta|<=14 or depth 3 & |ieta|=15)
-  if( iEta <= -17 || ( depth == 3 && iEta == -16 ) ) return HEneg;
-  if( iEta >=  17 || ( depth == 3 && iEta ==  16 ) ) return HEpos;
-  if( iEta < 0 ) return HBneg;
-  return HBpos;
+  HcalDetId id(rawid);
+  if( id.subdet() == HcalEndcap)
+    {
+      if( id.ieta() < 0 ) return HEneg;
+      else return HEpos;
+    }
+  if( id.subdet() == HcalBarrel && id.ieta() < 0) return HBneg;
+  return HBpos;  
 }
 
 int reco::helper::JetIDHelper::HBHE_oddness( int iEta )

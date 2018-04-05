@@ -38,6 +38,7 @@
 #include <string>
 
 class TrackingSlaveSD;
+class SimTrackManager;
 
 class TotemSD : public SensitiveTkDetector,
 		public Observer<const BeginOfEvent*>,
@@ -45,28 +46,26 @@ class TotemSD : public SensitiveTkDetector,
 
 public:
 
-  TotemSD(std::string, const DDCompactView &, const SensitiveDetectorCatalog &,
+  TotemSD(const std::string&, const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
-  virtual ~TotemSD();
+  ~TotemSD() override;
 
-  virtual bool   ProcessHits(G4Step *,G4TouchableHistory *);
-  virtual uint32_t setDetUnitId(G4Step*);
+  bool   ProcessHits(G4Step *,G4TouchableHistory *) override;
+  uint32_t setDetUnitId(const G4Step*) override;
 
-  virtual void   Initialize(G4HCofThisEvent * HCE);
-  virtual void   EndOfEvent(G4HCofThisEvent * eventHC);
-  virtual void   clear();
-  virtual void   DrawAll();
-  virtual void   PrintAll();
+  void   Initialize(G4HCofThisEvent * HCE) override;
+  void   EndOfEvent(G4HCofThisEvent * eventHC) override;
+  void   clear() override;
+  void   DrawAll() override;
+  void   PrintAll() override;
 
-  void fillHits(edm::PSimHitContainer&, std::string use);
-
-private:
-
-  void           update(const BeginOfEvent *);
-  void           update(const ::EndOfEvent *);
-  virtual void   clearHits();
+  void   fillHits(edm::PSimHitContainer&, const std::string&) override;
+  void   clearHits() override;
 
 private:
+
+  void   update(const BeginOfEvent *) override;
+  void   update(const ::EndOfEvent *) override;
 
   G4ThreeVector  SetToLocal(const G4ThreeVector& globalPoint);
   void           GetStepInfo(G4Step* aStep);
@@ -93,7 +92,6 @@ private:
   float                       incidentEnergy;
   G4int                       primID  ; //@@ ID of the primary particle.
 
-  std::string                 name;
   G4int                       hcID;
   TotemG4HitCollection*       theHC; 
   const SimTrackManager*      theManager;

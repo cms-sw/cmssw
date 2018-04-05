@@ -8,9 +8,9 @@
 /** Make standard (single state) MaterialEffectsUpdator usable in
  *  the context of GSF.
  */
-class GsfMaterialEffectsAdapter  GCC11_FINAL : public GsfMaterialEffectsUpdator 
+class GsfMaterialEffectsAdapter  final : public GsfMaterialEffectsUpdator 
 {
-  virtual GsfMaterialEffectsAdapter* clone() const
+  GsfMaterialEffectsAdapter* clone() const override
   {
     return new GsfMaterialEffectsAdapter(*this);
   }
@@ -22,11 +22,11 @@ public:
     GsfMaterialEffectsUpdator(aMEUpdator.mass(),1),
     theMEUpdator(aMEUpdator.clone()) {}
 
-  ~GsfMaterialEffectsAdapter() {}
+  ~GsfMaterialEffectsAdapter() override {}
 
   
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
+  void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const override;
 
 
 private:  

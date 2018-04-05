@@ -9,9 +9,11 @@ class GsfEleDeltaBetaIsoCutStandalone : public CutApplicatorBase {
 public:
   GsfEleDeltaBetaIsoCutStandalone(const edm::ParameterSet& c);
   
-  result_type operator()(const reco::GsfElectronPtr&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const final;
   
-  CandidateType candidateType() const override final { 
+  double value(const reco::CandidatePtr& cand) const final;
+
+  CandidateType candidateType() const final { 
     return ELECTRON; 
   }
 
@@ -56,4 +58,18 @@ operator()(const reco::GsfElectronPtr& cand) const{
   float iso = chad + std::max(0.0f, nhad + pho - _deltaBetaConstant*puchad);
   if( _relativeIso ) iso /= cand->p4().pt();
   return iso < isoCut;
+}
+
+double GsfEleDeltaBetaIsoCutStandalone::
+value(const reco::CandidatePtr& cand) const {
+  reco::GsfElectronPtr ele(cand);
+  const reco::GsfElectron::PflowIsolationVariables& pfIso = 
+    ele->pfIsolationVariables();
+  const float chad = pfIso.sumChargedHadronPt;
+  const float nhad = pfIso.sumNeutralHadronEt;
+  const float pho = pfIso.sumPhotonEt;
+  const float puchad = pfIso.sumPUPt;
+  float iso = chad + std::max(0.0f, nhad + pho - _deltaBetaConstant*puchad);
+  if( _relativeIso ) iso /= cand->p4().pt();
+  return iso;
 }

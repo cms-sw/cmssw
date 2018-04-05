@@ -45,7 +45,7 @@ public:
     L1GtExternalCondition(const L1GtExternalCondition&);
 
     // destructor
-    virtual ~L1GtExternalCondition();
+    ~L1GtExternalCondition() override;
 
     // assign operator
     L1GtExternalCondition& operator=(const L1GtExternalCondition&);
@@ -53,10 +53,10 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition() const;
+    const bool evaluateCondition() const override;
 
     /// print condition
-    void print(std::ostream& myCout) const;
+    void print(std::ostream& myCout) const override;
 
 public:
 

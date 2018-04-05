@@ -17,7 +17,7 @@ int main (int argc, char *argv[]) try
     IOSize		bytes;
     unsigned char	buf [4096];
     File		input ("/etc/profile");
-    Storage		*s = StorageFactory::get ()->open
+    auto s = StorageFactory::get ()->open
       (path.c_str (), IOFlags::OpenWrite|IOFlags::OpenCreate|IOFlags::OpenTruncate);
 
     while ((bytes = input.read (buf, sizeof (buf))))
@@ -26,7 +26,7 @@ int main (int argc, char *argv[]) try
     input.close ();
     s->close ();
 
-  std::cout << StorageAccount::summaryXML() << std::endl;
+  std::cout << StorageAccount::summaryText(true) << std::endl;
   return EXIT_SUCCESS;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;

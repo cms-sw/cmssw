@@ -166,6 +166,7 @@ BLOCK MSOFT Q=  2.90528802E+02  # The soft SUSY breaking masses at the scale Q
 #
 #
 #         PDG            Width
+DECAY   1000022     0.00000000E+00   # neutralino1 decays
 DECAY   1000021     1.00000000E+00   # gluino decays
 #          BR         NDA      ID1       ID2
      0.000000E+00    3     1000022       1       -1
@@ -241,7 +242,6 @@ DECAY   1000024     2.02592183E-05   # chargino1+ decays
      0.33333333E+00    3     1000022       -15        16   # BR(~chi_1+ -> ~chi_10 tau+ nu_tau)
 #         PDG            Width
 DECAY   1000037     0.00000000E+00   # chargino2+ decays
-DECAY   1000022     0.00000000E+00   # neutralino1 decays
 DECAY   1000023     0.00000000E+00   # neutralino2 decays
 DECAY   1000025     0.00000000E+00   # neutralino3 decays
 DECAY   1000035     0.00000000E+00   # neutralino4 decays

@@ -14,11 +14,4 @@
 
 typedef EcalFloatCondObjectContainerXMLTranslator  EcalIntercalibConstantsXMLTranslator;
 
-
 #endif // __EcalIntercalibConstantsXMLTranslator_h_
-
-// Configure (x)emacs for this file ...
-// Local Variables:
-// mode:c++
-// compile-command: "cd ..; scram b"
-// End:

@@ -34,8 +34,8 @@ namespace sistrip {
   public:
     //construct from buffer
     FEDSpyBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize);
-    virtual ~FEDSpyBuffer();
-    virtual void print(std::ostream& os) const;
+    ~FEDSpyBuffer() override;
+    void print(std::ostream& os) const override;
       
     //get the run number from the corresponding global run
     uint32_t globalRunNumber() const;
@@ -51,7 +51,7 @@ namespace sistrip {
     //checks that a delay chip is complete i.e. that it all came from the same event
     bool delayChipGood(const uint8_t delayChip) const;
     //checks that a channel is usable (i.e. that the delay chip it is on is good)
-    virtual bool channelGood(const uint8_t internalFEDannelNum) const;
+    bool channelGood(const uint8_t internalFEDannelNum) const override;
   private:
     //mapping of channel index to position in data
     static const uint8_t channelPositionsInData_[FEDCH_PER_DELAY_CHIP];

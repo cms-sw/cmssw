@@ -23,11 +23,11 @@ public:
   OptORisleyPrism(){ };
   OptORisleyPrism(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
   OpticalObject( parent, type, name, copy_data){ };
-  ~OptORisleyPrism(){ };
+  ~OptORisleyPrism() override{ };
 
   //---------- Propagate light for measurement meas
-  virtual void participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav );
-  void constructSolidShape();
+  void participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav ) override;
+  void constructSolidShape() override;
 
 
 };

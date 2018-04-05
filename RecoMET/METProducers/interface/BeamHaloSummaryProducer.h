@@ -59,11 +59,11 @@ namespace reco
     
   public:
     explicit BeamHaloSummaryProducer(const edm::ParameterSet&);
-    ~BeamHaloSummaryProducer();
+    ~BeamHaloSummaryProducer() override;
     
   private:
     
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
     
     edm::InputTag IT_CSCHaloData;
     edm::InputTag IT_EcalHaloData;
@@ -102,6 +102,8 @@ namespace reco
     int T_HcalPhiWedgeConstituents;
     float T_HcalPhiWedgeToF;
     float T_HcalPhiWedgeConfidence;
+    
+    int problematicStripMinLength;
   };
 }
 

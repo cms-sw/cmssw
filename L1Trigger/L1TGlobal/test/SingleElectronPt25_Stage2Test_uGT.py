@@ -169,7 +169,7 @@ process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
 
 
-process.simL1uGtDigis = cms.EDProducer("l1t::GtProducer",
+process.simL1uGtDigis = cms.EDProducer("L1TGlobalProducer",
     #TechnicalTriggersUnprescaled = cms.bool(False),
     ProduceL1GtObjectMapRecord = cms.bool(True),
     AlgorithmTriggersUnmasked = cms.bool(False),

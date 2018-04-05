@@ -58,15 +58,15 @@
 class SiPixelQualityHistory : public edm::EDAnalyzer {
  public:
     explicit SiPixelQualityHistory(const edm::ParameterSet&);
-    ~SiPixelQualityHistory();
+    ~SiPixelQualityHistory() override;
 
   enum {Summary,Module,ROC};
 
    private:
-      virtual void beginJob() override ;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void beginRun(const edm::Run&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
 
@@ -199,7 +199,7 @@ SiPixelQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup& iSe
 
     if(m_badmodrun.find(name)!=m_badmodrun.end()) {
       if(m_badmodrun[name] && *m_badmodrun[name]) {
-	(*m_badmodrun[name])->SetBit(TH1::kCanRebin);
+	(*m_badmodrun[name])->SetCanExtend(TH1::kXaxis);
 	(*m_badmodrun[name])->GetXaxis()->SetTitle("time [Orb#]"); (*m_badmodrun[name])->GetYaxis()->SetTitle("bad components");
       }
     }

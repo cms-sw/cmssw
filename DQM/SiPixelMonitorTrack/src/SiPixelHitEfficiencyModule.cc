@@ -33,7 +33,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 
 using namespace std; 
@@ -57,7 +57,7 @@ SiPixelHitEfficiencyModule::~SiPixelHitEfficiencyModule() {
 void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::EventSetup const & iSetup, DQMStore::IBooker & iBooker,int type, bool isUpgrade) {
   
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
@@ -151,7 +151,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
     meValidYLad_ = iBooker.book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
     meValidYLad_->setAxisTitle("# Valid hits in Y",1);
 
-    meValidModLad_ = iBooker.book1D("validMod_"+hisID,"# Valid hits on Module",20,1,21.);
+    meValidModLad_ = iBooker.book1D("validMod_"+hisID,"# Valid hits on Module",4,0.5,4.5);
     meValidModLad_->setAxisTitle("# Valid hits on Module",1);    
 
     meValidAlphaLad_ = iBooker.book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
@@ -170,7 +170,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
     meMissingYLad_ = iBooker.book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
     meMissingYLad_->setAxisTitle("# Missing hits in Y",1);
     
-    meMissingModLad_ = iBooker.book1D("missingMod_"+hisID,"# Missing hits on Module",20,1,21.);
+    meMissingModLad_ = iBooker.book1D("missingMod_"+hisID,"# Missing hits on Module",4,0.5,4.5);
     meMissingModLad_->setAxisTitle("# Missing hits on Module",1);
 
     meMissingAlphaLad_ = iBooker.book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
@@ -301,7 +301,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
     
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hisID = src.label() + "_" + sblade;
-    
+
     if(updateEfficiencies){
       //EFFICIENCY
       meEfficiencyBlade_ = iBooker.book1D("efficiency_"+hisID,"Hit efficiency",1,0,1.);
@@ -321,7 +321,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
     }
     
     //VALID
-    meValidBlade_ = iBooker.book1D("valid_"+hisID,"# Valid hits",1,0,1.);
+    meValidBlade_ = iBooker.book1D("valid_"+hisID,"# Valid hits",2,0.5,2.5);
     meValidBlade_->setAxisTitle("# Valid hits",1);
     
     meValidXBlade_ = iBooker.book1D("validX_"+hisID,"# Valid hits in X",nbinX,-1.5,1.5);
@@ -329,7 +329,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
     
     meValidYBlade_ = iBooker.book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
     meValidYBlade_->setAxisTitle("# Valid hits in Y",1);
-    
+
     meValidAlphaBlade_ = iBooker.book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
     meValidAlphaBlade_->setAxisTitle("# Valid hits in Alpha",1);
     
@@ -337,7 +337,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
     meValidBetaBlade_->setAxisTitle("# Valid hits in Beta",1);
 
     //MISSING
-    meMissingBlade_ = iBooker.book1D("missing_"+hisID,"# Missing hits",1,0,1.);
+    meMissingBlade_ = iBooker.book1D("missing_"+hisID,"# Missing hits",2,0.5,2.5);
     meMissingBlade_->setAxisTitle("# Missing hits",1);
     
     meMissingXBlade_ = iBooker.book1D("missingX_"+hisID,"# Missing hits in X",nbinX,-1.5,1.5);
@@ -474,7 +474,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
 }
 
 
-void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool isHitValid, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon) {  
+void SiPixelHitEfficiencyModule::fill(const TrackerTopology * pTT,const LocalTrajectoryParameters& ltp, bool isHitValid, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon) {  
   
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -484,8 +484,11 @@ void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool
   float prediction_beta = atan2(localDir.z(), localDir.y());
   float prediction_x = ltp.position().x();
   float prediction_y = ltp.position().y();
-  //CS - this will probably break with isUpgrade
-  int imod = PXBDetId(DetId(id_)).module();
+ 
+  PixelBarrelName PBN= PixelBarrelName(DetId(id_), pTT);
+  int imod=PBN.moduleName();
+  PixelEndcapName PEN= PixelEndcapName(DetId(id_),pTT);
+  int ipan=PEN.pannelName(); 
   
   if(isHitValid){
     if(modon){
@@ -514,7 +517,7 @@ void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool
       meValidBetaPhi_->Fill(prediction_beta);
     }
     if(endcap && bladeon){
-      meValidBlade_->Fill(0.5);
+      meValidBlade_->Fill(ipan);
       meValidXBlade_->Fill(prediction_x);
       meValidYBlade_->Fill(prediction_y);
       meValidAlphaBlade_->Fill(prediction_alpha);
@@ -562,7 +565,7 @@ void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool
       meMissingBetaPhi_->Fill(prediction_beta);
     }
     if(endcap && bladeon){
-      meMissingBlade_->Fill(0.5);
+      meMissingBlade_->Fill(ipan);
       meMissingXBlade_->Fill(prediction_x);
       meMissingYBlade_->Fill(prediction_y);
       meMissingAlphaBlade_->Fill(prediction_alpha);

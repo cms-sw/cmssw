@@ -16,10 +16,10 @@ class PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL : public edm::EDAnalyz
 {
 public:
   PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL(const edm::ParameterSet&);
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override {}
-  virtual void endJob() override {}
-  ~PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL() {}
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void endJob() override {}
+  ~PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL() override {}
 
 private:
   std::string inputTxtFile;
@@ -110,7 +110,7 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob()
 
 
   PerformanceWorkingPoint * wp = new PerformanceWorkingPoint(cut, tagger);
-  PerformancePayloadFromBinnedTFormula * btagpl = 0;
+  PerformancePayloadFromBinnedTFormula * btagpl = nullptr;
   
   std::vector<PhysicsTFormulaPayload> v_ppl;
   

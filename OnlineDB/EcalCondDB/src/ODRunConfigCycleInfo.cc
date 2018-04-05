@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 ODRunConfigCycleInfo::ODRunConfigCycleInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
    m_ID=0;
 
@@ -38,7 +38,7 @@ void ODRunConfigCycleInfo::clear() {
 }
 
 void ODRunConfigCycleInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -48,13 +48,13 @@ void ODRunConfigCycleInfo::prepareWrite()
      "VALUES (:1, :2, :3 , :4 )");
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigCycleInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigCycleInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
 void ODRunConfigCycleInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -73,7 +73,7 @@ void ODRunConfigCycleInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigCycleInfo::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigCycleInfo::writeDB:  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -90,7 +90,7 @@ void ODRunConfigCycleInfo::writeDB()
 
 
 int ODRunConfigCycleInfo::fetchID() 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID>0) {
@@ -119,7 +119,7 @@ int ODRunConfigCycleInfo::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigCycleInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigCycleInfo::fetchID:  ")+getOraMessage(&e)));
   }
   setByID(m_ID);
 
@@ -129,7 +129,7 @@ int ODRunConfigCycleInfo::fetchID()
 
 
 int ODRunConfigCycleInfo::fetchIDLast()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   this->checkConnection();
@@ -148,7 +148,7 @@ int ODRunConfigCycleInfo::fetchIDLast()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigCycleInfo::fetchIDLast:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigCycleInfo::fetchIDLast:  ")+getOraMessage(&e)));
   }
 
   setByID(m_ID);
@@ -157,7 +157,7 @@ int ODRunConfigCycleInfo::fetchIDLast()
 
 
 void ODRunConfigCycleInfo::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -175,21 +175,21 @@ void ODRunConfigCycleInfo::setByID(int id)
      if (rset->next()) {
        m_sequence_id=rset->getInt(1);
        m_cycle_num=rset->getInt(2);
-       m_tag = rset->getString(3);
-       m_description= rset->getString(4);
+       m_tag = getOraString(rset,3);
+       m_description= getOraString(rset,4);
        m_ID = id;
      } else {
        throw(std::runtime_error("ODRunConfigCycleInfo::setByID:  Given cycle_id is not in the database"));
      }
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("ODRunConfigCycleInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("ODRunConfigCycleInfo::setByID:  ")+getOraMessage(&e)));
    }
 }
 
 
 void ODRunConfigCycleInfo::fetchData(ODRunConfigCycleInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -207,16 +207,16 @@ void ODRunConfigCycleInfo::fetchData(ODRunConfigCycleInfo * result)
 
     result->setSequenceID(       rset->getInt(1) );
     result->setCycleNumber(      rset->getInt(2) );
-    result->setTag(              rset->getString(3) );
-    result->setDescription(      rset->getString(4) );
+    result->setTag(              getOraString(rset,3) );
+    result->setDescription(      getOraString(rset,4) );
  
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigCycleInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigCycleInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
  void ODRunConfigCycleInfo::insertConfig()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
 

@@ -142,7 +142,7 @@ void SiStripTrivialDigiSource::produce( edm::Event& event,
   }
 
   // Create final DetSetVector container
-  std::auto_ptr< edm::DetSetVector<SiStripDigi> > collection( new edm::DetSetVector<SiStripDigi> );
+  auto collection = std::make_unique<edm::DetSetVector<SiStripDigi>>();
   
   // Populate final DetSetVector container with ZS data 
   if ( !zero_suppr_vector.empty() ) {
@@ -173,7 +173,7 @@ void SiStripTrivialDigiSource::produce( edm::Event& event,
   } 
 
   // Put collection in event
-  event.put( collection );
+  event.put(std::move(collection));
   
   // Some debug
   if ( edm::isDebugEnabled() && nchans ) { 

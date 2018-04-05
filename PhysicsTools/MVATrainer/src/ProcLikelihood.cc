@@ -34,18 +34,18 @@ class ProcLikelihood : public TrainProcessor {
 
 	ProcLikelihood(const char *name, const AtomicId *id,
 	               MVATrainer *trainer);
-	virtual ~ProcLikelihood();
+	~ProcLikelihood() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
-	virtual void trainBegin() override;
-	virtual void trainData(const std::vector<double> *values,
+	void trainBegin() override;
+	void trainData(const std::vector<double> *values,
 	                       bool target, double weight) override;
-	virtual void trainEnd() override;
+	void trainEnd() override;
 
-	virtual bool load() override;
-	virtual void save() override;
+	bool load() override;
+	void save() override;
 
 	struct PDF {
 		std::vector<double>		distr;
@@ -83,7 +83,7 @@ class ProcLikelihood : public TrainProcessor {
 	Iteration		iteration;
 };
 
-static ProcLikelihood::Registry registry("ProcLikelihood");
+ProcLikelihood::Registry registry("ProcLikelihood");
 
 ProcLikelihood::ProcLikelihood(const char *name, const AtomicId *id,
                                MVATrainer *trainer) :
@@ -414,7 +414,7 @@ void ProcLikelihood::trainData(const std::vector<double> *values,
 	}
 }
 
-static void smoothArray(unsigned int n, double *values, unsigned int nTimes)
+void smoothArray(unsigned int n, double *values, unsigned int nTimes)
 {
 	for(unsigned int iter = 0; iter < nTimes; iter++) {
 		double hold = n > 0 ? values[0] : 0.0;
@@ -522,7 +522,7 @@ void ProcLikelihood::trainEnd()
 	}
 }
 
-static void xmlParsePDF(ProcLikelihood::PDF &pdf, DOMElement *elem)
+void xmlParsePDF(ProcLikelihood::PDF &pdf, DOMElement *elem)
 {
 	if (!elem ||
 	    std::strcmp(XMLSimpleStr(elem->getNodeName()), "pdf") != 0)
@@ -678,7 +678,7 @@ bool ProcLikelihood::load()
 				<< std::endl;
 		elem = static_cast<DOMElement*>(node);
 
-		SigBkg *pdf = 0;
+		SigBkg *pdf = nullptr;
 		switch(version) {
 		    case 1:
 			if (cur == pdfs.end())
@@ -707,7 +707,7 @@ bool ProcLikelihood::load()
 		    node && node->getNodeType() != DOMNode::ELEMENT_NODE;
 		    node = node->getNextSibling());
 		DOMElement *elemSig =
-				node ? static_cast<DOMElement*>(node) : 0;
+				node ? static_cast<DOMElement*>(node) : nullptr;
 
 		for(node = node->getNextSibling();
 		    node && node->getNodeType() != DOMNode::ELEMENT_NODE;
@@ -715,7 +715,7 @@ bool ProcLikelihood::load()
 		while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
 			node = node->getNextSibling();
 		DOMElement *elemBkg =
-				node ? static_cast<DOMElement*>(node) : 0;
+				node ? static_cast<DOMElement*>(node) : nullptr;
 
 		for(node = node->getNextSibling();
 		    node && node->getNodeType() != DOMNode::ELEMENT_NODE;
@@ -750,7 +750,7 @@ bool ProcLikelihood::load()
 	return true;
 }
 
-static DOMElement *xmlStorePDF(DOMDocument *doc,
+DOMElement *xmlStorePDF(DOMDocument *doc,
                                const ProcLikelihood::PDF &pdf)
 {
 	DOMElement *elem = doc->createElement(XMLUniStr("pdf"));

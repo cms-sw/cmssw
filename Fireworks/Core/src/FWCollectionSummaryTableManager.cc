@@ -159,7 +159,7 @@ FWTableCellRendererBase*
 FWCollectionSummaryTableManager::cellRenderer(int iSortedRowNumber, int iCol) const
 {
    if(!m_collection->valueGetter().numValues()) {
-      return 0;
+      return nullptr;
    }
    if(iSortedRowNumber >= static_cast<int>(m_collection->size())) {
       m_bodyRenderer.setData("",false);
@@ -185,7 +185,7 @@ FWTableCellRendererBase*
 FWCollectionSummaryTableManager::rowHeader(int iSortedRowNumber) const
 {
    if(iSortedRowNumber >= static_cast<int>(m_collection->size())) {
-      return 0;
+      return nullptr;
    }
    int index = m_sortedToUnsortedIndicies[iSortedRowNumber];
    m_renderer.setData(m_collection,

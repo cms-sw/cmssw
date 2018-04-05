@@ -28,11 +28,11 @@ class PFClusterAnalyzer : public edm::EDAnalyzer {
 
   explicit PFClusterAnalyzer(const edm::ParameterSet&);
 
-  ~PFClusterAnalyzer();
+  ~PFClusterAnalyzer() override;
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginRun(const edm::Run & r, const edm::EventSetup & c);
+  void beginRun(const edm::Run & r, const edm::EventSetup & c) override;
 
  private:
   

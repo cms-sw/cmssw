@@ -2,7 +2,7 @@
 #ifndef HcalHTRData_H
 #define HcalHTRData_H
 
-#include <stdint.h>
+#include <cstdint>
 
 /**  \class HcalHTRData
  *
@@ -20,7 +20,7 @@ class HcalHTRData {
   static const int FORMAT_VERSION_COMPACT_DATA =  6;
   
   HcalHTRData();
-  ~HcalHTRData() { if (m_ownData!=0) delete [] m_ownData; }
+  ~HcalHTRData() { if (m_ownData!=nullptr) delete [] m_ownData; }
   HcalHTRData(int version_to_create);
   HcalHTRData(const unsigned short* data, int length);
   HcalHTRData(const HcalHTRData&);

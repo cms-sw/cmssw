@@ -3,7 +3,6 @@
 <use   name="CondFormats/Serialization"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="FWCore/Utilities"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="boost_serialization"/>
 <use   name="roothistmatrix"/>
 

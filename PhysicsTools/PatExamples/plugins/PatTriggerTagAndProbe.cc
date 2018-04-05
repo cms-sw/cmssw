@@ -19,15 +19,15 @@ class PatTriggerTagAndProbe : public edm::EDAnalyzer {
   /// default constructor
   explicit PatTriggerTagAndProbe( const edm::ParameterSet & iConfig );
   /// default destructor
-  ~PatTriggerTagAndProbe();
+  ~PatTriggerTagAndProbe() override;
 
  private:
   /// everythin that needs to be done before the event loop
-  virtual void beginJob() ;
+  void beginJob() override ;
   /// everythin that needs to be done during the event loop
-  virtual void analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup );
+  void analyze( const edm::Event & iEvent, const edm::EventSetup & iSetup ) override;
   /// everythin that needs to be done after the event loop
-  virtual void endJob();
+  void endJob() override;
 
   /// helper function to set proper bin errors
   void setErrors(TH1D& h, const TH1D& ref);

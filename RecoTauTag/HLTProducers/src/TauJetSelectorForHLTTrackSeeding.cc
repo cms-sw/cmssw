@@ -40,7 +40,7 @@ TauJetSelectorForHLTTrackSeeding::~TauJetSelectorForHLTTrackSeeding()
 void
 TauJetSelectorForHLTTrackSeeding::produce(edm::StreamID iStreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
-   std::auto_ptr< reco::TrackJetCollection > augmentedTrackJets (new reco::TrackJetCollection);
+   std::unique_ptr< reco::TrackJetCollection > augmentedTrackJets (new reco::TrackJetCollection);
 
    edm::Handle<reco::TrackJetCollection> trackjets;
    iEvent.getByToken(inputTrackJetToken_, trackjets);
@@ -136,7 +136,7 @@ TauJetSelectorForHLTTrackSeeding::produce(edm::StreamID iStreamID, edm::Event& i
      augmentedTrackJets->push_back(reco::TrackJet(p4,vertex));
    }
 
-   iEvent.put(augmentedTrackJets);
+   iEvent.put(std::move(augmentedTrackJets));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

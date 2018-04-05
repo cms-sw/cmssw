@@ -14,10 +14,10 @@
 #ifndef CSCTriggerPrimitives_CSCCathodeLCTAnalyzer_H
 #define CSCTriggerPrimitives_CSCCathodeLCTAnalyzer_H
 
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
-#include <SimDataFormats/TrackingHit/interface/PSimHitContainer.h>
-#include <L1Trigger/CSCTriggerPrimitives/test/CSCLayerInfo.h>
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "L1Trigger/CSCTriggerPrimitives/test/CSCLayerInfo.h"
 
 typedef CSCLayerInfo<CSCComparatorDigi> CSCCathodeLayerInfo;
 

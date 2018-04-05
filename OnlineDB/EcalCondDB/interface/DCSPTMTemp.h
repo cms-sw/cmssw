@@ -17,7 +17,7 @@ class DCSPTMTemp  : public IDBObject {
   friend class EcalCondDBInterface;
 
   DCSPTMTemp();
-  ~DCSPTMTemp();
+  ~DCSPTMTemp() override;
 
   // Methods for user data
   inline std::string getTable() { return ""; }

@@ -51,8 +51,7 @@ HLTJetSortedVBFFilter<T>::HLTJetSortedVBFFilter(const edm::ParameterSet& iConfig
 
 
 	template<typename T>
-HLTJetSortedVBFFilter<T>::~HLTJetSortedVBFFilter()
-{ }
+HLTJetSortedVBFFilter<T>::~HLTJetSortedVBFFilter() = default;
 
 template<typename T>
 void
@@ -77,7 +76,7 @@ HLTJetSortedVBFFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descr
 template<typename T> float HLTJetSortedVBFFilter<T>::findCSV(const typename std::vector<T>::const_iterator & jet, const reco::JetTagCollection  & jetTags){
 	float minDr = 0.1;
 	float tmpCSV = -20 ;
-	for (reco::JetTagCollection::const_iterator jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
+	for (auto jetb = jetTags.begin(); (jetb!=jetTags.end()); ++jetb) {
 		float tmpDr = reco::deltaR(*jet,*(jetb->first));
 
 		if (tmpDr < minDr) {
@@ -118,6 +117,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 	const unsigned int nMax(njets_<jets->size()?njets_:jets->size());
 	vector<Jpair> sorted(nMax);
 	vector<TRef> jetRefs(nMax);
+	unsigned int nJetRefs=0;
 
 	unsigned int nJet=0;
 	double value(0.0);
@@ -141,6 +141,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 		for (unsigned int i=0; i<nMax; ++i) {
 			jetRefs[i]=TRef(jets,sorted[i].second);
 		}
+		nJetRefs=nMax;
 		q1 = jetRefs[3]->p4();
 		b1 = jetRefs[2]->p4();
 		b2 = jetRefs[1]->p4();
@@ -175,6 +176,12 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 		if(q2_idx<jets->size()) q2 = jets->at(q2_idx).p4(); else edm::LogWarning("Something wrong with q2");
 		if(b1_idx<jets->size()) b1 = jets->at(b1_idx).p4(); else edm::LogWarning("Something wrong with b1");
 		if(b2_idx<jets->size()) b2 = jets->at(b2_idx).p4(); else edm::LogWarning("Something wrong with b2");
+		
+		jetRefs[0]= TRef(jets,b1_idx);
+		jetRefs[1]= TRef(jets,b2_idx);
+		jetRefs[2]= TRef(jets,q1_idx);
+		jetRefs[3]= TRef(jets,q2_idx);
+		nJetRefs=4;
 
 		//   	cout<<"\tPathB: b1="<<b1.pt()<<" b2="<<b2.pt()<<" q1="<<q1.pt()<<" q2="<<q2.pt()<<endl; 
 	} else if(value_=="2BTagAndPt"){
@@ -212,6 +219,12 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 		if(b1_idx<jets->size()) b1 = jets->at(b1_idx).p4(); else edm::LogWarning("Something wrong with b1");
 		if(b2_idx<jets->size()) b2 = jets->at(b2_idx).p4(); else edm::LogWarning("Something wrong with b2");
 
+		jetRefs[0]= TRef(jets,b1_idx);
+		jetRefs[1]= TRef(jets,b2_idx);
+		jetRefs[2]= TRef(jets,q1_idx);
+		jetRefs[3]= TRef(jets,q2_idx);
+		nJetRefs=4;
+
 		//   	cout<<"\tPathA: b1="<<b1.pt()<<" b2="<<b2.pt()<<" q1="<<q1.pt()<<" q2="<<q2.pt()<<endl; 
 	}
 	else {
@@ -230,6 +243,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 		for (unsigned int i=0; i<nMax; ++i) {
 			jetRefs[i]= TRef(jets,sorted[i].second);
 		}
+		nJetRefs=nMax;
 		b1 = jetRefs[3]->p4();
 		b2 = jetRefs[2]->p4();
 		q1 = jetRefs[1]->p4();
@@ -254,7 +268,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 			(signeta    < seta_   )
 	   ) {
 		accept=true;
-		for (unsigned int i=0; i<nMax; ++i) {
+		for (unsigned int i=0; i<nJetRefs; ++i) {
 			filterproduct.addObject(triggerType_,jetRefs[i]);
 		}
 	}

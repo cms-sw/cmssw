@@ -148,7 +148,7 @@ const reco::PFRecHitFraction * PFClusterShapeAlgo::getFractionFromDetId(const De
 	  return &(*it); 
 	}
     }
-  return 0;
+  return nullptr;
 }
 
 

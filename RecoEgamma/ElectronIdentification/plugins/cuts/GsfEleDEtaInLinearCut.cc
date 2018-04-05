@@ -12,9 +12,11 @@ public:
   {
   }
   
-  result_type operator()(const reco::GsfElectronPtr&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const final;
 
-  CandidateType candidateType() const override final { 
+  double value(const reco::CandidatePtr& cand) const final;
+
+  CandidateType candidateType() const final { 
     return ELECTRON; 
   }
 
@@ -36,4 +38,9 @@ operator()(const reco::GsfElectronPtr& cand) const
   double cutValue = std::max(constTerm_(cand)+slopeTerm_(cand)*et,minValue_(cand));
   return std::abs(cand->deltaEtaSuperClusterTrackAtVtx())<cutValue;
  
+}
+
+double GsfEleDEtaInLinearCut::value(const reco::CandidatePtr& cand) const {
+  reco::GsfElectronPtr ele(cand);
+  return std::abs(ele->deltaEtaSuperClusterTrackAtVtx());
 }

@@ -11,7 +11,7 @@
 #include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 ParticlePropagator::ParticlePropagator() : 
-  BaseParticlePropagator(), random(0) {;}
+  BaseParticlePropagator(), random(nullptr) {;}
 
 ParticlePropagator::ParticlePropagator(const RawParticle& myPart,
 				       double RCyl, double ZCyl, 
@@ -42,7 +42,7 @@ ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom,
 				       const MagneticFieldMap* aFieldMap) :
   BaseParticlePropagator(RawParticle(mom,vert),0.,0.,0.),
   theFieldMap(aFieldMap),
-  random(0)
+  random(nullptr)
 {
   setCharge(q);
   setMagneticField(fieldMap(X(),Y(),Z()));
@@ -54,7 +54,7 @@ ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom,
   BaseParticlePropagator(
     RawParticle(mom,XYZTLorentzVector(vert.X(),vert.Y(),vert.Z(),0.0)),0.,0.,0.),
   theFieldMap(aFieldMap),
-  random(0)
+  random(nullptr)
 {
   setCharge(q);
   setMagneticField(fieldMap(X(),Y(),Z()));
@@ -135,7 +135,7 @@ ParticlePropagator::fieldMap(double xx,double yy, double zz) {
   // Arguments now passed in cm.
   //  return MagneticFieldMap::instance()->inTesla(GlobalPoint(xx/10.,yy/10.,zz/10.)).z();
   // Return a dummy value for neutral particles!
-  return charge() == 0.0 || theFieldMap == 0 ? 
+  return charge() == 0.0 || theFieldMap == nullptr ? 
     4. : theFieldMap->inTeslaZ(GlobalPoint(xx,yy,zz));
 }
 
@@ -144,7 +144,7 @@ ParticlePropagator::fieldMap(const TrackerLayer& layer, double coord, int succes
   // Arguments now passed in cm.
   //  return MagneticFieldMap::instance()->inTesla(GlobalPoint(xx/10.,yy/10.,zz/10.)).z();
   // Return a dummy value for neutral particles!
-  return charge() == 0.0 || theFieldMap == 0 ? 
+  return charge() == 0.0 || theFieldMap == nullptr ? 
     4. : theFieldMap->inTeslaZ(layer,coord,success);
 }
 

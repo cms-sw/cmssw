@@ -12,8 +12,8 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "G4SDManager.hh"
@@ -30,7 +30,7 @@
 #include <iomanip>
 
 HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet &p): 
-  myqie(0), addTower(3), tuplesManager(0), tuples(0), numberingFromDDD(0), org(0) {
+  addTower(3),tuples(nullptr),numberingFromDDD(nullptr),hcons(nullptr),org(nullptr) {
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTestAnalysis");
   eta0         = m_Anal.getParameter<double>("Eta0");
@@ -40,6 +40,7 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet &p):
   names        = m_Anal.getParameter<std::vector<std::string> >("Names");
   fileName     = m_Anal.getParameter<std::string>("FileName");
 
+  tuplesManager.reset(nullptr); 
   edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Initialised as observer of "
 			  << "begin/end events and of G4step";
 
@@ -148,14 +149,17 @@ std::vector<int> HcalTestAnalysis::towersToAdd(int centre, int nadd) {
 }
 
 //==================================================================== per JOB
+
 void HcalTestAnalysis::update(const BeginOfJob * job) {
 
   // Numbering From DDD
-  edm::ESTransientHandle<DDCompactView> pDD;
-  (*job)()->get<IdealGeometryRecord>().get(pDD);
+  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  (*job)()->get<HcalSimNumberingRecord>().get(hdc);
+  if(!hcons) { hcons = (HcalDDDSimConstants*)(&(*hdc)); }
+  //if(!hcons) { hcons = &(*hdc); }
   edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Initialise "
 			  << "HcalNumberingFromDDD for " << names[0];
-  numberingFromDDD = new HcalNumberingFromDDD(names[0], (*pDD));
+  numberingFromDDD = new HcalNumberingFromDDD(hcons);
 
   // Ntuples
   tuplesManager.reset(new HcalTestHistoManager(fileName));
@@ -184,7 +188,7 @@ void HcalTestAnalysis::update(const BeginOfRun * run) {
   }
   int  idet = static_cast<int>(HcalBarrel);
   while (loop) {
-    HcalCellType::HcalCell tmp = numberingFromDDD->cell(idet,1,1,etac,phic);
+    HcalCellType::HcalCell tmp = hcons->cell(idet,1,1,etac,phic);
     if (tmp.ok) {
       if (eta) eta0 = tmp.eta;
       if (phi) phi0 = tmp.phi;
@@ -204,9 +208,9 @@ void HcalTestAnalysis::update(const BeginOfRun * run) {
  
   std::string sdname = names[0];
   G4SDManager* sd = G4SDManager::GetSDMpointerIfExist();
-  if (sd != 0) {
+  if (sd != nullptr) {
     G4VSensitiveDetector* aSD = sd->FindSensitiveDetector(sdname);
-    if (aSD==0) {
+    if (aSD==nullptr) {
       edm::LogWarning("HcalSim") << "HcalTestAnalysis::beginOfRun: No SD with "
 				 << "name " << sdname << " in this Setup";
     } else {
@@ -247,7 +251,7 @@ void HcalTestAnalysis::update(const BeginOfEvent * evt) {
 //=================================================================== each STEP
 void HcalTestAnalysis::update(const G4Step * aStep) {
 
-  if (aStep != NULL) {
+  if (aStep != nullptr) {
     G4VPhysicalVolume* curPV  = aStep->GetPreStepPoint()->GetPhysicalVolume();
     G4String name = curPV->GetName();
     name.assign(name,0,3);
@@ -330,8 +334,8 @@ void HcalTestAnalysis::update(const EndOfEvent * evt) {
   LogDebug("HcalSim") << "HcalTestAnalysis:: ---  after LayerAnalysis";
 
   // Writing the data to the Tree
-  tuplesManager->fillTree(tuples); // (no need to delete it...)
-  tuples = 0; // but avoid to reuse it...
+  tuplesManager.get()->fillTree(tuples); // (no need to delete it...)
+  tuples = nullptr; // but avoid to reuse it...
   LogDebug("HcalSim") << "HcalTestAnalysis:: --- after fillTree";
 
 }
@@ -353,7 +357,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
   CaloG4HitCollection* theHCHC = (CaloG4HitCollection*) allHC->GetHC(HCHCid);
   LogDebug("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names[0] 
 		      << " of ID " << HCHCid << " is obtained at " << theHCHC;
-  if (HCHCid >= 0 && theHCHC > 0) {
+  if (HCHCid >= 0 && theHCHC != nullptr) {
     for (j = 0; j < theHCHC->entries(); j++) {
 
       CaloG4Hit* aHit = (*theHCHC)[j]; 
@@ -400,7 +404,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
   CaloG4HitCollection* theEBHC = (CaloG4HitCollection*) allHC->GetHC(EBHCid);
   LogDebug("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names[1]
 		      << " of ID " << EBHCid << " is obtained at " << theEBHC;
-  if (EBHCid >= 0 && theEBHC > 0) {
+  if (EBHCid >= 0 && theEBHC != nullptr) {
     for (j = 0; j < theEBHC->entries(); j++) {
 
       CaloG4Hit* aHit = (*theEBHC)[j]; 
@@ -438,7 +442,7 @@ void HcalTestAnalysis::fill(const EndOfEvent * evt) {
   CaloG4HitCollection* theEEHC = (CaloG4HitCollection*) allHC->GetHC(EEHCid);
   LogDebug("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names[2]
 		      << " of ID " << EEHCid << " is obtained at " << theEEHC;
-  if (EEHCid >= 0 && theEEHC > 0) {
+  if (EEHCid >= 0 && theEEHC != nullptr) {
     for (j = 0; j < theEEHC->entries(); j++) {
 
       CaloG4Hit* aHit = (*theEEHC)[j]; 

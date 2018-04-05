@@ -47,7 +47,7 @@ namespace ecaldqm{
 
   public:
     DQWorker();
-    virtual ~DQWorker();
+    virtual ~DQWorker() noexcept(false);
 
     static void fillDescriptions(edm::ParameterSetDescription& _desc);
 

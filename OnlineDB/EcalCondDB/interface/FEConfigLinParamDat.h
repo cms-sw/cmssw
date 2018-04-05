@@ -12,10 +12,10 @@ class FEConfigLinParamDat : public IDataItem {
  public:
   friend class EcalCondDBInterface; 
   FEConfigLinParamDat();
-  ~FEConfigLinParamDat();
+  ~FEConfigLinParamDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_LINPARAM_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_LINPARAM_DAT"; }
 
 
   inline void setETSat(float x) { m_etsat = x; }
@@ -23,19 +23,15 @@ class FEConfigLinParamDat : public IDataItem {
   inline float getETSat() const       { return m_etsat; }
 
  private:
-  void prepareWrite() 
-    throw(std::runtime_error);
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigLinParamDat* item, FEConfigLinInfo* iconf)
-    throw(std::runtime_error);
+  void writeDB(const EcalLogicID* ecid, const FEConfigLinParamDat* item, FEConfigLinInfo* iconf) noexcept(false);
 
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigLinParamDat>* data, FEConfigLinInfo* iconf)
-  throw(std::runtime_error);
+  void writeArrayDB(const std::map< EcalLogicID, FEConfigLinParamDat>* data, FEConfigLinInfo* iconf) noexcept(false);
 
 
-  void fetchData(std::map< EcalLogicID, FEConfigLinParamDat >* fillMap, FEConfigLinInfo* iconf)
-     throw(std::runtime_error);
+  void fetchData(std::map< EcalLogicID, FEConfigLinParamDat >* fillMap, FEConfigLinInfo* iconf) noexcept(false);
 
   // User data
 float  m_etsat ;

@@ -26,9 +26,9 @@ namespace edm {
 class HLTMhtFilter : public HLTFilter {
   public:
     explicit HLTMhtFilter(const edm::ParameterSet & iConfig);
-    ~HLTMhtFilter();
+    ~HLTMhtFilter() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual bool hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+    bool hltFilter(edm::Event & iEvent, const edm::EventSetup & iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   private:
     /// Minimum MHT requirements

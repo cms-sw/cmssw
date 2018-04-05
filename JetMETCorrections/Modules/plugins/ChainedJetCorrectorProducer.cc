@@ -50,17 +50,17 @@ namespace {
     ChainedJetCorrectorImpl(std::vector<reco::JetCorrector const*> correctors):
       jetCorrectors_(std::move(correctors)) {}
 
-    virtual double correction (const LorentzVector& fJet) const override;
+    double correction (const LorentzVector& fJet) const override;
 
     /// apply correction using Jet information only
-    virtual double correction (const reco::Jet& fJet) const override;
+    double correction (const reco::Jet& fJet) const override;
 
     /// apply correction using Ref
-    virtual double correction (const reco::Jet& fJet,
+    double correction (const reco::Jet& fJet,
 			       const edm::RefToBase<reco::Jet>& fJetRef) const override ;
 
     /// if correction needs the jet reference
-    virtual bool refRequired () const override;
+    bool refRequired () const override;
   
   private:
     std::vector<reco::JetCorrector const*> jetCorrectors_;
@@ -124,7 +124,7 @@ class ChainedJetCorrectorProducer : public edm::stream::EDProducer<> {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
   std::vector<edm::EDGetTokenT<reco::JetCorrector>> correctorTokens_;
@@ -175,8 +175,8 @@ ChainedJetCorrectorProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
      correctors.emplace_back(&(*hCorrector));
    }
 
-   std::auto_ptr<reco::JetCorrector> pCorr( new reco::JetCorrector( std::unique_ptr<reco::JetCorrectorImpl>(new ChainedJetCorrectorImpl(std::move(correctors)) )));
-   iEvent.put(pCorr);
+   std::unique_ptr<reco::JetCorrector> pCorr( new reco::JetCorrector( std::unique_ptr<reco::JetCorrectorImpl>(new ChainedJetCorrectorImpl(std::move(correctors)) )));
+   iEvent.put(std::move(pCorr));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

@@ -3,6 +3,7 @@
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
 /** \class HcalDataFrameFilter
     
@@ -28,14 +29,21 @@ public:
   HcalCalibDigiCollection filter(const HcalCalibDigiCollection& incol, HcalUnpackerReport& r);
   /// filter ZDC data frames
   ZDCDigiCollection filter(const ZDCDigiCollection& incol, HcalUnpackerReport& r);
+  /// filter QIE10 data frames
+  QIE10DigiCollection filter(const QIE10DigiCollection& incol, HcalUnpackerReport& r);
+  /// filter QIE11 data frames
+  QIE11DigiCollection filter(const QIE11DigiCollection& incol, HcalUnpackerReport& r);
   /// whether any filters are on
   bool active() const;
+  /// get conditions
+  void setConditions(const HcalDbService* conditions);
 private:
   bool requireCapid_;
   bool requireDVER_;
   bool energyFilter_;
   int firstSample_, lastSample_;
   double minimumAmplitude_;
+  const HcalDbService* conditions_;
 };
 
 

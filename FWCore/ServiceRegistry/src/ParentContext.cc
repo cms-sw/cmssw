@@ -3,6 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/InternalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
+#include "FWCore/ServiceRegistry/interface/PathContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -86,6 +87,31 @@ namespace edm {
     return parent_.internal;
   }
 
+  bool
+  ParentContext::isAtEndTransition() const {
+    switch(type_) {
+      case Type::kGlobal:
+      {
+        return parent_.global->isAtEndTransition();
+      }
+      case Type::kModule:
+      {
+        return parent_.module->parent().isAtEndTransition();
+      }
+      case Type::kStream:
+      {
+        return parent_.stream->isAtEndTransition();
+      }
+      case Type::kPlaceInPath:
+      {
+        return parent_.placeInPath->pathContext()->streamContext()->isAtEndTransition();
+      }
+      default:
+        break;
+    }
+    return false;
+  }
+  
   std::ostream& operator<<(std::ostream& os, ParentContext const& pc) {
     if(pc.type() == ParentContext::Type::kGlobal && pc.globalContext()) {
       os << *pc.globalContext();

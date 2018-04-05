@@ -4,92 +4,117 @@ hltPreIsoTrackHE = cms.EDFilter("HLTPrescaler",
                                 L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
                                 offset = cms.uint32( 0 )
                                 )
-hltHITPixelTracksHB = cms.EDProducer("PixelTrackProducer",
-                                     useFilterWithES = cms.bool( False ),
-                                     FilterPSet = cms.PSet( 
-        chi2 = cms.double( 1000.0 ),
-        nSigmaTipMaxTolerance = cms.double( 0.0 ),
-        ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-        nSigmaInvPtTolerance = cms.double( 0.0 ),
+hltHITPixelTracksHBTrackingRegions = cms.EDProducer("GlobalTrackingRegionFromBeamSpotEDProducer",
+    RegionPSet = cms.PSet(
+        precise = cms.bool( True ),
+        originRadius = cms.double( 0.0015 ),
+        nSigmaZ = cms.double( 3.0 ),
         ptMin = cms.double( 0.7 ),
-        tipMax = cms.double( 1.0 )
-        ),
+        beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
+    )
+)
+hltHITPixelTracksHBHitDoublets = cms.EDProducer("HitPairEDProducer",
+    clusterCheck = cms.InputTag(""),
+    layerPairs = cms.vuint32(0),
+    maxElement = cms.uint32(0),
+    produceIntermediateHitDoublets = cms.bool(True),
+    produceSeedingHitSets = cms.bool(False),
+    seedingLayers = cms.InputTag("hltESPPixelLayerTripletsHITHB"),
+    trackingRegions = cms.InputTag("hltHITPixelTracksHBTrackingRegions")
+)
+hltHITPixelTracksHBHitTriplets = cms.EDProducer("PixelTripletHLTEDProducer",
+    SeedComparitorPSet = cms.PSet(
+        ComponentName = cms.string("none"),
+    ),
+    doublets = cms.InputTag("hltHITPixelTracksHBHitDoublets"),
+    extraHitRPhitolerance = cms.double(0.06),
+    extraHitRZtolerance = cms.double(0.06),
+    maxElement = cms.uint32(100000),
+    phiPreFiltering = cms.double(0.3),
+    produceIntermediateHitTriplets = cms.bool(False),
+    produceSeedingHitSets = cms.bool(True),
+    useBending = cms.bool(True),
+    useFixedPreFiltering = cms.bool(False),
+    useMultScattering = cms.bool(True)
+)
+hltHITPixelTracksHBFitter = cms.EDProducer("PixelFitterByConformalMappingAndLineProducer",
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+    useFixImpactParameter = cms.bool(True),
+    fixImpactParameter = cms.double( 0.0 )
+)
+hltHITPixelTracksHBFilter = cms.EDProducer('PixelTrackFilterByKinematicsProducer',
+    chi2 = cms.double( 1000.0 ),
+    nSigmaTipMaxTolerance = cms.double( 0.0 ),
+    nSigmaInvPtTolerance = cms.double( 0.0 ),
+    ptMin = cms.double( 0.7 ),
+    tipMax = cms.double( 1.0 )
+)
+hltHITPixelTracksCleaner = cms.ESProducer("PixelTrackCleanerBySharedHitsESProducer",
+    ComponentName = cms.string("hltHITPixelTracksCleaner"),
+    useQuadrupletAlgo = cms.bool(False)
+)
+hltHITPixelTracksHB = cms.EDProducer("PixelTrackProducer",
+                                     Filter = cms.InputTag("hltHITPixelTracksHBFilter"),
                                      passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
-                                     FitterPSet = cms.PSet( 
-        ComponentName = cms.string( "PixelFitterByConformalMappingAndLine" ),
-        TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-        fixImpactParameter = cms.double( 0.0 )
-        ),
-                                     RegionFactoryPSet = cms.PSet( 
-        ComponentName = cms.string( "GlobalRegionProducerFromBeamSpot" ),
-        RegionPSet = cms.PSet( 
-            precise = cms.bool( True ),
-            originRadius = cms.double( 0.0015 ),
-            nSigmaZ = cms.double( 3.0 ),
-            ptMin = cms.double( 0.7 ),
-            beamSpot = cms.InputTag( "hltOnlineBeamSpot" )
-            )
-        ),
-                                     CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
-                                     OrderedHitsFactoryPSet = cms.PSet( 
-        ComponentName = cms.string( "StandardHitTripletGenerator" ),
-        SeedingLayers = cms.string( "hltESPPixelLayerTripletsHITHB" ),
-        GeneratorPSet = cms.PSet( 
-            useBending = cms.bool( True ),
-            useFixedPreFiltering = cms.bool( False ),
-            maxElement = cms.uint32( 100000 ),
-            phiPreFiltering = cms.double( 0.3 ),
-            extraHitRPhitolerance = cms.double( 0.06 ),
-            useMultScattering = cms.bool( True ),
-            ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-            extraHitRZtolerance = cms.double( 0.06 ),
-            SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
-            )
-        )
+                                     Fitter = cms.InputTag("hltHITPixelTracksHBFitter"),
+                                     Cleaner = cms.string("hltHITPixelTracksCleaner"),
+                                     SeedingHitSets = cms.InputTag("hltHITPixelTracksHBHitTriplets"),
                                      )
 
+hltHITPixelTracksHETrackingRegions = cms.EDProducer("GlobalTrackingRegionFromBeamSpotEDProducer",
+    RegionPSet = cms.PSet( 
+        precise = cms.bool( True ),
+        originRadius = cms.double( 0.0015 ),
+        nSigmaZ = cms.double( 3.0 ),
+        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+        ptMin = cms.double( 0.35 )
+    )
+)
+hltHITPixelTracksHEHitDoublets = cms.EDProducer("HitPairEDProducer",
+    clusterCheck = cms.InputTag(""),
+    layerPairs = cms.vuint32(0),
+    maxElement = cms.uint32(0),
+    produceIntermediateHitDoublets = cms.bool(True),
+    produceSeedingHitSets = cms.bool(False),
+    seedingLayers = cms.InputTag("hltESPPixelLayerTripletsHITHE"),
+    trackingRegions = cms.InputTag("hltHITPixelTracksHBTrackingRegions")
+)
+hltHITPixelTracksHEHitTriplets = cms.EDProducer("PixelTripletHLTEDProducer",
+    SeedComparitorPSet = cms.PSet(
+        ComponentName = cms.string("none"),
+    ),
+    doublets = cms.InputTag("hltHITPixelTracksHEHitDoublets"),
+    extraHitRPhitolerance = cms.double(0.06),
+    extraHitRZtolerance = cms.double(0.06),
+    maxElement = cms.uint32(100000),
+    phiPreFiltering = cms.double(0.3),
+    produceIntermediateHitTriplets = cms.bool(False),
+    produceSeedingHitSets = cms.bool(True),
+    useBending = cms.bool(True),
+    useFixedPreFiltering = cms.bool(False),
+    useMultScattering = cms.bool(True)
+)
+hltHITPixelTracksHEFitter = cms.EDProducer("PixelFitterByConformalMappingAndLineProducer",
+    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+    useFixImpactParameter = cms.bool(True),
+    fixImpactParameter = cms.double( 0.0 )
+)
+hltHITPixelTracksHEFilter = cms.EDProducer('PixelTrackFilterByKinematicsProducer',
+    chi2 = cms.double( 1000.0 ),
+    nSigmaTipMaxTolerance = cms.double( 0.0 ),
+    nSigmaInvPtTolerance = cms.double( 0.0 ),
+    ptMin = cms.double( 0.35 ),
+    tipMax = cms.double( 1.0 )
+)
 hltHITPixelTracksHE = cms.EDProducer("PixelTrackProducer",
-                                     useFilterWithES = cms.bool( False ),
-                                     FilterPSet = cms.PSet( 
-        chi2 = cms.double( 1000.0 ),
-        nSigmaTipMaxTolerance = cms.double( 0.0 ),
-        ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-        nSigmaInvPtTolerance = cms.double( 0.0 ),
-        ptMin = cms.double( 0.35 ),
-        tipMax = cms.double( 1.0 )
-        ),
+                                     Filter = cms.InputTag("hltHITPixelTracksHEFilter"),
                                      passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
-                                     FitterPSet = cms.PSet( 
-        ComponentName = cms.string( "PixelFitterByConformalMappingAndLine" ),
-        TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-        fixImpactParameter = cms.double( 0.0 )
-        ),
-                                     RegionFactoryPSet = cms.PSet( 
-        ComponentName = cms.string( "GlobalRegionProducerFromBeamSpot" ),
-        RegionPSet = cms.PSet( 
-            precise = cms.bool( True ),
-            originRadius = cms.double( 0.0015 ),
-            nSigmaZ = cms.double( 3.0 ),
-            beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-            ptMin = cms.double( 0.35 )
-            )
-        ),
-                                     CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
-                                     OrderedHitsFactoryPSet = cms.PSet( 
-        ComponentName = cms.string( "StandardHitTripletGenerator" ),
-        GeneratorPSet = cms.PSet( 
-            useBending = cms.bool( True ),
-            useFixedPreFiltering = cms.bool( False ),
-            maxElement = cms.uint32( 100000 ),
-            phiPreFiltering = cms.double( 0.3 ),
-            extraHitRPhitolerance = cms.double( 0.06 ),
-            useMultScattering = cms.bool( True ),
-            ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-            extraHitRZtolerance = cms.double( 0.06 ),
-            SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
-            ),
-        SeedingLayers = cms.string( "hltESPPixelLayerTripletsHITHE" )
-        )
+                                     Fitter = cms.InputTag("hltHITPixelTracksHEFitter"),
+                                     CleanerPSet = cms.PSet(
+                                         ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ),
+                                         useQuadrupletAlgo = cms.bool(False)
+                                     ),
+                                     SeedingHitSets = cms.InputTag("hltHITPixelTracksHEHitTriplets"),
                                      )
 
 hltHITPixelVerticesHE = cms.EDProducer("PixelVertexProducer",
@@ -111,7 +136,7 @@ hltIsolPixelTrackProdHE = cms.EDProducer("IsolatedPixelTrackCandidateProducer",
                                          MaxVtxDXYSeed = cms.double( 101.0 ),
                                          tauUnbiasCone = cms.double( 1.2 ),
                                          VertexLabel = cms.InputTag( "hltHITPixelVerticesHE" ),
-                                         L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
+                                         L1GTSeedLabel = cms.InputTag( "hltL1sV0SingleJet60" ),
                                          EBEtaBoundary = cms.double( 1.479 ),
                                          maxPTrackForIsolation = cms.double( 3.0 ),
                                          MagFieldRecordName = cms.string( "VolumeBasedMagneticField" ),
@@ -129,7 +154,7 @@ hltIsolPixelTrackL2FilterHE = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MinDeltaPtL1Jet = cms.double( -40000.0 ),
                                            MinPtTrack = cms.double( 3.5 ),
                                            DropMultiL2Event = cms.bool( False ),
-                                           L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
+                                           L1GTSeedLabel = cms.InputTag( "hltL1sV0SingleJet60" ),
                                            MinEnergyTrack = cms.double( 12.0 ),
                                            NMaxTrackCandidates = cms.int32( 5 ),
                                            MaxEtaTrack = cms.double( 2.2 ),
@@ -207,7 +232,7 @@ hltHITCkfTrackCandidatesHE = cms.EDProducer("CkfTrackCandidateMaker",
                                             doSeedingRegionRebuilding = cms.bool( False ),
                                             maxNSeeds = cms.uint32( 100000 ),
                                             NavigationSchool = cms.string( "SimpleNavigationSchool" ),
-                                            TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" )
+                                            TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
                                             )
 hltHITCtfWithMaterialTracksHE = cms.EDProducer("TrackProducer",
                                                src = cms.InputTag( "hltHITCkfTrackCandidatesHE" ),
@@ -237,7 +262,7 @@ hltIsolPixelTrackL3FilterHE = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MinDeltaPtL1Jet = cms.double( 4.0 ),
                                            MinPtTrack = cms.double( 20.0 ),
                                            DropMultiL2Event = cms.bool( False ),
-                                           L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
+                                           L1GTSeedLabel = cms.InputTag( "hltL1sV0SingleJet60" ),
                                            MinEnergyTrack = cms.double( 38.0 ),
                                            NMaxTrackCandidates = cms.int32( 999 ),
                                            MaxEtaTrack = cms.double( 2.2 ),
@@ -270,7 +295,7 @@ hltIsolPixelTrackProdHB = cms.EDProducer("IsolatedPixelTrackCandidateProducer",
                                          MaxVtxDXYSeed = cms.double( 101.0 ),
                                          tauUnbiasCone = cms.double( 1.2 ),
                                          VertexLabel = cms.InputTag( "hltHITPixelVerticesHB" ),
-                                         L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
+                                         L1GTSeedLabel = cms.InputTag( "hltL1sV0SingleJet60" ),
                                          EBEtaBoundary = cms.double( 1.479 ),
                                          maxPTrackForIsolation = cms.double( 3.0 ),
                                          MagFieldRecordName = cms.string( "VolumeBasedMagneticField" ),
@@ -288,7 +313,7 @@ hltIsolPixelTrackL2FilterHB = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MinDeltaPtL1Jet = cms.double( -40000.0 ),
                                            MinPtTrack = cms.double( 3.5 ),
                                            DropMultiL2Event = cms.bool( False ),
-                                           L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
+                                           L1GTSeedLabel = cms.InputTag( "hltL1sV0SingleJet60" ),
                                            MinEnergyTrack = cms.double( 8.0 ),
                                            NMaxTrackCandidates = cms.int32( 10 ),
                                            MaxEtaTrack = cms.double( 1.15 ),
@@ -366,7 +391,7 @@ hltHITCkfTrackCandidatesHB = cms.EDProducer("CkfTrackCandidateMaker",
                                             doSeedingRegionRebuilding = cms.bool( False ),
                                             maxNSeeds = cms.uint32( 100000 ),
                                             NavigationSchool = cms.string( "SimpleNavigationSchool" ),
-                                            TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" )
+                                            TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilder" ),
                                             )
 
 hltHITCtfWithMaterialTracksHB = cms.EDProducer("TrackProducer",
@@ -397,7 +422,7 @@ hltIsolPixelTrackL3FilterHB = cms.EDFilter("HLTPixelIsolTrackFilter",
                                            MinDeltaPtL1Jet = cms.double( 4.0 ),
                                            MinPtTrack = cms.double( 20.0 ),
                                            DropMultiL2Event = cms.bool( False ),
-                                           L1GTSeedLabel = cms.InputTag( "hltL1sL1SingleJet68" ),
+                                           L1GTSeedLabel = cms.InputTag( "hltL1sV0SingleJet60" ),
                                            MinEnergyTrack = cms.double( 38.0 ),
                                            NMaxTrackCandidates = cms.int32( 999 ),
                                             MaxEtaTrack = cms.double( 1.15 ),
@@ -423,7 +448,7 @@ hltEcalIsolPixelTrackL2FilterHE = cms.EDFilter("HLTEcalPixelIsolTrackFilter",
                                                saveTags = cms.bool( False )
                                                )
 
-HLT_IsoTrackHE_v15 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet68 + hltPreIsoTrackHE + HLTDoLocalPixelSequence + hltHITPixelTracksHB + hltHITPixelTracksHE + hltHITPixelVerticesHE + hltIsolPixelTrackProdHE + hltIsolPixelTrackL2FilterHE + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHE + hltHITCkfTrackCandidatesHE + hltHITCtfWithMaterialTracksHE + hltHITIPTCorrectorHE + hltIsolPixelTrackL3FilterHE + HLTEndSequence )
+HLT_IsoTrackHE_v15 = cms.Path( HLTBeginSequence + hltL1sV0SingleJet60 + hltPreIsoTrackHE + HLTDoLocalPixelSequence + hltHITPixelTracksHBTrackingRegions + hltHITPixelTracksHBHitDoublets + hltHITPixelTracksHBHitTriplets + hltHITPixelTracksHBFitter + hltHITPixelTracksHBFilter + hltHITPixelTracksHEFitter + hltHITPixelTracksHEFilter + hltHITPixelTracksHB + hltHITPixelTracksHBTrackingRegions + hltHITPixelTracksHBHitDoublets + hltHITPixelTracksHBHitTriplets + hltHITPixelTracksHE + hltHITPixelVerticesHE + hltIsolPixelTrackProdHE + hltIsolPixelTrackL2FilterHE + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHE + hltHITCkfTrackCandidatesHE + hltHITCtfWithMaterialTracksHE + hltHITIPTCorrectorHE + hltIsolPixelTrackL3FilterHE + HLTEndSequence )
 
-HLT_IsoTrackHB_v14 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet68 + hltPreIsoTrackHB + HLTDoLocalPixelSequence + hltHITPixelTracksHB + hltHITPixelVerticesHB + hltIsolPixelTrackProdHB + hltIsolPixelTrackL2FilterHB + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHB + hltHITCkfTrackCandidatesHB + hltHITCtfWithMaterialTracksHB + hltHITIPTCorrectorHB + hltIsolPixelTrackL3FilterHB + HLTEndSequence )
+HLT_IsoTrackHB_v14 = cms.Path( HLTBeginSequence + hltL1sV0SingleJet60 + hltPreIsoTrackHB + HLTDoLocalPixelSequence + hltHITPixelTracksHBTrackingRegions + hltHITPixelTracksHBHitDoublets + hltHITPixelTracksHBHitTriplets + hltHITPixelTracksHBFitter + hltHITPixelTracksHBFilter + hltHITPixelTracksHB + hltHITPixelVerticesHB + hltIsolPixelTrackProdHB + hltIsolPixelTrackL2FilterHB + HLTDoLocalStripSequence + hltHITPixelTripletSeedGeneratorHB + hltHITCkfTrackCandidatesHB + hltHITCtfWithMaterialTracksHB + hltHITIPTCorrectorHB + hltIsolPixelTrackL3FilterHB + HLTEndSequence )
 

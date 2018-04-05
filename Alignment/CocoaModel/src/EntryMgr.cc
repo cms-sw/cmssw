@@ -11,7 +11,7 @@
 //----------------------------------------------------------------------------
 
 
-EntryMgr* EntryMgr::theInstance = 0;
+EntryMgr* EntryMgr::theInstance = nullptr;
 
 //----------------------------------------------------------------------------
 EntryMgr* EntryMgr::getInstance()
@@ -52,18 +52,18 @@ ALIbool EntryMgr::readEntryFromReportOut( const std::vector<ALIstring>& wl )
     data->fill( wl );
   }
 
-  return 1;  
+  return true;  
 }
 
 
 //----------------------------------------------------------------------------
 EntryData* EntryMgr::findEntryByShortName( const ALIstring& optoName, const ALIstring& entryName )
 {
-  EntryData* data = 0;
+  EntryData* data = nullptr;
 
   int icount = 0;
   std::vector<EntryData*>::iterator ite;
-  for( ite = theEntryData.begin(); ite != theEntryData.end(); ite++ ) {
+  for( ite = theEntryData.begin(); ite != theEntryData.end(); ++ite ) {
     if( (*ite)->shortOptOName() == extractShortName(optoName) && 
 	( (*ite)->entryName() == entryName || entryName  == "" ) ) {
       if( icount == 0 ) data = (*ite);
@@ -82,12 +82,12 @@ EntryData* EntryMgr::findEntryByShortName( const ALIstring& optoName, const ALIs
 //----------------------------------------------------------------------------
 EntryData* EntryMgr::findEntryByLongName( const ALIstring& optoName, const ALIstring& entryName )
 {
-  EntryData* data = 0;
+  EntryData* data = nullptr;
 
   int icount = 0;
   std::vector<EntryData*>::iterator ite;
   if(ALIUtils::debug >= 6) std::cout << " findEntryByLongName theEntryData size = " << theEntryData.size() << std::endl;
-  for( ite = theEntryData.begin(); ite != theEntryData.end(); ite++ ) {
+  for( ite = theEntryData.begin(); ite != theEntryData.end(); ++ite ) {
     if( (*ite)->longOptOName() == optoName && 
 	( (*ite)->entryName() == entryName || entryName == "" ) ) {
     //-    if( (*ite)->longOptOName() == optoName ) {
@@ -112,7 +112,7 @@ EntryData* EntryMgr::findEntryByLongName( const ALIstring& optoName, const ALIst
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 EntryData* EntryMgr::findEntry( const std::vector<ALIstring>& wl )
 {
-  EntryData* data = 0;
+  EntryData* data = nullptr;
   ALIstring optoName = wl[2];
   ALIstring entryName = wl[3];
   data = findEntryByLongName( optoName, entryName );

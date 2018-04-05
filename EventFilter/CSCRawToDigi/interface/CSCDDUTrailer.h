@@ -2,7 +2,7 @@
 #define CSCDDUTrailer_h
 
 #include <iostream>
-#include <string.h> // bzero
+#include <cstring> // bzero
 #include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
 
 /** documented at  http://www.physics.ohio-state.edu/~cms/ddu/ddu2.html

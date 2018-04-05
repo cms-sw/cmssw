@@ -42,26 +42,26 @@ class OutInConversionSeedFinder : public ConversionSeedFinder {
   
   OutInConversionSeedFinder( const edm::ParameterSet& config,edm::ConsumesCollector && iC );
   
-  virtual ~OutInConversionSeedFinder();
+  ~OutInConversionSeedFinder() override;
   
   
   
-  virtual void  makeSeeds( const edm::Handle<edm::View<reco::CaloCluster> > & allBc) const  ;
-  virtual void  makeSeeds( const reco::CaloClusterPtr&  aBC ) const  ;  
+  void  makeSeeds( const edm::Handle<edm::View<reco::CaloCluster> > & allBc) override  ;
+  virtual void  makeSeeds( const reco::CaloClusterPtr&  aBC ) ;  
   
  private:
   
   edm::ParameterSet conf_;
   std::pair<FreeTrajectoryState,bool> makeTrackState(int charge) const ;
   
-  void fillClusterSeeds(const reco::CaloClusterPtr& bc) const ;
+  void fillClusterSeeds(const reco::CaloClusterPtr& bc);
   
-  void startSeed(const FreeTrajectoryState &) const;
+  void startSeed(const FreeTrajectoryState &);
   void completeSeed(const TrajectoryMeasurement & m1,
-			    FreeTrajectoryState & fts, 
+			    const FreeTrajectoryState & fts, 
 			    const Propagator *, 
-			    int layer) const  ;
-  void createSeed(const TrajectoryMeasurement & m1,const TrajectoryMeasurement & m2) const;
+			    int layer);
+  void createSeed(const TrajectoryMeasurement & m1,const TrajectoryMeasurement & m2);
   FreeTrajectoryState createSeedFTS(const TrajectoryMeasurement & m1, const TrajectoryMeasurement & m2) const;  
   GlobalPoint fixPointRadius(const TrajectoryMeasurement &) const;
 
@@ -75,8 +75,8 @@ class OutInConversionSeedFinder : public ConversionSeedFinder {
   float  the2ndHitdphi_;
   float   the2ndHitdzConst_;    
   float  the2ndHitdznSigma_; 
-  mutable std::vector<TrajectoryMeasurement> theFirstMeasurements_;
-  mutable int nSeedsPerBC_;
+  std::vector<TrajectoryMeasurement> theFirstMeasurements_;
+  int nSeedsPerBC_;
   int maxNumberOfOutInSeedsPerBC_;
   float bcEtcut_;
   float bcEcut_;

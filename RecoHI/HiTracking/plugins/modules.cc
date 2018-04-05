@@ -24,12 +24,6 @@ DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITrackingRegionProducer, "HITr
 #include "HITrackingRegionForPrimaryVtxProducer.h"
 DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, HITrackingRegionForPrimaryVtxProducer, "HITrackingRegionForPrimaryVtxProducer");
 
-// Pixel track filter
-#include "RecoHI/HiTracking/interface/HIPixelTrackFilter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
-DEFINE_EDM_PLUGIN(PixelTrackFilterFactory, HIPixelTrackFilter, "HIPixelTrackFilter");
-
-// Pixel prototrack filter
-#include "RecoHI/HiTracking/interface/HIProtoTrackFilter.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterFactory.h"
-DEFINE_EDM_PLUGIN(PixelTrackFilterFactory, HIProtoTrackFilter, "HIProtoTrackFilter");
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionEDProducerT.h"
+using HITrackingRegionForPrimaryVtxEDProducer = TrackingRegionEDProducerT<HITrackingRegionForPrimaryVtxProducer>;
+DEFINE_FWK_MODULE(HITrackingRegionForPrimaryVtxEDProducer);

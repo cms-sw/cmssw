@@ -65,6 +65,8 @@ public:
     return inside( Local3DPoint(p.x(), p.y(), 0), err, scale);
   }
 
+  virtual float significanceInside(const Local3DPoint&, const LocalError&) const;
+
   virtual Bounds* clone() const = 0;
   
   std::pair<float,float> const & phiSpan() const { return m_span.phiSpan(); }

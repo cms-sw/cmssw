@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tecmodule5.xml" eval="true">
+		<Constant name="Rin" value="72.11*cm"/>
+		<Constant name="Rout" value="95.61*cm"/>
+		<Constant name="isStereo" value="0"/>
+		<Constant name="FullHeight" value="18.6980000*cm"/>
+		<Constant name="ActiveHeight" value="18.4088000*cm"/>
+		<Constant name="DlTop" value="10.7285000*cm"/>
+		<Constant name="DlBottom" value="8.6184000*cm"/>
+		<Constant name="InactiveStart" value="87.840*mm"/>
+		<Constant name="SideWidthTop" value="0.1287673*cm"/>
+		<Constant name="SideWidthBottom" value="0.1315619*cm"/>
+		<!--Constant name="HybridZ"            value="[ActiveZ]+ 0.5*(-[tecmodpar:WaferThick2] + [tecmodpar:HybridThick])"/>
+		     <Constant name="TopFrameZ"          value="[HybridZ]+ 0.5*([tecmodpar:HybridThick]+[tecmodpar:TopFrameThick])"/>
+		     <Constant name="SideFrameZ"         value="[TopFrameZ]+0.5*(-[tecmodpar:TopFrameThick]+[tecmodpar:SideFrameThick])"/>
+		     <Constant name="PitchZ"             value="[TopFrameZ] - 0.5*([tecmodpar:TopFrameThick] + [tecmodpar:PitchThick])"/-->
+		<Constant name="HybridZ" value="[TopFrameZ]+ 0.5*([tecmodpar:TopFrameThick] + [tecmodpar:HybridThick])"/>
+		<Constant name="TopFrameZ" value="[SideFrameZ]+ 0.5*(-[tecmodpar:SideFrameThick]+[tecmodpar:TopFrameThick])"/>
+		<Constant name="SideFrameZ" value="[ActiveZ]+0.5*(-[tecmodpar:WaferThick2] - [tecmodpar:SideFrameThick])"/>
+		<Constant name="PitchZ" value="[TopFrameZ] + 0.5*([tecmodpar:TopFrameThick] + [tecmodpar:PitchThick])"/>
+		<Constant name="DlHybrid" value="11.190*cm"/>
+		<Constant name="BridgeWidth" value="1.90*cm"/>
+		<Constant name="BridgeThick" value="0.228*cm"/>
+		<Constant name="BridgeHeight" value="2.469*cm"/>
+		<Constant name="BridgeSeparation" value="6.800*cm"/>
+		<Constant name="ModuleThick" value="[tecmodpar:ModuleThickSS]"/>
+		<Constant name="ShiftZ" value="0.5*[tecmodpar:SideFrameThick]"/>
+		<Constant name="TopFrameTopWidth" value="89.3*mm"/>
+		<Constant name="TopFrameBotWidth" value="127.8*mm"/>
+		<Constant name="TopFrameHeight" value="37.2*mm"/>
+		<Constant name="SideFrameRtheta" value="-0.058*rad"/>
+		<Constant name="SideFrameRHeight" value="190.0*mm"/>
+		<Constant name="SideFrameRWidth" value="14.1*mm"/>
+		<Constant name="SideFrameLtheta" value="0.057*rad"/>
+		<Constant name="SideFrameLHeight" value="190.0*mm"/>
+		<Constant name="SideFrameLWidth" value="15.5*mm"/>
+		<Constant name="ActiveZ" value="([tecmodpar:ActiveZ2]+[ShiftZ])"/>
+		<Constant name="PitchWidth" value="107.6*mm"/>
+		<Constant name="dPhi" value="2.2*asin(0.5*[TopFrameBotWidth]/([Rin]+[FullHeight]))"/>
+		<Constant name="PosCorrectionR" value="-1.19*mm"/>
+	</ConstantsSection>
+	<SolidSection label="tecmodule5.xml">
+		<Tubs name="TECModule5" rMin="[Rin]" rMax="[Rout]" dz="0.5*[tecmodpar:ModuleThickSS]" startPhi="-[dPhi]/2" deltaPhi="[dPhi]"/>
+	</SolidSection>
+	<LogicalPartSection label="tecmodule5.xml">
+		<LogicalPart name="TECModule5" category="unspecified">
+			<rSolid name="tecmodule5:TECModule5"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<Algorithm name="track:DDTECModuleAlgo">
+		<rParent name="tecmodule5:TECModule5"/>
+		<Numeric name="RingNo" value="5"/>
+		<Numeric name="isStereo" value="[isStereo]"/>
+		<String name="GeneralMaterial" value="materials:Air"/>
+		<Numeric name="ModuleThick" value="[tecmodpar:ModuleThick]"/>
+		<Numeric name="DetTilt" value="[tecmodpar:DetTilt]"/>
+		<Numeric name="FullHeight" value="[FullHeight]"/>
+		<Numeric name="DlTop" value="[DlTop]"/>
+		<Numeric name="DlBottom" value="[DlBottom]"/>
+		<Numeric name="DlHybrid" value="[DlHybrid]"/>
+		<Numeric name="FrameWidth" value="[tecmodpar:FrameWidth]"/>
+		<Numeric name="FrameThick" value="[ModuleThick]"/>
+		<Numeric name="FrameOver" value="[tecmodpar:FrameOver]"/>
+		<String name="TopFrameMaterial" value="tecmaterial:TEC_frame_top"/>
+		<Numeric name="TopFrameTopWidth" value="[TopFrameTopWidth]"/>
+		<Numeric name="TopFrameBotWidth" value="[TopFrameBotWidth]"/>
+		<Numeric name="TopFrameHeight" value="[TopFrameHeight]"/>
+		<Numeric name="TopFrameThick" value="[tecmodpar:TopFrameThick]"/>
+		<Numeric name="TopFrameZ" value="[TopFrameZ]"/>
+		<String name="SideFrameMaterial" value="tecmaterial:TEC_frame_side_5_7"/>
+		<Numeric name="SideFrameThick" value="[tecmodpar:SideFrameThick]"/>
+		<String name="SiFrSuppBoxMaterial" value="tecmaterial:TEC_SideFrSupBox"/>
+		<Numeric name="SideFrameRtheta" value="[SideFrameRtheta]"/>
+		<Numeric name="SideFrameRHeight" value="[SideFrameRHeight]"/>
+		<Numeric name="SideFrameRWidth" value="[SideFrameRWidth]"/>
+		<Numeric name="SideFrameLtheta" value="[SideFrameLtheta]"/>
+		<Numeric name="SideFrameLHeight" value="[SideFrameLHeight]"/>
+		<Numeric name="SideFrameLWidth" value="[SideFrameLWidth]"/>
+		<Numeric name="SiFrSuppBoxThick" value="[tecmodpar:SiFrSuppBoxThick]"/>
+		<Vector name="SiFrSuppBoxYPos" type="numeric" nEntries="2">
+			44.0*mm, 137.9*mm  </Vector>
+		<Vector name="SiFrSuppBoxHeight" type="numeric" nEntries="2">
+			31.1*mm, 27.1*mm  </Vector>
+		<Vector name="SiFrSuppBoxWidth" type="numeric" nEntries="2">
+			15.7*mm, 15.7*mm  </Vector>
+		<Numeric name="SideFrameZ" value="[SideFrameZ]"/>
+		<String name="WaferMaterial" value="materials:Silicon"/>
+		<Numeric name="SideWidthTop" value="[SideWidthTop]"/>
+		<Numeric name="SideWidthBottom" value="[SideWidthBottom]"/>
+		<String name="WaferRotation" value="tecmodpar:RFI2"/>
+		<String name="ActiveMaterial" value="materials:Silicon"/>
+		<Numeric name="ActiveHeight" value="[ActiveHeight]"/>
+		<Numeric name="WaferThick" value="[tecmodpar:WaferThick2]"/>
+		<String name="ActiveRotation" value="tecmodpar:AR05"/>
+		<Numeric name="ActiveZ" value="[ActiveZ]"/>
+		<Numeric name="BackPlaneThick" value="2*[tracker:BackPlaneDz]"/>
+		<Numeric name="InactiveDy" value="[tecmodpar:InactiveDy]"/>
+		<Numeric name="InactivePos" value="[tecmodule5:InactiveStart]+[tecmodpar:InactiveDy]"/>
+		<String name="InactiveMaterial" value="materials:Silicon"/>
+		<String name="HybridMaterial" value="tecmaterial:TEC_Hybrid4APV"/>
+		<Numeric name="HybridHeight" value="[tecmodpar:HybridHeight]"/>
+		<Numeric name="HybridWidth" value="[tecmodpar:HybridWidth]"/>
+		<Numeric name="HybridThick" value="[tecmodpar:HybridThick]"/>
+		<Numeric name="HybridZ" value="[HybridZ]"/>
+		<String name="PitchMaterial" value="tecmaterial:TEC_PitchAdapter"/>
+		<Numeric name="PitchHeight" value="[tecmodpar:PitchHeight]"/>
+		<Numeric name="PitchThick" value="[tecmodpar:PitchThick]"/>
+		<Numeric name="PitchWidth" value="[PitchWidth]"/>
+		<Numeric name="PitchZ" value="[PitchZ]"/>
+		<String name="PitchRotation" value="tecmodpar:PITC"/>
+		<Numeric name="BridgeWidth" value="[BridgeWidth]"/>
+		<Numeric name="BridgeThick" value="[BridgeThick]"/>
+		<Numeric name="BridgeHeight" value="[BridgeHeight]"/>
+		<Numeric name="BridgeSeparation" value="[BridgeSeparation]"/>
+		<String name="BridgeMaterial" value="trackermaterial:T_Aluminium"/>
+		<Numeric name="WaferPosition" value="[tecmodpar:TopFrameHeight]"/>
+		<Vector name="SiReenforcementHeight" type="numeric" nEntries="2">
+			4.5*mm, 8.0*mm  </Vector>
+		<Vector name="SiReenforcementWidth" type="numeric" nEntries="2">
+			95.0*mm, 85.0*mm  </Vector>
+		<Vector name="SiReenforcementPosY" type="numeric" nEntries="2">
+			0.0001*mm, [tecmodule5:InactiveStart] - 8.00*mm /2</Vector>
+		<String name="SiReenforcementMaterial" value="tecmaterial:TEC_SiReenforcment"/>
+		<Numeric name="SiReenforcementThick" value="[tecmodpar:SiReenforcementThick]"/>
+		<Numeric name="NoOverlapShift" value="[tecmodpar:NoOverlapShift]"/>
+		<Numeric name="RPos" value="0.5*([tecmodule5:Rin]+[tecmodule5:Rout])+[PosCorrectionR]"/>
+		<String name="StandardRotation" value="tecmodpar:RPHI"/>
+	</Algorithm>
+</DDDefinition>

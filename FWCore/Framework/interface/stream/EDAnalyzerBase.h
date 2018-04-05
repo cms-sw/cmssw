@@ -42,7 +42,7 @@ namespace edm {
 
 
       EDAnalyzerBase();
-      virtual ~EDAnalyzerBase();
+      ~EDAnalyzerBase() override;
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);
@@ -52,7 +52,6 @@ namespace edm {
       ModuleDescription const& moduleDescription() const {
         return *moduleDescriptionPtr_;
       }
-    protected:
 
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 
@@ -71,9 +70,6 @@ namespace edm {
       virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void endStream(){}
       
-      virtual void preForkReleaseResources() {}
-      virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
-
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) {
         moduleDescriptionPtr_ = iDesc;

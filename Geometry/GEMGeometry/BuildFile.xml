@@ -4,4 +4,3 @@
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/CommonTopologies"/>
 <use   name="DataFormats/MuonDetId"/>
-<use   name="boost_serialization"/>

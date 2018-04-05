@@ -20,6 +20,9 @@ in Offline Trigger DQM etc
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "HepMC/GenEvent.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+
 #include <vector>
 #include <string>
 #include "TLorentzVector.h"
@@ -31,9 +34,9 @@ class HLTTauMCProducer : public edm::EDProducer {
   
 public:
   explicit HLTTauMCProducer(const edm::ParameterSet&);
-  ~HLTTauMCProducer();
+  ~HLTTauMCProducer() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
 
@@ -46,11 +49,12 @@ public:
 		      kOther, kUndefined};
 
   edm::EDGetTokenT<reco::GenParticleCollection> MC_;
+  edm::EDGetTokenT<reco::GenMETCollection> MCMET_;
   double ptMinMCTau_;
   double ptMinMCElectron_;
   double ptMinMCMuon_;
   std::vector<int> m_PDG_;
-  double etaMax;
+  double etaMin,etaMax,phiMin,phiMax;
 
 };
 

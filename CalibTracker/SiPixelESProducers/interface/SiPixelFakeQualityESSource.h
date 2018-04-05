@@ -21,7 +21,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,17 +37,17 @@ class SiPixelFakeQualityESSource : public edm::ESProducer, public edm::EventSetu
 
  public:
   SiPixelFakeQualityESSource(const edm::ParameterSet &);
-  ~SiPixelFakeQualityESSource();
+  ~SiPixelFakeQualityESSource() override;
   
   //      typedef edm::ESProducts<> ReturnType;
   
-  virtual std::auto_ptr<SiPixelQuality>  produce(const SiPixelQualityFromDbRcd &);
+  virtual std::unique_ptr<SiPixelQuality>  produce(const SiPixelQualityFromDbRcd &);
   
  protected:
   
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
   
  private:

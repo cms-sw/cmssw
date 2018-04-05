@@ -25,6 +25,7 @@ SiStripFEDRawDataAnalyzer::SiStripFEDRawDataAnalyzer( const edm::ParameterSet& p
     << "[SiStripFEDRawDataAnalyzer::"
     << __func__ << "]"
     << "Constructing object...";
+  consumes<FEDRawDataCollection>( label_ );
 }
 
 // -----------------------------------------------------------------------------
@@ -215,13 +216,13 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
 
 	// check if channel is good
 
-	if (!buffer->channelGood(ichan)) {channel_construct[ifed].push_back(ichan);continue;}
+	if (!buffer->channelGood(ichan, true)) {channel_construct[ifed].push_back(ichan);continue;}
 
 	// find channel data
 
 	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED && sistrip::FEDZSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(ichan)).hasData()) channels_with_data[ifed].push_back(ichan);
 
-	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE && sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(ichan)).hasData()) channels_with_data[ifed].push_back(ichan);
+	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 && sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(ichan)).hasData()) channels_with_data[ifed].push_back(ichan);
 	
 	else if ( mode == sistrip::READOUT_MODE_VIRGIN_RAW && sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(ichan)).hasData()) channels_with_data[ifed].push_back(ichan);
 	

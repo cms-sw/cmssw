@@ -1,9 +1,10 @@
 #include "RecoTracker/TkSeedGenerator/plugins/MultiHitGeneratorFromChi2.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
 #include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitRZPrediction.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <FWCore/Utilities/interface/ESInputTag.h>
+#include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -13,13 +14,14 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerAlgo.h" 
 #include "RecoPixelVertexing/PixelTriplets/plugins/KDTreeLinkerTools.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/src/RZLine.h"
+#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
@@ -28,7 +30,12 @@
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
+
+#include "DataFormats/Math/interface/normalizedPhi.h"
+
+
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "CommonTools/Utils/interface/DynArray.h"
 
 #include <algorithm>
 #include <iostream>
@@ -48,8 +55,7 @@ namespace {
 }
 
 MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cfg)
-  : thePairGenerator(0),
-    theLayerCache(0),
+  : MultiHitGeneratorFromPairAndLayers(cfg),
     useFixedPreFiltering(cfg.getParameter<bool>("useFixedPreFiltering")),
     extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),//extra window in ThirdHitRZPrediction range 
     extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),//extra window in ThirdHitPredictionFromCircle range (divide by R to get phi) 
@@ -60,27 +66,25 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
     chi2VsPtCut(cfg.getParameter<bool>("chi2VsPtCut")),
     maxChi2(cfg.getParameter<double>("maxChi2")),
     refitHits(cfg.getParameter<bool>("refitHits")),
-    debug(cfg.getParameter<bool>("debug")),
     filterName_(cfg.getParameter<std::string>("ClusterShapeHitFilterName")),
     builderName_(cfg.existsAs<std::string>("TTRHBuilder") ? cfg.getParameter<std::string>("TTRHBuilder") : std::string("WithTrackAngle")),
     useSimpleMF_(false),
     mfName_("")
 {    
-  theMaxElement=cfg.getParameter<unsigned int>("maxElement");
   if (useFixedPreFiltering)
     dphi = cfg.getParameter<double>("phiPreFiltering");
   if (chi2VsPtCut) {
     pt_interv = cfg.getParameter<std::vector<double> >("pt_interv");
     chi2_cuts = cfg.getParameter<std::vector<double> >("chi2_cuts");    
   }  
-  if (debug) {
-    detIdsToDebug = cfg.getParameter<std::vector<int> >("detIdsToDebug");
-    //if (detIdsToDebug.size()<3) //fixme
-  } else {
-    detIdsToDebug.push_back(0);
-    detIdsToDebug.push_back(0);
-    detIdsToDebug.push_back(0);
-  }
+#ifdef EDM_ML_DEBUG
+  detIdsToDebug = cfg.getParameter<std::vector<int> >("detIdsToDebug");
+  //if (detIdsToDebug.size()<3) //fixme
+#else
+  detIdsToDebug.push_back(0);
+  detIdsToDebug.push_back(0);
+  detIdsToDebug.push_back(0);
+#endif
   // 2014/02/11 mia:
   // we should get rid of the boolean parameter useSimpleMF,
   // and use only a string magneticField [instead of SimpleMagneticField]
@@ -89,17 +93,44 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
     useSimpleMF_ = true;
     mfName_ = cfg.getParameter<std::string>("SimpleMagneticField");
   }
-  filter = 0;
-  bfield = 0;
+  filter = nullptr;
+  bfield = nullptr;
   nomField = -1.;
 }
 
-void MultiHitGeneratorFromChi2::init(const HitPairGenerator & pairs,
-				     LayerCacheType *layerCache)
-{
-  thePairGenerator = pairs.clone();
-  theLayerCache = layerCache;
+MultiHitGeneratorFromChi2::~MultiHitGeneratorFromChi2() {}
+
+
+void MultiHitGeneratorFromChi2::fillDescriptions(edm::ParameterSetDescription& desc) {
+  MultiHitGeneratorFromPairAndLayers::fillDescriptions(desc);
+
+  // fixed phi filtering
+  desc.add<bool>("useFixedPreFiltering", false);
+  desc.add<double>("phiPreFiltering", 0.3);
+
+  // box properties
+  desc.add<double>("extraHitRPhitolerance", 0);
+  desc.add<double>("extraHitRZtolerance", 0);
+  desc.add<double>("extraZKDBox", 0.2);
+  desc.add<double>("extraRKDBox", 0.2);
+  desc.add<double>("extraPhiKDBox", 0.005);
+  desc.add<double>("fnSigmaRZ", 2.0);
+
+  // refit&filter hits
+  desc.add<bool>("refitHits", true);
+  desc.add<std::string>("ClusterShapeHitFilterName", "ClusterShapeHitFilter");
+  desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
+
+  // chi2 cuts
+  desc.add<double>("maxChi2", 5.0);
+  desc.add<bool>("chi2VsPtCut", true);
+  desc.add<std::vector<double> >("pt_interv", std::vector<double>{{0.4,0.7,1.0,2.0}});
+  desc.add<std::vector<double> >("chi2_cuts", std::vector<double>{{3.0,4.0,5.0,5.0}});
+
+  // debugging
+  desc.add<std::vector<int> >("detIdsToDebug", std::vector<int>{{0,0,0}});
 }
+
 
 void MultiHitGeneratorFromChi2::initES(const edm::EventSetup& es) 
 {
@@ -109,22 +140,21 @@ void MultiHitGeneratorFromChi2::initES(const edm::EventSetup& es)
   else es.get<IdealMagneticFieldRecord>().get(bfield_h);
   bfield = bfield_h.product();
   nomField = bfield->nominalValue();
+  ufield.set(nomField);  // more than enough (never actually used)
 
-  edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
-  es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
-  filter = filterHandle_.product();
-
-  edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
-  es.get<TransientRecHitRecord>().get(builderName_, builderH);
-  builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
-  cloner = (*builder).cloner();
+  if(refitHits)
+  {
+      edm::ESHandle<ClusterShapeHitFilter> filterHandle_;
+      es.get<CkfComponentsRecord>().get(filterName_, filterHandle_);
+      filter = filterHandle_.product();
+      
+      edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
+      es.get<TransientRecHitRecord>().get(builderName_, builderH);
+      builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+      cloner = (*builder).cloner();
+  }
 }
 
-void MultiHitGeneratorFromChi2::setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
-                                                 std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) {
-  thePairGenerator->setSeedingLayers(pairLayers);
-  theLayers = thirdLayers;
-}
 
 namespace {
   inline
@@ -143,86 +173,126 @@ namespace {
 void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, 
 					OrderedMultiHits & result,
 					const edm::Event & ev,
-					const edm::EventSetup& es)
-{ 
+					const edm::EventSetup& es,
+					SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+					std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers)
+{
+  LogDebug("MultiHitGeneratorFromChi2") << "pair: " << thePairGenerator->innerLayer(pairLayers).name() << "+" <<  thePairGenerator->outerLayer(pairLayers).name() << " 3rd lay size: " << thirdLayers.size();
 
+  auto const & doublets = thePairGenerator->doublets(region,ev,es, pairLayers);
+  LogTrace("MultiHitGeneratorFromChi2") << "";
+  if (doublets.empty()) {
+    //  LogDebug("MultiHitGeneratorFromChi2") << "empy pairs";                                                      
+    return;
+  }
+
+  assert(theLayerCache);
+  hitSets(region, result, ev, es, doublets, thirdLayers, *theLayerCache, cache);
+}
+
+void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMultiHits& result,
+                                        const edm::Event& ev, const edm::EventSetup& es,
+                                        const HitDoublets& doublets,
+                                        const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers,
+                                        LayerCacheType& layerCache,
+                                        cacheHits& refittedHitStorage) {
+  int size = thirdLayers.size();
+  const RecHitsSortedInPhi * thirdHitMap[size];
+  vector<const DetLayer *> thirdLayerDetLayer(size,nullptr);
+  for (int il=0; il<size; ++il) 
+    {
+      thirdHitMap[il] = &layerCache(thirdLayers[il], region, es);
+
+      thirdLayerDetLayer[il] = thirdLayers[il].detLayer();
+    }
+  hitSets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, size, refittedHitStorage);
+}
+
+void MultiHitGeneratorFromChi2::hitTriplets(
+					   const TrackingRegion& region, 
+					   OrderedMultiHits & result,
+					   const edm::EventSetup & es,
+					   const HitDoublets & doublets,
+					   const RecHitsSortedInPhi ** thirdHitMap,
+					   const std::vector<const DetLayer *> & thirdLayerDetLayer,
+					   const int nThirdLayers)
+{
+  hitSets(region, result, es, doublets, thirdHitMap, thirdLayerDetLayer, nThirdLayers, cache);
+}
+
+void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region, OrderedMultiHits& result,
+                                        const edm::EventSetup& es,
+                                        const HitDoublets& doublets,
+                                        const RecHitsSortedInPhi **thirdHitMap,
+                                        const std::vector<const DetLayer *>& thirdLayerDetLayer,
+                                        const int nThirdLayers,
+                                        cacheHits& refittedHitStorage) {
+#ifdef EDM_ML_DEBUG
   unsigned int debug_Id0 = detIdsToDebug[0];
   unsigned int debug_Id1 = detIdsToDebug[1];
   unsigned int debug_Id2 = detIdsToDebug[2];
+#endif  
 
-  if (debug) cout << "pair: " << ((HitPairGeneratorFromLayerPair*) thePairGenerator)->innerLayer().name() << "+" <<  ((HitPairGeneratorFromLayerPair*) thePairGenerator)->outerLayer().name() << " 3rd lay size: " << theLayers.size() << endl;
+   std::array<bool, 3> bl;
+   bl[0] = doublets.innerLayer().isBarrel;   
+   bl[1] = doublets.outerLayer().isBarrel;
 
-  //gc: first get the pairs
-  OrderedHitPairs pairs;
-  pairs.reserve(30000);
-  thePairGenerator->hitPairs(region,pairs,ev,es);
-  if (debug) cout << endl;
-  if (pairs.empty()) {
-    //cout << "empy pairs" << endl;
-    return;
-  }
-  
   //gc: these are all the layers compatible with the layer pairs (as defined in the config file)
-  int size = theLayers.size();
 
 
   //gc: initialize a KDTree per each 3rd layer
   std::vector<KDTreeNodeInfo<RecHitsSortedInPhi::HitIter> > layerTree; // re-used throughout
   std::vector<RecHitsSortedInPhi::HitIter> foundNodes; // re-used thoughout
   foundNodes.reserve(100);
-  #ifdef __clang__
-  std::vector<KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter>> hitTree(size);
-  #else
-  KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter> hitTree[size];
-  #endif
-  float rzError[size]; //save maximum errors
-  double maxphi = Geom::twoPi(), minphi = -maxphi; //increase to cater for any range
+  declareDynArray(KDTreeLinkerAlgo<RecHitsSortedInPhi::HitIter>,nThirdLayers, hitTree);
+  declareDynArray(LayerRZPredictions, nThirdLayers, mapPred);
+  float rzError[nThirdLayers]; //save maximum errors
 
-  map<std::string, LayerRZPredictions> mapPred;//need to use the name as map key since we may have more than one SeedingLayer per DetLayer (e.g. TID and MTID)
-  const RecHitsSortedInPhi * thirdHitMap[size];//gc: this comes from theLayerCache
+  const float maxDelphi = region.ptMin() < 0.3f ? float(M_PI)/4.f : float(M_PI)/8.f; // FIXME move to config??
+  const float maxphi = M_PI+maxDelphi, minphi = -maxphi; // increase to cater for any range
+  const float safePhi = M_PI-maxDelphi; // sideband
+
 
   //gc: loop over each layer
-  for(int il = 0; il < size; il++) {
-    thirdHitMap[il] = &(*theLayerCache)(theLayers[il], region, ev, es);
-    if (debug) cout << "considering third layer: " << theLayers[il].name() << " with hits: " << thirdHitMap[il]->all().second-thirdHitMap[il]->all().first << endl;
-    const DetLayer *layer = theLayers[il].detLayer();
-    LayerRZPredictions &predRZ = mapPred[theLayers[il].name()];
+  for(int il = 0; il < nThirdLayers; il++) {
+    LogTrace("MultiHitGeneratorFromChi2") << "considering third layer: with hits: " << thirdHitMap[il]->all().second-thirdHitMap[il]->all().first;
+    const DetLayer *layer = thirdLayerDetLayer[il];
+    LayerRZPredictions &predRZ = mapPred[il];
     predRZ.line.initLayer(layer);
     predRZ.line.initTolerance(extraHitRZtolerance);
 
     //gc: now we take all hits in the layer and fill the KDTree    
-    RecHitsSortedInPhi::Range hitRange = thirdHitMap[il]->all(); // Get iterators
+    auto const & layer3 = *thirdHitMap[il]; // Get iterators
     layerTree.clear();
-    double minz=999999.0, maxz= -999999.0; // Initialise to extreme values in case no hits
+    float minz=999999.0f, maxz= -minz; // Initialise to extreme values in case no hits
     float maxErr=0.0f;
-    bool barrelLayer = (theLayers[il].detLayer()->location() == GeomDetEnumerators::barrel);
-    if (hitRange.first != hitRange.second)
-      { minz = barrelLayer? hitRange.first->hit()->globalPosition().z() : hitRange.first->hit()->globalPosition().perp();
+    if (!layer3.empty())
+      { 
+        minz = layer3.v[0] ;
 	maxz = minz; //In case there's only one hit on the layer
-	for (RecHitsSortedInPhi::HitIter hi=hitRange.first; hi != hitRange.second; ++hi)
-	  { double angle = hi->phi();
-	    double myz = barrelLayer? hi->hit()->globalPosition().z() : hi->hit()->globalPosition().perp();
-
-	    if (debug && hi->hit()->rawId()==debug_Id2) {
-	      cout << "filling KDTree with hit in id=" << debug_Id2 
-		   << " with pos: " << hi->hit()->globalPosition() 
-		   << " phi=" << hi->hit()->globalPosition().phi() 
-		   << " z=" << hi->hit()->globalPosition().z() 
-		   << " r=" << hi->hit()->globalPosition().perp() 
-		   << endl;
-	    }
+	for (auto i=0U; i<layer3.size(); ++i)
+	  { 
+            auto hi = layer3.theHits.begin()+i;
+            auto angle = layer3.phi(i);
+	    auto myz = layer3.v[i];
+#ifdef EDM_ML_DEBUG
+            IfLogTrace(hi->hit()->rawId()==debug_Id2, "MultiHitGeneratorFromChi2") << "filling KDTree with hit in id=" << debug_Id2
+                                                                                   << " with pos: " << hi->hit()->globalPosition()
+                                                                                   << " phi=" << hi->hit()->globalPosition().phi()
+                                                                                   << " z=" << hi->hit()->globalPosition().z()
+                                                                                   << " r=" << hi->hit()->globalPosition().perp();
+#endif
 	    //use (phi,r) for endcaps rather than (phi,z)
 	    if (myz < minz) { minz = myz;} else { if (myz > maxz) {maxz = myz;}}
-	    float myerr = barrelLayer? hi->hit()->errorGlobalZ(): hi->hit()->errorGlobalR();
+	    auto myerr = layer3.dv[i];
 	    if (myerr > maxErr) { maxErr = myerr;}
 	    layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle, myz)); // save it
-	    if (angle < 0)  // wrap all points in phi
-	      { layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle+Geom::twoPi(), myz));}
-	    else
-	      { layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle-Geom::twoPi(), myz));}
+            // populate side-bands
+            if (angle>safePhi) layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle-Geom::twoPi(), myz));
+            else if (angle<-safePhi) layerTree.push_back(KDTreeNodeInfo<RecHitsSortedInPhi::HitIter>(hi, angle+Geom::twoPi(), myz));
 	  }
       }
-    KDTreeBox phiZ(minphi, maxphi, minz-0.01, maxz+0.01);  // declare our bounds
+    KDTreeBox phiZ(minphi, maxphi, minz-0.01f, maxz+0.01f);  // declare our bounds
     //add fudge factors in case only one hit and also for floating-point inaccuracy
     hitTree[il].build(layerTree, phiZ); // make KDtree
     rzError[il] = maxErr; //save error
@@ -230,126 +300,139 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
   //gc: now we have initialized the KDTrees and we are out of the layer loop
   
   //gc: this sets the minPt of the triplet
-  double curv = PixelRecoUtilities::curvature(1. / region.ptMin(), es);
+  auto curv = PixelRecoUtilities::curvature(1. / region.ptMin(), es);
 
-  if (debug) std::cout << "pair size=" << pairs.size() << std::endl;
+  LogTrace("MultiHitGeneratorFromChi2") << "doublet size=" << doublets.size() << std::endl;
+
+      //fixme add pixels
+      auto filterHit = [&](TrackingRecHit const * hit, GlobalVector const& dir)->bool {
+        auto hh = reinterpret_cast<BaseTrackerRecHit const *>(hit); 
+        if (//hh->geographicalId().subdetId() > 2
+          hh->geographicalId().subdetId()==SiStripDetId::TIB
+          || hh->geographicalId().subdetId()==SiStripDetId::TID
+          //|| hh->geographicalId().subdetId()==SiStripDetId::TOB
+          //|| hh->geographicalId().subdetId()==SiStripDetId::TEC
+          ) {
+          // carefull " for matched and projected local of tsos != local for individual clusters...
+          if (hh->isMatched()) {
+            const SiStripMatchedRecHit2D* matchedHit = reinterpret_cast<const SiStripMatchedRecHit2D *>(hh);
+            if (filter->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), dir)==0 ||
+                filter->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), dir)==0) return false;
+          } else if (hh->isProjected()) {
+            const ProjectedSiStripRecHit2D* precHit = reinterpret_cast<const ProjectedSiStripRecHit2D *>(hh);
+            if (filter->isCompatible(precHit->originalHit(), dir)==0) return false;   //FIXME??
+          } else if (hh->isSingle()) {
+            const SiStripRecHit2D* recHit = reinterpret_cast<const SiStripRecHit2D *>(hh);
+            if (filter->isCompatible(*recHit, dir)==0) return false;
+          }
+        }
+        return true;
+      };
 
   //gc: now we loop over all pairs
-  for (OrderedHitPairs::const_iterator ip = pairs.begin(); ip != pairs.end(); ++ip) {
+  for (std::size_t ip =0; ip!=doublets.size(); ip++) {
 
     int foundTripletsFromPair = 0;
     bool usePair = false;
     cacheHitPointer bestH2;
     float minChi2 = std::numeric_limits<float>::max();
 
-    SeedingHitSet::ConstRecHitPointer oriHit0 = ip->inner();
-    SeedingHitSet::ConstRecHitPointer oriHit1 = ip->outer();
+    SeedingHitSet::ConstRecHitPointer oriHit0 =doublets.hit(ip,HitDoublets::inner);
+    SeedingHitSet::ConstRecHitPointer oriHit1 =doublets.hit(ip,HitDoublets::outer);
 
     HitOwnPtr hit0(*oriHit0);
     HitOwnPtr hit1(*oriHit1);
-    GlobalPoint gp0 = hit0->globalPosition();
-    GlobalPoint gp1 = hit1->globalPosition();
+    GlobalPoint gp0 = doublets.gp(ip,HitDoublets::inner);
+    GlobalPoint gp1 = doublets.gp(ip,HitDoublets::outer);
 
-    bool debugPair = debug && ip->inner()->rawId()==debug_Id0 && ip->outer()->rawId()==debug_Id1;
-
-    if (debugPair) {
-      cout << endl << endl
-	   << "found new pair with ids "<<debug_Id0<<" "<<debug_Id1<<" with pos: " << gp0 << " " << gp1 
-    	   << endl;
-    }
+#ifdef EDM_ML_DEBUG
+    bool debugPair = oriHit0->rawId()==debug_Id0 && oriHit1->rawId()==debug_Id1;
+#endif
+    IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << endl << endl
+                                                       << "found new pair with ids "<<oriHit0->rawId()<<" "<<oriHit1->rawId()<<" with pos: " << gp0 << " " << gp1;
 
     if (refitHits) {
 
       TrajectoryStateOnSurface tsos0, tsos1;
       assert(!hit0.isOwn()); assert(!hit1.isOwn());
+#ifdef EDM_ML_DEBUG
       refit2Hits(hit0,hit1,tsos0,tsos1,region,nomField,debugPair);
-      assert(hit0.isOwn()); assert(hit1.isOwn());
+#else
+      refit2Hits(hit0,hit1,tsos0,tsos1,region,nomField,false);
+#endif
 
-      //fixme add pixels
-      bool passFilterHit0 = true;
-      if (//hit0->geographicalId().subdetId() > 2
-	  hit0->geographicalId().subdetId()==SiStripDetId::TIB 
-	  || hit0->geographicalId().subdetId()==SiStripDetId::TID
-	  //|| hit0->geographicalId().subdetId()==SiStripDetId::TOB
-	  //|| hit0->geographicalId().subdetId()==SiStripDetId::TEC
-	  ) {	
-	const std::type_info &tid = typeid(*hit0->hit());
-	if (tid == typeid(SiStripMatchedRecHit2D)) {
-	  const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(hit0->hit());
-	  if (filter->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), tsos0.localMomentum())==0 ||
-	      filter->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), tsos0.localMomentum())==0) passFilterHit0 = false;
-	} else if (tid == typeid(SiStripRecHit2D)) {
-	  const SiStripRecHit2D* recHit = dynamic_cast<const SiStripRecHit2D *>(hit0->hit());
-	  if (filter->isCompatible(*recHit, tsos0.localMomentum())==0) passFilterHit0 = false;
-	} else if (tid == typeid(ProjectedSiStripRecHit2D)) {
-	  const ProjectedSiStripRecHit2D* precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(hit0->hit());
-	  if (filter->isCompatible(precHit->originalHit(), tsos0.localMomentum())==0) passFilterHit0 = false;   //FIXME
-	}
-      }
-      if (debugPair&&!passFilterHit0)  cout << "hit0 did not pass cluster shape filter" << endl;
+      bool passFilterHit0 = filterHit(hit0->hit(),tsos0.globalMomentum());
+      IfLogTrace(debugPair&&!passFilterHit0, "MultiHitGeneratorFromChi2") << "hit0 did not pass cluster shape filter";
       if (!passFilterHit0) continue;
-      bool passFilterHit1 = true;
-      if (//hit1->geographicalId().subdetId() > 2
-	  hit1->geographicalId().subdetId()==SiStripDetId::TIB 
-	  || hit1->geographicalId().subdetId()==SiStripDetId::TID
-	  //|| hit1->geographicalId().subdetId()==SiStripDetId::TOB
-	  //|| hit1->geographicalId().subdetId()==SiStripDetId::TEC
-	  ) {	
-	const std::type_info &tid = typeid(*hit1->hit());
-	if (tid == typeid(SiStripMatchedRecHit2D)) {
-	  const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(hit1->hit());
-	  if (filter->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), tsos1.localMomentum())==0 ||
-	      filter->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), tsos1.localMomentum())==0) passFilterHit1 = false;
-	} else if (tid == typeid(SiStripRecHit2D)) {
-	  const SiStripRecHit2D* recHit = dynamic_cast<const SiStripRecHit2D *>(hit1->hit());
-	  if (filter->isCompatible(*recHit, tsos1.localMomentum())==0) passFilterHit1 = false;
-	} else if (tid == typeid(ProjectedSiStripRecHit2D)) {
-	  const ProjectedSiStripRecHit2D* precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(hit1->hit());
-	  if (filter->isCompatible(precHit->originalHit(), tsos1.localMomentum())==0) passFilterHit1 = false;  //FIXME
-	}
-      }
-      if (debugPair&&!passFilterHit1)  cout << "hit1 did not pass cluster shape filter" << endl;
+      bool passFilterHit1 = filterHit(hit1->hit(),tsos1.globalMomentum());
+      IfLogTrace(debugPair&&!passFilterHit1, "MultiHitGeneratorFromChi2") << "hit1 did not pass cluster shape filter";
       if (!passFilterHit1) continue;
+      // refit hits
+      hit0.reset((SeedingHitSet::RecHitPointer)(cloner(*hit0,tsos0)));
+      hit1.reset((SeedingHitSet::RecHitPointer)(cloner(*hit1,tsos1)));
 
+#ifdef EDM_ML_DEBUG
+      IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "charge=" << tsos0.charge() << std::endl
+                                                       << "state1 pt=" << tsos0.globalMomentum().perp() << " eta=" << tsos0.globalMomentum().eta()  << " phi=" << tsos0.globalMomentum().phi() << std::endl
+                                                       << "state2 pt=" << tsos1.globalMomentum().perp() << " eta=" << tsos1.globalMomentum().eta()  << " phi=" << tsos1.globalMomentum().phi() << std::endl
+                                                       << "positions after refitting: " << hit0->globalPosition() << " " << hit1->globalPosition();
+#endif 
     } else {
       // not refit clone anyhow
       hit0.reset((BaseTrackerRecHit *)hit0->clone());
       hit1.reset((BaseTrackerRecHit *)hit1->clone());
     }
 
+    assert(hit0.isOwn()); assert(hit1.isOwn());
+
+
     //gc: create the RZ line for the pair
     SimpleLineRZ line(PixelRecoPointRZ(gp0.perp(),gp0.z()), PixelRecoPointRZ(gp1.perp(),gp1.z()));
     ThirdHitPredictionFromCircle predictionRPhi(gp0, gp1, extraHitRPhitolerance);
+
+    auto toPos = std::signbit(gp1.z()-gp0.z());
+
 
     //gc: this is the curvature of the two hits assuming the region
     Range pairCurvature = predictionRPhi.curvature(region.originRBound());
     //gc: intersect not only returns a bool but may change pairCurvature to intersection with curv
     if (!intersect(pairCurvature, Range(-curv, curv))) {
-      if (debugPair) std::cout << "curvature cut: curv=" << curv 
-			       << " gc=(" << pairCurvature.first << ", " << pairCurvature.second << ")" << std::endl;
+      IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "curvature cut: curv=" << curv 
+                                                         << " gc=(" << pairCurvature.first << ", " << pairCurvature.second << ")";
       continue;
     }
 
-    //gc: loop over all third layers compatible with the pair
-    for(int il = 0; (il < size) & (!usePair); il++) {
 
-      if (debugPair) 
-	cout << "cosider layer: " << theLayers[il].name() << " for this pair. Location: " << theLayers[il].detLayer()->location() << endl;
+    std::array<GlobalPoint, 3> gp;
+    std::array<GlobalError, 3> ge;
+    gp[0] = hit0->globalPosition();
+    ge[0] = hit0->globalPositionError();
+    gp[1] = hit1->globalPosition();
+    ge[1] = hit1->globalPositionError();
+
+
+    //gc: loop over all third layers compatible with the pair
+    for(int il = 0; (il < nThirdLayers) & (!usePair); il++) {
+      IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "cosider layer:" << " for this pair. Location: " << thirdLayerDetLayer[il]->location();
 
       if (hitTree[il].empty()) {
-	if (debugPair) {
-	  cout << "empty hitTree" << endl;
-	}
+	IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "empty hitTree";
 	continue; // Don't bother if no hits
       }
 
       cacheHitPointer bestL2;
       float chi2FromThisLayer = std::numeric_limits<float>::max();
 
-      const DetLayer *layer = theLayers[il].detLayer();
-      bool barrelLayer = layer->location() == GeomDetEnumerators::barrel;
+      const DetLayer *layer = thirdLayerDetLayer[il];
+      // bool barrelLayer = layer->location() == GeomDetEnumerators::barrel;
+      auto const & layer3 = *thirdHitMap[il];
+      bool barrelLayer = layer3.isBarrel;
+      bl[2] = layer3.isBarrel;
 
-      LayerRZPredictions &predRZ = mapPred.find(theLayers[il].name())->second;
+      if ( (!barrelLayer) & (toPos != std::signbit(layer->position().z())) ) continue;
+
+
+      LayerRZPredictions &predRZ = mapPred[il];
       predRZ.line.initPropagator(&line);
       
       //gc: this takes the z at R-thick/2 and R+thick/2 according to 
@@ -357,17 +440,13 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
       Range rzRange = predRZ.line();
 
       if (rzRange.first >= rzRange.second) {
-	if (debugPair) {
-	  cout << "rzRange empty" << endl;
-	}
+	IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "rzRange empty";
         continue;
       }
       //gc: check that rzRange is compatible with detector bounds
       //    note that intersect may change rzRange to intersection with bounds
       if (!intersect(rzRange, predRZ.line.detSize())) {// theDetSize = Range(-maxZ, maxZ); 
-	if (debugPair) {
-	  cout << "rzRange and detector do not intersect" << endl;
-	}
+	IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "rzRange and detector do not intersect";
 	continue;
       }
       Range radius = barrelLayer ? predRZ.line.detRange() : rzRange;
@@ -377,41 +456,39 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
       if (useFixedPreFiltering) { 
 	//gc: in this case it takes as range the phi of the outer 
 	//    hit +/- the phiPreFiltering value from cfg
-        float phi0 = ip->outer()->globalPosition().phi();
+        float phi0 = oriHit0->globalPosition().phi();
         phiRange = Range(phi0 - dphi, phi0 + dphi);
       } else {	
 	//gc: predictionRPhi uses the cosine rule to find the phi of the 3rd point at radius, assuming the pairCurvature range [-c,+c]
 	if (pairCurvature.first<0. && pairCurvature.second<0.) {
-	  float phi12 = predictionRPhi.phi(pairCurvature.first,radius.second);
-	  float phi21 = predictionRPhi.phi(pairCurvature.second,radius.first);
-	  while(unlikely(phi12 <  phi21)) phi12 += float(2. * M_PI); 
-	  phiRange = Range(phi21,phi12);
-	} else if (pairCurvature.first>=0. && pairCurvature.second>=0.) {
-	  float phi11 = predictionRPhi.phi(pairCurvature.first,radius.first);
-	  float phi22 = predictionRPhi.phi(pairCurvature.second,radius.second);
-	  while(unlikely(phi11 <  phi22)) phi11 += float(2. * M_PI); 
-	  phiRange = Range(phi22,phi11);
-	} else {
-	  float phi12 = predictionRPhi.phi(pairCurvature.first,radius.second);
-	  float phi22 = predictionRPhi.phi(pairCurvature.second,radius.second);
-	  while(unlikely(phi12 <  phi22)) phi12 += float(2. * M_PI); 
-	  phiRange = Range(phi22,phi12);
-	}
+          radius.swap();
+	} else if (pairCurvature.first>=0. && pairCurvature.second>=0.) {;}
+        else {
+	  radius.first=radius.second;
+        }
+        auto phi12 = predictionRPhi.phi(pairCurvature.first,radius.first);
+	auto phi22 = predictionRPhi.phi(pairCurvature.second,radius.second);
+        phi12 = normalizedPhi(phi12);
+        phi22 = proxim(phi22,phi12);
+	phiRange = Range(phi12,phi22); phiRange.sort();
       }
-      
+       
+      float prmin=phiRange.min(), prmax=phiRange.max();
+ 
+      if (prmax-prmin>maxDelphi) {
+        auto prm = phiRange.mean();
+        prmin = prm - 0.5f*maxDelphi;
+        prmax = prm + 0.5f*maxDelphi;
+      }
+
+
       //gc: this is the place where hits in the compatible region are put in the foundNodes
-      typedef RecHitsSortedInPhi::Hit Hit;
+      using Hit=RecHitsSortedInPhi::Hit;
       foundNodes.clear(); // Now recover hits in bounding box...
-      // This needs range -twoPi to +twoPi to work
-      float prmin=phiRange.min(), prmax=phiRange.max(); //get contiguous range
-      if ((prmax-prmin) > Geom::twoPi()) { 
-	prmax=Geom::pi(); prmin = -Geom::pi();
-      } else {
-	while (prmax>maxphi) { prmin -= Geom::twoPi(); prmax -= Geom::twoPi();}
-	while (prmin<minphi) { prmin += Geom::twoPi(); prmax += Geom::twoPi();}
-      }
-      
-      if (debugPair) cout << "defining kd tree box" << endl;
+
+
+
+      IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "defining kd tree box";
 
       if (barrelLayer) {
 	KDTreeBox phiZ(prmin-extraPhiKDBox, prmax+extraPhiKDBox,
@@ -419,10 +496,9 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 		       rzRange.max()+fnSigmaRZ*rzError[il]+extraZKDBox);
 	hitTree[il].search(phiZ, foundNodes);
 
-	if (debugPair) cout << "kd tree box bounds, phi: " << prmin-extraPhiKDBox <<","<< prmax+extraPhiKDBox
-			    << " z: "<< rzRange.min()-fnSigmaRZ*rzError[il]-extraZKDBox <<","<<rzRange.max()+fnSigmaRZ*rzError[il]+extraZKDBox
-			    << " rzRange: " << rzRange.min() <<","<<rzRange.max()
-			    << endl;
+	IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "kd tree box bounds, phi: " << prmin-extraPhiKDBox <<","<< prmax+extraPhiKDBox
+                                                           << " z: "<< rzRange.min()-fnSigmaRZ*rzError[il]-extraZKDBox <<","<<rzRange.max()+fnSigmaRZ*rzError[il]+extraZKDBox
+                                                           << " rzRange: " << rzRange.min() <<","<<rzRange.max();
 
       } else {
 	KDTreeBox phiR(prmin-extraPhiKDBox, prmax+extraPhiKDBox,
@@ -430,79 +506,37 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 		       rzRange.max()+fnSigmaRZ*rzError[il]+extraRKDBox);
 	hitTree[il].search(phiR, foundNodes);
 
-	if (debugPair) cout << "kd tree box bounds, phi: " << prmin-extraPhiKDBox <<","<< prmax+extraPhiKDBox
-			    << " r: "<< rzRange.min()-fnSigmaRZ*rzError[il]-extraRKDBox <<","<<rzRange.max()+fnSigmaRZ*rzError[il]+extraRKDBox
-			    << " rzRange: " << rzRange.min() <<","<<rzRange.max()
-			    << endl;
+	IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "kd tree box bounds, phi: " << prmin-extraPhiKDBox <<","<< prmax+extraPhiKDBox
+                                                           << " r: "<< rzRange.min()-fnSigmaRZ*rzError[il]-extraRKDBox <<","<<rzRange.max()+fnSigmaRZ*rzError[il]+extraRKDBox
+                                                           << " rzRange: " << rzRange.min() <<","<<rzRange.max();
       }
 
-      if (debugPair) cout << "kd tree box size: " << foundNodes.size() << endl;
+      IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "kd tree box size: " << foundNodes.size();
       
 
       //gc: now we loop over the hits in the box for this layer
       for (std::vector<RecHitsSortedInPhi::HitIter>::iterator ih = foundNodes.begin();
 	   ih !=foundNodes.end() && !usePair; ++ih) {
 
-	if (debugPair) std::cout << endl << "triplet candidate" << std::endl;
+	IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << endl << "triplet candidate";
 
 	const RecHitsSortedInPhi::HitIter KDdata = *ih;
 
-	SeedingHitSet::ConstRecHitPointer oriHit2 = KDdata->hit();
+	auto oriHit2 = KDdata->hit();
+        auto kk = KDdata - layer3.theHits.begin();
 	cacheHitPointer hit2;
-
+        auto gp2 = layer3.gp(kk);
 	if (refitHits) {//fixme
 
 	  //fitting all 3 hits takes too much time... do it quickly only for 3rd hit
-	  GlobalVector initMomentum(oriHit2->globalPosition() - gp1);
-	  initMomentum *= (1./initMomentum.perp()); //set pT=1
-	  GlobalTrajectoryParameters kine = GlobalTrajectoryParameters(oriHit2->globalPosition(), initMomentum, 1, &*bfield);
-	  TrajectoryStateOnSurface state(kine,*oriHit2->surface());
-	  hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*oriHit2,state)));
+	  GlobalVector initMomentum(gp2 - gp1);
+	  initMomentum /= initMomentum.perp(); //set pT=1
 
 	  //fixme add pixels
-	  bool passFilterHit2 = true;
-	  if (hit2->geographicalId().subdetId()==SiStripDetId::TIB 
-	      || hit2->geographicalId().subdetId()==SiStripDetId::TID
-	      // || hit2->geographicalId().subdetId()==SiStripDetId::TOB
-	      // || hit2->geographicalId().subdetId()==SiStripDetId::TEC
-	      ) {
-	    const std::type_info &tid = typeid(*hit2->hit());
-	    if (tid == typeid(SiStripMatchedRecHit2D)) {
-	      const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(hit2->hit());
-	      if (filter->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), initMomentum)==0 ||
-		  filter->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), initMomentum)==0) passFilterHit2 = false;
-	    } else if (tid == typeid(SiStripRecHit2D)) {
-	      const SiStripRecHit2D* recHit = dynamic_cast<const SiStripRecHit2D *>(hit2->hit());
-	      if (filter->isCompatible(*recHit, initMomentum)==0) passFilterHit2 = false;
-	    } else if (tid == typeid(ProjectedSiStripRecHit2D)) {
-	      const ProjectedSiStripRecHit2D* precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(hit2->hit());
-	      if (filter->isCompatible(precHit->originalHit(), initMomentum)==0) passFilterHit2 = false;
-	    }
-	  }
-	  if (debugPair&&!passFilterHit2)  cout << "hit2 did not pass cluster shape filter" << endl;
+	  bool passFilterHit2 = filterHit(oriHit2->hit(),initMomentum);
 	  if (!passFilterHit2) continue;
-	  
-	  // fitting all 3 hits takes too much time :-(
-	  // TrajectoryStateOnSurface tsos0, tsos1, tsos2;
-	  // refit3Hits(hit0,hit1,hit2,tsos0,tsos1,tsos2,nomField,debugPair);
-	  // if (hit2->geographicalId().subdetId()==SiStripDetId::TIB 
-	  //     // || hit2->geographicalId().subdetId()==SiStripDetId::TOB
-	  //     // || hit2->geographicalId().subdetId()==SiStripDetId::TID
-	  //     // || hit2->geographicalId().subdetId()==SiStripDetId::TEC
-	  //     ) {
-	  //   const std::type_info &tid = typeid(*hit2->hit());
-	  //   if (tid == typeid(SiStripMatchedRecHit2D)) {
-	  //     const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(hit2->hit());
-	  //     if (filter->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), tsos2.localMomentum())==0 ||
-	  // 	      filter->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), tsos2.localMomentum())==0) continue;
-	  //   } else if (tid == typeid(SiStripRecHit2D)) {
-	  //     const SiStripRecHit2D* recHit = dynamic_cast<const SiStripRecHit2D *>(hit2->hit());
-	  //     if (filter->isCompatible(*recHit, tsos2.localMomentum())==0) continue;
-	  //   } else if (tid == typeid(ProjectedSiStripRecHit2D)) {
-	  //     const ProjectedSiStripRecHit2D* precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(hit2->hit());
-	  //     if (filter->isCompatible(precHit->originalHit(), tsos2.localMomentum())==0) continue;;
-	  //   }
-	  // }
+	  TrajectoryStateOnSurface state(GlobalTrajectoryParameters(gp2, initMomentum, 1, &ufield),*oriHit2->surface());
+          hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*oriHit2,state)));
 
 	} else {
 	  // not refit clone anyhow
@@ -510,48 +544,29 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	}
 
 	//gc: add the chi2 cut
-	vector<GlobalPoint> gp(3);
-	vector<GlobalError> ge(3);
-	vector<bool> bl(3);
-	gp[0] = hit0->globalPosition();
-	ge[0] = hit0->globalPositionError();
-	int subid0 = hit0->geographicalId().subdetId();
-	bl[0] = (subid0 == StripSubdetector::TIB || subid0 == StripSubdetector::TOB || subid0 == (int) PixelSubdetector::PixelBarrel);
-	gp[1] = hit1->globalPosition();
-	ge[1] = hit1->globalPositionError();
-	int subid1 = hit1->geographicalId().subdetId();
-	bl[1] = (subid1 == StripSubdetector::TIB || subid1 == StripSubdetector::TOB || subid1 == (int) PixelSubdetector::PixelBarrel);
 	gp[2] = hit2->globalPosition();
 	ge[2] = hit2->globalPositionError();
-	int subid2 = hit2->geographicalId().subdetId();
-	bl[2] = (subid2 == StripSubdetector::TIB || subid2 == StripSubdetector::TOB || subid2 == (int) PixelSubdetector::PixelBarrel);
 	RZLine rzLine(gp,ge,bl);
-	float  cottheta, intercept, covss, covii, covsi;
-	rzLine.fit(cottheta, intercept, covss, covii, covsi);
-	float chi2 = rzLine.chi2(cottheta, intercept);
+	float chi2 = rzLine.chi2();
 
+#ifdef EDM_ML_DEBUG
 	bool debugTriplet = debugPair && hit2->rawId()==debug_Id2;
-	if (debugTriplet) {
-	  std::cout << endl << "triplet candidate in debug id" << std::endl;
-	  cout << "hit in id="<<hit2->rawId()<<" (from KDTree) with pos: " << KDdata->hit()->globalPosition()
-	       << " refitted: " << hit2->globalPosition() 
-	       << " chi2: " << chi2
-	       << endl;
-	  //cout << state << endl;
-	}
+#endif
+	IfLogTrace(debugTriplet, "MultiHitGeneratorFromChi2") << endl << "triplet candidate in debug id" << std::endl
+                                                              << "hit in id="<<hit2->rawId()<<" (from KDTree) with pos: " << KDdata->hit()->globalPosition()
+                                                              << " refitted: " << hit2->globalPosition() 
+                                                              << " chi2: " << chi2;
 	// should fix nan
 	if ( (chi2 > maxChi2) | edm::isNotFinite(chi2) ) continue; 
 
 	if (chi2VsPtCut) {
 
-	  FastCircle theCircle(hit2->globalPosition(),hit1->globalPosition(),hit0->globalPosition());
-	  float tesla0 = 0.1*nomField;
+	  FastCircle theCircle(gp[2],gp[1],gp[0]);
+	  float tesla0 = 0.1f*nomField;
 	  float rho = theCircle.rho();
-	  float cm2GeV = 0.01 * 0.3*tesla0;
+	  float cm2GeV = 0.01f * 0.3f*tesla0;
 	  float pt = cm2GeV * rho;
-	  if (debugTriplet) {
-	    std::cout << "triplet pT=" << pt << std::endl;
-	  }
+	  IfLogTrace(debugTriplet, "MultiHitGeneratorFromChi2") << "triplet pT=" << pt;
 	  if (pt<region.ptMin()) continue;
 	  
 	  if (chi2_cuts.size()==4) {
@@ -571,8 +586,8 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	  // 	    }
 	  // 	    if (!pass) continue;
 	  // 	    if ( pt>pt_interv[ncuts-2] && chi2 > chi2_cuts[ncuts-1] ) continue; 	    
-	  // 	    if (debug && hit0->rawId()==debug_Id0 && hit1->rawId()==debug_Id1 && hit2->rawId()==debug_Id2) {
-	  // 	      std::cout << "triplet passed chi2 vs pt cut" << std::endl;
+	  // 	    if (hit0->rawId()==debug_Id0 && hit1->rawId()==debug_Id1 && hit2->rawId()==debug_Id2) {
+	  // 	      LogTrace("MultiHitGeneratorFromChi2") << "triplet passed chi2 vs pt cut" << std::endl;
 	  // 	    }
 	  // 	  } 
 	  
@@ -583,7 +598,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	  edm::LogError("TooManyTriplets")<<" number of triples exceed maximum. no triplets produced.";
 	  return;
 	}
-	if (debugPair) std::cout << "triplet made" << std::endl;
+	IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "triplet made";
 	//result.push_back(SeedingHitSet(hit0, hit1, hit2));
 	/* no refit so keep only hit2
 	assert(tripletFromThisLayer.empty());
@@ -598,8 +613,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	foundTripletsFromPair++;
 	if (foundTripletsFromPair>=2) {
 	  usePair=true;
-	  if (debugPair) 
-           std::cout << "using pair" << std::endl;
+	  IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "using pair";
 	  break;
 	}
       }//loop over hits in KDTree
@@ -614,7 +628,7 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 	/*
 	else {
 	  if (!bestH2 && foundTripletsFromPair>0)
-	    std::cout << "what?? " <<  minChi2 << ' '  << chi2FromThisLayer << std::endl;
+	    LogTrace("MultiHitGeneratorFromChi2") << "what?? " <<  minChi2 << ' '  << chi2FromThisLayer;
 	}
 	*/
       }
@@ -624,42 +638,24 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
     if (foundTripletsFromPair==0) continue;
 
     //push back only (max) once per pair
-    if (debugPair) std::cout << "Done seed #" << result.size() << std::endl;
-    if (usePair) result.push_back(SeedingHitSet(ip->inner(), ip->outer())); 
+    IfLogTrace(debugPair, "MultiHitGeneratorFromChi2") << "Done seed #" << result.size();
+    if (usePair) result.push_back(SeedingHitSet(oriHit0, oriHit1)); 
     else { 
       assert(1==foundTripletsFromPair);
       assert(bestH2);
       result.emplace_back(&*hit0,&*hit1,&*bestH2); 
       assert(hit0.isOwn()); assert(hit1.isOwn());
-      cache.emplace_back(const_cast<BaseTrackerRecHit*>(hit0.release()));
-      cache.emplace_back(const_cast<BaseTrackerRecHit*>(hit1.release()));
-      cache.emplace_back(std::move(bestH2));
+      refittedHitStorage.emplace_back(const_cast<BaseTrackerRecHit*>(hit0.release()));
+      refittedHitStorage.emplace_back(const_cast<BaseTrackerRecHit*>(hit1.release()));
+      refittedHitStorage.emplace_back(std::move(bestH2));
       assert(hit0.empty()); assert(hit1.empty());assert(!bestH2);
     }
-    // std::cout << (usePair ? "pair " : "triplet ") << minChi2 <<' ' << cache.size() << std::endl;  
+    // LogTrace("MultiHitGeneratorFromChi2") << (usePair ? "pair " : "triplet ") << minChi2 <<' ' << refittedHitStorage.size();
 
 
   }//loop over pairs
-  if (debug) {
-    std::cout << "triplet size=" << result.size() << std::endl;
-  }
-}
-
-bool MultiHitGeneratorFromChi2::checkPhiInRange(float phi, float phi1, float phi2) const
-{ while (phi > phi2) phi -= 2. * M_PI;
-  while (phi < phi1) phi += 2. * M_PI;
-  return phi <= phi2;
-}  
-
-std::pair<float, float>
-MultiHitGeneratorFromChi2::mergePhiRanges(const std::pair<float, float> &r1,
-					      const std::pair<float, float> &r2) const
-{ float r2Min = r2.first;
-  float r2Max = r2.second;
-  while (r1.first - r2Min > +M_PI) r2Min += 2. * M_PI, r2Max += 2. * M_PI;
-  while (r1.first - r2Min < -M_PI) r2Min -= 2. * M_PI, r2Max -= 2. * M_PI;
-  //std::cout << "mergePhiRanges " << fabs(r1.first-r2Min) << " " <<  fabs(r1.second-r2Max) << endl;
-  return std::make_pair(min(r1.first, r2Min), max(r1.second, r2Max));
+  LogTrace("MultiHitGeneratorFromChi2") << "triplet size=" << result.size();
+  // std::cout << "MultiHitGeneratorFromChi2 " << "triplet size=" << result.size() << std::endl;
 }
 
 void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
@@ -669,19 +665,17 @@ void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
 					   const TrackingRegion& region, float nomField, bool isDebug) {
 
   //these need to be sorted in R
-  GlobalPoint gp0 = region.origin();
+  const GlobalPoint& gp0 = region.origin();
   GlobalPoint gp1 = hit1->globalPosition();
   GlobalPoint gp2 = hit2->globalPosition();
 
-  if (isDebug) {
-    cout << "positions before refitting: " << hit1->globalPosition() << " " << hit2->globalPosition() <<endl;
-  }
+  IfLogTrace(isDebug, "MultiHitGeneratorFromChi2") << "positions before refitting: " << hit1->globalPosition() << " " << hit2->globalPosition();
 
   FastCircle theCircle(gp2,gp1,gp0);
   GlobalPoint cc(theCircle.x0(),theCircle.y0(),0);
-  float tesla0 = 0.1*nomField;
+  float tesla0 = 0.1f*nomField;
   float rho = theCircle.rho();
-  float cm2GeV = 0.01 * 0.3*tesla0;
+  float cm2GeV = 0.01f * 0.3f*tesla0;
   float pt = cm2GeV * rho;
 
   GlobalVector vec20 = gp2-gp0;
@@ -702,28 +696,20 @@ void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
   }
 
   //now set z component
-  p0 = GlobalVector(p0.x(),p0.y(),p0.perp()/tan(vec20.theta()));
-  p1 = GlobalVector(p1.x(),p1.y(),p1.perp()/tan(vec20.theta()));
-  p2 = GlobalVector(p2.x(),p2.y(),p2.perp()/tan(vec20.theta()));
+  auto zv = vec20.z()/vec20.perp();
+  p0 = GlobalVector(p0.x(),p0.y(),p0.perp()*zv);
+  p1 = GlobalVector(p1.x(),p1.y(),p1.perp()*zv);
+  p2 = GlobalVector(p2.x(),p2.y(),p2.perp()*zv);
 
   //get charge from vectorial product
   TrackCharge q = 1;
   if ((gp1-cc).x()*p1.y() - (gp1-cc).y()*p1.x() > 0) q =-q;
 
-  GlobalTrajectoryParameters kine1 = GlobalTrajectoryParameters(gp1, p1, q, &*bfield);
-  state1 = TrajectoryStateOnSurface(kine1,*hit1->surface());
-  hit1.reset((SeedingHitSet::RecHitPointer)(cloner(*hit1,state1)));
+  TrajectoryStateOnSurface(GlobalTrajectoryParameters(gp1, p1, q, &ufield),*hit1->surface()).swap(state1);
+  // hit1.reset((SeedingHitSet::RecHitPointer)(cloner(*hit1,state1)));
 
-  GlobalTrajectoryParameters kine2 = GlobalTrajectoryParameters(gp2, p2, q, &*bfield);
-  state2 = TrajectoryStateOnSurface(kine2,*hit2->surface());
-  hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*hit2,state2)));
-
-  if (isDebug) {
-    cout << "charge=" << q << endl;
-    cout << "state1 pt=" << state1.globalMomentum().perp() << " eta=" << state1.globalMomentum().eta()  << " phi=" << state1.globalMomentum().phi() << endl;
-    cout << "state2 pt=" << state2.globalMomentum().perp() << " eta=" << state2.globalMomentum().eta()  << " phi=" << state2.globalMomentum().phi() << endl;
-    cout << "positions after refitting: " << hit1->globalPosition() << " " << hit2->globalPosition() <<endl;
-  }
+  TrajectoryStateOnSurface(GlobalTrajectoryParameters(gp2, p2, q, &ufield),*hit2->surface()).swap(state2);
+  // hit2.reset((SeedingHitSet::RecHitPointer)(cloner(*hit2,state2)));
 
 }
 
@@ -741,8 +727,7 @@ void MultiHitGeneratorFromChi2::refit3Hits(HitOwnPtr & hit0,
   GlobalPoint gp1 = hit1->globalPosition();
   GlobalPoint gp2 = hit2->globalPosition();
 
-  if (isDebug) {
-    cout << "positions before refitting: " << hit0->globalPosition() << " " << hit1->globalPosition() << " " << hit2->globalPosition() <<endl;
+  IfLogTrace(isDebug, "MultiHitGeneratorFromChi2") << "positions before refitting: " << hit0->globalPosition() << " " << hit1->globalPosition() << " " << hit2->globalPosition();
   }
 
   FastCircle theCircle(gp2,gp1,gp0);
@@ -753,7 +738,7 @@ void MultiHitGeneratorFromChi2::refit3Hits(HitOwnPtr & hit0,
   float pt = cm2GeV * rho;
 
   GlobalVector vec20 = gp2-gp0;
-  //if (isDebug) { cout << "vec20.eta=" << vec20.eta() << endl; }
+  //IfLogTrace(isDebug, "MultiHitGeneratorFromChi2") << "vec20.eta=" << vec20.eta();
 
   GlobalVector p0( gp0.y()-cc.y(), -gp0.x()+cc.x(), 0. );
   p0 = p0*pt/p0.perp();
@@ -790,14 +775,11 @@ void MultiHitGeneratorFromChi2::refit3Hits(HitOwnPtr & hit0,
   state2 = TrajectoryStateOnSurface(kine2,*hit2->surface());
   hit2 = hit2->clone(state2);
 
-  if (isDebug) {
-    cout << "charge=" << q << endl;
-    cout << "state0 pt=" << state0.globalMomentum().perp() << " eta=" << state0.globalMomentum().eta()  << " phi=" << state0.globalMomentum().phi() << endl;
-    cout << "state1 pt=" << state1.globalMomentum().perp() << " eta=" << state1.globalMomentum().eta()  << " phi=" << state1.globalMomentum().phi() << endl;
-    cout << "state2 pt=" << state2.globalMomentum().perp() << " eta=" << state2.globalMomentum().eta()  << " phi=" << state2.globalMomentum().phi() << endl;
-    cout << "positions after refitting: " << hit0->globalPosition() << " " << hit1->globalPosition() << " " << hit2->globalPosition() <<endl;
-  }
-
+  IfLogTrace(isDebug, "MultiHitGeneratorFromChi2") << "charge=" << q << std::endl
+                                                   << "state0 pt=" << state0.globalMomentum().perp() << " eta=" << state0.globalMomentum().eta()  << " phi=" << state0.globalMomentum().phi() << std::endl
+                                                   << "state1 pt=" << state1.globalMomentum().perp() << " eta=" << state1.globalMomentum().eta()  << " phi=" << state1.globalMomentum().phi() << std::endl
+                                                   << "state2 pt=" << state2.globalMomentum().perp() << " eta=" << state2.globalMomentum().eta()  << " phi=" << state2.globalMomentum().phi() << std::endl
+                                                   << "positions after refitting: " << hit0->globalPosition() << " " << hit1->globalPosition() << " " << hit2->globalPosition();
 }
 */
 

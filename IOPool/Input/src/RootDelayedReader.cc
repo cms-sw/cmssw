@@ -11,6 +11,8 @@
 
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
 
+#include "FWCore/Utilities/interface/EDMException.h"
+
 #include "TBranch.h"
 #include "TClass.h"
 
@@ -25,21 +27,29 @@ namespace edm {
    tree_(tree),
    filePtr_(filePtr),
    nextReader_(),
-   resourceAcquirer_(inputType == InputType::Primary ? new SharedResourcesAcquirer(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader()) : static_cast<SharedResourcesAcquirer*>(nullptr)),
+   resourceAcquirer_(inputType == InputType::Primary ? new SharedResourcesAcquirer() : static_cast<SharedResourcesAcquirer*>(nullptr)),
    inputType_(inputType),
    wrapperBaseTClass_(TClass::GetClass("edm::WrapperBase")) {
+     if(inputType == InputType::Primary) {
+       auto resources = SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader();
+       resourceAcquirer_=std::make_unique<SharedResourcesAcquirer>(std::move(resources.first));
+       mutex_ = resources.second;
+     }
   }
 
   RootDelayedReader::~RootDelayedReader() {
   }
 
-  SharedResourcesAcquirer*
+  std::pair<SharedResourcesAcquirer*, std::recursive_mutex*>
   RootDelayedReader::sharedResources_() const {
-    return resourceAcquirer_.get();
+    return std::make_pair(resourceAcquirer_.get(), mutex_.get());
   }
 
   std::unique_ptr<WrapperBase>
-  RootDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) const {
+  RootDelayedReader::getProduct_(BranchKey const& k, EDProductGetter const* ep) {
+    if (lastException_) {
+      std::rethrow_exception(lastException_);
+    }
     iterator iter = branchIter(k);
     if (!found(iter)) {
       if (nextReader_) {
@@ -59,6 +69,9 @@ namespace edm {
     }
    
     setRefCoreStreamer(ep);
+    //make code exception safe
+    std::shared_ptr<void> refCoreStreamerGuard(nullptr,[](void*){    setRefCoreStreamer(false);
+      ;});
     TClass* cp = branchInfo.classCache_;
     if(nullptr == cp) {
       branchInfo.classCache_ = TClass::GetClass(branchInfo.branchDescription_.wrappedName().c_str());
@@ -68,12 +81,22 @@ namespace edm {
     void* p = cp->New();
     std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, branchInfo.offsetToWrapperBase_); 
     br->SetAddress(&p);
-    tree_.getEntry(br, tree_.entryNumberForIndex(ep->transitionIndex()));
+    try{
+      //Run and Lumi only have 1 entry number, which is index 0
+      tree_.getEntry(br, tree_.entryNumberForIndex(tree_.branchType()==InEvent?ep->transitionIndex(): 0));
+    } catch(edm::Exception& exception) {
+      exception.addContext("Rethrowing an exception that happened on a different thread.");
+      lastException_ = std::current_exception();
+    } catch(...) {
+      lastException_ = std::current_exception();
+    }
+    if(lastException_) {
+      std::rethrow_exception(lastException_);
+    }
     if(tree_.branchType() == InEvent) {
       // CMS-THREADING For the primary input source calls to this function need to be serialized
       InputFile::reportReadBranch(inputType_, std::string(br->GetName()));
     }
-    setRefCoreStreamer(false);
     return edp;
   }
 }

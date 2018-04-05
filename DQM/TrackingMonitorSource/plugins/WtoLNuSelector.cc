@@ -168,18 +168,18 @@ bool WtoLNuSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   }
 
   // Require either a high pt electron or muon
-  if (eleList.size() < 1 && muList.size() < 1) return false;
+  if (eleList.empty() && muList.empty()) return false;
 
   // Both should not be present at the same time
-  if ((eleList.size() > 0 && eleList[0].Pt() > 20) && 
-      (muList.size() > 0 && muList[0].Pt() > 20)) return false;
+  if ((!eleList.empty() && eleList[0].Pt() > 20) && 
+      (!muList.empty() && muList[0].Pt() > 20)) return false;
 
   // find the high pt lepton
   TLorentzVector vlep;
-  if (eleList.size() > 0 && muList.size() > 0) {
+  if (!eleList.empty() && !muList.empty()) {
     vlep = (eleList[0].Pt() > muList[0].Pt()) ? eleList[0] : muList[0];
   }
-  else if (eleList.size() > 0) {
+  else if (!eleList.empty()) {
     vlep = eleList[0];
   }
   else {

@@ -864,7 +864,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       }
    }
 
-   auto_ptr< L1ParticleMapCollection > mapColl( new L1ParticleMapCollection ) ;
+   unique_ptr< L1ParticleMapCollection > mapColl( new L1ParticleMapCollection ) ;
    bool globalDecision = false ;
    std::vector< bool > decisionWord ;
 
@@ -1880,14 +1880,14 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
    }
 
    // Put the L1ParticleMapCollection into the event.
-   iEvent.put( mapColl ) ;
+   iEvent.put(std::move(mapColl)) ;
 
    // Make a L1GlobalTriggerReadoutRecord and put it into the event.
-   auto_ptr< L1GlobalTriggerReadoutRecord > gtRecord(
+   unique_ptr< L1GlobalTriggerReadoutRecord > gtRecord(
       new L1GlobalTriggerReadoutRecord() ) ;
    gtRecord->setDecision( globalDecision ) ;
    gtRecord->setDecisionWord( decisionWord ) ;
-   iEvent.put( gtRecord ) ;
+   iEvent.put(std::move(gtRecord)) ;
 
    return ;
 }
@@ -2442,8 +2442,8 @@ L1ExtraParticleMapProd::evaluateDoubleDifferentCaloObjectTrigger(
 
 	    // Check for identical region only if both HW objects are non-null.
 	    if( refj.get()->et() >= etThreshold2 &&
-		( refi.get()->gctEmCand() == 0 ||
-		  refj.get()->gctJetCand() == 0 ||
+		( refi.get()->gctEmCand() == nullptr ||
+		  refj.get()->gctJetCand() == nullptr ||
 		  refi.get()->gctEmCand()->regionId() !=
 		  refj.get()->gctJetCand()->regionId() ) )
 	    {
@@ -2611,7 +2611,7 @@ L1ExtraParticleMapProd::evaluateDoubleExclusiveIsoEG(
    if ( inputRefs1.size() ==2 )
       {  // 2 iso EG
          decision=true;
-         if (inputRefs2.size()>0)
+         if (!inputRefs2.empty())
             {   // should veto if there are jets, with pt>thresh
                for( size_t j = 0 ; j < inputRefs2.size() ; ++j )
                   {

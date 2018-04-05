@@ -45,7 +45,7 @@ CastorJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken( input_jet_token_, h_jets );
 
   // allocate the jet--->jetid value map
-  std::auto_ptr<reco::CastorJetIDValueMap> castorjetIdValueMap( new reco::CastorJetIDValueMap );
+  auto castorjetIdValueMap = std::make_unique<reco::CastorJetIDValueMap>();
   // instantiate the filler with the map
   reco::CastorJetIDValueMap::Filler filler(*castorjetIdValueMap);
   
@@ -81,7 +81,7 @@ CastorJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   filler.fill();
 
   // write map to the event
-  iEvent.put( castorjetIdValueMap );
+  iEvent.put(std::move(castorjetIdValueMap));
 }
 
 //define this as a plug-in

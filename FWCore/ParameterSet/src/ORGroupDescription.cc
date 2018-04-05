@@ -18,24 +18,24 @@ namespace edm {
   }
 
   ORGroupDescription::
-  ORGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
+  ORGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
                      ParameterDescriptionNode const& node_right) :
-    node_left_(node_left),
+    node_left_(std::move(node_left)),
     node_right_(node_right.clone()) {
   }
 
   ORGroupDescription::
   ORGroupDescription(ParameterDescriptionNode const& node_left,
-                     std::auto_ptr<ParameterDescriptionNode> node_right) :
+                     std::unique_ptr<ParameterDescriptionNode> node_right) :
     node_left_(node_left.clone()),
-    node_right_(node_right) {
+    node_right_(std::move(node_right)) {
   }
 
   ORGroupDescription::
-  ORGroupDescription(std::auto_ptr<ParameterDescriptionNode> node_left,
-                     std::auto_ptr<ParameterDescriptionNode> node_right) :
-    node_left_(node_left),
-    node_right_(node_right) {
+  ORGroupDescription(std::unique_ptr<ParameterDescriptionNode> node_left,
+                     std::unique_ptr<ParameterDescriptionNode> node_right) :
+    node_left_(std::move(node_left)),
+    node_right_(std::move(node_right)) {
   }
 
   void
@@ -102,7 +102,7 @@ namespace edm {
   print_(std::ostream & os,
          bool optional,
          bool writeToCfi,
-         DocFormatHelper & dfh) {
+         DocFormatHelper & dfh) const {
 
     if (dfh.parent() == DocFormatHelper::OR) {
       dfh.decrementCounter();
@@ -154,7 +154,7 @@ namespace edm {
   ORGroupDescription::
   printNestedContent_(std::ostream & os,
                       bool optional,
-                      DocFormatHelper & dfh) {
+                      DocFormatHelper & dfh) const {
 
     if (dfh.parent() == DocFormatHelper::OR) {
       dfh.decrementCounter();

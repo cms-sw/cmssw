@@ -48,7 +48,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
@@ -80,16 +80,16 @@
 ///
 ///
 ///
-class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer>, public TObject {
+class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer> {
 
  public:
 
   explicit LaserAlignment( edm::ParameterSet const& theConf );
-  ~LaserAlignment();
-  virtual void beginJob() override;
-  virtual void produce( edm::Event&, edm::EventSetup const& ) override;
-  virtual void endJob() override;
-  virtual void endRunProduce(edm::Run&, const edm::EventSetup& ) override;
+  ~LaserAlignment() override;
+  void beginJob() override;
+  void produce( edm::Event&, edm::EventSetup const& ) override;
+  void endJob() override;
+  void endRunProduce(edm::Run&, const edm::EventSetup& ) override;
 
   /// for debugging & testing only, will disappear..
   void testRoutine( void );
@@ -244,7 +244,5 @@ class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer>, public 
   std::string theAlignRecordName, theErrorRecordName;
 
   bool firstEvent_;
-
-  const edm::ParameterSet theParameterSet;
 };
 #endif

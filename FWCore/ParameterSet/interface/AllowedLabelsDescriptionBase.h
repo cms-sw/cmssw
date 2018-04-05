@@ -16,7 +16,7 @@ namespace edm {
   class AllowedLabelsDescriptionBase : public ParameterDescriptionNode {
   public:
 
-    virtual ~AllowedLabelsDescriptionBase();
+    ~AllowedLabelsDescriptionBase() override;
 
     ParameterTypes type() const { return type_; }
     bool isTracked() const { return isTracked_; }
@@ -29,40 +29,40 @@ namespace edm {
 
     void printNestedContentBase_(std::ostream & os,
                                  bool optional,
-                                 DocFormatHelper & dfh);
+                                 DocFormatHelper & dfh) const;
 
   private:
 
-    virtual void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
-                                            std::set<ParameterTypes> & parameterTypes,
-                                            std::set<ParameterTypes> & wildcardTypes) const;
+    void checkAndGetLabelsAndTypes_(std::set<std::string> & usedLabels,
+                                    std::set<ParameterTypes> & parameterTypes,
+                                    std::set<ParameterTypes> & wildcardTypes) const override;
 
-    virtual void validate_(ParameterSet & pset,
-                           std::set<std::string> & validatedLabels,
-                           bool optional) const;
+    void validate_(ParameterSet & pset,
+                   std::set<std::string> & validatedLabels,
+                   bool optional) const override;
 
-    virtual void writeCfi_(std::ostream & os,
-                           bool & startWithComma,
-                           int indentation,
-                           bool & wroteSomething) const;
+    void writeCfi_(std::ostream & os,
+                   bool & startWithComma,
+                   int indentation,
+                   bool & wroteSomething) const override;
 
 
-    virtual void print_(std::ostream & os,
-                        bool optional,
-                        bool writeToCfi,
-                        DocFormatHelper & dfh);
+    void print_(std::ostream & os,
+                bool optional,
+                bool writeToCfi,
+                DocFormatHelper & dfh) const override;
 
-    virtual bool hasNestedContent_();
+    bool hasNestedContent_() const override;
 
-    virtual void printNestedContent_(std::ostream & os,
-                                     bool optional,
-                                     DocFormatHelper & dfh);
+    void printNestedContent_(std::ostream & os,
+                             bool optional,
+                             DocFormatHelper & dfh) const override;
 
-    virtual bool exists_(ParameterSet const& pset) const;
+    bool exists_(ParameterSet const& pset) const override;
 
-    virtual bool partiallyExists_(ParameterSet const& pset) const;
+    bool partiallyExists_(ParameterSet const& pset) const override;
 
-    virtual int howManyXORSubNodesExist_(ParameterSet const& pset) const;
+    int howManyXORSubNodesExist_(ParameterSet const& pset) const override;
 
     virtual void validateAllowedLabel_(std::string const& allowedLabel,
                                        ParameterSet & pset,

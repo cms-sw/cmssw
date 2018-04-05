@@ -51,7 +51,7 @@ void DataPointDefinition::serialize(Json::Value& root) const
     Json::Value currentDef;
     currentDef[PARAM_NAME] = varNames_[i];
     currentDef[OPERATION] = opNames_[i];
-    if (typeNames_[i].size()) //only if it was found
+    if (!typeNames_[i].empty()) //only if it was found
       currentDef[TYPE] = typeNames_[i];
     root[defaultGroup_].append(currentDef);
   }
@@ -71,7 +71,7 @@ void DataPointDefinition::deserialize(Json::Value& root)
 
 bool DataPointDefinition::isPopulated() const
 {
-  if (varNames_.size() > 0)
+  if (!varNames_.empty())
     return true;
   return false;
 }

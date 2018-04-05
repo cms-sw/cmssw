@@ -12,7 +12,7 @@ using namespace oracle::occi;
 
 RunList::RunList()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
 }
 
 RunList::~RunList()
@@ -38,44 +38,44 @@ RunTag RunList::getRunTag() const
 }
 
 void RunList::fetchNonEmptyRuns() 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetchRuns(-1, -1, true, false); 
 }
 
 void RunList::fetchNonEmptyGlobalRuns() 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetchRuns(-1, -1, false, true); 
 }
 
 void RunList::fetchNonEmptyRuns(int min_run, int max_run) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetchRuns(min_run, max_run, true, false); 
 }
 
 void RunList::fetchNonEmptyGlobalRuns(int min_run, int max_run) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetchRuns(min_run, max_run, false, true); 
 }
 
 void RunList::fetchRuns()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetchRuns(-1, -1);
 }
 
 void RunList::fetchRuns(int min_run, int max_run)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetchRuns(min_run, max_run, false, false);
 }
 
 void RunList::fetchRuns(int min_run, int max_run, bool withTriggers,
 			bool withGlobalTriggers)
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   /*
@@ -184,12 +184,12 @@ void RunList::fetchRuns(int min_run, int max_run, bool withTriggers,
     m_vec_runiov.resize(i);
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunList::fetchRuns:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunList::fetchRuns:  ")+getOraMessage(&e)));
   }
 }
 
 void RunList::fetchLastNRuns( int max_run, int n_runs  )
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   // fetch the last n_runs that come just before max_run (including max_run)
@@ -254,7 +254,7 @@ void RunList::fetchLastNRuns( int max_run, int n_runs  )
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunList::fetchLastNRuns:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunList::fetchLastNRuns:  ")+getOraMessage(&e)));
   }
 
 
@@ -263,7 +263,7 @@ void RunList::fetchLastNRuns( int max_run, int n_runs  )
 
 
 void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef& locDef )
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   this->checkConnection();
@@ -324,9 +324,9 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef& 
        
        RunTag atag;
        atag.setLocationDef(locDef);
-       atag.setGeneralTag(rset->getString(7));
+       atag.setGeneralTag(getOraString(rset,7));
        RunTypeDef rundef;
-       rundef.setRunType(rset->getString(8));
+       rundef.setRunType(getOraString(rset,8));
        atag.setRunTypeDef(rundef);
 
        RunIOV r ;
@@ -345,14 +345,14 @@ void RunList::fetchRunsByLocation (int min_run, int max_run, const LocationDef& 
     m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunList::fetchRunsByLocation:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunList::fetchRunsByLocation:  ")+getOraMessage(&e)));
   }
 
 
 }
 
 void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const LocationDef& locDef )
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   this->checkConnection();
@@ -415,9 +415,9 @@ void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const Locatio
        
        RunTag atag;
        atag.setLocationDef(locDef);
-       atag.setGeneralTag(rset->getString(7));
+       atag.setGeneralTag(getOraString(rset,7));
        RunTypeDef rundef;
-       rundef.setRunType(rset->getString(8));
+       rundef.setRunType(getOraString(rset,8));
        atag.setRunTypeDef(rundef);
 
        RunIOV r ;
@@ -436,7 +436,7 @@ void RunList::fetchGlobalRunsByLocation (int min_run, int max_run, const Locatio
     m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunList::fetchRunsByLocation:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunList::fetchRunsByLocation:  ")+getOraMessage(&e)));
   }
 
 

@@ -8,13 +8,18 @@ process.MessageLogger.categories.append('TriggerSummaryAnalyzerRAW')
 process.MessageLogger.categories.append('HLTEventAnalyzerAOD')
 process.MessageLogger.categories.append('HLTEventAnalyzerRAW')
 process.MessageLogger.categories.append('L1GtTrigReport')
+process.MessageLogger.categories.append('L1TGlobalSummary')
 process.MessageLogger.categories.append('HLTrigReport')
 process.MessageLogger.categories.append('HLTSummaryFilter')
 process.MessageLogger.categories.append('HLTConfigProvider')
+process.MessageLogger.categories.append('HLTPrescaleProvider')
+process.MessageLogger.categories.append('HLTConfigData')
 
-from Configuration.AlCa.autoCond import autoCond
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = autoCond['run2_mc_FULL']
+# process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+# process.load('Configuration.StandardSequences.CondDBESSource_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
+# process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_GRun')
+process.GlobalTag = customiseGlobalTag(None, globaltag = 'auto:run2_hlt_GRun')
 
 # process.Timing = cms.Service("Timing")
 
@@ -28,7 +33,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2)
 )
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:RelVal_HLT_FULL_MC.root')
+    fileNames = cms.untracked.vstring('file:RelVal_HLT_GRun_DATA.root')
 )
 
 process.options = cms.untracked.PSet(

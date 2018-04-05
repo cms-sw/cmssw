@@ -46,7 +46,7 @@ class FFTJetPFPileupCleaner : public edm::EDProducer
 {
 public:
     explicit FFTJetPFPileupCleaner(const edm::ParameterSet&);
-    ~FFTJetPFPileupCleaner();
+    ~FFTJetPFPileupCleaner() override;
 
 protected:
     // methods
@@ -55,9 +55,9 @@ protected:
     void endJob() override;
 
 private:
-    FFTJetPFPileupCleaner();
-    FFTJetPFPileupCleaner(const FFTJetPFPileupCleaner&);
-    FFTJetPFPileupCleaner& operator=(const FFTJetPFPileupCleaner&);
+    FFTJetPFPileupCleaner() = delete;
+    FFTJetPFPileupCleaner(const FFTJetPFPileupCleaner&) = delete;
+    FFTJetPFPileupCleaner& operator=(const FFTJetPFPileupCleaner&) = delete;
 
     bool isRemovable(reco::PFCandidate::ParticleType ptype) const;
     void setRemovalBit(reco::PFCandidate::ParticleType ptype, bool onOff);
@@ -193,8 +193,7 @@ void FFTJetPFPileupCleaner::produce(
     edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     // get PFCandidates
-    std::auto_ptr<reco::PFCandidateCollection> 
-        pOutput(new reco::PFCandidateCollection);
+    auto pOutput = std::make_unique<reco::PFCandidateCollection>();
 
     edm::Handle<reco::PFCandidateCollection> pfCandidates;
     iEvent.getByToken(PFCandidatesToken, pfCandidates);
@@ -264,7 +263,7 @@ void FFTJetPFPileupCleaner::produce(
         }
     }
 
-    iEvent.put(pOutput);
+    iEvent.put(std::move(pOutput));
 }
 
 

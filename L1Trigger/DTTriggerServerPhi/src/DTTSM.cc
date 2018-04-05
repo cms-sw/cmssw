@@ -91,7 +91,7 @@ DTTSM::run(int bkmod) {
   
   
   DTTSCand* first=sortTSM1(bkmod);
-  if(first!=0) {
+  if(first!=nullptr) {
     _outcand.push_back(first); 
   }
   if(nSecondT()<1)return; // skip if no second tracks
@@ -111,7 +111,7 @@ DTTSM::run(int bkmod) {
   // end debugging
   
   DTTSCand* second=sortTSM2(bkmod);
-  if(second!=0) {
+  if(second!=nullptr) {
     
     _outcand.push_back(second); 
   }
@@ -121,8 +121,8 @@ DTTSM::run(int bkmod) {
 DTTSCand*
 DTTSM::sortTSM1(int bkmod) {
   // Do a sort 1
-  DTTSCand* best=0;
-  DTTSCand* carry=0;
+  DTTSCand* best=nullptr;
+  DTTSCand* carry=nullptr;
   std::vector<DTTSCand*>::iterator p;
   for(p=_incand[0].begin(); p!=_incand[0].end(); p++) {
     DTTSCand* curr=(*p);
@@ -136,14 +136,14 @@ DTTSM::sortTSM1(int bkmod) {
     }
     
     
-    if(best==0){
+    if(best==nullptr){
       best=curr;
     } 
     else if((*curr)<(*best)){
       carry=best;
       best=curr;
     } 
-    else if(carry==0){
+    else if(carry==nullptr){
       carry=curr;
     } 
     else if((*curr)<(*carry)){
@@ -153,7 +153,7 @@ DTTSM::sortTSM1(int bkmod) {
   
   
   // Ghost 1 suppression: use carry only if not suppressed
-  if(carry!=0) {   // A carry is present
+  if(carry!=nullptr) {   // A carry is present
     
     // Carry enabled if correlated and TRACO is next to best
     bool inner_or_corr;
@@ -195,13 +195,13 @@ DTTSCand*
 DTTSM::sortTSM2(int bkmod) {
 
   // If second tracks are always suppressed skip processing
-  if(config()->TsmGhost2Flag()==3)return 0;
+  if(config()->TsmGhost2Flag()==3)return nullptr;
   
   // Check if there are second tracks
   if(nTracks()<1){
     std::cout << "DTTSM::sortTSM2: called with no first track.";
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   
   // If a first track at the following BX is present, ignore second tracks of any kind
@@ -210,12 +210,12 @@ DTTSM::sortTSM2(int bkmod) {
     for(p=_incand[1].begin(); p!=_incand[1].end(); p++) {
       if((*p)->isCarry()) return (*p);
     }
-    return 0;
+    return nullptr;
   }
   
   // If no first tracks at the following BX, do a sort 2
   DTTSCand* best=getTrack(1);
-  DTTSCand* second=0;
+  DTTSCand* second=nullptr;
   std::vector<DTTSCand*>::iterator p;
   for(p=_incand[1].begin(); p!=_incand[1].end(); p++) {
     DTTSCand* curr=(*p);
@@ -260,7 +260,7 @@ DTTSM::sortTSM2(int bkmod) {
     // added DBSM
     // SM double TSM    if ( bkmod == 1 ) { // NORMAL mode ---> sorting with <
     
-    if(second==0){
+    if(second==nullptr){
       second=curr;
     } 
     else if((*curr)<(*second)){
@@ -296,12 +296,12 @@ DTTSM::getDTTSCand(int ifs, unsigned n) const {
   if(ifs<1||ifs>2){
     std::cout << "DTTSM::getDTTSCand: wrong track number: " << ifs;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   if(n<1 || n>nCand(ifs)) {
     std::cout << "DTTSM::getDTTSCand: requested trigger not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   std::vector<DTTSCand*>::const_iterator p = _incand[ifs-1].begin()+n-1;
   return (*p);
@@ -312,12 +312,12 @@ DTTSM::getTracoT(int ifs, unsigned n) const {
   if(ifs<1||ifs>2){
     std::cout << "DTTSM::getTracoT: wrong track number: " << ifs;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   if(n<1 || n>nCand(ifs)) {
     std::cout << "DTTSM::getTracoT: requested trigger not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   return getDTTSCand(ifs, n)->tracoTr();
 }
@@ -328,7 +328,7 @@ DTTSM::getTrack(int n) const {
   if(n<1 || n>nTracks()) {
     std::cout << "DTTSM::getTrack: requested track not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   std::vector<DTTSCand*>::const_iterator p = _outcand.begin()+n-1;
   return (*p);

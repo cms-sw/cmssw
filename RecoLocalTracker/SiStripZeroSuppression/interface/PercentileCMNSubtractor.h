@@ -8,8 +8,8 @@ class PercentileCMNSubtractor : public SiStripCommonModeNoiseSubtractor {
   
  public:
   
-  void subtract(const uint32_t&,const uint16_t& firstAPV, std::vector<int16_t>&);
-  void subtract(const uint32_t&,const uint16_t& firstAPV, std::vector<float>&);
+  void subtract(const uint32_t&,const uint16_t& firstAPV, std::vector<int16_t>&) override;
+  void subtract(const uint32_t&,const uint16_t& firstAPV, std::vector<float>&) override;
   
  private:
   

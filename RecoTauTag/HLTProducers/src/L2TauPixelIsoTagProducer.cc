@@ -52,7 +52,7 @@ void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const 
 
 
   // define the product to store
-  auto_ptr<JetTagCollection> jetTagCollection;
+  unique_ptr<JetTagCollection> jetTagCollection;
   if (jets.empty())
   {
     jetTagCollection.reset( new JetTagCollection() );
@@ -70,7 +70,7 @@ void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const 
   ev.getByToken(m_vertexSrc_token, vertices);
 
   // find the primary vertex (the 1st valid non-fake vertex in the collection)
-  const Vertex *pv = 0;
+  const Vertex *pv = nullptr;
   for(const auto & v : *(vertices.product()) )
   {
     if(!v.isValid() || v.isFake()) continue;
@@ -79,7 +79,7 @@ void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const 
   }
 
   // If primary vertex exists, calculate jets' isolation:
-  if(pv && jets.size())
+  if(pv && !jets.empty())
   {
     for (const auto & jet : jets)
     {
@@ -98,14 +98,15 @@ void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const 
 
         float dr2 = deltaR2 (jet_eta, jet_phi, (*tr)->eta(), (*tr)->phi());
 
-        if (dr2 >= m_isoCone2Min && dr2 <= m_isoCone2Max) iso += 1.;
+        // sum pT based isolation
+        if (dr2 >= m_isoCone2Min && dr2 <= m_isoCone2Max) iso += (*tr)->pt();
       }
 
       (*jetTagCollection)[jet] = iso;
     }
   }
 
-  ev.put(jetTagCollection);
+  ev.put(std::move(jetTagCollection));
 }
 
 void L2TauPixelIsoTagProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 

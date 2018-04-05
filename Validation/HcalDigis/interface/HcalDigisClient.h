@@ -28,25 +28,11 @@ class HcalDigisClient : public DQMEDHarvester {
 public:
     explicit HcalDigisClient(const edm::ParameterSet&);
 
-    ~HcalDigisClient() {
-    };
+    ~HcalDigisClient() override;
 
 private:
 
-
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) {
-    };
-
-
-    virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter & igetter ) {
-      igetter.setCurrentFolder("HcalDigisV/HcalDigiTask"); // moved this line from constructor
-
-      // the following booking clas were moved from the constructor
-      booking(ibooker, "HB");
-      booking(ibooker, "HE");
-      booking(ibooker, "HO");
-      booking(ibooker, "HF");
-
+    void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter & igetter ) override {
       igetter.setCurrentFolder(dirName_); // This sets the DQMStore (should apply to ibooker as well
       runClient(ibooker, igetter);
     }
@@ -62,7 +48,7 @@ private:
     };
 
     virtual void runClient(DQMStore::IBooker &ib, DQMStore::IGetter &ig);
-    int HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs, std::string subdet_);
+    int HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs, std::string subdet_, DQMStore::IBooker &ib);
 
     MonitorElement* monitor(std::string name);
 
@@ -90,11 +76,13 @@ private:
         if (!msm_->count(name)) (*msm_)[name] = ib.bookProfile(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
     }
 
+    void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY, const char *option) {
+        if (!msm_->count(name)) (*msm_)[name] = ib.bookProfile(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max, option);
+    }
+
     void fillPf(std::string name, double X, double Y) {
         msm_->find(name)->second->Fill(X, Y);
     }
-
-    void booking(DQMStore::IBooker &ib, std::string subdetopt);
 
     std::string str(int x);
 

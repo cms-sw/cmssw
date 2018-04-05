@@ -21,8 +21,14 @@
 #include "TString.h"
 #include "TMinuit.h"
 
+// Unit test for testing CrossSectionHandler
+class TestCrossSectionHandler;
+
 class CrossSectionHandler
 {
+  // For tests
+  friend class TestCrossSectionHandler;
+
 public:
   CrossSectionHandler(const std::vector<double> & crossSection, const std::vector<int> & resfind) :
     parNum_(0),

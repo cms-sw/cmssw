@@ -53,7 +53,7 @@ int main(int argc, char** argv)
   
   
   for(int i=0; i<kNThreads; ++i) {
-    threads.emplace_back([i,&canStart,&classWasGotten,&firstMethodGotten]() {
+    threads.emplace_back([&canStart,&classWasGotten,&firstMethodGotten]() {
         static thread_local TThread guard;
         ++classWasGotten;
         ++firstMethodGotten;

@@ -9,7 +9,6 @@
 // this is infinetely ligher
 // assume alignment > 2....
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 template<typename T, int N=sizeof(T*)>
 class mayown_ptr {
 private:
@@ -69,16 +68,5 @@ template<typename T>
 bool operator<(mayown_ptr<T> const & rh, mayown_ptr<T> const & lh) {
   return rh.raw() < lh.raw();
 }  
-#else
-template<typename T, int N=sizeof(T*)>
-class mayown_ptr {
-  mayown_ptr() : p(nullptr) {}
-  ~mayown_ptr() {}
-private:
-  T const * p;
-  mayown_ptr(mayown_ptr &){}
-  mayown_ptr& operator=(mayown_ptr &){}
-};
-#endif
 
 #endif

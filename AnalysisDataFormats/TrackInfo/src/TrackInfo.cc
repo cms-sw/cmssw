@@ -21,7 +21,7 @@ const PTrajectoryStateOnDet * TrackInfo::stateOnDet(StateType statetype,Tracking
   TrajectoryInfo::const_iterator states=trajstates_.find(hit);
   if(states!=trajstates_.end())return states->second.stateOnDet(statetype);
   else edm::LogError("TrackInfo")<<"This rechit does not exist";
-  return 0;
+  return nullptr;
 }
 
 const LocalVector  TrackInfo::localTrackMomentum(StateType statetype,TrackingRecHitRef hit)const{ 
@@ -30,7 +30,7 @@ const LocalVector  TrackInfo::localTrackMomentum(StateType statetype,TrackingRec
   if(states!=trajstates_.end())
     {
       const PTrajectoryStateOnDet * state=states->second.stateOnDet(statetype);
-      if(state!=0) return state->parameters().momentum();
+      if(state!=nullptr) return state->parameters().momentum();
     }
   else edm::LogError("TrackInfo")<<"This rechit does not exist";
   return LocalVector(0,0,0); 
@@ -57,7 +57,7 @@ const LocalPoint  TrackInfo::localTrackPosition(StateType statetype,TrackingRecH
   if(states!=trajstates_.end())
     {
       const PTrajectoryStateOnDet * state=states->second.stateOnDet(statetype);
-      if(state!=0) return state->parameters().position();
+      if(state!=nullptr) return state->parameters().position();
     }
   else edm::LogError("TrackInfo")<<"This rechit does not exist";
   return LocalPoint(0,0,0);

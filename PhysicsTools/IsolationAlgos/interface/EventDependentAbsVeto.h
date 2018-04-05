@@ -9,7 +9,7 @@ namespace reco {
  namespace isodeposit {
     class EventDependentAbsVeto : public AbsVeto {
         public:
-            virtual ~EventDependentAbsVeto() {}
+            ~EventDependentAbsVeto() override {}
             virtual void setEvent(const edm::Event &iEvent, const edm::EventSetup &iSetup) = 0;
     };
     typedef std::vector<EventDependentAbsVeto *> EventDependentAbsVetos;

@@ -18,7 +18,7 @@ public:
   explicit GsfTrackRefitter(const edm::ParameterSet& iConfig);
 
   /// Implementation of produce method
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   TrackProducerAlgorithm<reco::GsfTrack> theAlgo;

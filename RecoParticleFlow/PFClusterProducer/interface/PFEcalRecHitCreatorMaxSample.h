@@ -24,7 +24,7 @@
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
 template <typename Geometry,PFLayer::Layer Layer,int Detector>
-  class PFEcalRecHitCreatorMaxSample :  public  PFRecHitCreatorBase {
+  class PFEcalRecHitCreatorMaxSample final :  public  PFRecHitCreatorBase {
 
  public:  
   PFEcalRecHitCreatorMaxSample(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
@@ -33,7 +33,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
       recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
     }
 
-    void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
 
       beginEvent(iEvent,iSetup);
 
@@ -46,19 +46,15 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
       const CaloSubdetectorGeometry *gTmp = 
 	geoHandle->getSubdetectorGeometry(DetId::Ecal, Detector);
 
-      const Geometry *ecalGeo =dynamic_cast< const Geometry* > (gTmp);
+      const Geometry *ecalGeo = dynamic_cast<const Geometry*>(gTmp);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for(const auto& erh : *recHitHandle ) {      
 	const DetId& detid = erh.detid();
-	double energy = erh.energy();
-	double time = erh.time();
+	auto energy = erh.energy();
+	auto time = erh.time();
 
-	math::XYZVector position;
-	math::XYZVector axis;
-	
-	const CaloCellGeometry *thisCell;
-	thisCell= ecalGeo->getGeometry(detid);
+	std::shared_ptr<const CaloCellGeometry> thisCell= ecalGeo->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {
@@ -69,56 +65,17 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 	}
 
 
-	auto const point  = thisCell->getPosition();
+	reco::PFRecHit rh(thisCell, detid.rawId(),Layer,
+			   energy); 
 
-	position.SetCoordinates (point.x(),
-				 point.y(),
-				 point.z() );
-  
-	// the axis vector is the difference 
-	const TruncatedPyramid* pyr 
-	  = dynamic_cast< const TruncatedPyramid* > (thisCell);    
-
-	if( pyr ) {
-	  auto const point1 = pyr->getPosition(1); 
-	  axis.SetCoordinates( point1.x(), 
-			       point1.y(), 
-			       point1.z() ); 
-
-	  auto const point0 = pyr->getPosition(0); 
-    
-	  math::XYZVector axis0( point0.x(), 
-				 point0.y(), 
-				 point0.z() );
-    
-	  axis -= axis0;    
-	}
-	else continue;
-
-
-	reco::PFRecHit rh( detid.rawId(),Layer,
-			   energy, 
-			   position.x(), position.y(), position.z(), 
-			   axis.x(), axis.y(), axis.z() ); 
-
-
-	//ECAL has no segmentation so put 1
-	
-	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
-	assert( corners.size() == 8 );
-
-	rh.setNECorner( corners[0].x(), corners[0].y(),  corners[0].z() );
-	rh.setSECorner( corners[1].x(), corners[1].y(),  corners[1].z() );
-	rh.setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z() );
-	rh.setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z() );
-	
 
 	bool rcleaned = false;
 	bool keep=true;
+        bool hi = true; // this is std version for which the PF ZS is always applied
 
 	//Apply Q tests
 	for( const auto& qtest : qualityTests_ ) {
-	  if (!qtest->test(rh,erh,rcleaned)) {
+	  if (!qtest->test(rh,erh,rcleaned,hi)) {
 	    keep = false;	    
 	  }
 	}

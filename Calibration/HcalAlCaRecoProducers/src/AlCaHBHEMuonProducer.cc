@@ -1,7 +1,8 @@
 // -*- C++ -*-
-
+//#define DebugLog
 
 // system include files
+#include <atomic>
 #include <memory>
 #include <string>
 #include <cmath>
@@ -13,7 +14,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -26,7 +27,6 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -38,28 +38,38 @@
 // class declaration
 //
 
-class AlCaHBHEMuonProducer : public edm::EDProducer {
+namespace AlCaHBHEMuons {
+  struct Counters {
+    Counters() : nAll_(0), nGood_(0) {}
+    mutable std::atomic<unsigned int> nAll_, nGood_;
+  };
+}
+
+class AlCaHBHEMuonProducer : public edm::stream::EDProducer<edm::GlobalCache<AlCaHBHEMuons::Counters> > {
 public:
-  explicit AlCaHBHEMuonProducer(const edm::ParameterSet&);
-  ~AlCaHBHEMuonProducer();
+  explicit AlCaHBHEMuonProducer(edm::ParameterSet const&, const AlCaHBHEMuons::Counters* count);
+  ~AlCaHBHEMuonProducer() override;
   
-  virtual void produce(edm::Event &, const edm::EventSetup&);
- 
+  static std::unique_ptr<AlCaHBHEMuons::Counters> initializeGlobalCache(edm::ParameterSet const&) {
+    return std::make_unique<AlCaHBHEMuons::Counters>();
+  }
+
+  void produce(edm::Event &, const edm::EventSetup&) override;
+  void endStream() override;
+  static  void globalEndJob(const AlCaHBHEMuons::Counters* counters);
+  
 private:
 
-  virtual void beginJob() ;
-  virtual void endJob() ;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
+  void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override;
   bool         select(const reco::MuonCollection &);
   
   // ----------member data ---------------------------
-  int                        nRun, nAll, nGood;
-  edm::InputTag              labelTriggerResults_, labelBS_, labelVtx_;
+  unsigned int               nRun_, nAll_, nGood_;
+  edm::InputTag              labelBS_, labelVtx_ ;
   edm::InputTag              labelEB_, labelEE_, labelHBHE_, labelMuon_;
   double                     pMuonMin_;
 
-  edm::EDGetTokenT<edm::TriggerResults>                   tok_trigRes_;
   edm::EDGetTokenT<reco::BeamSpot>                        tok_BS_;
   edm::EDGetTokenT<reco::VertexCollection>                tok_Vtx_;
   edm::EDGetTokenT<EcalRecHitCollection>                  tok_EB_;
@@ -69,10 +79,9 @@ private:
 };
 
 
-AlCaHBHEMuonProducer::AlCaHBHEMuonProducer(const edm::ParameterSet& iConfig) :
-  nRun(0), nAll(0), nGood(0) {
+AlCaHBHEMuonProducer::AlCaHBHEMuonProducer(edm::ParameterSet const& iConfig, const AlCaHBHEMuons::Counters* count) :
+  nRun_(0), nAll_(0), nGood_(0) {
   //Get the run parameters
-  labelTriggerResults_ = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
   labelBS_             = iConfig.getParameter<edm::InputTag>("BeamSpotLabel");
   labelVtx_            = iConfig.getParameter<edm::InputTag>("VertexLabel");
   labelEB_             = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
@@ -82,7 +91,6 @@ AlCaHBHEMuonProducer::AlCaHBHEMuonProducer(const edm::ParameterSet& iConfig) :
   pMuonMin_            = iConfig.getParameter<double>("MinimumMuonP");
 
   // define tokens for access
-  tok_trigRes_  = consumes<edm::TriggerResults>(labelTriggerResults_);
   tok_Vtx_      = consumes<reco::VertexCollection>(labelVtx_);
   tok_BS_       = consumes<reco::BeamSpot>(labelBS_);
   tok_EB_       = consumes<EcalRecHitCollection>(labelEB_);
@@ -90,155 +98,158 @@ AlCaHBHEMuonProducer::AlCaHBHEMuonProducer(const edm::ParameterSet& iConfig) :
   tok_HBHE_     = consumes<HBHERecHitCollection>(labelHBHE_);
   tok_Muon_     = consumes<reco::MuonCollection>(labelMuon_);
 
-  edm::LogInfo("HcalIsoTrack") <<"Parameters read from config file \n" 
-			       <<"\t minP of muon " << pMuonMin_
-			       <<"\t input labels " << labelTriggerResults_
-			       <<" " << labelBS_ << " " << labelVtx_ 
-			       <<" " << labelEB_ << " " << labelEE_
+  edm::LogInfo("HcalHBHEMuon") << "Parameters read from config file \n" 
+			       << "\t minP of muon " << pMuonMin_
+			       << "\t input labels " << labelBS_ << " " 
+			       << labelVtx_ <<" " << labelEB_ << " " << labelEE_
 			       <<" " << labelHBHE_ << " " << labelMuon_;
 
   //saves the following collections
-  produces<edm::TriggerResults>(labelTriggerResults_.encode());
-  produces<reco::BeamSpot>(labelBS_.encode());
-  produces<reco::VertexCollection>(labelVtx_.encode());
-  produces<EcalRecHitCollection>(labelEB_.encode());
-  produces<EcalRecHitCollection>(labelEE_.encode());
-  produces<HBHERecHitCollection>(labelHBHE_.encode());
-  produces<reco::MuonCollection>(labelMuon_.encode());
-
+  produces<reco::BeamSpot>(labelBS_.label());
+  produces<reco::VertexCollection>(labelVtx_.label());
+  produces<EcalRecHitCollection>(labelEB_.instance());
+  produces<EcalRecHitCollection>(labelEE_.instance());
+  produces<HBHERecHitCollection>(labelHBHE_.label());
+  produces<reco::MuonCollection>(labelMuon_.label());
 }
 
 AlCaHBHEMuonProducer::~AlCaHBHEMuonProducer() { }
 
-void AlCaHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void AlCaHBHEMuonProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
 
-  nAll++;
-  LogDebug("HcalHBHEMuon") << "Run " << iEvent.id().run() << " Event " 
-			   << iEvent.id().event() << " Luminosity " 
-			   << iEvent.luminosityBlock() << " Bunch " 
-			   << iEvent.bunchCrossing();
+  ++nAll_;
+  bool valid(true);
+#ifdef DebugLog
+  edm::LogInfo("HcalHBHEMuon") << "AlCaHBHEMuonProducer::Run " 
+			       << iEvent.id().run() << " Event " 
+			       << iEvent.id().event() << " Luminosity " 
+			       << iEvent.luminosityBlock() << " Bunch " 
+			       << iEvent.bunchCrossing();
+#endif
   
   //Step1: Get all the relevant containers
-  edm::Handle<edm::TriggerResults> triggerResults;
-  iEvent.getByToken(tok_trigRes_, triggerResults);
-  if (!triggerResults.isValid()) {
-    edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelTriggerResults_;
-    return;
-  }
-  const edm::TriggerResults trigres = *(triggerResults.product());
-
   edm::Handle<reco::BeamSpot> bmspot;
   iEvent.getByToken(tok_BS_, bmspot);
   if (!bmspot.isValid()){
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelBS_;
-    return;
+    valid = false;
   }
-  const reco::BeamSpot beam = *(bmspot.product());
 
   edm::Handle<reco::VertexCollection> vt;
   iEvent.getByToken(tok_Vtx_, vt);  
   if (!vt.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelVtx_;
-    return ;
+    valid = false;
   }
-  const reco::VertexCollection vtx = *(vt.product());
 
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
   iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelEB_;
-    return ;
+    valid = false;
   }
-  const EcalRecHitCollection ebcoll = *(barrelRecHitsHandle.product());
 
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
   if (!endcapRecHitsHandle.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelEE_;
-    return ;
+    valid = false;
   }
-  const EcalRecHitCollection eecoll = *(endcapRecHitsHandle.product());
 
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByToken(tok_HBHE_, hbhe);
   if (!hbhe.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelHBHE_;
-    return ;
+    valid = false;
   }
-  const HBHERecHitCollection hbhecoll = *(hbhe.product());
 
   edm::Handle<reco::MuonCollection> muonhandle;
   iEvent.getByToken(tok_Muon_, muonhandle);
   if (!muonhandle.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelMuon_;
-    return ;
+    valid = false;
   }
-  const reco::MuonCollection muons = *(muonhandle.product());
 
-  LogDebug("HcalHBHEMuon") << "Has obtained all the collections";
+#ifdef DebugLog
+  edm::LogInfo("HcalHBHEMuon") << "AlCaHBHEMuonProducer::obtained the collections with validity flag " << valid;
+#endif
 
   //For accepted events
-  bool accept = select(muons);
-  if (accept) {
-    nGood++;
-    
-    std::auto_ptr<edm::TriggerResults> outputTriggerResults(new edm::TriggerResults);
-    *outputTriggerResults = trigres;
+  auto outputBeamSpot = std::make_unique<reco::BeamSpot>();
+  auto outputVColl = std::make_unique<reco::VertexCollection>();
+  auto outputEBColl = std::make_unique<EBRecHitCollection>();
+  auto outputEEColl = std::make_unique<EERecHitCollection>();
+  auto outputHBHEColl = std::make_unique<HBHERecHitCollection>();
+  auto outputMColl = std::make_unique<reco::MuonCollection>();
 
-    std::auto_ptr<reco::BeamSpot> outputBeamSpot(new reco::BeamSpot(beam.position(),beam.sigmaZ(),
-								    beam.dxdz(),beam.dydz(),beam.BeamWidthX(),
-								    beam.covariance(),beam.type()));
-    
-    std::auto_ptr<reco::VertexCollection> outputVColl(new reco::VertexCollection);
-    for (reco::VertexCollection::const_iterator vtr=vtx.begin(); vtr!=vtx.end(); ++vtr)
-      outputVColl->push_back(*vtr);
+  if (valid) {
+    const reco::BeamSpot beam = *(bmspot.product());
+    outputBeamSpot =  std::make_unique<reco::BeamSpot>(beam.position(),beam.sigmaZ(),
+					beam.dxdz(),beam.dydz(),beam.BeamWidthX(),
+								      beam.covariance(),beam.type());
+    const reco::VertexCollection vtx = *(vt.product());
+    const EcalRecHitCollection ebcoll = *(barrelRecHitsHandle.product());
+    const EcalRecHitCollection eecoll = *(endcapRecHitsHandle.product());
+    const HBHERecHitCollection hbhecoll = *(hbhe.product());
+    const reco::MuonCollection muons = *(muonhandle.product());
 
-    std::auto_ptr<EBRecHitCollection>     outputEBColl(new EBRecHitCollection);
-    for (edm::SortedCollection<EcalRecHit>::const_iterator ehit=ebcoll.begin(); ehit!=ebcoll.end(); ++ehit)
-      outputEBColl->push_back(*ehit);
+    bool accept = select(muons);
 
-    std::auto_ptr<EERecHitCollection>     outputEEColl(new EERecHitCollection);
-    for (edm::SortedCollection<EcalRecHit>::const_iterator ehit=eecoll.begin(); ehit!=eecoll.end(); ++ehit)
-      outputEEColl->push_back(*ehit);
+    if (accept) {
+      ++nGood_;
+ 
+      for (reco::VertexCollection::const_iterator vtr=vtx.begin(); vtr!=vtx.end(); ++vtr)
+	outputVColl->push_back(*vtr);
 
-    std::auto_ptr<HBHERecHitCollection>   outputHBHEColl(new HBHERecHitCollection);
-    for (std::vector<HBHERecHit>::const_iterator hhit=hbhecoll.begin(); hhit!=hbhecoll.end(); ++hhit)
-      outputHBHEColl->push_back(*hhit);
-    
+      for (edm::SortedCollection<EcalRecHit>::const_iterator ehit=ebcoll.begin(); ehit!=ebcoll.end(); ++ehit)
+	outputEBColl->push_back(*ehit);
 
-    std::auto_ptr<reco::MuonCollection>   outputMColl(new reco::MuonCollection);
-    for (reco::MuonCollection::const_iterator muon=muons.begin(); muon!=muons.end(); ++muon)
-      outputMColl->push_back(*muon);
+      for (edm::SortedCollection<EcalRecHit>::const_iterator ehit=eecoll.begin(); ehit!=eecoll.end(); ++ehit)
+	outputEEColl->push_back(*ehit);
 
-    iEvent.put(outputTriggerResults, labelTriggerResults_.encode());
-    iEvent.put(outputBeamSpot,       labelBS_.encode());
-    iEvent.put(outputVColl,          labelVtx_.encode());
-    iEvent.put(outputEBColl,         labelEB_.encode());
-    iEvent.put(outputEEColl,         labelEE_.encode());
-    iEvent.put(outputHBHEColl,       labelHBHE_.encode());
-    iEvent.put(outputMColl,          labelMuon_.encode());
+      for (std::vector<HBHERecHit>::const_iterator hhit=hbhecoll.begin(); hhit!=hbhecoll.end(); ++hhit)
+	outputHBHEColl->push_back(*hhit);
+
+      for (reco::MuonCollection::const_iterator muon=muons.begin(); muon!=muons.end(); ++muon)
+	outputMColl->push_back(*muon);
+    }
   }
+
+  iEvent.put(std::move(outputBeamSpot),       labelBS_.label());
+  iEvent.put(std::move(outputVColl),          labelVtx_.label());
+  iEvent.put(std::move(outputEBColl),         labelEB_.instance());
+  iEvent.put(std::move(outputEEColl),         labelEE_.instance());
+  iEvent.put(std::move(outputHBHEColl),       labelHBHE_.label());
+  iEvent.put(std::move(outputMColl),          labelMuon_.label());
 }
 
-void AlCaHBHEMuonProducer::beginJob() { }
+void AlCaHBHEMuonProducer::endStream() {
+  globalCache()->nAll_  += nAll_;
+  globalCache()->nGood_ += nGood_;
+}
 
-void AlCaHBHEMuonProducer::endJob() {
-  edm::LogInfo("HcalHBHEMuon") << "Finds " << nGood << " good tracks in " 
-			       << nAll << " events from " << nRun << " runs";
+void AlCaHBHEMuonProducer::globalEndJob(const AlCaHBHEMuons::Counters* count) {
+  edm::LogInfo("HcalHBHEMuon") << "Finds " << count->nGood_ <<" good tracks in "
+			       << count->nAll_ << " events";
 }
 
 void AlCaHBHEMuonProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  edm::LogInfo("HcalHBHEMuon") << "Run[" << nRun << "] " << iRun.run(); 
+  edm::LogInfo("HcalHBHEMuon") << "Run[" << nRun_ << "] " << iRun.run(); 
 }
 
 void AlCaHBHEMuonProducer::endRun(edm::Run const& iRun, edm::EventSetup const&) {
-  nRun++;
-  edm::LogInfo("HcalHBHEMuon") << "endRun[" << nRun << "] " << iRun.run();
+  ++nRun_;
+  edm::LogInfo("HcalHBHEMuon") << "endRun[" << nRun_ << "] " << iRun.run();
 }
 
 bool AlCaHBHEMuonProducer::select(const reco::MuonCollection & muons) {
 
-  bool ok = (muons.size() > 0) ? (muons[0].p() > pMuonMin_) : false;
+  bool ok(false);
+  for (unsigned int k=0; k<muons.size(); ++k) {
+    if (muons[k].p() > pMuonMin_) {
+      ok = true; break;
+    }
+  }
   return ok;
 }
 

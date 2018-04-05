@@ -41,9 +41,9 @@ EwkMuDQM::EwkMuDQM(const ParameterSet& cfg)
                                                        edm::InputTag("pfmet"))),
       jetTag_(cfg.getUntrackedParameter<edm::InputTag>(
           "JetTag", edm::InputTag("ak4PFJets"))),
-      trigTag_(consumes<edm::TriggerResults>(
-          cfg.getUntrackedParameter<edm::InputTag>(
-              "TrigTag", edm::InputTag("TriggerResults::HLT")))),
+      //trigTag_(consumes<edm::TriggerResults>(
+         // cfg.getUntrackedParameter<edm::InputTag>(
+             // "TrigTag", edm::InputTag("TriggerResults::HLT")))),
       muonTag_(consumes<edm::View<reco::Muon> >(
           cfg.getUntrackedParameter<edm::InputTag>("MuonTag",
                                                    edm::InputTag("muons")))),
@@ -62,8 +62,8 @@ EwkMuDQM::EwkMuDQM(const ParameterSet& cfg)
       beamSpotTag_(
           consumes<reco::BeamSpot>(cfg.getUntrackedParameter<edm::InputTag>(
               "beamSpotTag", edm::InputTag("offlineBeamSpot")))),
-      trigPathNames_(cfg.getUntrackedParameter<std::vector<std::string> >(
-          "TrigPathNames")),
+     // trigPathNames_(cfg.getUntrackedParameter<std::vector<std::string> >(
+       //   "TrigPathNames")),
 
       // Muon quality cuts
       isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>(
@@ -107,10 +107,11 @@ EwkMuDQM::EwkMuDQM(const ParameterSet& cfg)
 
       // Photon cuts
       ptThrForPhoton_(cfg.getUntrackedParameter<double>("ptThrForPhoton", 5.)),
-      nPhoMax_(cfg.getUntrackedParameter<int>("nPhoMax", 999999)) {
-  isValidHltConfig_ = false;
-
+      nPhoMax_(cfg.getUntrackedParameter<int>("nPhoMax", 999999)),
+      hltPrescaleProvider_(cfg, consumesCollector(), *this) {
+ isValidHltConfig_ = false;
 }
+
 
 void EwkMuDQM::dqmBeginRun(const Run& iRun, const EventSetup& iSet) {
   nall = 0;
@@ -126,7 +127,7 @@ void EwkMuDQM::dqmBeginRun(const Run& iRun, const EventSetup& iSet) {
   bool isConfigChanged = false;
   // isValidHltConfig_ used to short-circuit analyze() in case of problems
   isValidHltConfig_ =
-      hltConfigProvider_.init(iRun, iSet, "HLT", isConfigChanged);
+      hltPrescaleProvider_.init(iRun, iSet, "HLT", isConfigChanged);
 }
 
 void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
@@ -182,11 +183,11 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
     }
   }
 
-  trig_before_ = ibooker.book1D("TRIG_BEFORECUTS",
+/*  trig_before_ = ibooker.book1D("TRIG_BEFORECUTS",
       "Trigger response (boolean of muon triggers)", 2, -0.5, 1.5);
   trig_after_ = ibooker.book1D("TRIG_AFTERWCUTS",
       "Trigger response (boolean of muon triggers)", 2, -0.5, 1.5);
-
+*/
   snprintf(chtitle, 255, "Transverse mass (%s) [GeV]", metTag_.label().data());
   mt_before_ = ibooker.book1D("MT_BEFORECUTS", chtitle, 150, 0., 300.);
   mt_after_ = ibooker.book1D("MT_AFTERWCUTS", chtitle, 150, 0., 300.);
@@ -276,8 +277,9 @@ void EwkMuDQM::bookHistograms(DQMStore::IBooker & ibooker,
       "Muon transverse distance to beam spot [cm]", 100, -0.5, 0.5);
   goodewkmuon2_afterZ_ = ibooker.book1D("GOODEWKMUON2_AFTERZCUTS",
       "Quality-muon flag", 2, -0.5, 1.5);
-  ztrig_afterZ_ = ibooker.book1D("ZTRIG_AFTERZCUTS",
+/*  ztrig_afterZ_ = ibooker.book1D("ZTRIG_AFTERZCUTS",
       "Trigger response (boolean of muon triggers)", 2, -0.5, 1.5);
+ */
   dimuonmass_before_ = ibooker.book1D("DIMUONMASS_BEFORECUTS",
       "DiMuonMass (2 globals)", 100, 0, 200);
   dimuonmass_afterZ_ = ibooker.book1D("DIMUONMASS_AFTERZCUTS",
@@ -395,14 +397,16 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
 
   npvs_before_->Fill(nvvertex);
 
-  bool trigger_fired = false;
-  Handle<TriggerResults> triggerResults;
-  if (!ev.getByToken(trigTag_, triggerResults)) {
+ // bool trigger_fired = false;
+  //Handle<TriggerResults> triggerResults;
+ // if (!ev.getByToken(trigTag_, triggerResults)) {
     // LogWarning("") << ">>> TRIGGER collection does not exist !!!";
-    return;
-  }
-  const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
+   // return;
+ // }
+ // const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
   //  LogWarning("")<<"Loop over triggers";
+
+  //HLTConfigProvider const&  hltConfigProvider = hltPrescaleProvider_.hltConfigProvider();
 
   /*  change faulty logic of triggering
   for (unsigned int i=0; i<triggerResults->size(); i++)
@@ -419,10 +423,10 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
           if(!found) {continue;}
 
           bool prescaled=false;
-          for (unsigned int ps= 0; ps<  hltConfigProvider_.prescaleSize();
+          for (unsigned int ps= 0; ps<  hltConfigProvider.prescaleSize();
   ps++){
               const unsigned int prescaleValue =
-  hltConfigProvider_.prescaleValue(ps, trigName) ;
+  hltConfigProvider.prescaleValue(ps, trigName) ;
               if (prescaleValue != 1) prescaled =true;
           }
 
@@ -433,7 +437,7 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
   */
 
   // get the prescale set for this event
-  const int prescaleSet = hltConfigProvider_.prescaleSet(ev, iSet);
+  const int prescaleSet = hltPrescaleProvider_.prescaleSet(ev, iSet);
   if (prescaleSet == -1) {
     LogTrace("") << "Failed to determine prescaleSet\n";
     // std::cout << "Failed to determine prescaleSet. Check the GlobalTag in
@@ -441,31 +445,31 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
     return;
   }
 
-  for (unsigned int i = 0;
-       (i < triggerResults->size()) && (trigger_fired == false); i++) {
+ // for (unsigned int i = 0;
+   //    (i < triggerResults->size()) && (trigger_fired == false); i++) {
     // skip trigger, if it did not fire
-    if (!triggerResults->accept(i)) continue;
+    //if (!triggerResults->accept(i)) continue;
 
     // skip trigger, if it is not on our list
-    bool found = false;
-    const std::string trigName = trigNames.triggerName(i);
-    for (unsigned int index = 0;
-         index < trigPathNames_.size() && found == false; index++) {
-      if (trigName.find(trigPathNames_.at(index)) == 0) found = true;
-    }
-    if (!found) continue;
+    //bool found = false;
+    //const std::string trigName = trigNames.triggerName(i);
+    //for (unsigned int index = 0;
+      //   index < trigPathNames_.size() && found == false; index++) {
+     // if (trigName.find(trigPathNames_.at(index)) == 0) found = true;
+   // }
+   // if (!found) continue;
 
     // skip trigger, if it is prescaled
-    if (prescaleSet != -1) {
-      if (hltConfigProvider_.prescaleValue(prescaleSet, trigName) != 1)
+   /* if (prescaleSet != -1) {
+      if (hltConfigProvider.prescaleValue(prescaleSet, trigName) != 1)
         continue;
     } else {
       // prescaleSet is not known.
       // This branch is not needed, if prescaleSet=-1 forces to skip event
       int prescaled = 0;
       for (unsigned int ps = 0;
-           !prescaled && (ps < hltConfigProvider_.prescaleSize()); ++ps) {
-        if (hltConfigProvider_.prescaleValue(ps, trigName) != 1) {
+           !prescaled && (ps < hltConfigProvider.prescaleSize()); ++ps) {
+        if (hltConfigProvider.prescaleValue(ps, trigName) != 1) {
           prescaled = 1;
         }
       }
@@ -474,14 +478,14 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
         continue;
       }
     }
-
+*/
     // std::cout << "found unprescaled trigger that fired: " << trigName <<
     // "\n";
-    trigger_fired = true;
-  }
+   // trigger_fired = true;
+ // }
   // if (trigger_fired) std::cout << "\n\tGot Trigger\n";
 
-  trig_before_->Fill(trigger_fired);
+ // trig_before_->Fill(trigger_fired);
 
   // Jet collection
   Handle<View<Jet> > jetCollection;
@@ -552,8 +556,8 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
   nall++;
 
   // Histograms per event should be done only once, so keep track of them
-  bool hlt_hist_done = false;
-  bool zhlt_hist_done = false;
+ // bool hlt_hist_done = false;
+ // bool zhlt_hist_done = false;
   bool zjets_hist_done = false;
   bool zfullsel_hist_done = false;
   bool met_hist_done = false;
@@ -561,9 +565,9 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
   bool wfullsel_hist_done = false;
 
   // Central W->mu nu selection criteria
-  const int NFLAGS = 11;
+  const int NFLAGS = 10;
   bool muon_sel[NFLAGS];
-  const int NFLAGSZ = 13;
+  const int NFLAGSZ = 12;
   bool zmuon_sel[NFLAGSZ];
   bool muon4Z = false;
 
@@ -647,11 +651,11 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
     iso_before_->Fill(isovar);
 
     // HLT (not mtched to muon for the time being)
-    if (trigger_fired) muon_sel[5] = true;
+   // if (trigger_fired) muon_sel[5] = true;
 
     // For Z:
     if (pt > ptThrForZ1_ && fabs(eta) < etaCut_ && fabs(dxy) < dxyCut_ &&
-        quality && trigger_fired && isovar < isoCut03_) {
+        quality && isovar < isoCut03_) {
       muon4Z = true;
     }
 
@@ -665,9 +669,9 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
 
     LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et
                  << ", " << w_px << ", " << w_py << " [GeV]";
-    if (massT > mtMin_ && massT < mtMax_) muon_sel[6] = true;
+    if (massT > mtMin_ && massT < mtMax_) muon_sel[5] = true;
     mt_before_->Fill(massT);
-    if (met_et > metMin_ && met_et < metMax_) muon_sel[7] = true;
+    if (met_et > metMin_ && met_et < metMax_) muon_sel[6] = true;
 
     // Acoplanarity cuts
     Geom::Phi<double> deltaphi(mu.phi() - atan2(met.py(), met.px()));
@@ -675,12 +679,12 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
     if (acop < 0) acop = -acop;
     acop = M_PI - acop;
     LogTrace("") << "\t... acoplanarity: " << acop;
-    if (acop < acopCut_) muon_sel[8] = true;
+    if (acop < acopCut_) muon_sel[7] = true;
     acop_before_->Fill(acop);
 
     // Remaining flags (from global event information)
-    if (nmuonsForZ1 < 1 || nmuonsForZ2 < 2) muon_sel[9] = true;
-    if (njets <= nJetMax_) muon_sel[10] = true;
+    if (nmuonsForZ1 < 1 || nmuonsForZ2 < 2) muon_sel[8] = true;
+    if (njets <= nJetMax_) muon_sel[9] = true;
 
     // Collect necessary flags "per muon"
     int flags_passed = 0;
@@ -696,16 +700,16 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
       if (!muon_sel[3] || flags_passed == NFLAGS)
         goodewkmuon_after_->Fill(quality);
       if (!muon_sel[4] || flags_passed == NFLAGS) iso_after_->Fill(isovar);
-      if (!muon_sel[5] || flags_passed == NFLAGS)
-        if (!hlt_hist_done) trig_after_->Fill(trigger_fired);
-      hlt_hist_done = true;
-      if (!muon_sel[6] || flags_passed == NFLAGS) mt_after_->Fill(massT);
-      if (!muon_sel[7] || flags_passed == NFLAGS)
+     // if (!muon_sel[5] || flags_passed == NFLAGS)
+     //   if (!hlt_hist_done) trig_after_->Fill(trigger_fired);
+      //hlt_hist_done = true;
+      if (!muon_sel[5] || flags_passed == NFLAGS) mt_after_->Fill(massT);
+      if (!muon_sel[6] || flags_passed == NFLAGS)
         if (!met_hist_done) met_after_->Fill(met_et);
       met_hist_done = true;
-      if (!muon_sel[8] || flags_passed == NFLAGS) acop_after_->Fill(acop);
-      // no action here for muon_sel[9]
-      if (!muon_sel[10] || flags_passed == NFLAGS) {
+      if (!muon_sel[7] || flags_passed == NFLAGS) acop_after_->Fill(acop);
+      // no action here for muon_sel[8]
+      if (!muon_sel[9] || flags_passed == NFLAGS) {
         if (!njets_hist_done) {
           njets_after_->Fill(njets);
           leadingjet_pt_after_->Fill(lead_jet_pt);
@@ -726,7 +730,7 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
 
     // The cases in which the event is rejected as a Z are considered
     // independently:
-    if (muon4Z && !muon_sel[9]) {
+    if (muon4Z && !muon_sel[8]) {
 
       // Plots for 2 muons
       for (unsigned int j = i + 1; j < muonCollectionSize; j++) {
@@ -770,16 +774,16 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
         }
         if (isRelativeIso_) isovar2 /= pt2;
         if (isovar2 < isoCut03_) zmuon_sel[9] = true;
-        if (trigger_fired) zmuon_sel[10] = true;
+      //  if (trigger_fired) zmuon_sel[10] = true;
         const math::XYZTLorentzVector ZRecoGlb(
             mu.px() + mu2.px(), mu.py() + mu2.py(), mu.pz() + mu2.pz(),
             mu.p() + mu2.p());
         if (ZRecoGlb.mass() > dimuonMassMin_ &&
             ZRecoGlb.mass() < dimuonMassMax_)
-          zmuon_sel[11] = true;
+          zmuon_sel[10] = true;
 
         // jet flag
-        if (njets <= nJetMax_) zmuon_sel[12] = true;
+        if (njets <= nJetMax_) zmuon_sel[11] = true;
 
         // start filling histos: N-1 plots
         int flags_passed_z = 0;
@@ -819,14 +823,14 @@ void EwkMuDQM::analyze(const Event& ev, const EventSetup& iSet) {
           if (!zmuon_sel[9] || flags_passed_z == NFLAGSZ) {
             iso2_afterZ_->Fill(isovar2);
           }
+     //     if (!zmuon_sel[10] || flags_passed_z == NFLAGSZ) {
+       //     if (!zhlt_hist_done) ztrig_afterZ_->Fill(trigger_fired);
+         //   zhlt_hist_done = true;
+        //  }
           if (!zmuon_sel[10] || flags_passed_z == NFLAGSZ) {
-            if (!zhlt_hist_done) ztrig_afterZ_->Fill(trigger_fired);
-            zhlt_hist_done = true;
-          }
-          if (!zmuon_sel[11] || flags_passed_z == NFLAGSZ) {
             dimuonmass_afterZ_->Fill(ZRecoGlb.mass());
           }
-          if (!zmuon_sel[12] || flags_passed_z == NFLAGSZ) {
+          if (!zmuon_sel[11] || flags_passed_z == NFLAGSZ) {
             if (!zjets_hist_done) {
               njets_afterZ_->Fill(njets);
               leadingjet_pt_afterZ_->Fill(lead_jet_pt);

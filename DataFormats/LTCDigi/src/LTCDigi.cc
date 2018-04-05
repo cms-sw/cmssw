@@ -4,7 +4,7 @@
 LTCDigi::LTCDigi(const unsigned char *data)
 {
   // six 64 bit words
-  cms_uint64_t *ld = (cms_uint64_t*)data;
+  cms_uint64_t const *ld = reinterpret_cast<cms_uint64_t const*>(data);
 
   trigType_   = (ld[0]>>56)&        0xFULL; // 4 bits
 
@@ -35,7 +35,7 @@ LTCDigi::LTCDigi(const unsigned char *data)
 cms_uint32_t LTCDigi::GetEventNumberFromBuffer(const unsigned char *data) 
 {
   // six 64 bit words
-  cms_uint64_t *ld = (cms_uint64_t*)data;
+  cms_uint64_t const *ld = reinterpret_cast<cms_uint64_t const*>(data);
   cms_uint32_t eventNumber = (ld[2])    &0xFFFFFFFFULL; // 32 bits
   return eventNumber;
 }
@@ -43,7 +43,7 @@ cms_uint32_t LTCDigi::GetEventNumberFromBuffer(const unsigned char *data)
 cms_uint32_t LTCDigi::GetRunNumberFromBuffer(const unsigned char *data) 
 {
   // six 64 bit words
-  cms_uint64_t *ld = (cms_uint64_t*)data;
+  cms_uint64_t const *ld = reinterpret_cast<cms_uint64_t const*>(data);
   cms_uint32_t runNumber   = (ld[2]>>32)&0xFFFFFFFFULL; // 32 bits
   return runNumber;
 }

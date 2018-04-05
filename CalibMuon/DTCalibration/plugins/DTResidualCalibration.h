@@ -30,16 +30,20 @@ class DTResidualCalibration: public edm::EDAnalyzer{
   /// Constructor
   DTResidualCalibration(const edm::ParameterSet& pset);
   /// Destructor
-  virtual ~DTResidualCalibration();
+  ~DTResidualCalibration() override;
 
-  void beginJob();
-  void beginRun(const edm::Run&, const edm::EventSetup&);
-  void endJob();
-  void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void beginJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override;
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
  protected:
 
  private:
+
+  unsigned int nevent;
+  unsigned int segmok,segmbad;
+
   float segmentToWireDistance(const DTRecHit1D& recHit1D, const DTRecSegment4D& segment); 
   // Book a set of histograms for a given super-layer/layer
   void bookHistos(DTSuperLayerId slId);
@@ -49,6 +53,7 @@ class DTResidualCalibration: public edm::EDAnalyzer{
   void fillHistos(DTLayerId slId, float distance, float residualOnDistance);
 
   DTSegmentSelector select_;
+  double histRange_;
   edm::InputTag segment4DLabel_;
   std::string rootBaseDir_;
 

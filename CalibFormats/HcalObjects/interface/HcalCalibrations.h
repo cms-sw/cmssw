@@ -9,7 +9,7 @@
 class HcalCalibrations {
  public:
   HcalCalibrations () {};
-  HcalCalibrations (const float fGain [4], const float fPedestal [4], const float fRespCorr, const float fTimeCorr, const float fLUTCorr);
+  HcalCalibrations (const float fGain [4], const float fPedestal [4], const float fEffectivePedestal[4], const float fRespCorr, const float fTimeCorr, const float fLUTCorr);
   /// get LUT corrected and response corrected gain for capid=0..3
   double LUTrespcorrgain (int fCapId) const {return (mLUTCorr *  mRespCorrGain [fCapId]);}
   /// get response corrected gain for capid=0..3
@@ -18,6 +18,8 @@ class HcalCalibrations {
   double rawgain (int fCapId) const {return mRespCorrGain [fCapId] / mRespCorr;}
   /// get pedestal for capid=0..3
   double pedestal (int fCapId) const {return mPedestal [fCapId];}
+  /// get effective pedestal for capid=0..3
+  double effpedestal (int fCapId) const {return mEffectivePedestal [fCapId];}
   /// get response correction factor
   double respcorr () const {return mRespCorr;}
   /// get time correction factor
@@ -25,6 +27,7 @@ class HcalCalibrations {
  private:
   double mRespCorrGain [4];
   double mPedestal [4];
+  double mEffectivePedestal [4];
   double mRespCorr;
   double mTimeCorr;
   double mLUTCorr;

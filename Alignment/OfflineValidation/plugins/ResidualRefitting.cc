@@ -8,7 +8,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -62,10 +62,10 @@ ResidualRefitting::ResidualRefitting( const edm::ParameterSet & cfg ) :
   muonsNoTOBLayer5_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer5"	) ),
   muonsNoTOBLayer6_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer6"	) ),*/
   debug_				( cfg.getUntrackedParameter<bool>("doDebug"	) ),
-  outputFile_(0),
-  outputTree_(0),
-  outputBranch_(0),
-  theField(0)
+  outputFile_(nullptr),
+  outputTree_(nullptr),
+  outputBranch_(nullptr),
+  theField(nullptr)
 {
         eventInfo_.evtNum_ = 0;
         eventInfo_.evtNum_ = 0;
@@ -278,7 +278,7 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
 
 	//Retrieve tracker topology from geometry
 	edm::ESHandle<TrackerTopology> tTopoHandle;
-	eventSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+	eventSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
 	const TrackerTopology* const tTopo = tTopoHandle.product();
 
 	int iMuonHit = 0;

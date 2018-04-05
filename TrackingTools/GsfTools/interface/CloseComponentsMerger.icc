@@ -3,7 +3,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
+#include <queue>
 #include <cfloat>
+#include "CommonTools/Utils/interface/DynArray.h"
+
+
 
 template <unsigned int N>
 CloseComponentsMerger<N>::CloseComponentsMerger (int maxNumberOfComponents,
@@ -11,8 +15,117 @@ CloseComponentsMerger<N>::CloseComponentsMerger (int maxNumberOfComponents,
   theMaxNumberOfComponents(maxNumberOfComponents),
   theDistance(distance->clone()) {}
 
+
+
 template <unsigned int N> MultiGaussianState<N>
 CloseComponentsMerger<N>::merge (const MultiState& mgs) const
+{
+
+  //auto oldRes = mergeOld(mgs);
+
+  typedef std::vector<SingleStatePtr>  SingleStateVector;
+
+
+  auto ori = mgs.components();
+  SingleStateVector finalComponents;
+
+  int noComp = ori.size();
+  if (noComp <=theMaxNumberOfComponents) return mgs;
+
+
+  while (true) { // termitates when the nunmber of components becomes less than allowed maximum
+    SingleStateVector merged; merged.reserve(noComp);
+    
+    declareDynArray(float,noComp,weights);
+    initDynArray(bool,noComp,active,true);
+    for (int i=0; i<noComp; ++i) {
+       weights[i]=ori[i]->weight();
+    }
+
+    auto cmp = [&](int i, int j) { return weights[i] > weights[j];};
+    unInitDynArray(int,noComp,qst); // queue storage
+    std::priority_queue<int, DynArray<int>, decltype(cmp)> toMerge(cmp,std::move(qst));
+    for (int i=0; i<noComp; ++i) toMerge.push(i);
+
+    auto minDistToMax = [&]()->int {
+      auto mind = std::numeric_limits<double>::max();
+      int im = 0; 
+      auto topI = toMerge.top();
+      auto const & tc = *ori[topI];
+      active[topI]=false;
+      for (int i=0; i<noComp; ++i) {
+         if (!active[i]) continue;
+         // assert(weights[topI]<=weights[i]);
+         auto dist = (*theDistance)(tc,*ori[i]);
+         if (dist<mind) {
+           mind=dist; im = i;
+         }         
+      }
+      return im;
+    };
+
+    auto nComp = noComp;
+    auto nAct=nComp;
+    while ( (nAct>0) & (nComp > theMaxNumberOfComponents)) {
+      if (nAct==1) { merged.push_back(ori[toMerge.top()]); nAct=0; break;}
+
+      auto ii = minDistToMax();      
+      SingleStateVector comp;
+      comp.push_back(ori[toMerge.top()]);
+      comp.push_back(ori[ii]);
+      active[ii]=false;
+      while( (!toMerge.empty()) & (!active[toMerge.top()])) {toMerge.pop();}
+      --nComp;
+      nAct-=2;
+      merged.push_back(MultiGaussianStateCombiner<N>().combine(comp));
+      // assert(toMerge.size()>=0);
+      // assert(int(toMerge.size())>=nAct);   
+    }
+
+    // std::cout << theMaxNumberOfComponents << ' ' << noComp << ' ' << nComp << ' ' << nAct << ' ' << toMerge.size() << std::endl;
+
+    if (nComp <= theMaxNumberOfComponents) { // end game
+
+        /*
+        {
+          int kk=merged.size();
+          for (int i=0; i<noComp; ++i) { if (active[i]) ++kk;}
+          assert(kk==nComp);
+        }
+        */
+ 
+      MultiGaussianStateAssembler<N> result;
+
+      for (int i=0; i<noComp; ++i) { if (active[i]) result.addState(ori[i]);}
+      for (auto && s : merged) result.addState(s);
+
+      auto res = result.combinedState();
+      
+      /*
+      assert(res.components().size()==oldRes.components().size());
+      std::cout << res.weight() << ' ' << oldRes.weight() << std::endl;
+      for(auto const & c : res.components()) std::cout << c->weight() << '/';
+      std::cout << std::endl;
+      for(auto const & c : oldRes.components()) std::cout << c->weight() <<	'/';
+      std::cout	<< std::endl;
+      */
+
+      return res;
+    }
+
+    // assert(nAct==0);
+    std::swap(ori,merged); noComp=ori.size();
+  }
+
+  // 
+
+}
+
+
+
+
+template <unsigned int N> MultiGaussianState<N>
+CloseComponentsMerger<N>::mergeOld (const MultiState& mgs) const
 {
   typedef std::vector<SingleStatePtr>  SingleStateVector;
   SingleStateVector unmergedComponents(mgs.components());
@@ -78,7 +191,7 @@ CloseComponentsMerger<N>::merge (const MultiState& mgs) const
     }
   }
 
-  MultiGaussianStateAssembler<N> result(mgs);
+  MultiGaussianStateAssembler<N> result;
 
   for ( typename SingleStateMap::const_iterator it = mapUnmergedComp.begin();
        it != mapUnmergedComp.end(); it++) {
@@ -98,7 +211,7 @@ typename CloseComponentsMerger<N>::MinDistResult
 CloseComponentsMerger<N>::compWithMinDistToLargestWeight(SingleStateMap& unmergedComp) const {
 // template <unsigned int N>
 // std::pair<SingleGaussianState<N>, 
-// 	  typename std::multimap<double, boost::shared_ptr< MultiGaussianState<N> > >::iterator>
+// 	  typename std::multimap<double, std::shared_ptr< MultiGaussianState<N> > >::iterator>
 // CloseComponentsMerger<N>::compWithMinDistToLargestWeight(SingleStateMap& unmergedComp) const {
   double large = DBL_MAX;
   double minDist = large;
@@ -106,6 +219,7 @@ CloseComponentsMerger<N>::compWithMinDistToLargestWeight(SingleStateMap& unmerge
   for (typename SingleStateMap::iterator it = unmergedComp.begin();
        it != unmergedComp.end(); it++) {
     if (it != unmergedComp.begin()) {
+      // assert(unmergedComp.begin()->first >=it->first);
       double dist = (*theDistance)(*unmergedComp.begin()->second, *it->second);
       if (dist < minDist) {
 	iterMinDist = it;

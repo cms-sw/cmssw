@@ -9,5 +9,6 @@ ghostTrackComputer = cms.ESProducer("GhostTrackESProducer",
 		'GhostTrackRecoVertex', 
 		'GhostTrackPseudoVertex', 
 		'GhostTrackNoVertex'),
+        recordLabel = cms.string(''),
 	categoryVariableName = cms.string('vertexCategory')
 )

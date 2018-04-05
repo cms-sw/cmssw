@@ -11,9 +11,9 @@ public:
   //-------------------------
   GflashKaonPlusShowerProfile (const edm::ParameterSet& parSet) : 
     GflashHadronShowerProfile (parSet) {}; 
-  ~GflashKaonPlusShowerProfile () {};
+  ~GflashKaonPlusShowerProfile () override {};
 
-  void loadParameters();
+  void loadParameters() override;
 };
 
 #endif

@@ -23,14 +23,12 @@ cond::Binary::Binary( const coral::Blob& data ):
 }
 
 cond::Binary::Binary( const Binary& rhs ):
-  m_data( rhs.m_data ),
-  m_object( rhs.m_object ){
+  m_data( rhs.m_data ){
 }
 
 cond::Binary& cond::Binary::operator=( const Binary& rhs ){
   if( this != &rhs ) {
     m_data = rhs.m_data;
-    m_object = rhs.m_object;
   }
   return *this;
 }
@@ -42,7 +40,6 @@ const coral::Blob& cond::Binary::get() const {
 void cond::Binary::copy( const std::string& source ){
   m_data.reset( new coral::Blob( source.size() ) );
   ::memcpy( m_data->startingAddress(), source.c_str(), source.size() );
-  m_object = ora::Object();
 }
 
 const void* cond::Binary::data() const {
@@ -59,13 +56,4 @@ size_t cond::Binary::size() const {
   return m_data->size();
 }
     
-ora::Object cond::Binary::oraObject() const {
-  return m_object;
-}
-
-void cond::Binary::fromOraObject( const ora::Object& object ){
-  m_object = object;
-  m_data.reset();
-}
-
 

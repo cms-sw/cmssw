@@ -209,7 +209,7 @@ bool DirectMuonNavigation::checkCompatible(const FreeTrajectoryState& fts,const 
   float rm = fts.momentum().perp();
   float slope = zm/rm; 
   if (!outward(fts) ) slope = -slope;
-  const BoundCylinder bc = dl->specificSurface();
+  const BoundCylinder& bc = dl->specificSurface();
   float radius = bc.radius();
   float length = bc.bounds().length()/2.;
 
@@ -228,7 +228,7 @@ bool DirectMuonNavigation::checkCompatible(const FreeTrajectoryState& fts,const 
 
   if (!outward(fts) ) slope = -slope;
 
-  const BoundDisk bd = dl->specificSurface();
+  const BoundDisk& bd = dl->specificSurface();
 
   float outRadius = bd.outerRadius();
   float inRadius = bd.innerRadius();

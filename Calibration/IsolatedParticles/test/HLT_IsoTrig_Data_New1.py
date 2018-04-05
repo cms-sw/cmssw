@@ -13,8 +13,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
@@ -26,7 +26,10 @@ process.load('CommonTools.ParticleFlow.EITopPAG_cff')
 process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run1_data']
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.maxEvents = cms.untracked.PSet(
@@ -97,7 +100,7 @@ process.IsoTrigHE = process.IsoTrigHB.clone(
 process.load('Calibration.IsolatedParticles.isoTrackCalibration_cfi')
 process.IsoTrackCalibration.Triggers = ["HLT_IsoTrackHE_v16", "HLT_IsoTrackHB_v15"]
 process.IsoTrackCalibration.ProcessName = "HLTNew1"
-process.IsoTrackCalibration.L1Filter  = "hltL1sL1SingleJet"
+process.IsoTrackCalibration.L1Filter  = "hltL1sV0SingleJet"
 process.IsoTrackCalibration.L2Filter  = "hltIsolPixelTrackL2Filter"
 process.IsoTrackCalibration.L3Filter  = "L3Filter"
 process.IsoTrackCalibration.Verbosity = 0
@@ -111,25 +114,55 @@ process.analyze = cms.EndPath(process.IsoTrigHB + process.IsoTrigHE + process.Is
 #process.mix.digitizers = cms.PSet()
 #for a in process.aliases: delattr(process, a)
 #process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data_GRun', '')
 
 process.load('Calibration.IsolatedParticles.HLT_IsoTrack_cff')
 
-#process.myHLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath,
-#                                        process.HLT_IsoTrackHE_v16,
-#                                        process.HLT_IsoTrackHB_v15,
-#                                        process.HLTriggerFinalPath
-#                                        ))
+process.HLT_IsoTrackHE_v16 = cms.Path(process.HLTBeginSequence + 
+                                      process.hltL1sV0SingleJet60 + 
+                                      process.hltPreIsoTrackHE +
+                                      process.HLTDoLocalPixelSequence + 
+                                      process.hltPixelLayerTriplets + 
+                                      process.hltPixelTracks + 
+                                      process.hltPixelVertices +
+                                      process.hltTrimmedPixelVertices +
+                                      process.hltIsolPixelTrackProdHE +
+                                      process.hltIsolPixelTrackL2FilterHE + 
+                                      process.HLTDoFullUnpackingEgammaEcalSequence + 
+                                      process.hltIsolEcalPixelTrackProdHE + 
+                                      process.hltEcalIsolPixelTrackL2FilterHE +
+                                      process.HLTDoLocalStripSequence + 
+                                      process.hltIter0PFLowPixelSeedsFromPixelTracks +
+                                      process.hltIter0PFlowCkfTrackCandidates +
+                                      process.hltIter0PFlowCtfWithMaterialTracks +
+                                      process.hltHcalITIPTCorrectorHE + 
+                                      process.hltIsolPixelTrackL3FilterHE + 
+                                      process.HLTEndSequence 
+                                      )
 
-process.HLT_IsoTrackHE_v16 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet68 + process.hltPreIsoTrackHE + process.HLTDoLocalPixelSequence + process.hltPixelLayerTripletsHITHB + process.hltHITPixelTracksHB + process.hltPixelLayerTripletsHITHE + process.hltHITPixelTracksHE + process.hltHITPixelVerticesHE + process.hltIsolPixelTrackProdHE + process.hltIsolPixelTrackL2FilterHE + 
-process.HLTDoFullUnpackingEgammaEcalSequence + process.hltIsolEcalPixelTrackProdHE + process.hltEcalIsolPixelTrackL2FilterHE +
-process.HLTDoLocalStripSequence + process.hltPixelLayerTriplets + process.hltHITPixelTripletSeedGeneratorHE + process.hltHITCkfTrackCandidatesHE + process.hltHITCtfWithMaterialTracksHE + process.hltHITIPTCorrectorHE + process.hltIsolPixelTrackL3FilterHE + process.HLTEndSequence )
-process.HLT_IsoTrackHB_v15 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet68 + process.hltPreIsoTrackHB + process.HLTDoLocalPixelSequence + process.hltPixelLayerTripletsHITHB + process.hltHITPixelTracksHB + process.hltHITPixelVerticesHB + process.hltIsolPixelTrackProdHB + process.hltIsolPixelTrackL2FilterHB + 
-process.HLTDoFullUnpackingEgammaEcalSequence + process.hltIsolEcalPixelTrackProdHB + process.hltEcalIsolPixelTrackL2FilterHB +
-process.HLTDoLocalStripSequence + process.hltPixelLayerTriplets + process.hltHITPixelTripletSeedGeneratorHB + process.hltHITCkfTrackCandidatesHB + process.hltHITCtfWithMaterialTracksHB + process.hltHITIPTCorrectorHB + process.hltIsolPixelTrackL3FilterHB + process.HLTEndSequence )
+process.HLT_IsoTrackHB_v15 = cms.Path(process.HLTBeginSequence + 
+                                      process.hltL1sV0SingleJet60 + 
+                                      process.hltPreIsoTrackHB +
+                                      process.HLTDoLocalPixelSequence + 
+                                      process.hltPixelLayerTriplets + 
+                                      process.hltPixelTracks + 
+                                      process.hltPixelVertices + 
+                                      process.hltTrimmedPixelVertices +
+                                      process.hltIsolPixelTrackProdHB + 
+                                      process.hltIsolPixelTrackL2FilterHB +
+                                      process.HLTDoFullUnpackingEgammaEcalSequence + 
+                                      process.hltIsolEcalPixelTrackProdHB + 
+                                      process.hltEcalIsolPixelTrackL2FilterHB +
+                                      process.HLTDoLocalStripSequence + 
+                                      process.hltIter0PFLowPixelSeedsFromPixelTracks +
+                                      process.hltIter0PFlowCkfTrackCandidates +
+                                      process.hltIter0PFlowCtfWithMaterialTracks +
+                                      process.hltHcalITIPTCorrectorHB + 
+                                      process.hltIsolPixelTrackL3FilterHB + 
+                                      process.HLTEndSequence 
+                                      )
 
 process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath,process.HLT_IsoTrackHE_v16,process.HLT_IsoTrackHB_v15,process.HLTriggerFinalPath))
+
 
 ## remove any instance of the FastTimerService
 if 'FastTimerService' in process.__dict__:
@@ -138,37 +171,14 @@ if 'FastTimerService' in process.__dict__:
 # instrument the menu with the FastTimerService
 process.load( "HLTrigger.Timer.FastTimerService_cfi" )
 
-# this is currently ignored in 7.x, and alway uses the real tim clock
-process.FastTimerService.useRealTimeClock         = True
-
-# enable specific features
-process.FastTimerService.enableTimingPaths        = True
-process.FastTimerService.enableTimingModules      = True
-process.FastTimerService.enableTimingExclusive    = True
-
 # print a text summary at the end of the job
-process.FastTimerService.enableTimingSummary      = True
-
-# skip the first path (useful for HLT timing studies to disregard the time spent loading event and conditions data)
-process.FastTimerService.skipFirstPath            = False
+process.FastTimerService.printJobSummary          = True
 
 # enable per-event DQM plots
 process.FastTimerService.enableDQM                = True
 
-# enable per-path DQM plots
-process.FastTimerService.enableDQMbyPathActive    = True
-process.FastTimerService.enableDQMbyPathTotal     = True
-process.FastTimerService.enableDQMbyPathOverhead  = True
-process.FastTimerService.enableDQMbyPathDetails   = True
-process.FastTimerService.enableDQMbyPathCounters  = True
-process.FastTimerService.enableDQMbyPathExclusive = True
-
 # enable per-module DQM plots
 process.FastTimerService.enableDQMbyModule        = True
-process.FastTimerService.enableDQMbyModuleType    = True
-
-# enable per-event DQM sumary plots
-process.FastTimerService.enableDQMSummary         = True
 
 # enable per-event DQM plots by lumisection
 process.FastTimerService.enableDQMbyLumiSection   = True

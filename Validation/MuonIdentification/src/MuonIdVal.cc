@@ -35,9 +35,6 @@ MuonIdVal::MuonIdVal(const edm::ParameterSet& ps)
 
 MuonIdVal::~MuonIdVal() {}
 
-void MuonIdVal::beginJob()
-{
-}
 
 void MuonIdVal::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run&, const edm::EventSetup&)
 {
@@ -643,9 +640,6 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
    }// csc segment
 }
-
-void 
-MuonIdVal::endJob() {}
 
 void MuonIdVal::Fill(MonitorElement* me, float f) {
    if (fabs(f) > 900000) return;

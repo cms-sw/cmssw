@@ -18,6 +18,8 @@ for testing purposes only.
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -46,6 +48,10 @@ struct UnsafeCache {
    unsigned int strm;
    unsigned int work;
 };
+
+struct Dummy {
+};
+
 } //end anonymous namespace
 
 
@@ -62,7 +68,7 @@ struct UnsafeCache {
    
     std::unique_ptr<UnsafeCache> beginStream(edm::StreamID iID) const override {
       ++m_count;
-      std::unique_ptr<UnsafeCache> sCache(new UnsafeCache);
+      auto sCache = std::make_unique<UnsafeCache>();
       ++(sCache->strm);
       sCache->value = iID.value();
       return sCache;
@@ -185,7 +191,7 @@ struct UnsafeCache {
     }
  
     std::unique_ptr<UnsafeCache> beginStream(edm::StreamID) const override {
-      return std::unique_ptr<UnsafeCache>{new UnsafeCache};
+      return std::make_unique<UnsafeCache>();
     }
 
     void streamBeginRun(edm::StreamID iID, edm::Run const& iRun, edm::EventSetup const&) const  override {
@@ -254,7 +260,7 @@ struct UnsafeCache {
     }
 
    std::unique_ptr<UnsafeCache> beginStream(edm::StreamID iID) const override {
-      return std::unique_ptr<UnsafeCache>{new UnsafeCache};
+      return std::make_unique<UnsafeCache>();
     }
 
    void streamBeginLuminosityBlock(edm::StreamID iID, edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
@@ -320,7 +326,7 @@ struct UnsafeCache {
 
     std::unique_ptr<Cache> beginStream(edm::StreamID) const override {
       ++m_count;
-      return std::unique_ptr<Cache>(new Cache);
+      return std::make_unique<Cache>();
     }
     
     std::shared_ptr<UnsafeCache> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
@@ -382,7 +388,7 @@ struct UnsafeCache {
 
     std::unique_ptr<Cache> beginStream(edm::StreamID) const override {
       ++m_count;
-      return std::unique_ptr<Cache>(new Cache);
+      return std::make_unique<Cache>();
     }
   
     std::shared_ptr<UnsafeCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&) const override {
@@ -428,20 +434,21 @@ struct UnsafeCache {
     }
   };
 
-  class TestBeginRunFilter : public edm::global::EDFilter<edm::RunCache<void>,edm::BeginRunProducer> {
+  class TestBeginRunFilter : public edm::global::EDFilter<edm::RunCache<Dummy>,edm::BeginRunProducer> {
   public:
     explicit TestBeginRunFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::BeginRun>("a");
     }
 
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
     mutable std::atomic<bool> brp{false}; 
 
-    std::shared_ptr<void> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&) const override {
+    std::shared_ptr<Dummy> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&) const override {
       brp = false;
-      return std::shared_ptr<void>();
+      return std::shared_ptr<Dummy>();
     }
  
     void globalBeginRunProduce(edm::Run&, edm::EventSetup const&) const override {
@@ -469,19 +476,20 @@ struct UnsafeCache {
     }
   };
 
-  class TestEndRunFilter : public edm::global::EDFilter<edm::RunCache<void>,edm::EndRunProducer> {
+  class TestEndRunFilter : public edm::global::EDFilter<edm::RunCache<Dummy>,edm::EndRunProducer> {
   public:
     explicit TestEndRunFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::EndRun>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
     mutable std::atomic<bool> p{false}; 
 
-    std::shared_ptr<void> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&) const override {
+    std::shared_ptr<Dummy> globalBeginRun(edm::Run const& iRun, edm::EventSetup const&) const override {
       p = false;
-      return std::shared_ptr<void>();
+      return std::shared_ptr<Dummy>();
     }
 
 
@@ -510,19 +518,20 @@ struct UnsafeCache {
     }
   };
 
-  class TestBeginLumiBlockFilter : public edm::global::EDFilter<edm::LuminosityBlockCache<void>,edm::BeginLuminosityBlockProducer> {
+  class TestBeginLumiBlockFilter : public edm::global::EDFilter<edm::LuminosityBlockCache<Dummy>,edm::BeginLuminosityBlockProducer> {
   public:
     explicit TestBeginLumiBlockFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::BeginLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
     mutable std::atomic<bool> gblp{false}; 
 
-    std::shared_ptr<void> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
+    std::shared_ptr<Dummy> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
       gblp = false;
-      return std::shared_ptr<void>();
+      return std::shared_ptr<Dummy>();
     }
 
 
@@ -551,19 +560,20 @@ struct UnsafeCache {
     }
   };
 
-  class TestEndLumiBlockFilter : public edm::global::EDFilter<edm::LuminosityBlockCache<void>,edm::EndLuminosityBlockProducer> {
+  class TestEndLumiBlockFilter : public edm::global::EDFilter<edm::LuminosityBlockCache<Dummy>,edm::EndLuminosityBlockProducer> {
   public:
     explicit TestEndLumiBlockFilter(edm::ParameterSet const& p) :
 	trans_(p.getParameter<int>("transitions")) {
     produces<unsigned int>();
+    produces<unsigned int, edm::Transition::EndLuminosityBlock>("a");
     }
     const unsigned int trans_; 
     mutable std::atomic<unsigned int> m_count{0};
     mutable std::atomic<bool> p{false}; 
 
-    std::shared_ptr<void> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
+    std::shared_ptr<Dummy> globalBeginLuminosityBlock(edm::LuminosityBlock const& iLB, edm::EventSetup const&) const override {
       p = false;
-      return std::shared_ptr<void>();
+      return std::shared_ptr<Dummy>();
     }
 
 

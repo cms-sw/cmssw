@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/DataKeyTags.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include <DataFormats/EgammaCandidates/interface/GsfElectron.h>
@@ -82,10 +81,10 @@ class B2GDQM : public DQMEDAnalyzer {
 
  public:
   B2GDQM(const edm::ParameterSet& ps);
-  virtual ~B2GDQM();
+  ~B2GDQM() override;
 
  protected:
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
   virtual void analyzeJets(edm::Event const& e, edm::EventSetup const& eSetup);
   virtual void analyzeSemiMu(edm::Event const& e,
@@ -95,7 +94,7 @@ class B2GDQM : public DQMEDAnalyzer {
                              edm::EventSetup const& eSetup);
 
  private:
-  virtual void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
+  void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
                               edm::EventSetup const&) override;
   int nLumiSecs_;
   int nEvents_, irun, ievt;

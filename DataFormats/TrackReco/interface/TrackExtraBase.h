@@ -14,7 +14,7 @@
  */
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-
+#include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 namespace reco
 {
 
@@ -22,6 +22,9 @@ class TrackExtraBase
 {
 
 public:
+    using TrajParams = std::vector<LocalTrajectoryParameters>;
+    using Chi2sFive = std::vector<unsigned char>;
+
     /// default constructor
     TrackExtraBase() : m_firstHit(-1), m_nHits(0) { }
 
@@ -29,6 +32,8 @@ public:
         m_hitCollection.pushBackItem(prod.refCore(),true);
         m_firstHit =firstH;  m_nHits=nH;
     }
+
+    void setTrajParams(TrajParams  tmps, Chi2sFive chi2s) { m_trajParams = std::move(tmps); m_chi2sX5 = std::move(chi2s);}
 
     unsigned int firstRecHit() const {
       return m_firstHit;
@@ -52,12 +57,15 @@ public:
 
     /// get a ref to i-th recHit
     TrackingRecHitRef recHitRef(unsigned int i) const {
-      if(m_hitCollection.productPtr()) {
+      //Another thread might change the RefCore at the same time.
+      // By using a copy we will be safe.
+      edm::RefCore hitCollection( m_hitCollection);
+      if(hitCollection.productPtr()) {
         TrackingRecHitRef::finder_type finder;
-        TrackingRecHitRef::value_type const* item = finder(*(static_cast<TrackingRecHitRef::product_type const*>(m_hitCollection.productPtr())), m_firstHit+i);
-        return TrackingRecHitRef(m_hitCollection.id(), item, m_firstHit+i);
+        TrackingRecHitRef::value_type const* item = finder(*(static_cast<TrackingRecHitRef::product_type const*>(hitCollection.productPtr())), m_firstHit+i);
+        return TrackingRecHitRef(hitCollection.id(), item, m_firstHit+i);
       }
-      return TrackingRecHitRef(m_hitCollection,m_firstHit+i);
+      return TrackingRecHitRef(hitCollection,m_firstHit+i);
     }
 
     /// get i-th recHit
@@ -70,12 +78,15 @@ public:
 
     }
 
+    TrajParams const & trajParams() const  {return m_trajParams;}
+    Chi2sFive const & chi2sX5() const { return m_chi2sX5;}
 private:
 
     edm::RefCore m_hitCollection;
     unsigned int m_firstHit;
     unsigned int m_nHits;
-
+    TrajParams m_trajParams; 
+    Chi2sFive m_chi2sX5;  // chi2 * 5  chopped at 255  (max chi2 is 51)
 };
 
 }// namespace reco

@@ -1,7 +1,10 @@
 #include "DetectorDescription/Core/interface/DDScope.h"
 
-dd_scope_class DDScopeClassification::operator()( const DDGeoHistory & left,
-                                                  const DDGeoHistory & right ) const
+#include <ostream>
+
+dd_scope_class
+DDScopeClassification::operator()( const DDGeoHistory & left,
+				   const DDGeoHistory & right ) const
 {
   dd_scope_class result = subtree;
   DDGeoHistory::const_iterator lit = left.begin(); // left-iterator
@@ -38,7 +41,7 @@ DDScope::DDScope( void )
 DDScope::DDScope( const DDGeoHistory & h, int depth )
  : depth_( depth )
 {
-  subtrees_.push_back( h );
+  subtrees_.emplace_back( h );
 }
 
 DDScope::~DDScope( void ) 
@@ -60,19 +63,19 @@ DDScope::addScope( const DDGeoHistory & h )
     switch( classification )
     { 
     case different_branch:
-      buf.push_back( *it );
+      buf.emplace_back( *it );
       diffBranch = true;
       break;
      
     case subtree:
-      buf.push_back( *it );
+      buf.emplace_back( *it );
       subTree = true;
       break;
      
     case supertree:
       ++supertreeCount;
       if( supertreeCount == 1 )
-	buf.push_back(h);
+	buf.emplace_back(h);
       break;
        
     default:
@@ -84,12 +87,12 @@ DDScope::addScope( const DDGeoHistory & h )
   {
     if( subTree == false )
     {
-      buf.push_back(h);
+      buf.emplace_back(h);
     }  
   }
    
-  if( !subtrees_.size()) 
-    subtrees_.push_back( h );
+  if( subtrees_.empty()) 
+    subtrees_.emplace_back( h );
   else  
     subtrees_ = buf;
    

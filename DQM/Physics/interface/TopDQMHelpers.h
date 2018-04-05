@@ -12,7 +12,12 @@
 #include <DataFormats/METReco/interface/PFMET.h>
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
-using namespace std;
+
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
+
 /**
    \fn      accept TopDQMHelpers.h "DQM/Physics/interface/TopDQMHelpers.h"
 
@@ -64,6 +69,72 @@ inline bool accept(const edm::Event& event,
    in TopQuarkAnalysis/TopJetCombination package. It may be extended to include
    b tag information.
 */
+class Calculate_miniAOD {
+ public:
+  /// default constructor
+  Calculate_miniAOD(int maxNJets, double wMass);
+  /// default destructor
+  ~Calculate_miniAOD() {};
+
+  /// calculate W boson mass estimate
+  double massWBoson(const std::vector<pat::Jet>& jets);
+  /// calculate t-quark mass estimate
+  double massTopQuark(const std::vector<pat::Jet>& jets);
+  /// calculate b-tagged t-quark mass estimate
+  // double massBTopQuark(const std::vector<reco::Jet>& jets, std::vector<bool>
+  // bjet);
+  double massBTopQuark(const std::vector<pat::Jet>& jets,
+                       std::vector<double> VbtagWP, double btagWP_);
+
+  /// calculate W boson transverse mass estimate
+  double tmassWBoson(pat::Muon* lep, const pat::MET& met,
+                     const pat::Jet& b);
+  /// calculate top quark transverse mass estimate
+  double tmassTopQuark(pat::Muon* lep, const pat::MET& met,
+                       const pat::Jet& b);
+
+
+  /// calculate W boson transverse mass estimate
+  double tmassWBoson(pat::Electron* lep, const pat::MET& met,
+                     const pat::Jet& b);
+  /// calculate top quark transverse mass estimate
+  double tmassTopQuark(pat::Electron* lep, const pat::MET& met,
+                       const pat::Jet& b);
+
+ private:
+  /// do the calculation; this is called only once per event by the first
+  /// function call to return a mass estimate. The once calculated values
+  /// are cached afterwards
+  void operator()(const std::vector<pat::Jet>& jets);
+  /// do the calculation of the t-quark mass with one b-jet
+  void operator2(const std::vector<pat::Jet>&, std::vector<double>, double);
+  /// do the calculation of the transverse top and W masses
+  void operator()(const pat::Jet& bJet, pat::Electron* lepton,
+                  const pat::MET& met);
+
+  void operator()(const pat::Jet& bJet, pat::Muon* lepton,
+                  const pat::MET& met);
+
+ private:
+  /// indicate failed associations
+  bool failed_;
+  /// max. number of jets to be considered
+  int maxNJets_;
+  /// paramater of the w boson mass
+  double wMass_;
+  /// cache of w boson mass estimate
+  double massWBoson_;
+  /// cache of top quark mass estimate
+  double massTopQuark_;
+  /// cache of b-tagged top quark mass estimate
+  double massBTopQuark_;
+  /// cache of W boson transverse mass estimate
+  double tmassWBoson_;
+  /// cache of top quark transverse mass estimate
+  double tmassTopQuark_;
+};
+
+
 
 class Calculate {
  public:
@@ -233,7 +304,7 @@ class SelectionStep {
 template <typename Object>
 SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg,
                                      edm::ConsumesCollector&& iC)
-    : select_(cfg.getParameter<std::string>("select")), jetIDSelect_(0) {
+    : select_(cfg.getParameter<std::string>("select")), jetIDSelect_(nullptr) {
 
   src_ =
       iC.consumes<edm::View<Object> >(cfg.getParameter<edm::InputTag>("src"));
@@ -421,7 +492,7 @@ bool SelectionStep<Object>::select(const edm::Event& event,
   }
 
   // load jet corrector if configured such
-  const JetCorrector* corrector = 0;
+  const JetCorrector* corrector = nullptr;
   if (!jetCorrector_.empty()) {
     // check whether a jet correcto is in the event setup or not
     if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<

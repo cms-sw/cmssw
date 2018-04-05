@@ -41,7 +41,6 @@ class DTChamberId;
 class DTSuperLayerId;
 class DTLayerId;
 
-//-class DTChamberEfficiencyTest: public edm::EDAnalyzer{
 class DTChamberEfficiencyTest: public DQMEDHarvester{
 
 public:
@@ -50,7 +49,7 @@ public:
   DTChamberEfficiencyTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTChamberEfficiencyTest();
+  ~DTChamberEfficiencyTest() override;
 
 protected:
 
@@ -66,7 +65,7 @@ protected:
   std::string getMEName(std::string histoTag, const DTChamberId & chID);
 
   /// DQM Client Diagnostic
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 
 

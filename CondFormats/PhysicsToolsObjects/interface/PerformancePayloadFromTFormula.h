@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <iostream>
 #include "TFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/BinningPointByMap.h"
@@ -28,7 +28,7 @@ class PerformancePayloadFromTFormula : public PerformancePayload {
 
   PerformancePayloadFromTFormula(){}
 
-  void initialize(); 
+  void initialize() override; 
 
  PerformancePayloadFromTFormula(const PerformancePayloadFromTFormula& b) :
     pl(b.pl), 
@@ -36,19 +36,19 @@ class PerformancePayloadFromTFormula : public PerformancePayload {
     variables_(b.variables_), 
     compiledFormulas_(b.compiledFormulas_) {}
 
-  virtual ~PerformancePayloadFromTFormula(){    
+  ~PerformancePayloadFromTFormula() override{    
     compiledFormulas_.clear();
   }
 
 
 
-  float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const ; // gets from the full payload
+  float getResult(PerformanceResult::ResultType,const BinningPointByMap&) const override ; // gets from the full payload
   
   virtual bool isParametrizedInVariable(const BinningVariables::BinningVariablesType p)  const {
     return (limitPos(p) != PerformancePayloadFromTFormula::InvalidPos);
   }
   
-  virtual bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const ;
+  bool isInPayload(PerformanceResult::ResultType,const BinningPointByMap&) const override ;
   
   const PhysicsTFormulaPayload & formulaPayload() const {return pl;}
   
@@ -86,7 +86,7 @@ class PerformancePayloadFromTFormula : public PerformancePayload {
   //
   // the transient part
   //
-  std::vector< boost::shared_ptr<TFormula> > compiledFormulas_ COND_TRANSIENT;
+  std::vector< std::shared_ptr<const TFormula> > compiledFormulas_ COND_TRANSIENT;
 
  COND_SERIALIZABLE;
 };

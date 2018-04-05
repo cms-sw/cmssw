@@ -8,6 +8,7 @@
 
 #include "cppunit/extensions/HelperMacros.h"
 
+#include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderTemplate.h"
 #include "FWCore/Framework/interface/EventSetupRecordProviderFactoryManager.h"
@@ -22,6 +23,12 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+
+namespace {
+  edm::ActivityRegistry activityRegistry;
+}
 
 using namespace edm;
 using namespace edm::eventsetup;
@@ -85,7 +92,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEventsetupRecord);
 
 void testEventsetupRecord::factoryTest()
 {
-   std::auto_ptr<EventSetupRecordProvider> dummyProvider =
+   std::unique_ptr<EventSetupRecordProvider> dummyProvider =
    EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(
                               EventSetupRecordKey::makeKey<DummyRecord>());
    
@@ -146,7 +153,7 @@ private:
 
 class WorkingDummyProvider : public edm::eventsetup::DataProxyProvider {
 public:
-  WorkingDummyProvider( const edm::eventsetup::DataKey& iKey, boost::shared_ptr<WorkingDummyProxy> iProxy) :
+  WorkingDummyProvider( const edm::eventsetup::DataKey& iKey, std::shared_ptr<WorkingDummyProxy> iProxy) :
   m_key(iKey),
   m_proxy(iProxy) {
     usingRecord<DummyRecord>();
@@ -162,7 +169,7 @@ protected:
   }
 private:
   edm::eventsetup::DataKey m_key;
-  boost::shared_ptr<WorkingDummyProxy> m_proxy;
+  std::shared_ptr<WorkingDummyProxy> m_proxy;
 
 };
 
@@ -190,7 +197,10 @@ void testEventsetupRecord::proxyTest()
 
 void testEventsetupRecord::getTest()
 {
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    DummyRecord dummyRecord;
+   provider.addRecordToEventSetup(dummyRecord);
+
    FailingDummyProxy dummyProxy;
 
    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
@@ -269,7 +279,9 @@ void testEventsetupRecord::getNodataExpTest()
 
 void testEventsetupRecord::getExepTest()
 {
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    DummyRecord dummyRecord;
+   provider.addRecordToEventSetup(dummyRecord);
    FailingDummyProxy dummyProxy;
 
    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),"");
@@ -284,7 +296,10 @@ void testEventsetupRecord::getExepTest()
 
 void testEventsetupRecord::doGetTest()
 {
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    DummyRecord dummyRecord;
+   provider.addRecordToEventSetup(dummyRecord);
+
    FailingDummyProxy dummyProxy;
    
    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
@@ -432,7 +447,9 @@ void testEventsetupRecord::introspectionTest()
 
 void testEventsetupRecord::doGetExepTest()
 {
+   eventsetup::EventSetupProvider provider(&activityRegistry);
    DummyRecord dummyRecord;
+   provider.addRecordToEventSetup(dummyRecord);
    FailingDummyProxy dummyProxy;
    
    const DataKey dummyDataKey(DataKey::makeTypeTag<FailingDummyProxy::value_type>(),
@@ -451,7 +468,7 @@ void testEventsetupRecord::doGetExepTest()
 
 void testEventsetupRecord::proxyResetTest()
 {
-  std::auto_ptr<EventSetupRecordProvider> dummyProvider =
+  std::unique_ptr<EventSetupRecordProvider> dummyProvider =
   EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(
                                                                         EventSetupRecordKey::makeKey<DummyRecord>());
   
@@ -459,17 +476,20 @@ void testEventsetupRecord::proxyResetTest()
   CPPUNIT_ASSERT(0 !=prov);
   if(prov == 0) return; // To silence Coverity
   const EventSetupRecordProviderTemplate<DummyRecord>* constProv = prov;
-   
+
+  eventsetup::EventSetupProvider provider(&activityRegistry);
+  prov->addRecordTo(provider);
+
   const EventSetupRecord& dummyRecord = constProv->record();
 
   unsigned long long cacheID = dummyRecord.cacheIdentifier();
   Dummy myDummy;
-  boost::shared_ptr<WorkingDummyProxy> workingProxy( new WorkingDummyProxy(&myDummy) );
+  std::shared_ptr<WorkingDummyProxy> workingProxy = std::make_shared<WorkingDummyProxy>(&myDummy);
   
   const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
                                "");
 
-  boost::shared_ptr<WorkingDummyProvider> wdProv( new WorkingDummyProvider(workingDataKey, workingProxy) );
+  std::shared_ptr<WorkingDummyProvider> wdProv = std::make_shared<WorkingDummyProvider>(workingDataKey, workingProxy);
   CPPUNIT_ASSERT(0 != wdProv.get());
   if(wdProv.get() == 0) return; // To silence Coverity
   prov->add( wdProv );
@@ -502,13 +522,16 @@ void testEventsetupRecord::proxyResetTest()
 
 void testEventsetupRecord::transientTest()
 {
-   std::auto_ptr<EventSetupRecordProvider> dummyProvider =
+   std::unique_ptr<EventSetupRecordProvider> dummyProvider =
    EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(
                                                                          EventSetupRecordKey::makeKey<DummyRecord>());
    
    EventSetupRecordProviderTemplate<DummyRecord>* prov= dynamic_cast<EventSetupRecordProviderTemplate<DummyRecord>*>(&(*dummyProvider)); 
    CPPUNIT_ASSERT(0 !=prov);
-  if(prov == 0) return; // To silence Coverity
+   if(prov == 0) return; // To silence Coverity
+
+   eventsetup::EventSetupProvider provider(&activityRegistry);
+   prov->addRecordTo(provider);
    
    const EventSetupRecordProviderTemplate<DummyRecord>* constProv = prov;
    const EventSetupRecord& dummyRecord = constProv->record();
@@ -516,12 +539,12 @@ void testEventsetupRecord::transientTest()
    
    unsigned long long cacheID = dummyRecord.cacheIdentifier();
    Dummy myDummy;
-   boost::shared_ptr<WorkingDummyProxy> workingProxy( new WorkingDummyProxy(&myDummy) );
+   std::shared_ptr<WorkingDummyProxy> workingProxy = std::make_shared<WorkingDummyProxy>(&myDummy);
    
    const DataKey workingDataKey(DataKey::makeTypeTag<WorkingDummyProxy::value_type>(),
                                 "");
    
-   boost::shared_ptr<WorkingDummyProvider> wdProv( new WorkingDummyProvider(workingDataKey, workingProxy) );
+   std::shared_ptr<WorkingDummyProvider> wdProv = std::make_shared<WorkingDummyProvider>(workingDataKey, workingProxy);
    prov->add( wdProv );
    
    //this causes the proxies to actually be placed in the Record

@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -54,7 +55,7 @@ class ShiftedParticleProducerT : public edm::stream::EDProducer<>
 
     produces<ParticleCollection>();
   }
-  ~ShiftedParticleProducerT()
+  ~ShiftedParticleProducerT() override
   {
     for ( typename std::vector<binningEntryType*>::const_iterator it = binning_.begin();
 	  it != binning_.end(); ++it ) {
@@ -64,12 +65,12 @@ class ShiftedParticleProducerT : public edm::stream::EDProducer<>
 
  private:
 
-  void produce(edm::Event& evt, const edm::EventSetup& es)
+  void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
     edm::Handle<ParticleCollection> originalParticles;
     evt.getByToken(srcToken_, originalParticles);
 
-    std::auto_ptr<ParticleCollection> shiftedParticles(new ParticleCollection);
+    auto shiftedParticles = std::make_unique<ParticleCollection>();
 
     for ( typename ParticleCollection::const_iterator originalParticle = originalParticles->begin();
 	  originalParticle != originalParticles->end(); ++originalParticle ) {
@@ -86,7 +87,8 @@ class ShiftedParticleProducerT : public edm::stream::EDProducer<>
       double shift = shiftBy_*uncertainty;
 
       reco::Candidate::LorentzVector shiftedParticleP4 = originalParticle->p4();
-      shiftedParticleP4 *= (1. + shift);
+      //leave 0*nan = 0 
+      if (! (edm::isNotFinite(shift) && shiftedParticleP4.mag2()==0)) shiftedParticleP4 *= (1. + shift);
 
       T shiftedParticle(*originalParticle);
       shiftedParticle.setP4(shiftedParticleP4);
@@ -94,7 +96,7 @@ class ShiftedParticleProducerT : public edm::stream::EDProducer<>
       shiftedParticles->push_back(shiftedParticle);
     }
 
-    evt.put(shiftedParticles);
+    evt.put(std::move(shiftedParticles));
   }
 
   std::string moduleLabel_;
@@ -104,7 +106,7 @@ class ShiftedParticleProducerT : public edm::stream::EDProducer<>
   struct binningEntryType
   {
     binningEntryType(double uncertainty)
-      : binSelection_(0),
+      : binSelection_(nullptr),
         binUncertainty_(uncertainty)
     {}
     binningEntryType(const edm::ParameterSet& cfg)

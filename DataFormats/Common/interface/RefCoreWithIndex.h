@@ -8,8 +8,6 @@ RefCoreWithIndex: The component of edm::Ref containing the product ID and produc
     implementation to RefCore.
 
 ----------------------------------------------------------------------*/
-#include "DataFormats/Common/interface/WrapperBase.h"
-#include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/refcore_implementation.h"
@@ -18,25 +16,60 @@ RefCoreWithIndex: The component of edm::Ref containing the product ID and produc
 #include <algorithm>
 #include <typeinfo>
 
-namespace edm {  
+#include <atomic>
+
+namespace edm {
+  class EDProductGetter;
+  class WrapperBase;
+
   class RefCoreWithIndex {
   public:
-    RefCoreWithIndex() :  cachePtr_(0),processIndex_(0),productIndex_(0),elementIndex_(edm::key_traits<unsigned int>::value) {}
+    RefCoreWithIndex() :  cachePtr_(nullptr),processIndex_(0),productIndex_(0),elementIndex_(edm::key_traits<unsigned int>::value) {}
 
     RefCoreWithIndex(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient, unsigned int elementIndex);
 
     RefCoreWithIndex(RefCore const& iCore, unsigned int);
     
+    RefCoreWithIndex( RefCoreWithIndex const&);
+    
+    RefCoreWithIndex& operator=(RefCoreWithIndex const&);
+
+    RefCoreWithIndex( RefCoreWithIndex&& iOther) noexcept : 
+    processIndex_(iOther.processIndex_),
+    productIndex_(iOther.productIndex_),elementIndex_(iOther.elementIndex_) {
+      cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
+    }
+
+    RefCoreWithIndex& operator=(RefCoreWithIndex&& iOther) noexcept {
+       cachePtr_.store(iOther.cachePtr_.load(std::memory_order_relaxed), std::memory_order_relaxed);
+       processIndex_ = iOther.processIndex_;
+       productIndex_ = iOther.productIndex_;
+       elementIndex_ = iOther.elementIndex_;
+       return *this;
+    }
+
+    ~RefCoreWithIndex() noexcept {}
+
     ProductID id() const {ID_IMPL;}
 
     /**If productPtr is not 0 then productGetter will be 0 since only one is available at a time */
     void const* productPtr() const {PRODUCTPTR_IMPL;}
 
-    void setProductPtr(void const* prodPtr) const { 
-      cachePtr_=prodPtr;
-      setCacheIsProductPtr();
+    /**This function is 'const' even though it changes an internal value becuase it is meant to be
+     used as a way to store in a thread-safe way a cache of a value. This allows classes which use
+     the RefCore to not have to declare it 'mutable'
+     */
+    void setProductPtr(void const* prodPtr) const {
+      setCacheIsProductPtr(prodPtr);
     }
 
+    /**This function is 'const' even though it changes an internal value becuase it is meant to be
+     used as a way to store in a thread-safe way a cache of a value. This allows classes which use
+     the RefCore to not have to declare it 'mutable'
+     */
+    bool tryToSetProductPtrForFirstTime(void const* prodPtr) const {
+      return refcoreimpl::tryToSetCacheItemForFirstTime(cachePtr_, prodPtr);
+    }
     
     unsigned int index() const { return elementIndex_;}
     
@@ -69,8 +102,8 @@ namespace edm {
       toRefCore().setProductGetter(prodGetter);
     }
 
-    WrapperBase const* getProductPtr(std::type_info const& type) const {
-      return toRefCore().getProductPtr(type);
+    WrapperBase const* getProductPtr(std::type_info const& type, EDProductGetter const* prodGetter) const {
+      return toRefCore().getProductPtr(type,prodGetter);
     }
 
     void productNotFoundException(std::type_info const& type) const {
@@ -104,18 +137,21 @@ namespace edm {
       toUnConstRefCore().setId(iId);
     }
     void setTransient() {SETTRANSIENT_IMPL;}
-    void setCacheIsProductPtr() const {SETCACHEISPRODUCTPTR_IMPL;}
-    void unsetCacheIsProductPtr() const {UNSETCACHEISPRODUCTPTR_IMPL;}
-    bool cacheIsProductPtr() const {CACHEISPRODUCTPTR_IMPL;}
+    void setCacheIsProductPtr(void const* iItem) const {SETCACHEISPRODUCTPTR_IMPL(iItem);}
+    void setCacheIsProductGetter(EDProductGetter const* iGetter) const {SETCACHEISPRODUCTGETTER_IMPL(iGetter);}
 
     //NOTE: the order MUST remain the same as a RefCore
     // since we play tricks to allow a pointer to a RefCoreWithIndex
     // to be the same as a pointer to a RefCore
-    mutable void const* cachePtr_;               // transient
-    //The following are what is stored in a ProductID
-    // the high two bits of processIndex are used to store info on
-    // if this is transient and if the cachePtr_ is storing the productPtr
-    mutable ProcessIndex processIndex_;
+
+    //The low bit of the address is used to determine  if the cachePtr_
+    // is storing the productPtr or the EDProductGetter. The bit is set if
+    // the address refers to the EDProductGetter.
+    mutable std::atomic<void const*> cachePtr_; // transient
+    //The following is what is stored in a ProductID
+    // the high bit of processIndex is used to store info on
+    // if this is transient.
+    ProcessIndex processIndex_;
     ProductIndex productIndex_;
     unsigned int elementIndex_;
 
@@ -126,7 +162,7 @@ namespace edm {
   RefCoreWithIndex::swap(RefCoreWithIndex & other) {
     std::swap(processIndex_, other.processIndex_);
     std::swap(productIndex_, other.productIndex_);
-    std::swap(cachePtr_, other.cachePtr_);
+    other.cachePtr_.store(cachePtr_.exchange(other.cachePtr_.load()));
     std::swap(elementIndex_,other.elementIndex_);
   }
 

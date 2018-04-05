@@ -1,45 +1,43 @@
-/***************************************************************************
-                          testShapes.cpp  -  description
-                             -------------------
-    Author               : Michael Case
-    email                : case@physics.ucdavis.edu
-
-    Last Updated         : May 29, 2007
- ***************************************************************************/
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <vector>
+
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
 int main(int /*argc*/, char **/*argv[]*/)
 {
   std::cout  << "" << std::endl;
   std::vector<std::string> ddShapeTypeNames;
-  ddShapeTypeNames.push_back("dd_not_init");
-  ddShapeTypeNames.push_back("ddbox"); 
-  ddShapeTypeNames.push_back("ddtubs"); 
-  ddShapeTypeNames.push_back("ddtrap"); 
-  ddShapeTypeNames.push_back("ddcons");
-  ddShapeTypeNames.push_back("ddpolycone_rz"); 
-  ddShapeTypeNames.push_back("ddpolyhedra_rz");
-  ddShapeTypeNames.push_back("ddpolycone_rrz"); 
-  ddShapeTypeNames.push_back("ddpolyhedra_rrz");
-  ddShapeTypeNames.push_back("ddtorus");
-  ddShapeTypeNames.push_back("ddunion"); 
-  ddShapeTypeNames.push_back("ddsubtraction"); 
-  ddShapeTypeNames.push_back("ddintersection");
-  ddShapeTypeNames.push_back("ddreflected");
-  ddShapeTypeNames.push_back("ddshapeless");
-  ddShapeTypeNames.push_back("ddpseudotrap");
-  ddShapeTypeNames.push_back("ddtrunctubs");
-  ddShapeTypeNames.push_back("ddsphere");
-  ddShapeTypeNames.push_back("ddorb");
-  ddShapeTypeNames.push_back("ddellipticaltube");
-  ddShapeTypeNames.push_back("ddellipsoid");
+  ddShapeTypeNames.emplace_back("dd_not_init");
+  ddShapeTypeNames.emplace_back("ddbox"); 
+  ddShapeTypeNames.emplace_back("ddtubs"); 
+  ddShapeTypeNames.emplace_back("ddtrap"); 
+  ddShapeTypeNames.emplace_back("ddcons");
+  ddShapeTypeNames.emplace_back("ddpolycone_rz"); 
+  ddShapeTypeNames.emplace_back("ddpolyhedra_rz");
+  ddShapeTypeNames.emplace_back("ddpolycone_rrz"); 
+  ddShapeTypeNames.emplace_back("ddpolyhedra_rrz");
+  ddShapeTypeNames.emplace_back("ddtorus");
+  ddShapeTypeNames.emplace_back("ddunion"); 
+  ddShapeTypeNames.emplace_back("ddsubtraction"); 
+  ddShapeTypeNames.emplace_back("ddintersection");
+  ddShapeTypeNames.emplace_back("ddreflected");
+  ddShapeTypeNames.emplace_back("ddshapeless");
+  ddShapeTypeNames.emplace_back("ddpseudotrap");
+  ddShapeTypeNames.emplace_back("ddtrunctubs");
+  ddShapeTypeNames.emplace_back("ddsphere");
+  ddShapeTypeNames.emplace_back("ddorb");
+  ddShapeTypeNames.emplace_back("ddellipticaltube");
+  ddShapeTypeNames.emplace_back("ddellipsoid");
+  ddShapeTypeNames.emplace_back("ddparallelepiped");
+  ddShapeTypeNames.emplace_back("ddcuttubs");
+  ddShapeTypeNames.emplace_back("ddextrudedpolygon");
+  ddShapeTypeNames.emplace_back("ddmultiunion");
 
   DDSolidShapesName ssn;
   DDSolidShape ish(dd_not_init);
-  for ( ; ish <= ddellipsoid; ish=DDSolidShape(ish+1) ) {
+  for ( ; ish <= ddextrudedpolygon; ish=DDSolidShape(ish+1) ) {
     switch (ish) {
     case 0:
       std::cout << ddShapeTypeNames[0] << " " << ssn.name(ish) << " " <<  dd_not_init;
@@ -103,6 +101,18 @@ int main(int /*argc*/, char **/*argv[]*/)
       break;
     case 20:
       std::cout << ddShapeTypeNames[20] << " " << ssn.name(ish) << " " <<  ddellipsoid;
+      break;
+    case 21:
+      std::cout << ddShapeTypeNames[21] << " " << ssn.name(ish) << " " <<  ddparallelepiped;
+      break;
+    case 22:
+      std::cout << ddShapeTypeNames[22] << " " << ssn.name(ish) << " " <<  ddcuttubs;
+      break;
+    case 23:
+      std::cout << ddShapeTypeNames[23] << " " << ssn.name(ish) << " " <<  ddextrudedpolygon;
+      break;
+    case 24:
+      std::cout << ddShapeTypeNames[24] << " " << ssn.name(ish) << " " <<  ddmultiunion;
       break;
     default:
       std::cout << "ERROR! No such shape!";

@@ -13,7 +13,7 @@ class DCCTBXtalBlock : public DCCTBBlockPrototype {
 		
 		DCCTBXtalBlock(
 			DCCTBDataParser * parser, 
-			uint32_t * buffer,
+			const uint32_t * buffer,
 			uint32_t numbBytes,
 			uint32_t wordsToEnd,  
 			uint32_t wordEventOffset,
@@ -27,7 +27,7 @@ class DCCTBXtalBlock : public DCCTBBlockPrototype {
 		std::vector<int> xtalDataSamples();
 
 	protected :
-		
+		using DCCTBBlockPrototype::increment;
 		void increment(uint32_t numb);
 		
 		enum xtalBlockFields{ BPOSITION_BLOCKID = 30, BLOCKID = 3};

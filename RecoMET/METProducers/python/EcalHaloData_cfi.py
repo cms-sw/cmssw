@@ -9,11 +9,11 @@ EcalHaloData= cms.EDProducer("EcalHaloDataProducer",
                              EBRecHitLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
                              EERecHitLabel = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
                              ESRecHitLabel = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
-                             
+                             HBHERecHitLabel = cms.InputTag("hbhereco"),
                              # Higher Level Reco
                              SuperClusterLabel = cms.InputTag("correctedHybridSuperClusters"),
 #                             SuperClusterLabel = cms.InputTag("cosmicSuperClusters","CosmicBarrelSuperClusters"),
-                             PhotonLabel = cms.InputTag("photons"),
+                             PhotonLabel = cms.InputTag(""),
                              
                              EBRecHitEnergyThresholdParam = cms.double(0.3),
                              EERecHitEnergyThresholdParam = cms.double(0.3),

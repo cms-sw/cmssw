@@ -12,10 +12,10 @@ class ODVfeToRejectDat : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODVfeToRejectDat();
-  ~ODVfeToRejectDat();
+  ~ODVfeToRejectDat() override;
 
   // User data methods
-  inline std::string getTable() { return "VFES_TO_REJECT_DAT"; }
+  inline std::string getTable() override { return "VFES_TO_REJECT_DAT"; }
 
   inline void setId(int dac) { m_ID = dac; }
   inline int getId() const { return m_ID; }
@@ -38,17 +38,17 @@ class ODVfeToRejectDat : public IODConfig {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const ODVfeToRejectDat* item, ODVfeToRejectInfo* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::vector< ODVfeToRejectDat >& data, ODVfeToRejectInfo* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
 
   void fetchData(std::vector< ODVfeToRejectDat >* fillMap, ODVfeToRejectInfo* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
 

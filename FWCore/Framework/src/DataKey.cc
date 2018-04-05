@@ -85,7 +85,7 @@ DataKey::swap(DataKey& iOther)
             }
             ArrayHolder(const char* iPtr): ptr_(iPtr) {}
             ~ArrayHolder() { delete [] ptr_; }
-            void release() { ptr_=0;}
+            void release() { ptr_=nullptr;}
          private:
             const char* ptr_;
          };

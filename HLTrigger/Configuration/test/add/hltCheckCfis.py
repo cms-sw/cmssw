@@ -11,19 +11,19 @@ def check(dir) :
                 p = cms.Process("DUMMY1")
                 try:
                     p.load(root[len(dir)+1:]+"/"+f[:-3])
-                except ImportError,e:
+                except ImportError as e:
                     print root[len(dir)+1:], f
                     print "ImportError:",e
-                except RuntimeError, e:
+                except RuntimeError as e:
                     print root[len(dir)+1:], f
                     print "RuntimeError:", e
-                except ValueError,e:
+                except ValueError as e:
                     print root[len(dir)+1:], f
                     print "ValueError:",e
-                except NameError, e:
+                except NameError as e:
                     print root[len(dir)+1:], f
                     print "NameError:",e
-                except TypeError, e:
+                except TypeError as e:
                     print root[len(dir)+1:], f
                     print "NameError:",e
 

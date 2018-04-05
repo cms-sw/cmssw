@@ -18,7 +18,6 @@
 #include "TRealData.h"
 #include "TROOT.h"
 
-#include "boost/thread/tss.hpp"
 #include "tbb/concurrent_unordered_map.h"
 
 #include <cassert>
@@ -129,7 +128,7 @@ namespace edm {
       ret.arrayDimensions_ = value_ptr<std::vector<size_t> >(new std::vector<size_t>);
       std::string const dimensions = name.substr(first);
       char const* s = dimensions.c_str();
-      while(1) {
+      while(true) {
         size_t x = 0;
         int count = sscanf(s, "[%lu]", &x);
         assert(count == 1);
@@ -350,11 +349,32 @@ namespace edm {
     return false;
   }
 
+  bool TypeWithDict::invalidTypeInfo() const {
+    return *ti_ == typeid(dummyType) || isPointer() || isArray();
+  }
+
   std::type_info const&
   TypeWithDict::typeInfo() const {
     if(*ti_ == typeid(dummyType) || isPointer() || isArray()) {
       // No accurate type_info
-      assert(qualifiedName().c_str() == nullptr);
+      if(qualifiedName().c_str() != nullptr) {
+        std::string category("unknown");
+        if(isPointer()) {
+          category = "a pointer";
+        } else if(isArray()) {
+          category = "an array";
+        } else if(isEnum()) {
+          category = "an enum";
+        } else if(isClass()) {
+          throw Exception(errors::DictionaryNotFound)
+          << "No Dictionary for class: '" << name() << "'" << std::endl;
+        }
+        throw Exception(errors::LogicError)
+          << "Function TypeWithDict::typeInfo: Type\n"
+          << qualifiedName()
+          << "\ndoes not have valid type_info information in ROOT\n"
+          << "because it is " << category << ".\n";
+      }
     }
     return *ti_;
   }
@@ -490,6 +510,8 @@ namespace edm {
          out <<  "::";
       }
       out << enum_->GetName();
+    } else if (*ti_ == typeid(dummyType) && isClass())  {
+      out << class_->GetName();
     } else {
       out << TypeID(*ti_).className();
     }

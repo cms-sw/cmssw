@@ -6,7 +6,7 @@
 #define HcalQIEManager_h
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include "CaloOnlineTools/HcalOnlineDb/interface/HCALConfigDB.h"
 
 /**

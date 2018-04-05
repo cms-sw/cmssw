@@ -13,5 +13,6 @@ pythia8aMCatNLOSettingsBlock = cms.PSet(
       'TimeShower:nMaxGlobalRecoil = 1',
       'TimeShower:globalRecoilMode = 2',
       'TimeShower:nMaxGlobalBranch = 1',
+      'TimeShower:weightGluonToQuark = 1',
     )
 )

@@ -68,7 +68,7 @@ NominalEfficiencyThresholds::NominalEfficiencyThresholds(const string & infile)
   FILE *INFILE;
   char buffer[81];
   char tag[5];
-  if ( (INFILE=fopen(infile.c_str(),"r")) == NULL) {
+  if ( (INFILE=fopen(infile.c_str(),"r")) == nullptr) {
     cout << "Cannot open input file " << infile <<endl;
     return;
   }

@@ -15,7 +15,7 @@ using namespace sistrip;
 // 
 ApvTimingAlgorithm::ApvTimingAlgorithm( const edm::ParameterSet & pset, ApvTimingAnalysis* const anal ) 
   : CommissioningAlgorithm(anal),
-    histo_(0,"")
+    histo_(nullptr,"")
 {;}
 
 // ----------------------------------------------------------------------------

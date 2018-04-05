@@ -50,7 +50,7 @@ class DTTSTheta : public DTTSThetaManager, public DTGeomSupplier {
     DTTSTheta(DTTrigGeom*, DTBtiCard*);
 
     ///  Destructor 
-    ~DTTSTheta();
+    ~DTTSTheta() override;
 
     /// Return configuration
     inline const DTConfigTSTheta* config() const { return _config; }
@@ -71,16 +71,16 @@ class DTTSTheta : public DTTSThetaManager, public DTGeomSupplier {
     int nHTrig(int step);
 
     /// Local position in chamber of a L1Trigger-data object
-    LocalPoint localPosition(const DTTrigData*) const;
+    LocalPoint localPosition(const DTTrigData*) const override;
 
     /// Local direction in chamber of a L1Trigger-data object
-    LocalVector localDirection(const DTTrigData*) const;
+    LocalVector localDirection(const DTTrigData*) const override;
 
     /// Print a L1Trigger-data object with also local and global position/direction
-    void print(const DTTrigData* trig) const;
+    void print(const DTTrigData* trig) const override;
 
     /// Load BTIs triggers and run TSTheta algoritm
-    void reconstruct() { loadDTTSTheta(); runDTTSTheta(); }
+    void reconstruct() override { loadDTTSTheta(); runDTTSTheta(); }
 
   private:
 

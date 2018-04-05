@@ -42,7 +42,7 @@ HistoCompare::~HistoCompare() {
 
 TH1* HistoCompare::Compare(TH1 *h, const TString& hname) {
 
-	if (do_nothing_) return 0;
+	if (do_nothing_) return nullptr;
 	
 	//std::cout << "histo: " << h->GetName() << " entries: "<< h->GetEntries() << std::endl;
 	//std::cout << "hname: " << hname << std::endl;

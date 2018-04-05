@@ -1,30 +1,20 @@
-/***************************************************************************
-                          DDLCompositeMaterial.cc  -  description
-                             -------------------
-    begin                : Wed Oct 31 2001
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLCompositeMaterial.h"
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
-
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDLMaterial.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include <cstddef>
+#include <map>
+#include <utility>
+
+class DDCompactView;
 
 DDLCompositeMaterial::DDLCompositeMaterial( DDLElementRegistry* myreg )
   : DDLMaterial( myreg )
-{}
-
-DDLCompositeMaterial::~DDLCompositeMaterial( void )
 {}
 
 // to initialize the CompositeMaterial, clear all rMaterials in case some other 
@@ -40,8 +30,6 @@ DDLCompositeMaterial::preProcessElement( const std::string& name, const std::str
 void
 DDLCompositeMaterial::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLCompositeMaterial::processElement started");
-
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
@@ -51,8 +39,8 @@ DDLCompositeMaterial::processElement( const std::string& name, const std::string
   mat = DDMaterial( ddn, ev.eval( nmspace, atts.find( "density" )->second ));
   
   // Get references to relevant DDL elements that are needed.
-  DDXMLElement* myMF = myRegistry_->getElement( "MaterialFraction" );
-  DDXMLElement* myrMaterial = myRegistry_->getElement( "rMaterial" );
+  auto myMF = myRegistry_->getElement( "MaterialFraction" );
+  auto myrMaterial = myRegistry_->getElement( "rMaterial" );
 
   // Get the names from those elements and also the namespace for the reference element.
   // The parent element CompositeMaterial MUST be in the same namespace as this fraction.
@@ -85,6 +73,4 @@ DDLCompositeMaterial::processElement( const std::string& name, const std::string
   DDLMaterial::setReference( nmspace, cpv );
   myMF->clear();
   clear();
-  // print it.
-  DCOUT_V('P', "DDLCompositeMaterial::processElement completed " << mat);
 }

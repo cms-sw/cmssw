@@ -145,7 +145,7 @@ namespace sistrip{
       ++digi_it;
       
       if (lCount%sistrip::STRIPS_PER_APV == 0 && fillApvsForCM) {
-	if (apvVec.size()) apvs.push_back(apvVec);
+	if (!apvVec.empty()) apvs.push_back(apvVec);
 	apvVec.clear();
 	apvVec.reserve(sistrip::STRIPS_PER_APV);
       }
@@ -203,7 +203,7 @@ namespace sistrip{
 
   void FEDEmulator::zeroSuppress(const std::vector<SiStripRawDigi> & cmSubtrDetSetData,
 				 edm::DetSet<SiStripDigi>    & zsDetSetData,
-				 const std::auto_ptr<SiStripRawProcessingAlgorithms> & algorithms)
+				 const std::unique_ptr<SiStripRawProcessingAlgorithms> & algorithms)
   {
     //transform the input digis to a vector of integers
     std::vector<int16_t> cmSubtrRawDigis;

@@ -22,11 +22,11 @@ RPCPacMuon RPCPac::run(const RPCLogCone & cone) const
   
   RPCPacMuon bestMuon;
   //track  
-  if(m_pacData->m_TrackPatternsGroup.m_PatternsItVec.size() > 0)
+  if(!m_pacData->m_TrackPatternsGroup.m_PatternsItVec.empty())
     bestMuon = runTrackPatternsGroup(cone);
 
   //energetic
-  if(m_pacData->m_EnergeticPatternsGroupList.size() > 0)
+  if(!m_pacData->m_EnergeticPatternsGroupList.empty())
     {
       RPCPacMuon bufMuon = runEnergeticPatternsGroups(cone);
       if(bufMuon > bestMuon)

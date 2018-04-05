@@ -36,6 +36,8 @@
 #include "PhysicsTools/MVAComputer/interface/mva_computer_define_plugin.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <boost/filesystem.hpp>
+
 using namespace PhysicsTools;
 
 namespace { // anonymous
@@ -48,14 +50,14 @@ class ProcTMVA : public VarProcessor {
 	ProcTMVA(const char *name,
 	         const Calibration::ProcExternal *calib,
 	         const MVAComputer *computer);
-	virtual ~ProcTMVA() {}
+	~ProcTMVA() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
 
     private:
-  std::auto_ptr<TMVA::Reader>     reader;
-  std::auto_ptr<TMVA::MethodBase> method;
+  std::unique_ptr<TMVA::Reader>     reader;
+  TMVA::MethodBase* method;
   std::string   methodName;
   unsigned int  nVars;
 
@@ -63,7 +65,7 @@ class ProcTMVA : public VarProcessor {
   TString   methodName_t;
 };
 
-static ProcTMVA::Registry registry("ProcTMVA");
+ProcTMVA::Registry registry("ProcTMVA");
 
 ProcTMVA::ProcTMVA(const char *name,
                    const Calibration::ProcExternal *calib,
@@ -71,7 +73,7 @@ ProcTMVA::ProcTMVA(const char *name,
 	VarProcessor(name, calib, computer)
 {
 
-  reader = std::auto_ptr<TMVA::Reader>(new TMVA::Reader( "!Color:Silent" ));
+  reader = std::unique_ptr<TMVA::Reader>(new TMVA::Reader( "!Color:Silent" ));
   
   ext::imemstream is(
 		     reinterpret_cast<const char*>(&calib->store.front()),
@@ -103,12 +105,10 @@ ProcTMVA::ProcTMVA(const char *name,
     TMVA::Types::Instance().GetMethodType(methodName);
   // Check if xml format
   if (weight_text.find("<?xml") != std::string::npos) {
-   method = std::auto_ptr<TMVA::MethodBase>
-     ( dynamic_cast<TMVA::MethodBase*>
-       ( reader->BookMVA( methodType, weight_text.c_str() ) ) );
+     method = dynamic_cast<TMVA::MethodBase*>( reader->BookMVA( methodType, weight_text.c_str() ) );
   } else {
     // Write to a temporary file
-    TString weight_file_name(std::tmpnam(NULL));
+    TString weight_file_name(boost::filesystem::unique_path().c_str());
     std::ofstream weight_file;
     weight_file.open(weight_file_name.Data());
     weight_file << weight_text;
@@ -116,9 +116,7 @@ ProcTMVA::ProcTMVA(const char *name,
     edm::LogInfo("LegacyMVA") << "Building legacy TMVA plugin - "
       << "the weights are being stored in " << weight_file_name << std::endl;
     methodName_t.Append(methodName.c_str());
-    method = std::auto_ptr<TMVA::MethodBase>
-      ( dynamic_cast<TMVA::MethodBase*>
-        ( reader->BookMVA( methodName_t, weight_file_name ) ) );
+    method = dynamic_cast<TMVA::MethodBase*>( reader->BookMVA( methodName_t, weight_file_name ) );
     remove(weight_file_name.Data());
   }
 
@@ -172,14 +170,14 @@ ProcTMVA::ProcTMVA(const char *name,
 			  TMVA::Types::Instance().GetMethodType(methodName);
 
  if (isXml){
-   method = std::auto_ptr<TMVA::MethodBase>
+   method = std::unique_ptr<TMVA::MethodBase>
      ( dynamic_cast<TMVA::MethodBase*>
        ( reader->BookMVA( methodType, weights.c_str() ) ) ); 
  }
  else{
    methodName_t.Clear();
    methodName_t.Append(methodName.c_str());
-   method = std::auto_ptr<TMVA::MethodBase>
+   method = std::unique_ptr<TMVA::MethodBase>
      ( dynamic_cast<TMVA::MethodBase*>
        ( reader->BookMVA( methodName_t, weight_file_name ) ) );
  }
@@ -204,7 +202,7 @@ void ProcTMVA::eval(ValueIterator iter, unsigned int n) const
   inputs.reserve(n);
 	for(unsigned int i = 0; i < n; i++)
     inputs.push_back(*iter++);
-  std::auto_ptr<TMVA::Event> evt(new TMVA::Event(inputs, 2));
+  std::unique_ptr<TMVA::Event> evt(new TMVA::Event(inputs, 2));
 
   double result = method->GetMvaValue(evt.get());
 

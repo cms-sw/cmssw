@@ -27,11 +27,21 @@ namespace cms
     metToken_ = consumes<edm::View<reco::MET> >(iConfig.getParameter<edm::InputTag>("srcMet"));
     pfCandidatesToken_ = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("srcPFCandidates"));
 
+    jetSFType_ = iConfig.getParameter<std::string>("srcJetSF");
+    jetResPtType_ = iConfig.getParameter<std::string>("srcJetResPt");
+    jetResPhiType_ = iConfig.getParameter<std::string>("srcJetResPhi");
+    rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
+
     metSigAlgo_ = new metsig::METSignificance(iConfig);
 
    produces<double>("METSignificance");
    produces<math::Error<2>::type>("METCovariance");
    
+  }
+
+  METSignificanceProducer::~METSignificanceProducer()
+  {
+     delete metSigAlgo_;
   }
 
 //____________________________________________________________________________||
@@ -68,23 +78,30 @@ namespace cms
    //
    edm::Handle<edm::View<reco::Jet> > jets;
    event.getByToken( pfjetsToken_, jets );
+
+   edm::Handle<double> rho;
+   event.getByToken(rhoToken_, rho);
+
+   JME::JetResolution resPtObj = JME::JetResolution::get(setup, jetResPtType_);
+   JME::JetResolution resPhiObj = JME::JetResolution::get(setup, jetResPhiType_);
+   JME::JetResolutionScaleFactor resSFObj = JME::JetResolutionScaleFactor::get(setup, jetSFType_);
    
    //
    // compute the significance
    //
-   const reco::METCovMatrix cov = metSigAlgo_->getCovariance( *jets, leptons, *pfCandidates);
+   const reco::METCovMatrix cov = metSigAlgo_->getCovariance( *jets, leptons, pfCandidates, *rho, resPtObj, resPhiObj, resSFObj, event.isRealData() );
    double sig  = metSigAlgo_->getSignificance(cov, met);
 
-   std::auto_ptr<double> significance (new double);
+   auto significance = std::make_unique<double>();
    (*significance) = sig;
    
-   std::auto_ptr<math::Error<2>::type> covPtr(new math::Error<2>::type());
+   auto covPtr = std::make_unique<math::Error<2>::type>();
    (*covPtr)(0,0) = cov(0,0);
    (*covPtr)(1,0) = cov(1,0);
    (*covPtr)(1,1) = cov(1,1);
 
-   event.put( covPtr, "METCovariance" );
-   event.put( significance, "METSignificance" );
+   event.put(std::move(covPtr), "METCovariance" );
+   event.put(std::move(significance), "METSignificance" );
 
   }
 

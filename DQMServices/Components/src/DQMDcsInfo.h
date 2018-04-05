@@ -13,7 +13,6 @@
 #include <FWCore/Framework/interface/Run.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/ParameterSet/interface/Registry.h>
 #include <FWCore/ServiceRegistry/interface/Service.h>
 
 #include <DQMServices/Core/interface/DQMStore.h>
@@ -31,14 +30,14 @@ public:
   DQMDcsInfo(const edm::ParameterSet& ps);
 
   /// Destructor
-  virtual ~DQMDcsInfo();
+  ~DQMDcsInfo() override;
 
 protected:
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
+  void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
 
 private:
 

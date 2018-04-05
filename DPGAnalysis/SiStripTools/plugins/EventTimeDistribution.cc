@@ -54,15 +54,15 @@
 class EventTimeDistribution : public edm::EDAnalyzer {
  public:
     explicit EventTimeDistribution(const edm::ParameterSet&);
-    ~EventTimeDistribution();
+    ~EventTimeDistribution() override;
 
 
    private:
-      virtual void beginJob() override ;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void beginRun(const edm::Run&, const edm::EventSetup&) override;
+      void endRun(const edm::Run&, const edm::EventSetup&) override;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
 
@@ -120,7 +120,7 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig):
   m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",4)),
   m_ewhdepthHisto(iConfig.getUntrackedParameter<bool>("wantEWHDepthHisto",false)),
   _rhm(consumesCollector()),
-  _dbxvsbxincycle(0),   _dbxvsbx(0),   _bxincyclevsbx(0),   _orbitvsbxincycle(0), m_ewhdepth(0)
+  _dbxvsbxincycle(nullptr),   _dbxvsbx(nullptr),   _bxincyclevsbx(nullptr),   _orbitvsbxincycle(nullptr), m_ewhdepth(nullptr)
 {
    //now do what ever initialization is needed
 
@@ -187,9 +187,9 @@ EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSetup& 
      (*(*dbxhist))->Fill(he->deltaBX(indices->first,indices->second));
    }
 
-   (*_bx)->Fill(iEvent.bunchCrossing());
+   (*_bx)->Fill(iEvent.bunchCrossing()%3564);
    (*_orbit)->Fill(iEvent.orbitNumber());
-   if(_dbxvsbx && *_dbxvsbx) (*_dbxvsbx)->Fill(iEvent.bunchCrossing(),he->deltaBX());
+   if(_dbxvsbx && *_dbxvsbx) (*_dbxvsbx)->Fill(iEvent.bunchCrossing()%3564,he->deltaBX());
    if(m_ewhdepth && *m_ewhdepth) (*m_ewhdepth)->Fill(he->depth());
 
    edm::Handle<APVCyclePhaseCollection> apvphase;
@@ -205,7 +205,7 @@ EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSetup& 
        tbx -= thephase;
        (*_bxincycle)->Fill(tbx%70);
        if(_dbxvsbxincycle && *_dbxvsbxincycle) (*_dbxvsbxincycle)->Fill(tbx%70,he->deltaBX());
-       if(_bxincyclevsbx && *_bxincyclevsbx) (*_bxincyclevsbx)->Fill(iEvent.bunchCrossing(),tbx%70);
+       if(_bxincyclevsbx && *_bxincyclevsbx) (*_bxincyclevsbx)->Fill(iEvent.bunchCrossing()%3564,tbx%70);
        if(_orbitvsbxincycle && *_orbitvsbxincycle) (*_orbitvsbxincycle)->Fill(tbx%70,iEvent.orbitNumber());
 
      }
@@ -235,7 +235,7 @@ EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
   if(*_bxincycle) {  (*_bxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); }
 
   if(*_orbit) {
-    (*_orbit)->SetBit(TH1::kCanRebin);
+    (*_orbit)->SetCanExtend(TH1::kXaxis);
     (*_orbit)->GetXaxis()->SetTitle("time [Orb#]");
   }
 
@@ -252,7 +252,7 @@ EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
   }
 
   if(_orbitvsbxincycle && *_orbitvsbxincycle) {
-    (*_orbitvsbxincycle)->SetBit(TH1::kCanRebin);
+    (*_orbitvsbxincycle)->SetCanExtend(TH1::kYaxis);
     (*_orbitvsbxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); (*_orbitvsbxincycle)->GetYaxis()->SetTitle("time [Orb#]");
   }
 

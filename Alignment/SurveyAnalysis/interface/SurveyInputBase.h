@@ -19,16 +19,16 @@ class SurveyInputBase:
 {
   public:
 
-  virtual ~SurveyInputBase();
+  ~SurveyInputBase() override;
 
   /// Read data from input.
-  virtual void beginJob() { theFirstEvent = true; }
+  void beginJob() override { theFirstEvent = true; }
 
   /// Do nothing for each event.
-  virtual void analyze(
+  void analyze(
 		       const edm::Event&,
 		       const edm::EventSetup&
-		       ) = 0;
+		       ) override = 0;
 
   /// Get alignable detector as read from input.
   inline static Alignable* detector();

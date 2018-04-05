@@ -1,0 +1,50 @@
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("fedBadChannelFromNoiseRun")
+process.MessageLogger = cms.Service("MessageLogger",
+    cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('INFO')
+    ),
+    destinations = cms.untracked.vstring('cout')
+)
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
+
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+
+
+process.source = cms.Source("EmptyIOVSource",
+    firstValue = cms.uint64(258714),
+    lastValue = cms.uint64(258714),
+    timetype = cms.string('runnumber'),
+    interval = cms.uint64(1)
+)
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(-1)
+)
+process.load("CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi")
+from CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi import siStripBadModuleFedErrESSource
+siStripBadModuleFedErrESSource.appendToDataLabel = cms.string('BadModules_from_FEDBadChannel')
+siStripBadModuleFedErrESSource.ReadFromFile = cms.bool(False)
+
+process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
+        cms.PSet(record = cms.string('SiStripBadModuleFedErrRcd'), tag = cms.string('BadModules_from_FEDBadChannel'))
+#        cms.PSet(record = cms.string('SiStripDetCablingRcd'), tag = cms.string(''))
+)
+process.siStripQualityESProducer.ReduceGranularity = cms.bool(False)
+process.siStripQualityESProducer.ThresholdForReducedGranularity = cms.double(0.3)
+
+#### Add these lines to produce a tracker map
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
+####
+
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
+                             dataLabel = cms.untracked.string('')
+                             )
+
+process.p = cms.Path(process.stat)
+

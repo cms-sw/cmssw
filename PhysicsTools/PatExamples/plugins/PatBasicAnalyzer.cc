@@ -23,15 +23,15 @@ public:
   /// default constructor
   explicit PatBasicAnalyzer(const edm::ParameterSet&);
   /// default destructor
-  ~PatBasicAnalyzer();
+  ~PatBasicAnalyzer() override;
 
 private:
   /// everything that needs to be done before the event loop
-  virtual void beginJob() override ;
+  void beginJob() override ;
   /// everything that needs to be done during the event loop
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   /// everything that needs to be done after the event loop
-  virtual void endJob() override ;
+  void endJob() override ;
 
   // simple map to contain all histograms;
   // histograms are booked in the beginJob()

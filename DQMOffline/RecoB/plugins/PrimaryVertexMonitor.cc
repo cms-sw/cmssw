@@ -15,35 +15,38 @@ using namespace edm;
 
 PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   : conf_          ( pSet )
-  , TopFolderName_ ( pSet.getParameter<std::string>("TopFolderName") )
-  , AlignmentLabel_( pSet.getParameter<std::string>("AlignmentLabel"))
-  , nbvtx(NULL)
-  , bsX(NULL)
-  , bsY(NULL)
-  , bsZ(NULL)
-  , bsSigmaZ(NULL)
-  , bsDxdz(NULL)
-  , bsDydz(NULL)
-  , bsBeamWidthX(NULL)
-  , bsBeamWidthY(NULL)
-  , bsType(NULL)
-  , sumpt(NULL)
-  , ntracks(NULL)
-  , weight(NULL)
-  , chi2ndf(NULL)
-  , chi2prob(NULL)
-  , dxy(NULL)
-  , dz(NULL)
-  , dxyErr(NULL)
-  , dzErr(NULL)
-  , dxyVsPhi_pt1(NULL)
-  , dzVsPhi_pt1(NULL)
-  , dxyVsEta_pt1(NULL)
-  , dzVsEta_pt1(NULL)
-  , dxyVsPhi_pt10(NULL)
-  , dzVsPhi_pt10(NULL)
-  , dxyVsEta_pt10(NULL)
-  , dzVsEta_pt10(NULL)
+  , TopFolderName_ ( pSet.getParameter<std::string>("TopFolderName")  )
+  , AlignmentLabel_( pSet.getParameter<std::string>("AlignmentLabel") )
+  , ndof_          ( pSet.getParameter<int>        ("ndof")           )
+  , errorPrinted_  ( false )
+  , nbvtx(nullptr)
+  , bsX(nullptr)
+  , bsY(nullptr)
+  , bsZ(nullptr)
+  , bsSigmaZ(nullptr)
+  , bsDxdz(nullptr)
+  , bsDydz(nullptr)
+  , bsBeamWidthX(nullptr)
+  , bsBeamWidthY(nullptr)
+  , bsType(nullptr)
+  , sumpt(nullptr)
+  , ntracks(nullptr)
+  , weight(nullptr)
+  , chi2ndf(nullptr)
+  , chi2prob(nullptr)
+  , dxy(nullptr)
+  , dxy2(nullptr)
+  , dz(nullptr)
+  , dxyErr(nullptr)
+  , dzErr(nullptr)
+  , dxyVsPhi_pt1(nullptr)
+  , dzVsPhi_pt1(nullptr)
+  , dxyVsEta_pt1(nullptr)
+  , dzVsEta_pt1(nullptr)
+  , dxyVsPhi_pt10(nullptr)
+  , dzVsPhi_pt10(nullptr)
+  , dxyVsEta_pt10(nullptr)
+  , dzVsEta_pt10(nullptr)
 {
   //  dqmStore_ = edm::Service<DQMStore>().operator->();
 
@@ -51,6 +54,7 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   vertexInputTag_   = pSet.getParameter<InputTag>("vertexLabel");
   beamSpotInputTag_ = pSet.getParameter<InputTag>("beamSpotLabel");
   vertexToken_   = consumes<reco::VertexCollection>(vertexInputTag_);
+  scoreToken_    = consumes<VertexScore>           (vertexInputTag_);
   beamspotToken_ = consumes<reco::BeamSpot>        (beamSpotInputTag_);
 
 }
@@ -73,37 +77,52 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
 
 //   xPos = iBooker.book1D ("xPos","x Coordinate" ,100, -0.1, 0.1);
 
-  nbvtx      = iBooker.book1D("vtxNbr","Reconstructed Vertices in Event",50,-0.5,49.5);
+  nbvtx      = iBooker.book1D("vtxNbr","Reconstructed Vertices in Event",80,-0.5,79.5);
+  nbgvtx      = iBooker.book1D("goodvtxNbr","Reconstructed Good Vertices in Event",80,-0.5,79.5);
 
-  nbtksinvtx[0] = iBooker.book1D("otherVtxTrksNbr","Reconstructed Tracks in Vertex (other Vtx)",40,-0.5,99.5); 
+  // to be configured each year...
+  auto vposx = conf_.getParameter<double>("Xpos");
+  auto vposy = conf_.getParameter<double>("Ypos");
+
+  nbtksinvtx[0] = iBooker.book1D("otherVtxTrksNbr","Reconstructed Tracks in Vertex (other Vtx)",40,-0.5,99.5);
+  ntracksVsZ[0]  = iBooker.bookProfile("otherVtxTrksVsZ","Reconstructed Tracks in Vertex (other Vtx) vs Z",80,-20.,20.,50,0,100,"");
+  ntracksVsZ[0]->setAxisTitle("z-bs",1);
+  ntracksVsZ[0]->setAxisTitle("#tracks",2);
+
+  score[0]      = iBooker.book1D("otherVtxScore","sqrt(score) (other Vtx)",100,0.,400.); 
   trksWeight[0] = iBooker.book1D("otherVtxTrksWeight","Total weight of Tracks in Vertex (other Vtx)",40,0,100.); 
   vtxchi2[0]    = iBooker.book1D("otherVtxChi2","#chi^{2} (other Vtx)",100,0.,200.);
   vtxndf[0]     = iBooker.book1D("otherVtxNdf","ndof (other Vtx)",100,0.,200.);
   vtxprob[0]    = iBooker.book1D("otherVtxProb","#chi^{2} probability (other Vtx)",100,0.,1.);
   nans[0]       = iBooker.book1D("otherVtxNans","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz (other Vtx)",9,0.5,9.5);
 
-  nbtksinvtx[1] = iBooker.book1D("tagVtxTrksNbr","Reconstructed Tracks in Vertex (tagged Vtx)",100,-0.5,99.5); 
+  nbtksinvtx[1] = iBooker.book1D("tagVtxTrksNbr","Reconstructed Tracks in Vertex (tagged Vtx)",100,-0.5,99.5);
+  ntracksVsZ[1]  = iBooker.bookProfile("tagVtxTrksVsZ","Reconstructed Tracks in Vertex (tagged Vtx) vs Z",80,-20.,20.,50,0,100,"");
+  ntracksVsZ[1]->setAxisTitle("z-bs",1);
+  ntracksVsZ[1]->setAxisTitle("#tracks",2);
+ 
+  score[1]     	= iBooker.book1D("tagVtxScore","sqrt(score) (tagged Vtx)",100,0.,400.);
   trksWeight[1] = iBooker.book1D("tagVtxTrksWeight","Total weight of Tracks in Vertex (tagged Vtx)",100,0,100.); 
   vtxchi2[1]    = iBooker.book1D("tagVtxChi2","#chi^{2} (tagged Vtx)",100,0.,200.);
   vtxndf[1]     = iBooker.book1D("tagVtxNdf","ndof (tagged Vtx)",100,0.,200.);
   vtxprob[1]    = iBooker.book1D("tagVtxProb","#chi^{2} probability (tagged Vtx)",100,0.,1.);
   nans[1]       = iBooker.book1D("tagVtxNans","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz (tagged Vtx)",9,0.5,9.5);
 
-  xrec[0]	 = iBooker.book1D("otherPosX","Position x Coordinate (other Vtx)",100,-0.1,0.1);
-  yrec[0]	 = iBooker.book1D("otherPosY","Position y Coordinate (other Vtx)",100,-0.1,0.1);
+  xrec[0]	 = iBooker.book1D("otherPosX","Position x Coordinate (other Vtx)",100,vposx-0.1,vposx+0.1);
+  yrec[0]	 = iBooker.book1D("otherPosY","Position y Coordinate (other Vtx)",100,vposy-0.1,vposy+0.1);
   zrec[0]        = iBooker.book1D("otherPosZ","Position z Coordinate (other Vtx)",100,-20.,20.);
   xDiff[0]	 = iBooker.book1D("otherDiffX","X distance from BeamSpot (other Vtx)",100,-500,500);
   yDiff[0]	 = iBooker.book1D("otherDiffY","Y distance from BeamSpot (other Vtx)",100,-500,500);
-  xerr[0]	 = iBooker.book1D("otherErrX","Uncertainty x Coordinate (other Vtx)",100,-0.1,0.1);
-  yerr[0]	 = iBooker.book1D("otherErrY","Uncertainty y Coordinate (other Vtx)",100,-0.1,0.1);
-  zerr[0]        = iBooker.book1D("otherErrZ","Uncertainty z Coordinate (other Vtx)",100,-20.,20.);
-  xerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightX","Uncertainty x Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
-  yerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightY","Uncertainty y Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
-  zerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightZ","Uncertainty z Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
+  xerr[0]	 = iBooker.book1D("otherErrX","Uncertainty x Coordinate (other Vtx)",100,0.,100);
+  yerr[0]	 = iBooker.book1D("otherErrY","Uncertainty y Coordinate (other Vtx)",100,0.,100);
+  zerr[0]        = iBooker.book1D("otherErrZ","Uncertainty z Coordinate (other Vtx)",100,0.,100);
+  xerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightX","Uncertainty x Coordinate vs. track weight (other Vtx)",100,0,100.,100,0.,100);
+  yerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightY","Uncertainty y Coordinate vs. track weight (other Vtx)",100,0,100.,100,0.,100);
+  zerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightZ","Uncertainty z Coordinate vs. track weight (other Vtx)",100,0,100.,100,0.,100);
 
 
-  xrec[1]     = iBooker.book1D("tagPosX","Position x Coordinate (tagged Vtx)",100,-0.1,0.1);
-  yrec[1]     = iBooker.book1D("tagPosY","Position y Coordinate (tagged Vtx)",100,-0.1,0.1);
+  xrec[1]     = iBooker.book1D("tagPosX","Position x Coordinate (tagged Vtx)",100,vposx-0.1,vposx+0.1);
+  yrec[1]     = iBooker.book1D("tagPosY","Position y Coordinate (tagged Vtx)",100,vposy-0.1,vposy+0.1);
   zrec[1]     = iBooker.book1D("tagPosZ","Position z Coordinate (tagged Vtx)",100,-20.,20.);
   xDiff[1]    = iBooker.book1D("tagDiffX","X distance from BeamSpot (tagged Vtx)",100,-500, 500);
   yDiff[1]    = iBooker.book1D("tagDiffY","Y distance from BeamSpot (tagged Vtx)",100,-500, 500);
@@ -167,7 +186,7 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
   double EtaMax     = conf_.getParameter<double>("EtaMax");
   
       
-  ntracks = iBooker.book1D("ntracks","number of PV tracks (p_{T} > 1 GeV)", 3*TKNoBin, TKNoMin, (TKNoMax+0.5)*3.-0.5);
+  ntracks = iBooker.book1D("ntracks","number of PV tracks (p_{T} > 1 GeV)", TKNoBin, TKNoMin, TKNoMax);
   ntracks->setAxisTitle("Number of PV Tracks (p_{T} > 1 GeV) per Event", 1);
   ntracks->setAxisTitle("Number of Event", 2);
 
@@ -175,41 +194,47 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
   weight->setAxisTitle("weight of PV Tracks (p_{T} > 1 GeV) per Event", 1);
   weight->setAxisTitle("Number of Event", 2);
 
-  sumpt    = iBooker.book1D("sumpt",   "#Sum p_{T} of PV tracks (p_{T} > 1 GeV)",       100,-0.5,199.5); 
-  chi2ndf  = iBooker.book1D("chi2ndf", "PV tracks (p_{T} > 1 GeV) #chi^{2}/ndof",       100, 0., 200. );
+  sumpt    = iBooker.book1D("sumpt",   "#Sum p_{T} of PV tracks (p_{T} > 1 GeV)",       100,-0.5,249.5); 
+  chi2ndf  = iBooker.book1D("chi2ndf", "PV tracks (p_{T} > 1 GeV) #chi^{2}/ndof",       100, 0., 20. );
   chi2prob = iBooker.book1D("chi2prob","PV tracks (p_{T} > 1 GeV) #chi^{2} probability",100, 0.,   1. );
-  dxy      = iBooker.book1D("dxy",     "PV tracks (p_{T} > 1 GeV) d_{xy} (cm)",         DxyBin, DxyMin, DxyMax);
-  dz       = iBooker.book1D("dz",      "PV tracks (p_{T} > 1 GeV) d_{z} (cm)",          DzBin,  DzMin,  DzMax );
-  dxyErr   = iBooker.book1D("dxyErr",  "PV tracks (p_{T} > 1 GeV) d_{xy} error (cm)",   100, 0.,   1. );
-  dzErr    = iBooker.book1D("dzErr",   "PV tracks (p_{T} > 1 GeV) d_{z} error(cm)",     100, 0.,   1. );
+ 
+  dxy      = iBooker.book1D("dxy",     "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum)",       DxyBin, DxyMin, DxyMax);
+  dxy2	   = iBooker.book1D("dxyzoom", "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum)",       DxyBin, DxyMin/5., DxyMax/5.);
+  dxyErr   = iBooker.book1D("dxyErr",  "PV tracks (p_{T} > 1 GeV) d_{xy} error (#mum)", 100, 0.,   2000. );
+  dz       = iBooker.book1D("dz",      "PV tracks (p_{T} > 1 GeV) d_{z} (#mum)",        DzBin,  DzMin,  DzMax );
+  dzErr    = iBooker.book1D("dzErr",   "PV tracks (p_{T} > 1 GeV) d_{z} error(#mum)",   100, 0.,   10000. );
 
-  dxyVsPhi_pt1 = iBooker.bookProfile("dxyVsPhi_pt1", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm) VS track #phi",PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
+  dxyVsPhi_pt1 = iBooker.bookProfile("dxyVsPhi_pt1", "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum) VS track #phi",PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
   dxyVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi",  1);
-  dxyVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{xy}",2);
-  dzVsPhi_pt1  = iBooker.bookProfile("dzVsPhi_pt1",  "PV tracks (p_{T} > 1 GeV) d_{z} (cm) VS track #phi", PhiBin, PhiMin, PhiMax, DzBin,  DzMin,  DzMax, "");  
+  dxyVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{xy} (#mum)",2);
+
+  dzVsPhi_pt1  = iBooker.bookProfile("dzVsPhi_pt1",  "PV tracks (p_{T} > 1 GeV) d_{z} (#mum) VS track #phi", PhiBin, PhiMin, PhiMax, DzBin,  DzMin,  DzMax, "");  
   dzVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #phi", 1);
-  dzVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z}",2);
+  dzVsPhi_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z} (#mum)",2);
 
-  dxyVsEta_pt1 = iBooker.bookProfile("dxyVsEta_pt1", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm) VS track #eta",EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax,"");
+  dxyVsEta_pt1 = iBooker.bookProfile("dxyVsEta_pt1", "PV tracks (p_{T} > 1 GeV) d_{xy} (#mum) VS track #eta",EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax,"");
   dxyVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta",  1);
-  dxyVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{xy}",2);
-  dzVsEta_pt1  = iBooker.bookProfile("dzVsEta_pt1",  "PV tracks (p_{T} > 1 GeV) d_{z} (cm) VS track #eta", EtaBin, EtaMin, EtaMax, DzBin,  DzMin,  DzMax, "");
+  dxyVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{xy} (#mum)",2);
+
+  dzVsEta_pt1  = iBooker.bookProfile("dzVsEta_pt1",  "PV tracks (p_{T} > 1 GeV) d_{z} (#mum) VS track #eta", EtaBin, EtaMin, EtaMax, DzBin,  DzMin,  DzMax, "");
   dzVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) #eta", 1);
-  dzVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z}",2);
+  dzVsEta_pt1->setAxisTitle("PV track (p_{T} > 1 GeV) d_{z} (#mum)",2);
 
-  dxyVsPhi_pt10 = iBooker.bookProfile("dxyVsPhi_pt10", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm) VS track #phi",PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
+  dxyVsPhi_pt10 = iBooker.bookProfile("dxyVsPhi_pt10", "PV tracks (p_{T} > 10 GeV) d_{xy} (#mum) VS track #phi",PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
   dxyVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi",  1);
-  dxyVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{xy}",2);
-  dzVsPhi_pt10  = iBooker.bookProfile("dzVsPhi_pt10",  "PV tracks (p_{T} > 10 GeV) d_{z} (cm) VS track #phi", PhiBin, PhiMin, PhiMax, DzBin,  DzMin,  DzMax, "");  
-  dzVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi", 1);
-  dzVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z}",2);
+  dxyVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{xy} (#mum)",2);
 
-  dxyVsEta_pt10 = iBooker.bookProfile("dxyVsEta_pt10", "PV tracks (p_{T} > 10 GeV) d_{xy} (cm) VS track #eta",EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax,"");
+  dzVsPhi_pt10  = iBooker.bookProfile("dzVsPhi_pt10",  "PV tracks (p_{T} > 10 GeV) d_{z} (#mum) VS track #phi", PhiBin, PhiMin, PhiMax, DzBin,  DzMin,  DzMax, "");  
+  dzVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #phi", 1);
+  dzVsPhi_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z} (#mum)",2);
+
+  dxyVsEta_pt10 = iBooker.bookProfile("dxyVsEta_pt10", "PV tracks (p_{T} > 10 GeV) d_{xy} (#mum) VS track #eta",EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax,"");
   dxyVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta",  1);
-  dxyVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{xy}",2);
-  dzVsEta_pt10  = iBooker.bookProfile("dzVsEta_pt10",  "PV tracks (p_{T} > 10 GeV) d_{z} (cm) VS track #eta", EtaBin, EtaMin, EtaMax, DzBin,  DzMin,  DzMax, "");
+  dxyVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{xy} (#mum)",2);
+
+  dzVsEta_pt10  = iBooker.bookProfile("dzVsEta_pt10",  "PV tracks (p_{T} > 10 GeV) d_{z} (#mum) VS track #eta", EtaBin, EtaMin, EtaMax, DzBin,  DzMin,  DzMax, "");
   dzVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) #eta", 1);
-  dzVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z}",2);
+  dzVsEta_pt10->setAxisTitle("PV track (p_{T} > 10 GeV) d_{z} (#mum)",2);
 
 }
 
@@ -219,8 +244,13 @@ PrimaryVertexMonitor::~PrimaryVertexMonitor()
 
 void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
   Handle<reco::VertexCollection> recVtxs;
   iEvent.getByToken(vertexToken_, recVtxs);
+
+  Handle<VertexScore> scores;
+  iEvent.getByToken(scoreToken_, scores);
+
 
   edm::Handle<reco::BeamSpot> beamSpotHandle;
   iEvent.getByToken(beamspotToken_,beamSpotHandle);
@@ -238,19 +268,52 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     return;
   }
 
+  // check upfront that refs to track are (likely) to be valid
+  {
+    bool ok = true;
+    for(const auto& v: *recVtxs) {
+      if(v.tracksSize() > 0) {
+	const auto& ref = v.trackRefAt(0);
+	if(ref.isNull() || !ref.isAvailable()) {
+	  if (!errorPrinted_)
+	    edm::LogWarning("PrimaryVertexMonitor")
+	      << "Skipping vertex collection: " << vertexInputTag_ << " since likely the track collection the vertex has refs pointing to is missing (at least the first TrackBaseRef is null or not available)";
+	  else 
+	    errorPrinted_ = true;
+	  ok = false;
+	}
+      }
+    }
+    if(!ok)
+      return;
+  }
+
   BeamSpot beamSpot = *beamSpotHandle;
 
   nbvtx->Fill(recVtxs->size()*1.);
+  int ng=0;
+  for (auto const & vx : (*recVtxs) )
+    if (vx.isValid() && !vx.isFake()  && vx.ndof()>=ndof_) ++ng;
+  nbgvtx->Fill(ng*1.);
 
-  vertexPlots(recVtxs->front(), beamSpot, 1);
+  if (scores.isValid() && !(*scores).empty()) {
+    auto pvScore = (*scores).get(0);
+    score[1]->Fill(std::sqrt(pvScore));
+    for (unsigned int i=1; i<(*scores).size(); ++i) 
+      score[0]->Fill(std::sqrt((*scores).get(i)));
+  }
 
   // fill PV tracks MEs (as now, for alignment)
-  pvTracksPlots(recVtxs->front());
+  if (!recVtxs->empty()) {
 
-  for(reco::VertexCollection::const_iterator v=recVtxs->begin()+1; 
-      v!=recVtxs->end(); ++v){
-    vertexPlots(*v, beamSpot, 0);
+    vertexPlots  (recVtxs->front(), beamSpot, 1);
+    pvTracksPlots(recVtxs->front());
+    
+    for(reco::VertexCollection::const_iterator v=recVtxs->begin()+1; 
+	v!=recVtxs->end(); ++v)
+      vertexPlots(*v, beamSpot, 0);
   }
+
   // Beamline plots:
   bsX->Fill(beamSpot.x0());
   bsY->Fill(beamSpot.y0());
@@ -268,8 +331,6 @@ void
 PrimaryVertexMonitor::pvTracksPlots(const Vertex & v)
 {
 
-  const math::XYZPoint myVertex(v.position().x(),v.position().y(),v.position().z());
-
   if ( !v.isValid() ) return;
   if (  v.isFake()  ) return;
 
@@ -278,8 +339,12 @@ PrimaryVertexMonitor::pvTracksPlots(const Vertex & v)
     return;
   }
 
+  const math::XYZPoint myVertex(v.position().x(),v.position().y(),v.position().z());
+
   size_t nTracks = 0;
   float sumPT = 0.;
+  const int cmToUm = 10000;
+
   for (reco::Vertex::trackRef_iterator t = v.tracks_begin(); t != v.tracks_end(); t++) {
 
     bool isHighPurity = (**t).quality(reco::TrackBase::highPurity);
@@ -296,19 +361,19 @@ PrimaryVertexMonitor::pvTracksPlots(const Vertex & v)
     float w        = v.trackWeight(*t);
     float chi2NDF  = (**t).normalizedChi2();
     float chi2Prob = TMath::Prob((**t).chi2(),(int)(**t).ndof());
-    float Dxy      = (**t).dxy(myVertex);
-    float Dz       = (**t).dz(myVertex);
-    float DxyErr   = (**t).dxyError();
-    float DzErr    = (**t).dzError();
+    float Dxy      = (**t).dxy(myVertex)*cmToUm;  // is it needed ?
+    float Dz       = (**t).dz(myVertex)*cmToUm;   // is it needed ?
+    float DxyErr   = (**t).dxyError()*cmToUm;
+    float DzErr    = (**t).dzError()*cmToUm;
 
     sumPT += pt*pt;
 
-    
     // fill MEs
     weight   -> Fill (w);
     chi2ndf  -> Fill (chi2NDF);
     chi2prob -> Fill (chi2Prob);
     dxy      -> Fill (Dxy);
+    dxy2     -> Fill (Dxy); 
     dz       -> Fill (Dz);
     dxyErr   -> Fill (DxyErr);
     dzErr    -> Fill (DzErr);
@@ -343,7 +408,8 @@ void PrimaryVertexMonitor::vertexPlots(const Vertex & v, const BeamSpot& beamSpo
 	  t!=v.tracks_end(); t++) weight+= v.trackWeight(*t);
       trksWeight[i]->Fill(weight);
       nbtksinvtx[i]->Fill(v.tracksSize());
-
+      ntracksVsZ[i]->Fill(v.position().z()- beamSpot.z0(),v.tracksSize());
+  
       vtxchi2[i]->Fill(v.chi2());
       vtxndf[i]->Fill(v.ndof());
       vtxprob[i]->Fill(ChiSquaredProbability(v.chi2() ,v.ndof()));

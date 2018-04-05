@@ -87,13 +87,13 @@ PFCand_AssoMap::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	PFCand_AssoMapAlgos::GetInputCollections(iEvent,iSetup);
 
 	if ( ( asstype == "PFCandsToVertex" ) || ( asstype == "Both" ) ) {
-  	  auto_ptr<PFCandToVertexAssMap> PFCand2Vertex = CreatePFCandToVertexMap(pfCandH, iSetup);
+	  unique_ptr<PFCandToVertexAssMap> PFCand2Vertex = CreatePFCandToVertexMap(pfCandH, iSetup);
 	  iEvent.put( SortPFCandAssociationMap( &(*PFCand2Vertex), &iEvent.productGetter() ) );
 	}
 
 	if ( ( asstype == "VertexToPFCands" ) || ( asstype == "Both" ) ) {
-  	  auto_ptr<VertexToPFCandAssMap> Vertex2PFCand = CreateVertexToPFCandMap(pfCandH, iSetup);
-  	  iEvent.put( Vertex2PFCand );
+	  unique_ptr<VertexToPFCandAssMap> Vertex2PFCand = CreateVertexToPFCandMap(pfCandH, iSetup);
+	  iEvent.put(std::move(Vertex2PFCand));
 	}
 
 }

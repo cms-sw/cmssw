@@ -1,16 +1,16 @@
 #ifndef DDL_String_H
 #define DDL_String_H
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDXMLElement.h"
-#include "DetectorDescription/Core/interface/DDString.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
-
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
+
+#include "DDXMLElement.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDString.h"
+
+class DDCompactView;
+class DDLElementRegistry;
 
 ///  DDLString handles String Elements.
 /** @class DDLString
@@ -23,16 +23,14 @@
  *
  *
  */
-class DDLString : public DDXMLElement
+class DDLString final : public DDXMLElement
 {
 public:
 
   DDLString( DDLElementRegistry* myreg );
 
-  ~DDLString( void );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
 };
+
 #endif

@@ -13,19 +13,19 @@ class FWPFCandidateWithHitsProxyBuilder : public FWProxyBuilderBase
 {
 public:
    FWPFCandidateWithHitsProxyBuilder() {}
-   virtual ~FWPFCandidateWithHitsProxyBuilder(){}
+   ~FWPFCandidateWithHitsProxyBuilder() override{}
 
-   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
+   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
    
-   virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
+   bool havePerViewProduct(FWViewType::EType) const override { return true; }
 
-   virtual void scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc);
+   void scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc) override;
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWPFCandidateWithHitsProxyBuilder( const FWPFCandidateWithHitsProxyBuilder& );                    // Stop default
-   const FWPFCandidateWithHitsProxyBuilder& operator=( const FWPFCandidateWithHitsProxyBuilder& );   // Stop default
+   FWPFCandidateWithHitsProxyBuilder( const FWPFCandidateWithHitsProxyBuilder& ) = delete;                    // Stop default
+   const FWPFCandidateWithHitsProxyBuilder& operator=( const FWPFCandidateWithHitsProxyBuilder& ) = delete;   // Stop default
 
    void addHitsForCandidate(const reco::PFCandidate& c, TEveElement* holder, const FWViewContext* vc);
    void initPFRecHitsCollections();

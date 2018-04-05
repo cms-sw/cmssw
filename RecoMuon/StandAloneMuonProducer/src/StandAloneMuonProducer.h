@@ -30,10 +30,10 @@ class StandAloneMuonProducer : public edm::stream::EDProducer<> {
   StandAloneMuonProducer(const edm::ParameterSet&);
   
   /// destructor
-  virtual ~StandAloneMuonProducer(); 
+  ~StandAloneMuonProducer() override; 
   
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
     
  private:
   

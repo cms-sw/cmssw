@@ -34,7 +34,7 @@ namespace cond {
 	//
 	Iterator();
 	Iterator( IOVContainer::const_iterator current, IOVContainer::const_iterator end, 
-		  cond::TimeType timeType, cond::Time_t endOfValidity );
+		  cond::TimeType timeType, cond::Time_t lastTill, cond::Time_t endOfValidity );
 	Iterator( const Iterator& rhs );
 	
 	//
@@ -55,6 +55,7 @@ namespace cond {
 	IOVContainer::const_iterator m_current;
 	IOVContainer::const_iterator m_end;
 	cond::TimeType m_timeType;
+	cond::Time_t m_lastTill;
 	cond::Time_t m_endOfValidity;
       };
       
@@ -75,6 +76,15 @@ namespace cond {
       // full=true load the full iovSequence 
       void load( const std::string& tag, bool full=false );
       
+      // loads in memory the tag information and the iov groups
+      void load( const std::string& tag, const boost::posix_time::ptime& snapshottime, bool full=false );
+
+      // loads an IOV range in memory
+      void loadRange( const std::string& tag, const cond::Time_t& begin, const cond::Time_t& end );
+
+      // loads an IOV range in memory
+      void loadRange( const std::string& tag, const cond::Time_t& begin, const cond::Time_t& end, const boost::posix_time::ptime& snapshottime );
+
       // reset the data in memory and execute again the queries for the current tag 
       void reload();
       

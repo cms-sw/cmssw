@@ -74,7 +74,7 @@ void MonopoleSteppingAction::update(const BeginOfRun* ) {
 void MonopoleSteppingAction::update(const BeginOfTrack * trk) {
 
   actOnTrack = false;
-  if (pdgCode.size() > 0) {
+  if (!pdgCode.empty()) {
     const G4Track * aTrack = (*trk)();
     int code = aTrack->GetDefinition()->GetPDGEncoding();
     if (std::count(pdgCode.begin(),pdgCode.end(),code) > 0) {
@@ -107,7 +107,7 @@ void MonopoleSteppingAction::update(const G4Step* aStep) {
       pT    = std::sqrt(pxStart*pxStart+pyStart*pyStart);
       pZ    = pzStart;
     } else {
-      G4ThreeVector dirStep = aTrack->GetMomentumDirection();
+      const G4ThreeVector& dirStep = aTrack->GetMomentumDirection();
       double        lStep   = aTrack->GetStepLength();
       double        xStep   = aTrack->GetPosition().x()-lStep*dirStep.x();
       double        yStep   = aTrack->GetPosition().y()-lStep*dirStep.y();

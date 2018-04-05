@@ -11,15 +11,15 @@
 
 FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWEventSelector* sel, std::vector<std::string>& triggerProcessList):
    TGHorizontalFrame(p),
-   m_guiSelector(0),
-   m_origSelector(0),
-   m_text1(0),
-   m_text2(0),
-   m_enableBtn(0),
-   m_deleteBtn(0),
-   m_nEvents(0),
-   m_combo(0),
-   m_validator(0)
+   m_guiSelector(nullptr),
+   m_origSelector(nullptr),
+   m_text1(nullptr),
+   m_text2(nullptr),
+   m_enableBtn(nullptr),
+   m_deleteBtn(nullptr),
+   m_nEvents(nullptr),
+   m_combo(nullptr),
+   m_validator(nullptr)
 {
    m_origSelector = sel;
    m_guiSelector = new FWEventSelector(m_origSelector);
@@ -31,7 +31,7 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWEventSelector* sel
       int id = -1;
       for ( std::vector<std::string>::iterator i = triggerProcessList.begin(); i!=triggerProcessList.end(); ++i)
       {
-         if ((*i).c_str() == sel->m_triggerProcess) id = cnt;
+         if (*i == sel->m_triggerProcess) id = cnt;
          m_combo->AddEntry((*i).c_str(), cnt++);
       }
 

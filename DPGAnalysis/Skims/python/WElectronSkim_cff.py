@@ -49,7 +49,7 @@ GsfMatchedPhotonCands = cms.EDProducer("ElectronMatchedCandidateProducer",
 PassingWP90 = goodElectrons.clone(
 cut = cms.string(
     goodElectrons.cut.value() +
-    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')<=1 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))" #wrt std WP90 allowing 1 numberOfMissingExpectedHits 
+    " && (gsfTrack.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\')<=1 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))" #wrt std WP90 allowing 1 numberOfMissingExpectedHits 
     " && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.12 && dr03EcalRecHitSumEt/p4.Pt < 0.09 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
@@ -71,7 +71,7 @@ cut = cms.string(
 PassingWP80 = goodElectrons.clone(
 cut = cms.string(
     goodElectrons.cut.value() +
-    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))" 
+    " && (gsfTrack.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\')==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))" 
     " && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
     " && ((isEB"
     " && ( dr03TkSumPt/p4.Pt <0.12 && dr03EcalRecHitSumEt/p4.Pt < 0.09 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )" #wrt std WP80 relaxing iso cuts to WP90 
@@ -153,16 +153,16 @@ WEnuHltFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 #--------------------------#
 #recompute rho
 import RecoJets.Configuration.RecoPFJets_cff
-kt6PFJetsForRhoCorrection = RecoJets.Configuration.RecoPFJets_cff.kt6PFJets.clone(
+kt6PFJetsForRhoCorrectionWElectronSkim = RecoJets.Configuration.RecoPFJets_cff.kt6PFJets.clone(
     doRhoFastjet = True,
     Rho_EtaMax = 2.5
 )
 
 
-elecMetSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter * kt6PFJetsForRhoCorrection)
+elecMetSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter * kt6PFJetsForRhoCorrectionWElectronSkim)
 
 
-from Configuration.EventContent.EventContent_cff import OutALCARECOEcalCalElectron
+from Configuration.EventContent.AlCaRecoOutput_cff import OutALCARECOEcalCalElectron
 WElectronSkimContent = OutALCARECOEcalCalElectron.clone()
 WElectronSkimContent.outputCommands.extend( [ 
   "keep *_pfMet_*_*", 

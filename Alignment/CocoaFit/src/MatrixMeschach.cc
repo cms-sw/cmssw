@@ -65,11 +65,6 @@ void MatrixMeschach::copy( const MatrixMeschach& mat)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 MatrixMeschach& MatrixMeschach::operator=( const MatrixMeschach& mat )
 {
-  if ( this == 0 ) {
-      std::cerr << "EXITING: trying to use 'operator=' with an MatrixMeschach for which memory space is not reserved!!!!" << std::endl;
-      std::exception();
-  }
-         
   if ( mat._Mat != _Mat ) {
       _NoLines = mat._Mat->m;
       _NoColumns = mat._Mat->n; 
@@ -191,7 +186,7 @@ MatrixMeschach operator+( const MatrixMeschach& mat1, const MatrixMeschach& mat2
 MatrixMeschach operator-( const MatrixMeschach& mat1, const MatrixMeschach& mat2 )
 {
   MatrixMeschach matout( mat1 );
-  MatrixMeschach matout2( mat2 );
+  const MatrixMeschach& matout2( mat2 );
   matout += (-1 * matout2);
   return MatrixMeschach( matout );
 }

@@ -19,20 +19,25 @@ patJetFlavourAssociationLegacy = cms.EDProducer("JetFlavourIdentifier",
 patJetPartons = cms.EDProducer('HadronAndPartonSelector',
     src = cms.InputTag("generator"),
     particles = cms.InputTag("genParticles"),
-    partonMode = cms.string("Auto")
+    partonMode = cms.string("Auto"),
+    fullChainPhysPartons = cms.bool(True)
 )
 
 patJetFlavourAssociation = cms.EDProducer("JetFlavourClustering",
     jets = cms.InputTag("ak4PFJetsCHS"),
     bHadrons = cms.InputTag("patJetPartons","bHadrons"),
     cHadrons = cms.InputTag("patJetPartons","cHadrons"),
-    partons = cms.InputTag("patJetPartons","partons"),
+    partons = cms.InputTag("patJetPartons","physicsPartons"),
+    leptons = cms.InputTag("patJetPartons","leptons"),
     jetAlgorithm = cms.string("AntiKt"),
     rParam = cms.double(0.4),
     ghostRescaling = cms.double(1e-18),
-    hadronFlavourHasPriority = cms.bool(True)
+    hadronFlavourHasPriority = cms.bool(False)
 )
 
 # default PAT sequence for jet flavour identification
-patJetFlavourIdLegacy = cms.Sequence(patJetPartonsLegacy * patJetPartonAssociationLegacy * patJetFlavourAssociationLegacy)
-patJetFlavourId = cms.Sequence(patJetPartons * patJetFlavourAssociation)
+patJetFlavourIdLegacyTask = cms.Task(patJetPartonsLegacy, patJetPartonAssociationLegacy, patJetFlavourAssociationLegacy)
+patJetFlavourIdLegacy = cms.Sequence(patJetFlavourIdLegacyTask)
+
+patJetFlavourIdTask = cms.Task(patJetPartons, patJetFlavourAssociation)
+patJetFlavourId = cms.Sequence(patJetFlavourIdTask)

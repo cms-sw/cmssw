@@ -1,6 +1,8 @@
-
 <use   name="clhepheader"/>
 <use   name="DataFormats/Common"/>
+<use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/TrackingRecHit"/>
 <export>
   <lib   name="1"/>
 </export>

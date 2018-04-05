@@ -7,7 +7,6 @@
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include <utility>
 #include <algorithm>
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 /**
    TrajectorySeed contains
@@ -30,12 +29,10 @@ class TrajectorySeed {
 		 PropagationDirection  dir) : 
     hits_(rh),  tsos_(ptsos), dir_(dir) {}
   
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   TrajectorySeed(PTrajectoryStateOnDet const & ptsos, 
 		 recHitContainer && rh, 
 		 PropagationDirection  dir) noexcept : 
     hits_(std::move(rh)),  tsos_(ptsos), dir_(dir) {}
-#endif
 
 
   void swap(PTrajectoryStateOnDet & ptsos, 
@@ -61,7 +58,6 @@ class TrajectorySeed {
   }
 
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   TrajectorySeed(TrajectorySeed && o) noexcept :
     hits_(std::move(o.hits_)),  tsos_(std::move(o.tsos_)), dir_(std::move(o.dir_)) {}
 
@@ -70,7 +66,6 @@ class TrajectorySeed {
     return *this;
   }
 
-#endif
 
   range recHits() const {
     return std::make_pair(hits_.begin(), hits_.end());

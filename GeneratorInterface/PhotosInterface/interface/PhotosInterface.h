@@ -24,15 +24,15 @@ namespace gen {
     // ctor & dtor
     PhotosInterface(); 
     PhotosInterface( const edm::ParameterSet& );
-    ~PhotosInterface();
+    ~PhotosInterface() override;
 
-    void init();
-    const std::vector<std::string>& specialSettings() { return fSpecialSettings; }
-    HepMC::GenEvent* apply( HepMC::GenEvent* );
-    void configureOnlyFor( int );
-    void avoidTauLeptonicDecays() { fAvoidTauLeptonicDecays=true; return; }
+    void init() override;
+    const std::vector<std::string>& specialSettings() override { return fSpecialSettings; }
+    HepMC::GenEvent* apply( HepMC::GenEvent* ) override;
+    void configureOnlyFor( int ) override;
+    void avoidTauLeptonicDecays() override { fAvoidTauLeptonicDecays=true; return; }
     bool isTauLeptonicDecay( HepMC::GenVertex* );
-    void setRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine);
+    void setRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine) override;
     static double flat();
     
   private: 

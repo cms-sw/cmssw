@@ -52,7 +52,7 @@ class VariableNTupler : public NTupler{
     }
   }
   
-  uint registerleaves(edm::ProducerBase * producer){
+  uint registerleaves(edm::ProducerBase * producer) override{
     uint nLeaves=0;
     if (useTFileService_){
       //loop the leaves registered
@@ -92,13 +92,13 @@ class VariableNTupler : public NTupler{
 	nLeaves++;
 	std::string lName(i->first);
 	std::replace(lName.begin(), lName.end(), '_','0');
-	producer->produces<double>(lName.c_str()).setBranchAlias(i->first);
+	producer->produces<double>(lName).setBranchAlias(i->first);
       }
     }
     return nLeaves;
   }
   
-  void fill(edm::Event& iEvent){
+  void fill(edm::Event& iEvent) override{
     if (useTFileService_){
       //fill the data holder
       iterator i=leaves_.begin();
@@ -116,10 +116,10 @@ class VariableNTupler : public NTupler{
       iterator i=leaves_.begin();
       iterator i_end=leaves_.end();
       for(;i!=i_end;++i){
-	std::auto_ptr<double> leafValue(new double((*i->second)(iEvent)));
+	auto leafValue = std::make_unique<double>((*i->second)(iEvent));
 	std::string lName(i->first); 
 	std::replace(lName.begin(), lName.end(),'_','0');
-	iEvent.put(leafValue, lName.c_str());
+	iEvent.put(std::move(leafValue), lName);
       }
     }
   }

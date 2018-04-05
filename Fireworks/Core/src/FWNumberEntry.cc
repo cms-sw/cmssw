@@ -48,7 +48,7 @@ void FWNumberEntryField::ReturnPressed()
 //______________________________________________________________________________
 UInt_t FWNumberEntryField::GetUIntNumber()
 {
-   return static_cast<UInt_t>(strtoul(GetText(), 0, 10));
+   return static_cast<UInt_t>(strtoul(GetText(), nullptr, 10));
 }
 
 //______________________________________________________________________________
@@ -60,7 +60,7 @@ void FWNumberEntryField::SetUIntNumber(UInt_t n)
 //______________________________________________________________________________
 ULong64_t FWNumberEntryField::GetULong64Number()
 {
-   return static_cast<ULong64_t>(strtoull(GetText(), 0, 10));
+   return static_cast<ULong64_t>(strtoull(GetText(), nullptr, 10));
 }
 
 //______________________________________________________________________________

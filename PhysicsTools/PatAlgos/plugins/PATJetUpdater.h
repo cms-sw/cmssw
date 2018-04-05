@@ -16,7 +16,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -31,28 +31,40 @@
 
 namespace pat {
 
-  class PATJetUpdater : public edm::EDProducer {
+  class PATJetUpdater : public edm::stream::EDProducer<> {
 
     public:
 
       explicit PATJetUpdater(const edm::ParameterSet & iConfig);
-      ~PATJetUpdater();
+      ~PATJetUpdater() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
     private:
 
       // configurables
-      edm::EDGetTokenT<edm::View<Jet> > jetsToken_;
+      edm::EDGetTokenT<edm::View<reco::Jet> > jetsToken_;
       bool                     addJetCorrFactors_;
       std::vector<edm::EDGetTokenT<edm::ValueMap<JetCorrFactors> > > jetCorrFactorsTokens_;
+
+      bool                       addBTagInfo_;
+      bool                       addDiscriminators_;
+      std::vector<edm::InputTag> discriminatorTags_;
+      std::vector<edm::EDGetTokenT<reco::JetFloatAssociation::Container> > discriminatorTokens_;
+      std::vector<std::string>   discriminatorLabels_;
+      bool                       addTagInfos_;
+      std::vector<edm::InputTag> tagInfoTags_;
+      std::vector<edm::EDGetTokenT<edm::View<reco::BaseTagInfo> > > tagInfoTokens_;
+      std::vector<std::string>   tagInfoLabels_;
 
       GreaterByPt<Jet> pTComparator_;
 
       bool useUserData_;
       pat::PATUserDataHelper<pat::Jet>      userDataHelper_;
+      //
+      bool printWarning_; // this is introduced to issue warnings only once per job
 
   };
 

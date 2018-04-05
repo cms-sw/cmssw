@@ -2,7 +2,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/BremRecoveryPhiRoadAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-reco::SuperClusterCollection Multi5x5BremRecoveryClusterAlgo::makeSuperClusters(reco::CaloClusterPtrVector & clustersCollection)
+reco::SuperClusterCollection Multi5x5BremRecoveryClusterAlgo::makeSuperClusters(const reco::CaloClusterPtrVector & clustersCollection)
 {
 
 	const float etaBorder = 1.479;
@@ -13,9 +13,8 @@ reco::SuperClusterCollection Multi5x5BremRecoveryClusterAlgo::makeSuperClusters(
 	reco::CaloClusterPtrVector islandClustersEndCap_v;
 
 	// ...and populate them:
-	for (reco::CaloCluster_iterator it = clustersCollection.begin(); it != clustersCollection.end(); it++)
+	for (auto const& cluster_p : clustersCollection)
 	{
-		reco::CaloClusterPtr cluster_p = *it;
 		if (cluster_p->algo() == reco::CaloCluster::multi5x5) 
 		{
 			if (fabs(cluster_p->position().eta()) < etaBorder)
@@ -44,21 +43,20 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterP
 {
   if(clusters_v.empty()) return;
 
-  bool usedSeed[clusters_v.size()];
-  for (auto ic=0U; ic<clusters_v.size(); ++ic) usedSeed[ic]=false;
+  const auto clustersSize = clusters_v.size();
+  assert(clustersSize>0);
+
+  bool usedSeed[clustersSize];
+  for (auto ic=0U; ic<clustersSize; ++ic) usedSeed[ic]=false;
  
-  #ifdef __clang__ 
-  std::vector<float> eta(clusters_v.size()), phi(clusters_v.size()), et(clusters_v.size());
-  #else
-  float eta[clusters_v.size()], phi[clusters_v.size()], et[clusters_v.size()];
-  #endif
-  for (auto ic=0U; ic<clusters_v.size(); ++ic) {
+  float eta[clustersSize], phi[clustersSize], et[clustersSize];
+  for (auto ic=0U; ic<clustersSize; ++ic) {
     eta[ic]=clusters_v[ic]->eta();
     phi[ic]=clusters_v[ic]->phi();
     et[ic]=clusters_v[ic]->energy() * sin(clusters_v[ic]->position().theta());
   }
 
-  for (auto is=0U; is<clusters_v.size(); ++is) {
+  for (auto is=0U; is<clustersSize; ++is) {
     // check this seed was not already used
     if (usedSeed[is]) continue;
     auto const & currentSeed = clusters_v[is];
@@ -83,7 +81,7 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterP
     constituentClusters.push_back(currentSeed);
     auto ic = is + 1;
 		
-    while (ic < clusters_v.size()) {
+    while (ic < clustersSize) {
       auto const & currentCluster = clusters_v[ic];
   
       // if dynamic phi road is enabled then compute the phi road for a cluster

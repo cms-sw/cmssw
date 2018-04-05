@@ -12,10 +12,10 @@ class ODGolBiasCurrentDat : public IODConfig {
  public:
   friend class EcalCondDBInterface;
   ODGolBiasCurrentDat();
-  ~ODGolBiasCurrentDat();
+  ~ODGolBiasCurrentDat() override;
 
   // User data methods
-  inline std::string getTable() { return "GOL_BIAS_CURRENT_DAT"; }
+  inline std::string getTable() override { return "GOL_BIAS_CURRENT_DAT"; }
 
   inline void setId(int dac) { m_ID = dac; }
   inline int getId() const { return m_ID; }
@@ -41,17 +41,17 @@ class ODGolBiasCurrentDat : public IODConfig {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const ODGolBiasCurrentDat* item, ODGolBiasCurrentInfo* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::vector< ODGolBiasCurrentDat >& data, ODGolBiasCurrentInfo* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
 
   void fetchData(std::vector< ODGolBiasCurrentDat >* fillMap, ODGolBiasCurrentInfo* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   int m_gol;

@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
@@ -35,7 +35,7 @@
 
 namespace pat {
 
-  class TauJetCorrFactorsProducer : public edm::EDProducer
+  class TauJetCorrFactorsProducer : public edm::stream::EDProducer<>
   {
    public:
     /// value map for JetCorrFactors (to be written into the event)
@@ -45,10 +45,10 @@ namespace pat {
     /// default constructor
     explicit TauJetCorrFactorsProducer(const edm::ParameterSet&);
     /// default destructor
-    ~TauJetCorrFactorsProducer() {};
+    ~TauJetCorrFactorsProducer() override {};
 
     /// everything that needs to be done per event
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
     /// return the jec parameters as input to the FactorizedJetCorrector for different flavors

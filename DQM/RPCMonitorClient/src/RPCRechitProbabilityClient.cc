@@ -48,9 +48,9 @@ void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStor
   MonitorElement *  NumberOfMuonPhi_EP = igetter.get( globalFolder_ + "/NumberOfMuonPhi_EndcapP");
   MonitorElement *  NumberOfMuonPhi_EM = igetter.get( globalFolder_ + "/NumberOfMuonPhi_EndcapM");
   
-  if(NumberOfMuonEta == 0  || 
-     NumberOfMuonPt_B == 0  || NumberOfMuonPt_EP == 0  || NumberOfMuonPt_EM == 0  || 
-     NumberOfMuonPhi_B == 0  || NumberOfMuonPhi_EP == 0  || NumberOfMuonPhi_EM == 0 ) return;
+  if(NumberOfMuonEta == nullptr  || 
+     NumberOfMuonPt_B == nullptr  || NumberOfMuonPt_EP == nullptr  || NumberOfMuonPt_EM == nullptr  || 
+     NumberOfMuonPhi_B == nullptr  || NumberOfMuonPhi_EP == nullptr  || NumberOfMuonPhi_EM == nullptr ) return;
 
 
   TH1F *    NumberOfMuonEtaTH1F = NumberOfMuonEta->getTH1F(); 
@@ -67,8 +67,8 @@ void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStor
       
   for(int i = 1 ; i<= 6  ; i++) {
     
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
 
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonEta";
@@ -80,8 +80,8 @@ void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStor
       recHitTH1F->Divide(NumberOfMuonEtaTH1F);
     }
 
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
 
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonPtB";
@@ -92,8 +92,8 @@ void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStor
       recHitTH1F->Divide(NumberOfMuonPtBTH1F);
     }
 
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
     
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonPhiB";
@@ -104,8 +104,8 @@ void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStor
       recHitTH1F->Divide(NumberOfMuonPhiBTH1F);
     }
 
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
 
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonPtEP";
@@ -116,8 +116,8 @@ void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStor
       recHitTH1F->Divide(NumberOfMuonPtEPTH1F);
     }
 
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
 
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonPhiEP";
@@ -129,8 +129,8 @@ void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStor
     }
 
     
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
 
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonPtEM";
@@ -141,8 +141,8 @@ void  RPCRecHitProbabilityClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStor
       recHitTH1F->Divide(NumberOfMuonPtEMTH1F);
     }
 
-    recHit = NULL;
-    recHitTH1F = NULL;
+    recHit = nullptr;
+    recHitTH1F = nullptr;
 
     name.str("");
     name<< globalFolder_ <<"/"<<i<<"RecHitMuonPhiEM";

@@ -19,7 +19,7 @@ bool SeedFromConsecutiveHitsStraightLineCreator::initialKinematic(GlobalTrajecto
   TrackCharge q = 1; // irrelevant, since infinite momentum
   kine = GlobalTrajectoryParameters(vertexPos, initMomentum, q, &*bfield);
 
-  return (filter ? filter->compatible(hits, kine, *region) : true); 
+  return true;
 
 }
 

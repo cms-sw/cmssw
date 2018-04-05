@@ -147,7 +147,7 @@ void L1MuDTWedgeSorter::reset() {
 
   vector<const L1MuDTTrack*>::iterator iter;
   for ( iter = m_TrackCands.begin(); iter != m_TrackCands.end(); iter++ ) {
-    *iter = 0;
+    *iter = nullptr;
   }
 
 } 
@@ -199,12 +199,12 @@ void L1MuDTWedgeSorter::runCOL(vector<L1MuDTTrack*>& cands) const {
 
   typedef vector<L1MuDTTrack*>::iterator TI;
   for ( TI iter1 = cands.begin(); iter1 != cands.end(); iter1++ ) {
-    if ( *iter1 == 0 ) continue;
+    if ( *iter1 == nullptr ) continue;
     if ( (*iter1)->empty() ) continue;
     L1MuDTSecProcId sp1 = (*iter1)->spid();
     int qual1 = (*iter1)->quality();
     for ( TI iter2 = cands.begin(); iter2 != cands.end(); iter2++ ) {
-      if ( *iter2 == 0 ) continue;
+      if ( *iter2 == nullptr ) continue;
       if ( *iter1 == *iter2 ) continue; 
       if ( (*iter2)->empty() ) continue;
       L1MuDTSecProcId sp2 = (*iter2)->spid();

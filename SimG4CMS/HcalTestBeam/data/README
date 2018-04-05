@@ -1,0 +1,5 @@
+There are six files pim.txt, pip.txt, km.txt, kp.txt, prom.txt, prop.txt
+which contain the beam momenta, mean energy response (scaled by beam momentum)
+and the error for pi-, pi+, K-, K+, antiproton, proton respectively.
+
+These values are compared with test beam simulation results.

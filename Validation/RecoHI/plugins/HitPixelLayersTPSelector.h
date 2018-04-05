@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 /**
  Selector to select only tracking particles that leave hits in three pixel layers
@@ -25,7 +25,7 @@ class HitPixelLayersTPSelector
 
 
   // output collection type
-  typedef std::vector<const TrackingParticle*> container;
+  typedef TrackingParticleRefVector container;
 
   // iterator over result collection type.
   typedef container::const_iterator const_iterator;
@@ -53,7 +53,7 @@ class HitPixelLayersTPSelector
       selected_.clear();
       //Retrieve tracker topology from geometry
       edm::ESHandle<TrackerTopology> tTopoHand;
-      iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+      iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
       const TrackerTopology *tTopo=tTopoHand.product();
 
 
@@ -86,8 +86,7 @@ class HitPixelLayersTPSelector
 	       testId)
 	    {
 	      if (tripletSeedOnly_ && !goodHitPattern(pixelHitPattern(tpr,tTopo)) ) continue; //findable triplet seed
-	      const TrackingParticle * trap = &(tpc[i]);
-	      selected_.push_back(trap);
+	      selected_.push_back(tpr);
 	    }
 
 	}

@@ -455,22 +455,18 @@ void MuonSeedCreator::estimatePtCSC(const SegmentContainer& seg, const std::vect
       if ( layer0 == 2 && temp_dphi > 0.0001 ) {
 
         // ME4 is outer-most
-        bool ME4av =false;
         if ( layer1 == 4 )  {
           temp_dphi = scaledPhi(temp_dphi, CSC24_1[3]);
           pt  = getPt( CSC24, eta , temp_dphi )[0];
           spt = getPt( CSC24, eta , temp_dphi )[1];
-          ME4av = true;
         }
         // ME3 is outer-most
         else {
           // if ME2-4 is availabe , discard ME2-3 
-          if ( !ME4av ) {
-            if ( eta <= 1.7 )  {   temp_dphi = scaledPhi(temp_dphi, CSC23_1[3]); }
-            if ( eta >  1.7 )  {   temp_dphi = scaledPhi(temp_dphi, CSC23_2[3]); }
-            pt  = getPt( CSC23, eta , temp_dphi )[0];
-            spt = getPt( CSC23, eta , temp_dphi )[1];
-          }
+          if ( eta <= 1.7 )  {   temp_dphi = scaledPhi(temp_dphi, CSC23_1[3]); }
+          if ( eta >  1.7 )  {   temp_dphi = scaledPhi(temp_dphi, CSC23_2[3]); }
+          pt  = getPt( CSC23, eta , temp_dphi )[0];
+          spt = getPt( CSC23, eta , temp_dphi )[1];
         }
         ptEstimate.push_back( pt*sign );   
         sptEstimate.push_back( spt );
@@ -490,7 +486,7 @@ void MuonSeedCreator::estimatePtCSC(const SegmentContainer& seg, const std::vect
   }
 
   // Compute weighted average if have more than one estimator
-  if ( ptEstimate.size() > 0 ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
+  if ( !ptEstimate.empty() ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
 
 }
 
@@ -555,7 +551,6 @@ void MuonSeedCreator::estimatePtDT(const SegmentContainer& seg, const std::vecto
       }
 
       // MB1 is inner-most
-      bool MB23av = false;
       if (layer0 == -1 && temp_dphi > 0.0001 ) {
         // MB2 is outer-most
         if (layer1 == -2) {
@@ -564,7 +559,6 @@ void MuonSeedCreator::estimatePtDT(const SegmentContainer& seg, const std::vecto
           if ( eta >  0.7 )  {   temp_dphi = scaledPhi(temp_dphi, DT12_2[3]); }
           pt  = getPt( DT12, eta , temp_dphi )[0];
           spt = getPt( DT12, eta , temp_dphi )[1];
-          MB23av = true;
         }
         // MB3 is outer-most
         else if (layer1 == -3) {
@@ -573,16 +567,13 @@ void MuonSeedCreator::estimatePtDT(const SegmentContainer& seg, const std::vecto
           if ( eta >  0.6 )  {   temp_dphi = scaledPhi(temp_dphi, DT13_2[3]); }
           pt  = getPt( DT13, eta , temp_dphi )[0];
           spt = getPt( DT13, eta , temp_dphi )[1];
-          MB23av = true;
         }
         // MB4 is outer-most
         else {
-          if ( !MB23av ) {
-             if ( eta <= 0.52 )  {   temp_dphi = scaledPhi(temp_dphi, DT14_1[3]); }
-	     if ( eta >  0.52 )  {   temp_dphi = scaledPhi(temp_dphi, DT14_2[3]); }
-	     pt  = getPt( DT14, eta , temp_dphi )[0];
-	     spt = getPt( DT14, eta , temp_dphi )[1];
-          }
+          if ( eta <= 0.52 )  {   temp_dphi = scaledPhi(temp_dphi, DT14_1[3]); }
+          if ( eta >  0.52 )  {   temp_dphi = scaledPhi(temp_dphi, DT14_2[3]); }
+          pt  = getPt( DT14, eta , temp_dphi )[0];
+          spt = getPt( DT14, eta , temp_dphi )[1];
         }
         ptEstimate.push_back( pt*sign );
         sptEstimate.push_back( spt );
@@ -626,7 +617,7 @@ void MuonSeedCreator::estimatePtDT(const SegmentContainer& seg, const std::vecto
   
   
   // Compute weighted average if have more than one estimator
-  if (ptEstimate.size() > 0 ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
+  if (!ptEstimate.empty() ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
 
 }
 
@@ -668,7 +659,7 @@ void MuonSeedCreator::estimatePtOverlap(const SegmentContainer& seg, const std::
   float eta = fabs(segPos[0].eta());
   //std::cout<<" estimate OL "<<std::endl;
     
-  if ( segDT.size() > 0 && segCSC.size() > 0 ) {
+  if ( !segDT.empty() && !segCSC.empty() ) {
     int layer1 = layers[size-1];
     segPos[1] = seg[size-1]->globalPosition();
   
@@ -756,7 +747,7 @@ void MuonSeedCreator::estimatePtOverlap(const SegmentContainer& seg, const std::
   */
 
   // Compute weighted average if have more than one estimator
-  if (ptEstimate.size() > 0 ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
+  if (!ptEstimate.empty() ) weightedPt( ptEstimate, sptEstimate, thePt, theSpt);
 
 }
 /*

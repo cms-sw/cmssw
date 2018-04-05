@@ -6,7 +6,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "CalibMuon/DTCalibration/plugins/DTFakeT0ESProducer.h"
@@ -44,15 +43,15 @@ DTFakeT0ESProducer::~DTFakeT0ESProducer(){
 
 
 // ------------ method called to produce the data  ------------
-DTT0* DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord){
+std::unique_ptr<DTT0> DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord){
   
   parseDDD(iRecord);
-  DTT0* t0Map = new DTT0();
+  auto t0Map = std::make_unique<DTT0>();
   
   //Loop on layerId-nwires map
  for(map<DTLayerId, pair <unsigned int,unsigned int> >::const_iterator lIdWire = theLayerIdWiresMap.begin();
      lIdWire != theLayerIdWiresMap.end();
-     lIdWire++){
+     ++lIdWire){
    int firstWire = ((*lIdWire).second).first;
    int nWires = ((*lIdWire).second).second;
    //Loop on wires of each layer

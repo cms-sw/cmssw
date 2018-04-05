@@ -33,14 +33,14 @@ class FWTrajectorySeedProxyBuilder : public FWSimpleProxyBuilderTemplate<Traject
 
 public:
    FWTrajectorySeedProxyBuilder();
-   virtual ~FWTrajectorySeedProxyBuilder();
+   ~FWTrajectorySeedProxyBuilder() override;
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWTrajectorySeedProxyBuilder(const FWTrajectorySeedProxyBuilder&); // stop default
+   FWTrajectorySeedProxyBuilder(const FWTrajectorySeedProxyBuilder&) = delete; // stop default
 
-   const FWTrajectorySeedProxyBuilder& operator=(const FWTrajectorySeedProxyBuilder&); // stop default
+   const FWTrajectorySeedProxyBuilder& operator=(const FWTrajectorySeedProxyBuilder&) = delete; // stop default
 
    using FWSimpleProxyBuilderTemplate<TrajectorySeed>::build;
    void build(const TrajectorySeed& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;
@@ -87,8 +87,8 @@ FWTrajectorySeedProxyBuilder::build( const TrajectorySeed& iData, unsigned int i
 
          float localPoint[3] = 
             {     
-               fireworks::pixelLocalX(( *itc ).minPixelRow(), ( int )pars[0] ),
-               fireworks::pixelLocalY(( *itc ).minPixelCol(), ( int )pars[1] ),
+               fireworks::pixelLocalX(( *itc ).minPixelRow(), pars ),
+               fireworks::pixelLocalY(( *itc ).minPixelCol(), pars ),
                0.0
             };
 

@@ -48,13 +48,13 @@ process.globalMuQualityCutsAnalysis= cms.EDAnalyzer(
     "BjetAnalysis",
 # actually one can clean all it up.....  I don't need any other branch..... 
     src = cms.InputTag("muons"), # dimuonsOneTrack, dimuonsOneStandAlone
-    ptMin = cms.untracked.double("0.0"),
-    massMin = cms.untracked.double("0.0"),
-    massMax = cms.untracked.double("120.0"),
-    etaMin = cms.untracked.double("-1.0"),
-    etaMax = cms.untracked.double("10.0"),
-    trkIso = cms.untracked.double("10000"),
-    chi2Cut = cms.untracked.double("10"),
+    ptMin = cms.untracked.double(0.0),
+    massMin = cms.untracked.double(0.0),
+    massMax = cms.untracked.double(120.0),
+    etaMin = cms.untracked.double(-1.0),
+    etaMax = cms.untracked.double(10.0),
+    trkIso = cms.untracked.double(10000),
+    chi2Cut = cms.untracked.double(10),
     nHitCut = cms.untracked.int32(10)
  )
 

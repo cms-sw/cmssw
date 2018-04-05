@@ -281,7 +281,7 @@ if __name__ == '__main__':
         #    continue
         rruns.append(irun)
     if not irunlsdict: #no file
-        irunlsdict=dict(zip(rruns,[None]*len(rruns)))
+        irunlsdict=dict(list(zip(rruns,[None]*len(rruns))))
     else:
         for selectedrun in irunlsdict.keys():#if there's further filter on the runlist,clean input dict
             if selectedrun not in rruns:

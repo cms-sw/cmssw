@@ -65,7 +65,6 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "FastSimulation/Tracking/test/FastTrackAnalyzer.h"
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
@@ -109,17 +108,17 @@
 class SimHitShifter : public edm::EDProducer {
    public:
       explicit SimHitShifter(const edm::ParameterSet&);
-      ~SimHitShifter();
+      ~SimHitShifter() override;
   //edm::ESHandle <RPCGeometry> rpcGeo;
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+      void beginRun(const edm::Run&, const edm::EventSetup&) override;
       std::map<int,float> shiftinfo;
 
 
    private:
       std::string ShiftFileName;
-      virtual void beginJob(const edm::Run&, const edm::EventSetup&) ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
     
 };
 
@@ -165,9 +164,9 @@ void SimHitShifter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
    iEvent.getManyByType(theSimHitContainers);
    //std::cout << " The Number of sim Hits is  " << theSimHitContainers.size() <<std::endl;
 
-   std::auto_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
-   std::auto_ptr<edm::PSimHitContainer> pdt(new edm::PSimHitContainer);
-   std::auto_ptr<edm::PSimHitContainer> prpc(new edm::PSimHitContainer);
+   std::unique_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
+   std::unique_ptr<edm::PSimHitContainer> pdt(new edm::PSimHitContainer);
+   std::unique_ptr<edm::PSimHitContainer> prpc(new edm::PSimHitContainer);
 
    std::vector<PSimHit> theSimHits;
 
@@ -264,9 +263,9 @@ void SimHitShifter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
    std::cout<<"Putting collections in the event"<<std::endl;
 
-   iEvent.put(pcsc,"MuonCSCHits");
-   iEvent.put(pdt,"MuonDTHits");
-   iEvent.put(prpc,"MuonRPCHits");
+   iEvent.put(std::move(pcsc),"MuonCSCHits");
+   iEvent.put(std::move(pdt),"MuonDTHits");
+   iEvent.put(std::move(prpc),"MuonRPCHits");
    
 }
 
@@ -278,7 +277,7 @@ SimHitShifter::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-SimHitShifter::beginJob(const edm::Run& run, const edm::EventSetup& iSetup)
+SimHitShifter::beginJob()
 {
 
 }

@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+#to resolve the refToPSet_
+from TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff import CkfBaseTrajectoryFilter_block
+
 GroupedCkfTrajectoryBuilder = cms.PSet(
     ComponentType = cms.string('GroupedCkfTrajectoryBuilder'),
     bestHitOnly = cms.bool(True),
@@ -19,10 +22,10 @@ GroupedCkfTrajectoryBuilder = cms.PSet(
     intermediateCleaning = cms.bool(True),
     # Chi2 added to track candidate if no hit found in layer
     lostHitPenalty = cms.double(30.0),
+    foundHitBonus = cms.double(10.0),
     MeasurementTrackerName = cms.string(''),
     lockHits = cms.bool(True),
     TTRHBuilder = cms.string('WithTrackAngle'),
-    foundHitBonus = cms.double(5.0),
     updator = cms.string('KFUpdator'),
     # If true, track building will allow for possibility of no hit
     # in a given layer, even if it finds compatible hits there.

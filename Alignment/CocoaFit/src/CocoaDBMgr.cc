@@ -4,7 +4,6 @@
 #include "CondFormats/Alignment/interface/AlignTransformErrorExtended.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h" 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -13,8 +12,6 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurementInfo.h" 
 #include "CondFormats/DataRecord/interface/OpticalAlignmentsRcd.h" 
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h" 
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -34,7 +31,7 @@
 
 #include "CondCore/CondDB/interface/Serialization.h"
 
-CocoaDBMgr* CocoaDBMgr::instance = 0;
+CocoaDBMgr* CocoaDBMgr::instance = nullptr;
 
 //----------------------------------------------------------------------
 CocoaDBMgr* CocoaDBMgr::getInstance()
@@ -101,7 +98,7 @@ bool CocoaDBMgr::DumpCocoaResults()
   if( gomgr->GlobalOptions()["writeDBAlign"] > 0) {
 
     // Build DT alignments and errors
-    std::pair< Alignments*,AlignmentErrorsExtended*> dtali = BuildAlignments(1);
+    std::pair< Alignments*,AlignmentErrorsExtended*> dtali = BuildAlignments(true);
     Alignments*      dt_Alignments = dtali.first;
     AlignmentErrorsExtended* dt_AlignmentErrors = dtali.second;
     
@@ -134,7 +131,7 @@ bool CocoaDBMgr::DumpCocoaResults()
     if(ALIUtils::debug >= 2) std::cout << "DTAlignmentErrorExtendedRcd WRITTEN TO DB : "<< nrcd << std::endl;
     
     // Build CSC alignments and errors
-    std::pair< Alignments*,AlignmentErrorsExtended*> cscali = BuildAlignments(0);
+    std::pair< Alignments*,AlignmentErrorsExtended*> cscali = BuildAlignments(false);
     Alignments*      csc_Alignments = cscali.first;
     AlignmentErrorsExtended* csc_AlignmentErrors = cscali.second;
     
@@ -188,7 +185,7 @@ OpticalAlignInfo CocoaDBMgr::GetOptAlignInfoFromOptO( OpticalObject* opto )
   CLHEP::HepRotation parentRmGlobInv = inverseOf( opto->parent()->rmGlob() );
   centreLocal = parentRmGlobInv * centreLocal;
 
-  const std::vector< Entry* > theCoordinateEntryVector = opto->CoordinateEntryList();
+  const std::vector< Entry* >& theCoordinateEntryVector = opto->CoordinateEntryList();
   std::cout << " CocoaDBMgr::GetOptAlignInfoFromOptO starting coord " <<std::endl;
 
   data.x_.value_= centreLocal.x() / 100.; // in cm
@@ -220,10 +217,10 @@ OpticalAlignInfo CocoaDBMgr::GetOptAlignInfoFromOptO( OpticalObject* opto )
   data.angz_.error_= GetEntryError( theCoordinateEntryVector[5] ) * 180./M_PI; // in deg;
 
   
-  const std::vector< Entry* > theExtraEntryVector = opto->ExtraEntryList();  std::cout << " CocoaDBMgr::GetOptAlignInfoFromOptO starting entry " << std::endl;
+  const std::vector< Entry* >& theExtraEntryVector = opto->ExtraEntryList();  std::cout << " CocoaDBMgr::GetOptAlignInfoFromOptO starting entry " << std::endl;
 
   std::vector< Entry* >::const_iterator ite;
-  for( ite = theExtraEntryVector.begin(); ite != theExtraEntryVector.end(); ite++ ) {
+  for( ite = theExtraEntryVector.begin(); ite != theExtraEntryVector.end(); ++ite ) {
     OpticalAlignParam extraEntry; 
     extraEntry.name_ = (*ite)->name();
     extraEntry.dim_type_ = (*ite)->type();
@@ -270,7 +267,7 @@ OpticalAlignments* CocoaDBMgr::BuildOpticalAlignments()
 
   static std::vector< OpticalObject* > optolist = Model::OptOList();
   static std::vector< OpticalObject* >::const_iterator ite;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  for(ite = optolist.begin(); ite != optolist.end(); ++ite ){
     if( (*ite)->type() == "system" ) continue;    
     OpticalAlignInfo data = GetOptAlignInfoFromOptO( *ite );
     optalign->opticalAlignments_.push_back(data);
@@ -293,7 +290,7 @@ std::pair< Alignments*,AlignmentErrorsExtended*> CocoaDBMgr::BuildAlignments(boo
   //read 
   static std::vector< OpticalObject* > optolist = Model::OptOList();
   static std::vector< OpticalObject* >::const_iterator ite;
-  for(ite = optolist.begin(); ite != optolist.end(); ite++ ){
+  for(ite = optolist.begin(); ite != optolist.end(); ++ite ){
     if( (*ite)->type() == "system" ) continue; 
       std::cout << "CocoaDBMgr::BuildAlignments getCmsswID " << (*ite) << std::endl;
       std::cout << "CocoaDBMgr::BuildAlignments getCmsswID " << (*ite)->getCmsswID()  << std::endl;
@@ -319,8 +316,8 @@ AlignTransform* CocoaDBMgr::GetAlignInfoFromOptO( OpticalObject* opto )
 {
   if(ALIUtils::debug >= 3) std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptO " << opto->name() << std::endl;
 
-  AlignTransform::Translation trans = opto->centreGlob();
-  AlignTransform::Rotation rot = opto->rmGlob();
+  const AlignTransform::Translation& trans = opto->centreGlob();
+  const AlignTransform::Rotation& rot = opto->rmGlob();
   align::ID cmsswID = opto->getCmsswID();
 
   std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptO buildalign" << opto->name() << std::endl;
@@ -351,7 +348,7 @@ AlignTransformErrorExtended* CocoaDBMgr::GetAlignInfoErrorFromOptO( OpticalObjec
   return alignError;
 
   CLHEP::HepMatrix errm(3,3);
-  const std::vector< Entry* > theCoordinateEntryVector = opto->CoordinateEntryList();
+  const std::vector< Entry* >& theCoordinateEntryVector = opto->CoordinateEntryList();
 std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptOfill errm " << opto->name() << std::endl;
   errm(0,0) = GetEntryError( theCoordinateEntryVector[0] ) / 100.; // in cm
   errm(1,1) = GetEntryError( theCoordinateEntryVector[1] ) / 100.; // in cm
@@ -373,7 +370,7 @@ std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptO errms filled " << opto->name(
   
   std::cout << alignError << "@@@ CocoaDBMgr::GetAlignInfoFromOptO error built " << opto->name() << std::endl;
   //t  return alignError;
-  return (AlignTransformErrorExtended*)(0);
+  return (AlignTransformErrorExtended*)nullptr;
 }
 
 

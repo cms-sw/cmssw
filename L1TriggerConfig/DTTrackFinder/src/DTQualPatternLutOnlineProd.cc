@@ -37,9 +37,9 @@ class DTQualPatternLutOnlineProd :
 {
    public:
       DTQualPatternLutOnlineProd(const edm::ParameterSet&);
-      ~DTQualPatternLutOnlineProd();
+      ~DTQualPatternLutOnlineProd() override;
 
-  virtual boost::shared_ptr< L1MuDTQualPatternLut > newObject(
+  std::shared_ptr< L1MuDTQualPatternLut > newObject(
     const std::string& objectKey ) override ;
 
    private:
@@ -77,13 +77,13 @@ DTQualPatternLutOnlineProd::~DTQualPatternLutOnlineProd()
 
 }
 
-boost::shared_ptr< L1MuDTQualPatternLut >
+std::shared_ptr< L1MuDTQualPatternLut >
 DTQualPatternLutOnlineProd::newObject( const std::string& objectKey )
 {
   edm::LogError( "L1-O2O" ) << "L1MuDTQualPatternLut object with key "
 			    << objectKey << " not in ORCON!" ;
 
-  return boost::shared_ptr< L1MuDTQualPatternLut >() ;
+  return std::shared_ptr< L1MuDTQualPatternLut >() ;
 }
 
 //

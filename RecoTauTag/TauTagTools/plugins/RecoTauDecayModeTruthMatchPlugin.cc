@@ -30,7 +30,7 @@ class RecoTauDecayModeTruthMatchPlugin : public reco::tau::RecoTauCleanerPlugin
 {
   public:
   explicit RecoTauDecayModeTruthMatchPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
-    virtual ~RecoTauDecayModeTruthMatchPlugin() {}
+    ~RecoTauDecayModeTruthMatchPlugin() override {}
     double operator()(const reco::PFTauRef&) const override;
     void beginEvent() override;
 

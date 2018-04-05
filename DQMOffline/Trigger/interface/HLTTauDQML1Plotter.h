@@ -6,8 +6,8 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
-#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/L1Trigger/interface/EtSum.h"
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
@@ -23,14 +23,15 @@ public:
 
 private:
     //The filters
-    edm::InputTag l1ExtraTaus_;
-    edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ExtraTausToken_;
-    edm::InputTag l1ExtraJets_;
-    edm::EDGetTokenT<l1extra::L1JetParticleCollection> l1ExtraJetsToken_;
+    edm::InputTag l1stage2Taus_;
+    edm::EDGetTokenT<l1t::TauBxCollection> l1stage2TausToken_;
+    edm::InputTag l1stage2Sums_;
+    edm::EDGetTokenT<l1t::EtSumBxCollection> l1stage2SumsToken_;
 
     const bool doRefAnalysis_;
     const double matchDeltaR_;
     double l1JetMinEt_;
+    double l1ETMMin_;
 
     const double maxPt_;
     const double maxHighPt_;
@@ -44,12 +45,20 @@ private:
     MonitorElement* l1tauEta_;
     MonitorElement* l1tauPhi_;
 
+    MonitorElement* l1isotauEt_;
+    MonitorElement* l1isotauEta_;
+    MonitorElement* l1isotauPhi_;
+
     MonitorElement* l1jetEt_;
     MonitorElement* l1jetEta_;
     MonitorElement* l1jetPhi_;
 
+    MonitorElement* l1etmEt_;
+    MonitorElement* l1etmPhi_;
+
     //Monitor Elements for matching
     MonitorElement* l1tauEtRes_;
+    MonitorElement* l1isotauEtRes_;
     MonitorElement* l1jetEtRes_;
 
     MonitorElement* l1tauEtEffNum_;
@@ -63,6 +72,18 @@ private:
 
     MonitorElement* l1tauPhiEffNum_;
     MonitorElement* l1tauPhiEffDenom_;
+
+    MonitorElement* l1isotauEtEffNum_;
+    MonitorElement* l1isotauEtEffDenom_;
+    
+    MonitorElement* l1isotauHighEtEffNum_;
+    MonitorElement* l1isotauHighEtEffDenom_;
+    
+    MonitorElement* l1isotauEtaEffNum_;
+    MonitorElement* l1isotauEtaEffDenom_;
+    
+    MonitorElement* l1isotauPhiEffNum_;
+    MonitorElement* l1isotauPhiEffDenom_;
 
     MonitorElement* l1jetEtEffNum_;
     MonitorElement* l1jetEtEffDenom_;
@@ -83,5 +104,16 @@ private:
     MonitorElement* secondTauEt_;
     MonitorElement* secondTauEta_;
     MonitorElement* secondTauPhi_;
+
+    MonitorElement* firstIsoTauEt_;
+    MonitorElement* firstIsoTauEta_;
+    MonitorElement* firstIsoTauPhi_;
+    
+    MonitorElement* secondIsoTauEt_;
+    MonitorElement* secondIsoTauEta_;
+    MonitorElement* secondIsoTauPhi_;
+
+    MonitorElement* l1etmEtEffNum_;
+    MonitorElement* l1etmEtEffDenom_;
 };
 #endif

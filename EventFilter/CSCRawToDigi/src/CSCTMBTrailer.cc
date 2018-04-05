@@ -31,7 +31,7 @@ CSCTMBTrailer::CSCTMBTrailer(int wordCount, int firmwareVersion)
 }
 
 
-CSCTMBTrailer::CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVersion) 
+CSCTMBTrailer::CSCTMBTrailer(const uint16_t * buf, unsigned short int firmwareVersion) 
 : theFirmwareVersion(firmwareVersion)
 {
   // take a little too much, maybe

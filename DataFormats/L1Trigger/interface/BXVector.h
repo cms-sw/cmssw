@@ -5,6 +5,10 @@
 // designed to store objects corresponding to several time-samples (BX)
 // the time sample is addressed by an integer index, eg. -1 to 1
 
+#include "DataFormats/Common/interface/FillView.h"
+#include "DataFormats/Common/interface/fillPtrVector.h"
+#include "DataFormats/Common/interface/setPtr.h"
+#include "DataFormats/Common/interface/traits.h"
 #include <vector>
 
 template < class T >
@@ -14,6 +18,8 @@ class BXVector  {
 
   typedef typename std::vector< T >::iterator       iterator;
   typedef typename std::vector< T >::const_iterator const_iterator;
+  typedef T value_type;
+  typedef typename std::vector< T >::size_type      size_type;
 
  public:
 
@@ -64,6 +70,9 @@ class BXVector  {
   // get N objects for a given BX
   unsigned size( int bx ) const;
 
+  // get N objects for all BXs together
+  unsigned size( ) const { return data_.size();}
+
   // add element with given BX index
   void push_back( int bx, T object );
  
@@ -88,12 +97,34 @@ class BXVector  {
   // check if data has empty location
   bool isEmpty(int bx) const;
 
+  // support looping over entire collection (note also that begin() is needed by edm::Ref)  
+  const_iterator begin() const {return data_.begin(); }
+  const_iterator end() const {return data_.end(); }
+  //int bx(const_iterator & iter) const; (potentially useful)
+  unsigned int key(const_iterator & iter) const { return iter - begin(); }
+
+  // array subscript operator (incited by TriggerSummaryProducerAOD::fillTriggerObject...)
+  T& operator[](std::size_t i) { return data_[i]; }
+  const T& operator[](std::size_t i) const { return data_[i]; }
+
+  // edm::View support
+  void fillView(edm::ProductID const& id,
+		std::vector<void const*>& pointers,
+		edm::FillViewHelperVector& helpers) const;
+  // edm::Ptr support
+  void setPtr(std::type_info const& toType,
+	      unsigned long index,
+	      void const*& ptr) const;
+  void fillPtrVector(std::type_info const& toType,
+		     std::vector<unsigned long> const& indices,
+		     std::vector<void const*>& ptrs) const;
+
  private:
 
   // this method converts integer BX index into an unsigned index
   // used by the internal data representation
   unsigned indexFromBX(int bx) const;
-  unsigned numBX() const {return static_cast<const unsigned>(bxLast_) - bxFirst_; }
+  unsigned numBX() const {return 1 + static_cast<const unsigned>(bxLast_ - bxFirst_); }
 
  private:
 

@@ -274,7 +274,7 @@ class FindDialog(QDialog):
             self._findPreviousButton.show()
             self._findNextButton.setText("&Next")
         else:
-            object=self._findAlgorithm.next()
+            object=next(self._findAlgorithm)
         self._updateNumberLabel()
         self.emit(SIGNAL("found"),object)
 

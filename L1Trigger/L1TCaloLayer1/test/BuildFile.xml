@@ -1,0 +1,4 @@
+<use name="L1Trigger/L1TCaloLayer1"/>
+<bin name="testUCTGeometry" file="testUCTGeometry.cpp"> </bin>
+<bin name="testUCTLayer1" file="testUCTLayer1.cpp"> </bin>
+<bin name="testUCTLayer1HF" file="testUCTLayer1HF.cpp"> </bin>

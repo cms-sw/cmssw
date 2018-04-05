@@ -18,9 +18,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "GeneratorInterface/GenFilters/interface/BCToEFilterAlgo.h"
@@ -28,12 +25,12 @@
 class BCToEFilter : public edm::EDFilter {
  public:
   explicit BCToEFilter(const edm::ParameterSet&);
-  ~BCToEFilter();
+  ~BCToEFilter() override;
   
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
  private:
-  BCToEFilterAlgo *BCToEAlgo_;
+  std::unique_ptr<BCToEFilterAlgo> BCToEAlgo_;
   
 };
 #endif

@@ -76,10 +76,10 @@ public:
       reset();
    }
 
-   virtual int numberOfRows() const override {
+   int numberOfRows() const override {
       return m_row_to_index.size();
    }
-   virtual int numberOfColumns() const override {
+   int numberOfColumns() const override {
       return kNColumns;
    }
    
@@ -94,12 +94,12 @@ public:
       dataChanged();
    }
    
-   virtual int unsortedRowNumber(int iSortedRowNumber) const override {
+   int unsortedRowNumber(int iSortedRowNumber) const override {
       return m_row_to_index[iSortedRowNumber];
    }
 
-   virtual void implSort(int col, bool sortOrder) override;
-   virtual std::vector<std::string> getTitles() const override {
+   void implSort(int col, bool sortOrder) override;
+   std::vector<std::string> getTitles() const override {
       std::vector<std::string> returnValue;
       returnValue.reserve(kNColumns);
       returnValue.push_back("Purpose");
@@ -110,7 +110,7 @@ public:
       return returnValue;
    }
    
-   virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const override
+   FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const override
    {
       
       if(static_cast<int>(m_row_to_index.size())>iSortedRowNumber) {
@@ -399,7 +399,7 @@ void
 FWGUIEventDataAdder::addNewItem()
 {
    TClass* theClass = TClass::GetClass(m_type.c_str());
-   if(0==theClass) {
+   if(nullptr==theClass) {
       return;
    }
    const std::string moduleLabel = m_moduleLabel;
@@ -461,7 +461,7 @@ void
 FWGUIEventDataAdder::show()
 {
    // Map main frame
-   if(0==m_frame) {
+   if(nullptr==m_frame) {
       createWindow();
    }
    m_frame->MapWindow();

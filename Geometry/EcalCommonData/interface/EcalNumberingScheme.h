@@ -15,7 +15,7 @@ class EcalNumberingScheme : public CaloNumberingScheme {
 
 public:
   EcalNumberingScheme();
-  virtual ~EcalNumberingScheme();
+  ~EcalNumberingScheme() override;
   virtual uint32_t getUnitID(const EcalBaseNumber& baseNumber) const = 0;
 
 };

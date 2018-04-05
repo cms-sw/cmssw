@@ -27,10 +27,10 @@ public:
   GlobalMuonToMuonProducer(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~GlobalMuonToMuonProducer();
+  ~GlobalMuonToMuonProducer() override;
 
   /// reconstruct muons
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 protected:
 

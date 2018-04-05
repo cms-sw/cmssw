@@ -23,6 +23,7 @@
 //      |mu = 0      DT  = 1            layer                             hit type = 0-3
 //      |mu = 0      CSC = 2            layer                             hit type = 0-3
 //      |mu = 0      RPC = 3            layer                             hit type = 0-3
+//      |mu = 0      GEM = 3            layer                             hit type = 0-3
 //
 //      hit type, see DataFormats/TrackingRecHit/interface/TrackingRecHit.h
 //      valid    = valid hit                                     = 0
@@ -46,16 +47,16 @@ namespace reco {
 class FWTrackResidualDetailView : public FWDetailViewCanvas<reco::Track>{
 public:
    FWTrackResidualDetailView();
-   virtual ~FWTrackResidualDetailView();
+   ~FWTrackResidualDetailView() override;
 
 private:
-   FWTrackResidualDetailView(const FWTrackResidualDetailView&); // stop default
-   const FWTrackResidualDetailView& operator=(const FWTrackResidualDetailView&); // stop default
+   FWTrackResidualDetailView(const FWTrackResidualDetailView&) = delete; // stop default
+   const FWTrackResidualDetailView& operator=(const FWTrackResidualDetailView&) = delete; // stop default
 
    using FWDetailViewCanvas<reco::Track>::build;
-   virtual void build (const FWModelId &id, const reco::Track*);
+   void build (const FWModelId &id, const reco::Track*) override;
    using FWDetailViewCanvas<reco::Track>::setTextInfo;
-   virtual void setTextInfo(const FWModelId &id, const reco::Track*);
+   void setTextInfo(const FWModelId &id, const reco::Track*) override;
 
    double getSignedResidual (const FWGeometry *geom, unsigned int id, double resX);
    void prepareData(const FWModelId &id, const reco::Track*);

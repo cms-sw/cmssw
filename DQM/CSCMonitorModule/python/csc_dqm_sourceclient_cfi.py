@@ -6,7 +6,8 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.CSCMonitorModule.csc_dqm_masked_hw_cfi import *
 
-dqmCSCClient = cms.EDAnalyzer("CSCMonitorModule",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmCSCClient = DQMEDAnalyzer('CSCMonitorModule',
 
   BOOKING_XML_FILE = cms.FileInPath('DQM/CSCMonitorModule/data/emuDQMBooking.xml'),
   InputObjects = cms.untracked.InputTag("rawDataCollector"),
@@ -47,8 +48,17 @@ dqmCSCClient = cms.EDAnalyzer("CSCMonitorModule",
     MO_FILTER = cms.untracked.vstring(
       '+/^.*$/',
       '-/All_Readout_Errors/',
+      '-/FEDBufferSize/',
+      '-/FEDEntries/',
+      '-/FEDFatal/',
+      '-/FED_Stats/',
+      '-/FEDNonFatal/',
+      '-/FEDFormatFatal/',
+      '-/FEDFormat_Errors/',
+      '-/FED_DDU_L1A_.*$/', 
+      '-/^FED_[0-9]+/',
       '-/^DMB_.*$/',
-      '-/DDU_[0-9]+/',
+      '+/DDU_[0-9]+/',
       '-/CSC_[0-9]+_[0-9]+/',
       '+/CSC_[0-9]+_[0-9]+\/BinCheck_ErrorStat_Table/',
       '+/CSC_[0-9]+_[0-9]+\/BinCheck_DataFlow_Problems_Table/',

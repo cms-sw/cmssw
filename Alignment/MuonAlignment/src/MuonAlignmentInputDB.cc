@@ -20,7 +20,7 @@
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
-#include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
+#include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "CondFormats/Alignment/interface/DetectorGlobalPosition.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
@@ -65,8 +65,8 @@ MuonAlignmentInputDB::~MuonAlignmentInputDB() {}
 //
 
 AlignableMuon *MuonAlignmentInputDB::newAlignableMuon(const edm::EventSetup& iSetup) const {
-   boost::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
-   boost::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
+   std::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
+   std::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
 
    edm::ESHandle<Alignments> dtAlignments;
    edm::ESHandle<AlignmentErrorsExtended> dtAlignmentErrorsExtended;

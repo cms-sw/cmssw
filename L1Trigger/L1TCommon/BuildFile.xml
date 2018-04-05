@@ -1,0 +1,7 @@
+<use name="xerces-c"/>
+<use name="CondFormats/L1TObjects"/>
+
+<export>
+  <lib name="1"/>
+</export>
+

@@ -17,6 +17,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
@@ -102,7 +103,7 @@ EventSetupRecord::add(const DataKey& iKey ,
 {
    //
    const DataProxy* proxy = find(iKey);
-   if (0 != proxy) {
+   if (nullptr != proxy) {
       //
       // we already know the field exist, so do not need to check against end()
       //
@@ -176,12 +177,12 @@ EventSetupRecord::getFromProxy(DataKey const & iKey ,
 
    const DataProxy* proxy = this->find(iKey);
    
-   const void* hold = 0;
+   const void* hold = nullptr;
    
-   if(0!=proxy) {
+   if(nullptr!=proxy) {
       try {
         convertException::wrap([&]() {
-            hold = proxy->get(*this, iKey,iTransientAccessOnly);
+            hold = proxy->get(*this, iKey,iTransientAccessOnly, eventSetup_->activityRegistry());
             iDesc = proxy->providerDescription(); 
         });
       }
@@ -202,16 +203,16 @@ EventSetupRecord::find(const DataKey& iKey) const
    if (entry != proxies_.end()) {
       return entry->second;
    }
-   return 0;
+   return nullptr;
 }
       
 bool 
 EventSetupRecord::doGet(const DataKey& aKey, bool aGetTransiently) const {
    const DataProxy* proxy = find(aKey);
-   if(0 != proxy) {
+   if(nullptr != proxy) {
       try {
          convertException::wrap([&]() {
-            proxy->doGet(*this, aKey, aGetTransiently);
+            proxy->doGet(*this, aKey, aGetTransiently, eventSetup_->activityRegistry());
          });
       }
       catch( cms::Exception& e) {
@@ -221,13 +222,13 @@ EventSetupRecord::doGet(const DataKey& aKey, bool aGetTransiently) const {
          throw;
       }
    }
-   return 0 != proxy;
+   return nullptr != proxy;
 }
 
 bool 
 EventSetupRecord::wasGotten(const DataKey& aKey) const {
    const DataProxy* proxy = find(aKey);
-   if(0 != proxy) {
+   if(nullptr != proxy) {
       return proxy->cacheIsValid();
    }
    return false;
@@ -236,10 +237,10 @@ EventSetupRecord::wasGotten(const DataKey& aKey) const {
 edm::eventsetup::ComponentDescription const* 
 EventSetupRecord::providerDescription(const DataKey& aKey) const {
    const DataProxy* proxy = find(aKey);
-   if(0 != proxy) {
+   if(nullptr != proxy) {
       return proxy->providerDescription();
    }
-   return 0;
+   return nullptr;
 }
 
 void 
@@ -259,7 +260,7 @@ EventSetupRecord::fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const
 void 
 EventSetupRecord::validate(const ComponentDescription* iDesc, const ESInputTag& iTag) const
 {
-   if(iDesc && iTag.module().size()) {
+   if(iDesc && !iTag.module().empty()) {
       bool matched = false;
       if(iDesc->label_.empty()) {
          matched = iDesc->type_ == iTag.module();

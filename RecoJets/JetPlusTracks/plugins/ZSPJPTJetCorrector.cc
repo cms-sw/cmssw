@@ -56,7 +56,7 @@ double ZSPJPTJetCorrector::correction( const reco::Jet& fJet, const edm::Event& 
   double a = mSimpleCorrector[nPU]->correctionPtEtaPhiE (fJet.p4().Pt(), fJet.p4().Eta(), fJet.p4().Phi(),fJet.p4().E());
 
   if(iPU >= 0) {
-    if(mSimpleCorrectorOffset.size()>0) {
+    if(!mSimpleCorrectorOffset.empty()) {
      b = mSimpleCorrectorOffset[nPU]->correctionPUEtEtaPhiP (fJet.p4().Pt(), fJet.p4().Eta(), fJet.p4().Phi(),fJet.p4().E());
    } 
   }

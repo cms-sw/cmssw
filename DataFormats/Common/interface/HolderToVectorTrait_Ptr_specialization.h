@@ -33,8 +33,8 @@ namespace edm {
 
     template <typename T, typename U>
     struct PtrHolderToVector {
-      static  std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
-        return std::auto_ptr<BaseVectorHolder<T> >(new VectorHolder<T, edm::PtrVector<U> >);
+      static  std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() {
+        return std::unique_ptr<BaseVectorHolder<T> >(new VectorHolder<T, edm::PtrVector<U> >);
       }
     };
 
@@ -45,8 +45,8 @@ namespace edm {
 
     template <typename T>
     struct PtrRefHolderToRefVector {
-      static std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
-        return std::auto_ptr<RefVectorHolderBase>(new RefVectorHolder<edm::PtrVector<T> >);
+      static std::unique_ptr<RefVectorHolderBase> makeVectorHolder() {
+        return std::unique_ptr<RefVectorHolderBase>(new RefVectorHolder<edm::PtrVector<T> >);
       }
     };
 

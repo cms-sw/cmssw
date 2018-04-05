@@ -30,7 +30,7 @@ public:
   /// configurable parameters
   explicit CSCStripElectronicsSim(const edm::ParameterSet & p);
 
-  virtual ~CSCStripElectronicsSim();
+  ~CSCStripElectronicsSim() override;
 
   void fillDigis(CSCStripDigiCollection & digis,
                  CSCComparatorDigiCollection & comparators,
@@ -47,11 +47,11 @@ public:
  
 private:
   /// initialization for each layer
-  void initParameters();
+  void initParameters() override;
 
-  virtual int readoutElement(int strip) const;
+  int readoutElement(int strip) const override;
 
-  float calculateAmpResponse(float t) const;
+  float calculateAmpResponse(float t) const override;
   CSCStripAmpResponse theAmpResponse;
 
   void runComparator(std::vector<CSCComparatorDigi> & result, CLHEP::HepRandomEngine*);

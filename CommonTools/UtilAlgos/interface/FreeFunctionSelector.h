@@ -6,7 +6,7 @@
  *
  * \version $Id: FreeFunctionSelector.h,v 1.1 2008/01/22 11:17:58 llista Exp $
  */
-template<typename T, bool f(const T&)>
+template<typename T, bool (*f)(const T&)>
 struct FreeFunctionSelector {
   bool operator()(const T& t) {
     return f(t);
@@ -18,7 +18,7 @@ struct FreeFunctionSelector {
 
 namespace reco {
   namespace modules {
-    template<typename T, bool f(const T&)>
+    template<typename T, bool (*f)(const T&)>
     struct ParameterAdapter<FreeFunctionSelector<T, f> > {
       typedef FreeFunctionSelector<T, f> value_type;
       static value_type make(const edm::ParameterSet & cfg, edm::ConsumesCollector & iC) {

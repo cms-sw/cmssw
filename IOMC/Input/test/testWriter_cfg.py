@@ -116,7 +116,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 )
 
 process.writer = cms.EDAnalyzer("HepMCEventWriter",
-                                hepMCProduct = cms.InputTag("generator"))
+                                hepMCProduct = cms.InputTag("VtxSmeared"))
 
 process.p = cms.Path(process.generator)
 process.outpath = cms.EndPath(process.writer)

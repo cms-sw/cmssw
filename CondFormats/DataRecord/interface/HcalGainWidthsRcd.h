@@ -3,6 +3,7 @@
 #ifndef HcalGainWidthsRcd_H
 #define HcalGainWidthsRcd_H
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-class HcalGainWidthsRcd : public edm::eventsetup::DependentRecordImplementation<HcalGainWidthsRcd, boost::mpl::vector<IdealGeometryRecord> > {};
+class HcalGainWidthsRcd : public edm::eventsetup::DependentRecordImplementation<HcalGainWidthsRcd, boost::mpl::vector<HcalRecNumberingRecord,IdealGeometryRecord> > {};
 #endif

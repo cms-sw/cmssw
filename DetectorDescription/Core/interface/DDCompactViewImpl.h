@@ -1,22 +1,24 @@
-#ifndef DDCompactViewImpl_h
-#define DDCompactViewImpl_h
+#ifndef DETECTOR_DESCRIPTION_CORE_DD_COMPACT_VIEW_IMPL_H
+# define DETECTOR_DESCRIPTION_CORE_DD_COMPACT_VIEW_IMPL_H
 
-//  IMPORTANT: DO NOT USE THIS:  It is here temporarily only to obey the rule that 
-//  any .h that includes a .h even if it is not meant to be a public interface must
-//  remain in the interface directory.  If you fix/move/change this please delete
-//  this comment!  -- Michael Case 2007-04-05
-
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
-#include "DetectorDescription/Core/interface/graphwalker.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DataFormats/Math/interface/Graph.h"
+#include "DataFormats/Math/interface/GraphWalker.h"
 
+class DDDivision;
 class DDPartSelector;
+struct DDPosData;
 
 class DDCompactViewImpl 
 {
 public:
   
-  typedef ::graph<DDLogicalPart, DDPosData* > GraphNav;
+  using GraphNav = math::Graph<DDLogicalPart, DDPosData* >;
+  using WalkerType = math::GraphWalker<DDLogicalPart, DDPosData* >;
+
   explicit DDCompactViewImpl();
   DDCompactViewImpl(const DDLogicalPart & rootnodedata);
   ~DDCompactViewImpl();
@@ -28,19 +30,10 @@ public:
   
   DDLogicalPart & current() const;
   
-  //  std::pair<bool,DDPhysicalPart> goTo(const DDPartSelector &) const;
-  
-  //expnode_t * expand(const DDPartSelector & path) const;
- 
   const GraphNav & graph() const { return graph_; }
-  /**
-   returns a walker beginning at the root of the expanded-view
-   FIXME: CompactView::walker: it is assumed, that the root of walker is
-   FIXME:                      world volume (just 1 copy, unrotated, unpositioned)
-  */ 
-  graphwalker<DDLogicalPart,DDPosData*> walker() const; 
+
+  math::GraphWalker<DDLogicalPart,DDPosData*> walker() const; 
   
-  //double weight(DDLogicalPart &);
   double weight(const DDLogicalPart &) const;
 
   void position (const DDLogicalPart & self,
@@ -51,15 +44,11 @@ public:
 		 const DDDivision * div);
 
   void swap( DDCompactViewImpl& );  
-  /**
-   will return a walker beginning at the node specified by the PartSelector   
-  
-  walker_t walker(const DDPartSelector&) const;
-  
-  */
+
 protected:    
   // internal use ! (see comments in DDCompactView(bool)!)
   DDLogicalPart root_;
   GraphNav graph_;
 };
+
 #endif

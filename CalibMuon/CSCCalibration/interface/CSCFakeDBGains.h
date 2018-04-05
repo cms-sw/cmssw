@@ -17,20 +17,18 @@
 #include "CondFormats/DataRecord/interface/CSCDBGainsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 
-#include <boost/shared_ptr.hpp>
-
 class CSCFakeDBGains: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
       CSCFakeDBGains(const edm::ParameterSet&);
-      ~CSCFakeDBGains();
+      ~CSCFakeDBGains() override;
 
       inline static CSCDBGains* prefillDBGains(); 
 
-      typedef boost::shared_ptr<CSCDBGains> Pointer;
+      typedef std::unique_ptr<CSCDBGains> Pointer;
       Pointer produceDBGains(const CSCDBGainsRcd&);
 
    private:
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
 
     // member data
     Pointer cndbGains ;

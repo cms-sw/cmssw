@@ -10,7 +10,7 @@
 #include <regex>
 #include <dlfcn.h>
 
-#define VI_DEBUG
+// #define VI_DEBUG
 
 #ifdef VI_DEBUG
 #include <iostream>
@@ -40,7 +40,7 @@ namespace {
  }
 
  std::string patchArea() {
-    auto n1 = execSysCommand("scram tool tag cmssw CMSSW_BASE");
+    auto n1 = execSysCommand("pushd $CMSSW_BASE > /dev/null;scram tool tag cmssw CMSSW_BASE; popd > /dev/null");
     n1.pop_back();
     COUT << "base area " << n1 << std::endl;
     return n1[0]=='/' ? n1 : std::string();
@@ -89,7 +89,7 @@ ExpressionEvaluator::ExpressionEvaluator(const char * pkg, const char * iname, s
        } else {
          // look in release is a patch area 
          auto paDir = patchArea();
-         if (paDir.empty())  throw  cms::Exception("ExpressionEvaluator", pch + " file not found neither in " + baseDir + " nor in " + relDir);
+         if (paDir.empty())  throw  cms::Exception("ExpressionEvaluator", "error in opening patch area for "+ baseDir);
          std::string file = paDir + incDir + pch + ".cxxflags";
          COUT << "file in base release area: " << file << std::endl;
          std::ifstream ss(file.c_str());

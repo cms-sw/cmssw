@@ -21,9 +21,9 @@ public:
   HitTripletGenerator(unsigned int size=500);
  HitTripletGenerator(HitTripletGenerator const & other) : localRA(other.localRA.mean()){}
 
-  virtual ~HitTripletGenerator() { }
+  ~HitTripletGenerator() override { }
 
-  virtual const OrderedHitTriplets & run(
+  const OrderedHitTriplets & run(
     const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es) final;
 
   // temporary interface, for bckwd compatibility
@@ -33,7 +33,7 @@ public:
   virtual void hitTriplets( const TrackingRegion& reg, OrderedHitTriplets & prs,
       const edm::Event & ev,  const edm::EventSetup& es) = 0;
 
-  virtual void clear() final;
+  void clear() final;
 
 private:
   OrderedHitTriplets theTriplets;

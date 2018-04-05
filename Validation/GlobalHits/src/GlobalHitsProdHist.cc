@@ -7,6 +7,7 @@
 
 #include "Validation/GlobalHits/interface/GlobalHitsProdHist.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), 
@@ -606,7 +607,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
 
   // create persistent objects
   for (std::size_t i = 0; i < histName_.size(); ++i) {
-    produces<TH1F, edm::InRun>(histName_[i]).setBranchAlias(histName_[i]);
+    produces<TH1F, edm::Transition::EndRun>(histName_[i]).setBranchAlias(histName_[i]);
   }
 }
 
@@ -655,8 +656,8 @@ void GlobalHitsProdHist::produce(edm::Event& iEvent,
   // look at information available in the event
   if (getAllProvenances) {
 
-    std::vector<const edm::Provenance*> AllProv;
-    iEvent.getAllProvenance(AllProv);
+    std::vector<const edm::StableProvenance*> AllProv;
+    iEvent.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
       edm::LogInfo(MsgLoggerCat)
@@ -722,9 +723,9 @@ void GlobalHitsProdHist::endRunProduce(edm::Run& iRun, const edm::EventSetup& iS
   for (std::size_t i = 0; i < histName_.size(); ++i) {
     iter = histMap_.find(histName_[i]);
     if (iter != histMap_.end()) {
-      std::auto_ptr<TH1F> hist1D(iter->second);
+      std::unique_ptr<TH1F> hist1D(iter->second);
       eventout += "\n Storing histogram " + histName_[i];
-      iRun.put(hist1D, histName_[i]);
+      iRun.put(std::move(hist1D), histName_[i]);
     } else {
       warning = true;
       eventoutw += "\n Unable to find histogram with name " + histName_[i];
@@ -760,7 +761,7 @@ void GlobalHitsProdHist::fillG4MC(edm::Event& iEvent)
   // should have the information needed
   for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) {
     HepMCEvt = AllHepMCEvt[i];
-    if ((HepMCEvt.provenance()->product()).moduleLabel() == "VtxSmeared")
+    if ((HepMCEvt.provenance()->branchDescription()).moduleLabel() == "generatorSmeared")
       break;
   }
 
@@ -770,7 +771,7 @@ void GlobalHitsProdHist::fillG4MC(edm::Event& iEvent)
     return;
   } else {
     eventout += "\n          Using HepMCProduct: ";
-    eventout += (HepMCEvt.provenance()->product()).moduleLabel();
+    eventout += (HepMCEvt.provenance()->branchDescription()).moduleLabel();
   }
   const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
   nRawGenPart = MCEvt->particles_size();
@@ -1637,8 +1638,7 @@ void GlobalHitsProdHist::fillECal(edm::Event& iEvent,
 	 (subdetector == sdEcalFwd))) {
 
       // get the Cell geometry
-      const CaloCellGeometry *theDet = theCalo.
-	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+      auto theDet = (theCalo.getSubdetectorGeometry(theDetUnitId))->getGeometry(theDetUnitId);
 
       if (!theDet) {
 	edm::LogWarning(MsgLoggerCat)
@@ -1706,8 +1706,7 @@ void GlobalHitsProdHist::fillECal(edm::Event& iEvent,
 	(subdetector == sdEcalPS)) {
 
       // get the Cell geometry
-      const CaloCellGeometry *theDet = theCalo.
-	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+      auto theDet = (theCalo.getSubdetectorGeometry(theDetUnitId))->getGeometry(theDetUnitId);
 
       if (!theDet) {
 	edm::LogWarning(MsgLoggerCat)
@@ -1807,19 +1806,19 @@ void GlobalHitsProdHist::fillHCal(edm::Event& iEvent,
 	 (subdetector == sdHcalFwd))) {
 
       // get the Cell geometry
-      const CaloCellGeometry *theDet = theCalo.
-	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+      const HcalGeometry *theDet = dynamic_cast<const HcalGeometry*>
+	(theCalo.getSubdetectorGeometry(theDetUnitId));
 
       if (!theDet) {
 	edm::LogWarning(MsgLoggerCat)
-	  << "Unable to get CaloCellGeometry from HCalContainer for Hit " << i;
+	  << "Unable to get HcalGeometry from HCalContainer for Hit " << i;
 	continue;
       }
 
       ++j;
 
       // get the global position of the cell
-      const GlobalPoint& globalposition = theDet->getPosition();
+      const GlobalPoint& globalposition = theDet->getPosition(theDetUnitId);
 
       if (hCaloHcalE[0]) hCaloHcalE[0]->Fill(itHit->energy());
       if (hCaloHcalE[1]) hCaloHcalE[1]->Fill(itHit->energy());

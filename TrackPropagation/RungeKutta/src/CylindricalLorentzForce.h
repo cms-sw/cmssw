@@ -7,7 +7,7 @@
 class RKLocalFieldProvider;
 
 template <typename T, int N>
-class dso_internal CylindricalLorentzForce GCC11_FINAL : public RKDerivative<T,N> {
+class dso_internal CylindricalLorentzForce final : public RKDerivative<T,N> {
 public:
 
     typedef RKDerivative<T,N>                   Base;
@@ -16,7 +16,7 @@ public:
 
     CylindricalLorentzForce( const RKLocalFieldProvider& field) : theField(field) {}
 
-    virtual Vector operator()( Scalar r, const Vector& state) const;
+    Vector operator()( Scalar r, const Vector& state) const override;
 
 private:
 

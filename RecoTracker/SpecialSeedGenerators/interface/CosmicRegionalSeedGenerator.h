@@ -35,7 +35,7 @@
 //Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -52,9 +52,9 @@ class CosmicRegionalSeedGenerator : public TrackingRegionProducer {
  public:
   explicit CosmicRegionalSeedGenerator(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
 
-  virtual ~CosmicRegionalSeedGenerator() {}
+  ~CosmicRegionalSeedGenerator() override {}
   
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& event, const edm::EventSetup& es) const;
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& event, const edm::EventSetup& es) const override;
 
  private:
   edm::ParameterSet conf_;

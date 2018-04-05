@@ -17,6 +17,7 @@ process.source = cms.Source("EmptyIOVSource",
 # the DB Geometry is NOT used because in this cfg only one tag is taken from the DB and no GT is used. To be fixed if this is a problem
 process.load('Configuration.Geometry.GeometryExtended_cff')
 process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
@@ -49,11 +50,12 @@ process.SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
                                                   )
 
 
-process.stat = cms.EDAnalyzer("SiStripQualityStatistics",
-                            #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_full.png'),
-                            TkMapFileName = cms.untracked.string(''),
-                            dataLabel = cms.untracked.string('')
-                            )
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
+                             #TkMapFileName = cms.untracked.string('TkMaps/TkMapBadComponents_full.png'),
+                             TkMapFileName = cms.untracked.string(''),
+                             dataLabel = cms.untracked.string('')
+                             )
 process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.analysis = cms.EDAnalyzer("SiStripCorrelateBadStripAndNoise")
 

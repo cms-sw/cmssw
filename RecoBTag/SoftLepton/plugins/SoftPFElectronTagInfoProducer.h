@@ -33,10 +33,10 @@ class SoftPFElectronTagInfoProducer : public edm::stream::EDProducer<>
   public:
 
     SoftPFElectronTagInfoProducer (const edm::ParameterSet& conf);
-    ~SoftPFElectronTagInfoProducer();
+    ~SoftPFElectronTagInfoProducer() override;
   private:
 
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
     bool isElecClean(edm::Event&,const reco::GsfElectron*);
     float boostedPPar(const math::XYZVector&, const math::XYZVector&);   
  
@@ -47,7 +47,7 @@ class SoftPFElectronTagInfoProducer : public edm::stream::EDProducer<>
     edm::EDGetTokenT<edm::View<reco::GsfElectron> > token_elec;
     edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot;
     edm::EDGetTokenT<reco::ConversionCollection> token_allConversions;
-    float DeltaRElectronJet,MaxSip3D;
+    float DeltaRElectronJet,MaxSip3Dsig;
     bool goodvertex;
 
     const reco::Vertex* vertex;

@@ -1,4 +1,3 @@
-<use   name="boost"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/RPCDigi"/>
 <use   name="FWCore/Framework"/>

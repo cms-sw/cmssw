@@ -10,8 +10,8 @@
  */
 class IUniqueDBObject : public IDBObject {
  public:
-  virtual int fetchID() throw(std::runtime_error) =0;
-  virtual void setByID(int id) throw(std::runtime_error) =0;
+  virtual int fetchID() noexcept(false) = 0;
+  virtual void setByID(int id) noexcept(false) = 0;
 
  protected:
   // ID from the database

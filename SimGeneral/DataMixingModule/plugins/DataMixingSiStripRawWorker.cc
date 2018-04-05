@@ -198,10 +198,10 @@ namespace edm
     //
 
     // make new raw digi collection
-    std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > MySiStripRawDigis(new edm::DetSetVector<SiStripRawDigi>(vSiStripRawDigi) );
+    std::unique_ptr< edm::DetSetVector<SiStripRawDigi> > MySiStripRawDigis(new edm::DetSetVector<SiStripRawDigi>(vSiStripRawDigi) );
 
     // put collection
-    e.put( MySiStripRawDigis, SiStripDigiCollectionDM_ );
+    e.put(std::move(MySiStripRawDigis), SiStripDigiCollectionDM_ );
 
     // clear local storage for this event
     SiHitStorage_.clear();

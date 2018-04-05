@@ -699,18 +699,18 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
     // produce the L1GlobalTriggerReadoutRecord now, after we found how many
     // BxInEvent the record has and how many boards are active
-    std::auto_ptr<L1GlobalTriggerReadoutRecord> gtDaqReadoutRecord(
+    std::unique_ptr<L1GlobalTriggerReadoutRecord> gtDaqReadoutRecord(
         new L1GlobalTriggerReadoutRecord(
             m_emulateBxInEvent, daqNrFdlBoards, daqNrPsbBoards) );
 
 
     // * produce the L1GlobalTriggerEvmReadoutRecord
-    std::auto_ptr<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord(
+    std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord(
         new L1GlobalTriggerEvmReadoutRecord(m_emulateBxInEvent, daqNrFdlBoards) );
     // daqNrFdlBoards OK, just reserve memory at this point
 
     // * produce the L1GlobalTriggerObjectMapRecord
-    std::auto_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
+    std::unique_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
         new L1GlobalTriggerObjectMapRecord() );
 
 
@@ -1015,7 +1015,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         if (m_produceL1GtDaqRecord && m_writePsbL1GtDaqRecord) {
             m_gtPSB->fillPsbBlock(
                     iEvent, m_activeBoardsGtDaq, recordLength0, recordLength1,
-                    m_alternativeNrBxBoardDaq, boardMaps, iBxInEvent, gtDaqReadoutRecord);
+                    m_alternativeNrBxBoardDaq, boardMaps, iBxInEvent, gtDaqReadoutRecord.get());
         }
 
         // * receive GMT object data via GTL
@@ -1032,7 +1032,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         //<< std::endl;
 
         m_gtGTL->run(iEvent, evSetup, m_gtPSB,
-            m_produceL1GtObjectMapRecord, iBxInEvent, gtObjectMapRecord,
+            m_produceL1GtObjectMapRecord, iBxInEvent, gtObjectMapRecord.get(),
             m_numberPhysTriggers,
             m_nrL1Mu,
             m_nrL1NoIsoEG,
@@ -1073,14 +1073,14 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
         if (m_produceL1GtDaqRecord && ( daqNrFdlBoards > 0 )) {
             m_gtFDL->fillDaqFdlBlock(iBxInEvent,
                     m_activeBoardsGtDaq, recordLength0, recordLength1, m_alternativeNrBxBoardDaq,
-                    boardMaps, gtDaqReadoutRecord);
+                    boardMaps, gtDaqReadoutRecord.get());
         }
 
 
         if (m_produceL1GtEvmRecord && ( evmNrFdlBoards > 0 )) {
             m_gtFDL->fillEvmFdlBlock(iBxInEvent,
                     m_activeBoardsGtEvm, recordLength0, recordLength1, m_alternativeNrBxBoardEvm,
-                    boardMaps, gtEvmReadoutRecord);
+                    boardMaps, gtEvmReadoutRecord.get());
         }
 
         // reset
@@ -1169,15 +1169,15 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     // **
     // register products
     if (m_produceL1GtDaqRecord) {
-        iEvent.put( gtDaqReadoutRecord );
+        iEvent.put(std::move(gtDaqReadoutRecord));
     }
 
     if (m_produceL1GtEvmRecord) {
-        iEvent.put( gtEvmReadoutRecord );
+        iEvent.put(std::move(gtEvmReadoutRecord));
     }
 
     if (m_produceL1GtObjectMapRecord) {
-        iEvent.put( gtObjectMapRecord );
+        iEvent.put(std::move(gtObjectMapRecord));
     }
 
 }

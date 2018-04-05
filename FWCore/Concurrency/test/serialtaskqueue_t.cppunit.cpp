@@ -11,10 +11,9 @@
 #include <unistd.h>
 #include <memory>
 #include <atomic>
-#include <thread>
 #include "tbb/task.h"
-#include "boost/shared_ptr.hpp"
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
+#include "FWCore/Concurrency/interface/FunctorTask.h"
 
 class SerialTaskQueue_test : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(SerialTaskQueue_test);
@@ -41,7 +40,7 @@ void SerialTaskQueue_test::testPush()
    
    edm::SerialTaskQueue queue;
    {
-      boost::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+      std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
                                             [](tbb::task* iTask){tbb::task::destroy(*iTask);} };
       waitTask->set_ref_count(1+3);
       tbb::task* pWaitTask = waitTask.get();
@@ -103,7 +102,7 @@ void SerialTaskQueue_test::testPause()
    {
       queue.pause();
       {
-         boost::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+         std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
                                              [](tbb::task* iTask){tbb::task::destroy(*iTask);} };
          waitTask->set_ref_count(1+1);
          tbb::task* pWaitTask = waitTask.get();
@@ -120,7 +119,7 @@ void SerialTaskQueue_test::testPause()
       }
 
       {
-         boost::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+         std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
                                              [](tbb::task* iTask){tbb::task::destroy(*iTask);} };
          waitTask->set_ref_count(1+3);
          tbb::task* pWaitTask = waitTask.get();
@@ -130,11 +129,11 @@ void SerialTaskQueue_test::testPause()
             CPPUNIT_ASSERT(count++ == 1);
             pWaitTask->decrement_ref_count();
          });
-         queue.push([&count,&queue,pWaitTask]{
+         queue.push([&count,pWaitTask]{
             CPPUNIT_ASSERT(count++ == 2);
             pWaitTask->decrement_ref_count();
          });
-         queue.push([&count,&queue,pWaitTask]{
+         queue.push([&count,pWaitTask]{
             CPPUNIT_ASSERT(count++ == 3);
             pWaitTask->decrement_ref_count();
          });
@@ -149,12 +148,6 @@ void SerialTaskQueue_test::testPause()
    
 }
 
-namespace {
-   void join_thread(std::thread* iThread){
-      if(iThread->joinable()){iThread->join();}
-   }
-}
-
 void SerialTaskQueue_test::stressTest()
 {
    edm::SerialTaskQueue queue;
@@ -162,7 +155,7 @@ void SerialTaskQueue_test::stressTest()
    unsigned int index = 100;
    const unsigned int nTasks = 1000;
    while(0 != --index) {
-      boost::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
+      std::shared_ptr<tbb::task> waitTask{new (tbb::task::allocate_root()) tbb::empty_task{},
                                             [](tbb::task* iTask){tbb::task::destroy(*iTask);} };
       waitTask->set_ref_count(3);
       tbb::task* pWaitTask=waitTask.get();
@@ -170,12 +163,13 @@ void SerialTaskQueue_test::stressTest()
       
       std::atomic<bool> waitToStart{true};
       {
-         std::thread pushThread([&queue,&waitToStart,pWaitTask,&count]{
+         auto j = edm::make_functor_task(tbb::task::allocate_root(),
+                                         [&queue,&waitToStart,pWaitTask,&count]{
 	    //gcc 4.7 doesn't preserve the 'atomic' nature of waitToStart in the loop
 	    while(waitToStart.load()) {__sync_synchronize();};
             for(unsigned int i = 0; i<nTasks;++i) {
                pWaitTask->increment_ref_count();
-               queue.push([i,&count,pWaitTask] {
+               queue.push([&count,pWaitTask] {
                   ++count;
                   pWaitTask->decrement_ref_count();
                });
@@ -183,17 +177,17 @@ void SerialTaskQueue_test::stressTest()
          
             pWaitTask->decrement_ref_count();
             });
+         tbb::task::enqueue(*j);
          
          waitToStart=false;
          for(unsigned int i=0; i<nTasks;++i) {
             pWaitTask->increment_ref_count();
-            queue.push([i,&count,pWaitTask] {
+            queue.push([&count,pWaitTask] {
                ++count;
                pWaitTask->decrement_ref_count();
             });
          }
          pWaitTask->decrement_ref_count();
-         boost::shared_ptr<std::thread>(&pushThread,join_thread);
       }
       waitTask->wait_for_all();
 

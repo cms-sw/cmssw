@@ -37,10 +37,10 @@
 class EcalTPInputAnalyzer : public edm::EDAnalyzer {
    public:
       explicit EcalTPInputAnalyzer(const edm::ParameterSet&);
-      ~EcalTPInputAnalyzer();
+      ~EcalTPInputAnalyzer() override;
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob();
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override;
 
    private:
 

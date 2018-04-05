@@ -20,12 +20,12 @@ public:
   ExtractorFromDeposits(){};
   ExtractorFromDeposits(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
 
-  virtual ~ExtractorFromDeposits(){}
+  ~ExtractorFromDeposits() override{}
 
-  virtual void fillVetos ( const edm::Event & ev, const edm::EventSetup & evSetup,
-      const reco::TrackCollection & tracks);
-  virtual reco::IsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup,
-      const reco::Track & track) const;
+  void fillVetos ( const edm::Event & ev, const edm::EventSetup & evSetup,
+      const reco::TrackCollection & tracks) override;
+  reco::IsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup,
+      const reco::Track & track) const override;
   virtual reco::IsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup,
       const reco::TrackRef & track) const;
 

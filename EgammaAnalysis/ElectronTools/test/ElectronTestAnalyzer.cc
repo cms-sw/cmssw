@@ -46,6 +46,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/IPTools/interface/IPTools.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include <cmath>
 #include <vector>
@@ -63,9 +64,7 @@
 // class decleration
 //
 
-using namespace edm;
-using namespace reco;
-using namespace std;
+
 class ElectronTestAnalyzer : public edm::EDAnalyzer {
 public:
   explicit ElectronTestAnalyzer(const edm::ParameterSet&);
@@ -73,9 +72,9 @@ public:
   
   
 private:
-  virtual void beginJob(const edm::EventSetup&) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
   virtual void myBindVariables();
   virtual void myVar(const reco::GsfElectron& ele,
 		     const reco::Vertex& vertex,
@@ -86,10 +85,10 @@ private:
   
   bool trainTrigPresel(const reco::GsfElectron& ele);
   
-  ParameterSet conf_;
+  edm::ParameterSet conf_;
   
-  edm::EDGetTokenT<GsfElectronCollection> gsfEleToken_;
-  edm::EDGetTokenT<GenParticleCollection> genToken_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> gsfEleToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
   //edm::EDGetTokenT<edm::HepMCProduct>  mcTruthToken_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   //edm::EDGetTokenT<reco::PFCandidateCollection> pfCandToken_;
@@ -177,8 +176,8 @@ private:
 //
 ElectronTestAnalyzer::ElectronTestAnalyzer(const edm::ParameterSet& iConfig):
   conf_(iConfig),
-  gsfEleToken_(consumes<GsfElectronCollection>(edm::InputTag("gsfElectrons"))),
-  genToken_(consumes<GenParticleCollection>(edm::InputTag("genParticles"))),
+  gsfEleToken_(consumes<reco::GsfElectronCollection>(edm::InputTag("gsfElectrons"))),
+  genToken_(consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"))),
   //mcTruthToken_(consumes<edm::HepMCProduct>(edm::InputTag("generator"))),
   vertexToken_(consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"))),
   //pfCandToken_(consumes<reco::PFCandidateCollection>(edm::InputTag("particleFlow"))),
@@ -290,18 +289,18 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 	ElectronTestAnalyzer::evaluate_mvas(iEvent, iSetup);
 
-  Handle<GsfElectronCollection> theEGammaCollection;
+	edm::Handle<reco::GsfElectronCollection> theEGammaCollection;
   iEvent.getByToken(gsfEleToken_,theEGammaCollection);
-  const GsfElectronCollection theEGamma = *(theEGammaCollection.product());
+  const reco::GsfElectronCollection theEGamma = *(theEGammaCollection.product());
 
-  Handle<GenParticleCollection> genParticles;
+  edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genToken_,genParticles);
   //InputTag  mcTruthToken_(string("generator"));
   //edm::Handle<edm::HepMCProduct> pMCTruth;
   //iEvent.getByToken(mcTruthToken_,pMCTruth);
   //const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();
 
-  Handle<reco::VertexCollection> thePrimaryVertexColl;
+  edm::Handle<reco::VertexCollection> thePrimaryVertexColl;
   iEvent.getByToken(vertexToken_,thePrimaryVertexColl);
 
   _Rho=0;
@@ -311,17 +310,17 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
 
-  Vertex dummy;
-  const Vertex *pv = &dummy;
+  reco::Vertex dummy;
+  const reco::Vertex *pv = &dummy;
   if (thePrimaryVertexColl->size() != 0) {
     pv = &*thePrimaryVertexColl->begin();
   } else { // create a dummy PV
-    Vertex::Error e;
+    reco::Vertex::Error e;
     e(0, 0) = 0.0015 * 0.0015;
     e(1, 1) = 0.0015 * 0.0015;
     e(2, 2) = 15. * 15.;
-    Vertex::Point p(0, 0, 0);
-    dummy = Vertex(p, e, 0, 0, 0);
+    reco::Vertex::Point p(0, 0, 0);
+    dummy = reco::Vertex(p, e, 0, 0, 0);
   }
   EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollectionToken_, reducedEERecHitCollectionToken_);
 
@@ -342,7 +341,7 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   for(size_t i(0); i < genParticles->size(); i++)
   {
-    const GenParticle &genPtcl = (*genParticles)[i];
+    const reco::GenParticle &genPtcl = (*genParticles)[i];
     float etamc= genPtcl.eta();
     float phimc= genPtcl.phi();
     float ptmc = genPtcl.pt();
@@ -351,7 +350,7 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if(abs(genPtcl.pdgId())==11 &&
        genPtcl.status()==1       &&
        ptmc > 10.               &&
-       fabs(etamc) < 2.5 ){
+       std::abs(etamc) < 2.5 ){
 
 
       for (unsigned int j=0; j<theEGamma.size();j++) {
@@ -399,7 +398,7 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
 	  if(debug)
-	    cout << "************************* New Good Event:: " << ev << " *************************" << endl;
+	    std::cout << "************************* New Good Event:: " << ev << " *************************" << std::endl;
 
 	  // ********************* Triggering electrons
 
@@ -441,7 +440,7 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  h_mva_nonTrig->Fill(mvaNonTrigMthd1);
 
 	  if(debug)
-	    cout << "Non-Triggering:: MyMVA Method-1 " << mvaNonTrigMthd1 << " MyMVA Method-2 " << mvaNonTrigMthd2 <<endl;
+	    std::cout << "Non-Triggering:: MyMVA Method-1 " << mvaNonTrigMthd1 << " MyMVA Method-2 " << mvaNonTrigMthd2 <<std::endl;
 
 	  if(elePresel) {
 	    mvaTrigNonIp = myMVATrigNoIPV0->mvaValue( (theEGamma[j]), *pv, _Rho,/*thebuilder,*/lazyTools, debugMVAclass);
@@ -478,9 +477,9 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  }
 
 	  if(debug)
-	    cout << "Triggering:: ElePreselection " << elePresel
+	    std::cout << "Triggering:: ElePreselection " << elePresel
 		 << " MyMVA Method-1 " << mvaTrigMthd1
-	  << " MyMVA Method-2 " << mvaTrigMthd2 << endl;
+		      << " MyMVA Method-2 " << mvaTrigMthd2 << std::endl;
 	}
       } // End Loop on RECO electrons
     } // End if MC electrons selection
@@ -515,13 +514,13 @@ void ElectronTestAnalyzer::myVar(const reco::GsfElectron& ele,
 
   myMVAVar_see             =  ele.sigmaIetaIeta();    //EleSigmaIEtaIEta
   std::vector<float> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed())) ;
-  if (!isnan(vCov[2])) myMVAVar_spp = sqrt (vCov[2]);   //EleSigmaIPhiIPhi
+  if (edm::isFinite(vCov[2])) myMVAVar_spp = sqrt (vCov[2]);   //EleSigmaIPhiIPhi
   else myMVAVar_spp = 0.;
   myMVAVar_etawidth        =  ele.superCluster()->etaWidth();
   myMVAVar_phiwidth        =  ele.superCluster()->phiWidth();
   myMVAVar_e1x5e5x5        =  (ele.e5x5()) !=0. ? 1.-(ele.e1x5()/ele.e5x5()) : -1. ;
   myMVAVar_R9              =  myEcalCluster.e3x3(*(ele.superCluster()->seed())) / ele.superCluster()->rawEnergy();
-  myMVAVar_nbrems          =  fabs(ele.numberOfBrems());
+  myMVAVar_nbrems          =  std::abs(ele.numberOfBrems());
 
   myMVAVar_HoE             =  ele.hadronicOverEm();
   myMVAVar_EoP             =  ele.eSuperClusterOverP();
@@ -563,8 +562,8 @@ void ElectronTestAnalyzer::myVar(const reco::GsfElectron& ele,
 
 
   if(printDebug) {
-    cout << " My Local Variables " << endl;
-    cout << " fbrem " <<  myMVAVar_fbrem
+    std::cout << " My Local Variables " << std::endl;
+   std::cout << " fbrem " <<  myMVAVar_fbrem
       	 << " kfchi2 " << myMVAVar_kfchi2
 	 << " mykfhits " << myMVAVar_kfhits
 	 << " gsfchi2 " << myMVAVar_gsfchi2
@@ -588,7 +587,7 @@ void ElectronTestAnalyzer::myVar(const reco::GsfElectron& ele,
 	 << " d0 " << myMVAVar_d0
 	 << " ip3d " << myMVAVar_ip3d
 	 << " eta " << myMVAVar_eta
-	 << " pt " << myMVAVar_pt << endl;
+	     << " pt " << myMVAVar_pt << std::endl;
   }
   return;
 }
@@ -600,12 +599,12 @@ void ElectronTestAnalyzer::myBindVariables() {
   if(myMVAVar_fbrem < -1.)
     myMVAVar_fbrem = -1.;
 
-  myMVAVar_deta = fabs(myMVAVar_deta);
+  myMVAVar_deta = std::abs(myMVAVar_deta);
   if(myMVAVar_deta > 0.06)
     myMVAVar_deta = 0.06;
 
 
-  myMVAVar_dphi = fabs(myMVAVar_dphi);
+  myMVAVar_dphi = std::abs(myMVAVar_dphi);
   if(myMVAVar_dphi > 0.6)
     myMVAVar_dphi = 0.6;
 
@@ -620,12 +619,12 @@ void ElectronTestAnalyzer::myBindVariables() {
     myMVAVar_eleEoPout = 20.;
 
 
-  myMVAVar_detacalo = fabs(myMVAVar_detacalo);
+  myMVAVar_detacalo = std::abs(myMVAVar_detacalo);
   if(myMVAVar_detacalo > 0.2)
     myMVAVar_detacalo = 0.2;
 
 
-  myMVAVar_dphicalo = fabs(myMVAVar_dphicalo);
+  myMVAVar_dphicalo = std::abs(myMVAVar_dphicalo);
   if(myMVAVar_dphicalo > 0.4)
     myMVAVar_dphicalo = 0.4;
 
@@ -650,7 +649,7 @@ void ElectronTestAnalyzer::myBindVariables() {
 
 
   // Needed for a bug in CMSSW_420, fixed in more recent CMSSW versions
-  if(isnan(myMVAVar_spp))
+  if(edm::isNotFinite(myMVAVar_spp))
     myMVAVar_spp = 0.;
 
 
@@ -659,13 +658,13 @@ void ElectronTestAnalyzer::myBindVariables() {
 bool ElectronTestAnalyzer::trainTrigPresel(const reco::GsfElectron& ele) {
 
   bool myTrigPresel = false;
-  if(fabs(ele.superCluster()->eta()) < 1.479) {
+  if(std::abs(ele.superCluster()->eta()) < 1.479) {
     if(ele.sigmaIetaIeta() < 0.014 &&
        ele.hadronicOverEm() < 0.15 &&
        ele.dr03TkSumPt()/ele.pt() < 0.2 &&
        ele.dr03EcalRecHitSumEt()/ele.pt() < 0.2 &&
        ele.dr03HcalTowerSumEt()/ele.pt() < 0.2 &&
-       ele.gsfTrack()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) == 0)
+       ele.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) == 0)
       myTrigPresel = true;
   }
   else {
@@ -674,7 +673,7 @@ bool ElectronTestAnalyzer::trainTrigPresel(const reco::GsfElectron& ele) {
        ele.dr03TkSumPt()/ele.pt() < 0.2 &&
        ele.dr03EcalRecHitSumEt()/ele.pt() < 0.2 &&
        ele.dr03HcalTowerSumEt()/ele.pt() < 0.2 &&
-       ele.gsfTrack()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) == 0)
+       ele.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) == 0)
       myTrigPresel = true;
   }
 
@@ -682,7 +681,7 @@ bool ElectronTestAnalyzer::trainTrigPresel(const reco::GsfElectron& ele) {
   return myTrigPresel;
 }
 void
-ElectronTestAnalyzer::beginJob(const edm::EventSetup&)
+ElectronTestAnalyzer::beginJob()
 {
 
   ev = 0;
@@ -691,7 +690,7 @@ ElectronTestAnalyzer::beginJob(const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 void
 ElectronTestAnalyzer::endJob() {
-  cout << " endJob:: #events " << ev << endl;
+ std::cout << " endJob:: #events " << ev <<std::endl;
 }
 
 void
@@ -712,11 +711,11 @@ ElectronTestAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSe
 // 	iEvent.getByToken(pfCandToken_, hPfCandProduct);
 //   const reco::PFCandidateCollection &inPfCands = *(hPfCandProduct.product());
 
-  Handle<GsfElectronCollection> theEGammaCollection;
+  edm::Handle<reco::GsfElectronCollection> theEGammaCollection;
   iEvent.getByToken(gsfEleToken_,theEGammaCollection);
-  const GsfElectronCollection inElectrons = *(theEGammaCollection.product());
+  const reco::GsfElectronCollection inElectrons = *(theEGammaCollection.product());
 
-  Handle<reco::MuonCollection> hMuonProduct;
+  edm::Handle<reco::MuonCollection> hMuonProduct;
   iEvent.getByToken(muonToken_, hMuonProduct);
   const reco::MuonCollection inMuons = *(hMuonProduct.product());
 
@@ -733,30 +732,30 @@ ElectronTestAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSe
     } else if (iE->closestCtfTrackRef().isNonnull()) {
       electronTrackZ = iE->closestCtfTrackRef()->dz(pvCol->at(0).position());
     }
-    if(fabs(electronTrackZ) > 0.2)  continue;
+    if(std::abs(electronTrackZ) > 0.2)  continue;
 
 
-    if(fabs(iE->superCluster()->eta())<1.479) {
+    if(std::abs(iE->superCluster()->eta())<1.479) {
       if(iE->pt() > 20) {
         if(iE->sigmaIetaIeta()       > 0.01)  continue;
-        if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
-        if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+        if(std::abs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
+        if(std::abs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
         if(iE->hadronicOverEm()       > 0.15)  continue;
       } else {
         if(iE->sigmaIetaIeta()       > 0.012)  continue;
-        if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
-        if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+        if(std::abs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
+        if(std::abs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
         if(iE->hadronicOverEm()       > 0.15) continue;
       }
     } else {
       if(iE->pt() > 20) {
         if(iE->sigmaIetaIeta()       > 0.03)  continue;
-        if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
-        if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+        if(std::abs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
+        if(std::abs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
       } else {
         if(iE->sigmaIetaIeta()       > 0.032)  continue;
-        if(fabs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
-        if(fabs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+        if(std::abs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
+        if(std::abs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
       }
     }
     IdentifiedElectrons.push_back(*iE);
@@ -784,7 +783,7 @@ ElectronTestAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSe
  for (reco::GsfElectronCollection::const_iterator iE = inElectrons.begin();
        iE != inElectrons.end(); ++iE) {
 
-		GsfElectron ele = *iE;
+   reco::GsfElectron ele = *iE;
 
  		double idmva = myMVATrigV0->mvaValue(ele,
 					pvCol->at(0),
@@ -792,7 +791,7 @@ ElectronTestAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSe
 					lazyTools);
 
 
-		cout << "idmva = " << idmva << endl;
+		std::cout << "idmva = " << idmva <<std::endl;
 
 	}
 

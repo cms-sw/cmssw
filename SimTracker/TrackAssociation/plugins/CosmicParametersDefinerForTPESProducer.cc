@@ -5,7 +5,7 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -45,8 +45,7 @@ CosmicParametersDefinerForTPESProducer::~CosmicParametersDefinerForTPESProducer(
 CosmicParametersDefinerForTPESProducer::ReturnType
 CosmicParametersDefinerForTPESProducer::produce(const TrackAssociatorRecord& iRecord)
 {
-  ReturnType parametersDefiner_ (new CosmicParametersDefinerForTP());
-  return parametersDefiner_ ;
+  return std::make_unique<CosmicParametersDefinerForTP>();
 }
 
 //define this as a plug-in

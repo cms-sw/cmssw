@@ -9,7 +9,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <stdlib.h>
+#include <cstdlib>
 
 // Framework
 #include "FWCore/Utilities/interface/Exception.h"
@@ -19,17 +19,25 @@
 #include "Alignment/CommonAlignment/interface/MisalignmentScenarioBuilder.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h" 
 
+
+//______________________________________________________________________________
+MisalignmentScenarioBuilder::MisalignmentScenarioBuilder(AlignableObjectId::Geometry geometry) :
+  alignableObjectId_(geometry)
+{
+}
+
+
 //__________________________________________________________________________________________________
 // Call for each alignable the more general version with its appropriate level name. 
 void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet &pSet, 
-                                                   const std::vector<Alignable*> &alignables)
+                                                   const align::Alignables &alignables)
 {
 
-  // first create a map with one std::vector<Alignable*> per type (=levelName)
-  typedef std::map<std::string, std::vector<Alignable*> > AlignablesMap;
+  // first create a map with one align::Alignables per type (=levelName)
+  using AlignablesMap = std::map<std::string, align::Alignables>;
   AlignablesMap alisMap;
-  for (std::vector<Alignable*>::const_iterator iA = alignables.begin(); iA != alignables.end(); ++iA) {
-    const std::string &levelName = AlignableObjectId::idToString((*iA)->alignableObjectId());
+  for (align::Alignables::const_iterator iA = alignables.begin(); iA != alignables.end(); ++iA) {
+    const std::string &levelName = alignableObjectId_.idToString((*iA)->alignableObjectId());
     alisMap[levelName].push_back(*iA); // either first entry of new level or add to an old one
   }
 
@@ -52,7 +60,7 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet &pSet
 //__________________________________________________________________________________________________
 // Decode nested parameter sets: this is the tricky part... Recursively called on components
 void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet &pSet, 
-                                                   const std::vector<Alignable*> &alignables,
+                                                   const align::Alignables &alignables,
 						   const std::string &levelName)
 {
 
@@ -75,7 +83,7 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet &pSet
 
   // Loop on alignables
   int iComponent = 0; // physical numbering starts at 1...
-  for (std::vector<Alignable*>::const_iterator iter = alignables.begin();
+  for (align::Alignables::const_iterator iter = alignables.begin();
        iter != alignables.end(); ++iter) {
     iComponent++;
 
@@ -100,7 +108,7 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet &pSet
     // Apply movements to components
     std::vector<std::string> parameterSetNames;
     localParameters.getParameterSetNames( parameterSetNames, true );
-    if ( (*iter)->size() > 0 && parameterSetNames.size() > 0 )
+    if ( (*iter)->size() > 0 && !parameterSetNames.empty() )
       // Has components and remaining parameter sets
       this->decodeMovements_( localParameters, (*iter)->components() );
   }
@@ -159,7 +167,7 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
   // Propagate some given parameters
   std::vector<std::string> parameterNames = pSet.getParameterNames();
   for ( std::vector<std::string>::iterator iter = parameterNames.begin();
-        iter != parameterNames.end(); iter++ ) {
+        iter != parameterNames.end(); ++iter ) {
     if ( theModifier.isPropagated( *iter ) ) { // like 'distribution', 'scale', etc.
       LogDebug("PropagateParameters") << indent_ << " - adding parameter " << (*iter) << std::endl;
       subSet.copyFrom(pSet, (*iter)); // If existing, is not replaced.
@@ -170,7 +178,7 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
   std::vector<std::string> pSetNames;
   if ( pSet.getParameterSetNames( pSetNames, true ) > 0 ) {
     for ( std::vector<std::string>::const_iterator it = pSetNames.begin();
-          it != pSetNames.end(); it++ ) {
+          it != pSetNames.end(); ++it ) {
       const std::string rootName = this->rootName_(*it);
       const std::string globalRoot(this->rootName_(globalName));
       if (rootName.compare(0, rootName.length(), globalRoot) == 0) {
@@ -189,7 +197,7 @@ void MisalignmentScenarioBuilder::propagateParameters_( const edm::ParameterSet&
                                         << " - skipping PSet " << (*it) 
 					<< " not fitting into global " << globalName << std::endl;
 
-      } else if ( AlignableObjectId::stringToId( rootName ) == align::invalid ) {
+      } else if (alignableObjectId_.stringToId(rootName) == align::invalid) {
         // Parameter is not known!
         throw cms::Exception("BadConfig") << "Unknown parameter set name " << rootName;
       } else {
@@ -307,7 +315,7 @@ void MisalignmentScenarioBuilder::printParameters_( const edm::ParameterSet& pSe
 
   std::vector<std::string> parameterNames = pSet.getParameterNames();
   for ( std::vector<std::string>::iterator iter = parameterNames.begin();
-        iter != parameterNames.end(); iter++ ) {
+        iter != parameterNames.end(); ++iter ) {
     if (showPsets || !pSet.existsAs<edm::ParameterSet>(*iter)) {
 //       LogTrace("PrintParameters") << indent_ << "   " << (*iter) << " = " 
 // 				  << pSet.retrieve( *iter ).toString() << std::endl;
@@ -366,19 +374,19 @@ bool MisalignmentScenarioBuilder::possiblyPartOf(const std::string & /*sub*/, co
 const std::string 
 MisalignmentScenarioBuilder::rootName_( const std::string& parameterSetName ) const
 {
+  std::string result{parameterSetName}; // Initialise to full string
 
-  std::string result = parameterSetName; // Initialise to full string
-  
   // Check if string ends with 's'
-  const int lastChar = parameterSetName.length()-1;
+  const auto lastChar = parameterSetName.length()-1;
   if ( parameterSetName[lastChar] == 's' ) {
     result =  parameterSetName.substr( 0, lastChar );
   } else {
-    // Otherwise, look for numbers (assumes names have no numbers inside...)
-    for ( unsigned int ichar = 0; ichar<parameterSetName.length(); ichar++ ) {
-      if ( isdigit(parameterSetName[ichar]) ) {
-        result = parameterSetName.substr( 0, ichar );
-        break; // Stop at first digit
+    // Otherwise, look for numbers at the end
+    // (assumes that numbers at the end are not part of the name)
+    for (auto ichar = lastChar; ichar != 0; --ichar) {
+      if (!isdigit(parameterSetName[ichar])) {
+        result = parameterSetName.substr(0, ichar + 1);
+        break; // Stop at first non-digit
       }
     }
   }
@@ -386,5 +394,4 @@ MisalignmentScenarioBuilder::rootName_( const std::string& parameterSetName ) co
   LogDebug("PrintParameters") << "Name was " << parameterSetName << ", root is " << result;
 
   return result;
-
 }

@@ -41,10 +41,12 @@
 #include <fstream>
 
 MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg) :
-  theSurveyIndex(0), _writeToDB(false), _commonMuonLevel(align::invalid), firstEvent_(true)
+  theSurveyIndex(0),
+  _levelStrings(cfg.getUntrackedParameter<std::vector<std::string> >("levels")),
+  _writeToDB(false), _commonMuonLevel(align::invalid), firstEvent_(true)
 {
-	referenceMuon=0x0;
-	currentMuon=0x0;
+	referenceMuon=nullptr;
+	currentMuon=nullptr;
 	// Input is XML
 	_inputXMLCurrent = cfg.getUntrackedParameter<std::string> ("inputXMLCurrent");
 	_inputXMLReference = cfg.getUntrackedParameter<std::string> ("inputXMLReference");
@@ -60,9 +62,6 @@ MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg) :
 	_filename = cfg.getUntrackedParameter< std::string > ("outputFile");
 	
 	
-	const std::vector<std::string>& levels = 
-	    cfg.getUntrackedParameter< std::vector<std::string> > ("levels");
-	
 	_weightBy = cfg.getUntrackedParameter< std::string > ("weightBy");
 	_detIdFlag = cfg.getUntrackedParameter< bool > ("detIdFlag");
 	_detIdFlagFile = cfg.getUntrackedParameter< std::string >
@@ -73,13 +72,6 @@ MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg) :
 	_endcap  = cfg.getUntrackedParameter<int> ("endcapNumber");
 	_station = cfg.getUntrackedParameter<int> ("stationNumber");
 	_ring    = cfg.getUntrackedParameter<int> ("ringNumber");
-	
-	//setting the levels being used in the geometry comparator
-	edm::LogInfo("MuonGeometryArrange") << "levels: " << levels.size();
-	for (unsigned int l = 0; l < levels.size(); ++l){
-		theLevels.push_back( AlignableObjectId::stringToId(levels[l]));
-		edm::LogInfo("MuonGeometryArrange") << "level: " << levels[l];
-	}
 	
 		
 	// if want to use, make id cut list
@@ -167,15 +159,15 @@ void MuonGeometryArrange::endHist(){
 
    int size=_mgacollection.size();
    if(size<=0) return;	// nothing to do here.
-   float* xp = new float[size+1];
-   float* yp = new float[size+1];
+   std::vector<float> xp(size+1);
+   std::vector<float> yp(size+1);
    int i;
    float minV, maxV;
    int minI, maxI;
 
    minV=99999999.; maxV=-minV;  minI=9999999; maxI=-minI;
-   TGraph* grx=0x0;
-   TH2F* dxh=0x0;
+   TGraph* grx=nullptr;
+   TH2F* dxh=nullptr;
 
 // for position plots:
    for(i=0; i<size; i++){
@@ -205,7 +197,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delX_vs_position", "Local #delta X vs position", 
-       "GdelX_vs_position","#delta x in cm", xp, yp, size);
+       "GdelX_vs_position","#delta x in cm", xp.data(), yp.data(), size);
 // Dy plot
    minV=99999999.; maxV=-minV;
    for(i=0; i<size; i++){
@@ -217,7 +209,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delY_vs_position", "Local #delta Y vs position", 
-       "GdelY_vs_position","#delta y in cm", xp, yp, size);
+       "GdelY_vs_position","#delta y in cm", xp.data(), yp.data(), size);
 
 // Dz plot
    minV=99999999.; maxV=-minV;
@@ -230,7 +222,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delZ_vs_position", "Local #delta Z vs position", 
-       "GdelZ_vs_position","#delta z in cm", xp, yp, size);
+       "GdelZ_vs_position","#delta z in cm", xp.data(), yp.data(), size);
 
 // Dphi plot
    minV=99999999.; maxV=-minV;
@@ -243,7 +235,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delphi_vs_position", "#delta #phi vs position", 
-       "Gdelphi_vs_position","#delta #phi in radians", xp, yp, size);
+       "Gdelphi_vs_position","#delta #phi in radians", xp.data(), yp.data(), size);
 
 // Dr plot
    minV=99999999.; maxV=-minV;
@@ -256,7 +248,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delR_vs_position", "#delta R vs position", 
-       "GdelR_vs_position","#delta R in cm", xp, yp, size);
+       "GdelR_vs_position","#delta R in cm", xp.data(), yp.data(), size);
 
 // Drphi plot
    minV=99999999.; maxV=-minV;
@@ -270,7 +262,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delRphi_vs_position", "R #delta #phi vs position", 
-       "GdelRphi_vs_position","R #delta #phi in cm", xp, yp, size);
+       "GdelRphi_vs_position","R #delta #phi in cm", xp.data(), yp.data(), size);
 
 // Dalpha plot
    minV=99999999.; maxV=-minV;
@@ -283,7 +275,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delalpha_vs_position", "#delta #alpha vs position", 
-       "Gdelalpha_vs_position","#delta #alpha in rad", xp, yp, size);
+       "Gdelalpha_vs_position","#delta #alpha in rad", xp.data(), yp.data(), size);
 
 // Dbeta plot
    minV=99999999.; maxV=-minV;
@@ -296,7 +288,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delbeta_vs_position", "#delta #beta vs position", 
-       "Gdelbeta_vs_position","#delta #beta in rad", xp, yp, size);
+       "Gdelbeta_vs_position","#delta #beta in rad", xp.data(), yp.data(), size);
 
 // Dgamma plot
    minV=99999999.; maxV=-minV;
@@ -309,7 +301,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delgamma_vs_position", "#delta #gamma vs position", 
-       "Gdelgamma_vs_position","#delta #gamma in rad", xp, yp, size);
+       "Gdelgamma_vs_position","#delta #gamma in rad", xp.data(), yp.data(), size);
 
 // Drotx plot
    minV=99999999.; maxV=-minV;
@@ -322,7 +314,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delrotX_vs_position", "#delta rotX vs position", 
-       "GdelrotX_vs_position","#delta rotX in rad", xp, yp, size);
+       "GdelrotX_vs_position","#delta rotX in rad", xp.data(), yp.data(), size);
 
 // Droty plot
    minV=99999999.; maxV=-minV;
@@ -335,7 +327,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delrotY_vs_position", "#delta rotY vs position", 
-       "GdelrotY_vs_position","#delta rotY in rad", xp, yp, size);
+       "GdelrotY_vs_position","#delta rotY in rad", xp.data(), yp.data(), size);
 
 // Drotz plot
    minV=99999999.; maxV=-minV;
@@ -348,7 +340,7 @@ void MuonGeometryArrange::endHist(){
    
    makeGraph(sizeI, smi, sma, minV, maxV,
        dxh, grx, "delrotZ_vs_position", "#delta rotZ vs position", 
-       "GdelrotZ_vs_position","#delta rotZ in rad", xp, yp, size);
+       "GdelrotZ_vs_position","#delta rotZ in rad", xp.data(), yp.data(), size);
 
 
 
@@ -409,7 +401,6 @@ void MuonGeometryArrange::endHist(){
    _theFile->Write();   
    _theFile->Close();
 
-   delete [] yp;  delete [] xp;
 
 }
 //////////////////////////////////////////////////
@@ -417,9 +408,9 @@ void MuonGeometryArrange::makeGraph(int sizeI, float smi, float sma,
 	float minV, float maxV,
 	TH2F* dxh, TGraph* grx, const char* name, const char* title, 
 	const char* titleg, const char* axis,
-	float* xp, float* yp, int size){
+	const float* xp, const float* yp, int size){
 
-  if(minV>=maxV || smi>=sma || sizeI<=1 || xp==0x0 || yp==0x0) return;
+  if(minV>=maxV || smi>=sma || sizeI<=1 || xp==nullptr || yp==nullptr) return;
   	// out of bounds, bail
   float diff=maxV-minV;
   float over=.05*diff;
@@ -470,8 +461,14 @@ void MuonGeometryArrange::analyze(const edm::Event&,
     
     inputGeometry1 = static_cast<Alignable*> (inputAlign1->getAlignableMuon());
     inputGeometry2 = static_cast<Alignable*> (inputAlign2->getAlignableMuon());
-    Alignable* inputGeometry2Copy2 = 
-      static_cast<Alignable*> (inputAlign2a->getAlignableMuon());
+    auto inputGeometry2Copy2 = inputAlign2a->getAlignableMuon();
+
+    //setting the levels being used in the geometry comparator
+    edm::LogInfo("MuonGeometryArrange") << "levels: " << _levelStrings.size();
+    for (const auto& level: _levelStrings){
+      theLevels.push_back(inputGeometry2Copy2->objectIdProvider().stringToId(level));
+      edm::LogInfo("MuonGeometryArrange") << "level: " << level;
+    }
     
     //compare the goemetries
     compare(inputGeometry1, inputGeometry2, inputGeometry2Copy2);
@@ -492,12 +489,12 @@ void MuonGeometryArrange::compare(Alignable* refAli, Alignable* curAli,
                 Alignable* curAliCopy2){
 
  // First sanity
-  if(refAli==0x0){return;}	
-  if(curAli==0x0){return;}
+  if(refAli==nullptr){return;}	
+  if(curAli==nullptr){return;}
   
-  const std::vector<Alignable*>& refComp = refAli->components();
-  const std::vector<Alignable*>& curComp = curAli->components();
-  const std::vector<Alignable*>& curComp2 = curAliCopy2->components();
+  const auto& refComp = refAli->components();
+  const auto& curComp = curAli->components();
+  const auto& curComp2 = curAliCopy2->components();
   compareGeometries(refAli, curAli, curAliCopy2);
 
   int nComp=refComp.size();
@@ -511,8 +508,8 @@ void MuonGeometryArrange::compare(Alignable* refAli, Alignable* curAli,
 void MuonGeometryArrange::compareGeometries(Alignable* refAli, 
 		Alignable* curAli, Alignable* curCopy){
  // First sanity
-  if(refAli==0x0){return;}	
-  if(curAli==0x0){return;}
+  if(refAli==nullptr){return;}	
+  if(curAli==nullptr){return;}
  // Is this the Ring we want to align?  If so it will contain the
  // chambers specified in the configuration file	
   if(!isMother(refAli)) return;	// Not the desired alignable object
@@ -520,8 +517,8 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
  // the layers of the chambers.  So, if the mother of this is also an approved
  // mother, bail.
   if(isMother(refAli->mother() )) return;
-  const std::vector<Alignable*>& refComp = refAli->components();
-  const std::vector<Alignable*>& curComp = curCopy->components();
+  const auto& refComp = refAli->components();
+  const auto& curComp = curCopy->components();
   if(refComp.size()!=curComp.size()){
      return;
   }
@@ -670,7 +667,7 @@ void MuonGeometryArrange::compareGeometries(Alignable* refAli,
    align::moveAlignable(curAli, change);	// move as a chunk
 
   // Now get the components again.  They should be in new locations
-   const std::vector<Alignable*>& curComp2 = curAli->components();
+   const auto& curComp2 = curAli->components();
 
   for(int ich=0; ich<nComp; ich++){
      CLHEP::Hep3Vector Rtotal, Wtotal;
@@ -879,8 +876,8 @@ void MuonGeometryArrange::fillTree(Alignable *refAli, const AlgebraicVector& dif
 //////////////////////////////////////////////////
 bool MuonGeometryArrange::isMother(Alignable* ali){
   // Is this the mother ring?
- if(ali==0x0) return false;	// elementary sanity
- const std::vector<Alignable*>& aliComp = ali->components();
+ if(ali==nullptr) return false;	// elementary sanity
+ const auto& aliComp = ali->components();
 
  int size=aliComp.size();
  if(size<=0) return false;	// no subcomponents
@@ -894,7 +891,7 @@ bool MuonGeometryArrange::isMother(Alignable* ali){
 
 bool MuonGeometryArrange::checkChosen(Alignable* ali){
  // Check whether the item passed satisfies the criteria given.
-  if(ali==0x0) return false;	// elementary sanity
+  if(ali==nullptr) return false;	// elementary sanity
  // Is this in the CSC section?  If not, bail.  Later may extend.
   if(ali->geomDetId().det()!=DetId::Muon ||
      ali->geomDetId().subdetId()!=MuonSubdetId::CSC) return false;
@@ -931,10 +928,10 @@ bool MuonGeometryArrange::passChosen( Alignable* ali ){
  // The fact that it has layers as sub components, or the fact that it is
  // the first item with a non-zero ID breakdown?  Pick the latter.
  //
- if(ali==0x0) return false;
+ if(ali==nullptr) return false;
  if(checkChosen(ali)) return true;	// If this is one of the desired
  					// CSC chambers, accept it
- const std::vector<Alignable*>& aliComp = ali->components();
+ const auto& aliComp = ali->components();
 
  int size=aliComp.size();
  if(size<=0) return false;	// no subcomponents

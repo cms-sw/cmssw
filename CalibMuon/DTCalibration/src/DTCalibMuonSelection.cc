@@ -9,9 +9,9 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -21,7 +21,7 @@ using namespace reco;
 
 DTCalibMuonSelection::DTCalibMuonSelection(const edm::ParameterSet& iConfig)
 {
-  muonList = iConfig.getParameter<edm::InputTag>("src");
+  muonList = consumes<MuonCollection>(iConfig.getParameter<edm::InputTag>("src"));
   etaMin = iConfig.getParameter<double>("etaMin");
   etaMax = iConfig.getParameter<double>("etaMax");
   ptMin = iConfig.getParameter<double>("ptMin");
@@ -37,7 +37,7 @@ bool DTCalibMuonSelection::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   //Retrieve the muons list
   Handle<MuonCollection> MuHandle;
-  iEvent.getByLabel(muonList,MuHandle);
+  iEvent.getByToken(muonList,MuHandle);
 
   for (MuonCollection::const_iterator nmuon = MuHandle->begin(); nmuon != MuHandle->end(); ++nmuon) {
 

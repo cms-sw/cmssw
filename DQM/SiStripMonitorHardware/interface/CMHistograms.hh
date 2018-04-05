@@ -41,18 +41,18 @@ public:
 
   CMHistograms();
 
-  ~CMHistograms();
+  ~CMHistograms() override;
   
   //initialise histograms
   void initialise(const edm::ParameterSet& iConfig,
 		  std::ostringstream* pDebugStream
-		  );
+		  ) override;
 
   void fillHistograms(const std::vector<CMvalues>& aVec, float aTime, unsigned int aFedId);
 
 
    //book the top level histograms
-  void bookTopLevelHistograms(DQMStore::IBooker &);
+  void bookTopLevelHistograms(DQMStore::IBooker &, const TkDetMap*);
 
   //book individual FED histograms or book all FED level histograms at once
   void bookFEDHistograms(DQMStore::IBooker & , unsigned int fedId);
@@ -61,9 +61,9 @@ public:
 
   void bookAllFEDHistograms(DQMStore::IBooker &);
 
-  bool tkHistoMapEnabled(unsigned int aIndex=0);
+  bool tkHistoMapEnabled(unsigned int aIndex=0) override;
 
-  TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0);
+  TkHistoMap * tkHistoMapPointer(unsigned int aIndex=0) override;
 
 protected:
   
@@ -75,7 +75,7 @@ private:
   bool doFed_[500];
 
   HistogramConfig tkMapConfig_;
-  TkHistoMap *tkmapCM_[4];
+  std::unique_ptr<TkHistoMap> tkmapCM_[4];
 
   HistogramConfig medianAPV1vsAPV0_;
   HistogramConfig medianAPV0minusAPV1_;

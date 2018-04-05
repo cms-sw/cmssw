@@ -126,7 +126,6 @@ class PVFitter {
     for ( std::map<int,std::vector<BeamSpotFitPVData> >::const_iterator pvStore = bxMap_.begin(); 
 	  pvStore!=bxMap_.end(); ++pvStore) {
 
-      //std::cout << "bx " << pvStore->first << " NPVs = " << (pvStore->second).size() << std::endl;
       npvsmap_[ pvStore->first ] = (pvStore->second).size();
 
     }
@@ -139,13 +138,13 @@ class PVFitter {
   reco::BeamSpot fbeamspot;
   std::map<int,reco::BeamSpot> fbspotMap;
   bool fFitPerBunchCrossing;
+  bool useOnlyFirstPV_;
 
   std::ofstream fasciiFile;
 
   bool debug_;
   bool do3DFit_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-  // bool writeTxt_;
   std::string outputTxt_;
 
   unsigned int maxNrVertices_;
@@ -158,46 +157,23 @@ class PVFitter {
   double maxVtxZ_;
   double errorScale_;
   double sigmaCut_;         
-  
-  //  int frun;
-  //  int flumi;
+  double minSumPt_;         
+	
   std::time_t freftime[2];
 
   TH2F* hPVx; TH2F* hPVy; 
 
   TTree* ftree_;
-  //bool saveNtuple_;
-  //bool saveBeamFit_;
-  //std::string outputfilename_;
-  //TFile* file_;
-  //TTree* ftree_;
 
   //beam fit results
-  //TTree* ftreeFit_;
-  //  int frunFit;
   int fbeginLumiOfFit;
   int fendLumiOfFit;
-  //  char fbeginTimeOfFit[32];
-  //  char fendTimeOfFit[32];
   double fwidthX;
   double fwidthY;
   double fwidthZ;
   double fwidthXerr;
   double fwidthYerr;
   double fwidthZerr;
-  
-  /*  double fx;
-  double fy;
-  double fz;
-  double fsigmaZ;
-  double fdxdz;
-  double fdydz;
-  double fxErr;
-  double fyErr;
-  double fzErr;
-  double fsigmaZErr;
-  double fdxdzErr;
-  double fdydzErr;*/
 
   std::vector<BeamSpotFitPVData> pvStore_; //< cache for PV data
   std::map< int, std::vector<BeamSpotFitPVData> > bxMap_; // store PV data as a function of bunch crossings

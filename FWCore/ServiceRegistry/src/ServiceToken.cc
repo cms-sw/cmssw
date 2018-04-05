@@ -59,14 +59,14 @@
 void
 edm::ServiceToken::connectTo(edm::ActivityRegistry& iConnectTo)
 {
-   if(0!=manager_.get()){
+   if(nullptr!=manager_.get()){
       manager_->connectTo(iConnectTo);
    }
 }
 void
 edm::ServiceToken::connect(edm::ActivityRegistry& iConnectTo)
 {
-   if(0!=manager_.get()){
+   if(nullptr!=manager_.get()){
       manager_->connect(iConnectTo);
    }
 }
@@ -74,14 +74,14 @@ edm::ServiceToken::connect(edm::ActivityRegistry& iConnectTo)
 void
 edm::ServiceToken::copySlotsTo(edm::ActivityRegistry& iConnectTo)
 {
-  if(0!=manager_.get()){
+  if(nullptr!=manager_.get()){
     manager_->copySlotsTo(iConnectTo);
   }
 }
 void
 edm::ServiceToken::copySlotsFrom(edm::ActivityRegistry& iConnectTo)
 {
-  if(0!=manager_.get()){
+  if(nullptr!=manager_.get()){
     manager_->copySlotsFrom(iConnectTo);
   }
 }

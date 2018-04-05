@@ -39,7 +39,6 @@
       <xsd:element ref="LogicalPart" maxOccurs="unbounded"/>
 
       <xsd:element ref="PosPart"/>
-      <xsd:element ref="AlgoPosPart"/>
 
       <xsd:element ref="Algorithm" minOccurs="0" maxOccurs="unbounded"/>
 
@@ -79,7 +78,6 @@
       <xsd:extension base="SectionType">
         <xsd:choice minOccurs="0" maxOccurs="unbounded">
           <xsd:element ref="PosPart"/>
-          <xsd:element ref="AlgoPosPart"/>
           <xsd:element ref="Algorithm"/>
           <xsd:element ref="Division"/>
         </xsd:choice>
@@ -633,21 +631,9 @@
 
         Parameter    for part specific values, used in SpecPar.  The eval attribute determines whether to evaluate the value or leave it as a string.  TO BE DEPRECATED
         String       for part specific values in SpecPar.  Never evaluated for expressions and/or constants.
-                     Also used to replace ParS.
         Numeric      for part specific values in SpecPar.  Evaluated always by the evaluator.
-                     Also used to replace ParE.
         Constant     for specifying constants that can be used in expressions (for shapes and positioning)
                      are always evaluated.  Should we just use Numeric and String in constant and again use existence of name attribute
-                     
-	ParS and ParE are "named" in the DDD sense.  This means that to use String and Numeric to replace them means that either
-             the Parser of the DDD will have to check and determine whether to name them or not based on context (i.e. parent is 
-             SpecPar or parent is AlgoPosPart).
-        ParS         for strings in AlgoPosPart.  TO BE DEPRECATED
-        ParE         for doubles resulting from evaluating the value attribute as an expression in AlgoPosPart.  TO BE DEPRECATED
-
-
-	After this, ParameterType will basically be only for String and Numeric.  The new (other) parameter type is the vector...
-
       </xsd:documentation>
     </xsd:annotation>
     <xsd:attributeGroup ref="ParameterAttributes"/>
@@ -661,8 +647,6 @@
 
   <xsd:element name="Parameter" type="ParameterType"/>
   <xsd:element name="Constant" type="ParameterType"/>
-  <xsd:element name="ParS" type="ParameterType"/>
-  <xsd:element name="ParE" type="ParameterType"/>
   <xsd:element name="String" type="ParameterType"/>
   <xsd:element name="Numeric" type="ParameterType"/>
 
@@ -1365,25 +1349,9 @@
     <xsd:attributeGroup ref="PosPartAttributes"/>
   </xsd:complexType>
 
-  <xsd:complexType name="AlgoPosPartType">
-    <xsd:sequence>
-      <xsd:group ref="PCOptions" minOccurs="1"/>
-      <xsd:choice minOccurs="0" maxOccurs="unbounded">
-        <xsd:element ref="ParS"/> 
-        <xsd:element ref="ParE"/>
-        <xsd:element ref="String"/>
-        <xsd:element ref="Numeric"/>
-        <xsd:element ref="Vector"/> 
-	<xsd:element ref="Map"/>
-      </xsd:choice>
-    </xsd:sequence>
-    <xsd:attributeGroup ref="AlgoPosPartAttributes"/>
-  </xsd:complexType>
-  
   <!-- Elements-->
 
   <xsd:element name="PosPart" type="PosPartType"/>
-  <xsd:element name="AlgoPosPart" type="AlgoPosPartType"/>
   
   <!-- Groups (non-Attribute) -->
 
@@ -1410,12 +1378,6 @@
 
   <!-- Attributes -->
 
-  <xsd:attributeGroup name="AlgoPosPartAttributes">
-    <xsd:attribute name="algo" use="required" type="xsd:string"/>
-    <xsd:attribute name="start" use="optional" type="xsd:string"/>
-    <xsd:attribute name="end" use="optional" type="xsd:string"/>
-    <xsd:attribute name="incr" use="optional" type="xsd:string"/>
-  </xsd:attributeGroup>
   <xsd:attributeGroup name="PosPartAttributes">
     <xsd:attribute name="copyNumber" use="optional" type="xsd:string"/>
   </xsd:attributeGroup>

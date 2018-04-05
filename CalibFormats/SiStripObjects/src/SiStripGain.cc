@@ -18,7 +18,7 @@ void SiStripGain::multiply(const SiStripApvGain & apvgain, const double & factor
 			   const std::pair<std::string, std::string> & recordLabelPair)
 {
   // When inserting the first ApvGain
-  if( apvgain_ == 0 ) {
+  if( apvgain_ == nullptr ) {
     if( (factor != 1) && (factor != 0) ) {
       fillNewGain( &apvgain, factor );
     }
@@ -42,7 +42,7 @@ void SiStripGain::fillNewGain(const SiStripApvGain * apvgain, const double & fac
   SiStripApvGain * newApvGain = new SiStripApvGain;
   edm::FileInPath fp("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
   SiStripDetInfoFileReader reader(fp.fullPath());
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo> DetInfos = reader.getAllData();
+  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader.getAllData();
 
   // Loop on the apvgain in input and fill the newApvGain with the values/factor.
   std::vector<uint32_t> detIds;
@@ -59,14 +59,14 @@ void SiStripGain::fillNewGain(const SiStripApvGain * apvgain, const double & fac
       SiStripApvGain::Range range = apvgain->getRange(*it);
 
       SiStripApvGain::Range range2;
-      if( apvgain2 != 0 ) {
+      if( apvgain2 != nullptr ) {
 	range2 = apvgain2->getRange(*it);
       }
 
       for( int apv = 0; apv < detInfoIt->second.nApvs; ++apv ) {
 	float apvGainValue = apvgain->getApvGain( apv, range )/factor;
 
-	if( (apvgain2 != 0) && (factor2 != 0.) ) {
+	if( (apvgain2 != nullptr) && (factor2 != 0.) ) {
 	  apvGainValue *= apvgain2->getApvGain( apv, range2 )/factor2;
 	}
 
@@ -117,7 +117,7 @@ const SiStripApvGain::Range SiStripGain::getRange(const uint32_t& DetId, const u
   return apvgainVector_[index]->getRange(DetId);
 }
 
-void SiStripGain::printDebug(std::stringstream & ss) const
+void SiStripGain::printDebug(std::stringstream & ss, const TrackerTopology* /*trackerTopo*/) const
 {
   std::vector<unsigned int> detIds;
   getDetIds(detIds);
@@ -136,9 +136,9 @@ void SiStripGain::printDebug(std::stringstream & ss) const
   }
 }
 
-void SiStripGain::printSummary(std::stringstream& ss) const
+void SiStripGain::printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const
 {
-  SiStripDetSummary summaryGain;
+  SiStripDetSummary summaryGain{trackerTopo};
 
   std::vector<unsigned int> detIds;
   getDetIds(detIds);

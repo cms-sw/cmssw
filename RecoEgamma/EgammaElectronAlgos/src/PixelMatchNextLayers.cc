@@ -56,10 +56,10 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
     {    
       for (std::vector<const DetLayer*>::const_iterator il = allayers.begin(); il != allayers.end(); il++) 
 	{
-	  if ( (*il)->subDetector()==GeomDetEnumerators::PixelBarrel || (*il)->subDetector()==GeomDetEnumerators::PixelEndcap ) {
+	  if ( GeomDetEnumerators::isTrackerPixel((*il)->subDetector()) ) {
 	    
 	    std::vector<TrajectoryMeasurement> pixelMeasurements;
-	    if ((*il)->subDetector()==GeomDetEnumerators::PixelBarrel) {
+	    if (GeomDetEnumerators::isBarrel((*il)->subDetector())) {
 	      pixelMeasurements = theLayerMeasurements->measurements( **il, tsos , *aProp, *aBarrelMeas); 
 	    } else {
 	      pixelMeasurements = theLayerMeasurements->measurements( **il, tsos, *aProp, *aForwardMeas);

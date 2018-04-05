@@ -338,14 +338,14 @@ process.endPath = cms.EndPath(process.out)
 # ---------------------------------------------------------------
 
 secondProcess = cms.Process("SECOND")
-process.subProcess = cms.SubProcess(secondProcess,
+process.addSubProcess(cms.SubProcess(secondProcess,
     outputCommands = cms.untracked.vstring(
         'keep *',
         'drop *_thinningThingProducerM_*_*',
         'drop *_thinningThingProducerN_*_*',
         'drop *_thinningThingProducerO_*_*',
     )
-)
+))
 
 secondProcess.testSecondA = cms.EDAnalyzer("ThinningTestAnalyzer",
     parentTag = cms.InputTag('thingProducer'),
@@ -408,7 +408,7 @@ secondProcess.endPath = cms.EndPath(secondProcess.out)
 # ---------------------------------------------------------------
 
 thirdProcess = cms.Process("THIRD")
-secondProcess.subProcess = cms.SubProcess(thirdProcess,
+secondProcess.addSubProcess(cms.SubProcess(thirdProcess,
     outputCommands = cms.untracked.vstring(
         'keep *',
         'drop *_thingProducer_*_*',
@@ -421,7 +421,7 @@ secondProcess.subProcess = cms.SubProcess(thirdProcess,
         'drop *_aliasM_*_*',
         'drop *_aliasN_*_*',
     )
-)
+))
 
 thirdProcess.testThirdA = cms.EDAnalyzer("ThinningTestAnalyzer",
     parentTag = cms.InputTag('thingProducer'),

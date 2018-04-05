@@ -282,11 +282,11 @@ class ResidualRefitting : public edm::EDAnalyzer{
 //
  
 	explicit ResidualRefitting( const edm::ParameterSet & );
-	~ResidualRefitting();
+	~ResidualRefitting() override;
 	
-	virtual void analyze(const edm::Event&, const edm::EventSetup&);
-	virtual void beginJob() ;
-	virtual void endJob() ;
+	void analyze(const edm::Event&, const edm::EventSetup&) override;
+	void beginJob() override ;
+	void endJob() override ;
 //Zero Storage
 	void zero_storage();
 	void zero_muon(ResidualRefitting::storage_muon* str);

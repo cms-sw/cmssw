@@ -8,8 +8,8 @@ using namespace oracle::occi;
 
 RunModeDef::RunModeDef()
 {
-  m_env = NULL;
-  m_conn = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
   m_ID = 0;
   m_runMode = "";
 
@@ -44,7 +44,7 @@ void RunModeDef::setRunMode(string runmode)
 
   
 int RunModeDef::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return def from memory if available
   if (m_ID) {
@@ -69,7 +69,7 @@ int RunModeDef::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunModeDef::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunModeDef::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -78,7 +78,7 @@ int RunModeDef::fetchID()
 
 
 void RunModeDef::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -90,21 +90,21 @@ void RunModeDef::setByID(int id)
 
     ResultSet* rset = stmt->executeQuery();
     if (rset->next()) {
-      m_runMode = rset->getString(1);
+      m_runMode = getOraString(rset,1);
     } else {
       throw(std::runtime_error("RunModeDef::setByID:  Given def_id is not in the database"));
     }
     
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error("RunModeDef::setByID:  "+e.getMessage()));
+   throw(std::runtime_error(std::string("RunModeDef::setByID:  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void RunModeDef::fetchAllDefs( std::vector<RunModeDef>* fillVec) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   try {
@@ -120,6 +120,6 @@ void RunModeDef::fetchAllDefs( std::vector<RunModeDef>* fillVec)
       fillVec->push_back( runModeDef );
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("RunModeDef::fetchAllDefs:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("RunModeDef::fetchAllDefs:  ")+getOraMessage(&e)));
   }
 }

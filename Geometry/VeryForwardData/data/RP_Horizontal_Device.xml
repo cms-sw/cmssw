@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    <ConstantsSection label="RP_Horizontal_Device.xml">
+        <Constant name="RP_Device_Hor_Closed_Wall_Thick_Ext" value="2*mm"/>
+        <Constant name="RP_Device_Hor_Closed_Wall_Thick_Int" value="2*mm"/>
+        <Constant name="RP_Device_Hor_RP_Section_Tot_Length" value="[RP_Device:RP_Device_Length_y]+[RP_Device:RP_Device_Det_Bellow_Length]+[RP_Device_Hor_Closed_Wall_Thick_Ext]"/>
+    </ConstantsSection>
+    
+    <SolidSection label="RP_Horizontal_Device.xml">  
+        <Tube rMin="0*mm" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2+[RP_Device:RP_Device_Wall_Thickness]" dz="[RP_Device:RP_Device_Length_z]/2" name="RP_Device_Hor_Beam_Pipe"/>
+        <Tube rMin="0*mm" rMax="[RP_Device:RP_Device_RP_Hole_Diam]/2+[RP_Device:RP_Device_Wall_Thickness]" dz="[RP_Device_Hor_RP_Section_Tot_Length]/2" name="RP_Device_Hor_RP_Hole"/>
+        <Tube rMin="0*mm" rMax="[RP_Device:RP_Device_Beam_Hole_Diam]/2" dz="[RP_Device:RP_Device_Length_z]" name="RP_Device_Hor_Beam_Pipe_Interior"/>
+        <Tube rMin="0*mm" rMax="[RP_Device:RP_Device_RP_Hole_Diam]/2" dz="[RP_Device_Hor_RP_Section_Tot_Length]" name="RP_Device_Hor_RP_Hole_Interior"/>
+        <UnionSolid name="RP_Device_Hor_Corp_1">
+            <rSolid name="RP_Device_Hor_Beam_Pipe"/>
+            <rSolid name="RP_Device_Hor_RP_Hole"/>
+            <rRotation name="RP_Transformations:RP_y_90_rot"/>
+            <Translation x="[RP_Device:RP_Device_Det_Bellow_Length]/2-[RP_Device_Hor_Closed_Wall_Thick_Ext]/2" y="0*mm" z="0*mm"/>
+        </UnionSolid>
+        <SubtractionSolid name="RP_Device_Hor_Corp_2">
+            <rSolid name="RP_Device_Hor_Corp_1"/>
+            <rSolid name="RP_Device_Hor_Beam_Pipe_Interior"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="RP_Device_Hor_Corp_3">
+            <rSolid name="RP_Device_Hor_Corp_2"/>
+            <rSolid name="RP_Device_Hor_RP_Hole_Interior"/>
+            <rRotation name="RP_Transformations:RP_y_90_rot"/>
+            <Translation x="[RP_Device_Hor_RP_Section_Tot_Length]-[RP_Device:RP_Device_Length_y]/2+[RP_Device_Hor_Closed_Wall_Thick_Int]" y="0*mm" z="0*mm"/>
+        </SubtractionSolid>
+        <Tube rMin="0*mm" rMax="[RP_Device:RP_Device_Envelope_Radius]" dz="[RP_Device:RP_Device_Length_z]/2" name="RP_Horizontal_Device"/>
+    </SolidSection>
+    
+    <LogicalPartSection label="RP_Horizontal_Device.xml">
+        <LogicalPart name="RP_Device_Hor_Corp_3">
+            <rSolid name="RP_Device_Hor_Corp_3"/>
+            <rMaterial name="RP_Materials:AISI-316L-Steel"/>
+        </LogicalPart>
+        <LogicalPart name="RP_Horizontal_Device">
+            <rSolid name="RP_Horizontal_Device"/>
+            <rMaterial name="RP_Materials:RP_Primary_Vacuum"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    
+    <PosPartSection label="RP_Horizontal_Device.xml">
+        <PosPart copyNumber="1">
+            <rParent name="RP_Horizontal_Device"/>
+            <rChild name="RP_Device_Hor_Corp_3"/>
+        </PosPart>
+    </PosPartSection>
+    
+</DDDefinition>

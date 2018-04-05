@@ -8,6 +8,7 @@
  *  \author Silvio Donato (SNS)
  */
 
+#include <vector>
 
 float FindPeakFastPV(const std::vector<float> &zProjections, const std::vector<float> &zWeights, const float oldVertex, const float m_zClusterWidth, const float m_zClusterSearchArea, const float m_weightCut) {
 float centerWMax = oldVertex;

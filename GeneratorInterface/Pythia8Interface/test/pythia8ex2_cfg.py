@@ -14,7 +14,10 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     comEnergy = cms.double(7000.),
     #PPbarInitialState = cms.PSet(),
     #SLHAFileForPythia8 = cms.string('Configuration/Generator/data/CSA07SUSYBSM_LM9p_sftsdkpyt_slha.out'),
-    #reweightGen = cms.PSet(),
+    #reweightGen = cms.PSet( # flat in pT
+    #   pTRef = cms.double(15.0),
+    #   power = cms.double(4.5)
+    #),
     #reweightGenRap = cms.PSet( # flat in eta
     #   yLabSigmaFunc = cms.string("15.44/pow(x,0.0253)-12.56"),
     #   yLabPower = cms.double(2.),
@@ -39,7 +42,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 )
 
 # in order to use lhapdf PDF add a line like this to pythia8_example02:
-# 'PDF:pSet = LHAPDF5:MRST2004nlo.LHpdf'
+# 'PDF:pSet = LHAPDF6:CT10'
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",

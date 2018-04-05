@@ -1,9 +1,11 @@
-#ifndef DDI_Boolean_h
-#define DDI_Boolean_h
-#include "Solid.h"
+#ifndef DETECTOR_DESCRIPTION_CORE_DDI_BOOLEAN_H
+#define DETECTOR_DESCRIPTION_CORE_DDI_BOOLEAN_H
 
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "Solid.h"
 
 namespace DDI {
   
@@ -11,30 +13,44 @@ namespace DDI {
   {
   public:
     BooleanSolid(const DDSolid & A, const DDSolid & B, 
-            const DDTranslation & t,
-	    const DDRotation & r,
-	    DDSolidShape s);
+		 const DDTranslation & t,
+		 const DDRotation & r,
+		 DDSolidShape s);
     
     const DDSolid & a() const { return a_; }
     const DDSolid & b() const { return b_; }
     const DDTranslation & t() const { return t_; }
     const DDRotation & r() const { return r_; }
     
-    //double volume() const=0;
   protected:
     DDSolid a_, b_;
     DDTranslation t_;
     DDRotation r_;
   };
-  
+
+  class MultiUnion : public Solid
+  {
+  public:
+    MultiUnion(const std::vector<DDSolid> & a,
+	       const std::vector<DDTranslation> & t,
+	       const std::vector<DDRotation> & r);
+    
+    const std::vector<DDSolid> & solids() const { return a_; }
+    const std::vector<DDTranslation> & t() const { return t_; }
+    const std::vector<DDRotation> & r() const { return r_; }
+    
+  protected:
+    std::vector<DDSolid> a_;
+    std::vector<DDTranslation> t_;
+    std::vector<DDRotation> r_;
+  };
+
   class Union : public BooleanSolid
   {
   public:
     Union(const DDSolid & A, const DDSolid & B,
           const DDTranslation & t,
 	  const DDRotation & r);
-    
-    //double volume() const;
   };
   
   class Intersection : public BooleanSolid
@@ -43,10 +59,7 @@ namespace DDI {
     Intersection(const DDSolid & A, const DDSolid & B,
                  const DDTranslation & t,
 		 const DDRotation & r);
-    
-    //double volume() const;
   };
-  
   
   class Subtraction : public BooleanSolid
   {
@@ -56,5 +69,4 @@ namespace DDI {
 		const DDRotation & r);
   };		    
 }
-
-#endif // DDI_Boolean_h
+#endif // DETECTOR_DESCRIPTION_CORE_DDI_BOOLEAN_H

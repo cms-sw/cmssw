@@ -32,10 +32,10 @@ class HLTMuonPtFilter : public HLTFilter {
     HLTMuonPtFilter(const edm::ParameterSet&) ;
 
 /// Destructorquer
-    ~HLTMuonPtFilter() ;
+    ~HLTMuonPtFilter() override ;
 
 /* Operations */
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+    bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   private:
     std::string theSTAMuonLabel; // label of muons

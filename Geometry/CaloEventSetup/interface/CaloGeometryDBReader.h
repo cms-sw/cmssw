@@ -12,13 +12,13 @@ public:
   static void write( TrVec&      /*tvec*/, 
 		     DimVec&     /*dvec*/, 
 		     IVec&       /*ivec*/,
-		     std::string /*str*/   ) {}
+		     const std::string& /*str*/   ) {}
 
   static void writeIndexed( const TrVec&  /*tvec*/, 
 			    const DimVec& /*dvec*/, 
 			    const IVec&   /*ivec*/,
 			    const std::vector<uint32_t>& /*dins*/,
-			    std::string   /*tag*/   ) {}
+			    const std::string&   /*tag*/   ) {}
 
   static bool writeFlag() { return false ; }
 

@@ -11,7 +11,7 @@
 //
 
 // system include files
-#include <assert.h>
+#include <cassert>
 #include <algorithm>
 
 // user include files
@@ -69,9 +69,9 @@ FWCompositeParameter::setFrom(const FWConfiguration& iFrom)
    const FWConfiguration* mine = iFrom.valueForKey(name());
    const FWConfiguration::KeyValues* keyVals = mine->keyValues();
 
-   assert(0!=mine);
+   assert(nullptr!=mine);
    assert(mine->version()==m_version);
-   assert(0 != keyVals);
+   assert(nullptr != keyVals);
 
    for(const_iterator it =begin(), itEnd = end();
        it != itEnd;

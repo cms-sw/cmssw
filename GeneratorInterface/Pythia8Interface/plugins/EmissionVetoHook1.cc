@@ -1,9 +1,13 @@
+#include "Pythia8/Pythia.h"
+
+using namespace Pythia8;
+
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-void EmissionVetoHook1::fatalEmissionVeto(string message) {
+void EmissionVetoHook1::fatalEmissionVeto(std::string message) {
   throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
-    << "EmissionVeto: " << message << endl;
+    << "EmissionVeto: " << message << std::endl;
 }
 
 //--------------------------------------------------------------------------
@@ -56,14 +60,14 @@ double EmissionVetoHook1::pTpythia(const Pythia8::Event &e, int RadAfterBranch,
 
   // Can get negative pT for massive splittings
   if (pTnow < 0.) {
-    cout << "Warning: pTpythia was negative" << endl;
+    std::cout << "Warning: pTpythia was negative" << std::endl;
     return -1.;
   }
 
 #ifdef DBGOUTPUT
-  cout << "pTpythia: rad = " << RadAfterBranch << ", emt = "
+  std::cout << "pTpythia: rad = " << RadAfterBranch << ", emt = "
        << EmtAfterBranch << ", rec = " << RecAfterBranch
-       << ", pTnow = " << sqrt(pTnow) << endl;
+       << ", pTnow = " << sqrt(pTnow) << std::endl;
 #endif
 
   // Return pT
@@ -97,13 +101,13 @@ double EmissionVetoHook1::pTpowheg(const Pythia8::Event &e, int i, int j, bool F
 
   // Check result
   if (pTnow < 0.) {
-    cout << "Warning: pTpowheg was negative" << endl;
+    std::cout << "Warning: pTpowheg was negative" << std::endl;
     return -1.;
   }
 
 #ifdef DBGOUTPUT
-  cout << "pTpowheg: i = " << i << ", j = " << j
-       << ", pTnow = " << pTnow << endl;
+  std::cout << "pTpowheg: i = " << i << ", j = " << j
+       << ", pTnow = " << pTnow << std::endl;
 #endif
 
    return pTnow;
@@ -163,7 +167,7 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
           // ISR - only done once as just kinematical pT
           if (!FSR) {
             pTnow = pTpowheg(e, iInA, jNow, (pTdefMode == 0) ? false : FSR);
-            if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
+            if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : std::min(pTemt, pTnow);
   
           // FSR - try all outgoing partons from system before branching 
           // as i. Note that for the hard system, there is no 
@@ -182,7 +186,7 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
               pTnow = pTpowheg(e, iNow, jNow, (pTdefMode == 0) 
                 ? false : FSR);
               if (pTnow > 0.) pTemt = (pTemt < 0) 
-                ? pTnow : min(pTemt, pTnow);
+                ? pTnow : std::min(pTemt, pTnow);
             } // for (iMem)
   
           } // if (!FSR)
@@ -193,9 +197,9 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
           // ISR - other incoming as recoiler
           if (!FSR) {
             pTnow = pTpythia(e, iInA, jNow, iInB, FSR);
-            if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
+            if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : std::min(pTemt, pTnow);
             pTnow = pTpythia(e, iInB, jNow, iInA, FSR);
-            if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
+            if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : std::min(pTemt, pTnow);
   
           // FSR - try all final-state coloured partons as radiator
           //       after emission (k).
@@ -208,10 +212,10 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
               // Try two incoming.
               pTnow = pTpythia(e, kNow, jNow, iInA, FSR);
               if (pTnow > 0.) pTemt = (pTemt < 0) 
-                ? pTnow : min(pTemt, pTnow);
+                ? pTnow : std::min(pTemt, pTnow);
               pTnow = pTpythia(e, kNow, jNow, iInB, FSR);
               if (pTnow > 0.) pTemt = (pTemt < 0) 
-                ? pTnow : min(pTemt, pTnow);
+                ? pTnow : std::min(pTemt, pTnow);
 
               // Try all other outgoing.
               for (int rNow = 0; rNow < e.size(); rNow++) {
@@ -219,7 +223,7 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
                     !e[rNow].isFinal() || e[rNow].colType() == 0) continue;
                 pTnow = pTpythia(e, kNow, jNow, rNow, FSR);
                 if (pTnow > 0.) pTemt = (pTemt < 0) 
-                  ? pTnow : min(pTemt, pTnow);
+                  ? pTnow : std::min(pTemt, pTnow);
               } // for (rNow)
   
             } // for (kNow)
@@ -230,9 +234,9 @@ double EmissionVetoHook1::pTcalc(const Pythia8::Event &e, int i, int j, int k, i
   } // for (xSR)
 
 #ifdef DBGOUTPUT
-  cout << "pTcalc: i = " << i << ", j = " << j << ", k = " << k
+  std::cout << "pTcalc: i = " << i << ", j = " << j << ", k = " << k
        << ", r = " << r << ", xSR = " << xSRin
-       << ", pTemt = " << pTemt << endl;
+       << ", pTemt = " << pTemt << std::endl;
 #endif
 
   return pTemt;
@@ -274,7 +278,7 @@ bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
       first = ip;
       break;
     }
-    if(first < 0) fatalEmissionVeto(string("signal particles not found"));
+    if(first < 0) fatalEmissionVeto(std::string("signal particles not found"));
     for(int ip = first; ip < e.size(); ip++) {
       myid = e[ip].id();
       if(abs(myid) < 6 || abs(myid) == 21) continue;
@@ -285,7 +289,7 @@ bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
 
   // Extra check that we have the correct final state
   if (count != nFinal && count != nFinal + 1)
-    fatalEmissionVeto(string("Wrong number of final state particles in event"));
+    fatalEmissionVeto(std::string("Wrong number of final state particles in event"));
 
   // Flag if POWHEG radiation present and index
   bool isEmt = (count == nFinal) ? false : true;
@@ -314,9 +318,9 @@ bool EmissionVetoHook1::doVetoMPIStep(int nMPI, const Pythia8::Event &e) {
   }
 
   if(Verbosity)
-    cout << "doVetoMPIStep: QFac = " << infoPtr->QFac()
+    std::cout << "doVetoMPIStep: QFac = " << infoPtr->QFac()
          << ", QRen = " << infoPtr->QRen()
-         << ", pThard = " << pThard << endl << endl;
+         << ", pThard = " << pThard << std::endl << std::endl;
 
   // Initialise other variables
   accepted   = false;
@@ -347,12 +351,12 @@ bool EmissionVetoHook1::doVetoISREmission(int, const Pythia8::Event &e, int iSys
   }
   if (iRadAft == -1 || iEmt == -1 || iRecAft == -1) {
     e.list();
-    fatalEmissionVeto(string("Couldn't find Pythia ISR emission"));
+    fatalEmissionVeto(std::string("Couldn't find Pythia ISR emission"));
   }
 
   // pTemtMode == 0: pT of emitted w.r.t. radiator
-  // pTemtMode == 1: min(pT of emitted w.r.t. all incoming/outgoing)
-  // pTemtMode == 2: min(pT of all outgoing w.r.t. all incoming/outgoing)
+  // pTemtMode == 1: std::min(pT of emitted w.r.t. all incoming/outgoing)
+  // pTemtMode == 2: std::min(pT of all outgoing w.r.t. all incoming/outgoing)
   int xSR      = (pTemtMode == 0) ? 0       : -1;
   int i        = (pTemtMode == 0) ? iRadAft : -1;
   int j        = (pTemtMode != 2) ? iEmt    : -1;
@@ -361,7 +365,7 @@ bool EmissionVetoHook1::doVetoISREmission(int, const Pythia8::Event &e, int iSys
   double pTemt = pTcalc(e, i, j, k, r, xSR);
 
 #ifdef DBGOUTPUT
-  cout << "doVetoISREmission: pTemt = " << pTemt << endl << endl;
+  std::cout << "doVetoISREmission: pTemt = " << pTemt << std::endl << std::endl;
 #endif
 
   // Veto if pTemt > pThard
@@ -396,13 +400,13 @@ bool EmissionVetoHook1::doVetoFSREmission(int, const Pythia8::Event &e, int iSys
   if ( (e[iRecAft].status() != 52 && e[iRecAft].status() != -53) ||
        e[iEmt].status() != 51 || e[iRadAft].status() != 51) {
     e.list();
-    fatalEmissionVeto(string("Couldn't find Pythia FSR emission"));
+    fatalEmissionVeto(std::string("Couldn't find Pythia FSR emission"));
   }
 
   // Behaviour based on pTemtMode:
   //  0 - pT of emitted w.r.t. radiator before
-  //  1 - min(pT of emitted w.r.t. all incoming/outgoing)
-  //  2 - min(pT of all outgoing w.r.t. all incoming/outgoing)
+  //  1 - std::min(pT of emitted w.r.t. all incoming/outgoing)
+  //  2 - std::min(pT of all outgoing w.r.t. all incoming/outgoing)
   int xSR = (pTemtMode == 0) ? 1       : -1;
   int i   = (pTemtMode == 0) ? iRadBef : -1;
   int k   = (pTemtMode == 0) ? iRadAft : -1;
@@ -421,11 +425,11 @@ bool EmissionVetoHook1::doVetoFSREmission(int, const Pythia8::Event &e, int iSys
 
     for (int jLoop = 0; jLoop < 2; jLoop++) {
       if      (jLoop == 0) pTemt = pTcalc(e, i, j, k, r, xSR);
-      else if (jLoop == 1) pTemt = min(pTemt, pTcalc(e, i, j, k, r, xSR));
+      else if (jLoop == 1) pTemt = std::min(pTemt, pTcalc(e, i, j, k, r, xSR));
   
       // For emittedMode == 3, have tried iRadAft, now try iEmt
       if (emittedMode != 3) break;
-      if (k != -1) swap(j, k); else j = iEmt;
+      if (k != -1) std::swap(j, k); else j = iEmt;
     }
 
   // If pTemtMode is 2, then try all final-state partons as emitted
@@ -435,7 +439,7 @@ bool EmissionVetoHook1::doVetoFSREmission(int, const Pythia8::Event &e, int iSys
   }
 
 #ifdef DBGOUTPUT
-  cout << "doVetoFSREmission: pTemt = " << pTemt << endl << endl;
+  std::cout << "doVetoFSREmission: pTemt = " << pTemt << std::endl << std::endl;
 #endif
 
   // Veto if pTemt > pThard
@@ -459,8 +463,8 @@ bool EmissionVetoHook1::doVetoMPIEmission(int, const Pythia8::Event &e) {
   if (MPIvetoOn) {
     if (e[e.size() - 1].pT() > pTMPI) {
 #ifdef DBGOUTPUT
-      cout << "doVetoMPIEmission: pTnow = " << e[e.size() - 1].pT()
-           << ", pTMPI = " << pTMPI << endl << endl;
+      std::cout << "doVetoMPIEmission: pTnow = " << e[e.size() - 1].pT()
+           << ", pTMPI = " << pTMPI << std::endl << std::endl;
 #endif
       return true;
     }

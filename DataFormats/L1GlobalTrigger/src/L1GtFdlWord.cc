@@ -895,7 +895,7 @@ void L1GtFdlWord::unpack(const unsigned char* fdlPtr)
     << std::endl;
 
     const cms_uint64_t* payload =
-        reinterpret_cast<cms_uint64_t*>(const_cast<unsigned char*>(fdlPtr));
+        reinterpret_cast<cms_uint64_t const*>(fdlPtr);
 
     setBoardId(payload[BoardIdWord]);
     setBxInEvent(payload[BxInEventWord]);

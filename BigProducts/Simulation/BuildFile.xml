@@ -13,16 +13,15 @@
 <use name="SimG4Core/Physics"/>
 <use name="SimG4Core/PhysicsLists"/>
 <use name="SimG4Core/SensitiveDetector"/>
+<use name="SimG4Core/PrintGeomInfo"/>
 <use name="SimRomanPot/SimFP420"/>
 <use name="Validation/HcalHits"/>
 <use name="Validation/EcalHits"/>
 <use name="SimDataFormats/ValidationFormats"/>
 <use name="geant4static"/>
 <flags DROP_DEP="geant4core"/>
-<architecture name="slc6_amd64_gcc49">
-  # hack needed to avoid undefined variable in CLHEP.
-  <flags REM_CXXFLAGS="-Werror=unused-variable"/>
-  # disable LTO in BigLibs, as it seems to clash with debugging symbols with gcc 4.9.x
-  <flags REM_BIGOBJ_CXXFLAGS="-flto"/>
-  <flags BIGOBJ_CXXFLAGS="-fno-lto"/>
-</architecture>
+<!-- Hack needed to avoid undefined variable in CLHEP -->
+<flags REM_CXXFLAGS="-Werror=unused-variable"/>
+<!-- Disable LTO in BigLibs, as it seems to clash with debugging symbols with gcc 4.9.X -->
+<flags REM_BIGOBJ_CXXFLAGS="-flto"/>
+<flags BIGOBJ_CXXFLAGS="-fno-lto"/>

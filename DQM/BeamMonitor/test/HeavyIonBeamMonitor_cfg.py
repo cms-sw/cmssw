@@ -75,7 +75,7 @@ process.RecoForDQM = cms.Sequence(*process.siPixelDigis
                                   *process.siPixelRecHits
                                   *process.offlineBeamSpot
                                   *process.hiPixelVertices
-                                  *process.hiPixel3PrimTracks
+                                  *process.hiPixel3PrimTracksSequence
                                  )
 
 

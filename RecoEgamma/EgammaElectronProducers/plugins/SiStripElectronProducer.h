@@ -35,10 +35,10 @@
 class SiStripElectronProducer : public edm::stream::EDProducer<> {
    public:
       explicit SiStripElectronProducer(const edm::ParameterSet&);
-      ~SiStripElectronProducer();
+      ~SiStripElectronProducer() override;
 
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
    private:
       // ----------member data ---------------------------
       std::string siHitProducer_;

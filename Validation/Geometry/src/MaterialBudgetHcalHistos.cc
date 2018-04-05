@@ -12,6 +12,8 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+#include <string>
+
 MaterialBudgetHcalHistos::MaterialBudgetHcalHistos(const edm::ParameterSet &p){
 
   binEta      = p.getUntrackedParameter<int>("NBinEta", 260);
@@ -37,11 +39,8 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView & cpv) {
   if (fillHistos) {
     std::string attribute = "ReadOutName";
     std::string value     = "HcalHits";
-    DDSpecificsFilter filter1;
-    DDValue           ddv1(attribute,value,0);
-    filter1.setCriteria(ddv1,DDSpecificsFilter::equals);
-    DDFilteredView fv1(cpv);
-    fv1.addFilter(filter1);
+    DDSpecificsMatchesValueFilter filter1{DDValue(attribute,value,0)};
+    DDFilteredView fv1(cpv,filter1);
     sensitives = getNames(fv1);
     edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be "
 				   << "tested for " << attribute << " = " 
@@ -53,11 +52,8 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView & cpv) {
 
     attribute = "Volume";
     value     = "HF";
-    DDSpecificsFilter filter2;
-    DDValue           ddv2(attribute,value,0);
-    filter2.setCriteria(ddv2,DDSpecificsFilter::equals);
-    DDFilteredView fv2(cpv);
-    fv2.addFilter(filter2);
+    DDSpecificsMatchesValueFilter filter2{DDValue(attribute,value,0)};
+    DDFilteredView fv2(cpv,filter2);
     hfNames = getNames(fv2);
     fv2.firstChild();
     DDsvalues_type sv(fv2.mergedSpecifics());
@@ -78,11 +74,8 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView & cpv) {
     attribute = "ReadOutName";
     for (int k=0; k<2; k++) {
       value     = ecalRO[k];
-      DDSpecificsFilter filter3;
-      DDValue           ddv3(attribute,value,0);
-      filter3.setCriteria(ddv3,DDSpecificsFilter::equals);
-      DDFilteredView fv3(cpv);
-      fv3.addFilter(filter3);
+      DDSpecificsMatchesValueFilter filter3{DDValue(attribute,value,0)};
+      DDFilteredView fv3(cpv,filter3);
       std::vector<std::string> senstmp = getNames(fv3);
       edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Names to be"
 				     << " tested for " << attribute << " = " 
@@ -139,7 +132,7 @@ void MaterialBudgetHcalHistos::fillPerStep(const G4Step* aStep) {
   int    idOld   = id;
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   std::string         name  = touch->GetVolume(0)->GetName();
-  std::string         matName = material->GetName();
+  const std::string&         matName = material->GetName();
   if (printSum) {
     bool found = false;
     for (unsigned int ii=0; ii<matList.size(); ii++) {
@@ -274,61 +267,48 @@ void MaterialBudgetHcalHistos::book() {
 				 << "in phi from " << -maxPhi << " to " 
 				 << maxPhi;
   
-  char  name[10], title[40];
+  std::string iter;
   // total X0
   for (int i=0; i<maxSet; i++) {
-    sprintf(name, "%d", i+100);
-    sprintf(title, "MB(X0) prof Eta in region %d", i);
-    me100[i] =  tfile->make<TProfile>(name, title, binEta, -maxEta, maxEta);
-    sprintf(name, "%d", i+200);
-    sprintf(title, "MB(L0) prof Eta in region %d", i);
-    me200[i] = tfile->make<TProfile>(name, title, binEta, -maxEta, maxEta);
-    sprintf(name, "%d", i+300);
-    sprintf(title, "MB(Step) prof Eta in region %d", i);
-    me300[i] = tfile->make<TProfile>(name, title, binEta, -maxEta, maxEta);
-    sprintf(name, "%d", i+400);
-    sprintf(title, "Eta in region %d", i);
-    me400[i] = tfile->make<TH1F>(name, title, binEta, -maxEta, maxEta);
-    sprintf(name, "%d", i+500);
-    sprintf(title, "MB(X0) prof Ph in region %d", i);
-    me500[i] = tfile->make<TProfile>(name, title, binPhi, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+600);
-    sprintf(title, "MB(L0) prof Ph in region %d", i);
-    me600[i] = tfile->make<TProfile>(name, title, binPhi, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+700);
-    sprintf(title, "MB(Step) prof Ph in region %d", i);
-    me700[i] = tfile->make<TProfile>(name, title, binPhi, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+800);
-    sprintf(title, "Phi in region %d", i);
-    me800[i] = tfile->make<TH1F>(name, title, binPhi, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+900);
-    sprintf(title, "MB(X0) prof Eta Phi in region %d", i);
-    me900[i] = tfile->make<TProfile2D>(name, title, binEta/2, -maxEta, maxEta,
-				       binPhi/2, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+1000);
-    sprintf(title, "MB(L0) prof Eta Phi in region %d", i);
-    me1000[i]= tfile->make<TProfile2D>(name, title, binEta/2, -maxEta, maxEta,
-				       binPhi/2, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+1100);
-    sprintf(title, "MB(Step) prof Eta Phi in region %d", i);
-    me1100[i]= tfile->make<TProfile2D>(name, title, binEta/2, -maxEta, maxEta,
-				       binPhi/2, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+1200);
-    sprintf(title, "Eta vs Phi in region %d", i);
-    me1200[i]= tfile->make<TH2F>(name, title, binEta/2, -maxEta, maxEta, 
-				 binPhi/2, -maxPhi, maxPhi);
+    iter = std::to_string(i);
+    me100[i] = tfile->make<TProfile>(std::to_string(i + 100).c_str(),
+                  ("MB(X0) prof Eta in region " + iter).c_str(), binEta, -maxEta, maxEta);
+    me200[i] = tfile->make<TProfile>(std::to_string(i + 200).c_str(),
+                  ("MB(L0) prof Eta in region " + iter).c_str(), binEta, -maxEta, maxEta);
+    me300[i] = tfile->make<TProfile>(std::to_string(i + 300).c_str(),
+                  ("MB(Step) prof Eta in region " + iter).c_str(), binEta, -maxEta, maxEta);
+    me400[i] = tfile->make<TH1F>(std::to_string(i + 400).c_str(),
+                  ("Eta in region " + iter).c_str(), binEta, -maxEta, maxEta);
+    me500[i] = tfile->make<TProfile>(std::to_string(i + 500).c_str(),
+                  ("MB(X0) prof Ph in region " + iter).c_str(), binPhi, -maxPhi, maxPhi);
+    me600[i] = tfile->make<TProfile>(std::to_string(i + 600).c_str(),
+                  ("MB(L0) prof Ph in region " + iter).c_str(), binPhi, -maxPhi, maxPhi);
+    me700[i] = tfile->make<TProfile>(std::to_string(i + 700).c_str(),
+                  ("MB(Step) prof Ph in region " + iter).c_str(), binPhi, -maxPhi, maxPhi);
+    me800[i] = tfile->make<TH1F>(std::to_string(i + 800).c_str(),
+                  ("Phi in region " + iter).c_str(), binPhi, -maxPhi, maxPhi);
+    me900[i] = tfile->make<TProfile2D>(std::to_string(i + 900).c_str(),
+                  ("MB(X0) prof Eta Phi in region " + iter).c_str(), binEta/2, -maxEta, maxEta,
+                  binPhi/2, -maxPhi, maxPhi);
+    me1000[i]= tfile->make<TProfile2D>(std::to_string(i + 1000).c_str(),
+                  ("MB(L0) prof Eta Phi in region " + iter).c_str(), binEta/2, -maxEta, maxEta,
+                  binPhi/2, -maxPhi, maxPhi);
+    me1100[i]= tfile->make<TProfile2D>(std::to_string(i + 1100).c_str(),
+                  ("MB(Step) prof Eta Phi in region " + iter).c_str(), binEta/2, -maxEta, maxEta,
+                  binPhi/2, -maxPhi, maxPhi);
+    me1200[i]= tfile->make<TH2F>(std::to_string(i + 1200).c_str(),
+                  ("Eta vs Phi in region " + iter).c_str(), binEta/2, -maxEta, maxEta,
+                  binPhi/2, -maxPhi, maxPhi);
   }
   for (int i=0; i<maxSet2; i++) {
-    sprintf(name, "%d", i+1300);
-    sprintf(title, "Events with layers Hit (0 all, 1 HB, ..) for %d", i);
-    me1300[i]= tfile->make<TH1F>(name, title, binEta, -maxEta, maxEta);
-    sprintf(name, "%d", i+1400);
-    sprintf(title, "Eta vs Phi for layers hit in %d", i);
-    me1400[i]= tfile->make<TH2F>(name, title, binEta/2, -maxEta, maxEta, 
-				 binPhi/2, -maxPhi, maxPhi);
-    sprintf(name, "%d", i+1500);
-    sprintf(title, "Number of layers crossed (0 all, 1 HB, ..) for %d", i);
-    me1500[i]= tfile->make<TProfile>(name, title, binEta, -maxEta, maxEta);
+    iter = std::to_string(i);
+    me1300[i]= tfile->make<TH1F>(std::to_string(i + 1300).c_str(),
+                  ("Events with layers Hit (0 all, 1 HB, ..) for " + iter).c_str(), binEta, -maxEta, maxEta);
+    me1400[i]= tfile->make<TH2F>(std::to_string(i + 1400).c_str(),
+                  ("Eta vs Phi for layers hit in " + iter).c_str(), binEta/2, -maxEta, maxEta,
+                  binPhi/2, -maxPhi, maxPhi);
+    me1500[i]= tfile->make<TProfile>(std::to_string(i + 1500).c_str(),
+                  ("Number of layers crossed (0 all, 1 HB, ..) for " + iter).c_str(), binEta, -maxEta, maxEta);
   }
 
   edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Booking user "

@@ -35,10 +35,10 @@ namespace edm {
 class HepPDTAnalyzer : public edm::EDAnalyzer {
 public:
   explicit HepPDTAnalyzer( const edm::ParameterSet & );
-  ~HepPDTAnalyzer();
+  ~HepPDTAnalyzer() override;
   
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   void printInfo(const ParticleData* & part);
 

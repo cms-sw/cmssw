@@ -11,11 +11,7 @@
 #include <iterator>
 #include <boost/foreach.hpp>
 
-#define private public
-#define protected public
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#undef private
-#undef protected
 
 #ifndef TestSiStripGain_cc
 #define TestSiStripGain_cc

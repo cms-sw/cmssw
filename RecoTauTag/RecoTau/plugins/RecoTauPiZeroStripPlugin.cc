@@ -46,11 +46,11 @@ math::XYZTLorentzVector applyMassConstraint(
 class RecoTauPiZeroStripPlugin : public RecoTauPiZeroBuilderPlugin {
   public:
   explicit RecoTauPiZeroStripPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC);
-    virtual ~RecoTauPiZeroStripPlugin() {}
+    ~RecoTauPiZeroStripPlugin() override {}
     // Return type is auto_ptr<PiZeroVector>
     return_type operator()(const reco::PFJet& jet) const override;
     // Hook to update PV information
-    virtual void beginEvent() override;
+    void beginEvent() override;
 
   private:
     RecoTauQualityCuts qcuts_;
@@ -111,7 +111,7 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
   PFCandPtrList cands;
   cands.insert(cands.end(), candsVector.begin(), candsVector.end());
 
-  while (cands.size() > 0) {
+  while (!cands.empty()) {
     // Seed this new strip, and delete it from future strips
     PFCandidatePtr seed = cands.front();
     cands.pop_front();

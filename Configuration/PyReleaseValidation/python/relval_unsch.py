@@ -1,3 +1,4 @@
+# remark by Hengne [13-aug-2015]: this unscheduled mode is no more needed as all workflows are moved to unscheduled mode. 
 # some example testing workflows for unscheduled mode - should eventually be deleted and made the default...
 # import the definition of the steps and input files:
 from  Configuration.PyReleaseValidation.relval_steps import *
@@ -12,4 +13,5 @@ workflows = Matrix()
 # 50 ns at 8 TeV
 #needs a new GT to work
 #workflows[10025] = ['', ['TTbar','DIGI','RECOmAOD','HARVEST','ALCATT']]
-workflows[11325] = ['TTbar_13_unsch', ['TTbar_13','DIGIUP15','RECOmAODUP15','HARVESTmAODUP15','ALCATT']]
+#workflows[11325] = ['TTbar_13_unsch', ['TTbar_13','DIGIUP15','RECOmAODUP15','HARVESTmAODUP15','ALCATT']]
+

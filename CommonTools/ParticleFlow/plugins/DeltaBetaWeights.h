@@ -27,11 +27,11 @@
 class DeltaBetaWeights : public edm::EDProducer {
  public:
   explicit DeltaBetaWeights(const edm::ParameterSet&);
-  ~DeltaBetaWeights();
+  ~DeltaBetaWeights() override;
 
  private:
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   // ----------member data ---------------------------
   edm::InputTag src_;
   edm::InputTag pfCharged_;

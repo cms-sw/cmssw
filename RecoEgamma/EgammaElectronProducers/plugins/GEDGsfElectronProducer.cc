@@ -28,8 +28,8 @@
 
 using namespace reco;
 
-GEDGsfElectronProducer::GEDGsfElectronProducer( const edm::ParameterSet & cfg )
- : GsfElectronBaseProducer(cfg)
+GEDGsfElectronProducer::GEDGsfElectronProducer( const edm::ParameterSet & cfg, const gsfAlgoHelpers::HeavyObjectCache* hoc )
+  : GsfElectronBaseProducer(cfg,hoc)
  {
    egmPFCandidateCollection_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("egmPFCandidatesTag"));
    outputValueMapLabel_ = cfg.getParameter<std::string>("outputEGMPFValueMap");
@@ -45,17 +45,17 @@ void GEDGsfElectronProducer::produce( edm::Event & event, const edm::EventSetup 
  {
   beginEvent(event,setup) ;
   matchWithPFCandidates(event);
-  algo_->completeElectrons() ;
-  algo_->setMVAOutputs(gsfMVAOutputMap_);
+  algo_->completeElectrons(globalCache()) ;
+  algo_->setMVAOutputs(globalCache(),gsfMVAOutputMap_);
   algo_->setMVAInputs(gsfMVAInputMap_);
   fillEvent(event) ;
 
   // ValueMap
-  std::auto_ptr<edm::ValueMap<reco::GsfElectronRef> > valMap_p(new edm::ValueMap<reco::GsfElectronRef>);
+  auto valMap_p = std::make_unique<edm::ValueMap<reco::GsfElectronRef>>();
   edm::ValueMap<reco::GsfElectronRef>::Filler valMapFiller(*valMap_p);
   fillGsfElectronValueMap(event,valMapFiller);
   valMapFiller.fill();
-  event.put(valMap_p,outputValueMapLabel_);  
+  event.put(std::move(valMap_p),outputValueMapLabel_);  
   // Done with the ValueMap
 
   endEvent() ;

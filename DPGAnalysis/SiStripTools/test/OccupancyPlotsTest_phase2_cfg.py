@@ -8,7 +8,7 @@ process = cms.Process("OccupancyPlotsTest")
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                  "DONOTEXIST::All",
+                  "DONOTEXIST",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
@@ -170,7 +170,7 @@ process.seqMultProd = cms.Sequence(#process.ssclusmultprod + process.ssclusoccup
 
 process.load("DPGAnalysis.SiStripTools.occupancyplots_cfi")
 #process.occupancyplots.wantedSubDets = OccupancyPlotsStripWantedSubDets
-process.occupancyplots.file = cms.untracked.FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseII/Pixel10D/PixelSkimmedGeometry.txt")
+process.occupancyplots.file = cms.untracked.FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseII/Tilted/PixelSkimmedGeometry.txt")
 
 process.pixeloccupancyplots = process.occupancyplots.clone()
 process.pixeloccupancyplots.wantedSubDets = process.spclusmultprod.wantedSubDets
@@ -247,7 +247,7 @@ process.load("DPGAnalysis.SiStripTools.duplicaterechits_cfi")
 
 #process.load("Configuration.StandardSequences.GeometryDB_cff")
 #process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DPixel10DReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D3Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 #process.load("Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")
 #process.load("Configuration.Geometry.GeometryExtendedPhaseIPixel_cff")
@@ -255,8 +255,9 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import *
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = options.globalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 #from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 

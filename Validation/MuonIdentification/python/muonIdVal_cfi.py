@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-muonIdVal = cms.EDAnalyzer("MuonIdVal",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+muonIdVal = DQMEDAnalyzer('MuonIdVal',
     inputMuonCollection           = cms.InputTag("muons"),
     inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
     inputCSCSegmentCollection     = cms.InputTag("cscSegments"),
@@ -19,3 +20,7 @@ muonIdVal = cms.EDAnalyzer("MuonIdVal",
     makeShowerInformationPlots    = cms.untracked.bool(True),
     baseFolder                    = cms.untracked.string("Muons/MuonIdentificationV")
 )
+
+# fastsim has no cosmic muon veto in place
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(muonIdVal, makeCosmicCompatibilityPlots = False)

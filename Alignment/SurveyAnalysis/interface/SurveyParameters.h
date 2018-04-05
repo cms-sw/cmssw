@@ -28,32 +28,32 @@ class SurveyParameters:
 		   );
 
   /// apply not implemented
-  virtual void apply();
-  virtual int type() const;
+  void apply() override;
+  int type() const override;
 
   /// Cloning not implemented.
-  virtual AlignmentParameters* clone(
+  AlignmentParameters* clone(
 				     const AlgebraicVector&,
                                      const AlgebraicSymMatrix&
-				     ) const;
+				     ) const override;
 
   /// Cloning not implemented.
-  virtual AlignmentParameters* cloneFromSelected(
+  AlignmentParameters* cloneFromSelected(
 						 const AlgebraicVector&,
                                                  const AlgebraicSymMatrix&
-						 ) const;
+						 ) const override;
 
   /// Derivatives not implemented.
-  virtual AlgebraicMatrix derivatives(
+  AlgebraicMatrix derivatives(
 				      const TrajectoryStateOnSurface&,
 				      const AlignableDetOrUnitPtr&
-				      ) const;
+				      ) const override;
 
   /// Derivatives not implemented.
-  virtual AlgebraicMatrix selectedDerivatives(
+  AlgebraicMatrix selectedDerivatives(
 					      const TrajectoryStateOnSurface&,
 					      const AlignableDetOrUnitPtr&
-					      ) const;
+					      ) const override;
 
 };
 

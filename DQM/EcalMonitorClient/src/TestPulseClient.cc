@@ -141,6 +141,7 @@ namespace ecaldqm
       }
 
       MESet::iterator qEnd(meQuality.end());
+      MESet::iterator rItr(meAmplitudeRMS);
       MESet::const_iterator aItr(sAmplitude);
       for(MESet::iterator qItr(meQuality.beginChannel()); qItr != qEnd; qItr.toNextChannel()){
 
@@ -149,6 +150,7 @@ namespace ecaldqm
         bool doMask(meQuality.maskMatches(id, mask, statusManager_));
 
         aItr = qItr;
+        rItr = qItr;
 
         float entries(aItr->getBinEntries());
 
@@ -160,7 +162,7 @@ namespace ecaldqm
         float amp(aItr->getBinContent());
         float rms(aItr->getBinError() * sqrt(entries));
 
-        meAmplitudeRMS.setBinContent(id, rms);
+        rItr->setBinContent(rms);
 
         if(amp < amplitudeThreshold_[gainItr->second] || rms > toleranceRMS_[gainItr->second])
           qItr->setBinContent(doMask ? kMBad : kBad);

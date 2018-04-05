@@ -44,13 +44,13 @@ void GEDGsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSe
   event.getByToken(gedEMUnbiasedTag_,gedEMUnbiasedH_);
 
   // output
-  std::auto_ptr<GsfElectronCoreCollection> electrons(new GsfElectronCoreCollection) ;
+  auto electrons = std::make_unique<GsfElectronCoreCollection>();
 
   const PFCandidateCollection * pfCandidateCollection = gedEMUnbiasedH_.product();
   for ( unsigned int i=0 ; i<pfCandidateCollection->size() ; ++i )
            produceElectronCore((*pfCandidateCollection)[i],electrons.get()) ;
     
-  event.put(electrons) ;
+  event.put(std::move(electrons));
  }
 
 void GEDGsfElectronCoreProducer::produceElectronCore( const reco::PFCandidate & pfCandidate, reco::GsfElectronCoreCollection * electrons )

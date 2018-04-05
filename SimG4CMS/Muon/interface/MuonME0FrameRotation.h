@@ -11,19 +11,20 @@
  *
  */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4CMS/Muon/interface/MuonFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonG4Numbering.h"
 
 #include "G4Step.hh"
 
-class DDCompactView;
+class MuonDDDConstants;
 
 class MuonME0FrameRotation : public MuonFrameRotation {
 
 public:
-  MuonME0FrameRotation( const DDCompactView& cpv );
-  virtual ~MuonME0FrameRotation();
-  virtual Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const;
+  MuonME0FrameRotation( const MuonDDDConstants& muonConstants );
+  ~MuonME0FrameRotation() override;
+  Local3DPoint transformPoint(const Local3DPoint &, const G4Step *) const override;
 
 private:
   MuonG4Numbering* g4numbering;

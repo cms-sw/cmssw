@@ -4,94 +4,56 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionHitChecker.h"
 // Framework
 //
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-
-//
 
 
-std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const Trajectory &traj, const reco::Vertex &vtx, double sigmaTolerance) const {
+std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const reco::TrackExtra & track, const reco::Vertex &vtx, float sigmaTolerance) const {
 
-  const std::vector<TrajectoryMeasurement> &measurements = traj.measurements();
-
-  //protect for empty trajectory
-  if (measurements.size()==0) {
-    return std::pair<unsigned int,Measurement1DFloat>(0,Measurement1DFloat());
-  }
-
-  //check ordering of measurements in trajectory
-  bool inout = (traj.direction() == alongMomentum);
+  // track hits are always inout
 
   GlobalPoint vtxPos(vtx.x(),vtx.y(),vtx.z());
   
-  uint8_t nhits = 0;
+  auto const & trajParams = track.trajParams();
 
-  std::vector<TrajectoryMeasurement>::const_iterator closest = measurements.begin();
-  double distance = 1e6;
   //iterate inside out, when distance to vertex starts increasing, we are at the closest hit
-  for (std::vector<TrajectoryMeasurement>::const_iterator fwdit = measurements.begin(), revit = measurements.end()-1;
-          fwdit != measurements.end(); ++fwdit,--revit) {
-    
-    std::vector<TrajectoryMeasurement>::const_iterator it;
-    if (inout) {
-      it = fwdit;
-    }
-    else {
-      it = revit;
-    }
-
-    //increment hit counter, compute distance and set iterator if this hit is valid
-    if (it->recHit() && it->recHit()->isValid()) {
-      ++nhits;
-      distance = (vtxPos - it->updatedState().globalPosition()).mag();
-      closest = it;
-    }
-
-    if ( (measurements.end()-fwdit)==1) {
-      break; 
-    }
+  // the first (and last, btw) hit is always valid... (apparntly not..., conversion is different????)
+  auto hb = track.recHitsBegin();
+  unsigned int ih=0;
+  for(;ih<track.recHitsSize();++ih) {
+    auto recHit = *(hb+ih);
+    if (recHit->isValid()) break; 
+  }
+  auto recHit = *(hb+ih);
+  unsigned int closest=ih;
+  auto globalPosition = recHit->surface()->toGlobal(trajParams[0].position());
+  auto distance2 = (vtxPos - globalPosition).mag2();
+  int nhits = 1;
+  for(unsigned int h=ih+1;h<track.recHitsSize();++h){
 
     //check if next valid hit is farther away from vertex than existing closest
-    std::vector<TrajectoryMeasurement>::const_iterator nextit;
-    if (inout) {
-      nextit = it+1;
-    }
-    else {
-      nextit = it-1;
-    }
-    
-    
-    if ( nextit->recHit() && nextit->recHit()->isValid() ) {
-      double nextDistance = (vtxPos - nextit->updatedState().globalPosition()).mag();
-      if (nextDistance > distance) {
-        break;
-      }
-    }
-    
+    auto nextHit = *(hb+h);
+    if (!nextHit->isValid() ) continue;
+    globalPosition = nextHit->surface()->toGlobal(trajParams[h].position());
+    auto nextDistance2 = (vtxPos - globalPosition).mag2();
+    if (nextDistance2 > distance2) break;
+     
+    distance2=nextDistance2;
+    ++nhits;
+    closest=h;
   }
 
   //compute signed decaylength significance for closest hit and check if it is before the vertex
   //if not then we need to subtract it from the count of hits before the vertex, since it has been implicitly included
-
-  GlobalVector momDir = closest->updatedState().globalMomentum().unit();
-  double decayLengthHitToVtx = (vtxPos - closest->updatedState().globalPosition()).dot(momDir);
+  recHit = *(hb+closest);
+  auto momDir = recHit->surface()->toGlobal(trajParams[closest].direction());
+  globalPosition = recHit->surface()->toGlobal(trajParams[closest].position()); 
+  float decayLengthHitToVtx = (vtxPos - globalPosition).dot(momDir);
 
   AlgebraicVector3 j;
   j[0] = momDir.x();
   j[1] = momDir.y();
   j[2] = momDir.z();
-  AlgebraicVector6 jj;
-  jj[0] = momDir.x();
-  jj[1] = momDir.y();
-  jj[2] = momDir.z();
-  jj[3] =0.;
-  jj[4] =0.;
-  jj[5] =0.;
-  
-  //TODO: In principle the hit measurement position is correlated with the vertex fit
-  //at worst though we inflate the uncertainty by a factor of two
-  double trackError2 = ROOT::Math::Similarity(jj,closest->updatedState().cartesianError().matrix());
-  double vertexError2 = ROOT::Math::Similarity(j,vtx.covariance());
-  double decayLenError = sqrt(trackError2+vertexError2);
+  float vertexError2 = ROOT::Math::Similarity(j,vtx.covariance());
+  auto decayLenError = std::sqrt(vertexError2);
 
   Measurement1DFloat decayLength(decayLengthHitToVtx,decayLenError);
 
@@ -99,7 +61,7 @@ std::pair<uint8_t,Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(const
                                            //subtract it from wrong hits count
     --nhits;
   }
- 
+
   return std::pair<unsigned int,Measurement1DFloat>(nhits,decayLength);
 
 }

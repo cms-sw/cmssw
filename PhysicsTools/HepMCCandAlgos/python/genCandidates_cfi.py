@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 genCandidates = cms.EDProducer("HepMCCandidateProducer",
-    src = cms.string('VtxSmeared'),
+    src = cms.string('generatorSmeared'),
     verbose = cms.untracked.bool(False),
     stableOnly = cms.bool(True),
     excludeList = cms.vstring('nu_e', 

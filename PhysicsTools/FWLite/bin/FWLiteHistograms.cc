@@ -12,7 +12,7 @@
 
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -29,14 +29,14 @@ int main(int argc, char* argv[])
   // ----------------------------------------------------------------------
   // First Part: 
   //
-  //  * enable the AutoLibraryLoader 
+  //  * enable FWLite 
   //  * book the histograms of interest 
   //  * open the input file
   // ----------------------------------------------------------------------
 
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 
   // initialize command line parser
   optutl::CommandLineParser parser ("Analyze FWLite Histograms");
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   std::vector<std::string> inputFiles_ = parser.stringVector("inputFiles");
 
   // book a set of histograms
-  fwlite::TFileService fs = fwlite::TFileService(outputFile_.c_str());
+  fwlite::TFileService fs = fwlite::TFileService(outputFile_);
   TFileDirectory dir = fs.mkdir("analyzeBasicPat");
   TH1F* muonPt_  = dir.make<TH1F>("muonPt"  , "pt"  ,   100,   0., 300.);
   TH1F* muonEta_ = dir.make<TH1F>("muonEta" , "eta" ,   100,  -3.,   3.);

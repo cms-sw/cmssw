@@ -7,7 +7,7 @@
 
 #include "OnlineDB/EcalCondDB/interface/LMFColoredTable.h"
 
-#include <math.h>
+#include <cmath>
 
 /**
  *   LMF_YYYY_XXX_PN_PRIM_DAT interface
@@ -34,9 +34,9 @@ class LMFPnPrimDat : public LMFColoredTable {
 	      oracle::occi::Connection* conn, int color,
 	      std::string system);
   LMFPnPrimDat(EcalDBConnection *c, int color, std::string system);
-  ~LMFPnPrimDat() {}
+  ~LMFPnPrimDat() override {}
 
-  std::string getTableName() const {
+  std::string getTableName() const override {
     return "LMF_" + getSystem() + "_" + getColor() + "_PN_PRIM_DAT";
   }
 
@@ -51,7 +51,7 @@ class LMFPnPrimDat : public LMFColoredTable {
   LMFPnPrimDat& setPNAoverB(EcalLogicID &id, float mean, float rms, float m3);
   LMFPnPrimDat& setFlag(EcalLogicID &id, int v);
 
-  LMFPnPrimDat& setSystem(std::string s);
+  LMFPnPrimDat& setSystem(std::string s) override;
 
   float getMean(EcalLogicID &id);
   float getRMS(EcalLogicID &id);
@@ -71,7 +71,7 @@ class LMFPnPrimDat : public LMFColoredTable {
   float getShapeCor(int id);
   int getFlag(int id);
 
-  bool isValid();
+  bool isValid() override;
   // to do: complete list of set/get methods
 
  private:

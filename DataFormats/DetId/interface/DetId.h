@@ -5,7 +5,7 @@
 //FIXME shall be removed and implemented where the operator is defined
 #include <ostream>
 
-#include <stdint.h>
+#include <cstdint>
 /** \class DetId
 
 Parent class for all detector ids in CMS.  The DetId is a 32-bit
@@ -21,7 +21,8 @@ public:
   static const int kSubdetOffset       = 25;
 
 
-  enum Detector { Tracker=1,Muon=2,Ecal=3,Hcal=4,Calo=5 };
+  enum Detector {Tracker=1, Muon=2, Ecal=3, Hcal=4, Calo=5, Forward=6,
+		 VeryForward=7, HGCalEE=8, HGCalHSi=9, HGCalHSc=10 };
   /// Create an empty or null id (also for persistence)
   DetId()  : id_(0) { }
   /// Create an id from a raw number
@@ -67,5 +68,15 @@ inline bool operator<(DetId id, uint32_t i) { return id()<i; }
 
 
 //std::ostream& operator<<(std::ostream& s, const DetId& id);
+
+namespace std {
+  template<> struct hash<DetId> {
+    typedef DetId argument_type;
+    typedef std::size_t result_type;
+    result_type operator()(argument_type const& id) const noexcept {
+      return std::hash<uint32_t>()(id.rawId());            
+    }
+  };
+}
 
 #endif

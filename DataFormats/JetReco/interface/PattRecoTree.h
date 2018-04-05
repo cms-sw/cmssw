@@ -13,6 +13,8 @@
 
 #include "DataFormats/JetReco/interface/PattRecoNode.h"
 
+#include <vector>
+
 namespace reco {
     template<typename ScaleType, class Cluster>
     class PattRecoTree

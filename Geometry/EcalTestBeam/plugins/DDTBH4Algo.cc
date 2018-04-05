@@ -7,7 +7,6 @@
 #include <algorithm>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
@@ -134,7 +133,7 @@ void DDTBH4Algo::execute(DDCompactView& cpv)
   const double halfZbl ( ( blZEnd() - blZBeg() )/2. ) ;
   for( unsigned int i ( 0 ) ; i != vecVacZBeg().size() ; ++i )
   {
-     DDName vacNameNm ( ddname( vacName() + int_to_string(i+1) ) ) ;
+    DDName vacNameNm ( ddname( vacName() + std::to_string(i+1) ) ) ;
      const double halfZvac ( ( vecVacZEnd()[i] - vecVacZBeg()[i] )/2. ) ;
      DDSolid vTubeSolid ( DDSolidFactory::tubs( vacNameNm ,
 						halfZvac,
@@ -156,7 +155,7 @@ void DDTBH4Algo::execute(DDCompactView& cpv)
 
   for( unsigned int i ( 0 ) ; i != vecWinZBeg().size() ; ++i )
   {
-     DDName wName ( ddname( winName() + int_to_string(i+1)) ) ;
+    DDName wName ( ddname( winName() + std::to_string(i+1)) ) ;
      DDSolid wTubeSolid ( DDSolidFactory::tubs( wName ,
 						vecWinThick()[i]/2.,
 						0, 
@@ -258,7 +257,7 @@ void DDTBH4Algo::execute(DDCompactView& cpv)
 	    DDTranslation(   vecFibXOff()[i] - 0.5*fibSide(),
 			     vecFibYOff()[i],
 			     vecFibZPiv()[i] - halfZbl + blZPiv() - blZBeg() ),
-	    myrot( pName.name()+"Rot" + int_to_string(i),
+		   myrot( pName.name()+"Rot" + std::to_string(i),
 		   CLHEP::HepRotationZ( vecFibPhi()[i]) ) ) ;
   }
 }

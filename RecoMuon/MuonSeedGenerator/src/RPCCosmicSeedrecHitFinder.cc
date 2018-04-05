@@ -127,7 +127,7 @@ void RPCCosmicSeedrecHitFinder::fillrecHits() {
 
     therecHits.clear();
 
-    if(LayersinRPC.size() == 0) {
+    if(LayersinRPC.empty()) {
         cout << "Not set with any layers" << endl;
         LayersinRPC.clear();
         therecHits.clear();
@@ -200,7 +200,7 @@ bool RPCCosmicSeedrecHitFinder::complete(const GlobalVector& lastSegment, const 
 
             // Check cluster size
             bool Clustercheck = false;
-            if(ClusterSet.size() == 0)
+            if(ClusterSet.empty())
                 Clustercheck = true;
             for(std::vector<int>::const_iterator CluIter = ClusterSet.begin(); CluIter != ClusterSet.end(); CluIter++)
                 if(ClusterSize == (*CluIter))

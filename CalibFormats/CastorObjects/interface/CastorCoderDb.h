@@ -17,9 +17,9 @@ class CastorCoderDb : public CastorCoder {
 public:
   CastorCoderDb (const CastorQIECoder& fCoder, const CastorQIEShape& fShape);
 
-  virtual void adc2fC(const CastorDataFrame& df, CaloSamples& lf) const;
+  void adc2fC(const CastorDataFrame& df, CaloSamples& lf) const override;
  
-  virtual void fC2adc(const CaloSamples& clf, CastorDataFrame& df, int fCapIdOffset) const;
+  void fC2adc(const CaloSamples& clf, CastorDataFrame& df, int fCapIdOffset) const override;
  
  private:
   template <class Digi> void adc2fC_ (const Digi& df, CaloSamples& clf) const;

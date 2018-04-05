@@ -33,6 +33,7 @@ namespace edm {
   template<typename T> class WorkerT;
   class ProductRegistry;
   class ThinnedAssociationsHelper;
+  class WaitingTaskWithArenaHolder;
 
   namespace stream {
     class EDProducerAdaptorBase;
@@ -48,7 +49,7 @@ namespace edm {
       typedef EDProducerAdaptorBase ModuleType;
 
       EDProducerBase();
-      virtual ~EDProducerBase();
+      ~EDProducerBase() override;
       
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
       static void prevalidate(ConfigurationDescriptions& descriptions);
@@ -71,16 +72,19 @@ namespace edm {
       virtual void endRun(edm::Run const&, edm::EventSetup const&) {}
       virtual void endStream(){}
 
-      virtual void preForkReleaseResources() {}
-      virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
       virtual void registerThinnedAssociations(ProductRegistry const&,
                                                ThinnedAssociationsHelper&) { }
+
+      virtual void doAcquire_(Event const&,
+                              EventSetup const&,
+                              WaitingTaskWithArenaHolder&) = 0;
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) {
         moduleDescriptionPtr_ = iDesc;
       }
       // ---------- member data --------------------------------
       std::vector<BranchID> previousParentage_;
+      std::vector<BranchID> gotBranchIDsFromAcquire_;
       ParentageID previousParentageId_;
       ModuleDescription const* moduleDescriptionPtr_;
     };

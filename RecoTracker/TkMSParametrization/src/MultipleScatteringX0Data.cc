@@ -14,12 +14,13 @@ using namespace std;
 
 
 MultipleScatteringX0Data::MultipleScatteringX0Data()
-  : theFile(0), theData(0)
+  : theData(nullptr)
 {
   string filename = fileName(); 
-  theFile = new TFile(filename.c_str(),"READ");
-  if (theFile) {
-    theData = dynamic_cast<TH2F*> (theFile->GetKey("h100")->ReadObj());
+  TFile theFile(filename.c_str(),"READ");
+  if (not theFile.IsZombie()) {
+    theData.reset(dynamic_cast<TH2F*> (theFile.GetKey("h100")->ReadObj()));
+    theData->SetDirectory(nullptr);
   }
   if (!theData)  {
     throw cms::Exception("Data not found")  
@@ -31,10 +32,6 @@ MultipleScatteringX0Data::MultipleScatteringX0Data()
 
 MultipleScatteringX0Data::~MultipleScatteringX0Data()
 {
-  if(theFile) {
-    theFile->Close();
-    delete theFile;
-  }
 }
 
 string MultipleScatteringX0Data::fileName()

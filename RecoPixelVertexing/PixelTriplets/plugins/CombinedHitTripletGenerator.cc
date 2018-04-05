@@ -14,7 +14,7 @@ CombinedHitTripletGenerator::CombinedHitTripletGenerator(const edm::ParameterSet
   edm::ParameterSet generatorPSet = cfg.getParameter<edm::ParameterSet>("GeneratorPSet");
   std::string       generatorName = generatorPSet.getParameter<std::string>("ComponentName");
   theGenerator.reset(HitTripletGeneratorFromPairAndLayersFactory::get()->create(generatorName, generatorPSet, iC));
-  theGenerator->init(HitPairGeneratorFromLayerPair(0, 1, &theLayerCache), &theLayerCache);
+  theGenerator->init(std::make_unique<HitPairGeneratorFromLayerPair>(0, 1, &theLayerCache), &theLayerCache);
 }
 
 CombinedHitTripletGenerator::~CombinedHitTripletGenerator() {}
@@ -31,8 +31,7 @@ void CombinedHitTripletGenerator::hitTriplets(
 
   std::vector<LayerTriplets::LayerSetAndLayers> trilayers = LayerTriplets::layers(layers);
   for(const auto& setAndLayers: trilayers) {
-    theGenerator->setSeedingLayers(setAndLayers.first, setAndLayers.second);
-    theGenerator->hitTriplets( region, result, ev, es);
+    theGenerator->hitTriplets( region, result, ev, es, setAndLayers.first, setAndLayers.second);
   }
   theLayerCache.clear();
 }

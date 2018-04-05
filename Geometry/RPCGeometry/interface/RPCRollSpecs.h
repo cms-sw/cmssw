@@ -23,9 +23,9 @@ class RPCRollSpecs : public GeomDetType {
 
   RPCRollSpecs( SubDetector rss, const std::string& name, const RPCSpecs& pars);
 
-  ~RPCRollSpecs();
+  ~RPCRollSpecs() override;
 
-  const Topology& topology() const;
+  const Topology& topology() const override;
 
   const StripTopology& specificTopology() const;
 

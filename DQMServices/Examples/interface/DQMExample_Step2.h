@@ -16,12 +16,12 @@ class DQMExample_Step2: public DQMEDHarvester{
 public:
 
   DQMExample_Step2(const edm::ParameterSet& ps);
-  virtual ~DQMExample_Step2();
+  ~DQMExample_Step2() override;
   
 protected:
 
-  void beginJob();
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&);  //performed in the endLumi
+  void beginJob() override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override;  //performed in the endLumi
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
 private:

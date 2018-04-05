@@ -13,15 +13,15 @@ class PedsFullNoiseHistosUsingDb : public CommissioningHistosUsingDb, public Ped
                                 DQMStore*,
                                 SiStripConfigDb* const );
 
-    virtual ~PedsFullNoiseHistosUsingDb();
+    ~PedsFullNoiseHistosUsingDb() override;
 
-    virtual void uploadConfigurations();
+    void uploadConfigurations() override;
 
    private:
 
     void update( SiStripConfigDb::FedDescriptionsRange );
 
-    void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis );
+    void create( SiStripConfigDb::AnalysisDescriptionsV&, Analysis ) override;
 
     // parameters
     float highThreshold_;

@@ -56,7 +56,7 @@ namespace l1extra {
                        EmType type = kUndefined,
 		       int bx = 0 ) ;
 
-	 virtual ~L1EmParticle() {}
+	 ~L1EmParticle() override {}
 
 	 // ---------- const member functions ---------------------
          EmType type() const
@@ -68,7 +68,7 @@ namespace l1extra {
 	 const L1GctEmCand* gctEmCand() const
 	 { return ref_.get() ; }
 
-         virtual L1EmParticle* clone() const
+         L1EmParticle* clone() const override
          { return new L1EmParticle( *this ) ; }
 
 	 int bx() const

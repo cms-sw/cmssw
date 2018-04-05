@@ -29,9 +29,17 @@ class TTreeCache;
 
 namespace edm {
   class BranchKey;
-  class DelayedReader;
+  class RootDelayedReader;
   class InputFile;
   class RootTree;
+
+  class StreamContext;
+  class ModuleCallingContext;
+  
+  namespace signalslot {
+    template <typename T> class Signal;
+  }
+
 
   namespace roottree {
     unsigned int const defaultCacheSize = 20U * 1024 * 1024;
@@ -85,11 +93,13 @@ namespace edm {
                    std::string const& oldBranchName);
 
     bool next() {return ++entryNumber_ < entries_;}
+    bool nextWithCache();
     bool previous() {return --entryNumber_ >= 0;}
     bool current() const {return entryNumber_ < entries_ && entryNumber_ >= 0;}
     bool current(EntryNumber entry) const {return entry < entries_ && entry >= 0;}
     void rewind() {entryNumber_ = 0;}
     void close();
+    bool skipEntries(unsigned int& offset);
     EntryNumber const& entryNumber() const {return entryNumber_;}
     EntryNumber const& entryNumberForIndex(unsigned int index) const;
     EntryNumber const& entries() const {return entries_;}
@@ -97,6 +107,7 @@ namespace edm {
     void insertEntryForIndex(unsigned int index);
     std::vector<std::string> const& branchNames() const {return branchNames_;}
     DelayedReader* rootDelayedReader() const;
+    DelayedReader* resetAndGetRootDelayedReader() const;
     template <typename T>
     void fillAux(T*& pAux) {
       auxBranch_->SetAddress(&pAux);
@@ -151,6 +162,10 @@ namespace edm {
     void resetTraining() {trainNow_ = true;}
 
     BranchType branchType() const {return branchType_;}
+    
+    void setSignals(signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadSource,
+                    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource);
+
   private:
     void setCacheSize(unsigned int cacheSize);
     void setTreeMaxVirtualSize(int treeMaxVirtualSize);
@@ -190,7 +205,7 @@ namespace edm {
 // effect on the primary treeCache_; all other caches have this explicitly disabled.
     bool enablePrefetching_;
     bool enableTriggerCache_;
-    std::unique_ptr<DelayedReader> rootDelayedReader_;
+    std::unique_ptr<RootDelayedReader> rootDelayedReader_;
 
     TBranch* branchEntryInfoBranch_; //backwards compatibility
     // below for backward compatibility

@@ -7,9 +7,8 @@
 
 //#define LOCAL_DEBUG
 
-MuonGEMFrameRotation::MuonGEMFrameRotation(const DDCompactView& cpv) : MuonFrameRotation::MuonFrameRotation(cpv) {
-  g4numbering     = new MuonG4Numbering(cpv);
-  MuonDDDConstants muonConstants(cpv);
+MuonGEMFrameRotation::MuonGEMFrameRotation(const MuonDDDConstants& muonConstants) : MuonFrameRotation::MuonFrameRotation() {
+  g4numbering     = new MuonG4Numbering(muonConstants);
   int theLevelPart= muonConstants.getValue("level");
   theSectorLevel  = muonConstants.getValue("mg_sector")/theLevelPart;
 #ifdef LOCAL_DEBUG
@@ -22,7 +21,7 @@ MuonGEMFrameRotation::~MuonGEMFrameRotation() {
   delete g4numbering;
 }
 
-Local3DPoint MuonGEMFrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=0) const {
+Local3DPoint MuonGEMFrameRotation::transformPoint(const Local3DPoint & point,const G4Step * aStep=nullptr) const {
   if (!aStep) return Local3DPoint(0.,0.,0.);  
 
   return Local3DPoint(point.x(),point.z(),-point.y());

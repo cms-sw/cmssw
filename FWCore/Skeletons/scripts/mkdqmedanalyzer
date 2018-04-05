@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+#-*- coding: utf-8 -*-
+#pylint: disable-msg=
+"""
+File       : mkdqmedanlzr
+Author     : Marco Rovere
+Description: mkdqmedanlzr code
+"""
+
+# system modules
+import sys
+import argparse
+
+if  sys.version_info < (2, 6):
+    raise Exception("This script requires python 2.6 or greater")
+
+# package modules
+from FWCore.Skeletons.cms import generate, config_with_parser
+
+def tmpl_dir():
+    "Return location of template directory wrt script location"
+    return '%s/mkTemplates' % '/'.join(__file__.split('/')[:-1])
+
+def pkg_help():
+    "mkdqmedanlzr help function"
+    msg  = '\nmkdqmedanlzr script to generate CMS DQMEDAnalyzer code'
+    msg += '\nOutput : '
+    msg += """
+        MyAnalyzer/
+        |  plugins/
+        |  |-- BuildFile.xml
+        |  |-- MyAnalyzer.cc
+        |  python/
+        |  |-- ExampleConfig_cfg.py
+        |  test/
+        |  doc/
+        """
+    return msg
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=pkg_help(), formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('-author', '--author', help="Author of the package")
+    parser.add_argument('-debug', '--debug', help="Enable debugging", action='store_true', default=False)
+    parser.add_argument('subpackage_name', help="Subpackage's name that will host the newly created code")
+    parser.add_argument('example', help="Kind of DQM Module to generate", choices=['example_stream', 'example_global'])
+    args = parser.parse_args()
+    generate(config_with_parser('DQMEDAnalyzer', args, tmpl_dir()))

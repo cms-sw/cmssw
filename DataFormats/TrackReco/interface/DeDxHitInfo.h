@@ -8,6 +8,7 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/Common/interface/Association.h"
+#include "DataFormats/Common/interface/RefVector.h"
 
 namespace reco {
   class DeDxHitInfo
@@ -74,7 +75,7 @@ namespace reco {
       if(isStrip && stripClusters_.size() > S){
 	return &(stripClusters_[S]);
       } 
-      return NULL;  
+      return nullptr;  
     }
     const std::vector<SiStripCluster>& stripClusters() const {return stripClusters_;}
     const std::vector<SiPixelCluster>& pixelClusters() const {return pixelClusters_;}

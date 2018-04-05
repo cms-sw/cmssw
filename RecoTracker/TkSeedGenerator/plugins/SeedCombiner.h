@@ -14,9 +14,9 @@ class dso_hidden SeedCombiner : public edm::stream::EDProducer<> {
 public:
 
   SeedCombiner(const edm::ParameterSet& cfg);
-  ~SeedCombiner();
+  ~SeedCombiner() override;
 
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
+  void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
   std::vector<edm::EDGetTokenT<TrajectorySeedCollection>> inputCollections_;

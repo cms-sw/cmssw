@@ -792,4 +792,4 @@ void testCSCDigis::testDigiCollectionPut(){
        readCSCDCCFormatStatusDigi(dccformatstatusdigiCollection);
 //       readCSCEventFormatStatusDigi(eventformatstatusdigiCollection);
 }
-#include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
+#include "Utilities/Testing/interface/CppUnit_testdriver.icpp"

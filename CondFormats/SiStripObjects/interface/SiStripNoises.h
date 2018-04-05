@@ -11,6 +11,8 @@
 #include<cassert>
 #include<cstring>
 
+class TrackerTopology;
+
 /**
  * Stores the noise value for all the strips. <br>
  * The values are encoded from a vector<uint16_t> to a vector<unsigned char> <br>
@@ -68,18 +70,20 @@ class SiStripNoises
     return  0.1f*float(decode(strip,range));
   }
 
+  static void verify(uint16_t strip, const Range& range);
+  static float getNoise(uint16_t strip, const Range& range) {
 #ifdef EDM_ML_DEBUG
-  static float getNoise(uint16_t strip, const Range& range);
-#else
-  static float getNoise(uint16_t strip, const Range& range) { return getNoiseFast(strip,range);}
+     verify(strip,range);
 #endif
+     return getNoiseFast(strip,range);
+  }
 
 
   void    allNoises (std::vector<float> & noises, const Range& range) const;
   void    setData(float noise_, InputVector& vped);
 
-  void printDebug(std::stringstream& ss) const;
-  void printSummary(std::stringstream& ss) const;
+  void printDebug(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
+  void printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const;
 
   std::vector<ratioData> operator / (const SiStripNoises& d) ;
 

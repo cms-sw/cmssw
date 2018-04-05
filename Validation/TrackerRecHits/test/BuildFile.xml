@@ -1,0 +1,20 @@
+<use name="CommonTools/UtilAlgos"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/SiStripCluster"/>
+<use name="DataFormats/VertexReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="SimDataFormats/CrossingFrame"/>
+<use name="SimDataFormats/TrackerDigiSimLink"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="roothistmatrix"/>
+<library file="*.cc" name="ValidationTrackerRecHitsTestModules">
+<flags EDM_PLUGIN="1"/>
+</library>

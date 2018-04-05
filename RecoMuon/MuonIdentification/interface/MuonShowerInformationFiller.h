@@ -103,7 +103,6 @@ class MuonShowerInformationFiller {
     std::vector<const GeomDet*> dtPositionToDets(const GlobalPoint&) const;
     std::vector<const GeomDet*> cscPositionToDets(const GlobalPoint&) const;
     MuonRecHitContainer findPerpCluster(MuonRecHitContainer& muonRecHits) const;
-    MuonRecHitContainer findPhiCluster(MuonRecHitContainer&, const GlobalPoint&) const;
     TransientTrackingRecHit::ConstRecHitContainer findThetaCluster(TransientTrackingRecHit::ConstRecHitContainer&, const GlobalPoint&) const;
     TransientTrackingRecHit::ConstRecHitContainer hitsFromSegments(const GeomDet*,edm::Handle<DTRecSegment4DCollection>, edm::Handle<CSCSegmentCollection>) const;
     std::vector<const GeomDet*> getCompatibleDets(const reco::Track&) const;
@@ -125,7 +124,7 @@ class MuonShowerInformationFiller {
         LessDPhi(const GlobalPoint& point) : thePoint(point) {}
         bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
-           return deltaPhi(lhs->globalPosition().phi(), thePoint.phi()) < deltaPhi(rhs->globalPosition().phi(), thePoint.phi());
+           return deltaPhi(lhs->globalPosition().barePhi(), thePoint.barePhi()) < deltaPhi(rhs->globalPosition().barePhi(), thePoint.barePhi());
         }
       GlobalPoint thePoint;
     };
@@ -134,7 +133,7 @@ class MuonShowerInformationFiller {
         AbsLessDPhi(const GlobalPoint& point) : thePoint(point) {}
         bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
-           return ( fabs(deltaPhi(lhs->globalPosition().phi(), thePoint.phi())) < fabs(deltaPhi(rhs->globalPosition().phi(), thePoint.phi())) );
+           return ( fabs(deltaPhi(lhs->globalPosition().barePhi(), thePoint.barePhi())) < fabs(deltaPhi(rhs->globalPosition().barePhi(), thePoint.barePhi())) );
         }
       GlobalPoint thePoint;
     };
@@ -143,7 +142,7 @@ class MuonShowerInformationFiller {
         AbsLessDTheta(const GlobalPoint& point) : thePoint(point) {}
         bool operator()(const TransientTrackingRecHit::ConstRecHitPointer& lhs,
                        const TransientTrackingRecHit::ConstRecHitPointer& rhs) const{
-           return ( fabs(lhs->globalPosition().phi() - thePoint.phi()) < fabs(rhs->globalPosition().phi() - thePoint.phi()) );
+           return ( fabs(lhs->globalPosition().bareTheta() - thePoint.bareTheta()) < fabs(rhs->globalPosition().bareTheta() - thePoint.bareTheta()) );
         }
       GlobalPoint thePoint;
     };
@@ -152,7 +151,7 @@ class MuonShowerInformationFiller {
         LessPhi() : thePoint(0,0,0) {}
         bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
-           return (lhs->globalPosition().phi() < rhs->globalPosition().phi());
+           return (lhs->globalPosition().barePhi() < rhs->globalPosition().barePhi());
         }
         GlobalPoint thePoint;
     };

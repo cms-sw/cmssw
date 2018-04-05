@@ -37,7 +37,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -46,7 +46,7 @@
 namespace edm {
 
   template<class T, class C>
-  class FilterObjectWrapper : public EDFilter {
+  class FilterObjectWrapper : public edm::stream::EDFilter<> {
 
   public:
     /// some convenient typedefs. Recall that C is a container class.
@@ -65,11 +65,11 @@ namespace edm {
       produces<C>();
     }
     /// default destructor
-    virtual ~FilterObjectWrapper(){}
+    ~FilterObjectWrapper() override{}
     /// everything which has to be done during the event loop. NOTE: We can't use the eventSetup in FWLite so ignore it
-    virtual bool filter(edm::Event& event, const edm::EventSetup& eventSetup){
+    bool filter(edm::Event& event, const edm::EventSetup& eventSetup) override {
       // create a collection of the objects to put into the event
-      std::auto_ptr<C> objsToPut( new C() );
+      auto objsToPut = std::make_unique<C>();
       // get the handle to the objects in the event.
       edm::Handle<C> h_c;
       event.getByToken( src_, h_c );
@@ -80,8 +80,8 @@ namespace edm {
 	}
       }
       // put objs in the event
-      bool pass = objsToPut->size() > 0;
-      event.put(objsToPut);
+      bool pass = !objsToPut->empty();
+      event.put(std::move(objsToPut));
       if ( doFilter_ )
 	return pass;
       else

@@ -39,8 +39,8 @@ HtrXmlPatternTool::~HtrXmlPatternTool() {
 
 void HtrXmlPatternTool::Fill(const HcalElectronicsId HEID,HBHEDigiCollection::const_iterator data) {
   CrateData* cd=m_patternSet->getCrate(HEID.readoutVMECrateId());
-  HalfHtrData* hd=0;
-  ChannelPattern* cp=0;
+  HalfHtrData* hd=nullptr;
+  ChannelPattern* cp=nullptr;
 
   if (cd) {
     hd=cd->getHalfHtrData(HEID.htrSlot(),HEID.htrTopBottom());
@@ -64,8 +64,8 @@ void HtrXmlPatternTool::Fill(const HcalElectronicsId HEID,HBHEDigiCollection::co
 
 void HtrXmlPatternTool::Fill(const HcalElectronicsId HEID,HFDigiCollection::const_iterator data) {
   CrateData* cd=m_patternSet->getCrate(HEID.readoutVMECrateId());
-  HalfHtrData* hd=0;
-  ChannelPattern* cp=0;
+  HalfHtrData* hd=nullptr;
+  ChannelPattern* cp=nullptr;
 
   if (cd) {
     hd=cd->getHalfHtrData(HEID.htrSlot(),HEID.htrTopBottom());
@@ -89,8 +89,8 @@ void HtrXmlPatternTool::Fill(const HcalElectronicsId HEID,HFDigiCollection::cons
 
 void HtrXmlPatternTool::Fill(const HcalElectronicsId HEID,HODigiCollection::const_iterator data) {
   CrateData* cd=m_patternSet->getCrate(HEID.readoutVMECrateId());
-  HalfHtrData* hd=0;
-  ChannelPattern* cp=0;
+  HalfHtrData* hd=nullptr;
+  ChannelPattern* cp=nullptr;
 
   if (cd) {
     hd=cd->getHalfHtrData(HEID.htrSlot(),HEID.htrTopBottom());
@@ -118,7 +118,7 @@ void HtrXmlPatternTool::prepareDirs() {
 
 void HtrXmlPatternTool::writeXML() {
   std::cout << "Writing XML..." << std::endl;
-  std::ofstream* of=0;
+  std::ofstream* of=nullptr;
 
   if (m_params->m_XML_file_mode==1) {
     std::string name=m_params->m_output_directory+(m_params->m_file_tag)+"_all.xml";
@@ -133,7 +133,7 @@ void HtrXmlPatternTool::writeXML() {
 
   for (int crate=0; crate<ChannelPattern::NUM_CRATES; crate++) {
     CrateData* cd=m_patternSet->getCrate(crate);
-    if (cd==0) continue;
+    if (cd==nullptr) continue;
 
     if (m_params->m_XML_file_mode==2) {
       std::string name=m_params->m_output_directory+(m_params->m_file_tag);
@@ -152,7 +152,7 @@ void HtrXmlPatternTool::writeXML() {
     for (int slot=0; slot<ChannelPattern::NUM_SLOTS; slot++) {
       for (int tb=0; tb<=1; tb++) {
 	HalfHtrData* hd=cd->getHalfHtrData(slot,tb);
-	if (hd==0) continue;
+	if (hd==nullptr) continue;
 	for (int fiber=1; fiber<=8; fiber++) {
 
 	  if (m_params->m_XML_file_mode==3) {
@@ -171,7 +171,7 @@ void HtrXmlPatternTool::writeXML() {
 	  if (m_params->m_XML_file_mode==3) {
 	    of->close();
 	    delete of;
-	    of=0;
+	    of=nullptr;
 	  }
 
 	} //end fiber loop
@@ -182,7 +182,7 @@ void HtrXmlPatternTool::writeXML() {
       (*of) << "</CFGBrickSet>" << std::endl;
       of->close();
       delete of;
-      of=0;
+      of=nullptr;
     }
     
   } //end crate loop
@@ -191,7 +191,7 @@ void HtrXmlPatternTool::writeXML() {
     (*of) << "</CFGBrickSet>" << std::endl;
     of->close();
     delete of;
-    of=0;
+    of=nullptr;
   }
 }
 
@@ -208,26 +208,26 @@ void HtrXmlPatternTool::createHists() {
 
   for (int crate=0; crate<ChannelPattern::NUM_CRATES; crate++) {
     CrateData* cd=m_patternSet->getCrate(crate);
-    if (cd==0) continue;
+    if (cd==nullptr) continue;
     for (int slot=0; slot<ChannelPattern::NUM_SLOTS; slot++) {
       for (int tb=0; tb<=1; tb++) {
 	HalfHtrData* hd=cd->getHalfHtrData(slot,tb);
-	if (hd==0) continue;
+	if (hd==nullptr) continue;
 	for (int chan=1; chan<=24; chan++) {
 	  ChannelPattern* cp=hd->getPattern(chan);
 	  char hname[128];
 	  sprintf(hname,"Exact fC Cr%d,%d%s-%d",crate,slot,
 		  ((tb==1)?("t"):("b")),chan);
 	  TH1* hp=new TH1F(hname,hname,ChannelPattern::SAMPLES,-0.5,ChannelPattern::SAMPLES-0.5);
-	  hp->SetDirectory(0);
+	  hp->SetDirectory(nullptr);
 	  sprintf(hname,"Quantized fC Cr%d,%d%s-%d",crate,slot,
 		  ((tb==1)?("t"):("b")),chan);
 	  TH1* hq=new TH1F(hname,hname,ChannelPattern::SAMPLES,-0.5,ChannelPattern::SAMPLES-0.5);
-	  hp->SetDirectory(0);
+	  hp->SetDirectory(nullptr);
 	  sprintf(hname,"Encoded fC Cr%d,%d%s-%d",crate,slot,
 		  ((tb==1)?("t"):("b")),chan);
 	  TH1* ha=new TH1F(hname,hname,ChannelPattern::SAMPLES,-0.5,ChannelPattern::SAMPLES-0.5);
-	  ha->SetDirectory(0);
+	  ha->SetDirectory(nullptr);
 	  for (int i=0; i<ChannelPattern::SAMPLES; i++) {
 	    hp->Fill(i*1.0,(*cp)[i]);
 	    hq->Fill(i*1.0,cp->getQuantized(i));

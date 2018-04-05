@@ -316,7 +316,7 @@ namespace gs {
         IdMap::const_iterator it = records_.find(id);
         if (it == records_.end())
         {
-            CatalogEntry* ptr = 0;
+            CatalogEntry* ptr = nullptr;
             return CPP11_shared_ptr<const CatalogEntry>(ptr);
         }
         else

@@ -19,7 +19,6 @@
 // Original Author:  Chris Jones
 //         Created:  Thu Aug 27 11:01:06 CDT 2009
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 
 // user include files
 #include "DataFormats/Common/interface/BasicHandle.h"
@@ -27,13 +26,13 @@
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/ConvertHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 // system include files
-#include <string>
 #include <typeinfo>
 
 namespace edm {
@@ -42,6 +41,7 @@ namespace edm {
    class ProductID;
    class TriggerResults;
    class TriggerNames;
+   class ParameterSet;
 
    class EventBase {
 
@@ -68,12 +68,15 @@ namespace edm {
       virtual edm::EventAuxiliary const& eventAuxiliary() const = 0;
 
       virtual TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const = 0;
-      virtual TriggerResultsByName triggerResultsByName(std::string const& process) const = 0;
+      virtual TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const = 0;
       virtual ProcessHistory const& processHistory() const = 0;
 
+      virtual edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const = 0;
    protected:
 
       static TriggerNames const* triggerNames_(edm::TriggerResults const& triggerResults);
+
+      static edm::ParameterSet const* parameterSetForID_(edm::ParameterSetID const& psID);
 
    private:
       //EventBase(EventBase const&); // allow default
@@ -86,7 +89,6 @@ namespace edm {
 
    };
 
-#if !defined(__REFLEX__)
    template<typename T>
    bool
    EventBase::getByLabel(InputTag const& tag, Handle<T>& result) const {
@@ -110,9 +112,7 @@ namespace edm {
       }
       return true;
    }
-#endif
   
 }
-#endif /*!defined(__CINT__) && !defined(__MAKECINT__)*/
 
 #endif

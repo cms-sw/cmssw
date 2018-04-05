@@ -78,7 +78,7 @@ SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
   token_leptonCands(   mayConsume<edm::ValueMap<float> >( iConfig.exists("leptonCands") ? iConfig.getParameter<edm::InputTag>( "leptonCands" ) : edm::InputTag() ) ),
   m_leptonId(          iConfig.exists("leptonId") ? iConfig.getParameter<edm::InputTag>( "leptonId" ) : edm::InputTag() ),
   token_leptonId(      mayConsume<edm::ValueMap<float> >( iConfig.exists("leptonId") ? iConfig.getParameter<edm::InputTag>( "leptonId" ) : edm::InputTag() ) ),
-  m_transientTrackBuilder( 0 ),
+  m_transientTrackBuilder( nullptr ),
   m_refineJetAxis(     iConfig.getParameter<unsigned int>( "refineJetAxis" ) ),
   m_deltaRCut(         iConfig.getParameter<double>( "leptonDeltaRCut" ) ),
   m_chi2Cut(           iConfig.getParameter<double>( "leptonChi2Cut" ) ),
@@ -256,12 +256,12 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
   }
 
   // output collections
-  std::auto_ptr<reco::SoftLeptonTagInfoCollection> outputCollection(  new reco::SoftLeptonTagInfoCollection() );
+  auto outputCollection = std::make_unique<reco::SoftLeptonTagInfoCollection>();
   for (unsigned int i = 0; i < jets.size(); ++i) {
     reco::SoftLeptonTagInfo result = tag( jets[i], tracks[i], leptons, vertex );
     outputCollection->push_back( result );
   }
-  event.put( outputCollection );
+  event.put(std::move(outputCollection));
 }
 
 // ---------------------------------------------------------------------------------------
@@ -288,8 +288,12 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
     reco::SoftLeptonProperties properties;
 
     reco::TransientTrack transientTrack = m_transientTrackBuilder->build(*lepton->first);
-    properties.sip2d    = IPTools::signedTransverseImpactParameter( transientTrack, jetAxis, primaryVertex ).second.significance();
-    properties.sip3d    = IPTools::signedImpactParameter3D( transientTrack, jetAxis, primaryVertex ).second.significance();
+    Measurement1D ip2d    = IPTools::signedTransverseImpactParameter( transientTrack, jetAxis, primaryVertex ).second;
+    Measurement1D ip3d    = IPTools::signedImpactParameter3D( transientTrack, jetAxis, primaryVertex ).second;
+    properties.sip2dsig    = ip2d.significance();
+    properties.sip3dsig    = ip3d.significance();
+    properties.sip2d    = ip2d.value();
+    properties.sip3d    = ip3d.value();
     properties.deltaR   = deltaR;
     properties.ptRel    = Perp( lepton_momentum, axis );
     properties.p0Par    = boostedPPar( lepton_momentum, axis );

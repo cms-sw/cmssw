@@ -13,7 +13,7 @@
   int const NRuns = 2;
 
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 
 
 

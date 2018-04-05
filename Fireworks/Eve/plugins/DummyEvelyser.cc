@@ -49,7 +49,7 @@ class DummyEvelyser : public edm::EDAnalyzer
 {
 public:
   explicit DummyEvelyser(const edm::ParameterSet&);
-  ~DummyEvelyser();
+  ~DummyEvelyser() override;
 
 protected:
    TEveGeoTopNode* make_node(const TString& path, Int_t vis_level, Bool_t global_cs);
@@ -57,13 +57,13 @@ protected:
    
 
 private:
-   virtual void beginJob() override;
-   virtual void endJob() override;
+   void beginJob() override;
+   void endJob() override;
 
-   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-   virtual void endRun  (const edm::Run&, const edm::EventSetup&) override;
+   void beginRun(const edm::Run&, const edm::EventSetup&) override;
+   void endRun  (const edm::Run&, const edm::EventSetup&) override;
 
-   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
    edm::Service<EveService>  m_eve;
 
@@ -93,8 +93,8 @@ DEFINE_FWK_MODULE(DummyEvelyser);
 DummyEvelyser::DummyEvelyser(const edm::ParameterSet& iConfig) :
    m_eve(),
    m_trackTags(iConfig.getUntrackedParameter<edm::InputTag>("tracks")),
-   m_geomList(0),
-   m_trackList(0),
+   m_geomList(nullptr),
+   m_trackList(nullptr),
    m_geomWatcher(this, &DummyEvelyser::remakeGeometry)
 {}
 
@@ -111,7 +111,7 @@ TEveGeoTopNode* DummyEvelyser::make_node(const TString& path, Int_t vis_level, B
    if (! gGeoManager->cd(path))
    {
       Warning("make_node", "Path '%s' not found.", path.Data());
-      return 0;
+      return nullptr;
    }
 
    TEveGeoTopNode* tn = new TEveGeoTopNode(gGeoManager, gGeoManager->GetCurrentNode());
@@ -160,7 +160,7 @@ void DummyEvelyser::endJob()
    if (m_trackList)
    {
       m_trackList->DecDenyDestroy();
-      m_trackList = 0;
+      m_trackList = nullptr;
    }
 }
 

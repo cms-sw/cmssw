@@ -2,13 +2,14 @@
 #define DDI_LogicalPart_h
 
 #include <iostream>
-#include <vector>
-#include <utility>
 #include <map>
+#include <utility>
+#include <vector>
 
+#include "DetectorDescription/Core/interface/DDEnums.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDEnums.h"
+#include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 //class DDsvalues_type;

@@ -38,17 +38,17 @@ class ProcSort : public TrainProcessor {
 	typedef TrainProcessor::Registry<ProcSort>::Type Registry;
 
 	ProcSort(const char *name, const AtomicId *id, MVATrainer *trainer);
-	virtual ~ProcSort();
+	~ProcSort() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	unsigned int	sortByIndex;
 	bool		descending;
 };
 
-static ProcSort::Registry registry("ProcSort");
+ProcSort::Registry registry("ProcSort");
 
 ProcSort::ProcSort(const char *name, const AtomicId *id, MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer)

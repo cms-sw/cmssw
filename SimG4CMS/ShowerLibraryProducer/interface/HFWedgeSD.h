@@ -11,9 +11,6 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4Track.hh"
 
-#include <iostream>
-#include <fstream>
-#include <vector>
 #include <map>
 
 class G4Step;
@@ -23,17 +20,21 @@ class HFWedgeSD : public SensitiveCaloDetector {
 
 public:    
   
-  HFWedgeSD(std::string name, const DDCompactView & cpv,
-	    const SensitiveDetectorCatalog & clg,
-	    edm::ParameterSet const & p, const SimTrackManager*);
-  virtual ~HFWedgeSD();
+  explicit HFWedgeSD(const std::string&, const DDCompactView & cpv,
+		     const SensitiveDetectorCatalog & clg,
+		     edm::ParameterSet const &p, const SimTrackManager*);
+  ~HFWedgeSD() override;
   
-  virtual void     Initialize(G4HCofThisEvent * HCE);
-  virtual bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
-  virtual void     EndOfEvent(G4HCofThisEvent * eventHC);
-  virtual void     clear();
-  virtual void     DrawAll();
-  virtual void     PrintAll();
+  void     Initialize(G4HCofThisEvent * HCE) override;
+  bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
+  void     EndOfEvent(G4HCofThisEvent * eventHC) override;
+  void     clear() override;
+  void     DrawAll() override;
+  void     PrintAll() override;
+
+  void     clearHits() override;
+  uint32_t setDetUnitId(const G4Step*) override;
+  void     fillHits(edm::PCaloHitContainer&, const std::string&) override;
 
 protected:
 
@@ -41,14 +42,8 @@ protected:
   HFShowerG4Hit*   createNewHit();
   void             updateHit(HFShowerG4Hit*);
 
-  virtual void     clearHits();
-  virtual uint32_t setDetUnitId(G4Step*);
-  virtual void     fillHits(edm::PCaloHitContainer&, std::string);
-
-
 private:
 
-  std::string                  theName;
   const SimTrackManager*       m_trackManager;
 
   int                          hcID;

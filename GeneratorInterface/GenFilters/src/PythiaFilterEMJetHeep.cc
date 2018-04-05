@@ -32,7 +32,7 @@ struct ParticlePtGreater{
 //}
 
 PythiaFilterEMJetHeep::PythiaFilterEMJetHeep(const edm::ParameterSet& iConfig) :
-token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("source")))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 //
 minEventPt(iConfig.getUntrackedParameter<double>("MinEventPt",40.)),
 etaMax(iConfig.getUntrackedParameter<double>("MaxEta", 2.8)),

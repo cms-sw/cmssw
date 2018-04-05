@@ -1,22 +1,13 @@
-/***************************************************************************
-                          DDLLogicalPart.cc  -  description
-                             -------------------
-    begin                : Tue Oct 31 2001
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLLogicalPart.h"
-
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+#include <utility>
+
+class DDCompactView;
 
 DDLLogicalPart::DDLLogicalPart(  DDLElementRegistry* myreg )
   : DDXMLElement( myreg )
@@ -29,9 +20,6 @@ DDLLogicalPart::DDLLogicalPart(  DDLElementRegistry* myreg )
   catMap_["envelope"]    = DDEnums::envelope;
   catMap_["unspecified"] = DDEnums::unspecified;
 }
-
-DDLLogicalPart::~DDLLogicalPart( void )
-{}
 
 // upon initialization, we want to clear rMaterial and rSolid.
 void
@@ -56,23 +44,11 @@ DDLLogicalPart::preProcessElement( const std::string& name, const std::string& n
 void
 DDLLogicalPart::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLLogicalPart::processElement started");
-
   // rMaterial and rSolid  
-  DDXMLElement* myrMaterial = myRegistry_->getElement("rMaterial"); // get Material reference child
-  DDXMLElement* myrSolid = myRegistry_->getElement("rSolid"); // get Solid reference child
+  auto myrMaterial = myRegistry_->getElement("rMaterial"); // get Material reference child
+  auto myrSolid = myRegistry_->getElement("rSolid"); // get Solid reference child
 
   DDXMLAttribute atts = getAttributeSet();
-
-  // this check really is overkill so I'm commenting it out for now.
-  // validation of the XML should PREVENT this.
-//    if (myrSolid->size() > 1)
-//      {
-//        std::string s = "DDLLogicalPart::processElement:  When looking at rSolid, found more than one. ";
-//        s += " Logical part name was: ";
-//        s += atts.find("name")->second;
-//        throw DDException(s);
-//      }
 
   DDSolid mySolid = DDSolid(myrSolid->getDDName(nmspace));
   DDMaterial myMaterial = DDMaterial(myrMaterial->getDDName(nmspace));
@@ -92,6 +68,4 @@ DDLLogicalPart::processElement( const std::string& name, const std::string& nmsp
 
   // after each logical part is made, we can clear it
   clear();
-
-  DCOUT_V('P', "DDLLogicalPart::processElement completed");
 }

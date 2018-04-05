@@ -8,7 +8,7 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 
 
 ROOT.gSystem.Load("libFWCoreFWLite")
-ROOT.AutoLibraryLoader.enable()
+ROOT.FWLiteEnabler.enable()
 
 # Whether warn() should print anythingg
 quietWarn = False
@@ -72,7 +72,7 @@ class Handle:
         # somebody passed in an argument that we're not using and we
         # should complain.
         if len (kwargs):
-            raise RuntimeError, "Unknown arguments %s" % kwargs
+            raise RuntimeError("Unknown arguments %s" % kwargs)
 
     def isValid (self):
         """Returns true if getByLabel call was successful and data is
@@ -158,10 +158,10 @@ class Lumis:
         ##############################
         ## Parse optional arguments ##
         ##############################
-        if kwargs.has_key ('maxEvents'):
+        if 'maxEvents' in kwargs:
             self._maxLumis = kwargs['maxEvents']
             del kwargs['maxEvents']
-        if kwargs.has_key ('options'):
+        if 'options' in kwargs:
             options = kwargs ['options']
             self._maxLumis           = options.maxEvents
             self._filenames          = options.inputFiles
@@ -172,14 +172,14 @@ class Lumis:
         # somebody passed in an argument that we're not using and we
         # should complain.
         if len (kwargs):
-            raise RuntimeError, "Unknown arguments %s" % kwargs
+            raise RuntimeError("Unknown arguments %s" % kwargs)
         if not self._filenames:
-            raise RuntimeError, "No input files given"
+            raise RuntimeError("No input files given")
         if not self._createFWLiteLumi():
             # this shouldn't happen as you are getting nothing the
             # very first time out, but let's at least check to
             # avoid problems.
-            raise RuntimeError, "Never and information about Lumi"
+            raise RuntimeError("Never and information about Lumi")
 
 
     def __del__ (self):
@@ -197,14 +197,14 @@ class Lumis:
         try:
             return self._lumi.luminosityBlockAuxiliary()
         except:
-            raise RuntimeError, "Lumis.aux() called on object in invalid state"
+            raise RuntimeError("Lumis.aux() called on object in invalid state")
 
 
     def luminosityBlockAuxiliary (self):
         try:
             return self._lumi.luminosityBlockAuxiliary()
         except:
-            raise RuntimeError, "Lumis.luminosityBlockAuxiliary() called on object in invalid state"
+            raise RuntimeError("Lumis.luminosityBlockAuxiliary() called on object in invalid state")
         
 
     def getByLabel (self, *args):
@@ -218,17 +218,22 @@ class Lumis:
         length = len (args)
         if length < 2 or length > 4:
             # not called correctly
-            raise RuntimeError, "Incorrect number of arguments"
+            raise RuntimeError("Incorrect number of arguments")
         # handle is always the last argument
         argsList = list (args)
         handle = argsList.pop()
-        if len(argsList)==1 and \
-               ( isinstance (argsList[0], tuple) or
-                 isinstance (argsList[0], list) ) :
-            if len (argsList) > 3:
-                raise RuntimeError, "getByLabel Error: label tuple has too " \
-                      "many arguments '%s'" % argsList[0]
-            argsList = list(argsList[0])
+        if len(argsList)==1 :
+            if( isinstance (argsList[0], tuple) or
+                isinstance (argsList[0], list) ) :
+                if len (argsList[0]) > 3:
+                    raise RuntimeError("getByLabel Error: label tuple has too " \
+                        "many arguments '%s'" % argsList[0])
+                argsList = list(argsList[0])
+            if( type(argsList[0]) is str and ":" in argsList[0] ):
+                if argsList[0].count(":") > 3:
+                    raise RuntimeError("getByLabel Error: label tuple has too " \
+                        "many arguments '%s'" % argsList[0].split(":"))
+                argsList = argsList[0].split(":")
         while len(argsList) < 3:
             argsList.append ('')
         (moduleLabel, productInstanceLabel, processLabel) = argsList
@@ -311,10 +316,10 @@ class Runs:
         ##############################
         ## Parse optional arguments ##
         ##############################
-        if kwargs.has_key ('maxEvents'):
+        if 'maxEvents' in kwargs:
             self._maxRuns = kwargs['maxEvents']
             del kwargs['maxEvents']
-        if kwargs.has_key ('options'):
+        if 'options' in kwargs:
             options = kwargs ['options']
             self._maxRuns           = options.maxEvents
             self._filenames           = options.inputFiles
@@ -325,14 +330,14 @@ class Runs:
         # somebody passed in an argument that we're not using and we
         # should complain.
         if len (kwargs):
-            raise RuntimeError, "Unknown arguments %s" % kwargs
+            raise RuntimeError("Unknown arguments %s" % kwargs)
         if not self._filenames:
-            raise RuntimeError, "No input files given"
+            raise RuntimeError("No input files given")
         if not self._createFWLiteRun():
             # this shouldn't happen as you are getting nothing the
             # very first time out, but let's at least check to
             # avoid problems.
-            raise RuntimeError, "Never and information about Run"
+            raise RuntimeError("Never and information about Run")
 
 
     def __del__ (self):
@@ -350,14 +355,14 @@ class Runs:
         try:
             return self._run.runAuxiliary()
         except:
-            raise RuntimeError, "Runs.aux() called on object in invalid state"
+            raise RuntimeError("Runs.aux() called on object in invalid state")
 
 
     def runAuxiliary (self):
         try:
             return self._run.runAuxiliary()
         except:
-            raise RuntimeError, "Runs.runAuxiliary() called on object in invalid state"
+            raise RuntimeError("Runs.runAuxiliary() called on object in invalid state")
         
 
     def getByLabel (self, *args):
@@ -371,17 +376,22 @@ class Runs:
         length = len (args)
         if length < 2 or length > 4:
             # not called correctly
-            raise RuntimeError, "Incorrect number of arguments"
+            raise RuntimeError("Incorrect number of arguments")
         # handle is always the last argument
         argsList = list (args)
         handle = argsList.pop()
-        if len(argsList)==1 and \
-               ( isinstance (argsList[0], tuple) or
-                 isinstance (argsList[0], list) ) :
-            if len (argsList) > 3:
-                raise RuntimeError, "getByLabel Error: label tuple has too " \
-                      "many arguments '%s'" % argsList[0]
-            argsList = list(argsList[0])
+        if len(argsList)==1 :
+            if( isinstance (argsList[0], tuple) or
+                isinstance (argsList[0], list) ) :
+                if len (argsList[0]) > 3:
+                    raise RuntimeError("getByLabel Error: label tuple has too " \
+                        "many arguments '%s'" % argsList[0])
+                argsList = list(argsList[0])
+            if( type(argsList[0]) is str and ":" in argsList[0] ):
+                if argsList[0].count(":") > 3:
+                    raise RuntimeError("getByLabel Error: label tuple has too " \
+                        "many arguments '%s'" % argsList[0].split(":"))
+                argsList = argsList[0].split(":")
         while len(argsList) < 3:
             argsList.append ('')
         (moduleLabel, productInstanceLabel, processLabel) = argsList
@@ -475,13 +485,13 @@ class Events:
         ##############################
         ## Parse optional arguments ##
         ##############################
-        if kwargs.has_key ('maxEvents'):
+        if 'maxEvents' in kwargs:
             self._maxEvents = kwargs['maxEvents']
             del kwargs['maxEvents']
-        if kwargs.has_key ('forceEvent'):
+        if 'forceEvent' in kwargs:
             self._forceEvent = kwargs['forceEvent']
             del kwargs['forceEvent']
-        if kwargs.has_key ('options'):
+        if 'options' in kwargs:
             options = kwargs ['options']
             self._maxEvents           = options.maxEvents
             self._filenames           = options.inputFiles
@@ -492,9 +502,9 @@ class Events:
         # somebody passed in an argument that we're not using and we
         # should complain.
         if len (kwargs):
-            raise RuntimeError, "Unknown arguments %s" % kwargs
+            raise RuntimeError("Unknown arguments %s" % kwargs)
         if not self._filenames:
-            raise RuntimeError, "No input files given"
+            raise RuntimeError("No input files given")
 
 
     def to (self, entryIndex):
@@ -519,8 +529,8 @@ class Events:
     def eventAuxiliary (self):
         """Returns eventAuxiliary object"""
         if self._veryFirstTime:
-            raise RuntimeError, "eventAuxiliary() called before "\
-                  "toBegin() or to()"
+            raise RuntimeError("eventAuxiliary() called before "\
+                  "toBegin() or to()")
         return self._event.eventAuxiliary()
 
 
@@ -542,17 +552,22 @@ class Events:
         length = len (args)
         if length < 2 or length > 4:
             # not called correctly
-            raise RuntimeError, "Incorrect number of arguments"
+            raise RuntimeError("Incorrect number of arguments")
         # handle is always the last argument
         argsList = list (args)
         handle = argsList.pop()
-        if len(argsList)==1 and \
-               ( isinstance (argsList[0], tuple) or
-                 isinstance (argsList[0], list) ) :
-            if len (argsList) > 3:
-                raise RuntimeError, "getByLabel Error: label tuple has too " \
-                      "many arguments '%s'" % argsList[0]
-            argsList = list(argsList[0])
+        if len(argsList)==1 :
+            if( isinstance (argsList[0], tuple) or
+                isinstance (argsList[0], list) ) :
+                if len (argsList[0]) > 3:
+                    raise RuntimeError("getByLabel Error: label tuple has too " \
+                        "many arguments '%s'" % argsList[0])
+                argsList = list(argsList[0])
+            if( type(argsList[0]) is str and ":" in argsList[0] ):
+                if argsList[0].count(":") > 3:
+                    raise RuntimeError("getByLabel Error: label tuple has too " \
+                        "many arguments '%s'" % argsList[0].split(":"))
+                argsList = argsList[0].split(":")
         while len(argsList) < 3:
             argsList.append ('')
         (moduleLabel, productInstanceLabel, processLabel) = argsList

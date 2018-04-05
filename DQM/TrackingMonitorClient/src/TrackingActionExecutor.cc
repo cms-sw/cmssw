@@ -4,8 +4,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
@@ -22,8 +20,8 @@
 // 
 TrackingActionExecutor::TrackingActionExecutor(edm::ParameterSet const& ps):pSet_(ps) {
   edm::LogInfo("TrackingActionExecutor") << " Creating TrackingActionExecutor " << "\n" ;
-  qualityChecker_ = NULL; 
-  configWriter_   = NULL;
+  qualityChecker_ = nullptr; 
+  configWriter_   = nullptr;
 }
 //
 // --  Destructor
@@ -116,7 +114,7 @@ void TrackingActionExecutor::createShiftReport(DQMStore::IBooker & ibooker, DQMS
   report_file.close();
   configWriter_->write("tracking_shift_report.xml");
   delete configWriter_;
-  configWriter_ = 0;
+  configWriter_ = nullptr;
 }
 //
 //  -- Print Report Summary
@@ -153,7 +151,7 @@ void TrackingActionExecutor::printShiftHistoParameters(DQMStore::IBooker & ibook
     for (std::vector<std::string>::iterator im = it->second.begin(); 
 	 im != it->second.end(); im++) {  
       std::string path_name = (*im);
-      if (path_name.size() == 0) continue;
+      if (path_name.empty()) continue;
       MonitorElement* me = igetter.get(path_name);
       std::ostringstream entry_str, mean_str, rms_str;
       entry_str << std::setprecision(2);

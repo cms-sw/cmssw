@@ -1,9 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from FastSimulation.Event.NoVertexGenerator_cfi import *
 tauHadronDecayFilter = cms.EDFilter("TauHadronDecayFilter",
-    NoVertexGeneratorBlock,
-    # necessary to access true particles 
     # using FastSimulation/Event
     particles = cms.InputTag("particleFlowBlock"),
     ParticleFilter = cms.PSet(

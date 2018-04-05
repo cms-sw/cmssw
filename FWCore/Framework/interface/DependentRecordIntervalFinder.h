@@ -21,11 +21,12 @@
 //
 
 // system include files
+#include <memory>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -37,7 +38,7 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
 
    public:
       DependentRecordIntervalFinder(const EventSetupRecordKey&);
-      virtual ~DependentRecordIntervalFinder();
+      ~DependentRecordIntervalFinder() override;
 
       // ---------- const member functions ---------------------
       bool haveProviders() const {
@@ -47,24 +48,24 @@ class DependentRecordIntervalFinder : public EventSetupRecordIntervalFinder
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      void addProviderWeAreDependentOn(boost::shared_ptr<EventSetupRecordProvider>);
+      void addProviderWeAreDependentOn(std::shared_ptr<EventSetupRecordProvider>);
       
-      void setAlternateFinder(boost::shared_ptr<EventSetupRecordIntervalFinder>);
+      void setAlternateFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
    protected:
-      virtual void setIntervalFor(const EventSetupRecordKey&,
+      void setIntervalFor(const EventSetupRecordKey&,
                                    const IOVSyncValue& , 
-                                   ValidityInterval&);
+                                   ValidityInterval&) override;
       
    private:
-      DependentRecordIntervalFinder(const DependentRecordIntervalFinder&); // stop default
+      DependentRecordIntervalFinder(const DependentRecordIntervalFinder&) = delete; // stop default
 
-      const DependentRecordIntervalFinder& operator=(const DependentRecordIntervalFinder&); // stop default
+      const DependentRecordIntervalFinder& operator=(const DependentRecordIntervalFinder&) = delete; // stop default
 
       // ---------- member data --------------------------------
-      typedef std::vector< boost::shared_ptr<EventSetupRecordProvider> > Providers;
+      typedef std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordProvider>>> Providers;
       Providers providers_;
       
-      boost::shared_ptr<EventSetupRecordIntervalFinder> alternate_;
+      edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> alternate_;
       std::vector<ValidityInterval> previousIOVs_;
 };
 

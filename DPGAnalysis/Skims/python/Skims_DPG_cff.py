@@ -5,7 +5,33 @@ skimContent = FEVTEventContent.clone()
 skimContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimContent.outputCommands.append("drop *_*_*_SKIM")
 
+from Configuration.EventContent.EventContent_cff import RAWMINIAODEventContent 
+skimMiniAODContent = RAWMINIAODEventContent.clone()
+skimMiniAODContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
+skimMiniAODContent.outputCommands.append("drop *_*_*_SKIM")
 
+###### HCAL DPG Skims #########
+
+from DPGAnalysis.Skims.SinglePhotonJetPlusHOFilter_cff import *
+SinglePhotonJetPlusHOFilterPath = cms.Path( SinglePhotonJetPlusHOFilterSequence )
+SKIMStreamSinglePhotonJetPlusHOFilter = cms.FilteredStream(
+    responsible = 'HCAL DPG',
+    name = 'SinglePhotonJetPlusHOFilter',
+    paths = ( SinglePhotonJetPlusHOFilterPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+)
+from DPGAnalysis.Skims.JetHTJetPlusHOFilter_cff import *
+JetHTJetPlusHOFilterPath = cms.Path( JetHTJetPlusHOFilterSequence )
+SKIMStreamJetHTJetPlusHOFilter = cms.FilteredStream(
+    responsible = 'HCAL DPG',
+    name = 'JetHTJetPlusHOFilter',
+    paths = ( JetHTJetPlusHOFilterPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+)
 
 #############
 from  DPGAnalysis.Skims.logErrorSkim_cff import *
@@ -281,6 +307,18 @@ SKIMStreamWElectron = cms.FilteredStream(
 
 
 
+from DPGAnalysis.Skims.TopMuEGSkim_cff import *
+TopMuEGPath = cms.Path( TopMuEGsequence )
+SKIMStreamTopMuEG = cms.FilteredStream(
+    responsible = 'BTV',
+    name = 'TopMuEG',
+    paths = ( TopMuEGPath ),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
+
 
 from DPGAnalysis.Skims.ZMuSkim_cff import *
 from DPGAnalysis.Skims.ZmmgSkim_cff import *
@@ -351,9 +389,8 @@ SKIMStreamWElectron = cms.FilteredStream(
 #####################
 
 from DPGAnalysis.Skims.ZElectronSkim_cff import *
-#ZElectronPathPhoton = cms.Path( tagPhotonSeq )
-#ZElectronPathTrack = cms.Path( tagTrackSeq )
-ZElectronPathGsf = cms.Path( tagGsfSeq )
+ZElectronPathGsf = cms.Path( zdiElectronSequence )
+
 SKIMStreamZElectron = cms.FilteredStream(
     responsible = 'ECAL DPG',
     name = 'ZElectron',
@@ -363,16 +400,20 @@ SKIMStreamZElectron = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
-
 #####################
 
 from DPGAnalysis.Skims.HighMETSkim_cff import *
-pfPath = cms.Path(pfMETSelSeq)
-#tcPath = cms.Path(tcMETSelSeq)
+condPath = cms.Path(CondMETSelSeq)
+#pfPath = cms.Path(pfMETSelSeq)
+#caloPath = cms.Path(caloMETSelSeq)
+#miniPath = cms.Path(miniMETSelSeq)
 SKIMStreamHighMET   = cms.FilteredStream(
             responsible = 'MET Group',
             name = 'HighMET',
-            paths = (pfPath),
+            paths = (condPath),
+#           paths = (pfPath),
+#           paths = (caloPath),
+#           paths = (miniPath),
             content = skimContent.outputCommands,
             selectEvents = cms.untracked.PSet(),
             dataTier = cms.untracked.string('RAW-RECO')
@@ -380,8 +421,20 @@ SKIMStreamHighMET   = cms.FilteredStream(
 
 #####################
 
+###### MuTau Skim #########
+from DPGAnalysis.Skims.MuTauSkim_cff import *
+MuTauPath = cms.Path( mutauSkimSequence )
+SKIMStreamMuTau = cms.FilteredStream(
+    responsible = 'Tau POG',
+    name = 'MuTau',
+    paths = ( MuTauPath ),
+    content = skimMiniAODContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
+    )
 
-#####################
+##########################
+
 
 from DPGAnalysis.Skims.ZHbbSkim_cff import *
 ZHbbSkimPath = cms.Path(ZHbbSkim)
@@ -393,5 +446,7 @@ SKIMStreamZHbb = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
     )
+
+
 
 

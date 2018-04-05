@@ -8,27 +8,29 @@
  * \author Luca Lista, INFN
  *
  */
-#include <TH1.h>
+#include "TH1.h"
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 namespace tfwliteselectortest {
 class ThingsTSelector : public TFWLiteSelectorBasic {
 public :
-      ThingsTSelector() : h_a(0), h_refA(0) {}
-      void begin(TList*&);
-      void preProcessing(const TList*, TList&);
-      void process(const edm::Event&);
-      void postProcessing(TList&);
-      void terminate(TList&);
+      ThingsTSelector() : h_a(nullptr), h_refA(nullptr) {}
+      void begin(TList*&) override;
+      void preProcessing(const TList*, TList&) override;
+      void process(const edm::Event&) override;
+      void postProcessing(TList&) override;
+      void terminate(TList&) override;
 
 private:
   /// histograms
-  TH1F * h_a, *h_refA;
+  edm::propagate_const<TH1F*> h_a;
+  edm::propagate_const<TH1F*> h_refA;
 
   ThingsTSelector(ThingsTSelector const&);
   ThingsTSelector operator=(ThingsTSelector const&);
   
-  ClassDef(ThingsTSelector,2)
+  ClassDefOverride(ThingsTSelector,2)
 };
 }
 #endif

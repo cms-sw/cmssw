@@ -12,7 +12,7 @@
 
 Type0PFMETcorrInputProducer::Type0PFMETcorrInputProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-    correction_(0)
+    correction_(nullptr)
 {
   pfCandidateToVertexAssociationsToken_ = consumes<PFCandToVertexAssMap>(cfg.getParameter<edm::InputTag>("srcPFCandidateToVertexAssociations"));
   hardScatterVertexToken_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcHardScatterVertex"));
@@ -46,8 +46,8 @@ void Type0PFMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup
   edm::Handle<PFCandToVertexAssMap> pfCandidateToVertexAssociations;
   evt.getByToken(pfCandidateToVertexAssociationsToken_, pfCandidateToVertexAssociations);
 
-  std::auto_ptr<CorrMETData> pfMEtCorrection(new CorrMETData());
-
+  std::unique_ptr<CorrMETData> pfMEtCorrection(new CorrMETData());
+  
   for ( PFCandToVertexAssMap::const_iterator pfCandidateToVertexAssociation = pfCandidateToVertexAssociations->begin();
 	pfCandidateToVertexAssociation != pfCandidateToVertexAssociations->end(); ++pfCandidateToVertexAssociation ) {
     reco::VertexRef vertex = pfCandidateToVertexAssociation->key;
@@ -61,7 +61,7 @@ void Type0PFMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup
 	break;
       }
     }
-    
+  
     if ( !isHardScatterVertex ) {
       reco::Candidate::LorentzVector sumChargedPFCandP4_vertex;
       for ( PFCandQualityPairVector::const_iterator pfCandidate_vertex = pfCandidates_vertex.begin();
@@ -85,7 +85,7 @@ void Type0PFMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup
     }
   }
 
-  evt.put(pfMEtCorrection);
+  evt.put(std::move(pfMEtCorrection));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -1,7 +1,7 @@
 #include "RecoParticleFlow/PFClusterTools/interface/Utils.h"
 
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 #include <regex.h>
 #include <glob.h>
 
@@ -17,7 +17,7 @@ bool Utils::StringMatch(const char* str, const char* pattern) {
   if( regcomp(&re, pattern, REG_EXTENDED|REG_NOSUB) != 0 )
     return false;
   
-  status = regexec(&re, str, (size_t)0, NULL, 0);
+  status = regexec(&re, str, (size_t)0, nullptr, 0);
   regfree(&re);
   
   if (status != 0)
@@ -28,7 +28,7 @@ bool Utils::StringMatch(const char* str, const char* pattern) {
 
 
 TCanvas* Utils::DivideCanvas( TCanvas *cv, int nPads ) {  
-  if( !cv ) return 0;
+  if( !cv ) return nullptr;
   
   if( nPads<=1 ) return cv;
   int sqnP = (unsigned int) (sqrt( nPads ));
@@ -48,7 +48,7 @@ vector<string>  Utils::Glob(const char* pattern) {
   glob_t globbuf;
 
   globbuf.gl_offs = 2;
-  glob(pattern, GLOB_TILDE|GLOB_BRACE|GLOB_MARK, NULL, &globbuf);
+  glob(pattern, GLOB_TILDE|GLOB_BRACE|GLOB_MARK, nullptr, &globbuf);
 
   vector<string> results;
   for(unsigned i=0; i<globbuf.gl_pathc; i++) {

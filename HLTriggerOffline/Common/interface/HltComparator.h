@@ -16,7 +16,7 @@ class HltComparator : public edm::EDFilter
 {
     public:
         explicit HltComparator(const edm::ParameterSet&);
-        ~HltComparator();
+        ~HltComparator() override;
 
     private:
         edm::EDGetTokenT<edm::TriggerResults> hltOnlineResults_;
@@ -38,9 +38,9 @@ class HltComparator : public edm::EDFilter
 
         unsigned int numTriggers_;
 
-        virtual void beginJob() ;
-        virtual bool filter(edm::Event&, const edm::EventSetup&);
-        virtual void endJob() ;
+        void beginJob() override ;
+        bool filter(edm::Event&, const edm::EventSetup&) override;
+        void endJob() override ;
         void initialise(const edm::TriggerResults&, 
 			const edm::TriggerResults&,
                         edm::Event& e);

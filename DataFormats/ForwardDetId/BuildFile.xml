@@ -1,0 +1,6 @@
+<use   name="FWCore/Utilities"/>
+<use   name="DataFormats/DetId"/>
+
+<export>
+  <lib   name="1"/>
+</export>

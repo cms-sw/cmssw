@@ -25,7 +25,6 @@
 #include "FWCore/Framework/interface/DataKeyTags.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
@@ -46,18 +45,18 @@ class HiggsDQM : public DQMEDAnalyzer {
 
  public:
   HiggsDQM(const edm::ParameterSet& ps);
-  virtual ~HiggsDQM();
+  ~HiggsDQM() override;
 
  protected:
   //Book histograms
   void bookHistograms(DQMStore::IBooker &,
     edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                            edm::EventSetup const& context);
+                            edm::EventSetup const& context) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-                          edm::EventSetup const& c);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+                          edm::EventSetup const& c) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
  private:
   double Distance(const reco::Candidate& c1, const reco::Candidate& c2);

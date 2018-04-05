@@ -31,7 +31,7 @@ void popcon::EcalDCSHandler::printHVDataSet( const std::map<EcalLogicID, RunDCSH
 					     int limit = 0 ) const
 {
   std::cout << "==========printDataSet()" << std::endl;
-  if (dataset->size() == 0) {
+  if (dataset->empty()) {
     std::cout << "No data in map!" << std::endl;
   }
   EcalLogicID ecid;
@@ -59,7 +59,7 @@ void popcon::EcalDCSHandler::printLVDataSet( const std::map<EcalLogicID, RunDCSL
 					     int limit = 0 ) const
 {
   std::cout << "==========printDataSet()" << std::endl;
-  if (dataset->size() == 0) {
+  if (dataset->empty()) {
     std::cout << "No data in map!" << std::endl;
   }
   EcalLogicID ecid;
@@ -162,7 +162,7 @@ uint16_t  popcon::EcalDCSHandler::updateLV( RunDCSLVDat* lv, uint16_t dbStatus) 
 bool popcon::EcalDCSHandler::insertHVDataSetToOffline( const std::map<EcalLogicID, RunDCSHVDat>* dataset, EcalDCSTowerStatus* dcs_temp ) const
 {
   bool result=false; 
-  if (dataset->size() == 0) {
+  if (dataset->empty()) {
     std::cout << "No data in std::map!" << std::endl;
   }
   EcalLogicID ecid;
@@ -181,7 +181,7 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline( const std::map<EcalLogicI
       int sm= ecid.getID1() ;
       int chan= ecid.getID2();
       
-      int* limits=0;
+      int* limits=nullptr;
       limits=  HVLogicIDToDetID(sm,chan);
       int iz=limits[0];
       int i1=limits[1];
@@ -215,7 +215,7 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline( const std::map<EcalLogicI
       int dee= ecid.getID1() ;
       int chan= ecid.getID2();
       
-      int* limits=0;
+      int* limits=nullptr;
       limits=  HVEELogicIDToDetID(dee,chan);
       int iz=limits[0];
       int i1=limits[1];
@@ -504,7 +504,7 @@ int * popcon::EcalDCSHandler::LVLogicIDToDetID(int sm, int chan) const {
 bool popcon::EcalDCSHandler::insertLVDataSetToOffline( const std::map<EcalLogicID, RunDCSLVDat>* dataset, EcalDCSTowerStatus* dcs_temp , const std::vector<EcalLogicID>& my_EELVchan ) const
 {
   bool result= false; 
-  if (dataset->size() == 0) {
+  if (dataset->empty()) {
     std::cout << "No data in map!" << std::endl;
   }
   EcalLogicID ecid;
@@ -522,7 +522,7 @@ bool popcon::EcalDCSHandler::insertLVDataSetToOffline( const std::map<EcalLogicI
       int sm= ecid.getID1() ;
       int chan= ecid.getID2();
 
-      int* limits=0;
+      int* limits=nullptr;
       limits=   LVLogicIDToDetID(sm,chan);
       int iz=limits[0];
       int i1=limits[1];
@@ -752,10 +752,10 @@ void popcon::EcalDCSHandler::getNewObjects()
 	  // always call this method at first run
 
 	  std::map<EcalLogicID, RunDCSHVDat> dataset;
-	  RunIOV *r = NULL;
+	  RunIOV *r = nullptr;
 	  econn->fetchDataSet(&dataset, r);
 	  
-	  if (!dataset.size()) {
+	  if (dataset.empty()) {
 	    throw(std::runtime_error("Zero rows read back"));
 	  }
 	  
@@ -766,7 +766,7 @@ void popcon::EcalDCSHandler::getNewObjects()
 	  std::map<EcalLogicID, RunDCSLVDat> dataset_lv;
 	  econn->fetchDataSet(&dataset_lv, r);
 	  
-	  if (!dataset_lv.size()) {
+	  if (dataset_lv.empty()) {
 	    throw(std::runtime_error("Zero rows read back"));
 	  }
 	  if(lot_of_printout) std::cout << "read OK" << std::endl;

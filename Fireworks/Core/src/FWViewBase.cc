@@ -81,7 +81,7 @@ FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
                                            "JPEG",                    "*.jpg",
                                            "PDF",                     "*.pdf",
                                            "Encapsulated PostScript", "*.eps",
-                                           0, 0};
+                                           nullptr, nullptr};
 
       TGFileInfo fi;
       fi.fFileTypes = kImageExportTypes;
@@ -89,7 +89,7 @@ FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
       new TGFileDialog(gClient->GetDefaultRoot(), iParent,
                        kFDSave,&fi);
       dir = fi.fIniDir;
-      if (fi.fFilename != 0) {
+      if (fi.fFilename != nullptr) {
          std::string name = fi.fFilename;
          // fi.fFileTypeIdx points to the name of the file type
          // selected in the drop-down menu, so fi.fFileTypeIdx gives us
@@ -110,7 +110,7 @@ FWViewBase::promptForSaveImageTo(TGFrame* iParent) const
 
 FWViewContextMenuHandlerBase* 
 FWViewBase::contextMenuHandler() const {
-   return 0;
+   return nullptr;
 }
 
 //

@@ -14,18 +14,18 @@
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -38,7 +38,7 @@ using namespace reco;
 using namespace analyzer;
 
 SiPixelLorentzAngle::SiPixelLorentzAngle(edm::ParameterSet const& conf) : 
-  conf_(conf), filename_(conf.getParameter<std::string>("fileName")), filenameFit_(conf.getParameter<std::string>("fileNameFit")), ptmin_(conf.getParameter<double>("ptMin")), simData_(conf.getParameter<bool>("simData")),	normChi2Max_(conf.getParameter<double>("normChi2Max")), clustSizeYMin_(conf.getParameter<int>("clustSizeYMin")), residualMax_(conf.getParameter<double>("residualMax")), clustChargeMax_(conf.getParameter<double>("clustChargeMax")),hist_depth_(conf.getParameter<int>("binsDepth")), hist_drift_(conf.getParameter<int>("binsDrift"))
+  filename_(conf.getParameter<std::string>("fileName")), filenameFit_(conf.getParameter<std::string>("fileNameFit")), ptmin_(conf.getParameter<double>("ptMin")), simData_(conf.getParameter<bool>("simData")),	normChi2Max_(conf.getParameter<double>("normChi2Max")), clustSizeYMin_(conf.getParameter<int>("clustSizeYMin")), residualMax_(conf.getParameter<double>("residualMax")), clustChargeMax_(conf.getParameter<double>("clustChargeMax")),hist_depth_(conf.getParameter<int>("binsDepth")), hist_drift_(conf.getParameter<int>("binsDrift")), trackerHitAssociatorConfig_(consumesCollector())
 {
   //   	anglefinder_=new  TrackLocalAngle(conf);
   hist_x_ = 50;
@@ -157,7 +157,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
   
   event_counter_++;
@@ -168,8 +168,8 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
   es.get<TrackerDigiGeometryRecord>().get(estracker);
   tracker=&(* estracker);
 
-  TrackerHitAssociator* associate;
-  if(simData_) associate = new TrackerHitAssociator(e); else associate = 0; 
+  std::unique_ptr<TrackerHitAssociator> associate;
+  if (simData_) associate.reset(new TrackerHitAssociator(e, trackerHitAssociatorConfig_));
   // restet values
   module_=-1;
   layer_=-1;
@@ -186,7 +186,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
   // get the association map between tracks and trajectories
   edm::Handle<TrajTrackAssociationCollection> trajTrackCollectionHandle;
   e.getByToken(t_trajTrack,trajTrackCollectionHandle);
-  if(trajTrackCollectionHandle->size() >0){
+  if(!trajTrackCollectionHandle->empty()){
     trackEventsCounter_++;
     for(TrajTrackAssociationCollection::const_iterator it = trajTrackCollectionHandle->begin(); it!=trajTrackCollectionHandle->end();++it){
       const Track&      track = *it->val;

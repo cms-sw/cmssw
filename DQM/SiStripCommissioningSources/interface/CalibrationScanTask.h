@@ -13,14 +13,14 @@ class CalibrationScanTask : public CommissioningTask {
   
   CalibrationScanTask( DQMStore*, const FedChannelConnection&, const sistrip::RunType&, 
                        const char* filename, uint32_t run, const edm::EventSetup& setup );
-  virtual ~CalibrationScanTask();
+  ~CalibrationScanTask() override;
   
  private:
 
-  virtual void book();
-  virtual void fill( const SiStripEventSummary&,
-		     const edm::DetSet<SiStripRawDigi>& );
-  virtual void update();
+  void book() override;
+  void fill( const SiStripEventSummary&,
+		     const edm::DetSet<SiStripRawDigi>& ) override;
+  void update() override;
   void checkAndSave(const uint16_t& isha, const uint16_t& vfs );
   void directory( std::stringstream&, uint32_t run_number = 0 );
   

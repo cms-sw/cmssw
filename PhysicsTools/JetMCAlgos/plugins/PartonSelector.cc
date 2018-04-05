@@ -7,7 +7,7 @@
 //=======================================================================
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -33,15 +33,15 @@ using namespace std;
 using namespace reco;
 using namespace edm;
 
-class PartonSelector : public edm::EDProducer
+class PartonSelector : public edm::global::EDProducer<>
 {
   public:
     PartonSelector( const edm::ParameterSet & );
-    ~PartonSelector();
+    ~PartonSelector() override;
 
   private:
 
-    virtual void produce(edm::Event&, const edm::EventSetup& ) override;
+    void produce(edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
     bool withLeptons;  // Optionally specify leptons
     bool withTop;      // Optionally include top quarks in the list
     bool acceptNoDaughters;      // Parton with zero daugthers are not considered by default, make it configurable
@@ -80,7 +80,7 @@ PartonSelector::~PartonSelector()
 
 // ------------ method called to produce the data  ------------
 
-void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
+void PartonSelector::produce( StreamID, Event& iEvent, const EventSetup& iEs ) const
 {
 
   //edm::Handle <reco::CandidateView> particles;
@@ -89,7 +89,7 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
   edm::LogVerbatim("PartonSelector") << "=== GenParticle size:" << particles->size();
   int nPart=0;
 
-  auto_ptr<GenParticleRefVector> thePartons ( new GenParticleRefVector);
+  auto thePartons = std::make_unique<GenParticleRefVector>();
 
   for (size_t m = 0; m < particles->size(); m++) {
 
@@ -152,7 +152,7 @@ void PartonSelector::produce( Event& iEvent, const EventSetup& iEs )
   }
 
   edm::LogVerbatim("PartonSelector") << "=== GenParticle selected:" << nPart;
-  iEvent.put( thePartons );
+  iEvent.put(std::move(thePartons) );
 
 }
 

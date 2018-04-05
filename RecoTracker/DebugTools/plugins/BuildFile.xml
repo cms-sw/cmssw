@@ -1,4 +1,3 @@
-<use   name="RecoTracker/DebugTools"/>
 <use   name="RecoTracker/CkfPattern"/>
 <use   name="SimTracker/Records"/>
 <use   name="SimTracker/TrackAssociation"/>

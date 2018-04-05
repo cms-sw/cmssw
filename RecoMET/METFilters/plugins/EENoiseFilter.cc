@@ -11,11 +11,11 @@ class EENoiseFilter : public edm::EDFilter {
   public:
 
     explicit EENoiseFilter(const edm::ParameterSet & iConfig);
-    ~EENoiseFilter() {}
+    ~EENoiseFilter() override {}
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     edm::EDGetTokenT<EcalRecHitCollection> ebRHSrcToken_;
     edm::EDGetTokenT<EcalRecHitCollection> eeRHSrcToken_;
@@ -44,7 +44,7 @@ bool EENoiseFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) 
 
   const bool pass = eeRHs->size() < slope_ * ebRHs->size() + intercept_;
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;
 }

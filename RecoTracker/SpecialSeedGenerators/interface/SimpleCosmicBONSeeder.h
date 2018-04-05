@@ -1,7 +1,7 @@
 #ifndef SimpleCosmicBONSeeder_h
 #define SimpleCosmicBONSeeder_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -38,15 +38,15 @@
 
 class SeedingLayerSetsHits;
 
-class SimpleCosmicBONSeeder : public edm::EDProducer
+class SimpleCosmicBONSeeder : public edm::stream::EDProducer<>
 {
  public:
 
   explicit SimpleCosmicBONSeeder(const edm::ParameterSet& conf);
 
-  virtual ~SimpleCosmicBONSeeder() {}
+  ~SimpleCosmicBONSeeder() override {}
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   void init(const edm::EventSetup& c);
   bool triplets(const edm::Event &e , const edm::EventSetup& c);

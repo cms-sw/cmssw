@@ -28,6 +28,7 @@ public:
     theMissingHit(std::make_shared<InvalidTrackingRecHit>(fastGeomDet(),TrackingRecHit::missing)),
     theInactiveHit(std::make_shared<InvalidTrackingRecHit>(fastGeomDet(),TrackingRecHit::inactive)){}
 
+  virtual ~MeasurementDet() = default;
   virtual RecHitContainer recHits( const TrajectoryStateOnSurface&, const MeasurementTrackerEvent &) const = 0;
 
   // use a MeasurementEstimator to filter the hits (same algo as below..)

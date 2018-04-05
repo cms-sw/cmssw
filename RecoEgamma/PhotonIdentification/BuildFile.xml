@@ -2,11 +2,14 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/PatCandidates"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/BeamSpot"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
+<use   name="PhysicsTools/SelectorUtils"/>
+
 <export>
   <lib   name="1"/>
 </export>

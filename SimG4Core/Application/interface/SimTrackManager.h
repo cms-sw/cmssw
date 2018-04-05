@@ -111,8 +111,8 @@ public:
 
 private:
   // stop default
-  SimTrackManager(const SimTrackManager&);   
-  const SimTrackManager& operator=(const SimTrackManager&); 
+  SimTrackManager(const SimTrackManager&) = delete;   
+  const SimTrackManager& operator=(const SimTrackManager&) = delete; 
   
   void saveTrackAndItsBranch(TrackWithHistory *);
   int  getOrCreateVertex(TrackWithHistory *,int,G4SimEvent * simEvent);

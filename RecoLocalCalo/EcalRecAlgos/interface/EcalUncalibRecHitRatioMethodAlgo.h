@@ -118,7 +118,7 @@ void EcalUncalibRecHitRatioMethodAlgo<C>::init(const C &dataFrame,
   }
   if (num_ != 0 && dataFrame.sample(1).gainId() == 1 &&
       sampleMask_.useSample(1, theDetId_) &&
-      fabs(dataFrame.sample(1).adc() - dataFrame.sample(0).adc()) <
+      std::abs(dataFrame.sample(1).adc() - dataFrame.sample(0).adc()) <
           3 * pedestalRMSes[0]) {
     pedestal_ += double(dataFrame.sample(1).adc());
     num_++;
@@ -610,7 +610,7 @@ double EcalUncalibRecHitRatioMethodAlgo<C>::computeAmplitudeImpl(
   double amplitudeMax = 0;
   if (sum1 > 0) {
     double denom = sumFF * sum1 - sumF * sumF;
-    if (fabs(denom) > 1.0e-20) {
+    if (std::abs(denom) > 1.0e-20) {
       amplitudeMax = (sumAF * sum1 - sumA * sumF) / denom;
     }
   }

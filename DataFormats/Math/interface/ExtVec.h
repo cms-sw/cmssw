@@ -9,22 +9,16 @@
 #define VECTOR_EXT(N) __attribute__( ( vector_size( N ) ) )
 #endif
 
-typedef float  VECTOR_EXT(  8 ) float32x2_t;
-typedef float  VECTOR_EXT( 16 ) float32x4_t;
-typedef float  VECTOR_EXT( 32 ) float32x8_t;
-typedef double VECTOR_EXT( 16 ) float64x2_t;
-typedef double VECTOR_EXT( 32 ) float64x4_t;
-typedef double VECTOR_EXT( 64 ) float64x8_t;
+typedef float  VECTOR_EXT(  8 ) cms_float32x2_t;
+typedef float  VECTOR_EXT( 16 ) cms_float32x4_t;
+typedef float  VECTOR_EXT( 32 ) cms_float32x8_t;
+typedef double VECTOR_EXT( 16 ) cms_float64x2_t;
+typedef double VECTOR_EXT( 32 ) cms_float64x4_t;
+typedef double VECTOR_EXT( 64 ) cms_float64x8_t;
 
-// Enable only for AArch64 for now as this would ICE GCC on
-// x86_64.
-// XXX: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65486
-// XXX: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65491
-#if defined(__aarch64__)
-typedef long double VECTOR_EXT( 32 ) float128x2_t;
-typedef long double VECTOR_EXT( 64 ) float128x4_t;
-typedef long double VECTOR_EXT( 128 ) float128x8_t;
-#endif
+typedef long double VECTOR_EXT( 32 ) cms_float128x2_t;
+typedef long double VECTOR_EXT( 64 ) cms_float128x4_t;
+typedef long double VECTOR_EXT( 128 ) cms_float128x8_t;
 
 // template<typename T, int N> using ExtVec =  T __attribute__( ( vector_size( N*sizeof(T) ) ) );
 
@@ -53,11 +47,6 @@ struct ExtVecTraits<double, 4> {
   typedef double VECTOR_EXT( 4*sizeof(double) ) type;
 };
 
-// Enable only for AArch64 for now as this would ICE GCC on
-// x86_64.
-// XXX: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65486
-// XXX: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=65491
-#if defined(__aarch64__)
 template<>
 struct ExtVecTraits<long double, 2> {
   typedef long double VECTOR_EXT( 2*sizeof(long double) ) type;
@@ -67,7 +56,6 @@ template<>
 struct ExtVecTraits<long double, 4> {
   typedef long double VECTOR_EXT( 4*sizeof(long double) ) type;
 };
-#endif
 
 template<typename T, int N> using ExtVec =  typename ExtVecTraits<T,N>::type;
 
@@ -203,18 +191,18 @@ struct Rot3 {
   Vec  axis[3];
   
   constexpr Rot3() :
-    axis{ (Vec){T(1),0,0,0},
-      (Vec){0,T(1),0,0},
-	(Vec){0,0,T(1),0}
+    axis{{(Vec){T(1),0,0,0}},
+         {(Vec){0,T(1),0,0}},
+         {(Vec){0,0,T(1),0}}
   }{}
     
   constexpr Rot3( Vec4<T> ix,  Vec4<T> iy,  Vec4<T> iz) :
     axis{ix,iy,iz}{}
 
   constexpr Rot3( T xx, T xy, T xz, T yx, T yy, T yz, T zx, T zy, T zz) :
-    axis{ (Vec){xx,xy,xz,0},
-      (Vec){yx,yy,yz,0},
-	(Vec){zx,zy,zz,0}
+    axis{ {(Vec){xx,xy,xz,0}},
+          {(Vec){yx,yy,yz,0}},
+          {(Vec){zx,zy,zz,0}}
   }{}
   
   constexpr Rot3 transpose() const {
@@ -267,8 +255,8 @@ struct Rot2 {
   Vec2<T>  axis[2];
   
   constexpr Rot2() :
-    axis{ (Vec){T(1),0},
-      (Vec){0,T(1)}
+    axis{{(Vec){T(1),0}},
+         {(Vec){0,T(1)}}
   }{}
     
   constexpr Rot2( Vec2<T> ix,  Vec2<T> iy) :

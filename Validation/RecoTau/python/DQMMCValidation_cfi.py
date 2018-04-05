@@ -1,3 +1,4 @@
+
 from Validation.RecoTau.dataTypes.ValidateTausOnQCD_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealData_cff import *
 from Validation.RecoTau.dataTypes.ValidateTausOnRealElectronsData_cff import *
@@ -17,6 +18,7 @@ pfTauRunDQMValidation = cms.Sequence(
     TauValNumeratorAndDenominatorZMM+
     TauValNumeratorAndDenominatorZTT
     )
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
 produceDenoms = cms.Sequence(
     produceDenominatorQCD+

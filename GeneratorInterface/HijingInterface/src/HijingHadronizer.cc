@@ -59,7 +59,7 @@ const std::vector<std::string> HijingHadronizer::theSharedResources = { edm::Sha
 
 HijingHadronizer::HijingHadronizer(const ParameterSet &pset) :
     BaseHadronizer(pset),
-    evt(0), 
+    evt(nullptr), 
     pset_(pset),
     bmax_(pset.getParameter<double>("bMax")),
     bmin_(pset.getParameter<double>("bMin")),
@@ -240,7 +240,7 @@ bool HijingHadronizer::get_particles(HepMC::GenEvent *evt )
 	       prod_vertex->add_particle_in(mother);
 	       
                evt->add_vertex(prod_vertex);
-               prods[ipart]=0; // mark to protect deletion                                                                                                   
+               prods[ipart]=nullptr; // mark to protect deletion                                                                                                   
 	       
             }
             prod_vertex->add_particle_out(part);
@@ -289,7 +289,7 @@ bool HijingHadronizer::declareStableParticles( const std::vector<int>& pdg )
 //________________________________________________________________                                                                    
 void HijingHadronizer::rotateEvtPlane(){
 
-   phi0_ = 2.*pi*gen::hijran_(0) - pi;
+   phi0_ = 2.*pi*gen::hijran_(nullptr) - pi;
    sinphi0_ = sin(phi0_);
    cosphi0_ = cos(phi0_);
 }

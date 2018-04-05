@@ -21,9 +21,9 @@ namespace cms
   public:
 
     SubEventGenJetProducer(const edm::ParameterSet& ps);
-    virtual ~SubEventGenJetProducer() {}
-    void produce(edm::Event&, const edm::EventSetup&);
-    void runAlgorithm(edm::Event&, const edm::EventSetup&);
+    ~SubEventGenJetProducer() override {}
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    void runAlgorithm(edm::Event&, const edm::EventSetup&) override;
     
   protected:
    std::vector<std::vector<fastjet::PseudoJet> > subInputs_;
@@ -36,7 +36,7 @@ namespace cms
 
     // overridden inputTowers method. Resets fjCompoundJets_ and 
     // calls VirtualJetProducer::inputTowers
-    virtual void inputTowers();
+    void inputTowers() override;
 
   private:
     edm::EDGetTokenT<reco::CandidateView> input_cand_token_;

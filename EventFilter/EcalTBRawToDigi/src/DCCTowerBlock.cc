@@ -4,14 +4,14 @@
 #include "DCCXtalBlock.h"
 #include "DCCDataMapper.h"
 #include "ECALParserBlockException.h"
-#include <stdio.h>
+#include <cstdio>
 
 
 
 DCCTBTowerBlock::DCCTBTowerBlock(
  	DCCTBEventBlock * dccBlock, 
 	DCCTBDataParser * parser, 
-	uint32_t * buffer, 
+	const uint32_t * buffer, 
 	uint32_t numbBytes,
 	uint32_t wordsToEnd,
 	uint32_t wordEventOffset,

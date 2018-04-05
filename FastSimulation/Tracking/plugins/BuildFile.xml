@@ -18,6 +18,7 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="RecoPixelVertexing/PixelTrackFitting"/>
 <use   name="RecoTracker/TkTrackingRegions"/>
+<use   name="RecoTracker/TkSeedGenerator"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/Vertex"/>
 <use   name="TrackingTools/PatternTools"/>
@@ -25,6 +26,7 @@
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/MaterialEffects"/>
 <use   name="SimGeneral/MixingModule"/>
+<use   name="RecoPixelVertexing/PixelTriplets"/>
 <library   name="FastSimulationTrackingPlugins" file="*.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>

@@ -17,7 +17,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include <vector>
 
@@ -43,11 +42,11 @@ public:
     L1GtPrescaleFactorsTechTrigTrivialProducer(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtPrescaleFactorsTechTrigTrivialProducer();
+    ~L1GtPrescaleFactorsTechTrigTrivialProducer() override;
 
     /// public methods
 
-    boost::shared_ptr<L1GtPrescaleFactors> producePrescaleFactors(
+    std::shared_ptr<L1GtPrescaleFactors> producePrescaleFactors(
             const L1GtPrescaleFactorsTechTrigRcd&);
 
 private:

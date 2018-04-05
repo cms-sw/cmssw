@@ -13,18 +13,18 @@ class DaqScopeModeHistograms : public CommissioningHistograms {
  public:
   
   DaqScopeModeHistograms( const edm::ParameterSet& pset, DQMStore* );
-  virtual ~DaqScopeModeHistograms();
+  ~DaqScopeModeHistograms() override;
   
   typedef SummaryHistogramFactory<DaqScopeModeAnalysis> Factory;
   
   /** */
-  void histoAnalysis( bool debug );
+  void histoAnalysis( bool debug ) override;
 
   /** */
   void createSummaryHisto( const sistrip::Monitorable&,
 			   const sistrip::Presentation&,
 			   const std::string& top_level_dir,
-			   const sistrip::Granularity& );
+			   const sistrip::Granularity& ) override;
   
  protected: 
   

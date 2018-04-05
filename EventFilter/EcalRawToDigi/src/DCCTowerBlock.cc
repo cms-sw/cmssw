@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include <algorithm>
 #include "EventFilter/EcalRawToDigi/interface/DCCTowerBlock.h"
 #include "EventFilter/EcalRawToDigi/interface/DCCEventBlock.h"
@@ -48,15 +48,16 @@ int DCCTowerBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalI
     pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,expStripID,expXtalID);
     (*invalidChIds_)->push_back(*pDetId_);
     
-    stripId    = expStripID;
-    xtalId     = expXtalID;
-    errorOnXtal= true;
-    
     // return here, so to skip all following checks
     lastXtalId_++;
     if (lastXtalId_ > NUMB_XTAL)         {lastXtalId_=1; lastStripId_++;}
     data_ += numbDWInXtalBlock_;
     return BLOCK_UNPACKED;
+
+    //keep these here in case the return is to be dropped
+    stripId    = expStripID;
+    xtalId     = expXtalID;
+    errorOnXtal= true;    
   }
 
 
@@ -85,14 +86,13 @@ int DCCTowerBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalI
       //(*invalidChIds_)->push_back(*pDetId_);
       fillEcalElectronicsError(invalidZSXtalIds_); 
 
-      errorOnXtal = true;
 
       lastStripId_ = st;
       lastXtalId_  = ch;
       
       // return here, so to skip all following checks
       return SKIP_BLOCK_UNPACKING;
-      
+      errorOnXtal = true; //keep it here in case the return is to be dropped      
     }else{
 
       // Check for zs valid Ids 2) if channel-in-strip has increased wrt previous xtal
@@ -120,13 +120,12 @@ int DCCTowerBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalI
           //(*invalidChIds_)->push_back(*pDetId_);
           fillEcalElectronicsError(invalidZSXtalIds_); 
           
-          errorOnXtal = true;
           lastStripId_ = st;
           lastXtalId_  = ch;
 
           // return here, so to skip all following checks
           return SKIP_BLOCK_UNPACKING;
-          
+          errorOnXtal = true; //keep it here in case the return is to be dropped
         }
       
       // if channel id not proven wrong, update lastStripId_ and lastXtalId_
@@ -203,13 +202,13 @@ int DCCTowerBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalI
       {
         (*invalidGains_)->push_back(*pDetId_);
         (*digis_)->pop_back(); 
-        errorOnXtal = true; 
         
         //Point to begin of next xtal Block
         data_ += numbDWInXtalBlock_;
         //return here, so to skip all the rest
         //make special collection for gain0 data frames when due to saturation
         return BLOCK_UNPACKED;
+        errorOnXtal = true; //keep it here in case the return is to be dropped
       }//end isSaturation 
     else {
         data_ += numbDWInXtalBlock_;
@@ -221,18 +220,16 @@ int DCCTowerBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalI
   
   // from here on, care about gain switches
   
-  short firstGainWrong=-1;
-  short numGainWrong=0;
-  
+  short numGain=1;
+  bool gainSwitchError = false;
+
   for (unsigned int i=1; i<nTSamples_; i++ ) {
-    if (i>0 && xtalGains_[i-1]>xtalGains_[i]) {
-          numGainWrong++;
-          if (firstGainWrong == -1) { firstGainWrong=i;}
-    }
+    if (xtalGains_[i-1] >  xtalGains_[i] && numGain<5) gainSwitchError = true;
+    if (xtalGains_[i-1] == xtalGains_[i]) numGain++;
+    else numGain=1;
   }
-  
-  
-  if (numGainWrong > 0) {
+
+  if (gainSwitchError) {
     if (! DCCDataUnpacker::silentMode_) {
       edm::LogWarning("IncorrectGain")
         << "A wrong gain transition switch was found for Tower Block in strip " << stripId << " and xtal " << xtalId
@@ -256,7 +253,7 @@ int DCCTowerBlock::unpackXtalData(unsigned int expStripID, unsigned int expXtalI
 
 
 
-void DCCTowerBlock::fillEcalElectronicsError( std::auto_ptr<EcalElectronicsIdCollection> * errorColection ){
+void DCCTowerBlock::fillEcalElectronicsError( std::unique_ptr<EcalElectronicsIdCollection> * errorColection ){
 
    const int activeDCC = mapper_->getActiveSM();
 

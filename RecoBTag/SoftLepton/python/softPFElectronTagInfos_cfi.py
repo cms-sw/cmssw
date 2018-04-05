@@ -5,5 +5,5 @@ softPFElectronsTagInfos = cms.EDProducer("SoftPFElectronTagInfoProducer",
     jets = cms.InputTag("ak4PFJetsCHS"),
     electrons = cms.InputTag("gedGsfElectrons"),
     DeltaRElectronJet=cms.double(0.4),
-    MaxSip3D=cms.double(200)
+    MaxSip3Dsig=cms.double(200)
 )

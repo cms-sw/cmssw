@@ -3,12 +3,11 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryTest")
 
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-
-process.load('Configuration/StandardSequences/GeometryDB_cff')
-
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR_R_38X_V4::All' 
+process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('CondCore.CondDB.CondDB_cfi')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -16,19 +15,15 @@ process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4) )
 
 
-process.etta = cms.EDAnalyzer("dumpEcalTrigTowerMapping")
+process.etta = cms.EDAnalyzer("DumpEcalTrigTowerMapping")
 
-process.ctgw = cms.EDAnalyzer("testEcalGetWindow")
+process.ctgw = cms.EDAnalyzer("TestEcalGetWindow")
 
 process.cga = cms.EDAnalyzer("CaloGeometryAnalyzer",
                              fullEcalDump = cms.untracked.bool(True)
                              )
 
 process.mfa = cms.EDAnalyzer("testMagneticField")
-
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
-
-
 
 process.Timing = cms.Service("Timing")
 

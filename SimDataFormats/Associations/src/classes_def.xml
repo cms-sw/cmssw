@@ -5,4 +5,16 @@
   <class name="edm::Wrapper<reco::TrackToGenParticleAssociator>" persistent="false"/>
   <class name="reco::MuonToTrackingParticleAssociator" persistent="false"/>
   <class name="edm::Wrapper<reco::MuonToTrackingParticleAssociator>" persistent="false"/>
+
+  <class name="reco::VertexToTrackingVertexAssociator" persistent="false"/>
+  <class name="edm::Wrapper<reco::VertexToTrackingVertexAssociator>" persistent="false"/>
+
+  <class name="reco::VertexSimToRecoCollection" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<reco::VertexSimToRecoCollection>" />
+  <class name="reco::VertexRecoToSimCollection" >
+    <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="edm::Wrapper<reco::VertexRecoToSimCollection>" />
 </lcgdict>

@@ -5,6 +5,8 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
@@ -23,12 +25,12 @@ public:
   typedef RPCDigitizer::RPCDigiSimLinks RPCDigitizerSimLinks;
 
   explicit RPCDigiProducer(const edm::ParameterSet& ps);
-  virtual ~RPCDigiProducer();
+  ~RPCDigiProducer() override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /**Produces the EDM products,*/
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   void setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>&, const std::vector<double>&);
 

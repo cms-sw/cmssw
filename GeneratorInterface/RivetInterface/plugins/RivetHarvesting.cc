@@ -11,7 +11,7 @@
 #include "Rivet/AnalysisHandler.hh"
 #include "Rivet/Analysis.hh"
 #include "Rivet/Tools/RivetYODA.hh"
-#include "FWCore/Utilities/interface/tinyxml.h"
+#include "tinyxml.h"
 
 #include <string>
 #include <vector>

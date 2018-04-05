@@ -76,7 +76,7 @@ namespace edm {
               std::string const& fileName,
               bool branchListIndexesUnchanged,
               bool modifiedIDs,
-              std::shared_ptr<BranchChildren> branchChildren) :
+              std::shared_ptr<BranchChildren const> branchChildren) :
       fileFormatVersion_(version),
       tree_(const_cast<TTree*>(ev)),
       metaTree_(const_cast<TTree*>(meta)),
@@ -111,7 +111,7 @@ namespace edm {
       whyNotFastClonable_ |= why;
     }
     BranchChildren const& branchChildren() const { return *branchChildren_; }
-    void close () {runMetaTree_ = lumiMetaTree_ = metaTree_ = runTree_ = lumiTree_ = tree_ = 0;}
+    void close () {runMetaTree_ = lumiMetaTree_ = metaTree_ = runTree_ = lumiTree_ = tree_ = nullptr;}
 
   private:
     FileFormatVersion fileFormatVersion_;
@@ -127,7 +127,7 @@ namespace edm {
     std::string fileName_;
     bool branchListIndexesUnchanged_;
     bool modifiedIDs_;
-    std::shared_ptr<BranchChildren> branchChildren_;
+    std::shared_ptr<BranchChildren const> branchChildren_;
   };
 }
 #endif

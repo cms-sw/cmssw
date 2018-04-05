@@ -17,7 +17,7 @@ class CSCTriggerElectronicsMapping : public CSCTriggerMapping {
    CSCTriggerElectronicsMapping();
 
   /// Destructor
-   virtual ~CSCTriggerElectronicsMapping();
+   ~CSCTriggerElectronicsMapping() override;
 
  private: 
 
@@ -26,7 +26,7 @@ class CSCTriggerElectronicsMapping : public CSCTriggerMapping {
      * readout.
      *
      */
-    int hwId( int SPboardId, int FPGA, int cscid, int zero1=0, int zero2=0 ) const;
+    int hwId( int SPboardId, int FPGA, int cscid, int zero1=0, int zero2=0 ) const override;
 
 };
 

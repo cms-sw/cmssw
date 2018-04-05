@@ -16,7 +16,7 @@ class dso_hidden CosmicNavigationSchool : public SimpleNavigationSchool {
 public:
   CosmicNavigationSchool(const GeometricSearchTracker* theTracker,
 			 const MagneticField* field);
-  ~CosmicNavigationSchool(){ cleanMemory();}
+  ~CosmicNavigationSchool() override{ cleanMemory();}
 
   class CosmicNavigationSchoolConfiguration{
   public:
@@ -42,7 +42,7 @@ protected:
 private:
 
   //FakeDetLayer* theFakeDetLayer;
-  void linkBarrelLayers( SymmetricLayerFinder& symFinder);
+  void linkBarrelLayers( SymmetricLayerFinder& symFinder) override;
   //void linkForwardLayers( SymmetricLayerFinder& symFinder); 
   void establishInverseRelations( SymmetricLayerFinder& symFinder );
   void buildAdditionalBarrelLinks();
@@ -103,7 +103,7 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
   // Get barrel layers
   vector<BarrelDetLayer const*> const& blc = theTracker->barrelLayers();
   for ( auto i = blc.begin(); i != blc.end(); i++) {
-    if (conf.noPXB && (*i)->subDetector() == GeomDetEnumerators::PixelBarrel) continue;
+    if (conf.noPXB && GeomDetEnumerators::isTrackerPixel((*i)->subDetector())) continue;
     if (conf.noTOB && (*i)->subDetector() == GeomDetEnumerators::TOB) continue;
     if (conf.noTIB && (*i)->subDetector() == GeomDetEnumerators::TIB) continue;
     theBarrelLayers.push_back( (*i) );
@@ -112,7 +112,7 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
   // get forward layers
   vector<ForwardDetLayer const*> const& flc = theTracker->forwardLayers();
   for ( auto i = flc.begin(); i != flc.end(); i++) {
-    if (conf.noPXF && (*i)->subDetector() == GeomDetEnumerators::PixelEndcap) continue;
+    if (conf.noPXF && GeomDetEnumerators::isTrackerPixel((*i)->subDetector())) continue;
     if (conf.noTEC && (*i)->subDetector() == GeomDetEnumerators::TEC) continue;
     if (conf.noTID && (*i)->subDetector() == GeomDetEnumerators::TID) continue;
     theForwardLayers.push_back( (*i) );
@@ -137,7 +137,7 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
 
     //add TOB1->TOB1 inward link
     const std::vector< const BarrelDetLayer * > &  tobL = theInputTracker->tobLayers();
-    if (tobL.size()>=1){
+    if (!tobL.empty()){
       if (conf.allSelf){
 	LogDebug("CosmicNavigationSchool")<<" adding all TOB self search.";
 	for (auto lIt = tobL.begin(); lIt!=tobL.end(); ++lIt)
@@ -150,7 +150,7 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
       }
     }
     const std::vector< const BarrelDetLayer * > &  tibL = theInputTracker->tibLayers();
-    if (tibL.size()>=1){
+    if (!tibL.empty()){
       if (conf.allSelf){
 	LogDebug("CosmicNavigationSchool")<<" adding all TIB self search.";
 	for (auto lIt = tibL.begin(); lIt!=tibL.end(); ++lIt)
@@ -163,7 +163,7 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
       }
     }
     const std::vector< const BarrelDetLayer * > &  pxbL = theInputTracker->pixelBarrelLayers();
-    if (pxbL.size()>=1){
+    if (!pxbL.empty()){
       if (conf.allSelf){
 	LogDebug("CosmicNavigationSchool")<<" adding all PXB self search.";
         for (auto lIt = pxbL.begin(); lIt!=pxbL.end(); ++lIt)
@@ -320,7 +320,7 @@ public:
 				      const MagneticField* field,
 				      const CosmicNavigationSchoolConfiguration conf);
 
-  ~SkippingLayerCosmicNavigationSchool(){cleanMemory();};
+  ~SkippingLayerCosmicNavigationSchool() override{cleanMemory();};
 };
 
 
@@ -337,7 +337,6 @@ SkippingLayerCosmicNavigationSchool::SkippingLayerCosmicNavigationSchool(const G
 #include <FWCore/Utilities/interface/ESInputTag.h>
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -363,9 +362,9 @@ class dso_hidden SkippingLayerCosmicNavigationSchoolESProducer final : public ed
 }
 
 
-  ~SkippingLayerCosmicNavigationSchoolESProducer(){}
+  ~SkippingLayerCosmicNavigationSchoolESProducer() override{}
 
-   typedef boost::shared_ptr<NavigationSchool> ReturnType;
+   typedef std::shared_ptr<NavigationSchool> ReturnType;
 
 
   ReturnType produce(const NavigationSchoolRecord&);
@@ -373,7 +372,6 @@ class dso_hidden SkippingLayerCosmicNavigationSchoolESProducer final : public ed
   // ----------member data ---------------------------
   edm::ParameterSet theNavigationPSet;
   std::string theNavigationSchoolName;
-  boost::shared_ptr<NavigationSchool> theNavigationSchool ;
 
 
 };
@@ -381,6 +379,7 @@ class dso_hidden SkippingLayerCosmicNavigationSchoolESProducer final : public ed
 
 SkippingLayerCosmicNavigationSchoolESProducer::ReturnType SkippingLayerCosmicNavigationSchoolESProducer::produce(const NavigationSchoolRecord& iRecord){
   using namespace edm::es;
+  std::shared_ptr<NavigationSchool> theNavigationSchool ;
 
   // get the field
   edm::ESHandle<MagneticField>                field;

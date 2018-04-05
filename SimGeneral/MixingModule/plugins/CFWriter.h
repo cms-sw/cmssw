@@ -14,7 +14,7 @@
  *
  ************************************************************/
  
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
  
@@ -28,17 +28,17 @@
 
 namespace edm
 {
-class CFWriter : public edm::EDProducer
+class CFWriter : public edm::stream::EDProducer<>
 {
  public:
  
   explicit CFWriter(const edm::ParameterSet& conf);
   
-  virtual ~CFWriter();
+  ~CFWriter() override;
   
-  void beginJob() {}
+  //void beginJob() {}
   void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
   virtual void put(edm::Event &e) {;}
 
  private:

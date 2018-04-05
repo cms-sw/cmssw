@@ -49,7 +49,7 @@
 //#include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 
 #include "MagneticField/Engine/interface/MagneticField.h"

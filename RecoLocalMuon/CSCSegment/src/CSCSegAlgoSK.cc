@@ -17,7 +17,7 @@
 #include <string>
 
 CSCSegAlgoSK::CSCSegAlgoSK(const edm::ParameterSet& ps) 
-  : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoSK"), sfit_(0) {
+  : CSCSegmentAlgorithm(ps), myName("CSCSegAlgoSK"), sfit_(nullptr) {
 	
   debugInfo = ps.getUntrackedParameter<bool>("verboseInfo");
     
@@ -103,7 +103,7 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(const ChamberHitContainer& u
   std::vector<CSCSegment> segments;
 
   // This is going to point to fits to hits, and its content will be used to create a CSCSegment
-  sfit_ = 0;
+  sfit_ = nullptr;
   
   ChamberHitContainerCIt ib = rechits.begin();
   ChamberHitContainerCIt ie = rechits.end();
@@ -173,7 +173,7 @@ std::vector<CSCSegment> CSCSegAlgoSK::buildSegments(const ChamberHitContainer& u
               CSCSegment temp(sfit_->hits(), sfit_->intercept(), 
 	  	        sfit_->localdir(), sfit_->covarianceMatrix(), sfit_->chi2() );
               delete sfit_;
-              sfit_ = 0;              
+              sfit_ = nullptr;              
               LogDebug("CSC") << "Found a segment !!!\n";
               if ( debugInfo ) dumpSegment( temp );
               segments.push_back(temp);	

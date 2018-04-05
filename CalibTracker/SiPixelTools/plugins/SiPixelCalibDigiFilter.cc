@@ -72,7 +72,7 @@ SiPixelCalibDigiFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
    Handle<DetSetVector<SiPixelCalibDigi> > listOfDetIds;
    iEvent.getByToken(tPixelCalibDigi, listOfDetIds);
 
-   if (listOfDetIds->size() == 0)
+   if (listOfDetIds->empty())
       return false;
    else
       return true;

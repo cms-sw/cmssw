@@ -64,7 +64,7 @@ class L1RCTElectronIsolationCard {
   std::vector<unsigned short> nonIsoElectrons;
   std::vector<L1RCTRegion> regions;
 
-  L1RCTElectronIsolationCard();
+  L1RCTElectronIsolationCard() = delete;
 };
 
 #endif

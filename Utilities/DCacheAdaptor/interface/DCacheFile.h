@@ -12,7 +12,7 @@ public:
   DCacheFile (IOFD fd);
   DCacheFile (const char *name, int flags = IOFlags::OpenRead, int perms = 0666);
   DCacheFile (const std::string &name, int flags = IOFlags::OpenRead, int perms = 0666);
-  ~DCacheFile (void);
+  ~DCacheFile (void) override;
 
   virtual void	create (const char *name,
     			bool exclusive = false,
@@ -31,15 +31,15 @@ public:
   using Storage::write;
   using Storage::position;
 
-  virtual IOSize	read (void *into, IOSize n);
-  virtual IOSize	readv (IOBuffer *into, IOSize buffers);
-  virtual IOSize	readv (IOPosBuffer *into, IOSize buffers);
-  virtual IOSize	write (const void *from, IOSize n);
+  IOSize	read (void *into, IOSize n) override;
+  IOSize	readv (IOBuffer *into, IOSize buffers) override;
+  IOSize	readv (IOPosBuffer *into, IOSize buffers) override;
+  IOSize	write (const void *from, IOSize n) override;
 
-  virtual IOOffset	position (IOOffset offset, Relative whence = SET);
-  virtual void		resize (IOOffset size);
+  IOOffset	position (IOOffset offset, Relative whence = SET) override;
+  void		resize (IOOffset size) override;
 
-  virtual void		close (void);
+  void		close (void) override;
   virtual void		abort (void);
 
 private:

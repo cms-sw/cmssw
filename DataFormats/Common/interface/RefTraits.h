@@ -31,7 +31,7 @@ namespace edm {
                                             typename self::second_argument_type iIndex) {
         typename REFV::const_iterator it = iContainer.begin();
         std::advance(it, iIndex);
-        return it.operator->()->get();;
+        return it.operator->()->get();
       }
     };
     

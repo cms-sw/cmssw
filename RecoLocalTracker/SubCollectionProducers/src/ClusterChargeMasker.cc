@@ -25,7 +25,7 @@ namespace {
   class ClusterChargeMasker : public edm::stream::EDProducer<> {
   public:
     ClusterChargeMasker(const edm::ParameterSet& iConfig);
-    ~ClusterChargeMasker(){}
+    ~ClusterChargeMasker() override{}
     void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
   private:
  
@@ -103,24 +103,20 @@ namespace {
 	
 	auto detid = item.id;
 	
-	for (auto i = item.offset; i<item.offset+int(item.size); ++i) {
+	for (int i = item.offset; i<item.offset+int(item.size); ++i) {
           auto clusCharge = siStripClusterTools::chargePerCM(detid,clusters[i]);
 	  if(clusCharge < minGoodStripCharge_) collectedStrips[i] = true; 
 	}
 
     }
 
-    std::auto_ptr<StripMaskContainer> removedStripClusterMask(
-         new StripMaskContainer(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedStrips));
       LogDebug("ClusterChargeMasker")<<"total strip to skip: "<<std::count(collectedStrips.begin(),collectedStrips.end(),true);
       // std::cout << "ClusterChargeMasker " <<"total strip to skip: "<<std::count(collectedStrips.begin(),collectedStrips.end(),true) 
       //          << " for CCC " << minGoodStripCharge_ <<std::endl;
-       iEvent.put( removedStripClusterMask );
+       iEvent.put(std::make_unique<StripMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiStripCluster> >(stripClusters),collectedStrips));
 
-      std::auto_ptr<PixelMaskContainer> removedPixelClusterMask(
-         new PixelMaskContainer(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels));      
       LogDebug("ClusterChargeMasker")<<"total pxl to skip: "<<std::count(collectedPixels.begin(),collectedPixels.end(),true);
-      iEvent.put( removedPixelClusterMask );
+      iEvent.put(std::make_unique<PixelMaskContainer>(edm::RefProd<edmNew::DetSetVector<SiPixelCluster> >(pixelClusters),collectedPixels));
  
 
 

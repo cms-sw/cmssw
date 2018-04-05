@@ -146,7 +146,7 @@ AMPTAnalyzer::AMPTAnalyzer(const edm::ParameterSet& iConfig)
    }
    etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2);
    ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
-   src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
+   src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("VtxSmeared"));
 }
 
 

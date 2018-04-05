@@ -1,7 +1,7 @@
- 
-import sys
+import sys, os
 
 from Configuration.PyReleaseValidation.WorkFlow import WorkFlow
+from Configuration.PyReleaseValidation.MatrixUtil import InputInfo
 
 # ================================================================================
 
@@ -47,6 +47,8 @@ class MatrixReader(object):
                              'relval_production': 'prod-'  ,
                              'relval_ged': 'ged-',
                              'relval_upgrade':'upg-',
+                             'relval_2017':'2017-',
+                             'relval_2023':'2023-',
                              'relval_identity':'id-',
                              'relval_machine': 'mach-',
                              'relval_unsch': 'unsch-',
@@ -61,6 +63,8 @@ class MatrixReader(object):
                       'relval_production',
                       'relval_ged',
                       'relval_upgrade',
+                      'relval_2017',
+                      'relval_2023',
                       'relval_identity',
                       'relval_machine',
                       'relval_unsch',
@@ -74,6 +78,8 @@ class MatrixReader(object):
                              'relval_production':True,
                              'relval_ged':True,
                              'relval_upgrade':False,
+                             'relval_2017':True,
+                             'relval_2023':True,
                              'relval_identity':False,
                              'relval_machine':True,
                              'relval_unsch':True,
@@ -121,7 +127,7 @@ class MatrixReader(object):
         try:
             _tmpMod = __import__( 'Configuration.PyReleaseValidation.'+fileNameIn )
             self.relvalModule = sys.modules['Configuration.PyReleaseValidation.'+fileNameIn]
-        except Exception, e:
+        except Exception as e:
             print "ERROR importing file ", fileNameIn, str(e)
             return
 
@@ -165,7 +171,7 @@ class MatrixReader(object):
                     return
                 self.relvalModule.changeRefRelease(
                     self.relvalModule.steps,
-                    zip(self.relvalModule.baseDataSetRelease,refRels)
+                    list(zip(self.relvalModule.baseDataSetRelease,refRels))
                     )
             else:
                 self.relvalModule.changeRefRelease(
@@ -306,7 +312,7 @@ class MatrixReader(object):
 
             try:
                 self.readMatrix(matrixFile, useInput, refRel, fromScratch)
-            except Exception, e:
+            except Exception as e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
 
@@ -391,14 +397,29 @@ class MatrixReader(object):
             outFile.close()
             print "wrote ",writtenWF, ' workflow'+('s' if (writtenWF!=1) else ''),' to ', outFile.name
         return 
-                    
 
-    def showWorkFlows(self, selected=None, extended=True):
+    def workFlowsByLocation(self, cafVeto=True):
+        # Check if we are on CAF
+        onCAF = False
+        if 'cms/caf/cms' in os.environ['CMS_PATH']:
+            onCAF = True
+
+        workflows = []
+        for workflow in self.workFlows:
+            if isinstance(workflow.cmds[0], InputInfo):
+                if cafVeto and (workflow.cmds[0].location == 'CAF' and not onCAF):
+                    continue
+            workflows.append(workflow)
+
+        return workflows
+
+    def showWorkFlows(self, selected=None, extended=True, cafVeto=True):
         if selected: selected = map(float,selected)
+        wfs = self.workFlowsByLocation(cafVeto)
         maxLen = 100 # for summary, limit width of output
         fmt1   = "%-6s %-35s [1]: %s ..."
         fmt2   = "       %35s [%d]: %s ..."
-        print "\nfound a total of ", len(self.workFlows), ' workflows:'
+        print "\nfound a total of ", len(wfs), ' workflows:'
         if selected:
             print "      of which the following", len(selected), 'were selected:'
         #-ap for now:
@@ -407,7 +428,7 @@ class MatrixReader(object):
         fmt2   = "       %35s [%d]: %s"
 
         N=[]
-        for wf in self.workFlows:
+        for wf in wfs:
             if selected and float(wf.numId) not in selected: continue
             if extended: print ''
             #pad with zeros
@@ -468,20 +489,20 @@ class MatrixReader(object):
             
             try:
                 self.readMatrix(matrixFile, useInput, refRel, fromScratch)
-            except Exception, e:
+            except Exception as e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
             
             try:
                 self.createWorkFlows(matrixFile)
-            except Exception, e:
+            except Exception as e:
                 print "ERROR creating workflows :", str(e)
                 raise
             
                 
-    def show(self, selected=None, extended=True):    
+    def show(self, selected=None, extended=True, cafVeto=True):
 
-        self.showWorkFlows(selected,extended)
+        self.showWorkFlows(selected, extended, cafVeto)
         print '\n','-'*80,'\n'
 
 

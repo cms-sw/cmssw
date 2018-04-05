@@ -7,11 +7,11 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelModuleName.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include <string>
 
-class DetId; 
+class DetId;
+class TrackerTopology;
 
 class PixelBarrelName : public PixelModuleName {
 public:
@@ -19,9 +19,10 @@ public:
   enum Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
 
   /// ctor from DetId
-  PixelBarrelName(const DetId &, bool phase=false);
-
   PixelBarrelName(const DetId &, const TrackerTopology* tt, bool phase=false);
+
+  // do not use, works only for phase0 and old pixel classes 
+  PixelBarrelName(const DetId &, bool phase=false);
 
   /// ctor for defined name with dummy parameters
  PixelBarrelName(Shell shell=mO, int layer=0, int module=0, int ladder=0, bool phase=false)
@@ -30,14 +31,14 @@ public:
   { }
 
   /// ctor from name string
-  PixelBarrelName(std::string name);
+  PixelBarrelName(std::string name, bool phase=false);
 
-  virtual ~PixelBarrelName() { }
+  ~PixelBarrelName() override { }
 
   inline int convertLadderNumber(int oldLadder);
 
   /// from base class
-  virtual std::string name() const;
+  std::string name() const override;
 
   Shell shell() const { return thePart; }
 
@@ -57,14 +58,14 @@ public:
   bool isHalfModule() const;
   
   /// module Type
-  virtual PixelModuleName::ModuleType  moduleType() const;
+  PixelModuleName::ModuleType  moduleType() const override;
 
   /// return the DetId
   PXBDetId getDetId();
   DetId getDetId(const TrackerTopology* tt);
 
   /// check equality of modules from datamemebers
-  virtual bool operator== (const PixelModuleName &) const;
+  bool operator== (const PixelModuleName &) const override;
 
 private:
   Shell thePart;

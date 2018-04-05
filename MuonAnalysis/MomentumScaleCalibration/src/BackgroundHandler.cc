@@ -273,7 +273,7 @@ void BackgroundHandler::countEventsInAllWindows(const std::vector<std::pair<reco
 
 void BackgroundHandler::consistencyCheck(const std::vector<int> & identifiers,
                                          const std::vector<double> & leftWindowBorders,
-                                         const std::vector<double> & rightWindowBorders) const throw(cms::Exception)
+                                         const std::vector<double> & rightWindowBorders) const noexcept(false)
 {
   if( leftWindowBorders.size() != rightWindowBorders.size() ) {
     throw cms::Exception("Configuration") << "BackgroundHandler::BackgroundHandler: leftWindowBorders.size() = " << leftWindowBorders.size()

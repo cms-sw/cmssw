@@ -11,11 +11,16 @@
  */
 
 #include <map>
+#include <memory>
+#include <vector>
 
+#include "CondCore/CondDB/interface/Time.h"
 #include "CondFormats/Alignment/interface/Definitions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class Alignable;
 class AlignmentParameters;
+class AlignmentLevel;
 
 namespace align
 {
@@ -24,11 +29,15 @@ namespace align
   typedef std::vector<GlobalVector> GlobalVectors;
   typedef std::vector<LocalPoint>   LocalPoints;
   typedef std::vector<LocalVector>  LocalVectors;
-  typedef std::vector<LocalVector>  LocalVectors;
   typedef std::vector<Alignable*>   Alignables;
   typedef std::vector<AlignmentParameters*> Parameters;
+  typedef std::vector<std::unique_ptr<AlignmentLevel> > AlignmentLevels;
 
   typedef std::map<std::pair<Alignable*, Alignable*>, AlgebraicMatrix> Correlations;
+
+  using RunNumber = cond::RealTimeType<cond::runnumber>::type;
+  using RunRange = std::pair<RunNumber, RunNumber>;
+  using RunRanges = std::vector<RunRange>;
 
   /// Convert rotation matrix to angles about x-, y-, z-axes (frame rotation).
   EulerAngles toAngles(
@@ -67,6 +76,12 @@ namespace align
   void rectify(
 	       RotationType&
 	       );
+
+
+  RunRanges makeNonOverlappingRunRanges(const edm::VParameterSet& runRanges,
+                                        const RunNumber& defaultRun);
+  RunRanges makeUniqueRunRanges(const edm::VParameterSet& runRanges,
+                                const RunNumber& defaultRun);
 }
 
 #endif

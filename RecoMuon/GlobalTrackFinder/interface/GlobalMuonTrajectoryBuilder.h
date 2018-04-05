@@ -28,18 +28,18 @@ class GlobalMuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
   GlobalMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*,edm::ConsumesCollector&);
           
     /// destructor
-    ~GlobalMuonTrajectoryBuilder();
+    ~GlobalMuonTrajectoryBuilder() override;
 
     /// reconstruct trajectories from standalone and tracker only Tracks    
-    MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&);
+    MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&) override;
 
     /// pass the Event to the algo at each event
-    virtual void setEvent(const edm::Event&);
+    void setEvent(const edm::Event&) override;
 
   private:
   
     /// make a TrackCand collection using tracker Track, Trajectory information
-    std::vector<TrackCand> makeTkCandCollection(const TrackCand&);
+    std::vector<TrackCand> makeTkCandCollection(const TrackCand&) override;
 
   private:
   

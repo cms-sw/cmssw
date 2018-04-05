@@ -32,8 +32,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 // system include files
-#include "boost/type_traits/is_base_of.hpp"
-#include "boost/utility/enable_if.hpp"
 #include <cassert>
 
 // forward declarations
@@ -104,7 +102,9 @@ namespace edm {
 
     /// Accessor for product getter.
     EDProductGetter const* productGetter() const {
-      if (ptr_.productGetter()) return ptr_.productGetter();
+      //another thread might cause productGetter() to change its value
+      EDProductGetter const* getter = ptr_.productGetter();
+      if (getter) return getter;
       else return backPtr_.productGetter();
     }
 
@@ -115,7 +115,7 @@ namespace edm {
     RefCore const& refCore() const {return ptr_.isNonnull() ? ptr_.refCore() : backPtr_.refCore() ;}
     // ---------- member functions ---------------------------
     
-    void const* product() const {return 0;}
+    void const* product() const {return nullptr;}
     
     Ptr<value_type> const& ptr() const { return ptr_;}
     Ptr<value_type> const& backPtr() const { return backPtr_;}

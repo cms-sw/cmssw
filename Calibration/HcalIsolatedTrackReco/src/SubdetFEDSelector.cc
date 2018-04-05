@@ -24,7 +24,7 @@ void
 SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  std::auto_ptr<FEDRawDataCollection> producedData(new FEDRawDataCollection);
+  auto producedData = std::make_unique<FEDRawDataCollection>();
 
   edm::Handle<FEDRawDataCollection> rawIn;
   iEvent.getByToken(tok_raw_,rawIn);
@@ -217,7 +217,7 @@ SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
    }
 
- iEvent.put(producedData);
+ iEvent.put(std::move(producedData));
 
 }
 

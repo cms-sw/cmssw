@@ -3,6 +3,7 @@
 #define VertexCategories_h
 
 #include <vector>
+#include <ostream>
 
 class VertexCategories
 {

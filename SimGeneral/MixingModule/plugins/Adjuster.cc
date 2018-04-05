@@ -1,9 +1,10 @@
 #include "Adjuster.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 
 namespace edm {
 namespace detail {
-void doTheOffset(int bunchSpace, int bcr, std::vector<SimTrack>& simtracks, unsigned int evtNr, int vertexOffset) { 
+void doTheOffset(int bunchSpace, int bcr, std::vector<SimTrack>& simtracks, unsigned int evtNr, int vertexOffset, bool wrap) { 
 
   EncodedEventId id(bcr,evtNr);
   for (auto& item : simtracks) {
@@ -14,7 +15,7 @@ void doTheOffset(int bunchSpace, int bcr, std::vector<SimTrack>& simtracks, unsi
   }
 }
 
-void doTheOffset(int bunchSpace, int bcr, std::vector<SimVertex>& simvertices, unsigned int evtNr, int vertexOffset) { 
+void doTheOffset(int bunchSpace, int bcr, std::vector<SimVertex>& simvertices, unsigned int evtNr, int vertexOffset, bool wrap) { 
 
   int timeOffset = bcr * bunchSpace;
   EncodedEventId id(bcr,evtNr);
@@ -24,17 +25,29 @@ void doTheOffset(int bunchSpace, int bcr, std::vector<SimVertex>& simvertices, u
   }
 }
 
-void doTheOffset(int bunchSpace, int bcr, std::vector<PSimHit>& simhits, unsigned int evtNr, int vertexOffset) { 
+void doTheOffset(int bunchSpace, int bcr, std::vector<PSimHit>& simhits, unsigned int evtNr, int vertexOffset, bool wrap) { 
 
   int timeOffset = bcr * bunchSpace;
   EncodedEventId id(bcr,evtNr);
-  for (auto& item : simhits) {
-    item.setEventId(id);
-    item.setTof(item.timeOfFlight() + timeOffset);
+  if(wrap) { // wrap time for long-lived hits into one beam crossing
+    for (auto& item : simhits) {
+      item.setEventId(id);
+
+      float Tfloor = floor(item.timeOfFlight());
+      float digits = item.timeOfFlight() - Tfloor;
+      int remainder = int(Tfloor) % bunchSpace;
+      item.setTof(float(remainder) + digits + timeOffset);
+    }
+  }
+  else {
+    for (auto& item : simhits) {
+      item.setEventId(id);
+      item.setTof(item.timeOfFlight() + timeOffset);
+    }
   }
 }
 
-void doTheOffset(int bunchSpace, int bcr, std::vector<PCaloHit>& calohits, unsigned int evtNr, int vertexOffset) { 
+void doTheOffset(int bunchSpace, int bcr, std::vector<PCaloHit>& calohits, unsigned int evtNr, int vertexOffset, bool wrap) { 
 
   int timeOffset = bcr * bunchSpace;
   EncodedEventId id(bcr,evtNr);
@@ -44,26 +57,14 @@ void doTheOffset(int bunchSpace, int bcr, std::vector<PCaloHit>& calohits, unsig
   }
 }
 
-void doTheOffset(int bunchSpace, int bcr, TrackingRecHitCollection & trackingrechits, unsigned int evtNr, int vertexOffset) {
+void doTheOffset(int bunchSpace, int bcr, TrackingRecHitCollection & trackingrechits, unsigned int evtNr, int vertexOffset, bool wrap) {
 
   EncodedEventId id(bcr,evtNr);
   for (auto it = trackingrechits.begin();it!=trackingrechits.end();++it) {
-    {
-      SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<SiTrackerGSMatchedRecHit2D*>(&(*it));
-      std::cout << rechit << std::endl;
-      if(rechit){
-	rechit->setEeId(id.rawId());
-	continue;
+      if(trackerHitRTTI::isFast(*it)){
+	  FastTrackerRecHit * rechit = static_cast<FastTrackerRecHit*>(&(*it));
+	  rechit->setEventId(id.rawId());
       }
-    }
-    {
-      SiTrackerGSRecHit2D * rechit = dynamic_cast<SiTrackerGSRecHit2D*>(&(*it));
-      std::cout << rechit << std::endl;
-      if(rechit){
-	rechit->setEeId(id.rawId());
-	continue;
-      }
-    }
   }
 }
 

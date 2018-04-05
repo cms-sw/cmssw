@@ -13,10 +13,10 @@ public:
 
   ME0NumberingScheme( const DDCompactView& cpv );
   ME0NumberingScheme( const MuonDDDConstants& muonConstants );
-
-  virtual ~ME0NumberingScheme(){};
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber);
+  ~ME0NumberingScheme() override{};
+  
+  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
   
 private:
   void initMe ( const MuonDDDConstants& muonConstants );
@@ -25,7 +25,7 @@ private:
   int theSectorLevel;
   int theLayerLevel;
   int theRollLevel;
-
+  int theNEtaPart;
 };
 
 #endif

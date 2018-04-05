@@ -95,7 +95,7 @@ CastorFastTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.getByLabel("genParticles", genParticles);
    
    // make pointer to towers that will be made
-   auto_ptr<CastorTowerCollection> CastorTowers (new CastorTowerCollection);
+   unique_ptr<CastorTowerCollection> CastorTowers (new CastorTowerCollection);
    
    // declare castor array
    double castorplus [4][16]; // (0,x): Energies - (1,x): emEnergies - (2,x): hadEnergies - (3,x): phi position - eta = 5.9
@@ -362,7 +362,7 @@ CastorFastTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	}
    }
     	
-   iEvent.put(CastorTowers); 
+   iEvent.put(std::move(CastorTowers));
    
 }
 

@@ -87,6 +87,21 @@ namespace edm {
       ++size_;
     }
 
+    // Throws if size()==N
+    template <typename ...Args>
+    void emplace_back(Args&&... args) {
+      if(size_ >= N)
+        throw std::length_error("emplace_back on already-full VecArray (N="+std::to_string(N)+")");
+      emplace_back_unchecked(std::forward<Args>(args)...);
+    }
+
+    // Undefined behaviour if size()==N
+    template <typename ...Args>
+    void emplace_back_unchecked(Args&&... args) {
+      data_[size_] = T(std::forward<Args>(args)...);
+      ++size_;
+    }
+
     // Undefined behaviour if size()==0
     void pop_back() {
       --size_;

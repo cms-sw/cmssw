@@ -73,7 +73,7 @@ void DTMeanTimerPlotter::plotHistos(vector<TH1D*> hTMaxes, TString& name, const 
    }
 
   for(vector<TH1D*>::const_iterator ith = hTMaxes.begin();
-      ith != hTMaxes.end(); ith++) {
+      ith != hTMaxes.end(); ++ith) {
    color++;     
 
    (*ith)->Rebin(theRebinning);
@@ -88,7 +88,7 @@ void DTMeanTimerPlotter::plotHistos(vector<TH1D*> hTMaxes, TString& name, const 
    int i=0;
    vector<TF1*> functions = fitTMaxes(hTMaxes);
    for(vector<TF1*>::const_iterator funct = functions.begin();
-       funct != functions.end(); funct++) {
+       funct != functions.end(); ++funct) {
      //     color++;     
      (*funct)->SetLineColor(hTMaxes[i]->GetLineColor());
      (*funct)->Draw("same");
@@ -149,7 +149,7 @@ vector<TH1D*>  DTMeanTimerPlotter::plotTotalTMax (TString& name) {
 vector<TF1*>  DTMeanTimerPlotter::fitTMaxes(vector<TH1D*> hTMaxes){
   vector <TF1*> functions;
    for(vector<TH1D*>::const_iterator ith = hTMaxes.begin();
-      ith != hTMaxes.end(); ith++) {
+      ith != hTMaxes.end(); ++ith) {
      // Find distribution peak and fit range
       Double_t peak = ((((((*ith)->GetXaxis())->GetXmax())-(((*ith)->GetXaxis())->GetXmin()))/(*ith)->GetNbinsX())*
 		       ((*ith)->GetMaximumBin()))+(((*ith)->GetXaxis())->GetXmin());
@@ -178,7 +178,7 @@ vector<TF1*>  DTMeanTimerPlotter::fitTMaxes(vector<TH1D*> hTMaxes){
 double DTMeanTimerPlotter::getMaximum(vector<TH1D*> hTMaxes){
   double max = -pow(10.0,10);
   for(vector<TH1D*>::const_iterator ith = hTMaxes.begin();
-      ith != hTMaxes.end(); ith++) {
+      ith != hTMaxes.end(); ++ith) {
     double m =(*ith)->GetMaximum(pow(10.0,10));
     if(m>max)
       max = m;

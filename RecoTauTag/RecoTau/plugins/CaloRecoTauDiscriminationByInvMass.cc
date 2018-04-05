@@ -26,7 +26,7 @@ class CaloRecoTauDiscriminationByInvMass final : public CaloTauDiscriminationPro
       booleanOutput 		= iConfig.getParameter<bool>("BooleanOutput");
     }
 
-    ~CaloRecoTauDiscriminationByInvMass(){}
+    ~CaloRecoTauDiscriminationByInvMass() override{}
 
     double discriminate(const reco::CaloTauRef&) const override;
 

@@ -15,20 +15,19 @@ class HcalZSAlgoRealistic : public HcalZeroSuppressionAlgo {
 public:
   HcalZSAlgoRealistic(bool markAndPass, std::pair<int,int> HBsearchTS, std::pair<int,int> HEsearchTS, std::pair<int,int> HOsearchTS, std::pair<int,int> HFsearchTS);
   HcalZSAlgoRealistic(bool markAndPass, int levelHB, int levelHE, int levelHO, int levelHF, std::pair<int,int> HBsearchTS, std::pair<int,int> HEsearchTS, std::pair<int,int> HOsearchTS, std::pair<int,int> HFsearchTS);
-  
+  ~HcalZSAlgoRealistic() override = default; 
 protected:
-  virtual bool shouldKeep(const HBHEDataFrame& digi) const;
-  virtual bool shouldKeep(const HODataFrame& digi) const;
-  virtual bool shouldKeep(const HFDataFrame& digi) const;
-  virtual bool shouldKeep(const HcalUpgradeDataFrame& digi) const;
+  //these need to be overloads instead of templates to avoid linking issues when calling private member function templates
+  bool shouldKeep(const HBHEDataFrame& digi) const override;
+  bool shouldKeep(const HODataFrame& digi) const override;
+  bool shouldKeep(const HFDataFrame& digi) const override;
+  bool shouldKeep(const QIE10DataFrame& digi) const override;
+  bool shouldKeep(const QIE11DataFrame& digi) const override;
 private:
   bool usingDBvalues; 
   int thresholdHB_, thresholdHE_, thresholdHO_, thresholdHF_;
   std::pair<int,int> HBsearchTS_,  HEsearchTS_, HOsearchTS_, HFsearchTS_;
-  bool keepMe(const HBHEDataFrame& inp, int start, int finish, int threshold, uint32_t hbhezsmask) const;
-  bool keepMe(const HODataFrame& inp, int start, int finish, int threshold, uint32_t hozsmask) const;
-  bool keepMe(const HFDataFrame& inp, int start, int finish, int threshold, uint32_t hfzsmask) const;
-  bool keepMe(const HcalUpgradeDataFrame& inp, int start, int finish, int threshold, uint32_t zsmask) const;
+  template<class Digi> bool keepMe(const Digi& inp, int start, int finish, int threshold, uint32_t zsmask) const;
 };
 
 #endif

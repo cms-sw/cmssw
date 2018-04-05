@@ -24,7 +24,7 @@ using namespace gen;
 
 Pythia6Gun::Pythia6Gun( const ParameterSet& pset ) :
    fPy6Service( new Pythia6Service(pset) ),
-   fEvt(0)
+   fEvt(nullptr)
    // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
 
@@ -50,7 +50,7 @@ Pythia6Gun::Pythia6Gun( const ParameterSet& pset ) :
             <<" pythia did not accept MSTU(12)=12345";
    }
 
-   produces<HepMCProduct>();
+   produces<HepMCProduct>("unsmeared");
 
 }
 
@@ -205,7 +205,7 @@ void Pythia6Gun::produce( edm::Event& evt, const edm::EventSetup& )
 
    generateEvent(fPy6Service->randomEngine()) ;
 
-   fEvt->set_beam_particles(0,0);
+   fEvt->set_beam_particles(nullptr,nullptr);
    fEvt->set_event_number(evt.id().event()) ;
    fEvt->set_signal_process_id(pypars.msti[0]) ;  
 
@@ -230,11 +230,11 @@ void Pythia6Gun::produce( edm::Event& evt, const edm::EventSetup& )
 void Pythia6Gun::loadEvent( edm::Event& evt )
 {
 
-   std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
+   std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
    
    if(fEvt)  bare_product->addHepMCData( fEvt );
 
-   evt.put(bare_product);
+   evt.put(std::move(bare_product), "unsmeared");
 
    
    return;
@@ -245,7 +245,7 @@ HepMC::GenParticle* Pythia6Gun::addAntiParticle( int& ip, int& particleID,
                                                  double& ee, double& eta, double& phi )
 {
 
-   if ( ip < 2 ) return 0;
+   if ( ip < 2 ) return nullptr;
 
 // translate PDG to Py6
    int py6PID = HepPID::translatePDTtoPythia( particleID );

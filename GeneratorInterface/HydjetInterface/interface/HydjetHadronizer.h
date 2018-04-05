@@ -18,7 +18,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -37,7 +37,7 @@ namespace gen
   class HydjetHadronizer : public BaseHadronizer {
   public:
     HydjetHadronizer(const edm::ParameterSet &);
-    virtual ~HydjetHadronizer();
+    ~HydjetHadronizer() override;
 
     bool generatePartonsAndHadronize();
     bool hadronize();
@@ -55,8 +55,8 @@ namespace gen
 
   private:
 
-    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
-    virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+    void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+    std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
 
     static const std::vector<std::string> theSharedResources;
 
@@ -73,6 +73,7 @@ namespace gen
     HepMC::GenEvent   *evt;
     edm::ParameterSet  pset_;
     double             abeamtarget_;           // beam/target atomic mass number 
+    int 	       angularspecselector_;   // angular emitted gluon spectrum selection
     double             bfixed_;                // fixed impact param (fm); valid only if cflag_=0
     double             bmax_;                  // max impact param; 
                                                // units of nucl radius

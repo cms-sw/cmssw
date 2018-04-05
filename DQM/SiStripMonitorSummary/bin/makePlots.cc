@@ -231,28 +231,28 @@ void makePlots(std::string inputFileName, std::string outputFileName)
       unsigned int nLayers = 0;
       std::string layerName;
 //       std::cout << "itSub = " << (*itSub).c_str() << std::endl;
-      if((*itSub).compare("TIB")==0)
+      if((*itSub)=="TIB")
       {
         nLayers=4;
         layerName="Layer";
         legend = new TLegend(0.4,0.9,0.9,1);
         setLegendStyle(legend,2);
       }
-      else if((*itSub).compare("TID+")==0 || (*itSub).compare("TID-")==0)
+      else if((*itSub)=="TID+" || (*itSub)=="TID-")
       {
         nLayers=3;
         layerName="Disk";
         legend = new TLegend(0.35,0.9,0.9,1);
         setLegendStyle(legend,3);
       }
-      else if((*itSub).compare("TOB")==0)
+      else if((*itSub)=="TOB")
       {
         nLayers=6;
         layerName="Layer";
         legend = new TLegend(0.35,0.9,0.9,1);
         setLegendStyle(legend,3);
       }
-      else if((*itSub).compare("TEC+")==0 || (*itSub).compare("TEC-")==0)
+      else if((*itSub)=="TEC+" || (*itSub)=="TEC-")
       {
         nLayers=9;
         layerName="Disk";
@@ -905,14 +905,14 @@ void fillNormFactorMaps()
   
   for(unsigned int i = 0; i < tkParts.size(); i++)
   {
-    modulesStackNormFactors[tkParts[i].c_str()] = nModulesStack[i];
-    modulesNoStackNormFactors[tkParts[i].c_str()] = nModulesNoStack[i];
-    fibersStackNormFactors[tkParts[i].c_str()] = nFibersStack[i];
-    fibersNoStackNormFactors[tkParts[i].c_str()] = nFibersNoStack[i];
-    APVsStackNormFactors[tkParts[i].c_str()] = nAPVsStack[i];
-    APVsNoStackNormFactors[tkParts[i].c_str()] = nAPVsNoStack[i];
-    stripsStackNormFactors[tkParts[i].c_str()] = nStripsStack[i];
-    stripsNoStackNormFactors[tkParts[i].c_str()] = nStripsNoStack[i];
+    modulesStackNormFactors[tkParts[i]] = nModulesStack[i];
+    modulesNoStackNormFactors[tkParts[i]] = nModulesNoStack[i];
+    fibersStackNormFactors[tkParts[i]] = nFibersStack[i];
+    fibersNoStackNormFactors[tkParts[i]] = nFibersNoStack[i];
+    APVsStackNormFactors[tkParts[i]] = nAPVsStack[i];
+    APVsNoStackNormFactors[tkParts[i]] = nAPVsNoStack[i];
+    stripsStackNormFactors[tkParts[i]] = nStripsStack[i];
+    stripsNoStackNormFactors[tkParts[i]] = nStripsNoStack[i];
   }
   
   //   for(std::map< std::string, unsigned int>::iterator it = allStripsTK.begin(); it != allStripsTK.end(); it++)
@@ -933,21 +933,21 @@ double findNormFactor(const std::string currentPlotType, const std::string curre
 //   std::cout << "                  stack option is: " << stackOption << std::endl;
   if(stackOption)
   {
-    if(currentPlotType.compare("BadModules") == 0)
+    if(currentPlotType == "BadModules")
     {
-      return modulesStackNormFactors[currentPart.c_str()];
+      return modulesStackNormFactors[currentPart];
     }
-    else if(currentPlotType.compare("BadFibers") == 0)
+    else if(currentPlotType == "BadFibers")
     {
       return fibersStackNormFactors[currentPart];
     }
-    else if(currentPlotType.compare("BadAPVs") == 0)
+    else if(currentPlotType == "BadAPVs")
     {
       return APVsStackNormFactors[currentPart];
     }
-    else if(currentPlotType.compare("AllBadStrips") == 0 || 
-            currentPlotType.compare("BadStripsFromAPVs") == 0 || 
-            currentPlotType.compare("BadStrips") == 0)
+    else if(currentPlotType == "AllBadStrips" || 
+            currentPlotType == "BadStripsFromAPVs" || 
+            currentPlotType == "BadStrips")
     {
       return stripsStackNormFactors[currentPart];
     }
@@ -960,21 +960,21 @@ double findNormFactor(const std::string currentPlotType, const std::string curre
   }
   else
   {
-    if(currentPlotType.compare("BadModules") == 0)
+    if(currentPlotType == "BadModules")
     {
-      return modulesNoStackNormFactors[currentPart.c_str()];
+      return modulesNoStackNormFactors[currentPart];
     }
-    else if(currentPlotType.compare("BadFibers") == 0)
+    else if(currentPlotType == "BadFibers")
     {
       return fibersNoStackNormFactors[currentPart];
     }
-    else if(currentPlotType.compare("BadAPVs") == 0)
+    else if(currentPlotType == "BadAPVs")
     {
       return APVsNoStackNormFactors[currentPart];
     }
-    else if(currentPlotType.compare("BadStrips") == 0 || 
-            currentPlotType.compare("BadStripsFromAPVs") == 0 || 
-            currentPlotType.compare("AllBadStrips") == 0)
+    else if(currentPlotType == "BadStrips" || 
+            currentPlotType == "BadStripsFromAPVs" || 
+            currentPlotType == "AllBadStrips")
     {
       return stripsNoStackNormFactors[currentPart];
     }

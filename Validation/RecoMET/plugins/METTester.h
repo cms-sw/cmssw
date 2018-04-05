@@ -55,9 +55,8 @@ public:
 
   explicit METTester(const edm::ParameterSet&);
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void FillMETRes();
 
 
  private:
@@ -99,6 +98,24 @@ public:
   MonitorElement* mMETDeltaPhi_GenMETTrue;
   MonitorElement* mMETDifference_GenMETCalo;
   MonitorElement* mMETDeltaPhi_GenMETCalo;
+  
+  // MET Uncertainity Variables
+  MonitorElement* mMETUnc_JetResUp;
+  MonitorElement* mMETUnc_JetResDown;
+  MonitorElement* mMETUnc_JetEnUp;
+  MonitorElement* mMETUnc_JetEnDown;
+  MonitorElement* mMETUnc_MuonEnUp;
+  MonitorElement* mMETUnc_MuonEnDown;
+  MonitorElement* mMETUnc_ElectronEnUp;
+  MonitorElement* mMETUnc_ElectronEnDown;
+  MonitorElement* mMETUnc_TauEnUp;
+  MonitorElement* mMETUnc_TauEnDown;
+  MonitorElement* mMETUnc_UnclusteredEnUp;
+  MonitorElement* mMETUnc_UnclusteredEnDown;
+  MonitorElement* mMETUnc_PhotonEnUp;
+  MonitorElement* mMETUnc_PhotonEnDown;
+  
+    
   //CaloMET variables
 
   MonitorElement* mCaloMaxEtInEmTowers;
@@ -153,8 +170,9 @@ public:
   MonitorElement* mMETDifference_GenMETTrue_MET200to300;
   MonitorElement* mMETDifference_GenMETTrue_MET300to400;
   MonitorElement* mMETDifference_GenMETTrue_MET400to500;
-  MonitorElement* mMETDifference_GenMETTrue_METResolution;
-
+  MonitorElement* mMETDifference_GenMETTrue_MET500;
+  //moved into postprocessor
+  //MonitorElement* mMETDifference_GenMETTrue_METResolution;
   
 
   bool isCaloMET;

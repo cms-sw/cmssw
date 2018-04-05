@@ -31,11 +31,11 @@ public:
 
   CombinedHitTripletGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-  virtual ~CombinedHitTripletGenerator();
+  ~CombinedHitTripletGenerator() override;
 
   /// from base class
-  virtual void hitTriplets( const TrackingRegion& reg, OrderedHitTriplets & triplets,
-      const edm::Event & ev,  const edm::EventSetup& es);
+  void hitTriplets( const TrackingRegion& reg, OrderedHitTriplets & triplets,
+      const edm::Event & ev,  const edm::EventSetup& es) override;
 
 private:
   edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;

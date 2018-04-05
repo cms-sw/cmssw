@@ -27,14 +27,16 @@ private:
 
   template<class T> bool findInput(const edm::EDGetTokenT<T>&, edm::Handle<T>&, const edm::Event&);
   virtual void refineCluster(const edm::Handle< edmNew::DetSetVector<SiStripCluster> >& input,
-			     std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >& output);
+			     edmNew::DetSetVector<SiStripCluster>& output);
 
   const edm::InputTag inputTag;
   typedef edm::EDGetTokenT< edmNew::DetSetVector<SiStripCluster> > token_t;
   token_t inputToken;
   edm::ParameterSet confClusterRefiner_;
+  bool useAssociateHit_; 
 
-  std::shared_ptr<TrackerHitAssociator> associator_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  std::unique_ptr<TrackerHitAssociator> associator_;
 
 };
 

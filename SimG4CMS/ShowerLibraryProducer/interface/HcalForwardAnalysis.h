@@ -52,22 +52,22 @@ public:
   };
 
 	HcalForwardAnalysis(const edm::ParameterSet &p);
-  virtual ~HcalForwardAnalysis();
+  ~HcalForwardAnalysis() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 
-  HcalForwardAnalysis(const HcalForwardAnalysis&); // stop default
-  const HcalForwardAnalysis& operator=(const HcalForwardAnalysis&);
+  HcalForwardAnalysis(const HcalForwardAnalysis&) = delete; // stop default
+  const HcalForwardAnalysis& operator=(const HcalForwardAnalysis&) = delete;
 
   void  init();
 
   // observer methods
-  void update(const BeginOfRun * run);
-  void update(const BeginOfEvent * evt);
-  void update(const G4Step * step);
-  void update(const EndOfEvent * evt);
+  void update(const BeginOfRun * run) override;
+  void update(const BeginOfEvent * evt) override;
+  void update(const G4Step * step) override;
+  void update(const EndOfEvent * evt) override;
 //  void write(const EndOfRun * run);
 
   //User methods

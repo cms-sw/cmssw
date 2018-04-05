@@ -23,10 +23,10 @@ namespace dtCalibration {
 class DTVDriftSegment: public DTVDriftBaseAlgo {
 public:
    DTVDriftSegment(edm::ParameterSet const&);
-   virtual ~DTVDriftSegment();
+   ~DTVDriftSegment() override;
 
-   virtual void setES(const edm::EventSetup& setup);
-   virtual DTVDriftData compute(const DTSuperLayerId&);
+   void setES(const edm::EventSetup& setup) override;
+   DTVDriftData compute(const DTSuperLayerId&) override;
 private:
    TH1F* getHisto(const DTSuperLayerId&);
    std::string getHistoName(const DTSuperLayerId&);

@@ -10,21 +10,23 @@
  *
  */
 
+#include <vector>
+
 class TimeMeasurementSequence {
 
     public:
 
       std::vector <double> dstnc;
       std::vector <double> local_t0;
-      std::vector <double> weightVertex;
+      std::vector <double> weightTimeVtx;
       std::vector <double> weightInvbeta;
       
       double totalWeightInvbeta;
-      double totalWeightVertex;
+      double totalWeightTimeVtx;
       
       TimeMeasurementSequence():
 	totalWeightInvbeta(0),
-	totalWeightVertex(0)
+	totalWeightTimeVtx(0)
 	 {}
 
 };

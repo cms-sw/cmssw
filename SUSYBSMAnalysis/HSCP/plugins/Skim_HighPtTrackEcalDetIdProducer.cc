@@ -57,7 +57,7 @@
 class HighPtTrackEcalDetIdProducer : public edm::EDProducer {
    public:
       explicit HighPtTrackEcalDetIdProducer(const edm::ParameterSet&);
-      ~HighPtTrackEcalDetIdProducer();
+      ~HighPtTrackEcalDetIdProducer() override;
       void beginRun(const edm::Run&, const edm::EventSetup&) override;
       void produce(edm::Event&, const edm::EventSetup&) override;
    private:
@@ -127,15 +127,15 @@ HighPtTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 //   if(!iSetup) continue;
    Handle<TrackCollection> tkTracks;
    iEvent.getByToken(inputCollectionToken_,tkTracks);
-   std::auto_ptr< DetIdCollection > interestingDetIdCollection( new DetIdCollection() ) ;
+   std::unique_ptr< DetIdCollection > interestingDetIdCollection( new DetIdCollection() ) ;
    for(TrackCollection::const_iterator itTrack = tkTracks->begin();
        itTrack != tkTracks->end();
        ++itTrack) {
         if(itTrack->pt()>ptcut_){
            TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
-           if(info.crossedEcalIds.size()==0) break;
+           if(info.crossedEcalIds.empty()) break;
 
-           if(info.crossedEcalIds.size()>0){
+           if(!info.crossedEcalIds.empty()){
               DetId centerId = info.crossedEcalIds.front();
 
               const CaloSubdetectorTopology* topology = caloTopology_->getSubdetectorTopology(DetId::Ecal,centerId.subdetId());
@@ -148,7 +148,7 @@ HighPtTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup&
         }
 
    }
-   iEvent.put(interestingDetIdCollection);
+   iEvent.put(std::move(interestingDetIdCollection));
 
 }
 //define this as a plug-in

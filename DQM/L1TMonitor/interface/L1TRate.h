@@ -34,6 +34,8 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -49,19 +51,19 @@ class L1TRate : public DQMEDAnalyzer {
   public:
 
     L1TRate(const edm::ParameterSet& ps);   // Constructor
-    virtual ~L1TRate();                     // Destructor
+    ~L1TRate() override;                     // Destructor
 
   protected:
 
-    void analyze (const edm::Event& e, const edm::EventSetup& c);      // Analyze
+    void analyze (const edm::Event& e, const edm::EventSetup& c) override;      // Analyze
     //void beginJob();                                                   // BeginJob
     //void endJob  ();                                                   // EndJob
-    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+    void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
     //void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
+    void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+    void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+    void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
   // Private methods
   private:
@@ -111,6 +113,7 @@ class L1TRate : public DQMEDAnalyzer {
     // Others
     //DQMStore* dbe;  // The DQM Service Handle
 
+    L1GtUtils m_l1GtUtils;
 };
 
 #endif

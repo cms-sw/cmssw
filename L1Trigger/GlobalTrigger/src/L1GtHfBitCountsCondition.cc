@@ -126,7 +126,7 @@ const bool L1GtHfBitCountsCondition::evaluateCondition() const {
     const L1GctHFBitCounts* bitCounts = m_gtPSB->getCandL1HfBitCounts();
 
     // protection against missing HF bit counts collection
-    if (bitCounts == 0) {
+    if (bitCounts == nullptr) {
         return false;
     }
 

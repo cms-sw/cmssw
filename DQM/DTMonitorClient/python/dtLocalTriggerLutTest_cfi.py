@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-triggerLutTest = cms.EDAnalyzer("DTLocalTriggerLutTest",
+triggerLutTest = DQMEDHarvester("DTLocalTriggerLutTest",
     # prescale factor (in luminosity blocks) to perform client analysis
     diagnosticPrescale = cms.untracked.int32(1),
     # run in online environment
     runOnline = cms.untracked.bool(True),
     # kind of trigger data processed by DTLocalTriggerTask
-    hwSources = cms.untracked.vstring('DCC','DDU'),
+    hwSources = cms.untracked.vstring('TM','DDU'),
     # false if DTLocalTriggerTask used LTC digis
     localrun = cms.untracked.bool(True),
     # enable/disable correlation plot tests
@@ -15,4 +16,6 @@ triggerLutTest = cms.EDAnalyzer("DTLocalTriggerLutTest",
     folderRoot = cms.untracked.string('')
 )
 
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( triggerLutTest, hwSources = cms.untracked.vstring('TM'))
 

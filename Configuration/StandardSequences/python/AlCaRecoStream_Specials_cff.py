@@ -17,7 +17,7 @@ from Configuration.EventContent.AlCaRecoOutput_cff import *
 
 ALCARECOStreamEcalCalEtaCalib = cms.FilteredStream(
         responsible = 'Vladimir Litvine',
-        name = 'ALCARECOEcalCalEtaCalib',
+        name = 'EcalCalEtaCalib',
         paths  = (pathALCARECOEcalCalEtaCalib),
         content = OutALCARECOEcalCalEtaCalib.outputCommands,
         selectEvents = OutALCARECOEcalCalEtaCalib.SelectEvents,
@@ -27,7 +27,6 @@ ALCARECOStreamEcalCalEtaCalib = cms.FilteredStream(
 
 # ECAL calibration with pi0
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_cff import *
-from DQMOffline.Configuration.AlCaRecoDQM_cff import *
 
 pathALCARECOEcalCalPi0Calib = cms.Path(seqALCARECOEcalCalPi0Calib*ALCARECOEcalCalPi0CalibDQM)
 
@@ -35,73 +34,94 @@ from Configuration.EventContent.AlCaRecoOutput_cff import *
 
 ALCARECOStreamEcalCalPi0Calib = cms.FilteredStream(
         responsible = 'Vladimir Litvine',
-        name = 'ALCARECOEcalCalPi0Calib',
+        name = 'EcalCalPi0Calib',
         paths  = (pathALCARECOEcalCalPi0Calib),
         content = OutALCARECOEcalCalPi0Calib.outputCommands,
         selectEvents = OutALCARECOEcalCalPi0Calib.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )
 
-
-# ECAL calibration with phi symmetry 
-from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPhiSym_cff import *
-
-from DQMOffline.Configuration.AlCaRecoDQM_cff import *
-
-#pathALCARECOEcalCalPhiSym = cms.Path(seqALCARECOEcalCalPhiSym*ALCARECOEcalCalPhisymDQM)
-pathALCARECOEcalCalPhiSym = cms.Path(seqALCARECOEcalCalPhiSym)
-
-from Configuration.EventContent.AlCaRecoOutput_cff import *
-
-ALCARECOStreamEcalCalPhiSym = cms.FilteredStream(
-        responsible = 'Stefano Argiro',
-        name = 'ALCARECOEcalCalPhiSym',
-        paths  = (pathALCARECOEcalCalPhiSym),
-        content = OutALCARECOEcalCalPhiSym.outputCommands,
-        selectEvents = OutALCARECOEcalCalPhiSym.SelectEvents,
-        dataTier = cms.untracked.string('ALCARECO')
-        )
-
-
-
 # HCAL calibration with min.bias
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff import *
 
-from DQMOffline.Configuration.AlCaRecoDQM_cff import *
-
-pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBias*ALCARECOHcalCalPhisymDQM)
+pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBiasDigi*seqALCARECOHcalCalMinBias*ALCARECOHcalCalPhisymDQM)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
 ALCARECOStreamHcalCalMinBias = cms.FilteredStream(
         responsible = 'Grigory Safronov',
-        name = 'ALCARECOHcalCalMinBias',
+        name = 'HcalCalMinBias',
         paths  = (pathALCARECOHcalCalMinBias),
         content = OutALCARECOHcalCalMinBias.outputCommands,
         selectEvents = OutALCARECOHcalCalMinBias.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )
 
+# HCAL Pedestals
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestal_cff import *
 
+pathALCARECOHcalCalPedestal = cms.Path(seqALCARECOHcalCalPedestalDigi*seqALCARECOHcalCalPedestal*ALCARECOHcalCalPhisymDQM)
+
+from Configuration.EventContent.AlCaRecoOutput_cff import *
+
+ALCARECOStreamHcalCalPedestal = cms.FilteredStream(
+        responsible = 'Olga Kodolova',
+        name = 'HcalCalPedestal',
+        paths  = (pathALCARECOHcalCalPedestal),
+        content = OutALCARECOHcalCalPedestal.outputCommands,
+        selectEvents = OutALCARECOHcalCalPedestal.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
 
 # AlCaReco for LumiPixel stream
-from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixels_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixels_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCZeroBias_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCRandom_cff import *
+from Calibration.LumiAlCaRecoProducers.ALCARECORawPCCProducer_cff import *
 
 # FIXME: in case we need to add a DQM step
 #from DQMOffline.Configuration.AlCaRecoDQM_cff import *
 #pathALCARECOLumiPixels = cms.Path(seqALCARECOLumiPixels*ALCARECOLumiPixelsDQM)
 
-pathALCARECOLumiPixels = cms.Path(seqALCARECOLumiPixels)
+pathALCARECOLumiPixels      = cms.Path(seqALCARECOLumiPixels)
+pathALCARECOAlCaPCCZeroBias = cms.Path(seqALCARECOAlCaPCCZeroBias)
+pathALCARECOAlCaPCCRandom   = cms.Path(seqALCARECOAlCaPCCRandom)
+pathALCARECORawPCCProducer = cms.Path(seqALCARECORawPCCProducer)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
 
 ALCARECOStreamLumiPixels = cms.FilteredStream(
         responsible = 'Cerminara Gianluca',
-        name = 'ALCARECOLumiPixels',
+        name = 'LumiPixels',
         paths  = (pathALCARECOLumiPixels),
         content = OutALCARECOLumiPixels.outputCommands,
         selectEvents = OutALCARECOLumiPixels.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )
 
+ALCARECOStreamAlCaPCCZeroBias = cms.FilteredStream(
+	      responsible = 'Chris Palmer',
+	      name = 'AlCaPCCZeroBias',
+	      paths  = (pathALCARECOAlCaPCCZeroBias),
+	      content = OutALCARECOAlCaPCCZeroBias.outputCommands,
+	      selectEvents = OutALCARECOAlCaPCCZeroBias.SelectEvents,
+	      dataTier = cms.untracked.string('ALCARECO')
+	      )
 
+ALCARECOStreamAlCaPCCRandom = cms.FilteredStream(
+	      responsible = 'Chris Palmer',
+	      name = 'AlCaPCCRandom',
+	      paths  = (pathALCARECOAlCaPCCRandom),
+	      content = OutALCARECOAlCaPCCRandom.outputCommands,
+	      selectEvents = OutALCARECOAlCaPCCRandom.SelectEvents,
+	      dataTier = cms.untracked.string('ALCARECO')
+	      )
+
+ALCARECOStreamRawPCCProducer = cms.FilteredStream(
+	      responsible = 'Chris Palmer',
+	      name = 'RawPCCProducer',
+	      paths  = (pathALCARECORawPCCProducer),
+	      content = OutALCARECORawPCCProducer.outputCommands,
+	      selectEvents = OutALCARECORawPCCProducer.SelectEvents,
+	      dataTier = cms.untracked.string('ALCARECO')
+	      )

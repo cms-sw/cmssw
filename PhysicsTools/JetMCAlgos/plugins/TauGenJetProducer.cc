@@ -16,26 +16,21 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig)
+TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig) :
+  inputTagGenParticles_(iConfig.getParameter<InputTag>("GenParticles")),
+  tokenGenParticles_(consumes<GenParticleCollection>(inputTagGenParticles_)),
+  includeNeutrinos_(iConfig.getParameter<bool>("includeNeutrinos")),
+  verbose_(iConfig.getUntrackedParameter<bool>("verbose",false))
 {
-  inputTagGenParticles_
-    = iConfig.getParameter<InputTag>("GenParticles");
-  tokenGenParticles_
-    = consumes<GenParticleCollection>(inputTagGenParticles_);
-
-  includeNeutrinos_
-    = iConfig.getParameter<bool>("includeNeutrinos");
-
-  verbose_ =
-    iConfig.getUntrackedParameter<bool>("verbose",false);
+  
 
   produces<GenJetCollection>();
 }
 
 TauGenJetProducer::~TauGenJetProducer() { }
 
-void TauGenJetProducer::produce(Event& iEvent,
-				const EventSetup& iSetup) {
+void TauGenJetProducer::produce(edm::StreamID, Event& iEvent,
+				const EventSetup& iSetup) const {
 
   Handle<GenParticleCollection> genParticles;
 
@@ -49,8 +44,7 @@ void TauGenJetProducer::produce(Event& iEvent,
     throw cms::Exception( "MissingProduct", err.str());
   }
 
-  std::auto_ptr<GenJetCollection>
-    pOutVisTaus(new GenJetCollection());
+  auto pOutVisTaus = std::make_unique<GenJetCollection>();
 
   using namespace GenParticlesHelper;
 
@@ -68,7 +62,7 @@ void TauGenJetProducer::produce(Event& iEvent,
     //    --> have a status 2 tau lepton in the list of descendents
     GenParticleRefVector status2TauDaughters;
     findDescendents( *iTau, status2TauDaughters, 2, 15 );
-    if ( status2TauDaughters.size() > 0 ) continue;
+    if ( !status2TauDaughters.empty() ) continue;
 
     // loop on descendents, and take all except neutrinos
     math::XYZTLorentzVector sumVisMom;
@@ -108,13 +102,13 @@ void TauGenJetProducer::produce(Event& iEvent,
     GenJet jet( sumVisMom, vertex, specific, constituents);
 
     if (charge != (*iTau)->charge() )
-      std::cout<<" charge of Tau: " << (*iTau) << " not equal to charge of sum of charge of all descendents. " << std::cout;
+      std::cout<<" charge of Tau: " << (*iTau) << " not equal to charge of sum of charge of all descendents. " << std::endl;
 
     jet.setCharge(charge);
     pOutVisTaus->push_back( jet );
 
   }
-  iEvent.put( pOutVisTaus );
+  iEvent.put(std::move(pOutVisTaus) );
 }
 
 

@@ -8,51 +8,35 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloShapes.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HFShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCShape.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+#include <vector>
 #include <map>
 class CaloVShape;
 class DetId;
-class HcalMCParams;
-class HcalTopology;
 
 class HcalShapes : public CaloShapes
 {
 public:
-  enum {HPD=101, LONG=102, ZECOTEK=201, HAMAMATSU=202, HF=301, ZDC=401};
+  enum {HPD=101, LONG=102, ZECOTEK=201, HAMAMATSU=202, HE2017=203, HE2018=206, HF=301, ZDC=401};
   HcalShapes();
-  ~HcalShapes();
+  ~HcalShapes() override;
 
-  void beginRun(edm::EventSetup const & es);
-  void endRun();
+  void setDbService(const HcalDbService * service) {theDbService = service;}
 
-  virtual const CaloVShape * shape(const DetId & detId) const;
+  const CaloVShape * shape(const DetId & detId, bool precise=false) const override;
 
 private:
-  // hardcoded, if we can't figure it out form the DB
-  const CaloVShape * defaultShape(const DetId & detId) const;
-  HcalMCParams * theMCParams;
-  const HcalTopology * theTopology;
   typedef std::map<int, const CaloVShape *> ShapeMap;
+  // hardcoded, if we can't figure it out from the DB
+  const CaloVShape * defaultShape(const DetId & detId, bool precise=false) const;
+  const ShapeMap& getShapeMap(bool precise) const;
+  const HcalDbService * theDbService;
   ShapeMap theShapes;
-  // HcalShape theHcalShape;
-  // HFShape theHFShape;
+  ShapeMap theShapesPrecise;
   ZDCShape theZDCShape;
-  // HcalSiPMShape theSiPMShape;
   //   list of vShapes.
-  HcalShape theHcalShape101;
-  HcalShape theHcalShape102;
-  HcalShape theHcalShape103;
-  HcalShape theHcalShape104;
-  HcalShape theHcalShape105;
-  HcalShape theHcalShape123;
-  HcalShape theHcalShape124;
-  HcalShape theHcalShape125;
-  HcalShape theHcalShape201;
-  HcalShape theHcalShape202;
-  HcalShape theHcalShape301;
-  HcalShape theHcalShape401;
+  std::vector<HcalShape> theHcalShapes;
 
 };
 

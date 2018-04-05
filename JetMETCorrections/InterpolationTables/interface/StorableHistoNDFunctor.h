@@ -65,11 +65,11 @@ namespace npstat {
               table_(tab.table_, Same<Num2>(), tab.title().c_str(),
                      tab.accumulatedDataLabel().c_str()), deg_(tab.deg_) {}
 
-        virtual ~StorableHistoNDFunctor() {}
+        ~StorableHistoNDFunctor() override {}
 
-        virtual unsigned minDim() const {return table_.dim();};
+        unsigned minDim() const override {return table_.dim();};
 
-        virtual double operator()(const double* point, unsigned dim) const;
+        double operator()(const double* point, unsigned dim) const override;
 
         /** Retrieve interpolation degree */
         inline unsigned interpolationDegree() const {return deg_;}
@@ -97,8 +97,8 @@ namespace npstat {
 
         //@{
         // Method related to "geners" I/O
-        virtual gs::ClassId classId() const {return gs::ClassId(*this);}
-        virtual bool write(std::ostream& of) const;
+        gs::ClassId classId() const override {return gs::ClassId(*this);}
+        bool write(std::ostream& of) const override;
         //@}
 
         // I/O methods needed for reading
@@ -108,7 +108,7 @@ namespace npstat {
             const gs::ClassId& id, std::istream& in);
 
     protected:
-        virtual bool isEqual(const StorableMultivariateFunctor& other) const
+        bool isEqual(const StorableMultivariateFunctor& other) const override
         {
             // Note the use of static_cast rather than dynamic_cast below.
             // static_cast works faster and it is guaranteed to succeed here.
@@ -119,7 +119,7 @@ namespace npstat {
         }
 
     private:
-        StorableHistoNDFunctor();
+        StorableHistoNDFunctor() = delete;
 
         Table table_;
         unsigned deg_;

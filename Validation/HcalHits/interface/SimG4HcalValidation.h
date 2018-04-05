@@ -40,22 +40,22 @@ class SimG4HcalValidation : public SimProducer,
 
 public:
   SimG4HcalValidation(const edm::ParameterSet &p);
-  virtual ~SimG4HcalValidation();
+  ~SimG4HcalValidation() override;
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  SimG4HcalValidation(const SimG4HcalValidation&); // stop default
-  const SimG4HcalValidation& operator=(const SimG4HcalValidation&);
+  SimG4HcalValidation(const SimG4HcalValidation&) = delete; // stop default
+  const SimG4HcalValidation& operator=(const SimG4HcalValidation&) = delete;
 
   void  init();
 
   // observer classes
-  void update(const BeginOfJob * job);
-  void update(const BeginOfRun * run);
-  void update(const BeginOfEvent * evt);
-  void update(const G4Step * step);
-  void update(const EndOfEvent * evt);
+  void update(const BeginOfJob * job) override;
+  void update(const BeginOfRun * run) override;
+  void update(const BeginOfEvent * evt) override;
+  void update(const G4Step * step) override;
+  void update(const EndOfEvent * evt) override;
 
   // jetfinding and analysis-related stuff
   void   fill(const EndOfEvent * ev);

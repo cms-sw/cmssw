@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
+#include "SimG4Core/Notification/interface/EndOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
@@ -28,7 +29,7 @@
 
 //-------------------------------------------------------------------------
 MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
-  : theHistoMgr(0)
+  : theHistoMgr(nullptr)
 {
   theData = new MaterialBudgetData;
   
@@ -123,11 +124,6 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
 //-------------------------------------------------------------------------
 MaterialBudgetAction::~MaterialBudgetAction()
 {
-  if (saveToTxt) delete theTxt;
-  if (saveToTree) delete theTree;
-  if (saveToHistos) delete theHistos;
-  if (theHistoMgr) delete theHistoMgr;
-  delete theData;
 }
 
 //-------------------------------------------------------------------------
@@ -161,7 +157,6 @@ void MaterialBudgetAction::update(const BeginOfRun* )
     int siz = partTable->size();
     for (int ii= 0; ii < siz; ii++) {
       G4ParticleDefinition * particle = partTable->GetParticle(ii);
-      std::string particleName = particle->GetParticleName();
       
       //--- All processes of this particle 
       G4ProcessManager * pmanager = particle->GetProcessManager();
@@ -242,7 +237,7 @@ void MaterialBudgetAction::update(const BeginOfTrack* trk)
 void MaterialBudgetAction::update(const G4Step* aStep)
 {
   //----- Check it is inside one of the volumes selected
-  if( theVolumeList.size() != 0 ) {
+  if( !theVolumeList.empty() ) {
     if( !CheckTouchableInSelectedVolumes( aStep->GetTrack()->GetTouchable() ) ) return;
   } 
 
@@ -312,17 +307,32 @@ void MaterialBudgetAction::update(const EndOfTrack* trk)
 }
 
 //-------------------------------------------------------------------------
+void MaterialBudgetAction::update(const EndOfRun* )
+{
+  if (saveToTxt) delete theTxt;
+  if (saveToTree) delete theTree;
+  if (saveToHistos) delete theHistos;
+  if (theHistoMgr) delete theHistoMgr;
+  delete theData;
+  return;
+}
+
+//-------------------------------------------------------------------------
 bool MaterialBudgetAction::CheckTouchableInSelectedVolumes( const G4VTouchable*  touch ) 
 {
   std::vector<G4String>::const_iterator ite;
   size_t volh = touch->GetHistoryDepth();
-  for( ite = theVolumeList.begin(); ite != theVolumeList.end(); ite++ ){
-    //-  std::cout << " CheckTouchableInSelectedVolumes vol " << *ite << std::endl;
+//  for( ite = theVolumeList.begin(); ite != theVolumeList.end(); ite++ ){
+//     //-  std::cout << " CheckTouchableInSelectedVolumes vol " << *ite << std::endl;
     for( int ii = volh; ii >= 0; ii-- ){
-      //-  std::cout << ii << " CheckTouchableInSelectedVolumes parent  " << touch->GetVolume(ii)->GetName() << std::endl;
-      if( touch->GetVolume(ii)->GetName() == *ite ) return true;
+//       //-  std::cout << ii << " CheckTouchableInSelectedVolumes parent  " << touch->GetVolume(ii)->GetName() << std::endl;
+      if ( 
+        std::find(theVolumeList.begin(),
+                  theVolumeList.end(),
+                  touch->GetVolume(ii)->GetName()) != theVolumeList.end() )
+          return true;
     }
-  }
+//  }
 
   return false;
 }
@@ -332,7 +342,7 @@ bool MaterialBudgetAction::StopAfterProcess( const G4Step* aStep )
 {
   if( theProcessToStop == "" ) return false;
 
-  if(aStep->GetPostStepPoint()->GetProcessDefinedStep() == NULL) return false;
+  if(aStep->GetPostStepPoint()->GetProcessDefinedStep() == nullptr) return false;
   if( aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == theProcessToStop ) {
     std::cout << " MaterialBudgetAction::StopAfterProcess " << aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << std::endl;
     return true;

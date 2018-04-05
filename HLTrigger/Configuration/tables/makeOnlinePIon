@@ -3,9 +3,9 @@
 # generate HLT tables from master table in ConfDB
 #
 
-MASTER="/dev/CMSSW_5_2_6/HLT"                        # no version, take the latest one
-TARGET="/online/collisions/2013/ProtonProton/v1.0/HLT" # where to store the online-compliant menu
+MASTER="/dev/CMSSW_8_0_0/HLT"                        # no version, take the latest one
+TARGET="/online/collisions/2016/ProtonIon/v1.0/HLT"  # where to store the online-compliant menu
 TABLES="online_pion"
 
 source subtables.sh
-createSubtables "hltdev" "$MASTER" "$TARGET" "$TABLES"
+createSubtables "v2/offline" "$MASTER" "$TARGET" "$TABLES"

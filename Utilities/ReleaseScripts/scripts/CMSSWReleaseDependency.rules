@@ -30,6 +30,7 @@ IOMC/RandomEngine/bin/.*               : geant4core
 #geant4 (indirect)
 FastSimulation/Calorimetry/.*          : geant4.*
 FastSimulation/EventProducer/.*        : geant4.*
+FastSimulation/MaterialEffects/.*      : geant4.*
 VisSimulation/VisSimBase/.*            : geant4.*
 Validation/TrackerHits/.*              : geant4.*
 Validation/GlobalRecHits/.*            : geant4.*
@@ -62,6 +63,7 @@ OnlineDB/SiStripESSources/.*            : oracle.*
 OnlineDB/SiStripConfigDb/.*             : oracle.*
 DQM/EcalBarrelMonitorClient/.*          : oracle.*
 DQM/EcalEndcapMonitorClient/.*          : oracle.*
+DQM/EcalMonitorDbModule/.*              : oracle.*
 DQM/SiStripCommissioningDbClients/.*    : oracle.*
 CalibTracker/SiStripDCS/.*              : oracle.*
 CalibCalorimetry/EcalPedestalOffsets/.* : oracle.*
@@ -103,7 +105,7 @@ EventFilter/ShmBuffer/.*                : xdaq
 EventFilter/ShmReader/.*                : xdaq
 
 #Reco and Track exceptions for DQM usage
-RecoEGamma/Examples/.*                  : DQM.*
+RecoEgamma/Examples/.*                  : DQM.*
 RecoLocalCalo/EcalRecProducers/test/.*  : DQM.*
 RecoParticleFlow/Benchmark/.*           : DQM.*         
 RecoParticleFlow/PFRootEvent/.*         : DQM.*

@@ -169,7 +169,7 @@ public:
   
   
   std::vector<std::vector<reco::TransientTrack> >
-  clusterize(const std::vector<reco::TransientTrack> & tracks) const;
+  clusterize(const std::vector<reco::TransientTrack> & tracks) const override;
   
   
   std::vector<TransientVertex>
@@ -179,31 +179,38 @@ public:
   track_t	fill(const std::vector<reco::TransientTrack> & tracks) const;
   
   double update(double beta, track_t & gtracks,
-		vertex_t & gvertices, bool useRho0, double & rho0) const;
-  
+		vertex_t & gvertices, bool useRho0, const double & rho0) const;
+
   void dump(const double beta, const vertex_t & y,
 	    const track_t & tks, const int verbosity = 0) const;
-  bool merge(vertex_t &) const;
   bool merge(vertex_t & y, double & beta)const;
   bool purge(vertex_t &, track_t &, double &,
 	     const double) const;
-  
   void splitAll( vertex_t & y) const;
-  bool split(const double beta,  track_t &t, vertex_t & y ) const;
+  bool split(const double beta,  track_t &t, vertex_t & y, double threshold = 1. ) const;
   
   double beta0(const double betamax, track_t const & tks, vertex_t const & y) const;
     
   
 private:
   bool verbose_;
-  float vertexSize_;
+  double zdumpcenter_;
+  double zdumpwidth_;
+
+  double vertexSize_;
   int maxIterations_;
   double coolingFactor_;
-  float betamax_;
-  float betastop_;
+  double betamax_;
+  double betastop_;
   double dzCutOff_;
   double d0CutOff_;
   bool useTc_;
+
+  double mintrkweight_;
+  double uniquetrkweight_;
+  double zmerge_;
+  double betapurge_;
+
 };
 
 

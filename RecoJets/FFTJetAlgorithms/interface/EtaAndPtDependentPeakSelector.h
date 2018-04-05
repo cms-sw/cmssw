@@ -19,16 +19,16 @@ namespace fftjetcms {
     {
     public:
         explicit EtaAndPtDependentPeakSelector(std::istream& in);
-        ~EtaAndPtDependentPeakSelector();
+        ~EtaAndPtDependentPeakSelector() override;
 
-        bool operator()(const fftjet::Peak& peak) const;
+        bool operator()(const fftjet::Peak& peak) const override;
         inline bool isValid() const {return ip_;}
 
     private:
-        EtaAndPtDependentPeakSelector();
-        EtaAndPtDependentPeakSelector(const EtaAndPtDependentPeakSelector&);
+        EtaAndPtDependentPeakSelector() = delete;
+        EtaAndPtDependentPeakSelector(const EtaAndPtDependentPeakSelector&) = delete;
         EtaAndPtDependentPeakSelector& operator=(
-            const EtaAndPtDependentPeakSelector&);
+            const EtaAndPtDependentPeakSelector&) = delete;
 
         fftjet::LinearInterpolator2d* ip_;
     };
@@ -43,7 +43,7 @@ namespace fftjetcms {
                                    unsigned ny, double ymin, double ymax,
                                    const std::vector<double>& data);
 
-        bool operator()(const fftjet::Peak& peak) const;
+        bool operator()(const fftjet::Peak& peak) const override;
 
     private:
         LookupTable2d lookupTable_;

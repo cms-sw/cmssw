@@ -8,10 +8,7 @@
 <use   name="CondFormats/CastorObjects"/>
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="CalibFormats/CastorObjects"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="RelationalAccess"/>
-<use   name="CondCore/MetaDataService"/>
 <use   name="CondCore/PopCon"/>
 <use   name="xerces-c"/>
 <export>

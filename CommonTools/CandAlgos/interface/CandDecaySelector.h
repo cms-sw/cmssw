@@ -23,7 +23,7 @@ namespace helper {
 	add( cands, * * i );
     }
     edm::OrphanHandle<reco::CandidateCollection> put( edm::Event & evt ) {
-      return evt.put( selCands_ );
+      return evt.put( std::move(selCands_) );
     }
     size_t size() const { return selCands_->size(); }
     
@@ -31,16 +31,16 @@ namespace helper {
     reco::CandidateRef add( reco::CandidateRefProd cands, const reco::Candidate & c ) {
       using namespace reco;
       using namespace std;
-      std::auto_ptr<CompositeRefCandidate> cmp( new CompositeRefCandidate( c ) );
+      auto cmp = std::make_unique<CompositeRefCandidate>( c );
       CompositeRefCandidate * p = cmp.get();
       CandidateRef ref( cands, selCands_->size() );
-      selCands_->push_back( cmp );
+      selCands_->push_back( std::move(cmp) );
       size_t n = c.numberOfDaughters(); 
       for( size_t i = 0; i < n; ++ i )
 	p->addDaughter( add( cands, * c.daughter( i ) ) );
       return ref;
     }
-    std::auto_ptr<reco::CandidateCollection> selCands_;
+    std::unique_ptr<reco::CandidateCollection> selCands_;
   };
   
   template<typename EdmFilter>

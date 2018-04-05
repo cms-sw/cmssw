@@ -9,7 +9,7 @@
 class EcalMonitorPrescaler: public edm::EDFilter {
  public:
   EcalMonitorPrescaler(edm::ParameterSet const&);
-  ~EcalMonitorPrescaler();
+  ~EcalMonitorPrescaler() override;
 
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   bool filter(edm::Event&, edm::EventSetup const&) override;

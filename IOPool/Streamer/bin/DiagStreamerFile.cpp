@@ -107,9 +107,9 @@ void readfile(std::string filename, std::string outfile) {
     std::cout << "\n\n-------------EVENT Messages-------------------" << std::endl;
 
     bool first_event(true);
-    std::auto_ptr<EventMsgView> firstEvtView(0);
+    std::unique_ptr<EventMsgView> firstEvtView(nullptr);
     std::vector<unsigned char> savebuf(0);
-    EventMsgView const* eview(0);
+    EventMsgView const* eview(nullptr);
     seenEventMap.clear();
 
     while(stream_reader.next()) {

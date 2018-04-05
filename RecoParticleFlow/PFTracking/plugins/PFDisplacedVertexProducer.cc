@@ -117,6 +117,9 @@ PFDisplacedVertexProducer::produce(Event& iEvent,
   ESHandle<GlobalTrackingGeometry> globTkGeomHandle;
   iSetup.get<GlobalTrackingGeometryRecord>().get(globTkGeomHandle);
 
+  ESHandle<TrackerTopology> tkerTopoHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tkerTopoHandle);
+
   ESHandle<TrackerGeometry> tkerGeomHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(tkerGeomHandle);
 
@@ -130,7 +133,7 @@ PFDisplacedVertexProducer::produce(Event& iEvent,
   iEvent.getByToken(inputTagBeamSpot_, beamSpotHandle);
 
   // Fill useful event information for the Finder
-  pfDisplacedVertexFinder_.setEdmParameters(theMagField, globTkGeomHandle, tkerGeomHandle); 
+  pfDisplacedVertexFinder_.setEdmParameters(theMagField, globTkGeomHandle, tkerTopoHandle.product(), tkerGeomHandle.product());
   pfDisplacedVertexFinder_.setPrimaryVertex(mainVertexHandle, beamSpotHandle);
   pfDisplacedVertexFinder_.setInput(vertexCandidates);
 
@@ -146,13 +149,13 @@ PFDisplacedVertexProducer::produce(Event& iEvent,
   }    
 
 
-  auto_ptr< reco::PFDisplacedVertexCollection > 
+  std::unique_ptr<reco::PFDisplacedVertexCollection>
     pOutputDisplacedVertexCollection( 
       pfDisplacedVertexFinder_.transferDisplacedVertices() ); 
 
 
   
-  iEvent.put(pOutputDisplacedVertexCollection);
+  iEvent.put(std::move(pOutputDisplacedVertexCollection));
  
   LogDebug("PFDisplacedVertexProducer")<<"STOP event: "<<iEvent.id().event()
 			     <<" in run "<<iEvent.id().run()<<endl;

@@ -50,7 +50,7 @@ PFDisplacedVertexHelper::isTrackSelected(const reco::Track& trk,
 
   bool isGoodTrack = false;
     
-  bool isHighPurity = trk.quality( trk.qualityByName(tracksSelector_.quality().data()) );
+  bool isHighPurity = trk.quality( trk.qualityByName(tracksSelector_.quality()) );
         
   double nChi2  = trk.normalizedChi2(); 
   double pt = trk.pt();
@@ -73,7 +73,7 @@ PFDisplacedVertexHelper::isTrackSelected(const reco::Track& trk,
       && pt >  tracksSelector_.pt_min();
   } else {
     // Secondary tracks selection
-    int nOuterHits = trk.hitPattern().numberOfHits(HitPattern::MISSING_OUTER_HITS);
+    int nOuterHits = trk.hitPattern().numberOfLostHits(HitPattern::MISSING_OUTER_HITS);
 
     double dxy = trk.dxy(pvtx_);
       
@@ -332,12 +332,13 @@ int PFDisplacedVertexHelper::lambdaCP(const PFDisplacedVertex& v) const {
 
 bool PFDisplacedVertexHelper::isKaonMass(const PFDisplacedVertex& v) const {
 
-  math::XYZVector  trkInit = v.refittedTracks()[1].momentum(), 
-    trkFinal = v.refittedTracks()[0].momentum();
+  math::XYZVector  trkInit = v.refittedTracks()[1].momentum(); 
+  math::XYZVector trkFinal = v.refittedTracks()[0].momentum();
 
-  if (v.trackTypes()[0] == PFDisplacedVertex::T_TO_VERTEX)
-    trkInit = v.refittedTracks()[0].momentum(),
-      trkFinal =  v.refittedTracks()[1].momentum();
+  if (v.trackTypes()[0] == PFDisplacedVertex::T_TO_VERTEX) {
+    trkInit = v.refittedTracks()[0].momentum();
+    trkFinal =  v.refittedTracks()[1].momentum();
+  }
 
 
     math::XYZVector trkNeutre(trkInit.x()-trkFinal.x(),  trkInit.y()-trkFinal.y(),

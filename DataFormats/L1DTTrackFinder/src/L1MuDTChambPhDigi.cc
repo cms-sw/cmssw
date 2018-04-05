@@ -44,10 +44,11 @@ L1MuDTChambPhDigi::L1MuDTChambPhDigi() {
   qualityCode     = 7;
   Ts2TagCode      = 0;
   BxCntCode       = 0;
+  rpcBit          = -10;
 }
 
 L1MuDTChambPhDigi::L1MuDTChambPhDigi( int ubx, int uwh, int usc, int ust,
-                         int uphr, int uphb, int uqua, int utag, int ucnt ) {
+                         int uphr, int uphb, int uqua, int utag, int ucnt, int urpc ) {
 
   bx              = ubx;
   wheel           = uwh;
@@ -58,7 +59,10 @@ L1MuDTChambPhDigi::L1MuDTChambPhDigi( int ubx, int uwh, int usc, int ust,
   qualityCode     = uqua;
   Ts2TagCode      = utag;
   BxCntCode       = ucnt;
+  rpcBit          = urpc;
 }
+
+
 
 //--------------
 // Destructor --
@@ -96,9 +100,17 @@ int L1MuDTChambPhDigi::code() const {
 }
 
 int L1MuDTChambPhDigi::Ts2Tag() const {
-  return Ts2TagCode;
+  return Ts2TagCode%2;
 }
 
 int L1MuDTChambPhDigi::BxCnt() const {
   return BxCntCode;
+}
+
+int L1MuDTChambPhDigi::RpcBit() const {
+  return rpcBit;
+}
+
+int L1MuDTChambPhDigi::UpDownTag()	const{
+  return Ts2TagCode/2 ;
 }

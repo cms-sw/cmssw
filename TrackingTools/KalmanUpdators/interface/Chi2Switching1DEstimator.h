@@ -14,7 +14,7 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2Strip1DEstimator.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
-class Chi2Switching1DEstimator GCC11_FINAL : public Chi2MeasurementEstimatorBase {
+class Chi2Switching1DEstimator final : public Chi2MeasurementEstimatorBase {
 
 public:
 
@@ -24,10 +24,10 @@ public:
     theStripEstimator(aMaxChi2,nSigma) {}
 
   /// implementation of MeasurementEstimator::estimate
-  virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& aTsos,
-				      const TrackingRecHit& aHit) const;
+  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& aTsos,
+				      const TrackingRecHit& aHit) const override;
 
-  virtual Chi2Switching1DEstimator* clone() const 
+  Chi2Switching1DEstimator* clone() const override 
   {
     return new Chi2Switching1DEstimator(*this);
   }

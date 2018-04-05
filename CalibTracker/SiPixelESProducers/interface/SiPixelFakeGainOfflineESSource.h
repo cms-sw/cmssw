@@ -21,7 +21,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -37,17 +36,17 @@ class SiPixelFakeGainOfflineESSource : public edm::ESProducer, public edm::Event
 
  public:
   SiPixelFakeGainOfflineESSource(const edm::ParameterSet &);
-  ~SiPixelFakeGainOfflineESSource();
+  ~SiPixelFakeGainOfflineESSource() override;
   
   //      typedef edm::ESProducts<> ReturnType;
   
-  virtual std::auto_ptr<SiPixelGainCalibrationOffline>  produce(const SiPixelGainCalibrationOfflineRcd &);
+  virtual std::unique_ptr<SiPixelGainCalibrationOffline>  produce(const SiPixelGainCalibrationOfflineRcd &);
   
  protected:
   
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
   
  private:

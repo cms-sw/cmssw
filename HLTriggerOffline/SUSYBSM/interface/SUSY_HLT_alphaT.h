@@ -39,15 +39,15 @@ class SUSY_HLT_alphaT: public DQMEDAnalyzer{
 
   public:
   SUSY_HLT_alphaT(const edm::ParameterSet& ps);
-  virtual ~SUSY_HLT_alphaT();
+  ~SUSY_HLT_alphaT() override;
 
   protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) ;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup)  override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   private:
   //histos booking function
@@ -55,7 +55,7 @@ class SUSY_HLT_alphaT: public DQMEDAnalyzer{
   
   //variables from config file
   edm::EDGetTokenT<reco::PFJetCollection> thePfJetCollection_;
-  edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollection_;
+  //edm::EDGetTokenT<reco::CaloJetCollection> theCaloJetCollection_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
   edm::EDGetTokenT<trigger::TriggerEvent> theTrigSummary_;
 
@@ -72,17 +72,17 @@ class SUSY_HLT_alphaT: public DQMEDAnalyzer{
   double etaThrJet_;
   double pfAlphaTThrTurnon_;
   double pfHtThrTurnon_;
-  double caloAlphaTThrTurnon_;
-  double caloHtThrTurnon_;
+  /* double caloAlphaTThrTurnon_; */
+  /* double caloHtThrTurnon_; */
   
   // Histograms
-  MonitorElement* h_triggerCaloHt;
-  MonitorElement* h_triggerCaloAlphaT;
-  MonitorElement* h_triggerCaloAlphaT_triggerCaloHt;
-  MonitorElement* h_caloAlphaTTurnOn_num;
-  MonitorElement* h_caloAlphaTTurnOn_den;
-  MonitorElement* h_caloHtTurnOn_num;
-  MonitorElement* h_caloHtTurnOn_den;
+  /* MonitorElement* h_triggerCaloHt; */
+  /* MonitorElement* h_triggerCaloAlphaT; */
+  /* MonitorElement* h_triggerCaloAlphaT_triggerCaloHt; */
+  /* MonitorElement* h_caloAlphaTTurnOn_num; */
+  /* MonitorElement* h_caloAlphaTTurnOn_den; */
+  /* MonitorElement* h_caloHtTurnOn_num; */
+  /* MonitorElement* h_caloHtTurnOn_den; */
 
   MonitorElement* h_triggerPfHt;
   MonitorElement* h_triggerPfAlphaT;

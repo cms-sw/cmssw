@@ -46,11 +46,11 @@ const int sample_int_value = 5;
 class DQMStoreQTestsExample : public edm::EDAnalyzer {
 public:
   explicit DQMStoreQTestsExample( const edm::ParameterSet& );
-  ~DQMStoreQTestsExample();
+  ~DQMStoreQTestsExample() override;
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
   
-  virtual void endJob(void);
+  void endJob() override;
 
 private:
   // ----------member data ---------------------------
@@ -77,6 +77,7 @@ private:
   ContentsYRange * yrange_test;  // contents within y-range test
   DeadChannel * deadChan_test;  // check against dead channels
   NoisyChannel * noisyChan_test;  // check against noisy channels
+  ContentSigma * contentSigma_test; // compare using sigma 
   Comp2RefEqualH * equalH_test; // equality test for histograms
   MeanWithinExpected * meanNear_test; // mean-within-expected test
   // MostProbableLandau *poMPLandau_test_;
@@ -90,7 +91,7 @@ private:
   // run quality tests; expected_status: test status that is expected
   // (see Core/interface/QTestStatus.h)
   // test_type: info message on what kind of tests are run
-  void runTests(int expected_status, string test_type);
+  void runTests(int expected_status, const string& test_type);
   // called by runTests; return status
   int checkTest(QCriterion *qc);
   // show channels that failed test
@@ -146,6 +147,7 @@ DQMStoreQTestsExample::DQMStoreQTestsExample(const edm::ParameterSet& iConfig ) 
   yrange_test = new ContentsYRange("my_yrange");
   deadChan_test = new DeadChannel("deadChan");
   noisyChan_test = new NoisyChannel("noisyChan");
+  contentSigma_test = new ContentSigma("contentSigma");
   equalH_test = new Comp2RefEqualH("my_histo_equal");
   meanNear_test = new MeanWithinExpected("meanNear");
   //zrangeh2f_test = new ContentsTH2FWithinRange("zrangeh2f");
@@ -166,6 +168,23 @@ DQMStoreQTestsExample::DQMStoreQTestsExample(const edm::ParameterSet& iConfig ) 
   // set # of neighboring channels for calculating average (default: 1)
   noisyChan_test->setNumNeighbors(2);
   // use RMS of distribution to judge if mean near expected value
+
+  contentSigma_test->setToleranceNoisy(1);
+  contentSigma_test->setToleranceDead(1);
+  // set # of neighboring channels for calculating average (default: 1)
+  contentSigma_test->setNumXblocks(1);
+  contentSigma_test->setNumYblocks(1);
+  contentSigma_test->setNumNeighborsX(1);
+  contentSigma_test->setNumNeighborsY(1);
+  // declare whether to test for noisy or dead bins
+  contentSigma_test->setNoisy(1);
+  contentSigma_test->setDead(1);
+  // specify area of histogram to be analyzed
+  contentSigma_test->setXMin(1);
+  contentSigma_test->setXMax(500);
+  contentSigma_test->setYMin(1);
+  contentSigma_test->setYMax(500); 
+  
   meanNear_test->useRMS();
   // Setup MostProbableLandau
   //poMPLandau_test_->setXMin( 0.1 * XMIN);
@@ -197,6 +216,7 @@ DQMStoreQTestsExample::~DQMStoreQTestsExample()
   if(yrange_test)delete yrange_test;
   if(deadChan_test)delete deadChan_test;
   if(noisyChan_test)delete noisyChan_test;
+  if(contentSigma_test)delete contentSigma_test;
   if(equalH_test) delete equalH_test;
   if(meanNear_test)delete meanNear_test;
 //  if(zrangeh2f_test) delete zrangeh2f_test;
@@ -206,9 +226,9 @@ DQMStoreQTestsExample::~DQMStoreQTestsExample()
 
 }
 
-void DQMStoreQTestsExample::endJob(void)
+void DQMStoreQTestsExample::endJob()
 {
-  setReference(0);
+  setReference(nullptr);
   
   // attempt to run tests w/o a reference histogram
   runTests(dqm::qstatus::INVALID, "tests w/o reference");
@@ -234,6 +254,7 @@ void DQMStoreQTestsExample::endJob(void)
   yrange_test->setMinimumEntries(10000);
   deadChan_test->setMinimumEntries(10000);
   noisyChan_test->setMinimumEntries(10000);
+  contentSigma_test->setMinimumEntries(10000);
   equalH_test->setMinimumEntries(10000);
   meanNear_test->setMinimumEntries(10000);
   //zrangeh2f_test->setMinimumEntries(10000);
@@ -251,6 +272,7 @@ void DQMStoreQTestsExample::endJob(void)
   yrange_test->setMinimumEntries(0);
   deadChan_test->setMinimumEntries(0);
   noisyChan_test->setMinimumEntries(0);
+  contentSigma_test->setMinimumEntries(0);
   equalH_test->setMinimumEntries(0);
   meanNear_test->setMinimumEntries(0);
   //zrangeh2f_test->setMinimumEntries(0);
@@ -265,7 +287,7 @@ void DQMStoreQTestsExample::endJob(void)
 // (see Core/interface/QTestStatus.h)
 // test_type: info message on what kind of tests are run
 void DQMStoreQTestsExample::runTests(int expected_status, 
-					    string test_type)
+					    const string& test_type)
 {
   cout << " ========================================================== " << endl;
   cout << " Results of attempt to run " << test_type << ", expected status " << expected_status << endl;
@@ -290,6 +312,10 @@ void DQMStoreQTestsExample::runTests(int expected_status,
   noisyChan_test->runTest(h1);
   checkTest(noisyChan_test);
   showBadChannels(noisyChan_test);
+
+  contentSigma_test->runTest(h1);
+  checkTest(contentSigma_test);
+  showBadChannels(contentSigma_test);
 
   meanNear_test->runTest(h1);
   checkTest(meanNear_test);
@@ -354,6 +380,15 @@ void DQMStoreQTestsExample::runTests(int expected_status,
       && expected_status != status)
     cout << "ERROR: NoisyChannel test expected status " << expected_status
 	 << ", got " << status << endl;
+
+  status = contentSigma_test->getStatus(); 
+  // there is no "INVALID" result when running "content sigma" test
+  if (expected_status
+      && expected_status != dqm::qstatus::INVALID
+      && expected_status != status)
+    cout << "ERROR: ContentSigma test expected status " << expected_status
+	 << ", got " << status << endl;
+
 
   status = meanNear_test->getStatus();
   if (expected_status && expected_status != status)
@@ -458,7 +493,7 @@ void DQMStoreQTestsExample::showBadChannels(QCriterion *qc)
   if(!badChannels.empty())
     cout << " Channels that failed test " << qc->algoName() << ":\n";
   
-  vector<dqm::me_util::Channel>::iterator it = badChannels.begin();
+  auto it = badChannels.begin();
   while(it != badChannels.end())
     {
       cout << " Channel ("

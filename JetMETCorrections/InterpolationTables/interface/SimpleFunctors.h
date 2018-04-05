@@ -63,7 +63,7 @@ namespace npstat {
     template <typename Result>
     struct Same : public Functor1<Result, Result>
     {
-        inline Result operator()(const Result& a) const {return a;}
+        inline Result operator()(const Result& a) const override {return a;}
     };
 
     /** A simple functor which returns a reference to its argument */
@@ -138,7 +138,7 @@ namespace npstat {
         inline Result operator()() const {return fcn_();}
 
     private:
-        FcnFunctor0();
+        FcnFunctor0() = delete;
         Result (*fcn_)();
     };
 
@@ -154,7 +154,7 @@ namespace npstat {
         inline Result operator()(const Arg1& a) const {return fcn_(a);}
 
     private:
-        FcnFunctor1();
+        FcnFunctor1() = delete;
         Result (*fcn_)(Arg1);
     };
 
@@ -171,7 +171,7 @@ namespace npstat {
             {return fcn_(x, y);}
 
     private:
-        FcnFunctor2();
+        FcnFunctor2() = delete;
         Result (*fcn_)(Arg1, Arg2);
     };
 
@@ -188,7 +188,7 @@ namespace npstat {
             {return fcn_(x, y, z);}
 
     private:
-        FcnFunctor3();
+        FcnFunctor3() = delete;
         Result (*fcn_)(Arg1, Arg2, Arg3);
     };
 
@@ -204,7 +204,7 @@ namespace npstat {
         inline Result operator()(const Container& c) const {return c[idx];}
 
     private:
-        Element1D();
+        Element1D() = delete;
         unsigned long idx;
     };
 
@@ -220,7 +220,7 @@ namespace npstat {
         inline Result operator()(const Container& c) const {return c.at(idx);}
 
     private:
-        Element1DAt();
+        Element1DAt() = delete;
         unsigned long idx;
     };
 
@@ -275,7 +275,7 @@ namespace npstat {
             {return left += w_*right;}
 
     private:
-        addmul_left();
+        addmul_left() = delete;
         double w_;
     };
 
@@ -292,7 +292,7 @@ namespace npstat {
             {return right += w_*left;}
 
     private:
-        addmul_right();
+        addmul_right() = delete;
         double w_;
     };
 

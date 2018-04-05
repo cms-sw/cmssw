@@ -41,7 +41,7 @@ class VertexTrackPtSumFilter : public std::unary_function<reco::Vertex, bool> {
 class RecoTauPileUpVertexSelector : public edm::stream::EDFilter<> {
   public:
     explicit RecoTauPileUpVertexSelector(const edm::ParameterSet &pset);
-    ~RecoTauPileUpVertexSelector() {}
+    ~RecoTauPileUpVertexSelector() override {}
     bool filter(edm::Event& evt, const edm::EventSetup& es) override;
   private:
     edm::InputTag src_;
@@ -64,7 +64,7 @@ bool RecoTauPileUpVertexSelector::filter(
     edm::Event& evt, const edm::EventSetup& es) {
   edm::Handle<reco::VertexCollection> vertices_;
   evt.getByToken(token, vertices_);
-  std::auto_ptr<reco::VertexCollection> output(new reco::VertexCollection);
+  auto output = std::make_unique<reco::VertexCollection>();
   // If there is only one vertex, there are no PU vertices!
   if (vertices_->size() > 1) {
     // Copy over all the vertices that have associatd tracks with pt greater
@@ -74,7 +74,7 @@ bool RecoTauPileUpVertexSelector::filter(
         std::back_inserter(*output), std::not1(vtxFilter_));
   }
   size_t nPUVtx = output->size();
-  evt.put(output);
+  evt.put(std::move(output));
   // If 'filter' is enabled, return whether true if there are PU vertices
   if (!filter_)
     return true;

@@ -123,10 +123,10 @@ void LmfSource::produce(edm::Event& evt){
   //       return false;
   //     }
   //   }
-  auto_ptr<FEDRawDataCollection> coll(new FEDRawDataCollection);
+  auto coll = std::make_unique<FEDRawDataCollection>();
   coll->swap(fedColl_);
   if(verbosity_) cout << "[LmfSource] Putting FEDRawDataCollection in event\n";
-  evt.put(coll);
+  evt.put(std::move(coll));
 }
 
 bool LmfSource::openFile(int iFile){

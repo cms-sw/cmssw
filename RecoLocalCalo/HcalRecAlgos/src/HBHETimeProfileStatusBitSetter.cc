@@ -3,7 +3,7 @@
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 
 #include <algorithm> // for "max"
-#include <math.h>
+#include <cmath>
 #include <TH1.h>
 #include <TF1.h>
 
@@ -84,7 +84,7 @@ void HBHETimeProfileStatusBitSetter::hbheSetTimeFlagsFromDigi(HBHERecHitCollecti
 
 
     
-  if(RecHitIndex.size()>0)
+  if(!RecHitIndex.empty())
     {
       double FracInLeader=-1;
       //double Slope=0; // not currently used

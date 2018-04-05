@@ -17,7 +17,7 @@ using namespace sistrip;
 CommissioningHistograms::CommissioningHistograms( const edm::ParameterSet& pset,
                                                   DQMStore* bei,
                                                   const sistrip::RunType& task )
-  : factory_(0),
+  : factory_(nullptr),
     task_(task),
     bei_(bei),
     data_(),
@@ -41,9 +41,9 @@ CommissioningHistograms::CommissioningHistograms( const edm::ParameterSet& pset,
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistograms::CommissioningHistograms() 
-  : factory_(0),
+  : factory_(nullptr),
     task_(sistrip::UNDEFINED_RUN_TYPE),
-    bei_(0),
+    bei_(nullptr),
     data_(),
     histos_()
 {
@@ -432,7 +432,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
       } else { key = SiStripKey( path.key() ).key(); }
       
       // Find CME in histos map
-      Histo* histo = 0;
+      Histo* histo = nullptr;
       HistosMap::iterator ihistos = histos_.find( key );
       if ( ihistos != histos_.end() ) { 
 	Histos::iterator ihis = ihistos->second.begin();
@@ -598,7 +598,7 @@ void CommissioningHistograms::createSummaryHisto( const sistrip::Monitorable& mo
   if ( !xbins ) { return; }
   
   // Create summary histogram (if it doesn't already exist)
-  TH1* summary = 0;
+  TH1* summary = nullptr;
   if ( pres != sistrip::HISTO_1D ) { summary = histogram( mon, pres, view, dir, xbins ); }
   else { summary = histogram( mon, pres, view, dir, sistrip::FED_ADC_RANGE, 0., sistrip::FED_ADC_RANGE*1. ); }
   
@@ -683,7 +683,7 @@ void CommissioningHistograms::save( std::string& path,
     // Retrieve SCRATCH directory
     std::string scratch = "SCRATCH";
     std::string dir = "";
-    if ( getenv(scratch.c_str()) != NULL ) { 
+    if ( getenv(scratch.c_str()) != nullptr ) { 
       dir = getenv(scratch.c_str()); 
     }
     
@@ -733,7 +733,7 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
   MonitorElement* me = bei_->get( bei_->pwd() + "/" + name );
   if ( me ) { 
     bei_->removeElement( name );
-    me = 0;
+    me = nullptr;
   } 
   
   // Create summary plot
@@ -759,7 +759,7 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
 					      0., 
 					      sistrip::FED_ADC_RANGE*1. ); 
   } else { 
-    me = 0; 
+    me = nullptr; 
     edm::LogWarning(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
       << " Unexpected presentation \"" 

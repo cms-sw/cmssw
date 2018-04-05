@@ -27,18 +27,11 @@ namespace reco {
                      double fraction ) 
       : recHitRef_(recHitRef), fraction_(fraction) {}
     
-    /// copy
-    //    PFRecHitFraction(const PFRecHitFraction& other) 
-    //  : recHitRef_(other.recHitRef_), fraction_(other.fraction_) {}
-    
     /// \return index to rechit
     const PFRecHitRef& recHitRef() const {return recHitRef_;} 
     
     /// \return energy fraction
     double fraction() const {return fraction_;}
-    
-    friend    std::ostream& operator<<(std::ostream& out,
-                                       const PFRecHitFraction& hit);
     
   private:
     
@@ -49,6 +42,10 @@ namespace reco {
     double    fraction_;
     
   };
+
+  std::ostream& operator<<(std::ostream& out,
+                           const PFRecHitFraction& hit);
+    
 }
 
 

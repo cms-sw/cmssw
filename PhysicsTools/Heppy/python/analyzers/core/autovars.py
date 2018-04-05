@@ -7,6 +7,10 @@
 # TODO: more documentation needed here!
 
 class NTupleVariable:
+    """Branch containing an individual variable (either of the event or of an object), created with a name and a function to compute it
+       - name, type, help, default: obvious 
+       - function: a function that taken an object computes the value to fill (e.g. lambda event : len(event.goodVertices))
+    """
     def __init__(self, name, function, type=float, help="", default=-99, mcOnly=False, filler=None):
         self.name = name
         self.function = function
@@ -27,15 +31,40 @@ class NTupleVariable:
     def __repr__(self):
         return "<NTupleVariable[%s]>" % self.name
 
+
 class NTupleObjectType:
+    """Type defining a collection of variables associated to a single object. Contans NTupleVariable and NTupleSubObject"""
     def __init__(self,name,baseObjectTypes=[],mcOnly=[],variables=[]):
         self.name = name
         self.baseObjectTypes = baseObjectTypes
         self.mcOnly = mcOnly
-        self.variables = variables
+        self.variables = []
+        self.subObjects = []
+        for v in variables:
+           if issubclass(v.__class__,NTupleSubObject):
+                self.subObjects.append(v)
+           else:
+                self.variables.append(v)
+        self._subObjectVars = {}
     def ownVars(self,isMC):
         """Return only my vars, not including the ones from the bases"""
-        return [ v for v in self.variables if (isMC or not v.mcOnly) ]
+        vars = [ v for v in self.variables if (isMC or not v.mcOnly) ]
+        if self.subObjects:
+            if isMC not in self._subObjectVars:
+                subvars = []
+                for so in self.subObjects:
+                    if so.mcOnly and not isMC: continue
+                    for subvar in so.objectType.allVars(isMC):
+                        subvars.append(NTupleVariable(so.name+"_"+subvar.name,
+                                  #DebugComposer(so,subvar),#lambda object : subvar(so(object)),
+                                  lambda object, subvar=subvar, so=so : subvar(so(object)), 
+                                  # ^-- lambda object : subvar(so(object)) doesn't work due to scoping, see
+                                  #     http://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture-in-python/2295372#2295372
+                                  type = subvar.type, help = subvar.help, default = subvar.default, mcOnly = subvar.mcOnly,
+                                  filler = subvar.filler))
+                self._subObjectVars[isMC] = subvars
+            vars += self._subObjectVars[isMC]
+        return vars
     def allVars(self,isMC):
         """Return all vars, including the base ones. Duplicate bases are not added twice"""
         ret = []; names = {}
@@ -43,11 +72,11 @@ class NTupleObjectType:
         for base in self.allBases():
             if not isMC and base.mcOnly: continue
             for var in base.ownVars(isMC):
-                if var.name in names: raise RuntimeError, "Duplicate definition of variable %s from %s and %s" % (var.name, base.name, names[var.name])
+                if var.name in names: raise RuntimeError("Duplicate definition of variable %s from %s and %s" % (var.name, base.name, names[var.name]))
                 names[var.name] = base.name
                 ret.append(var)
         for var in self.ownVars(isMC):
-            if var.name in names: raise RuntimeError, "Duplicate definition of variable %s from %s and %s" % (var.name, self.name, names[var.name])
+            if var.name in names: raise RuntimeError("Duplicate definition of variable %s from %s and %s" % (var.name, self.name, names[var.name]))
             names[var.name] = self.name
             ret.append(var)
         return ret
@@ -60,12 +89,49 @@ class NTupleObjectType:
                 if b2 not in ret:
                     ret.append(b2)
         return ret
+    def addVariables(self,newvars):
+        currentnames = [v.name for v in self.allVars(True)] # require no conflict with all variables, including mcOnly ones
+        uniquenewvars = []
+        for var in newvars:
+            if var.name in uniquenewvars: raise RuntimeError("Duplicate definition of variable %s while adding variables to object type %s" % (var.name,self.name))
+            uniquenewvars.append(var.name)
+            if var.name not in currentnames:
+                self.variables.append(var)
+            else:
+              raise RuntimeError("Variable %s is already present in object type %s" % (var.name,self.name))
+    def addSubObjects(self,sos):
+        currentnames = [v.name for v in self.subObjects]
+        uniquenewobjs = []
+        for ob in sos:
+            if ob.name in uniquenewobjs: raise RuntimeError("Duplicate definition of sub-object %s while adding it to object type %s" % (ob.name,self.name))
+            uniquenewobjs.append(ob.name)
+            if ob.name not in currentnames:
+                self.subObjects.append(ob)
+            else:
+              raise RuntimeError("Sub-object %s is already present in object type %s" % (ob.name,self.name))
+        self._subObjectVars.clear() # clear and update cache of subobj variables
+        mynewvars = self.allVars(True)
+        mynewvars = self.allVars(False)
     def removeVariable(self,name):
         self.variables = [ v for v in self.variables if v.name != name]
     def __repr__(self):
         return "<NTupleObjectType[%s]>" % self.name
 
+
+
+
+class NTupleSubObject:
+    """Type to add a sub-object within an NTupleObjectType, given a name (used as prefix), a function to extract the sub-object and NTupleObjectType to define tye type"""
+    def __init__(self,name,function,objectType,mcOnly=False):
+        self.name = name
+        self.function = function
+        self.objectType = objectType
+        self.mcOnly = mcOnly
+    def __call__(self,object):
+        return self.function(object)
+
 class NTupleObject:
+    """Type defining a set of branches associated to a single object (i.e. an instance of NTupleObjectType)"""
     def __init__(self, name, objectType, help="", mcOnly=False):
         self.name = name
         self.objectType = objectType
@@ -88,17 +154,18 @@ class NTupleObject:
 
 
 class NTupleCollection:
+    """Type defining a set of branches associated to a list of objects (i.e. an instance of NTupleObjectType)"""
     def __init__(self, name, objectType, maxlen, help="", mcOnly=False, sortAscendingBy=None, sortDescendingBy=None, filter=None):
         self.name = name
         self.objectType = objectType
         self.maxlen = maxlen
         self.help = help
         if objectType.mcOnly and mcOnly == False: 
-            print "collection %s is set to mcOnly since the type %s is mcOnly" % (name, objectType.name)
+            #print "collection %s is set to mcOnly since the type %s is mcOnly" % (name, objectType.name)
             mcOnly = True
         self.mcOnly = mcOnly
         if sortAscendingBy != None and sortDescendingBy != None:
-            raise RuntimeError, "Cannot specify two sort conditions"
+            raise RuntimeError("Cannot specify two sort conditions")
         self.filter = filter
         self.sortAscendingBy  = sortAscendingBy
         self.sortDescendingBy = sortDescendingBy

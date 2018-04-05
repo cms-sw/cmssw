@@ -12,8 +12,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 
-//#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
-#include "HLTrigger/HLTanalyzers/test/RateEff/L1GtLogicParser.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
 // L1Gt - Trigger Menu
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
@@ -47,9 +46,6 @@ L1TMenuHelper::L1TMenuHelper(const edm::EventSetup& iSetup){
 
   m_l1GtMenu                = menuRcd   .product();                 // Getting the menu
   m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors()); // Retriving the list of prescale sets
-
-  myUtils.retrieveL1EventSetup(iSetup);
-
 }
 
 
@@ -62,7 +58,9 @@ L1TMenuHelper::~L1TMenuHelper(){}
 // Method: fetLUSOTrigger
 //   * Get Lowest Unprescaled Single Object Triggers and Energy Sums
 //-------------------------------------------------------------------------------------
-map<string,string> L1TMenuHelper::getLUSOTrigger(const map<string,bool>& iCategories, int IndexRefPrescaleFactors){
+map<string,string> L1TMenuHelper::getLUSOTrigger(const map<string,bool>& iCategories,
+                                                 int IndexRefPrescaleFactors,
+                                                 L1GtUtils const& myUtils){
   map<string,string> out;
 
   // Getting information from the menu
@@ -292,17 +290,17 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(const map<string,bool>& iCatego
   string selTrigHTT    = "Undefined";
   string selTrigHTM    = "Undefined";
  
-  if(m_vTrigMu    .size() > 0){sort(m_vTrigMu    .begin(),m_vTrigMu    .end()); selTrigMu     = m_vTrigMu    [0].alias;}
-  if(m_vTrigEG    .size() > 0){sort(m_vTrigEG    .begin(),m_vTrigEG    .end()); selTrigEG     = m_vTrigEG    [0].alias;}
-  if(m_vTrigIsoEG .size() > 0){sort(m_vTrigIsoEG .begin(),m_vTrigIsoEG .end()); selTrigIsoEG  = m_vTrigIsoEG [0].alias;}
-  if(m_vTrigJet   .size() > 0){sort(m_vTrigJet   .begin(),m_vTrigJet   .end()); selTrigJet    = m_vTrigJet   [0].alias;}
-  if(m_vTrigCenJet.size() > 0){sort(m_vTrigCenJet.begin(),m_vTrigCenJet.end()); selTrigCenJet = m_vTrigCenJet[0].alias;}
-  if(m_vTrigForJet.size() > 0){sort(m_vTrigForJet.begin(),m_vTrigForJet.end()); selTrigForJet = m_vTrigForJet[0].alias;}
-  if(m_vTrigTauJet.size() > 0){sort(m_vTrigTauJet.begin(),m_vTrigTauJet.end()); selTrigTauJet = m_vTrigTauJet[0].alias;}
-  if(m_vTrigETT   .size() > 0){sort(m_vTrigETT   .begin(),m_vTrigETT   .end()); selTrigETT    = m_vTrigETT   [0].alias;}
-  if(m_vTrigETM   .size() > 0){sort(m_vTrigETM   .begin(),m_vTrigETM   .end()); selTrigETM    = m_vTrigETM   [0].alias;}
-  if(m_vTrigHTT   .size() > 0){sort(m_vTrigHTT   .begin(),m_vTrigHTT   .end()); selTrigHTT    = m_vTrigHTT   [0].alias;}
-  if(m_vTrigHTM   .size() > 0){sort(m_vTrigHTM   .begin(),m_vTrigHTM   .end()); selTrigHTM    = m_vTrigHTM   [0].alias;}
+  if(!m_vTrigMu.empty()){sort(m_vTrigMu    .begin(),m_vTrigMu    .end()); selTrigMu     = m_vTrigMu    [0].alias;}
+  if(!m_vTrigEG.empty()){sort(m_vTrigEG    .begin(),m_vTrigEG    .end()); selTrigEG     = m_vTrigEG    [0].alias;}
+  if(!m_vTrigIsoEG.empty()){sort(m_vTrigIsoEG .begin(),m_vTrigIsoEG .end()); selTrigIsoEG  = m_vTrigIsoEG [0].alias;}
+  if(!m_vTrigJet.empty()){sort(m_vTrigJet   .begin(),m_vTrigJet   .end()); selTrigJet    = m_vTrigJet   [0].alias;}
+  if(!m_vTrigCenJet.empty()){sort(m_vTrigCenJet.begin(),m_vTrigCenJet.end()); selTrigCenJet = m_vTrigCenJet[0].alias;}
+  if(!m_vTrigForJet.empty()){sort(m_vTrigForJet.begin(),m_vTrigForJet.end()); selTrigForJet = m_vTrigForJet[0].alias;}
+  if(!m_vTrigTauJet.empty()){sort(m_vTrigTauJet.begin(),m_vTrigTauJet.end()); selTrigTauJet = m_vTrigTauJet[0].alias;}
+  if(!m_vTrigETT.empty()){sort(m_vTrigETT   .begin(),m_vTrigETT   .end()); selTrigETT    = m_vTrigETT   [0].alias;}
+  if(!m_vTrigETM.empty()){sort(m_vTrigETM   .begin(),m_vTrigETM   .end()); selTrigETM    = m_vTrigETM   [0].alias;}
+  if(!m_vTrigHTT.empty()){sort(m_vTrigHTT   .begin(),m_vTrigHTT   .end()); selTrigHTT    = m_vTrigHTT   [0].alias;}
+  if(!m_vTrigHTM.empty()){sort(m_vTrigHTM   .begin(),m_vTrigHTM   .end()); selTrigHTM    = m_vTrigHTM   [0].alias;}
 
   auto check = [](const map<string,bool>& cats, const char* key) -> bool {
     auto it = cats.find(key);

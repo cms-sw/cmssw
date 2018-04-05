@@ -1,0 +1,19 @@
+<lcgdict>
+  <class name="PulseFitWithFunction"/>
+  <class name="PulseFitWithShape"/>
+  <class name="Shape"/>
+  <class name="TFParams"/>
+  <class name="TMarkov"/>
+  <class name="TMatacq"/>
+  <class name="TPNFit"/>
+  <class name="TPNCor"/>
+  <class name="TSFit"/>
+  <class name="TShapeAnalysis"/>
+  <class name="TMom"/>
+  <class name="TAPD"/>
+  <class name="TPN"/>
+  <class name="TMTQ"/>
+  <class name="TAPDPulse"/>
+  <class name="TPNPulse"/>
+  <class name="TMem"/>
+</lcgdict>

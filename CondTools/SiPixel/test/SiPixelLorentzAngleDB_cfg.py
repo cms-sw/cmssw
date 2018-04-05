@@ -13,15 +13,21 @@ process.MessageLogger.cout = cms.untracked.PSet(threshold = cms.untracked.string
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 #hptopo
-process.load("Configuration.StandardSequences.GeometryIdeal_cff")
+
+#process.load("Configuration.StandardSequences.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+from Configuration.AlCa.autoCond_condDBv2 import autoCond
+process.GlobalTag.globaltag = autoCond['run2_design']
+print process.GlobalTag.globaltag
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
-process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff")
+#process.load("CalibTracker.Configuration.TrackerAlignment.TrackerAlignment_Fake_cff")
 
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+#process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("CondTools.SiPixel.SiPixelGainCalibrationService_cfi")
 
@@ -76,7 +82,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     toPut = cms.VPSet(
         cms.PSet(
             record = cms.string('SiPixelLorentzAngleRcd'),
-            tag = cms.string('SiPixelLorentzAngle_v1')
+            tag = cms.string('SiPixelLorentzAngle_2015_v2')
+            #tag = cms.string('SiPixelLorentzAngle_v1')
         ),
 ###        cms.PSet(
 ###            record = cms.string('SiPixelLorentzAngleSimRcd'),
@@ -98,122 +105,122 @@ process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
         cms.PSet(
             layer = cms.uint32(1),
             module = cms.uint32(1),
-            angle = cms.double(0.09103)
+            angle = cms.double(0.0862)
         ),
         cms.PSet(
             layer = cms.uint32(1),
             module = cms.uint32(2),
-            angle = cms.double(0.09103)
+            angle = cms.double(0.0862)
         ),
         cms.PSet(
             layer = cms.uint32(1),
             module = cms.uint32(3),
-            angle = cms.double(0.09103)
+            angle = cms.double(0.0862)
         ),
         cms.PSet(
             layer = cms.uint32(1),
             module = cms.uint32(4),
-            angle = cms.double(0.09103)
+            angle = cms.double(0.0862)
         ),
         cms.PSet(
             layer = cms.uint32(1),
             module = cms.uint32(5),
-            angle = cms.double(0.09574)
+            angle = cms.double(0.0883)
         ),
         cms.PSet(
             layer = cms.uint32(1),
             module = cms.uint32(6),
-            angle = cms.double(0.09574)
+            angle = cms.double(0.0883)
         ),
         cms.PSet(
             layer = cms.uint32(1),
             module = cms.uint32(7),
-            angle = cms.double(0.09574)
+            angle = cms.double(0.0883)
         ),
         cms.PSet(
             layer = cms.uint32(1),
             module = cms.uint32(8),
-            angle = cms.double(0.09574)
+            angle = cms.double(0.0883)
         ),
         cms.PSet(
             layer = cms.uint32(2),
             module = cms.uint32(1),
-            angle = cms.double(0.09415)
+            angle = cms.double(0.0848)
         ),
         cms.PSet(
             layer = cms.uint32(2),
             module = cms.uint32(2),
-            angle = cms.double(0.09415)
+            angle = cms.double(0.0848)
         ),
         cms.PSet(
             layer = cms.uint32(2),
             module = cms.uint32(3),
-            angle = cms.double(0.09415)
+            angle = cms.double(0.0848)
         ),
         cms.PSet(
             layer = cms.uint32(2),
             module = cms.uint32(4),
-            angle = cms.double(0.09415)
+            angle = cms.double(0.0848)
         ),
         cms.PSet(
             layer = cms.uint32(2),
             module = cms.uint32(5),
-            angle = cms.double(0.09955)
+            angle = cms.double(0.0892)
         ),
         cms.PSet(
             layer = cms.uint32(2),
             module = cms.uint32(6),
-            angle = cms.double(0.09955)
+            angle = cms.double(0.0892)
         ),
         cms.PSet(
             layer = cms.uint32(2),
             module = cms.uint32(7),
-            angle = cms.double(0.09955)
+            angle = cms.double(0.0892)
         ),
         cms.PSet(
             layer = cms.uint32(2),
             module = cms.uint32(8),
-            angle = cms.double(0.09955)
+            angle = cms.double(0.0892)
         ),
         cms.PSet(
             layer = cms.uint32(3),
             module = cms.uint32(1),
-            angle = cms.double(0.09541)
+            angle = cms.double(0.0851)
         ),
         cms.PSet(
             layer = cms.uint32(3),
             module = cms.uint32(2),
-            angle = cms.double(0.09541)
+            angle = cms.double(0.0851)
         ),
         cms.PSet(
             layer = cms.uint32(3),
             module = cms.uint32(3),
-            angle = cms.double(0.09541)
+            angle = cms.double(0.0851)
         ),
         cms.PSet(
             layer = cms.uint32(3),
             module = cms.uint32(4),
-            angle = cms.double(0.09541)
+            angle = cms.double(0.0851)
         ),
         cms.PSet(
             layer = cms.uint32(3),
             module = cms.uint32(5),
-            angle = cms.double(0.10121)
+            angle = cms.double(0.0877)
         ),
         cms.PSet(
             layer = cms.uint32(3),
             module = cms.uint32(6),
-            angle = cms.double(0.10121)
+            angle = cms.double(0.0877)
         ),
         cms.PSet(
             layer = cms.uint32(3),
             module = cms.uint32(7),
-            angle = cms.double(0.10121)
+            angle = cms.double(0.0877)
         ),
         cms.PSet(
             layer = cms.uint32(3),
             module = cms.uint32(8),
-            angle = cms.double(0.10121)
+            angle = cms.double(0.0877)
         ),
     ),
     FPixParameters = cms.untracked.VPSet(
@@ -221,49 +228,243 @@ process.SiPixelLorentzAngle = cms.EDAnalyzer("SiPixelLorentzAngleDB",
             side = cms.uint32(1),
             disk = cms.uint32(1),
             HVgroup = cms.uint32(1),
-            angle = cms.double(0.06404)
+            angle = cms.double(0.0714)
         ),
         cms.PSet(
             side = cms.uint32(1),
             disk = cms.uint32(2),
             HVgroup = cms.uint32(1),
-            angle = cms.double(0.06404)
+            angle = cms.double(0.0714)
         ),
         cms.PSet(
             side = cms.uint32(2),
             disk = cms.uint32(1),
             HVgroup = cms.uint32(1),
-            angle = cms.double(0.06404)
+            angle = cms.double(0.0713)
         ),
         cms.PSet(
             side = cms.uint32(2),
             disk = cms.uint32(2),
             HVgroup = cms.uint32(1),
-            angle = cms.double(0.06404)
+            angle = cms.double(0.0713)
         ),
         cms.PSet(
             side = cms.uint32(1),
             disk = cms.uint32(1),
             HVgroup = cms.uint32(2),
-            angle = cms.double(0.06404)
+            angle = cms.double(0.0643)
         ),
         cms.PSet(
             side = cms.uint32(1),
             disk = cms.uint32(2),
             HVgroup = cms.uint32(2),
-            angle = cms.double(0.06404)
+            angle = cms.double(0.0643)
         ),
         cms.PSet(
             side = cms.uint32(2),
             disk = cms.uint32(1),
             HVgroup = cms.uint32(2),
-            angle = cms.double(0.06404)
+            angle = cms.double(0.0643)
         ),
         cms.PSet(
             side = cms.uint32(2),
             disk = cms.uint32(2),
             HVgroup = cms.uint32(2),
-            angle = cms.double(0.06404)
+            angle = cms.double(0.0643)
+        ),
+    ),
+    ModuleParameters = cms.untracked.VPSet(
+        cms.PSet(
+            rawid = cms.uint32(302056472),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302056476),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302056212),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302055700),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302055708),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302060308),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302060312),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302059800),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302059548),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302123040),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302122772),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302122776),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302122516),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302122264),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302122272),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302122008),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302121752),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302121496),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302121240),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302121244),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302128920),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302128924),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302129176),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302129180),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302129184),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302128404),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302128408),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302189088),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302188820),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302188832),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302188052),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302187552),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302197784),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302197532),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302197536),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302197016),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302196244),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302195232),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302188824),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302186772),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302186784),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302121992),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302188552),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302187280),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302186768),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302186764),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302186756),
+            angle = cms.double(0.0955)
+        ),
+        cms.PSet(
+            rawid = cms.uint32(302197516),
+            angle = cms.double(0.0955)
         ),
     ),
     #in case lorentz angle values for bpix should be read from file -> not implemented yet

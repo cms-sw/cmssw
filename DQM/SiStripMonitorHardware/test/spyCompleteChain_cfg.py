@@ -1,6 +1,7 @@
 #test configuration for the spy data unpacking code
 
 import FWCore.ParameterSet.Config as cms
+from Configuration.AlCa.GlobalTag import GlobalTag
 
 process = cms.Process('SPYPROD')
 
@@ -10,7 +11,12 @@ process.source = cms.Source(
     'PoolSource',
     fileNames = cms.untracked.vstring(
         # Spy data (raw) in edm format, as converted from .dat
-        'rfio:/castor/cern.ch/user/w/whyntie/data/spychannel/121834/edm/spydata_0001.root',
+
+'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/streamer/SiStripSpy/Commissioning11/234824/USC.00234824.0001.A.storageManager.00.0026.RUN00234874.root',
+'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/streamer/SiStripSpy/Commissioning11/234824/USC.00234824.0001.A.storageManager.00.0027.RUN00234874.root',
+'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/streamer/SiStripSpy/Commissioning11/234824/USC.00234824.0001.A.storageManager.00.0028.RUN00234874.root',
+'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/streamer/SiStripSpy/Commissioning11/234824/USC.00234824.0001.A.storageManager.00.0029.RUN00234874.root',
+'file:/eos/cms/store/group/dpg_tracker_strip/tracker/Online/store/streamer/SiStripSpy/Commissioning11/234824/USC.00234824.0001.A.storageManager.00.0030.RUN00234874.root',
         )
     )
 
@@ -29,7 +35,8 @@ process.MessageLogger.debugModules = cms.untracked.vstring('')
 # Find the appropriate Global Tags at
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'GR09_P_V8_34X::All'
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 # --- The unpacking configuration ---
 process.load('DQM.SiStripMonitorHardware.SiStripSpyUnpacker_cfi')
@@ -38,7 +45,7 @@ process.load('DQM.SiStripMonitorHardware.SiStripSpyDigiConverter_cfi')
 ## * Scope digi settings
 process.SiStripSpyUnpacker.FEDIDs = cms.vuint32()                   #use a subset of FEDs or leave empty for all.
 #process.SiStripSpy.FEDIDs = cms.vuint32(50, 187, 260, 356) #one from each partition
-process.SiStripSpyUnpacker.InputProductLabel = cms.InputTag('source')
+process.SiStripSpyUnpacker.InputProductLabel = cms.InputTag('rawDataCollector')
 process.SiStripSpyUnpacker.AllowIncompleteEvents = True
 process.SiStripSpyUnpacker.StoreCounters = True
 process.SiStripSpyUnpacker.StoreScopeRawDigis = cms.bool(True)      # Note - needs to be True for use in other modules.
@@ -60,7 +67,8 @@ process.SiStripSpyDigiConverter.DiscardDigisWithWrongAPVAddress = False
 
 # ---- FED Emulation ----
 process.load('DQM.SiStripMonitorHardware.SiStripFEDEmulator_cfi')
-process.SiStripFEDEmulator.SpyVirginRawDigisTag = cms.InputTag('SiStripSpyDigiConverter','VirginRaw')
+process.SiStripFEDEmulator.SpyReorderedDigisTag = cms.InputTag('SiStripSpyDigiConverter','SpyReordered')
+process.SiStripFEDEmulator.SpyVirginRawDigisTag = cms.InputTag('SiStripSpyDigiConverter','SpyVirginRaw')
 process.SiStripFEDEmulator.ByModule = cms.bool(True) #use the digis stored by module (i.e. detId)
 
 
@@ -81,7 +89,7 @@ process.SiStripSpyDisplay.InputPostPedestalRawDigiLabel     = cms.InputTag("SiSt
 process.SiStripSpyDisplay.InputPostCMRawDigiLabel           = cms.InputTag("SiStripFEDEmulator","CMSubtrModuleDigis")
 process.SiStripSpyDisplay.InputZeroSuppressedDigiLabel      = cms.InputTag("SiStripFEDEmulator","ZSModuleDigis")
 ##mainline data - if running on matched events
-#process.SiStripSpy.InputCompZeroSuppressedDigiLabel  = cms.InputTag("siStripDigis","ZeroSuppressed")
+# process.SiStripSpy.InputCompZeroSuppressedDigiLabel  = cms.InputTag("siStripDigis","ZeroSuppressed")
 
 process.SiStripSpyDisplay.OutputFolderName = cms.string("Display")
 
@@ -112,15 +120,15 @@ process.p = cms.Path(
     process.SiStripSpyUnpacker
     *process.SiStripSpyDigiConverter
     *process.SiStripFEDEmulator
-    *process.SiStripSpyMonitor
-    *process.SiStripSpyDisplay
+#     *process.SiStripSpyMonitor
+#     *process.SiStripSpyDisplay
     )
 
 
 # --- What to output ---
 process.output = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string("SpyRawToDigis.root"),
+    fileName = cms.untracked.string("SpyRawToDigis234824_CH.root"),
     outputCommands = cms.untracked.vstring(
        'keep *',
        #'drop *',
@@ -136,4 +144,4 @@ process.output = cms.OutputModule(
        )
     )
 
-#process.e = cms.EndPath( process.output )
+process.e = cms.EndPath( process.output )

@@ -38,7 +38,7 @@ _localMaxSeeds_ECAL = cms.PSet(
     algoName = cms.string("LocalMaximumSeedFinder"),
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("ECAL_ENDCAP"),
-              seedingThreshold = cms.double(0.6),
+              seedingThreshold = cms.double(0.60),
               seedingThresholdPt = cms.double(0.15)
               ),
     cms.PSet( detector = cms.string("ECAL_BARREL"),
@@ -117,7 +117,7 @@ _pfClusterizer_ECAL = cms.PSet(
 particleFlowClusterECALUncorrected = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitECAL"),
-    recHitCleaners = cms.VPSet(_spikeAndDoubleSpikeCleaner_ECAL),
+    recHitCleaners = cms.VPSet(),
     seedFinder = _localMaxSeeds_ECAL,
     initialClusteringStep = _topoClusterizer_ECAL,
     pfClusterBuilder = _pfClusterizer_ECAL,

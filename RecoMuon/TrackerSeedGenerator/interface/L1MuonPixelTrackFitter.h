@@ -1,7 +1,6 @@
 #ifndef RecoMuon_TrackerSeedGenerator_L1MuonPixelTrackFitter_H
 #define RecoMuon_TrackerSeedGenerator_L1MuonPixelTrackFitter_H
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelFitter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalTag.h"
@@ -21,7 +20,7 @@ class L1MuGMTCand;
 class PixelRecoLineRZ;
 class SeedingHitSet;
 
-class L1MuonPixelTrackFitter : public PixelFitter {
+class L1MuonPixelTrackFitter {
 
 public:
   class Circle {
@@ -34,7 +33,7 @@ public:
       Vector ec = charge * dp.cross(Vector(0,0,1)).unit();
       long double dist_tmp = 1./theCurvature/theCurvature - dp.perp2();
       theValid = (dist_tmp > 0.);
-      theCenter = p1+dp + ec*sqrt( fabs(dist_tmp ) );
+      theCenter = p1+dp + ec*sqrt( std::abs(dist_tmp ) );
     }
     bool   isValid() const { return theValid; }
     const  Point & center() const { return theCenter; }

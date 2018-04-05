@@ -1,9 +1,10 @@
 #ifndef IOPool_TFileAdaptor_TFileAdaptor_h
 #define IOPool_TFileAdaptor_TFileAdaptor_h
 
-#include "boost/shared_ptr.hpp"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -74,7 +75,7 @@ public:
   void stats() const;
 
 private:
-  boost::shared_ptr<TFileAdaptor> me;
+  edm::propagate_const<std::shared_ptr<TFileAdaptor>> me;
 };
 
 #endif

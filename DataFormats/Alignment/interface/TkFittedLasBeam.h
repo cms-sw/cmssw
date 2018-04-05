@@ -21,7 +21,7 @@ class TkFittedLasBeam : public TkLasBeam {
   
   TkFittedLasBeam(); 
   TkFittedLasBeam(const TkLasBeam &lasBeam);
-  virtual ~TkFittedLasBeam() {} // anyway virtual since inherited...
+  ~TkFittedLasBeam() override {} // anyway virtual since inherited...
     
   /// the parametrisation type used (0 means undefined...)
   unsigned int parametrisation() const { return parametrisation_;}

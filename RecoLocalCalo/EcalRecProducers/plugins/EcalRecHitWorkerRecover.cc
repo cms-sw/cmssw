@@ -22,7 +22,7 @@
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps, edm::ConsumesCollector&  c) :
   EcalRecHitWorkerBaseClass(ps,c)
 {
-        rechitMaker_ = new EcalRecHitSimpleAlgo();
+        rechitMaker_ = std::make_unique<EcalRecHitSimpleAlgo>();
         // isolated channel recovery
         singleRecoveryMethod_    = ps.getParameter<std::string>("singleChannelRecoveryMethod");
         singleRecoveryThreshold_ = ps.getParameter<double>("singleChannelRecoveryThreshold");
@@ -55,12 +55,10 @@ void EcalRecHitWorkerRecover::set(const edm::EventSetup& es)
         ecalMapping_ = pEcalMapping_.product();
         // geometry...
         es.get<EcalBarrelGeometryRecord>().get("EcalBarrel",pEBGeom_);
-        es.get<EcalEndcapGeometryRecord>().get("EcalEndcap",pEEGeom_);
 	es.get<CaloGeometryRecord>().get(caloGeometry_);
 	es.get<EcalChannelStatusRcd>().get(chStatus_);
         geo_ = caloGeometry_.product();
         ebGeom_ = pEBGeom_.product();
-        eeGeom_ = pEEGeom_.product();
         es.get<IdealGeometryRecord>().get(ttMap_);
         recoveredDetIds_EB_.clear();
         recoveredDetIds_EE_.clear();
@@ -170,7 +168,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                 EcalTrigTowerDetId ttDetId( ((EBDetId)detId).tower() );
                 edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
                 evt.getByToken(tpDigiToken_, pTPDigis);
-                const EcalTrigPrimDigiCollection * tpDigis = 0;               
+                const EcalTrigPrimDigiCollection * tpDigis = nullptr;               
 		tpDigis = pTPDigis.product();
            
                 EcalTrigPrimDigiCollection::const_iterator tp = tpDigis->find( ttDetId );
@@ -237,7 +235,7 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                         
                         edm::Handle<EcalTrigPrimDigiCollection> pTPDigis;
                         evt.getByToken(tpDigiToken_, pTPDigis);
-                        const EcalTrigPrimDigiCollection * tpDigis = 0;
+                        const EcalTrigPrimDigiCollection * tpDigis = nullptr;
 			tpDigis = pTPDigis.product();
 
                         // associated trigger towers
@@ -321,7 +319,6 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 				  float energy = jt->energy(); // Correct conversion to Et
 				  float eta = geo_->getPosition(jt->id()).eta();
 				  float pf = 1.0/cosh(eta);
-				  //float theta = eeGeom_->getGeometry( *it )->getPosition().theta();
 				  // use Et instead of E, consistent with the Et estimation of the associated TT
 				  totE -= energy*pf;
                                 }

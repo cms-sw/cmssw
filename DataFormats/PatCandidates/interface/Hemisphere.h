@@ -19,7 +19,7 @@ namespace pat {
     Hemisphere () {}
     Hemisphere (const Candidate::LorentzVector& p4) :
     CompositePtrCandidate(0,p4) {}
-    virtual ~Hemisphere () {}
+    ~Hemisphere () override {}
   };
 
 }

@@ -8,11 +8,11 @@ process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.Geometry.GeometrySimDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 
-process.GlobalTag.globaltag = 'POSTLS172_V1::All'
+process.GlobalTag.globaltag = 'GR_R_74_V10A'
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(record = cms.string("GeometryFileRcd"),
              tag = cms.string("XMLFILE_Geometry_2015_72YV2_Extended2015ZeroMaterial_mc"),
@@ -39,13 +39,13 @@ process.ecalGlobalUncalibRecHit = RecoLocalCalo.EcalRecProducers.ecalGlobalUncal
 # get uncalib rechits from multifit method / time from ratio
 import RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi
 process.ecalMultiFitUncalibRecHit =  RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi.ecalMultiFitUncalibRecHit.clone()
-process.ecalMultiFitUncalibRecHit.activeBXs = cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4)
-process.ecalMultiFitUncalibRecHit.useLumiInfoRunHeader = False
+process.ecalMultiFitUncalibRecHit.algoPSet.activeBXs = cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4)
+process.ecalMultiFitUncalibRecHit.algoPSet.useLumiInfoRunHeader = cms.bool( False )
 # get uncalib rechits from multifit method / time from weights
 process.ecalMultiFit2UncalibRecHit =  RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi.ecalMultiFitUncalibRecHit.clone()
-process.ecalMultiFit2UncalibRecHit.timealgo = cms.string("WeightsMethod")
-process.ecalMultiFit2UncalibRecHit.activeBXs = cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4)
-process.ecalMultiFit2UncalibRecHit.useLumiInfoRunHeader = False
+process.ecalMultiFit2UncalibRecHit.algoPSet.timealgo = cms.string("WeightsMethod")
+process.ecalMultiFit2UncalibRecHit.algoPSet.activeBXs = cms.vint32(-5,-4,-3,-2,-1,0,1,2,3,4)
+process.ecalMultiFit2UncalibRecHit.algoPSet.useLumiInfoRunHeader = cms.bool ( False )
 
 # get the recovered digis
 if isMC:
@@ -79,19 +79,10 @@ process.ecalRecHitMultiFit2.EBrechitCollection = 'EcalRecHitsMultiFit2EB'
 process.ecalRecHitMultiFit2.EErechitCollection = 'EcalRecHitsMultiFit2EE'
 
 process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(1000) )
-path = '/store/group/dpg_ecal/comm_ecal/localreco/cmssw_720p4/photongun_pu25_ave40/'
+path = '/store/data/Run2012D/DoubleElectron/RAW-RECO/ZElectron-22Jan2013-v1/10000/'
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-                            fileNames = cms.untracked.vstring(path+'photongun_pu25_ave40_lsfext2_990.root',
-                                                              path+'photongun_pu25_ave40_lsfext2_991.root',
-                                                              path+'photongun_pu25_ave40_lsfext2_992.root',
-                                                              path+'photongun_pu25_ave40_lsfext2_993.root',
-                                                              path+'photongun_pu25_ave40_lsfext2_994.root',
-                                                              path+'photongun_pu25_ave40_lsfext2_995.root',
-                                                              path+'photongun_pu25_ave40_lsfext2_996.root',
-                                                              path+'photongun_pu25_ave40_lsfext2_997.root',
-                                                              path+'photongun_pu25_ave40_lsfext2_998.root',
-                                                              path+'photongun_pu25_ave40_lsfext2_999.root'
+                            fileNames = cms.untracked.vstring(path+'0008202C-E78F-E211-AADB-0026189437FD.root'
                                                               ))
 
 
@@ -140,38 +131,15 @@ if 'FastTimerService' in process.__dict__:
 # instrument the menu with the FastTimerService
 process.load( "HLTrigger.Timer.FastTimerService_cfi" )
 
-# this is currently ignored in 7.x, and alway uses the real tim clock
-process.FastTimerService.useRealTimeClock         = True
-
-# enable specific features
-process.FastTimerService.enableTimingPaths        = True
-process.FastTimerService.enableTimingModules      = True
-process.FastTimerService.enableTimingExclusive    = True
-
 # print a text summary at the end of the job
-process.FastTimerService.enableTimingSummary      = True
-
-# skip the first path (useful for HLT timing studies to disregard the time spent loading event and conditions data)
-process.FastTimerService.skipFirstPath            = False
+process.FastTimerService.printJobSummary          = True
 
 # enable per-event DQM plots
 process.FastTimerService.enableDQM                = True
 
-# enable per-path DQM plots
-process.FastTimerService.enableDQMbyPathActive    = True
-process.FastTimerService.enableDQMbyPathTotal     = True
-process.FastTimerService.enableDQMbyPathOverhead  = True
-process.FastTimerService.enableDQMbyPathDetails   = True
-process.FastTimerService.enableDQMbyPathCounters  = True
-process.FastTimerService.enableDQMbyPathExclusive = True
-
 # enable per-module DQM plots
 process.FastTimerService.enableDQMbyModule        = True
-process.FastTimerService.enableDQMbyModuleType    = True
         
-# enable per-event DQM sumary plots
-process.FastTimerService.enableDQMSummary         = True
-
 # enable per-event DQM plots by lumisection
 process.FastTimerService.enableDQMbyLumiSection   = True
 process.FastTimerService.dqmLumiSectionsRange     = 2500    # lumisections (23.31 s)

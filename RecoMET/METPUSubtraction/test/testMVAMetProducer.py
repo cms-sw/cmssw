@@ -17,6 +17,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
+"root://eoscms//eos/cms/store/relval/CMSSW_7_5_0_pre4/RelValZMM_13/GEN-SIM-RECO/PU50ns_MCRUN2_75_V0-v1/00000/24B4BCD7-22F8-E411-A740-0025905A48F2.root"
         ),
                             skipEvents = cms.untracked.uint32(0)                        
 )

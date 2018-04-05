@@ -16,12 +16,12 @@ class ESOccupancyTask : public DQMEDAnalyzer {
  public:
   
   ESOccupancyTask(const edm::ParameterSet& ps);
-  virtual ~ESOccupancyTask() {}
+  ~ESOccupancyTask() override {}
   
  private:
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   
   // ----------member data ---------------------------
   edm::EDGetTokenT<ESRecHitCollection> rechittoken_;
@@ -32,7 +32,7 @@ class ESOccupancyTask : public DQMEDAnalyzer {
   MonitorElement* hRecNHit_[2][2];
   MonitorElement* hEnDensity_[2][2];
   MonitorElement* hSelEnDensity_[2][2];
-  MonitorElement* hDigiNHit_[2][2];
+  MonitorElement* hGoodRecNHit_[2][2];
   MonitorElement* hSelEng_[2][2];
   MonitorElement* hEng_[2][2];
   MonitorElement* hEvEng_[2][2];

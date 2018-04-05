@@ -101,14 +101,14 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent, const edm::EventSetu
     iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
     const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
 
-    CaloDualConeSelector<EcalRecHit> *doubleConeSel_ = 0;
+    CaloDualConeSelector<EcalRecHit> *doubleConeSel_ = nullptr;
     if(recHitsLabel_.instance() == "EcalRecHitsEB")
         doubleConeSel_= new CaloDualConeSelector<EcalRecHit>(innerRadius_,outerRadius_, &*pG, DetId::Ecal, EcalBarrel);
     else if(recHitsLabel_.instance() == "EcalRecHitsEE")
         doubleConeSel_= new CaloDualConeSelector<EcalRecHit>(innerRadius_,outerRadius_, &*pG, DetId::Ecal, EcalEndcap);
 
     //Create empty output collections
-    std::auto_ptr< DetIdCollection > detIdCollection (new DetIdCollection() ) ;
+    auto detIdCollection = std::make_unique<DetIdCollection>();
 
     reco::GsfElectronCollection::const_iterator emObj;
     if(doubleConeSel_) { //if cone selector was created
@@ -176,5 +176,5 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent, const edm::EventSetu
         delete doubleConeSel_;
     } //end if cone selector was created
     
-    iEvent.put( detIdCollection, interestingDetIdCollection_ );
+    iEvent.put(std::move(detIdCollection), interestingDetIdCollection_ );
 }

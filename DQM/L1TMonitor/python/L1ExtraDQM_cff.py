@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQM.L1TMonitor.l1ExtraDQM_cfi import *
-
+from DQM.L1TMonitor.l1ExtraDQMStage1_cfi import *
 
 # for DQM, unpack all BxInEvent available for GCT, GMT & GT (common unpacker for GMT and GT)
 # use clones dqmGctDigis and dqmGtDigis, to not interfere with RawToDigi from standard sequences
@@ -42,21 +42,41 @@ dqmL1ExtraParticles.hfRingBitCountsSource = 'dqmGctDigis'
 #
 dqmL1ExtraParticles.centralBxOnly = cms.bool(False)
 
+# get stage1 digis
+import L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi
+dqmL1ExtraParticlesStage1 = L1Trigger.L1ExtraFromDigis.l1extraParticles_cfi.l1extraParticles.clone()
+#
+dqmL1ExtraParticlesStage1.muonSource = 'dqmGtDigis'
+dqmL1ExtraParticlesStage1.etTotalSource = 'caloStage1LegacyFormatDigis'
+dqmL1ExtraParticlesStage1.nonIsolatedEmSource = 'caloStage1LegacyFormatDigis:nonIsoEm'
+dqmL1ExtraParticlesStage1.etMissSource = 'caloStage1LegacyFormatDigis'
+dqmL1ExtraParticlesStage1.htMissSource = 'caloStage1LegacyFormatDigis'
+dqmL1ExtraParticlesStage1.forwardJetSource = 'caloStage1LegacyFormatDigis:forJets'
+dqmL1ExtraParticlesStage1.centralJetSource = 'caloStage1LegacyFormatDigis:cenJets'
+dqmL1ExtraParticlesStage1.tauJetSource = 'caloStage1LegacyFormatDigis:tauJets'
+dqmL1ExtraParticlesStage1.isoTauJetSource = 'caloStage1LegacyFormatDigis:isoTauJets'
+dqmL1ExtraParticlesStage1.isolatedEmSource = 'caloStage1LegacyFormatDigis:isoEm'
+dqmL1ExtraParticlesStage1.etHadSource = 'caloStage1LegacyFormatDigis'
+dqmL1ExtraParticlesStage1.hfRingEtSumsSource = 'caloStage1LegacyFormatDigis'
+dqmL1ExtraParticlesStage1.hfRingBitCountsSource = 'caloStage1LegacyFormatDigis'
+#
+dqmL1ExtraParticlesStage1.centralBxOnly = cms.bool(False)
+
 #
 # Modify for running with the Stage 1 trigger. Note that these changes are already
 # applied to l1extraParticles before it is cloned, but the changes are overwritten
 # in the commands above. So we need to write back the correct Run 2 values.
 #
-from Configuration.StandardSequences.Eras import eras
-eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, etTotalSource = cms.InputTag("caloStage1LegacyFormatDigis") )
-eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, nonIsolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","nonIsoEm") )
-eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, etMissSource = cms.InputTag("caloStage1LegacyFormatDigis") )
-eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, htMissSource = cms.InputTag("caloStage1LegacyFormatDigis") )
-eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, forwardJetSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets") )
-eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, centralJetSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets") )
-eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, tauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","tauJets") )
-eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, isoTauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","isoTauJets") )
-eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, isolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","isoEm") )
-eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, etHadSource = cms.InputTag("caloStage1LegacyFormatDigis") )
-eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, hfRingEtSumsSource = cms.InputTag("caloStage1LegacyFormatDigis") )
-eras.stage1L1Trigger.toModify( dqmL1ExtraParticles, hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+from Configuration.Eras.Modifier_stage1L1Trigger_cff import stage1L1Trigger
+stage1L1Trigger.toModify( dqmL1ExtraParticles, etTotalSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+stage1L1Trigger.toModify( dqmL1ExtraParticles, nonIsolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","nonIsoEm") )
+stage1L1Trigger.toModify( dqmL1ExtraParticles, etMissSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+stage1L1Trigger.toModify( dqmL1ExtraParticles, htMissSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+stage1L1Trigger.toModify( dqmL1ExtraParticles, forwardJetSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets") )
+stage1L1Trigger.toModify( dqmL1ExtraParticles, centralJetSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets") )
+stage1L1Trigger.toModify( dqmL1ExtraParticles, tauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","tauJets") )
+stage1L1Trigger.toModify( dqmL1ExtraParticles, isoTauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","isoTauJets") )
+stage1L1Trigger.toModify( dqmL1ExtraParticles, isolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","isoEm") )
+stage1L1Trigger.toModify( dqmL1ExtraParticles, etHadSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+stage1L1Trigger.toModify( dqmL1ExtraParticles, hfRingEtSumsSource = cms.InputTag("caloStage1LegacyFormatDigis") )
+stage1L1Trigger.toModify( dqmL1ExtraParticles, hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis") )

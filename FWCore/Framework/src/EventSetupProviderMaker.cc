@@ -22,13 +22,13 @@
 namespace edm {
   namespace eventsetup {
   // ---------------------------------------------------------------
-    std::auto_ptr<EventSetupProvider>
-    makeEventSetupProvider(ParameterSet const& params, unsigned subProcessIndex) {
+    std::unique_ptr<EventSetupProvider>
+    makeEventSetupProvider(ParameterSet const& params, unsigned subProcessIndex, ActivityRegistry* activityRegistry) {
       std::vector<std::string> prefers =
         params.getParameter<std::vector<std::string> >("@all_esprefers");
 
       if(prefers.empty()) {
-        return std::auto_ptr<EventSetupProvider>(new EventSetupProvider(subProcessIndex));
+        return std::make_unique<EventSetupProvider>(activityRegistry, subProcessIndex);
       }
 
       EventSetupProvider::PreferredProviderInfo preferInfo;
@@ -96,7 +96,7 @@ namespace edm {
                                         preferPSet.getParameter<std::string>("@module_label"),
                                         false)] = recordToData;
       }
-      return std::auto_ptr<EventSetupProvider>(new EventSetupProvider(subProcessIndex, &preferInfo));
+      return std::make_unique<EventSetupProvider>(activityRegistry, subProcessIndex, &preferInfo);
     }
 
     // ---------------------------------------------------------------
@@ -148,9 +148,9 @@ namespace edm {
         moduleLabel = modtype;
       }
 
-      std::auto_ptr<ParameterSetDescriptionFillerBase> filler(
+      std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
         ParameterSetDescriptionFillerPluginFactory::get()->create(modtype));
-      ConfigurationDescriptions descriptions(filler->baseType());
+      ConfigurationDescriptions descriptions(filler->baseType(), modtype);
       filler->fill(descriptions);
       try {
         edm::convertException::wrap([&]() {

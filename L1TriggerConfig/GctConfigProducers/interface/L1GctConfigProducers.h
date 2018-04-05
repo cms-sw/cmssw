@@ -21,7 +21,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include<vector>
 
@@ -50,10 +49,10 @@ class L1GctChannelMaskRcd;
 class L1GctConfigProducers : public edm::ESProducer {
  public:
   L1GctConfigProducers(const edm::ParameterSet&);
-  ~L1GctConfigProducers();
+  ~L1GctConfigProducers() override;
   
-  typedef boost::shared_ptr<L1GctJetFinderParams>          JfParamsReturnType;
-  typedef boost::shared_ptr<L1GctChannelMask>          ChanMaskReturnType;
+  typedef std::shared_ptr<L1GctJetFinderParams>          JfParamsReturnType;
+  typedef std::shared_ptr<L1GctChannelMask>          ChanMaskReturnType;
   
   JfParamsReturnType produceJfParams(const L1GctJetFinderParamsRcd&);
   ChanMaskReturnType produceChanMask(const L1GctChannelMaskRcd&);

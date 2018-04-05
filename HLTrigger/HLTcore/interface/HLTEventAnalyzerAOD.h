@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 namespace edm {
@@ -28,12 +28,12 @@ class HLTEventAnalyzerAOD : public edm::stream::EDAnalyzer< > {
   
  public:
   explicit HLTEventAnalyzerAOD(const edm::ParameterSet&);
-  virtual ~HLTEventAnalyzerAOD();
+  ~HLTEventAnalyzerAOD() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
-  virtual void endRun(edm::Run const &, edm::EventSetup const&) override;
-  virtual void beginRun(edm::Run const &, edm::EventSetup const&) override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(edm::Run const &, edm::EventSetup const&) override;
+  void beginRun(edm::Run const &, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void analyzeTrigger(const edm::Event&, const edm::EventSetup&, const std::string& triggerName);
 
  private:
@@ -49,7 +49,7 @@ class HLTEventAnalyzerAOD : public edm::stream::EDAnalyzer< > {
   /// additional class data memebers
   edm::Handle<edm::TriggerResults>   triggerResultsHandle_;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle_;
-  HLTConfigProvider hltConfig_;
+  HLTPrescaleProvider hltPrescaleProvider_;
 
 };
 #endif

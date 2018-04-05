@@ -20,26 +20,29 @@ from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtDielectron_cff  import Hi
 from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDimuon_cff       import LowPtDimuonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtDielectron_cff   import LowPtDielectronPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtElectron_cff    import HighPtElectronPSet
-#from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtElectron_cff     import LowPtElectronPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaLowPtElectron_cff     import LowPtElectronPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHighPtPhoton_cff      import HighPtPhotonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaDiPhoton_cff          import DiPhotonPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaHT_cff                import HTPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaPFHT_cff              import PFHTPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaCaloHT_cff            import CaloHTPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaJetNoBptx_cff         import JetNoBptxPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMuonNoBptx_cff        import MuonNoBptxPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedMuEG_cff     import DisplacedMuEGPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedDimuon_cff   import DisplacedDimuonPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedL2Dimuon_cff import DisplacedL2DimuonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaPureMET_cff           import PureMETPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMETplusTrack_cff      import METplusTrackPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMonojet_cff           import MonojetPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMonojetBackup_cff     import MonojetBackupPSet
-from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedDimuonDijet_cff import DisplacedDimuonDijetPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaEleMu_cff             import EleMuPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaHTDisplacedJets_cff   import HTDisplacedJetsPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaPhotonMET_cff         import PhotonMETPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaSingleMuon_cff        import SingleMuonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDSTJets_cff           import DSTJetsPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDSTMuons_cff          import DSTMuonsPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaTracklessJets_cff     import TracklessJetsPSet
 
-hltExoticaValidator = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltExoticaValidator = DQMEDAnalyzer(
 
     "HLTExoticaValidator",
 		
@@ -48,31 +51,33 @@ hltExoticaValidator = cms.EDAnalyzer(
     # -- The name of the analysis. This is the name that
     # appears in Run summary/Exotica/ANALYSIS_NAME
 
-    analysis       = cms.vstring(
+    analyses       = cms.vstring(
         "LowPtTrimuon",
         "HighPtDimuon",
         "HighPtDielectron",
         "LowPtDimuon",
         "LowPtDielectron",
         "HighPtElectron",
-        #"LowPtElectron",
+        "LowPtElectron",
         "HighPtPhoton",
         "DiPhoton",
         "SingleMuon",
         "JetNoBptx",
         "MuonNoBptx",
-        "HT",
+        "PFHT",
+        "CaloHT",
         "DisplacedMuEG",
         "DisplacedDimuon",
-        "DisplacedL2Dimuon",
         "PureMET",
         "METplusTrack",
         "Monojet",
         "MonojetBackup",
-        "DisplacedDimuonDijet",
         "EleMu",
         "PhotonMET",
-        "HTDisplacedJets"
+        "HTDisplacedJets",
+        "DSTJets",
+        "DSTMuons",
+        "TracklessJets"
         ),
     
     # -- The instance name of the reco::GenParticles collection
@@ -113,7 +118,7 @@ hltExoticaValidator = cms.EDAnalyzer(
     # Syntax in the strings: valid syntax of the StringCutObjectSelector class
 
     # --- Muons
-    Mu_genCut     = cms.string("pt > 10 && abs(eta) < 2.4 && abs(pdgId) == 13 && isPromptFinalState"),
+    Mu_genCut     = cms.string("pt > 10 && abs(eta) < 2.4 && abs(pdgId) == 13 && (isPromptFinalState || isDirectPromptTauDecayProductFinalState)"),
     Mu_recCut     = cms.string("pt > 10 && abs(eta) < 2.4 && isPFMuon && (isTrackerMuon || isGlobalMuon)"), # Loose Muon
     
     # --- MuonTracks
@@ -123,7 +128,7 @@ hltExoticaValidator = cms.EDAnalyzer(
     refittedStandAloneMuons_recCut  = cms.string("pt > 10 && abs(eta) < 2.4"), 
 
     # --- Electrons
-    Ele_genCut      = cms.string("pt > 10 && (abs(eta)<1.444 || abs(eta)>1.566) && abs(eta)<2.5 && abs(pdgId) == 11 && isPromptFinalState"),
+    Ele_genCut      = cms.string("pt > 10 && (abs(eta)<1.444 || abs(eta)>1.566) && abs(eta)<2.5 && abs(pdgId) == 11 && (isPromptFinalState||isDirectPromptTauDecayProductFinalState)"),
     Ele_recCut      = cms.string(
         "pt > 10 && (abs(eta)<1.444 || abs(eta)>1.566) && abs(eta)< 2.5 "+
         " && hadronicOverEm < 0.05 "+ #&& eSuperClusterOverP > 0.5 && eSuperClusterOverP < 1.5 "+
@@ -176,6 +181,9 @@ hltExoticaValidator = cms.EDAnalyzer(
     CaloMET_genCut  = cms.string("pt > 75"),
     CaloMET_recCut  = cms.string("pt > 75"),
 
+    CaloMHT_genCut  = cms.string("pt > 75"),
+    CaloMHT_recCut  = cms.string("pt > 75"),  
+   
     hltMET_genCut   = cms.string("pt > 75"),
     hltMET_recCut   = cms.string("pt > 75"),  
    
@@ -203,7 +211,7 @@ hltExoticaValidator = cms.EDAnalyzer(
     LowPtDimuon      = LowPtDimuonPSet,
     LowPtDielectron  = LowPtDielectronPSet,
     HighPtElectron   = HighPtElectronPSet,
-    #LowPtElectron    = LowPtElectronPSet,
+    LowPtElectron    = LowPtElectronPSet,
     HighPtPhoton     = HighPtPhotonPSet,                                 
     DiPhoton         = DiPhotonPSet,                                 
     SingleMuon       = SingleMuonPSet,
@@ -211,14 +219,16 @@ hltExoticaValidator = cms.EDAnalyzer(
     MuonNoBptx       = MuonNoBptxPSet,
     DisplacedMuEG    = DisplacedMuEGPSet,
     DisplacedDimuon  = DisplacedDimuonPSet,
-    DisplacedL2Dimuon = DisplacedL2DimuonPSet,
     PureMET          = PureMETPSet,                                 
     METplusTrack     = METplusTrackPSet,                                 
     Monojet          = MonojetPSet,
     MonojetBackup    = MonojetBackupPSet,
-    HT               = HTPSet,
-    DisplacedDimuonDijet = DisplacedDimuonDijetPSet,
+    PFHT             = PFHTPSet,
+    CaloHT           = CaloHTPSet,
     EleMu            = EleMuPSet,
     PhotonMET        = PhotonMETPSet,
-    HTDisplacedJets  = HTDisplacedJetsPSet 
+    HTDisplacedJets  = HTDisplacedJetsPSet, 
+    DSTJets          = DSTJetsPSet, 
+    DSTMuons         = DSTMuonsPSet,
+    TracklessJets    = TracklessJetsPSet
 )

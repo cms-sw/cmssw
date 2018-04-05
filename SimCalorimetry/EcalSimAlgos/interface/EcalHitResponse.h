@@ -9,7 +9,8 @@
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-#include<vector>
+#include <unordered_map>
+#include <vector>
 
 typedef unsigned long long TimeValue_t;
 
@@ -32,6 +33,8 @@ class EcalHitResponse
       typedef CaloTSamplesBase<float> EcalSamples ;
 
       typedef std::vector< unsigned int > VecInd ;
+
+      typedef std::unordered_map<uint32_t,double> CalibCache;
 
       enum { BUNCHSPACE = 25 } ;
 
@@ -95,7 +98,7 @@ class EcalHitResponse
 
       EcalSamples* findSignal( const DetId& detId ) ;
 
-      double analogSignalAmplitude( const DetId& id, float energy, CLHEP::HepRandomEngine* ) const;
+      double analogSignalAmplitude( const DetId& id, double energy, CLHEP::HepRandomEngine* );
 
       double timeOfFlight( const DetId& detId ) const ;
 
@@ -135,6 +138,7 @@ class EcalHitResponse
 
       edm::TimeValue_t               m_iTime;
       bool                           m_useLCcorrection;
+      CalibCache                     m_laserCalibCache;
 
       VecInd m_index ;
 };

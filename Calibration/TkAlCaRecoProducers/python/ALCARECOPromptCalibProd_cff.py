@@ -47,7 +47,7 @@ ALCARECOHltFilterForBS = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clon
 ##     #Minimum Bias
 ##     "HLT_MinBias*"
 ##     ],
-    eventSetupPathsKey = 'PromptCalibProdForBS',
+    eventSetupPathsKey = 'PromptCalibProd',
     throw = False # tolerate triggers stated above, but not available
     )
 

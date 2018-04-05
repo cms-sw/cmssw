@@ -1,3 +1,4 @@
+
 from HLTriggerOffline.Tau.Validation.HLTTauPostValidation_cfi import *
 from HLTriggerOffline.Muon.HLTMuonPostVal_cff import *
 from HLTriggerOffline.Egamma.EgammaPostProcessor_cfi import *
@@ -15,13 +16,17 @@ from Validation.RecoVertex.HLTpostProcessorVertex_cfi import *
 #from HLTriggerOffline.Common.PostProcessorExample_cfi import *
 from HLTriggerOffline.Common.HLTValidationQT_cff import *
 from HLTriggerOffline.Btag.HltBtagPostValidation_cff import *
+from HLTriggerOffline.Egamma.HLTpostProcessorGsfTracker_cfi import *
+from HLTriggerOffline.Muon.HLTpostProcessorMuonTrack_cfi import *
 
 hltpostvalidation = cms.Sequence( 
-    postProcessorHLTtracking
+    postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
-     +HLTMuonPostVal
+    +HLTMuonPostVal
     +HLTTauPostVal
     +EgammaPostVal
+    + postProcessorHLTgsfTrackingSequence
+    + postProcessorHLTmuonTrackingSequence
     +topHLTriggerValidationHarvest
     +heavyFlavorValidationHarvestingSequence
     +JetMETPostVal
@@ -35,32 +40,33 @@ hltpostvalidation = cms.Sequence(
     +HLTSMPPostVal
     +HltBTagPostVal
     )
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 
-hltpostvalidation_fastsim = cms.Sequence( 
-     HLTMuonPostVal_FastSim
-    +HLTTauPostVal
-    +EgammaPostVal
-    +topHLTriggerValidationHarvest
-    +heavyFlavorValidationHarvestingSequence
-    +JetMETPostVal
-    #+HLTAlCaPostVal
-    +SusyExoPostVal_fastsim
-    +HLTHiggsPostVal
-    +b2gHLTriggerValidationHarvest
-    +HLTSMPPostVal
-    +HltBTagPostVal    
-    )
-
+# fastsim customs
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(hltpostvalidation, hltpostvalidation.copyAndExclude([
+    postProcessorHLTtrackingSequence,
+    postProcessorHLTvertexing,
+    postProcessorHLTgsfTrackingSequence,
+    postProcessorHLTmuonTrackingSequence
+    # remove this:    hltvalidationqt ?
+    # remove this:    hltExoticaPostProcessors ?
+]))
+    
 hltpostvalidation_preprod = cms.Sequence( 
-    postProcessorHLTtracking
+    postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
     +HLTTauPostVal
     +heavyFlavorValidationHarvestingSequence
     +SusyExoPostVal
+    + postProcessorHLTgsfTrackingSequence
+    + postProcessorHLTmuonTrackingSequence
    #+HLTHiggsPostVal
     )
 
 hltpostvalidation_prod = cms.Sequence( 
-    postProcessorHLTtracking
+    postProcessorHLTtrackingSequence
     +postProcessorHLTvertexing
+    + postProcessorHLTgsfTrackingSequence
+    + postProcessorHLTmuonTrackingSequence
     )

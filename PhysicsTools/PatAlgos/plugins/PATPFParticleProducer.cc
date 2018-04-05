@@ -128,8 +128,8 @@ void PATPFParticleProducer::produce(edm::Event & iEvent,
   std::sort(patPFParticles->begin(), patPFParticles->end(), pTComparator_);
 
   // put genEvt object in Event
-  std::auto_ptr<std::vector<PFParticle> > ptr(patPFParticles);
-  iEvent.put(ptr);
+  std::unique_ptr<std::vector<PFParticle> > ptr(patPFParticles);
+  iEvent.put(std::move(ptr));
 
 }
 

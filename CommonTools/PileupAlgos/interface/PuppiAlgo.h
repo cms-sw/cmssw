@@ -12,27 +12,50 @@ public:
   ~PuppiAlgo();
   //Computing Mean and RMS
   void   reset();
+  void   fixAlgoEtaBin(int i_eta );
   void   add(const fastjet::PseudoJet &iParticle,const double &iVal,const unsigned int iAlgo);
   void   computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac);
   //Get the Weight
   double compute(std::vector<double> const &iVals,double iChi2) const;
+  const std::vector<float> & alphas(){ return fPups; }
   //Helpers
-  inline double ptMin() const { return fPtMin; }
-  inline double etaMin() const { return fEtaMin; }
-  inline double etaMax() const { return fEtaMax; }
+  inline int    etaBins() const {return fEtaMin.size(); }
+  inline double etaMin(int i) const { return fEtaMin[i]; }
+  inline double etaMax(int i) const { return fEtaMax[i]; }
+  inline double ptMin() const { return cur_PtMin; }
+
   inline int    numAlgos () const { return fNAlgos;}
   inline int    algoId  ( unsigned int iAlgo) const { return fAlgoId.at(iAlgo); }
   inline bool   isCharged  ( unsigned int iAlgo) const { return fCharged.at(iAlgo); }
   inline double coneSize  ( unsigned int iAlgo) const { return fConeSize.at(iAlgo); }
-  inline double neutralPt  (int iNPV) const { return fNeutralPtMin + iNPV * fNeutralPtSlope; }
+  inline double neutralPt  (int iNPV) const { return cur_NeutralPtMin + iNPV * cur_NeutralPtSlope; }
+
+  inline double rms() const {return cur_RMS;}
+  inline double median() const {return cur_Med;}
 
 private:  
   unsigned int   fNAlgos;
-  float  fEtaMax;
-  float  fEtaMin;
-  float  fPtMin ;
-  double fNeutralPtMin;
-  double fNeutralPtSlope;
+  std::vector<double>  fEtaMax;
+  std::vector<double>  fEtaMin;
+  std::vector<double>  fPtMin ;
+  std::vector<double>  fNeutralPtMin;
+  std::vector<double>  fNeutralPtSlope;
+
+  std::vector<double>  fRMSEtaSF;
+  std::vector<double>  fMedEtaSF;
+  double fEtaMaxExtrap;
+
+  double cur_PtMin;
+  double cur_NeutralPtMin;
+  double cur_NeutralPtSlope;
+  double cur_RMS;
+  double cur_Med;
+
+  std::vector<double> fRMS; // this is the raw RMS per algo
+  std::vector<double> fMedian; // this is the raw Median per algo
+  std::vector< std::vector<double> > fRMS_perEta; // this is the final RMS used after eta corrections
+  std::vector< std::vector<double> > fMedian_perEta; // this is the final Med used after eta corrections
+
   std::vector<float>  fPups;
   std::vector<float>  fPupsPV;
   std::vector<int>    fAlgoId;
@@ -42,10 +65,9 @@ private:
   std::vector<double> fConeSize;
   std::vector<double> fRMSPtMin;
   std::vector<double> fRMSScaleFactor;
-  std::vector<double> fRMS;
-  std::vector<double> fMedian;
   std::vector<double> fMean;
   std::vector<int>    fNCount;
+
 };
 
 

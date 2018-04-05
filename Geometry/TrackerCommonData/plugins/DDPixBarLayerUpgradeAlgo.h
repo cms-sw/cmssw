@@ -4,22 +4,22 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "DetectorDescription/Base/interface/DDTypes.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 
 class DDPixBarLayerUpgradeAlgo : public DDAlgorithm {
  public:
   //Constructor and Destructor
   DDPixBarLayerUpgradeAlgo(); 
-  virtual ~DDPixBarLayerUpgradeAlgo();
+  ~DDPixBarLayerUpgradeAlgo() override;
   
   void initialize(const DDNumericArguments & nArgs,
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
+		  const DDStringVectorArguments & vsArgs) override;
 
-  void execute(DDCompactView& cpv);
+  void execute(DDCompactView& cpv) override;
 
 private:
 
@@ -35,11 +35,16 @@ private:
   double                   cool2Offset;    //cooling pipe 2 offset for ladder at interface
   std::string              coolMat;     //Cooling fluid material name
   std::string              tubeMat;     //Cooling piece material name
+  std::string              coolMatHalf; //Cooling fluid material name
+  std::string              tubeMatHalf; //Cooling piece material name
   std::string              ladder;      //Name  of ladder
   double                   ladderWidth; //Width of ladder 
   double                   ladderThick; //Thicknes of ladder 
   double                   ladderOffset; //ladder dispacement at interface 
   int                      outerFirst;  //Controller of the placement of ladder
+  double                   phiFineTune; //Fine-tuning pitch of first ladder
+  double                   rOuterFineTune; //Fine-tuning r offset for outer ladders
+  double                   rInnerFineTune; //Fine-tuning r offset for inner ladders
 };
 
 #endif

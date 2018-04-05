@@ -39,6 +39,8 @@
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
 #include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
+#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalDCSTowerStatus.h"
 #include "CondFormats/DataRecord/interface/EcalDCSTowerStatusRcd.h"
@@ -51,6 +53,10 @@
 
 #include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
+
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
@@ -164,6 +170,8 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalTimeCalibConstantsRcd>().cacheIdentifier();
   } else if (container == "EcalClusterCrackCorrParameters") {
     cacheID = evtSetup.get<EcalClusterCrackCorrParametersRcd>().cacheIdentifier();
+  } else if (container == "EcalPFRecHitThresholds") {
+    cacheID = evtSetup.get<EcalPFRecHitThresholdsRcd>().cacheIdentifier();
   } else if (container == "EcalClusterEnergyUncertaintyParameters") {
     cacheID = evtSetup.get<EcalClusterEnergyUncertaintyParametersRcd>().cacheIdentifier();
   } else if (container == "EcalClusterEnergyCorrectionParameters") {
@@ -174,7 +182,9 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalClusterLocalContCorrParametersRcd>().cacheIdentifier();
   } else if (container == "EcalTPGCrystalStatus") {
     cacheID = evtSetup.get<EcalTPGCrystalStatusRcd>().cacheIdentifier();
-  } else if (container == "EBAlignment") {
+   } else if (container == "EcalTPGTowerStatus") {
+    cacheID = evtSetup.get<EcalTPGTowerStatusRcd>().cacheIdentifier();
+ } else if (container == "EBAlignment") {
     cacheID = evtSetup.get<EBAlignmentRcd>().cacheIdentifier();
   } else if (container == "EEAlignment") {
     cacheID = evtSetup.get<EEAlignmentRcd>().cacheIdentifier();
@@ -195,10 +205,10 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
   }
   
   if (m_cacheIDs[container] == cacheID) {
-    return 0;
+    return false;
   } else {
     m_cacheIDs[container] = cacheID;
-    return 1;
+    return true;
   }
 
 }
@@ -285,6 +295,14 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container
 
    dbOutput->createNewIOV<const EcalTPGCrystalStatus>( new EcalTPGCrystalStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
+  }  else if (container == "EcalTPGTowerStatus") {
+    edm::ESHandle<EcalTPGTowerStatus> handle;
+    evtSetup.get<EcalTPGTowerStatusRcd>().get(handle);
+    const EcalTPGTowerStatus* obj = handle.product();
+    std::cout << "TPG tower status pointer is: "<< obj<< std::endl;
+
+    dbOutput->createNewIOV<const EcalTPGTowerStatus>( new EcalTPGTowerStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
 
   } else if (container == "EcalIntercalibConstants") {
     edm::ESHandle<EcalIntercalibConstants> handle;
@@ -362,8 +380,15 @@ else if (container == "EcalIntercalibConstantsMC") {
     edm::ESHandle<EcalClusterCrackCorrParameters> handle;
     evtSetup.get<EcalClusterCrackCorrParametersRcd>().get(handle);
     const EcalClusterCrackCorrParameters* obj = handle.product();
-    std::cout << "tbweight pointer is: "<< obj<< std::endl;
+    std::cout << "cluster crack pointer is: "<< obj<< std::endl;
    dbOutput->createNewIOV<const EcalClusterCrackCorrParameters>( new EcalClusterCrackCorrParameters(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+  } else if (container == "EcalPFRecHitThresholds") {
+    edm::ESHandle<EcalPFRecHitThresholds> handle;
+    evtSetup.get<EcalPFRecHitThresholdsRcd>().get(handle);
+    const EcalPFRecHitThresholds* obj = handle.product();
+    std::cout << "Ecal PF rec hit thresholds pointer is: "<< obj<< std::endl;
+   dbOutput->createNewIOV<const EcalPFRecHitThresholds>( new EcalPFRecHitThresholds(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
 
   } else if (container == "EcalClusterEnergyUncertaintyParameters") {

@@ -6,13 +6,19 @@
 #include "FastSimulation/ShowerDevelopment/interface/FastHFShowerLibrary.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 #include "Randomize.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -28,20 +34,16 @@
 // STL headers 
 #include <vector>
 #include <iostream>
+#include <mutex>
 
 //#define DebugLog
 
-FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const & p) : fast(p)
-{
+static std::once_flag initializeOnce;
+
+FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const & p) 
+  : fast(p) {
   edm::ParameterSet m_HS   = p.getParameter<edm::ParameterSet>("HFShowerLibrary");
   applyFidCut              = m_HS.getParameter<bool>("ApplyFiducialCut");
-}
-
-FastHFShowerLibrary::~FastHFShowerLibrary() 
-{
- if(hfshower)         delete hfshower;
- if(numberingScheme)  delete numberingScheme;
- if(numberingFromDDD) delete numberingFromDDD;
 }
 
 void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetup) {
@@ -51,18 +53,33 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
   edm::ESTransientHandle<DDCompactView> cpv;
   iSetup.get<IdealGeometryRecord>().get(cpv);
 
+  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  iSetup.get<HcalSimNumberingRecord>().get(hdc);
+  hcalConstants = (HcalDDDSimConstants*)(&(*hdc));
+
   std::string name = "HcalHits";
-  hfshower = new HFShowerLibrary(name,*cpv,fast);
-  numberingFromDDD = new HcalNumberingFromDDD(name, *cpv);  
-  numberingScheme  = new HcalNumberingScheme();
-
-// Geant4 particles
-  G4DecayPhysics decays;
-  decays.ConstructParticle();  
+  numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));  
+  hfshower.reset(new HFShowerLibrary(name,*cpv,fast));
+  
+  //only one thread can be allowed to setup the G4 physics table.
+  std::call_once(initializeOnce,[]() {
+      // Geant4 particles
+      G4DecayPhysics decays;
+      decays.ConstructParticle();  
+      G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
+      partTable->SetReadiness();
+    });
   G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
-  partTable->SetReadiness();
+  hfshower->initRun(partTable, hcalConstants); // init particle code
+}
 
-  if (hfshower) hfshower->initRun(partTable); // init particle code
+void FastHFShowerLibrary::SetRandom(const RandomEngineAndDistribution * rnd)
+{
+  // define Geant4 engine per thread
+  G4Random::setTheEngine(&(rnd->theEngine()));
+  LogDebug("FastHFShowerLibrary::recoHFShowerLibrary") 
+    << "Begin of event " << G4UniformRand() << "  " 
+    << rnd->theEngine().name() << "  " << rnd->theEngine();
 }
 
 void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
@@ -94,7 +111,7 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
   double tSlice = 0.1*vertex.mag()/29.98;
 
   std::vector<HFShowerLibrary::Hit> hits =
-              hfshower->fillHits(vertex,direction,parCode,eGen,ok,weight,false,tSlice);
+    hfshower->fillHits(vertex,direction,parCode,eGen,ok,weight,tSlice,false);
 
   for (unsigned int i=0; i<hits.size(); ++i) {
     G4ThreeVector pos = hits[i].position;
@@ -106,7 +123,7 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
       int lay = 1;
       uint32_t id = 0;
       HcalNumberingFromDDD::HcalID tmp = numberingFromDDD->unitID(det, pos, depth, lay);
-      id = numberingScheme->getUnitID(tmp);
+      id = numberingScheme.getUnitID(tmp);
 
       CaloHitID current_id(id,time,myTrack.id());
       std::map<CaloHitID,float>::iterator cellitr;
@@ -119,4 +136,19 @@ void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
     }  // end of isItinFidVolume check 
   } // end loop over hits
 
+}
+
+void FastHFShowerLibrary::modifyDepth(uint32_t &id) {
+
+  HcalDetId hid(id);
+  if (hid.subdet() == HcalForward) {
+    int eta = hid.ieta();
+    int phi = hid.iphi();
+    if (hcalConstants->maxHFDepth(eta,phi) > 2) {
+      if (hid.depth() <= 2) {
+	int dep = (G4UniformRand() > 0.5) ? (2+hid.depth()) : hid.depth();
+	id = HcalDetId(HcalForward,eta,phi,dep).rawId();
+      }
+    }
+  }
 }

@@ -9,7 +9,13 @@ void rootlogon() {
 
 void loadFWLite() {
   gSystem->Load("libFWCoreFWLite.so");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
+}
+
+TTree* getEventsrootlogon() {
+  TTree* events = 0;
+  gDirectory->GetObject("Events", events);
+  return events;
 }
 
 void initAOD(const char* process) {
@@ -26,6 +32,7 @@ void initAOD(const char* process) {
   string pfJetsAod = "recoPFJets_iterativeCone5PFJets__";  
   pfJetsAod += process;
 
+  TTree* Events = getEventsrootlogon();
   Events->SetAlias("verticesAod", verticesAod.c_str()); 
   Events->SetAlias("pfCandidatesAod",  pfCandidatesAod.c_str());
   Events->SetAlias("ic5GenJetsAod",  ic5GenJetsAod.c_str());
@@ -52,6 +59,7 @@ void initPF2PAT(const char* process) {
   string decaysFromZs = "recoGenParticles_decaysFromZs__";
   decaysFromZs += process;
 
+  TTree* Events = getEventsrootlogon();
   Events->SetAlias("met", met.c_str() );
   Events->SetAlias("pileUp", pu.c_str() );
   Events->SetAlias("jetsAll", jetsin.c_str() );
@@ -76,6 +84,7 @@ void initPAT(const char* process) {
   
   string patCaloJets = "patJets_selectedPatJets__"; patCaloJets += process;
 
+  TTree* Events = getEventsrootlogon();
   Events->SetAlias("patTaus", taus.c_str() );
   Events->SetAlias("patJets", jets.c_str() );
   Events->SetAlias("patCaloJets", patCaloJets.c_str() );

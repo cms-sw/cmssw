@@ -1,13 +1,18 @@
 <environment>
   <use name="SimCalorimetry/HcalSimAlgos"/>
   <use name="SimDataFormats/CrossingFrame"/>
-  <bin file="HcalDigitizerTest.cpp"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="DataFormats/HcalDetId"/>
   <bin file="HPDIonFeedbackTest.cpp"/>
-  <bin file="writeHPDLibrary.cc"/>
-  <bin file="readHPDLibrary.cc"/>
   <bin file="HcalShapeIntegratorTest.cpp"/>
   <bin file="HcalTimeSlewTest.cpp"/>
-  <library   file="HcalSignalGeneratorTest.cpp" name="HcalSignalGeneratorTest">
-    <flags   EDM_PLUGIN="1"/>
+  <flags EDM_PLUGIN="1"/>
+  <library file="HcalSignalGeneratorTest.cpp" name="HcalSignalGeneratorTest">
+  </library>
+  <library file="HcalDigitizerTest.cc" name="HcalDigitizerTest">
+  </library>
+  <library file="SiPMNonlinearityAnalyzer.cc" name="SiPMNonlinearityAnalyzer">
+  </library>
+  <library file="CaloSamplesAnalyzer.cc" name="CaloSamplesAnalyzer">
   </library>
 </environment>

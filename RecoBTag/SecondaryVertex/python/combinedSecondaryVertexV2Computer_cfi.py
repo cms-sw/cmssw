@@ -9,5 +9,6 @@ combinedSecondaryVertexV2Computer = cms.ESProducer("CombinedSecondaryVertexESPro
 		'CombinedSVIVFV2RecoVertex', 
 		'CombinedSVIVFV2PseudoVertex', 
 		'CombinedSVIVFV2NoVertex'),
+        recordLabel = cms.string(''),
 	categoryVariableName = cms.string('vertexCategory')
 )

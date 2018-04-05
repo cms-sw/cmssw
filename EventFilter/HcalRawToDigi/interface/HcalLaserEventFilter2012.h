@@ -41,15 +41,15 @@ class HcalLaserEventFiltProducer2012;
 class HcalLaserEventFilter2012 : public edm::EDFilter {
 public:
   explicit HcalLaserEventFilter2012(const edm::ParameterSet&);
-  ~HcalLaserEventFilter2012();
+  ~HcalLaserEventFilter2012() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   friend HcalLaserEventFiltProducer2012;
 
 private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   
   void readEventListFile(const std::string & eventFileName);
   void addEventString(const std::string & eventString);

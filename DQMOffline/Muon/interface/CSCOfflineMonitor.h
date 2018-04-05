@@ -74,14 +74,14 @@ class CSCOfflineMonitor : public DQMEDAnalyzer {
 public:
 
   CSCOfflineMonitor(const edm::ParameterSet& pset);
-  virtual ~CSCOfflineMonitor() { };
+  ~CSCOfflineMonitor() override { };
 
   enum LabelType {SMALL, EXTENDED};
   enum AxisType  {X=1, Y=2, Z=3};
 
 protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
 
 private: 
 
@@ -173,8 +173,18 @@ private:
   std::vector<MonitorElement*> hSChiSqProb;
   MonitorElement *hSGlobalTheta;
   MonitorElement *hSGlobalPhi;
+  MonitorElement *hSTimeDiff;
+  std::vector<MonitorElement*> hSTimeDiffByChamberType;
+  MonitorElement *hSTimeAnode;
+  std::vector<MonitorElement*> hSTimeAnodeByChamberType;
   MonitorElement *hSTimeCathode;
+  std::vector<MonitorElement*> hSTimeCathodeByChamberType;
   MonitorElement *hSTimeCombined;
+  std::vector<MonitorElement*> hSTimeCombinedByChamberType;
+  MonitorElement *hSTimeDiffSerial;
+  MonitorElement *hSTimeAnodeSerial;
+  MonitorElement *hSTimeCathodeSerial;
+  MonitorElement *hSTimeCombinedSerial;
   MonitorElement *hSTimeVsZ;
   MonitorElement *hSTimeVsTOF;
 

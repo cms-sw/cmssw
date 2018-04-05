@@ -1,11 +1,17 @@
+#include <fstream>
+#include <streambuf>
+
 #include "Fireworks/Geometry/interface/FWRecoGeometryESProducer.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometry.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometryRecord.h"
 
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HGCalGeometry/interface/FastTimeGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -15,6 +21,7 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -26,14 +33,25 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 #include "TNamed.h"
-# define ADD_PIXEL_TOPOLOGY( rawid, detUnit )			\
-  const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); \
-  if( det )							\
-  {      							\
-    const PixelTopology* topo = &det->specificTopology(); \
-    m_fwGeometry->idToName[rawid].topology[0] = topo->nrows();	\
-    m_fwGeometry->idToName[rawid].topology[1] = topo->ncolumns(); \
-  }								\
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
+void FWRecoGeometryESProducer::ADD_PIXEL_TOPOLOGY( unsigned int rawid, const GeomDet* detUnit ) {                                    
+   const PixelGeomDetUnit* det = dynamic_cast<const PixelGeomDetUnit*>( detUnit ); 
+   if( det )							
+   {      							
+      const PixelTopology* topo = &det->specificTopology(); 
+    
+      std::pair<float,float> pitch = topo->pitch();
+      m_fwGeometry->idToName[rawid].topology[0] = pitch.first;
+      m_fwGeometry->idToName[rawid].topology[1] = pitch.second;
+
+      m_fwGeometry->idToName[rawid].topology[2] = topo->localX(0.f); // offsetX
+      m_fwGeometry->idToName[rawid].topology[3] = topo->localY(0.f); // offsetY
+
+      // big pixels layout
+      m_fwGeometry->idToName[rawid].topology[4] = topo->isItBigPixelInX(80) ? 0 : 1;
+   }
+}
 
 # define ADD_SISTRIP_TOPOLOGY( rawid, detUnit )			\
   const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>( detUnit ); \
@@ -62,53 +80,74 @@
       m_fwGeometry->idToName[rawid].topology[3] = topo->pitch();	\
     }									\
   }                                                                     \
+
+namespace {
+  const std::array<std::string,3> hgcal_geom_names =  { { "HGCalEESensitive",
+                                                                 "HGCalHESiliconSensitive",
+                                                                 "HGCalHEScintillatorSensitive" } };
+}
 									  
-FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& )
+FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& pset )
   : m_current( -1 )
 {
+  m_tracker = pset.getUntrackedParameter<bool>( "Tracker", true );
+  m_muon = pset.getUntrackedParameter<bool>( "Muon", true );
+  m_calo = pset.getUntrackedParameter<bool>( "Calo", true );
+  m_timing = pset.getUntrackedParameter<bool>( "Timing", false );
   setWhatProduced( this );
 }
 
 FWRecoGeometryESProducer::~FWRecoGeometryESProducer( void )
 {}
 
-boost::shared_ptr<FWRecoGeometry> 
+std::shared_ptr<FWRecoGeometry> 
 FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
 {
   using namespace edm;
 
-  m_fwGeometry =  boost::shared_ptr<FWRecoGeometry>( new FWRecoGeometry );
+  m_fwGeometry = std::make_shared<FWRecoGeometry>();
 
-  record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
-  
-  DetId detId( DetId::Tracker, 0 );
-  m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
-  
-  record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
-  
-  addPixelBarrelGeometry( );
-  addPixelForwardGeometry();
-  addTIBGeometry();
-  addTIDGeometry();
-  addTOBGeometry();
-  addTECGeometry();
-  addDTGeometry();
-  addCSCGeometry();
-  addRPCGeometry();
-
-  try 
+  if( m_tracker || m_muon ) {
+    record.getRecord<GlobalTrackingGeometryRecord>().get( m_geomRecord );
+    if (m_tracker){
+      DetId detId( DetId::Tracker, 0 );
+      m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
+    }
+  }
+    
+  if( m_tracker )
   {
+    addPixelBarrelGeometry( );
+    addPixelForwardGeometry();
+    addTIBGeometry();
+    addTIDGeometry();
+    addTOBGeometry();
+    addTECGeometry();
+    writeTrackerParametersXML();
+    return m_fwGeometry; //AMT
+  }
+  if( m_muon )
+  {
+    // addDTGeometry();
+    // addCSCGeometry();
+    // addRPCGeometry();
     addGEMGeometry();
+    // addME0Geometry();
   }
-  catch( cms::Exception& exception )
+  if( m_calo )
   {
-   edm::LogWarning("FWRecoGeometryProducerException")
-     << "Exception caught while building GEM geometry: " << exception.what()
-     << std::endl; 
+    edm::ESHandle<CaloGeometry>                caloGeomH;
+    record.getRecord<CaloGeometryRecord>().get(caloGeomH);
+    m_caloGeom = caloGeomH.product();
+    addCaloGeometry();
+  }
+
+  if( m_timing ) {
+    record.getRecord<CaloGeometryRecord>().getRecord<IdealGeometryRecord>().get( "FastTimeBarrel", m_ftlBarrelGeom );
+    record.getRecord<CaloGeometryRecord>().getRecord<IdealGeometryRecord>().get( "SFBX", m_ftlEndcapGeom );
+    addFTLGeometry();
   }
   
-  addCaloGeometry();
-
   m_fwGeometry->idToName.resize( m_current + 1 );
   std::vector<FWRecoGeom::Info>( m_fwGeometry->idToName ).swap( m_fwGeometry->idToName );
   std::sort( m_fwGeometry->idToName.begin(), m_fwGeometry->idToName.end());
@@ -250,7 +289,9 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
      m_geomRecord->slaveGeometry( detId );
      m_fwGeometry->extraDet.Add(new TNamed("RE4", "RPC endcap station 4"));
   }
-  catch (...) {}
+    catch (std::runtime_error &e) {
+       std::cerr << e.what() << std::endl; 
+    }
 }
 
 void
@@ -260,35 +301,110 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   // GEM geometry
   //
   DetId detId( DetId::Muon, 4 );
-  const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( auto it = gemGeom->etaPartitions().begin(),
-	   end = gemGeom->etaPartitions().end(); 
-       it != end; ++it )
+
+  try 
   {
-    const GEMEtaPartition* roll = (*it);
-    if( roll )
-    {
-      unsigned int rawid = (*it)->geographicalId().rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, roll );
-
-      const StripTopology& topo = roll->specificTopology();
-      m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
-      m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
-      m_fwGeometry->idToName[current].topology[2] = topo.pitch();
-
-      float height = topo.stripLength()/2;
-      LocalPoint  lTop( 0., height, 0.);
-      LocalPoint  lBottom( 0., -height, 0.);
-      m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
-      m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
-      m_fwGeometry->idToName[current].topology[5] = roll->npads();
+    const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
+    
+    // add in superChambers - gem Segments are based on superChambers
+    for(auto sc : gemGeom->superChambers())
+    { 
+      if( sc )
+      {
+	unsigned int rawid = sc->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, sc );
+      }
     }
-  }
+    // add in chambers
+    for(auto ch : gemGeom->chambers())
+    { 
+      if( ch )
+      {
+	unsigned int rawid = ch->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, ch );
+      }
+    }    
+    // add in etaPartitions - gem rechits are based on etaPartitions
+    for(auto roll : gemGeom->etaPartitions())
+    { 
+      if( roll )
+      {
+	unsigned int rawid = roll->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, roll );
 
-  m_fwGeometry->extraDet.Add(new TNamed("GEM", "GEM muon detector"));
+	const StripTopology& topo = roll->specificTopology();
+	m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
+	m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
+	m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+
+	float height = topo.stripLength()/2;
+	LocalPoint  lTop( 0., height, 0.);
+	LocalPoint  lBottom( 0., -height, 0.);
+	m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
+	m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
+	m_fwGeometry->idToName[current].topology[5] = roll->npads();
+      }
+    }
+
+    m_fwGeometry->extraDet.Add(new TNamed("GEM", "GEM muon detector"));
+    try {
+      GEMDetId id(1, 1, 2, 1, 1, 1 );
+      m_geomRecord->slaveGeometry( detId );
+      m_fwGeometry->extraDet.Add(new TNamed("GE2", "GEM endcap station 2"));
+    }
+    catch (std::runtime_error &e) {
+       std::cerr << e.what() << std::endl; 
+    }
+
+  }
+  catch( cms::Exception &exception )
+  {
+    edm::LogError("FWRecoGeometry") << " GEM geometry not found " << exception.what() << std::endl;
+  }
 }
 
+void
+FWRecoGeometryESProducer::addME0Geometry( void )
+{
+  //                                                                                                                               
+  // ME0 geometry                                                                                                                  
+  //   
+
+  DetId detId( DetId::Muon, 5 );
+  try 
+  {
+    const ME0Geometry* me0Geom = (const ME0Geometry*) m_geomRecord->slaveGeometry( detId );
+    for(auto roll : me0Geom->etaPartitions())
+    { 
+      if( roll )
+      {
+	unsigned int rawid = roll->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, roll );
+	  
+	const StripTopology& topo = roll->specificTopology();
+	m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
+	m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
+	m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+	
+	float height = topo.stripLength()/2;
+	LocalPoint  lTop( 0., height, 0.);
+	LocalPoint  lBottom( 0., -height, 0.);
+	m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
+	m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
+	m_fwGeometry->idToName[current].topology[5] = roll->npads();
+      }
+    }
+    m_fwGeometry->extraDet.Add(new TNamed("ME0", "ME0 muon detector"));
+  }
+  catch( cms::Exception &exception )
+  {
+    edm::LogError("FWRecoGeometry") << " ME0 geometry not found " << exception.what() << std::endl;
+  }
+}  
 
 void
 FWRecoGeometryESProducer::addPixelBarrelGeometry( void )
@@ -421,12 +537,40 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
 {
   std::vector<DetId> vid = m_caloGeom->getValidDetIds(); // Calo
   for( std::vector<DetId>::const_iterator it = vid.begin(),
-					 end = vid.end();
-       it != end; ++it )
-  {
-    const CaloCellGeometry::CornersVec& cor( m_caloGeom->getGeometry( *it )->getCorners());
+	 end = vid.end();
+       it != end; ++it ) {
     unsigned int id = insert_id( it->rawId());
-    fillPoints( id, cor.begin(), cor.end());
+    if( DetId::Forward != it->det() ) {
+      const CaloCellGeometry::CornersVec& cor = m_caloGeom->getGeometry( *it )->getCorners();      
+      fillPoints( id, cor.begin(), cor.end());
+    } else {
+      const HGCalGeometry* geom = dynamic_cast<const HGCalGeometry*>(m_caloGeom->getSubdetectorGeometry( *it ) );
+      const auto& cor = geom->getCorners( *it );
+      fillPoints( id, cor.begin(), cor.end() );
+    }
+  }
+}
+
+void
+FWRecoGeometryESProducer::addFTLGeometry( void )
+{
+  // do the barrel
+  std::vector<DetId> vid = std::move(m_ftlBarrelGeom->getValidDetIds()); 
+  for( std::vector<DetId>::const_iterator it = vid.begin(),
+	 end = vid.end();
+       it != end; ++it ) {
+    unsigned int id = insert_id( it->rawId());
+    const auto& cor =  m_ftlBarrelGeom->getCorners( *it );      
+    fillPoints( id, cor.begin(), cor.end());    
+  }
+  // do the endcap
+  vid = std::move(m_ftlEndcapGeom->getValidDetIds()); 
+  for( std::vector<DetId>::const_iterator it = vid.begin(),
+	 end = vid.end();
+       it != end; ++it ) {
+    unsigned int id = insert_id( it->rawId());
+    const auto& cor =  m_ftlEndcapGeom->getCorners( *it );      
+    fillPoints( id, cor.begin(), cor.end());    
   }
 }
 
@@ -499,4 +643,24 @@ FWRecoGeometryESProducer::fillShapeAndPlacement( unsigned int id, const GeomDet 
   m_fwGeometry->idToName[id].matrix[6] = detRot.xz();
   m_fwGeometry->idToName[id].matrix[7] = detRot.yz();
   m_fwGeometry->idToName[id].matrix[8] = detRot.zz();
+}
+
+void FWRecoGeometryESProducer::writeTrackerParametersXML()
+{
+  std::string path = "Geometry/TrackerCommonData/data/";
+  if ( m_trackerGeom->isThere(GeomDetEnumerators::P1PXB) ||
+       m_trackerGeom->isThere(GeomDetEnumerators::P1PXEC) ) {
+    path += "PhaseI/";
+  } else if ( m_trackerGeom->isThere(GeomDetEnumerators::P2PXB)  ||
+              m_trackerGeom->isThere(GeomDetEnumerators::P2PXEC) ||
+              m_trackerGeom->isThere(GeomDetEnumerators::P2OTB)  ||
+              m_trackerGeom->isThere(GeomDetEnumerators::P2OTEC) ) {
+    path += "PhaseII/";
+  }
+  path += "trackerParameters.xml";
+  std::string fullPath = edm::FileInPath(path).fullPath();
+  std::ifstream t(fullPath);
+  std::stringstream buffer;
+  buffer << t.rdbuf();
+  m_fwGeometry->trackerTopologyXML = buffer.str();
 }

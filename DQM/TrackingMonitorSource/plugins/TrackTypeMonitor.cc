@@ -72,7 +72,7 @@ void TrackTypeMonitor::bookHistograms(DQMStore::IBooker &iBook, edm::Run const& 
   edm::ParameterSet nTracksHistoPar = parameters_.getParameter<edm::ParameterSet>("nTracksPar");
 
   std::string currentFolder = moduleName_ + "/" + folderName_ ;
-  iBook.setCurrentFolder(currentFolder.c_str());
+  iBook.setCurrentFolder(currentFolder);
 
   trackEtaHList_.push_back(iBook.book1D("trackEtaIso", "Isolated Track Eta", 
 					TrackEtaHistoPar.getParameter<int32_t>("Xbins"), 

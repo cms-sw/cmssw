@@ -1,6 +1,8 @@
 #ifndef SimDataFormats_GeneratorProducts_GenLumiInfoProduct_h
 #define SimDataFormats_GeneratorProducts_GenLumiInfoProduct_h
 
+#include <vector>
+
 /** \class GenLumiInfoProduct
  *
  */

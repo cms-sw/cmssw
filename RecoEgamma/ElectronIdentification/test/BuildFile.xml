@@ -1,0 +1,24 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/EgammaObjects"/>
+<use   name="DataFormats/EgammaCandidates"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="root"/>
+<use   name="rootcore"/>
+<use   name="RecoEgamma/EgammaTools"/>
+<use   name="RecoEgamma/ElectronIdentification"/>
+
+<library name="RecoEgammaElectronIdentificationVIDExample" file="VIDUsageExample.cc">
+   <flags   EDM_PLUGIN="1"/>
+</library>
+
+<environment>
+  <bin   file="runtestRecoEgammaElectronIdentification.cpp">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash RecoEgamma/ElectronIdentification/test runtests.sh"/>
+    <use   name="FWCore/Utilities"/>
+  </bin>
+</environment>

@@ -33,7 +33,7 @@
 #include <MagneticField/Engine/interface/MagneticField.h>
 #include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
@@ -55,7 +55,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
@@ -117,13 +116,13 @@ using namespace __gnu_cxx;
 class HSCPTreeBuilder : public edm::EDFilter {
 	public:
 		explicit HSCPTreeBuilder(const edm::ParameterSet&);
-		~HSCPTreeBuilder();
+		~HSCPTreeBuilder() override;
 
 
 	private:
-		virtual void beginJob() override ;
-		virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-		virtual void endJob() override ;
+		void beginJob() override ;
+		bool filter(edm::Event&, const edm::EventSetup&) override;
+		void endJob() override ;
                 int ClosestMuonIndex(reco::TrackRef track, std::vector<reco::MuonRef>);
 
 		const edm::EventSetup* iSetup_;

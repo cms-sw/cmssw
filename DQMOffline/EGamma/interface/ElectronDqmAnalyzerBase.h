@@ -22,16 +22,16 @@ class ElectronDqmAnalyzerBase : public DQMEDAnalyzer
   protected:
 
     explicit ElectronDqmAnalyzerBase( const edm::ParameterSet & conf ) ;
-    virtual ~ElectronDqmAnalyzerBase() ;
+    ~ElectronDqmAnalyzerBase() override ;
 
     // specific implementation of EDAnalyzer
-    virtual void endRun( edm::Run const &, edm::EventSetup const & ) ; 
-    virtual void endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) ; 
-	virtual void dqmBeginRun( edm::Run const & , edm::EventSetup const & ) ;
+    void endRun( edm::Run const &, edm::EventSetup const & )  override;
+    void endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & ) override ;
+    void dqmBeginRun( edm::Run const & , edm::EventSetup const & )  override;
     void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
     // interface to implement in derived classes
-    virtual void analyze( const edm::Event & e, const edm::EventSetup & c ) {}
+    void analyze( const edm::Event & e, const edm::EventSetup & c ) override {}
 
     // utility methods
     bool finalStepDone() { return finalDone_ ; }

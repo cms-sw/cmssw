@@ -9,12 +9,12 @@ using namespace std;
 
 ESSummaryClient::ESSummaryClient(const edm::ParameterSet& ps) :
   ESClient(ps),
-  meReportSummary_(0),
-  meReportSummaryMap_(0)
+  meReportSummary_(nullptr),
+  meReportSummaryMap_(nullptr)
 {
   for(unsigned iZ(0); iZ != 2; ++iZ)
     for(unsigned iD(0); iD != 2; ++iD)
-      meReportSummaryContents_[iZ][iD] = 0;
+      meReportSummaryContents_[iZ][iD] = nullptr;
 }
 
 ESSummaryClient::~ESSummaryClient() {

@@ -19,7 +19,7 @@ class EcalErrorMask {
 
  public:
 
-  static void readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) throw( std::runtime_error );
+  static void readDB( EcalCondDBInterface* eConn, RunIOV* runIOV ) noexcept(false);
 
   static void fetchDataSet( std::map< EcalLogicID, RunCrystalErrorsDat>* fillMap );
   static void fetchDataSet( std::map< EcalLogicID, RunTTErrorsDat>* fillMap );

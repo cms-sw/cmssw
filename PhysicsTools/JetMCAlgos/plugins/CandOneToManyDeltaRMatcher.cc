@@ -8,7 +8,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -16,12 +16,12 @@
 #include<vector>
 #include<iostream>
 
-class CandOneToManyDeltaRMatcher : public edm::EDProducer {
+class CandOneToManyDeltaRMatcher : public edm::global::EDProducer<> {
  public:
   CandOneToManyDeltaRMatcher( const edm::ParameterSet & );
-  ~CandOneToManyDeltaRMatcher();
+  ~CandOneToManyDeltaRMatcher() override;
  private:
-  void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
 
   edm::EDGetTokenT<reco::CandidateCollection> sourceToken_;
   edm::EDGetTokenT<reco::CandidateCollection> matchedToken_;
@@ -73,7 +73,7 @@ CandOneToManyDeltaRMatcher::CandOneToManyDeltaRMatcher( const ParameterSet & cfg
 CandOneToManyDeltaRMatcher::~CandOneToManyDeltaRMatcher() {
 }
 
-void CandOneToManyDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
+void CandOneToManyDeltaRMatcher::produce( edm::StreamID, Event& evt, const EventSetup& es ) const {
 
   Handle<CandidateCollection> source;
   Handle<CandidateCollection> matched;
@@ -90,9 +90,9 @@ void CandOneToManyDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
   }
 
 
-  auto_ptr<CandMatchMapMany> matchMap( new CandMatchMapMany( CandMatchMapMany::ref_type( CandidateRefProd( source  ),
-                                                                                         CandidateRefProd( matched )
-											 ) ) );
+  auto matchMap = std::make_unique<CandMatchMapMany>( CandMatchMapMany::ref_type( CandidateRefProd( source  ),
+                                                                                  CandidateRefProd( matched )
+										  ) );
   for( size_t c = 0; c != source->size(); ++ c ) {
     const Candidate & src = (*source)[ c ];
     if (printdebug_) cout << "[CandOneToManyDeltaRMatcher] source (Et,Eta,Phi) =(" << src.et() << "," <<
@@ -104,7 +104,7 @@ void CandOneToManyDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
       double dist = DeltaR( src.p4() , match.p4() );
       v.push_back( make_pair( m, dist ) );
     }
-    if ( v.size() > 0 ) {
+    if ( !v.empty() ) {
       sort( v.begin(), v.end(), reco::helper::SortBySecond() );
       for( size_t m = 0; m != v.size(); ++ m ) {
 	if (printdebug_) cout << "[CandOneToManyDeltaRMatcher]       match (Et,Eta,Phi) =(" << ( * matched )[ v[m].first ].et() << "," <<
@@ -116,7 +116,7 @@ void CandOneToManyDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
     }
   }
 
-  evt.put( matchMap );
+  evt.put(std::move(matchMap) );
 
 }
 

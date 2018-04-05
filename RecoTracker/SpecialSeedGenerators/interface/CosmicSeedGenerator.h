@@ -6,7 +6,7 @@
 // Class:           GlobalPixelSeedGenerator
 // 
 // Description:     Calls RoadSeachSeedFinderAlgorithm
-//                  to find TrackingSeeds.
+//                  to find TrajectorySeeds.
 
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -26,9 +26,9 @@ class CosmicSeedGenerator : public edm::stream::EDProducer<>
 
   explicit CosmicSeedGenerator(const edm::ParameterSet& conf);
 
-  virtual ~CosmicSeedGenerator();
+  ~CosmicSeedGenerator() override;
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:
   SeedGeneratorForCosmics  cosmic_seed;

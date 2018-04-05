@@ -11,18 +11,20 @@ public:
   explicit MaxHitsTrajectoryFilter(const edm::ParameterSet & pset, edm::ConsumesCollector& iC):
     theMaxHits( pset.getParameter<int>("maxNumberOfHits")) {if (theMaxHits<0) theMaxHits=10000;  }
 
-  virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
-  virtual bool qualityFilter( const TempTrajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
+  bool qualityFilter( const Trajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }
+  bool qualityFilter( const TempTrajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }
 
-  virtual bool toBeContinued( TempTrajectory& traj) const {return TBC<TempTrajectory>(traj);}
-  virtual bool toBeContinued( Trajectory& traj) const { return TBC<Trajectory>(traj);}
+  bool toBeContinued( TempTrajectory& traj) const override {return TBC<TempTrajectory>(traj);}
+  bool toBeContinued( Trajectory& traj) const override { return TBC<Trajectory>(traj);}
 
-  virtual std::string name() const {return "MaxHitsTrajectoryFilter";}
+  std::string name() const override {return "MaxHitsTrajectoryFilter";}
 
  protected:
 
-  template<class T> bool TBC(const T & traj) const{
-    return traj.foundHits() < theMaxHits ;
+  template<class T> bool TBC(T & traj) const{
+    bool ret = traj.foundHits() < theMaxHits ;
+    if (!ret) traj.setStopReason(StopReason::MAX_HITS);
+    return ret;
   }
 
   int theMaxHits;

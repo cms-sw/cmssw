@@ -4,7 +4,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <cstring>
 
 
@@ -36,18 +36,16 @@ class IODConfig : public IDBObject {
   Statement* m_writeStmt;
   Statement* m_readStmt;
 
-  inline void checkPrepare() 
-    throw(std::runtime_error) 
+  inline void checkPrepare() noexcept(false)
     {
-      if (m_writeStmt == NULL) {
+      if (m_writeStmt == nullptr) {
 	throw(std::runtime_error("Write statement not prepared"));
       }
     }
 
-  inline void terminateWriteStatement()
-    throw(std::runtime_error)
+  inline void terminateWriteStatement() noexcept(false)
   {
-    if (m_writeStmt != NULL) {
+    if (m_writeStmt != nullptr) {
       m_conn->terminateStatement(m_writeStmt);
     } else {
       std::cout << "Warning from IDataItem: statement was aleady closed"<< std::endl;
@@ -55,22 +53,19 @@ class IODConfig : public IDBObject {
   }
 
 
-  inline void createReadStatement()
-    throw(std::runtime_error)
+  inline void createReadStatement() noexcept(false)
   {
       m_readStmt=m_conn->createStatement();
   }
 
-  inline void setPrefetchRowCount(int ncount)
-    throw(std::runtime_error)
+  inline void setPrefetchRowCount(int ncount) noexcept(false)
   {
     m_readStmt->setPrefetchRowCount(ncount);
   }
 
-  inline void terminateReadStatement()
-    throw(std::runtime_error)
+  inline void terminateReadStatement() noexcept(false)
   {
-    if (m_readStmt != NULL) {
+    if (m_readStmt != nullptr) {
       m_conn->terminateStatement(m_readStmt);
     } else {
       std::cout << "Warning from IDataItem: statement was aleady closed"<< std::endl;
@@ -80,13 +75,12 @@ class IODConfig : public IDBObject {
 
 
   // Prepare a statement for writing operations
-  virtual void prepareWrite() throw(std::runtime_error) =0;
+  virtual void prepareWrite() noexcept(false) = 0;
 
-  //  virtual void writeDB() throw(std::runtime_error) ;
+  //  virtual void writeDB() noexcept(false) ;
 
 
-void populateClob (Clob &clob, std::string fname, unsigned int bufsize)
- throw (std::runtime_error)
+void populateClob (Clob &clob, std::string fname, unsigned int bufsize) noexcept(false)
 {
 
   try{
@@ -150,15 +144,14 @@ void populateClob (Clob &clob, std::string fname, unsigned int bufsize)
 
 
   }catch (SQLException &e) {
-    throw(std::runtime_error("populateClob():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("populateClob():  ")+getOraMessage(&e)));
   }
 
   std::cout << "Populating the Clob - Success" << std::endl;
 }
 
 
-unsigned char* readClob (Clob &clob, int size)
-  throw (std::runtime_error)
+unsigned char* readClob (Clob &clob, int size) noexcept(false)
 {
 
   try{
@@ -179,7 +172,7 @@ unsigned char* readClob (Clob &clob, int size)
     return  buffer;
 
   }catch (SQLException &e) {
-    throw(std::runtime_error("readClob():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("readClob():  ")+getOraMessage(&e)));
   }
 
 }

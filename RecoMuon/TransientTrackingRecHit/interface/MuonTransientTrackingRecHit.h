@@ -7,30 +7,28 @@
  *
  *
  *   \author   C. Liu            Purdue University
+ *
+ *   \modified by C. Calabria    INFN & Universita  Bari
  */
 
 
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 class MuonTransientTrackingRecHit final : public GenericTransientTrackingRecHit{
 public:
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
    using MuonRecHitPointer = std::shared_ptr<MuonTransientTrackingRecHit>;
    using ConstMuonRecHitPointer = std::shared_ptr<MuonTransientTrackingRecHit const>;
-
-#else
-   typedef MuonTransientTrackingRecHit *           MuonRecHitPointer;
-   typedef MuonTransientTrackingRecHit const *     ConstMuonRecHitPointer;
-#endif
 
 //  typedef ReferenceCountingPointer<MuonTransientTrackingRecHit>      MuonRecHitPointer;
 //  typedef ConstReferenceCountingPointer<MuonTransientTrackingRecHit> ConstMuonRecHitPointer;
   typedef std::vector<MuonRecHitPointer>                             MuonRecHitContainer;
   typedef std::vector<ConstMuonRecHitPointer>                        ConstMuonRecHitContainer;
   
-  virtual ~MuonTransientTrackingRecHit(){}
+  ~MuonTransientTrackingRecHit() override{}
 
   /// Direction in 3D for segments, otherwise (0,0,0)
   virtual LocalVector localDirection() const;
@@ -44,7 +42,7 @@ public:
   /// Error on the global direction
   virtual GlobalError globalDirectionError() const;
  
-  virtual AlgebraicSymMatrix parametersError() const  override;
+  AlgebraicSymMatrix parametersError() const  override;
 
   /// Chi square of the fit for segments, else 0
   virtual double chi2() const;
@@ -57,12 +55,18 @@ public:
 
   /// if this rec hit is a CSC rec hit 
   bool isCSC() const;
- 
+
+  /// if this rec hit is a GEM rec hit 
+  bool isGEM() const; 
+
+  /// if this rec hit is a ME0 rec hit 
+  bool isME0() const; 
+
   /// if this rec hit is a RPC rec hit
   bool isRPC() const;
 
   /// return the sub components of this transient rechit
-  virtual ConstRecHitContainer transientHits() const override;
+  ConstRecHitContainer transientHits() const override;
 
   /// FIXME virtual ConstMuonRecHitContainer specificTransientHits() const;
 
@@ -71,6 +75,7 @@ public:
   }
 
   static MuonRecHitPointer specificBuild(const GeomDet * geom, const TrackingRecHit* rh) {
+    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Getting specificBuild"<<std::endl;
     return MuonRecHitPointer(new MuonTransientTrackingRecHit(geom, rh));
   }
 
@@ -86,7 +91,7 @@ public:
   /// Copy ctor
   MuonTransientTrackingRecHit(const MuonTransientTrackingRecHit & other );
 
-  virtual MuonTransientTrackingRecHit* clone() const  override {
+  MuonTransientTrackingRecHit* clone() const  override {
     return new MuonTransientTrackingRecHit(*this);
   }
 

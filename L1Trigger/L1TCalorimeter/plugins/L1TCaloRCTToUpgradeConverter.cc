@@ -38,8 +38,8 @@ L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup&
 
 
   // store new formats
-  std::auto_ptr<BXVector<CaloEmCand> > emcands (new CaloEmCandBxCollection);
-  std::auto_ptr<BXVector<CaloRegion> > regions (new CaloRegionBxCollection);
+  std::unique_ptr<BXVector<CaloEmCand> > emcands (new CaloEmCandBxCollection);
+  std::unique_ptr<BXVector<CaloRegion> > regions (new CaloRegionBxCollection);
 
   // get old formats
   edm::Handle<L1CaloEmCollection> ems;
@@ -79,7 +79,7 @@ L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup&
 
     EmCand.setHwIso((int) em->isolated());
     //std::cout<<"ISO:    "<<EmCand.hwIso()<<"    "<<em->isolated()<<std::endl;
-    
+
     // create new format
     emcands->push_back( em->bx(), EmCand );
 
@@ -94,7 +94,7 @@ L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup&
     // double phi = 0.;
     //math::PtEtaPhiMLorentzVector p4( pt+1.e-6, eta, phi, 0 );
 
-    bool tauVeto = rgn->tauVeto();
+    bool tauVeto = rgn->fineGrain(); //equivalent to tauVeto for HB/HE, includes extra info for HF
     int hwQual = (int) tauVeto;
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > p4(0,0,0,0);
@@ -117,8 +117,8 @@ L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup&
 
   }
 
-  iEvent.put(emcands);
-  iEvent.put(regions);
+  iEvent.put(std::move(emcands));
+  iEvent.put(std::move(regions));
 
 }
 

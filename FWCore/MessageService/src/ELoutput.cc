@@ -239,7 +239,7 @@ ELoutput::ELoutput( const ELstring & fileName, bool emitAtStart )
     }
   }
   if (emitAtStart) {
-    ELstring const& ftime = formatTime(time(0)); // Change log 7
+    ELstring const& ftime = formatTime(time(nullptr)); // Change log 7
     emitToken( ftime, true );
     emitToken( "\n=======================================================\n",
                                                                 true );
@@ -303,13 +303,6 @@ ELoutput::~ELoutput()  {
 // ----------------------------------------------------------------------
 // Methods invoked by the ELadministrator:
 // ----------------------------------------------------------------------
-
-ELoutput *
-ELoutput::clone() const  {
-
-  return new ELoutput( *this );
-
-} // clone()
 
 //#define THRESHTRACE
 //#define ELoutputTRACE_LOG
@@ -645,40 +638,6 @@ void ELoutput::attachEpilogue()    { wantEpilogueSeparate = false; }
 
 
 // ----------------------------------------------------------------------
-// Summary output:
-// ----------------------------------------------------------------------
-
-void ELoutput::summarization(
-  const ELstring & fullTitle
-, const ELstring & sumLines
-)  {
-  const int titleMaxLength( 40 );
-
-  // title:
-  //
-  ELstring title( fullTitle, 0, titleMaxLength );
-  int q = (lineLength - title.length() - 2) / 2;
-  ELstring line(q, '=');
-  emitToken( "", true );
-  emitToken( line );
-  emitToken( " " );
-  emitToken( title );
-  emitToken( " " );
-  emitToken( line, true );
-
-  // body:
-  //
-  *os << sumLines;
-
-  // finish:
-  //
-  emitToken( "", true );
-  emitToken( ELstring(lineLength, '='), true );
-
-}  // summarization()
-
-
-// ----------------------------------------------------------------------
 // Changing ostream:
 // ----------------------------------------------------------------------
 
@@ -686,7 +645,7 @@ void ELoutput::changeFile (std::ostream & os_) {
   os.reset(&os_, do_nothing_deleter());
   emitToken( "\n=======================================================", true );
   emitToken( "\nError Log changed to this stream\n" );
-  ELstring const& ftime = formatTime(time(0)); // Change log 7
+  ELstring const& ftime = formatTime(time(nullptr)); // Change log 7
   emitToken( ftime, true );
   emitToken( "\n=======================================================\n", true );
 }
@@ -695,7 +654,7 @@ void ELoutput::changeFile (const ELstring & filename) {
   os.reset(new std::ofstream( filename.c_str(), std::ios/*_base*/::app), close_and_delete());
   emitToken( "\n=======================================================", true );
   emitToken( "\nError Log changed to this file\n" );
-  ELstring const& ftime = formatTime(time(0)); // Change log 7
+  ELstring const& ftime = formatTime(time(nullptr)); // Change log 7
   emitToken( ftime, true );
   emitToken( "\n=======================================================\n", true );
 }

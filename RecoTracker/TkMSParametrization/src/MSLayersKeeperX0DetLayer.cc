@@ -4,7 +4,7 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include <vector>
 

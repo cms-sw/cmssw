@@ -12,11 +12,11 @@
 
 
 BSvsPVHistogramMaker::BSvsPVHistogramMaker(edm::ConsumesCollector&& iC):
-  _currdir(0), m_maxLS(100), useSlope_(true), _trueOnly(true),
+  _currdir(nullptr), m_maxLS(100), useSlope_(true), _trueOnly(true),
   _runHisto(true), _runHistoProfile(true), _runHistoBXProfile(true), _runHistoBX2D(false), _histoParameters(), _rhm(iC) { }
 
 BSvsPVHistogramMaker::BSvsPVHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
-  _currdir(0),
+  _currdir(nullptr),
   m_maxLS(iConfig.getParameter<unsigned int>("maxLSBeforeRebin")),
   useSlope_(iConfig.getParameter<bool>("useSlope")),
   _trueOnly(iConfig.getUntrackedParameter<bool>("trueOnly",true)),
@@ -148,7 +148,7 @@ void BSvsPVHistogramMaker::beginRun(const unsigned int nrun) {
   sprintf(runname,"run_%d",nrun);
 
   TFileDirectory* currdir = _currdir;
-  if(currdir==0) {
+  if(currdir==nullptr) {
     edm::Service<TFileService> tfserv;
     currdir = &(tfserv->tFileDirectory());
   }
@@ -164,11 +164,11 @@ void BSvsPVHistogramMaker::beginRun(const unsigned int nrun) {
 
     if(_runHistoProfile) {
       (*_hdeltaxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hdeltaxvsorbrun)->GetYaxis()->SetTitle("#Delta(X) [cm]");
-      (*_hdeltaxvsorbrun)->SetBit(TH1::kCanRebin);
+      (*_hdeltaxvsorbrun)->SetCanExtend(TH1::kAllAxes);
       (*_hdeltayvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hdeltayvsorbrun)->GetYaxis()->SetTitle("#Delta(Y) [cm]");
-      (*_hdeltayvsorbrun)->SetBit(TH1::kCanRebin);
+      (*_hdeltayvsorbrun)->SetCanExtend(TH1::kAllAxes);
       (*_hdeltazvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hdeltazvsorbrun)->GetYaxis()->SetTitle("#Delta(Z) [cm]");
-      (*_hdeltazvsorbrun)->SetBit(TH1::kCanRebin);
+      (*_hdeltazvsorbrun)->SetCanExtend(TH1::kAllAxes);
     }
     if(_runHistoBXProfile) {
       (*_hdeltaxvsbxrun)->GetXaxis()->SetTitle("BX");   (*_hdeltaxvsbxrun)->GetYaxis()->SetTitle("#Delta(X) [cm]");
@@ -217,13 +217,13 @@ void BSvsPVHistogramMaker::fill(const unsigned int orbit, const int bx, const re
 	  if(_hdeltazvsorbrun && *_hdeltazvsorbrun )  (*_hdeltazvsorbrun)->Fill(orbit,deltaz);
 	}
 	if(_runHistoBXProfile) {
-	  if(_hdeltaxvsbxrun && *_hdeltaxvsbxrun )  (*_hdeltaxvsbxrun)->Fill(bx,deltax);
-	  if(_hdeltayvsbxrun && *_hdeltayvsbxrun )  (*_hdeltayvsbxrun)->Fill(bx,deltay);
-	  if(_hdeltazvsbxrun && *_hdeltazvsbxrun )  (*_hdeltazvsbxrun)->Fill(bx,deltaz);
+	  if(_hdeltaxvsbxrun && *_hdeltaxvsbxrun )  (*_hdeltaxvsbxrun)->Fill(bx%3564,deltax);
+	  if(_hdeltayvsbxrun && *_hdeltayvsbxrun )  (*_hdeltayvsbxrun)->Fill(bx%3564,deltay);
+	  if(_hdeltazvsbxrun && *_hdeltazvsbxrun )  (*_hdeltazvsbxrun)->Fill(bx%3564,deltaz);
 	  if(_runHistoBX2D) {
-	    if(_hdeltaxvsbx2drun && *_hdeltaxvsbx2drun )  (*_hdeltaxvsbx2drun)->Fill(bx,deltax);
-	    if(_hdeltayvsbx2drun && *_hdeltayvsbx2drun )  (*_hdeltayvsbx2drun)->Fill(bx,deltay);
-	    if(_hdeltazvsbx2drun && *_hdeltazvsbx2drun )  (*_hdeltazvsbx2drun)->Fill(bx,deltaz);
+	    if(_hdeltaxvsbx2drun && *_hdeltaxvsbx2drun )  (*_hdeltaxvsbx2drun)->Fill(bx%3564,deltax);
+	    if(_hdeltayvsbx2drun && *_hdeltayvsbx2drun )  (*_hdeltayvsbx2drun)->Fill(bx%3564,deltay);
+	    if(_hdeltazvsbx2drun && *_hdeltazvsbx2drun )  (*_hdeltazvsbx2drun)->Fill(bx%3564,deltaz);
 	  }
 	}
       }

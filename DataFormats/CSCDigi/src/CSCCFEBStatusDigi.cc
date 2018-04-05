@@ -3,10 +3,10 @@
  *
  * \author N.Terentiev, CMU
  */
-#include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h>
+#include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
-#include <stdint.h>
+#include <cstdint>
 
             /// Shift and select
 int CSCCFEBStatusDigi::ShiftSel(int nmb,int nshift,int nsel) const {
@@ -99,7 +99,7 @@ void CSCCFEBStatusDigi::print() const {
   
   std::ostringstream ost;
   ost << " SCAFullCond: ";
-  if(getSCAFullCond().size()!=0){
+  if(!getSCAFullCond().empty()){
     for (size_t i = 0; i<4; ++i ){ ost << " " <<(getSCAFullCond())[i]; }
   }
   else {

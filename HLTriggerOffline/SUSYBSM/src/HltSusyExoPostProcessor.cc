@@ -7,10 +7,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <iomanip>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 #include "TH1.h"
 #include "TProfile.h"
 
@@ -121,7 +121,7 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker& iBooker_, DQMStore::I
           else
             L1placement[i]=5;
         }
-        else if(triggername.size()==0 || triggername.find("Total")!=string::npos)
+        else if(triggername.empty() || triggername.find("Total")!=string::npos)
           L1placement[i]=-1;
       }
     }
@@ -149,7 +149,7 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker& iBooker_, DQMStore::I
           else
             Hltplacement[i]=6;
         }
-        else if(triggername.size()==0 || triggername.find("Total")!=string::npos)
+        else if(triggername.empty() || triggername.find("Total")!=string::npos)
           Hltplacement[i]=-1;
       }
       if(Hltplacement[i]>=0 && Hltplacement[i]<=5 && (triggername.find(Hltsearch6_1)!=string::npos || (triggername.find(Hltsearch6_2)!=string::npos && Hltplacement[i]!=4) ))

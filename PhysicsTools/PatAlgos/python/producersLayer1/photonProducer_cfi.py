@@ -32,12 +32,14 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
       userFunctionLabels = cms.vstring()
     ),
 
+
     # embedding of AOD items
     embedSuperCluster = cms.bool(True), ## whether to embed in AOD externally stored supercluster
     embedSeedCluster               = cms.bool(True),  ## embed in AOD externally stored the photon's seedcluster 
     embedBasicClusters             = cms.bool(True),  ## embed in AOD externally stored the photon's basic clusters 
     embedPreshowerClusters         = cms.bool(True),  ## embed in AOD externally stored the photon's preshower clusters 
     embedRecHits         = cms.bool(True),  ## embed in AOD externally stored the RecHits - can be called from the PATPhotonProducer 
+    saveRegressionData   = cms.bool(True),  ## save regression input variables
     
     # embed IsoDeposits to recompute isolation
     isoDeposits = cms.PSet(),
@@ -51,13 +53,8 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
         ),
 
     # photon ID
-    addPhotonID = cms.bool(True),
-    photonIDSources = cms.PSet(
-             PhotonCutBasedIDLoose = cms.InputTag('PhotonIDProdGED',
-                                                  'PhotonCutBasedIDLoose'),
-             PhotonCutBasedIDTight = cms.InputTag('PhotonIDProdGED',
-                                                  'PhotonCutBasedIDTight')
-           ),
+    addPhotonID = cms.bool(False),
+    photonIDSources = cms.PSet(),
     # mc matching
     addGenMatch = cms.bool(True),
     embedGenMatch = cms.bool(True),
@@ -72,5 +69,6 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
     resolutions     = cms.PSet(),
 
     # PFClusterIso
-    addPFClusterIso = cms.bool(False)
+    addPFClusterIso = cms.bool(False),
+    addPuppiIsolation = cms.bool(False)
 )

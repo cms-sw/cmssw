@@ -1,8 +1,7 @@
 #include <algorithm>
 #include "DataFormats/Common/interface/MultiAssociation.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include <iostream>
 
 using edm::helper::IndexRangeAssociation;
 using edm::ProductID;

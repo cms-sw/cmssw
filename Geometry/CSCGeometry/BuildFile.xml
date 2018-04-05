@@ -1,6 +1,5 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
-<use   name="DataFormats/MuonDetId"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
 <use   name="Geometry/CommonDetUnit"/>

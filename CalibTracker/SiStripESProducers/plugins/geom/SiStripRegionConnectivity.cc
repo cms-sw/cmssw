@@ -6,6 +6,7 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 using namespace sistrip;
 
@@ -21,7 +22,7 @@ SiStripRegionConnectivity::SiStripRegionConnectivity(const edm::ParameterSet& ps
 
 SiStripRegionConnectivity::~SiStripRegionConnectivity() {}
 
-std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabling( const SiStripRegionCablingRcd& iRecord ) {
+std::unique_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabling( const SiStripRegionCablingRcd& iRecord ) {
 
   edm::ESHandle<SiStripDetCabling> detcabling;
   iRecord.getRecord<SiStripDetCablingRcd>().get( detcabling );
@@ -30,7 +31,7 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( tkgeom );
   
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iRecord.getRecord<IdealGeometryRecord>().get(tTopoHandle);
+  iRecord.getRecord<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   //here build an object of type SiStripRegionCabling using the information from class SiStripDetCabling **PLUS** the geometry.
@@ -72,7 +73,7 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
     auto &  elem = regioncabling[reg][subdet][layer].back();
     elem.first=idet->first; elem.second.resize(conns.size());
     for ( ; iconn != jconn; ++iconn ) {
-      if ( ((*iconn) != 0) && ((*iconn)->apvPairNumber() < conns.size()) ) { 
+      if ( ((*iconn) != nullptr) && ((*iconn)->apvPairNumber() < conns.size()) ) { 
 	elem.second[(*iconn)->apvPairNumber()] = **iconn;
       }
     }
@@ -81,6 +82,6 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
   //Add map to region cabling object
   RegionConnections->setRegionCabling(regioncabling);
   
-  return std::auto_ptr<SiStripRegionCabling>( RegionConnections );
+  return std::unique_ptr<SiStripRegionCabling>( RegionConnections );
 }
 

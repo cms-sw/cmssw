@@ -5,13 +5,17 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/ClusterChargeCut.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /*****************************************************************************/
 ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer
   (const edm::ParameterSet& iConfig):
-  use_PixelShapeFile( iConfig.exists("PixelShapeFile")?iConfig.getParameter<std::string>("PixelShapeFile"):"RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par")
+  pixelShapeFile(iConfig.getParameter<std::string>("PixelShapeFile")),
+  pixelShapeFileL1(iConfig.getParameter<std::string>("PixelShapeFileL1"))
 {
   
   std::string componentName = iConfig.getParameter<std::string>("ComponentName");
@@ -51,6 +55,10 @@ ClusterShapeHitFilterESProducer::produce
   // Retrieve geometry
   edm::ESHandle<TrackerGeometry> geo;
   iRecord.getRecord<TkStripCPERecord>().getRecord<TrackerDigiGeometryRecord>().get(geo);
+  // Retrieve topology
+  edm::ESHandle<TrackerTopology> topol;
+  iRecord.getRecord<TrackerTopologyRcd>().get(topol);
+
 
   // Retrieve pixel Lorentz
   edm::ESHandle<SiPixelLorentzAngle> pixel;
@@ -65,10 +73,14 @@ ClusterShapeHitFilterESProducer::produce
   // Produce the filter using the plugin factory
   ClusterShapeHitFilterESProducer::ReturnType
     aFilter(new ClusterShapeHitFilter(  geo.product(),
+                                      topol.product(),
                                       field.product(),
                                       pixel.product(),
                                       strip.product(),
-                                      &use_PixelShapeFile));
+                                      pixelShapeFile,
+                                      pixelShapeFileL1
+                                     ));
+
   aFilter->setShapeCuts(cutOnPixelShape_, cutOnStripShape_);
   aFilter->setChargeCuts(cutOnPixelCharge_, minGoodPixelCharge_, cutOnStripCharge_,
     minGoodStripCharge_);

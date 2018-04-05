@@ -10,7 +10,7 @@
 #define NAMathUtil_h 1
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <Rtypes.h>
 
 const double GeV   = 1.;

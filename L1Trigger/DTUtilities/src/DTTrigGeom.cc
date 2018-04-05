@@ -219,16 +219,16 @@ DTTrigGeom::getGeom() {
   _PHICH = _stat->surface().toGlobal(LocalVector(0,0,-1)).phi();
 
   // superlayer positions and number of cells
-  DTSuperLayer* sl[3];
-  DTLayer* l1[3];
+  DTSuperLayer const* sl[3];
+  DTLayer const* l1[3];
   int i = 0;
   for(i=0; i<3; i++) {
     if(station()==4&&i==1) { // No theta SL in MB4
       _ZSL[i] = -999;
       _NCELL[i] = 0;
     } else {
-      sl[i] = (DTSuperLayer*) _stat->superLayer(DTSuperLayerId(statId(),i+1));
-      l1[i] = (DTLayer*) sl[i]->layer(DTLayerId(statId(),i+1,1));
+      sl[i] = _stat->superLayer(DTSuperLayerId(statId(),i+1));
+      l1[i] = sl[i]->layer(DTLayerId(statId(),i+1,1));
       _ZSL[i] = _stat->surface().toLocal(sl[i]->position()).z(); // - 1.5 * _H;
       //LocalPoint posInLayer=l1[i]->layType()->getWire(1)->positionInLayer();
       const DTTopology& tp=l1[i]->specificTopology();

@@ -50,7 +50,7 @@ namespace edmtest_thing
   void StreamThingProducer::produce(edm::Event& e, edm::EventSetup const&)
   {
     for(int i = 0; i < inst_count_; ++i) {
-      std::unique_ptr<WriteThis> result(new WriteThis(size_));
+      auto result = std::make_unique<WriteThis>(size_);
 
         // The purpose of this masking is to allow
         // some limited control of how much smaller these
@@ -65,12 +65,9 @@ namespace edmtest_thing
       e.put(std::move(result),names_[i]);
     }
 
-    //std::auto_ptr<TestDbl> d(new TestDbl);
-    //e.put(d);
-    //std::auto_ptr<StreamTestSimple> d1(new StreamTestSimple);
-    //e.put(d1);
-    //std::auto_ptr<Pig> d1(new Pig);
-    //e.put(d1);
+    //e.put(std::make_unique<TestDbl>());
+    //e.put(std::make_unique<StreamTestSimple>());
+    //e.put(std::make_unique<Pig>());
   }
 }
 

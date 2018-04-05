@@ -22,6 +22,8 @@
 #include "G4RegionStore.hh"
 #include "G4Electron.hh"
 #include "G4Positron.hh"
+#include "G4MuonMinus.hh"
+#include "G4MuonPlus.hh"
 #include "G4PionMinus.hh"
 #include "G4PionPlus.hh"
 #include "G4KaonMinus.hh"
@@ -29,19 +31,38 @@
 #include "G4Proton.hh"
 #include "G4AntiProton.hh"
 
+#include "G4EmParameters.hh"
 #include "G4EmProcessOptions.hh"
 #include "G4PhysicsListHelper.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4UAtomicDeexcitation.hh"
 #include "G4LossTableManager.hh"
 
-ParametrisedEMPhysics::ParametrisedEMPhysics(std::string name, const edm::ParameterSet & p) 
+ParametrisedEMPhysics::ParametrisedEMPhysics(std::string name, 
+					     const edm::ParameterSet & p) 
   : G4VPhysicsConstructor(name), theParSet(p) 
 {
-  theEcalEMShowerModel = 0;
-  theEcalHadShowerModel = 0;
-  theHcalEMShowerModel = 0;
-  theHcalHadShowerModel = 0;
+  theEcalEMShowerModel = nullptr;
+  theEcalHadShowerModel = nullptr;
+  theHcalEMShowerModel = nullptr;
+  theHcalHadShowerModel = nullptr;
+
+  // bremsstrahlung threshold and EM verbosity
+  G4EmParameters* param = G4EmParameters::Instance();
+  G4int verb = theParSet.getUntrackedParameter<int>("Verbosity",0);
+  param->SetVerbose(verb);
+
+  G4double bremth = theParSet.getParameter<double>("G4BremsstrahlungThreshold")*GeV; 
+  param->SetBremsstrahlungTh(bremth);
+
+  bool fluo = theParSet.getParameter<bool>("FlagFluo");
+  param->SetFluo(fluo);
+
+  edm::LogInfo("SimG4CoreApplication") 
+    << "ParametrisedEMPhysics::ConstructProcess: bremsstrahlung threshold Eth= "
+    << bremth/GeV << " GeV" 
+    << "\n                                         verbosity= " << verb
+    << "  fluoFlag: " << fluo; 
 }
 
 ParametrisedEMPhysics::~ParametrisedEMPhysics() {
@@ -151,17 +172,6 @@ void ParametrisedEMPhysics::ConstructProcess() {
       }
     }
   }
-  // bremsstrahlung threshold and EM verbosity
-  G4EmProcessOptions opt;
-  G4int verb = theParSet.getUntrackedParameter<int>("Verbosity",0);
-  opt.SetVerbose(verb - 1);
-
-  G4double bremth = theParSet.getParameter<double>("G4BremsstrahlungThreshold")*GeV; 
-  edm::LogInfo("SimG4CoreApplication") 
-    << "ParametrisedEMPhysics::ConstructProcess: bremsstrahlung threshold Eth= "
-    << bremth/GeV << " GeV"; 
-  opt.SetBremsstrahlungTh(bremth);
-
   // Russian roulette and tracking cut for e+-
   const G4int NREG = 6; 
   const G4String rname[NREG] = {"EcalRegion", "HcalRegion", "MuonIron",
@@ -172,6 +182,7 @@ void ParametrisedEMPhysics::ConstructProcess() {
   double energyLim = 
     theParSet.getParameter<double>("RusRoElectronEnergyLimit")*MeV;
   if(energyLim > 0.0) {
+    G4EmProcessOptions opt;
     rrfact[0] = theParSet.getParameter<double>("RusRoEcalElectron");
     rrfact[1] = theParSet.getParameter<double>("RusRoHcalElectron");
     rrfact[2] = theParSet.getParameter<double>("RusRoMuonIronElectron");
@@ -210,9 +221,8 @@ void ParametrisedEMPhysics::ConstructProcess() {
   }
   // enable fluorescence
   bool fluo = theParSet.getParameter<bool>("FlagFluo");
-  if(fluo) {
+  if(fluo && !G4LossTableManager::Instance()->AtomDeexcitation()) {
     G4VAtomDeexcitation* de = new G4UAtomicDeexcitation();
     G4LossTableManager::Instance()->SetAtomDeexcitation(de);
-    de->SetFluo(true);
   }
 }

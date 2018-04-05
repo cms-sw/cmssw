@@ -1,7 +1,7 @@
 #include <cxxabi.h>
 #include <cctype>
 #include <string>
-#include "boost/regex.hpp"
+#include <regex>
 #include "FWCore/Utilities/interface/Exception.h"
 
 /********************************************************************
@@ -27,9 +27,9 @@
 namespace {
   void
   reformatter(std::string& input, char const* exp, char const* format) {
-    boost::regex regexp(exp, boost::regex::egrep);
-    while(boost::regex_match(input, regexp)) {
-      std::string newstring = boost::regex_replace(input, regexp, format);
+    std::regex regexp(exp, std::regex::egrep);
+    while(std::regex_match(input, regexp)) {
+      std::string newstring = std::regex_replace(input, regexp, format);
       input.swap(newstring);
     }
   }
@@ -97,8 +97,8 @@ namespace edm {
   std::string
   typeDemangle(char const* mangledName) {
     int status = 0;
-    size_t* const nullSize = 0;
-    char* const null = 0;
+    size_t* const nullSize = nullptr;
+    char* const null = nullptr;
     
     // The demangled C style string is allocated with malloc, so it must be deleted with free().
     char* demangled = abi::__cxa_demangle(mangledName, null, nullSize, &status);
@@ -113,6 +113,10 @@ namespace edm {
     replaceString(demangledName, ", ", ",");
     // No space before opening square bracket
     replaceString(demangledName, " [", "[");
+    // clang libc++ uses __1:: namespace
+    replaceString(demangledName, "std::__1::", "std::");
+    // new gcc abi uses __cxx11:: namespace
+    replaceString(demangledName, "std::__cxx11::", "std::");
     // Strip default allocator
     std::string const allocator(",std::allocator<");
     removeParameter(demangledName, allocator);

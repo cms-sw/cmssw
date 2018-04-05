@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-ExoticaDQM = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ExoticaDQM = DQMEDAnalyzer(
     "ExoticaDQM",
 
     #Trigger Results
     TriggerResults           = cms.InputTag('TriggerResults','','HLT'),
-#    HltPaths                 = cms.vstring('HLT_*'),
-    HltPaths                 = cms.vstring("HLT_Mu","HLT_ELe","HLT_Photon","HLT_PFHT","HLT_PFMET"),
+    HltPaths                 = cms.vstring("HLT_Mu","HLT_Ele","HLT_Photon","HLT_PFHT","HLT_HT","HLT_PFMET","HLT_MET","HLT_"),
 
     #Physics objects
     vertexCollection         = cms.InputTag('offlinePrimaryVertices'),
@@ -17,13 +17,21 @@ ExoticaDQM = cms.EDAnalyzer(
     photonCollection         = cms.InputTag("gedPhotons"),
 
     pfJetCollection          = cms.InputTag('ak4PFJetsCHS'),
-    PFJetCorService          = cms.string("ak4PFL1FastL2L3"),
+    jetCorrector             = cms.InputTag('ak4PFL1FastL2L3Corrector'),
 
     DiJetPFJetCollection     = cms.VInputTag('ak4PFJetsCHS','ak8PFJetsCHS'),
 
-    caloMETCollection        = cms.InputTag("caloMetM","","RECO"),
-    pfMETCollection          = cms.InputTag("pfMet","","RECO"),
+    caloMETCollection        = cms.InputTag("caloMetM"),
+    pfMETCollection          = cms.InputTag("pfMet"),
 
+    trackCollection          = cms.InputTag("generalTracks"),
+
+    displacedMuonCollection  = cms.InputTag("displacedGlobalMuons"),
+    displacedSAMuonCollection  = cms.InputTag("displacedStandAloneMuons"),
+
+    # MC truth
+    genParticleCollection    = cms.InputTag("genParticles"),
+    
     #Cuts
     # DiJet
     dijet_PFJet1_pt_cut       = cms.double(30.0),
@@ -49,7 +57,9 @@ ExoticaDQM = cms.EDAnalyzer(
     # MonoPhoton
     monophoton_Photon_pt_cut  = cms.double(80.0),
     monophoton_Photon_met_cut = cms.double(100.0),
-
+    # Displaced lepton or jet
+    dispFermion_eta_cut = cms.double(2.4),
+    dispFermion_pt_cut  = cms.double(1.0),
     
     JetIDParams  = cms.PSet(
         useRecHits      = cms.bool(True),

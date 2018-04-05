@@ -17,9 +17,9 @@ class CRackSeedGenerator : public edm::EDProducer
 
   explicit CRackSeedGenerator(const edm::ParameterSet& conf);
 
-  virtual ~CRackSeedGenerator();
+  ~CRackSeedGenerator() override;
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
  private:
   edm::ParameterSet conf_;

@@ -10,8 +10,8 @@
 #include<iostream>
 using namespace std;
 
-static float capacitive_coupling[2] =  {.80,.10};
-static float FiducialXYZ[3] =  {3.6,4.,0.250};// dX/2, dY/2,dZ -- mm fiducial dimension of Si plate
+static const float capacitive_coupling[2] =  {.80,.10};
+static const float FiducialXYZ[3] =  {3.6,4.,0.250};// dX/2, dY/2,dZ -- mm fiducial dimension of Si plate
 
 IChargeFP420::hit_map_type InduceChargeFP420::induce(const CDrifterFP420::collection_type& _collection_points, int numStrips, double localPitch, int numStripsW, double localPitchW, int xytype, int verbosity){
   signalCoupling.clear();

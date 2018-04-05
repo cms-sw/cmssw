@@ -73,11 +73,11 @@ class TauTagValidation : public DQMEDAnalyzer{
 
 public:
   explicit TauTagValidation(const edm::ParameterSet&);
-  ~TauTagValidation();
+  ~TauTagValidation() override;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
   /// label of the current module
@@ -134,7 +134,13 @@ private:
   std::map<std::string,  MonitorElement *> etaTauVisibleMap;
   std::map<std::string,  MonitorElement *> phiTauVisibleMap;
   std::map<std::string,  MonitorElement *> pileupTauVisibleMap;
+  std::map<std::string,  MonitorElement *> nTauVisibleMap;
+  std::map<std::string,  MonitorElement *> massTauVisibleMap;
   std::map<std::string,  MonitorElement *> plotMap_;
+
+  std::map<std::string,  int> tauDeacyCountMap_;
+
+  MonitorElement* nTaus_;
 
   // All the extra MonitorElements that we would like to add for each Tau Tagging step
   // First for the PFTaus

@@ -2,7 +2,7 @@
 #define INTERFACE_RBCINPUT_H 1
 
 // Include files
-#include <stdlib.h>
+#include <cstdlib>
 #include <istream>
 #include <ostream>
 #include <iostream>

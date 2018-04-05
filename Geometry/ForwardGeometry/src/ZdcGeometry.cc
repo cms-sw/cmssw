@@ -37,7 +37,7 @@ DetId ZdcGeometry::getClosestCell(const GlobalPoint& r) const
    for( std::vector<DetId>::const_iterator it ( detIds.begin() ) ;
 	it != detIds.end(); ++it )
    {
-      const CaloCellGeometry* cell ( getGeometry( *it ) ) ;
+      auto cell = ( getGeometry( *it ) ) ;
       if( 0 != cell &&
 	  cell->inside( r ) )
       {
@@ -90,11 +90,10 @@ ZdcGeometry::newCell( const GlobalPoint& f1 ,
    addValidID( detId ) ;
 }
 
-const CaloCellGeometry* 
-ZdcGeometry::cellGeomPtr( uint32_t index ) const
-{
-   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
-   return ( m_cellVec.size() < index ||
-	    0 == cell->param() ? 0 : cell ) ;
+const CaloCellGeometry* ZdcGeometry::getGeometryRawPtr(uint32_t index) const {
+  // Modify the RawPtr class
+  const CaloCellGeometry* cell(&m_cellVec[index]);
+  return (m_cellVec.size() < index ||
+	  nullptr == cell->param() ? nullptr : cell);
 }
 

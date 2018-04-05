@@ -16,24 +16,22 @@
 #include "CondFormats/CSCObjects/interface/CSCDBPedestals.h"
 #include "CondFormats/DataRecord/interface/CSCDBPedestalsRcd.h"
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
-#include <boost/shared_ptr.hpp>
 
 class CSCFakeDBPedestals: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
    public:
       CSCFakeDBPedestals(const edm::ParameterSet&);
-      ~CSCFakeDBPedestals();
+      ~CSCFakeDBPedestals() override;
       
        inline static CSCDBPedestals * prefillDBPedestals();
 
-      typedef  boost::shared_ptr<CSCDBPedestals> Pointer;
+      typedef  std::unique_ptr<CSCDBPedestals> Pointer;
 
       Pointer produceDBPedestals(const CSCDBPedestalsRcd&);
 
    private:
       // ----------member data ---------------------------
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
 
-      Pointer cndbPedestals ;   
 };
 
 #include<fstream>

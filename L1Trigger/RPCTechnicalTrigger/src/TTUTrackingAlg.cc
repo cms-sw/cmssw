@@ -72,7 +72,7 @@ bool TTUTrackingAlg::process( const TTUInput & inmap )
   //.
   runSeedBuster( inmap );
   
-  if ( m_initialseeds.size() > 0 && m_initialseeds.size() < 20 ) // if too much hits, then cannot process
+  if ( !m_initialseeds.empty() && m_initialseeds.size() < 20 ) // if too much hits, then cannot process
     initTrk->add( m_initialseeds[0] );
   else {
     initTrk->addnone();

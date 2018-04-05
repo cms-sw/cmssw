@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1TCalorimeter.caloStage1Params_cfi import *
+#from L1Trigger.L1TCalorimeter.caloStage1Params_cfi import *
 
 # HCAL TP hack
 from L1Trigger.L1TCalorimeter.L1TRerunHCALTP_FromRaw_cff import *
 
-### CCLA include latest RCT calibrations from UCT
-from L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff import *
+#now taken from GT:
+#from L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff import *
 
 from Configuration.StandardSequences.RawToDigi_Data_cff import ecalDigis
 

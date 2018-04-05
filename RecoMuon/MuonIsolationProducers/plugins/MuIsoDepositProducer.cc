@@ -36,16 +36,30 @@ using namespace muonisolation;
 MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
   theConfig(par),
   theDepositNames(std::vector<std::string>(1,std::string())),
-  theExtractor(0)
+  theExtractor(nullptr)
 {
-  LogDebug("RecoMuon|MuonIsolation")<<" MuIsoDepositProducer CTOR";
+  static const std::string metname = "RecoMuon|MuonIsolationProducers|MuIsoDepositProducer";
+  LogDebug(metname)<<" MuIsoDepositProducer CTOR";
 
   edm::ParameterSet ioPSet = par.getParameter<edm::ParameterSet>("IOPSet");
 
   theInputType = ioPSet.getParameter<std::string>("InputType");
   theExtractForCandidate = ioPSet.getParameter<bool>("ExtractForCandidate");
   theMuonTrackRefType = ioPSet.getParameter<std::string>("MuonTrackRefType");
-  theMuonCollectionTag = ioPSet.getParameter<edm::InputTag>("inputMuonCollection");
+
+  bool readFromRecoTrack = theInputType == "TrackCollection";
+  bool readFromRecoMuon = theInputType == "MuonCollection";
+  bool readFromCandidateView = theInputType == "CandidateView";
+  if(readFromRecoTrack){
+    theMuonCollectionTag = consumes<View<Track>>(ioPSet.getParameter<edm::InputTag>("inputMuonCollection"));
+  } else if(readFromRecoMuon) {
+    theMuonCollectionTag = consumes<View<RecoCandidate>>(ioPSet.getParameter<edm::InputTag>("inputMuonCollection"));
+  } else if (readFromCandidateView) {
+    theMuonCollectionTag = consumes<View<Candidate>>(ioPSet.getParameter<edm::InputTag>("inputMuonCollection"));
+  } else {
+    throw cms::Exception("Configuration")<<"Inconsistent configuration or failure to read Candidate-muon view";
+  }
+
   theMultipleDepositsFlag = ioPSet.getParameter<bool>("MultipleDepositsFlag");
 
 
@@ -60,6 +74,15 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par) :
     if (theDepositNames[i] != "") alias += "_" + theDepositNames[i];
     produces<reco::IsoDepositMap>(theDepositNames[i]).setBranchAlias(alias);
   }
+
+  if (!theExtractor) {
+    edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
+    std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
+    theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
+    LogDebug(metname)<<" Load extractor..."<<extractorName;
+  }
+
+
 }
 
 //! destructor
@@ -70,25 +93,17 @@ MuIsoDepositProducer::~MuIsoDepositProducer(){
 
 //! build deposits
 void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
-  std::string metname = "RecoMuon|MuonIsolationProducers|MuIsoDepositProducer";
+  static const std::string metname = "RecoMuon|MuonIsolationProducers|MuIsoDepositProducer";
 
   LogDebug(metname)<<" Muon Deposit producing..."
 		   <<" BEGINING OF EVENT " <<"================================";
-
-  if (!theExtractor) {
-    edm::ParameterSet extractorPSet = theConfig.getParameter<edm::ParameterSet>("ExtractorPSet");
-    std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-    theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
-    LogDebug(metname)<<" Load extractor..."<<extractorName;
-  }
-
 
   unsigned int nDeps = theMultipleDepositsFlag ? theDepositNames.size() : 1;
 
 
 
   // Take the muon container
-  LogTrace(metname)<<" Taking the muons: "<<theMuonCollectionTag;
+  LogTrace(metname)<<" Taking the muons: "<<theMuonCollectionTag.index();//a more friendly print would use "inputMuonCollection"
   Handle<View<Track> > tracks;
   //! read them as RecoCandidates: need to have track() standAloneMuon() etc in the interface
   Handle<View<RecoCandidate> > muons;//! get rid of this at some point and use the cands
@@ -101,18 +116,18 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   bool readFromCandidateView = theInputType == "CandidateView";
 
   if (readFromRecoMuon){
-    event.getByLabel(theMuonCollectionTag,muons);
+    event.getByToken(theMuonCollectionTag,muons);
     nMuons = muons->size();
     LogDebug(metname) <<"Got Muons of size "<<nMuons;
 
   }
   if (readFromRecoTrack){
-    event.getByLabel(theMuonCollectionTag,tracks);
+    event.getByToken(theMuonCollectionTag,tracks);
     nMuons = tracks->size();
     LogDebug(metname) <<"Got MuonTracks of size "<<nMuons;
   }
   if (readFromCandidateView || theExtractForCandidate){
-    event.getByLabel(theMuonCollectionTag,cands);
+    event.getByToken(theMuonCollectionTag,cands);
     unsigned int nCands = cands->size();
     if (readFromRecoMuon && theExtractForCandidate){
       //! expect nMuons set already
@@ -123,11 +138,11 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
   }
 
   static const unsigned int MAX_DEPS=10;
-  std::auto_ptr<reco::IsoDepositMap> depMaps[MAX_DEPS];
+  std::unique_ptr<reco::IsoDepositMap> depMaps[MAX_DEPS];
 
   if (nDeps >10 ) LogError(metname)<<"Unable to handle more than 10 input deposits";
   for (unsigned int i =0;i<nDeps; ++i){
-    depMaps[i] =  std::auto_ptr<reco::IsoDepositMap>(new reco::IsoDepositMap());
+    depMaps[i] = std::make_unique<reco::IsoDepositMap>();
   }
 
   //! OK, now we know how many deps for how many muons each we will create
@@ -194,7 +209,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
       //! fill the maps here
       reco::IsoDepositMap::Filler filler(*depMaps[iDep]);
 
-      //!now figure out the source handle (see getByLabel above)
+      //!now figure out the source handle (see getByToken above)
       if (readFromRecoMuon){
 	filler.insert(muons, deps2D[iDep].begin(), deps2D[iDep].end());
       } else if (readFromRecoTrack){
@@ -215,7 +230,7 @@ void MuIsoDepositProducer::produce(Event& event, const EventSetup& eventSetup){
     LogTrace(metname)<<"About to put a deposit named "<<theDepositNames[iMap]
 		     <<" of size "<<depMaps[iMap]->size()
 		     <<" into edm::Event";
-    event.put(depMaps[iMap], theDepositNames[iMap]);
+    event.put(std::move(depMaps[iMap]), theDepositNames[iMap]);
   }
 
   LogTrace(metname) <<" END OF EVENT " <<"================================";

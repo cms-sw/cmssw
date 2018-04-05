@@ -1,0 +1,5 @@
+#
+# list of replacements to make when converting UTM classes to CMSSW CondFormat classes.
+#
+"tmEventSetup", "CondFormats/L1TObjects/interface"
+"Undef", "-9999"

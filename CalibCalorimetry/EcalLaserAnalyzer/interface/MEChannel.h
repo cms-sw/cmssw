@@ -22,7 +22,7 @@ public:
   
   MEChannel* getDaughter( int ix, int iy, int ig );
   MEChannel* m() { return _m; }
-  MEChannel* d( unsigned ii ) { if( ii>=n() ) return 0; return _d[ii]; }
+  MEChannel* d( unsigned ii ) { if( ii>=n() ) return nullptr; return _d[ii]; }
   unsigned n() const { return _d.size(); }
   int ig() const { return _ig; }
   

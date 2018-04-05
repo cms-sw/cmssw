@@ -133,7 +133,7 @@ void L1MuDTMuonSorter::reset() {
   m_TrackCands.clear();
   vector<const L1MuDTTrack*>::iterator iter;
   for ( iter = m_TrackCands.begin(); iter != m_TrackCands.end(); iter++ ) {
-    *iter = 0;
+    *iter = nullptr;
   }
 
 }
@@ -169,12 +169,12 @@ void L1MuDTMuonSorter::runCOL(vector<L1MuDTTrack*>& cands) const {
 
   typedef vector<L1MuDTTrack*>::iterator TI;
   for ( TI iter1 = cands.begin(); iter1 != cands.end(); iter1++ ) {
-    if ( *iter1 == 0 ) continue;
+    if ( *iter1 == nullptr ) continue;
     if ( (*iter1)->empty() ) continue;
     L1MuDTSecProcId sp1 = (*iter1)->spid();
     int qual1 = (*iter1)->quality();
     for ( TI iter2 = cands.begin(); iter2 != cands.end(); iter2++ ) {
-      if ( *iter2 == 0 ) continue;
+      if ( *iter2 == nullptr ) continue;
       if ( *iter1 == *iter2 ) continue; 
       if ( (*iter2)->empty() ) continue;
       L1MuDTSecProcId sp2 = (*iter2)->spid();
@@ -256,13 +256,13 @@ void L1MuDTMuonSorter::runCOL(vector<L1MuDTTrack*>& cands) const {
   // remove the one with lower rank
 
   for ( TI iter1 = cands.begin(); iter1 != cands.end(); iter1++ ) {
-    if ( *iter1 == 0 ) continue;
+    if ( *iter1 == nullptr ) continue;
     if ( (*iter1)->empty() ) continue;
     int phi1 = (*iter1)->phi();
     int pt1 = (*iter1)->pt();
     int qual1 = (*iter1)->quality();
     for ( TI iter2 = cands.begin(); iter2 != cands.end(); iter2++ ) {
-      if ( *iter2 == 0 ) continue;
+      if ( *iter2 == nullptr ) continue;
       if ( *iter1 == *iter2 ) continue; 
       if ( (*iter2)->empty() ) continue;
       int phi2 = (*iter2)->phi();

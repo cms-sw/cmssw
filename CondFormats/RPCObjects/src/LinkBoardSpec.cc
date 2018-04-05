@@ -17,7 +17,7 @@ const FebConnectorSpec * LinkBoardSpec::feb(int febInputNum) const
   for (IT it=theFebs.begin(); it != theFebs.end(); it++) {
     if(febInputNum==it->linkBoardInputNum()) return &(*it);
   }
-  return 0;
+  return nullptr;
 }
 
 std::string LinkBoardSpec::linkBoardName() const

@@ -19,7 +19,7 @@ EcalShapeBase::EcalShapeBase( bool   aSaveDerivative ) :
    m_indexOfMax              ( 0   ) ,
    m_timeOfMax               ( 0.0 ) ,
    m_shape                   ( DVec( kNBinsStored, 0.0 ) ) ,
-   m_derivPtr                ( aSaveDerivative ? new DVec( kNBinsStored, 0.0 ) : 0 )
+   m_derivPtr                ( aSaveDerivative ? new DVec( kNBinsStored, 0.0 ) : nullptr )
 {
 }
 
@@ -98,7 +98,7 @@ EcalShapeBase::buildMe()
       }
 
       m_shape[ j ] = value;
-      if( 0 != m_derivPtr ) (*m_derivPtr)[ j ] = deriv;
+      if( nullptr != m_derivPtr ) (*m_derivPtr)[ j ] = deriv;
 
       if( 0      <  j                         &&
 	  thresh <  value                     &&
@@ -149,6 +149,6 @@ double
 EcalShapeBase::derivative( double aTime ) const
 {
    const unsigned int index ( timeIndex( aTime ) ) ;
-   return ( 0            == m_derivPtr ||
+   return ( nullptr            == m_derivPtr ||
 	    kNBinsStored == index         ? 0 : (*m_derivPtr)[ index ] ) ;
 }

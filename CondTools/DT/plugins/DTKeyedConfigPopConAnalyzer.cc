@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondFormats/DTObjects/interface/DTKeyedConfig.h"
 #include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
+#include <memory>
 
 //typedef popcon::PopConAnalyzer<DTKeyedConfigHandler> DTKeyedConfigPopConAnalyzer;
 class DTKeyedConfigPopConAnalyzer: public popcon::PopConAnalyzer<DTKeyedConfigHandler> {
@@ -15,8 +16,8 @@ class DTKeyedConfigPopConAnalyzer: public popcon::PopConAnalyzer<DTKeyedConfigHa
     copyData( pset.getParameter<edm::ParameterSet>("Source").
                       getUntrackedParameter<bool> ( "copyData", true ) ) 
  {}
-  virtual ~DTKeyedConfigPopConAnalyzer(){}
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& s) override{
+  ~DTKeyedConfigPopConAnalyzer() override{}
+  void analyze(const edm::Event& e, const edm::EventSetup& s) override{
 
     if ( !copyData ) return;
 
@@ -27,7 +28,7 @@ class DTKeyedConfigPopConAnalyzer: public popcon::PopConAnalyzer<DTKeyedConfigHa
     cond::persistency::KeyList const &  kl= *klh.product();
     cond::persistency::KeyList* list = const_cast<cond::persistency::KeyList*>( &kl );
     for ( size_t i = 0; i < list->size(); i++ ) {
-      boost::shared_ptr<DTKeyedConfig> kelem = list->get<DTKeyedConfig>( i );
+      std::shared_ptr<DTKeyedConfig> kelem = list->get<DTKeyedConfig>( i );
       if ( kelem.get() )
            std::cout << kelem->getId() << std::endl;
     }

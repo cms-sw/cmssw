@@ -19,17 +19,20 @@ to use this plugin.
 
 
 // system include files
+#include <map>
 #include <memory>
 
 // user include files
-#include "FWCore/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/OutputModule.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/GenericHandle.h"
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -42,7 +45,7 @@ to use this plugin.
 class IOExerciser : public edm::OutputModule {
    public:
       explicit IOExerciser(const edm::ParameterSet&);
-      ~IOExerciser();
+      ~IOExerciser() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -52,22 +55,24 @@ class IOExerciser : public edm::OutputModule {
 
    private:
 
+      typedef std::map<edm::BranchID, edm::EDGetToken> TokenMap;
       // ----------required OutputModule functions-----------------------------
-      virtual void write(edm::EventPrincipal const &e, const edm::ModuleCallingContext*);
-      virtual void writeRun(edm::RunPrincipal const&, const edm::ModuleCallingContext*){}
-      virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, const edm::ModuleCallingContext*){}
+      void write(edm::EventForOutput const &e) override;
+      void writeRun(edm::RunForOutput const&) override{}
+      void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override{}
 
-      virtual void respondToOpenInputFile(edm::FileBlock const& fb);
+      void respondToOpenInputFile(edm::FileBlock const& fb) override;
 
       // ----------internal implementation functions---------------------------
-      void computeProducts(edm::EventPrincipal const& e);
+      void computeProducts(edm::EventForOutput const& e, TokenMap const& tokens);
       void fillSmallestFirst(ProductInfos const& all_products, Long64_t threshold);
       void fillLargestFirst(ProductInfos const& all_products, Long64_t threshold);
       void fillRoundRobin(ProductInfos const& all_products, Long64_t threshold);
 
       // ----------member data ------------------------------------------------
+      TokenMap m_tokens;
       bool m_fetchedProducts;
-      TTree *m_eventsTree;
+      edm::propagate_const<TTree*> m_eventsTree;
       ProductInfos m_products;
       ProductInfos m_all_products;
       unsigned int m_percentBranches;
@@ -83,8 +88,9 @@ class IOExerciser : public edm::OutputModule {
 //
 IOExerciser::IOExerciser(const edm::ParameterSet& pset) :
    OutputModule(pset),
+   m_tokens(),
    m_fetchedProducts(false),
-   m_eventsTree(NULL),
+   m_eventsTree(nullptr),
    m_percentBranches(pset.getUntrackedParameter<unsigned int>("percentBranches")),
    m_currentUsage(0),
    m_triggerFactor(pset.getUntrackedParameter<unsigned int>("triggerFactor")),
@@ -108,6 +114,9 @@ IOExerciser::IOExerciser(const edm::ParameterSet& pset) :
       ex << "Invalid value for percentBranches (" << m_percentBranches << "); must be between 1 and 100, inclusive";
       throw ex;
    }
+   for(auto const& product : keptProducts()[edm::InEvent]) {
+     m_tokens.insert(std::make_pair(product.first->branchID(), product.second));
+   }
 }
 
 
@@ -122,16 +131,13 @@ IOExerciser::~IOExerciser()
 
 // ------------ method called for each event  ------------
 void
-IOExerciser::write(edm::EventPrincipal const& e, const edm::ModuleCallingContext* context)
+IOExerciser::write(edm::EventForOutput const& e)
 {
    using namespace edm;
    if (!m_fetchedProducts)
    {
-      computeProducts(e);
+      computeProducts(e, m_tokens);
    }
-
-   ModuleDescription desc;
-   Event event(const_cast<EventPrincipal&>(e), desc, context);
 
    m_triggerCount += 1;
 
@@ -142,12 +148,12 @@ IOExerciser::write(edm::EventPrincipal const& e, const edm::ModuleCallingContext
       m_triggerCount = 0;
    }
 
-   for (ProductInfos::iterator it = products_to_use.begin(); it != products_to_use.end(); ++it)
+   for (auto const& product : products_to_use)
    {
-      GenericHandle handle(it->className());
+      edm::BasicHandle result;
 
-      event.getByLabel(it->tag(), handle);
-      ctr ++;
+      e.getByToken(product.token(), product.type(), result);
+      ctr++;
    }
    edm::LogInfo("IOExerciser") << "IOExerciser read out " << ctr << " products.";
    
@@ -170,14 +176,14 @@ IOExerciser::respondToOpenInputFile(edm::FileBlock const& fb)
 }
 
 void
-IOExerciser::computeProducts(edm::EventPrincipal const& e)
+IOExerciser::computeProducts(edm::EventForOutput const& e, TokenMap const& tokens)
 {
    using namespace edm;
-   typedef std::vector<Provenance const*> Provenances;
+   typedef std::vector<StableProvenance const*> Provenances;
 
    m_fetchedProducts = true;
    Provenances provenances;
-   e.getAllProvenance(provenances);
+   e.getAllStableProvenance(provenances);
 
    if (!m_eventsTree)
    {
@@ -189,11 +195,9 @@ IOExerciser::computeProducts(edm::EventPrincipal const& e)
    m_all_products.clear();
    m_all_products.reserve(provenances.size());
    Long64_t totalSize = 0;
-   for (Provenances::iterator itProv = provenances.begin(), itProvEnd = provenances.end();
-       itProv != itProvEnd;
-       ++itProv) {
+   for (auto const& provenance : provenances) {
 
-      const std::string & branchName = (*itProv)->branchName();
+      const std::string & branchName = provenance->branchName();
 
       TBranch * branch = (TBranch*)m_eventsTree->GetBranch(branchName.c_str());
       if (!branch)
@@ -201,7 +205,13 @@ IOExerciser::computeProducts(edm::EventPrincipal const& e)
          LogWarning("IOExerciser") << "Ignoring missing branch " << branchName;
          continue;
       }
-      ProductInfo pi(*(*itProv), *branch);
+      edm::BranchID bid = provenance->branchID();
+      auto const iter = m_tokens.find(bid);
+      if (iter == m_tokens.end()) {
+        // product not kept
+        continue;
+      }
+      ProductInfo pi(*provenance, *branch, iter->second);
       totalSize += pi.size();
       m_all_products.push_back(pi);
    }

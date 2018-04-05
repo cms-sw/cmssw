@@ -17,7 +17,6 @@
 // Original Author:  Charles Plager
 //         Created:  Tue May  8 15:01:20 EDT 2007
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <string>
 #include <typeinfo>
@@ -40,7 +39,7 @@ namespace fwlite
       public:
          EventBase();
 
-         virtual ~EventBase();
+         ~EventBase() override;
 
          virtual bool getByLabel(
                                   std::type_info const&,
@@ -69,10 +68,9 @@ namespace fwlite
 
       private:
 
-         virtual edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const;
-         virtual edm::BasicHandle getImpl(std::type_info const&, edm::ProductID const&) const;
+         edm::BasicHandle getByLabelImpl(std::type_info const&, std::type_info const&, const edm::InputTag&) const override;
+         edm::BasicHandle getImpl(std::type_info const&, edm::ProductID const&) const override;
    };
 } // fwlite namespace
 
-#endif /*__CINT__ */
 #endif

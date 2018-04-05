@@ -25,7 +25,7 @@ class EfficiencyLoader {
         bool enabled() const { return !names_.empty(); }
 
         /// To be called for each new event, reads in the ValueMaps for efficiencies
-        void newEvent(const edm::Event &event) const ;
+        void newEvent(const edm::Event &event);
 
         /// Sets the efficiencies for this object, using the reference to the original objects
         template<typename T, typename R>
@@ -34,7 +34,7 @@ class EfficiencyLoader {
     private:
         std::vector<std::string>   names_;
         std::vector<edm::EDGetTokenT<edm::ValueMap<pat::LookupTableRecord> > > tokens_;
-        mutable std::vector<edm::Handle< edm::ValueMap<pat::LookupTableRecord> > > handles_;
+        std::vector<edm::Handle< edm::ValueMap<pat::LookupTableRecord> > > handles_;
 }; // class
 
 template<typename T, typename R>

@@ -9,7 +9,7 @@
 
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -27,15 +27,15 @@
 #include <vector>
 #include <map>
 
-class DigiSimLinkProducer : public edm::EDProducer
+class DigiSimLinkProducer : public edm::stream::EDProducer<>
 {
 public:
   
   explicit DigiSimLinkProducer(const edm::ParameterSet& conf);
   
-  virtual ~DigiSimLinkProducer();
+  ~DigiSimLinkProducer() override;
   
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
   
 private:
   typedef std::vector<std::string> vstring;

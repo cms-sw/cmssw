@@ -9,30 +9,32 @@
 
 #include <memory>
 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-class RecHitFilter : public edm::EDProducer {
+class RecHitFilter : public edm::global::EDProducer<> {
 
   public:
 
       RecHitFilter(const edm::ParameterSet& ps);
 
-      ~RecHitFilter();
+      ~RecHitFilter() override;
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
    private:
 
-      double        noiseEnergyThreshold_;
-      double        noiseChi2Threshold_;
-      std::string   reducedHitCollection_;
-      edm::EDGetTokenT<EcalRecHitCollection> hitCollection_;
+      const double        noiseEnergyThreshold_;
+      const double        noiseChi2Threshold_;
+      const std::string   reducedHitCollection_;
+      const edm::EDGetTokenT<EcalRecHitCollection> hitCollection_;
 
 
 };

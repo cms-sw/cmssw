@@ -28,6 +28,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 // #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
@@ -44,6 +45,7 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
@@ -51,6 +53,7 @@
 namespace edm
 {
   template <class HAD, class DEC> class HadronizerFilter : public one::EDFilter<EndRunProducer,
+                                                                                BeginLuminosityBlockProducer,
 										EndLuminosityBlockProducer,
                                                                                 one::WatchRuns,
                                                                                 one::WatchLuminosityBlocks,
@@ -64,15 +67,16 @@ namespace edm
     // Hadronizer object.
     explicit HadronizerFilter(ParameterSet const& ps);
 
-    virtual ~HadronizerFilter();
+    ~HadronizerFilter() override;
 
-    virtual bool filter(Event& e, EventSetup const& es) override;
-    virtual void beginRun(Run const&, EventSetup const&) override;
-    virtual void endRun(Run const&, EventSetup const&) override;
-    virtual void endRunProduce(Run &, EventSetup const&) override;
-    virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-    virtual void endLuminosityBlockProduce(LuminosityBlock &, EventSetup const&) override;
+    bool filter(Event& e, EventSetup const& es) override;
+    void beginRun(Run const&, EventSetup const&) override;
+    void endRun(Run const&, EventSetup const&) override;
+    void endRunProduce(Run &, EventSetup const&) override;
+    void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+    void beginLuminosityBlockProduce(LuminosityBlock&, EventSetup const&) override;
+    void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+    void endLuminosityBlockProduce(LuminosityBlock &, EventSetup const&) override;
 
   private:
     Hadronizer hadronizer_;
@@ -94,8 +98,8 @@ namespace edm
   HadronizerFilter<HAD,DEC>::HadronizerFilter(ParameterSet const& ps) :
     EDFilter(),
     hadronizer_(ps),
-    decayer_(0),
-    filter_(0),
+    decayer_(nullptr),
+    filter_(nullptr),
     runInfoProductTag_(),
     runInfoProductToken_(),
     eventProductToken_(),
@@ -155,12 +159,13 @@ namespace edm
       usesResource(edm::uniqueSharedResourceName());
     }
 
-    produces<edm::HepMCProduct>();
+    produces<edm::HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
-    produces<GenLumiInfoProduct, edm::InLumi>();
-    produces<GenRunInfoProduct, edm::InRun>();
+    produces<GenLumiInfoHeader, edm::Transition::BeginLuminosityBlock>();
+    produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>();
+    produces<GenRunInfoProduct, edm::Transition::EndRun>();
     if(filter_)
-      produces<GenFilterInfo, edm::InLumi>(); 
+      produces<GenFilterInfo, edm::Transition::EndLuminosityBlock>(); 
   }
 
   template <class HAD, class DEC>
@@ -184,8 +189,8 @@ namespace edm
     edm::Handle<LHEEventProduct> product;
     ev.getByToken(eventProductToken_, product);
     
-    std::auto_ptr<HepMC::GenEvent> finalEvent;
-    std::auto_ptr<GenEventInfoProduct> finalGenEventInfo;
+    std::unique_ptr<HepMC::GenEvent> finalEvent;
+    std::unique_ptr<GenEventInfoProduct> finalGenEventInfo;
     
     //sum of weights for events passing hadronization
     double waccept = 0;
@@ -209,7 +214,7 @@ namespace edm
       //
       if ( !hadronizer_.decay() ) continue;
       
-      std::auto_ptr<HepMC::GenEvent> event (hadronizer_.getGenEvent());
+      std::unique_ptr<HepMC::GenEvent> event (hadronizer_.getGenEvent());
       if( !event.get() ) continue; 
 
       // The external decay driver is being added to the system,
@@ -217,7 +222,10 @@ namespace edm
       //
       if ( decayer_ ) 
       {
-        event.reset( decayer_->decay( event.get(),lheEvent ) );
+        auto t = decayer_->decay( event.get(),lheEvent );
+        if(t != event.get()) {
+          event.reset(t);
+        }
       }
 
       if ( !event.get() ) continue;
@@ -235,7 +243,7 @@ namespace edm
       
       event->set_event_number( ev.id().event() );
       
-      std::auto_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());      
+      std::unique_ptr<GenEventInfoProduct> genEventInfo(hadronizer_.getGenEventInfo());
       if (!genEventInfo.get())
       { 
         // create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
@@ -249,8 +257,8 @@ namespace edm
       ++naccept;
       
       //keep the LAST accepted event (which is equivalent to choosing randomly from the accepted events)
-      finalEvent.reset(event.release());
-      finalGenEventInfo.reset(genEventInfo.release());
+      finalEvent = std::move(event);
+      finalGenEventInfo = std::move(genEventInfo);
       
     }
     
@@ -269,12 +277,11 @@ namespace edm
       finalEvent->weights()[0] *= multihadweight;
     }
     
-    
-    ev.put(finalGenEventInfo);
+    ev.put(std::move(finalGenEventInfo));
 
-    std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
+    std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
     bare_product->addHepMCData( finalEvent.release() );
-    ev.put(bare_product);
+    ev.put(std::move(bare_product), "unsmeared");
 
     return true;
   }
@@ -334,20 +341,27 @@ namespace edm
     if ( filter_ ) filter_->statistics();
     lheRunInfo->statistics();
 
-    std::auto_ptr<GenRunInfoProduct> griproduct( new GenRunInfoProduct(genRunInfo) );
-    r.put(griproduct);
+    std::unique_ptr<GenRunInfoProduct> griproduct( new GenRunInfoProduct(genRunInfo) );
+    r.put(std::move(griproduct));
   }
 
   template <class HAD, class DEC>
   void
   HadronizerFilter<HAD,DEC>::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const& es)
+  {}
+  
+  template <class HAD, class DEC>
+  void
+  HadronizerFilter<HAD,DEC>::beginLuminosityBlockProduce(LuminosityBlock &lumi, EventSetup const& es)
   {
     lhef::LHERunInfo* lheRunInfo = hadronizer_.getLHERunInfo().get();
     lheRunInfo->initLumi();
 
     RandomEngineSentry<HAD> randomEngineSentry(&hadronizer_, lumi.index());
     RandomEngineSentry<DEC> randomEngineSentryDecay(decayer_, lumi.index());
-
+    
+    hadronizer_.randomizeIndex(lumi,randomEngineSentry.randomEngine());
+    
     if ( !hadronizer_.readSettings(1) )
        throw edm::Exception(errors::Configuration) 
 	 << "Failed to read settings for the hadronizer "
@@ -377,6 +391,10 @@ namespace edm
 	<< "Failed to initialize hadronizer "
 	<< hadronizer_.classname()
 	<< " for external parton generation\n";
+        
+    std::unique_ptr<GenLumiInfoHeader> genLumiInfoHeader(hadronizer_.getGenLumiInfoHeader());
+    lumi.put(std::move(genLumiInfoHeader));
+        
   }
 
   template <class HAD, class DEC>
@@ -410,16 +428,17 @@ namespace edm
       temp.setAcceptedBr(thisProcess.acceptedBr().n(), thisProcess.acceptedBr().sum(), thisProcess.acceptedBr().sum2());
       GenLumiProcess.push_back(temp);
     }
-    std::auto_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
+    std::unique_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
     genLumiInfo->setHEPIDWTUP(lheRunInfo->getHEPRUP()->IDWTUP);
     genLumiInfo->setProcessInfo( GenLumiProcess );
-    lumi.put(genLumiInfo);
+
+    lumi.put(std::move(genLumiInfo));
 
 
     // produce GenFilterInfo if HepMCFilter is called
     if (filter_) {
 
-      std::auto_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(
+      std::unique_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(
 								 filter_->numEventsPassPos(),
 								 filter_->numEventsPassNeg(),
 								 filter_->numEventsTotalPos(),
@@ -429,7 +448,7 @@ namespace edm
 								 filter_->sumtotal_w(),
 								 filter_->sumtotal_w2()
 								 ));
-      lumi.put(thisProduct);
+      lumi.put(std::move(thisProduct));
     }
       
 

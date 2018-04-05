@@ -3,7 +3,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
@@ -39,7 +39,7 @@ AlignmentStats::AlignmentStats(const edm::ParameterSet &iConfig) :
   //sanity checks
 
   //init
-  outtree_=0;
+  outtree_=nullptr;
 
 }//end constructor
 
@@ -184,7 +184,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 	if (type == typeid(SiStripRecHit1D)) {
 	  //Notice the difference respect to when one loops on Trajectories: the recHit is a TrackingRecHit and not a TransientTrackingRecHit
 	  const SiStripRecHit1D* striphit=dynamic_cast<const  SiStripRecHit1D*>(hit);
-	  if(striphit!=0){
+	  if(striphit!=nullptr){
 	    SiStripRecHit1D::ClusterRef stripclust(striphit->cluster());
 	    inval = OverlapMap[stripclust];
 	  }
@@ -195,7 +195,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 	}//end if sistriprechit1D
 	if (type == typeid(SiStripRecHit2D)) {
 	  const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit);
-	  if(striphit!=0){
+	  if(striphit!=nullptr){
 	    SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
 	    inval = OverlapMap[stripclust];
 	    //cout<<"Taken the Strip Cluster with ProdId "<<stripclust.id() <<"; the Value in the map is "<<inval<<"  (DetId is "<<hit->geographicalId().rawId()<<")"<<endl;
@@ -209,7 +209,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
       }//end if hit in Strips
       else{
 	const SiPixelRecHit* pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
-	if(pixelhit!=0){
+	if(pixelhit!=nullptr){
 	  SiPixelClusterRefNew pixclust(pixelhit->cluster());
 	  inval = OverlapMap[pixclust];
 	  //cout<<"Taken the Pixel Cluster with ProdId "<<pixclust.id() <<"; the Value in the map is "<<inval<<"  (DetId is "<<hit->geographicalId().rawId()<<")"<<endl;
@@ -255,7 +255,6 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     tmpPresc_=prescale_;
   }
   if(trk_cnt!=ntracks)edm::LogError("AlignmentStats")<<"\nERROR! trk_cnt="<<trk_cnt<<"   ntracks="<<ntracks;
-  trk_cnt=0;
 
   return;
 }
@@ -311,11 +310,11 @@ void AlignmentStats::endJob(){
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  lastSetup_->get<IdealGeometryRecord>().get(tTopoHandle);
+  lastSetup_->get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   AlignableTracker* theAliTracker=new AlignableTracker(&(*trackerGeometry_), tTopo);
-  const std::vector<Alignable*>& Detunitslist=theAliTracker->deepComponents();
+  const auto& Detunitslist = theAliTracker->deepComponents();
   int ndetunits=Detunitslist.size();
   edm::LogInfo("AlignmentStats")<<"Number of DetUnits in the AlignableTracker: "<< ndetunits<<std::endl;
 

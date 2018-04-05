@@ -49,7 +49,8 @@ from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 from RecoVertex.Configuration.RecoVertex_EventContent_cff import *
 # raw2digi that are already the final RECO/AOD products
 from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
-from Configuration.EventContent.AlCaRecoOutput_cff import *
+from EventFilter.OnlineMetaDataRawToDigi.OnlineMetaData_EventContent_cff import *
+from EventFilter.Utilities.Tcds_EventContent_cff import *
 from Configuration.EventContent.EventContent_cff import REGENEventContent,RESIMEventContent,REDIGIEventContent
 
 #not in Cosmics 
@@ -167,12 +168,6 @@ FEVTDEBUGEventContent = cms.PSet(
 # ALCARECO Data Tier definition
 #
 #
-ALCARECOEventContent = cms.PSet(
-    outputCommands = cms.untracked.vstring('drop *',
-        'keep edmTriggerResults_*_*_*'),
-    splitLevel = cms.untracked.int32(0),
-        eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
-)
 
 from Configuration.EventContent.EventContent_cff import DQMEventContent
 
@@ -197,6 +192,8 @@ FEVTEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+FEVTEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
+FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 
 FEVTHLTALLEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
 FEVTHLTALLEventContent.outputCommands.append('keep *_*_*_HLT')
@@ -216,6 +213,8 @@ RECOEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 RECOEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+RECOEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
+RECOEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 
 AODEventContent.outputCommands.extend(RecoLocalTrackerAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoLocalMuonAOD.outputCommands)
@@ -230,6 +229,8 @@ AODEventContent.outputCommands.extend(BeamSpotAOD.outputCommands)
 AODEventContent.outputCommands.extend(RecoVertexAOD.outputCommands)
 AODEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
 AODEventContent.outputCommands.extend(EvtScalersAOD.outputCommands)
+AODEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
+AODEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 
 RAWSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
 RAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
@@ -302,6 +303,8 @@ FEVTSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 
 FEVTDEBUGEventContent.outputCommands.extend(FEVTSIMEventContent.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(L1TriggerFEVTDEBUG.outputCommands)
@@ -310,21 +313,3 @@ FEVTDEBUGEventContent.outputCommands.extend(SimTrackerFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimMuonFEVTDEBUG.outputCommands)
 FEVTDEBUGEventContent.outputCommands.extend(SimCalorimetryFEVTDEBUG.outputCommands)
 
-ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmicsInCollisions_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmicsHLT_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics0T_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics0THLT_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripCalZeroBias_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalHOCosmics_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlStandAloneCosmics_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlGlobalCosmics_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlGlobalCosmicsInCollisions_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlCalIsolatedMu_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlBeamHalo_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHaloOverlaps_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo_noDrop.outputCommands)
-ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripPCLHistos_noDrop.outputCommands)
-
-ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')

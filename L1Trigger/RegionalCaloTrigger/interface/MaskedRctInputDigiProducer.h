@@ -45,11 +45,11 @@ RCT.
 class MaskedRctInputDigiProducer : public edm::EDProducer {
 public:
   explicit MaskedRctInputDigiProducer(const edm::ParameterSet&);
-  ~MaskedRctInputDigiProducer();
+  ~MaskedRctInputDigiProducer() override;
   
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
       // ----------member data ---------------------------
 

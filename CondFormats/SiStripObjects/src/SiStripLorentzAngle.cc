@@ -20,7 +20,7 @@ float SiStripLorentzAngle::getLorentzAngle(const uint32_t& detid) const  {
   return 0;
 }
 
-void SiStripLorentzAngle::printDebug(std::stringstream& ss) const
+void SiStripLorentzAngle::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const
 {
   std::map<unsigned int,float> detid_la = getLorentzAngles();
   std::map<unsigned int,float>::const_iterator it;
@@ -33,12 +33,12 @@ void SiStripLorentzAngle::printDebug(std::stringstream& ss) const
   }
 }
 
-void SiStripLorentzAngle::printSummary(std::stringstream& ss) const
+void SiStripLorentzAngle::printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const
 {
   std::map<unsigned int,float> detid_la = getLorentzAngles();
   std::map<unsigned int,float>::const_iterator it;
 
-  SiStripDetSummary summary;
+  SiStripDetSummary summary{trackerTopo};
 
   for( it=detid_la.begin(); it!=detid_la.end(); ++it ) {
     DetId detid(it->first);

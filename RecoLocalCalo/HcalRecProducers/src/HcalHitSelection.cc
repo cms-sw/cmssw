@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -30,6 +30,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 
@@ -43,13 +47,13 @@
 // class declaration
 //
 
-class HcalHitSelection : public edm::EDProducer {
+class HcalHitSelection : public edm::stream::EDProducer<> {
    public:
       explicit HcalHitSelection(const edm::ParameterSet&);
-      ~HcalHitSelection();
+      ~HcalHitSelection() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
   
   edm::InputTag hbheTag,hoTag,hfTag;
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
@@ -58,25 +62,29 @@ class HcalHitSelection : public edm::EDProducer {
   std::vector<edm::EDGetTokenT<DetIdCollection> > toks_did_;
   int hoSeverityLevel;
   std::vector<edm::InputTag> interestingDetIdCollections;
+  const HcalTopology* theHcalTopology_;
   
   //hcal severity ES
   edm::ESHandle<HcalChannelQuality> theHcalChStatus;
   edm::ESHandle<HcalSeverityLevelComputer> theHcalSevLvlComputer;
   std::set<DetId> toBeKept;
-  template <typename CollectionType> void skim( const edm::Handle<CollectionType> & input, std::auto_ptr<CollectionType> & output,int severityThreshold=0);
+  template <typename CollectionType> void skim( const edm::Handle<CollectionType> & input, CollectionType & output,int severityThreshold=0) const;
   
       // ----------member data ---------------------------
 };
 
-template <class CollectionType> void HcalHitSelection::skim( const edm::Handle<CollectionType> & input, std::auto_ptr<CollectionType> & output,int severityThreshold){
-  output->reserve(input->size());
+template <class CollectionType> void HcalHitSelection::skim( const edm::Handle<CollectionType> & input, CollectionType & output,int severityThreshold) const {
+  output.reserve(input->size());
   typename CollectionType::const_iterator begin=input->begin();
   typename CollectionType::const_iterator end=input->end();
   typename CollectionType::const_iterator hit=begin;
 
   for (;hit!=end;++hit){
     //    edm::LogError("HcalHitSelection")<<"the hit pointer is"<<&(*hit);
-    const DetId & id = hit->detid();
+    HcalDetId id = hit->detid();
+    if (theHcalTopology_->getMergePositionFlag() && id.subdet() == HcalEndcap) {
+      id = theHcalTopology_->idFront(id);
+    }
     const uint32_t & recHitFlag = hit->flags();
     //    edm::LogError("HcalHitSelection")<<"the hit id and flag are "<<id.rawId()<<" "<<recHitFlag;
 	
@@ -84,11 +92,11 @@ template <class CollectionType> void HcalHitSelection::skim( const edm::Handle<C
     int severityLevel = theHcalSevLvlComputer->getSeverityLevel(id, recHitFlag, dbStatusFlag); 
     //anything that is not "good" goes in
     if (severityLevel>severityThreshold){
-      output->push_back(*hit);
+      output.push_back(*hit);
     }else{
       //chek on the detid list
       if (toBeKept.find(id)!=toBeKept.end())
-	output->push_back(*hit);
+	output.push_back(*hit);
     }
   }
 }
@@ -150,6 +158,9 @@ HcalHitSelection::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   iSetup.get<HcalChannelQualityRcd>().get("withTopo", theHcalChStatus);
   iSetup.get<HcalSeverityLevelComputerRcd>().get(theHcalSevLvlComputer);
+  edm::ESHandle<HcalTopology> topo;
+  iSetup.get<HcalRecNumberingRecord>().get(topo);
+  theHcalTopology_ = topo.product();
 
   edm::Handle<HBHERecHitCollection> hbhe;
   edm::Handle<HFRecHitCollection> hf;
@@ -171,17 +182,17 @@ HcalHitSelection::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       toBeKept.insert(detId->begin(),detId->end());
     }
 
-  std::auto_ptr<HBHERecHitCollection> hbhe_out(new HBHERecHitCollection());
-  skim(hbhe,hbhe_out);
-  iEvent.put(hbhe_out,hbheTag.label());
+  auto hbhe_out = std::make_unique<HBHERecHitCollection>();
+  skim(hbhe,*hbhe_out);
+  iEvent.put(std::move(hbhe_out),hbheTag.label());
 
-  std::auto_ptr<HFRecHitCollection> hf_out(new HFRecHitCollection());
-  skim(hf,hf_out);
-  iEvent.put(hf_out,hfTag.label());
+  auto hf_out = std::make_unique<HFRecHitCollection>();
+  skim(hf,*hf_out);
+  iEvent.put(std::move(hf_out),hfTag.label());
 
-  std::auto_ptr<HORecHitCollection> ho_out(new HORecHitCollection());
-  skim(ho,ho_out,hoSeverityLevel);
-  iEvent.put(ho_out,hoTag.label());
+  auto ho_out = std::make_unique<HORecHitCollection>();
+  skim(ho,*ho_out,hoSeverityLevel);
+  iEvent.put(std::move(ho_out),hoTag.label());
   
 }
 

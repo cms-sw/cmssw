@@ -21,9 +21,9 @@ class FWTrackingParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<Track
 {
 public:
    FWTrackingParticleProxyBuilder( void ) {} 
-   virtual ~FWTrackingParticleProxyBuilder( void ) {}
+   ~FWTrackingParticleProxyBuilder( void ) override {}
 
-   virtual void setItem(const FWEventItem* iItem) override {
+   void setItem(const FWEventItem* iItem) override {
       FWProxyBuilderBase::setItem(iItem);
       iItem->getConfig()->assertParam("Point Size", 1l, 3l, 1l);
    }
@@ -32,9 +32,9 @@ public:
 
 private:
    // Disable default copy constructor
-   FWTrackingParticleProxyBuilder( const FWTrackingParticleProxyBuilder& );
+   FWTrackingParticleProxyBuilder( const FWTrackingParticleProxyBuilder& ) = delete;
    // Disable default assignment operator
-   const FWTrackingParticleProxyBuilder& operator=( const FWTrackingParticleProxyBuilder& );
+   const FWTrackingParticleProxyBuilder& operator=( const FWTrackingParticleProxyBuilder& ) = delete;
 
    using FWSimpleProxyBuilderTemplate<TrackingParticle>::build;
    void build( const TrackingParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;

@@ -44,7 +44,7 @@ class JetMatching;
   
   public:
      Pythia6Hadronizer(edm::ParameterSet const& ps);
-     ~Pythia6Hadronizer();
+     ~Pythia6Hadronizer() override;
 
      // bool generatePartons();
      bool generatePartonsAndHadronize();
@@ -69,8 +69,8 @@ class JetMatching;
      // methods
      //
 
-     virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
-     virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+     void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+     std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
 
      void flushTmpStorage();
      void fillTmpStorage();

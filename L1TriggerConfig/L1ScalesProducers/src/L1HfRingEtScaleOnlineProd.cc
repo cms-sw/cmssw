@@ -34,9 +34,9 @@ class L1HfRingEtScaleOnlineProd :
   public L1ConfigOnlineProdBase< L1HfRingEtScaleRcd, L1CaloEtScale > {
    public:
       L1HfRingEtScaleOnlineProd(const edm::ParameterSet&);
-      ~L1HfRingEtScaleOnlineProd();
+      ~L1HfRingEtScaleOnlineProd() override;
 
-  virtual boost::shared_ptr< L1CaloEtScale > newObject(
+  std::shared_ptr< L1CaloEtScale > newObject(
     const std::string& objectKey ) override ;
 
 
@@ -74,7 +74,7 @@ L1HfRingEtScaleOnlineProd::~L1HfRingEtScaleOnlineProd()
 
 }
 
-boost::shared_ptr< L1CaloEtScale >
+std::shared_ptr< L1CaloEtScale >
 L1HfRingEtScaleOnlineProd::newObject( const std::string& objectKey )
 {
      using namespace edm::es;
@@ -182,7 +182,7 @@ L1HfRingEtScaleOnlineProd::newObject( const std::string& objectKey )
      }
 
      //~~~~~~~~~ Instantiate new L1HfRingEtScale object. ~~~~~~~~~
-     return boost::shared_ptr< L1CaloEtScale >( new L1CaloEtScale(0xff, 0x7, rgnEtLsb, thresholds ) );
+     return std::make_shared<L1CaloEtScale>(0xff, 0x7, rgnEtLsb, thresholds);
 }
 
 

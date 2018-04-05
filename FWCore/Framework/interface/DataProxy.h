@@ -23,9 +23,12 @@
 #include <atomic>
 
 // user include files
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // forward declarations
 namespace edm {
+   class ActivityRegistry;
+
    namespace eventsetup {
       struct ComponentDescription;
       class DataKey;
@@ -40,8 +43,8 @@ namespace edm {
          // ---------- const member functions ---------------------
          bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
 
-         void doGet(EventSetupRecord const& iRecord, DataKey const& iKey, bool iTransiently) const;
-         void const* get(EventSetupRecord const&, DataKey const& iKey, bool iTransiently) const;
+         void doGet(EventSetupRecord const& iRecord, DataKey const& iKey, bool iTransiently, ActivityRegistry*) const;
+         void const* get(EventSetupRecord const&, DataKey const& iKey, bool iTransiently, ActivityRegistry*) const;
 
          ///returns the description of the DataProxyProvider which owns this Proxy
          ComponentDescription const* providerDescription() const {
@@ -83,12 +86,12 @@ namespace edm {
 
          void clearCacheIsValid();
       private:
-         DataProxy(DataProxy const&); // stop default
+         DataProxy(DataProxy const&) = delete; // stop default
 
-         DataProxy const& operator=(DataProxy const&); // stop default
+         DataProxy const& operator=(DataProxy const&) = delete; // stop default
 
          // ---------- member data --------------------------------
-         mutable void const* cache_; //protected by a global mutex
+         CMS_THREAD_SAFE mutable void const* cache_; //protected by a global mutex
          mutable std::atomic<bool> cacheIsValid_;
          mutable std::atomic<bool> nonTransientAccessRequested_;
          ComponentDescription const* description_;

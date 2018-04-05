@@ -80,7 +80,7 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
    edm::ProductID tauProductID = taus.id();
 
    // output product
-   std::auto_ptr<TauDiscriminator> output(new TauDiscriminator(TauRefProd(taus)));
+   auto output = std::make_unique<TauDiscriminator>(TauRefProd(taus));
 
    size_t nTaus = taus->size();
 
@@ -150,7 +150,7 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
       // store the result of this tau into our new discriminator
       output->setValue(iTau, result);
    }
-   event.put(output);
+   event.put(std::move(output));
 
    // function to put additional information into the event - does nothing in base, but can be overridden in derived classes
    endEvent(event);
@@ -159,7 +159,9 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator>::produce(edm::Even
 // template specialiazation to get the correct (Calo/PF)TauProducer names
 template<> std::string getProducerString<PFTau>()   { return "PFTauProducer"; }
 template<> std::string getProducerString<CaloTau>() { return "CaloTauProducer"; }
+template<> std::string getProducerString<pat::Tau>() { return "PATTauProducer"; }
 
 // compile our desired types and make available to linker
 template class TauDiscriminationProducerBase<PFTau, PFTauDiscriminator>;
 template class TauDiscriminationProducerBase<CaloTau, CaloTauDiscriminator>;
+template class TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminator>;

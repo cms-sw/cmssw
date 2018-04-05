@@ -49,13 +49,13 @@ class EgammaHLTHcalIsolation
 			 float innerCone,float outerCone,int depth) :
     eMinHB_(eMinHB),eMinHE_(eMinHE),etMinHB_(etMinHB),etMinHE_(etMinHE),
     innerCone_(innerCone),outerCone_(outerCone),depth_(depth),
-    useRecoveredHcalHits_(1),hcalAcceptSeverityLevel_(9){}//{std::cout <<"innerCone "<<innerCone<<" outerCone "<<outerCone<<std::endl;}
+    useRecoveredHcalHits_(true),hcalAcceptSeverityLevel_(9){}//{std::cout <<"innerCone "<<innerCone<<" outerCone "<<outerCone<<std::endl;}
     
     //first is the sum E, second is the sum Et
     std::pair<float,float> getSum(float candEta,float candPhi,
 				  const HBHERecHitCollection* hbhe, const CaloGeometry* geometry,
-				  const HcalSeverityLevelComputer* hcalSevLvlAlgo=NULL,
-				  const HcalChannelQuality* dbHcalChStatus=NULL)const;
+				  const HcalSeverityLevelComputer* hcalSevLvlAlgo=nullptr,
+				  const HcalChannelQuality* dbHcalChStatus=nullptr)const;
     float getESum(float candEta,float candPhi, 
 		  const HBHERecHitCollection* hbhe,
 		  const CaloGeometry* geometry)const{return getSum(candEta,candPhi,hbhe,geometry).first;}

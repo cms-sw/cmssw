@@ -22,8 +22,6 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi import *
 SiStripMonitorTrack.TrackProducer       = cms.string('ctfWithMaterialTracksP5')
 SiStripMonitorTrack.TrackLabel          = cms.string('')
-SiStripMonitorTrack.OutputMEsInRootFile = cms.bool(True)
-SiStripMonitorTrack.OutputFileName      = cms.string('testReal.root')
 SiStripMonitorTrack.Cluster_src         = cms.string('siStripClusters')
 SiStripMonitorTrack.Mod_On              = cms.bool(False)
 SiStripMonitorTrack.OffHisto_On         = cms.bool(True)

@@ -19,7 +19,7 @@
 #include <CondFormats/DTObjects/interface/DTReadOutMapping.h>
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 using namespace edm;
@@ -49,8 +49,8 @@ DTROS25Unpacker::~DTROS25Unpacker() {}
 void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 				       int dduIDfromDDU,
 				       edm::ESHandle<DTReadOutMapping>& mapping,
-				       std::auto_ptr<DTDigiCollection>& detectorProduct,
-				       std::auto_ptr<DTLocalTriggerCollection>& triggerProduct,
+				       std::unique_ptr<DTDigiCollection>& detectorProduct,
+				       std::unique_ptr<DTLocalTriggerCollection>& triggerProduct,
 				       uint16_t rosList) {
 
   int dduID;

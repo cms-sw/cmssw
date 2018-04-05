@@ -12,7 +12,7 @@
 class MeasurementDetException : public cms::Exception {
 public:
   MeasurementDetException( const std::string& message) throw() :  cms::Exception(message)  {}
-  virtual ~MeasurementDetException() throw() {}
+  ~MeasurementDetException() throw() override {}
 
 };
 

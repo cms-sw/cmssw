@@ -36,7 +36,7 @@ void Phase2Tracker::Phase2TrackerCommissioningDigiProducer::produce( edm::Event&
     if(fed.size()!=0 && fedIndex >= Phase2Tracker::FED_ID_MIN && fedIndex <= Phase2Tracker::FED_ID_MAX)
     {
       // construct buffer
-      Phase2Tracker:: Phase2TrackerFEDBuffer* buffer = 0;
+      Phase2Tracker:: Phase2TrackerFEDBuffer* buffer = nullptr;
       buffer = new Phase2Tracker::Phase2TrackerFEDBuffer(fed.data(),fed.size());
 
       // fetch condition data
@@ -59,8 +59,8 @@ void Phase2Tracker::Phase2TrackerCommissioningDigiProducer::produce( edm::Event&
       {
         cond_data_digi->push_back(Phase2TrackerCommissioningDigi(it->first,it->second));
       }
-      std::auto_ptr< edm::DetSet<Phase2TrackerCommissioningDigi> > cdd(cond_data_digi);
-      event.put( cdd, "ConditionData" );
+      std::unique_ptr<edm::DetSet<Phase2TrackerCommissioningDigi>> cdd(cond_data_digi);
+      event.put(std::move(cdd), "ConditionData");
     }
   }
 }

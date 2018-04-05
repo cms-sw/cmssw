@@ -18,13 +18,12 @@ mix = cms.EDProducer("MixingModule",
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
 
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
         type = cms.string('probFunction'),
         nbPileupEvents = cms.PSet(
           probFunctionVariable = cms.vint32(0,1,2,3,4,5,6,7,8,9,10),
           probValue = cms.vdouble(0.145168,0.251419,0.251596,0.17943,0.10,0.05,0.02,0.01,0.005,0.002,0.001),
           histoFileName = cms.untracked.string('histProbFunction.root'),
-          seed = cms.untracked.int32(54321)
         ),
 	sequential = cms.untracked.bool(False),
         fileNames = FileNames

@@ -258,7 +258,7 @@ TopProjectorAlgo<Top,Bottom>::ptrToAncestor( reco::CandidatePtr candPtr,
 
   for(unsigned i=0; i<nSources; i++) {
     
-    CandidatePtr mother = candPtr->sourceCandidatePtr(i);
+    reco::CandidatePtr mother = candPtr->sourceCandidatePtr(i);
 /*     if( verbose_ ) { */
 /*       const Provenance& motherProv = iEvent.getProvenance(mother.id()); */
 /*       cout<<"  mother id "<<mother.id()<<endl */

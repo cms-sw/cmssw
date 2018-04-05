@@ -12,6 +12,20 @@ typedef ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> > Matrix2
 typedef ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > Matrix3;
 
 
+void finvert(Matrix2&mm) {
+  auto m = mm.Array();
+
+  auto c0 = 1/m[0];
+  auto c1 = m[1]*m[1]* c0;
+  auto c2 = 1/(m[2] - c1);
+
+  auto li21 = c1 * c0 * c2;
+  m[0] = li21 + c0;
+  m[1] = - m[1]*c0*c2;
+  m[2] = c2;
+
+}
+
 void st(){}
 void en(){}
 
@@ -30,7 +44,12 @@ int main(int argc, char * argv[] ) {
    m.Invert();
   std::cout << m << std::endl;
 
- 
+
+  finvert(m);
+  std::cout << m << std::endl;
+  finvert(m);
+  std::cout << m << std::endl;
+
   if (argc>1) {
     {
       edm::HRTimeType s= edm::hrRealTime();

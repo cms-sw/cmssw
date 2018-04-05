@@ -76,5 +76,5 @@ edm::ParameterSet ConfigurableTrimmedKalmanFinder::defaults() const
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfRecoBuilder.h"
 
 namespace {
-  ConfRecoBuilder < ConfigurableTrimmedKalmanFinder > t ( "tkf", "Trimmed Kalman Vertex Finder" );
+  const ConfRecoBuilder < ConfigurableTrimmedKalmanFinder > t ( "tkf", "Trimmed Kalman Vertex Finder" );
 }

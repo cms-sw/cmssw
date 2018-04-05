@@ -28,19 +28,19 @@ namespace pos{
     PixelCalibBase();
     virtual ~PixelCalibBase();
     virtual std::string mode() const {return mode_;}
-    virtual void writeXMLHeader(  pos::PixelConfigKey &key, 
+    virtual void writeXMLHeader(  pos::PixelConfigKey key, 
 				  int version, 
 				  std::string path, 
 				  std::ofstream *out,
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
+				  std::ofstream *out1 = nullptr,
+				  std::ofstream *out2 = nullptr
 				  ) const {;}
     virtual void writeXML( 	  std::ofstream *out,			     	   			    
-			   	  std::ofstream *out1 = NULL ,
-			   	  std::ofstream *out2 = NULL ) const {;}
+			   	  std::ofstream *out1 = nullptr ,
+			   	  std::ofstream *out2 = nullptr ) const {;}
     virtual void writeXMLTrailer( std::ofstream *out, 
-				  std::ofstream *out1 = NULL,
-				  std::ofstream *out2 = NULL
+				  std::ofstream *out1 = nullptr,
+				  std::ofstream *out2 = nullptr
 				  ) const {;}
 
   protected:

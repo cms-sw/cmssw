@@ -49,10 +49,10 @@
 class InterestingTrackEcalDetIdProducer : public edm::stream::EDProducer<> {
    public:
       explicit InterestingTrackEcalDetIdProducer(const edm::ParameterSet&);
-      ~InterestingTrackEcalDetIdProducer();
+      ~InterestingTrackEcalDetIdProducer() override;
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
       void beginRun(edm::Run const&, const edm::EventSetup&) override;
 
       
@@ -117,7 +117,7 @@ InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
 {
    using namespace edm;
 
-   std::auto_ptr< DetIdCollection > interestingDetIdCollection( new DetIdCollection() ) ;
+   auto interestingDetIdCollection = std::make_unique<DetIdCollection>();
 
    // Get tracks from event
    edm::Handle<reco::TrackCollection> tracks;
@@ -150,7 +150,7 @@ InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
 
    }
 
-   iEvent.put(interestingDetIdCollection);
+   iEvent.put(std::move(interestingDetIdCollection));
 
 }
 

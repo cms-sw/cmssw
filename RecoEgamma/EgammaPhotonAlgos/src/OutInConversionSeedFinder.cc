@@ -62,7 +62,7 @@ OutInConversionSeedFinder::~OutInConversionSeedFinder() {
 
 
 
-void OutInConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::CaloCluster> > &  allBC )  const  {
+void OutInConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::CaloCluster> > &  allBC ) {
 
   theSeeds_.clear();
   
@@ -163,7 +163,7 @@ void OutInConversionSeedFinder::makeSeeds( const edm::Handle<edm::View<reco::Cal
 
 
 
-void OutInConversionSeedFinder::makeSeeds( const reco::CaloClusterPtr&  aBC )  const  {
+void OutInConversionSeedFinder::makeSeeds( const reco::CaloClusterPtr&  aBC ) {
 
   theSeeds_.clear();
 
@@ -193,7 +193,7 @@ void OutInConversionSeedFinder::makeSeeds( const reco::CaloClusterPtr&  aBC )  c
  
 
 
-void OutInConversionSeedFinder::fillClusterSeeds(const reco::CaloClusterPtr& bc) const {
+void OutInConversionSeedFinder::fillClusterSeeds(const reco::CaloClusterPtr& bc) {
 
   
   theFirstMeasurements_.clear();
@@ -287,7 +287,7 @@ std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(i
 }
 
 
-void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const {
+void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) {
 
 
   //  std::cout << "OutInConversionSeedFinder::startSeed layer list " << this->layerList().size() <<  "\n";
@@ -365,7 +365,7 @@ MeasurementEstimator * OutInConversionSeedFinder::makeEstimator(const DetLayer *
  
   //std::cout  << "OutInConversionSeedFinder::makeEstimator  " << "\n";
 
-  MeasurementEstimator * newEstimator=0;
+  MeasurementEstimator * newEstimator=nullptr;
 
   if (layer->location() == GeomDetEnumerators::barrel ) {
     
@@ -400,12 +400,12 @@ MeasurementEstimator * OutInConversionSeedFinder::makeEstimator(const DetLayer *
 
 
 void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1, 
-					     FreeTrajectoryState & fts, 
-					     const Propagator* propagator, int ilayer) const {
+					     const FreeTrajectoryState & fts, 
+					     const Propagator* propagator, int ilayer) {
 
   //std::cout <<  "OutInConversionSeedFinder::completeSeed ilayer " << ilayer << "\n";
 
-  MeasurementEstimator * newEstimator=0;
+  MeasurementEstimator * newEstimator=nullptr;
   const DetLayer * layer = theLayerList_[ilayer];
   
 
@@ -455,7 +455,7 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
 
 
 void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1, 
-					   const TrajectoryMeasurement & m2) const {
+					   const TrajectoryMeasurement & m2) {
 
   //std::cout  << "OutInConversionSeedFinder::createSeed  from hit1 " << m1.recHit()->globalPosition() << " r1 " << m1.recHit()->globalPosition().perp() << " and hit2 " << m2.recHit()->globalPosition() << " r2 " << m2.recHit()->globalPosition().perp() << "\n";
   

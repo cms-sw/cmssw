@@ -21,7 +21,7 @@
 #include "FWCore/Utilities/interface/transform.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -39,21 +39,21 @@
 namespace pat {
 
   template< class PATObjectType >
-  class PATTriggerMatchEmbedder : public edm::EDProducer {
+  class PATTriggerMatchEmbedder : public edm::global::EDProducer<> {
 
-      edm::InputTag src_;
-      edm::EDGetTokenT< edm::View< PATObjectType > > srcToken_;
-      std::vector< edm::InputTag > matches_;
-      std::vector< edm::EDGetTokenT< TriggerObjectStandAloneMatch > > matchesTokens_;
+      const edm::InputTag src_;
+      const edm::EDGetTokenT< edm::View< PATObjectType > > srcToken_;
+      const std::vector< edm::InputTag > matches_;
+      const std::vector< edm::EDGetTokenT< TriggerObjectStandAloneMatch > > matchesTokens_;
 
     public:
 
       explicit PATTriggerMatchEmbedder( const edm::ParameterSet & iConfig );
-      ~PATTriggerMatchEmbedder() {};
+      ~PATTriggerMatchEmbedder() override {};
 
     private:
 
-      virtual void produce( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+    void produce( edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
 
   };
 
@@ -81,9 +81,9 @@ PATTriggerMatchEmbedder< PATObjectType >::PATTriggerMatchEmbedder( const edm::Pa
 }
 
 template< class PATObjectType >
-void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, const edm::EventSetup& iSetup)
+void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const
 {
-  std::auto_ptr< std::vector< PATObjectType > > output( new std::vector< PATObjectType >() );
+  auto output = std::make_unique<std::vector<PATObjectType>>();
 
   edm::Handle< edm::View< PATObjectType > > candidates;
   iEvent.getByToken( srcToken_, candidates );
@@ -113,7 +113,7 @@ void PATTriggerMatchEmbedder< PATObjectType >::produce( edm::Event & iEvent, con
     output->push_back( cand );
   }
 
-  iEvent.put( output );
+  iEvent.put(std::move(output) );
 }
 
 

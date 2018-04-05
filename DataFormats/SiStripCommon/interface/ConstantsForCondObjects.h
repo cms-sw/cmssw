@@ -1,6 +1,7 @@
 #ifndef DataFormats_SiStripCommon_ConstantsForCondObjects_H
 #define DataFormats_SiStripCommon_ConstantsForCondObjects_H
 
+#include <cstdint>
 
 namespace sistrip {
   static const uint32_t FirstBadStripMask_  = 0x3FF;

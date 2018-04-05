@@ -91,6 +91,7 @@ private:
   std::map<Trans,std::function<void(edm::Worker*)>> m_transToFunc;
   
   edm::ProcessConfiguration m_procConfig;
+  edm::PreallocationConfiguration m_preallocConfig;
   std::shared_ptr<edm::ProductRegistry> m_prodReg;
   std::shared_ptr<edm::BranchIDListHelper> m_idHelper;
   std::shared_ptr<edm::ThinnedAssociationsHelper> m_associationsHelper;
@@ -98,7 +99,7 @@ private:
   edm::HistoryAppender historyAppender_;
   std::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
   std::shared_ptr<edm::RunPrincipal> m_rp;
-  std::shared_ptr<edm::ActivityRegistry> m_actReg;
+  std::shared_ptr<edm::ActivityRegistry> m_actReg; // We do not use propagate_const because the registry itself is mutable.
   edm::EventSetup* m_es = nullptr;
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
   
@@ -343,6 +344,7 @@ static const edm::StreamID s_streamID0 = makeID();
 CPPUNIT_TEST_SUITE_REGISTRATION(testGlobalModule);
 
 testGlobalModule::testGlobalModule():
+m_preallocConfig{},
 m_prodReg(new edm::ProductRegistry{}),
 m_idHelper(new edm::BranchIDListHelper{}),
 m_associationsHelper(new edm::ThinnedAssociationsHelper{}),
@@ -358,7 +360,8 @@ m_ep()
   auto runAux = std::make_shared<edm::RunAuxiliary>(eventID.run(), now, now);
   m_rp.reset(new edm::RunPrincipal(runAux, m_prodReg, m_procConfig, &historyAppender_,0));
   auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(m_rp->run(), 1, now, now);
-  m_lbp.reset(new edm::LuminosityBlockPrincipal(lumiAux, m_prodReg, m_procConfig, &historyAppender_,0));
+  m_lbp.reset(new edm::LuminosityBlockPrincipal(m_prodReg, m_procConfig, &historyAppender_,0));
+  m_lbp->setAux(*lumiAux);
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
@@ -368,12 +371,12 @@ m_ep()
                                      m_procConfig,nullptr));
   edm::ProcessHistoryRegistry phr;
   m_ep->fillEventPrincipal(eventAux, phr);
-  m_ep->setLuminosityBlockPrincipal(m_lbp);
+  m_ep->setLuminosityBlockPrincipal(m_lbp.get());
   m_actReg.reset(new edm::ActivityRegistry);
 
 
   //For each transition, bind a lambda which will call the proper method of the Worker
-  m_transToFunc[Trans::kBeginStream] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kBeginStream] = [](edm::Worker* iBase) {
     edm::StreamContext streamContext(s_streamID0, nullptr);
     iBase->beginStream(s_streamID0, streamContext); };
 
@@ -421,7 +424,7 @@ m_ep()
     edm::ParentContext nullParentContext;
     iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, nullParentContext, nullptr); };
 
-  m_transToFunc[Trans::kEndStream] = [this](edm::Worker* iBase) {
+  m_transToFunc[Trans::kEndStream] = [](edm::Worker* iBase) {
     edm::StreamContext streamContext(s_streamID0, nullptr);
     iBase->endStream(s_streamID0, streamContext); };
 
@@ -447,6 +450,9 @@ namespace {
 template<typename T>
 void
 testGlobalModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
+  edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(iMod,nullptr);
+  h.preallocate(edm::PreallocationConfiguration{});
+
   edm::WorkerT<edm::global::EDProducerBase> w{iMod,m_desc,nullptr};
   for(auto& keyVal: m_transToFunc) {
     testTransition(iMod,&w,keyVal.first,iExpect,keyVal.second);
@@ -456,7 +462,7 @@ testGlobalModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& i
 
 void testGlobalModule::basicTest()
 {
-  std::shared_ptr<BasicProd> testProd{ new BasicProd };
+  auto testProd = std::make_shared<BasicProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kEvent});
@@ -464,9 +470,7 @@ void testGlobalModule::basicTest()
 
 void testGlobalModule::streamTest()
 {
-  std::shared_ptr<StreamProd> testProd{ new StreamProd };
-  edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(testProd,nullptr);
-  h.preallocate(edm::PreallocationConfiguration{});
+  auto testProd = std::make_shared<StreamProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kBeginStream, Trans::kStreamBeginRun, Trans::kStreamBeginLuminosityBlock, Trans::kEvent,
@@ -475,7 +479,7 @@ void testGlobalModule::streamTest()
 
 void testGlobalModule::runTest()
 {
-  std::shared_ptr<RunProd> testProd{ new RunProd };
+  auto testProd = std::make_shared<RunProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndRun});
@@ -483,7 +487,7 @@ void testGlobalModule::runTest()
 
 void testGlobalModule::runSummaryTest()
 {
-  std::shared_ptr<RunSummaryProd> testProd{ new RunSummaryProd };
+  auto testProd = std::make_shared<RunSummaryProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kStreamEndRun, Trans::kGlobalEndRun});
@@ -491,15 +495,15 @@ void testGlobalModule::runSummaryTest()
 
 void testGlobalModule::lumiTest()
 {
-  std::shared_ptr<LumiProd> testProd{ new LumiProd };
-  
+  auto testProd = std::make_shared<LumiProd>();
+
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock});
 }
 
 void testGlobalModule::lumiSummaryTest()
 {
-  std::shared_ptr<LumiSummaryProd> testProd{ new LumiSummaryProd };
+  auto testProd = std::make_shared<LumiSummaryProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kStreamEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock});
@@ -507,7 +511,7 @@ void testGlobalModule::lumiSummaryTest()
 
 void testGlobalModule::beginRunProdTest()
 {
-  std::shared_ptr<BeginRunProd> testProd{ new BeginRunProd };
+  auto testProd = std::make_shared<BeginRunProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent});
@@ -515,7 +519,7 @@ void testGlobalModule::beginRunProdTest()
 
 void testGlobalModule::beginLumiProdTest()
 {
-  std::shared_ptr<BeginLumiProd> testProd{ new BeginLumiProd };
+  auto testProd = std::make_shared<BeginLumiProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent});
@@ -523,7 +527,7 @@ void testGlobalModule::beginLumiProdTest()
 
 void testGlobalModule::endRunProdTest()
 {
-  std::shared_ptr<EndRunProd> testProd{ new EndRunProd };
+  auto testProd = std::make_shared<EndRunProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalEndRun, Trans::kEvent});
@@ -531,7 +535,7 @@ void testGlobalModule::endRunProdTest()
 
 void testGlobalModule::endLumiProdTest()
 {
-  std::shared_ptr<EndLumiProd> testProd{ new EndLumiProd };
+  auto testProd = std::make_shared<EndLumiProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalEndLuminosityBlock, Trans::kEvent});
@@ -539,7 +543,7 @@ void testGlobalModule::endLumiProdTest()
 
 void testGlobalModule::endRunSummaryProdTest()
 {
-  std::shared_ptr<EndRunSummaryProd> testProd{ new EndRunSummaryProd };
+  auto testProd = std::make_shared<EndRunSummaryProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalEndRun, Trans::kEvent, Trans::kGlobalBeginRun, Trans::kStreamEndRun, Trans::kGlobalEndRun});
@@ -547,7 +551,7 @@ void testGlobalModule::endRunSummaryProdTest()
 
 void testGlobalModule::endLumiSummaryProdTest()
 {
-  std::shared_ptr<EndLumiSummaryProd> testProd{ new EndLumiSummaryProd };
+  auto testProd = std::make_shared<EndLumiSummaryProd>();
   
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalEndLuminosityBlock, Trans::kEvent, Trans::kGlobalBeginLuminosityBlock, Trans::kStreamEndLuminosityBlock, Trans::kGlobalEndLuminosityBlock}); 

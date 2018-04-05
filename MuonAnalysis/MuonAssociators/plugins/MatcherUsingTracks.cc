@@ -31,9 +31,9 @@ namespace pat {
   class MatcherUsingTracks : public edm::EDProducer {
     public:
       explicit MatcherUsingTracks(const edm::ParameterSet & iConfig);
-      virtual ~MatcherUsingTracks() { }
+      ~MatcherUsingTracks() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
       /// Labels for input collections
@@ -129,7 +129,7 @@ pat::MatcherUsingTracks::produce(edm::Event & iEvent, const edm::EventSetup & iS
     storeValueMap<reco::CandidatePtr>(iEvent, src, ptrs, "");
 
     if (writeExtraPATOutput_) {
-        std::auto_ptr<edm::OwnVector<pat::UserData> > outUDVect(new edm::OwnVector<pat::UserData>());
+        auto outUDVect = std::make_unique<edm::OwnVector<pat::UserData> >();
         std::vector<int>                              idxUD(nsrc, -1);
         for (isrc = 0; isrc < nsrc; ++isrc) {
             if (match[isrc] != -1) {
@@ -137,7 +137,7 @@ pat::MatcherUsingTracks::produce(edm::Event & iEvent, const edm::EventSetup & iS
                 idxUD[isrc] = outUDVect->size() - 1;
             }
         }
-        edm::OrphanHandle<edm::OwnVector<pat::UserData> > doneUDVect = iEvent.put(outUDVect);
+        edm::OrphanHandle<edm::OwnVector<pat::UserData> > doneUDVect = iEvent.put(std::move(outUDVect));
         std::vector<edm::Ptr<pat::UserData> > ptrUD(nsrc);
         for (isrc = 0; isrc < nsrc; ++isrc) {
             if (idxUD[isrc] != -1) ptrUD[isrc] = edm::Ptr<pat::UserData>(doneUDVect, idxUD[isrc]);
@@ -170,11 +170,11 @@ pat::MatcherUsingTracks::storeValueMap(edm::Event &iEvent,
                      const std::vector<T> & values,
                      const std::string    & label) const {
     using namespace edm; using namespace std;
-    auto_ptr<ValueMap<T> > valMap(new ValueMap<T>());
+    unique_ptr<ValueMap<T> > valMap(new ValueMap<T>());
     typename edm::ValueMap<T>::Filler filler(*valMap);
     filler.insert(handle, values.begin(), values.end());
     filler.fill();
-    iEvent.put(valMap, label);
+    iEvent.put(std::move(valMap), label);
 }
 
 

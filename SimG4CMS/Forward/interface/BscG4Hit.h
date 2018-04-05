@@ -22,13 +22,13 @@ class BscG4Hit : public G4VHit {
 public:
   
   BscG4Hit();
-  ~BscG4Hit();
+  ~BscG4Hit() override;
   BscG4Hit(const BscG4Hit &right);
   const BscG4Hit& operator=(const BscG4Hit &right);
   int operator==(const BscG4Hit &){return 0;}
   
-  void         Draw(){}
-  void         Print();
+  void         Draw() override{}
+  void         Print() override;
   
 public:
   

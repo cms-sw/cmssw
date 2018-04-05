@@ -47,7 +47,7 @@ IsolationProducerForTracks::IsolationProducerForTracks(const ParameterSet & pset
  }
 
 void IsolationProducerForTracks::produce(Event & event, const EventSetup & setup) {
-  std::auto_ptr<TkIsoMap> caloIsolations(new TkIsoMap);
+  auto caloIsolations = std::make_unique<TkIsoMap>();
   TkIsoMap::Filler filler(*caloIsolations);
   {
     Handle<CandidateView> tracks;
@@ -86,7 +86,7 @@ void IsolationProducerForTracks::produce(Event & event, const EventSetup & setup
 
   // really fill the association map
   filler.fill();
-  event.put(caloIsolations);
+  event.put(std::move(caloIsolations));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

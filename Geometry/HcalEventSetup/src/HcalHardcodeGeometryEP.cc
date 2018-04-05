@@ -19,10 +19,12 @@
 #include "Geometry/HcalEventSetup/interface/HcalHardcodeGeometryEP.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/Records/interface/HcalGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalFlexiHardcodeGeometryLoader.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -41,7 +43,7 @@ class HcalTopology;
 //
 
 HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& ps ) : ps0(ps) {
-  
+  useOld_ = ps.getParameter<bool>("UseOldLoader");
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced( this,
@@ -56,37 +58,34 @@ HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& ps ) : 
 }
 
 
-HcalHardcodeGeometryEP::~HcalHardcodeGeometryEP()
-{ 
-}
+HcalHardcodeGeometryEP::~HcalHardcodeGeometryEP() { }
 
 
 //
 // member functions
 //
 
-// ------------ method called to produce the data  ------------
-
-void
-HcalHardcodeGeometryEP::idealRecordCallBack( const IdealGeometryRecord& iRecord )
-{
-}
 
 HcalHardcodeGeometryEP::ReturnType
-HcalHardcodeGeometryEP::produceIdeal( const IdealGeometryRecord& iRecord )
-{
+HcalHardcodeGeometryEP::produceIdeal( const HcalRecNumberingRecord& iRecord ) {
 
    edm::LogInfo("HCAL") << "Using default HCAL topology" ;
+   edm::ESHandle<HcalDDDRecConstants> hcons;
+   iRecord.get( hcons ) ;
    edm::ESHandle<HcalTopology> topology ;
    iRecord.get( topology ) ;
-   HcalFlexiHardcodeGeometryLoader loader(ps0);
-   return ReturnType (loader.load (*topology));
+   if (useOld_) {
+     HcalHardcodeGeometryLoader loader(ps0);
+     return ReturnType (loader.load (*topology));
+   } else {
+      HcalFlexiHardcodeGeometryLoader loader(ps0);
+     return ReturnType (loader.load (*topology, *hcons));
+   }
 }
 
 HcalHardcodeGeometryEP::ReturnType
-HcalHardcodeGeometryEP::produceAligned( const HcalGeometryRecord& iRecord )
-{
-  const IdealGeometryRecord& idealRecord = iRecord.getRecord<IdealGeometryRecord>();
+HcalHardcodeGeometryEP::produceAligned( const HcalGeometryRecord& iRecord ) {
+  const HcalRecNumberingRecord& idealRecord = iRecord.getRecord<HcalRecNumberingRecord>();
   return produceIdeal (idealRecord);
 }
 

@@ -14,6 +14,7 @@ CastorBaseMonitor::CastorBaseMonitor() {
   fVerbosity = 0;
   rootFolder_ = "Castor";
   baseFolder_ = "BaseMonitor";
+  showTiming = false;
 }
 
 //======================= Destructor ===============================//

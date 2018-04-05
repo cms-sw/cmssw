@@ -151,7 +151,7 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 
 	      if(tauTracks.size() == 1 || tauTracks.size() == 3){
 		const reco::TauImpactParameterTrackData* trackData = iJet->getTrackData(leadingTrack);
-		if(! trackData == 0){
+		if( trackData != nullptr) {
 		    Measurement1D tip = trackData->transverseIp;
 		    Measurement1D tzip = trackData->ip3D;
 

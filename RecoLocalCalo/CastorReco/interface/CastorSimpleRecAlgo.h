@@ -46,7 +46,7 @@ public:
 private:
   int firstSample_, samplesToAdd_;
   bool correctForTimeslew_;
-  std::auto_ptr<CastorPulseContainmentCorrection> pulseCorr_;
+  std::unique_ptr<CastorPulseContainmentCorrection> pulseCorr_;
 };
 
 #endif

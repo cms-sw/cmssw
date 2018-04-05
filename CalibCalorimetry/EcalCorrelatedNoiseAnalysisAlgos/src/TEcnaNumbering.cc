@@ -49,7 +49,7 @@ TEcnaNumbering::TEcnaNumbering(TEcnaObject* pObjectManager, const TString& SubDe
   pObjectManager->RegisterPointer("TEcnaNumbering", i_this);
 
   //............................ fEcal  => to be changed in fParEcal
-  fEcal = 0;
+  fEcal = nullptr;
   Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
     {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -76,31 +76,31 @@ TEcnaNumbering::~TEcnaNumbering() {
   //if (fEcal   != 0){delete fEcal;   fCdelete++;}
 
   //....................... Barrel
-  if (fT2dSMCrys  != 0){delete [] fT2dSMCrys;  fCdelete++;}
-  if (fT1dSMCrys  != 0){delete [] fT1dSMCrys;  fCdelete++;}
-  if (fT1dSMTow   != 0){delete [] fT1dSMTow;   fCdelete++;}
-  if (fT1dTowEcha != 0){delete [] fT1dTowEcha; fCdelete++;}
+  if (fT2dSMCrys  != nullptr){delete [] fT2dSMCrys;  fCdelete++;}
+  if (fT1dSMCrys  != nullptr){delete [] fT1dSMCrys;  fCdelete++;}
+  if (fT1dSMTow   != nullptr){delete [] fT1dSMTow;   fCdelete++;}
+  if (fT1dTowEcha != nullptr){delete [] fT1dTowEcha; fCdelete++;}
 
   //....................... Endcap
-  if (fT3dDeeCrys     != 0){delete [] fT3dDeeCrys;     fCdelete++;}
-  if (fT2dDeeCrys     != 0){delete [] fT2dDeeCrys;     fCdelete++;}
-  if (fT1dDeeCrys     != 0){delete [] fT1dDeeCrys;     fCdelete++;}
-  if (fT2dDeeSC       != 0){delete [] fT2dDeeSC;       fCdelete++;}
-  if (fT1dDeeSC       != 0){delete [] fT1dDeeSC;       fCdelete++;}
-  if (fT2dSCEcha      != 0){delete [] fT2dSCEcha;      fCdelete++;}
-  if (fT1dSCEcha      != 0){delete [] fT1dSCEcha;      fCdelete++;}
-  if (fT2d_jch_JY     != 0){delete [] fT2d_jch_JY;     fCdelete++;}
-  if (fT1d_jch_JY     != 0){delete [] fT1d_jch_JY;     fCdelete++;}
-  if (fT2d_ich_IX     != 0){delete [] fT2d_ich_IX;     fCdelete++;}
-  if (fT1d_ich_IX     != 0){delete [] fT1d_ich_IX;     fCdelete++;}
-  if (fT2d_DS         != 0){delete [] fT2d_DS;         fCdelete++;}
-  if (fT1d_DS         != 0){delete [] fT1d_DS;         fCdelete++;}
-  if (fT2d_DSSC       != 0){delete [] fT2d_DSSC;       fCdelete++;}
-  if (fT1d_DSSC       != 0){delete [] fT1d_DSSC;       fCdelete++;}
-  if (fT2d_DeeSCCons  != 0){delete [] fT2d_DeeSCCons;  fCdelete++;}
-  if (fT1d_DeeSCCons  != 0){delete [] fT1d_DeeSCCons;  fCdelete++;}
-  if (fT2d_RecovDeeSC != 0){delete [] fT2d_RecovDeeSC; fCdelete++;}
-  if (fT1d_RecovDeeSC != 0){delete [] fT1d_RecovDeeSC; fCdelete++;}
+  if (fT3dDeeCrys     != nullptr){delete [] fT3dDeeCrys;     fCdelete++;}
+  if (fT2dDeeCrys     != nullptr){delete [] fT2dDeeCrys;     fCdelete++;}
+  if (fT1dDeeCrys     != nullptr){delete [] fT1dDeeCrys;     fCdelete++;}
+  if (fT2dDeeSC       != nullptr){delete [] fT2dDeeSC;       fCdelete++;}
+  if (fT1dDeeSC       != nullptr){delete [] fT1dDeeSC;       fCdelete++;}
+  if (fT2dSCEcha      != nullptr){delete [] fT2dSCEcha;      fCdelete++;}
+  if (fT1dSCEcha      != nullptr){delete [] fT1dSCEcha;      fCdelete++;}
+  if (fT2d_jch_JY     != nullptr){delete [] fT2d_jch_JY;     fCdelete++;}
+  if (fT1d_jch_JY     != nullptr){delete [] fT1d_jch_JY;     fCdelete++;}
+  if (fT2d_ich_IX     != nullptr){delete [] fT2d_ich_IX;     fCdelete++;}
+  if (fT1d_ich_IX     != nullptr){delete [] fT1d_ich_IX;     fCdelete++;}
+  if (fT2d_DS         != nullptr){delete [] fT2d_DS;         fCdelete++;}
+  if (fT1d_DS         != nullptr){delete [] fT1d_DS;         fCdelete++;}
+  if (fT2d_DSSC       != nullptr){delete [] fT2d_DSSC;       fCdelete++;}
+  if (fT1d_DSSC       != nullptr){delete [] fT1d_DSSC;       fCdelete++;}
+  if (fT2d_DeeSCCons  != nullptr){delete [] fT2d_DeeSCCons;  fCdelete++;}
+  if (fT1d_DeeSCCons  != nullptr){delete [] fT1d_DeeSCCons;  fCdelete++;}
+  if (fT2d_RecovDeeSC != nullptr){delete [] fT2d_RecovDeeSC; fCdelete++;}
+  if (fT1d_RecovDeeSC != nullptr){delete [] fT1d_RecovDeeSC; fCdelete++;}
 
  // std::cout << "[Info Management] CLASS: TEcnaNumbering.    DESTROY OBJECT: this = " << this << std::endl;
 
@@ -115,48 +115,48 @@ void TEcnaNumbering::Init()
   fgMaxCar = (Int_t)512;
 
   //....................... Barrel
-  fT2dSMCrys  = 0;
-  fT1dSMCrys  = 0;
-  fT1dSMTow   = 0;
-  fT1dTowEcha = 0;
+  fT2dSMCrys  = nullptr;
+  fT1dSMCrys  = nullptr;
+  fT1dSMTow   = nullptr;
+  fT1dTowEcha = nullptr;
 
   fCodeChNumberingLvrbBot = "bottom";
   fCodeChNumberingLvrbTop = "top";
 
   //....................... Endcap
-  fT3dDeeCrys     = 0;
-  fT2dDeeCrys     = 0;
-  fT1dDeeCrys     = 0;
-  fT2dDeeSC       = 0;
-  fT1dDeeSC       = 0;
-  fT2dSCEcha      = 0;
-  fT1dSCEcha      = 0;
-  fT2d_jch_JY     = 0;
-  fT1d_jch_JY     = 0;
-  fT2d_ich_IX     = 0;
-  fT1d_ich_IX     = 0;
-  fT2d_DS         = 0;
-  fT1d_DS         = 0;
-  fT2d_DSSC       = 0;
-  fT1d_DSSC       = 0;
-  fT2d_DeeSCCons  = 0;
-  fT1d_DeeSCCons  = 0;
-  fT2d_RecovDeeSC = 0;
-  fT1d_RecovDeeSC = 0;
+  fT3dDeeCrys     = nullptr;
+  fT2dDeeCrys     = nullptr;
+  fT1dDeeCrys     = nullptr;
+  fT2dDeeSC       = nullptr;
+  fT1dDeeSC       = nullptr;
+  fT2dSCEcha      = nullptr;
+  fT1dSCEcha      = nullptr;
+  fT2d_jch_JY     = nullptr;
+  fT1d_jch_JY     = nullptr;
+  fT2d_ich_IX     = nullptr;
+  fT1d_ich_IX     = nullptr;
+  fT2d_DS         = nullptr;
+  fT1d_DS         = nullptr;
+  fT2d_DSSC       = nullptr;
+  fT1d_DSSC       = nullptr;
+  fT2d_DeeSCCons  = nullptr;
+  fT1d_DeeSCCons  = nullptr;
+  fT2d_RecovDeeSC = nullptr;
+  fT1d_RecovDeeSC = nullptr;
 
   fCodeChNumberingITP1Bot = "bottom";   // ==> Type 1 Interface plate  IPT1 (a faire)
   fCodeChNumberingITP2Top = "top";      // ==> Type 2 Interface plate  IPT2 (a faire)
 
   //------------------ Init pointers on the CNA objects
-  fEcal = 0;
+  fEcal = nullptr;
 }
 // end of Init()
 //------------------------------------------------------------- SetEcalSubDetector(...)
 void TEcnaNumbering::SetEcalSubDetector(const TString& SubDet, const TEcnaParEcal* pEcal){
 //Set the current subdetector flag and the current subdetector parameters
 
-  fEcal = 0;
-  if( pEcal == 0 )
+  fEcal = nullptr;
+  if( pEcal == nullptr )
     {fEcal = new TEcnaParEcal(SubDet.Data());  /*fCnew++*/ ;}
   else
     {fEcal = (TEcnaParEcal*)pEcal;}
@@ -212,7 +212,7 @@ void TEcnaNumbering::BuildBarrelCrysTable()
 //
 //-----------------------------------------------------------------------------------------------------
 
-  if ( fT2dSMCrys == 0 )
+  if ( fT2dSMCrys == nullptr )
     {
       Int_t MaxSMTow   = fEcal->MaxTowInSM();
       Int_t MaxTowEcha = fEcal->MaxCrysInTow();
@@ -349,7 +349,7 @@ Int_t TEcnaNumbering::Get1SMCrysFrom1SMTowAnd0TowEcha(const Int_t& n1SMTow,
 
   Int_t n1SMCrys = 0;
 
-  if( fT2dSMCrys == 0 ){BuildBarrelCrysTable();}
+  if( fT2dSMCrys == nullptr ){BuildBarrelCrysTable();}
   
   if (n1SMTow >= 1 && n1SMTow <= fEcal->MaxTowInSM())
     {
@@ -987,7 +987,7 @@ void TEcnaNumbering::BuildEndcapCrysTable()
 //
 //------------------------------------------------------------------------------------------------------
 
-  if ( fT3dDeeCrys == 0 )
+  if ( fT3dDeeCrys == nullptr )
     {
       Int_t MaxDeeSC   = fEcal->MaxSCEcnaInDee();    // fEcal->MaxSCEcnaInDee() = 200
       Int_t MaxSCEcha  = fEcal->MaxCrysInSC();
@@ -1798,7 +1798,7 @@ Int_t TEcnaNumbering::Get1DeeCrysFrom1DeeSCEcnaAnd0SCEcha(const Int_t&  n1DeeSCE
   Int_t n1DeeCrys = 0;
   Int_t i0DeeDir = GetDeeDirIndex(sDeeDir);
 
-  if( fT3dDeeCrys == 0 ){BuildEndcapCrysTable();}
+  if( fT3dDeeCrys == nullptr ){BuildEndcapCrysTable();}
 
   if( (n1DeeSCEcna >= 1) && (n1DeeSCEcna <= fEcal->MaxSCEcnaInDee()) )
     {

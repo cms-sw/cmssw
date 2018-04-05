@@ -15,6 +15,8 @@ if(&GetOptions(
 	       "--product=s",\$product,
 	       "--dependency=s",\$dependency,
 	       "--detail",\$detail,
+	       "--ignore-test",\$ignore_test,
+	       "--source-only",\$source_only,
 	       "--dump",\$dump,
 	       "--help",\$help,
               ) eq ""){print STDERR "#Wrong arguments.\n"; &usage_msg();}
@@ -28,6 +30,9 @@ else{$detail=0;}
 if (defined $dump){$dump=1;}
 else{$dump=0;}
 
+if (defined $ignore_test){$ignore_test='[^\/]+\/[^\/]+\/test\/';}
+else{$ignore_test='';}
+
 if (!defined $release){$release=$pwd;}
 $release=&SCRAMGenUtils::scramReleaseTop($release);
 if($release eq ""){print STDERR "ERROR: Please run this script from a SCRAM-based area or use --release <path> option.\n"; exit 1;}
@@ -35,7 +40,7 @@ if($release eq ""){print STDERR "ERROR: Please run this script from a SCRAM-base
 &SCRAMGenUtils::init ($release);
 my $arch=&SCRAMGenUtils::getScramArch();
 
-my $cache={};
+my $cache={}; my $cache_config={};
 $cache=&initCache($release,$arch);
 
 if ($dependency eq "")
@@ -50,7 +55,8 @@ if ($dependency eq "")
     }
   }
   if (!-f $ruleFile){die "ERROR: Can not find Project dependency rules file: $ruleFile\n";}
-  $cache->{RULES}=&readRules($ruleFile);
+  ($cache->{RULES},$cache_config)=&readRules($ruleFile);
+  if ((!defined $package) && (exists $cache_config->{packages})){$package=join(",",%{$cache_config->{packages}});}
 }
 else
 {
@@ -69,14 +75,24 @@ else
 my %packs=();
 if (defined $product)
 {
-  if (exists $cache->{DEPS}{$product}){$packs{$cache->{DEPS}{$product}{PACK}}{$product}=1;}
+  foreach my $prod (split(/,/,$product))
+  {
+    $prod=~s/\s+//g;
+    if ($prod eq ""){next;}
+    if (exists $cache->{DEPS}{$prod}){$packs{$cache->{DEPS}{$prod}{PACK}}{$prod}=1;}
+  }
 }
 if (defined $package)
 {
-  foreach my $p (keys %{$cache->{DEPS}})
+  foreach my $pack (split(/,/,$package))
   {
-    my $pk = $cache->{DEPS}{$p}{PACK};
-    if ($pk=~/^$package(\/.+|)$/){$packs{$pk}{$p}=1;}
+    $pack=~s/\s+//g;
+    if ($pack eq ""){next;}
+    foreach my $p (keys %{$cache->{DEPS}})
+    {
+      my $pk = $cache->{DEPS}{$p}{PACK};
+      if ($pk=~/^$pack(\/.+|)$/){$packs{$pk}{$p}=1;}
+    }
   }
 }
 if ((!defined $product) && (!defined $package))
@@ -232,7 +248,7 @@ sub applyFilter()
 sub readRules ()
 {
   my ($file)=@_;
-  my $cache={};
+  my $cache={}; my $config={};
   foreach my $t ("pos","nag")
   {
     foreach my $x ("allowed","not-allowed")
@@ -250,11 +266,18 @@ sub readRules ()
     if ($l=~/^\s*\[\s*([^\s\]]+)\s*]\s*/o)
     {
       $sec=lc($1);
-      if (!exists $cache->{pos}{$sec}){$cache->{pos}{$sec}=[];$cache->{nag}{$sec}=[];}
+      if (($sec ne "config") && (!exists $cache->{pos}{$sec})){$cache->{pos}{$sec}=[];$cache->{nag}{$sec}=[];}
     }
     elsif ($sec ne "")
     {
       my ($pks,$deps)=split(":",$l,2);
+      if ($sec eq "config")
+      {
+        $pks=~s/\s+//g; $deps=~s/\s+//g;
+	if (!exists $config->{$pks}){$config->{$pks}={};}
+	foreach my $p (split(/,/,$deps)){$config->{$pks}{$p}=1;}
+	next;
+      }
       my $type="pos";
       $pks=~s/^\s*//o; $pks=~s/\s*$//o;
       if ($pks=~/^!(.+)/o){$pks=$1; $type="nag";}
@@ -266,16 +289,15 @@ sub readRules ()
     }
   }
   close($ref);
-  return $cache;
+  return ($cache, $config);
 }
 
 ##########################################################################
 # Read Tools and Project cache of all externals and SCRAM-based projects #
 ##########################################################################
-sub initCache()
+sub readBuildFileCache()
 {
-  my ($release,$arch)=@_;
-  my $cache={};
+  my ($release,$arch,$cache)=@_;
   $cache->{Caches}{TOOLS}=&SCRAMGenUtils::readCache("${release}/.SCRAM/${arch}/ToolCache.db.gz");
   foreach my $t (keys %{$cache->{Caches}{TOOLS}{SETUP}})
   {
@@ -289,14 +311,22 @@ sub initCache()
     if ($sbase ne "")
     {
       $cache->{Caches}{$t}=&SCRAMGenUtils::readCache("${sbase}/.SCRAM/${arch}/ProjectCache.db.gz");
-      foreach my $d (keys %{$cache->{Caches}{$t}{BUILDTREE}}){&readPkgInfo($d,$t,$cache);}
+      foreach my $d (keys %{$cache->{Caches}{$t}{BUILDTREE}})
+      {
+        if ($ignore_test && ($cache->{Caches}{$t}{BUILDTREE}{$d}{CLASS} eq "TEST")){next;}
+        &readPkgInfo($d,$t,$cache);
+      }
       if ($t eq "self")
       {
         my $releaseTop=&SCRAMGenUtils::getFromEnvironmentFile("RELEASETOP",$release);
 	if ($releaseTop ne "")
 	{
 	  $cache->{Caches}{$t}=&SCRAMGenUtils::readCache("${releaseTop}/.SCRAM/${arch}/ProjectCache.db.gz");
-	  foreach my $d (keys %{$cache->{Caches}{$t}{BUILDTREE}}){&readPkgInfo($d,$t,$cache);}
+	  foreach my $d (keys %{$cache->{Caches}{$t}{BUILDTREE}})
+	  {
+	    if ($ignore_test && ($cache->{Caches}{$t}{BUILDTREE}{$d}{CLASS} eq "TEST")){next;}
+            &readPkgInfo($d,$t,$cache);
+	  }
 	}
       }
       delete $cache->{Caches}{$t};
@@ -304,6 +334,13 @@ sub initCache()
     else{&readToolsInfo(lc($t),$cache);}
   }
   delete $cache->{Caches};
+}
+
+sub initCache()
+{
+  my ($release,$arch)=@_;
+  my $cache={};
+  if (!defined $source_only){&readBuildFileCache($release,$arch,$cache);}
   &updateSourceDeps($cache);
   foreach my $p (keys %{$cache->{PRODS}}){&allDeps($p,$cache);}
   foreach my $k (keys %$cache){if ($k!~/^(DEPS|TOOLS|PACKS)$/){delete $cache->{$k};}}
@@ -448,10 +485,12 @@ sub initProd ()
 sub readCompilerDeps()
 {
   my ($cache,$path,$rbase)=@_;
+  if (!-d "${path}/tmp/$ENV{SCRAM_ARCH}/src"){return;}
   my $ref;
   foreach my $file (`find ${path}/tmp/$ENV{SCRAM_ARCH}/src -name '*.dep' -type f`)
   {
     chomp $file;
+    if ($ignore_test && $file=~/\/src\/$ignore_test/){next;}
     my $srcpack=""; my $prod="";
     open($ref,$file) || die "Can not open file for reading: $file\n";
     while(my $line=<$ref>)
@@ -491,6 +530,7 @@ sub readUses()
       my ($src,$line)=split(' ',$line,2);
       if ($src ne "")
       {
+        if ($ignore_test && $src=~/^$ignore_test/){next;}
         if (exists $cache->{FILES}{$src}){next;}
         my $pack=$src;
         $pack=~s/([^\/]+\/[^\/]+)\/.+/$1/;

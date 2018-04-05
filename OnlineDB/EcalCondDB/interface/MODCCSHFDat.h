@@ -7,7 +7,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <cstring>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -21,10 +21,10 @@ class MODCCSHFDat : public IDataItem {
   typedef oracle::occi::Clob Clob;
   friend class EcalCondDBInterface;
   MODCCSHFDat();
-  ~MODCCSHFDat();
+  ~MODCCSHFDat() override;
 
   // User data methods
-  inline std::string getTable() { return "OD_CCS_HF_DAT"; }
+  inline std::string getTable() override { return "OD_CCS_HF_DAT"; }
 
   inline void setClob(unsigned char* x) { m_clob = x; }
   inline unsigned char* getClob() const { return m_clob; }
@@ -40,16 +40,16 @@ class MODCCSHFDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MODCCSHFDat* item, MODRunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::map< EcalLogicID, MODCCSHFDat >* data, MODRunIOV* iov)
-  throw(std::runtime_error);
+  noexcept(false);
 
   void fetchData(std::map< EcalLogicID, MODCCSHFDat >* fillMap, MODRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   unsigned char* m_clob;
@@ -57,9 +57,9 @@ class MODCCSHFDat : public IDataItem {
   std::string m_file;
   int testing;
   unsigned char* readClob (Clob &clob, int size)
-    throw (std::runtime_error);
+    noexcept(false);
   void populateClob (Clob &clob, std::string fname, unsigned int clob_size)
-    throw (std::runtime_error);
+    noexcept(false);
 
 
 

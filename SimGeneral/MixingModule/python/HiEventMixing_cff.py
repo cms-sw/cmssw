@@ -19,7 +19,7 @@ mixGen = cms.EDProducer("MixingModule",
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
 
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.0)
         ),
@@ -30,7 +30,7 @@ mixGen = cms.EDProducer("MixingModule",
 
     mixObjects = cms.PSet(
         mixHepMC = cms.PSet(
-            input = cms.VInputTag(cms.InputTag("generator")),
+            input = cms.VInputTag(cms.InputTag("generatorSmeared","",cms.InputTag.skipCurrentProcess()),cms.InputTag("generator","unsmeared"),cms.InputTag("generator","",cms.InputTag.skipCurrentProcess())),
             makeCrossingFrame = cms.untracked.bool(True),
             type = cms.string('HepMCProduct')
             )
@@ -54,7 +54,7 @@ mix = cms.EDProducer("MixingModule",
     playback = cms.untracked.bool(True),
     useCurrentProcessOnly = cms.bool(False),
 
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.0)
         ),

@@ -28,16 +28,16 @@ class dso_internal GroupedCkfTrajectoryBuilder final : public BaseCkfTrajectoryB
   GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
 
   /// destructor
-  virtual ~GroupedCkfTrajectoryBuilder(){}
+  ~GroupedCkfTrajectoryBuilder() override{}
 
   /// set Event for the internal MeasurementTracker data member
   //  virtual void setEvent(const edm::Event& event) const;
 
   /// trajectories building starting from a seed
-  TrajectoryContainer trajectories(const TrajectorySeed&) const;
+  TrajectoryContainer trajectories(const TrajectorySeed&) const override;
 
   /// trajectories building starting from a seed, return in an already allocated vector
-  void trajectories(const TrajectorySeed&, TrajectoryContainer &ret) const;
+  void trajectories(const TrajectorySeed&, TrajectoryContainer &ret) const override;
 
   /// trajectories building starting from a seed with a region
   TrajectoryContainer trajectories(const TrajectorySeed&, const TrackingRegion&) const;
@@ -49,7 +49,8 @@ class dso_internal GroupedCkfTrajectoryBuilder final : public BaseCkfTrajectoryB
   // also new interface returning the start Trajectory...
   TempTrajectory buildTrajectories (const TrajectorySeed&seed,
 				    TrajectoryContainer &ret,
-				    const TrajectoryFilter*) const;
+				    unsigned int& nCandPerSeed,
+				    const TrajectoryFilter*) const override;
 
 
 
@@ -60,11 +61,11 @@ class dso_internal GroupedCkfTrajectoryBuilder final : public BaseCkfTrajectoryB
       collection.
   **/
   void  rebuildSeedingRegion(const TrajectorySeed&,
-			     TrajectoryContainer& result) const ;
+			     TrajectoryContainer& result) const override ;
  
   // same as above using the precomputed startingTraj..
   void  rebuildTrajectories(TempTrajectory const & startingTraj, const TrajectorySeed&,
-			     TrajectoryContainer& result) const ;  
+			     TrajectoryContainer& result) const override ;  
 
 
   // Access to lower level components
@@ -120,12 +121,12 @@ private :
 			TempTrajectoryContainer& newCand, 
 			TempTrajectoryContainer& result) const  dso_internal;
 
-  void groupedLimitedCandidates( const TrajectorySeed& seed,
-                                 TempTrajectory const& startingTraj, 
-				 const TrajectoryFilter* regionalCondition,
-				 const Propagator* propagator, 
-                                 bool inOut,
-				 TempTrajectoryContainer& result) const  dso_internal;
+  unsigned int groupedLimitedCandidates( const TrajectorySeed& seed,
+                                         TempTrajectory const& startingTraj, 
+                                         const TrajectoryFilter* regionalCondition,
+                                         const Propagator* propagator, 
+                                         bool inOut,
+                                         TempTrajectoryContainer& result) const  dso_internal;
 
   /// try to find additional hits in seeding region
   void rebuildSeedingRegion (const TrajectorySeed&seed,

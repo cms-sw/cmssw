@@ -8,9 +8,9 @@
 #include "DQMServices/Core/interface/QReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <TMath.h>
 
@@ -321,7 +321,7 @@ TH2F* L1TOccupancyClientHistogramService::getRebinnedHistogram(DQMStore::IGetter
   TH2F* histMonitor;
   
   if(!me){
-    histMonitor           = 0;
+    histMonitor           = nullptr;
     mHistValid[iHistName] = false;
   }
   else{
@@ -373,6 +373,7 @@ void L1TOccupancyClientHistogramService::updateHistogramEndLS(DQMStore::IGetter 
     delete mHistograms[iHistName].first;            //delete old cumulateive histo 
     mHistograms[iHistName].first=histo_old;         //save old as new
     mHistograms[iHistName].second->Add(histo_curr); //save new as current
+    delete histo_curr;
   }  
 }
 
@@ -439,5 +440,5 @@ vector<int> L1TOccupancyClientHistogramService::getLSCertification(string iHistN
 //____________________________________________________________________________
 TH2F* L1TOccupancyClientHistogramService::getDifferentialHistogram(string iHistName) {  
   if(mHistValid[iHistName]){return mHistograms[iHistName].second;}
-  return 0;
+  return nullptr;
 }                                            

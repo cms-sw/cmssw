@@ -1,48 +1,69 @@
 #ifndef HitPairGeneratorFromLayerPair_h
 #define HitPairGeneratorFromLayerPair_h
 
-#include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
-#include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
+#include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
+#include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
 
 class DetLayer;
 class TrackingRegion;
 
-class HitPairGeneratorFromLayerPair : public HitPairGenerator {
+class HitPairGeneratorFromLayerPair {
 
 public:
 
-  typedef CombinedHitPairGenerator::LayerCacheType       LayerCacheType;
+  typedef LayerHitMapCache LayerCacheType;
   typedef SeedingLayerSetsHits::SeedingLayerSet Layers;
   typedef SeedingLayerSetsHits::SeedingLayer Layer;
 
   HitPairGeneratorFromLayerPair(unsigned int inner,
                                 unsigned int outer,
                                 LayerCacheType* layerCache,
-				unsigned int nSize=30000,
 				unsigned int max=0);
 
-  virtual ~HitPairGeneratorFromLayerPair() { }
+  ~HitPairGeneratorFromLayerPair();
 
-  void setSeedingLayers(Layers layers) override { theSeedingLayers = layers; }
-
-  virtual HitDoublets doublets( const TrackingRegion& reg,
-			     const edm::Event & ev,  const edm::EventSetup& es);
-
-  virtual void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs,
-      const edm::Event & ev,  const edm::EventSetup& es);
-
-  virtual HitPairGeneratorFromLayerPair* clone() const {
-    return new HitPairGeneratorFromLayerPair(*this);
+  HitDoublets doublets( const TrackingRegion& reg,
+                        const edm::Event & ev,  const edm::EventSetup& es, Layers layers) {
+    assert(theLayerCache);
+    return doublets(reg, ev, es, layers, *theLayerCache);
   }
+  HitDoublets doublets( const TrackingRegion& reg,
+                        const edm::Event & ev,  const edm::EventSetup& es, const Layer& innerLayer, const Layer& outerLayer) {
+    assert(theLayerCache);
+    return doublets(reg, ev, es, innerLayer, outerLayer, *theLayerCache);
+  }
+  HitDoublets doublets( const TrackingRegion& reg,
+                        const edm::Event & ev, const edm::EventSetup& es, Layers layers, LayerCacheType& layerCache) {
+    Layer innerLayerObj = innerLayer(layers);
+    Layer outerLayerObj = outerLayer(layers);
+    return doublets(reg, ev, es, innerLayerObj, outerLayerObj, layerCache);
+  }
+  HitDoublets doublets( const TrackingRegion& reg,
+                        const edm::Event & ev,  const edm::EventSetup& es, const Layer& innerLayer, const Layer& outerLayer, LayerCacheType& layerCache);
+  
+  void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs,
+                 const edm::Event & ev,  const edm::EventSetup& es, Layers layers);
+  static void doublets(
+						      const TrackingRegion& region,
+						      const DetLayer & innerHitDetLayer,
+						      const DetLayer & outerHitDetLayer,
+						      const RecHitsSortedInPhi & innerHitsMap,
+						      const RecHitsSortedInPhi & outerHitsMap,
+						      const edm::EventSetup& iSetup,
+						      const unsigned int theMaxElement,
+						      HitDoublets & result);
 
-  Layer innerLayer() const { return theSeedingLayers[theInnerLayer]; }
-  Layer outerLayer() const { return theSeedingLayers[theOuterLayer]; }
+  
+  
+  Layer innerLayer(const Layers& layers) const { return layers[theInnerLayer]; }
+  Layer outerLayer(const Layers& layers) const { return layers[theOuterLayer]; }
 
 private:
-  LayerCacheType & theLayerCache;
-  Layers theSeedingLayers;
+  LayerCacheType *theLayerCache;
   const unsigned int theOuterLayer;
   const unsigned int theInnerLayer;
+  const unsigned int theMaxElement;
 };
 
 #endif

@@ -97,54 +97,54 @@ void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
   
 
   // create the collection of Ecal Digis
-  std::auto_ptr<EBDigiCollection> productEb(new EBDigiCollection);
+  auto productEb = std::make_unique<EBDigiCollection>();
 
   // create the collection of Matacq Digi
-  std::auto_ptr<EcalMatacqDigiCollection> productMatacq(new EcalMatacqDigiCollection());
+  auto productMatacq = std::make_unique<EcalMatacqDigiCollection>();
 
   // create the collection of Ecal PN's
-  std::auto_ptr<EcalPnDiodeDigiCollection> productPN(new EcalPnDiodeDigiCollection);
+  auto productPN = std::make_unique<EcalPnDiodeDigiCollection>();
   
   //create the collection of Ecal DCC Header
-  std::auto_ptr<EcalRawDataCollection> productDCCHeader(new EcalRawDataCollection);
+  auto productDCCHeader = std::make_unique<EcalRawDataCollection>();
 
   // create the collection with trigger primitives, bits and flags
-  std::auto_ptr<EcalTrigPrimDigiCollection> productTriggerPrimitives(new EcalTrigPrimDigiCollection);
+  auto productTriggerPrimitives = std::make_unique<EcalTrigPrimDigiCollection>();
 
   // create the collection of Ecal Integrity DCC Size
-  std::auto_ptr<EBDetIdCollection> productDCCSize(new EBDetIdCollection);
+  auto productDCCSize = std::make_unique<EBDetIdCollection>();
 
   // create the collection of Ecal Integrity TT Id
-  std::auto_ptr<EcalElectronicsIdCollection> productTTId(new EcalElectronicsIdCollection);
+  auto productTTId = std::make_unique<EcalElectronicsIdCollection>();
 
   // create the collection of Ecal Integrity TT Block Size
-  std::auto_ptr<EcalElectronicsIdCollection> productBlockSize(new EcalElectronicsIdCollection);
+  auto productBlockSize = std::make_unique<EcalElectronicsIdCollection>();
 
   // create the collection of Ecal Integrity Ch Id
-  std::auto_ptr<EBDetIdCollection> productChId(new EBDetIdCollection);
+  auto productChId = std::make_unique<EBDetIdCollection>();
 
   // create the collection of Ecal Integrity Gain
-  std::auto_ptr<EBDetIdCollection> productGain(new EBDetIdCollection);
+  auto productGain = std::make_unique<EBDetIdCollection>();
 
   // create the collection of Ecal Integrity Gain Switch
-  std::auto_ptr<EBDetIdCollection> productGainSwitch(new EBDetIdCollection);
+  auto productGainSwitch = std::make_unique<EBDetIdCollection>();
 
   // create the collection of Ecal Integrity Mem towerBlock_id errors
-  std::auto_ptr<EcalElectronicsIdCollection> productMemTtId(new EcalElectronicsIdCollection);
+  auto productMemTtId = std::make_unique<EcalElectronicsIdCollection>();
   
   // create the collection of Ecal Integrity Mem gain errors
-  std::auto_ptr< EcalElectronicsIdCollection> productMemBlockSize(new EcalElectronicsIdCollection);
+  auto productMemBlockSize = std::make_unique<EcalElectronicsIdCollection>();
 
   // create the collection of Ecal Integrity Mem gain errors
-  std::auto_ptr< EcalElectronicsIdCollection> productMemGain(new EcalElectronicsIdCollection);
+  auto productMemGain = std::make_unique<EcalElectronicsIdCollection>();
   
   // create the collection of Ecal Integrity Mem ch_id errors
-  std::auto_ptr<EcalElectronicsIdCollection> productMemChIdErrors(new EcalElectronicsIdCollection);
+  auto productMemChIdErrors = std::make_unique<EcalElectronicsIdCollection>();
   
   // create the collection of TB specifics data
-  std::auto_ptr<EcalTBHodoscopeRawInfo> productHodo(new EcalTBHodoscopeRawInfo());         
-  std::auto_ptr<EcalTBTDCRawInfo> productTdc(new EcalTBTDCRawInfo());                      
-  std::auto_ptr<EcalTBEventHeader> productHeader(new EcalTBEventHeader());                      
+  auto productHodo = std::make_unique<EcalTBHodoscopeRawInfo>();
+  auto productTdc = std::make_unique<EcalTBTDCRawInfo>();
+  auto productHeader = std::make_unique<EcalTBEventHeader>();
 
 
   try {
@@ -205,27 +205,27 @@ void EcalDCCTBUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c)
   
 
   // commit to the event  
-  e.put(productPN);
-  e.put(productEb,"ebDigis");
-  e.put(productMatacq);
-  e.put(productDCCHeader);
-  e.put(productTriggerPrimitives,"EBTT");
+  e.put(std::move(productPN));
+  e.put(std::move(productEb),"ebDigis");
+  e.put(std::move(productMatacq));
+  e.put(std::move(productDCCHeader));
+  e.put(std::move(productTriggerPrimitives),"EBTT");
 
-  e.put(productDCCSize,"EcalIntegrityDCCSizeErrors");
-  e.put(productTTId,"EcalIntegrityTTIdErrors");
-  e.put(productBlockSize,"EcalIntegrityBlockSizeErrors");
-  e.put(productChId,"EcalIntegrityChIdErrors");
-  e.put(productGain,"EcalIntegrityGainErrors");
-  e.put(productGainSwitch,"EcalIntegrityGainSwitchErrors");
+  e.put(std::move(productDCCSize),"EcalIntegrityDCCSizeErrors");
+  e.put(std::move(productTTId),"EcalIntegrityTTIdErrors");
+  e.put(std::move(productBlockSize),"EcalIntegrityBlockSizeErrors");
+  e.put(std::move(productChId),"EcalIntegrityChIdErrors");
+  e.put(std::move(productGain),"EcalIntegrityGainErrors");
+  e.put(std::move(productGainSwitch),"EcalIntegrityGainSwitchErrors");
 
-  e.put(productMemTtId,"EcalIntegrityMemTtIdErrors");
-  e.put(productMemBlockSize,"EcalIntegrityMemBlockSize");
-  e.put(productMemChIdErrors,"EcalIntegrityMemChIdErrors");
-  e.put(productMemGain,"EcalIntegrityMemGainErrors");
+  e.put(std::move(productMemTtId),"EcalIntegrityMemTtIdErrors");
+  e.put(std::move(productMemBlockSize),"EcalIntegrityMemBlockSize");
+  e.put(std::move(productMemChIdErrors),"EcalIntegrityMemChIdErrors");
+  e.put(std::move(productMemGain),"EcalIntegrityMemGainErrors");
 
-  e.put(productHodo);
-  e.put(productTdc);
-  e.put(productHeader);
+  e.put(std::move(productHodo));
+  e.put(std::move(productTdc));
+  e.put(std::move(productHeader));
 
   } catch (ECALTBParserException &e) {
     std::cout << "[EcalDCCTBUnpackingModule] " << e.what() << std::endl;

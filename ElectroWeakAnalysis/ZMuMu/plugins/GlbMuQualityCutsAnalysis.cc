@@ -8,7 +8,7 @@
 class GlbMuQualityCutsAnalysis : public edm::EDAnalyzer {
 public:
   GlbMuQualityCutsAnalysis(const edm::ParameterSet & cfg);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   //  virtual void endJob();
 private:
   edm::InputTag src_;
@@ -69,7 +69,7 @@ void GlbMuQualityCutsAnalysis::analyze(const edm::Event& evt, const edm::EventSe
     j++;
     const Candidate * dau1 = i->daughter(0);
     const Candidate * dau2 = i->daughter(1);
-    if(dau1 == 0|| dau2 == 0)
+    if(dau1 == nullptr|| dau2 == nullptr)
       throw Exception(errors::InvalidReference) <<
 	"one of the two daughter does not exist\n";
     const Candidate * c1 = dau1->masterClone().get();
@@ -86,14 +86,14 @@ void GlbMuQualityCutsAnalysis::analyze(const edm::Event& evt, const edm::EventSe
     std::cout << "dau2.isStandAloneMuon() " << dau2->isStandAloneMuon()<< std::endl;
     std::cout << "dau1.charge() " << dau1->charge() << std::endl;
     std::cout << "dau2.charge() " << dau2->charge()<< std::endl;
-  if(mu1 != 0) {
+  if(mu1 != nullptr) {
 
       //     if (mc1.isNonnull()) cout << "GlbMuQualityCutsAnalysis> genParticleRef1 " << mc1->pdgId() << endl;
       // double trackIso1=mu1->trackIso();
       // std::cout << " mu1 iso" << trackIso1 << std::endl;
     } else {
       const pat::GenericParticle * gp1 = dynamic_cast<const pat::GenericParticle*>(c1);
-      if(gp1 == 0)
+      if(gp1 == nullptr)
 	throw Exception(errors::InvalidReference) <<
 	  "first of two daughter is neither a pat::Muon not pat::GenericParticle\n";
 
@@ -101,13 +101,13 @@ void GlbMuQualityCutsAnalysis::analyze(const edm::Event& evt, const edm::EventSe
     const Candidate * c2 = dau2->masterClone().get();
 
     const pat::Muon * mu2 = dynamic_cast<const pat::Muon*>(c2);
-    if(mu2 != 0) {
+    if(mu2 != nullptr) {
 
       // double trackIso2=mu2->trackIso();
      //std::cout << " mu2 iso" << trackIso2 << std::endl;
     } else {
       const pat::GenericParticle * gp2 = dynamic_cast<const pat::GenericParticle*>(c2);
-      if(gp2 == 0)
+      if(gp2 == nullptr)
 	throw Exception(errors::InvalidReference) <<
 	  "first of two daughter is neither a pat::Muon not pat::GenericParticle\n";
 

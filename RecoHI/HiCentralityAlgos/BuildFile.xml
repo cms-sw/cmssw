@@ -15,7 +15,6 @@
 <use   name="DataFormats/VertexReco"/>
 <use   name="CondFormats/HIObjects"/>
 <use   name="CondFormats/DataRecord"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondCore/PopCon"/>
 <use   name="Geometry/CaloGeometry"/>

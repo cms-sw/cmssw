@@ -324,7 +324,7 @@ class __class__ : public edm::ESProducer {
 #python_begin
     datatypes = []
     for dtype in __datatypes__:
-        datatypes.append("boost::shared_ptr<%s>" % dtype)
+        datatypes.append("std::shared_ptr<%s>" % dtype)
     print "      typedef edm::ESProducts<%s> ReturnType;" % \(aq,\(aq.join(datatypes)
 #python_end
 
@@ -383,7 +383,7 @@ __class__::produce(const __record__& iRecord)
     out1 = []
     out2 = []
     for dtype in __datatypes__:
-        out1.append("   boost::shared_ptr<%s> p%s;\en" % (dtype, dtype))
+        out1.append("   std::shared_ptr<%s> p%s;\en" % (dtype, dtype))
         out2.append("p%s" % dtype)
     output  = \(aq\en\(aq.join(out1)
     output += "   return products(%s);\en" % \(aq,\(aq.join(out2)

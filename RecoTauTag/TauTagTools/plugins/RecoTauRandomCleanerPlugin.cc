@@ -16,7 +16,7 @@ namespace reco { namespace tau {
 class RecoTauRandomCleanerPlugin : public RecoTauCleanerPlugin {
   public:
   RecoTauRandomCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
-    virtual ~RecoTauRandomCleanerPlugin(){}
+    ~RecoTauRandomCleanerPlugin() override{}
     // Get discriminant value for a given tau Ref
     double operator()(const reco::PFTauRef&) const override;
   private:

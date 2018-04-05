@@ -5,6 +5,14 @@
  * \author Luca Lista, INFN
  */
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+
+namespace edm {
+  class EDFilter;
+  class Event;
+  class ParameterSet;
+}
+
 namespace helper {
 
   template<typename OutputCollection, typename EdmFilter=edm::EDFilter>

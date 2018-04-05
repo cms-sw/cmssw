@@ -16,12 +16,12 @@ namespace Exhume{
     
     Higgs(const edm::ParameterSet&);
 
-    double SubProcess();
-    void SetPartons();
-    void SetSubParameters();
-    double SubParameterWeight();
-    void MaximiseSubParameters();
-    double SubParameterRange();
+    double SubProcess() override;
+    void SetPartons() override;
+    void SetSubParameters() override;
+    double SubParameterWeight() override;
+    void MaximiseSubParameters() override;
+    double SubParameterRange() override;
     void SetHiggsMass(const double&);
     inline double GetC(){
       return(C);

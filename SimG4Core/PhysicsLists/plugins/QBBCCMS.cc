@@ -1,8 +1,8 @@
-#include "QBBCCMS.hh"
+#include "QBBCCMS.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4EmStandardPhysics_option1.hh"
+#include "G4EmStandardPhysics.hh"
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
 #include "G4StoppingPhysics.hh"
@@ -25,20 +25,18 @@ QBBCCMS::QBBCCMS(G4LogicalVolumeToDDLogicalPartMap& map,
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
-  bool munucl  = p.getParameter<bool>("FlagMuNucl");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QBBC with Flags for EM Physics "
+			      << "QBBC \n Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
 			      << hadPhys 
 			      << " and tracking cut " << tracking;
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new G4EmStandardPhysics_option1(ver));
+    RegisterPhysics( new G4EmStandardPhysics(ver));
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
-    if(munucl) { G4String yes = "on"; gn->MuonNuclear(yes); }
     RegisterPhysics(gn);
   }
 

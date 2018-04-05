@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -36,14 +36,11 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-// #include "FWCore/Utilities/interface/HRRealTime.h"
-
-
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
 
 #include "DataFormats/Common/interface/Trie.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 
 #include<string>
@@ -54,62 +51,41 @@ struct Print {
   // typedef edm::TrieNode<Det> const node;
   void operator()(Det det, std::string const & label) const {
     if (!det) return; 
-    for (size_t i=0; i<label.size();++i)
-      std::cout << int(label[i]) <<'/';
-    std::cout << " " << det->geographicalId() << std::endl;
+    for (char i : label)
+      std::cout << int(i) <<'/';
+    std::cout << " " << det->geographicalId().rawId() << std::endl;
   }
   
 };
 
-
-
-class GeoHierarchy : public edm::EDAnalyzer {
+class GeoHierarchy : public edm::one::EDAnalyzer<> {
 public:
   explicit GeoHierarchy( const edm::ParameterSet& );
-  ~GeoHierarchy();
+  ~GeoHierarchy() override;
   
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
+
 private:
   // ----------member data ---------------------------
   bool fromDDD_;
   bool printDDD_;
 };
 
-//
-// constants, enums and typedefs
-//
-
-
-//
-// constructors and destructor
-//
 GeoHierarchy::GeoHierarchy( const edm::ParameterSet& ps )
 {
   fromDDD_ = ps.getParameter<bool>("fromDDD");
   printDDD_ = ps.getUntrackedParameter<bool>("printDDD", true);
- //now do what ever initialization is needed
-  
 }
-
 
 GeoHierarchy::~GeoHierarchy()
-{
-  
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  
-}
-
-
-//
-// member functions
-//
+{}
 
 template<typename Iter>
-void constructAndDumpTrie(Iter b, Iter e) {
+void constructAndDumpTrie(const TrackerTopology* tTopo, Iter b, Iter e) {
   typedef typename std::iterator_traits<Iter>::value_type Det;
-  edm::Trie<Det> trie(0);
+  edm::Trie<Det> trie(nullptr);
   typedef edm::TrieNode<Det> Node;
   typedef Node const * node_pointer; // sigh....
   typedef edm::TrieNodeIter<Det> node_iterator;
@@ -121,7 +97,7 @@ void constructAndDumpTrie(Iter b, Iter e) {
     for(;b!=e; ++b) {
       last = b;
       unsigned int rawid = (*b)->geographicalId().rawId();
-      trie.insert(trackerHierarchy(rawid), *b); 
+      trie.insert(trackerHierarchy(tTopo, rawid), *b); 
     }
   }
   catch(edm::Exception const & ex) {
@@ -146,8 +122,6 @@ void constructAndDumpTrie(Iter b, Iter e) {
       node_iterator eit;	
       node_iterator p(trie.node(s));
       layerSize[i] = std::distance(p,eit);
-      // layerSize[i]=0;
-      // for (;p!=e;++p) ++layerSize[i];
     }
 
     edm::LogInfo("TkDetLayers") 
@@ -181,16 +155,19 @@ GeoHierarchy::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   //first instance tracking geometry
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
+  edm::ESHandle<TrackerTopology> tTopo_handle;
+  iSetup.get<TrackerTopologyRcd>().get(tTopo_handle);
+  const TrackerTopology* tTopo = tTopo_handle.product();
   //
   GeometricDet const * rDD = pDD->trackerDet();
   std::vector<const GeometricDet*> modules; 
   (*rDD).deepComponents(modules);
   
   std::cout << "\nGeometricDet Hierarchy\n" << std::endl;
-  constructAndDumpTrie(modules.begin(),modules.end());
+  constructAndDumpTrie(tTopo, modules.begin(),modules.end());
   
   std::cout << "\nGDet Hierarchy\n" << std::endl;
-  constructAndDumpTrie(pDD->dets().begin(),pDD->dets().end());
+  constructAndDumpTrie(tTopo, pDD->dets().begin(),pDD->dets().end());
   
 
 

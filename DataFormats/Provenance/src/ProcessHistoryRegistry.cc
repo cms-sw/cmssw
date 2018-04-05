@@ -10,12 +10,13 @@ namespace edm {
 
   bool
   ProcessHistoryRegistry::registerProcessHistory(ProcessHistory const& processHistory) {
-    ProcessHistoryID id = processHistory.id();
+    //make sure the process history ID is cached
+    auto tmp = processHistory;
+    ProcessHistoryID id = tmp.setProcessHistoryID();
     bool newlyAdded = (data_.find(id) == data_.end());
     if(newlyAdded) {
-      data_.insert(std::pair<ProcessHistoryID, ProcessHistory>(id, processHistory));
-      ProcessHistory toBeReduced(processHistory);
-      extra_.insert(std::pair<ProcessHistoryID, ProcessHistoryID>(id, toBeReduced.reduce().id()));
+      data_.emplace(id, tmp);
+      extra_.emplace(std::move(id), tmp.reduce().id());
     }
     return newlyAdded;
   }

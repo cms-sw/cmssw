@@ -16,7 +16,7 @@
 
 #include <iostream>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <map>
@@ -37,12 +37,12 @@ class DCCMemBlock : public DCCDataBlockPrototype {
 
     DCCMemBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e);
 	 
-    virtual ~DCCMemBlock(){}
+    ~DCCMemBlock() override{}
 	 
-    void updateCollectors();
+    void updateCollectors() override;
     
-    void display(std::ostream & o); 
-    
+    void display(std::ostream & o) override; 
+    using DCCDataBlockPrototype::unpack; 
     int unpack(const uint64_t ** data, unsigned int * dwToEnd, unsigned int expectedTowerID);   
     			
   protected :
@@ -69,11 +69,11 @@ class DCCMemBlock : public DCCDataBlockPrototype {
     unsigned int bx_;
     unsigned int l1_;
 	 
-    std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemChIds_;  
-    std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemBlockSizes_; 
-    std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemTtIds_; 
-    std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemGains_;
-    std::auto_ptr<EcalPnDiodeDigiCollection>     * pnDiodeDigis_;
+    std::unique_ptr<EcalElectronicsIdCollection>   * invalidMemChIds_;  
+    std::unique_ptr<EcalElectronicsIdCollection>   * invalidMemBlockSizes_; 
+    std::unique_ptr<EcalElectronicsIdCollection>   * invalidMemTtIds_; 
+    std::unique_ptr<EcalElectronicsIdCollection>   * invalidMemGains_;
+    std::unique_ptr<EcalPnDiodeDigiCollection>     * pnDiodeDigis_;
 	
 };
 

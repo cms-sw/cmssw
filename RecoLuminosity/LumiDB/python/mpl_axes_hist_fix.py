@@ -195,7 +195,7 @@ def hist(self, x, bins=10, range=None, normed=False, weights=None,
     nx = len(x) # number of datasets
 
     if color is None:
-        color = [self._get_lines.color_cycle.next()
+        color = [next(self._get_lines.color_cycle)
                                         for i in xrange(nx)]
     else:
         color = mcolors.colorConverter.to_rgba_array(color)

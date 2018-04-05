@@ -67,7 +67,7 @@ bool ComphepSingletopFilter::filter(
     const HepMC::GenEvent * myEvt = evt->GetEvent();
 //  myEvt->print();  // to print the record
 
-    const GenParticle * gp_clep = NULL;
+    const GenParticle * gp_clep = nullptr;
 
     for (GenEvent::particle_const_iterator it = myEvt->particles_begin();
          it != myEvt->particles_end(); ++it) {
@@ -102,9 +102,9 @@ bool ComphepSingletopFilter::filter(
         }
     }
 
-    bool process22 = (vgp_bsec.size() == 0);
+    bool process22 = (vgp_bsec.empty());
 
-    GenVertex * gv = NULL;
+    GenVertex * gv = nullptr;
     if (process22) {
         for (GenVertex::particle_iterator it = gv_hard->particles_begin(parents);
              it != gv_hard->particles_end(parents); ++it) {
@@ -123,7 +123,7 @@ bool ComphepSingletopFilter::filter(
     }
     const GenParticle * gp;
     while (gv) {
-        gp = NULL;
+        gp = nullptr;
         for (GenVertex::particle_iterator it = gv->particles_begin(children);
              it != gv->particles_end(children); ++it) {
             if ((*it)->pdg_id() == -id_bdec) {
@@ -136,11 +136,11 @@ bool ComphepSingletopFilter::filter(
             gv = gp->end_vertex();
             vgp_bsec.push_back(gp);
         } else {
-            gv = NULL;
+            gv = nullptr;
         }
     }
 
-    if (vgp_bsec.size() == 0) {
+    if (vgp_bsec.empty()) {
         cerr << "ERROR: ComphepSingletopFilter: HepMC inconsistency" << endl;
         return false;
     }

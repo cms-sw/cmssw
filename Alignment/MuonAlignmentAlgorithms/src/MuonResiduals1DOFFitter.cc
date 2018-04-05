@@ -147,7 +147,7 @@ double MuonResiduals1DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
   TH1F *hist_residual_raw = dir->make<TH1F>(name_residual_raw.str().c_str(), "", 100, min_residual, max_residual);
 
   name_residual << "_fit";
-  TF1 *fit_residual = NULL;
+  TF1 *fit_residual = nullptr;
   if (residualsModel() == kPureGaussian) {
     fit_residual = new TF1(name_residual.str().c_str(), MuonResidualsFitter_pureGaussian_TF1, min_residual, max_residual, 3);
     fit_residual->SetParameters(MuonResiduals1DOFFitter_sum_of_weights * (max_residual - min_residual)/100., 10.*value(kAlign), 10.*value(kSigma));

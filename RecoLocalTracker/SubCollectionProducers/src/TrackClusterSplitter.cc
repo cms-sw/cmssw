@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -58,14 +58,15 @@
 #include "boost/multi_array.hpp"
 
 #include <iostream>
+#include <memory>
 using namespace std;
 
-class TrackClusterSplitter : public edm::EDProducer 
+class TrackClusterSplitter : public edm::stream::EDProducer<>
 {
 
 public:
   TrackClusterSplitter(const edm::ParameterSet& iConfig) ;
-  ~TrackClusterSplitter() ;
+  ~TrackClusterSplitter() override ;
   void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
   
 private:
@@ -150,7 +151,8 @@ private:
 
   // sim strip split
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
-  TrackerHitAssociator* hitAssociator;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  std::unique_ptr<TrackerHitAssociator> hitAssociator;
   
   template<typename C> 
   static const C* getCluster(const TrackingRecHit* hit) ;
@@ -189,7 +191,7 @@ private:
 		    const TrajectoryStateOnSurface& tsos) const ;
   
   template<typename Cluster>
-  std::auto_ptr<edmNew::DetSetVector<Cluster> > 
+  std::unique_ptr<edmNew::DetSetVector<Cluster> > 
   splitClusters(const std::map<uint32_t, 
 		boost::sub_range<std::vector<ClusterWithTracks<Cluster> > > > &input, 
 		const reco::Vertex &vtx) const ;
@@ -232,7 +234,8 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 #define foreach BOOST_FOREACH
 
 TrackClusterSplitter::TrackClusterSplitter(const edm::ParameterSet& iConfig):
-  useTrajectories_(iConfig.getParameter<bool>("useTrajectories"))
+  useTrajectories_(iConfig.getParameter<bool>("useTrajectories")),
+  trackerHitAssociatorConfig_(consumesCollector())
 {
   if (useTrajectories_) {
     trajTrackAssociations_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajTrackAssociations"));
@@ -349,7 +352,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(stripClusters_, inputStripClusters);
   
   if(simSplitStrip_)
-    hitAssociator = new TrackerHitAssociator(iEvent);
+    hitAssociator.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
 
     
   allSiPixelClusters.clear(); siPixelDetsWithClusters.clear();
@@ -432,7 +435,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 }  
 
 	      const TrackingRecHit *hit = *it_hit;
-	      if ( hit == 0 || !hit->isValid() )
+	      if ( hit == nullptr || !hit->isValid() )
 		continue;
 	      
 	      int subdet = hit->geographicalId().subdetId();
@@ -467,7 +470,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  for (; it_hit != ed_hit; ++it_hit) 
 	    {
 	      const TrackingRecHit *hit = *it_hit;
-	      if ( hit == 0 || !hit->isValid() ) 
+	      if ( hit == nullptr || !hit->isValid() ) 
 		continue;
 	      
 	      int subdet = hit->geographicalId().subdetId();
@@ -477,7 +480,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      
 	      const GeomDet *det = geometry_->idToDet( hit->geographicalId() );
 	      
-	      if ( det == 0 ) 
+	      if ( det == nullptr ) 
 		{
 		  edm::LogError("MissingDetId") << "DetIDs " << (int)(hit->geographicalId()) << " is not in geometry.\n";
 		  continue;
@@ -513,14 +516,11 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(stripdigisimlinkToken, stripdigisimlink);
 
   // gavril : to do: choose the best vertex here instead of just choosing the first one ? 
-  std::auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters( splitClusters( siPixelDetsWithClusters, vertices->front() ) );
-  std::auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters( splitClusters( siStripDetsWithClusters, vertices->front() ) );
+  std::unique_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters( splitClusters( siPixelDetsWithClusters, vertices->front() ) );
+  std::unique_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters( splitClusters( siStripDetsWithClusters, vertices->front() ) );
   
-  if ( simSplitStrip_ )
-    delete hitAssociator;
-
-  iEvent.put(newPixelClusters);
-  iEvent.put(newStripClusters);
+  iEvent.put(std::move(newPixelClusters));
+  iEvent.put(std::move(newStripClusters));
     
   allSiPixelClusters.clear(); siPixelDetsWithClusters.clear();
   allSiStripClusters.clear(); siStripDetsWithClusters.clear();
@@ -550,18 +550,18 @@ void TrackClusterSplitter::markClusters( std::map<uint32_t, boost::sub_range<std
 }
 
 template<typename Cluster>
-std::auto_ptr<edmNew::DetSetVector<Cluster> > 
+std::unique_ptr<edmNew::DetSetVector<Cluster> > 
 TrackClusterSplitter::splitClusters(const std::map<uint32_t, boost::sub_range<std::vector<ClusterWithTracks<Cluster> > > > &input, 
 				    const reco::Vertex &vtx) const 
 {
-  std::auto_ptr<edmNew::DetSetVector<Cluster> > output(new edmNew::DetSetVector<Cluster>());
+  auto output = std::make_unique<edmNew::DetSetVector<Cluster>>();
   typedef std::pair<uint32_t, boost::sub_range<std::vector<ClusterWithTracks<Cluster> > > > pair;
   
   foreach(const pair &p, input) 
     {
       const GeomDet* det = geometry_->idToDet( DetId(p.first) );
       
-      if ( det == 0 ) 
+      if ( det == nullptr ) 
       	{ 
       	  edm::LogError("MissingDetId") << "DetIDs " << p.first << " is not in geometry.\n";
 	  continue;
@@ -677,7 +677,6 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 			    }
 			  
 			  currentChannel = linkiter->channel();
-			  currentAmpl = rawAmpl;
 			}
 		      
 		      // Now deal with this new DigiSimLink
@@ -750,7 +749,7 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 		  for (size_t j=0; j<trackAmp[i].size(); ++j ) 
 		    clusterAmp += (float)(trackAmp[i])[j];
 		  
-		  if ( clusterAmp > 0.0 && firstStrip[i] != 9999 && trackAmp[i].size() > 0  ) 
+		  if ( clusterAmp > 0.0 && firstStrip[i] != 9999 && !trackAmp[i].empty()  ) 
 		    { 
 		      // gavril :  I think this should work
 		      output.push_back( newCluster[i] );

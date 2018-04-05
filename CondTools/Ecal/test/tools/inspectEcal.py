@@ -75,13 +75,13 @@ for opt,arg in opts:
     if opt in ("-c","--connect"):
         try: 
             dbname=arg
-        except Exception, er :
+        except Exception as er :
             print er
     
     if opt in ("-P","--authpath"):
         try: 
             rdbms=RDBMS(arg)
-        except Exception, er :
+        except Exception as er :
             print er
     if opt in ("-t","--tag"):
         tag=arg
@@ -194,7 +194,7 @@ try :
        histo2.Draw("colz")
        can2.SaveAs("h2.svg")
               
-except Exception, er :
+except Exception as er :
     print er
 
 

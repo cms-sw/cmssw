@@ -25,7 +25,7 @@ bool PathReader::operator()(const Data & data) const {
 }
 
 void PathReader::dump(std::ostream & out) const {
-  if (m_triggers.size() == 0) {
+  if (m_triggers.empty()) {
     out << "FALSE";
   } else if (m_triggers.size() == 1) {
     out << m_triggers[0].first;

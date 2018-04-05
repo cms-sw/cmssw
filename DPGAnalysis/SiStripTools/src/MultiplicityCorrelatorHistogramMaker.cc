@@ -11,9 +11,9 @@
 
 MultiplicityCorrelatorHistogramMaker::MultiplicityCorrelatorHistogramMaker(edm::ConsumesCollector&& iC):
   m_rhm(iC, false), m_fhm(iC, true), m_runHisto(false), m_runHistoBXProfile(false), m_runHistoBX(false), m_runHisto2D(false), m_runHistoProfileBX(false),
-  m_scfact(1.), m_yvsxmult(0),
-  m_atanyoverx(0), m_atanyoverxrun(0), m_atanyoverxvsbxrun(0), m_atanyoverxvsbxrun2D(0),
-  m_yvsxmultrun(0), m_yvsxmultprofvsbxrun(0), m_xvsymultprofvsbxrun(0)
+  m_scfact(1.), m_yvsxmult(nullptr),
+  m_atanyoverx(nullptr), m_atanyoverxrun(nullptr), m_atanyoverxvsbxrun(nullptr), m_atanyoverxvsbxrun2D(nullptr),
+  m_yvsxmultrun(nullptr), m_yvsxmultprofvsbxrun(nullptr), m_xvsymultprofvsbxrun(nullptr)
 {}
 
 MultiplicityCorrelatorHistogramMaker::MultiplicityCorrelatorHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
@@ -24,8 +24,8 @@ MultiplicityCorrelatorHistogramMaker::MultiplicityCorrelatorHistogramMaker(const
   m_runHisto2D(iConfig.getParameter<bool>("runHisto2D")),
   m_runHistoProfileBX(iConfig.getUntrackedParameter<bool>("runHistoProfileBX",false)),
   m_scfact(iConfig.getUntrackedParameter<double>("scaleFactor",1.)),
-  m_atanyoverxrun(0), m_atanyoverxvsbxrun(0), m_atanyoverxvsbxrun2D(0), m_yvsxmultrun(0),
-  m_yvsxmultprofvsbxrun(0), m_xvsymultprofvsbxrun(0)
+  m_atanyoverxrun(nullptr), m_atanyoverxvsbxrun(nullptr), m_atanyoverxvsbxrun2D(nullptr), m_yvsxmultrun(nullptr),
+  m_yvsxmultprofvsbxrun(nullptr), m_xvsymultprofvsbxrun(nullptr)
  {
 
   edm::Service<TFileService> tfserv;
@@ -137,10 +137,10 @@ void MultiplicityCorrelatorHistogramMaker::fill(const edm::Event& iEvent, const 
 
   if(m_yvsxmultrun && *m_yvsxmultrun) (*m_yvsxmultrun)->Fill(xmult,ymult);
   if(m_atanyoverxrun && *m_atanyoverxrun) (*m_atanyoverxrun)->Fill(atan2(ymult*m_scfact,xmult));
-  if(m_atanyoverxvsbxrun && *m_atanyoverxvsbxrun) (*m_atanyoverxvsbxrun)->Fill(bx,atan2(ymult*m_scfact,xmult));
-  if(m_atanyoverxvsbxrun2D && *m_atanyoverxvsbxrun2D) (*m_atanyoverxvsbxrun2D)->Fill(bx,atan2(ymult*m_scfact,xmult));
+  if(m_atanyoverxvsbxrun && *m_atanyoverxvsbxrun) (*m_atanyoverxvsbxrun)->Fill(bx%3564,atan2(ymult*m_scfact,xmult));
+  if(m_atanyoverxvsbxrun2D && *m_atanyoverxvsbxrun2D) (*m_atanyoverxvsbxrun2D)->Fill(bx%3564,atan2(ymult*m_scfact,xmult));
 
-  if(m_yvsxmultprofvsbxrun && *m_yvsxmultprofvsbxrun) (*m_yvsxmultprofvsbxrun)->Fill(bx,xmult,ymult);
-  if(m_xvsymultprofvsbxrun && *m_xvsymultprofvsbxrun) (*m_xvsymultprofvsbxrun)->Fill(bx,ymult,xmult);
+  if(m_yvsxmultprofvsbxrun && *m_yvsxmultprofvsbxrun) (*m_yvsxmultprofvsbxrun)->Fill(bx%3564,xmult,ymult);
+  if(m_xvsymultprofvsbxrun && *m_xvsymultprofvsbxrun) (*m_xvsymultprofvsbxrun)->Fill(bx%3564,ymult,xmult);
 }
 

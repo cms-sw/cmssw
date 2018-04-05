@@ -78,8 +78,9 @@ CosmicMuonSeedGenerator::CosmicMuonSeedGenerator(const edm::ParameterSet& pset){
 
   edm::ConsumesCollector iC = consumesCollector();
   muonMeasurements = new MuonDetLayerMeasurements(theDTRecSegmentLabel,theCSCRecSegmentLabel,
-					    InputTag(),iC,
-					    theEnableDTFlag,theEnableCSCFlag,false);
+
+						  InputTag(),InputTag(),InputTag(),iC,
+						  theEnableDTFlag,theEnableCSCFlag,false,false,false);
 
 
 
@@ -97,7 +98,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 
   eSetup.get<IdealMagneticFieldRecord>().get(theField);
 
-  auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
+  auto output = std::make_unique<TrajectorySeedCollection>();
   
   TrajectorySeedCollection seeds;
  
@@ -197,7 +198,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
         output->push_back(*seed);
   }
 
-  event.put(output);
+  event.put(std::move(output));
   seeds.clear();
 
 }
@@ -243,13 +244,13 @@ MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitCont
 
   //avoid selecting Segments with similar direction
   for (MuonRecHitContainer::iterator hit = result.begin(); hit != result.end(); hit++) {
-    if (*hit == 0) continue;
+    if (*hit == nullptr) continue;
     if ( !(*hit)->isValid() ) continue;
     bool good = true;
     //UNUSED:    GlobalVector dir1 = (*hit)->globalDirection();
     //UNUSED:    GlobalPoint pos1 = (*hit)->globalPosition();
     for (MuonRecHitContainer::iterator hit2 = hit + 1; hit2 != result.end(); hit2++) {
-        if (*hit2 == 0) continue;
+        if (*hit2 == nullptr) continue;
         if ( !(*hit2)->isValid() ) continue;
 
           //compare direction and position
@@ -259,7 +260,7 @@ MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitCont
 
         if ( !leftIsBetter((*hit),(*hit2)) ) { 
           good = false;
-        } else (*hit2) = 0;
+        } else (*hit2) = nullptr;
     }
 
     if ( good ) result2.push_back(*hit);
@@ -277,7 +278,7 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
 
   const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
-  if (hits.size() == 0 || results.size() >= theMaxSeeds ) return;
+  if (hits.empty() || results.size() >= theMaxSeeds ) return;
   for (MuonRecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ihit++) {
     const std::vector<TrajectorySeed>& sds = createSeed((*ihit),eSetup);
     LogTrace(category)<<"created seeds from rechit "<<sds.size();
@@ -293,7 +294,7 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
 
   const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
-  if (hitpairs.size() == 0 || results.size() >= theMaxSeeds ) return;
+  if (hitpairs.empty() || results.size() >= theMaxSeeds ) return;
   for (CosmicMuonSeedGenerator::MuonRecHitPairVector::const_iterator ihitpair = hitpairs.begin(); ihitpair != hitpairs.end(); ihitpair++) {
     const std::vector<TrajectorySeed>& sds = createSeed((*ihitpair),eSetup);
     LogTrace(category)<<"created seeds from rechit "<<sds.size();
@@ -426,7 +427,7 @@ CosmicMuonSeedGenerator::makeSegPairs(const MuonTransientTrackingRecHit::MuonRec
      for (MuonRecHitContainer::const_iterator ihit2 = hits2.begin(); ihit2 != hits2.end(); ihit2++) {
         if ( !checkQuality(*ihit2) ) continue;
 
-        float dphi = deltaPhi((*ihit1)->globalPosition().phi(), (*ihit2)->globalPosition().phi());
+        float dphi = deltaPhi((*ihit1)->globalPosition().barePhi(), (*ihit2)->globalPosition().barePhi());
         if ( dphi < 0.5 ) {
 	   if ((*ihit1)->globalPosition().y() > 0.0 && ( (*ihit1)->globalPosition().y()  > (*ihit2)->globalPosition().y() ) ) { 
               std::string tag2 = "top"+tag;
@@ -452,7 +453,7 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const CosmicMuon
 
   MuonPatternRecoDumper dumper;
   
-  float dphi = deltaPhi((hitpair.first)->globalDirection().phi(), (hitpair.second)->globalDirection().phi());
+  float dphi = deltaPhi((hitpair.first)->globalDirection().barePhi(), (hitpair.second)->globalDirection().barePhi());
 
   LogTrace(category)<<"hitpair.type "<<hitpair.type; 
 

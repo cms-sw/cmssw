@@ -1,36 +1,23 @@
-/***************************************************************************
-                          DDLEllipticalTube.cc  -  description
-                             -------------------
-    begin                : Thu Aug 19 2010
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLEllipticalTube.h"
-
-#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDLSolid.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include <map>
+#include <utility>
+
+class DDCompactView;
 
 DDLEllipticalTube::DDLEllipticalTube( DDLElementRegistry* myreg )
   : DDLSolid( myreg )
-{}
-
-DDLEllipticalTube::~DDLEllipticalTube( void )
 {}
 
 // Upon encountering the end of the EllipticalTube element, call DDCore.
 void
 DDLEllipticalTube::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {  
-  DCOUT_V( 'P', "DDLEllipticalTube::processElement started" );
   ClhepEvaluator & ev = myRegistry_->evaluator();
   DDXMLAttribute atts = getAttributeSet();
 
@@ -39,6 +26,4 @@ DDLEllipticalTube::processElement( const std::string& name, const std::string& n
 						 ev.eval( nmspace, atts.find( "ySemiAxis" )->second ),
 						 ev.eval( nmspace, atts.find( "zHeight" )->second ));
   DDLSolid::setReference( nmspace, cpv );
-
-  DCOUT_V( 'P', "DDLEllipticalTube::processElement completed" );
 }

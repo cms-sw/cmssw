@@ -11,18 +11,11 @@
 //
 
 // system include files
-#include <iostream>
-#include "TROOT.h"
-#include "TInterpreter.h"
-#include "TApplication.h"
 
+#include <iostream>
 // user include files
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
-#include "FWCore/FWLite/src/BareRootProductGetter.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
-
-#include "FWCore/FWLite/interface/setRefStreamer.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 //
 // constants, enums and typedefs
 //
@@ -31,13 +24,11 @@
 // static data member definitions
 //
 
-bool AutoLibraryLoader::enabled_(false);
 
 //
 // constructors and destructor
 //
-AutoLibraryLoader::AutoLibraryLoader()
-{
+AutoLibraryLoader::AutoLibraryLoader() {
 }
 
 
@@ -46,64 +37,17 @@ AutoLibraryLoader::AutoLibraryLoader()
 //
 
 void
-AutoLibraryLoader::enable()
-{
-   if (enabled_) { return; }
-   enabled_ = true;
-
-   edmplugin::PluginManager::configure(edmplugin::standard::config());
-   static BareRootProductGetter s_getter;
-   //this function must be called
-   // so that the TClass we need will be available
-   fwlite::setRefStreamer(&s_getter);
-   
-   //Make it easy to load our headers
-   TInterpreter* intrp= gROOT->GetInterpreter();
-   const char* env = getenv("CMSSW_FWLITE_INCLUDE_PATH");
-   if( 0 != env) {
-     //this is a comma separated list
-     const char* start = env;
-     const char* end;
-     do{
-       //find end
-       for(end=start; *end!=0 and *end != ':';++end);
-       std::string dir(start, end);
-       intrp->AddIncludePath(dir.c_str());
-       start = end+1;
-     }while(*end != 0);
-   }
-   
-   bool foundCMSIncludes = false;
-   env = getenv("CMSSW_BASE");
-   if( 0 != env) {
-     foundCMSIncludes = true;
-     std::string dir(env);
-     dir += "/src";
-     intrp->AddIncludePath(dir.c_str());
-   }
-
-   env = getenv("CMSSW_RELEASE_BASE");
-   if( 0 != env) {
-     foundCMSIncludes = true;
-     std::string dir(env);
-     dir += "/src";
-     intrp->AddIncludePath(dir.c_str());
-   }
-   if( not foundCMSIncludes) {
-     std::cerr <<"Could not find the environment variables \n"
-     <<"  CMSSW_BASE or\n"
-     <<"  CMSSW_RELEASE_BASE\n"
-     <<" therefore attempting to '#include' any CMS headers will not work"<<std::endl;
-   }
-   if (0 != gApplication) {
-     gApplication->InitializeGraphics();
-   }
+AutoLibraryLoader::enable() {
+  std::cerr << "WARNING: AutoLibraryloader::enable() and AutoLibraryLoader.h are deprecated.\n" <<
+  "Use FWLiteEnabler::enable() and FWLiteEnabler.h instead"  << std::endl;
+  FWLiteEnabler::enable();
 }
 
 void
 AutoLibraryLoader::loadAll()
 {
-  // std::cout <<"LoadAllDictionaries"<<std::endl;
-  enable();
+  std::cerr << "WARNING: AutoLibraryloader::loadAll() and AutoLibraryLoader.h are deprecated.\n" <<
+  "Use FWLiteEnabler::enable() and FWLiteEnabler.h instead"  << std::endl;
+  FWLiteEnabler::enable();
 }
 

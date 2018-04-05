@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/transform.h"
 //
 
 
@@ -36,28 +37,29 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+//#define DebugLog
 
-IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const edm::ParameterSet& config){
-   
-  tok_l1_ = consumes<l1extra::L1JetParticleCollection>(config.getParameter<edm::InputTag>("L1eTauJetsSource"));
-  tauAssocCone_               = config.getParameter<double>("tauAssociationCone"); 
-  tauUnbiasCone_              = config.getParameter<double>("tauUnbiasCone");
-  pixelTracksSources_         = config.getParameter<std::vector<edm::InputTag> >("PixelTracksSources");
-  const unsigned nLabels = pixelTracksSources_.size();
-  for ( unsigned i=0; i != nLabels; i++ ) 
-    toks_pix_.push_back(consumes<reco::TrackCollection>(pixelTracksSources_[i]));
-  prelimCone_                 = config.getParameter<double>("ExtrapolationConeSize");
-  pixelIsolationConeSizeAtEC_ = config.getParameter<double>("PixelIsolationConeSizeAtEC");
-  tok_hlt_ = consumes<trigger::TriggerFilterObjectWithRefs>(config.getParameter<edm::InputTag>("L1GTSeedLabel"));
-  vtxCutSeed_                 = config.getParameter<double>("MaxVtxDXYSeed");
-  vtxCutIsol_                 = config.getParameter<double>("MaxVtxDXYIsol");
-  tok_vert_ = consumes<reco::VertexCollection>(config.getParameter<edm::InputTag>("VertexLabel"));
-  bfield_                     = config.getParameter<std::string>("MagFieldRecordName");
-  minPTrackValue_             = config.getParameter<double>("minPTrack");
-  maxPForIsolationValue_      = config.getParameter<double>("maxPTrackForIsolation");
-  ebEtaBoundary_              = config.getParameter<double>("EBEtaBoundary");
-  rEB_ = zEE_ = -1;
-  bfVal = 0;
+IsolatedPixelTrackCandidateProducer::IsolatedPixelTrackCandidateProducer(const edm::ParameterSet& config) :
+  tok_hlt_(                     consumes<trigger::TriggerFilterObjectWithRefs>(config.getParameter<edm::InputTag>("L1GTSeedLabel")) ),
+  tok_l1_(                      consumes<l1extra::L1JetParticleCollection>(config.getParameter<edm::InputTag>("L1eTauJetsSource")) ),
+  tok_vert_(                    consumes<reco::VertexCollection>(config.getParameter<edm::InputTag>("VertexLabel")) ),
+  toks_pix_(                    edm::vector_transform(
+                                  config.getParameter<std::vector<edm::InputTag> >("PixelTracksSources"),
+                                  [this](edm::InputTag const & tag){return consumes<reco::TrackCollection>(tag);}) ),
+  bfield_(                      config.getParameter<std::string>("MagFieldRecordName") ),
+  prelimCone_(                  config.getParameter<double>("ExtrapolationConeSize") ),
+  pixelIsolationConeSizeAtEC_(  config.getParameter<double>("PixelIsolationConeSizeAtEC") ),
+  vtxCutSeed_(                  config.getParameter<double>("MaxVtxDXYSeed") ),
+  vtxCutIsol_(                  config.getParameter<double>("MaxVtxDXYIsol") ),
+  tauAssocCone_(                config.getParameter<double>("tauAssociationCone") ), 
+  tauUnbiasCone_(               config.getParameter<double>("tauUnbiasCone") ),
+  minPTrackValue_(              config.getParameter<double>("minPTrack") ),
+  maxPForIsolationValue_(       config.getParameter<double>("maxPTrackForIsolation") ),
+  ebEtaBoundary_(               config.getParameter<double>("EBEtaBoundary") ),
+  rEB_( -1 ), 
+  zEE_( -1 ),
+  bfVal_( 0 )
+{
   // Register the product
   produces< reco::IsolatedPixelTrackCandidateCollection >();
 }
@@ -66,35 +68,34 @@ IsolatedPixelTrackCandidateProducer::~IsolatedPixelTrackCandidateProducer() {
 
 }
 
-void IsolatedPixelTrackCandidateProducer::beginJob () {}
-
 void IsolatedPixelTrackCandidateProducer::beginRun(const edm::Run &run, const edm::EventSetup &theEventSetup) {
 
   edm::ESHandle<CaloGeometry> pG;
   theEventSetup.get<CaloGeometryRecord>().get(pG);   
   
   const double rad (dynamic_cast<const EcalBarrelGeometry*>( pG->getSubdetectorGeometry(DetId::Ecal, EcalBarrel ))->avgRadiusXYFrontFaceCenter() ) ;
-  
-  const double zz (dynamic_cast<const EcalEndcapGeometry*>( pG->getSubdetectorGeometry(DetId::Ecal, EcalEndcap ))->avgAbsZFrontFaceCenter() ) ;
+  const double zz  (dynamic_cast<const EcalEndcapGeometry*>( pG->getSubdetectorGeometry(DetId::Ecal, EcalEndcap ))->avgAbsZFrontFaceCenter() ) ;
 
-  rEB_=rad;
-  zEE_=zz;
+  rEB_ = rad;
+  zEE_ = zz;
 
   edm::ESHandle<MagneticField> vbfField;
   theEventSetup.get<IdealMagneticFieldRecord>().get(vbfField);
   const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&(*vbfField));
-  GlobalVector BField=vbfCPtr->inTesla(GlobalPoint(0,0,0));
-  bfVal=BField.mag();
+  GlobalVector BField = vbfCPtr->inTesla(GlobalPoint(0,0,0));
+  bfVal_=BField.mag();
 }
 
 void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 
-  reco::IsolatedPixelTrackCandidateCollection* trackCollection=new reco::IsolatedPixelTrackCandidateCollection;
+  auto trackCollection = std::make_unique<reco::IsolatedPixelTrackCandidateCollection>();
 
   //create vector of refs from input collections
   std::vector<reco::TrackRef> pixelTrackRefs;
-
-  for (unsigned int iPix=0; iPix<pixelTracksSources_.size(); iPix++) {
+#ifdef DebugLog
+  edm::LogInfo("HcalIsoTrack") << "IsolatedPixelTrakCandidate: with" << toks_pix_.size() << " candidates to start with\n";
+#endif
+  for (unsigned int iPix=0; iPix<toks_pix_.size(); iPix++) {
     edm::Handle<reco::TrackCollection> iPixCol;
     theEvent.getByToken(toks_pix_[iPix],iPixCol);
     for (reco::TrackCollection::const_iterator pit=iPixCol->begin(); pit!=iPixCol->end(); pit++) {
@@ -107,43 +108,6 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
 
   edm::Handle<reco::VertexCollection> pVert;
   theEvent.getByToken(tok_vert_,pVert);
-
-  double ptTriggered  = -10;
-  double etaTriggered = -100;
-  double phiTriggered = -100;
-  
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
-  theEvent.getByToken(tok_hlt_, l1trigobj);
-  
-  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
-  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;
-  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1forjetobjref;
-  
-  l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
-  l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
-  l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
-  
-  for (unsigned int p=0; p<l1tauobjref.size(); p++) {
-    if (l1tauobjref[p]->pt()>ptTriggered) {
-      ptTriggered  = l1tauobjref[p]->pt(); 
-      phiTriggered = l1tauobjref[p]->phi();
-      etaTriggered = l1tauobjref[p]->eta();
-    }
-  }
-  for (unsigned int p=0; p<l1jetobjref.size(); p++) {
-    if (l1jetobjref[p]->pt()>ptTriggered) {
-      ptTriggered  = l1jetobjref[p]->pt();
-      phiTriggered = l1jetobjref[p]->phi();
-      etaTriggered = l1jetobjref[p]->eta();
-    }
-  }
-  for (unsigned int p=0; p<l1forjetobjref.size(); p++) {
-    if (l1forjetobjref[p]->pt()>ptTriggered) {
-      ptTriggered=l1forjetobjref[p]->pt();
-      phiTriggered=l1forjetobjref[p]->phi();
-      etaTriggered=l1forjetobjref[p]->eta();
-    }
-  }
 
   double drMaxL1Track_ = tauAssocCone_;
   
@@ -170,11 +134,6 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
       vtxMatch=true;
     }
 
-    //select tracks not matched to triggered L1 jet
-    double R=reco::deltaR(etaTriggered, phiTriggered, 
-			  pixelTrackRefs[iS]->eta(), pixelTrackRefs[iS]->phi());
-    if (R<tauUnbiasCone_) continue;
-
     //check taujet matching
     bool tmatch=false;
     l1extra::L1JetParticleCollection::const_iterator selj;
@@ -184,7 +143,6 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
       tmatch = true;
     } //loop over L1 tau
 
-    
     //propagate seed track to ECAL surface:
     std::pair<double,double> seedCooAtEC;
     // in case vertex is found:
@@ -194,6 +152,9 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
     seedAtEC seed(iS,(tmatch||vtxMatch),seedCooAtEC.first,seedCooAtEC.second);
     VecSeedsatEC.push_back(seed);
   }
+#ifdef DebugLog
+  edm::LogInfo("HcalIsoTrack") << "IsolatedPixelTrakCandidate: " << VecSeedsatEC.size() << " seeds after propagation\n";
+#endif
 
   for (unsigned int i=0; i<VecSeedsatEC.size(); i++) {
     unsigned int iSeed = VecSeedsatEC[i].index;
@@ -231,14 +192,16 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
     }
     if (maxP<maxPForIsolationValue_) {
       reco::IsolatedPixelTrackCandidate newCandidate(pixelTrackRefs[iSeed], l1extra::L1JetParticleRef(l1eTauJets,selj-l1eTauJets->begin()), maxP, sumP);
-      newCandidate.SetEtaPhiEcal(VecSeedsatEC[i].eta, VecSeedsatEC[i].phi);
+      newCandidate.setEtaPhiEcal(VecSeedsatEC[i].eta, VecSeedsatEC[i].phi);
       trackCollection->push_back(newCandidate);
       ntr++;
     }    
   }
   // put the product in the event
-  std::auto_ptr< reco::IsolatedPixelTrackCandidateCollection > outCollection(trackCollection);
-  theEvent.put(outCollection);
+  theEvent.put(std::move(trackCollection));
+#ifdef DebugLog
+  edm::LogInfo("HcalIsoTrack") << "IsolatedPixelTrackCandidate: Final # of candiates " << ntr << "\n";
+#endif
 }
 
 
@@ -264,7 +227,7 @@ std::pair<double,double> IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(do
   double phiEC = 100;
 
   double Rcurv = 9999999;
-  if (bfVal!=0) Rcurv=pT*33.3*100/(bfVal*10); //r(m)=pT(GeV)*33.3/B(kG)
+  if (bfVal_!=0) Rcurv=pT*33.3*100/(bfVal_*10); //r(m)=pT(GeV)*33.3/B(kG)
 
   double ecDist = zEE_;  //distance to ECAL andcap from IP (cm), 317 - ecal (not preshower), preshower -300
   double ecRad  = rEB_;  //radius of ECAL barrel (cm)

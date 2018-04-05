@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -55,7 +56,7 @@
 // class decleration
 //
 
-class L1TCSCTF : public thread_unsafe::DQMEDAnalyzer {
+class L1TCSCTF : public DQMEDAnalyzer {
 
  public:
 
@@ -63,14 +64,14 @@ class L1TCSCTF : public thread_unsafe::DQMEDAnalyzer {
   L1TCSCTF(const edm::ParameterSet& ps);
 
   // Destructor
-  virtual ~L1TCSCTF();
+  ~L1TCSCTF() override;
 
  protected:
   // Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   //virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
+  void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override ;
 
  private:
   // ----------member data ---------------------------
@@ -82,6 +83,10 @@ class L1TCSCTF : public thread_unsafe::DQMEDAnalyzer {
   MonitorElement* csctferrors;
   MonitorElement* csctfoccupancies;
   MonitorElement* csctfoccupancies_H;
+
+
+  MonitorElement* csctferrors_mpc;
+  MonitorElement* cscWireStripOverflow;
 
   //MonitorElement* runId_;
   //MonitorElement* lumisecId_;
@@ -177,7 +182,7 @@ class L1TCSCTF : public thread_unsafe::DQMEDAnalyzer {
   edm::InputTag gmtProducer, lctProducer, trackProducer, statusProducer, mbProducer;
   bool gangedME11a_; // needed this be set false for Run2
 
-  CSCSectorReceiverLUT *srLUTs_[5];
+  CSCSectorReceiverLUT* srLUTs_[5][2][6];
 
   const L1MuTriggerScales  *ts;
   const L1MuTriggerPtScale *tpts;

@@ -17,6 +17,7 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/EventSetupKnownRecordsSupplier.h"
 
 namespace edm {
 //
@@ -30,7 +31,10 @@ namespace edm {
 //
 // constructors and destructor
 //
-   EventSetup::EventSetup() : syncValue_(IOVSyncValue::invalidIOVSyncValue()), recordMap_()
+EventSetup::EventSetup(ActivityRegistry* activityRegistry) :
+   recordMap_(),
+   activityRegistry_(activityRegistry)
+
 {
 }
 
@@ -59,12 +63,6 @@ EventSetup::~EventSetup()
 // member functions
 //
 void
-EventSetup::setIOVSyncValue(const IOVSyncValue& iTime) {
-   //will ultimately build our list of records
-   syncValue_ = iTime;
-}
-
-void 
 EventSetup::insert(const eventsetup::EventSetupRecordKey& iKey,
                 const eventsetup::EventSetupRecord* iRecord)
 {
@@ -92,7 +90,7 @@ EventSetup::find(const eventsetup::EventSetupRecordKey& iKey) const
    std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *>::const_iterator itFind
    = recordMap_.find(iKey);
    if(itFind == recordMap_.end()) {
-      return 0;
+      return nullptr;
    }
    return itFind->second;
 }
@@ -109,6 +107,12 @@ EventSetup::fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>
       ++it) {
     oToFill.push_back(it->first);
   }
+}
+
+bool
+EventSetup::recordIsProvidedByAModule( eventsetup::EventSetupRecordKey const& iKey) const
+{
+  return knownRecords_->isKnown(iKey);
 }
 
 //

@@ -16,8 +16,8 @@ public:
          const std::string& user,
          const std::string& pass);
 	      
-   virtual ~RunSummaryRead();
-   void run();
+   ~RunSummaryRead() override;
+   void run() override;
 
    RunSummary readData(const std::string & table, const std::string & column, const int r_number );
  

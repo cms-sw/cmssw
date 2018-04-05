@@ -18,6 +18,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
@@ -184,7 +185,7 @@ bool StripSubClusterShapeFilterBase::testLastHit
 bool StripSubClusterShapeFilterBase::testLastHit
    (const TrackingRecHit *hit, const GlobalPoint &gpos, const GlobalVector &gdir, bool mustProject) const
 {
-   const TrackerSingleRecHit *stripHit = 0;
+   const TrackerSingleRecHit *stripHit = nullptr;
    if (typeid(*hit) == typeid(SiStripMatchedRecHit2D)) {
       const SiStripMatchedRecHit2D & mhit = static_cast<const SiStripMatchedRecHit2D &>(*hit);
       SiStripRecHit2D mono = mhit.monoHit();
@@ -194,7 +195,7 @@ bool StripSubClusterShapeFilterBase::testLastHit
       const ProjectedSiStripRecHit2D & mhit = static_cast<const ProjectedSiStripRecHit2D &>(*hit);
       const SiStripRecHit2D &orig = mhit.originalHit();
       return testLastHit(&orig,   gpos, gdir, true);
-   } else if ((stripHit = dynamic_cast<const TrackerSingleRecHit *>(hit)) != 0) {
+   } else if ((stripHit = dynamic_cast<const TrackerSingleRecHit *>(hit)) != nullptr) {
       DetId detId = hit->geographicalId();
 
       if (layerMask_[detId.subdetId()][0] == 0) {
@@ -264,7 +265,7 @@ bool StripSubClusterShapeFilterBase::testLastHit
       } 
 
       const StripGeomDetUnit* stripDetUnit = dynamic_cast<const StripGeomDetUnit *>(det);
-      if (det == 0) { edm::LogError("Strip not a StripGeomDetUnit?") << " on " << detId.rawId() << "\n"; return true; }
+      if (det == nullptr) { edm::LogError("Strip not a StripGeomDetUnit?") << " on " << detId.rawId() << "\n"; return true; }
 
       float MeVperADCStrip = 9.5665E-4; // conversion constant from ADC counts to MeV for the SiStrip detector
       float mip = 3.9 / ( MeVperADCStrip/stripDetUnit->surface().bounds().thickness() ); // 3.9 MeV/cm = ionization in silicon 
@@ -292,7 +293,7 @@ void StripSubClusterShapeFilterBase::setEventBase
   es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",theFilter);
 
   //Retrieve tracker topology from geometry
-  es.get<IdealGeometryRecord>().get(theTopology);
+  es.get<TrackerTopologyRcd>().get(theTopology);
 
   es.get<SiStripNoisesRcd>().get(theNoise);
 
@@ -310,7 +311,7 @@ bool StripSubClusterShapeTrajectoryFilter::testLastHit(const TrajectoryMeasureme
 {
    const TrackingRecHit* hit = last.recHit()->hit();
    if (!last.updatedState().isValid()) return true;
-   if (hit == 0 || !hit->isValid()) return true;
+   if (hit == nullptr || !hit->isValid()) return true;
    if (hit->geographicalId().subdetId() < SiStripDetId::TIB) return true; // we look only at strips for now
    return testLastHit(hit, last.updatedState(), false);
 
@@ -358,13 +359,13 @@ bool StripSubClusterShapeSeedFilter::compatible
 {
    if (filterAtHelixStage_) return true;
    const TrackingRecHit* hit = thit->hit();
-   if (hit == 0 || !hit->isValid()) return true;
+   if (hit == nullptr || !hit->isValid()) return true;
    if (hit->geographicalId().subdetId() < SiStripDetId::TIB) return true; // we look only at strips for now
    return testLastHit(hit, tsos, false);
 }
 
 bool StripSubClusterShapeSeedFilter::compatible
-    (const SeedingHitSet &hits, const GlobalTrajectoryParameters &helixStateAtVertex, const FastHelix &helix, const TrackingRegion & region) const 
+    (const SeedingHitSet &hits, const GlobalTrajectoryParameters &helixStateAtVertex, const FastHelix &helix) const
 { 
    if (!filterAtHelixStage_) return true;
 

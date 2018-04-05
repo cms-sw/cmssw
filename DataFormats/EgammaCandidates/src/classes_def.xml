@@ -9,7 +9,8 @@
   </ioread>
 
 
-  <class name="reco::Photon" ClassVersion="16">
+  <class name="reco::Photon" ClassVersion="17">
+   <version ClassVersion="17" checksum="4077732720"/>
    <version ClassVersion="16" checksum="3459546220"/>
    <version ClassVersion="15" checksum="577991108"/>
    <version ClassVersion="13" checksum="2963666409"/>
@@ -37,8 +38,12 @@
   <class name="reco::Photon::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2148735796"/>
   </class>
-  <class name="reco::Photon::ShowerShape" ClassVersion="11">
+  <class name="reco::Photon::ShowerShape" ClassVersion="12">
+   <version ClassVersion="12" checksum="1586705784"/>
    <version ClassVersion="11" checksum="2494542444"/>
+  </class>
+  <class name="reco::Photon::SaturationInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="2679714023"/>
   </class>
   <class name="reco::Photon::MIPVariables" ClassVersion="10">
    <version ClassVersion="10" checksum="1613378413"/>
@@ -47,20 +52,20 @@
    <version ClassVersion="10" checksum="3308689624"/>
    <version ClassVersion="11" checksum="3649971983"/>
   </class>
-  <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="12">
+  <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="13">
    <version ClassVersion="11" checksum="3200292660"/>
    <version ClassVersion="12" checksum="114160170"/>
+   <version ClassVersion="13" checksum="3959509359"/>
   </class>
-  <class name="reco::Photon::PflowIDVariables"  ClassVersion="-1">
-   <version ClassVersion="-1" checksum="2819734289"/>
+  <class name="reco::Photon::PflowIDVariables"  ClassVersion="3">
+   <version ClassVersion="3" checksum="2819734289"/>
   </class>
   <class name="reco::Photon::EnergyCorrections"  ClassVersion="16">
    <version ClassVersion="16" checksum="1544393913"/>
    <version ClassVersion="15" checksum="2042715570"/>
   </class>
-
- 
-  <class name="std::vector<reco::PhotonCore>"/>  
+  
+  <class name="std::vector<reco::PhotonCore>"/>
   <class name="edm::reftobase::BaseHolder<reco::PhotonCore>"/>
   <class name="edm::RefToBase<reco::PhotonCore>"/>
   <class name="edm::reftobase::IndirectHolder<reco::PhotonCore>" />
@@ -73,7 +78,7 @@
   <class name="edm::RefProd<std::vector<reco::PhotonCore> >"/>
   <class name="edm::RefVector<std::vector<reco::PhotonCore>,reco::PhotonCore,edm::refhelper::FindUsingAdvance<std::vector<reco::PhotonCore>,reco::PhotonCore> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PhotonCore>,reco::PhotonCore,edm::refhelper::FindUsingAdvance<std::vector<reco::PhotonCore>,reco::PhotonCore> > >"/>
-  
+
 
 
   <class name="std::vector<reco::Photon>"/>
@@ -90,12 +95,12 @@
   <class name="edm::RefToBaseVector<reco::Photon>" />
   <class name="edm::Wrapper<edm::RefToBaseVector<reco::Photon> >" />
   <class name="edm::reftobase::BaseVectorHolder<reco::Photon>" />
-  <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > > >"/> 
-  <class name="edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > > "/>
-  <!-- 
+  <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > > >"/>
+  <class name="edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > >"/>
+  <!--
   <class name="std::pair<reco::PFCandidateRef,bool>"/>
   <class name="std::vector<std::pair<reco::PFCandidateRef,bool> >"/>
-  <class name="edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > >"/> 
+  <class name="edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > >"/>
   <class name="edm::Wrapper<edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > > >"/>
    -->
 
@@ -127,9 +132,9 @@
   </class>
   <ioread sourceClass="reco::GsfElectronCore" version="[1-10]" targetClass="reco::GsfElectronCore" source="reco::SuperClusterRef pflowSuperCluster_;" target="parentSuperCluster_">
     <![CDATA[parentSuperCluster_ = onfile.pflowSuperCluster_;]]>
-  </ioread>  
+  </ioread>
 
-  <class name="std::vector<reco::GsfElectronCore>"/>  
+  <class name="std::vector<reco::GsfElectronCore>"/>
   <class name="edm::reftobase::BaseHolder<reco::GsfElectronCore>"/>
   <class name="edm::RefToBase<reco::GsfElectronCore>"/>
   <class name="edm::reftobase::IndirectHolder<reco::GsfElectronCore>" />
@@ -143,7 +148,7 @@
   <class name="edm::RefVector<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore> > >"/>
 
-  
+
   <class name="reco::GsfElectron::TrackClusterMatching" ClassVersion="10">
    <version ClassVersion="10" checksum="1073796225"/>
   </class>
@@ -156,7 +161,9 @@
   <class name="reco::GsfElectron::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2564471186"/>
   </class>
-  <class name="reco::GsfElectron::ShowerShape" ClassVersion="11">
+  <class name="reco::GsfElectron::ShowerShape" ClassVersion="13">
+   <version ClassVersion="13" checksum="1955217576"/>
+   <version ClassVersion="12" checksum="1486422105"/>
    <version ClassVersion="11" checksum="3451347438"/>
    <version ClassVersion="10" checksum="3070677812"/>
   </class>
@@ -173,7 +180,8 @@
   <class name="reco::GsfElectron::ChargeInfo" ClassVersion="10">
    <version ClassVersion="10" checksum="1415326811"/>
   </class>
-  <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="11">
+  <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="12">
+   <version ClassVersion="12" checksum="2416379203"/>
    <version ClassVersion="11" checksum="2389048798"/>
    <version ClassVersion="10" checksum="4270399196"/>
   <ioread sourceClass="reco::GsfElectron::PflowIsolationVariables" version="[1-10]" source="float chargedHadronIso" targetClass="reco::GsfElectron::PflowIsolationVariables" target="sumChargedHadronPt">
@@ -219,7 +227,12 @@
   <class name="reco::GsfElectron::PixelMatchVariables" ClassVersion="2">
     <version ClassVersion="2" checksum="3522539867"/>
   </class>
-  <class name="reco::GsfElectron" ClassVersion="19">
+  <class name="reco::GsfElectron::SaturationInfo" ClassVersion="3">
+   <version ClassVersion="3" checksum="3868678681"/>
+  </class>
+
+  <class name="reco::GsfElectron" ClassVersion="20">
+   <version ClassVersion="20" checksum="2375747450"/>
    <version ClassVersion="19" checksum="1682285704"/>
    <version ClassVersion="18" checksum="2072747263"/>
    <version ClassVersion="17" checksum="1861965703"/>
@@ -230,7 +243,7 @@
    <version ClassVersion="12" checksum="2835360780"/>
    <version ClassVersion="11" checksum="1755683850"/>
   </class>
-  <class name="std::vector<reco::GsfElectron>"/>  
+  <class name="std::vector<reco::GsfElectron>"/>
   <class name="edm::reftobase::BaseHolder<reco::GsfElectron>"/>
   <class name="edm::RefToBase<reco::GsfElectron>"/>
   <class name="edm::reftobase::IndirectHolder<reco::GsfElectron>" />
@@ -269,7 +282,7 @@
   <class name="edm::RefVector<std::vector<reco::SiStripElectron>,reco::SiStripElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectron>,reco::SiStripElectron> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::SiStripElectron>,reco::SiStripElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectron>,reco::SiStripElectron> > >"/>
 
- 
+
   <class name="edm::AssociationMap<edm::OneToValue<std::vector<reco::Photon>, float, unsigned int > >">
       <field name="transientMap_" transient="true" />
   </class>
@@ -321,9 +334,18 @@
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Photon> >,edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > >" />
   <class name="edm::Wrapper<edm::AssociationMap<edm::OneToOne<std::vector<reco::Photon>,edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,unsigned int> > >" />
- 
+
   <class name="edm::Ptr<reco::Photon>" />
   <class name="edm::PtrVector<reco::Photon>" />
-  
-</lcgdict>
 
+  <class name="reco::HIPhotonIsolation" ClassVersion="2">
+    <version ClassVersion="2" checksum="1971638020"/>
+  </class>
+  <class name="edm::Wrapper<reco::HIPhotonIsolation>"/>
+  <class name="edm::ValueMap<reco::HIPhotonIsolation>"/>
+  <class name="edm::Wrapper<edm::ValueMap<reco::HIPhotonIsolation> >"/>
+  <class name="std::vector<reco::HIPhotonIsolation>" />
+  <class name="edm::Wrapper<std::vector<reco::HIPhotonIsolation> >" />
+
+
+</lcgdict>

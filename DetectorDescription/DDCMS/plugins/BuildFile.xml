@@ -1,0 +1,6 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<library file="*.cc" name="DetectorDescriptionDD4HepPlugins">
+ <use name="DetectorDescription/DDCMS"/>
+</library>
+<flags   EDM_PLUGIN="1"/>

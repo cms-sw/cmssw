@@ -2,9 +2,16 @@
 #! /bin/env cmsRun
 
 import FWCore.ParameterSet.Config as cms
+process = cms.Process("validation")
 
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('analysis')
+
+# load the full reconstraction configuration, to make sure we're getting all needed dependencies
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 options.register ('jets',
                   "ak4PFJetsCHS", # default value, examples : "ak4PFJets", "ak4PFJetsCHS"
@@ -16,8 +23,9 @@ options.parseArguments()
 
 whichJets  = options.jets 
 applyJEC = True
-corrLabel = 'ak4PFCHSL1FastL2L3'
-tag =  'MCRUN2_74_V7::All'
+corrLabel = "ak4PFCHS"
+from Configuration.AlCa.GlobalTag import GlobalTag
+tag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 useTrigger = False
 triggerPath = "HLT_PFJet80_v*"
 runOnMC    = True
@@ -30,14 +38,13 @@ print "jet collcetion asked : ", whichJets
 print "JEC applied?", applyJEC, ", correction:", corrLabel 
 print "trigger will be used ? : ", useTrigger, ", Trigger paths:", triggerPath
 print "is it MC ? : ", runOnMC, ", Flavours:", flavPlots
-print "Global Tag : ", tag
+print "Global Tag : ", tag.globaltag
 ############
 
-process = cms.Process("validation")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 
-process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
+process.load("JetMETCorrections.Configuration.JetCorrectors_cff")
 process.load("CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi")
 process.load("RecoJets.JetAssociationProducers.ak4JTA_cff")
 process.load("RecoBTag.Configuration.RecoBTag_cff")
@@ -45,9 +52,11 @@ process.load("PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi")
 process.load("PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi")
 process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")
 process.load("PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi")
+process.JECseq = cms.Sequence(getattr(process,corrLabel+"L1FastL2L3CorrectorChain"))
 
 newjetID=cms.InputTag(whichJets)
 process.ak4JetFlavourInfos.jets               = newjetID
+process.ak4JetFlavourInfos.hadronFlavourHasPriority = cms.bool(True)
 process.AK4byRef.jets                         = newjetID
 if not "ak4PFJetsCHS" in whichJets:
     process.ak4JetTracksAssociatorAtVertexPF.jets = newjetID
@@ -56,7 +65,6 @@ if not "ak4PFJetsCHS" in whichJets:
     process.softPFElectronsTagInfos.jets          = newjetID
     process.patJetGenJetMatch.src                 = newjetID
 
-process.btagging = cms.Sequence(process.legacyBTagging + process.pfBTagging)
 process.btagSequence = cms.Sequence(
     process.ak4JetTracksAssociatorAtVertexPF *
     process.btagging
@@ -84,7 +92,7 @@ if runOnMC:
     process.bTagValidation.applyPtHatWeight = False
     process.bTagValidation.doJetID = True
     process.bTagValidation.doJEC = applyJEC
-    process.bTagValidation.JECsource = cms.string(corrLabel)
+    process.bTagValidation.JECsourceMC = cms.InputTag(corrLabel+"L1FastL2L3Corrector")
     process.bTagValidation.flavPlots = flavPlots
     process.bTagHarvestMC.flavPlots = flavPlots
     #process.bTagValidation.ptRecJetMin = cms.double(20.)
@@ -101,7 +109,8 @@ if runOnMC:
 else:
     process.load("DQMOffline.RecoB.bTagAnalysisData_cfi")
     process.bTagAnalysis.doJEC = applyJEC
-    process.bTagAnalysis.JECsource = cms.string(corrLabel)
+    process.bTagAnalysis.JECsourceData = cms.InputTag(corrLabel+"L1FastL2L3ResidualCorrector")
+    process.JECseq *= (getattr(process,corrLabel+"ResidualCorrector") * getattr(process,corrLabel+"L1FastL2L3ResidualCorrector"))
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -121,9 +130,9 @@ else:
     process.dqmSeq = cms.Sequence(process.bTagAnalysis * process.bTagHarvest * process.dqmSaver)
 
 if useTrigger:
-    process.plots = cms.Path(process.bTagHLT * process.jetSequences * process.dqmSeq)
+    process.plots = cms.Path(process.bTagHLT * process.JECseq * process.jetSequences * process.dqmSeq)
 else:
-    process.plots = cms.Path(process.jetSequences * process.dqmSeq)
+    process.plots = cms.Path(process.JECseq * process.jetSequences * process.dqmSeq)
     
 process.dqmEnv.subSystemFolder = 'BTAG'
 process.dqmSaver.producer = 'DQM'
@@ -140,10 +149,5 @@ process.PoolSource.fileNames = [
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
-# load the full reconstraction configuration, to make sure we're getting all needed dependencies
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.GlobalTag.globaltag = tag
+process.GlobalTag = tag
 

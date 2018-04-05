@@ -88,7 +88,7 @@ PFJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iESetup)
       const reco::Candidate *particle = &(*reco_candidates)[i];
       
       // This protection is meant at not being used !
-      assert( particle!=NULL ); 
+      assert( particle!=nullptr ); 
 
       double rec_pt = particle->pt();
       double rec_eta = particle->eta();
@@ -134,7 +134,7 @@ PFJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iESetup)
 			     truth_candidates);
 
       // Check there is a genJet associated to the recoJet
-      if(gen_particle==NULL) continue; 
+      if(gen_particle==nullptr) continue; 
 
       // check deltaR is small enough
       double deltaR = algo_->deltaR(particle, gen_particle);

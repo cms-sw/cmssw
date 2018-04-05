@@ -27,11 +27,12 @@
 <use   name="SimTracker/TrackerHitAssociation"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="Geometry/CaloGeometry"/>
-<use   name="Geometry/CommonDetUnit"/>
-<use   name="Geometry/TrackerGeometryBuilder"/>
-<use   name="Geometry/EcalAlgo"/>
 <use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/EcalAlgo"/>
+<use   name="Geometry/HcalTowerAlgo"/>
 <use   name="Geometry/Records"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/GeomPropagators"/>

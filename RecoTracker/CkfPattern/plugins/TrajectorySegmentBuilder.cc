@@ -1,3 +1,4 @@
+#include <algorithm> 
 
 #include "TrajectorySegmentBuilder.h"
 
@@ -19,10 +20,10 @@
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <algorithm> 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 // #define DBG_TSB
+// #define STAT_TSB
 
 namespace {
 #ifdef STAT_TSB
@@ -58,7 +59,7 @@ namespace {
     void truncated() {}
     void invalid() {}
   };
-  [[cms::thread_safe]] StatCount statCount;
+  CMS_THREAD_SAFE StatCount statCount;
 #endif
 
 
@@ -74,7 +75,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   // create empty trajectory
   //
   theLockedHits.clear();
-  TempTrajectory startingTrajectory(theFullPropagator.propagationDirection());
+  TempTrajectory startingTrajectory(theFullPropagator.propagationDirection(),0);
   //
   // get measurement groups
   //

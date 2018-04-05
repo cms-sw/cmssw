@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -31,6 +32,15 @@ ClusterChecker::ClusterChecker(const edm::ParameterSet & conf,
             ignoreDetsAboveNClusters_ = 0;
         }
     }
+}
+
+void ClusterChecker::fillDescriptions(edm::ParameterSetDescription& desc) {
+  desc.add<bool>("doClusterCheck", true);
+  desc.add<unsigned>("MaxNumberOfCosmicClusters",  400000);
+  desc.add<edm::InputTag>("ClusterCollectionLabel", edm::InputTag("siStripClusters"));
+  desc.add<unsigned>("MaxNumberOfPixelClusters", 40000);
+  desc.add<edm::InputTag>("PixelClusterCollectionLabel", edm::InputTag("siPixelClusters"));
+  desc.add<std::string>("cut", "strip < 400000 && pixel < 40000 && (strip < 50000 + 10*pixel) && (pixel < 5000 + 0.1*strip)");
 }
 
 

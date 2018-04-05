@@ -46,6 +46,7 @@
 #include <stdexcept>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #define DEBUG_CF_ 0
 

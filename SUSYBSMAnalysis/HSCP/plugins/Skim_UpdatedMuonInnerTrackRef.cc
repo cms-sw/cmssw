@@ -19,12 +19,12 @@
 class UpdatedMuonInnerTrackRef : public edm::EDProducer {
    public:
       explicit UpdatedMuonInnerTrackRef(const edm::ParameterSet&);
-      ~UpdatedMuonInnerTrackRef();
+      ~UpdatedMuonInnerTrackRef() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       reco::TrackRef findNewRef(reco::TrackRef oldTrackRef, edm::Handle<reco::TrackCollection>& newTrackCollection);
 
@@ -89,7 +89,7 @@ void UpdatedMuonInnerTrackRef::produce(edm::Event& ev, const edm::EventSetup& iS
       }
 
       unsigned int muonCollectionSize = muonCollectionHandle->size();
-      std::auto_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
+      std::unique_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
 
 
       for (unsigned int i=0; i<muonCollectionSize; i++) {
@@ -111,7 +111,7 @@ void UpdatedMuonInnerTrackRef::produce(edm::Event& ev, const edm::EventSetup& iS
             newmuons->push_back(*newmu);
       }
 
-      ev.put(newmuons);
+      ev.put(std::move(newmuons));
 }
 
 reco::TrackRef UpdatedMuonInnerTrackRef::findNewRef(reco::TrackRef oldTrackRef, edm::Handle<reco::TrackCollection>& newTrackCollection){

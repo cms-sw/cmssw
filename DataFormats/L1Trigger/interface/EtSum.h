@@ -4,11 +4,19 @@
 
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1Trigger/interface/BXVector.h"
+#include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
 
 namespace l1t {
 
   class EtSum;
   typedef BXVector<EtSum> EtSumBxCollection;
+  typedef edm::Ref< EtSumBxCollection > EtSumRef ;
+  typedef edm::RefVector< EtSumBxCollection > EtSumRefVector ;
+  typedef std::vector< EtSumRef > EtSumVectorRef ;
+
+  typedef ObjectRefBxCollection<EtSum> EtSumRefBxCollection;
+  typedef ObjectRefPair<EtSum> EtSumRefPair;
+  typedef ObjectRefPairBxCollection<EtSum> EtSumRefPairBxCollection;
 
   class EtSum : public L1Candidate {
 
@@ -23,6 +31,20 @@ namespace l1t {
       kTotalEty,
       kTotalHtx,
       kTotalHty,
+      kMissingEtHF,
+      kTotalEtxHF,
+      kTotalEtyHF,
+      kMinBiasHFP0,
+      kMinBiasHFM0,
+      kMinBiasHFP1,
+      kMinBiasHFM1,
+      kTotalEtHF,
+      kTotalEtEm,
+      kTotalHtHF,
+      kTotalHtxHF,
+      kTotalHtyHF,
+      kMissingHtHF,
+      kTowerCount      
     };
 
     EtSum(){}
@@ -41,11 +63,14 @@ namespace l1t {
 	   int qual=0);
 
 
-    ~EtSum();
+    ~EtSum() override;
 
     void setType(EtSumType type);
 
     EtSumType getType() const;
+
+    virtual bool operator==(const l1t::EtSum& rhs) const;
+    virtual inline bool operator!=(const l1t::EtSum& rhs) const { return !(operator==(rhs)); };
 
   private:
 

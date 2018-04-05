@@ -41,6 +41,21 @@ namespace edm {
       static constexpr module::Abilities kAbilities=module::Abilities::kOneWatchLuminosityBlocks;
       typedef module::Empty Type;
     };
+    
+    template<typename... VArgs>
+    struct WantsGlobalRunTransitions {
+      static constexpr bool value = CheckAbility<module::Abilities::kOneWatchRuns,VArgs...>::kHasIt or
+      CheckAbility<module::Abilities::kBeginRunProducer,VArgs...>::kHasIt or
+      CheckAbility<module::Abilities::kEndRunProducer, VArgs...>::kHasIt;
+    };
+    
+    template<typename... VArgs>
+    struct WantsGlobalLuminosityBlockTransitions {
+      static constexpr bool value = CheckAbility<module::Abilities::kOneWatchLuminosityBlocks,VArgs...>::kHasIt or
+      CheckAbility<module::Abilities::kBeginLuminosityBlockProducer,VArgs...>::kHasIt or
+      CheckAbility<module::Abilities::kEndLuminosityBlockProducer, VArgs...>::kHasIt;
+    };
+
   }
 }
 

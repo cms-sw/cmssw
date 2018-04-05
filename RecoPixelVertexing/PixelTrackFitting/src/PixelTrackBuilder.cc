@@ -122,7 +122,7 @@ namespace {
     TSCPBuilderNoMaterial tscpBuilder;
     TrajectoryStateClosestToPoint tscp =
       tscpBuilder(*(state.freeState()), origin);
-    FreeTrajectoryState fs = tscp.theState();
+    const FreeTrajectoryState& fs = tscp.theState();
     LogTrace("")<<"CHECK-2 FTS: " << fs;
   }
 

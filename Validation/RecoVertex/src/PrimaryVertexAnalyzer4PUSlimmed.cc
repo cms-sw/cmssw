@@ -15,11 +15,28 @@
 
 // associator
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimTracker/VertexAssociation/interface/calculateVertexSharedTracks.h"
 
 // DQM
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <numeric>
+
+namespace {
+  template <typename T, size_t N>
+  std::array<T, N+1> makeLogBins(const double min, const double max) {
+    const double minLog10 = std::log10(min);
+    const double maxLog10 = std::log10(max);
+    const double width = (maxLog10-minLog10)/N;
+    std::array<T, N+1> ret;
+    ret[0] = std::pow(10,minLog10);
+    const double mult = std::pow(10, width);
+    for(size_t i=1; i<= N; ++i) {
+      ret[i] = ret[i-1]*mult;
+    }
+    return ret;
+  }
+}
 
 //
 // constructors and destructor
@@ -29,19 +46,12 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
     : verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       use_only_charged_tracks_(iConfig.getUntrackedParameter<bool>(
           "use_only_charged_tracks", true)),
-      sigma_z_match_(
-          iConfig.getUntrackedParameter<double>("sigma_z_match", 3.0)),
-      abs_z_match_(
-          iConfig.getUntrackedParameter<double>("abs_z_match", 0.1)),
+      do_generic_sim_plots_(iConfig.getUntrackedParameter<bool>("do_generic_sim_plots")),
       root_folder_(
           iConfig.getUntrackedParameter<std::string>("root_folder",
                                                 "Validation/Vertices")),
       vecPileupSummaryInfoToken_(consumes<std::vector<PileupSummaryInfo> >(
           edm::InputTag(std::string("addPileupInfo")))),
-      recoTrackCollectionToken_(consumes<reco::TrackCollection>(
-          iConfig.getUntrackedParameter<edm::InputTag>("recoTrackProducer"))),
-      edmView_recoTrack_Token_(consumes<edm::View<reco::Track> >(
-          iConfig.getUntrackedParameter<edm::InputTag>("recoTrackProducer"))),
       trackingParticleCollectionToken_(consumes<TrackingParticleCollection>(
           iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleCollection"))),
       trackingVertexCollectionToken_(consumes<TrackingVertexCollection>(
@@ -49,14 +59,17 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
       simToRecoAssociationToken_(consumes<reco::SimToRecoCollection>(
           iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap"))),
       recoToSimAssociationToken_(consumes<reco::RecoToSimCollection>(
-          iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap"))) {
+          iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap"))),
+      vertexAssociatorToken_(consumes<reco::VertexToTrackingVertexAssociator>(
+          iConfig.getUntrackedParameter<edm::InputTag>("vertexAssociator"))) {
   reco_vertex_collections_ = iConfig.getParameter<std::vector<edm::InputTag> >(
       "vertexRecoCollections");
   for (auto const& l : reco_vertex_collections_) {
     reco_vertex_collection_tokens_.push_back(
-        edm::EDGetTokenT<reco::VertexCollection>(
-            consumes<reco::VertexCollection>(l)));
+        edm::EDGetTokenT<edm::View<reco::Vertex>>(
+            consumes<edm::View<reco::Vertex>>(l)));
   }
+  errorPrintedForColl_.resize(reco_vertex_collections_.size(), false);
 }
 
 PrimaryVertexAnalyzer4PUSlimmed::~PrimaryVertexAnalyzer4PUSlimmed() {}
@@ -77,10 +90,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     4.0, 6.0, 8.0, 10.0, 20.0,
     40.0, 60.0, 80.0, 100.0
   };
-  float log_mergez_bins[18] = {
-    0.0, 0.0025, 0.005, 0.0075, 0.01, 0.025, 0.05, 0.075, 0.1,
-    0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0
-  };
+  auto const log_mergez_bins = makeLogBins<float, 16>(1e-4, 1); // 4 bins / 10x
+
+  auto const log_pt_bins = makeLogBins<float, 100>(0.1, 1e4);
   float log_pt2_bins[16] = {
     0.0, 0.1, 0.5, 
     1.0, 2.0, 5.0,
@@ -95,6 +107,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     45.0, 50.0, 55.0, 60.0, 70.0,
     80.0, 90.0, 100.0, 150.0, 200.0
   };
+
   // TODO(rovere) Possibly change or add the main DQMStore booking
   // interface to allow booking a TProfile with variable bin-width
   // using an array of floats, as done for the TH1F case, not of
@@ -108,53 +121,75 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
   };
 
   i.setCurrentFolder(root_folder_);
-  mes_["root_folder"]["GenVtx_vs_BX"] =
+  if(do_generic_sim_plots_) {
+    mes_["root_folder"]["GenVtx_vs_BX"] =
       i.book2D("GenVtx_vs_BX", "GenVtx_vs_BX", 16, -12.5, 3.5, 200, 0., 200.);
-  // Generated Primary Vertex Plots
-  mes_["root_folder"]["GenPV_X"] =
+    // Generated Primary Vertex Plots
+    mes_["root_folder"]["GenPV_X"] =
       i.book1D("GenPV_X", "GeneratedPV_X", 120, -0.6, 0.6);
-  mes_["root_folder"]["GenPV_Y"] =
+    mes_["root_folder"]["GenPV_Y"] =
       i.book1D("GenPV_Y", "GeneratedPV_Y", 120, -0.6, 0.6);
-  mes_["root_folder"]["GenPV_Z"] =
+    mes_["root_folder"]["GenPV_Z"] =
       i.book1D("GenPV_Z", "GeneratedPV_Z", 120, -60., 60.);
-  mes_["root_folder"]["GenPV_R"] =
+    mes_["root_folder"]["GenPV_R"] =
       i.book1D("GenPV_R", "GeneratedPV_R", 120, 0, 0.6);
-  mes_["root_folder"]["GenPV_Pt2"] =
+    mes_["root_folder"]["GenPV_Pt2"] =
       i.book1D("GenPV_Pt2", "GeneratedPV_Sum-pt2", 15, &log_pt2_bins[0]);
-  mes_["root_folder"]["GenPV_NumTracks"] =
+    mes_["root_folder"]["GenPV_NumTracks"] =
       i.book1D("GenPV_NumTracks", "GeneratedPV_NumTracks", 24, &log_ntrk_bins[0]);
-  mes_["root_folder"]["GenPV_ClosestDistanceZ"] =
+    mes_["root_folder"]["GenPV_ClosestDistanceZ"] =
       i.book1D("GenPV_ClosestDistanceZ", "GeneratedPV_ClosestDistanceZ", 30,
                &log_bins[0]);
 
-  // All Generated Vertices, used for efficiency plots
-  mes_["root_folder"]["GenAllV_NumVertices"] = i.book1D(
-      "GenAllV_NumVertices", "GeneratedAllV_NumVertices", 100, 0., 200.);
-  mes_["root_folder"]["GenAllV_X"] =
+    // All Generated Vertices, used for efficiency plots
+    mes_["root_folder"]["GenAllV_NumVertices"] = i.book1D(
+                                                          "GenAllV_NumVertices", "GeneratedAllV_NumVertices", 100, 0., 200.);
+    mes_["root_folder"]["GenAllV_X"] =
       i.book1D("GenAllV_X", "GeneratedAllV_X", 120, -0.6, 0.6);
-  mes_["root_folder"]["GenAllV_Y"] =
+    mes_["root_folder"]["GenAllV_Y"] =
       i.book1D("GenAllV_Y", "GeneratedAllV_Y", 120, -0.6, 0.6);
-  mes_["root_folder"]["GenAllV_Z"] =
+    mes_["root_folder"]["GenAllV_Z"] =
       i.book1D("GenAllV_Z", "GeneratedAllV_Z", 120, -60, 60);
-  mes_["root_folder"]["GenAllV_R"] =
+    mes_["root_folder"]["GenAllV_R"] =
       i.book1D("GenAllV_R", "GeneratedAllV_R", 120, 0, 0.6);
-  mes_["root_folder"]["GenAllV_Pt2"] =
+    mes_["root_folder"]["GenAllV_Pt2"] =
       i.book1D("GenAllV_Pt2", "GeneratedAllV_Sum-pt2", 15, &log_pt2_bins[0]);
-  mes_["root_folder"]["GenAllV_NumTracks"] =
+    mes_["root_folder"]["GenAllV_NumTracks"] =
       i.book1D("GenAllV_NumTracks", "GeneratedAllV_NumTracks", 24, &log_ntrk_bins[0]);
-  mes_["root_folder"]["GenAllV_ClosestDistanceZ"] =
+    mes_["root_folder"]["GenAllV_ClosestDistanceZ"] =
       i.book1D("GenAllV_ClosestDistanceZ", "GeneratedAllV_ClosestDistanceZ", 30,
                &log_bins[0]);
-  mes_["root_folder"]["GenAllV_PairDistanceZ"] =
+    mes_["root_folder"]["GenAllV_PairDistanceZ"] =
       i.book1D("GenAllV_PairDistanceZ", "GeneratedAllV_PairDistanceZ",
                1000, 0, 20);
-  mes_["root_folder"]["SignalIsHighestPt2"] =
+    mes_["root_folder"]["SignalIsHighestPt2"] =
         i.book1D("SignalIsHighestPt2", "SignalIsHighestPt2", 2, -0.5, 1.5);
+  }
 
   for (auto const& l : reco_vertex_collections_) {
     std::string label = l.label();
     std::string current_folder = root_folder_ + "/" + label;
     i.setCurrentFolder(current_folder);
+
+    auto book1d = [&](const char *name, int bins, double min, double max) {
+      mes_[label][name] = i.book1D(name, name, bins, min, max);
+    };
+    auto book1dlogx = [&](const char *name, int bins, const float *xbinedges) {
+      mes_[label][name] = i.book1D(name, name, bins, xbinedges);
+    };
+    auto book2d = [&](const char *name,
+                      int xbins, double xmin, double xmax,
+                      int ybins, double ymin, double ymax) {
+      mes_[label][name] = i.book2D(name, name, xbins,xmin,xmax, ybins,ymin,ymax);
+    };
+    auto book2dlogx = [&](const char *name,
+                          int xbins, const float *xbinedges,
+                          int ybins, double ymin, double ymax) {
+      auto me = i.book2D(name, name, xbins,xbinedges[0],xbinedges[xbins], ybins,ymin,ymax);
+      me->getTH2F()->GetXaxis()->Set(xbins, xbinedges);
+      mes_[label][name] = me;
+    };
+
 
     mes_[label]["RecoVtx_vs_GenVtx"] = i.bookProfile(
         "RecoVtx_vs_GenVtx", "RecoVtx_vs_GenVtx", 125, 0., 250., 250, 0., 250.);
@@ -272,6 +307,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["GenAllAssoc2Reco_ClosestDistanceZ"] =
         i.book1D("GenAllAssoc2Reco_ClosestDistanceZ",
                  "GeneratedAllAssoc2Reco_ClosestDistanceZ", 30, &log_bins[0]);
+    book1d("GenPVAssoc2RecoPV_X", 120, -0.6, 0.6);
+    book1d("GenPVAssoc2RecoPV_Y", 120, -0.6, 0.6);
+    book1d("GenPVAssoc2RecoPV_Z", 120, -60,  60);
 
     // All Generated Vertices Matched to a Reconstructed vertex. Used
     // for Efficiency plots
@@ -299,6 +337,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["GenAllAssoc2RecoMatched_ClosestDistanceZ"] = i.book1D(
         "GenAllAssoc2RecoMatched_ClosestDistanceZ",
         "GeneratedAllAssoc2RecoMatched_ClosestDistanceZ", 30, &log_bins[0]);
+    book1d("GenPVAssoc2RecoPVMatched_X", 120, -0.6, 0.6);
+    book1d("GenPVAssoc2RecoPVMatched_Y", 120, -0.6, 0.6);
+    book1d("GenPVAssoc2RecoPVMatched_Z", 120, -60,  60);
 
     // All Generated Vertices Multi-Matched to a Reconstructed vertex. Used
     // for Duplicate rate plots
@@ -427,7 +468,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["RecoAllAssoc2GenMultiMatched_ClosestDistanceZ"] =
         i.book1D("RecoAllAssoc2GenMultiMatched_ClosestDistanceZ",
                  "ReconstructedAllAssoc2GenMultiMatched_ClosestDistanceZ",
-                 17, &log_mergez_bins[0]);
+                 log_mergez_bins.size()-1, &log_mergez_bins[0]);
 
     // All Reconstructed Vertices Matched to a Multi-Matched Gen
     // Vertex. Used for Duplicate rate plots done w.r.t. Reco
@@ -465,74 +506,61 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
     mes_[label]["RecoAllAssoc2GenSimForMerge_ClosestDistanceZ"] = i.book1D(
         "RecoAllAssoc2GenSimForMerge_ClosestDistanceZ",
         "RecoAllAssoc2GenSimForMerge_ClosestDistanceZ",
-        17, &log_mergez_bins[0]);
+        log_mergez_bins.size()-1, &log_mergez_bins[0]);
 
 
     // Resolution and pull histograms
-    auto book1d = [&](const char *name, int bins, double min, double max) {
-      mes_[label][name] = i.book1D(name, name, bins, min, max);
-    };
-    auto book1dlogx = [&](const char *name, int bins, float *xbinedges) {
-      mes_[label][name] = i.book1D(name, name, bins, xbinedges);
-    };
-    auto book2d = [&](const char *name,
-                      int xbins, double xmin, double xmax,
-                      int ybins, double ymin, double ymax) {
-      mes_[label][name] = i.book2D(name, name, xbins,xmin,xmax, ybins,ymin,ymax);
-    };
-    auto book2dlogx = [&](const char *name,
-                          int xbins, float *xbinedges,
-                          int ybins, double ymin, double ymax) {
-      auto me = i.book2D(name, name, xbins,xbinedges[0],xbinedges[xbins], ybins,ymin,ymax);
-      me->getTH2F()->GetXaxis()->Set(xbins, xbinedges);
-      mes_[label][name] = me;
-    };
-
-    const double resolx = 0.1;
-    const double resoly = 0.1;
-    const double resolz = 0.1;
     const double resolpt2 = 10;
 
-    // Non-merged vertices
-    book1d("RecoAllAssoc2GenMatched_ResolX",   100,-resolx,resolx);
-    book1d("RecoAllAssoc2GenMatched_ResolY",   100,-resoly,resoly);
-    book1d("RecoAllAssoc2GenMatched_ResolZ",   100,-resolz,resolz);
-    book1d("RecoAllAssoc2GenMatched_ResolPt2", 100,-resolpt2,resolpt2);
+    const double minPull = -10;
+    const double maxPull = 10;
+    const double nPull = 100;
 
-    book2d("RecoAllAssoc2GenMatched_ResolX_vs_PU",   125,0.,250., 100,-resolx,resolx);
-    book2d("RecoAllAssoc2GenMatched_ResolY_vs_PU",   125,0.,250., 100,-resoly,resoly);
-    book2d("RecoAllAssoc2GenMatched_ResolZ_vs_PU",   125,0.,250., 100,-resolz,resolz);
-    book2d("RecoAllAssoc2GenMatched_ResolPt2_vs_PU", 125,0.,250., 100,-resolpt2,resolpt2);
+    auto bookResolPull = [&](const std::string& prefix, const double resolx, const double resoly, const double resolz) {
+      book1d((prefix+"_ResolX"  ).c_str(), 100,-resolx,resolx);
+      book1d((prefix+"_ResolY"  ).c_str(), 100,-resoly,resoly);
+      book1d((prefix+"_ResolZ"  ).c_str(), 100,-resolz,resolz);
+      book1d((prefix+"_ResolPt2").c_str(), 100,-resolpt2,resolpt2);
+      book1d((prefix+"_PullX"   ).c_str(), 250,-25,25);
+      book1d((prefix+"_PullY"   ).c_str(), 250,-25,25);
+      book1d((prefix+"_PullZ"   ).c_str(), 250,-25,25);
 
-    book2dlogx("RecoAllAssoc2GenMatched_ResolX_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolx,resolx);
-    book2dlogx("RecoAllAssoc2GenMatched_ResolY_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resoly,resoly);
-    book2dlogx("RecoAllAssoc2GenMatched_ResolZ_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolz,resolz);
-    book2dlogx("RecoAllAssoc2GenMatched_ResolPt2_vs_NumTracks", 24,&log_ntrk_bins[0], 100,-resolpt2,resolpt2);
+      book2d((prefix+"_ResolX_vs_PU"  ).c_str(), 125,0.,250., 100,-resolx,resolx);
+      book2d((prefix+"_ResolY_vs_PU"  ).c_str(), 125,0.,250., 100,-resoly,resoly);
+      book2d((prefix+"_ResolZ_vs_PU"  ).c_str(), 125,0.,250., 100,-resolz,resolz);
+      book2d((prefix+"_ResolPt2_vs_PU").c_str(), 125,0.,250., 100,-resolpt2,resolpt2);
+      book2d((prefix+"_PullX_vs_PU"   ).c_str(), 125,0.,250., nPull,minPull,maxPull);
+      book2d((prefix+"_PullY_vs_PU"   ).c_str(), 125,0.,250., nPull,minPull,maxPull);
+      book2d((prefix+"_PullZ_vs_PU"   ).c_str(), 125,0.,250., nPull,minPull,maxPull);
 
-    book1d("RecoAllAssoc2GenMatched_PullX", 250,-25,25);
-    book1d("RecoAllAssoc2GenMatched_PullY", 250,-25,25);
-    book1d("RecoAllAssoc2GenMatched_PullZ", 250,-25,25);
+      book2dlogx((prefix+"_ResolX_vs_NumTracks"  ).c_str(), 24,&log_ntrk_bins[0], 100,-resolx,resolx);
+      book2dlogx((prefix+"_ResolY_vs_NumTracks"  ).c_str(), 24,&log_ntrk_bins[0], 100,-resoly,resoly);
+      book2dlogx((prefix+"_ResolZ_vs_NumTracks"  ).c_str(), 24,&log_ntrk_bins[0], 100,-resolz,resolz);
+      book2dlogx((prefix+"_ResolPt2_vs_NumTracks").c_str(), 24,&log_ntrk_bins[0], 100,-resolpt2,resolpt2);
+      book2dlogx((prefix+"_PullX_vs_NumTracks"   ).c_str(), 24,&log_ntrk_bins[0], nPull,minPull,maxPull);
+      book2dlogx((prefix+"_PullY_vs_NumTracks"   ).c_str(), 24,&log_ntrk_bins[0], nPull,minPull,maxPull);
+      book2dlogx((prefix+"_PullZ_vs_NumTracks"   ).c_str(), 24,&log_ntrk_bins[0], nPull,minPull,maxPull);
 
-    // Merged vertices
-    book1d("RecoAllAssoc2GenMatchedMerged_ResolX",   100,-resolx,resolx);
-    book1d("RecoAllAssoc2GenMatchedMerged_ResolY",   100,-resoly,resoly);
-    book1d("RecoAllAssoc2GenMatchedMerged_ResolZ",   100,-resolz,resolz);
-    book1d("RecoAllAssoc2GenMatchedMerged_ResolPt2", 100,-resolpt2,resolpt2);
+      book2d((prefix+"_ResolX_vs_Z"  ).c_str(), 120,-60,60, 100,-resolx,resolx);
+      book2d((prefix+"_ResolY_vs_Z"  ).c_str(), 120,-60,60, 100,-resoly,resoly);
+      book2d((prefix+"_ResolZ_vs_Z"  ).c_str(), 120,-60,60, 100,-resolz,resolz);
+      book2d((prefix+"_ResolPt2_vs_Z").c_str(), 120,-60,60, 100,-resolpt2,resolpt2);
+      book2d((prefix+"_PullX_vs_Z"   ).c_str(), 120,-60,60, nPull,minPull,maxPull);
+      book2d((prefix+"_PullY_vs_Z"   ).c_str(), 120,-60,60, nPull,minPull,maxPull);
+      book2d((prefix+"_PullZ_vs_Z"   ).c_str(), 120,-60,60, nPull,minPull,maxPull);
 
-    book2d("RecoAllAssoc2GenMatchedMerged_ResolX_vs_PU",   125,0.,250., 100,-resolx,resolx);
-    book2d("RecoAllAssoc2GenMatchedMerged_ResolY_vs_PU",   125,0.,250., 100,-resoly,resoly);
-    book2d("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_PU",   125,0.,250., 100,-resolz,resolz);
-    book2d("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_PU", 125,0.,250., 100,-resolpt2,resolpt2);
+      book2dlogx((prefix+"_ResolX_vs_Pt"  ).c_str(), log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolx,resolx);
+      book2dlogx((prefix+"_ResolY_vs_Pt"  ).c_str(), log_pt_bins.size()-1,&log_pt_bins[0], 100,-resoly,resoly);
+      book2dlogx((prefix+"_ResolZ_vs_Pt"  ).c_str(), log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolz,resolz);
+      book2dlogx((prefix+"_ResolPt2_vs_Pt").c_str(), log_pt_bins.size()-1,&log_pt_bins[0], 100,-resolpt2,resolpt2);
+      book2dlogx((prefix+"_PullX_vs_Pt"   ).c_str(), log_pt_bins.size()-1,&log_pt_bins[0], nPull,minPull,maxPull);
+      book2dlogx((prefix+"_PullY_vs_Pt"   ).c_str(), log_pt_bins.size()-1,&log_pt_bins[0], nPull,minPull,maxPull);
+      book2dlogx((prefix+"_PullZ_vs_Pt"   ).c_str(), log_pt_bins.size()-1,&log_pt_bins[0], nPull,minPull,maxPull);
+    };
 
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolX_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolx,resolx);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolY_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resoly,resoly);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolZ_vs_NumTracks",   24,&log_ntrk_bins[0], 100,-resolz,resolz);
-    book2dlogx("RecoAllAssoc2GenMatchedMerged_ResolPt2_vs_NumTracks", 24,&log_ntrk_bins[0], 100,-resolpt2,resolpt2);
-
-    book1d("RecoAllAssoc2GenMatchedMerged_PullX", 250,-25,25);
-    book1d("RecoAllAssoc2GenMatchedMerged_PullY", 250,-25,25);
-    book1d("RecoAllAssoc2GenMatchedMerged_PullZ", 250,-25,25);
-
+    bookResolPull("RecoAllAssoc2GenMatched"      , 0.1 , 0.1 , 0.1 ); // Non-merged vertices
+    bookResolPull("RecoAllAssoc2GenMatchedMerged", 0.1 , 0.1 , 0.1 ); // Merged vertices
+    bookResolPull("RecoPVAssoc2GenPVMatched"     , 0.01, 0.01, 0.01); // PV, when correctly matched, regardless if merged or not
 
     // Purity histograms
     // Reco PV (vtx0) matched to hard-scatter gen vertex
@@ -556,6 +584,17 @@ void PrimaryVertexAnalyzer4PUSlimmed::bookHistograms(
 
     book1dlogx("RecoAssoc2GenPVMatchedNotHighest_Pt2", 15, &log_pt2_bins[0]);
     book1dlogx("RecoAssoc2GenPVNotMatched_GenPVTracksRemoved_Pt2", 15, &log_pt2_bins[0]);
+
+    // Shared tracks
+    book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionReco", 50, 0, 1);
+    book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionReco", 50, 0, 1);
+    book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionRecoMatched", 50, 0, 1);
+    book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionRecoMatched", 50, 0, 1);
+
+    book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionSim", 50, 0, 1);
+    book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionSim", 50, 0, 1);
+    book1d("RecoAllAssoc2GenSingleMatched_SharedTrackFractionSimMatched", 50, 0, 1);
+    book1d("RecoAllAssoc2GenMultiMatched_SharedTrackFractionSimMatched", 50, 0, 1);
   }
 }
 
@@ -595,7 +634,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillRecoAssociatedGenVertexHistograms(
   if (v.closest_vertex_distance_z > 0.)
     mes_[label]["GenAllAssoc2Reco_ClosestDistanceZ"]
         ->Fill(v.closest_vertex_distance_z);
-  if (v.rec_vertices.size()) {
+  if (!v.rec_vertices.empty()) {
     mes_[label]["GenAllAssoc2RecoMatched_X"]->Fill(v.x);
     mes_[label]["GenAllAssoc2RecoMatched_Y"]->Fill(v.y);
     mes_[label]["GenAllAssoc2RecoMatched_Z"]->Fill(v.z);
@@ -619,6 +658,20 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillRecoAssociatedGenVertexHistograms(
   }
 }
 
+void PrimaryVertexAnalyzer4PUSlimmed::fillRecoAssociatedGenPVHistograms(
+    const std::string& label,
+    const PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex& v,
+    bool genPVMatchedToRecoPV) {
+  mes_[label]["GenPVAssoc2RecoPV_X"]->Fill(v.x);
+  mes_[label]["GenPVAssoc2RecoPV_Y"]->Fill(v.y);
+  mes_[label]["GenPVAssoc2RecoPV_Z"]->Fill(v.z);
+  if (genPVMatchedToRecoPV) {
+    mes_[label]["GenPVAssoc2RecoPVMatched_X"]->Fill(v.x);
+    mes_[label]["GenPVAssoc2RecoPVMatched_Y"]->Fill(v.y);
+    mes_[label]["GenPVAssoc2RecoPVMatched_Z"]->Fill(v.z);
+  }
+}
+
 void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
     const std::string& label,
     int num_pileup_vertices,
@@ -635,7 +688,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
   if (v.closest_vertex_distance_z > 0.)
     mes_[label]["RecoAllAssoc2Gen_ClosestDistanceZ"]
         ->Fill(v.closest_vertex_distance_z);
-  if (v.sim_vertices.size()) {
+  if (!v.sim_vertices.empty()) {
     v.kind_of_vertex |= recoPrimaryVertex::MATCHED;
     mes_[label]["RecoAllAssoc2GenMatched_X"]->Fill(v.x);
     mes_[label]["RecoAllAssoc2GenMatched_Y"]->Fill(v.y);
@@ -651,7 +704,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
           ->Fill(v.closest_vertex_distance_z);
 
     // Fill resolution and pull plots here (as in MultiTrackValidator)
-    fillResolutionAndPullHistograms(label, num_pileup_vertices, v);
+    fillResolutionAndPullHistograms(label, num_pileup_vertices, v, false);
 
     // Now keep track of all RecoVTX associated to a SimVTX that
     // itself is associated to more than one RecoVTX, for
@@ -694,57 +747,95 @@ void PrimaryVertexAnalyzer4PUSlimmed::fillGenAssociatedRecoVertexHistograms(
           ->Fill(v.sim_vertices_internal[0]->closest_vertex_distance_z);
   }
   mes_[label]["RecoAllAssoc2GenProperties"]->Fill(v.kind_of_vertex);
+
+
+  std::string prefix;
+  if(v.sim_vertices.size() == 1) {
+    prefix = "RecoAllAssoc2GenSingleMatched_SharedTrackFraction";
+  }
+  else if(v.sim_vertices.size() > 1) {
+    prefix = "RecoAllAssoc2GenMultiMatched_SharedTrackFraction";
+  }
+
+  for(size_t i=0; i<v.sim_vertices.size(); ++i) {
+    const double sharedTracks = v.sim_vertices_num_shared_tracks[i];
+    const simPrimaryVertex *simV = v.sim_vertices_internal[i];
+    mes_[label][prefix+"Reco"]->Fill(sharedTracks/v.nRecoTrk);
+    mes_[label][prefix+"RecoMatched"]->Fill(sharedTracks/v.num_matched_sim_tracks);
+    mes_[label][prefix+"Sim"]->Fill(sharedTracks/simV->nGenTrk);
+    mes_[label][prefix+"SimMatched"]->Fill(sharedTracks/simV->num_matched_reco_tracks);
+  }
 }
 
 void PrimaryVertexAnalyzer4PUSlimmed::fillResolutionAndPullHistograms(
     const std::string& label,
     int num_pileup_vertices,
-    PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex& v) {
+    PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex& v,
+    bool isPV) {
 
   std::string prefix = "RecoAllAssoc2GenMatched";
-  const simPrimaryVertex *bestMatch = v.sim_vertices_internal[0];
   if(v.sim_vertices_internal.size() > 1) {
-
     prefix += "Merged";
-    // Pick the sim-vertex with largest number of tracks associated to
-    // reco-tracks as the best match
-    auto bestVtx = std::max_element(v.sim_vertices_internal.begin(),
-                                    v.sim_vertices_internal.end(),
-                                    [](const simPrimaryVertex *a, const simPrimaryVertex *b) {
-                                      return a->num_matched_reco_tracks < b->num_matched_reco_tracks;
-                                    });
-    bestMatch = *bestVtx;
+  }
+  if(isPV) {
+    prefix = "RecoPVAssoc2GenPVMatched";
   }
 
-
-  const double xres = v.x - bestMatch->x;
-  const double yres = v.y - bestMatch->y;
-  const double zres = v.z - bestMatch->z;
-  const double pt2res = v.ptsq - bestMatch->ptsq;
+  // Use the best match as defined by the vertex truth associator
+  // reco-tracks as the best match
+  const simPrimaryVertex& bestMatch = *(v.sim_vertices_internal[0]);
+  const double xres = v.x - bestMatch.x;
+  const double yres = v.y - bestMatch.y;
+  const double zres = v.z - bestMatch.z;
+  const double pt2res = v.ptsq - bestMatch.ptsq;
 
   const double xresol = xres;
   const double yresol = yres;
   const double zresol = zres;
   const double pt2resol = pt2res/v.ptsq;
+  const double xpull = xres/v.recVtx->xError();
+  const double ypull = yres/v.recVtx->yError();
+  const double zpull = zres/v.recVtx->zError();
 
   mes_[label][prefix+"_ResolX"]->Fill(xresol);
   mes_[label][prefix+"_ResolY"]->Fill(yresol);
   mes_[label][prefix+"_ResolZ"]->Fill(zresol);
   mes_[label][prefix+"_ResolPt2"]->Fill(pt2resol);
+  mes_[label][prefix+"_PullX"]->Fill(xpull);
+  mes_[label][prefix+"_PullY"]->Fill(ypull);
+  mes_[label][prefix+"_PullZ"]->Fill(zpull);
 
   mes_[label][prefix+"_ResolX_vs_PU"]->Fill(num_pileup_vertices, xresol);
   mes_[label][prefix+"_ResolY_vs_PU"]->Fill(num_pileup_vertices, yresol);
   mes_[label][prefix+"_ResolZ_vs_PU"]->Fill(num_pileup_vertices, zresol);
   mes_[label][prefix+"_ResolPt2_vs_PU"]->Fill(num_pileup_vertices, pt2resol);
+  mes_[label][prefix+"_PullX_vs_PU"]->Fill(num_pileup_vertices, xpull);
+  mes_[label][prefix+"_PullY_vs_PU"]->Fill(num_pileup_vertices, ypull);
+  mes_[label][prefix+"_PullZ_vs_PU"]->Fill(num_pileup_vertices, zpull);
 
   mes_[label][prefix+"_ResolX_vs_NumTracks"]->Fill(v.nRecoTrk, xresol);
   mes_[label][prefix+"_ResolY_vs_NumTracks"]->Fill(v.nRecoTrk, yresol);
   mes_[label][prefix+"_ResolZ_vs_NumTracks"]->Fill(v.nRecoTrk, zresol);
   mes_[label][prefix+"_ResolPt2_vs_NumTracks"]->Fill(v.nRecoTrk, pt2resol);
+  mes_[label][prefix+"_PullX_vs_NumTracks"]->Fill(v.nRecoTrk, xpull);
+  mes_[label][prefix+"_PullY_vs_NumTracks"]->Fill(v.nRecoTrk, ypull);
+  mes_[label][prefix+"_PullZ_vs_NumTracks"]->Fill(v.nRecoTrk, zpull);
 
-  mes_[label][prefix+"_PullX"]->Fill(xres/v.recVtx->xError());
-  mes_[label][prefix+"_PullY"]->Fill(yres/v.recVtx->yError());
-  mes_[label][prefix+"_PullZ"]->Fill(zres/v.recVtx->zError());
+  mes_[label][prefix+"_ResolX_vs_Z"]->Fill(v.z, xresol);
+  mes_[label][prefix+"_ResolY_vs_Z"]->Fill(v.z, yresol);
+  mes_[label][prefix+"_ResolZ_vs_Z"]->Fill(v.z, zresol);
+  mes_[label][prefix+"_ResolPt2_vs_Z"]->Fill(v.z, pt2resol);
+  mes_[label][prefix+"_PullX_vs_Z"]->Fill(v.z, xpull);
+  mes_[label][prefix+"_PullY_vs_Z"]->Fill(v.z, ypull);
+  mes_[label][prefix+"_PullZ_vs_Z"]->Fill(v.z, zpull);
+
+  mes_[label][prefix+"_ResolX_vs_Pt"]->Fill(v.pt, xresol);
+  mes_[label][prefix+"_ResolY_vs_Pt"]->Fill(v.pt, yresol);
+  mes_[label][prefix+"_ResolZ_vs_Pt"]->Fill(v.pt, zresol);
+  mes_[label][prefix+"_ResolPt2_vs_Pt"]->Fill(v.pt, pt2resol);
+  mes_[label][prefix+"_PullX_vs_Pt"]->Fill(v.pt, xpull);
+  mes_[label][prefix+"_PullY_vs_Pt"]->Fill(v.pt, ypull);
+  mes_[label][prefix+"_PullZ_vs_Pt"]->Fill(v.pt, zpull);
 }
 
 bool PrimaryVertexAnalyzer4PUSlimmed::matchRecoTrack2SimSignal(const reco::TrackBaseRef& recoTrack) {
@@ -835,7 +926,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::calculatePurityAndFillHistograms(
  * information */
 std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex>
 PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
-    const edm::Handle<TrackingVertexCollection> tVC) {
+    const edm::Handle<TrackingVertexCollection>& tVC) {
   std::vector<PrimaryVertexAnalyzer4PUSlimmed::simPrimaryVertex> simpv;
   int current_event = -1;
 
@@ -857,6 +948,7 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
         std::cout << *gv << std::endl;
       }
       std::cout << "----------" << std::endl;
+
     }  // end of verbose_ session
 
     // I'd rather change this and select only vertices that come from
@@ -876,7 +968,7 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
     simPrimaryVertex sv(v->position().x(), v->position().y(),
                         v->position().z());
     sv.eventId = v->eventId();
-    sv.sim_vertex = &(*v);
+    sv.sim_vertex = TrackingVertexRef(tVC, std::distance(tVC->begin(), v));
 
     for (TrackingParticleRefVector::iterator iTrack = v->daughterTracks_begin();
          iTrack != v->daughterTracks_end(); ++iTrack) {
@@ -886,7 +978,7 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
       assert((**iTrack).eventId().bunchCrossing() == 0);
     }
     // TODO(rovere) maybe get rid of this old logic completely ... ?
-    simPrimaryVertex* vp = NULL;  // will become non-NULL if a vertex
+    simPrimaryVertex* vp = nullptr;  // will become non-NULL if a vertex
                                   // is found and then point to it
     for (std::vector<simPrimaryVertex>::iterator v0 = simpv.begin();
          v0 != simpv.end(); v0++) {
@@ -973,21 +1065,27 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
     std::cout << "-----------------------------------------------" << std::endl;
   }  // End of for summary on discovered simulated primary vertices.
 
+  // In case of no simulated vertices, break here
+  if(simpv.empty())
+    return simpv;
+
   // Now compute the closest distance in z between all simulated vertex
+  // first initialize
+  auto prev_z = simpv.back().z;
+  for(simPrimaryVertex& vsim: simpv) {
+    vsim.closest_vertex_distance_z = std::abs(vsim.z - prev_z);
+    prev_z = vsim.z;
+  }
+  // then calculate
   for (std::vector<simPrimaryVertex>::iterator vsim = simpv.begin();
        vsim != simpv.end(); vsim++) {
     std::vector<simPrimaryVertex>::iterator vsim2 = vsim;
     vsim2++;
     for (; vsim2 != simpv.end(); vsim2++) {
-      double distance_z = fabs(vsim->z - vsim2->z);
-      // Initialize with the next-sibling in the vector: minimization
-      // is performed by the next if.
-      if (vsim->closest_vertex_distance_z < 0) {
-        vsim->closest_vertex_distance_z = distance_z;
-        continue;
-      }
-      if (distance_z < vsim->closest_vertex_distance_z)
-        vsim->closest_vertex_distance_z = distance_z;
+      double distance = std::abs(vsim->z - vsim2->z);
+      // need both to be complete
+      vsim->closest_vertex_distance_z = std::min(vsim->closest_vertex_distance_z, distance);
+      vsim2->closest_vertex_distance_z = std::min(vsim2->closest_vertex_distance_z, distance);
     }
   }
   return simpv;
@@ -997,15 +1095,14 @@ PrimaryVertexAnalyzer4PUSlimmed::getSimPVs(
  * recoPrimaryVertex with proper reco-level information */
 std::vector<PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex>
 PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
-    const edm::Handle<reco::VertexCollection> tVC) {
+    const edm::Handle<edm::View<reco::Vertex>>& tVC) {
   std::vector<PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex> recopv;
 
   if (verbose_) {
     std::cout << "getRecoPVs TrackingVertexCollection " << std::endl;
   }
 
-  for (std::vector<reco::Vertex>::const_iterator v = tVC->begin();
-       v != tVC->end(); ++v) {
+  for (auto v = tVC->begin(); v != tVC->end(); ++v) {
     if (verbose_) {
       std::cout << " Position: " << v->position() << std::endl;
     }
@@ -1017,6 +1114,7 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
     recoPrimaryVertex sv(v->position().x(), v->position().y(),
                          v->position().z());
     sv.recVtx = &(*v);
+    sv.recVtxRef = reco::VertexBaseRef(tVC, std::distance(tVC->begin(), v));
     // this is a new vertex, add it to the list of reco-vertices
     recopv.push_back(sv);
     PrimaryVertexAnalyzer4PUSlimmed::recoPrimaryVertex* vp = &recopv.back();
@@ -1033,8 +1131,15 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
         std::cout << "  Daughter momentum:      " << momentum;
         std::cout << std::endl;
       }
+      vp->pt += std::sqrt(momentum.perp2());
       vp->ptsq += (momentum.perp2());
       vp->nRecoTrk++;
+
+      auto matched = r2s_->find(*iTrack);
+      if(matched != r2s_->end()) {
+        vp->num_matched_sim_tracks++;
+      }
+
     }  // End of for loop on daughters reconstructed tracks
   }    // End of for loop on tracking vertices
 
@@ -1049,21 +1154,26 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
     std::cout << "-----------------------------------------------" << std::endl;
   }  // End of for summary on reconstructed primary vertices.
 
+  // In case of no reco vertices, break here
+  if(recopv.empty())
+    return recopv;
+
   // Now compute the closest distance in z between all reconstructed vertex
+  // first initialize
+  auto prev_z = recopv.back().z;
+  for(recoPrimaryVertex& vreco: recopv) {
+    vreco.closest_vertex_distance_z = std::abs(vreco.z - prev_z);
+    prev_z = vreco.z;
+  }
   for (std::vector<recoPrimaryVertex>::iterator vreco = recopv.begin();
        vreco != recopv.end(); vreco++) {
     std::vector<recoPrimaryVertex>::iterator vreco2 = vreco;
     vreco2++;
     for (; vreco2 != recopv.end(); vreco2++) {
-      double distance_z = fabs(vreco->z - vreco2->z);
-      // Initialize with the next-sibling in the vector: minimization
-      // is performed by the next if.
-      if (vreco->closest_vertex_distance_z < 0) {
-        vreco->closest_vertex_distance_z = distance_z;
-        continue;
-      }
-      if (distance_z < vreco->closest_vertex_distance_z)
-        vreco->closest_vertex_distance_z = distance_z;
+      double distance = std::abs(vreco->z - vreco2->z);
+      // need both to be complete
+      vreco->closest_vertex_distance_z = std::min(vreco->closest_vertex_distance_z, distance);
+      vreco2->closest_vertex_distance_z = std::min(vreco2->closest_vertex_distance_z, distance);
     }
   }
   return recopv;
@@ -1072,8 +1182,6 @@ PrimaryVertexAnalyzer4PUSlimmed::getRecoPVs(
 void PrimaryVertexAnalyzer4PUSlimmed::resetSimPVAssociation(
     std::vector<simPrimaryVertex> & simpv) {
   for (auto & v : simpv) {
-    v.num_matched_reco_tracks = 0;
-    v.average_match_quality = 0;
     v.rec_vertices.clear();
   }
 }
@@ -1081,34 +1189,22 @@ void PrimaryVertexAnalyzer4PUSlimmed::resetSimPVAssociation(
 // ------------ method called to produce the data  ------------
 void PrimaryVertexAnalyzer4PUSlimmed::matchSim2RecoVertices(
     std::vector<simPrimaryVertex>& simpv,
-    const reco::VertexCollection& reco_vertices) {
+    const reco::VertexSimToRecoCollection& vertex_s2r) {
   if (verbose_) {
-    std::cout << "PrimaryVertexAnalyzer4PUSlimmed::matchSim2RecoVertices "
-              << reco_vertices.size() << std::endl;
+    std::cout << "PrimaryVertexAnalyzer4PUSlimmed::matchSim2RecoVertices " << std::endl;
   }
   for (std::vector<simPrimaryVertex>::iterator vsim = simpv.begin();
        vsim != simpv.end(); vsim++) {
-    for (std::vector<reco::Vertex>::const_iterator vrec = reco_vertices.begin();
-         vrec != reco_vertices.end(); vrec++) {
-      if (vrec->isFake() || vrec->ndof() < 0.) {
-        continue;  // skip fake vertices
+
+    auto matched = vertex_s2r.find(vsim->sim_vertex);
+    if(matched != vertex_s2r.end()) {
+      for(const auto vertexRefQuality: matched->val) {
+        vsim->rec_vertices.push_back(&(*(vertexRefQuality.first)));
       }
-      if (verbose_) {
-        std::cout << "Considering reconstructed vertex at Z:" << vrec->z()
-                  << std::endl;
-      }
-      if (((fabs(vrec->z() - vsim->z) / vrec->zError()) < sigma_z_match_)
-          && (fabs(vrec->z() - vsim->z) < abs_z_match_)) {
-        vsim->rec_vertices.push_back(&(*vrec));
-        if (verbose_) {
-          std::cout << "Trying a matching vertex for " << vsim->z << " at "
-                    << vrec->z() << " with sign: "
-                    << fabs(vrec->z() - vsim->z) / vrec->zError() << std::endl;
-        }
-      }
-    }  // end of loop on reconstructed vertices
+    }
+
     if (verbose_) {
-      if (vsim->rec_vertices.size()) {
+      if (!vsim->rec_vertices.empty()) {
         for (auto const& v : vsim->rec_vertices) {
           std::cout << "Found a matching vertex for genVtx "
                     << vsim->z << " at " << v->z()
@@ -1127,49 +1223,32 @@ void PrimaryVertexAnalyzer4PUSlimmed::matchSim2RecoVertices(
 
 void PrimaryVertexAnalyzer4PUSlimmed::matchReco2SimVertices(
     std::vector<recoPrimaryVertex>& recopv,
-    const TrackingVertexCollection& gen_vertices,
+    const reco::VertexRecoToSimCollection& vertex_r2s,
     const std::vector<simPrimaryVertex>& simpv) {
   for (std::vector<recoPrimaryVertex>::iterator vrec = recopv.begin();
        vrec != recopv.end(); vrec++) {
-    int current_event = -1;
-    for (std::vector<TrackingVertex>::const_iterator vsim =
-             gen_vertices.begin();
-         vsim != gen_vertices.end(); vsim++) {
-      // Keep only signal events
-      if (vsim->eventId().bunchCrossing() != 0) continue;
 
-      // Keep only the primary vertex for each PU event
-      if (vsim->eventId().event() != current_event) {
-        current_event = vsim->eventId().event();
-      } else {
-        continue;
+    auto matched = vertex_r2s.find(vrec->recVtxRef);
+    if(matched != vertex_r2s.end()) {
+      for(const auto vertexRefQuality: matched->val) {
+        const auto tvPtr = &(*(vertexRefQuality.first));
+        vrec->sim_vertices.push_back(tvPtr);
       }
 
-      // if the matching criteria are fulfilled, accept all the
-      // gen-vertices that are close in z, in unit of sigma_z of the
-      // reconstructed vertex, at least of sigma_z_match_. Require
-      // also a maximum absolute distance between the 2 vertices of at
-      // most abs_z_match_ along the Z axis(in cm).
-      if (((fabs(vrec->z - vsim->position().z()) / vrec->recVtx->zError()) <
-          sigma_z_match_)
-          && (fabs(vrec->z - vsim->position().z()) < abs_z_match_)) {
-        vrec->sim_vertices.push_back(&(*vsim));
-        for (std::vector<simPrimaryVertex>::const_iterator vv = simpv.begin();
-             vv != simpv.end(); vv++) {
-          if (vv->sim_vertex == &(*vsim)) {
-            vrec->sim_vertices_internal.push_back(&(*vv));
+      for(const TrackingVertex *tv: vrec->sim_vertices) {
+        // Set pointers to internal simVertex objects
+        for(const auto& vv: simpv) {
+          if (&(*(vv.sim_vertex)) == tv) {
+            vrec->sim_vertices_internal.push_back(&vv);
+            continue;
           }
         }
 
-        if (verbose_) {
-          std::cout << "Matching Reco vertex for " << vrec->z
-                    << " at Sim Vertex " << vsim->position().z()
-                    << " with sign: " << fabs(vsim->position().z() - vrec->z) /
-                                             vrec->recVtx->zError()
-                    << std::endl;
-        }
+        // Calculate number of shared tracks
+        vrec->sim_vertices_num_shared_tracks.push_back(calculateVertexSharedTracks(*(vrec->recVtx), *tv, *r2s_));
       }
-    }  // end of loop on simulated vertices
+    }
+
     if (verbose_) {
       for (auto v : vrec->sim_vertices) {
         std::cout << "Found a matching vertex for reco: " << vrec->z
@@ -1188,7 +1267,6 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   using std::endl;
   using edm::Handle;
   using edm::View;
-  using edm::LogInfo;
   using namespace reco;
 
   std::vector<float> pileUpInfo_z;
@@ -1197,8 +1275,10 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   edm::Handle<std::vector<PileupSummaryInfo> > puinfoH;
   if (iEvent.getByToken(vecPileupSummaryInfoToken_, puinfoH)) {
     for (auto const& pu_info : *puinfoH.product()) {
-      mes_["root_folder"]["GenVtx_vs_BX"]
+      if(do_generic_sim_plots_) {
+        mes_["root_folder"]["GenVtx_vs_BX"]
           ->Fill(pu_info.getBunchCrossing(), pu_info.getPU_NumInteractions());
+      }
       if (pu_info.getBunchCrossing() == 0) {
         pileUpInfo_z = pu_info.getPU_zpositions();
         if (verbose_) {
@@ -1211,18 +1291,17 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
     }
   }
 
-  Handle<reco::TrackCollection> recTrks;
-  iEvent.getByToken(recoTrackCollectionToken_, recTrks);
-
-  // for the associator
-  Handle<View<Track> > trackCollectionH;
-  iEvent.getByToken(edmView_recoTrack_Token_, trackCollectionH);
-
   edm::Handle<TrackingParticleCollection> TPCollectionH;
   iEvent.getByToken(trackingParticleCollectionToken_, TPCollectionH);
+  if (!TPCollectionH.isValid()) 
+    edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+      << "TPCollectionH is not valid";
 
   edm::Handle<TrackingVertexCollection> TVCollectionH;
   iEvent.getByToken(trackingVertexCollectionToken_, TVCollectionH);
+  if (!TVCollectionH.isValid())
+    edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+      << "TVCollectionH is not valid";
 
   // TODO(rovere) the idea is to put in case a track-selector in front
   // of this module and then use its label to get the selected tracks
@@ -1231,12 +1310,29 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
 
   edm::Handle<reco::SimToRecoCollection> simToRecoH;
   iEvent.getByToken(simToRecoAssociationToken_, simToRecoH);
+  if ( simToRecoH.isValid() )
+    s2r_ = simToRecoH.product();
+  else
+    edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+      << "simToRecoH is not valid";
 
   edm::Handle<reco::RecoToSimCollection> recoToSimH;
   iEvent.getByToken(recoToSimAssociationToken_, recoToSimH);
+  if ( recoToSimH.isValid() )
+    r2s_ = recoToSimH.product();
+  else
+    edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+      << "recoToSimH is not valid";
 
-  s2r_ = simToRecoH.product();
-  r2s_ = recoToSimH.product();
+  // Vertex associator
+  edm::Handle<reco::VertexToTrackingVertexAssociator> vertexAssociatorH;
+  iEvent.getByToken(vertexAssociatorToken_, vertexAssociatorH);
+  if (!vertexAssociatorH.isValid()) {
+    edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+      << "vertexAssociatorH is not valid";
+    return;
+  }
+  const reco::VertexToTrackingVertexAssociator& vertexAssociator = *(vertexAssociatorH.product());
 
   std::vector<simPrimaryVertex> simpv;  // a list of simulated primary
                                         // MC vertices
@@ -1246,37 +1342,63 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
   // probably be subtracted?
   int kind_of_signal_vertex = 0;
   int num_pileup_vertices = simpv.size();
-  mes_["root_folder"]["GenAllV_NumVertices"]->Fill(simpv.size());
+  if(do_generic_sim_plots_) mes_["root_folder"]["GenAllV_NumVertices"]->Fill(simpv.size());
   bool signal_is_highest_pt = std::max_element(simpv.begin(), simpv.end(),
                                                [](const simPrimaryVertex& lhs,
                                                   const simPrimaryVertex& rhs) {
                                                  return lhs.ptsq < rhs.ptsq;
                                                }) == simpv.begin();
   kind_of_signal_vertex |= (signal_is_highest_pt << HIGHEST_PT);
-  mes_["root_folder"]["SignalIsHighestPt2"]->Fill(
-      signal_is_highest_pt ? 1. : 0.);
-  computePairDistance(simpv,
-                      mes_["root_folder"]["GenAllV_PairDistanceZ"]);
+  if(do_generic_sim_plots_) {
+    mes_["root_folder"]["SignalIsHighestPt2"]->Fill(signal_is_highest_pt ? 1. : 0.);
+    computePairDistance(simpv, mes_["root_folder"]["GenAllV_PairDistanceZ"]);
+  }
 
   int label_index = -1;
-  for (auto const& vertex_token : reco_vertex_collection_tokens_) {
+  for(size_t iToken=0, endToken=reco_vertex_collection_tokens_.size(); iToken<endToken; ++iToken) {
+    auto const& vertex_token = reco_vertex_collection_tokens_[iToken];
     std::vector<recoPrimaryVertex> recopv;  // a list of reconstructed
                                             // primary MC vertices
     std::string label = reco_vertex_collections_[++label_index].label();
-    Handle<reco::VertexCollection> recVtxs;
+    edm::Handle<edm::View<reco::Vertex>> recVtxs;
     if (!iEvent.getByToken(vertex_token, recVtxs)) {
-      LogInfo("PrimaryVertexAnalyzer4PUSlimmed")
-          << "Skipping vertex collection: " << label << " since it is missing."
-          << std::endl;
+      if(!errorPrintedForColl_[iToken]) {
+        edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+          << "Skipping vertex collection: " << label << " since it is missing.";
+        errorPrintedForColl_[iToken] = true;
+      }
       continue;
     }
 
+    {
+      // check upfront that refs to track are (likely) to be valid
+      bool ok = true;
+      for(const auto& v: *recVtxs) {
+	if(v.tracksSize() > 0) {
+	  const auto& ref = v.trackRefAt(0);
+	  if(ref.isNull() || !ref.isAvailable()) {
+	    if(!errorPrintedForColl_[iToken]) {
+	      edm::LogWarning("PrimaryVertexAnalyzer4PUSlimmed")
+		<< "Skipping vertex collection: " << label << " since likely the track collection the vertex has refs pointing to is missing (at least the first TrackBaseRef is null or not available)";
+	      errorPrintedForColl_[iToken] = true;
+	    }
+	    ok = false;
+	  }
+	}
+      }
+      if(!ok)
+	continue;
+    }
+
+    reco::VertexRecoToSimCollection vertex_r2s = vertexAssociator.associateRecoToSim(recVtxs, TVCollectionH);
+    reco::VertexSimToRecoCollection vertex_s2r = vertexAssociator.associateSimToReco(recVtxs, TVCollectionH);
+
     resetSimPVAssociation(simpv);
-    matchSim2RecoVertices(simpv, *recVtxs.product());
+    matchSim2RecoVertices(simpv, vertex_s2r);
     recopv = getRecoPVs(recVtxs);
     computePairDistance(recopv,
                         mes_[label]["RecoAllAssoc2Gen_PairDistanceZ"]);
-    matchReco2SimVertices(recopv, *TVCollectionH.product(), simpv);
+    matchReco2SimVertices(recopv, vertex_r2s, simpv);
 
     int num_total_gen_vertices_assoc2reco = 0;
     int num_total_reco_vertices_assoc2gen = 0;
@@ -1288,12 +1410,13 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
       float mistag = 1.;
       // TODO(rovere) put selectors here in front of fill* methods.
       if (v.eventId.event() == 0) {
-        if (std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
+        if (!recVtxs->empty() &&
+            std::find(v.rec_vertices.begin(), v.rec_vertices.end(),
                       &((*recVtxs.product())[0])) != v.rec_vertices.end()) {
           mistag = 0.;
           kind_of_signal_vertex |= (1 << IS_ASSOC2FIRST_RECO);
         } else {
-          if (v.rec_vertices.size()) {
+          if (!v.rec_vertices.empty()) {
             kind_of_signal_vertex |= (1 << IS_ASSOC2ANY_RECO);
           }
         }
@@ -1338,8 +1461,9 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
                         &(*iv)) != v.rec_vertices.end()) {
             mes_[label]["TruePVLocationIndex"]
                 ->Fill(pv_position_in_reco_collection);
+            const bool genPVMatchedToRecoPV = (pv_position_in_reco_collection == 0);
             mes_[label]["TruePVLocationIndexCumulative"]
-                ->Fill(pv_position_in_reco_collection > 0 ? 1 : 0);
+                ->Fill(genPVMatchedToRecoPV ? 0 : 1);
 
             if (signal_is_highest_pt) {
               mes_[label]["TruePVLocationIndexSignalIsHighest"]
@@ -1349,6 +1473,12 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
                 ->Fill(pv_position_in_reco_collection);
             }
 
+            fillRecoAssociatedGenPVHistograms(label, v, genPVMatchedToRecoPV);
+            if(genPVMatchedToRecoPV) {
+              auto pv = recopv[0];
+              assert(pv.recVtx == &(*iv));
+              fillResolutionAndPullHistograms(label, num_pileup_vertices, pv, true);
+            }
             genpv_position_in_reco_collection = pv_position_in_reco_collection;
             break;
           }
@@ -1368,11 +1498,11 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         }
       }
 
-      if (v.rec_vertices.size()) num_total_gen_vertices_assoc2reco++;
+      if (!v.rec_vertices.empty()) num_total_gen_vertices_assoc2reco++;
       if (v.rec_vertices.size() > 1) num_total_gen_vertices_multiassoc2reco++;
       // No need to N-tplicate the Gen-related cumulative histograms:
       // fill them only at the first iteration
-      if (label_index == 0) fillGenericGenVertexHistograms(v);
+      if (do_generic_sim_plots_ && label_index == 0) fillGenericGenVertexHistograms(v);
       fillRecoAssociatedGenVertexHistograms(label, v);
     }
     calculatePurityAndFillHistograms(label, recopv, genpv_position_in_reco_collection, signal_is_highest_pt);
@@ -1385,7 +1515,7 @@ void PrimaryVertexAnalyzer4PUSlimmed::analyze(const edm::Event& iEvent,
         ->Fill(simpv.size(), num_total_gen_vertices_multiassoc2reco);
     for (auto & v : recopv) {
       fillGenAssociatedRecoVertexHistograms(label, num_pileup_vertices, v);
-      if (v.sim_vertices.size()) {
+      if (!v.sim_vertices.empty()) {
         num_total_reco_vertices_assoc2gen++;
         if (v.sim_vertices_internal[0]->rec_vertices.size() > 1) {
           num_total_reco_vertices_duplicate++;

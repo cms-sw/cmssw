@@ -4,7 +4,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 
 /*  a Hit composed by a "single" measurement
@@ -20,6 +20,7 @@ public:
   
   typedef OmniClusterRef::ClusterPixelRef ClusterPixelRef;
   typedef OmniClusterRef::ClusterStripRef ClusterStripRef;
+  typedef OmniClusterRef::Phase2Cluster1DRef ClusterPhase2Ref;
 
   // no position (as in persistent)
   TrackerSingleRecHit(DetId id,
@@ -37,15 +38,13 @@ public:
 		      GeomDet const & idet, trackerHitRTTI::RTTI rt,
 		      CluRef const&  clus) : Base(p,e,idet, rt), cluster_(clus){}
 
-
   // a single hit is on a detunit
-  const GeomDetUnit* detUnit() const {
+  const GeomDetUnit* detUnit() const override {
     return static_cast<const GeomDetUnit*>(det());
   }
 
-  
   // used by trackMerger (to be improved)
-  virtual OmniClusterRef const & firstClusterRef() const  GCC11_FINAL { return cluster_;}
+  OmniClusterRef const & firstClusterRef() const  final { return cluster_;}
 
   OmniClusterRef const & omniClusterRef() const { return cluster_;}
   OmniClusterRef const & omniCluster() const { return cluster_;}
@@ -61,6 +60,10 @@ public:
     return cluster_.cluster_strip();
   }
   
+  ClusterPhase2Ref cluster_phase2OT()  const { 
+    return cluster_.cluster_phase2OT();
+  }
+
   SiStripCluster const & stripCluster() const { 
     return cluster_.stripCluster();
   }  
@@ -69,14 +72,16 @@ public:
     return cluster_.pixelCluster();
   }
 
+  Phase2TrackerCluster1D const & phase2OTCluster() const {
+    return cluster_.phase2OTCluster();
+  }
 
   // void setClusterRef(const &  OmniClusterRef ref) {  cluster_ =ref;}
   void setClusterPixelRef(ClusterPixelRef const & ref) {  cluster_ = OmniClusterRef(ref); }
   void setClusterStripRef(ClusterStripRef const & ref) {  cluster_ = OmniClusterRef(ref); }
+  void setClusterPhase2Ref(ClusterPhase2Ref const & ref) { cluster_ = OmniClusterRef(ref); }
 
-
-
-  virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const  GCC11_FINAL;
+  bool sharesInput( const TrackingRecHit* other, SharedInputType what) const  final;
 
 
   bool sharesInput(TrackerSingleRecHit const & other) const {
@@ -87,8 +92,8 @@ public:
     return oh == cluster_;
   }
 
-  virtual std::vector<const TrackingRecHit*> recHits() const;
-  virtual std::vector<TrackingRecHit*> recHits();
+  std::vector<const TrackingRecHit*> recHits() const override;
+  std::vector<TrackingRecHit*> recHits() override;
 
 private:
  

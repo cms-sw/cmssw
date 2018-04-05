@@ -32,11 +32,11 @@ class PFCandMETcorrInputProducer : public edm::stream::EDProducer<>
  public:
 
   explicit PFCandMETcorrInputProducer(const edm::ParameterSet&);
-  ~PFCandMETcorrInputProducer();
+  ~PFCandMETcorrInputProducer() override;
     
  private:
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleLabel_;
 
@@ -46,21 +46,20 @@ class PFCandMETcorrInputProducer : public edm::stream::EDProducer<>
   {
     binningEntryType()
       : binLabel_(""),
-        binSelection_(0)
+        binSelection_(nullptr)
     {}
     binningEntryType(const edm::ParameterSet& cfg)
     : binLabel_(cfg.getParameter<std::string>("binLabel")),
       binSelection_(new StringCutObjectSelector<reco::Candidate::LorentzVector>(cfg.getParameter<std::string>("binSelection")))
     {}
     ~binningEntryType() 
-    {
-      delete binSelection_;
+    {      
     }
-    std::string binLabel_;
-    StringCutObjectSelector<reco::Candidate::LorentzVector>* binSelection_;
+    const std::string binLabel_;
+    std::unique_ptr<const StringCutObjectSelector<reco::Candidate::LorentzVector> > binSelection_;
     CorrMETData binUnclEnergySum_;
   };
-  std::vector<binningEntryType*> binning_;
+  std::vector<std::unique_ptr<binningEntryType> > binning_;
 };
 
 #endif

@@ -8,8 +8,6 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-//#include "CondCore/DBCommon/interface/DbSession.h"
-//#include "CondCore/DBCommon/interface/DbScopedTransaction.h"
 
 #include "CondTools/L1Trigger/interface/Exception.h"
 
@@ -48,10 +46,10 @@ template<class Record, class Type>
 class WriterProxyT : public WriterProxy
 {
     public:
-        virtual ~WriterProxyT() {}
+        ~WriterProxyT() override {}
 
         /* This method requires that Record and Type supports copy constructor */
-        virtual std::string save (const edm::EventSetup & setup) const
+        std::string save (const edm::EventSetup & setup) const override
         {
             // load record and type from EventSetup and save them in db
             edm::ESHandle<Type> handle;
@@ -73,14 +71,16 @@ class WriterProxyT : public WriterProxy
 		throw cond::Exception( "DataWriter: PoolDBOutputService not available."
 				       ) ;
 	      }
+            poolDb->forceInit();  
 	    cond::persistency::Session session = poolDb->session();
 	    cond::persistency::TransactionScope tr(session.transaction());
 	    // if throw transaction will unroll
-	    tr.start(false);
+///	    tr.start(false);
 
-	    boost::shared_ptr<Type> pointer(new Type (*(handle.product ())));
+            std::shared_ptr<Type> pointer = std::make_shared<Type>(*(handle.product ()));
 	    std::string payloadToken =  session.storePayload( *pointer );
-	    tr.commit();
+///	    tr.commit();
+            tr.close();
 	    return payloadToken ;
         }
 };

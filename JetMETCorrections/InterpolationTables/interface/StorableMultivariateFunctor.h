@@ -29,7 +29,7 @@ namespace npstat {
         inline explicit StorableMultivariateFunctor(const std::string& descr)
             : AbsMultivariateFunctor(), description_(descr) {}
 
-        inline virtual ~StorableMultivariateFunctor() {}
+        inline ~StorableMultivariateFunctor() override {}
 
         /** Retrieve the functor description */
         inline const std::string& description() const {return description_;}

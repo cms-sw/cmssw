@@ -14,6 +14,17 @@
 #include <map>
 #include <vector>
 
+#include "tbb/concurrent_unordered_map.h"
+
+namespace edm {
+  struct TypeIDHasher {
+    size_t operator()(TypeID const& tid) const {
+      tbb::tbb_hash<std::string> hasher;
+      return hasher(std::string(tid.name()));
+    }
+  };
+}
+
 namespace reco {
 namespace parser {
 
@@ -88,14 +99,15 @@ public:
 
 /// Keeps different SingleInvokers for each dynamic type of the objects passed to invoke()
 struct LazyInvoker {
+  typedef std::shared_ptr<SingleInvoker> SingleInvokerPtr;
+  typedef tbb::concurrent_unordered_map<edm::TypeID, SingleInvokerPtr,edm::TypeIDHasher> InvokerMap;
 private: // Private Data Members
   std::string name_;
   std::vector<AnyMethodArgument> argsBeforeFixups_;
   // the shared ptr is only to make the code exception safe
   // otherwise I think it could leak if the constructor of
-  // SingleInvoker throws an exception (which can happen)
-  typedef boost::shared_ptr<SingleInvoker> SingleInvokerPtr;
-  mutable std::map<edm::TypeID, SingleInvokerPtr> invokers_;
+  // SingleInvoker throws an exception (which can happen) 
+  mutable InvokerMap invokers_;
 private: // Private Function Members
   const SingleInvoker& invoker(const edm::TypeWithDict&) const;
 public: // Public Function Members

@@ -121,41 +121,41 @@ class SiStripFedKey : public SiStripKey {
   // ---------- Utility methods ---------- 
 
   /** Identifies key objects with identical member data. */
-  bool isEqual( const SiStripKey& ) const;
+  bool isEqual( const SiStripKey& ) const override;
   
   /** "Consistent" means identical and/or null (ie, "all") data. */
-  bool isConsistent( const SiStripKey& ) const;
+  bool isConsistent( const SiStripKey& ) const override;
 
   /** Identifies all member data as being "valid" or null ("all"). */
-  bool isValid() const;
+  bool isValid() const override;
   
   /** All member data to level of "Granularity" are valid. If
       sistrip::Granularity is "undefined", returns false. */
-  bool isValid( const sistrip::Granularity& ) const;
+  bool isValid( const sistrip::Granularity& ) const override;
   
   /** Identifies all member data as being invalid. */
-  bool isInvalid() const;
+  bool isInvalid() const override;
 
   /** All member data to level of "Granularity" are invalid. If
       sistrip::Granularity is "undefined", returns true.  */
-  bool isInvalid( const sistrip::Granularity& ) const;
+  bool isInvalid( const sistrip::Granularity& ) const override;
 
   // ---------- Print methods ----------
   
   /** Print member data of the key  */
-  virtual void print( std::stringstream& ss ) const;
+  void print( std::stringstream& ss ) const override;
   
   /** A terse summary of the key  */
-  virtual void terse( std::stringstream& ss ) const;
+  void terse( std::stringstream& ss ) const override;
   
  private:
   
   // ---------- Private methods ----------
 
-  void initFromValue();
-  void initFromKey();
-  void initFromPath();
-  void initGranularity();
+  void initFromValue() override;
+  void initFromKey() override;
+  void initFromPath() override;
+  void initGranularity() override;
   
   // ---------- Private member data ----------
 

@@ -13,7 +13,6 @@ namespace edm
   class BasicHandle;
   class EDProductGetter;
   class ProductID;
-  class OutputHandle;
   class RefCore;
   class WrapperBase;
 

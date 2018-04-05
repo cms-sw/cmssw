@@ -32,10 +32,10 @@ class CSCDigiToRawModule : public edm::EDProducer {
   CSCDigiToRawModule(const edm::ParameterSet & pset);
 
   /// Destructor
-  virtual ~CSCDigiToRawModule();
+  ~CSCDigiToRawModule() override;
 
   // Operations
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  void produce( edm::Event&, const edm::EventSetup& ) override;
 
   // Fill parameters descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);

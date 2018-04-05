@@ -30,7 +30,7 @@ class FWModelId
 
 public:
    enum { kContainerIndex=-1};
-   FWModelId(const FWEventItem* iItem=0,
+   FWModelId(const FWEventItem* iItem=nullptr,
              int iIndex=kContainerIndex) : m_item(iItem),m_index(iIndex) {
    }
    //virtual ~FWModelId();

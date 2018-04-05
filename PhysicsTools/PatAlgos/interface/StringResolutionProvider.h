@@ -49,9 +49,9 @@ class StringResolutionProvider : public KinematicResolutionProvider {
   /// default constructor
   StringResolutionProvider(const edm::ParameterSet& cfg);
   /// default destructor
-  virtual ~StringResolutionProvider();
+  ~StringResolutionProvider() override;
   /// get a CandKinResolution object from the service 
-  virtual pat::CandKinResolution getResolution(const reco::Candidate& cand) const;
+  pat::CandKinResolution getResolution(const reco::Candidate& cand) const override;
 
  private:
   /// a vector of constrtaints for the CanKinResolution 

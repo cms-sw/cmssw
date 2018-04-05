@@ -17,10 +17,10 @@ class CaloShapeIntegrator: public CaloVShape
 
       CaloShapeIntegrator( const CaloVShape* aShape ) ;
 
-      virtual ~CaloShapeIntegrator() ;
+      ~CaloShapeIntegrator() override ;
 
-      virtual double operator () ( double startTime ) const ;
-      virtual double timeToRise()                     const ;
+      double operator () ( double startTime ) const override ;
+      double timeToRise()                     const override ;
 
    private:
 

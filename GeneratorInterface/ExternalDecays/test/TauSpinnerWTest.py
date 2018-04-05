@@ -98,7 +98,7 @@ process.pdfWeights = cms.EDProducer("PdfWeightProducer",
                                     # so only two more PDF sets can be added in PdfSetNames if not "")
                                     #FixPOWHEG = cms.untracked.string("cteq66.LHgrid"),
                                     #GenTag = cms.untracked.InputTag("genParticles"),
-                                    PdfInfoTag = cms.untracked.InputTag("generator"),
+                                    PdfInfoTag = cms.untracked.InputTag("VtxSmeared"),
                                     PdfSetNames = cms.untracked.vstring(
     #    "cteq66.LHgrid"
     #    , "MRST2006nnlo.LHgrid" ,

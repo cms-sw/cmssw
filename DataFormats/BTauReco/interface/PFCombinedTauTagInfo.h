@@ -36,11 +36,11 @@ namespace reco {
       signedSflightpath_=NAN;
       PFChargedHadrCandsEtJetEtRatio_=NAN;
       PFNeutrHadrCandsE_=NAN;
-      PFNeutrHadrCandsN_=numeric_limits<int>::quiet_NaN();
+      PFNeutrHadrCandsN_=std::numeric_limits<int>::quiet_NaN();
       PFNeutrHadrCandsRadius_=NAN;
       PFGammaCandsE_=NAN;
       isolPFGammaCandsE_=NAN;
-      PFGammaCandsN_=numeric_limits<int>::quiet_NaN();
+      PFGammaCandsN_=std::numeric_limits<int>::quiet_NaN();
       PFGammaCandsRadius_=NAN;
       PFGammaCandsEJetalternatERatio_=NAN;
       isolPFGammaCandsEJetalternatERatio_=NAN;

@@ -17,7 +17,7 @@ class MultiTrajectoryStateMerger;
 /** A GSF fitter, similar to KFTrajectoryFitter.
  */
 
-class GsfTrajectoryFitter  GCC11_FINAL  : public TrajectoryFitter {
+class GsfTrajectoryFitter  final  : public TrajectoryFitter {
 
 private:
   typedef TrajectoryStateOnSurface TSOS;
@@ -32,16 +32,16 @@ public:
 		      const TrajectoryStateUpdator& aUpdator,
 		      const MeasurementEstimator& aEstimator,
 		      const MultiTrajectoryStateMerger& aMerger,
-		      const DetLayerGeometry* detLayerGeometry=0);
+		      const DetLayerGeometry* detLayerGeometry=nullptr);
 
-  virtual ~GsfTrajectoryFitter();
+  ~GsfTrajectoryFitter() override;
 
-  Trajectory fitOne(const Trajectory& t, fitType type) const;
+  Trajectory fitOne(const Trajectory& t, fitType type) const override;
   Trajectory fitOne(const TrajectorySeed& aSeed,
 		    const RecHitContainer& hits,
-		    const TrajectoryStateOnSurface& firstPredTsos, fitType type) const;
+		    const TrajectoryStateOnSurface& firstPredTsos, fitType type) const override;
   Trajectory fitOne(const TrajectorySeed& aSeed,
-		    const RecHitContainer& hits, fitType type) const;
+		    const RecHitContainer& hits, fitType type) const override;
 
 
 
@@ -51,7 +51,7 @@ public:
   const MeasurementEstimator* estimator() const {return theEstimator;}
   const MultiTrajectoryStateMerger* merger() const {return theMerger;}
 
-  virtual std::unique_ptr<TrajectoryFitter> clone() const override
+  std::unique_ptr<TrajectoryFitter> clone() const override
   {
     return std::unique_ptr<TrajectoryFitter>(
         new GsfTrajectoryFitter(*thePropagator,
@@ -61,7 +61,7 @@ public:
                                 theGeometry));
   }
 
-  virtual void setHitCloner(TkCloner const * hc) {
+  void setHitCloner(TkCloner const * hc) override {
      theHitCloner = hc;
   }
 

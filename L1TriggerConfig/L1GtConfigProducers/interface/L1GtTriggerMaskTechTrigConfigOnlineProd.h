@@ -16,7 +16,7 @@
  */
 
 // system include files
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <string>
 
 // user include files
@@ -39,10 +39,10 @@ public:
     L1GtTriggerMaskTechTrigConfigOnlineProd(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtTriggerMaskTechTrigConfigOnlineProd();
+    ~L1GtTriggerMaskTechTrigConfigOnlineProd() override;
 
     /// public methods
-    virtual boost::shared_ptr<L1GtTriggerMask> newObject(const std::string& objectKey);
+    std::shared_ptr<L1GtTriggerMask> newObject(const std::string& objectKey) override;
 
 private:
 

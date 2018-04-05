@@ -35,10 +35,10 @@ class EleIsoDetIdCollectionProducer : public edm::stream::EDProducer<> {
    public:
       //! ctor
       explicit EleIsoDetIdCollectionProducer(const edm::ParameterSet&);
-      ~EleIsoDetIdCollectionProducer();
+      ~EleIsoDetIdCollectionProducer() override;
       void beginJob ();
       //! producer
-      virtual void produce(edm::Event &, const edm::EventSetup&);
+      void produce(edm::Event &, const edm::EventSetup&) override;
 
    private:
       // ----------member data ---------------------------

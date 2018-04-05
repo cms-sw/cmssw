@@ -20,12 +20,12 @@
 class FSRWeightProducer : public edm::EDProducer {
    public:
       explicit FSRWeightProducer(const edm::ParameterSet&);
-      ~FSRWeightProducer();
+      ~FSRWeightProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       double alphaRatio(double) ;
 
       edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
@@ -56,7 +56,7 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       edm::Handle<reco::GenParticleCollection> genParticles;
       iEvent.getByToken(genToken_, genParticles);
 
-      std::auto_ptr<double> weight (new double);
+      std::unique_ptr<double> weight (new double);
 
       // Set a default weight to start with
       (*weight) = 1.;
@@ -119,7 +119,7 @@ void FSRWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
       }
 
 
-      iEvent.put(weight);
+      iEvent.put(std::move(weight));
 }
 
 double FSRWeightProducer::alphaRatio(double pt) {

@@ -1,10 +1,8 @@
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 #include "cppunit/extensions/HelperMacros.h"
 
-#define private public
 #include "DataFormats/Common/interface/DataFrame.h"
 #include "DataFormats/Common/interface/DataFrameContainer.h"
-#undef private
 #include <vector>
 #include <algorithm>
 #include <cstdlib>

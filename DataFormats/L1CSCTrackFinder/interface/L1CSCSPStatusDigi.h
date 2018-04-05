@@ -1,7 +1,7 @@
 #ifndef L1CSCSPStatusDigi_h
 #define L1CSCSPStatusDigi_h
 
-#include <string.h>
+#include <cstring>
 
 class CSCTFUnpacker;
 

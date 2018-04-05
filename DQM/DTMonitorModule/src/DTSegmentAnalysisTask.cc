@@ -36,7 +36,7 @@
 using namespace edm;
 using namespace std;
 
-DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : nevents(0) , nEventsInLS(0), hNevtPerLS(0) {
+DTSegmentAnalysisTask::DTSegmentAnalysisTask(const edm::ParameterSet& pset) : nevents(0) , nEventsInLS(0), hNevtPerLS(nullptr) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "[DTSegmentAnalysisTask] Constructor called!";
 
@@ -83,6 +83,31 @@ void DTSegmentAnalysisTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
   if (!hltDQMMode) {
     ibooker.setCurrentFolder("DT/EventInfo/Counters");
     nEventMonitor = ibooker.bookFloat("nProcessedEventsSegment");
+  }
+
+  for(int wh=-2; wh<=2; wh++){
+    stringstream wheel; wheel << wh;
+    ibooker.setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str());
+    string histoName =  "numberOfSegments_W" + wheel.str();
+
+    summaryHistos[wh] = ibooker.book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
+    summaryHistos[wh]->setAxisTitle("Sector",1);
+    summaryHistos[wh]->setBinLabel(1,"1",1);
+    summaryHistos[wh]->setBinLabel(2,"2",1);
+    summaryHistos[wh]->setBinLabel(3,"3",1);
+    summaryHistos[wh]->setBinLabel(4,"4",1);
+    summaryHistos[wh]->setBinLabel(5,"5",1);
+    summaryHistos[wh]->setBinLabel(6,"6",1);
+    summaryHistos[wh]->setBinLabel(7,"7",1);
+    summaryHistos[wh]->setBinLabel(8,"8",1);
+    summaryHistos[wh]->setBinLabel(9,"9",1);
+    summaryHistos[wh]->setBinLabel(10,"10",1);
+    summaryHistos[wh]->setBinLabel(11,"11",1);
+    summaryHistos[wh]->setBinLabel(12,"12",1);
+    summaryHistos[wh]->setBinLabel(1,"MB1",2);
+    summaryHistos[wh]->setBinLabel(2,"MB2",2);
+    summaryHistos[wh]->setBinLabel(3,"MB3",2);
+    summaryHistos[wh]->setBinLabel(4,"MB4",2);
   }
 
   // loop over all the DT chambers & book the histos
@@ -286,33 +311,6 @@ void DTSegmentAnalysisTask::bookHistos(DQMStore::IBooker & ibooker, DTChamberId 
     "_W" + wheel.str() +
     "_St" + station.str() +
     "_Sec" + sector.str();
-
-
-  for(int wh=-2; wh<=2; wh++){
-    stringstream wheel; wheel << wh;
-    ibooker.setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str());
-    string histoName =  "numberOfSegments_W" + wheel.str();
-
-    summaryHistos[wh] = ibooker.book2D(histoName.c_str(),histoName.c_str(),12,1,13,4,1,5);
-    summaryHistos[wh]->setAxisTitle("Sector",1);
-    summaryHistos[wh]->setBinLabel(1,"1",1);
-    summaryHistos[wh]->setBinLabel(2,"2",1);
-    summaryHistos[wh]->setBinLabel(3,"3",1);
-    summaryHistos[wh]->setBinLabel(4,"4",1);
-    summaryHistos[wh]->setBinLabel(5,"5",1);
-    summaryHistos[wh]->setBinLabel(6,"6",1);
-    summaryHistos[wh]->setBinLabel(7,"7",1);
-    summaryHistos[wh]->setBinLabel(8,"8",1);
-    summaryHistos[wh]->setBinLabel(9,"9",1);
-    summaryHistos[wh]->setBinLabel(10,"10",1);
-    summaryHistos[wh]->setBinLabel(11,"11",1);
-    summaryHistos[wh]->setBinLabel(12,"12",1);
-    summaryHistos[wh]->setBinLabel(1,"MB1",2);
-    summaryHistos[wh]->setBinLabel(2,"MB2",2);
-    summaryHistos[wh]->setBinLabel(3,"MB3",2);
-    summaryHistos[wh]->setBinLabel(4,"MB4",2);
-  }
-
 
   ibooker.setCurrentFolder(topHistoFolder + "/Wheel" + wheel.str() +
       "/Sector" + sector.str() +

@@ -36,10 +36,10 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   DiMuonHistograms(const edm::ParameterSet& pset);
   
   /* Destructor */ 
-  virtual ~DiMuonHistograms() ;
+  ~DiMuonHistograms() override ;
   
   /* Operations */ 
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
  private:
@@ -56,7 +56,7 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   int etaOvlpBin;
 
   //Defining relevant eta regions
-  std::string EtaName;
+  std::string EtaName[3];
 
   double EtaCutMin;
   double EtaCutMax;
@@ -64,6 +64,7 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   double etaBMax;
   double etaECMin;
   double etaECMax;
+
 
   //Defining the relevant invariant mass regions
   double LowMassMin;
@@ -78,13 +79,29 @@ class DiMuonHistograms : public DQMEDAnalyzer {
   std::vector<MonitorElement*> TrkTrkMuon_LM;
   std::vector<MonitorElement*> TrkTrkMuon_HM;
 
+  std::vector<MonitorElement*> LooseLooseMuon;
+  std::vector<MonitorElement*> MediumMediumMuon;
   std::vector<MonitorElement*> TightTightMuon;
   std::vector<MonitorElement*> SoftSoftMuon;
+  std::vector<MonitorElement*> LooseLooseMuonBadFrac;
+  std::vector<MonitorElement*> MediumMediumMuonBadFrac;
+  std::vector<MonitorElement*> TightTightMuonBadFrac;
+  std::vector<MonitorElement*> SoftSoftMuonBadFrac;
   
+  MonitorElement* test; // my test
+
   // Labels used
-  edm::EDGetTokenT<reco::MuonCollection>   theMuonCollectionLabel_;
+  edm::EDGetTokenT<edm::View<reco::Muon> >   theMuonCollectionLabel_;
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
   edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
+
+  std::string theFolder;
+
+  int nTightTight;
+  int nMediumMedium;
+  int nLooseLoose;
+  int nGlbGlb;
+
 };
 #endif 
 

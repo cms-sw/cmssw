@@ -46,8 +46,19 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+
+#include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/METFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
+#include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
+
+#include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -77,20 +88,20 @@ class JetAnalyzer : public DQMEDAnalyzer {
   JetAnalyzer(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~JetAnalyzer();
+  ~JetAnalyzer() override;
   
 /// Inizialize parameters for histo binning
 //  void beginJob(void);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   /// Get the analysis
- void analyze(const edm::Event&, const edm::EventSetup&);
+ void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 
   /// Initialize run-based parameters
-  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&) override;
 
   /// Finish up a run
-  void endRun(const edm::Run&,  const edm::EventSetup&);
+  void endRun(const edm::Run&,  const edm::EventSetup&) override;
 
 
  private:
@@ -110,6 +121,12 @@ class JetAnalyzer : public DQMEDAnalyzer {
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>  gtToken_;
   edm::EDGetTokenT<reco::CaloJetCollection>       caloJetsToken_;
   edm::EDGetTokenT<reco::PFJetCollection>         pfJetsToken_;
+
+  edm::EDGetTokenT<reco::PFMETCollection>         pfMetToken_;
+  edm::EDGetTokenT<reco::CaloMETCollection>       caloMetToken_;
+  edm::EDGetTokenT<pat::METCollection>           patMetToken_; 
+
+  edm::EDGetTokenT<reco::MuonCollection>         MuonsToken_;
   edm::EDGetTokenT<pat::JetCollection>         patJetsToken_;
   edm::EDGetTokenT< edm::ValueMap<float> > mvaFullPUDiscriminantToken_;
   edm::EDGetTokenT< edm::ValueMap<float> >cutBasedPUDiscriminantToken_ ;
@@ -340,6 +357,8 @@ class JetAnalyzer : public DQMEDAnalyzer {
   std::vector<std::string> lowPtJetExpr_;
 
   bool jetCleaningFlag_;
+  bool filljetsubstruc_;
+  double pt_min_boosted_;
 
   bool runcosmics_;
 
@@ -562,7 +581,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
 
   JetMETDQMDCSFilter * DCSFilterForJetMonitoring_;
   JetMETDQMDCSFilter * DCSFilterForDCSMonitoring_;
-
+  /*
   MonitorElement* mePhFracBarrel_BXm2BXm1Empty;
   MonitorElement* meNHFracBarrel_BXm2BXm1Empty;
   MonitorElement* meCHFracBarrel_BXm2BXm1Empty;
@@ -582,7 +601,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meHFEMFracPlus_BXm2BXm1Empty;
   MonitorElement* mePtForwardPlus_BXm2BXm1Empty;
   MonitorElement* meEta_BXm2BXm1Empty;
-
+  */
   MonitorElement* mePhFracBarrel_BXm1Empty;
   MonitorElement* meNHFracBarrel_BXm1Empty;
   MonitorElement* meCHFracBarrel_BXm1Empty;
@@ -602,7 +621,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meHFEMFracPlus_BXm1Empty;
   MonitorElement* mePtForwardPlus_BXm1Empty;
   MonitorElement* meEta_BXm1Empty;
-
+  /*
   MonitorElement* mePhFracBarrel_BXm2BXm1Filled;
   MonitorElement* meNHFracBarrel_BXm2BXm1Filled;
   MonitorElement* meCHFracBarrel_BXm2BXm1Filled;
@@ -622,7 +641,7 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* meHFEMFracPlus_BXm2BXm1Filled;
   MonitorElement* mePtForwardPlus_BXm2BXm1Filled;
   MonitorElement* meEta_BXm2BXm1Filled;
-
+  */
   MonitorElement* mePhFracBarrel_BXm1Filled;
   MonitorElement* meNHFracBarrel_BXm1Filled;
   MonitorElement* meCHFracBarrel_BXm1Filled;
@@ -643,6 +662,142 @@ class JetAnalyzer : public DQMEDAnalyzer {
   MonitorElement* mePtForwardPlus_BXm1Filled;
   MonitorElement* meEta_BXm1Filled;
 
+  //miniaod specific variables, especially for substructure
+  MonitorElement* mSoftDropMass; 
+  MonitorElement* mPrunedMass; 
+  MonitorElement* mTrimmedMass; 
+  MonitorElement* mFilteredMass; 
+  MonitorElement* mtau2_over_tau1; 
+  MonitorElement* mtau3_over_tau2; 
+  MonitorElement* mCATopTag_topMass;
+  MonitorElement* mCATopTag_minMass; 
+  MonitorElement* mCATopTag_nSubJets; 
+
+  MonitorElement* mnSubJetsCMSTopTag; 
+  MonitorElement* mSubJet1_CMSTopTag_pt; 
+  MonitorElement* mSubJet1_CMSTopTag_eta; 
+  MonitorElement* mSubJet1_CMSTopTag_phi; 
+  MonitorElement* mSubJet1_CMSTopTag_mass; 
+  MonitorElement* mSubJet2_CMSTopTag_pt; 
+  MonitorElement* mSubJet2_CMSTopTag_eta; 
+  MonitorElement* mSubJet2_CMSTopTag_phi; 
+  MonitorElement* mSubJet2_CMSTopTag_mass; 
+  MonitorElement* mSubJet3_CMSTopTag_pt; 
+  MonitorElement* mSubJet3_CMSTopTag_eta; 
+  MonitorElement* mSubJet3_CMSTopTag_phi; 
+  MonitorElement* mSubJet3_CMSTopTag_mass; 
+  MonitorElement* mSubJet4_CMSTopTag_pt; 
+  MonitorElement* mSubJet4_CMSTopTag_eta; 
+  MonitorElement* mSubJet4_CMSTopTag_phi; 
+  MonitorElement* mSubJet4_CMSTopTag_mass; 
+
+  MonitorElement* mnSubJetsSoftDrop; 
+  MonitorElement* mSubJet1_SoftDrop_pt; 
+  MonitorElement* mSubJet1_SoftDrop_eta; 
+  MonitorElement* mSubJet1_SoftDrop_phi; 
+  MonitorElement* mSubJet1_SoftDrop_mass; 
+  MonitorElement* mSubJet2_SoftDrop_pt; 
+  MonitorElement* mSubJet2_SoftDrop_eta; 
+  MonitorElement* mSubJet2_SoftDrop_phi; 
+  MonitorElement* mSubJet2_SoftDrop_mass; 
+
+  //miniaod specific variables, especially for substructure for a boosted regime
+  MonitorElement* mSoftDropMass_boosted; 
+  MonitorElement* mPrunedMass_boosted; 
+  MonitorElement* mTrimmedMass_boosted; 
+  MonitorElement* mFilteredMass_boosted; 
+  MonitorElement* mtau2_over_tau1_boosted; 
+  MonitorElement* mtau3_over_tau2_boosted; 
+  MonitorElement* mCATopTag_topMass_boosted;
+  MonitorElement* mCATopTag_minMass_boosted; 
+  MonitorElement* mCATopTag_nSubJets_boosted; 
+
+  MonitorElement* mnSubJetsCMSTopTag_boosted; 
+  MonitorElement* mSubJet1_CMSTopTag_pt_boosted; 
+  MonitorElement* mSubJet1_CMSTopTag_eta_boosted; 
+  MonitorElement* mSubJet1_CMSTopTag_phi_boosted; 
+  MonitorElement* mSubJet1_CMSTopTag_mass_boosted; 
+  MonitorElement* mSubJet2_CMSTopTag_pt_boosted; 
+  MonitorElement* mSubJet2_CMSTopTag_eta_boosted; 
+  MonitorElement* mSubJet2_CMSTopTag_phi_boosted; 
+  MonitorElement* mSubJet2_CMSTopTag_mass_boosted; 
+  MonitorElement* mSubJet3_CMSTopTag_pt_boosted; 
+  MonitorElement* mSubJet3_CMSTopTag_eta_boosted; 
+  MonitorElement* mSubJet3_CMSTopTag_phi_boosted; 
+  MonitorElement* mSubJet3_CMSTopTag_mass_boosted; 
+  MonitorElement* mSubJet4_CMSTopTag_pt_boosted; 
+  MonitorElement* mSubJet4_CMSTopTag_eta_boosted; 
+  MonitorElement* mSubJet4_CMSTopTag_phi_boosted; 
+  MonitorElement* mSubJet4_CMSTopTag_mass_boosted; 
+
+  MonitorElement* mnSubJetsSoftDrop_boosted; 
+  MonitorElement* mSubJet1_SoftDrop_pt_boosted; 
+  MonitorElement* mSubJet1_SoftDrop_eta_boosted; 
+  MonitorElement* mSubJet1_SoftDrop_phi_boosted; 
+  MonitorElement* mSubJet1_SoftDrop_mass_boosted; 
+  MonitorElement* mSubJet2_SoftDrop_pt_boosted; 
+  MonitorElement* mSubJet2_SoftDrop_eta_boosted; 
+  MonitorElement* mSubJet2_SoftDrop_phi_boosted; 
+  MonitorElement* mSubJet2_SoftDrop_mass_boosted; 
+
+  //miniaod only variables
+  MonitorElement* mPt_CaloJet;
+  MonitorElement* mEMF_CaloJet;
+  MonitorElement* mMass_Barrel;
+  MonitorElement* mMass_EndCap;
+  MonitorElement* mMass_Forward;
+
+  //now ZJets plots
+  MonitorElement*  mDPhiZJet;
+  MonitorElement*  mZMass;
+  MonitorElement*  mZJetAsymmetry;
+  MonitorElement*  mJetZBalance_lowZPt_J_Barrel;
+  MonitorElement*  mJetZBalance_mediumZPt_J_Barrel;
+  MonitorElement*  mJetZBalance_highZPt_J_Barrel;
+  MonitorElement*  mJetZBalance_lowZPt_J_EndCap;
+  MonitorElement*  mJetZBalance_mediumZPt_J_EndCap;
+  MonitorElement*  mJetZBalance_highZPt_J_EndCap;
+  MonitorElement*  mJetZBalance_lowZPt_J_Forward;
+  MonitorElement*  mJetZBalance_mediumZPt_J_Forward;
+  MonitorElement*  mJetZBalance_highZPt_J_Forward;
+  MonitorElement*  mJ1Pt_over_ZPt_J_Barrel;
+  MonitorElement*  mJ1Pt_over_ZPt_J_EndCap;
+  MonitorElement*  mJ1Pt_over_ZPt_J_Forward;
+  MonitorElement*  mMPF_J_Barrel;
+  MonitorElement*  mMPF_J_EndCap;
+  MonitorElement*  mMPF_J_Forward;
+  MonitorElement*  mJ1Pt_over_ZPt_lowZPt_J_Barrel;
+  MonitorElement*  mJ1Pt_over_ZPt_mediumZPt_J_Barrel;
+  MonitorElement*  mJ1Pt_over_ZPt_highZPt_J_Barrel;
+  MonitorElement*  mJ1Pt_over_ZPt_lowZPt_J_EndCap;
+  MonitorElement*  mJ1Pt_over_ZPt_mediumZPt_J_EndCap;
+  MonitorElement*  mJ1Pt_over_ZPt_highZPt_J_EndCap;
+  MonitorElement*  mJ1Pt_over_ZPt_lowZPt_J_Forward;
+  MonitorElement*  mJ1Pt_over_ZPt_mediumZPt_J_Forward;
+  MonitorElement*  mJ1Pt_over_ZPt_highZPt_J_Forward;
+  MonitorElement*  mMPF_lowZPt_J_Barrel;
+  MonitorElement*  mMPF_mediumZPt_J_Barrel;
+  MonitorElement*  mMPF_highZPt_J_Barrel;
+  MonitorElement*  mMPF_lowZPt_J_EndCap;
+  MonitorElement*  mMPF_mediumZPt_J_EndCap;
+  MonitorElement*  mMPF_highZPt_J_EndCap;
+  MonitorElement*  mMPF_lowZPt_J_Forward;
+  MonitorElement*  mMPF_mediumZPt_J_Forward;
+  MonitorElement*  mMPF_highZPt_J_Forward;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_30_55_J_Barrel;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_55_75_J_Barrel;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_75_150_J_Barrel;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_150_290_J_Barrel;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_290_J_Barrel;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_30_55_J_EndCap;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_55_75_J_EndCap;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_75_150_J_EndCap;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_150_290_J_EndCap;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_290_J_EndCap;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_30_55_J_Forward;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_55_100_J_Forward;
+  MonitorElement*  mDeltaPt_Z_j1_over_ZPt_100_J_Forward;
+  
   std::map< std::string,MonitorElement* >map_of_MEs;
 
   bool isCaloJet_;

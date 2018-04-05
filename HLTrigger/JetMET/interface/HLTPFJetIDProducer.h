@@ -28,16 +28,18 @@ namespace edm {
 class HLTPFJetIDProducer : public edm::stream::EDProducer<> {
   public:
     explicit HLTPFJetIDProducer(const edm::ParameterSet & iConfig);
-    ~HLTPFJetIDProducer();
+    ~HLTPFJetIDProducer() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
   private:
     double minPt_;
+    double maxEta_;
     double CHF_;              ///< charged hadron fraction
     double NHF_;              ///< neutral hadron fraction
     double CEF_;              ///< charged EM fraction
     double NEF_;              ///< neutral EM fraction
+    double maxCF_;            ///< total charged energy fraction
     int NCH_;                 ///< number of charged constituents
     int NTOT_;                ///< number of constituents
     edm::InputTag inputTag_;  ///< input PFJet collection

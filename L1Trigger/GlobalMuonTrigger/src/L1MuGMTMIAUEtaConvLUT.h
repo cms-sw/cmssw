@@ -51,7 +51,7 @@ class L1MuGMTMIAUEtaConvLUT : public L1MuGMTLUT {
   } ;
 
   /// destructor
-  virtual ~L1MuGMTMIAUEtaConvLUT() {};
+  ~L1MuGMTMIAUEtaConvLUT() override {};
 
   /// specific lookup function for eta_out
   unsigned SpecificLookup_eta_out (int idx, unsigned eta_in) const {
@@ -71,7 +71,7 @@ class L1MuGMTMIAUEtaConvLUT : public L1MuGMTLUT {
 
   /// access to lookup function with packed input and output
 
-  virtual unsigned LookupFunctionPacked (int idx, unsigned address) const {
+  unsigned LookupFunctionPacked (int idx, unsigned address) const override {
     std::vector<unsigned> addr = u2vec(address, m_Inputs);
     return TheLookupFunction(idx ,addr[0]);
 

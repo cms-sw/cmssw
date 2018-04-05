@@ -20,7 +20,7 @@ from ROOT import TCanvas,gStyle,TH1F,TGaxis,gPad,kRed
 sys.argv=theargv
 
 import os
-if os.environ.has_key("RELMON_SA"):
+if "RELMON_SA" in os.environ:
   from dirstructure import Comparison,Directory
   from definitions import *
   from utils import unpickler
@@ -541,7 +541,7 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
           total_ndirs+=1
           
           total_directory_successes+= float(nsucc)/weight
-          if present_subdirs.has_key(subdirname):
+          if subdirname in present_subdirs:
             this_dir_dict=present_subdirs[subdirname]
             this_dir_dict["nsucc"]+=nsucc
             this_dir_dict["weight"]+=weight
@@ -560,7 +560,7 @@ def get_aggr_pairs_info(dir_dict,the_aggr_pairs=[]):
               total_ndirs+=1              
               total_directory_successes+= float(nsucc)/weight
               
-              if present_subdirs.has_key(subsubdirname):
+              if subsubdirname in present_subdirs:
                 this_dir_dict=present_subdirs[subsubdirname]
                 this_dir_dict["nsucc"]+=nsucc
                 this_dir_dict["weight"]+=weight
@@ -868,7 +868,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
     for sample in sorted_samples:
       subdirs_dict=directory.get_subdirs_dict()
       directory=dir_dict[sample]
-      dir_is_there=subdirs_dict.has_key(subdir_name)
+      dir_is_there=subdir_name in subdirs_dict
       if dir_is_there:
         row_summary.subdirs.append(subdirs_dict[subdir_name])
 
@@ -897,7 +897,7 @@ def make_summary_table(indir,aggregation_rules,aggregation_rules_twiki, hashing_
         #print "   ## summary_page: %s"%(directory.name+subdir_name)
         #print "   ## summary_page hash: %s" %(hash_name(directory.name+subdir_name,hashing_flag))
         summary_page=join(sample,"%s.html"%(hash_name(directory.name+subdir_name,hashing_flag)))
-      dir_is_there=subdirs_dict.has_key(subdir_name)
+      dir_is_there=subdir_name in subdirs_dict
 
       img_link="https://chart.googleapis.com/chart?cht=p3&chco=C0C0C0&chs=50x50&chd=t:1"
       img_tooltip="N/A"

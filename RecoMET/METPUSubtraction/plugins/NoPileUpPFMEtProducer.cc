@@ -308,9 +308,9 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 	<< " pfCandidate is within jet --> skipping." << std::endl;
     }
   }
-  std::auto_ptr<CommonMETData> sumLeptons(new CommonMETData());
+  auto sumLeptons = std::make_unique<CommonMETData>();
   initializeCommonMETData(*sumLeptons);
-  std::auto_ptr<CommonMETData> sumLeptonIsoCones(new CommonMETData());
+  auto sumLeptonIsoCones = std::make_unique<CommonMETData>();
   initializeCommonMETData(*sumLeptonIsoCones);
   int leptonIdx = 0;
   for ( std::vector<CommonMETData>::iterator sumJetsPlusPFCandidates = sumJetsPlusPFCandidates_leptons.begin();
@@ -337,13 +337,13 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   reco::PUSubMETCandInfoCollection jets_cleaned = utils_.cleanJets(*jets, leptons, 0.5, false);
   reco::PUSubMETCandInfoCollection pfCandidates_cleaned = utils_.cleanPFCandidates(*pfCandidates, leptons, 0.3, false);
 
-  std::auto_ptr<CommonMETData> sumNoPUjets(new CommonMETData());
+  auto sumNoPUjets = std::make_unique<CommonMETData>();
   initializeCommonMETData(*sumNoPUjets);
   std::vector<metsig::SigInputObj> metSignObjectsNoPUjets;
-  std::auto_ptr<CommonMETData> sumNoPUjetOffsetEnCorr(new CommonMETData());
+  auto sumNoPUjetOffsetEnCorr = std::make_unique<CommonMETData>();
   initializeCommonMETData(*sumNoPUjetOffsetEnCorr);
   std::vector<metsig::SigInputObj> metSignObjectsNoPUjetOffsetEnCorr;
-  std::auto_ptr<CommonMETData> sumPUjets(new CommonMETData());
+  auto sumPUjets = std::make_unique<CommonMETData>();
   initializeCommonMETData(*sumPUjets);
   std::vector<metsig::SigInputObj> metSignObjectsPUjets;
   int jetIdx = 0;
@@ -374,13 +374,13 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     ++jetIdx;
   }
     
-  std::auto_ptr<CommonMETData> sumNoPUunclChargedCands(new CommonMETData());
+  auto sumNoPUunclChargedCands = std::make_unique<CommonMETData>();
   initializeCommonMETData(*sumNoPUunclChargedCands);
   std::vector<metsig::SigInputObj> metSignObjectsNoPUunclChargedCands;
-  std::auto_ptr<CommonMETData> sumPUunclChargedCands(new CommonMETData());
+  auto sumPUunclChargedCands = std::make_unique<CommonMETData>();
   initializeCommonMETData(*sumPUunclChargedCands);
   std::vector<metsig::SigInputObj> metSignObjectsPUunclChargedCands;
-  std::auto_ptr<CommonMETData> sumUnclNeutralCands(new CommonMETData());
+  auto sumUnclNeutralCands = std::make_unique<CommonMETData>();
   initializeCommonMETData(*sumUnclNeutralCands);
   std::vector<metsig::SigInputObj> metSignObjectsUnclNeutralCands;
   int pfCandIdx = 0;
@@ -405,7 +405,7 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
   edm::Handle<CorrMETData> type0Correction_input;
   evt.getByToken(srcType0Correction_, type0Correction_input);
-  std::auto_ptr<CommonMETData> type0Correction_output(new CommonMETData());
+  auto type0Correction_output = std::make_unique<CommonMETData>();
   initializeCommonMETData(*type0Correction_output);
   type0Correction_output->mex = type0Correction_input->mex;
   type0Correction_output->mey = type0Correction_input->mey;
@@ -470,24 +470,23 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   
   
   // add no-PU MET object to the event
-  std::auto_ptr<reco::PFMETCollection> noPileUpMEtCollection(new reco::PFMETCollection());
+  auto noPileUpMEtCollection = std::make_unique<reco::PFMETCollection>();
   noPileUpMEtCollection->push_back(noPileUpMEt);
   
-  evt.put(noPileUpMEtCollection);
+  evt.put(std::move(noPileUpMEtCollection));
   if ( saveInputs_ ) {
-    evt.put(sumLeptons, sfLeptonsName_);
-    evt.put(sumNoPUjetOffsetEnCorr, sfNoPUjetOffsetEnCorrName_);
-    evt.put(sumNoPUjets, sfNoPUjetsName_);
-    evt.put(sumPUjets, sfPUjetsName_);
-    evt.put(sumNoPUunclChargedCands, sfNoPUunclChargedCandsName_);
-    evt.put(sumPUunclChargedCands, sfPUunclChargedCandsName_);
-    evt.put(sumUnclNeutralCands, sfUnclNeutralCandsName_);
-    evt.put(type0Correction_output, sfType0CorrectionName_);
-    evt.put(sumLeptonIsoCones, sfLeptonIsoConesName_);
+    evt.put(std::move(sumLeptons), sfLeptonsName_);
+    evt.put(std::move(sumNoPUjetOffsetEnCorr), sfNoPUjetOffsetEnCorrName_);
+    evt.put(std::move(sumNoPUjets), sfNoPUjetsName_);
+    evt.put(std::move(sumPUjets), sfPUjetsName_);
+    evt.put(std::move(sumNoPUunclChargedCands), sfNoPUunclChargedCandsName_);
+    evt.put(std::move(sumPUunclChargedCands), sfPUunclChargedCandsName_);
+    evt.put(std::move(sumUnclNeutralCands), sfUnclNeutralCandsName_);
+    evt.put(std::move(type0Correction_output), sfType0CorrectionName_);
+    evt.put(std::move(sumLeptonIsoCones), sfLeptonIsoConesName_);
   }
 
-  std::auto_ptr<double> sfNoPU(new double(noPileUpScaleFactor));
-  evt.put(sfNoPU, "sfNoPU");
+  evt.put(std::make_unique<double>(noPileUpScaleFactor), "sfNoPU");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

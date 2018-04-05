@@ -184,7 +184,7 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<FlavorHistoryEvent > cFlavorHistoryEvent;
   iEvent.getByToken(csrcToken_,cFlavorHistoryEvent);
 
-  std::auto_ptr<unsigned int> selection ( new unsigned int() );
+  auto selection = std::make_unique<unsigned int>(0);
 
   // Get the number of matched b-jets in the event
   unsigned int nb = bFlavorHistoryEvent->nb();
@@ -238,7 +238,7 @@ FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     pass = true;
   }
 
-  iEvent.put( selection );
+  iEvent.put(std::move(selection) );
 
   return pass;
 

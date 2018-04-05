@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,15 +13,15 @@
 #include "PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo.h"
 
 
-class PhotonConversionTrajectorySeedProducerFromQuadruplets : public edm::EDProducer {
+class PhotonConversionTrajectorySeedProducerFromQuadruplets : public edm::stream::EDProducer<> {
 public:
   PhotonConversionTrajectorySeedProducerFromQuadruplets(const edm::ParameterSet& );
-  ~PhotonConversionTrajectorySeedProducerFromQuadruplets(){}
+  ~PhotonConversionTrajectorySeedProducerFromQuadruplets() override{}
   void produce(edm::Event& , const edm::EventSetup& ) override;
 
 private:
   std::string _newSeedCandidates;
-  PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo *_theFinder;
+  std::unique_ptr<PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo> _theFinder;
 };
 
 
@@ -29,7 +29,7 @@ PhotonConversionTrajectorySeedProducerFromQuadruplets::
 PhotonConversionTrajectorySeedProducerFromQuadruplets(const edm::ParameterSet& conf)
   : _newSeedCandidates(conf.getParameter<std::string>( "newSeedCandidates"))
 {
-  _theFinder = new PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(conf,
+  _theFinder = std::make_unique<PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo>(conf,
 	consumesCollector());
   produces<TrajectorySeedCollection>(_newSeedCandidates);
 
@@ -37,10 +37,10 @@ PhotonConversionTrajectorySeedProducerFromQuadruplets(const edm::ParameterSet& c
 
 void PhotonConversionTrajectorySeedProducerFromQuadruplets::produce(edm::Event& ev, const edm::EventSetup& es)
 {
-  std::auto_ptr<TrajectorySeedCollection> result( new TrajectorySeedCollection() );  
+  auto result = std::make_unique<TrajectorySeedCollection>();  
   try{
     _theFinder->analyze(ev,es);
-    if(_theFinder->getTrajectorySeedCollection()->size())
+    if(!_theFinder->getTrajectorySeedCollection()->empty())
       result->insert(result->end(),
 		     _theFinder->getTrajectorySeedCollection()->begin(),
 		     _theFinder->getTrajectorySeedCollection()->end());
@@ -52,7 +52,7 @@ void PhotonConversionTrajectorySeedProducerFromQuadruplets::produce(edm::Event& 
 
   
   edm::LogInfo("debugTrajSeedFromQuadruplets") << " TrajectorySeedCollection size " << result->size();
-  ev.put(result, _newSeedCandidates);  
+  ev.put(std::move(result), _newSeedCandidates);  
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

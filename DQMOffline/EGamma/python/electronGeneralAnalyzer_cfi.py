@@ -1,7 +1,8 @@
 
 import FWCore.ParameterSet.Config as cms
 
-dqmElectronGeneralAnalysis = cms.EDAnalyzer("ElectronGeneralAnalyzer",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dqmElectronGeneralAnalysis = DQMEDAnalyzer('ElectronGeneralAnalyzer',
 
     Verbosity = cms.untracked.int32(0),
     FinalStep = cms.string("AtJobEnd"),
@@ -21,4 +22,5 @@ dqmElectronGeneralAnalysis = cms.EDAnalyzer("ElectronGeneralAnalyzer",
 
 )
 
-
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( dqmElectronGeneralAnalysis, ElectronCollection = cms.InputTag("ecalDrivenGsfElectrons") )

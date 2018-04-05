@@ -4,7 +4,7 @@ using namespace std;
    gROOT->Reset();
 
    gSystem->Load("libPhysicsToolsFWLite") ;
-   AutoLibraryLoader::enable() ;
+   FWLiteEnabler::enable() ;
    
    TFile* f = new TFile("runGMT.root") ;
    

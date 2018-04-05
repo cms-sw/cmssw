@@ -7,6 +7,7 @@
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
 <use   name="Geometry/CommonDetUnit"/>

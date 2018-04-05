@@ -204,7 +204,7 @@ ParticlePDG* DatabasePDG::GetPDGParticleByIndex(int index) {
     edm::LogWarning("DatabasePDG")<< "Particle index is negative or too big !!" << endl
          << " It must be inside this range: (0, " << fNParticles-1 << ")" << endl
          << " Returning null pointer!!";
-    return 0x0;
+    return nullptr;
   }
   return fParticles[index];
 }
@@ -232,7 +232,7 @@ ParticlePDG* DatabasePDG::GetPDGParticle(int pdg) {
   if(nFindings == 0) {
     edm::LogWarning("DatabasePDG")<< "The particle required with PDG: " << pdg
          << " was not found in the database!!";
-    return 0x0;
+    return nullptr;
   }
   if(nFindings >= 2) {
     edm::LogWarning("DatabasePDG")<< "The particle required with PDG: " << pdg
@@ -240,7 +240,7 @@ ParticlePDG* DatabasePDG::GetPDGParticle(int pdg) {
 	 << "Returning the first instance found";
     return fParticles[firstTimeIndex];
   }
-  return 0x0;
+  return nullptr;
 }
 
 bool DatabasePDG::GetPDGParticleStatus(int pdg) {
@@ -280,7 +280,7 @@ ParticlePDG* DatabasePDG::GetPDGParticle(char* name) {
   if(nFindings == 0) {
     edm::LogWarning("DatabasePDG")<< "The particle required with name (" << name
          << ") was not found in the database!!";
-    return 0x0;
+    return nullptr;
   }
   if(nFindings >= 2) {
     edm::LogWarning("DatabasePDG")<< "The particle required with name (" << name
@@ -288,7 +288,7 @@ ParticlePDG* DatabasePDG::GetPDGParticle(char* name) {
 	 << "Returning the first instance found";
     return fParticles[firstTimeIndex];
   }
-  return 0x0;
+  return nullptr;
 }
 
 bool DatabasePDG::GetPDGParticleStatus(char* name) {

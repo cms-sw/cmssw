@@ -340,7 +340,7 @@ L1CaloEmCollection L1RCT::getIsolatedEGObjects(unsigned crate){
     unsigned crd = (((isoEmObjects.at(i))/2) & 7);
     unsigned energy = ((isoEmObjects.at(i))/16);
     unsigned rank = rctLookupTables_->emRank(energy);
-    L1CaloEmCand isoCand(rank, rgn, crd, crate, 1, i, 0);  // includes emcand index
+    L1CaloEmCand isoCand(rank, rgn, crd, crate, true, i, 0);  // includes emcand index
     isoEmCands.push_back(isoCand);
   }
   return isoEmCands;
@@ -357,7 +357,7 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(unsigned crate){
     unsigned crd = (((nonIsoEmObjects.at(i))/2) & 7);
     unsigned energy = ((nonIsoEmObjects.at(i))/16);
     unsigned rank = rctLookupTables_->emRank(energy);
-    L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0, i, 0);  // includes emcand index
+    L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, false, i, 0);  // includes emcand index
     nonIsoEmCands.push_back(nonIsoCand);
   }
   return nonIsoEmCands;

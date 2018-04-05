@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <map>
-#include <stdint.h>
+#include <cstdint>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/Serialization/interface/Serializable.h"

@@ -21,18 +21,26 @@ GEDGsfElectronFinalizer::GEDGsfElectronFinalizer( const edm::ParameterSet & cfg 
    outputCollectionLabel_ = cfg.getParameter<std::string>("outputCollectionLabel");
    edm::ParameterSet pfIsoVals(cfg.getParameter<edm::ParameterSet> ("pfIsolationValues"));
    
-   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt")));
-   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumPhotonEt")));
-   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumNeutralHadronEt")));
-   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(pfIsoVals.getParameter<edm::InputTag>("pfSumPUPt")));
-//   std::vector<std::string> isoNames = pfIsoVals.getParameterNamesForType<edm::InputTag>();
-//   for(const std::string& name : isoNames) {
-//     edm::InputTag tag = 
-//       pfIsoVals.getParameter<edm::InputTag>(name);
-//     tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<double> >(tag));   
-//   }
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumChargedHadronPt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumPhotonEt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumNeutralHadronEt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumPUPt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumEcalClusterEt")));
+   tokenElectronIsoVals_.push_back(consumes<edm::ValueMap<float> >(pfIsoVals.getParameter<edm::InputTag>("pfSumHcalClusterEt")));
 
    nDeps_ =  tokenElectronIsoVals_.size();
+
+   if( cfg.existsAs<edm::ParameterSet>("regressionConfig") ) {
+     const edm::ParameterSet& iconf = cfg.getParameterSet("regressionConfig");
+     const std::string& mname = iconf.getParameter<std::string>("modifierName");
+     ModifyObjectValueBase* plugin = 
+       ModifyObjectValueFactory::get()->create(mname,iconf);
+     gedRegression_.reset(plugin);
+     edm::ConsumesCollector sumes = consumesCollector();
+     gedRegression_->setConsumes(sumes);
+   } else {
+     gedRegression_.reset(nullptr);
+   }
 
    produces<reco::GsfElectronCollection> (outputCollectionLabel_);
 }
@@ -45,8 +53,13 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
  {
    
    // Output collection
-   std::auto_ptr<reco::GsfElectronCollection> outputElectrons_p(new reco::GsfElectronCollection);
+   auto outputElectrons_p = std::make_unique<reco::GsfElectronCollection>();
    
+   if( gedRegression_ ) {
+     gedRegression_->setEvent(event);
+     gedRegression_->setEventContent(setup);
+   }
+
    // read input collections
    // electrons
    edm::Handle<reco::GsfElectronCollection> gedElectronHandle;
@@ -56,7 +69,7 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
    edm::Handle<reco::PFCandidateCollection> pfCandidateHandle;
    event.getByToken(pfCandidates_,pfCandidateHandle);
    // value maps
-   std::vector< edm::Handle< edm::ValueMap<double> > > isolationValueMaps(nDeps_);
+   std::vector< edm::Handle< edm::ValueMap<float> > > isolationValueMaps(nDeps_);
 
    for(unsigned i=0; i < nDeps_ ; ++i) {
      event.getByToken(tokenElectronIsoVals_[i],isolationValueMaps[i]);
@@ -86,6 +99,9 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
      isoVariables.sumPhotonEt = (*(isolationValueMaps)[1])[myElectronRef];
      isoVariables.sumNeutralHadronEt = (*(isolationValueMaps)[2])[myElectronRef];
      isoVariables.sumPUPt = (*(isolationValueMaps)[3])[myElectronRef];
+     isoVariables.sumEcalClusterEt = (*(isolationValueMaps)[4])[myElectronRef];
+     isoVariables.sumHcalClusterEt = (*(isolationValueMaps)[5])[myElectronRef];
+
      newElectron.setPfIsolationVariables(isoVariables);
 
      // now set a status if not already done (in GEDGsfElectronProducer.cc)
@@ -104,10 +120,14 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
        }
        newElectron.setMvaOutput(myMvaOutput);
      }
+     
+     if( gedRegression_ ) {
+       gedRegression_->modifyObject(newElectron);
+     }
      outputElectrons_p->push_back(newElectron);
    }
    
-   event.put(outputElectrons_p,outputCollectionLabel_);
+   event.put(std::move(outputElectrons_p),outputCollectionLabel_);
  }
 
 

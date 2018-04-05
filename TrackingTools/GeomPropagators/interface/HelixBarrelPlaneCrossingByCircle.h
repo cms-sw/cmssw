@@ -10,7 +10,7 @@
  *  Exact if the magnetic field is parallel to the plane.
  */
 
-class HelixBarrelPlaneCrossingByCircle GCC11_FINAL : public HelixPlaneCrossing {
+class HelixBarrelPlaneCrossingByCircle final : public HelixPlaneCrossing {
 public:
 
   HelixBarrelPlaneCrossingByCircle( const PositionType& pos,
@@ -23,11 +23,11 @@ public:
 				    double rho, 
 				    PropagationDirection propDir=alongMomentum);
 
-  virtual std::pair<bool,double> pathLength( const Plane&);
+  std::pair<bool,double> pathLength( const Plane&) override;
 
-  virtual PositionType position( double s) const;
+  PositionType position( double s) const override;
 
-  virtual DirectionType direction( double s) const;
+  DirectionType direction( double s) const override;
 
 private:
 

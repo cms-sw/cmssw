@@ -83,7 +83,7 @@ class SurveyResidual
 
 bool SurveyResidual::valid() const
 {
-  return theMother != 0;
+  return theMother != nullptr;
 }
 
 #endif

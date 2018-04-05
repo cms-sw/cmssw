@@ -27,7 +27,7 @@
 #include <iostream>
 #include <cassert>
 
-CSCRecHitDBuilder::CSCRecHitDBuilder( const edm::ParameterSet& ps ) : geom_(0) {
+CSCRecHitDBuilder::CSCRecHitDBuilder( const edm::ParameterSet& ps ) : geom_(nullptr) {
   
   // Receives ParameterSet percolated down from EDProducer	
 

@@ -20,17 +20,17 @@
 class CSCNoiseMatrixDBConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCNoiseMatrixDBConditions(const edm::ParameterSet&);
-  ~CSCNoiseMatrixDBConditions();
+  ~CSCNoiseMatrixDBConditions() override;
   
   inline static CSCDBNoiseMatrix * prefillDBNoiseMatrix();
 
-  typedef const  CSCDBNoiseMatrix * ReturnType;
+  typedef std::unique_ptr<CSCDBNoiseMatrix> ReturnType;
   
   ReturnType produceDBNoiseMatrix(const CSCDBNoiseMatrixRcd&);
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCDBNoiseMatrix *cndbMatrix ;
 
 };

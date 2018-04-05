@@ -9,7 +9,7 @@ TT6PedestalCalculator::TT6PedestalCalculator(int evnt_ini,
                         numberOfEvents(0),
                         alreadyUsedEvent(false)
 {
-  if (0) cout << "Constructing TT6PedestalCalculator " << endl;
+  if (false) cout << "Constructing TT6PedestalCalculator " << endl;
   eventsRequiredToCalibrate = evnt_ini; 
   eventsRequiredToUpdate    = evnt_iter;
   cutToAvoidSignal          = sig_cut;
@@ -30,7 +30,7 @@ void TT6PedestalCalculator::init() {
 //  -- Destructor  
 //
 TT6PedestalCalculator::~TT6PedestalCalculator() {
-  if (0) cout << "Destructing TT6PedestalCalculator " << endl;
+  if (false) cout << "Destructing TT6PedestalCalculator " << endl;
 }
 //
 // -- Set Pedestal Update Status

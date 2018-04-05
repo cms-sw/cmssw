@@ -57,7 +57,7 @@ ParticleTreeDrawer::ParticleTreeDrawer( const ParameterSet & cfg ) :
 }
 
 bool ParticleTreeDrawer::accept( const reco::Candidate & c ) const {
-  if ( status_.size() == 0 ) return true;
+  if ( status_.empty() ) return true;
   return find( status_.begin(), status_.end(), c.status() ) != status_.end();
 }
 
@@ -92,7 +92,7 @@ void ParticleTreeDrawer::analyze( const Event & event, const EventSetup & es ) {
   for( View<Candidate>::const_iterator p = particles->begin();
        p != particles->end(); ++ p ) {
     if ( accept( * p ) ) {
-      if ( p->mother() == 0 ) {
+      if ( p->mother() == nullptr ) {
 	cout << "-- decay tree: --" << endl;
 	printDecay( * p, "" );
       }
@@ -153,7 +153,7 @@ void ParticleTreeDrawer::printDecay( const Candidate & c, const string & pre ) c
 
   for( size_t i = 0; i < ndau; ++i ) {
     const Candidate * d = c.daughter( i );
-    assert( d != 0 );
+    assert( d != nullptr );
     if ( accept( * d ) ) {
       cout << pre << "+-> ";
       string prepre( pre );

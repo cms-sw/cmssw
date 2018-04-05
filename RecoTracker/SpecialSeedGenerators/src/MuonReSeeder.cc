@@ -25,15 +25,15 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 
 class MuonReSeeder : public edm::stream::EDProducer<> {
     public:
       explicit MuonReSeeder(const edm::ParameterSet & iConfig);
-      virtual ~MuonReSeeder() { }
+      ~MuonReSeeder() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
     private:
       /// Labels for input collections
@@ -79,9 +79,9 @@ MuonReSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopo;
-    iSetup.get<IdealGeometryRecord>().get(tTopo);
+    iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
-    auto_ptr<vector<TrajectorySeed> > out(new vector<TrajectorySeed>());
+    auto out = std::make_unique<std::vector<TrajectorySeed>>();
     unsigned int nsrc = src->size();
     out->reserve(nsrc);
 
@@ -92,7 +92,7 @@ MuonReSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
         if (traj.size() != 1) continue;
         edm::OwnVector<TrackingRecHit> seedHits;
         const std::vector<TrajectoryMeasurement> & tms = traj.front().measurements();
-        TrajectoryStateOnSurface tsos; const TrackingRecHit *hit  = 0;
+        TrajectoryStateOnSurface tsos; const TrackingRecHit *hit  = nullptr;
         bool fromInside = (insideOut_ == (traj.front().direction() == alongMomentum));
         if (debug_) {
             std::cout << "Considering muon of pt " << mu.pt() << ", eta = " << mu.eta() << ", phi = " << mu.phi() << std::endl;
@@ -119,7 +119,7 @@ MuonReSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 	    int lay = tTopo->layer(hit->geographicalId());
             if (subdet != lastSubdet || lay != lastLayer) {
                 // I'm on a new layer
-                if (lastHit != 0 && taken == layersToKeep_) {
+                if (lastHit != nullptr && taken == layersToKeep_) {
                     // I've had enough layers, I can stop here
                     hit = lastHit;
                     break;
@@ -146,7 +146,7 @@ MuonReSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
         out->push_back(seed);
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 

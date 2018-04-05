@@ -41,12 +41,12 @@ namespace edm {
    class EventSetupRecordDataGetter : public edm::stream::EDAnalyzer< > {
 public:
      explicit EventSetupRecordDataGetter(ParameterSet const&);
-     ~EventSetupRecordDataGetter();
+     ~EventSetupRecordDataGetter() override;
       
       
-     virtual void analyze(Event const&, EventSetup const&) override;
-     virtual void beginRun(Run const&, EventSetup const&) override;
-     virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
+     void analyze(Event const&, EventSetup const&) override;
+     void beginRun(Run const&, EventSetup const&) override;
+     void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
 
      static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -129,7 +129,7 @@ private:
    
    void
    EventSetupRecordDataGetter::doGet(EventSetup const& iSetup) {  
-      if(0 == recordToDataKeys_.size()) {
+      if(recordToDataKeys_.empty()) {
          typedef std::vector<ParameterSet> Parameters;
          Parameters const& toGet = pSet_.getParameterSetVector("toGet");
          
@@ -177,7 +177,7 @@ private:
                 itRKey != itRKeyEnd;
                 ++itRKey) {               
                eventsetup::EventSetupRecord const* record = iSetup.find(*itRKey);
-               assert(record != 0);
+               assert(record != nullptr);
                dataKeys.clear();
                record->fillRegisteredDataKeys(dataKeys);
                recordToDataKeys_.insert(std::make_pair(*itRKey, dataKeys));
@@ -194,10 +194,10 @@ private:
            itRecord != itRecordEnd;
            ++itRecord) {
          EventSetupRecord const* pRecord = iSetup.find(itRecord->first);
-         if(0 == pRecord) {
+         if(nullptr == pRecord) {
            edm::LogWarning("RecordNotInIOV") <<"The EventSetup Record '"<<itRecord->first.name()<<"' is not available for this IOV.";
          }
-         if(0 != pRecord && pRecord->cacheIdentifier() != recordToCacheIdentifier_[itRecord->first]) {
+         if(nullptr != pRecord && pRecord->cacheIdentifier() != recordToCacheIdentifier_[itRecord->first]) {
             recordToCacheIdentifier_[itRecord->first] = pRecord->cacheIdentifier();
             typedef std::vector<DataKey> Keys;
             Keys const& keys = itRecord->second;

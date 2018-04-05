@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 
+#include "EvtGenBase/EvtParticle.hh"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -38,19 +39,22 @@ namespace gen {
      public:
     // ctor & dtor
     EvtGenInterface( const edm::ParameterSet& );
-    ~EvtGenInterface();
+    ~EvtGenInterface() override;
     
-    virtual void init();
-    virtual const std::vector<int>& operatesOnParticles() { return m_PDGs; }      
-    virtual HepMC::GenEvent* decay( HepMC::GenEvent* );
-    virtual void setRandomEngine(CLHEP::HepRandomEngine* v);
+    void init() override;
+    const std::vector<int>& operatesOnParticles() override { return m_PDGs; }      
+    HepMC::GenEvent* decay( HepMC::GenEvent* ) override;
+    void setRandomEngine(CLHEP::HepRandomEngine* v) override;
     static double flat();
     
   private:
-    void addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt, HepMC::GenEvent* theEvent);
-    void update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p,bool allowMixing=true);
+    bool addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt, HepMC::GenEvent* theEvent, bool del_daug); 
+    void update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p);
     void SetDefault_m_PDGs();
-    
+    bool findLastinChain(HepMC::GenParticle* &p);    
+    bool hasnoDaughter(HepMC::GenParticle* p);
+    void go_through_daughters(EvtParticle* part);
+
     EvtGen *m_EvtGen;                // EvtGen main  object
 
     std::vector<EvtId> forced_id;     // EvtGen Id's of particles  which are to be forced by EvtGen

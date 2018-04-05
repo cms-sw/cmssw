@@ -17,9 +17,22 @@
 #include <string>
 #include <iostream>
 
-TDirectory* fileDirectory( TDirectory *target, std::string s);
+#include "rootlogon.h"
 
-void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6", bool fastsim=false){
+TDirectory* fileDirectory( TDirectory *target, std::string s);
+void SinglePi(const TString ref_vers="330pre6", const TString val_vers="330pre6", bool fastsim=false);
+
+int main(int argn, char **argv)
+{
+    if(argn == 3)      SinglePi(argv[1], argv[2]);
+    else if(argn == 4) SinglePi(argv[1], argv[2], strcmp(argv[3], "fastsim") == 0);
+    else               printf("Usage: ./SinglePi.exe ref_ver val_ver [fastsim]\n");
+}
+
+void SinglePi(const TString ref_vers, const TString val_vers, bool fastsim){
+
+    //Warning!!! This rootlogon hacks the root color pallate
+   setColors();
 
    TString ref_file = "pi50scan"+ref_vers+"_ECALHCAL_CaloTowers.root";
    TString val_file = "pi50scan"+val_vers+"_ECALHCAL_CaloTowers.root";
@@ -408,6 +421,7 @@ TDirectory* fileDirectory( TDirectory *target, std::string s)
 	    if((retval = fileDirectory((TDirectory*)obj, s))) break;
 	    
 	}
+	else break;
     }
     return retval;
 }

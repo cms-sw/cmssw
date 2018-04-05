@@ -16,7 +16,6 @@
 #include "TEfficiency.h"
 
 
-
 /** \class HLTBTagHarvestingAnalyzer
  *
  *  Code used to produce DQM validation plots for b-tag at HLT.
@@ -24,21 +23,21 @@
  *
  */
 
-using namespace edm;
-using namespace std;
 
 class HLTBTagHarvestingAnalyzer : public DQMEDHarvester { 
 		public:
 			explicit HLTBTagHarvestingAnalyzer(const edm::ParameterSet&);
-			~HLTBTagHarvestingAnalyzer();
+			~HLTBTagHarvestingAnalyzer() override;
 
-			virtual void dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
-			TH1F  calculateEfficiency1D( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1 & num, TH1 & den, string name );
-			bool GetNumDenumerators(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, string num,string den,TH1 * & ptrnum,TH1* & ptrden,int type);
-			void mistagrate( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, string effName );
+			void dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) override;
+			TH1F  calculateEfficiency1D( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1 & num, TH1 & den, std::string name );
+			bool GetNumDenumerators(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string num, std::string den,TH1 * & ptrnum,TH1* & ptrden,int type);
+			void mistagrate( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, std::string effName );
+			void modulesrate( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, std::string effName );
 
 		private:
 			// ----------member data ---------------------------
+			std::string			                mainFolder_;
 			std::vector<std::string>			hltPathNames_;
 			typedef unsigned int				flavour_t;
 			typedef std::vector<flavour_t>		flavours_t;
@@ -50,6 +49,9 @@ class HLTBTagHarvestingAnalyzer : public DQMEDHarvester {
 
 			// Histogram handler
 			std::map<std::string, MonitorElement *> H1_;
+
+			enum HCALSpecials {HEP17, HEP18, HEM17};
+			std::map<HLTBTagHarvestingAnalyzer::HCALSpecials,std::string> HCALSpecialsNames;
 
 	};
 

@@ -31,12 +31,12 @@ class FilterTrackerOn : public edm::EDFilter
 {
  public:
   explicit FilterTrackerOn(const edm::ParameterSet&);
-  ~FilterTrackerOn();
+  ~FilterTrackerOn() override;
 
  private:
-  virtual void beginJob() ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
   int minModulesWithHVoff_;
 };

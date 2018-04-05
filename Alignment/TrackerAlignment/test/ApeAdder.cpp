@@ -45,7 +45,7 @@ public:
 
 private:
     // methods
-    void addApe( std::vector<Alignable*> alignables );
+  void addApe(const align::Alignables& alignables);
     
 private:
     // members
@@ -70,7 +70,7 @@ void ApeAdder::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // Get geometry from ES
@@ -109,14 +109,13 @@ void ApeAdder::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 
 }
 
-void ApeAdder::addApe( std::vector<Alignable*> alignables )
+void ApeAdder::addApe(const align::Alignables& alignables)
 {
   
   AlignmentPositionError ape( theApe[0], theApe[1], theApe[2] );
-  for ( std::vector<Alignable*>::iterator iDet = alignables.begin();
-		iDet != alignables.end(); ++iDet )
-    (*iDet)->setAlignmentPositionError( ape, true ); // true: propagate to components
-    
+  for (const auto& iDet: alignables) {
+    iDet->setAlignmentPositionError(ape, true); // true: propagate to components
+  }
 }
 
 //define this as a plug-in

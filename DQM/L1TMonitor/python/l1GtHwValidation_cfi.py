@@ -4,7 +4,8 @@ import FWCore.ParameterSet.Config as cms
 #     
 # V.M. Ghete 2009-10-09
 
-l1GtHwValidation = cms.EDAnalyzer("L1GtHwValidation",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+l1GtHwValidation = DQMEDAnalyzer('L1GtHwValidation',
 
     # input tag for the L1 GT hardware DAQ record
     L1GtDataDaqInputTag = cms.InputTag("gtDigis"),
@@ -21,7 +22,6 @@ l1GtHwValidation = cms.EDAnalyzer("L1GtHwValidation",
     # input tag for the L1 GCT hardware record 
     L1GctDataInputTag = cms.InputTag("gctDigis"),   
 
-    DQMStore = cms.untracked.bool(False),
     DirName = cms.untracked.string("L1TEMU/GTexpert"), 
     
     # exclude algorithm triggers from comparison data - emulator by 

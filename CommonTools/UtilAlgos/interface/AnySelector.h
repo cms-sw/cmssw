@@ -1,6 +1,7 @@
 #ifndef UtilAlgos_AnySelector_h
 #define UtilAlgos_AnySelector_h
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
 #include "CommonTools/Utils/interface/AnySelector.h"
 
@@ -18,6 +19,8 @@ namespace reco {
       static AnySelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
 	return AnySelector();
       }
+
+      static void fillPSetDescription(edm::ParameterSetDescription& desc) {}
     };
 
   }

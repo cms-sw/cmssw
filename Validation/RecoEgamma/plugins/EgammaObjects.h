@@ -23,11 +23,11 @@ namespace edm {class HepMCProduct;}
 class EgammaObjects : public edm::EDAnalyzer {
   public:
     explicit EgammaObjects( const edm::ParameterSet& );
-    ~EgammaObjects();
+    ~EgammaObjects() override;
 
-    virtual void analyze( const edm::Event&, const edm::EventSetup& );
-    virtual void beginJob();
-    virtual void endJob();
+    void analyze( const edm::Event&, const edm::EventSetup& ) override;
+    void beginJob() override;
+    void endJob() override;
 
   private:
     TFile*  rootFile_;

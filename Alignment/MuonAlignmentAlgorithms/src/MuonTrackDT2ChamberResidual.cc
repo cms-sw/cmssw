@@ -5,7 +5,7 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonTrackDT2ChamberResidual.h"
 
 MuonTrackDT2ChamberResidual::MuonTrackDT2ChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator,
-                                                         DetId chamberId, const AlignableDetOrUnitPtr& chamberAlignable)
+                                                         DetId chamberId, AlignableDetOrUnitPtr chamberAlignable)
   : MuonChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable)
 {
   m_type = MuonChamberResidual::kDT2; 
@@ -17,7 +17,7 @@ MuonTrackDT2ChamberResidual::MuonTrackDT2ChamberResidual(edm::ESHandle<GlobalTra
 void MuonTrackDT2ChamberResidual::setSegmentResidual(const reco::MuonChamberMatch *trk, const reco::MuonSegmentMatch *seg)
 {
   DTRecSegment4DRef segmentDT = seg->dtSegmentRef;
-  if (segmentDT.get() != 0)
+  if (segmentDT.get() != nullptr)
   {
     const DTRecSegment4D* segment = segmentDT.get();
     assert(segment->hasZed());

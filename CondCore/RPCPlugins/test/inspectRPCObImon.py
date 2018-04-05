@@ -57,7 +57,7 @@ try:
         print k,v
 
 
-except Exception, er :
+except Exception as er :
     print er
 
 ##--------------------- Current reading -----------------------------------------

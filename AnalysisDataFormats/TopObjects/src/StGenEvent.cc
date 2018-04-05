@@ -23,7 +23,7 @@ StGenEvent::~StGenEvent()
 const reco::GenParticle* 
 StGenEvent::decayB() const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   if (singleLepton()) {
     const reco::GenParticleCollection & partsColl = *parts_;
     const reco::GenParticle & singleLep = *singleLepton();
@@ -41,7 +41,7 @@ StGenEvent::decayB() const
 const reco::GenParticle* 
 StGenEvent::associatedB() const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   if (singleLepton()) {
     const reco::GenParticleCollection & partsColl = *parts_;
     const reco::GenParticle & singleLep = *singleLepton();
@@ -59,7 +59,7 @@ StGenEvent::associatedB() const
 const reco::GenParticle* 
 StGenEvent::singleLepton() const 
 {
-  const reco::GenParticle* cand = 0;
+  const reco::GenParticle* cand = nullptr;
   const reco::GenParticleCollection& partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (reco::isLepton(partsColl[i]) && partsColl[i].mother() &&
@@ -73,7 +73,7 @@ StGenEvent::singleLepton() const
 const reco::GenParticle* 
 StGenEvent::singleNeutrino() const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   const reco::GenParticleCollection & partsColl = *parts_;
   for (unsigned int i = 0; i < partsColl.size(); ++i) {
     if (reco::isNeutrino(partsColl[i]) && partsColl[i].mother() &&
@@ -87,7 +87,7 @@ StGenEvent::singleNeutrino() const
 const reco::GenParticle* 
 StGenEvent::singleW() const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   if (singleLepton()) {
     const reco::GenParticleCollection & partsColl = *parts_;
     const reco::GenParticle & singleLep = *singleLepton();
@@ -105,7 +105,7 @@ StGenEvent::singleW() const
 const reco::GenParticle* 
 StGenEvent::singleTop() const 
 {
-  const reco::GenParticle* cand=0;
+  const reco::GenParticle* cand=nullptr;
   if (singleLepton()) {
     const reco::GenParticleCollection & partsColl = *parts_;
     const reco::GenParticle & singleLep = *singleLepton();

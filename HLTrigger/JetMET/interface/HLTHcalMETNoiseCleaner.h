@@ -21,9 +21,9 @@ class HLTHcalMETNoiseCleaner : public edm::EDFilter {
   
  public:
   explicit HLTHcalMETNoiseCleaner(const edm::ParameterSet&);
-  ~HLTHcalMETNoiseCleaner();
+  ~HLTHcalMETNoiseCleaner() override;
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
  private:
   edm::EDGetTokenT<reco::CaloMETCollection> m_theCaloMetToken;

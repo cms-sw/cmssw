@@ -43,7 +43,7 @@ HLTJetEtaTopologyFilter<T>::HLTJetEtaTopologyFilter(const edm::ParameterSet& iCo
 }
 
 template<typename T>
-HLTJetEtaTopologyFilter<T>::~HLTJetEtaTopologyFilter(){}
+HLTJetEtaTopologyFilter<T>::~HLTJetEtaTopologyFilter()= default;
 
 template<typename T>
 void
@@ -82,7 +82,7 @@ HLTJetEtaTopologyFilter<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup&
 
     int n(0);
 
-    if(objects->size() > 0){ // events with two or more jets
+    if(!objects->empty()){ // events with two or more jets
         typename TCollection::const_iterator iEnd ( objects->end() );
         typename TCollection::const_iterator iJet ( objects->begin() );
         for (;iJet != iEnd; ++iJet){

@@ -32,8 +32,7 @@ public:
 	 * Returns the calibration coefficient for each detector element, using data
 	 * from all particle depositions stored within.
 	 */
-	std::map<DetectorElementPtr, double> getCalibrationCoefficients() throw(
-			PFToolsException&) {
+	std::map<DetectorElementPtr, double> getCalibrationCoefficients() noexcept(false) {
 		return getCalibrationCoefficientsCore();
 	}
 	
@@ -56,7 +55,7 @@ public:
 
 protected:
 	virtual std::map<DetectorElementPtr, double>
-			getCalibrationCoefficientsCore() throw(PFToolsException&);
+			getCalibrationCoefficientsCore() noexcept(false);
 
 	std::vector<DetectorElementPtr> myDetectorElements;
 	std::vector<ParticleDepositPtr> myParticleDeposits;

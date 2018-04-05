@@ -1,33 +1,32 @@
 # idea stolen from:
 # http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/
 #        PhysicsTools/PatAlgos/python/tools/cmsswVersionTools.py
-import das_client
+import bisect
+import datetime
 import json
 import os
-import bisect
 import re
-import datetime
+import sys
+
+import Utilities.General.cmssw_das_client as das_client
 from FWCore.PythonUtilities.LumiList import LumiList
+
+from helperFunctions import cache
 from TkAlExceptions import AllInOneError
 
-
-class Dataset:
+class Dataset(object):
     def __init__( self, datasetName, dasLimit = 0, tryPredefinedFirst = True,
-                  cmssw = os.environ["CMSSW_BASE"], cmsswrelease = os.environ["CMSSW_RELEASE_BASE"]):
+                  cmssw = os.environ["CMSSW_BASE"], cmsswrelease = os.environ["CMSSW_RELEASE_BASE"],
+                  magneticfield = None, dasinstance = None):
         self.__name = datasetName
         self.__origName = datasetName
         self.__dasLimit = dasLimit
-        self.__fileList = None
-        self.__fileInfoList = None
-        self.__runList = None
-        self.__alreadyStored = False
+        self.__dasinstance = dasinstance
         self.__cmssw = cmssw
         self.__cmsswrelease = cmsswrelease
         self.__firstusedrun = None
         self.__lastusedrun = None
         self.__parentDataset = None
-        self.__parentFileList = None
-        self.__parentFileInfoList = None
 
         # check, if dataset name matches CMS dataset naming scheme
         if re.match( r'/.+/.+/.+', self.__name ):
@@ -73,8 +72,16 @@ class Dataset:
         if self.__predefined and self.__official:
             self.__name = "Dataset" + self.__name.replace("/","_")
 
+        if magneticfield is not None:
+            try:
+                magneticfield = float(magneticfield)
+            except ValueError:
+                raise AllInOneError("Bad magneticfield {} which can't be converted to float".format(magneticfield))
+        self.__inputMagneticField = magneticfield
+
         self.__dataType = self.__getDataType()
         self.__magneticField = self.__getMagneticField()
+
 
     def __chunks( self, theList, n ):
         """ Yield successive n-sized chunks from theList.
@@ -112,42 +119,9 @@ class Dataset:
                                "input = cms.untracked.int32(%(nEvents)s) )\n"
                                "%(skipEventsString)s\n")
 
-    def __createSnippet( self, jsonPath = None, begin = None, end = None,
-                         firstRun = None, lastRun = None, repMap = None,
-                         crab = False, parent = False ):
-        if firstRun:
-            firstRun = int( firstRun )
-        if lastRun:
-            lastRun = int( lastRun )
-        if ( begin and firstRun ) or ( end and lastRun ):
-            msg = ( "The Usage of "
-                    + "'begin' & 'firstRun' " * int( bool( begin and
-                                                           firstRun ) )
-                    + "and " * int( bool( ( begin and firstRun ) and
-                                         ( end and lastRun ) ) )
-                    + "'end' & 'lastRun' " * int( bool( end and lastRun ) )
-                    + "is ambigous." )
-            raise AllInOneError( msg )
-        if begin or end:
-            ( firstRun, lastRun ) = self.convertTimeToRun(
-                begin = begin, end = end, firstRun = firstRun,
-                lastRun = lastRun )
-        if ( firstRun and lastRun ) and ( firstRun > lastRun ):
-            msg = ( "The lower time/runrange limit ('begin'/'firstRun') "
-                    "chosen is greater than the upper time/runrange limit "
-                    "('end'/'lastRun').")
-            raise AllInOneError( msg )
-        if self.predefined() and (jsonPath or begin or end or firstRun or lastRun):
-            msg = ( "The parameters 'JSON', 'begin', 'end', 'firstRun', and 'lastRun'"
-                    "only work for official datasets, not predefined _cff.py files" )
-            raise AllInOneError( msg )
-        goodLumiSecStr = ""
-        lumiStr = ""
+    def __lumiSelectionSnippet( self, jsonPath = None, firstRun = None, lastRun = None ):
         lumiSecExtend = ""
         if firstRun or lastRun or jsonPath:
-            goodLumiSecStr = ( "lumiSecs = cms.untracked."
-                               "VLuminosityBlockRange()\n" )
-            lumiStr = "                    lumisToProcess = lumiSecs,\n"
             if not jsonPath:
                 selectedRunList = self.__getRunList()
                 if firstRun:
@@ -178,6 +152,8 @@ class Dataset:
                     theLumiList.removeRuns( runsToRemove )
                     splitLumiList = list( self.__chunks(
                         theLumiList.getCMSSWString().split(','), 255 ) )
+                    if not (splitLumiList and splitLumiList[0] and splitLumiList[0][0]):
+                        splitLumiList = None
                 else:
                     with open(jsonPath) as f:
                         jsoncontents = f.read()
@@ -189,42 +165,112 @@ class Dataset:
                             msg += "\nCheck your config file to make sure that it worked properly."
                             print msg
 
-                            self.__firstUsedRun = -1
-                            self.__lastUsedRun = -1
+                            runlist = self.__getRunList()
                             if firstRun or lastRun:
-                                jsoncontents = re.sub("\d+:(\d+|max)-\d+:(\d+|max)", self.getForceRunRangeFunction(firstRun, lastRun), jsoncontents)
+                                self.__firstusedrun = -1
+                                self.__lastusedrun = -1
+                                jsoncontents = re.sub(r"\d+:(\d+|max)(-\d+:(\d+|max))?", self.getForceRunRangeFunction(firstRun, lastRun), jsoncontents)
+                                jsoncontents = (jsoncontents.replace("'',\n","").replace("''\n","")
+                                                            .replace('"",\n','').replace('""\n',''))
+                                self.__firstusedrun = max(self.__firstusedrun, int(self.__findInJson(runlist[0],"run_number")))
+                                self.__lastusedrun = min(self.__lastusedrun, int(self.__findInJson(runlist[-1],"run_number")))
+                                if self.__lastusedrun < self.__firstusedrun:
+                                    jsoncontents = None
+                            else:
+                                self.__firstusedrun = int(self.__findInJson(runlist[0],"run_number"))
+                                self.__lastusedrun = int(self.__findInJson(runlist[-1],"run_number"))
                             lumiSecExtend = jsoncontents
-                            splitLumiList = [[""]]
+                            splitLumiList = None
+                        else:
+                            raise AllInOneError("%s is not a valid json file!" % jsonPath)
 
-            if not len(splitLumiList[0][0]) == 0:
+            if splitLumiList and splitLumiList[0] and splitLumiList[0][0]:
                 lumiSecStr = [ "',\n'".join( lumis ) \
                                for lumis in splitLumiList ]
                 lumiSecStr = [ "lumiSecs.extend( [\n'" + lumis + "'\n] )" \
                                for lumis in lumiSecStr ]
                 lumiSecExtend = "\n".join( lumiSecStr )
-                self.__firstusedrun = splitLumiList[0][0].split(":")[0]
-                self.__lastusedrun = splitLumiList[-1][-1].split(":")[0]
-        else:
-            self.__firstusedrun = self.__findInJson(self.__getRunList()[0],"run_number")
-            self.__lastusedrun = self.__findInJson(self.__getRunList()[-1],"run_number")
+                runlist = self.__getRunList()
+                self.__firstusedrun = max(int(splitLumiList[0][0].split(":")[0]), int(self.__findInJson(runlist[0],"run_number")))
+                self.__lastusedrun = min(int(splitLumiList[-1][-1].split(":")[0]), int(self.__findInJson(runlist[-1],"run_number")))
+            elif lumiSecExtend:
+                pass
+            else:
+                msg = "You are trying to run a validation without any runs!  Check that:"
+                if firstRun or lastRun:
+                    msg += "\n - firstRun/begin and lastRun/end are correct for this dataset, and there are runs in between containing data"
+                if jsonPath:
+                    msg += "\n - your JSON file is correct for this dataset, and the runs contain data"
+                if (firstRun or lastRun) and jsonPath:
+                    msg += "\n - firstRun/begin and lastRun/end are consistent with your JSON file"
+                raise AllInOneError(msg)
 
+        else:
+            if self.__inputMagneticField is not None:
+                pass  #never need self.__firstusedrun or self.__lastusedrun
+            else:
+                runlist = self.__getRunList()
+                self.__firstusedrun = int(self.__findInJson(self.__getRunList()[0],"run_number"))
+                self.__lastusedrun = int(self.__findInJson(self.__getRunList()[-1],"run_number"))
+
+        return lumiSecExtend
+
+    def __fileListSnippet(self, crab=False, parent=False, firstRun=None, lastRun=None, forcerunselection=False):
         if crab:
             files = ""
         else:
-            splitFileList = list( self.__chunks( self.fileList(), 255 ) )
+            splitFileList = list( self.__chunks( self.fileList(firstRun=firstRun, lastRun=lastRun, forcerunselection=forcerunselection), 255 ) )
+            if not splitFileList:
+                raise AllInOneError("No files found for dataset {}.  Check the spelling, or maybe specify another das instance?".format(self.__name))
             fileStr = [ "',\n'".join( files ) for files in splitFileList ]
             fileStr = [ "readFiles.extend( [\n'" + files + "'\n] )" \
                         for files in fileStr ]
             files = "\n".join( fileStr )
 
             if parent:
-                splitParentFileList = list( self.__chunks( self.fileList(parent = True), 255 ) )
+                splitParentFileList = list( self.__chunks( self.fileList(parent=True, firstRun=firstRun, lastRun=lastRun, forcerunselection=forcerunselection), 255 ) )
                 parentFileStr = [ "',\n'".join( parentFiles ) for parentFiles in splitParentFileList ]
                 parentFileStr = [ "secFiles.extend( [\n'" + parentFiles + "'\n] )" \
                             for parentFiles in parentFileStr ]
                 parentFiles = "\n".join( parentFileStr )
                 files += "\n\n" + parentFiles
 
+        return files
+
+    def __createSnippet( self, jsonPath = None, begin = None, end = None,
+                         firstRun = None, lastRun = None, repMap = None,
+                         crab = False, parent = False ):
+
+        if firstRun:
+            firstRun = int( firstRun )
+        if lastRun:
+            lastRun = int( lastRun )
+        if ( begin and firstRun ) or ( end and lastRun ):
+            msg = ( "The Usage of "
+                    + "'begin' & 'firstRun' " * int( bool( begin and
+                                                           firstRun ) )
+                    + "and " * int( bool( ( begin and firstRun ) and
+                                         ( end and lastRun ) ) )
+                    + "'end' & 'lastRun' " * int( bool( end and lastRun ) )
+                    + "is ambigous." )
+            raise AllInOneError( msg )
+        if begin or end:
+            ( firstRun, lastRun ) = self.convertTimeToRun(
+                begin = begin, end = end, firstRun = firstRun,
+                lastRun = lastRun )
+        if ( firstRun and lastRun ) and ( firstRun > lastRun ):
+            msg = ( "The lower time/runrange limit ('begin'/'firstRun') "
+                    "chosen is greater than the upper time/runrange limit "
+                    "('end'/'lastRun').")
+            raise AllInOneError( msg )
+
+        lumiSecExtend = self.__lumiSelectionSnippet(jsonPath=jsonPath, firstRun=firstRun, lastRun=lastRun)
+        lumiStr = goodLumiSecStr = ""
+        if lumiSecExtend:
+            goodLumiSecStr = "lumiSecs = cms.untracked.VLuminosityBlockRange()\n"
+            lumiStr = "                    lumisToProcess = lumiSecs,\n"
+
+        files = self.__fileListSnippet(crab=crab, parent=parent, firstRun=firstRun, lastRun=lastRun, forcerunselection=False)
 
         theMap = repMap
         theMap["files"] = files
@@ -277,11 +323,14 @@ class Dataset:
     def forcerunrange(self, firstRun, lastRun, s):
         """s must be in the format run1:lum1-run2:lum2"""
         s = s.group()
-        print s
         run1 = s.split("-")[0].split(":")[0]
         lum1 = s.split("-")[0].split(":")[1]
-        run2 = s.split("-")[1].split(":")[0]
-        lum2 = s.split("-")[1].split(":")[1]
+        try:
+            run2 = s.split("-")[1].split(":")[0]
+            lum2 = s.split("-")[1].split(":")[1]
+        except IndexError:
+            run2 = run1
+            lum2 = lum1
         if int(run2) < firstRun or int(run1) > lastRun:
             return ""
         if int(run1) < firstRun or firstRun < 0:
@@ -290,10 +339,10 @@ class Dataset:
         if int(run2) > lastRun:
             run2 = lastRun
             lum2 = "max"
-        if int(run1) < self.__firstUsedRun:
-            self.__firstUsedRun = int(run1)
-        if int(run2) > self.__lastUsedRun:
-            self.__lastUsedRun = int(run2)
+        if int(run1) < self.__firstusedrun or self.__firstusedrun < 0:
+            self.__firstusedrun = int(run1)
+        if int(run2) > self.__lastusedrun:
+            self.__lastusedrun = int(run2)
         return "%s:%s-%s:%s" % (run1, lum1, run2, lum2)
 
     def getForceRunRangeFunction(self, firstRun, lastRun):
@@ -302,8 +351,7 @@ class Dataset:
         return forcerunrangefunction
 
     def __getData( self, dasQuery, dasLimit = 0 ):
-        dasData = das_client.get_data( 'https://cmsweb.cern.ch',
-                                       dasQuery, 0, dasLimit, False )
+	dasData = das_client.get_data(dasQuery, dasLimit)
         if isinstance(dasData, str):
             jsondict = json.loads( dasData )
         else:
@@ -314,8 +362,23 @@ class Dataset:
         except KeyError:
             error = None
         if error or self.__findInJson(jsondict,"status") != 'ok' or "data" not in jsondict:
-            msg = ("The DAS query returned a error.  Here is the output\n" + str(jsondict) +
-                   "\nIt's possible that this was a server error.  If so, it may work if you try again later")
+            try:
+                jsonstr = self.__findInJson(jsondict,"reason")
+            except KeyError: 
+                jsonstr = str(jsondict)
+            if len(jsonstr) > 10000:
+                jsonfile = "das_query_output_%i.txt"
+                i = 0
+                while os.path.lexists(jsonfile % i):
+                    i += 1
+                jsonfile = jsonfile % i
+                theFile = open( jsonfile, "w" )
+                theFile.write( jsonstr )
+                theFile.close()
+                msg = "The DAS query returned an error.  The output is very long, and has been stored in:\n" + jsonfile
+            else:
+                msg = "The DAS query returned a error.  Here is the output\n" + jsonstr
+            msg += "\nIt's possible that this was a server error.  If so, it may work if you try again later"
             raise AllInOneError(msg)
         return self.__findInJson(jsondict,"data")
 
@@ -328,10 +391,11 @@ class Dataset:
                         if datatype is not None:
                             raise AllInOneError(self.__filename + " has multiple 'data type' lines.")
                         datatype = line.replace("#data type: ", "").replace("\n","")
+                        return datatype
                 return "unknown"
 
-        dasQuery_type = ( 'dataset dataset=%s | grep dataset.datatype,'
-                          'dataset.name'%( self.__name ) )
+        dasQuery_type = ( 'dataset dataset=%s instance=%s detail=true | grep dataset.datatype,'
+                          'dataset.name'%( self.__name, self.__dasinstance ) )
         data = self.__getData( dasQuery_type )
 
         try:
@@ -344,7 +408,7 @@ class Dataset:
             return "unknown"
 
     def __getParentDataset( self ):
-        dasQuery = "parent dataset=" + self.__name
+        dasQuery = "parent dataset=" + self.__name + " instance="+self.__dasinstance
         data = self.__getData( dasQuery )
         try:
             return self.__findInJson(data, ["parent", "name"])
@@ -354,11 +418,21 @@ class Dataset:
                                 "\nIt's possible that this was a server error.  If so, it may work if you try again later")
 
     def __getMagneticField( self ):
-        Bfieldlocation = os.path.join( self.__cmsswrelease, "python", "Configuration", "StandardSequences" )
-        Bfieldlist = [ f.replace("MagneticField_",'').replace("_cff.py",'') \
+        Bfieldlocation = os.path.join( self.__cmssw, "python", "Configuration", "StandardSequences" )
+        if not os.path.isdir(Bfieldlocation):
+            Bfieldlocation = os.path.join( self.__cmsswrelease, "python", "Configuration", "StandardSequences" )
+        Bfieldlist = [ f.replace("_cff.py",'') \
                            for f in os.listdir(Bfieldlocation) \
-                               if f.startswith("MagneticField_") and f.endswith("_cff.py") and f != "MagneticField_cff.py" ]
+                               if f.startswith("MagneticField_") and f.endswith("_cff.py") ]
         Bfieldlist.sort( key = lambda Bfield: -len(Bfield) ) #Put it in order of decreasing length, so that searching in the name gives the longer match
+
+        if self.__inputMagneticField is not None:
+            if self.__inputMagneticField == 3.8:
+                return "MagneticField"
+            elif self.__inputMagneticField == 0:
+                return "MagneticField_0T"
+            else:
+                raise ValueError("Unknown input magnetic field {}".format(self.__inputMagneticField))
 
         if self.__predefined:
             with open(self.__filename) as f:
@@ -369,10 +443,12 @@ class Dataset:
                         if datatype is not None:
                             raise AllInOneError(self.__filename + " has multiple 'data type' lines.")
                         datatype = line.replace("#data type: ", "").replace("\n","")
+                        datatype = datatype.split("#")[0].strip()
                     if line.startswith("#magnetic field: "):
                         if Bfield is not None:
                             raise AllInOneError(self.__filename + " has multiple 'magnetic field' lines.")
                         Bfield = line.replace("#magnetic field: ", "").replace("\n","")
+                        Bfield = Bfield.split("#")[0].strip()
                 if Bfield is not None:
                     Bfield = Bfield.split(",")[0]
                     if Bfield in Bfieldlist or Bfield == "unknown":
@@ -382,20 +458,26 @@ class Dataset:
                         print "Using Bfield='unknown' - this will revert to the default"
                         return "unknown"
                 elif datatype == "data":
-                    return "AutoFromDBCurrent"           #this should be in the "#magnetic field" line, but for safety in case it got messed up
+                    return "MagneticField"           #this should be in the "#magnetic field" line, but for safety in case it got messed up
                 else:
                     return "unknown"
 
         if self.__dataType == "data":
-            return "AutoFromDBCurrent"
+            return "MagneticField"
 
-        dasQuery_B = ( 'dataset dataset=%s'%( self.__name ) )             #try to find the magnetic field from DAS
-        data = self.__getData( dasQuery_B )                               #it seems to be there for the newer (7X) MC samples, except cosmics
+        #try to find the magnetic field from DAS
+        #it seems to be there for the newer (7X) MC samples, except cosmics
+        dasQuery_B = ('dataset dataset=%s instance=%s'%(self.__name, self.__dasinstance))
+        data = self.__getData( dasQuery_B )
 
         try:
             Bfield = self.__findInJson(data, ["dataset", "mcm", "sequences", "magField"])
             if Bfield in Bfieldlist:
                 return Bfield
+            elif Bfield == "38T" or Bfield == "38T_PostLS1":
+                return "MagneticField"
+            elif "MagneticField_" + Bfield in Bfieldlist:
+                return "MagneticField_" + Bfield
             elif Bfield == "":
                 pass
             else:
@@ -406,7 +488,12 @@ class Dataset:
             pass
 
         for possibleB in Bfieldlist:
-            if possibleB in self.__name.replace("TkAlCosmics0T", ""):         #for some reason all cosmics dataset names contain this string
+            if (possibleB != "MagneticField"
+              and possibleB.replace("MagneticField_","") in self.__name.replace("TkAlCosmics0T", "")):
+                #final attempt - try to identify the dataset from the name
+                #all cosmics dataset names contain "TkAlCosmics0T"
+                if possibleB == "MagneticField_38T" or possibleB == "MagneticField_38T_PostLS1":
+                    return "MagneticField"
                 return possibleB
 
         return "unknown"
@@ -416,9 +503,16 @@ class Dataset:
            For data, it gets the magnetic field from the runs.  This is important for
            deciding which template to use for offlinevalidation
         """
-        if "T" in self.__magneticField:                       #for MC
-            Bfield = self.__magneticField.split("T")[0]
-            return float(Bfield) / 10.0                       #e.g. 38T and 38T_PostLS1 both return 3.8
+        if self.__dataType == "mc" and self.__magneticField == "MagneticField":
+            return 3.8                                        #For 3.8T MC the default MagneticField is used
+        if self.__inputMagneticField is not None:
+            return self.__inputMagneticField
+        if "T" in self.__magneticField:
+            Bfield = self.__magneticField.split("T")[0].replace("MagneticField_","")
+            try:
+                return float(Bfield) / 10.0                       #e.g. 38T and 38T_PostLS1 both return 3.8
+            except ValueError:
+                pass
         if self.__predefined:
             with open(self.__filename) as f:
                 Bfield = None
@@ -426,10 +520,10 @@ class Dataset:
                     if line.startswith("#magnetic field: ") and "," in line:
                         if Bfield is not None:
                             raise AllInOneError(self.__filename + " has multiple 'magnetic field' lines.")
-                        return float(line.replace("#magnetic field: ", "").split(",")[1])
+                        return float(line.replace("#magnetic field: ", "").split(",")[1].split("#")[0].strip())
 
         if run > 0:
-            dasQuery = ('run = %s'%run)                         #for data
+            dasQuery = ('run=%s instance=%s detail=true'%(run, self.__dasinstance))   #for data
             data = self.__getData(dasQuery)
             try:
                 return self.__findInJson(data, ["run","bfield"])
@@ -452,11 +546,15 @@ class Dataset:
                     "Try limiting the run range using firstRun, lastRun, begin, end, or JSON,\n"
                     "or increasing the tolerance (in dataset.py) from %s.") % (self.__name, firstrunB, lastrunB, tolerance)
         except TypeError:
-            if "unknown" in firstrunB:
-                return firstrunB
-            else:
+            try:
+                if "unknown" in firstrunB:
+                    return firstrunB
+                else:
+                    return lastrunB
+            except TypeError:
                 return lastrunB
 
+    @cache
     def __getFileInfoList( self, dasLimit, parent = False ):
         if self.__predefined:
             if parent:
@@ -475,19 +573,15 @@ class Dataset:
                         copy = True
             return files
 
-        if self.__fileInfoList and not parent:
-            return self.__fileInfoList
-        if self.__parentFileInfoList and parent:
-            return self.__parentFileInfoList
-
         if parent:
             searchdataset = self.parentDataset()
         else:
             searchdataset = self.__name
-        dasQuery_files = ( 'file dataset=%s | grep file.name, file.nevents, '
+        dasQuery_files = ( 'file dataset=%s instance=%s detail=true | grep file.name, file.nevents, '
                            'file.creation_time, '
-                           'file.modification_time'%( searchdataset ) )
+                           'file.modification_time'%( searchdataset, self.__dasinstance ) )
         print "Requesting file information for '%s' from DAS..."%( searchdataset ),
+        sys.stdout.flush()
         data = self.__getData( dasQuery_files, dasLimit )
         print "Done."
         data = [ self.__findInJson(entry,"file") for entry in data ]
@@ -517,23 +611,18 @@ class Dataset:
                          }
             fileInformationList.append( fileDict )
         fileInformationList.sort( key=lambda info: self.__findInJson(info,"name") )
-        if parent:
-            self.__parentFileInfoList = fileInformationList
-        else:
-            self.__fileInfoList = fileInformationList
         return fileInformationList
 
+    @cache
     def __getRunList( self ):
-        if self.__runList:
-            return self.__runList
-        dasQuery_runs = ( 'run dataset=%s | grep run.run_number,'
-                          'run.creation_time'%( self.__name ) )
+        dasQuery_runs = ( 'run dataset=%s instance=%s | grep run.run_number,'
+                          'run.creation_time'%( self.__name, self.__dasinstance ) )
         print "Requesting run information for '%s' from DAS..."%( self.__name ),
+        sys.stdout.flush()
         data = self.__getData( dasQuery_runs )
         print "Done."
         data = [ self.__findInJson(entry,"run") for entry in data ]
         data.sort( key = lambda run: self.__findInJson(run, "run_number") )
-        self.__runList = data
         return data
 
     def __datetime(self, stringForDas):
@@ -569,7 +658,7 @@ class Dataset:
             for delta in [ 1, 5, 10, 20, 30 ]:                       #try searching for about 2 months after begin
                 firstdate = lastdate
                 lastdate = self.__dateString(self.__datetime(firstdate) + datetime.timedelta(delta))
-                dasQuery_begin = "run date between[%s,%s]" % (firstdate, lastdate)
+                dasQuery_begin = "run date between[%s,%s] instance=%s" % (firstdate, lastdate, self.__dasinstance)
                 begindata = self.__getData(dasQuery_begin)
                 if len(begindata) > 0:
                     begindata.sort(key = lambda run: self.__findInJson(run, ["run", "run_number"]))
@@ -592,7 +681,7 @@ class Dataset:
             for delta in [ 1, 5, 10, 20, 30 ]:                       #try searching for about 2 months before end
                 lastdate = firstdate
                 firstdate = self.__dateString(self.__datetime(lastdate) - datetime.timedelta(delta))
-                dasQuery_end = "run date between[%s,%s]" % (firstdate, lastdate)
+                dasQuery_end = "run date between[%s,%s] instance=%s" % (firstdate, lastdate, self.__dasinstance)
                 enddata = self.__getData(dasQuery_end)
                 if len(enddata) > 0:
                     enddata.sort(key = lambda run: self.__findInJson(run, ["run", "run_number"]))
@@ -635,6 +724,14 @@ class Dataset:
 
     def datasetSnippet( self, jsonPath = None, begin = None, end = None,
                         firstRun = None, lastRun = None, crab = False, parent = False ):
+        if not firstRun: firstRun = None
+        if not lastRun: lastRun = None
+        if not begin: begin = None
+        if not end: end = None
+        if self.__predefined and (jsonPath or begin or end or firstRun or lastRun):
+            msg = ( "The parameters 'JSON', 'begin', 'end', 'firstRun', and 'lastRun' "
+                    "only work for official datasets, not predefined _cff.py files" )
+            raise AllInOneError( msg )
         if self.__predefined and parent:
                 with open(self.__filename) as f:
                     if "secFiles.extend" not in f.read():
@@ -653,7 +750,7 @@ class Dataset:
         if self.__predefined:
             snippet = ("process.load(\"Alignment.OfflineValidation.%s_cff\")\n"
                        "process.maxEvents = cms.untracked.PSet(\n"
-                       "    input = cms.untracked.int32(.oO[nEvents]Oo.)\n"
+                       "    input = cms.untracked.int32(.oO[nEvents]Oo. / .oO[parallelJobs]Oo.)\n"
                        ")\n"
                        "process.source.skipEvents=cms.untracked.uint32(.oO[nIndex]Oo.*.oO[nEvents]Oo./.oO[parallelJobs]Oo.)"
                        %(self.__name))
@@ -664,7 +761,7 @@ class Dataset:
             return snippet
         theMap = { "process": "process.",
                    "tab": " " * len( "process." ),
-                   "nEvents": ".oO[nEvents]Oo.",
+                   "nEvents": ".oO[nEvents]Oo. / .oO[parallelJobs]Oo.",
                    "skipEventsString": "process.source.skipEvents=cms.untracked.uint32(.oO[nIndex]Oo.*.oO[nEvents]Oo./.oO[parallelJobs]Oo.)\n",
                    "importCms": "",
                    "header": ""
@@ -680,17 +777,15 @@ class Dataset:
         if jsonPath == "" and begin == "" and end == "" and firstRun == "" and lastRun == "":
             try:
                 self.dump_cff(parent = parent)
-            except AllInOneError, e:
+            except AllInOneError as e:
                 print "Can't store the dataset as a cff:"
                 print e
                 print "This may be inconvenient in the future, but will not cause a problem for this validation."
         return datasetSnippet
 
+    @cache
     def dump_cff( self, outName = None, jsonPath = None, begin = None,
                   end = None, firstRun = None, lastRun = None, parent = False ):
-        if self.__alreadyStored:
-            return
-        self.__alreadyStored = True
         if outName == None:
             outName = "Dataset" + self.__name.replace("/", "_")
         packageName = os.path.join( "Alignment", "OfflineValidation" )
@@ -721,8 +816,11 @@ class Dataset:
                                             repMap = theMap,
                                             parent = parent)
         magneticField = self.__magneticField
-        if magneticField == "AutoFromDBCurrent":
-            magneticField = "%s, %s" % (magneticField, str(self.__getMagneticFieldForRun()).replace("\n"," ")[0])
+        if magneticField == "MagneticField":
+            magneticField = "%s, %s     #%s" % (magneticField,
+                                                str(self.__getMagneticFieldForRun()).replace("\n"," ").split("#")[0].strip(),
+                                                "Use MagneticField_cff.py; the number is for determining which track selection to use."
+                                               )
         dataset_cff = dataset_cff.replace(".oO[magneticField]Oo.",magneticField)
         filePath = os.path.join( self.__cmssw, "src", packageName,
                                  "python", outName + "_cff.py" )
@@ -748,19 +846,66 @@ class Dataset:
         theFile.close()
         return
 
-    def fileList( self, parent = False ):
-        if self.__fileList and not parent:
-            return self.__fileList
-        if self.__parentFileList and parent:
-            return self.__parentFileList
+    def createdatasetfile_hippy(self, filename, filesperjob, firstrun, lastrun):
+        with open(filename, "w") as f:
+            for job in self.__chunks(self.fileList(firstRun=firstrun, lastRun=lastrun, forcerunselection=True), filesperjob):
+                f.write(",".join("'{}'".format(file) for file in job)+"\n")
 
-        fileList = [ self.__findInJson(fileInfo,"name") \
+    @staticmethod
+    def getrunnumberfromfilename(filename):
+        parts = filename.split("/")
+        result = error = None
+        if parts[0] != "" or parts[1] != "store":
+            error = "does not start with /store"
+        elif parts[2] in ["mc", "relval"]:
+            result = 1
+        elif parts[-2] != "00000" or not parts[-1].endswith(".root"):
+            error = "does not end with 00000/something.root"
+        elif len(parts) != 12:
+            error = "should be exactly 11 slashes counting the first one"
+        else:
+            runnumberparts = parts[-5:-2]
+            if not all(len(part)==3 for part in runnumberparts):
+                error = "the 3 directories {} do not have length 3 each".format("/".join(runnumberparts))
+            try:
+                result = int("".join(runnumberparts))
+            except ValueError:
+                error = "the 3 directories {} do not form an integer".format("/".join(runnumberparts))
+
+        if error:
+            error = "could not figure out which run number this file is from:\n{}\n{}".format(filename, error)
+            raise AllInOneError(error)
+
+        return result
+
+    @cache
+    def fileList(self, parent=False, firstRun=None, lastRun=None, forcerunselection=False):
+        fileList = [ self.__findInJson(fileInfo,"name")
                      for fileInfo in self.fileInfoList(parent) ]
 
-        if not parent:
-            self.__fileList = fileList
-        else:
-            self.__parentFileList = fileList
+        if firstRun or lastRun:
+            if not firstRun: firstRun = -1
+            if not lastRun: lastRun = float('infinity')
+            unknownfilenames, reasons = [], set()
+            for filename in fileList[:]:
+                try:
+                    if not firstRun <= self.getrunnumberfromfilename(filename) <= lastRun:
+                        fileList.remove(filename)
+                except AllInOneError as e:
+                    if forcerunselection: raise
+                    unknownfilenames.append(e.message.split("\n")[1])
+                    reasons         .add   (e.message.split("\n")[2])
+            if reasons:
+                if len(unknownfilenames) == len(fileList):
+                    print "Could not figure out the run numbers of any of the filenames for the following reason(s):"
+                else:
+                    print "Could not figure out the run numbers of the following filenames:"
+                    for filename in unknownfilenames:
+                        print "    "+filename
+                    print "for the following reason(s):"
+                for reason in reasons:
+                    print "    "+reason
+                print "Using the files anyway.  The runs will be filtered at the CMSSW level."
         return fileList
 
     def fileInfoList( self, parent = False ):
@@ -772,9 +917,8 @@ class Dataset:
     def predefined( self ):
         return self.__predefined
 
+    @cache
     def runList( self ):
-        if self.__runList:
-            return self.__runList
         return self.__getRunList()
 
 

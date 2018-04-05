@@ -1,13 +1,16 @@
 #ifndef Utilities_XrdAdaptor_QualityMetric_h
 #define Utilities_XrdAdaptor_QualityMetric_h
 
-#include <time.h>
+#include <ctime>
 
 #include <mutex>
 #include <memory>
-#include <unordered_map>
 
+#include "tbb/concurrent_unordered_map.h"
 #include <boost/utility.hpp>
+
+#include "FWCore/Utilities/interface/propagate_const.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace XrdAdaptor {
 
@@ -28,8 +31,8 @@ public:
 private:
     QualityMetricWatch(QualityMetric *parent1, QualityMetric *parent2);
     timespec m_start;
-    QualityMetric *m_parent1;
-    QualityMetric *m_parent2;
+    edm::propagate_const<QualityMetric*> m_parent1;
+    edm::propagate_const<QualityMetric*> m_parent2;
 };
 
 class QualityMetric : boost::noncopyable {
@@ -64,9 +67,9 @@ private:
     static
     std::unique_ptr<QualityMetricSource> get(timespec now, const std::string &id);
 
-    static QualityMetricFactory *m_instance;
+    CMS_THREAD_SAFE static QualityMetricFactory m_instance;
 
-    typedef std::unordered_map<std::string, QualityMetricUniqueSource*> MetricMap;
+    typedef tbb::concurrent_unordered_map<std::string, QualityMetricUniqueSource*> MetricMap;
     MetricMap m_sources;
 };
 

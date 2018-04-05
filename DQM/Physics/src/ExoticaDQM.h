@@ -1,101 +1,115 @@
 #ifndef ExoticaDQM_H
 #define ExoticaDQM_H
 
+#include <memory>
+
+// DQM
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/Run.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+// Framework
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "DataFormats/Provenance/interface/EventID.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/DataKeyTags.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-// Trigger stuff
+// Trigger
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
+// Candidate handling
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/DataKeyTags.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include <DataFormats/EgammaCandidates/interface/GsfElectron.h>
-
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-// ParticleFlow
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-
-// Vertex
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-// EGamma
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-
-// Muon
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/OverlapChecker.h"
+#include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
-
-// Tau
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
-
-// Jets
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
-
-// Photon
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-
-// MET
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-#include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+// Other
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-//
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+// ROOT
+#include "TLorentzVector.h"
 
+// STDLIB
 #include <iostream>
+#include <iomanip>
 #include <fstream>
+#include <cstdio>
 #include <string>
+#include <sstream>
+#include <cmath>
 #include <vector>
 #include <map>
-
 
 class ExoticaDQM: public DQMEDAnalyzer {
 
 public:
 
   ExoticaDQM(const edm::ParameterSet& ps);
-  virtual ~ExoticaDQM();
+  ~ExoticaDQM() override;
 
 protected:
 
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
   //Resonances
   virtual void analyzeDiJets(edm::Event const& e);
@@ -109,6 +123,13 @@ protected:
   virtual void analyzeMonoElectrons(edm::Event const& e);
   virtual void analyzeMonoPhotons(edm::Event const& e);
 
+  // Displaced Fermion Searches
+  virtual void analyzeDisplacedLeptons(edm::Event const& e, const edm::EventSetup& s);
+  virtual void analyzeDisplacedJets(edm::Event const& e, const edm::EventSetup& s);
+
+  // Estimate the momentum vector that a GenParticle would have at its trajectory's point of closest approach to the beam-line.
+  virtual GlobalVector getGenParticleTrajectoryAtBeamline( const edm::EventSetup& iSetup, const  reco::GenParticle* gen );
+  
 private:
 
   void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
@@ -166,13 +187,29 @@ private:
   edm::EDGetTokenT<EBRecHitCollection> ecalBarrelRecHitToken_; // reducedEcalRecHitsEB
   edm::EDGetTokenT<EERecHitCollection> ecalEndcapRecHitToken_; // reducedEcalRecHitsEE
 
+  edm::EDGetTokenT<reco::JetCorrector> JetCorrectorToken_;
+  edm::Handle<reco::JetCorrector> JetCorrector_;
+
+  // Tracks
+  edm::EDGetTokenT<reco::TrackCollection> TrackToken_;
+  edm::Handle<reco::TrackCollection> TrackCollection_;
+  
+  // Special collections for highly displaced particles
+  edm::EDGetTokenT<reco::TrackCollection> MuonDispToken_;
+  edm::Handle<reco::TrackCollection> MuonDispCollection_;
+  edm::EDGetTokenT<reco::TrackCollection> MuonDispSAToken_;
+  edm::Handle<reco::TrackCollection> MuonDispSACollection_;
+
+  // MC truth
+  edm::EDGetTokenT<reco::GenParticleCollection> GenParticleToken_;
+  edm::Handle<reco::GenParticleCollection> GenCollection_;
+
   ///////////////////////////
   // Parameters
   ///////////////////////////
   // Cuts - MultiJets
   // inputs
-  std::string CaloJetCorService_;
-  std::string PFJetCorService_;
+
   reco::helper::JetIDHelper *jetID;
 
   //Varibles Used
@@ -386,10 +423,21 @@ private:
   double monophoton_Photon_pt_cut_;
   double monophoton_Photon_met_cut_;
   int    monophoton_countPhoton_;
-
-  // Histograms - MultiJets Trigger
+  
+  ///////////////////////////////////
+  // Histograms - Displaced Leptons or Jets
   //
+  MonitorElement* dispElec_track_effi_lxy;
+  MonitorElement* dispElec_elec_effi_lxy;
+  MonitorElement* dispMuon_track_effi_lxy;
+  MonitorElement* dispMuon_muon_effi_lxy;
+  MonitorElement* dispMuon_muonDisp_effi_lxy;
+  MonitorElement* dispMuon_muonDispSA_effi_lxy;
+  MonitorElement* dispJet_track_effi_lxy;
 
+  double dispFermion_eta_cut_;
+  double dispFermion_pt_cut_;
+  
 };
 
 

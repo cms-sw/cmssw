@@ -11,21 +11,19 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 
-class ElectronSeedTrackRefFix : public edm::EDProducer {
+class ElectronSeedTrackRefFix : public edm::stream::EDProducer<> {
 public:
   explicit ElectronSeedTrackRefFix(const edm::ParameterSet&);
-  ~ElectronSeedTrackRefFix();
+  ~ElectronSeedTrackRefFix() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void beginJob() override;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
     
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::TrackCollection > newTracksToken;

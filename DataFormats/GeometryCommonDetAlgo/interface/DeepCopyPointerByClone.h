@@ -12,12 +12,12 @@ class DeepCopyPointerByClone {
 public:
   
   ~DeepCopyPointerByClone() { delete theData;}
-  DeepCopyPointerByClone() : theData(0) {}
+  DeepCopyPointerByClone() : theData(nullptr) {}
 
   DeepCopyPointerByClone( T* t) : theData(t) {}
 
   DeepCopyPointerByClone( const DeepCopyPointerByClone& other) {
-    if (other.theData) theData = other->clone(); else theData = 0;
+    if (other.theData) theData = other->clone(); else theData = nullptr;
   }
 
 
@@ -29,18 +29,14 @@ public:
     return *this;
   }
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   // straight from http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n2027.html
-
   DeepCopyPointerByClone( DeepCopyPointerByClone&& other) : theData(other.theData) {
     other.theData=0;
   }
-
   DeepCopyPointerByClone& operator=( DeepCopyPointerByClone&& other) {
     std::swap(theData,other.theData);
     return *this;
   }
-#endif
 
 
   T&       operator*()       { return *theData;}

@@ -1,9 +1,8 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
   
 HcalShape::HcalShape()
-// : shape_(HcalPulseShapes().hbShape())
 {
-   // no more defual shape is defined (since cmssw 5x)
+   // no default shape is defined (since cmssw 5x)
 }
 
 void HcalShape::setShape(int shapeType)

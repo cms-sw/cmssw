@@ -52,7 +52,7 @@ void HIPixelClusterVtxProducer::produce(edm::Event& ev, const edm::EventSetup& e
 {
 
   // new vertex collection
-  std::auto_ptr<reco::VertexCollection> vertices(new reco::VertexCollection);
+  auto vertices = std::make_unique<reco::VertexCollection>();
 
   // get pixel rechits
   edm::Handle<SiPixelRecHitCollection> hRecHits;
@@ -75,7 +75,7 @@ void HIPixelClusterVtxProducer::produce(edm::Event& ev, const edm::EventSetup& e
       if(id.subdetId() != int(PixelSubdetector::PixelBarrel))
         continue;
       const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo->idToDet(id));
-      if (1) {
+      if (true) {
 	const PixelTopology *pixTopo = &(pgdu->specificTopology());
         std::vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
         bool pixelOnEdge = false;
@@ -132,7 +132,7 @@ void HIPixelClusterVtxProducer::produce(edm::Event& ev, const edm::EventSetup& e
     vertices->push_back(ver);
   }
 
-  ev.put(vertices);
+  ev.put(std::move(vertices));
 }
 
 /*****************************************************************************/

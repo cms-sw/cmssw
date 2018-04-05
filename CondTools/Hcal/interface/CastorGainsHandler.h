@@ -25,9 +25,9 @@
 class CastorGainsHandler : public popcon::PopConSourceHandler<CastorGains>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~CastorGainsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~CastorGainsHandler() override;
   CastorGainsHandler(edm::ParameterSet const &);
 
   void initObject(CastorGains*);

@@ -52,17 +52,17 @@ class FWTableView : public FWViewBase {
 
 public:
      FWTableView(TEveWindowSlot *, FWTableViewManager *);
-     virtual ~FWTableView();
+     ~FWTableView() override;
 
      // ---------- const member functions ---------------------
-     virtual void addTo(FWConfiguration&) const;
+     void addTo(FWConfiguration&) const override;
 
-     virtual void saveImageTo(const std::string& iName) const;
+     void saveImageTo(const std::string& iName) const override;
 
      // ---------- static member functions --------------------
 
      // ---------- member functions ---------------------------
-     virtual void setFrom(const FWConfiguration&);
+     void setFrom(const FWConfiguration&) override;
      void setBackgroundColor(Color_t);
      void resetColors (const class FWColorManager &);
      void updateItems ();
@@ -78,8 +78,8 @@ public:
      void modifyColumn ();
 
 private:
-     FWTableView(const FWTableView&);    // stop default
-     const FWTableView& operator=(const FWTableView&);    // stop default
+     FWTableView(const FWTableView&) = delete;    // stop default
+     const FWTableView& operator=(const FWTableView&) = delete;    // stop default
 
 protected:
      // ---------- member data --------------------------------

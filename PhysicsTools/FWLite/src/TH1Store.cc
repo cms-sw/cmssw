@@ -52,7 +52,7 @@ TH1Store::add (TH1 *histPtr, const std::string &directory)
       cout << "THStore::add() : Adding " << name << endl;
    }   
    m_ptrMap[name] = histPtr;
-   histPtr->SetDirectory(0);
+   histPtr->SetDirectory(nullptr);
    if (directory.length())
    {
       m_nameDirMap[name] = directory;
@@ -115,11 +115,11 @@ TH1Store::write (TFile *filePtr,
    // Write out command line arguments.  Save information in directory
    // called provenance.
    TDirectory *dir = _createDir ("args", filePtr);
-   if (argsVec.size())
+   if (!argsVec.empty())
    {
       dir->WriteObject (&argsVec, "argsVec");
    }
-   if (inputFilesVec.size())
+   if (!inputFilesVec.empty())
    {
       dir->WriteObject (&inputFilesVec, "inputFiles");
    }
@@ -141,7 +141,7 @@ TH1Store::_createDir (const string &dirName, TFile *filePtr) const
    // directory a subdirectory?
    const boost::regex subdirRE ("(.+?)/([^/]+)");
    boost::smatch matches;
-   TDirectory *parentDir = 0;
+   TDirectory *parentDir = nullptr;
    string useName = dirName;
    if( boost::regex_match (dirName, matches, subdirRE) )
    {

@@ -33,7 +33,7 @@ using namespace oracle::occi;
 HcalAssistant::HcalAssistant()
 {
   addQuotes();
-  srand(time(0));
+  srand(time(nullptr));
   listIsRead = false;
 }
 
@@ -168,6 +168,7 @@ std::string HcalAssistant::getZDCSectionString(HcalZDCDetId::Section _section){
   if           ( _section==HcalZDCDetId::EM)   zdcSection = "ZDC EM";
   else if      ( _section==HcalZDCDetId::HAD)  zdcSection = "ZDC HAD";
   else if      ( _section==HcalZDCDetId::LUM)  zdcSection = "ZDC LUM";
+  else if      ( _section==HcalZDCDetId::RPD)  zdcSection = "ZDC RPD";
   else zdcSection = "UNKNOWN";
   return zdcSection;
 }
@@ -177,6 +178,7 @@ HcalZDCDetId::Section HcalAssistant::getZDCSection(std::string _section){
   if      ( _section.find("ZDC EM") != std::string::npos ) return HcalZDCDetId::EM;
   else if ( _section.find("ZDC HAD") != std::string::npos ) return HcalZDCDetId::HAD;
   else if ( _section.find("ZDC LUM") != std::string::npos ) return HcalZDCDetId::LUM;
+  else if ( _section.find("ZDC RPD") != std::string::npos ) return HcalZDCDetId::RPD;
   else return HcalZDCDetId::Unknown;
 }
 
@@ -200,7 +202,7 @@ int HcalAssistant::getListOfChannelsFromDb(){
     while (rs->next()) {
       _n_channels++;
       int _rawid = rs->getInt(1);
-      int _geomId = getGeomId( getSubdetector(rs->getString(2)),
+      int _geomId = getGeomId( getSubdetector(getOraString(rs,2)),
 			       rs->getInt(3),
 			       rs->getInt(4),
 			       rs->getInt(5)
@@ -211,8 +213,8 @@ int HcalAssistant::getListOfChannelsFromDb(){
     listIsRead = true;
   }
   catch (SQLException& e) {
-    std::cerr << ::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()) << std::endl;
-    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+    std::cerr << ::toolbox::toString("Oracle  exception : %s", getOraMessage(&e)) << std::endl;
+    XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s", getOraMessage(&e)));
   }
   conn.disconnect();
   return _n_channels;

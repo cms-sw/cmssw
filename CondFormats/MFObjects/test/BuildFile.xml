@@ -1,10 +1,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="CondFormats/MFObjects"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
 <use   name="CondFormats/DataRecord"/>
 <library   file="MagFieldConfigDBWriter.cc" name="CondFormatsMFObjectsTest">
   <flags   EDM_PLUGIN="1"/>

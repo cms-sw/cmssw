@@ -14,6 +14,7 @@
 #include <map>
 #include <iterator>
 #include <algorithm>
+#include <cstddef>
 
 namespace edm {
   namespace helper {
@@ -159,10 +160,8 @@ namespace edm {
     bool empty() const { return values_.empty(); }
     void clear() { values_.clear(); ids_.clear(); }
     void shrink_to_fit() {
-#ifndef CMS_NOCXX11
       ids_.shrink_to_fit();  
       values_.shrink_to_fit();
-#endif
     }
 
 

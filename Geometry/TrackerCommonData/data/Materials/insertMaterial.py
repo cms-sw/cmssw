@@ -36,7 +36,7 @@ def readFractions(fileName, materialMap):
         for fraction in result[material][1]:
             sum+= result[material][1][fraction]
         if math.fabs(sum - 1.0) > maxDist:
-            raise StandardError, "Material Fractions do not add up to 100%: "+ material+" "+str(sum)
+            raise Exception("Material Fractions do not add up to 100%: "+ material+" "+str(sum))
     return result
         
 #get a source:material from the [material] only
@@ -68,7 +68,7 @@ def getSection(rootNode, name):
         if node.nodeName == name:
             result = node
     if result == None:
-        raise StandardError, "Could not find: \""+name+"\" in childnodes of the rootNode!"
+        raise Exception("Could not find: \""+name+"\" in childnodes of the rootNode!")
     return result          
 
 #returns a map of [name] nodes by their names. stating from rootNode
@@ -172,9 +172,9 @@ def main():
     (options, args) = optParser.parse_args()
 
     if options.titlesFile == None:
-        raise StandardError, "no .titles File given!"
+        raise Exception("no .titles File given!")
     if options.xmlFile == None:
-        raise StandardError, "no .xml File given!"
+        raise Exception("no .xml File given!")
     if options.output == None:
         options.output = "materialOutput.xml"
     if options.materialMap == None:

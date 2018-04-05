@@ -165,7 +165,7 @@ PerigeeConversions::jacobianCurvilinear2Perigee(const FreeTrajectoryState& fts){
   GlobalVector I = GlobalVector(-p.x(), -p.y(), 0.); //opposite to track dir.
   I = I.unit();
   GlobalVector J(-I.y(), I.x(),0.); //counterclockwise rotation
-  GlobalVector K(Z);
+  const GlobalVector& K(Z);
   GlobalVector B  = fts.parameters().magneticFieldInInverseGeV();
   GlobalVector H = B.unit();
   GlobalVector HxT = H.cross(T);
@@ -231,7 +231,7 @@ PerigeeConversions::jacobianPerigee2Curvilinear(const GlobalTrajectoryParameters
   GlobalVector I = GlobalVector(-p.x(), -p.y(), 0.f); //opposite to track dir.
   I = I.unit();
   GlobalVector J(-I.y(), I.x(),0.f); //counterclockwise rotation
-  GlobalVector K(Z);
+  const GlobalVector& K(Z);
    GlobalVector B  = gtp.magneticFieldInInverseGeV();
   GlobalVector H = B.unit();
   GlobalVector HxT = H.cross(T);

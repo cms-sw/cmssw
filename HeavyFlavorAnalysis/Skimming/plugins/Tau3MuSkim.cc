@@ -47,13 +47,13 @@ Tau3MuSkim::~Tau3MuSkim()
 bool
 Tau3MuSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-    std::auto_ptr<reco::MuonCollection> tau3MuCandidateMuons(new reco::MuonCollection);
-    std::auto_ptr<reco::TrackCollection> tau3MuCandidateTracks(new reco::TrackCollection);
+    std::unique_ptr<reco::MuonCollection> tau3MuCandidateMuons(new reco::MuonCollection);
+    std::unique_ptr<reco::TrackCollection> tau3MuCandidateTracks(new reco::TrackCollection);
 
     bool accept = m_Tau3MuReco->doTau3MuReco(iEvent, iSetup, tau3MuCandidateMuons.get(), tau3MuCandidateTracks.get());
 
-    iEvent.put(tau3MuCandidateMuons, "tau3MuCandidateMuons");
-    iEvent.put(tau3MuCandidateTracks, "tau3MuCandidateTracks");
+    iEvent.put(std::move(tau3MuCandidateMuons), "tau3MuCandidateMuons");
+    iEvent.put(std::move(tau3MuCandidateTracks), "tau3MuCandidateTracks");
 
     return accept;
 }

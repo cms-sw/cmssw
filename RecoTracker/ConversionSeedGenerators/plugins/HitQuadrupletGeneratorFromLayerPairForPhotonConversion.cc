@@ -36,16 +36,15 @@ HitQuadrupletGeneratorFromLayerPairForPhotonConversion::HitQuadrupletGeneratorFr
 							     unsigned int inner,
 							     unsigned int outer,
 							     LayerCacheType* layerCache,
-							     unsigned int nSize,
 							     unsigned int max)
-  : HitPairGenerator(nSize),
-    theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner)
+  : theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner),
+    theMaxElement(max)
 {
-  theMaxElement=max;
   ss = new std::stringstream;
 }
 
 void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const TrackingRegion & region, OrderedHitPairs & result,
+								      const Layers& layers,
 								      const edm::Event& event, const edm::EventSetup& es)
 {
 
@@ -55,8 +54,8 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
   typedef OrderedHitPair::OuterRecHit OuterHit;
   typedef RecHitsSortedInPhi::Hit Hit;
 
-  Layer innerLayerObj = innerLayer();
-  Layer outerLayerObj = outerLayer();
+  Layer innerLayerObj = layers[theInnerLayer];
+  Layer outerLayerObj = layers[theOuterLayer];
 
   size_t totCountP2=0, totCountP1=0, totCountM2=0, totCountM1=0, selCount=0;
 #ifdef mydebug_QSeed
@@ -64,10 +63,10 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
 #endif
 
   /*get hit sorted in phi for each layer: NB: doesn't apply any region cut*/
-  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, event, es);
+  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, es);
   if (innerHitsMap.empty()) return;
  
-  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, event, es);
+  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, es);
   if (outerHitsMap.empty()) return;
   /*----------------*/
 
@@ -98,10 +97,10 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
 #ifdef mydebug_QSeed
       (*ss) << "\toPos " << oPos << " r " << oPos.perp() << " phi " << oPos.phi() <<  " cotTheta " << oPos.z()/oPos.perp() << std::endl;
       (*ss) << "\tnoPos " << noPos << " r " << noPos.perp() << " phi " << noPos.phi() <<  " cotTheta " << noPos.z()/noPos.perp() << std::endl;
-      (*ss) << "\tDeltaPhi " << reco::deltaPhi(noPos.phi(),oPos.phi()) << std::endl;
+      (*ss) << "\tDeltaPhi " << reco::deltaPhi(noPos.barePhi(),oPos.barePhi()) << std::endl;
 #endif
     
-    if(fabs(reco::deltaPhi(noPos.phi(),oPos.phi()))>maxDeltaPhi)  break;
+    if(fabs(reco::deltaPhi(noPos.barePhi(),oPos.barePhi()))>maxDeltaPhi)  break;
 
     totCountM2++;
     

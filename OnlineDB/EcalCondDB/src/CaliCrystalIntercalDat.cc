@@ -11,9 +11,9 @@ using namespace oracle::occi;
 
 CaliCrystalIntercalDat::CaliCrystalIntercalDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
 
   m_cali = 0;
   m_caliRMS = 0;
@@ -30,7 +30,7 @@ CaliCrystalIntercalDat::~CaliCrystalIntercalDat()
 
 
 void CaliCrystalIntercalDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   
@@ -41,14 +41,14 @@ void CaliCrystalIntercalDat::prepareWrite()
 			"VALUES (:iov_id, :logic_id, "
 			":3, :4, :5, :6)");
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliCrystalIntercalDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliCrystalIntercalDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void CaliCrystalIntercalDat::writeDB(const EcalLogicID* ecid, const CaliCrystalIntercalDat* item, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -70,14 +70,14 @@ void CaliCrystalIntercalDat::writeDB(const EcalLogicID* ecid, const CaliCrystalI
     
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliCrystalIntercalDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliCrystalIntercalDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void CaliCrystalIntercalDat::fetchData(std::map< EcalLogicID, CaliCrystalIntercalDat >* fillMap, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -102,12 +102,12 @@ void CaliCrystalIntercalDat::fetchData(std::map< EcalLogicID, CaliCrystalInterca
     std::pair< EcalLogicID, CaliCrystalIntercalDat > p;
     CaliCrystalIntercalDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
       
       dat.setCali( rset->getFloat(7) );
       dat.setCaliRMS( rset->getFloat(8) );
@@ -118,12 +118,12 @@ void CaliCrystalIntercalDat::fetchData(std::map< EcalLogicID, CaliCrystalInterca
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("CaliCrystalIntercalDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("CaliCrystalIntercalDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
 void CaliCrystalIntercalDat::writeArrayDB(const std::map< EcalLogicID, CaliCrystalIntercalDat >* data, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -213,6 +213,6 @@ void CaliCrystalIntercalDat::writeArrayDB(const std::map< EcalLogicID, CaliCryst
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonPedestalsDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

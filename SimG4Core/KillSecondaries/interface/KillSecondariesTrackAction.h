@@ -12,8 +12,8 @@ class KillSecondariesTrackAction : public SimWatcher,
 
 public:
   KillSecondariesTrackAction(edm::ParameterSet const & p);
-  ~KillSecondariesTrackAction();
-  void update(const BeginOfTrack * trk);
+  ~KillSecondariesTrackAction() override;
+  void update(const BeginOfTrack * trk) override;
 
 private:
   bool   killHeavy;

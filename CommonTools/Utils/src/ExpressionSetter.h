@@ -1,5 +1,5 @@
 #ifndef CommonTools_Utils_ExpressionSetter_h
-#define CommoTools_Utils_ExpressionSetter_h
+#define CommonTools_Utils_ExpressionSetter_h
 /* \class reco::parser::ExpressionSetter
  *
  * Expression setter

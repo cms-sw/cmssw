@@ -85,7 +85,7 @@ def plot(fileName,sl,
     idx_type = None
     if type == 'mean': idx_type = 0
     elif type == 'sigma': idx_type = 1
-    else: raise RuntimeError, "Wrong option: %s" % type
+    else: raise RuntimeError("Wrong option: %s" % type)
 
     idx = 0
     canvas = None

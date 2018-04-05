@@ -44,19 +44,19 @@ public:
   DTOccupancyTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTOccupancyTest();
+  ~DTOccupancyTest() override;
 
 protected:
 
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& context) ;
+  void beginRun(edm::Run const& run, edm::EventSetup const& context) override ;
 
   /// Endjob
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   
   /// DQM Client Diagnostic
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 private:
 
@@ -65,6 +65,8 @@ private:
 
   /// Get the ME name
   std::string getMEName(std::string histoTag, const DTChamberId& chId);
+
+  int getIntegral(TH2F *histo, int, int, int, int, bool);
 
   // Run the test on the occupancy histos
   int runOccupancyTest(TH2F *histo, const DTChamberId& chId, float& chamberPercentage);
@@ -84,6 +86,8 @@ private:
 
   int lsCounter;
   int nMinEvts;
+  int nMinEvtsPC;
+  int nZeroEvtsPC;
 
   bool writeRootFile;
   TFile *rootFile;
@@ -96,6 +100,9 @@ private:
   std::string nameMonitoredHisto;
 
   bool bookingdone;
+
+  int nChannelTotal;
+  int nChannelDead;
 
 };
 

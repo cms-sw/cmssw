@@ -29,16 +29,16 @@ class ProcClassed : public VarProcessor {
 	ProcClassed(const char *name,
 	            const Calibration::ProcClassed *calib,
 	            const MVAComputer *computer);
-	virtual ~ProcClassed() {}
+	~ProcClassed() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
 
     private:
 	unsigned int	nClasses;
 };
 
-static ProcClassed::Registry registry("ProcClassed");
+ProcClassed::Registry registry("ProcClassed");
 
 ProcClassed::ProcClassed(const char *name,
                          const Calibration::ProcClassed *calib,

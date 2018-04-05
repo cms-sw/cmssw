@@ -56,7 +56,7 @@ fedId_ = fedId;
 void SiPixelRawDataError::setMessage() {
   switch (errorType_) {
     case(25) : {
-     errorMessage_ = "Error: ROC=25";
+     errorMessage_ = "Error: Disabled FED channel (ROC=25)";
      break;
    }
    case(26) : {

@@ -5,6 +5,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,55 +38,52 @@
 // class declaration
 //
 
-class testTkHistoMap : public edm::EDAnalyzer {
+class testTkHistoMap : public DQMEDAnalyzer {
 public:
   explicit testTkHistoMap ( const edm::ParameterSet& );
   ~testTkHistoMap ();
-   
+  
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override {} 
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 
   virtual void endJob(void);
 
 private:
   
-  void read();
-  void create(); 
+  void read(const TkDetMap* tkDetMap);
+  void create(const TkDetMap* tkDetMap);
 
   bool readFromFile;
-  TkHistoMap *tkhisto, *tkhistoBis, *tkhistoZ, *tkhistoPhi, *tkhistoR, *tkhistoCheck;
+  std::unique_ptr<TkHistoMap> tkhisto, tkhistoBis, tkhistoZ, tkhistoPhi, tkhistoR, tkhistoCheck;
 };
 
 //
 testTkHistoMap::testTkHistoMap ( const edm::ParameterSet& iConfig ):
   readFromFile(iConfig.getParameter<bool>("readFromFile"))
 {
-  if(!readFromFile){
-    create();
-  }else{
-    read();
-  }
 }
 
-
-void testTkHistoMap::create(){
-  tkhisto      =new TkHistoMap("detId","detId",-1); 
-  tkhistoBis   =new TkHistoMap("detIdBis","detIdBis",0,1); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
-  tkhistoZ     =new TkHistoMap("Zmap","Zmap");
-  tkhistoPhi   =new TkHistoMap("Phi","Phi");
-  tkhistoR     =new TkHistoMap("Rmap","Rmap",-99.); //here the baseline (the value of the empty,not assigned bins) is put to -99 (default is zero)
-  tkhistoCheck =new TkHistoMap("check","check");           
+void testTkHistoMap::create(const TkDetMap* tkDetMap)
+{
+  tkhisto      = std::make_unique<TkHistoMap>(tkDetMap, "detId","detId",-1);
+  tkhistoBis   = std::make_unique<TkHistoMap>(tkDetMap, "detIdBis","detIdBis",0,1); //here the baseline (the value of the empty,not assigned bins) is put to -1 (default is zero)
+  tkhistoZ     = std::make_unique<TkHistoMap>(tkDetMap, "Zmap","Zmap");
+  tkhistoPhi   = std::make_unique<TkHistoMap>(tkDetMap, "Phi","Phi");
+  tkhistoR     = std::make_unique<TkHistoMap>(tkDetMap, "Rmap","Rmap",-99.); //here the baseline (the value of the empty,not assigned bins) is put to -99 (default is zero)
+  tkhistoCheck = std::make_unique<TkHistoMap>(tkDetMap, "check","check");
 }
 
-/*Check that is possible to load in tkhistomaps histograms already stored in a DQM root file (if the folder and name are know)*/
-void testTkHistoMap::read(){
+/*Check that is possible to load in tkhistomaps histograms already stored in a DQM root file (if the folder and name are known)*/
+void testTkHistoMap::read(const TkDetMap* tkDetMap)
+{
   edm::Service<DQMStore>().operator->()->open("test.root");  
 
-  tkhisto      =new TkHistoMap();
-  tkhistoBis   =new TkHistoMap();
-  tkhistoZ     =new TkHistoMap();
-  tkhistoPhi   =new TkHistoMap();
-  tkhistoR     =new TkHistoMap();
-  tkhistoCheck =new TkHistoMap();
+  tkhisto      = std::make_unique<TkHistoMap>(tkDetMap);
+  tkhistoBis   = std::make_unique<TkHistoMap>(tkDetMap);
+  tkhistoZ     = std::make_unique<TkHistoMap>(tkDetMap);
+  tkhistoPhi   = std::make_unique<TkHistoMap>(tkDetMap);
+  tkhistoR     = std::make_unique<TkHistoMap>(tkDetMap);
+  tkhistoCheck = std::make_unique<TkHistoMap>(tkDetMap);
 
   tkhisto     ->loadTkHistoMap("detId","detId"); 	    
   tkhistoBis  ->loadTkHistoMap("detIdBis","detIdBis",1);  
@@ -174,9 +172,18 @@ void testTkHistoMap::endJob(void)
 //
 
 // // ------------ method called to produce the data  ------------
-void testTkHistoMap::analyze(const edm::Event& iEvent, 
-				     const edm::EventSetup& iSetup )
-{   
+void testTkHistoMap::analyze( const edm::Event& iEvent, 
+                              const edm::EventSetup& iSetup )
+{
+  edm::ESHandle<TkDetMap> tkDetMapHandle;
+  iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+  const TkDetMap* tkDetMap = tkDetMapHandle.product();
+  if(!readFromFile){
+    create(tkDetMap);
+  }else{
+    read(tkDetMap);
+  }
+
   if(readFromFile)
     return;
 
@@ -193,11 +200,10 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
 
   //extract  vector of module in the layer
   /*
-    SiStripSubStructure siStripSubStructure;
-    siStripSubStructure.getTIBDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
-    siStripSubStructure.getTOBDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
-    siStripSubStructure.getTIDDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
-    //siStripSubStructure.getTECDetectors(fullTkDetIdList,TkDetIdList,0,0,0);
+    SiStripSubStructure::getTIBDetectors(fullTkDetIdList,TkDetIdList,trackerTopology,0,0,0);
+    SiStripSubStructure::getTOBDetectors(fullTkDetIdList,TkDetIdList,trackerTopology,0,0,0);
+    SiStripSubStructure::getTIDDetectors(fullTkDetIdList,TkDetIdList,trackerTopology,0,0,0);
+    //SiStripSubStructure::getTECDetectors(fullTkDetIdList,TkDetIdList,trackerTopology,0,0,0);
   */
 
   tkhisto->fillFromAscii("test.txt");

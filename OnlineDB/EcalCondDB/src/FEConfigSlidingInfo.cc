@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <string.h>
+#include <cstring>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include <cstdlib>
 #include "OnlineDB/EcalCondDB/interface/FEConfigSlidingInfo.h"
@@ -12,10 +12,10 @@ using namespace oracle::occi;
 
 FEConfigSlidingInfo::FEConfigSlidingInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_version=0;
   m_ID=0;
@@ -35,7 +35,7 @@ FEConfigSlidingInfo::~FEConfigSlidingInfo()
 
 
 
-int FEConfigSlidingInfo::fetchNextId()  throw(std::runtime_error) {
+int FEConfigSlidingInfo::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -52,13 +52,13 @@ int FEConfigSlidingInfo::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigSlidingInfo::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigSlidingInfo::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
 
 void FEConfigSlidingInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -76,7 +76,7 @@ void FEConfigSlidingInfo::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigSlidingInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigSlidingInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 
 }
@@ -98,7 +98,7 @@ void FEConfigSlidingInfo::setParameters(const std::map<string,string>& my_keys_m
 }
 
 void FEConfigSlidingInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -114,7 +114,7 @@ void FEConfigSlidingInfo::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigSlidingInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigSlidingInfo::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -126,11 +126,11 @@ void FEConfigSlidingInfo::writeDB()
 
 
 void FEConfigSlidingInfo::fetchData(FEConfigSlidingInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("FEConfigSlidingInfo::fetchData(): no Id defined for this FEConfigSlidingInfo "));
   }
 
@@ -149,19 +149,19 @@ void FEConfigSlidingInfo::fetchData(FEConfigSlidingInfo * result)
     // 1 is the id and 2 is the config tag and 3 is the version
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
     result->setIOVId(rset->getInt(4));
     Date dbdate = rset->getDate(5);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigSlidingInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigSlidingInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
 void FEConfigSlidingInfo::fetchLastData(FEConfigSlidingInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -175,18 +175,18 @@ void FEConfigSlidingInfo::fetchLastData(FEConfigSlidingInfo * result)
     rset->next();
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
     result->setVersion(rset->getInt(3));
     result->setIOVId(rset->getInt(4));
     Date dbdate = rset->getDate(5);
     result->setDBTime( dh.dateToTm( dbdate ));
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigSlidingInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigSlidingInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
-int FEConfigSlidingInfo::fetchID()    throw(std::runtime_error)
+int FEConfigSlidingInfo::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {
@@ -212,7 +212,7 @@ int FEConfigSlidingInfo::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigSlidingInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigSlidingInfo::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -221,7 +221,7 @@ int FEConfigSlidingInfo::fetchID()    throw(std::runtime_error)
 
 
 void FEConfigSlidingInfo::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -236,7 +236,7 @@ void FEConfigSlidingInfo::setByID(int id)
      ResultSet* rset = stmt->executeQuery();
      if (rset->next()) {
        this->setId(rset->getInt(1));
-       this->setConfigTag(rset->getString(2));
+       this->setConfigTag(getOraString(rset,2));
        this->setVersion(rset->getInt(3));
        this->setIOVId(rset->getInt(4));
        Date dbdate = rset->getDate(5);
@@ -247,7 +247,7 @@ void FEConfigSlidingInfo::setByID(int id)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("FEConfigSlidingInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("FEConfigSlidingInfo::setByID:  ")+getOraMessage(&e)));
    }
 }
 

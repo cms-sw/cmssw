@@ -39,11 +39,13 @@ namespace edm {
 class MCSmartSingleParticleFilter : public edm::EDFilter {
    public:
       explicit MCSmartSingleParticleFilter(const edm::ParameterSet&);
-      ~MCSmartSingleParticleFilter();
+      ~MCSmartSingleParticleFilter() override;
 
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      bool filter(edm::Event&, const edm::EventSetup&) override;
    private:
+      // ----------memeber function----------------------
+
       // ----------member data ---------------------------
       
        edm::EDGetTokenT<edm::HepMCProduct> token_;
@@ -57,5 +59,6 @@ class MCSmartSingleParticleFilter : public edm::EDFilter {
        std::vector<double> decayRadiusMax;
        std::vector<double> decayZMin;  
        std::vector<double> decayZMax;
+       double betaBoost;
 };
 #endif

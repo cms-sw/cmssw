@@ -1,16 +1,26 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 const int PerformancePayloadFromTFormula::InvalidPos=-1;
+
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <iostream>
 using namespace std;
 
 void PerformancePayloadFromTFormula::initialize() {
+  boost::uuids::random_generator gen;
+
   for( std::vector<std::string>::const_iterator formula = pl.formulas().begin(); formula != pl.formulas().end(); ++formula ) {
-    //FIXME: "rr" should be unique!      
-    boost::shared_ptr<TFormula> temp(new TFormula("rr",formula->c_str()));
+    boost::uuids::uuid uniqueFormulaId = gen();
+    const auto formulaUniqueName = boost::lexical_cast<std::string>(uniqueFormulaId);
+    //be sure not to add TFormula to ROOT's global list
+    auto temp = std::make_shared<TFormula>(formulaUniqueName.c_str(),formula->c_str(),false);
     temp->Compile();
-    compiledFormulas_.push_back(temp);
+    compiledFormulas_.emplace_back(std::move(temp));
   }
 }
 
@@ -20,34 +30,31 @@ float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r 
   //
   // which formula to use?
   //
-  if (! isInPayload(r,p)) return PerformancePayload::InvalidResult;
-
-  // nice, what to do here???
-  const boost::shared_ptr<TFormula>& formula = compiledFormulas_[resultPos(r)];
+  if ( ! isInPayload(r,p) ) {
+    edm::LogError("PerformancePayloadFromTFormula") <<"Missing formula in conditions. Maybe code/conditions are inconsistent" << std::endl;
+    assert(false);
+  }
+  
+  const TFormula* formula = compiledFormulas_[resultPos(r)].get();
   //
   // prepare the vector to pass, order counts!!!
   //
   std::vector<BinningVariables::BinningVariablesType> t = myBinning();
-  
+
   // sorry, TFormulas just work up to dimension==4
   Double_t values[4];
   int i=0;
   for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end();++it, ++i){
-    values[i] = p.value(*it);    
+    values[i] = p.value(*it);
   }
   //
-  // i need a non const version #$%^
-  // Note, in current implementation of TFormula EvalPar should be
-  // thread safe as it does nothing more than call a function
-  // through a function pointer which is stateless. In spite of the
-  // fact that it is not const.
   return formula->EvalPar(values);
 }
 
 bool PerformancePayloadFromTFormula::isOk(const BinningPointByMap& _p) const {
   BinningPointByMap p = _p;
   std::vector<BinningVariables::BinningVariablesType> t = myBinning();
-  
+
   for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end();++it){
     if (!   p.isKeyAvailable(*it)) return false;
     float v = p.value(*it);
@@ -61,7 +68,7 @@ bool PerformancePayloadFromTFormula::isOk(const BinningPointByMap& _p) const {
 bool PerformancePayloadFromTFormula::isInPayload(PerformanceResult::ResultType res,const BinningPointByMap& point) const {
   // first, let's see if it is available at all
   if (resultPos(res) == PerformancePayloadFromTFormula::InvalidPos) return false;
-  
+
   if ( ! isOk(point)) return false;
   return true;
 }
@@ -74,15 +81,15 @@ void PerformancePayloadFromTFormula::printFormula(PerformanceResult::ResultType 
     cout << "Warning: result not available!" << endl;
     return;
   }
-  
-  // nice, what to do here???
-  const boost::shared_ptr<TFormula>& formula = 
-    compiledFormulas_[resultPos(res)];
+
+
+  const TFormula* formula =
+    compiledFormulas_[resultPos(res)].get();
   cout << "-- Formula: " << formula->GetExpFormula("p") << endl;
   // prepare the vector to pass, order counts!!!
   //
   std::vector<BinningVariables::BinningVariablesType> t = myBinning();
-  
+
   for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end();++it){
     int pos = limitPos(*it);
     std::pair<float, float> limits = (pl.limits())[pos];

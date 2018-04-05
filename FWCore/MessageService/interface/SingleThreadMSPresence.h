@@ -11,15 +11,15 @@ class SingleThreadMSPresence : public Presence
 public:
   // ---  birth/death:
   SingleThreadMSPresence();
-  ~SingleThreadMSPresence();
+  ~SingleThreadMSPresence() override;
 
   // --- Access to the scribe
   // REMOVED AbstractMLscribe * scribe_ptr() { return &m; }  
 
 private:
   // --- no copying:
-  SingleThreadMSPresence(SingleThreadMSPresence const &);
-  void  operator = (SingleThreadMSPresence const &);
+  SingleThreadMSPresence(SingleThreadMSPresence const &) = delete;
+  void  operator = (SingleThreadMSPresence const &) = delete;
   
 };  // SingleThreadMSPresence
 

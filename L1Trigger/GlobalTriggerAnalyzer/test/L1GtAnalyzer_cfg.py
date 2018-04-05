@@ -11,7 +11,7 @@ process = cms.Process("L1GtAnalyzer")
 print '\n'
 from L1Trigger.GlobalTriggerAnalyzer.UserOptions_cff import *
 if errorUserOptions == True :
-    print '\nError returned by UserOptions_cff\n'
+    print '\nError returned by UserOptions_cff. Script stops here.\n'
     sys.exit()
 
 
@@ -41,7 +41,7 @@ process.maxEvents = cms.untracked.PSet(
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 
 process.load('Configuration.StandardSequences.GeometryDB_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
 process.GlobalTag.globaltag = useGlobalTag
 
@@ -176,7 +176,7 @@ process.MessageLogger.L1GtAnalyzer_debug = cms.untracked.PSet(
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         L1GtAnalyzer = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
-        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
+        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(0) ) 
         )
 
@@ -186,7 +186,7 @@ process.MessageLogger.L1GtAnalyzer_info = cms.untracked.PSet(
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         L1GtAnalyzer = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
-        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(0) ), 
+        L1GtUtils = cms.untracked.PSet( limit = cms.untracked.int32(-1) ), 
         L1GtTrigReport = cms.untracked.PSet( limit = cms.untracked.int32(-1) ) 
         )
 

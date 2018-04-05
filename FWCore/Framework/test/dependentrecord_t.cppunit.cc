@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordProvider.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/interface/print_eventsetup_record_dependencies.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 #include <cstring>
@@ -76,6 +77,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testdependentrecord);
  */
 
 namespace {
+
+edm::ActivityRegistry activityRegistry;
+
 class DummyProxyProvider : public edm::eventsetup::DataProxyProvider {
 public:
    DummyProxyProvider() {
@@ -185,7 +189,7 @@ private:
 using namespace edm::eventsetup;
 void testdependentrecord::dependentConstructorTest()
 {
-   std::auto_ptr<EventSetupRecordProvider> depProvider =
+   std::unique_ptr<EventSetupRecordProvider> depProvider =
    EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(DepRecord::keyForClass());
    
    CPPUNIT_ASSERT(1 == depProvider->dependentRecords().size());
@@ -197,7 +201,7 @@ void testdependentrecord::dependentConstructorTest()
 
 void testdependentrecord::dependentFinder1Test()
 {
-   boost::shared_ptr<EventSetupRecordProvider> dummyProvider(
+   std::shared_ptr<EventSetupRecordProvider> dummyProvider(
                                                           EventSetupRecordProviderFactoryManager::instance()
                                                               .makeRecordProvider(DummyRecord::keyForClass()).release());
    const edm::EventID eID_1(1, 1, 1);
@@ -205,7 +209,7 @@ void testdependentrecord::dependentFinder1Test()
    const edm::EventID eID_3(1, 1, 3);
    const edm::ValidityInterval definedInterval(sync_1, 
                                                 edm::IOVSyncValue(eID_3));
-   boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
+   std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
    dummyFinder->setInterval(definedInterval);
    dummyProvider->addFinder(dummyFinder);
    
@@ -231,7 +235,7 @@ void testdependentrecord::dependentFinder1Test()
 
 void testdependentrecord::dependentFinder2Test()
 {
-   boost::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
+   std::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
                                                               .makeRecordProvider(DummyRecord::keyForClass()).release());
    
    const edm::EventID eID_1(1, 1, 1);
@@ -240,7 +244,7 @@ void testdependentrecord::dependentFinder2Test()
                                                  edm::IOVSyncValue(edm::EventID(1, 1, 5)));
    dummyProvider1->setValidityInterval(definedInterval1);
    
-   boost::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
+   std::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
                                                               .makeRecordProvider(DummyRecord::keyForClass()).release());
    
    const edm::EventID eID_2(1, 1, 2);
@@ -266,7 +270,7 @@ void testdependentrecord::dependentFinder2Test()
 void testdependentrecord::timeAndRunTest()
 {
   //test case where we have two providers, one synching on time the other on run/lumi/event
-   boost::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
+   std::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
                                                               .makeRecordProvider(DummyRecord::keyForClass()).release());
    
    const edm::EventID eID_1(1, 1, 1);
@@ -275,7 +279,7 @@ void testdependentrecord::timeAndRunTest()
                                                  edm::IOVSyncValue(edm::EventID(1, 1, 5)));
    dummyProvider1->setValidityInterval(definedInterval1);
    
-   boost::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
+   std::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
                                                               .makeRecordProvider(DummyRecord::keyForClass()).release());
    
    const edm::Timestamp time_1(1);
@@ -423,7 +427,7 @@ void testdependentrecord::timeAndRunTest()
    {
       //check for bug which only happens the first time we synchronize
       // have the second one invalid
-      boost::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
+      std::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
                                                                  .makeRecordProvider(DummyRecord::keyForClass()).release());
 
       const edm::EventID eID_1(1, 1, 1);
@@ -432,7 +436,7 @@ void testdependentrecord::timeAndRunTest()
                                                     edm::IOVSyncValue(edm::EventID(1, 1, 6)));
       dummyProvider1->setValidityInterval(definedInterval1);
 
-      boost::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
+      std::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
                                                                  .makeRecordProvider(DummyRecord::keyForClass()).release());
 
       dummyProvider2->setValidityInterval(invalid);
@@ -466,12 +470,12 @@ void testdependentrecord::timeAndRunTest()
       //check for bug which only happens the first time we synchronize
       // have the  first one invalid
       
-      boost::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
+      std::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
                                                                  .makeRecordProvider(DummyRecord::keyForClass()).release());
 
       dummyProvider1->setValidityInterval(invalid);
 
-      boost::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
+      std::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
                                                                  .makeRecordProvider(DummyRecord::keyForClass()).release());
 
       const edm::Timestamp time_1(1);
@@ -508,22 +512,22 @@ void testdependentrecord::timeAndRunTest()
 
    {
      //check that going all the way through EventSetup works properly
-     edm::eventsetup::EventSetupProvider provider;
-     boost::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider());
+     edm::eventsetup::EventSetupProvider provider(&activityRegistry);
+     std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
      provider.add(dummyProv);
      
-     boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
+     std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
      dummyFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), 
 						    edm::IOVSyncValue(edm::EventID(1, 1, 5))));
-     provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+     provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
      
-     boost::shared_ptr<edm::eventsetup::DataProxyProvider> depProv(new DepOn2RecordProxyProvider());
+     std::shared_ptr<edm::eventsetup::DataProxyProvider> depProv = std::make_shared<DepOn2RecordProxyProvider>();
      provider.add(depProv);
 
-     boost::shared_ptr<Dummy2RecordFinder> dummy2Finder(new Dummy2RecordFinder);
+     std::shared_ptr<Dummy2RecordFinder> dummy2Finder = std::make_shared<Dummy2RecordFinder>();
      dummy2Finder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::Timestamp( 1)), 
 						    edm::IOVSyncValue(edm::Timestamp( 5))));
-     provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
+     provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
      {
        const edm::EventSetup& eventSetup1 = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(1)));
        long long id1 = eventSetup1.get<DepOn2Record>().cacheIdentifier();
@@ -556,22 +560,22 @@ void testdependentrecord::timeAndRunTest()
    {
       //check that going all the way through EventSetup works properly
       // using two records with open ended IOVs
-      edm::eventsetup::EventSetupProvider provider;
-      boost::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider());
+      edm::eventsetup::EventSetupProvider provider(&activityRegistry);
+      std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
       provider.add(dummyProv);
       
-      boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
+      std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
       dummyFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), 
                                                      edm::IOVSyncValue::invalidIOVSyncValue()));
-      provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
       
-      boost::shared_ptr<edm::eventsetup::DataProxyProvider> depProv(new DepOn2RecordProxyProvider());
+      std::shared_ptr<edm::eventsetup::DataProxyProvider> depProv = std::make_shared<DepOn2RecordProxyProvider>();
       provider.add(depProv);
       
-      boost::shared_ptr<Dummy2RecordFinder> dummy2Finder(new Dummy2RecordFinder);
+      std::shared_ptr<Dummy2RecordFinder> dummy2Finder = std::make_shared<Dummy2RecordFinder>();
       dummy2Finder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::Timestamp( 1)), 
                                                       edm::IOVSyncValue::invalidIOVSyncValue()));
-      provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
+      provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
       {
          const edm::EventSetup& eventSetup1 = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(1)));
          long long id1 = eventSetup1.get<DepOn2Record>().cacheIdentifier();
@@ -606,36 +610,36 @@ void testdependentrecord::timeAndRunTest()
 
 void testdependentrecord::dependentSetproviderTest()
 {
-   std::auto_ptr<EventSetupRecordProvider> depProvider =
+   std::unique_ptr<EventSetupRecordProvider> depProvider =
    EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(DepRecord::keyForClass());
    
-   boost::shared_ptr<EventSetupRecordProvider> dummyProvider(
+   std::shared_ptr<EventSetupRecordProvider> dummyProvider(
        EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(DummyRecord::keyForClass()).release());
 
-   boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
+   std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
    dummyFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)),
                                                    edm::IOVSyncValue(edm::EventID(1, 1, 3))));
    dummyProvider->addFinder(dummyFinder);
    
    CPPUNIT_ASSERT(*(depProvider->dependentRecords().begin()) == dummyProvider->key());
    
-   std::vector< boost::shared_ptr<EventSetupRecordProvider> > providers;
+   std::vector< std::shared_ptr<EventSetupRecordProvider> > providers;
    providers.push_back(dummyProvider);
    depProvider->setDependentProviders(providers);
 }
 
 void testdependentrecord::getTest()
 {
-   edm::eventsetup::EventSetupProvider provider;
-   boost::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider());
+   edm::eventsetup::EventSetupProvider provider(&activityRegistry);
+   std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
    provider.add(dummyProv);
 
-   boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
+   std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
    dummyFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), 
                                                    edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-   provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+   provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
    
-   boost::shared_ptr<edm::eventsetup::DataProxyProvider> depProv(new DepRecordProxyProvider());
+   std::shared_ptr<edm::eventsetup::DataProxyProvider> depProv = std::make_shared<DepRecordProxyProvider>();
    provider.add(depProv);
    {
       const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
@@ -652,16 +656,16 @@ void testdependentrecord::getTest()
 
 void testdependentrecord::oneOfTwoRecordTest()
 {
-  edm::eventsetup::EventSetupProvider provider;
-  boost::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider());
+  edm::eventsetup::EventSetupProvider provider(&activityRegistry);
+  std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
   provider.add(dummyProv);
   
-  boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
+  std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
   dummyFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), 
                                                  edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-  provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+  provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
   
-  boost::shared_ptr<edm::eventsetup::DataProxyProvider> depProv(new DepOn2RecordProxyProvider());
+  std::shared_ptr<edm::eventsetup::DataProxyProvider> depProv = std::make_shared<DepOn2RecordProxyProvider>();
   provider.add(depProv);
   {
     const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
@@ -682,16 +686,16 @@ void testdependentrecord::oneOfTwoRecordTest()
 }
 void testdependentrecord::resetTest()
 {
-  edm::eventsetup::EventSetupProvider provider;
-  boost::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv(new DummyProxyProvider());
+  edm::eventsetup::EventSetupProvider provider(&activityRegistry);
+  std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
   provider.add(dummyProv);
   
-  boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
+  std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
   dummyFinder->setInterval(edm::ValidityInterval(edm::IOVSyncValue(edm::EventID(1, 1, 1)), 
                                                  edm::IOVSyncValue(edm::EventID(1, 1, 3))));
-  provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
+  provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummyFinder));
   
-  boost::shared_ptr<edm::eventsetup::DataProxyProvider> depProv(new DepRecordProxyProvider());
+  std::shared_ptr<edm::eventsetup::DataProxyProvider> depProv = std::make_shared<DepRecordProxyProvider>();
   provider.add(depProv);
   {
     const edm::EventSetup& eventSetup = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1)));
@@ -707,7 +711,7 @@ void testdependentrecord::resetTest()
 }
 void testdependentrecord::alternateFinderTest()
 {
-  boost::shared_ptr<EventSetupRecordProvider> dummyProvider(
+  std::shared_ptr<EventSetupRecordProvider> dummyProvider(
                                                             EventSetupRecordProviderFactoryManager::instance()
                                                             .makeRecordProvider(DummyRecord::keyForClass()).release());
   const edm::EventID eID_1(1, 1, 1);
@@ -717,11 +721,11 @@ void testdependentrecord::alternateFinderTest()
   const edm::EventID eID_4(1, 1, 4);
   const edm::ValidityInterval definedInterval(sync_1, 
                                               edm::IOVSyncValue(eID_4));
-  boost::shared_ptr<DummyFinder> dummyFinder(new DummyFinder);
+  std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
   dummyFinder->setInterval(definedInterval);
   dummyProvider->addFinder(dummyFinder);
   
-  boost::shared_ptr<DepRecordFinder> depFinder(new DepRecordFinder);
+  std::shared_ptr<DepRecordFinder> depFinder = std::make_shared<DepRecordFinder>();
   const edm::EventID eID_2(1, 1, 2);
   const edm::IOVSyncValue sync_2(eID_2);
   const edm::ValidityInterval depInterval(sync_1, 
@@ -771,7 +775,7 @@ void testdependentrecord::alternateFinderTest()
 
 void testdependentrecord::invalidRecordTest()
 {
-   boost::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
+   std::shared_ptr<EventSetupRecordProvider> dummyProvider1(EventSetupRecordProviderFactoryManager::instance()
                                                               .makeRecordProvider(DummyRecord::keyForClass()).release());
 
    const edm::ValidityInterval invalid( edm::IOVSyncValue::invalidIOVSyncValue(),
@@ -779,7 +783,7 @@ void testdependentrecord::invalidRecordTest()
 
    dummyProvider1->setValidityInterval(invalid);
    
-   boost::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
+   std::shared_ptr<EventSetupRecordProvider> dummyProvider2(EventSetupRecordProviderFactoryManager::instance()
                                                               .makeRecordProvider(DummyRecord::keyForClass()).release());
    dummyProvider2->setValidityInterval(invalid);
 
@@ -830,24 +834,24 @@ void testdependentrecord::invalidRecordTest()
 
 void testdependentrecord::extendIOVTest()
 {
-   edm::eventsetup::EventSetupProvider provider;
-   boost::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv{new DummyProxyProvider{}};
+   edm::eventsetup::EventSetupProvider provider(&activityRegistry);
+   std::shared_ptr<edm::eventsetup::DataProxyProvider> dummyProv = std::make_shared<DummyProxyProvider>();
    provider.add(dummyProv);
    
-   boost::shared_ptr<DummyFinder> dummyFinder{new DummyFinder};
+   std::shared_ptr<DummyFinder> dummyFinder = std::make_shared<DummyFinder>();
    
    edm::IOVSyncValue startSyncValue{edm::EventID{1, 1, 1}};
    dummyFinder->setInterval(edm::ValidityInterval{startSyncValue, 
                                                   edm::IOVSyncValue{edm::EventID{1, 1, 5}}});
-   provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>{dummyFinder});
+   provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>{dummyFinder});
    
-   boost::shared_ptr<edm::eventsetup::DataProxyProvider> depProv(new DepOn2RecordProxyProvider());
+   std::shared_ptr<edm::eventsetup::DataProxyProvider> depProv = std::make_shared<DepOn2RecordProxyProvider>();
    provider.add(depProv);
    
-   boost::shared_ptr<Dummy2RecordFinder> dummy2Finder(new Dummy2RecordFinder);
+   std::shared_ptr<Dummy2RecordFinder> dummy2Finder = std::make_shared<Dummy2RecordFinder>();
    dummy2Finder->setInterval(edm::ValidityInterval{startSyncValue, 
                                                    edm::IOVSyncValue{edm::EventID{1, 1, 6}}});
-   provider.add(boost::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
+   provider.add(std::shared_ptr<edm::EventSetupRecordIntervalFinder>(dummy2Finder));
    {
       const edm::EventSetup& eventSetup1 = provider.eventSetupForInstance(edm::IOVSyncValue(edm::EventID(1, 1, 1), edm::Timestamp(1)));
       unsigned long long id1 = eventSetup1.get<DepOn2Record>().cacheIdentifier();

@@ -41,24 +41,14 @@ class FamosManager
   /// Get information from the Event Setup
   void setupGeometryAndField(edm::Run const& run, const edm::EventSetup & es);
 
-  /// The generated event
-  //  const HepMC::GenEvent* genEvent() const { return myGenEvent; };
-  //  const reco::CandidateCollection*
-
   /// The simulated event 
   FSimEvent* simEvent() const { return mySimEvent; }
 
   /// The real thing is done here
   void reconstruct(const HepMC::GenEvent* evt, 
-		   const reco::GenParticleCollection* particles,
-		   const HepMC::GenEvent* pu,
 		   const TrackerTopology *tTopo,
                    RandomEngineAndDistribution const*);
   
-  void reconstruct(const reco::GenParticleCollection* particles,
-		   const TrackerTopology *tTopo,
-                   RandomEngineAndDistribution const*);
-
   /// The tracker 
   TrajectoryManager * trackerManager() const {return myTrajectoryManager;}
 
@@ -72,7 +62,6 @@ class FamosManager
   //  const HepMC::GenEvent* myGenEvent;
   FSimEvent* mySimEvent;
   TrajectoryManager* myTrajectoryManager;
-  PileUpSimulator* myPileUpSimulator;
   CalorimetryManager * myCalorimetry;
 
  private:

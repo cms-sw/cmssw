@@ -6,7 +6,11 @@ public:
     CutApplicatorBase(c),
     _maxEta(c.getParameter<double>("maxEta")) { }
   
-  result_type asCandidate(const argument_type& cand) const override final {
+  double value(const reco::CandidatePtr& cand) const final {
+    return std::abs(cand->eta());
+  }
+
+  result_type asCandidate(const argument_type& cand) const final {
     return std::abs(cand->eta()) < _maxEta;
   }
 

@@ -9,7 +9,7 @@ CastorHardcodeGeometryEP::CastorHardcodeGeometryEP(const edm::ParameterSet& iCon
    // data is being produced
    setWhatProduced( this, CastorGeometry::producerTag() );
 
-   loader_=0;
+   loader_=nullptr;
 }
 
 
@@ -28,9 +28,7 @@ CastorHardcodeGeometryEP::ReturnType
 CastorHardcodeGeometryEP::produce(const CastorGeometryRecord& iRecord)
 {
    loader_=new CastorHardcodeGeometryLoader();
-   std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry(loader_->load()) ;
-
-   return pCaloSubdetectorGeometry ;
+   return std::unique_ptr<CaloSubdetectorGeometry>(loader_->load());
 }
 
 

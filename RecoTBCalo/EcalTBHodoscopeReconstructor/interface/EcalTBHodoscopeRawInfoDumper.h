@@ -19,10 +19,10 @@ class EcalTBHodoscopeRawInfoDumper : public edm::EDAnalyzer {
  public:
 
   explicit EcalTBHodoscopeRawInfoDumper(const edm::ParameterSet& ps);
-  virtual ~EcalTBHodoscopeRawInfoDumper() ;
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob();
-  virtual void endJob();
+  ~EcalTBHodoscopeRawInfoDumper() override ;
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void beginJob() override;
+  void endJob() override;
 
  private:
 

@@ -1,0 +1,202 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tecwheeld.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+		<Constant name="FixSuppRmax" value="[tecpetal3:PetalContRmin]+            [tecwheel:FixSuppR]"/>
+		<Constant name="FixSuppW" value="2*[tecwheel:FixSuppA]/([FixSuppRmax]*[FixSuppRmax]-[tecpetal3:PetalContRmin]*[tecpetal3:PetalContRmin])"/>
+		<!-- calculate the width to fit the area at this specific radius! thus the volume will be constant!-->
+		<Constant name="CableL" value="([tecwheel:CableRmax]-[tecring3:Rin])"/>
+		<Constant name="CableR" value="([tecwheel:CableRmax]+[tecring3:Rin])/2"/>
+	</ConstantsSection>
+	<SolidSection label="tecwheeld.xml">
+		<Tubs name="TECWheelD" rMin="[tecpetal3:PetalContRmin]" rMax="[tecwheel:WheelRmax]" dz="[tecwheel:WheelT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
+		<Tubs name="TECWheelDiskD" rMin="[tecpetal3:PetalContRmin]" rMax="[tecwheel:WheelRmax]" dz="[tecwheel:DiskT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
+		<Tubs name="TECWheelNomexD" rMin="[tecpetal3:PetalContRmin]" rMax="[tecwheel:NomexRmax]" dz="[tecwheel:NomexT]/2" startPhi="0*deg" deltaPhi="360.*deg"/>
+		<Tubs name="TECFixSupportD" rMin="[tecpetal3:PetalContRmin]" rMax="[FixSuppRmax]" dz="[tecwheel:FixSuppT]/2" startPhi="-[FixSuppW]/2" deltaPhi="[FixSuppW]"/>
+		<Tubs name="TECOptConnectorD" rMin="[tecwheel:OptConnRmin]" rMax="[tecwheel:OptConnRmax]" dz="[tecwheel:OptConnT3]/2" startPhi="-[tecwheel:OptConnW]/2" deltaPhi="[tecwheel:OptConnW]"/>
+	</SolidSection>
+	<LogicalPartSection label="tecwheeld.xml">
+		<LogicalPart name="TECWheelD" category="unspecified">
+			<rSolid name="tecwheeld:TECWheelD"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TECWheelDiskD" category="unspecified">
+			<rSolid name="tecwheeld:TECWheelDiskD"/>
+			<rMaterial name="tecmaterial:TEC_wheel_CF"/>
+		</LogicalPart>
+		<LogicalPart name="TECWheelNomexD" category="unspecified">
+			<rSolid name="tecwheeld:TECWheelNomexD"/>
+			<rMaterial name="tecmaterial:TEC_wheel_Nomex"/>
+		</LogicalPart>
+		<LogicalPart name="TECFixSupportD" category="unspecified">
+			<rSolid name="tecwheeld:TECFixSupportD"/>
+			<rMaterial name="tecmaterial:TEC_Fixframe"/>
+		</LogicalPart>
+		<LogicalPart name="TECOptConnectorD" category="unspecified">
+			<rSolid name="tecwheeld:TECOptConnectorD"/>
+			<rMaterial name="tecmaterial:TEC_OptoCon"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="tecwheeld.xml">
+		<PosPart copyNumber="1">
+			<rParent name="tecwheeld:TECWheelD"/>
+			<rChild name="tecwheeld:TECWheelDiskD"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tecwheeld:TECWheelDiskD"/>
+			<rChild name="tecwheeld:TECWheelNomexD"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tecwheeld:TECWheelDiskD"/>
+			<rChild name="tecwheel:TECGroundingRing"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tecwheeld:TECWheelD"/>
+		<String name="ChildName" value="tecpetal8f:TECPetalCont8F"/>
+		<Numeric name="N" value="[tecwheel:PetalContN]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tecwheel:PetalContFiF]"/>
+		<Numeric name="Radius" value="[zero]"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			0, 0, -[tecwheel:PetalContZ]  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tecwheeld:TECWheelD"/>
+		<String name="ChildName" value="tecpetal8b:TECPetalCont8B"/>
+		<Numeric name="N" value="[tecwheel:PetalContN]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tecwheel:PetalContFiB]"/>
+		<Numeric name="Radius" value="[zero]"/>
+		<Vector name="Center" type="numeric" nEntries="3">
+			0, 0, [tecwheel:PetalContZ]  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tecwheeld:TECWheelNomexD"/>
+		<String name="ChildName" value="tecwheel:TECWheelInsert"/>
+		<Numeric name="N" value="[tecwheel:InsertN]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tecwheel:InsertFi1]"/>
+		<Numeric name="Radius" value="[tecwheel:InsertR1]"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tecwheeld:TECWheelNomexD"/>
+		<String name="ChildName" value="tecwheel:TECWheelInsert"/>
+		<Numeric name="N" value="[tecwheel:InsertN]"/>
+		<Numeric name="StartCopyNo" value="9"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tecwheel:InsertFi2]"/>
+		<Numeric name="Radius" value="[tecwheel:InsertR2]"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tecwheeld:TECWheelNomexD"/>
+		<String name="ChildName" value="tecwheel:TECWheelInsert"/>
+		<Numeric name="N" value="[tecwheel:InsertN]"/>
+		<Numeric name="StartCopyNo" value="17"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tecwheel:InsertFi3]"/>
+		<Numeric name="Radius" value="[tecwheel:InsertR3]"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tecwheeld:TECWheelNomexD"/>
+		<String name="ChildName" value="tecwheel:TECWheelInsert"/>
+		<Numeric name="N" value="[tecwheel:InsertN]"/>
+		<Numeric name="StartCopyNo" value="25"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tecwheel:InsertFi4]"/>
+		<Numeric name="Radius" value="[tecwheel:InsertR4]"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tecwheeld:TECWheelNomexD"/>
+		<String name="ChildName" value="tecwheel:TECWheelInsert"/>
+		<Numeric name="N" value="[tecwheel:InsertN]"/>
+		<Numeric name="StartCopyNo" value="33"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tecwheel:InsertFi5]"/>
+		<Numeric name="Radius" value="[tecwheel:InsertR5]"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tecwheeld:TECWheelNomexD"/>
+		<String name="ChildName" value="tecwheel:TECWheelInsert"/>
+		<Numeric name="N" value="[tecwheel:InsertN]"/>
+		<Numeric name="StartCopyNo" value="41"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tecwheel:InsertFi6]"/>
+		<Numeric name="Radius" value="[tecwheel:InsertR6]"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tecwheeld:TECWheelNomexD"/>
+		<String name="ChildName" value="tecwheeld:TECFixSupportD"/>
+		<Numeric name="N" value="[tecwheel:FixSuppN]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tecwheel:FixSuppFi]"/>
+		<Numeric name="Radius" value="[zero]"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tecwheeld:TECWheelNomexD"/>
+		<String name="ChildName" value="tecwheel:TECFixService"/>
+		<Numeric name="N" value="[tecwheel:FixServN]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tecwheel:FixServFi]"/>
+		<Numeric name="Radius" value="[zero]"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tecwheeld:TECWheelD"/>
+		<String name="ChildName" value="tecwheeld:TECOptConnectorD"/>
+		<Numeric name="N" value="[tecwheel:OptConnN]"/>
+		<Numeric name="StartCopyNo" value="2"/>
+		<Numeric name="IncrCopyNo" value="2"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tecwheel:OptConnFI1]"/>
+		<Numeric name="Radius" value="[zero]"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 
+			0, 0, -[tecwheel:OptConnZ3]  </Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tecwheeld:TECWheelD"/>
+		<String name="ChildName" value="tecwheeld:TECOptConnectorD"/>
+		<Numeric name="N" value="[tecwheel:OptConnN]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="2"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tecwheel:OptConnFI2]"/>
+		<Numeric name="Radius" value="[zero]"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 
+			0, 0, [tecwheel:OptConnZ3]  </Vector>
+	</Algorithm>
+	<!-- Alignment Holder (Sphere holder) -->
+	<Algorithm name="track:DDTrackerAngular">
+		<rParent name="tecwheeld:TECWheelNomexD"/>
+		<String name="ChildName" value="tecwheel:TECAlignHolder"/>
+		<Numeric name="N" value="4"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<Numeric name="RangeAngle" value="360*deg"/>
+		<Numeric name="StartAngle" value="[tecwheel:AlignHolderStartPhi]"/>
+		<Numeric name="Radius" value="[zero]"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0  </Vector>
+	</Algorithm>
+</DDDefinition>

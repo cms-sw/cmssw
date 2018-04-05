@@ -1,3 +1,10 @@
+# THIS CONFIGURATION IS BROKEN. SINCE 2015 Geometry_cff has been deleted
+# and it is a fatal error to load it. And because of this I did not bother
+# to convert it to use tasks in 2017 when Tasks where implemented for unscheduled
+# mode (or remove the allowUnscheduled flag which no longer does anything).
+# Modules which are supposed to run unscheduled will not run.  Someone should
+# probably either fix or delete this ...
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("S2")

@@ -57,7 +57,7 @@ void EgammaEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const
   edm::Handle<T1Collection> emObjectHandle;
   iEvent.getByToken(emObjectProducer_, emObjectHandle);
 
-  std::auto_ptr<edm::ValueMap<float> > isoMap(new edm::ValueMap<float>());
+  auto isoMap = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler filler(*isoMap);
   std::vector<float> retV(emObjectHandle->size(),0);
 
@@ -74,7 +74,7 @@ void EgammaEcalPFClusterIsolationProducer<T1>::produce(edm::Event& iEvent, const
   filler.insert(emObjectHandle,retV.begin(),retV.end());
   filler.fill();
 
-  iEvent.put(isoMap);
+  iEvent.put(std::move(isoMap));
 }
 
 typedef EgammaEcalPFClusterIsolationProducer<reco::GsfElectron> ElectronEcalPFClusterIsolationProducer;

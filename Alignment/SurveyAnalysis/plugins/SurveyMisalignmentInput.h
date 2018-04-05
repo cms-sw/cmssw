@@ -28,10 +28,10 @@ public:
 			  );
 	
   /// Read ideal tracker geometry from DB
-  virtual void analyze(
+  void analyze(
 		       const edm::Event&,
 		       const edm::EventSetup&
-		       );
+		       ) override;
 	
 private:
 	
@@ -46,8 +46,6 @@ private:
 
   /// Get alignable surface from misalignments.db
   AlignableSurface getAlignableSurface(align::ID);
-  
-  const edm::ParameterSet theParameterSet;
 };
 
 #endif

@@ -50,6 +50,10 @@ namespace edm {
     std::string moduleLabel;
   };
 
+  inline
+  bool operator<(WorkerTimingSummary const& a, WorkerTimingSummary const& b) {
+    return a.moduleLabel < b.moduleLabel;
+  }
 
   struct TriggerTimingReport
   {

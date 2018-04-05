@@ -22,8 +22,8 @@ FastPrunePlugin::FastPrunePlugin (const JetDefinition & find_definition,
 		_find_definition(find_definition),
 		_prune_definition(prune_definition),
 		_minpT(20.),
-		_unpruned_seq(NULL),
-		_pruned_recombiner(0),
+		_unpruned_seq(nullptr),
+		_pruned_recombiner(nullptr),
 		_cut_setter(new DefaultCutSetter(zcut, Rcut_factor))
 {
 	// If the passed prune_definition (copied into _prune_def) has an external
@@ -49,7 +49,7 @@ FastPrunePlugin::FastPrunePlugin (const JetDefinition & find_definition,
 		_find_definition(find_definition),
 		_prune_definition(prune_definition),
 		_minpT(20.),
-		_unpruned_seq(NULL),
+		_unpruned_seq(nullptr),
 		_pruned_recombiner(new PrunedRecombiner(recomb, zcut, 0.0)),
 		_cut_setter(new DefaultCutSetter(zcut, Rcut_factor))
 {}
@@ -60,8 +60,8 @@ FastPrunePlugin::FastPrunePlugin (const JetDefinition & find_definition,
 		_find_definition(find_definition),
 		_prune_definition(prune_definition),
 		_minpT(20.),
-		_unpruned_seq(NULL),
-		_pruned_recombiner(0),
+		_unpruned_seq(nullptr),
+		_pruned_recombiner(nullptr),
 		_cut_setter(cut_setter)
 {
 	// See comments in first constructor
@@ -79,7 +79,7 @@ FastPrunePlugin::FastPrunePlugin (const JetDefinition & find_definition,
 		_find_definition(find_definition),
 		_prune_definition(prune_definition),
 		_minpT(20.),
-		_unpruned_seq(NULL),
+		_unpruned_seq(nullptr),
 		_pruned_recombiner(new PrunedRecombiner(recomb)),
 		_cut_setter(cut_setter)
 {}

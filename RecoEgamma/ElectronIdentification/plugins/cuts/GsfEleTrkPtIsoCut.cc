@@ -10,9 +10,11 @@ class GsfEleTrkPtIsoCut : public CutApplicatorBase {
 public:
   GsfEleTrkPtIsoCut(const edm::ParameterSet& c);
   
-  result_type operator()(const reco::GsfElectronPtr&) const override final;
+  result_type operator()(const reco::GsfElectronPtr&) const final;
 
-  CandidateType candidateType() const override final { 
+  double value(const reco::CandidatePtr& cand) const final;
+
+  CandidateType candidateType() const final { 
     return ELECTRON; 
   }
 
@@ -50,4 +52,10 @@ operator()(const reco::GsfElectronPtr& cand) const{
   const float et = cand->et();
   const float cutValue = et > slopeStart_(cand)  ? slopeTerm_(cand)*(et-slopeStart_(cand)) + constTerm_(cand) : constTerm_(cand);
   return isolTrkPt < cutValue;
+}
+
+double GsfEleTrkPtIsoCut::
+value(const reco::CandidatePtr& cand) const {
+  reco::GsfElectronPtr ele(cand);  
+  return ele->dr03TkSumPt();
 }

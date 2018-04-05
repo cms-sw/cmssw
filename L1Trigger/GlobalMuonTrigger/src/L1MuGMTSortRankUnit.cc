@@ -41,7 +41,7 @@
 
 unsigned L1MuGMTSortRankUnit::sort_rank(const L1MuRegionalCand* muon) {
 
-  if ( muon == 0 || muon->empty() ) return 0;
+  if ( muon == nullptr || muon->empty() ) return 0;
 
   unsigned lut_idx= muon->type_idx();
   
@@ -72,7 +72,7 @@ unsigned L1MuGMTSortRankUnit::sort_rank(const L1MuRegionalCand* muon) {
 
 unsigned L1MuGMTSortRankUnit::getVeryLowQualityLevel(const L1MuRegionalCand* muon) {
 
-  if ( muon == 0 || muon->empty() ) return 0;
+  if ( muon == nullptr || muon->empty() ) return 0;
 
   unsigned lut_idx= muon->type_idx();
   
@@ -87,7 +87,7 @@ unsigned L1MuGMTSortRankUnit::getVeryLowQualityLevel(const L1MuRegionalCand* muo
 
 bool L1MuGMTSortRankUnit::isDisabled(const L1MuRegionalCand* muon) {
 
-  if ( muon == 0 || muon->empty() ) return 1;
+  if ( muon == nullptr || muon->empty() ) return true;
 
   unsigned lut_idx= muon->type_idx();
   

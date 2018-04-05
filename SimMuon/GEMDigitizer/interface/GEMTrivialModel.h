@@ -19,16 +19,16 @@ public:
 
   GEMTrivialModel(const edm::ParameterSet&);
 
-  ~GEMTrivialModel() {}
+  ~GEMTrivialModel() override {}
 
-  void simulateSignal(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine* engine);
+  void simulateSignal(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine* engine) override;
 
-  void simulateNoise(const GEMEtaPartition*, CLHEP::HepRandomEngine* engine) {}
+  void simulateNoise(const GEMEtaPartition*, CLHEP::HepRandomEngine* engine) override {}
 
   std::vector<std::pair<int,int> > 
-    simulateClustering(const GEMEtaPartition*, const PSimHit*, const int, CLHEP::HepRandomEngine* engine);
+    simulateClustering(const GEMEtaPartition*, const PSimHit*, const int, CLHEP::HepRandomEngine* engine) override;
 
-  void setup() {}
+  void setup() override {}
 
 private:
 };

@@ -9,6 +9,7 @@
 <use   name="root"/>
 <use   name="GeneratorInterface/Pythia6Interface"/>
 <use   name="GeneratorInterface/Core"/>
+<use   name="pythia8"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/GeometrySurface"/>
@@ -25,4 +26,5 @@
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/Math"/>
 <flags   EDM_PLUGIN="1"/>

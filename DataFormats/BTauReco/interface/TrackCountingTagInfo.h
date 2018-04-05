@@ -24,7 +24,7 @@ class TrackCountingTagInfo : public JTATagInfo
 
   TrackCountingTagInfo() {}
   
-  virtual ~TrackCountingTagInfo() {}
+  ~TrackCountingTagInfo() override {}
   
   /* virtual const Track & track(size_t n,int ipType) const
   {
@@ -75,7 +75,7 @@ class TrackCountingTagInfo : public JTATagInfo
    else return m_significance2d.size();
   }   
   
-  virtual TrackCountingTagInfo* clone() const { return new TrackCountingTagInfo( * this ); }
+  TrackCountingTagInfo* clone() const override { return new TrackCountingTagInfo( * this ); }
  
   private:
    std::vector<double> m_significance2d;  //create a smarter container instead of 

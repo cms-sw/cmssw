@@ -2,6 +2,10 @@ LogTrace was used to send this message
 %MSG-d cat_B:  UnitTestClient_Hd:sendSomeMessages Run: 1 Event: 1 UnitTestClient_Hd.cc:20
 LogDebug was used to send this other message
 %MSG
+IfLogTrace was used to send this message
+%MSG-d cat_B:  UnitTestClient_Hd:sendSomeMessages Run: 1 Event: 1 UnitTestClient_Hd.cc:23
+IfLogDebug was used to send this other message
+%MSG
 LogVerbatim was used to send this message
 %MSG-i cat_B:  UnitTestClient_Hd:sendSomeMessages Run: 1 Event: 1
 LogInfo was used to send this other message
@@ -9,6 +13,10 @@ LogInfo was used to send this other message
 LogTrace was used to send this message
 %MSG-d cat_B:  UnitTestClient_Hd:sendSomeMessages Run: 1 Event: 2 UnitTestClient_Hd.cc:20
 LogDebug was used to send this other message
+%MSG
+IfLogTrace was used to send this message
+%MSG-d cat_B:  UnitTestClient_Hd:sendSomeMessages Run: 1 Event: 2 UnitTestClient_Hd.cc:23
+IfLogDebug was used to send this other message
 %MSG
 LogVerbatim was used to send this message
 %MSG-i cat_B:  UnitTestClient_Hd:sendSomeMessages Run: 1 Event: 2

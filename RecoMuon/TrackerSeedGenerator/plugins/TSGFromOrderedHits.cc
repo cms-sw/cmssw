@@ -11,7 +11,7 @@
 
 
 TSGFromOrderedHits::TSGFromOrderedHits(const edm::ParameterSet &pset,edm::ConsumesCollector & iC)
-  : theLastRun(0), theConfig(pset), theGenerator(0)
+  : theLastRun(0), theConfig(pset), theGenerator(nullptr)
 {
   edm::ParameterSet hitsfactoryPSet =
       theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
@@ -22,7 +22,7 @@ TSGFromOrderedHits::TSGFromOrderedHits(const edm::ParameterSet &pset,edm::Consum
   edm::ParameterSet seedCreatorPSet = theConfig.getParameter<edm::ParameterSet>("SeedCreatorPSet");
   std::string seedCreatorType = seedCreatorPSet.getParameter<std::string>("ComponentName");
 
-  theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, 0, 
+  theGenerator = new SeedGeneratorFromRegionHits(hitsGenerator, nullptr, 
 						 SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet)
 						 );
 

@@ -37,7 +37,7 @@ class ProxyFactoryBase
       virtual ~ProxyFactoryBase() {}
 
       // ---------- const member functions ---------------------
-      virtual std::auto_ptr<DataProxy> makeProxy() const = 0;
+      virtual std::unique_ptr<DataProxy> makeProxy() const = 0;
       
       virtual DataKey makeKey(const std::string& iName) const = 0;
       // ---------- static member functions --------------------
@@ -45,9 +45,9 @@ class ProxyFactoryBase
       // ---------- member functions ---------------------------
 
    private:
-      ProxyFactoryBase(const ProxyFactoryBase&); // stop default
+      ProxyFactoryBase(const ProxyFactoryBase&) = delete; // stop default
 
-      const ProxyFactoryBase& operator=(const ProxyFactoryBase&); // stop default
+      const ProxyFactoryBase& operator=(const ProxyFactoryBase&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

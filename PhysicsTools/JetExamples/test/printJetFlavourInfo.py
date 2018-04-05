@@ -60,11 +60,12 @@ process.jetFlavourInfosAK8PFJets = cms.EDProducer("JetFlavourClustering",
     subjets                  = cms.InputTag("ak8PFJetsPruned", "SubJets"),
     bHadrons                 = cms.InputTag("selectedHadronsAndPartons","bHadrons"),
     cHadrons                 = cms.InputTag("selectedHadronsAndPartons","cHadrons"),
-    partons                  = cms.InputTag("selectedHadronsAndPartons","partons"),
+    partons                  = cms.InputTag("selectedHadronsAndPartons","algorithmicPartons"),
+    leptons                  = cms.InputTag("selectedHadronsAndPartons","leptons"),
     jetAlgorithm             = cms.string("AntiKt"),
     rParam                   = cms.double(0.8),
     ghostRescaling           = cms.double(1e-18),
-    hadronFlavourHasPriority = cms.bool(True)
+    hadronFlavourHasPriority = cms.bool(False)
 )
 
 process.printEventAK8PFJets = cms.EDAnalyzer("printJetFlavourInfo",
@@ -109,11 +110,12 @@ process.jetFlavourInfosCA15PFJets = cms.EDProducer("JetFlavourClustering",
     subjets                  = cms.InputTag("caHEPTopTagJets", "caTopSubJets"),
     bHadrons                 = cms.InputTag("selectedHadronsAndPartons","bHadrons"),
     cHadrons                 = cms.InputTag("selectedHadronsAndPartons","cHadrons"),
-    partons                  = cms.InputTag("selectedHadronsAndPartons","partons"),
+    partons                  = cms.InputTag("selectedHadronsAndPartons","algorithmicPartons"),
+    leptons                  = cms.InputTag("selectedHadronsAndPartons","leptons"),
     jetAlgorithm             = cms.string("CambridgeAachen"),
     rParam                   = cms.double(1.5),
     ghostRescaling           = cms.double(1e-18),
-    hadronFlavourHasPriority = cms.bool(True)
+    hadronFlavourHasPriority = cms.bool(False)
 )
 
 process.printEventCA15PFJets = cms.EDAnalyzer("printJetFlavourInfo",

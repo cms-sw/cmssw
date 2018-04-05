@@ -1,5 +1,5 @@
 #include "HtrXmlPatternSet.h"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 ChannelPattern::ChannelPattern() {
@@ -43,7 +43,7 @@ void ChannelPattern::Fill_by_hand(const HcalElectronicsMap *emap,int pattern_num
   iCrate=6 ; dcc9[iCrate]=728; dcc19[iCrate]=729;
   iCrate=13; dcc9[iCrate]=730; dcc19[iCrate]=731;
 
-  int *dcc=0;
+  int *dcc=nullptr;
   int spigot=-100;
   if (m_slot>=2 && m_slot<=8) {
     spigot=2*m_slot-m_tb-3;
@@ -207,7 +207,7 @@ CrateData::CrateData(int crate, int slotsActive[ChannelPattern::NUM_SLOTS]) {
   for (int slot=0; slot<ChannelPattern::NUM_SLOTS; slot++) {
     for (int tb=0;tb<2;tb++) {
       if (slotsActive[slot]) m_slotsDoubled[slot][tb] = new HalfHtrData(crate,slot,tb);
-      else                   m_slotsDoubled[slot][tb] = 0;
+      else                   m_slotsDoubled[slot][tb] = nullptr;
     }
   }
 }
@@ -222,13 +222,13 @@ CrateData::~CrateData() {
 
 HalfHtrData* CrateData::getHalfHtrData(int slot, int tb) {
   if ( slot>=0 && slot<ChannelPattern::NUM_SLOTS && (tb==0 || tb==1) ) return m_slotsDoubled[slot][tb];
-  else return 0;
+  else return nullptr;
 }
 
 HtrXmlPatternSet::HtrXmlPatternSet(int cratesActive[ChannelPattern::NUM_CRATES], int slotsActive[ChannelPattern::NUM_SLOTS]) {
   for (int crate=0; crate<ChannelPattern::NUM_CRATES; crate++) {
     if (cratesActive[crate]) m_crates[crate] = new CrateData(crate,slotsActive);
-    else                     m_crates[crate] = 0;
+    else                     m_crates[crate] = nullptr;
   }
 }
 
@@ -240,5 +240,5 @@ HtrXmlPatternSet::~HtrXmlPatternSet() {
 
 CrateData* HtrXmlPatternSet::getCrate(int crate) {
   if (crate>=0 && crate<ChannelPattern::NUM_CRATES) return m_crates[crate];
-  else return 0;
+  else return nullptr;
 }

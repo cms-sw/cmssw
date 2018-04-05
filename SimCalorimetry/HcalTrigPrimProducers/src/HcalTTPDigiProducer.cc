@@ -115,7 +115,7 @@ void HcalTTPDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSet
     eventSetup.get<HcalTPGRecord>().get(inputCoder) ;
 
     // Step B: Create empty output
-    std::auto_ptr<HcalTTPDigiCollection> ttpResult(new HcalTTPDigiCollection()) ; 
+    std::unique_ptr<HcalTTPDigiCollection> ttpResult(new HcalTTPDigiCollection()) ;
     
     // Step C: Compute TTP inputs
     uint16_t trigInputs[40] ;
@@ -167,6 +167,6 @@ void HcalTTPDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSet
     ttpResult->push_back( ttpDigi ) ;
     
     // Step E: Put outputs into event
-    e.put(ttpResult);
+    e.put(std::move(ttpResult));
 }
 

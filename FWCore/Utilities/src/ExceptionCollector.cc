@@ -6,6 +6,25 @@
 
 namespace edm {
 
+  class MultipleException : public cms::Exception {
+  public:
+    MultipleException(int iReturnValue,
+                      std::string const& iMessage):
+    cms::Exception("MultipleExceptions", iMessage),
+    returnValue_(iReturnValue) {}
+    
+    Exception* clone() const override {
+      return new MultipleException(*this);
+    }
+
+  private:
+    int returnCode_() const override {
+      return returnValue_;
+    }
+
+    int returnValue_;
+  };
+  
   ExceptionCollector::ExceptionCollector(std::string const& initialMessage) :
     initialMessage_(initialMessage),
     firstException_(),
@@ -42,7 +61,7 @@ namespace edm {
       ++nExceptions_;
       if (nExceptions_ == 1) {
         firstException_.reset(ex.clone());
-        accumulatedExceptions_.reset(new cms::Exception("MultipleExceptions", initialMessage_));
+        accumulatedExceptions_.reset(new MultipleException(ex.returnCode(), initialMessage_));
       }
       *accumulatedExceptions_ << nExceptions_ << "\n"
                               << ex.explainSelf();
@@ -54,7 +73,7 @@ namespace edm {
     ++nExceptions_;
     if (nExceptions_ == 1) {
       firstException_.reset(exception.clone());
-      accumulatedExceptions_.reset(new cms::Exception("MultipleExceptions", initialMessage_));
+      accumulatedExceptions_.reset(new MultipleException(exception.returnCode(), initialMessage_));
     }
     *accumulatedExceptions_ << "----- Exception " << nExceptions_ << " -----"
                             << "\n"

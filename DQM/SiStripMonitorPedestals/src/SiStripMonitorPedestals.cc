@@ -37,6 +37,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TProfile.h"
 // std
@@ -58,7 +59,7 @@ SiStripMonitorPedestals::SiStripMonitorPedestals(edm::ParameterSet const& iConfi
   signalCutPeds_(4),
   nEvTot_(0),
   nIteration_(0),
-  apvFactory_(0),
+  apvFactory_(nullptr),
   m_cacheID_(0)
 {
   // retrieve producer name of input StripDigiCollection
@@ -82,11 +83,6 @@ SiStripMonitorPedestals::~SiStripMonitorPedestals()
   edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals  " 
 					  << " Destructing...... ";     
   if (apvFactory_) {delete apvFactory_;} 
-}
-//
-// -- Begin Job
-//
-void SiStripMonitorPedestals::beginJob() {
 }
 //
 // -- BeginRun
@@ -115,7 +111,7 @@ void SiStripMonitorPedestals::createMEs(DQMStore::IBooker & ibooker , const edm:
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   std::vector<uint32_t> SelectedDetIds;
@@ -160,20 +156,20 @@ void SiStripMonitorPedestals::createMEs(DQMStore::IBooker & ibooker , const edm:
   
     if( newDetId ) {
       ModMEs local_modmes;
-      local_modmes.PedsPerStrip = 0;
-      local_modmes.PedsDistribution = 0;      
-      local_modmes.PedsEvolution = 0;
-      local_modmes.CMSubNoisePerStrip = 0;
-      local_modmes.RawNoisePerStrip = 0;
-      local_modmes.CMSubNoiseProfile = 0;
-      local_modmes.RawNoiseProfile = 0;
-      local_modmes.NoisyStrips = 0;
-      local_modmes.NoisyStripDistribution = 0;
-      local_modmes.CMDistribution = 0;
-      local_modmes.CMSlopeDistribution = 0;
-      local_modmes.PedsPerStripDB = 0;
-      local_modmes.CMSubNoisePerStripDB = 0;
-      local_modmes.BadStripsDB = 0;
+      local_modmes.PedsPerStrip = nullptr;
+      local_modmes.PedsDistribution = nullptr;      
+      local_modmes.PedsEvolution = nullptr;
+      local_modmes.CMSubNoisePerStrip = nullptr;
+      local_modmes.RawNoisePerStrip = nullptr;
+      local_modmes.CMSubNoiseProfile = nullptr;
+      local_modmes.RawNoiseProfile = nullptr;
+      local_modmes.NoisyStrips = nullptr;
+      local_modmes.NoisyStripDistribution = nullptr;
+      local_modmes.CMDistribution = nullptr;
+      local_modmes.CMSlopeDistribution = nullptr;
+      local_modmes.PedsPerStripDB = nullptr;
+      local_modmes.CMSubNoisePerStripDB = nullptr;
+      local_modmes.BadStripsDB = nullptr;
 
       std::string hid;
       // set appropriate folder using SiStripFolderOrganizer
@@ -301,7 +297,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
     // get iterators for digis belonging to one DetId, it is an iterator, i.e. one element of the vector      
     std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = digi_collection->find( detid );
     if (digis == digi_collection->end() ||
-        digis->data.size() == 0 || 
+        digis->data.empty() || 
         digis->data.size() > 768) {
       if (digis == digi_collection->end()) {
         edm::LogError("SiStripMonitorPedestals") << " SiStripMonitorPedestals::analyze: Event " <<  nEvTot_ 
@@ -335,7 +331,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
     apvFactory_->update(id, (*digis));
       
     if(nEvTot_ > theEventInitNumber_) {
-      if(local_modmes.CMDistribution != NULL){ 
+      if(local_modmes.CMDistribution != nullptr){ 
 	std::vector<float> tmp;
 	tmp.clear();
 	apvFactory_->getCommonMode(id, tmp);
@@ -349,7 +345,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	    
 	}
       }
-      if(local_modmes.CMSlopeDistribution != NULL){ 
+      if(local_modmes.CMSlopeDistribution != nullptr){ 
 	std::vector<float> tmp;
 	tmp.clear();
         int iapv = 0;
@@ -368,13 +364,13 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	std::vector<float> tmp;
 	tmp.clear();
 	apvFactory_->getPedestal(id, tmp);
-	if(local_modmes.PedsPerStrip != NULL){ 
+	if(local_modmes.PedsPerStrip != nullptr){ 
 	  int numberOfApvs = int(tmp.size()/128.);
 	  for(int i=0; i<numberOfApvs;i++){
 	    std::vector<float> myPedPerApv;
 	    apvFactory_->getPedestal(id, i, myPedPerApv);
 	    float avarage = 0;
-	    avarage = accumulate(myPedPerApv.begin(), myPedPerApv.end(), avarage);
+	    avarage = std::accumulate(myPedPerApv.begin(), myPedPerApv.end(), avarage);
 	    avarage = avarage/128.;
 	    (local_modmes.PedsEvolution)->setBinContent(i+1,nIteration_,avarage);
 	      
@@ -394,7 +390,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	  }
 	}
 	  
-	if(local_modmes.CMSubNoisePerStrip != NULL && local_modmes.CMSubNoiseProfile != NULL){ 
+	if(local_modmes.CMSubNoisePerStrip != nullptr && local_modmes.CMSubNoiseProfile != nullptr){ 
 	  tmp.clear();
 	  apvFactory_->getNoise(id, tmp);
 	  int ibin=0;
@@ -412,7 +408,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	}
 
 	  
-	if(local_modmes.RawNoisePerStrip != NULL && local_modmes.RawNoiseProfile != NULL){ 
+	if(local_modmes.RawNoisePerStrip != nullptr && local_modmes.RawNoiseProfile != nullptr){ 
 	  tmp.clear();
 	  apvFactory_->getRawNoise(id, tmp);
 	  int ibin=0;
@@ -428,7 +424,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	  }
 	}
 
-	if(local_modmes.NoisyStrips != NULL){ 
+	if(local_modmes.NoisyStrips != nullptr){ 
 	  TkApvMask::MaskType temp;
 	  apvFactory_->getMask(id, temp);
 	  int ibin=0;

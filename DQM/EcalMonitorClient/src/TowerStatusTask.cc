@@ -109,9 +109,9 @@ namespace ecaldqm {
   void
   TowerStatusTask::producePlotsTask_(float const* _status, std::string const& _type)
   {
-    MESet* meSummary(0);
-    MESet* meSummaryMap(0);
-    MESet* meContents(0);
+    MESet* meSummary(nullptr);
+    MESet* meSummaryMap(nullptr);
+    MESet* meContents(nullptr);
     meSummary = &MEs_.at(_type + "Summary");
     meSummaryMap = &MEs_.at(_type + "SummaryMap");
     meContents = &MEs_.at(_type + "Contents");

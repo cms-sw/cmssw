@@ -26,13 +26,9 @@ KDTreeLinkerPSEcal::~KDTreeLinkerPSEcal()
 void
 KDTreeLinkerPSEcal::insertTargetElt(reco::PFBlockElement	*psCluster)
 {
-  reco::PFClusterRef clusterref = psCluster->clusterRef();
-
   // This test is more or less done in PFBlockAlgo.h. In others cases, it should be switch on.
-  //   if (!((clusterref->layer() == PFLayer::PS1) || 
-  // 	(clusterref->layer() == PFLayer::PS2)))
-  //     return;
-
+  //if (!((psCluster->clusterRef()->layer() == PFLayer::PS1) || (psCluster->clusterRef()->layer() == PFLayer::PS2)))
+  //  return;
   targetSet_.insert(psCluster);
 }
 
@@ -40,7 +36,7 @@ KDTreeLinkerPSEcal::insertTargetElt(reco::PFBlockElement	*psCluster)
 void
 KDTreeLinkerPSEcal::insertFieldClusterElt(reco::PFBlockElement	*ecalCluster)
 {
-  reco::PFClusterRef clusterref = ecalCluster->clusterRef();
+  const reco::PFClusterRef& clusterref = ecalCluster->clusterRef();
 
   if (clusterref->layer() != PFLayer::ECAL_ENDCAP)
     return;
@@ -89,9 +85,9 @@ KDTreeLinkerPSEcal::buildTree(const RecHitSet	&rechitsSet,
       it != rechitsSet.end(); it++) {
 
     const reco::PFRecHit* rh = *it;
-    const math::XYZPoint& posxyz = rh->position();
+    const auto & posxyz = rh->position();
         
-    KDTreeNodeInfo rhinfo (rh, posxyz.X(), posxyz.Y());
+    KDTreeNodeInfo rhinfo (rh, posxyz.x(), posxyz.y());
     eltList.push_back(rhinfo);
   }
 
@@ -171,8 +167,7 @@ KDTreeLinkerPSEcal::searchLinks()
     for(std::vector<KDTreeNodeInfo>::const_iterator rhit = recHits.begin(); 
 	rhit != recHits.end(); ++rhit) {
            
-      const std::vector< math::XYZPoint >& corners = rhit->ptr->getCornersXYZ();
-      if(corners.size() != 4) continue;
+      const auto & corners = rhit->ptr->getCornersXYZ();
 
       // Find all clusters associated to given rechit
       RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(rhit->ptr);
@@ -181,16 +176,16 @@ KDTreeLinkerPSEcal::searchLinks()
 	  clusterIt != ret->second.end(); clusterIt++) {
 	
 	reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
-	double clusterz = clusterref->position().Z();
+	double clusterz = clusterref->position().z();
 
-	const math::XYZPoint& posxyz = rhit->ptr->position() * zPS / clusterz;
+	const auto & posxyz = rhit->ptr->position() * zPS / clusterz;
 
 	double x[5];
 	double y[5];
 	for ( unsigned jc=0; jc<4; ++jc ) {
-	  math::XYZPoint cornerpos = corners[jc] * zPS / clusterz;
-	  x[jc] = cornerpos.X() + (cornerpos.X()-posxyz.X()) * (0.05 +1.0/fabs((cornerpos.X()-posxyz.X()))*deltaX/2.);
-	  y[jc] = cornerpos.Y() + (cornerpos.Y()-posxyz.Y()) * (0.05 +1.0/fabs((cornerpos.Y()-posxyz.Y()))*deltaY/2.);
+	  auto cornerpos = corners[jc].basicVector() * zPS / clusterz;
+	  x[3-jc] = cornerpos.x() + (cornerpos.x()-posxyz.x()) * (0.05 +1.0/fabs((cornerpos.x()-posxyz.x()))*deltaX/2.);
+	  y[3-jc] = cornerpos.y() + (cornerpos.y()-posxyz.y()) * (0.05 +1.0/fabs((cornerpos.y()-posxyz.y()))*deltaY/2.);
 	}
 
 	x[4] = x[0];
@@ -222,10 +217,10 @@ KDTreeLinkerPSEcal::updatePFBlockEltWithLinks()
     for (BlockEltSet::iterator jt = it->second.begin();
 	 jt != it->second.end(); ++jt) {
 
-      double clusterPhi = (*jt)->clusterRef()->positionREP().Phi();
-      double clusterEta = (*jt)->clusterRef()->positionREP().Eta();
+      double clusterphi = (*jt)->clusterRef()->positionREP().phi();
+      double clustereta = (*jt)->clusterRef()->positionREP().eta();
 
-      multitracks.linkedClusters.push_back(std::make_pair(clusterPhi, clusterEta));
+      multitracks.linkedClusters.push_back(std::make_pair(clusterphi, clustereta));
     }
 
     it->first->setMultilinks(multitracks);

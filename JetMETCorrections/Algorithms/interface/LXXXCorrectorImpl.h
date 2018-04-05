@@ -36,13 +36,13 @@ class LXXXCorrectorImpl : public reco::JetCorrectorImpl
     LXXXCorrectorImpl(std::shared_ptr<FactorizedJetCorrectorCalculator const> calculator, unsigned int level);
 
     //----- apply correction using Jet information only -------
-    virtual double correction(const LorentzVector& fJet) const override;
+    double correction(const LorentzVector& fJet) const override;
 
     //----- apply correction using Jet information only -------
-    virtual double correction(const reco::Jet& fJet) const override;
+    double correction(const reco::Jet& fJet) const override;
 
     //----- if correction needs a jet reference -------------
-    virtual bool refRequired() const override { return false; }
+    bool refRequired() const override { return false; }
 
   private:
     //----- member data ---------------------------------------

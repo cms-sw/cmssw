@@ -7,7 +7,6 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondCore/DBOutputService"/>
-<use   name="CondCore/DBCommon"/>
 <export>
   <lib   name="1"/>
 </export>

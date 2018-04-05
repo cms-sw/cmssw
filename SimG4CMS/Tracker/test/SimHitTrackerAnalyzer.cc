@@ -31,11 +31,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -53,10 +50,10 @@
 class SimHitTrackerAnalyzer : public edm::EDAnalyzer {
    public:
       explicit SimHitTrackerAnalyzer( const edm::ParameterSet& );
-      ~SimHitTrackerAnalyzer();
+      ~SimHitTrackerAnalyzer() override;
 
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
+      void analyze( const edm::Event&, const edm::EventSetup& ) override;
    private:
       // ----------member data ---------------------------
   std::string HepMCLabel;
@@ -77,7 +74,7 @@ class SimHitTrackerAnalyzer : public edm::EDAnalyzer {
 // constructors and destructor
 //
 SimHitTrackerAnalyzer::SimHitTrackerAnalyzer( const edm::ParameterSet& iConfig ):
-  HepMCLabel(iConfig.getUntrackedParameter("moduleLabelMC",std::string("FlatRandomPtGunSource"))),
+  HepMCLabel(iConfig.getUntrackedParameter("moduleLabelMC",std::string("FlatRandomPtGunProducer"))),
   SimTkLabel(iConfig.getUntrackedParameter("moduleLabelTk",std::string("g4SimHits"))),
   SimVtxLabel(iConfig.getUntrackedParameter("moduleLabelVtx",std::string("g4SimHits"))),
   SimHitLabel(iConfig.getUntrackedParameter("moduleLabelHit",std::string("g4SimHits")))

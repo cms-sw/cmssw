@@ -27,7 +27,11 @@ es_pool = cms.ESSource("PoolDBESSource",
         cms.PSet(
             record = cms.string('HcalQIEDataRcd'),
             tag = cms.string('qie_normalmode_v6.01')
-        ), 
+        ),
+        cms.PSet(
+            record = cms.string('HcalQIETypesRcd'),
+            tag = cms.string('HcalQIETypes_test_v0')
+        ),
         cms.PSet(
             record = cms.string('HcalChannelQualityRcd'),
             tag = cms.string('hcal_channelStatus_trivial_mc')

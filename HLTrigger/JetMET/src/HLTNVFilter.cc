@@ -34,7 +34,7 @@ HLTNVFilter::HLTNVFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
    m_theMETToken = consumes<trigger::TriggerFilterObjectWithRefs>(inputMETTag_);
 }
 
-HLTNVFilter::~HLTNVFilter(){}
+HLTNVFilter::~HLTNVFilter()= default;
 
 
 void HLTNVFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -86,7 +86,7 @@ HLTNVFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigge
     etmiss=vrefMET.at(0)->et();
 
     CaloJetRef ref1,ref2;
-    for (CaloJetCollection::const_iterator recocalojet = recocalojets->begin();
+    for (auto recocalojet = recocalojets->begin();
 	 recocalojet<=(recocalojets->begin()+1); recocalojet++) {
 
       if(countjets==0) {

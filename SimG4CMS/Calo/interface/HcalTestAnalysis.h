@@ -14,6 +14,7 @@
 #include "SimG4CMS/Calo/interface/HcalTestHistoManager.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 #include <iostream>
 #include <memory>
@@ -40,15 +41,15 @@ class HcalTestAnalysis : public SimWatcher,
 
 public:
   HcalTestAnalysis(const edm::ParameterSet &p);
-  virtual ~HcalTestAnalysis();
+  ~HcalTestAnalysis() override;
 
 private:
   // observer classes
-  void update(const BeginOfJob * run);
-  void update(const BeginOfRun * run);
-  void update(const BeginOfEvent * evt);
-  void update(const EndOfEvent * evt);
-  void update(const G4Step * step);
+  void update(const BeginOfJob * run) override;
+  void update(const BeginOfRun * run) override;
+  void update(const BeginOfEvent * evt) override;
+  void update(const EndOfEvent * evt) override;
+  void update(const G4Step * step) override;
 
   // analysis-related stuff
   std::vector<int> layerGrouping(int);
@@ -68,12 +69,13 @@ private:
   int                       addTower;
 
   // Private Tuples
-  std::auto_ptr<HcalTestHistoManager>    tuplesManager;
-  HcalTestHistoClass   *    tuples;
+  std::unique_ptr<HcalTestHistoManager>    tuplesManager;
+  HcalTestHistoClass        *tuples;
 
   // Numbering scheme
-  HcalNumberingFromDDD *    numberingFromDDD;
-  HcalTestNumberingScheme * org;
+  HcalNumberingFromDDD      *numberingFromDDD;
+  HcalDDDSimConstants       *hcons;
+  HcalTestNumberingScheme   *org;
 
   // Hits for qie analysis
   std::vector<CaloHit>      caloHitCache; 

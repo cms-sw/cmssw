@@ -17,20 +17,21 @@
 // Author:      
 // Created:     Tue Aug  9 19:10:36 CDT 2005
 //
-#include "boost/mpl/vector.hpp"
+#include "boost/mpl/vector/vector30.hpp"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 // #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
 #include "CondFormats/DataRecord/interface/HcalAllRcds.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 // class HcalDbRecord : public edm::eventsetup::EventSetupRecordImplementation<HcalDbRecord> {};
 
 class HcalDbRecord : public edm::eventsetup::DependentRecordImplementation <HcalDbRecord,  
-  boost::mpl::vector<IdealGeometryRecord, HcalPedestalsRcd, HcalPedestalWidthsRcd, HcalGainsRcd, HcalGainWidthsRcd, 
-  HcalQIEDataRcd, HcalChannelQualityRcd, HcalZSThresholdsRcd, HcalRespCorrsRcd, 
+  boost::mpl::vector25<HcalRecNumberingRecord, IdealGeometryRecord, HcalPedestalsRcd, HcalPedestalWidthsRcd, HcalGainsRcd, HcalGainWidthsRcd,
+  HcalQIEDataRcd, HcalQIETypesRcd, HcalChannelQualityRcd, HcalZSThresholdsRcd, HcalRespCorrsRcd, 
   HcalL1TriggerObjectsRcd, HcalElectronicsMapRcd, HcalTimeCorrsRcd, HcalLUTCorrsRcd, HcalPFCorrsRcd,
-  HcalLutMetadataRcd > > {}; 
+  HcalFrontEndMapRcd, HcalSiPMCharacteristicsRcd, HcalSiPMParametersRcd, HcalTPParametersRcd, HcalTPChannelParametersRcd,
+  HcalLutMetadataRcd, HcalMCParamsRcd, HcalRecoParamsRcd, HcalTimeSlewRecord > > {};
 
 #endif /* HCALDBPRODUCER_HCALDBRECORD_H */
-

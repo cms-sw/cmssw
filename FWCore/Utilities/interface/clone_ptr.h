@@ -2,7 +2,6 @@
 #define FWCore_Utilities_clone_ptr_h
 
 #include<memory>
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace extstd {
 

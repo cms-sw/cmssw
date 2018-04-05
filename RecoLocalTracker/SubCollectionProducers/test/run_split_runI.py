@@ -66,6 +66,7 @@ process.load("TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi
 process.trajectoryCleanerBySharedHits.fractionShared = 0.0
 process.trajectoryCleanerBySharedHits.allowSharedFirstHit = False
 process.load("RecoTracker.FinalTrackSelectors.simpleTrackListMerger_cfi")
+process.load("RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi")
 process.simpleTrackListMerger.ShareFrac = 0.0
 process.simpleTrackListMerger.allowFirstHitShare = False
 
@@ -140,7 +141,7 @@ del process.PixelLessStep
 del process.TobTecStep
 
 # Load the new Iterative Tracking configuration
-process.load("RecoTracker.Configuration.RecoTrackerRunI_cff")
+raise Exception("Please migrate to use Run2_2016_trackingLowPU era (or otherwise use trackingLowPU sub-era)")
 
 process.globalreco.insert(tgrIndex, process.trackingGlobalReco)
 process.reconstruction_fromRECO.insert(tgrIndexFromReco, process.trackingGlobalReco)

@@ -3,7 +3,7 @@ from ROOT import *
 
 # prepare the FWLite autoloading mechanism
 gSystem.Load("libFWCoreFWLite.so")
-AutoLibraryLoader.enable()
+FWLiteEnabler::enable()
 
 # access the event tree
 events = EventTree("generatorOutput.root")

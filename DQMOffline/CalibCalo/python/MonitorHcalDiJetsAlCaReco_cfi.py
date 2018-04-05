@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-MonitorHcalDiJetsAlCaReco = cms.EDAnalyzer("DQMHcalDiJetsAlCaReco",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+MonitorHcalDiJetsAlCaReco = DQMEDAnalyzer('DQMHcalDiJetsAlCaReco',
 FolderName=cms.untracked.string("AlCaReco/HcalDiJets"),
 SaveToFile=cms.untracked.bool(False),
 FileName=cms.untracked.string("HcalDiJetsAlCaRecoMon.root"),

@@ -16,7 +16,7 @@
 
 /// To be called from the ED module's c'tor
 TriggerHelper::TriggerHelper( const edm::ParameterSet & config )
-  : watchDB_( 0 )
+  : watchDB_( nullptr )
   , gtDBKey_( "" )
   , l1DBKey_( "" )
   , hltDBKey_( "" )
@@ -97,15 +97,15 @@ void TriggerHelper::initRun( const edm::Run & run, const edm::EventSetup & setup
   // FIXME Can this stay safely in the run loop, or does it need to go to the event loop?
   // Means: Are the event setups identical?
   if ( watchDB_->check( setup ) ) {
-    if ( onGt_ && gtDBKey_.size() > 0 ) {
+    if ( onGt_ && !gtDBKey_.empty() ) {
       const std::vector< std::string > exprs( expressionsFromDB( gtDBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) gtLogicalExpressions_ = exprs;
     }
-    if ( onL1_ && l1DBKey_.size() > 0 ) {
+    if ( onL1_ && !l1DBKey_.empty() ) {
       const std::vector< std::string > exprs( expressionsFromDB( l1DBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) l1LogicalExpressions_ = exprs;
     }
-    if ( onHlt_ && hltDBKey_.size() > 0 ) {
+    if ( onHlt_ && !hltDBKey_.empty() ) {
       const std::vector< std::string > exprs( expressionsFromDB( hltDBKey_, setup ) );
       if ( exprs.empty() || exprs.at( 0 ) != configError_ ) hltLogicalExpressions_ = exprs;
     }
@@ -113,7 +113,7 @@ void TriggerHelper::initRun( const edm::Run & run, const edm::EventSetup & setup
 
   hltConfigInit_ = false;
   if ( onHlt_ ) {
-    if ( hltInputTag_.process().size() == 0 ) {
+    if ( hltInputTag_.process().empty() ) {
       edm::LogError( "TriggerHelper" ) << "HLT TriggerResults InputTag \"" << hltInputTag_.encode() << "\" specifies no process";
     } else {
       bool hltChanged( false );
@@ -290,7 +290,7 @@ bool TriggerHelper::acceptL1( const edm::Event & event, const edm::EventSetup & 
   if ( ! onL1_ || l1LogicalExpressions_.empty() ) return ( ! andOr_ ); // logically neutral, depending on base logical connective
 
   // Getting the L1 event setup
-  l1Gt_.retrieveL1EventSetup( setup ); // FIXME This can possibly go to initRun()
+  l1Gt_->retrieveL1EventSetup( setup ); // FIXME This can possibly go to initRun()
 
   // Determine decision of L1 logical expression combination and return
   if ( andOrL1_ ) { // OR combination
@@ -330,7 +330,7 @@ bool TriggerHelper::acceptL1LogicalExpression( const edm::Event & event, std::st
   for ( size_t iAlgorithm = 0; iAlgorithm < l1AlgoLogicParser.operandTokenVector().size(); ++iAlgorithm ) {
     const std::string l1AlgoName( l1AlgoLogicParser.operandTokenVector().at( iAlgorithm ).tokenName );
     int error( -1 );
-    const bool decision( l1Gt_.decision( event, l1AlgoName, error ) );
+    const bool decision( l1Gt_->decision( event, l1AlgoName, error ) );
     // Error checks
     if ( error != 0 ) {
       if ( error == 1 ) edm::LogError( "TriggerHelper" ) << "L1 algorithm \"" << l1AlgoName << "\" does not exist in the L1 menu ==> decision: "                                          << errorReplyL1_;

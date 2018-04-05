@@ -42,12 +42,12 @@ class TtSemiLepKinFitter : public TopKinFitter {
   /// constructor initialized with built-in types and class enum's custom parameters
   explicit TtSemiLepKinFitter(Param jetParam, Param lepParam, Param metParam, int maxNrIter, double maxDeltaS, double maxF,
 			      const std::vector<Constraint>& constraints, double mW=80.4, double mTop=173.,
-			      const std::vector<edm::ParameterSet>* udscResolutions=0, 
-			      const std::vector<edm::ParameterSet>* bResolutions   =0,
-			      const std::vector<edm::ParameterSet>* lepResolutions =0, 
-			      const std::vector<edm::ParameterSet>* metResolutions =0,
-			      const std::vector<double>* jetEnergyResolutionScaleFactors=0,
-			      const std::vector<double>* jetEnergyResolutionEtaBinning  =0);
+			      const std::vector<edm::ParameterSet>* udscResolutions=nullptr, 
+			      const std::vector<edm::ParameterSet>* bResolutions   =nullptr,
+			      const std::vector<edm::ParameterSet>* lepResolutions =nullptr, 
+			      const std::vector<edm::ParameterSet>* metResolutions =nullptr,
+			      const std::vector<double>* jetEnergyResolutionScaleFactors=nullptr,
+			      const std::vector<double>* jetEnergyResolutionEtaBinning  =nullptr);
   /// default destructor
   ~TtSemiLepKinFitter();
 

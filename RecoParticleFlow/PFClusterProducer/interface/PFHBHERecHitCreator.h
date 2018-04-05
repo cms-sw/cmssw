@@ -25,7 +25,7 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
       recHitToken_ = iC.consumes<edm::SortedCollection<HBHERecHit> >(iConfig.getParameter<edm::InputTag>("src"));
     }
 
-    void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
 
       beginEvent(iEvent,iSetup);
 
@@ -35,34 +35,29 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
       // get the ecal geometry
-      const CaloSubdetectorGeometry *hcalBarrelGeo = 
-	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-      const CaloSubdetectorGeometry *hcalEndcapGeo = 
-	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
+      const CaloSubdetectorGeometry *hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
+      const CaloSubdetectorGeometry *hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      
-	const HcalDetId& detid = (HcalDetId)erh.detid();
+	const HcalDetId detid = erh.idFront();
 	HcalSubdetector esd=(HcalSubdetector)detid.subdetId();
 	
-	double energy = erh.energy();
-	double time = erh.time();
-	int depth = detid.depth();
-
-	math::XYZVector position;
-	math::XYZVector axis;
+	auto energy = erh.energy();
+	auto time = erh.time();
+	auto depth = detid.depth();
 	
-	const CaloCellGeometry *thisCell=0;
+	std::shared_ptr<const CaloCellGeometry> thisCell = nullptr;
 	PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
 	switch(esd) {
 	case HcalBarrel:
-	  thisCell =hcalBarrelGeo->getGeometry(detid); 
-	  layer =PFLayer::HCAL_BARREL1;
+	  thisCell = hcalBarrelGeo->getGeometry(detid);
+	  layer    = PFLayer::HCAL_BARREL1;
 	  break;
 
 	case HcalEndcap:
-	  thisCell =hcalEndcapGeo->getGeometry(detid); 
-	  layer =PFLayer::HCAL_ENDCAP;
+	  thisCell = hcalEndcapGeo->getGeometry(detid);
+	  layer    = PFLayer::HCAL_ENDCAP;
 	  break;
 	default:
 	  break;
@@ -71,30 +66,15 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 	// find rechit geometry
 	if(!thisCell) {
 	  edm::LogError("PFHBHERecHitCreator")
-	    <<"warning detid "<<detid.rawId()
-	    <<" not found in geometry"<<std::endl;
+	    <<"warning detid "<<std::hex<<detid.rawId()<<std::dec<< " "
+	    <<detid<<" not found in geometry"<<std::endl;
 	  continue;
 	}
 
-	auto const point = thisCell->getPosition();
-	position.SetCoordinates ( point.x(),
-				  point.y(),
-				  point.z() );
-  
-	reco::PFRecHit rh( detid.rawId(),layer,
-			   energy, 
-			   position.x(), position.y(), position.z(), 
-			   0,0,0);
+	reco::PFRecHit rh(thisCell, detid.rawId(),layer,
+			   energy);
 	rh.setTime(time); //Mike: This we will use later
 	rh.setDepth(depth);
-	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
-	assert( corners.size() == 8 );
-
-	rh.setNECorner( corners[0].x(), corners[0].y(),  corners[0].z());
-	rh.setSECorner( corners[1].x(), corners[1].y(),  corners[1].z());
-	rh.setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z());
-	rh.setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z());
-	
 
 	bool rcleaned = false;
 	bool keep=true;
@@ -108,10 +88,10 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 	}
 	  
 	if(keep) {
-	  out->push_back(rh);
+	  out->push_back(std::move(rh));
 	}
 	else if (rcleaned) 
-	  cleaned->push_back(rh);
+	  cleaned->push_back(std::move(rh));
       }
     }
 

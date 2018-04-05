@@ -18,7 +18,7 @@ class LMFLmrSubIOV : public LMFUnique {
   LMFLmrSubIOV(EcalDBConnection *c);
   LMFLmrSubIOV(oracle::occi::Environment* env,
 	       oracle::occi::Connection* conn);
-  ~LMFLmrSubIOV();
+  ~LMFLmrSubIOV() override;
 
   LMFLmrSubIOV& setLMFIOV(const LMFIOV &iov);
   LMFLmrSubIOV& setLMFIOV(int i);
@@ -68,15 +68,10 @@ class LMFLmrSubIOV : public LMFUnique {
     return m_t[2];
   }
 
-  std::list<int> getIOVIDsLaterThan(const Tm &t)
-    throw(std::runtime_error);
-  std::list<int> getIOVIDsLaterThan(const Tm &tmin, const Tm &tmax)
-    throw(std::runtime_error);
-  std::list<int> getIOVIDsLaterThan(const Tm &t, int howMany)
-    throw(std::runtime_error);
-  std::list<int> getIOVIDsLaterThan(const Tm &t, const Tm &tmax,
-				    int howMany)
-    throw(std::runtime_error);
+  std::list<int> getIOVIDsLaterThan(const Tm &t) noexcept(false);
+  std::list<int> getIOVIDsLaterThan(const Tm &tmin, const Tm &tmax) noexcept(false);
+  std::list<int> getIOVIDsLaterThan(const Tm &t, int howMany) noexcept(false);
+  std::list<int> getIOVIDsLaterThan(const Tm &t, const Tm &tmax, int howMany) noexcept(false);
 
   // Operators
   inline bool operator==(const LMFLmrSubIOV &m) const
@@ -95,10 +90,10 @@ class LMFLmrSubIOV : public LMFUnique {
   int m_lmfIOV;
   Tm m_t[3];
 
-  std::string fetchIdSql(Statement *stmt);
-  std::string setByIDSql(Statement *stmt, int id);
-  std::string writeDBSql(Statement *stmt);
-  void getParameters(ResultSet *rset);
+  std::string fetchIdSql(Statement *stmt) override;
+  std::string setByIDSql(Statement *stmt, int id) override;
+  std::string writeDBSql(Statement *stmt) override;
+  void getParameters(ResultSet *rset) override;
   void init();
 };
 

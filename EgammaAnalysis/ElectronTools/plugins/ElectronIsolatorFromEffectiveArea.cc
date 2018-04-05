@@ -19,7 +19,7 @@ class ElectronIsolatorFromEffectiveArea : public edm::EDFilter {
   explicit ElectronIsolatorFromEffectiveArea(const edm::ParameterSet&);
 
  private:
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   edm::InputTag gsfElectronTag;
   edm::InputTag pfElectronTag;
   edm::InputTag patElectronTag;
@@ -58,7 +58,7 @@ ElectronIsolatorFromEffectiveArea(const edm::ParameterSet& config)
 bool ElectronIsolatorFromEffectiveArea::
 filter(edm::Event& event, const edm::EventSetup& )
 {
-  std::auto_ptr<CandDoubleMap> product(new CandDoubleMap());
+  std::unique_ptr<CandDoubleMap> product(new CandDoubleMap());
   CandDoubleMap::Filler filler(*product);
 
   edm::Handle<double> rho;                               event.getByToken(rhoIsoToken, rho);
@@ -94,7 +94,7 @@ filter(edm::Event& event, const edm::EventSetup& )
   }
 
   filler.fill();
-  event.put(product);
+  event.put(std::move(product));
   return true;
 }
 

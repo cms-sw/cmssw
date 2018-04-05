@@ -61,7 +61,7 @@ int main( int argc, char** argv )
 void printDiffErrors( std::vector<EntryData*>& entries1, std::vector<EntryData*>& entries2 )
 {
   std::vector<EntryData*>::const_iterator ite1;
-  for( ite1 = entries1.begin(); ite1 != entries1.end(); ite1++ ) {
+  for( ite1 = entries1.begin(); ite1 != entries1.end(); ++ite1 ) {
     EntryData* entry1 = *ite1;
     if( (entry1)->quality() == 2 ) {
       EntryData* entry2 = findEntryUnk( entry1, entries2 );
@@ -87,7 +87,7 @@ void printDiffErrors( std::vector<EntryData*>& entries1, std::vector<EntryData*>
 void printDiffValues( std::vector<EntryData*>& entries1, std::vector<EntryData*>& entries2 )
 {
   std::vector<EntryData*>::const_iterator ite1;
-  for( ite1 = entries1.begin(); ite1 != entries1.end(); ite1++ ) {
+  for( ite1 = entries1.begin(); ite1 != entries1.end(); ++ite1 ) {
     EntryData* entry1 = *ite1;
     if( (entry1)->quality() == 2 ) {
       EntryData* entry2 = findEntryUnk( entry1, entries2 );
@@ -108,7 +108,7 @@ EntryData* findEntryUnk( EntryData* entry1, std::vector<EntryData*> entries2 )
 {
 
   std::vector<EntryData*>::const_iterator ite2;
-  for( ite2 = entries2.begin(); ite2 != entries2.end(); ite2++ ) {
+  for( ite2 = entries2.begin(); ite2 != entries2.end(); ++ite2 ) {
     EntryData* entry2 = *ite2;
     if( entry2->longOptOName() == entry1->longOptOName() 
 	&& entry2->entryName() == entry1->entryName() ){

@@ -10,7 +10,7 @@
  *  (3) the ranking of several matches.
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/DeltaR.h"
@@ -60,10 +60,10 @@ namespace reco {
 					       typename C2::value_type>,
 					C1, C2 >
   >
-  class PhysObjectMatcher : public edm::EDProducer {
+  class PhysObjectMatcher : public edm::stream::EDProducer<> {
   public:
     PhysObjectMatcher(const edm::ParameterSet & cfg);
-    ~PhysObjectMatcher();
+    ~PhysObjectMatcher() override;
   private:
     typedef typename C1::value_type T1;
     typedef typename C2::value_type T2;
@@ -117,7 +117,7 @@ namespace reco {
     Handle<C1> cands;
     evt.getByToken(srcToken_, cands);
     // create product
-    auto_ptr<MatchMap> matchMap(new MatchMap(matched));
+    unique_ptr<MatchMap> matchMap(new MatchMap(matched));
     size_t size = cands->size();
     if( size != 0 ) {
       //
@@ -148,7 +148,7 @@ namespace reco {
 	  }
 	}
 	// if match(es) found and no global ambiguity resolution requested
-	if ( matchPairs.size()>0 && !resolveByMatchQuality_ ) {
+	if ( !matchPairs.empty() && !resolveByMatchQuality_ ) {
 	  // look for and store best match
 	  size_t idx = master.index(c);
 	  assert(idx < indices.size());
@@ -189,7 +189,7 @@ namespace reco {
       filler.insert(master.get(), indices.begin(), indices.end());
       filler.fill();
     }
-    evt.put(matchMap);
+    evt.put(std::move(matchMap));
   }
 
 }

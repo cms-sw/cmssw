@@ -5,8 +5,8 @@
 
 // system include files
 #include <memory>
-#include <stdio.h>
-#include <math.h>
+#include <cstdio>
+#include <cmath>
 #include <sstream>
 
 // user include files
@@ -28,10 +28,10 @@
 class DataCertificationJetMET : public DQMEDHarvester {
    public:
       explicit DataCertificationJetMET(const edm::ParameterSet&);
-      ~DataCertificationJetMET();
+      ~DataCertificationJetMET() override;
 
    private:
-      virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) ;
+      void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override ;
 
       MonitorElement*  reportSummary;
       MonitorElement*  CertificationSummary;
@@ -49,6 +49,7 @@ class DataCertificationJetMET : public DQMEDHarvester {
    std::string jetAlgo;
 
    edm::InputTag inputMETLabelRECO_;
+   edm::InputTag inputMETLabelRECOUncleaned_;
    edm::InputTag inputMETLabelMiniAOD_;
    edm::InputTag inputJetLabelRECO_;
    edm::InputTag inputJetLabelMiniAOD_;
@@ -82,6 +83,16 @@ class DataCertificationJetMET : public DQMEDHarvester {
 
    bool jetTests[5][2];  //one for each type of jet certification/test type
    bool metTests[5][2];  //one for each type of met certification/test type
+
+  //MET: filter efficiencies, started from uncleaned directories
+   MonitorElement* mMET_EffHBHENoiseFilter;
+   MonitorElement* mMET_EffCSCTightHaloFilter;
+   MonitorElement* mMET_EffeeBadScFilter;
+   MonitorElement* mMET_EffEcalDeadCellTriggerFilter;
+   MonitorElement* mMET_EffEcalDeadCellBoundaryFilter;
+   MonitorElement* mMET_EffHBHEIsoNoiseFilter;
+   MonitorElement* mMET_EffCSCTightHalo2015Filter;
+   MonitorElement* mMET_EffHcalStripHaloFilter;
 
    //MET: RECO vs MiniAOD histos
    MonitorElement* mMET_MiniAOD_over_Reco;

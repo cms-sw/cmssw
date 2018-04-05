@@ -21,21 +21,21 @@ class L1JPTOffsetCorrector : public JetCorrector
     L1JPTOffsetCorrector(const JetCorrectorParameters& fConfig, const edm::ParameterSet& fParameters);   
 
     //----- destructor ----------------------------------------
-    virtual ~L1JPTOffsetCorrector();
+    ~L1JPTOffsetCorrector() override;
 
     //----- apply correction using Jet information only -------
-    virtual double correction(const LorentzVector& fJet) const;
+    double correction(const LorentzVector& fJet) const override;
 
     //----- apply correction using Jet information only -------
-    virtual double correction(const reco::Jet& fJet) const;
+    double correction(const reco::Jet& fJet) const override;
 
     //----- apply correction using all event information
-    virtual double correction(const reco::Jet& fJet, 
+    double correction(const reco::Jet& fJet, 
                               const edm::Event& fEvent, 
-                              const edm::EventSetup& fSetup) const;
+                              const edm::EventSetup& fSetup) const override;
     //----- if correction needs event information -------------
-    virtual bool eventRequired() const {return true;} 
-    virtual bool refRequired() const {return false;}
+    bool eventRequired() const override {return true;} 
+    bool refRequired() const override {return false;}
 
   private:
     //----- member data ---------------------------------------

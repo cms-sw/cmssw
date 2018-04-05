@@ -7,7 +7,7 @@ using namespace reco;
 using namespace std;
 
 void CandCommonVertexFitterBase::set(VertexCompositeCandidate & c) const {
-  if(bField_ == 0)
+  if(bField_ == nullptr)
     throw edm::Exception(edm::errors::InvalidReference)
       << "B-Field was not set up CandCommonVertexFitter.\n"
       << "the following method must be called before fitting a candidate:\n"
@@ -62,12 +62,12 @@ void CandCommonVertexFitterBase::fill(vector<TransientTrack> & tracks,
   size_t nDau = c.numberOfDaughters();
   for(unsigned int j = 0; j < nDau ; ++j) {
     Candidate * d = c.daughter(j);
-    if(d == 0) {
+    if(d == nullptr) {
       ostringstream message;
       message << "Can't access in write mode candidate daughters. "
 	      << "pdgId = " << c.pdgId() << ".\n";
       const Candidate * d1 = c.daughter(j);
-      if(d1 == 0)
+      if(d1 == nullptr)
 	message << "Null daughter also found in read-only mode\n";
       else
 	message << "Daughter found in read-only mode with id: " << d1->pdgId() << "\n";
@@ -78,7 +78,7 @@ void CandCommonVertexFitterBase::fill(vector<TransientTrack> & tracks,
     else {
       const Track * trk = d->get<const Track *>();
       RecoCandidate::TrackType type = d->get<RecoCandidate::TrackType>();
-      if(trk != 0) {
+      if(trk != nullptr) {
 	tracks.push_back(TransientTrack(* trk, bField_));
 	daughters.push_back(d);
 	trackTypes.push_back(type);

@@ -47,6 +47,7 @@ HitPairGeneratorFromLayerPairForPhotonConversion::HitPairGeneratorFromLayerPairF
 
 void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const ConversionRegion& convRegion,
 								const TrackingRegion & region, OrderedHitPairs & result,
+								const Layers& layers,
 								const edm::Event& event, const edm::EventSetup& es)
 {
  auto oldSize = result.size();
@@ -60,8 +61,8 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
   typedef OrderedHitPair::OuterRecHit OuterHit;
   typedef RecHitsSortedInPhi::Hit Hit;
 
-  Layer innerLayerObj = innerLayer();
-  Layer outerLayerObj = outerLayer();
+  Layer innerLayerObj = layers[theInnerLayer];
+  Layer outerLayerObj = layers[theOuterLayer];
 
 #ifdef mydebug_Seed
   ss << "In " << innerLayerObj.name() << " Out " << outerLayerObj.name() << std::endl;
@@ -71,10 +72,10 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
   if(!checkBoundaries(*outerLayerObj.detLayer(),convRegion,50.,60.)) return; //FIXME, the maxSearchR(Z) are not optimized
 
   /*get hit sorted in phi for each layer: NB: doesn't apply any region cut*/
-  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, event, es);
+  const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, es);
   if (innerHitsMap.empty()) return;
  
-  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, event, es);
+  const RecHitsSortedInPhi& outerHitsMap = theLayerCache(outerLayerObj, region, es);
   if (outerHitsMap.empty()) return;
   /*----------------*/
 

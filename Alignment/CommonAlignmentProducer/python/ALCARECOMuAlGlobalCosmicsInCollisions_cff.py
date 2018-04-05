@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECOMuAlGlobalCosmicsInCollisionsHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     andOr = True, ## choose logical OR between Triggerbits
-    eventSetupPathsKey = 'MuAlGlobalCosmics',
+    eventSetupPathsKey = 'MuAlGlobalCosmicsInCollisions',
     throw = False # tolerate triggers not available
     )
 

@@ -36,13 +36,13 @@ Location: EventFilter/CSCRawToDigi/interface/CSCViewDigi.h
 class CSCViewDigi : public edm::EDAnalyzer {
    public:
       explicit CSCViewDigi(const edm::ParameterSet&);
-      ~CSCViewDigi();
+      ~CSCViewDigi() override;
 
 
    private:
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       bool WiresDigiDump, AlctDigiDump, ClctDigiDump, CorrClctDigiDump;
       bool StripDigiDump, ComparatorDigiDump, RpcDigiDump, StatusDigiDump;

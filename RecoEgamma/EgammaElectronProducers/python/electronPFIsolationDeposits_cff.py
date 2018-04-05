@@ -10,13 +10,14 @@ elPFIsoDepositNeutral=isoDepositReplace('pfElectronTranslator:pf','pfAllNeutralH
 elPFIsoDepositGamma=isoDepositReplace('pfElectronTranslator:pf','pfAllPhotons')
 elPFIsoDepositPU=isoDepositReplace('pfElectronTranslator:pf','pfPileUpAllChargedParticles')
 
-electronPFIsolationDepositsSequence = cms.Sequence(
-    elPFIsoDepositCharged+
-    elPFIsoDepositChargedAll+
-    elPFIsoDepositGamma+
-    elPFIsoDepositNeutral+
+electronPFIsolationDepositsTask = cms.Task(
+    elPFIsoDepositCharged,
+    elPFIsoDepositChargedAll,
+    elPFIsoDepositGamma,
+    elPFIsoDepositNeutral,
     elPFIsoDepositPU
     )
+electronPFIsolationDepositsSequence = cms.Sequence(electronPFIsolationDepositsTask)
 # <---- Up to here
 
 #Now prepare the iso deposits
@@ -26,10 +27,11 @@ gedElPFIsoDepositNeutral=isoDepositReplace('gedGsfElectronsTmp','pfAllNeutralHad
 gedElPFIsoDepositGamma=isoDepositReplace('gedGsfElectronsTmp','pfAllPhotons')
 gedElPFIsoDepositPU=isoDepositReplace('gedGsfElectronsTmp','pfPileUpAllChargedParticles')
 
-gedElectronPFIsolationDepositsSequence = cms.Sequence(
-    gedElPFIsoDepositCharged+
-    gedElPFIsoDepositChargedAll+
-    gedElPFIsoDepositGamma+
-    gedElPFIsoDepositNeutral+
+gedElectronPFIsolationDepositsTask = cms.Task(
+    gedElPFIsoDepositCharged,
+    gedElPFIsoDepositChargedAll,
+    gedElPFIsoDepositGamma,
+    gedElPFIsoDepositNeutral,
     gedElPFIsoDepositPU
     )
+gedElectronPFIsolationDepositsSequence = cms.Sequence(gedElectronPFIsolationDepositsTask)

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <stdint.h>
+#include <cstdint>
 
 /**
  * @author: M. De Mattia
@@ -15,8 +15,6 @@
  * for the classes used to pass detector specific information to the
  * HDQMInspector. <br>
  * The methods defined are:
- * - translateDetId: a pure virtual method that receives the DetId and
- * returns a string. <br>
  * - valueErrorMap: a method filling a vector<pair<string, string> >
  * to associate user defined values with the corresponding errors. This
  * is optional and by default it will return false. <br>
@@ -36,8 +34,6 @@ class HDQMInspectorConfigBase
  public:
    HDQMInspectorConfigBase () {};
    virtual ~HDQMInspectorConfigBase () {};
-  /// pure virtual method that convert a DetId to a string
-  virtual std::string translateDetId( const uint32_t ) const = 0;
   /// fills a vector<pair<string, string> > associating values with the corresponding errors
   virtual bool valueErrorMap(std::vector<std::pair<std::string, std::string> > & valueErrorVector) const {return false;}
   /// fills the list of names of quantities for which a summation over the runs is required

@@ -91,11 +91,11 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
   
   explicit SiPixelLorentzAngle(const edm::ParameterSet& conf);
   
-  virtual ~SiPixelLorentzAngle();
+  ~SiPixelLorentzAngle() override;
   //virtual void beginJob(const edm::EventSetup& c);
-  virtual void beginJob();
-  virtual void endJob(); 
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void beginJob() override;
+  void endJob() override; 
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   
  private:
   
@@ -144,7 +144,6 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
   Rechit rechitF_;
   
   // parameters from config file
-  edm::ParameterSet conf_;
   std::string filename_;
   std::string filenameFit_;
   double ptmin_;
@@ -155,7 +154,10 @@ class SiPixelLorentzAngle : public edm::EDAnalyzer
   double clustChargeMax_;
   int hist_depth_;
   int hist_drift_;
-  
+
+  // for the TrackerHitAssociator
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+
   // histogram etc
   int hist_x_;
   int hist_y_;

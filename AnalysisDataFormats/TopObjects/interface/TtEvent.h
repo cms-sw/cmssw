@@ -106,9 +106,9 @@ class TtEvent {
   /// get combined 4-vector of top and topBar of the given hypothesis
   const reco::Candidate* topPair(const std::string& key, const unsigned& cmb=0) const { return topPair(hypoClassKeyFromString(key), cmb); };
   /// get combined 4-vector of top and topBar of the given hypothesis
-  const reco::Candidate* topPair(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? 0 : (reco::Candidate*)&eventHypo(key,cmb); };
+  const reco::Candidate* topPair(const HypoClassKey& key, const unsigned& cmb=0) const { return !isHypoValid(key,cmb) ? nullptr : (reco::Candidate*)&eventHypo(key,cmb); };
   /// get combined 4-vector of top and topBar from the TtGenEvent
-  const math::XYZTLorentzVector* topPair() const { return (!genEvt_ ? 0 : this->genEvent()->topPair()); };
+  const math::XYZTLorentzVector* topPair() const { return (!genEvt_ ? nullptr : this->genEvent()->topPair()); };
 
   /// print pt, eta, phi, mass of a given candidate into an existing LogInfo
   void printParticle(edm::LogInfo &log, const char* name, const reco::Candidate* cand) const;

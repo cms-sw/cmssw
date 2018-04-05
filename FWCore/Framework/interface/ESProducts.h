@@ -30,7 +30,9 @@
 namespace edm {
    namespace eventsetup {      
       namespace produce {
-         struct Produce {};
+         struct Produce {
+            Produce() {}
+         };
          
          template< typename T> struct OneHolder {
             OneHolder() {}
@@ -47,21 +49,21 @@ namespace edm {
             typedef Null head_type;
          };
 
-         template< typename T> struct OneHolder< std::auto_ptr<T> > {
-            typedef std::auto_ptr<T> Type;
+         template<typename T> struct OneHolder<std::unique_ptr<T>> {
+            typedef std::unique_ptr<T> Type;
             OneHolder() {}
-            OneHolder(const OneHolder<Type>& iOther): value_(const_cast<OneHolder<Type>& >(iOther).value_) {}
+            OneHolder(OneHolder<Type> const& iOther): value_(const_cast<OneHolder<Type>&>(iOther).value_) {}
             OneHolder(Type iPtr): value_(iPtr) {}
             
             
-            const OneHolder<Type> & operator=(OneHolder<Type> iRHS) { value_ =iRHS.value_; return *this; }
+            OneHolder<Type> const& operator=(OneHolder<Type> iRHS) { value_ = iRHS.value_; return *this; }
             template<typename S>
             void setFromRecursive(S& iGiveValues) {
                iGiveValues.setFrom(value_);
             }
             
             void assignTo(Type& oValue) { oValue = value_;}
-            mutable Type value_; //mutable needed for std::auto_ptr
+            mutable Type value_; //mutable needed for std::unique_ptr
             typedef Type tail_type;
             typedef Null head_type;
          };
@@ -183,7 +185,7 @@ namespace edm {
    };
 
    namespace es {
-      extern eventsetup::produce::Produce produced;
+      extern const eventsetup::produce::Produce produced;
 
       template<typename T, typename S>
       ESProducts<T,S> products(const T& i1, const S& i2) {

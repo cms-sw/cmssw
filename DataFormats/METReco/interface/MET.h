@@ -49,7 +49,7 @@ namespace reco
     MET( double sumet_, const std::vector<CorrMETData>& corr_,
 	 const LorentzVector& p4_, const Point& vtx_ );
 
-    MET * clone() const;
+    MET * clone() const override;
 
     //________________________________________________________________________||
     //scalar sum of transverse energy over all objects
@@ -74,7 +74,7 @@ namespace reco
     reco::METCovMatrix getSignificanceMatrix(void) const;
 
   private:
-    virtual bool overlap( const Candidate & ) const;
+    bool overlap( const Candidate & ) const override;
     double sumet;
     double elongit;
     // bookkeeping for the significance

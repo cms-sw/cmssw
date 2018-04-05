@@ -42,7 +42,7 @@ void CaloTowerCreatorForTauHLT::produce( StreamID sid, Event& evt, const EventSe
   edm::Handle<L1JetParticleCollection> jetsgen;
   evt.getByToken( mTauTrigger_token, jetsgen);
 
-  std::auto_ptr<CaloTowerCollection> cands( new CaloTowerCollection );
+  std::unique_ptr<CaloTowerCollection> cands( new CaloTowerCollection );
   cands->reserve( caloTowers->size() );
   
   int idTau =0;
@@ -81,7 +81,7 @@ void CaloTowerCreatorForTauHLT::produce( StreamID sid, Event& evt, const EventSe
       idTau++;
     }
 
-  evt.put( cands );
+  evt.put(std::move(cands));
   
 }
 

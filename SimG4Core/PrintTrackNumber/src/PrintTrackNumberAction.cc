@@ -28,7 +28,7 @@ void PrintTrackNumberAction::update(const EndOfTrack * trk)
 
     if (bNoUserLimits) 
     {
-	bool countTrk = 1;
+	bool countTrk = true;
 	// tracks that have been killed before first step (by MinEkineCut). 
 	// In fact the track makes the first step, MinEkineCut process determines 
 	// that the energy is too low, set it to 0, and then at the next step 
@@ -37,7 +37,7 @@ void PrintTrackNumberAction::update(const EndOfTrack * trk)
 	{
 	    const G4VProcess* proccur = 
 		aTrack->GetStep()->GetPostStepPoint()->GetProcessDefinedStep();
-	    if (proccur != 0)
+	    if (proccur != nullptr)
 	    {
 		if (proccur->GetProcessName() == "MinEkineCut") 
 		{
@@ -48,7 +48,7 @@ void PrintTrackNumberAction::update(const EndOfTrack * trk)
 		    // for e+, last step is annihil, while previous is MinEkineCut
 		    const G4VProcess* procprev = 
 			aTrack->GetStep()->GetPreStepPoint()->GetProcessDefinedStep();
-		    if (procprev != 0)
+		    if (procprev != nullptr)
 		    {
 			if (procprev->GetProcessName() == "MinEkineCut") 
 			{

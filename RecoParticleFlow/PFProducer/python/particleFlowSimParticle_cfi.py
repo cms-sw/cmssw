@@ -1,9 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from FastSimulation.Event.NoVertexGenerator_cfi import *
 particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
-    # necessary to access true particles 
-    NoVertexGeneratorBlock,
     # verbosity 
     verbose = cms.untracked.bool(False),
     # Tracking parameters
@@ -35,6 +32,6 @@ particleFlowSimParticle = cms.EDProducer("PFSimParticleProducer",
     #retrieving EcalRechits
     ecalRecHitsEB = cms.InputTag('caloRecHits','EcalRecHitsEB'),
     ecalRecHitsEE = cms.InputTag('caloRecHits','EcalRecHitsEE'),
-    #retrieving famos SimHits                                     
-    famosSimHits = cms.untracked.InputTag('famosSimHits','EcalHitsEB')
+    #retrieving fastSim SimHits                                     
+    fastSimProducer = cms.untracked.InputTag('fastSimProducer','EcalHitsEB')
 )

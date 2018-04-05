@@ -83,17 +83,18 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
 
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Utilities/interface/InputType.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <atomic>
 #include <cstddef>
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <set>
 #include <string>
 #include <vector>
 
-#include "boost/scoped_ptr.hpp"
 #include "tbb/concurrent_unordered_map.h"
 #include "tbb/concurrent_vector.h"
 
@@ -107,7 +108,7 @@ namespace edm {
 
       struct RunReport {
         RunNumber runNumber;
-        std::set<unsigned int> lumiSections;
+        std::map<unsigned int,unsigned long> lumiSectionsToNEvents;
       };
 
       /**\struct InputFile
@@ -196,7 +197,7 @@ namespace edm {
          * Associate a Lumi Section to all open output files
          *
          */
-        void associateLumiSection(JobReport::Token token, unsigned int runNumber, unsigned int lumiSection);
+        void associateLumiSection(JobReport::Token token, unsigned int runNumber, unsigned int lumiSection, unsigned long nEvents);
 
         /*
          * Associate a Lumi Section to all open input files
@@ -244,15 +245,18 @@ namespace edm {
 
         JobReportImpl(std::ostream* iOst): printedReadBranches_(false), ost_(iOst) {}
 
+        std::ostream const* ost() const {return get_underlying_safe(ost_);}
+        std::ostream*& ost() {return get_underlying_safe(ost_);}
+
         std::vector<InputFile> inputFiles_;
         tbb::concurrent_vector<InputFile> inputFilesSecSource_;
-        std::vector<OutputFile> outputFiles_;
+        tbb::concurrent_vector<OutputFile> outputFiles_;
         std::map<std::string, long long> readBranches_;
         std::map<std::string, long long> readBranchesSecFile_;
         tbb::concurrent_unordered_map<std::string, AtomicLongLong> readBranchesSecSource_;
         bool printedReadBranches_;
         std::vector<InputFile>::size_type lastOpenedPrimaryInputFile_;
-        std::ostream* ost_;
+        edm::propagate_const<std::ostream*> ost_;
       };
 
       JobReport();
@@ -263,13 +267,6 @@ namespace edm {
       JobReport(JobReport const&) = delete;
 
       ~JobReport();
-
-      /// New output file for child
-      void childAfterFork(std::string const& jobReportFile, unsigned int childIndex, unsigned int numberOfChildren);
-
-      void parentBeforeFork(std::string const& jobReportFile, unsigned int numberOfChildren);
-
-      void parentAfterFork(std::string const& jobReportFile);
 
       /// Report that an input file has been opened.
       /// The returned Token should be used for later identification
@@ -337,7 +334,7 @@ namespace edm {
       /// for output files, call only if lumi section is written to
       /// the output file
       ///
-      void reportLumiSection(JobReport::Token token, unsigned int run, unsigned int lumiSectId);
+      void reportLumiSection(JobReport::Token token, unsigned int run, unsigned int lumiSectId, unsigned long nEvents=0);
 
       ///
       /// API for reporting a Lumi Section to the job report.
@@ -431,10 +428,10 @@ namespace edm {
       std::string dumpFiles(void);
 
    protected:
-      boost::scoped_ptr<JobReportImpl>& impl() {return impl_;}
+      edm::propagate_const<std::unique_ptr<JobReportImpl>>& impl() {return impl_;}
 
    private:
-      boost::scoped_ptr<JobReportImpl> impl_;
+      edm::propagate_const<std::unique_ptr<JobReportImpl>> impl_;
       std::mutex write_mutex;
    };
 

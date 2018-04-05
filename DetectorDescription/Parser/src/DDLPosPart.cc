@@ -1,29 +1,20 @@
-/***************************************************************************
-                          DDLPosPart.cc  -  description
-                             -------------------
-    begin                : Tue Oct 30 2001
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLPosPart.h"
-
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include <map>
+#include <utility>
 
 DDLPosPart::DDLPosPart( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )
-{}
-
-DDLPosPart::~DDLPosPart( void )
 {}
 
 // Upon encountering a PosPart, store the label, simple.
@@ -34,13 +25,9 @@ DDLPosPart::~DDLPosPart( void )
 void
 DDLPosPart::preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLPosPart::preProcessElement started");
-
   // Clear out child elements.
   myRegistry_->getElement("Rotation")->clear();
   myRegistry_->getElement("ReflectionRotation")->clear();
-
-  DCOUT_V('P', "DDLPosPart::preProcessElement completed");
 }
 
 // Upon encountering the end tag of the PosPart we should have in the meantime
@@ -49,16 +36,14 @@ DDLPosPart::preProcessElement( const std::string& name, const std::string& nmspa
 void
 DDLPosPart::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLPosPart::processElement started");
-  
   // get all internal elements.
-  DDXMLElement* myParent     = myRegistry_->getElement("rParent");
-  DDXMLElement* myChild      = myRegistry_->getElement("rChild");
-  DDXMLElement* myTranslation= myRegistry_->getElement("Translation");
-  DDXMLElement* myDDLRotation= myRegistry_->getElement("Rotation");
-  DDXMLElement* myrRotation  = myRegistry_->getElement("rRotation");
-  DDXMLElement* myDDLRefl    = myRegistry_->getElement("ReflectionRotation");
-  DDXMLElement* myrRefl      = myRegistry_->getElement("rReflectionRotation");
+  auto myParent     = myRegistry_->getElement("rParent");
+  auto myChild      = myRegistry_->getElement("rChild");
+  auto myTranslation= myRegistry_->getElement("Translation");
+  auto myDDLRotation= myRegistry_->getElement("Rotation");
+  auto myrRotation  = myRegistry_->getElement("rRotation");
+  auto myDDLRefl    = myRegistry_->getElement("ReflectionRotation");
+  auto myrRefl      = myRegistry_->getElement("rReflectionRotation");
   // FIXME!!! add in the new RotationByAxis element...
 
   // At this time, PosPart is becoming the most complex of the elements.
@@ -93,8 +78,6 @@ DDLPosPart::processElement( const std::string& name, const std::string& nmspace,
     rotn = myrRefl->getDDName(nmspace);
   }
 
-  DCOUT_V('P', "DDLPosPart::processElement:  Final Rotation info: " << rotn);
-
   ClhepEvaluator & ev = myRegistry_->evaluator();
 
   double x = 0.0, y = 0.0, z = 0.0;
@@ -106,33 +89,21 @@ DDLPosPart::processElement( const std::string& name, const std::string& nmspace,
     z = ev.eval(nmspace, atts.find("z")->second);
   }
 
-  DCOUT_V('P', "DDLPosPart::processElement:  Final Translation info x=" << x << " y=" << y << " z=" << z);
-
-  DDRotation* myDDRotation;
+  std::unique_ptr<DDRotation> myDDRotation;
   // if rotation is named ...
   if ( rotn.name() != "" && rotn.ns() != "" ) {
-    DDRotation temp(rotn);
-    myDDRotation = &temp;
+    myDDRotation = std::make_unique<DDRotation>(rotn);
   } else { 
     // rotn is not assigned a name anywhere therefore the DDPos assumes the identity matrix.
-    DDRotation temp(DDName(std::string("identity"),std::string("generatedForDDD")));
-    myDDRotation = &temp;
+    myDDRotation = std::make_unique<DDRotation>(DDName(std::string("identity"),std::string("generatedForDDD")));
     // if the identity is not yet defined, then...
     if ( !myDDRotation->isValid() ) {
-      DDRotationMatrix* dmr = new DDRotationMatrix;
-      temp = DDrot(DDName(std::string("identity"),std::string("generatedForDDD")), dmr );
-      myDDRotation = &temp;
+      myDDRotation = DDrotPtr(DDName(std::string("identity"),std::string("generatedForDDD")), new DDRotationMatrix );
     }
   }
 
 
   DDTranslation myDDTranslation(x, y, z);
-
-  DCOUT_V('P', "about to make a PosPart ...");
-  DCOUT_V('p', "  myDDRotation    : " << *myDDRotation);
-  DCOUT_V('p', "  myDDTranslation : " << myDDTranslation);
-  DCOUT_V('p', "  parentDDName    : " << myParent->getDDName(nmspace));
-  DCOUT_V('p', "  selfDDName      : " << myChild->getDDName(nmspace));
 
   const DDXMLAttribute & atts = getAttributeSet();
   std::string copyno = "";
@@ -156,6 +127,4 @@ DDLPosPart::processElement( const std::string& name, const std::string& nmspace,
 
   // after a pos part is done, we know we can clear it.
   clear();
-
-  DCOUT_V('P', "DDLPosPart::processElement completed");
 }

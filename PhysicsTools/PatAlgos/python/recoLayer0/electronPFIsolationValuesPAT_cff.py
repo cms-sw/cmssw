@@ -1,20 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.ParticleFlow.Isolation.electronPFIsolationValuesPFBRECO_cff import *
+import CommonTools.ParticleFlow.Isolation.electronPFIsolationValuesPFBRECO_cff as _m
 
-elPFIsoValueCharged03PFIdPAT = elPFIsoValueCharged03PFIdPFBRECO.clone()
+elPFIsoValueCharged03PFIdPAT = _m.elPFIsoValueCharged03PFIdPFBRECO.clone()
 elPFIsoValueCharged03PFIdPAT.deposits[0].src = 'elPFIsoDepositChargedPAT'
 
-elPFIsoValueChargedAll03PFIdPAT = elPFIsoValueChargedAll03PFIdPFBRECO.clone()
+elPFIsoValueChargedAll03PFIdPAT = _m.elPFIsoValueChargedAll03PFIdPFBRECO.clone()
 elPFIsoValueChargedAll03PFIdPAT.deposits[0].src = 'elPFIsoDepositChargedAllPAT'
 
-elPFIsoValueGamma03PFIdPAT = elPFIsoValueGamma03PFIdPFBRECO.clone()
+elPFIsoValueGamma03PFIdPAT = _m.elPFIsoValueGamma03PFIdPFBRECO.clone()
 elPFIsoValueGamma03PFIdPAT.deposits[0].src = 'elPFIsoDepositGammaPAT'
 
-elPFIsoValueNeutral03PFIdPAT = elPFIsoValueNeutral03PFIdPFBRECO.clone()
+elPFIsoValueNeutral03PFIdPAT = _m.elPFIsoValueNeutral03PFIdPFBRECO.clone()
 elPFIsoValueNeutral03PFIdPAT.deposits[0].src = 'elPFIsoDepositNeutralPAT'
 
-elPFIsoValuePU03PFIdPAT = elPFIsoValuePU03PFIdPFBRECO.clone()
+elPFIsoValuePU03PFIdPAT = _m.elPFIsoValuePU03PFIdPFBRECO.clone()
 elPFIsoValuePU03PFIdPAT.deposits[0].src = 'elPFIsoDepositPUPAT'
 
 elPFIsoValueCharged04PFIdPAT = elPFIsoValueCharged03PFIdPAT.clone()
@@ -55,27 +55,29 @@ elPFIsoValuePU04NoPFIdPAT          =  elPFIsoValuePU04PFIdPAT.clone()
 #elPFIsoValuePU04NoPFIdPAT.deposits[0].vetos = cms.vstring('EcalBarrel:ConeVeto(0.015)','EcalEndcaps:ConeVeto(0.015)')
 #elPFIsoValueGamma04NoPFIdPAT.deposits[0].vetos = cms.vstring('EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)','EcalEndcaps:ConeVeto(0.08)')
 
-electronPFIsolationValuesPATSequence = (
-    elPFIsoValueCharged03PFIdPAT+
-    elPFIsoValueChargedAll03PFIdPAT+
-    elPFIsoValueGamma03PFIdPAT+
-    elPFIsoValueNeutral03PFIdPAT+
-    elPFIsoValuePU03PFIdPAT+
+electronPFIsolationValuesPATTask = cms.Task(
+    elPFIsoValueCharged03PFIdPAT,
+    elPFIsoValueChargedAll03PFIdPAT,
+    elPFIsoValueGamma03PFIdPAT,
+    elPFIsoValueNeutral03PFIdPAT,
+    elPFIsoValuePU03PFIdPAT,
     ##############################
-    elPFIsoValueCharged04PFIdPAT+
-    elPFIsoValueChargedAll04PFIdPAT+
-    elPFIsoValueGamma04PFIdPAT+
-    elPFIsoValueNeutral04PFIdPAT+
-    elPFIsoValuePU04PFIdPAT+
+    elPFIsoValueCharged04PFIdPAT,
+    elPFIsoValueChargedAll04PFIdPAT,
+    elPFIsoValueGamma04PFIdPAT,
+    elPFIsoValueNeutral04PFIdPAT,
+    elPFIsoValuePU04PFIdPAT,
     ##############################
-    elPFIsoValueCharged03NoPFIdPAT+
-    elPFIsoValueChargedAll03NoPFIdPAT+
-    elPFIsoValueGamma03NoPFIdPAT+
-    elPFIsoValueNeutral03NoPFIdPAT+
-    elPFIsoValuePU03NoPFIdPAT+
+    elPFIsoValueCharged03NoPFIdPAT,
+    elPFIsoValueChargedAll03NoPFIdPAT,
+    elPFIsoValueGamma03NoPFIdPAT,
+    elPFIsoValueNeutral03NoPFIdPAT,
+    elPFIsoValuePU03NoPFIdPAT,
     ##############################
-    elPFIsoValueCharged04NoPFIdPAT+
-    elPFIsoValueChargedAll04NoPFIdPAT+
-    elPFIsoValueGamma04NoPFIdPAT+
-    elPFIsoValueNeutral04NoPFIdPAT+
+    elPFIsoValueCharged04NoPFIdPAT,
+    elPFIsoValueChargedAll04NoPFIdPAT,
+    elPFIsoValueGamma04NoPFIdPAT,
+    elPFIsoValueNeutral04NoPFIdPAT,
     elPFIsoValuePU04NoPFIdPAT)
+
+electronPFIsolationValuesPATSequence = cms.Sequence(electronPFIsolationValuesPATTask)

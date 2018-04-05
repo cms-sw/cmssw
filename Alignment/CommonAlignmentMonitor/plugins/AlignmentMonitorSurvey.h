@@ -15,6 +15,7 @@
 //         Created:  10/8/07
 // $Id: AlignmentMonitorSurvey.h,v 1.4 2008/02/22 01:21:45 cklae Exp $
 
+#include <string>
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 
 class AlignmentMonitorSurvey:
@@ -24,13 +25,14 @@ class AlignmentMonitorSurvey:
 
   AlignmentMonitorSurvey(const edm::ParameterSet&);
 	
-  virtual void book();
+  void book() override;
 
-  virtual void event(const edm::Event&,
+  void event(const edm::Event&,
 		     const edm::EventSetup&,
-		     const ConstTrajTrackPairCollection&) {}
+		     const ConstTrajTrackPairCollection&) override {}
 
   private:
+  std::vector<std::string> levelNames_;
 
   std::vector<align::StructureType> theLevels;
 };

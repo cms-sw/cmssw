@@ -14,9 +14,8 @@ def extractBuildFilePiece (buildfile, copy, target = 'dummy'):
     try:
         build = open (buildfile, 'r')
     except:        
-        raise RuntimeError, \
-              "Could not open BuildFile '%s' for reading. Aboring." \
-              % buildfile
+        raise RuntimeError("Could not open BuildFile '%s' for reading. Aboring." \
+              % buildfile)
     # make my regex
     startBinRE = re.compile (r'<\s*bin\s+name=(\S+)')
     endBinRE   = re.compile (r'<\s*/bin>')
@@ -163,8 +162,8 @@ if __name__ == '__main__':
         bin = '/bin'
     if not os.path.exists (secondDir) and \
        not options.newPackage:
-        raise RuntimeError, "%s does not exist.  Use '--newPackage' to create" \
-              % ("/".join (pieces[0:2]) )
+        raise RuntimeError("%s does not exist.  Use '--newPackage' to create" \
+              % ("/".join (pieces[0:2]) ))
     dirList = [firstDir, secondDir, secondDir + bin]
     targetCC = dirList[2] + '/' + target + '.cc'
     targetBuild = dirList[2] + '/BuildFile'

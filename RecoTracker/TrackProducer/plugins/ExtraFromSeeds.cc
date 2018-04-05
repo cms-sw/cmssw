@@ -58,10 +58,10 @@ ExtraFromSeeds::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(tracks_,tracks);
 
   // out  
-  std::auto_ptr<ExtremeLight> exxtralOut(new ExtremeLight());
+  std::unique_ptr<ExtremeLight> exxtralOut(new ExtremeLight());
   exxtralOut->resize(tracks->size());
 
-  std::auto_ptr<TrackingRecHitCollection> hitOut(new TrackingRecHitCollection());
+  std::unique_ptr<TrackingRecHitCollection> hitOut(new TrackingRecHitCollection());
   TrackingRecHitRefProd rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
   hitOut->reserve(3*tracks->size());
 
@@ -81,8 +81,8 @@ ExtraFromSeeds::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup
 
   }
   
-  iEvent.put(exxtralOut);
-  iEvent.put(hitOut);
+  iEvent.put(std::move(exxtralOut));
+	     iEvent.put(std::move(hitOut));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

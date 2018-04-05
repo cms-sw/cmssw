@@ -2,7 +2,5 @@
 <use   name="DataFormats/EcalDigi"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/FEDRawData"/>
-<use   name="EventFilter/FEDInterface"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
-

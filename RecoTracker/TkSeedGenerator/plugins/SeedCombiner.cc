@@ -39,7 +39,7 @@ SeedCombiner::SeedCombiner(const edm::ParameterSet& cfg)
       for (unsigned int i=0;i<clusterRemovalInfos_.size();++i)
 	if (!(clusterRemovalInfos_[i]==edm::InputTag("")))
 	  clusterRemovalTokens_[i] = consumes<reco::ClusterRemovalInfo>(clusterRemovalInfos_[i]);
-      if (clusterRemovalInfos_.size()!=0 && clusterRemovalInfos_.size()==inputCollections_.size()) reKeing_=true;
+      if (!clusterRemovalInfos_.empty() && clusterRemovalInfos_.size()==inputCollections_.size()) reKeing_=true;
     }
 }
 
@@ -61,7 +61,7 @@ void SeedCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
     }
 
     // Prepare output collections, with the correct capacity
-    std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
+    auto result = std::make_unique<TrajectorySeedCollection>();
     result->reserve( nseeds );
 
     // Write into output collection
@@ -93,5 +93,5 @@ void SeedCombiner::produce(edm::Event& ev, const edm::EventSetup& es)
     }
 
     // Save result into the event
-    ev.put(result);
+    ev.put(std::move(result));
 }

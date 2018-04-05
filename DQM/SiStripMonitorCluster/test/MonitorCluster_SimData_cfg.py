@@ -56,13 +56,7 @@ process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
 #--------------------------
 # DQM Services
 #--------------------------
-process.DQMStore = cms.Service("DQMStore",
-    referenceFileName = cms.untracked.string(''),
-    verbose = cms.untracked.int32(0)
-)
-
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 #--------------------------
 # SiStrip MonitorCluster
@@ -74,8 +68,6 @@ process.SiStripMonitorCluster.SelectAllDetectors = True
 #process.SiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = True
 process.SiStripMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon = True
 #process.SiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon = True
-process.SiStripMonitorCluster.OutputMEsInRootFile = True
-process.SiStripMonitorCluster.OutputFileName = 'SiStripMonitorCluster.root'
 
 ##
 process.outP = cms.OutputModule("AsciiOutputModule")

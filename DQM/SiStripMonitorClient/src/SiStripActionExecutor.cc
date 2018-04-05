@@ -3,10 +3,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
@@ -26,10 +25,11 @@
 SiStripActionExecutor::SiStripActionExecutor(edm::ParameterSet const& ps):pSet_(ps) {
   edm::LogInfo("SiStripActionExecutor") << 
     " Creating SiStripActionExecutor " << "\n" ;
-  summaryCreator_ = 0;
-  tkMapCreator_   = 0;
-  qualityChecker_ = 0; 
-  configWriter_   = 0;
+  summaryCreator_ = nullptr;
+  tkMapCreator_   = nullptr;
+  qualityChecker_ = nullptr; 
+  configWriter_   = nullptr;
+  detInfoFileReader_ = nullptr;
 }
 //
 // --  Destructor
@@ -40,6 +40,7 @@ SiStripActionExecutor::~SiStripActionExecutor() {
   if (summaryCreator_) delete summaryCreator_;
   if (tkMapCreator_)   delete tkMapCreator_;
   if (qualityChecker_)  delete qualityChecker_;
+  if (detInfoFileReader_)   delete detInfoFileReader_;
 }
 //
 // -- Read Configurationn File
@@ -114,7 +115,16 @@ void SiStripActionExecutor::createOfflineTkMap(const edm::ParameterSet & tkmapPs
                                         const edm::EventSetup& eSetup) {
   if (tkMapCreator_) tkMapCreator_->createForOffline(tkmapPset, dqm_store, map_type, eSetup);
 }
-
+//
+// -- create root file with detId info from tracker maps
+//
+void SiStripActionExecutor::createTkInfoFile(std::vector<std::string> map_names, TTree* tkinfo_tree, DQMStore* dqm_store) {
+  if (tkMapCreator_) {
+    detInfoFileReader_ = edm::Service<SiStripDetInfoFileReader>().operator->();
+    std::vector<uint32_t> detidList = detInfoFileReader_->getAllDetIds();
+    tkMapCreator_->createInfoFile(map_names, tkinfo_tree, dqm_store, detidList);
+  }
+}
 //
 // -- Create Status Monitor Elements
 //
@@ -209,7 +219,7 @@ void SiStripActionExecutor::createShiftReport(DQMStore * dqm_store){
   report_file.close();
   configWriter_->write("sistrip_shift_report.xml");
   delete configWriter_;
-  configWriter_ = 0;
+  configWriter_ = nullptr;
 }
 //
 //  -- Print Report Summary
@@ -243,7 +253,7 @@ void SiStripActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, std:
     for (std::vector<std::string>::iterator im = it->second.begin(); 
 	 im != it->second.end(); im++) {  
       std::string path_name = (*im);
-      if (path_name.size() == 0) continue;
+      if (path_name.empty()) continue;
       MonitorElement* me = dqm_store->get(path_name);
       std::ostringstream entry_str, mean_str, rms_str;
       entry_str << std::setprecision(2);

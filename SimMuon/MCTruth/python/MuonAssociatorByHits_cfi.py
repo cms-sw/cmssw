@@ -10,7 +10,7 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
     includeZeroHitMuons = cms.bool(True),
     #
     # accept to match only tracker/muon stub of globalMuons
-    acceptOneStubMatchings = cms.bool(True),
+    acceptOneStubMatchings = cms.bool(False),
     #
     # switches to be set according to the input Track collection
     UseTracker = cms.bool(True),
@@ -60,10 +60,20 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
     RPCsimhitsXFTag = cms.InputTag("mix","g4SimHitsMuonRPCHits"),
     RPCdigisimlinkTag = cms.InputTag("simMuonRPCDigis","RPCDigiSimLink"),
     #
+    # for GEM Hit associator
+    useGEMs = cms.bool(False),
+    GEMsimhitsTag = cms.InputTag("g4SimHits","MuonGEMHits"),
+    GEMsimhitsXFTag = cms.InputTag("mix","g4SimHitsMuonGEMHits"),
+    GEMdigisimlinkTag = cms.InputTag("simMuonGEMDigis","GEM"),
+    #
     # for Tracker Hit associator
     #
     associatePixel = cms.bool(True),
     associateStrip = cms.bool(True),
+    usePhase2Tracker = cms.bool(False),
+    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
+    phase2TrackerSimLinkSrc  = cms.InputTag("simSiPixelDigis","Tracker"),
     associateRecoTracks = cms.bool(True),
     #                                
     ROUList = cms.vstring('TrackerHitsTIBLowTof', 
@@ -79,11 +89,25 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
         'TrackerHitsPixelEndcapLowTof', 
         'TrackerHitsPixelEndcapHighTof'),
     #
-    # to associate to reco::Muon segments (3.5.X only)
+    # to associate to reco::Muon segments 
     inputDTRecSegment4DCollection = cms.InputTag("dt4DSegments"),
     inputCSCSegmentCollection = cms.InputTag("cscSegments"),
 )
 
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(muonAssociatorByHitsCommonParameters,
+    simtracksTag = "fastSimProducer",
+    DTsimhitsTag  = "MuonSimHits:MuonDTHits",
+    CSCsimHitsTag = "MuonSimHits:MuonCSCHits",
+    RPCsimhitsTag = "MuonSimHits:MuonRPCHits",
+    simtracksXFTag = "mix:fastSimProducer",
+    DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits",
+    CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits",
+    RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits",
+    ROUList = ['fastSimProducerTrackerHits']
+)
+  
 muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     # COMMON CONFIGURATION
     muonAssociatorByHitsCommonParameters,
@@ -114,4 +138,9 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     tpTag = cms.InputTag("mix","MergedTrackTruth"),
     ignoreMissingTrackCollection = cms.untracked.bool(False),
 )
- 
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify( muonAssociatorByHits, useGEMs = cms.bool(True) )
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify( muonAssociatorByHits, usePhase2Tracker = cms.bool(True) )
+phase2_tracker.toModify( muonAssociatorByHits, pixelSimLinkSrc = "simSiPixelDigis:Pixel" )

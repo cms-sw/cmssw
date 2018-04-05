@@ -5,7 +5,7 @@ bfunc = re.compile("^function ")
 mbcl = re.compile("(base|data) class")
 farg = re.compile("(.*)\(\w+\)")
 nsep = re.compile("\:\:")
-topfunc = re.compile("::(produce|analyze|filter|beginLuminosityBlock|beginRun)\(")
+topfunc = re.compile("::(produce|analyze|filter|beginLuminosityBlock|beginRun|beginStream)\(")
 baseclass = re.compile("edm::(one::|stream::|global::)?ED(Producer|Filter|Analyzer)(Base)?")
 getfunc = re.compile("edm::eventsetup::EventSetupRecord::get\<.*\>\((.*)&\) const")
 handle = re.compile("(.*),?class edm::ES(.*)Handle<(.*)>")
@@ -65,9 +65,8 @@ for line in f :
 f.close()
 
 
-f = open('db.txt')
-
-for line in f :
+import fileinput 
+for line in fileinput.input(files =('function-statics-db.txt','function-calls-db.txt')):
 	if not bfunc.search(line) : continue
 	fields = line.split("'")
 	if skip.search(fields[1]) or skip.search(fields[3]) : continue
@@ -90,8 +89,7 @@ for line in f :
 	if fields[2] == ' static variable ' :
 		G.add_edge(fields[1],fields[3],kind=' static variable ')
 		statics.add(fields[3])
-f.close()
-
+fileinput.close()
 
 for n,nbrdict in G.adjacency_iter():
 	for nbr,eattr in nbrdict.items():
@@ -167,9 +165,12 @@ for dataclassfunc in sorted(dataclassfuncs):
 			if n : o = n.group(3)
 			else : o = m.group(1)
 			p = re.sub("class ","",o)
-			dataclass = re.sub("struct ","",p)
+			q = re.sub("struct ","",p)
+			dataclass = re.sub("\<.*\> ","",q)
 			for flaggedclass in sorted(flaggedclasses):
-				if re.match(flaggedclass,dataclass) :
+				exact= r"^" + re.escape(flaggedclass) + r"$"
+				exactmatch=re.match(exact,dataclass)
+				if exactmatch:
 					print "Flagged event setup data class '"+dataclass+"' is accessed in call stack '",
 					path = nx.shortest_path(G,tfunc,dataclassfunc)
 					for p in path:

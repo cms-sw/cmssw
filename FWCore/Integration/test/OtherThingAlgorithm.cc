@@ -8,7 +8,7 @@ namespace edmtest {
   void OtherThingAlgorithm::run(edm::Handle<ThingCollection> const& parentHandle,
 				OtherThingCollection& result,
 				bool useRefs,
-				bool refsAreTransient) {
+				bool refsAreTransient) const {
 
     const size_t numToMake = 20;
     result.reserve(numToMake);

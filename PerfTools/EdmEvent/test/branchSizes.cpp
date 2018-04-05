@@ -19,7 +19,7 @@
 #include <TBranch.h>
 #include <TH1.h>
 #include <TCanvas.h>
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include <utility>
 
 #include "TBufferFile.h"
@@ -187,7 +187,7 @@ int main( int argc, char * argv[] ) {
   
   if( vm.count( kAutoLoadOpt ) != 0 ) {
     gSystem->Load( "libFWCoreFWLite" );
-    AutoLibraryLoader::enable();
+    FWLiteEnabler::enable();
   }
 
   string fileName = vm[kDataFileOpt].as<string>();

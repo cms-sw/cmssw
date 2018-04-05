@@ -24,17 +24,15 @@
 #include "Fireworks/Core/interface/FW3DViewBase.h"
 
 // forward declarations
-class TEveBoxSet;
 
 class FWISpyView : public FW3DViewBase
 {
 public:
    FWISpyView(TEveWindowSlot*, FWViewType::EType, unsigned int version=9);
-   virtual ~FWISpyView();
-   virtual void setContext(const fireworks::Context& x);
+   ~FWISpyView() override;
+   void setContext(const fireworks::Context& x) override;
 
-   virtual void populateController(ViewerParameterGUI&) const;
-   void showEcalBarrel(bool);
+   void populateController(ViewerParameterGUI&) const override;
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
@@ -42,14 +40,11 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FWISpyView(const FWISpyView&); // stop default
+   FWISpyView(const FWISpyView&) = delete; // stop default
 
-   const FWISpyView& operator=(const FWISpyView&); // stop default
+   const FWISpyView& operator=(const FWISpyView&) = delete; // stop default
 
-   // ---------- member data --------------------------------
-   TEveBoxSet* m_ecalBarrel;
-   FWBoolParameter m_showEcalBarrel;
+   // ---------- member data --------------------------------};
 };
-
 
 #endif

@@ -35,6 +35,7 @@
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiStripRawWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingSiPixelMCDigiWorker.h"
+#include "SimGeneral/DataMixingModule/plugins/DataMixingTrackingParticleWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingPileupCopy.h"
 
 #include <map>
@@ -52,26 +53,26 @@ namespace edm {
     public:
 
       /** standard constructor*/
-      explicit DataMixingModule(const edm::ParameterSet& ps);
+      explicit DataMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf);
 
       /**Default destructor*/
-      virtual ~DataMixingModule();
+      ~DataMixingModule() override;
 
       // copies, with EventSetup
-      virtual void checkSignal(const edm::Event &e) {}
-      virtual void createnewEDProduct() {}
-      virtual void addSignals(const edm::Event &e, const edm::EventSetup& ES); 
-      virtual void doPileUp(edm::Event &e,const edm::EventSetup& ES) override;
-      virtual void put(edm::Event &e,const edm::EventSetup& ES) ;
+      void checkSignal(const edm::Event &e) override {}; 
+      void createnewEDProduct() override {}
+      void addSignals(const edm::Event &e, const edm::EventSetup& ES) override; 
+      void doPileUp(edm::Event &e,const edm::EventSetup& ES) override;
+      void put(edm::Event &e,const edm::EventSetup& ES) override ;
 
-      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& eventSetup);
-      void beginRun(edm::Run const& run, edm::EventSetup const& eventSetup);
+      void initializeEvent(edm::Event const& e, edm::EventSetup const& eventSetup) override;
+      void beginRun(edm::Run const& run, edm::EventSetup const& eventSetup) override;
       void pileWorker(const edm::EventPrincipal&, int bcr, int EventId,const edm::EventSetup& ES, ModuleCallingContext const*);
       //virtual void beginJob();
       //virtual void endJob();
-      virtual void beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
-      virtual void endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
-      virtual void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
+      void beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
+      void endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
+      void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
 
 
 
@@ -102,6 +103,8 @@ namespace edm {
       std::string HODigiCollectionDM_  ; // secondary name to be given to HO collection of hits
       std::string HFDigiCollectionDM_  ; // secondary name to be given to HF collection of hits
       std::string ZDCDigiCollectionDM_ ; // secondary name to be given to ZDC collection of hits
+      std::string QIE10DigiCollectionDM_ ; // secondary name to be given to QIE10 collection of hits
+      std::string QIE11DigiCollectionDM_ ; // secondary name to be given to QIE11 collection of hits
 
       // Muons
       // output:
@@ -143,10 +146,14 @@ namespace edm {
       edm::InputTag HOPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag HFPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag ZDCPileInputTag_ ; // InputTag for Pileup Digis collection
+      edm::InputTag QIE10PileInputTag_ ; // InputTag for Pileup Digis collection
+      edm::InputTag QIE11PileInputTag_ ; // InputTag for Pileup Digis collection
       edm::EDGetTokenT<HBHEDigitizerTraits::DigiCollection> tok_hbhe_;
       edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok_ho_;
       edm::EDGetTokenT<HFDigitizerTraits::DigiCollection> tok_hf_;
       edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
+      edm::EDGetTokenT<HcalQIE10DigitizerTraits::DigiCollection> tok_qie10_;
+      edm::EDGetTokenT<HcalQIE11DigitizerTraits::DigiCollection> tok_qie11_;
       edm::EDGetTokenT<EBDigitizerTraits::DigiCollection> tok_eb_;
       edm::EDGetTokenT<EEDigitizerTraits::DigiCollection> tok_ee_;
       edm::EDGetTokenT<ESDigitizerTraits::DigiCollection> tok_es_;
@@ -178,6 +185,11 @@ namespace edm {
       // Tracks
 
       DigiAccumulatorMixMod * GeneralTrackWorker_;
+
+
+      // Validation
+
+      DataMixingTrackingParticleWorker * TrackingParticleWorker_ ;
 
       virtual void getSubdetectorNames();  
 

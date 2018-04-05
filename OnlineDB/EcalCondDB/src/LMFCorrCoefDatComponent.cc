@@ -1,5 +1,5 @@
 #include "OnlineDB/EcalCondDB/interface/LMFCorrCoefDatComponent.h"
-#include <math.h>
+#include <cmath>
 
 LMFCorrCoefDatComponent::LMFCorrCoefDatComponent() : LMFDat() {
   init();
@@ -151,7 +151,7 @@ LMFSeqDat LMFCorrCoefDatComponent::getSequence(const EcalLogicID &id) {
 }
 
 int LMFCorrCoefDatComponent::writeDB() 
-  throw(std::runtime_error) {
+  noexcept(false) {
   int ret = 0;
   try {
     ret = LMFDat::writeDB();

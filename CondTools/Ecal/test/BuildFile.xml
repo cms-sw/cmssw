@@ -1,0 +1,28 @@
+<use name="CondTools/Ecal"/>
+
+<architecture name="slc.*_amd64_.*">
+  <ifcxx11_abi value="1">
+    <flags SETENV="LD_PRELOAD=$(CMS_ORACLEOCCI_LIB)"/>
+  </ifcxx11_abi>
+  <test name="EcalDAQ_O2O_test" command="EcalDAQ_O2O_test.sh"/>
+  <test name="EcalDCS_O2O_test" command="EcalDCS_O2O_test.sh"/>
+  <test name="EcalLaser_O2O_test" command="EcalLaser_O2O_test.sh"/>
+  <test name="EcalTPGBadStripStatus_O2O_test" command="EcalTPGBadStripStatus_O2O_test.sh"/>
+  <test name="EcalTPGSpike_O2O_test" command="EcalTPGSpike_O2O_test.sh"/>
+  <test name="EcalTPGWeightIdMap_O2O_test" command="EcalTPGWeightIdMap_O2O_test.sh"/>
+  <test name="EcalTPGWeightGroup_O2O_test" command="EcalTPGWeightGroup_O2O_test.sh"/>
+  <test name="EcalTPGSlidingWindow_O2O_test" command="EcalTPGSlidingWindow_O2O_test.sh"/>
+  <test name="EcalTPGPhysicsConst_O2O_test" command="EcalTPGPhysicsConst_O2O_test.sh"/>
+  <test name="EcalTPGLutIdMap_O2O_test" command="EcalTPGLutIdMap_O2O_test.sh"/>
+  <test name="EcalTPGPedestals_O2O_test" command="EcalTPGPedestals_O2O_test.sh"/>
+  <test name="EcalTPGLutGroup_O2O_test" command="EcalTPGLutGroup_O2O_test.sh"/>
+  <test name="EcalTPGLinearizationConst_O2O_test" command="EcalTPGLinearizationConst_O2O_test.sh"/>
+  <test name="EcalTPGFineGrainTowerEE_O2O_test" command="EcalTPGFineGrainTowerEE_O2O_test.sh"/>
+  <test name="EcalTPGFineGrainStripEE_O2O_test" command="EcalTPGFineGrainStripEE_O2O_test.sh"/>
+  <test name="EcalTPGFineGrainEBIdMap_O2O_test" command="EcalTPGFineGrainEBIdMap_O2O_test.sh"/>
+  <test name="EcalTPGFineGrainEBGroup_O2O_test" command="EcalTPGFineGrainEBGroup_O2O_test.sh"/>
+  <test name="EcalTPGCrystalStatus_O2O_test" command="EcalTPGCrystalStatus_O2O_test.sh"/>
+  <test name="EcalTPGTowerStatus_O2O_test" command="EcalTPGTowerStatus_O2O_test.sh"/>
+  <test name="EcalADCToGeV_update_test" command="EcalADCToGeV_update_test.sh"/>
+  <test name="EcalIntercalibConstants_O2O_test" command="EcalIntercalibConstants_O2O_test.sh"/>
+</architecture>

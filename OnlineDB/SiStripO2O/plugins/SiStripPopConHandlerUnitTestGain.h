@@ -8,8 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
-#include "CondCore/DBCommon/interface/TagInfo.h"
-#include "CondCore/DBCommon/interface/LogDBEntry.h"
+#include "CondCore/CondDB/interface/Types.h"
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripDbParams.h"
@@ -20,7 +19,7 @@
 #include <string>
 #include <iostream>
 #include <typeinfo>
-#include <time.h>
+#include <ctime>
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
@@ -47,11 +46,11 @@ namespace popcon{
 
     //---------------------------------------
     //
-    ~SiStripPopConHandlerUnitTestGain(){}; 
+    ~SiStripPopConHandlerUnitTestGain() override{}; 
 
     //---------------------------------------
     //
-    void getNewObjects(){
+    void getNewObjects() override{
       edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[getNewObjects] for PopCon application " << m_name;
      
       if (m_debugMode){
@@ -92,7 +91,7 @@ namespace popcon{
 
     //---------------------------------------
     //
-    std::string id() const { return m_name;}
+    std::string id() const override { return m_name;}
 
     private:
     //methods
@@ -148,7 +147,7 @@ namespace popcon{
     void setForTransfer(){
       edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") << "[setForTransfer] " << m_name << " getting data to be transferred "  << std::endl;
       
-      T *obj=0; 
+      T *obj=nullptr; 
 
       fillObject(obj);
 
@@ -158,7 +157,7 @@ namespace popcon{
 	if (m_debugMode)
 	  m_since=this->tagInfo().lastInterval.first+1; 
 
-      if (obj!=0){
+      if (obj!=nullptr){
 
 	edm::LogInfo   ("SiStripPopPopConConfigDbObjHandler") <<"setting since = "<< m_since <<std::endl;
 	this->m_to_transfer.push_back(std::make_pair(obj,m_since));
@@ -186,7 +185,7 @@ namespace popcon{
 	  edm::FileInPath fp_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
 	  SiStripDetInfoFileReader reader(fp_.fullPath());
 	  
-	  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > DetInfos  = reader.getAllData();
+	  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >& DetInfos  = reader.getAllData();
 	  
 	  int count=-1;
 	  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++){    

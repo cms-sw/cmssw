@@ -10,6 +10,7 @@ conversionTrackCandidates.bcEndcapCollection = cms.InputTag("cosmicBasicClusters
 # Conversion Track producer  ( final fit )
 from RecoEgamma.EgammaPhotonProducers.ckfOutInTracksFromConversions_cfi import *
 from RecoEgamma.EgammaPhotonProducers.ckfInOutTracksFromConversions_cfi import *
-ckfTracksFromConversions = cms.Sequence(conversionTrackCandidates*ckfOutInTracksFromConversions*ckfInOutTracksFromConversions)
+ckfTracksFromConversionsTask = cms.Task(conversionTrackCandidates,ckfOutInTracksFromConversions,ckfInOutTracksFromConversions)
+ckfTracksFromConversions = cms.Sequence(ckfTracksFromConversionsTask)
 cosmicConversionTrackSequence = cms.Sequence(ckfTracksFromConversions)
 

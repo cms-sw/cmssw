@@ -27,7 +27,7 @@ struct CaloTauSelectorDefinition {
   CaloTauSelectorDefinition ( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) {
     discriminatorsPSets_ = cfg.getParameter< std::vector<edm::ParameterSet> >( "discriminators" );
     discriminatorTokens_ = edm::vector_transform( discriminatorsPSets_, [&](edm::ParameterSet const & pSet){return iC.consumes<reco::CaloTauDiscriminator>(pSet.getParameter<edm::InputTag>("discriminator"));} );
-    cut_ = ( cfg.exists("cut") ) ? new StringCutObjectSelector<reco::CaloTau>( cfg.getParameter<std::string>( "cut" ) ) : 0;
+    cut_ = ( cfg.exists("cut") ) ? new StringCutObjectSelector<reco::CaloTau>( cfg.getParameter<std::string>( "cut" ) ) : nullptr;
   }
 
   ~CaloTauSelectorDefinition () { delete cut_; }

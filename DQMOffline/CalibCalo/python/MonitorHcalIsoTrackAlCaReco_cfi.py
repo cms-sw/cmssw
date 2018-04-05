@@ -1,15 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-MonitorHcalIsoTrackAlCaReco = cms.EDAnalyzer("DQMHcalIsoTrackAlCaReco",
-folderName=cms.string("AlCaReco/HcalIsoTrack"),
-saveToFile=cms.bool(False),
-outputRootFileName=cms.string("HcalIsoTrackAlCaRecoMon.root"),
-hltTriggerEventLabel=cms.InputTag('hltTriggerSummaryAOD'),
-l1FilterLabel=cms.string('hltL1sJet52'),
-hltL3FilterLabels=cms.vstring('hltIsolPixelTrackL3FilterHB','hltIsolPixelTrackL3FilterHE'),
-alcarecoIsoTracksLabel=cms.InputTag('IsoProd:HcalIsolatedTrackCollection'),
-recoTracksLabel=cms.InputTag('IsoProd:IsoTrackTracksCollection')
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+MonitorHcalIsoTrackAlCaReco = DQMEDAnalyzer('DQMHcalIsoTrackAlCaReco',
+                                             FolderName=cms.string("AlCaReco/HcalIsoTrack"),
+                                             TriggerLabel=cms.InputTag('hltTriggerSummaryAOD'),
+                                             L1FilterLabel=cms.vstring('L1SingleJet60'),
+                                             HltFilterLabels=cms.vstring('hltIsolPixelTrackL3FilterHB','hltIsolPixelTrackL3FilterHE','hltIsolPixelTrackL2FilterHB','hltIsolPixelTrackL2FilterHE','hltEcalIsolPixelTrackL2FilterHB','hltEcalIsolPixelTrackL2FilterHE'),
+                                             TypeFilter=cms.vint32(2,2,0,0,1,1),
+                                             TracksLabel=cms.InputTag('IsoProd:HcalIsolatedTrackCollection'),
+                                             pThrL3=cms.untracked.double(0),
 )
-
-
-

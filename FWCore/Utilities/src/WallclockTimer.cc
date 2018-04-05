@@ -12,7 +12,7 @@
 
 // system include files
 #include <sys/resource.h>
-#include <errno.h>
+#include <cerrno>
 
 // user include files
 #include "FWCore/Utilities/interface/WallclockTimer.h"

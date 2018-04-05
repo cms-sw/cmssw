@@ -73,21 +73,17 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
-#include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
-
-
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
-
-
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include <map>
 #include <string>
@@ -101,7 +97,7 @@ class METAnalyzer : public DQMEDAnalyzer{
   METAnalyzer(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~METAnalyzer();
+  ~METAnalyzer() override;
 
 /// Inizialize parameters for histo binning
 //  void beginJob(void);
@@ -112,17 +108,17 @@ class METAnalyzer : public DQMEDAnalyzer{
   //void bookMonitorElement(std::string, bool);
 
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   /// Initialize run-based parameters
-  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&,  const edm::EventSetup&) override;
 
   /// Finish up a run
-  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
+  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
   //  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   // Fill MonitorElements
-  void fillMESet(const edm::Event&, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&,std::map<std::string,MonitorElement*>&,int);
-  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET& ,std::map<std::string,MonitorElement*>&,bool,bool,int);
+  void fillMESet(const edm::Event&, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&, const reco::Candidate::PolarLorentzVector&, std::map<std::string,MonitorElement*>&,std::vector<bool>,std::vector<bool>);
+  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET& , const reco::Candidate::PolarLorentzVector& ,std::map<std::string,MonitorElement*>&,bool,bool,std::vector<bool>,std::vector<bool>);
   void makeRatePlot(std::string, double);
 
 //  bool selectHighPtJetEvent(const edm::Event&);
@@ -135,16 +131,12 @@ class METAnalyzer : public DQMEDAnalyzer{
  // Book MonitorElements
   void bookMESet(std::string,DQMStore::IBooker &,std::map<std::string,MonitorElement*>&);
 // Book MonitorElements
-  void bookMonitorElement(std::string,DQMStore::IBooker &, std::map<std::string,MonitorElement*>&,bool ,bool);
+  void bookMonitorElement(std::string,DQMStore::IBooker &, std::map<std::string,MonitorElement*>&,bool ,bool,bool);
 
   // ----------member data ---------------------------
   edm::ParameterSet parameters;
   // Switch for verbosity
   int verbose_;
-
-
-  L1GtUtils m_l1GtUtils;
-
 
   std::string MetType_;
   std::string FolderName_;
@@ -152,7 +144,6 @@ class METAnalyzer : public DQMEDAnalyzer{
   edm::InputTag metCollectionLabel_;
   edm::InputTag hcalNoiseRBXCollectionTag_;
   edm::InputTag jetCollectionLabel_;
-  edm::InputTag hbheNoiseFilterResultTag_;
   edm::InputTag vertexTag_;
   edm::InputTag gtTag_;
 
@@ -161,8 +152,32 @@ class METAnalyzer : public DQMEDAnalyzer{
   edm::EDGetTokenT<reco::CaloJetCollection>       caloJetsToken_;
   edm::EDGetTokenT<reco::PFJetCollection>         pfJetsToken_;
   edm::EDGetTokenT<pat::JetCollection>        patJetsToken_;
+  edm::EDGetTokenT<reco::MuonCollection>         MuonsToken_;
 
-  edm::EDGetTokenT<bool>                          hbheNoiseFilterResultToken_;
+  edm::InputTag METFilterMiniAODLabel_;
+  edm::EDGetTokenT<edm::TriggerResults> METFilterMiniAODToken_;
+  edm::InputTag METFilterMiniAODLabel2_;//needed for RECO and reRECO differntiation
+  edm::EDGetTokenT<edm::TriggerResults> METFilterMiniAODToken2_;
+
+  std::vector<int> miniaodFilterIndex_;
+  int miniaodfilterdec;//if RECO set to 0, if reRECO set to 1, else to -1
+
+  edm::InputTag hbheNoiseFilterResultTag_;
+  edm::EDGetTokenT<bool>    hbheNoiseFilterResultToken_;
+  edm::InputTag hbheNoiseIsoFilterResultTag_;
+  edm::EDGetTokenT<bool>    hbheIsoNoiseFilterResultToken_;
+  edm::InputTag CSCHaloResultTag_;
+  edm::EDGetTokenT<bool>  CSCHaloResultToken_;
+  edm::InputTag CSCHalo2015ResultTag_;
+  edm::EDGetTokenT<bool>  CSCHalo2015ResultToken_;
+  edm::InputTag EcalDeadCellTriggerTag_;
+  edm::EDGetTokenT<bool>  EcalDeadCellTriggerToken_;
+  edm::InputTag eeBadScFilterTag_;
+  edm::EDGetTokenT<bool>  eeBadScFilterToken_;
+  edm::InputTag EcalDeadCellBoundaryTag_;
+  edm::EDGetTokenT<bool>  EcalDeadCellBoundaryToken_;
+  edm::InputTag HcalStripHaloTag_;
+  edm::EDGetTokenT<bool>  HcalStripHaloToken_;
 
   edm::EDGetTokenT<pat::METCollection>           patMetToken_; 
   edm::EDGetTokenT<reco::PFMETCollection>         pfMetToken_;
@@ -181,6 +196,7 @@ class METAnalyzer : public DQMEDAnalyzer{
   double ptThreshold_;
 
   HLTConfigProvider hltConfig_;
+  HLTConfigProvider FilterhltConfig_;
   edm::InputTag                         triggerResultsLabel_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
 
@@ -188,6 +204,9 @@ class METAnalyzer : public DQMEDAnalyzer{
 //  std::vector<std::string > HLTPathsJetMBByName_;
   std::vector<std::string > allTriggerNames_;
   std::vector< int > allTriggerDecisions_;
+
+  std::string HBHENoiseStringMiniAOD;
+  std::string HBHEIsoNoiseStringMiniAOD;
 
   edm::EDGetTokenT<reco::JetCorrector> jetCorrectorToken_;
 
@@ -286,6 +305,17 @@ class METAnalyzer : public DQMEDAnalyzer{
   //MonitorElement* hEz;
   MonitorElement* hMETSig;
   MonitorElement* hMET;
+  MonitorElement* hMET_2;
+ 
+  MonitorElement* hMET_HBHENoiseFilter;
+  MonitorElement* hMET_CSCTightHaloFilter;
+  MonitorElement* hMET_eeBadScFilter;
+  MonitorElement* hMET_EcalDeadCellTriggerFilter;
+  MonitorElement* hMET_EcalDeadCellBoundaryFilter;
+  MonitorElement* hMET_HBHEIsoNoiseFilter;
+  MonitorElement* hMET_CSCTightHalo2015Filter;
+  MonitorElement* hMET_HcalStripHaloFilter;
+
   MonitorElement* hMETPhi;
   MonitorElement* hSumET;
 
@@ -340,7 +370,8 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meHFHadronEt;
   MonitorElement* meHFEMEtFraction;
   MonitorElement* meHFEMEt;
- //MEs where we fill if the previous two bunches are empty (25 ns bunch spacing)
+  //MEs where we fill if the previous two bunches are empty (25 ns bunch spacing)
+  /*
   MonitorElement* mePhotonEtFraction_BXm2BXm1Empty;
   MonitorElement* meNeutralHadronEtFraction_BXm2BXm1Empty;
   MonitorElement* meChargedHadronEtFraction_BXm2BXm1Empty;
@@ -360,7 +391,7 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meMETPhiHFHadronsMinus_BXm2BXm1Empty;
   MonitorElement* meMETPhiHFEGammasPlus_BXm2BXm1Empty;
   MonitorElement* meMETPhiHFEGammasMinus_BXm2BXm1Empty;
-
+  */
   //MEs where we fill if the previous bunch is empty (25 ns bunch spacing)
   MonitorElement* mePhotonEtFraction_BXm1Empty;
   MonitorElement* meNeutralHadronEtFraction_BXm1Empty;
@@ -404,27 +435,28 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meMETPhiHFEGammasMinus_BXm1Filled;
 
   //MEs where we fill if two previous bunches are filled (25 ns bunch spacing)
+  /*
   MonitorElement* meChargedHadronEtFraction_BXm2BXm1Filled;
   MonitorElement* mePhotonEtFraction_BXm2BXm1Filled;
   MonitorElement* meNeutralHadronEtFraction_BXm2BXm1Filled;
   MonitorElement* meMET_BXm2BXm1Filled;
   MonitorElement* meSumET_BXm2BXm1Filled;
-
+  */
   MonitorElement* meCHF_Barrel;
   MonitorElement* meCHF_EndcapPlus;
   MonitorElement* meCHF_EndcapMinus;
   MonitorElement* meCHF_Barrel_BXm1Empty;
   MonitorElement* meCHF_EndcapPlus_BXm1Empty;
   MonitorElement* meCHF_EndcapMinus_BXm1Empty;
-  MonitorElement* meCHF_Barrel_BXm2BXm1Empty;
-  MonitorElement* meCHF_EndcapPlus_BXm2BXm1Empty;
-  MonitorElement* meCHF_EndcapMinus_BXm2BXm1Empty;
+  //MonitorElement* meCHF_Barrel_BXm2BXm1Empty;
+  //MonitorElement* meCHF_EndcapPlus_BXm2BXm1Empty;
+  //MonitorElement* meCHF_EndcapMinus_BXm2BXm1Empty;
   MonitorElement* meCHF_Barrel_BXm1Filled;
   MonitorElement* meCHF_EndcapPlus_BXm1Filled;
   MonitorElement* meCHF_EndcapMinus_BXm1Filled;
-  MonitorElement* meCHF_Barrel_BXm2BXm1Filled;
-  MonitorElement* meCHF_EndcapPlus_BXm2BXm1Filled;
-  MonitorElement* meCHF_EndcapMinus_BXm2BXm1Filled;
+  //MonitorElement* meCHF_Barrel_BXm2BXm1Filled;
+  //MonitorElement* meCHF_EndcapPlus_BXm2BXm1Filled;
+  //MonitorElement* meCHF_EndcapMinus_BXm2BXm1Filled;
 
   MonitorElement* meNHF_Barrel;
   MonitorElement* meNHF_EndcapPlus;
@@ -432,15 +464,15 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meNHF_Barrel_BXm1Empty;
   MonitorElement* meNHF_EndcapPlus_BXm1Empty;
   MonitorElement* meNHF_EndcapMinus_BXm1Empty;
-  MonitorElement* meNHF_Barrel_BXm2BXm1Empty;
-  MonitorElement* meNHF_EndcapPlus_BXm2BXm1Empty;
-  MonitorElement* meNHF_EndcapMinus_BXm2BXm1Empty;
+  //MonitorElement* meNHF_Barrel_BXm2BXm1Empty;
+  //MonitorElement* meNHF_EndcapPlus_BXm2BXm1Empty;
+  //MonitorElement* meNHF_EndcapMinus_BXm2BXm1Empty;
   MonitorElement* meNHF_Barrel_BXm1Filled;
   MonitorElement* meNHF_EndcapPlus_BXm1Filled;
   MonitorElement* meNHF_EndcapMinus_BXm1Filled;
-  MonitorElement* meNHF_Barrel_BXm2BXm1Filled;
-  MonitorElement* meNHF_EndcapPlus_BXm2BXm1Filled;
-  MonitorElement* meNHF_EndcapMinus_BXm2BXm1Filled;
+  //MonitorElement* meNHF_Barrel_BXm2BXm1Filled;
+  //MonitorElement* meNHF_EndcapPlus_BXm2BXm1Filled;
+  //MonitorElement* meNHF_EndcapMinus_BXm2BXm1Filled;
 
   MonitorElement* mePhF_Barrel;
   MonitorElement* mePhF_EndcapPlus;
@@ -448,38 +480,38 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* mePhF_Barrel_BXm1Empty;
   MonitorElement* mePhF_EndcapPlus_BXm1Empty;
   MonitorElement* mePhF_EndcapMinus_BXm1Empty;
-  MonitorElement* mePhF_Barrel_BXm2BXm1Empty;
-  MonitorElement* mePhF_EndcapPlus_BXm2BXm1Empty;
-  MonitorElement* mePhF_EndcapMinus_BXm2BXm1Empty;
+  //MonitorElement* mePhF_Barrel_BXm2BXm1Empty;
+  //MonitorElement* mePhF_EndcapPlus_BXm2BXm1Empty;
+  //MonitorElement* mePhF_EndcapMinus_BXm2BXm1Empty;
   MonitorElement* mePhF_Barrel_BXm1Filled;
   MonitorElement* mePhF_EndcapPlus_BXm1Filled;
   MonitorElement* mePhF_EndcapMinus_BXm1Filled;
-  MonitorElement* mePhF_Barrel_BXm2BXm1Filled;
-  MonitorElement* mePhF_EndcapPlus_BXm2BXm1Filled;
-  MonitorElement* mePhF_EndcapMinus_BXm2BXm1Filled;
+  //MonitorElement* mePhF_Barrel_BXm2BXm1Filled;
+  //MonitorElement* mePhF_EndcapPlus_BXm2BXm1Filled;
+  //MonitorElement* mePhF_EndcapMinus_BXm2BXm1Filled;
 
   MonitorElement* meHFHadF_Plus;
   MonitorElement* meHFHadF_Minus;
   MonitorElement* meHFHadF_Plus_BXm1Empty;
   MonitorElement* meHFHadF_Minus_BXm1Empty;
-  MonitorElement* meHFHadF_Plus_BXm2BXm1Empty;
-  MonitorElement* meHFHadF_Minus_BXm2BXm1Empty;
+  //MonitorElement* meHFHadF_Plus_BXm2BXm1Empty;
+  //MonitorElement* meHFHadF_Minus_BXm2BXm1Empty;
   MonitorElement* meHFHadF_Plus_BXm1Filled;
   MonitorElement* meHFHadF_Minus_BXm1Filled;
-  MonitorElement* meHFHadF_Plus_BXm2BXm1Filled;
-  MonitorElement* meHFHadF_Minus_BXm2BXm1Filled;
+  //MonitorElement* meHFHadF_Plus_BXm2BXm1Filled;
+  //MonitorElement* meHFHadF_Minus_BXm2BXm1Filled;
 
   MonitorElement* meHFEMF_Plus;
   MonitorElement* meHFEMF_Minus;
   MonitorElement* meHFEMF_Plus_BXm1Empty;
   MonitorElement* meHFEMF_Minus_BXm1Empty;
-  MonitorElement* meHFEMF_Plus_BXm2BXm1Empty;
-  MonitorElement* meHFEMF_Minus_BXm2BXm1Empty;
+  //MonitorElement* meHFEMF_Plus_BXm2BXm1Empty;
+  //MonitorElement* meHFEMF_Minus_BXm2BXm1Empty;
   MonitorElement* meHFEMF_Plus_BXm1Filled;
   MonitorElement* meHFEMF_Minus_BXm1Filled;
-  MonitorElement* meHFEMF_Plus_BXm2BXm1Filled;
-  MonitorElement* meHFEMF_Minus_BXm2BXm1Filled;
-
+  //MonitorElement* meHFEMF_Plus_BXm2BXm1Filled;
+  //MonitorElement* meHFEMF_Minus_BXm2BXm1Filled;
+  /*
   MonitorElement* meMETPhiChargedHadronsBarrel_BXm2BXm1Filled;
   MonitorElement* meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Filled;
   MonitorElement* meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Filled;
@@ -493,28 +525,15 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meMETPhiHFHadronsMinus_BXm2BXm1Filled;
   MonitorElement* meMETPhiHFEGammasPlus_BXm2BXm1Filled;
   MonitorElement* meMETPhiHFEGammasMinus_BXm2BXm1Filled;
-
+  */
   double ptMinCand_;
 
-  // Smallest raw HCAL energy linked to the track
-  double hcalMin_;
-  MonitorElement* mProfileIsoPFChHad_HadPtCentral;
-  MonitorElement* mProfileIsoPFChHad_HadPtEndcap;
-  MonitorElement* mProfileIsoPFChHad_EMPtCentral;
-  MonitorElement* mProfileIsoPFChHad_EMPtEndcap;
-  MonitorElement* mProfileIsoPFChHad_TrackPt;
-
-  MonitorElement* mProfileIsoPFChHad_HcalOccupancyCentral;
-  MonitorElement* mProfileIsoPFChHad_HcalOccupancyEndcap;
-  MonitorElement* mProfileIsoPFChHad_EcalOccupancyCentral;
-  MonitorElement* mProfileIsoPFChHad_EcalOccupancyEndcap;
-  MonitorElement* mProfileIsoPFChHad_TrackOccupancy;
 
   //PFcandidate maps
-  std::vector<MonitorElement* > profilePFCand_x_,profilePFCand_y_,occupancyPFCand_,ptPFCand_,multiplicityPFCand_;
-  std::vector<std::string> profilePFCand_x_name_,profilePFCand_y_name_,occupancyPFCand_name_,ptPFCand_name_,multiplicityPFCand_name_;
+  std::vector<MonitorElement* > profilePFCand_x_,profilePFCand_y_;
+  std::vector<std::string> profilePFCand_x_name_,profilePFCand_y_name_;
   std::vector<double> etaMinPFCand_, etaMaxPFCand_, MExPFCand_, MEyPFCand_;
-  std::vector<int> typePFCand_, nbinsPFCand_, countsPFCand_, etaNBinsPFCand_;
+  std::vector<int> typePFCand_,  countsPFCand_, etaNBinsPFCand_;
 
   MonitorElement* meMETPhiChargedHadronsBarrel;
   MonitorElement* meMETPhiChargedHadronsEndcapPlus;
@@ -531,6 +550,7 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meMETPhiHFEGammasMinus;
  
   edm::EDGetTokenT<std::vector<reco::PFCandidate> > pflowToken_;
+  edm::EDGetTokenT<std::vector<pat::PackedCandidate> > pflowPackedToken_;
 
   // NPV profiles --> 
   //----------------------------------------------------------------------------
@@ -550,10 +570,25 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meHFEMEtFraction_profile;
   MonitorElement* meHFEMEt_profile;
 
+  MonitorElement* meZJets_u_par;
+  MonitorElement* meZJets_u_par_ZPt_0_15;
+  MonitorElement* meZJets_u_par_ZPt_15_30;
+  MonitorElement* meZJets_u_par_ZPt_30_55;
+  MonitorElement* meZJets_u_par_ZPt_55_75;
+  MonitorElement* meZJets_u_par_ZPt_75_150;
+  MonitorElement* meZJets_u_par_ZPt_150_290;
+  MonitorElement* meZJets_u_par_ZPt_290;
+  
+  MonitorElement* meZJets_u_perp;
+  MonitorElement* meZJets_u_perp_ZPt_0_15;
+  MonitorElement* meZJets_u_perp_ZPt_15_30;
+  MonitorElement* meZJets_u_perp_ZPt_30_55;
+  MonitorElement* meZJets_u_perp_ZPt_55_75;
+  MonitorElement* meZJets_u_perp_ZPt_75_150;
+  MonitorElement* meZJets_u_perp_ZPt_150_290;
+  MonitorElement* meZJets_u_perp_ZPt_290;
 
   std::map< std::string,MonitorElement* >map_dijet_MEs;
-  std::vector<unsigned int> nCh;
-  std::vector<unsigned int> nEv;
 
   bool isCaloMet_;
   bool isPFMet_;

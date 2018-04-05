@@ -6,6 +6,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
@@ -23,7 +24,7 @@ class ShallowClustersProducer : public edm::EDProducer {
 
   edm::InputTag theClustersLabel;
   std::string Prefix;
-  void produce( edm::Event &, const edm::EventSetup & );
+  void produce( edm::Event &, const edm::EventSetup & ) override;
 
   struct moduleVars {
     moduleVars(uint32_t, const TrackerTopology*);
@@ -35,13 +36,13 @@ class ShallowClustersProducer : public edm::EDProducer {
     NearDigis(const SiStripClusterInfo&);
     NearDigis(const SiStripClusterInfo&, const edm::DetSetVector<SiStripProcessedRawDigi>&);
     float max, left, right, first, last, Lleft, Rright; 
-    float etaX() const {return (left+right)/max/2.;}
+    float etaX() const {return ((left+right)/max)/2.;}
     float eta()  const {return right>left ? max/(max+right) : left/(left+max);}
     float etaasymm() const {return right>left ? (right-max)/(right+max) : (max-left)/(max+left);}
     float outsideasymm() const {return (last-first)/(last+first);}
   };
 
-  edm::EDGetTokenT<edm::DetSetVector<SiStripCluster> >          theClustersToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> >          theClustersToken_;
   edm::EDGetTokenT<edm::DetSetVector<SiStripProcessedRawDigi> > theDigisToken_;
   
 };

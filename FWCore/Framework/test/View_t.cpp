@@ -122,9 +122,9 @@ void testView::cloning()
   View v1;
   edm::View<int>::fill_from_range(vals, vals+sz, v1);
   
-  edm::ViewBase* base = v1.clone();
+  auto base = v1.clone();
   CPPUNIT_ASSERT(base);
-  edm::View<int>* view = dynamic_cast<edm::View<int>*>(base);
+  edm::View<int>* view = dynamic_cast<edm::View<int>*>(base.get());
   CPPUNIT_ASSERT(view);
   if(view) {
     CPPUNIT_ASSERT(*view == v1);

@@ -5,7 +5,7 @@
 
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 
 #include "DataFormats/FWLite/interface/InputSource.h"
 #include "DataFormats/FWLite/interface/OutputFiles.h"
@@ -27,14 +27,14 @@ int main(int argc, char* argv[])
   // ----------------------------------------------------------------------
   // First Part: 
   //
-  //  * enable the AutoLibraryLoader 
+  //  * enable FWLite 
   //  * book the histograms of interest 
   //  * open the input file
   // ----------------------------------------------------------------------
 
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 
   if ( argc < 2 ) {
     std::cout << "Usage : " << argv[0] << " [parameters.py]" << std::endl;
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
   WSelector wSelector( selection ); pat::strbitset wSelectorReturns = wSelector.getBitTemplate();
   
   // book a set of histograms
-  fwlite::TFileService fs = fwlite::TFileService(outputHandler_.file().c_str());
+  fwlite::TFileService fs = fwlite::TFileService(outputHandler_.file());
   TFileDirectory theDir = fs.mkdir("analyzeBasicPat");
   TH1F* muonPt_  = theDir.make<TH1F>("muonPt", "pt",    100,  0.,300.);
   TH1F* muonEta_ = theDir.make<TH1F>("muonEta","eta",   100, -3.,  3.);

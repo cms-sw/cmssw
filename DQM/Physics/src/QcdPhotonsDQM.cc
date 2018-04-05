@@ -37,7 +37,6 @@
 
 // geometry
 //#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-//#include "Geometry/Records/interface/IdealGeometryRecord.h"
 //#include "Geometry/Records/interface/CaloGeometryRecord.h"
 //#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 //#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -84,34 +83,28 @@ QcdPhotonsDQM::QcdPhotonsDQM(const ParameterSet& parameters) {
       parameters.getParameter<InputTag>("endcapRecHitTag"));
 
   // coverity says...
-  h_deltaEt_photon_jet = 0;
-  h_deltaPhi_jet_jet2 = 0;
-  h_deltaPhi_photon_jet = 0;
-  h_deltaPhi_photon_jet2 = 0;
-  h_deltaR_jet_jet2 = 0;
-  h_deltaR_photon_jet2 = 0;
-  h_jet2_eta = 0;
-  h_jet2_pt = 0;
-  h_jet2_ptOverPhotonEt = 0;
-  h_jet_count = 0;
-  h_jet_eta = 0;
-  h_jet_pt = 0;
-  h_photon_count_bar = 0;
-  h_photon_count_end = 0;
-  h_photon_et = 0;
-  h_photon_et_beforeCuts = 0;
-  h_photon_et_jetco = 0;
-  h_photon_et_jetcs = 0;
-  h_photon_et_jetfo = 0;
-  h_photon_et_jetfs = 0;
-  h_photon_et_ratio_co_cs = 0;
-  h_photon_et_ratio_co_fo = 0;
-  h_photon_et_ratio_co_fs = 0;
-  h_photon_et_ratio_cs_fo = 0;
-  h_photon_et_ratio_cs_fs = 0;
-  h_photon_et_ratio_fo_fs = 0;
-  h_photon_eta = 0;
-  h_triggers_passed = 0;
+  h_deltaEt_photon_jet = nullptr;
+  h_deltaPhi_jet_jet2 = nullptr;
+  h_deltaPhi_photon_jet = nullptr;
+  h_deltaPhi_photon_jet2 = nullptr;
+  h_deltaR_jet_jet2 = nullptr;
+  h_deltaR_photon_jet2 = nullptr;
+  h_jet2_eta = nullptr;
+  h_jet2_pt = nullptr;
+  h_jet2_ptOverPhotonEt = nullptr;
+  h_jet_count = nullptr;
+  h_jet_eta = nullptr;
+  h_jet_pt = nullptr;
+  h_photon_count_bar = nullptr;
+  h_photon_count_end = nullptr;
+  h_photon_et = nullptr;
+  h_photon_et_beforeCuts = nullptr;
+  h_photon_et_jetco = nullptr;
+  h_photon_et_jetcs = nullptr;
+  h_photon_et_jetfo = nullptr;
+  h_photon_et_jetfs = nullptr;
+  h_photon_eta = nullptr;
+  h_triggers_passed = nullptr;
 
 }
 
@@ -220,42 +213,9 @@ void QcdPhotonsDQM::bookHistograms(DQMStore::IBooker & ibooker,
   setSumw2(h_photon_et_jetco);
   setSumw2(h_photon_et_jetfs);
   setSumw2(h_photon_et_jetfo);
-
-  // Ratio of the above Photon Et distributions
-  h_photon_et_ratio_co_cs = ibooker.book1D("photon_et_ratio_00_co_cs",
-      "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)<0) / D(|#eta(jet)|<1.45, "
-      "#eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV); ratio", num_bins_et, bins_et);
-  h_photon_et_ratio_fo_fs = ibooker.book1D("photon_et_ratio_01_fo_fs",
-      "D(1.55<|#eta(jet)|<2.6, #eta(jet)*#eta(#gamma)<0) / "
-      "D(1.55<|#eta(jet)|<2.6, #eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV); ratio",
-      num_bins_et, bins_et);
-  h_photon_et_ratio_cs_fs = ibooker.book1D("photon_et_ratio_02_cs_fs",
-      "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)>0) / D(1.55<|#eta(jet)|<2.6, "
-      "#eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV); ratio",
-      num_bins_et, bins_et);
-  h_photon_et_ratio_co_fs = ibooker.book1D("photon_et_ratio_03_co_fs",
-      "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)<0) / D(1.55<|#eta(jet)|<2.6, "
-      "#eta(jet)*#eta(#gamma)>0);E_{T}(#gamma) (GeV); ratio",
-      num_bins_et, bins_et);
-  h_photon_et_ratio_cs_fo = ibooker.book1D("photon_et_ratio_04_cs_fo",
-      "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)>0) / D(1.55<|#eta(jet)|<2.6, "
-      "#eta(jet)*#eta(#gamma)<0);E_{T}(#gamma) (GeV); ratio",
-      num_bins_et, bins_et);
-  h_photon_et_ratio_co_fo = ibooker.book1D("photon_et_ratio_05_co_fo",
-      "D(|#eta(jet)|<1.45, #eta(jet)*#eta(#gamma)<0) / D(1.55<|#eta(jet)|<2.6, "
-      "#eta(jet)*#eta(#gamma)<0);E_{T}(#gamma) (GeV); ratio",
-      num_bins_et, bins_et);
-  setSumw2(h_photon_et_ratio_co_cs);
-  setSumw2(h_photon_et_ratio_fo_fs);
-  setSumw2(h_photon_et_ratio_cs_fs);
-  setSumw2(h_photon_et_ratio_co_fs);
-  setSumw2(h_photon_et_ratio_cs_fo);
-  setSumw2(h_photon_et_ratio_co_fo);
 }
 
 void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
-  num_events_in_run++;
-
   LogTrace(logTraceName) << "Analysis of event # ";
 
   ////////////////////////////////////////////////////////////////////
@@ -527,24 +487,6 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   }
   // End of Filling histograms
   ////////////////////////////////////////////////////////////////////
-}
-
-void QcdPhotonsDQM::endRun(const edm::Run& run, const edm::EventSetup& es) {
-  if (num_events_in_run > 0) {
-    h_triggers_passed->getTH1F()->Scale(1.0 / num_events_in_run);
-  }
-  h_photon_et_ratio_co_cs->getTH1F()->Divide(h_photon_et_jetco->getTH1F(),
-                                             h_photon_et_jetcs->getTH1F());
-  h_photon_et_ratio_fo_fs->getTH1F()->Divide(h_photon_et_jetfo->getTH1F(),
-                                             h_photon_et_jetfs->getTH1F());
-  h_photon_et_ratio_cs_fs->getTH1F()->Divide(h_photon_et_jetcs->getTH1F(),
-                                             h_photon_et_jetfs->getTH1F());
-  h_photon_et_ratio_co_fs->getTH1F()->Divide(h_photon_et_jetco->getTH1F(),
-                                             h_photon_et_jetfs->getTH1F());
-  h_photon_et_ratio_cs_fo->getTH1F()->Divide(h_photon_et_jetcs->getTH1F(),
-                                             h_photon_et_jetfo->getTH1F());
-  h_photon_et_ratio_co_fo->getTH1F()->Divide(h_photon_et_jetco->getTH1F(),
-                                             h_photon_et_jetfo->getTH1F());
 }
 
 // Local Variables:

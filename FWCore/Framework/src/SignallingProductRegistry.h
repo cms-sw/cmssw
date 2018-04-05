@@ -40,7 +40,7 @@ namespace edm {
       SignallingProductRegistry& operator=(SignallingProductRegistry const&) = delete; // Disallow copying and moving
 
    private:
-      virtual void addCalled(BranchDescription const&, bool);
+      void addCalled(BranchDescription const&, bool) override;
       // ---------- member data --------------------------------
       std::map<std::string, unsigned int> typeAddedStack_;
    };

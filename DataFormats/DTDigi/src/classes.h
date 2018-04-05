@@ -3,6 +3,7 @@
 #include <DataFormats/DTDigi/interface/DTLocalTrigger.h>
 #include <DataFormats/DTDigi/interface/DTLocalTriggerCollection.h>
 #include <DataFormats/DTDigi/interface/DTControlData.h>
+#include <DataFormats/DTDigi/interface/DTuROSControlData.h>
 #include <DataFormats/FEDRawData/interface/FEDHeader.h>
 #include <DataFormats/FEDRawData/interface/FEDTrailer.h>
 #include <DataFormats/Common/interface/Wrapper.h>
@@ -21,7 +22,12 @@ namespace DataFormats_DTDigi {
   std::vector<DTLocalTrigger>  ww;
   std::vector<std::vector<DTLocalTrigger> >  w1; 
   DTLocalTriggerCollection tt;
-    
+  
+  DTuROSROSData rd_S;
+  DTuROSFEDData fd_S;
+  std::vector<DTuROSFEDData> fd_V;
+  edm::Wrapper<std::vector<DTuROSFEDData>> fd_W;
+  
   std::vector<DTDDUData> vu;
   std::vector<DTDDUFirstStatusWord> vfsw;
   std::vector<DTDDUSecondStatusWord> vssw;

@@ -126,7 +126,7 @@ private:
 template <typename T, typename U>
 double PFBenchmarkAlgo::deltaEt(const T *c1, const U *c2) {
 
-  if (c1 == NULL || c2 == NULL)
+  if (c1 == nullptr || c2 == nullptr)
     throw cms::Exception("Invalid Arg") << "attempted to calculate deltaEt for invalid Candidate(s)";
 
   return c1->et() - c2->et();
@@ -137,7 +137,7 @@ double PFBenchmarkAlgo::deltaEt(const T *c1, const U *c2) {
 template <typename T, typename U>
 double PFBenchmarkAlgo::deltaEta(const T *c1, const U *c2) {
 
-  if (c1 == NULL || c2 == NULL)
+  if (c1 == nullptr || c2 == nullptr)
     throw cms::Exception("Invalid Arg") << "attempted to calculate deltaEta for invalid Candidate(s)";
 
   return c1->eta() - c2->eta();
@@ -148,7 +148,7 @@ double PFBenchmarkAlgo::deltaEta(const T *c1, const U *c2) {
 template <typename T, typename U>
 double PFBenchmarkAlgo::deltaPhi(const T *c1, const U *c2) {
 
-  if (c1 == NULL || c2 == NULL)
+  if (c1 == nullptr || c2 == nullptr)
     throw cms::Exception("Invalid Arg") << "attempted to calculate deltaPhi for invalid Candidate(s)";
 
   
@@ -188,7 +188,7 @@ double PFBenchmarkAlgo::deltaPhi(const T *c1, const U *c2) {
 template <typename T, typename U>
 double PFBenchmarkAlgo::deltaR(const T *c1, const U *c2) {
 
-  if (c1 == NULL || c2 == NULL)
+  if (c1 == nullptr || c2 == nullptr)
     throw cms::Exception("Invalid Arg") << "attempted to calculate deltaR for invalid Candidate(s)";
 
   return sqrt(std::pow(deltaPhi(c1,c2),2) + std::pow(deltaEta(c1,c2),2));
@@ -206,7 +206,7 @@ const typename Collection::value_type *PFBenchmarkAlgo::matchByDeltaR(const T *c
   if (!candidates) throw cms::Exception("Invalid Arg") << "attempted to match to invalid Collection";
 
   double minDeltaR = 9999.;
-  const U *match = NULL;
+  const U *match = nullptr;
   
   // Loop Over the Candidates...
   for (unsigned int i = 0; i < candidates->size(); i++) {

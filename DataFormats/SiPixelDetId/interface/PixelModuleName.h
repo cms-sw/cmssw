@@ -3,7 +3,7 @@
 
 #include <string>
 #include <iostream>
-#include <stdint.h>
+#include <cstdint>
 
 /** \class PixelModuleName
  * Base class to Pixel modules naming, provides a name as in PixelDatabase

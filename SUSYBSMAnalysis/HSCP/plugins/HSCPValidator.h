@@ -44,13 +44,13 @@
 class HSCPValidator : public edm::EDAnalyzer {
    public:
       explicit HSCPValidator(const edm::ParameterSet&);
-      ~HSCPValidator();
+      ~HSCPValidator() override;
 
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       std::string intToString(int num);
       void makeGenPlots(const edm::Event& iEvent);
       void makeSimTrackPlots(const edm::Event& iEvent);
@@ -73,6 +73,7 @@ class HSCPValidator : public edm::EDAnalyzer {
       edm::EDGetTokenT<reco::TrackCollection> tkTracksToken_;
       edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > dEdxTrackToken_;
       edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken_;
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
       std::vector<int> particleIds_;
       int particleStatus_;
       std::map<int,int> particleIdsFoundMap_;

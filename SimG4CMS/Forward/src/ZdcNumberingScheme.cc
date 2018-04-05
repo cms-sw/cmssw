@@ -48,7 +48,9 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
       } 
       else if (name[ich] == "ZDC_EMLayer") {
         section = HcalZDCDetId::EM;
+#ifdef debug
         layer = copyno[ich];
+#endif
       }
       else if (name[ich] == "ZDC_EMFiber") {
         fiber = copyno[ich];
@@ -68,9 +70,6 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
         layer = copyno[ich];
         channel = layer;
       }
-      else if (name[ich] == "ZDC_LumGas") {
-        fiber = 1;
-      }
       else if (name[ich] == "ZDC_HadLayer") {
         section = HcalZDCDetId::HAD;
         layer = copyno[ich];
@@ -83,19 +82,22 @@ unsigned int ZdcNumberingScheme::getUnitID(const G4Step* aStep) const {
       	else
           channel = 4;
       }
+#ifdef debug
+      else if (name[ich] == "ZDC_LumGas") {
+        fiber = 1;
+      }
       else if (name[ich] == "ZDC_HadFiber") {
         fiber = copyno[ich];
       }
+#endif
     }
  
 #ifdef debug
     unsigned intindex=0;
-    // intindex = myPacker.packZdcIndex (section, layer, fiber, channel, zside);
     intindex = packZdcIndex (section, layer, fiber, channel, zside);
 #endif
 
     bool true_for_positive_eta = true;
-    //if(zside == 1)true_for_positive_eta = true;
     if(zside == -1)true_for_positive_eta = false;
 
     HcalZDCDetId zdcId(section, true_for_positive_eta, channel);

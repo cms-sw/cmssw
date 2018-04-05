@@ -23,6 +23,7 @@ class LHEAnalyzer( Analyzer ):
         if not self.cfg_comp.isMC: 
             return True
         event.lheHT=0
+        event.lheHTIncoming=0 #restrict HT computation to particles that have status<0 mothers
         event.lheNj=0
         event.lheNb=0
         event.lheNc=0
@@ -46,9 +47,19 @@ class LHEAnalyzer( Analyzer ):
           id=hepeup.IDUP[i]
           status = hepeup.ISTUP[i]
           idabs=abs(id)
+
+          mothIdx = max(hepeup.MOTHUP[i][0]-1,0) #first and last mother as pair; first entry has index 1 in LHE; incoming particles return motherindex 0
+          mothIdxTwo = max(hepeup.MOTHUP[i][1]-1,0) 
+          
+          mothStatus  = hepeup.ISTUP[mothIdx] 
+          mothStatusTwo  = hepeup.ISTUP[mothIdxTwo] 
+
+          hasIncomingAsMother = mothStatus<0 or mothStatusTwo<0
           
           if status == 1 and ( ( idabs == 21 ) or (idabs > 0 and idabs < 7) ) : # gluons and quarks
-              event.lheHT += sqrt( pup[i][0]**2 + pup[i][1]**2 ) # first entry is px, second py
+              pt = sqrt( pup[i][0]**2 + pup[i][1]**2 ) # first entry is px, second py
+              event.lheHT += pt
+              if hasIncomingAsMother: event.lheHTIncoming += pt
               event.lheNj +=1
               if idabs==5:
                 event.lheNb += 1

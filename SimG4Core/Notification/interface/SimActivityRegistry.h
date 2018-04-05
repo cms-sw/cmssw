@@ -114,9 +114,9 @@ class SimActivityRegistry
       void connect(SimActivityRegistry& iOther);
       
    private:
-      SimActivityRegistry(const SimActivityRegistry&); // stop default
+      SimActivityRegistry(const SimActivityRegistry&) = delete; // stop default
 
-      const SimActivityRegistry& operator=(const SimActivityRegistry&); // stop default
+      const SimActivityRegistry& operator=(const SimActivityRegistry&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

@@ -15,7 +15,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
 
-
+namespace edm { class ParameterSetDescription; }
 class FreeTrajectoryState;
 
 class dso_hidden SeedFromConsecutiveHitsCreator : public SeedCreator {
@@ -32,17 +32,20 @@ public:
       {}
 
   //dtor
-  virtual ~SeedFromConsecutiveHitsCreator();
+  ~SeedFromConsecutiveHitsCreator() override;
+
+  static void fillDescriptions(edm::ParameterSetDescription& desc);
+  static const char *fillDescriptionsLabel() { return "ConsecutiveHits"; }
 
   // initialize the "event dependent state"
-  virtual void init(const TrackingRegion & region,
+  void init(const TrackingRegion & region,
 	       const edm::EventSetup& es,
-	       const SeedComparitor *filter) GCC11_FINAL;
+	       const SeedComparitor *filter) final;
 
   // make job
   // fill seedCollection with the "TrajectorySeed"
-  virtual void makeSeed(TrajectorySeedCollection & seedCollection,
-			const SeedingHitSet & hits) GCC11_FINAL;
+  void makeSeed(TrajectorySeedCollection & seedCollection,
+			const SeedingHitSet & hits) final;
 
 
 private:
@@ -69,9 +72,9 @@ private:
 protected:
 
   std::string thePropagatorLabel;
-  double theBOFFMomentum;
-  double theOriginTransverseErrorMultiplier;
-  double theMinOneOverPtError;
+  float theBOFFMomentum;
+  float theOriginTransverseErrorMultiplier;
+  float theMinOneOverPtError;
 
   const TrackingRegion * region = nullptr;
   const SeedComparitor *filter = nullptr;

@@ -2,7 +2,7 @@
 //
 // Package:    DQM/SiStripMonitorHardware
 // Class:      FEDErrors
-// 
+//
 /**\class FEDErrors DQM/SiStripMonitorHardware/interface/FEDErrors.hh
 
  Description: class summarising FED errors
@@ -23,6 +23,8 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
+#include "DQMServices/Core/interface/MonitorElement.h"
+
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
@@ -33,7 +35,7 @@ class TrackerTopology;
 class FEDErrors {
 
 public:
-  
+
   struct FEDCounters {
     unsigned int nFEDErrors;
     unsigned int nDAQProblems;
@@ -58,8 +60,8 @@ public:
   };
 
   struct FECounters {
-    unsigned int nFEOverflows; 
-    unsigned int nFEBadMajorityAddresses; 
+    unsigned int nFEOverflows;
+    unsigned int nFEBadMajorityAddresses;
     unsigned int nFEMissing;
   };
 
@@ -121,7 +123,7 @@ public:
   struct EventProperties {
     long long deltaBX;
   };
-    
+
   FEDErrors();
 
   ~FEDErrors();
@@ -132,7 +134,7 @@ public:
 
   void initialiseFED(const unsigned int aFedID,
 		     const SiStripFedCabling* aCabling,
-                     const TrackerTopology* tTopo,  
+                     const TrackerTopology* tTopo,
 		     bool initVars = true);
 
   //return false if no data, with or without cabled channels.
@@ -151,7 +153,7 @@ public:
 
   //FE/Channel check: rate of channels with error (only considering connected channels)
   float fillNonFatalFEDErrors(const sistrip::FEDBuffer* aBuffer,
-			      const SiStripFedCabling* aCabling = 0);
+			      const SiStripFedCabling* aCabling = nullptr);
 
   //fill errors: define the order of importance.
   bool fillFEDErrors(const FEDRawData& aFedData,
@@ -186,7 +188,9 @@ public:
 			  TkHistoMap *aTkMapPointer,
 			  MonitorElement *aFedIdVsApvId,
 			  unsigned int & aNBadChannels,
-			  unsigned int & aNBadActiveChannels);
+			  unsigned int & aNBadActiveChannels,
+        unsigned int & aNBadChannels_perFEDID
+      );
 
   void fillEventProperties(long long dbx);
 
@@ -195,7 +199,7 @@ public:
   const bool failMonitoringFEDCheck();
 
   const bool anyDAQProblems();
-  
+
   const bool anyFEDErrors();
 
   const bool anyFEProblems();
@@ -213,7 +217,7 @@ public:
   FEDLevelErrors & getFEDLevelErrors();
 
   EventProperties & getEventProperties();
-  
+
   std::vector<FELevelErrors> & getFELevelErrors();
 
   std::vector<ChannelLevelErrors> & getChannelLevelErrors();
@@ -245,7 +249,7 @@ public:
 
 
 protected:
-  
+
 private:
 
   void incrementLumiErrors(const bool hasError,
@@ -265,7 +269,7 @@ private:
   std::vector<unsigned short> nChInModule_;
 
   std::vector<unsigned short> subDetId_;
-  
+
   FECounters feCounter_;
   FEDLevelErrors fedErrors_;
   ChannelCounters lChCounter_;

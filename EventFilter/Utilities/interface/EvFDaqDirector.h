@@ -13,29 +13,43 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <map>
 #include <list>
 #include <mutex>
 
 //system headers
-//#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #include <fcntl.h>
-#include <errno.h>
-#include <string.h>
-#include <stdio.h>
+#include <cerrno>
+#include <cstring>
+#include <cstdio>
+
+#include <tbb/concurrent_hash_map.h>
 
 class SystemBounds;
 class GlobalContext;
 class StreamID;
 
-class InputFile;
-class InputChunk;
+struct InputFile;
+struct InputChunk;
+
+namespace edm {
+  class PathsAndConsumesOfModulesBase;
+  class ProcessContext;
+}
 
 namespace Json{
   class Value;
 }
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 namespace evf{
+
+  enum MergeType { MergeTypeNULL = 0, MergeTypeDAT = 1, MergeTypePB = 2, MergeTypeJSNDATA = 3};
 
   class FastMonitoringService;
 
@@ -47,12 +61,14 @@ namespace evf{
 
       explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg );
       ~EvFDaqDirector();
+      void initRun();
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
       void preallocate(edm::service::SystemBounds const& bounds);
+      void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
       void preBeginRun(edm::GlobalContext const& globalContext);
       void postEndRun(edm::GlobalContext const& globalContext);
       void preGlobalEndLumi(edm::GlobalContext const& globalContext);
-      void preSourceEvent(edm::StreamID const& streamID);
-      //std::string &baseDir(){return base_dir_;}
+      void overrideRunNumber(unsigned int run) {run_=run;}
       std::string &baseRunDir(){return run_dir_;}
       std::string &buBaseRunDir(){return bu_run_dir_;}
       std::string &buBaseRunOpenDir(){return bu_run_open_dir_;}
@@ -62,6 +78,7 @@ namespace evf{
       std::string getRawFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenRawFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
+      std::string getDatFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOpenDatFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOpenOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
@@ -85,40 +102,33 @@ namespace evf{
       void removeFile(unsigned int ls, unsigned int index);
       void removeFile(std::string );
 
-      FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize);
+      FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
       void tryInitializeFuLockFile();
       unsigned int getRunNumber() const { return run_; }
-      unsigned int getJumpLS() const { return jumpLS_; }
-      unsigned int getJumpIndex() const { return jumpIndex_; }
-      std::string getJumpFilePath() const { return bu_run_dir_ + "/" + fffnaming::inputRawFileName(getRunNumber(),jumpLS_,jumpIndex_); }
-      bool getTestModeNoBuilderUnit() { return testModeNoBuilderUnit_;}
-      FILE * maybeCreateAndLockFileHeadForStream(unsigned int ls, std::string &stream);
-      void unlockAndCloseMergeStream();
       void lockInitLock();
       void unlockInitLock();
       void setFMS(evf::FastMonitoringService* fms) {fms_=fms;}
-      void updateFileIndex(int const& fileIndex) {currentFileIndex_=fileIndex;}
-      std::vector<int>* getStreamFileTracker() {return &streamFileTracker_;}
       bool isSingleStreamThread() {return nStreams_==1 && nThreads_==1;}
       void lockFULocal();
       void unlockFULocal();
       void lockFULocal2();
       void unlockFULocal2();
       void createRunOpendirMaybe();
+      void createProcessingNotificationMaybe() const;
       int readLastLSEntry(std::string const& file);
       void setDeleteTracking( std::mutex* fileDeleteLock,std::list<std::pair<int,InputFile*>> *filesToDelete) {
         fileDeleteLockPtr_=fileDeleteLock;
         filesToDeletePtr_ = filesToDelete;
       }
-      void checkTransferSystemPSet();
+      void checkTransferSystemPSet(edm::ProcessContext const& pc);
+      void checkMergeTypePSet(edm::ProcessContext const& pc);
       std::string getStreamDestinations(std::string const& stream) const;
-
+      std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
+      static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
 
     private:
-      //bool bulock();
-      //bool fulock();
       bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize, int maxLS);
-      void openFULockfileStream(std::string& fuLockFilePath, bool create);
+      void openFULockfileStream(bool create);
       std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
       std::string outputFileNameStem(const unsigned int ls, std::string const& stream) const;
       std::string mergedFileNameStem(const unsigned int ls, std::string const& stream) const;
@@ -127,7 +137,6 @@ namespace evf{
       std::string eorFileName() const;
       int getNFilesFromEoLS(std::string BUEoLSFile);
 
-      bool testModeNoBuilderUnit_;
       std::string base_dir_;
       std::string bu_base_dir_;
       bool directorBu_;
@@ -136,17 +145,19 @@ namespace evf{
       bool requireTSPSet_;
       std::string selectedTransferMode_;
       std::string hltSourceDirectory_;
+      unsigned int fuLockPollInterval_;
+      std::string mergeTypePset_;
 
       std::string hostname_;
       std::string run_string_;
       std::string run_dir_;
       std::string bu_run_dir_;
       std::string bu_run_open_dir_;
+      std::string fulockfile_;
 
       int bu_readlock_fd_;
       int bu_writelock_fd_;
       int fu_readwritelock_fd_;
-      int data_readwrite_fd_;
       int fulocal_rwlock_fd_;
       int fulocal_rwlock_fd2_;
 
@@ -155,12 +166,10 @@ namespace evf{
       FILE * fu_rw_lock_stream;
       FILE * bu_w_monitor_stream;
       FILE * bu_t_monitor_stream;
-      FILE * data_rw_stream;
 
       DirManager dirManager_;
 
       unsigned long previousFileSize_;
-      unsigned int jumpLS_, jumpIndex_;
 
       struct flock bu_w_flk;
       struct flock bu_r_flk;
@@ -168,16 +177,8 @@ namespace evf{
       struct flock bu_r_fulk;
       struct flock fu_rw_flk;
       struct flock fu_rw_fulk;
-      struct flock data_rw_flk;
-      struct flock data_rw_fulk;
-      //struct flock fulocal_rw_flk;
-      //struct flock fulocal_rw_fulk;
-      //struct flock fulocal_rw_flk2;
-      //struct flock fulocal_rw_fulk2;
 
       evf::FastMonitoringService * fms_ = nullptr;
-      std::vector<int> streamFileTracker_;
-      int currentFileIndex_ = -1;
 
       std::mutex *fileDeleteLockPtr_ = nullptr;
       std::list<std::pair<int,InputFile*>> *filesToDeletePtr_ = nullptr;
@@ -190,8 +191,14 @@ namespace evf{
       bool readEolsDefinition_ = true;
       unsigned int eolsNFilesIndex_ = 1;
       std::string stopFilePath_;
+      std::string stopFilePathPid_;
+      unsigned int stop_ls_override_ = 0;
 
       std::shared_ptr<Json::Value> transferSystemJson_;
+      tbb::concurrent_hash_map<std::string,std::string> mergeTypeMap_;
+
+      //values initialized in .cc file
+      static const std::vector<std::string> MergeTypeNames_;
   };
 }
 

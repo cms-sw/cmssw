@@ -15,7 +15,7 @@
 PFMultiDepthClusterProducer::PFMultiDepthClusterProducer(const edm::ParameterSet& conf)
 {
   _clustersLabel = consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("clustersSource")); 
-  _pfClusterBuilder.reset(NULL);
+  _pfClusterBuilder.reset(nullptr);
   const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
   if( !pfcConf.empty() ) {
     const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
@@ -48,14 +48,13 @@ void PFMultiDepthClusterProducer::produce(edm::Event& e, const edm::EventSetup& 
   
   std::vector<bool> seedable;
 
-  std::auto_ptr<reco::PFClusterCollection> pfClusters;
-  pfClusters.reset(new reco::PFClusterCollection);
+  auto pfClusters = std::make_unique<reco::PFClusterCollection>();
   _pfClusterBuilder->buildClusters(*inputClusters, seedable, *pfClusters);
   LOGVERB("PFMultiDepthClusterProducer::produce()") << *_pfClusterBuilder;
 
   if( _energyCorrector ) {
     _energyCorrector->correctEnergies(*pfClusters);
   }
-  e.put(pfClusters);
+  e.put(std::move(pfClusters));
 
 }

@@ -9,7 +9,7 @@
  */
 
 #include <unistd.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <fstream>
 #include <vector>
 #include <iostream>
@@ -33,15 +33,15 @@ const MatacqTBRawEvent::field32spec_t MatacqTBRawEvent::h1Marker32        = {3, 
 
 void MatacqTBRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   error = 0;
-  int16le_t* begin16 = (int16le_t*) pData;
-  int16le_t* pData16 = begin16;
-  daqHeader = (uint32le_t*) pData16;
+  const int16le_t* begin16 = (const int16le_t*) pData;
+  const int16le_t* pData16 = begin16;
+  daqHeader = (const uint32le_t*) pData16;
   const int daqHeaderLen = 16; //in bytes 
   pData16 += daqHeaderLen/sizeof(pData16[0]);
-  matacqHeader = (matacqHeader_t*) pData16;
+  matacqHeader = (const matacqHeader_t*) pData16;
   pData16 += sizeof(matacqHeader_t)/sizeof(pData16[0]);
   if(getMatacqDataFormatVersion()>=2){//trigger position present
-    tTrigPs = *((int32_t*) pData16);
+    tTrigPs = *((const int32_t*)pData16);
     pData16 += 2;
   } else{
     tTrigPs = std::numeric_limits<int>::max();    
@@ -64,7 +64,7 @@ void MatacqTBRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   int padding = (4-(pData16-begin16))%4;
   if(padding<0) padding+=4;
   pData16 += padding;
-  uint32le_t* trailer32 = (uint32le_t*)(pData16);
+  const uint32le_t* trailer32 = (const uint32le_t*)(pData16);
   fragLen = trailer32[1]&0xFFFFFF;
   
   //std::cout << "Event fragment length including headers: " << fragLen
@@ -100,7 +100,7 @@ void MatacqTBRawEvent::setRawData(const unsigned char* pData, size_t maxSize){
   }
 }
 
-int MatacqTBRawEvent::read32(uint32le_t* pData, field32spec_t spec32) const{
+int MatacqTBRawEvent::read32(const uint32le_t* pData, field32spec_t spec32) const{
   int result =  pData[spec32.offset] & spec32.mask;
   int mask = spec32.mask;
   while((mask&0x1) == 0){

@@ -8,7 +8,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "CondCore/DBCommon/interface/TagInfo.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "CondFormats/RPCObjects/interface/RPCDQMObject.h"
 #include "CondFormats/DataRecord/interface/RPCDQMObjectRcd.h"
@@ -28,9 +27,9 @@ class RPCDBHandler : public popcon::PopConSourceHandler<RPCDQMObject>
 {
       
 public:
-  void getNewObjects();
-  std::string id() const { return m_name; }
-  ~RPCDBHandler(); 
+  void getNewObjects() override;
+  std::string id() const override { return m_name; }
+  ~RPCDBHandler() override; 
   RPCDBHandler(const edm::ParameterSet& pset);
      
   void initObject(RPCDQMObject*);

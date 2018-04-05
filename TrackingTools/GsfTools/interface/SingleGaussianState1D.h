@@ -36,7 +36,7 @@ public:
     return theStandardDeviation;
   }
 //   /// state
-//   boost::shared_ptr<SingleState> state() {return theState;}
+//   std::shared_ptr<SingleState> state() {return theState;}
 
 private:
   double theWeight;

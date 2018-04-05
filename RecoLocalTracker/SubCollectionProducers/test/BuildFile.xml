@@ -1,0 +1,8 @@
+<library   name="RecoLocalTrackerSubCollectionProducersTestPlugins" file="*.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="Geometry/Records"/>
+  <use   name="Geometry/TrackerGeometryBuilder"/>
+  <use   name="DataFormats/TrackerCommon"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

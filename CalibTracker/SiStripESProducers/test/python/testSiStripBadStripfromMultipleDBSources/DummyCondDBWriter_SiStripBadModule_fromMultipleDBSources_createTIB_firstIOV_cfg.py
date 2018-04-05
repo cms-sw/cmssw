@@ -23,7 +23,8 @@ process.maxEvents = cms.untracked.PSet(
 
 #Populate ES
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi")
-process.SiStripBadModuleGenerator.BadComponentList = cms.untracked.VPSet(   cms.PSet(
+from CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi import siStripBadModuleConfigurableFakeESSource
+siStripBadModuleConfigurableFakeESSource.BadComponentList = cms.untracked.VPSet(   cms.PSet(
     SubDet = cms.string('TIB'),  
     layer = cms.uint32(2),        ## SELECTION: layer = 1..4, 0(ALL)		    
     bkw_frw = cms.uint32(0),      ## bkw_frw = 1(TIB-), 2(TIB+) 0(ALL)	    
@@ -59,10 +60,11 @@ process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
      cms.PSet( record = cms.string("SiStripBadModuleRcd"),  tag    = cms.string("") )
      )
 
-process.reader = cms.EDAnalyzer("SiStripQualityStatistics",
-                              dataLabel = cms.untracked.string(""),
-                              TkMapFileName = cms.untracked.string("")
-                              )
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.reader = DQMEDAnalyzer("SiStripQualityStatistics",
+                               dataLabel = cms.untracked.string(""),
+                               TkMapFileName = cms.untracked.string("")
+                               )
 
 process.siStripBadModuleDummyDBWriter.record=process.PoolDBOutputService.toPut[0].record
 process.p = cms.Path(process.reader*process.siStripBadModuleDummyDBWriter)

@@ -39,7 +39,6 @@ class DTGeometry;
 class DTChamberId;
 class DTLayerId;
 
-//-class DTChamberEfficiencyClient: public edm::EDAnalyzer{
 class DTChamberEfficiencyClient: public DQMEDHarvester{
 
 public:
@@ -48,17 +47,17 @@ public:
   DTChamberEfficiencyClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTChamberEfficiencyClient();
+  ~DTChamberEfficiencyClient() override;
 
 protected:
 
-  void beginRun(const edm::Run& , const edm::EventSetup&);
+  void beginRun(const edm::Run& , const edm::EventSetup&) override;
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// book the report summary
 
   void bookHistos(DQMStore::IBooker &);
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 private:
 

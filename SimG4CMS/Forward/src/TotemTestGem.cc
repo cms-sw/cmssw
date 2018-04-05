@@ -53,9 +53,9 @@ TotemTestGem::~TotemTestGem() {
 
 void TotemTestGem::produce(edm::Event& e, const edm::EventSetup&) {
 
-  std::auto_ptr<TotemTestHistoClass> product(new TotemTestHistoClass);
+  std::unique_ptr<TotemTestHistoClass> product(new TotemTestHistoClass);
   fillEvent(*product);
-  e.put(product);
+  e.put(std::move(product));
 }
 
 void TotemTestGem::update(const BeginOfEvent * evt) {
@@ -81,7 +81,7 @@ void TotemTestGem::update(const EndOfEvent * evt) {
     LogDebug("ForwardSim") << "TotemTestGem :: Hit Collection for " <<names[in]
 			   << " of ID " << HCid << " is obtained at " << theHC;
 
-    if (HCid >= 0 && theHC > 0) {
+    if (HCid >= 0 && theHC != nullptr) {
       int nentries = theHC->entries();
       LogDebug("ForwardSim") << "TotemTestGem :: " << names[in] << " with "
 			     << nentries << " entries";

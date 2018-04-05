@@ -205,25 +205,35 @@ bool HeaderLess::operator() (const LHERunInfoProduct::Header &a,
 	return iter2 != b.end();
 }
 
+static std::vector<std::string> checklist{"iseed","Random",".log",".dat",".lhe"};
+static std::vector<std::string> tag_comparison_checklist{"","MGRunCard","mgruncard"};
+
+bool LHERunInfoProduct::find_if_checklist(const std::string x, std::vector<std::string> checklist) {
+    return checklist.end() != std::find_if(checklist.begin(),checklist.end(),[&](const std::string& y)
+                                            { return x.find(y) != std::string::npos; } );
+}
+
 bool LHERunInfoProduct::isTagComparedInMerge(const std::string& tag) {
-        return !(tag == "" || tag.find("Alpgen") == 0 || tag == "MGGridCard" || tag == "MGGenerationInfo" || tag=="MGRunCard" || tag == "mgruncard" || tag=="MadSpin" || tag=="madspin");
+        return !(tag == "" || tag.find("Alpgen") == 0 || tag == "MGGridCard" || tag=="MGRunCard" || tag == "mgruncard" || tag=="MadSpin" || tag=="madspin");
 }
 
 bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 {
-	if (heprup_.IDBMUP != other.heprup_.IDBMUP ||
+
+  if (heprup_.IDBMUP != other.heprup_.IDBMUP ||
 	    heprup_.EBMUP != other.heprup_.EBMUP ||
 	    heprup_.PDFGUP != other.heprup_.PDFGUP ||
 	    heprup_.PDFSUP != other.heprup_.PDFSUP ||
 	    heprup_.IDWTUP != other.heprup_.IDWTUP) {
+        
 	  return false;	
 	}
 
-	bool compatibleHeaders = headers_ == other.headers_;
+	bool compatibleHeaders = (headers_ == other.headers_);
 
-	// try to merge different, but compatible headers
+	// try to merge not equal but compatible headers (i.e. different iseed)
 	while(!compatibleHeaders) {
-		// okay, something is different.
+		// okay, something is not the same.
 		// Let's try to merge, but don't duplicate identical headers
 		// and test the rest against a whitelist
 
@@ -231,21 +241,56 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 		std::copy(headers_begin(), headers_end(),
 		          std::inserter(headers, headers.begin()));
 
+    // make a list of headers contained in the second file
+    std::vector<std::vector<std::string> > runcard_v2;
+    std::vector<std::string> runcard_v2_header;
+    for(auto header2 : headers_) {
+        // fill a vector with the relevant header tags that can be not equal but sill compatible
+        if(find_if_checklist(header2.tag(),tag_comparison_checklist)){
+          runcard_v2.push_back(header2.lines());
+          runcard_v2_header.push_back(header2.tag());
+        }
+    }
+    
+    // loop over the headers of the original file
 		bool failed = false;
 		for(std::vector<LHERunInfoProduct::Header>::const_iterator
 					header = other.headers_begin();
 		    header != other.headers_end(); ++header) {
+          
 			if (headers.count(*header)) {
 				continue;
 			}
-
-			if(isTagComparedInMerge(header->tag())) {
+            
+      if(find_if_checklist(header->tag(),tag_comparison_checklist)){
+        bool header_compatible = false;
+        for (unsigned int iter_runcard = 0; iter_runcard < runcard_v2.size(); iter_runcard++){
+          
+          std::vector<std::string> runcard_v1 = header->lines();
+          runcard_v1.erase( std::remove_if( runcard_v1.begin(), runcard_v1.end(), 
+                                            [&](const std::string& x){ return find_if_checklist(x,checklist); } ), 
+                                            runcard_v1.end() );
+          runcard_v2[iter_runcard].erase( std::remove_if( runcard_v2[iter_runcard].begin(), runcard_v2[iter_runcard].end(), 
+                                            [&](const std::string& x){ return find_if_checklist(x,checklist); } ), 
+                                            runcard_v2[iter_runcard].end() );
+          
+          if(std::equal(runcard_v1.begin(), runcard_v1.end(), runcard_v2[iter_runcard].begin())){
+            header_compatible = true;
+            break;
+          }
+        }
+        if(header_compatible) continue;
+      }
+      
+			if(isTagComparedInMerge(header->tag())){ 
 				failed = true;
 			} else {
 				addHeader(*header);	
 				headers.insert(*header);
 			}
-		}
+		
+    }
+    
 		if (failed) {
 			break;
 		}
@@ -253,57 +298,12 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other)
 		compatibleHeaders = true;
 	}
 
+  
 	// still not compatible after fixups
 	if (!compatibleHeaders) {
-	  return false;
+    return false;
 	}
 
 	// it is exactly the same, so merge
-	if (heprup_ == other.heprup_)
-		return true;
-
-	// the input files are different ones, presumably generation
-	// of the same process in different runs with identical run number
-	// attempt merge of processes and cross-sections
-
-	std::map<int, XSec> processes;
-
-	for(int i = 0; i < heprup_.NPRUP; i++) {
-		int id = heprup_.LPRUP[i];
-		XSec &x = processes[id];
-		x.xsec = heprup_.XSECUP[i];
-		x.err = heprup_.XERRUP[i];
-		x.max = heprup_.XMAXUP[i];
-	}
-
-	for(int i = 0; i < other.heprup_.NPRUP; i++) {
-		int id = other.heprup_.LPRUP[i];
-		XSec &x = processes[id];
-		if (x.xsec) {
-			double wgt1 = 1.0 / (x.err * x.err);
-			double wgt2 = 1.0 / (other.heprup_.XERRUP[i] *
-			                     other.heprup_.XERRUP[i]);
-			x.xsec = (wgt1 * x.xsec +
-			          wgt2 * other.heprup_.XSECUP[i]) /
-			         (wgt1 + wgt2);
-			x.err = 1.0 / std::sqrt(wgt1 + wgt2);
-			x.max = std::max(x.max, other.heprup_.XMAXUP[i]);
-		} else {
-			x.xsec = other.heprup_.XSECUP[i];
-			x.err = other.heprup_.XERRUP[i];
-			x.max = other.heprup_.XMAXUP[i];
-		}
-	}
-
-	heprup_.resize(processes.size());
-	unsigned int i = 0;
-	for(std::map<int, XSec>::const_iterator iter = processes.begin();
-	    iter != processes.end(); ++iter, i++) {
-		heprup_.LPRUP[i] = iter->first;
-		heprup_.XSECUP[i] = iter->second.xsec;
-		heprup_.XERRUP[i] = iter->second.err;
-		heprup_.XMAXUP[i] = iter->second.max;
-	}
-
 	return true;
 }

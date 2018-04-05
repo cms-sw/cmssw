@@ -14,11 +14,11 @@ process.source = cms.Source("PoolSource",
 )
 
 process.demo = cms.EDAnalyzer('__class__'
-@example_track     , tracks = cms.untracked.InputTag('ctfWithMaterialTracks')
+     , tracks = cms.untracked.InputTag('ctfWithMaterialTracks')
 )
 
-@example_histo process.TFileService = cms.Service("TFileService",
-@example_histo     fileName = cms.string('histo.root')
-@example_histo )
+@example_histoprocess.TFileService = cms.Service("TFileService",
+@example_histo    fileName = cms.string('histo.root')
+@example_histo)
 
 process.p = cms.Path(process.demo)

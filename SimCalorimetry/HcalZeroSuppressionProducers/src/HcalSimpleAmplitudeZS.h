@@ -1,7 +1,7 @@
 #ifndef HCALSIMPLEAMPLITUDEZS_H
 #define HCALSIMPLEAMPLITUDEZS_H 1
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -17,19 +17,19 @@
 	
 \author J. Mans - Minnesota
 */
-class HcalSimpleAmplitudeZS : public edm::EDProducer {
+class HcalSimpleAmplitudeZS : public edm::stream::EDProducer<> {
 public:
   explicit HcalSimpleAmplitudeZS(const edm::ParameterSet& ps);
-  virtual ~HcalSimpleAmplitudeZS();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  ~HcalSimpleAmplitudeZS() override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 private:
-  std::auto_ptr<HcalZSAlgoEnergy> hbhe_,ho_,hf_,hbheUpgrade_,hfUpgrade_;
+  std::unique_ptr<HcalZSAlgoEnergy> hbhe_,ho_,hf_,hfQIE10_,hbheQIE11_;
   std::string inputLabel_;
   edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
   edm::EDGetTokenT<HODigiCollection> tok_ho_;
   edm::EDGetTokenT<HFDigiCollection> tok_hf_;
-  edm::EDGetTokenT<HBHEUpgradeDigiCollection> tok_hbheUpgrade_;
-  edm::EDGetTokenT<HFUpgradeDigiCollection> tok_hfUpgrade_;
+  edm::EDGetTokenT<QIE10DigiCollection> tok_hfQIE10_;
+  edm::EDGetTokenT<QIE11DigiCollection> tok_hbheQIE11_;
 };
 
 #endif

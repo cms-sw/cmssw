@@ -24,7 +24,7 @@
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
+class PFPSRecHitCreator final :  public  PFRecHitCreatorBase {
 
  public:  
   PFPSRecHitCreator(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
@@ -33,7 +33,7 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
       recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
     }
 
-    void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
+    void importRecHits(std::unique_ptr<reco::PFRecHitCollection>&out,std::unique_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) override {
 
       beginEvent(iEvent,iSetup);
 
@@ -42,16 +42,12 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
       // get the ecal geometry
-      const CaloSubdetectorGeometry *psGeometry = 
-	geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+      const CaloSubdetectorGeometry *psGeometry = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for( const auto& erh : *recHitHandle ) {      
 	ESDetId detid(erh.detid());
-	double energy = erh.energy();
-
-
-	math::XYZVector position;
+	auto energy = erh.energy();
 
 	PFLayer::Layer layer = PFLayer::NONE;
 	
@@ -70,8 +66,7 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
  
 
 	
-	const CaloCellGeometry *thisCell;
-	thisCell= psGeometry->getGeometry(detid);
+	auto thisCell= psGeometry->getGeometry(detid);
   
 	// find rechit geometry
 	if(!thisCell) {
@@ -81,43 +76,26 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
 	  continue;
 	}
 
-	auto const point  = thisCell->getPosition();
-	position.SetCoordinates ( point.x(),
-				  point.y(),
-				  point.z() );
-  
-	reco::PFRecHit rh( detid.rawId(),layer,
-			   energy, 
-			   position.x(), position.y(), position.z(), 
-			   0.0,0.0,0.0);
-
+        out->emplace_back(thisCell, detid.rawId(),layer,energy);
+        auto & rh = out->back();
 	rh.setDepth(detid.plane());
 	rh.setTime(erh.time());
 	
-	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
-	assert( corners.size() == 8 );
-
-	rh.setNECorner( corners[0].x(), corners[0].y(),  corners[0].z() );
-	rh.setSECorner( corners[1].x(), corners[1].y(),  corners[1].z() );
-	rh.setSWCorner( corners[2].x(), corners[2].y(),  corners[2].z() );
-	rh.setNWCorner( corners[3].x(), corners[3].y(),  corners[3].z() );
-	
-
 	bool rcleaned = false;
 	bool keep=true;
+        bool hi = true; // all ES rhs are produced, independently on the ECAL SRP decision
 
 	//Apply Q tests
 	for( const auto& qtest : qualityTests_ ) {
-	  if (!qtest->test(rh,erh,rcleaned)) {
+	  if (!qtest->test(rh,erh,rcleaned,hi)) {
 	    keep = false;	    
 	  }
 	}
 	
-	if(keep) {
-	  out->push_back(rh);
-	}
-	else if (rcleaned) 
-	  cleaned->push_back(rh);
+        if (rcleaned) 
+	  cleaned->push_back(std::move(out->back()));
+        if(!keep) 
+          out->pop_back();
       }
     }
 

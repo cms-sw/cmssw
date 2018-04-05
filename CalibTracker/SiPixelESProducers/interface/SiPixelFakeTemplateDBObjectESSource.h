@@ -2,7 +2,6 @@
 #define CalibTracker_SiPixelESProducers_SiPixelFakeTemplateDBObjectESSource_h
 
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -14,17 +13,17 @@ class SiPixelFakeTemplateDBObjectESSource : public edm::ESProducer, public edm::
 
  public:
   SiPixelFakeTemplateDBObjectESSource(const edm::ParameterSet &);
-  ~SiPixelFakeTemplateDBObjectESSource();
+  ~SiPixelFakeTemplateDBObjectESSource() override;
   
   typedef std::vector<std::string> vstring;
   
-  virtual std::auto_ptr<SiPixelTemplateDBObject>  produce(const SiPixelTemplateDBObjectRcd &);
+  virtual std::unique_ptr<SiPixelTemplateDBObject>  produce(const SiPixelTemplateDBObjectRcd &);
   
  protected:
   
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
  private:
   

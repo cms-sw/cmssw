@@ -52,7 +52,7 @@ void PhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup& th
   //  nEvt_++;
 
   reco::PhotonCoreCollection outputPhotonCoreCollection;
-  std::auto_ptr< reco::PhotonCoreCollection > outputPhotonCoreCollection_p(new reco::PhotonCoreCollection);
+  auto outputPhotonCoreCollection_p = std::make_unique<reco::PhotonCoreCollection>();
 
   // Get the  Barrel Super Cluster collection
   bool validBarrelSCHandle=true;
@@ -120,7 +120,7 @@ void PhotonCoreProducer::produce(edm::Event &theEvent, const edm::EventSetup& th
   // put the product in the event
   edm::LogInfo("PhotonCoreProducer") << " Put in the event " << iSC << " Photon Candidates \n";
   outputPhotonCoreCollection_p->assign(outputPhotonCoreCollection.begin(),outputPhotonCoreCollection.end());
-  theEvent.put( outputPhotonCoreCollection_p, PhotonCoreCollection_);
+  theEvent.put(std::move(outputPhotonCoreCollection_p), PhotonCoreCollection_);
 
 }
 
@@ -145,6 +145,7 @@ void PhotonCoreProducer::fillPhotonCollection(edm::Event& evt,
     if (scRef->energy()/cosh(scRef->eta()) <= minSCEt_) continue;
     
     reco::PhotonCore newCandidate(scRef);
+    newCandidate.setParentSuperCluster(scRef);
     if ( validConversions_) {    
 
       if ( risolveAmbiguity_ ) {
@@ -156,7 +157,7 @@ void PhotonCoreProducer::fillPhotonCollection(edm::Event& evt,
 
 	for( unsigned int icp = 0;  icp < conversionHandle->size(); icp++) {
 	  reco::ConversionRef cpRef(reco::ConversionRef(conversionHandle,icp));
-          if ( !cpRef->caloCluster().size()) continue; 
+          if ( cpRef->caloCluster().empty()) continue; 
 	  if (!( scRef.id() == cpRef->caloCluster()[0].id() && scRef.key() == cpRef->caloCluster()[0].key() )) continue; 
 	  if ( !cpRef->isConverted() ) continue;  
 	  newCandidate.addConversion(cpRef);     

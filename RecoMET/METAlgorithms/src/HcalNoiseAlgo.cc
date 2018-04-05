@@ -5,6 +5,9 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
    std::vector<std::pair<double, double> > &TS4TS5UpperCut,
    std::vector<std::pair<double, double> > &TS4TS5LowerCut,
    double minRBXRechitR45E)
+  :r45Count_(0)
+  ,r45Fraction_(0)
+  ,r45EnergyFraction_(0)
 {
   // energy
   energy_ = rbx.recHitEnergy(minRecHitE); 
@@ -33,10 +36,13 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
 
   // Rechit-wide R45
   int rbxHitCount = rbx.numRecHits(minRBXRechitR45E);
+  r45Count_ = 0;
+  r45Fraction_ = 0;
+  r45EnergyFraction_ = 0;
   if(rbxHitCount > 0)
   {
      r45Count_ = rbx.numRecHitsFailR45(minRBXRechitR45E);
-     r45Fraction_ = r45Count_ / rbxHitCount;
+     r45Fraction_ = (double)(r45Count_) / (double)(rbxHitCount);
      r45EnergyFraction_ = rbx.recHitEnergyFailR45(minRBXRechitR45E) / rbx.recHitEnergy(minRBXRechitR45E);
   }
 
@@ -77,13 +83,13 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
     }
   }
 
-  // emf
+  // emf (get the one with minimum value)
   HPDEMF_ = 999.;
   for(std::vector<reco::HcalNoiseHPD>::const_iterator it1=rbx.HPDsBegin(); it1!=rbx.HPDsEnd(); ++it1) {
     double eme=it1->caloTowerEmE();
     double hade=it1->recHitEnergy(minRecHitE);
     double emf=(eme+hade)==0 ? 999 : eme/(eme+hade);
-    if(HPDEMF_ > emf) emf = HPDEMF_;
+    if(HPDEMF_ > emf) HPDEMF_ = emf;
   }
   double eme=rbx.caloTowerEmE();
   RBXEMF_ = (eme+energy_)==0 ? 999 : eme/(eme+energy_);
@@ -130,7 +136,7 @@ HcalNoiseAlgo::HcalNoiseAlgo(const edm::ParameterSet& iConfig)
      pMinRBXRechitR45Fraction_ = iConfig.getParameter<double>("pMinRBXRechitR45Fraction");
   else
      pMinRBXRechitR45Fraction_ = 0;
-  if(iConfig.existsAs<double>("pMinRechitR45EnergyFraction"))
+  if(iConfig.existsAs<double>("pMinRBXRechitR45EnergyFraction"))
      pMinRBXRechitR45EnergyFraction_ = iConfig.getParameter<double>("pMinRBXRechitR45EnergyFraction");
   else
      pMinRBXRechitR45EnergyFraction_ = 0;
@@ -365,7 +371,7 @@ bool CommonHcalNoiseRBXData::CheckPassFilter(double Charge, double Discriminant,
    //    is greater or smaller than the cut value
    //
 
-   if(Cuts.size() == 0)   // safety check that there are some cuts defined
+   if(Cuts.empty())   // safety check that there are some cuts defined
       return true;
 
    if(Charge <= Cuts[0].first)   // too small to cut on

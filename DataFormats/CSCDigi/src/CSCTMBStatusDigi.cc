@@ -7,7 +7,7 @@
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
 #include <ostream>
 #include <cstring>
-#include <stdint.h>
+#include <cstdint>
 
 CSCTMBStatusDigi::CSCTMBStatusDigi(const uint16_t * header, const uint16_t * trailer)
 {

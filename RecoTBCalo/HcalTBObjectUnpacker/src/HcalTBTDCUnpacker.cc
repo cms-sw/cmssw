@@ -1,6 +1,6 @@
 #include "RecoTBCalo/HcalTBObjectUnpacker/interface/HcalTBTDCUnpacker.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <math.h>
+#include <cmath>
 
 // Timing channels
 static const int lcTriggerTime     = 1;
@@ -29,7 +29,7 @@ namespace hcaltb {
 
 HcalTBTDCUnpacker::HcalTBTDCUnpacker(bool include_unmatched_hits) :
   includeUnmatchedHits_(include_unmatched_hits),
-  dumpObs_(0) {
+  dumpObs_(nullptr) {
 //  setupWC(); reads it from configuration file
 //  dumpObs_=fopen("dump_obs.csv","w");
 }
@@ -116,7 +116,7 @@ void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw,
     throw cms::Exception("Missing Data") << "No data in the TDC block";
   }
 
-  const unsigned int* hitbase=0;
+  const unsigned int* hitbase=nullptr;
   unsigned int totalhits=0;
 
   // old TDC (767)
@@ -301,7 +301,7 @@ void HcalTBTDCUnpacker::reconstructWC(const std::vector<Hit>& hits, HcalTBEventP
       }
     }
     
-    if (n1!=0 && n2!=0 && dumpObs_!=0) {
+    if (n1!=0 && n2!=0 && dumpObs_!=nullptr) {
       fprintf(dumpObs_,"%d,%f,%f,%f,%f\n",plane,hits1[0],hits2[0],hitsA[0],hitsA[1]);
       fflush(dumpObs_);
     }

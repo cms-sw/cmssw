@@ -1,0 +1,48 @@
+<html>
+
+<head>
+    <title></title>
+    <link rel="stylesheet" href="tree/screen.css">
+    <link rel="stylesheet" href="tree/jquery.treeview.css">
+    <script src="tree/jquery.js" type="text/javascript"></script>
+    <script src="tree/jquery.cookie.js" type="text/javascript"></script>
+    <script src="tree/jquery.treeview.js" type="text/javascript"></script>
+    <script>
+    $(document).ready(function(){
+        $("#browser").treeview({
+        control: "#tree_control_",
+        collapsed: true,
+	animated: 100
+        });
+    });
+    </script>	
+    <style>
+    body{margin:4px 8px;}
+    a { text-decoration: none;}
+    a:link, a:visited {color: blue;}
+    a:hover {color: red;}
+    </style>
+</head>
+
+<body>
+<table border="0" cellspacing="0" style="font-size: 11px;">
+<tr>
+<td>
+<div id="tree_control_" style="padding:5px">
+    <a title="Collapse the entire tree below" href="#"><img src="tree/images/minus.gif" /> Collapse All</a>
+    <a title="Expand the entire tree below" href="#"><img src="tree/images/plus.gif" /> Expand All</a>
+</div>
+</td>
+<td><a target="_blank" href="" id="twiki" style="vertical-align: middle;"><img src="tree/twiki.gif" /></a></td>
+</tr>
+</table>
+
+<!-- Tree -->
+<ul id="browser" class="filetree treeview">
+
+
+</ul>
+<!-- Tree -->
+
+</body>
+</html>

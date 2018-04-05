@@ -17,7 +17,6 @@
 // Original Author:  Salvatore Rappoccio
 //         Created:  Thu Jul  9 22:05:56 CDT 2009
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <memory>
 #include <string>
@@ -27,6 +26,7 @@
 // user include files
 #include "DataFormats/FWLite/interface/EventBase.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // forward declarations
 namespace edm {
@@ -59,9 +59,9 @@ class MultiChainEvent: public EventBase
       MultiChainEvent(std::vector<std::string> const& iFileNames1,
 		      std::vector<std::string> const& iFileNames2,
 		      bool useSecFileMapSorted = false);
-      virtual ~MultiChainEvent();
+      ~MultiChainEvent() override;
 
-      const MultiChainEvent& operator++();
+      const MultiChainEvent& operator++() override;
 
       ///Go to the event at index iIndex
       bool to(Long64_t iIndex);
@@ -73,31 +73,31 @@ class MultiChainEvent: public EventBase
       bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
       // Go to the very first Event.
-      const MultiChainEvent& toBegin();
+      const MultiChainEvent& toBegin() override;
 
       // ---------- const member functions ---------------------
-      virtual std::string const getBranchNameFor(std::type_info const&,
+      std::string const getBranchNameFor(std::type_info const&,
                                                  char const*,
                                                  char const*,
-                                                 char const*) const;
+                                                 char const*) const override;
 
       using fwlite::EventBase::getByLabel;
 
       /** This function should only be called by fwlite::Handle<>*/
-      virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
+      bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
       //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
       bool isValid() const;
       operator bool() const;
-      bool atEnd() const;
+      bool atEnd() const override;
 
       Long64_t size() const;
 
-      virtual edm::EventAuxiliary const& eventAuxiliary() const;
+      edm::EventAuxiliary const& eventAuxiliary() const override;
 
       std::vector<edm::BranchDescription> const& getBranchDescriptions() const;
       std::vector<std::string> const& getProcessHistory() const;
-      edm::ProcessHistory const& processHistory() const;
+      edm::ProcessHistory const& processHistory() const override;
       TFile* getTFile() const {
         return event1_->getTFile();
       }
@@ -117,13 +117,15 @@ class MultiChainEvent: public EventBase
       }
 
 
-      virtual Long64_t fileIndex()          const
+      Long64_t fileIndex()          const override
       { return event1_->eventIndex(); }
-      virtual Long64_t secondaryFileIndex() const
+      Long64_t secondaryFileIndex() const override
       { return event2_->eventIndex(); }
 
-      virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
-      virtual edm::TriggerResultsByName triggerResultsByName(std::string const& process) const;
+      edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
+      edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
+
+      edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const override;
 
       // ---------- static member functions --------------------
       static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
@@ -134,7 +136,7 @@ class MultiChainEvent: public EventBase
 
       // ---------- member functions ---------------------------
 
-      virtual edm::WrapperBase const* getByProductID(edm::ProductID const&) const;
+      edm::WrapperBase const* getByProductID(edm::ProductID const&) const override;
 
       edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const;
 
@@ -161,7 +163,7 @@ class MultiChainEvent: public EventBase
 
       std::shared_ptr<ChainEvent> event1_;  // primary files
       std::shared_ptr<ChainEvent> event2_;  // secondary files
-      std::shared_ptr<internal::MultiProductGetter> getter_;
+      std::shared_ptr<internal::MultiProductGetter const> getter_;
 
       // speed up secondary file access with a (run range)_1 ---> index_2 map,
       // when the files are sorted by run,event within the file.
@@ -172,5 +174,4 @@ class MultiChainEvent: public EventBase
 };
 
 }
-#endif /*__CINT__ */
 #endif

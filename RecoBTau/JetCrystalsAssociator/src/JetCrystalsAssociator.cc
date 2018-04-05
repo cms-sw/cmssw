@@ -68,12 +68,12 @@ class JetCrystalsAssociator : public edm::EDProducer {
 
    public:
       explicit JetCrystalsAssociator(const edm::ParameterSet&);
-      ~JetCrystalsAssociator();
+      ~JetCrystalsAssociator() override;
 
 
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
    private:
-      std::auto_ptr<JetCrystalsAssociationCollection> associate( 
+      std::unique_ptr<JetCrystalsAssociationCollection> associate( 
           const edm::Handle<CaloJetCollection> & jets,
 	  const edm::OrphanHandle<EMLorentzVectorCollection> & myLorentzRecHits) const;
 
@@ -124,7 +124,7 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   iSetup.get<CaloGeometryRecord>().get(geometry);
   
   const CaloSubdetectorGeometry* EB = geometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-   const CaloSubdetectorGeometry* EE = geometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+  const CaloSubdetectorGeometry* EE = geometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
    // end 
    
    Handle<CaloJetCollection> jets;
@@ -140,7 +140,7 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.getByLabel( m_EBRecHits, EBRecHits );
    iEvent.getByLabel( m_EERecHits, EERecHits );
    
-   std::auto_ptr<EMLorentzVectorCollection> jetRecHits( new EMLorentzVectorCollection() );
+   auto jetRecHits = std::make_unique<EMLorentzVectorCollection>();
    //loop on jets and associate
    for (size_t t = 0; t < jets->size(); t++)
     {
@@ -162,9 +162,9 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	      EBRecHitCollection::const_iterator theRecHit=EBRecHits->find(EcalID);
 	      if(theRecHit != EBRecHits->end()){
 		DetId id = theRecHit->detid();
-		const CaloCellGeometry* this_cell = EB->getGeometry(id);
+		auto this_cell = EB->getGeometry(id);
 		if (this_cell) {
-		  GlobalPoint posi = this_cell->getPosition();
+		  const GlobalPoint& posi = this_cell->getPosition();
 		  double energy = theRecHit->energy();
 		  double eta = posi.eta();
 		  double phi = posi.phi();
@@ -181,9 +181,9 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	      EERecHitCollection::const_iterator theRecHit=EERecHits->find(EcalID);	    
 	      if(theRecHit != EBRecHits->end()){
 		DetId id = theRecHit->detid();
-		const CaloCellGeometry* this_cell = EE->getGeometry(id);
+		auto this_cell = EE->getGeometry(id);
 		if (this_cell) {
-		  GlobalPoint posi = this_cell->getPosition();
+		  const GlobalPoint& posi = this_cell->getPosition();
 		  double energy = theRecHit->energy();
 		  double eta = posi.eta();
 		  double phi = posi.phi();
@@ -201,18 +201,17 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       }
     }
 
-  edm::OrphanHandle <reco::EMLorentzVectorCollection> myRecHits = iEvent.put(jetRecHits);
+  edm::OrphanHandle <reco::EMLorentzVectorCollection> myRecHits = iEvent.put(std::move(jetRecHits));
 
-  std::auto_ptr<JetCrystalsAssociationCollection> jetCrystals = associate(jets,myRecHits);
-  iEvent.put( jetCrystals );
+  iEvent.put(associate(jets,myRecHits));
 }
 
-std::auto_ptr<JetCrystalsAssociationCollection> JetCrystalsAssociator::associate( 
+std::unique_ptr<JetCrystalsAssociationCollection> JetCrystalsAssociator::associate( 
         const edm::Handle<CaloJetCollection> & jets,
         const edm::OrphanHandle<EMLorentzVectorCollection> & myLorentzRecHits) const
 {
   // we know we will save an element per input jet
-  std::auto_ptr<JetCrystalsAssociationCollection> outputCollection( new JetCrystalsAssociationCollection( jets->size() ) );
+  auto outputCollection = std::make_unique<JetCrystalsAssociationCollection>(jets->size());
 
   //loop on jets and associate
   for (size_t j = 0; j < jets->size(); j++) {

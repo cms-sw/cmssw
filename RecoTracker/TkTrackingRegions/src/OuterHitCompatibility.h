@@ -15,40 +15,43 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
+#include "DataFormats/Math/interface/approx_atan2.h"
+
 #include "FWCore/Utilities/interface/Visibility.h"
 
+template<typename Algo>
 class dso_internal OuterHitCompatibility {
 public:
 
   OuterHitCompatibility(
       const OuterHitPhiPrediction & phiPrediction,
-      const HitRZCompatibility & rzCompatibility) 
-    : thePhiPrediction(phiPrediction) 
-  { theRZCompatibility = rzCompatibility.clone(); }
+      const Algo  & rzCompatibility) 
+    : thePhiPrediction(phiPrediction), 
+      theRZCompatibility(rzCompatibility) {}
 
-  OuterHitCompatibility(const OuterHitCompatibility & ohc) 
-    : thePhiPrediction(ohc.thePhiPrediction)
-  { theRZCompatibility = ohc.theRZCompatibility->clone(); } 
+  bool operator() (const TrackingRecHit & hit) const {
 
-   ~OuterHitCompatibility() 
-   { delete theRZCompatibility; }  
+     auto hitPos = hit.globalPosition();
+     auto hitR = hitPos.perp();
 
+     auto hitZ = hitPos.z();
+     if ( !theRZCompatibility(hitR,hitZ) ) return false;
 
-  bool operator() (const TrackingRecHit & hit) const;
+     auto hitPhi = unsafe_atan2f<9>(hitPos.y(),hitPos.x());
+
+     return checkPhi(hitPhi, hitR);
+   }
+
 
   bool checkPhi(float phi, float r) const {
-    OuterHitPhiPrediction::Range hitPhiRange = thePhiPrediction(r);
+    auto hitPhiRange = thePhiPrediction(r);
     PhiLess less;
     bool phiOK = less(hitPhiRange.min(),phi) && less(phi,hitPhiRange.max());
     return phiOK;
   }
 
-  OuterHitCompatibility* clone() const { 
-    return new OuterHitCompatibility(*this);
-  }
-
-protected:
-  const HitRZCompatibility * theRZCompatibility;
+private:
   OuterHitPhiPrediction thePhiPrediction;
+  Algo theRZCompatibility;
 };
 #endif

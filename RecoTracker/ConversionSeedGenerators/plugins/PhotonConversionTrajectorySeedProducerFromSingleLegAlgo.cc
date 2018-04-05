@@ -97,7 +97,6 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::find(const edm::Event &
 
    // clear memory
   theHitsGenerator->clearCache();
-  for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);
 
   seedCollection = nullptr;
 
@@ -182,7 +181,7 @@ selectPriVtxCompatibleWithTrack(const reco::Track& tk, std::vector<reco::Vertex>
       
     idx.push_back(std::pair<double,short>(fabs(_dz),count));
   }
-  if(idx.size()==0) {
+  if(idx.empty()) {
 #ifdef debugTSPFSLA
     ss << "no vertex selected " << std::endl; 
 #endif

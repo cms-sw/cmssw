@@ -23,6 +23,8 @@ ${LOCAL_TEST_DIR}/VIPTest.sh || die 'Failed to create file' $?
 root -b -n -q ${LOCAL_TEST_DIR}/vector_int_cint.C || die 'Failed in vector_int_cint.C' $?
 
 python ${LOCAL_TEST_DIR}/pyroot_handle_reuse.py || die 'Failed in pyroot_handle_reuse.py' $?
+python ${LOCAL_TEST_DIR}/pyroot_multichain.py inputFiles=file:prodmerge.root secondaryInputFiles=file:prod1.root,file:prod2.root || die 'Failed in pyroot_multichain.py (non-empty files)' $?
+python ${LOCAL_TEST_DIR}/pyroot_multichain.py inputFiles=file:empty_a.root secondaryInputFiles=file:good_a.root  || die 'Failed in pyroot_multichain.py (empty file)' $?
 
 #NOTE: ROOT has a bug which keeps the AssociationVector from running its ioread rule and therefore it never clears its cache
 #test AssociationVector reading

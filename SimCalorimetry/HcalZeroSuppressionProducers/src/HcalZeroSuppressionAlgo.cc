@@ -1,7 +1,7 @@
 #include "HcalZeroSuppressionAlgo.h"
 
 HcalZeroSuppressionAlgo::HcalZeroSuppressionAlgo(bool mp) : m_markAndPass(mp) {
-   m_dbService=0;
+   m_dbService=nullptr;
 }
 
 
@@ -65,26 +65,38 @@ void HcalZeroSuppressionAlgo::suppress(const HODigiCollection& input, HODigiColl
   }
 }
 
-
-void HcalZeroSuppressionAlgo::suppress(const HcalUpgradeDigiCollection& input, HcalUpgradeDigiCollection& output) {
-  HcalUpgradeDigiCollection::const_iterator i;
-
-  for (i=input.begin(); i!=input.end(); ++i) {
-    if (shouldKeep((*i))) {
+void HcalZeroSuppressionAlgo::suppress(const QIE10DigiCollection& input, QIE10DigiCollection& output) {
+  for (QIE10DigiCollection::const_iterator i=input.begin(); i!=input.end(); ++i) {
+    QIE10DataFrame df(*i);
+    if (shouldKeep(df)) {
       if (!m_markAndPass) {
-	output.push_back(*i);
+        output.push_back(df);
       } else {
-	HcalUpgradeDataFrame df(*i);
-	df.setZSInfo(true,false);
-	output.push_back(df);
+        df.setZSInfo(false);
+        output.push_back(df);
       }
-    } else if (m_markAndPass) {
-      HcalUpgradeDataFrame df(*i);
-      df.setZSInfo(true,true);
+    } 
+    else if (m_markAndPass) {
+      df.setZSInfo(true);
       output.push_back(df);
     }
   }
 }
 
-
-
+void HcalZeroSuppressionAlgo::suppress(const QIE11DigiCollection& input, QIE11DigiCollection& output) {
+  for (QIE11DigiCollection::const_iterator i=input.begin(); i!=input.end(); ++i) {
+    QIE11DataFrame df(*i);
+    if (shouldKeep(df)) {
+      if (!m_markAndPass) {
+        output.push_back(df);
+      } else {
+        df.setZSInfo(false);
+        output.push_back(df);
+      }
+    }
+	else if (m_markAndPass) {
+      df.setZSInfo(true);
+      output.push_back(df);
+    }
+  }
+}

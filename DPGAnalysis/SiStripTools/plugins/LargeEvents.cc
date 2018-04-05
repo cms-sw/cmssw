@@ -54,12 +54,12 @@ template <class T>
 class LargeEvents : public edm::EDFilter {
    public:
       explicit LargeEvents(const edm::ParameterSet&);
-      ~LargeEvents();
+      ~LargeEvents() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
 

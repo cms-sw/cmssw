@@ -132,23 +132,12 @@ echo "...done" | tee -a $reportFile
 #
 
 # Produce the 'new' plots
-echo "Run the Tracker macro MaterialBudget.C to produce the 'new' plots..." | tee -a $reportFile
-root -b -q 'MaterialBudget.C("PixBar")'
-root -b -q 'MaterialBudget.C("PixFwdPlus")'
-root -b -q 'MaterialBudget.C("PixFwdMinus")'
-root -b -q 'MaterialBudget.C("TIB")'
-root -b -q 'MaterialBudget.C("TIDF")'
-root -b -q 'MaterialBudget.C("TIDB")'
-root -b -q 'MaterialBudget.C("InnerServices")'
-root -b -q 'MaterialBudget.C("TOB")'
-root -b -q 'MaterialBudget.C("TEC")'
-root -b -q 'MaterialBudget.C("TkStrct")'
-root -b -q 'MaterialBudget.C("Tracker")'
-root -b -q 'MaterialBudget.C("TrackerSum")'
-root -b -q 'MaterialBudget.C("Pixel")'
-root -b -q 'MaterialBudget.C("Strip")'
-root -b -q 'MaterialBudget.C("InnerTracker")'
-root -b -q 'MaterialBudget_TDR.C()'
+echo "Run the Tracker script MaterialBudget.py to produce the 'new' plots..." | tee -a $reportFile
+for d in PixBar PixFwdPlus PixFwdMinus TIB TIDF TIDB InnerServices TOB TEC TkStrct Tracker TrackerSum Pixel Strip InnerTracker; do
+    python MaterialBudget.py -s -d ${d}
+done
+
+root -q -b 'MaterialBudget_TDR.C()'
 echo "...done" | tee -a $reportFile
 #
 

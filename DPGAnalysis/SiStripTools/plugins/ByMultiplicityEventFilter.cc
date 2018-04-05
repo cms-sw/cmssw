@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,17 +47,15 @@
 //
 
 template <class T>
-class ByMultiplicityEventFilter : public edm::EDFilter {
+class ByMultiplicityEventFilter : public edm::stream::EDFilter<> {
    public:
       explicit ByMultiplicityEventFilter(const edm::ParameterSet&);
-      ~ByMultiplicityEventFilter();
+      ~ByMultiplicityEventFilter() override;
 
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
-      
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+
       // ----------member data ---------------------------
 
   T m_multiplicities;
@@ -115,27 +113,12 @@ ByMultiplicityEventFilter<T>::filter(edm::Event& iEvent, const edm::EventSetup& 
    m_multiplicities.getEvent(iEvent,iSetup);
 
    bool value = m_selector(m_multiplicities);
-   iEvent.put( std::auto_ptr<bool>(new bool(value)) );
+   iEvent.put(std::unique_ptr<bool>(new bool(value)));
 
    if(m_taggedMode) return m_forcedValue;
    return value;
 
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-template <class T>
-void 
-ByMultiplicityEventFilter<T>::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-template <class T>
-void 
-ByMultiplicityEventFilter<T>::endJob() {
-}
-
-
 
 //define this as a plug-in
 /*

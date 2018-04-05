@@ -21,30 +21,32 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
+#include <unordered_map>
 
 class PFRecHitNavigatorBase {
  public:
-  PFRecHitNavigatorBase() {}
+  typedef std::unordered_map<unsigned,unsigned> DetIdToHitIdx;
+
+  PFRecHitNavigatorBase() = default;
   PFRecHitNavigatorBase(const edm::ParameterSet& iConfig) {}
 
-  virtual ~PFRecHitNavigatorBase() {}
+  virtual ~PFRecHitNavigatorBase() = default;
 
   virtual void beginEvent(const edm::EventSetup&)=0;
-  virtual void associateNeighbours(reco::PFRecHit&,std::auto_ptr<reco::PFRecHitCollection>&,edm::RefProd<reco::PFRecHitCollection>&)=0;
+  virtual void associateNeighbours(reco::PFRecHit&,std::unique_ptr<reco::PFRecHitCollection>&,edm::RefProd<reco::PFRecHitCollection>&)=0;
 
 
  protected:
 
-  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi,short depth) {
-    const reco::PFRecHit temp(id,PFLayer::NONE,0.0,math::XYZPoint(0,0,0),math::XYZVector(0,0,0),std::vector<math::XYZPoint>());
+  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi,short depth) {
     auto found_hit = std::lower_bound(hits->begin(),hits->end(),
-				      temp,
+				      id,
 				      [](const reco::PFRecHit& a, 
-					 const reco::PFRecHit& b){
-					return a.detId() < b.detId();
+					 const DetId& id){
+					return a.detId() < id;
 				      });
     if( found_hit != hits->end() && found_hit->detId() == id.rawId() ) {
-      hit.addNeighbour(eta,phi,depth,reco::PFRecHitRef(refProd,std::distance(hits->begin(),found_hit)));
+      hit.addNeighbour(eta,phi,depth,found_hit-hits->begin());
     }    
   }
 

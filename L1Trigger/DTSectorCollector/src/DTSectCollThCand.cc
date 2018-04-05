@@ -58,7 +58,7 @@ DTSectCollThCand::operator=(const DTSectCollThCand& tsccand) {
 
 void
 DTSectCollThCand::clear()  { 
-  _tstsegm=0; 
+  _tstsegm=nullptr; 
 }
 
 int

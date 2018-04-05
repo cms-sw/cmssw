@@ -16,9 +16,9 @@
  */
 
 // system include files
-#include "boost/shared_ptr.hpp"
 #include "boost/lexical_cast.hpp"
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <iomanip>
@@ -55,10 +55,10 @@ public:
     L1GtTriggerMenuConfigOnlineProd(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtTriggerMenuConfigOnlineProd();
+    ~L1GtTriggerMenuConfigOnlineProd() override;
 
     /// public methods
-    virtual boost::shared_ptr<L1GtTriggerMenu> newObject(const std::string& objectKey);
+    std::shared_ptr<L1GtTriggerMenu> newObject(const std::string& objectKey) override;
 
     /// initialize the class (mainly reserve/resize)
     void init(const int numberConditionChips);

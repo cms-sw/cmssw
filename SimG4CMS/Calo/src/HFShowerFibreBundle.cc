@@ -19,7 +19,7 @@
 
 //#define DebugLog
 
-HFShowerFibreBundle::HFShowerFibreBundle(std::string & name, 
+HFShowerFibreBundle::HFShowerFibreBundle(const std::string & name, 
 					 const DDCompactView & cpv,
 					 edm::ParameterSet const & p) {
 
@@ -32,39 +32,12 @@ HFShowerFibreBundle::HFShowerFibreBundle(std::string & name,
   edm::LogInfo("HFShower") << "HFShowerFibreBundle intialized with factors: "
 			   << facTube << " for the straight portion and "
 			   << facCone << " for the curved portion";
-  
-  G4String attribute = "ReadOutName";
-  G4String value     = name;
-  DDSpecificsFilter filter0;
-  DDValue           ddv0(attribute,value,0);
-  filter0.setCriteria(ddv0,DDSpecificsFilter::equals);
-  DDFilteredView fv0(cpv);
-  fv0.addFilter(filter0);
-  if (fv0.firstChild()) {
-    DDsvalues_type sv0(fv0.mergedSpecifics());
 
-    //Special Geometry parameters
-    rTable   = getDDDArray("rTable",sv0);
-    edm::LogInfo("HFShower") << "HFShowerFibreBundle: " << rTable.size() 
-			     << " rTable (cm)";
-    for (unsigned int ig=0; ig<rTable.size(); ig++)
-      edm::LogInfo("HFShower") << "HFShowerFibreBundle: rTable[" << ig 
-			       << "] = " << rTable[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShowerFibreBundle: cannot get filtered "
-			      << " view for " << attribute << " matching "
-			      << value;
-    throw cms::Exception("Unknown", "HFShowerFibreBundle")
-      << "cannot match " << attribute << " to " << name <<"\n";
-  }
-
-  attribute = "Volume";
-  value     = "HFPMT";
-  DDSpecificsFilter filter1;
-  DDValue           ddv1(attribute,value,0);
-  filter1.setCriteria(ddv1,DDSpecificsFilter::equals);
-  DDFilteredView fv1(cpv);
-  fv1.addFilter(filter1);
+  //Special Geometry parameters
+  std::string attribute = "Volume";
+  std::string value     = "HFPMT";
+  DDSpecificsMatchesValueFilter filter1{DDValue(attribute,value,0)};
+  DDFilteredView fv1(cpv,filter1);
   if (fv1.firstChild()) {
     DDsvalues_type sv1(fv1.mergedSpecifics());
     std::vector<double> neta;
@@ -109,11 +82,22 @@ HFShowerFibreBundle::~HFShowerFibreBundle() {
   delete cherenkov2;
 }
 
-double HFShowerFibreBundle::getHits(G4Step * aStep, bool type) {
+void HFShowerFibreBundle::initRun(G4ParticleTable *, HcalDDDSimConstants* hcons) {
+
+  // Special Geometry parameters
+  rTable   = hcons->getRTableHF();
+  edm::LogInfo("HFShower") << "HFShowerFibreBundle: " << rTable.size() 
+                           << " rTable (cm)";
+  for (unsigned int ig=0; ig<rTable.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShowerFibreBundle: rTable[" << ig << "] = "
+                             << rTable[ig]/cm << " cm";
+}
+
+double HFShowerFibreBundle::getHits(const G4Step * aStep, bool type) {
 
   indexR = indexF = -1;
 
-  G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
+  const G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch   = preStepPoint->GetTouchable();
   int                 boxNo   = touch->GetReplicaNumber(1);
   int                 pmtNo   = touch->GetReplicaNumber(0);
@@ -134,8 +118,8 @@ double HFShowerFibreBundle::getHits(G4Step * aStep, bool type) {
 
   double photons = 0;
   if (indexR >= 0 && indexF > 0) {
-    G4Track *aTrack = aStep->GetTrack();
-    G4ParticleDefinition *particleDef = aTrack->GetDefinition();
+    const G4Track *aTrack = aStep->GetTrack();
+    const G4ParticleDefinition *particleDef = aTrack->GetDefinition();
     double stepl = aStep->GetStepLength();
     double beta  = preStepPoint->GetBeta();
     G4ThreeVector pDir = aTrack->GetDynamicParticle()->GetMomentumDirection();

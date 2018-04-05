@@ -583,7 +583,7 @@ namespace cscdqm {
       bool mask = false;
       unsigned int num  = 0;
   
-      if (token.compare("*") != 0) {
+      if (token != "*") {
         if(stringToNumber<unsigned int>(num, token, std::dec)) {
           mask = true;
         } else {

@@ -8,8 +8,8 @@ def loadListFromFile (filename):
     retval = []
     filename = os.path.expanduser (filename)
     if not os.path.exists (filename):
-        print "Error: '%s' file does not exist."
-        raise RuntimeError, "Bad filename"
+        print "Error: file '%s' does not exist."%(filename)
+        raise RuntimeError("Bad filename")
     source = open (filename, 'r')        
     for line in source.readlines():
         line = re.sub (r'#.+$', '', line) # remove comment characters

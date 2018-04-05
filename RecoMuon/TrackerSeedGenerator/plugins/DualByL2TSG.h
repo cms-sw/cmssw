@@ -21,7 +21,7 @@ class DualByL2TSG : public SeparatingTSG{
   
 
   /// decide the TSG depending on the existence of a L3 track seeded from the L2. Return value is 0 or 1.
-  unsigned int selectTSG(const TrackCand&, const TrackingRegion&);
+  unsigned int selectTSG(const TrackCand&, const TrackingRegion&) override;
 
  private:
   std::string theCategory;

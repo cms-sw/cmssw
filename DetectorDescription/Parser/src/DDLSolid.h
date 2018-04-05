@@ -1,12 +1,15 @@
 #ifndef DDLSolid_H
 #define DDLSolid_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDXMLElement.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLSolid processes Box elements.
 /** @class DDLSolid
@@ -30,9 +33,6 @@ public:
 
   /// Constructor
   DDLSolid( DDLElementRegistry* myreg );
-
-  /// Destructor
-  virtual ~DDLSolid( void );
 
   void setReference( const std::string& nmspace, DDCompactView& cpv );
 };

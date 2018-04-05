@@ -165,7 +165,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
 
     // vs DBX
 
-    if(m_scalefact.size()>=1) {
+    if(!m_scalefact.empty()) {
       sprintf(title,"%s %s multiplicity vs BX separation",slab.c_str(),m_hitname.c_str());
       sprintf(name,"n%sdigivsdbx2D",slab.c_str());
       m_ndigivsdbx2D[i] = subev.make<TH2F>(name,title,1000,-0.5,500000-0.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
@@ -202,7 +202,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
 
     // vs DBX w.r.t. cycle
 
-    if(m_scalefact.size()>=1) {
+    if(!m_scalefact.empty()) {
 
       if(m_phasepart.find(ui)!=m_phasepart.end() && m_phasepart[ui]!="None") {
 	sprintf(name,"n%sdigivsdbxincycle",slab.c_str());
@@ -246,7 +246,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
 
       sprintf(title,"%s %s multiplicity vs BX mod(70)",slab.c_str(),m_hitname.c_str());
 
-      if(m_scalefact.size()>=1) {
+      if(!m_scalefact.empty()) {
 	sprintf(name,"n%sdigivscycle",slab.c_str());
 	m_ndigivscycle[i] =subev.make<TH2F>(name,title,70,-0.5,69.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
 	m_ndigivscycle[i]->GetXaxis()->SetTitle("absolute BX mod(70)"); m_ndigivscycle[i]->GetYaxis()->SetTitle("Number of Hits");
@@ -283,7 +283,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
       sprintf(title,"%s %s multiplicity vs BX mod(70) and Orbit",slab.c_str(),m_hitname.c_str());
       m_ndigivscycletime[i] =  m_rhm.makeTProfile2D(name,title,70,-0.5,69.5,90,0.,90*262144);
       //      m_ndigivscycletime[i]->GetXaxis()->SetTitle("Event 1 BX mod(70)"); m_ndigivscycletime[i]->GetYaxis()->SetTitle("time [Orb#]");
-      //      m_ndigivscycletime[i]->SetBit(TH1::kCanRebin);
+      //      m_ndigivscycletime[i]->SetCanExtend(TH1::kYaxis);
     }
 
     // vs BX number
@@ -295,7 +295,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int,s
 
     sprintf(title,"%s %s multiplicity vs BX",slab.c_str(),m_hitname.c_str());
 
-    if(m_scalefact.size()>=1) {
+    if(!m_scalefact.empty()) {
       sprintf(name,"n%sdigivsbx2D",slab.c_str());
       m_ndigivsbx2D[i] =subev.make<TH2F>(name,title,3564,-0.5,3563.5,m_nbins,0,(1+m_binmax[ui]/(m_scalefact[0]*m_nbins))*m_nbins);
       m_ndigivsbx2D[i]->GetXaxis()->SetTitle("BX#"); m_ndigivsbx2D[i]->GetYaxis()->SetTitle("Number of Hits");
@@ -326,7 +326,7 @@ void DigiBXCorrHistogramMaker<T>::beginRun(const unsigned int nrun) {
     if(m_runHisto) {
       if(m_ndigivscycletime[i]) {
 	(*m_ndigivscycletime[i])->GetXaxis()->SetTitle("Event 1 BX mod(70)"); (*m_ndigivscycletime[i])->GetYaxis()->SetTitle("time [Orb#]");
-	(*m_ndigivscycletime[i])->SetBit(TH1::kCanRebin);
+	(*m_ndigivscycletime[i])->SetCanExtend(TH1::kAllAxes);
       }
     }
   }
@@ -366,14 +366,14 @@ void DigiBXCorrHistogramMaker<T>::fill(const T& he, const std::map<int,int>& ndi
 
 	if(m_runHisto) {
 	  if(m_ndigivscycletime.find(i)!=m_ndigivscycletime.end()) {
-	    if(m_ndigivscycletime[i]!=0 && (*m_ndigivscycletime[i])!=0 ) (*m_ndigivscycletime[i])->Fill(tbx%70,(int)he._orbit,digi->second);
+	    if(m_ndigivscycletime[i]!=nullptr && (*m_ndigivscycletime[i])!=nullptr ) (*m_ndigivscycletime[i])->Fill(tbx%70,(int)he._orbit,digi->second);
 	  }
 	}
 
-	m_ndigivsbx[i]->Fill(he.bx(),digi->second);
-	if(m_ndigivsbx2D.find(i)!=m_ndigivsbx2D.end()) m_ndigivsbx2D[i]->Fill(he.bx(),digi->second);
-	if(m_ndigivsbx2Dzoom.find(i)!=m_ndigivsbx2Dzoom.end()) m_ndigivsbx2Dzoom[i]->Fill(he.bx(),digi->second);
-	if(m_ndigivsbx2Dzoom2.find(i)!=m_ndigivsbx2Dzoom2.end()) m_ndigivsbx2Dzoom2[i]->Fill(he.bx(),digi->second);
+	m_ndigivsbx[i]->Fill(he.bx()%3564,digi->second);
+	if(m_ndigivsbx2D.find(i)!=m_ndigivsbx2D.end()) m_ndigivsbx2D[i]->Fill(he.bx()%3564,digi->second);
+	if(m_ndigivsbx2Dzoom.find(i)!=m_ndigivsbx2Dzoom.end()) m_ndigivsbx2Dzoom[i]->Fill(he.bx()%3564,digi->second);
+	if(m_ndigivsbx2Dzoom2.find(i)!=m_ndigivsbx2Dzoom2.end()) m_ndigivsbx2Dzoom2[i]->Fill(he.bx()%3564,digi->second);
 
 
 	if(he.depth()>0) {

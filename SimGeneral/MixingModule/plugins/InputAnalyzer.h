@@ -17,7 +17,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,16 +32,15 @@
 //
 namespace edm
 {
-class InputAnalyzer : public edm::EDAnalyzer {
+  class InputAnalyzer : public edm::one::EDAnalyzer<> {
    public:
       explicit InputAnalyzer(const edm::ParameterSet&);
-      ~InputAnalyzer();
-
+      ~InputAnalyzer() override;
 
    private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      void beginJob() override ;
+      void analyze(const edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       // ----------member data ---------------------------
       

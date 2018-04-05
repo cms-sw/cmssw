@@ -5,9 +5,9 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
-#include <time.h>
-#include <stdint.h>
-#include <limits.h>
+#include <ctime>
+#include <cstdint>
+#include <climits>
 
 // Wrapper class for time.h tm struct
 class Tm {
@@ -92,7 +92,7 @@ class Tm {
   /*
    *  Set to string of format YYYY-MM-DD HH:MM:SS
    */
-  void setToString(const std::string s) throw(std::runtime_error);
+  void setToString(const std::string s) noexcept(false);
 
   void dumpTm();
 

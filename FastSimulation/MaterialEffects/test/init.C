@@ -4,6 +4,6 @@
 // library, which contains the ROOT interface
 gSystem->Load("libFWCoreFWLite.so");
 gSystem->Load("libFastSimulationMaterialEffects.so");
-AutoLibraryLoader::enable();
+FWLiteEnabler::enable();
 
 }

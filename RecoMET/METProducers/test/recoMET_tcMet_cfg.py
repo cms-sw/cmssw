@@ -11,11 +11,12 @@ process.load("RecoMET.METProducers.MuonTCMETValueMapProducer_cff")
 process.load("RecoMET.METProducers.TCMET_cfi")
 process.load("RecoMET.METProducers.CaloMET_cfi")
 process.load("RecoMET.Configuration.RecoTCMET_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('RecoParticleFlow.PFClusterProducer.particleFlowCluster_cff')
 process.load("RecoLocalCalo.Configuration.RecoLocalCalo_cff")
+process.load("RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi")
 
 ##____________________________________________________________________________||
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -57,6 +58,7 @@ process.tcMetVedu.vetoDuplicates = cms.bool(True)
 
 ##____________________________________________________________________________||
 process.p = cms.Path(
+    process.bunchSpacingProducer *
     process.particleFlowCluster *
     process.muonTCMETValueMapProducer *
     process.tcMet *

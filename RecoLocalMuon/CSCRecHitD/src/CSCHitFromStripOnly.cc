@@ -19,7 +19,7 @@
 #include <vector>
 //#include <iostream>
 
-CSCHitFromStripOnly::CSCHitFromStripOnly( const edm::ParameterSet& ps ) : recoConditions_(0), calcped_(0), ganged_(0) {
+CSCHitFromStripOnly::CSCHitFromStripOnly( const edm::ParameterSet& ps ) : recoConditions_(nullptr), calcped_(nullptr), ganged_(false) {
   
   useCalib                   = ps.getParameter<bool>("CSCUseCalibrations");
   bool useStaticPedestals    = ps.getParameter<bool>("CSCUseStaticPedestals");
@@ -132,7 +132,7 @@ std::vector<CSCStripHit> CSCHitFromStripOnly::runStrip( const CSCDetId& id, cons
     if(imax>0 ){
       maximum_to_left =  theMaxima.at(imax-1) - theMaxima.at(imax);
     }
-    if(fabs(maximum_to_right) < fabs(maximum_to_left)){
+    if(std::abs(maximum_to_right) < std::abs(maximum_to_left)){
       theClosestMaximum.push_back(maximum_to_right);
     }
     else{
@@ -511,7 +511,7 @@ float CSCHitFromStripOnly::findHitOnStripPosition( const std::vector<CSCStripHit
   
   float strippos = -1.;
   
-  if ( data.size() < 1 ) return strippos;
+  if ( data.empty() ) return strippos;
   
   // biggestStrip is strip with largest pulse height
   // Use pointer subtraction

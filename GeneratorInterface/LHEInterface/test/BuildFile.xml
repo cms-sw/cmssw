@@ -4,3 +4,7 @@
   <use   name="FWCore/Framework"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+<bin   name="TestGeneratorInterfaceLHEInterfaceFileReading" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash GeneratorInterface/LHEInterface/test testMerging.sh"/>
+  <use   name="FWCore/Utilities"/>
+</bin>

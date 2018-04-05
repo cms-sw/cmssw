@@ -20,7 +20,8 @@ myRecoSeq2 = cms.Sequence(
 
 myRecoSeq = cms.Sequence(myRecoSeq1 * myRecoSeq2)
 
-qcdLowPtDQM = cms.EDAnalyzer("QcdLowPtDQM",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+qcdLowPtDQM = DQMEDAnalyzer('QcdLowPtDQM',
     hltTrgNames  = cms.untracked.vstring(
     'HLT_MinBiasBSC',
     'HLT_MinBiasBSC_OR',

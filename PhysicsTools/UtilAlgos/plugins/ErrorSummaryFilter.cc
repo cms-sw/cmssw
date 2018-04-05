@@ -38,10 +38,10 @@
 class ErrorSummaryFilter : public edm::EDFilter {
 public:
   explicit ErrorSummaryFilter(edm::ParameterSet const&);
-  ~ErrorSummaryFilter();
+  ~ErrorSummaryFilter() override;
 
 private:
-  virtual bool filter(edm::Event&, edm::EventSetup const&) override;
+  bool filter(edm::Event&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<std::vector<edm::ErrorSummaryEntry> > srcToken_;

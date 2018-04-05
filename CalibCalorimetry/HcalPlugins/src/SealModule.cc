@@ -5,7 +5,6 @@
 #include "HcalHardcodeCalibrations.h"
 #include "HcalTextCalibrations.h"
 
-
 DEFINE_FWK_EVENTSETUP_MODULE(HcalDbProducer);
 DEFINE_FWK_EVENTSETUP_SOURCE(HcalHardcodeCalibrations);
 DEFINE_FWK_EVENTSETUP_SOURCE(HcalTextCalibrations);

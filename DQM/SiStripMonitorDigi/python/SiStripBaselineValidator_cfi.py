@@ -1,9 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-SiStripBaselineValidator = cms.EDAnalyzer("SiStripBaselineValidator",
-	outputFile = cms.string("test.root"),
-        srcProcessedRawDigi =  cms.InputTag('siStripZeroSuppression','VirginRaw'),
-
-					  	
-                                          )
-
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiStripBaselineValidator = DQMEDAnalyzer('SiStripBaselineValidator',
+    srcProcessedRawDigi =  cms.InputTag('siStripZeroSuppression','VirginRaw')
+)

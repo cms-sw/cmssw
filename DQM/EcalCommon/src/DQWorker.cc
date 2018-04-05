@@ -22,7 +22,7 @@ namespace ecaldqm
   {
   }
 
-  DQWorker::~DQWorker()
+  DQWorker::~DQWorker() noexcept(false)
   {
   }
 

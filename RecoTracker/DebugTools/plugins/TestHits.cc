@@ -1,4 +1,4 @@
-#include "RecoTracker/DebugTools/interface/TestHits.h"
+#include "TestHits.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -9,12 +9,12 @@
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include <TDirectory.h>
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 typedef TrajectoryStateOnSurface TSOS;
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
@@ -22,19 +22,19 @@ using namespace std;
 using namespace edm;
 
 TestHits::TestHits(const edm::ParameterSet& iConfig):
-  conf_(iConfig){
-  LogTrace("TestHits") << conf_<< std::endl;
-  propagatorName = conf_.getParameter<std::string>("Propagator");   
-  builderName = conf_.getParameter<std::string>("TTRHBuilder");   
-  srcName = conf_.getParameter<std::string>("src");   
-  fname = conf_.getParameter<std::string>("Fitter");
-  mineta = conf_.getParameter<double>("mineta");
-  maxeta = conf_.getParameter<double>("maxeta");
+  trackerHitAssociatorConfig_(consumesCollector()) {
+  LogTrace("TestHits") << iConfig<< std::endl;
+  propagatorName = iConfig.getParameter<std::string>("Propagator");   
+  builderName = iConfig.getParameter<std::string>("TTRHBuilder");   
+  srcName = iConfig.getParameter<std::string>("src");   
+  fname = iConfig.getParameter<std::string>("Fitter");
+  mineta = iConfig.getParameter<double>("mineta");
+  maxeta = iConfig.getParameter<double>("maxeta");
 }
 
 TestHits::~TestHits(){}
 
-void TestHits::beginRun(edm::Run & run, const edm::EventSetup& iSetup)
+void TestHits::beginRun(edm::Run const& run, const edm::EventSetup& iSetup)
 {
  
   iSetup.get<TrackerDigiGeometryRecord>().get(theG);
@@ -189,13 +189,13 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
 
   LogTrace("TestHits") << "\nnew event";
 
   iEvent.getByLabel(srcName,theTCCollection ); 
-  hitAssociator = new TrackerHitAssociator(iEvent);
+  TrackerHitAssociator hitAssociator(iEvent, trackerHitAssociatorConfig_);
 
   TrajectoryStateCombiner combiner;
 
@@ -226,7 +226,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //call the fitter
     std::vector<Trajectory> result = fit->fit(theTC->seed(), hits, theTSOS);
-    if (result.size()==0) continue;
+    if (result.empty()) continue;
     std::vector<TrajectoryMeasurement> vtm = result[0].measurements();
     double tchi2 = 0;
 
@@ -234,7 +234,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (std::vector<TrajectoryMeasurement>::iterator tm=vtm.begin(); tm!=vtm.end();tm++){
 
       TransientTrackingRecHit::ConstRecHitPointer rhit = tm->recHit();
-      if ((rhit)->isValid()==0&&rhit->det()!=0) continue;
+      if ((rhit)->isValid()==0&&rhit->det()!=nullptr) continue;
       LogTrace("TestHits") << "*****************new hit*****************" ;
 
       int subdetId = rhit->det()->geographicalId().subdetId();
@@ -245,8 +245,8 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       double delta = 99999;
       LocalPoint rhitLPv = rhit->localPosition();
 
-      std::vector<PSimHit> assSimHits = hitAssociator->associateHit(*(rhit->hit()));
-      if (assSimHits.size()==0) continue;
+      std::vector<PSimHit> assSimHits = hitAssociator.associateHit(*(rhit->hit()));
+      if (assSimHits.empty()) continue;
       PSimHit shit;
       for(std::vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
 	if ((m->localPosition()-rhitLPv).mag()<delta) {
@@ -401,12 +401,12 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	LogTrace("TestHits") << "MONO HIT" << std::endl;
         auto m = dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->monoHit();
 	CTTRHp tMonoHit = theBuilder->build(&m);
-	if (tMonoHit==0) continue;
-	vector<PSimHit> assMonoSimHits = hitAssociator->associateHit(*tMonoHit->hit());
-	if (assMonoSimHits.size()==0) continue;
+	if (tMonoHit==nullptr) continue;
+	vector<PSimHit> assMonoSimHits = hitAssociator.associateHit(*tMonoHit->hit());
+	if (assMonoSimHits.empty()) continue;
 	const PSimHit sMonoHit = *(assSimHits.begin());
 	const Surface * monoSurf = &( tMonoHit->det()->surface() );
-	if (monoSurf==0) continue;
+	if (monoSurf==nullptr) continue;
 	TSOS monoState = thePropagator->propagate(lastState,*monoSurf);
 	if (monoState.isValid()==0) continue;
 
@@ -496,12 +496,12 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         auto s = dynamic_cast<const SiStripMatchedRecHit2D*>((rhit)->hit())->stereoHit();
 	CTTRHp tStereoHit = 
 	  theBuilder->build(&s);
-	if (tStereoHit==0) continue;
-	vector<PSimHit> assStereoSimHits = hitAssociator->associateHit(*tStereoHit->hit());
-	if (assStereoSimHits.size()==0) continue;
+	if (tStereoHit==nullptr) continue;
+	vector<PSimHit> assStereoSimHits = hitAssociator.associateHit(*tStereoHit->hit());
+	if (assStereoSimHits.empty()) continue;
 	const PSimHit sStereoHit = *(assSimHits.begin());
 	const Surface * stereoSurf = &( tStereoHit->det()->surface() );
-	if (stereoSurf==0) continue;
+	if (stereoSurf==nullptr) continue;
 	TSOS stereoState = thePropagator->propagate(lastState,*stereoSurf);
 	if (stereoState.isValid()==0) continue;
 
@@ -591,7 +591,6 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     LogTrace("TestHits") << "traj chi2="  << tchi2 ;
     LogTrace("TestHits") << "track chi2=" << result[0].chiSquared() ;
   }
-  delete hitAssociator;
   LogTrace("TestHits") << "end of event" << std::endl;
 }
 //     TSOS lastState = theTSOS;
@@ -628,7 +627,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //       double delta = 99999;
 //       LocalPoint rhitLP = rhit->localPosition();
 
-//       std::vector<PSimHit> assSimHits = hitAssociator->associateHit(*(*rhit)->hit());
+//       std::vector<PSimHit> assSimHits = hitAssociator.associateHit(*(*rhit)->hit());
 //       if (assSimHits.size()==0) continue;
 //       PSimHit shit;
 //       for(std::vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
@@ -747,7 +746,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // 	CTTRHp tMonoHit = 
 // 	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((*rhit)->hit())->monoHit());
 // 	if (tMonoHit==0) continue;
-// 	vector<PSimHit> assMonoSimHits = hitAssociator->associateHit(*tMonoHit->hit());
+// 	vector<PSimHit> assMonoSimHits = hitAssociator.associateHit(*tMonoHit->hit());
 // 	if (assMonoSimHits.size()==0) continue;
 // 	const PSimHit sMonoHit = *(assSimHits.begin());
 // 	const Surface * monoSurf = &( tMonoHit->det()->surface() );
@@ -841,7 +840,7 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 // 	CTTRHp tStereoHit = 
 // 	  theBuilder->build(dynamic_cast<const SiStripMatchedRecHit2D*>((*rhit)->hit())->stereoHit());
 // 	if (tStereoHit==0) continue;
-// 	vector<PSimHit> assStereoSimHits = hitAssociator->associateHit(*tStereoHit->hit());
+// 	vector<PSimHit> assStereoSimHits = hitAssociator.associateHit(*tStereoHit->hit());
 // 	if (assStereoSimHits.size()==0) continue;
 // 	const PSimHit sStereoHit = *(assSimHits.begin());
 // 	const Surface * stereoSurf = &( tStereoHit->det()->surface() );
@@ -932,7 +931,6 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //       }
 //     }
 //   }
-//   delete hitAssociator;
 //   LogTrace("TestHits") << "end of event" << std::endl;
 // }
 

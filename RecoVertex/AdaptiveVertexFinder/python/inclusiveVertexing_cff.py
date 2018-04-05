@@ -9,7 +9,11 @@ inclusiveSecondaryVertices.secondaryVertices = cms.InputTag("trackVertexArbitrat
 inclusiveSecondaryVertices.maxFraction = 0.2
 inclusiveSecondaryVertices.minSignificance = 10.
 
-inclusiveVertexing = cms.Sequence(inclusiveVertexFinder*vertexMerger*trackVertexArbitrator*inclusiveSecondaryVertices)
+inclusiveVertexingTask = cms.Task(inclusiveVertexFinder,
+                                  vertexMerger,
+                                  trackVertexArbitrator,
+                                  inclusiveSecondaryVertices)
+inclusiveVertexing = cms.Sequence(inclusiveVertexingTask)
 
 from RecoVertex.AdaptiveVertexFinder.inclusiveCandidateVertexFinder_cfi import *
 from RecoVertex.AdaptiveVertexFinder.candidateVertexMerger_cfi import *
@@ -20,28 +24,40 @@ inclusiveCandidateSecondaryVertices.secondaryVertices = cms.InputTag("candidateV
 inclusiveCandidateSecondaryVertices.maxFraction = 0.2
 inclusiveCandidateSecondaryVertices.minSignificance = 10.
 
-inclusiveCandidateVertexing = cms.Sequence(inclusiveCandidateVertexFinder*candidateVertexMerger*candidateVertexArbitrator*inclusiveCandidateSecondaryVertices)
-
+inclusiveCandidateVertexingTask = cms.Task(inclusiveCandidateVertexFinder,
+                                           candidateVertexMerger,
+                                           candidateVertexArbitrator,
+                                           inclusiveCandidateSecondaryVertices)
+inclusiveCandidateVertexing = cms.Sequence(inclusiveCandidateVertexingTask)
 
 #relaxed IVF reconstruction cuts for candidate-based ctagging
-inclusiveCandidateVertexFinderCtagL = inclusiveCandidateVertexFinder.clone()
-inclusiveCandidateVertexFinderCtagL.vertexMinDLen2DSig = 1.25 
-inclusiveCandidateVertexFinderCtagL.vertexMinDLenSig = 0.25
-inclusiveCandidateVertexFinderCtagL.clusterizer.seedMin3DIPSignificance = 1.0
-#inclusiveCandidateVertexFinderCtagL.clusterizer.seedMin3DIPValue = 0.005
-inclusiveCandidateVertexFinderCtagL.clusterizer.distanceRatio = 10
+inclusiveCandidateVertexFinderCvsL = inclusiveCandidateVertexFinder.clone(
+   vertexMinDLen2DSig = cms.double(1.25),
+   vertexMinDLenSig = cms.double(0.25)
+)
 
-candidateVertexMergerCtagL = candidateVertexMerger.clone()
-candidateVertexMergerCtagL.secondaryVertices = cms.InputTag("inclusiveCandidateVertexFinderCtagL")
+candidateVertexMergerCvsL = candidateVertexMerger.clone(
+   secondaryVertices = cms.InputTag("inclusiveCandidateVertexFinderCvsL")
+)
 
-candidateVertexArbitratorCtagL = candidateVertexArbitrator.clone()
-candidateVertexArbitratorCtagL.secondaryVertices = cms.InputTag("candidateVertexMergerCtagL")
+candidateVertexArbitratorCvsL = candidateVertexArbitrator.clone(
+   secondaryVertices = cms.InputTag("candidateVertexMergerCvsL")
+)
 
-inclusiveCandidateSecondaryVerticesCtagL = candidateVertexMerger.clone()
-inclusiveCandidateSecondaryVerticesCtagL.secondaryVertices = cms.InputTag("candidateVertexArbitratorCtagL")
-inclusiveCandidateSecondaryVerticesCtagL.maxFraction = 0.2
-inclusiveCandidateSecondaryVerticesCtagL.minSignificance = 10.
+inclusiveCandidateSecondaryVerticesCvsL = candidateVertexMerger.clone(
+   secondaryVertices = cms.InputTag("candidateVertexArbitratorCvsL"),
+   maxFraction = cms.double(0.2),
+   minSignificance = cms.double(10.)
+)
 
-inclusiveCandidateVertexingCtagL = cms.Sequence(inclusiveCandidateVertexFinderCtagL*candidateVertexMergerCtagL*candidateVertexArbitratorCtagL*inclusiveCandidateSecondaryVerticesCtagL)
+inclusiveCandidateVertexingCvsLTask = cms.Task(inclusiveCandidateVertexFinderCvsL,
+                                               candidateVertexMergerCvsL,
+                                               candidateVertexArbitratorCvsL,
+                                               inclusiveCandidateSecondaryVerticesCvsL)
+inclusiveCandidateVertexingCvsL = cms.Sequence(inclusiveCandidateVertexingCvsLTask)
 
-
+from Configuration.Eras.Modifier_pp_on_XeXe_2017_cff import pp_on_XeXe_2017
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+for e in [pp_on_XeXe_2017, pp_on_AA_2018]:
+    e.toModify(inclusiveVertexFinder, minHits = 10, minPt = 1.0)
+    e.toModify(inclusiveCandidateVertexFinderCvsL, minHits = 10, minPt = 1.0)

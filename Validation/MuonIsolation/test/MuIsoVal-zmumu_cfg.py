@@ -28,7 +28,8 @@ process.source = cms.Source("PoolSource",
 
 process.DQMStore = cms.Service("DQMStore")
 
-process.analyzer_incMuon = cms.EDAnalyzer("MuIsoValidation",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.analyzer_incMuon = DQMEDAnalyzer('MuIsoValidation',
     Global_Muon_Label = cms.untracked.InputTag("muons"),
     requireCombinedMuon = cms.untracked.bool(False),
     ecalIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),
@@ -38,7 +39,7 @@ process.analyzer_incMuon = cms.EDAnalyzer("MuIsoValidation",
     hoIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ho")
 )
 
-process.analyzer_combinedMuon = cms.EDAnalyzer("MuIsoValidation",
+process.analyzer_combinedMuon = DQMEDAnalyzer('MuIsoValidation',
     Global_Muon_Label = cms.untracked.InputTag("muons"),
     requireCombinedMuon = cms.untracked.bool(True),
     ecalIsoDeposit_Label = cms.untracked.InputTag("muIsoDepositCalByAssociatorTowers","ecal"),

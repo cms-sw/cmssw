@@ -11,7 +11,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
@@ -68,11 +68,11 @@ void SiStripGainRandomCalculator::algoAnalyze(const edm::Event & event, const ed
     
     edm::LogInfo("SiStripGainCalculator") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
     
-    for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
+    for( const auto& it : pDD->detUnits()) {
   
-      if( dynamic_cast<const StripGeomDetUnit*>((*it))!=0){
-	uint32_t detid=((*it)->geographicalId()).rawId();            
-	const StripTopology & p = dynamic_cast<const StripGeomDetUnit*>((*it))->specificTopology();
+      if( dynamic_cast<const StripGeomDetUnit*>(it)!=nullptr){
+	uint32_t detid=(it->geographicalId()).rawId();            
+	const StripTopology & p = dynamic_cast<const StripGeomDetUnit*>(it)->specificTopology();
 	unsigned short NAPVs = p.nstrips()/128;
 	if(NAPVs<1 || NAPVs>6 ) {
 	  edm::LogError("SiStripGainCalculator")<<" Problem with Number of strips in detector.. "<< p.nstrips() <<" Exiting program"<<endl;

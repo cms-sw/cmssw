@@ -56,8 +56,8 @@ class PlotMillePedeIOV
 
   void DrawPedeParam(Option_t *option = "", unsigned int nNonRigidParam = 0);// "add", any of "x","y","z","id" to add position or DetId in legend, "err" error (not value), "val" skip error bar even if valid 
 
-  //  void SetTitle(const char *title) {fTitle = title;}
-  //  const TString& GetTitle() const { return fTitle;}
+  void SetTitle(const char *title) {fTitle = title;}
+  const TString& GetTitle() const { return fTitle;}
   GFHistManager* GetHistManager() { return fHistManager;}
   PlotMillePede* GetPlotMillePede(unsigned int i) { return (i < fIovs.size() ? fIovs[i] : 0);}
 
@@ -75,7 +75,6 @@ class PlotMillePedeIOV
   void AddAdditionalSel(const TString &xyzrPhiNhit, Float_t min, Float_t max); // min <= x,y,z,r,phi,Nhit < max
   void ClearAdditionalSel();
 
- private:
   struct ParId {
     //parameter identified by id (=DetId), objId (=hieraLevel), parameter
   public:
@@ -87,9 +86,10 @@ class PlotMillePedeIOV
   };
   // end struct ParId
 
+ private:
   GFHistManager *fHistManager;
   std::vector<PlotMillePede*> fIovs;
-
+  TString fTitle;
 };
 
 #endif

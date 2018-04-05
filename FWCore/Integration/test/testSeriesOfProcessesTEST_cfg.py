@@ -122,6 +122,6 @@ process.path4 = cms.Path(process.f2)
 process.path5 = cms.Path(process.f1)
 process.path6 = cms.Path(process.f2)
 process.path7 = cms.Path(process.f1)
-process.path8 = cms.Path(process.f2*process.a)
+process.path8 = cms.Path(process.f2)
 
-process.e = cms.EndPath(process.out1+process.out2+process.out3+process.out4)
+process.e = cms.EndPath(process.a+process.out1+process.out2+process.out3+process.out4)

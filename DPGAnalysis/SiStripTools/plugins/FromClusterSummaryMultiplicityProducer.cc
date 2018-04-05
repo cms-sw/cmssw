@@ -42,12 +42,12 @@ class FromClusterSummaryMultiplicityProducer : public edm::EDProducer {
 
 public:
   explicit FromClusterSummaryMultiplicityProducer(const edm::ParameterSet&);
-  ~FromClusterSummaryMultiplicityProducer();
+  ~FromClusterSummaryMultiplicityProducer() override;
 
 private:
-  virtual void beginJob() override ;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
       // ----------member data ---------------------------
 
@@ -111,7 +111,7 @@ FromClusterSummaryMultiplicityProducer::produce(edm::Event& iEvent, const edm::E
 
   using namespace edm;
 
-  std::auto_ptr<std::map<unsigned int,int> > mults(new std::map<unsigned int,int> );
+  std::unique_ptr<std::map<unsigned int,int> > mults(new std::map<unsigned int,int> );
 
 
   Handle<ClusterSummary> clustsumm;
@@ -142,7 +142,7 @@ FromClusterSummaryMultiplicityProducer::produce(edm::Event& iEvent, const edm::E
     LogDebug("Multiplicity") << " Found " << it->second << " digis/clusters in " << it->first;
   }
 
-  iEvent.put(mults);
+  iEvent.put(std::move(mults));
 
 }
 

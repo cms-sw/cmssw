@@ -15,12 +15,12 @@ class DumpFWRecoGeometry : public edm::EDAnalyzer
 {
 public:
   explicit DumpFWRecoGeometry( const edm::ParameterSet& config );
-  virtual ~DumpFWRecoGeometry( void ) {}
+  ~DumpFWRecoGeometry( void ) override {}
 
 private:
-  virtual void analyze( const edm::Event& event, const edm::EventSetup& eventSetup ) override;
-  virtual void beginJob( void ) override;
-  virtual void endJob( void ) override;
+  void analyze( const edm::Event& event, const edm::EventSetup& eventSetup ) override;
+  void beginJob( void ) override;
+  void endJob( void ) override;
 
   int m_level;
   std::string m_tag;
@@ -30,6 +30,7 @@ private:
 DumpFWRecoGeometry::DumpFWRecoGeometry( const edm::ParameterSet& config )
   : m_level( config.getUntrackedParameter<int>( "level", 1 )),
     m_tag( config.getUntrackedParameter<std::string>( "tagInfo", "unknown" )),
+    
     m_outputFileName( config.getUntrackedParameter<std::string>( "outputFileName", "cmsRecoGeo.root" ))
 {}
 
@@ -42,7 +43,7 @@ DumpFWRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup& eve
   eventSetup.get<FWRecoGeometryRecord>().get( geoh );
   TFile file( m_outputFileName.c_str(), "RECREATE" );
 
-  TTree *tree = new TTree("idToGeo", "raw detector id association with geometry");
+  TTree *tree = new TTree("idToGeo", "raw detector id association with geometry ANT");
 
   UInt_t v_id;
   Float_t v_vertex[24];
@@ -82,8 +83,10 @@ DumpFWRecoGeometry::analyze( const edm::Event& event, const edm::EventSetup& eve
   file.WriteTObject(new TNamed("CMSSW_VERSION", gSystem->Getenv( "CMSSW_VERSION" )));
   file.WriteTObject(new TNamed("tag", m_tag.c_str()));
   file.WriteTObject(&geoh.product()->extraDet, "ExtraDetectors");
+  file.WriteTObject(new TNamed("PRODUCER_VERSION", "1")); // version 2 changes pixel parameters
 
 
+  file.WriteTObject(new TNamed("TrackerTopology",  geoh.product()->trackerTopologyXML));
 
   file.Close();
 }

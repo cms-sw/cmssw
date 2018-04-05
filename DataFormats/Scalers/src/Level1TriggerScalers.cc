@@ -6,7 +6,7 @@
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
 #include <iostream>
-#include <time.h>
+#include <ctime>
 #include <cstdio>
 
 Level1TriggerScalers::Level1TriggerScalers():
@@ -62,8 +62,8 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
 { 
   Level1TriggerScalers();
 
-  struct ScalersEventRecordRaw_v5 * raw 
-    = (struct ScalersEventRecordRaw_v5 *)rawData;
+  struct ScalersEventRecordRaw_v5 const * raw 
+    = reinterpret_cast<struct ScalersEventRecordRaw_v5 const *>(rawData);
 
   trigType_     = ( raw->header >> 56 ) &        0xFULL;
   eventID_      = ( raw->header >> 32 ) & 0x00FFFFFFULL;

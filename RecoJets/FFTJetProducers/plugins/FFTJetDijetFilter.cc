@@ -55,14 +55,14 @@ public:
     typedef fftjet::SparseClusteringTree<fftjet::Peak,long> SparseTree;
 
     explicit FFTJetDijetFilter(const edm::ParameterSet&);
-    ~FFTJetDijetFilter();
+    ~FFTJetDijetFilter() override;
 
 private:
     typedef reco::PattRecoTree<float,reco::PattRecoPeak<float> > StoredTree;
 
-    FFTJetDijetFilter();
-    FFTJetDijetFilter(const FFTJetDijetFilter&);
-    FFTJetDijetFilter& operator=(const FFTJetDijetFilter&);
+    FFTJetDijetFilter() = delete;
+    FFTJetDijetFilter(const FFTJetDijetFilter&) = delete;
+    FFTJetDijetFilter& operator=(const FFTJetDijetFilter&) = delete;
 
     void beginJob() override;
     bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
@@ -71,7 +71,7 @@ private:
     template<class Ptr>
     inline void checkConfig(const Ptr& ptr, const char* message) const
     {
-        if (ptr.get() == NULL)
+        if (ptr.get() == nullptr)
             throw cms::Exception("FFTJetBadConfig") << message << std::endl;
     }
 
@@ -133,8 +133,8 @@ FFTJetDijetFilter::FFTJetDijetFilter(const edm::ParameterSet& ps)
       init_param(double, minPt1),
       init_param(double, maxPeakEta),
       init_param(bool, insertCompleteEvent),
-      clusteringTree(0),
-      sparseTree(0)
+      clusteringTree(nullptr),
+      sparseTree(nullptr)
 {
     // Parse the set of scales
     iniScales = fftjet_ScaleSet_parser(

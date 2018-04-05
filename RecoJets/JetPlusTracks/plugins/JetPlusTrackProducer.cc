@@ -104,8 +104,8 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle <edm::View <reco::CaloJet> > jets_h;
   iEvent.getByToken (input_jets_token_, jets_h);
 
-//  std::auto_ptr<reco::CaloJetCollection> pOut(new reco::CaloJetCollection());
-  std::auto_ptr<reco::JPTJetCollection> pOut(new reco::JPTJetCollection());
+//  auto pOut = std::make_unique<reco::CaloJetCollection>();
+  auto pOut = std::make_unique<reco::JPTJetCollection>();
 
   for (unsigned i = 0; i < jets_h->size(); ++i) {
 
@@ -267,7 +267,7 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 // If we add primary vertex
    edm::Handle<reco::VertexCollection> pvCollection;
    iEvent.getByToken(input_vertex_token_, pvCollection);
-   if ( pvCollection.isValid() && pvCollection->size()>0 ) vertex_=pvCollection->begin()->position();
+   if ( pvCollection.isValid() && !pvCollection->empty() ) vertex_=pvCollection->begin()->position();
 
    reco::JPTJet fJet(p4, vertex_, specific, corrected.getJetConstituents()); 
 
@@ -278,7 +278,7 @@ JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           
   }
   
-  iEvent.put(pOut);
+  iEvent.put(std::move(pOut));
    
 }
 

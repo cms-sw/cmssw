@@ -15,11 +15,11 @@ AlignmentCorrelationsStore::AlignmentCorrelationsStore( void )
 void AlignmentCorrelationsStore::correlations( Alignable* ap1, Alignable* ap2,
 					       AlgebraicSymMatrix& cov, int row, int col ) const
 {
-  static Alignable* previousAlignable = 0;
+  static Alignable* previousAlignable = nullptr;
   static CorrelationsTable* previousCorrelations;
 
   // Needed by 'resetCorrelations()' to reset the static pointer:
-  if ( ap1 == 0 ) { previousAlignable = 0; return; }
+  if ( ap1 == nullptr ) { previousAlignable = nullptr; return; }
 
   bool transpose = ( ap2 > ap1 );
   if ( transpose ) std::swap( ap1, ap2 ); 
@@ -60,11 +60,11 @@ void AlignmentCorrelationsStore::correlations( Alignable* ap1, Alignable* ap2,
 void AlignmentCorrelationsStore::setCorrelations( Alignable* ap1, Alignable* ap2,
 						  const AlgebraicSymMatrix& cov, int row, int col )
 {
-  static Alignable* previousAlignable = 0;
+  static Alignable* previousAlignable = nullptr;
   static CorrelationsTable* previousCorrelations;
 
   // Needed by 'resetCorrelations()' to reset the static pointer:
-  if ( ap1 == 0 ) { previousAlignable = 0; return; }
+  if ( ap1 == nullptr ) { previousAlignable = nullptr; return; }
 
   bool transpose = ( ap2 > ap1 );
   if ( transpose ) std::swap( ap1, ap2 );
@@ -137,8 +137,8 @@ void AlignmentCorrelationsStore::resetCorrelations( void )
 
   // Reset the static pointers to the 'previous alignables'
   AlgebraicSymMatrix dummy;
-  correlations( 0, 0, dummy, 0, 0 );
-  setCorrelations( 0, 0, dummy, 0, 0 );
+  correlations( nullptr, nullptr, dummy, 0, 0 );
+  setCorrelations( nullptr, nullptr, dummy, 0, 0 );
 }
 
 

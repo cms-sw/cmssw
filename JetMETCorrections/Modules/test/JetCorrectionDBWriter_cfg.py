@@ -82,59 +82,73 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
 
 process.dbWriterAK5Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V10'), 
-   algo   = cms.untracked.string('AK5Calo') 
+   algo   = cms.untracked.string('AK5Calo'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 ) 
 process.dbWriterAK5PF = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V10'),  
-   algo   = cms.untracked.string('AK5PF') 
+   algo   = cms.untracked.string('AK5PF'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 ) 
 process.dbWriterAK5PFchs = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V10'),  
-   algo   = cms.untracked.string('AK5PFchs') 
+   algo   = cms.untracked.string('AK5PFchs'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 ) 
 process.dbWriterAK5JPT = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V10'),  
-   algo  = cms.untracked.string('AK5JPT') 
+   algo  = cms.untracked.string('AK5JPT'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 )
 process.dbWriterAK5TRK = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V5'), 
-   algo   = cms.untracked.string('AK5TRK') 
+   algo   = cms.untracked.string('AK5TRK'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 )
 process.dbWriterAK7Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V10'),  
-   algo   = cms.untracked.string('AK7Calo') 
+   algo   = cms.untracked.string('AK7Calo'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 ) 
 process.dbWriterAK7PF = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V10'),  
-   algo   = cms.untracked.string('AK7PF') 
+   algo   = cms.untracked.string('AK7PF'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 ) 
 process.dbWriterAK7JPT = cms.EDAnalyzer('JetCorrectorDBWriter',
    era    = cms.untracked.string('Jec11_V5'),
-   algo   = cms.untracked.string('AK7JPT')
+   algo   = cms.untracked.string('AK7JPT'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 )
 process.dbWriterKT4Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V10'),  
-   algo   = cms.untracked.string('KT4Calo') 
+   algo   = cms.untracked.string('KT4Calo'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 ) 
 process.dbWriterKT4PF = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V10'),  
-   algo   = cms.untracked.string('KT4PF') 
+   algo   = cms.untracked.string('KT4PF'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 ) 
 process.dbWriterKT6Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V5'), 
-   algo   = cms.untracked.string('KT6Calo') 
+   algo   = cms.untracked.string('KT6Calo'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 ) 
 process.dbWriterKT6PF = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V5'),  
-   algo   = cms.untracked.string('KT6PF') 
+   algo   = cms.untracked.string('KT6PF'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 )
 process.dbWriterIC5Calo = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V5'),  
-   algo   = cms.untracked.string('IC5Calo') 
+   algo   = cms.untracked.string('IC5Calo'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 ) 
 process.dbWriterIC5PF = cms.EDAnalyzer('JetCorrectorDBWriter', 
    era    = cms.untracked.string('Jec11_V5'),  
-   algo   = cms.untracked.string('IC5PF') 
+   algo   = cms.untracked.string('IC5PF'),
+   path   = cms.untracked.string('CondFormats/JetMETObjects/data/'),
 ) 
 
 

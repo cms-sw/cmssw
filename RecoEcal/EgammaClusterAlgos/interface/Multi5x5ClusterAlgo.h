@@ -8,13 +8,13 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
 #include "RecoCaloTools/Navigation/interface/EcalEndcapNavigator.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
 
@@ -75,7 +75,7 @@ class Multi5x5ClusterAlgo
                 const CaloSubdetectorGeometry *geometryES_p,
                 reco::CaloID::Detectors detector,
                 bool regional = false,
-                const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>());
+                const std::vector<RectangularEtaPhiRegion>& regions = std::vector<RectangularEtaPhiRegion>());
 
         /// point in the space
         typedef math::XYZPoint Point;

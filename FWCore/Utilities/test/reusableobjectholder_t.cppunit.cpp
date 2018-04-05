@@ -32,7 +32,7 @@ void reusableobjectholder_test::testConstruction()
       auto p = intHolder.tryToGet();
       CPPUNIT_ASSERT(p.get() ==0);
    
-      intHolder.add(std::unique_ptr<int>(new int(1)));
+      intHolder.add(std::make_unique<int>(1));
       p = intHolder.tryToGet();
       CPPUNIT_ASSERT(p.get() != 0);
       CPPUNIT_ASSERT(*p == 1);
@@ -65,7 +65,7 @@ void reusableobjectholder_test::testDeletion()
    //should also test that makeOrGetAndClear actually does a clear on returned objects
    {
       edm::ReusableObjectHolder<int> intHolder;
-      intHolder.add(std::unique_ptr<int>(new int(1)));
+      intHolder.add(std::make_unique<int>(1));
       {
          auto p = intHolder.tryToGet();
          CPPUNIT_ASSERT(p.get() != 0);

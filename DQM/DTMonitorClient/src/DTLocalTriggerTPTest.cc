@@ -37,10 +37,10 @@ using namespace std;
 DTLocalTriggerTPTest::DTLocalTriggerTPTest(const edm::ParameterSet& ps){
 
   setConfig(ps,"DTLocalTriggerTP");
-  baseFolderDCC = "DT/11-LocalTriggerTP-DCC/";
+  baseFolderTM = "DT/11-LocalTriggerTP-TM/";
   baseFolderDDU = "DT/12-LocalTriggerTP-DDU/";
   
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -50,10 +50,7 @@ DTLocalTriggerTPTest::~DTLocalTriggerTPTest(){
 }
 
 
-void DTLocalTriggerTPTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
-                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
-
-  if (bookingdone) return;
+void DTLocalTriggerTPTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();
@@ -76,7 +73,7 @@ void DTLocalTriggerTPTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQ
   }
 
 
-  bookingdone = 1; 
+  bookingdone = true; 
 
 }
 
@@ -89,6 +86,7 @@ void DTLocalTriggerTPTest::beginRun(const edm::Run& r, const edm::EventSetup& c)
 
 void DTLocalTriggerTPTest::runClientDiagnostic(DQMStore::IBooker & ibooker,
                                                             DQMStore::IGetter & igetter) {
+  if (!bookingdone) Bookings(ibooker,igetter);
 
   // Loop over Trig & Hw sources
   for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
@@ -101,8 +99,8 @@ void DTLocalTriggerTPTest::runClientDiagnostic(DQMStore::IBooker & ibooker,
 	  for (int sect=1; sect<=12; ++sect){
 	    DTChamberId chId(wh,stat,sect);
 
-	    // Perform DCC/DDU common plot analysis (Phi ones)
-	    TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual","LocalTriggerPhi", chId)));
+	    // Perform TM/DDU common plot analysis (Phi ones)
+	    TH2F * BXvsQual      = getHisto<TH2F>(igetter.get(getMEName("BXvsQual_In","LocalTriggerPhiIn", chId)));
 	    if ( BXvsQual ) {
 
 	      if (BXvsQual->GetEntries()>1) {
@@ -132,6 +130,4 @@ void DTLocalTriggerTPTest::runClientDiagnostic(DQMStore::IBooker & ibooker,
 
 }
 
-
-void DTLocalTriggerTPTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}
 

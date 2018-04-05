@@ -13,7 +13,6 @@
 #include <limits>
 
 namespace edm { class Event; class EventSetup; class ConsumesCollector;}
-namespace ctfseeding { class SeedingLayer; }
 
 namespace ctfseeding {
 

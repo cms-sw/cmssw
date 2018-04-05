@@ -55,7 +55,7 @@ SiPixelQualityESProducer::~SiPixelQualityESProducer()
 
 }
 
-std::auto_ptr<SiPixelQuality> SiPixelQualityESProducer::produce(const SiPixelQualityRcd & iRecord)
+std::unique_ptr<SiPixelQuality> SiPixelQualityESProducer::produce(const SiPixelQualityRcd & iRecord)
 {
   
   std::string recordName;
@@ -90,7 +90,7 @@ std::auto_ptr<SiPixelQuality> SiPixelQualityESProducer::produce(const SiPixelQua
   
   //now the dbobject is the one copied from the db
   //here make a copy of dbobject, but now the label has to be empty not to interfeare with the Reco
-  std::auto_ptr<SiPixelQuality> dbptr(new SiPixelQuality(*(dbobject)));
+  auto dbptr = std::make_unique<SiPixelQuality>(*(dbobject));
   
   //here is the magic line in which it switches off Bad Modules
   dbptr->add(Voff.product());

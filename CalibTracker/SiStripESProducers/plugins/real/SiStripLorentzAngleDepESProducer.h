@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -22,9 +21,9 @@
 class SiStripLorentzAngleDepESProducer : public edm::ESProducer {
  public:
   SiStripLorentzAngleDepESProducer(const edm::ParameterSet&);
-  ~SiStripLorentzAngleDepESProducer(){};
+  ~SiStripLorentzAngleDepESProducer() override{};
   
-  boost::shared_ptr<SiStripLorentzAngle> produce(const SiStripLorentzAngleDepRcd&);
+  std::unique_ptr<SiStripLorentzAngle> produce(const SiStripLorentzAngleDepRcd&);
    
  private:
 
@@ -37,7 +36,6 @@ class SiStripLorentzAngleDepESProducer : public edm::ESProducer {
   edm::ParameterSet getPeak;
   edm::ParameterSet getDeconv;
 
-  boost::shared_ptr<SiStripLorentzAngle> siStripLA_;
 
 };
 

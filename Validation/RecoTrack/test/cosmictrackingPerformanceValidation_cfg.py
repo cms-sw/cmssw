@@ -71,7 +71,6 @@ process.multiTrackValidator.associators = ['quickTrackAssociatorByHits']
 process.multiTrackValidator.parametersDefiner = cms.string('CosmicParametersDefinerForTP')
 process.multiTrackValidator.label = ['cutsRecoCTFTracksP5', 'cutsRecoCosmicTFTracksP5', 'cutsRecoRSTracksP5']
 process.multiTrackValidator.useLogPt=cms.untracked.bool(False)
-process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
 process.multiTrackValidator.min = cms.double(MINETA)
 process.multiTrackValidator.max = cms.double(MAXETA)
 process.multiTrackValidator.nint = cms.int32(NINTETA)

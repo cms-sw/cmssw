@@ -1,16 +1,16 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalTracker/SubCollectionProducers/interface/StripClusterSelectorTopBottom.h"
 
-void StripClusterSelectorTopBottom::produce( edm::Event& event, const edm::EventSetup& setup) {
+void StripClusterSelectorTopBottom::produce( edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
 
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > input;
-  event.getByLabel(label_, input);
+  event.getByToken(token_, input);
 
   edm::ESHandle<TrackerGeometry> geom;
   setup.get<TrackerDigiGeometryRecord>().get( geom );
   const TrackerGeometry& theTracker( *geom );
   
-  std::auto_ptr<edmNew::DetSetVector<SiStripCluster> > output( new edmNew::DetSetVector<SiStripCluster>() );
+  auto output = std::make_unique<edmNew::DetSetVector<SiStripCluster>>();
 
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator clustSet = input->begin(); clustSet!=input->end(); ++clustSet) {
     edmNew::DetSet<SiStripCluster>::const_iterator clustIt = clustSet->begin();
@@ -30,7 +30,7 @@ void StripClusterSelectorTopBottom::produce( edm::Event& event, const edm::Event
       }
     }
   }
-  event.put( output );  
+  event.put(std::move(output));  
 }
 
 DEFINE_FWK_MODULE( StripClusterSelectorTopBottom );

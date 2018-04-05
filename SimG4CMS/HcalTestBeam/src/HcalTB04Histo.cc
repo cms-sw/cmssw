@@ -23,9 +23,9 @@
 //
 // constructors and destructor
 HcalTB04Histo::HcalTB04Histo(const edm::ParameterSet& ps) :
-  iniE(0),  iEta(0), iPhi(0), edepS(0), edecS(0), edhcS(0), edepQ(0),
-  edecQ(0), edhcQ(0), edehS(0), edehQ(0), latse(0), latqe(0), latsf(0), 
-  latqf(0), lngs(0), lngq(0) {
+  iniE(nullptr),  iEta(nullptr), iPhi(nullptr), edepS(nullptr), edecS(nullptr), edhcS(nullptr), edepQ(nullptr),
+  edecQ(nullptr), edhcQ(nullptr), edehS(nullptr), edehQ(nullptr), latse(nullptr), latqe(nullptr), latsf(nullptr), 
+  latqf(nullptr), lngs(nullptr), lngq(nullptr) {
 
   verbose    = ps.getUntrackedParameter<bool>("Verbose", false);
   double em1 = ps.getUntrackedParameter<double>("ETtotMax", 400.);

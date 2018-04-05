@@ -23,7 +23,7 @@ PhotosppInterface::PhotosppInterface( const edm::ParameterSet& pset)
   : fOnlyPDG(-1),
     fAvoidTauLeptonicDecays(false),
     fIsInitialized(false),
-    fPSet(0)
+    fPSet(nullptr)
 {
   // add ability to keep brem from hadronizer and only modify specific channels 10/27/2014
   bool UseHadronizerQEDBrem=false;
@@ -191,7 +191,7 @@ HepMC::GenEvent* PhotosppInterface::apply( HepMC::GenEvent* evt){
 	}
       }
     }
-    if(BCodes.size() > 0){
+    if(!BCodes.empty()){
       for(size_t ibc=0; ibc<BCodes.size(); ibc++){
 	HepMC::GenParticle* p1 = evt->barcode_to_particle(BCodes[ibc]);
 	int nbc = p1->barcode() - 10000 + NPartBefore;

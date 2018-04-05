@@ -49,23 +49,23 @@ void RPCMonitorRaw::bookHistograms(DQMStore::IBooker & ibooker,
   me_t[0]=ibooker.book1D("recordType_790",RPCRawDataCountsHistoMaker::emptyRecordTypeHisto(790));
   me_t[1]=ibooker.book1D("recordType_791",RPCRawDataCountsHistoMaker::emptyRecordTypeHisto(791));
   me_t[2]=ibooker.book1D("recordType_792",RPCRawDataCountsHistoMaker::emptyRecordTypeHisto(792));
-  for (int i=0;i<3;++i)me_t[i]->getTH1F()->SetStats(0);
+  for (int i=0;i<3;++i)me_t[i]->getTH1F()->SetStats(false);
   
   me_e[0]=ibooker.book1D("readoutErrors_790",RPCRawDataCountsHistoMaker::emptyReadoutErrorHisto(790));
   me_e[1]=ibooker.book1D("readoutErrors_791",RPCRawDataCountsHistoMaker::emptyReadoutErrorHisto(791));
   me_e[2]=ibooker.book1D("readoutErrors_792",RPCRawDataCountsHistoMaker::emptyReadoutErrorHisto(792));
-  for (int i=0;i<3;++i)me_e[i]->getTH1F()->SetStats(0);
+  for (int i=0;i<3;++i)me_e[i]->getTH1F()->SetStats(false);
 
   me_mapGoodEvents=ibooker.book2D("mapGoodRecords","mapGoodRecords",36,-0.5,35.5, 3, 789.5,792.5);
   me_mapGoodEvents->getTH2F()->SetNdivisions(3,"y");
   me_mapGoodEvents->getTH2F()->SetXTitle("rmb");
   me_mapGoodEvents->getTH2F()->SetYTitle("fed");
-  me_mapGoodEvents->getTH2F()->SetStats(0);
+  me_mapGoodEvents->getTH2F()->SetStats(false);
   me_mapBadEvents =ibooker.book2D("mapErrorRecords", "mapErrorRecords", 36,-0.5,35.5, 3, 789.5,792.5);
   me_mapBadEvents->getTH2F()->SetXTitle("fed");
   me_mapBadEvents->getTH2F()->SetYTitle("rmb");
   me_mapBadEvents->getTH2F()->SetNdivisions(3,"y");
-  me_mapBadEvents->getTH2F()->SetStats(0);
+  me_mapBadEvents->getTH2F()->SetStats(false);
 
   for (unsigned int i=0; i<=9; ++i) {
     if (theWatchedErrorHistoPos[i]) {

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-rpcdqmclient = cms.EDAnalyzer("RPCDqmClient",                               
+rpcdqmclient = DQMEDHarvester("RPCDqmClient",                               
                               RPCDqmClientList = cms.untracked.vstring("RPCMultiplicityTest", "RPCDeadChannelTest", "RPCClusterSizeTest", "RPCOccupancyTest","RPCNoisyStripTest"),
                               DiagnosticPrescale = cms.untracked.int32(5),
                               MinimumRPCEvents  = cms.untracked.int32(10000),
@@ -13,7 +14,7 @@ rpcdqmclient = cms.EDAnalyzer("RPCDqmClient",
                               )
 
 
-rpcdqmMuonclient = cms.EDAnalyzer("RPCDqmClient",                               
+rpcdqmMuonclient = DQMEDHarvester("RPCDqmClient",                               
                                   RPCDqmClientList = cms.untracked.vstring("RPCMultiplicityTest", "RPCDeadChannelTest", "RPCClusterSizeTest", "RPCOccupancyTest","RPCNoisyStripTest"),
                                   DiagnosticPrescale = cms.untracked.int32(5),
                                   MinimumRPCEvents  = cms.untracked.int32(10000),

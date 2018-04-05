@@ -25,7 +25,7 @@
 FWViewEnergyScale::FWViewEnergyScale(std::string name, int version):
 FWConfigurableParameterizable(version),
 m_scaleMode(this, "ScaleMode", 1l, 1l, 2l),
-m_fixedValToHeight(this, "EnergyToLength [GeV/m]", 50.0, 1.0, 100.0),
+m_fixedValToHeight(this, "EnergyToLength [GeV/m]", 50.0, 1.0, 1000.0),
 m_maxTowerHeight(this, "MaximumLength [m]", 3.0, 0.01, 30.0 ),
 m_plotEt(this, "PlotEt", true),
 m_name(name),

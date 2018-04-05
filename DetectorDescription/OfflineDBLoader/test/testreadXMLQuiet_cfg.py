@@ -1,20 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DBGeometryTest")
-#process.load("DetectorDescription.OfflineDBLoader.test.cmsIdealGeometryForWrite_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-        input = cms.untracked.int32(1)
-        )
+    input = cms.untracked.int32(1)
+    )
+
 process.source = cms.Source("EmptySource")
 
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
 process.prod = cms.EDAnalyzer("PerfectGeometryAnalyzer",
-                                  dumpPosInfo = cms.untracked.bool(False),
-                                  dumpSpecs = cms.untracked.bool(False),
-                                  dumpGeoHistory = cms.untracked.bool(False)
+                              dumpPosInfo = cms.untracked.bool(False),
+                              dumpSpecs = cms.untracked.bool(False),
+                              dumpGeoHistory = cms.untracked.bool(False)
                               )
 
 process.Timing = cms.Service("Timing")

@@ -26,7 +26,7 @@ void Exhume::TwoSpace::SetSubParameters(){
   double cos_th = randomEngine->flat();
 
   CosTheta = GetValue(cos_th);
-  Phi = 2*PI*randomEngine->flat();
+  Phi = 2*M_PI*randomEngine->flat();
  
   //std::cout<<CosTheta<<std::endl;
   LIPS2Amp();
@@ -90,7 +90,7 @@ double Exhume::TwoSpace::SubParameterWeight(){
 
 double Exhume::TwoSpace::SubParameterRange(){
 
-  return(Fudge*2*PI*TotalIntegral/MaximumSubProcessValue);
+  return(Fudge*2*M_PI*TotalIntegral/MaximumSubProcessValue);
 }
 //
 //double Exhume::TwoSpace::SubProcess(){
@@ -141,7 +141,7 @@ double Exhume::TwoSpace::WeightFunc(const double& _CosTheta){
 
 void Exhume::TwoSpace::SetThetaMin(const double& ThetaMin_){
   ThetaMin = ThetaMin_;
-  ThetaMax = PI - ThetaMin_;
+  ThetaMax = M_PI - ThetaMin_;
   // SinThetaMin = sin(ThetaMin);
   CosThetaMin = cos(ThetaMax);
   CosThetaMax = cos(ThetaMin);

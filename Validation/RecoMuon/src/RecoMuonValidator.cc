@@ -86,7 +86,7 @@ struct RecoMuonValidator::MuonME {
 
   {
     ibooker.cd();
-    ibooker.setCurrentFolder(dirName.c_str());
+    ibooker.setCurrentFolder(dirName);
 
     doAbsEta_ = hDim.doAbsEta;
     usePFMuon_ = hDim.usePFMuon;
@@ -518,12 +518,14 @@ RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset):
 
   ParameterSet tpset = pset.getParameter<ParameterSet>("tpSelector");
   tpSelector_ = TrackingParticleSelector(tpset.getParameter<double>("ptMin"),
+                                         tpset.getParameter<double>("ptMax"),
                                          tpset.getParameter<double>("minRapidity"),
                                          tpset.getParameter<double>("maxRapidity"),
                                          tpset.getParameter<double>("tip"),
                                          tpset.getParameter<double>("lip"),
                                          tpset.getParameter<int>("minHit"),
                                          tpset.getParameter<bool>("signalOnly"),
+                                         tpset.getParameter<bool>("intimeOnly"),
                                          tpset.getParameter<bool>("chargedOnly"),
                                          tpset.getParameter<bool>("stableOnly"),
                                          tpset.getParameter<std::vector<int> >("pdgId"));
@@ -619,7 +621,7 @@ void RecoMuonValidator::dqmBeginRun(const edm::Run& , const EventSetup& eventSet
 //
 //End run
 //
-void RecoMuonValidator::endRun()
+void RecoMuonValidator::endRun(edm::Run const&, edm::EventSetup const&)
 {
   if ( dbe_ && ! outputFileName_.empty() ) dbe_->save(outputFileName_);
 }
@@ -811,13 +813,13 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     commonME_->hMuonPhi_->Fill(muonPhi);
 
     if (iMuon->isGlobalMuon()) {
-      double gtHitPat = iMuon->globalTrack()->hitPattern().numberOfHits(HitPattern::TRACK_HITS)
+      double gtHitPat = iMuon->globalTrack()->hitPattern().numberOfAllHits(HitPattern::TRACK_HITS)
         - iMuon->globalTrack()->hitPattern().numberOfValidHits();
 
-      double itHitPat = iMuon->innerTrack()->hitPattern().numberOfHits(HitPattern::TRACK_HITS)
+      double itHitPat = iMuon->innerTrack()->hitPattern().numberOfAllHits(HitPattern::TRACK_HITS)
         - iMuon->innerTrack()->hitPattern().numberOfValidHits();
 
-      double otHitPat = iMuon->outerTrack()->hitPattern().numberOfHits(HitPattern::TRACK_HITS)
+      double otHitPat = iMuon->outerTrack()->hitPattern().numberOfAllHits(HitPattern::TRACK_HITS)
         - iMuon->outerTrack()->hitPattern().numberOfValidHits();
       
       commonME_->hNInvalidHitsGTHitPattern_->Fill(gtHitPat);

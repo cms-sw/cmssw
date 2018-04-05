@@ -5,7 +5,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -26,18 +26,19 @@
 #include <iomanip>
 #include <set>
 
-class GEMGeometryAnalyzer : public edm::EDAnalyzer {
+class GEMGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 
 public: 
   GEMGeometryAnalyzer( const edm::ParameterSet& pset);
 
-  ~GEMGeometryAnalyzer();
+  ~GEMGeometryAnalyzer() override;
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
   
+private:
   const std::string& myName() { return myName_;}
-  
-private: 
 
   const int dashedLineWidth_;
   const std::string dashedLine_;
@@ -50,7 +51,7 @@ GEMGeometryAnalyzer::GEMGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )
   : dashedLineWidth_(104), dashedLine_( std::string(dashedLineWidth_, '-') ), 
     myName_( "GEMGeometryAnalyzer" ) 
 { 
-  ofos.open("MytestOutput.out"); 
+  ofos.open("GEMtestOutput.out"); 
   ofos <<"======================== Opening output file"<< std::endl;
 }
 

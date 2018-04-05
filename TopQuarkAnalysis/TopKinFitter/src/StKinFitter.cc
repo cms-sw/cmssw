@@ -246,35 +246,35 @@ void StKinFitter::setupFitter() {
 
   TMatrixD empty3(3,3); TMatrixD empty4(4,4);
   if (jetParam_ == kEMom) {
-    fitBottom_ = new TFitParticleEMomDev("Jet1", "Jet1", 0, &empty4);
-    fitLight_  = new TFitParticleEMomDev("Jet2", "Jet2", 0, &empty4);
+    fitBottom_ = new TFitParticleEMomDev("Jet1", "Jet1", nullptr, &empty4);
+    fitLight_  = new TFitParticleEMomDev("Jet2", "Jet2", nullptr, &empty4);
   } else if (jetParam_ == kEtEtaPhi) {
-    fitBottom_ = new TFitParticleEtEtaPhi("Jet1", "Jet1", 0, &empty3);
-    fitLight_  = new TFitParticleEtEtaPhi("Jet2", "Jet2", 0, &empty3);
+    fitBottom_ = new TFitParticleEtEtaPhi("Jet1", "Jet1", nullptr, &empty3);
+    fitLight_  = new TFitParticleEtEtaPhi("Jet2", "Jet2", nullptr, &empty3);
   } else if (jetParam_ == kEtThetaPhi) {
-    fitBottom_ = new TFitParticleEtThetaPhi("Jet1", "Jet1", 0, &empty3);
-    fitLight_  = new TFitParticleEtThetaPhi("Jet2", "Jet2", 0, &empty3);
+    fitBottom_ = new TFitParticleEtThetaPhi("Jet1", "Jet1", nullptr, &empty3);
+    fitLight_  = new TFitParticleEtThetaPhi("Jet2", "Jet2", nullptr, &empty3);
   }
   if (lepParam_ == kEMom) {
-    fitLepton_ = new TFitParticleEScaledMomDev("Lepton", "Lepton", 0, &empty3);
+    fitLepton_ = new TFitParticleEScaledMomDev("Lepton", "Lepton", nullptr, &empty3);
   } else if (lepParam_ == kEtEtaPhi) {
-    fitLepton_ = new TFitParticleEtEtaPhi("Lepton", "Lepton", 0, &empty3);
+    fitLepton_ = new TFitParticleEtEtaPhi("Lepton", "Lepton", nullptr, &empty3);
   } else if (lepParam_ == kEtThetaPhi) {
-    fitLepton_ = new TFitParticleEtThetaPhi("Lepton", "Lepton", 0, &empty3);
+    fitLepton_ = new TFitParticleEtThetaPhi("Lepton", "Lepton", nullptr, &empty3);
   }
   if (metParam_ == kEMom) {
-    fitNeutrino_ = new TFitParticleEScaledMomDev("Neutrino", "Neutrino", 0, &empty3);
+    fitNeutrino_ = new TFitParticleEScaledMomDev("Neutrino", "Neutrino", nullptr, &empty3);
   } else if (metParam_ == kEtEtaPhi) {
-    fitNeutrino_ = new TFitParticleEtEtaPhi("Neutrino", "Neutrino", 0, &empty3);
+    fitNeutrino_ = new TFitParticleEtEtaPhi("Neutrino", "Neutrino", nullptr, &empty3);
   } else if (metParam_ == kEtThetaPhi) {
-    fitNeutrino_ = new TFitParticleEtThetaPhi("Neutrino", "Neutrino", 0, &empty3);
+    fitNeutrino_ = new TFitParticleEtThetaPhi("Neutrino", "Neutrino", nullptr, &empty3);
   }
 
-  cons1_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", 0, 0 , mW_);
+  cons1_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", nullptr, nullptr , mW_);
   cons1_->addParticles1(fitLepton_, fitNeutrino_);
-  cons2_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", 0, 0, mTop_);
+  cons2_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", nullptr, nullptr, mTop_);
   cons2_->addParticles1(fitLepton_, fitNeutrino_, fitBottom_);
-  cons3_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", 0, 0, 0.);
+  cons3_ = new TFitConstraintM("MassConstraint", "Mass-Constraint", nullptr, nullptr, 0.);
   cons3_->addParticle1(fitNeutrino_);
 
   for (unsigned int i=0; i<constraints_.size(); i++) {

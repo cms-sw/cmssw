@@ -10,7 +10,7 @@
 // since it already in the rootlogon.C
 //
 //   gSystem->Load("libFWCoreFWLite") ;
-//   AutoLibraryLoader::enable() ;
+//   FWLiteEnabler::enable() ;
    
    TFile* f = new TFile("../../../Configuration/Examples/data/pythiaH190ZZ4mu.root") ;
    

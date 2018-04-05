@@ -12,7 +12,12 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "TColor.h"
 #include <cassert>
+#include <vector>
+#include "TPolyLine.h"
 
+
+class TH1F;
+class TLegend;
 /*
 #define  NUMFEDCH_INCOLUMN 12
 #define  NUMFEDCH_INROW 8
@@ -507,6 +512,9 @@ void defwindow(int num_lay){
   bool saveAsSingleLayer;
   bool addPixelFlag;
   bool onlyPixelFlag;
+  TLegend *buildLegend();
+  std::vector<TPolyLine*> legInfos_;
+  std::vector<std::string> legKeys_;
 };
 #endif
 

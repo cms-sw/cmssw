@@ -11,7 +11,7 @@
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
@@ -19,36 +19,63 @@
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "PhysicsTools/PatAlgos/interface/ObjectModifier.h"
 
 namespace pat {
 
-  class PATJetSlimmer : public edm::EDProducer {
+  class PATJetSlimmer : public edm::stream::EDProducer<> {
     public:
       explicit PATJetSlimmer(const edm::ParameterSet & iConfig);
-      virtual ~PATJetSlimmer() { }
+      ~PATJetSlimmer() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+      void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) final;
 
     private:
       edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
-      edm::EDGetTokenT<edm::View<pat::Jet> >  jets_;
-      StringCutObjectSelector<pat::Jet> dropJetVars_,dropDaughters_,rekeyDaughters_,dropTrackRefs_,dropSpecific_,dropTagInfos_;
+      edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr>> pf2pcAny_;
+      const edm::EDGetTokenT<edm::View<pat::Jet> >  jets_;
+      const StringCutObjectSelector<pat::Jet> dropJetVars_,dropDaughters_,rekeyDaughters_,dropTrackRefs_,dropSpecific_,dropTagInfos_;
+      const bool modifyJet_, mayNeedDaughterMap_, mixedDaughters_;
+      std::unique_ptr<pat::ObjectModifier<pat::Jet> > jetModifier_;
   };
 
 } // namespace
 
 
 pat::PATJetSlimmer::PATJetSlimmer(const edm::ParameterSet & iConfig) :
-    pf2pc_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
     jets_(consumes<edm::View<pat::Jet> >(iConfig.getParameter<edm::InputTag>("src"))),
     dropJetVars_(iConfig.getParameter<std::string>("dropJetVars")),
     dropDaughters_(iConfig.getParameter<std::string>("dropDaughters")),
     rekeyDaughters_(iConfig.getParameter<std::string>("rekeyDaughters")),
     dropTrackRefs_(iConfig.getParameter<std::string>("dropTrackRefs")),
     dropSpecific_(iConfig.getParameter<std::string>("dropSpecific")),
-    dropTagInfos_(iConfig.getParameter<std::string>("dropTagInfos"))
+    dropTagInfos_(iConfig.getParameter<std::string>("dropTagInfos")),
+    modifyJet_(iConfig.getParameter<bool>("modifyJets")),
+    mayNeedDaughterMap_(iConfig.getParameter<std::string>("dropDaughters") != "1" && iConfig.getParameter<std::string>("rekeyDaughters") != "0"),
+    mixedDaughters_(iConfig.getParameter<bool>("mixedDaughters"))
 {
+    if (mayNeedDaughterMap_) {
+        if (mixedDaughters_) {
+            pf2pcAny_ = consumes<edm::ValueMap<reco::CandidatePtr> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
+        } else {
+            pf2pc_ = consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
+        }
+    }
+    edm::ConsumesCollector sumes(consumesCollector());
+    if( modifyJet_ ) {
+      const edm::ParameterSet& mod_config = iConfig.getParameter<edm::ParameterSet>("modifierConfig");
+      jetModifier_.reset(new pat::ObjectModifier<pat::Jet>(mod_config) );
+      jetModifier_->setConsumes(sumes);
+    } else {
+      jetModifier_.reset(nullptr);
+    }
     produces<std::vector<pat::Jet> >();
+}
+
+void 
+pat::PATJetSlimmer::beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup& iSetup) {
+  if( modifyJet_ ) jetModifier_->setEventContent(iSetup);
 }
 
 void 
@@ -59,15 +86,28 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
     Handle<View<pat::Jet> >      src;
     iEvent.getByToken(jets_, src);
     Handle<edm::Association<pat::PackedCandidateCollection> > pf2pc;
-    iEvent.getByToken(pf2pc_,pf2pc);
+    Handle<edm::ValueMap<reco::CandidatePtr> > pf2pcAny;
+    if (mayNeedDaughterMap_) {
+        if (mixedDaughters_) {
+            iEvent.getByToken(pf2pcAny_,pf2pcAny);
+        } else {
+            iEvent.getByToken(pf2pc_,pf2pc);
+        }
+    }
 	
-    auto_ptr<vector<pat::Jet> >  out(new vector<pat::Jet>());
+    auto out = std::make_unique<std::vector<pat::Jet>>();
     out->reserve(src->size());
+
+    if( modifyJet_ ) { jetModifier_->setEvent(iEvent); }
 
     for (edm::View<pat::Jet>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
 	    out->push_back(*it);
 	    pat::Jet & jet = out->back();
+
+            if( modifyJet_ ) { jetModifier_->modify(jet); }
+            
 	    if(dropTagInfos_(*it)){
+		    jet.tagInfoLabels_.clear();
 		    jet.tagInfos_.clear();
 		    jet.tagInfosFwdPtr_.clear(); 
 	    }
@@ -88,18 +128,27 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 		    //copy old 
 		    reco::CompositePtrCandidate::daughters old = jet.daughterPtrVector();
 		    jet.clearDaughters();
-		    std::map<unsigned int,reco::CandidatePtr> ptrs;	    
-		    for(unsigned int  i=0;i<old.size();i++)
-		    {
-			    //	jet.addDaughter(refToPtr((*pf2pc)[old[i]]));
-			    ptrs[((*pf2pc)[old[i]]).key()]=refToPtr((*pf2pc)[old[i]]);
-		    }
-		    for(std::map<unsigned int,reco::CandidatePtr>::iterator itp=ptrs.begin();itp!=ptrs.end();itp++) //iterate on sorted items
-		    {
-			    jet.addDaughter(itp->second);
-		    }
-
-
+                    if (mixedDaughters_) {
+                        std::vector<reco::CandidatePtr> ptrs;	    
+                        for(const reco::CandidatePtr &oldptr : old) {
+                            ptrs.push_back( (*pf2pcAny)[oldptr] );
+                        }
+                        std::sort(ptrs.begin(), ptrs.end());
+                        for(const reco::CandidatePtr &newptr : ptrs) {
+                            jet.addDaughter(newptr);
+                        }
+                    } else {
+                        std::map<unsigned int,reco::CandidatePtr> ptrs;	    
+                        for(unsigned int  i=0;i<old.size();i++)
+                        {
+                            //	jet.addDaughter(refToPtr((*pf2pc)[old[i]]));
+                            ptrs[((*pf2pc)[old[i]]).key()]=refToPtr((*pf2pc)[old[i]]);
+                        }
+                        for(std::map<unsigned int,reco::CandidatePtr>::iterator itp=ptrs.begin();itp!=ptrs.end();itp++) //iterate on sorted items
+                        {
+                            jet.addDaughter(itp->second);
+                        }
+                    }
 	    }	
 	    if (dropSpecific_(*it)) {
 		    // FIXME add method in pat::Jet
@@ -112,7 +161,7 @@ pat::PATJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 	    //         }
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

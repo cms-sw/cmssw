@@ -9,7 +9,6 @@
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/SiStripCommon"/>
 <use   name="CalibTracker/Records"/>
-<use   name="DataFormats/SiStripDetId"/>
 <library   file="*.cc" name="testCalibTrackerSiStripESProducers">
   <flags   EDM_PLUGIN="1"/>
 </library>

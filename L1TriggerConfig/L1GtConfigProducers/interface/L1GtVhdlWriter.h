@@ -44,9 +44,9 @@ class L1GtVhdlWriter : public edm::EDAnalyzer
         explicit L1GtVhdlWriter(const edm::ParameterSet&);
 
         /// destructor
-        virtual ~L1GtVhdlWriter();
+        ~L1GtVhdlWriter() override;
 
-        virtual void analyze(const edm::Event&, const edm::EventSetup&);
+        void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     private:
 

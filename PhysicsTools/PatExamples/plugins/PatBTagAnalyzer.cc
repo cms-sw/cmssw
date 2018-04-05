@@ -24,13 +24,13 @@ class PatBTagAnalyzer : public edm::EDAnalyzer {
 public:
 
   explicit PatBTagAnalyzer(const edm::ParameterSet&);
-  ~PatBTagAnalyzer();
+  ~PatBTagAnalyzer() override;
 
 private:
 
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
 
   edm::EDGetTokenT<edm::View<pat::Jet> > jetToken_;

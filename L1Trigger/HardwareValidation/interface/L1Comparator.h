@@ -43,14 +43,14 @@ class L1Comparator : public edm::EDProducer {
 public:
 
   explicit L1Comparator(const edm::ParameterSet&);
-  ~L1Comparator();
+  ~L1Comparator() override;
   
 private:
 
-  virtual void beginJob(void);
-  virtual void beginRun(edm::Run const&, const edm::EventSetup&) override final;
-   virtual void produce (edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob(void) override;
+  void beginRun(edm::Run const&, const edm::EventSetup&) final;
+   void produce (edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   template <class T> 
     void process( T const*, T const*, const int, const int);
@@ -65,6 +65,7 @@ private:
   template <class T> bool dumpCandidate(const T& dt, const T& em, std::ostream& s);
 
   int verbose() {return verbose_;}
+  bool m_stage1_layer2_;  
 
  private:
 
@@ -81,6 +82,7 @@ private:
   edm::EDGetTokenT<L1GctJetCandCollection> tokenGctJetCand_cenJets_[2];
   edm::EDGetTokenT<L1GctJetCandCollection> tokenGctJetCand_forJets_[2];
   edm::EDGetTokenT<L1GctJetCandCollection> tokenGctJetCand_tauJets_[2];
+  edm::EDGetTokenT<L1GctJetCandCollection> tokenGctJetCand_isoTauJets_[2];
   edm::EDGetTokenT<L1GctEtTotalCollection> tokenGctEtTotal_[2];
   edm::EDGetTokenT<L1GctEtHadCollection> tokenGctEtHad_[2];
   edm::EDGetTokenT<L1GctEtMissCollection> tokenGctEtMiss_[2];

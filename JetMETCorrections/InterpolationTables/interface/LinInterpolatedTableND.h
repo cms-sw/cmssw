@@ -54,29 +54,29 @@ namespace npstat {
         LinInterpolatedTableND(
             const std::vector<Axis>& axes,
             const std::vector<std::pair<bool,bool> >& extrapolationType,
-            const char* functionLabel=0);
+            const char* functionLabel=nullptr);
 
         /** Convenience constructor for 1-d interpolators */
         LinInterpolatedTableND(const Axis& xAxis, bool leftX, bool rightX,
-                               const char* functionLabel=0);
+                               const char* functionLabel=nullptr);
 
         /** Convenience constructor for 2-d interpolators */
         LinInterpolatedTableND(const Axis& xAxis, bool leftX, bool rightX,
                                const Axis& yAxis, bool leftY, bool rightY,
-                               const char* functionLabel=0);
+                               const char* functionLabel=nullptr);
 
         /** Convenience constructor for 3-d interpolators */
         LinInterpolatedTableND(const Axis& xAxis, bool leftX, bool rightX,
                                const Axis& yAxis, bool leftY, bool rightY,
                                const Axis& zAxis, bool leftZ, bool rightZ,
-                               const char* functionLabel=0);
+                               const char* functionLabel=nullptr);
 
         /** Convenience constructor for 4-d interpolators */
         LinInterpolatedTableND(const Axis& xAxis, bool leftX, bool rightX,
                                const Axis& yAxis, bool leftY, bool rightY,
                                const Axis& zAxis, bool leftZ, bool rightZ,
                                const Axis& tAxis, bool leftT, bool rightT,
-                               const char* functionLabel=0);
+                               const char* functionLabel=nullptr);
 
         /** Convenience constructor for 5-d interpolators */
         LinInterpolatedTableND(const Axis& xAxis, bool leftX, bool rightX,
@@ -84,7 +84,7 @@ namespace npstat {
                                const Axis& zAxis, bool leftZ, bool rightZ,
                                const Axis& tAxis, bool leftT, bool rightT,
                                const Axis& vAxis, bool leftV, bool rightV,
-                               const char* functionLabel=0);
+                               const char* functionLabel=nullptr);
 
         /**
         // Converting copy constructor from interpolator
@@ -162,7 +162,7 @@ namespace npstat {
         CPP11_auto_ptr<LinInterpolatedTableND> invertWRTAxis(
             ConvertibleToUnsigned axisNumber, const Axis& replacementAxis,
             bool newAxisLeftLinear, bool newAxisRightLinear,
-            const char* functionLabel=0) const;
+            const char* functionLabel=nullptr) const;
 
         /**
         // This method inverts the ratio response.
@@ -191,7 +191,7 @@ namespace npstat {
             unsigned axisNumber, const Axis& replacementAxis,
             bool newAxisLeftLinear, bool newAxisRightLinear,
             Functor1 invg, Functor2 invh,
-            const char* functionLabel=0) const;
+            const char* functionLabel=nullptr) const;
 
         /** Comparison for equality */
         bool operator==(const LinInterpolatedTableND&) const;
@@ -212,7 +212,7 @@ namespace npstat {
             const gs::ClassId& id, std::istream& in);
 
     private:
-        LinInterpolatedTableND();
+        LinInterpolatedTableND() = delete;
 
         LinInterpolatedTableND(
             const ArrayND<Numeric>& data,

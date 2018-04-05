@@ -30,6 +30,7 @@
 //-------------------------------
 
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
+#include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackFinder.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSEU.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTEUX.h"
@@ -84,7 +85,7 @@ L1MuDTExtrapolationUnit::~L1MuDTExtrapolationUnit() {
 
   for ( SEUmap::iterator iter = m_SEUs.begin(); iter != m_SEUs.end(); iter++ ) {
     delete (*iter).second;
-    (*iter).second = 0;
+    (*iter).second = nullptr;
   }
   m_SEUs.clear();
 
@@ -108,12 +109,12 @@ void L1MuDTExtrapolationUnit::run(const edm::EventSetup& c) {
     pair<int,int> ext_pair = which_ext(((*iter).second)->ext());
     int start = ext_pair.first;
 
-    const L1MuDTTrackSegPhi* ts = 0;
+    const L1MuDTTrackSegPhi* ts = nullptr;
 
     //get start track segment
     ts = m_sp.data()->getTSphi(start, ((*iter).second)->tsId() );
 
-    if ( ts != 0 && !ts->empty() ) {
+    if ( ts != nullptr && !ts->empty() ) {
       ((*iter).second)->load(ts);
       ((*iter).second)->run(c);
     }
@@ -124,7 +125,7 @@ void L1MuDTExtrapolationUnit::run(const edm::EventSetup& c) {
   // use EX21 to cross-check EX12
   //
   bool run_21 = pars->get_soc_run_21(m_sp.id().wheel(), m_sp.id().sector());
-  if ( L1MuDTTFConfig::getUseEX21() || run_21 ) {
+  if ( m_sp.tf().config()->getUseEX21() || run_21 ) {
 
     // search for EX12 + EX21 single extrapolation units
     for ( unsigned int startAdr = 0; startAdr < 2; startAdr++ ) {

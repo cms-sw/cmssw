@@ -184,7 +184,7 @@ void TEcnaNArrayD::Init()
   fN5  = 1;
   fN6  = 1;
   fNL  = 0;
-  fA   = 0;
+  fA   = nullptr;
 }
 inline Int_t TEcnaNArrayD::OneDim(Int_t i1) const {
 //Index from 1 dimension to 1 dimension
@@ -357,25 +357,25 @@ Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,
 }
 const Double_t &TEcnaNArrayD::operator()(Int_t i1) const
 {
-   return (Double_t&)(this->operator()(i1));
+   return const_cast< TEcnaNArrayD *>(this)->operator()(i1);
 }
 const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2) const
 {
-   return (Double_t&)(this->operator()(i1,i2));
+   return const_cast< TEcnaNArrayD *>(this)->operator()(i1,i2);
 }
 const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3) const
 {
-   return (Double_t&)(this->operator()(i1,i2,i3));
+   return const_cast< TEcnaNArrayD *>(this)->operator()(i1,i2,i3);
 }
 const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4) const
 {
-   return (Double_t&)(this->operator()(i1,i2,i3,i4));
+   return const_cast< TEcnaNArrayD *>(this)->operator()(i1,i2,i3,i4);
 }
 const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5) const
 {
-   return (Double_t&)(this->operator()(i1,i2,i3,i4,i5));
+   return const_cast< TEcnaNArrayD *>(this)->operator()(i1,i2,i3,i4,i5);
 }
 const Double_t &TEcnaNArrayD::operator()(Int_t i1,Int_t i2,Int_t i3,Int_t i4,Int_t i5,Int_t i6) const
 {
-   return (Double_t&)(this->operator()(i1,i2,i3,i4,i5,i6));
+   return const_cast< TEcnaNArrayD *>(this)->operator()(i1,i2,i3,i4,i5,i6);
 }

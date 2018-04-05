@@ -89,7 +89,7 @@ HelixBarrelPlaneCrossingByCircle::pathLength( const Plane& plane)
 
   double dx1, dx2, dy1, dy2;
   RealQuadEquation equation(A,B,C);
-  if (!equation.hasSolution) return ResultType( false, 0.);
+  if (!equation.hasSolution) return ResultType( false,  theS=0.);
   else {
     if (solveForX) {
       dx1 = equation.first;
@@ -113,7 +113,7 @@ HelixBarrelPlaneCrossingByCircle::pathLength( const Plane& plane)
     theS = theActualDir*2./(theRho*theSinTheta) * asin( sinAlpha);
     return ResultType( true, theS);
   }
-  else return ResultType( false, 0.);
+  else return ResultType( false,  theS=0.);
 }
 
 bool

@@ -35,12 +35,12 @@ class CSCChamberMap;
 class CSCDigiValidator : public edm::EDFilter {
    public:
       explicit CSCDigiValidator(const edm::ParameterSet&);
-      ~CSCDigiValidator();
+      ~CSCDigiValidator() override;
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       std::vector<CSCWireDigi> 
 	sanitizeWireDigis(std::vector<CSCWireDigi>::const_iterator,

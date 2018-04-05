@@ -34,8 +34,8 @@ void ParticleFlowForChargedMETProducer::produce(Event& iEvent, const EventSetup&
   iEvent.getByToken(pfCandidatesToken, pfCandidates);
 
   // the output collection
-  auto_ptr<PFCandidateCollection> chargedPFCandidates( new PFCandidateCollection ) ;
-  if (pvCollection->size()>0) {
+  auto chargedPFCandidates = std::make_unique<PFCandidateCollection>();
+  if (!pvCollection->empty()) {
     for( unsigned i=0; i<pfCandidates->size(); i++ ) {
       const PFCandidate& pfCand = (*pfCandidates)[i];
       PFCandidatePtr pfCandPtr(pfCandidates, i);
@@ -58,7 +58,7 @@ void ParticleFlowForChargedMETProducer::produce(Event& iEvent, const EventSetup&
   }
 
 
-  iEvent.put(chargedPFCandidates); 
+  iEvent.put(std::move(chargedPFCandidates));
 
   return;
 }

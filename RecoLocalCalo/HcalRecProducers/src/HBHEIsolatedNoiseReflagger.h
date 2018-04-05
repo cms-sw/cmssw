@@ -10,20 +10,20 @@ Original Author: John Paul Chou (Brown University)
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "CondFormats/HcalObjects/interface/HcalFrontEndMap.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEIsolatedNoiseAlgos.h"
 
 
-class HBHEIsolatedNoiseReflagger : public edm::EDProducer {
+class HBHEIsolatedNoiseReflagger : public edm::stream::EDProducer<> {
  public:
   explicit HBHEIsolatedNoiseReflagger(const edm::ParameterSet&);
-  ~HBHEIsolatedNoiseReflagger();
+  ~HBHEIsolatedNoiseReflagger() override;
   
   
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   void DumpHBHEHitMap(std::vector<HBHEHitMap>& i) const;
 
@@ -32,6 +32,7 @@ class HBHEIsolatedNoiseReflagger : public edm::EDProducer {
   edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
   edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
   edm::EDGetTokenT<std::vector<reco::TrackExtrapolation> > tok_trackExt_;
+  const HcalFrontEndMap *hfemap;
 
   double LooseHcalIsol_;
   double LooseEcalIsol_;
@@ -52,6 +53,8 @@ class HBHEIsolatedNoiseReflagger : public edm::EDProducer {
   double TightDiHitEne_;
   double LooseMonoHitEne_;
   double TightMonoHitEne_;
+
+  double RBXEneThreshold_;
   
   bool debug_;
 

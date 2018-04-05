@@ -4,6 +4,9 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  *  \author D. Trocino - INFN Torino <daniele.trocino@to.infn.it>
+ *
+ *  Modified by C. Calabria
+ *  Modified by D. Nash
  */
 
 #include "RecoMuon/StandAloneTrackFinder/interface/StandAloneTrajectoryBuilder.h"
@@ -232,15 +235,19 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     LogTrace(metname) << "Compatibility NOT satisfied after Forward filter! No trajectory will be loaded!" << endl;
     LogTrace(metname) << "Total compatible chambers: " << filter()->getTotalCompatibleChambers() << ";  DT: " 
 		      << filter()->getDTCompatibleChambers() << ";  CSC: " << filter()->getCSCCompatibleChambers() 
-		      << ";  RPC: " << filter()->getRPCCompatibleChambers() << endl;
+		      << ";  RPC: " << filter()->getRPCCompatibleChambers()
+		      << ";  GEM: " << filter()->getGEMCompatibleChambers()
+		      << ";  ME0: " << filter()->getME0CompatibleChambers() << endl;
     return trajectoryContainer; 
   }
   // -- end 2nd attempt
 
-  LogTrace(metname) << "Number of DT/CSC/RPC chamber used (fw): " 
+  LogTrace(metname) << "Number of DT/CSC/RPC/GEM/ME0 chamber used (fw): " 
        << filter()->getDTChamberUsed() << "/"
        << filter()->getCSCChamberUsed() << "/"
-       << filter()->getRPCChamberUsed() <<endl;
+       << filter()->getRPCChamberUsed() << "/"
+       << filter()->getGEMChamberUsed() << "/"
+       << filter()->getME0ChamberUsed() <<endl;
   LogTrace(metname) << "Momentum: " <<tsosAfterRefit.freeState()->momentum();
   
 
@@ -271,10 +278,7 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   
   TrajectorySeed seedForBW;
 
-  if(theBWSeedType == "noSeed") {
-    TrajectorySeed seedVoid;
-    seedForBW = seedVoid;
-  }
+  if(theBWSeedType == "noSeed") { }
   else if(theBWSeedType == "fromFWFit") {
 
     
@@ -308,10 +312,12 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
   LogTrace(metname) 
     << "Number of RecHits: " << trajectoryBW.foundHits() << "\n"
-    << "Number of DT/CSC/RPC chamber used (bw): " 
+    << "Number of DT/CSC/RPC/GEM/ME0 chamber used (bw): " 
     << bwfilter()->getDTChamberUsed() << "/"
     << bwfilter()->getCSCChamberUsed() << "/" 
-    << bwfilter()->getRPCChamberUsed();
+    << bwfilter()->getRPCChamberUsed() << "/"
+    << bwfilter()->getGEMChamberUsed() << "/"
+    << bwfilter()->getME0ChamberUsed();
   
   // -- The trajectory is "good" if there are at least 2 chambers used in total and at
   //    least 1 is "tracking" (DT or CSC)
@@ -445,7 +451,7 @@ StandAloneMuonTrajectoryBuilder::propagateTheSeedTSOS(TrajectoryStateOnSurface& 
   
   DetLayerWithState result = DetLayerWithState(initialLayer,initialState);
 
-  if(detLayers.size()){
+  if(!detLayers.empty()){
 
     LogTrace(metname) << "Compatible layers:"<<endl;
     for( vector<const DetLayer*>::const_iterator layer = detLayers.begin(); 

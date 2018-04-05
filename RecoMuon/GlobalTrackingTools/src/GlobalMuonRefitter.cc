@@ -8,6 +8,9 @@
  *  Authors :
  *  P. Traczyk, SINS Warsaw
  *
+ *  \modified by C. Calabria, INFN & Universita  Bari
+ *  \modified by D. Nash, Northeastern University
+ *
  **/
 
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonRefitter.h"
@@ -41,10 +44,14 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
+#include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
+#include <DataFormats/GEMRecHit/interface/ME0Segment.h>
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
@@ -71,6 +78,8 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   theCosmicFlag(par.getParameter<bool>("PropDirForCosmics")),
   theDTRecHitLabel(par.getParameter<InputTag>("DTRecSegmentLabel")),
   theCSCRecHitLabel(par.getParameter<InputTag>("CSCRecSegmentLabel")),
+  theGEMRecHitLabel(par.getParameter<InputTag>("GEMRecHitLabel")),
+  theME0RecHitLabel(par.getParameter<InputTag>("ME0RecHitLabel")),
   theService(service) {
 
   theCategory = par.getUntrackedParameter<string>("Category", "Muon|RecoMuon|GlobalMuon|GlobalMuonRefitter");
@@ -79,6 +88,8 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   theDTChi2Cut  = par.getParameter<double>("Chi2CutDT");
   theCSCChi2Cut = par.getParameter<double>("Chi2CutCSC");
   theRPCChi2Cut = par.getParameter<double>("Chi2CutRPC");
+  theGEMChi2Cut = par.getParameter<double>("Chi2CutGEM");
+  theME0Chi2Cut = par.getParameter<double>("Chi2CutME0");
 
   // Refit direction
   string refitDirectionName = par.getParameter<string>("RefitDirection");
@@ -121,6 +132,8 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   theCacheId_TRH = 0;
   theDTRecHitToken=iC.consumes<DTRecHitCollection>(theDTRecHitLabel);
   theCSCRecHitToken=iC.consumes<CSCRecHit2DCollection>(theCSCRecHitLabel);
+  theGEMRecHitToken=iC.consumes<GEMRecHitCollection>(theGEMRecHitLabel);
+  theME0RecHitToken=iC.consumes<ME0SegmentCollection>(theME0RecHitLabel); 
   CSCSegmentsToken = iC.consumes<CSCSegmentCollection>(InputTag("cscSegments"));
   all4DSegmentsToken=iC.consumes<DTRecSegment4DCollection>(InputTag("dt4DSegments"));
 }
@@ -141,7 +154,9 @@ void GlobalMuonRefitter::setEvent(const edm::Event& event) {
 
   theEvent = &event;
   event.getByToken(theDTRecHitToken, theDTRecHits);
-  event.getByToken(theCSCRecHitToken, theCSCRecHits);   
+  event.getByToken(theCSCRecHitToken, theCSCRecHits);
+  event.getByToken(theGEMRecHitToken, theGEMRecHits);   
+  event.getByToken(theME0RecHitToken, theME0RecHits);   
   event.getByToken(CSCSegmentsToken, CSCSegments);
   event.getByToken(all4DSegmentsToken, all4DSegments);
 }
@@ -234,7 +249,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
     // refit the full track with all muon hits
     vector <Trajectory> globalTraj = transform(globalTrack, track, allRecHits);
 
-    if (!globalTraj.size()) {
+    if (globalTraj.empty()) {
       LogTrace(theCategory) << "No trajectory from the TrackTransformer!" << endl;
       return vector<Trajectory>();
     }
@@ -275,7 +290,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
     } 
 
 
-  if (outputTraj.size()) {
+  if (!outputTraj.empty()) {
     LogTrace(theCategory) << "Refitted pt: " << outputTraj.front().firstMeasurement().updatedState().globalParameters().momentum().perp() << endl;
     return outputTraj;
   } else {
@@ -300,7 +315,7 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
   // loop through all muon hits and calculate the maximum # of hits in each chamber
   for (ConstRecHitContainer::const_iterator imrh = all.begin(); imrh != all.end(); imrh++ ) {
         
-    if ( (*imrh != 0 ) && !(*imrh)->isValid() ) continue;
+    if ( (*imrh != nullptr ) && !(*imrh)->isValid() ) continue;
   
     int detRecHits = 0;
     MuonRecHitContainer dRecHits;
@@ -315,10 +330,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
       DTChamberId did(id.rawId());
       chamberId=did;
       
-      if ((*imrh)->recHits().size()>1) {
+      if ((*imrh)->dimension()>1) {
         std::vector <const TrackingRecHit*> hits2d = (*imrh)->recHits();
         for (std::vector <const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d!= hits2d.end(); hit2d++) {
-          if ((*imrh)->recHits().size()>1) {
+          if ((*hit2d)->dimension()>1) {
             std::vector <const TrackingRecHit*> hits1d = (*hit2d)->recHits();
             for (std::vector <const TrackingRecHit*>::const_iterator hit1d = hits1d.begin(); hit1d!= hits1d.end(); hit1d++) {
               DetId id1 = (*hit1d)->geographicalId();
@@ -334,7 +349,17 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
               }
               if (layerHits>detRecHits) detRecHits=layerHits;
             }
-          }
+          } else {
+	    DTLayerId lid(id.rawId());
+	    // Get the 1d DT RechHits from this layer
+	    DTRecHitCollection::range dRecHits = theDTRecHits->get(lid);
+	    for (DTRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+	      double rhitDistance = fabs(ir->localPosition().x()-(**imrh).localPosition().x());
+	      if ( rhitDistance < coneSize ) detRecHits++;
+	      LogTrace(theCategory)<< "       " << (ir)->localPosition() << "  " << (**imrh).localPosition()
+				   << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
+	    }
+	  }
         }
       
       } else {
@@ -384,7 +409,75 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 	         << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
         }
       }
-    }
+    } //end of CSC if
+    else if ( id.subdetId() == MuonSubdetId::GEM ) {
+      GEMDetId did(id.rawId());
+      chamberId=did.chamberId();
+
+      if ((*imrh)->recHits().size()>1) {
+        std::vector <const TrackingRecHit*> hits2d = (*imrh)->recHits();
+        for (std::vector <const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d!= hits2d.end(); hit2d++) {
+          DetId id1 = (*hit2d)->geographicalId();
+          GEMDetId lid(id1.rawId());
+
+          // Get the GEM Rechits from this layer
+          GEMRecHitCollection::range dRecHits = theGEMRecHits->get(lid);
+          int layerHits=0;
+
+          for (GEMRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+            double rhitDistance = (ir->localPosition()-(**hit2d).localPosition()).mag();
+            if ( rhitDistance < coneSize ) layerHits++;
+            LogTrace(theCategory) << ir->localPosition() << "  " << (**hit2d).localPosition()
+                   << " Distance: " << rhitDistance << " recHits: " << layerHits << endl;
+          }
+          if (layerHits>detRecHits) detRecHits=layerHits;
+        }
+      } else {
+        // Get the GEM Rechits from this layer
+        GEMRecHitCollection::range dRecHits = theGEMRecHits->get(did);
+
+        for (GEMRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+          double rhitDistance = (ir->localPosition()-(**imrh).localPosition()).mag();
+          if ( rhitDistance < coneSize ) detRecHits++;
+          LogTrace(theCategory) << ir->localPosition() << "  " << (**imrh).localPosition()
+                 << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
+        }
+      }
+    } //end of GEM if
+    else if ( id.subdetId() == MuonSubdetId::ME0 ) {
+      ME0DetId did(id.rawId());
+      chamberId=did.chamberId();
+
+      if ((*imrh)->recHits().size()>1) {
+        std::vector <const TrackingRecHit*> hits2d = (*imrh)->recHits();
+        for (std::vector <const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d!= hits2d.end(); hit2d++) {
+          DetId id1 = (*hit2d)->geographicalId();
+          ME0DetId lid(id1.rawId());
+
+          // Get the ME0 Rechits from this layer
+          ME0SegmentCollection::range dRecHits = theME0RecHits->get(lid);
+          int layerHits=0;
+
+          for (ME0SegmentCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+            double rhitDistance = (ir->localPosition()-(**hit2d).localPosition()).mag();
+            if ( rhitDistance < coneSize ) layerHits++;
+            LogTrace(theCategory) << ir->localPosition() << "  " << (**hit2d).localPosition()
+                   << " Distance: " << rhitDistance << " recHits: " << layerHits << endl;
+          }
+          if (layerHits>detRecHits) detRecHits=layerHits;
+        }
+      } else {
+        // Get the ME0 Rechits from this layer
+        ME0SegmentCollection::range dRecHits = theME0RecHits->get(did);
+
+        for (ME0SegmentCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+          double rhitDistance = (ir->localPosition()-(**imrh).localPosition()).mag();
+          if ( rhitDistance < coneSize ) detRecHits++;
+          LogTrace(theCategory) << ir->localPosition() << "  " << (**imrh).localPosition()
+                 << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
+        }
+      }
+    } //end of ME0 if
     else {
       if ( id.subdetId() != MuonSubdetId::RPC ) LogError(theCategory)<<" Wrong Hit Type ";
       continue;      
@@ -431,19 +524,21 @@ void GlobalMuonRefitter::getFirstHits(const reco::Track& muon,
     DetId id = (*ihit)->geographicalId();
     unsigned raw_id = id.rawId();
     if (!(*ihit)->isValid()) station = -1;
-      else {
+          else {
 	if (id.det() == DetId::Muon) {
 	  switch (id.subdetId()) {
 	  case MuonSubdetId::DT:  station = DTChamberId(raw_id).station(); break;
 	  case MuonSubdetId::CSC: station = CSCDetId(raw_id).station(); break;
+          case MuonSubdetId::GEM: station = GEMDetId(raw_id).station(); break;
+	  case MuonSubdetId::ME0: station = ME0DetId(raw_id).station(); break;
 	  case MuonSubdetId::RPC: station = RPCDetId(raw_id).station(); use_it = false; break;
 	  }
 	}
       }
 
+
     if (use_it && station > 0 && station < station_to_keep) station_to_keep = station;
     stations.push_back(station);
-
     LogTrace(theCategory) << "rawId: " << raw_id << " station = " << station << " station_to_keep is now " << station_to_keep;
   }
 
@@ -500,6 +595,20 @@ GlobalMuonRefitter::selectMuonHits(const Trajectory& traj,
       chamberId = did.chamberId();
       threshold = theHitThreshold;
       chi2Cut = theCSCChi2Cut;
+    }
+    // get station of hit if it is in GEM
+    else if ( (*immrh).isGEM() ) {
+      GEMDetId did(id.rawId());
+      chamberId = did.chamberId();
+      threshold = theHitThreshold;
+      chi2Cut = theGEMChi2Cut;
+    }
+    // get station of hit if it is in ME0
+    else if ( (*immrh).isME0() ) {
+      ME0DetId did(id.rawId());
+      chamberId = did.chamberId();
+      threshold = theHitThreshold;
+      chi2Cut = theME0Chi2Cut;
     }
     // get station of hit if it is in RPC
     else if ( (*immrh).isRPC() ) {
@@ -650,8 +759,6 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
   // This is the only way to get a TrajectorySeed with settable propagation direction
   PTrajectoryStateOnDet garbage1;
   edm::OwnVector<TrackingRecHit> garbage2;
-  PropagationDirection propDir = 
-    (firstTSOS.globalPosition().basicVector().dot(firstTSOS.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
 
   // These lines cause the code to ignore completely what was set
   // above, and force propDir for tracks from collisions!
@@ -659,7 +766,7 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
 //  if(propDir == oppositeToMomentum && theRefitDirection == insideOut) propDir=alongMomentum;
 
   const TrajectoryStateOnSurface& tsosForDir = inner_is_first ? lastTSOS : firstTSOS;
-  propDir = (tsosForDir.globalPosition().basicVector().dot(tsosForDir.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
+  PropagationDirection propDir = (tsosForDir.globalPosition().basicVector().dot(tsosForDir.globalMomentum().basicVector())>0) ? alongMomentum : oppositeToMomentum;
   LogTrace(theCategory) << "propDir based on firstTSOS x dot p is " << propDir
 			<< " (alongMomentum == " << alongMomentum << ", oppositeToMomentum == " << oppositeToMomentum << ")";
 
@@ -733,7 +840,6 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
     LogDebug(theCategory) << "No Track refitted!" << endl;
     return vector<Trajectory>();
   }
-  
   return trajectories;
 }
 
@@ -800,6 +906,12 @@ GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::getRidOfSelectStati
       } else if ( id.subdetId() == MuonSubdetId::CSC ) {
 	CSCDetId did(id.rawId());
 	station = did.station();
+      } else if ( id.subdetId() == MuonSubdetId::GEM ) {
+        GEMDetId did(id.rawId());
+        station = did.station();
+      } else if ( id.subdetId() == MuonSubdetId::ME0 ) {
+        ME0DetId did(id.rawId());
+        station = did.station();
       } else if ( id.subdetId() == MuonSubdetId::RPC ) {
 	RPCDetId rpcid(id.rawId());
 	station = rpcid.station();

@@ -34,7 +34,7 @@ const int DcsStatus::partitionList[DcsStatus::nPartitions] = {
   ESp         ,
   ESm };
 
-const char * DcsStatus::partitionName[DcsStatus::nPartitions] = {
+const char * const DcsStatus::partitionName[DcsStatus::nPartitions] = {
   "EBp"         ,
   "EBm"         ,
   "EEp"         ,
@@ -78,8 +78,8 @@ DcsStatus::DcsStatus(const unsigned char * rawData)
 { 
   DcsStatus();
 
-  struct ScalersEventRecordRaw_v4 * raw 
-    = (struct ScalersEventRecordRaw_v4 *)rawData;
+  struct ScalersEventRecordRaw_v4 const * raw 
+    = reinterpret_cast<struct ScalersEventRecordRaw_v4 const *>(rawData);
   trigType_     = ( raw->header >> 56 ) &        0xFULL;
   eventID_      = ( raw->header >> 32 ) & 0x00FFFFFFULL;
   sourceID_     = ( raw->header >>  8 ) & 0x00000FFFULL;

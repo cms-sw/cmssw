@@ -37,17 +37,17 @@ void multibsvspvplots(const char* module, const char* label, const char* postfix
 
   // Summary histograms
   TH1D* deltaxsum = new TH1D("deltaxsum","(PV-BS) Fitted X position vs run",10,0.,10.);
-  deltaxsum->SetBit(TH1::kCanRebin);
+  deltaxsum->SetCanExtend(TH1::kAllAxes);
   TH1D* deltaysum = new TH1D("deltaysum","(PV-BS) Fitted Y position vs run",10,0.,10.);
-  deltaysum->SetBit(TH1::kCanRebin);
+  deltaysum->SetCanExtend(TH1::kAllAxes);
 
   TH1D* deltaxmeansum = new TH1D("deltaxmeansum","(PV-BS) Mean X position vs run",10,0.,10.);
-  deltaxmeansum->SetBit(TH1::kCanRebin);
+  deltaxmeansum->SetCanExtend(TH1::kAllAxes);
   TH1D* deltaymeansum = new TH1D("deltaymeansum","(PV-BS) Mean Y position vs run",10,0.,10.);
-  deltaymeansum->SetBit(TH1::kCanRebin);
+  deltaymeansum->SetCanExtend(TH1::kAllAxes);
 
   TH1D* deltazmeansum = new TH1D("deltazmeansum","(PV-BS) Mean Z position vs run",10,0.,10.);
-  deltazmeansum->SetBit(TH1::kCanRebin);
+  deltazmeansum->SetCanExtend(TH1::kAllAxes);
 
   TF1* fdoubleg = new TF1("doubleg","[1]*exp(-0.5*((x-[0])/[2])**2)+[3]*exp(-0.5*((x-[0])/[4])**2)+[5]*exp(sqrt((x-[0])**2)*[6])",-.2,.2);
   fdoubleg->SetLineColor(kRed);

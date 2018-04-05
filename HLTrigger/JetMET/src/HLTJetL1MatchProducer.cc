@@ -34,10 +34,7 @@ void HLTJetL1MatchProducer<T>::beginJob()
 }
 
 template<typename T>
-HLTJetL1MatchProducer<T>::~HLTJetL1MatchProducer()
-{
-
-}
+HLTJetL1MatchProducer<T>::~HLTJetL1MatchProducer() = default;
 
 template<typename T>
 void HLTJetL1MatchProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -59,7 +56,7 @@ void HLTJetL1MatchProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup
   edm::Handle<TCollection> jets;
   iEvent.getByToken(m_theJetToken, jets);
 
-  std::auto_ptr<TCollection> result (new TCollection);
+  std::unique_ptr<TCollection> result (new TCollection);
 
 
   edm::Handle<l1extra::L1JetParticleCollection> l1TauJets;
@@ -104,7 +101,7 @@ void HLTJetL1MatchProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup
 
   } // jet_iter
 
-  iEvent.put( result);
+  iEvent.put(std::move(result));
 
 }
 

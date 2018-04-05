@@ -23,16 +23,16 @@ public:
   OptOCubeSplitter(){ };
   OptOCubeSplitter(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
   OpticalObject( parent, type, name, copy_data){ };
-  ~OptOCubeSplitter(){ };
+  ~OptOCubeSplitter() override{ };
 
   //---------- Fast simulation of deviation of the light ray (reflection, shift, ...)
-  virtual void fastDeviatesLightRay( LightRay& lightray );
+  void fastDeviatesLightRay( LightRay& lightray ) override;
   //---------- Detailed simulation of the light ray traversing
-  virtual void fastTraversesLightRay( LightRay& lightray );
+  void fastTraversesLightRay( LightRay& lightray ) override;
   //---------- Detailed simulation of deviation of the light ray (reflection, shift, ...)
-  virtual void detailedDeviatesLightRay( LightRay& lightray );
+  void detailedDeviatesLightRay( LightRay& lightray ) override;
   //---------- Fast simulation of the light ray traversing
-  virtual void detailedTraversesLightRay( LightRay& lightray );
+  void detailedTraversesLightRay( LightRay& lightray ) override;
 
   ALIPlane getMiddlePlate();
   ALIPlane getUpperPlate();
@@ -40,7 +40,7 @@ public:
 #ifdef COCOA_VIS
   virtual void fillIguana();
 #endif
-  void constructSolidShape();
+  void constructSolidShape() override;
 
 };
 

@@ -51,16 +51,16 @@ class ExclusionBandPlot : public StatisticalPlot {
     void setTitle(const char* title);
 
     /// Destructor
-    ~ExclusionBandPlot();
+    ~ExclusionBandPlot() override;
 
     /// Draw on canvas
-    void draw (const char* options="");
+    void draw (const char* options="") override;
 
     /// Print the relevant information
-    void print (const char* options="");
+    void print (const char* options="") override;
 
     /// All the objects are written to rootfile
-    void dumpToFile (const char* RootFileName, const char* options);
+    void dumpToFile (const char* RootFileName, const char* options) override;
 
   private:
 
@@ -83,7 +83,7 @@ class ExclusionBandPlot : public StatisticalPlot {
 
 //For Cint/**/
 // #if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(ExclusionBandPlot,1)
+ClassDefOverride(ExclusionBandPlot,1)
 // #endif
  };
 

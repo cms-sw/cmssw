@@ -67,6 +67,7 @@ EcalSimRawData::EcalSimRawData(const edm::ParameterSet& params){
   tccInDefaultVal_ = params.getUntrackedParameter<int>("tccInDefaultVal", 0xffff);
   basename_ = params.getUntrackedParameter<std::string>("outputBaseName");
 
+  iEvent = 0;
 
   string writeMode = params.getParameter<string>("writeMode");
 
@@ -83,7 +84,6 @@ void
 EcalSimRawData::analyze(const edm::Event& event,
 			const edm::EventSetup& es){
   //Event counter:
-  static int iEvent = 0;
   ++iEvent; 
     
   if(xtalVerbose_ | tpVerbose_){
@@ -205,7 +205,7 @@ void EcalSimRawData::genFeData(string basename, int iEvent,
 	<< setfill(' ') << ext;
       ofstream f(s.str().c_str(), (iEvent==1?ios::ate:ios::app));
 
-      if(!f) return;
+      if(f.fail()) return;
 
 
       if(writeMode_==ascii){
@@ -283,7 +283,7 @@ void EcalSimRawData::genSrData(string basename, int iEvent,
 	<< setfill(' ') << getExt();
       ofstream f(s.str().c_str(), (iEvent==1?ios::ate:ios::app));
       
-      if(!f) throw cms::Exception(string("Cannot create/open file ")
+      if(f.fail()) throw cms::Exception(string("Cannot create/open file ")
 				  + s.str() + ".");
       
       int iWord = 0;
@@ -353,7 +353,7 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
 	<< setfill(' ') << ext;
       ofstream fe2tcc(s.str().c_str(), (iEvent==1?ios::ate:ios::app));
 
-      if(!fe2tcc) throw cms::Exception(string("Failed to create file ")
+      if(fe2tcc.fail()) throw cms::Exception(string("Failed to create file ")
 				       + s.str() + ".");
       
       int memPos = iEvent-1;
@@ -417,8 +417,8 @@ void EcalSimRawData::genTccOut(string basename, int iEvent,
 	<< setfill(' ') << getExt();
       ofstream dccF(s.str().c_str(), (iEvent==1?ios::ate:ios::app));
       
-      if(!dccF){
-	cout << "Warning: failed to create or open file " << s << ".\n";
+      if(dccF.fail()){
+	cout << "Warning: failed to create or open file " << s.str() << ".\n";
 	return;
       }
       
@@ -481,7 +481,7 @@ void EcalSimRawData::getSrfs(const edm::Event& event,
   //EE
   edm::Handle<EESrFlagCollection> hEeSrFlags;
   event.getByLabel(srDigiProducer_, eeSrFlagCollection_, hEeSrFlags);
-  for(size_t i=0; i < sizeof(eeSrf)/sizeof(int); ((int*)eeSrf)[i++] = -1){};
+  for(size_t i=0; i < (nEndcaps*nScX*nScY); ((int*)eeSrf)[i++] = -1){};
   if(hEeSrFlags.isValid()){
     for(EESrFlagCollection::const_iterator it = hEeSrFlags->begin();
 	it != hEeSrFlags->end(); ++it){
@@ -504,7 +504,7 @@ void EcalSimRawData::getSrfs(const edm::Event& event,
   //EB
   edm::Handle<EBSrFlagCollection> hEbSrFlags;
   event.getByLabel(srDigiProducer_, ebSrFlagCollection_, hEbSrFlags);
-  for(size_t i=0; i<sizeof(ebSrf)/sizeof(int); ((int*)ebSrf)[i++] = -1){};
+  for(size_t i=0; i<(nTtEta*nTtPhi); ((int*)ebSrf)[i++] = -1){};
   if(hEbSrFlags.isValid()){
     for(EBSrFlagCollection::const_iterator it = hEbSrFlags->begin();
 	it != hEbSrFlags->end(); ++it){
@@ -535,7 +535,7 @@ void EcalSimRawData::getEbDigi(const edm::Event& event,
   event.getByLabel(digiProducer_, ebDigiCollection_, hEbDigis);
 
   int nSamples = 0;
-  if(hEbDigis.isValid() && hEbDigis->size()>0){//there is at least one digi
+  if(hEbDigis.isValid() && !hEbDigis->empty()){//there is at least one digi
     nSamples  = hEbDigis->begin()->size();//gets the sample count from 1st digi
   }
 
@@ -601,7 +601,7 @@ void EcalSimRawData::getTp(const edm::Event& event,
 			   int tcp[nTtEta][nTtPhi]) const{
   edm::Handle<EcalTrigPrimDigiCollection> hTpDigis;
   event.getByLabel(tpProducer_, collName, hTpDigis);
-  if(hTpDigis.isValid() && hTpDigis->size()>0){
+  if(hTpDigis.isValid() && !hTpDigis->empty()){
     const EcalTrigPrimDigiCollection& tpDigis = *hTpDigis.product();
 
     //    EcalSelectiveReadout::ttFlag_t ttf[nTtEta][nTtPhi];
@@ -631,7 +631,7 @@ void EcalSimRawData::getTp(const edm::Event& event,
 
       if(tpVerbose_){
 	if(tcp[iTtEta0][iTtPhi0]!=0) //print non-zero values only
-	cout << collName << (collName.size()==0?"":" ")
+	cout << collName << (collName.empty()?"":" ")
 	     << "TP(" << setw(2) << iTtEta0 << "," << iTtPhi0 << ") = "
 	     << "0x" << setw(4) 
 	     << tcp[iTtEta0][iTtPhi0]

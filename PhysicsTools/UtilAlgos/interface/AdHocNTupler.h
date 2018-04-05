@@ -999,6 +999,8 @@ class AdHocNTupler : public NTupler {
      trkalgo = trk->algo();
      switch(trkalgo) {
      case reco::TrackBase::initialStep:
+     case reco::TrackBase::highPtTripletStep:
+     case reco::TrackBase::lowPtQuadStep:
      case reco::TrackBase::lowPtTripletStep:
      case reco::TrackBase::pixelPairStep:
        ++n_iterPixelTrks;
@@ -1017,6 +1019,8 @@ class AdHocNTupler : public NTupler {
        i_trkphi = std::max(0,std::min(phibins-1,(int) ((trk->phi()+piconst)/phibinsize)));
        switch(trkalgo) {
        case reco::TrackBase::initialStep:
+       case reco::TrackBase::highPtTripletStep:
+       case reco::TrackBase::lowPtQuadStep:
        case reco::TrackBase::lowPtTripletStep:
        case reco::TrackBase::pixelPairStep:
          ++phiIterPixelTrks[i_trkphi][zside];

@@ -1,36 +1,40 @@
-#include <DataFormats/CSCDigi/interface/CSCWireDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCRPCDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCStripDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCStripDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCALCTDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCDMBStatusDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCTMBStatusDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCALCTStatusDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCDDUStatusDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h>
-#include <DataFormats/CSCDigi/interface/CSCDCCStatusDigiCollection.h>
+#include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCRPCDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCFEBStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCDMBStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCTMBStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCDDUStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCDCCStatusDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerDigiCollection.h"
 
+// dummy structs to ensure backward compatibility
+struct GEMCSCLCTDigi {};
+struct GEMCSCLCTDigiCollection {};
 
-
-#include <DataFormats/Common/interface/Wrapper.h>
+#include "DataFormats/Common/interface/Wrapper.h"
 #include <vector>
 #include <map>
 
@@ -44,6 +48,7 @@ namespace DataFormats_CSCDigi {
   CSCCLCTDigi cCLCTD_;
   CSCALCTDigi cALCTD_;
   CSCCorrelatedLCTDigi cCorLCTD_;
+  GEMCSCLCTDigi gcLCTD_;
   CSCCFEBStatusDigi cCSD_;
   CSCTMBStatusDigi cTMBSD_;
   CSCDCCFormatStatusDigi cDFSD_;
@@ -51,7 +56,7 @@ namespace DataFormats_CSCDigi {
   CSCDDUStatusDigi cDDUSD_;
   CSCDCCStatusDigi cDCCSD_;
   CSCALCTStatusDigi cALCTSD_;
-
+  CSCCLCTPreTriggerDigi cCLCTPreD_;
 
 
   std::vector<CSCWireDigi>  vWD_;
@@ -61,6 +66,7 @@ namespace DataFormats_CSCDigi {
   std::vector<CSCCLCTDigi> vCLCTD_;
   std::vector<CSCALCTDigi> vALCTD_;
   std::vector<CSCCorrelatedLCTDigi> vCorLCTD_;
+  std::vector<GEMCSCLCTDigi> vgcLCTD_;
   std::vector<CSCCFEBStatusDigi>  vCSD_;
   std::vector<CSCTMBStatusDigi>  vTMBSD_;
   std::vector<CSCDCCFormatStatusDigi>  vDFSD_;
@@ -69,6 +75,7 @@ namespace DataFormats_CSCDigi {
   std::vector<CSCDCCStatusDigi>  vDCCSD_;
   std::vector<CSCALCTStatusDigi>  vALCTSD_;
   std::vector<CSCCLCTPreTrigger> vPreTriggerBX_;
+  std::vector<CSCCLCTPreTriggerDigi> vCLCTPreD_;
 
   std::vector<std::vector<CSCWireDigi> >  vvWD_;
   std::vector<std::vector<CSCRPCDigi>  >  vvRD_;
@@ -77,6 +84,7 @@ namespace DataFormats_CSCDigi {
   std::vector<std::vector<CSCCLCTDigi> > vvCLCTD_;
   std::vector<std::vector<CSCALCTDigi> > vvALCTD_;
   std::vector<std::vector<CSCCorrelatedLCTDigi> > vvCorLCTD_;
+  std::vector<std::vector<GEMCSCLCTDigi> > vvgcLCTD_;
   std::vector<std::vector<CSCCFEBStatusDigi> >  vvCSD_;
   std::vector<std::vector<CSCTMBStatusDigi> >  vvTMBSD_;
   std::vector<std::vector<CSCDMBStatusDigi> >  vvDMBSD_;
@@ -85,6 +93,7 @@ namespace DataFormats_CSCDigi {
   std::vector<std::vector<CSCDCCStatusDigi> >  vvDCCSD_;
   std::vector<std::vector<CSCALCTStatusDigi> >  vvALCTSD_;
   std::vector<std::vector<CSCCLCTPreTrigger> > vvPreTrigger_;
+  std::vector<std::vector<CSCCLCTPreTriggerDigi> > vvCLCTPreD_;
 
   CSCWireDigiCollection clWD_;
   CSCRPCDigiCollection  clRD_;
@@ -93,6 +102,7 @@ namespace DataFormats_CSCDigi {
   CSCCLCTDigiCollection clCLCTD_;
   CSCALCTDigiCollection clALCTD_;
   CSCCorrelatedLCTDigiCollection clCorLCTD_;
+  GEMCSCLCTDigiCollection clgcLCTD_;
   CSCCFEBStatusDigiCollection clCSD_;
   CSCTMBStatusDigiCollection clTMBSD_;
   CSCDCCFormatStatusDigiCollection clDFSD_;
@@ -101,6 +111,7 @@ namespace DataFormats_CSCDigi {
   CSCDMBStatusDigiCollection clDCCSD_;
   CSCDMBStatusDigiCollection clALCTSD_;
   CSCCLCTPreTriggerCollection clPreTrigger_;
+  CSCCLCTPreTriggerDigiCollection clCLCTPreD_;
 
   edm::Wrapper<CSCWireDigiCollection> wWD_;
   edm::Wrapper<CSCRPCDigiCollection> wRD_;
@@ -109,6 +120,7 @@ namespace DataFormats_CSCDigi {
   edm::Wrapper<CSCCLCTDigiCollection> wCLCTD_;
   edm::Wrapper<CSCALCTDigiCollection> wALCTD_;
   edm::Wrapper<CSCCorrelatedLCTDigiCollection> wCorLCTD_;
+  edm::Wrapper<GEMCSCLCTDigiCollection> wgcLCTD_;
   edm::Wrapper<CSCCFEBStatusDigiCollection> wCSD_;
   edm::Wrapper<CSCTMBStatusDigiCollection> wTMBSD_;
   edm::Wrapper<CSCDCCFormatStatusDigiCollection> wDFSD_;
@@ -117,5 +129,6 @@ namespace DataFormats_CSCDigi {
   edm::Wrapper<CSCDCCStatusDigiCollection> wDCCSD_;
   edm::Wrapper<CSCALCTStatusDigiCollection> wALCTSD_;
   edm::Wrapper<CSCCLCTPreTriggerCollection> wPreTrigger_;
+  edm::Wrapper<CSCCLCTPreTriggerDigiCollection> wCLCTPreD_;
   };
 }

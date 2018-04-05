@@ -6,6 +6,9 @@
  *
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
+ *
+ *  Modified by C. Calabria & A. Sharma
+ *  Modified by D. Nash
  */
 
 // Class Header
@@ -31,15 +34,36 @@ using namespace std;
 using namespace edm;
 
 // Constructor
-MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeometry(0),theMGField(0),theDetLayerGeometry(0),theEventSetup(0),theSchool(0){
+MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeometry(nullptr),theMGField(nullptr),theDetLayerGeometry(nullptr),theEventSetup(nullptr),theSchool(nullptr){
   
   // load the propagators map
   vector<string> noPropagators;
   vector<string> propagatorNames;
 
   theMuonNavigationFlag = par.getUntrackedParameter<bool>("UseMuonNavigation",true);
-  if(theMuonNavigationFlag) theRPCLayer = par.getParameter<bool>("RPCLayers");
-  else theRPCLayer = true;
+
+  if(theMuonNavigationFlag) {
+    theRPCLayer = par.getParameter<bool>("RPCLayers");
+
+    if( par.existsAs<bool>("CSCLayers"))
+      theCSCLayer = par.getParameter< bool >("CSCLayers");
+    else theCSCLayer = true ;
+
+    if( par.existsAs<bool>("GEMLayers"))
+      theGEMLayer = par.getParameter< bool >("GEMLayers");
+    else theGEMLayer = false ;  
+
+    if( par.existsAs<bool>("ME0Layers"))
+      theME0Layer = par.getParameter< bool >("ME0Layers");
+    else theME0Layer = false ;  
+
+  }
+  else {
+  	theRPCLayer = true;
+  	theCSCLayer = true;
+  	theGEMLayer = true;
+  	theME0Layer = true;
+  }
 
   propagatorNames = par.getUntrackedParameter<vector<string> >("Propagators", noPropagators);
   
@@ -48,7 +72,7 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeom
   
   for(vector<string>::iterator propagatorName = propagatorNames.begin();
       propagatorName != propagatorNames.end(); ++propagatorName)
-    thePropagators[ *propagatorName ] = ESHandle<Propagator>(0);
+    thePropagators[ *propagatorName ] = ESHandle<Propagator>(nullptr);
 
   theCacheId_GTG = 0;
   theCacheId_MG = 0;  
@@ -106,7 +130,7 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
     // the NavigableLayers (this is implemented in MuonNavigationSchool's dtor)
     if ( theMuonNavigationFlag ) {
       if(theSchool) delete theSchool;
-      theSchool = new MuonNavigationSchool(&*theDetLayerGeometry,theRPCLayer);
+      theSchool = new MuonNavigationSchool(&*theDetLayerGeometry,theRPCLayer,theCSCLayer,theGEMLayer,theME0Layer);
     }
   }
   
@@ -133,7 +157,7 @@ ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorName) co
   if (prop == thePropagators.end()){
     LogError("Muon|RecoMuon|MuonServiceProxy") 
       << "MuonServiceProxy: propagator with name: "<< propagatorName <<" not found! Please load it in the MuonServiceProxy.cff"; 
-    return ESHandle<Propagator>(0);
+    return ESHandle<Propagator>(nullptr);
   }
   
   return prop->second;

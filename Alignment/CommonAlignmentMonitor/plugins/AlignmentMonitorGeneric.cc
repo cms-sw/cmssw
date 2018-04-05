@@ -3,6 +3,7 @@
 
 #include "Alignment/CommonAlignmentMonitor/plugins/AlignmentMonitorGeneric.h"
 #include <DataFormats/GeometrySurface/interface/LocalError.h> 
+#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "TObject.h" 
 
 #include <TString.h>
@@ -21,7 +22,11 @@ void AlignmentMonitorGeneric::book()
   residNames.push_back("y hit residuals pos track");
   residNames.push_back("y hit residuals neg track");
 
-  const std::vector<Alignable*>& alignables = pStore()->alignables();
+
+  auto alignableObjectId =
+    AlignableObjectId::commonObjectIdProvider(pTracker(), pMuon());
+
+  const auto& alignables = pStore()->alignables();
 
   unsigned int nAlignable = alignables.size();
   unsigned int nResidName = residNames.size();
@@ -32,7 +37,7 @@ void AlignmentMonitorGeneric::book()
 
     Hist1Ds& hists = m_resHists[ali];
 
-    hists.resize(nResidName, 0);
+    hists.resize(nResidName, nullptr);
 
     align::ID id = ali->id();
     align::StructureType type = ali->alignableObjectId();
@@ -42,19 +47,19 @@ void AlignmentMonitorGeneric::book()
       const std::string& name = residNames[n];
 
       TString histName(name.c_str());
-      histName += Form("_%s_%d", AlignableObjectId::idToString(type), id);
+      histName += Form("_%s_%d", alignableObjectId.idToString(type), id);
       histName.ReplaceAll(" ", "");
 
       TString histTitle(name.c_str());
       histTitle += Form(" for %s with ID %d (subdet %d)",
-			AlignableObjectId::idToString(type),
+			alignableObjectId.idToString(type),
 			id, DetId(id).subdetId());
 
-      hists[n] = book1D(std::string("/iterN/") + std::string(name) + std::string("/"), std::string(histName), std::string(histTitle), nBin_, -5., 5.);
+      hists[n] = book1D(std::string("/iterN/") + std::string(name) + std::string("/"), std::string(histName.Data()), std::string(histTitle.Data()), nBin_, -5., 5.);
     }
   }
 
-  m_trkHists.resize(6, 0);
+  m_trkHists.resize(6, nullptr);
   
   m_trkHists[0] = book1D("/iterN/", "pt"  , "track p_{t} (GeV)" , nBin_,   0.0,100.0);
   m_trkHists[1] = book1D("/iterN/", "eta" , "track #eta"        , nBin_, - 3.0,  3.0);
@@ -97,7 +102,16 @@ void AlignmentMonitorGeneric::event(const edm::Event &iEvent,
 	      
 	      align::LocalVector res = tsos.localPosition() - hit.localPosition();
 	      LocalError err1 = tsos.localError().positionError();
-	      LocalError err2 = hit.localPositionError();
+	      LocalError err2 = hit.localPositionError(); // CPE+APE
+
+	      // subtract APEs from err2 (if existing) from covariance matrix
+	      auto det = static_cast<const TrackerGeomDet*>(hit.det());
+	      const auto localAPE = det->localAlignmentError();
+	      if (localAPE.valid()) {
+		err2 = LocalError(err2.xx() - localAPE.xx(),
+				  err2.xy() - localAPE.xy(),
+				  err2.yy() - localAPE.yy());
+	      }
 	      
 	      float errX = std::sqrt( err1.xx() + err2.xx() );
 	      float errY = std::sqrt( err1.yy() + err2.yy() );

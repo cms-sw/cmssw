@@ -1,20 +1,25 @@
 #ifndef DDExpandedView_h
 #define DDExpandedView_h
 
+#include <cstddef>
 #include <iosfwd>
-#include <vector>
-#include <string>
 #include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDPosData.h"
-#include "DetectorDescription/Core/interface/DDExpandedNode.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
 class DDFilteredView;
+class DDLogicalPart;
+struct DDPosData;
 
 /**
   DDExpandedView provides a tree-walker (iterator) for the 
@@ -137,11 +142,13 @@ protected:
   std::vector<nav_type> nextBStack_;
 };
 
-std::ostream & printNavType(std::ostream &, int const * n, size_t sz);
+std::string printNavType(int const * n, size_t sz);
 inline std::ostream & operator<<(std::ostream & os, const DDExpandedView::nav_type & n) {
-    return printNavType(os,&n.front(),n.size());
+    os << printNavType(&n.front(),n.size());
+    return os;
 }
 inline std::ostream & operator<<(std::ostream & os, const DDExpandedView::NavRange & n) {
-    return printNavType(os,n.first,n.second);
+    os << printNavType(n.first,n.second);
+    return os;
 }
 #endif

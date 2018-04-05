@@ -10,33 +10,32 @@
  *  tschudi
  */
 
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 
-class EtaPhiMeasurementEstimator GCC11_FINAL : public Chi2MeasurementEstimatorBase {
+class EtaPhiMeasurementEstimator final : public MeasurementEstimator {
 public:
 
-  explicit EtaPhiMeasurementEstimator(double dEta, double dPhi) : 
-    Chi2MeasurementEstimatorBase( 0.0, 0.0),
+  explicit EtaPhiMeasurementEstimator(float dEta, float dPhi) : 
     thedEta(dEta),
     thedPhi(dPhi)
    {}
-  ~EtaPhiMeasurementEstimator(){}
+  ~EtaPhiMeasurementEstimator() override{}
 
   std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-				  const TrackingRecHit&) const;
+				  const TrackingRecHit&) const override;
 
-  virtual bool estimate(const TrajectoryStateOnSurface& tsos,
-			const Plane& plane) const;
+  bool estimate(const TrajectoryStateOnSurface& tsos,
+			const Plane& plane) const override;
 
-  virtual Local2DVector maximalLocalDisplacement( const TrajectoryStateOnSurface& tsos,
-						   const Plane& plane) const;
+  Local2DVector maximalLocalDisplacement( const TrajectoryStateOnSurface& tsos,
+						   const Plane& plane) const override;
 
-  EtaPhiMeasurementEstimator* clone() const {
+  EtaPhiMeasurementEstimator* clone() const override {
     return new EtaPhiMeasurementEstimator(*this);
   }
  private:
-  double thedEta;
-  double thedPhi;
+  float thedEta;
+  float thedPhi;
 
 };
 

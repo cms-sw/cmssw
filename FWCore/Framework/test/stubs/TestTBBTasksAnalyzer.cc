@@ -32,6 +32,8 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "FWCore/Utilities/interface/propagate_const.h"
+
 //
 // class decleration
 //
@@ -75,8 +77,8 @@ namespace {
       }
    private:
       unsigned int m_usecondsToSleep;
-      std::atomic<unsigned int>* m_count;
-      std::atomic<unsigned int>* m_maxCount;
+      edm::propagate_const<std::atomic<unsigned int>*> m_count;
+      edm::propagate_const<std::atomic<unsigned int>*> m_maxCount;
    };
 
    unsigned int startTasks(unsigned int iNTasks, unsigned int iSleepTime) {

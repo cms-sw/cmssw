@@ -107,7 +107,7 @@ void EvtLb2plnuLCSR::initProbMax() {
   }
   else
   {
-    report(ERROR,"EvtGen") << "Decay does not have Lb->p setting ProbMax = 0 "
+    EvtGenReport(EVTGEN_ERROR,"EvtGen") << "Decay does not have Lb->p setting ProbMax = 0 "
 			   <<endl;
     setProbMax(0.0);
   }
@@ -118,18 +118,18 @@ void EvtLb2plnuLCSR::init(){
   
   if (getNArg()!=4) {
 
-    report(ERROR,"EvtGen") << "EvtLb2plnuLCSR generator expected "
+    EvtGenReport(EVTGEN_ERROR,"EvtGen") << "EvtLb2plnuLCSR generator expected "
 			   << " 4 arguments but found:"<<getNArg()<<endl;
-    report(ERROR,"EvtGen") << "Will terminate execution!"<<endl;
+    EvtGenReport(EVTGEN_ERROR,"EvtGen") << "Will terminate execution!"<<endl;
     ::abort();
 
   }
 
   if ( getNDaug()!=3 ) {
-     report(ERROR,"EvtGen") 
+     EvtGenReport(EVTGEN_ERROR,"EvtGen") 
        << "Wrong number of daughters in EvtLb2plnu.cc " 
        << " 3 daughters expected but found: "<<getNDaug()<<endl;
-     report(ERROR,"EvtGen") << "Will terminate execution!"<<endl;
+     EvtGenReport(EVTGEN_ERROR,"EvtGen") << "Will terminate execution!"<<endl;
      ::abort();
   }
 
@@ -143,24 +143,24 @@ void EvtLb2plnuLCSR::init(){
   EvtSpinType::spintype neutrinotype=EvtPDL::getSpinType(getDaug(2));
 
   if ( parenttype != EvtSpinType::DIRAC ) {
-    report(ERROR,"EvtGen") << "EvtLb2plnuLCSR generator expected "
+    EvtGenReport(EVTGEN_ERROR,"EvtGen") << "EvtLb2plnuLCSR generator expected "
                            << " a DIRAC parent, found:"<<
                            EvtPDL::name(getParentId())<<endl;
-    report(ERROR,"EvtGen") << "Will terminate execution!"<<endl;
+    EvtGenReport(EVTGEN_ERROR,"EvtGen") << "Will terminate execution!"<<endl;
     ::abort();
   }
   if ( leptontype != EvtSpinType::DIRAC ) {
-    report(ERROR,"EvtGen") << "EvtLb2plnuLCSR generator expected "
+    EvtGenReport(EVTGEN_ERROR,"EvtGen") << "EvtLb2plnuLCSR generator expected "
                            << " a DIRAC 2nd daughter, found:"<<
                            EvtPDL::name(getDaug(1))<<endl;
-    report(ERROR,"EvtGen") << "Will terminate execution!"<<endl;
+    EvtGenReport(EVTGEN_ERROR,"EvtGen") << "Will terminate execution!"<<endl;
     ::abort();
   }
   if ( neutrinotype != EvtSpinType::NEUTRINO ) {
-    report(ERROR,"EvtGen") << "EvtLb2plnuLCSR generator expected "
+    EvtGenReport(EVTGEN_ERROR,"EvtGen") << "EvtLb2plnuLCSR generator expected "
                            << " a NEUTRINO 3rd daughter, found:"<<
                            EvtPDL::name(getDaug(2))<<endl;
-    report(ERROR,"EvtGen") << "Will terminate execution!"<<endl;
+    EvtGenReport(EVTGEN_ERROR,"EvtGen") << "Will terminate execution!"<<endl;
     ::abort();
   }
 
@@ -172,11 +172,11 @@ void EvtLb2plnuLCSR::init(){
     calcamp = new EvtSLBaryonAmp; 
   }
   else {
-    report(ERROR,"EvtGen") 
+    EvtGenReport(EVTGEN_ERROR,"EvtGen") 
       << "Wrong baryon spin type in EvtLb2plnuLCSR.cc " 
       << "Expected spin type " << EvtSpinType::DIRAC 
       << ", found spin type " << baryontype <<endl;
-    report(ERROR,"EvtGen") << "Will terminate execution!" <<endl;
+    EvtGenReport(EVTGEN_ERROR,"EvtGen") << "Will terminate execution!" <<endl;
      ::abort();
   }
   

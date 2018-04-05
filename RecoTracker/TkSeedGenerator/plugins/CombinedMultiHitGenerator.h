@@ -29,15 +29,16 @@ public:
 
   CombinedMultiHitGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-  virtual ~CombinedMultiHitGenerator();
+  ~CombinedMultiHitGenerator() override;
 
   /// from base class
-  virtual void hitSets( const TrackingRegion& reg, OrderedMultiHits & result,
-      const edm::Event & ev,  const edm::EventSetup& es);
+  void hitSets( const TrackingRegion& reg, OrderedMultiHits & result,
+      const edm::Event & ev,  const edm::EventSetup& es) override;
 
-   virtual void clear() override {
-      theGenerator->clear(); 
-   }
+  void clear() override {
+    MultiHitGenerator::clear();
+    theGenerator->clear();
+  }
 
 private:
   edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;

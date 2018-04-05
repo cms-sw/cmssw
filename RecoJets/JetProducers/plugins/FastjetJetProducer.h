@@ -2,6 +2,8 @@
 #define RecoJets_JetProducers_plugins_FastjetJetProducer_h
 
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -20,11 +22,11 @@ public:
   DynamicRfilt(double Rmax, double deltaR_factor) : _Rmax(Rmax), _deltaR_factor(deltaR_factor){}
 
   // action of the function
-  double result(const fastjet::PseudoJet &j) const{
+  double result(const fastjet::PseudoJet &j) const override{
     if (! j.has_pieces()) return _Rmax;
 
     std::vector<fastjet::PseudoJet> pieces = j.pieces();
-    if (! pieces.size()==2) return _Rmax;
+    if (pieces.size() != 2) return _Rmax;
 
     double deltaR = pieces[0].delta_R(pieces[1]);
     return std::min(_Rmax, _deltaR_factor * deltaR);
@@ -48,9 +50,11 @@ public:
   // construction/destruction
   //
   explicit FastjetJetProducer(const edm::ParameterSet& iConfig);
-  virtual ~FastjetJetProducer();
+  ~FastjetJetProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptionsFromFastJetProducer(edm::ParameterSetDescription& desc);
 
-  virtual void produce( edm::Event & iEvent, const edm::EventSetup & iSetup );
+  void produce( edm::Event & iEvent, const edm::EventSetup & iSetup ) override;
 
   // typedefs
   typedef boost::shared_ptr<DynamicRfilt>  DynamicRfiltPtr;
@@ -62,7 +66,7 @@ protected:
   //
 
   virtual void produceTrackJets( edm::Event & iEvent, const edm::EventSetup & iSetup );
-  virtual void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup );
+  void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
 
  private:
 
@@ -84,6 +88,7 @@ protected:
   bool useKtPruning_;         /// Use Kt clustering algorithm for pruning (default is Cambridge/Aachen)
   bool useConstituentSubtraction_; /// constituent subtraction technique
   bool useSoftDrop_;          /// Soft drop
+  bool correctShape_;         /// Correct the shape of the jets
   double muCut_;              /// for mass-drop tagging, m0/mjet (m0 = mass of highest mass subjet)
   double yCut_;               /// for mass-drop tagging, symmetry cut: min(pt1^2,pt2^2) * dR(1,2) / mjet > ycut
   double rFilt_;              /// for filtering, trimming: dR scale of sub-clustering
@@ -97,6 +102,8 @@ protected:
   double csRParam_;           /// for constituent subtraction : R parameter for KT alg in jet median background estimator
   double beta_;               /// for soft drop : beta (angular exponent)
   double R0_;                 /// for soft drop : R0 (angular distance normalization - should be set to jet radius in most cases)
+  double gridMaxRapidity_;    /// for shape subtraction, get the fixed-grid rho
+  double gridSpacing_;        /// for shape subtraction, get the grid spacing
 
 
   double subjetPtMin_;        /// for CMSBoostedTauSeedingAlgorithm : subjet pt min

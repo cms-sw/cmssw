@@ -19,7 +19,7 @@ class CSCWireTopology : public WireTopology {
 
  public:
 
-  virtual ~CSCWireTopology();
+  ~CSCWireTopology() override;
   
   /**
    * Constructor from endcap muon CSC wire geometry specs
@@ -42,16 +42,16 @@ class CSCWireTopology : public WireTopology {
    * Topology interface, but not implemented for CSCWireTopology (yet!)
    */
 
-  virtual LocalPoint localPosition( const MeasurementPoint& ) const;
-  virtual LocalError localError( const MeasurementPoint&, const MeasurementError& ) const;
-  virtual MeasurementPoint measurementPosition( const LocalPoint&) const;
-  virtual MeasurementError measurementError( const LocalPoint&, const LocalError& ) const;
+  LocalPoint localPosition( const MeasurementPoint& ) const override;
+  LocalError localError( const MeasurementPoint&, const MeasurementError& ) const override;
+  MeasurementPoint measurementPosition( const LocalPoint&) const override;
+  MeasurementError measurementError( const LocalPoint&, const LocalError& ) const override;
 
   /**
    * 'channel' is wire group number from 1 to no. of groups.
    * Return 0 if out-of-range or in a dead region
    */
-  virtual int channel( const LocalPoint& p) const;
+  int channel( const LocalPoint& p) const override;
 
   /**
    * WireTopology interface
@@ -67,20 +67,20 @@ class CSCWireTopology : public WireTopology {
    * The wire pitch. This is the wire spacing but
    * old-timers like the word 'pitch'.
    */
-  float wirePitch() const {
+  float wirePitch() const override {
     return static_cast<float>(wireSpacing()); }
 
   /**
    * The angle of the wires w.r.t local x axis (in radians)
    */
-  float wireAngle() const { 
+  float wireAngle() const override { 
     return theWireGeometry->wireAngle(); }
 
   /**
    * The nearest (virtual) wire to a given LocalPoint.
    * Beware that this wire might not exist or be read out!
    */
-  int nearestWire(const LocalPoint& lp) const {
+  int nearestWire(const LocalPoint& lp) const override {
     return theWireGeometry->nearestWire( lp ); }
 
   /**
@@ -118,7 +118,7 @@ class CSCWireTopology : public WireTopology {
    * This is the number which would fill the region covered
    * by wires, assuming the constant wire spacing.
    */
-  int numberOfWires() const {
+  int numberOfWires() const override {
     return theWireGrouping->numberOfWires(); }
 
   /**

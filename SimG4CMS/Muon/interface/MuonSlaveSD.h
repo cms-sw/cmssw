@@ -31,11 +31,11 @@ public:
   typedef std::vector<PSimHit> Collection;
   typedef Collection::const_iterator const_iterator;
   MuonSlaveSD(MuonSubDetector*,const SimTrackManager*);
-  virtual ~MuonSlaveSD();
+  ~MuonSlaveSD() override;
   virtual void clearHits();
-  virtual bool format();
-  virtual const_iterator begin() { return hits_.begin();}
-  virtual const_iterator end()   { return hits_.end();}
+  bool format() override;
+  const_iterator begin() override { return hits_.begin();}
+  const_iterator end() override   { return hits_.end();}
 
 protected: 
   Collection 	     hits_;

@@ -35,7 +35,7 @@ Implementation:
 
 #include <TRandom.h> // this is just the random number generator
 
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <sstream>
 using std::cout; using std::endl; using std::string;
@@ -48,11 +48,11 @@ using std::cout; using std::endl; using std::string;
 class DQMSourceExampleConfig : public edm::EDAnalyzer {
 public:
    explicit DQMSourceExampleConfig ( const edm::ParameterSet& );
-   ~DQMSourceExampleConfig ();
+   ~DQMSourceExampleConfig () override;
    
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
 
-  virtual void endJob(void);
+  void endJob() override;
 
     void recursiveBuild (string, int, int, int, DQMStore * , int);
     
@@ -130,7 +130,7 @@ DQMSourceExampleConfig::~DQMSourceExampleConfig()
   
 }
 
-void DQMSourceExampleConfig::endJob(void)
+void DQMSourceExampleConfig::endJob()
 {
   dbe->save("test.root");  
 }
@@ -152,10 +152,8 @@ void DQMSourceExampleConfig::analyze(const edm::Event& iEvent,
       
      for ( int i = 0; i != 10; ++i ) 
      {
-	 typedef std::vector <MonitorElement*>::iterator meIt;
-      
-	 for(meIt it = meContainer.begin(); it != meContainer.end(); ++it)
-	     (*it)->Fill (gRandom->Gaus(30, 3), 1.0);
+	 for(auto & it : meContainer)
+	     it->Fill (gRandom->Gaus(30, 3), 1.0);
      }	
      usleep(1000000);
       

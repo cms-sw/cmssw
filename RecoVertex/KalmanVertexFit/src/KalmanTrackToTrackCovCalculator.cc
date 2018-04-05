@@ -19,7 +19,7 @@ KalmanTrackToTrackCovCalculator<N>::operator()
   std::vector<RefCountedVertexTrack> tracks = vertex.tracks();
 
 //vertex initial data needed
-  AlgebraicSymMatrix33 vertexC = vertex.error().matrix_new();
+  AlgebraicSymMatrix33 vertexC = vertex.error().matrix();
 
   for(typename std::vector<RefCountedVertexTrack>::iterator i = tracks.begin(); 
   	i != tracks.end(); i++)

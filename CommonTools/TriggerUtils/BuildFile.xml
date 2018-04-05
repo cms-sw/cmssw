@@ -5,6 +5,7 @@
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="FWCore/Framework"/>
 <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
+<use   name="L1Trigger/L1TGlobal"/>
 <use   name="HLTrigger/HLTcore"/>
 <export>
   <lib   name="1"/>

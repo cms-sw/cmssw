@@ -1,6 +1,6 @@
 #include <fstream>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <stdexcept>
 #include <string>
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -12,10 +12,10 @@ using namespace oracle::occi;
 
 ODLTCConfig::ODLTCConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_size=0;
 
@@ -31,7 +31,7 @@ ODLTCConfig::~ODLTCConfig()
   //  delete [] m_ltc_clob;
 }
 
-int ODLTCConfig::fetchNextId()  throw(std::runtime_error) {
+int ODLTCConfig::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -47,7 +47,7 @@ int ODLTCConfig::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTCConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTCConfig::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
@@ -56,7 +56,7 @@ int ODLTCConfig::fetchNextId()  throw(std::runtime_error) {
 
 
 void ODLTCConfig::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -92,7 +92,7 @@ void ODLTCConfig::prepareWrite()
 
     
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTCConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTCConfig::prepareWrite():  ")+getOraMessage(&e)));
   }
 
   std::cout<<"updating the clob 1 "<<std::endl;
@@ -146,7 +146,7 @@ void ODLTCConfig::setParameters(const std::map<string,string>& my_keys_map){
 
 
 void ODLTCConfig::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   std::cout<<"updating the clob "<<std::endl;
@@ -176,7 +176,7 @@ void ODLTCConfig::writeDB()
     m_writeStmt->closeResultSet (rset);
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTCConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTCConfig::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -197,11 +197,11 @@ void ODLTCConfig::clear(){
 
 
 void ODLTCConfig::fetchData(ODLTCConfig * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && result->getConfigTag()==""){
+  if(result->getId()==0 && result->getConfigTag().empty()){
     throw(std::runtime_error("ODLTCConfig::fetchData(): no Id defined for this ODLTCConfig "));
   }
 
@@ -218,8 +218,8 @@ void ODLTCConfig::fetchData(ODLTCConfig * result)
     // 1 is the id and 2 is the config tag
 
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
-    result->setLTCConfigurationFile(rset->getString(3));
+    result->setConfigTag(getOraString(rset,2));
+    result->setLTCConfigurationFile(getOraString(rset,3));
   
 
     Clob clob = rset->getClob (4);
@@ -239,13 +239,13 @@ void ODLTCConfig::fetchData(ODLTCConfig * result)
     result->setLTCClob(buffer );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTCConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTCConfig::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
 
 
-int ODLTCConfig::fetchID()    throw(std::runtime_error)
+int ODLTCConfig::fetchID()    noexcept(false)
 {
   if (m_ID!=0) {
     return m_ID;
@@ -270,7 +270,7 @@ int ODLTCConfig::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODLTCConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODLTCConfig::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

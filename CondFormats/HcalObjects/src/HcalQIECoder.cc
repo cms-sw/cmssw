@@ -28,7 +28,7 @@ unsigned HcalQIECoder::adc (const HcalQIEShape& fShape, float fCharge, unsigned 
   // search for the range
   for (unsigned range = 0; range < 4; range++) {
     float qieCharge = fCharge * slope (fCapId, range) + offset (fCapId, range);
-    unsigned nbin   = 32 * (mQIEIndex+1); // it's just 64 = 2*32 !
+    unsigned nbin   = fShape.nbins(); // it's just 64 = 2*32 ! (for QIE10)
     unsigned minBin = nbin * range;
     unsigned maxBin = minBin + nbin - 1;
     float qieChargeMax = fShape.highEdge (maxBin);

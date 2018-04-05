@@ -17,6 +17,9 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+// Unit test for testing BackgroundHandler
+class TestBackgroundHandler;
+
 /**
  * This class is used to handle the different background functions for the
  * different regions. <br>
@@ -28,6 +31,9 @@
  */
 class BackgroundHandler
 {
+  // For tests
+  friend class TestBackgroundHandler;
+
 public:
   BackgroundHandler( const std::vector<int> & identifiers,
                      const std::vector<double> & leftWindowBorders,
@@ -94,7 +100,7 @@ private:
   /// Used to check the consistency of passed parameters
   void consistencyCheck( const std::vector<int> & identifiers,
                          const std::vector<double> & leftWindowBorders,
-                         const std::vector<double> & rightWindowBorders ) const throw(cms::Exception);
+                         const std::vector<double> & rightWindowBorders ) const noexcept(false);
 
   // Correspondence between regions and halfWidths used:
   // - for the Upsilons region we use the Upsilon

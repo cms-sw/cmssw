@@ -18,7 +18,6 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 SiStripHistoId::SiStripHistoId()
 {
@@ -61,7 +60,7 @@ std::string SiStripHistoId::createHistoLayer(std::string description, std::strin
   std::string local_histo_id;
   if ( pos1 == std::string::npos && pos2 == std::string::npos ){ // ok, not found either separator
     if(id_type=="fed" || id_type=="det" || id_type=="fec"  || id_type=="layer" || id_type=="ring"){ // ok! is one of the accepted id_type-s
-      if(flag.size() > 0)
+      if(!flag.empty())
 	local_histo_id = description + "__" + flag + "__" + path;
       else 
 	local_histo_id = description + "__" + path;

@@ -33,10 +33,10 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
   }
 
 
- virtual ~PFRecHitCaloNavigatorWithTime() { if(!ownsTopo) { topology_.release(); } }
+ ~PFRecHitCaloNavigatorWithTime() override { if(!ownsTopo) { topology_.release(); } }
 
 
-  void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
+  void associateNeighbours(reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) override {
       DetId detid( hit.detId() );
       
       CaloNavigator<D> navigator(detid, topology_.get());
@@ -116,24 +116,27 @@ class PFRecHitCaloNavigatorWithTime : public PFRecHitNavigatorBase {
   std::unique_ptr<CaloRecHitResolutionProvider> _timeResolutionCalc;
 
 
-  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi) {
+  void associateNeighbour(const DetId& id, reco::PFRecHit& hit,std::unique_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd,short eta, short phi) {
     double sigma2=10000.0;
     
-    const reco::PFRecHit temp(id,PFLayer::NONE,0.0,math::XYZPoint(0,0,0),math::XYZVector(0,0,0),std::vector<math::XYZPoint>());
 
     auto found_hit = std::lower_bound(hits->begin(),hits->end(),
-				      temp,
+				      id,
 				      [](const reco::PFRecHit& a, 
-					 const reco::PFRecHit& b){
-					return a.detId() < b.detId();
+					  DetId b){
+					if (DetId(a.detId()).det() == DetId::Hcal || b.det() == DetId::Hcal) return (HcalDetId)(a.detId()) < (HcalDetId)(b);
+
+					else return a.detId() < b.rawId();
 				      });
 
 
-    if (found_hit != hits->end() && found_hit->detId() == id.rawId()) {
+    if (found_hit != hits->end() && ((found_hit->detId() == id.rawId()) ||
+				     ((id.det()==DetId::Hcal) &&
+				      ((HcalDetId)(found_hit->detId()) == (HcalDetId)(id))))) {
       sigma2 = _timeResolutionCalc->timeResolution2(hit.energy()) + _timeResolutionCalc->timeResolution2(found_hit->energy());
       const double deltaTime = hit.time()-found_hit->time();
       if(deltaTime*deltaTime<sigmaCut2_*sigma2) {
-	hit.addNeighbour(eta,phi,0,reco::PFRecHitRef(refProd,std::distance(hits->begin(),found_hit)));
+	hit.addNeighbour(eta,phi,0,found_hit-hits->begin());
       }
     }
 

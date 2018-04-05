@@ -31,10 +31,10 @@ public:
     L1GtRsObjectKeysOnlineProd(const edm::ParameterSet&);
 
     /// destructor
-    ~L1GtRsObjectKeysOnlineProd();
+    ~L1GtRsObjectKeysOnlineProd() override;
 
     /// public methods
-    virtual void fillObjectKeys(ReturnType pL1TriggerKey);
+    void fillObjectKeys(FillType pL1TriggerKey) override;
 
 private:
 

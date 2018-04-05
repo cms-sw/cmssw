@@ -21,7 +21,7 @@ L1TDTTFClient::L1TDTTFClient(const edm::ParameterSet& ps)
     dttfSource_( ps.getParameter< edm::InputTag >("dttfSource") ),
     online_( ps.getUntrackedParameter<bool>("online", true) ),
     resetafterlumi_( ps.getUntrackedParameter<int>("resetAfterLumi", 3) ),
-    counterLS_(0), occupancy_r_(0)
+    counterLS_(0), occupancy_r_(nullptr)
 {
   edm::LogInfo( "L1TDTTFClient");
 }
@@ -36,7 +36,7 @@ L1TDTTFClient::~L1TDTTFClient(){
 //--------------------------------------------------------
 void L1TDTTFClient::book(DQMStore::IBooker &ibooker)
 {
-
+  
   edm::LogInfo("L1TDTTFClient")<<"[L1TDTTFClient]: Begin Job";
 
   wheelpath_[0] = l1tdttffolder_ + "/02-WHEEL_N2";
@@ -62,7 +62,7 @@ void L1TDTTFClient::book(DQMStore::IBooker &ibooker)
   char mename[100];//ME name
 
   /// SUMMARY
-
+  ibooker.setCurrentFolder(inclusivepath_); 
   /// DTTF Tracks per Wheel ditribution
   sprintf(hname, "dttf_02_nTracks");
   sprintf(mename, "DTTF Tracks by Wheel");
@@ -1000,7 +1000,7 @@ TH1F * L1TDTTFClient::getTH1F(DQMStore::IGetter &igetter, const char * hname)
   if ( ! me ) {
     edm::LogError("L1TDTTFClient::makeSummary:ME") << "Failed to get ME "
 						   << std::string(hname);
-    return NULL;
+    return nullptr;
   }
 
   return me->getTH1F();
@@ -1016,7 +1016,7 @@ TH2F * L1TDTTFClient::getTH2F(DQMStore::IGetter &igetter, const char * hname)
   if ( ! me ) {
     edm::LogError("L1TDTTFClient::makeSummary:ME") << "Failed to get ME "
 						   << std::string(hname);
-    return NULL;
+    return nullptr;
   }
 
   return me->getTH2F();

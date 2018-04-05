@@ -44,24 +44,20 @@ void testVecArray::test() {
   ++iter;
   CPPUNIT_ASSERT(iter == end);
 
-  array.push_back_unchecked(2);
+  array.emplace_back_unchecked(2);
   CPPUNIT_ASSERT(array.size() == 2);
   CPPUNIT_ASSERT(array.back() == 2);
   array.push_back(3);
   CPPUNIT_ASSERT(array.size() == 3);
   CPPUNIT_ASSERT(array.back() == 3);
-  array.push_back(4);
+  array.emplace_back(4);
   CPPUNIT_ASSERT(array.size() == 4);
   CPPUNIT_ASSERT(array.front() == 1);
   CPPUNIT_ASSERT(array.back() == 4);
   CPPUNIT_ASSERT(array[0] == 1 && array[1] == 2 && array[2] == 3 && array[3] == 4);
 
-  try {
-    array.push_back(5);
-    CPPUNIT_ASSERT(false);
-  } catch(std::length_error& e) {
-    CPPUNIT_ASSERT(true);
-  }
+  CPPUNIT_ASSERT_THROW(array.push_back(5), std::length_error);
+  CPPUNIT_ASSERT_THROW(array.emplace_back(5), std::length_error);
 
   auto ptr = array.data();
   CPPUNIT_ASSERT(ptr[0] == 1 && ptr[1] == 2 && ptr[2] == 3 && ptr[3] == 4);
@@ -104,12 +100,7 @@ void testVecArray::test() {
   CPPUNIT_ASSERT(array.size() == 2);
   array.pop_back();
   CPPUNIT_ASSERT(array.size() == 1);
-  try {
-    array.resize(6);
-    CPPUNIT_ASSERT(false);
-  } catch(std::length_error& e) {
-    CPPUNIT_ASSERT(true);
-  }
+  CPPUNIT_ASSERT_THROW(array.resize(6), std::length_error);
   CPPUNIT_ASSERT(array.size() == 1);
   array.resize(4);
   CPPUNIT_ASSERT(array.size() == 4);

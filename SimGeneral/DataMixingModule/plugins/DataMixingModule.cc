@@ -24,6 +24,7 @@
 //
 //
 #include "SimDataFormats/CrossingFrame/interface/CrossingFramePlaybackInfoNew.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataMixingModule.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
@@ -36,7 +37,8 @@ namespace edm
 {
 
   // Constructor 
-  DataMixingModule::DataMixingModule(const edm::ParameterSet& ps) : BMixingModule(ps),
+  DataMixingModule::DataMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf) :
+    BMixingModule(ps, globalConf),
     EBPileInputTag_(ps.getParameter<edm::InputTag>("EBPileInputTag")),
     EEPileInputTag_(ps.getParameter<edm::InputTag>("EEPileInputTag")),
     ESPileInputTag_(ps.getParameter<edm::InputTag>("ESPileInputTag")),
@@ -44,6 +46,8 @@ namespace edm
     HOPileInputTag_(ps.getParameter<edm::InputTag>("HOPileInputTag")),
     HFPileInputTag_(ps.getParameter<edm::InputTag>("HFPileInputTag")),
     ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
+    QIE10PileInputTag_(ps.getParameter<edm::InputTag>("QIE10PileInputTag")),
+    QIE11PileInputTag_(ps.getParameter<edm::InputTag>("QIE11PileInputTag")),
 							    label_(ps.getParameter<std::string>("Label"))
   {  
 
@@ -57,6 +61,8 @@ namespace edm
     tok_ho_ = consumes<HODigitizerTraits::DigiCollection>(HOPileInputTag_);
     tok_hf_ = consumes<HFDigitizerTraits::DigiCollection>(HFPileInputTag_);
     tok_zdc_ = consumes<ZDCDigitizerTraits::DigiCollection>(ZDCPileInputTag_);
+    tok_qie10_ = consumes<HcalQIE10DigitizerTraits::DigiCollection>(QIE10PileInputTag_);
+    tok_qie11_ = consumes<HcalQIE11DigitizerTraits::DigiCollection>(QIE11PileInputTag_);
 
     // get the subdetector names
     this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
@@ -66,9 +72,9 @@ namespace edm
 
     // Check to see if we are working in Full or Fast Simulation
 
-    MergeTrackerDigis_ = (ps.getParameter<std::string>("TrackerMergeType")).compare("Digis") == 0;
-    MergeEMDigis_ = (ps.getParameter<std::string>("EcalMergeType")).compare("Digis") == 0;
-    MergeHcalDigis_ = (ps.getParameter<std::string>("HcalMergeType")).compare("Digis") == 0;
+    MergeTrackerDigis_ = (ps.getParameter<std::string>("TrackerMergeType")) == "Digis";
+    MergeEMDigis_ = (ps.getParameter<std::string>("EcalMergeType")) == "Digis";
+    MergeHcalDigis_ = (ps.getParameter<std::string>("HcalMergeType")) == "Digis";
     if(MergeHcalDigis_) MergeHcalDigisProd_ = (ps.getParameter<std::string>("HcalDigiMerge")=="FullProd");
 
     addMCDigiNoise_ = false;
@@ -116,29 +122,30 @@ namespace edm
     // Hcal next
 
     if(MergeHcalDigis_){
-      //       cout<<"Hcal Digis TRUE!!!"<<endl;
-
       HBHEDigiCollectionDM_ = ps.getParameter<std::string>("HBHEDigiCollectionDM");
       HODigiCollectionDM_   = ps.getParameter<std::string>("HODigiCollectionDM");
       HFDigiCollectionDM_   = ps.getParameter<std::string>("HFDigiCollectionDM");
       ZDCDigiCollectionDM_  = ps.getParameter<std::string>("ZDCDigiCollectionDM");
+      QIE10DigiCollectionDM_  = ps.getParameter<std::string>("QIE10DigiCollectionDM");
+      QIE11DigiCollectionDM_  = ps.getParameter<std::string>("QIE11DigiCollectionDM");
 
       produces< HBHEDigiCollection >();
       produces< HODigiCollection >();
       produces< HFDigiCollection >();
       produces< ZDCDigiCollection >();
 
-      produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
-      produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
+      produces<QIE10DigiCollection>("HFQIE10DigiCollection");
+      produces<QIE11DigiCollection>("HBHEQIE11DigiCollection");
 
-
-      if(MergeHcalDigisProd_) {
-	//        edm::ConsumesCollector iC(consumesCollector());
-	HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps, consumesCollector());
+      if(ps.getParameter<bool>("debugCaloSamples")){
+        produces<CaloSamplesCollection>("HcalSamples");
       }
-      else {HcalDigiWorker_ = new DataMixingHcalDigiWorker(ps, consumesCollector());
+      if(ps.getParameter<bool>("injectTestHits")){
+        produces<edm::PCaloHitContainer>("HcalHits");
       }
 
+      if(MergeHcalDigisProd_) HcalDigiWorkerProd_ = new DataMixingHcalDigiWorkerProd(ps, consumesCollector());
+      else HcalDigiWorker_ = new DataMixingHcalDigiWorker(ps, consumesCollector());
 
     }
     else{
@@ -229,8 +236,28 @@ namespace edm
       produces< int >("bunchSpacing");
       produces<CrossingFramePlaybackInfoNew>();
 
+      std::vector<edm::InputTag> GenPUProtonsInputTags;
+      GenPUProtonsInputTags = ps.getParameter<std::vector<edm::InputTag> >("GenPUProtonsInputTags");
+      for(std::vector<edm::InputTag>::const_iterator it_InputTag = GenPUProtonsInputTags.begin(); 
+                                                     it_InputTag != GenPUProtonsInputTags.end(); ++it_InputTag) 
+         produces< std::vector<reco::GenParticle> >( it_InputTag->label() );
+
       PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());
     }
+
+    // Validation
+
+    produces< std::vector<TrackingParticle> >(ps.getParameter<std::string>("TrackingParticleCollectionDM"));
+    produces< std::vector<TrackingVertex> >(ps.getParameter<std::string>("TrackingParticleCollectionDM"));
+
+    produces< edm::DetSetVector<StripDigiSimLink> >(ps.getParameter<std::string>("StripDigiSimLinkCollectionDM"));
+    produces< edm::DetSetVector<PixelDigiSimLink> >(ps.getParameter<std::string>("PixelDigiSimLinkCollectionDM"));
+    produces< MuonDigiCollection<DTLayerId,DTDigiSimLink> >(ps.getParameter<std::string>("DTDigiSimLinkDM"));
+    produces< edm::DetSetVector<RPCDigiSimLink> >(ps.getParameter<std::string>("RPCDigiSimLinkDM"));
+    produces< edm::DetSetVector<StripDigiSimLink> >(ps.getParameter<std::string>("CSCStripDigiSimLinkDM"));
+    produces< edm::DetSetVector<StripDigiSimLink> >(ps.getParameter<std::string>("CSCWireDigiSimLinkDM"));
+
+    TrackingParticleWorker_ = new DataMixingTrackingParticleWorker(ps, consumesCollector());
 
   }
 
@@ -286,6 +313,9 @@ namespace edm
     if( addMCDigiNoise_ && MergeHcalDigisProd_) {
       HcalDigiWorkerProd_->initializeEvent( e, ES );
     }
+
+    TrackingParticleWorker_->initializeEvent( e, ES );
+
   }
   
 
@@ -329,6 +359,8 @@ namespace edm
       delete GeneralTrackWorker_;
     }
     if(MergePileup_) { delete PUWorker_;}
+
+    delete TrackingParticleWorker_;
   }
 
   void DataMixingModule::addSignals(const edm::Event &e, const edm::EventSetup& ES) { 
@@ -371,6 +403,8 @@ namespace edm
       GeneralTrackWorker_->accumulate(e,ES);
     }
     AddedPileup_ = false;
+
+    TrackingParticleWorker_->addTrackingParticleSignals(e);
 
   } // end of addSignals
 
@@ -438,6 +472,7 @@ namespace edm
       GeneralTrackWorker_->accumulate(pep, ES,ep.streamID());
     }
     
+    TrackingParticleWorker_->addTrackingParticlePileups(bcr, &ep, eventNr, &moduleCallingContext);
     
   }
 
@@ -485,7 +520,7 @@ namespace edm
 
 	if(!MergeTrackerDigis_)
 	  GeneralTrackWorker_->finalizeBunchCrossing(e, ES, bunchCrossing);
-	
+	      
       }
     }
 
@@ -540,12 +575,13 @@ namespace edm
       GeneralTrackWorker_->finalizeEvent(e,ES);
     }
 
+    TrackingParticleWorker_->putTrackingParticle(e);
 
   }
 
   void DataMixingModule::beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {
     BMixingModule::beginLuminosityBlock(l1, c);
-    EcalDigiWorkerProd_->beginLuminosityBlock(l1,c);
+    if(addMCDigiNoise_ && EcalDigiWorkerProd_) EcalDigiWorkerProd_->beginLuminosityBlock(l1,c);
   }
 
   void DataMixingModule::endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) {

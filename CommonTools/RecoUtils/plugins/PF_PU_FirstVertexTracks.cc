@@ -104,8 +104,8 @@ void
 PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-	auto_ptr<TrackCollection> t2v_firstvertextracks(new TrackCollection() );
-	auto_ptr<TrackCollection> v2t_firstvertextracks(new TrackCollection() );
+	unique_ptr<TrackCollection> t2v_firstvertextracks(new TrackCollection() );
+	unique_ptr<TrackCollection> v2t_firstvertextracks(new TrackCollection() );
 
 	bool t2vassmap = false;
 	bool v2tassmap = false;
@@ -167,7 +167,7 @@ PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 	  }
 
-          iEvent.put( t2v_firstvertextracks, "T2V" );
+          iEvent.put(std::move(t2v_firstvertextracks), "T2V" );
 
 	}
 
@@ -208,7 +208,7 @@ PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 	  }
 
-          iEvent.put( v2t_firstvertextracks, "V2T" );
+          iEvent.put(std::move(v2t_firstvertextracks), "V2T" );
 
 	}
 

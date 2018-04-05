@@ -11,7 +11,7 @@ MultiStatePropagation<T>::propagateWithPath (const TrajectoryStateOnSurface& tso
   double sWeight(0.);
   double sWeightPath(0.);
   // decomposition of input state
-  MultiTSOS input(tsos.components());
+  MultiTSOS const & input = tsos.components();
   // vector of result states
   MultiTrajectoryStateAssembler result;
   //
@@ -19,19 +19,19 @@ MultiStatePropagation<T>::propagateWithPath (const TrajectoryStateOnSurface& tso
   //
   bool firstPropagation(true);
   SurfaceSideDefinition::SurfaceSide firstSide(SurfaceSideDefinition::atCenterOfSurface);
-  for ( MultiTSOS::const_iterator iTsos=input.begin();
-	iTsos!=input.end(); iTsos++ ) {
+  for ( auto const & iTsos : input) {
     //
     // weight of component
     //
-    double weight(iTsos->weight());
+    double weight(iTsos.weight());
     //
     // geometrical propagation (assumption: only one output state!)
     //
     TsosWP newTsosWP = 
-      thePropagator.propagateWithPath(*iTsos,surface);
+      thePropagator.propagateWithPath(iTsos,surface);
     // check validity
     if ( !(newTsosWP.first).isValid() ) {
+      LogDebug("GsfTrackFitters") << "adding invalid state";
       result.addInvalidState(weight);
       continue;
     }
@@ -44,7 +44,7 @@ MultiStatePropagation<T>::propagateWithPath (const TrajectoryStateOnSurface& tso
     }
     else {
       if ( weightedTsos.surfaceSide()!=firstSide ) {
-	edm::LogInfo("MultiStatePropagation") 
+	edm::LogInfo("GsfTrackFitters") 
 	  << "MultiStatePropagation resulted in states "
 	  << "on different sides of the target surface";
 	return TsosWP(TrajectoryStateOnSurface(),0.);
@@ -77,14 +77,9 @@ template <class T>
 TrajectoryStateOnSurface 
 MultiStatePropagation<T>::setWeight (const TrajectoryStateOnSurface state,
 				     const double weight) const {
-  //    if ( state.hasError() )
   return TrajectoryStateOnSurface(weight, state.localParameters(),
 				  state.localError(),
 				  state.surface(),
 				  &(state.globalParameters().magneticField()),
 				  state.surfaceSide());
-  //    else 
-  //      return TrajectoryStateOnSurface(weight, state.localParameters(),
-  //    				    state.surface());
-  //      return state;
 }

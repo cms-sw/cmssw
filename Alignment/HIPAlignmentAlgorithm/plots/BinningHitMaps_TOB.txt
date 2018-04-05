@@ -1,0 +1,20 @@
+******** Binning for Subdet TOB *********
+
+--> Layer #1
+Eta Binning: -4.31426e-15	0
+Phi Binning: -nan	-nan
+--> Layer #2
+Eta Binning: -4.31426e-15	0
+Phi Binning: -nan	-nan
+--> Layer #3
+Eta Binning: -222	0
+Phi Binning: -nan	-nan
+--> Layer #4
+Eta Binning: -222	0
+Phi Binning: -nan	-nan
+--> Layer #5
+Eta Binning: -222	0
+Phi Binning: -nan	-nan
+--> Layer #6
+Eta Binning: -222	0
+Phi Binning: -nan	-nan

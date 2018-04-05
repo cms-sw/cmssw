@@ -1,0 +1,32 @@
+<lcgdict>
+  <class name="FTLUncalibratedRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="1325548734"/>
+  </class>
+  <class name="std::vector<FTLUncalibratedRecHit>"/>
+  <class name="FTLUncalibratedRecHitCollection"/>
+  <class name="edm::Wrapper<FTLUncalibratedRecHitCollection>"/>
+  <class name="edm::Ref<FTLUncalibratedRecHitCollection>"/>
+  <class name="edm::RefVector<FTLUncalibratedRecHitCollection>"/>
+  <class name="edm::RefProd<FTLUncalibratedRecHitCollection>"/>
+
+  <class name="FTLRecHit" ClassVersion="3">
+    <version ClassVersion="3" checksum="259405474"/>
+  </class>
+  <class name="std::vector<FTLRecHit>"/>
+  <class name="FTLRecHitCollection"/>
+  <class name="edm::Wrapper<FTLRecHitCollection>" />
+  <class name="edm::Ref<FTLRecHitCollection>"/>
+  <class name="edm::RefVector<FTLRecHitCollection>"/>
+  <class name="edm::RefProd<FTLRecHitCollection>"/>
+ 
+  <class name="edm::DetSet<FTLRecHit>"/>
+  <class name="edm::DetSetVector<FTLRecHit>"/>
+  <class name="std::vector<edm::DetSet<FTLRecHit> >"/>
+  <class name="std::vector<std::vector<edm::DetSet<FTLRecHit> > >"/>
+  <class name="edm::Wrapper<edm::DetSet<FTLRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<edm::DetSet<FTLRecHit> > >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<FTLRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<std::vector<edm::DetSet<FTLRecHit> > > >"/>
+
+  <enum name="FTLSeverityLevel::SeverityLevel"/> 
+</lcgdict>

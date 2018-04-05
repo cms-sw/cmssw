@@ -208,7 +208,7 @@ if __name__ == '__main__':
             line=line.strip()
             lineList=line.split(',')
             runnum=int(lineList[0].split(':')[0])
-            if not stablefillmap.has_key(runnum):
+            if runnum not in stablefillmap:
                 stablefillmap[runnum]=([],[])
             timestamp=lineList[2]
             bstatus=lineList[3]

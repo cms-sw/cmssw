@@ -36,7 +36,7 @@ const reco::TauImpactParameterTrackData* TauImpactParameterInfo::getTrackData(co
 
         if (iter != trackDataMap.end()) return &(iter->val);
 
-	return 0; // if track not found return 0
+	return nullptr; // if track not found return 0
 }
 
 void reco::TauImpactParameterInfo::storeTrackData(const reco::TrackRef & trackRef,

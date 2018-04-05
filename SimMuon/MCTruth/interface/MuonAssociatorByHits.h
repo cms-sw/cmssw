@@ -14,6 +14,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHitsHelper.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 #include <memory>
 
@@ -26,8 +27,7 @@ class MuonAssociatorByHits {
  public:
   
   MuonAssociatorByHits (const edm::ParameterSet& conf, edm::ConsumesCollector && iC);   
-  MuonAssociatorByHits (const edm::ParameterSet& conf);   
-  ~MuonAssociatorByHits();
+  virtual ~MuonAssociatorByHits();
   
   // Originally from TrackAssociatorBase from where this class used to inherit from
   reco::RecoToSimCollection associateRecoToSim(edm::Handle<edm::View<reco::Track> >& tCH,
@@ -65,17 +65,18 @@ class MuonAssociatorByHits {
   /// Association Reco To Sim with Collections
   reco::RecoToSimCollection associateRecoToSim(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&,
-					       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const;
+					       const edm::Event * event = nullptr, const edm::EventSetup * setup = nullptr) const;
   
   /// Association Sim To Reco with Collections
   reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&,
-					       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const;
+					       const edm::Event * event = nullptr, const edm::EventSetup * setup = nullptr) const;
 
  
  private:
   MuonAssociatorByHitsHelper helper_;
   edm::ParameterSet const conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
   std::unique_ptr<muonAssociatorByHitsDiagnostics::InputDumper> diagnostics_;
 };

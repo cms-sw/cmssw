@@ -14,6 +14,8 @@
  * $Id: TrackSelector.h,v 1.1 2009/03/04 13:11:28 llista Exp $
  *
  */
+
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -66,11 +68,11 @@ namespace helper {
     
   private:
     //--- Collections to store:
-    std::auto_ptr<reco::TrackCollection>                   selTracks_;
-    std::auto_ptr<reco::TrackExtraCollection>              selTrackExtras_;
-    std::auto_ptr<TrackingRecHitCollection>                selHits_;
-    std::auto_ptr< edmNew::DetSetVector<SiStripCluster> >  selStripClusters_;
-    std::auto_ptr< edmNew::DetSetVector<SiPixelCluster> >  selPixelClusters_;
+    std::unique_ptr<reco::TrackCollection>                   selTracks_;
+    std::unique_ptr<reco::TrackExtraCollection>              selTrackExtras_;
+    std::unique_ptr<TrackingRecHitCollection>                selHits_;
+    std::unique_ptr< edmNew::DetSetVector<SiStripCluster> >  selStripClusters_;
+    std::unique_ptr< edmNew::DetSetVector<SiPixelCluster> >  selPixelClusters_;
 
     //--- References to products (i.e. to collections):
     reco::TrackRefProd           rTracks_ ;
@@ -130,7 +132,7 @@ namespace helper {
 
 
   //----------------------------------------------------------------------
-  class TrackSelectorBase : public edm::EDFilter {
+  class TrackSelectorBase : public edm::stream::EDFilter<> {
   public:
     TrackSelectorBase( const edm::ParameterSet & cfg ) {
       std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
@@ -145,7 +147,7 @@ namespace helper {
 
 
   template<>
-  struct StoreManagerTrait<reco::TrackCollection> {
+  struct StoreManagerTrait< reco::TrackCollection, edm::stream::EDFilter<> > {
     typedef TrackCollectionStoreManager type;
     typedef TrackSelectorBase base;
   };

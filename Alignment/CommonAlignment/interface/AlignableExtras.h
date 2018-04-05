@@ -13,8 +13,8 @@
  */
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableMap.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
-#include "Alignment/CommonAlignment/interface/AlignSetup.h"
 
 class AlignableExtras 
 {
@@ -33,7 +33,7 @@ class AlignableExtras
   /// Return beam spot alignable as a vector with one element
   Alignables& beamSpot() { return this->subStructures("BeamSpot");}
 
-  Alignables components() const { return components_; }
+  const Alignables& components() const { return components_; }
 
   /// Return alignments, sorted by DetId
   Alignments* alignments() const;
@@ -47,9 +47,12 @@ class AlignableExtras
   void initializeBeamSpot(double x, double y, double z,
 			  double dxdz, double dydz);
 
+  /// Initialize the alignable beam spot with the given parameters
+  void resetBeamSpot();
+
  private:
   
-  AlignSetup<Alignables> alignableLists_; //< kind of map of lists of alignables
+  AlignableMap alignableLists_; //< kind of map of lists of alignables
   Alignables components_; //< list of alignables
 };
 

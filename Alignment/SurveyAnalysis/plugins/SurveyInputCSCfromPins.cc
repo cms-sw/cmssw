@@ -150,13 +150,12 @@ void SurveyInputCSCfromPins::analyze(const edm::Event&, const edm::EventSetup& i
  
  	AlignableMuon* theAlignableMuon = new AlignableMuon( &(*dtGeometry) , &(*cscGeometry) );
  	AlignableNavigator* theAlignableNavigator = new AlignableNavigator( theAlignableMuon );
- 
-  	std::vector<Alignable*> theEndcaps = theAlignableMuon->CSCEndcaps();
- 
-	for (std::vector<Alignable*>::const_iterator aliiter = theEndcaps.begin();  aliiter != theEndcaps.end();  ++aliiter) {
-     
- 		addComponent(*aliiter);
-    	}
+
+        const auto& theEndcaps = theAlignableMuon->CSCEndcaps();
+
+        for (const auto& aliiter: theEndcaps) {
+                addComponent(aliiter);
+        }
     
 	
 	while (in.good())
@@ -264,10 +263,9 @@ void SurveyInputCSCfromPins::analyze(const edm::Event&, const edm::EventSetup& i
 
 	file1->Close();
    
-	for (std::vector<Alignable*>::const_iterator aliiter = theEndcaps.begin();  aliiter != theEndcaps.end();  ++aliiter) {
-     
- 		fillAllRecords(*aliiter);
-    	} 
+        for (const auto& aliiter: theEndcaps) {
+                fillAllRecords(aliiter);
+        }
 
 	delete theAlignableMuon;
 	delete theAlignableNavigator;
@@ -280,12 +278,12 @@ void SurveyInputCSCfromPins::analyze(const edm::Event&, const edm::EventSetup& i
 
 
 void SurveyInputCSCfromPins::fillAllRecords(Alignable *ali) {
-   	if (ali->survey() == 0) {
+   	if (ali->survey() == nullptr) {
 
 	   AlignableCSCChamber *ali_AlignableCSCChamber = dynamic_cast<AlignableCSCChamber*>(ali);
 	   AlignableCSCStation *ali_AlignableCSCStation = dynamic_cast<AlignableCSCStation*>(ali);
 
-	   if (ali_AlignableCSCChamber != 0) {
+	   if (ali_AlignableCSCChamber != nullptr) {
 	      CSCDetId detid(ali->geomDetId());
 	      if (abs(detid.station()) == 1  &&  (detid.ring() == 1  ||  detid.ring() == 4)) {
 		 align::ErrorMatrix error = ROOT::Math::SMatrixIdentity();
@@ -325,7 +323,7 @@ void SurveyInputCSCfromPins::fillAllRecords(Alignable *ali) {
 	      }
 	   }
 
-	   else if (ali_AlignableCSCStation != 0) {
+	   else if (ali_AlignableCSCStation != nullptr) {
 	      align::ErrorMatrix error = ROOT::Math::SMatrixIdentity();
 	      error(0,0) = m_stationErrorX;
 	      error(1,1) = m_stationErrorY;
@@ -343,11 +341,9 @@ void SurveyInputCSCfromPins::fillAllRecords(Alignable *ali) {
 	   }
    	}
 
-   	std::vector<Alignable*> components = ali->components();
-   	for (std::vector<Alignable*>::const_iterator iter = components.begin();  iter != components.end();  ++iter) {
-	
-      		fillAllRecords(*iter);
-   	}
+        for (const auto& iter: ali->components()) {
+                fillAllRecords(iter);
+        }
 }
 
 

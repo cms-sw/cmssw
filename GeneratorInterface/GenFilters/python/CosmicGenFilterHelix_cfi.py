@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 cosmicInTracker = cms.EDFilter("CosmicGenFilterHelix",
-    src = cms.InputTag("generator"),
+    src = cms.InputTag("generator", "unsmeared"),
     pdgIds = cms.vint32(-13, 13), ## only generated particles of these IDs are considered
     charges = cms.vint32(1, -1),  ## needs to be parallel to pdgIds
 

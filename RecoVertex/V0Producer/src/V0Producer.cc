@@ -69,11 +69,9 @@ void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
    // Create auto_ptr for each collection to be stored in the Event
-   std::auto_ptr< reco::VertexCompositeCandidateCollection > 
-     kShortCandidates( new reco::VertexCompositeCandidateCollection );
+   auto kShortCandidates = std::make_unique<reco::VertexCompositeCandidateCollection>();
 
-   std::auto_ptr< reco::VertexCompositeCandidateCollection >
-     lambdaCandidates( new reco::VertexCompositeCandidateCollection );
+   auto lambdaCandidates = std::make_unique<reco::VertexCompositeCandidateCollection>();
 
   // invoke the fitter which reconstructs the vertices and fills,
    //  collections of Kshorts, Lambda0s
@@ -81,8 +79,8 @@ void V0Producer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
    // Write the collections to the Event
-   kShortCandidates->shrink_to_fit(); iEvent.put( kShortCandidates, std::string("Kshort") );
-   lambdaCandidates->shrink_to_fit(); iEvent.put( lambdaCandidates, std::string("Lambda") );
+   kShortCandidates->shrink_to_fit(); iEvent.put(std::move(kShortCandidates), std::string("Kshort") );
+   lambdaCandidates->shrink_to_fit(); iEvent.put(std::move(lambdaCandidates), std::string("Lambda") );
 
 }
 

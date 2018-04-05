@@ -30,9 +30,9 @@ namespace edm {
   template< class T, class P = ClonePolicy<T> >
   class CloningPtr {
 public:
-    CloningPtr(): ptr_(0) {}
+    CloningPtr(): ptr_(nullptr) {}
     CloningPtr(const T& iPtr) : ptr_(P::clone(iPtr)) {}
-    CloningPtr(std::auto_ptr<T> iPtr) : ptr_(iPtr.release()) {}
+    CloningPtr(std::unique_ptr<T> iPtr) : ptr_(iPtr.release()) {}
     CloningPtr(const CloningPtr<T,P>& iPtr) : ptr_(P::clone(*(iPtr.ptr_))) {}
     
     CloningPtr<T,P>& operator=(const CloningPtr<T,P>& iRHS) {
@@ -48,11 +48,11 @@ public:
     ~CloningPtr() { delete ptr_;}
     
     // ---------- const member functions ---------------------
-    T& operator*() const { return *ptr_; }
+    T& operator*() { return *ptr_; }
     
-    T* operator->() const { return ptr_; }
+    T* operator->() { return ptr_; }
     
-    T* get() const { return ptr_; }
+    T* get() { return ptr_; }
     
 private:
     T* ptr_;

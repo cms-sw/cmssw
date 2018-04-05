@@ -16,11 +16,11 @@ public:
   typedef PixelRecoRange<float> Range;
 
   struct DataX0 { 
-    DataX0(const MSLayersKeeper *al = 0) 
+    DataX0(const MSLayersKeeper *al = nullptr) 
       : hasX0(false), allLayers(al) { }
     DataX0(float ax0, float asX0D, float aCotTheta) 
       : hasX0(true), hasFSlope(false), x0(ax0), sumX0D(asX0D), 
-        cotTheta(aCotTheta), allLayers(0) { }
+        cotTheta(aCotTheta), allLayers(nullptr) { }
     void setForwardSumX0DSlope(float aSlope) 
         { hasFSlope= true; slopeSumX0D = aSlope; }
     bool hasX0, hasFSlope;
@@ -29,12 +29,12 @@ public:
   };
 
 public:
-  MSLayer(const DetLayer* layer, const DataX0& dataX0 = DataX0(0) ) dso_hidden;
+  MSLayer(const DetLayer* layer, const DataX0& dataX0 = DataX0(nullptr) ) dso_hidden;
   MSLayer() { }
 
   MSLayer(GeomDetEnumerators::Location part, float position, Range range, 
 	   float halfThickness = 0., 
-	   const DataX0& dataX0 = DataX0(0) ) dso_hidden;
+	   const DataX0& dataX0 = DataX0(nullptr) ) dso_hidden;
 
 
   // sequential number to be used in "maps"

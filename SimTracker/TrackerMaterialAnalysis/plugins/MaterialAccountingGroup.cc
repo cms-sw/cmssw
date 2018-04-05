@@ -27,16 +27,21 @@ MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, cons
   m_errors(),
   m_tracks( 0 ),
   m_counted( false ),
-  m_file( 0 )
+  m_file( nullptr )
 {
   // retrieve the elements from DDD
-  DDFilteredView fv( geometry );
-  DDSpecificsFilter filter;
-  filter.setCriteria(DDValue("TrackingMaterialGroup", name), DDSpecificsFilter::equals);
-  fv.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue("TrackingMaterialGroup", name)};
+  DDFilteredView fv( geometry,filter );
+  LogTrace("MaterialAccountingGroup") << "Elements within: " << name << std::endl;
   while (fv.next()) {
     // DD3Vector and DDTranslation are the same type as math::XYZVector
     math::XYZVector position = fv.translation() / 10.;  // mm -> cm
+    LogTrace("MaterialAccountingGroup") << "Adding element at(r,z): ("
+              << GlobalPoint(position.x(), position.y(), position.z()).perp()
+              << ", " << GlobalPoint(position.x(), position.y(), position.z()).z()
+              << ") cm" << std::endl;
+    LogTrace("MaterialAccountingGroup") << "Name of added element: "
+                                        << fv.logicalPart().toString() << std::endl;
     m_elements.push_back( GlobalPoint(position.x(), position.y(), position.z()) );
   }
 
@@ -45,8 +50,14 @@ MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, cons
     m_boundingbox.grow(m_elements[i].perp(), m_elements[i].z());
   }
   m_boundingbox.grow(s_tolerance);
+  LogTrace("MaterialAccountingGroup") << "Final BBox r_range: "
+            << m_boundingbox.range_r().first << ", " << m_boundingbox.range_r().second
+            << std::endl
+            << "Final BBox z_range: "
+            << m_boundingbox.range_z().first << ", " << m_boundingbox.range_z().second
+            << std::endl;
 
-  // initialize the histograms 
+  // initialize the histograms
   m_dedx_spectrum   = new TH1F((m_name + "_dedx_spectrum").c_str(),     "Energy loss spectrum",       1000,    0,   1);
   m_radlen_spectrum = new TH1F((m_name + "_radlen_spectrum").c_str(),   "Radiation lengths spectrum", 1000,    0,   1);
   m_dedx_vs_eta     = new TProfile((m_name + "_dedx_vs_eta").c_str(),   "Energy loss vs. eta",         600,   -3,   3);
@@ -55,14 +66,14 @@ MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, cons
   m_radlen_vs_eta   = new TProfile((m_name + "_radlen_vs_eta").c_str(), "Radiation lengths vs. eta",   600,   -3,   3);
   m_radlen_vs_z     = new TProfile((m_name + "_radlen_vs_z").c_str(),   "Radiation lengths vs. Z",    6000, -300, 300);
   m_radlen_vs_r     = new TProfile((m_name + "_radlen_vs_r").c_str(),   "Radiation lengths vs. R",    1200,    0, 120);
-  m_dedx_spectrum->SetDirectory( 0 );
-  m_radlen_spectrum->SetDirectory( 0 );
-  m_dedx_vs_eta->SetDirectory( 0 );
-  m_dedx_vs_z->SetDirectory( 0 );
-  m_dedx_vs_r->SetDirectory( 0 );
-  m_radlen_vs_eta->SetDirectory( 0 );
-  m_radlen_vs_z->SetDirectory( 0 );
-  m_radlen_vs_r->SetDirectory( 0 );
+  m_dedx_spectrum->SetDirectory( nullptr );
+  m_radlen_spectrum->SetDirectory( nullptr );
+  m_dedx_vs_eta->SetDirectory( nullptr );
+  m_dedx_vs_z->SetDirectory( nullptr );
+  m_dedx_vs_r->SetDirectory( nullptr );
+  m_radlen_vs_eta->SetDirectory( nullptr );
+  m_radlen_vs_z->SetDirectory( nullptr );
+  m_radlen_vs_r->SetDirectory( nullptr );
 }
 
 MaterialAccountingGroup::~MaterialAccountingGroup(void)
@@ -79,24 +90,47 @@ MaterialAccountingGroup::~MaterialAccountingGroup(void)
 
 // TODO the inner check could be sped up in many ways
 // (sorting the m_elements, partitioning the bounding box, ...)
-// but is it worth? 
+// but is it worth?
 // especially with the segmentation of the layers ?
 bool MaterialAccountingGroup::inside( const MaterialAccountingDetector& detector ) const
 {
   const GlobalPoint & position = detector.position();
   // first check to see if the point is inside the bounding box
+  LogTrace("MaterialAccountingGroup") << "Testing position: (x, y, z, r) = "
+            << position.x() << ", " << position.y()
+            << ", " << position.z() << ", " << position.perp()
+            << std::endl;
   if (not m_boundingbox.inside(position.perp(), position.z())) {
+    LogTrace("MaterialAccountingGroup") << "r outside of: ("
+              << m_boundingbox.range_r().first << ", "
+              << m_boundingbox.range_r().second
+              << "), Z ouside of: ("
+              << m_boundingbox.range_z().first << ", "
+              << m_boundingbox.range_z().second << ")" << std::endl;
     return false;
   } else {
     // now check if the point is actually close enough to any element
-    for (unsigned int i = 0; i < m_elements.size(); ++i)
+    LogTrace("MaterialAccountingGroup") << "r within: ("
+              << m_boundingbox.range_r().first << ", "
+              << m_boundingbox.range_r().second
+              << "), Z within: ("
+              << m_boundingbox.range_z().first << ", "
+              << m_boundingbox.range_z().second << ")" << std::endl;
+    for (unsigned int i = 0; i < m_elements.size(); ++i) {
+      LogTrace("MaterialAccountingGroup") << "Closest testing agains(x, y, z, r): ("
+                << m_elements[i].x() << ", " << m_elements[i].y()
+                << ", " << m_elements[i].z() << ", " << m_elements[i].perp() << ") --> "
+                << (position - m_elements[i]).mag()
+                << " vs tolerance: " << s_tolerance
+                << std::endl;
       if ((position - m_elements[i]).mag2() < (s_tolerance * s_tolerance))
         return true;
+    }
     return false;
   }
 }
 
-bool MaterialAccountingGroup::addDetector( const MaterialAccountingDetector& detector ) 
+bool MaterialAccountingGroup::addDetector( const MaterialAccountingDetector& detector )
 {
   if (not inside(detector))
     return false;
@@ -117,7 +151,7 @@ void MaterialAccountingGroup::endOfTrack(void) {
     ++m_tracks;
 
     GlobalPoint average( (m_buffer.in().x() + m_buffer.out().x()) / 2.,
-                         (m_buffer.in().y() + m_buffer.out().y()) / 2., 
+                         (m_buffer.in().y() + m_buffer.out().y()) / 2.,
                          (m_buffer.in().z() + m_buffer.out().z()) / 2. );
     m_dedx_spectrum->Fill(   m_buffer.energyLoss() );
     m_radlen_spectrum->Fill( m_buffer.radiationLengths() );

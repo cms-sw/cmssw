@@ -29,7 +29,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 
 #include <string>
@@ -47,18 +47,18 @@
 
 namespace pat {
 
-  class PATTriggerEventProducer : public edm::EDProducer {
+  class PATTriggerEventProducer : public edm::stream::EDProducer<> {
 
     public:
 
       explicit PATTriggerEventProducer( const edm::ParameterSet & iConfig );
-      ~PATTriggerEventProducer() {};
+      ~PATTriggerEventProducer() override {};
 
     private:
 
-      virtual void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock & iLumi, const edm::EventSetup& iSetup) override;
-      virtual void produce( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
+      void beginLuminosityBlock(const edm::LuminosityBlock & iLumi, const edm::EventSetup& iSetup) override;
+      void produce( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       std::string                  nameProcess_;        // configuration
       bool                         autoProcessName_;

@@ -1,0 +1,47 @@
+<TESTSCONFIGURATION>
+
+  <!-- BMTF HW pT -->
+
+  <QTEST name="BMTF_hwPtRange">
+    <TYPE>ContentsXRange</TYPE> 
+    <PARAM name="xmin">6</PARAM>
+    <PARAM name="xmax">511</PARAM>
+    <PARAM name="error">0.98</PARAM>
+    <PARAM name="warning">0.99</PARAM>
+  </QTEST>
+  
+  <LINK name="*/L1TStage2BMTF/bmtf_hwPt">
+      <TestName activate="true">BMTF_hwPtRange</TestName>
+  </LINK>
+
+  <!-- BMTF WEDGE vs BX -->
+
+  <QTEST name="BMTF_WedgeBXNoisyWedge">
+    <TYPE>NoisyChannel</TYPE>	
+    <PARAM name="tolerance">10</PARAM>
+    <PARAM name="neighbours">1</PARAM>
+    <PARAM name="error">0.996</PARAM>
+    <PARAM name="warning">0.999</PARAM>
+  </QTEST>
+  
+  <LINK name="*/L1TStage2BMTF/bmtf_wedge_bx">
+      <TestName activate="true">BMTF_WedgeBXNoisyWedge</TestName>
+  </LINK>
+
+  <!-- Bad Zero Suppression Rates -->
+
+  <QTEST name="zeroSupp_MismatchRatioMax0">
+    <TYPE>ContentsYRange</TYPE>
+    <PARAM name="ymin">0.00</PARAM>
+    <PARAM name="ymax">0.00</PARAM>
+    <PARAM name="error">0.95</PARAM>
+    <PARAM name="warning">0.99</PARAM>
+    <PARAM name="useEmptyBins">1</PARAM>
+  </QTEST>
+
+  <LINK name="*/L1TStage2BMTF/zeroSuppression/*/mismatchRatio">
+      <TestName activate="true">zeroSupp_MismatchRatioMax0</TestName>
+  </LINK>
+
+
+</TESTSCONFIGURATION>

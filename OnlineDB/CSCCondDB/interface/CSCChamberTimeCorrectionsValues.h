@@ -23,18 +23,17 @@
 class CSCChamberTimeCorrectionsValues: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCChamberTimeCorrectionsValues(const edm::ParameterSet&);
-  ~CSCChamberTimeCorrectionsValues();
+  ~CSCChamberTimeCorrectionsValues() override;
   
-  inline static CSCChamberTimeCorrections * prefill(bool isMC, float ME11offset, float nonME11offset);
-
-  typedef const  CSCChamberTimeCorrections * ReturnType;
+  typedef std::unique_ptr<CSCChamberTimeCorrections> ReturnType;
+  
+  inline static  CSCChamberTimeCorrections * prefill(bool isMC, float ME11offset, float nonME11offset);
   
   ReturnType produceChamberTimeCorrections(const CSCChamberTimeCorrectionsRcd&);
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-  CSCChamberTimeCorrections *chamberObj ;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
 
   //Flag for determining if this is for setting MC or data corrections
   bool isForMC;
@@ -112,7 +111,7 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(boo
   // Everything below this point is for setting the chamber corrections for data
   // ***************************************************************************
 
-  csccableread *cable = new csccableread ();
+  csccableread cable;
   for(i=1;i<=MAX_SIZE;++i){
     // the anode bx offset is 8.15 bx for chambers in 2/1, 3/1, and 4/1 
     // and 8.18 bx for all other chambers for early runs (8.20 for runs> 149357)
@@ -128,7 +127,7 @@ inline CSCChamberTimeCorrections *  CSCChamberTimeCorrectionsValues::prefill(boo
     else {anodeOffset=8.20; }// 4/2
 
     // for data we will read in from Igor's database
-    cable->cable_read(i, &chamber_label, &cfeb_length, &cfeb_rev, &alct_length,
+    cable.cable_read(i, &chamber_label, &cfeb_length, &cfeb_rev, &alct_length,
 		      &alct_rev, &cfeb_tmb_skew_delay, &cfeb_timing_corr);
     // If the read of the cable database is useful (if there is information for the chamber there)
     // re-enter the information the cable object

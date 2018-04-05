@@ -27,7 +27,7 @@
 TFitParticleEtThetaPhi::TFitParticleEtThetaPhi()
   :TAbsFitParticle()  
 {
-  init(0, 0);
+  init(nullptr, nullptr);
 }
 
 TFitParticleEtThetaPhi::TFitParticleEtThetaPhi( const TFitParticleEtThetaPhi& fitParticle )
@@ -93,14 +93,14 @@ TLorentzVector* TFitParticleEtThetaPhi::calc4Vec( const TMatrixD* params ) {
   // Calculates a 4vector corresponding to the given
   // parameter values
 
-  if (params == 0) {
-    return 0;
+  if (params == nullptr) {
+    return nullptr;
   }
 
   if ( params->GetNcols() != 1 || params->GetNrows() !=_nPar ) {
     edm::LogError ("WrongMatrixSize")
       << GetName() << "::calc4Vec - Parameter matrix has wrong size.";
-    return 0;
+    return nullptr;
   }
 
   Double_t et = (*params)(0,0);
@@ -121,7 +121,7 @@ void TFitParticleEtThetaPhi::setIni4Vec(const TLorentzVector* pini) {
   // Set the initial 4vector. Will also set the 
   // inital parameter values 
 
-  if (pini == 0) {
+  if (pini == nullptr) {
 
     _u1.SetXYZ(0., 0., 0.);
     _u3.SetXYZ(0., 0., 0.);

@@ -1,0 +1,388 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="trackerother.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+		<Constant name="OuterCylinderRin" value="1.169*m"/>
+		<Constant name="OuterCylinderRout" value="1.223*m"/>
+		<Constant name="OuterCylinderL" value="2.650*m"/>
+		<Constant name="ThermalScreenRin" value="1.181*m"/>
+		<Constant name="ThermalScreenRout" value="1.193*m"/>
+		<Constant name="ThermalScreenL" value="2.450*m"/>
+		<Constant name="ThermalScreenR1" value="[ThermalScreenRin]+3*mm"/>
+		<Constant name="ThermalScreenR2" value="[ThermalScreenR1]+8*mm"/>
+		<Constant name="SupportTubeRin" value="[ThermalScreenRout]"/>
+		<Constant name="SupportTubeRout" value="1.223*m"/>
+		<Constant name="SupportTubeR1" value="[SupportTubeRin]+2*mm"/>
+		<Constant name="SupportTubeR2" value="[SupportTubeR1]+25.950*mm"/>
+		<Constant name="SupportTubeR3" value="[SupportTubeR2]+2*mm"/>
+		<Constant name="SupportTubeL" value="2.650*m"/>
+		<Constant name="SupportTubeInsertR" value="5*mm"/>
+		<Constant name="SupportTubeInsertDz" value="([SupportTubeRout]-[SupportTubeRin])/2-0.010*mm"/>
+		<Constant name="SupportTubeInsert1Dz" value="([SupportTubeR1]-[SupportTubeRin])/2-0.010*mm"/>
+		<Constant name="SupportTubeInsert2Dz" value="([SupportTubeR2]-[SupportTubeR1])/2-0.010*mm"/>
+		<Constant name="SupportTubeInsert3Dz" value="([SupportTubeR3]-[SupportTubeR2])/2-0.010*mm"/>
+		<Constant name="SupportTubeInsert4Dz" value="([SupportTubeRout]-[SupportTubeR3])/2-0.010*mm"/>
+		<Constant name="SupportTubeInsertZoff" value="-2.574*m"/>
+		<Constant name="SupportTubeInsertZpitch" value="143*mm"/>
+		<Constant name="ThermalScreenManifoldL" value="([SupportTubeL]-[ThermalScreenL])/2"/>
+		<Constant name="ThermalScreenPlaceholderL" value="3*mm"/>
+		<Constant name="TrackerRailRout" value="[ThermalScreenRout]"/>
+		<Constant name="TrackerRailRin" value="[TrackerRailRout]-24*mm"/>
+		<Constant name="TrackerRailPhiLo" value="-0.067*rad"/>
+		<Constant name="TrackerRailPhiRange" value="0.10*rad"/>
+		<Constant name="TrackerRailDR1" value="2*mm"/>
+		<Constant name="TrackerRailPhi1" value="-0.066892*rad"/>
+		<Constant name="TrackerRailPhi2" value="-0.012701*rad"/>
+		<Constant name="TrackerRailPhi3" value="0.016935*rad"/>
+		<Constant name="TrackerRailPhi4" value="0.0212*rad"/>
+		<Constant name="TOBRailR" value="5*mm"/>
+		<Constant name="TOBRailRpos" value="1177*mm"/>
+		<Constant name="Tol" value="0.0*mm"/>
+	</ConstantsSection>
+	<SolidSection label="trackerother.xml">
+		<!-- TRACKER SUPPORT TUBE AND THERMAL SCREEN -->
+		<Tubs name="TrackerOuterCylinder" rMin="[OuterCylinderRin]+[Tol]" rMax="[OuterCylinderRout]" dz="[OuterCylinderL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TrackerThermalScreen" rMin="[ThermalScreenRin]+[Tol]" rMax="[ThermalScreenRout]-[Tol]" dz="[ThermalScreenL]" startPhi="4*deg" deltaPhi="172*deg"/>
+		<Tubs name="TrackerThermalScreenCooling" rMin="[ThermalScreenRin]+[Tol]" rMax="[ThermalScreenR1]-[Tol]" dz="[ThermalScreenL]" startPhi="4*deg" deltaPhi="172*deg"/>
+		<Tubs name="TrackerThermalScreenFoam" rMin="[ThermalScreenR1]+[Tol]" rMax="[ThermalScreenR2]-[Tol]" dz="[ThermalScreenL]" startPhi="4*deg" deltaPhi="172*deg"/>
+		<Tubs name="TrackerThermalScreenShield" rMin="[ThermalScreenR2]+[Tol]" rMax="[ThermalScreenRout]-[Tol]" dz="[ThermalScreenL]" startPhi="4*deg" deltaPhi="172*deg"/>
+		<Tubs name="TrackerThermalScreenManifold" rMin="[ThermalScreenRin]+[Tol]" rMax="[ThermalScreenRout]-[Tol]" dz="[ThermalScreenManifoldL]" startPhi="4*deg" deltaPhi="172*deg"/>
+		<Tubs name="TrackerThermalScreenPlaceholder" rMin="[ThermalScreenRin]+[Tol]" rMax="[ThermalScreenRout]-[Tol]" dz="[ThermalScreenPlaceholderL]" startPhi="4*deg" deltaPhi="172*deg"/>
+		<Tubs name="TrackerSupportTube" rMin="[SupportTubeRin]+[Tol]" rMax="[SupportTubeRout]-[Tol]" dz="[SupportTubeL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TrackerSupportTubeCFSkin1" rMin="[SupportTubeRin]+[Tol]" rMax="[SupportTubeR1]-[Tol]" dz="[SupportTubeL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TrackerSupportTubeNomex" rMin="[SupportTubeR1]+[Tol]" rMax="[SupportTubeR2]-[Tol]" dz="[SupportTubeL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TrackerSupportTubeCFSkin2" rMin="[SupportTubeR2]+[Tol]" rMax="[SupportTubeR3]-[Tol]" dz="[SupportTubeL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TrackerSupportTubeShield" rMin="[SupportTubeR3]+[Tol]" rMax="[SupportTubeRout]-[Tol]" dz="[SupportTubeL]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TrackerSupportTubeInsert" rMin="[zero]" rMax="[SupportTubeInsertR]" dz="[SupportTubeInsertDz]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TrackerSupportTubeInsertCFSkin1" rMin="[zero]" rMax="[SupportTubeInsertR]" dz="[SupportTubeInsert1Dz]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TrackerSupportTubeInsertNomex" rMin="[zero]" rMax="[SupportTubeInsertR]" dz="[SupportTubeInsert2Dz]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TrackerSupportTubeInsertCFSkin2" rMin="[zero]" rMax="[SupportTubeInsertR]" dz="[SupportTubeInsert3Dz]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TrackerSupportTubeInsertShield" rMin="[zero]" rMax="[SupportTubeInsertR]" dz="[SupportTubeInsert4Dz]" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Tubs name="TrackerRail" rMin="[TrackerRailRin]+[Tol]" rMax="[TrackerRailRout]-[Tol]" dz="[SupportTubeL]" startPhi="[TrackerRailPhiLo]" deltaPhi="[TrackerRailPhiRange]"/>
+		<Tubs name="TrackerRailNomex" rMin="[TrackerRailRin]+[TrackerRailDR1]+[Tol]" rMax="[TrackerRailRout]-[TrackerRailDR1]-[Tol]" dz="[SupportTubeL]" startPhi="[TrackerRailPhi1]" deltaPhi="[TrackerRailPhi2]-[TrackerRailPhi1]"/>
+		<Tubs name="TrackerRailCFSkin1" rMin="[TrackerRailRin]+[Tol]" rMax="[TrackerRailRin]+[TrackerRailDR1]-[Tol]" dz="[SupportTubeL]" startPhi="[TrackerRailPhi1]" deltaPhi="[TrackerRailPhi2]-[TrackerRailPhi1]"/>
+		<Tubs name="TrackerRailCFSkin2" rMin="[TrackerRailRout]-[TrackerRailDR1]+[Tol]" rMax="[TrackerRailRout]-[Tol]" dz="[SupportTubeL]" startPhi="[TrackerRailPhi1]" deltaPhi="[TrackerRailPhi2]-[TrackerRailPhi1]"/>
+		<Tubs name="TrackerRailCF" rMin="[TrackerRailRin]+[Tol]" rMax="[TrackerRailRout]-[Tol]" dz="[SupportTubeL]" startPhi="[TrackerRailPhi2]" deltaPhi="[TrackerRailPhi3]-[TrackerRailPhi2]"/>
+		<Tubs name="TOBRail" rMin="[zero]" rMax="[TOBRailR]" dz="[SupportTubeL]" startPhi="0*deg" deltaPhi="360*deg"/>
+	</SolidSection>
+	<LogicalPartSection label="trackerother.xml">
+		<!-- TRACKER SUPPORT TUBE AND THERMAL SCREEN -->
+		<LogicalPart name="TrackerOuterCylinder" category="unspecified">
+			<rSolid name="TrackerOuterCylinder"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerThermalScreen" category="unspecified">
+			<rSolid name="TrackerThermalScreen"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerThermalScreenCooling" category="unspecified">
+			<rSolid name="TrackerThermalScreenCooling"/>
+			<rMaterial name="trackermaterial:TS_Cooling"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerThermalScreenFoam" category="unspecified">
+			<rSolid name="TrackerThermalScreenFoam"/>
+			<rMaterial name="trackermaterial:T_Rohacell"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerThermalScreenShield" category="unspecified">
+			<rSolid name="TrackerThermalScreenShield"/>
+			<rMaterial name="trackermaterial:TS_Shield"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerThermalScreenManifold" category="unspecified">
+			<rSolid name="TrackerThermalScreenManifold"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerThermalScreenPlaceholder" category="unspecified">
+			<rSolid name="TrackerThermalScreenPlaceholder"/>
+			<rMaterial name="trackermaterial:T_StainlessSteel"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerSupportTube" category="unspecified">
+			<rSolid name="TrackerSupportTube"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerSupportTubeCFSkin1" category="unspecified">
+			<rSolid name="TrackerSupportTubeCFSkin1"/>
+			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerSupportTubeNomex" category="unspecified">
+			<rSolid name="TrackerSupportTubeNomex"/>
+			<rMaterial name="trackermaterial:T_Nomex"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerSupportTubeCFSkin2" category="unspecified">
+			<rSolid name="TrackerSupportTubeCFSkin2"/>
+			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerSupportTubeShield" category="unspecified">
+			<rSolid name="TrackerSupportTubeShield"/>
+			<rMaterial name="trackermaterial:T_Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerSupportTubeInsert" category="unspecified">
+			<rSolid name="TrackerSupportTubeInsert"/>
+			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerSupportTubeInsertCFSkin1" category="unspecified">
+			<rSolid name="TrackerSupportTubeInsertCFSkin1"/>
+			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerSupportTubeInsertNomex" category="unspecified">
+			<rSolid name="TrackerSupportTubeInsertNomex"/>
+			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerSupportTubeInsertCFSkin2" category="unspecified">
+			<rSolid name="TrackerSupportTubeInsertCFSkin2"/>
+			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerSupportTubeInsertShield" category="unspecified">
+			<rSolid name="TrackerSupportTubeInsertShield"/>
+			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerRail" category="unspecified">
+			<rSolid name="TrackerRail"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerRailNomex" category="unspecified">
+			<rSolid name="TrackerRailNomex"/>
+			<rMaterial name="trackermaterial:T_Nomex"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerRailCFSkin1" category="unspecified">
+			<rSolid name="TrackerRailCFSkin1"/>
+			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerRailCFSkin2" category="unspecified">
+			<rSolid name="TrackerRailCFSkin2"/>
+			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+		</LogicalPart>
+		<LogicalPart name="TrackerRailCF" category="unspecified">
+			<rSolid name="TrackerRailCF"/>
+			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+		</LogicalPart>
+		<LogicalPart name="TOBRail" category="unspecified">
+			<rSolid name="TOBRail"/>
+			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="trackerother.xml">
+		<!-- TRACKER SUPPORT TUBE AND THERMAL SCREEN -->
+		<PosPart copyNumber="1">
+			<rParent name="tracker:Tracker"/>
+			<rChild name="trackerother:TrackerOuterCylinder"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerOuterCylinder"/>
+			<rChild name="trackerother:TrackerThermalScreen"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="trackerother:TrackerOuterCylinder"/>
+			<rChild name="trackerother:TrackerThermalScreen"/>
+			<rRotation name="tracker:R180"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerThermalScreen"/>
+			<rChild name="trackerother:TrackerThermalScreenCooling"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerThermalScreen"/>
+			<rChild name="trackerother:TrackerThermalScreenFoam"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerThermalScreen"/>
+			<rChild name="trackerother:TrackerThermalScreenShield"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerOuterCylinder"/>
+			<rChild name="trackerother:TrackerSupportTube"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerSupportTube"/>
+			<rChild name="trackerother:TrackerSupportTubeCFSkin1"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerSupportTube"/>
+			<rChild name="trackerother:TrackerSupportTubeNomex"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerSupportTube"/>
+			<rChild name="trackerother:TrackerSupportTubeCFSkin2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerSupportTube"/>
+			<rChild name="trackerother:TrackerSupportTubeShield"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerThermalScreenManifold"/>
+			<rChild name="trackerother:TrackerThermalScreenPlaceholder"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerOuterCylinder"/>
+			<rChild name="trackerother:TrackerThermalScreenManifold"/>
+			<Translation x="[zero]" y="[zero]" z="[ThermalScreenL]+[ThermalScreenManifoldL]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="trackerother:TrackerOuterCylinder"/>
+			<rChild name="trackerother:TrackerThermalScreenManifold"/>
+			<rRotation name="tracker:R180"/>
+			<Translation x="[zero]" y="[zero]" z="[ThermalScreenL]+[ThermalScreenManifoldL]"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="trackerother:TrackerOuterCylinder"/>
+			<rChild name="trackerother:TrackerThermalScreenManifold"/>
+			<Translation x="[zero]" y="[zero]" z="-([ThermalScreenL]+[ThermalScreenManifoldL])"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="trackerother:TrackerOuterCylinder"/>
+			<rChild name="trackerother:TrackerThermalScreenManifold"/>
+			<rRotation name="tracker:R180"/>
+			<Translation x="[zero]" y="[zero]" z="-([ThermalScreenL]+[ThermalScreenManifoldL])"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerOuterCylinder"/>
+			<rChild name="trackerother:TrackerRail"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="trackerother:TrackerOuterCylinder"/>
+			<rChild name="trackerother:TrackerRail"/>
+			<rRotation name="tracker:180D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerRail"/>
+			<rChild name="trackerother:TrackerRailNomex"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerRail"/>
+			<rChild name="trackerother:TrackerRailCFSkin1"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerRail"/>
+			<rChild name="trackerother:TrackerRailCFSkin2"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerRail"/>
+			<rChild name="trackerother:TrackerRailCF"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="trackerother:TrackerRail"/>
+			<rChild name="trackerother:TOBRail"/>
+			<Translation x="[TOBRailRpos]*cos([TrackerRailPhi4])" y="[TOBRailRpos]*sin([TrackerRailPhi4])" z="[zero]"/>
+		</PosPart>
+	</PosPartSection>
+	<!-- TRACKER SUPPORT TUBE AND THERMAL SCREEN -->
+	<Algorithm name="track:DDTrackerLinear">
+		<rParent name="trackerother:TrackerSupportTubeCFSkin1"/>
+		<String name="ChildName" value="trackerother:TrackerSupportTubeInsertCFSkin1"/>
+		<Numeric name="Number" value="36"/>
+		<Numeric name="Theta" value="0*deg"/>
+		<Numeric name="Phi" value="0*deg"/>
+		<Numeric name="Offset" value="[SupportTubeInsertZoff]"/>
+		<Numeric name="Delta" value="[SupportTubeInsertZpitch]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<String name="Rotation" value="tracker:PAA"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 
+			[SupportTubeRin]+[SupportTubeInsert1Dz], [zero], [zero]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerLinear">
+		<rParent name="trackerother:TrackerSupportTubeCFSkin1"/>
+		<String name="ChildName" value="trackerother:TrackerSupportTubeInsertCFSkin1"/>
+		<Numeric name="Number" value="36"/>
+		<Numeric name="Theta" value="0*deg"/>
+		<Numeric name="Phi" value="0*deg"/>
+		<Numeric name="Offset" value="[SupportTubeInsertZoff]"/>
+		<Numeric name="Delta" value="[SupportTubeInsertZpitch]"/>
+		<Numeric name="StartCopyNo" value="37"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<String name="Rotation" value="tracker:PAA"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 
+			-([SupportTubeRin]+[SupportTubeInsert1Dz]), [zero], [zero]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerLinear">
+		<rParent name="trackerother:TrackerSupportTubeNomex"/>
+		<String name="ChildName" value="trackerother:TrackerSupportTubeInsertNomex"/>
+		<Numeric name="Number" value="36"/>
+		<Numeric name="Theta" value="0*deg"/>
+		<Numeric name="Phi" value="0*deg"/>
+		<Numeric name="Offset" value="[SupportTubeInsertZoff]"/>
+		<Numeric name="Delta" value="[SupportTubeInsertZpitch]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<String name="Rotation" value="tracker:PAA"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 
+			[SupportTubeR1]+[SupportTubeInsert2Dz], [zero], [zero]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerLinear">
+		<rParent name="trackerother:TrackerSupportTubeNomex"/>
+		<String name="ChildName" value="trackerother:TrackerSupportTubeInsertNomex"/>
+		<Numeric name="Number" value="36"/>
+		<Numeric name="Theta" value="0*deg"/>
+		<Numeric name="Phi" value="0*deg"/>
+		<Numeric name="Offset" value="[SupportTubeInsertZoff]"/>
+		<Numeric name="Delta" value="[SupportTubeInsertZpitch]"/>
+		<Numeric name="StartCopyNo" value="37"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<String name="Rotation" value="tracker:PAA"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 
+			-([SupportTubeR1]+[SupportTubeInsert2Dz]), [zero], [zero]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerLinear">
+		<rParent name="trackerother:TrackerSupportTubeCFSkin2"/>
+		<String name="ChildName" value="trackerother:TrackerSupportTubeInsertCFSkin2"/>
+		<Numeric name="Number" value="36"/>
+		<Numeric name="Theta" value="0*deg"/>
+		<Numeric name="Phi" value="0*deg"/>
+		<Numeric name="Offset" value="[SupportTubeInsertZoff]"/>
+		<Numeric name="Delta" value="[SupportTubeInsertZpitch]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<String name="Rotation" value="tracker:PAA"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 
+			[SupportTubeR2]+[SupportTubeInsert3Dz], [zero], [zero]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerLinear">
+		<rParent name="trackerother:TrackerSupportTubeCFSkin2"/>
+		<String name="ChildName" value="trackerother:TrackerSupportTubeInsertCFSkin2"/>
+		<Numeric name="Number" value="36"/>
+		<Numeric name="Theta" value="0*deg"/>
+		<Numeric name="Phi" value="0*deg"/>
+		<Numeric name="Offset" value="[SupportTubeInsertZoff]"/>
+		<Numeric name="Delta" value="[SupportTubeInsertZpitch]"/>
+		<Numeric name="StartCopyNo" value="37"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<String name="Rotation" value="tracker:PAA"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 
+			-([SupportTubeR2]+[SupportTubeInsert3Dz]), [zero], [zero]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerLinear">
+		<rParent name="trackerother:TrackerSupportTubeShield"/>
+		<String name="ChildName" value="trackerother:TrackerSupportTubeInsertShield"/>
+		<Numeric name="Number" value="36"/>
+		<Numeric name="Theta" value="0*deg"/>
+		<Numeric name="Phi" value="0*deg"/>
+		<Numeric name="Offset" value="[SupportTubeInsertZoff]"/>
+		<Numeric name="Delta" value="[SupportTubeInsertZpitch]"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<String name="Rotation" value="tracker:PAA"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 
+			[SupportTubeR3]+[SupportTubeInsert4Dz], [zero], [zero]
+		</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTrackerLinear">
+		<rParent name="trackerother:TrackerSupportTubeShield"/>
+		<String name="ChildName" value="trackerother:TrackerSupportTubeInsertShield"/>
+		<Numeric name="Number" value="36"/>
+		<Numeric name="Theta" value="0*deg"/>
+		<Numeric name="Phi" value="0*deg"/>
+		<Numeric name="Offset" value="[SupportTubeInsertZoff]"/>
+		<Numeric name="Delta" value="[SupportTubeInsertZpitch]"/>
+		<Numeric name="StartCopyNo" value="37"/>
+		<Numeric name="IncrCopyNo" value="1"/>
+		<String name="Rotation" value="tracker:PAA"/>
+		<Vector name="Center" type="numeric" nEntries="3"> 
+			-([SupportTubeR3]+[SupportTubeInsert4Dz]), [zero], [zero]
+		</Vector>
+	</Algorithm>
+</DDDefinition>

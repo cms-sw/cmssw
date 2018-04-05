@@ -19,9 +19,9 @@ class SiStripSummaryReader : public edm::EDAnalyzer {
 
  public:
   explicit SiStripSummaryReader( const edm::ParameterSet& );
-  ~SiStripSummaryReader();
+  ~SiStripSummaryReader() override;
   
-  void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze( const edm::Event&, const edm::EventSetup& ) override;
     
  private:
   uint32_t printdebug_;

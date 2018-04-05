@@ -48,6 +48,8 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -101,14 +103,14 @@ class L1TSync_Offline : public DQMEDAnalyzer {
     // Constructor
     L1TSync_Offline(const edm::ParameterSet& ps);   
     // Destructor
-    virtual ~L1TSync_Offline();                     
+    ~L1TSync_Offline() override;                     
     
   protected:
 
-  void analyze (const edm::Event& e, const edm::EventSetup& c);  // Analyze
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+  void analyze (const edm::Event& e, const edm::EventSetup& c) override;  // Analyze
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
 // no lumi block //    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
 
 
@@ -161,6 +163,7 @@ class L1TSync_Offline : public DQMEDAnalyzer {
     edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEvmSource;
     edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>    m_l1GtDataDaqInputTag;
 
+    L1GtUtils m_l1GtUtils;
 };
 
 #endif

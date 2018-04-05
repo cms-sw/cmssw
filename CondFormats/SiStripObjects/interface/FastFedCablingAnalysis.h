@@ -23,7 +23,7 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
 
   FastFedCablingAnalysis();
 
-  virtual ~FastFedCablingAnalysis() {;}
+  ~FastFedCablingAnalysis() override {;}
   
   typedef std::map<uint32_t,uint16_t> Candidates;
 
@@ -32,7 +32,7 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
   // ---------- public interface ----------
 
   /** Identifies if analysis is valid or not. */
-  bool isValid() const;
+  bool isValid() const override;
 
   /** Identifies if fibre is dirty or not. */
   bool isDirty() const;
@@ -67,16 +67,16 @@ class FastFedCablingAnalysis : public CommissioningAnalysis {
   // ---------- misc ----------
 
   /** Prints analysis results. */
-  void print( std::stringstream&, uint32_t not_used = 0 );
+  void print( std::stringstream&, uint32_t not_used = 0 ) override;
   
   /** Header information for analysis print(). */
-  void header( std::stringstream& ) const;
+  void header( std::stringstream& ) const override;
   
   /** Overrides base method. */
-  void summary( std::stringstream& ) const;
+  void summary( std::stringstream& ) const override;
   
   /** Resets analysis member data. */
-  void reset();
+  void reset() override;
 
   // ---------- public static data ----------
 

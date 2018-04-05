@@ -6,6 +6,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -55,29 +56,20 @@ EcalClusterEnergyCorrectionObjectSpecificXMLTranslator::readXML(
 
 std::string 
 EcalClusterEnergyCorrectionObjectSpecificXMLTranslator::dumpXML(       
-		       const EcalCondHeader&   header,
-		       const EcalFunParams& record){
+		       const EcalCondHeader& header,
+		       const EcalFunParams& record) {
+    
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation( cms::xerces::uStr("LS").ptr()));
   
-  cms::concurrency::xercesInitialize();
-  
-  DOMImplementation*  impl =
-    DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
-  
-  DOMWriter* writer =
-    static_cast<DOMImplementationLS*>(impl)->createDOMWriter( );
-  writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+  DOMLSSerializer* writer = impl->createLSSerializer();
+  if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
+    writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
   
   DOMDocumentType* doctype = 
-    impl->createDocumentType( fromNative("XML").c_str(), 0, 0 );
+    impl->createDocumentType( cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
   const  std::string ECECOS_tag("EcalClusterEnergyCorrectionObjectSpecific");
   DOMDocument *    doc = 
-    impl->createDocument( 0, fromNative(ECECOS_tag).c_str(), doctype );
-  
-  
-  doc->setEncoding(fromNative("UTF-8").c_str() );
-  doc->setStandalone(true);
-  doc->setVersion(fromNative("1.0").c_str() );
-  
+    impl->createDocument( nullptr, cms::xerces::uStr(ECECOS_tag.c_str()).ptr(), doctype );
   
   DOMElement* root = doc->getDocumentElement();
   xuti::writeHeader(root, header);
@@ -98,7 +90,7 @@ EcalClusterEnergyCorrectionObjectSpecificXMLTranslator::dumpXML(
     else if(par < 203) tit = 7;
     else tit = 8;
     DOMElement* ECEC = 
-      root->getOwnerDocument()->createElement( fromNative(ECEC_tag[tit]).c_str());
+      root->getOwnerDocument()->createElement( cms::xerces::uStr(ECEC_tag[tit].c_str()).ptr());
     root->appendChild(ECEC);
 
     WriteNodeWithValue(ECEC,Value_tag,*it);
@@ -106,8 +98,11 @@ EcalClusterEnergyCorrectionObjectSpecificXMLTranslator::dumpXML(
   }
   std::cout << "\n";
  
-  std::string dump= toNative(writer->writeToString(*root));
+  std::string dump = cms::xerces::toString(writer->writeToString( root )); 
   doc->release();
+  doctype->release();
+  writer->release();
+
   return dump;
 }
 
@@ -115,9 +110,14 @@ int
 EcalClusterEnergyCorrectionObjectSpecificXMLTranslator::writeXML(
                const std::string& filename,         
 	       const EcalCondHeader&   header,
-	       const EcalFunParams& record){
+	       const EcalFunParams& record) {
+
+  cms::concurrency::xercesInitialize();
 
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
+
+  cms::concurrency::xercesTerminate();
+
   return 0;  
 }

@@ -1,7 +1,7 @@
 #ifndef CosmicHitTripletGeneratorFromLayerTriplet_h
 #define CosmicHitTripletGeneratorFromLayerTriplet_h
 
-#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -14,7 +14,7 @@ class TrackingRegion;
 class LayerWithHits;
 
 
-class CosmicHitTripletGeneratorFromLayerTriplet : public HitTripletGenerator {
+class CosmicHitTripletGeneratorFromLayerTriplet {
 
 public:
 
@@ -24,17 +24,10 @@ public:
 				const LayerWithHits* middle, 
 				const LayerWithHits* outer, 
 				const edm::EventSetup& iSetup);
-  virtual ~CosmicHitTripletGeneratorFromLayerTriplet() { }
+  ~CosmicHitTripletGeneratorFromLayerTriplet() { }
 
-  virtual void hitTriplets( const TrackingRegion& ar, OrderedHitTriplets & ap, const edm::EventSetup& iSetup);
+  void hitTriplets( const TrackingRegion& ar, OrderedHitTriplets & ap, const edm::EventSetup& iSetup);
 
-  virtual void hitTriplets( const TrackingRegion& ar, OrderedHitTriplets & ap, const edm::Event& ev, const edm::EventSetup& iSetup) {}
-
-  virtual CosmicHitTripletGeneratorFromLayerTriplet* clone() const {
-    return new CosmicHitTripletGeneratorFromLayerTriplet(*this);
-  }
-  void init( const HitPairGenerator & pairs,
-	     const std::vector<const LayerWithHits*>& layers ){}
   const LayerWithHits* innerLayer() const { return theInnerLayer; }
   const LayerWithHits* middleLayer() const { return theMiddleLayer; }
   const LayerWithHits* outerLayer() const { return theOuterLayer; }

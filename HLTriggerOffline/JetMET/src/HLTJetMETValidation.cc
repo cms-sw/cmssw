@@ -4,6 +4,13 @@
 #include "Math/GenVector/VectorUtil.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
+using namespace std;
+using namespace edm;
+using namespace reco;
+using namespace l1extra;
+using namespace trigger;
+
+
 HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) : 
   triggerEventObject_(consumes<TriggerEventWithRefs>(ps.getUntrackedParameter<edm::InputTag>("triggerEventObject"))),
   PFJetAlgorithm( consumes<PFJetCollection>(ps.getUntrackedParameter<edm::InputTag>( "PFJetAlgorithm" ) )),
@@ -51,7 +58,7 @@ HLTJetMETValidation::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iS
     //---find the muon path
     if (TString(validTriggerNames[j]).Contains(patternMu)) {
       //std::cout <<validTriggerNames[j].c_str()<<std::endl;
-      if (!foundMuTrg) trgMuNm = validTriggerNames[j].c_str();
+      if (!foundMuTrg) trgMuNm = validTriggerNames[j];
       foundMuTrg = true;
     }
     //---find the jet paths
@@ -122,7 +129,7 @@ HLTJetMETValidation::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
   //----define DQM folders and elements
   for (size_t it=0;it<hltTrgJet.size();it++) {
     //std::cout<<hltTrgJet[it].c_str()<<" "<<hltTrgJetLow[it].c_str()<<std::endl;
-    std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_+hltTrgJet[it].c_str());
+    std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_+hltTrgJet[it]);
     //std::cout << "str = " << triggerTag_+hltTrgJet[it].c_str() << std::endl;
     //std::cout << "trgPathName = " << trgPathName << std::endl;
     iBooker.setCurrentFolder(trgPathName);
@@ -159,7 +166,7 @@ HLTJetMETValidation::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
   }
   for (size_t it=0;it<hltTrgMet.size();it++) {
     //std::cout<<hltTrgMet[it].c_str()<<" "<<hltTrgMetLow[it].c_str()<<std::endl;
-    std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_+hltTrgMet[it].c_str());
+    std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_+hltTrgMet[it]);
     iBooker.setCurrentFolder(trgPathName);
     _meHLTMET.push_back(iBooker.book1D("_meHLTMET","HLT Missing ET",100,0,500));
     _meHLTMETTrgMC.push_back(iBooker.book1D("_meHLTMETTrgMC","HLT Missing ET - HLT Triggered",100,0,500));
@@ -390,7 +397,6 @@ void HLTJetMETValidation::getHLTResults(const edm::TriggerResults& hltresults,
     HLTinit_=true;
     
     for (int itrig = 0; itrig != ntrigs; ++itrig){
-      std::string trigName = triggerNames.triggerName(itrig);
       // std::cout << "trigger " << itrig << ": " << trigName << std::endl; 
     }
   }

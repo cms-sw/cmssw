@@ -1,0 +1,22 @@
+# Dstar_D0_Kpi.dec
+#
+# This is the decay file for the decay D*+ -> D0(K-pi+) pi+
+#
+Alias      MyD0   D0
+Alias      Myanti-D0   anti-D0
+ChargeConj Myanti-D0   MyD0
+Alias      MyD*+  D*+
+Alias      MyD*-  D*-
+ChargeConj MyD*-  MyD*+
+#
+Decay MyD*+
+1.000    MyD0  pi+       VSS;
+Enddecay
+CDecay MyD*-
+#
+Decay MyD0
+1.000   K-  pi+         PHSP;
+Enddecay
+CDecay Myanti-D0
+#
+End

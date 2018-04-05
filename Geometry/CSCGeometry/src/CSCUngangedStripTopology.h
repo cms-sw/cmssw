@@ -19,13 +19,13 @@ public:
     CSCStripTopology( numberOfStrips, stripPhiPitch, 
        detectorHeight, whereStripsMeet, stripOffset, yCentre ){}
 
-  ~CSCUngangedStripTopology(){}
+  ~CSCUngangedStripTopology() override{}
 
   /** 
    * Return channel corresponding to a LocalPoint.
    * (but we count from 1 whereas RST counts from 0.)
    */
-  int channel(const LocalPoint& lp) const {
+  int channel(const LocalPoint& lp) const override {
     return CSCRadialStripTopology::channel(lp) + 1;
   }
 
@@ -33,7 +33,7 @@ public:
    * Return channel corresponding to a strip.
    * (Count from 1).
    */
-  int channel(int strip) const {return strip;}
+  int channel(int strip) const override {return strip;}
 
   /**
    * Clone to handle correct copy of component objects referenced
@@ -41,14 +41,14 @@ public:
    * If gcc could handle it, should be
    *   virtual CSCUngangedStripTopology* clone() const
    */
-  CSCStripTopology* clone() const {
+  CSCStripTopology* clone() const override {
     return new CSCUngangedStripTopology(*this);
   }
 
   /**
    * Implement CSCStripTopology interface for its op<<
    */
-  std::ostream& put ( std::ostream& os ) const {
+  std::ostream& put ( std::ostream& os ) const override {
     return os << "CSCUngangedStripTopology";
   }
 };

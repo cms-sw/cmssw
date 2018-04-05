@@ -2,6 +2,7 @@
 # https://github.com/cbernet/heppy/blob/master/LICENSE
 
 from weight import Weight
+import copy
 import glob
 
 def printComps(comps, details=False):
@@ -45,10 +46,40 @@ class CFG(object):
         all = [ header ]
         all.extend(varlines)
         return '\n'.join( all )
+
+    def clone(self, **kwargs):
+        '''Make a copy of this object, redefining (or adding) some parameters, just
+           like in the CMSSW python configuration files. 
+
+           For example, you can do
+              module1 = cfg.Analyzer(SomeClass, 
+                          param1 = value1, 
+                          param2 = value2, 
+                          param3 = value3, 
+                          ...)
+              module2 = module1.clone(
+                         param2 = othervalue,
+                         newparam = newvalue)
+           and module2 will inherit the configuration of module2 except for
+           the value of param2, and for having an extra newparam of value newvalue
+           (the latter may be useful if e.g. newparam were optional, and needed
+           only when param2 == othervalue)
+
+           Note that, just like in CMSSW, this is a shallow copy and not a deep copy,
+           i.e. if in the example above value1 were to be an object, them module1 and
+           module2 will share the same instance of value1, and not have two copies.
+        '''
+        other = copy.copy(self)
+        for k,v in kwargs.iteritems():
+            setattr(other, k, v)
+        return other
     
 class Analyzer( CFG ):
     '''Base analyzer configuration, see constructor'''
-    def __init__(self, class_object, instance_label='1', 
+
+    num_instance = 0
+    
+    def __init__(self, class_object, instance_label=None, 
                  verbose=False, **kwargs):
         '''
         One could for example define the analyzer configuration for a
@@ -74,11 +105,19 @@ class Analyzer( CFG ):
         '''
 
         self.class_object = class_object
+        self.__class__.num_instance += 1 
+        if instance_label is None:
+            instance_label = str(self.__class__.num_instance)
         self.instance_label = instance_label
-        self.name = self.build_name()
         self.verbose = verbose
-        # self.cfg = CFG(**kwargs)
         super(Analyzer, self).__init__(**kwargs)
+
+    def __setattr__(self, name, value):
+        '''You may decide to copy an existing analyzer and change
+        its instance_label. In that case, one must stay consistent.'''
+        self.__dict__[name] = value
+        if name == 'instance_label':
+            self.name = self.build_name()   
 
     def build_name(self):
         class_name = '.'.join([self.class_object.__module__, 
@@ -86,13 +125,25 @@ class Analyzer( CFG ):
         name = '_'.join([class_name, self.instance_label])
         return name 
 
+    def clone(self, **kwargs):
+        other = super(Analyzer, self).clone(**kwargs)
+        if 'class_object' in kwargs and 'name' not in kwargs:
+            other.name = other.build_name()
+        return other
+
     
 class Service( CFG ):
     
-    def __init__(self, class_object, instance_label='1', 
+    num_instance = 0
+
+    def __init__(self, class_object, instance_label=None, 
                  verbose=False, **kwargs):
         self.class_object = class_object
+        self.__class__.num_instance += 1 
+        if instance_label is None:
+            instance_label = str(self.__class__.num_instance)
         self.instance_label = instance_label
+        self.__class__.num_instance += 1 
         self.name = self.build_name()
         self.verbose = verbose
         super(Service, self).__init__(**kwargs)
@@ -102,7 +153,20 @@ class Service( CFG ):
                                self.class_object.__name__])
         name = '_'.join([class_name, self.instance_label])
         return name 
-   
+
+    def __setattr__(self, name, value):
+        '''You may decide to copy an existing analyzer and change
+        its instance_label. In that case, one must stay consistent.'''
+        self.__dict__[name] = value
+        if name == 'instance_label':
+            self.name = self.build_name()   
+
+    def clone(self, **kwargs):
+        other = super(Service, self).clone(**kwargs)
+        if 'class_object' in kwargs and 'name' not in kwargs:
+            other.name = other.build_name()
+        return other
+
 
 class Sequence( list ):
     '''A list with print functionalities.
@@ -140,7 +204,7 @@ class Component( CFG ):
 class DataComponent( Component ):
 
     def __init__(self, name, files, intLumi=None, triggers=[], json=None):
-        super(DataComponent, self).__init__(name, files, triggers)
+        super(DataComponent, self).__init__(name, files, triggers=triggers)
         self.isData = True
         self.intLumi = intLumi
         self.json = json

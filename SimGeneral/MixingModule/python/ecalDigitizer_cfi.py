@@ -21,3 +21,14 @@ ecalDigitizer = cms.PSet(
     makeDigiSimLinks = cms.untracked.bool(False)
 )
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(ecalDigitizer, hitsProducer = "fastSimProducer")
+    
+ecalDigitizer.doEB = cms.bool(True)
+ecalDigitizer.doEE = cms.bool(True)
+ecalDigitizer.doES = cms.bool(True)
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify( ecalDigitizer, doES = cms.bool(False) )
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify( ecalDigitizer, doEE = cms.bool(False) )

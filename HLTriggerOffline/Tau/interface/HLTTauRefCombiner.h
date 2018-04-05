@@ -22,9 +22,9 @@ class HLTTauRefCombiner : public edm::EDProducer {
 
 public:
   explicit HLTTauRefCombiner(const edm::ParameterSet&);
-  ~HLTTauRefCombiner();
+  ~HLTTauRefCombiner() override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
   typedef math::XYZTLorentzVectorD LorentzVector;

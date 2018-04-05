@@ -10,6 +10,10 @@
   \author   Salvatore Rappoccio
 */
 
+#include "DataFormats/Common/interface/FwdPtr.h"
+#include "DataFormats/Common/interface/RefToBaseVector.h"
+
+#include <functional>
 
 namespace edm {
   /// Factory class template for how to produce products

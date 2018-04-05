@@ -41,8 +41,7 @@ public:
   CompositeAlignmentParameters
     selectParameters( const std::vector <AlignableDetOrUnitPtr>& alignabledets ) const;
   /// select parameters 
-  CompositeAlignmentParameters
-    selectParameters( const std::vector <Alignable*>& alignables ) const;
+  CompositeAlignmentParameters selectParameters(const align::Alignables&) const;
 
   /// update parameters 
   void updateParameters(const CompositeAlignmentParameters& aap, bool updateCorrelations = true);
@@ -86,8 +85,14 @@ public:
   /// cache the current position, rotation and other parameters
   void cacheTransformations(void);
 
+  /// cache for the given run the current position, rotation and other parameters
+  void cacheTransformations(const align::RunNumber&);
+
   /// restore the previously cached position, rotation and other parameters
   void restoreCachedTransformations(void);
+
+  /// restore for the given run the previously cached position, rotation and other parameters
+  void restoreCachedTransformations(const align::RunNumber&);
 
   /// acquire shifts/rotations from alignables of the store and copy into 
   ///  alignment parameters (local frame) 

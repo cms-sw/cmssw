@@ -27,29 +27,29 @@ public:
   L1ScalersClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~L1ScalersClient() {
+  ~L1ScalersClient() override {
   };
   
   /// BeginJob
-  void beginJob(void);
+  void beginJob(void) override;
 
 //   /// Endjob
 //   void endJob(void);
   
   /// BeginRun
-  void beginRun(const edm::Run& run, const edm::EventSetup& c);
+  void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
 
   /// EndRun
-  void endRun(const edm::Run& run, const edm::EventSetup& c);
+  void endRun(const edm::Run& run, const edm::EventSetup& c) override;
 
   
   /// End LumiBlock
   /// DQM Client Diagnostic should be performed here
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
+                          const edm::EventSetup& c) override;
 
   // unused
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
 
 
 private:

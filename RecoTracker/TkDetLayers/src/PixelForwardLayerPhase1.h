@@ -13,24 +13,24 @@
 
 #pragma GCC visibility push(hidden)
 
-class PixelForwardLayerPhase1 GCC11_FINAL : public ForwardDetLayer {
+class PixelForwardLayerPhase1 final : public ForwardDetLayer {
  public:
   PixelForwardLayerPhase1(std::vector<const Phase1PixelBlade*>& blades);
-  ~PixelForwardLayerPhase1();
+  ~PixelForwardLayerPhase1() override;
 
   // GeometricSearchDet interface
 
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theBasicComps;}
+  const std::vector<const GeomDet*>& basicComponents() const override {return theBasicComps;}
 
-  virtual const std::vector<const GeometricSearchDet*>& components() const __attribute__ ((cold)) {return theComps;}
+  const std::vector<const GeometricSearchDet*>& components() const override __attribute__ ((cold)) {return theComps;}
 
   void groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
 			       const Propagator& prop,
 			       const MeasurementEstimator& est,
-			       std::vector<DetGroup> & result) const __attribute__ ((hot));
+			       std::vector<DetGroup> & result) const override __attribute__ ((hot));
 
   // DetLayer interface
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P1PXEC];}
+  SubDetector subDetector() const override {return GeomDetEnumerators::subDetGeom[GeomDetEnumerators::P1PXEC];}
 
 
  private:
@@ -38,7 +38,7 @@ class PixelForwardLayerPhase1 GCC11_FINAL : public ForwardDetLayer {
   static int computeHelicity(const GeometricSearchDet* firstBlade,const GeometricSearchDet* secondBlade);
 
   struct SubTurbineCrossings {
-    SubTurbineCrossings(): isValid(false){}
+    SubTurbineCrossings(): isValid(false), closestIndex(0), nextIndex(0), nextDistance(0.0f) {}
     SubTurbineCrossings( int ci, int ni, float nd) :
       isValid(true),closestIndex(ci), nextIndex(ni), nextDistance(nd) {}
 

@@ -7,6 +7,10 @@
  *
  */
 
+#include "Math/PdfFuncMathCore.h"
+
+#include <cmath>
+
 class BinomialProbHelper {
 public:
   BinomialProbHelper(double rho, int x, int n)

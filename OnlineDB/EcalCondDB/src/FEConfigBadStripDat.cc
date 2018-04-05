@@ -9,10 +9,10 @@ using namespace oracle::occi;
 
 FEConfigBadStripDat::FEConfigBadStripDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_tcc = 0;
   m_fed = 0;
@@ -31,7 +31,7 @@ FEConfigBadStripDat::~FEConfigBadStripDat()
 
 
 void FEConfigBadStripDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -40,14 +40,14 @@ void FEConfigBadStripDat::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO "+getTable()+" (rec_id, tcc_id,fed_id, tt_id, st_id, status ) "
 			"VALUES (:1, :2, :3, :4, :5 ,:6 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigBadStripDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigBadStripDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void FEConfigBadStripDat::writeDB(const FEConfigBadStripDat* item, FEConfigBadStripInfo* iov )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -61,14 +61,14 @@ void FEConfigBadStripDat::writeDB(const FEConfigBadStripDat* item, FEConfigBadSt
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigBadStripDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigBadStripDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void FEConfigBadStripDat::fetchData(std::vector< FEConfigBadStripDat >* p, FEConfigBadStripInfo* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -98,14 +98,14 @@ void FEConfigBadStripDat::fetchData(std::vector< FEConfigBadStripDat >* p, FECon
 
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigBadStripDat::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigBadStripDat::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
 //  ************************************************************************   // 
 
 void FEConfigBadStripDat::writeArrayDB(const std::vector< FEConfigBadStripDat >& data, FEConfigBadStripInfo* iov)
-    throw(std::runtime_error)
+    noexcept(false)
 {
   this->checkConnection();
 
@@ -179,6 +179,6 @@ void FEConfigBadStripDat::writeArrayDB(const std::vector< FEConfigBadStripDat >&
     delete [] st_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigBadStripDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigBadStripDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

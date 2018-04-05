@@ -90,7 +90,7 @@ void DataWriter::readObject( const std::string& payloadToken,
   session.transaction().start(true);
  
   // Get object from CondDB
-  boost::shared_ptr<T> ref = session.fetchPayload<T>(payloadToken) ;
+  std::shared_ptr<T> ref = session.fetchPayload<T>(payloadToken) ;
   outputObject = *ref ;
   session.transaction().commit ();
 }

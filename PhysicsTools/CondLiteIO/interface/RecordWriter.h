@@ -55,9 +55,9 @@ class RecordWriter
       void write();
 
    private:
-      RecordWriter(const RecordWriter&); // stop default
+      RecordWriter(const RecordWriter&) = delete; // stop default
 
-      const RecordWriter& operator=(const RecordWriter&); // stop default
+      const RecordWriter& operator=(const RecordWriter&) = delete; // stop default
 
       // ---------- member data --------------------------------
       TTree* tree_;

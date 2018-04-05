@@ -15,5 +15,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.listIds = cms.EDFilter("ListIds")
+process.listIds = cms.EDFilter("ListIds"
+                                materials = cms.untracked.vstring("materials:Silicon" , "tracker:SenSi"),
+                                printMaterial = cms.untracked.bool(False)
+                              )
 process.path = cms.Path(process.listIds)

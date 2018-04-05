@@ -35,18 +35,18 @@ reco::IsoDeposit PFTauExtractor::depositFromObject(const edm::Event& evt, const 
   evt.getByToken(tauSourceToken_, pfTaus);
 
   double dR_min = -1.;
-  const reco::PFTau* pfTau_matched = 0;
+  const reco::PFTau* pfTau_matched = nullptr;
   for ( reco::PFTauCollection::const_iterator pfTau = pfTaus->begin();
 	pfTau != pfTaus->end(); ++pfTau ) {
     double dR = deltaR(pfTau->eta(), pfTau->phi(), tauCandidate.eta(), tauCandidate.phi());
-    if ( pfTau_matched == 0 || dR < dR_min ) {
+    if ( pfTau_matched == nullptr || dR < dR_min ) {
       dR_min = dR;
       pfTau_matched = &(*pfTau);
     }
   }
 
 //--- compute IsoDeposit for matched PFTau
-  if ( pfTau_matched != 0 && dR_min < dRmatchPFTau_ ) {
+  if ( pfTau_matched != nullptr && dR_min < dRmatchPFTau_ ) {
     edm::Handle<edm::View<reco::Candidate> > candidates;
     evt.getByToken(candidateSourceToken_, candidates);
 

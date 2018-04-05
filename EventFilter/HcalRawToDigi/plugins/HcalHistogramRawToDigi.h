@@ -28,8 +28,8 @@ class HcalHistogramRawToDigi : public edm::EDProducer
 {
 public:
   explicit HcalHistogramRawToDigi(const edm::ParameterSet& ps);
-  virtual ~HcalHistogramRawToDigi();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  ~HcalHistogramRawToDigi() override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 private:
   edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
   HcalUnpacker unpacker_;

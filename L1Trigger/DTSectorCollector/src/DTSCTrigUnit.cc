@@ -79,7 +79,7 @@ DTSCTrigUnit::GeomSupplier(const DTTrigData* trig) const {
     //    if(dynamic_cast<const DTTracoTrigData*>(trig))return _theTRACOs;
     //    if(dynamic_cast<const DTChambPhSegm*>(trig))return _theTSPhi;
     //    if(dynamic_cast<const DTChambThSegm*>(trig))return _theTSTheta;
-    return 0;
+    return nullptr;
   }
 
 void DTSCTrigUnit::setConfig(const DTConfigManager *conf){

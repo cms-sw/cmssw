@@ -47,9 +47,8 @@ m_file(iFile)
 
 EventSetup::~EventSetup()
 {
-   for(std::vector<Record*>::iterator it = m_records.begin(), itEnd=m_records.end();
-    it !=itEnd; ++it) {
-       delete *it;
+   for(auto const& record : m_records) {
+       delete record;
    }
 }
 
@@ -84,14 +83,14 @@ EventSetup::exists(const char* iRecordName) const
 {
    std::string realName = unformat_mangled_to_type(iRecordName);
    TObject* obj = m_file->Get(realName.c_str());
-   if(0==obj) {
+   if(nullptr == obj) {
       return false;
    }
    TTree* tree = dynamic_cast<TTree*>(obj);
-   if(0==tree) {
+   if(nullptr == tree) {
       return false;
    }
-   return 0 != tree->FindBranch(kRecordAuxiliaryBranchName);
+   return nullptr != tree->FindBranch(kRecordAuxiliaryBranchName);
 }
 
 RecordID 
@@ -99,19 +98,19 @@ EventSetup::recordID(const char* iRecordName) const
 {
    std::string treeName = format_type_to_mangled(iRecordName);
    TObject* obj = m_file->Get(treeName.c_str());
-   if(0==obj) {
+   if(nullptr == obj) {
       throw cms::Exception("UnknownRecord")<<"The TTree for the record "<<iRecordName<<" does not exist "<<m_file->GetName();
    }
    TTree* tree = dynamic_cast<TTree*>(obj);
-   if(0==tree) {
+   if(nullptr == tree) {
       throw cms::Exception("UnknownRecord")<<"The object corresponding to "<<iRecordName<<" in file "<<m_file->GetName()<<" is not a TTree and therefore is not a Record";   
    }
-   if(0 == tree->FindBranch(kRecordAuxiliaryBranchName)) {
+   if(nullptr == tree->FindBranch(kRecordAuxiliaryBranchName)) {
       throw cms::Exception("UnknownRecord")<<"The TTree corresponding to "<<iRecordName<<" in file "<<m_file->GetName()<<" does not have the proper structure to be a Record";
    }
    //do we already have this Record?
    std::string name(iRecordName);
-   for(std::vector<Record*>::iterator it = m_records.begin(), itEnd=m_records.end(); it!=itEnd;++it){
+   for(std::vector<Record*>::const_iterator it = m_records.begin(), itEnd=m_records.end(); it!=itEnd;++it){
       if((*it)->name()==name) {
          return it - m_records.begin();
       }

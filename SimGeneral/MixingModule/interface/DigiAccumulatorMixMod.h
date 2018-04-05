@@ -92,9 +92,9 @@ class DigiAccumulatorMixMod {
     }
 
   private:
-    DigiAccumulatorMixMod(DigiAccumulatorMixMod const&); // stop default
+    DigiAccumulatorMixMod(DigiAccumulatorMixMod const&) = delete; // stop default
 
-    DigiAccumulatorMixMod const& operator=(DigiAccumulatorMixMod const&); // stop default
+    DigiAccumulatorMixMod const& operator=(DigiAccumulatorMixMod const&) = delete; // stop default
 
     // ---------- member data --------------------------------
 };

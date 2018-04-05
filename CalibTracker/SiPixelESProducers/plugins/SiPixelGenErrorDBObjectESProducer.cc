@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "boost/mpl/vector.hpp"
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -31,7 +31,7 @@ SiPixelGenErrorDBObjectESProducer::~SiPixelGenErrorDBObjectESProducer(){
 
 
 
-boost::shared_ptr<SiPixelGenErrorDBObject> SiPixelGenErrorDBObjectESProducer::produce(const SiPixelGenErrorDBObjectESProducerRcd & iRecord) {
+std::shared_ptr<SiPixelGenErrorDBObject> SiPixelGenErrorDBObjectESProducer::produce(const SiPixelGenErrorDBObjectESProducerRcd & iRecord) {
 	
 	ESHandle<MagneticField> magfield;
 	iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
@@ -56,7 +56,7 @@ boost::shared_ptr<SiPixelGenErrorDBObject> SiPixelGenErrorDBObjectESProducer::pr
 	if(std::fabs(theMagField-dbobject->sVector()[22])>0.1)
 		edm::LogWarning("UnexpectedMagneticFieldUsingNonIdealPixelGenError") << "Magnetic field is " << theMagField << " GenError Magnetic field is " << dbobject->sVector()[22];
 	
-	return boost::shared_ptr<SiPixelGenErrorDBObject>(const_cast<SiPixelGenErrorDBObject*>(&(*dbobject)), edm::do_nothing_deleter());
+	return std::shared_ptr<SiPixelGenErrorDBObject>(const_cast<SiPixelGenErrorDBObject*>(&(*dbobject)), edm::do_nothing_deleter());
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPixelGenErrorDBObjectESProducer);

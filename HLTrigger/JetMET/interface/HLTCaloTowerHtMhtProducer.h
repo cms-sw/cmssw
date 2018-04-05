@@ -21,7 +21,7 @@
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h" 
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 
 namespace edm {
     class ConfigurationDescriptions;
@@ -31,9 +31,9 @@ namespace edm {
 class HLTCaloTowerHtMhtProducer : public edm::stream::EDProducer<> {
   public:
     explicit HLTCaloTowerHtMhtProducer(const edm::ParameterSet & iConfig);
-    ~HLTCaloTowerHtMhtProducer();
+    ~HLTCaloTowerHtMhtProducer() override;
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
 
   private:
     /// Use pt; otherwise, use et.

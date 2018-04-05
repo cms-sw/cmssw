@@ -45,7 +45,7 @@ void DTTTrigAnalyzer::endJob() {
 //   static const double convToNs = 25./32.;
    // Loop over DB entries
   for(DTTtrig::const_iterator ttrig = tTrigMap->begin();
-	  ttrig != tTrigMap->end(); ttrig++) {
+	  ttrig != tTrigMap->end(); ++ttrig) {
     DTWireId wireId((*ttrig).first.wheelId,
 		    (*ttrig).first.stationId,
 		    (*ttrig).first.sectorId,
@@ -155,46 +155,46 @@ void DTTTrigAnalyzer::endJob() {
   theFile->cd();
   for(map<pair<int,int>, TH1D*>::const_iterator lHisto = theTTrigHistoMap.begin();
       lHisto != theTTrigHistoMap.end();
-      lHisto++) {
+      ++lHisto) {
     (*lHisto).second->GetXaxis()->LabelsOption("v");
     (*lHisto).second->Write(); 
   }    
   for(map<pair<int,int>, TH1D*>::const_iterator lHisto = theTMeanHistoMap.begin();
       lHisto != theTMeanHistoMap.end();
-      lHisto++) {
+      ++lHisto) {
     (*lHisto).second->GetXaxis()->LabelsOption("v");
     (*lHisto).second->Write(); 
   }    
   for(map<pair<int,int>, TH1D*>::const_iterator lHisto = theSigmaHistoMap.begin();
       lHisto != theSigmaHistoMap.end();
-      lHisto++) {
+      ++lHisto) {
     (*lHisto).second->GetXaxis()->LabelsOption("v");
     (*lHisto).second->Write(); 
   }
   for(map<pair<int,int>, TH1D*>::const_iterator lHisto = theKFactorHistoMap.begin();
       lHisto != theKFactorHistoMap.end();
-      lHisto++) {
+      ++lHisto) {
     (*lHisto).second->GetXaxis()->LabelsOption("v");
     (*lHisto).second->Write();
   } 
   for(map<vector<int>, TH1D*>::const_iterator lDistrib = theTTrigDistribMap.begin();
       lDistrib != theTTrigDistribMap.end();
-      lDistrib++) {
+      ++lDistrib) {
     (*lDistrib).second->Write(); 
   }    
   for(map<vector<int>, TH1D*>::const_iterator lDistrib = theTMeanDistribMap.begin();
       lDistrib != theTMeanDistribMap.end();
-      lDistrib++) {
+      ++lDistrib) {
     (*lDistrib).second->Write(); 
   }    
   for(map<vector<int>, TH1D*>::const_iterator lDistrib = theSigmaDistribMap.begin();
       lDistrib != theSigmaDistribMap.end();
-      lDistrib++) {
+      ++lDistrib) {
     (*lDistrib).second->Write(); 
   }
   for(map<vector<int>, TH1D*>::const_iterator lDistrib = theKFactorDistribMap.begin();
       lDistrib != theKFactorDistribMap.end();
-      lDistrib++) {
+      ++lDistrib) {
     (*lDistrib).second->Write();
   }  
 

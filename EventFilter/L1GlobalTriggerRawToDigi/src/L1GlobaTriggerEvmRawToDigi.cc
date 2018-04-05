@@ -415,7 +415,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
     int maxBxInEvent = std::max(m_recordLength0, m_recordLength1);
 
-    std::auto_ptr<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord(
+    std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord(
             new L1GlobalTriggerEvmReadoutRecord(maxBxInEvent, numberFdlBoards));
 
     // ... then unpack modules other than GTFE, if requested
@@ -682,7 +682,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
     }
 
     // put records into event
-    iEvent.put(gtReadoutRecord);
+    iEvent.put(std::move(gtReadoutRecord));
 
 }
 
@@ -759,8 +759,8 @@ void L1GlobalTriggerEvmRawToDigi::unpackTrailer(const unsigned char* trlPtr, FED
                 << std::endl;
 
         myCoutStream << "  Event_length:  " << std::hex << " hex: " << "" << std::setw(6)
-                << std::setfill('0') << cmsTrailer.lenght() << std::setfill(' ') << std::dec
-                << " dec: " << cmsTrailer.lenght() << std::endl;
+                << std::setfill('0') << cmsTrailer.fragmentLength() << std::setfill(' ') << std::dec
+                << " dec: " << cmsTrailer.fragmentLength() << std::endl;
 
         myCoutStream << "  CRC:           " << std::hex << " hex: " << "  " << std::setw(4)
                 << std::setfill('0') << cmsTrailer.crc() << std::setfill(' ') << std::dec
@@ -788,12 +788,12 @@ void L1GlobalTriggerEvmRawToDigi::unpackTrailer(const unsigned char* trlPtr, FED
 // produce empty products in case of problems
 void L1GlobalTriggerEvmRawToDigi::produceEmptyProducts(edm::Event& iEvent) {
 
-    std::auto_ptr<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord(
+    std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord(
             new L1GlobalTriggerEvmReadoutRecord());
 
     // put empty records into event
 
-    iEvent.put(gtReadoutRecord);
+    iEvent.put(std::move(gtReadoutRecord));
 }
 
 // dump FED raw data

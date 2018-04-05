@@ -25,7 +25,7 @@ mix = cms.EDProducer("MixingModule",
 
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             sigmaInel = cms.double(80.0),
             Lumi = cms.double(0.5)
@@ -39,7 +39,7 @@ mix = cms.EDProducer("MixingModule",
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/68ECAE92-5F99-DD11-ACAB-000423D98E6C.root',
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/8802D325-5E99-DD11-B858-000423D98A44.root')
     ),
-    cosmics = cms.SecSource("PoolSource",
+    cosmics = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.6625e-05)
         ),
@@ -54,7 +54,7 @@ mix = cms.EDProducer("MixingModule",
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/8802D325-5E99-DD11-B858-000423D98A44.root'
                                           )
     ),
-    beamhalo_minus = cms.SecSource("PoolSource",
+    beamhalo_minus = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(0.00040503)
         ),
@@ -69,7 +69,7 @@ mix = cms.EDProducer("MixingModule",
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/8802D325-5E99-DD11-B858-000423D98A44.root'
                                           )
     ),
-    beamhalo_plus = cms.SecSource("PoolSource",
+    beamhalo_plus = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(0.00040503)
         ),

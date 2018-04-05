@@ -28,16 +28,16 @@ class ProcClassed : public TrainProcessor {
 	typedef TrainProcessor::Registry<ProcClassed>::Type Registry;
 
 	ProcClassed(const char *name, const AtomicId *id, MVATrainer *trainer);
-	virtual ~ProcClassed();
+	~ProcClassed() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	unsigned int	count;
 };
 
-static ProcClassed::Registry registry("ProcClassed");
+ProcClassed::Registry registry("ProcClassed");
 
 ProcClassed::ProcClassed(const char *name, const AtomicId *id,
                          MVATrainer *trainer) :

@@ -17,7 +17,7 @@ SiStripClusterizer(const edm::ParameterSet& conf)
 void SiStripClusterizer::
 produce(edm::Event& event, const edm::EventSetup& es)  {
 
-  std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > output(new edmNew::DetSetVector<SiStripCluster>());
+  auto output = std::make_unique<edmNew::DetSetVector<SiStripCluster>>();
   output->reserve(10000,4*10000);
 
   edm::Handle< edm::DetSetVector<SiStripDigi> >     inputOld;  
@@ -34,7 +34,7 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
   LogDebug("Output") << output->dataSize() << " clusters from " 
 		     << output->size()     << " modules";
   output->shrink_to_fit();
-  event.put(output);
+  event.put(std::move(output));
 }
 
 template<class T>

@@ -44,9 +44,9 @@ template<typename T>
 class DeltaRNearestObjectComputer : public edm::EDProducer {
     public:
         explicit DeltaRNearestObjectComputer(const edm::ParameterSet & iConfig);
-        virtual ~DeltaRNearestObjectComputer() ;
+        ~DeltaRNearestObjectComputer() override ;
 
-        virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+        void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
         edm::EDGetTokenT<edm::View<reco::Candidate> > probesToken_;
@@ -98,11 +98,11 @@ DeltaRNearestObjectComputer<T>::produce(edm::Event & iEvent, const edm::EventSet
     }
 
     // convert into ValueMap and store
-    std::auto_ptr<ValueMap<float> > valMap(new ValueMap<float>());
+    auto valMap = std::make_unique<ValueMap<float>>();
     ValueMap<float>::Filler filler(*valMap);
     filler.insert(probes, values.begin(), values.end());
     filler.fill();
-    iEvent.put(valMap);
+    iEvent.put(std::move(valMap));
 }
 
 

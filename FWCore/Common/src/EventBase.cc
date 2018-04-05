@@ -20,6 +20,7 @@
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
@@ -30,7 +31,7 @@ namespace {
       }
    };
    typedef tbb::concurrent_unordered_map<edm::ParameterSetID, edm::TriggerNames, key_hash> TriggerNamesMap;
-   [[cms::thread_safe]] static TriggerNamesMap triggerNamesMap;
+   CMS_THREAD_SAFE TriggerNamesMap triggerNamesMap;
 }
 
 namespace edm
@@ -42,6 +43,11 @@ namespace edm
 
    EventBase::~EventBase()
    {
+   }
+
+   edm::ParameterSet const*
+   EventBase::parameterSetForID_(edm::ParameterSetID const& iPSID) {
+      return edm::pset::Registry::instance()->getMapped(iPSID);
    }
 
    TriggerNames const*
@@ -58,8 +64,8 @@ namespace edm
       // Look for the parameter set containing the trigger names in the parameter
       // set registry using the ID from TriggerResults as the key used to find it.
       edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
-      edm::ParameterSet const* pset=0;
-      if (0!=(pset=psetRegistry->getMapped(triggerResults.parameterSetID()))) {
+      edm::ParameterSet const* pset=nullptr;
+      if (nullptr!=(pset=psetRegistry->getMapped(triggerResults.parameterSetID()))) {
 
 	 if (pset->existsAs<std::vector<std::string> >("@trigger_paths", true)) {
             TriggerNames triggerNames(*pset);
@@ -80,7 +86,7 @@ namespace edm
          }
       }
       // For backward compatibility to very old data
-      if (triggerResults.getTriggerNames().size() > 0U) {
+      if (!triggerResults.getTriggerNames().empty()) {
 	 edm::ParameterSet fakePset;
          fakePset.addParameter<std::vector<std::string> >("@trigger_paths", triggerResults.getTriggerNames());
          fakePset.registerIt();
@@ -100,6 +106,6 @@ namespace edm
             triggerNamesMap.insert(std::pair<edm::ParameterSetID, edm::TriggerNames>(fakePset.id(), triggerNames));
          return &(ret.first->second);
       }
-      return 0;
+      return nullptr;
    }
 }

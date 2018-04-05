@@ -12,6 +12,7 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/ParameterSet/interface/FileInPath.h>
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 class CSCLayer;
 
@@ -48,6 +49,8 @@ class CSCSectorReceiverLUT
   /// Helpers
   std::string encodeFileIndex() const;
 
+  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
+
  private:
   int _endcap, _sector, _subsector, _station;
 
@@ -83,6 +86,8 @@ class CSCSectorReceiverLUT
   static lclphidat* me_lcl_phi;
   gblphidat* me_global_phi, *mb_global_phi;
   gbletadat* me_global_eta;
+
+  const CSCGeometry* csc_g;
 };
 
 #endif

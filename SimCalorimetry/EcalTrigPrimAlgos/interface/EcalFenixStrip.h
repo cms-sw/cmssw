@@ -129,7 +129,7 @@ class EcalFenixStrip {
   void process(const edm::EventSetup &setup, std::vector<EBDataFrame> &samples, int nrXtals,std::vector<int> &out){
 
     // now call processing
-    if (samples.size()==0) {
+    if (samples.empty()) {
       std::cout<<" Warning: 0 size vector found in EcalFenixStripProcess!!!!!"<<std::endl;
       return;
 
@@ -147,7 +147,7 @@ class EcalFenixStrip {
  void  process(const edm::EventSetup &setup, std::vector<EEDataFrame> &samples, int nrXtals, std::vector<int> & out){
 
 // now call processing
-   if (samples.size()==0) {
+   if (samples.empty()) {
      std::cout<<" Warning: 0 size vector found in EcalFenixStripProcess!!!!!"<<std::endl;
      return;
    }

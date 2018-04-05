@@ -6,7 +6,7 @@
 #include "DQM/SiStripCommon/interface/UpdateTProfile.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 using namespace sistrip;
 

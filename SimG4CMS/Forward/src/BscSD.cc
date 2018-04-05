@@ -5,9 +5,6 @@
 // Modifications: 
 ///////////////////////////////////////////////////////////////////////////////
  
-//#include "Geometry/Vector/interface/LocalPoint.h"
-//#include "Geometry/Vector/interface/LocalVector.h"
-
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
@@ -45,17 +42,13 @@
 
 #define debug
 //-------------------------------------------------------------------
-BscSD::BscSD(std::string name, const DDCompactView & cpv,
+BscSD::BscSD(const std::string& name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg,
 	     edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
-  hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
-  currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
-  postStepPoint(0), eventno(0){
-    
-  //Add Bsc Sentitive Detector Name
-  collectionName.insert(name);
-    
+  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(nullptr),
+  hcID(-1), theHC(nullptr), theManager(manager), currentHit(nullptr), theTrack(nullptr), 
+  currentPV(nullptr), unitID(0),  previousUnitID(0), preStepPoint(nullptr), 
+  postStepPoint(nullptr), eventno(0){
     
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BscSD");
@@ -63,29 +56,9 @@ BscSD::BscSD(std::string name, const DDCompactView & cpv,
   //int verbn = 1;
     
   SetVerboseLevel(verbn);
-  LogDebug("BscSim") 
-    << "*******************************************************\n"
-    << "*                                                     *\n"
-    << "* Constructing a BscSD  with name " << name << "\n"
-    << "*                                                     *\n"
-    << "*******************************************************";
-    
     
   slave  = new TrackingSlaveSD(name);
-    
-  //
-  // attach detectors (LogicalVolumes)
-  //
-  const std::vector<std::string>& lvNames = clg.logicalNames(name);
-
-  this->Register();
-
-  for (std::vector<std::string>::const_iterator it=lvNames.begin();
-       it !=lvNames.end(); it++) {
-    this->AssignSD(*it);
-    edm::LogInfo("BscSim") << "BscSD : Assigns SD to LV " << (*it);
-  }
-    
+        
   if      (name == "BSCHits") {
     if (verbn > 0) {
       edm::LogInfo("BscSim") << "name = BSCHits and  new BscNumberingSchem";
@@ -94,12 +67,7 @@ BscSD::BscSD(std::string name, const DDCompactView & cpv,
   } else {
     edm::LogWarning("BscSim") << "BscSD: ReadoutName "<<name<<" not supported";
   }
-  
-  edm::LogInfo("BscSim") << "BscSD: Instantiation completed";
 }
-
-
-
 
 BscSD::~BscSD() { 
   //AZ:
@@ -110,16 +78,16 @@ BscSD::~BscSD() {
 
 }
 
-double BscSD::getEnergyDeposit(G4Step* aStep) {
+double BscSD::getEnergyDeposit(const G4Step* aStep) {
   return aStep->GetTotalEnergyDeposit();
 }
 
 void BscSD::Initialize(G4HCofThisEvent * HCE) { 
 #ifdef debug
-  LogDebug("BscSim") << "BscSD : Initialize called for " << name << std::endl;
+  LogDebug("BscSim") << "BscSD : Initialize called for " << GetName();
 #endif
 
-  theHC = new BscG4HitCollection(name, collectionName[0]);
+  theHC = new BscG4HitCollection(GetName(), collectionName[0]);
   if (hcID<0) 
     hcID = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   HCE->AddHitsCollection(hcID, theHC);
@@ -130,10 +98,9 @@ void BscSD::Initialize(G4HCofThisEvent * HCE) {
   ////    slave->Initialize();
 }
 
-
 bool BscSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     GetStepInfo(aStep);
@@ -199,11 +166,9 @@ void BscSD::GetStepInfo(G4Step* aStep) {
   Z  = hitPoint.z();
 }
 
-uint32_t BscSD::setDetUnitId(G4Step * aStep) { 
-
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
+uint32_t BscSD::setDetUnitId(const G4Step * aStep) { 
+  return (numberingScheme == nullptr ? 0 : numberingScheme->getUnitID(aStep));
 }
-
 
 G4bool BscSD::HitExists() {
   if (primaryID<1) {
@@ -250,7 +215,6 @@ G4bool BscSD::HitExists() {
   }    
 }
 
-
 void BscSD::ResetForNewPrimary() {
   
   entrancePoint  = SetToLocal(hitPoint);
@@ -259,18 +223,16 @@ void BscSD::ResetForNewPrimary() {
 
 }
 
-
 void BscSD::StoreHit(BscG4Hit* hit){
 
   if (primID<0) return;
-  if (hit == 0 ) {
+  if (hit == nullptr ) {
     edm::LogWarning("BscSim") << "BscSD: hit to be stored is NULL !!";
     return;
   }
 
   theHC->insert( hit );
 }
-
 
 void BscSD::CreateNewHit() {
 
@@ -291,7 +253,7 @@ void BscSD::CreateNewHit() {
   }
 
   LogDebug("BscSim")  << " and created by " ;
-  if (theTrack->GetCreatorProcess()!=NULL)
+  if (theTrack->GetCreatorProcess()!=nullptr)
     LogDebug("BscSim") << theTrack->GetCreatorProcess()->GetProcessName() ;
   else 
     LogDebug("BscSim") << "NO process";
@@ -330,7 +292,6 @@ void BscSD::CreateNewHit() {
   StoreHit(currentHit);
 }	 
  
-
 void BscSD::UpdateHit() {
 
   if (Eloss > 0.) {
@@ -351,7 +312,6 @@ void BscSD::UpdateHit() {
   previousUnitID = unitID;
 }
 
-
 G4ThreeVector BscSD::SetToLocal(const G4ThreeVector& global){
 
   const G4VTouchable* touch= preStepPoint->GetTouchable();
@@ -359,7 +319,6 @@ G4ThreeVector BscSD::SetToLocal(const G4ThreeVector& global){
   return theEntryPoint;  
 }
      
-
 G4ThreeVector BscSD::SetToLocalExit(const G4ThreeVector& globalPoint){
 
   const G4VTouchable* touch= postStepPoint->GetTouchable();
@@ -395,27 +354,22 @@ void BscSD::EndOfEvent(G4HCofThisEvent* ) {
   Summarize();
 }
      
-
 void BscSD::Summarize() {
 }
-
 
 void BscSD::clear() {
 } 
 
-
 void BscSD::DrawAll() {
 } 
-
 
 void BscSD::PrintAll() {
   LogDebug("BscSim") << "BscSD: Collection " << theHC->GetName() << "\n";
   theHC->PrintAllHits();
 } 
 
-
-void BscSD::fillHits(edm::PSimHitContainer& c, std::string n) {
-  if (slave->name() == n) c=slave->hits();
+void BscSD::fillHits(edm::PSimHitContainer& cc, const std::string& hname) {
+  if (slave->name() == hname) { cc=slave->hits(); }
 }
 
 void BscSD::update (const BeginOfEvent * i) {
@@ -441,11 +395,5 @@ void BscSD::update (const ::EndOfEvent*) {
 void BscSD::clearHits(){
   //AZ:
   slave->Initialize();
-}
-
-std::vector<std::string> BscSD::getNames(){
-  std::vector<std::string> temp;
-  temp.push_back(slave->name());
-  return temp;
 }
 

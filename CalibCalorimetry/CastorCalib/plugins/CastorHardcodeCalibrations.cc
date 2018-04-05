@@ -37,7 +37,7 @@ namespace {
 
 std::vector<HcalGenericDetId> allCells (bool h2_mode) {
   static std::vector<HcalGenericDetId> result;
-  if (result.size () <= 0) {
+  if (result.empty()) {
 
     CastorTopology castortopology;
     HcalCastorDetId cell;
@@ -132,96 +132,96 @@ CastorHardcodeCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRec
   oInterval = edm::ValidityInterval (edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()); //infinite
 }
 
-std::auto_ptr<CastorPedestals> CastorHardcodeCalibrations::producePedestals (const CastorPedestalsRcd&) {
+std::unique_ptr<CastorPedestals> CastorHardcodeCalibrations::producePedestals (const CastorPedestalsRcd&) {
   edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::producePedestals-> ...";
-  std::auto_ptr<CastorPedestals> result (new CastorPedestals (false));
+  auto result = std::make_unique<CastorPedestals>(false);
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
     CastorPedestal item = CastorDbHardcode::makePedestal (*cell);
     result->addValues(item);
   }
   return result;
 }
 
-std::auto_ptr<CastorPedestalWidths> CastorHardcodeCalibrations::producePedestalWidths (const CastorPedestalWidthsRcd&) {
+std::unique_ptr<CastorPedestalWidths> CastorHardcodeCalibrations::producePedestalWidths (const CastorPedestalWidthsRcd&) {
   edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::producePedestalWidths-> ...";
-  std::auto_ptr<CastorPedestalWidths> result (new CastorPedestalWidths (false));
+  auto result = std::make_unique<CastorPedestalWidths>(false);
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
     CastorPedestalWidth item = CastorDbHardcode::makePedestalWidth (*cell);
     result->addValues(item);
   }
   return result;
 }
 
-std::auto_ptr<CastorGains> CastorHardcodeCalibrations::produceGains (const CastorGainsRcd&) {
+std::unique_ptr<CastorGains> CastorHardcodeCalibrations::produceGains (const CastorGainsRcd&) {
   edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::produceGains-> ...";
-  std::auto_ptr<CastorGains> result (new CastorGains ());
+  auto result = std::make_unique<CastorGains>();
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
     CastorGain item = CastorDbHardcode::makeGain (*cell);
     result->addValues(item);
   }
   return result;
 }
 
-std::auto_ptr<CastorGainWidths> CastorHardcodeCalibrations::produceGainWidths (const CastorGainWidthsRcd&) {
+std::unique_ptr<CastorGainWidths> CastorHardcodeCalibrations::produceGainWidths (const CastorGainWidthsRcd&) {
   edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::produceGainWidths-> ...";
-  std::auto_ptr<CastorGainWidths> result (new CastorGainWidths ());
+  auto result = std::make_unique<CastorGainWidths>();
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
     CastorGainWidth item = CastorDbHardcode::makeGainWidth (*cell);
     result->addValues(item);
   }
   return result;
 }
 
-std::auto_ptr<CastorQIEData> CastorHardcodeCalibrations::produceQIEData (const CastorQIEDataRcd& rcd) {
+std::unique_ptr<CastorQIEData> CastorHardcodeCalibrations::produceQIEData (const CastorQIEDataRcd& rcd) {
   edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::produceQIEData-> ...";
-  std::auto_ptr<CastorQIEData> result (new CastorQIEData ());
+  auto result = std::make_unique<CastorQIEData>();
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
     CastorQIECoder coder = CastorDbHardcode::makeQIECoder (*cell);
     result->addCoder(coder);
   }
   return result;
 }
 
-std::auto_ptr<CastorChannelQuality> CastorHardcodeCalibrations::produceChannelQuality (const CastorChannelQualityRcd& rcd) {
+std::unique_ptr<CastorChannelQuality> CastorHardcodeCalibrations::produceChannelQuality (const CastorChannelQualityRcd& rcd) {
   edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::produceChannelQuality-> ...";
-  std::auto_ptr<CastorChannelQuality> result (new CastorChannelQuality ());
+  auto result = std::make_unique<CastorChannelQuality>();
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
-  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
     CastorChannelStatus item(cell->rawId(),CastorChannelStatus::GOOD);
     result->addValues(item);
   }
   return result;
 }
 
-std::auto_ptr<CastorElectronicsMap> CastorHardcodeCalibrations::produceElectronicsMap (const CastorElectronicsMapRcd& rcd) {
+std::unique_ptr<CastorElectronicsMap> CastorHardcodeCalibrations::produceElectronicsMap (const CastorElectronicsMapRcd& rcd) {
   edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::produceElectronicsMap-> ...";
 
-  std::auto_ptr<CastorElectronicsMap> result (new CastorElectronicsMap ());
+  auto result = std::make_unique<CastorElectronicsMap>();
   CastorDbHardcode::makeHardcodeMap(*result);
   return result;
 }
 
-std::auto_ptr<CastorRecoParams> CastorHardcodeCalibrations::produceRecoParams (const CastorRecoParamsRcd& rcd) {
+std::unique_ptr<CastorRecoParams> CastorHardcodeCalibrations::produceRecoParams (const CastorRecoParamsRcd& rcd) {
 	edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::produceRecoParams-> ...";
-	std::auto_ptr<CastorRecoParams> result (new CastorRecoParams ());
+        auto result = std::make_unique<CastorRecoParams>();
 	std::vector <HcalGenericDetId> cells = allCells(h2mode_);
-	for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+	for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
 		CastorRecoParam item = CastorDbHardcode::makeRecoParam (*cell);
 		result->addValues(item);
 	}
 	return result;
 }
 
-std::auto_ptr<CastorSaturationCorrs> CastorHardcodeCalibrations::produceSaturationCorrs (const CastorSaturationCorrsRcd& rcd) {
+std::unique_ptr<CastorSaturationCorrs> CastorHardcodeCalibrations::produceSaturationCorrs (const CastorSaturationCorrsRcd& rcd) {
 	edm::LogInfo("HCAL") << "CastorHardcodeCalibrations::produceSaturationCorrs-> ...";
-	std::auto_ptr<CastorSaturationCorrs> result (new CastorSaturationCorrs ());
+        auto result = std::make_unique<CastorSaturationCorrs>();
 	std::vector <HcalGenericDetId> cells = allCells(h2mode_);
-	for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+	for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); ++cell) {
 		CastorSaturationCorr item = CastorDbHardcode::makeSaturationCorr (*cell);
 		result->addValues(item);
 	}

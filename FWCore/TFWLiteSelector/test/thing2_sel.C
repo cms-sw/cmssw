@@ -1,10 +1,7 @@
 {
   //Need this to allow ROOT to be able to use a ThingsTSelector
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
-  //Have to load library manually since Proof does not use the 
-  // mechanism used by TFile to find class dictionaries and therefore
-  // the AutoLibraryLoader can not help
+  FWLiteEnabler::enable();
   gSystem->Load("libFWCoreTFWLiteSelectorTest");
   
   TSelector* sel = new tfwliteselectortest::ThingsTSelector2();

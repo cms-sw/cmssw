@@ -68,7 +68,7 @@ namespace edmtest {
     e.getByToken(target_, input);
     assert(input.isValid());
 
-    std::unique_ptr<product_type> prod(new product_type());
+    auto prod = std::make_unique<product_type>();
 
     typedef product_type::value_type ref;
     for(size_t i = 0, sz = input->size(); i != sz; ++i) {
@@ -111,8 +111,7 @@ namespace edmtest {
       refVector.push_back(input->refAt(i));
     }
 
-    std::unique_ptr<product_type> prod(new product_type(refVector));
-    e.put(std::move(prod));
+    e.put(std::make_unique<product_type>(refVector));
   }
 
   //--------------------------------------------------------------------
@@ -142,7 +141,7 @@ namespace edmtest {
     e.getByToken(target_, input);
     assert(input.isValid());
 
-    std::unique_ptr<product_type> prod(new product_type());
+    auto prod = std::make_unique<product_type>();
 
     typedef product_type::value_type ref;
     for(size_t i = 0, sz = input->size(); i != sz; ++i)
@@ -178,7 +177,7 @@ namespace edmtest {
     e.getByToken(target_, input);
     assert(input.isValid());
 
-    std::unique_ptr<product_type> prod(new product_type());
+    auto prod = std::make_unique<product_type>();
 
     typedef product_type::value_type ref;
     for(size_t i = 0, sz = input->size(); i != sz; ++i)

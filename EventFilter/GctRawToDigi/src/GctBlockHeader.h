@@ -11,7 +11,7 @@
 
 // C++ headers
 #include <ostream>
-#include <stdint.h>
+#include <cstdint>
 
 class GctBlockHeader
 {

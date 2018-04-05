@@ -4,7 +4,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -22,9 +21,9 @@ class ZdcHardcodeGeometryEP : public edm::ESProducer
 {
    public:
       ZdcHardcodeGeometryEP(const edm::ParameterSet&);
-      ~ZdcHardcodeGeometryEP();
+      ~ZdcHardcodeGeometryEP() override;
 
-      typedef boost::shared_ptr<CaloSubdetectorGeometry> ReturnType;
+      typedef std::shared_ptr<CaloSubdetectorGeometry> ReturnType;
 
       ReturnType produce( const ZDCGeometryRecord&   ) ;
 

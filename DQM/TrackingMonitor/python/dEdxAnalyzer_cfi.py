@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-dEdxAnalyzer = cms.EDAnalyzer("dEdxAnalyzer",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+dEdxAnalyzer = DQMEDAnalyzer('dEdxAnalyzer',
     dEdxParameters = cms.PSet(
        doAllPlots          = cms.bool(False),
        doDeDxPlots         = cms.bool(True),
@@ -12,6 +13,8 @@ dEdxAnalyzer = cms.EDAnalyzer("dEdxAnalyzer",
 #       TracksForDeDx       = cms.string('RefitterForDedxDQMDeDx'),
        TracksForDeDx       = cms.string('generalTracks'),
        deDxProducers       = cms.vstring('dedxDQMHarm2SP', 'dedxDQMHarm2SO', 'dedxDQMHarm2PO'),
+
+       genericTriggerEventPSet = cms.PSet(),
 
        #cuts on number of hits
        TrackHitMin         = cms.double(8),
@@ -40,5 +43,40 @@ dEdxAnalyzer = cms.EDAnalyzer("dEdxAnalyzer",
        dEdxHIPmassBin      = cms.int32(51),
        dEdxHIPmassMin      = cms.double(-0.05),
        dEdxHIPmassMax      = cms.double(5.05),
+    )                          
+)
+
+
+dEdxHitAnalyzer = DQMEDAnalyzer('dEdxHitAnalyzer',
+    dEdxParameters = cms.PSet(
+       doAllPlots          = cms.bool(False),
+       doDeDxPlots         = cms.bool(True),
+       FolderName          = cms.string('Tracking/dEdxHits'),
+       OutputMEsInRootFile = cms.bool(False),
+       OutputFileName      = cms.string('MonitorTrack.root'),
+       
+       #input collections
+       TracksForDeDx       = cms.string('generalTracks'),
+       deDxHitProducers       = cms.vstring('dedxHitInfo'),
+
+       genericTriggerEventPSet = cms.PSet(),
+
+       #histograms definition
+       dEdxNHitBin         = cms.int32(30),
+       dEdxNHitMin         = cms.double(0),
+       dEdxNHitMax         = cms.double(30.),
+
+       dEdxStripBin        = cms.int32(100),
+       dEdxStripMin        = cms.double(0),
+       dEdxStripMax        = cms.double(1000.),
+
+       dEdxPixelBin        = cms.int32(100),
+       dEdxPixelMin        = cms.double(0),
+       dEdxPixelMax        = cms.double(200000.),
+
+       dEdxHarm2Bin             = cms.int32(50),
+       dEdxHarm2Min             = cms.double(0),
+       dEdxHarm2Max             = cms.double(10.),
+
     )                          
 )

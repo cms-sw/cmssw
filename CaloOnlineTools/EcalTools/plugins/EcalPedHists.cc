@@ -28,11 +28,11 @@ EcalPedHists::EcalPedHists(const edm::ParameterSet& ps) :
   listFEDs_ = ps.getUntrackedParameter<vector<int> >("listFEDs");
   listEBs_ = ps.getUntrackedParameter<vector<string> >("listEBs");
  
-  if(listFEDs_.size()==0)
+  if(listFEDs_.empty())
   {
     allFEDsSelected_ = false;
     //if "actual" EB id given, then convert to FEDid and put in listFEDs_
-    if(listEBs_.size() > 0)
+    if(!listEBs_.empty())
     {
       listFEDs_.clear();
       for(vector<string>::const_iterator itr = listEBs_.begin(); itr != listEBs_.end(); ++itr)
@@ -157,7 +157,7 @@ void EcalPedHists::endJob(void)
         //debug
         //cout << "loop over channels" << endl;
         
-        TH1F* hist = 0;
+        TH1F* hist = nullptr;
         string chnl = intToString(*itr);
         string name1 = "Cry";
         name1.append(chnl+"Gain1");
@@ -167,7 +167,7 @@ void EcalPedHists::endJob(void)
         name3.append(chnl+"Gain12");
         hist = mapHistos[name1];
         // This is a sanity check only
-        if(hist!=0)
+        if(hist!=nullptr)
         {
           string cryDirName = "Cry_"+chnl;
           TDirectory* cryDir = FEDdir->mkdir(cryDirName.c_str());
@@ -298,11 +298,11 @@ void EcalPedHists::initHists(int FED)
     string name3 = "Cry";
     name3.append(chnl+"Gain12");
     histMap.insert(make_pair(name1,new TH1F(name1.c_str(),title1.c_str(),75,175.0,250.0)));
-    histMap[name1]->SetDirectory(0);
+    histMap[name1]->SetDirectory(nullptr);
     histMap.insert(make_pair(name2,new TH1F(name2.c_str(),title2.c_str(),75,175.0,250.0)));
-    histMap[name2]->SetDirectory(0);
+    histMap[name2]->SetDirectory(nullptr);
     histMap.insert(make_pair(name3,new TH1F(name3.c_str(),title3.c_str(),75,175.0,250.0)));
-    histMap[name3]->SetDirectory(0);
+    histMap[name3]->SetDirectory(nullptr);
   }
   FEDsAndHistMaps_.insert(make_pair(FED,histMap));
 }
@@ -350,14 +350,14 @@ void EcalPedHists::readEBdigis(edm::Handle<EBDigiCollection> digis)
       name2.append(chnl+"Gain6");
       string name3 = "Cry";
       name3.append(chnl+"Gain12");
-      TH1F* hist = 0;
+      TH1F* hist = nullptr;
       if(((EBDataFrame)(*digiItr)).sample(*itr-1).gainId()==3)
         hist = mapHistos[name1];
       if(((EBDataFrame)(*digiItr)).sample(*itr-1).gainId()==2)
         hist = mapHistos[name2];
       if(((EBDataFrame)(*digiItr)).sample(*itr-1).gainId()==1)
         hist = mapHistos[name3];
-      if(hist!=0)
+      if(hist!=nullptr)
         hist->Fill(((EBDataFrame)(*digiItr)).sample(*itr-1).adc());
       else
         cerr << "EcalPedHistDumper: Error: This shouldn't happen!" << endl;
@@ -405,14 +405,14 @@ void EcalPedHists::readEEdigis(edm::Handle<EEDigiCollection> digis)
       name2.append(chnl+"Gain6");
       string name3 = "Cry";
       name3.append(chnl+"Gain12");
-      TH1F* hist = 0;
+      TH1F* hist = nullptr;
       if(((EBDataFrame)(*digiItr)).sample(*itr-1).gainId()==3)
         hist = mapHistos[name1];
       if(((EBDataFrame)(*digiItr)).sample(*itr-1).gainId()==2)
         hist = mapHistos[name2];
       if(((EBDataFrame)(*digiItr)).sample(*itr-1).gainId()==1)
         hist = mapHistos[name3];
-      if(hist!=0)
+      if(hist!=nullptr)
         hist->Fill(((EBDataFrame)(*digiItr)).sample(*itr-1).adc());
       else
         cerr << "EcalPedHistDumper: Error: This shouldn't happen!" << endl;

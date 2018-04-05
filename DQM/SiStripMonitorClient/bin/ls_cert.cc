@@ -12,7 +12,7 @@
 #include <TPaveStats.h>
 #include <TText.h>
 #include <TLegend.h>
-#include <string.h>
+#include <cstring>
 #include <utility>
 #include <vector>
 #include <sstream>
@@ -248,7 +248,7 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
 	tempvalue = atof(detvalue.c_str());
 	
 	for (j=0; j<smax; j++){
-	  if ( strstr(typecert.c_str(),certflag[j].c_str())!=NULL)
+	  if ( strstr(typecert.c_str(),certflag[j].c_str())!=nullptr)
 	    v[j][i] = tempvalue;
 	  if (debug) std::cout << "Entering value " << tempvalue << " " << v[j][i] << " for " << certflag[j].c_str() << std::endl;
 	}
@@ -324,7 +324,7 @@ void cert_plot( float threshold_pixel , float threshold , string filename , vect
   char plottitles[200];
   sprintf( plottitles , "Lumisection Certification: Run %s;Luminosity Section;" , runnum_str( filename ).c_str() );
   TH2D *cert_plot = new TH2D( "cert_plot" , plottitles , nLumiSections , 1 , nLumiSections + 1 , 5 , 1 , 6 );
-  cert_plot->SetStats(0);
+  cert_plot->SetStats(false);
   char label[100];
   for (int ityp = 0; ityp < 4; ityp++)
     {
@@ -382,7 +382,7 @@ void cert_plot( float threshold_pixel , float threshold , string filename , vect
   //PIXEL plot
 
   TH2D *cert_plot_pixel = new TH2D( "cert_plot_pixel" , plottitles , nLumiSections , 1 , nLumiSections + 1 , 4 , 1 , 5 );
-  cert_plot_pixel->SetStats(0);
+  cert_plot_pixel->SetStats(false);
 
   for (int ityp = 0; ityp < 4; ityp++)
     {
@@ -470,7 +470,7 @@ int nlumis( string filename )
 	      size_t pos2 = sflag.find_first_of(">");
 	      string detvalue = tempname.substr(0,pos1);
 	      string numlumisec = sflag.substr(1,pos2-1);
-	      if ( numlumisec.c_str() == (string)"iLumiSection" )
+	      if ( numlumisec == (string)"iLumiSection" )
 		{
 		  numlumis = atoi( detvalue.c_str() );
 		  break;
@@ -497,7 +497,7 @@ string runnum_str( string filename )
 
 void Cleaning( vector<int> &LSlist)
 {
-  if ( LSlist.size() == 0 ) return;
+  if ( LSlist.empty() ) return;
 
   //cleaning: keep only 1st and last lumisection in the range
   int refLS = LSlist[0];

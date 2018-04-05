@@ -1,3 +1,4 @@
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/VertexFitterManager.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/VertexRecoManager.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/ReconstructorFromFitter.h"
@@ -56,7 +57,7 @@ VertexFitterManager & VertexFitterManager::Instance()
   //The singleton's internal structure only changes while
   // this library is being loaded. All other methods are const.
   
-  [[cms::thread_safe]] static VertexFitterManager singleton;
+  CMS_THREAD_SAFE static VertexFitterManager singleton;
   return singleton;
 }
 

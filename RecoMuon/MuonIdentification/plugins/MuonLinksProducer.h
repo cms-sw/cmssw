@@ -29,9 +29,9 @@ class MuonLinksProducer : public edm::global::EDProducer<> {
  public:
    explicit MuonLinksProducer(const edm::ParameterSet&);
    
-   virtual ~MuonLinksProducer();
+   ~MuonLinksProducer() override;
    
-   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
    
  private:
    edm::InputTag m_inputCollection;

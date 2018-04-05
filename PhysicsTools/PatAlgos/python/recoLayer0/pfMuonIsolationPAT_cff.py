@@ -5,7 +5,8 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.recoLayer0.muonPFIsolationDepositsPAT_cff import *
 from PhysicsTools.PatAlgos.recoLayer0.muonPFIsolationValuesPAT_cff import *
 
-muonPFIsolationPATSequence =  cms.Sequence(
-    muonPFIsolationDepositsPATSequence +
-    muonPFIsolationValuesPATSequence
+muonPFIsolationPATTask = cms.Task(
+    muonPFIsolationDepositsPATTask,
+    muonPFIsolationValuesPATTask
 )
+muonPFIsolationPATSequence = cms.Sequence(muonPFIsolationPATTask)

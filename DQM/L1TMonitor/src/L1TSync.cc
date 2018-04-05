@@ -37,7 +37,8 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
-L1TSync::L1TSync(const ParameterSet & pset){
+L1TSync::L1TSync(const ParameterSet & pset) :
+  m_l1GtUtils(pset, consumesCollector(), false, *this){
 
   m_parameters = pset;
   
@@ -183,7 +184,7 @@ L1TSync::L1TSync(const ParameterSet & pset){
 
   m_outputFile = pset.getUntrackedParameter < std::string > ("outputFile","");
 
-  if (m_outputFile.size() != 0) {
+  if (!m_outputFile.empty()) {
     std::cout << "L1T Monitoring histograms will be saved to " <<	m_outputFile.c_str() << std::endl;
   }
 
@@ -238,7 +239,8 @@ void L1TSync::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const 
          
   m_selectedTriggers = myMenuHelper.testAlgos(m_selectedTriggers);
 
-  map<string,string> tAutoSelTrig = myMenuHelper.getLUSOTrigger(m_algoAutoSelect,m_refPrescaleSet);
+  m_l1GtUtils.retrieveL1EventSetup(iSetup);
+  map<string,string> tAutoSelTrig = myMenuHelper.getLUSOTrigger(m_algoAutoSelect, m_refPrescaleSet, m_l1GtUtils);
   m_selectedTriggers.insert(tAutoSelTrig.begin(),tAutoSelTrig.end());
 
   // Initializing DQM Monitor Elements
@@ -693,6 +695,3 @@ void L1TSync::certifyLSBlock(string iTrigger, int iInitLs, int iEndLs ,float iVa
   }
 
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(L1TSync);

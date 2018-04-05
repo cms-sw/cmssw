@@ -588,7 +588,7 @@ std::vector<DetId> EcalElectronicsMapping::dccConstituents(int dccId) const {
 		int size = xtals.size();
 		for (int i=0; i < size; i++) {
 			DetId detid = xtals[i];
-			items.push_back(detid);
+			items.emplace_back(detid);
 		}
 	}
   	return items; 
@@ -598,7 +598,7 @@ std::vector<DetId> EcalElectronicsMapping::dccConstituents(int dccId) const {
 	boost::tuples::tie(lb,ub)=get<3>(m_items).equal_range(dccId);
 	while (lb != ub) {
 		DetId cell = lb -> cell;
-		items.push_back(cell);
+		items.emplace_back(cell);
 		++ lb;
 	}
 	return items;
@@ -636,7 +636,7 @@ std::vector<DetId> EcalElectronicsMapping::dccTowerConstituents(int dccId, int t
 		int iphi_xtal = iphi + ip;
 		if (iz < 0) ieta_xtal = -ieta_xtal;
 	   	EBDetId ebdetid(ieta_xtal,iphi_xtal,EBDetId::ETAPHIMODE);
-		items.push_back(ebdetid);
+		items.emplace_back(ebdetid);
   	 }
    	}
   	return items;
@@ -647,7 +647,7 @@ std::vector<DetId> EcalElectronicsMapping::dccTowerConstituents(int dccId, int t
 	boost::tuples::tie(lb,ub)=get<4>(m_items).equal_range(boost::make_tuple(int(dccId), int(tower)));
 	while (lb != ub) {
 		DetId cell = lb -> cell;
-		items.push_back(cell);
+		items.emplace_back(cell);
 		++ lb;
 	}
 	return items;
@@ -693,7 +693,7 @@ std::vector<DetId> EcalElectronicsMapping::stripConstituents(int dccId, int towe
                 int iphi_xtal = iphi + ip;
                 if (iz < 0) ieta_xtal = -ieta_xtal;
                 EBDetId ebdetid(ieta_xtal,iphi_xtal,EBDetId::ETAPHIMODE);
-                items.push_back(ebdetid);
+                items.emplace_back(ebdetid);
         }
 
         return items;
@@ -703,7 +703,7 @@ std::vector<DetId> EcalElectronicsMapping::stripConstituents(int dccId, int towe
 	boost::tuples::tie(lb,ub)=get<5>(m_items).equal_range(boost::make_tuple(int(dccId), int(tower), int(strip)));
 	while (lb != ub) {
 		DetId cell = lb -> cell;
-		items.push_back(cell);
+		items.emplace_back(cell);
 		++ lb;
 	}
 	return items;
@@ -730,7 +730,7 @@ std::vector<DetId> EcalElectronicsMapping::tccConstituents(int tccId) const {
         boost::tuples::tie(lb,ub)=get<6>(m_items).equal_range(tccId);
         while (lb != ub) {
                 DetId cell = lb -> cell;
-                items.push_back(cell);
+                items.emplace_back(cell);
 		++ lb;
         }
         return items;
@@ -757,7 +757,7 @@ std::vector<DetId> EcalElectronicsMapping::ttConstituents(int tccId, int tt) con
         boost::tuples::tie(lb,ub)=get<7>(m_items).equal_range(boost::make_tuple(int(tccId), int(tt)));
         while (lb != ub) {
                 DetId cell = lb -> cell;
-                items.push_back(cell);
+                items.emplace_back(cell);
 		++ lb;
         }
         return items;
@@ -783,7 +783,7 @@ std::vector<DetId> EcalElectronicsMapping::pseudoStripConstituents(int tccId, in
         boost::tuples::tie(lb,ub)=get<8>(m_items).equal_range(boost::make_tuple(int(tccId), int(tt), int(pseudostrip)));
         while (lb != ub) {
                 DetId cell = lb -> cell;
-                items.push_back(cell);
+                items.emplace_back(cell);
 		++ lb;
         }
         return items;
@@ -859,18 +859,18 @@ std::vector<EcalScDetId> EcalElectronicsMapping::getEcalScDetId(int DCCid, int D
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << xtals.size()
 			  << " crystals read out by channel " <<  DCC_Channel << " of DCC "
 			  << DCCid << ": ";
-		for(size_t i = 0; i < xtals.size(); ++i){
-			std::cout << EEDetId(xtals[i]) << " ";
+		for(auto xtal : xtals){
+			std::cout << EEDetId(xtal) << " ";
 		}
 		std::cout << "\n";
 	}
 	
-	if (xtals.size() == 0) throw cms::Exception("InvalidDetId") << 
+	if (xtals.empty()) throw cms::Exception("InvalidDetId") << 
 				       "EcalElectronicsMapping : can not create EcalScDetId for DCC " << DCCid << 
 				       " and DCC_Channel " << DCC_Channel << ".";
 	
-	for(size_t iXtal = 0; iXtal < xtals.size(); ++iXtal){
-		EEDetId eedetid = xtals[iXtal];
+	for(auto xtal : xtals){
+		EEDetId eedetid = xtal;
 		int ix = eedetid.ix();
 		int iy = eedetid.iy();
 		int iz = eedetid.zside();
@@ -882,8 +882,8 @@ std::vector<EcalScDetId> EcalElectronicsMapping::getEcalScDetId(int DCCid, int D
 		//look if the SC was already included:
 		while(iSc < scDetIds.size() && scDetIds[iSc] != scdetid) ++iSc;
 		if(iSc==scDetIds.size()){//SC not yet included
-			scDetIds.push_back(scdetid);
-			nReadoutXtals.push_back(1); //crystal counter of the added SC
+			scDetIds.emplace_back(scdetid);
+			nReadoutXtals.emplace_back(1); //crystal counter of the added SC
 		} else{//SC already included
 			++nReadoutXtals[iSc];// counting crystals in the SC
 		}
@@ -972,18 +972,18 @@ int EcalElectronicsMapping::DCCBoundary(int FED)const {
 }
 
 
-std::vector<int> EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region) const {
+std::vector<int> EcalElectronicsMapping::GetListofFEDs(const RectangularEtaPhiRegion& region) const {
   std::vector<int> FEDs;
   GetListofFEDs(region, FEDs);
   return FEDs;
 }
-void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::vector<int> & FEDs) const {
+void EcalElectronicsMapping::GetListofFEDs(const RectangularEtaPhiRegion& region, std::vector<int> & FEDs) const {
 
 	// for regional unpacking.
 	// get list of FEDs corresponding to a region in (eta,phi)
 
   //	std::vector<int> FEDs;
-	double radTodeg = 180. / Geom::pi();
+	double radTodeg = 180. / M_PI;;
 
 	bool debug = false;
 
@@ -1006,13 +1006,11 @@ void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::
 	}
 	if (debug) std::cout << " FED_LB FED_LT " << FED_LB << " " << FED_LT << std::endl;
 
-
-	int iL=FED_LB;
 	bool dummy = true;
 	int idx = 0;
 	while (  dummy ) {
-		iL = (FED_LB - DCC_BoundaryL + idx ) % deltaL + DCC_BoundaryL;
-		FEDs.push_back(iL);
+		int iL = (FED_LB - DCC_BoundaryL + idx ) % deltaL + DCC_BoundaryL;
+		FEDs.emplace_back(iL);
 		if (debug) std::cout << "   add fed " << iL << std::endl;
 		if ( iL == FED_LT) break;
 		idx ++;
@@ -1034,12 +1032,10 @@ void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::
                 FED_RT = DCC_BoundaryR + deltaR-1;
         }
 	if (debug) std::cout << " FED_RB FED_RT " << FED_RB << " " << FED_RT << std::endl;
-
-	int iR=FED_RB;
 	idx = 0;
 	while ( dummy ) {
-		iR = (FED_RB - DCC_BoundaryR + idx) % deltaR + DCC_BoundaryR;
-                FEDs.push_back(iR);
+		int iR = (FED_RB - DCC_BoundaryR + idx) % deltaR + DCC_BoundaryR;
+                FEDs.emplace_back(iR);
 		if (debug) std::cout << "   add fed " << iR << std::endl;
 		if ( iR == FED_RT) break;
 		idx ++;
@@ -1050,11 +1046,10 @@ void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::
             FED_RB >= MIN_DCCID_EEP && FED_RB <= MAX_DCCID_EEP) {
 		int minR = FED_LB + 18;
 		int maxR = FED_LT + 18;
-		int iR = minR;
 		int idx = 0;
 		while ( dummy ) {
-			iR = (minR - MIN_DCCID_EBP + idx) % 18 + MIN_DCCID_EBP;
-			FEDs.push_back(iR);
+			int iR = (minR - MIN_DCCID_EBP + idx) % 18 + MIN_DCCID_EBP;
+			FEDs.emplace_back(iR);
 			if (debug) std::cout << "   add fed " << iR << std::endl;
 			if ( iR == maxR) break;
 			idx ++;
@@ -1066,11 +1061,10 @@ void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::
 	    FED_RB >= MIN_DCCID_EBP && FED_RB <= MAX_DCCID_EBP) {
 		int minL = FED_RB - 18;
 		int maxL = FED_RT - 18;
-		int iL = minL;
 		int idx = 0;
                 while ( dummy ) {
-			iL = (minL - MIN_DCCID_EBM + idx) % 18 + MIN_DCCID_EBM;
-                        FEDs.push_back(iL);
+			int iL = (minL - MIN_DCCID_EBM + idx) % 18 + MIN_DCCID_EBM;
+                        FEDs.emplace_back(iL);
 			if (debug) std::cout << "   add fed " << iL << std::endl;
 			if (iL == maxL) break;
 			idx ++;
@@ -1084,22 +1078,20 @@ void EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion& region, std::
 		if (minL == MIN_DCCID_EBM) minL=MAX_DCCID_EBM;
 		else minL = minL -1;
 		int maxL = (FED_LT-1)*2 + MIN_DCCID_EBM;
-		int iL = minL;
 		int idx = 0;
 		while (dummy) {
-			iL = (minL - MIN_DCCID_EBM + idx) % 18 + MIN_DCCID_EBM;
-			FEDs.push_back(iL);
+			int iL = (minL - MIN_DCCID_EBM + idx) % 18 + MIN_DCCID_EBM;
+			FEDs.emplace_back(iL);
 			if (debug) std::cout << "   add fed " << iL << std::endl;
 			if (iL == maxL) break;
 			idx ++;
 		}
 		int minR = minL + 18;
 		int maxR = maxL + 18;
-		int iR = minR;
 		idx = 0;
 		while (dummy) {
-			iR = (minR - MIN_DCCID_EBP + idx) % 18 + MIN_DCCID_EBP;
-                        FEDs.push_back(iR);
+			int iR = (minR - MIN_DCCID_EBP + idx) % 18 + MIN_DCCID_EBP;
+                        FEDs.emplace_back(iR);
 			if (debug) std::cout << "   add fed " << iR << std::endl;
 			if (iR == maxR) break;
 			idx ++;

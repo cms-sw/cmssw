@@ -14,7 +14,7 @@
 // Created:     Sat Apr 24 15:18 CEST 2007
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <algorithm>
 #include <iterator>
 #include <vector>
@@ -37,11 +37,11 @@ class ProcMLP : public VarProcessor {
 	ProcMLP(const char *name,
 	         const Calibration::ProcMLP *calib,
 	         const MVAComputer *computer);
-	virtual ~ProcMLP() {}
+	~ProcMLP() override {}
 
-	virtual void configure(ConfIterator iter, unsigned int n) override;
-	virtual void eval(ValueIterator iter, unsigned int n) const override;
-	virtual std::vector<double> deriv(
+	void configure(ConfIterator iter, unsigned int n) override;
+	void eval(ValueIterator iter, unsigned int n) const override;
+	std::vector<double> deriv(
 				ValueIterator iter, unsigned int n) const override;
 
     private:
@@ -61,7 +61,7 @@ class ProcMLP : public VarProcessor {
 	unsigned int		maxTmp;
 };
 
-static ProcMLP::Registry registry("ProcMLP");
+ProcMLP::Registry registry("ProcMLP");
 
 ProcMLP::Layer::Layer(const Calibration::ProcMLP::Layer &calib) :
 	inputs(calib.first.front().second.size()),
@@ -125,7 +125,7 @@ void ProcMLP::eval(ValueIterator iter, unsigned int n) const
 	for(double *pos = tmp; iter; iter++, pos++)
 		*pos = *iter;
 
-	double *output = 0;
+	double *output = nullptr;
 	for(std::vector<Layer>::const_iterator layer = layers.begin();
 	    layer != layers.end(); layer++, flip = !flip) {
 		const double *input = &tmp[flip ? maxTmp : 0];

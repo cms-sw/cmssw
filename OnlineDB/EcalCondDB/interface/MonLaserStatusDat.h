@@ -12,10 +12,10 @@ class MonLaserStatusDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   MonLaserStatusDat();
-  ~MonLaserStatusDat();
+  ~MonLaserStatusDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_LASER_STATUS_DAT"; }
+  inline std::string getTable() override { return "MON_LASER_STATUS_DAT"; }
   inline void setLaserPower(float p) { m_laserPower = p; }
   inline float getLaserPower() const { return m_laserPower; }
   
@@ -30,16 +30,16 @@ class MonLaserStatusDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonLaserStatusDat* item, MonRunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeArrayDB(const std::map< EcalLogicID, MonLaserStatusDat >* data, MonRunIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, MonLaserStatusDat >* fillMap, MonRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   float m_laserPower;

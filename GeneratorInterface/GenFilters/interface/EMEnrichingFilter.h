@@ -28,9 +28,9 @@
 class EMEnrichingFilter : public edm::EDFilter {
  public:
   explicit EMEnrichingFilter(const edm::ParameterSet&);
-  ~EMEnrichingFilter();
+  ~EMEnrichingFilter() override;
   
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
   
  private:
   EMEnrichingFilterAlgo *EMEAlgo_;

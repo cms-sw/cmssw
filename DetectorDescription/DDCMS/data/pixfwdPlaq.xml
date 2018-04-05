@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <!-- 
+         
+         == CMS Forward Pixels Geometry ==
+         
+         @version 3.02.01 May 30, 2006
+         @created Sunanda Banjeree
+         @modified Dmitry Onoprienko
+         
+         == COMPONENT DEFINED BY THIS FILE: ==
+         
+         Common parts for all types of plaquettes.
+         
+         -->
+    <!-- Rotations for placing sensors -->
+    <RotationSection label="PlaquetteCommon">
+        <Rotation name="Z90" phiX="90.*deg" thetaX="90.*deg" phiY="180.*deg" thetaY="90.*deg" phiZ="0.*deg" thetaZ="0.*deg"/>
+        <Rotation name="Z270" phiX="-90.*deg" thetaX="90.*deg" phiY="0.*deg" thetaY="90.*deg" phiZ="0.*deg" thetaZ="0.*deg"/>
+    </RotationSection>
+    <ConstantsSection label="Input" eval="true">
+        <Constant name="SensorT" value="0.270*mm"/>
+        <Constant name="BumpT" value="0.025*mm"/>
+        <Constant name="ROChipT" value="0.200*mm"/>
+        <Constant name="EpoxyT" value="0.178*mm"/>
+        <Constant name="FlexCircuitT" value="0.125*mm"/>
+        <Constant name="AdhFilmT" value="0.051*mm"/>
+        <Constant name="BackingT" value="0.300*mm"/>
+        <Constant name="ChoThermT" value="0.178*mm"/>
+        <Constant name="ROChipW" value="8.005*mm"/>
+        <!-- Readout chip width -->
+        <Constant name="ROChipH" value="9.935*mm"/>
+        <!-- Readout chip height -->
+        <Constant name="ROChipSpaceW" value="8.100*mm"/>
+        <!-- Distance (along width) between centers of adjacent chips -->
+    </ConstantsSection>
+    <ConstantsSection label="Calculated">
+        <!-- Thicknesses of superlayers -->
+        <Constant name="BumpROChipEpoxyT" value="[BumpT]+[ROChipT]+[EpoxyT]"/>
+        <Constant name="PassiveT" value="[BumpROChipEpoxyT]+[FlexCircuitT]+[AdhFilmT]+[BackingT]+[ChoThermT]"/>
+        <Constant name="PlaquetteT" value="[SensorT]+[PassiveT]"/>
+        <!-- Z-positions of superlayers to be positioned into plaquette root volume -->
+        <Constant name="SensorZ" value="([PlaquetteT]-[SensorT])/2."/>
+        <Constant name="PassiveZ" value="(-[PlaquetteT]+[PassiveT])/2."/>
+        <!-- Z-positions of layers to be positioned into "Passive" layer -->
+        <Constant name="BumpROChipEpoxyZ" value="([PassiveT]-[BumpROChipEpoxyT])/2."/>
+        <Constant name="FlexCircuitZ" value="[PassiveT]/2.-[BumpROChipEpoxyT]-[FlexCircuitT]/2."/>
+        <Constant name="AdhFilmZ" value="[PassiveT]/2.-[BumpROChipEpoxyT]-[FlexCircuitT]-[AdhFilmT]/2."/>
+        <Constant name="BackingZ" value="[PassiveT]/2.-[BumpROChipEpoxyT]-[FlexCircuitT]-[AdhFilmT]-[BackingT]/2."/>
+        <Constant name="ChoThermZ" value="(-[PassiveT]+[ChoThermT])/2."/>
+    </ConstantsSection>
+    <!-- Readout chip with epoxy and bump bond -->
+    <ConstantsSection label="BumpROChipCalculated">
+        <Constant name="BumpZ" value="([BumpROChipEpoxyT]-[BumpT])/2."/>
+        <Constant name="EpoxyZ" value="(-[BumpROChipEpoxyT]+[EpoxyT])/2."/>
+    </ConstantsSection>
+    <SolidSection label="BumpROChipEpoxy">
+        <Box name="PixelForwardBumpROChipEpoxy" dx="[ROChipW]/2." dy="[ROChipH]/2" dz="[BumpROChipEpoxyT]/2."/>
+        <Box name="PixelForwardBump" dx="[ROChipW]/2." dy="[ROChipH]/2" dz="[BumpT]/2."/>
+        <Box name="PixelForwardEpoxy" dx="[ROChipW]/2." dy="[ROChipH]/2" dz="[EpoxyT]/2."/>
+    </SolidSection>
+    <LogicalPartSection label="BumpROChipEpoxy">
+        <LogicalPart name="PixelForwardBumpROChipEpoxy" category="unspecified">
+            <rSolid name="PixelForwardBumpROChipEpoxy"/>
+            <rMaterial name="materials:Silicon"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardBump" category="unspecified">
+            <rSolid name="PixelForwardBump"/>
+            <rMaterial name="pixfwdMaterials:Pix_Fwd_Bump"/>
+        </LogicalPart>
+        <LogicalPart name="PixelForwardEpoxy" category="unspecified">
+            <rSolid name="PixelForwardEpoxy"/>
+            <rMaterial name="pixfwdMaterials:Pix_Fwd_AgEpoxy"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <PosPartSection label="BumpROChipEpoxy">
+        <PosPart copyNumber="1">
+            <rParent name="PixelForwardBumpROChipEpoxy"/>
+            <rChild name="PixelForwardBump"/>
+            <Translation x="0.*mm" y="0.*mm" z="[BumpZ]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="PixelForwardBumpROChipEpoxy"/>
+            <rChild name="PixelForwardEpoxy"/>
+            <Translation x="0.*mm" y="0.*mm" z="[EpoxyZ]"/>
+        </PosPart>
+    </PosPartSection>
+</DDDefinition>

@@ -34,8 +34,8 @@ using namespace std;
 class PFRecoTauProducer : public EDProducer {
  public:
   explicit PFRecoTauProducer(const edm::ParameterSet& iConfig);
-  ~PFRecoTauProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&) override;
+  ~PFRecoTauProducer() override;
+  void produce(edm::Event&,const edm::EventSetup&) override;
  private:
   edm::EDGetTokenT<PFTauTagInfoCollection> PFTauTagInfoProducer_;
   edm::InputTag ElectronPreIDProducer_;
@@ -78,7 +78,7 @@ PFRecoTauProducer::~PFRecoTauProducer(){
 }
 
 void PFRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
-  auto_ptr<PFTauCollection> resultPFTau(new PFTauCollection);
+  auto resultPFTau = std::make_unique<PFTauCollection>();
   
   edm::ESHandle<TransientTrackBuilder> myTransientTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",myTransientTrackBuilder);
@@ -99,7 +99,7 @@ void PFRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup
   iEvent.getByToken(PVProducer_,thePVs);
   const VertexCollection vertCollection=*(thePVs.product());
   Vertex thePV;
-  if(vertCollection.size()) thePV=*(vertCollection.begin());
+  if(!vertCollection.empty()) thePV=*(vertCollection.begin());
   else{
     Vertex::Error SimPVError;
     SimPVError(0,0)=smearedPVsigmaX_*smearedPVsigmaX_;
@@ -122,7 +122,7 @@ void PFRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup
     }
     ++iinfo;
   }
-  iEvent.put(resultPFTau);
+  iEvent.put(std::move(resultPFTau));
 }
 
 DEFINE_FWK_MODULE(PFRecoTauProducer);

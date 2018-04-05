@@ -30,9 +30,9 @@ public:
     : CSCPairConstraint(i, j, 0., 0.)
     , m_identifier(identifier), m_id_i(id_i), m_id_j(id_j)
     , m_sum1(0.), m_sumx(0.), m_sumy(0.), m_sumxx(0.), m_sumyy(0.), m_sumxy(0.), m_sumN(0)
-    , m_Zplane(1000.), m_iZ1(1000.), m_iZ6(1000.), m_jZ1(1000.), m_jZ6(1000.), m_cscGeometry(NULL), m_propagator(NULL)
+    , m_Zplane(1000.), m_iZ1(1000.), m_iZ6(1000.), m_jZ1(1000.), m_jZ6(1000.), m_cscGeometry(nullptr), m_propagator(nullptr)
   {};
-  virtual ~CSCPairResidualsConstraint() {};
+  ~CSCPairResidualsConstraint() override {};
 
   enum {
     kModePhiy,
@@ -41,11 +41,11 @@ public:
     kModeRadius
   };
 
-  double value() const;
-  double error() const;
+  double value() const override;
+  double error() const override;
   CSCDetId id_i() const { return m_id_i; };
   CSCDetId id_j() const { return m_id_j; };
-  bool valid() const;
+  bool valid() const override;
   double radius(bool is_i) const { return m_cscGeometry->idToDet((is_i ? m_id_i : m_id_j))->surface().position().perp(); };
 
   void configure(CSCOverlapsAlignmentAlgorithm *parent);

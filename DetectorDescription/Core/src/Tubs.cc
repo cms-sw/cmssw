@@ -1,12 +1,15 @@
 #include "DetectorDescription/Core/src/Tubs.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-
 #include <cmath>
+#include <vector>
+
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/src/Solid.h"
 
 using std::fabs;
-
 
 DDI::Tubs::Tubs(double zhalf,
     	        double rIn, double rOut,	      	      
@@ -14,11 +17,11 @@ DDI::Tubs::Tubs(double zhalf,
 	        double deltaPhi)
  : Solid(ddtubs)
 {
-  p_.push_back(zhalf);
-  p_.push_back(rIn);
-  p_.push_back(rOut);
-  p_.push_back(startPhi);
-  p_.push_back(deltaPhi);
+  p_.emplace_back(zhalf);
+  p_.emplace_back(rIn);
+  p_.emplace_back(rOut);
+  p_.emplace_back(startPhi);
+  p_.emplace_back(deltaPhi);
 }
 
 

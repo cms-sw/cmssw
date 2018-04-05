@@ -66,7 +66,7 @@ BeamHaloPropagator::BeamHaloPropagator(const Propagator& aEndCapTkProp, const Pr
 
 
 BeamHaloPropagator::BeamHaloPropagator(const BeamHaloPropagator& aProp) :
-  Propagator(aProp.propagationDirection()), theEndCapTkProp(0), theCrossTkProp(0) {
+  Propagator(aProp.propagationDirection()), theEndCapTkProp(nullptr), theCrossTkProp(nullptr) {
   if (aProp.theEndCapTkProp)
     theEndCapTkProp=aProp.getEndCapTkPropagator()->clone();
   if (aProp.theCrossTkProp)

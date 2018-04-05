@@ -21,6 +21,7 @@ QTestParameterNames::QTestParameterNames(){
 	//======================== new quality tests in the parser =====================//
         this->constructMap(Comp2RefEqualHROOT::getAlgoName(), "testparam");
         this->constructMap(Comp2RefChi2ROOT::getAlgoName(), "testparam");
+        this->constructMap(Comp2Ref2DChi2ROOT::getAlgoName(), "testparam");
         this->constructMap(Comp2RefKolmogorovROOT::getAlgoName(), "testparam");
 
 //        this->constructMap(MostProbableLandauROOT::getAlgoName(), "xmin", "xmax","normalization", "mostprobable", "sigma");

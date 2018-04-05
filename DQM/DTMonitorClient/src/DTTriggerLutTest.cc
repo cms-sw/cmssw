@@ -37,7 +37,7 @@ using namespace std;
 DTTriggerLutTest::DTTriggerLutTest(const edm::ParameterSet& ps){
 	
   setConfig(ps,"DTTriggerLut");
-  baseFolderDCC = "DT/03-LocalTrigger-DCC/";
+  baseFolderTM = "DT/03-LocalTrigger-TM/";
   baseFolderDDU = "DT/04-LocalTrigger-DDU/";
   thresholdWarnPhi  = ps.getUntrackedParameter<double>("thresholdWarnPhi");
   thresholdErrPhi   = ps.getUntrackedParameter<double>("thresholdErrPhi");
@@ -46,7 +46,7 @@ DTTriggerLutTest::DTTriggerLutTest(const edm::ParameterSet& ps){
   validRange = ps.getUntrackedParameter<double>("validRange");
   detailedAnalysis = ps.getUntrackedParameter<bool>("detailedAnalysis");
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -56,10 +56,9 @@ DTTriggerLutTest::~DTTriggerLutTest(){
 }
 
 
-void DTTriggerLutTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
-                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
-  if (bookingdone) return;
-  bookingdone = 1;  
+void DTTriggerLutTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+
+  bookingdone = true;  
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();
@@ -116,6 +115,8 @@ void DTTriggerLutTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
 }
 
 void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+
+   if (!bookingdone) Bookings(ibooker,igetter);
 
   // Reset lut percentage 1D summaries
   if (detailedAnalysis){
@@ -303,9 +304,9 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore
 	  else 
 	    phibStatus=5;
 	  
-	  cmsME.find("TrigLutSummary")->second->setBinContent(sect,wh+3,glbStatus);
-	  cmsME.find(fullName("PhiLutSummary"))->second->setBinContent(sect,wh+3,phiStatus);
-	  cmsME.find(fullName("PhibLutSummary"))->second->setBinContent(sect,wh+3,phibStatus);
+	  cmsME.find("TrigLutSummary")->second->setBinContent(sect,wh+wheelArrayShift,glbStatus);
+	  cmsME.find(fullName("PhiLutSummary"))->second->setBinContent(sect,wh+wheelArrayShift,phiStatus);
+	  cmsME.find(fullName("PhibLutSummary"))->second->setBinContent(sect,wh+wheelArrayShift,phibStatus);
 	}
       }
     }
@@ -357,6 +358,4 @@ void DTTriggerLutTest::fillWhPlot(MonitorElement *plot, int sect, int stat, floa
   
 }
 
-
-void DTTriggerLutTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}
 

@@ -29,7 +29,7 @@ void HLTPathSelector::beginRun(edm::Run const & iRun, edm::EventSetup const& iSe
     const unsigned int n(hltConfig_.size());
     const std::vector<std::string>& pathList = hltConfig_.triggerNames();
     for (auto path: pathList) {
-      if (hltPathsOfInterest_.size()) {
+      if (!hltPathsOfInterest_.empty()) {
         int nmatch = 0;
         for (auto kt: hltPathsOfInterest_)
           nmatch += TPRegexp(kt).Match(path);

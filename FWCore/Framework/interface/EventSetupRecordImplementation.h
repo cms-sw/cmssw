@@ -40,7 +40,7 @@ namespace edm {
          //virtual ~EventSetupRecordImplementation();
 
          // ---------- const member functions ---------------------
-         virtual EventSetupRecordKey key() const {
+         EventSetupRecordKey key() const override {
             return EventSetupRecordKey::makeKey<T>();
          }
 
@@ -55,9 +55,9 @@ namespace edm {
          EventSetupRecordImplementation() {}
 
       private:
-         EventSetupRecordImplementation(EventSetupRecordImplementation const&); // stop default
+         EventSetupRecordImplementation(EventSetupRecordImplementation const&) = delete; // stop default
 
-         EventSetupRecordImplementation const& operator=(EventSetupRecordImplementation const&); // stop default
+         EventSetupRecordImplementation const& operator=(EventSetupRecordImplementation const&) = delete; // stop default
 
          // ---------- member data --------------------------------
       };

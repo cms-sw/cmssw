@@ -21,14 +21,15 @@ namespace edm {
     moduleName_(),
     branchName_(),
     wrappedName_(),
+    wrappedType_(),
+    unwrappedType_(),
+    splitLevel_(),
+    basketSize_(),
     produced_(false),
     onDemand_(false),
     dropped_(false),
     transient_(false),
-    wrappedType_(),
-    unwrappedType_(),
-    splitLevel_(),
-    basketSize_() {
+    availableOnlyAtEndTransition_(false){
    }
 
   void
@@ -46,7 +47,7 @@ namespace edm {
     productInstanceName_(),
     branchAliases_(),
     aliasForBranchID_(),
-    transient_() {
+    transient_(){
     // do not call init here! It will result in an exception throw.
   }
 
@@ -61,6 +62,7 @@ namespace edm {
                         ParameterSetID const& parameterSetID,
                         TypeWithDict const& theTypeWithDict,
                         bool produced,
+                        bool availableOnlyAtEndTransition,
                         std::set<std::string> const& aliases) :
       branchType_(branchType),
       moduleLabel_(moduleLabel),
@@ -76,6 +78,7 @@ namespace edm {
     setOnDemand(false);
     transient_.moduleName_ = moduleName;
     transient_.parameterSetID_ = parameterSetID;
+    transient_.availableOnlyAtEndTransition_=availableOnlyAtEndTransition;
     setUnwrappedType(theTypeWithDict);
     init();
   }
@@ -97,6 +100,7 @@ namespace edm {
     setDropped(false);
     setProduced(aliasForBranch.produced());
     setOnDemand(aliasForBranch.onDemand());
+    transient_.availableOnlyAtEndTransition_=aliasForBranch.availableOnlyAtEndTransition();
     transient_.moduleName_ = aliasForBranch.moduleName();
     transient_.parameterSetID_ = aliasForBranch.parameterSetID();
     setUnwrappedType(aliasForBranch.unwrappedType());
@@ -118,10 +122,10 @@ namespace edm {
       << "' contains an underscore ('_'), which is illegal in the name of a product.\n";
     }
 
-    if(moduleLabel_.find(underscore) != std::string::npos) {
-      throw cms::Exception("IllegalCharacter") << "Module label '" << moduleLabel()
-      << "' contains an underscore ('_'), which is illegal in a module label.\n";
-    }
+    // Module labels of non-persistent products are allowed to contain
+    // underscores. For module labels of persistent products, the module
+    // label is checked for underscores in the function initFromDictionary
+    // after we determine whether the product is persistent or not.
 
     if(productInstanceName_.find(underscore) != std::string::npos) {
       throw cms::Exception("IllegalCharacter") << "Product instance name '" << productInstanceName()
@@ -196,9 +200,20 @@ namespace edm {
       // Set transient if persistent == "false".
       setTransient(true);
       return;
+    } else {
+      // Module labels of persistent products cannot contain underscores,
+      // but for non-persistent products it is allowed because path names
+      // are used as module labels for path status products and there
+      // are many path names that include underscores.
+      char const underscore('_');
+      if(moduleLabel_.find(underscore) != std::string::npos) {
+        throw cms::Exception("IllegalCharacter") << "Module label '" << moduleLabel()
+        << "' contains an underscore ('_'), which is illegal in a module label.\n";
+      }
     }
+
     if (wp && wp->HasKey("splitLevel")) {
-      setSplitLevel(strtol(wp->GetPropertyAsString("splitLevel"), 0, 0));
+      setSplitLevel(strtol(wp->GetPropertyAsString("splitLevel"), nullptr, 0));
       if (splitLevel() < 0) {
         throw cms::Exception("IllegalSplitLevel") << "' An illegal ROOT split level of " <<
           splitLevel() << " is specified for class " << wrappedName() << ".'\n";
@@ -206,7 +221,7 @@ namespace edm {
       setSplitLevel(splitLevel() + 1); //Compensate for wrapper
     }
     if (wp && wp->HasKey("basketSize")) {
-      setBasketSize(strtol(wp->GetPropertyAsString("basketSize"), 0, 0));
+      setBasketSize(strtol(wp->GetPropertyAsString("basketSize"), nullptr, 0));
       if (basketSize() <= 0) {
         throw cms::Exception("IllegalBasketSize") << "' An illegal ROOT basket size of " <<
           basketSize() << " is specified for class " << wrappedName() << "'.\n";

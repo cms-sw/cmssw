@@ -34,7 +34,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/View.h"
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
+#include <TH3F.h>
 
 // parameter parser header
 #include "RecoJets/FFTJetProducers/interface/FFTJetParameterParser.h"
@@ -51,7 +51,7 @@ class FFTJetEFlowSmoother : public FFTJetInterface
 {
 public:
     explicit FFTJetEFlowSmoother(const edm::ParameterSet&);
-    ~FFTJetEFlowSmoother();
+    ~FFTJetEFlowSmoother() override;
 
 protected:
     // methods
@@ -60,9 +60,9 @@ protected:
     void endJob() override ;
 
 private:
-    FFTJetEFlowSmoother();
-    FFTJetEFlowSmoother(const FFTJetEFlowSmoother&);
-    FFTJetEFlowSmoother& operator=(const FFTJetEFlowSmoother&);
+    FFTJetEFlowSmoother() = delete;
+    FFTJetEFlowSmoother(const FFTJetEFlowSmoother&) = delete;
+    FFTJetEFlowSmoother& operator=(const FFTJetEFlowSmoother&) = delete;
 
     void buildKernelConvolver(const edm::ParameterSet&);
 
@@ -225,13 +225,13 @@ void FFTJetEFlowSmoother::produce(
     const double bin0edge = g.phiBin0Edge();
 
     // We will fill the following histo
-    std::auto_ptr<TH3F> pTable(
-        new TH3F("FFTJetEFlowSmoother", "FFTJetEFlowSmoother",
+    auto pTable = std::make_unique<TH3F>(
+                 "FFTJetEFlowSmoother", "FFTJetEFlowSmoother",
                  nScales+1U, -1.5, nScales-0.5,
                  nEta, g.etaMin(), g.etaMax(),
-                 nPhi, bin0edge, bin0edge+2.0*M_PI));
+                 nPhi, bin0edge, bin0edge+2.0*M_PI);
     TH3F* h = pTable.get();
-    h->SetDirectory(0);
+    h->SetDirectory(nullptr);
     h->GetXaxis()->SetTitle("Scale");
     h->GetYaxis()->SetTitle("Eta");
     h->GetZaxis()->SetTitle("Phi");
@@ -264,7 +264,7 @@ void FFTJetEFlowSmoother::produce(
         }
     }
 
-    iEvent.put(pTable, outputLabel);
+    iEvent.put(std::move(pTable), outputLabel);
 }
 
 

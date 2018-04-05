@@ -35,6 +35,7 @@ class MuonUpdatorAtVertex;
 class TrajectorySmoother;
 class ForwardDetLayer;
 class BarrelDetLayer;
+class TrackerTopology;
 
 class MuonTrackLoader {
   public:
@@ -43,32 +44,37 @@ class MuonTrackLoader {
     typedef MuonCandidate::CandidateContainer CandidateContainer;
 
     /// Constructor for the STA reco the args must be specify!
-    MuonTrackLoader(edm::ParameterSet &parameterSet,edm::ConsumesCollector& iC,  const MuonServiceProxy *service =0);
+    MuonTrackLoader(edm::ParameterSet &parameterSet,edm::ConsumesCollector& iC,  const MuonServiceProxy *service =nullptr);
 
     /// Destructor
     virtual ~MuonTrackLoader();
    
     /// Convert the trajectories into tracks and load the tracks in the event
     edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
-                                                        edm::Event&,const std::string& = "", 
+                                                        edm::Event&,
+                                                        const TrackerTopology& ttopo,
+                                                        const std::string& = "", 
 							bool = true);
 
     /// Convert the trajectories into tracks and load the tracks in the event
     edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
                                                         edm::Event&, std::vector<bool>&,
-							const std::string& = "", 
+                                                        const TrackerTopology& ttopo,
+							const std::string& = "",
 							bool = true);
 
     /// Convert the trajectories into tracks and load the tracks in the event
     edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
                                                         edm::Event&,const std::vector<std::pair<Trajectory*, reco::TrackRef> >&,
                                                         edm::Handle<reco::TrackCollection> const& trackHandle,
+                                                        const TrackerTopology& ttopo,
 							const std::string& = "", 
 							bool = true);
 
     /// Convert the trajectories into tracks and load the tracks in the event
     edm::OrphanHandle<reco::MuonTrackLinksCollection> loadTracks(const CandidateContainer&,
-								 edm::Event&); 
+                                                                 edm::Event&,
+                                                                 const TrackerTopology& ttopo);
   
   private:
     static std::vector<const TrackingRecHit*> unpackHit(const TrackingRecHit &hit);

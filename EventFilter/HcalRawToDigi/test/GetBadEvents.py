@@ -29,9 +29,9 @@ def GetBadCrabEvents(crabdir=None,prefix=None,verbose=False):
         ###print f
         temp=open(os.path.join(newdir,f),'r').readlines()
         for line in temp:
-            if prefix<>None and not line.startswith(prefix):
+            if prefix!=None and not line.startswith(prefix):
                 continue
-            if prefix<>None:
+            if prefix!=None:
                 thisline=string.strip(string.split(line,prefix)[1])
             else:
                 thisline=string.strip(line)

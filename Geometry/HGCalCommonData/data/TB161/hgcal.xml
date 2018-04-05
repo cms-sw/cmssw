@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcal.xml" eval="true">
+  <Constant name="rmax"        value="50.*cm"/>
+  <Constant name="rmaxEE"      value="10.0*cm"/>
+  <Constant name="zCalor"      value="100.0*cm"/>
+  <Constant name="zminEE"      value="0.0*fm"/>
+  <Constant name="zmaxEE"      value="45.0*cm"/>
+  <Constant name="zposCalo"    value="1210.0*cm"/>
+  <Constant name="zposEE"      value="-[zCalor]"/>
+  <Constant name="WaferW"      value="123.7*mm"/>
+</ConstantsSection>
+
+<MaterialSection label="hgcal.xml">
+  <CompositeMaterial name="WCu" density="14.979*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.75">
+      <rMaterial name="materials:Tungsten"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.25">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+
+<SolidSection label="hgcal.xml">
+  <Tubs name="HGCal" rMin="0.0*fm" rMax="[rmax]" dz="[zCalor]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Polycone name="HGCalEE" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zminEE]" rMin="0.0*fm" rMax="[rmaxEE]"/>
+    <ZSection z="[zmaxEE]" rMin="0.0*fm" rMax="[rmaxEE]"/>
+  </Polycone>
+ </SolidSection>
+
+<LogicalPartSection label="hgcal.xml">
+  <LogicalPart name="HGCal" category="unspecified">
+    <rSolid name="HGCal"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEE" category="unspecified">
+    <rSolid name="HGCalEE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcal.xml">
+  <PosPart copyNumber="1">
+    <rParent name="cms:CMSE"/>
+    <rChild name="hgcal:HGCal"/>
+    <Translation x="0*fm" y="0*fm" z="[zposCalo]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcal:HGCalEE"/>
+    <Translation x="0*fm" y="0*fm" z="[zposEE]"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

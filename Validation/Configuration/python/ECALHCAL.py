@@ -24,7 +24,7 @@ def customise(process):
 
     # use directly the generator output, no Hector
 
-    process.g4SimHits.Generator.HepMCProductLabel = cms.string('generator')
+    process.g4SimHits.Generator.HepMCProductLabel = cms.string('generatorSmeared')
 
     # modify the content
 
@@ -45,7 +45,8 @@ def customise(process):
     delattr(process,"hbhereco")
     process.hbhereco = process.hbheprereco.clone()
     process.hcalLocalRecoSequence.replace(process.hbheprereco,process.hbhereco)
-    process.hbhereco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
+    process.hbhereco.digiLabelQIE8 = cms.InputTag("simHcalUnsuppressedDigis")
+    process.hbhereco.digiLabelQIE11 = cms.InputTag("simHcalUnsuppressedDigis","HBHEQIE11DigiCollection")
     process.horeco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.hfreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.ecalRecHit.recoverEBIsolatedChannels = cms.bool(False)
@@ -66,7 +67,7 @@ def customise(process):
             cms.InputTag("interestingEcalDetIdEE"),
             )            
 
-    process.local_digireco = cms.Path(process.mix * process.addPileupInfo * process.calDigi * process.ecalPacker * process.esDigiToRaw * process.hcalRawData * process.rawDataCollector * process.ecalDigis * process.ecalPreshowerDigis * process.hcalDigis * process.calolocalreco *(process.ecalClustersNoPFBox+process.caloTowersRec) * process.reducedEcalRecHitsSequenceEcalOnly )
+    process.local_digireco = cms.Path(process.mix * process.addPileupInfo * process.bunchSpacingProducer * process.calDigi * process.ecalPacker * process.esDigiToRaw * process.hcalRawData * process.rawDataCollector * process.ecalDigis * process.ecalPreshowerDigis * process.hcalDigis * process.calolocalreco *(process.ecalClustersNoPFBox+process.caloTowersRec) * process.reducedEcalRecHitsSequenceEcalOnly )
 
     process.schedule.append(process.local_digireco)
 

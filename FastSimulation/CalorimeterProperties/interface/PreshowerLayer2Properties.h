@@ -23,18 +23,18 @@ class PreshowerLayer2Properties : public PreshowerProperties
 
   PreshowerLayer2Properties(const edm::ParameterSet& fastDet);
 
-  ~PreshowerLayer2Properties() {
+  ~PreshowerLayer2Properties() override {
       ;}
 
   /// Fraction of energy collected on sensitive detectors
-  inline double sensitiveFraction() const { return 0.00515; }
+  inline double sensitiveFraction() const override { return 0.00515; }
 
   /// Number of Mips/GeV [Default : 59.5 Mips/GeV or 0.7*24 MeV/Mips]
-  inline double mipsPerGeV() const { return mips; }
+  inline double mipsPerGeV() const override { return mips; }
 
   /// Thickness in cm (pretend it's all lead)
   /// Default : 0.506 cm at normal incidence
-  double thickness(const double eta) const ;
+  double thickness(const double eta) const override ;
 
     /// properties of the material between ES and EE; there is about 12 cm between the two.
   inline double pseeIntLenIncm() const {return pseeInteractionLength_;}

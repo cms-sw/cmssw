@@ -29,7 +29,7 @@ bool CandKinematicVertexFitter::fit(const vector<RefCountedKinematicParticle> & 
 
 // main method called by CandProducer sets the VertexCompositeCandidate
 void CandKinematicVertexFitter::set(VertexCompositeCandidate & c) const {
-  if(bField_ == 0)
+  if(bField_ == nullptr)
     throw edm::Exception(edm::errors::InvalidReference)
       << "B-Field was not set up CandKinematicVertexFitter.\n"
       << "the following method must be called before fitting a candidate:\n"
@@ -103,12 +103,12 @@ void CandKinematicVertexFitter::fill(vector<RefCountedKinematicParticle> & parti
   // loop through CompositeCandidate daughters
   for(unsigned int j = 0; j < nDau ; ++j) {
     Candidate * d = c.daughter(j);
-    if(d == 0) {
+    if(d == nullptr) {
       ostringstream message;
       message << "Can't access in write mode candidate daughters. "
 	      << "pdgId = " << c.pdgId() << ".\n";
       const Candidate * d1 = c.daughter(j);
-      if(d1 == 0)
+      if(d1 == nullptr)
 	message << "Null daughter also found in read-only mode\n";
       else
 	message << "Daughter found in read-only mode with id: " << d1->pdgId() << "\n";
@@ -118,7 +118,7 @@ void CandKinematicVertexFitter::fill(vector<RefCountedKinematicParticle> & parti
     if(d->numberOfDaughters() > 0) {
       //try to cast to VertexCompositeCandiate
       VertexCompositeCandidate * vtxDau = dynamic_cast<VertexCompositeCandidate*>(d);
-      if( vtxDau!=0 && vtxDau->vertexChi2()>0 ) {
+      if( vtxDau!=nullptr && vtxDau->vertexChi2()>0 ) {
 	// if VertexCompositeCandidate refit vtxDau via the set method
 	(*this).set(*vtxDau);
 	// if mass constraint is desired, do it here

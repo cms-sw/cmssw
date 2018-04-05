@@ -1,4 +1,4 @@
-#ifndef DataMixingSiStripMCDigiWorker_h
+#ifndef SimDataMixingSiStripMCDigiWorker_h
 #define SimDataMixingSiStripMCDigiWorker_h
 
 /** \class DataMixingSiStripMCDigiWorker
@@ -36,7 +36,7 @@
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -78,6 +78,11 @@ namespace edm
       edm::InputTag SiStripPileInputTag_ ;    // InputTag for pileup strips
       std::string SiStripDigiCollectionDM_  ; // secondary name to be given to new SiStrip digis
 
+      edm::InputTag SistripAPVLabelSig_;      // where to find vector of dead APVs
+      edm::InputTag SiStripAPVPileInputTag_;
+      std::string SistripAPVListDM_;          // output tag
+
+
       // 
 
       typedef float Amplitude;
@@ -103,21 +108,28 @@ namespace edm
       const SignalMapType* getSignal(uint32_t detID) const {
 	auto where = signals_.find(detID);
 	if(where == signals_.end()) {
-	  return 0;
+	  return nullptr;
 	}
 	return &where->second;
       }
 
       signalMaps signals_;
 
+      // to keep track of dead APVs from HIP interactions
+      typedef std::multimap< uint32_t, std::bitset<6> > APVMap;
+
+      APVMap theAffectedAPVmap_;
+
       // for noise adding:
 
       std::string label_;
 
       std::string gainLabel;
+      bool SingleStripNoise;
       bool peakMode;
       double theThreshold;
       double theElectronPerADC;
+      bool APVSaturationFromHIP_;
       int theFedAlgo;
       std::string geometryType;
 
@@ -129,6 +141,8 @@ namespace edm
 
       // bad channels for each detector ID
       std::map<unsigned int, std::vector<bool> > allBadChannels;
+      // channels killed by HIP interactions for each detector ID
+      std::map<unsigned int, std::vector<bool> > allHIPChannels;
       // first and last channel wit signal for each detector ID
       std::map<unsigned int, size_t> firstChannelsWithSignal;
       std::map<unsigned int, size_t> lastChannelsWithSignal;
@@ -148,4 +162,4 @@ namespace edm
     };
 }//edm
 
-#endif
+#endif // SimDataMixingSiStripMCDigiWorker_h

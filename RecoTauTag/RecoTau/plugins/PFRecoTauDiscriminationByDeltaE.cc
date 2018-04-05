@@ -22,7 +22,7 @@ class PFRecoTauDiscriminationByDeltaE : public PFTauDiscriminationProducerBase  
 		booleanOutput 		= iConfig.getParameter<bool>("BooleanOutput");
 	}
 
-      	~PFRecoTauDiscriminationByDeltaE(){}
+      	~PFRecoTauDiscriminationByDeltaE() override{}
 
 	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 	double discriminate(const reco::PFTauRef&) const override;

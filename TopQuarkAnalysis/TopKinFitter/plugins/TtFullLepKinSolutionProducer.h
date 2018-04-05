@@ -22,11 +22,11 @@ class TtFullLepKinSolutionProducer : public edm::EDProducer {
   public:
 
     explicit TtFullLepKinSolutionProducer(const edm::ParameterSet & iConfig);
-    ~TtFullLepKinSolutionProducer();
+    ~TtFullLepKinSolutionProducer() override;
 
-    virtual void beginJob();
-    virtual void produce(edm::Event & evt, const edm::EventSetup & iSetup);
-    virtual void endJob();
+    void beginJob() override;
+    void produce(edm::Event & evt, const edm::EventSetup & iSetup) override;
+    void endJob() override;
 
   private:
 
@@ -120,11 +120,11 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
   std::vector<std::pair<double, int> > weightsV;
 
   //create pointer for products
-  std::auto_ptr<std::vector<std::vector<int> > >   pIdcs(new std::vector<std::vector<int> >);
-  std::auto_ptr<std::vector<reco::LeafCandidate> > pNus(new std::vector<reco::LeafCandidate>);
-  std::auto_ptr<std::vector<reco::LeafCandidate> > pNuBars(new std::vector<reco::LeafCandidate>);
-  std::auto_ptr<std::vector<double> >              pWeight(new std::vector<double>);
-  std::auto_ptr<bool> pWrongCharge(new bool);
+  std::unique_ptr<std::vector<std::vector<int> > >   pIdcs(new std::vector<std::vector<int> >);
+  std::unique_ptr<std::vector<reco::LeafCandidate> > pNus(new std::vector<reco::LeafCandidate>);
+  std::unique_ptr<std::vector<reco::LeafCandidate> > pNuBars(new std::vector<reco::LeafCandidate>);
+  std::unique_ptr<std::vector<double> >              pWeight(new std::vector<double>);
+  std::unique_ptr<bool> pWrongCharge(new bool);
 
   edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByToken(jetsToken_, jets);
@@ -151,14 +151,14 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
   if(jets->size()>=2) { jetsFound = true; }
 
   //select MET (TopMET vector is sorted on ET)
-  if(mets->size()>=1) { METFound = true; }
+  if(!mets->empty()) { METFound = true; }
 
   // If we have electrons and muons available,
   // build a solutions with electrons and muons.
   if(muons->size() + electrons->size() >=2) {
     // select leptons
-    if(electrons->size() == 0) mumu = true;
-    else if(muons->size() == 0) ee = true;
+    if(electrons->empty()) mumu = true;
+    else if(muons->empty()) ee = true;
     else if(electrons->size() == 1) {
       if(muons->size() == 1) emu = true;
       else if(PTComp(&(*electrons)[0], &(*muons)[1])) emu = true;
@@ -218,7 +218,7 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
   // Check if the leptons for the required Channel are available
   bool correctLeptons = ((electronsFound && eeChannel_) || (muonsFound && mumuChannel_) || (electronMuonFound && emuChannel_) );
   // Check for equally charged leptons if for wrong charge combinations is searched
-  if(isWrongCharge) correctLeptons *= searchWrongCharge_;
+  if(isWrongCharge) { correctLeptons = correctLeptons && searchWrongCharge_; }
 
   if(correctLeptons && METFound && jetsFound) {
 
@@ -414,7 +414,7 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
     }
   }
 
-  if(weightsV.size()==0){
+  if(weightsV.empty()){
     //create dmummy vector
     std::vector<int> idcs;
     for(int i=0; i<6; ++i)
@@ -459,11 +459,11 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
   }
 
   // put the results in the event
-  evt.put(pIdcs);
-  evt.put(pNus,         "fullLepNeutrinos");
-  evt.put(pNuBars,      "fullLepNeutrinoBars");
-  evt.put(pWeight,      "solWeight");
-  evt.put(pWrongCharge, "isWrongCharge");
+  evt.put(std::move(pIdcs));
+  evt.put(std::move(pNus),         "fullLepNeutrinos");
+  evt.put(std::move(pNuBars),      "fullLepNeutrinoBars");
+  evt.put(std::move(pWeight),      "solWeight");
+  evt.put(std::move(pWrongCharge), "isWrongCharge");
 }
 
 #endif

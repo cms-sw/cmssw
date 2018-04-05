@@ -25,6 +25,12 @@ extern "C" {
 }
 #define HYEVNT hyevnt_
 
+extern "C" {
+  extern struct {
+    double psi3;    
+  } hypsi3_;
+}
+#define hypsi3 hypsi3_
 
 extern "C" {
   extern struct {
@@ -35,7 +41,6 @@ extern "C" {
   } hyflow_;
 }
 #define hyflow hyflow_
-
 
 extern "C" {
   extern struct{

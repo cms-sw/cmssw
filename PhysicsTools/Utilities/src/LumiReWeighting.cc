@@ -38,12 +38,14 @@ using namespace edm;
 
 LumiReWeighting::LumiReWeighting( std::string generatedFile,
 		   std::string dataFile,
-		   std::string GenHistName = "pileup",
-		   std::string DataHistName = "pileup" ) :
+		   std::string GenHistName,
+		   std::string DataHistName,
+		   const edm::InputTag& PileupSumInfoInputTag ) :
       generatedFileName_( generatedFile), 
       dataFileName_     ( dataFile ), 
-      GenHistName_        ( GenHistName ), 
-      DataHistName_        ( DataHistName )
+      GenHistName_      ( GenHistName ), 
+      DataHistName_     ( DataHistName ),
+      pileupSumInfoTag_ ( PileupSumInfoInputTag )
       {
 	generatedFile_ = boost::shared_ptr<TFile>( new TFile(generatedFileName_.c_str()) ); //MC distribution
 	dataFile_      = boost::shared_ptr<TFile>( new TFile(dataFileName_.c_str()) );      //Data distribution
@@ -81,7 +83,9 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	OldLumiSection_ = -1;
 }
 
-LumiReWeighting::LumiReWeighting(const std::vector< float >& MC_distr,const std::vector< float >& Lumi_distr) {
+LumiReWeighting::LumiReWeighting(const std::vector< float >& MC_distr,const std::vector< float >& Lumi_distr, const edm::InputTag& PileupSumInfoInputTag ) :
+      pileupSumInfoTag_ ( PileupSumInfoInputTag )
+  {
   // no histograms for input: use vectors
   
   // now, make histograms out of them:
@@ -153,27 +157,13 @@ double LumiReWeighting::weight( float npv ) {
 
 double LumiReWeighting::weight( const edm::EventBase &e ) {
 
-  // find provenance of event objects, just to check at the job beginning if there might be an issue  
-
   if(FirstWarning_) {
-
-    edm::ProcessHistory PHist = e.processHistory();
-    edm::ProcessHistory::const_iterator PHist_iter = PHist.begin();
-
-    for(; PHist_iter<PHist.end() ;++PHist_iter) {
-      edm::ProcessConfiguration PConf = *(PHist_iter);
-      edm::ReleaseVersion Release =  PConf.releaseVersion() ;
-      const std::string Process =  PConf.processName();
-
-    }
+    e.processHistory();
     //    SetFirstFalse();
     FirstWarning_ = false;
   }
-
-  // get pileup summary information
-
   Handle<std::vector< PileupSummaryInfo > >  PupInfo;
-  e.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
+  e.getByLabel(pileupSumInfoTag_, PupInfo);
 
   std::vector<PileupSummaryInfo>::const_iterator PVI;
 
@@ -204,27 +194,16 @@ double LumiReWeighting::weightOOT( const edm::EventBase &e ) {
 
   //int Run = e.run();
   int LumiSection = e.luminosityBlock();
-  
   // do some caching here, attempt to catch file boundaries
 
-  if(LumiSection != OldLumiSection_) {
-
-    edm::ProcessHistory PHist = e.processHistory();
-    edm::ProcessHistory::const_iterator PHist_iter = PHist.begin();
-
-    for(; PHist_iter<PHist.end() ;++PHist_iter) {
-      edm::ProcessConfiguration PConf = *(PHist_iter);
-      edm::ReleaseVersion Release =  PConf.releaseVersion() ;
-      const std::string Process =  PConf.processName();
-
-    }
+  if(LumiSection != OldLumiSection_){
+    e.processHistory(); // keep the function call
     OldLumiSection_ = LumiSection;
   }
-
   // find the pileup summary information
 
   Handle<std::vector< PileupSummaryInfo > >  PupInfo;
-  e.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
+  e.getByLabel(pileupSumInfoTag_, PupInfo);
 
   std::vector<PileupSummaryInfo>::const_iterator PVI;
 

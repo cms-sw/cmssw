@@ -26,9 +26,9 @@ namespace reco {
     CaloRecHitCandidate( const PolarLorentzVector & p4, Charge q = 0, const Point & vtx = Point( 0, 0, 0 ) ) :
       LeafCandidate( q, p4, vtx ) { }
     /// destructor
-    virtual ~CaloRecHitCandidate();
+    ~CaloRecHitCandidate() override;
     /// returns a clone of the candidate
-    virtual CaloRecHitCandidate * clone() const;
+    CaloRecHitCandidate * clone() const override;
     /// set CaloRecHit reference
     void setCaloRecHit( const CaloRecHitRef & r ) { caloRecHit_ = r; }
     /// reference to a CaloRecHit
@@ -36,7 +36,7 @@ namespace reco {
 
   private:
     /// check overlap with another candidate
-    virtual bool overlap( const Candidate & ) const;
+    bool overlap( const Candidate & ) const override;
     /// reference to a CaloRecHit
     CaloRecHitRef caloRecHit_;
   };

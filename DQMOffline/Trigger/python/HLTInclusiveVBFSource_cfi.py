@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-hltInclusiveVBFSource = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+hltInclusiveVBFSource = DQMEDAnalyzer(
     "HLTInclusiveVBFSource",
     dirname     = cms.untracked.string("HLT/InclusiveVBF"),
     processname = cms.string("HLT"),

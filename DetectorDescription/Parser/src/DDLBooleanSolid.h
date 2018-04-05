@@ -1,9 +1,12 @@
 #ifndef DDL_BooleanSolid_H
 #define DDL_BooleanSolid_H
 
+#include <string>
+
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// This class takes care of processing all BooleanSolid type elements.
 /** @class DDLBooleanSolid
@@ -21,23 +24,17 @@
  *                                                                         
 **/
 
-class DDLBooleanSolid : public DDLSolid
+class DDLBooleanSolid final : public DDLSolid
 {
  public:
 
-  /// Constructor
   DDLBooleanSolid( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLBooleanSolid();
-
-  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
-
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv); 
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 
  private:
   std::string dumpBooleanSolid (const std::string& name, const std::string& nmspace); 
-
 };
 
 #endif

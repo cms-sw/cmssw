@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 FEConfigPedDat::FEConfigPedDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_ID=0;
   m_pedMeanG1 = 0;
   m_pedMeanG6 = 0;
@@ -29,7 +29,7 @@ FEConfigPedDat::~FEConfigPedDat()
 
 
 void FEConfigPedDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -41,14 +41,14 @@ void FEConfigPedDat::prepareWrite()
 		      "VALUES (:ped_conf_id, :logic_id, "
 		      ":ped_mean_g12, :ped_mean_g6, :ped_mean_g1 )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigPedDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigPedDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void FEConfigPedDat::writeDB(const EcalLogicID* ecid, const FEConfigPedDat* item, FEConfigPedInfo* iconf )
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -67,13 +67,13 @@ void FEConfigPedDat::writeDB(const EcalLogicID* ecid, const FEConfigPedDat* item
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigPedDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigPedDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
 
 void FEConfigPedDat::fetchData(map< EcalLogicID, FEConfigPedDat >* fillMap, FEConfigPedInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -98,12 +98,12 @@ void FEConfigPedDat::fetchData(map< EcalLogicID, FEConfigPedDat >* fillMap, FECo
     std::pair< EcalLogicID, FEConfigPedDat > p;
     FEConfigPedDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
       dat.setPedMeanG12( rset->getFloat(7) );  
       dat.setPedMeanG6( rset->getFloat(8) );
@@ -113,12 +113,12 @@ void FEConfigPedDat::fetchData(map< EcalLogicID, FEConfigPedDat >* fillMap, FECo
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigPedDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigPedDat::fetchData:  ")+getOraMessage(&e)));
   }
 }
 
 void FEConfigPedDat::writeArrayDB(const std::map< EcalLogicID, FEConfigPedDat >* data, FEConfigPedInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -196,6 +196,6 @@ void FEConfigPedDat::writeArrayDB(const std::map< EcalLogicID, FEConfigPedDat >*
     delete [] z_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigPedDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigPedDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

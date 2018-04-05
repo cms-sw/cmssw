@@ -2,7 +2,7 @@
 #define RecoEcal_EgammaClusterProducers_EgammaHLTIslandClusterProducer_h_
 
 #include <memory>
-#include <time.h>
+#include <ctime>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -13,6 +13,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/IslandClusterAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
@@ -24,7 +25,7 @@ namespace edm {
 class EgammaHLTIslandClusterProducer : public edm::EDProducer {
  public:
   EgammaHLTIslandClusterProducer(const edm::ParameterSet& ps);
-  ~EgammaHLTIslandClusterProducer();
+  ~EgammaHLTIslandClusterProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -68,7 +69,7 @@ class EgammaHLTIslandClusterProducer : public edm::EDProducer {
   void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
 			  edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
 			  const std::string& clusterCollection,
-			  const std::vector<EcalEtaPhiRegion>& regions,
+			  const std::vector<RectangularEtaPhiRegion>& regions,
 			  const IslandClusterAlgo::EcalPart& ecalPart);
 };
 #endif

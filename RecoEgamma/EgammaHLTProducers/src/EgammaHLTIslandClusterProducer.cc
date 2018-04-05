@@ -29,7 +29,6 @@
 
 // EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 
 // Class header file
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTIslandClusterProducer.h"
@@ -127,8 +126,8 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
   edm::ESHandle<L1CaloGeometry> l1CaloGeom ;
   es.get<L1CaloGeometryRecord>().get(l1CaloGeom) ;
 
-  std::vector<EcalEtaPhiRegion> barrelRegions;
-  std::vector<EcalEtaPhiRegion> endcapRegions;
+  std::vector<RectangularEtaPhiRegion> barrelRegions;
+  std::vector<RectangularEtaPhiRegion> endcapRegions;
 
   if(doIsolated_) {
     for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr ){
@@ -163,16 +162,16 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 	if (isforw) {
 	  if (etaHigh>-1.479 && etaHigh<1.479) etaHigh=-1.479;
 	  if ( etaLow>-1.479 &&  etaLow<1.479) etaLow=1.479;
-	  EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
+	  RectangularEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	  endcapRegions.push_back(region);
 	}
 	if (isbarl) {
 	  if (etaHigh>1.479) etaHigh=1.479;
 	  if (etaLow<-1.479) etaLow=-1.479;
-	  EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
+	  RectangularEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	  barrelRegions.push_back(region);
 	}
-	EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
+	RectangularEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	
       }
     }
@@ -215,13 +214,13 @@ void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSe
 	if (isforw) {
 	  if (etaHigh>-1.479 && etaHigh<1.479) etaHigh=-1.479;
 	  if ( etaLow>-1.479 &&  etaLow<1.479) etaLow=1.479;
-	  EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
+	  RectangularEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	  endcapRegions.push_back(region);
 	}
 	if (isbarl) {
 	  if (etaHigh>1.479) etaHigh=1.479;
 	  if (etaLow<-1.479) etaLow=-1.479;
-	  EcalEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
+	  RectangularEtaPhiRegion region(etaLow,etaHigh,phiLow,phiHigh);
 	  barrelRegions.push_back(region);
 	}
 	
@@ -253,7 +252,7 @@ const EcalRecHitCollection * EgammaHLTIslandClusterProducer::getCollection(edm::
     {
       std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
       edm::LogError("EgammaHLTIslandClusterProducerError") << "Error! can't get the product ";
-      return 0;
+      return nullptr;
     } 
   return rhcHandle.product();
 }
@@ -262,7 +261,7 @@ const EcalRecHitCollection * EgammaHLTIslandClusterProducer::getCollection(edm::
 void EgammaHLTIslandClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
 							edm::EDGetTokenT<EcalRecHitCollection>& hitToken,
 							const std::string& clusterCollection,
-							const std::vector<EcalEtaPhiRegion>& regions,
+							const std::vector<RectangularEtaPhiRegion>& regions,
 							const IslandClusterAlgo::EcalPart& ecalPart)
 {
   // get the hit collection from the event:
@@ -293,14 +292,14 @@ void EgammaHLTIslandClusterProducer::clusterizeECALPart(edm::Event &evt, const e
   reco::BasicClusterCollection clusters;
   clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, ecalPart, true, regions);
 
-  // create an auto_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
-  std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
+  // create an unique_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
+  auto clusters_p = std::make_unique<reco::BasicClusterCollection>();
   clusters_p->assign(clusters.begin(), clusters.end());
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle;
   if (ecalPart == IslandClusterAlgo::barrel) 
-    bccHandle = evt.put(clusters_p, barrelClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), barrelClusterCollection_);
   else
-    bccHandle = evt.put(clusters_p, endcapClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), endcapClusterCollection_);
 
   delete topology_p;
 }

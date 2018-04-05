@@ -19,15 +19,15 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -68,11 +68,11 @@ SiStripLAProfileBooker::SiStripLAProfileBooker(edm::ParameterSet const& conf) :
 
   //BeginRun
 
-void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
+void SiStripLAProfileBooker::beginRun(const edm::Run &,const edm::EventSetup& c){
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  c.get<IdealGeometryRecord>().get(tTopoHandle);
+  c.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
  
   //get magnetic field and geometry from ES
@@ -85,7 +85,7 @@ void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
   tracker=&(*estracker); 
 
   std::vector<uint32_t> activeDets;
-  edm::ESHandle<SiStripDetCabling> tkmechstruct=0;
+  edm::ESHandle<SiStripDetCabling> tkmechstruct=nullptr;
   if (conf_.getParameter<bool>("UseStripCablingDB")){ 
     c.get<SiStripDetCablingRcd>().get(tkmechstruct);
     activeDets.clear();
@@ -202,7 +202,7 @@ void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
       float thickness=stripdet->specificSurface().bounds().thickness();
       
       folder_organizer.setDetectorFolder(Iditer->rawId(), tTopo);
-      hid = hidmanager.createHistoId(TkTag.label().c_str(),"det",Iditer->rawId());
+      hid = hidmanager.createHistoId(TkTag.label(),"det",Iditer->rawId());
       MonitorElement * profile=dbe_->bookProfile(hid,hid,module_bin,ModuleRangeMin,ModuleRangeMax,20,0,5,"");
       detparameters *param=new detparameters;
       histos[Iditer->rawId()] = profile;
@@ -221,10 +221,10 @@ void SiStripLAProfileBooker::beginRun(const edm::EventSetup& c){
       std::string name;
       unsigned int layerid;
       getlayer(subid,tTopo,name,layerid);
-      name+=TkTag.label().c_str();
+      name+=TkTag.label();
       if(summaryhisto.find(layerid)==(summaryhisto.end())){
 	folder_organizer.setSiStripFolder();
-	MonitorElement * summaryprofile=0;
+	MonitorElement * summaryprofile=nullptr;
 	if (subid.subdetId()==int (StripSubdetector::TIB)||subid.subdetId()==int (StripSubdetector::TID))
 	  summaryprofile=dbe_->bookProfile(name,name,SUM_bin,TIBRangeMin,TIBRangeMax,20,0,5,"");
 	else if (subid.subdetId()==int (StripSubdetector::TOB)||subid.subdetId()==int (StripSubdetector::TEC))
@@ -271,7 +271,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
   
   RunNumber = e.id().run();

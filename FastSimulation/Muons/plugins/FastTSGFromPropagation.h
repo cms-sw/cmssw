@@ -23,13 +23,15 @@
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
+
 #include <memory>
 
 
@@ -44,26 +46,26 @@ class SimTrack;
 class TrackerGeometry;
 class TrackerTopology;
 
+
 class FastTSGFromPropagation : public TrackerSeedGenerator {
-
-public:
-  /// constructor
+    public:
+    /// constructor
   FastTSGFromPropagation(const edm::ParameterSet &pset,edm::ConsumesCollector& iC);
-
+  
   FastTSGFromPropagation(const edm::ParameterSet& par, const MuonServiceProxy*,edm::ConsumesCollector& iC);
-
+    
   /// destructor
-  virtual ~FastTSGFromPropagation();
+  ~FastTSGFromPropagation() override;
 
   /// generate seed(s) for a track
   void  trackerSeeds(const TrackCand&, const TrackingRegion&, 
-		     const TrackerTopology *tTopo, std::vector<TrajectorySeed>&);
+		     const TrackerTopology *tTopo, std::vector<TrajectorySeed>&) override;
     
   /// initialize
-  void init(const MuonServiceProxy*);
+  void init(const MuonServiceProxy*) override;
 
   /// set an event
-  void setEvent(const edm::Event&);
+  void setEvent(const edm::Event&) override;
 
 private:
   /// A mere copy (without memory leak) of an existing tracking method
@@ -122,7 +124,7 @@ private:
 
   struct isInvalid {
     bool operator()(const TrajectoryMeasurement& measurement) {
-      return ( ((measurement).recHit() == 0) || !((measurement).recHit()->isValid()) || !((measurement).updatedState().isValid()) ); 
+      return ( ((measurement).recHit() == nullptr) || !((measurement).recHit()->isValid()) || !((measurement).updatedState().isValid()) ); 
     }
   };
 
@@ -171,13 +173,13 @@ private:
 
   const edm::ParameterSet theConfig;
   edm::EDGetTokenT<edm::SimTrackContainer> theSimTrackCollectionToken_;
-  edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection>  theHitProducer;
+  edm::EDGetTokenT<FastTrackerRecHitCombinationCollection>  recHitCombinationsToken_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpot_;
   edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventToken_;
 
   edm::Handle<reco::BeamSpot> theBeamSpot;
   edm::Handle<edm::SimTrackContainer> theSimTracks;
-  edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
+  edm::Handle<FastTrackerRecHitCombinationCollection> recHitCombinations;
   edm::Handle<MeasurementTrackerEvent> theMeasTrackerEvent;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
 

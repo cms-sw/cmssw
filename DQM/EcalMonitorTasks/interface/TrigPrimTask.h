@@ -5,6 +5,11 @@
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
+
 namespace ecaldqm {
 
   class TrigPrimTask : public DQWorkerTask {
@@ -14,9 +19,11 @@ namespace ecaldqm {
 
     void addDependencies(DependencySet&) override;
 
-    bool analyze(void const*, Collections) override;
-
+    void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
     void beginEvent(edm::Event const&, edm::EventSetup const&) override;
+
+    bool analyze(void const*, Collections) override;
 
     void runOnRealTPs(EcalTrigPrimDigiCollection const&);
     void runOnEmulTPs(EcalTrigPrimDigiCollection const&);
@@ -38,10 +45,14 @@ namespace ecaldqm {
 /*     bool HLTCaloBit_; */
 /*     bool HLTMuonBit_; */
 
-    int bxBinEdges_[nBXBins + 1];
+    std::array<int,nBXBins+1> bxBinEdges_;
     double bxBin_;
 
     std::map<uint32_t, unsigned> towerReadouts_;
+
+    edm::ESHandle<EcalTPGTowerStatus> TTStatusRcd;
+    edm::ESHandle<EcalTPGStripStatus> StripStatusRcd;
+
   };
 
   inline bool TrigPrimTask::analyze(void const* _p, Collections _collection){

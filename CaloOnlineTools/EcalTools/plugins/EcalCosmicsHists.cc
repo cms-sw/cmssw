@@ -198,7 +198,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
     int myRunType = headerItr->getRunType();
     int FEDid = headerItr->fedId();
     TH2F* dccRuntypeHist = FEDsAndDCCRuntypeVsBxHists_[FEDid];
-    if(dccRuntypeHist==0)
+    if(dccRuntypeHist==nullptr)
     {
       initHists(FEDid);
       dccRuntypeHist = FEDsAndDCCRuntypeVsBxHists_[FEDid];
@@ -358,7 +358,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
      TH2F* timingHistVsPhi = FEDsAndTimingVsPhiHists_[FEDid];
      TH2F* timingHistVsModule = FEDsAndTimingVsModuleHists_[FEDid];
      
-     if(uRecHist==0)
+     if(uRecHist==nullptr)
        {
 	 initHists(FEDid);
 	 uRecHist = FEDsAndHists_[FEDid];
@@ -1067,7 +1067,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
       //				  << " crossedEcalRecHits size: " << info.crossedEcalRecHits.size();
       numberofCrossedEcalIdsHist_->Fill(info.crossedEcalIds.size());
       tracks++;
-      if(info.crossedEcalIds.size()>0)
+      if(!info.crossedEcalIds.empty())
         trackDetIdMap.insert(std::pair<int,std::vector<DetId> > (tracks,info.crossedEcalIds));
     }      
     
@@ -1078,7 +1078,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
     edm::LogVerbatim("TrackAssociator") << "Matching cosmic clusters to tracks...";
     int numSeeds = seeds.size();
     int numTracks = trackDetIdMap.size();
-    while(seeds.size() > 0 && trackDetIdMap.size() > 0)
+    while(!seeds.empty() && !trackDetIdMap.empty())
     {
       double bestDr = 1000;
       double bestDPhi = 1000;
@@ -1194,7 +1194,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
       double phi    = clus->phi();
       double eta    = clus->eta();
       
-      if (recoTracksBarrel->size()==0) HighEnergy_0tracks_occu3D->Fill(phi,eta,energy);
+      if (recoTracksBarrel->empty()) HighEnergy_0tracks_occu3D->Fill(phi,eta,energy);
       if (recoTracksBarrel->size()==1) HighEnergy_1tracks_occu3D->Fill(phi,eta,energy);
       if (recoTracksBarrel->size()==2) HighEnergy_2tracks_occu3D->Fill(phi,eta,energy);
       
@@ -1210,7 +1210,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
 	  int ieta = ((EBDetId)(*detitr).first).ieta();
 	  int iphi = ((EBDetId)(*detitr).first).iphi();
 	  if (rechitenergy > minRecHitAmpEB_) {
-	    if (recoTracksBarrel->size()==0) HighEnergy_0tracks_occu3DXtal->Fill(iphi,ieta,rechitenergy);
+	    if (recoTracksBarrel->empty()) HighEnergy_0tracks_occu3DXtal->Fill(iphi,ieta,rechitenergy);
 	    if (recoTracksBarrel->size()==1) HighEnergy_1tracks_occu3DXtal->Fill(iphi,ieta,rechitenergy);
 	    if (recoTracksBarrel->size()==2) HighEnergy_2tracks_occu3DXtal->Fill(iphi,ieta,rechitenergy);
 	    
@@ -1426,23 +1426,23 @@ void EcalCosmicsHists::initHists(int FED)
   int numBins = 200;//(int)round(histRangeMax_-histRangeMin_)+1;
   TH1F* hist = new TH1F(name1.c_str(),title1.c_str(), numBins, histRangeMin_, histRangeMax_);
   FEDsAndHists_[FED] = hist;
-  FEDsAndHists_[FED]->SetDirectory(0);
+  FEDsAndHists_[FED]->SetDirectory(nullptr);
   
   TH1F* E2hist = new TH1F(Form("E2_FED_%d",FED),Form("E2_FED_%d",FED), numBins, histRangeMin_, histRangeMax_);
   FEDsAndE2Hists_[FED] = E2hist;
-  FEDsAndE2Hists_[FED]->SetDirectory(0);
+  FEDsAndE2Hists_[FED]->SetDirectory(nullptr);
   
   TH1F* energyhist = new TH1F(Form("Energy_FED_%d",FED),Form("Energy_FED_%d",FED), numBins, histRangeMin_, histRangeMax_);
   FEDsAndenergyHists_[FED] = energyhist;
-  FEDsAndenergyHists_[FED]->SetDirectory(0);
+  FEDsAndenergyHists_[FED]->SetDirectory(nullptr);
   
   TH2F* E2vsE1hist = new TH2F(Form("E2vsE1_FED_%d",FED),Form("E2vsE1_FED_%d",FED), numBins, histRangeMin_, histRangeMax_, numBins, histRangeMin_, histRangeMax_);
   FEDsAndE2vsE1Hists_[FED] = E2vsE1hist;
-  FEDsAndE2vsE1Hists_[FED]->SetDirectory(0);
+  FEDsAndE2vsE1Hists_[FED]->SetDirectory(nullptr);
   
   TH2F* energyvsE1hist = new TH2F(Form("EnergyvsE1_FED_%d",FED),Form("EnergyvsE1_FED_%d",FED), numBins, histRangeMin_, histRangeMax_, numBins, histRangeMin_, histRangeMax_);
   FEDsAndenergyvsE1Hists_[FED] = energyvsE1hist;
-  FEDsAndenergyvsE1Hists_[FED]->SetDirectory(0);
+  FEDsAndenergyvsE1Hists_[FED]->SetDirectory(nullptr);
   
   title1 = "Time for ";
   title1.append(fedMap_->getSliceFromFed(FED));
@@ -1451,47 +1451,47 @@ void EcalCosmicsHists::initHists(int FED)
   name1.append(intToString(FED));
   TH1F* timingHist = new TH1F(name1.c_str(),title1.c_str(),78,-7,7);
   FEDsAndTimingHists_[FED] = timingHist;
-  FEDsAndTimingHists_[FED]->SetDirectory(0);
+  FEDsAndTimingHists_[FED]->SetDirectory(nullptr);
   
   TH1F* freqHist = new TH1F(Form("Frequency_FED_%d",FED),Form("Frequency for FED %d;Event Number",FED),100,0.,100000);
   FEDsAndFrequencyHists_[FED] = freqHist;
-  FEDsAndFrequencyHists_[FED]->SetDirectory(0);
+  FEDsAndFrequencyHists_[FED]->SetDirectory(nullptr);
   
   TH1F* iphiProfileHist = new TH1F(Form("iPhi_Profile_FED_%d",FED),Form("iPhi Profile for FED %d",FED),360,1.,361);
   FEDsAndiPhiProfileHists_[FED] = iphiProfileHist;
-  FEDsAndiPhiProfileHists_[FED]->SetDirectory(0);
+  FEDsAndiPhiProfileHists_[FED]->SetDirectory(nullptr);
   
   TH1F* ietaProfileHist = new TH1F(Form("iEta_Profile_FED_%d",FED),Form("iEta Profile for FED %d",FED),172,-86,86);
   FEDsAndiEtaProfileHists_[FED] = ietaProfileHist;
-  FEDsAndiEtaProfileHists_[FED]->SetDirectory(0);
+  FEDsAndiEtaProfileHists_[FED]->SetDirectory(nullptr);
   
   TH2F* timingHistVsFreq = new TH2F(Form("timeVsFreqFED_%d",FED),Form("time Vs Freq FED %d",FED),78,-7,7,100,0.,100000);
   FEDsAndTimingVsFreqHists_[FED] = timingHistVsFreq;
-  FEDsAndTimingVsFreqHists_[FED]->SetDirectory(0);
+  FEDsAndTimingVsFreqHists_[FED]->SetDirectory(nullptr);
   
   TH2F* timingHistVsAmp = new TH2F(Form("timeVsAmpFED_%d",FED),Form("time Vs Amp FED %d",FED),78,-7,7,numBins,histRangeMin_,histRangeMax_);
   FEDsAndTimingVsAmpHists_[FED] = timingHistVsAmp;
-  FEDsAndTimingVsAmpHists_[FED]->SetDirectory(0);
+  FEDsAndTimingVsAmpHists_[FED]->SetDirectory(nullptr);
   
   TH1F* numXtalInClusterHist = new TH1F(Form("NumXtalsInCluster_FED_%d",FED),Form("Num active Xtals In Cluster for FED %d;Num Active Xtals",FED),25,0,25);
   FEDsAndNumXtalsInClusterHists_[FED] = numXtalInClusterHist;
-  FEDsAndNumXtalsInClusterHists_[FED]->SetDirectory(0);
+  FEDsAndNumXtalsInClusterHists_[FED]->SetDirectory(nullptr);
   
   TH2F* OccupHist = new TH2F(Form("occupFED_%d",FED),Form("Occupancy FED %d;i#eta;i#phi",FED),85,1,86,20,1,21);
   FEDsAndOccupancyHists_[FED] = OccupHist;
-  FEDsAndOccupancyHists_[FED]->SetDirectory(0);
+  FEDsAndOccupancyHists_[FED]->SetDirectory(nullptr);
   
   TH2F* timingHistVsPhi = new TH2F(Form("timeVsPhiFED_%d",FED),Form("time Vs Phi FED %d;Relative Time (1 clock = 25ns);i#phi",FED),78,-7,7,20,1,21);
   FEDsAndTimingVsPhiHists_[FED] = timingHistVsPhi;
-  FEDsAndTimingVsPhiHists_[FED]->SetDirectory(0);
+  FEDsAndTimingVsPhiHists_[FED]->SetDirectory(nullptr);
   
   TH2F* timingHistVsModule = new TH2F(Form("timeVsModuleFED_%d",FED),Form("time Vs Module FED %d;Relative Time (1 clock = 25ns);i#eta",FED),78,-7,7,4,1,86);
   FEDsAndTimingVsModuleHists_[FED] = timingHistVsModule;
-  FEDsAndTimingVsModuleHists_[FED]->SetDirectory(0);
+  FEDsAndTimingVsModuleHists_[FED]->SetDirectory(nullptr);
 
   TH2F* dccRuntypeVsBxFED = new TH2F(Form("DCCRuntypeVsBxFED_%d",FED),Form("DCC Runtype vs. BX FED %d",FED),3600,0,3600,24,0,24);
   FEDsAndDCCRuntypeVsBxHists_[FED] = dccRuntypeVsBxFED;
-  FEDsAndDCCRuntypeVsBxHists_[FED]->SetDirectory(0); 
+  FEDsAndDCCRuntypeVsBxHists_[FED]->SetDirectory(nullptr); 
   
 }
 
@@ -1906,14 +1906,14 @@ EcalCosmicsHists::endJob()
     FEDdir->cd();
     
     TH1F* hist = itr->second;
-    if(hist!=0)
+    if(hist!=nullptr)
       hist->Write();
     else {
       cerr << "EcalCosmicsHists: Error: This shouldn't happen!" << endl;
     }
     // Write out timing hist
     hist = FEDsAndTimingHists_[itr->first];
-    if(hist!=0)
+    if(hist!=nullptr)
       hist->Write();
     else {
       cerr << "EcalCosmicsHists: Error: This shouldn't happen!" << endl;

@@ -18,8 +18,8 @@
 #include "CondFormats/L1TObjects/interface/RPCPattern.h"
 //#include "L1Trigger/RPCTrigger/interface/RPCException.h"
 
-XERCES_CPP_NAMESPACE_USE
-class RPCPatternsParser : public DefaultHandler  {
+
+class RPCPatternsParser : public XERCES_CPP_NAMESPACE::DefaultHandler  {
 public:
   //class SAX2PatHandler : public DefaultHandler {
   //public:
@@ -33,13 +33,13 @@ public:
   //};
 
   RPCPatternsParser();
-  ~RPCPatternsParser();
+  ~RPCPatternsParser() override;
 
   
   void startElement(const XMLCh* const uri, const XMLCh* const localname, 
-                    const XMLCh* const qname, const Attributes& attrs);
+                    const XMLCh* const qname, const XERCES_CPP_NAMESPACE::Attributes& attrs) override;
   
-  void endElement (const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname);
+  void endElement (const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname) override;
 
   void parse(std::string fileName);
 

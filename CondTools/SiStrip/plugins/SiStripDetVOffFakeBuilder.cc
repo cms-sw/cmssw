@@ -10,7 +10,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
@@ -32,11 +32,11 @@ void SiStripDetVOffFakeBuilder::initialize( const edm::EventSetup& iSetup ) {
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
   edm::LogInfo("SiStripDetVOffFakeBuilder") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
   
-  for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
+  for( const auto& it : pDD->detUnits()) {
   
-    if( dynamic_cast<StripGeomDetUnit const*>((*it))!=0){
-      uint32_t detid=((*it)->geographicalId()).rawId();            
-      const StripTopology& p = dynamic_cast<StripGeomDetUnit const*>((*it))->specificTopology();
+    if( dynamic_cast<StripGeomDetUnit const*>(it)!=nullptr){
+      uint32_t detid=(it->geographicalId()).rawId();            
+      const StripTopology& p = dynamic_cast<StripGeomDetUnit const*>(it)->specificTopology();
       unsigned short Nstrips = p.nstrips();
       if(Nstrips<1 || Nstrips>768 ) {
 	edm::LogError("SiStripDetVOffFakeBuilder")<<" Problem with Number of strips in detector.. "<< p.nstrips() <<" Exiting program"<<endl;

@@ -79,16 +79,16 @@ MuonsGrabber::MuonsGrabber()
     }
  
    m_dom = DOMImplementationRegistry::getDOMImplementation(X("Core"));
-   if (m_dom == 0) throw cms::Exception("RPCMuonsGrabber") << "Cannot get DOM" << std::endl;
+   if (m_dom == nullptr) throw cms::Exception("RPCMuonsGrabber") << "Cannot get DOM" << std::endl;
 
    m_doc = m_dom->createDocument(
-                          0,                    // root element namespace URI.
+                          nullptr,                    // root element namespace URI.
                           X("rpctDataStream"),         // root element name
-                          0);                   // document type object (DTD).
+                          nullptr);                   // document type object (DTD).
 
    m_rootElem = m_doc->getDocumentElement();
          
-   m_currEvent = 0;
+   m_currEvent = nullptr;
 }
 
 
@@ -104,27 +104,24 @@ MuonsGrabber::~MuonsGrabber()
   XMLCh tempStr[100];
   XMLString::transcode("LS", tempStr, 99);
   DOMImplementation *impl          = DOMImplementationRegistry::getDOMImplementation(tempStr);
-  DOMWriter         *theSerializer = ((DOMImplementationLS*)impl)->createDOMWriter();
-  
-  theSerializer->setEncoding(X("UTF-8"));
-
-  if (theSerializer->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true))
-              theSerializer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+  DOMLSSerializer   *theSerializer = ((DOMImplementationLS*)impl)->createLSSerializer();
+  DOMConfiguration  *dc = theSerializer->getDomConfig();
+  dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+  DOMLSOutput       *outputDesc = ((DOMImplementationLS*)impl)->createLSOutput();
+  outputDesc->setEncoding(X("UTF-8"));
 
   XMLFormatTarget *myFormTarget = new LocalFileFormatTarget(X("testpulses.xml"));
+  outputDesc->setByteStream(myFormTarget);
   DOMNode* xmlstylesheet  = m_doc->createProcessingInstruction(X("xml-stylesheet"),
                                      X("type=\"text/xsl\"href=\"default.xsl\""));
 
   m_doc->insertBefore(xmlstylesheet, m_rootElem);
-  theSerializer->writeNode(myFormTarget, *m_doc);
+  theSerializer->write(m_doc, outputDesc);
         
   delete theSerializer;
   delete myFormTarget;
   m_doc->release();
-      
-
-       
-
+  cms::concurrency::xercesTerminate();
 }
 
 void MuonsGrabber::startNewEvent(int event, int bx) {
@@ -167,14 +164,14 @@ void MuonsGrabber::writeDataForRelativeBX(int bx){
 
   std::sort(m_muons.begin(), m_muons.end(), RPCMuonExtraStruct::lvlCompare) ;
   for (int tcNum = 0; tcNum <= 11; ++tcNum  ) {
-    DOMElement* tc = 0;
-    DOMElement* tcgs = 0;
+    DOMElement* tc = nullptr;
+    DOMElement* tcgs = nullptr;
     for (int tbNum = 0; tbNum <= 10; ++tbNum  ) { // check actual range, probably till 9 total 
-      DOMElement* tb = 0;
-      DOMElement* tbgs = 0;
+      DOMElement* tb = nullptr;
+      DOMElement* tbgs = nullptr;
       for (int PAC = 0; PAC <= 4; ++PAC  ) { // same here
         
-         DOMElement* pac = 0;
+         DOMElement* pac = nullptr;
         // for (int segment = 0; segment <= 11; ++segment ) {      
            std::vector< RPCMuonExtraStruct >::iterator it = m_muons.begin();
            while ( it != m_muons.end()) {
@@ -202,7 +199,7 @@ void MuonsGrabber::writeDataForRelativeBX(int bx){
                 //       << " " << it->_mu.printDebugInfo(2) << std::endl;
              
 
-             if (tc==0) {
+             if (tc==nullptr) {
                tc = m_doc->createElement(X("tc"));
                currRelBx->appendChild(tc);
                tc->setAttribute(X("num"), X( IntToString(tcNum).c_str()));
@@ -211,7 +208,7 @@ void MuonsGrabber::writeDataForRelativeBX(int bx){
                tc->appendChild(tcgs);
                
              }
-             if (tb==0 && int(it->_level) <= 1) { 
+             if (tb==nullptr && int(it->_level) <= 1) { 
                tb = m_doc->createElement(X("tb"));
                tc->appendChild(tb);
                tb->setAttribute(X("num"), X( IntToString(tbNum).c_str()));
@@ -220,7 +217,7 @@ void MuonsGrabber::writeDataForRelativeBX(int bx){
                tb->appendChild(tbgs);
              }
 
-             if (pac == 0 && int(it->_level) == 0) {
+             if (pac == nullptr && int(it->_level) == 0) {
                pac =m_doc->createElement(X("pac"));
                tb->appendChild(pac);
                pac->setAttribute(X("num"), X( IntToString(muPACChipNo).c_str()));
@@ -265,14 +262,14 @@ void MuonsGrabber::writeDataForRelativeBX(int bx){
       for (int be =0; be <= 1; ++be){ // brl/endcap
     
       std::vector< RPCMuonExtraStruct >::iterator it = m_muons.begin();
-      DOMElement* hs = 0;
+      DOMElement* hs = nullptr;
       while ( it != m_muons.end()) {
           if ( (int(it->_level) != level) || int(it->_hsHalf)!=half  || int(it->_region)!=be )  {
             ++it;
             continue;
           }
           
-          if (hs == 0) {
+          if (hs == nullptr) {
             if (level == 3) { 
               hs = m_doc->createElement(X("hs"));
               hs->setAttribute(X("num"), X( IntToString(half).c_str()));
@@ -306,7 +303,7 @@ void MuonsGrabber::writeDataForRelativeBX(int bx){
     } //half iteration
   } // lvl iteration
 
-  if (m_muons.size()!=0) {
+  if (!m_muons.empty()) {
      throw cms::Exception("RPCMuonsGrabber") << " There are still some muons in muons vec" << std::endl;
   
   }

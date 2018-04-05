@@ -1,8 +1,6 @@
 #ifndef Geometry_TrackerGeometryBuilder_StripGeomDetUnit_H
 #define Geometry_TrackerGeometryBuilder_StripGeomDetUnit_H
 
-#include <boost/shared_ptr.hpp>
-
 #include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/ProxyStripTopology.h"
@@ -27,10 +25,10 @@ public:
   /// the proxy topology (through topology() and specificTopology()) which includes
   /// corrections for the surface deformations, and once via the GeomDetType
   /// (through type().topology() and the like).
-  virtual const GeomDetType& type() const override;
+  const GeomDetType& type() const override;
 
   /// Returns a reference to the strip proxy topology
-  virtual const Topology& topology() const override;
+  const Topology& topology() const override;
 
   /// NOTE (A.M.): The actual pointer to StripGeomDetType is now a member of the
   /// proxy topology. As StripGeomDetType has the actual topology as a pointer,
@@ -44,7 +42,7 @@ public:
   virtual const StripTopology& specificTopology() const;
 
   /// Return pointer to surface deformation.
-  virtual const SurfaceDeformation * surfaceDeformation() const { 
+  const SurfaceDeformation * surfaceDeformation() const override { 
     return theTopology->surfaceDeformation();
   }
 
@@ -54,7 +52,7 @@ public:
 private:
 
   /// set the SurfaceDeformation for this StripGeomDetUnit to proxy topology.
-  virtual void setSurfaceDeformation(const SurfaceDeformation * deformation);
+  void setSurfaceDeformation(const SurfaceDeformation * deformation) override;
 
   std::unique_ptr<ProxyStripTopology> theTopology;
 };

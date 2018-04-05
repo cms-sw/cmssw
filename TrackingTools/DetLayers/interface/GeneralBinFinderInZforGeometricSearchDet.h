@@ -37,7 +37,7 @@ public:
   }
 
   /// returns an index in the valid range for the bin closest to Z
-  virtual int binIndex( T z) const {
+  int binIndex( T z) const override {
     int bin = int((z-theZOffset)*theInvZStep)+1;
     if (bin<=0) return 0;
     if (bin>=theNbins) return theNbins;
@@ -64,12 +64,12 @@ public:
   }
 
   /// returns an index in the valid range
-  virtual int binIndex( int i) const {
+  int binIndex( int i) const override {
     return std::min( std::max( i, 0), theNbins);
   }
    
   /// the middle of the bin.
-  virtual T binPosition( int ind) const {
+  T binPosition( int ind) const override {
     return theBins[binIndex(ind)];
   }
 

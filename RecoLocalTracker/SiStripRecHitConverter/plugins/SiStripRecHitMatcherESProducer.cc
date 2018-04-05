@@ -12,11 +12,10 @@ SiStripRecHitMatcherESProducer::SiStripRecHitMatcherESProducer(const edm::Parame
   setWhatProduced(this,name);
 }
 
-boost::shared_ptr<SiStripRecHitMatcher> SiStripRecHitMatcherESProducer::
+std::unique_ptr<SiStripRecHitMatcher> SiStripRecHitMatcherESProducer::
 produce(const TkStripCPERecord & iRecord)
 { 
-  matcher_  = boost::shared_ptr<SiStripRecHitMatcher>(new SiStripRecHitMatcher(pset_));
-  return matcher_;
+  return std::make_unique<SiStripRecHitMatcher>(pset_);
 }
 
 

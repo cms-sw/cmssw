@@ -14,7 +14,7 @@ namespace reco
 class FWBeamSpot
 {
 public:
-   FWBeamSpot() : m_beamspot (0) {}
+   FWBeamSpot() : m_beamspot (nullptr) {}
    ~FWBeamSpot() {}
 
    void checkBeamSpot(const edm::EventBase* event);

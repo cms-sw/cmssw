@@ -6,7 +6,6 @@
  *
  ************************************************************/
 
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
@@ -21,7 +20,7 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
-//#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
@@ -29,6 +28,7 @@
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 class TTree;
 class TFile;
@@ -54,11 +54,11 @@ class StdHitNtuplizer : public edm::EDAnalyzer
 
   void fillEvt(const edm::Event& );
   void fillSRecHit(const int subid, SiStripRecHit2DCollection::DetSet::const_iterator pixeliter,
-                   const GeomDet* theGeom);
+		   const GeomDet* theGeom);
   void fillSRecHit(const int subid, SiStripMatchedRecHit2DCollection::DetSet::const_iterator pixeliter,
-                   const GeomDet* theGeom);
-  void fillSRecHit(const int subid, SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
-                   const GeomDet* theGeom);
+		   const GeomDet* theGeom);  
+  void fillSRecHit(const int subid, const FastTrackerRecHit & hit,
+		   const GeomDet* theGeom);
   //void fillPRecHit(const int subid, SiPixelRecHitCollection::const_iterator pixeliter,
   //                 const GeomDet* PixGeom);
   void fillPRecHit(const int subid, const int layer_num,
@@ -71,6 +71,7 @@ class StdHitNtuplizer : public edm::EDAnalyzer
 
  private:
   edm::ParameterSet conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   edm::InputTag src_;
   edm::InputTag rphiRecHits_;
   edm::InputTag stereoRecHits_;

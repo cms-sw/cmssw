@@ -22,7 +22,6 @@
 
 // system include files
 #include <memory>
-#include <boost/shared_ptr.hpp>
 #include <vector>
 
 // user include files
@@ -45,12 +44,12 @@
 class L1ScalesTrivialProducer : public edm::ESProducer {
 public:
   L1ScalesTrivialProducer(const edm::ParameterSet&);
-  ~L1ScalesTrivialProducer();
+  ~L1ScalesTrivialProducer() override;
   
-  std::auto_ptr<L1CaloEtScale> produceEmScale(const L1EmEtScaleRcd&);
-  std::auto_ptr<L1CaloEtScale> produceJetScale(const L1JetEtScaleRcd&);
-  std::auto_ptr<L1CaloEtScale> produceHtMissScale(const L1HtMissScaleRcd&);
-  std::auto_ptr<L1CaloEtScale> produceHfRingScale(const L1HfRingEtScaleRcd&);
+  std::unique_ptr<L1CaloEtScale> produceEmScale(const L1EmEtScaleRcd&);
+  std::unique_ptr<L1CaloEtScale> produceJetScale(const L1JetEtScaleRcd&);
+  std::unique_ptr<L1CaloEtScale> produceHtMissScale(const L1HtMissScaleRcd&);
+  std::unique_ptr<L1CaloEtScale> produceHfRingScale(const L1HfRingEtScaleRcd&);
 
 private:
   // ----------member data ---------------------------

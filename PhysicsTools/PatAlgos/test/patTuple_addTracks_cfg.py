@@ -1,11 +1,15 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
+
 #process.Tracer = cms.Service("Tracer")
 
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+patAlgosToolsTask.add(process.patCandidatesTask)
+#Temporary customize to the unit tests that fail due to old input samples
+process.patTaus.skipMissingTauID = True
+
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 
 ## add track candidates
 from PhysicsTools.PatAlgos.tools.trackTools import *

@@ -9,22 +9,22 @@ class CSCConfigurableStripConditions : public CSCStripConditions
 {
 public:
   CSCConfigurableStripConditions(const edm::ParameterSet & p);
-  virtual ~CSCConfigurableStripConditions();
+  ~CSCConfigurableStripConditions() override;
 
   /// channels count from 1
-  virtual float gain(const CSCDetId & detId, int channel) const;
-  virtual float gainSigma(const CSCDetId & detId, int channel) const {return theGainSigma;}
+  float gain(const CSCDetId & detId, int channel) const override;
+  float gainSigma(const CSCDetId & detId, int channel) const override {return theGainSigma;}
 
   /// in ADC counts
-  virtual float pedestal(const CSCDetId & detId, int channel) const {return thePedestal;}
-  virtual float pedestalSigma(const CSCDetId & detId, int channel) const {return thePedestalSigma;}
+  float pedestal(const CSCDetId & detId, int channel) const override {return thePedestal;}
+  float pedestalSigma(const CSCDetId & detId, int channel) const override {return thePedestalSigma;}
 
-  virtual void crosstalk(const CSCDetId&detId, int channel,
+  void crosstalk(const CSCDetId&detId, int channel,
                  double stripLength, bool leftRight,
-                 float & capacitive, float & resistive) const;
+                 float & capacitive, float & resistive) const override;
 
 private:
-  virtual void fetchNoisifier(const CSCDetId & detId, int istrip);
+  void fetchNoisifier(const CSCDetId & detId, int istrip) override;
   void makeNoisifier(int chamberType, const std::vector<double> & correlations);
   std::vector<CSCCorrelatedNoisifier *> theNoisifiers;
 

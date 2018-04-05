@@ -38,7 +38,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 // For L1
@@ -70,7 +70,7 @@
 #define NEW_ID
 #ifdef NEW_ID
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #else 
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h" 
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h" 
@@ -89,10 +89,10 @@ class ReadPixClusters : public edm::EDAnalyzer {
   
   explicit ReadPixClusters(const edm::ParameterSet& conf);  
   virtual ~ReadPixClusters();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void beginRun(const edm::EventSetup& iSetup);
-  virtual void beginJob();
-  virtual void endJob();
+  virtual void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void beginJob() override;
+  virtual void endJob() override;
   
  private:
   edm::ParameterSet conf_;
@@ -157,7 +157,7 @@ ReadPixClusters::ReadPixClusters(edm::ParameterSet const& conf)
 ReadPixClusters::~ReadPixClusters() { }  
 
 // ------------ method called at the begining   ------------
-void ReadPixClusters::beginRun(const edm::EventSetup& iSetup) {
+void ReadPixClusters::beginRun(edm::Run const&,const edm::EventSetup& iSetup) {
   cout << "beginRun -  PixelClusterTest " <<printLocal<<endl;
 }
 
@@ -392,7 +392,7 @@ void ReadPixClusters::analyze(const edm::Event& e,
 #ifdef NEW_ID
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  es.get<TrackerTopologyRcd>().get(tTopo);
 #endif
 
 

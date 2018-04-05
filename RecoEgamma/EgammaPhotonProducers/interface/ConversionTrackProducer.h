@@ -51,9 +51,9 @@ namespace reco {
 
     explicit ConversionTrackProducer(const edm::ParameterSet& conf);
 
-    virtual ~ConversionTrackProducer();
+    ~ConversionTrackProducer() override;
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& c);
+    void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   private:
 
@@ -80,6 +80,6 @@ namespace reco {
     IdealHelixParameters ConvTrackPreSelector;
     //--------------------------------------------------
 
-    std::auto_ptr<reco::ConversionTrackCollection> outputTrks;
+    std::unique_ptr<reco::ConversionTrackCollection> outputTrks;
   };
 #endif

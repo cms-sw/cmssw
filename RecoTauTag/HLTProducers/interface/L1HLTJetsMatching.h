@@ -21,8 +21,8 @@
 class L1HLTJetsMatching: public edm::EDProducer {
  public:
   explicit L1HLTJetsMatching(const edm::ParameterSet&);
-  ~L1HLTJetsMatching();
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  ~L1HLTJetsMatching() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
   std::vector<l1extra::L1JetParticleRef> tauCandRefVec;

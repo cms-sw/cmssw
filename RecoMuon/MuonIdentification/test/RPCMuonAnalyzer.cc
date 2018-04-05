@@ -11,7 +11,7 @@
 
 //#include "DataFormats/TrackReco/interface/Track.h"
 //#include "Geometry/Records/interface/MuonGeometryRecord.h"
-//#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"

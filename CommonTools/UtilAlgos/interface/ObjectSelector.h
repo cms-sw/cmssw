@@ -54,11 +54,11 @@ public:
     postProcessor_.init(* this);
    }
   /// destructor
-  virtual ~ObjectSelector() { }
+  ~ObjectSelector() override { }
 
 private:
   /// process one event
-  bool filter(edm::Event& evt, const edm::EventSetup& es) {
+  bool filter(edm::Event& evt, const edm::EventSetup& es) override {
     Init::init(selector_, evt, es);
     using namespace std;
     edm::Handle<typename Selector::collection> source;

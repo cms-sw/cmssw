@@ -1,7 +1,8 @@
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/HcalRecHitRecalib.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -53,7 +54,7 @@ void
 HcalRecHitRecalib::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
 {
   edm::ESHandle<HcalTopology> topology;
-  iSetup.get<IdealGeometryRecord>().get( topology );
+  iSetup.get<HcalRecNumberingRecord>().get( topology );
   
   mapHcal_.prefillMap(*topology);
 
@@ -73,9 +74,9 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<HFRecHitCollection> HFRecHitsHandle;
   Handle<HORecHitCollection> HORecHitsHandle;
 
-  const HBHERecHitCollection*  HBHERecHits = 0;
-  const HFRecHitCollection*  HFRecHits = 0;
-  const HORecHitCollection*  HORecHits = 0;
+  const HBHERecHitCollection*  HBHERecHits = nullptr;
+  const HFRecHitCollection*  HFRecHits = nullptr;
+  const HORecHitCollection*  HORecHits = nullptr;
 
   iEvent.getByToken(tok_hbhe_,HBHERecHitsHandle);
   if (!HBHERecHitsHandle.isValid()) {
@@ -110,9 +111,9 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   //Create empty output collections
-  std::auto_ptr< HBHERecHitCollection > RecalibHBHERecHitCollection( new HBHERecHitCollection );
-  std::auto_ptr< HFRecHitCollection > RecalibHFRecHitCollection( new HFRecHitCollection );
-  std::auto_ptr< HORecHitCollection > RecalibHORecHitCollection( new HORecHitCollection );
+  auto RecalibHBHERecHitCollection = std::make_unique<HBHERecHitCollection>();
+  auto RecalibHFRecHitCollection = std::make_unique<HFRecHitCollection>();
+  auto RecalibHORecHitCollection = std::make_unique<HORecHitCollection>();
 
   // Intercalib constants
   //  edm::ESHandle<EcalIntercalibConstants> pIcal;
@@ -124,7 +125,7 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        //loop on all EcalRecHits (barrel)
       HBHERecHitCollection::const_iterator itHBHE;
-      for (itHBHE=HBHERecHits->begin(); itHBHE!=HBHERecHits->end(); itHBHE++) {
+      for (itHBHE=HBHERecHits->begin(); itHBHE!=HBHERecHits->end(); ++itHBHE) {
 	
 	// find intercalib constant for this cell
 
@@ -155,7 +156,7 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        //loop on all EcalRecHits (barrel)
       HFRecHitCollection::const_iterator itHF;
-      for (itHF=HFRecHits->begin(); itHF!=HFRecHits->end(); itHF++) {
+      for (itHF=HFRecHits->begin(); itHF!=HFRecHits->end(); ++itHF) {
 	
 	// find intercalib constant for this cell
 
@@ -186,7 +187,7 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
        //loop on all EcalRecHits (barrel)
       HORecHitCollection::const_iterator itHO;
-      for (itHO=HORecHits->begin(); itHO!=HORecHits->end(); itHO++) {
+      for (itHO=HORecHits->begin(); itHO!=HORecHits->end(); ++itHO) {
 	
 	// find intercalib constant for this cell
 
@@ -214,8 +215,8 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
   //Put Recalibrated rechit in the event
-  iEvent.put( RecalibHBHERecHitCollection, RecalibHBHEHits_);
-  iEvent.put( RecalibHFRecHitCollection, RecalibHFHits_);
-  iEvent.put( RecalibHORecHitCollection, RecalibHOHits_);
+  iEvent.put(std::move(RecalibHBHERecHitCollection), RecalibHBHEHits_);
+  iEvent.put(std::move(RecalibHFRecHitCollection), RecalibHFHits_);
+  iEvent.put(std::move(RecalibHORecHitCollection), RecalibHOHits_);
 }
 

@@ -40,7 +40,7 @@ class EndOfEvent;
 class EndOfTrack;
 
 #define OBSERVES(type) public Observer<const type*>
-#define UPDATE(type) void update(const type*) { std::cout <<"++ signal " #type<<std::endl; }
+#define UPDATE(type) void update(const type*) override { std::cout <<"++ signal " #type<<std::endl; }
 class SimTracer : public SimWatcher, 
 OBSERVES(DDDWorld),
 OBSERVES(BeginOfJob),
@@ -69,11 +69,11 @@ UPDATE(BeginOfJob)
 UPDATE(BeginOfRun)
 UPDATE(BeginOfEvent)
 UPDATE(BeginOfTrack)
-   void update(const G4Step* iStep) { 
+   void update(const G4Step* iStep) override { 
    std::cout <<"++ signal G4Step " ;
    if(m_verbose) {
       const G4StepPoint* post = iStep->GetPostStepPoint();
-      const G4ThreeVector pos = post->GetPosition();
+      const G4ThreeVector& pos = post->GetPosition();
       std::cout << "( "<<pos.x()<<","<<pos.y()<<","<<pos.z()<<") ";
       if(post->GetPhysicalVolume()) {
 	 std::cout << post->GetPhysicalVolume()->GetName();

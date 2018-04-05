@@ -1,6 +1,7 @@
 #ifndef Selections_H
 #define Selections_H
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CommonTools/UtilAlgos/interface/EventSelector.h"
 #include <cstdlib>
 #include <iomanip>
@@ -10,10 +11,10 @@
 
 class Filter {
  public:
-  Filter() :  selector_(0){}
+  Filter() :  selector_(nullptr){}
   Filter(const edm::ParameterSet& iConfig, edm::ConsumesCollector & iC);
   Filter(std::string name, edm::ParameterSet& iConfig, edm::ConsumesCollector & iC) :
-  name_(name), selector_(0),cached_decision_(false),eventCacheID_(0)
+  name_(name), selector_(nullptr),cached_decision_(false),eventCacheID_(0)
   {
     dump_=iConfig.dump();
     if (!iConfig.empty()){
@@ -83,7 +84,7 @@ class SFilter {
 
 class FilterOR : public Filter{
  public:
-  ~FilterOR(){}
+  ~FilterOR() override{}
   FilterOR(const std::string & filterORlist,
 	   const std::map<std::string, Filter*> & filters){
     std::string filterORlistCopy=filterORlist;
@@ -95,7 +96,7 @@ class FilterOR : public Filter{
     bool OK=true;
     while( OK ){
       size_t orPos = filterORlistCopy.find("_OR_");
-      if (orPos == std::string::npos && filterORlistCopy.size()!=0){
+      if (orPos == std::string::npos && !filterORlistCopy.empty()){
 	size=filterORlistCopy.size();
 	OK=false;
       }
@@ -118,7 +119,7 @@ class FilterOR : public Filter{
     }
     description_.push_back(ss.str());
   }
-  bool accept(edm::Event& iEvent) {
+  bool accept(edm::Event& iEvent) override {
     for (unsigned int i=0 ; i!=filters_.size();++i)
       if (filters_[i].second->accept(iEvent))
 	return true;
@@ -130,14 +131,14 @@ class FilterOR : public Filter{
 
 
 //forward declaration for friendship
-class Selections;
+class FilterSelections;
 
-class Selection : public Filter {
+class FilterSelection : public Filter {
  public:
   typedef std::vector<SFilter>::iterator iterator;
-  friend class Selections;
+  friend class FilterSelections;
 
-  Selection(std::string name, const edm::ParameterSet& iConfig) :
+  FilterSelection(std::string name, const edm::ParameterSet& iConfig) :
     name_(name),
     ntuplize_(iConfig.getParameter<bool>("ntuplize")),
     makeContentPlots_(iConfig.getParameter<bool>("makeContentPlots")),
@@ -163,7 +164,7 @@ class Selection : public Filter {
   iterator begin() { return filters_.begin();}
   iterator end() { return filters_.end();}
 
-  virtual bool accept(edm::Event& iEvent){
+  bool accept(edm::Event& iEvent) override{
     if (std::numeric_limits<edm::Event::CacheIdentifier_t>::max() != eventCacheID_ and eventCacheID_ != iEvent.cacheIdentifier()){
       this->acceptMap(iEvent);
     }
@@ -308,11 +309,11 @@ class Selection : public Filter {
   std::string detailledPrintoutCategory_;
 };
 
-class Selections {
+class FilterSelections {
  public:
-  typedef std::vector<Selection>::iterator iterator;
+  typedef std::vector<FilterSelection>::iterator iterator;
 
-  Selections(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
+  FilterSelections(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) :
     filtersPSet_(iConfig.getParameter<edm::ParameterSet>("filters")),
     selectionPSet_(iConfig.getParameter<edm::ParameterSet>("selections"))
   {
@@ -333,7 +334,7 @@ class Selections {
     for (unsigned int iS=0;iS!=nS;iS++){
       edm::ParameterSet pset=selectionPSet_.getParameter<edm::ParameterSet>(selectionNames[iS]);
       // JR-2014 : the filters are not expanded here
-      selections_.push_back(Selection(selectionNames[iS],pset));
+      selections_.push_back(FilterSelection(selectionNames[iS],pset));
       //      selections_.insert(std::make_pair(selectionNames[iS],Selection(selectionNames[iS],pset)));
       //keep track of list of filters for this selection for further dependency resolution
       selectionFilters[selectionNames[iS]]=pset.getParameter<std::vector<std::string> >("filterOrder");
@@ -382,12 +383,12 @@ class Selections {
 
     //finally, configure the Selections
     //loop the selections instanciated
-    //    for (std::map<std::string, Selection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt)
+    //    for (std::map<std::string, FilterSelection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt)
     //      const std::string & sName=sIt->first;
-    //Selection & selection =sIt->second;
-    for (std::vector<Selection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt){
+    //FilterSelection & selection =sIt->second;
+    for (std::vector<FilterSelection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt){
       const std::string & sName=sIt->name();
-      Selection & selection =*sIt;
+      FilterSelection & selection =*sIt;
 
       //parse the vector of filterNames
       std::vector<std::string> & listOfFilters=selectionFilters[sName];
@@ -404,7 +405,7 @@ class Selections {
 	    // JR-2014 include the selection here, directly !
 	    bool replaceBySelection=false;
 	    //find an existing selection that match that name
-	    for ( std::vector<Selection>::iterator sit=selections_.begin(); sit!= selections_.end() ; ++sit){
+	    for ( std::vector<FilterSelection>::iterator sit=selections_.begin(); sit!= selections_.end() ; ++sit){
 	      if (fOsName == sit->name_){
 		selection.filters_.push_back( SFilter(& (*sit), inverted));
 		replaceBySelection=true;
@@ -431,14 +432,14 @@ class Selections {
   iterator end() { return selections_.end();}
 
   //print each selection
-  void print(){ for (std::vector<Selection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt) sIt->print();}
+  void print(){ for (std::vector<FilterSelection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt) sIt->print();}
 
  private:
   edm::ParameterSet filtersPSet_;
   std::map<std::string, Filter*> filters_; // the global collection of available filters to pick from
 
   edm::ParameterSet selectionPSet_;
-  std::vector<Selection> selections_;
+  std::vector<FilterSelection> selections_;
 };
 
 

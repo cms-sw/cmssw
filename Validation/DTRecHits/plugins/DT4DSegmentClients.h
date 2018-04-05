@@ -1,5 +1,5 @@
-#ifndef DT4DSegmentClients_H
-#define DT4DSegmentClients_H
+#ifndef Validation_DTRecHits_DT4DSegmentClients_h
+#define Validation_DTRecHits_DT4DSegmentClients_h
 
 /** \class DTDataIntegrityTest
  * *
@@ -8,38 +8,25 @@
  *  \author S. Bolognesi - INFN TO
  *   
  */
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/Event.h>
-#include "FWCore/Framework/interface/ESHandle.h"
-#include <FWCore/Framework/interface/EventSetup.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
-class DQMStore;
-class MonitorElement;
-
-class DT4DSegmentClients: public edm::EDAnalyzer{
+class DT4DSegmentClients: public DQMEDHarvester {
 
 public:
-
   /// Constructor
   DT4DSegmentClients(const edm::ParameterSet& ps);
-
- /// Destructor
- ~DT4DSegmentClients();
- void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+  /// Destructor
+  ~DT4DSegmentClients() override;
 
 protected:
-
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  /// End Job
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
 private:
+  bool doall_;
 
-  DQMStore* dbe;
+};
 
- };
-
-#endif
+#endif // Validation_DTRecHits_DT4DSegmentClients_h

@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="AlignPCLThresholds" class_version="0">
+    <field name="m_thresholds" mapping="blob" />
+  </class>
+  <class name="AlignPCLThreshold"/>
+  <class name="std::map<std::string,AlignPCLThreshold>"/>
+</lcgdict> 

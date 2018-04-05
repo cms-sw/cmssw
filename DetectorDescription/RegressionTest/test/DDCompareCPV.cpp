@@ -1,18 +1,19 @@
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
+#include <cstdlib>
+#include <iostream>
+#include <string>
+#include <vector>
+
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
 #include "DetectorDescription/RegressionTest/interface/DDCompareTools.h"
-#include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include <boost/program_options.hpp>
 #include <boost/exception/all.hpp>
-
-#include <string>
-#include <iostream>
-#include <iomanip>
 
 int main(int argc, char *argv[])
 {
@@ -144,7 +145,7 @@ int main(int argc, char *argv[])
     }
     
     std::cout << "FILE 1: " << configfile << std::endl;
-    if ( fp.getFileList().size() == 0 ) {
+    if ( fp.getFileList().empty() ) {
       std::cout << "FILE 1: configuration file has no DDD xml files in it!" << std::endl;
       exit(1);
     }
@@ -171,7 +172,7 @@ int main(int argc, char *argv[])
     FIPConfiguration fp2(cpv2);
     fp2.readConfig(configfile2, fullPath);
     std::cout << "FILE 2: " << configfile2 << std::endl;
-    if ( fp2.getFileList().size() == 0 ) {
+    if ( fp2.getFileList().empty() ) {
       std::cout << "FILE 2: configuration file has no DDD xml files in it!" << std::endl;
       exit(1);
     }

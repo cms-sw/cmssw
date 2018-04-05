@@ -22,7 +22,7 @@ public:
   explicit TrackProducerWithSCAssociation(const edm::ParameterSet& iConfig);
 
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::vector<reco::TransientTrack> getTransient(edm::Event&, const edm::EventSetup&);
 
@@ -44,11 +44,12 @@ private:
   void putInEvt(edm::Event& evt,
 		const Propagator* thePropagator,
 		const MeasurementTracker* theMeasTk,
-		std::auto_ptr<TrackingRecHitCollection>& selHits,
-		std::auto_ptr<reco::TrackCollection>& selTracks,
-		std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
-		std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-		AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder);
+		std::unique_ptr<TrackingRecHitCollection> selHits,
+		std::unique_ptr<reco::TrackCollection> selTracks,
+		std::unique_ptr<reco::TrackExtraCollection> selTrackExtras,
+		std::unique_ptr<std::vector<Trajectory>> selTrajectories,
+		AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder,
+                const TrackerTopology *ttopo);
 };
 
 #endif

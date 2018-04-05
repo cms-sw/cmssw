@@ -34,5 +34,24 @@ public:
 };
 
 
+class RhoEtaPhi {
+private:
+  float rho_, eta_, phi_;
+public:
+  // default constructor (unitialized)
+  RhoEtaPhi() {}
+
+  //positional constructor (still compatible with Root, c++03)
+  RhoEtaPhi(float irho, float ieta, float iphi):
+    rho_(irho), eta_(ieta), phi_(iphi) {}
+
+  /// transverse momentum
+  float rho() const { return rho_;}
+  /// momentum pseudorapidity
+  float eta() const { return eta_; }
+  /// momentum azimuthal angle
+  float phi() const { return phi_; }
+};
+
 
 #endif

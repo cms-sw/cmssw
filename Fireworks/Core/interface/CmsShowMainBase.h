@@ -50,7 +50,7 @@ class CmsShowMainBase
 {
 public:
    CmsShowMainBase();
-   virtual ~CmsShowMainBase();
+   virtual ~CmsShowMainBase() noexcept(false);
 
    FWModelChangeManager       *changeManager() {return m_changeManager.get(); }
    FWColorManager             *colorManager() { return  m_colorManager.get(); }
@@ -80,7 +80,10 @@ public:
 
    void writeToConfigFile(const std::string &config);
    void writeToCurrentConfigFile();
+   void writePartialToConfigFile();
    void reloadConfiguration(const std::string &config);
+   void partialWriteToConfigFile(const std::string &config);
+   void partialLoadConfiguration(const std::string &config);
    void setupConfiguration();
    
    void registerPhysicsObject(const FWPhysicsObjectDesc&iItem);
@@ -114,8 +117,9 @@ public:
    void playForward();
    void playBackward();
    bool isPlaying() const { return m_isPlaying; }
-   void setIsPlaying(bool value) { m_isPlaying = value; }
-   virtual void stopPlaying() = 0;
+
+   virtual void checkKeyBindingsOnPLayEventsStateChanged() {}
+   virtual void stopPlaying();
    virtual void autoLoadNewEvent() = 0;
 
    void setPlayLoop();
@@ -126,7 +130,7 @@ public:
 
    class SignalTimer : public TTimer {
    public:
-      virtual Bool_t Notify() {
+      Bool_t Notify() override {
          timeout_();
          return true;
       }
@@ -137,6 +141,7 @@ protected:
    void eventChangedSlot();
    virtual void eventChangedImp();
    void sendVersionInfo();
+   fireworks::Context* context() { return m_contextPtr; }
 
 private:
    // The base class is responsible for the destruction of fwlite / FF

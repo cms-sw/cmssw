@@ -19,7 +19,7 @@ ecalSelectiveReadoutTask = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal3P'),
             xaxis = cms.untracked.PSet(
                 high = cms.untracked.double(60.0),
-                nbins = cms.untracked.int32(100),
+                nbins = cms.untracked.int32(120),
                 low = cms.untracked.double(-60.0),
                 title = cms.untracked.string('ADC counts*4')
             ),
@@ -73,7 +73,7 @@ ecalSelectiveReadoutTask = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal3P'),
             xaxis = cms.untracked.PSet(
                 high = cms.untracked.double(60.0),
-                nbins = cms.untracked.int32(100),
+                nbins = cms.untracked.int32(120),
                 low = cms.untracked.double(-60.0),
                 title = cms.untracked.string('ADC counts*4')
             ),
@@ -166,7 +166,7 @@ ecalSelectiveReadoutTask = cms.untracked.PSet(
             kind = cms.untracked.string('TH1F'),
             otype = cms.untracked.string('Ecal3P'),
             xaxis = cms.untracked.PSet(
-                high = cms.untracked.double(3.0),
+                high = cms.untracked.double(5.0),
                 nbins = cms.untracked.int32(100),
                 low = cms.untracked.double(0.0),
                 title = cms.untracked.string('event size (kB)')

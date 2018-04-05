@@ -37,12 +37,12 @@
 class KVFTest : public edm::EDAnalyzer {
 public:
   explicit KVFTest(const edm::ParameterSet&);
-  ~KVFTest();
+  ~KVFTest() override;
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
 

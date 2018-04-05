@@ -11,16 +11,23 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include <Geometry/CommonDetUnit/interface/GeomDetType.h>
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 
 class Traj2TrackHits {
 private:
-  const StripClusterParameterEstimator * theCPE;
-  bool keepOrder;  // FIXME move to enum
-  bool removeNoDet;  // true == as in conversion from TTRH tp TRH
+  const StripClusterParameterEstimator * theCPE =nullptr;
+  bool keepOrder=false;  // FIXME move to enum
+  bool removeNoDet=true;  // true == as in conversion from TTRH to TRH
 public:
+  using TrajParams = std::vector<LocalTrajectoryParameters>;
+  using Chi2sFive = std::vector<unsigned char>;
+
+  static unsigned char toChi2x5(float chi2) { float tc = std::round(5.f*chi2); return std::min(tc,255.f);}  
+
+  // default for final reco::Track
+  Traj2TrackHits(){}
 
   Traj2TrackHits(const TransientTrackingRecHitBuilder* builder, bool ikeepOrder, bool noNoDet=true) :
     theCPE(static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->stripClusterParameterEstimator()),
@@ -41,11 +48,31 @@ public:
     hits.shrink_to_fit();
   }
 
+  void operator()(Trajectory const & traj, TrackingRecHitCollection & hits, TrajParams & trajParams, Chi2sFive & chi2s) const {
+    // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
+    bool along = traj.direction() == alongMomentum;
+    auto const & meas = traj.measurements();
+    trajParams.reserve(meas.size());
+    chi2s.reserve(meas.size());
+      if (keepOrder | along) copy(meas.begin(),meas.end(),hits, trajParams, chi2s);
+      else copy(meas.rbegin(),meas.rend(),hits, trajParams, chi2s);
+  }
+
 private:
   template<typename HI>
-  void copy(HI itm, HI e, TrackingRecHitCollection & hits) const { 
-    for(;itm!=e;++itm) if( (!removeNoDet) | ((*itm).recHitR().det()!=nullptr)) hits.push_back((*itm).recHitR().clone());
+  void copy(HI itm, HI e, TrackingRecHitCollection & hits, TrajParams & trajParams, Chi2sFive & chi2s) const { 
+    for(;itm!=e;++itm) if( (!removeNoDet) | ((*itm).recHitR().det()!=nullptr)) {
+         hits.push_back((*itm).recHitR().cloneHit());
+         trajParams.push_back((*itm).updatedState().localParameters());
+         chi2s.push_back(toChi2x5((*itm).estimate()));
+    }
   }
+
+  template<typename HI>
+  void copy(HI itm, HI e, TrackingRecHitCollection & hits) const {
+    for(;itm!=e;++itm) if( (!removeNoDet) | ((*itm).recHitR().det()!=nullptr)) hits.push_back((*itm).recHitR().cloneHit());
+  }
+
 
   template<typename HI>
   void split(HI itm, HI e, TrackingRecHitCollection & hits, bool along) const { 
@@ -59,6 +86,7 @@ private:
       auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
       auto const & clus = thit.firstClusterRef();
       if (clus.isPixel()) hits.push_back(hit.clone());
+      else if (clus.isPhase2()) hits.push_back(hit.clone());
       else if (thit.isMatched()) {
 	auto zdir = itm->updatedState().localDirection().z();
 	if (keepOrder & (!along)) zdir = -zdir;

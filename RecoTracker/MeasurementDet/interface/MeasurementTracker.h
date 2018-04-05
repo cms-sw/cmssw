@@ -16,6 +16,7 @@
 class SiStripRecHitMatcher;
 class StMeasurementConditionSet;
 class PxMeasurementConditionSet;
+class Phase2OTMeasurementConditionSet;
 
 class MeasurementTracker : public MeasurementDetSystem {
 public:
@@ -29,18 +30,19 @@ public:
 
 
 
-  virtual ~MeasurementTracker();
+  ~MeasurementTracker() override;
 
   const TrackingGeometry* geomTracker() const { return theTrackerGeom;}
 
   const GeometricSearchTracker* geometricSearchTracker() const {return theGeometricSearchTracker;}
 
   /// MeasurementDetSystem interface
-  virtual MeasurementDetWithData idToDet(const DetId& id, const MeasurementTrackerEvent &data) const = 0;
+  MeasurementDetWithData idToDet(const DetId& id, const MeasurementTrackerEvent &data) const override = 0;
 
   /// Provide templates to be filled in
   virtual const StMeasurementConditionSet & stripDetConditions() const = 0;
   virtual const PxMeasurementConditionSet & pixelDetConditions() const = 0;
+  virtual const Phase2OTMeasurementConditionSet & phase2DetConditions() const = 0;
 
 protected:
   const TrackerGeometry*                theTrackerGeom;

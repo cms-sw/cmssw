@@ -31,7 +31,7 @@
  *
  */
 CSCSegAlgoST::CSCSegAlgoST(const edm::ParameterSet& ps) : 
-  CSCSegmentAlgorithm(ps), myName_("CSCSegAlgoST"), ps_(ps),  showering_(0) {
+  CSCSegmentAlgorithm(ps), myName_("CSCSegAlgoST"), ps_(ps),  showering_(nullptr) {
 	
   debug                  = ps.getUntrackedParameter<bool>("CSCDebug");
   //  minLayersApart         = ps.getParameter<int>("minLayersApart");
@@ -831,7 +831,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
   // Find out which station, ring and chamber we are in 
   // Used to choose station/ring dependant y-weight cuts
 
-  if( rechits.size() > 0 ) {
+  if( !rechits.empty() ) {
     thering = rechits[0]->cscDetId().ring();
     thestation = rechits[0]->cscDetId().station();
     //thecham = rechits[0]->cscDetId().chamber();
@@ -857,7 +857,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
     //   n_layers_missed_tot += 1;
     // }
 
-    if( PAhits_onLayer[layer].size() > 0 ) {
+    if( !PAhits_onLayer[layer].empty() ) {
       n_layers_processed += 1;
     }
 

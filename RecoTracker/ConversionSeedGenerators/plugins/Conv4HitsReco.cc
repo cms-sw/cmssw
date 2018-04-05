@@ -124,9 +124,9 @@ TVector3 Conv4HitsReco::GetConvVertexFromParams(double &m, double &q){
 
   //  return 0.5*(vN+m*unitVn+m*unitVQminusM+vP+q*unitVp-q*unitVQminusM);
   LogDebug("Conv4HitsReco")  << ">>>>>>>> Conversion vertex computed via Plus pair\n"
-			     << vtxViaPlus
+			     << vtxViaPlus.x() << "," << vtxViaPlus.y() << "," << vtxViaPlus.z()
 			     << ">>>>>>>> Conversion vertex computed via Minus pair\n"
-			     << vtxViaMinus;
+			     << vtxViaMinus.x() << "," << vtxViaMinus.y() << "," << vtxViaMinus.z();
 
   return 0.5*(vtxViaPlus+vtxViaMinus);
 
@@ -294,25 +294,25 @@ void Conv4HitsReco::Dump(){
   LogDebug("Conv4HitsReco")
     << " ======================================= " << "\n"
     << " Photon Vertex: "
-    << vV
+    << vV.x() << "," << vV.y() << "," << vV.z()
     << " Hit1: "
-    << hit1
+    << hit1.x() << "," << hit1.y() << "," << hit1.z()
     << " Hit2: "
-    << hit2
+    << hit2.x() << "," << hit2.y() << "," << hit2.z()
     << " Hit3: "
-    << hit3
+    << hit3.x() << "," << hit3.y() << "," << hit3.z()
     << " Hit4: "
-    << hit4
+    << hit4.x() << "," << hit4.y() << "," << hit4.z()
     << " N: "
-    << vN
+    << vN.x() << "," << vN.y() << "," << vN.z()
     << " P: "
-    << vP
+    << vP.x() << "," << vP.y() << "," << vP.z()
     << " P-N: "
-    << vPminusN
+    << vPminusN.x() << "," << vP.y() << "," << vP.z()
     << " n: "
-    << unitVn
+    << unitVn.x() << "," << unitVn.y() << "," << unitVn.z()
     << " p: "
-    << unitVp
+    << unitVp.x() << "," << unitVp.y() << "," << unitVp.z()
     << " eta: " << _eta << " pi: " << _pi << "\n";
 
 }

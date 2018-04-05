@@ -21,7 +21,7 @@ trackListMerger = cms.EDProducer("TrackListMerger",
     ShareFrac = cms.double(0.19),
     # best track chosen by chi2 modified by parameters below:
     FoundHitBonus = cms.double(5.0),
-    LostHitPenalty = cms.double(20.0),
+    LostHitPenalty = cms.double(5.0),
     # minimum pT in GeV/c
     MinPT = cms.double(0.05),
     # minimum difference in rechit position in cm
@@ -43,6 +43,7 @@ trackListMerger = cms.EDProducer("TrackListMerger",
                              cms.PSet( tLists=cms.vint32(2,3,4,5), pQual=cms.bool(True) ),
                              cms.PSet( tLists=cms.vint32(0,1,2,3,4,5), pQual=cms.bool(True) )
                              ),
+    trackAlgoPriorityOrder = cms.string("trackAlgoPriorityOrder"),
 
     # set new quality for confirmed tracks for each merged pair and then for the final pair
     allowFirstHitShare = cms.bool(True),

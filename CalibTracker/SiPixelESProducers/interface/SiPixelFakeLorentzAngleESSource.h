@@ -21,7 +21,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,17 +37,17 @@ class SiPixelFakeLorentzAngleESSource : public edm::ESProducer, public edm::Even
 
  public:
   SiPixelFakeLorentzAngleESSource(const edm::ParameterSet &);
-  ~SiPixelFakeLorentzAngleESSource();
+  ~SiPixelFakeLorentzAngleESSource() override;
   
   //      typedef edm::ESProducts<> ReturnType;
   
-  virtual std::auto_ptr<SiPixelLorentzAngle>  produce(const SiPixelLorentzAngleRcd &);
+  virtual std::unique_ptr<SiPixelLorentzAngle>  produce(const SiPixelLorentzAngleRcd &);
   
  protected:
   
-  virtual void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
+  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
 			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& );
+			       edm::ValidityInterval& ) override;
   
   
  private:

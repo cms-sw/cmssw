@@ -1,55 +1,54 @@
 #include "DetectorDescription/RegressionTest/src/SaxToDom.h"
-#include "DetectorDescription/RegressionTest/src/StrX.h"
-
-#include <xercesc/sax2/Attributes.hpp>
-#include <xercesc/sax/SAXParseException.hpp>
-#include <xercesc/sax/SAXException.hpp>
 
 #include <iostream>
-//#include <string>
+#include <map>
+#include <string>
+#include <xercesc/util/XMLString.hpp>
 
 using namespace std;
 
+XERCES_CPP_NAMESPACE_USE
+
 SaxToDom::SaxToDom() 
-{ parent_.push_back(NodeName("TinyDom")); }
+{ parent_.emplace_back(NodeName("TinyDom")); }
 
 SaxToDom::~SaxToDom() 
 { }
-
 
 const TinyDom & SaxToDom::dom() const
 {
    return dom_;
 }
 
-
 void SaxToDom::startElement( const XMLCh* const uri, 
-                            const XMLCh* const name, 
-			       const XMLCh* const qname, 
-			       const Attributes& atts)
+			     const XMLCh* const name, 
+			     const XMLCh* const qname, 
+			     const Attributes& atts)
 {
-  StrX strx(name); // element-name
-  NodeName nm(string(strx.localForm())); // as a temp.string
-  //parent_.push_back(nm);
+  char * strx = XMLString::transcode(name); // element-name
+  NodeName nm(strx); // as a temp.string
+
   AttList al; // map of attributes -> values
   for (unsigned int i = 0; i < atts.getLength(); ++i) {
-    const XMLCh* aname = atts.getLocalName(i);
-    const XMLCh* value = atts.getValue(i);
+    char* aname = XMLString::transcode(atts.getLocalName(i));
+    char* value = XMLString::transcode(atts.getValue(i));
     // fill the tiny-dom-attribute-list (i.e. the map)
-    al[NodeName((StrX(aname).localForm()))]=NodeName(StrX(value).localForm());
-    //cout << "  att=" << StrX(aname) << " val=" << StrX(value) << endl;
+    al[NodeName(aname)]=NodeName(value);
+
+    XMLString::release(&aname);
+    XMLString::release(&value);
   }  
   // add the new element to the dom-tree
   dom_.addEdge(parent_.back(), nm , al);
-  //cout << "add from=" << parent_.back().str() << " to=" << nm.str() << endl;
+
   // set the parent_ to the actual node
-  parent_.push_back(nm);
+  parent_.emplace_back(nm);
+  XMLString::release(&strx);
 }
 
-
 void SaxToDom::endElement(const XMLCh* const uri, 
-                            const XMLCh* const name, 
-			       const XMLCh* const qname)
+			  const XMLCh* const name, 
+			  const XMLCh* const qname)
 {
   parent_.pop_back();
 }
@@ -57,10 +56,12 @@ void SaxToDom::endElement(const XMLCh* const uri,
 // error handling
 void SaxToDom::error(const SAXParseException& e)
 {
-    cerr << "\nError at file " << StrX(e.getSystemId())
-		 << ", line " << e.getLineNumber()
-		 << ", char " << e.getColumnNumber()
-         << "\n  Message: " << StrX(e.getMessage()) << endl;
+  char* id = XMLString::transcode(e.getSystemId());
+  char* message = XMLString::transcode(e.getMessage());
+  cerr << "\nError at file " << id
+       << ", line " << e.getLineNumber()
+       << ", char " << e.getColumnNumber()
+       << "\n  Message: " << message << endl;
+  XMLString::release(&id);
+  XMLString::release(&message);
 }
-
-

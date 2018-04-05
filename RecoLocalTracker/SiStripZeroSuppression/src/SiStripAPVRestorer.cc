@@ -318,7 +318,7 @@ void SiStripAPVRestorer::BaselineFollowerRestore(const uint16_t& APVn, const uin
     
   //============================= Find Flat Regions & Interpolating the baseline & subtracting the baseline  =================	
   
-  if(SmoothedMaps_.size()){
+  if(!SmoothedMaps_.empty()){
     std::map<uint16_t, DigiMap >::iterator itSmootedMap = SmoothedMaps_.find(APVn);	
     this->BaselineFollower(itSmootedMap->second, baseline, median);
   } else {
@@ -540,7 +540,7 @@ void inline SiStripAPVRestorer::Cleaner_LocalMinimumAdder(const std::vector<int1
 	  	float m = (adc2 -adc1)/(strip2 -strip1);
     
 		//2,4
-        	if((strip2 - strip1) >slopeX_ && abs(adc1 -adc2) >slopeY_){
+        	if((strip2 - strip1) >slopeX_ && std::abs(adc1 -adc2) >slopeY_){
 		       	float itStrip = 1;
         		float strip = itStrip + strip1;
  			while(strip < strip2){

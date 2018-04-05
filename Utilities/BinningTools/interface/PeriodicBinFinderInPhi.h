@@ -3,6 +3,7 @@
 
 #include "Utilities/BinningTools/interface/BaseBinFinder.h"
 
+#include <algorithm>
 #include <cmath>
 
 /** Periodic Bin Finder around a circle for (almost) equidistant bins.
@@ -20,20 +21,20 @@ public:
     thePhiOffset( firstPhi - T(0.5)*thePhiStep) {}
 
   /// returns an index in the valid range for the bin that contains phi
-  virtual int binIndex( T phi) const {
+  int binIndex( T phi) const override {
     T tmp = std::fmod((phi - thePhiOffset), twoPiC)*theInvPhiStep;
     if ( tmp < 0) tmp += theNbins;
     return std::min( int(tmp), theNbins-1);
   }
 
   /// returns an index in the valid range, modulo Nbins
-  virtual int binIndex( int i) const {
+  int binIndex( int i) const override {
     int ind = i % theNbins;
     return ind < 0 ? ind+theNbins : ind;
   }
    
   /// the middle of the bin in radians
-  virtual T binPosition( int ind) const {
+  T binPosition( int ind) const override {
     return thePhiOffset + thePhiStep * ( T(ind) + T(0.5));
   }
 

@@ -49,6 +49,7 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
   bool enableCSCMeasurement = par.getParameter<bool>("EnableCSCMeasurement");
   bool enableRPCMeasurement = par.getParameter<bool>("EnableRPCMeasurement");
 
+
 //  if(enableDTMeasurement)
   InputTag DTRecSegmentLabel = par.getParameter<InputTag>("DTRecSegmentLabel");
 
@@ -57,17 +58,25 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
 
 //  if(enableRPCMeasurement)
   InputTag RPCRecSegmentLabel = par.getParameter<InputTag>("RPCRecSegmentLabel");
+
+//  if(enableGEMMeasurement)
+//  InputTag GEMRecSegmentLabel = par.getParameter<InputTag>("GEMRecSegmentLabel");
+  
   theLayerMeasurements= new MuonDetLayerMeasurements(DTRecSegmentLabel,
                                                      CSCRecSegmentLabel,
                                                      RPCRecSegmentLabel,
+                                                     edm::InputTag(),
+						     edm::InputTag(),
 						     iC,
 						     enableDTMeasurement,
 						     enableCSCMeasurement,
-						     enableRPCMeasurement);
+						     enableRPCMeasurement,
+						     false,
+                                                     false);
 
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
   
-  theNavigation = 0; // new DirectMuonNavigation(theService->detLayerGeometry());
+  theNavigation = nullptr; // new DirectMuonNavigation(theService->detLayerGeometry());
   theUpdator = new MuonTrajectoryUpdator(muonUpdatorPSet, insideOut);
 
   theBestMeasurementFinder = new MuonBestMeasurementFinder();
@@ -914,10 +923,10 @@ void CosmicMuonTrajectoryBuilder::incrementChamberCounters(const DetLayer* layer
 //
 double CosmicMuonTrajectoryBuilder::t0(const DTRecSegment4D* dtseg) const {
 
-   if ( (dtseg == 0) || (!dtseg->hasPhi()) ) return 0;
+   if ( (dtseg == nullptr) || (!dtseg->hasPhi()) ) return 0;
    // timing information
    double result = 0;
-   if ( dtseg->phiSegment() == 0 ) return 0; 
+   if ( dtseg->phiSegment() == nullptr ) return 0; 
    int phiHits = dtseg->phiSegment()->specificRecHits().size();
    LogTrace(category_) << "phiHits " << phiHits;
    if ( phiHits > 5 ) {

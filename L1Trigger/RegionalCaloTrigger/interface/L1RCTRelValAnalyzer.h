@@ -44,10 +44,10 @@
 class L1RCTRelValAnalyzer : public edm::EDAnalyzer {
 public:
   explicit L1RCTRelValAnalyzer(const edm::ParameterSet&);
-  ~L1RCTRelValAnalyzer();
+  ~L1RCTRelValAnalyzer() override;
   
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 private:
   // ----------member data ---------------------------
   edm::InputTag rctEmCandsLabel;

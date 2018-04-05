@@ -61,7 +61,7 @@ void popcon::RpcDataGasMix::getNewObjects() {
      }
    std::cout << " >> Final object size: " << GasMixdata->ObGasMix_rpc.size() << std::endl;  
 
-   if (GasMixdata->ObGasMix_rpc.size() > 0) {
+   if (!GasMixdata->ObGasMix_rpc.empty()) {
      niov = snc;
    } else {
      niov = snc;

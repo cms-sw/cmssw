@@ -30,7 +30,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include <math.h>
+#include <cmath>
 
 //#define DebugLog
 
@@ -96,15 +96,8 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
   HFGflash::Hit oneHit;
 
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
-  //G4StepPoint * postStepPoint = aStep->GetPostStepPoint(); 
   G4Track *     track    = aStep->GetTrack();
-  // Get Z-direction 
-  const G4DynamicParticle *aParticle = track->GetDynamicParticle();
-  G4ThreeVector momDir = aParticle->GetMomentumDirection();
-
-  G4ThreeVector hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
-  //  int           parCode  = track->GetDefinition()->GetPDGEncoding();
 
   // This part of code is copied from the original GFlash Fortran code.
   // reference : hep-ex/0001020v1
@@ -253,8 +246,8 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(G4Step * aStep,bool & ok
 #ifdef DebugLog  
     LogDebug("HFShower") << " zInX0 = " << zInX0 << " spotBeta*zInX0 = " << spotBeta*zInX0;
 #endif
-    if ((!zInX0) || (!spotBeta*zInX0) || (zInX0 < 0.01) || 
-	(spotBeta*zInX0 < 0.00001) || (!zInX0*beta) || (zInX0*beta < 0.00001)) 
+    if ((!zInX0) || (! (spotBeta*zInX0 != 0) ) || (zInX0 < 0.01) || 
+	(spotBeta*zInX0 < 0.00001) || (! (zInX0*beta != 0) ) || (zInX0*beta < 0.00001)) 
       return hit;
 
     G4int nSpotsInStep = 0;

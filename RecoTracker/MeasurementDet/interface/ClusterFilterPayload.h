@@ -5,7 +5,7 @@
 
 class SiStripCluster;
 struct ClusterFilterPayload final : public MeasurementEstimator::OpaquePayload {
-  ~ClusterFilterPayload(){}
+  ~ClusterFilterPayload() override{}
 
   ClusterFilterPayload(unsigned int id, SiStripCluster const	* mono, SiStripCluster const	* stereo=nullptr) : detId(id), cluster{mono,stereo}{ tag=myTag;}
   unsigned int detId=0;

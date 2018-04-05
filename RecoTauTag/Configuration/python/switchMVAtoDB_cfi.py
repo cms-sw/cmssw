@@ -29,7 +29,7 @@ def switchMVAtoDB(process):
     process.hpsPFTauDiscriminationByMVAMediumMuonRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByMVAMuonRejection.root')
     process.hpsPFTauDiscriminationByMVATightMuonRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByMVAMuonRejection.root')
 
-    #electron discriminators
+    #electron discriminators (MVA5)
     process.hpsPFTauDiscriminationByMVA5rawElectronRejection.mvaName_woGwoGSF_EC = cms.string('gbr_woGwoGSF_EC')
     process.hpsPFTauDiscriminationByMVA5rawElectronRejection.mvaName_woGwGSF_EC = cms.string('gbr_woGwGSF_EC')
     process.hpsPFTauDiscriminationByMVA5rawElectronRejection.mvaName_wGwoGSF_EC = cms.string('gbr_wGwoGSF_EC')
@@ -145,6 +145,73 @@ def switchMVAtoDB(process):
 
     process.hpsPFTauDiscriminationByMVA5VTightElectronRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationAgainstElectronMVA5.root')
 
+    #electron discriminators (MVA6)
+    process.hpsPFTauDiscriminationByMVA6rawElectronRejection.mvaName_woGwGSF_EC = cms.string('gbr_woGwGSF_EC')
+    process.hpsPFTauDiscriminationByMVA6rawElectronRejection.mvaName_wGwGSF_EC = cms.string('gbr_wGwGSF_EC')
+    process.hpsPFTauDiscriminationByMVA6rawElectronRejection.mvaName_woGwGSF_BL = cms.string('gbr_woGwGSF_BL')
+    process.hpsPFTauDiscriminationByMVA6rawElectronRejection.mvaName_wGwGSF_BL = cms.string('gbr_wGwGSF_BL')
+    process.hpsPFTauDiscriminationByMVA6rawElectronRejection.mvaName_NoEleMatch_woGwoGSF_EC = cms.string('gbr_NoEleMatch_woGwoGSF_EC')
+    process.hpsPFTauDiscriminationByMVA6rawElectronRejection.mvaName_NoEleMatch_wGwoGSF_EC = cms.string('gbr_NoEleMatch_wGwoGSF_EC')    
+    process.hpsPFTauDiscriminationByMVA6rawElectronRejection.mvaName_NoEleMatch_woGwoGSF_BL = cms.string('gbr_NoEleMatch_woGwoGSF_BL')    
+    process.hpsPFTauDiscriminationByMVA6rawElectronRejection.mvaName_NoEleMatch_wGwoGSF_BL = cms.string('gbr_NoEleMatch_wGwoGSF_BL')
+
+    process.hpsPFTauDiscriminationByMVA6rawElectronRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationAgainstElectronMVA6.root')
+
+    process.hpsPFTauDiscriminationByMVA6VLooseElectronRejection.mapping[0].cut = cms.string("eff99cat0") 
+    process.hpsPFTauDiscriminationByMVA6VLooseElectronRejection.mapping[1].cut = cms.string("eff99cat2")
+    process.hpsPFTauDiscriminationByMVA6VLooseElectronRejection.mapping[2].cut = cms.string("eff99cat5")
+    process.hpsPFTauDiscriminationByMVA6VLooseElectronRejection.mapping[3].cut = cms.string("eff99cat7")
+    process.hpsPFTauDiscriminationByMVA6VLooseElectronRejection.mapping[4].cut = cms.string("eff99cat8")
+    process.hpsPFTauDiscriminationByMVA6VLooseElectronRejection.mapping[5].cut = cms.string("eff99cat10")
+    process.hpsPFTauDiscriminationByMVA6VLooseElectronRejection.mapping[6].cut = cms.string("eff99cat13")
+    process.hpsPFTauDiscriminationByMVA6VLooseElectronRejection.mapping[7].cut = cms.string("eff99cat15")
+
+    process.hpsPFTauDiscriminationByMVA6VLooseElectronRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationAgainstElectronMVA6.root')
+
+    process.hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[0].cut = cms.string("eff96cat0")
+    process.hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[1].cut = cms.string("eff96cat2")
+    process.hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[2].cut = cms.string("eff96cat5")
+    process.hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[3].cut = cms.string("eff96cat7")
+    process.hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[4].cut = cms.string("eff96cat8")
+    process.hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[5].cut = cms.string("eff96cat10")
+    process.hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[6].cut = cms.string("eff96cat13")
+    process.hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[7].cut = cms.string("eff96cat15")
+    
+    process.hpsPFTauDiscriminationByMVA6LooseElectronRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationAgainstElectronMVA6.root')
+
+    process.hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[0].cut = cms.string("eff91cat0")
+    process.hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[1].cut = cms.string("eff91cat2")
+    process.hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[2].cut = cms.string("eff91cat5")
+    process.hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[3].cut = cms.string("eff91cat7")
+    process.hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[4].cut = cms.string("eff91cat8")
+    process.hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[5].cut = cms.string("eff91cat10")
+    process.hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[6].cut = cms.string("eff91cat13")
+    process.hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[7].cut = cms.string("eff91cat15")
+
+    process.hpsPFTauDiscriminationByMVA6MediumElectronRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationAgainstElectronMVA6.root')
+
+    process.hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[0].cut = cms.string("eff85cat0")
+    process.hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[1].cut = cms.string("eff85cat2")
+    process.hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[2].cut = cms.string("eff85cat5")
+    process.hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[3].cut = cms.string("eff85cat7")
+    process.hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[4].cut = cms.string("eff85cat8")
+    process.hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[5].cut = cms.string("eff85cat10")
+    process.hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[6].cut = cms.string("eff85cat13")
+    process.hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[7].cut = cms.string("eff85cat15")
+
+    process.hpsPFTauDiscriminationByMVA6TightElectronRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationAgainstElectronMVA6.root')
+
+    process.hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[0].cut = cms.string("eff79cat0")
+    process.hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[1].cut = cms.string("eff79cat2")
+    process.hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[2].cut = cms.string("eff79cat5")
+    process.hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[3].cut = cms.string("eff79cat7")
+    process.hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[4].cut = cms.string("eff79cat8")
+    process.hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[5].cut = cms.string("eff79cat10")
+    process.hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[6].cut = cms.string("eff79cat13")
+    process.hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[7].cut = cms.string("eff79cat15")
+
+    process.hpsPFTauDiscriminationByMVA6VTightElectronRejection.inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationAgainstElectronMVA6.root')
+    
     #isolation
     process.hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw.mvaName = cms.string("tauIdMVAoldDMwoLT")
     massSearchReplaceParam(getattr(process,"produceAndDiscriminateHPSPFTaus"),"mvaOutput_normalization", cms.string("RecoTauTag_tauIdMVAoldDMwoLTv1_mvaOutput_normalization"), cms.string("mvaOutput_normalization_oldDMwoLT"))

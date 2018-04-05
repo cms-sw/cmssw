@@ -87,7 +87,7 @@ void CMSG4mplIonisation::InitialiseEnergyLossProcess(const G4ParticleDefinition*
 {
   if(isInitialised) return;
 
-  SetBaseParticle(0);
+  SetBaseParticle(nullptr);
   SetSecondaryParticle(G4Electron::Electron());
 
   G4mplIonisationModel* ion  = new G4mplIonisationModel(magneticCharge,"PAI");

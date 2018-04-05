@@ -26,7 +26,7 @@ namespace {
     {"threeProngOther", reco::PFTau::kThreeProngNPiZero},
     {"electron", reco::PFTau::kNull},
     {"muon", reco::PFTau::kNull},
-    {0,reco::PFTau::kNull}
+    {nullptr,reco::PFTau::kNull}
   };
   
   constexpr bool same(char const *x, char const *y) {

@@ -13,14 +13,17 @@ class TGeoShape;
 class TFile;
 class TObjArray;
 
+#include <map>
+#include <vector>
+#include <memory>
+
+
 #include "TEveVSDStructs.h"
 #include "TGeoMatrix.h"
 
 #include "Fireworks/Core/interface/FWRecoGeom.h"
 
-#include <map>
-#include <vector>
-
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 class FWGeometry
 {
 public:
@@ -28,7 +31,7 @@ public:
    static const int kSubdetOffset       = 25;
 
    enum Detector { Tracker = 1, Muon = 2, Ecal = 3, Hcal = 4, Calo = 5 };
-   enum SubDetector { PixelBarrel = 1, PixelEndcap = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6, CSC = 7, DT = 8, RPCBarrel = 9, RPCEndcap = 10 };
+   enum SubDetector { PixelBarrel = 1, PixelEndcap = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6, CSC = 7, DT = 8, RPCBarrel = 9, RPCEndcap = 10, GEM = 11, ME0 = 12};
 
    struct Range {
       double min1;
@@ -45,7 +48,7 @@ public:
       TNamed* cmsswVersion;
       TObjArray* extraDetectors;
 
-      VersionInfo() : productionTag(0), cmsswVersion(0), extraDetectors(0) {}
+      VersionInfo() : productionTag(nullptr), cmsswVersion(nullptr), extraDetectors(nullptr) {}
       bool haveExtraDet(const char*)const;
    };
 
@@ -106,9 +109,12 @@ public:
    typedef std::vector<FWGeometry::GeomDetInfo> IdToInfo;
    typedef std::vector<FWGeometry::GeomDetInfo>::const_iterator IdToInfoItr;
 
+
    bool contains( unsigned int id ) const {
      return FWGeometry::find( id ) != m_idToInfo.end();
    }
+
+   IdToInfoItr mapEnd() const {return m_idToInfo.end();}
 
    void clear( void ) { m_idToInfo.clear(); m_idToMatrix.clear(); }
    IdToInfoItr find( unsigned int ) const;
@@ -116,7 +122,11 @@ public:
 
    const VersionInfo& versionInfo() const { return m_versionInfo; }
 
+   int getProducerVersion() const {return m_producerVersion;}
+   
    TGeoShape* getShape( const GeomDetInfo& info ) const;
+
+   const TrackerTopology* getTrackerTopology() const { return m_trackerTopology.get(); }
 
 private:
    mutable std::map<unsigned int, TGeoMatrix*> m_idToMatrix;
@@ -127,6 +137,9 @@ private:
 
    VersionInfo  m_versionInfo;
 
+   int m_producerVersion;
+
+   std::unique_ptr<TrackerTopology> m_trackerTopology;
 };
 
 #endif

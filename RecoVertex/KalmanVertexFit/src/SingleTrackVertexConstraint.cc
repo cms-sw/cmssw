@@ -11,8 +11,8 @@ namespace {
   // FIXME
   // hard-coded tracker bounds
   // workaround while waiting for Geometry service
-  static const float TrackerBoundsRadius = 112;
-  static const float TrackerBoundsHalfLength = 273.5;
+  const float TrackerBoundsRadius = 112;
+  const float TrackerBoundsHalfLength = 273.5;
   bool insideTrackerBounds(const GlobalPoint& point) {
     return ((point.transverse() < TrackerBoundsRadius)
         && (abs(point.z()) < TrackerBoundsHalfLength));
@@ -37,7 +37,8 @@ SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
   typedef VertexTrack<5>::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
 
   double field  = track.field()->inInverseGeV(track.impactPointState().globalPosition()).z();
-  if (fabs(field) < 1e-4) {
+  int  nominalBfield  = track.field()->nominalValue();
+  if ((fabs(field) < 1e-4)&&(fabs(nominalBfield)!=0)) { //protection for the case where the magnet is off
       LogDebug("RecoVertex/SingleTrackVertexConstraint") 
 	 << "Initial state is very far, field is close to zero (<1e-4): " << field << "\n";
       return BTFtuple(false, TransientTrack(), 0.);

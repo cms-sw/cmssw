@@ -17,7 +17,6 @@
 // Original Author:
 //         Created:  Wed Feb 10 11:15:16 CST 2010
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 
 #include "DataFormats/FWLite/interface/LuminosityBlock.h"
 #include "DataFormats/FWLite/interface/HistoryGetterBase.h"
@@ -26,15 +25,15 @@ namespace fwlite {
     class LumiHistoryGetter : public HistoryGetterBase{
         public:
             LumiHistoryGetter(const LuminosityBlock*);
-            virtual ~LumiHistoryGetter();
+            ~LumiHistoryGetter() override;
 
             // ---------- const member functions ---------------------
-            const edm::ProcessHistory& history() const;
+            const edm::ProcessHistory& history() const override;
 
         private:
-            LumiHistoryGetter(const LumiHistoryGetter&); // stop default
+            LumiHistoryGetter(const LumiHistoryGetter&) = delete; // stop default
 
-            const LumiHistoryGetter& operator=(const LumiHistoryGetter&); // stop default
+            const LumiHistoryGetter& operator=(const LumiHistoryGetter&) = delete; // stop default
 
             // ---------- member data --------------------------------
             const fwlite::LuminosityBlock* lumi_;
@@ -42,5 +41,4 @@ namespace fwlite {
 
 }
 
-#endif /*__CINT__ */
 #endif

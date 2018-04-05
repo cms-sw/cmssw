@@ -13,7 +13,7 @@
 
 
 TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator () :
-  thePropagator(0) {}
+  thePropagator(nullptr) {}
 
 
 TransverseImpactPointExtrapolator::TransverseImpactPointExtrapolator (const MagneticField* field) :
@@ -84,7 +84,7 @@ TransverseImpactPointExtrapolator::doExtrapolation (const TrajectoryStateOnSurfa
     //z accordingly
     GlobalVector zLocal(xLocal.cross(yLocal));
 
-    Surface::PositionType origin(vtx);
+    const Surface::PositionType& origin(vtx);
     Surface::RotationType rotation(xLocal,yLocal,zLocal);
     ReferenceCountingPointer<Plane> surface =  PlaneBuilder().plane(origin,rotation);
 
@@ -119,7 +119,7 @@ TransverseImpactPointExtrapolator::doExtrapolation (const FreeTrajectoryState& f
     //z accordingly
     GlobalVector zLocal(xLocal.cross(yLocal));
 
-    Surface::PositionType origin(vtx);
+    const Surface::PositionType& origin(vtx);
     Surface::RotationType rotation(xLocal,yLocal,zLocal);
     ReferenceCountingPointer<Plane> surface =  PlaneBuilder().plane(origin,rotation);
 
@@ -159,7 +159,7 @@ TransverseImpactPointExtrapolator::tipSurface (const GlobalPoint& position,
   DirectionType2D vtxDirection(xc.x()-vertex.x(),xc.y()-vertex.y());
   double vtxDistance = vtxDirection.mag();
 
-  Surface::PositionType origin(vertex);
+  const Surface::PositionType& origin(vertex);
   GlobalVector xLocal(vtxDirection.x()/vtxDistance,
 		      vtxDirection.y()/vtxDistance,
 		      0.);

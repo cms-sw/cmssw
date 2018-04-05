@@ -11,6 +11,8 @@ trackQuality = cms.PSet(
 		associatePixel = cms.bool(True),
 		associateStrip = cms.bool(True),
 		associateRecoTracks = cms.bool(True),
-		ROUList = copy.deepcopy(tabh.trackAssociatorByHits.ROUList)
+		ROUList = copy.deepcopy(tabh.trackAssociatorByHits.ROUList),
+                pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+                stripSimLinkSrc = cms.InputTag("simSiStripDigis")
 	)
 )

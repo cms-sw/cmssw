@@ -37,14 +37,14 @@ class basic_ozstreambuf : public std::basic_streambuf<Item_t, Traits_t> {
 	typedef Traits_t				traits_type;
 
 	basic_ozstreambuf(OStream_t *os, int level);
-	~basic_ozstreambuf();
+	~basic_ozstreambuf() override;
 
 	using StreamBuf_t::pbase;
 	using StreamBuf_t::pptr;
 	using StreamBuf_t::epptr;
 
-	int sync();
-	int_type overflow(int_type c);
+	int sync() override;
+	int_type overflow(int_type c) override;
 	std::streamsize flush();
 
     private:
@@ -73,13 +73,13 @@ class basic_izstreambuf : public std::basic_streambuf<Item_t, Traits_t> {
 	typedef Traits_t				traits_type;
 
 	basic_izstreambuf(IStream_t *is);
-	~basic_izstreambuf();
+	~basic_izstreambuf() override;
 
 	using StreamBuf_t::gptr;
 	using StreamBuf_t::egptr;
 	using StreamBuf_t::eback;
 
-	int_type underflow();
+	int_type underflow() override;
 
     private:
 	void putbackFromZStream();
@@ -136,7 +136,7 @@ class basic_ozstream : public basic_ozstreambase<Item_t, Traits_t, Allocator_t>,
 	               int level = 9) :
 		ZOStreamBase_t(os, level),
 		OStream_t(ZOStreamBase_t::rdbuf()) {}
-	~basic_ozstream() {}
+	~basic_ozstream() override {}
 };
 
 template<typename Item_t, typename Traits_t = std::char_traits<Item_t>,
@@ -149,7 +149,7 @@ class basic_izstream : public basic_izstreambase<Item_t, Traits_t, Allocator_t>,
 
 	basic_izstream(IStream_t *is, int open_mode = std::ios::in) :
 		ZIStreamBase_t(is), IStream_t(ZIStreamBase_t::rdbuf()) {}
-	~basic_izstream() {}
+	~basic_izstream() override {}
 };
 
 typedef basic_ozstream<char> ozstream;

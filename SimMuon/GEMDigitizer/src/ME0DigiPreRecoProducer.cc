@@ -1,14 +1,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoProducer.h"
 #include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoModelFactory.h"
@@ -71,21 +68,21 @@ void ME0DigiPreRecoProducer::produce(edm::Event& e, const edm::EventSetup& event
   edm::Handle<CrossingFrame<PSimHit> > cf;
   e.getByToken(cf_token, cf);
 
-  std::auto_ptr<MixCollection<PSimHit> > hits( new MixCollection<PSimHit>(cf.product()) );
+  std::unique_ptr<MixCollection<PSimHit> > hits( new MixCollection<PSimHit>(cf.product()) );
 
   // Create empty output
-  std::auto_ptr<ME0DigiPreRecoCollection> digis(new ME0DigiPreRecoCollection());
+  std::unique_ptr<ME0DigiPreRecoCollection> digis(new ME0DigiPreRecoCollection());
 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
-  for(auto &hit: *hits){
+  for (const auto& hit: *hits){
     hitMap[hit.detUnitId()].push_back(hit);
   }
   
   // simulate signal and noise for each eta partition
   const auto & etaPartitions(me0DigiPreRecoModel_->getGeometry()->etaPartitions());
   
-  for(auto &roll: etaPartitions){
+  for (const auto& roll: etaPartitions){
     const ME0DetId detId(roll->id());
     const uint32_t rawId(detId.rawId());
     const auto & simHits(hitMap[rawId]);
@@ -99,6 +96,6 @@ void ME0DigiPreRecoProducer::produce(edm::Event& e, const edm::EventSetup& event
   }
   
   // store them in the event
-  e.put(digis);
+  e.put(std::move(digis));
 }
 

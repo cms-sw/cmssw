@@ -25,6 +25,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
 
+#include "RecoParticleFlow/PFTracking/interface/ConvBremHeavyObjectCache.h"
+
 class PFTrackTransformer;
 class GsfTrack;
 class MagneticField;
@@ -41,27 +43,39 @@ class ConvBremPFTrackFinder;
  and transform them in PFGsfRecTracks.
 */
 
-class PFElecTkProducer final : public edm::stream::EDProducer<> {
+#include <unordered_map>
+
+
+class PFElecTkProducer final : public edm::stream::EDProducer<edm::GlobalCache<convbremhelpers::HeavyObjectCache> > {
  public:
   
      ///Constructor
-     explicit PFElecTkProducer(const edm::ParameterSet&);
+  explicit PFElecTkProducer(const edm::ParameterSet&, const convbremhelpers::HeavyObjectCache*);
+
+
+  static std::unique_ptr<convbremhelpers::HeavyObjectCache> 
+    initializeGlobalCache( const edm::ParameterSet& conf ) {
+       return std::unique_ptr<convbremhelpers::HeavyObjectCache>(new convbremhelpers::HeavyObjectCache(conf));
+   }
+  
+  static void globalEndJob(convbremhelpers::HeavyObjectCache const* ) {
+  }
 
      ///Destructor
-     ~PFElecTkProducer();
+     ~PFElecTkProducer() override;
 
    private:
-      virtual void beginRun(const edm::Run&,const edm::EventSetup&) override;
-      virtual void endRun(const edm::Run&,const edm::EventSetup&) override;
+      void beginRun(const edm::Run&,const edm::EventSetup&) override;
+      void endRun(const edm::Run&,const edm::EventSetup&) override;
 
       ///Produce the PFRecTrack collection
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
     
       int FindPfRef(const reco::PFRecTrackCollection & PfRTkColl, 
 		    const reco::GsfTrack&, bool);
       
-      bool isFifthStep(reco::PFRecTrackRef pfKfTrack);
+
 
       bool applySelection(const reco::GsfTrack&);
       
@@ -120,10 +134,10 @@ class PFElecTkProducer final : public edm::stream::EDProducer<> {
       double dphiCutGsfClean_;
 
       ///PFTrackTransformer
-      PFTrackTransformer *pfTransformer_;     
+      std::unique_ptr<PFTrackTransformer> pfTransformer_;     
       const MultiTrajectoryStateMode *mtsMode_;
       MultiTrajectoryStateTransform  mtsTransform_;
-      ConvBremPFTrackFinder *convBremFinder_;
+      std::unique_ptr<ConvBremPFTrackFinder> convBremFinder_;
 
 
       ///Trajectory of GSfTracks in the event?
@@ -151,6 +165,9 @@ class PFElecTkProducer final : public edm::stream::EDProducer<> {
       std::string path_mvaWeightFileConvBremBarrelHighPt_;
       std::string path_mvaWeightFileConvBremEndcapsLowPt_;
       std::string path_mvaWeightFileConvBremEndcapsHighPt_;
-      
+  
+      // cache for multitrajectory states
+      std::vector<double> gsfInnerMomentumCache_;
+
 };
 #endif

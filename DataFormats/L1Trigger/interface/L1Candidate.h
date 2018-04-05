@@ -8,6 +8,9 @@ namespace l1t {
 
   class L1Candidate;
   typedef BXVector<L1Candidate> L1CandidateBxCollection;
+  typedef edm::Ref< L1CandidateBxCollection > L1CandidateRef ;
+  typedef edm::RefVector< L1CandidateBxCollection > L1CandidateRefVector ;
+  typedef std::vector< L1CandidateRef > L1CandidateVectorRef ;
 
 	// All L1 data formats which encode physically meaningful quantities inherit from Candidate
   class L1Candidate : public reco::LeafCandidate {
@@ -31,22 +34,25 @@ namespace l1t {
 		 int qual=0,
 		 int iso=0);
 
-    ~L1Candidate();
+    ~L1Candidate() override;
 
     // methods to set integer values
     // in general, these should not be needed
-    void setHwPt(int pt);
-    void setHwEta(int eta);
-    void setHwPhi(int phi);
-    void setHwQual(int qual);
-    void setHwIso(int iso);
+    void setHwPt(int pt) {hwPt_=pt;}
+    void setHwEta(int eta) {hwEta_=eta;}
+    void setHwPhi(int phi) {hwPhi_=phi;}
+    void setHwQual(int qual) {hwQual_=qual;}
+    void setHwIso(int iso) {hwIso_=iso;}
 
     // methods to retrieve integer values
-    int hwPt() const;
-    int hwEta() const;
-    int hwPhi() const;
-    int hwQual() const;
-    int hwIso() const;
+    int hwPt() const {return hwPt_;}
+    int hwEta() const {return hwEta_;}
+    int hwPhi() const {return hwPhi_;}
+    int hwQual() const {return hwQual_;}
+    int hwIso() const {return hwIso_;}
+
+    virtual bool operator==(const l1t::L1Candidate & rhs) const;
+    virtual inline bool operator!=(const l1t::L1Candidate & rhs) const { return !(operator==(rhs)); };
 
   private:
 

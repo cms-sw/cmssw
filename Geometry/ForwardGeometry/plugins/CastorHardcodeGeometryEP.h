@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -20,9 +19,9 @@
 class CastorHardcodeGeometryEP : public edm::ESProducer {
    public:
       CastorHardcodeGeometryEP(const edm::ParameterSet&);
-      ~CastorHardcodeGeometryEP();
+      ~CastorHardcodeGeometryEP() override;
 
-      typedef std::auto_ptr<CaloSubdetectorGeometry> ReturnType;
+      typedef std::unique_ptr<CaloSubdetectorGeometry> ReturnType;
 
       ReturnType produce(const CastorGeometryRecord&);
 private:

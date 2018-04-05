@@ -41,21 +41,22 @@ public:
   CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
   CkfTrajectoryBuilder(const edm::ParameterSet& conf, TrajectoryFilter *filter);
 
-  ~CkfTrajectoryBuilder() {}
+  ~CkfTrajectoryBuilder() override {}
 
   /// trajectories building starting from a seed
-  virtual TrajectoryContainer trajectories(const TrajectorySeed& seed) const;
+  TrajectoryContainer trajectories(const TrajectorySeed& seed) const override;
   /// trajectories building starting from a seed
-  virtual void trajectories(const TrajectorySeed& seed, TrajectoryContainer &ret) const;
+  void trajectories(const TrajectorySeed& seed, TrajectoryContainer &ret) const override;
 
   // new interface returning the start Trajectory...
   TempTrajectory buildTrajectories (const TrajectorySeed&,
 				    TrajectoryContainer &ret,
-				    const TrajectoryFilter*) const;
+				    unsigned int& nCandPerSeed,
+				    const TrajectoryFilter*) const override;
   
   
   void  rebuildTrajectories(TempTrajectory const& startingTraj, const TrajectorySeed&,
-			    TrajectoryContainer& result) const {}
+			    TrajectoryContainer& result) const override {}
 
   /// set Event for the internal MeasurementTracker data member
   //  virtual void setEvent(const edm::Event& event) const;
@@ -76,8 +77,8 @@ public:
 
   virtual void findCompatibleMeasurements(const TrajectorySeed&seed, const TempTrajectory& traj, std::vector<TrajectoryMeasurement> & result) const;
 
-  void limitedCandidates(const TrajectorySeed&seed, TempTrajectory& startingTraj, TrajectoryContainer& result) const;
-  void limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, TempTrajectoryContainer &candidates, TrajectoryContainer& result) const;
+  unsigned int limitedCandidates(const TrajectorySeed&seed, TempTrajectory& startingTraj, TrajectoryContainer& result) const;
+  unsigned int limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, TempTrajectoryContainer &candidates, TrajectoryContainer& result) const;
   
   void updateTrajectory( TempTrajectory& traj, TM && tm) const;
 

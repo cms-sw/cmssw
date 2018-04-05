@@ -10,13 +10,13 @@ class APDShape : public EcalShapeBase
       APDShape( double tStart,
 		double tau     ) ;
 
-      virtual ~APDShape() ;
+      ~APDShape() override ;
 
-      virtual double threshold() const ;
+      double threshold() const override ;
 
    protected:
   
-      virtual void fillShape( EcalShapeBase::DVec& aVec ) const ;
+      void fillShape( EcalShapeBase::DVec& aVec ) const override ;
 
    private:
 

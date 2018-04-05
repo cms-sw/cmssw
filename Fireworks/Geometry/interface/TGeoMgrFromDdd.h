@@ -22,7 +22,7 @@
 #include <string>
 #include <map>
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -48,9 +48,9 @@ class TGeoMgrFromDdd : public edm::ESProducer
 {
 public:
    TGeoMgrFromDdd(const edm::ParameterSet&);
-   virtual ~TGeoMgrFromDdd();
+   ~TGeoMgrFromDdd() override;
 
-   typedef boost::shared_ptr<TGeoManager> ReturnType;
+   typedef std::shared_ptr<TGeoManager> ReturnType;
 
    // ---------- const member functions ---------------------
 

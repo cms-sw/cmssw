@@ -12,28 +12,24 @@ class FEConfigSpikeDat : public IDataItem {
  public:
   friend class EcalCondDBInterface; // XXX temp should not need
   FEConfigSpikeDat();
-  ~FEConfigSpikeDat();
+  ~FEConfigSpikeDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_SPIKE_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_SPIKE_DAT"; }
 
   inline void setSpikeThreshold(int x) { m_thr = x; }
   inline int getSpikeThreshold() const { return m_thr; }
 
  private:
-  void prepareWrite() 
-    throw(std::runtime_error);
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigSpikeDat* item, FEConfigSpikeInfo* iconf)
-    throw(std::runtime_error);
+  void writeDB(const EcalLogicID* ecid, const FEConfigSpikeDat* item, FEConfigSpikeInfo* iconf) noexcept(false);
 
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigSpikeDat>* data, FEConfigSpikeInfo* iconf)
-  throw(std::runtime_error);
+  void writeArrayDB(const std::map< EcalLogicID, FEConfigSpikeDat>* data, FEConfigSpikeInfo* iconf) noexcept(false);
 
 
-  void fetchData(std::map< EcalLogicID, FEConfigSpikeDat >* fillMap, FEConfigSpikeInfo* iconf)
-     throw(std::runtime_error);
+  void fetchData(std::map< EcalLogicID, FEConfigSpikeDat >* fillMap, FEConfigSpikeInfo* iconf) noexcept(false);
 
   // User data
   int m_thr;

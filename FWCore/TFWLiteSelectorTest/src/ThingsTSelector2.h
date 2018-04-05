@@ -8,7 +8,7 @@
  * \author Luca Lista, INFN
  *
  */
-#include <TH1.h>
+#include "TH1.h"
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelector.h"
 
 namespace tfwliteselectortest {
@@ -16,22 +16,22 @@ namespace tfwliteselectortest {
 	ThingsWorker(const TList*, TList&);
 	void process( const edm::Event& iEvent );
 	void postProcess(TList&);
-	TH1F* h_a;
-	TH1F* h_refA;
+        edm::propagate_const<TH1F*> h_a;
+        edm::propagate_const<TH1F*> h_refA;
   };
 
   class ThingsTSelector2 : public TFWLiteSelector<ThingsWorker> {
 public :
     ThingsTSelector2() {}
-    void begin(TList*&);
-    void terminate(TList&);
+    void begin(TList*&) override;
+    void terminate(TList&) override;
     
 private:
     
     ThingsTSelector2(ThingsTSelector2 const&);
     ThingsTSelector2 operator=(ThingsTSelector2 const&);
     
-    ClassDef(ThingsTSelector2,2)
+    ClassDefOverride(ThingsTSelector2,2)
   };
 }
 #endif

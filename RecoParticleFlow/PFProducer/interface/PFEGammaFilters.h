@@ -45,7 +45,7 @@ class PFEGammaFilters {
   bool isElectronSafeForJetMET(const reco::GsfElectron &, 
 			       const reco::PFCandidate &,
 			       const reco::Vertex &,
-			       bool lockTracks);
+			       bool& lockTracks);
 
   bool isPhotonSafeForJetMET(const reco::Photon &, 
 			     const reco::PFCandidate &);
@@ -54,7 +54,7 @@ class PFEGammaFilters {
 
  private:
 
-  unsigned int whichTrackAlgo(const reco::TrackRef& trackRef);
+
 
   // Photon selections
   float ph_Et_;

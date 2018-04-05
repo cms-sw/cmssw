@@ -59,5 +59,5 @@ void CaloTau::setmaximumHCALhitEt(const float& x){maximumHCALhitEt_=x;}
 
 bool CaloTau::overlap(const reco::Candidate& theCand)const{
   const reco::RecoCandidate* theRecoCand=dynamic_cast<const RecoCandidate *>(&theCand);
-  return (theRecoCand!=0 && (checkOverlap(track(),theRecoCand->track())));
+  return (theRecoCand!=nullptr && (checkOverlap(track(),theRecoCand->track())));
 }

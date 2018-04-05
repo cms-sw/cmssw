@@ -18,10 +18,10 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-#include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeRPhi.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+
 // zero value indicates incompatible ts - hit pair
 std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectoryStateOnSurface& ts,
 							      const TrackingRecHit& hit) const {
@@ -38,14 +38,14 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
   float rMin = theRMin;
   float rMax = theRMax;
   float myZ = gp.z();
-  if(std::abs(myZ)> 70. &&  std::abs(myZ)<170.) {
+  if( (std::abs(myZ)> 70.f)  &  (std::abs(myZ)<170.f)) {
     rMin = theRMinI;
     rMax = theRMaxI;
   }
   if( rDiff >= rMax || rDiff <= rMin ) return std::pair<bool,double>(false,0.);
   
-  float tsPhi = ts.globalParameters().position().phi();
-  float rhPhi = gp.phi();
+  float tsPhi = ts.globalParameters().position().barePhi();
+  float rhPhi = gp.barePhi();
   
   float myPhimin = thePhiMin;
   float myPhimax = thePhiMax;
@@ -54,7 +54,7 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate( const TrajectorySt
   if (phiDiff > pi) phiDiff -= twopi;
   if (phiDiff < -pi) phiDiff += twopi;
 
-  if ( phiDiff < myPhimax && phiDiff > myPhimin ) {
+  if ( (phiDiff < myPhimax) & (phiDiff > myPhimin) ) {
     return std::pair<bool,double>(true,1.);
   } else {
     return std::pair<bool,double>(false,0.);
@@ -75,15 +75,15 @@ std::pair<bool,double> ForwardMeasurementEstimator::estimate
   float rMin = theRMin;
   float rMax = theRMax;
   float myZ = gp.z();
-  if(std::abs(myZ)> 70. &&  std::abs(myZ)<170.) {
+  if( (std::abs(myZ)> 70.f) &  (std::abs(myZ)<170.f) ) {
     rMin = theRMinI;
     rMax = theRMaxI;
   }
   
-  if( rDiff >= rMax || rDiff <= rMin ) return std::pair<bool,double>(false,0.);
+  if( (rDiff >= rMax) | (rDiff <= rMin) ) return std::pair<bool,double>(false,0.);
   
-  float tsPhi = ts.phi();
-  float rhPhi = gp.phi();  
+  float tsPhi = ts.barePhi();
+  float rhPhi = gp.barePhi();  
   
   float myPhimin = thePhiMin;
   float myPhimax = thePhiMax;  
@@ -103,7 +103,6 @@ bool ForwardMeasurementEstimator::estimate
   typedef std::pair<float,float> Range ;
 
   GlobalPoint trajPos(ts.globalParameters().position());
-  GlobalDetRangeRPhi detRange(plane);
 
   float r1 = 0.;
   float r2 = 40.;
@@ -111,8 +110,8 @@ bool ForwardMeasurementEstimator::estimate
   Range trajRRange(trajPos.perp() - r1, trajPos.perp() + r2);
   Range trajPhiRange(trajPos.phi() - std::abs(thePhiMin), trajPos.phi() + std::abs(thePhiMax));
 
-  if(rangesIntersect(trajRRange, detRange.rRange()) &&
-     rangesIntersect(trajPhiRange, detRange.phiRange(), PhiLess()))
+  if(rangesIntersect(trajRRange, plane.rSpan()) &&
+     rangesIntersect(trajPhiRange, plane.phiSpan(), PhiLess()))
    { return true ; }
   else
    { return false ; }
@@ -127,7 +126,7 @@ ForwardMeasurementEstimator::maximalLocalDisplacement
   if ( ts.hasError())
    {
     LocalError le = ts.localError().positionError();
-    return Local2DVector( sqrt(le.xx())*nSigmaCut, sqrt(le.yy())*nSigmaCut);
+    return Local2DVector( std::sqrt(le.xx())*nSigmaCut, std::sqrt(le.yy())*nSigmaCut);
    }
   else
     return Local2DVector(999999,999999) ;

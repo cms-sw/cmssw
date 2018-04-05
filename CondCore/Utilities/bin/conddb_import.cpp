@@ -20,15 +20,18 @@ namespace cond {
 }
 
 cond::ImportUtilities::ImportUtilities():Utilities("conddb_import"){
-  addConnectOption("fromConnect","f","source connection string (required)");
+  addConnectOption("fromConnect","f","source connection string (optional, default=connect)");
   addConnectOption("connect","c","target connection string (required)");
   addAuthenticationOptions();
   addOption<std::string>("inputTag","i","source tag (optional - default=tag)");
   addOption<std::string>("tag","t","destination tag (required)");
   addOption<cond::Time_t>("begin","b","lower bound of interval to import (optional, default=1)");
   addOption<cond::Time_t>("end","e","upper bound of interval to import (optional, default=infinity)");
-  addOption<std::string>("oraDestAccount","A","ora DB destination account (optional, to be used with -T)");
-  addOption<std::string>("oraDestTag","T","ora DB destination tag (optional, to be used with -A)");
+  addOption<std::string>("description","x","User text ( for new tags, optional )");
+  addOption<bool>("override","o","Override the existing iovs in the dest tag, for the selected interval ( optional, default=false)");
+  addOption<bool>("reserialize","r","De-serialize in reading and serialize in writing (optional, default=false)");
+  addOption<bool>("forceInsert","K","force the insert for all synchronization types (optional, default=false)");
+  addOption<std::string>("editingNote","N","editing note (required with forceInsert)");
 }
 
 cond::ImportUtilities::~ImportUtilities(){
@@ -38,19 +41,25 @@ int cond::ImportUtilities::execute(){
 
   bool debug = hasDebug();
   std::string destConnect = getOptionValue<std::string>("connect" );
-  std::string sourceConnect = getOptionValue<std::string>("fromConnect");
+  std::string sourceConnect = destConnect;
+  if(hasOptionValue("fromConnect")) sourceConnect = getOptionValue<std::string>("fromConnect");
 
   std::string inputTag = getOptionValue<std::string>("inputTag");;
-  std::string tag(""); 
-  std::string oraConn("");
-  std::string oraTag("");
+  std::string tag = inputTag;
   if( hasOptionValue("tag")) {
     tag = getOptionValue<std::string>("tag");
-  } else {
-    if( hasOptionValue("oraDestTag") ){
-      oraTag = getOptionValue<std::string>("oraDestTag");
-    } else throwException("The destination tag is missing and can't be resolved.","ImportUtilities::execute");; 
-    oraConn = getOptionValue<std::string>("oraDestAccount");
+  }
+
+  std::string description("");
+  if( hasOptionValue("description") ) description = getOptionValue<std::string>("description");
+  bool override = hasOptionValue("override");
+  bool reserialize = hasOptionValue("reserialize");
+  bool forceInsert = hasOptionValue("forceInsert");
+  std::string editingNote("");
+  if( hasOptionValue("editingNote") ) editingNote = getOptionValue<std::string>("editingNote");
+  if( forceInsert && editingNote.empty() ) {
+    std::cout <<"ERROR: \'forceInsert\' mode requires an \'editingNote\' to be provided."<<std::endl;
+    return -1;
   }
 
   cond::Time_t begin = 1;
@@ -64,37 +73,17 @@ int cond::ImportUtilities::execute(){
     connPool.setAuthenticationPath( getOptionValue<std::string>( "authPath") ); 
   }
   connPool.configure();
+  std::cout <<"# Running import tool for conditions on release "<<cond::currentCMSSWVersion()<<std::endl;
   std::cout <<"# Connecting to source database on "<<sourceConnect<<std::endl;
   persistency::Session sourceSession = connPool.createSession( sourceConnect );
 
   std::cout <<"# Opening session on destination database..."<<std::endl;
   persistency::Session destSession = connPool.createSession( destConnect, true );
 
-  bool newTag = false;
-  destSession.transaction().start( true );
-  if( tag.empty() ){
-    cond::MigrationStatus ms = ERROR;
-    std::cout <<"# checking TAG_MAPPING table to identify destination tag."<<std::endl; 
-    if( !destSession.checkMigrationLog( oraConn, oraTag, tag, ms ) ){
-      tag = oraTag;
-      newTag = true;
-    } else {
-      if( ms == ERROR ) throwException("The destination Tag has not been correctly migrated.","ImportUtilities::execute");
-      else if( ms == MIGRATED ) std::cout <<"# WARNING: the destination tag has not been validated."<<std::endl;
-    }
-  }
-  destSession.transaction().commit();
-
   std::cout <<"# destination tag is "<<tag<<std::endl;
 
-  size_t nimported = importIovs( inputTag, sourceSession, tag, destSession, begin, end, "", true );
+  size_t nimported = importIovs( inputTag, sourceSession, tag, destSession, begin, end, description, editingNote, override, reserialize, forceInsert );
   std::cout <<"# "<<nimported<<" iov(s) imported. "<<std::endl;
-  if( newTag && nimported ){
-    std::cout <<"# updating TAG_MAPPING table..."<<std::endl;
-    destSession.transaction().start( false );
-    destSession.addToMigrationLog( oraConn, oraTag, tag, VALIDATED );
-    destSession.transaction().commit();
-  }
 
   return 0;
 }

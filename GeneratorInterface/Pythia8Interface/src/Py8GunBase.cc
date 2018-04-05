@@ -1,7 +1,10 @@
 #include "GeneratorInterface/Pythia8Interface/interface/Py8GunBase.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 
-#include "GeneratorInterface/Pythia8Interface/plugins/HepMCA2.h"
+// EvtGen plugin
+//
+#include "Pythia8Plugins/EvtGen.h"
 
 using namespace Pythia8;
 
@@ -12,28 +15,19 @@ namespace gen {
 Py8GunBase::Py8GunBase( edm::ParameterSet const& ps )
    : Py8InterfaceBase(ps)
 {
-
-   runInfo().setFilterEfficiency(
-      ps.getUntrackedParameter<double>("filterEfficiency", -1.) );
-   runInfo().setExternalXSecLO(
-      GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("crossSection", -1.)) );
-   runInfo().setExternalXSecNLO(
-       GenRunInfoProduct::XSec(ps.getUntrackedParameter<double>("crossSectionNLO", -1.)) );
-
-  
   // PGun specs
   //
-   edm::ParameterSet pgun_params = 
-      ps.getParameter<edm::ParameterSet>("PGunParameters");
+  edm::ParameterSet pgun_params = 
+    ps.getParameter<edm::ParameterSet>("PGunParameters");
       
-   // although there's the method ParameterSet::empty(),  
-   // it looks like it's NOT even necessary to check if it is,
-   // before trying to extract parameters - if it is empty,
-   // the default values seem to be taken
-   //
-   fPartIDs    = pgun_params.getParameter< std::vector<int> >("ParticleID");
-   fMinPhi     = pgun_params.getParameter<double>("MinPhi"); // ,-3.14159265358979323846);
-   fMaxPhi     = pgun_params.getParameter<double>("MaxPhi"); // , 3.14159265358979323846);
+  // although there's the method ParameterSet::empty(),  
+  // it looks like it's NOT even necessary to check if it is,
+  // before trying to extract parameters - if it is empty,
+  // the default values seem to be taken
+  //
+  fPartIDs    = pgun_params.getParameter< std::vector<int> >("ParticleID");
+  fMinPhi     = pgun_params.getParameter<double>("MinPhi"); // ,-3.14159265358979323846);
+  fMaxPhi     = pgun_params.getParameter<double>("MaxPhi"); // , 3.14159265358979323846);
    
 }
 
@@ -42,20 +36,31 @@ Py8GunBase::Py8GunBase( edm::ParameterSet const& ps )
 bool Py8GunBase::initializeForInternalPartons()
 {
 
-   // NO MATTER what was this setting below, override it before init 
-   // - this is essencial for the PGun mode 
+  // NO MATTER what was this setting below, override it before init 
+  // - this is essencial for the PGun mode 
    
-   // Key requirement: switch off ProcessLevel, and thereby also PartonLevel.
-   fMasterGen->readString("ProcessLevel:all = off");
-   fMasterGen->readString("ProcessLevel::resonanceDecays=on");
-   fMasterGen->init();
+  // Key requirement: switch off ProcessLevel, and thereby also PartonLevel.
+  fMasterGen->readString("ProcessLevel:all = off");
+  fMasterGen->readString("ProcessLevel::resonanceDecays=on");
+  fMasterGen->init();
    
-   // init decayer
-   fDecayer->readString("ProcessLevel:all = off"); // Same trick!
-   fDecayer->readString("ProcessLevel::resonanceDecays=on");
-   fDecayer->init();
+  // init decayer
+  fDecayer->readString("ProcessLevel:all = off"); // Same trick!
+  fDecayer->readString("ProcessLevel::resonanceDecays=on");
+  fDecayer->init();
   
-   return true;
+  if (useEvtGen) {
+    edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
+
+    evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile, evtgenPdlFile));
+
+    for (unsigned int i=0; i<evtgenUserFiles.size(); i++) {
+      edm::FileInPath evtgenUserFile(evtgenUserFiles.at(i));
+      evtgenDecays->readDecayFile(evtgenUserFile.fullPath());
+    }
+  }
+
+  return true;
 
 }
 
@@ -72,7 +77,6 @@ bool Py8GunBase::residualDecay()
 
   if(NPartsAfterDecays == NPartsBeforeDecays) return true;
   
-  HepMC::Pythia8ToHepMCA toHepMCA;
   bool result = true;
 
   for ( int ipart=NPartsAfterDecays; ipart>NPartsBeforeDecays; ipart-- )
@@ -102,7 +106,7 @@ bool Py8GunBase::residualDecay()
 	    
       part->set_status(2);
 	    
-      result = toHepMCA.append_event( fDecayer->event, event().get(), part);
+      result = toHepMC.fill_next_event( *(fDecayer.get()), event().get(), -1, true, part);
 
     }
   } 
@@ -123,9 +127,9 @@ void Py8GunBase::finalizeEvent()
     maxEventsToPrint--;
     if (pythiaPylistVerbosity) 
     {
-      fMasterGen->info.list(std::cout); 
-      fMasterGen->event.list(std::cout);
-    } 
+      fMasterGen->info.list(); 
+      fMasterGen->event.list();
+    }
 
     if (pythiaHepMCVerbosity) 
     {

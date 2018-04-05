@@ -14,10 +14,10 @@ class PFMCTruthTreeProducer : public edm::EDAnalyzer
 {
   public:
     explicit PFMCTruthTreeProducer(edm::ParameterSet const& cfg);
-    virtual void beginJob();
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
-    virtual void endJob();
-    ~PFMCTruthTreeProducer();
+    void beginJob() override;
+    void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
+    void endJob() override;
+    ~PFMCTruthTreeProducer() override;
 
   private:
     std::string histogramFile_;

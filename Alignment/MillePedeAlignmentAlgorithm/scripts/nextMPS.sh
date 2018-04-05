@@ -120,7 +120,7 @@ fi
 TESTJOBS(){
 # testing your Jobs for FAIL status and resubmitting
 
-while [ "$(mps_stat.pl | grep OK | wc -l)" != "$Njobs" ]
+while [ "$(mps_stat.py | grep OK | wc -l)" != "$Njobs" ]
 do	
 	if [ "$time_flag" = "spec" ]; then
         	sleep $TimeSleep
@@ -129,17 +129,17 @@ do
 	fi
 
         echo "Fetch DONE jobs"
-        mps_fetch.pl
+        mps_fetch.py
 
-        if [ $(mps_stat.pl | grep FAIL | wc -l) -ne 0 ];
+        if [ $(mps_stat.py | grep FAIL | wc -l) -ne 0 ];
         then
-                Njfails=$(echo "$(mps_stat.pl | grep FAIL | wc -l)")
+                Njfails=$(echo "$(mps_stat.py | grep FAIL | wc -l)")
                 echo "Njob fails = $Njfails"
                 echo "Retry failed jobs"
                 mps_retry.pl FAIL
-                mps_fire.pl $Njfails
+                mps_fire.py $Njfails
         else
-                NjOK=$(mps_stat.pl | grep OK | wc -l)
+                NjOK=$(mps_stat.py | grep OK | wc -l)
                 echo " Checking jobs . Njobs OK = $NjOK"
 
         fi
@@ -152,7 +152,7 @@ MILLERUN(){
 	./setup_align.pl 
 
 # Send your jobs for running. Job status after: RUN
-	mps_fire.pl $Njobs
+	mps_fire.py $Njobs
 
 # testing your MILLE jobs for FAIL status and resubmitting
 	TESTJOBS
@@ -165,7 +165,7 @@ fi
 	}
 
 PEDERUN(){
-	mps_fire.pl -m
+	mps_fire.py -m
 	Njobs=$[Njobs+1]
 	TESTJOBS
 

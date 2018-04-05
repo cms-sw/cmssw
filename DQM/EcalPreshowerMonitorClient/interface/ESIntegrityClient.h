@@ -13,7 +13,7 @@ class ESIntegrityClient : public ESClient {
   ESIntegrityClient(const edm::ParameterSet& ps);
   
   /// Destructor
-  ~ESIntegrityClient();
+  ~ESIntegrityClient() override;
   
   /// Analyze
   void endLumiAnalyze(DQMStore::IGetter&) override;

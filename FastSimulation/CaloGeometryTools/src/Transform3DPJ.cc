@@ -15,7 +15,6 @@
 //
 
 #include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
-#include "Math/GenVector/Plane3D.h"
 
 #include <cmath>
 #include <algorithm>

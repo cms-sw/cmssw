@@ -39,13 +39,13 @@
 class ProfilerAnalyzer : public edm::EDAnalyzer {
 public:
   explicit ProfilerAnalyzer(const edm::ParameterSet&);
-  ~ProfilerAnalyzer();
+  ~ProfilerAnalyzer() override;
 
 
 private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&)=0;
-  virtual void endJob() override ;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override =0;
+  void endJob() override ;
 
 };
 
@@ -53,11 +53,11 @@ class StartProfilerAnalyzer : public ProfilerAnalyzer {
 public:
   explicit StartProfilerAnalyzer(const edm::ParameterSet & pset) :
     ProfilerAnalyzer(pset) {}
-  ~StartProfilerAnalyzer(){}
+  ~StartProfilerAnalyzer() override{}
 
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 };
 
@@ -65,10 +65,10 @@ class StopProfilerAnalyzer : public ProfilerAnalyzer {
 public:
   explicit StopProfilerAnalyzer(const edm::ParameterSet & pset) :
     ProfilerAnalyzer(pset) {}
-  ~StopProfilerAnalyzer(){}
+  ~StopProfilerAnalyzer() override{}
 
 private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 };
 

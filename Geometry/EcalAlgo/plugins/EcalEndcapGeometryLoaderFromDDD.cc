@@ -33,7 +33,7 @@ EcalEGL::fillGeom( EcalEndcapGeometry*         geom,
    for( unsigned int i ( 0 ) ; i != vv.size() ; ++i )
    {
       const CCGFloat factor ( 1==i || 2==i || 6==i || 10==i ? 1 : k_ScaleFromDDDtoGeant ) ;
-      pv.push_back( factor*vv[i] ) ;
+      pv.emplace_back( factor*vv[i] ) ;
    }
 
    std::vector<GlobalPoint> corners (8);

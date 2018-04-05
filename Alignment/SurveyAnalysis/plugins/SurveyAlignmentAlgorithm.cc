@@ -21,9 +21,13 @@ void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup&,
 {
   std::vector<align::StructureType> levels;
 
+  // FIXME: - currently defaulting to RunI as this was the previous behaviour
+  //        - check this, when resurrecting this code in the future
+  AlignableObjectId alignableObjectId{AlignableObjectId::Geometry::General};
+
   for (unsigned int l = 0; l < theLevels.size(); ++l)
   {
-    levels.push_back(AlignableObjectId::stringToId(theLevels[l].c_str()));
+    levels.push_back(alignableObjectId.stringToId(theLevels[l].c_str()));
   }
 
   SurveyAlignmentSensor align(store->alignables(), levels);

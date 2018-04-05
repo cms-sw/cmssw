@@ -23,6 +23,8 @@
 #include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
 #include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
 #include "RecoParticleFlow/PFTracking/interface/CollinearFitAtTM.h"
+#include "TrackingTools/GsfTools/interface/GetComponents.h"
+
 using namespace std;
 using namespace reco;
 using namespace edm;
@@ -49,13 +51,13 @@ PFGsfHelper::PFGsfHelper(const TrajectoryMeasurement& tm){
     mode_Px = 0.;
     mode_Py = 0.;
     mode_Pz = 0.;
-    std::vector<TrajectoryStateOnSurface> components(theUpdateState.components());
-    unsigned int numb = components.size();
-
+    GetComponents comps(theUpdateState);
+    auto const &  components = comps();
+    auto numb=components.size();
     std::vector<SingleGaussianState1D> pxStates; pxStates.reserve(numb);
     std::vector<SingleGaussianState1D> pyStates; pyStates.reserve(numb);
     std::vector<SingleGaussianState1D> pzStates; pzStates.reserve(numb);
-    for ( std::vector<TrajectoryStateOnSurface>::const_iterator ic=components.begin();
+    for (auto ic=components.begin();
 	  ic!=components.end(); ++ic ) {
       GlobalVector momentum(ic->globalMomentum());
       AlgebraicSymMatrix66 cov(ic->cartesianError().matrix());

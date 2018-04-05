@@ -29,7 +29,9 @@ public:
   typedef std::pair< TrajectoryStateOnSurface, TransientTrackingRecHit::ConstRecHitContainer > TrajectoryInput;
   typedef std::vector< TrajectoryStateOnSurface > ExternalPredictionCollection;
 
-  TrajectoryFactoryBase( const edm::ParameterSet & config );
+  TrajectoryFactoryBase(const edm::ParameterSet& config);
+  TrajectoryFactoryBase(const edm::ParameterSet& config,
+                        unsigned int tracksPerTrajectory);
   virtual ~TrajectoryFactoryBase( void );
 
   virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
@@ -43,9 +45,10 @@ public:
 
   virtual TrajectoryFactoryBase* clone( void ) const = 0;
 
-  inline MaterialEffects materialEffects( void ) const { return theMaterialEffects; }
-  inline PropagationDirection propagationDirection( void ) const { return thePropDir; }
-  inline const edm::ParameterSet &configuration() const { return theConfig; }
+  inline MaterialEffects materialEffects( void ) const { return materialEffects_; }
+  inline PropagationDirection propagationDirection( void ) const { return propDir_; }
+  inline const edm::ParameterSet& configuration() const { return cfg_; }
+  inline unsigned int tracksPerTrajectory() const { return tracksPerTrajectory_; }
 
 protected:
 
@@ -59,17 +62,20 @@ private:
   MaterialEffects materialEffects( const std::string & strME ) const;
   PropagationDirection propagationDirection( const std::string & strPD ) const;
 
-  MaterialEffects theMaterialEffects;
-  PropagationDirection thePropDir;
-  const edm::ParameterSet theConfig; // need to keep for possible re-use after constructor... :-(
+  const edm::ParameterSet cfg_; // need to keep for possible re-use after constructor... :-(
+  const unsigned int tracksPerTrajectory_;
+  const MaterialEffects materialEffects_;
+  const PropagationDirection propDir_;
 
-  bool theUseWithoutDet;
-  bool theUseInvalidHits;
-  bool theUseProjectedHits;
+  const bool useWithoutDet_;
+  const bool useInvalidHits_;
+  const bool useProjectedHits_;
   
 protected:
 
-  bool theUseBeamSpot;
+  const bool useBeamSpot_;
+  const bool includeAPEs_;
+  const bool allowZeroMaterial_;
 };
 
 

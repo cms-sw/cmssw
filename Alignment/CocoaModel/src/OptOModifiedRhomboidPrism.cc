@@ -46,7 +46,7 @@ void OptOModifiedRhomboidPrism::detailedDeviatesLightRay( LightRay& lightray )
 
   if (ALIUtils::debug >= 2) std::cout << "$$$ LR: REFRACTION IN FORWARD PLATE " << std::endl;
   //---------- Get forward plate
-  ALIPlane plate = getPlate( 1, 1 );
+  ALIPlane plate = getPlate( true, true );
   //---------- Refract in plate while entering
   ALIdouble refra_ind1 = 1.;
   ALIdouble refra_ind2 = findExtraEntryValueMustExist("refra_ind");
@@ -57,19 +57,19 @@ void OptOModifiedRhomboidPrism::detailedDeviatesLightRay( LightRay& lightray )
 
   if (ALIUtils::debug >= 2) std::cout << std::endl << "$$$ LR: REFLECTION IN FIRST PLATE " << std::endl;
   //---------- Get up plate rotated
-  plate = getRotatedPlate( 1 );
+  plate = getRotatedPlate( true );
   //---------- Reflect in plate
   lightray.reflect( plate );
 
   if (ALIUtils::debug >= 2) std::cout << std::endl << "$$$ LR: REFLECTION IN SECOND PLATE " << std::endl;
   //---------- Get up plate rotated
-  plate = getRotatedPlate( 0 );
+  plate = getRotatedPlate( false );
   //---------- Reflect in plate
   lightray.reflect( plate );
 
   if (ALIUtils::debug >= 2) std::cout << std::endl << "$$$ LR: REFRACTION IN BACKWARD PLATE " << std::endl;
   //---------- Get backward plate
-  plate = getPlate( 0, 1 );
+  plate = getPlate( false, true );
   //---------- Refract in plate while exiting
   lightray.refract( plate, refra_ind2, refra_ind1 );
 
@@ -89,7 +89,7 @@ void OptOModifiedRhomboidPrism::detailedTraversesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 2) std::cout << "LR: DETAILED TRAVERSE MODIFIED RHOMBOID PRISM " << name() << std::endl;
 
   //---------- Get forward plate
-  ALIPlane plate = getPlate(1, 1);
+  ALIPlane plate = getPlate(true, true);
   //---------- Refract while entering splitter
   ALIdouble refra_ind1 = 1.;
   ALIdouble refra_ind2 = findExtraEntryValueMustExist("refra_ind");
@@ -99,7 +99,7 @@ void OptOModifiedRhomboidPrism::detailedTraversesLightRay( LightRay& lightray )
   }
 
   //---------- Get back ward plate (of triangular piiece)
-  plate = getPlate(1, 0);
+  plate = getPlate(true, false);
   //---------- Refract while exiting prism
   lightray.refract( plate, refra_ind2, refra_ind1 );
   if (ALIUtils::debug >= 2) {
@@ -121,7 +121,7 @@ void OptOModifiedRhomboidPrism::fastDeviatesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 2) std::cout << "LR: FAST REFLECTION IN MODIFIED RHOMBOID PRISM " << name() << std::endl;
 
   //---------- Get backward plate
-  ALIPlane plate = getPlate(0, 0);
+  ALIPlane plate = getPlate(false, false);
   //---------- Intersect with plate
   lightray.intersect( plate );
   if (ALIUtils::debug >= 2) {
@@ -159,7 +159,7 @@ void OptOModifiedRhomboidPrism::fastTraversesLightRay( LightRay& lightray )
   if (ALIUtils::debug >= 2) std::cout << "LR: FAST TRAVERSE MODIFIED RHOMBOID PRISM " << name() << std::endl;
   
   //---------- Get backward plate
-  ALIPlane plate = getPlate(0, 0);
+  ALIPlane plate = getPlate(false, false);
   lightray.intersect( plate );
   if (ALIUtils::debug >= 2) {
     lightray.dumpData("Intersected with plate"); 

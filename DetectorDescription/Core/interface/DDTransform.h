@@ -1,11 +1,9 @@
 #ifndef DDTransform_h
 #define DDTransform_h
 
-/*! \file */
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-//#include "DetectorDescription/Base/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 
 class DDRotation;
 
@@ -17,6 +15,9 @@ std::ostream & operator<<(std::ostream &, const DDRotation &);
 */
 DDRotation DDrot(const DDName & name,
                  DDRotationMatrix * rot);
+
+std::unique_ptr<DDRotation> DDrotPtr(const DDName & name,
+				     DDRotationMatrix * rot);
 
 //! Definition of a uniquely identifiable rotation matrix named by DDName \a name in the GEANT3 style
 /** DDrot() returns a reference-object DDRotation representing the rotation matrix.
@@ -32,9 +33,9 @@ DDRotation DDrot(const DDName & name,
     a DDException will be thrown!
 */    
 DDRotation DDrotReflect(const DDName & name,
-                         double thetaX, double phiX,
-			 double thetaY, double phiY,
-			 double thetaZ, double phiZ);
+			double thetaX, double phiX,
+			double thetaY, double phiY,
+			double thetaZ, double phiZ);
 			 
 
 DDRotation DDrotReflect(const DDName & name,
@@ -53,8 +54,8 @@ DDRotation DDanonymousRot(DDRotationMatrix * rot);
     memory of the returned pointer belongs to the caller
 */
 DDRotationMatrix * DDcreateRotationMatrix(double thetaX, double phiX,
-			 double thetaY, double phiY,
-			 double thetaZ, double phiZ);
+					  double thetaY, double phiY,
+					  double thetaZ, double phiZ);
 
 //! Represents a uniquely identifyable rotation matrix
 /** An object of this class is a reference-object and thus leightweighted.
@@ -65,8 +66,8 @@ DDRotationMatrix * DDcreateRotationMatrix(double thetaX, double phiX,
 */
 class DDRotation : public DDBase<DDName,DDRotationMatrix*>
 {
-  friend std::ostream & operator<<(std::ostream &, const DDRotation &);
   friend DDRotation DDrot(const DDName &, DDRotationMatrix *);
+  friend std::unique_ptr<DDRotation> DDrotPtr(const DDName &, DDRotationMatrix *);
   friend DDRotation DDrotReflect(const DDName&,double,double,double,double,double,double);
   friend DDRotation DDanonymousRot(DDRotationMatrix*);
 public:
@@ -92,13 +93,9 @@ public:
   DDRotationMatrix * rotation()   { return &(rep()); }
   
   DDRotationMatrix * matrix() { return rotation(); }
-  //DDRotationMatrix* unit();
-  
-/*   static void clear(); */
+
 private:  
   DDRotation(DDRotationMatrix*); 
 };
-
-
 			 
 #endif

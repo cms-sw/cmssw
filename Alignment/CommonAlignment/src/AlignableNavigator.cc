@@ -43,9 +43,8 @@ AlignableNavigator::AlignableNavigator(AlignableExtras* extras, Alignable* track
   unsigned int numNonDets = this->recursiveGetId(tracker) + this->recursiveGetId(muon);
 
   if (extras) {
-    align::Alignables allExtras = extras->components();
-    for ( std::vector<Alignable*>::iterator it = allExtras.begin(); it != allExtras.end(); ++it ) {
-      numNonDets += this->recursiveGetId(*it);
+    for (const auto& it: extras->components()) {
+      numNonDets += this->recursiveGetId(it);
     }
   }
 
@@ -64,13 +63,13 @@ AlignableNavigator::AlignableNavigator(AlignableExtras* extras, Alignable* track
 }
 
 //_____________________________________________________________________________
-AlignableNavigator::AlignableNavigator( const std::vector<Alignable*>& alignables )
+AlignableNavigator::AlignableNavigator(const align::Alignables& alignables )
 {
   theMap.clear();
 
   unsigned int numNonDets = 0;
-  for ( std::vector<Alignable*>::const_iterator it = alignables.begin(); it != alignables.end(); ++it ) {
-    numNonDets += this->recursiveGetId(*it);
+  for (const auto& it: alignables) {
+    numNonDets += this->recursiveGetId(it);
   }
   if (numNonDets) {
     edm::LogWarning("Alignment") <<"@SUB=AlignableNavigator" << "Created with map of size "
@@ -103,7 +102,7 @@ AlignableDetOrUnitPtr AlignableNavigator::alignableFromDetId( const DetId& detid
   throw cms::Exception("BadLogic") 
     << "[AlignableNavigator::alignableDetFromDetId] DetId " << detid.rawId() << " not found";
 
-  return static_cast<AlignableDet*>(0);
+  return static_cast<AlignableDet*>(nullptr);
 }
 
 //_____________________________________________________________________________
@@ -149,11 +148,11 @@ unsigned int AlignableNavigator::recursiveGetId( Alignable* alignable )
       theDetAndSubdet.push_back(std::pair<int, int>( detId.det(), detId.subdetId() ));
     }
   }
-  std::vector<Alignable*> comp = alignable->components();
+  const auto& comp = alignable->components();
   if ( alignable->alignableObjectId() != align::AlignableDet
        || comp.size() > 1 ) { // Non-glued AlignableDets contain themselves
-    for ( std::vector<Alignable*>::iterator it = comp.begin(); it != comp.end(); ++it ) {
-      nProblem += this->recursiveGetId(*it);
+    for (const auto& it: comp) {
+      nProblem += this->recursiveGetId(it);
     }
   }
   return nProblem;

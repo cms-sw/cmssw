@@ -17,7 +17,7 @@ class MuonPair : public TObject
     //initialize 2 object of class muon
     mu1(lorentzVector(0,0,0,0),-1),
     mu2(lorentzVector(0,0,0,0),1),
-    event(0,0,0,0,0)
+    event(0,0,0,0,0,0)
       {}
     
     MuonPair(const MuScleFitMuon & initMu1, const MuScleFitMuon & initMu2, const MuScleFitEvent & initMuEvt) : 
@@ -39,7 +39,7 @@ class MuonPair : public TObject
       MuScleFitMuon mu2;
       MuScleFitEvent event;
       
-      ClassDef(MuonPair, 3)
+      ClassDef(MuonPair, 4)
 	};
 ClassImp(MuonPair)
    

@@ -14,9 +14,9 @@ class ODLTSCycle :  public IODConfig  {
   friend class ODEcalCycle;
 
   ODLTSCycle();
-  ~ODLTSCycle();
+  ~ODLTSCycle() override;
 
-  inline std::string getTable() { return "ECAL_LTS_CYCLE"; }
+  inline std::string getTable() override { return "ECAL_LTS_CYCLE"; }
 
   inline void setId(int id){m_ID=id;}
   inline int getId()const{ return m_ID;} ;
@@ -33,16 +33,16 @@ class ODLTSCycle :  public IODConfig  {
   // User data 
   int m_ID;
   int  m_lts_config_id;
-  void writeDB() throw(std::runtime_error);
-  void prepareWrite()  throw(std::runtime_error);
+  void writeDB() noexcept(false);
+  void prepareWrite() noexcept(false) override;
   void clear();
-  void fetchData(ODLTSCycle * result)     throw(std::runtime_error);
-   void insertConfig() throw(std::runtime_error);
+  void fetchData(ODLTSCycle * result) noexcept(false);
+  void insertConfig() noexcept(false);
 
 
   // Methods from IUniqueDBObject
-  int fetchID() throw(std::runtime_error);
-  void setByID(int id) throw(std::runtime_error);
+  int fetchID() noexcept(false);
+  void setByID(int id) noexcept(false);
 
 
 };

@@ -51,7 +51,7 @@ namespace Geom {
 
     Phi& operator/=(const T& a) {theValue/=a; normalize(); return *this;}
 
-    T degrees() const { return theValue*180./pi();}
+    T degrees() const { return theValue*T(180.)/pi();}
 
   private:
 
@@ -59,7 +59,7 @@ namespace Geom {
 
     void normalize() { 
       if( theValue > twoPi() || theValue < -twoPi()) {
-	theValue = fmod( theValue, (T) twoPi());
+	theValue = std::fmod( theValue, (T) twoPi());
       }
       if (theValue <= -pi()) theValue += twoPi();
       if (theValue >  pi()) theValue -= twoPi();

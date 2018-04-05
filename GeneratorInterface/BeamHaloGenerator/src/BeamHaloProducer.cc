@@ -1,5 +1,5 @@
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -57,7 +57,7 @@ BeamHaloProducer::~BeamHaloProducer() {
 
 
 BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
-  evt(0),
+  evt(nullptr),
   isInitialized_(false)
 {
 
@@ -83,9 +83,9 @@ BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
    cparam     = pset.getUntrackedParameter<std::string>("G3FNAME","input.txt");
    call_bh_set_parameters(iparam,fparam,cparam);
 
-  produces<HepMCProduct>();
+  produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
-  produces<GenRunInfoProduct, InRun>();
+  produces<GenRunInfoProduct, Transition::EndRun>();
 
   usesResource("BeamHaloProducer");
 
@@ -119,7 +119,7 @@ void BeamHaloProducer::produce(Event & e, const EventSetup & es) {
 
 	// cout << "in produce " << endl;
 
-  //    	auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
+  //    	unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
 
 	// cout << "apres autoptr " << endl;
 
@@ -155,12 +155,12 @@ void BeamHaloProducer::produce(Event & e, const EventSetup & es) {
 	HepMC::WeightContainer& weights = evt -> weights();
 	weights.push_back(weight);
 	//	evt->print();
-  std::auto_ptr<HepMCProduct> CMProduct(new HepMCProduct());
+  std::unique_ptr<HepMCProduct> CMProduct(new HepMCProduct());
   if (evt) CMProduct->addHepMCData(evt);
-  e.put(CMProduct);
+  e.put(std::move(CMProduct), "unsmeared");
 
-  auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(evt));
-  e.put(genEventInfo);
+  unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(evt));
+  e.put(std::move(genEventInfo));
 }
 
 void BeamHaloProducer::endRunProduce( Run &run, const EventSetup& es )
@@ -168,8 +168,8 @@ void BeamHaloProducer::endRunProduce( Run &run, const EventSetup& es )
    // just create an empty product
    // to keep the EventContent definitions happy
    // later on we might put the info into the run info that this is a PGun
-   auto_ptr<GenRunInfoProduct> genRunInfo( new GenRunInfoProduct() );
-   run.put( genRunInfo );
+   unique_ptr<GenRunInfoProduct> genRunInfo( new GenRunInfoProduct() );
+   run.put(std::move(genRunInfo));
 }
 
 bool BeamHaloProducer::call_bh_set_parameters(int* ival, float* fval, const std::string cval_string) {

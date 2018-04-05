@@ -38,7 +38,7 @@
 #include <cassert>
 
 
-using std::auto_ptr;
+using std::unique_ptr;
 using std::ostream;
 using std::string;
 
@@ -70,12 +70,12 @@ Constraint& Constraint::operator= (const Constraint& c)
 //
 {
   {
-    auto_ptr<Constraint_Intermed> ci = c._lhs->clone ();
-    _lhs = ci;
+    unique_ptr<Constraint_Intermed> ci = c._lhs->clone ();
+    _lhs = std::move(ci);
   }
   {
-    auto_ptr<Constraint_Intermed> ci = c._rhs->clone ();
-    _rhs = ci;
+    unique_ptr<Constraint_Intermed> ci = c._rhs->clone ();
+    _rhs = std::move(ci);
   }
 
   return *this;
@@ -97,14 +97,14 @@ Constraint::Constraint (std::string s)
 
   // And then build the two halves.
   {
-    auto_ptr<Constraint_Intermed> ci =
+    unique_ptr<Constraint_Intermed> ci =
       make_constraint_intermed (s.substr (0, i));
-    _lhs = ci;
+    _lhs = std::move(ci);
   }
   {
-    auto_ptr<Constraint_Intermed> ci =
+    unique_ptr<Constraint_Intermed> ci =
       make_constraint_intermed (s.substr (i+1));
-    _rhs = ci;
+    _rhs = std::move(ci);
   }
 }
 

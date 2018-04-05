@@ -2,8 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Demo")
 
-# process.load("Configuration.Geometry.GeometryExtended2015Reco_cff")
-process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
+process.load("Configuration.Geometry.GeometryExtended2015Reco_cff")
 process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 
 process.maxEvents = cms.untracked.PSet(

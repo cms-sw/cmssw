@@ -1,16 +1,21 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripQualityDQM.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TCanvas.h"
 
 // -----
 SiStripQualityDQM::SiStripQualityDQM(const edm::EventSetup & eSetup,
-                                         edm::ParameterSet const& hPSet,
-                                         edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, hPSet, fPSet){
+                                     edm::RunNumber_t iRun,
+                                     edm::ParameterSet const& hPSet,
+                                     edm::ParameterSet const& fPSet):SiStripBaseCondObjDQM(eSetup, iRun, hPSet, fPSet){
   qualityLabel_ = fPSet.getParameter<std::string>("StripQualityLabel");
 
   // Build the Histo_TkMap:
-  if(HistoMaps_On_ ) Tk_HM_ = new TkHistoMap("SiStrip/Histo_Map","Quality_TkMap",0.);
-
+  if ( HistoMaps_On_ ) {
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    eSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    Tk_HM_ = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "SiStrip/Histo_Map","Quality_TkMap",0.);
+  }
 }
 // -----
 
@@ -35,7 +40,7 @@ void SiStripQualityDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds,
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
    
   ModMEs CondObj_ME;
@@ -73,7 +78,7 @@ void SiStripQualityDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDet
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
@@ -194,7 +199,7 @@ void SiStripQualityDQM::fillGrandSummaryMEs(const edm::EventSetup& eSetup){
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
      
   std::string hSummary_BadObjects_xTitle        = hPSet_.getParameter<std::string>("Summary_BadObjects_histo_xTitle");

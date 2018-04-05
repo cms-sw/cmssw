@@ -38,12 +38,12 @@
 class NTuplingDevice : public edm::EDProducer {
    public:
       explicit NTuplingDevice(const edm::ParameterSet&);
-      ~NTuplingDevice();
+      ~NTuplingDevice() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
   NTupler * ntupler_;
@@ -82,8 +82,7 @@ void
 NTuplingDevice::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   ntupler_->fill(iEvent);
-  std::auto_ptr<double> v(new double(0));
-  iEvent.put(v,"dummy");
+  iEvent.put(std::make_unique<double>(0.),"dummy");
 }
 
 // ------------ method called once each job just before starting event loop  ------------

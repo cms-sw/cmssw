@@ -162,6 +162,7 @@ namespace edm
     error_message_.clear();
     changed_ = false;
 
+#ifndef __SANITIZE_ADDRESS__
 #ifdef M_MMAP_MAX
     if(mallopt(M_MMAP_MAX,values_.mmap_max_)<0)
       error_message_ += "Could not set M_MMAP_MAX\n"; 
@@ -178,12 +179,13 @@ namespace edm
     if(mallopt(M_MMAP_THRESHOLD,values_.mmap_thr_)<0)
       error_message_ += "ERROR: Could not set M_MMAP_THRESHOLD\n";
 #endif
+#endif
   }
 
   bool MallocOptionSetter::retrieveFromEnv()
   {
     const char* par = getenv("CMSRUN_MALLOC_RESET");
-    if(par==0) return false; // leave quickly here
+    if(par==nullptr) return false; // leave quickly here
     std::string spar(par);
     bool rc = false;
       

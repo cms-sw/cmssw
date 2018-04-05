@@ -24,18 +24,17 @@ class PixelTracksProducer :  public edm::stream::EDProducer <> {
 public:
   explicit PixelTracksProducer(const edm::ParameterSet& conf);
 
-  ~PixelTracksProducer();
+  ~PixelTracksProducer() override;
 
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es);
+  void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
 
-  const PixelFitter       * theFitter;
-  const PixelTrackFilter  * theFilter;
+  edm::EDGetTokenT<PixelFitter> fitterToken;
   TrackingRegionProducer* theRegionProducer;
 
-  edm::InputTag seedProducer;
   edm::EDGetTokenT<TrajectorySeedCollection> seedProducerToken;
+  edm::EDGetTokenT<PixelTrackFilter> filterToken;
 
 };
 #endif

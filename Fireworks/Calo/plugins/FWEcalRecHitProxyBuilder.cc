@@ -13,15 +13,15 @@ class FWEcalRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder
 {
 public:
    FWEcalRecHitProxyBuilder() {}
-   virtual ~FWEcalRecHitProxyBuilder() {}
+   ~FWEcalRecHitProxyBuilder() override {}
  
-   virtual void viewContextBoxScale( const float* corners, float scale, bool plotEt, std::vector<float>& scaledCorners, const CaloRecHit*);
+   void viewContextBoxScale( const float* corners, float scale, bool plotEt, std::vector<float>& scaledCorners, const CaloRecHit*) override;
 	
    REGISTER_PROXYBUILDER_METHODS();
 	
 private:
-   FWEcalRecHitProxyBuilder( const FWEcalRecHitProxyBuilder& );
-   const FWEcalRecHitProxyBuilder& operator=( const FWEcalRecHitProxyBuilder& );
+   FWEcalRecHitProxyBuilder( const FWEcalRecHitProxyBuilder& ) = delete;
+   const FWEcalRecHitProxyBuilder& operator=( const FWEcalRecHitProxyBuilder& ) = delete;
 };
 
 

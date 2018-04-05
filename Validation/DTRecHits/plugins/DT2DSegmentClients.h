@@ -1,5 +1,5 @@
-#ifndef DT2DSegmentClients_H
-#define DT2DSegmentClients_H
+#ifndef Validation_DTRecHits_DT2DSegmentClients_h
+#define Validation_DTRecHits_DT2DSegmentClients_h
 
 /** \class DTDataIntegrityTest
  * *
@@ -8,42 +8,27 @@
  *  \author S. Bolognesi - INFN TO
  *   
  */
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/Event.h>
-#include "FWCore/Framework/interface/ESHandle.h"
-#include <FWCore/Framework/interface/EventSetup.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
-class DQMStore;
-class MonitorElement;
+class DT2DSegmentClients: public DQMEDHarvester {
 
-class DT2DSegmentClients: public edm::EDAnalyzer{
-
-public:
-
+public: 
   /// Constructor
- DT2DSegmentClients(const edm::ParameterSet& ps);
+  DT2DSegmentClients(const edm::ParameterSet& ps);
 
- /// Destructor
- virtual ~DT2DSegmentClients();
- void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void endJob();
-void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
-					 edm::EventSetup const& c);
+  /// Destructor
+  ~DT2DSegmentClients() override;
 
 protected:
-
-  /// Analyze
+  /// End Job
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
 private:
+  bool do2D_;
+  bool doSLPhi_;
 
-  DQMStore* dbe;
+};
 
-  MonitorElement *summaryHisto;
-  MonitorElement *glbSummaryHisto;
- };
-
-#endif
+#endif // Validation_DTRecHits_DT2DSegmentClients_h

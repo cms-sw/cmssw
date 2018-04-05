@@ -42,6 +42,7 @@ DMHcalTTPDigis = simHcalTTPDigis.clone()
 
 # Re-define inputs to point at DataMixer output
 DMHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(cms.InputTag('mixData'),cms.InputTag('mixData'))
+DMHcalTriggerPrimitiveDigis.inputUpgradeLabel = cms.VInputTag(cms.InputTag('mixData:HBHEQIE11DigiCollection'),cms.InputTag('mixData:HFQIE10DigiCollection'))
 DMHcalDigis.digiLabel = cms.string("mixData")
 DMHcalTTPDigis.HFDigiCollection = cms.InputTag("mixData")
 
@@ -51,6 +52,7 @@ postDMDigi = cms.Sequence(ecalDigiSequenceDM+hcalDigiSequenceDM)
 
 # disable adding noise to HCAL cells with no MC signal
 # mixData.doEmpty = False
+from SimGeneral.PileupInformation.AddPileupSummaryPreMixed_cfi import *
 
-pdatamix = cms.Sequence(mixData+postDMDigi)
+pdatamix = cms.Sequence(mixData+postDMDigi+addPileupInfo)
 

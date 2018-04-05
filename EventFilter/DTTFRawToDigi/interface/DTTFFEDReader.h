@@ -37,10 +37,10 @@ class DTTFFEDReader : public edm::stream::EDProducer<> {
   DTTFFEDReader(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTTFFEDReader();
+  ~DTTFFEDReader() override;
 
   /// Produce digis out of raw data
-  void produce(edm::Event & e, const edm::EventSetup& c);
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
 
   /// Generate and fill FED raw data for a full event
   bool fillRawData(edm::Event& e,
@@ -94,8 +94,6 @@ class DTTFFEDReader : public edm::stream::EDProducer<> {
   int sector(int channel);
 
   int wheel(int channel);
-
-  void calcCRC(int myD1, int myD2, int &myC);
 
   edm::InputTag getDTTFInputTag() { return DTTFInputTag; }
 

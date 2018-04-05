@@ -12,10 +12,10 @@ class MonPedestalsDat : public IDataItem {
  public:
   friend class EcalCondDBInterface; // XXX temp should not need
   MonPedestalsDat();
-  ~MonPedestalsDat();
+  ~MonPedestalsDat() override;
 
   // User data methods
-  inline std::string getTable() { return "MON_PEDESTALS_DAT"; }
+  inline std::string getTable() override { return "MON_PEDESTALS_DAT"; }
 
   inline void setPedMeanG1(float mean) { m_pedMeanG1 = mean; }
   inline float getPedMeanG1() const { return m_pedMeanG1; }
@@ -40,18 +40,18 @@ class MonPedestalsDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const MonPedestalsDat* item, MonRunIOV* iov)
-    throw(std::runtime_error);
+    noexcept(false);
 
 
   void writeArrayDB(const std::map< EcalLogicID, MonPedestalsDat>* data, MonRunIOV* iov)
-  throw(std::runtime_error);
+  noexcept(false);
 
 
   void fetchData(std::map< EcalLogicID, MonPedestalsDat >* fillMap, MonRunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   float m_pedMeanG1;

@@ -19,10 +19,10 @@ namespace dtCalibration {
 class DTVDriftMeanTimer: public DTVDriftBaseAlgo {
 public:
    DTVDriftMeanTimer(edm::ParameterSet const&);
-   virtual ~DTVDriftMeanTimer();
+   ~DTVDriftMeanTimer() override;
 
-   virtual void setES(const edm::EventSetup& setup);
-   virtual DTVDriftData compute(const DTSuperLayerId&);
+   void setES(const edm::EventSetup& setup) override;
+   DTVDriftData compute(const DTSuperLayerId&) override;
 private:
    TFile* rootFile_;
    DTMeanTimerFitter* fitter_;

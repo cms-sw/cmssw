@@ -23,9 +23,9 @@ class DetRodOneR : public DetRod {
   /// Construct from a std::vector of GeomDet*
   DetRodOneR( const std::vector<const GeomDet*>& dets);
 
-  virtual ~DetRodOneR();
+  ~DetRodOneR() override;
 
-  virtual const std::vector<const GeomDet*>& basicComponents() const {return theDets;}
+  const std::vector<const GeomDet*>& basicComponents() const override {return theDets;}
 
 
 

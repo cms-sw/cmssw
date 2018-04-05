@@ -27,8 +27,8 @@ hltMultiTrackValidator.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXZ = hl
 hltMultiTrackValidator.parametersDefiner = cms.string('hltLhcParametersDefinerForTP')
 #hltMultiTrackValidator.parametersDefiner = cms.string('LhcParametersDefinerForTP')
 ### for fake rate vs dR ###
-hltMultiTrackValidator.trackCollectionForDrCalculation = cms.InputTag("hltPixelTracks")
-hltMultiTrackValidator.associatormap = cms.InputTag("tpToHLTpixelTrackAssociation")
+hltMultiTrackValidator.calculateDrSingleCollection = False
 hltMultiTrackValidator.ignoremissingtrackcollection = cms.untracked.bool(True)
 
-hltMultiTrackValidator.associators = cms.vstring('hltTrackAssociatorByHits')
+hltMultiTrackValidator.UseAssociators = True
+hltMultiTrackValidator.associators = ['hltTrackAssociatorByHits']

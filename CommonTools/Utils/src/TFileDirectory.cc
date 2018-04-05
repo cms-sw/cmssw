@@ -39,7 +39,7 @@ TFileDirectory::_cd (const string &subdir, bool createNeededDirectories) const
       }
    }
    TDirectory * dir = file_->GetDirectory( fpath.c_str() );
-   if ( dir == 0 ) 
+   if ( dir == nullptr ) 
    {      
       // we didn't find the directory
       //
@@ -55,7 +55,7 @@ TFileDirectory::_cd (const string &subdir, bool createNeededDirectories) const
       if ( ! path_.empty() ) 
       {
          dir = file_->GetDirectory( path_.c_str() );
-         if ( dir == 0 )
+         if ( dir == nullptr )
          {
             throw 
                cms::Exception( "InvalidDirectory" ) 
@@ -109,7 +109,7 @@ TFileDirectory::_mkdir (TDirectory *dirPtr,
    // directory a subdirectory?
    const boost::regex subdirRE ("(.+?)/([^/]+)");
    boost::smatch matches;
-   TDirectory *parentDir = 0;
+   TDirectory *parentDir = nullptr;
    string useName = subdirName;
    if( boost::regex_match (subdirName, matches, subdirRE) )
    {

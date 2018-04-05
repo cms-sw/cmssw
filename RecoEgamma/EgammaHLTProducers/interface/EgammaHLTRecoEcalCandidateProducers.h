@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
 namespace edm {
@@ -29,7 +30,7 @@ class EgammaHLTRecoEcalCandidateProducers : public edm::global::EDProducer<> {
  public:
 
   EgammaHLTRecoEcalCandidateProducers (const edm::ParameterSet& ps);
-  ~EgammaHLTRecoEcalCandidateProducers();
+  ~EgammaHLTRecoEcalCandidateProducers() override;
 
   void produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

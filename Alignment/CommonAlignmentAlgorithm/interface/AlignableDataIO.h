@@ -1,7 +1,10 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignableDataIO_H
 #define Alignment_CommonAlignmentAlgorithm_AlignableDataIO_H
 
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignableData.h"
+
+class Alignable;
 
 /// Abstract base class for IO of alignable positions/shifts.
 /// Derived concrete class must implement raw read/write methods 

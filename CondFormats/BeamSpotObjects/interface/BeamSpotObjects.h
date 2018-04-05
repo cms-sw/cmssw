@@ -13,7 +13,7 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include <math.h>
+#include <cmath>
 #include <sstream>
 #include <cstring>
 

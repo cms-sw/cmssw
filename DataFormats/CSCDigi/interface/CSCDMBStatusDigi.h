@@ -10,7 +10,7 @@
 
 #include <vector>
 #include <iosfwd>
-#include <stdint.h>
+#include <cstdint>
 
 class CSCDMBStatusDigi{
 

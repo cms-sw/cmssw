@@ -6,6 +6,7 @@
 #include <list>
 #include <vector>
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
@@ -45,7 +46,7 @@ namespace edm {
 
             // implicit copy constructor
             // implicit assignment operator
-            ~SiteLocalConfigService();
+            ~SiteLocalConfigService() override;
 
             static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -79,7 +80,7 @@ namespace edm {
             std::vector<std::string> m_nativeProtocols;
             std::vector<std::string> const* m_nativeProtocolsPtr;
             std::string         m_statisticsDestination;
-            struct addrinfo   * m_statisticsAddrInfo;
+            edm::propagate_const<struct addrinfo*> m_statisticsAddrInfo;
             static const std::string m_statisticsDefaultPort;
             std::set<std::string> m_statisticsInfo;
             bool m_statisticsInfoAvail;

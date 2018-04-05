@@ -13,27 +13,25 @@ using std::vector;
 
 using std::cout;
 using std::endl;
-const int L1RCTProducer::crateFED[18][5]=
-      {{613, 614, 603, 702, 718},
-    {611, 612, 602, 700, 718},
-    {627, 610, 601, 716, 722},
-    {625, 626, 609, 714, 722},
-    {623, 624, 608, 712, 722},
-    {621, 622, 607, 710, 720},
-    {619, 620, 606, 708, 720},
-    {617, 618, 605, 706, 720},
-    {615, 616, 604, 704, 718},
-    {631, 632, 648, 703, 719},
-    {629, 630, 647, 701, 719},
-    {645, 628, 646, 717, 723},
-    {643, 644, 654, 715, 723},
-    {641, 642, 653, 713, 723},
-    {639, 640, 652, 711, 721},
-    {637, 638, 651, 709, 721},
-    {635, 636, 650, 707, 721},
-    {633, 634, 649, 705, 719}};
-
-
+const int L1RCTProducer::crateFED[18][6]=
+    {{613, 614, 603, 702, 718, 1118},
+    {611, 612, 602, 700, 718, 1118},
+    {627, 610, 601, 716, 722, 1122},
+    {625, 626, 609, 714, 722, 1122},
+    {623, 624, 608, 712, 722, 1122},
+    {621, 622, 607, 710, 720, 1120},
+    {619, 620, 606, 708, 720, 1120},
+    {617, 618, 605, 706, 720, 1120},
+    {615, 616, 604, 704, 718, 1118},
+    {631, 632, 648, 703, 719, 1118},
+    {629, 630, 647, 701, 719, 1118},
+    {645, 628, 646, 717, 723, 1122},
+    {643, 644, 654, 715, 723, 1122},
+    {641, 642, 653, 713, 723, 1122},
+    {639, 640, 652, 711, 721, 1120},
+    {637, 638, 651, 709, 721, 1120},
+    {635, 636, 650, 707, 721, 1120},
+    {633, 634, 649, 705, 719, 1118}};
 
 L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) : 
   rctLookupTables(new L1RCTLookupTables),
@@ -47,7 +45,7 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   queryDelayInLS(conf.getParameter<unsigned int>("queryDelayInLS")),
   queryIntervalInLS(conf.getParameter<unsigned int>("queryIntervalInLS")),
   conditionsLabel(conf.getParameter<std::string>("conditionsLabel")),
-  fedUpdatedMask(0)
+  fedUpdatedMask(nullptr)
 {
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
@@ -63,9 +61,9 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
 
 L1RCTProducer::~L1RCTProducer()
 {
-  if(rct != 0) delete rct;
-  if(rctLookupTables != 0) delete rctLookupTables;
-  if(fedUpdatedMask != 0) delete fedUpdatedMask;
+  if(rct != nullptr) delete rct;
+  if(rctLookupTables != nullptr) delete rctLookupTables;
+  if(fedUpdatedMask != nullptr) delete fedUpdatedMask;
 }
 
 
@@ -162,7 +160,7 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
   //This is the beginning of run. We delete the old
   //create the new and set it in the LUTs
 
-  if(fedUpdatedMask!=0) delete fedUpdatedMask;
+  if(fedUpdatedMask!=nullptr) delete fedUpdatedMask;
 
   fedUpdatedMask = new L1RCTChannelMask();
   // copy a constant object
@@ -185,7 +183,8 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 
 //   // adding fed mask into channel mask
   
-  const std::vector<int> Feds = getFromOmds ? getFedVectorFromOmds(eventSetup) : getFedVectorFromRunInfo(eventSetup); // so can create/initialize/assign const quantity in one line accounting for if statement
+  const std::vector<int> Feds = getFromOmds ? getFedVectorFromOmds(eventSetup) : getFedVectorFromRunInfo(eventSetup); 
+  // so can create/initialize/assign const quantity in one line accounting for if statement
   // wikipedia says this is exactly what it's for: http://en.wikipedia.org/wiki/%3F:#C.2B.2B
 
 //   std::cout << "Contents of ";
@@ -193,14 +192,19 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 //   std::cout << " FED vector" << std::endl;
 //   printFedVector(Feds);
 
+  bool useUpgradedHF=false;
+
   std::vector<int> caloFeds;  // pare down the feds to the interesting ones
   // is this unneccesary?
   // Mike B : This will decrease the find speed so better do it
   for(std::vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf)
     {
       int fedNum = *cf;
-      if(fedNum > 600 && fedNum <724) 
+      if((fedNum > 600 && fedNum <724) || fedNum==1118 || fedNum == 1120 || fedNum == 1122) 
 	caloFeds.push_back(fedNum);
+
+      if(fedNum==1118 || fedNum == 1120 || fedNum == 1122) useUpgradedHF=true;
+  
     }
 
   for(int  cr = 0; cr < 18; ++cr)
@@ -210,12 +214,13 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 	{
 	  bool fedFound = false;
 	  
-	  
 	  //Try to find the FED
-	  std::vector<int>::iterator fv = std::find(caloFeds.begin(),caloFeds.end(),crateFED[cr][cs]);
+	  std::vector<int>::iterator fv= std::find(caloFeds.begin(),caloFeds.end(),crateFED[cr][cs]);
 	  if(fv!=caloFeds.end())
 	    fedFound = true;
-	  
+	 
+
+ 
 	  if(!fedFound) {
 	    int eta_min=0;
 	    int eta_max=0;
@@ -254,6 +259,8 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 	      break;
 	      
 	    case hfFed:	
+	      if(useUpgradedHF) break;
+
 	      eta_min = minHF;
 	      eta_max = maxHF;
 	      
@@ -261,6 +268,19 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getF
 	      phi_even[1] = true;
 	      ecal = false;
 	      break;
+
+	    case hfFedUp:
+	      if(!useUpgradedHF) break;
+
+	      eta_min = minHF;
+	      eta_max = maxHF;
+
+	      phi_even[0] = true;
+	      phi_even[1] = true;
+	      ecal = false;
+	      break;
+
+
 	    default:
 	      break;
 	      
@@ -333,8 +353,8 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 {
 
 
-  std::auto_ptr<L1CaloEmCollection> rctEmCands (new L1CaloEmCollection);
-  std::auto_ptr<L1CaloRegionCollection> rctRegions (new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloEmCollection> rctEmCands (new L1CaloEmCollection);
+  std::unique_ptr<L1CaloRegionCollection> rctRegions (new L1CaloRegionCollection);
 
 
   if(!(ecalDigis.size()==hcalDigis.size()&&hcalDigis.size()==bunchCrossings.size()))
@@ -396,8 +416,8 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
 
   
   //putting stuff back into event
-  event.put(rctEmCands);
-  event.put(rctRegions);
+  event.put(std::move(rctEmCands));
+  event.put(std::move(rctRegions));
   
 }
 
@@ -412,7 +432,7 @@ void L1RCTProducer::printFedVector(const std::vector<int>& fedVector)
 // print contents of RCT channel mask fedUpdatedMask
 void L1RCTProducer::printUpdatedFedMask()
 {
-  if (fedUpdatedMask != 0)
+  if (fedUpdatedMask != nullptr)
     {
       fedUpdatedMask->print(std::cout);
     }
@@ -425,7 +445,7 @@ void L1RCTProducer::printUpdatedFedMask()
 // print contents of RCT channel mask fedUpdatedMask
 void L1RCTProducer::printUpdatedFedMaskVerbose()
 {
-  if (fedUpdatedMask != 0)
+  if (fedUpdatedMask != nullptr)
     {
       // print contents of fedvector
       std::cout << "Contents of fedUpdatedMask: ";

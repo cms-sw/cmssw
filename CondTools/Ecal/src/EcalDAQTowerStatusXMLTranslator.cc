@@ -5,6 +5,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -17,9 +18,10 @@ using namespace XERCES_CPP_NAMESPACE;
 using namespace xuti;
 using namespace std;
 
-int  EcalDAQTowerStatusXMLTranslator::readXML(const std::string& filename, 
-					  EcalCondHeader& header,
-					  EcalDAQTowerStatus& record){
+int
+EcalDAQTowerStatusXMLTranslator::readXML(const std::string& filename, 
+					 EcalCondHeader& header,
+					 EcalDAQTowerStatus& record) {
 
   std::cout << " DAQTowerStatus should not be filled out from an xml file ..." << std::endl;
   cms::concurrency::xercesInitialize();
@@ -65,37 +67,40 @@ int  EcalDAQTowerStatusXMLTranslator::readXML(const std::string& filename,
   return 0;
  }
 
-int EcalDAQTowerStatusXMLTranslator::writeXML(const std::string& filename, 
+int
+EcalDAQTowerStatusXMLTranslator::writeXML(const std::string& filename, 
 					  const EcalCondHeader& header,
-					  const EcalDAQTowerStatus& record){
+					  const EcalDAQTowerStatus& record) {
+
+  cms::concurrency::xercesInitialize();
+
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
+
+  cms::concurrency::xercesTerminate();
+
   return 0;  
 }
 
 
-std::string EcalDAQTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalDAQTowerStatus& record){
+std::string
+EcalDAQTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalDAQTowerStatus& record) {
 
-  cms::concurrency::xercesInitialize();
-  DOMImplementation*  impl =
-    DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation( cms::xerces::uStr("LS").ptr()));
+  
+  DOMLSSerializer* writer = impl->createLSSerializer();
+  if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
+    writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
 
-  DOMWriter* writer =static_cast<DOMImplementationLS*>(impl)->createDOMWriter( );
-  writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-
-  DOMDocumentType* doctype = impl->createDocumentType(fromNative("XML").c_str(), 0, 0 );
-  DOMDocument *    doc = 
-    impl->createDocument( 0, fromNative(DAQTowerStatus_tag).c_str(), doctype );
-
-  doc->setEncoding(fromNative("UTF-8").c_str() );
-  doc->setStandalone(true);
-  doc->setVersion(fromNative("1.0").c_str() );
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
+  DOMDocument* doc = 
+    impl->createDocument( nullptr, cms::xerces::uStr( DAQTowerStatus_tag.c_str()).ptr(), doctype );
 
   DOMElement* root = doc->getDocumentElement();
 
   xuti::writeHeader(root,header);
   std::cout << " barrel size " << record.barrelItems().size() << std::endl;
-  if (!record.barrelItems().size()) return std::string();
+  if (record.barrelItems().empty()) return std::string();
   for(uint cellid = 0;
       cellid < EcalTrigTowerDetId::kEBTotalTowers;
       ++cellid) {
@@ -107,7 +112,7 @@ std::string EcalDAQTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& heade
   } 
 
   std::cout << " endcap size " << record.endcapItems().size() << std::endl;
-  if (!record.endcapItems().size()) return std::string();
+  if (record.endcapItems().empty()) return std::string();
   for(uint cellid = 0;
       cellid < EcalTrigTowerDetId::kEETotalTowers;
       ++cellid) {
@@ -115,13 +120,16 @@ std::string EcalDAQTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& heade
     uint32_t rawid = EcalScDetId::unhashIndex(cellid); 
 
     if (record.find(rawid) == record.end()) continue;
-    DOMElement* cellnode=writeCell(root,rawid);
+    DOMElement* cellnode = writeCell(root,rawid);
 
     WriteNodeWithValue(cellnode, DAQStatusCode_tag, record[rawid].getStatusCode());
   }
 
-  std::string dump = toNative(writer->writeToString(*root)); 
-  doc->release(); 
+  std::string dump = cms::xerces::toString(writer->writeToString( root )); 
+  doc->release();
+  doctype->release();
+  writer->release();
+
   return dump;
 }
 
@@ -129,7 +137,7 @@ void EcalDAQTowerStatusXMLTranslator::plot(std::string fn, const EcalDAQTowerSta
   std::ofstream fout(fn.c_str());
   int valEB[34][72];
   std::cout << " barrel size " << record.barrelItems().size() << std::endl;
-  if (!record.barrelItems().size()) return;
+  if (record.barrelItems().empty()) return;
   for(uint cellid = 0;
       cellid < EcalTrigTowerDetId::kEBTotalTowers;
       ++cellid) {
@@ -149,7 +157,7 @@ void EcalDAQTowerStatusXMLTranslator::plot(std::string fn, const EcalDAQTowerSta
   }
 
   std::cout << " endcap size " << record.endcapItems().size() << std::endl;
-  if (!record.endcapItems().size()) return;
+  if (record.endcapItems().empty()) return;
   int valEE[2][20][20];
   for(int k = 0 ; k < 2; k++ ) 
     for(int ix = 0 ; ix < 20; ix++) 

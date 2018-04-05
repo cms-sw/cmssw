@@ -13,9 +13,9 @@ namespace EPOS {
     unsigned int EPOS_Wrapper::s_sizeof_real = sizeof(double);
     unsigned int EPOS_Wrapper::s_max_number_entries = 99900;
 
-    IO_EPOS::IO_EPOS() : m_trust_mothers_before_daughters(1),
-                             m_trust_both_mothers_and_daughters(0),
-                             m_print_inconsistency_errors(1),
+    IO_EPOS::IO_EPOS() : m_trust_mothers_before_daughters(true),
+                             m_trust_both_mothers_and_daughters(false),
+                             m_print_inconsistency_errors(true),
                              m_trust_beam_particles(true),
                              m_skip_nucl_frag(false)
     {}
@@ -50,7 +50,7 @@ namespace EPOS {
         //    (+1 in size accounts for hepevt_particle[0] which is unfilled)
         std::vector<HepMC::GenParticle*> hepevt_particle( 
                                         EPOS_Wrapper::number_entries()+1 );
-        hepevt_particle[0] = 0;
+        hepevt_particle[0] = nullptr;
         for ( int i1 = 1; i1 <= EPOS_Wrapper::number_entries(); ++i1 ) {
             hepevt_particle[i1] = build_particle(i1);
         }
@@ -116,7 +116,7 @@ namespace EPOS {
         // map all particles onto a unique index
         std::vector<HepMC::GenParticle*> index_to_particle(
             EPOS_Wrapper::max_number_entries()+1 );
-        index_to_particle[0]=0;
+        index_to_particle[0]=nullptr;
         std::map<HepMC::GenParticle*,int> particle_to_index;
         int particle_counter=0;
         for ( HepMC::GenEvent::vertex_const_iterator v = evt->vertices_begin();

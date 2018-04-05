@@ -6,5 +6,8 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/FFTJetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
+#include "CondFormats/JetMETObjects/interface/METCorrectorParameters.h"
+#include "CondFormats/JetMETObjects/interface/MEtXYcorrectParameters.h"
+#include "CondFormats/JetMETObjects/interface/JetResolutionObject.h"
 
 #include <vector>

@@ -1,0 +1,6 @@
+<lcgdict>  
+  <class pattern="VersionedSelector<*>"/>
+  <class pattern="MakeVersionedSelector<*>"/>
+  <class pattern="PrintVIDToString<*>"/>
+  <class pattern="MakePtrFromCollection<*>"/>
+</lcgdict>

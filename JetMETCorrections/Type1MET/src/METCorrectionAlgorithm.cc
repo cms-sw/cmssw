@@ -34,7 +34,7 @@ METCorrectionAlgorithm::METCorrectionAlgorithm(const edm::ParameterSet& cfg, edm
 	}
       else
 	{
-	  std::string type2CorrFormula = cfg.getParameter<std::string>("type2CorrFormula").data();
+	  std::string type2CorrFormula = cfg.getParameter<std::string>("type2CorrFormula");
 	  edm::ParameterSet type2CorrParameter = cfg.getParameter<edm::ParameterSet>("type2CorrParameter");
 	  type2Binning_.push_back(new type2BinningEntryType(type2CorrFormula, type2CorrParameter, srcUnclEnergySums, iConsumesCollector));
 	}
@@ -54,7 +54,7 @@ METCorrectionAlgorithm::METCorrectionAlgorithm(const edm::ParameterSet& cfg, edm
       if (applyType2Corrections_)
 	{
 	  if (cfg.exists("type2Binning")) throw cms::Exception("Invalid Arg") << "Currently, applyType0Corrections and type2Binning cannot be used together!";
-	  std::string type2CorrFormula = cfg.getParameter<std::string>("type2CorrFormula").data();
+	  std::string type2CorrFormula = cfg.getParameter<std::string>("type2CorrFormula");
 	  if (!(type2CorrFormula == "A")) throw cms::Exception("Invalid Arg") << "type2CorrFormula must be \"A\" if applyType0Corrections!";
 	  edm::ParameterSet type2CorrParameter = cfg.getParameter<edm::ParameterSet>("type2CorrParameter");
 	  type0Cuncl_ = type2CorrParameter.getParameter<double>("A");

@@ -5,7 +5,7 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -46,8 +46,7 @@ ParametersDefinerForTPESProducer::~ParametersDefinerForTPESProducer()
 ParametersDefinerForTPESProducer::ReturnType
 ParametersDefinerForTPESProducer::produce(const TrackAssociatorRecord& iRecord)
 {
-  ReturnType parametersDefiner_ (new ParametersDefinerForTP(pset_));
-  return parametersDefiner_ ;
+  return std::make_unique<ParametersDefinerForTP>(pset_);
 }
 
 //define this as a plug-in

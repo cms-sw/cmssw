@@ -55,10 +55,11 @@ namespace bitset_utilities {
 
   void printWords(const boost::dynamic_bitset<> & bs) 
   {
-    unsigned char words[60000];
+    constexpr unsigned int nShorts = 30000;
+    unsigned char words[nShorts*2];
     bitsetToChar(bs, words);
     unsigned short * buf= (unsigned short *) words;
-    for (int unsigned i=0;i<bs.size()/16;++i) {
+    for (int unsigned i=0;i<bs.size()/16 && i+3 < nShorts;++i) {
       printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]);
       i+=3;
     }

@@ -45,6 +45,8 @@ namespace edm {
 
     Type type() const { return type_; }
 
+    bool isAtEndTransition() const;
+    
     GlobalContext const* globalContext() const;
     InternalContext const* internalContext() const;
     ModuleCallingContext const* moduleCallingContext() const;

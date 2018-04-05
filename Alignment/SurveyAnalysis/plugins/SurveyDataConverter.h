@@ -33,14 +33,14 @@ class SurveyDataConverter : public edm::EDAnalyzer
 public:
   explicit SurveyDataConverter(const edm::ParameterSet& iConfig);
 	
-  virtual void analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  virtual void endJob() {};
+  void analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void endJob() override {};
 
 private:
 
   static const int NFILES = 2;
   
-  // void applyAllSurveyInfo( std::vector<Alignable*> alignables, 
+  // void applyAllSurveyInfo( align::Alignables alignables,
   //			   const MapType map );
   
   void applyCoarseSurveyInfo(TrackerAlignment& tr_align);

@@ -6,7 +6,7 @@
 #include <string>
 
 #include "SimG4Core/CustomPhysics/interface/CustomPDGParser.h"
-#include "SimG4Core/CustomPhysics/interface/HadronicProcessHelper.hh"
+#include "SimG4Core/CustomPhysics/interface/HadronicProcessHelper.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -46,7 +46,6 @@ HadronicProcessHelper::HadronicProcessHelper(const std::string & fileName){
 	{
 	  prod.push_back(m_particleTable->FindParticle(part)->GetPDGEncoding());
 	} else {
-	  G4cout<<"Particle: "<<part<<" is unknown."<<G4endl;
 	  G4Exception("HadronicProcessHelper", "UnkownParticle", FatalException,
 		      "Initialization: The reaction product list contained an unknown particle");
 	}
@@ -64,14 +63,10 @@ HadronicProcessHelper::HadronicProcessHelper(const std::string & fileName){
 
   processListStream.close();
 
-
   m_checkFraction = 0;
   m_n22 = 0;
   m_n23 = 0;
-
-
 }
-
 
 G4bool HadronicProcessHelper::applicabilityTester(const G4ParticleDefinition& aPart){
   const G4ParticleDefinition* aP = &aPart; 
@@ -183,7 +178,7 @@ HadronicProcessHelper::ReactionProduct HadronicProcessHelper::finalState(const G
   }
   //  G4cout<<"The size of the ReactionProductList is: "<<theReactionProductList.size()<<G4endl;
 
-  if (goodReactionProductList.size()==0) G4Exception("HadronicProcessHelper", "NoProcessPossible", FatalException,
+  if (goodReactionProductList.empty()) G4Exception("HadronicProcessHelper", "NoProcessPossible", FatalException,
 						    "GetFinalState: No process could be selected from the given list.");
   // Fill a probability map. Remember total probability
   // 2->2 is 0.15*1/n_22 2->3 uses phase space

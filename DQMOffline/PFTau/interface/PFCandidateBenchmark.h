@@ -13,7 +13,7 @@ class PFCandidateBenchmark : public Benchmark {
  public:
 
   PFCandidateBenchmark(Mode mode) : Benchmark(mode) {}
-  virtual ~PFCandidateBenchmark();
+  ~PFCandidateBenchmark() override;
 
   /// book histograms
   void setup(DQMStore::IBooker& b);

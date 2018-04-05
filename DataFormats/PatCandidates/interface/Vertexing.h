@@ -43,18 +43,18 @@ namespace pat {
             //! Return the vertex (that is, you can do "const reco::Vertex &vtx = *assoc")
             const reco::Vertex & operator*()  const { return * operator->(); }
             //! Allows VertexAssociation to behave like a vertex ref  (e.g. to do "assoc->position()")
-            const reco::Vertex * operator->() const { return vertex_.isNull() ? 0 : vertex_.get(); }
+            const reco::Vertex * operator->() const { return vertex_.isNull() ? nullptr : vertex_.get(); }
             // --- Methods to get the Vertex and track
             //! Returns the reference to the vertex (can be a null reference)
             const reco::VertexRef & vertexRef() const  { return vertex_; }
             //! Returns a pointer to the vertex, or a null pointer if there is no vertex (null association)
-            const reco::Vertex    * vertex()    const  { return vertex_.isNull() ? 0 : vertex_.get(); }
+            const reco::Vertex    * vertex()    const  { return vertex_.isNull() ? nullptr : vertex_.get(); }
             //! Returns 'true' if a reference to a track was stored in this VertexAssociation
             bool                       hasTrack() const { return !track_.isNull(); }
             //! Returns a reference to the track stored in this vertex (can be null)
             const reco::TrackBaseRef & trackRef() const { return track_; }
             //! Returns a C++ pointer to the track stored in this vertex (can be a null pointer)
-            const reco::Track        * track()    const { return hasTrack() ? track_.get() : 0; }
+            const reco::Track        * track()    const { return hasTrack() ? track_.get() : nullptr; }
             // --- Methods to return distances
             //! Distance between the object and the vertex along the Z axis, and it's error.
             /// Note 1: if the BeamSpot was used as Vertex, the error includes the BeamSpot spread!

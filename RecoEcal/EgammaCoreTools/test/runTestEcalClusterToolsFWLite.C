@@ -1,6 +1,6 @@
 {
 gSystem->Load("libFWCoreFWLite.so"); 
-AutoLibraryLoader::enable();
+FWLiteEnabler::enable();
 gSystem->Load("libDataFormatsFWLite.so");
 gSystem->Load("libGeometryCaloTopology.so");
 gSystem->Load("libRecoEcalEgammaCoreTools.so");

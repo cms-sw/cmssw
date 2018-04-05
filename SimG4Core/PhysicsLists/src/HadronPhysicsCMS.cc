@@ -12,16 +12,17 @@
 #include "G4SystemOfUnits.hh"
 
 HadronPhysicsCMS::HadronPhysicsCMS(const G4String& name, G4bool quasiElastic) :
-  G4VPhysicsConstructor("hadron"), theNeutrons(0), theBertiniNeutron(0),
-  theBinaryNeutron(0), theFTFPNeutron(0), 
-  theQGSPNeutron(0), thePiK(0), theBertiniPiK(0),
-  theBinaryPiK(0), theFTFPPiK(0), 
-  theQGSPPiK(0), thePro(0),theBertiniPro(0),
-  theBinaryPro(0), theFTFPPro(0), 
-  theQGSPPro(0),
-  theFTFNeutron(0), theFTFPiK(0), theFTFPro(0), 
+  G4VPhysicsConstructor("hadron"), theNeutrons(nullptr), theBertiniNeutron(nullptr),
+  theBinaryNeutron(nullptr), theFTFPNeutron(nullptr), 
+  theQGSPNeutron(nullptr), thePiK(nullptr), theBertiniPiK(nullptr),
+  theBinaryPiK(nullptr), theFTFPPiK(nullptr), 
+  theQGSPPiK(nullptr), thePro(nullptr),theBertiniPro(nullptr),
+  theBinaryPro(nullptr), theFTFPPro(nullptr), 
+  theQGSPPro(nullptr),
+  theFTFNeutron(nullptr), theFTFPiK(nullptr), theFTFPro(nullptr), 
   modelName(name), 
-  QuasiElastic(quasiElastic) {}
+  QuasiElastic(quasiElastic) 
+{}
 
 void HadronPhysicsCMS::CreateModels() {
 

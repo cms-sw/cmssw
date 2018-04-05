@@ -14,7 +14,11 @@ public:
     }
   }
   
-  result_type asCandidate(const argument_type&) const override final;
+  double value(const reco::CandidatePtr& cand) const final { 
+    return ( _absEta ? std::abs(cand->eta()) : cand->eta() );
+  }
+
+  result_type asCandidate(const argument_type&) const final;
 
 private:
   const bool _absEta;
@@ -25,7 +29,7 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,EtaMultiRangeCut,"EtaMultiRangeCut");
 
 CutApplicatorBase::result_type 
 EtaMultiRangeCut::
-asCandidate(const argument_type& cand) const{
+asCandidate(const argument_type& cand) const {
   const double the_eta = ( _absEta ? std::abs(cand->eta()) : cand->eta() );
   bool result = false;
   for(const auto& range : _ranges ) {

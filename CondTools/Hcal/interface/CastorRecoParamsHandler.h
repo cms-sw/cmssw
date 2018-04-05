@@ -25,9 +25,9 @@
 class CastorRecoParamsHandler : public popcon::PopConSourceHandler<CastorRecoParams>
 {
  public:
-  void getNewObjects();
-  std::string id() const { return m_name;}
-  ~CastorRecoParamsHandler();
+  void getNewObjects() override;
+  std::string id() const override { return m_name;}
+  ~CastorRecoParamsHandler() override;
   CastorRecoParamsHandler(edm::ParameterSet const &);
 
   void initObject(CastorRecoParams*);

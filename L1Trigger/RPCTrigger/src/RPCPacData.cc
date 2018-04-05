@@ -119,7 +119,7 @@ int RPCPacData::getPatternsGroupCount() {
  *
  */
 RPCPattern RPCPacData::getPattern(int patNum) const {
-  if(m_PatternsVec.size() == 0) {
+  if(m_PatternsVec.empty()) {
   
     throw RPCException("GetPattren(): Patterns vec is empty, mayby it was not filled!");
     //edm::LogError("RPCTrigger") << "GetPattren(): Patterns vec is empty, mayby it was not filled!";
@@ -252,7 +252,7 @@ void RPCPacData::insertPatterns(const RPCPattern::RPCPatVec& patternsVec, const 
       //edm::LogError("RPCTrigger") << "InsertPattern(): unsupported pattern type";
   }  
 
-  if(m_EnergeticPatternsGroupList.size() != 0) {
+  if(!m_EnergeticPatternsGroupList.empty()) {
      
     m_EnergeticPatternsGroupList.sort();  //to jest potrzebne, bo w run() przechodzi
                                           //pierwszy paettern, ktory ma Maxymalna quality, wiec

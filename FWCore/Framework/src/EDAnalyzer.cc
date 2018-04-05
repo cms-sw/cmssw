@@ -33,14 +33,11 @@ namespace edm {
   EDAnalyzer::doEvent(EventPrincipal const& ep, EventSetup const& c,
                       ActivityRegistry* act,
                       ModuleCallingContext const* mcc) {
-    Event e(const_cast<EventPrincipal&>(ep), moduleDescription_, mcc);
+    Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
-    {
-      std::lock_guard<std::mutex> guard(mutex_);
-      std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
-      EventSignalsSentry sentry(act,mcc);
-      this->analyze(e, c);
-    }
+    e.setSharedResourcesAcquirer(&resourceAcquirer_);
+    EventSignalsSentry sentry(act,mcc);
+    this->analyze(e, c);
     return true;
   }
 
@@ -60,7 +57,7 @@ namespace edm {
   bool
   EDAnalyzer::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                          ModuleCallingContext const* mcc) {
-    Run r(const_cast<RunPrincipal&>(rp), moduleDescription_, mcc);
+    Run r(rp, moduleDescription_, mcc,false);
     r.setConsumer(this);
     this->beginRun(r, c);
     return true;
@@ -69,7 +66,7 @@ namespace edm {
   bool
   EDAnalyzer::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                        ModuleCallingContext const* mcc) {
-    Run r(const_cast<RunPrincipal&>(rp), moduleDescription_, mcc);
+    Run r(rp, moduleDescription_, mcc,true);
     r.setConsumer(this);
     this->endRun(r, c);
     return true;
@@ -78,7 +75,7 @@ namespace edm {
   bool
   EDAnalyzer::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                      ModuleCallingContext const* mcc) {
-    LuminosityBlock lb(const_cast<LuminosityBlockPrincipal&>(lbp), moduleDescription_, mcc);
+    LuminosityBlock lb(lbp, moduleDescription_, mcc,false);
     lb.setConsumer(this);
     this->beginLuminosityBlock(lb, c);
     return true;
@@ -87,7 +84,7 @@ namespace edm {
   bool
   EDAnalyzer::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) {
-    LuminosityBlock lb(const_cast<LuminosityBlockPrincipal&>(lbp), moduleDescription_, mcc);
+    LuminosityBlock lb(lbp, moduleDescription_, mcc,true);
     lb.setConsumer(this);
     this->endLuminosityBlock(lb, c);
     return true;
@@ -103,16 +100,6 @@ namespace edm {
     respondToCloseInputFile(fb);
   }
 
-  void 
-  EDAnalyzer::doPreForkReleaseResources() {
-    preForkReleaseResources();
-  }
-  
-  void 
-  EDAnalyzer::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    postForkReacquireResources(iChildIndex, iNumberOfChildren);
-  }
-   
   void
   EDAnalyzer::callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func) {
     callWhenNewProductsRegistered_ = func;

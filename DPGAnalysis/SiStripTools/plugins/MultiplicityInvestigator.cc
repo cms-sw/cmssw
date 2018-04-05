@@ -52,14 +52,14 @@
 class MultiplicityInvestigator : public edm::EDAnalyzer {
    public:
       explicit MultiplicityInvestigator(const edm::ParameterSet&);
-      ~MultiplicityInvestigator();
+      ~MultiplicityInvestigator() override;
 
 
 private:
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override ;
 
       // ----------member data ---------------------------
 
@@ -138,8 +138,7 @@ MultiplicityInvestigator::analyze(const edm::Event& iEvent, const edm::EventSetu
   Handle<std::map<unsigned int, int> > mults;
   iEvent.getByToken(m_multiplicityMapToken,mults);
 
-  if(m_wantInvestHist) m_digiinvesthmevent.fill(iEvent.orbitNumber(),*mults);
-
+  if(m_wantInvestHist) m_digiinvesthmevent.fill(iEvent,*mults);
   if(m_wantVtxCorrHist) {
     Handle<reco::VertexCollection> vertices;
     iEvent.getByToken(m_vertexCollectionToken,vertices);
@@ -164,7 +163,7 @@ MultiplicityInvestigator::beginJob()
 void
 MultiplicityInvestigator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
-  m_digiinvesthmevent.beginRun(iRun.run());
+  m_digiinvesthmevent.beginRun(iRun);
   m_digivtxcorrhmevent.beginRun(iRun);
   m_digilumicorrhmevent.beginRun(iRun);
 

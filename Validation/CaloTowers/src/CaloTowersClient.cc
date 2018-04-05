@@ -69,9 +69,9 @@ void CaloTowersClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
 int CaloTowersClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hcalMEs){
 
    int useAllHistos = 0;
-   MonitorElement* Ntowers_vs_ieta =0;
-   MonitorElement* mapEnergy_N =0, *mapEnergy_E =0, *mapEnergy_H =0, *mapEnergy_EH =0;
-   MonitorElement* occupancy_map =0, *occupancy_vs_ieta =0;
+   MonitorElement* Ntowers_vs_ieta =nullptr;
+   MonitorElement* mapEnergy_N =nullptr, *mapEnergy_E =nullptr, *mapEnergy_H =nullptr, *mapEnergy_EH =nullptr;
+   MonitorElement* occupancy_map =nullptr, *occupancy_vs_ieta =nullptr;
    for(unsigned int ih=0; ih<hcalMEs.size(); ih++){
       if( strcmp(hcalMEs[ih]->getName().c_str(), "Ntowers_per_event_vs_ieta") ==0  ){
          Ntowers_vs_ieta = hcalMEs[ih];
@@ -104,11 +104,14 @@ int CaloTowersClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hcalM
    // mean number of towers per ieta
    int nx = Ntowers_vs_ieta->getNbinsX();
    float cont;
+   float econt;
    float fev = float(nevent);
 
    for (int i = 1; i <= nx; i++) {
       cont = Ntowers_vs_ieta -> getBinContent(i) / fev ;
+      econt = Ntowers_vs_ieta -> getBinError(i) / fev ;
       Ntowers_vs_ieta -> setBinContent(i,cont);
+      Ntowers_vs_ieta -> setBinError(i,econt);
    }
 
    // mean energies & occupancies evaluation
@@ -116,10 +119,12 @@ int CaloTowersClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hcalM
    nx = mapEnergy_N->getNbinsX();
    int ny = mapEnergy_N->getNbinsY();
    float cnorm;
+   float enorm;
    float phi_factor;
 
    for (int i = 1; i <= nx; i++) {
       float sumphi = 0.;
+      float sumphie = 0.;
 
       for (int j = 1; j <= ny; j++) {
 
@@ -129,28 +134,36 @@ int CaloTowersClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hcalM
          if(cnorm > 0.000001 && useAllHistos) {
 
             cont = mapEnergy_E -> getBinContent(i,j) / cnorm ;
+            econt = mapEnergy_E -> getBinError(i,j) / cnorm;
             mapEnergy_E -> setBinContent(i,j,cont);
+            mapEnergy_E -> setBinError(i,j,econt);
+
 
             cont = mapEnergy_H -> getBinContent(i,j) / cnorm ;
+            econt = mapEnergy_H -> getBinError(i,j) / cnorm;
             mapEnergy_H -> setBinContent(i,j,cont);
+            mapEnergy_H -> setBinError(i,j,econt);
 
             cont = mapEnergy_EH -> getBinContent(i,j) / cnorm ;
+            econt = mapEnergy_EH -> getBinError(i,j) / cnorm;
             mapEnergy_EH -> setBinContent(i,j,cont);
+            mapEnergy_EH -> setBinError(i,j,econt);
          }
+
 
          // Occupancy (needed for occupancy vs ieta)
          cnorm   = occupancy_map -> getBinContent(i,j) / fev;
+         enorm   = occupancy_map -> getBinError(i,j) / fev;
          if(cnorm > 1.e-30) occupancy_map -> setBinContent(i,j,cnorm);
 
          sumphi += cnorm;
+         sumphie += enorm*enorm;
 
       } // end of iphy cycle (j)
 
       //Occupancy vs ieta histo is drawn
       // phi-factor evaluation for occupancy_vs_ieta calculation
-      int ieta = i - 42;        // -41 -1, 0 40 
-      if(ieta >=0 ) ieta +=1;   // -41 -1, 1 41  - to make it detector-like
-
+      int ieta = i - 42;        // -41,-1,1,41 
       if(ieta >= -20 && ieta <= 20 )
          {phi_factor = 72.;}
          else {
@@ -158,10 +171,11 @@ int CaloTowersClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hcalM
          else
             phi_factor = 36.;
        }
-       if(ieta >= 0) ieta -= 1; // -41 -1, 0 40  - to bring back to histo num
 
        cnorm = sumphi / phi_factor;
-       occupancy_vs_ieta->Fill(double(ieta), cnorm);
+       enorm = sqrt(sumphie) / phi_factor;
+       occupancy_vs_ieta->setBinContent(i, cnorm);
+       occupancy_vs_ieta->setBinError(i,enorm);
 
    } // end of ieta cycle (i)
    

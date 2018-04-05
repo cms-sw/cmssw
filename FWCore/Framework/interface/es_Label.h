@@ -19,7 +19,7 @@
 //
 
 // system include files
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -36,15 +36,15 @@ namespace edm {
          typedef T element_type;
          
          L() : product_() {}
-         explicit L(boost::shared_ptr<T> iP) : product_(iP) {}
+         explicit L(std::shared_ptr<T> iP) : product_(iP) {}
          explicit L(T* iP) : product_(iP) {}
          
          T& operator*() { return *product_;}
          T* operator->() { return product_.get(); }
-         mutable boost::shared_ptr<T> product_;
+         mutable std::shared_ptr<T> product_;
       };
       template<int ILabel,typename T>
-         L<T,ILabel> l(boost::shared_ptr<T>& iP) { 
+         L<T,ILabel> l(std::shared_ptr<T>& iP) { 
             L<T,ILabel> temp(iP);
             return temp;
          }

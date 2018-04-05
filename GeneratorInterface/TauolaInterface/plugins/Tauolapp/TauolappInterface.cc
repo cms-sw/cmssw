@@ -54,25 +54,25 @@ extern "C" {
 
 TauolappInterface::TauolappInterface( const edm::ParameterSet& pset):
   fPolarization(false),
-  fPSet(0),
+  fPSet(nullptr),
   fIsInitialized(false),
   fMDTAU(-1),
   fSelectDecayByEvent(false),
-  lhe(NULL),
+  lhe(nullptr),
   dmMatch(0.5),
   dolhe(false),
   dolheBosonCorr(false),
   ntries(10)
 {
-  if ( fPSet != 0 ) throw cms::Exception("TauolappInterfaceError") << "Attempt to override Tauola an existing ParameterSet\n" << std::endl;
+  if ( fPSet != nullptr ) throw cms::Exception("TauolappInterfaceError") << "Attempt to override Tauola an existing ParameterSet\n" << std::endl;
   fPSet = new ParameterSet(pset);
 }
 
-TauolappInterface::~TauolappInterface(){if ( fPSet != 0 ) delete fPSet;}
+TauolappInterface::~TauolappInterface(){if ( fPSet != nullptr ) delete fPSet;}
 
 void TauolappInterface::init( const edm::EventSetup& es ){
   if ( fIsInitialized ) return; // do init only once
-  if ( fPSet == 0 ) throw cms::Exception("TauolappInterfaceError") << "Attempt to initialize Tauola with an empty ParameterSet\n" << std::endl;   
+  if ( fPSet == nullptr ) throw cms::Exception("TauolappInterfaceError") << "Attempt to initialize Tauola with an empty ParameterSet\n" << std::endl;   
   
   fIsInitialized = true;
       
@@ -212,7 +212,7 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
    if(fSelectDecayByEvent){
      selectDecayByMDTAU();
    }
-   if(dolhe && lhe!=NULL){
+   if(dolhe && lhe!=nullptr){
      std::vector<HepMC::GenParticle> particles;
      std::vector<int> m_idx; 
      std::vector<double> spinup=lhe->getHEPEUP()->SPINUP;
@@ -333,7 +333,7 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
 	 BCodes.push_back( (*pitr)->barcode() );
        }
      }
-     if ( BCodes.size() > 0 ){
+     if ( !BCodes.empty() ){
        for ( size_t ibc=0; ibc<BCodes.size(); ibc++ ){
 	 HepMC::GenParticle* p1 = evt->barcode_to_particle( BCodes[ibc] );
 	 int nbc = p1->barcode() - 10000 + NPartBefore;

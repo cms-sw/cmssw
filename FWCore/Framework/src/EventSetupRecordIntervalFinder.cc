@@ -37,7 +37,7 @@ namespace edm {
 //    // do actual copying here;
 // }
 
-EventSetupRecordIntervalFinder::~EventSetupRecordIntervalFinder()
+EventSetupRecordIntervalFinder::~EventSetupRecordIntervalFinder() noexcept(false)
 {
 }
 

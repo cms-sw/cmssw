@@ -6,7 +6,7 @@
 #include <vector>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -54,10 +54,10 @@
  * General details about the usage of Calibratable may be found at,
  * 		https://twiki.cern.ch/twiki/bin/view/CMS/PFClusterToolsPackage
  */
-class CalibratableTest : public edm::EDAnalyzer {
+class CalibratableTest : public edm::one::EDAnalyzer<> {
 public:
 	explicit CalibratableTest(const edm::ParameterSet&);
-	~CalibratableTest();
+	~CalibratableTest() override;
 
 	/*
 	 * Returns the collection in the event matching the Handle.
@@ -69,9 +69,9 @@ private:
 	/* 
 	 * The usual EDAnalyzer methods
 	 */
-	virtual void beginJob();
-	virtual void analyze(const edm::Event&, const edm::EventSetup&);
-	virtual void endJob();
+	void beginJob() override;
+	void analyze(const edm::Event&, const edm::EventSetup&) override;
+	void endJob() override;
 
 	/*
 	 * Called for each particle in the event to fill the tree and

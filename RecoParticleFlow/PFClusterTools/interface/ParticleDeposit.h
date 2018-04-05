@@ -79,8 +79,6 @@ public:
 
 	double getTargetFunctionContrib() const;
 
-	friend std::ostream& operator<<(std::ostream& s, const ParticleDeposit& p);
-
 private:
 	static unsigned count;
 	//ParticleDeposit(const ParticleDeposit& pd);
@@ -101,6 +99,7 @@ private:
 
 
 typedef boost::shared_ptr<ParticleDeposit> ParticleDepositPtr;
+std::ostream& operator<<(std::ostream& s, const ParticleDeposit& p);
 
 }
 

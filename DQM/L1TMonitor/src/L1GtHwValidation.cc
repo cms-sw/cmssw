@@ -162,7 +162,7 @@ void L1GtHwValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& 
 }
 
 void L1GtHwValidation::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& evSetup){
-  //lumisecId_->Fill(l.id().luminosityBlock());
+
 }
 
 void L1GtHwValidation::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& iRun, const edm::EventSetup& evSetup) {
@@ -1651,9 +1651,9 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
     }
 
     // get  extended algorithms bits (extended decision word)
-    const DecisionWordExtended gtDecisionWordExtendedData =
+    const DecisionWordExtended& gtDecisionWordExtendedData =
             fdlBlockData.gtDecisionWordExtended();
-    const DecisionWordExtended gtDecisionWordExtendedEmul =
+    const DecisionWordExtended& gtDecisionWordExtendedEmul =
             fdlBlockEmul.gtDecisionWordExtended();
 
     if (gtDecisionWordExtendedData == gtDecisionWordExtendedEmul) {
@@ -2330,7 +2330,6 @@ void L1GtHwValidation::excludedAlgoList() {
 
 
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
-    (const_cast<L1GtTriggerMenu*> (m_l1GtMenu))->buildGtConditionMap(); //...ugly
 
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
 
@@ -2495,6 +2494,3 @@ bool L1GtHwValidation::excludedAlgo(const int& iBit) const {
     return false;
 
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE( L1GtHwValidation);

@@ -13,8 +13,8 @@ from RecoTauTag.TauTagTools.MVASteering_cfi import *
 
 # Make sure we are only dealing w/ one algorithm...
 if len(myTauAlgorithms) > 1:
-   raise RuntimeError, "ERROR: more than one tau algorithm is defined in MVASteering.py; this feature should be used only for algorithm evaluation.  \
-         Please modify it so that it only includeds the algorithm on which the TaNC is to be used."
+   raise RuntimeError("ERROR: more than one tau algorithm is defined in MVASteering.py; this feature should be used only for algorithm evaluation.  \
+         Please modify it so that it only includeds the algorithm on which the TaNC is to be used.")
 
 algorithm = myTauAlgorithms[0]
 myconnect   = cms.string('sqlite_file:TancLocal.db')  #or frontier, etc

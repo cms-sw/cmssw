@@ -81,7 +81,7 @@ public:
   NoDataExceptionBase(const EventSetupRecordKey& iRecordKey,
                         const DataKey& iDataKey,
                         const char* category_name = "NoDataException") ;
-  virtual ~NoDataExceptionBase() throw();
+  ~NoDataExceptionBase() noexcept override;
   const DataKey& dataKey() const;
 protected:
   static std::string providerButNoDataMessage(const EventSetupRecordKey& iKey);

@@ -1,7 +1,7 @@
 #ifndef SimMuon_GEMDigitizer_ME0DigiPreRecoProducer_h
 #define SimMuon_GEMDigitizer_ME0DigiPreRecoProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -14,17 +14,17 @@
 class ME0Geometry;
 class ME0DigiPreRecoModel;
 
-class ME0DigiPreRecoProducer : public edm::EDProducer
+class ME0DigiPreRecoProducer : public edm::stream::EDProducer<>
 {
 public:
 
   explicit ME0DigiPreRecoProducer(const edm::ParameterSet& ps);
 
-  virtual ~ME0DigiPreRecoProducer();
+  ~ME0DigiPreRecoProducer() override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

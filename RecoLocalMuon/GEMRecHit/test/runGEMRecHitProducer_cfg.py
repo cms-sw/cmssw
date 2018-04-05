@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEMLocalRECO")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000))
-#?
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+
 #process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
@@ -27,10 +27,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-#process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2019_cff')
-process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023_cff')
+process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
@@ -42,6 +40,14 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
+#process.load('RecoLocalMuon.GEMRecHit.me0RecHits_cfi')
+process.load('RecoLocalMuon.GEMRecHit.me0LocalReco_cff')
+
+### Try to do RecoLocalMuon on all muon detectors ###
+#####################################################
+from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
+process.localreco = cms.Sequence(muonlocalreco)
+
 #????
 #process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
 #process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
@@ -55,32 +61,63 @@ process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
 #from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
+# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
+# Fix DT and CSC Alignment #
+############################
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixDTAlignmentConditions
+process = fixDTAlignmentConditions(process)
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixCSCAlignmentConditions
+process = fixCSCAlignmentConditions(process)
 
-# Load GEM RecHit process
-#########################
+# Skip Digi2Raw and Raw2Digi steps for Al Muon detectors #
+##########################################################
+process.gemRecHits.gemDigiLabel = cms.InputTag("simMuonGEMDigis","","GEMDIGI")
+process.rpcRecHits.rpcDigiLabel = cms.InputTag('simMuonRPCDigis')
+process.csc2DRecHits.wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
+process.dt1DRecHits.dtDigiLabel = cms.InputTag("simMuonDTDigis")
+process.dt1DCosmicRecHits.dtDigiLabel = cms.InputTag("simMuonDTDigis")
+
+# Explicit configuration of CSC for postls1 = run2 #
+####################################################
+process.load("CalibMuon.CSCCalibration.CSCChannelMapper_cfi")
+process.load("CalibMuon.CSCCalibration.CSCIndexer_cfi")
+process.CSCIndexerESProducer.AlgoName = cms.string("CSCIndexerPostls1")
+process.CSCChannelMapperESProducer.AlgoName = cms.string("CSCChannelMapperPostls1")
+process.CSCGeometryESModule.useGangedStripsInME1a = False
+process.csc2DRecHits.readBadChannels = cms.bool(False)
+process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
+# process.csc2DRecHits.wireDigiTag  = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
+# process.csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
+
 process.gemRecHits = cms.EDProducer("GEMRecHitProducer",
     recAlgoConfig = cms.PSet(),
     recAlgo = cms.string('GEMRecHitStandardAlgo'),
-    gemDigiLabel = cms.InputTag("simMuonGEMDigis","","GEMDIGI"),
-    #maskSource = cms.string('File'),
-    #maskvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMMaskVec.dat'),
-    #deadSource = cms.string('File'),
-    #deadvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMDeadVec.dat')
-    #process.muonlocalreco += process.gemRecHits
+    gemDigiLabel = cms.InputTag("simMuonGEMDigis"),
+    # maskSource = cms.string('File'),
+    # maskvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMMaskVec.dat'),
+    # deadSource = cms.string('File'),
+    # deadvecfile = cms.FileInPath('RecoLocalMuon/GEMRecHit/data/GEMDeadVec.dat')
 )
+
 ### Input and Output Files
 ##########################
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:out_digi.root'
+        # 'file:out_digi_100GeV_1000evts.root'
+        # 'file:out_digi_1To100GeV_1000evts.root'
     )
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string( 
-        'file:out_local_reco.root'
+        'file:out_local_reco_test.root'
+        # 'file:out_local_reco_100GeV_1000evts.root'
+        # 'file:out_local_reco_1To100GeV_1000evts.root'
     ),
     outputCommands = cms.untracked.vstring(
         'keep  *_*_*_*',
@@ -92,7 +129,8 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 ### Paths and Schedules
 #######################
-process.rechit_step    = cms.Path(process.gemRecHits)
+process.rechit_step  = cms.Path(process.localreco+process.gemRecHits+process.me0LocalReco)
+#process.rechit_step  = cms.Path(process.localreco+process.gemRecHits+process.me0RecHits)
 process.endjob_step  = cms.Path(process.endOfProcess)
 process.out_step     = cms.EndPath(process.output)
 

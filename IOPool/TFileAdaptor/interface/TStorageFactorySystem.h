@@ -14,22 +14,22 @@ private:
   void *		GetDirPt(void) const { return fDirp; }
 
 public:
-  ClassDef(TStorageFactorySystem, 0); // ROOT System operating on CMS Storage.
+  ClassDefOverride(TStorageFactorySystem, 0); // ROOT System operating on CMS Storage.
 
   TStorageFactorySystem(const char *, Bool_t); // For compatibility with TXNetFile, we don't actually use the arguments
   TStorageFactorySystem(void);
-  ~TStorageFactorySystem(void);
+  ~TStorageFactorySystem(void) override;
 
-  virtual Int_t		MakeDirectory(const char *name);
-  virtual void *	OpenDirectory(const char *name);
-  virtual void		FreeDirectory(void *dirp);
-  virtual const char *	GetDirEntry(void *dirp);
+  Int_t		MakeDirectory(const char *name) override;
+  void *	OpenDirectory(const char *name) override;
+  void		FreeDirectory(void *dirp) override;
+  const char *	GetDirEntry(void *dirp) override;
 
-  virtual Int_t		GetPathInfo(const char *path, FileStat_t &info);
+  Int_t		GetPathInfo(const char *path, FileStat_t &info) override;
 
-  virtual Bool_t	AccessPathName(const char *path, EAccessMode mode);
+  Bool_t	AccessPathName(const char *path, EAccessMode mode) override;
 
-  virtual int           Unlink(const char *name);
+  int           Unlink(const char *name) override;
 
 };
 

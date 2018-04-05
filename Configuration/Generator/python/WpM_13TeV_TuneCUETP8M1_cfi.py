@@ -14,7 +14,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         pythia8CUEP8M1SettingsBlock,
         processParameters = cms.vstring(
             'NewGaugeBoson:ffbar2Wprime = on',
-            '34:m0 = 2000 '
+            '34:m0 = 2000 ',
             '34:onMode = off',
             '34:onIfAny = 13 14',
             ),

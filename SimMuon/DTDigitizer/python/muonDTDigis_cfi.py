@@ -37,4 +37,7 @@ simMuonDTDigis = cms.EDProducer("DTDigitizer",
 )
 
 
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(simMuonDTDigis, InputCollection = 'MuonSimHitsMuonDTHits')
+    
 

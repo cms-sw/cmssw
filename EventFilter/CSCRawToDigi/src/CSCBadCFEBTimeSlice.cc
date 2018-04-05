@@ -1,7 +1,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCBadCFEBTimeSlice.h"
-#include<assert.h>
+#include<cassert>
 
-CSCBadCFEBWord & CSCBadCFEBTimeSlice::word(int i) 
+const CSCBadCFEBWord & CSCBadCFEBTimeSlice::word(int i) const
 {
   assert(i>=0 && i<4);
   return theWords[i];

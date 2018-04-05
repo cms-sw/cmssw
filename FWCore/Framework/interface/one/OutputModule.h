@@ -44,7 +44,13 @@ namespace edm {
 #endif
       
       // ---------- const member functions ---------------------
-      
+      bool wantsGlobalRuns() const final {
+        return WantsGlobalRunTransitions<T...>::value;
+      }
+      bool wantsGlobalLuminosityBlocks() const final {
+        return WantsGlobalLuminosityBlockTransitions<T...>::value;
+      }
+
       // ---------- static member functions --------------------
       
       // ---------- member functions ---------------------------

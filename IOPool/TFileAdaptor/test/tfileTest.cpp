@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
   if (argc > 1) fname = argv[1];
 
   {
-    std::auto_ptr<TFile> g(TFile::Open(fname.c_str(), "recreate", "", 1));
+    std::unique_ptr<TFile> g(TFile::Open(fname.c_str(), "recreate", "", 1));
     g->Close();
   }
   try {
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
       std::cout << "error was " << err << "\n";
 
     if (!result) {
-      std::auto_ptr<TFile> f(TFile::Open(fname.c_str()));
+      std::unique_ptr<TFile> f(TFile::Open(fname.c_str()));
       std::cout << "file size " << f->GetSize() << std::endl;
       f->ls();
     }

@@ -7,22 +7,22 @@
 	using namespace pftools;
 	
 	TFile* testConversion = new TFile("TestConversion.root", "recreate");
-	testConversion.mkdir("extraction");
-	testConversion.cd("extraction");
+	testConversion->mkdir("extraction");
+	testConversion->cd("extraction");
 	TTree* tree = new TTree("Extraction", "");
 	Calibratable* c = new Calibratable();
 	tree->Branch("Calibratable", "pftools::Calibratable", &c, 32000, 2);
 	
 	std::cout << "Initialised objects etc.\n";
-	TRandom2 rand;
+	TRandom2 rand2;
 	for (unsigned u(0); u < 1000; ++u) {
 		double eta, phi, energy, ecalFrac, gaussSamp;
 
-		eta = rand.Uniform(0, 1.5);
-		phi = rand.Uniform(0, 3.14);
-		energy = rand.Uniform(2, 20);
-		ecalFrac = rand.Uniform(0, 1.0);
-		gaussSamp = rand.Gaus(1, 0.3);
+		eta = rand2.Uniform(0, 1.5);
+		phi = rand2.Uniform(0, 3.14);
+		energy = rand2.Uniform(2, 20);
+		ecalFrac = rand2.Uniform(0, 1.0);
+		gaussSamp = rand2.Gaus(1, 0.3);
 		//gaussSamp = 1.0;
 
 		c->reset();

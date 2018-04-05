@@ -62,7 +62,7 @@ void LMFUnique::attach(std::string name, LMFUnique *u) {
 }
 
 boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const  
-  throw(std::runtime_error)
+  noexcept(false)
 {
   /*
     Returns a list of pointers to DB objects
@@ -73,7 +73,7 @@ boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const
   try {
     Statement* stmt = m_conn->createStatement();
     std::string sql = fetchAllSql(stmt);
-    if (sql != "") {
+    if (!sql.empty()) {
       if (m_debug) {
 	cout << m_className + ": Query " + sql << endl;
       }
@@ -83,7 +83,7 @@ boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const
 	if (m_debug) {
 	  o->debug();
 	}
-	if (o != NULL) {
+	if (o != nullptr) {
 	  o->setByID(rset->getInt(1));
 	  if (m_debug) {
 	    o->dump();
@@ -101,7 +101,7 @@ boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const
     m_conn->terminateStatement(stmt);
   }
   catch (SQLException &e) {
-    throw(std::runtime_error(m_className + "::fetchAll:  "+e.getMessage()));
+    throw(std::runtime_error(m_className + "::fetchAll:  "+getOraMessage(&e)));
   }
   if (m_debug) {
     cout << m_className << ": list size = " << l.size() << endl;
@@ -188,7 +188,7 @@ std::string LMFUnique::fetchAllSql(Statement *stmt) const {
 
 LMFUnique* LMFUnique::createObject() const {
   /* this method should return a pointer to a newly created object */
-  return NULL;
+  return nullptr;
 }
 
 std::string LMFUnique::getString(std::string s) const {
@@ -211,7 +211,7 @@ int LMFUnique::getInt(std::string s) const {
 }
 
 int LMFUnique::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   /*
     This method fetch the ID of the object from the database according
@@ -236,7 +236,7 @@ int LMFUnique::fetchID()
     Statement* stmt = m_conn->createStatement();
     // prepare the sql query
     std::string sql = fetchIdSql(stmt);
-    if (sql != "") {
+    if (!sql.empty()) {
       if (m_debug) {
 	cout << m_className + ": Query " + sql << endl;
       }
@@ -262,7 +262,7 @@ int LMFUnique::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error(m_className + "::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(m_className + "::fetchID:  "+getOraMessage(&e)));
   }
   // given the ID of this object setup it completely
   if (m_ID > 0) {
@@ -284,7 +284,7 @@ int LMFUnique::fetchID()
 }
 
 void LMFUnique::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   /*
     Given the ID of an object setup it
@@ -296,7 +296,7 @@ void LMFUnique::setByID(int id)
   try {
     Statement* stmt = m_conn->createStatement();
     std::string sql = setByIDSql(stmt, id);
-    if (sql == "") {
+    if (sql.empty()) {
       throw(std::runtime_error(m_className + "::setByID: [empty sql])"));
     }
     if (m_debug) {
@@ -316,12 +316,12 @@ void LMFUnique::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-   throw(std::runtime_error(m_className + "::setByID:  "+e.getMessage()));
+   throw(std::runtime_error(m_className + "::setByID:  "+getOraMessage(&e)));
   }
 }
 
 int LMFUnique::writeForeignKeys() 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   std::map<std::string, LMFUnique*>::const_iterator i = m_foreignKeys.begin();
   std::map<std::string, LMFUnique*>::const_iterator e = m_foreignKeys.end();
@@ -337,7 +337,7 @@ int LMFUnique::writeForeignKeys()
 }
 
 int LMFUnique::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   clock_t start = 0;
   clock_t end = 0;
@@ -357,7 +357,7 @@ int LMFUnique::writeDB()
       Statement* stmt = m_conn->createStatement();
       
       sql = writeDBSql(stmt);
-      if (sql != "") {
+      if (!sql.empty()) {
 	if (m_debug) {
 	  cout << m_className + ": " + sql << endl;
 	}
@@ -368,7 +368,7 @@ int LMFUnique::writeDB()
     } catch (SQLException &e) {
       debug();
       dump();
-      throw(std::runtime_error(m_className + "::writeDB:  " + e.getMessage() +
+      throw(std::runtime_error(m_className + "::writeDB:  " + getOraMessage(&e) +
 			       " while executing query " + sql));
     }
     // now get the id

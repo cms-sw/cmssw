@@ -36,7 +36,7 @@ EcalTrigTowerConstituentsMapBuilder::~EcalTrigTowerConstituentsMapBuilder()
 EcalTrigTowerConstituentsMapBuilder::ReturnType
 EcalTrigTowerConstituentsMapBuilder::produce(const IdealGeometryRecord& iRecord)
 {
-   std::auto_ptr<EcalTrigTowerConstituentsMap> prod(new EcalTrigTowerConstituentsMap());
+   auto prod = std::make_unique<EcalTrigTowerConstituentsMap>();
 
    if (!mapFile_.empty()) {
      parseTextMap(mapFile_,*prod);

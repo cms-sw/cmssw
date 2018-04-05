@@ -524,12 +524,12 @@ void DAClusterizerInZ::dump(const double beta, const vector<vertex_t> & y, const
       cout <<  setw (3)<< i << ")" <<  setw (8) << fixed << setprecision(4)<<  tz << " +/-" <<  setw (6)<< sqrt(tks[i].dz2);
 
       if(tks[i].tt->track().quality(reco::TrackBase::highPurity)){ cout << " *";}else{cout <<"  ";}
-      if(tks[i].tt->track().hitPattern().hasValidHitInFirstPixelBarrel()){ cout <<"+"; }else{ cout << "-"; }
+      if(tks[i].tt->track().hitPattern().hasValidHitInPixelLayer(PixelSubdetector::SubDetector::PixelBarrel, 1)){ cout <<"+"; }else{ cout << "-"; }
       cout << setw(1) << tks[i].tt->track().hitPattern().pixelBarrelLayersWithMeasurement(); // see DataFormats/TrackReco/interface/HitPattern.h
       cout << setw(1) << tks[i].tt->track().hitPattern().pixelEndcapLayersWithMeasurement(); 
       cout << setw(1) << hex << tks[i].tt->track().hitPattern().trackerLayersWithMeasurement() -
           tks[i].tt->track().hitPattern().pixelLayersWithMeasurement() << dec; 
-      cout << "=" << setw(1) << hex << tks[i].tt->track().hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS) << dec;
+      cout << "=" << setw(1) << hex << tks[i].tt->track().hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS) << dec;
 
       Measurement1D IP=tks[i].tt->stateAtBeamLine().transverseImpactParameter();
       cout << setw (8) << IP.value() << "+/-" << setw (6) << IP.error();
@@ -711,7 +711,7 @@ DAClusterizerInZ::clusterize(const vector<reco::TransientTrack> & tracks)
   vector< TransientVertex > pv=vertices(tracks);
 
   if(verbose_){ cout << "# DAClusterizerInZ::clusterize   pv.size="<<pv.size() << endl;  }
-  if (pv.size()==0){ return clusters;}
+  if (pv.empty()){ return clusters;}
 
 
   // fill into clusters and merge

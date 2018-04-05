@@ -30,7 +30,12 @@ namespace edm {
   ParentageRegistry::insertMapped(value_type const& v) {
     return m_map.insert(std::make_pair(v.id(),v)).second;
   }
-  
+
+  bool
+  ParentageRegistry::insertMapped(value_type&& v) {
+    return m_map.emplace(v.id(),std::move(v)).second;
+  }
+
   void
   ParentageRegistry::clear() {
     m_map.clear();

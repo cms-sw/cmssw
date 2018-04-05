@@ -12,7 +12,7 @@ using namespace oracle::occi;
 
 MonRunIOV::MonRunIOV()
 {
-  m_conn = NULL;
+  m_conn = nullptr;
   m_ID = 0;
   m_monRunTag = MonRunTag();
   m_runIOV = RunIOV();
@@ -116,7 +116,7 @@ Tm MonRunIOV::getSubRunEnd() const
 
 
 int MonRunIOV::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID) {
@@ -162,7 +162,7 @@ int MonRunIOV::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonRunIOV::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonRunIOV::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -171,7 +171,7 @@ int MonRunIOV::fetchID()
 
 
 void MonRunIOV::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -207,14 +207,14 @@ void MonRunIOV::setByID(int id)
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("MonRunIOV::setByID:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("MonRunIOV::setByID:  ")+getOraMessage(&e)));
    }
 }
 
 
 
 int MonRunIOV::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -257,7 +257,7 @@ int MonRunIOV::writeDB()
 
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonRunIOV::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonRunIOV::writeDB:  ")+getOraMessage(&e)));
   }
 
   // Now get the ID
@@ -271,7 +271,7 @@ int MonRunIOV::writeDB()
 
 
 void MonRunIOV::fetchParentIDs(int* monRunTagID, int* runIOVID)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // get the MonRunTag
   m_monRunTag.setConnection(m_env, m_conn);
@@ -290,7 +290,7 @@ void MonRunIOV::fetchParentIDs(int* monRunTagID, int* runIOVID)
 
 
 void MonRunIOV::setByRun(MonRunTag* montag, RunIOV* runiov, subrun_t subrun)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   
@@ -337,7 +337,7 @@ void MonRunIOV::setByRun(MonRunTag* montag, RunIOV* runiov, subrun_t subrun)
      
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("MonRunIOV::setByRun:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("MonRunIOV::setByRun:  ")+getOraMessage(&e)));
   }
   
 }

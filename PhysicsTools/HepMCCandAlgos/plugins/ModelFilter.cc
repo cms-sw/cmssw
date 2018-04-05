@@ -4,7 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace std;
 using namespace edm;

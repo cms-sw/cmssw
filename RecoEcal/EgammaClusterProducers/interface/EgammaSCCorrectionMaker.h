@@ -39,8 +39,8 @@ class EgammaSCCorrectionMaker : public edm::stream::EDProducer<> {
 	
    public:
      explicit EgammaSCCorrectionMaker(const edm::ParameterSet&);
-     ~EgammaSCCorrectionMaker();
-     virtual void produce(edm::Event&, const edm::EventSetup&);
+     ~EgammaSCCorrectionMaker() override;
+     void produce(edm::Event&, const edm::EventSetup&) override;
 
    private:
 

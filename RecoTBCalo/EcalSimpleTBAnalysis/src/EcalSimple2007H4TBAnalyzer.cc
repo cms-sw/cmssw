@@ -108,7 +108,7 @@ EcalSimple2007H4TBAnalyzer::beginRun(edm::Run const &, edm::EventSetup const& iS
   iSetup.get<CaloGeometryRecord>().get(pG);   
 
   
-  theTBGeometry_ =  &(*pG);
+  theTBGeometry_ =  pG.product();
 //  const std::vector<DetId>& validIds=theTBGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
 //   std::cout << "Found " << validIds.size() << " channels in the geometry" << std::endl;
 //   for (unsigned int i=0;i<validIds.size();++i)
@@ -238,7 +238,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
 
 
    Handle<EEDigiCollection> pdigis;
-   const EEDigiCollection* digis=0;
+   const EEDigiCollection* digis=nullptr;
    //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( digiProducer_, digiCollection_,pdigis);
    if ( pdigis.isValid() ) {
@@ -250,7 +250,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
 
    // fetch the digis and compute signal amplitude
    Handle<EEUncalibratedRecHitCollection> phits;
-   const EEUncalibratedRecHitCollection* hits=0;
+   const EEUncalibratedRecHitCollection* hits=nullptr;
    //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( hitProducer_, hitCollection_,phits);
    if (phits.isValid()) {
@@ -261,7 +261,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
    }
 
    Handle<EcalTBHodoscopeRecInfo> pHodo;
-   const EcalTBHodoscopeRecInfo* recHodo=0;
+   const EcalTBHodoscopeRecInfo* recHodo=nullptr;
    //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( hodoRecInfoProducer_, hodoRecInfoCollection_, pHodo);
    if ( pHodo.isValid() ) {
@@ -271,7 +271,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
    }
 
    Handle<EcalTBTDCRecInfo> pTDC;
-   const EcalTBTDCRecInfo* recTDC=0;
+   const EcalTBTDCRecInfo* recTDC=nullptr;
    //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( tdcRecInfoProducer_, tdcRecInfoCollection_, pTDC);
    if ( pTDC.isValid() ) {
@@ -281,7 +281,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
    }
 
    Handle<EcalTBEventHeader> pEventHeader;
-   const EcalTBEventHeader* evtHeader=0;
+   const EcalTBEventHeader* evtHeader=nullptr;
    //std::cout << "EcalSimple2007H4TBAnalyzer::analyze getting product with label: " << digiProducer_.c_str()<< " prodname: " << digiCollection_.c_str() << endl;
    iEvent.getByLabel( eventHeaderProducer_ , pEventHeader );
    if ( pEventHeader.isValid() ) {
@@ -315,7 +315,7 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
        return;
      }
 
-   if (hits->size() == 0)
+   if (hits->empty())
      {
        //       std::cout << "5" << std::endl;
        return;
@@ -360,11 +360,10 @@ EcalSimple2007H4TBAnalyzer::analyze( edm::Event const & iEvent, edm::EventSetup 
 	   else
 	     {
 	       Xtals5x5[icry]=tempId;
-	       const CaloCellGeometry* cell=theTBGeometry_->getGeometry(Xtals5x5[icry]);
+	       auto cell=theTBGeometry_->getGeometry(Xtals5x5[icry]);
 	       if (!cell) 
 		 continue;
-	       const TruncatedPyramid* tp ( dynamic_cast<const TruncatedPyramid*>(cell) ) ;
-	       std::cout << "** Xtal in the matrix **** row " << row  << ", column " << column << ", xtal " << Xtals5x5[icry] << " Position " << tp->getPosition(0.) << std::endl;
+	       std::cout << "** Xtal in the matrix **** row " << row  << ", column " << column << ", xtal " << Xtals5x5[icry] << " Position " << cell->getPosition(0.) << std::endl;
 	     }
 	 }
      }

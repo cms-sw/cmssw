@@ -2,7 +2,7 @@
 #define L1GCTHTMISS_H
 
 #include <ostream>
-#include <stdint.h>
+#include <cstdint>
 
 /*! \file L1GctHtMiss.h
  * 

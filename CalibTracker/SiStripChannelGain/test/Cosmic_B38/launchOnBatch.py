@@ -114,7 +114,7 @@ def GetInputFiles(PATH,INPUT_FILE,NEVENTS,OUTPUTFILE,INDEX):
 	i=0
         iMin = (INDEX+0)*Input_CffN
 	iMax = (INDEX+1)*Input_CffN-1
-        for line in config_file.xreadlines():
+        for line in config_file:
                 if(line[0:1]!='\''):
 			continue
 

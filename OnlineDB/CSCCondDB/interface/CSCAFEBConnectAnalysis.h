@@ -9,7 +9,7 @@
 #include <map>
 #include <string>
 #include <sstream>
-#include <stdio.h>
+#include <cstdio>
 
 /** \class CSCAFEBConnectAnalysis
   *  

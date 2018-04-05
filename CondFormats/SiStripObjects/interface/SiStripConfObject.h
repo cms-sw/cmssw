@@ -12,6 +12,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+class TrackerTopology;
+
 /**
  * Author M. De Mattia - 16/11/2009
  *
@@ -82,9 +84,9 @@ class SiStripConfObject
   }
 
   /// Prints the full list of parameters
-  void printSummary(std::stringstream & ss) const;
+  void printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
   /// Prints the full list of parameters
-  void printDebug(std::stringstream & ss) const;
+  void printDebug(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
 
   typedef std::map<std::string, std::string> parMap;
 

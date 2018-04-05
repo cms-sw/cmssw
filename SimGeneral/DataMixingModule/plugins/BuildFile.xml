@@ -2,6 +2,7 @@
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/SiStripObjects"/>
+<use   name="CondFormats/SiPixelObjects"/>
 <use   name="CalibTracker/Records"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="DataFormats/CSCDigi"/>
@@ -16,6 +17,7 @@
 <use   name="DataFormats/SiPixelDigi"/>
 <use   name="DataFormats/SiStripDigi"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/HepMCCandidate"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
@@ -31,6 +33,8 @@
 <use   name="SimCalorimetry/EcalSimAlgos"/>
 <use   name="SimCalorimetry/EcalSimProducers"/>
 <use   name="SimDataFormats/PileupSummaryInfo"/>
+<use   name="SimDataFormats/TrackingAnalysis"/>
+<use   name="SimDataFormats/TrackerDigiSimLink"/>
 <use   name="SimDataFormats/CrossingFrame"/>
 <library   file="*.cc" name="SimGeneralDataMixingModulePlugins">
   <flags   EDM_PLUGIN="1"/>

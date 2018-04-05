@@ -23,6 +23,7 @@ namespace edm {
       template class EndRunProducer<edm::global::EDFilterBase>;
       template class BeginLuminosityBlockProducer<edm::global::EDFilterBase>;
       template class EndLuminosityBlockProducer<edm::global::EDFilterBase>;
+      template class ExternalWork<edm::global::EDFilterBase>;
     }
   }
 }

@@ -12,7 +12,7 @@ template <unsigned int N>
 class GaussianStateLessWeight {
   
 private:
-  typedef boost::shared_ptr< SingleGaussianState<N> > SingleStatePtr;
+  typedef std::shared_ptr< SingleGaussianState<N> > SingleStatePtr;
 
 public:
   GaussianStateLessWeight() {}

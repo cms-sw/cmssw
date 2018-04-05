@@ -36,7 +36,7 @@ namespace edm {
 	"Try running EdmPluginDump to obtain a list "
 	"of available Plugins\n";
     }
-    ~UnknownModuleException() throw(){}
+    ~UnknownModuleException() noexcept override{}
   }; // UnknownModuleException
 
 

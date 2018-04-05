@@ -26,12 +26,12 @@ class SimpleConvertedPhotonAnalyzer : public edm::EDAnalyzer
    
       //
       explicit SimpleConvertedPhotonAnalyzer( const edm::ParameterSet& ) ;
-      virtual ~SimpleConvertedPhotonAnalyzer();
+      ~SimpleConvertedPhotonAnalyzer() override;
                                    
       
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob() ;
-      virtual void endJob() ;
+      void analyze( const edm::Event&, const edm::EventSetup& ) override ;
+      void beginJob() override ;
+      void endJob() override ;
 
    private:
 

@@ -61,11 +61,17 @@ class MixCollection {
   // nested class for iterator
   class MixItr {
   public:
+    struct end_tag {};
 
     /** constructors */
     MixItr():first_(true), internalCtr_(0) {;}
-    MixItr(typename std::vector<const T *>::const_iterator it) : pMixItr_(it),nrDets_(0),first_(true),internalCtr_(0) {;}
-       MixItr(MixCollection *shc, int nrDets) :     
+    MixItr(const MixCollection *shc, int nrDets, end_tag): internalCtr2_(0) {
+      for(int i=0; i<nrDets; ++i) {
+        const auto& cf = shc->crossingFrames_[i];
+        internalCtr2_ += cf->getSignal().size() + cf->getPileups().size();
+      }
+    }
+       MixItr(const MixCollection *shc, int nrDets) :     
        mixCol_(shc),nrDets_(nrDets),first_(true),iSignal_(0),iPileup_(0),internalCtr_(0) {;}
 
 
@@ -76,9 +82,9 @@ class MixCollection {
     // default version valid for HepMCProduct
     const T* operator->() const { return *(pMixItr_.operator->()); }
     const T& operator*() const {return *(pMixItr_.operator*()); }
-    MixItr operator++ () {return next();}
-    MixItr operator++ (int) {return next();}
-    bool operator!= (const MixItr& itr){return pMixItr_!=itr.pMixItr_;}
+    const MixItr operator++ () {return next();}
+    const MixItr operator++ (int) {return next();}
+    bool operator!= (const MixItr& itr) { return internalCtr2_ != itr.internalCtr2_; }
 
     /**getters*/
     int bunch() const {
@@ -98,14 +104,15 @@ class MixCollection {
     typename std::vector<const T *>::const_iterator pMixItrEnd_;
 
     const CrossingFrame<T> *    myCF_;
-    MixCollection *mixCol_;
+    const MixCollection *mixCol_;
     int nrDets_;
     bool first_;
     int iSignal_, iPileup_;
     bool trigger_;
     unsigned int internalCtr_;  //this is the internal counter pointing into the vector of piled up objects
+    unsigned int internalCtr2_ = 0; // this is the internal counter for the number of iterated elements, needed for operator!=
     
-    MixItr next();
+    const MixItr next();
     void reset() {;}
     bool getNewSignal(typename std::vector<const T *>::const_iterator &first,typename std::vector<const T *>::const_iterator &last);
 
@@ -113,8 +120,8 @@ class MixCollection {
   };
 
   typedef MixItr iterator;
-  iterator begin();
-  iterator end() ;
+  iterator begin() const;
+  iterator end() const;
 
  private:
   void init( const range bunchRange);
@@ -235,13 +242,14 @@ bool  MixCollection<T>::MixItr::getNewPileups(typename std::vector<const T*>::co
 }
 
 template <class T>
-typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
+const typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
 
   // initialisation
   if (first_) {
     first_=false;
     trigger_=true;
   } else {
+    ++internalCtr2_;
     if (!trigger_) internalCtr_++;
     if (++pMixItr_!=pMixItrEnd_) return *this;
   }
@@ -260,24 +268,18 @@ typename MixCollection<T>::MixItr MixCollection<T>::MixItr::next() {
     //    for (dbIt=pMixItr_;dbIt!=pMixItrEnd_;++dbIt)  printf("Found pointer %p\n",(*dbIt));fflush(stdout);
     // debug print end
     internalCtr_=0;
-    return *this;
   }
-  else {
-    return mixCol_->end();
-  }
+  return *this; // with internalCtr2_ we can always return *this
 }
 
 template <class T>
-typename MixCollection<T>::MixItr MixCollection<T>::begin() {
+typename MixCollection<T>::MixItr MixCollection<T>::begin() const {
   return MixItr(this,nrDets_)++;
 }
 
 template <class T>
-typename  MixCollection<T>::MixItr MixCollection<T >::end() {
-  typename std::vector<const T *>::const_iterator first;
-  typename std::vector<const T*>::const_iterator last;
-  crossingFrames_[nrDets_-1]->getPileups(first, last);
-  return last;
+typename  MixCollection<T>::MixItr MixCollection<T >::end() const {
+  return MixItr(this,nrDets_,typename MixItr::end_tag());
 }
 
 #include<iosfwd>

@@ -33,7 +33,7 @@ class JetTracksAssociationXtrpCalo {
   JetTracksAssociationXtrpCalo();
   
   /// Destructor
-  ~JetTracksAssociationXtrpCalo();
+  virtual ~JetTracksAssociationXtrpCalo();
 
   /// Associates tracks to jets
   void produce( Association*,

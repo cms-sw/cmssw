@@ -52,7 +52,7 @@ void testSerialization()
     // of non-POD types without user-provided default constructor
     // (since it would be uninitialized), so we always create
     // a non-const object.
-    T originalObject;
+    T originalObject{};
     const T & originalObjectRef = originalObject;
     {
         std::ofstream ofs(filename, std::ios::out | std::ios::binary);

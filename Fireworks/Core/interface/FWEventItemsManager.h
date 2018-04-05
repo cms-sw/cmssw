@@ -20,7 +20,7 @@
 
 // system include files
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "sigc++/signal.h"
 
 // user include files
@@ -46,13 +46,13 @@ class FWEventItemsManager : public FWConfigurable
 public:
    //does not take ownership of the object to which it points but does keep reference
    FWEventItemsManager(FWModelChangeManager*);
-   virtual ~FWEventItemsManager();
+   ~FWEventItemsManager() override;
 
    typedef std::vector<FWEventItem*>::const_iterator const_iterator;
 
    //configuration management interface
-   void addTo(FWConfiguration&) const;
-   void setFrom(const FWConfiguration&);
+   void addTo(FWConfiguration&) const override;
+   void setFrom(const FWConfiguration&) override;
 
    // ---------- const member functions ---------------------
    ///NOTE: iterator is allowed to return a null object for items that have been removed
@@ -64,7 +64,8 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   const FWEventItem* add(const FWPhysicsObjectDesc& iItem,  const FWConfiguration* pbConf = 0);
+   FWEventItem* add(const FWPhysicsObjectDesc& iItem, const FWConfiguration* pbConf=nullptr,
+                    bool doSetEvent=true);
    void clearItems();
 
    void newEvent(const edm::EventBase* iEvent);
@@ -72,13 +73,15 @@ public:
    void setContext(fireworks::Context*);
 
    sigc::signal<void, FWEventItem*> newItem_;
-   sigc::signal<void> goingToClearItems_;
+   sigc::signal<void, const FWEventItem*> removingItem_;
+   sigc::signal<void>               goingToClearItems_;
+
 private:
 
    void removeItem(const FWEventItem*);
-   FWEventItemsManager(const FWEventItemsManager&);    // stop default
+   FWEventItemsManager(const FWEventItemsManager&) = delete;    // stop default
 
-   const FWEventItemsManager& operator=(const FWEventItemsManager&);    // stop default
+   const FWEventItemsManager& operator=(const FWEventItemsManager&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    std::vector<FWEventItem*> m_items;
@@ -86,7 +89,7 @@ private:
    fireworks::Context* m_context;
 
    const edm::EventBase* m_event;
-   boost::shared_ptr<FWItemAccessorFactory> m_accessorFactory;
+   std::shared_ptr<FWItemAccessorFactory> m_accessorFactory;
 };
 
 

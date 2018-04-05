@@ -3,6 +3,7 @@
 #keep the logging output to a nice level
 
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("Demo")
 process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
@@ -24,7 +25,7 @@ process.source = cms.Source("PoolSource",
 
 process.MessageLogger = cms.Service("MessageLogger")
 
-process.second = cms.EDAnalyzer("RPCEfficiencySecond",
+process.second = DQMEDHarvester("RPCEfficiencySecond",
     debug = cms.untracked.bool(False),
     barrel = cms.untracked.bool(True),
     endcap = cms.untracked.bool(True),

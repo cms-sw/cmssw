@@ -5,6 +5,8 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
@@ -16,6 +18,8 @@ class TrackKinematics {
 	TrackKinematics();
 	TrackKinematics(const std::vector<reco::Track> &tracks);
 	TrackKinematics(const reco::TrackRefVector &tracks);
+	TrackKinematics(const std::vector<reco::CandidatePtr> &tracks);
+	TrackKinematics(const reco::CandidatePtrVector &tracks);
 	TrackKinematics(const reco::Vertex &vertex);
 	TrackKinematics(const reco::VertexCompositePtrCandidate &vertex):
  	       n(vertex.numberOfSourceCandidatePtrs()), sumWeights(vertex.numberOfSourceCandidatePtrs()),
@@ -24,6 +28,11 @@ class TrackKinematics {
 	~TrackKinematics() {}
 
 	void add(const reco::Track &track, double weight = 1.0);
+	void add(const reco::CandidatePtr &track);
+
+	inline
+	void add(const reco::TrackRef &track, double weight = 1.0)
+	{return add(*track, weight); }
 
 	TrackKinematics &operator += (const TrackKinematics &other);
 	inline TrackKinematics operator + (const TrackKinematics &other)

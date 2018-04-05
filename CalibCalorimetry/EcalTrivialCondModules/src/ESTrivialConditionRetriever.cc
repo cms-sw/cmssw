@@ -135,10 +135,10 @@ ESTrivialConditionRetriever::setIntervalFor( const edm::eventsetup::EventSetupRe
 }
 
 //produce methods
-std::auto_ptr<ESPedestals>
+std::unique_ptr<ESPedestals>
 ESTrivialConditionRetriever::produceESPedestals( const ESPedestalsRcd& ) {
   std::cout<< " producing pedestals"<< std::endl;
-  std::auto_ptr<ESPedestals>  peds = std::auto_ptr<ESPedestals>( new ESPedestals() );
+  auto peds = std::make_unique<ESPedestals>();
   ESPedestals::Item ESitem;
   ESitem.mean  = ESpedMean_;
   ESitem.rms   = ESpedRMS_;
@@ -162,15 +162,15 @@ ESTrivialConditionRetriever::produceESPedestals( const ESPedestalsRcd& ) {
       }
     }
   }
-  //return std::auto_ptr<ESPedestals>( peds );
+  //return std::unique_ptr<ESPedestals>( peds );
   std::cout<< " produced pedestals"<< std::endl;
   return peds;
 }
 
-std::auto_ptr<ESWeightStripGroups>
+std::unique_ptr<ESWeightStripGroups>
 ESTrivialConditionRetriever::produceESWeightStripGroups( const ESWeightStripGroupsRcd& )
 {
-  std::auto_ptr<ESWeightStripGroups> xtalGroups = std::auto_ptr<ESWeightStripGroups>( new ESWeightStripGroups() );
+  auto xtalGroups = std::make_unique<ESWeightStripGroups>();
   ESStripGroupId defaultGroupId(1);
   std::cout << "entering produce weight groups"<< std::endl;
   for (int istrip=ESDetId::ISTRIP_MIN;istrip<=ESDetId::ISTRIP_MAX;istrip++) {
@@ -198,10 +198,10 @@ ESTrivialConditionRetriever::produceESWeightStripGroups( const ESWeightStripGrou
   return xtalGroups;
 }
 
-std::auto_ptr<ESIntercalibConstants>
+std::unique_ptr<ESIntercalibConstants>
 ESTrivialConditionRetriever::produceESIntercalibConstants( const ESIntercalibConstantsRcd& )
 {
-  std::auto_ptr<ESIntercalibConstants>  ical = std::auto_ptr<ESIntercalibConstants>( new ESIntercalibConstants() );
+  auto ical = std::make_unique<ESIntercalibConstants>();
   std::cout << "entring produce intercalib "<< std::endl;
 
   for (int istrip=ESDetId::ISTRIP_MIN;istrip<=ESDetId::ISTRIP_MAX;istrip++) {
@@ -230,17 +230,17 @@ ESTrivialConditionRetriever::produceESIntercalibConstants( const ESIntercalibCon
 }
 
 
-std::auto_ptr<ESADCToGeVConstant>
+std::unique_ptr<ESADCToGeVConstant>
 ESTrivialConditionRetriever::produceESADCToGeVConstant( const ESADCToGeVConstantRcd& )
 {
-  return std::auto_ptr<ESADCToGeVConstant>( new ESADCToGeVConstant(adcToGeVLowConstant_,adcToGeVHighConstant_) );
+  return std::make_unique<ESADCToGeVConstant>(adcToGeVLowConstant_,adcToGeVHighConstant_);
 }
 
-std::auto_ptr<ESTBWeights>
+std::unique_ptr<ESTBWeights>
 ESTrivialConditionRetriever::produceESTBWeights( const ESTBWeightsRcd& )
 {
   // create weights for the test-beam
-  std::auto_ptr<ESTBWeights> tbwgt = std::auto_ptr<ESTBWeights>( new ESTBWeights() );
+  auto tbwgt = std::make_unique<ESTBWeights>();
 
   int igrp=1;
   ESWeightSet wgt = ESWeightSet(amplWeights_);
@@ -297,10 +297,10 @@ void ESTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Paramet
 
 // --------------------------------------------------------------------------------
 
-std::auto_ptr<ESChannelStatus>
+std::unique_ptr<ESChannelStatus>
 ESTrivialConditionRetriever::getChannelStatusFromConfiguration (const ESChannelStatusRcd&)
 {
-  std::auto_ptr<ESChannelStatus> ecalStatus = std::auto_ptr<ESChannelStatus>( new ESChannelStatus() );
+  auto ecalStatus = std::make_unique<ESChannelStatus>();
   
 
   // start by setting all statuses to 0
@@ -377,11 +377,11 @@ ESTrivialConditionRetriever::getChannelStatusFromConfiguration (const ESChannelS
 
 
 
-std::auto_ptr<ESChannelStatus>
+std::unique_ptr<ESChannelStatus>
 ESTrivialConditionRetriever::produceESChannelStatus( const ESChannelStatusRcd& )
 {
 
-  std::auto_ptr<ESChannelStatus>  ical = std::auto_ptr<ESChannelStatus>( new ESChannelStatus() );
+  auto ical = std::make_unique<ESChannelStatus>();
   for (int istrip=ESDetId::ISTRIP_MIN;istrip<=ESDetId::ISTRIP_MAX;istrip++) {
     for (int ix=ESDetId::IX_MIN;ix<=ESDetId::IX_MAX;ix++){
       for (int iy=ESDetId::IY_MIN;iy<=ESDetId::IY_MAX;iy++){

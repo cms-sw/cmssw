@@ -24,7 +24,6 @@
 #include <memory>
 #include <fstream>
 #include <vector>
-#include "boost/shared_ptr.hpp"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronLikelihood.h"
 #include "RecoEgamma/ElectronIdentification/interface/LikelihoodSwitches.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -41,15 +40,15 @@ class ElectronLikelihoodESSource : public edm::ESProducer, public  edm::EventSet
   /// constructor from parameter set
   ElectronLikelihoodESSource( const edm::ParameterSet& );
   /// destructor
-  ~ElectronLikelihoodESSource();
+  ~ElectronLikelihoodESSource() override;
   /// define the return type
-  typedef std::auto_ptr<ElectronLikelihood> ReturnType;
+  typedef std::unique_ptr<ElectronLikelihood> ReturnType;
   /// return the particle table
   ReturnType produce( const ElectronLikelihoodRcd &);
   /// set validity interval
   void setIntervalFor( const edm::eventsetup::EventSetupRecordKey &,
 		       const edm::IOVSyncValue &,
-		       edm::ValidityInterval & );
+		       edm::ValidityInterval & ) override;
   
  private:
   //! read PDF's from CondDB

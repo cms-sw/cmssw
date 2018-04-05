@@ -102,7 +102,7 @@
   <class name="edm::reftobase::BaseHolder<reco::Jet>" />
   <class name="edm::reftobase::IndirectHolder<reco::Jet>" />
   <class name="edm::reftobase::IndirectVectorHolder<reco::Jet>" />
-  <class name="edm::reftobase::Holder<reco::Candidate,edm::RefToBase<reco::Jet> > "/>
+  <class name="edm::reftobase::Holder<reco::Candidate,edm::RefToBase<reco::Jet> >"/>
   <class name="edm::RefToBaseVector<reco::Jet>"/>
   <class name="edm::Wrapper<edm::RefToBaseVector<reco::Jet> >"/>
   <class name="edm::reftobase::BaseVectorHolder<reco::Jet>"/>

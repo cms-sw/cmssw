@@ -17,6 +17,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightSet.h"
 #include "CondFormats/EcalObjects/interface/EcalWeight.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -42,6 +43,7 @@ class  StoreEcalCondition : public edm::EDAnalyzer {
   EcalTBWeights* readEcalTBWeightsFromFile(const char *);
   EcalADCToGeVConstant* readEcalADCToGeVConstantFromFile(const char *);
   EcalIntercalibConstants* readEcalIntercalibConstantsFromFile(const char *, const char *);
+  EcalPFRecHitThresholds* readEcalPFRecHitThresholdsFromFile(const char *, const char *);
   EcalIntercalibConstantsMC* readEcalIntercalibConstantsMCFromFile(const char *, const char *);
   EcalGainRatios* readEcalGainRatiosFromFile(const char *);
   EcalChannelStatus* readEcalChannelStatusFromFile(const char *);
@@ -50,10 +52,10 @@ class  StoreEcalCondition : public edm::EDAnalyzer {
   int convertFromConstructionSMToSlot(int ,int );
 
   explicit  StoreEcalCondition(const edm::ParameterSet& iConfig );
-  ~StoreEcalCondition();
+  ~StoreEcalCondition() override;
 
-  virtual void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup);
-  virtual void endJob();
+  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void endJob() override;
 
  private:
 

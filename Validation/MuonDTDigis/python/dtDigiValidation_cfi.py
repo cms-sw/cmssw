@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-muondtdigianalyzer = cms.EDAnalyzer("MuonDTDigis",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+muondtdigianalyzer = DQMEDAnalyzer('MuonDTDigis',
     # Label to retrieve Digis from the event
     DigiLabel = cms.InputTag('simMuonDTDigis'),
     # Label to retrieve SimHits from the event
@@ -11,5 +12,5 @@ muondtdigianalyzer = cms.EDAnalyzer("MuonDTDigis",
     verbose = cms.untracked.bool(False)
 )
 
-
-
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(muondtdigianalyzer, SimHitLabel = "MuonSimHits:MuonDTHits")

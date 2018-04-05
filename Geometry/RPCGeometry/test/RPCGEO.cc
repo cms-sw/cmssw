@@ -19,10 +19,12 @@
 
 // system include files
 #include <memory>
+#include <fstream>
+#include <iomanip>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -40,52 +42,34 @@
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 
+class RPCGEO : public edm::one::EDAnalyzer<>
+{
+public:
+  explicit RPCGEO(const edm::ParameterSet&);
+  ~RPCGEO() override;
 
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
-//
-// class decleration
-//
-
-class RPCGEO : public edm::EDAnalyzer {
-   public:
-      explicit RPCGEO(const edm::ParameterSet&);
-      ~RPCGEO();
-
-
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      // ----------member data ---------------------------
+private:
+  std::ofstream detidsstream;
+  std::ofstream detailstream;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-RPCGEO::RPCGEO(const edm::ParameterSet& /*iConfig*/){
-   //now do what ever initialization is needed
+RPCGEO::RPCGEO(const edm::ParameterSet& /*iConfig*/)
+{
+  detailstream.open("RPCGeometry.out"); 
+  detidsstream.open("RPCDetIdLst.out");
+  std::cout <<"Opening output files :: RPCGeometry.out and RPCDetIdLst.out"<< std::endl;
 }
-
 
 RPCGEO::~RPCGEO()
 {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  detailstream.close();
+  detidsstream.close();
+  std::cout <<"Closing output files :: RPCGeometry.out and RPCDetIdLst.out"<< std::endl;
 }
-
-
-//
-// member functions
-//
 
 // ------------ method called to for each event  ------------
 void
@@ -93,7 +77,7 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
-   std::cout <<" Getting the RPC Geometry"<<std::endl;
+   detailstream <<" Getting the RPC Geometry"<<std::endl;
    edm::ESHandle<RPCGeometry> rpcGeo;
    iSetup.get<MuonGeometryRecord>().get(rpcGeo);
 
@@ -139,10 +123,10 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
      // The DetId can be a chamber or a roll
      // Consider only the chambers and ask the rolls belonging to this chamber later on
      // So this is a loop on the chambers
-     if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+     if( dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
        const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
        std::vector< const RPCRoll*> rolls = (ch->rolls());
-       //std::cout<<"RPC Chamber"<<ch->id()<<std::endl;       
+       //detailstream<<"RPC Chamber"<<ch->id()<<std::endl;       
        if(ch->id().region()==1){	 
 	 switch(ch->id().station()){
 	 case 1:
@@ -207,14 +191,14 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	 int stripsinthisroll=(*r)->nstrips();
 	 RPCGeomServ rpcsrv(rpcId);
 	 ++RollsInCMS;
-	 // std::cout<<rpcId<<rpcsrv.name()<<" strips="<<stripsinthisroll<<std::endl;
-	 //std::cout<<rpcId<<" - "<<rpcsrv.name()<<" - "<<rpcsrv.shortname()<<std::endl;
-	 //std::cout<<rpcsrv.name()<<std::endl;
+	 // detailstream<<rpcId<<rpcsrv.name()<<" strips="<<stripsinthisroll<<std::endl;
+	 //detailstream<<rpcId<<" - "<<rpcsrv.name()<<" - "<<rpcsrv.shortname()<<std::endl;
+	 //detailstream<<rpcsrv.name()<<std::endl;
 
 	 // start RPC Barrel
 	 // ----------------
 	 if (rpcId.region()==0){ 
-	   //std::cout<<"Getting the RPC Topolgy"<<std::endl;
+	   //detailstream<<"Getting the RPC Topolgy"<<std::endl;
 	   const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
 	   float s1 = static_cast<float>(1)-0.5;
            float sLast = static_cast<float>(stripsinthisroll)-0.5;
@@ -226,9 +210,10 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 
 	   // +++ Printout +++
 	   // ++++++++++++++++
-	   std::cout<<"All Info "<<rpcId.rawId()<<" = "<<std::setw(24)<<name<<" || ";
-	   std::cout<<" strips: length ="<<stripl<<"[cm] & width ="<<stripw<<"[cm] & number ="<<stripsinthisroll;
-	   std::cout<<" || area roll ="<<stripl*stripw<<"[cm^2] || area total barrel = "<<areabarrel<<"[cm^2]"<<std::endl;
+	   detidsstream<<rpcId.rawId()<<" \t "<<std::setw(24)<<name<<" \t "<<rpcId<<std::endl;
+	   detailstream<<"All Info "<<rpcId.rawId()<<" = "<<std::setw(24)<<name<<" || ";
+	   detailstream<<" strips: length ="<<stripl<<"[cm] & width ="<<stripw<<"[cm] & number ="<<stripsinthisroll;
+	   detailstream<<" || area roll ="<<stripl*stripw<<"[cm^2] || area total barrel = "<<areabarrel<<"[cm^2]"<<std::endl;
 	   // ++++++++++++++++
 
 	   const BoundPlane & RPCSurface = (*r)->surface();
@@ -246,9 +231,9 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	   // ++++++++++++++++
 	   // +++ Printout +++
 	   // ++++++++++++++++
-	   std::cout<<std::setw(45)<<name<<" ||  phi="<<rollphi<<" orientation="<<orientation<<" seg="<<seg
+	   detailstream<<std::setw(45)<<name<<" ||  phi="<<rollphi<<" orientation="<<orientation<<" seg="<<seg
 		    <<" phi first strip="<<rpcphiFirst<<" phi last strip="<<rpcphiLast<<" || "<<std::endl;
-	   std::cout<<std::setw(45)<<name<<" ||  glob (X,Y,Z) first strip =("<<FirstStripCenterPointInGlobal.x()<<", "<<FirstStripCenterPointInGlobal.y()<<","<<FirstStripCenterPointInGlobal.z()<<")[cm]"
+	   detailstream<<std::setw(45)<<name<<" ||  glob (X,Y,Z) first strip =("<<FirstStripCenterPointInGlobal.x()<<", "<<FirstStripCenterPointInGlobal.y()<<","<<FirstStripCenterPointInGlobal.z()<<")[cm]"
 		    <<" glob (X,Y,Z) last strip =("<<LastStripCenterPointInGlobal.x()<<", "<<LastStripCenterPointInGlobal.y()<<","<<LastStripCenterPointInGlobal.z()<<")[cm]"
 	            <<std::endl;	   
 	   // ++++++++++++++++
@@ -293,9 +278,10 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 
 	   // +++ Printout +++
 	   // ++++++++++++++++
-	   std::cout<<"All Info "<<rpcId.rawId()<<" = "<<std::setw(24)<<name<<" || ";
-	   std::cout<<" strips: length ="<<stripl<<"[cm] & width ="<<stripw<<"[cm] & number ="<<stripsinthisroll;
-	   std::cout<<" || area roll ="<<stripl*stripw<<"[cm^2] || area total endcap = "<<areaendcap<<"[cm^2]"<<std::endl;
+	   detidsstream<<rpcId.rawId()<<" \t "<<std::setw(24)<<name<<" \t "<<rpcId<<std::endl;
+	   detailstream<<"All Info "<<rpcId.rawId()<<" = "<<std::setw(24)<<name<<" || ";
+	   detailstream<<" strips: length ="<<stripl<<"[cm] & width ="<<stripw<<"[cm] & number ="<<stripsinthisroll;
+	   detailstream<<" || area roll ="<<stripl*stripw<<"[cm^2] || area total endcap = "<<areaendcap<<"[cm^2]"<<std::endl;
 	   // ++++++++++++++++
 
 	   const BoundPlane & RPCSurface = (*r)->surface();
@@ -315,9 +301,9 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 
 	   // +++ Printout +++
 	   // ++++++++++++++++
-	   std::cout<<std::setw(45)<<name<<" ||  phi="<<rollphi<<" orientation="<<orientation<<" seg="<<seg
+	   detailstream<<std::setw(45)<<name<<" ||  phi="<<rollphi<<" orientation="<<orientation<<" seg="<<seg
 		    <<" phi first strip="<<rpcphiFirst<<" phi last strip="<<rpcphiLast<<" || "<<std::endl;
-	   std::cout<<std::setw(45)<<name<<" ||  glob (X,Y,Z) first strip =("<<FirstStripCenterPointInGlobal.x()<<", "<<FirstStripCenterPointInGlobal.y()<<","<<FirstStripCenterPointInGlobal.z()<<")[cm]"
+	   detailstream<<std::setw(45)<<name<<" ||  glob (X,Y,Z) first strip =("<<FirstStripCenterPointInGlobal.x()<<", "<<FirstStripCenterPointInGlobal.y()<<","<<FirstStripCenterPointInGlobal.z()<<")[cm]"
 		    <<" glob (X,Y,Z) last strip =("<<LastStripCenterPointInGlobal.x()<<", "<<LastStripCenterPointInGlobal.y()<<","<<LastStripCenterPointInGlobal.z()<<")[cm]";
 	   // ++++++++++++++++
 	   // cscphi = 2*3.1415926536+CenterPointCSCGlobal.barePhi():cscphi=CenterPointCSCGlobal.barePhi();
@@ -337,8 +323,8 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	   if(rpcId.station()==3) {
 	     if(orientation*rpcId.region()==1.0) {orientation_ok=true;}
 	   }
-	   if(orientation_ok) std::cout<<" OK"<<std::endl;
-	   else std::cout<<" WRONG!!!"<<std::endl;
+	   if(orientation_ok) detailstream<<" OK"<<std::endl;
+	   else detailstream<<" WRONG!!!"<<std::endl;
 	   // +++++++++++++++++++++++++++++
 	     
 	   ++counterRollsEndCap;
@@ -413,7 +399,7 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	   // LocalPoint lCentre=(*r)->centreOfStrip(strip);
 	   // const BoundSurface& bSurface = (*r)->surface();
 	   // GlobalPoint gCentre = bSurface.toGlobal(lCentre);
-	   // std::cout<<"Strip="<<strip<<" "<<gCentre.x()<<" "<<gCentre.y()<<" "<<gCentre.z()<<std::endl;
+	   // detailstream<<"Strip="<<strip<<" "<<gCentre.x()<<" "<<gCentre.y()<<" "<<gCentre.z()<<std::endl;
 	   ++StripsInCMS;
 	   if(rpcId.region()==0) ++counterstripsBarrel;
 	   else ++counterstripsEndCap; 
@@ -422,19 +408,19 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
      }
    }
 
-   std::cout<<"Total Number of Strips in CMS="<<StripsInCMS<<std::endl;
-   std::cout<<"Total Number of Rolls in CMS="<<RollsInCMS<<std::endl;
+   detailstream<<"Total Number of Strips in CMS="<<StripsInCMS<<std::endl;
+   detailstream<<"Total Number of Rolls in CMS="<<RollsInCMS<<std::endl;
    
-   std::cout<<"\n Total Number of Rolls in EndCap= "<<counterRollsEndCap<<std::endl;
-   std::cout<<"Total Number of Rolls in Barrel= "<<counterRollsBarrel<<std::endl;   
+   detailstream<<"\n Total Number of Rolls in EndCap= "<<counterRollsEndCap<<std::endl;
+   detailstream<<"Total Number of Rolls in Barrel= "<<counterRollsBarrel<<std::endl;   
 
-   std::cout<<"\n Total Number of Strips in Barrel= "<<counterstripsBarrel<<std::endl;
-   std::cout<<"Total Number of Strips in EndCap= "<<counterstripsEndCap<<std::endl;
+   detailstream<<"\n Total Number of Strips in Barrel= "<<counterstripsBarrel<<std::endl;
+   detailstream<<"Total Number of Strips in EndCap= "<<counterstripsEndCap<<std::endl;
  
-   std::cout<<"\n Total Number of Rolls in MB4= "<<counterRollsMB4<<std::endl;
-   std::cout<<"Total Number of Rolls in MB1,MB2,MB3= "<<counterRollsMB1MB2MB3<<std::endl;
+   detailstream<<"\n Total Number of Rolls in MB4= "<<counterRollsMB4<<std::endl;
+   detailstream<<"Total Number of Rolls in MB1,MB2,MB3= "<<counterRollsMB1MB2MB3<<std::endl;
   
-   std::cout<<"RB4 in the barrel:"
+   detailstream<<"RB4 in the barrel:"
 	    <<"\n Wheel -2 = "<<RB4Wm2
 	    <<"\n Wheel -1 = "<<RB4Wm1
 	    <<"\n Wheel 0 = "<<RB4W0
@@ -443,46 +429,34 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	    <<std::endl;
 
 
-   std::cout<<"In the Endcaps we have the follow distribution of chambers:"<<std::endl;
+   detailstream<<"In the Endcaps we have the follow distribution of chambers:"<<std::endl;
    for(int i=1;i<5;i++){
      for(int j=1;j<4;j++){
-       std::cout<<" Station "<<i<<" Ring "<<j<<" "<<ENDCAP[i][j]<<" Chambers"<<std::endl;
+       detailstream<<" Station "<<i<<" Ring "<<j<<" "<<ENDCAP[i][j]<<" Chambers"<<std::endl;
      }
    }
 
-   std::cout<<"In the Endcaps we have the follow distribution of rolls:"<<std::endl;
+   detailstream<<"In the Endcaps we have the follow distribution of rolls:"<<std::endl;
    for(int i=1;i<5;i++){
      for(int j=1;j<4;j++){
-       std::cout<<" Station "<<i<<" Ring "<<j<<" "<<ENDCAProll[i][j]<<" Roll"<<std::endl;
+       detailstream<<" Station "<<i<<" Ring "<<j<<" "<<ENDCAProll[i][j]<<" Roll"<<std::endl;
      }
    }
 
 
 
-   std::cout<<"Rolls in Near Disk 2= "<<rollsNearDiskp2<<std::endl;
-   std::cout<<"Rolls in Near Disk 3= "<<rollsNearDiskp3<<std::endl;
+   detailstream<<"Rolls in Near Disk 2= "<<rollsNearDiskp2<<std::endl;
+   detailstream<<"Rolls in Near Disk 3= "<<rollsNearDiskp3<<std::endl;
 
-   std::cout<<"Average Strip Width in Barrel= "<<sumstripwbarrel/counterstripsBarrel<<std::endl;
-   std::cout<<"Average Strip Width in EndCap= "<<sumstripwendcap/counterstripsEndCap<<std::endl;
+   detailstream<<"Average Strip Width in Barrel= "<<sumstripwbarrel/counterstripsBarrel<<std::endl;
+   detailstream<<"Average Strip Width in EndCap= "<<sumstripwendcap/counterstripsEndCap<<std::endl;
 
-   std::cout<<"Expected RMS Barrel= "<<(sumstripwbarrel/counterstripsBarrel)/sqrt(12)<<std::endl;
-   std::cout<<"Expected RMS EndCap= "<<(sumstripwendcap/counterstripsEndCap)/sqrt(12)<<std::endl;
+   detailstream<<"Expected RMS Barrel= "<<(sumstripwbarrel/counterstripsBarrel)/sqrt(12)<<std::endl;
+   detailstream<<"Expected RMS EndCap= "<<(sumstripwendcap/counterstripsEndCap)/sqrt(12)<<std::endl;
 
-   std::cout<<"Area Covered in Barrel = "<<areabarrel/10000<<"m^2"<<std::endl;
-   std::cout<<"Area Covered in EndCap = "<<areaendcap/10000<<"m^2"<<std::endl;
+   detailstream<<"Area Covered in Barrel = "<<areabarrel/10000<<"m^2"<<std::endl;
+   detailstream<<"Area Covered in EndCap = "<<areaendcap/10000<<"m^2"<<std::endl;
 
-}
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-RPCGEO::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-RPCGEO::endJob() {
 }
 
 //define this as a plug-in

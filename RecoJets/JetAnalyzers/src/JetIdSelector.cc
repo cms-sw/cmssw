@@ -62,7 +62,7 @@ public:
   typedef std::vector<T> JetCollection;
   // construction/destruction
   explicit JetIdSelector(const edm::ParameterSet& iConfig);
-  virtual ~JetIdSelector();
+  ~JetIdSelector() override;
   
   // member functions
   void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
@@ -155,7 +155,7 @@ JetIdSelector<T>::~JetIdSelector(){
 template<typename T>
 void JetIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
-  auto_ptr<JetCollection> selectedJets(new JetCollection);
+  auto selectedJets = std::make_unique<JetCollection>();
   edm::Handle<reco::JetView> jets;  // uncorrected jets!
   iEvent.getByLabel(src_,jets);
 
@@ -241,7 +241,7 @@ void JetIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 
   nJetsTot_  +=jets->size();
   nJetsPassed_+=selectedJets->size();  
-  iEvent.put(selectedJets);
+  iEvent.put(std::move(selectedJets));
 }
 
 

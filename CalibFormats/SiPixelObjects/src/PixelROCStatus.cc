@@ -5,7 +5,7 @@
 //
 //
 
-#include <stdint.h>
+#include <cstdint>
 #include <set>
 #include <iostream>
 #include <cassert>

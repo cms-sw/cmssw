@@ -1,6 +1,0 @@
-<bin   file="WriteDQMSummaryIntoOMDS.cpp" name="WriteDQMSummaryIntoOMDS">
-  <use   name="DQM/Integration"/>
-</bin>
-<bin   file="GetAndWriteDQMSummaryIntoOMDS.cpp" name="GetAndWriteDQMSummaryIntoOMDS">
-  <use   name="DQM/Integration"/>
-</bin>

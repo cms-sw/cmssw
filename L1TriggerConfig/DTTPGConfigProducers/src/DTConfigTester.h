@@ -36,10 +36,10 @@ public :
   explicit DTConfigTester(const edm::ParameterSet&);
 
   //! Destructor
-  ~DTConfigTester();
+  ~DTConfigTester() override;
 
   // Analyze Method
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
 

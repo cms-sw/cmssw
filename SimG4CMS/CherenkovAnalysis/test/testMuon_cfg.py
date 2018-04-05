@@ -40,7 +40,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 )
 
 process.VtxSmeared = cms.EDProducer("GaussEvtVtxGenerator",
-    src   = cms.InputTag("generator"),
+    src   = cms.InputTag("generator", "unsmeared"),
     MeanX = cms.double(-12.0),
     MeanY = cms.double(0.0),
     MeanZ = cms.double(0.0),

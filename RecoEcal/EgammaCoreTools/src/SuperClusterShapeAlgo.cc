@@ -28,15 +28,15 @@ void SuperClusterShapeAlgo::Calculate_Covariances(const reco::SuperCluster &pass
 
   const std::vector<std::pair<DetId,float> > &detId = passedCluster.hitsAndFractions();
   // Loop over recHits associated with the given SuperCluster
-  for(std::vector<std::pair<DetId,float> >::const_iterator hit = detId.begin();
-      hit != detId.end(); ++hit) {
+  for (std::vector<std::pair<DetId,float> >::const_iterator hit = detId.begin();
+       hit != detId.end(); ++hit) {
     EcalRecHitCollection::const_iterator rHit = recHits_->find((*hit).first);
- //FIXME: THIS IS JUST A WORKAROUND A FIX SHOULD BE APPLIED  
- if(rHit == recHits_->end()) {
-    continue; 
-   }
-    const CaloCellGeometry *this_cell = geometry_->getGeometry(rHit->id());
-    if ( this_cell == 0 ) {
+    //FIXME: THIS IS JUST A WORKAROUND A FIX SHOULD BE APPLIED  
+    if(rHit == recHits_->end()) {
+      continue; 
+    }
+    auto this_cell = geometry_->getGeometry(rHit->id());
+    if ( this_cell == nullptr ) {
       //edm::LogInfo("SuperClusterShapeAlgo") << "pointer to the cell in Calculate_Covariances is NULL!";
       continue;
     }

@@ -2,14 +2,15 @@
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 namespace edm {
 
   std::string const Run::emptyString_;
 
-  Run::Run(RunPrincipal& rp, ModuleDescription const& md,
-           ModuleCallingContext const* moduleCallingContext) :
-        provRecorder_(rp, md),
+  Run::Run(RunPrincipal const& rp, ModuleDescription const& md,
+           ModuleCallingContext const* moduleCallingContext, bool isAtEnd) :
+        provRecorder_(rp, md, isAtEnd),
         aux_(rp.aux()),
         moduleCallingContext_(moduleCallingContext)  {
   }
@@ -22,11 +23,6 @@ namespace edm {
 
   RunIndex Run::index() const { return runPrincipal().index();}
   
-  RunPrincipal&
-  Run::runPrincipal() {
-    return dynamic_cast<RunPrincipal&>(provRecorder_.principal());
-  }
-
   RunPrincipal const&
   Run::runPrincipal() const {
     return dynamic_cast<RunPrincipal const&>(provRecorder_.principal());
@@ -38,8 +34,8 @@ namespace edm {
   }
 
   void
-  Run::getAllProvenance(std::vector<Provenance const*>& provenances) const {
-    runPrincipal().getAllProvenance(provenances);
+  Run::getAllStableProvenance(std::vector<StableProvenance const*>& provenances) const {
+    runPrincipal().getAllStableProvenance(provenances);
   }
 
 /* Not yet fully implemented
@@ -80,16 +76,38 @@ namespace edm {
 */
 
   void
-  Run::commit_() {
-    RunPrincipal& rp = runPrincipal();
-    ProductPtrVec::iterator pit(putProducts().begin());
-    ProductPtrVec::iterator pie(putProducts().end());
+  Run::setProducer(ProducerBase const* iProducer) {
+    provRecorder_.setProducer(iProducer);
+    //set appropriate size
+    putProducts_.resize(
+                        provRecorder_.putTokenIndexToProductResolverIndex().size());
+  }
 
-    while(pit != pie) {
-        rp.put(*pit->second, std::move(pit->first));
-        ++pit;
+  void
+  Run::commit_(std::vector<edm::ProductResolverIndex> const& iShouldPut) {
+    RunPrincipal const& rp = runPrincipal();
+    size_t nPut = 0;
+    for(size_t i = 0; i < putProducts().size();++i) {
+      auto& p = get_underlying_safe(putProducts()[i]);
+      if(p) {
+        rp.put(provRecorder_.putTokenIndexToProductResolverIndex()[i],  std::move(p));
+        ++nPut;
+      }
     }
-
+    
+    auto sz = iShouldPut.size();
+    if(sz !=0 and sz != nPut) {
+      //some were missed
+      auto& p = provRecorder_.principal();
+      for(auto index: iShouldPut){
+        auto resolver = p.getProductResolverByIndex(index);
+        if(not resolver->productResolved() and
+           isEndTransition(provRecorder_.transition()) == resolver->branchDescription().availableOnlyAtEndTransition()) {
+          resolver->putProduct(std::unique_ptr<WrapperBase>());
+        }
+      }
+    }
+    
     // the cleanup is all or none
     putProducts().clear();
   }
@@ -104,17 +122,9 @@ namespace edm {
     return provRecorder_.processHistory();
   }
 
-  void
-  Run::addToGotBranchIDs(Provenance const& prov) const {
-    gotBranchIDs_.insert(prov.branchID());
-  }
-
   BasicHandle
   Run::getByLabelImpl(std::type_info const&, std::type_info const& iProductType, const InputTag& iTag) const {
     BasicHandle h = provRecorder_.getByLabel_(TypeID(iProductType), iTag, moduleCallingContext_);
-    if(h.isValid()) {
-      addToGotBranchIDs(*(h.provenance()));
-    }
     return h;
   }
 }

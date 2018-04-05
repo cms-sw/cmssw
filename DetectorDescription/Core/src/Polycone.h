@@ -1,6 +1,9 @@
 #ifndef DDI_Polycone_h
 #define DDI_Polycone_h
 
+#include <iosfwd>
+#include <vector>
+
 #include "Solid.h"
 
 namespace DDI {
@@ -17,8 +20,8 @@ namespace DDI {
                const std::vector<double> & z,
 	       const std::vector<double> & r);
     
-    double volume() const;
-  	       
+    double volume() const override;
+    void stream(std::ostream &) const override;  	       
   };		  
 }
 #endif // DDI_Polycone_h

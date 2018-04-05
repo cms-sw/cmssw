@@ -32,16 +32,17 @@ elEDIsoValueNeutral04.deposits[0].src='elEDIsoDepositNeutral'
 elEDIsoValuePU04  = elPFIsoValuePU04.clone()
 elEDIsoValuePU04.deposits[0].src = 'elEDIsoDepositPU'
 
-electronEDIsolationValuesSequence = cms.Sequence(
-    elEDIsoValueCharged03+
-    elEDIsoValueChargedAll03+
-    elEDIsoValueGamma03+
-    elEDIsoValueNeutral03+
-    elEDIsoValuePU03+
+electronEDIsolationValuesTask = cms.Task(
+    elEDIsoValueCharged03,
+    elEDIsoValueChargedAll03,
+    elEDIsoValueGamma03,
+    elEDIsoValueNeutral03,
+    elEDIsoValuePU03,
 ############################## 
-    elEDIsoValueCharged04+
-    elEDIsoValueChargedAll04+
-    elEDIsoValueGamma04+
-    elEDIsoValueNeutral04+
+    elEDIsoValueCharged04,
+    elEDIsoValueChargedAll04,
+    elEDIsoValueGamma04,
+    elEDIsoValueNeutral04,
     elEDIsoValuePU04
   )
+electronEDIsolationValuesSequence = cms.Sequence(electronEDIsolationValuesTask)

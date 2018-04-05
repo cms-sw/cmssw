@@ -1,17 +1,17 @@
 #ifndef DDL_Vector_H
 #define DDL_Vector_H
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-#include "DDXMLElement.h"
-#include "DetectorDescription/Core/interface/DDVector.h"
-#include "DetectorDescription/Base/interface/DDTypes.h"
-
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
 
+#include "DDXMLElement.h"
+#include "DetectorDescription/Core/interface/DDReadMapType.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
+
+class DDCompactView;
+class DDLElementRegistry;
 class VectorMakeDouble;
 class VectorMakeString;
 
@@ -28,7 +28,7 @@ class VectorMakeString;
  *  This is the Vector container
  *
  */
-class DDLVector : public DDXMLElement
+class DDLVector final : public DDXMLElement
 {
 
   friend class VectorMakeDouble;
@@ -38,17 +38,12 @@ class DDLVector : public DDXMLElement
 
   DDLVector( DDLElementRegistry* myreg );
 
-  ~DDLVector();
-
-  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
-
-  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv);
-
+  void preProcessElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void processElement (const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
   void clearall();
 
   ReadMapType<std::vector<double> >  & getMapOfVectors();
   ReadMapType<std::vector<std::string> >  & getMapOfStrVectors();
-  
 
  private:
   std::vector<double> pVector;
@@ -62,4 +57,5 @@ class DDLVector : public DDXMLElement
   bool parse_numbers(char const* str) const;
   bool parse_strings(char const* str) const;
 };
+
 #endif

@@ -20,10 +20,10 @@ namespace EPOS {
     class IO_EPOS : public HepMC::IO_BaseClass {
     public:
         IO_EPOS();
-        virtual           ~IO_EPOS();
-        bool              fill_next_event( HepMC::GenEvent* );
-        void              write_event( const HepMC::GenEvent* );
-        void              print( std::ostream& ostr = std::cout ) const;
+                  ~IO_EPOS() override;
+        bool              fill_next_event( HepMC::GenEvent* ) override;
+        void              write_event( const HepMC::GenEvent* ) override;
+        void              print( std::ostream& ostr = std::cout ) const override;
         
         // see comments below for these switches.
         bool              trust_both_mothers_and_daughters() const;

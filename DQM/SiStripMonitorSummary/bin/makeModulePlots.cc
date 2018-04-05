@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 void printPlot(TH1D* hist, char* prefix, char* postfix) {
 
   TCanvas* cc= new TCanvas;
-  hist->Draw();
+  hist->Draw("hist");
   std::stringstream filename;
   filename << prefix << hist->GetName() << postfix << ".png";
   cc->Print(filename.str().c_str());

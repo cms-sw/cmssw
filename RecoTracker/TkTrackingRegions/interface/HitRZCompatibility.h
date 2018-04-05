@@ -5,8 +5,6 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 #include "RecoTracker/TkTrackingRegions/interface/TkTrackingRegionsMargin.h"
 
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 class HitRZCompatibility {
 public:
   // only three algos are implemented..

@@ -13,7 +13,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
@@ -26,7 +26,7 @@
 SiPixelDigiValid::SiPixelDigiValid(const edm::ParameterSet& ps)
   : outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "pixeldigihisto.root" ) )
   , runStandalone ( ps.getParameter<bool>("runStandalone")  )  
-  , dbe_(0)
+  , dbe_(nullptr)
   , edmDetSetVector_PixelDigi_Token_( consumes< edm::DetSetVector<PixelDigi> >( ps.getParameter<edm::InputTag>( "src" ) ) ) {
  
  
@@ -36,11 +36,10 @@ SiPixelDigiValid::~SiPixelDigiValid(){
 }
 
 
-void SiPixelDigiValid::beginJob(){
-}
-
 void SiPixelDigiValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es){
    dbe_ = edm::Service<DQMStore>().operator->();
+   es.get<TrackerRecoGeometryRecord>().get( tracker );
+
 
    if ( dbe_ ) {
      ibooker.setCurrentFolder("TrackerDigisV/TrackerDigis/Pixel");
@@ -275,16 +274,20 @@ void SiPixelDigiValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run
 
 void SiPixelDigiValid::endJob() {
   //Save histos in a file only in standalone mode
-  if ( runStandalone && outputFile_.size() != 0 && dbe_ ){dbe_->save(outputFile_);}
+  if ( runStandalone && !outputFile_.empty() && dbe_ ){dbe_->save(outputFile_);}
 }
-
 
 void SiPixelDigiValid::analyze(const edm::Event& e, const edm::EventSetup& c){
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  c.get<IdealGeometryRecord>().get(tTopoHandle);
+  c.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
-
+  // Number of blades and ladders.
+  // TODO: other Geometry-Dependent quantities, e.g. num layers.
+  int nblades = tracker->posPixelForwardLayers()[0]->components().size();
+  int nladders1 = tracker->pixelBarrelLayers()[0]->components().size();
+  int nladders2 = tracker->pixelBarrelLayers()[1]->components().size();
+  int nladders3 = tracker->pixelBarrelLayers()[2]->components().size();
 
 
  int ndigiperRingLayer1[8];
@@ -296,16 +299,16 @@ void SiPixelDigiValid::analyze(const edm::Event& e, const edm::EventSetup& c){
     ndigiperRingLayer3[i] = 0;
  }
 
-int ndigiZpDisk1PerPanel1[24];
-int ndigiZpDisk1PerPanel2[24];
-int ndigiZpDisk2PerPanel1[24];
-int ndigiZpDisk2PerPanel2[24];
-int ndigiZmDisk1PerPanel1[24];
-int ndigiZmDisk1PerPanel2[24];
-int ndigiZmDisk2PerPanel1[24];
-int ndigiZmDisk2PerPanel2[24];
+int ndigiZpDisk1PerPanel1[nblades];
+int ndigiZpDisk1PerPanel2[nblades];
+int ndigiZpDisk2PerPanel1[nblades];
+int ndigiZpDisk2PerPanel2[nblades];
+int ndigiZmDisk1PerPanel1[nblades];
+int ndigiZmDisk1PerPanel2[nblades];
+int ndigiZmDisk2PerPanel1[nblades];
+int ndigiZmDisk2PerPanel2[nblades];
 
-for ( int i =0 ; i< 24; i++) {
+for ( int i =0 ; i< nblades; i++) {
    ndigiZpDisk1PerPanel1[i] = 0;
    ndigiZpDisk1PerPanel2[i] = 0;
    ndigiZpDisk2PerPanel1[i] = 0;
@@ -316,19 +319,19 @@ for ( int i =0 ; i< 24; i++) {
    ndigiZmDisk2PerPanel2[i] = 0;
 }
 
-int ndigilayer1ladders[20];
-int ndigilayer2ladders[32];
-int ndigilayer3ladders[44];
+int ndigilayer1ladders[nladders1];
+int ndigilayer2ladders[nladders2];
+int ndigilayer3ladders[nladders3];
 
-for ( int i =0 ; i< 20; i++) {
+for ( int i =0 ; i< nladders1; i++) {
    ndigilayer1ladders[i]= 0;
 }
 
-for ( int i =0 ; i< 32; i++) {
+for ( int i =0 ; i< nladders2; i++) {
    ndigilayer2ladders[i] = 0;
 }
 
-for ( int i =0 ; i< 44; i++) {
+for ( int i =0 ; i< nladders3; i++) {
    ndigilayer3ladders[i] = 0;
 }
 
@@ -721,7 +724,7 @@ for ( int i =0 ; i< 44; i++) {
     meDigiMultiLayer3Ring7_->Fill(ndigiperRingLayer3[6]);
     meDigiMultiLayer3Ring8_->Fill(ndigiperRingLayer3[7]);
 
-    for(int i =0; i< 24; i++) {
+    for(int i =0; i< nblades; i++) {
          meNdigiZmDisk1PerPanel1_->Fill(ndigiZmDisk1PerPanel1[i]);
          meNdigiZmDisk1PerPanel2_->Fill(ndigiZmDisk1PerPanel2[i]);
          meNdigiZmDisk2PerPanel1_->Fill(ndigiZmDisk2PerPanel1[i]);
@@ -732,15 +735,15 @@ for ( int i =0 ; i< 44; i++) {
          meNdigiZpDisk2PerPanel2_->Fill(ndigiZpDisk2PerPanel2[i]);
     } 
     
-   for (int i =0; i< 20; i++) {
+   for (int i =0; i< nladders1; i++) {
        meDigiMultiLayer1Ladders_->Fill(i+1,ndigilayer1ladders[i]);
    }
 
-   for (int i =0; i< 32; i++) {
+   for (int i =0; i< nladders2; i++) {
        meDigiMultiLayer2Ladders_->Fill(i+1,ndigilayer2ladders[i]);
    }
 
-   for (int i =0; i< 44; i++) {
+   for (int i =0; i< nladders3; i++) {
        meDigiMultiLayer3Ladders_->Fill(i+1,ndigilayer3ladders[i]);
    }
 

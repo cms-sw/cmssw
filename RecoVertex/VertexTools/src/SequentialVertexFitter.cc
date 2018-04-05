@@ -10,8 +10,8 @@ namespace {
   // FIXME
   // hard-coded tracker bounds
   // workaround while waiting for Geometry service
-  static const float TrackerBoundsRadius = 112;
-  static const float TrackerBoundsHalfLength = 273.5;
+  const float TrackerBoundsRadius = 112;
+  const float TrackerBoundsHalfLength = 273.5;
   bool insideTrackerBounds(const GlobalPoint& point) {
     return ((point.transverse() < TrackerBoundsRadius)
         && (abs(point.z()) < TrackerBoundsHalfLength));

@@ -36,12 +36,12 @@ class DTRecSegment2DProducer : public edm::stream::EDProducer<> {
   DTRecSegment2DProducer(const edm::ParameterSet&) ;
 
   /// Destructor
-  virtual ~DTRecSegment2DProducer() ;
+  ~DTRecSegment2DProducer() override ;
     
   // Operations
 
   /// The method which produces the 2D-segments
-  virtual void produce(edm::Event& event, const edm::EventSetup& setup);
+  void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
  protected:
 

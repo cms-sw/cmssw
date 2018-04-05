@@ -1,7 +1,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData2007.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <string.h> // for bzero
+#include <cstring> // for bzero
 #include<iostream>
 
 CSCAnodeData2007::CSCAnodeData2007(const CSCALCTHeader & header)
@@ -29,8 +29,8 @@ void CSCAnodeData2007::init(const CSCALCTHeader & header) {
   ///the sizes of raw words vary depending on type of the ALCT board
   ///                         number of layer parts for various
   ///                         alct board types:     1  2  3     5  6
-  static unsigned short int layerParts[7]    = { 3, 3, 4, 6, 6, 8,10};
-  static unsigned short int wireGroups[7]    = {32,32,48,64,64,96,112};
+  static const unsigned short int layerParts[7]    = { 3, 3, 4, 6, 6, 8,10};
+  static const unsigned short int wireGroups[7]    = {32,32,48,64,64,96,112};
   //header.ALCTDigis();
   sizeInWords2007_=(1-header.alctHeader2007().rawOverflow)*6*
   header.alctHeader2007().rawBins*layerParts[header.alctHeader2007().boardType];

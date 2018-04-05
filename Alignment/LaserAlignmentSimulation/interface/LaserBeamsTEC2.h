@@ -26,11 +26,11 @@ class LaserBeamsTEC2 : public G4VUserPrimaryGeneratorAction
 	/// constructor
   LaserBeamsTEC2(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4double PhotonEnergy);
 	/// destructor
-  ~LaserBeamsTEC2();
+  ~LaserBeamsTEC2() override;
 
  public:
 	/// shoot optical photons into the detector at the beginning of an event
-  void GeneratePrimaries(G4Event* myEvent);
+  void GeneratePrimaries(G4Event* myEvent) override;
 	/// set the polarisation of the photons
   void setOptPhotonPolar(G4double Angle);
 

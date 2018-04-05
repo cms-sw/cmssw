@@ -1,26 +1,27 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("GEMDIGI")
+from Configuration.StandardSequences.Eras import eras
+
+process = cms.Process("GEMDIGI", eras.Phase2C2)
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-#process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
-process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023D4_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
+process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 process.maxEvents = cms.untracked.PSet( 
-    input = cms.untracked.int32(-1) 
+    input = cms.untracked.int32(1) 
 )
 
 #process.Timing = cms.Service("Timing")
@@ -29,15 +30,18 @@ process.options = cms.untracked.PSet(
 )
 
 # customization of the process.pdigi sequence to add the GEM digitizer 
-from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_gem_only
-#from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only
-#process = customize_digi_addGEM(process)  # run all detectors digi
-#process = customize_digi_addGEM_muon_only(process) # only muon+GEM digi
-process = customize_digi_addGEM_gem_only(process)  # only GEM digi
+from SimMuon.Configuration.customizeMuonDigi import customize_digi_addGEM_muon_only
+process = customize_digi_addGEM_muon_only(process) 
+
+### Fix RPC Digitization ###
+############################
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixRPCConditions 
+process = fixRPCConditions(process)
+############################
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-    'file:/afs/cern.ch/work/a/archie/public/SingleMuPt100_GEN-SIM__CMSSW_75X.root'
+    'file:out_sim.root'
     )
 )
 
@@ -71,9 +75,9 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 #process.contentAna = cms.EDAnalyzer("EventContentAnalyzer")
 
-process.digi_step    = cms.Path(process.pdigi)
-process.endjob_step  = cms.Path(process.endOfProcess)
-process.out_step     = cms.EndPath(process.output)
+process.digi_step     = cms.Path(process.pdigi)
+process.endjob_step   = cms.Path(process.endOfProcess)
+process.out_step      = cms.EndPath(process.output)
 
 
 process.schedule = cms.Schedule(
@@ -81,8 +85,3 @@ process.schedule = cms.Schedule(
     process.endjob_step,
     process.out_step
 )
-
-#file = open('runGEMDigiProducer.py','w')
-#file.write(str(process.dumpPython()))
-#file.close()
-

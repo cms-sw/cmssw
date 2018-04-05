@@ -19,8 +19,8 @@
 #include "G4SystemOfUnits.hh"
 
 LaserBeamsBarrel::LaserBeamsBarrel() :
-  theParticleGun(0),
-  theDRand48Engine(0)
+  theParticleGun(nullptr),
+  theDRand48Engine(nullptr)
 {
   G4int nPhotonsGun = 1;
   G4int nPhotonsBeam = 1;
@@ -71,8 +71,8 @@ LaserBeamsBarrel::LaserBeamsBarrel(G4int nPhotonsInGun, G4int nPhotonsInBeam, G4
 
 LaserBeamsBarrel::~LaserBeamsBarrel()
 {
-  if ( theParticleGun != 0 ) { delete theParticleGun; }
-  if ( theDRand48Engine != 0 ) { delete theDRand48Engine; }
+  if ( theParticleGun != nullptr ) { delete theParticleGun; }
+  if ( theDRand48Engine != nullptr ) { delete theDRand48Engine; }
 }
 
 void LaserBeamsBarrel::GeneratePrimaries(G4Event * myEvent)

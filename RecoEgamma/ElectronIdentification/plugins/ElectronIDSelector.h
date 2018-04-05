@@ -36,7 +36,7 @@ struct ElectronIDSelector{
                const edm::Event& iEvent ,
 	       const edm::EventSetup& iEs)
    {
-     edm::Handle<reco::GsfElectronCollection> electrons = _electrons;
+     const edm::Handle<reco::GsfElectronCollection>& electrons = _electrons;
      selected_.clear();
      select_.newEvent(iEvent, iEs);
      // Loop over electrons

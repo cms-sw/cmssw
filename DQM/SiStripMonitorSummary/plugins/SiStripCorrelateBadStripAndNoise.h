@@ -49,13 +49,13 @@ class TrackerTopology;
 class SiStripCorrelateBadStripAndNoise : public edm::EDAnalyzer {
 public:
   explicit SiStripCorrelateBadStripAndNoise(const edm::ParameterSet&);
-  ~SiStripCorrelateBadStripAndNoise();
+  ~SiStripCorrelateBadStripAndNoise() override;
   
   
 private:
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& es);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&){};
-  virtual void endJob();
+  void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override{};
+  void endJob() override;
   
   void DoAnalysis(const edm::EventSetup&);
   void getHistos(const uint32_t & detid, const TrackerTopology* tTopo, std::vector<TH2F*>& histos);

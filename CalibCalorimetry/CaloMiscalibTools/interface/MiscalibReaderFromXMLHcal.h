@@ -13,7 +13,7 @@ class MiscalibReaderFromXMLHcal : public MiscalibReaderFromXML
   MiscalibReaderFromXMLHcal(CaloMiscalibMapHcal & map):MiscalibReaderFromXML(map){};
 
 
-  virtual DetId parseCellEntry(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute);
+  DetId parseCellEntry(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute) override;
 
   HcalDetId getCellFromAttributes(int idet, int ieta, int iphi, int idepth);
 

@@ -3,7 +3,7 @@ void runExtendedOfflineValidationPlots()
 {
   // load framework lite just to find the CMSSW libs...
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   //compile the makro
   gROOT->ProcessLine(".L PlotAlignmentValidation.C++");
 

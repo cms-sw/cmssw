@@ -32,7 +32,7 @@ void MultiGaussianState1D::checkCombinedState() const
   theCombinedState = combiner.combine(theComponents);
 
 //   typedef SingleGaussianState<1> SingleState;
-//   typedef boost::shared_ptr< SingleGaussianState<1> > SingleStatePtr;
+//   typedef std::shared_ptr< SingleGaussianState<1> > SingleStatePtr;
 //   typedef std::vector< SingleStatePtr > SingleStateContainer;
 
 //   SingleStateContainer components;

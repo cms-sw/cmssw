@@ -19,7 +19,7 @@
 #include <cmath>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -41,15 +41,18 @@
 // class decleration
 //
 
-class EcalTBHodoscopeGeometryAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit EcalTBHodoscopeGeometryAnalyzer( const edm::ParameterSet& );
-      ~EcalTBHodoscopeGeometryAnalyzer();
+class EcalTBHodoscopeGeometryAnalyzer : public edm::one::EDAnalyzer<>
+{
+public:
+  explicit EcalTBHodoscopeGeometryAnalyzer( const edm::ParameterSet& );
+  ~EcalTBHodoscopeGeometryAnalyzer() override;
 
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-   private:
-      // ----------member data ---------------------------
+private:
+
   void build(const CaloGeometry& cg, DetId::Detector det, int subdetn);
 
   CLHEP::HepRotation * fromCMStoTB( const double & myEta , const double & myPhi ) const;
@@ -94,13 +97,13 @@ EcalTBHodoscopeGeometryAnalyzer::~EcalTBHodoscopeGeometryAnalyzer()
 
 
 void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detector det, int subdetn) {
-  const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(det,subdetn);
+  const CaloSubdetectorGeometry* geom(cg.getSubdetectorGeometry(det,subdetn));
   
   int n=0;
   const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);
-  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) {
+  for (auto id : ids) {
     n++;
-    const CaloCellGeometry* cell=geom->getGeometry(*i);
+    auto cell=geom->getGeometry(id);
     if (det == DetId::Ecal)
       {
         if (subdetn == EcalLaserPnDiode) 
@@ -109,7 +112,7 @@ void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detec
             CLHEP::Hep3Vector thisCellPos( cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z() );
             CLHEP::Hep3Vector rotCellPos = (*fromCMStoTB_)*thisCellPos;
 
-            edm::LogInfo("EcalTBGeom") << "Fiber DetId = " << HodoscopeDetId(*i) << " position =  " <<rotCellPos;
+            edm::LogInfo("EcalTBGeom") << "Fiber DetId = " << HodoscopeDetId(id) << " position =  " <<rotCellPos;
           }
       }
   }

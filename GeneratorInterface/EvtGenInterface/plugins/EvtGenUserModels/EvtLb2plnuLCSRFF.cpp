@@ -84,7 +84,7 @@ void EvtLb2plnuLCSRFF::getdiracff(EvtId parent, EvtId daught,
   }
   else 
   {
-  report(ERROR,"EvtGen") << "Only Lb -> p transitions allowed in EvtLb2plnuLCSRFF.\n";  
+  EvtGenReport(EVTGEN_ERROR,"EvtGen") << "Only Lb -> p transitions allowed in EvtLb2plnuLCSRFF.\n";  
   ::abort();
   }
 
@@ -97,14 +97,14 @@ void EvtLb2plnuLCSRFF::getraritaff( EvtId , EvtId ,
 				  double* , double* , double* , double*, 
 				  double* , double* , double* , double*  ) {
 
-  report(ERROR,"EvtGen") << "Not implemented :getraritaff in EvtLb2plnuLCSRFF.\n";  
+  EvtGenReport(EVTGEN_ERROR,"EvtGen") << "Not implemented :getraritaff in EvtLb2plnuLCSRFF.\n";  
   ::abort();
 
 }
 
 void EvtLb2plnuLCSRFF::getscalarff(EvtId, EvtId, double, double, double*, double*) {
 
-  report(ERROR,"EvtGen") << "Not implemented :getscalarff in EvtLb2plnuLCSRFF.\n";  
+  EvtGenReport(EVTGEN_ERROR,"EvtGen") << "Not implemented :getscalarff in EvtLb2plnuLCSRFF.\n";  
   ::abort();
 
 }
@@ -112,7 +112,7 @@ void EvtLb2plnuLCSRFF::getscalarff(EvtId, EvtId, double, double, double*, double
 void EvtLb2plnuLCSRFF::getvectorff(EvtId, EvtId, double, double, double*, double*,
 				 double*, double*) {
 
-  report(ERROR,"EvtGen") << "Not implemented :getvectorff in EvtLb2plnuLCSRFF.\n";  
+  EvtGenReport(EVTGEN_ERROR,"EvtGen") << "Not implemented :getvectorff in EvtLb2plnuLCSRFF.\n";  
   ::abort();
 
 }
@@ -120,7 +120,7 @@ void EvtLb2plnuLCSRFF::getvectorff(EvtId, EvtId, double, double, double*, double
 void EvtLb2plnuLCSRFF::gettensorff(EvtId, EvtId, double, double, double*, double*,
 				 double*, double*) {
 
-  report(ERROR,"EvtGen") << "Not implemented :gettensorff in EvtLb2plnuLCSRFF.\n";  
+  EvtGenReport(EVTGEN_ERROR,"EvtGen") << "Not implemented :gettensorff in EvtLb2plnuLCSRFF.\n";  
   ::abort();
 
 }
@@ -128,7 +128,7 @@ void EvtLb2plnuLCSRFF::gettensorff(EvtId, EvtId, double, double, double*, double
 void EvtLb2plnuLCSRFF::getbaryonff(EvtId, EvtId, double, double, double*, 
 				 double*, double*, double*){
   
-  report(ERROR,"EvtGen") << "Not implemented :getbaryonff in EvtLb2plnuLCSRFF.\n";  
+  EvtGenReport(EVTGEN_ERROR,"EvtGen") << "Not implemented :getbaryonff in EvtLb2plnuLCSRFF.\n";  
   ::abort();
 
 }

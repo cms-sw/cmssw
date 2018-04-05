@@ -9,7 +9,7 @@ from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 
 #process.source = cms.Source("EmptySource")
 process.source = cms.Source("LHESource",
-    fileNames = cms.untracked.vstring('file:zjj_mg1.lhe')
+    fileNames = cms.untracked.vstring('file:zjj_mg.lhe')
 )
 
 process.generator = cms.EDFilter("Pythia8HadronizerFilter",

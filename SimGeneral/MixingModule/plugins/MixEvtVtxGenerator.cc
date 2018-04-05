@@ -5,7 +5,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,15 +32,15 @@ namespace HepMC {
 }
 
 
-class MixEvtVtxGenerator : public edm::EDProducer
+class MixEvtVtxGenerator : public edm::stream::EDProducer<>
 {
    public:
   
   // ctor & dtor
   explicit MixEvtVtxGenerator( const edm::ParameterSet& );
-  virtual ~MixEvtVtxGenerator();
+  ~MixEvtVtxGenerator() override;
   
-  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+  void produce( edm::Event&, const edm::EventSetup& ) override;
   
   virtual HepMC::FourVector* getVertex(edm::Event&);
   virtual HepMC::FourVector* getRecVertex(edm::Event&);
@@ -63,15 +63,15 @@ class MixEvtVtxGenerator : public edm::EDProducer
 };
 
 MixEvtVtxGenerator::MixEvtVtxGenerator( const ParameterSet& pset ) 
-	: fVertex(0), boost_(0),
+	: fVertex(nullptr), boost_(nullptr),
 	  useRecVertex(pset.exists("useRecVertex")?pset.getParameter<bool>("useRecVertex"):false)
 	  
 {   
-   produces<bool>("matchedVertex"); 
+   produces<edm::HepMCProduct>(); 
    vtxOffset.resize(3);
    if(pset.exists("vtxOffset")) vtxOffset=pset.getParameter< std::vector<double> >("vtxOffset");
 
-   if(useRecVertex) useCF_ = 0;
+   if(useRecVertex) useCF_ = false;
    else{
      useCF_ = pset.getUntrackedParameter<bool>("useCF",false);
      cfLabel = consumes<CrossingFrame<HepMCProduct> >(pset.getParameter<edm::InputTag>("mixLabel"));
@@ -83,15 +83,15 @@ MixEvtVtxGenerator::MixEvtVtxGenerator( const ParameterSet& pset )
 MixEvtVtxGenerator::~MixEvtVtxGenerator() 
 {
    delete fVertex ;
-   if (boost_ != 0 ) delete boost_;
+   if (boost_ != nullptr ) delete boost_;
    // no need since now it's done in HepMCProduct
    // delete fEvt ;
 }
 
 HepMC::FourVector* MixEvtVtxGenerator::getVertex( Event& evt){
 
-  HepMC::GenVertex* genvtx = 0;
-  const HepMC::GenEvent* inev = 0;
+  HepMC::GenVertex* genvtx = nullptr;
+  const HepMC::GenEvent* inev = nullptr;
 
   if(useCF_){
     Handle<CrossingFrame<HepMCProduct> > cf;
@@ -163,26 +163,26 @@ HepMC::FourVector* MixEvtVtxGenerator::getRecVertex( Event& evt){
 
 void MixEvtVtxGenerator::produce( Event& evt, const EventSetup& )
 {
+   Handle<HepMCProduct> HepUnsmearedMCEvt ;
    
-   
-   Handle<HepMCProduct> HepMCEvt ;
-   
-   evt.getByToken( signalLabel, HepMCEvt ) ;
+   evt.getByToken( signalLabel, HepUnsmearedMCEvt ) ;
    
    // generate new vertex & apply the shift 
    //
-   if(HepMCEvt->isVtxGenApplied()) throw cms::Exception("MatchVtx")
+   if(HepUnsmearedMCEvt->isVtxGenApplied()) throw cms::Exception("MatchVtx")
 				      <<"Signal HepMCProduct is not compatible for embedding - it's vertex is already smeared."
 				      <<std::endl;
+   // Copy the HepMC::GenEvent
+   HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
+   std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
+   // generate new vertex & apply the shift 
+   //
    HepMCEvt->applyVtxGen( useRecVertex ? getRecVertex(evt) : getVertex(evt) ) ;
 
    //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
    //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
    
-   // OK, create a (pseudo)product and put in into edm::Event
-   //
-   auto_ptr<bool> NewProduct(new bool(true)) ;      
-   evt.put( NewProduct ,"matchedVertex") ;
+   evt.put(std::move(HepMCEvt)) ;
       
    return ;
 

@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -22,9 +21,9 @@
 class SiStripBackPlaneCorrectionDepESProducer : public edm::ESProducer {
  public:
   SiStripBackPlaneCorrectionDepESProducer(const edm::ParameterSet&);
-  ~SiStripBackPlaneCorrectionDepESProducer(){};
+  ~SiStripBackPlaneCorrectionDepESProducer() override{};
   
-  boost::shared_ptr<SiStripBackPlaneCorrection> produce(const SiStripBackPlaneCorrectionDepRcd&);
+  std::unique_ptr<SiStripBackPlaneCorrection> produce(const SiStripBackPlaneCorrectionDepRcd&);
    
  private:
 
@@ -37,7 +36,6 @@ class SiStripBackPlaneCorrectionDepESProducer : public edm::ESProducer {
   edm::ParameterSet getPeak;
   edm::ParameterSet getDeconv;
 
-  boost::shared_ptr<SiStripBackPlaneCorrection> siStripBPC_;
 
 };
 

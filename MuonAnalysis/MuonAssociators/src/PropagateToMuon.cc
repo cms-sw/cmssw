@@ -19,7 +19,9 @@ PropagateToMuon::PropagateToMuon(const edm::ParameterSet & iConfig) :
   useMB2_(iConfig.existsAs<bool>("useStation2") ? iConfig.getParameter<bool>("useStation2") : true),
   fallbackToME1_(iConfig.existsAs<bool>("fallbackToME1") ? iConfig.getParameter<bool>("fallbackToME1") : false),
   whichTrack_(None), whichState_(AtVertex),
-  cosmicPropagation_(iConfig.existsAs<bool>("cosmicPropagationHypothesis") ? iConfig.getParameter<bool>("cosmicPropagationHypothesis") : false)
+  cosmicPropagation_(iConfig.existsAs<bool>("cosmicPropagationHypothesis") ? iConfig.getParameter<bool>("cosmicPropagationHypothesis") : false),
+  useMB2InOverlap_(iConfig.existsAs<bool>("useMB2InOverlap") ? iConfig.getParameter<bool>("useMB2InOverlap") : false)
+
 {
     std::string whichTrack = iConfig.getParameter<std::string>("useTrack");
     if      (whichTrack == "none")    { whichTrack_ = None; }
@@ -62,6 +64,10 @@ PropagateToMuon::init(const edm::EventSetup & iSetup) {
         endcapRadii_[i] = std::make_pair(endcapDiskPos_[i]->innerRadius(), endcapDiskPos_[i]->outerRadius());
         //std::cout << "L1MuonMatcher: endcap " << i << " Z = " << endcapDiskPos_[i]->position().z() << ", radii = " << endcapRadii_[i].first << "," << endcapRadii_[i].second << std::endl;
     }
+
+    if (useMB2_ && useMB2InOverlap_)
+      barrelHalfLength_ = endcapDiskPos_[2]->position().z();
+
 }
 
 FreeTrajectoryState 
@@ -69,7 +75,7 @@ PropagateToMuon::startingState(const reco::Candidate &reco) const {
     FreeTrajectoryState ret;
     if (whichTrack_ != None) {
         const reco::RecoCandidate *rc = dynamic_cast<const reco::RecoCandidate *>(&reco);
-        if (rc == 0) throw cms::Exception("Invalid Data") << "Input object is not a RecoCandidate.\n";
+        if (rc == nullptr) throw cms::Exception("Invalid Data") << "Input object is not a RecoCandidate.\n";
         reco::TrackRef tk;
         switch (whichTrack_) {
             case TrackerTk: tk = rc->track();          break; 
@@ -128,7 +134,7 @@ PropagateToMuon::startingState(const SimTrack &tk, const edm::SimVertexContainer
 
 TrajectoryStateOnSurface
 PropagateToMuon::extrapolate(const FreeTrajectoryState &start) const {
-    if (!magfield_.isValid() || barrelCylinder_ == 0) {
+    if (!magfield_.isValid() || barrelCylinder_ == nullptr) {
         throw cms::Exception("NotInitialized") << "PropagateToMuon: You must call init(const edm::EventSetup &iSetup) before using this object.\n"; 
     }
 

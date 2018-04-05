@@ -1,5 +1,3 @@
-import PhysicsTools.Heppy.loadlibs
-
 # the ROOT TLorentzVector 
 from ROOT import TLorentzVector
 # the standard LorentzVector, used in CMSSW

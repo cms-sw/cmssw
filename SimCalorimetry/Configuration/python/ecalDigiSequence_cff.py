@@ -12,3 +12,15 @@ from SimCalorimetry.EcalZeroSuppressionProducers.ecalPreshowerDigis_cfi import *
 ecalDigiSequence = cms.Sequence(simEcalTriggerPrimitiveDigis*simEcalDigis*simEcalPreshowerDigis)
 
 
+# This is extra, since the configuration skips it anyway.  Belts and suspenders.
+from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
+premix_stage1.toReplaceWith(ecalDigiSequence, ecalDigiSequence.copyAndExclude([simEcalPreshowerDigis]))
+
+from SimCalorimetry.EcalEBTrigPrimProducers.ecalEBTriggerPrimitiveDigis_cff import *
+_phase2_ecalDigiSequence = ecalDigiSequence.copy()
+_phase2_ecalDigiSequence.insert(0,simEcalEBTriggerPrimitiveDigis)
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(ecalDigiSequence,_phase2_ecalDigiSequence)
+
+

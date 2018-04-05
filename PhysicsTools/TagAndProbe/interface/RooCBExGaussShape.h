@@ -26,11 +26,11 @@ public:
 		    );
 
   RooCBExGaussShape(const RooCBExGaussShape& other, const char* name);
-  inline virtual TObject* clone(const char* newname) const { return new RooCBExGaussShape(*this,newname);}
-  inline ~RooCBExGaussShape(){}
-  Double_t evaluate() const ;
+  inline TObject* clone(const char* newname) const override { return new RooCBExGaussShape(*this,newname);}
+  inline ~RooCBExGaussShape() override{}
+  Double_t evaluate() const override ;
   
-  ClassDef(RooCBExGaussShape,1)
+  ClassDefOverride(RooCBExGaussShape,1)
 
 protected:
 

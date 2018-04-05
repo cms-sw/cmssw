@@ -1,5 +1,4 @@
 <use   name="DetectorDescription/Core"/>
-<use   name="DetectorDescription/Algorithm"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="Geometry/CaloGeometry"/>
 <export>

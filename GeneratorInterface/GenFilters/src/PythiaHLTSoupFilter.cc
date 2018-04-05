@@ -9,7 +9,7 @@ using namespace std;
 
 
 PythiaHLTSoupFilter::PythiaHLTSoupFilter(const edm::ParameterSet& iConfig) :
-token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 minptelectron(iConfig.getUntrackedParameter("MinPtElectron", 0.)),
 minptmuon(iConfig.getUntrackedParameter("MinPtMuon", 0.)),
 maxetaelectron(iConfig.getUntrackedParameter("MaxEtaElectron", 10.)),

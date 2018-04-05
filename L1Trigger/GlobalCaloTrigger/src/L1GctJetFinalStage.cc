@@ -40,7 +40,7 @@ L1GctJetFinalStage::L1GctJetFinalStage(const std::vector<L1GctWheelJetFpga*>& wh
   
   for(unsigned int i=0; i < MAX_WHEEL_FPGAS; ++i)
     {
-      if(m_wheelFpgas.at(i) == 0)
+      if(m_wheelFpgas.at(i) == nullptr)
 	{
 	  m_setupOk = false;
 	  if (m_verbose) {
@@ -57,9 +57,9 @@ L1GctJetFinalStage::L1GctJetFinalStage(const std::vector<L1GctWheelJetFpga*>& wh
 
 L1GctJetFinalStage::~L1GctJetFinalStage()
 {
-  if (m_centralJetSorter != 0) delete m_centralJetSorter;
-  if (m_forwardJetSorter != 0) delete m_forwardJetSorter;
-  if (m_tauJetSorter != 0)     delete m_tauJetSorter;
+  if (m_centralJetSorter != nullptr) delete m_centralJetSorter;
+  if (m_forwardJetSorter != nullptr) delete m_forwardJetSorter;
+  if (m_tauJetSorter != nullptr)     delete m_tauJetSorter;
 }
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinalStage& fpga)

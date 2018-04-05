@@ -27,10 +27,10 @@ class DTTrackFinder: public edm::one::EDProducer<edm::one::SharedResources> {
   DTTrackFinder(const edm::ParameterSet & pset);
   
   /// Destructor
-  virtual ~DTTrackFinder();
+  ~DTTrackFinder() override;
   
   /// Produce digis out of raw data
-  void produce(edm::Event & e, const edm::EventSetup& c);
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
   
  private:
 

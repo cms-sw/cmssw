@@ -29,8 +29,8 @@ SimHitTPAssociationProducer::SimHitTPAssociationProducer(const edm::ParameterSet
 SimHitTPAssociationProducer::~SimHitTPAssociationProducer() {
 }
 		
-void SimHitTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventSetup& es) {
-  std::auto_ptr<SimHitTPAssociationList> simHitTPList(new SimHitTPAssociationList);
+void SimHitTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& es) const {
+  std::unique_ptr<SimHitTPAssociationList> simHitTPList(new SimHitTPAssociationList);
  
   // TrackingParticle
   edm::Handle<TrackingParticleCollection>  TPCollectionH;
@@ -63,7 +63,7 @@ void SimHitTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventSe
   } 
   
   std::sort(simHitTPList->begin(),simHitTPList->end(),simHitTPAssociationListGreater);
-  iEvent.put(simHitTPList);
+  iEvent.put(std::move(simHitTPList));
 
 }
 

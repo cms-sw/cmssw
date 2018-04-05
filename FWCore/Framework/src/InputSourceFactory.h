@@ -19,7 +19,7 @@ namespace edm {
 
     static InputSourceFactory const* get();
 
-    std::auto_ptr<InputSource>
+    std::unique_ptr<InputSource>
       makeInputSource(ParameterSet const&,
 		       InputSourceDescription const&) const;
     

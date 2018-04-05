@@ -129,7 +129,7 @@ except ImportError:
         runcmd2(environment,"./compare.py",tuple(sys.argv[1:-1]))#works only if compare.py is located in the pwd
 else:    
     gSystem.Load("libFWCoreFWLite.so")
-    AutoLibraryLoader.enable()
+    FWLiteEnabler::enable()
     outfile=TFile(root_out,"recreate")
     histo=[]
     canvas=[]

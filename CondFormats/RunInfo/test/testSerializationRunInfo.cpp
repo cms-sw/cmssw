@@ -5,6 +5,7 @@
 int main()
 {
     testSerialization<FillInfo>();
+    testSerialization<LHCInfo>();
     testSerialization<L1TriggerScaler>();
     testSerialization<L1TriggerScaler::Lumi>();
     testSerialization<MixingInputConfig>();

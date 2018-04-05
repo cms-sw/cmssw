@@ -170,37 +170,36 @@ namespace edm {
     }
   }
 
-  void ThinnedAssociationsHelper::updateFromInput(ThinnedAssociationsHelper const& helper, bool isSecondaryFile,
-                                                  std::vector<BranchID> const& associationsFromSecondary) {
-    if(!isSecondaryFile) {
-      if(vThinnedAssociationBranches_.empty()) {
-        vThinnedAssociationBranches_ = helper.data();
-        return;
+  void ThinnedAssociationsHelper::updateFromPrimaryInput(ThinnedAssociationsHelper const& helper) {
+    if(vThinnedAssociationBranches_.empty()) {
+      vThinnedAssociationBranches_ = helper.data();
+      return;
+    }
+    std::vector<ThinnedAssociationBranches> const& inputData = helper.data();
+    for (auto const& inputEntry : inputData) {
+      requireMatch(inputEntry);
+    }
+  }
+
+  void ThinnedAssociationsHelper::updateFromSecondaryInput(ThinnedAssociationsHelper const& helper,
+                                                           std::vector<BranchID> const& associationsFromSecondary) {
+    if(associationsFromSecondary.empty()) return;
+
+    std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > assocToBranches = helper.associationToBranches();
+
+    for(BranchID const& association : associationsFromSecondary) {
+
+      auto branches = std::lower_bound(assocToBranches.begin(), assocToBranches.end(),
+                                       std::make_pair(association, static_cast<ThinnedAssociationBranches const*>(nullptr)),
+                                        [](std::pair<BranchID, ThinnedAssociationBranches const*> const& x,
+                                           std::pair<BranchID, ThinnedAssociationBranches const*> const& y)
+                                          { return x.first < y.first; });
+      // This should never happen
+      if(branches == assocToBranches.end() || branches->first != association) {
+        throw edm::Exception(errors::LogicError,
+                           "ThinnedAssociationHelper::initAssociationsFromSecondary could not find branches information, contact Framework developers");
       }
-      std::vector<ThinnedAssociationBranches> const& inputData = helper.data();
-      for (auto const& inputEntry : inputData) {
-        requireMatch(inputEntry);
-      }
-    } else { // Input is from a secondary file
-
-      if(associationsFromSecondary.empty()) return;
-
-      std::vector<std::pair<BranchID, ThinnedAssociationBranches const*> > assocToBranches = helper.associationToBranches();
-
-      for(BranchID const& association : associationsFromSecondary) {
-
-        auto branches = std::lower_bound(assocToBranches.begin(), assocToBranches.end(),
-                                         std::make_pair(association, static_cast<ThinnedAssociationBranches const*>(nullptr)),
-                                          [](std::pair<BranchID, ThinnedAssociationBranches const*> const& x,
-                                             std::pair<BranchID, ThinnedAssociationBranches const*> const& y)
-                                            { return x.first < y.first; });
-        // This should never happen
-        if(branches == assocToBranches.end() || branches->first != association) {
-          throw edm::Exception(errors::LogicError,
-                             "ThinnedAssociationHelper::initAssociationsFromSecondary could not find branches information, contact Framework developers");
-        }
-        requireMatch(*(branches->second));
-      }
+      requireMatch(*(branches->second));
     }
   }
 

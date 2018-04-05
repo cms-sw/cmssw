@@ -24,10 +24,10 @@ public:
   CaloExtractor(){};
   CaloExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
 
-  virtual ~CaloExtractor(){}
+  ~CaloExtractor() override{}
 
-  virtual void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks);
-  virtual reco::IsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const;
+  void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks) override;
+  reco::IsoDeposit deposit (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const override;
 
   /// Extrapolate muons to calorimeter-object positions
   static GlobalPoint MuonAtCaloPosition(const reco::Track& muon, const double bz, const GlobalPoint& endpos, bool fixVxy=false, bool fixVz=false);

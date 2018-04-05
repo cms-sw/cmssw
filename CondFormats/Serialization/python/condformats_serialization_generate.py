@@ -29,6 +29,7 @@ import subprocess
 
 import clang.cindex
 
+clang_version = None
 
 headers_template = '''
 #include "{headers}"
@@ -198,7 +199,7 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
                     else:
                         after_serialize_count = after_serialize_count + 1
 
-                        if member.kind != clang.cindex.CursorKind.UNEXPOSED_DECL:
+                        if not is_friend_decl(member.kind):
                             raise Exception('Expected unexposed declaration (friend) after serialize() but found something else: looks like the COND_SERIALIZABLE macro has been changed without updating the script.')
 
                         if 'COND_SERIALIZABLE' not in get_statement(member):
@@ -271,10 +272,12 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
                     clang.cindex.CursorKind.CONVERSION_FUNCTION,
                     clang.cindex.CursorKind.TYPE_REF,
                     clang.cindex.CursorKind.DECL_REF_EXPR,
+                    clang.cindex.CursorKind.CLASS_TEMPLATE,
+                    clang.cindex.CursorKind.TYPE_ALIAS_DECL,
                 ]):
                     logging.debug('Skipping member: %s %s %s %s', member.displayname, member.spelling, member.kind, member.type.kind)
 
-                elif member.kind == clang.cindex.CursorKind.UNEXPOSED_DECL:
+                elif is_friend_decl(member.kind):
                     statement = get_statement(member)
 
                     # Friends are unexposed but they are not data to serialize
@@ -295,6 +298,7 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
                     raise Exception('Unexposed declaration. This probably means (at the time of writing) that an unknown class was found (may happen, for instance, when the compiler does not find the headers for std::vector, i.e. missing -I option): %s %s %s %s %s' % (member.displayname, member.spelling, member.kind, member.type.kind, statement))
 
                 else:
+                    statement = get_statement(member)
                     raise Exception('Unknown kind. Please fix the script: %s %s %s %s %s' % (member.displayname, member.spelling, member.kind, member.type.kind, statement))
 
             if template_types:
@@ -339,6 +343,27 @@ def get_flags(product_name, flags):
     command = "scram b echo_%s_%s | tail -1 | cut -d '=' -f '2-' | xargs -n1" % (product_name, flags)
     logging.debug('Running: %s', command)
     return subprocess.check_output(command, shell=True).splitlines()
+
+def get_clang_version():
+    """Extract clang version and set global clang_version and also return the same value."""
+    global clang_version
+    if clang_version is not None:
+        return clang_version
+    command = "clang --version | grep 'clang version' | sed 's/clang version//'"
+    logging.debug("Running: {0}".format(command))
+    (clang_version_major, clang_version_minor, clang_version_patchlevel) = subprocess.check_output(command, shell=True).splitlines()[0].strip().split('.', 3)
+    clang_version = (int(clang_version_major), int(clang_version_minor), int(clang_version_patchlevel))
+    logging.debug("Detected Clang version: {0}".format(clang_version))
+    return clang_version
+
+def is_friend_decl(memkind):
+    """Check if declaration is a friend"""
+    clangv = get_clang_version()
+    if clangv >= (4, 0, 0):
+        return memkind == clang.cindex.CursorKind.FRIEND_DECL
+    else:
+        return memkind == clang.cindex.CursorKind.UNEXPOSED_DECL
+    return false
 
 def log_flags(name, flags):
     logging.debug('%s = [', name)
@@ -431,7 +456,8 @@ class SerializationCodeGenerator(object):
 	   cpp_flags = self.cleanFlags( scramFlags )
 	   cxx_flags = []
 
-        std_flags = get_default_gcc_search_paths()
+        # We are using libClang, thus we have to follow Clang include paths
+        std_flags = get_default_gcc_search_paths(gcc='clang++')
         log_flags('cpp_flags', cpp_flags)
         log_flags('cxx_flags', cxx_flags)
         log_flags('std_flags', std_flags)
@@ -446,36 +472,46 @@ class SerializationCodeGenerator(object):
         logging.info('Searching serializable classes in %s/%s ...', self.split_path[1], self.split_path[2])
 
         logging.debug('Parsing C++ classes in file %s ...', headers_h)
-        index = clang.cindex.Index.create()
+        # On macOS we need to costruct library search path
+        if "SCRAM_ARCH" in os.environ and re.match('osx10*',os.environ['SCRAM_ARCH']):
+            cindex=clang.cindex
+            libpath=os.path.dirname(os.path.realpath(clang.cindex.__file__))+"/../../lib"
+            cindex.Config.set_library_path(libpath)
+            index = cindex.Index.create()
+        else :
+            index = clang.cindex.Index.create()
         translation_unit = index.parse(headers_h, flags)
         if not translation_unit:
             raise Exception('Unable to load input.')
 
+        severity_names = ('Ignored', 'Note', 'Warning', 'Error', 'Fatal')
+        get_severity_name = lambda severity_num: severity_names[severity_num] if severity_num < len(severity_names) else 'Unknown'
+        max_severity_level = 0 # Ignored
         diagnostics = get_diagnostics(translation_unit)
         for diagnostic in diagnostics:
             logf = logging.error
 
             # Ignore some known warnings
             if diagnostic['spelling'].startswith('argument unused during compilation') \
-                or diagnostic['spelling'].startswith('unknown warning option') \
-                or diagnostic['spelling'] == "invalid argument '-std=c++11' not allowed with 'C/ObjC'" \
-                or diagnostic['spelling'] == "'stdarg.h' file not found" \
-                or diagnostic['spelling'] == "'stddef.h' file not found":
+                or diagnostic['spelling'].startswith('unknown warning option'):
                 logf = logging.debug
 
-            logf('Diagnostic: [%s] %s', diagnostic['severity'], diagnostic['spelling'])
+            logf('Diagnostic: [%s] %s', get_severity_name(diagnostic['severity']), diagnostic['spelling'])
             logf('   at line %s in %s', diagnostic['location'].line, diagnostic['location'].file)
 
+            max_severity_level = max(max_severity_level, diagnostic['severity'])
+
+        if max_severity_level >= 3: # Error
+            raise Exception('Please, resolve all errors before proceeding.')
 
         self.classes = get_serializable_classes_members(translation_unit.cursor, only_from_path=self._join_package_path())
-
 
     def _join_package_path(self, *path):
         return os.path.join(self.cmssw_base, self.split_path[0], self.split_path[1], self.split_path[2], *path)
 
     def cleanFlags(self, flagsIn):
-	flags = [ flag for flag in flagsIn if not flag.startswith(('-march', '-mtune', '-fdebug-prefix-map')) ]
-        blackList = ['--', '-fipa-pta']
+        flags = [ flag for flag in flagsIn if not flag.startswith(('-march', '-mtune', '-fdebug-prefix-map', '-ax', '-wd')) ]
+        blackList = ['--', '-fipa-pta', '-xSSE3', '-fno-crossjumping', '-fno-aggressive-loop-optimizations']
         return [x for x in flags if x not in blackList]
 
     def generate(self, outFileName):

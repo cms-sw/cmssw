@@ -2,7 +2,7 @@
 #include "SimCalorimetry/EcalTestBeam/interface/EcalTBDigiProducer.h"
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -12,7 +12,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEHitResponse.h"
 
-EcalTBDigiProducer::EcalTBDigiProducer( const edm::ParameterSet& params, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) :
+EcalTBDigiProducer::EcalTBDigiProducer( const edm::ParameterSet& params, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) :
    EcalDigiProducer(params, mixMod, iC)
 {
    std::string const instance("simEcalUnsuppressedDigis");
@@ -97,7 +97,7 @@ void EcalTBDigiProducer::finalizeEvent( edm::Event& event, const edm::EventSetup
 
    const EBDigiCollection* barrelResult ( &*m_ebDigis ) ;
 
-   std::auto_ptr<EBDigiCollection> barrelReadout( new EBDigiCollection() ) ;
+   std::unique_ptr<EBDigiCollection> barrelReadout( new EBDigiCollection() ) ;
    if( m_doReadout ) 
    {
       m_theTBReadout->performReadout( event,
@@ -114,8 +114,8 @@ void EcalTBDigiProducer::finalizeEvent( edm::Event& event, const edm::EventSetup
 	    << barrelReadout->size()<<std::endl ;
 
    std::string const instance("simEcalUnsuppressedDigis");
-   event.put(barrelReadout, instance + m_EBdigiFinalTag) ;
-   event.put(m_TDCproduct, instance) ;
+   event.put(std::move(barrelReadout), instance + m_EBdigiFinalTag) ;
+   event.put(std::move(m_TDCproduct), instance) ;
 
    m_ebDigis.reset(); // release memory
    m_eeDigis.reset(); // release memory

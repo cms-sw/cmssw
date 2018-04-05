@@ -56,7 +56,7 @@ namespace edm {
       edm::value_ptr<ParameterDescriptionNode> const& node() const { return node_; }
       void setOptional(bool value) { optional_ = value; }
       void setWriteToCfi(bool value) { writeToCfi_ = value; }
-      ParameterDescriptionNode* setNode(std::auto_ptr<ParameterDescriptionNode> node) { node_ = node; return node_.operator->(); }
+      ParameterDescriptionNode* setNode(std::unique_ptr<ParameterDescriptionNode> node) { node_ = std::move(node); return node_.operator->(); }
     private:
       bool optional_;
       bool writeToCfi_;
@@ -206,9 +206,9 @@ namespace edm {
     // ********* Used to insert generic nodes of any type ************
 
     ParameterDescriptionNode* addNode(ParameterDescriptionNode const& node);
-    ParameterDescriptionNode* addNode(std::auto_ptr<ParameterDescriptionNode> node);
+    ParameterDescriptionNode* addNode(std::unique_ptr<ParameterDescriptionNode> node);
     ParameterDescriptionNode* addOptionalNode(ParameterDescriptionNode const& node, bool writeToCfi);
-    ParameterDescriptionNode* addOptionalNode(std::auto_ptr<ParameterDescriptionNode> node, bool writeToCfi);
+    ParameterDescriptionNode* addOptionalNode(std::unique_ptr<ParameterDescriptionNode> node, bool writeToCfi);
 
     // ********* Switches ************
     // ifValue will only work with type T as a bool, int, or string.
@@ -217,16 +217,16 @@ namespace edm {
     template <typename T>
     ParameterDescriptionNode*
     ifValue(ParameterDescription<T> const& switchParameter,
-            std::auto_ptr<ParameterDescriptionCases<T> > cases) {
-      return ifValue<T>(switchParameter, cases, false, true);
+            std::unique_ptr<ParameterDescriptionCases<T> > cases) {
+      return ifValue<T>(switchParameter, std::move(cases), false, true);
     }
 
     template <typename T>
     ParameterDescriptionNode*
     ifValueOptional(ParameterDescription<T> const& switchParameter,
-                    std::auto_ptr<ParameterDescriptionCases<T> > cases,
+                    std::unique_ptr<ParameterDescriptionCases<T> > cases,
                     bool writeToCfi) {
-      return ifValue<T>(switchParameter, cases, true, writeToCfi);
+      return ifValue<T>(switchParameter, std::move(cases), true, writeToCfi);
     }
 
     // ********* if exists ************
@@ -349,12 +349,12 @@ namespace edm {
     template<typename T, typename U>
     ParameterWildcardBase * addWildcard(U const& pattern, bool isTracked);
 
-    ParameterDescriptionNode* addNode(std::auto_ptr<ParameterDescriptionNode> node, bool optional, bool writeToCfi);
+    ParameterDescriptionNode* addNode(std::unique_ptr<ParameterDescriptionNode> node, bool optional, bool writeToCfi);
 
     template <typename T>
     ParameterDescriptionNode*
     ifValue(ParameterDescription<T> const& switchParameter,
-            std::auto_ptr<ParameterDescriptionCases<T> > cases,
+            std::unique_ptr<ParameterDescriptionCases<T> > cases,
             bool optional, bool writeToCfi);
 
     ParameterDescriptionNode*
@@ -418,8 +418,8 @@ namespace edm {
   ParameterDescriptionBase*
   ParameterSetDescription::add(U const& iLabel, T const& value, bool isTracked, bool isOptional, bool writeToCfi) {
 
-    std::auto_ptr<ParameterDescriptionNode> node(new ParameterDescription<T>(iLabel, value, isTracked));
-    ParameterDescriptionNode* pnode = addNode(node, isOptional, writeToCfi);
+    std::unique_ptr<ParameterDescriptionNode> node = std::make_unique<ParameterDescription<T>>(iLabel, value, isTracked);
+    ParameterDescriptionNode* pnode = addNode(std::move(node), isOptional, writeToCfi);
     return static_cast<ParameterDescriptionBase*>(pnode);
   }
 
@@ -427,8 +427,8 @@ namespace edm {
   ParameterDescriptionBase*
   ParameterSetDescription::add(U const& iLabel, bool isTracked, bool isOptional, bool writeToCfi) {
 
-    std::auto_ptr<ParameterDescriptionNode> node(new ParameterDescription<T>(iLabel, isTracked));
-    ParameterDescriptionNode* pnode = addNode(node, isOptional, writeToCfi);
+    std::unique_ptr<ParameterDescriptionNode> node = std::make_unique<ParameterDescription<T>>(iLabel, isTracked);
+    ParameterDescriptionNode* pnode = addNode(std::move(node), isOptional, writeToCfi);
     return static_cast<ParameterDescriptionBase*>(pnode);
   }
 
@@ -438,9 +438,8 @@ namespace edm {
                                     ParameterSetDescription const& validator,
                                     std::vector<ParameterSet> const& defaults,
                                     bool isTracked, bool isOptional, bool writeToCfi) {
-    std::auto_ptr<ParameterDescriptionNode> node(
-        new ParameterDescription<std::vector<ParameterSet> >(iLabel, validator, isTracked, defaults));
-    ParameterDescriptionNode* pnode = addNode(node, isOptional, writeToCfi);
+    std::unique_ptr<ParameterDescriptionNode> node = std::make_unique<ParameterDescription<std::vector<ParameterSet>>>(iLabel, validator, isTracked, defaults);
+    ParameterDescriptionNode* pnode = addNode(std::move(node), isOptional, writeToCfi);
     return static_cast<ParameterDescriptionBase*>(pnode);
   }
 
@@ -449,9 +448,8 @@ namespace edm {
   ParameterSetDescription::addVPSet(U const& iLabel,
                                     ParameterSetDescription const& validator,
                                     bool isTracked, bool isOptional, bool writeToCfi) {
-    std::auto_ptr<ParameterDescriptionNode> node(
-        new ParameterDescription<std::vector<ParameterSet> >(iLabel, validator, isTracked));
-    ParameterDescriptionNode* pnode = addNode(node, isOptional, writeToCfi);
+    std::unique_ptr<ParameterDescriptionNode> node = std::make_unique<ParameterDescription<std::vector<ParameterSet>>>(iLabel, validator, isTracked);
+    ParameterDescriptionNode* pnode = addNode(std::move(node), isOptional, writeToCfi);
     return static_cast<ParameterDescriptionBase*>(pnode);
   }
 
@@ -459,32 +457,32 @@ namespace edm {
   ParameterWildcardBase*
   ParameterSetDescription::addWildcard(U const& pattern, bool isTracked) {
     
-    std::auto_ptr<ParameterDescriptionNode> node(new ParameterWildcard<T>(pattern, RequireZeroOrMore, isTracked));
-    ParameterDescriptionNode* pnode = addNode(node, true, false);
+    std::unique_ptr<ParameterDescriptionNode> node = std::make_unique<ParameterWildcard<T>>(pattern, RequireZeroOrMore, isTracked);
+    ParameterDescriptionNode* pnode = addNode(std::move(node), true, false);
     return static_cast<ParameterWildcardBase*>(pnode);
   }
 
   template <typename T>
   ParameterDescriptionNode*
   ParameterSetDescription::ifValue(ParameterDescription<T> const& switchParameter,
-          std::auto_ptr<ParameterDescriptionCases<T> > cases,
+          std::unique_ptr<ParameterDescriptionCases<T> > cases,
           bool optional, bool writeToCfi) {
-    std::auto_ptr<ParameterDescriptionNode> pdswitch(new ParameterSwitch<T>(switchParameter, cases));
-    return addNode(pdswitch, optional, writeToCfi);
+    std::unique_ptr<ParameterDescriptionNode> pdswitch = std::make_unique<ParameterSwitch<T>>(switchParameter, std::move(cases));
+    return addNode(std::move(pdswitch), optional, writeToCfi);
   }
 
   template<typename T, typename U>
   ParameterDescriptionNode*
   ParameterSetDescription::labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi) {
-    std::auto_ptr<ParameterDescriptionNode> pd(new AllowedLabelsDescription<T>(iLabel, isTracked));
-    return addNode(pd, optional, writeToCfi);
+    std::unique_ptr<ParameterDescriptionNode> pd = std::make_unique<AllowedLabelsDescription<T>>(iLabel, isTracked);
+    return addNode(std::move(pd), optional, writeToCfi);
   }
 
   template<typename T, typename U, typename V>
   ParameterDescriptionNode*
   ParameterSetDescription::labelsFrom(U const& iLabel, bool isTracked, bool optional, bool writeToCfi, V const& desc) {
-    std::auto_ptr<ParameterDescriptionNode> pd(new AllowedLabelsDescription<T>(iLabel, desc, isTracked));
-    return addNode(pd, optional, writeToCfi);
+    std::unique_ptr<ParameterDescriptionNode> pd = std::make_unique<AllowedLabelsDescription<T>>(iLabel, desc, isTracked);
+    return addNode(std::move(pd), optional, writeToCfi);
   }
 }
 

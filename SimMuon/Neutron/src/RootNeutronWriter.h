@@ -15,15 +15,15 @@ class RootNeutronWriter : public NeutronWriter
 {
 public:
   RootNeutronWriter(const std::string & fileName);
-  virtual ~RootNeutronWriter();
+  ~RootNeutronWriter() override;
 
   /// users should use this to create chamberwriters
   /// for each chamber type just after creation
-  virtual void initialize(int detType);
+  void initialize(int detType) override;
 
   RootChamberWriter & chamberWriter(int chamberType);
 
-  virtual void writeCluster(int chamberType, const edm::PSimHitContainer & hits);
+  void writeCluster(int chamberType, const edm::PSimHitContainer & hits) override;
 
 private:
   std::map<int, RootChamberWriter> theChamberWriters;

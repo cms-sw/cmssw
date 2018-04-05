@@ -43,7 +43,7 @@ PFTester::PFTester(const edm::ParameterSet& iConfig)
   inputPFlowLabel_tok_         = consumes<reco::PFCandidateCollection> (iConfig.getParameter<std::string>("InputPFlowLabel") );
   outputFile_                  = iConfig.getUntrackedParameter<std::string>("OutputFile");
 
-  if (outputFile_.size() > 0)
+  if (!outputFile_.empty())
     edm::LogInfo("OutputInfo") << " ParticleFLow Task histograms will be saved to '" << outputFile_.c_str() << "'";
   else edm::LogInfo("OutputInfo") << " ParticleFlow Task histograms will NOT be saved";
 
@@ -215,7 +215,7 @@ void PFTester::endJob()
 {
 
   // Store the DAQ Histograms
-  if (outputFile_.size() > 0 && dbe_)
+  if (!outputFile_.empty() && dbe_)
     dbe_->save(outputFile_);
 
 }

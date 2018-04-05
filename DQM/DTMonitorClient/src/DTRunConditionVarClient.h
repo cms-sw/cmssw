@@ -53,9 +53,9 @@ class DTRunConditionVarClient: public DQMEDHarvester{
     DTRunConditionVarClient(const edm::ParameterSet& ps);
 
     /// Destructor
-    virtual ~DTRunConditionVarClient();
+    ~DTRunConditionVarClient() override;
 
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   protected:
 
@@ -67,7 +67,7 @@ class DTRunConditionVarClient: public DQMEDHarvester{
                          int wh, int nbins, float min, float max, bool isVDCorr=false);
 
     /// DQM Client Diagnostic
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 
   float varQuality(float var, float maxGood, float minBad);

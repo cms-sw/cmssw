@@ -42,7 +42,7 @@ class ClusterizerUnitTester : public edm::EDAnalyzer {
   static std::string printCluster(const SiStripCluster&);
   
   VPSet testGroups;
-  std::auto_ptr<StripClusterizerAlgorithm> clusterizer;
+  std::unique_ptr<StripClusterizerAlgorithm> clusterizer;
   uint32_t detId;
 };
 

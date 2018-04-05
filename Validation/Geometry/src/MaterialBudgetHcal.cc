@@ -18,7 +18,7 @@
 #include <iostream>
 
 MaterialBudgetHcal::MaterialBudgetHcal(const edm::ParameterSet& p): 
-  theHistoHcal(0), theHistoCastor(0) {
+  theHistoHcal(nullptr), theHistoCastor(nullptr) {
   
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MaterialBudgetHcal");
   rMax        = m_p.getUntrackedParameter<double>("RMax", 4.5)*CLHEP::m;

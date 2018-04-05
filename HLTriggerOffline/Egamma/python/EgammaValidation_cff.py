@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from functools import reduce
 
 # whether to use the old or newer (automatically adapting
 # to the MC menu) method of configuring the monitoring
@@ -171,7 +172,6 @@ if not use_new_method:
 
     # selectors go into separate "prevalidation" sequence
     egammaValidationSequence   = cms.Sequence( egammaValidators )
-    egammaValidationSequenceFS = cms.Sequence( egammaValidators )
 
 else:
     #----------------------------------------------------------------------

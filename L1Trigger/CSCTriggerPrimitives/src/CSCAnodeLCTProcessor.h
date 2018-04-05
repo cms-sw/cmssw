@@ -1,5 +1,5 @@
-#ifndef CSCTriggerPrimitives_CSCAnodeLCTProcessor_h
-#define CSCTriggerPrimitives_CSCAnodeLCTProcessor_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCAnodeLCTProcessor_h
+#define L1Trigger_CSCTriggerPrimitives_CSCAnodeLCTProcessor_h
 
 /** \class CSCAnodeLCTProcessor
  *
@@ -13,15 +13,23 @@
  * in ORCA).
  * Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch), May 2006.
  *
+ * Updates for high pileup running by Vadim Khotilovich (TAMU), December 2012
  *
+ * Updates for integrated local trigger with GEMs by
+ * Sven Dildick (TAMU) and Tao Huang (TAMU), April 2015
+ *
+ * Removing usage of outdated class CSCTriggerGeometry by Sven Dildick (TAMU)
  */
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+
 #include <vector>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <DataFormats/CSCDigi/interface/CSCWireDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCALCTDigi.h>
-#include <CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
+
+class CSCGeometry;
 
 class CSCAnodeLCTProcessor
 {
@@ -41,6 +49,8 @@ class CSCAnodeLCTProcessor
   /** Clears the LCT containers. */
   void clear();
 
+  void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
+
   /** Runs the LCT processor code. Called in normal running -- gets info from
       a collection of wire digis. */
   std::vector<CSCALCTDigi> run(const CSCWireDigiCollection* wiredc);
@@ -53,18 +63,15 @@ class CSCAnodeLCTProcessor
   bool getDigis(const CSCWireDigiCollection* wiredc);
   void getDigis(const CSCWireDigiCollection* wiredc, const CSCDetId& id);
 
-  /** Maximum number of time bins reported in the ALCT readout. */
-  enum {MAX_ALCT_BINS = 16};
-
   /** Best LCTs in this chamber, as found by the processor.
       In old ALCT algorithms, up to two best ALCT per Level-1 accept window
       had been reported.
       In the ALCT-2006 algorithms, up to two best ALCTs PER EVERY TIME BIN in
       Level-1 accept window are reported. */
-  CSCALCTDigi bestALCT[MAX_ALCT_BINS];
+  CSCALCTDigi bestALCT[CSCConstants::MAX_ALCT_TBINS];
 
   /** Second best LCTs in this chamber, as found by the processor. */
-  CSCALCTDigi secondALCT[MAX_ALCT_BINS];
+  CSCALCTDigi secondALCT[CSCConstants::MAX_ALCT_TBINS];
 
   /** Returns vector of ALCTs in the read-out time window, if any. */
   std::vector<CSCALCTDigi> readoutALCTs();
@@ -76,12 +83,11 @@ class CSCAnodeLCTProcessor
   void setRing(unsigned r) {theRing = r;}
 
   /** Pre-defined patterns. */
-  enum {NUM_PATTERN_WIRES = 14};
-  static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
-  static const int pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
-  static const int pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
-  static const int pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
-  static const int time_weights[NUM_PATTERN_WIRES];
+  static const int pattern_envelope[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+  static const int pattern_mask_slim[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+  static const int pattern_mask_open[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+  static const int pattern_mask_r1[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
+  static const int time_weights[CSCConstants::MAX_WIRES_IN_PATTERN];
 
  private:
   /** Verbosity level: 0: no print (default).
@@ -96,6 +102,8 @@ class CSCAnodeLCTProcessor
   const unsigned theSector;
   const unsigned theSubsector;
   const unsigned theTrigChamber;
+
+  const CSCGeometry* csc_g;
 
   /** ring number. Only matters for ME1a */
   unsigned theRing;
@@ -140,7 +148,7 @@ class CSCAnodeLCTProcessor
   /** SLHC: delta BX time depth for ghostCancellationLogic */
   int ghost_cancellation_bx_depth;
 
-  /** SLHC: whether to consider ALCT candidates' qualities 
+  /** SLHC: whether to consider ALCT candidates' qualities
       while doing ghostCancellationLogic on +-1 wire groups */
   bool ghost_cancellation_side_quality;
 
@@ -153,6 +161,12 @@ class CSCAnodeLCTProcessor
   /** SLHC: whether to use narrow pattern mask for the rings close to the beam */
   bool narrow_mask_r1;
 
+  /** SLHC: run the ALCT processor for the Phase-II ME2/1 integrated local trigger */
+  bool runME21ILT_;
+
+  /** SLHC: run the ALCT processor for the Phase-II ME3/1(ME4/1) integrated local trigger */
+  bool runME3141ILT_;
+
   /** Default values of configuration parameters. */
   static const unsigned int def_fifo_tbins, def_fifo_pretrig;
   static const unsigned int def_drift_delay;
@@ -163,7 +177,7 @@ class CSCAnodeLCTProcessor
   static const unsigned int def_l1a_window_width;
 
   /** Chosen pattern mask. */
-  int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][NUM_PATTERN_WIRES];
+  int pattern_mask[CSCConstants::NUM_ALCT_PATTERNS][CSCConstants::MAX_WIRES_IN_PATTERN];
 
   /** Load pattern mask defined by configuration into pattern_mask */
   void loadPatternMask();

@@ -1,14 +1,13 @@
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
+
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
 
 #include<bitset>
 
@@ -78,106 +77,136 @@ void HitPattern::clear(void)
     memset(this->hitPattern, EMPTY_PATTERN, sizeof(uint16_t) * HitPattern::ARRAY_LENGTH);
 }
 
-bool HitPattern::appendHit(const TrackingRecHitRef &ref)
+bool HitPattern::appendHit(const TrackingRecHitRef &ref, const TrackerTopology& ttopo)
 {
-    return appendHit(*ref);
+    return appendHit(*ref, ttopo);
 }
 
-uint16_t HitPattern::encode(const TrackingRecHit &hit)
+uint16_t HitPattern::encode(const TrackingRecHit &hit, const TrackerTopology& ttopo)
 {
-    return encode(hit.geographicalId(), hit.getType());
+    return encode(hit.geographicalId(), hit.getType(), ttopo);
 }
 
-uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType)
-{
-    uint16_t pattern = HitPattern::EMPTY_PATTERN;
+namespace {
+    uint16_t encodeMuonLayer(const DetId& id) {
+        uint16_t detid = id.det();
+        uint16_t subdet = id.subdetId();
 
+        uint16_t layer = 0x0;
+        if (detid == DetId::Muon) {
+            switch (subdet) {
+            case MuonSubdetId::DT:
+                layer = ((DTLayerId(id.rawId()).station() - 1) << 2);
+                layer |= DTLayerId(id.rawId()).superLayer();
+                break;
+            case MuonSubdetId::CSC:
+                layer = ((CSCDetId(id.rawId()).station() - 1) << 2);
+                layer |= (CSCDetId(id.rawId()).ring() - 1);
+                break;
+            case MuonSubdetId::RPC: 
+                {
+                    RPCDetId rpcid(id.rawId());
+                    layer = ((rpcid.station() - 1) << 2);
+                    layer |= (rpcid.station() <= 2) ? ((rpcid.layer() - 1) << 1) : 0x0;
+                    layer |= abs(rpcid.region());
+                }
+                break;
+            case MuonSubdetId::GEM:
+            {
+              GEMDetId gemid(id.rawId());
+              layer = ((gemid.station()-1)<<2);
+              layer |= abs(gemid.layer()-1);
+            }
+	    break;
+	    case MuonSubdetId::ME0:
+	      {
+		ME0DetId me0id(id.rawId());
+		//layer = ((me0id.roll()-1)<<1) + abs(me0id.layer()-1);
+		//layer = ((me0id.roll()-1)<<1) + abs(me0id.layer());
+		//Only layer information that is meaningful is in the roll/etapartition
+		layer = (me0id.roll());
+	      }
+	      break;
+            }
+        }
+        return layer;
+    }
+}
+
+uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo)
+{
     uint16_t detid = id.det();
-
-    // adding tracker/muon detector bit
-    pattern |= (detid & SubDetectorMask) << SubDetectorOffset;
-
-    // adding substructure (PXB, PXF, TIB, TID, TOB, TEC, or DT, CSC, RPC) bits
     uint16_t subdet = id.subdetId();
-    pattern |= (subdet & SubstrMask) << SubstrOffset;
 
     // adding layer/disk/wheel bits
     uint16_t layer = 0x0;
     if (detid == DetId::Tracker) {
-        switch (subdet) {
-        case PixelSubdetector::PixelBarrel:
-            layer = PXBDetId(id).layer();
-            break;
-        case PixelSubdetector::PixelEndcap:
-            layer = PXFDetId(id).disk();
-            break;
-        case StripSubdetector::TIB:
-            layer = TIBDetId(id).layer();
-            break;
-        case StripSubdetector::TID:
-            layer = TIDDetId(id).wheel();
-            break;
-        case StripSubdetector::TOB:
-            layer = TOBDetId(id).layer();
-            break;
-        case StripSubdetector::TEC:
-            layer = TECDetId(id).wheel();
-            break;
-        }
+        layer = ttopo.layer(id);
     } else if (detid == DetId::Muon) {
-        switch (subdet) {
-        case MuonSubdetId::DT:
-            layer = ((DTLayerId(id.rawId()).station() - 1) << 2);
-            layer |= DTLayerId(id.rawId()).superLayer();
-            break;
-        case MuonSubdetId::CSC:
-            layer = ((CSCDetId(id.rawId()).station() - 1) << 2);
-            layer |= (CSCDetId(id.rawId()).ring() - 1);
-            break;
-        case MuonSubdetId::RPC: 
-            {
-                RPCDetId rpcid(id.rawId());
-                layer = ((rpcid.station() - 1) << 2);
-                layer |= (rpcid.station() <= 2) ? ((rpcid.layer() - 1) << 1) : 0x0;
-                layer |= abs(rpcid.region());
-            }
-            break;
-        }
+        layer = encodeMuonLayer(id);
     }
-
-    pattern |= (layer & LayerMask) << LayerOffset;
 
     // adding mono/stereo bit
     uint16_t side = 0x0;
     if (detid == DetId::Tracker) {
-        side = isStereo(id);
+        side = isStereo(id, ttopo);
     } else if (detid == DetId::Muon) {
         side = 0x0;
     }
 
+    return encode(detid, subdet, layer, side, hitType);
+}
+
+uint16_t HitPattern::encode(uint16_t det, uint16_t subdet, uint16_t layer, uint16_t side, TrackingRecHit::Type hitType) {
+    uint16_t pattern = HitPattern::EMPTY_PATTERN;
+
+    // adding tracker/muon detector bit
+    pattern |= (det & SubDetectorMask) << SubDetectorOffset;
+
+    // adding substructure (PXB, PXF, TIB, TID, TOB, TEC, or DT, CSC, RPC,GEM) bits
+    pattern |= (subdet & SubstrMask) << SubstrOffset;
+
+    // adding layer/disk/wheel bits
+    pattern |= (layer & LayerMask) << LayerOffset;
+
+    // adding mono/stereo bit
     pattern |= (side & SideMask) << SideOffset;
 
     TrackingRecHit::Type patternHitType = (hitType == TrackingRecHit::missing_inner ||
-                                           hitType == TrackingRecHit::missing_outer) ? TrackingRecHit::missing : hitType;
+                                           hitType == TrackingRecHit::missing_outer) ? TrackingRecHit::missing 
+                                          : ( 
+                                             (hitType == TrackingRecHit::inactive_inner ||
+                                              hitType == TrackingRecHit::inactive_outer) ? TrackingRecHit::inactive
+                                            :hitType);
 
     pattern |= (patternHitType & HitTypeMask) << HitTypeOffset;
 
     return pattern;
 }
 
-bool HitPattern::appendHit(const TrackingRecHit &hit)
+bool HitPattern::appendHit(const TrackingRecHit &hit, const TrackerTopology& ttopo)
 {
-    return appendHit(hit.geographicalId(), hit.getType());
+    return appendHit(hit.geographicalId(), hit.getType(), ttopo);
 }
 
-bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)
+bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo)
 {
     //if HitPattern is full, journey ends no matter what.
     if unlikely((hitCount == HitPattern::MaxHits)) {
         return false;
     }
 
-    uint16_t pattern = HitPattern::encode(id, hitType);
+    uint16_t pattern = HitPattern::encode(id, hitType, ttopo);
+
+    return appendHit(pattern, hitType);
+}
+
+bool HitPattern::appendHit(const uint16_t pattern, TrackingRecHit::Type hitType)
+{
+    //if HitPattern is full, journey ends no matter what.
+    if unlikely((hitCount == HitPattern::MaxHits)) {
+        return false;
+    }
 
     switch (hitType) {
     case TrackingRecHit::valid:
@@ -200,6 +229,7 @@ bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)
         }
         return insertTrackHit(pattern);
         break;
+    case TrackingRecHit::inactive_inner:
     case TrackingRecHit::missing_inner:
         if unlikely(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
             cms::Exception("HitPattern")
@@ -213,6 +243,7 @@ bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)
         }
         return insertExpectedInnerHit(pattern);
         break;
+    case TrackingRecHit::inactive_outer:
     case TrackingRecHit::missing_outer:
         if unlikely(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {
             cms::Exception("HitPattern")
@@ -229,6 +260,25 @@ bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)
     }
 
     return false;
+}
+
+bool HitPattern::appendTrackerHit(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType) {
+    return appendHit(encode(DetId::Tracker, subdet, layer, stereo, hitType), hitType);
+}
+
+bool HitPattern::appendMuonHit(const DetId& id, TrackingRecHit::Type hitType) {
+    //if HitPattern is full, journey ends no matter what.
+    if unlikely((hitCount == HitPattern::MaxHits)) {
+        return false;
+    }
+
+    if unlikely(id.det() != DetId::Muon) {
+        throw cms::Exception("HitPattern") << "Got DetId from det " << id.det() << " that is not Muon in appendMuonHit(), which should only be used for muon hits in the HitPattern IO rule";
+    }
+
+    uint16_t detid = id.det();
+    uint16_t subdet = id.subdetId();
+    return appendHit(encode(detid, subdet, encodeMuonLayer(id), 0, hitType), hitType);
 }
 
 uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
@@ -273,29 +323,20 @@ uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
     }
 }
 
-bool HitPattern::hasValidHitInFirstPixelBarrel() const
+
+bool HitPattern::hasValidHitInPixelLayer(enum PixelSubdetector::SubDetector det, uint16_t layer) const
 {
-    for (int i = beginTrackHits; i < endTrackHits; ++i) {
-        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
-        if (pixelBarrelHitFilter(pattern) && (getLayer(pattern) == 1)
-                && validHitFilter(pattern)) {
-            return true;
-        }
+  for (int i = beginTrackHits; i < endTrackHits; ++i) {
+    uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+    bool pixelHitFilter = ( (det==1 && pixelBarrelHitFilter(pattern)) ||
+			    (det==2 && pixelEndcapHitFilter(pattern)) );
+    if (pixelHitFilter && (getLayer(pattern) == layer) && validHitFilter(pattern)) {
+      return true;
     }
-    return false;
+  }
+  return false;
 }
 
-bool HitPattern::hasValidHitInFirstPixelEndcap() const
-{
-    for (int i = beginTrackHits; i < endTrackHits; ++i) {
-        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
-        if (pixelEndcapHitFilter(pattern) && (getLayer(pattern) == 1)
-                && validHitFilter(pattern)) {
-            return true;
-        }
-    }
-    return false;
-}
 
 int HitPattern::numberOfValidStripLayersWithMonoAndStereo(uint16_t stripdet, uint16_t layer) const
 {
@@ -651,69 +692,69 @@ int HitPattern::stripTECLayersWithoutMeasurement(HitCategory category) const
 }
 
 
-int HitPattern::pixelBarrelLayersTotallyOffOrBad() const
+int HitPattern::pixelBarrelLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     uint16_t NPixBarrel = 4;
     for (uint16_t layer = 1; layer <= NPixBarrel; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::pixelEndcapLayersTotallyOffOrBad() const
+int HitPattern::pixelEndcapLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     uint16_t NPixForward = 3;
     for (uint16_t layer = 1; layer <= NPixForward; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelEndcap, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, PixelSubdetector::PixelEndcap, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTIBLayersTotallyOffOrBad() const
+int HitPattern::stripTIBLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 4; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TIB, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, StripSubdetector::TIB, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTIDLayersTotallyOffOrBad() const
+int HitPattern::stripTIDLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 3; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TID, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, StripSubdetector::TID, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTOBLayersTotallyOffOrBad() const
+int HitPattern::stripTOBLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 6; layer++) {
 
-        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TOB, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, StripSubdetector::TOB, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTECLayersTotallyOffOrBad() const
+int HitPattern::stripTECLayersTotallyOffOrBad(HitCategory category) const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 9; layer++) {
-        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TEC, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(category, StripSubdetector::TEC, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
@@ -808,9 +849,14 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
         } else if (muonRPCHitFilter(pattern)) {
             stream << "\trpc " << (getRPCregion(pattern) ? "endcaps" : "barrel")
                    << ", layer " << getRPCLayer(pattern);
-        } else {
-            stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure "
-                   << getSubStructure(pattern);
+        } else if (muonGEMHitFilter(pattern)) {
+            stream << "\tgem " << (getGEMLayer(pattern) ? "layer1" : "layer2") 
+                   << ", station " << getGEMStation(pattern);
+	} else if (muonME0HitFilter(pattern)) { 
+   	    stream << "\tme0 ";
+	} else {
+	  stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure "
+		 << getSubStructure(pattern);
         }
     } else {
         stream << "\tlayer " << getLayer(pattern);
@@ -822,21 +868,21 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
 void HitPattern::print(HitCategory category, std::ostream &stream) const
 {
     stream << "HitPattern" << std::endl;
-    for (int i = 0; i < numberOfHits(category); ++i) {
+    for (int i = 0; i < numberOfAllHits(category); ++i) {
         printHitPattern(category, i, stream);
     }
     std::ios_base::fmtflags flags = stream.flags();
     stream.setf(std::ios_base::hex, std::ios_base::basefield);
     stream.setf(std::ios_base::showbase);
 
-    for (int i = 0; i < this->numberOfHits(category); ++i) {
+    for (int i = 0; i < this->numberOfAllHits(category); ++i) {
         stream << getHitPattern(category, i) << std::endl;
     }
 
     stream.flags(flags);
 }
 
-uint16_t HitPattern::isStereo(DetId i)
+uint16_t HitPattern::isStereo(DetId i, const TrackerTopology& ttopo)
 {
     if (i.det() != DetId::Tracker) {
         return 0;
@@ -846,22 +892,14 @@ uint16_t HitPattern::isStereo(DetId i)
     case PixelSubdetector::PixelBarrel:
     case PixelSubdetector::PixelEndcap:
         return 0;
-    case StripSubdetector::TIB: {
-        TIBDetId id = i;
-        return id.isStereo();
-    }
-    case StripSubdetector::TID: {
-        TIDDetId id = i;
-        return id.isStereo();
-    }
-    case StripSubdetector::TOB: {
-        TOBDetId id = i;
-        return id.isStereo();
-    }
-    case StripSubdetector::TEC: {
-        TECDetId id = i;
-        return id.isStereo();
-    }
+    case StripSubdetector::TIB:
+        return ttopo.tibIsStereo(i);
+    case StripSubdetector::TID:
+        return ttopo.tidIsStereo(i);
+    case StripSubdetector::TOB:
+        return ttopo.tobIsStereo(i);
+    case StripSubdetector::TEC:
+        return ttopo.tecIsStereo(i);
     default:
         return 0;
     }

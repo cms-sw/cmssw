@@ -46,7 +46,7 @@ RPCChamber::operator==(const RPCChamber& ch) const {
 
 void 
 RPCChamber::add(RPCRoll* rl) {
-  theRolls.push_back(rl);
+  theRolls.emplace_back(rl);
 }
 
 
@@ -79,7 +79,7 @@ RPCChamber::nrolls() const
 const RPCRoll* 
 RPCChamber::roll(RPCDetId id) const
 {
-  if (id.chamberId()!=theId) return 0; // not in this Roll!
+  if (id.chamberId()!=theId) return nullptr; // not in this Roll!
   return roll(id.roll());
 }
 
@@ -87,11 +87,10 @@ RPCChamber::roll(RPCDetId id) const
 const RPCRoll* 
 RPCChamber::roll(int isl) const 
 {
-  for (std::vector<const RPCRoll*>::const_iterator i = theRolls.begin();
-       i!= theRolls.end(); ++i) {
-    if ((*i)->id().roll()==isl) 
-      return (*i);
+  for (auto theRoll : theRolls) {
+    if (theRoll->id().roll()==isl) 
+      return theRoll;
   }
-  return 0;
+  return nullptr;
 }
 

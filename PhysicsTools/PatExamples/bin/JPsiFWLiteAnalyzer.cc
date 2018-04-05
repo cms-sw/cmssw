@@ -13,7 +13,7 @@
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 
 using namespace std;
 
@@ -22,14 +22,14 @@ int main(int argc, char* argv[])
   // ----------------------------------------------------------------------
   // First Part: 
   //
-  //  * enable the AutoLibraryLoader 
+  //  * enable FWLite 
   //  * book the histograms of interest 
   //  * open the input file
   // ----------------------------------------------------------------------
 
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
     
   // open input file (can be located on castor)
   TFile* inFile = TFile::Open( "file:jpsi.root" );

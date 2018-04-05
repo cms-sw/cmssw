@@ -25,10 +25,10 @@ class RunDCSLVDat : public IDataItem {
 
   friend class EcalCondDBInterface;
   RunDCSLVDat();
-  ~RunDCSLVDat();
+  ~RunDCSLVDat() override;
 
   // User data methods
-  inline std::string getTable() { return ""; }
+  inline std::string getTable() override { return ""; }
   inline std::string getEBAccount() { return "CMS_ECAL_LV_PVSS_COND"; }
   inline std::string getEEAccount() { return "CMS_ECAL_LV_PVSS_COND"; }
   inline void setLV(float t) { m_lv = t; }
@@ -48,16 +48,16 @@ class RunDCSLVDat : public IDataItem {
   int nowMicroseconds();
   void fillTheMap(ResultSet *, std::map< EcalLogicID, RunDCSLVDat >* );
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const RunDCSLVDat* item, RunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, RunDCSLVDat >* fillMap, RunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   void fetchLastData(std::map< EcalLogicID, RunDCSLVDat >* fillMap)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   float m_lv;

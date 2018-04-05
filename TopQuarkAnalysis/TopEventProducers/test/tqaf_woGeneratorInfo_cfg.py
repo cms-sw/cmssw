@@ -17,7 +17,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 ## configure process options
 process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
     wantSummary      = cms.untracked.bool(True)
 )
 
@@ -32,12 +31,19 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 # PAT and TQAF configuration
 #-------------------------------------------------
 
+process.task = cms.Task()
+
 ## std sequence for PAT
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.task.add(process.patCandidatesTask)
+#Temporary customize to the unit tests that fail due to old input samples
+process.patTaus.skipMissingTauID = True
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+process.task.add(process.selectedPatCandidatesTask)
 
 ## std sequence for TQAF
 process.load("TopQuarkAnalysis.TopEventProducers.tqafSequences_cff")
+process.task.add(process.tqafTtSemiLeptonicTask)
 
 ## remove MC specific stuff in TQAF
 from TopQuarkAnalysis.TopEventProducers.sequences.ttSemiLepEvtBuilder_cff import addTtSemiLepHypotheses
@@ -50,7 +56,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     dropMetaData   = cms.untracked.string("DROPPED")  ## NONE    for none
                                                       ## DROPPED for drop for dropped data
 )
-process.outpath = cms.EndPath(process.out)
+process.outpath = cms.EndPath(process.out, process.task)
 
 ## data specific
 from PhysicsTools.PatAlgos.tools.coreTools import runOnData

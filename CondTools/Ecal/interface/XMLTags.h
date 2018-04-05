@@ -71,7 +71,7 @@ namespace xuti{
   const std::string sample10_tag("sample_10");
   const std::string sample11_tag("sample_11");
 
-  const std::string PulseCovariances_tag("EcalPulseCovariances");
+  const std::string PulseSymmCovariances_tag("EcalPulseSymmCovariances");
 
   const std::string ChannelStatus_tag("EcalChannelStatus");
   const std::string ChannelStatusCode_tag("ChannelStatusCode");

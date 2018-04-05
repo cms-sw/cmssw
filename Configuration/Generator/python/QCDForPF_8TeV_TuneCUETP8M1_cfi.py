@@ -9,7 +9,10 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          filterEfficiency = cms.untracked.double(0.037),
                          crossSection = cms.untracked.double(74310000.),
                          comEnergy = cms.double(8000.0),  # center of mass energy in GeV
-                         reweightGen = cms.PSet(), 
+                         reweightGen = cms.PSet(
+        pTRef = cms.double(15.0),
+        power = cms.double(4.5)
+        ), 
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,

@@ -54,7 +54,6 @@ SiStripKey::SiStripKey() :
 // -----------------------------------------------------------------------------
 // 
 bool SiStripKey::isEqual( const SiStripKey& input ) const {
-  if ( !(&input) ) { return false; }
   if ( key_ == input.key() &&
        path_ == input.path() &&
        granularity_ == input.granularity() &&

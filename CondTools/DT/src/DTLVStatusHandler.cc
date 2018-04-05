@@ -16,7 +16,7 @@
 #include "CondFormats/DTObjects/interface/DTLVStatus.h"
 
 
-#include "CondCore/DBCommon/interface/DbTransaction.h"
+#include "CondCore/CondDB/interface/ConnectionPool.h"
 
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
@@ -46,8 +46,6 @@ DTLVStatusHandler::DTLVStatusHandler( const edm::ParameterSet& ps ):
  onlineAuthentication(  ps.getParameter<std::string> ( 
                         "onlineAuthentication" ) ),
  bufferConnect(         ps.getParameter<std::string> ( "bufferDB" ) ),
- omds_conn(),
- buff_conn(),
  omds_session(),
  buff_session() {
   std::cout << " PopCon application for DT DCS data (CCB status) export "
@@ -67,25 +65,18 @@ void DTLVStatusHandler::getNewObjects() {
 
   // online DB connection
   std::cout << "configure omds DbConnection" << std::endl;
-  //  conn->configure( cond::CmsDefaults );
-  omds_conn.configuration().setAuthenticationPath( onlineAuthentication );
-  omds_conn.configure();
+  cond::persistency::ConnectionPool connection;
+  connection.setAuthenticationPath( onlineAuthentication );
+  connection.configure();
   std::cout << "create omds DbSession" << std::endl;
-  omds_session = omds_conn.createSession();
-  std::cout << "open omds session" << std::endl;
-  omds_session.open( onlineConnect );
+  omds_session = connection.createSession( onlineConnect );
   std::cout << "start omds transaction" << std::endl;
   omds_session.transaction().start();
   std::cout << "" << std::endl;
 
   // buffer DB connection
-  std::cout << "configure buffer DbConnection" << std::endl;
-  buff_conn.configuration().setAuthenticationPath( onlineAuthentication );
-  buff_conn.configure();
   std::cout << "create buffer DbSession" << std::endl;
-  cond::DbSession buff_session = buff_conn.createSession();
-  std::cout << "open buffer session" << std::endl;
-  buff_session.open( bufferConnect );
+  cond::persistency::Session buff_session = connection.createSession(bufferConnect);
   std::cout << "start buffer transaction" << std::endl;
   buff_session.transaction().start();
 

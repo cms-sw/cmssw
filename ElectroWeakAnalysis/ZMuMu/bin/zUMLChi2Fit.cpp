@@ -14,7 +14,7 @@
 #include "PhysicsTools/Utilities/interface/rootPlot.h"
 #include "PhysicsTools/Utilities/interface/Expression.h"
 #include "PhysicsTools/Utilities/interface/HistoPdf.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "PhysicsTools/Utilities/interface/Likelihood.h"
@@ -109,7 +109,7 @@ int main(int ac, char *av[]) {
       rebinMuMu1HLTConst(rebinMuMu1HLT), rebinMuMu2HLTConst(rebinMuMu2HLT), 
       rebinMuTkConst(rebinMuTk), rebinMuSaConst(rebinMuSa);
 
-    AutoLibraryLoader::enable();
+    FWLiteEnabler::enable();
     TFile file("zMuSa-UML.root");
     fwlite::Event ev(&file);
     

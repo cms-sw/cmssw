@@ -8,8 +8,6 @@ checkOS()
 
    osname=`uname -s`
    if [ f$osname = f"Darwin" ]; then
-
-       gdbCmd="lldb --"
        arch=`sysctl hw | grep 64bit | awk '{print $2;}'`
        if [ $arch -eq 0 ]; then
            echo "###################################"
@@ -97,7 +95,7 @@ setupEnv()
      export CMSSW_SEARCH_PATH=".:$CMSSW_BASE"
      export CMSSW_DATA_PATH="."
      export ROOTSYS=$CMSSW_BASE/external/root 
-     export LD_LIBRARY_PATH=${CMSSW_BASE}/external/gcc/lib64:${ROOTSYS}/lib:${CMSSW_BASE}/external/lib:${CMSSW_BASE}/lib:$LD_LIBRARY_PATH
+     export LD_LIBRARY_PATH=${CMSSW_BASE}/external/gcc/lib64:${ROOTSYS}/lib:${CMSSW_BASE}/external/lib:${CMSSW_BASE}/lib
      export DYLD_FALLBACK_LIBRARY_PATH=/opt/X11/lib:${LD_LIBRARY_PATH}
 
      if [ -n "$DYLD_LIBRARY_PATH" ]; then
@@ -106,11 +104,21 @@ setupEnv()
      fi
      export  DYLD_LIBRARY_PATH=$CMSSW_BASE/external/gcc/lib64
      export PATH=${ROOTSYS}/bin:$PATH
+     export ROOT_INCLUDE_PATH=${CMSSW_BASE}/external/gcc/include:${CMSSW_BASE}/external/gcc/include/x86_64-redhat-linux-gnu:${CMSSW_BASE}/external/gcc/include/backward:${CMSSW_BASE}/external/var-inc:$CMSSW_BASE/external/var-inc/sigc++:$CMSSW_BASE/external/var-inc/HepMC/include:${CMSSW_BASE}/src
      # move cmsShow.exe to libexec
      SHELLDIR=$SHELLDIR/libexec
    else
      export FROM_RELEASE=true
    fi
+}
+
+printEnv()
+{
+   # Needed only for debugging of a standalone version
+   for i in CMSSW_BASE CMSSW_SEARCH_PATH CMSSW_DATA_PATH LD_LIBRARY_PATH  DYLD_FALLBACK_LIBRARY_PATH PATH SHELLDIR; do
+       echo export $i=`eval echo \\$$i`
+   done
+   exit;
 }
 
 parseOptions()
@@ -182,8 +190,11 @@ fi
 
 # Developers cases -- run from gdb or valgrind.
 if [ "X$debuginteractiveflag" = Xon ] ; then
-  gdbCmd="gdb --args " "$SHELLDIR/cmsShow.exe" $originalOptions
-  if-shell 'test "$(uname)" = "Darwin"' gdbCmd="lldb -- "
+  if [[ `uname` == 'Linux' ]]; then
+      gdbCmd="gdb --args $SHELLDIR/cmsShow.exe $originalOptions"
+  else
+      gdbCmd="lldb -- $SHELLDIR/cmsShow.exe $originalOptions"
+  fi
   exec $gdbCmd 
 elif [ "X$valgrindflag" = Xon ] ; then
   # MT: This should supposedly get rid of ROOT dicitonary reports etc. but it

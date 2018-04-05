@@ -3,9 +3,6 @@ c=======================================================================
 c     10/26/01 update freezeout positions in case of interactions:
 clin-3/2009 Note: freezeout spacetime values cannot be trusted for K0S & K0L 
 c     as K0S/K0L are converted from K+/K- by hand at the end of hadron cascade.
-cms
-cms   dlw & gsfs Commented out output file writing
-cms
       subroutine hbtout(nnew,nt,ntmax)
 c
       PARAMETER  (MAXSTR=150001,MAXR=1)
@@ -32,7 +29,7 @@ cc      SAVE /lastt/
 cc      SAVE /tdecay/
       COMMON /AREVT/ IAEVT, IARUN, MISS
 cc      SAVE /AREVT/
-      common/snn/efrm,npart1,npart2
+      common/snn/efrm,npart1,npart2,epsiPz,epsiPt,PZPROJ,PZTARG
 cc      SAVE /snn/
       COMMON/HJGLBR/NELT,NINTHJ,NELP,NINP
 cc      SAVE /HJGLBR/
@@ -44,6 +41,8 @@ clin-12/14/03:
       COMMON/HPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
       EXTERNAL IARFLV, INVFLV
       common /para8/ idpert,npertd,idxsec
+clin-2/2012:
+      common /phiHJ/iphirp,phiRP
       SAVE   
 c
       do 1001 i=1,max0(nlast,nnew)
@@ -164,12 +163,10 @@ clin-5/2008:
       nlast=nnew
 ctest off look inside each NT timestep (for debugging purpose):
 c      do ip=1,nlast
-c         if(nt.eq.5000) then
-c            write(95,*) ' p ',nt,ip,INVFLV(lblast(ip)),plast(1,ip),
-c     1           plast(2,ip),plast(3,ip),plast(4,ip),dplast(ip)
-c            write(95,*) '  x ',nt,ip,INVFLV(lblast(ip)),xlast(1,ip),
-c     1           xlast(2,ip),xlast(3,ip),xlast(4,ip),dplast(ip)
-c         endif
+c         write(99,*) ' p ',nt,ip,lblast(ip),plast(1,ip),
+c     1        plast(2,ip),plast(3,ip),plast(4,ip),dplast(ip)
+c         write(99,*) '  x ',nt,ip,lblast(ip),xlast(1,ip),
+c     1        xlast(2,ip),xlast(3,ip),xlast(4,ip),dplast(ip)
 c      enddo
 c
       if(nt.eq.ntmax) then
@@ -184,8 +181,11 @@ clin-5/2008 find final number of perturbative particles (deuterons only):
 c
 c         write(16,190) IAEVT,IARUN,nlast,bimp,npart1,npart2,
 c     1 NELP,NINP,NELT,NINTHJ
-         write(16,190) IAEVT,IARUN,nlast-ndpert,bimp,npart1,npart2,
-     1 NELP,NINP,NELT,NINTHJ
+clin-2/2012:
+c         write(16,190) IAEVT,IARUN,nlast-ndpert,bimp,npart1,npart2,
+c     1 NELP,NINP,NELT,NINTHJ
+         write(16,191) IAEVT,IARUN,nlast-ndpert,bimp,npart1,npart2,
+     1 NELP,NINP,NELT,NINTHJ,phiRP
 clin-5/2008 write out perturbatively-produced particles (deuterons only):
          if(idpert.eq.1.or.idpert.eq.2)
      1        write(90,190) IAEVT,IARUN,ndpert,bimp,npart1,npart2,
@@ -197,9 +197,15 @@ clin-3/2009 To be consistent with new particles produced in hadron cascade
 c     that are limited by the time-resolution (DT) of the hadron cascade, 
 c     freezeout time of spectator projectile or target nucleons is written as 
 c     DT as they are read at the 1st timestep and then propagated to time DT: 
-            if(plast(1,ip).eq.0.and.plast(2,ip).eq.0
-     1           .and.(sqrt(plast(3,ip)**2+plast(4,ip)**2)*2/HINT1(1))
-     2           .gt.0.99.and.(lblast(ip).eq.1.or.lblast(ip).eq.2)) then
+c
+clin-9/2011 determine spectator nucleons consistently
+c            if(plast(1,ip).eq.0.and.plast(2,ip).eq.0
+c     1           .and.(sqrt(plast(3,ip)**2+plast(4,ip)**2)*2/HINT1(1))
+c     2           .gt.0.99.and.(lblast(ip).eq.1.or.lblast(ip).eq.2)) then
+            if(abs(plast(1,ip)).le.epsiPt.and.abs(plast(2,ip)).le.epsiPt
+     1           .and.(plast(3,ip).gt.amax1(0.,PZPROJ-epsiPz)
+     2                .or.plast(3,ip).lt.(-PZTARG+epsiPz))
+     3           .and.(lblast(ip).eq.1.or.lblast(ip).eq.2)) then
 clin-5/2008 perturbatively-produced particles (currently only deuterons) 
 c     are written to ana/ampt_pert.dat (without the column for the mass); 
 c     ana/ampt.dat has regularly-produced particles (including deuterons);
@@ -225,7 +231,7 @@ clin-12/14/03-end
             elseif(amax1(abs(xlast(1,ip)),abs(xlast(2,ip)),
      1              abs(xlast(3,ip)),abs(xlast(4,ip))).lt.9999) then
                if(dplast(ip).gt.oneminus.and.dplast(ip).lt.oneplus) then
-            write(16,200) INVFLV(lblast(ip)), plast(1,ip),
+                 write(16,200) INVFLV(lblast(ip)), plast(1,ip),
      1           plast(2,ip),plast(3,ip),plast(4,ip),
      2           xlast(1,ip),xlast(2,ip),xlast(3,ip),xlast(4,ip)
                else
@@ -241,7 +247,7 @@ clin-12/14/03-end
             else
 c     change format for large numbers:
                if(dplast(ip).gt.oneminus.and.dplast(ip).lt.oneplus) then
-            write(16,201) INVFLV(lblast(ip)), plast(1,ip),
+                   write(16,201) INVFLV(lblast(ip)), plast(1,ip),
      1           plast(2,ip),plast(3,ip),plast(4,ip),
      2           xlast(1,ip),xlast(2,ip),xlast(3,ip),xlast(4,ip)
                else
@@ -259,6 +265,7 @@ c     change format for large numbers:
          if(ioscar.eq.1) call hoscar
       endif
  190  format(3(i7),f10.4,5x,6(i4))
+ 191  format(3(i7),f10.4,5x,6(i4),5x,f7.4)
 clin-3/2009 improve the output accuracy of Pz
  200  format(I6,2(1x,f8.3),1x,f11.4,1x,f6.3,4(1x,f8.2))
  201  format(I6,2(1x,f8.3),1x,f11.4,1x,f6.3,4(1x,e8.2))
@@ -283,22 +290,21 @@ cc      SAVE /decom/
         COMMON/RNDF77/NSEED
 cc      SAVE /RNDF77/
         COMMON/HMAIN1/EATT,JATT,NATT,NT,NP,N0,N01,N10,N11
-        common/embed/iembed,pxqembd,pyqembd,xembd,yembd
+        common/embed/iembed,nsembd,pxqembd,pyqembd,xembd,yembd,
+     1       psembd,tmaxembd,phidecomp
         SAVE   
 c
-        itq1=itq1
         dcth=dble(RANART(NSEED))*2.d0-1.d0
         dPHI=dble(RANART(NSEED)*HIPR1(40))*2.d0
 clin-6/2009 Added if embedding a high-Pt quark pair after string melting:
-        if(iembed.eq.1) then
+        if(iembed.ge.1.and.iembed.le.4) then
 c     Decompose the parent high-Pt pion to q and qbar with an internal momentum
 c     parallel to the pion direction so that one parton has ~the same hight Pt
 c     and the other parton has a very soft Pt:
 c     Note: htop() decomposes a meson to q as it(1) followed by qbar as it(2):
-           if(i.eq.(natt-1).or.i.eq.natt) then
+           if(i.eq.(natt-2*nsembd).or.i.eq.(natt-2*nsembd-1)) then
               dcth=0.d0
-              dphi=dble(acos(pxqembd/sqrt(pxqembd**2+pyqembd**2)))
-              if(pyqembd.lt.0) dphi=HIPR1(40)*2.d0-dphi
+              dphi=dble(phidecomp)
            endif
         endif
 c
@@ -347,7 +353,6 @@ c
      1     GXSGS,GYSGS,GZSGS,FTSGS
       dimension it(4)
       COMMON/HMAIN2/KATT(MAXSTR,4),PATT(MAXSTR,4)
-cwei      DOUBLE PRECISION PATT
 cc      SAVE /HMAIN2/
       COMMON/HMAIN1/EATT,JATT,NATT,NT,NP,N0,N01,N10,N11
 cc      SAVE /HMAIN1/
@@ -389,6 +394,7 @@ cc      SAVE /anim/
 cc      SAVE /precpa/
       common /para7/ ioscar,nsmbbbar,nsmmeson
       COMMON /AREVT/ IAEVT, IARUN, MISS
+      common/snn/efrm,npart1,npart2,epsiPz,epsiPt,PZPROJ,PZTARG
       SAVE   
 c
         npar=0
@@ -402,10 +408,15 @@ clin-5b/2008 calculate the number of hadrons to be converted to q/qbar:
               id=ITYPAR(i)
               idabs=iabs(id)
               i2=MOD(idabs/10,10)
-              if(PXAR(i).eq.0.and.PYAR(i).eq.0.and.PEAR(i)
-     1             .ge.(HINT1(1)/2*0.99).and.
-     2             ((id.eq.2112).or.(id.eq.2212))) then
-c     proj or targ nucleons without interactions, do not enter ZPC:
+clin-9/2011 determine spectator nucleons consistently
+c              if(PXAR(i).eq.0.and.PYAR(i).eq.0.and.PEAR(i)
+c     1             .ge.(HINT1(1)/2*0.99).and.
+c     2             .and.(id.eq.2112.or.id.eq.2212)) then
+              if(abs(PXAR(i)).le.epsiPt.and.abs(PYAR(i)).le.epsiPt
+     1             .and.(PZAR(i).gt.amax1(0.,PZPROJ-epsiPz)
+     2                .or.PZAR(i).lt.(-PZTARG+epsiPz))
+     3             .and.(id.eq.2112.or.id.eq.2212)) then
+c     spectator proj or targ nucleons without interactions, do not enter ZPC:
               elseif(idabs.gt.1000.and.i2.ne.0) then
 c     baryons to be converted to q/qbar:
                  nsmbbbar=nsmbbbar+1
@@ -446,9 +457,14 @@ clin-5b/2008-over
            it(3)=0
            it(4)=0
 c
-           if(PXAR(i).eq.0.and.PYAR(i).eq.0.and.PEAR(i)
-     1 .ge.(HINT1(1)/2*0.99).and.((id.eq.2112).or.(id.eq.2212))) then
-c     proj or targ nucleons without interactions, do not enter ZPC:
+clin-9/2011 determine spectator nucleons consistently
+c           if(PXAR(i).eq.0.and.PYAR(i).eq.0.and.PEAR(i)
+c     1 .ge.(HINT1(1)/2*0.99).and.((id.eq.2112).or.(id.eq.2212))) then
+              if(abs(PXAR(i)).le.epsiPt.and.abs(PYAR(i)).le.epsiPt
+     1             .and.(PZAR(i).gt.amax1(0.,PZPROJ-epsiPz)
+     2                .or.PZAR(i).lt.(-PZTARG+epsiPz))
+     3             .and.(id.eq.2112.or.id.eq.2212)) then
+c     spectator proj or targ nucleons without interactions, do not enter ZPC:
               inozpc=1
            elseif(idabs.gt.1000.and.i2.ne.0) then
 c     baryons:
@@ -583,8 +599,8 @@ c
                  vyp0(npar)=dble(patt(i,2)/patt(i,4))
                  vzp0(npar)=dble(patt(i,3)/patt(i,4))
  1001     continue
-cyy 200      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
-cyy 201      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
+cms 200      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
+cms 201      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
 c
               if((isoft.eq.4.or.isoft.eq.5)
      1 .and.iabs(it(2)).gt.1000) then
@@ -649,6 +665,8 @@ c
      1     GXSGS,GYSGS,GZSGS,FTSGS
       DOUBLE PRECISION  xmdiag,px1,py1,pz1,e1,px2,py2,pz2,e2,
      1     px3,py3,pz3,e3,xmpair,etot
+clin-9/2012: improve precision for argument in sqrt():
+      DOUBLE PRECISION  p1,p2,p3
       common /loclco/gxp(3),gyp(3),gzp(3),ftp(3),
      1     pxp(3),pyp(3),pzp(3),pep(3),pmp(3)
 cc      SAVE /loclco/
@@ -689,9 +707,10 @@ clin 4/19/2006
       COMMON/HJGLBR/NELT,NINTHJ,NELP,NINP
       COMMON /AREVT/ IAEVT, IARUN, MISS
       common /para7/ ioscar,nsmbbbar,nsmmeson
+clin-5/2011
+      common/input1/ MASSPR,MASSTA,ISEED,IAVOID,DT
 c
       dimension xmdiag(MAXSTR),indx(MAXSTR),ndiag(MAXSTR)
-cwei      DOUBLE PRECISION PATT
       SAVE   
 c
       call coales
@@ -873,6 +892,17 @@ c     form a vector meson if the q+qbar mass is closer to its mass:
                nrhoch=nrhoch+1
             endif
            endif
+clin-7/2011-check charm hadron flavors:
+c           if(k1abs.eq.4.or.k2abs.eq.4) then
+c              if(k3.eq.0) then
+c                 write(99,*) iaevt,k1,k2,kf,xmpair,
+c     1                ULMASS(iabs(kf)),ULMASS(iabs(kf)+2),isg
+c              else
+c                 write(99,*) iaevt,k1,k2,k3,kf,xmpair,
+c     1                ULMASS(iabs(kf)),ULMASS(iabs(kf)+2),isg
+c              endif
+c           endif
+clin-7/2011-end
  1001   CONTINUE
 c     assume Npi0=(Npi+ + Npi-)/2, Nrho0=(Nrho+ + Nrho-)/2 on the average:
         if(nuudd.ne.0) then
@@ -945,6 +975,11 @@ c
                PATT(inatt,2)=PYAR(inatt)
                PATT(inatt,3)=PZAR(inatt)
                etot=e1+e2
+clin-9/2012: improve precision for argument in sqrt():
+               p1=px1+px2
+               p2=py1+py2
+               p3=pz1+pz2
+c
               elseif((isoft.eq.4.or.isoft.eq.5).and.NJSGS(ISG).eq.3) 
      1              then
                PX3=PXSGS(ISG,3)
@@ -958,8 +993,22 @@ c
                PATT(inatt,2)=PYAR(inatt)
                PATT(inatt,3)=PZAR(inatt)
                etot=e1+e2+e3
+clin-9/2012: improve precision for argument in sqrt():
+               p1=px1+px2+px3
+               p2=py1+py2+py3
+               p3=pz1+pz2+pz3
+c
               endif
               XMAR(inatt)=ULMASS(ITYPAR(inatt))
+clin-5/2011-add finite width to resonances (rho,omega,eta,K*,phi,Delta) after formation:
+              kf=KATT(inatt,1)
+              if(kf.eq.113.or.abs(kf).eq.213.or.kf.eq.221.or.kf.eq.223
+     1             .or.abs(kf).eq.313.or.abs(kf).eq.323.or.kf.eq.333
+     2             .or.abs(kf).eq.1114.or.abs(kf).eq.2114
+     3             .or.abs(kf).eq.2214.or.abs(kf).eq.2224) then
+                 XMAR(inatt)=resmass(kf)
+              endif
+c
               PEAR(inatt)=sqrt(PXAR(inatt)**2+PYAR(inatt)**2
      1           +PZAR(inatt)**2+XMAR(inatt)**2)
               PATT(inatt,4)=PEAR(inatt)
@@ -988,9 +1037,14 @@ c
                gyavg0=gyavg0+gyp0(i)/ipartn
                gzavg0=gzavg0+gzp0(i)/ipartn
  1005       CONTINUE
-            bex=dble(PXAR(inatt))/etot
-            bey=dble(PYAR(inatt))/etot
-            bez=dble(PZAR(inatt))/etot
+clin-9/2012: improve precision for argument in sqrt():
+c            bex=dble(PXAR(inatt))/etot
+c            bey=dble(PYAR(inatt))/etot
+c            bez=dble(PZAR(inatt))/etot
+            bex=p1/etot
+            bey=p2/etot
+            bez=p3/etot
+c
             beta2 = bex ** 2 + bey ** 2 + bez ** 2
             gam = 1.d0 / dsqrt(1.d0 - beta2)
             if(beta2.ge.0.9999999999999d0) then
@@ -1004,14 +1058,16 @@ c
               FTAR(inatt)=sngl(enenew)
 clin 4/19/2006 write out parton info after coalescence:
               if(ioscar.eq.3) then
-                 WRITE (85, 312) K2SGS(ISG,1),px1,py1,pz1,PMSGS(ISG,1),
-     1                inatt,katt(inatt,1)
+                 WRITE (85, 313) K2SGS(ISG,1),px1,py1,pz1,PMSGS(ISG,1),
+     1                inatt,katt(inatt,1),xmar(inatt)
                  WRITE (85, 312) K2SGS(ISG,2),px2,py2,pz2,PMSGS(ISG,2),
      1                inatt,katt(inatt,1)
                  if(NJSGS(ISG).eq.3) WRITE (85, 312) K2SGS(ISG,3),
      1                px3,py3,pz3,PMSGS(ISG,3),inatt,katt(inatt,1)
               endif
  312       FORMAT(I6,4(1X,F10.3),1X,I6,1X,I6)
+clin-5/02/2011
+ 313          FORMAT(I6,4(1X,F10.3),1X,I6,1X,I6,1X,F10.3)
 c
            endif
  1006   CONTINUE
@@ -1019,6 +1075,56 @@ c     number of hadrons formed from partons inside ZPC:
       nattzp=natt
       MSTJ(24)=mstj24
 c      
+      RETURN
+      END
+
+c=======================================================================
+clin-5/2011-add finite width to resonances (rho,omega,eta,K*,phi,Delta) after formation:
+      FUNCTION resmass(kf)
+
+      PARAMETER  (arho=0.775,aomega=0.783,aeta=0.548,aks=0.894,
+     1     aphi=1.019,adelta=1.232)
+      PARAMETER  (wrho=0.149,womega=0.00849,weta=1.30E-6,wks=0.0498,
+     1     wphi=0.00426,wdelta=0.118)
+      common/input1/ MASSPR,MASSTA,ISEED,IAVOID,DT
+      COMMON/RNDF77/NSEED
+      SAVE   
+
+      if(kf.eq.113.or.abs(kf).eq.213) then
+         amass=arho
+         wid=wrho
+      elseif(kf.eq.221) then
+         amass=aeta
+         wid=weta
+      elseif(kf.eq.223) then
+         amass=aomega
+         wid=womega
+      elseif(abs(kf).eq.313.or.abs(kf).eq.323) then
+         amass=aks
+         wid=wks
+      elseif(kf.eq.333) then
+         amass=aphi
+         wid=wphi
+      elseif(abs(kf).eq.1114.or.abs(kf).eq.2114
+     1        .or.abs(kf).eq.2214.or.abs(kf).eq.2224) then
+         amass=adelta
+         wid=wdelta
+      endif
+      dmin=amass-2*wid
+      dmax=amass+2*wid
+c     Delta mass needs to be big enough to decay to N+pi:
+      if(amass.eq.adelta) dmin=1.078
+c      
+      FM=1.
+      NTRY1=0
+ 10   DM = RANART(NSEED) * (DMAX-DMIN) + DMIN
+      NTRY1=NTRY1+1
+      fmass=(amass*wid)**2/((DM**2-amass**2)**2+(amass*wid)**2)
+check      write (99,*) ntry1,kf,amass,wid,fmass,DM
+      IF((RANART(NSEED) .GT. FMASS/FM).AND. (NTRY1.LE.10)) GOTO 10
+c     
+      resmass=DM
+      
       RETURN
       END
 
@@ -1458,7 +1564,7 @@ c
         parameter (MAXSTR=150001,AMN=0.939457,AMP=0.93828)
         character*8 code, reffra, FRAME
         character*25 amptvn
-        common/snn/efrm,npart1,npart2
+        common/snn/efrm,npart1,npart2,epsiPz,epsiPt,PZPROJ,PZTARG
 cc      SAVE /snn/
         common /lastt/itimeh,bimp 
 cc      SAVE /lastt/
@@ -1530,9 +1636,8 @@ cc      SAVE /HMAIN1/
 cc      SAVE /HMAIN2/
         COMMON /HPARNT/HIPR1(100), IHPR2(50), HINT1(100), IHNT2(50)
 cc      SAVE /HPARNT/
-        common/snn/efrm,npart1,npart2
+        common/snn/efrm,npart1,npart2,epsiPz,epsiPt,PZPROJ,PZTARG
 cc      SAVE /snn/
-cwei        DOUBLE PRECISION PATT
         SAVE   
 
         if(NATT.eq.0) then
@@ -1543,20 +1648,27 @@ cwei        DOUBLE PRECISION PATT
 c
         PZPROJ=SQRT(HINT1(6)**2-HINT1(8)**2)
         PZTARG=SQRT(HINT1(7)**2-HINT1(9)**2)
-        epsiln=0.01
+        epsiPz=0.01
+clin-9/2011-add Pt tolerance in determining spectator nucleons
+c     (affect string melting runs when LAB frame is used):
+        epsiPt=1e-6
 c
         nspec1=0
         nspec2=0
         DO 1000 I = 1, NATT
+clin-9/2011 determine spectator nucleons consistently
+c           if((KATT(I,1).eq.2112.or.KATT(I,1).eq.2212)
+c     1          .and.PATT(I, 1).eq.0.and.PATT(I, 2).eq.0) then
            if((KATT(I,1).eq.2112.or.KATT(I,1).eq.2212)
-     1          .and.PATT(I, 1).eq.0.and.PATT(I, 2).eq.0) then
-              if(PATT(I, 3).gt.amax1(0.,PZPROJ-epsiln)) then
+     1          .and.abs(PATT(I, 1)).le.epsiPt
+     2          .and.abs(PATT(I, 2)).le.epsiPt) then
+              if(PATT(I, 3).gt.amax1(0.,PZPROJ-epsiPz)) then
                  nspec1=nspec1+1
-              elseif(PATT(I, 3).lt.(-PZTARG+epsiln)) then
+              elseif(PATT(I, 3).lt.(-PZTARG+epsiPz)) then
                  nspec2=nspec2+1
               endif
            endif
- 1000    CONTINUE
+ 1000   CONTINUE
         npart1=IHNT2(1)-nspec1
         npart2=IHNT2(3)-nspec2
 
@@ -1565,7 +1677,9 @@ c
 
 c=======================================================================
 c     2/18/03 use PYTHIA to decay eta,rho,omega,k*,phi and Delta
-        subroutine resdec(i1,nt,nnn,wid,idecay)
+c     4/2012 added pi0 decay flag: 
+c       ipion=0: resonance or pi0 in lb(i1); >0: pi0 in lpion(ipion).
+        subroutine resdec(i1,nt,nnn,wid,idecay,ipion)
 
         PARAMETER (hbarc=0.19733)
         PARAMETER (AK0=0.498,APICH=0.140,API0=0.135,AN=0.940,ADDM=0.02)
@@ -1608,9 +1722,15 @@ cc      SAVE /tdecay/
      1       dpdcy(MAXSTR),dpdpi(MAXSTR,MAXR),dpt(MAXSTR, MAXR),
      2       dpp1(MAXSTR,MAXR),dppion(MAXSTR,MAXR)
 cc      SAVE /RNDF77/
+        common/phidcy/iphidcy,pttrig,ntrig,maxmiss,ipi0dcy
         SAVE   
         irun=idecay
-        if(lb1.eq.0.or.lb1.eq.25.or.lb1.eq.26.or.lb1.eq.27
+clin-4/2012 for option of pi0 decay:
+        if(nt.eq.ntmax.and.ipi0dcy.eq.1
+     &       .and.((lb1.eq.4.and.ipion.eq.0).or.ipion.ge.1)) then
+           kf=111
+c        if(lb1.eq.0.or.lb1.eq.25.or.lb1.eq.26.or.lb1.eq.27
+        elseif(lb1.eq.0.or.lb1.eq.25.or.lb1.eq.26.or.lb1.eq.27
      &       .or.lb1.eq.28.or.lb1.eq.29.or.iabs(lb1).eq.30
      &       .or.lb1.eq.24.or.(iabs(lb1).ge.6.and.iabs(lb1).le.9) 
      &       .or.iabs(lb1).eq.16) then
@@ -1628,10 +1748,13 @@ c     label as undecayed and the only particle in the record:
         K(IP,5)=0
 c
         K(IP,2)=kf
+clin-4/2012 for option of pi0 decay:
+        if(ipion.eq.0) then
+c
         P(IP,1)=px1
         P(IP,2)=py1
         P(IP,3)=pz1
-        em1a=em1
+c        em1a=em1
 c     eta or omega in ART may be below or too close to (pi+pi-pi0) mass, 
 c     causing LUDECY error,thus increase their mass ADDM above this thresh,
 c     noting that rho (m=0.281) too close to 2pi thrshold fails to decay:
@@ -1655,6 +1778,21 @@ c     1       'Mass increase in resdec():',nt,em1-em1a,lb1
         P(IP,5)=em1
 clin-5/2008:
         dpdecp=dpertp(i1)
+clin-4/2012 for option of pi0 decay:
+        elseif(nt.eq.ntmax.and.ipi0dcy.eq.1.and.ipion.ge.1) then        
+           P(IP,1)=PPION(1,ipion,IRUN)
+           P(IP,2)=PPION(2,ipion,IRUN)
+           P(IP,3)=PPION(3,ipion,IRUN)
+           P(IP,5)=EPION(ipion,IRUN)
+           P(IP,4)=SQRT(P(IP,5)**2+P(IP,1)**2+P(IP,2)**2+P(IP,3)**2)
+           dpdecp=dppion(ipion,IRUN)
+ctest off
+c           write(99,*) P(IP,4), P(IP,5), dpdecp, ipion, wid
+        else
+           print *, 'stopped in resdec() a'
+           stop
+        endif
+c
         call ludecy(IP)
 c     add decay time to daughter's formation time at the last timestep:
         if(nt.eq.ntmax) then
@@ -1663,19 +1801,32 @@ c     add decay time to daughter's formation time at the last timestep:
            ndaut=n-nsav
            if(ndaut.le.1) then
               write(10,*) 'note: ndaut(<1)=',ndaut
-              write(89,*) 'note: ndaut(<1)=',ndaut
               call lulist(2)
               stop
             endif
 c     lorentz boost:
-           taudcy=taudcy*e1/em1
-           tfnl=tfnl+taudcy
-           xfnl=xfnl+px1/e1*taudcy
-           yfnl=yfnl+py1/e1*taudcy
-           zfnl=zfnl+pz1/e1*taudcy
-c     at the last timestep, assign rho, K0S or eta (decay daughter) 
+clin-4/2012 for option of pi0 decay:
+            if(ipion.eq.0) then
+               taudcy=taudcy*e1/em1
+               tfnl=tfnl+taudcy
+               xfnl=xfnl+px1/e1*taudcy
+               yfnl=yfnl+py1/e1*taudcy
+               zfnl=zfnl+pz1/e1*taudcy
+            elseif(ipion.ge.1) then
+               taudcy=taudcy*P(IP,4)/P(IP,5)
+               tfnl=tfdpi(ipion,IRUN)+taudcy
+               xfnl=RPION(1,ipion,IRUN)+P(IP,1)/P(IP,4)*taudcy
+               yfnl=RPION(2,ipion,IRUN)+P(IP,2)/P(IP,4)*taudcy
+               zfnl=RPION(3,ipion,IRUN)+P(IP,3)/P(IP,4)*taudcy
+            else
+               print *, 'stopped in resdec() b',ipion,wid,P(ip,4)
+               stop
+            endif
+c     at the last timestep, assign rho, K0S or eta (decay daughter)
 c     to lb(i1) only (not to lpion) in order to decay them again:
-           if(n.ge.(nsav+2)) then
+clin-4/2012 for option of pi0 decay:
+c           if(n.ge.(nsav+2)) then
+           if(n.ge.(nsav+2).and.ipion.eq.0) then
               do 1001 idau=nsav+2,n
                  kdaut=K(idau,2)
                  if(kdaut.eq.221.or.kdaut.eq.113
@@ -1716,10 +1867,6 @@ c           if(abs(enet-e1).gt.0.02)
 c     1          write(93,*) 'resdec(): nt=',nt,enet-e1,lb1
         endif
 
-cyy 200    format(a20,3(1x,i6))
-cyy 210    format(i6,5(1x,f8.3))
-cyy 220    format(a2,i5,5(1x,f8.3))
-
         do 1003 idau=nsav+1,n
            kdaut=K(idau,2)
            lbdaut=IARFLV(kdaut)
@@ -1742,13 +1889,28 @@ c     K0/K0bar (from K* decay) converted to K0S and K0L at the last timestep:
            endif
 c
            if(idau.eq.(nsav+1)) then
-              LB(i1)=lbdaut
-              E(i1)=p(idau,5)
-              px1n=p(idau,1)
-              py1n=p(idau,2)
-              pz1n=p(idau,3)
+clin-4/2012 for option of pi0 decay:
+              if(ipion.eq.0) then
+                 LB(i1)=lbdaut
+                 E(i1)=p(idau,5)
+                 px1n=p(idau,1)
+                 py1n=p(idau,2)
+                 pz1n=p(idau,3)
 clin-5/2008:
-              dp1n=dpdecp
+                 dp1n=dpdecp
+              elseif(ipion.ge.1) then
+                 LPION(ipion,IRUN)=lbdaut
+                 EPION(ipion,IRUN)=p(idau,5)
+                 PPION(1,ipion,IRUN)=p(idau,1)
+                 PPION(2,ipion,IRUN)=p(idau,2)
+                 PPION(3,ipion,IRUN)=p(idau,3)
+                 RPION(1,ipion,IRUN)=xfnl
+                 RPION(2,ipion,IRUN)=yfnl
+                 RPION(3,ipion,IRUN)=zfnl
+                 tfdpi(ipion,IRUN)=tfnl
+                 dppion(ipion,IRUN)=dpdecp
+              endif
+c
            else
               nnn=nnn+1
               LPION(NNN,IRUN)=lbdaut
@@ -1764,7 +1926,6 @@ clin-5/2008:
               dppion(NNN,IRUN)=dpdecp
            endif
  1003   continue
-cyy 230    format(a2,i5,5(1x,e8.2))
         return
         end
 
@@ -1923,7 +2084,7 @@ c
         return
         end
 
-clin-5/2009 ctest on v2 analysis
+clin-5/2009 v2 analysis
 c=======================================================================
 c     idd=0,1,2,3 specifies different subroutines for partonic flow analysis.
       subroutine flowp(idd)
@@ -1990,72 +2151,72 @@ c     idd=0: initialization for flow analysis, called by artdri.f:
            nfile(1)=60
            nfile(2)=64
            nfile(3)=20
-cms        OPEN (nfile(1),FILE='ana1/v2p.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nfile(1)+1, 
-cms  1 FILE = 'ana1/v2p-formed.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nfile(1)+2, 
-cms  1 FILE = 'ana1/v2p-active.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nfile(1)+3, 
-cms  1 FILE = 'ana1/v2ph.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nfile(2),FILE='ana1/v2p-y2.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nfile(2)+1, 
-cms  1 FILE = 'ana1/v2p-formed2.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nfile(2)+2, 
-cms  1 FILE = 'ana1/v2p-active2.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nfile(2)+3, 
-cms  1 FILE = 'ana1/v2ph-y2.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nfile(3),FILE='ana1/v2p-y1.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nfile(3)+1, 
-cms  1 FILE = 'ana1/v2p-formed1.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nfile(3)+2, 
-cms  1 FILE = 'ana1/v2p-active1.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nfile(3)+3, 
-cms  1 FILE = 'ana1/v2ph-y1.dat', STATUS = 'UNKNOWN')
-cms        OPEN (49, FILE = 'ana1/v2p-ebe.dat', STATUS = 'UNKNOWN')
-cms        write(49, *) '    ievt,  v2p,  v2p_y2,   v2p_y1'
+           OPEN (nfile(1),FILE='ana1/v2p.dat', STATUS = 'UNKNOWN')
+           OPEN (nfile(1)+1, 
+     1 FILE = 'ana1/v2p-formed.dat', STATUS = 'UNKNOWN')
+           OPEN (nfile(1)+2, 
+     1 FILE = 'ana1/v2p-active.dat', STATUS = 'UNKNOWN')
+           OPEN (nfile(1)+3, 
+     1 FILE = 'ana1/v2ph.dat', STATUS = 'UNKNOWN')
+           OPEN (nfile(2),FILE='ana1/v2p-y2.dat', STATUS = 'UNKNOWN')
+           OPEN (nfile(2)+1, 
+     1 FILE = 'ana1/v2p-formed2.dat', STATUS = 'UNKNOWN')
+           OPEN (nfile(2)+2, 
+     1 FILE = 'ana1/v2p-active2.dat', STATUS = 'UNKNOWN')
+           OPEN (nfile(2)+3, 
+     1 FILE = 'ana1/v2ph-y2.dat', STATUS = 'UNKNOWN')
+           OPEN (nfile(3),FILE='ana1/v2p-y1.dat', STATUS = 'UNKNOWN')
+           OPEN (nfile(3)+1, 
+     1 FILE = 'ana1/v2p-formed1.dat', STATUS = 'UNKNOWN')
+           OPEN (nfile(3)+2, 
+     1 FILE = 'ana1/v2p-active1.dat', STATUS = 'UNKNOWN')
+           OPEN (nfile(3)+3, 
+     1 FILE = 'ana1/v2ph-y1.dat', STATUS = 'UNKNOWN')
+           OPEN (49, FILE = 'ana1/v2p-ebe.dat', STATUS = 'UNKNOWN')
+           write(49, *) '    ievt,  v2p,  v2p_y2,   v2p_y1'
 c
-cms        OPEN (59, FILE = 'ana1/v2h.dat', STATUS = 'UNKNOWN')
-cms        OPEN (68, FILE = 'ana1/v2h-y2.dat', STATUS = 'UNKNOWN')
-cms        OPEN (69, FILE = 'ana1/v2h-y1.dat', STATUS = 'UNKNOWN')
-cms        OPEN (88, FILE = 'ana1/v2h-ebe.dat', STATUS = 'UNKNOWN')
-cms        write(88, *) '    ievt,  v2h,  v2h_y2,   v2h_y1'
+           OPEN (59, FILE = 'ana1/v2h.dat', STATUS = 'UNKNOWN')
+           OPEN (68, FILE = 'ana1/v2h-y2.dat', STATUS = 'UNKNOWN')
+           OPEN (69, FILE = 'ana1/v2h-y1.dat', STATUS = 'UNKNOWN')
+           OPEN (88, FILE = 'ana1/v2h-ebe.dat', STATUS = 'UNKNOWN')
+           write(88, *) '    ievt,  v2h,  v2h_y2,   v2h_y1'
 csp07/05
            nlfile(1)=70
            nlfile(2)=72
            nlfile(3)=74
-cms        OPEN (nlfile(1),FILE='ana1/mtl.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nlfile(1)+1, 
-cms  1 FILE = 'ana1/mtl-formed.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nlfile(2),FILE='ana1/mtl-y2.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nlfile(2)+1, 
-cms  1 FILE = 'ana1/mtl-formed2.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nlfile(3),FILE='ana1/mtl-y1.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nlfile(3)+1, 
-cms  1 FILE = 'ana1/mtl-formed1.dat', STATUS = 'UNKNOWN')
+           OPEN (nlfile(1),FILE='ana1/mtl.dat', STATUS = 'UNKNOWN')
+           OPEN (nlfile(1)+1, 
+     1 FILE = 'ana1/mtl-formed.dat', STATUS = 'UNKNOWN')
+           OPEN (nlfile(2),FILE='ana1/mtl-y2.dat', STATUS = 'UNKNOWN')
+           OPEN (nlfile(2)+1, 
+     1 FILE = 'ana1/mtl-formed2.dat', STATUS = 'UNKNOWN')
+           OPEN (nlfile(3),FILE='ana1/mtl-y1.dat', STATUS = 'UNKNOWN')
+           OPEN (nlfile(3)+1, 
+     1 FILE = 'ana1/mtl-formed1.dat', STATUS = 'UNKNOWN')
            nsfile(1)=76
            nsfile(2)=78
            nsfile(3)=80
-cms        OPEN (nsfile(1),FILE='ana1/mts.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nsfile(1)+1, 
-cms  1 FILE = 'ana1/mts-formed.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nsfile(2),FILE='ana1/mts-y2.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nsfile(2)+1, 
-cms  1 FILE = 'ana1/mts-formed2.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nsfile(3),FILE='ana1/mts-y1.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nsfile(3)+1, 
-cms  1 FILE = 'ana1/mts-formed1.dat', STATUS = 'UNKNOWN')
+           OPEN (nsfile(1),FILE='ana1/mts.dat', STATUS = 'UNKNOWN')
+           OPEN (nsfile(1)+1, 
+     1 FILE = 'ana1/mts-formed.dat', STATUS = 'UNKNOWN')
+           OPEN (nsfile(2),FILE='ana1/mts-y2.dat', STATUS = 'UNKNOWN')
+           OPEN (nsfile(2)+1, 
+     1 FILE = 'ana1/mts-formed2.dat', STATUS = 'UNKNOWN')
+           OPEN (nsfile(3),FILE='ana1/mts-y1.dat', STATUS = 'UNKNOWN')
+           OPEN (nsfile(3)+1, 
+     1 FILE = 'ana1/mts-formed1.dat', STATUS = 'UNKNOWN')
            nmfile(1)=82
            nmfile(2)=83
            nmfile(3)=84
-cms        OPEN (nmfile(1),FILE='ana1/Nmt.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nmfile(2),FILE='ana1/Nmt-y2.dat', STATUS = 'UNKNOWN')
-cms        OPEN (nmfile(3),FILE='ana1/Nmt-y1.dat', STATUS = 'UNKNOWN')
+           OPEN (nmfile(1),FILE='ana1/Nmt.dat', STATUS = 'UNKNOWN')
+           OPEN (nmfile(2),FILE='ana1/Nmt-y2.dat', STATUS = 'UNKNOWN')
+           OPEN (nmfile(3),FILE='ana1/Nmt-y1.dat', STATUS = 'UNKNOWN')
 clin-11/27/00 for animation:
            if(nevent.eq.1) then
-cms        OPEN (91, FILE = 'ana1/h-animate.dat', STATUS = 'UNKNOWN')
-cms        write(91,*) ntmax, dt
-cms        OPEN (92, FILE = 'ana1/p-animate.dat', STATUS = 'UNKNOWN')
-cms        OPEN (93, FILE = 'ana1/p-finalft.dat', STATUS = 'UNKNOWN')
+c           OPEN (91, FILE = 'ana1/h-animate.dat', STATUS = 'UNKNOWN')
+c           write(91,*) ntmax, dt
+c           OPEN (92, FILE = 'ana1/p-animate.dat', STATUS = 'UNKNOWN')
+           OPEN (93, FILE = 'ana1/p-finalft.dat', STATUS = 'UNKNOWN')
            endif
 c
            itimep=0
@@ -2182,15 +2343,21 @@ ctest-end
                        endif
                     endif
                     do 50 iy=1,iloop
-                       if(pt2.gt.0.) then
+clin-5/2012:
+c                       if(pt2.gt.0.) then
+                       if(pt2.gt.0d0) then
                           v2prtn=(PX5(I)**2-PY5(I)**2)/pt2
-                          if(abs(v2prtn).gt.1.) 
+clin-5/2012:
+c                          if(abs(v2prtn).gt.1.) 
+                          if(dabs(v2prtn).gt.1d0) 
      1 write(nfile(iy),*) 'v2prtn>1',v2prtn
                           v2p(ianp,iy)=v2p(ianp,iy)+v2prtn
                           v2p2(ianp,iy)=v2p2(ianp,iy)+v2prtn**2
                        endif
                        xperp2=GX5(I)**2+GY5(I)**2
-                       if(xperp2.gt.0.) 
+clin-5/2012:
+c                       if(xperp2.gt.0.) 
+                       if(xperp2.gt.0d0) 
      1        s2p(ianp,iy)=s2p(ianp,iy)+(GX5(I)**2-GY5(I)**2)/xperp2
                        xnpart(ianp,iy)=xnpart(ianp,iy)+1d0
                        etp(ianp,iy)=etp(ianp,iy)+dsqrt(pt2+XMASS5(I)**2)
@@ -2201,7 +2368,9 @@ clin-2/22/00 to write out parton info only for formed ones:
                        if(FT5(I).le.t2time) then
                           v2pf(ianp,iy)=v2pf(ianp,iy)+v2prtn
                           v2pf2(ianp,iy)=v2pf2(ianp,iy)+v2prtn**2
-                          if(xperp2.gt.0.) 
+clin-5/2012:
+c                          if(xperp2.gt.0.) 
+                          if(xperp2.gt.0d0) 
      1        s2pf(ianp,iy)=s2pf(ianp,iy)+(GX5(I)**2-GY5(I)**2)/xperp2
                           xnpf(ianp,iy)=xnpf(ianp,iy)+1d0
                   etpf(ianp,iy)=etpf(ianp,iy)+dsqrt(pt2+XMASS5(I)**2)
@@ -2289,13 +2458,17 @@ c
                     if(FT5(I).lt.tscatt(ianp+1)
      1 .and.FT5(I).ge.tscatt(ianp)) then
                        do 1011 iy=1,iloop
-                          if(pt2.gt.0.) then
+clin-5/2012:
+c                          if(pt2.gt.0.) then
+                          if(pt2.gt.0d0) then
                              v2prtn=(PX5(I)**2-PY5(I)**2)/pt2
                              v2pfrz(ianp,iy)=v2pfrz(ianp,iy)+v2prtn
                      v2p2fz(ianp,iy)=v2p2fz(ianp,iy)+v2prtn**2
                           endif
                           xperp2=GX5(I)**2+GY5(I)**2
-                          if(xperp2.gt.0.) s2pfrz(ianp,iy)=
+clin-5/2012:
+c                          if(xperp2.gt.0.) s2pfrz(ianp,iy)=
+                          if(xperp2.gt.0d0) s2pfrz(ianp,iy)=
      1 s2pfrz(ianp,iy)+(GX5(I)**2-GY5(I)**2)/xperp2
         etpfrz(ianp,iy)=etpfrz(ianp,iy)+dsqrt(pt2+XMASS5(I)**2)
                           xnpfrz(ianp,iy)=xnpfrz(ianp,iy)+1d0
@@ -2321,26 +2494,28 @@ c     parton freezeout info taken, proceed to next parton:
 c     idd=2: calculate average partonic elliptic flow, called from artdri.f,
         else if(idd.eq.2) then
            do 1012 i=1,3
-cms           write(nfile(i),*) '   tsp,   v2p,     v2p2, '//
-cms  1 '   s2p,  etp,   xmult,    nevt,  xnctot'
-cms           write ((nfile(i)+1),*) '  tsp,   v2pf,   v2pf2, '//
-cms  1 '   s2pf, etpf,  xnform,  xcrate'
-cms           write ((nfile(i)+2),*) '  tsp,   v2pa,   v2pa2, '//
-cms  1 '   s2pa, etpa,  xmult_ap,  xnform,   nevt'
-cms           write ((nfile(i)+3),*) '  tsph,  v2ph,   v2ph2, '//
-cms  1 '   s2ph, etph,  xmult_(ap/2+h),xmult_ap/2,nevt'
+              write(nfile(i),*) '   tsp,   v2p,     v2p2, '//
+     1 '   s2p,  etp,   xmult,    nevt,  xnctot'
+              write ((nfile(i)+1),*) '  tsp,   v2pf,   v2pf2, '//
+     1 '   s2pf, etpf,  xnform,  xcrate'
+              write ((nfile(i)+2),*) '  tsp,   v2pa,   v2pa2, '//
+     1 '   s2pa, etpa,  xmult_ap,  xnform,   nevt'
+              write ((nfile(i)+3),*) '  tsph,  v2ph,   v2ph2, '//
+     1 '   s2ph, etph,  xmult_(ap/2+h),xmult_ap/2,nevt'
 csp
-cms        write(nlfile(i),*) '   tsp,    v2,     s2,    etp,    xmul'
-cms        write(nsfile(i),*) '   tsp,    v2,     s2,    etp,    xmul'
-cms        write(nlfile(i)+1,*) '   tsp,    v2,     s2,    etp,    xmul'
-cms        write(nsfile(i)+1,*) '   tsp,    v2,     s2,    etp,    xmul'
+           write(nlfile(i),*) '   tsp,    v2,     s2,    etp,    xmul'
+           write(nsfile(i),*) '   tsp,    v2,     s2,    etp,    xmul'
+           write(nlfile(i)+1,*) '   tsp,    v2,     s2,    etp,    xmul'
+           write(nsfile(i)+1,*) '   tsp,    v2,     s2,    etp,    xmul'
 c
  1012   continue
 clin-3/30/00 ensemble average & variance of v2 (over particles in all events):
            do 150 ii=1, 30
               if(nevt(ii).eq.0) goto 150
               do 1014 iy=1,3
-                 if(xnpart(ii,iy).gt.1) then
+clin-5/2012:
+c                 if(xnpart(ii,iy).gt.1) then
+                 if(xnpart(ii,iy).gt.1d0) then
                     v2p(ii,iy)=v2p(ii,iy)/xnpart(ii,iy)
                     v2p2(ii,iy)=dsqrt((v2p2(ii,iy)/xnpart(ii,iy)
      1                    -v2p(ii,iy)**2)/(xnpart(ii,iy)-1))
@@ -2357,13 +2532,15 @@ c
                        xnctot=xnctot+xncoll(inum)
  1013               continue
                     if(nevt(1).ne.0) xnctot=xnctot/nevt(1)
-cms                 write (nfile(iy),200) tsp(ii),v2p(ii,iy),
-cms  1      v2p2(ii,iy),s2p(ii,iy),etp(ii,iy),xmult,nevt(ii),xnctot
+                    write (nfile(iy),200) tsp(ii),v2p(ii,iy),
+     1      v2p2(ii,iy),s2p(ii,iy),etp(ii,iy),xmult,nevt(ii),xnctot
                  endif
                  if(nevt(ii).ne.0) 
      1                xcrate=xncoll(ii)/(tsp(ii+1)-tsp(ii))/nevt(ii)
 c
-                 if(xnpf(ii,iy).gt.1) then
+clin-5/2012:
+c                 if(xnpf(ii,iy).gt.1) then
+                 if(xnpf(ii,iy).gt.1d0) then
                     v2pf(ii,iy)=v2pf(ii,iy)/xnpf(ii,iy)
                     v2pf2(ii,iy)=dsqrt((v2pf2(ii,iy)/xnpf(ii,iy)
      1                    -v2pf(ii,iy)**2)/(xnpf(ii,iy)-1))
@@ -2374,41 +2551,49 @@ csp
                     etplf(ii,iy)=etplf(ii,iy)/dble(nevt(ii))
                     etpsf(ii,iy)=etpsf(ii,iy)/dble(nevt(ii))
 c
-cms                 write (nfile(iy)+1, 210) tsp(ii),v2pf(ii,iy),
-cms  1      v2pf2(ii,iy),s2pf(ii,iy),etpf(ii,iy),xnform,xcrate
+                    write (nfile(iy)+1, 210) tsp(ii),v2pf(ii,iy),
+     1      v2pf2(ii,iy),s2pf(ii,iy),etpf(ii,iy),xnform,xcrate
                  endif
 csp
-                 if(xnpl(ii,iy).gt.1) then
+clin-5/2012:
+c                 if(xnpl(ii,iy).gt.1) then
+                 if(xnpl(ii,iy).gt.1d0) then
                     v2pl(ii,iy)=v2pl(ii,iy)/xnpl(ii,iy)
                     s2pl(ii,iy)=s2pl(ii,iy)/xnpl(ii,iy)
                     xmult=dble(xnpl(ii,iy)/dble(nevt(ii)))
                     etpl(ii,iy)=etpl(ii,iy)/dble(nevt(ii))
-cms                 write (nlfile(iy),201) tsp(ii),v2pl(ii,iy),
-cms  1        s2pl(ii,iy),etpl(ii,iy),xmult
+                    write (nlfile(iy),201) tsp(ii),v2pl(ii,iy),
+     1        s2pl(ii,iy),etpl(ii,iy),xmult
                  endif
-                 if(xnps(ii,iy).gt.1) then
+clin-5/2012:
+c                 if(xnps(ii,iy).gt.1) then
+                 if(xnps(ii,iy).gt.1d0) then
                     v2ps(ii,iy)=v2ps(ii,iy)/xnps(ii,iy)
                     s2ps(ii,iy)=s2ps(ii,iy)/xnps(ii,iy)
                     xmult=dble(xnps(ii,iy)/dble(nevt(ii)))
                     etps(ii,iy)=etps(ii,iy)/dble(nevt(ii))
-cms                 write (nsfile(iy),201) tsp(ii),v2ps(ii,iy),
-cms  1        s2ps(ii,iy),etps(ii,iy),xmult
+                    write (nsfile(iy),201) tsp(ii),v2ps(ii,iy),
+     1        s2ps(ii,iy),etps(ii,iy),xmult
                  endif
-                 if(xnplf(ii,iy).gt.1) then
+clin-5/2012:
+c                 if(xnplf(ii,iy).gt.1) then
+                 if(xnplf(ii,iy).gt.1d0) then
                     v2plf(ii,iy)=v2plf(ii,iy)/xnplf(ii,iy)
                     s2plf(ii,iy)=s2plf(ii,iy)/xnplf(ii,iy)
                     xmult=dble(xnplf(ii,iy)/dble(nevt(ii)))
                     etplf(ii,iy)=etplf(ii,iy)/dble(nevt(ii))
-cms                 write (nlfile(iy)+1,201) tsp(ii),v2plf(ii,iy),
-cms  1        s2plf(ii,iy),etplf(ii,iy),xmult
+                    write (nlfile(iy)+1,201) tsp(ii),v2plf(ii,iy),
+     1        s2plf(ii,iy),etplf(ii,iy),xmult
                  endif
-                 if(xnpsf(ii,iy).gt.1) then
+clin-5/2012:
+c                 if(xnpsf(ii,iy).gt.1) then
+                 if(xnpsf(ii,iy).gt.1d0) then
                     v2psf(ii,iy)=v2psf(ii,iy)/xnpsf(ii,iy)
                     s2psf(ii,iy)=s2psf(ii,iy)/xnpsf(ii,iy)
                     xmult=dble(xnpsf(ii,iy)/dble(nevt(ii)))
                     etpsf(ii,iy)=etpsf(ii,iy)/dble(nevt(ii))
-cms                 write (nsfile(iy)+1,201) tsp(ii),v2psf(ii,iy),
-cms  1        s2psf(ii,iy),etpsf(ii,iy),xmult
+                    write (nsfile(iy)+1,201) tsp(ii),v2psf(ii,iy),
+     1        s2psf(ii,iy),etpsf(ii,iy),xmult
                  endif
 csp-end
  1014         continue
@@ -2422,9 +2607,9 @@ csp07/05 initial & final mt distrb
            yra = 1d0
            if(iy .eq. 2)yra = 2d0
          do 1015 i=1,50
-cms        WRITE(nmfile(iy),251) BMT*dble(I - 0.5), 
-cms  &     SCALEi*DMYil(I,iy)/yra, SCALEf*DMYfl(I,iy)/yra,
-cms  &     SCALEi*DMYis(I,iy)/yra, SCALEf*DMYfs(I,iy)/yra
+           WRITE(nmfile(iy),251) BMT*dble(I - 0.5), 
+     &     SCALEi*DMYil(I,iy)/yra, SCALEf*DMYfl(I,iy)/yra,
+     &     SCALEi*DMYis(I,iy)/yra, SCALEf*DMYfs(I,iy)/yra
  1015   continue
  1016 continue
 csp07/05 end
@@ -2433,7 +2618,9 @@ clin-3/30/00 event-by-event average & variance of v2:
               do 1017 iy=1,3
                  v2pavg(iy)=v2psum(iy)/nevt(30)
                  v2var0=v2p2sm(iy)/nevt(30)-v2pavg(iy)**2
-                 if(v2var0.gt.0) varv2p(iy)=dsqrt(v2var0)
+clin-5/2012:
+c                 if(v2var0.gt.0) varv2p(iy)=dsqrt(v2var0)
+                 if(v2var0.gt.0d0) varv2p(iy)=dsqrt(v2var0)
  1017 continue
               write(49, 240) 'EBE v2p,v2p(y2),v2p(y1): avg=', v2pavg
               write(49, 240) 'EBE v2p,v2p(y2),v2p(y1): var=', varv2p
@@ -2462,7 +2649,9 @@ clin-5/18/01 calculate v2 for active partons:
                  s2pact=0d0
                  etpact=0d0
                  xnacti=0d0
-                 if(xnpf(ianp,iy).gt.1) then
+clin-5/2012:
+c                 if(xnpf(ianp,iy).gt.1) then
+                 if(xnpf(ianp,iy).gt.1d0) then
 c     reconstruct the sum of v2p, v2p2, s2p, etp, and xnp for formed partons:
                     v2pact=v2pf(ianp,iy)*xnpf(ianp,iy)
                     v2p2ac=(v2pf2(ianp,iy)**2*(xnpf(ianp,iy)-1)
@@ -2485,16 +2674,18 @@ c     save the sum of v2p, v2p2, s2p, etp, and xnp for formed partons:
                     etph=etpact
                     xnp2=xnpact/2d0
 c
-                    if(xnpact.gt.1.and.nevt(ianp).ne.0) then
+clin-5/2012:
+c                    if(xnpact.gt.1.and.nevt(ianp).ne.0) then
+                    if(xnpact.gt.1d0.and.nevt(ianp).ne.0) then
                        v2pact=v2pact/xnpact
                        v2p2ac=dsqrt((v2p2ac/xnpact
      1                    -v2pact**2)/(xnpact-1))
                        s2pact=s2pact/xnpact
                        xnacti=dble(xnpact/dble(nevt(ianp)))
                        etpact=etpact/dble(nevt(ianp))
-cms                    write (nfile(iy)+2, 250) tsp(ianp),v2pact,
-cms  1 v2p2ac,s2pact,etpact,xnacti,
-cms  2 xnpf(ianp,iy)/dble(nevt(ianp)),nevt(ianp)
+                       write (nfile(iy)+2, 250) tsp(ianp),v2pact,
+     1 v2p2ac,s2pact,etpact,xnacti,
+     2 xnpf(ianp,iy)/dble(nevt(ianp)),nevt(ianp)
                     endif
                  endif
 c     To calculate combined v2 for active partons plus formed hadrons, 
@@ -2509,16 +2700,18 @@ c     scale the hadron part in case nevt(ianp) != nevent:
                  etph=etph+eth(ianh,iy)*dble(nevent)*shadr
                  xnph=xnpact+xnhadr(ianh,iy)*shadr
                  xnp2h=xnp2+xnhadr(ianh,iy)*shadr
-                 if(xnph.gt.1) then
+clin-5/2012:
+c                 if(xnph.gt.1) then
+                 if(xnph.gt.1d0) then
                     v2ph=v2ph/xnph
                     v2ph2=dsqrt((v2ph2/xnph-v2ph**2)/(xnph-1))
                     s2ph=s2ph/xnph
                     etph=etph/dble(nevt(ianp))
                     xnp2=xnp2/dble(nevt(ianp))
                     xnp2h=xnp2h/dble(nevent)
-cms                 if(tsp(ianp).le.(ntmax*dt)) 
-cms  1                    write (nfile(iy)+3, 250) tsp(ianp),v2ph,
-cms  2 v2ph2,s2ph,etph,xnp2h,xnp2,nevt(ianp)
+                    if(tsp(ianp).le.(ntmax*dt)) 
+     1                    write (nfile(iy)+3, 250) tsp(ianp),v2ph,
+     2 v2ph2,s2ph,etph,xnp2h,xnp2,nevt(ianp)
                  endif
 c
  400              continue
@@ -2539,24 +2732,24 @@ c     reconstruct the sum of v2p, v2p2, s2p, etp, and xnp for formed partons:
                     xnpact=xnpf(ianp,iy)
  500              continue
  550           continue
-cms        close (620)
-cms        close (630)
+           close (620)
+           close (630)
            do 1021 nf=1,3
               do 1020 ifile=0,3
-cms              close(nfile(nf)+ifile)
+                 close(nfile(nf)+ifile)
  1020        continue
  1021     continue
            do 1022 nf=1,3
-cms           close(740+nf)
+              close(740+nf)
  1022      continue
         endif
-cyy 200        format(2x,f5.2,3(2x,f7.4),2(2x,f9.2),i6,2x,f9.2)
-cyy 210        format(2x,f5.2,3(2x,f7.4),3(2x,f9.2))
+ 200        format(2x,f5.2,3(2x,f7.4),2(2x,f9.2),i6,2x,f9.2)
+ 210        format(2x,f5.2,3(2x,f7.4),3(2x,f9.2))
  240        format(a30,3(2x,f9.5))
-cyy 250        format(2x,f5.2,3(2x,f7.4),3(2x,f9.2),i6)
+ 250        format(2x,f5.2,3(2x,f7.4),3(2x,f9.2),i6)
 csp
-cyy 201        format(2x,f5.2,4(2x,f9.2))
-cyy 251        format(5e15.5)
+ 201        format(2x,f5.2,4(2x,f9.2))
+ 251        format(5e15.5)
 c
         return
         end
@@ -2897,8 +3090,8 @@ c
               dnfrz(ii)=0d0
               detfrz(ii)=0d0
  1001      continue
-cms        OPEN (86, FILE = 'ana1/production.dat', STATUS = 'UNKNOWN')
-cms        OPEN (87, FILE = 'ana1/freezeout.dat', STATUS = 'UNKNOWN')
+           OPEN (86, FILE = 'ana1/production.dat', STATUS = 'UNKNOWN')
+           OPEN (87, FILE = 'ana1/freezeout.dat', STATUS = 'UNKNOWN')
         else if(idd.eq.1) then
            DO 100 ip = 1, MUL
               do 1002 ii=1,30
@@ -2927,10 +3120,10 @@ c     number and Et freezed out from time tsf(ii) to tsf(ii+1):
  1002         continue
  100           continue
         else if(idd.eq.2) then
-cms        write (86,*) '       t,       np,       dnp/dt,      etp '//
-cms  1 ' detp/dt'
-cms        write (87,*) '       t,       nf,       dnf/dt,      etf '//
-cms  1 ' detf/dt'
+           write (86,*) '       t,       np,       dnp/dt,      etp '//
+     1 ' detp/dt'
+           write (87,*) '       t,       nf,       dnf/dt,      etf '//
+     1 ' detf/dt'
            do 1003 ii=1,30
               xnp=xnprod(ii)/dble(NEVNT)
               xnf=xnfrz(ii)/dble(NEVNT)
@@ -2940,13 +3133,13 @@ cms  1 ' detf/dt'
               dxnf=dnfrz(ii)/dble(NEVNT)/(tsf(ii+1)-tsf(ii))
               detp=detpro(ii)/dble(NEVNT)/(tsf(ii+1)-tsf(ii))
               detf=detfrz(ii)/dble(NEVNT)/(tsf(ii+1)-tsf(ii))
-cms           write (86, 200) 
-cms  1        tsf(ii+1),xnp,dxnp,etp,detp
-cms           write (87, 200) 
-cms  1        tsf(ii+1),xnf,dxnf,etf,detf
+              write (86, 200) 
+     1        tsf(ii+1),xnp,dxnp,etp,detp
+              write (87, 200) 
+     1        tsf(ii+1),xnf,dxnf,etf,detf
  1003      continue
         endif
-cyy 200    format(2x,f9.2,4(2x,f10.2))
+ 200    format(2x,f9.2,4(2x,f10.2))
 c
         return
         end
@@ -2954,7 +3147,9 @@ c
 c=======================================================================
 clin-6/2009 write out initial minijet information 
 c     before propagating to its formation time:
-        subroutine minijet_out(BB)
+clin-2/2012:
+c        subroutine minijet_out(BB)
+        subroutine minijet_out(BB,phiRP)
         PARAMETER (MAXSTR=150001)
         COMMON/HPARNT/HIPR1(100),IHPR2(50),HINT1(100),IHNT2(50)
         COMMON/hjcrdn/YP(3,300),YT(3,300)
@@ -2968,7 +3163,7 @@ c     before propagating to its formation time:
      &       PZSG(MAXSTR,100),PESG(MAXSTR,100),PMSG(MAXSTR,100)
         COMMON /AREVT/ IAEVT, IARUN, MISS
         common /para7/ ioscar,nsmbbbar,nsmmeson
-        common/phidcy/iphidcy,pttrig,ntrig,maxmiss
+        common/phidcy/iphidcy,pttrig,ntrig,maxmiss,ipi0dcy
         SAVE
         ntrig=0
         do I = 1, IHNT2(1)
@@ -2999,10 +3194,13 @@ c.....transfer data from HIJING to ZPC
               ityp=KFPJ(I,J)
 c     write out not only gluons:
 c              if(ityp.ne.21) goto 1007
-              gx=YP(1,I)+0.5*BB
-              gy=YP(2,I)
-              gz=0d0
-              ft=0d0
+clin-2/2012:
+c              gx=YP(1,I)+0.5*BB
+c              gy=YP(2,I)
+              gx=YP(1,I)+0.5*BB*cos(phiRP)
+              gy=YP(2,I)+0.5*BB*sin(phiRP)
+              gz=0.
+              ft=0.
               px=PJPX(I,J)
               py=PJPY(I,J)
               pz=PJPZ(I,J)
@@ -3021,10 +3219,13 @@ c              if(ityp.ne.21) goto 1007
            DO 1009 J = 1, NTJ(I)
               ityp=KFTJ(I,J)
 c              if(ityp.ne.21) goto 1009
-              gx=YT(1,I)-0.5*BB
-              gy=YT(2,I)
-              gz=0d0
-              ft=0d0
+clin-2/2012:
+c              gx=YT(1,I)-0.5*BB
+c              gy=YT(2,I)
+              gx=YT(1,I)-0.5*BB*cos(phiRP)
+              gy=YT(2,I)-0.5*BB*sin(phiRP)
+              gz=0.
+              ft=0.
               px=PJTX(I,J)
               py=PJTY(I,J)
               pz=PJTZ(I,J)
@@ -3045,8 +3246,8 @@ c              if(ityp.ne.21) goto 1009
 c              if(ityp.ne.21) goto 1011
               gx=0.5*(YP(1,IASG(I,1))+YT(1,IASG(I,2)))
               gy=0.5*(YP(2,IASG(I,1))+YT(2,IASG(I,2)))
-              gz=0d0
-              ft=0d0
+              gz=0.
+              ft=0.
               px=PXSG(I,J)
               py=PYSG(I,J)
               pz=PZSG(I,J)
@@ -3073,8 +3274,10 @@ c     via embedding back-to-back high-Pt pion pair then melting the pion pair
 c     by generating the internal quark and antiquark momentum parallel to 
 c      the pion momentum (in order to produce a high-Pt and a low Pt parton):
       subroutine embedHighPt
-      PARAMETER (MAXSTR=150001,MAXR=1,pichmass=0.140)
-      common/embed/iembed,pxqembd,pyqembd,xembd,yembd
+      PARAMETER (MAXSTR=150001,MAXR=1,pichmass=0.140,pi0mass=0.135,
+     1     pi=3.1415926,nxymax=10001)
+      common/embed/iembed,nsembd,pxqembd,pyqembd,xembd,yembd,
+     1     psembd,tmaxembd,phidecomp
       COMMON/RNDF77/NSEED
       COMMON/HMAIN1/EATT,JATT,NATT,NT,NP,N0,N01,N10,N11
       COMMON/HMAIN2/KATT(MAXSTR,4),PATT(MAXSTR,4)
@@ -3082,10 +3285,27 @@ c      the pion momentum (in order to produce a high-Pt and a low Pt parton):
      &     GXAR(MAXSTR), GYAR(MAXSTR), GZAR(MAXSTR), FTAR(MAXSTR),
      &     PXAR(MAXSTR), PYAR(MAXSTR), PZAR(MAXSTR), PEAR(MAXSTR),
      &     XMAR(MAXSTR)
-cwei      DOUBLE PRECISION PATT
+      common/anim/nevent,isoft,isflag,izpc
+      COMMON /AREVT/ IAEVT, IARUN, MISS
+      common/xyembed/nxyjet,xyjet(nxymax,2)
       SAVE
 c
-      if(iembed.ne.1) return
+      if(iembed.eq.1.or.iembed.eq.2) then
+         xjet=xembd
+         yjet=yembd
+      elseif(iembed.eq.3.or.iembed.eq.4) then
+         if(nevent.le.nxyjet) then
+            read(97,*) xjet,yjet
+         else
+            ixy=mod(IAEVT,nxyjet)
+            if(ixy.eq.0) ixy=nxyjet
+            xjet=xyjet(ixy,1)
+            yjet=xyjet(ixy,2)
+         endif
+      else
+         return
+      endif
+c
       ptq=sqrt(pxqembd**2+pyqembd**2)
       if(ptq.lt.(pichmass/2.)) then
          print *, 'Embedded quark transverse momentum is too small'
@@ -3096,10 +3316,10 @@ c     Randomly embed u/ubar or d/dbar at high Pt:
 c     Flavor content for the charged pion that contains the leading quark:
       if(idqembd.eq.1) then 
          idqsoft=-2
-         idpi=-211
+         idpi1=-211
       elseif(idqembd.eq.2) then 
          idqsoft=-1
-         idpi=211
+         idpi1=211
       else
          print *, 'Wrong quark flavor embedded'
          stop
@@ -3111,19 +3331,32 @@ c     Caculate transverse momentum of the parent charged pion:
      1     -sqrt((xmq**2+ptq**2)*(pichmass**4
      2     -2.*pichmass**2*(xmq**2+xmqsoft**2)+(xmq**2-xmqsoft**2)**2)))
      3     /(2.*xmq**2)
-      pxpi=ptpi*pxqembd/ptq
-      pypi=ptpi*pyqembd/ptq
+      if(iembed.eq.1.or.iembed.eq.3) then
+         pxpi1=ptpi*pxqembd/ptq
+         pypi1=ptpi*pyqembd/ptq
+         phidecomp=acos(pxqembd/ptq)
+         if(pyqembd.lt.0) phidecomp=2.*pi-phidecomp
+      else
+         phidecomp=2.*pi*RANART(NSEED)
+         pxpi1=ptpi*cos(phidecomp)
+         pypi1=ptpi*sin(phidecomp)
+      endif
 c     Embedded quark/antiquark are assumed to have pz=0:
-      pzpi=0.
+      pzpi1=0.
 c     Insert the two parent charged pions, 
 c     ipion=1 for the pion containing the leading quark, 
 c     ipion=2 for the pion containing the leading antiquark of the same flavor:
       do ipion=1,2
-         if(ipion.eq.2) then
-            idpi=-idpi
-            pxpi=-pxpi
-            pypi=-pypi
-            pzpi=-pzpi
+         if(ipion.eq.1) then
+            idpi=idpi1
+            pxpi=pxpi1
+            pypi=pypi1
+            pzpi=pzpi1
+         elseif(ipion.eq.2) then
+            idpi=-idpi1
+            pxpi=-pxpi1
+            pypi=-pypi1
+            pzpi=-pzpi1
          endif
          NATT=NATT+1
          KATT(NATT,1)=idpi
@@ -3134,8 +3367,8 @@ c     ipion=2 for the pion containing the leading antiquark of the same flavor:
          PATT(NATT,3)=pzpi
          PATT(NATT,4)=sqrt(pxpi**2+pypi**2+pzpi**2+pichmass**2)
          EATT=EATT+PATT(NATT,4)
-         GXAR(NATT)=xembd
-         GYAR(NATT)=yembd
+         GXAR(NATT)=xjet
+         GYAR(NATT)=yjet
          GZAR(NATT)=0.
          FTAR(NATT)=0.
          ITYPAR(NATT)=KATT(NATT,1) 
@@ -3145,6 +3378,62 @@ c     ipion=2 for the pion containing the leading antiquark of the same flavor:
          PEAR(NATT)=PATT(NATT,4)
          XMAR(NATT)=pichmass
       enddo
+c
+clin-8/2009
+c     Randomly embed a number of soft pions around each high-Pt quark in pair:
+      if(nsembd.gt.0) then
+         do ipion=1,2
+            do ispion=1,nsembd
+               idsart=3+int(3*RANART(NSEED))
+               if(idsart.eq.3) then 
+                  pimass=pichmass
+                  idpis=-211
+               elseif(idsart.eq.4) then 
+                  pimass=pi0mass
+                  idpis=111
+               else
+                  pimass=pichmass
+                  idpis=211
+               endif
+               NATT=NATT+1
+               KATT(NATT,1)=idpis
+               KATT(NATT,2)=40
+               KATT(NATT,3)=0
+c     theta: relative angle between soft pion & associated high-Pt q or qbar,
+c     generate theta and phi uniformly:
+c     Note: it is not generated uniformly in solid angle because that gives 
+c     a valley at theta=0, unlike the jet-like correlation (a peak at theta=0).
+               theta=tmaxembd*RANART(NSEED)
+               phi=2.*pi*RANART(NSEED)
+               pxspi=psembd*sin(theta)*cos(phi)
+               pyspi=psembd*sin(theta)*sin(phi)
+               pzspi=psembd*cos(theta)
+               if(ipion.eq.1) then
+                  call rotate(pxpi1,pypi1,pzpi1,pxspi,pyspi,pzspi)
+               else
+                  call rotate(-pxpi1,-pypi1,-pzpi1,pxspi,pyspi,pzspi)
+               endif
+ctest off
+c               write(99,*) "2  ",pxspi,pyspi,pzspi
+               PATT(NATT,1)=pxspi
+               PATT(NATT,2)=pyspi
+               PATT(NATT,3)=pzspi
+               PATT(NATT,4)=sqrt(psembd**2+pimass**2)
+               EATT=EATT+PATT(NATT,4)
+               GXAR(NATT)=xjet
+               GYAR(NATT)=yjet
+               GZAR(NATT)=0.
+               FTAR(NATT)=0.
+               ITYPAR(NATT)=KATT(NATT,1) 
+               PXAR(NATT)=PATT(NATT,1)
+               PYAR(NATT)=PATT(NATT,2)
+               PZAR(NATT)=PATT(NATT,3)
+               PEAR(NATT)=PATT(NATT,4)
+               XMAR(NATT)=pimass
+            enddo
+         enddo
+      endif
+clin-8/2009-end
 c
       return
       end

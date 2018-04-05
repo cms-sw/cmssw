@@ -22,7 +22,7 @@ BlockSolver::operator () (const CLHEP::HepMatrix & matrix,
 
   int dim = matrix.num_col () - holes.size () ;
 
-  if (holes.size () == 0) //PG exceptional case!
+  if (holes.empty()) //PG exceptional case!
     {
       for (int i = 0 ; i < result.num_row () ; ++i)
         result[i] = 1. ;

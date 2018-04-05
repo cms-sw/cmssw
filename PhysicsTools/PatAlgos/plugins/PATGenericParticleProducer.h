@@ -16,7 +16,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -39,14 +39,14 @@
 
 namespace pat {
 
-  class PATGenericParticleProducer : public edm::EDProducer {
+  class PATGenericParticleProducer : public edm::stream::EDProducer<> {
 
     public:
 
       explicit PATGenericParticleProducer(const edm::ParameterSet & iConfig);
-      ~PATGenericParticleProducer();
+      ~PATGenericParticleProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
     private:
 

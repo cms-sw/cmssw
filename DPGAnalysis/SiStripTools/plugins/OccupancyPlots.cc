@@ -67,15 +67,15 @@
 class OccupancyPlots : public edm::EDAnalyzer {
    public:
       explicit OccupancyPlots(const edm::ParameterSet&);
-      ~OccupancyPlots();
+      ~OccupancyPlots() override;
 
 
 private:
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void endJob() override ;
 
       // ----------member data ---------------------------
 
@@ -237,6 +237,7 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   LogTrace("IsThereTest") << " is there PixelEndcap: " << trkgeo->isThere(GeomDetEnumerators::PixelEndcap);
   LogTrace("IsThereTest") << " is there P1PXB: " << trkgeo->isThere(GeomDetEnumerators::P1PXB);
   LogTrace("IsThereTest") << " is there P1PXEC: " << trkgeo->isThere(GeomDetEnumerators::P1PXEC);
+  LogTrace("IsThereTest") << " is there P2PXB: " << trkgeo->isThere(GeomDetEnumerators::P2PXB);
   LogTrace("IsThereTest") << " is there P2PXEC: " << trkgeo->isThere(GeomDetEnumerators::P2PXEC);
   LogTrace("IsThereTest") << " is there TIB: " << trkgeo->isThere(GeomDetEnumerators::TIB);
   LogTrace("IsThereTest") << " is there TID: " << trkgeo->isThere(GeomDetEnumerators::TID);
@@ -299,6 +300,12 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
      }
   }
 
+  // counting the number of channels per module subset
+
+  // the histograms have to be reset to avoid double counting if endRun is called more than once
+
+  if(m_nchannels_ideal && *m_nchannels_ideal) (*m_nchannels_ideal)->Reset();
+  if(m_nchannels_real && *m_nchannels_real) (*m_nchannels_real)->Reset();
 
   edm::ESHandle<SiStripQuality> quality;
   iSetup.get<SiStripQualityRcd>().get("",quality);

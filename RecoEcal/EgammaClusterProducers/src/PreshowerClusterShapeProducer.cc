@@ -59,7 +59,7 @@ PreshowerClusterShapeProducer::PreshowerClusterShapeProducer(const ParameterSet&
 
   string tmpPath = ps.getUntrackedParameter<string>("pathToWeightFiles","RecoEcal/EgammaClusterProducers/data/");
   
-  presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut, preshNst, tmpPath.c_str()); 
+  presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut, preshNst, tmpPath); 
 
   LogTrace("EcalClusters") << "PreshowerClusterShapeProducer:presh_pi0_algo class instantiated " ;
   
@@ -91,12 +91,12 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   const CaloSubdetectorGeometry *& geometry_p = geometry;
 
 
-  // create an auto_ptr to a PreshowerClusterShapeCollection
-  std::auto_ptr< reco::PreshowerClusterShapeCollection > ps_cl_for_pi0_disc_x(new reco::PreshowerClusterShapeCollection);
-  std::auto_ptr< reco::PreshowerClusterShapeCollection > ps_cl_for_pi0_disc_y(new reco::PreshowerClusterShapeCollection);
+  // create a unique_ptr to a PreshowerClusterShapeCollection
+  auto ps_cl_for_pi0_disc_x = std::make_unique<reco::PreshowerClusterShapeCollection>();
+  auto ps_cl_for_pi0_disc_y = std::make_unique<reco::PreshowerClusterShapeCollection>();
 
 
-  CaloSubdetectorTopology* topology_p=0;
+  CaloSubdetectorTopology* topology_p=nullptr;
   if (geometry)
       topology_p = new EcalPreshowerTopology(geoHandle);
 
@@ -186,8 +186,8 @@ void PreshowerClusterShapeProducer::produce(Event& evt, const EventSetup& es) {
   ps_cl_for_pi0_disc_x->assign(ps_cl_x.begin(), ps_cl_x.end());
   ps_cl_for_pi0_disc_y->assign(ps_cl_y.begin(), ps_cl_y.end());
   
-  evt.put(ps_cl_for_pi0_disc_x, PreshowerClusterShapeCollectionX_);
-  evt.put(ps_cl_for_pi0_disc_y, PreshowerClusterShapeCollectionY_);  
+  evt.put(std::move(ps_cl_for_pi0_disc_x), PreshowerClusterShapeCollectionX_);
+  evt.put(std::move(ps_cl_for_pi0_disc_y), PreshowerClusterShapeCollectionY_);  
   LogTrace("EcalClusters") << "PreshowerClusterShapeCollection added to the event" ;
   
   if (topology_p)

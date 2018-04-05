@@ -16,12 +16,12 @@
 // Input and output collection
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -36,11 +36,11 @@ class L3MuonProducer : public edm::stream::EDProducer<> {
   L3MuonProducer(const edm::ParameterSet&);
   
   /// destructor
-  virtual ~L3MuonProducer(); 
+  ~L3MuonProducer() override; 
   
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
  private:
     

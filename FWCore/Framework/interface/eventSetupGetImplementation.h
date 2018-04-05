@@ -23,6 +23,7 @@
 // user include files
 #include "FWCore/Framework/interface/HCMethods.h"
 #include "FWCore/Framework/interface/NoRecordException.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 namespace edm {
   class EventSetup;
@@ -30,8 +31,8 @@ namespace edm {
       template< class T>
       inline void eventSetupGetImplementation(EventSetup const& iEventSetup, T const*& iValue) {
          T const* temp = heterocontainer::find<EventSetupRecordKey, T const>(iEventSetup);
-         if(0 == temp) {
-            throw NoRecordException<T>();
+         if(nullptr == temp) {
+            throw NoRecordException<T>(recordDoesExist(iEventSetup, EventSetupRecordKey::makeKey<T>()));
          }
          iValue = temp;
       }

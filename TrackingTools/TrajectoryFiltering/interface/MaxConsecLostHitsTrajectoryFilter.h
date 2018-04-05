@@ -11,17 +11,17 @@ public:
   explicit MaxConsecLostHitsTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC):
     theMaxConsecLostHits( pset.getParameter<int>("maxConsecLostHits")) {}
 
-  virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
-  virtual bool qualityFilter( const TempTrajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
+  bool qualityFilter( const Trajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }
+  bool qualityFilter( const TempTrajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }
 
-  virtual bool toBeContinued( TempTrajectory& traj) const { return TBC<TempTrajectory>(traj);}
-  virtual bool toBeContinued( Trajectory& traj) const { return TBC<Trajectory>(traj);}
+  bool toBeContinued( TempTrajectory& traj) const override { return TBC<TempTrajectory>(traj);}
+  bool toBeContinued( Trajectory& traj) const override { return TBC<Trajectory>(traj);}
 
-  virtual std::string name() const {return "MaxConsecLostHitsTrajectoryFilter";}
+  std::string name() const override {return "MaxConsecLostHitsTrajectoryFilter";}
 
 protected:
 
-  template <class T> bool TBC(const T& traj) const{
+  template <class T> bool TBC(T& traj) const{
     int consecLostHit = 0;
     const  typename T::DataContainer & tms = traj.measurements();
     typename T::DataContainer::size_type itm;
@@ -31,8 +31,9 @@ protected:
 	       Trajectory::lost(*tms[itm-1].recHit())) consecLostHit++;
     }
   
-    return  consecLostHit <= theMaxConsecLostHits; 
-
+    bool ret = consecLostHit <= theMaxConsecLostHits;
+    if (!ret) traj.setStopReason(StopReason::MAX_CONSECUTIVE_LOST_HITS);
+    return ret;
     }
 
   int theMaxConsecLostHits;

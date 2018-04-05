@@ -19,9 +19,9 @@ class JetValidation : public edm::EDAnalyzer
      public:
        JetValidation(edm::ParameterSet const& cfg);
      private:
-       void beginJob();
-       void analyze(edm::Event const& e, edm::EventSetup const& iSetup);
-       void endJob();
+       void beginJob() override;
+       void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
+       void endJob() override;
        void FillHist1D(const TString& histName, const Double_t& x);
        void FillHist2D(const TString& histName, const Double_t& x, const Double_t& y);
        void FillHistProfile(const TString& histName, const Double_t& x, const Double_t& y);

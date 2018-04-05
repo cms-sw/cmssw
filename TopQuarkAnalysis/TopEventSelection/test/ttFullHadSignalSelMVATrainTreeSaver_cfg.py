@@ -24,27 +24,29 @@ process.options = cms.untracked.PSet(
 )
 
 ## configure geometry & conditions
-process.options = cms.untracked.PSet(
-    allowUnscheduled = cms.untracked.bool(True),
-    wantSummary      = cms.untracked.bool(True)
-)
-
-## configure geometry & conditions
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
+process.task = cms.Task()
+
 ## std sequence for PAT
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.task.add(process.patCandidatesTask)
+#Temporary customize to the unit tests that fail due to old input samples
+process.patTaus.skipMissingTauID = True
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+process.task.add(process.selectedPatCandidatesTask)
 
 ## std sequence for ttGenEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
+process.task.add(process.makeGenEvtTask)
 
 ## filter for full-hadronic
 process.load("TopQuarkAnalysis.TopSkimming.ttDecayChannelFilters_cff")
+process.task.add(process.ttDecayChannelFiltersTask)
 
 ## configure mva trainer
 process.load("TopQuarkAnalysis.TopEventSelection.TtFullHadSignalSelMVATrainTreeSaver_cff")
@@ -61,6 +63,7 @@ process.looper = looper
 
 ## jet count filter
 process.load("PhysicsTools.PatAlgos.selectionLayer1.jetCountFilter_cfi")
+process.task.add(process.countPatJets)
 
 ## setup jet collection, right now at least 6 jets needed for the MVA trainer/computer
 process.leadingJetSelection = process.countPatJets.clone(src = 'selectedPatJets',
@@ -70,4 +73,5 @@ process.leadingJetSelection = process.countPatJets.clone(src = 'selectedPatJets'
 ## produce pat objects and ttGenEvt and make mva training
 process.p = cms.Path(process.ttFullHadronicFilter *
                      process.leadingJetSelection *
-                     process.saveTrainTree)
+                     process.saveTrainTree,
+                     process.task)

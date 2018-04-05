@@ -22,11 +22,11 @@ class ElectronDqmHarvesterBase : public DQMEDHarvester
   protected:
 
     explicit ElectronDqmHarvesterBase( const edm::ParameterSet & conf ) ;
-    virtual ~ElectronDqmHarvesterBase() ;
+    ~ElectronDqmHarvesterBase() override ;
 
     // specific implementation of EDAnalyzer
-    void beginJob() ; // prepare DQM, open input field if declared, and call book() below
-    void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&); //performed in the endLumi
+    void beginJob() override ; // prepare DQM, open input field if declared, and call book() below
+    void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&) override; //performed in the endLumi
     void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
     // interface to implement in derived classes

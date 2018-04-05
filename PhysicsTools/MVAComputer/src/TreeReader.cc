@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include <cstdint>
 #include <utility>
 #include <cstring>
 #include <string>
@@ -23,7 +23,7 @@ namespace PhysicsTools {
 const double TreeReader::kOptVal = -999.0;
 
 TreeReader::TreeReader() :
-	tree(0), upToDate(false)
+	tree(nullptr), upToDate(false)
 {
 }
 
@@ -132,9 +132,9 @@ void TreeReader::addBranch(TBranch *branch, AtomicId name, bool opt)
 			<< std::endl;
 
 	if (multi)
-		addTypeMulti(name, 0, typeId);
+		addTypeMulti(name, nullptr, typeId);
 	else
-		addTypeSingle(name, 0, typeId, opt);
+		addTypeSingle(name, nullptr, typeId, opt);
 
 	valueMap[name].setBranchName(branch->GetName());
 }
@@ -194,7 +194,7 @@ void TreeReader::addTypeSingle(AtomicId name, const void *value, char type, bool
 
 template<typename T>
 static std::pair<void*, std::vector<T> > makeMulti()
-{ return std::pair<void*, std::vector<T> >(0, std::vector<T>()); }
+{ return std::pair<void*, std::vector<T> >(nullptr, std::vector<T>()); }
 
 void TreeReader::addTypeMulti(AtomicId name, const void *value, char type)
 {
@@ -354,7 +354,7 @@ void TreeReader::Value::update(TreeReader *reader) const
 	if (ptr)
 		return;
 
-	void *value = 0;
+	void *value = nullptr;
 	if (multiple) {
 		switch(type) {
 		    case 'D':

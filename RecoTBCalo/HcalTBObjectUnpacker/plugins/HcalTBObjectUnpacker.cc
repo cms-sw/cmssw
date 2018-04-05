@@ -1,4 +1,3 @@
-using namespace std;
 
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBTriggerData.h"
 #include "TBDataFormats/HcalTBObjects/interface/HcalTBRunData.h"
@@ -10,6 +9,7 @@ using namespace std;
 #include "DataFormats/Common/interface/Handle.h"
 #include <iostream>
 #include <fstream>
+using namespace std;
 
 
   HcalTBObjectUnpacker::HcalTBObjectUnpacker(edm::ParameterSet const& conf):
@@ -60,11 +60,11 @@ using namespace std;
 
     if (tdcFed_ >= 0 || qadcFed_ >=0 ) {
       calibLines_.clear();
-      if(calibFile_.size()>0){
+      if(!calibFile_.empty()){
 	
 	parseCalib();
 	//  printf("I got %d lines!\n",calibLines_.size());
-	if(calibLines_.size()==0)
+	if(calibLines_.empty())
 	  throw cms::Exception("Incomplete configuration") << 
 	    "HcalTBObjectUnpacker: TDC/QADC/WC configuration file not found or is empty: "<<calibFile_<<endl;
       }
@@ -96,23 +96,17 @@ using namespace std;
     e.getByToken(tok_raw_, rawraw);           
 
     // Step B: Create empty output    
-    std::auto_ptr<HcalTBTriggerData>
-      trigd(new HcalTBTriggerData);
+    auto trigd = std::make_unique<HcalTBTriggerData>();
 
-    std::auto_ptr<HcalTBRunData>
-      rund(new HcalTBRunData);
+    auto rund = std::make_unique<HcalTBRunData>();
 
-    std::auto_ptr<HcalTBEventPosition>
-      epd(new HcalTBEventPosition);
+    auto epd = std::make_unique<HcalTBEventPosition>();
 
-    std::auto_ptr<HcalTBTiming>
-      tmgd(new HcalTBTiming);
+    auto tmgd = std::make_unique<HcalTBTiming>();
 
-    std::auto_ptr<HcalTBBeamCounters>
-      bcntd(new HcalTBBeamCounters);
+    auto bcntd = std::make_unique<HcalTBBeamCounters>();
 
-    std::auto_ptr<HcalSourcePositionData>
-      spd(new HcalSourcePositionData);
+    auto spd = std::make_unique<HcalSourcePositionData>();
     
     if (triggerFed_ >=0) {
       // Step C: unpack all requested FEDs
@@ -147,18 +141,18 @@ using namespace std;
     }
 
     // Step D: Put outputs into event
-    if (doTriggerData_) e.put(trigd);
-    if (doRunData_) e.put(rund);
-    if (doEventPosition_) e.put(epd);
-    if (doTiming_) e.put(tmgd);
-    if (doBeamADC_) e.put(bcntd);
-    if (doSourcePos_) e.put(spd);
+    if (doTriggerData_) e.put(std::move(trigd));
+    if (doRunData_) e.put(std::move(rund));
+    if (doEventPosition_) e.put(std::move(epd));
+    if (doTiming_) e.put(std::move(tmgd));
+    if (doBeamADC_) e.put(std::move(bcntd));
+    if (doSourcePos_) e.put(std::move(spd));
   }
 
 
 void HcalTBObjectUnpacker::parseCalib(){
   
-  if(calibFile_.size()==0){
+  if(calibFile_.empty()){
     printf("HcalTBObjectUnpacker cowardly refuses to parse a NULL file...\n"); 
     return;
   }
@@ -193,7 +187,7 @@ void HcalTBObjectUnpacker::parseCalib(){
       }
     }  
     
-    if(lineVect.size()>0) calibLines_.push_back(lineVect);    
+    if(!lineVect.empty()) calibLines_.push_back(lineVect);    
   }
 
   infile.close();

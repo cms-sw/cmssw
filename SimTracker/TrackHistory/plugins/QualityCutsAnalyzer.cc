@@ -16,7 +16,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,19 +33,19 @@
 // class decleration
 //
 
-class QualityCutsAnalyzer : public edm::EDAnalyzer
+class QualityCutsAnalyzer : public edm::one::EDAnalyzer<>
 {
 
 public:
 
     explicit QualityCutsAnalyzer(const edm::ParameterSet&);
-    ~QualityCutsAnalyzer();
+    ~QualityCutsAnalyzer() override;
 
 private:
 
-    virtual void beginJob() override ;
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+    void beginJob() override ;
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void endJob() override;
 
     // Member data
 
@@ -338,7 +338,7 @@ QualityCutsAnalyzer::LoopOverJetTracksAssociation(
     // use first pv of the collection
     reco::Vertex pv;
 
-    if (primaryVertexProducer_->size() != 0)
+    if (!primaryVertexProducer_->empty())
     {
         PrimaryVertexSorter pvs;
         std::vector<reco::Vertex> sortedList = pvs.sortedList(*(primaryVertexProducer_.product()));

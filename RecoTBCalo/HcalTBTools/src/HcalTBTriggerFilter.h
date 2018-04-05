@@ -15,8 +15,8 @@
 class HcalTBTriggerFilter : public edm::EDFilter {
 public:
   HcalTBTriggerFilter(const edm::ParameterSet& ps);
-  virtual ~HcalTBTriggerFilter() {}
-  virtual bool filter(edm::Event& e, edm::EventSetup const& c);
+  ~HcalTBTriggerFilter() override {}
+  bool filter(edm::Event& e, edm::EventSetup const& c) override;
 private:
   bool allowPedestal_;
   bool allowPedestalInSpill_;

@@ -20,7 +20,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
 //DQM services
@@ -62,7 +62,7 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>
@@ -79,8 +79,8 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
   //typedef std::vector<float> FloatVector;
 
   explicit GlobalHitsAnalyzer(const edm::ParameterSet&);
-  virtual ~GlobalHitsAnalyzer();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~GlobalHitsAnalyzer() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  protected:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -105,6 +105,7 @@ class GlobalHitsAnalyzer : public DQMEDAnalyzer
   std::string label;
   bool getAllProvenances;
   bool printProvenanceInfo;
+  bool testNumber;
 
   bool validHepMCevt;
   bool validG4VtxContainer;

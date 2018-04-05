@@ -14,17 +14,17 @@ public:
   // be obsolete.
   TT6NoiseCalculator();
   TT6NoiseCalculator(int evnt_ini,int evnt_iter,float sig_cut);
-  virtual ~TT6NoiseCalculator();
+  ~TT6NoiseCalculator() override;
 
-  void setStripNoise(ApvAnalysis::PedestalType& in) {theNoise.clear(); theNoise = in;}
-  ApvAnalysis::PedestalType noise() const {return theNoise;}
-  float stripNoise(int in) const {return theNoise[in];}
+  void setStripNoise(ApvAnalysis::PedestalType& in) override {theNoise.clear(); theNoise = in;}
+  ApvAnalysis::PedestalType noise() const override {return theNoise;}
+  float stripNoise(int in) const override {return theNoise[in];}
   int nevents() const {return numberOfEvents;}
 
-  void updateStatus();  
-  void resetNoise() {theNoise.clear();}
-  void updateNoise(ApvAnalysis::PedestalType& in);
-  void newEvent();
+  void updateStatus() override;  
+  void resetNoise() override {theNoise.clear();}
+  void updateNoise(ApvAnalysis::PedestalType& in) override;
+  void newEvent() override;
   
   ApvAnalysis::PedestalType stripCMPSubtractedSignal() const
                {return theCMPSubtractedSignal;}

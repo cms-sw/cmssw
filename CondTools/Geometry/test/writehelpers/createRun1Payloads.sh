@@ -17,7 +17,6 @@ sed -i {s/TagXX/${mytag}/g} splitRun1Database.sh
 # large XML file for the Extended2015 scenario.
 # Input cff                    Output file
 # GeometryExtended_cff         geSingleBigFile.xml
-sed -i '{s/Extended2015/Extended/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
 
 # Now convert the content of the large XML file into
@@ -25,8 +24,6 @@ cmsRun geometryxmlwriter.py
 # Also reads in the little XML files again and fills
 # the DDCompactView. From the DDCompactView the
 # reco parts of the database are also filled.
-sed -i '{s/Extended2015/Extended/g}' xmlgeometrywriter.py
-sed -i '{s/Extended2015/Extended/g}' geometrywriter.py
 cmsRun geometrywriter.py
 
 # Now put the other scenarios into the database.
@@ -39,11 +36,11 @@ cmsRun geometrywriter.py
 # Input cff                    Output file
 # GeometryIdeal_cff            giSingleBigFile.xml
 #
-sed -i '{s/Extended/ExtendedTest2014/g}' geometryxmlwriter.py
-sed -i '{s/\/ge/\/get/g}' geometryxmlwriter.py
+sed -i '{s/Extended/ExtendedZeroMaterial/g}' geometryxmlwriter.py
+sed -i '{s/\/ge/\/gez/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
-sed -i '{s/ExtendedTest2014/Ideal/g}' geometryxmlwriter.py
-sed -i '{s/\/get/\/gi/g}' geometryxmlwriter.py
+sed -i '{s/ExtendedZeroMaterial/Ideal/g}' geometryxmlwriter.py
+sed -i '{s/\/gez/\/gi/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
 
 # Read the one big XML file and output a record to the
@@ -56,11 +53,11 @@ cmsRun geometryxmlwriter.py
 # gegSingleBigFile.xml      XMLFILE_Geometry_${mytag}_Extended2015GFlash_mc
 # giSingleBigFile.xml       XMLFILE_Geometry_${mytag}_Ideal_mc
 #
-sed -i '{s/Extended/ExtendedTest2014/g}' xmlgeometrywriter.py
-sed -i '{s/\/ge/\/get/g}' xmlgeometrywriter.py
+sed -i '{s/Extended/ExtendedZeroMaterial/g}' xmlgeometrywriter.py
+sed -i '{s/\/ge/\/gez/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
-sed -i '{s/ExtendedTest2014/Ideal/g}' xmlgeometrywriter.py
-sed -i '{s/\/get/\/gi/g}' xmlgeometrywriter.py
+sed -i '{s/ExtendedZeroMaterial/Ideal/g}' xmlgeometrywriter.py
+sed -i '{s/\/gez/\/gi/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
 # All the database objects were written into one database

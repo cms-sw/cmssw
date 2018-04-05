@@ -79,7 +79,6 @@ void EgammaHLTHcalIsolationDoubleConeProducers::produce(edm::Event& iEvent, cons
     isoMap.insert(recoecalcandref, isol);
   }
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> isolMap(new reco::RecoEcalCandidateIsolationMap(isoMap));
-  iEvent.put(isolMap);
+  iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(isoMap));
 
 }

@@ -220,7 +220,7 @@ EgGEDPhotonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   const PhotonCollection theRecoPh = *(theRecoPhotonCollection.product());
 
 
-  InputTag  MCTruthCollection(string("generator"));
+  InputTag  MCTruthCollection(string("VtxSmeared"));
   edm::Handle<edm::HepMCProduct> pMCTruth;
   iEvent.getByLabel(MCTruthCollection,pMCTruth);
   const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();

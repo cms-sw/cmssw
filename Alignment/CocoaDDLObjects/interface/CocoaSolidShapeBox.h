@@ -17,7 +17,7 @@ class CocoaSolidShapeBox : public CocoaSolidShape
 public:
   //---------- Constructors / Destructor
   CocoaSolidShapeBox( ALIstring type, ALIfloat xdim, ALIfloat ydim, ALIfloat zdim );
-  ~CocoaSolidShapeBox(){ };
+  ~CocoaSolidShapeBox() override{ };
 
   ALIfloat getXHalfLength() const {
     return theXHalfLength; }

@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-validationMuonRPCDigis = cms.EDAnalyzer("RPCDigiValid",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+validationMuonRPCDigis = DQMEDAnalyzer('RPCDigiValid',
 
     # Tag for Digis event data retrieval
     rpcDigiTag = cms.untracked.InputTag("simMuonRPCDigis"),
@@ -11,5 +12,5 @@ validationMuonRPCDigis = cms.EDAnalyzer("RPCDigiValid",
     outputFile = cms.untracked.string('')
 )
 
-
-
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(validationMuonRPCDigis, simHitTag = "MuonSimHits:MuonRPCHits")

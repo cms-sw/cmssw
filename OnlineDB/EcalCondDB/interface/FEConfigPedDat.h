@@ -12,10 +12,10 @@ class FEConfigPedDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   FEConfigPedDat();
-  ~FEConfigPedDat();
+  ~FEConfigPedDat() override;
 
   // User data methods
-  inline std::string getTable() { return "FE_CONFIG_PED_DAT"; }
+  inline std::string getTable() override { return "FE_CONFIG_PED_DAT"; }
 
   inline void setId(int x) { m_ID = x; }
   inline int getId() const { return m_ID; }
@@ -31,17 +31,13 @@ class FEConfigPedDat : public IDataItem {
 
 
  private:
-  void prepareWrite() 
-    throw(std::runtime_error);
+  void prepareWrite() noexcept(false) override;
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigPedDat* item, FEConfigPedInfo* iconf )
-    throw(std::runtime_error);
+  void writeDB(const EcalLogicID* ecid, const FEConfigPedDat* item, FEConfigPedInfo* iconf ) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigPedDat >* data, FEConfigPedInfo* iconf)
-    throw(std::runtime_error);
+  void writeArrayDB(const std::map< EcalLogicID, FEConfigPedDat >* data, FEConfigPedInfo* iconf) noexcept(false);
 
-  void fetchData(std::map< EcalLogicID, FEConfigPedDat >* fillMap, FEConfigPedInfo* iconf)
-     throw(std::runtime_error);
+  void fetchData(std::map< EcalLogicID, FEConfigPedDat >* fillMap, FEConfigPedInfo* iconf) noexcept(false);
 
   // User data
   float m_pedMeanG1;

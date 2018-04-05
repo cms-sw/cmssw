@@ -37,7 +37,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 
 #include <string>
@@ -45,7 +45,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMaps.h"
@@ -55,25 +55,24 @@
 
 namespace pat {
 
-  class PATTriggerProducer : public edm::EDProducer {
+  class PATTriggerProducer : public edm::stream::EDProducer<> {
 
     public:
 
       explicit PATTriggerProducer( const edm::ParameterSet & iConfig );
-      ~PATTriggerProducer() {};
+      ~PATTriggerProducer() override {};
 
     private:
 
-      virtual void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock & iLuminosityBlock, const edm::EventSetup& iSetup) override;
-      virtual void produce( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
+      void beginLuminosityBlock(const edm::LuminosityBlock & iLuminosityBlock, const edm::EventSetup& iSetup) override;
+      void produce( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       std::string nameProcess_;     // configuration
       bool        autoProcessName_;
       bool        onlyStandAlone_;  // configuration
       bool        firstInRun_;
       // L1
-      L1GtUtils           l1GtUtils_;
       edm::ParameterSet * l1PSet_;
       bool                addL1Algos_;                    // configuration (optional with default)
       edm::InputTag       tagL1GlobalTriggerObjectMaps_;  // configuration (optional with default)
@@ -105,7 +104,7 @@ namespace pat {
       bool                mainBxOnly_;                    // configuration (optional with default)
       bool                saveL1Refs_;                    // configuration (optional with default)
       // HLT
-      HLTConfigProvider         hltConfig_;
+      HLTPrescaleProvider hltPrescaleProvider_;
       bool                      hltConfigInit_;
       edm::InputTag             tagTriggerResults_;     // configuration (optional with default)
       edm::GetterOfProducts< edm::TriggerResults > triggerResultsGetter_;
@@ -121,6 +120,7 @@ namespace pat {
       bool                       addPathModuleLabels_;  // configuration (optional with default)
       std::vector< std::string > exludeCollections_;    // configuration (optional)
       bool                      packPathNames_;         // configuration (optional width default)
+      bool                      packLabels_;         // configuration (optional width default)
       bool                      packPrescales_;         // configuration (optional width default)
 
       class ModuleLabelToPathAndFlags {
@@ -133,7 +133,7 @@ namespace pat {
                 bool lastFilter;
                 bool l3Filter;
               };
-              void init(const HLTConfigProvider &conf) ;
+              void init(const HLTConfigProvider &) ;
               void clear() { map_.clear(); }
               const std::vector<PathAndFlags> & operator[](const std::string & filter) const {
                   std::map<std::string,std::vector<PathAndFlags> >::const_iterator it = map_.find(filter);

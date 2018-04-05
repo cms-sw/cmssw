@@ -21,7 +21,7 @@
 
 
 ZdcHardcodeGeometryEP::ZdcHardcodeGeometryEP( const edm::ParameterSet& ps ) :
-   m_loader   (0),
+   m_loader   (nullptr),
    m_topology () ,
    m_applyAlignment ( ps.getUntrackedParameter<bool>("applyAlignment", false) )
 {

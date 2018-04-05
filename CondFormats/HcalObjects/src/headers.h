@@ -11,3 +11,5 @@
 #include "CondFormats/HcalObjects/interface/HcalInterpolatedPulse.h"
 #include "CondFormats/HcalObjects/interface/HcalInterpolatedPulseColl.h"
 #include "CondFormats/HcalObjects/interface/HBHEChannelGroups.h"
+#include "CondFormats/HcalObjects/interface/HBHENegativeEFilter.h"
+#include "CondFormats/HcalObjects/interface/HFPhase1PMTParams.h"

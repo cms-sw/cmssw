@@ -18,20 +18,6 @@ dt4DSegmentsNoWire = dt4DSegmentsCfiRef.dt4DSegments.clone()
 dt4DSegmentsNoWire.Reco4DAlgoConfig.recAlgoConfig.tTrigModeConfig.doWirePropCorrection = False
 dt4DSegmentsNoWire.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.tTrigModeConfig.doWirePropCorrection = False
 
-#this is to select collisions
-primaryVertexFilter = cms.EDFilter("VertexSelector",
-   src = cms.InputTag("hiSelectedVertex"),
-   cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"),
-   filter = cms.bool(True),
-)
-
-noscraping = cms.EDFilter("FilterOutScraping",
-   applyfilter = cms.untracked.bool(True),
-   debugOn = cms.untracked.bool(False),
-   numtrack = cms.untracked.uint32(10),
-   thresh = cms.untracked.double(0.25)
-)
-
 #seqALCARECODtCalibHI = cms.Sequence(ALCARECODtCalibHIHLTFilter * primaryVertexFilter * DTCalibMuonSelection * dt4DSegmentsNoWire) 
 
 seqALCARECODtCalibHI = cms.Sequence(ALCARECODtCalibHIHLTFilter * dt4DSegmentsNoWire) 

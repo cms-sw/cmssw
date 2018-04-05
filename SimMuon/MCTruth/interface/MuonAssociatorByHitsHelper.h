@@ -13,6 +13,7 @@
 #include "SimMuon/MCTruth/interface/DTHitAssociator.h"
 #include "SimMuon/MCTruth/interface/CSCHitAssociator.h"
 #include "SimMuon/MCTruth/interface/RPCHitAssociator.h"
+#include "SimMuon/MCTruth/interface/GEMHitAssociator.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -40,6 +41,7 @@ class MuonAssociatorByHitsHelper {
     CSCHitAssociator const* cscHitAssoc_;
     DTHitAssociator const* dtHitAssoc_;
     RPCHitAssociator const* rpcHitAssoc_;
+    GEMHitAssociator const* gemHitAssoc_;
     std::function<void(const TrackHitsCollection&, const TrackingParticleCollection&)> diagnostics_;
   };
   
@@ -65,12 +67,12 @@ class MuonAssociatorByHitsHelper {
   void getMatchedIds
     (MapOfMatchedIds & tracker_matchedIds_valid, MapOfMatchedIds & muon_matchedIds_valid,
      MapOfMatchedIds & tracker_matchedIds_INVALID, MapOfMatchedIds & muon_matchedIds_INVALID,
-     int& n_tracker_valid, int& n_dt_valid, int& n_csc_valid, int& n_rpc_valid,
-     int& n_tracker_matched_valid, int& n_dt_matched_valid, int& n_csc_matched_valid, int& n_rpc_matched_valid,
-     int& n_tracker_INVALID, int& n_dt_INVALID, int& n_csc_INVALID, int& n_rpc_INVALID,
-     int& n_tracker_matched_INVALID, int& n_dt_matched_INVALID, int& n_csc_matched_INVALID, int& n_rpc_matched_INVALID,
+     int& n_tracker_valid, int& n_dt_valid, int& n_csc_valid, int& n_rpc_valid, int& n_gem_valid,
+     int& n_tracker_matched_valid, int& n_dt_matched_valid, int& n_csc_matched_valid, int& n_rpc_matched_valid, int& n_gem_matched_valid,
+     int& n_tracker_INVALID, int& n_dt_INVALID, int& n_csc_INVALID, int& n_rpc_INVALID, int& n_gem_INVALID,
+     int& n_tracker_matched_INVALID, int& n_dt_matched_INVALID, int& n_csc_matched_INVALID, int& n_rpc_matched_INVALID, int& n_gem_matched_INVALID,
      trackingRecHit_iterator begin, trackingRecHit_iterator end,
-     const TrackerHitAssociator* trackertruth, const DTHitAssociator& dttruth, const CSCHitAssociator& csctruth, const RPCHitAssociator& rpctruth,
+     const TrackerHitAssociator* trackertruth, const DTHitAssociator& dttruth, const CSCHitAssociator& csctruth, const RPCHitAssociator& rpctruth, const GEMHitAssociator& gemtruth,
      bool printRts, const TrackerTopology *) const;
   
   int getShared(MapOfMatchedIds & matchedIds, TrackingParticleCollection::const_iterator trpart) const;

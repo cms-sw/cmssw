@@ -14,7 +14,7 @@
 class PFRecoTauDiscriminationByFlight : public PFTauDiscriminationProducerBase {
   public:
     PFRecoTauDiscriminationByFlight(const edm::ParameterSet& pset);
-    virtual ~PFRecoTauDiscriminationByFlight(){}
+    ~PFRecoTauDiscriminationByFlight() override{}
     void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override;
     double discriminate(const reco::PFTauRef&) const override;
   private:

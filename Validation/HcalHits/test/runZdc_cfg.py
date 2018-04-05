@@ -5,11 +5,12 @@ process = cms.Process('SIM')
 # import of standard configurations
 process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
-process.load('SimG4CMS.Forward.zdcGeometryXML_cfi')
+process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2015_cff')
 process.load('Configuration/StandardSequences/MagneticField_38T_cff')
 process.load('Configuration/StandardSequences/Generator_cff')
 process.load('Configuration/StandardSequences/VtxSmearedNoSmear_cff')
-process.load('Configuration/StandardSequences/Sim_cff')
+process.load('Configuration/StandardSequences/SimExtended_cff')
 process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
@@ -24,16 +25,16 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
         PartID = cms.vint32(2112),
         MinEta = cms.double(5.5),
-        MaxEta = cms.double(5.7),
+        MaxEta = cms.double(10000),
         MinPhi = cms.double(-3.14159265359), ## in radians
         MaxPhi = cms.double(3.14159265359),
-        MinE = cms.double(99.99),
-        MaxE = cms.double(100.01)
+        MinE = cms.double(2499.99),
+        MaxE = cms.double(2500.01)
     ),
     Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
 
-    psethack = cms.string('single neutron E 100'),
-    AddAntiParticle = cms.bool(True),
+    psethack = cms.string('single neutron E 2.5 TeV'),
+    AddAntiParticle = cms.bool(False),
     firstRun = cms.untracked.uint32(1)
 )
 
@@ -54,7 +55,6 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 # Special settings
 process.g4SimHits.UseMagneticField = cms.bool(False)
-process.g4SimHits.Physics.DefaultCutValue = cms.double(10.)
 process.g4SimHits.Generator.MinEtaCut = cms.double(-9.0)
 process.g4SimHits.Generator.MaxEtaCut =  cms.double(9.0)
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
@@ -68,17 +68,16 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 	)   	
 ))
 process.g4SimHits.ZdcSD.UseShowerLibrary = cms.bool(True)
-process.g4SimHits.StackingAction.MaxTrackTime = cms.double(10000.)
-process.g4SimHits.CaloSD.TmaxHit = cms.double(10000.)
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.ProductionFilterSequence+process.pgen)
+process.smearing = cms.Path(process.VtxSmeared+process.generatorSmeared)
 process.simulation_step = cms.Path(process.psim)
 process.endjob_step = cms.Path(process.endOfProcess)
 process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.generation_step,process.simulation_step,process.endjob_step,process.out_step)
+process.schedule = cms.Schedule(process.generation_step,process.smearing,process.simulation_step,process.endjob_step,process.out_step)
 
 def customise(process):
     #Adding SimpleMemoryCheck service:

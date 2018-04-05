@@ -3,22 +3,19 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+// EvtGen plugin
+//
+//#include "Pythia8Plugins/EvtGen.h"
+
 using namespace Pythia8;
 
 namespace gen {
 
-Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps )
-{
-  fMasterGen.reset(new Pythia);
-  fDecayer.reset(new Pythia);
-
-  fMasterGen->readString("Next:numberShowEvent = 0");
-  fDecayer->readString("Next:numberShowEvent = 0");
-
-  fMasterGen->setRndmEnginePtr( &p8RndmEngine_ );
-  fDecayer->setRndmEnginePtr( &p8RndmEngine_ );
-  
-  fParameters = ps.getParameter<edm::ParameterSet>("PythiaParameters");
+Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps ) :
+BaseHadronizer(ps),
+useEvtGen(false), evtgenDecays(nullptr)
+{  
+  fParameters = ps;
   
   pythiaPylistVerbosity = ps.getUntrackedParameter<int>("pythiaPylistVerbosity", 0);
   pythiaHepMCVerbosity  = ps.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false);
@@ -27,13 +24,78 @@ Py8InterfaceBase::Py8InterfaceBase( edm::ParameterSet const& ps )
 
   if(pythiaHepMCVerbosityParticles)
     ascii_io = new HepMC::IO_AsciiParticles("cout", std::ios::out);
+
+  if ( ps.exists("useEvtGenPlugin") ) {
+
+    useEvtGen = true;
+
+    string evtgenpath(getenv("EVTGENDATA"));
+    evtgenDecFile = evtgenpath + string("/DECAY_2010.DEC");
+    evtgenPdlFile = evtgenpath + string("/evt.pdl");
+
+    if ( ps.exists( "evtgenDecFile" ) )
+      evtgenDecFile = ps.getParameter<string>("evtgenDecFile");
+
+    if ( ps.exists( "evtgenPdlFile" ) )
+      evtgenPdlFile = ps.getParameter<string>("evtgenPdlFile");
+
+    if ( ps.exists( "evtgenUserFile" ) )
+      evtgenUserFiles = ps.getParameter< std::vector<std::string> >("evtgenUserFile");
+
+  }
+
 }
 
 bool Py8InterfaceBase::readSettings( int ) 
 {
 
-   for ( ParameterCollector::const_iterator line = fParameters.begin();
-         line != fParameters.end(); ++line ) 
+   if(!fMasterGen.get()) fMasterGen.reset(new Pythia);
+   fDecayer.reset(new Pythia);
+
+   //add settings for resonance decay filter
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:filter",false);
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:exclusive",false);
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:eMuAsEquivalent",false);
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:eMuTauAsEquivalent",false);
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:allNuAsEquivalent",false);
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:udscAsEquivalent",false);
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:udscbAsEquivalent",false);
+   fMasterGen->settings.addFlag("ResonanceDecayFilter:wzAsEquivalent",false);
+   fMasterGen->settings.addMVec("ResonanceDecayFilter:mothers",std::vector<int>(),false,false,0,0);
+   fMasterGen->settings.addMVec("ResonanceDecayFilter:daughters",std::vector<int>(),false,false,0,0);   
+
+   //add settings for PT filter
+   fMasterGen->settings.addFlag("PTFilter:filter",false);
+   fMasterGen->settings.addMode("PTFilter:quarkToFilter", 5  ,true,true,3,    6);
+   fMasterGen->settings.addParm("PTFilter:scaleToFilter", 0.4,true,true,0.0, 10.);
+   fMasterGen->settings.addParm("PTFilter:quarkRapidity",10.0,true,true,0.0, 10.);
+   fMasterGen->settings.addParm("PTFilter:quarkPt",       -.1,true,true,-.1,100.);
+   
+   //add settings for powheg resonance scale calculation
+   fMasterGen->settings.addFlag("POWHEGres:calcScales",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:onlyDistance1",false);
+   fMasterGen->settings.addFlag("POWHEG:bb4l:useScaleResonanceInstead",false);
+   
+   fMasterGen->setRndmEnginePtr( &p8RndmEngine_ );
+   fDecayer->setRndmEnginePtr( &p8RndmEngine_ );
+  
+   fMasterGen->readString("Next:numberShowEvent = 0");
+   fDecayer->readString("Next:numberShowEvent = 0");  
+  
+   edm::ParameterSet currentParameters;
+   if (randomIndex()>=0) {
+     std::vector<edm::ParameterSet> randomizedParameters = fParameters.getParameter<std::vector<edm::ParameterSet> >("RandomizedParameters");
+     currentParameters = randomizedParameters[randomIndex()];
+   }
+   else {
+     currentParameters = fParameters;
+   }
+      
+   ParameterCollector pCollector = currentParameters.getParameter<edm::ParameterSet>("PythiaParameters");
+   
+   for ( ParameterCollector::const_iterator line = pCollector.begin();
+         line != pCollector.end(); ++line ) 
    {
       if (line->find("Random:") != std::string::npos)
          throw cms::Exception("PythiaError") << "Attempted to set random number "
@@ -53,6 +115,29 @@ bool Py8InterfaceBase::readSettings( int )
 
    }
 
+   slhafile_.clear();
+   
+   if( currentParameters.exists( "SLHAFileForPythia8" ) ) {
+     std::string slhafilenameshort = currentParameters.getParameter<std::string>("SLHAFileForPythia8");
+     edm::FileInPath f1( slhafilenameshort );
+    
+     fMasterGen->settings.mode("SLHA:readFrom", 2);
+     fMasterGen->settings.word("SLHA:file", f1.fullPath());    
+   }
+   else if( currentParameters.exists( "SLHATableForPythia8" ) ) {
+     std::string slhatable = currentParameters.getParameter<std::string>("SLHATableForPythia8");
+        
+     char tempslhaname[] = "pythia8SLHAtableXXXXXX";
+     int fd = mkstemp(tempslhaname);
+     write(fd,slhatable.c_str(),slhatable.size());
+     close(fd);
+    
+     slhafile_ = tempslhaname;
+    
+     fMasterGen->settings.mode("SLHA:readFrom", 2);
+     fMasterGen->settings.word("SLHA:file", slhafile_);
+   }   
+   
    return true;
 
 }

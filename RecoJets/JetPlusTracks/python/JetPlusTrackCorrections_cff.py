@@ -6,7 +6,6 @@ ak4JetTracksAssociatorAtVertexJPT = ak4JetTracksAssociatorAtVertex.clone()
 ak4JetTracksAssociatorAtVertexJPT.useAssigned = cms.bool(True)
 ak4JetTracksAssociatorAtVertexJPT.pvSrc = cms.InputTag("offlinePrimaryVertices")
 
-
 # ---------- Tight Electron ID
 
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import eidTight
@@ -39,11 +38,13 @@ JetPlusTrackZSPCorJetAntiKt4.JetSplitMerge = cms.int32(2)
 
 # Anti-Kt
 
-JetPlusTrackCorrectionsAntiKt4 = cms.Sequence(
-    JPTeidTight*
-    ak4JetTracksAssociatorAtVertexJPT*
+JetPlusTrackCorrectionsAntiKt4Task = cms.Task(
+    JPTeidTight,
+    ak4JetTracksAssociatorAtVertexJPT,
+    ak4JetTracksAssociatorAtCaloFace,
     JetPlusTrackZSPCorJetAntiKt4
     )
+JetPlusTrackCorrectionsAntiKt4 = cms.Sequence(JetPlusTrackCorrectionsAntiKt4Task)
 
 # For backward-compatiblity (but to be deprecated!)
 JetPlusTrackCorrections = cms.Sequence(JetPlusTrackCorrectionsAntiKt4)

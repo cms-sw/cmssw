@@ -1,11 +1,11 @@
 #include <algorithm>
-#include <cstdlib>
 #include <cstddef>
+#include <cstdlib>
 #include <cstring>
+#include <mutex>
 #include <set>
 
-#include <mutex>
-
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 
 namespace { // anonymous
@@ -58,7 +58,7 @@ namespace PhysicsTools {
 
 static IdCache &getAtomicIdCache()
 {
-	[[cms::thread_safe]] static IdCache atomicIdCache;
+	CMS_THREAD_SAFE static IdCache atomicIdCache;
 	return atomicIdCache;
 }
 
@@ -67,7 +67,7 @@ const char *AtomicId::lookup(const char *string) throw()
 	if (string)
 		return getAtomicIdCache().findOrInsert(string);
 
-	return 0;
+	return nullptr;
 }
 
 } // namespace PhysicsTools

@@ -156,10 +156,6 @@ L1GctPrintLuts::beginJob()
 int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
 {
   int success = 0;
-  if (&c==0) {
-    success = -1;
-    edm::LogWarning("L1GctConfigFailure") << "Cannot find EventSetup information." << std::endl;
-  }
 
   if (success == 0) {
     // get data from EventSetup
@@ -174,19 +170,19 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
     edm::ESHandle< L1CaloEtScale > etScale ;
     c.get< L1JetEtScaleRcd >().get( etScale ) ; // which record?
 
-    if (jfPars.product() == 0) {
+    if (jfPars.product() == nullptr) {
       success = -1;
       edm::LogWarning("L1GctConfigFailure")
 	<< "Failed to find a L1GctJetFinderParamsRcd:L1GctJetFinderParams in EventSetup!" << std::endl;
     }
 
-    if (hfRingEtScale.product() == 0) {
+    if (hfRingEtScale.product() == nullptr) {
       success = -1;
       edm::LogWarning("L1GctConfigFailure")
 	<< "Failed to find a L1HfRingEtScaleRcd:L1CaloEtScale in EventSetup!" << std::endl;
     }
 
-    if (htMissScale.product() == 0) {
+    if (htMissScale.product() == nullptr) {
       success = -1;
       edm::LogWarning("L1GctConfigFailure")
 	<< "Failed to find a L1HtMissScaleRcd:L1CaloEtScale in EventSetup!" << std::endl;

@@ -21,7 +21,7 @@ assign the parameters to some data member to avoid search at every event
 PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo::
 PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(const edm::ParameterSet & conf,
 	edm::ConsumesCollector && iC)
-  :_conf(conf),seedCollection(0),
+  :_conf(conf),seedCollection(nullptr),
    theClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), iC),
    QuadCutPSet(conf.getParameter<edm::ParameterSet>("QuadCutPSet")),
    theSilentOnClusterCheck(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet").getUntrackedParameter<bool>("silentClusterCheck",false)),
@@ -43,7 +43,7 @@ analyze(const edm::Event & event, const edm::EventSetup &setup){
   myEsetup = &setup;
   myEvent = &event;
 
-  if(seedCollection!=0)
+  if(seedCollection!=nullptr)
     delete seedCollection;
 
   seedCollection= new TrajectorySeedCollection();
@@ -55,6 +55,7 @@ analyze(const edm::Event & event, const edm::EventSetup &setup){
     return ;
   }
 
+  // Why is the regions variable (and theRegionProducer) needed at all?
   regions = theRegionProducer->regions(event,setup);
 
   event.getByToken(token_vertex, vertexHandle);

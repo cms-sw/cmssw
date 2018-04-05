@@ -57,12 +57,12 @@
 class aod2patFilterZee : public edm::EDFilter {
    public:
       explicit aod2patFilterZee(const edm::ParameterSet&);
-      ~aod2patFilterZee();
+      ~aod2patFilterZee() override;
 
    private:
-      virtual void beginJob() override;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
   //bool isInFiducial(double eta);
 
       // ----------member data ---------------------------
@@ -134,7 +134,7 @@ aod2patFilterZee::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   const reco::GsfElectronCollection *pElecs = gsfElectrons.product();
   // calculate your electrons
-  auto_ptr<pat::ElectronCollection> patElectrons(new pat::ElectronCollection);
+  unique_ptr<pat::ElectronCollection> patElectrons(new pat::ElectronCollection);
   for (reco::GsfElectronCollection::const_iterator elec = pElecs->begin();
        elec != pElecs->end(); ++elec) {
     reco::GsfElectron mygsfelec = *elec;
@@ -157,7 +157,7 @@ aod2patFilterZee::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     return false;
   }
   const  reco::CaloMETCollection *mycalomets =  calomets.product();
-  auto_ptr<pat::METCollection> patCaloMets(new pat::METCollection);
+  unique_ptr<pat::METCollection> patCaloMets(new pat::METCollection);
   for (reco::CaloMETCollection::const_iterator met = mycalomets->begin();
        met != mycalomets->end(); ++ met ) {
     pat::MET mymet(*met);
@@ -167,8 +167,8 @@ aod2patFilterZee::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //
   // put everything in the event
   //
-  iEvent.put( patElectrons, "patElectrons");
-  iEvent.put( patCaloMets, "patCaloMets");
+  iEvent.put(std::move(patElectrons), "patElectrons");
+  iEvent.put(std::move(patCaloMets), "patCaloMets");
   //
 
   return true;

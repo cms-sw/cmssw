@@ -54,11 +54,11 @@ class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin
 {
  public:
   explicit RecoTauPiZeroStripPlugin2(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-  virtual ~RecoTauPiZeroStripPlugin2();
+  ~RecoTauPiZeroStripPlugin2() override;
   // Return type is auto_ptr<PiZeroVector>
   return_type operator()(const reco::PFJet&) const override;
   // Hook to update PV information
-  virtual void beginEvent() override;
+  void beginEvent() override;
   
  private:
   typedef std::vector<reco::PFCandidatePtr> PFCandPtrs;
@@ -93,7 +93,7 @@ class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin
 RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
   : RecoTauPiZeroBuilderPlugin(pset, std::move(iC)),
     vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"), std::move(iC)),
-    qcuts_(0)
+    qcuts_(nullptr)
 {
   minGammaEtStripSeed_ = pset.getParameter<double>("minGammaEtStripSeed");
   minGammaEtStripAdd_ = pset.getParameter<double>("minGammaEtStripAdd");
@@ -170,15 +170,16 @@ void RecoTauPiZeroStripPlugin2::addCandsToStrip(RecoTauPiZero& strip, PFCandPtrs
   }
 }
 
-void markCandsInStrip(std::vector<bool>& candFlags, const std::set<size_t>& candIds)
+namespace 
 {
-  for ( std::set<size_t>::const_iterator candId = candIds.begin();
-	candId != candIds.end(); ++candId ) {
-    candFlags[*candId] = true;
+  void markCandsInStrip(std::vector<bool>& candFlags, const std::set<size_t>& candIds)
+  {
+    for ( std::set<size_t>::const_iterator candId = candIds.begin();
+	  candId != candIds.end(); ++candId ) {
+      candFlags[*candId] = true;
+    }
   }
-}
-
-namespace {
+  
   inline const reco::TrackBaseRef getTrack(const PFCandidate& cand)
   {
     if      ( cand.trackRef().isNonnull()    ) return reco::TrackBaseRef(cand.trackRef());

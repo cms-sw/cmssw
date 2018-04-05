@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 
 myZgammaFilter = cms.EDFilter('ZgammaMassFilter',
 
-  HepMCProduct             = cms.string("generator"),
+  HepMCProduct             = cms.InputTag("generator","unmeared"),
 
   minPhotonPt              = cms.double(7.),
   minLeptonPt              = cms.double(7.),

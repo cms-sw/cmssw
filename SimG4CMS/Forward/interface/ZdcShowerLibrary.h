@@ -25,7 +25,7 @@ class ZdcShowerLibrary {
 public:
   
   //Constructor and Destructor
-  ZdcShowerLibrary(std::string & name, const DDCompactView & cpv, edm::ParameterSet const & p);
+  ZdcShowerLibrary(const std::string & name, const DDCompactView & cpv, edm::ParameterSet const & p);
   ~ZdcShowerLibrary();
   
  public:

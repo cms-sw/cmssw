@@ -70,17 +70,20 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
   
    explicit MuonIdProducer(const edm::ParameterSet&);
    
-   virtual ~MuonIdProducer();
+   ~MuonIdProducer() override;
    
-   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+   void produce(edm::Event&, const edm::EventSetup&) override;
+   void beginRun(const edm::Run&, const edm::EventSetup&) override;
    
    static double sectorPhi( const DetId& id );
 
+   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+   
  private:
    void          fillMuonId( edm::Event&, const edm::EventSetup&, reco::Muon&, 
 			     TrackDetectorAssociator::Direction direction = TrackDetectorAssociator::InsideOut );
-   void          fillArbitrationInfo( reco::MuonCollection* );
+   void          fillArbitrationInfo( reco::MuonCollection*, unsigned int muonType = reco::Muon::TrackerMuon );
+   void          arbitrateMuons( reco::MuonCollection*, reco::CaloMuonCollection* );
    void          fillMuonIsolation( edm::Event&, const edm::EventSetup&, reco::Muon& aMuon,
 				    reco::IsoDeposit& trackDep, reco::IsoDeposit& ecalDep, reco::IsoDeposit& hcalDep, reco::IsoDeposit& hoDep,
 				    reco::IsoDeposit& jetDep);
@@ -103,7 +106,10 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    bool          isGoodTrack( const reco::Track& track );
    
    bool          isGoodTrackerMuon( const reco::Muon& muon );
+   bool          isGoodCaloMuon( const reco::CaloMuon& muon );
    bool          isGoodRPCMuon( const reco::Muon& muon );
+   bool          isGoodGEMMuon( const reco::Muon& muon );
+   bool          isGoodME0Muon( const reco::Muon& muon );
    
    // check number of common DetIds for a given trackerMuon and a stand alone
    // muon track
@@ -117,6 +123,15 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    inline bool approxEqual(const double a, const double b, const double tol=1E-3) const
    {
      return std::abs(a-b) < tol;
+   }
+
+
+   /// get the segment matches of the appropriate type
+   std::vector<reco::MuonSegmentMatch> * getSegmentMatches(reco::MuonChamberMatch & chamber, unsigned int muonType) const {
+       if      (muonType == reco::Muon::TrackerMuon) return & chamber.segmentMatches;
+       else if (muonType == reco::Muon::ME0Muon)     return & chamber.me0Matches;
+       else if (muonType == reco::Muon::GEMMuon)     return & chamber.gemMatches;
+       else throw cms::Exception("getSegmentMatches called with unsupported muonType");
    }
      
    TrackDetectorAssociator trackAssociator_;
@@ -185,6 +200,8 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    double ptThresholdToFillCandidateP4WithGlobalFit_;
    double sigmaThresholdToFillCandidateP4WithGlobalFit_;
    
+   bool arbitrateTrackerMuons_;
+
    bool debugWithTruthMatching_;
 
    edm::Handle<reco::TrackCollection>             innerTrackCollectionHandle_;
@@ -224,7 +241,7 @@ class MuonIdProducer : public edm::stream::EDProducer<> {
    edm::InputTag globalTrackQualityInputTag_;
 
    bool fillTrackerKink_;
-   std::auto_ptr<MuonKinkFinder> trackerKinkFinder_;
+   std::unique_ptr<MuonKinkFinder> trackerKinkFinder_;
 
    double caloCut_;
    

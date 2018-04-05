@@ -18,7 +18,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
@@ -28,7 +28,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
@@ -38,7 +38,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 
 #include <TTree.h>
@@ -47,7 +47,7 @@
 // End job: write and close the ntuple file
 void SiPixelTrackingRecHitsValid::endJob() 
 {
-  if(debugNtuple_.size()!=0){
+  if(!debugNtuple_.empty()){
   tfile_->Write();
   tfile_->Close();
   }
@@ -56,7 +56,7 @@ void SiPixelTrackingRecHitsValid::endJob()
 void SiPixelTrackingRecHitsValid::beginJob()
 {
 
-  if(debugNtuple_.size()!=0){
+  if(!debugNtuple_.empty()){
     tfile_ = new TFile (debugNtuple_.c_str() , "RECREATE");
     
     t_ = new TTree("Ntuple", "Ntuple");
@@ -110,8 +110,8 @@ void SiPixelTrackingRecHitsValid::beginJob()
 }
 
 SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const edm::ParameterSet& ps) :
-  trackerHitAssociator_(ps, consumesCollector()),
-  dbe_(0), tfile_(0), t_(0)
+  trackerHitAssociatorConfig_(ps, consumesCollector()),
+  dbe_(nullptr), tfile_(nullptr), t_(nullptr)
 {
   //Read config file
   MTCCtrack_ = ps.getParameter<bool>("MTCCtrack");
@@ -1067,7 +1067,7 @@ void SiPixelTrackingRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,con
 SiPixelTrackingRecHitsValid::~SiPixelTrackingRecHitsValid() 
 {  
   //save local root file only in standalone mode
-  if ( runStandalone && outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+  if ( runStandalone && !outputFile_.empty() && dbe_ ) dbe_->save(outputFile_);
 }  
 
 // Functions that gets called by framework every event
@@ -1075,7 +1075,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  es.get<IdealGeometryRecord>().get(tTopo);
+  es.get<TrackerTopologyRcd>().get(tTopo);
 
 
   run = e.id().run();
@@ -1094,7 +1094,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
   float mindist = 999999.9;
 
   std::vector<PSimHit> matched;
-  trackerHitAssociator_.processEvent(e);
+  TrackerHitAssociator associate(e, trackerHitAssociatorConfig_); 
 
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
@@ -1198,7 +1198,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
       int n_tracks = (int)tracks->size(); // number of tracks in this event
       meTracksPerEvent->Fill( n_tracks );
 
-      if ( tracks->size() > 0 )
+      if ( !tracks->empty() )
 	{
 	  // Loop on tracks
 	  for ( tciter=tracks->begin(); tciter!=tracks->end(); tciter++)
@@ -1269,7 +1269,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 
 		      //Association of the rechit to the simhit
 		      matched.clear();
-		      matched = trackerHitAssociator_.associateHit(*matchedhit);
+		      matched = associate.associateHit(*matchedhit);
 
 		      nsimhit = (int)matched.size();
 
@@ -1749,7 +1749,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 			    } // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
 			  else edm::LogWarning("SiPixelTrackingRecHitsValid") << "Pixel rechit but we are not in the pixel detector" << (int)detId.subdetId() ;
 			  
-			  if(debugNtuple_.size()!=0)t_->Fill();
+			  if(!debugNtuple_.empty())t_->Fill();
 
 			} // if ( !matched.empty() )
 		      //else

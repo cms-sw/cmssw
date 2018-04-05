@@ -9,6 +9,8 @@
 #include<boost/cstdint.hpp>
 #include "DataFormats/SiStripCommon/interface/ConstantsForCondObjects.h"
 
+class TrackerTopology;
+
 /**
  * Holds the list of bad components. <br>
  * The bad components can be filled with two put methods, that receive a DetId and
@@ -68,8 +70,8 @@ class SiStripBadStrip {
   const Range getRange(const uint32_t detID) const;
   Range getRangeByPos(unsigned short pos) const;
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
-  void printSummary(std::stringstream & ss) const;
-  void printDebug(std::stringstream & ss) const;
+  void printSummary(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
+  void printDebug(std::stringstream & ss, const TrackerTopology* trackerTopo) const;
 
   ContainerIterator getDataVectorBegin()    const {return v_badstrips.begin();}
   ContainerIterator getDataVectorEnd()      const {return v_badstrips.end();}

@@ -83,3 +83,14 @@ regionalCosmicTrackerSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProdu
           
 )
 
+# FIXME: in the phase2 customization, these lines were ported from SLHC,
+# probably they need to be reviewed by cosmics experts
+#regionalCosmicTrackerSeedingLayers.layerList  = cms.vstring('BPix9+BPix8')  # Optimize later
+#regionalCosmicTrackerSeedingLayers.BPix = cms.PSet(
+#    HitProducer = cms.string('siPixelRecHits'),
+#    hitErrorRZ = cms.double(0.006),
+#    useErrorsFromParam = cms.bool(True),
+#    TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
+#    skipClusters = cms.InputTag("pixelPairStepClusters"),
+#    hitErrorRPhi = cms.double(0.0027)
+#)

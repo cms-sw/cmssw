@@ -1,37 +1,33 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include <cmath>
+#include <iostream>
 
-static const double tzero[3]= {23.960177, 13.307784, 9.109694};
-static const double slope[3] = {-3.178648,  -1.556668, -1.075824 };
-static const double tmax[3] = {16.00, 10.00, 6.25 };
-
-double HcalTimeSlew::delay(double fC, BiasSetting bias) {
-  double rawDelay=tzero[bias]+slope[bias]*log(fC);
-  return (rawDelay<0)?(0):((rawDelay>tmax[bias])?(tmax[bias]):(rawDelay));			   
+void HcalTimeSlew::addM2ParameterSet(double tzero, double slope, double tmax){
+  parametersM2_.emplace_back(tzero,slope,tmax);
 }
 
-double HcalTimeSlew::delay(double fC, ParaSource source, BiasSetting bias) {
+void HcalTimeSlew::addM3ParameterSet(double cap, double tspar0, double tspar1, double tspar2, double tspar0_siPM, double tspar1_siPM, double tspar2_siPM){
+  parametersM3_.emplace_back(cap, tspar0, tspar1, tspar2, tspar0_siPM, tspar1_siPM, tspar2_siPM);
+}
 
-  if (source==TestStand) {
+// Used by M2/Simulation
+double HcalTimeSlew::delay(double fC, BiasSetting bias) const {  
+  double rawDelay = parametersM2_[bias].tzero + parametersM2_[bias].slope*log(fC);
+  return (rawDelay < 0)?(0):((rawDelay > parametersM2_[bias].tmax)?(parametersM2_[bias].tmax):(rawDelay));
+}
+
+// Used by M3
+double HcalTimeSlew::delay(double fC, ParaSource source, BiasSetting bias, bool isHPD) const {
+  double rawDelay = 0.0;
+  if(source == TestStand){
     return HcalTimeSlew::delay(fC, bias);
   }
-  else if (source==Data) {
-    //from john 2/20 talk: indico.cern.ch/event/375365/contribution/9/material/slides/5.pdf
-    return 13.98-3.20*log(fC+32)-2.82965+10;
+  else if(isHPD){
+    rawDelay = std::fmin( parametersM3_[source].cap, 
+			  parametersM3_[source].tspar0+parametersM3_[source].tspar1*log(fC+parametersM3_[source].tspar2 ));
   }
-  else if (source==MC) {
-    // from Xinmei
-    //return 10.491-2.25495*log(fC+7.95067);
-    
-    //FCN=1075.01 FROM MIGRAD    STATUS=CONVERGED      34 CALLS          35 TOTAL
-    //EDM=1.84101e-19    STRATEGY= 1      ERROR MATRIX ACCURATE 
-    //EXT PARAMETER                                   STEP         FIRST   
-    //NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
-    //1  p0           9.27638e+00   3.45586e-02   1.17592e-04   8.21769e-08
-    //2  p1          -2.05585e+00   1.10061e-02   3.74505e-05   2.58031e-07
-
-    return std::min(6.0,9.27638-2.05585*log(fC));
-    
-  }  
-  return 0;
+  else{
+    rawDelay = parametersM3_[source].cap+parametersM3_[source].tspar0_siPM;  
+  }
+  return rawDelay;
 }

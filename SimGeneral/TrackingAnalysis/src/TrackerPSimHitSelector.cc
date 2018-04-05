@@ -33,7 +33,7 @@ void TrackerPSimHitSelector::select(PSimHitCollection & selection, edm::Event co
     }
 
     // Create a mix collection from the different psimhit collections
-    std::auto_ptr<MixCollection<PSimHit> > pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
+    std::unique_ptr<MixCollection<PSimHit> > pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
 
     // Setup the cabling mapping
     std::map<uint32_t, std::vector<int> > theDetIdList;

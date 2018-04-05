@@ -1,4 +1,4 @@
-<bin   name="testCommonToolsUtil" file="testSelectors.cc,testSelectIterator.cc,testComparators.cc,testCutParser.cc,testExpressionParser.cc,testRunner.cpp">
+<bin   name="testCommonToolsUtil" file="testSelectors.cc,testSelectIterator.cc,testComparators.cc,testCutParser.cc,testExpressionParser.cc,testAssociationMapFilterValues.cc,testFormulaEvaluator.cc,testRunner.cpp">
   <use   name="Geometry/CommonDetUnit"/>
   <use   name="DataFormats/TrackReco"/>
   <use   name="DataFormats/TrackerRecHit2D"/>
@@ -8,6 +8,7 @@
   <use   name="DataFormats/SiStripCluster"/>
   <use   name="CommonTools/Utils"/>
   <use   name="cppunit"/>
+  <use   name="rootmath"/>
 </bin>
 
 <bin name="testCommonToolsUtilThreaded" file="testCutParserThreaded.cc">
@@ -38,4 +39,9 @@
   <flags CXXFLAGS="-fopenmp"/>
   <use name="CommonTools/Utils"/>
 </bin>
+
+
+<bin file="testDynArray.cpp">
+</bin>
+
 

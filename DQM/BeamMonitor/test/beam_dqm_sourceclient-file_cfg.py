@@ -71,7 +71,7 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 #--------------------------
 # Calibration
 #--------------------------
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 #-----------------------
 #  Reconstruction Modules

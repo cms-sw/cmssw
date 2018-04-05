@@ -25,9 +25,9 @@ class HLTJetCollectionsVBFFilter : public HLTFilter {
 
    public:
       explicit HLTJetCollectionsVBFFilter(const edm::ParameterSet&);
-      ~HLTJetCollectionsVBFFilter();
+      ~HLTJetCollectionsVBFFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       edm::EDGetTokenT<std::vector<edm::RefVector<std::vector<T>,T,edm::refhelper::FindUsingAdvance<std::vector<T>,T>>> > m_theJetToken;

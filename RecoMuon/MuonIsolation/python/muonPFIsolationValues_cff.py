@@ -570,48 +570,49 @@ muPFSumDRIsoValuePU04 = cms.EDProducer("CandIsolatorFromDeposits",
    )
 )
 
-muonPFIsolationValuesSequence = (
-    muPFIsoValueCharged03+
-    muPFMeanDRIsoValueCharged03+
-    muPFSumDRIsoValueCharged03+
-    muPFIsoValueChargedAll03+
-    muPFMeanDRIsoValueChargedAll03+
-    muPFSumDRIsoValueChargedAll03+
-    muPFIsoValueGamma03+
-    muPFMeanDRIsoValueGamma03+
-    muPFSumDRIsoValueGamma03+
-    muPFIsoValueNeutral03+
-    muPFMeanDRIsoValueNeutral03+
-    muPFSumDRIsoValueNeutral03+
-    muPFIsoValueGammaHighThreshold03+
-    muPFMeanDRIsoValueGammaHighThreshold03+
-    muPFSumDRIsoValueGammaHighThreshold03+
-    muPFIsoValueNeutralHighThreshold03+
-    muPFMeanDRIsoValueNeutralHighThreshold03+
-    muPFSumDRIsoValueNeutralHighThreshold03+
-    muPFIsoValuePU03+
-    muPFMeanDRIsoValuePU03+
-    muPFSumDRIsoValuePU03+
+muonPFIsolationValuesTask = cms.Task(
+    muPFIsoValueCharged03,
+    muPFMeanDRIsoValueCharged03,
+    muPFSumDRIsoValueCharged03,
+    muPFIsoValueChargedAll03,
+    muPFMeanDRIsoValueChargedAll03,
+    muPFSumDRIsoValueChargedAll03,
+    muPFIsoValueGamma03,
+    muPFMeanDRIsoValueGamma03,
+    muPFSumDRIsoValueGamma03,
+    muPFIsoValueNeutral03,
+    muPFMeanDRIsoValueNeutral03,
+    muPFSumDRIsoValueNeutral03,
+    muPFIsoValueGammaHighThreshold03,
+    muPFMeanDRIsoValueGammaHighThreshold03,
+    muPFSumDRIsoValueGammaHighThreshold03,
+    muPFIsoValueNeutralHighThreshold03,
+    muPFMeanDRIsoValueNeutralHighThreshold03,
+    muPFSumDRIsoValueNeutralHighThreshold03,
+    muPFIsoValuePU03,
+    muPFMeanDRIsoValuePU03,
+    muPFSumDRIsoValuePU03,
     ############################## 
-    muPFIsoValueCharged04+
-    muPFMeanDRIsoValueCharged04+
-    muPFSumDRIsoValueCharged04+
-    muPFIsoValueChargedAll04+
-    muPFMeanDRIsoValueChargedAll04+
-    muPFSumDRIsoValueChargedAll04+
-    muPFIsoValueGamma04+
-    muPFMeanDRIsoValueGamma04+
-    muPFSumDRIsoValueGamma04+
-    muPFIsoValueNeutral04+
-    muPFMeanDRIsoValueNeutral04+
-    muPFSumDRIsoValueNeutral04+
-    muPFIsoValueGammaHighThreshold04+
-    muPFMeanDRIsoValueGammaHighThreshold04+
-    muPFSumDRIsoValueGammaHighThreshold04+
-    muPFIsoValueNeutralHighThreshold04+
-    muPFMeanDRIsoValueNeutralHighThreshold04+
-    muPFSumDRIsoValueNeutralHighThreshold04+
-    muPFIsoValuePU04+
-    muPFMeanDRIsoValuePU04+
+    muPFIsoValueCharged04,
+    muPFMeanDRIsoValueCharged04,
+    muPFSumDRIsoValueCharged04,
+    muPFIsoValueChargedAll04,
+    muPFMeanDRIsoValueChargedAll04,
+    muPFSumDRIsoValueChargedAll04,
+    muPFIsoValueGamma04,
+    muPFMeanDRIsoValueGamma04,
+    muPFSumDRIsoValueGamma04,
+    muPFIsoValueNeutral04,
+    muPFMeanDRIsoValueNeutral04,
+    muPFSumDRIsoValueNeutral04,
+    muPFIsoValueGammaHighThreshold04,
+    muPFMeanDRIsoValueGammaHighThreshold04,
+    muPFSumDRIsoValueGammaHighThreshold04,
+    muPFIsoValueNeutralHighThreshold04,
+    muPFMeanDRIsoValueNeutralHighThreshold04,
+    muPFSumDRIsoValueNeutralHighThreshold04,
+    muPFIsoValuePU04,
+    muPFMeanDRIsoValuePU04,
     muPFSumDRIsoValuePU04
     )
+muonPFIsolationValuesSequence = cms.Sequence(muonPFIsolationValuesTask)

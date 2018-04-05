@@ -277,7 +277,7 @@ void Fourvec_Event::add (const FE_Obj& obj)
 
   // Add to the end of the list, but before any neutrino.
   if (_has_neutrino) {
-    assert (_objs.size() > 0);
+    assert (!_objs.empty());
     _objs.insert (_objs.begin() + _objs.size() - 1, obj);
   }
   else

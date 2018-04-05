@@ -63,7 +63,7 @@ for(CaloTowerCollection::const_iterator cal = towers->begin(); cal != towers->en
 if(negTowers>0 && posTowers>0)
   return true;
 
-  return false;
+return false;
 
 }
 

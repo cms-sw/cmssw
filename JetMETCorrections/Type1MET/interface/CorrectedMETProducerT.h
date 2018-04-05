@@ -18,16 +18,20 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "JetMETCorrections/Type1MET/interface/METCorrectionAlgorithm.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 #include <vector>
 
@@ -61,7 +65,7 @@ namespace CorrectedMETProducer_namespace
 }
 
 template<typename T>
-class CorrectedMETProducerT : public edm::EDProducer  
+class CorrectedMETProducerT : public edm::stream::EDProducer<>  
 {
   typedef std::vector<T> METCollection;
 
@@ -82,11 +86,17 @@ class CorrectedMETProducerT : public edm::EDProducer
     delete algorithm_;
   }
     
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src",edm::InputTag("corrPfMetType1", "type1"));
+    descriptions.add(defaultModuleLabel<CorrectedMETProducerT<T> >(),desc);
+  }
+
  private:
 
   void produce(edm::Event& evt, const edm::EventSetup& es)
   {
-    std::auto_ptr<METCollection> correctedMEtCollection(new METCollection);
+    std::unique_ptr<METCollection> correctedMEtCollection(new METCollection);
 
     edm::Handle<METCollection> rawMEtCollection;
     evt.getByToken(token_, rawMEtCollection);
@@ -94,7 +104,7 @@ class CorrectedMETProducerT : public edm::EDProducer
     for ( typename METCollection::const_iterator rawMEt = rawMEtCollection->begin();
 	  rawMEt != rawMEtCollection->end(); ++rawMEt ) {
       CorrMETData correction = algorithm_->compMETCorrection(evt, es);
-      
+
       static const CorrectedMETProducer_namespace::CorrectedMETFactoryT<T> correctedMET_factory {};
       T correctedMEt = correctedMET_factory(*rawMEt, correction);
 
@@ -102,7 +112,7 @@ class CorrectedMETProducerT : public edm::EDProducer
     }
 	  
 //--- add collection of MET objects with Type 1 / Type 1 + 2 corrections applied to the event
-    evt.put(correctedMEtCollection);
+    evt.put(std::move(correctedMEtCollection));
   }
 
   std::string moduleLabel_;

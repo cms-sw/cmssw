@@ -18,7 +18,7 @@ class ClusterFillMap : public VFillMap
 			EcalIntercalibConstantMap *);
 	
 	//!dtor
-	~ClusterFillMap ();
+	~ClusterFillMap () override;
 
 	//!Fills the map
         void fillMap (const std::vector<std::pair<DetId,float> > &, 
@@ -26,7 +26,7 @@ class ClusterFillMap : public VFillMap
 			const EcalRecHitCollection *, 
 			const EcalRecHitCollection *,
 			std::map<int,double> & xtlMap,
-			double & ) ;
+			double & ) override ;
 };
 #endif
 #endif

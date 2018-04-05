@@ -7,7 +7,6 @@
 
 SiStripApvShotCleaner::
 SiStripApvShotCleaner():
-  pDetSet(0),
   maxNumOfApvs(6),  //FED Default: 6 (i.e. max num apvs )
   stripsPerApv(128),
   stripsForMedian(64){}
@@ -35,8 +34,7 @@ loop(const edm::DetSet<SiStripDigi>& in){
 #endif
   
   shots_=false;
-  BOOST_FOREACH(bool& val,shotApv_)
-    val=false;
+  for (auto& val :shotApv_) val=false;
   
   cacheDetId=in.detId();
 
@@ -95,7 +93,7 @@ dumpInVector(edm::DetSet<SiStripDigi>::const_iterator* pFirstDigiOfApv,size_t ma
     if(shotApv_[i]){
       apvDigis.insert(apvDigis.end(),pFirstDigiOfApv[i],pFirstDigiOfApv[i+1]);
       subtractCM();
-      stable_sort(apvDigis.begin(),apvDigis.end());
+      std::stable_sort(apvDigis.begin(),apvDigis.end());
       vdigis.insert(vdigis.end(),apvDigis.begin(),apvDigis.end());
     }else{
       vdigis.insert(vdigis.end(),pFirstDigiOfApv[i],pFirstDigiOfApv[i+1]);
@@ -114,7 +112,8 @@ dumpInVector(edm::DetSet<SiStripDigi>::const_iterator* pFirstDigiOfApv,size_t ma
 void SiStripApvShotCleaner::subtractCM(){
 
   //order by charge
-  stable_sort(apvDigis.begin(),apvDigis.end(),orderingByCharge());
+  std::stable_sort(apvDigis.begin(),apvDigis.end(),
+	    [](SiStripDigi const& a, SiStripDigi const& b) {return a.adc() > b.adc();});
 
   //ignore case where 64th strip is 0ADC
   if(apvDigis[stripsForMedian].adc()==0){
@@ -127,7 +126,7 @@ void SiStripApvShotCleaner::subtractCM(){
   }
 
   //Find the Median
-  float CM = .5*(apvDigis[stripsForMedian].adc()+apvDigis[stripsForMedian-1].adc());
+  float CM = 0.5f*(apvDigis[stripsForMedian].adc()+apvDigis[stripsForMedian-1].adc());
   
   
   if(CM<=0) 
@@ -151,15 +150,8 @@ void SiStripApvShotCleaner::subtractCM(){
 
 void SiStripApvShotCleaner::
 reset(edm::DetSet<SiStripDigi>::const_iterator& a, edm::DetSet<SiStripDigi>::const_iterator& b){
-  refresh();
-  pDetSet = new edm::DetSet<SiStripDigi>(cacheDetId);
+  pDetSet.reset(new edm::DetSet<SiStripDigi>(cacheDetId));
   pDetSet->data.swap(vdigis);
   a=pDetSet->begin();
   b=pDetSet->end();
-}
-
-void SiStripApvShotCleaner::
-refresh(){
-  if(pDetSet!=NULL)
-    delete pDetSet;
 }

@@ -12,7 +12,7 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 ## add inFlightMuons
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.inFlightMuons = cms.EDProducer("PATGenCandsFromSimTracksProducer",
-        src           = cms.InputTag("g4SimHits"),   ## use "famosSimHits" for FAMOS
+        src           = cms.InputTag("g4SimHits"),   ## use "fastSimProducer" for FastSim
         setStatus     = cms.int32(-1),
         particleTypes = cms.vstring("mu+"),          ## picks also mu-, of course
         filter        = cms.vstring("pt > 0.5"),     ## just for testing

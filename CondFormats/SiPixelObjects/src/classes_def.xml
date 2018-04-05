@@ -55,6 +55,8 @@
 
   <class name="SiPixelLorentzAngle" class_version="0"/>
 
+  <class name="SiPixelDynamicInefficiency" class_version="0"/>
+
   <class name="SiPixelPerformanceSummary" class_version="0"/>
   <class name="SiPixelPerformanceSummary::DetSummary"/>
   <class name="std::vector<SiPixelPerformanceSummary::DetSummary>"/>

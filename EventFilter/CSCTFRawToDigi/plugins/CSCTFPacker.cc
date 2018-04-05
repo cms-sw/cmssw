@@ -2,7 +2,7 @@
 #include "EventFilter/CSCTFRawToDigi/src/CSCTFEvent.h"
 
 #include <strings.h>
-#include <errno.h>
+#include <cerrno>
 #include <iostream>
 #include <cstdio>
 
@@ -20,7 +20,7 @@
 #include "FWCore/Utilities/interface/CRC16.h"
 
 
-CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
+CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::one::EDProducer<>(){
 	// "Readout" configuration
 	zeroSuppression = conf.getParameter<bool>("zeroSuppression");
 	nTBINs          = conf.getParameter<int> ("nTBINs");
@@ -36,8 +36,8 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 	// Swap: if(swapME1strips && me1b && !zplus) strip = 65 - strip; // 1-64 -> 64-1 :
 	swapME1strips = conf.getParameter<bool>("swapME1strips");
 
-	file = 0;
-	if( outputFile.length() && (file = fopen(outputFile.c_str(),"wt"))==NULL )
+	file = nullptr;
+	if( outputFile.length() && (file = fopen(outputFile.c_str(),"wt"))==nullptr )
 		throw cms::Exception("OutputFile ")<<"CSCTFPacker: cannot open output file (errno="<<errno<<"). Try outputFile=\"\"";
 
 	// BX window bounds in CMSSW:
@@ -333,7 +333,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000;
 
 	if( putBufferToEvent ){
-		std::auto_ptr<FEDRawDataCollection> data(new FEDRawDataCollection);
+		auto data = std::make_unique<FEDRawDataCollection>();
 		FEDRawData& fedRawData = data->FEDData((unsigned int)FEDNumbering::MINCSCTFFEDID);
 		fedRawData.resize((pos-spDDUrecord)*sizeof(unsigned short));
 		std::copy((unsigned char*)spDDUrecord,(unsigned char*)pos,fedRawData.data());
@@ -341,7 +341,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 		csctfFEDHeader.set(fedRawData.data(), 0, e.id().event(), 0, FEDNumbering::MINCSCTFFEDID);
 		FEDTrailer csctfFEDTrailer(fedRawData.data()+(fedRawData.size()-8));
 		csctfFEDTrailer.set(fedRawData.data()+(fedRawData.size()-8), fedRawData.size()/8, evf::compute_crc(fedRawData.data(),fedRawData.size()), 0, 0);
-		e.put(data,"CSCTFRawData");
+		e.put(std::move(data),"CSCTFRawData");
 	}
 
 	if(file) fwrite(spDDUrecord,2,pos-spDDUrecord,file);

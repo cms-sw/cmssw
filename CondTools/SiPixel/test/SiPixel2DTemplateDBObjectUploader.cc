@@ -6,7 +6,7 @@
 
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
@@ -108,7 +108,7 @@ SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const edm::
 
         //Retrieve tracker topology from geometry
         edm::ESHandle<TrackerTopology> tTopoHandle;
-        es.get<IdealGeometryRecord>().get(tTopoHandle);
+        es.get<TrackerTopologyRcd>().get(tTopoHandle);
         const TrackerTopology* const tTopo = tTopoHandle.product();
 	
 	edm::ESHandle<TrackerGeometry> pDD;
@@ -119,11 +119,11 @@ SiPixel2DTemplateDBObjectUploader::analyze(const edm::Event& iEvent, const edm::
 	templids[k] = (short) theTemplIds[k];
 	}
 
-	for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){	
-		if( (*it)!=0){
+	for( const auto& it : pDD->detUnits()) {
+		if( it!=0){
 			// Here is the actual looping step over all DetIds:				
-			DetId detid=(*it)->geographicalId();
-                        const DetId detidc = (*it)->geographicalId();
+			DetId detid=it->geographicalId();
+                        const DetId detidc = it->geographicalId();
 
 			unsigned int layer=0, disk=0, side=0, blade=0, panel=0, module=0;
 					

@@ -52,13 +52,13 @@ using namespace std;
 class PFJetBenchmarkAnalyzer : public edm::EDAnalyzer {
 public:
   explicit PFJetBenchmarkAnalyzer(const edm::ParameterSet&);
-  ~PFJetBenchmarkAnalyzer();
+  ~PFJetBenchmarkAnalyzer() override;
 
 
 private:
-  virtual void beginJob() override ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::GenJetCollection> sGenJetAlgo_tok_;
   edm::EDGetTokenT<reco::PFJetCollection> sJetAlgo_tok_;

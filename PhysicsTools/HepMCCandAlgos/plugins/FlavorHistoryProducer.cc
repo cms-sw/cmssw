@@ -80,7 +80,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
   vector<FlavorHistory::FLAVOR_T> flavorSources;
 
   // Make a new flavor history vector
-  auto_ptr<FlavorHistoryEvent > flavorHistoryEvent ( new FlavorHistoryEvent () ) ;
+  auto flavorHistoryEvent = std::make_unique<FlavorHistoryEvent>();
 
   // ------------------------------------------------------------
   // Loop over partons
@@ -231,7 +231,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
 
   if ( verbose_ ) cout << "Making sisters" << endl;
   // First make sure nothing went terribly wrong:
-  if ( partonIndices.size() == progenitorIndices.size() && partonIndices.size() > 0 ) {
+  if ( partonIndices.size() == progenitorIndices.size() && !partonIndices.empty() ) {
     // Now loop over the candidates
     for ( unsigned int ii = 0; ii < partonIndices.size(); ++ii ) {
       // Get the iith particle
@@ -321,7 +321,7 @@ void FlavorHistoryProducer::produce( Event& evt, const EventSetup& )
   }
 
   // Now add the flavor history to the event record
-  evt.put( flavorHistoryEvent, flavorHistoryName_ );
+  evt.put(std::move(flavorHistoryEvent), flavorHistoryName_ );
 }
 
 

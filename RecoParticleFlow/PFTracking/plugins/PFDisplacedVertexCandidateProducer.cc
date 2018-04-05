@@ -101,12 +101,11 @@ PFDisplacedVertexCandidateProducer::produce(Event& iEvent,
   }    
 
 
-  auto_ptr< reco::PFDisplacedVertexCandidateCollection > 
-    pOutputDisplacedVertexCandidateCollection(
+  std::unique_ptr<reco::PFDisplacedVertexCandidateCollection> pOutputDisplacedVertexCandidateCollection(
       pfDisplacedVertexCandidateFinder_.transferVertexCandidates() ); 
   
   
-  iEvent.put(pOutputDisplacedVertexCandidateCollection);
+  iEvent.put(std::move(pOutputDisplacedVertexCandidateCollection));
  
   LogDebug("PFDisplacedVertexCandidateProducer")<<"STOP event: "<<iEvent.id().event()
 			     <<" in run "<<iEvent.id().run()<<endl;

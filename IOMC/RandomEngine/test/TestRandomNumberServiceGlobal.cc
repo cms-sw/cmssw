@@ -64,6 +64,7 @@ the text file containing the states.
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "IOMC/RandomEngine/src/TRandomAdaptor.h"
 
 #include "CLHEP/Random/RandExponential.h"
@@ -71,6 +72,7 @@ the text file containing the states.
 #include "CLHEP/Random/engineIDulong.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RanecuEngine.h"
+#include "CLHEP/Random/MixMaxRng.h"
 
 #include <fstream>
 #include <iostream>
@@ -89,19 +91,19 @@ public:
   TestRandomNumberServiceStreamCache() :
     serviceEngine_(nullptr),
     countEvents_(0) { }
-  CLHEP::HepRandomEngine* serviceEngine_;
+  edm::propagate_const<CLHEP::HepRandomEngine*> serviceEngine_;
   unsigned int countEvents_;
   std::ofstream outFile_;
   std::string lastEventRandomNumbers_;
 
-  std::shared_ptr<CLHEP::HepRandomEngine> referenceEngine_;
+  edm::propagate_const<std::shared_ptr<CLHEP::HepRandomEngine>> referenceEngine_;
   std::vector<double> referenceRandomNumbers_;
 };
 
 class TestRandomNumberServiceLumiCache {
 public:
   TestRandomNumberServiceLumiCache() { }
-  std::shared_ptr<CLHEP::HepRandomEngine> referenceEngine_;
+  edm::propagate_const<std::shared_ptr<CLHEP::HepRandomEngine>> referenceEngine_;
   std::vector<double> referenceRandomNumbers_;
 };
 
@@ -131,7 +133,6 @@ public:
   virtual void streamEndLuminosityBlock(edm::StreamID, edm::LuminosityBlock const&, edm::EventSetup const&) const override;
 
 private:
-
 
   std::string engineName_;
   std::vector<unsigned int> seeds_;
@@ -166,7 +167,16 @@ TestRandomNumberServiceGlobal::TestRandomNumberServiceGlobal(edm::ParameterSet c
 
   if(dump_) {
     edm::Service<edm::RandomNumberGenerator> rng;
-    std::cout << "*** TestRandomNumberServiceGlobal constructor " << rng->mySeed() << "\n";
+    bool exceptionThrown = true;
+    try {
+       unsigned int mySeed = rng->mySeed();
+       std::cout << "*** TestRandomNumberServiceGlobal constructor " << mySeed << "\n";
+       exceptionThrown = false;
+    } catch( cms::Exception const&) {
+    }
+    if(not exceptionThrown) {
+       throw cms::Exception("FailedToThrow")<<"RandomNunberGenerator::mySeed did not throw";
+    }
   }
 }
 
@@ -178,13 +188,14 @@ TestRandomNumberServiceGlobal::analyze(edm::StreamID streamID, edm::Event const&
 
   // Add some sleep to encourage all the streams to get events to process.
   if(nStreams_ > 1) {
-    sleep(0.025);
+    usleep(25000);
   }
 
   if(dump_) {
     edm::Service<edm::RandomNumberGenerator> rng;
-    std::cout << "*** TestRandomNumberServiceGlobal analyze " << rng->mySeed() << "\n";
-    std::cout << rng->getEngine(streamID).name() << "\n";
+    std::cout << "*** TestRandomNumberServiceGlobal analyze " << rng->mySeed() << "  "
+	      << rng->getEngine(streamID).name() << " streamID= " << streamID 
+	      << " multiStreamReplay: " << multiStreamReplay_ << "\n";
   }
 
   TestRandomNumberServiceStreamCache* cache = streamCache(streamID);
@@ -208,6 +219,11 @@ TestRandomNumberServiceGlobal::analyze(edm::StreamID streamID, edm::Event const&
   CLHEP::RandExponential expDist(engine);
   double mean = 10.0;  // Mean of the exponential
   double randomNumberEvent3_ = expDist.fire(mean);
+
+  if(dump_) {
+    std::cout << "     " << engine.name() << " " << randomNumberEvent0_<< " " << randomNumberEvent1_<< " " 
+	      << randomNumberEvent2_<< " " << randomNumberEvent3_ << std::endl;
+  }
 
   // Write them to a text file
   cache->outFile_ << rng->mySeed() << "\n";
@@ -284,15 +300,33 @@ TestRandomNumberServiceGlobal::analyze(edm::StreamID streamID, edm::Event const&
 
 void TestRandomNumberServiceGlobal::beginJob() {
   if(dump_) {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    std::cout << "*** TestRandomNumberServiceGlobal beginJob " << rng->mySeed() << "\n";
+    bool exceptionThrown = true;
+    try {
+       edm::Service<edm::RandomNumberGenerator> rng;
+       unsigned int mySeed = rng->mySeed();
+       std::cout << "*** TestRandomNumberServiceGlobal beginJob " << mySeed << "\n";
+       exceptionThrown = false;
+    } catch( cms::Exception const&) {
+    }
+    if(not exceptionThrown) {
+       throw cms::Exception("FailedToThrow")<<"RandomNunberGenerator::mySeed did not throw";
+    }
   }
 }
 
 void TestRandomNumberServiceGlobal::endJob() {
   if(dump_) {
-    edm::Service<edm::RandomNumberGenerator> rng;
-    std::cout << "*** TestRandomNumberServiceGlobal endJob " << rng->mySeed() << "\n";
+    bool exceptionThrown = true;
+    try {
+       edm::Service<edm::RandomNumberGenerator> rng;
+       unsigned int mySeed = rng->mySeed();
+       std::cout << "*** TestRandomNumberServiceGlobal endJob " << mySeed << "\n";
+       exceptionThrown = false;
+    } catch( cms::Exception const&) {
+    }
+    if(not exceptionThrown) {
+       throw cms::Exception("FailedToThrow")<<"RandomNunberGenerator::mySeed did not throw";
+    }
   }
 }
 
@@ -302,8 +336,8 @@ TestRandomNumberServiceGlobal::globalBeginLuminosityBlock(edm::LuminosityBlock c
 
   if(dump_) {
     edm::Service<edm::RandomNumberGenerator> rng;
-    std::cout << "*** TestRandomNumberServiceGlobal beginLuminosityBlock " << rng->mySeed() << "\n";
-    std::cout << rng->getEngine(lumi.index()).name() << "\n";
+    std::cout << "*** TestRandomNumberServiceGlobal beginLuminosityBlock " << rng->mySeed() << "  "
+              << rng->getEngine(lumi.index()).name() << "\n";
   }
 
   auto lumiCache = std::make_shared<TestRandomNumberServiceLumiCache>();
@@ -314,7 +348,7 @@ TestRandomNumberServiceGlobal::globalBeginLuminosityBlock(edm::LuminosityBlock c
   }
 
   if(engineName_ == "RanecuEngine") {
-    lumiCache->referenceEngine_.reset(new CLHEP::RanecuEngine());
+    lumiCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::RanecuEngine()); // propagate_const<T> has no reset() function
     long int seedL[2];
     seedL[0] = static_cast<long int>(seed0);
     seedL[1] = static_cast<long int>(seeds_.at(1));
@@ -323,23 +357,28 @@ TestRandomNumberServiceGlobal::globalBeginLuminosityBlock(edm::LuminosityBlock c
   else {
     long int seedL = static_cast<long int>(seed0);
     if(engineName_ == "HepJamesRandom") {
-      lumiCache->referenceEngine_.reset(new CLHEP::HepJamesRandom(seedL));
+      lumiCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::HepJamesRandom(seedL)); // propagate_const<T> has no reset() function
+    } else if(engineName_ == "MixMaxRng") {
+      lumiCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::MixMaxRng(seedL)); // propagate_const<T> has no reset() function
     } else {
-      lumiCache->referenceEngine_.reset(new edm::TRandomAdaptor(seedL));
+      lumiCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new edm::TRandomAdaptor(seedL)); // propagate_const<T> has no reset() function
     }
   }
 
-  lumiCache->referenceRandomNumbers_.clear();
-  lumiCache->referenceRandomNumbers_.push_back(lumiCache->referenceEngine_->flat());
-  lumiCache->referenceRandomNumbers_.push_back(lumiCache->referenceEngine_->flat());
+  double y1 = lumiCache->referenceEngine_->flat();
+  double y2 = lumiCache->referenceEngine_->flat();
 
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine& engine = rng->getEngine(lumi.index());
+  double x1 = engine.flat();
+  double x2 = engine.flat();
 
-  if(engine.flat() != lumiCache->referenceRandomNumbers_.at(0) ||
-     engine.flat() != lumiCache->referenceRandomNumbers_.at(1)) {
+  if(x1 != y1 || x2 != y2) {
     throw cms::Exception("TestRandomNumberService")
-      << "TestRandomNumberServiceGlobal::globalBeginLuminosityBlock: Random sequence does not match expected sequence";
+      << "TestRandomNumberServiceGlobal::globalBeginLuminosityBlock:  "
+      << " x1= " << x1 << " y1= " << y1 << " x2= " << x2 << " y2= " << y2 << " " 
+      << engine.name() << " " << lumiCache->referenceEngine_->name() 
+      << " seed0= " << seed0 << " nStream= " << nStreams_;
   }
 
   return lumiCache;
@@ -349,7 +388,7 @@ TestRandomNumberServiceGlobal::globalBeginLuminosityBlock(edm::LuminosityBlock c
 std::unique_ptr<TestRandomNumberServiceStreamCache>
 TestRandomNumberServiceGlobal::beginStream(edm::StreamID streamID) const {
 
-  std::unique_ptr<TestRandomNumberServiceStreamCache> streamCache(new TestRandomNumberServiceStreamCache);
+  auto streamCache = std::make_unique<TestRandomNumberServiceStreamCache>();
 
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine& engine = rng->getEngine(streamID);
@@ -366,7 +405,7 @@ TestRandomNumberServiceGlobal::beginStream(edm::StreamID streamID) const {
   streamCache->outFile_.open(outFileName.c_str(), std::ofstream::out);
 
   if(engineName_ == "RanecuEngine") {
-    streamCache->referenceEngine_.reset(new CLHEP::RanecuEngine());
+    streamCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::RanecuEngine()); // propagate_const<T> has no reset() function
     long int seedL[2];
     seedL[0] = static_cast<long int>(seeds_.at(0) + streamID.value() + offset_);
     seedL[1] = static_cast<long int>(seeds_.at(1));
@@ -375,9 +414,11 @@ TestRandomNumberServiceGlobal::beginStream(edm::StreamID streamID) const {
   else {
     long int seedL = static_cast<long int>(seeds_.at(0) + streamID.value() + offset_);
     if(engineName_ == "HepJamesRandom") {
-      streamCache->referenceEngine_.reset(new CLHEP::HepJamesRandom(seedL));
+      streamCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::HepJamesRandom(seedL)); // propagate_const<T> has no reset() function
+    } else if(engineName_ == "MixMaxRng") {
+      streamCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new CLHEP::MixMaxRng(seedL)); // propagate_const<T> has no reset() function
     } else {
-      streamCache->referenceEngine_.reset(new edm::TRandomAdaptor(seedL));
+      streamCache->referenceEngine_ = std::shared_ptr<CLHEP::HepRandomEngine>(new edm::TRandomAdaptor(seedL)); // propagate_const<T> has no reset() function
     }
   }
 

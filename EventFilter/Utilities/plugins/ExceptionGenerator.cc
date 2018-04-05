@@ -8,35 +8,31 @@
 
 #include "TRandom3.h"
 
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "boost/tokenizer.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 #include <sys/types.h>
-#include <signal.h>
+#include <csignal>
 
 using namespace std;
 
 namespace evf{
 
 
-    ExceptionGenerator::ExceptionGenerator( const edm::ParameterSet& pset) : 
-      actionId_(pset.getUntrackedParameter<int>("defaultAction",-1)),
-      intqualifier_(pset.getUntrackedParameter<int>("defaultQualifier",0)), 
-      actionRequired_(actionId_!=-1)
-    {
-      
-    }
-  void ExceptionGenerator::beginStream()
+  ExceptionGenerator::ExceptionGenerator( const edm::ParameterSet& pset) : 
+    actionId_(pset.getUntrackedParameter<int>("defaultAction",-1)),
+    intqualifier_(pset.getUntrackedParameter<int>("defaultQualifier",0)), 
+    qualifier2_(pset.getUntrackedParameter<double>("secondQualifier",1)), 
+    actionRequired_(actionId_!=-1)
   {
     // timing destribution from (https://twiki.cern.ch/twiki/bin/viewauth/CMS/HLTCpuTimingFAQ#2011_Most_Recent_Data)
     // /castor/cern.ch/user/d/dsperka/HLT/triggerSkim_HLTPhysics_run178479_68_188.root
     // Baseline result with CMSSW_4_2_9_HLT3_hltpatch3 and /online/collisions/2011/5e33/v2.1/HLT/V9 :
     // vocms110:/store/timing_178479/outfile-178479-col1.root
-    
+
     timingHisto_ = new TH1D("timingHisto_","Total time for all modules per event",100,0,1000);
     timingHisto_->SetBinContent(1,5016);
     timingHisto_->SetBinContent(2,4563);
@@ -140,18 +136,20 @@ namespace evf{
     timingHisto_->SetBinContent(101,147);
     timingHisto_->SetEntries(24934);
   }
-  void ExceptionGenerator::beginRun(edm::Run& r, const edm::EventSetup& iSetup)
+
+  void ExceptionGenerator::beginRun(const edm::Run& r, const edm::EventSetup& iSetup)
   {
-    gettimeofday(&tv_start_,0);
+
+    gettimeofday(&tv_start_,nullptr);
   }
 
-  void ExceptionGenerator::analyze(const edm::Event & e, const edm::EventSetup& c)
+  void __attribute__((optimize("O0"))) ExceptionGenerator::analyze(const edm::Event & e, const edm::EventSetup& c)
     {
       float dummy = 0.;
       unsigned int iterations = 0;
       if(actionRequired_) 
 	{
-	  int *pi = 0;
+	  int *pi = nullptr;//null-pointer used with actionId_ 8 and 12 to intentionally cause segfault
 	  int ind = 0; 
 	  int step = 1; 
 	  switch(actionId_)
@@ -175,21 +173,21 @@ namespace evf{
 	      throw qualifier_; 
 	      break;
 	    case 6:
-	      while(1){ind+=step; if(ind>1000000) step = -1; if(ind==0) step = 1;}
+	      while(true){ind+=step; if(ind>1000000) step = -1; if(ind==0) step = 1;}
 	      break;
 	    case 7:
 	      edm::LogError("TestErrorMessage") << qualifier_;
 	      break;
 	    case 8:
-	      *pi=0;
+	      *pi=0;//intentionally caused segfault by assigning null pointer (this produces static-checker warning)
 	      break;
 	    case 9:
-	      for(unsigned int j=0; j<intqualifier_*1000;j++){
+	      for(unsigned int j=0; j<intqualifier_*1000*100;j++){
 		dummy += sqrt(log(float(j+1)))/float(j*j);
 	      }
 	      break;
             case 10:
-              iterations = static_cast<unsigned int>(
+              iterations = 100*static_cast<unsigned int>(
                 timingHisto_->GetRandom() * intqualifier_*17. + 0.5
               );
 	      for(unsigned int j=0; j<iterations;j++){
@@ -218,17 +216,46 @@ namespace evf{
 	    case 12:
 	      {
 		timeval tv_now;
-	        gettimeofday(&tv_now,0);
+	        gettimeofday(&tv_now,nullptr);
 		if ((unsigned)(tv_now.tv_sec-tv_start_.tv_sec)>intqualifier_)
-		  *pi=0;
+		  *pi=0;//intentionally caused segfault by assigning null pointer (this produces static-checker warning)
 	      }
 	      break;
 	    case 13:
-	      void *vp = malloc(1024);
-	      memset((char *)vp - 32, 0, 1024);
-	      free(vp);
+              {
+	        void *vp = malloc(1024);
+	        memset((char *)vp - 32, 0, 1024);
+	        free(vp);
+              }
 	      break;
+	    case 14:
+              {
+                float mean = 60.; // timingHisto_->GetMean();
+                float scale = intqualifier_ / mean;
+                float off = intqualifier_ * (1. - qualifier2_);
+                scale  = scale*qualifier2_; // scale factor (1 default)
+                iterations = static_cast<unsigned int>(max(1.,off + timingHisto_->GetRandom() * scale));
+                //std::cout << " off " << off << " scale " << scale << " " << iterations << std::endl;
+                ::usleep(iterations*1000);
+              }
+              break;
+	    case 15:
+              {
+                float mean = 60.; // timingHisto_->GetMean();
+                float scale = intqualifier_ / mean;
+                float off = intqualifier_ * (1. - qualifier2_);
+                scale  = scale*qualifier2_; // scale factor (1 default)
+                iterations = static_cast<unsigned int>(max(1.,off + timingHisto_->GetRandom() * scale));
+                iterations *= 100000;
+	        for(unsigned int j=0; j<iterations;j++){
+		  dummy += sqrt(log(float(j+1)))/float(j*j);
+	        }
+              }
+              break;
+            default:
+              break;
 	    }
+
 	}
     }
     

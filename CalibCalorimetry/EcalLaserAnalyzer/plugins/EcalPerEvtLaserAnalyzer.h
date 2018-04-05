@@ -37,12 +37,12 @@ class EcalPerEvtLaserAnalyzer: public edm::EDAnalyzer{
  public:
   
   explicit EcalPerEvtLaserAnalyzer(const edm::ParameterSet& iConfig);  
-  ~EcalPerEvtLaserAnalyzer();
+  ~EcalPerEvtLaserAnalyzer() override;
   
   
-  virtual void analyze( const edm::Event & e, const  edm::EventSetup& c);
-  virtual void beginJob();
-  virtual void endJob();
+  void analyze( const edm::Event & e, const  edm::EventSetup& c) override;
+  void beginJob() override;
+  void endJob() override;
     
   enum VarCol  { iBlue, iRed, nColor }; 
 

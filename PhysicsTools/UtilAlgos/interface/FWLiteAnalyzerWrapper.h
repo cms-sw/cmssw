@@ -12,7 +12,7 @@
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 #include "DataFormats/FWLite/interface/InputSource.h"
 #include "DataFormats/FWLite/interface/OutputFiles.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "PhysicsTools/FWLite/interface/TFileService.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
@@ -44,7 +44,7 @@
    {
      // load framework libraries
      gSystem->Load( "libFWCoreFWLite" );
-     AutoLibraryLoader::enable();
+     FWLiteEnabler::enable();
      
      // only allow one argument for this simple example which should be the
      // the python cfg file
@@ -144,7 +144,7 @@ namespace fwlite {
     }
     else{
       // create a directory in the file if directory string is non empty
-      TFileDirectory dir = fileService_.mkdir(directory.c_str());
+      TFileDirectory dir = fileService_.mkdir(directory);
       analyzer_ = boost::shared_ptr<T>( new T( ana, dir ) );  
     }
   }

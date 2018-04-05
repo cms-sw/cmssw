@@ -6,7 +6,7 @@
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMatacq.h>
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include "TVectorD.h"
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMarkov.h>
@@ -418,7 +418,7 @@ void TMatacq::printmatacqData(int gRunNumber, int color, int timestart)
      double ss;
      sprintf(filename,"runMatacq%d.pedestal",gRunNumber);
      fmatacq = fopen(filename, "w");
-     if(fmatacq == NULL) printf("Error while opening file : %s\n",filename);
+     if(fmatacq == nullptr) printf("Error while opening file : %s\n",filename);
 
      double sumtrise=0.; double sumtrise2=0.;
      int timestop= timestart+3;
@@ -471,7 +471,7 @@ int TMatacq::countBadPulses(int gRunNumber)
   char filename[80];
   sprintf(filename,"badevtsMatacq%d.dat",gRunNumber);
   fmatacq = fopen(filename, "w");
-  if(fmatacq == NULL) printf("Error while opening file : %s\n",filename);
+  if(fmatacq == nullptr) printf("Error while opening file : %s\n",filename);
 
   int nevbad=0;
   for(Int_t i=0;i<nevmtq0+nevmtq1;i++) {
@@ -500,7 +500,7 @@ void TMatacq::printitermatacqData(int gRunNumber, int color, int timestart)
      double ss;
      sprintf(filename,"runiterMatacq%d.pedestal",gRunNumber);
      fmatacq = fopen(filename, "w");
-     if(fmatacq == NULL) printf("Error while opening file : %s\n",filename);
+     if(fmatacq == nullptr) printf("Error while opening file : %s\n",filename);
 
      int nevmtqgood=0;
      double sumtrise=0.; double sumtrise2=0.;

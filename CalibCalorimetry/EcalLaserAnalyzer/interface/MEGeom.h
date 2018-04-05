@@ -24,10 +24,10 @@ public:
   static TH2*        getHist( int ilmr, int unit );
 
   static TGraph* getBoundary( int ilmr, int unit );
-  static void drawHist( int ilmr, int unit, TCanvas* canv=0 );
+  static void drawHist( int ilmr, int unit, TCanvas* canv=nullptr );
 
   // global 2D histogram
-  static TH2* getGlobalHist( const char* name=0 );
+  static TH2* getGlobalHist( const char* name=nullptr );
   static void setBinGlobalHist( TH2* h, 
 				int ix, int iy, int iz, float val );  
   static void drawGlobalBoundaries( int lineColor );

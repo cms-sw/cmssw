@@ -22,7 +22,7 @@ namespace reco {
 		      boost::shared_ptr<ComparisonBase> cmp,
 		      boost::shared_ptr<ExpressionBase> rhs ) :
 	lhs_( lhs ), cmp_( cmp ), rhs_( rhs ) { }
-      virtual bool operator()( const edm::ObjectWithDict & o ) const {
+      bool operator()( const edm::ObjectWithDict & o ) const override {
 	return cmp_->compare( lhs_->value( o ), rhs_->value( o ) );
       }
       boost::shared_ptr<ExpressionBase> lhs_;

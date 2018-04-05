@@ -7,6 +7,9 @@
  *  \author cerati
  */
 
+
+#include "AlgoProductTraits.h"
+
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,6 +26,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
 #include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
 
+#include<tuple>
+
 class Propagator;
 class TrajectoryStateUpdator;
 class MeasurementEstimator;
@@ -32,19 +37,21 @@ class TransientTrackingRecHitBuilder;
 class NavigationSchool;
 
 template <class T>
-class TrackProducerBase {
+class TrackProducerBase : public AlgoProductTraits<T> {
 public:
-  typedef std::vector<T> TrackCollection;
-  typedef std::pair<Trajectory*, std::pair<T*,PropagationDirection> > AlgoProduct;
-  typedef std::vector< AlgoProduct >  AlgoProductCollection;
+  using Base = AlgoProductTraits<T>;
+  using TrackView = typename Base::TrackView;
+  using TrackCollection = typename Base::TrackCollection;
+  using AlgoProductCollection = typename Base::AlgoProductCollection;
 public:
+
   /// Constructor
   TrackProducerBase(bool trajectoryInEvent = false):
      trajectoryInEvent_(trajectoryInEvent),
         rekeyClusterRefs_(false) {}
 
   /// Destructor
-  virtual ~TrackProducerBase();
+  virtual ~TrackProducerBase() noexcept(false);
   
   /// Get needed services from the Event Setup
   virtual void getFromES(const edm::EventSetup&,
@@ -58,7 +65,7 @@ public:
   /// Get TrackCandidateCollection from the Event (needed by TrackProducer)
   virtual void getFromEvt(edm::Event&, edm::Handle<TrackCandidateCollection>&, reco::BeamSpot&);
   /// Get TrackCollection from the Event (needed by TrackRefitter)
-  virtual void getFromEvt(edm::Event&, edm::Handle<TrackCollection>&, reco::BeamSpot&);
+  virtual void getFromEvt(edm::Event&, edm::Handle<TrackView>&, reco::BeamSpot&);
 
   /// Method where the procduction take place. To be implemented in concrete classes
   virtual void produce(edm::Event&, const edm::EventSetup&) = 0;
@@ -84,10 +91,11 @@ public:
   }
 
   void setSecondHitPattern(Trajectory* traj, T& track, 
-			   const Propagator* prop, const MeasurementTrackerEvent* measTk );
+			   const Propagator* prop, const MeasurementTrackerEvent* measTk,
+                           const TrackerTopology* ttopo);
 
   const edm::ParameterSet& getConf() const {return conf_;}
- private:
+ protected:
   edm::ParameterSet conf_;
   edm::EDGetToken src_;
  protected:

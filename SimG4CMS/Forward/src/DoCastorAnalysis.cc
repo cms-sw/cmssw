@@ -214,6 +214,7 @@ void DoCastorAnalysis::update(const EndOfEvent * evt) {
     CastorTree->Fill();
 	
   } // nentries > 0
+  delete theCastorNumScheme;
 }
 
 void DoCastorAnalysis::update(const EndOfRun * run) {;}

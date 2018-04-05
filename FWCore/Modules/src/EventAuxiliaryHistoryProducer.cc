@@ -12,10 +12,10 @@ namespace edm {
   class EventAuxiliaryHistoryProducer : public EDProducer {
   public:
     explicit EventAuxiliaryHistoryProducer(ParameterSet const&);
-    virtual ~EventAuxiliaryHistoryProducer();
+    ~EventAuxiliaryHistoryProducer() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
-    virtual void produce(Event& e, EventSetup const& c) override;
+    void produce(Event& e, EventSetup const& c) override;
     void endJob() override;
 
   private:
@@ -36,7 +36,7 @@ namespace edm {
     EventAuxiliary aux(e.id(), "", e.time(), e.isRealData(), e.experimentType(),
                        e.bunchCrossing(), EventAuxiliary::invalidStoreNumber, e.orbitNumber()); 
   //EventAuxiliary const& aux = e.auxiliary(); // when available
-    if(history_.size() > 0) {
+    if(!history_.empty()) {
       if(history_.back().id().next(aux.luminosityBlock()) != aux.id()) history_.clear();
       if(history_.size() >= depth_) history_.pop_front();
     }
@@ -44,7 +44,7 @@ namespace edm {
     history_.push_back(aux);
 
     //Serialize into std::vector 
-    std::unique_ptr<std::vector<EventAuxiliary > > result(new std::vector<EventAuxiliary>);
+    auto result = std::make_unique<std::vector<EventAuxiliary>>();
     for(size_t j = 0; j < history_.size(); ++j) { 
       result->push_back(history_[j]);
     }

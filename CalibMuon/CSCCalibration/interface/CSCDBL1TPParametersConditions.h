@@ -25,14 +25,13 @@ class CSCDBL1TPParametersConditions: public edm::ESProducer, public edm::EventSe
 
   inline static CSCDBL1TPParameters *  prefillCSCDBL1TPParameters();
 
-  typedef const  CSCDBL1TPParameters * ReturnType;
+  typedef std::unique_ptr<CSCDBL1TPParameters> ReturnType;
   
   ReturnType produceCSCDBL1TPParameters(const CSCDBL1TPParametersRcd&);
   
  private:
   // ----------member data ---------------------------
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-  CSCDBL1TPParameters *CSCl1TPParameters ;
 
 };
 

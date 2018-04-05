@@ -1,7 +1,7 @@
 #include "OnlineDB/EcalCondDB/interface/LMFDat.h"
 
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 using std::cout;
 using std::endl;
@@ -40,7 +40,7 @@ int LMFDat::getLMFRunIOVID() {
       m_foreignKeys.find(foreignKeyName());
     if (i != m_foreignKeys.end()) {
       LMFRunIOV *iov = (LMFRunIOV*)(i->second);
-      if (iov != NULL) {
+      if (iov != nullptr) {
 	id = iov->fetchID();
 	setInt(foreignKeyName(), id);
       }
@@ -186,19 +186,19 @@ std::string LMFDat::buildSelectSql(int logic_id, int direction) {
 }
 
 void LMFDat::getPrevious(LMFDat *dat)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   getNeighbour(dat, -1);
 }
 
 void LMFDat::getNext(LMFDat *dat)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   getNeighbour(dat, +1);
 }
 
 void LMFDat::getNeighbour(LMFDat *dat, int which)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // there should be just one record in this case
   if (m_data.size() == 1) {
@@ -216,38 +216,38 @@ void LMFDat::getNeighbour(LMFDat *dat, int which)
 }
 
 void LMFDat::fetch(const EcalLogicID &id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetch(id.getLogicID());
 }
 
 void LMFDat::fetch(const EcalLogicID &id, const Tm &tm) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetch(id.getLogicID(), &tm, 1);
 }
 
 void LMFDat::fetch(const EcalLogicID &id, const Tm &tm, int direction) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   setInt(foreignKeyName(), 0); /* set the LMF_IOV_ID to undefined */
   fetch(id.getLogicID(), &tm, direction);
 }
 
 void LMFDat::fetch() 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetch(0);
 }
 
 void LMFDat::fetch(int logic_id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
-  fetch(logic_id, NULL, 0);
+  fetch(logic_id, nullptr, 0);
 }
 
 void LMFDat::fetch(int logic_id, const Tm &tm) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   fetch(logic_id, &tm, 1);
 }
@@ -279,10 +279,10 @@ void LMFDat::adjustParameters(int count, std::string &sql,
 }
 
 void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   bool ok = check();
-  if ((timestamp == NULL) && (getLMFRunIOVID() == 0)) {
+  if ((timestamp == nullptr) && (getLMFRunIOVID() == 0)) {
     throw(std::runtime_error(m_className + "::fetch: Cannot fetch data with "
 			"timestamp = 0 and LMFRunIOV = 0"));
   }
@@ -304,7 +304,7 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
       stmt->setSQL(sql);
       int count = 1;
       if (logic_id > 0) {
-        if (timestamp != NULL) {
+        if (timestamp != nullptr) {
 	  stmt->setString(count, timestamp->str());
 	  count++;
 	}
@@ -320,7 +320,7 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
 	  x.push_back(rset->getFloat(i + 3));
 	}
 	int id = rset->getInt(2);
-	if (timestamp != NULL) {
+	if (timestamp != nullptr) {
 	  setInt(foreignKeyName(), rset->getInt(1));
 	}
 	this->setData(id, x);
@@ -330,7 +330,7 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
       m_conn->terminateStatement(stmt);
     }
     catch (oracle::occi::SQLException &e) {
-      throw(std::runtime_error(m_className + "::fetch: " + e.getMessage()));
+      throw(std::runtime_error(m_className + "::fetch: " + getOraMessage(&e)));
     }
     m_ID = m_data.size();
   }
@@ -350,7 +350,7 @@ bool LMFDat::isValid() {
 }
 
 std::map<int, std::vector<float> > LMFDat::fetchData() 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // see if any of the data is already in the database
   std::map<int, std::vector<float> > s = m_data;
@@ -386,7 +386,7 @@ std::map<int, std::vector<float> > LMFDat::fetchData()
     m_conn->terminateStatement(stmt);
   }
   catch (oracle::occi::SQLException &e) {
-    throw(std::runtime_error(m_className + "::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error(m_className + "::fetchData:  "+getOraMessage(&e)));
   }
   if (m_debug) {
     cout << m_className << ":: data items to write = " 
@@ -396,7 +396,7 @@ std::map<int, std::vector<float> > LMFDat::fetchData()
 }
 
 int LMFDat::writeDB() 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // first of all check if data already present
   if (m_debug) {
@@ -409,7 +409,7 @@ int LMFDat::writeDB()
   // write data on the database
   int ret = 0;
   std::map<int, std::vector<float> > data2write = fetchData();
-  if (data2write.size() > 0) {
+  if (!data2write.empty()) {
     this->checkConnection();
     bool ok = check();
     // write
@@ -528,7 +528,7 @@ int LMFDat::writeDB()
 	dump();
 	m_conn->rollback();
 	throw(std::runtime_error(m_className + "::writeDB: " + 
-				 e.getMessage()));
+				 getOraMessage(&e)));
       }
     } else {
       cout << m_className << "::writeDB: Cannot write because " << 
@@ -540,7 +540,7 @@ int LMFDat::writeDB()
 }
 
 void LMFDat::getKeyTypes() 
-  throw(std::runtime_error)
+  noexcept(false)
 {
   m_type.reserve(m_keys.size());
   for (unsigned int i = 0; i < m_keys.size(); i++) {
@@ -562,13 +562,13 @@ void LMFDat::getKeyTypes()
     stmt->setString(2, getIovIdFieldName());
     ResultSet *rset = stmt->executeQuery();
     while (rset->next() != 0) {
-      std::string name = rset->getString(1);
-      std::string t = rset->getString(2);
+      std::string name = getOraString(rset,1);
+      std::string t = getOraString(rset,2);
       m_type[m_keys[name]] = t;
     }
     m_conn->terminateStatement(stmt);
   } catch (oracle::occi::SQLException &e) {
-    throw(std::runtime_error(m_className + "::getKeyTypes: " + e.getMessage() +
+    throw(std::runtime_error(m_className + "::getKeyTypes: " + getOraMessage(&e) +
 			" [" + sql + "]"));
   }
 }
@@ -583,7 +583,7 @@ bool LMFDat::check() {
     ret = false;
   }
   //then check that the table name has been set
-  if (getTableName() == "") {
+  if (getTableName().empty()) {
     m_Error += "table name not set ";
     ret = false;
   }

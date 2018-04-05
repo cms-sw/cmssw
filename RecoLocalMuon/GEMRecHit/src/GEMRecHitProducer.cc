@@ -40,8 +40,8 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config){
 
   produces<GEMRecHitCollection>();
 
-  theGEMDigiLabel = config.getParameter<InputTag>("gemDigiLabel");
-  
+  theGEMDigiToken = consumes<GEMDigiCollection>(config.getParameter<edm::InputTag>("gemDigiLabel"));  
+
   // Get the concrete reconstruction algo from the factory
 
   string theAlgoName = config.getParameter<string>("recAlgo");
@@ -155,7 +155,7 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup) {
   // Get the digis from the event
 
   Handle<GEMDigiCollection> digis; 
-  event.getByLabel(theGEMDigiLabel,digis);
+  event.getByToken(theGEMDigiToken,digis);
 
   // Pass the EventSetup to the algo
 
@@ -163,7 +163,7 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup) {
 
   // Create the pointer to the collection which will store the rechits
 
-  auto_ptr<GEMRecHitCollection> recHitCollection(new GEMRecHitCollection());
+  auto recHitCollection = std::make_unique<GEMRecHitCollection>();
 
   // Iterate through all digi collections ordered by LayerId   
 
@@ -206,11 +206,11 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup) {
     OwnVector<GEMRecHit> recHits =
       theAlgo->reconstruct(*roll, gemId, range, mask);
     
-    if(recHits.size() > 0) //FIXME: is it really needed?
+    if(!recHits.empty()) //FIXME: is it really needed?
       recHitCollection->put(gemId, recHits.begin(), recHits.end());
   }
 
-  event.put(recHitCollection);
+  event.put(std::move(recHitCollection));
 
 }
 

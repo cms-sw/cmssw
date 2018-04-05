@@ -177,7 +177,9 @@ namespace edm {
 
     /// Accessor for product getter.
     EDProductGetter const* productGetter() const {
-      if ( ref_.productGetter() ) return ref_.productGetter();
+      //another thread might cause productGetter() to change its value
+      EDProductGetter const* getter = ref_.productGetter();
+      if ( getter ) return getter;
       else return backRef_.productGetter();
     }
 

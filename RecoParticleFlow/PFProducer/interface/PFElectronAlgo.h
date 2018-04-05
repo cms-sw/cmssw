@@ -104,7 +104,7 @@ class PFElectronAlgo {
 		 AssMap& associatedToEcal_,
 		 std::vector<bool>& active);
   
-  unsigned int whichTrackAlgo(const reco::TrackRef& trackRef);
+
 
   bool isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
 		      const reco::PFBlockElementGsfTrack& GsfEl);

@@ -87,13 +87,13 @@ class RPCSeedFinder;
 class RPCSeedGenerator : public edm::EDProducer {
     public:
         explicit RPCSeedGenerator(const edm::ParameterSet& iConfig);
-        ~RPCSeedGenerator();
+        ~RPCSeedGenerator() override;
 
     private:
-        virtual void beginJob() override;
-        virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override;
-        virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-        virtual void endJob() override;
+        void beginJob() override;
+        void beginRun(const edm::Run&, const edm::EventSetup& iSetup) override;
+        void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+        void endJob() override;
 
         // ----------member data ---------------------------
         RPCSeedFinder Finder;
@@ -146,7 +146,8 @@ RPCSeedGenerator::RPCSeedGenerator(const edm::ParameterSet& iConfig)
 
     // Get RPC recHits by MuonDetLayerMeasurements, while CSC and DT is set to false and with empty InputTag
     edm::ConsumesCollector iC = consumesCollector() ;
-    muonMeasurements = new MuonDetLayerMeasurements (edm::InputTag(), edm::InputTag(), theRPCRecHits,iC, false, false, true);
+
+    muonMeasurements = new MuonDetLayerMeasurements (edm::InputTag(), edm::InputTag(), theRPCRecHits, edm::InputTag(),edm::InputTag(),iC, false, false, true, false, false);
 
     
     cout << endl << "[RPCSeedGenerator] --> Constructor called" << endl;
@@ -177,8 +178,8 @@ RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     candidateweightedSeeds.clear();
 
     // Create the pointer to the Seed container
-    auto_ptr<TrajectorySeedCollection> goodCollection(new TrajectorySeedCollection());
-    auto_ptr<TrajectorySeedCollection> candidateCollection(new TrajectorySeedCollection());
+    auto goodCollection = std::make_unique<TrajectorySeedCollection>();
+    auto candidateCollection = std::make_unique<TrajectorySeedCollection>();
 
     // Muon Geometry - DT, CSC and RPC 
     edm::ESHandle<MuonDetLayerGeometry> muonLayers;
@@ -249,8 +250,8 @@ RPCSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         candidateCollection->push_back((*weightedseed).first);
 
     // Put the seed to event
-    iEvent.put(goodCollection, "goodSeeds");
-    iEvent.put(candidateCollection, "candidateSeeds");
+    iEvent.put(std::move(goodCollection), "goodSeeds");
+    iEvent.put(std::move(candidateCollection), "candidateSeeds");
 
     // Unset the input of RPCSeedFinder, PCSeedrecHitFinder, RPCSeedLayerFinder
     recHitFinder.unsetInput();

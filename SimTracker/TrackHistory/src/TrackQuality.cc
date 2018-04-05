@@ -37,7 +37,7 @@
 
 namespace
 {
-static const uint32_t NonMatchedTrackId = (uint32_t)-1;
+const uint32_t NonMatchedTrackId = (uint32_t)-1;
 
 struct MatchedHit
 {
@@ -141,14 +141,14 @@ DetLayer getDetLayer(DetId detId, const TrackerTopology *tTopo)
     return DetLayer(det, layer);
 }
 
-TrackQuality::TrackQuality(const edm::ParameterSet &config) :
-        associatorPSet_(config.getParameter<edm::ParameterSet>("hitAssociator"))
+TrackQuality::TrackQuality(const edm::ParameterSet &config,  edm::ConsumesCollector& iC) :
+        trackerHitAssociatorConfig_(config.getParameter<edm::ParameterSet>("hitAssociator"), std::move(iC))
 {
 }
 
 void TrackQuality::newEvent(const edm::Event &ev, const edm::EventSetup &es)
 {
-    associator_.reset(new TrackerHitAssociator(ev, associatorPSet_));
+    associator_.reset(new TrackerHitAssociator(ev, trackerHitAssociatorConfig_));
 }
 
 void TrackQuality::evaluate(SimParticleTrail const &spt,
@@ -240,7 +240,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
             hit != matchedHits.end();)
     {
         // we can have multiple reco-to-sim matches per module, find best one
-        const MatchedHit *best = 0;
+        const MatchedHit *best = nullptr;
 
         // this loop iterates over all subsequent hits in the same module
         do
@@ -283,7 +283,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt,
 #endif
 
         // find out if we need to start a new layer
-        Layer *layer = layers_.empty() ? 0 : &layers_.back();
+        Layer *layer = layers_.empty() ? nullptr : &layers_.back();
         if (!layer ||
                 hit->first.first != layer->subDet ||
                 hit->first.second != layer->layer)

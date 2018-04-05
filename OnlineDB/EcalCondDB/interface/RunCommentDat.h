@@ -12,10 +12,10 @@ class RunCommentDat : public IDataItem {
  public:
   friend class EcalCondDBInterface;
   RunCommentDat();
-  ~RunCommentDat();
+  ~RunCommentDat() override;
 
   // User data methods
-  inline std::string getTable() { return "RUN_COMMENT_DAT"; }
+  inline std::string getTable() override { return "RUN_COMMENT_DAT"; }
 
   inline void setSource(std::string x) { m_source = x; }
   inline std::string getSource() const { return m_source; }
@@ -26,13 +26,13 @@ class RunCommentDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const RunCommentDat* item, RunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, RunCommentDat >* fillMap, RunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
  std::string m_source ;

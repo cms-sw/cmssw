@@ -61,7 +61,7 @@ class HIProtoTrackSelector
       math::XYZPoint vtxPoint(0.0,0.0,0.0);
       double vzErr =0.0;
 
-      if(vertices->size()>0) {
+      if(!vertices->empty()) {
 	vtxPoint=vertices->begin()->position();
 	vzErr=vertices->begin()->zError();
 	edm::LogInfo("HeavyIonVertexing") << "Select prototracks compatible with median vertex"

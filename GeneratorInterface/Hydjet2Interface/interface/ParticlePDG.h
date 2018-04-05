@@ -88,7 +88,7 @@ class ParticlePDG {
     if(0<=i && i<fNDecayChannels) 
       return fDecayChannels[i];
     else
-      return 0x0;
+      return nullptr;
   }
 };
 

@@ -1,9 +1,10 @@
+from __future__ import absolute_import
 __author__="Aurelija"
 __date__ ="$2010-08-09 14.23.54$"
 
 import os.path
-import buildFileCommentSkipper
-import cppCommentSkipper
+from . import buildFileCommentSkipper
+from . import cppCommentSkipper
 
 cppCommentFiles = ['.h', '.c', '.cc', '.cxx']
 buildfilesCommentFiles = ['buildfile', 'buildfile.xml']

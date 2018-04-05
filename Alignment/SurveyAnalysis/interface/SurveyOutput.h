@@ -14,14 +14,15 @@
 
 #include "TFile.h"
 
+#include "Alignment/CommonAlignment/interface/Utilities.h"
+
 class Alignable;
 
 class SurveyOutput
 {
   public:
 
-  SurveyOutput(
-	       const std::vector<Alignable*>&,
+  SurveyOutput(const align::Alignables&,
 	       const std::string& fileName
 	       );
 
@@ -32,7 +33,7 @@ class SurveyOutput
 
   private:
 
-  const std::vector<Alignable*>& theAlignables;
+  const align::Alignables& theAlignables;
 
   TFile theFile;
 };

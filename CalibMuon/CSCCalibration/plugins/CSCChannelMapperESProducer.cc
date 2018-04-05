@@ -22,9 +22,8 @@ CSCChannelMapperESProducer::BSP_TYPE CSCChannelMapperESProducer::produce(const C
 {
   LogTrace("CSCChannelMapperESProducer") << " producing: " << algoName;
 
-  CSCChannelMapperESProducer::BSP_TYPE theChannelMapper(CSCChannelMapperFactory::get()->create(algoName));
+  return CSCChannelMapperESProducer::BSP_TYPE(CSCChannelMapperFactory::get()->create(algoName));
 
-  return theChannelMapper ;
 }
 
 // define this as a plug-in

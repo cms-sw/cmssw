@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 from DQM.EcalCommon.CommonParams_cfi import ecalCommonParams
 
@@ -12,7 +13,7 @@ from DQM.EcalMonitorClient.PNIntegrityClient_cfi import ecalPNIntegrityClient
 from DQM.EcalMonitorClient.SummaryClient_cfi import ecalSummaryClient
 from DQM.EcalMonitorClient.CalibrationSummaryClient_cfi import ecalCalibrationSummaryClient
 
-ecalCalibMonitorClient = cms.EDAnalyzer("EcalDQMonitorClient",
+ecalCalibMonitorClient = DQMEDHarvester("EcalDQMonitorClient",
     moduleName = cms.untracked.string("EcalCalib Monitor Client"),
     # workers to be turned on
     workers = cms.untracked.vstring(

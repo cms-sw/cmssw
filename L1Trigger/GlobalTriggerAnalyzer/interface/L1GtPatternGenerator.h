@@ -39,20 +39,20 @@ class L1GtPatternGenerator : public edm::EDAnalyzer
 
 public:
     explicit L1GtPatternGenerator(const edm::ParameterSet&);
-    ~L1GtPatternGenerator();
+    ~L1GtPatternGenerator() override;
 
 protected:
     void extractGlobalTriggerData(const edm::Event& iEvent, L1GtPatternMap& patterns);
 
 private:
     /// analyze 
-    virtual void beginJob();
+    void beginJob() override;
 
     /// analyze each event
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
 
     /// end of job
-    virtual void endJob();
+    void endJob() override;
 
     /** Post-processing for complex mapping of HF records to PSB values */
     void packHfRecords(const std::string& resultName, L1GtPatternMap& allPatterns);

@@ -14,9 +14,9 @@ public:
   GEMNumberingScheme( const DDCompactView& cpv );
   GEMNumberingScheme( const MuonDDDConstants& muonConstants );
 
-  virtual ~GEMNumberingScheme(){};
+  ~GEMNumberingScheme() override{};
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
+  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
   
 private:
   void initMe ( const MuonDDDConstants& muonConstants );

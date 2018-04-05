@@ -47,12 +47,12 @@ class TruthTauDecayModeProducer : public edm::EDProducer {
          std::vector<const reco::Candidate*> neutralObjects;
       };
       explicit TruthTauDecayModeProducer(const edm::ParameterSet&);
-      ~TruthTauDecayModeProducer();
+      ~TruthTauDecayModeProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       //for signal, the module takes input from a PdgIdAndStatusCandViewSelector 
       //for background, the module takes input from a collection of GenJets
@@ -158,7 +158,7 @@ TruthTauDecayModeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    }
 
    //output collection
-   std::auto_ptr<vector<PFTauDecayMode> > pOut( new std::vector<PFTauDecayMode> );
+   auto pOut = std::make_unique<std::vector<PFTauDecayMode>>();
    for(std::vector<tauObjectsHolder>::const_iterator iTempTau  = tausToAdd_.begin();
                                                 iTempTau != tausToAdd_.end();
                                               ++iTempTau)
@@ -205,7 +205,7 @@ TruthTauDecayModeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
          pOut->push_back(decayModeToAdd);
       }
    }
-   iEvent.put(pOut);
+   iEvent.put(std::move(pOut));
 }
 
 void 

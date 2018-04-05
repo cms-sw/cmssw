@@ -19,19 +19,19 @@ class DualBzeroTrajectoryFactory : public TrajectoryFactoryBase
 {
 public:
   DualBzeroTrajectoryFactory(const edm::ParameterSet &config);
-  virtual ~DualBzeroTrajectoryFactory();
+  ~DualBzeroTrajectoryFactory() override;
 
   /// Produce the reference trajectories.
-  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							    const reco::BeamSpot &beamSpot) const override;
 
-  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const ExternalPredictionCollection &external,
 							   const reco::BeamSpot &beamSpot) const override;
 
-  virtual DualBzeroTrajectoryFactory* clone() const override { return new DualBzeroTrajectoryFactory(*this); }
+  DualBzeroTrajectoryFactory* clone() const override { return new DualBzeroTrajectoryFactory(*this); }
 
 protected:
   struct DualBzeroTrajectoryInput
@@ -85,15 +85,17 @@ DualBzeroTrajectoryFactory::trajectories(const edm::EventSetup  &setup,
     // Check input: If all hits were rejected, the TSOS is initialized as invalid.
     if ( input.refTsos.isValid() )
     {
-      ReferenceTrajectoryPtr ptr( new DualBzeroReferenceTrajectory( input.refTsos,
-								    input.fwdRecHits,
-								    input.bwdRecHits,
-								    magneticField.product(),
-								    materialEffects(),
-								    propagationDirection(),
-								    theMass,
-								    theMomentumEstimate,
-								    theUseBeamSpot, beamSpot) );
+      ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(),
+                                             theMass, theMomentumEstimate);
+      config.useBeamSpot = useBeamSpot_;
+      config.includeAPEs = includeAPEs_;
+      config.allowZeroMaterial = allowZeroMaterial_;
+      ReferenceTrajectoryPtr ptr(new DualBzeroReferenceTrajectory(input.refTsos,
+                                                                  input.fwdRecHits,
+                                                                  input.bwdRecHits,
+                                                                  magneticField.product(),
+                                                                  beamSpot,
+                                                                  config));
       trajectories.push_back( ptr );
     }
 
@@ -139,16 +141,17 @@ DualBzeroTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 
 	if ( !propExternal.isValid() ) continue;
 
-	// set the flag for reversing the RecHits to false, since they are already in the correct order.
-	ReferenceTrajectoryPtr ptr( new DualBzeroReferenceTrajectory( propExternal,
-								      input.fwdRecHits,
-								      input.bwdRecHits,
-								      magneticField.product(),
-								      materialEffects(),
-								      propagationDirection(),
-								      theMass,
-								      theMomentumEstimate,
-								      theUseBeamSpot, beamSpot ) );
+        ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(),
+                                               theMass, theMomentumEstimate);
+        config.useBeamSpot = useBeamSpot_;
+        config.includeAPEs = includeAPEs_;
+        config.allowZeroMaterial = allowZeroMaterial_;
+        ReferenceTrajectoryPtr ptr(new DualBzeroReferenceTrajectory(propExternal,
+                                                                    input.fwdRecHits,
+                                                                    input.bwdRecHits,
+                                                                    magneticField.product(),
+                                                                    beamSpot,
+                                                                    config));
 
 	AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( propExternal.localError().matrix() ) );
 	ptr->setParameterErrors( externalParamErrors.sub( 2, 5 ) );
@@ -156,28 +159,19 @@ DualBzeroTrajectoryFactory::trajectories(const edm::EventSetup &setup,
       }
       else
       {
-// GF: Why is the following commented? That is different from the other factories
-//     that usually have the non-external prediction ReferenceTrajectory as fall back...
-// 	ReferenceTrajectoryPtr ptr( new DualBzeroReferenceTrajectory( input.refTsos,
-// 								      input.fwdRecHits,
-// 								      input.bwdRecHits,
-// 								      magneticField.product(),
-// 								      materialEffects(),
-// 								      propagationDirection(),
-// 								      theMass,
-// 								      theMomentumEstimate,
-//       							      beamSpot ) );
-	DualBzeroReferenceTrajectory test( input.refTsos,
-					   input.fwdRecHits,
-					   input.bwdRecHits,
-					   magneticField.product(),
-					   materialEffects(),
-					   propagationDirection(),
-					   theMass,
-					   theMomentumEstimate,
-					   theUseBeamSpot, beamSpot );
+        ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(),
+                                               theMass, theMomentumEstimate);
+        config.useBeamSpot = useBeamSpot_;
+        config.includeAPEs = includeAPEs_;
+        config.allowZeroMaterial = allowZeroMaterial_;
+        ReferenceTrajectoryPtr ptr(new DualBzeroReferenceTrajectory(input.refTsos,
+                                                                    input.fwdRecHits,
+                                                                    input.bwdRecHits,
+                                                                    magneticField.product(),
+                                                                    beamSpot,
+                                                                    config));
 
-	//trajectories.push_back( ptr );
+	trajectories.push_back( ptr );
       }
     }
 

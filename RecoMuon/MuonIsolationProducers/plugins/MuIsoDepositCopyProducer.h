@@ -21,10 +21,10 @@ public:
   MuIsoDepositCopyProducer(const edm::ParameterSet&);
 
   //! destructor
-  virtual ~MuIsoDepositCopyProducer();
+  ~MuIsoDepositCopyProducer() override;
 
   //! data making method
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
 private:
   //! module configuration

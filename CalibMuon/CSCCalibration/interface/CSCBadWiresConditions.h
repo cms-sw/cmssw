@@ -20,18 +20,18 @@
 class CSCBadWiresConditions: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCBadWiresConditions(const edm::ParameterSet&);
-  ~CSCBadWiresConditions();
+  ~CSCBadWiresConditions() override;
   
 
   inline static CSCBadWires *  prefillBadWires();
 
-  typedef const  CSCBadWires * ReturnType;
+  typedef std::unique_ptr<CSCBadWires> ReturnType;
   
   ReturnType produceBadWires(const CSCBadWiresRcd&);
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
   CSCBadWires *cndbBadWires ;
 
 };

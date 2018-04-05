@@ -3,7 +3,7 @@
 //______________________________________________________________________________
 FWPFRhoPhiRecHit::FWPFRhoPhiRecHit( FWProxyBuilderBase *pb, TEveElement *iH, const FWViewContext *vc,
                                     float E, float et, double lPhi, double rPhi, std::vector<TEveVector> &bCorners )
-  : m_hasChild(false), m_energy(E), m_et(et), m_lPhi(lPhi), m_rPhi(rPhi), m_child(0)
+  : m_hasChild(false), m_energy(E), m_et(et), m_lPhi(lPhi), m_rPhi(rPhi), m_child(nullptr)
 {
    buildRecHit( pb, iH, vc, bCorners );
 }

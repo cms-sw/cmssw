@@ -1,7 +1,8 @@
-#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include <cstring>
 #include <iostream>
@@ -59,13 +60,13 @@ namespace {
       StandAloneScribe() {}
             
       // ---------- member functions ---------------------------
-      virtual
+      
       void  runCommand(edm::MessageLoggerQ::OpCode  opcode, void * operand) override;
       
    private:
-      StandAloneScribe(const StandAloneScribe&); // stop default
+      StandAloneScribe(const StandAloneScribe&) = delete; // stop default
       
-      const StandAloneScribe& operator=(const StandAloneScribe&); // stop default
+      const StandAloneScribe& operator=(const StandAloneScribe&) = delete; // stop default
       
       // ---------- member data --------------------------------
       
@@ -130,7 +131,7 @@ MessageLoggerQ::~MessageLoggerQ()
 MessageLoggerQ *
   MessageLoggerQ::instance()
 {
-  [[cms::thread_safe]] static MessageLoggerQ queue;
+  CMS_THREAD_SAFE static MessageLoggerQ queue;
   return &queue;
 }  // MessageLoggerQ::instance()
 
@@ -175,13 +176,13 @@ void
 void
   MessageLoggerQ::MLqEND()
 {
-  simpleCommand (END_THREAD, (void *)0); 
+  simpleCommand (END_THREAD, (void *)nullptr); 
 }  // MessageLoggerQ::END()
 
 void
   MessageLoggerQ::MLqSHT()
 {
-  simpleCommand (SHUT_UP, (void *)0); 
+  simpleCommand (SHUT_UP, (void *)nullptr); 
 }  // MessageLoggerQ::SHT()
 
 void
@@ -198,15 +199,9 @@ void
 }  // MessageLoggerQ::CFG()
 
 void
-MessageLoggerQ::MLqEXT( service::NamedDestination* p )
-{
-  simpleCommand (EXTERN_DEST, static_cast<void *>(p)); 
-}
-
-void
   MessageLoggerQ::MLqSUM( )
 {
-  simpleCommand (SUMMARIZE, 0); 
+  simpleCommand (SUMMARIZE, nullptr); 
 }  // MessageLoggerQ::SUM()
 
 void
@@ -223,7 +218,7 @@ void
   // place to convey exception information.  FLS does not need this, nor does
   // it need the parameter set, but we are reusing ConfigurationHandshake 
   // rather than reinventing the mechanism.
-  handshakedCommand(FLUSH_LOG_Q, 0, "FLS" );
+  handshakedCommand(FLUSH_LOG_Q, nullptr, "FLS" );
 }  // MessageLoggerQ::FLS()
 
 void

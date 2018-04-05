@@ -2,7 +2,6 @@
 #define PixelTripletNoTipGenerator_H
 
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
-#include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "CombinedHitTripletGenerator.h"
 
 namespace edm { class Event; class EventSetup; } 
@@ -16,22 +15,22 @@ typedef CombinedHitTripletGenerator::LayerCacheType       LayerCacheType;
 public:
   PixelTripletNoTipGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-  virtual ~PixelTripletNoTipGenerator() { delete thePairGenerator; }
+  ~PixelTripletNoTipGenerator() override;
 
-  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
-                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
-
-  void init( const HitPairGenerator & pairs, LayerCacheType* layerCache) override;
-
-  virtual void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs,
-      const edm::Event & ev, const edm::EventSetup& es);
-
-  const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
+  void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs,
+                            const edm::Event & ev, const edm::EventSetup& es,
+                            const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
+                            const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) override;
+  void hitTriplets(
+		   const TrackingRegion& region, 
+		   OrderedHitTriplets & result,
+		   const edm::EventSetup & es,
+		   const HitDoublets & doublets,
+		   const RecHitsSortedInPhi ** thirdHitMap,
+		   const std::vector<const DetLayer *> & thirdLayerDetLayer,
+		   const int nThirdLayers)override;
 
 private:
-  HitPairGenerator * thePairGenerator;
-  std::vector<SeedingLayerSetsHits::SeedingLayer> theLayers;
-  LayerCacheType * theLayerCache;
   float extraHitRZtolerance;
   float extraHitRPhitolerance;
   float extraHitPhiToleranceForPreFiltering;

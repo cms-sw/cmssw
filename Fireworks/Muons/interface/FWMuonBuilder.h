@@ -17,7 +17,7 @@ class FWEventItem;
 class TEveElementList;
 class TEveTrackPropagator;
 class FWMagField;
-class FWPRoxyBuilderBase;
+class FWProxyBuilderBase;
 
 class FWMuonBuilder
 {
@@ -37,14 +37,16 @@ public:
                   bool showEndcap,
                   bool onlyTracks = false);
 
+   void setLineWidth(int w) {m_lineWidth = w;}
 private:
-   FWMuonBuilder(const FWMuonBuilder&);    // stop default
+   FWMuonBuilder(const FWMuonBuilder&) = delete;    // stop default
 
-   const FWMuonBuilder& operator=(const FWMuonBuilder&);    // stop default
+   const FWMuonBuilder& operator=(const FWMuonBuilder&) = delete;    // stop default
 
    void calculateField(const reco::Muon& iData, FWMagField* field);
 
    // ---------- member data --------------------------------
+   int m_lineWidth;
 };
 
 #endif

@@ -9,9 +9,15 @@
 #include "Validation/GlobalHits/interface/GlobalHitsAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
+#include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
+
 GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), vtxunit(0), label(""), 
-  getAllProvenances(false), printProvenanceInfo(false),
+  getAllProvenances(false), printProvenanceInfo(false), testNumber(false),
   G4VtxSrc_Token_( consumes<edm::SimVertexContainer>((iPSet.getParameter<edm::InputTag>("G4VtxSrc"))) ),
   G4TrkSrc_Token_( consumes<edm::SimTrackContainer>(iPSet.getParameter<edm::InputTag>("G4TrkSrc")) ),
   count(0)
@@ -30,6 +36,7 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
     m_Prov.getUntrackedParameter<bool>("GetAllProvenances");
   printProvenanceInfo = 
     m_Prov.getUntrackedParameter<bool>("PrintProvenanceInfo");
+  testNumber = iPSet.getUntrackedParameter<bool>("testNumber");
 
   //get Labels to use to extract information
   PxlBrlLowSrc_ = iPSet.getParameter<edm::InputTag>("PxlBrlLowSrc");
@@ -209,65 +216,65 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet& iPSet) :
 
   // initialize monitor elements
   for (Int_t i = 0; i < 2; ++i) {
-    meMCRGP[i] = 0;
-    meMCG4Vtx[i] = 0;
-    meGeantVtxX[i] = 0;
-    meGeantVtxY[i] = 0;
-    meGeantVtxZ[i] = 0; 
-    meMCG4Trk[i] = 0;
-    meCaloEcal[i] = 0;
-    meCaloEcalE[i] = 0;
-    meCaloEcalToF[i] = 0;
-    meCaloPreSh[i] = 0;
-    meCaloPreShE[i] = 0;
-    meCaloPreShToF[i] = 0;
-    meCaloHcal[i] = 0;
-    meCaloHcalE[i] = 0;
-    meCaloHcalToF[i] = 0;
-    meTrackerPx[i] = 0;
-    meTrackerSi[i] = 0;
-    meMuon[i] = 0;
-    meMuonDtToF[i] = 0;
-    meMuonCscToF[i] = 0;
-    meMuonRpcFToF[i] = 0;
-    meMuonRpcBToF[i] = 0;
-    meGeantVtxRad[i] = 0;
+    meMCRGP[i]     = nullptr;
+    meMCG4Vtx[i]   = nullptr;
+    meGeantVtxX[i] = nullptr;
+    meGeantVtxY[i] = nullptr;
+    meGeantVtxZ[i] = nullptr; 
+    meMCG4Trk[i]   = nullptr;
+    meCaloEcal[i]  = nullptr;
+    meCaloEcalE[i] = nullptr;
+    meCaloEcalToF[i] = nullptr;
+    meCaloPreSh[i]   = nullptr;
+    meCaloPreShE[i]  = nullptr;
+    meCaloPreShToF[i]= nullptr;
+    meCaloHcal[i]    = nullptr;
+    meCaloHcalE[i]   = nullptr;
+    meCaloHcalToF[i] = nullptr;
+    meTrackerPx[i]   = nullptr;
+    meTrackerSi[i]   = nullptr;
+    meMuon[i]        = nullptr;
+    meMuonDtToF[i]   = nullptr;
+    meMuonCscToF[i]  = nullptr;
+    meMuonRpcFToF[i] = nullptr;
+    meMuonRpcBToF[i] = nullptr;
+    meGeantVtxRad[i] = nullptr;
   }
-  meGeantTrkPt = 0;
-  meGeantTrkE = 0;
-  meGeantVtxEta = 0;
-  meGeantVtxPhi = 0;
-  meGeantVtxMulti = 0;
-  meCaloEcalPhi = 0;
-  meCaloEcalEta = 0;
-  meCaloPreShPhi = 0;
-  meCaloPreShEta = 0;
-  meCaloHcalPhi = 0;
-  meCaloHcalEta = 0;
-  meTrackerPxPhi = 0;
-  meTrackerPxEta = 0;
-  meTrackerPxBToF = 0;
-  meTrackerPxBR = 0;
-  meTrackerPxFToF = 0;
-  meTrackerPxFZ = 0;
-  meTrackerSiPhi = 0;
-  meTrackerSiEta = 0;
-  meTrackerSiBToF = 0;
-  meTrackerSiBR = 0;
-  meTrackerSiFToF = 0;
-  meTrackerSiFZ = 0;
-  meMuonPhi = 0;
-  meMuonEta = 0;
-  meMuonDtR = 0;
-  meMuonCscZ = 0;
-  meMuonRpcBR = 0;
-  meMuonRpcFZ = 0;
+  meGeantTrkPt   = nullptr;
+  meGeantTrkE    = nullptr;
+  meGeantVtxEta  = nullptr;
+  meGeantVtxPhi  = nullptr;
+  meGeantVtxMulti= nullptr;
+  meCaloEcalPhi  = nullptr;
+  meCaloEcalEta  = nullptr;
+  meCaloPreShPhi = nullptr;
+  meCaloPreShEta = nullptr;
+  meCaloHcalPhi  = nullptr;
+  meCaloHcalEta  = nullptr;
+  meTrackerPxPhi = nullptr;
+  meTrackerPxEta = nullptr;
+  meTrackerPxBToF= nullptr;
+  meTrackerPxBR  = nullptr;
+  meTrackerPxFToF= nullptr;
+  meTrackerPxFZ  = nullptr;
+  meTrackerSiPhi = nullptr;
+  meTrackerSiEta = nullptr;
+  meTrackerSiBToF= nullptr;
+  meTrackerSiBR  = nullptr;
+  meTrackerSiFToF= nullptr;
+  meTrackerSiFZ  = nullptr;
+  meMuonPhi      = nullptr;
+  meMuonEta      = nullptr;
+  meMuonDtR      = nullptr;
+  meMuonCscZ     = nullptr;
+  meMuonRpcBR    = nullptr;
+  meMuonRpcFZ    = nullptr;
 
 }
 
 GlobalHitsAnalyzer::~GlobalHitsAnalyzer() {}
 
-void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
+void GlobalHitsAnalyzer::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &run, edm::EventSetup const &es) {
   // book histograms
   Char_t hname[200];
   Char_t htitle[200];
@@ -707,8 +714,8 @@ void GlobalHitsAnalyzer::analyze(const edm::Event& iEvent,
   // look at information available in the event
   if (getAllProvenances) {
 
-    std::vector<const edm::Provenance*> AllProv;
-    iEvent.getAllProvenance(AllProv);
+    std::vector<const edm::StableProvenance*> AllProv;
+    iEvent.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
       edm::LogInfo(MsgLoggerCat)
@@ -777,7 +784,7 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
   // should have the information needed
   for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) {
     HepMCEvt = AllHepMCEvt[i];
-    if ((HepMCEvt.provenance()->product()).moduleLabel() == "VtxSmeared")
+    if ((HepMCEvt.provenance()->branchDescription()).moduleLabel() == "generatorSmeared")
       break;
   }
 
@@ -787,7 +794,7 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event& iEvent)
     validHepMCevt = false;
   } else {
     eventout += "\n          Using HepMCProduct: ";
-    eventout += (HepMCEvt.provenance()->product()).moduleLabel();
+    eventout += (HepMCEvt.provenance()->branchDescription()).moduleLabel();
   }
   if (validHepMCevt) {
     const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
@@ -1704,8 +1711,7 @@ void GlobalHitsAnalyzer::fillECal(const edm::Event& iEvent,
 	 (subdetector == sdEcalFwd))) {
 
       // get the Cell geometry
-      const CaloCellGeometry *theDet = theCalo.
-	getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+      auto theDet = (theCalo.getSubdetectorGeometry(theDetUnitId))->getGeometry(theDetUnitId);
 
       if (!theDet) {
 	edm::LogWarning(MsgLoggerCat)
@@ -1774,8 +1780,7 @@ void GlobalHitsAnalyzer::fillECal(const edm::Event& iEvent,
 	  (subdetector == sdEcalPS)) {
 	
 	// get the Cell geometry
-	const CaloCellGeometry *theDet = theCalo.
-	  getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+	auto theDet = (theCalo.getSubdetectorGeometry(theDetUnitId))->getGeometry(theDetUnitId);
 	
 	if (!theDet) {
 	  edm::LogWarning(MsgLoggerCat)
@@ -1840,7 +1845,11 @@ void GlobalHitsAnalyzer::fillHCal(const edm::Event& iEvent,
     return;
   }
   const CaloGeometry& theCalo(*theCaloGeometry);
-    
+
+  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+  iSetup.get<HcalRecNumberingRecord>().get( pHRNDC );
+  const HcalDDDRecConstants* hcons = &(*pHRNDC);
+
   // iterator to access containers
   edm::PCaloHitContainer::const_iterator itHit;
 
@@ -1863,9 +1872,13 @@ void GlobalHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	 itHit != HCalContainer->end(); ++itHit) {
       
       ++i;
-      
-      // create a DetId from the detUnitId
-      DetId theDetUnitId(itHit->id());
+
+      // create a DetId from the detUnitId      
+      DetId theDetUnitId;
+      unsigned int id_ = itHit->id();
+      if(testNumber) theDetUnitId = HcalHitRelabeller::relabel(id_,hcons);
+      else theDetUnitId = id_;
+
       int detector = theDetUnitId.det();
       int subdetector = theDetUnitId.subdetId();
       
@@ -1877,12 +1890,12 @@ void GlobalHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	   (subdetector == sdHcalFwd))) {
 	
 	// get the Cell geometry
-	const CaloCellGeometry *theDet = theCalo.
-	  getSubdetectorGeometry(theDetUnitId)->getGeometry(theDetUnitId);
+	const HcalGeometry *theDet = dynamic_cast<const HcalGeometry*>
+	  (theCalo.getSubdetectorGeometry(theDetUnitId));
 	
 	if (!theDet) {
 	  edm::LogWarning(MsgLoggerCat)
-	    << "Unable to get CaloCellGeometry from HCalContainer for Hit " 
+	    << "Unable to get HcalGeometry from HCalContainer for Hit " 
 	    << i;
 	  continue;
 	}
@@ -1890,7 +1903,7 @@ void GlobalHitsAnalyzer::fillHCal(const edm::Event& iEvent,
 	++j;
 	
 	// get the global position of the cell
-	const GlobalPoint& globalposition = theDet->getPosition();
+	const GlobalPoint& globalposition = theDet->getPosition(theDetUnitId);
 	
 	if (meCaloHcalE[0]) meCaloHcalE[0]->Fill(itHit->energy());
 	if (meCaloHcalE[1]) meCaloHcalE[1]->Fill(itHit->energy());

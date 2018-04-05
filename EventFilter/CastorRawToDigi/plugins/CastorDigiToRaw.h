@@ -27,8 +27,8 @@ class CastorDigiToRaw : public edm::EDProducer
 {
 public:
   explicit CastorDigiToRaw(const edm::ParameterSet& ps);
-  virtual ~CastorDigiToRaw();
-  virtual void produce(edm::Event& e, const edm::EventSetup& c);
+  ~CastorDigiToRaw() override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:
   CastorPacker packer_;

@@ -7,5 +7,6 @@
  <use name="roothistmatrix"/>
  <lib name="Eve"/>
  <lib name="Geom"/>
+ <lib name="Core"/>
  <flags EDM_PLUGIN="1"/>
 </library>

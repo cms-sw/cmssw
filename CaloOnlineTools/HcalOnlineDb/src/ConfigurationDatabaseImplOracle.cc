@@ -30,7 +30,7 @@ ConfigurationDatabaseImplOracle::~ConfigurationDatabaseImplOracle() {
 
 }
 
-void ConfigurationDatabaseImplOracle::connect(const std::string& accessor) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseImplOracle::connect(const std::string& accessor) noexcept(false) {
   std::map<std::string,std::string> params;
   std::string user, host, method, db, port,password;
   ConfigurationDatabaseImpl::parseAccessor(accessor,method,host,port,user,db,params);
@@ -44,11 +44,11 @@ void ConfigurationDatabaseImplOracle::connect(const std::string& accessor) throw
      env_ = oracle::occi::Environment::createEnvironment (oracle::occi::Environment::DEFAULT);
      conn_ = env_->createConnection (user, password, db);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
    }
 
 
-  if (env_ == NULL || conn_ == NULL) {
+  if (env_ == nullptr || conn_ == nullptr) {
     std::string message("Error connecting on accessor '");
     message+=accessor;
     XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,message);
@@ -62,7 +62,7 @@ void ConfigurationDatabaseImplOracle::disconnect() {
         env_->terminateConnection(conn_);
         Environment::terminateEnvironment(env_);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
    }
 
 
@@ -88,9 +88,9 @@ inline static int cvtChar(int c) {
 
 void ConfigurationDatabaseImplOracle::getLUTChecksums(const std::string& tag,
 		std::map<hcal::ConfigurationDatabase::LUTId,
-		hcal::ConfigurationDatabase::MD5Fingerprint>& checksums) throw (hcal::exception::ConfigurationDatabaseException) {
+		hcal::ConfigurationDatabase::MD5Fingerprint>& checksums) noexcept(false) {
 
-	if (env_ == NULL || conn_ == NULL) XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database is not open");
+	if (env_ == nullptr || conn_ == nullptr) XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database is not open");
   	checksums.clear();
 
    try {
@@ -101,7 +101,7 @@ void ConfigurationDatabaseImplOracle::getLUTChecksums(const std::string& tag,
         //query+=toolbox::toString(" WHERE TAG_NAME='%s' CRATE=-1", tag.c_str());
 
         //SELECT
-        ResultSet *rs = stmt->executeQuery(query.c_str());
+        ResultSet *rs = stmt->executeQuery(query);
 
         while (rs->next()) {
                 oracle::occi::Clob clob = rs->getClob (1);
@@ -136,12 +136,12 @@ void ConfigurationDatabaseImplOracle::getLUTChecksums(const std::string& tag,
         //Always terminate statement
         conn_->terminateStatement(stmt);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
    }
 
 }
 
-void ConfigurationDatabaseImplOracle::getLUTs(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::LUT >& LUTs) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseImplOracle::getLUTs(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::LUT >& LUTs) noexcept(false) {
   if (m_lutCache.crate!=crate || m_lutCache.tag!=tag) {
     m_lutCache.clear();
     getLUTs_real(tag,crate,m_lutCache.luts);
@@ -160,7 +160,7 @@ void ConfigurationDatabaseImplOracle::getLUTs(const std::string& tag, int crate,
 
 void ConfigurationDatabaseImplOracle::getLUTs_real(const std::string& tag, int crate,
 			std::map<hcal::ConfigurationDatabase::LUTId, hcal::ConfigurationDatabase::LUT >& LUTs)
-								throw (hcal::exception::ConfigurationDatabaseException)
+								noexcept(false)
 {
 
    try {
@@ -171,7 +171,7 @@ void ConfigurationDatabaseImplOracle::getLUTs_real(const std::string& tag, int c
 	query+=toolbox::toString(" WHERE TAG_NAME='%s' AND CRATE=%d", tag.c_str(), crate);
 
 	//SELECT
-        ResultSet *rs = stmt->executeQuery(query.c_str());
+        ResultSet *rs = stmt->executeQuery(query);
 
   	LUTs.clear();
 
@@ -210,7 +210,7 @@ void ConfigurationDatabaseImplOracle::getLUTs_real(const std::string& tag, int c
 
 				// convert the data
 				for (unsigned int j=0; j<i->items.size(); j++)
-					lut.push_back(strtol(i->items[j].c_str(),0,strtol_base));
+					lut.push_back(strtol(i->items[j].c_str(),nullptr,strtol_base));
 
 				LUTs.insert(make_pair(lut_id, lut));
 			//}
@@ -220,12 +220,12 @@ void ConfigurationDatabaseImplOracle::getLUTs_real(const std::string& tag, int c
 	//Always terminate statement
 	conn_->terminateStatement(stmt);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
    }
 
 }
 
-void ConfigurationDatabaseImplOracle::getPatterns(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::PatternId, hcal::ConfigurationDatabase::HTRPattern >& patterns) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseImplOracle::getPatterns(const std::string& tag, int crate, int slot, std::map<hcal::ConfigurationDatabase::PatternId, hcal::ConfigurationDatabase::HTRPattern >& patterns) noexcept(false) {
   if (m_patternCache.crate!=crate || m_patternCache.tag!=tag) {
     m_patternCache.clear();
     getPatterns_real(tag,crate,m_patternCache.patterns);
@@ -243,7 +243,7 @@ void ConfigurationDatabaseImplOracle::getPatterns(const std::string& tag, int cr
 
 void ConfigurationDatabaseImplOracle::getPatterns_real(const std::string& tag, int crate,
 			std::map<hcal::ConfigurationDatabase::PatternId, hcal::ConfigurationDatabase::HTRPattern >& patterns)
-							throw (hcal::exception::ConfigurationDatabaseException) {
+							noexcept(false) {
    try {
         //Lets run the SQl Query
         Statement* stmt = conn_->createStatement();
@@ -252,7 +252,7 @@ void ConfigurationDatabaseImplOracle::getPatterns_real(const std::string& tag, i
         query+=toolbox::toString(" WHERE TAG_NAME='%s' AND CRATE=%d", tag.c_str(), crate);
 
         //SELECT
-        ResultSet *rs = stmt->executeQuery(query.c_str());
+        ResultSet *rs = stmt->executeQuery(query);
 
         patterns.clear();
 
@@ -281,14 +281,14 @@ void ConfigurationDatabaseImplOracle::getPatterns_real(const std::string& tag, i
 
                                 // convert the data
                                 for (unsigned int j=0; j<i->items.size(); j++)
-                                        pat.push_back(strtol(i->items[j].c_str(),0,strtol_base));
+                                        pat.push_back(strtol(i->items[j].c_str(),nullptr,strtol_base));
                         //}
                 }
         }
         //Always terminate statement
         conn_->terminateStatement(stmt);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
    }
 
 
@@ -297,7 +297,7 @@ void ConfigurationDatabaseImplOracle::getPatterns_real(const std::string& tag, i
 void ConfigurationDatabaseImplOracle::getRBXdata(const std::string& tag, const std::string& rbx,
                         hcal::ConfigurationDatabase::RBXdatumType dtype,
                         std::map<ConfigurationDatabase::RBXdatumId, hcal::ConfigurationDatabase::RBXdatum>& RBXdata)
-                        throw (hcal::exception::ConfigurationDatabaseException) {
+                        noexcept(false) {
 
         RBXdata.clear();
 
@@ -364,7 +364,7 @@ void ConfigurationDatabaseImplOracle::getRBXdata(const std::string& tag, const s
 
    try {
         //SELECT
-        ResultSet *rs = stmt->executeQuery(query.c_str());
+        ResultSet *rs = stmt->executeQuery(query);
         while (rs->next()) {
 
                 if (dtype==ConfigurationDatabase::eRBXledData) {
@@ -397,14 +397,14 @@ void ConfigurationDatabaseImplOracle::getRBXdata(const std::string& tag, const s
         //Always terminate statement
         conn_->terminateStatement(stmt);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
    }
 
 }
 
 void ConfigurationDatabaseImplOracle::getZSThresholds(const std::string& tag, int crate, int slot,
                 std::map<hcal::ConfigurationDatabase::ZSChannelId, int>& thresholds)
-                throw (hcal::exception::ConfigurationDatabaseException) {
+                noexcept(false) {
 
    try {
         //Lets run the SQl Query
@@ -420,7 +420,7 @@ void ConfigurationDatabaseImplOracle::getZSThresholds(const std::string& tag, in
         query+=toolbox::toString(" AND LHWM_VERSION='%s'", lhwm_version.c_str());
 
         //SELECT
-        ResultSet *rs = stmt->executeQuery(query.c_str());
+        ResultSet *rs = stmt->executeQuery(query);
 
         thresholds.clear();
 
@@ -428,7 +428,7 @@ void ConfigurationDatabaseImplOracle::getZSThresholds(const std::string& tag, in
                 unsigned int fiber = rs->getInt(1);
                 unsigned int fc = rs->getInt(2);
                 unsigned int zs = rs->getInt(3);
-                std::string fpga = rs->getString(4);
+                std::string fpga = getOraString(rs,4);
                 int tb;
                 if (fpga=="top") tb = 1;
                 else tb = 0;
@@ -439,7 +439,7 @@ void ConfigurationDatabaseImplOracle::getZSThresholds(const std::string& tag, in
         //Always terminate statement
         conn_->terminateStatement(stmt);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
    }
 
 }
@@ -447,7 +447,7 @@ void ConfigurationDatabaseImplOracle::getZSThresholds(const std::string& tag, in
 
 void ConfigurationDatabaseImplOracle::getHLXMasks(const std::string& tag, int crate, int slot,
                         std::map<hcal::ConfigurationDatabase::FPGAId, hcal::ConfigurationDatabase::HLXMasks>& masks)
-                                        throw (hcal::exception::ConfigurationDatabaseException) {
+                                        noexcept(false) {
   if (m_hlxMaskCache.crate!=crate || m_hlxMaskCache.tag!=tag) {
     m_hlxMaskCache.clear();
     getHLXMasks_real(tag,crate,m_hlxMaskCache.masks);
@@ -466,7 +466,7 @@ void ConfigurationDatabaseImplOracle::getHLXMasks(const std::string& tag, int cr
 
 void ConfigurationDatabaseImplOracle::getHLXMasks_real(const std::string& tag, int crate,
                 std::map<ConfigurationDatabase::FPGAId, ConfigurationDatabase::HLXMasks>& masks)
-                throw (hcal::exception::ConfigurationDatabaseException) {
+                noexcept(false) {
    try {
         //Lets run the SQl Query
         Statement* stmt = conn_->createStatement();
@@ -475,11 +475,11 @@ void ConfigurationDatabaseImplOracle::getHLXMasks_real(const std::string& tag, i
         query += toolbox::toString(" WHERE TAG_NAME='%s' AND CRATE_NUMBER=%d ", tag.c_str(), crate);
 
         //SELECT
-        ResultSet *rs = stmt->executeQuery(query.c_str());
+        ResultSet *rs = stmt->executeQuery(query);
         masks.clear();
         while (rs->next()) {
                 int islot = rs->getInt(1);
-                std::string fpga = rs->getString(2);
+                std::string fpga = getOraString(rs,2);
 
                 int ifpga;
                 if (fpga=="top") ifpga = 1;
@@ -498,7 +498,7 @@ void ConfigurationDatabaseImplOracle::getHLXMasks_real(const std::string& tag, i
         //Always terminate statement
         conn_->terminateStatement(stmt);
    } catch (SQLException& e) {
-           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",e.getMessage().c_str()));
+           XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,::toolbox::toString("Oracle  exception : %s",getOraMessage(&e)));
    }
 }
 

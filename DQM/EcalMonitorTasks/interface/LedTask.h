@@ -31,8 +31,9 @@ namespace ecaldqm {
     void runOnPnDigis(EcalPnDiodeDigiCollection const&);
     void runOnUncalibRecHits(EcalUncalibratedRecHitCollection const&);
 
+    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   private:
-    void setParams(edm::ParameterSet const&);
+    void setParams(edm::ParameterSet const&) override;
 
     std::map<int, unsigned> wlToME_;
 
@@ -43,6 +44,7 @@ namespace ecaldqm {
 
     int emptyLS_;
     int emptyLSLimit_;
+    int isemptyLS; 
   };
 
   inline bool LedTask::analyze(void const* _p, Collections _collection){

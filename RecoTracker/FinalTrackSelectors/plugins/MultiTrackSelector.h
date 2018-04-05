@@ -39,10 +39,14 @@
 	    explicit MultiTrackSelector();
             explicit MultiTrackSelector( const edm::ParameterSet & cfg ) ;
             /// destructor
-            virtual ~MultiTrackSelector() ;
+            ~MultiTrackSelector() override ;
+
+           using MVACollection = std::vector<float>;
+           using QualityMaskCollection = std::vector<unsigned char>;
+
 
         protected:
-            void beginStream(edm::StreamID) override final;
+            void beginStream(edm::StreamID) final;
  
             // void streamBeginRun(edm::StreamID, edm::Run const&, edm::EventSetup const&) const final {
             //  init();
@@ -52,7 +56,7 @@
 
             typedef math::XYZPoint Point;
             /// process one event
-            void produce(edm::Event& evt, const edm::EventSetup& es ) override final {
+            void produce(edm::Event& evt, const edm::EventSetup& es ) final {
                run(evt,es);
             }
             virtual void run( edm::Event& evt, const edm::EventSetup& es ) const;
@@ -72,7 +76,8 @@
 				  std::vector<float> &vterr,
 				  std::vector<float> &vzerr) const;
 
-	    void processMVA(edm::Event& evt, const edm::EventSetup& es, std::vector<float> & mvaVals_) const;
+	    void processMVA(edm::Event& evt, const edm::EventSetup& es,const  reco::BeamSpot& beamspot,const reco::VertexCollection& vertices, int selIndex, std::vector<float> & mvaVals_, bool writeIt=false) const;
+	    Point getBestVertex(const reco::TrackBaseRef,const reco::VertexCollection) const;
 
             /// source collection label
             edm::EDGetTokenT<reco::TrackCollection> src_;
@@ -137,14 +142,13 @@
 
 	    //setup mva selector
 	    std::vector<bool> useMVA_;
-	    //std::vector<TMVA::Reader*> mvaReaders_;
+            std::vector<bool> useMVAonly_;
 
 	    std::vector<double> min_MVA_;
 
-	    //std::vector<std::string> mvaType_;
-	    std::string mvaType_;
-	    std::string forestLabel_;
-	    GBRForest * forest_;
+	    std::vector<std::string> mvaType_;
+	    std::vector<std::string> forestLabel_;
+	    std::vector<GBRForest*> forest_;
 	    bool useForestFromDB_;
 	    std::string dbFileName_;
 

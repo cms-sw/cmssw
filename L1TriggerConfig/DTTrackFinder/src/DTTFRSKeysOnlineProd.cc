@@ -31,9 +31,9 @@
 class DTTFRSKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
    public:
       DTTFRSKeysOnlineProd(const edm::ParameterSet&);
-      ~DTTFRSKeysOnlineProd();
+      ~DTTFRSKeysOnlineProd() override;
 
-      virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
+      void fillObjectKeys( FillType ) override ;
    private:
       // ----------member data ---------------------------
 };
@@ -69,7 +69,7 @@ DTTFRSKeysOnlineProd::~DTTFRSKeysOnlineProd()
 
 // ------------ method called to produce the data  ------------
 void
-DTTFRSKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKey )
+DTTFRSKeysOnlineProd::fillObjectKeys( FillType pL1TriggerKey )
 {
   // SELECT HW_SETTINGS FROM CMS_DT_TF.DTTF_SETTINGS_KEY_CURRENT
   l1t::OMDSReader::QueryResults rsKeyResults =

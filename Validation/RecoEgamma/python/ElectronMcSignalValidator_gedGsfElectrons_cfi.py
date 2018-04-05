@@ -17,10 +17,11 @@ electronMcSignalHistosCfg = cms.PSet(
   Nbinhoe = cms.int32(100), Hoemin = cms.double(0.0), Hoemax = cms.double(0.5),
   Nbinpoptrue = cms.int32(75), Poptruemin = cms.double(0.0), Poptruemax = cms.double(1.5),
   Nbinerror = cms.int32(30), Energyerrormax = cms.double(30.0),
-  EfficiencyFlag = cms.bool(False), StatOverflowFlag = cms.bool(False)
+  EfficiencyFlag = cms.bool(True), StatOverflowFlag = cms.bool(False)
 )
 
-electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+electronMcSignalValidator = DQMEDAnalyzer('ElectronMcSignalValidator',
 
   Verbosity = cms.untracked.int32(0),
   FinalStep = cms.string("AtJobEnd"),
@@ -67,5 +68,20 @@ electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",
   histosCfg = cms.PSet(electronMcSignalHistosCfg)
 )
 
-
-
+from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
+phase2_hgcal.toModify(
+    electronMcSignalValidator,
+#  electronCollection = cms.InputTag("ecalDrivenGsfElectrons"),
+#  electronCoreCollection = cms.InputTag("ecalDrivenGsfElectronCores"),
+    electronCollection = 'ecalDrivenGsfElectronsFromMultiCl',
+    electronCoreCollection = 'ecalDrivenGsfElectronCoresFromMultiCl',
+    electronTrackCollection = 'electronGsfTracksFromMultiCl',
+    electronSeedCollection = 'electronMergedSeedsFromMultiCl',
+    MaxAbsEta = cms.double(3.0),
+    histosCfg = dict( 
+        Nbineta = 60 ,
+        Nbineta2D = 60 ,
+        Etamin = -3.0 ,
+        Etamax = 3.0 ,
+    ),
+)

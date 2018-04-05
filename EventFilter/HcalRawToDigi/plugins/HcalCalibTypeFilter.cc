@@ -45,12 +45,12 @@ Implementation:
 class HcalCalibTypeFilter : public edm::EDFilter {
 public:
   explicit HcalCalibTypeFilter(const edm::ParameterSet&);
-  virtual ~HcalCalibTypeFilter();
+  ~HcalCalibTypeFilter() override;
   
 private:
-  virtual void beginJob() override ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override ;
+  void beginJob() override ;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
   
   // ----------member data ---------------------------
  
@@ -96,6 +96,11 @@ HcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   edm::Handle<FEDRawDataCollection> rawdata;  
   iEvent.getByToken(tok_data_,rawdata);
+
+   if(!rawdata.isValid()){
+     return false;
+   }
+
   
   // checking FEDs for calibration information
   int calibType = -1 ; int numEmptyFEDs = 0 ; 

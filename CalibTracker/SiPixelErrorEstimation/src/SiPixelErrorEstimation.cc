@@ -16,7 +16,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -33,8 +33,9 @@
 using namespace std;
 using namespace edm;
 
-SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps):tfile_(0), ttree_all_hits_(0), 
-									    ttree_track_hits_(0), ttree_track_hits_strip_(0) 
+SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps):tfile_(nullptr), ttree_all_hits_(nullptr), 
+									    ttree_track_hits_(nullptr), ttree_track_hits_strip_(nullptr),
+									    trackerHitAssociatorConfig_(consumesCollector())
 {
   //Read config file
   outputFile_ = ps.getUntrackedParameter<string>( "outputFile", "SiPixelErrorEstimation_Ntuple.root" );
@@ -372,7 +373,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   using namespace edm;
@@ -391,7 +392,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
   float mindist = 999999.9;
 
   std::vector<PSimHit> matched;
-  TrackerHitAssociator associate(e);
+  TrackerHitAssociator associate(e, trackerHitAssociatorConfig_);
 
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
@@ -514,12 +515,12 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 
 	  const TransientTrackingRecHit::ConstRecHitPointer trans_trk_rec_hit_point = itTraj->recHit();
 	 
-	  if ( trans_trk_rec_hit_point == NULL )
+	  if ( trans_trk_rec_hit_point == nullptr )
 	    continue;
 
 	  const TrackingRecHit *trk_rec_hit = (*trans_trk_rec_hit_point).hit();
 
-	  if ( trk_rec_hit == NULL )
+	  if ( trk_rec_hit == nullptr )
 	    continue;
 
 	  DetId detid = (trk_rec_hit)->geographicalId();
@@ -585,7 +586,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  //const StripGeomDetUnit* strip_geom_det_unit = dynamic_cast<const StripGeomDetUnit*> ( tracker->idToDet( detid ) );
 	  const StripGeomDetUnit* strip_geom_det_unit = (const StripGeomDetUnit*)tracker->idToDetUnit( detid );
 	  
-	  if ( strip_geom_det_unit != NULL )
+	  if ( strip_geom_det_unit != nullptr )
 	    {
 	      LocalVector lbfield 
 		= (strip_geom_det_unit->surface()).toLocal( (*magneticField).inTesla( strip_geom_det_unit->surface().position() ) ); 
@@ -1365,7 +1366,7 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
       const reco::TrackCollection *tracks = trackCollection.product();
       reco::TrackCollection::const_iterator tciter;
       
-      if ( tracks->size() > 0 )
+      if ( !tracks->empty() )
 	{
 	  // Loop on tracks
 	  for ( tciter=tracks->begin(); tciter!=tracks->end(); ++tciter)

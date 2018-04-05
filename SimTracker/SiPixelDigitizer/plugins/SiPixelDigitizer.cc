@@ -29,7 +29,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -42,7 +42,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -91,8 +91,9 @@ namespace CLHEP {
 
 namespace cms
 {
-  SiPixelDigitizer::SiPixelDigitizer(const edm::ParameterSet& iConfig, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC):
-    first(true),
+  SiPixelDigitizer::SiPixelDigitizer(const edm::ParameterSet& iConfig, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC):
+    firstInitializeEvent_(true),
+    firstFinalizeEvent_(true),
     _pixeldigialgo(),
     hitsProducer(iConfig.getParameter<std::string>("hitsProducer")),
     trackerContainers(iConfig.getParameter<std::vector<std::string> >("RoutList")),
@@ -140,7 +141,7 @@ namespace cms
        std::set<unsigned int> detIds;
        std::vector<PSimHit> const& simHits = *hSimHits.product();
        edm::ESHandle<TrackerTopology> tTopoHand;
-       iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+       iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
        const TrackerTopology *tTopo=tTopoHand.product();
        for(std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it, ++globalSimHitIndex) {
          unsigned int detId = (*it).detUnitId();
@@ -151,7 +152,7 @@ namespace cms
 	     std::map<unsigned int, PixelGeomDetUnit const *>::iterator itDet = detectorUnits.find(detId);	     
 	     if (itDet == detectorUnits.end()) continue;
              auto pixdet = itDet->second;
-	     assert(pixdet !=0);
+	     assert(pixdet !=nullptr);
              //access to magnetic field in global coordinates
              GlobalVector bfield = pSetup->inTesla(pixdet->surface().position());
              LogDebug ("PixelDigitizer ") << "B-field(T) at " << pixdet->surface().position() << "(cm): " 
@@ -165,10 +166,11 @@ namespace cms
   
   void
   SiPixelDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
-    if(first){
+    if(firstInitializeEvent_){
       _pixeldigialgo->init(iSetup);
-      first = false;
+      firstInitializeEvent_ = false;
     }
+
     // Make sure that the first crossing processed starts indexing the sim hits from zero.
     // This variable is used so that the sim hits from all crossing frames have sequential
     // indices used to create the digi-sim link (if configured to do so) rather than starting
@@ -179,18 +181,18 @@ namespace cms
     iSetup.get<TrackerDigiGeometryRecord>().get(geometryType, pDD);
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
     edm::ESHandle<TrackerTopology> tTopoHand;
-    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
     const TrackerTopology *tTopo=tTopoHand.product();
 
     // FIX THIS! We only need to clear and (re)fill this map when the geometry type IOV changes.  Use ESWatcher to determine this.
     if(true) { // Replace with ESWatcher 
       detectorUnits.clear();
-      for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
-        unsigned int detId = (*iu)->geographicalId().rawId();
-	if((*iu)->type().isTrackerPixel()) {
-          auto pixdet = dynamic_cast<const PixelGeomDetUnit*>((*iu));
-          assert(pixdet != 0);
-	  if ((*iu)->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap) { // true ONLY for the phase 0 pixel deetctor
+      for( const auto& iu : pDD->detUnits()) {
+        unsigned int detId = iu->geographicalId().rawId();
+	if(iu->type().isTrackerPixel()) {
+          auto pixdet = dynamic_cast<const PixelGeomDetUnit*>(iu);
+          assert(pixdet != nullptr);
+	  if (iu->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap) { // true ONLY for the phase 0 pixel deetctor
 	    unsigned int disk = tTopo->layer(detId); // using the generic layer method
 	    //if using pilot blades, then allowing it for current detector only
 	    if ((disk == 3)&&((!pilotBlades)&&(NumberOfEndcapDisks == 2))) continue;
@@ -249,48 +251,53 @@ namespace cms
     CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
 
     edm::ESHandle<TrackerTopology> tTopoHand;
-    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
     const TrackerTopology *tTopo=tTopoHand.product();
 
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
  
     PileupInfo_ = getEventPileupInfo();
+    if (firstFinalizeEvent_) {
+      const unsigned int bunchspace = PileupInfo_->getMix_bunchSpacing();
+      _pixeldigialgo->init_DynIneffDB(iSetup, bunchspace);
+      firstFinalizeEvent_ = false;
+    }
     _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);   
 
-    for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
+    for( const auto& iu : pDD->detUnits()) {
       
-      if((*iu)->type().isTrackerPixel()) {
+      if(iu->type().isTrackerPixel()) {
 
 	//
 
-        edm::DetSet<PixelDigi> collector((*iu)->geographicalId().rawId());
-        edm::DetSet<PixelDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
+        edm::DetSet<PixelDigi> collector(iu->geographicalId().rawId());
+        edm::DetSet<PixelDigiSimLink> linkcollector(iu->geographicalId().rawId());
         
         
-        _pixeldigialgo->digitize(dynamic_cast<const PixelGeomDetUnit*>((*iu)),
+        _pixeldigialgo->digitize(dynamic_cast<const PixelGeomDetUnit*>(iu),
                                  collector.data,
                                  linkcollector.data,
 				 tTopo,
                                  engine);
-        if(collector.data.size() > 0) {
+        if(!collector.data.empty()) {
           theDigiVector.push_back(std::move(collector));
         }
-        if(linkcollector.data.size() > 0) {
+        if(!linkcollector.data.empty()) {
           theDigiLinkVector.push_back(std::move(linkcollector));
         }
       }
     }
     
     // Step C: create collection with the cache vector of DetSet 
-    std::auto_ptr<edm::DetSetVector<PixelDigi> > 
+    std::unique_ptr<edm::DetSetVector<PixelDigi> > 
       output(new edm::DetSetVector<PixelDigi>(theDigiVector) );
-    std::auto_ptr<edm::DetSetVector<PixelDigiSimLink> > 
+    std::unique_ptr<edm::DetSetVector<PixelDigiSimLink> > 
       outputlink(new edm::DetSetVector<PixelDigiSimLink>(theDigiLinkVector) );
 
     // Step D: write output to file 
-    iEvent.put(output);
-    iEvent.put(outputlink);
+    iEvent.put(std::move(output));
+    iEvent.put(std::move(outputlink));
   }
 
   CLHEP::HepRandomEngine* SiPixelDigitizer::randomEngine(edm::StreamID const& streamID) {

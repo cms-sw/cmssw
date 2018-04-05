@@ -28,26 +28,25 @@
 
 namespace reco {
   class TrackToTrackingParticleAssociator;
+  class VertexToTrackingVertexAssociator;
 }
-class VertexAssociatorBase;
 
 class testVertexAssociator : public edm::EDAnalyzer {
 
  public:
   testVertexAssociator(const edm::ParameterSet& conf);
-  virtual ~testVertexAssociator();
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  ~testVertexAssociator() override;
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
   const reco::TrackToTrackingParticleAssociator*  associatorByChi2;
   const reco::TrackToTrackingParticleAssociator*  associatorByHits;
-  VertexAssociatorBase* associatorByTracks;
+  const reco::VertexToTrackingVertexAssociator* associatorByTracks;
 
   edm::InputTag vertexCollection_;
-  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> associatorByChi2Token;
-  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> associatorByHitsToken;
+  edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> associatorByTracksToken;
 
   int n_event_;
   int n_rs_vertices_;

@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,15 +46,13 @@
 // class declaration
 //
 
-class MCVerticesWeight : public edm::EDFilter {
+class MCVerticesWeight : public edm::global::EDFilter<> {
    public:
       explicit MCVerticesWeight(const edm::ParameterSet&);
-      ~MCVerticesWeight();
+      ~MCVerticesWeight() override;
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       
       // ----------member data ---------------------------
 
@@ -63,14 +61,6 @@ class MCVerticesWeight : public edm::EDFilter {
   const VertexWeighter m_weighter;
 
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor
@@ -87,10 +77,6 @@ MCVerticesWeight::MCVerticesWeight(const edm::ParameterSet& iConfig)
 
 MCVerticesWeight::~MCVerticesWeight()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -100,7 +86,7 @@ MCVerticesWeight::~MCVerticesWeight()
 
 // ------------ method called on each new Event  ------------
 bool
-MCVerticesWeight::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+MCVerticesWeight::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   
    bool selected = true;
@@ -153,24 +139,13 @@ MCVerticesWeight::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
    }
    
-   std::auto_ptr<double> weight(new double(computed_weight));
+   std::unique_ptr<double> weight(new double(computed_weight));
    
-   iEvent.put(weight);
+   iEvent.put(std::move(weight));
    
    //
    
   return selected;
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-MCVerticesWeight::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-MCVerticesWeight::endJob() {
 }
 
 //define this as a plug-in

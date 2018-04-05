@@ -32,11 +32,11 @@ public:
 
   // ---------- Constructor and destructor -----------------
   TotemRPOrganization();
-  virtual          ~TotemRPOrganization();
+           ~TotemRPOrganization() override;
 
   // ---------- member functions ---------------------------
   uint32_t         GetUnitID(const G4Step* aStep);
-  uint32_t         GetUnitID(const G4Step* aStep) const;
+  uint32_t         GetUnitID(const G4Step* aStep) const override;
 
 private:
 

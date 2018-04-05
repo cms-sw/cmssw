@@ -1,31 +1,11 @@
-cmsRun -p runP_TkStrct.cfg
-cmsRun -p runP_PixBar.cfg
-cmsRun -p runP_PixFwdPlus.cfg
-cmsRun -p runP_PixFwdMinus.cfg
-cmsRun -p runP_TIB.cfg
-cmsRun -p runP_TIDF.cfg
-cmsRun -p runP_TIDB.cfg
-cmsRun -p runP_InnerServices.cfg
-cmsRun -p runP_TOB.cfg
-cmsRun -p runP_TEC.cfg
-cmsRun -p runP_Tracker.cfg
-cmsRun -p runP_BeamPipe.cfg
+#!/bin/sh
+for d in TkStrct PixBar PixFwdPlus PixFwdMinus TIB TIDF TIDB InnerServices TOB TEC Tracker BeamPipe; do
+    cmsRun runP_Tracker_cfg.py geom=Extended2017Plan1 label=${d}  >& /dev/null
+done
 
-root -b -q 'MaterialBudget.C("PixBar")'
-root -b -q 'MaterialBudget.C("PixFwdPlus")'
-root -b -q 'MaterialBudget.C("PixFwdMinus")'
-root -b -q 'MaterialBudget.C("TIB")'
-root -b -q 'MaterialBudget.C("TIDF")'
-root -b -q 'MaterialBudget.C("TIDB")'
-root -b -q 'MaterialBudget.C("InnerServices")'
-root -b -q 'MaterialBudget.C("TOB")'
-root -b -q 'MaterialBudget.C("TEC")'
-root -b -q 'MaterialBudget.C("TkStrct")'
-root -b -q 'MaterialBudget.C("Tracker")'
-root -b -q 'MaterialBudget.C("TrackerSum")'
-root -b -q 'MaterialBudget.C("Pixel")'
-root -b -q 'MaterialBudget.C("Strip")'
-root -b -q 'MaterialBudget.C("InnerTracker")'
+for d in TkStrct PixBar PixFwdPlus PixFwdMinus TIB TIDF TIDB InnerServices TOB TEC Tracker TrackerSum Pixel Strip BeamPipe; do
+    python MaterialBudget.py -s -d ${d}
+done
 
 root -b -q 'MaterialBudget_TDR.C()'
 

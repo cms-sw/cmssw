@@ -10,7 +10,7 @@
      <TYPE>ContentsXRange</TYPE> 
      <PARAM name="error">0.80</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="xmin">5.0</PARAM> 
+     <PARAM name="xmin">3.0</PARAM> 
      <PARAM name="xmax">35.0</PARAM> 
 </QTEST>
 <QTEST name="XrangeWithin:Chi2overDoF" activate="true"> 

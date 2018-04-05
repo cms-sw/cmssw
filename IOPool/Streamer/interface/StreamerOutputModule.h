@@ -2,6 +2,7 @@
 #define IOPool_Streamer_StreamerOutputModule_h
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 #include "IOPool/Streamer/interface/StreamerOutputModuleBase.h"
 
 namespace edm {
@@ -18,23 +19,27 @@ namespace edm {
         
   public:
     explicit StreamerOutputModule(ParameterSet const& ps);  
-    virtual ~StreamerOutputModule();
+    ~StreamerOutputModule() override;
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void start() const;
-    virtual void stop() const;
-    virtual void doOutputHeader(InitMsgBuilder const& init_message) const;
-    virtual void doOutputEvent(EventMsgBuilder const& msg) const;
+    void start() override;
+    void stop() override;
+    void doOutputHeader(InitMsgBuilder const& init_message) override;
+    void doOutputEvent(EventMsgBuilder const& msg) override;
+    void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+    void endLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
 
   private:
-    std::auto_ptr<Consumer> c_;
+    edm::propagate_const<std::unique_ptr<Consumer>> c_;
   }; //end-of-class-def
 
   template<typename Consumer>
   StreamerOutputModule<Consumer>::StreamerOutputModule(ParameterSet const& ps) :
+    edm::one::OutputModuleBase::OutputModuleBase(ps),
     StreamerOutputModuleBase(ps),
-    c_(new Consumer(ps)) {
+    c_(new Consumer(ps))
+    {
   }
 
   template<typename Consumer>
@@ -42,28 +47,36 @@ namespace edm {
 
   template<typename Consumer>
   void
-  StreamerOutputModule<Consumer>::start() const {
+  StreamerOutputModule<Consumer>::start() {
     c_->start();
   }
   
   template<typename Consumer>
   void
-  StreamerOutputModule<Consumer>::stop() const {
+  StreamerOutputModule<Consumer>::stop() {
     c_->stop();
   }
 
   template<typename Consumer>
   void
-  StreamerOutputModule<Consumer>::doOutputHeader(InitMsgBuilder const& init_message) const {
+  StreamerOutputModule<Consumer>::doOutputHeader(InitMsgBuilder const& init_message) {
     c_->doOutputHeader(init_message);
   }
    
 //______________________________________________________________________________
   template<typename Consumer>
   void
-  StreamerOutputModule<Consumer>::doOutputEvent(EventMsgBuilder const& msg) const {
+  StreamerOutputModule<Consumer>::doOutputEvent(EventMsgBuilder const& msg) {
     c_->doOutputEvent(msg); // You can't use msg in StreamerOutputModule after this point
   }
+
+  template<typename Consumer>
+  void
+  StreamerOutputModule<Consumer>::beginLuminosityBlock(edm::LuminosityBlockForOutput const&) {}
+
+  template<typename Consumer>
+  void
+  StreamerOutputModule<Consumer>::endLuminosityBlock(edm::LuminosityBlockForOutput const&) {}
 
   template<typename Consumer>
   void

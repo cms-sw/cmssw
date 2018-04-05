@@ -1,13 +1,11 @@
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
-
-
-
+#include <iostream>
+#include <typeinfo>
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include<iostream>
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
 namespace {
   

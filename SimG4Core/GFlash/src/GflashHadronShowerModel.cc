@@ -157,7 +157,7 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack& fastTrack) {
     }
 
     G4VPhysicalVolume* aCurrentVolume = theGflashStep->GetPreStepPoint()->GetPhysicalVolume();
-    if( aCurrentVolume == 0 ) continue;
+    if( aCurrentVolume == nullptr ) continue;
 
     G4LogicalVolume* lv = aCurrentVolume->GetLogicalVolume();
     if(lv->GetRegion()->GetName() != "CaloRegion") continue;
@@ -165,7 +165,7 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack& fastTrack) {
     theGflashStep->GetPreStepPoint()->SetSensitiveDetector(aCurrentVolume->GetLogicalVolume()->GetSensitiveDetector());
     G4VSensitiveDetector* aSensitive = theGflashStep->GetPreStepPoint()->GetSensitiveDetector();
 
-    if( aSensitive == 0 ) continue;
+    if( aSensitive == nullptr ) continue;
     
     G4String nameCalor = aCurrentVolume->GetName();
     nameCalor.assign(nameCalor,0,2);

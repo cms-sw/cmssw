@@ -23,8 +23,8 @@ public:
 private:
   static bool enabled_;
   AutoLibraryLoader();
-  AutoLibraryLoader(const AutoLibraryLoader&); // stop default
-  const AutoLibraryLoader& operator=(const AutoLibraryLoader&); // stop default
+  AutoLibraryLoader(const AutoLibraryLoader&) = delete; // stop default
+  const AutoLibraryLoader& operator=(const AutoLibraryLoader&) = delete; // stop default
 };
 
 

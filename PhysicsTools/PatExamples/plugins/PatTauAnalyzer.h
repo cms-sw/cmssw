@@ -17,12 +17,12 @@ class PatTauAnalyzer : public edm::EDAnalyzer
 {
  public:
   explicit PatTauAnalyzer(const edm::ParameterSet&);
-  ~PatTauAnalyzer();
+  ~PatTauAnalyzer() override;
 
 //--- methods inherited from EDAnalyzer base-class
-  void beginJob();
-  void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
  private:
 //--- configuration parameters

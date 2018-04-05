@@ -22,7 +22,7 @@ namespace ecaldqm
   class EcalDQMonitor {
   public:
     EcalDQMonitor(edm::ParameterSet const&);
-    virtual ~EcalDQMonitor();
+    virtual ~EcalDQMonitor() noexcept(false);
 
     static void fillDescriptions(edm::ParameterSetDescription&);
 

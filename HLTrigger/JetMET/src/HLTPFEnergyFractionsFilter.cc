@@ -42,7 +42,7 @@ HLTPFEnergyFractionsFilter::HLTPFEnergyFractionsFilter(const edm::ParameterSet& 
   m_thePFJetToken = consumes<reco::PFJetCollection>(inputPFJetTag_);
 }
 
-HLTPFEnergyFractionsFilter::~HLTPFEnergyFractionsFilter(){}
+HLTPFEnergyFractionsFilter::~HLTPFEnergyFractionsFilter()= default;
 
 void 
 HLTPFEnergyFractionsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -85,7 +85,7 @@ HLTPFEnergyFractionsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
     accept = true;
     unsigned int countJet(0);
     //PF information
-    PFJetCollection::const_iterator i (recopfjets->begin());
+    auto i (recopfjets->begin());
     for(; i != recopfjets->end(); ++i ){
       if(countJet>=nJet_) break;
       //
@@ -108,7 +108,7 @@ HLTPFEnergyFractionsFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup&
     //Store NJet_ jets
     if(accept==true){ 
       countJet = 0; 
-      PFJetCollection::const_iterator i (recopfjets->begin());
+      auto i (recopfjets->begin());
       for(; i != recopfjets->end(); ++i ){
 	if(countJet>=nJet_) break;
 	filterproduct.addObject(triggerType_,PFJetRef(recopfjets,distance(recopfjets->begin(),i)));

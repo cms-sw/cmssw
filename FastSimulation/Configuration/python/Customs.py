@@ -1,6 +1,5 @@
 #####################################
 # a bunch of handy customisation functions
-# main functions: prepareGenMixing and prepareDigiRecoMixing
 # author: Lukas Vanelderen
 # date:   Jan 21 2015
 #####################################
@@ -16,4 +15,24 @@ def disableOOTPU(process):
     process.mix.bunchspace = 450
     return process
 
-# more to come
+# run this customisation function during the digi-step
+# when processing a gen-sim sample that was generated with the HCALECAL geometry
+def fakeSimHits_for_geometry_ECALHCAL(process):
+    import FastSimulation.Validation.EmptySimHits_cfi
+    process.g4SimHits = FastSimulation.Validation.EmptySimHits_cfi.emptySimHits.clone(
+        pCaloHitInstanceLabels = ["CastorFI"],
+        pSimHitInstanceLabels = []
+        )
+    for _entry  in process.mix.mixObjects.mixSH.input:
+        process.g4SimHits.pSimHitInstanceLabels.append(_entry.getProductInstanceLabel())
+    process.emptySimHits_step = cms.Path(process.g4SimHits)
+    process.schedule.insert(0,process.emptySimHits_step)
+    return process
+
+def disableMaterialInteractionsTracker(process):
+    for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+        layer.interactionModels = cms.untracked.vstring("trackerSimHits")
+    for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+        layer.interactionModels = cms.untracked.vstring("trackerSimHits")
+    return process
+

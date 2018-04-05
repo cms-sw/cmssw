@@ -132,7 +132,7 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
 L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
 
   if(m_db) delete m_db;
-  m_db = 0;
+  m_db = nullptr;
 
   delete m_Sorter;
   delete m_Merger[1];        // endcap Merger
@@ -148,7 +148,7 @@ L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
   delete m_PSB;
 
   if(m_config) delete m_config;
-  m_config = 0;
+  m_config = nullptr;
 
   // copied from produce() by Jim B, 7 Aug 2007
   std::vector<L1MuGMTReadoutRecord*>::iterator irr = m_ReadoutRingbuffer.begin();
@@ -339,22 +339,22 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
   }
 
   // produce the output
-  std::auto_ptr<std::vector<L1MuGMTCand> > GMTCands(new std::vector<L1MuGMTCand>);
+  std::unique_ptr<std::vector<L1MuGMTCand> > GMTCands(new std::vector<L1MuGMTCand>);
   std::vector<L1MuGMTExtendedCand>::const_iterator iexc;
   for(iexc=m_ExtendedCands.begin(); iexc!=m_ExtendedCands.end(); iexc++) {
     GMTCands->push_back(*iexc);
   }
-  e.put(GMTCands);
+  e.put(std::move(GMTCands));
 
-  std::auto_ptr<L1MuGMTReadoutCollection> GMTRRC(getReadoutCollection());
-  e.put(GMTRRC);
+  std::unique_ptr<L1MuGMTReadoutCollection> GMTRRC(getReadoutCollection());
+  e.put(std::move(GMTRRC));
 
   if( m_sendMipIso ) {
-    std::auto_ptr<std::vector<unsigned> > mipiso(new std::vector<unsigned>);
+    std::unique_ptr<std::vector<unsigned> > mipiso(new std::vector<unsigned>);
     for(int i=0; i<32; i++) {
       mipiso->push_back(m_db->IsMIPISO(0,i));
     }  
-    e.put(mipiso);
+    e.put(std::move(mipiso));
   }
   
 // delete registers and LUTs
@@ -382,13 +382,13 @@ void L1MuGlobalMuonTrigger::reset() {
 }
 
 // get the GMT readout data for the triggered bx
-std::auto_ptr<L1MuGMTReadoutCollection> L1MuGlobalMuonTrigger::getReadoutCollection() {
+std::unique_ptr<L1MuGMTReadoutCollection> L1MuGlobalMuonTrigger::getReadoutCollection() {
 
   int bx_min_ro = L1MuGMTConfig::getBxMinRo();
   int bx_max_ro = L1MuGMTConfig::getBxMaxRo();
   int bx_size = bx_max_ro - bx_min_ro + 1;
 
-  std::auto_ptr<L1MuGMTReadoutCollection> rrc(new L1MuGMTReadoutCollection(bx_size));
+  std::unique_ptr<L1MuGMTReadoutCollection> rrc(new L1MuGMTReadoutCollection(bx_size));
 
   for (int bx = bx_min_ro; bx <= bx_max_ro; bx++) {
     std::vector<L1MuGMTReadoutRecord*>::const_iterator iter = m_ReadoutRingbuffer.begin();
@@ -408,5 +408,5 @@ std::auto_ptr<L1MuGMTReadoutCollection> L1MuGlobalMuonTrigger::getReadoutCollect
 
 // static data members
 
-L1MuGMTConfig* L1MuGlobalMuonTrigger::m_config = 0;
-L1MuGMTDebugBlock* L1MuGlobalMuonTrigger::m_db = 0;
+L1MuGMTConfig* L1MuGlobalMuonTrigger::m_config = nullptr;
+L1MuGMTDebugBlock* L1MuGlobalMuonTrigger::m_db = nullptr;

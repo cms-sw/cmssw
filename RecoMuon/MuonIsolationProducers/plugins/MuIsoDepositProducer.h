@@ -18,10 +18,10 @@ public:
   MuIsoDepositProducer(const edm::ParameterSet&);
 
   //! destructor
-  virtual ~MuIsoDepositProducer();
+  ~MuIsoDepositProducer() override;
 
   //! data making method
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   
 private:
   //! module configuration
@@ -34,7 +34,7 @@ private:
   bool theExtractForCandidate;
 
   std::string theMuonTrackRefType;
-  edm::InputTag theMuonCollectionTag;
+  edm::EDGetToken theMuonCollectionTag;
   std::vector<std::string> theDepositNames;
   bool theMultipleDepositsFlag;
   reco::isodeposit::IsoDepositExtractor * theExtractor;

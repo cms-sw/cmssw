@@ -7,15 +7,9 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#else
-namespace edm {
-	class ConsumesCollector;
-}
-#endif
 
-namespace edm { class Event; class ParameterSet; }
+namespace edm { class Event; class ParameterSet; class ParameterSetDescription; }
 
 namespace reco { namespace utils {
     struct ClusterTotals {
@@ -29,16 +23,16 @@ namespace reco { namespace utils {
 
 class ClusterChecker {
  public: 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   ClusterChecker(const edm::ParameterSet & conf, edm::ConsumesCollector & iC) ;
   ClusterChecker(const edm::ParameterSet & conf, edm::ConsumesCollector && iC) ;
-#endif
+
+  static void fillDescriptions(edm::ParameterSetDescription& description);
 
   ~ClusterChecker() ;
   size_t tooManyClusters(const edm::Event & e) const ;
 
  private: 
-  ClusterChecker(); // This is only needed for StringCutObjectSelector
+  ClusterChecker() = delete; // This is only needed for StringCutObjectSelector
   bool doACheck_;
   edm::InputTag clusterCollectionInputTag_;
   edm::InputTag pixelClusterCollectionInputTag_;
@@ -46,10 +40,8 @@ class ClusterChecker {
   unsigned int maxNrOfPixelClusters_;
   StringCutObjectSelector<reco::utils::ClusterTotals> selector_;
   unsigned int ignoreDetsAboveNClusters_;
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
   edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > token_sc;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > token_pc;
-#endif
 };
 
 #endif

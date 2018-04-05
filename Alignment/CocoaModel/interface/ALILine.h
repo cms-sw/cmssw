@@ -22,8 +22,8 @@ public:
 // Next 1 line was added with 22 Mar 2001 
 //  CLHEP::Hep3Vector ALILine( const ALILine& l2, bool notParallel = 0);
 //0
-  CLHEP::Hep3Vector intersect( const ALILine& l2, bool notParallel = 0); 
-  CLHEP::Hep3Vector intersect( const ALIPlane& plane, bool notParallel = 1);
+  CLHEP::Hep3Vector intersect( const ALILine& l2, bool notParallel = false); 
+  CLHEP::Hep3Vector intersect( const ALIPlane& plane, bool notParallel = true);
   const CLHEP::Hep3Vector& pt() const {return _point;};
   const CLHEP::Hep3Vector& vec() const {return _direction;};
 

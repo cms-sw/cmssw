@@ -11,7 +11,7 @@ namespace defaultRKPropagator {
   using RKPropagator = RKPropagatorInS;
 
   // not clear why we need all this
-  class TrivialFieldProvider GCC11_FINAL : public MagneticFieldProvider<float> {
+  class TrivialFieldProvider final : public MagneticFieldProvider<float> {
   public:
     
     TrivialFieldProvider (const MagneticField* field) : theField(field) {}
@@ -27,16 +27,16 @@ namespace defaultRKPropagator {
     const MagneticField* theField;
   };
   
-  class RKMagVolume GCC11_FINAL : public MagVolume {
+  class RKMagVolume final : public MagVolume {
   public:
     RKMagVolume( const PositionType& pos, const RotationType& rot, 
 		 DDSolidShape shape, const MagneticFieldProvider<float> * mfp) :
       MagVolume( pos, rot, shape, mfp) {}
     
-    virtual bool inside( const GlobalPoint& gp, double tolerance=0.) const {return true;}
+    bool inside( const GlobalPoint& gp, double tolerance=0.) const override {return true;}
     
     /// Access to volume faces - dummy implementation
-    virtual const std::vector<VolumeSide>& faces() const {return theFaces;}
+    const std::vector<VolumeSide>& faces() const override {return theFaces;}
     
   private:
     std::vector<VolumeSide> theFaces;

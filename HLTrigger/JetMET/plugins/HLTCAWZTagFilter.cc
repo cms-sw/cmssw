@@ -41,9 +41,7 @@ HLTCAWZTagFilter::HLTCAWZTagFilter(const edm::ParameterSet& iConfig): HLTFilter(
 }
 
 
-HLTCAWZTagFilter::~HLTCAWZTagFilter()
-{
-}
+HLTCAWZTagFilter::~HLTCAWZTagFilter() = default;
 
 
 void HLTCAWZTagFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
@@ -82,9 +80,9 @@ bool HLTCAWZTagFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSe
   CATopJetProperties properties;
 
   // Now loop over the hard jets and do kinematic cuts
-  reco::BasicJetCollection::const_iterator ihardJet = pBasicJets->begin(),
+  auto ihardJet = pBasicJets->begin(),
     ihardJetEnd = pBasicJets->end();
-  reco::PFJetCollection::const_iterator ipfJet = pfJets->begin();
+  auto ipfJet = pfJets->begin();
   bool pass = false;
 
   for ( ; ihardJet != ihardJetEnd; ++ihardJet, ++ipfJet ) {
@@ -110,5 +108,5 @@ bool HLTCAWZTagFilter::hltFilter( edm::Event& iEvent, const edm::EventSetup& iSe
 
  
 
-//define this as a plug-in
+// declare this class as a framework plugin
 DEFINE_FWK_MODULE(HLTCAWZTagFilter);

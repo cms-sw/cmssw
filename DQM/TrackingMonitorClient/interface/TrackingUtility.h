@@ -11,7 +11,7 @@
 #include <fstream>
 #include <string>
 #include <map>
-#include <stdint.h>
+#include <cstdint>
 
 #include "DQMServices/Core/interface/DQMStore.h"
 

@@ -16,11 +16,11 @@
  */
 
 // system include files
+#include <memory>
 #include <string>
 #include <utility>
 
 // user include files
-
 #include "DataFormats/L1GlobalTrigger/interface/L1GtTriggerMenuLite.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -31,6 +31,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
+
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtilsHelper.h"
 
 // forward declarations
 class L1GtStableParameters;
@@ -47,11 +49,62 @@ class L1GtUtils {
 
 public:
 
-    /// constructor
-    explicit L1GtUtils();
+    // Using this constructor will require InputTags to be specified in the configuration
+    L1GtUtils(edm::ParameterSet const& pset,
+              edm::ConsumesCollector&& iC,
+              bool useL1GtTriggerMenuLite);
+
+    L1GtUtils(edm::ParameterSet const& pset,
+              edm::ConsumesCollector& iC,
+              bool useL1GtTriggerMenuLite);
+
+    // Using this constructor will cause it to look for valid InputTags in
+    // the following ways in the specified order until they are found.
+    //   1. The configuration
+    //   2. Search all products from the preferred input tags for the required type
+    //   3. Search all products from any other process for the required type
+    template <typename T>
+    L1GtUtils(edm::ParameterSet const& pset,
+              edm::ConsumesCollector&& iC,
+              bool useL1GtTriggerMenuLite,
+              T& module);
+
+    template <typename T>
+    L1GtUtils(edm::ParameterSet const& pset,
+              edm::ConsumesCollector& iC,
+              bool useL1GtTriggerMenuLite,
+              T& module);
+
+    // Using this constructor will cause it to look for valid InputTags in
+    // the following ways in the specified order until they are found.
+    //   1. The constructor arguments
+    //   2. The configuration
+    //   3. Search all products from the preferred input tags for the required type
+    //   4. Search all products from any other process for the required type
+    template <typename T>
+    L1GtUtils(edm::ParameterSet const& pset,
+              edm::ConsumesCollector&& iC,
+              bool useL1GtTriggerMenuLite,
+              T& module,
+              edm::InputTag const& l1GtRecordInputTag,
+              edm::InputTag const& l1GtReadoutRecordInputTag,
+              edm::InputTag const& l1GtTriggerMenuLiteInputTag);
+
+    template <typename T>
+    L1GtUtils(edm::ParameterSet const& pset,
+              edm::ConsumesCollector& iC,
+              bool useL1GtTriggerMenuLite,
+              T& module,
+              edm::InputTag const& l1GtRecordInputTag,
+              edm::InputTag const& l1GtReadoutRecordInputTag,
+              edm::InputTag const& l1GtTriggerMenuLiteInputTag);
 
     /// destructor
     virtual ~L1GtUtils();
+
+    static void fillDescription(edm::ParameterSetDescription & desc) {
+      L1GtUtilsHelper::fillDescription(desc);
+    }
 
 public:
 
@@ -79,14 +132,8 @@ public:
     public:
         /// constructor(s)
 
-        /// trigger decisions, prescale factors and masks from GT record(s) with input tag(s) 
-        /// from provenance
+        /// trigger decisions, prescale factors and masks from GT record(s)
         explicit LogicalExpressionL1Results(const std::string&, L1GtUtils&);
-
-        /// trigger decisions, prescale factors and masks from GT record(s) with input tag(s) 
-        /// explicitly given
-        explicit LogicalExpressionL1Results(const std::string&, L1GtUtils&,
-                const edm::InputTag&, const edm::InputTag&);
 
         /// destructor
         ~LogicalExpressionL1Results();
@@ -130,10 +177,7 @@ public:
         void reset(const std::vector<std::pair<std::string, bool> >&) const;
         void reset(const std::vector<std::pair<std::string, int> >&) const;
 
-        void
-        l1Results(const edm::Event& iEvent,
-                const edm::InputTag& l1GtRecordInputTag,
-                const edm::InputTag& l1GtReadoutRecordInputTag);
+        void l1Results(const edm::Event& iEvent);
 
     private:
 
@@ -143,9 +187,6 @@ public:
         std::string m_logicalExpression;
 
         L1GtUtils& m_l1GtUtils;
-
-        edm::InputTag m_l1GtRecordInputTag;
-        edm::InputTag m_l1GtReadoutRecordInputTag;
 
     private:
 
@@ -159,10 +200,6 @@ public:
 
         /// true if the logical expression uses accepted L1GtLogicParser operators  
         bool m_validLogicalExpression;
-
-        /// true if input tags for GT records are to be found from provenance 
-        /// (if both input tags from constructors are empty)
-        bool m_l1GtInputTagsFromProv;
 
         /// set to true if the method l1Results was called once
         bool m_l1ResultsAlreadyCalled;
@@ -202,50 +239,17 @@ public:
     /// retrieve L1GtTriggerMenuLite (per run product) and cache it to improve the speed
 
     ///    for use in beginRun(const edm::Run&, const edm::EventSetup&);
-    ///        input tag explicitly given
-    void retrieveL1GtTriggerMenuLite(const edm::Run&, const edm::InputTag&);
+    void retrieveL1GtTriggerMenuLite(const edm::Run&);
 
     /// get all the run-constant quantities for L1 trigger and cache them
 
     ///    for use in beginRun(const edm::Run&, const edm::EventSetup&);
-    ///        input tag for L1GtTriggerMenuLite explicitly given
     void getL1GtRunCache(const edm::Run&, const edm::EventSetup&, const bool,
-            const bool, const edm::InputTag&);
-    ///        input tag for L1GtTriggerMenuLite found from provenance
-    void getL1GtRunCache(const edm::Run&, const edm::EventSetup&, const bool,
-            const bool);
+                         const bool);
 
     ///    for use in analyze(const edm::Event&, const edm::EventSetup&)
-    ///        input tag for L1GtTriggerMenuLite explicitly given
     void getL1GtRunCache(const edm::Event&, const edm::EventSetup&, const bool,
-            const bool, const edm::InputTag&);
-    ///        input tag for L1GtTriggerMenuLite found from provenance
-    void getL1GtRunCache(const edm::Event&, const edm::EventSetup&, const bool,
-            const bool);
-
-    /// find from provenance the input tags for L1GlobalTriggerRecord and
-    /// L1GlobalTriggerReadoutRecord
-    /// if the product does not exist, return empty input tags
-    void getL1GtRecordInputTag(const edm::Event& iEvent,
-            edm::InputTag& l1GtRecordInputTag,
-            edm::InputTag& l1GtReadoutRecordInputTag) const;
-
-    /// get the input tag for L1GtTriggerMenuLite
-    void getL1GtTriggerMenuLiteInputTag(const edm::Run& iRun,
-            edm::InputTag& l1GtTriggerMenuLiteInputTag) const;
-    
-    /// return the input tags found from provenance
-    inline const edm::InputTag& provL1GtRecordInputTag() {
-        return m_provL1GtRecordInputTag;
-    }
-    
-    inline const edm::InputTag& provL1GtReadoutRecordInputTag() {
-        return m_provL1GtReadoutRecordInputTag;
-    }
-    
-    inline const edm::InputTag& provL1GtTriggerMenuLiteInputTag() {
-        return m_provL1GtTriggerMenuLiteInputTag;
-    }
+                         const bool);
 
     /// return the trigger "category" trigCategory
     ///    algorithm trigger alias or algorithm trigger name AlgorithmTrigger = 0,
@@ -269,29 +273,7 @@ public:
             const TriggerCategory& trigCategory, std::string& aliasL1Trigger,
             std::string& nameL1Trigger) const;
 
-    /// return results for a given algorithm or technical trigger:
-    /// input:
-    ///   event
-    ///   input tag for the L1GlobalTriggerRecord product
-    ///   input tag for the L1GlobalTriggerReadoutRecord product
-    ///   algorithm trigger name or alias, or technical trigger name
-    /// output (by reference):
-    ///    decision before mask,
-    ///    decision after mask,
-    ///    prescale factor
-    ///    trigger mask
-    /// return: integer error code
-
-    const int
-            l1Results(const edm::Event& iEvent,
-                    const edm::InputTag& l1GtRecordInputTag,
-                    const edm::InputTag& l1GtReadoutRecordInputTag,
-                    const std::string& nameAlgoTechTrig,
-                    bool& decisionBeforeMask, bool& decisionAfterMask,
-                    int& prescaleFactor, int& triggerMask) const;
-
     /// return results for a given algorithm or technical trigger,
-    /// input tag for the an appropriate EDM product will be found from provenance
     /// input:
     ///   event
     ///   algorithm trigger name or alias, or technical trigger name
@@ -302,87 +284,50 @@ public:
     ///    trigger mask
     /// return: integer error code
 
-    const int
-            l1Results(const edm::Event& iEvent,
-                    const std::string& nameAlgoTechTrig,
-                    bool& decisionBeforeMask, bool& decisionAfterMask,
-                    int& prescaleFactor, int& triggerMask) const;
+    const int l1Results(const edm::Event& iEvent,
+                        const std::string& nameAlgoTechTrig,
+                        bool& decisionBeforeMask, bool& decisionAfterMask,
+                        int& prescaleFactor, int& triggerMask) const;
 
     /// for the functions decisionBeforeMask, decisionAfterMask, decision
     /// prescaleFactor, trigger mask:
     ///
     /// input:
     ///   event, event setup
-    ///   input tag for the L1GlobalTriggerRecord product
-    ///   input tag for the L1GlobalTriggerReadoutRecord product
     ///   algorithm trigger name or alias, or technical trigger name
     /// output (by reference):
     ///    error code
     /// return: the corresponding quantity
-    ///
-    /// if input tags are not given, they are found for the appropriate EDM products
-    /// from provenance
 
     ///   return decision before trigger mask for a given algorithm or technical trigger
-    const bool decisionBeforeMask(const edm::Event& iEvent,
-            const edm::InputTag& l1GtRecordInputTag,
-            const edm::InputTag& l1GtReadoutRecordInputTag,
-            const std::string& nameAlgoTechTrig, int& errorCode) const;
-
     const bool decisionBeforeMask(const edm::Event& iEvent,
             const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     ///   return decision after trigger mask for a given algorithm or technical trigger
-    const bool decisionAfterMask(const edm::Event& iEvent,
-            const edm::InputTag& l1GtRecordInputTag,
-            const edm::InputTag& l1GtReadoutRecordInputTag,
-            const std::string& nameAlgoTechTrig, int& errorCode) const;
-
     const bool decisionAfterMask(const edm::Event& iEvent,
             const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     ///   return decision after trigger mask for a given algorithm or technical trigger
     ///          function identical with decisionAfterMask
     const bool decision(const edm::Event& iEvent,
-            const edm::InputTag& l1GtRecordInputTag,
-            const edm::InputTag& l1GtReadoutRecordInputTag,
-            const std::string& nameAlgoTechTrig, int& errorCode) const;
-
-    const bool decision(const edm::Event& iEvent,
             const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     ///   return prescale factor for a given algorithm or technical trigger
-    const int prescaleFactor(const edm::Event& iEvent,
-            const edm::InputTag& l1GtRecordInputTag,
-            const edm::InputTag& l1GtReadoutRecordInputTag,
-            const std::string& nameAlgoTechTrig, int& errorCode) const;
-
     const int prescaleFactor(const edm::Event& iEvent,
             const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     ///   return trigger mask for a given algorithm or technical trigger
     const int triggerMask(const edm::Event& iEvent,
-            const edm::InputTag& l1GtRecordInputTag,
-            const edm::InputTag& l1GtReadoutRecordInputTag,
-            const std::string& nameAlgoTechTrig, int& errorCode) const;
-
-    const int triggerMask(const edm::Event& iEvent,
             const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     ///     faster than previous two methods - one needs in fact for the
     ///     masks the event setup only
-    const int
-            triggerMask(const std::string& nameAlgoTechTrig, int& errorCode) const;
+    const int triggerMask(const std::string& nameAlgoTechTrig, int& errorCode) const;
 
     /// return the index of the actual set of prescale factors used for the
     /// event (must be the same for all events in the luminosity block,
     /// if no errors)
     ///
-
-    const int prescaleFactorSetIndex(const edm::Event& iEvent,
-            const edm::InputTag& l1GtRecordInputTag,
-            const edm::InputTag& l1GtReadoutRecordInputTag,
-            const TriggerCategory& trigCategory, int& errorCode) const;
 
     const int prescaleFactorSetIndex(const edm::Event& iEvent,
             const TriggerCategory& trigCategory, int& errorCode) const;
@@ -391,11 +336,6 @@ public:
     /// return the actual set of prescale factors used for the
     /// event (must be the same for all events in the luminosity block,
     /// if no errors)
-
-    const std::vector<int>& prescaleFactorSet(const edm::Event& iEvent,
-            const edm::InputTag& l1GtRecordInputTag,
-            const edm::InputTag& l1GtReadoutRecordInputTag,
-            const TriggerCategory& trigCategory, int& errorCode);
 
     const std::vector<int>& prescaleFactorSet(const edm::Event& iEvent,
             const TriggerCategory& trigCategory, int& errorCode);
@@ -436,6 +376,8 @@ private:
             const TriggerCategory& trigCategory, int& errorCode) const;
 
 private:
+
+    L1GtUtils();
 
     /// event setup cached stuff
 
@@ -509,16 +451,8 @@ private:
     /// flag for call of getL1GtRunCache in beginRun
     bool m_beginRunCache;
 
-    /// cached input tags from provenance
-
-    edm::InputTag m_provL1GtRecordInputTag;
-    edm::InputTag m_provL1GtReadoutRecordInputTag;
-    edm::InputTag m_provL1GtTriggerMenuLiteInputTag;
-    
     /// run cache ID 
     edm::RunID m_runIDCache;
-    edm::RunID m_provRunIDCache;
-
 
 private:
 
@@ -532,6 +466,55 @@ private:
     bool m_retrieveL1EventSetup;
     bool m_retrieveL1GtTriggerMenuLite;
 
+    std::unique_ptr<L1GtUtilsHelper> m_l1GtUtilsHelper;
 };
+
+template <typename T>
+L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
+                     edm::ConsumesCollector&& iC,
+                     bool useL1GtTriggerMenuLite,
+                     T& module) :
+    L1GtUtils(pset, iC, useL1GtTriggerMenuLite, module) { }
+
+template <typename T>
+L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
+                     edm::ConsumesCollector& iC,
+                     bool useL1GtTriggerMenuLite,
+                     T& module) :
+    L1GtUtils() {
+    m_l1GtUtilsHelper.reset(new L1GtUtilsHelper(pset,
+                                                iC,
+                                                useL1GtTriggerMenuLite,
+                                                module));
+}
+
+template <typename T>
+L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
+                     edm::ConsumesCollector&& iC,
+                     bool useL1GtTriggerMenuLite,
+                     T& module,
+                     edm::InputTag const& l1GtRecordInputTag,
+                     edm::InputTag const& l1GtReadoutRecordInputTag,
+                     edm::InputTag const& l1GtTriggerMenuLiteInputTag) :
+  L1GtUtils(pset, iC, useL1GtTriggerMenuLite, module, l1GtRecordInputTag,
+            l1GtReadoutRecordInputTag, l1GtTriggerMenuLiteInputTag) { }
+
+template <typename T>
+L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
+                     edm::ConsumesCollector& iC,
+                     bool useL1GtTriggerMenuLite,
+                     T& module,
+                     edm::InputTag const& l1GtRecordInputTag,
+                     edm::InputTag const& l1GtReadoutRecordInputTag,
+                     edm::InputTag const& l1GtTriggerMenuLiteInputTag) :
+    L1GtUtils() {
+    m_l1GtUtilsHelper.reset(new L1GtUtilsHelper(pset,
+                                                iC,
+                                                useL1GtTriggerMenuLite,
+                                                module,
+                                                l1GtRecordInputTag,
+                                                l1GtReadoutRecordInputTag,
+                                                l1GtTriggerMenuLiteInputTag));
+}
 
 #endif /*GlobalTriggerAnalyzer_L1GtUtils_h*/

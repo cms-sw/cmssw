@@ -2,6 +2,11 @@
 #define _CLEHP_2_SMATRIX_MIGRATION_H_
 
 #include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+
+#include "CLHEP/Matrix/Matrix.h"
+#include "CLHEP/Matrix/Vector.h"
+#include "CLHEP/Matrix/SymMatrix.h"
+
 #include <cstring>
 
 /*

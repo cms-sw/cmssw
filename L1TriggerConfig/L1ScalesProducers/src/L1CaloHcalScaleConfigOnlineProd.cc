@@ -24,8 +24,10 @@
 #include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
 #include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>
 #include <iostream>
@@ -39,16 +41,17 @@ class L1CaloHcalScaleConfigOnlineProd :
   public L1ConfigOnlineProdBase< L1CaloHcalScaleRcd, L1CaloHcalScale > {
    public:
       L1CaloHcalScaleConfigOnlineProd(const edm::ParameterSet& iConfig);
-      ~L1CaloHcalScaleConfigOnlineProd();
+      ~L1CaloHcalScaleConfigOnlineProd() override;
 
-  virtual boost::shared_ptr< L1CaloHcalScale > newObject(
+  std::shared_ptr< L1CaloHcalScale > produce(const L1CaloHcalScaleRcd& iRecord) override ;
+
+  std::shared_ptr< L1CaloHcalScale > newObject(
     const std::string& objectKey ) override ;
-
 
    private:
  
   L1CaloHcalScale* hcalScale;
-  HcalTrigTowerGeometry* theTrigTowerGeometry;
+  const HcalTrigTowerGeometry* theTrigTowerGeometry;
   CaloTPGTranscoderULUT* caloTPG;
   typedef std::vector<double> RCTdecompression;
   std::vector<RCTdecompression> hcaluncomp;
@@ -74,24 +77,11 @@ class L1CaloHcalScaleConfigOnlineProd :
 //
 L1CaloHcalScaleConfigOnlineProd::L1CaloHcalScaleConfigOnlineProd(
   const edm::ParameterSet& iConfig)
-  : L1ConfigOnlineProdBase< L1CaloHcalScaleRcd, L1CaloHcalScale >( iConfig )
+  : L1ConfigOnlineProdBase< L1CaloHcalScaleRcd, L1CaloHcalScale >( iConfig ),
+    theTrigTowerGeometry( nullptr )
 {
   hcalScale = new L1CaloHcalScale(0);
   caloTPG = new CaloTPGTranscoderULUT();
-  
-  HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
-  int maxDepthHB = 2;
-  int maxDepthHE = 3;
-  if( iConfig.exists( "hcalTopologyConstants" ))
-  {
-    const edm::ParameterSet hcalTopoConsts = iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" );
-    StringToEnumParser<HcalTopologyMode::Mode> parser;
-    mode = (HcalTopologyMode::Mode) parser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
-    maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
-    maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
-  }
-  
-  theTrigTowerGeometry = new HcalTrigTowerGeometry( new HcalTopology( mode, maxDepthHB, maxDepthHE ));
 }
 
 
@@ -100,26 +90,28 @@ L1CaloHcalScaleConfigOnlineProd::~L1CaloHcalScaleConfigOnlineProd()
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
-  if(caloTPG != 0)
+  if(caloTPG != nullptr)
     delete caloTPG;
 }
 
-boost::shared_ptr< L1CaloHcalScale >
+std::shared_ptr< L1CaloHcalScale >
 L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 {
+  assert( theTrigTowerGeometry != nullptr );
+  
      using namespace edm::es;
  
-     std:: cout << "object Key " << objectKey <<std::endl <<std::flush;
+     edm::LogInfo("L1CaloHcalScaleConfigOnlineProd") << "object Key " << objectKey;
 
      if(objectKey == "NULL" || objectKey == "")  // return default blank ecal scale	 
-       return boost::shared_ptr< L1CaloHcalScale >( hcalScale );
+       return std::shared_ptr< L1CaloHcalScale >( hcalScale );
      if(objectKey == "IDENTITY"){  // return identity ecal scale  
        
        delete hcalScale;
        
        hcalScale = new L1CaloHcalScale(1);
        
-       return boost::shared_ptr< L1CaloHcalScale >( hcalScale);
+       return std::shared_ptr< L1CaloHcalScale >( hcalScale);
      }
   
      std::vector<unsigned int> analyticalLUT(1024, 0);
@@ -170,7 +162,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	|| (paramResults.numberRows()!=1) ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloHcalScale key.  Unable to find lutparam dat table" ;
-	 return boost::shared_ptr< L1CaloHcalScale >() ;
+	 return std::shared_ptr< L1CaloHcalScale >() ;
        }
         
     double hcalLSB, nominal_gain;
@@ -193,13 +185,14 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
     
  
     std::string schemaName("CMS_HCL_HCAL_COND");
-    coral::ISchema& schema = m_omdsReader.dbSession()->schema( schemaName ) ;
+    coral::ISchema& schema = m_omdsReader.dbSession().coralSession().schema( schemaName ) ;
     coral::IQuery* query = schema.newQuery(); ;
 
      
     std::vector< std::string > channelStrings;
     channelStrings.push_back("IPHI");
     channelStrings.push_back("IETA");
+    channelStrings.push_back("DEPTH");
     channelStrings.push_back("LUT_GRANULARITY");
     channelStrings.push_back("OUTPUT_LUT_THRESHOLD");
     channelStrings.push_back("OBJECTNAME");
@@ -217,6 +210,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
     coral::AttributeList myresult; 
     myresult.extend("IPHI", typeid(int)); 
     myresult.extend("IETA", typeid(int)); 
+    myresult.extend("DEPTH", typeid(int)); 
     myresult.extend("LUT_GRANULARITY", typeid(int)); 
     myresult.extend("OUTPUT_LUT_THRESHOLD", typeid(int)); 
     myresult.extend( ob,typeid(std::string));//, typeid(std::string)); 
@@ -244,7 +238,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	|| (chanResults.numberRows()==0) ) // check query successful
        {
 	 edm::LogError( "L1-O2O" ) << "Problem with L1CaloHcalScale key.  Unable to find lutparam dat table nrows" << chanResults.numberRows() ;
-	 return boost::shared_ptr< L1CaloHcalScale >() ;
+	 return std::shared_ptr< L1CaloHcalScale >() ;
        }
 
 
@@ -255,27 +249,29 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
        chanResults.fillVariableFromRow("OBJECTNAME",i, objectName);
        //       int
        if(objectName == "HcalTrigTowerDetId") { //trig tower
-	 int ieta, iphi, lutGranularity, threshold;
+	 int ieta, iphi, depth, lutGranularity, threshold;
 	 
 	 
 	 chanResults.fillVariableFromRow("LUT_GRANULARITY",i,lutGranularity);
 	 chanResults.fillVariableFromRow("IPHI",i,iphi);
 	 chanResults.fillVariableFromRow("IETA",i,ieta);
+	 chanResults.fillVariableFromRow("DEPTH",i,depth);
 	 chanResults.fillVariableFromRow("OUTPUT_LUT_THRESHOLD",i,threshold);
 	 
 
 	 unsigned int outputLut[1024];
 
-	 uint32_t lutId = caloTPG->getOutputLUTId(ieta,iphi);
+	 const int tp_version = depth / 10;
+	 uint32_t lutId = caloTPG->getOutputLUTId(ieta, iphi, tp_version);
 
 	 double eta_low = 0., eta_high = 0.;
-	 theTrigTowerGeometry->towerEtaBounds(ieta,eta_low,eta_high); 
+	 theTrigTowerGeometry->towerEtaBounds(ieta, tp_version, eta_low, eta_high); 
 	 double cosh_ieta = fabs(cosh((eta_low + eta_high)/2.));
 
 
-	 if (!caloTPG->HTvalid(ieta, iphi)) continue;
+	 if (!caloTPG->HTvalid(ieta, iphi, tp_version)) continue;
 	 double factor = 0.;
-	 if (abs(ieta) >= theTrigTowerGeometry->firstHFTower())
+	 if (abs(ieta) >= theTrigTowerGeometry->firstHFTower(tp_version))
 	   factor = rctlsb;
 	 else 
 	   factor = nominal_gain / cosh_ieta * lutGranularity;
@@ -283,11 +279,11 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	   outputLut[k] = 0;
 	 
          for (unsigned int k = threshold; k < 1024; ++k)
-	   outputLut[k] = (abs(ieta) < theTrigTowerGeometry->firstHFTower()) ? analyticalLUT[k] : identityLUT[k];
+	   outputLut[k] = (abs(ieta) < theTrigTowerGeometry->firstHFTower(tp_version)) ? analyticalLUT[k] : identityLUT[k];
 	 
 
-	   // tpg - compressed value
-	   unsigned int tpg = outputLut[0];
+	 // tpg - compressed value
+	 unsigned int tpg = outputLut[0];
           
 	   int low = 0;
 
@@ -305,6 +301,8 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      
 
 
+     // XXX L1CaloHcalScale is only setup for 2x3 TP
+     const int tp_version = 0;
      for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta ){
        for(int pos = 0; pos <=1; pos++){
 	 for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank ){
@@ -317,9 +315,9 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	   
 
 	   for(int iphi = 1; iphi<=72; iphi++){
-	     if(!caloTPG->HTvalid(ieta, iphi))
+	     if(!caloTPG->HTvalid(ieta, iphi, tp_version))
 	       continue;
-	     uint32_t lutId = caloTPG->getOutputLUTId(ieta,iphi);
+	     uint32_t lutId = caloTPG->getOutputLUTId(ieta,iphi, tp_version);
 	     nphi++;
 	     etvalue += (double) hcaluncomp[lutId][irank];
 
@@ -332,11 +330,24 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
        } // zside
      }// eta
 
-     std::cout << std::setprecision(10);
-     hcalScale->print(std::cout);
+     std::stringstream s;
+     s << std::setprecision(10);
+     hcalScale->print(s);
+     edm::LogInfo("L1CaloHcalScaleConfigOnlineProd") << s.str();
 // ------------ method called to produce the data  ------------
-     return boost::shared_ptr< L1CaloHcalScale >( hcalScale );
+     return std::shared_ptr< L1CaloHcalScale >( hcalScale );
 
 }
+
+std::shared_ptr< L1CaloHcalScale >
+L1CaloHcalScaleConfigOnlineProd::produce( const L1CaloHcalScaleRcd& iRecord )
+{
+  edm::ESHandle<HcalTrigTowerGeometry> pG;
+  iRecord.getRecord<CaloGeometryRecord>().get(pG);
+  theTrigTowerGeometry = pG.product();
+
+  return (L1ConfigOnlineProdBase< L1CaloHcalScaleRcd, L1CaloHcalScale >::produce( iRecord ));
+}
+
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(L1CaloHcalScaleConfigOnlineProd);

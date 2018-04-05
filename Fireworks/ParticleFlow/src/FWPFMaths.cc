@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 #include "TMath.h"
 #include "TEveVector.h"
 

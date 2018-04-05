@@ -191,51 +191,29 @@ CosmicTrajectoryBuilder::SortHits(const SiStripRecHit2DCollection &collstereo,
   }
 
   
-  if ((&collpixel)!=0){
-    SiPixelRecHitCollection::DataContainer::const_iterator ipix;
-    for(ipix=collpixel.data().begin();ipix!=collpixel.data().end();ipix++){
-      float ych= RHBuilder->build(&(*ipix))->globalPosition().y();
-      if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-	allHits.push_back(&(*ipix));
-    }
-  } 
+  SiPixelRecHitCollection::DataContainer::const_iterator ipix;
+  for(ipix=collpixel.data().begin();ipix!=collpixel.data().end();ipix++){
+    float ych= RHBuilder->build(&(*ipix))->globalPosition().y();
+    if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+      allHits.push_back(&(*ipix));
+  }
   
+  for(istrip=collrphi.data().begin();istrip!=collrphi.data().end();istrip++){
+    float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
+    if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+      allHits.push_back(&(*istrip));   
+  }
   
-
-  if ((&collrphi)!=0){
-    for(istrip=collrphi.data().begin();istrip!=collrphi.data().end();istrip++){
-      float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
-      if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-	allHits.push_back(&(*istrip));   
-    }
+  for(istrip=collstereo.data().begin();istrip!=collstereo.data().end();istrip++){
+    float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
+    if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
+      allHits.push_back(&(*istrip));
   }
 
-
-
-
-  if ((&collstereo)!=0){
-    for(istrip=collstereo.data().begin();istrip!=collstereo.data().end();istrip++){
-      float ych= RHBuilder->build(&(*istrip))->globalPosition().y();
-      if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-	allHits.push_back(&(*istrip));
-    }
-  }
-
-//   SiStripMatchedRecHit2DCollection::DataContainer::const_iterator istripm;
-//   if ((&collmatched)!=0){
-//     for(istripm=collmatched.data().begin();istripm!=collmatched.data().end();istripm++){
-//       float ych= RHBuilder->build(&(*istripm))->globalPosition().y();
-//       if ((seed_plus && (ych<yref)) || (!(seed_plus) && (ych>yref)))
-// 	allHits.push_back(&(*istripm));
-//     }
-//   }
-
-  if (seed_plus){
+  if (seed_plus)
     stable_sort(allHits.begin(),allHits.end(),CompareHitY_plus(*tracker));
-  }
-  else {
+  else 
     stable_sort(allHits.begin(),allHits.end(),CompareHitY(*tracker));
-  }
 
   return allHits;
 }

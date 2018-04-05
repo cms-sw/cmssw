@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+ <!--
+        _________________________________________________________________     ^
+      *| ______   ______   ___   ___   ___   ___   ___   ___   ___   ___ |*  /|\
+      *||      |*|      |*|   |*|   |*|   |*|   |*|   |*|   |*|   |*|   ||*   |
+      *||  C   |*|  C   |*|   |*|   |*|   |*|   |*|   |*|   |*|   |*|   ||*   |
+      *||  h   |*|  h   |*| C |*| C |*| C |*| C |*| C |*| C |*| C |*| C ||*   |
+      *||      |*|      |*| h |*| h |*| h |*| h |*| h |*| h |*| h |*| h ||*   |
+      *||  6   |*|  5   |*| a |*| a |*| a |*| a |*| a |*| a |*| a |*| a ||*   |
+      *||______|*|______|*| n |*| n |*| n |*| n |*| n |*| n |*| n |*| n ||*   |
+      *|* *_*_*_*_*_*_*_* | n |*| n |*| n |*| n |*| n |*| n |*| n |*| n ||*   | Y
+      *|*|      |*|      || e |*| e |*| e |*| e |*| e |*| e |*| e |*| e ||*   |
+      *|*|  C   |*|  C   || l |*| l |*| l |*| l |*| l |*| l |*| l |*| l ||*   |
+      *|*|  h   |*|  h   ||   |*|   |*|   |*|   |*|   |*|   |*|   |*|   ||*   |
+      *|*|      |*|      || 9 |*| 4 |*|10 |*| 3 |*|11 |*| 2 |*| 1 |*| 0 ||*   |
+      *|*|  7   |*|  8   ||   |*|   |*|   |*|   |*|   |*|   |*|   |*|   ||*   |
+      *|*|      |*|      ||   |*|   |*|   |*|   |*|   |*|   |*|   |*|   ||*   |
+      *|*|______|*|______||___|*|___|*|___|*|___|*|___|*|___|*|___|*|___||*   |
+                                                                              |
+      /_______________________________________________________________________|
+      \                                 X
+  -->
+
+  <ConstantsSection label="CTPPS_UFSD_Parameters.xml" eval="true">
+
+    <!-- Sensor -->
+    <Constant name="UFSD_dx" value="6.00*mm"/>
+    <Constant name="UFSD_dy" value="6.00*mm"/>
+    <Constant name="UFSD_dz" value="0.35*mm"/>
+
+    <!-- Metalized Layers -->
+    <Constant name="Aluminium_thick" value="1.5e-6*m"/>
+    <Constant name="Metalized_thick" value="[Aluminium_thick]"/>
+
+    <!-- Detector Shift & Gaps -->
+    <Constant name="Edge_dx" value="5.8*mm"/>
+    <Constant name="Shift_dy" value="1.0*mm"/>
+    <Constant name="Strip_gap" value="0.05*mm"/>
+
+    <!-- Detector Pixels -->
+    <Constant name="Strip1_dx" value="0.45*mm"/>
+    <Constant name="Strip2_dx" value="0.95*mm"/>
+
+    <Constant name="Strip1_dy" value="6.0*mm"/>
+    <Constant name="Strip2A_dy" value="3.08*mm"/>
+    <Constant name="Strip2B_dy" value="2.87*mm"/>
+
+    <Constant name="Strip_dz" value="2*[Metalized_thick]"/>
+
+    <!-- Detector Planes -->
+    <Constant name="Plane_dx" value="[UFSD_dx]"/>
+    <Constant name="Plane_dy" value="[UFSD_dy]"/>
+    <Constant name="Plane_dz" value="[Strip_dz]+[UFSD_dz]+[PCB_thick]"/>
+
+    <!-- UFSD Detector Box - same as for Diamond -->
+    <Constant name="PCB_dx" value="135*mm"/>
+    <Constant name="PCB_dy" value="100*mm"/> <!-- arbitrary (as for now) -->
+    <Constant name="PCB_thick" value="1.20*mm"/>
+    <Constant name="PCB_extend_dx" value="3*mm"/>
+    <Constant name="PCB_extend_dy1" value="15*mm"/>
+    <Constant name="PCB_extend_dy2" value="19*mm"/>
+    <Constant name="Plane_gap" value="12.0*mm"/>
+
+    <Constant name="Main_Box_dz" value="[Plane_dz]"/>
+
+  </ConstantsSection>
+
+</DDDefinition>

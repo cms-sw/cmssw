@@ -24,9 +24,6 @@
 #include <map>
 #include <vector>
 
-using namespace edm;
-using namespace std;
-
 class DQMStore;
 class MonitorElement;
 
@@ -38,10 +35,10 @@ public:
   DTPreCalibrationTask(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTPreCalibrationTask();
+  ~DTPreCalibrationTask() override;
 
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze( const edm::Event&, const edm::EventSetup&) override;
 
   /// Book histos
   void bookTimeBoxes(DQMStore::IBooker &, int wheel, int sector);

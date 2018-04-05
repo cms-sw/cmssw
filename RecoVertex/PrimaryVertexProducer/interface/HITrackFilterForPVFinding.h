@@ -26,7 +26,7 @@ private:
     
 
   // override the select method
-  std::vector<reco::TransientTrack> select (const std::vector<reco::TransientTrack>& tracks) const{
+  std::vector<reco::TransientTrack> select (const std::vector<reco::TransientTrack>& tracks) const override{
     std::vector<reco::TransientTrack> seltks = TrackFilterForPVFinding::select(tracks);
     if (seltks.size()<NumTracksThreshold_){
       return tracks;

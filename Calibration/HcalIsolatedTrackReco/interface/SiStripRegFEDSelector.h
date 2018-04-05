@@ -24,7 +24,7 @@
 class SiStripRegFEDSelector : public edm::EDProducer {
 public:
   SiStripRegFEDSelector(const edm::ParameterSet&);
-  ~SiStripRegFEDSelector();
+  ~SiStripRegFEDSelector() override;
 
   edm::ESHandle<SiStripRegionCabling> strip_cabling;
 
@@ -34,9 +34,9 @@ public:
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_seed_;
 
 private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  void beginJob() override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override ;
 
 };
 

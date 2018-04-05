@@ -25,22 +25,22 @@ namespace reco {
 		       const VertexRef& vertexRef);
 
     /// destructor
-    virtual ~PileUpPFCandidate();
+    ~PileUpPFCandidate() override;
 
     /// return a clone
-    virtual PileUpPFCandidate * clone() const;
+    PileUpPFCandidate * clone() const override;
     
     /// return reference to the associated vertex
     const VertexRef&  vertexRef() const {return vertexRef_;}
     
-
-    friend std::ostream& operator<<( std::ostream& out, 
-				     const PileUpPFCandidate& c );
-  
   private:
     
     VertexRef     vertexRef_;
   };
+
+  std::ostream& operator<<( std::ostream& out, 
+                            const PileUpPFCandidate& c );
+  
 
 
 }

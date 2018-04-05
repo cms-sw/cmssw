@@ -1,10 +1,10 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHF_S9S1algorithm.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <algorithm> // for "max"
 #include <cmath>
@@ -92,7 +92,10 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
   int ieta=hf.id().ieta(); // get coordinates of rechit being checked
   int depth=hf.id().depth();
   int iphi=hf.id().iphi();
-  double fEta = 0.5*(theHFEtaBounds[abs(ieta)-29] + theHFEtaBounds[abs(ieta)-28]); // calculate eta as average of eta values at ieta boundaries
+  std::pair<double,double> etas = myqual->topo()->etaRange(HcalForward,abs(ieta));
+  double eta1 = etas.first;
+  double eta2 = etas.second;
+  double fEta = 0.5*(eta1 + eta2); // calculate eta as average of eta values at ieta boundaries
   double energy=hf.energy();
   double ET = energy/fabs(cosh(fEta));
 

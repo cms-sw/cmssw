@@ -12,7 +12,7 @@
 #include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Random/RandPoissonQ.h>
 
-#include <math.h>
+#include <cmath>
 
 GflashHadronShowerProfile::GflashHadronShowerProfile(const edm::ParameterSet& parSet) : theParSet(parSet)
 {

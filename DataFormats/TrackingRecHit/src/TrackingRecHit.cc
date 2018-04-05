@@ -1,6 +1,6 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include <string>

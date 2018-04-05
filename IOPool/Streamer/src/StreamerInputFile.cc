@@ -72,10 +72,10 @@ namespace edm {
     logFileAction("  Initiating request to open file ");
 
     IOOffset size = -1;
-    if(StorageFactory::get()->check(name.c_str(), &size)) {
+    if(StorageFactory::get()->check(name, &size)) {
       try {
-        storage_.reset(StorageFactory::get()->open(name.c_str(),
-                                                   IOFlags::OpenRead));
+        storage_ =StorageFactory::get()->open(name,
+                                                   IOFlags::OpenRead);
       }
       catch(cms::Exception& e) {
         Exception ex(errors::FileOpenError, "", e);
@@ -162,7 +162,7 @@ namespace edm {
         << "Failed reading streamer file, init header size from data too small\n";
     }
 
-    startMsg_.reset(new InitMsgView(&headerBuf_[0]));
+    startMsg_ = std::make_shared<InitMsgView>(&headerBuf_[0]); // propagate_const<T> has no reset() function
   }
 
   bool StreamerInputFile::next() {
@@ -278,7 +278,7 @@ namespace edm {
         }
       }
     }
-    currentEvMsg_.reset(new EventMsgView((void*)&eventBuf_[0]));
+    currentEvMsg_ = std::make_shared<EventMsgView>((void*)&eventBuf_[0]); // propagate_const<T> has no reset() function
     return 1;
   }
 

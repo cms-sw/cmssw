@@ -14,11 +14,19 @@ GammaJetProd = cms.EDProducer("AlCaGammaJetProducer",
                               VertexInput = cms.InputTag("offlinePrimaryVertices"),
                               ConversionsInput = cms.InputTag("allConversions"),
                               rhoInput = cms.InputTag("fixedGridRhoFastjetAll"),
-                               BeamSpotInput = cms.InputTag("offlineBeamSpot"),
+                              BeamSpotInput = cms.InputTag("offlineBeamSpot"),
                               PhoLoose = cms.InputTag("PhotonIDProdGED", "PhotonCutBasedIDLoose"),
                               PhoTight = cms.InputTag("PhotonIDProdGED", "PhotonCutBasedIDTight"),
                               MinPtJet = cms.double(10.0),
                               MinPtPhoton = cms.double(10.0)
                               )
+
+GammaJetFilter = cms.EDFilter("AlCaGammaJetSelector",
+                              PhoInput = cms.InputTag("gedPhotons"),
+                              PFjetInput = cms.InputTag("ak4PFJetsCHS"),
+                              MinPtJet = cms.double(10.0),
+                              MinPtPhoton = cms.double(10.0)
+                              )
+
 
 

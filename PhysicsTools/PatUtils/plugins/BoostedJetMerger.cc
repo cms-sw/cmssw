@@ -21,8 +21,8 @@ void
 BoostedJetMerger::produce(edm::Event& iEvent, const edm::EventSetup&)
 {  
 
-  std::auto_ptr< std::vector<pat::Jet> > outputs( new std::vector<pat::Jet> );
-  std::auto_ptr< std::vector<pat::Jet> > outputSubjets( new std::vector<pat::Jet> );
+  auto outputs = std::make_unique<std::vector<pat::Jet>>();
+  auto outputSubjets = std::make_unique<std::vector<pat::Jet>>();
 
   edm::RefProd< std::vector<pat::Jet> > h_subJetsOut = iEvent.getRefBeforePut< std::vector<pat::Jet> >( "SubJets" );
  
@@ -62,8 +62,8 @@ BoostedJetMerger::produce(edm::Event& iEvent, const edm::EventSetup&)
   }
 
   
-  iEvent.put(outputs);
-  iEvent.put(outputSubjets, "SubJets");
+  iEvent.put(std::move(outputs));
+  iEvent.put(std::move(outputSubjets), "SubJets");
 
 }
 

@@ -60,20 +60,20 @@ class CmsShowMainFrame : public TGMainFrame
 {
    friend class FWGUIManager;
 public:
-   CmsShowMainFrame(const TGWindow *p = 0,UInt_t w = 1,UInt_t h = 1,FWGUIManager *m = 0);
-   virtual ~CmsShowMainFrame();
+   CmsShowMainFrame(const TGWindow *p = nullptr,UInt_t w = 1,UInt_t h = 1,FWGUIManager *m = nullptr);
+   ~CmsShowMainFrame() override;
 
    // ---------- const member functions ---------------------
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   virtual void CloseWindow();
+   void CloseWindow() override;
 
    void loadEvent(const edm::EventBase& event);
    void enableNavigatorControls();
    void quit();
-   virtual void enableActions(bool enable = true);
+   void enableActions(bool enable = true) override;
    void enablePrevious(bool enable = true);
    void enableNext(bool enable = true);
    void enableComplexNavigation(bool enable = true);
@@ -82,8 +82,8 @@ public:
    void updateStatusBar(const char* status);
    void clearStatusBar();
    void setPlayDelayGUI(Float_t val, Bool_t sliderChanged);
-   virtual void HandleMenu(Int_t id);
-   Bool_t HandleKey(Event_t *event);
+   void HandleMenu(Int_t id) override;
+   Bool_t HandleKey(Event_t *event) override;
    CSGContinuousAction* playEventsAction() const {
       return m_playEvents;
    }
@@ -104,7 +104,7 @@ public:
    void setSummaryViewWeight(float);
    float getSummaryViewWeight() const;
 
-   ClassDef(CmsShowMainFrame, 0);
+   ClassDefOverride(CmsShowMainFrame, 0);
 
 protected:
    FWCustomIconsButton* m_filterEnableBtn;

@@ -47,16 +47,16 @@ public:
 		    const std::vector<L1GctJetLeafCard*>& inputLeafCards);
 
   /// destructor
-  ~L1GctWheelJetFpga();
+  ~L1GctWheelJetFpga() override;
 
   /// Overload << operator
   friend std::ostream& operator << (std::ostream& os, const L1GctWheelJetFpga& fpga);
 
   /// get input data from sources
-  virtual void fetchInput();
+  void fetchInput() override;
 
   /// process the data, fill output buffers
-  virtual void process();
+  void process() override;
 
   /// set input data      
   void setInputJet(int i, const L1GctJetCand& jet); 
@@ -96,11 +96,11 @@ public:
  protected:
 
   /// Separate reset methods for the processor itself and any data stored in pipelines
-  virtual void resetProcessor();
-  virtual void resetPipelines();
+  void resetProcessor() override;
+  void resetPipelines() override;
 
   /// Initialise inputs with null objects for the correct bunch crossing if required
-  virtual void setupObjects();
+  void setupObjects() override;
 
 private:
 

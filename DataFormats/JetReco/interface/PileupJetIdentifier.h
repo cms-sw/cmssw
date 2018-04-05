@@ -22,6 +22,7 @@
 class StoredPileupJetIdentifier {
 public:
 	friend class PileupJetIdAlgo;
+	friend class MVAJetPuId;
 
 	StoredPileupJetIdentifier();
 	~StoredPileupJetIdentifier(); 
@@ -41,6 +42,9 @@ public:
 	
 	DECLARE_VARIABLE(dRMean     ,float);  
 
+	DECLARE_VARIABLE(majW  ,float);
+        DECLARE_VARIABLE(minW  ,float);
+
 	DECLARE_VARIABLE(frac01    ,float);  
 	DECLARE_VARIABLE(frac02    ,float);  
 	DECLARE_VARIABLE(frac03    ,float);  
@@ -55,14 +59,21 @@ public:
 	DECLARE_VARIABLE(betaStarClassic   ,float);  
 	
 	DECLARE_VARIABLE(ptD        ,float);
+	DECLARE_VARIABLE(rho        ,float);
+	DECLARE_VARIABLE(jetR       ,float);
+	DECLARE_VARIABLE(jetRchg    ,float);
+	DECLARE_VARIABLE(dRMatch    ,float);
+	DECLARE_VARIABLE(nTrueInt   ,float);
 
 	DECLARE_VARIABLE(nvtx   ,float);  
+	DECLARE_VARIABLE(pull,float);
 };
 
 // ----------------------------------------------------------------------------------------------------
 class PileupJetIdentifier : public StoredPileupJetIdentifier {
 public:
 	friend class PileupJetIdAlgo;
+	friend class MVAJetPuId;
 
 	PileupJetIdentifier();
 	~PileupJetIdentifier(); 
@@ -146,8 +157,8 @@ public:
 	DECLARE_VARIABLE(etaW  ,float);  
 	DECLARE_VARIABLE(phiW  ,float);  
 
-	DECLARE_VARIABLE(majW  ,float);  
-	DECLARE_VARIABLE(minW  ,float);  
+	//DECLARE_VARIABLE(majW  ,float);  
+	//DECLARE_VARIABLE(minW  ,float);  
 
 	DECLARE_VARIABLE(chFrac01    ,float);  
 	DECLARE_VARIABLE(chFrac02    ,float);  

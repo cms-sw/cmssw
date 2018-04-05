@@ -137,6 +137,9 @@
 	<class name="GenLumiInfoProduct" ClassVersion="10">
 	  <version ClassVersion="10" checksum="2365797689"/> 
 	</class>
+	<class name="GenLumiInfoHeader" ClassVersion="10">
+	  <version ClassVersion="10" checksum="1270500179"/> 
+	</class>
 	<class name="GenLumiInfoProduct::FinalStat" ClassVersion="10">
 	  <version ClassVersion="10" checksum="1937303025"/>  
 	</class>
@@ -148,6 +151,7 @@
 	  <version ClassVersion="10" checksum="621228037"/>
 	</class>
 	<class name="edm::Wrapper&lt;GenLumiInfoProduct&gt;"/>
+        <class name="edm::Wrapper&lt;GenLumiInfoHeader&gt;"/>
 
 	<!-- GenEventInfoProduct -->
 

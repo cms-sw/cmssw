@@ -68,8 +68,15 @@ namespace ecaldqm
           if(tccid <= 36 || tccid >= 73){ // EE
             unsigned bin(ttId(_id));
             bool outer((tccid >= 19 && tccid <= 36) || (tccid >= 73 && tccid <= 90));
-            if(outer) bin += 48;
-            bin += (tccid % 2) * (outer ? 16 : 24);
+            // For the following, the constants nTTInner and nTTOuter are defined in
+            // EcalDQMCommonUtils.h.
+            if(outer) bin += 2*nTTInner; // For outer TCCs, sets bin number to increment
+            // by twice the number of TTs in inner TCCs, because numbering of bins
+            // is in the order (inner1, inner2, outer1, outer2).
+            // ("inner"" := closer to the beam)
+            bin += (tccid % 2) * (outer ? nTTOuter : nTTInner); // Yields x-axis bin number
+            // in the format above; TTs in even-numbered TCCs are filled in inner1 or outer1,
+            // and those in odd-numbered TCC are filled in inner2 and outer2.
             return bin;
           }
           else
@@ -146,8 +153,15 @@ namespace ecaldqm
           if(tccid <= 36 || tccid >= 73){ // EE
             unsigned bin(ttId(_id));
             bool outer((tccid >= 19 && tccid <= 36) || (tccid >= 73 && tccid <= 90));
-            if(outer) bin += 48;
-            bin += (tccid % 2) * (outer ? 16 : 24);
+            // For the following, the constants nTTInner and nTTOuter are defined in
+            // EcalDQMCommonUtils.h.
+            if(outer) bin += 2*nTTInner; // For outer TCCs, sets bin number to increment
+            // by twice the number of TTs in inner TCCs, because numbering of bins
+            // is in the order (inner1, inner2, outer1, outer2).
+            // ("inner"" := closer to the beam)
+            bin += (tccid % 2) * (outer ? nTTOuter : nTTInner); // Yields x-axis bin number
+            // in the format above; TTs in even-numbered TCCs are filled in inner1 or outer1,
+            // and those in odd-numbered TCC are filled in inner2 and outer2.
             return bin;
           }
           else
@@ -245,6 +259,12 @@ namespace ecaldqm
       case kSuperCrystal:
         return findBinSuperCrystal_(_otype, _id);
         break;
+      case kPseudoStrip:
+        return findBinPseudoStrip_(_otype, _id);
+        break;
+      case kRCT:
+        return findBinRCT_(_otype, _id);
+        break;
       default :
         return 0;
       }
@@ -339,7 +359,11 @@ namespace ecaldqm
 
       switch(_otype){
       case kSM:
-        return iSM;
+        if(_btype == kPseudoStrip){
+          iSM = iSM <= kEEmTCCHigh ? (iSM + 1) % 18 / 2 : iSM >= kEEpTCCLow ? (iSM + 1 - 72) % 18 / 2 + 45: (iSM + 1) - kEEmTCCHigh;
+          return iSM;
+        } 
+        else return iSM;
 
       case kEBSM:
         return iSM - 9;
@@ -828,10 +852,12 @@ namespace ecaldqm
       if(_btypeName == "Crystal") return kCrystal;
       else if(_btypeName == "TriggerTower") return kTriggerTower;
       else if(_btypeName == "SuperCrystal") return kSuperCrystal;
+      else if(_btypeName == "PseudoStrip") return kPseudoStrip;
       else if(_btypeName == "TCC") return kTCC;
       else if(_btypeName == "DCC") return kDCC;
       else if(_btypeName == "ProjEta") return kProjEta;
       else if(_btypeName == "ProjPhi") return kProjPhi;
+      else if(_btypeName == "RCT") return kRCT;
       else if(_btypeName == "User") return kUser;
       else if(_btypeName == "Report") return kReport;
       else if(_btypeName == "Trend") return kTrend;

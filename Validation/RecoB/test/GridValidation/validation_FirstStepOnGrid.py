@@ -2,11 +2,19 @@
 #! /bin/env cmsRun
 
 import FWCore.ParameterSet.Config as cms
+process = cms.Process("validation")
+
+# load the full reconstraction configuration, to make sure we're getting all needed dependencies
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 whichJets  = "ak4PFJetsCHS"
 applyJEC = True
-corrLabel = 'ak4PFCHSL1FastL2L3'
-tag =  'MCRUN2_74_V7::All'
+corrLabel = 'ak4PFCHS'
+from Configuration.AlCa.GlobalTag import GlobalTag
+tag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 useTrigger = False
 triggerPath = "HLT_PFJet80_v*"
 runOnMC    = True
@@ -19,23 +27,24 @@ print "jet collcetion asked : ", whichJets
 print "JEC applied?", applyJEC, ", correction:", corrLabel 
 print "trigger will be used ? : ", useTrigger, ", Trigger paths:", triggerPath
 print "is it MC ? : ", runOnMC, ", Flavours:", flavPlots
-print "Global Tag : ", tag
+print "Global Tag : ", tag.globaltag
 ############
 
-process = cms.Process("validation")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 
-process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
+process.load("JetMETCorrections.Configuration.JetCorrectors_cff")
 process.load("CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi")
 process.load("RecoJets.JetAssociationProducers.ak4JTA_cff")
 process.load("RecoBTag.Configuration.RecoBTag_cff")
 process.load("PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi")
 process.load("PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi")
 process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")
+process.JECseq = cms.Sequence(getattr(process,corrLabel+"L1FastL2L3CorrectorChain"))
 
 newjetID=cms.InputTag(whichJets)
 process.ak4JetFlavourInfos.jets = newjetID
+process.ak4JetFlavourInfos.hadronFlavourHasPriority = cms.bool(True)
 if not "ak4PFJetsCHS" in whichJets:
     process.ak4JetTracksAssociatorAtVertexPF.jets = newjetID
     process.pfImpactParameterTagInfos.jets        = newjetID
@@ -64,7 +73,7 @@ if runOnMC:
     process.bTagValidationFirstStep.applyPtHatWeight = False
     process.bTagValidationFirstStep.doJetID = True
     process.bTagValidationFirstStep.doJEC = applyJEC
-    process.bTagValidationFirstStep.JECsource = cms.string(corrLabel)
+    process.bTagValidation.JECsourceMC = cms.InputTag(corrLabel+"L1FastL2L3Corrector")
     process.bTagValidationFirstStep.flavPlots = flavPlots
     #process.bTagValidationFirstStep.ptRecJetMin = cms.double(20.)
     process.bTagValidationFirstStep.genJetsMatched = cms.InputTag("patJetGenJetMatch")
@@ -80,7 +89,8 @@ if runOnMC:
     process.patJetGenJetMatch.resolveAmbiguities = cms.bool(True)
 else:
     process.bTagValidationFirstStepData.doJEC = applyJEC
-    process.bTagValidationFirstStepData.JECsource = cms.string(corrLabel)
+    process.bTagAnalysis.JECsourceData = cms.InputTag(corrLabel+"L1FastL2L3ResidualCorrector")
+    process.JECseq *= (getattr(process,corrLabel+"ResidualCorrector") * getattr(process,corrLabel+"L1FastL2L3ResidualCorrector"))
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -105,9 +115,9 @@ else:
     process.dqmSeq = cms.Sequence(process.bTagValidationFirstStepData)
 
 if useTrigger:
-    process.plots = cms.Path(process.bTagHLT * process.jetSequences * process.dqmSeq)
+    process.plots = cms.Path(process.bTagHLT * process.JECseq * process.jetSequences * process.dqmSeq)
 else:
-    process.plots = cms.Path(process.jetSequences * process.dqmSeq)
+    process.plots = cms.Path(process.JECseq * process.jetSequences * process.dqmSeq)
     
 process.outpath = cms.EndPath(process.EDM)
 
@@ -126,10 +136,5 @@ process.PoolSource.fileNames = [
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
-# load the full reconstraction configuration, to make sure we're getting all needed dependencies
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.GlobalTag.globaltag = tag
+process.GlobalTag = tag
 

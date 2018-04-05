@@ -74,7 +74,7 @@ bool
 ExpressionVar::makeStorage(edm::ObjectWithDict& obj,
                            const edm::TypeWithDict& retType)
 {
-  static edm::TypeWithDict tVoid(edm::TypeWithDict::byName("void"));
+  static const edm::TypeWithDict tVoid(edm::TypeWithDict::byName("void"));
   bool ret = false;
   if (retType == tVoid) {
     obj = edm::ObjectWithDict::byType(tVoid);

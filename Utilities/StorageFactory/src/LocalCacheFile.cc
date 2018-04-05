@@ -2,11 +2,11 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <utility>
 #include <iostream>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <unistd.h>
 #include <sys/mman.h>
-#include <errno.h>
+#include <cerrno>
 #include <sstream>
 
 static const IOOffset CHUNK_SIZE = 128*1024*1024;
@@ -21,10 +21,10 @@ nowrite(const std::string &why)
 }
 
 
-LocalCacheFile::LocalCacheFile(Storage *base, const std::string &tmpdir /* = "" */)
+LocalCacheFile::LocalCacheFile(std::unique_ptr<Storage> base, const std::string &tmpdir /* = "" */)
   : image_(base->size()),
-    file_(0),
-    storage_(base),
+    file_(),
+    storage_(std::move(base)),
     closedFile_(false),
     cacheCount_(0),
     cacheTotal_((image_ + CHUNK_SIZE - 1) / CHUNK_SIZE)
@@ -50,14 +50,12 @@ LocalCacheFile::LocalCacheFile(Storage *base, const std::string &tmpdir /* = "" 
   }
 
   unlink(&temp[0]);
-  file_ = new File(fd);
+  file_ = std::make_unique<File>(fd);
   file_->resize(image_);
 }
 
 LocalCacheFile::~LocalCacheFile(void)
 {
-  delete file_;
-  delete storage_;
 }
 
 void
@@ -74,7 +72,7 @@ LocalCacheFile::cache(IOOffset start, IOOffset end)
     IOSize len = std::min(image_ - start, CHUNK_SIZE);
     if (! present_[index])
     {
-      void *window = mmap(0, len, PROT_READ | PROT_WRITE, MAP_SHARED, file_->fd(), start);
+      void *window = mmap(nullptr, len, PROT_READ | PROT_WRITE, MAP_SHARED, file_->fd(), start);
       if (window == MAP_FAILED)
       {
         edm::Exception ex(edm::errors::FileReadError);

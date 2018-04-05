@@ -20,7 +20,7 @@
 #include <iomanip>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -40,19 +40,18 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 
-//
-// class decleration
-//
+class CrystalCenterDump : public edm::one::EDAnalyzer<>
+{
+public:
+  explicit CrystalCenterDump( const edm::ParameterSet& );
+  ~CrystalCenterDump() override;
 
-class CrystalCenterDump : public edm::EDAnalyzer {
-   public:
-      explicit CrystalCenterDump( const edm::ParameterSet& );
-      ~CrystalCenterDump();
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
+private:
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-   private:
-      // ----------member data ---------------------------
   void build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name);
   int pass_;
 
@@ -61,20 +60,8 @@ class CrystalCenterDump : public edm::EDAnalyzer {
   double beamEnergy_;
 
   double crystalDepth(){ return A_*(B_+log(beamEnergy_)); }
-
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 CrystalCenterDump::CrystalCenterDump( const edm::ParameterSet& iConfig )
 {
    //now do what ever initialization is needed
@@ -101,23 +88,23 @@ CrystalCenterDump::~CrystalCenterDump()
 
 void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name) {
   std::fstream f(name,std::ios_base::out);
-  const CaloSubdetectorGeometry* geom=cg.getSubdetectorGeometry(det,subdetn);
+  const CaloSubdetectorGeometry* geom(cg.getSubdetectorGeometry(det,subdetn));
 
   int n=0;
   const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);
-  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) {
+  for (auto id : ids) {
     n++;
-    const CaloCellGeometry* cell=geom->getGeometry(*i);
+    auto cell=geom->getGeometry(id);
     if (det == DetId::Ecal)
       {
         if (subdetn == EcalBarrel) {
-          EBDetId ebid(i->rawId());
+          EBDetId ebid(id.rawId());
           if (ebid.ism() == 1) {
             
             float depth = (crystalDepth());
-            double crysX = dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(depth).x();
-            double crysY = dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(depth).y();
-            double crysZ = dynamic_cast<const TruncatedPyramid*>(cell)->getPosition(depth).z();
+            double crysX = (cell)->getPosition(depth).x();
+            double crysY = (cell)->getPosition(depth).y();
+            double crysZ = (cell)->getPosition(depth).z();
 
             CLHEP::Hep3Vector crysPos(crysX,crysY,crysZ);
             double crysEta = crysPos.eta();

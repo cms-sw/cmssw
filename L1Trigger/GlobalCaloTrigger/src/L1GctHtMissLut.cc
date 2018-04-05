@@ -2,7 +2,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
-#include <math.h>
+#include <cmath>
 
 //DEFINE STATICS
 const int L1GctHtMissLut::NAddress=2*L1GctHtMissLut::kHxOrHyMissComponentNBits;
@@ -13,12 +13,12 @@ L1GctHtMissLut::L1GctHtMissLut(const L1CaloEtScale* const scale, const double ls
   m_etScale(scale),
   m_componentLsb(lsb)
 {
-  if (scale != 0) m_setupOk = true;
+  if (scale != nullptr) m_setupOk = true;
 }
 
 L1GctHtMissLut::L1GctHtMissLut() :
   L1GctLut<NAddress,NData>(),
-  m_etScale(0),
+  m_etScale(nullptr),
   m_componentLsb(1.0)
 {
 }
@@ -28,7 +28,7 @@ L1GctHtMissLut::L1GctHtMissLut(const L1GctHtMissLut& lut) :
   m_etScale(lut.etScale()),
   m_componentLsb(lut.componentLsb())
 {
-  if (m_etScale != 0) m_setupOk = true;
+  if (m_etScale != nullptr) m_setupOk = true;
 }
 
 L1GctHtMissLut::~L1GctHtMissLut()
@@ -95,7 +95,7 @@ std::vector<unsigned> L1GctHtMissLut::getThresholdsGct() const
 
 L1GctHtMissLut L1GctHtMissLut::operator= (const L1GctHtMissLut& lut)
 {
-  L1GctHtMissLut temp(lut);
+  const L1GctHtMissLut& temp(lut);
   return temp;
 }
 

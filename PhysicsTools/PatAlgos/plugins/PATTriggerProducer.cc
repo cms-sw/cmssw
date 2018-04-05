@@ -31,6 +31,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
 using namespace pat;
 using namespace edm;
 
@@ -39,8 +41,6 @@ using namespace edm;
 const unsigned L1GlobalTriggerReadoutSetup::NumberPhysTriggers;
 const unsigned L1GlobalTriggerReadoutSetup::NumberPhysTriggersExtended;
 const unsigned L1GlobalTriggerReadoutSetup::NumberTechnicalTriggers;
-static const bool useL1EventSetup( true );
-static const bool useL1GtTriggerMenuLite( false );
 
 
 PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
@@ -69,7 +69,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   autoProcessNameL1ExtraHTM_( false ),
   mainBxOnly_( true ),
   saveL1Refs_( false ),
-  // HLTConfigProvider
+  hltPrescaleProvider_(iConfig, consumesCollector(), *this),
   hltConfigInit_( false ),
   // HLT configuration parameters
   tagTriggerResults_( "TriggerResults" ),
@@ -80,6 +80,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   hltPrescaleTableLumi_(),
   addPathModuleLabels_( false ),
   packPathNames_( iConfig.existsAs<bool>("packTriggerPathNames") ? iConfig.getParameter<bool>("packTriggerPathNames") : false ),
+  packLabels_( iConfig.existsAs<bool>("packTriggerLabels") ? iConfig.getParameter<bool>("packTriggerLabels") : true ),
   packPrescales_( iConfig.existsAs<bool>("packTriggerPrescales") ? iConfig.getParameter<bool>("packTriggerPrescales") : true )
 {
 
@@ -156,7 +157,7 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
 
   // HLT configuration parameters
   if ( iConfig.exists( "triggerResults" ) ) tagTriggerResults_ = iConfig.getParameter< InputTag >( "triggerResults" );
-  triggerResultsGetter_ = GetterOfProducts< TriggerResults >( InputTagMatch( InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance() ) ), this);
+  triggerResultsGetter_ = GetterOfProducts< TriggerResults >( InputTagMatch( InputTag( tagTriggerResults_.label(), tagTriggerResults_.instance(), autoProcessName_ ? std::string("") : nameProcess_  ) ), this);
   if ( iConfig.exists( "triggerEvent" ) ) tagTriggerEvent_ = iConfig.getParameter< InputTag >( "triggerEvent" );
   triggerEventGetter_ = GetterOfProducts< trigger::TriggerEvent >( InputTagMatch( InputTag( tagTriggerEvent_.label(), tagTriggerEvent_.instance() ) ), this);
   if ( iConfig.exists( "hltPrescaleLabel" ) )    hltPrescaleLabel_      = iConfig.getParameter< std::string >( "hltPrescaleLabel" );
@@ -179,7 +180,9 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
     if ( iConfig.exists( "l1ExtraTauJet" ) ) l1ExtraTauJetGetter_( bd );
     if ( iConfig.exists( "l1ExtraETM" ) ) l1ExtraETMGetter_( bd );
     if ( iConfig.exists( "l1ExtraHTM" ) ) l1ExtraHTMGetter_( bd );
-    triggerResultsGetter_( bd );
+    if(not ( this->autoProcessName_ and bd.processName()==this->moduleDescription().processName()) ) {
+      triggerResultsGetter_( bd );
+    }
     triggerEventGetter_( bd );
     if ( iConfig.exists( "hltPrescaleTable" ) ) {
       hltPrescaleTableRunGetter_( bd );
@@ -197,6 +200,8 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   }
   if (packPrescales_) {
     produces< PackedTriggerPrescales >();
+    produces< PackedTriggerPrescales >("l1max");
+    produces< PackedTriggerPrescales >("l1min");
   }
   produces< TriggerObjectStandAloneCollection >();
 
@@ -208,7 +213,7 @@ void PATTriggerProducer::beginRun(const Run & iRun, const EventSetup & iSetup )
 
   // Initialize
   firstInRun_    = true;
-  l1PSet_        = 0;
+  l1PSet_        = nullptr;
   hltConfigInit_ = false;
 
   // Initialize process name
@@ -258,15 +263,16 @@ void PATTriggerProducer::beginRun(const Run & iRun, const EventSetup & iSetup )
   if ( autoProcessNameL1ExtraHTM_ )     tagL1ExtraHTM_     = InputTag( tagL1ExtraHTM_.label()    , tagL1ExtraHTM_.instance()    , nameProcess_ );
 
   // Initialize HLTConfigProvider
+  HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
   bool changed( true );
-  if ( ! hltConfig_.init( iRun, iSetup, nameProcess_, changed ) ) {
+  if ( ! hltPrescaleProvider_.init( iRun, iSetup, nameProcess_, changed ) ) {
     LogError( "hltConfig" ) << "HLT config extraction error with process name '" << nameProcess_ << "'";
-  } else if ( hltConfig_.size() <= 0 ) {
+  } else if ( hltConfig.size() <= 0 ) {
     LogError( "hltConfig" ) << "HLT config size error";
   } else hltConfigInit_ = true;
 
   // Update mapping from filter names to path names
-  if (hltConfigInit_ && changed) moduleLabelToPathAndFlags_.init( hltConfig_ );
+  if (hltConfigInit_ && changed) moduleLabelToPathAndFlags_.init( hltConfig );
 
   // Extract pre-scales
   if ( hltConfigInit_ ) {
@@ -314,11 +320,12 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
   // Terminate, if auto process name determination failed
   if ( nameProcess_ == "*" ) return;
 
-  std::auto_ptr< TriggerObjectCollection > triggerObjects( new TriggerObjectCollection() );
-  std::auto_ptr< TriggerObjectStandAloneCollection > triggerObjectsStandAlone( new TriggerObjectStandAloneCollection() );
-  std::auto_ptr< PackedTriggerPrescales > packedPrescales;
+  auto triggerObjects = std::make_unique<TriggerObjectCollection>();
+  auto triggerObjectsStandAlone = std::make_unique<TriggerObjectStandAloneCollection>();
+  std::unique_ptr<PackedTriggerPrescales> packedPrescales, packedPrescalesL1min, packedPrescalesL1max;
 
   // HLT
+  HLTConfigProvider const&  hltConfig = hltPrescaleProvider_.hltConfigProvider();
 
   // Get and check HLT event data
   Handle< trigger::TriggerEvent > handleTriggerEvent;
@@ -359,9 +366,9 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         LogWarning( "hltPrescaleInputTag" ) << "HLTPrescaleTable product with label '" << labelHltPrescaleTable_ << "' not found in process" << nameProcess_ << "\n"
                                             << "Using default from event setup";
       }
-      if ( hltConfig_.prescaleSize() > 0 ) {
-        if ( hltConfig_.prescaleSet( iEvent, iSetup ) != -1 ) {
-          hltPrescaleTable = trigger::HLTPrescaleTable( hltConfig_.prescaleSet( iEvent, iSetup ), hltConfig_.prescaleLabels(), hltConfig_.prescaleTable() );
+      if ( hltConfig.prescaleSize() > 0 ) {
+        if ( hltPrescaleProvider_.prescaleSet( iEvent, iSetup ) != -1 ) {
+          hltPrescaleTable = trigger::HLTPrescaleTable( hltPrescaleProvider_.prescaleSet( iEvent, iSetup ), hltConfig.prescaleLabels(), hltConfig.prescaleTable() );
           LogDebug( "hltPrescaleTable" ) << "HLT prescale table found in event setup";
         } else {
           LogWarning( "hltPrescaleSet" ) << "HLTPrescaleTable from event setup has error";
@@ -370,7 +377,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
     }
     unsigned set( hltPrescaleTable.set() );
     if ( hltPrescaleTable.size() > 0 ) {
-      if ( hltPrescaleLabel_.size() > 0 ) {
+      if ( !hltPrescaleLabel_.empty() ) {
         bool foundPrescaleLabel( false );
         for ( unsigned iLabel = 0; iLabel <  hltPrescaleTable.labels().size(); ++iLabel ) {
           if ( hltPrescaleTable.labels().at( iLabel ) == hltPrescaleLabel_ ) {
@@ -391,36 +398,35 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       }
     }
 
-    const unsigned sizePaths( hltConfig_.size() );
+    const unsigned sizePaths( hltConfig.size() );
     const unsigned sizeFilters( handleTriggerEvent->sizeFilters() );
     const unsigned sizeObjects( handleTriggerEvent->sizeObjects() );
 
     std::map< std::string, int > moduleStates;
 
     if ( ! onlyStandAlone_ ) {
-      std::auto_ptr< TriggerPathCollection > triggerPaths( new TriggerPathCollection() );
+      auto triggerPaths = std::make_unique<TriggerPathCollection>();
       triggerPaths->reserve( sizePaths );
-      const std::vector<std::string> & pathNames = hltConfig_.triggerNames();
+      const std::vector<std::string> & pathNames = hltConfig.triggerNames();
       for ( size_t indexPath = 0; indexPath < sizePaths; ++indexPath ) {
         const std::string & namePath = pathNames.at( indexPath );
         unsigned indexLastFilterPathModules( handleTriggerResults->index( indexPath ) + 1 );
-        unsigned indexLastFilterFilters( sizeFilters );
         while ( indexLastFilterPathModules > 0 ) {
           --indexLastFilterPathModules;
-          const std::string & labelLastFilterPathModules( hltConfig_.moduleLabel( indexPath, indexLastFilterPathModules ) );
-          indexLastFilterFilters = handleTriggerEvent->filterIndex( InputTag( labelLastFilterPathModules, "", nameProcess_ ) );
+          const std::string & labelLastFilterPathModules( hltConfig.moduleLabel( indexPath, indexLastFilterPathModules ) );
+          unsigned indexLastFilterFilters = handleTriggerEvent->filterIndex( InputTag( labelLastFilterPathModules, "", nameProcess_ ) );
           if ( indexLastFilterFilters < sizeFilters ) {
-            if ( hltConfig_.moduleType( labelLastFilterPathModules ) == "HLTBool" ) continue;
+            if ( hltConfig.moduleType( labelLastFilterPathModules ) == "HLTBool" ) continue;
             break;
           }
         }
-        TriggerPath triggerPath( namePath, indexPath, hltConfig_.prescaleValue( set, namePath ), handleTriggerResults->wasrun( indexPath ), handleTriggerResults->accept( indexPath ), handleTriggerResults->error( indexPath ), indexLastFilterPathModules, hltConfig_.saveTagsModules( namePath ).size() );
+        TriggerPath triggerPath( namePath, indexPath, hltConfig.prescaleValue( set, namePath ), handleTriggerResults->wasrun( indexPath ), handleTriggerResults->accept( indexPath ), handleTriggerResults->error( indexPath ), indexLastFilterPathModules, hltConfig.saveTagsModules( namePath ).size() );
         // add module names to path and states' map
-        const unsigned sizeModulesPath( hltConfig_.size( indexPath ) );
+        const unsigned sizeModulesPath( hltConfig.size( indexPath ) );
         assert( indexLastFilterPathModules < sizeModulesPath );
         std::map< unsigned, std::string > indicesModules;
         for ( size_t iM = 0; iM < sizeModulesPath; ++iM ) {
-          const std::string nameModule( hltConfig_.moduleLabel( indexPath, iM ) );
+          const std::string& nameModule( hltConfig.moduleLabel( indexPath, iM ) );
           if ( addPathModuleLabels_ ) {
             triggerPath.addModule( nameModule );
           }
@@ -428,11 +434,11 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           if ( indexFilter < sizeFilters ) {
             triggerPath.addFilterIndex( indexFilter );
           }
-          const unsigned slotModule( hltConfig_.moduleIndex( indexPath, nameModule ) );
+          const unsigned slotModule( hltConfig.moduleIndex( indexPath, nameModule ) );
           indicesModules.insert( std::pair< unsigned, std::string >( slotModule, nameModule ) );
         }
         // add L1 seeds
-        const L1SeedCollection l1Seeds( hltConfig_.hltL1GTSeeds( namePath ) );
+        const L1SeedCollection& l1Seeds( hltConfig.hltL1GTSeeds( namePath ) );
         for ( L1SeedCollection::const_iterator iSeed = l1Seeds.begin(); iSeed != l1Seeds.end(); ++iSeed ) {
           triggerPath.addL1Seed( *iSeed );
         }
@@ -450,7 +456,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         }
       }
       // Put HLT paths to event
-      iEvent.put( triggerPaths );
+      iEvent.put(std::move(triggerPaths));
     }
 
     // Store used trigger objects and their types for HLT filters
@@ -521,7 +527,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
 
     // Re-iterate HLT filters and finally produce them in order to account for optionally skipped objects
     if ( ! onlyStandAlone_ ) {
-      std::auto_ptr< TriggerFilterCollection > triggerFilters( new TriggerFilterCollection() );
+      auto triggerFilters = std::make_unique<TriggerFilterCollection>();
       triggerFilters->reserve( sizeFilters );
       for ( size_t iF = 0; iF < sizeFilters; ++iF ) {
         const std::string nameFilter( handleTriggerEvent->filterTag( iF ).label() );
@@ -529,9 +535,9 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         const trigger::Vids & types = handleTriggerEvent->filterIds( iF );  // not cached
         TriggerFilter triggerFilter( nameFilter );
         // set filter type
-        const std::string typeFilter( hltConfig_.moduleType( nameFilter ) );
+        const std::string typeFilter( hltConfig.moduleType( nameFilter ) );
         triggerFilter.setType( typeFilter );
-        triggerFilter.setSaveTags( hltConfig_.saveTags( nameFilter ) );
+        triggerFilter.setSaveTags( hltConfig.saveTags( nameFilter ) );
         // set keys and trigger object types of used objects
         for ( size_t iK = 0; iK < keys.size(); ++iK ) { // identical to types.size()
           // check, if current object is excluded
@@ -557,16 +563,37 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         triggerFilters->push_back( triggerFilter );
       }
       // put HLT filters to event
-      iEvent.put( triggerFilters );
+      iEvent.put(std::move(triggerFilters));
     }
 
     if (packPrescales_) {
         packedPrescales.reset(new PackedTriggerPrescales(handleTriggerResults)); 
+        packedPrescalesL1min.reset(new PackedTriggerPrescales(handleTriggerResults)); 
+        packedPrescalesL1max.reset(new PackedTriggerPrescales(handleTriggerResults)); 
         const edm::TriggerNames & names = iEvent.triggerNames(*handleTriggerResults);
+        //std::cout << "Run " << iEvent.id().run() << ", LS " << iEvent.id().luminosityBlock() << ": pset " << set << std::endl;
         for (unsigned int i = 0, n = names.size(); i < n; ++i) {
-            packedPrescales->addPrescaledTrigger(i, hltConfig_.prescaleValue(set, names.triggerName(i)));
+            auto pvdet = hltPrescaleProvider_.prescaleValuesInDetail( iEvent, iSetup, names.triggerName(i) );
+            //int hltprescale = hltConfig_.prescaleValue(set, names.triggerName(i));
+            if (pvdet.first.empty()) {
+                packedPrescalesL1max->addPrescaledTrigger(i, 1);
+                packedPrescalesL1min->addPrescaledTrigger(i, 1);
+            } else {
+                int pmin = -1, pmax = -1;
+                for (const auto & p : pvdet.first) {
+                    pmax = std::max(pmax, p.second);
+                    if (p.second > 0 && (pmin == -1 || pmin > p.second)) pmin = p.second;
+                }
+                packedPrescalesL1max->addPrescaledTrigger(i, pmax);
+                packedPrescalesL1min->addPrescaledTrigger(i, pmin);
+                //std::cout << "\tTrigger " << names.triggerName(i) << ", L1 ps " << pmin << "-" << pmax << ", HLT ps " << hltprescale << std::endl;
+            }
+            packedPrescales->addPrescaledTrigger(i, pvdet.second);
+            //assert( hltprescale == pvdet.second );
         }
-        iEvent.put( packedPrescales );
+        iEvent.put(std::move(packedPrescales));
+        iEvent.put(std::move(packedPrescalesL1max), "l1max");
+        iEvent.put(std::move(packedPrescalesL1min), "l1min");
     }
 
   } // if ( goodHlt )
@@ -778,12 +805,12 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
   }
 
   // Put trigger objects to event
-  if ( ! onlyStandAlone_ ) iEvent.put( triggerObjects );
+  if ( ! onlyStandAlone_ ) iEvent.put(std::move(triggerObjects));
 
   // L1 algorithms
   if ( ! onlyStandAlone_ ) {
-    std::auto_ptr< TriggerAlgorithmCollection > triggerAlgos( new TriggerAlgorithmCollection() );
-    std::auto_ptr< TriggerConditionCollection > triggerConditions( new TriggerConditionCollection() );
+    auto triggerAlgos = std::make_unique<TriggerAlgorithmCollection>();
+    auto triggerConditions = std::make_unique<TriggerConditionCollection>();
     if ( addL1Algos_ ) {
       // create trigger object types transalation map (yes, it's ugly!)
       std::map< L1GtObject, trigger::TriggerObjectType > mapObjectTypes;
@@ -796,14 +823,12 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       mapObjectTypes.insert( std::make_pair( ETM    , trigger::TriggerL1ETM ) );
       mapObjectTypes.insert( std::make_pair( HTM    , trigger::TriggerL1HTM ) );
       // get and cache L1 menu
-      l1GtUtils_.getL1GtRunCache( iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite );
+      L1GtUtils const& l1GtUtils = hltPrescaleProvider_.l1GtUtils();
       ESHandle< L1GtTriggerMenu > handleL1GtTriggerMenu;
       iSetup.get< L1GtTriggerMenuRcd >().get( handleL1GtTriggerMenu );
-      L1GtTriggerMenu l1GtTriggerMenu( *handleL1GtTriggerMenu );
-      const AlgorithmMap l1GtAlgorithms( l1GtTriggerMenu.gtAlgorithmMap() );
-      const AlgorithmMap l1GtTechTriggers( l1GtTriggerMenu.gtTechnicalTriggerMap() );
-      l1GtTriggerMenu.buildGtConditionMap();
-      const std::vector< ConditionMap > l1GtConditionsVector( l1GtTriggerMenu.gtConditionMap() );
+      auto const & l1GtAlgorithms   = handleL1GtTriggerMenu->gtAlgorithmMap();
+      auto const & l1GtTechTriggers = handleL1GtTriggerMenu->gtTechnicalTriggerMap();
+      auto const & l1GtConditionsVector = handleL1GtTriggerMenu->gtConditionMap();
       // cache conditions in one single condition map
       ConditionMap l1GtConditions;
       for ( size_t iCv = 0; iCv < l1GtConditionsVector.size(); ++iCv ) {
@@ -819,12 +844,12 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       handleL1GlobalTriggerObjectMaps->consistencyCheck();
       if ( firstInRun_ ) {
         l1PSet_ = ( ParameterSet* )( pset::Registry::instance()->getMapped(handleL1GlobalTriggerObjectMaps->namesParameterSetID()) );
-        if (l1PSet_ == 0) {
+        if (l1PSet_ == nullptr) {
           LogError( "l1ObjectMap" ) << "ParameterSet registry not available\n"
                                     << "Skipping conditions for all L1 physics algorithm names in this run";
         }
       } else {
-        if (l1PSet_ == 0) {
+        if (l1PSet_ == nullptr) {
           LogInfo( "l1ObjectMap" ) << "ParameterSet registry not available\n"
                                    << "Skipping conditions for all L1 physics algorithm names in this event";
         }
@@ -839,7 +864,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         }
         L1GtUtils::TriggerCategory category;
         int bit;
-        if ( ! l1GtUtils_.l1AlgoTechTrigBitNumber( algoName, category, bit ) ) {
+        if ( ! l1GtUtils.l1AlgoTechTrigBitNumber( algoName, category, bit ) ) {
           LogError( "l1Algo" ) << "L1 physics algorithm '" << algoName << "' not found in the L1 menu\n"
                                << "Skipping";
           continue;
@@ -853,7 +878,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         bool decisionAfterMask;
         int  prescale;
         int  mask;
-        int  error( l1GtUtils_.l1Results( iEvent, algoName, decisionBeforeMask, decisionAfterMask, prescale, mask ) );
+        int  error( l1GtUtils.l1Results( iEvent, algoName, decisionBeforeMask, decisionAfterMask, prescale, mask ) );
         if ( error ) {
           LogError( "l1Algo" ) << "L1 physics algorithm '" << algoName << "' decision has error code " << error << " from 'L1GtUtils'\n"
                                << "Skipping";
@@ -882,7 +907,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         triggerAlgo.setGtlResult( algorithmResult );
         // conditions in algorithm
         L1GlobalTriggerObjectMaps::ConditionsInAlgorithm conditions = handleL1GlobalTriggerObjectMaps->getConditionsInAlgorithm(bit);
-        if (l1PSet_ == 0) {
+        if (l1PSet_ == nullptr) {
           triggerAlgos->push_back( triggerAlgo );
           continue;
         }
@@ -963,7 +988,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         }
         L1GtUtils::TriggerCategory category;
         int bit;
-        if ( ! l1GtUtils_.l1AlgoTechTrigBitNumber( algoName, category, bit ) ) {
+        if ( ! l1GtUtils.l1AlgoTechTrigBitNumber( algoName, category, bit ) ) {
           LogError( "l1Algo" ) << "L1 technical trigger '" << algoName << "' not found in the L1 menu\n"
                                << "Skipping";
           continue;
@@ -977,7 +1002,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         bool decisionAfterMask;
         int  prescale;
         int  mask;
-        int  error( l1GtUtils_.l1Results( iEvent, algoName, decisionBeforeMask, decisionAfterMask, prescale, mask ) );
+        int  error( l1GtUtils.l1Results( iEvent, algoName, decisionBeforeMask, decisionAfterMask, prescale, mask ) );
         if ( error ) {
           LogError( "l1Algo" ) << "L1 technical trigger '" << algoName << "' decision has error code " << error << " from 'L1GtUtils'\n"
                                << "Skipping";
@@ -990,40 +1015,45 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
     }
 
     // Put L1 algorithms and conditions to event
-    iEvent.put( triggerAlgos );
-    iEvent.put( triggerConditions );
+    iEvent.put(std::move(triggerAlgos));
+    iEvent.put(std::move(triggerConditions));
   }
 
 
-  if (packPathNames_) {
-    const edm::TriggerNames & names = iEvent.triggerNames(*handleTriggerResults);
-    for (pat::TriggerObjectStandAlone &obj : *triggerObjectsStandAlone) {
-      obj.packPathNames(names);
-    }
+  edm::ProcessConfiguration config;
+  iEvent.processHistory().getConfigurationForProcess(nameProcess_,config);
+
+
+  const edm::TriggerNames & names = iEvent.triggerNames(*handleTriggerResults);
+  for (pat::TriggerObjectStandAlone &obj : *triggerObjectsStandAlone) {
+        obj.setPSetID(config.parameterSetID());
+	if(packPathNames_)      obj.packPathNames(names);
+	if(packLabels_)      obj.packFilterLabels(iEvent,*handleTriggerResults);
   }
+  
   // Put (finally) stand-alone trigger objects to event
-  iEvent.put( triggerObjectsStandAlone );
+  iEvent.put(std::move(triggerObjectsStandAlone));
 
   firstInRun_ = false;
 
 }
 
-void PATTriggerProducer::ModuleLabelToPathAndFlags::init(const HLTConfigProvider &hltConfig_) {
+void PATTriggerProducer::ModuleLabelToPathAndFlags::init(const HLTConfigProvider &hltConfig) {
     clear();
-    const std::vector<std::string> & pathNames = hltConfig_.triggerNames();
+    const std::vector<std::string> & pathNames = hltConfig.triggerNames();
     unsigned int sizePaths = pathNames.size();
     for ( unsigned int indexPath = 0; indexPath < sizePaths; ++indexPath ) {
         const std::string & namePath = pathNames[indexPath];
 
-        const std::vector<std::string> & nameModules = hltConfig_.moduleLabels(indexPath);
+        const std::vector<std::string> & nameModules = hltConfig.moduleLabels(indexPath);
         unsigned int sizeModulesPath = nameModules.size();
         bool lastFilter = true;
         unsigned int iM = sizeModulesPath;
         while (iM > 0) {
             const std::string & nameFilter = nameModules[--iM];
-            if (hltConfig_.moduleEDMType(nameFilter) != "EDFilter") continue;
-            if (hltConfig_.moduleType(nameFilter)    == "HLTBool")  continue;
-            bool saveTags = hltConfig_.saveTags(nameFilter);
+            if (hltConfig.moduleEDMType(nameFilter) != "EDFilter") continue;
+            if (hltConfig.moduleType(nameFilter)    == "HLTBool")  continue;
+            bool saveTags = hltConfig.saveTags(nameFilter);
             insert( nameFilter, namePath, indexPath, lastFilter, saveTags );
             if (saveTags) lastFilter = false; // FIXME: rather always?
         }

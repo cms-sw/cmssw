@@ -13,7 +13,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
         pythia8CUEP8M1SettingsBlock,
         processParameters = cms.vstring(
             'Top:gg2ttbar = on ',
-            'Top:gg2ttbar = on ',
+            'Top:qqbar2ttbar = on ',
             '6:m0 = 175 ',
             ),
         parameterSets = cms.vstring('pythia8CommonSettings',

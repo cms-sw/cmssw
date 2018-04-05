@@ -81,16 +81,20 @@ namespace reco {
     /// cluster energy
     double        energy() const {return energy_;}
 
-    /// cluster time
-    double        time() const {return time_;}
+    /// \return cluster time
+    float time() const {return time_;}
+    /// \return the timing uncertainty
+    float timeError() const { return timeError_; }
+
     /// cluster depth
     double        depth() const {return depth_;}
 
-    void         setTime(double time) {time_ = time;}
+    void         setTime(float time, float timeError=0) {time_ = time; timeError_ = timeError; }
+    void         setTimeError(float timeError) { timeError_ = timeError; }
     void         setDepth(double depth) {depth_ = depth;}
     
     /// cluster position: rho, eta, phi
-    const REPPoint&       positionREP() const {return posrep_;}
+    const REPPoint& positionREP() const {return posrep_;}
     
     /// computes posrep_ once and for all
     void calculatePositionREP() {
@@ -112,9 +116,6 @@ namespace reco {
     
     PFCluster& operator=(const PFCluster&);
     
-    friend    std::ostream& operator<<(std::ostream& out, 
-				       const PFCluster& cluster);
-
     /// \todo move to PFClusterTools
     static void setDepthCorParameters(int mode, 
 				      double a, double b, 
@@ -154,16 +155,20 @@ namespace reco {
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
     template<typename pruner>
-      void pruneUsing(pruner prune) {
-      hitsAndFractions_.clear();
-      std::vector<reco::PFRecHitFraction>::iterator iter = 
-	std::stable_partition(rechits_.begin(),rechits_.end(),prune);
-      rechits_.erase(iter,rechits_.end());
-      hitsAndFractions_.reserve(rechits_.size());
-      for( const auto& hitfrac : rechits_ ) {
-	hitsAndFractions_.emplace_back(hitfrac.recHitRef()->detId(),
-				       hitfrac.fraction());
+    void pruneUsing(pruner prune) {
+      // remove_if+erase algo applied to both vectors...
+      auto iter = std::find_if_not(rechits_.begin(),rechits_.end(),prune);
+      if (iter==rechits_.end()) return;
+      auto first = iter-rechits_.begin();
+      for (auto i=first; ++i<int(rechits_.size());) {
+          if (prune(rechits_[i])) {
+            rechits_[first] = std::move(rechits_[i]);
+            hitsAndFractions_[first] = std::move(hitsAndFractions_[i]);
+            ++first;
+          }    
       }
+      rechits_.erase(rechits_.begin()+first,rechits_.end());
+      hitsAndFractions_.erase(hitsAndFractions_.begin()+first,hitsAndFractions_.end());
     }
 #endif
     
@@ -176,7 +181,7 @@ namespace reco {
     REPPoint            posrep_;
 
     ///Michalis :Add timing and depth information
-    double time_;
+    float time_, timeError_;
     double depth_;
 
     /// transient layer
@@ -219,6 +224,11 @@ namespace reco {
     /// color (transient)
     int                 color_;
   };
+
+  std::ostream& operator<<(std::ostream& out, 
+                           const PFCluster& cluster);
+
+
 }
 
 #endif

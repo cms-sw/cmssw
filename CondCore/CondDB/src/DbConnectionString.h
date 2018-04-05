@@ -9,7 +9,7 @@ namespace cond {
 
   namespace persistency {
 
-    std::pair<std::string,std::string> getConnectionParams( const std::string& initialConnection, const std::string& transId );
+    std::pair<std::string,std::string> getConnectionParams( const std::string& initialConnection, const std::string& transId, const std::string& signature );
 
   }
 

@@ -1,6 +1,0 @@
-<use   name="FastSimulation/Event"/>
-<use   name="FastSimulation/Particle"/>
-<use   name="hepmc"/>
-<export>
-  <lib   name="1"/>
-</export>

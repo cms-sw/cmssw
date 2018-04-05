@@ -21,6 +21,8 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+
 class MuonChamberResidual
 {
 public:
@@ -32,12 +34,12 @@ public:
   };
 
   MuonChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator, 
-                      DetId chamberId, const AlignableDetOrUnitPtr& chamberAlignable);
+                      DetId chamberId, AlignableDetOrUnitPtr chamberAlignable);
 
   virtual ~MuonChamberResidual() {}
 
   // has to be implemented for rechit based residuals 
-  virtual void addResidual(const TrajectoryStateOnSurface *, const TransientTrackingRecHit *) = 0;
+  virtual void addResidual(edm::ESHandle<Propagator> prop, const TrajectoryStateOnSurface *, const TrackingRecHit *, double, double) = 0;
   
   // has to be implemented for track muon segment residuals
   virtual void setSegmentResidual(const reco::MuonChamberMatch *, const reco::MuonSegmentMatch *) = 0;
@@ -65,10 +67,14 @@ public:
   double trackx() const { return m_trackx; }
   double tracky() const { return m_tracky; }
 
+  double ChambW() const { return m_ChambW; }
+  double Chambl() const { return m_Chambl; } 
+
   double segdxdz() const { return m_segdxdz; }
   double segdydz() const { return m_segdydz; }
   double segx() const { return m_segx; }
   double segy() const { return m_segy; }
+
 
   align::GlobalPoint global_trackpos();
   align::GlobalPoint global_stubpos();
@@ -111,6 +117,9 @@ protected:
   double m_segdydz;
   double m_segx;
   double m_segy;
+  double m_ChambW;
+  double m_Chambl;
+
   
 };
 

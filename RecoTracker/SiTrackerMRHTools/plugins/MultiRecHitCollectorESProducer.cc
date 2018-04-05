@@ -30,7 +30,7 @@ MultiRecHitCollectorESProducer::MultiRecHitCollectorESProducer(const edm::Parame
 
 MultiRecHitCollectorESProducer::~MultiRecHitCollectorESProducer() {}
 
-boost::shared_ptr<MultiRecHitCollector> 
+std::unique_ptr<MultiRecHitCollector> 
 MultiRecHitCollectorESProducer::produce(const MultiRecHitRecord& iRecord){
   std::string mode = "Grouped";
   if (conf_.getParameter<std::string>("Mode")=="Simple") mode = "Simple"; 
@@ -50,25 +50,27 @@ MultiRecHitCollectorESProducer::produce(const MultiRecHitRecord& iRecord){
   iRecord.getRecord<CkfComponentsRecord>().getRecord<TrackingComponentsRecord>().get(estimatorName, estimatorhandle);
   ESHandle<MeasurementTracker> measurementhandle;
   iRecord.getRecord<CkfComponentsRecord>().get(measurementTrackerName, measurementhandle);
+  ESHandle<TrackerTopology> trackerTopologyHandle;
+  iRecord.getRecord<CkfComponentsRecord>().getRecord<TrackerTopologyRcd>().get(trackerTopologyHandle);
  
   if (mode == "Grouped"){
 	std::string propagatorOppositeName = conf_.getParameter<std::string>("propagatorOpposite");  
 	ESHandle<Propagator>  propagatorOppositehandle;
   	iRecord.getRecord<CkfComponentsRecord>().getRecord<TrackingComponentsRecord>().get(propagatorOppositeName, propagatorOppositehandle); 
-  	collector_ = boost::shared_ptr<MultiRecHitCollector>(new GroupedDAFHitCollector(measurementhandle.product(),
-									         mrhuhandle.product(),
-										 estimatorhandle.product(),
-										 propagatorhandle.product(),
-										 propagatorOppositehandle.product(), debug));
+  	return std::make_unique<GroupedDAFHitCollector>(measurementhandle.product(),
+						         mrhuhandle.product(),
+							 estimatorhandle.product(),
+							 propagatorhandle.product(),
+							 propagatorOppositehandle.product(), debug);
   } 
   else {
-	collector_ = boost::shared_ptr<MultiRecHitCollector>(new SimpleDAFHitCollector(measurementhandle.product(),
-                                                                                 mrhuhandle.product(),
-                                                                                 estimatorhandle.product(),
-                                                                                 propagatorhandle.product(), debug));
+	return std::make_unique<SimpleDAFHitCollector>(trackerTopologyHandle.product(),
+                                                             measurementhandle.product(),
+                                                             mrhuhandle.product(),
+                                                             estimatorhandle.product(),
+                                                             propagatorhandle.product(), debug);
   }
   	
-  return collector_;
 
 }
 

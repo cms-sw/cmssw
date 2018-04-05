@@ -25,10 +25,10 @@ class MuonSelectionTypeValueMapProducer : public edm::stream::EDProducer<> {
             produces<edm::ValueMap<bool> >().setBranchAlias("muid"+selectionTypeLabel_);
 	    muonToken_ = consumes<reco::MuonCollection>(inputMuonCollection_);
         }
-        virtual ~MuonSelectionTypeValueMapProducer() {}
+        ~MuonSelectionTypeValueMapProducer() override {}
 
     private:
-        virtual void produce(edm::Event&, const edm::EventSetup&) override;
+        void produce(edm::Event&, const edm::EventSetup&) override;
 
         edm::InputTag inputMuonCollection_;
 	edm::EDGetTokenT<reco::MuonCollection> muonToken_;
@@ -53,13 +53,13 @@ MuonSelectionTypeValueMapProducer::produce(edm::Event& iEvent, const edm::EventS
         values.push_back(muon::isGoodMuon(*it, selectionType_));
 
     // create and fill value map
-    std::auto_ptr<edm::ValueMap<bool> > out(new edm::ValueMap<bool>());
+    auto out = std::make_unique<edm::ValueMap<bool>>();
     edm::ValueMap<bool>::Filler filler(*out);
     filler.insert(muonsH, values.begin(), values.end());
     filler.fill();
 
     // put value map into event
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 #endif

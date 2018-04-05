@@ -34,18 +34,14 @@ private:
 class Test1Producer : public ESProxyFactoryProducer {
 public:
    Test1Producer() {
-      std::auto_ptr<ProxyFactoryTemplate<DummyProxy> > pFactory(new 
-                                                                 ProxyFactoryTemplate<DummyProxy>());
-      registerFactory(pFactory);
+      registerFactory(std::make_unique<ProxyFactoryTemplate<DummyProxy>>());
    }
 };
 
 class TestLabelProducer : public ESProxyFactoryProducer {
 public:
    TestLabelProducer() {
-      std::auto_ptr<ProxyFactoryTemplate<DummyProxy> > pFactory(new 
-                                                                ProxyFactoryTemplate<DummyProxy>());
-      registerFactory(pFactory,"fred");
+      registerFactory(std::make_unique<ProxyFactoryTemplate<DummyProxy>>(), "fred");
    }
 };
 
@@ -80,7 +76,7 @@ void testProxyfactor::registerProxyfactorytemplateTest()
       testProd.keyedProxies(dummyRecordKey);
 
    CPPUNIT_ASSERT(keyedProxies.size() == 1);
-   CPPUNIT_ASSERT(0 != dynamic_cast<DummyProxy*>(&(*(keyedProxies.front().second))));
+   CPPUNIT_ASSERT(nullptr != dynamic_cast<DummyProxy const*>(&(*(keyedProxies.front().second))));
 }
 
 void testProxyfactor::labelTest()
@@ -93,7 +89,7 @@ void testProxyfactor::labelTest()
       testProd.keyedProxies(dummyRecordKey);
    
    CPPUNIT_ASSERT(keyedProxies.size() == 1);
-   CPPUNIT_ASSERT(0 != dynamic_cast<DummyProxy*>(&(*(keyedProxies.front().second))));
+   CPPUNIT_ASSERT(nullptr != dynamic_cast<DummyProxy const*>(&(*(keyedProxies.front().second))));
    const std::string kFred("fred");
    CPPUNIT_ASSERT(kFred == keyedProxies.front().first.name().value());
 }
@@ -115,7 +111,7 @@ void testProxyfactor::appendLabelTest()
       testProd.keyedProxies(dummyRecordKey);
     
     CPPUNIT_ASSERT(keyedProxies.size() == 1);
-    CPPUNIT_ASSERT(0 != dynamic_cast<DummyProxy*>(&(*(keyedProxies.front().second))));
+    CPPUNIT_ASSERT(nullptr != dynamic_cast<DummyProxy const*>(&(*(keyedProxies.front().second))));
     const std::string kFredBarney("fredBarney");
     CPPUNIT_ASSERT(kFredBarney == keyedProxies.front().first.name().value());
   }
@@ -129,7 +125,7 @@ void testProxyfactor::appendLabelTest()
     testProd.keyedProxies(dummyRecordKey);
   
   CPPUNIT_ASSERT(keyedProxies.size() == 1);
-  CPPUNIT_ASSERT(0 != dynamic_cast<DummyProxy*>(&(*(keyedProxies.front().second))));
+  CPPUNIT_ASSERT(nullptr != dynamic_cast<DummyProxy const*>(&(*(keyedProxies.front().second))));
   const std::string kBarney("Barney");
   CPPUNIT_ASSERT(kBarney == keyedProxies.front().first.name().value());
   

@@ -383,7 +383,7 @@ std::ostream& operator<<(std::ostream& streamRec,
 const std::string* L1GtTriggerMenuLite::gtAlgorithmAlias(
         const unsigned int bitNumber, int& errorCode) const {
 
-    const std::string* gtAlgorithmAlias = 0;
+    const std::string* gtAlgorithmAlias = nullptr;
 
     for (CItL1Trig itTrig = m_algorithmAliasMap.begin(); itTrig
             != m_algorithmAliasMap.end(); itTrig++) {
@@ -407,7 +407,7 @@ const std::string* L1GtTriggerMenuLite::gtAlgorithmAlias(
 const std::string* L1GtTriggerMenuLite::gtAlgorithmName(
         const unsigned int bitNumber, int& errorCode) const {
 
-    const std::string* gtAlgorithmName = 0;
+    const std::string* gtAlgorithmName = nullptr;
 
     for (CItL1Trig itTrig = m_algorithmMap.begin(); itTrig
             != m_algorithmMap.end(); itTrig++) {
@@ -429,7 +429,7 @@ const std::string* L1GtTriggerMenuLite::gtAlgorithmName(
 const std::string* L1GtTriggerMenuLite::gtTechTrigName(
         const unsigned int bitNumber, int& errorCode) const {
 
-    const std::string* gtTechTrigName = 0;
+    const std::string* gtTechTrigName = nullptr;
 
     for (CItL1Trig itTrig = m_technicalTriggerMap.begin(); itTrig
             != m_technicalTriggerMap.end(); itTrig++) {

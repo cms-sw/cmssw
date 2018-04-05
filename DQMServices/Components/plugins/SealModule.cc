@@ -26,6 +26,8 @@ DEFINE_FWK_MODULE(DQMProvInfo);
 DEFINE_FWK_MODULE(DQMDcsInfo);
 #include "DQMServices/Components/src/DQMDcsInfoClient.h"
 DEFINE_FWK_MODULE(DQMDcsInfoClient);
+#include "DQMServices/Components/src/DQMScalInfo.h"
+DEFINE_FWK_MODULE(DQMScalInfo);
 
 // Data Certification module for DAQ info
 #include "DQMServices/Components/src/DQMDaqInfo.h"

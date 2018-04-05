@@ -35,6 +35,7 @@ from DQM.L1TMonitorClient.L1TriggerQualityTests_cff import *
 
 # GCT DQM client module 
 from DQM.L1TMonitorClient.L1TGCTClient_cfi import *
+from DQM.L1TMonitorClient.L1TStage1Layer2Client_cfi import *
 
 # DTTPG DQM module 
 # not run in L1T - do we need it? FIXME
@@ -94,10 +95,28 @@ l1TriggerClients = cms.Sequence(
                         l1tEventInfoClient
                         )
 
+l1TriggerStage1Clients = cms.Sequence(
+                        l1tStage1Layer2Client +
+                        l1tDttfClient +
+                        l1tCsctfClient + 
+                        l1tRpctfClient +
+                        l1tGmtClient +
+                        l1tOccupancyClient +
+                        l1tTestsSummary +
+                        l1tEventInfoClient
+                        )
+
+
 l1tMonitorClient = cms.Sequence(
                         l1TriggerQualityTests +
                         l1TriggerClients
                         )
+
+l1tMonitorStage1Client = cms.Sequence(
+                        l1TriggerQualityTests +
+                        l1TriggerStage1Clients
+                        )
+
 
 # sequence for L1 Trigger DQM client modules on EndPath 
 # FIXME clarify why needed on EndPath

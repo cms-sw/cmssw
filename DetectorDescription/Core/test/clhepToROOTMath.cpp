@@ -1,11 +1,17 @@
+#include <cmath>
+#include <iomanip>
 #include <iostream>
-#include <fstream>
 
-#include "DetectorDescription/Base/interface/DDTranslation.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-#include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Vector/Rotation.h"
+#include "CLHEP/Vector/RotationInterfaces.h"
+#include "CLHEP/Vector/ThreeVector.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "Math/GenVector/Cartesian3D.h"
+#include "Math/GenVector/DisplacementVector3D.h"
+#include "Math/GenVector/Rotation3D.h"
 
 typedef CLHEP::Hep3Vector H3V;
 typedef CLHEP::HepRotation HRM;

@@ -143,7 +143,7 @@ public:
 
      @param col The column to access.
    */
-  const double & operator()(int row, int col) const;
+  const double & operator()(int row, int col) const override;
 
   /**
      @brief Direct element access, indexing starts from (1,1).
@@ -152,7 +152,7 @@ public:
 
      @param col The column to access.
    */
-  double & operator()(int row, int col);
+  double & operator()(int row, int col) override;
 
   // Assignment.  Will raise an assertion if M doesn't have
   // exactly one row.

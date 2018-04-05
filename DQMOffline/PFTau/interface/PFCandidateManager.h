@@ -33,7 +33,7 @@ class PFCandidateManager : public Benchmark {
     candBench_(mode), pfCandBench_(mode), matchCandBench_(mode), 
     dRMax_(dRMax), matchCharge_(matchCharge) {}
   
-  virtual ~PFCandidateManager();
+  ~PFCandidateManager() override;
   
   /// set the benchmark parameters
   void setParameters( float dRMax = 0.3,
@@ -41,7 +41,7 @@ class PFCandidateManager : public Benchmark {
 		      Benchmark::Mode mode=Benchmark::DEFAULT );
   
   /// set directory (to use in ROOT)
-  void setDirectory(TDirectory* dir);
+  void setDirectory(TDirectory* dir) override;
 
   /// book histograms
   void setup(DQMStore::IBooker& b);

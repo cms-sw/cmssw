@@ -6,7 +6,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -24,26 +24,26 @@
 
 
 namespace pat {
-
-  class PATTrackAndVertexUnpacker : public edm::EDProducer {
-
-
-    public:
-
-      explicit PATTrackAndVertexUnpacker(const edm::ParameterSet & iConfig);
-      ~PATTrackAndVertexUnpacker();
-
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
-
-    private:
-      typedef std::vector<edm::InputTag> VInputTag;
-      // configurables
-      edm::EDGetTokenT< std::vector<pat::PackedCandidate> >    Cands_;
-      edm::EDGetTokenT<reco::VertexCollection>         PVs_;
-      edm::EDGetTokenT<reco::VertexCompositePtrCandidateCollection>         SVs_;
-      edm::EDGetTokenT<std::vector<pat::PackedCandidate> >         AdditionalTracks_;
-//////    std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > particlesTokens_;
-
+  
+  class PATTrackAndVertexUnpacker : public edm::global::EDProducer<> {
+    
+    
+  public:
+    
+    explicit PATTrackAndVertexUnpacker(const edm::ParameterSet & iConfig);
+    ~PATTrackAndVertexUnpacker() override;
+    
+    void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
+    
+  private:
+    typedef std::vector<edm::InputTag> VInputTag;
+    // configurables
+    const edm::EDGetTokenT<std::vector<pat::PackedCandidate> >    Cands_;
+    const edm::EDGetTokenT<reco::VertexCollection>         PVs_;
+    const edm::EDGetTokenT<reco::VertexCompositePtrCandidateCollection>         SVs_;
+    const edm::EDGetTokenT<std::vector<pat::PackedCandidate> >         AdditionalTracks_;
+    //////    std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > particlesTokens_;
+    
   };
 
 }
@@ -66,7 +66,7 @@ PATTrackAndVertexUnpacker::~PATTrackAndVertexUnpacker() {
 }
 
 
-void PATTrackAndVertexUnpacker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+void PATTrackAndVertexUnpacker::produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 	using namespace edm; using namespace std; using namespace reco;
 	Handle<std::vector<pat::PackedCandidate> > cands;
 	iEvent.getByToken(Cands_, cands);
@@ -77,46 +77,52 @@ void PATTrackAndVertexUnpacker::produce(edm::Event & iEvent, const edm::EventSet
 	Handle<std::vector<pat::PackedCandidate> > addTracks;
 	iEvent.getByToken(AdditionalTracks_, addTracks);
 
-	std::auto_ptr< std::vector<reco::Track> > outTks( new std::vector<reco::Track> );
-	std::vector<unsigned int> asso;
+	auto outTks = std::make_unique<std::vector<reco::Track>>();
+	std::map<unsigned int, std::vector<unsigned int> > asso;
 	std::map<unsigned int, unsigned int> trackKeys;
 	unsigned int j=0;
 	for(unsigned int i=0;i<cands->size();i++)	{
 		const pat::PackedCandidate & c = (*cands)[i];
-		if(c.charge() != 0 && c.numberOfHits()> 0){
+		if(c.hasTrackDetails() && c.charge() != 0 && c.numberOfHits()> 0){
 			outTks->push_back(c.pseudoTrack());
-			if(c.fromPV()==pat::PackedCandidate::PVUsedInFit)
-			{
-				asso.push_back(j);
+			for(size_t ipv=0;ipv< pvs->size(); ++ipv) {
+				if(c.fromPV(ipv)==pat::PackedCandidate::PVUsedInFit)
+					asso[ipv].push_back(j);
 			}
- 			trackKeys[i]=j;
+			trackKeys[i]=j;
 			j++;
 		}	
 	}
-	reco::Vertex  pv = (*pvs)[0];
-	std::auto_ptr< std::vector<reco::Vertex> > outPv( new std::vector<reco::Vertex> );
+
 	int offsetAdd=j;
 	for(unsigned int i = 0; i < addTracks->size(); i++) {
-	      outTks->push_back((*addTracks)[i].pseudoTrack());
-              if((*addTracks)[i].fromPV()==pat::PackedCandidate::PVUsedInFit)
-                        {
-//				std::cout << "USEDINFIT " << i <<std::endl;
-                                asso.push_back(j);
-                        }
-		 j++;
-
+		if( (*addTracks)[i].hasTrackDetails() ){
+			outTks->push_back((*addTracks)[i].pseudoTrack());
+		        for(size_t ipv=0;ipv< pvs->size(); ++ipv) {
+				if((*addTracks)[i].fromPV(ipv)==pat::PackedCandidate::PVUsedInFit)
+					asso[ipv].push_back(j);
+			}
+			j++;
+		}
 	}
-	edm::OrphanHandle< std::vector<reco::Track>  > oh = iEvent.put( outTks );
-	for(unsigned int i=0;i<asso.size();i++)
-	{
-		TrackRef r(oh,asso[i]);
-		TrackBaseRef rr(r);
-		pv.add(rr);
+	
+	edm::OrphanHandle< std::vector<reco::Track>  > oh = iEvent.put(std::move(outTks));
+	
+	auto outPv = std::make_unique<std::vector<reco::Vertex>>();
+	
+	for(size_t ipv=0;ipv< pvs->size(); ++ipv) {
+		reco::Vertex  pv = (*pvs)[ipv];
+		for(unsigned int i=0;i<asso[ipv].size();i++)
+		{
+			TrackRef r(oh,asso[ipv][i]);
+			TrackBaseRef rr(r);
+			pv.add(rr);
+		}
+		outPv->push_back(pv);
 	}
-	outPv->push_back(pv);
-	iEvent.put(outPv);
+	iEvent.put(std::move(outPv));
 
-        std::auto_ptr< std::vector<reco::Vertex> > outSv( new std::vector<reco::Vertex> );
+        auto outSv = std::make_unique<std::vector<reco::Vertex>>();
 	for(size_t i=0;i< svs->size(); i++) {
 		const reco::VertexCompositePtrCandidate &sv = (*svs)[i];	
 		outSv->push_back(reco::Vertex(sv.vertex(),sv.vertexCovariance(),sv.vertexChi2(),sv.vertexNdof(),0));
@@ -134,7 +140,7 @@ void PATTrackAndVertexUnpacker::produce(edm::Event & iEvent, const edm::EventSet
 		}	
 	}   
 
-       iEvent.put(outSv,"secondary");
+       iEvent.put(std::move(outSv),"secondary");
 
 }
 

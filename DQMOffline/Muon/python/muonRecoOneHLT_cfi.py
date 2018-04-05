@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 
-muonRecoOneHLT = cms.EDAnalyzer("MuonRecoOneHLT",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+muonRecoOneHLT = DQMEDAnalyzer('MuonRecoOneHLT',
                                 MuonServiceProxy,
                                 MuonCollection      = cms.InputTag("muons"),
                                 VertexLabel         = cms.InputTag("offlinePrimaryVertices"),
@@ -30,7 +31,7 @@ muonRecoOneHLT = cms.EDAnalyzer("MuonRecoOneHLT",
                                                              dbLabel       = cms.string( "MuonDQMTrigger"),
                                                              hltInputTag   = cms.InputTag( "TriggerResults::HLT" ),
                                                              hltDBKey      = cms.string('SingleMu'),
-                                                             hltPaths      = cms.vstring( "HLT_IsoMu30_eta2p1_v7" ),
+                                                             hltPaths      = cms.vstring( "HLT_IsoMu24_eta2p1_v*" ),
                                                              andOrHlt      = cms.bool( True ),
                                                              errorReplyHlt = cms.bool( False ),
                                                              ),
@@ -39,7 +40,7 @@ muonRecoOneHLT = cms.EDAnalyzer("MuonRecoOneHLT",
                                                              dbLabel       = cms.string( "MuonDQMTrigger"),
                                                              hltInputTag   = cms.InputTag( "TriggerResults::HLT" ),
                                                              hltDBKey      = cms.string('DoubleMu'),
-                                                             hltPaths      = cms.vstring( "HLT_Mu17_Mu8_v11" ),
+                                                             hltPaths      = cms.vstring( "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*" ),
                                                              andOrHlt      = cms.bool( True ),
                                                              errorReplyHlt = cms.bool( False ),
                                                              )

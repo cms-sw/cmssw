@@ -1,8 +1,12 @@
 <lcgdict>
   <class name="CorrelationTemplate"/>
+  <class name="CorrelationWithOverlapRemovalTemplate"/>
   <class name="CorrelationTemplate::CorrelationParameter"/>
+  <class name="CorrelationWithOverlapRemovalTemplate::CorrelationWithOverlapRemovalParameter"/>
   <class name="std::vector<CorrelationTemplate>"/>
   <class name="std::vector<std::vector<CorrelationTemplate> >"/>
+  <class name="std::vector<CorrelationWithOverlapRemovalTemplate>"/>
+  <class name="std::vector<std::vector<CorrelationWithOverlapRemovalTemplate> >"/>
   <class name="TriggerMenu" class_version="TriggerMenu_V01">
     <field name="m_conditionMap" transient="true" />
     <field name="m_algorithmAliasMap" mapping="blob" />
@@ -15,6 +19,7 @@
     <field name="m_vecCaloTemplate" mapping="blob" />
     <field name="m_vecCastorTemplate" mapping="blob" />
     <field name="m_vecCorrelationTemplate" mapping="blob" />
+    <field name="m_vecCorrelationWithOverlapRemovalTemplate" mapping="blob" />
     <field name="m_vecEnergySumTemplate" mapping="blob" />
     <field name="m_vecExternalTemplate" mapping="blob" />
     <field name="m_vecHfBitCountsTemplate" mapping="blob" />

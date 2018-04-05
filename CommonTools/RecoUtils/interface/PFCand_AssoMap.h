@@ -18,7 +18,7 @@
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,15 +34,15 @@
 // class declaration
 //
 
-class PFCand_AssoMap : public edm::EDProducer, public PFCand_AssoMapAlgos {
+class PFCand_AssoMap : public edm::stream::EDProducer<>, public PFCand_AssoMapAlgos {
    public:
       explicit PFCand_AssoMap(const edm::ParameterSet&);
-      ~PFCand_AssoMap();
+      ~PFCand_AssoMap() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
 

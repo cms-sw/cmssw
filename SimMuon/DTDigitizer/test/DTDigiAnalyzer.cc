@@ -34,18 +34,18 @@
 
 #include "SimMuon/DTDigitizer/test/Histograms.h"
 
-hDigis hDigis_global("Global");
-hDigis hDigis_W0("Wheel0");
-hDigis hDigis_W1("Wheel1");
-hDigis hDigis_W2("Wheel2");
-
-hHits hAllHits("AllHits");
 
 
 using namespace edm;
 using namespace std;
 
-DTDigiAnalyzer:: DTDigiAnalyzer(const ParameterSet& pset){
+DTDigiAnalyzer:: DTDigiAnalyzer(const ParameterSet& pset):
+  hDigis_global("Global"),
+  hDigis_W0("Wheel0"),
+  hDigis_W1("Wheel1"),
+  hDigis_W2("Wheel2"),
+  hAllHits("AllHits")
+{
 //   MCStatistics = new DTMCStatistics();
 //   MuonDigiStatistics = new DTMuonDigiStatistics();
 //   HitsAnalysis = new DTHitsAnalysis();
@@ -185,7 +185,7 @@ hDigis* DTDigiAnalyzer::WheelHistos(int wheel){
     
   case 2: return  &hDigis_W2;
      
-  default: return NULL;
+  default: return nullptr;
   }
 }
 

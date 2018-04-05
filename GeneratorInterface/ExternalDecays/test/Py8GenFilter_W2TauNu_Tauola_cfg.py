@@ -1,13 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#
-# WARNING: as of 12/1/2010, this is NOT an example for users -
-#          it's my private (JY) "development" cfg, for testing
-#          tauola++ package - which is NOT yet added to CMSSW -
-#          and the corresponding updated TauolaInterface
-#
-
-
 process = cms.Process("TEST")
 
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
@@ -23,7 +15,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     comEnergy = cms.double(7000.),
     
     ExternalDecays = cms.PSet(
-        Tauola = cms.untracked.PSet(
+        Tauola = cms.untracked.PSet( # tauola++ is actually used
 	     UseTauolaPolarization = cms.bool(True),
 	     InputCards = cms.PSet
 	     ( 
@@ -49,9 +41,9 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
 				           # 'ParticleDecays:tau0Max   = 10.', # parj(71)=10.- for which ctau < 10 mm
 					   'PartonLevel:ISR = off',
 					   'PartonLevel:FSR = off',
-					   'PartonLevel:MI = off'           # mstp(81)=0
+					   'PartonLevel:MPI = off',           # mstp(81)=0
 					   # for pp intractions, SpaceShower things are not important,
-					   # but TimeShower settings are relevat
+					   # but TimeShower settings are relevant
 					   'TimeShower:QEDshowerByL = off',
 					   'TimeShower:QEDshowerByQ = off',
 					   'SpaceShower:QEDshowerByL = off',

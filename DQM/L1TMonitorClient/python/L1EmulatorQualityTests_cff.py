@@ -101,6 +101,10 @@ seqL1EmulatorObjETTQualityTests = cms.Sequence(l1EmulatorObjETTQualityTests)
 from DQM.L1TMonitorClient.L1EmulatorObjTauJetQualityTests_cfi import *
 seqL1EmulatorObjTauJetQualityTests = cms.Sequence(l1EmulatorObjTauJetQualityTests)
 
+# IsoTauJet quality tests                                                                                              
+from DQM.L1TMonitorClient.L1EmulatorObjIsoTauJetQualityTests_cfi import *
+seqL1EmulatorObjIsoTauJetQualityTests = cms.Sequence(l1EmulatorObjIsoTauJetQualityTests)
+
 # ForJet quality tests
 from DQM.L1TMonitorClient.L1EmulatorObjForJetQualityTests_cfi import *
 seqL1EmulatorObjForJetQualityTests = cms.Sequence(l1EmulatorObjForJetQualityTests)
@@ -147,6 +151,7 @@ l1EmulatorObjectQualityTests = cms.Sequence(
                                 seqL1EmulatorObjETMQualityTests +
                                 seqL1EmulatorObjETTQualityTests +
                                 seqL1EmulatorObjTauJetQualityTests +
+                                seqL1EmulatorObjIsoTauJetQualityTests +
                                 seqL1EmulatorObjForJetQualityTests +
                                 seqL1EmulatorObjCenJetQualityTests +
                                 seqL1EmulatorObjIsoEGQualityTests +

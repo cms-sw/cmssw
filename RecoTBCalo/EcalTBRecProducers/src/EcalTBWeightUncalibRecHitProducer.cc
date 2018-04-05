@@ -67,7 +67,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
    using namespace edm;
    
    Handle< EBDigiCollection > pEBDigis;
-   const EBDigiCollection* EBdigis =0;
+   const EBDigiCollection* EBdigis =nullptr;
    if (EBdigiCollection_.label() != "" || EBdigiCollection_.instance() != "")
      {
        //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
@@ -83,7 +83,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      }
 
    Handle< EEDigiCollection > pEEDigis;
-   const EEDigiCollection* EEdigis =0;
+   const EEDigiCollection* EEdigis =nullptr;
 
    if (EEdigiCollection_.label() != "" || EEdigiCollection_.instance() != "")
      {
@@ -105,7 +105,7 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
      return;
 
    Handle< EcalTBTDCRecInfo > pRecTDC;
-   const EcalTBTDCRecInfo* recTDC =0;
+   const EcalTBTDCRecInfo* recTDC =nullptr;
 
    //     evt.getByLabel( digiProducer_, EBdigiCollection_, pEBDigis);
    evt.getByLabel( tdcRecInfoCollection_, pRecTDC);
@@ -160,8 +160,8 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 #endif
    // collection of reco'ed ampltudes to put in the event
 
-   std::auto_ptr< EBUncalibratedRecHitCollection > EBuncalibRechits( new EBUncalibratedRecHitCollection );
-   std::auto_ptr< EEUncalibratedRecHitCollection > EEuncalibRechits( new EEUncalibratedRecHitCollection );
+   auto EBuncalibRechits = std::make_unique<EBUncalibratedRecHitCollection>();
+   auto EEuncalibRechits = std::make_unique<EEUncalibratedRecHitCollection>();
 
    EcalPedestalsMapIterator pedIter; // pedestal iterator
 
@@ -321,8 +321,8 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 #endif
        }
      }
-   // put the collection of recunstructed hits in the event
-   evt.put( EBuncalibRechits, EBhitCollection_ );
+   // put the collection of reconstructed hits in the event
+   evt.put(std::move(EBuncalibRechits), EBhitCollection_);
 
 
    if (EEdigis)
@@ -471,8 +471,8 @@ EcalTBWeightUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetu
 #endif
        }
      }
-   // put the collection of recunstructed hits in the event
-   evt.put( EEuncalibRechits, EEhitCollection_ );
+   // put the collection of reconstructed hits in the event
+   evt.put(std::move(EEuncalibRechits), EEhitCollection_);
 }
 
 // HepMatrix

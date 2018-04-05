@@ -30,7 +30,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/CRC16.h"
@@ -39,28 +39,27 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
-#include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
+#include "EventFilter/L1TRawToDigi/interface/AMC13Spec.h"
+
+#include "PackingSetupFactory.h"
 
 namespace l1t {
-   class L1TDigiToRaw : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+   class L1TDigiToRaw : public edm::stream::EDProducer<> {
       public:
          explicit L1TDigiToRaw(const edm::ParameterSet&);
-         ~L1TDigiToRaw();
+         ~L1TDigiToRaw() override;
 
          static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-         using edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks>::consumes;
+         using edm::stream::EDProducer<>::consumes;
 
       private:
-         virtual void beginJob() override;
-         virtual void produce(edm::Event&, const edm::EventSetup&) override;
-         virtual void endJob() override;
+         void produce(edm::Event&, const edm::EventSetup&) override;
 
-         virtual void beginRun(edm::Run const&, edm::EventSetup const&) override {};
-         virtual void endRun(edm::Run const&, edm::EventSetup const&) override {};
-         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
-         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
+         void beginRun(edm::Run const&, edm::EventSetup const&) override {};
+         void endRun(edm::Run const&, edm::EventSetup const&) override {};
+         void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
+         void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
 
          // ----------member data ---------------------------
          int evtType_;
@@ -71,14 +70,17 @@ namespace l1t {
          int slinkHeaderSize_;
          int slinkTrailerSize_;
 
-         std::auto_ptr<PackingSetup> setup_;
+         std::unique_ptr<PackingSetup> setup_;
          std::unique_ptr<PackerTokens> tokens_;
+
+         bool ctp7_mode_;
    };
 }
 
 namespace l1t {
    L1TDigiToRaw::L1TDigiToRaw(const edm::ParameterSet& config) :
-      fedId_(config.getParameter<int>("FedId"))
+      fedId_(config.getParameter<int>("FedId")),
+      ctp7_mode_(config.getUntrackedParameter<bool>("CTP7"))
    {
       // Register products
       produces<FEDRawDataCollection>();
@@ -110,6 +112,15 @@ namespace l1t {
 
       amc13::Packet amc13;
 
+      auto bxId = event.bunchCrossing();
+      // Note: L1ID != event ID
+      // See e.g. triggerCount vs. eventNumber
+      // in EventFilter/FEDInterface/interface/FED1024.h
+      // But the trigger count is not stored in cmssw event class
+      auto evtId = event.id().event();
+      auto orbit = event.eventAuxiliary().orbitNumber();
+      LogDebug("L1T") << "Forming FED with metadata bxId=" << bxId << ", l1ID=" << evtId << ", orbit=" << orbit;
+
       // Create all the AMC payloads to pack into the AMC13
       for (const auto& item: setup_->getPackers(fedId_, fwId_)) {
          auto amc_no = item.first.first;
@@ -119,6 +130,7 @@ namespace l1t {
          Blocks block_load;
          for (const auto& packer: packers) {
             LogDebug("L1T") << "Adding packed blocks";
+            packer->setBoard(board);
             auto blocks = packer->pack(event, tokens_.get());
             block_load.insert(block_load.end(), blocks.begin(), blocks.end());
          }
@@ -128,9 +140,13 @@ namespace l1t {
          LogDebug("L1T") << "Concatenating blocks";
 
          std::vector<uint32_t> load32;
-         // TODO this is an empty word to be replaced with a proper MP7
-         // header containing at least the firmware version
-         load32.push_back(0);
+         // CTP7 stores this info in AMC user header
+         if ( not ctp7_mode_ ) {
+            // TODO Infrastructure firmware version.  Currently not used.
+            // Would change the way the payload has to be unpacked.
+            load32.push_back(0);
+            load32.push_back(fwId_);
+         }
          for (const auto& block: block_load) {
             LogDebug("L1T") << "Adding block " << block.header().getID() << " with size " << block.payload().size();
             auto load = block.payload();
@@ -143,7 +159,11 @@ namespace l1t {
             LogDebug("L1T") << s.str();
 #endif
 
-            load32.push_back(block.header().raw(MP7));
+            if ( block.header().getType() == CTP7 ) {
+              // Header is two words for CTP7, first word is just a magic
+              load32.push_back(0xA110CA7E);
+            }
+            load32.push_back(block.header().raw());
             load32.insert(load32.end(), load.begin(), load.end());
          }
 
@@ -152,17 +172,22 @@ namespace l1t {
          std::vector<uint64_t> load64;
          for (unsigned int i = 0; i < load32.size(); i += 2) {
             uint64_t word = load32[i];
-            if (i + 1 < load32.size())
+            if (i + 1 < load32.size()) {
                word |= static_cast<uint64_t>(load32[i + 1]) << 32;
+            } else {
+               word |= static_cast<uint64_t>(0xffffffff) << 32;
+            }
             load64.push_back(word);
          }
 
          LogDebug("L1T") << "Creating AMC packet";
 
-         amc13.add(amc_no, board, load64);
+         unsigned amc_user_header = 0;
+         if ( ctp7_mode_ ) amc_user_header = fwId_;
+         amc13.add(amc_no, board, evtId, orbit, bxId, load64, amc_user_header);
       }
 
-      std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
+      std::unique_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
       FEDRawData& fed_data = raw_coll->FEDData(fedId_);
 
       unsigned int size = slinkHeaderSize_ + slinkTrailerSize_ + amc13.size() * 8;
@@ -170,33 +195,18 @@ namespace l1t {
       unsigned char * payload = fed_data.data();
       unsigned char * payload_start = payload;
 
-      auto bxId = event.bunchCrossing();
-      auto evtId = event.id().event();
-
       FEDHeader header(payload);
       header.set(payload, evtType_, evtId, bxId, fedId_);
 
+      amc13.write(event, payload, slinkHeaderSize_, size - slinkHeaderSize_ - slinkTrailerSize_);
+
       payload += slinkHeaderSize_;
-
-      amc13.write(event, payload, size - slinkHeaderSize_ - slinkTrailerSize_);
-
       payload += amc13.size() * 8;
 
       FEDTrailer trailer(payload);
       trailer.set(payload, size / 8, evf::compute_crc(payload_start, size), 0, 0);
 
-      event.put(raw_coll);
-   }
-
-   // ------------ method called once each job just before starashtting event loop  ------------
-   void 
-   L1TDigiToRaw::beginJob()
-   {
-   }
-
-   // ------------ method called once each job just after ending the event loop  ------------
-   void 
-   L1TDigiToRaw::endJob() {
+      event.put(std::move(raw_coll));
    }
 
    // ------------ method called when starting to processes a run  ------------
@@ -234,11 +244,20 @@ namespace l1t {
    // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
    void
    L1TDigiToRaw::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-     //The following says we do not know what parameters are allowed so do no validation
-     // Please change this to state exactly what you do use, even if it is no parameters
      edm::ParameterSetDescription desc;
-     desc.setUnknown();
-     descriptions.addDefault(desc);
+     desc.add<unsigned int>("FWId", -1);
+     desc.add<int>("FedId");
+     desc.addUntracked<int>("eventType", 1);
+     desc.add<std::string>("Setup");
+     desc.addOptional<edm::InputTag>("InputLabel",edm::InputTag(""));
+     desc.addOptional<edm::InputTag>("InputLabel2",edm::InputTag(""));
+     desc.addUntracked<int>("lenSlinkHeader", 8);
+     desc.addUntracked<int>("lenSlinkTrailer", 8);
+     desc.addUntracked<bool>("CTP7", false);
+
+     PackingSetupFactory::get()->fillDescription(desc);
+
+     descriptions.add("l1tDigiToRaw", desc);
    }
 }
 

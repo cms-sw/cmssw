@@ -7,7 +7,7 @@
 //
 
 #include <string>
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -40,15 +40,14 @@ public:
     setWhatProduced(this, label);
   }
 
-  ~JetCorrectionESProducer() {}
+  ~JetCorrectionESProducer() override {}
 
-  boost::shared_ptr<JetCorrector> produce(JetCorrectionsRecord const& iRecord) 
+  std::unique_ptr<JetCorrector> produce(JetCorrectionsRecord const& iRecord)
   {
     edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
     iRecord.get(mAlgo,JetCorParColl); 
     JetCorrectorParameters const& JetCorPar = (*JetCorParColl)[mLevel];
-    boost::shared_ptr<JetCorrector> mCorrector(new Corrector(JetCorPar, mParameterSet));
-    return mCorrector;
+    return std::make_unique<Corrector>(JetCorPar, mParameterSet);
   }
 };
 #endif

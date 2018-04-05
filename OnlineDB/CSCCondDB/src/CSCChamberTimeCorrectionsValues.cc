@@ -16,7 +16,6 @@ CSCChamberTimeCorrectionsValues::CSCChamberTimeCorrectionsValues(const edm::Para
   ME11offsetData = 205;
   nonME11offsetMC = 174;
   nonME11offsetData = 216;
-  chamberObj = prefill(isForMC, isForMC ? ME11offsetMC : ME11offsetData, isForMC ? nonME11offsetMC : nonME11offsetData);
   setWhatProduced(this,&CSCChamberTimeCorrectionsValues::produceChamberTimeCorrections);
   findingRecord<CSCChamberTimeCorrectionsRcd>();
   //now do what ever other initialization is needed
@@ -28,7 +27,6 @@ CSCChamberTimeCorrectionsValues::~CSCChamberTimeCorrectionsValues()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  delete chamberObj;
 }
 
 
@@ -41,8 +39,8 @@ CSCChamberTimeCorrectionsValues::ReturnType
 CSCChamberTimeCorrectionsValues::produceChamberTimeCorrections(const CSCChamberTimeCorrectionsRcd& iRecord)
 {
   //need a new object so to not be deleted at exit
-  CSCChamberTimeCorrections* mydata=new CSCChamberTimeCorrections( *chamberObj );
-  return mydata;
+  return ReturnType(prefill(isForMC, isForMC ? ME11offsetMC : ME11offsetData, isForMC ? nonME11offsetMC : nonME11offsetData));
+
   
 }
 

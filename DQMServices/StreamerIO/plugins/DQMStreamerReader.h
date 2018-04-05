@@ -25,7 +25,7 @@ class DQMStreamerReader : public edm::StreamerInputSource {
  public:
   DQMStreamerReader(edm::ParameterSet const& pset,
                     edm::InputSourceDescription const& desc);
-  virtual ~DQMStreamerReader();
+  ~DQMStreamerReader() override;
 
   bool newHeader();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -33,13 +33,13 @@ class DQMStreamerReader : public edm::StreamerInputSource {
   typedef std::vector<std::string> Strings;
 
  protected:
-  virtual bool checkNextEvent(); /* from raw input source */
-  virtual void skip(int toSkip); /* from raw input source */
+  bool checkNextEvent() override; /* from raw input source */
+  void skip(int toSkip) override; /* from raw input source */
 
  private:
   // our own, but we do inherit reset(),
   // which will break things if called
-  void reset_();
+  void reset_() override;
 
   void openFile_(const DQMFileIterator::LumiEntry& entry);
   void closeFile_(const std::string& reason);
@@ -51,8 +51,8 @@ class DQMStreamerReader : public edm::StreamerInputSource {
 
   EventMsgView const* prepareNextEvent();
   bool prepareNextFile();
-  bool acceptEvent( const EventMsgView*);
- 
+  bool acceptEvent(const EventMsgView*);
+
   bool triggerSel();
   bool matchTriggerSel(Strings const& tnames);
   bool acceptAllEvt_;
@@ -76,9 +76,7 @@ class DQMStreamerReader : public edm::StreamerInputSource {
     std::unique_ptr<edm::StreamerInputFile> streamFile_;
     DQMFileIterator::LumiEntry lumi_;
 
-    bool open() {
-      return (streamFile_.get() != nullptr);
-    }
+    bool open() { return (streamFile_.get() != nullptr); }
 
   } file_;
 
@@ -89,6 +87,6 @@ class DQMStreamerReader : public edm::StreamerInputSource {
   edm::Service<DQMMonitoringService> mon_;
 };
 
-}  //end-of-namespace-def
+}  // end-of-namespace-def
 
 #endif

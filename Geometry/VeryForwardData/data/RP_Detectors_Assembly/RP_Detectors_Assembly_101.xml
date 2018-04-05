@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DDLSchema/DDLSchema.xsd">
+    <PosPartSection label="RP_Detectors_Assembly_101.xml">
+        <!--Front and back frames inserted-->
+        <PosPart copyNumber="1">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Front_Frame_3"/>
+            <Translation x="0*mm"
+                y="[RP_Detectors_Assembly:RP_Frames_dy]"
+                z="[RP_Detectors_Assembly:RP_Front_Frame_dz]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Back_Frame_3"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="0*mm"
+                y="[RP_Detectors_Assembly:RP_Frames_dy]"
+                z="-[RP_Detectors_Assembly:RP_Front_Frame_dz]"/>
+        </PosPart>
+        <!--Not rotated spacers inserted-->
+        <PosPart copyNumber="1">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Left"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_straight]"
+            />
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Right"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_straight]"
+            />
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Left"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_straight]-2*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Right"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_straight]-2*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Left"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_straight]-4*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Right"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_straight]-4*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Left"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_straight]-6*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Right"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_straight]-6*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Left"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_straight]-8*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Right"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_straight]-8*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <!--Rotated spacers inserted-->
+        <PosPart copyNumber="11">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Right"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_reverse]"
+            />
+        </PosPart>
+        <PosPart copyNumber="12">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Left"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_reverse]"
+            />
+        </PosPart>
+        <PosPart copyNumber="13">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Right"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_reverse]-2*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="14">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Left"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_reverse]-2*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="15">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Right"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_reverse]-4*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="16">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Left"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_reverse]-4*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="17">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Right"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_reverse]-6*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="18">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Left"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_reverse]-6*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="19">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Right"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_reverse]-8*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="20">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Barrette_Left"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Barrette_dx]"
+                y="[RP_Detectors_Assembly:RP_Barrette_dy]"
+                z="[RP_Detectors_Assembly:RP_Barrette_dz_base_reverse]-8*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <!--Rotated  PCB boards inserted-->
+        <PosPart copyNumber="1">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_PCB"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="0*mm"
+                y="[RP_Detectors_Assembly:RP_PCB_dy]"
+                z="[RP_Detectors_Assembly:RP_PCB_dz_base]"
+            />
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_PCB"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="0*mm"
+                y="[RP_Detectors_Assembly:RP_PCB_dy]"
+                z="[RP_Detectors_Assembly:RP_PCB_dz_base]-2*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_PCB"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="0*mm"
+                y="[RP_Detectors_Assembly:RP_PCB_dy]"
+                z="[RP_Detectors_Assembly:RP_PCB_dz_base]-4*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_PCB"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="0*mm"
+                y="[RP_Detectors_Assembly:RP_PCB_dy]"
+                z="[RP_Detectors_Assembly:RP_PCB_dz_base]-6*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="9">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_PCB"/>
+            <rRotation name="RP_Transformations:RP_y_180_rot"/>
+            <Translation x="0*mm"
+                y="[RP_Detectors_Assembly:RP_PCB_dy]"
+                z="[RP_Detectors_Assembly:RP_PCB_dz_base]-8*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <!--PCB boards inserted-->
+        <PosPart copyNumber="2">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_PCB"/>
+            <Translation x="0*mm"
+                y="[RP_Detectors_Assembly:RP_PCB_dy]"
+                z="-[RP_Detectors_Assembly:RP_PCB_dz_base]"
+            />
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_PCB"/>
+            <Translation x="0*mm"
+                y="[RP_Detectors_Assembly:RP_PCB_dy]"
+                z="-[RP_Detectors_Assembly:RP_PCB_dz_base]+2*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_PCB"/>
+            <Translation x="0*mm"
+                y="[RP_Detectors_Assembly:RP_PCB_dy]"
+                z="-[RP_Detectors_Assembly:RP_PCB_dz_base]+4*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_PCB"/>
+            <Translation x="0*mm"
+                y="[RP_Detectors_Assembly:RP_PCB_dy]"
+                z="-[RP_Detectors_Assembly:RP_PCB_dz_base]+6*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="10">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_PCB"/>
+            <Translation x="0*mm"
+                y="[RP_Detectors_Assembly:RP_PCB_dy]"
+                z="-[RP_Detectors_Assembly:RP_PCB_dz_base]+8*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <!--Rotated Silicon Detectors inserted-->
+        <PosPart copyNumber="9">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Silicon_Detector"/>
+            <rRotation name="RP_Transformations:RP_45_z_180_y_rot"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Det_dx]"
+                y="[RP_Detectors_Assembly:RP_Det_dy]"
+                z="[RP_Detectors_Assembly:RP_Det_dz_base]"
+            />
+        </PosPart>
+        <PosPart copyNumber="7">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Silicon_Detector"/>
+            <rRotation name="RP_Transformations:RP_45_z_180_y_rot"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Det_dx]"
+                y="[RP_Detectors_Assembly:RP_Det_dy]"
+                z="[RP_Detectors_Assembly:RP_Det_dz_base]-2*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="5">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Silicon_Detector"/>
+            <rRotation name="RP_Transformations:RP_45_z_180_y_rot"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Det_dx]"
+                y="[RP_Detectors_Assembly:RP_Det_dy]"
+                z="[RP_Detectors_Assembly:RP_Det_dz_base]-4*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Silicon_Detector"/>
+            <rRotation name="RP_Transformations:RP_45_z_180_y_rot"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Det_dx]"
+                y="[RP_Detectors_Assembly:RP_Det_dy]"
+                z="[RP_Detectors_Assembly:RP_Det_dz_base]-6*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Silicon_Detector"/>
+            <rRotation name="RP_Transformations:RP_45_z_180_y_rot"/>
+            <Translation x="[RP_Detectors_Assembly:RP_Det_dx]"
+                y="[RP_Detectors_Assembly:RP_Det_dy]"
+                z="[RP_Detectors_Assembly:RP_Det_dz_base]-8*[RP_Hybrid:RP_Barrette_Thick_z]"
+            />
+        </PosPart>
+        <!--Silicon Detectors inserted-->
+        <PosPart copyNumber="0">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Silicon_Detector"/>
+            <rRotation name="RP_Transformations:RP_45_z_rot"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Det_dx]"
+                y="[RP_Detectors_Assembly:RP_Det_dy]"
+                z="-([RP_Detectors_Assembly:RP_Det_dz_base])"
+            />
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Silicon_Detector"/>
+            <rRotation name="RP_Transformations:RP_45_z_rot"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Det_dx]"
+                y="[RP_Detectors_Assembly:RP_Det_dy]"
+                z="-([RP_Detectors_Assembly:RP_Det_dz_base]-2*[RP_Hybrid:RP_Barrette_Thick_z])"
+            />
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Silicon_Detector"/>
+            <rRotation name="RP_Transformations:RP_45_z_rot"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Det_dx]"
+                y="[RP_Detectors_Assembly:RP_Det_dy]"
+                z="-([RP_Detectors_Assembly:RP_Det_dz_base]-4*[RP_Hybrid:RP_Barrette_Thick_z])"
+            />
+        </PosPart>
+        <PosPart copyNumber="6">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Silicon_Detector"/>
+            <rRotation name="RP_Transformations:RP_45_z_rot"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Det_dx]"
+                y="[RP_Detectors_Assembly:RP_Det_dy]"
+                z="-([RP_Detectors_Assembly:RP_Det_dz_base]-6*[RP_Hybrid:RP_Barrette_Thick_z])"
+            />
+        </PosPart>
+        <PosPart copyNumber="8">
+            <rParent name="RP_Box_101:RP_box_secondary_vacuum"/>
+            <rChild name="RP_Hybrid:RP_Silicon_Detector"/>
+            <rRotation name="RP_Transformations:RP_45_z_rot"/>
+            <Translation x="-[RP_Detectors_Assembly:RP_Det_dx]"
+                y="[RP_Detectors_Assembly:RP_Det_dy]"
+                z="-([RP_Detectors_Assembly:RP_Det_dz_base]-8*[RP_Hybrid:RP_Barrette_Thick_z])"
+            />
+        </PosPart>
+    </PosPartSection>
+</DDDefinition>

@@ -73,7 +73,7 @@ class dso_hidden PhotonConversionTrajectorySeedProducerFromSingleLegAlgo{
   edm::EDGetTokenT<reco::BeamSpot> token_bs; 
   edm::EDGetTokenT<reco::TrackCollection> token_refitter; 
 
-  typedef std::vector<TrackingRegion* > Regions;
+  typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
   typedef Regions::const_iterator IR;
   Regions regions; 
 

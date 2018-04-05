@@ -52,8 +52,8 @@ public: // Public Methods
   ExpressionVar(const std::vector<MethodInvoker>& methods,
                 method::TypeCode retType);
   ExpressionVar(const ExpressionVar&);
-  ~ExpressionVar();
-  virtual double value(const edm::ObjectWithDict&) const;
+  ~ExpressionVar() override;
+  double value(const edm::ObjectWithDict&) const override;
 };
 
 /// Same as ExpressionVar but with lazy resolution of object methods
@@ -64,8 +64,8 @@ private: // Private Data Members
   mutable std::vector<edm::ObjectWithDict> objects_;
 public:
   ExpressionLazyVar(const std::vector<LazyInvoker>& methods);
-  ~ExpressionLazyVar();
-  virtual double value(const edm::ObjectWithDict&) const;
+  ~ExpressionLazyVar() override;
+  double value(const edm::ObjectWithDict&) const override;
 };
 
 } // namespace parser

@@ -10,53 +10,55 @@ namespace cond {
 
   namespace persistency {
     
-    table( GLOBAL_TAG ) {
+    conddb_table( GLOBAL_TAG ) {
       
-      column( NAME, std::string );
-      column( VALIDITY, cond::Time_t );
-      column( DESCRIPTION, std::string );
-      column( RELEASE, std::string );
-      column( SNAPSHOT_TIME, boost::posix_time::ptime );
-      column( INSERTION_TIME, boost::posix_time::ptime );
+      conddb_column( NAME, std::string );
+      conddb_column( VALIDITY, cond::Time_t );
+      conddb_column( DESCRIPTION, std::string );
+      conddb_column( RELEASE, std::string );
+      conddb_column( SNAPSHOT_TIME, boost::posix_time::ptime );
+      conddb_column( INSERTION_TIME, boost::posix_time::ptime );
       
       class Table : public IGTTable {
       public:
 	explicit Table( coral::ISchema& schema );
-	virtual ~Table(){}
-	bool exists();
-	bool select( const std::string& name);
-	bool select( const std::string& name, cond::Time_t& validity, boost::posix_time::ptime& snapshotTime );
+	~Table() override{}
+	bool exists() override;
+	void create() override;
+	bool select( const std::string& name) override;
+	bool select( const std::string& name, cond::Time_t& validity, boost::posix_time::ptime& snapshotTime ) override;
 	bool select( const std::string& name, cond::Time_t& validity, std::string& description, 
-		     std::string& release, boost::posix_time::ptime& snapshotTime );
+		     std::string& release, boost::posix_time::ptime& snapshotTime ) override;
 	void insert( const std::string& name, cond::Time_t validity, const std::string& description, const std::string& release, 
-		     const boost::posix_time::ptime& snapshotTime, const boost::posix_time::ptime& insertionTime );
+		     const boost::posix_time::ptime& snapshotTime, const boost::posix_time::ptime& insertionTime ) override;
 	void update( const std::string& name, cond::Time_t validity, const std::string& description, const std::string& release, 
-		     const boost::posix_time::ptime& snapshotTime, const boost::posix_time::ptime& insertionTime );
+		     const boost::posix_time::ptime& snapshotTime, const boost::posix_time::ptime& insertionTime ) override;
       private:
 	coral::ISchema& m_schema;
       };
     }
     
-    table ( GLOBAL_TAG_MAP ) {
+    conddb_table ( GLOBAL_TAG_MAP ) {
       
       static constexpr unsigned int PAYLOAD_HASH_SIZE = 40;
       
-      column( GLOBAL_TAG_NAME, std::string );
+      conddb_column( GLOBAL_TAG_NAME, std::string );
       // to be changed to RECORD_NAME!
-      column( RECORD, std::string );
+      conddb_column( RECORD, std::string );
       // to be changed to RECORD_LABEL!
-      column( LABEL, std::string );
-      column( TAG_NAME, std::string );
+      conddb_column( LABEL, std::string );
+      conddb_column( TAG_NAME, std::string );
       
       class Table : public IGTMapTable {
       public:
 	explicit Table( coral::ISchema& schema );
-	virtual ~Table(){}
-	bool exists();
-	bool select( const std::string& gtName, std::vector<std::tuple<std::string,std::string,std::string> >& tags );
+	~Table() override{}
+	bool exists() override;
+	void create() override;
+	bool select( const std::string& gtName, std::vector<std::tuple<std::string,std::string,std::string> >& tags ) override;
 	bool select( const std::string& gtName, const std::string& preFix, const std::string& postFix,
-		     std::vector<std::tuple<std::string,std::string,std::string> >& tags );
-	void insert( const std::string& gtName, const std::vector<std::tuple<std::string,std::string,std::string> >& tags );
+		     std::vector<std::tuple<std::string,std::string,std::string> >& tags ) override;
+	void insert( const std::string& gtName, const std::vector<std::tuple<std::string,std::string,std::string> >& tags ) override;
       private:
 	coral::ISchema& m_schema;
       };
@@ -65,10 +67,11 @@ namespace cond {
     class GTSchema : public IGTSchema {
     public: 
       explicit GTSchema( coral::ISchema& schema );
-      virtual ~GTSchema(){}
-      bool exists();
-      GLOBAL_TAG::Table& gtTable();
-      GLOBAL_TAG_MAP::Table& gtMapTable();
+      ~GTSchema() override{}
+      bool exists() override;
+      void create() override;
+      GLOBAL_TAG::Table& gtTable() override;
+      GLOBAL_TAG_MAP::Table& gtMapTable() override;
     private:
       GLOBAL_TAG::Table m_gtTable;
       GLOBAL_TAG_MAP::Table m_gtMapTable;

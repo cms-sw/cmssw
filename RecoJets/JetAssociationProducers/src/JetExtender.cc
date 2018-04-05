@@ -35,8 +35,7 @@ void JetExtender::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
   edm::Handle <reco::JetTracksAssociation::Container> j2tCALO_h;
   if (!(mJet2TracksAtCALO.label().empty())) fEvent.getByToken (token_mJet2TracksAtCALO, j2tCALO_h);
   
-  std::auto_ptr<reco::JetExtendedAssociation::Container> 
-    jetExtender (new reco::JetExtendedAssociation::Container (reco::JetRefBaseProd(jets_h)));
+  auto jetExtender = std::make_unique<reco::JetExtendedAssociation::Container>(reco::JetRefBaseProd(jets_h));
   
   // loop over jets (make sure jets in associations are the same as in collection
 
@@ -69,5 +68,5 @@ void JetExtender::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
     }
     reco::JetExtendedAssociation::setValue (&*jetExtender, jet, extendedData);
   }
-  fEvent.put (jetExtender);
+  fEvent.put(std::move(jetExtender));
 }

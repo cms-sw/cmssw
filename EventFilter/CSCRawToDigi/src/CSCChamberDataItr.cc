@@ -2,7 +2,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
 
 CSCChamberDataItr::CSCChamberDataItr(const char * buf) :
-  theDCCData(0),
+  theDCCData(nullptr),
   theCurrentDDU(0)
 {
   // first try if it's DCC data.
@@ -10,7 +10,7 @@ CSCChamberDataItr::CSCChamberDataItr(const char * buf) :
     = reinterpret_cast<const CSCDCCHeader *>(buf);
   if(dccHeader->check())
     {
-      theDCCData = new CSCDCCEventData((unsigned short *)buf);
+      theDCCData = new CSCDCCEventData((const uint16_t *)buf);
       theNumberOfDDUs = theDCCData->dduData().size();
       theDDUItr = new CSCDDUDataItr( &(theDCCData->dduData()[theCurrentDDU]) );
     }
@@ -42,7 +42,7 @@ bool CSCChamberDataItr::next()
       else
 	{
 	  // the next DDU exists, so initialize an itr
-	  assert(theDCCData != 0);
+	  assert(theDCCData != nullptr);
 	  delete theDDUItr;
 	  theDDUItr = new CSCDDUDataItr( &(theDCCData->dduData()[theCurrentDDU]) );
 	}

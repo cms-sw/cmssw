@@ -4,7 +4,7 @@
 class FWPopupMenu : public TGPopupMenu
 {
 public:
-   FWPopupMenu(const TGWindow* p=0, UInt_t w=10, UInt_t h=10, UInt_t options=0) :
+   FWPopupMenu(const TGWindow* p=nullptr, UInt_t w=10, UInt_t h=10, UInt_t options=0) :
       TGPopupMenu(p, w, h, options)
    {
       AddInput(kKeyPressMask);
@@ -16,7 +16,7 @@ public:
    //    gVirtualX->GrabKey(fId, 0l, kAnyModifier, kTRUE);
    // }
 
-   virtual void PoppedUp() override
+   void PoppedUp() override
    {
       TGPopupMenu::PoppedUp();
       gVirtualX->SetInputFocus(fId);
@@ -24,13 +24,13 @@ public:
       
    }
 
-   virtual void PoppedDown() override
+   void PoppedDown() override
    {
       gVirtualX->GrabKey(fId, 0l, kAnyModifier, kFALSE);
       TGPopupMenu::PoppedDown();
    }
 
-   virtual Bool_t HandleKey(Event_t* event) override
+   Bool_t HandleKey(Event_t* event) override
    {
       if (event->fType != kGKeyPress) return kTRUE;
 
@@ -78,8 +78,8 @@ public:
          }
          case kKey_Escape:
          {
-            fCurrent = 0;
-            void *dummy = 0;
+            fCurrent = nullptr;
+            void *dummy = nullptr;
             return EndMenu(dummy);
          }
          default:

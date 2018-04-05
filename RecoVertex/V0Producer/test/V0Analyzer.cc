@@ -49,21 +49,16 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
-//#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-//#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 

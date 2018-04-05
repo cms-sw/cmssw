@@ -34,13 +34,13 @@
    <version ClassVersion="10" checksum="3022746385"/>
    <version ClassVersion="11" checksum="747083523"/>
   </class>
-  <class name="std::vector<SpecificCaloMETData> "/>
+  <class name="std::vector<SpecificCaloMETData>"/>
 
   <class name="SpecificPFMETData" ClassVersion="11">
    <version ClassVersion="10" checksum="219431109"/>
    <version ClassVersion="11" checksum="1851051058"/>
   </class>
-  <class name="std::vector<SpecificPFMETData> "/>
+  <class name="std::vector<SpecificPFMETData>"/>
   <class name="SpecificGenMETData" ClassVersion="11">
    <version ClassVersion="10" checksum="2173201550"/>
    <version ClassVersion="11" checksum="2260055190"/>
@@ -75,6 +75,7 @@
   <class name="edm::Wrapper<reco::PFMET>"/>
   <class name="edm::Wrapper<std::vector<reco::PFMET> >"/>
   <class name="std::vector<reco::PFMET>"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::PFMET> > >"/>
 
   <class name="reco::PFClusterMET" ClassVersion="12">
    <version ClassVersion="12" checksum="3688821779"/>
@@ -127,11 +128,13 @@
   <class name="reco::HcalNoiseRBXCollection"/>
   <class name="edm::Wrapper<reco::HcalNoiseRBXCollection>"/>
 
-  <class name="HcalNoiseSummary" ClassVersion="14">
+  <class name="HcalNoiseSummary" ClassVersion="16">
    <version ClassVersion="11" checksum="664452001"/>
    <version ClassVersion="12" checksum="4280559065"/>
    <version ClassVersion="13" checksum="382065414"/>
    <version ClassVersion="14" checksum="651605939"/>
+   <version ClassVersion="15" checksum="2415916091"/>
+   <version ClassVersion="16" checksum="1886001321"/>
   </class>
   <class name="edm::Wrapper<HcalNoiseSummary>"/>
 
@@ -158,28 +161,46 @@
   <class name="std::vector<reco::PhiWedge>"/>
   <class name="std::vector<reco::PhiWedge>::iterator"/>
 
-  <class name="reco::EcalHaloData" ClassVersion="10">
+  <class name="reco::EcalHaloData" ClassVersion="11">
+   <version ClassVersion="11" checksum="3422191835"/>
    <version ClassVersion="10" checksum="520399124"/>
   </class>
   <class name="edm::Wrapper<reco::EcalHaloData>"/>
 
-  <class name="reco::HcalHaloData" ClassVersion="10">
+  <class name="reco::HcalHaloData" ClassVersion="14">
+   <version ClassVersion="14" checksum="4287321322"/>
+   <version ClassVersion="13" checksum="3305429659"/>
+   <version ClassVersion="12" checksum="3928363167"/>
    <version ClassVersion="10" checksum="3928363167"/>
+   <version ClassVersion="11" checksum="3305429659"/>
   </class>
   <class name="edm::Wrapper<reco::HcalHaloData>"/>
 
-  <class name="reco::CSCHaloData" ClassVersion="10">
+  <class name="HaloTowerStrip" ClassVersion="3">
+   <version ClassVersion="3" checksum="3149281836"/>
+   <version ClassVersion="2" checksum="665188928"/>
+  </class>
+  <class name="std::vector<HaloTowerStrip>"/>
+  <class name="edm::Wrapper<std::vector<HaloTowerStrip> >"/>
+
+  <class name="reco::CSCHaloData" ClassVersion="12">
+   <version ClassVersion="12" checksum="299049274"/>
+   <version ClassVersion="11" checksum="1723373351"/>
    <version ClassVersion="10" checksum="3522217120"/>
   </class>
   <class name="edm::Wrapper<reco::CSCHaloData>"/>
 
-  <class name="reco::GlobalHaloData" ClassVersion="10">
+  <class name="reco::GlobalHaloData" ClassVersion="11">
+   <version ClassVersion="11" checksum="2525701804"/>
    <version ClassVersion="10" checksum="4148277690"/>
   </class>
   <class name="edm::Wrapper<reco::GlobalHaloData>"/>
 
-  <class name="reco::BeamHaloSummary" ClassVersion="10">
+  <class name="reco::BeamHaloSummary" ClassVersion="13">
+   <version ClassVersion="13" checksum="146570384"/>
+   <version ClassVersion="12" checksum="1514181401"/>
    <version ClassVersion="10" checksum="1514181401"/>
+   <version ClassVersion="11" checksum="146570384"/>
   </class>
   <class name="edm::Wrapper<reco::BeamHaloSummary>"/>
 
@@ -195,5 +216,19 @@
   <class name="edm::Wrapper<BoundaryInformation>"/>
   <class name="std::vector<BoundaryInformation>"/>
   <class name="edm::Wrapper<std::vector<BoundaryInformation> >"/>
-
+  
+  <class name="reco::HaloClusterCandidateECAL" ClassVersion="2">
+    <version ClassVersion="2" checksum="149544819"/>
+  </class>
+  <class name="std::vector<reco::HaloClusterCandidateECAL>"/>
+  <class name="edm::Wrapper<std::vector<reco::HaloClusterCandidateECAL> >"/>
+    
+  <class name="reco::HaloClusterCandidateHCAL" ClassVersion="2">
+    <version ClassVersion="2" checksum="1519027004"/>
+  </class> 
+  <class name="std::vector<reco::HaloClusterCandidateHCAL>"/>
+  <class name="edm::Wrapper<std::vector<reco::HaloClusterCandidateHCAL> >"/>
+  
+   
+  
 </lcgdict>

@@ -15,10 +15,10 @@ uncleanedHybridSuperClusters.excludeFlagged = False
 
 from RecoEcal.EgammaClusterProducers.unifiedSCCollection_cfi import *
 
-hybridClusteringSequence = cms.Sequence(
-                cleanedHybridSuperClusters *
-                uncleanedHybridSuperClusters *
-                hybridSuperClusters *
-                correctedHybridSuperClusters*
+hybridClusteringTask = cms.Task(
+                cleanedHybridSuperClusters ,
+                uncleanedHybridSuperClusters ,
+                hybridSuperClusters ,
+                correctedHybridSuperClusters,
                 uncleanedOnlyCorrectedHybridSuperClusters)
-
+hybridClusteringSequence = cms.Sequence(hybridClusteringTask)

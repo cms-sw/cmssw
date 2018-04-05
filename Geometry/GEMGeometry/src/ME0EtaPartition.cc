@@ -3,8 +3,8 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 
-ME0EtaPartition::ME0EtaPartition(ME0DetId id, BoundPlane::BoundPlanePointer bp, ME0EtaPartitionSpecs* rrs) :
-  GeomDetUnit(bp), id_(id),specs_(rrs)
+ME0EtaPartition::ME0EtaPartition(ME0DetId id, const BoundPlane::BoundPlanePointer& bp, ME0EtaPartitionSpecs* rrs) :
+  GeomDet(bp), id_(id),specs_(rrs)
 {
   setDetId(id);
 }
@@ -38,13 +38,13 @@ ME0EtaPartition::specificPadTopology() const
   return specs_->specificPadTopology();
 }
 
-const GeomDetType& 
+const GeomDetType&
 ME0EtaPartition::type() const
 {
   return (*specs_);
 }
 
-int 
+int
 ME0EtaPartition::nstrips() const
 {
   return this->specificTopology().nstrips();
@@ -64,31 +64,31 @@ ME0EtaPartition::centreOfStrip(float strip) const
 }
 
 LocalError
-ME0EtaPartition::localError(float strip) const
+ME0EtaPartition::localError(float strip, float cluster_size) const
 {
-  return this->specificTopology().localError(strip, 1./sqrt(12.));
+  return this->specificTopology().localError(strip, cluster_size*cluster_size/sqrt(12.));
 }
 
 float
 ME0EtaPartition::strip(const LocalPoint& lp) const
-{ 
+{
   return this->specificTopology().strip(lp);
 }
 
 float
 ME0EtaPartition::localPitch(const LocalPoint& lp) const
-{ 
+{
   return this->specificTopology().localPitch(lp);
 }
 
 float
 ME0EtaPartition::pitch() const
-{ 
+{
   return this->specificTopology().pitch();
 }
 
 
-int 
+int
 ME0EtaPartition::npads() const
 {
   return specificPadTopology().nstrips();
@@ -109,19 +109,19 @@ ME0EtaPartition::centreOfPad(float pad) const
 
 float
 ME0EtaPartition::pad(const LocalPoint& lp) const
-{ 
+{
   return specificPadTopology().strip(lp);
 }
 
 float
 ME0EtaPartition::localPadPitch(const LocalPoint& lp) const
-{ 
+{
   return specificPadTopology().localPitch(lp);
 }
 
 float
 ME0EtaPartition::padPitch() const
-{ 
+{
   return specificPadTopology().pitch();
 }
 

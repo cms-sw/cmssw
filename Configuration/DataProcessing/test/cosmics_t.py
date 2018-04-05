@@ -35,7 +35,7 @@ class cosmicsScenarioTest(unittest.TestCase):
         """get the scenario"""
         try:
             scenario = getScenario("cosmics")
-        except Exception, ex:
+        except Exception as ex:
             msg = "Failed to get cosmics scenario\n"
             msg += str(ex)
             self.fail(msg)
@@ -47,7 +47,7 @@ class cosmicsScenarioTest(unittest.TestCase):
         try:
             process = scenario.promptReco("GLOBALTAG::ALL")
             writePSetFile("testPromptReco.py", process)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Failed to create Prompt Reco configuration\n"
             msg += "for cosmics Scenario\n"
             msg += str(ex)
@@ -60,7 +60,7 @@ class cosmicsScenarioTest(unittest.TestCase):
         try:
             process = scenario.expressProcessing("GLOBALTAG::ALL")
             writePSetFile("testExpressProcessing.py", process)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Failed to create Express Processing configuration\n"
             msg += "for cosmics Scenario\n"
             msg += str(ex)
@@ -73,7 +73,7 @@ class cosmicsScenarioTest(unittest.TestCase):
         try:
             process = scenario.alcaSkim(["MuAlCalIsolatedMu"])
             writePSetFile("testAlcaReco.py", process)
-        except Exception, ex:
+        except Exception as ex:
            msg = "Failed to create Alca Skimming configuration\n"
            msg += "for cosmics Scenario\n"
            msg += str(ex)
@@ -87,7 +87,7 @@ class cosmicsScenarioTest(unittest.TestCase):
             process = scenario.dqmHarvesting("dataset", 123456,
                                              "GLOBALTAG::ALL")
             writePSetFile("testDQMHarvesting.py", process)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Failed to create DQM Harvesting configuration "
             msg += "for cosmics scenario:\n"
             msg += str(ex)

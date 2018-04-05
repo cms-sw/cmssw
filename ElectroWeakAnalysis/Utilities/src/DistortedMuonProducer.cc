@@ -17,12 +17,12 @@
 class DistortedMuonProducer : public edm::EDProducer {
    public:
       explicit DistortedMuonProducer(const edm::ParameterSet&);
-      ~DistortedMuonProducer();
+      ~DistortedMuonProducer() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
       edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
       edm::EDGetTokenT<reco::GenParticleMatch> genMatchMapToken_;
@@ -138,7 +138,7 @@ void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
 
       unsigned int muonCollectionSize = muonCollection->size();
 
-      std::auto_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
+      std::unique_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
 
       for (unsigned int i=0; i<muonCollectionSize; i++) {
             edm::RefToBase<reco::Muon> mu = muonCollection->refAt(i);
@@ -216,7 +216,7 @@ void DistortedMuonProducer::produce(edm::Event& ev, const edm::EventSetup& iSetu
 
       }
 
-      ev.put(newmuons);
+      ev.put(std::move(newmuons));
 }
 
 DEFINE_FWK_MODULE(DistortedMuonProducer);

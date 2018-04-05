@@ -41,10 +41,10 @@
 class ConversionSeedFilter : public edm::stream::EDProducer<> {
 public:
   explicit ConversionSeedFilter(const edm::ParameterSet&);
-  ~ConversionSeedFilter();
+  ~ConversionSeedFilter() override;
   
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   bool isCompatible(double *vars1, double* vars2);
   void getKine(const TrajectoryStateOnSurface& tsos, double *vars);
   void SearchAmongSeeds(const TrajectorySeedCollection* pInPos,const TrajectorySeedCollection* pInNeg, TrajectorySeedCollection& selectedColl, std::vector<bool>& idxPosColl1, std::vector<bool>& idxPosColl2);
@@ -100,7 +100,7 @@ void ConversionSeedFilter::produce(edm::Event& iEvent, const edm::EventSetup& iS
    iSetup.get<TrackerDigiGeometryRecord>().get(theG);
    iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
 
-   std::auto_ptr<TrajectorySeedCollection> result(new TrajectorySeedCollection());
+   auto result = std::make_unique<TrajectorySeedCollection>();
 
    TrajectorySeedCollection selectedColl;
    
@@ -142,7 +142,7 @@ void ConversionSeedFilter::produce(edm::Event& iEvent, const edm::EventSetup& iS
       
    edm::LogInfo("ConversionSeedFilter") << "\nNew Event : result size " << result->size()<< std::endl;
 
-   iEvent.put(result);
+   iEvent.put(std::move(result));
    
 }
 

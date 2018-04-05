@@ -32,7 +32,7 @@ ________________________________________________________________**/
 AlcaBeamSpotFromDB::AlcaBeamSpotFromDB(const edm::ParameterSet& iConfig)
 {
 
-  produces<reco::BeamSpot, edm::InLumi>("alcaBeamSpot");  
+  produces<reco::BeamSpot, edm::Transition::EndLuminosityBlock>("alcaBeamSpot");  
 }
 
 
@@ -83,9 +83,9 @@ void AlcaBeamSpotFromDB::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg
     aSpot.setType( reco::BeamSpot::Fake );
   }
 
-  std::auto_ptr<reco::BeamSpot> result(new reco::BeamSpot);
+  auto result = std::make_unique<reco::BeamSpot>();
   *result = aSpot;
-  lumiSeg.put(result, std::string("alcaBeamSpot"));
+  lumiSeg.put(std::move(result), std::string("alcaBeamSpot"));
 
   //std::cout << " for runs: " << iEvent.id().run() << " - " << iEvent.id().run() << std::endl;
   std::cout << aSpot << std::endl;

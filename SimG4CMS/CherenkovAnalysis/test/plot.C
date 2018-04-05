@@ -51,8 +51,8 @@ int getAngleParams( double angle )
 
   std::cout << "    replace VtxSmeared.MeanX = " << meanX << std::endl;
   cout.precision(16);
-  std::cout << "    replace FlatRandomEGunSource.PGunParameters.MinPhi = " << phi << std::endl;
-  std::cout << "    replace FlatRandomEGunSource.PGunParameters.MaxPhi = " << phi << std::endl;
+  std::cout << "    replace FlatRandomEGunProducer.PGunParameters.MinPhi = " << phi << std::endl;
+  std::cout << "    replace FlatRandomEGunProducer.PGunParameters.MaxPhi = " << phi << std::endl;
 
   return 0;
 

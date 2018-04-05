@@ -1,9 +1,12 @@
 #include <iostream>
 #include <string>
+
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
 
 int main(int, char **argv)
 {

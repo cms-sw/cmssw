@@ -21,7 +21,8 @@ void HcalQIEShape::expand () {
     int factor = nbins_ == 32 ? 5 : 8;  // QIE8/QIE10 -> 5/8
     scale *= factor;
     unsigned index = range * nbins_;
-    mValues [index] = mValues [index - 2]; // link to previous range
+    unsigned overlap = (nbins_ == 32) ? 2 : 3; // QIE10 -> 3 bin overlap
+    mValues [index] = mValues [index - overlap]; // link to previous range
     for (unsigned i = 1; i < nbins_; i++) {
       mValues [index + i] =  mValues [index + i - 1] + scale * (mValues [i] - mValues [i - 1]);
     }

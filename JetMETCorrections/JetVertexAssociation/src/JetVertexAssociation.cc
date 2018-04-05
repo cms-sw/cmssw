@@ -84,7 +84,7 @@ namespace cms{
    double ptmax = -100.;
 
    VertexCollection::const_iterator vert = vertexes->begin ();
-   if(vertexes->size() > 0 )   {
+   if(!vertexes->empty() )   {
         for (; vert != vertexes->end (); vert++) {
 
                 SIGNAL_V_Z = vert->z();
@@ -103,12 +103,12 @@ namespace cms{
    }
 
    pair<double, bool> result;
-   std::auto_ptr<ResultCollection1> result1 (new ResultCollection1) ;
-   std::auto_ptr<ResultCollection2> result2 (new ResultCollection2) ;
+   std::unique_ptr<ResultCollection1> result1 (new ResultCollection1) ;
+   std::unique_ptr<ResultCollection2> result2 (new ResultCollection2) ;
 
    CaloJetCollection::const_iterator jet = jets->begin ();
 
-   if(jets->size() > 0 )   {
+   if(!jets->empty() )   {
         for (; jet != jets->end (); jet++) {
 	     result = m_algo.Main(*jet, tracks, SIGNAL_V_Z, SIGNAL_V_Z_ERROR);
              result1->push_back(result.first);
@@ -117,8 +117,8 @@ namespace cms{
 	}
    }
 
-   iEvent.put(result1, "Var");
-   iEvent.put(result2, "JetType");
+   iEvent.put(std::move(result1), "Var");
+   iEvent.put(std::move(result2), "JetType");
 
   }
 }

@@ -109,15 +109,12 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 
   //cout << "NEW EVENT"<<endl;
 
-  std::auto_ptr<reco::BasicClusterCollection> 
-    basicClusters_p(new reco::BasicClusterCollection);
+  auto basicClusters_p = std::make_unique<reco::BasicClusterCollection>();
 
-  std::auto_ptr<reco::PreshowerClusterCollection>
-    psClusters_p(new reco::PreshowerClusterCollection);
+  auto psClusters_p = std::make_unique<reco::PreshowerClusterCollection>();
 
   /*
-  std::auto_ptr<reco::ConversionCollection>
-    SingleLeg_p(new reco::ConversionCollection);
+  auto SingleLeg_p = std::make_unique<reco::ConversionCollection>();
   */
 
   reco::SuperClusterCollection outputSuperClusterCollection;
@@ -192,7 +189,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 
 	//std::cout << "nDoubleLegConv="<<cand.photonExtraRef()->conversionRef().size()<<std::endl;
 
-	if (cand.photonExtraRef()->conversionRef().size()>0){
+	if (!cand.photonExtraRef()->conversionRef().empty()){
 
 	  pfConv_.push_back(reco::ConversionRefVector());
 
@@ -211,7 +208,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 	
 	//std::cout << "nSingleLegConv=" <<singleLegConvColl.size() << std::endl;
 
-	if (singleLegConvColl.size()>0){
+	if (!singleLegConvColl.empty()){
 
 	  pfSingleLegConv_.push_back(std::vector<reco::TrackRef>());
 	  pfSingleLegConvMva_.push_back(std::vector<float>());
@@ -308,11 +305,11 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
    //Save the basic clusters and get an handle as to be able to create valid Refs (thanks to Claude)
   //  std::cout << " Number of basic clusters " << basicClusters_p->size() << std::endl;
   const edm::OrphanHandle<reco::BasicClusterCollection> bcRefProd = 
-    iEvent.put(basicClusters_p,PFBasicClusterCollection_);
+    iEvent.put(std::move(basicClusters_p),PFBasicClusterCollection_);
 
   //preshower clusters
   const edm::OrphanHandle<reco::PreshowerClusterCollection> psRefProd = 
-    iEvent.put(psClusters_p,PFPreshowerClusterCollection_);
+    iEvent.put(std::move(psClusters_p),PFPreshowerClusterCollection_);
   
   // now that the Basic clusters are in the event, the Ref can be created
   createBasicClusterPtrs(bcRefProd);
@@ -326,8 +323,8 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   //std::cout << "nb superclusters in collection : "<<outputSuperClusterCollection.size()<<std::endl;
 
   // Let's put the super clusters in the event
-  std::auto_ptr<reco::SuperClusterCollection> superClusters_p(new reco::SuperClusterCollection(outputSuperClusterCollection));  
-  const edm::OrphanHandle<reco::SuperClusterCollection> scRefProd = iEvent.put(superClusters_p,PFSuperClusterCollection_); 
+  auto superClusters_p = std::make_unique<reco::SuperClusterCollection>(outputSuperClusterCollection);  
+  const edm::OrphanHandle<reco::SuperClusterCollection> scRefProd = iEvent.put(std::move(superClusters_p),PFSuperClusterCollection_); 
 
 
   /*
@@ -345,8 +342,8 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   if (status) createOneLegConversions(scRefProd, outputOneLegConversionCollection);
 
 
-  std::auto_ptr<reco::ConversionCollection> SingleLeg_p(new reco::ConversionCollection(outputOneLegConversionCollection));  
-  const edm::OrphanHandle<reco::ConversionCollection> ConvRefProd = iEvent.put(SingleLeg_p,PFConversionCollection_);
+  auto SingleLeg_p = std::make_unique<reco::ConversionCollection>(outputOneLegConversionCollection);  
+  const edm::OrphanHandle<reco::ConversionCollection> ConvRefProd = iEvent.put(std::move(SingleLeg_p),PFConversionCollection_);
   /*
   int iconv = 0;
   for (reco::ConversionCollection::const_iterator convIter = ConvRefProd->begin(); convIter != ConvRefProd->end(); ++convIter){
@@ -368,9 +365,9 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   //std::cout << "nb photoncores in collection : "<<outputPhotonCoreCollection.size()<<std::endl;
 
   // Put the photon cores in the event
-  std::auto_ptr<reco::PhotonCoreCollection> photonCores_p(new reco::PhotonCoreCollection(outputPhotonCoreCollection));  
-  //std::cout << "photon core collection put in auto_ptr"<<std::endl;
-  const edm::OrphanHandle<reco::PhotonCoreCollection> pcRefProd = iEvent.put(photonCores_p,PFPhotonCoreCollection_); 
+  auto photonCores_p = std::make_unique<reco::PhotonCoreCollection>(outputPhotonCoreCollection);  
+  //std::cout << "photon core collection put in unique_ptr"<<std::endl;
+  const edm::OrphanHandle<reco::PhotonCoreCollection> pcRefProd = iEvent.put(std::move(photonCores_p),PFPhotonCoreCollection_); 
   
   //std::cout << "photon core have been put in the event"<<std::endl;
   /*
@@ -449,9 +446,9 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   if(status) createPhotons(vertexCollection, egPhotons, pcRefProd, isolationValues, outputPhotonCollection);
 
   // Put the photons in the event
-  std::auto_ptr<reco::PhotonCollection> photons_p(new reco::PhotonCollection(outputPhotonCollection));  
-  //std::cout << "photon collection put in auto_ptr"<<std::endl;
-  const edm::OrphanHandle<reco::PhotonCollection> photonRefProd = iEvent.put(photons_p,PFPhotonCollection_); 
+  auto photons_p = std::make_unique<reco::PhotonCollection>(outputPhotonCollection);  
+  //std::cout << "photon collection put in unique_ptr"<<std::endl;
+  const edm::OrphanHandle<reco::PhotonCollection> photonRefProd = iEvent.put(std::move(photons_p),PFPhotonCollection_); 
   //std::cout << "photons have been put in the event"<<std::endl;
   
   /*
@@ -528,7 +525,7 @@ void PFPhotonTranslator::createBasicCluster(const reco::PFBlockElement & PFBE,
 					      std::vector<const reco::PFCluster *> & pfClusters,
 					      const reco::PFCandidate & coCandidate) const
 {
-  reco::PFClusterRef myPFClusterRef = PFBE.clusterRef();
+  const reco::PFClusterRef& myPFClusterRef = PFBE.clusterRef();
   if(myPFClusterRef.isNull()) return;  
 
   const reco::PFCluster & myPFCluster (*myPFClusterRef);
@@ -548,7 +545,7 @@ void PFPhotonTranslator::createBasicCluster(const reco::PFBlockElement & PFBE,
 
 void PFPhotonTranslator::createPreshowerCluster(const reco::PFBlockElement & PFBE, reco::PreshowerClusterCollection& preshowerClusters,unsigned plane) const
 {
-  reco::PFClusterRef  myPFClusterRef= PFBE.clusterRef();
+  const reco::PFClusterRef&  myPFClusterRef= PFBE.clusterRef();
   preshowerClusters.push_back(reco::PreshowerCluster(myPFClusterRef->energy(),myPFClusterRef->position(),
 					       myPFClusterRef->hitsAndFractions(),plane));
 }
@@ -718,7 +715,6 @@ void PFPhotonTranslator::createOneLegConversions(const edm::OrphanHandle<reco::S
 	    std::vector<reco::TrackRef> OneLegConvVector;
 	    OneLegConvVector.push_back(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]);
 	    
-	    reco::CaloClusterPtrVector clu=scPtrVec;
 	    std::vector<reco::TrackRef> tr=OneLegConvVector;
 	    std::vector<math::XYZPointF>trackPositionAtEcalVec;
 	    std::vector<math::XYZPointF>innPointVec;
@@ -899,7 +895,7 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       reco::PhotonCoreRef PCref(reco::PhotonCoreRef(photonCoresHandle, iphot));
 
       math::XYZPoint vtx(0.,0.,0.);
-      if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
+      if (!vertexCollection.empty()) vtx = vertexCollection.begin()->position();
       //std::cout << "vtx made" << std::endl;
 
       math::XYZVector direction =  PCref->parentSuperCluster()->position() - vtx;
@@ -914,6 +910,7 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
 
 
       reco::Photon::ShowerShape  showerShape;
+      reco::Photon::SaturationInfo saturationInfo;
       reco::Photon::FiducialFlags fiducialFlags;
       reco::Photon::IsolationVariables isolationVariables03;
       reco::Photon::IsolationVariables isolationVariables04;
@@ -928,7 +925,12 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       showerShape.hcalDepth1OverEcal = egPhotonRef_[iphot]->hadronicDepth1OverEm();
       showerShape.hcalDepth2OverEcal = egPhotonRef_[iphot]->hadronicDepth2OverEm();
       myPhoton.setShowerShapeVariables ( showerShape ); 
-	  
+
+      
+      saturationInfo.nSaturatedXtals = egPhotonRef_[iphot]->nSaturatedXtals();
+      saturationInfo.isSeedSaturated = egPhotonRef_[iphot]->isSeedSaturated();
+      myPhoton.setSaturationInfo(saturationInfo);
+
       fiducialFlags.isEB = egPhotonRef_[iphot]->isEB();
       fiducialFlags.isEE = egPhotonRef_[iphot]->isEE();
       fiducialFlags.isEBEtaGap = egPhotonRef_[iphot]->isEBEtaGap();

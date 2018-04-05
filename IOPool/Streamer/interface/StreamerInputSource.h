@@ -13,6 +13,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/RawInputSource.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
@@ -32,10 +33,10 @@ namespace edm {
   public:  
     explicit StreamerInputSource(ParameterSet const& pset,
                  InputSourceDescription const& desc);
-    virtual ~StreamerInputSource();
+    ~StreamerInputSource() override;
     static void fillDescription(ParameterSetDescription& description);
 
-    std::auto_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);
+    std::unique_ptr<SendJobHeader> deserializeRegistry(InitMsgView const& initView);
 
     void deserializeAndMergeWithRegistry(InitMsgView const& initView, bool subsequent = false);
 
@@ -70,16 +71,16 @@ namespace edm {
     class EventPrincipalHolder : public EDProductGetter {
     public:
       EventPrincipalHolder();
-      virtual ~EventPrincipalHolder();
+      ~EventPrincipalHolder() override;
 
-      virtual WrapperBase const* getIt(ProductID const& id) const override;
-      virtual WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
-      virtual void getThinnedProducts(ProductID const& pid,
+      WrapperBase const* getIt(ProductID const& id) const override;
+      WrapperBase const* getThinnedProduct(ProductID const&, unsigned int&) const override;
+      void getThinnedProducts(ProductID const& pid,
                                       std::vector<WrapperBase const*>& wrappers,
                                       std::vector<unsigned int>& keys) const override;
 
 
-      virtual unsigned int transitionIndex_() const override;
+      unsigned int transitionIndex_() const override;
 
       void setEventPrincipal(EventPrincipal* ep);
 
@@ -88,17 +89,18 @@ namespace edm {
       EventPrincipal const* eventPrincipal_;
     };
 
-    virtual void read(EventPrincipal& eventPrincipal);
+    void read(EventPrincipal& eventPrincipal) override;
 
-    virtual void setRun(RunNumber_t r);
+    void setRun(RunNumber_t r) override;
 
-    virtual std::unique_ptr<FileBlock> readFile_();
+    std::unique_ptr<FileBlock> readFile_() override;
 
-    TClass* tc_;
+    edm::propagate_const<TClass*> tc_;
     std::vector<unsigned char> dest_;
     TBufferFile xbuf_;
-    std::unique_ptr<SendEvent> sendEvent_;
-    EventPrincipalHolder eventPrincipalHolder_;
+    edm::propagate_const<std::unique_ptr<SendEvent>> sendEvent_;
+    edm::propagate_const<std::unique_ptr<EventPrincipalHolder>> eventPrincipalHolder_;
+    std::vector<edm::propagate_const<std::unique_ptr<EventPrincipalHolder>>> streamToEventPrincipalHolders_;
     bool adjustEventToNewProductRegistry_;
 
     std::string processName_;

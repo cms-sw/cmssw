@@ -2,7 +2,16 @@
 Muon Summary Validation script
 *******************************
 
-Version 0
----------
-a) User needs to set input data in the file userparams.py
-b) User needs to run muonReleaseSummary.py
+New Muon Validation: from CMSSW_10_1_0_pre1
+
+* set the input data in: new_userparams.py
+* then run: python new_muonReleaseSummary.py
+
+-------------------------------
+
+Old Muon Validation: up to CMSSW_10_1_0_pre1
+
+* set the input data in: userparams.py
+* then run: python muonReleaseSummary.py
+
+

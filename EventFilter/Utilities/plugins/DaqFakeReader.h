@@ -7,8 +7,7 @@
  *  \author N. Amapane - CERN
  */
 
-#include "EvffedFillerRB.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -19,14 +18,14 @@
 
 
 
-class DaqFakeReader : public edm::EDProducer
+class DaqFakeReader : public edm::one::EDProducer<>
 {
  public:
   //
   // construction/destruction
   //
   DaqFakeReader(const edm::ParameterSet& pset);
-  virtual ~DaqFakeReader();
+  ~DaqFakeReader() override;
   
 
   //
@@ -37,7 +36,7 @@ class DaqFakeReader : public edm::EDProducer
   virtual int fillRawData(edm::Event& e,
 			  FEDRawDataCollection*& data);
 
-  virtual void produce(edm::Event&, edm::EventSetup const&);
+  void produce(edm::Event&, edm::EventSetup const&) override;
   
 private:
   //
@@ -49,8 +48,6 @@ private:
 		float meansize,
 		float width);
   void fillGTPFED(edm::EventID& eID,
-		   FEDRawDataCollection& data,timeval * now);
-  void fillFED1023(edm::EventID& eID,
 		   FEDRawDataCollection& data,timeval * now);
   virtual void beginLuminosityBlock(edm::LuminosityBlock const& iL, edm::EventSetup const& iE);
  private:
@@ -65,7 +62,6 @@ private:
   unsigned int        injected_errors_per_million_events;
   unsigned int        modulo_error_events;
   unsigned int        fakeLs_=0;
-  evf::EvffedFillerRB frb;
 };
 
 #endif

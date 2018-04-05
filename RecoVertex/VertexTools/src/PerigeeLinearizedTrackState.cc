@@ -33,7 +33,7 @@ bool PerigeeLinearizedTrackState::operator ==(LinearizedTrackState<5> & other)co
 {
   const PerigeeLinearizedTrackState* otherP = 
   	dynamic_cast<const PerigeeLinearizedTrackState*>(&other);
-  if (otherP == 0) {
+  if (otherP == nullptr) {
    throw VertexException("PerigeeLinearizedTrackState: don't know how to compare myself to non-perigee track state");
   }
   return (otherP->track() == theTrack);
@@ -44,7 +44,7 @@ bool PerigeeLinearizedTrackState::operator ==(ReferenceCountingPointer<Linearize
 {
   const PerigeeLinearizedTrackState* otherP = 
   	dynamic_cast<const PerigeeLinearizedTrackState*>(other.get());
-  if (otherP == 0) {
+  if (otherP == nullptr) {
    throw VertexException("PerigeeLinearizedTrackState: don't know how to compare myself to non-perigee track state");
   }
   return (otherP->track() == theTrack);

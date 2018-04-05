@@ -23,14 +23,14 @@ public:
   RPCDcsInfo(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~RPCDcsInfo();
+  ~RPCDcsInfo() override;
 
 protected:
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
+  void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
 
 
 

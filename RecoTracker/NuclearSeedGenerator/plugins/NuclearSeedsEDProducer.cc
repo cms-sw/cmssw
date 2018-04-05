@@ -17,7 +17,8 @@ using namespace reco;
 //
 NuclearSeedsEDProducer::NuclearSeedsEDProducer(const edm::ParameterSet& iConfig) : conf_(iConfig),
 improveSeeds(iConfig.getParameter<bool>("improveSeeds")),
-producer_(iConfig.getParameter<std::string>("producer"))
+producer_(consumes<TrajectoryCollection>(iConfig.getParameter<std::string>("producer"))),
+mteToken_(consumes<MeasurementTrackerEvent>(edm::InputTag("MeasurementTrackerEvents")))
 {
    produces<TrajectorySeedCollection>();
    produces<TrajectoryToSeedsMap>();
@@ -42,16 +43,16 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
    typedef TrajectoryMeasurement TM;
 
    edm::Handle< TrajectoryCollection > m_TrajectoryCollection;
-   iEvent.getByLabel( producer_, m_TrajectoryCollection );
+   iEvent.getByToken( producer_, m_TrajectoryCollection );
 
    LogDebug("NuclearSeedGenerator") << "Number of trajectory in event :" << m_TrajectoryCollection->size() << "\n";
 
-   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
-   std::auto_ptr<TrajectoryToSeedsMap> outAssoc(new TrajectoryToSeedsMap);
+   auto output = std::make_unique<TrajectorySeedCollection>();
+   auto outAssoc = std::make_unique<TrajectoryToSeedsMap>();
 
    
    edm::Handle<MeasurementTrackerEvent> data;
-   iEvent.getByLabel(edm::InputTag("MeasurementTrackerEvent"), data);
+   iEvent.getByToken(mteToken_, data);
 
 //   NavigationSetter setter( *(theNuclearInteractionFinder->nav()) );   why???
 
@@ -67,7 +68,7 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
          if( improveSeeds == true ) theNuclearInteractionFinder->improveSeeds( *data );
 
          // push back the new persistent seeds in output
-         std::auto_ptr<TrajectorySeedCollection> newSeeds(theNuclearInteractionFinder->getPersistentSeeds());
+         std::unique_ptr<TrajectorySeedCollection> newSeeds(theNuclearInteractionFinder->getPersistentSeeds());
          output->insert(output->end(), newSeeds->begin(), newSeeds->end());
 
          // fill the id of the Trajectory and the if of the seed in assocPair
@@ -77,12 +78,12 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
    }
 
-   const edm::OrphanHandle<TrajectorySeedCollection> refprodTrajSeedColl = iEvent.put(output);
+   const edm::OrphanHandle<TrajectorySeedCollection> refprodTrajSeedColl = iEvent.put(std::move(output));
 
    for(std::vector<std::pair<int, int> >::const_iterator iVecP = assocPair.begin(); iVecP != assocPair.end(); iVecP++) {
         outAssoc->insert(edm::Ref<TrajectoryCollection>(m_TrajectoryCollection,iVecP->first), edm::Ref<TrajectorySeedCollection>(refprodTrajSeedColl, iVecP->second));
    }
-   iEvent.put(outAssoc);
+   iEvent.put(std::move(outAssoc));
 
 }
 
@@ -90,10 +91,6 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 void
 NuclearSeedsEDProducer::beginRun(edm::Run const& run, const edm::EventSetup& es)
 {
-   theNuclearInteractionFinder = std::auto_ptr<NuclearInteractionFinder>(new NuclearInteractionFinder(es, conf_));
+   theNuclearInteractionFinder = std::make_unique<NuclearInteractionFinder>(es, conf_);
 
 }
-
-void  NuclearSeedsEDProducer::endJob() {}
-
-

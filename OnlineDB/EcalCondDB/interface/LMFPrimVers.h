@@ -27,7 +27,7 @@ class LMFPrimVers : public LMFUnique {
   LMFPrimVers(EcalDBConnection *c);
   LMFPrimVers(oracle::occi::Environment* env,
 	      oracle::occi::Connection* conn);
-  ~LMFPrimVers();
+  ~LMFPrimVers() override;
 
   // Methods for user data
   int getVersion() const { return m_ID; }
@@ -45,11 +45,11 @@ class LMFPrimVers : public LMFUnique {
 
  private:
   // Methods from LMFUnique
-  std::string fetchIdSql(Statement *stmt);
-  std::string fetchAllSql(Statement *stmt) const;
-  std::string setByIDSql(Statement *stmt, int id);
-  void getParameters(ResultSet *rset);
-  LMFUnique *createObject() const;
+  std::string fetchIdSql(Statement *stmt) override;
+  std::string fetchAllSql(Statement *stmt) const override;
+  std::string setByIDSql(Statement *stmt, int id) override;
+  void getParameters(ResultSet *rset) override;
+  LMFUnique *createObject() const override;
 };
 
 #endif

@@ -2,7 +2,7 @@
 #define ECAL_FENIX_FGVB_EB_H
 
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 class EcalTPGFineGrainEBGroup;
 class EcalTPGFineGrainEBIdMap;

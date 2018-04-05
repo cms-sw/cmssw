@@ -26,7 +26,7 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 process.load("FastSimulation/Configuration/MinBiasEvents_cfi")
 # Generate muons with a flat pT particle gun, and with pT=10.
 # process.load("FastSimulation/Configuration/FlatPtMuonGun_cfi")
-# replace FlatRandomPtGunSource.PGunParameters.PartID={130}
+# replace FlatRandomPtGunProducer.PGunParameters.PartID={130}
 # Generate di-electrons with pT=35 GeV
 #process.load("FastSimulation/Configuration/DiElectrons_cfi")
 
@@ -43,9 +43,12 @@ process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True
 # If you want to turn on/off pile-up
 #process.famosPileUp.PileUpSimulator.averageNumber = 5.0    
 # You may not want to simulate everything for your study
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = True
-# process.famosSimHits.SimulateMuons = False
+process.fastSimProducer.SimulateCalorimetry = True
+for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+    layer.interactionModels = cms.untracked.vstring("pairProduction", "nuclearInteraction", "bremsstrahlung", "energyLoss", "multipleScattering", "trackerSimHits")
+# process.fastSimProducer.SimulateMuons = False
 
 # include Castor fast sim
 process.load("FastSimulation.ForwardDetectors.CastorFastReco_cff")

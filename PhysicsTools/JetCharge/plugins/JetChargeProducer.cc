@@ -6,7 +6,7 @@ algo_(cfg) {
     produces<JetChargeCollection>();
 }
 
-void JetChargeProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void JetChargeProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
     edm::Handle<reco::JetTracksAssociationCollection> hJTAs;
     iEvent.getByToken(srcToken_, hJTAs);
     typedef reco::JetTracksAssociationCollection::const_iterator IT;
@@ -14,11 +14,10 @@ void JetChargeProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
 
     if (hJTAs->keyProduct().isNull()) {
         // need to work around this bug someway, altough it's not stricly my fault
-        std::auto_ptr<JetChargeCollection> ret(new JetChargeCollection());
-        iEvent.put(ret);
+        iEvent.put(std::make_unique<JetChargeCollection>());
         return;
     }
-    std::auto_ptr<JetChargeCollection> ret(new JetChargeCollection(hJTAs->keyProduct()));
+    auto ret = std::make_unique<JetChargeCollection>(hJTAs->keyProduct());
     for (IT it = hJTAs->begin(), ed = hJTAs->end(); it != ed; ++it) {
         const JetRef &jet = it->first;
         const reco::TrackRefVector &tracks = it->second;
@@ -26,5 +25,5 @@ void JetChargeProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
         reco::JetFloatAssociation::setValue(*ret, jet, val);
     }
 
-    iEvent.put(ret);
+    iEvent.put(std::move(ret));
 }

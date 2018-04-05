@@ -21,9 +21,9 @@ public:
     /// Constructor
     explicit CSCSegmentProducer(const edm::ParameterSet&);
     /// Destructor
-    ~CSCSegmentProducer();
+    ~CSCSegmentProducer() override;
     /// Produce the CSCSegment collection
-    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
     int iev; // events through

@@ -10,7 +10,7 @@
 
 
 // system include files
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 // user include files
 
@@ -46,22 +46,22 @@ namespace l1t {
   class FakeInputProducer : public EDProducer {
   public:
     explicit FakeInputProducer(const ParameterSet&);
-    ~FakeInputProducer();
+    ~FakeInputProducer() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void produce(Event&, EventSetup const&);
-    virtual void beginJob();
-    virtual void endJob();
-    virtual void beginRun(Run const&iR, EventSetup const&iE);
-    virtual void endRun(Run const& iR, EventSetup const& iE);
+    void produce(Event&, EventSetup const&) override;
+    void beginJob() override;
+    void endJob() override;
+    void beginRun(Run const&iR, EventSetup const&iE) override;
+    void endRun(Run const& iR, EventSetup const& iE) override;
 
     // ----------member data ---------------------------
     unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
-    //boost::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
-    //boost::shared_ptr<const FirmwareVersion> m_fwv;
-    //boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
+    //std::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
+    //std::shared_ptr<const FirmwareVersion> m_fwv;
+    //std::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
 
     // Parameters for EG
     std::vector<int> fEgBx;
@@ -184,11 +184,11 @@ FakeInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
   int bxLast  = 2;
 
   //outputs
-  std::auto_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<l1t::MuonBxCollection> muons (new l1t::MuonBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection(0, bxFirst, bxLast));
-  std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<l1t::EGammaBxCollection> egammas (new l1t::EGammaBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<l1t::MuonBxCollection> muons (new l1t::MuonBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection(0, bxFirst, bxLast));
+  std::unique_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection(0, bxFirst, bxLast));
 
 // Put EG into Collections
    for(unsigned int it=0; it<fEgBx.size(); it++) {
@@ -235,11 +235,11 @@ FakeInputProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
    }
 
-  iEvent.put(egammas);
-  iEvent.put(muons);
-  iEvent.put(taus);
-  iEvent.put(jets);
-  iEvent.put(etsums);
+  iEvent.put(std::move(egammas));
+  iEvent.put(std::move(muons));
+  iEvent.put(std::move(taus));
+  iEvent.put(std::move(jets));
+  iEvent.put(std::move(etsums));
 
 }
 

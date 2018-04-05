@@ -24,7 +24,7 @@ class CandKinematicVertexFitter {
 public:
   typedef reco::Vertex::CovarianceMatrix CovarianceMatrix;
   CandKinematicVertexFitter(const edm::ParameterSet & cfg) :  
-    bField_(0), pdt_(0), fitter_(), fitters_(new std::vector<CandKinematicVertexFitter>) { 
+    bField_(nullptr), pdt_(nullptr), fitter_(), fitters_(new std::vector<CandKinematicVertexFitter>) { 
   }
   CandKinematicVertexFitter(const CandKinematicVertexFitter& o) :
     bField_(o.bField_), pdt_(o.pdt_), fitter_(), fitters_(new std::vector<CandKinematicVertexFitter>) {

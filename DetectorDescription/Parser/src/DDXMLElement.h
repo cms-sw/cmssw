@@ -1,28 +1,18 @@
 #ifndef DD_XMLElement_H
 #define DD_XMLElement_H
-/***************************************************************************
- DDXMLElement.h  -  description
- -------------------
- begin                : Fri Mar 15 2002
- email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
-
+#include <cstddef>
+#include <iosfwd>
 #include <map>
 #include <string>
 #include <vector>
 
-#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-
+#include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
 
-// -------------------------------------------------------------------------
-// Class declaration
-// -------------------------------------------------------------------------
+class DDCompactView;
+class DDLElementRegistry;
 
 /// This is a base class for processing XML elements in the DDD
 /** \class DDXMLElement
@@ -68,7 +58,7 @@ public:
    DDXMLElement( DDLElementRegistry* myreg, const bool& clearme );
    
    /// Destructor
-   virtual ~DDXMLElement( void );
+   virtual ~DDXMLElement( void ) = default; // inline
    
    /// Load the element attributes.
    /**
@@ -177,10 +167,6 @@ public:
    
    /// format std::string for throw an error.
    void throwError( const std::string& keyMessage ) const;
-   
-   // protected:
-   /// WARNING: abused by other classes in this system: yet another conversion from int to std::string...
-   static std::string itostr( int i );
    
 protected:
    DDLElementRegistry* myRegistry_;

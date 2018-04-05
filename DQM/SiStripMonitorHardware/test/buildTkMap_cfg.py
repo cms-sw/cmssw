@@ -17,10 +17,9 @@ process.MessageLogger.debugModules = cms.untracked.vstring('*')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = 'GR10_P_V4::All'
 
-process.DQMStore = cms.Service("DQMStore")
-
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
+# load TrackerTopology (needed for TkDetMap and TkHistoMap)
+process.trackerTopology = cms.ESProducer("TrackerTopologyEP")
 
 
 process.load('DQM.SiStripMonitorHardware.siStripBuildTrackerMap_cfi')

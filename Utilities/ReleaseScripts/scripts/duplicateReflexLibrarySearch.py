@@ -32,11 +32,14 @@ typedefsDict = \
 #Ordered List to search for matched packages
 equivDict = \
      [
+	 {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
+         {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap).*Phase2TrackerDigi',
+                                       '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi']},
          {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
          {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
          {'ParallelAnalysis'      : ['examples::TrackAnalysisAlgorithm']},
          {'PatCandidates'         : ['pat::PATObject','pat::Lepton']},
-         {'BTauReco'              : ['reco::.*SoftLeptonTagInfo', 'reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo','reco::IPTagInfo','reco::TemplatedSecondaryVertexTagInfo']},
+         {'BTauReco'              : ['reco::.*SoftLeptonTagInfo', 'reco::SoftLeptonProperties','reco::SecondaryVertexTagInfo','reco::IPTagInfo','reco::TemplatedSecondaryVertexTagInfo', 'reco::CATopJetProperties','reco::HTTTopJetProperties']},
          {'CastorReco'            : ['reco::CastorJet']},
          {'JetMatching'           : ['reco::JetFlavourInfo', 'reco::JetFlavour','reco::MatchedPartons']},
          {'TrackingAnalysis'      : ['TrackingParticle']},
@@ -54,7 +57,7 @@ equivDict = \
 	 {'L1Trigger'             : ['l1extra::L1.+Particle']},
 	 {'TrackInfo'             : ['reco::TrackingRecHitInfo']},
 	 {'EgammaCandidates'      : ['reco::GsfElectron.*','reco::Photon.*']},
-	 {'HcalIsolatedTrack'     : ['reco::IsolatedPixelTrackCandidate', 'reco::EcalIsolatedParticleCandidate']},
+	 {'HcalIsolatedTrack'     : ['reco::IsolatedPixelTrackCandidate', 'reco::EcalIsolatedParticleCandidate', 'reco::HcalIsolatedTrackCandidate']},
 	 {'HcalRecHit'            : ['HFRecHit','HORecHit','ZDCRecHit','HBHERecHit']},
          {'PFRootEvent'           : ['EventColin::']},
 	 {'CaloTowers'            : ['CaloTower.*']},
@@ -68,7 +71,9 @@ equivDict = \
          {'VertexReco'            : ['reco::Vertex']},
          {'TFWLiteSelectorTest'   : ['tfwliteselectortest']},
          {'PatCandidates'         : ['reco::RecoCandidate','pat::[A-Za-z]+Ref(Vector|)']},
+         {'TauReco'               : ['reco::PFJetRef']},
          {'JetReco'               : ['reco::.*Jet','reco::.*Jet(Collection|Ref)']},
+         {'HGCDigi'               : ['HGCSample']},
      ]
 
 ignoreEdmDP = {
@@ -83,14 +88,14 @@ def searchClassDefXml ():
     classNameRE    = re.compile (r'class\s+name\s*=\s*"([^"]*)"')
     spacesRE       = re.compile (r'\s+')
     stdRE          = re.compile (r'std::')
-    srcClassNameRE = re.compile (r'(\w+)/src/classes_def.xml')
+    srcClassNameRE = re.compile (r'(\w+)/src/classes_def.*[.]xml')
     ignoreSrcRE    = re.compile (r'.*/FWCore/Skeletons/scripts/mkTemplates/.+')
     braketRE       = re.compile (r'<.+>')
     print "Searching for 'classes_def.xml' in '%s'." % os.path.join(os.environ.get('CMSSW_BASE'),'src')
     xmlFiles = []
     for srcDir in [os.environ.get('CMSSW_BASE'),os.environ.get('CMSSW_RELEASE_BASE')]:
       if not len(srcDir): continue
-      for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def.xml" -follow -print').split ('\n'):
+      for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def*.xml" -follow -print').split ('\n'):
         if xml and (not xml in xmlFiles):
           xmlFiles.append(xml)
     if options.showXMLs:
@@ -120,7 +125,7 @@ def searchClassDefXml ():
                     equivList.append( (matchString, equiv) )
             equivList.append( (packagesREs[packageName], packageName) )
     classDict = {}
-    ncdict = {'class' : 'className'}
+    ncdict = {'class' : 'className', 'function' : 'functionName'}
     for filename in xmlFiles:
         if (not filename) or (ignoreSrcRE.match(filename)): continue
         dupProblems     = ''
@@ -160,6 +165,11 @@ def searchClassDefXml ():
             except:
                 # this isn't a real classes_def.xml file.  Skip it
                 print "**** SKIPPING '%s' - Doesn't seem to have proper information." % filename
+                continue
+        if not classList:
+            classList = xmlObj.functionName
+            if not classList:
+                print "**** SKIPPING '%s' - Dosen't seem to have proper information(not class/function)." % filename
                 continue
         for piece in classList:
             try:
@@ -245,7 +255,7 @@ def searchDuplicatePlugins ():
     cmd = "cat %s | awk '{print $2\" \"$1}' | sort | uniq | awk '{print $1}' | sort | uniq -c | grep '2 ' | awk '{print $2}'" % edmpluginFile
     output = commands.getoutput (cmd).split('\n')
     for line in output:
-      if ignoreEdmDP.has_key(line): continue
+      if line in ignoreEdmDP: continue
       line = line.replace("*","\*")
       cmd = "cat %s | grep ' %s ' | awk '{print $1}' | sort | uniq " % (edmpluginFile,line)
       out1 = commands.getoutput (cmd).split('\n')

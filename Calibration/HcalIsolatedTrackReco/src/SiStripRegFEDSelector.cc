@@ -24,7 +24,7 @@ SiStripRegFEDSelector::~SiStripRegFEDSelector()
 void
 SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  std::auto_ptr<FEDRawDataCollection> producedData(new FEDRawDataCollection);
+  auto producedData = std::make_unique<FEDRawDataCollection>();
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> trigSeedTrks;
   iEvent.getByToken(tok_seed_,trigSeedTrks);
@@ -137,7 +137,7 @@ SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	}
     }
   
-  iEvent.put(producedData);  
+  iEvent.put(std::move(producedData));
   
 }
 

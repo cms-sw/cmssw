@@ -176,8 +176,8 @@ public:
 	const char* payloadName(int num) const { if(num>=0&&num<nPAYLOADS) return sDMBExpectedPayload[num]; else return ""; }
 	const char* statusName (int num) const { if(num>=0&&num<nSTATUSES) return sDMBEventStaus     [num]; else return ""; }
 
-	bool error  (int num) const { if(num>=0&&num<nERRORS)   return fSUM_ERROR  [num]; else return 0; }
-	bool warning(int num) const { if(num>=0&&num<nWARNINGS) return fSUM_WARNING[num]; else return 0; }
+	bool error  (int num) const { if(num>=0&&num<nERRORS)   return fSUM_ERROR  [num]; else return false; }
+	bool warning(int num) const { if(num>=0&&num<nWARNINGS) return fSUM_WARNING[num]; else return false; }
 
 	std::set<CSCIdType> chambersWithError  (int num) const { if(num>=0&&num<nERRORS)   return fCHAMB_ERR[num]; else return std::set<int>(); }
 	std::set<CSCIdType> chambersWithWarning(int num) const { if(num>=0&&num<nWARNINGS) return fCHAMB_WRN[num]; else return std::set<int>(); }

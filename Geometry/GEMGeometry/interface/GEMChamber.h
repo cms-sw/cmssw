@@ -22,13 +22,13 @@ public:
   GEMChamber(GEMDetId id, const ReferenceCountingPointer<BoundPlane>& plane);
 
   /// Destructor
-  virtual ~GEMChamber();
+  ~GEMChamber() override;
 
   /// Return the GEMDetId of this chamber
   GEMDetId id() const;
 
   // Which subdetector
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::GEM;}
+  SubDetector subDetector() const override {return GeomDetEnumerators::GEM;}
 
   /// equal if the id is the same
   bool operator==(const GEMChamber& ch) const;
@@ -37,10 +37,10 @@ public:
   void add(GEMEtaPartition* roll);
 
   /// Return the rolls in the chamber
-  virtual std::vector<const GeomDet*> components() const;
+  std::vector<const GeomDet*> components() const override;
 
   /// Return the sub-component (roll) with a given id in this chamber
-  virtual const GeomDet* component(DetId id) const;
+  const GeomDet* component(DetId id) const override;
 
   /// Return the eta partition corresponding to the given id 
   const GEMEtaPartition* etaPartition(GEMDetId id) const;

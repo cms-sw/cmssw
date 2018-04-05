@@ -1,0 +1,390 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tecpetal3b.xml" eval="true">
+		<Constant name="zero" value="0.0*fm"/>
+		<Constant name="ICCZ" value="([tecpetpar:ICBThick]-[tecpetpar:ICCThick])/2"/>
+	</ConstantsSection>
+	<SolidSection label="tecpetal3b.xml">
+		<Tubs name="TECPetal3B" rMin="[tecpetal3:PetalRmin]" rMax="[tecpetalb:PetalR1]" dz="[tecpetpar:PetalThick]/2" startPhi="-[tecpetalb:PetalWidth0]/2" deltaPhi="[tecpetalb:PetalWidth0]"/>
+	</SolidSection>
+	<LogicalPartSection label="tecpetal3b.xml">
+		<LogicalPart name="TECPetalCont3B" category="unspecified">
+			<rSolid name="tecpetal3:TECPetalCont3"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TECPetalFrame3B" category="unspecified">
+			<rSolid name="tecpetal3:TECPetal3"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TECPetal3B" category="unspecified">
+			<rSolid name="tecpetal3b:TECPetal3B"/>
+			<rMaterial name="tecmaterial:TEC_petal"/>
+		</LogicalPart>
+		<LogicalPart name="TECPetal4B" category="unspecified">
+			<rSolid name="tecpetalb:TECPetal1B"/>
+			<rMaterial name="tecmaterial:TEC_petal"/>
+		</LogicalPart>
+		<LogicalPart name="TECPetal5B" category="unspecified">
+			<rSolid name="tecpetalb:TECPetal2B"/>
+			<rMaterial name="tecmaterial:TEC_petal"/>
+		</LogicalPart>
+		<LogicalPart name="TECICBCont3B1" category="unspecified">
+			<rSolid name="tecpetal3:TECICBCont3"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="TECICBCont3B2" category="unspecified">
+			<rSolid name="tecpetal3:TECICBCont3"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="tecpetal3b.xml">
+		<PosPart copyNumber="1">
+			<rParent name="tecpetal3b:TECPetalCont3B"/>
+			<rChild name="tecring1b:TECRing1B"/>
+			<Translation x="[zero]" y="[zero]" z="[tecring1:RingZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tecpetal3b:TECPetalCont3B"/>
+			<rChild name="tecring2b:TECRing2B"/>
+			<rRotation name="tecpetpar:180X"/>
+			<Translation x="[zero]" y="[zero]" z="[tecring2:RingZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tecpetal3b:TECPetalCont3B"/>
+			<rChild name="tecring3b:TECRing3B"/>
+			<Translation x="[zero]" y="[zero]" z="[tecring3:RingZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tecpetal3b:TECPetalCont3B"/>
+			<rChild name="tecring4b:TECRing4B"/>
+			<rRotation name="tecpetpar:180X"/>
+			<Translation x="[zero]" y="[zero]" z="[tecring4:RingZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tecpetal3b:TECPetalCont3B"/>
+			<rChild name="tecring5b:TECRing5B"/>
+			<Translation x="[zero]" y="[zero]" z="[tecring5:RingZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tecpetal3b:TECPetalCont3B"/>
+			<rChild name="tecring6b:TECRing6B"/>
+			<rRotation name="tecpetpar:180X"/>
+			<Translation x="[zero]" y="[zero]" z="[tecring6:RingZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tecpetal3b:TECPetalCont3B"/>
+			<rChild name="tecpetal3b:TECPetalFrame3B"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tecpetal3b:TECPetalFrame3B"/>
+			<rChild name="tecpetal3b:TECPetal3B"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tecpetal3b:TECPetalFrame3B"/>
+			<rChild name="tecpetal3b:TECPetal4B"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tecpetal3b:TECPetalFrame3B"/>
+			<rChild name="tecpetal3b:TECPetal5B"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tecpetal3b:TECPetalCont3B"/>
+			<rChild name="tecpetal3b:TECICBCont3B1"/>
+			<Translation x="[zero]" y="[zero]" z="-[tecpetpar:ICBZ]"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="tecpetal3b:TECPetalCont3B"/>
+			<rChild name="tecpetal3b:TECICBCont3B2"/>
+			<Translation x="[zero]" y="[zero]" z="[tecpetpar:ICBZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tecpetal3b:TECICBCont3B1"/>
+			<rChild name="tecpetalb:TECICC2B1"/>
+			<Translation x="[zero]" y="[zero]" z="[ICCZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tecpetal3b:TECICBCont3B1"/>
+			<rChild name="tecpetalb:TECICC2B2"/>
+			<Translation x="[zero]" y="[zero]" z="[ICCZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tecpetal3b:TECICBCont3B1"/>
+			<rChild name="tecpetalb:TECICC46B1"/>
+			<Translation x="[zero]" y="[zero]" z="[ICCZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tecpetal3b:TECICBCont3B1"/>
+			<rChild name="tecpetalb:TECICC46B2"/>
+			<Translation x="[zero]" y="[zero]" z="[ICCZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tecpetal3b:TECICBCont3B1"/>
+			<rChild name="tecpetalb:TECICC46B3"/>
+			<Translation x="[zero]" y="[zero]" z="[ICCZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tecpetal3b:TECICBCont3B2"/>
+			<rChild name="tecpetalb:TECICC1B1"/>
+			<Translation x="[zero]" y="[zero]" z="-[ICCZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tecpetal3b:TECICBCont3B2"/>
+			<rChild name="tecpetalb:TECICC1B2"/>
+			<Translation x="[zero]" y="[zero]" z="-[ICCZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tecpetal3b:TECICBCont3B2"/>
+			<rChild name="tecpetalb:TECICC1B3"/>
+			<Translation x="[zero]" y="[zero]" z="-[ICCZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tecpetal3b:TECICBCont3B2"/>
+			<rChild name="tecpetalb:TECICC35B1"/>
+			<Translation x="[zero]" y="[zero]" z="-[ICCZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tecpetal3b:TECICBCont3B2"/>
+			<rChild name="tecpetalb:TECICC35B2"/>
+			<Translation x="[zero]" y="[zero]" z="-[ICCZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tecpetal3b:TECICBCont3B2"/>
+			<rChild name="tecpetalb:TECICC35B3"/>
+			<Translation x="[zero]" y="[zero]" z="-[ICCZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tecpetal3b:TECICBCont3B2"/>
+			<rChild name="tecpetalb:TECICC35B4"/>
+			<Translation x="[zero]" y="[zero]" z="-[ICCZ]"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="tecpetal3b:TECICBCont3B2"/>
+			<rChild name="tecpetalb:TECICC35B5"/>
+			<Translation x="[zero]" y="[zero]" z="-[ICCZ]"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="tecpetal3b:TECPetal5B"/>
+			<rChild name="tecwheel:TECInnerManifold"/>
+			<Translation x="[zero]" y="[zero]" z="[zero]"/>
+		</PosPart>
+	</PosPartSection>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal3B"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<Numeric name="RPosition" value="372.842*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="4">
+			10.9517*deg	,8.6238*deg	,-8.6238*deg	,-10.9554*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="4">
+			tecpetpar:TECCool5,tecpetpar:TECCool3,tecpetpar:TECCool3,tecpetpar:TECCool5</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal3B"/>
+		<Numeric name="StartCopyNo" value="5"/>
+		<Numeric name="RPosition" value="438.663*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="2">
+			4.8385*deg	,-4.8385*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="2">
+			tecpetpar:TECCool3,tecpetpar:TECCool3</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal3B"/>
+		<Numeric name="StartCopyNo" value="7"/>
+		<Numeric name="RPosition" value="451.736*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="3">
+			9.9308*deg	,0.9308*deg	,-9.9308*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="3">
+			tecpetpar:TECCool2,tecpetpar:TECCool1,tecpetpar:TECCool1</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal3B"/>
+		<Numeric name="StartCopyNo" value="10"/>
+		<Numeric name="RPosition" value="491.272*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="2">
+			4.829*deg	,-2.1851*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="2">
+			tecpetpar:TECCool5,tecpetpar:TECCool5</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal3B"/>
+		<Numeric name="StartCopyNo" value="12"/>
+		<Numeric name="RPosition" value="529.973*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="3">
+			9*deg	,0*deg	,-9*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="3">
+			tecpetpar:TECCool2,tecpetpar:TECCool1,tecpetpar:TECCool1</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal4B"/>
+		<Numeric name="StartCopyNo" value="15"/>
+		<Numeric name="RPosition" value="565.026*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="4">
+			10.3812*deg	,3.9526*deg	,-3.9526*deg	,-10.3812*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="4">
+			tecpetpar:TECCool2,tecpetpar:TECCool1,tecpetpar:TECCool1,tecpetpar:TECCool2</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal4B"/>
+		<Numeric name="StartCopyNo" value="19"/>
+		<Numeric name="RPosition" value="646.359*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="4">
+			9.6429*deg	,3.2143*deg	,-3.2143*deg	,-9.6429*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="4">
+			tecpetpar:TECCool2,tecpetpar:TECCool1,tecpetpar:TECCool1,tecpetpar:TECCool2</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal4B"/>
+		<Numeric name="StartCopyNo" value="23"/>
+		<Numeric name="RPosition" value="688.526*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="4">
+			14.144*deg	,5.144*deg	,-5.144*deg	,-14.144*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="4">
+			tecpetpar:TECCool4,tecpetpar:TECCool3,tecpetpar:TECCool3,tecpetpar:TECCool4</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal4B"/>
+		<Numeric name="StartCopyNo" value="27"/>
+		<Numeric name="RPosition" value="705.35*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="3">
+			5.0584*deg	,-3.2876*deg	,-7.7907*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="3">
+			tecpetpar:TECCool5,tecpetpar:TECCool5,tecpetpar:TECCool5</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal5B"/>
+		<Numeric name="StartCopyNo" value="30"/>
+		<Numeric name="RPosition" value="777.681*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="6">
+			11.727*deg	,6.273*deg	,2.727*deg	,-2.727*deg	,-6.273*deg	,-11.727*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="6">
+			tecpetpar:TECCool4,tecpetpar:TECCool4,tecpetpar:TECCool3,tecpetpar:TECCool3,tecpetpar:TECCool4,tecpetpar:TECCool4</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal5B"/>
+		<Numeric name="StartCopyNo" value="36"/>
+		<Numeric name="RPosition" value="809.853*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="11">
+			11.729*deg	,9.3832*deg	,7.0374*deg	,4.6916*deg	,2.3458*deg	,0*deg	,-2.3458*deg	,-4.6916*deg	,-7.0374*deg	,-9.3832*deg	,-11.729*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="11">
+			tecpetpar:TECCool5,tecpetpar:TECCool5,tecpetpar:TECCool5,tecpetpar:TECCool5,tecpetpar:TECCool5,tecpetpar:TECCool5,tecpetpar:TECCool5,tecpetpar:TECCool5,tecpetpar:TECCool5,tecpetpar:TECCool5,tecpetpar:TECCool5</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal5B"/>
+		<Numeric name="StartCopyNo" value="47"/>
+		<Numeric name="RPosition" value="826.305*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="4">
+			10.1935*deg	,3.7649*deg	,-3.7649*deg	,-10.1935*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="4">
+			tecpetpar:TECCool2,tecpetpar:TECCool1,tecpetpar:TECCool1,tecpetpar:TECCool2</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal5B"/>
+		<Numeric name="StartCopyNo" value="51"/>
+		<Numeric name="RPosition" value="862.788*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="6">
+			11.25*deg	,6.75*deg	,2.25*deg	,-2.25*deg	,-6.75*deg	,-11.25*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="6">
+			tecpetpar:TECCool1,tecpetpar:TECCool1,tecpetpar:TECCool1,tecpetpar:TECCool1,tecpetpar:TECCool1,tecpetpar:TECCool1</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal5B"/>
+		<Numeric name="StartCopyNo" value="57"/>
+		<Numeric name="RPosition" value="937.93*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="6">
+			8.6894*deg	,4.1677*deg	,2.2608*deg	,-2.2608*deg	,-4.1677*deg	,-8.6894*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="6">
+			tecpetpar:TECCool2,tecpetpar:TECCool2,tecpetpar:TECCool1,tecpetpar:TECCool1,tecpetpar:TECCool2,tecpetpar:TECCool2</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal5B"/>
+		<Numeric name="StartCopyNo" value="63"/>
+		<Numeric name="RPosition" value="997.895*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="8">
+			11.6983*deg	,6.3017*deg	,2.6983*deg	,-1.8017*deg	,-2.6983*deg	,-6.3017*deg	,-7.1983*deg	,-11.6983*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="8">
+			tecpetpar:TECCool1,tecpetpar:TECCool1,tecpetpar:TECCool1,tecpetpar:TECCool5,tecpetpar:TECCool1,tecpetpar:TECCool1,tecpetpar:TECCool5,tecpetpar:TECCool1</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal5B"/>
+		<Numeric name="StartCopyNo" value="71"/>
+		<Numeric name="RPosition" value="1040.55*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="1">
+			10.0576*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="1">
+			tecpetpar:TECCool5</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECCoolAlgo">
+		<rParent name="tecpetal3b:TECPetal5B"/>
+		<Numeric name="StartCopyNo" value="72"/>
+		<Numeric name="RPosition" value="1068.17*mm"/>
+		<Vector name="PhiPosition" type="numeric" nEntries="1">
+			10.0624*deg</Vector>
+		<Vector name="CoolInsert" type="string" nEntries="1">
+			tecpetpar:TECCool5</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECOptoHybAlgo">
+		<rParent name="tecpetal3b:TECICBCont3B2"/>
+		<Numeric name="StartCopyNo" value="3"/>
+		<String name="ChildName" value="tecpetpar:TECOptoHybrid"/>
+		<Numeric name="OptoWidth" value="[tecpetpar:HybridWidth]"/>
+		<Numeric name="OptoHeight" value="[tecpetpar:HybridHeight]"/>
+		<Numeric name="Rpos" value="471.195*mm"/>
+		<Numeric name="Zpos" value="[tecpetpar:HybridZ]"/>
+		<Vector name="Angles" type="numeric" nEntries="2">
+			6.6727*deg	,-0.339*deg</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECOptoHybAlgo">
+		<rParent name="tecpetal3b:TECICBCont3B1"/>
+		<Numeric name="StartCopyNo" value="5"/>
+		<String name="ChildName" value="tecpetpar:TECOptoHybrid"/>
+		<Numeric name="OptoWidth" value="[tecpetpar:HybridWidth]"/>
+		<Numeric name="OptoHeight" value="[tecpetpar:HybridHeight]"/>
+		<Numeric name="Rpos" value="562.517*mm"/>
+		<Numeric name="Zpos" value="-[tecpetpar:HybridZ]"/>
+		<Vector name="Angles" type="numeric" nEntries="2">
+			5.4762*deg	,-2.429*deg</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECOptoHybAlgo">
+		<rParent name="tecpetal3b:TECICBCont3B2"/>
+		<Numeric name="StartCopyNo" value="7"/>
+		<String name="ChildName" value="tecpetpar:TECOptoHybrid"/>
+		<Numeric name="OptoWidth" value="[tecpetpar:HybridWidth]"/>
+		<Numeric name="OptoHeight" value="[tecpetpar:HybridHeight]"/>
+		<Numeric name="Rpos" value="685.152*mm"/>
+		<Numeric name="Zpos" value="[tecpetpar:HybridZ]"/>
+		<Vector name="Angles" type="numeric" nEntries="3">
+			6.3214*deg	,-2.0241*deg	,-6.5265*deg</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECOptoHybAlgo">
+		<rParent name="tecpetal3b:TECICBCont3B1"/>
+		<Numeric name="StartCopyNo" value="10"/>
+		<String name="ChildName" value="tecpetpar:TECOptoHybrid"/>
+		<Numeric name="OptoWidth" value="[tecpetpar:HybridWidth]"/>
+		<Numeric name="OptoHeight" value="[tecpetpar:HybridHeight]"/>
+		<Numeric name="Rpos" value="807.452*mm"/>
+		<Numeric name="Zpos" value="-[tecpetpar:HybridZ]"/>
+		<Vector name="Angles" type="numeric" nEntries="11">
+			12.7924*deg	,10.4466*deg	,8.1008*deg	,5.755*deg	,3.4092*deg	,1.0634*deg	,-1.2824*deg	,-3.6282*deg	,-5.974*deg	,-8.3197*deg	,-10.6655*deg</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECOptoHybAlgo">
+		<rParent name="tecpetal3b:TECICBCont3B2"/>
+		<Numeric name="StartCopyNo" value="21"/>
+		<String name="ChildName" value="tecpetpar:TECOptoHybrid"/>
+		<Numeric name="OptoWidth" value="[tecpetpar:HybridWidth]"/>
+		<Numeric name="OptoHeight" value="[tecpetpar:HybridHeight]"/>
+		<Numeric name="Rpos" value="977.634*mm"/>
+		<Numeric name="Zpos" value="[tecpetpar:HybridZ]"/>
+		<Vector name="Angles" type="numeric" nEntries="3">
+			7.1858*deg	,-0.9183*deg	,-6.3149*deg</Vector>
+	</Algorithm>
+	<Algorithm name="track:DDTECOptoHybAlgo">
+		<rParent name="tecpetal3b:TECICBCont3B2"/>
+		<Numeric name="StartCopyNo" value="1"/>
+		<String name="ChildName" value="tecpetpar:TECDigiOptoHybModule"/>
+		<Numeric name="OptoHeight" value="[tecpetpar:DOHMWidth]"/>
+		<Numeric name="OptoWidth" value="[tecpetpar:DOHMHeight]"/>
+		<Numeric name="Rpos" value="1022.726*mm"/>
+		<Numeric name="Zpos" value="[tecpetpar:DOHMZ]"/>
+		<Vector name="Angles" type="numeric" nEntries="1">
+			11.372*deg</Vector>
+	</Algorithm>
+</DDDefinition>

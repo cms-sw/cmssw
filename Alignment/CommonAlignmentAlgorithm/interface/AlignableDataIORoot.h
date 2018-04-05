@@ -7,6 +7,8 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignableDataIO.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORootBase.h"
 
+class Alignable;
+
 /// concrete class for ROOT based IO of Alignable positions 
 
 class AlignableDataIORoot : public AlignmentIORootBase, public AlignableDataIO
@@ -19,24 +21,24 @@ class AlignableDataIORoot : public AlignmentIORootBase, public AlignableDataIO
   AlignableDataIORoot(PosType p); 
 
   /// open IO 
-  int open(const char* filename, int iteration, bool writemode)
+  int open(const char* filename, int iteration, bool writemode) override
   { newopen=true; return openRoot(filename,iteration,writemode); }
 
   /// close IO 
-  int close(void){ return closeRoot(); }
+  int close(void) override{ return closeRoot(); }
 
   /// write absolute positions 
-  int writeAbsRaw(const AlignableAbsData &ad);
+  int writeAbsRaw(const AlignableAbsData &ad) override;
   /// read absolute positions 
-  AlignableAbsData readAbsRaw(Alignable* ali,int& ierr);
+  AlignableAbsData readAbsRaw(Alignable* ali,int& ierr) override;
   /// write relative positions 
-  int writeRelRaw(const AlignableRelData &ad);
+  int writeRelRaw(const AlignableRelData &ad) override;
   /// read relative positions 
-  AlignableRelData readRelRaw(Alignable* ali,int& ierr);
+  AlignableRelData readRelRaw(Alignable* ali,int& ierr) override;
 
   int findEntry(align::ID, align::StructureType);
-  void createBranches(void);
-  void setBranchAddresses(void);
+  void createBranches(void) override;
+  void setBranchAddresses(void) override;
 
   // data members
 

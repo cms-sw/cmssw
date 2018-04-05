@@ -1,9 +1,9 @@
 #ifndef CSCTMBTrailer_h
 #define CSCTMBTrailer_h
 
-#include <string.h> // bzero
+#include <cstring> // bzero
 #include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
-#include <stdint.h>
+#include <cstdint>
 
 /** Defined to begin at the 6E0C word 2006 format
 6E0C
@@ -32,7 +32,7 @@ public:
   /// don't forget to pass in the size of the tmb header + clct data
   CSCTMBTrailer(int wordCount, int firmwareVersion);
 
-  CSCTMBTrailer(unsigned short * buf, unsigned short int firmwareVersion);
+  CSCTMBTrailer(const uint16_t * buf, unsigned short int firmwareVersion);
 
   CSCTMBTrailer(const CSCTMBStatusDigi & digi)
     {

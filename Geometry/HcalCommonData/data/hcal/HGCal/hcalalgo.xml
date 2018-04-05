@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hcalalgo.xml" eval="true">
+  <Constant name="z1HE"     value="[hgcal:zHGCal3]"/>
+  <Constant name="z2HE"     value="524.50*cm"/>
+  <Constant name="z6HB"     value="[cms:CalorBeamZ2]"/>
+  <Constant name="rMin0HE"  value="[hgcal:rMaxHGCal2]"/>
+  <Constant name="rMin1HE1" value="[hgcal:rMaxHGCal3]"/>
+  <Constant name="rMin1HE2" value="[z1HE]*[etaMax:slope]"/>
+  <Constant name="rMin2HE"  value="[z2HE]*[etaMax:slope]"/>
+  <Constant name="rMin1"    value="177.500*cm"/>
+  <Constant name="rMin5"    value="281.342*cm"/>
+  <Constant name="rOutHB"   value="287.65*cm"/>
+  <Constant name="z0HE"     value="([hgcal:zHGCal1]+([rMin1]-[hgcal:rMaxHGCal1])/[hgcal:slope2])"/>
+</ConstantsSection>
+
+<SolidSection label="hcalalgo.xml">
+  <Polyhedra name="HCal" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
+    <ZSection z="-[z6HB]" rMin="[rMin5]"    rMax="[rOutHB]"/>
+    <ZSection z="-[z2HE]" rMin="[rMin5]"    rMax="[rOutHB]"/>
+    <ZSection z="-[z2HE]" rMin="[rMin2HE]"  rMax="[rOutHB]"/>
+    <ZSection z="-[z1HE]" rMin="[rMin1HE2]" rMax="[rOutHB]"/>
+    <ZSection z="-[z1HE]" rMin="[rMin1HE1]" rMax="[rOutHB]"/>
+    <ZSection z="-[z0HE]" rMin="[rMin1]"    rMax="[rOutHB]"/>
+    <ZSection z="[z0HE]"  rMin="[rMin1]"    rMax="[rOutHB]"/>
+    <ZSection z="[z1HE]"  rMin="[rMin1HE1]" rMax="[rOutHB]"/>
+    <ZSection z="[z1HE]"  rMin="[rMin1HE2]" rMax="[rOutHB]"/>
+    <ZSection z="[z2HE]"  rMin="[rMin2HE]"  rMax="[rOutHB]"/>
+    <ZSection z="[z2HE]"  rMin="[rMin5]"    rMax="[rOutHB]"/>
+    <ZSection z="[z6HB]"  rMin="[rMin5]"    rMax="[rOutHB]"/>
+  </Polyhedra>
+</SolidSection>
+
+<LogicalPartSection label="hcalalgo.xml">
+  <LogicalPart name="HCal" category="unspecified">
+    <rSolid name="HCal"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hcalalgo.xml">
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="hcalalgo:HCal"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

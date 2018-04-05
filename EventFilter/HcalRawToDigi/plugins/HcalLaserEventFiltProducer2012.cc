@@ -15,8 +15,7 @@ void HcalLaserEventFiltProducer2012::endJob() {
 }
 
 void HcalLaserEventFiltProducer2012::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::auto_ptr<bool> output(new bool(hcalLaserEventFilter2012->filter(iEvent, iSetup)));
-  iEvent.put(output);
+  iEvent.put(std::make_unique<bool>(hcalLaserEventFilter2012->filter(iEvent, iSetup)));
 }
 
 DEFINE_FWK_MODULE(HcalLaserEventFiltProducer2012);

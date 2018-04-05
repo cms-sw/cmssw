@@ -7,6 +7,7 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
+#include "DataFormats/TauReco/interface/PFTau3ProngSummaryFwd.h"
 
 namespace reco {
   // PPFTau3ProngSummary

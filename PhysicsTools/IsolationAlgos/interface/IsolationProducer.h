@@ -37,10 +37,10 @@ template <typename C1, typename C2, typename Alg,
 class IsolationProducer : public edm::EDProducer {
 public:
   IsolationProducer( const edm::ParameterSet & );
-  ~IsolationProducer();
+  ~IsolationProducer() override;
 
 private:
-  void produce( edm::Event&, const edm::EventSetup& );
+  void produce( edm::Event&, const edm::EventSetup& ) override;
   edm::EDGetTokenT<C1> srcToken_;
   edm::EDGetTokenT<C2> elementsToken_;
   Alg alg_;
@@ -70,14 +70,14 @@ void IsolationProducer<C1, C2, Alg, OutputCollection, Setup>::produce( edm::Even
   Setup::init( alg_, es );
 
   typename OutputCollection::refprod_type ref( src );
-  auto_ptr<OutputCollection> isolations( new OutputCollection( ref )  );
+  auto isolations = std::make_unique<OutputCollection>( ref );
 
   size_t i = 0;
   for( typename C1::const_iterator lep = src->begin(); lep != src->end(); ++ lep ) {
     typename Alg::value_type iso= alg_(*lep,*elements);
     isolations->setValue( i++, iso );
   }
-  evt.put( isolations );
+  evt.put(std::move(isolations) );
 }
 
 #endif

@@ -25,6 +25,7 @@
 // C++ Headers --
 //---------------
 #include <iostream>
+#include <memory>
 
 //-------------------
 // Initializations --
@@ -72,7 +73,7 @@ void DTKeyedConfigDBDump::analyze( const edm::Event& e,
   std::cout << "now load" << std::endl;
   kp->load( nkeys );
   std::cout << "now get" << std::endl;
-  boost::shared_ptr<DTKeyedConfig> pkc = kp->get<DTKeyedConfig>(0);
+  std::shared_ptr<DTKeyedConfig> pkc = kp->get<DTKeyedConfig>(0);
   std::cout << "now check" << std::endl;
   if ( pkc.get() ) std::cout << pkc->getId() << " "
                             << *( pkc->dataBegin() ) << std::endl;

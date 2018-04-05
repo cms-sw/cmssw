@@ -8,10 +8,10 @@ using namespace oracle::occi;
 
 ODScanCycle::ODScanCycle()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   //
   m_ID = 0;
   m_scan_config_id = 0;
@@ -24,7 +24,7 @@ ODScanCycle::~ODScanCycle()
 
 
 void ODScanCycle::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -33,12 +33,12 @@ void ODScanCycle::prepareWrite()
     m_writeStmt->setSQL("INSERT INTO ECAL_Scan_Cycle (cycle_id, scan_id ) "
 		 "VALUES (:1, :2 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanCycle::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODScanCycle::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
-void ODScanCycle::writeDB()  throw(std::runtime_error)
+void ODScanCycle::writeDB()  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -52,7 +52,7 @@ void ODScanCycle::writeDB()  throw(std::runtime_error)
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanCycle::writeDB:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODScanCycle::writeDB:  ")+getOraMessage(&e)));
   }
 
   // Now get the ID
@@ -69,7 +69,7 @@ void ODScanCycle::clear(){
 
 
 int ODScanCycle::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID) {
@@ -93,7 +93,7 @@ int ODScanCycle::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODScanCycle::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;
@@ -102,7 +102,7 @@ int ODScanCycle::fetchID()
 
 
 void ODScanCycle::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -122,14 +122,14 @@ void ODScanCycle::setByID(int id)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanCycle::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODScanCycle::fetchID:  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void ODScanCycle::fetchData(ODScanCycle * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -151,12 +151,12 @@ void ODScanCycle::fetchData(ODScanCycle * result)
     result->setScanConfigurationID(       rset->getInt(1) );
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODScanCycle::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODScanCycle::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
 void ODScanCycle::insertConfig()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   try {
 

@@ -280,19 +280,19 @@ namespace ecaldqm {
     if(verbosity_ > 1) edm::LogInfo("EcalDQM") << " Inserting data";
 
     try{
-      if(crystalConsistencies.size() > 0){
+      if(!crystalConsistencies.empty()){
         if(verbosity_ > 2) edm::LogInfo("EcalDQM") << " crystalConsistencies";
         _db->insertDataArraySet(&crystalConsistencies, &_iov);
       }
-      if(towerConsistencies.size() > 0){
+      if(!towerConsistencies.empty()){
         if(verbosity_ > 2) edm::LogInfo("EcalDQM") << " towerConsistencies";
         _db->insertDataArraySet(&towerConsistencies, &_iov);
       }
-      if(memChannelConsistencies.size() > 0){
+      if(!memChannelConsistencies.empty()){
         if(verbosity_ > 2) edm::LogInfo("EcalDQM") << " memChannelConsistencies";
         _db->insertDataArraySet(&memChannelConsistencies, &_iov);
       }
-      if(memTowerConsistencies.size() > 0){
+      if(!memTowerConsistencies.empty()){
         if(verbosity_ > 2) edm::LogInfo("EcalDQM") << " memTowerConsistencies";
         _db->insertDataArraySet(&memTowerConsistencies, &_iov);
       }
@@ -560,29 +560,29 @@ namespace ecaldqm {
     }
 
     try{
-      if(l1Amp.size() > 0)
+      if(!l1Amp.empty())
         _db->insertDataArraySet(&l1Amp, &_iov);
-      if(l1Time.size() > 0)
+      if(!l1Time.empty())
         _db->insertDataArraySet(&l1Time, &_iov);
-      if(l1PN.size() > 0)
+      if(!l1PN.empty())
         _db->insertDataArraySet(&l1PN, &_iov);
-      if(l2Amp.size() > 0)
+      if(!l2Amp.empty())
         _db->insertDataArraySet(&l2Amp, &_iov);
-      if(l2Time.size() > 0)
+      if(!l2Time.empty())
         _db->insertDataArraySet(&l2Time, &_iov);
-      if(l2PN.size() > 0)
+      if(!l2PN.empty())
         _db->insertDataArraySet(&l2PN, &_iov);
-      if(l3Amp.size() > 0)
+      if(!l3Amp.empty())
         _db->insertDataArraySet(&l3Amp, &_iov);
-      if(l3Time.size() > 0)
+      if(!l3Time.empty())
         _db->insertDataArraySet(&l3Time, &_iov);
-      if(l3PN.size() > 0)
+      if(!l3PN.empty())
         _db->insertDataArraySet(&l3PN, &_iov);
-      if(l4Amp.size() > 0)
+      if(!l4Amp.empty())
         _db->insertDataArraySet(&l4Amp, &_iov);
-      if(l4Time.size() > 0)
+      if(!l4Time.empty())
         _db->insertDataArraySet(&l4Time, &_iov);
-      if(l4PN.size() > 0)
+      if(!l4PN.empty())
         _db->insertDataArraySet(&l4PN, &_iov);
     }
     catch(std::runtime_error& e){
@@ -757,9 +757,9 @@ namespace ecaldqm {
     }
 
     try{
-      if(pedestals.size() > 0)
+      if(!pedestals.empty())
         _db->insertDataArraySet(&pedestals, &_iov);
-      if(pnPedestals.size() > 0)
+      if(!pnPedestals.empty())
         _db->insertDataArraySet(&pnPedestals, &_iov);
     }
     catch(std::runtime_error& e){
@@ -811,7 +811,7 @@ namespace ecaldqm {
     }
 
     try{
-      if(pedestals.size() > 0)
+      if(!pedestals.empty())
         _db->insertDataArraySet(&pedestals, &_iov);
     }
     catch(std::runtime_error& e){
@@ -1040,11 +1040,11 @@ namespace ecaldqm {
     }
 
     try{
-      if(amplitude.size() > 0)
+      if(!amplitude.empty())
         _db->insertDataArraySet(&amplitude, &_iov);
-      if(shape.size() > 0)
+      if(!shape.empty())
         _db->insertDataSet(&shape, &_iov);
-      if(pnAmplitude.size() > 0)
+      if(!pnAmplitude.empty())
         _db->insertDataArraySet(&pnAmplitude, &_iov);
     }
     catch(std::runtime_error& e){
@@ -1096,7 +1096,7 @@ namespace ecaldqm {
     }
 
     try{
-      if(timing.size() > 0)
+      if(!timing.empty())
         _db->insertDataArraySet(&timing, &_iov);
     }
     catch(std::runtime_error& e){
@@ -1298,15 +1298,15 @@ x      PNDiodeTask.Pedestal (i13, i14)
     }
 
     try{
-      if(l1Amp.size() > 0)
+      if(!l1Amp.empty())
         _db->insertDataArraySet(&l1Amp, &_iov);
-      if(l1Time.size() > 0)
+      if(!l1Time.empty())
         _db->insertDataArraySet(&l1Time, &_iov);
 //       if(l1PN.size() > 0)
 //         _db->insertDataArraySet(&l1PN, &_iov);
-      if(l2Amp.size() > 0)
+      if(!l2Amp.empty())
         _db->insertDataArraySet(&l2Amp, &_iov);
-      if(l2Time.size() > 0)
+      if(!l2Time.empty())
         _db->insertDataArraySet(&l2Time, &_iov);
 //       if(l2PN.size() > 0)
 //         _db->insertDataArraySet(&l2PN, &_iov);
@@ -1355,7 +1355,7 @@ x      PNDiodeTask.Pedestal (i13, i14)
     }
 
     try{
-      if(occupancy.size() > 0)
+      if(!occupancy.empty())
         _db->insertDataArraySet(&occupancy, &_iov);
     }
     catch(std::runtime_error& e){

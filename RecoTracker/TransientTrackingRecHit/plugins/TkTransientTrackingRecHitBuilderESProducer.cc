@@ -3,6 +3,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
+#include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -25,7 +26,7 @@ TkTransientTrackingRecHitBuilderESProducer::TkTransientTrackingRecHitBuilderESPr
 
 TkTransientTrackingRecHitBuilderESProducer::~TkTransientTrackingRecHitBuilderESProducer() {}
 
-boost::shared_ptr<TransientTrackingRecHitBuilder> 
+std::unique_ptr<TransientTrackingRecHitBuilder> 
 TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord & iRecord){ 
 //   if (_propagator){
 //     delete _propagator;
@@ -35,30 +36,31 @@ TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord 
   std::string sname = pset_.getParameter<std::string>("StripCPE");
   std::string pname = pset_.getParameter<std::string>("PixelCPE");
   std::string mname = pset_.getParameter<std::string>("Matcher");
+
   
   edm::ESHandle<StripClusterParameterEstimator> se; 
   edm::ESHandle<PixelClusterParameterEstimator> pe; 
-  edm::ESHandle<SiStripRecHitMatcher>           me; 
+  edm::ESHandle<SiStripRecHitMatcher>           me;
   const StripClusterParameterEstimator * sp ;
   const PixelClusterParameterEstimator * pp ;
   const SiStripRecHitMatcher           * mp ;
     
   if (sname == "Fake") {
-    sp = 0;
+    sp = nullptr;
   }else{
     iRecord.getRecord<TkStripCPERecord>().get( sname, se );     
     sp = se.product();
   }
   
   if (pname == "Fake") {
-    pp = 0;
+    pp = nullptr;
   }else{
     iRecord.getRecord<TkPixelCPERecord>().get( pname, pe );     
     pp = pe.product();
   }
   
   if (mname == "Fake") {
-    mp = 0;
+    mp = nullptr;
   }else{
     iRecord.getRecord<TkStripCPERecord>().get( mname, me );     
     mp = me.product();
@@ -76,8 +78,21 @@ TkTransientTrackingRecHitBuilderESProducer::produce(const TransientRecHitRecord 
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );     
   
-  _builder  = boost::shared_ptr<TransientTrackingRecHitBuilder>(new TkTransientTrackingRecHitBuilder(pDD.product(), pp, sp, mp, computeCoarseLocalPositionFromDisk));
-  return _builder;
+  //For Phase2 upgrade
+  std::string p2OTname = "";
+  if(pset_.existsAs<std::string>("Phase2StripCPE")){
+    p2OTname = pset_.getParameter<std::string>("Phase2StripCPE");
+  }
+  edm::ESHandle<ClusterParameterEstimator<Phase2TrackerCluster1D> > p2OTe;
+  const ClusterParameterEstimator<Phase2TrackerCluster1D> * p2OTp;
+
+  if (p2OTname != "") {
+    iRecord.getRecord<TkStripCPERecord>().get( p2OTname, p2OTe );
+    p2OTp = p2OTe.product();
+    return std::make_unique<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, p2OTp);
+  } 
+  return std::make_unique<TkTransientTrackingRecHitBuilder>(pDD.product(), pp, sp, mp, computeCoarseLocalPositionFromDisk);
+
 }
 
 

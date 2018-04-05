@@ -32,9 +32,9 @@ namespace edm {
 class EgammaHLTPFPhotonIsolationProducer : public edm::EDProducer {
  public:
   explicit EgammaHLTPFPhotonIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTPFPhotonIsolationProducer() {};    
+  ~EgammaHLTPFPhotonIsolationProducer() override {};    
       
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
  
  private:

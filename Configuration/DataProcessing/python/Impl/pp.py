@@ -11,9 +11,21 @@ import sys
 
 from Configuration.DataProcessing.Reco import Reco
 import FWCore.ParameterSet.Config as cms
-from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
+from Configuration.DataProcessing.Modifiers import modifyExpress
 
 class pp(Reco):
+    def __init__(self):
+        Reco.__init__(self)
+        self.recoSeq=''
+        self.cbSc='pp'
+        self.addEI=True
+        self.isRepacked=False
+        self.promptCustoms= [ 'Configuration/DataProcessing/RecoTLR.customisePrompt' ]
+        self.expressCustoms=[ ]
+        self.alcaHarvCustoms=[]
+        self.expressModifiers = modifyExpress
+        self.visCustoms=[ ]
+        self.visModifiers = modifyExpress
     """
     _pp_
 
@@ -22,7 +34,10 @@ class pp(Reco):
 
     """
 
-
+    def _setRepackedFlag(self,args):
+        if not 'repacked' in args:
+            args['repacked']= True
+            
     def promptReco(self, globalTag, **args):
         """
         _promptReco_
@@ -32,13 +47,19 @@ class pp(Reco):
         """
         if not 'skims' in args:
             args['skims']=['@allForPrompt']
+
+        if not 'customs' in args:
+            args['customs']= [ ]
+
+        for c in self.promptCustoms:
+            args['customs'].append(c)
+
+        if self.isRepacked:
+            self._setRepackedFlag(args)
+
         process = Reco.promptReco(self,globalTag, **args)
 
-        #add the former top level patches here
-        customisePrompt(process)
-        
         return process
-
 
     def expressProcessing(self, globalTag, **args):
         """
@@ -49,10 +70,18 @@ class pp(Reco):
         """
         if not 'skims' in args:
             args['skims']=['@allForExpress']
+
+        if not 'customs' in args:
+            args['customs']=[ ]
+
+        for c in self.expressCustoms:
+            args['customs'].append(c)
+
+        if self.isRepacked:
+            self._setRepackedFlag(args)
+            
         process = Reco.expressProcessing(self,globalTag, **args)
         
-        customiseExpress(process)
-                
         return process
 
     def visualizationProcessing(self, globalTag, **args):
@@ -62,10 +91,17 @@ class pp(Reco):
         Proton collision data taking visualization processing
 
         """
+        if not 'customs' in args:
+            args['customs']=[ ]
+
+        for c in self.visCustoms:
+            args['customs'].append(c)
+            
+        if self.isRepacked:
+            self._setRepackedFlag(args)
+
         process = Reco.visualizationProcessing(self,globalTag, **args)
         
-        customiseExpress(process)
-                
         return process
 
     def alcaHarvesting(self, globalTag, datasetName, **args):
@@ -76,10 +112,16 @@ class pp(Reco):
 
         """
 
+        if not 'customs' in args:
+            args['customs']=[ ]
+
+        for c in self.alcaHarvCustoms:
+            args['customs'].append(c)
+
+
         if not 'skims' in args and not 'alcapromptdataset' in args:
             args['skims']=['BeamSpotByRun',
                            'BeamSpotByLumi',
                            'SiStripQuality']
             
         return Reco.alcaHarvesting(self, globalTag, datasetName, **args)
-

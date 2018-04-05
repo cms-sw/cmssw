@@ -9,7 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <map>
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 
 using namespace pos;
@@ -79,7 +79,7 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> >& table
       std::string TKFECID  = tableMat[r][colM["TRKFEC_NAME"]] ;
       unsigned int crate   = atoi(tableMat[r][colM["CRATE_NUMBER"]].c_str()) ;
       std::string type     = "VME" ;
-      unsigned int address = strtoul(tableMat[r][colM["VME_ADDR"]].c_str() , 0, 16);
+      unsigned int address = strtoul(tableMat[r][colM["VME_ADDR"]].c_str() , nullptr, 16);
       PixelTKFECParameters tmp;
       tmp.setTKFECParameters(TKFECID , crate , type, address);
       TKFECconfig_.push_back(tmp);
@@ -122,7 +122,7 @@ PixelTKFECConfig::PixelTKFECConfig(std::string filename):
 	}
 	else // type not specified, default to "VME"
 	{
-		address = strtoul(type.c_str(), 0, 16); // convert string to integer using base 16
+		address = strtoul(type.c_str(), nullptr, 16); // convert string to integer using base 16
 		type = "VME";
 	}
 
@@ -241,7 +241,7 @@ std::string PixelTKFECConfig::typeFromTKFECID(std::string TKFECID) const{
 
     assert(0);
 
-    return 0;
+    return nullptr;
 
 }
 

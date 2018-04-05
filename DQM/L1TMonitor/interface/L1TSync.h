@@ -35,6 +35,8 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -84,16 +86,16 @@ class L1TSync : public DQMEDAnalyzer {
   public:
 
     L1TSync(const edm::ParameterSet& ps);   // Constructor
-    virtual ~L1TSync();                     // Destructor
+    ~L1TSync() override;                     // Destructor
 
   protected:
 
-    void analyze (const edm::Event& e, const edm::EventSetup& c);  // Analyze
+    void analyze (const edm::Event& e, const edm::EventSetup& c) override;  // Analyze
 
-    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
-    virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&);
+    void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+    void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
+    void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+    void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 
   // Private Methods
@@ -143,6 +145,7 @@ class L1TSync : public DQMEDAnalyzer {
     edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord>    m_l1GtEvmSource;
     edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>       m_l1GtDataDaqInputTag;
 
+    L1GtUtils m_l1GtUtils;
 };
 
 #endif

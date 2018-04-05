@@ -47,9 +47,9 @@ class NoiseRatesClient : public DQMEDHarvester {
 
  public:
   explicit NoiseRatesClient(const edm::ParameterSet& );
-  virtual ~NoiseRatesClient();
+  ~NoiseRatesClient() override;
   
-  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   virtual void runClient_(DQMStore::IBooker &, DQMStore::IGetter &);   
 
   int NoiseRatesEndjob(const std::vector<MonitorElement*> &hcalMEs);

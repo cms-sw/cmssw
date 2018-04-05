@@ -28,11 +28,13 @@ class SurfaceDeformation;
 
 class GeomDet {
 public:
-  typedef GeomDetEnumerators::SubDetector SubDetector;
+  using SubDetector = GeomDetEnumerators::SubDetector;
 
-  explicit GeomDet(Plane* plane);
 
-  explicit GeomDet(const ReferenceCountingPointer<Plane>& plane);
+  explicit GeomDet( Plane* plane): thePlane(plane) {}
+  explicit GeomDet( const ReferenceCountingPointer<Plane>& plane) : thePlane(plane) {}
+
+
 
   virtual ~GeomDet();
 
@@ -77,7 +79,7 @@ public:
   DetId geographicalId() const { return m_detId; }
 
   /// Which subdetector
-  virtual SubDetector subDetector() const;;  
+  virtual SubDetector subDetector() const;
 
   /// is a Unit
   virtual bool isLeaf() const { return components().empty();}
@@ -93,9 +95,13 @@ public:
   AlignmentPositionError const* alignmentPositionError() const { return theAlignmentPositionError;}
 
 
-  // specific unix index in a given subdetector (such as Tracker)
+  // specific unit index in a given subdetector (such as Tracker)
   int index() const { return m_index;}
   void setIndex(int i) { m_index=i;}
+
+  // specific geomDet index in a given subdetector (such as Tracker)
+  int gdetIndex() const { return m_gdetIndex;}
+  void setGdetIndex(int i) { m_gdetIndex=i;}
 
 
   virtual const Topology& topology() const;
@@ -105,7 +111,7 @@ public:
 
   /// Return pointer to surface deformation. 
   /// Defaults to "null" if not reimplemented in the derived classes.
-  virtual const SurfaceDeformation* surfaceDeformation() const { return 0; }
+  virtual const SurfaceDeformation* surfaceDeformation() const { return nullptr; }
 
 
 
@@ -119,9 +125,10 @@ private:
 
   ReferenceCountingPointer<Plane>  thePlane;
   DetId m_detId;
-  int m_index;
+  int m_index=-1;
+  int m_gdetIndex=-1;
 protected:
-  AlignmentPositionError*               theAlignmentPositionError;
+  AlignmentPositionError* theAlignmentPositionError=nullptr;
 
 private:
 
@@ -158,7 +165,7 @@ private:
 
 };
 
-typedef GeomDet GeomDetUnit;
+using GeomDetUnit = GeomDet;
   
 #endif
 

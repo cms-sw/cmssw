@@ -26,13 +26,8 @@ class DetLayer;
 class TrajectoryMeasurement {
 public:
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   using RecHitPointer = TrackingRecHit::RecHitPointer;
   using ConstRecHitPointer = TrackingRecHit::ConstRecHitPointer;
-#else
-  typedef TrackingRecHit::RecHitPointer         RecHitPointer;
-  typedef TrackingRecHit::ConstRecHitPointer    ConstRecHitPointer;
-#endif
 
   TrajectoryMeasurement() {}
 
@@ -42,7 +37,7 @@ public:
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
     theRecHit(aRecHit),
-    theLayer(0), theEstimate(0) {}
+    theLayer(nullptr), theEstimate(0) {}
 
   /// Constructor with forward predicted state, RecHit, estimate
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdTrajectoryStateOnSurface,
@@ -50,9 +45,9 @@ public:
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
     theRecHit(aRecHit), 
-    theLayer(0),
+    theLayer(nullptr),
     theEstimate(aEstimate) {}
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
+
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdTrajectoryStateOnSurface,
                         ConstRecHitPointer aRecHit, float aEstimate,
 			const DetLayer* layer) :
@@ -67,7 +62,7 @@ public:
                         ConstRecHitPointer aRecHit) :
     theFwdPredictedState(std::move(fwdPredTrajectoryStateOnSurface)),
     theUpdatedState(std::move(uTrajectoryStateOnSurface)),
-    theRecHit(std::move(aRecHit)), theLayer(0),
+    theRecHit(std::move(aRecHit)), theLayer(nullptr),
     theEstimate(0) {}
 
   /// Constructor with forward predicted & updated state, RecHit, estimate 
@@ -76,7 +71,7 @@ public:
                         ConstRecHitPointer aRecHit, float aEstimate) :
     theFwdPredictedState(std::move(fwdPredTrajectoryStateOnSurface)),
     theUpdatedState(std::move(uTrajectoryStateOnSurface)),
-    theRecHit(std::move(aRecHit)), theLayer(0),
+    theRecHit(std::move(aRecHit)), theLayer(nullptr),
     theEstimate(aEstimate) {}
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
                         TrajectoryStateOnSurface uTrajectoryStateOnSurface,
@@ -86,7 +81,6 @@ public:
     theUpdatedState(std::move(uTrajectoryStateOnSurface)),
     theRecHit(std::move(aRecHit)), theLayer(layer),
     theEstimate(aEstimate) {}
-#endif
   /** Constructor with forward predicted, backward predicted & updated state, 
    *  RecHit
    */
@@ -98,7 +92,7 @@ public:
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
     theRecHit(aRecHit),
-    theLayer(0), theEstimate(0) {}
+    theLayer(nullptr), theEstimate(0) {}
 
   /** Constructor with forward predicted, backward predicted & updated state, 
    *  RecHit, estimate
@@ -111,7 +105,7 @@ public:
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
     theRecHit(aRecHit),
-    theLayer(0), theEstimate(aEstimate) {}
+    theLayer(nullptr), theEstimate(aEstimate) {}
 
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
 			TrajectoryStateOnSurface bwdPredTrajectoryStateOnSurface,
@@ -144,8 +138,6 @@ public:
 
   }
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-
   TrajectoryMeasurement( TrajectoryMeasurement && rh)  noexcept:
     theFwdPredictedState(std::move(rh.theFwdPredictedState)),
     theBwdPredictedState(std::move(rh.theBwdPredictedState)),
@@ -166,8 +158,6 @@ public:
 
   }
   
-#endif
-
   /** Access to forward predicted state (from fitter or builder).
    *  To be replaced by forwardPredictedState.
    */
@@ -191,16 +181,9 @@ public:
     return theUpdatedState;
   }
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
   ConstRecHitPointer::element_type const & recHitR() const {
     return *theRecHit;
   }
-#else
-  TrackingRecHit const & recHitR() const {   
-    return *theRecHit;
-  }  
-
-#endif
 
   ConstRecHitPointer const & recHitP() const {
     return theRecHit;
@@ -221,7 +204,7 @@ private:
   TrajectoryStateOnSurface theBwdPredictedState;
   TrajectoryStateOnSurface theUpdatedState;
   ConstRecHitPointer       theRecHit;
-  mutable DetLayer const * theLayer;
+  DetLayer const * theLayer;
   float theEstimate;
 };
 

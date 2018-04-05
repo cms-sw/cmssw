@@ -16,12 +16,14 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -35,6 +37,8 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "JetMETCorrections/Type1MET/interface/JetCorrExtractorT.h"
+
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 #include <string>
 #include <type_traits>
@@ -55,6 +59,7 @@ namespace PFJetMETcorrInputProducer_namespace
   template <typename T>
   class RawJetExtractorT // this template is neccessary to support pat::Jets
                          // (because pat::Jet->p4() returns the JES corrected, not the raw, jet momentum)
+    // But it does not handle the muon removal!!!!! MM
   {
     public:
 
@@ -64,17 +69,18 @@ namespace PFJetMETcorrInputProducer_namespace
        return jet.p4();
      }
   };
+
 }
 
 template <typename T, typename Textractor>
-class PFJetMETcorrInputProducerT : public edm::EDProducer
+class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
 {
  public:
 
   explicit PFJetMETcorrInputProducerT(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
       offsetCorrLabel_(""),
-      skipMuonSelection_(0)
+      skipMuonSelection_(nullptr)
   {
     token_ = consumes<std::vector<T> >(cfg.getParameter<edm::InputTag>("src"));
 
@@ -82,8 +88,10 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       offsetCorrLabel_ = cfg.getParameter<edm::InputTag>("offsetCorrLabel");
       offsetCorrToken_ = consumes<reco::JetCorrector>(offsetCorrLabel_);
     }
-    jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel");
-    jetCorrToken_ = consumes<reco::JetCorrector>(jetCorrLabel_);
+    jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel"); //for MC
+    jetCorrLabelRes_ = cfg.getParameter<edm::InputTag>("jetCorrLabelRes"); //for data
+    jetCorrToken_ = mayConsume<reco::JetCorrector>(jetCorrLabel_);
+    jetCorrResToken_ = mayConsume<reco::JetCorrector>(jetCorrLabelRes_);
 
     jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
       cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
@@ -119,7 +127,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       produces<CorrMETData>((*type2BinningEntry)->getInstanceLabel_full("offset"));
     }
   }
-  ~PFJetMETcorrInputProducerT()
+  ~PFJetMETcorrInputProducerT() override
   {
     delete skipMuonSelection_;
 
@@ -129,11 +137,28 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
     }
   }
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<edm::InputTag>("src",edm::InputTag("ak4PFJetsCHS"));
+    desc.add<edm::InputTag>("offsetCorrLabel",edm::InputTag("ak4PFCHSL1FastjetCorrector"));
+    desc.add<edm::InputTag>("jetCorrLabel",edm::InputTag("ak4PFCHSL1FastL2L3Corrector"));
+    desc.add<edm::InputTag>("jetCorrLabelRes",edm::InputTag("ak4PFCHSL1FastL2L3ResidualCorrector"));
+    desc.add<double>("jetCorrEtaMax",9.9);
+    desc.add<double>("type1JetPtThreshold",15);
+    desc.add<bool>("skipEM",true);
+    desc.add<double>("skipEMfractionThreshold",0.90);
+    desc.add<bool>("skipMuons",true);
+    desc.add<std::string>("skipMuonSelection","isGlobalMuon | isStandAloneMuon");
+    descriptions.add(defaultModuleLabel< PFJetMETcorrInputProducerT<T, Textractor> >(), desc);
+    }
+
+
  private:
 
-  void produce(edm::Event& evt, const edm::EventSetup& es)
+  void produce(edm::Event& evt, const edm::EventSetup& es) override
   {
-    std::auto_ptr<CorrMETData> type1Correction(new CorrMETData());
+
+    std::unique_ptr<CorrMETData> type1Correction(new CorrMETData());
     for ( typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
 	  type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
       (*type2BinningEntry)->binUnclEnergySum_   = CorrMETData();
@@ -141,7 +166,13 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
     }
 
     edm::Handle<reco::JetCorrector> jetCorr;
-    evt.getByToken(jetCorrToken_, jetCorr);
+    //automatic switch for residual corrections
+    if(evt.isRealData() ) {
+      jetCorrLabel_ = jetCorrLabelRes_;
+      evt.getByToken(jetCorrResToken_, jetCorr);
+    } else {
+      evt.getByToken(jetCorrToken_, jetCorr);
+    }
 
     typedef std::vector<T> JetCollection;
     edm::Handle<JetCollection> jets;
@@ -149,23 +180,24 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 
     int numJets = jets->size();
     for ( int jetIndex = 0; jetIndex < numJets; ++jetIndex ) {
-      const T& rawJet = jets->at(jetIndex);
+      const T& jet = jets->at(jetIndex);
 
       const static PFJetMETcorrInputProducer_namespace::InputTypeCheckerT<T, Textractor> checkInputType {};
-      checkInputType(rawJet);
+      checkInputType(jet);
 
-      double emEnergyFraction = rawJet.chargedEmEnergyFraction() + rawJet.neutralEmEnergyFraction();
+      double emEnergyFraction = jet.chargedEmEnergyFraction() + jet.neutralEmEnergyFraction();
       if ( skipEM_ && emEnergyFraction > skipEMfractionThreshold_ ) continue;
 
       const static PFJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor {};
-      reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(rawJet);
+      reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(jet);
+
       if ( skipMuons_ ) {
-	const std::vector<reco::CandidatePtr> & cands = rawJet.daughterPtrVector();
+	const std::vector<reco::CandidatePtr> & cands = jet.daughterPtrVector();
 	for ( std::vector<reco::CandidatePtr>::const_iterator cand = cands.begin();
 	      cand != cands.end(); ++cand ) {
           const reco::PFCandidate *pfcand = dynamic_cast<const reco::PFCandidate *>(cand->get());
-          const reco::Candidate *mu = (pfcand != 0 ? ( pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : 0) : cand->get());
-	  if ( mu != 0 && (*skipMuonSelection_)(*mu) ) {
+          const reco::Candidate *mu = (pfcand != nullptr ? ( pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : nullptr) : cand->get());
+	  if ( mu != nullptr && (*skipMuonSelection_)(*mu) ) {
 	    reco::Candidate::LorentzVector muonP4 = (*cand)->p4();
 	    rawJetP4 -= muonP4;
 	  }
@@ -173,21 +205,21 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       }
 
       reco::Candidate::LorentzVector corrJetP4;
-      if ( checkInputType.isPatJet(rawJet) )
-        corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_.label(), jetCorrEtaMax_, &rawJetP4);
+      if ( checkInputType.isPatJet(jet) )
+        corrJetP4 = jetCorrExtractor_(jet, jetCorrLabel_.label(), jetCorrEtaMax_, &rawJetP4);
       else
-        corrJetP4 = jetCorrExtractor_(rawJet, jetCorr.product(), jetCorrEtaMax_, &rawJetP4);
-
+        corrJetP4 = jetCorrExtractor_(jet, jetCorr.product(), jetCorrEtaMax_, &rawJetP4);
+      
       if ( corrJetP4.pt() > type1JetPtThreshold_ ) {
 
 	reco::Candidate::LorentzVector rawJetP4offsetCorr = rawJetP4;
 	if ( !offsetCorrLabel_.label().empty() ) {
           edm::Handle<reco::JetCorrector> offsetCorr;
           evt.getByToken(offsetCorrToken_, offsetCorr);
-          if ( checkInputType.isPatJet(rawJet) )
-            rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorrLabel_.label(), jetCorrEtaMax_, &rawJetP4);
+          if ( checkInputType.isPatJet(jet) )
+            rawJetP4offsetCorr = jetCorrExtractor_(jet, offsetCorrLabel_.label(), jetCorrEtaMax_, &rawJetP4);
           else
-	    rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorr.product(), jetCorrEtaMax_, &rawJetP4);
+	    rawJetP4offsetCorr = jetCorrExtractor_(jet, offsetCorr.product(), jetCorrEtaMax_, &rawJetP4);
 
 	  for ( typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
 		type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
@@ -221,11 +253,11 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 //     o momentum sum of "unclustered energy" (jets of (corrected) Pt < 10 GeV)
 //     o momentum sum of "offset energy"      (sum of energy attributed to pile-up/underlying event)
 //    to the event
-    evt.put(type1Correction, "type1");
+    evt.put(std::move(type1Correction), "type1");
     for ( typename std::vector<type2BinningEntryType*>::const_iterator type2BinningEntry = type2Binning_.begin();
 	  type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
-      evt.put(std::auto_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binUnclEnergySum_)), (*type2BinningEntry)->getInstanceLabel_full("type2"));
-      evt.put(std::auto_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binOffsetEnergySum_)), (*type2BinningEntry)->getInstanceLabel_full("offset"));
+      evt.put(std::unique_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binUnclEnergySum_)), (*type2BinningEntry)->getInstanceLabel_full("type2"));
+      evt.put(std::unique_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binOffsetEnergySum_)), (*type2BinningEntry)->getInstanceLabel_full("offset"));
     }
   }
 
@@ -236,7 +268,9 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
   edm::InputTag offsetCorrLabel_;
   edm::EDGetTokenT<reco::JetCorrector> offsetCorrToken_; // e.g. 'ak5CaloJetL1Fastjet'
   edm::InputTag jetCorrLabel_;
+  edm::InputTag jetCorrLabelRes_;
   edm::EDGetTokenT<reco::JetCorrector> jetCorrToken_;    // e.g. 'ak5CaloJetL1FastL2L3' (MC) / 'ak5CaloJetL1FastL2L3Residual' (Data)
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrResToken_;    // e.g. 'ak5CaloJetL1FastL2L3' (MC) / 'ak5CaloJetL1FastL2L3Residual' (Data)
   Textractor jetCorrExtractor_;
 
   double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold
@@ -257,7 +291,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
   {
     type2BinningEntryType()
       : binLabel_(""),
-        binSelection_(0)
+        binSelection_(nullptr)
     {}
     type2BinningEntryType(const edm::ParameterSet& cfg)
       : binLabel_(cfg.getParameter<std::string>("binLabel")),

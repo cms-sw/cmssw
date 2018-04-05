@@ -23,8 +23,8 @@ GenJetParticleSelector::GenJetParticleSelector(const ParameterSet& cfg, edm::Con
   found = find(vBoolParams.begin(), vBoolParams.end(), partonsString) != vBoolParams.end();
   if(found) partons_ = cfg.getParameter<bool>(partonsString);
   bool bExclude = false;
-  if (includeList.size() > 0) bInclude_ = true;
-  if (excludeList.size() > 0) bExclude = true;
+  if (!includeList.empty()) bInclude_ = true;
+  if (!excludeList.empty()) bExclude = true;
 
   if (bInclude_ && bExclude) {
     throw cms::Exception("ConfigError", "not allowed to use both includeList and excludeList at the same time\n");

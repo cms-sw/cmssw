@@ -26,7 +26,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -67,7 +66,10 @@
 
 namespace cms
 {
-  PileupVertexAccumulator::PileupVertexAccumulator(const edm::ParameterSet& iConfig, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC)
+  PileupVertexAccumulator::PileupVertexAccumulator(const edm::ParameterSet& iConfig, edm::ProducerBase& mixMod, edm::ConsumesCollector& iC) :
+    Mtag_(iConfig.getParameter<edm::InputTag>("vtxTag")),
+    fallbackMtag_(iConfig.getParameter<edm::InputTag>("vtxFallbackTag")),
+    saveVtxTimes_(iConfig.getParameter<bool>("saveVtxTimes"))
   {
     edm::LogInfo ("PixelDigitizer ") <<"Enter the Pixel Digitizer";
     
@@ -75,8 +77,8 @@ namespace cms
     
     mixMod.produces<PileupVertexContent>().setBranchAlias(alias);
 
-    Mtag_=edm::InputTag("generator");
     iC.consumes<edm::HepMCProduct>(Mtag_);
+    iC.mayConsume<edm::HepMCProduct>(fallbackMtag_);
   }
   
   PileupVertexAccumulator::~PileupVertexAccumulator(){  
@@ -93,6 +95,7 @@ namespace cms
 
     pT_Hats_.clear();
     z_posns_.clear();
+    t_posns_.clear();
   }
 
   void
@@ -105,6 +108,9 @@ namespace cms
 
     edm::Handle<edm::HepMCProduct> MCevt;
     iEvent.getByLabel(Mtag_, MCevt);
+    if(MCevt.whyFailed()) {
+      iEvent.getByLabel(fallbackMtag_, MCevt);
+    }
 
     const HepMC::GenEvent *myGenEvent = MCevt->GetEvent();
 
@@ -126,6 +132,11 @@ namespace cms
       float zpos = v->position().z()*0.1;
  
       z_posns_.push_back(zpos);
+
+      if (saveVtxTimes_) {
+          float tpos = v->position().t()/299792458e-6; // turn from mm to ns
+          t_posns_.push_back(tpos);
+      }
     }
 
     //    delete myGenEvent;
@@ -136,10 +147,10 @@ namespace cms
   void
   PileupVertexAccumulator::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-    std::auto_ptr<PileupVertexContent> PUVtxC(new PileupVertexContent(pT_Hats_, z_posns_));
+    std::unique_ptr<PileupVertexContent> PUVtxC(new PileupVertexContent(pT_Hats_, z_posns_, t_posns_));
 
     // write output to event
-    iEvent.put(PUVtxC);
+    iEvent.put(std::move(PUVtxC));
   }
 
 

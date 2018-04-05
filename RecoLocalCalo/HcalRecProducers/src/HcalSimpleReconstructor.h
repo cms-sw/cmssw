@@ -13,6 +13,9 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
     /** \class HcalSimpleReconstructor
 	
@@ -23,22 +26,20 @@ class HcalTopology;
     class HcalSimpleReconstructor : public edm::stream::EDProducer<> {
     public:
       explicit HcalSimpleReconstructor(const edm::ParameterSet& ps);
-      virtual ~HcalSimpleReconstructor();
-      virtual void produce(edm::Event& e, const edm::EventSetup& c) override final;
-      virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
-      virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
+      ~HcalSimpleReconstructor() override;
+      void produce(edm::Event& e, const edm::EventSetup& c) final;
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+      void beginRun(edm::Run const&r, edm::EventSetup const & es) final;
+      void endRun(edm::Run const&r, edm::EventSetup const & es) final;
+
     private:      
       template<class DIGICOLL, class RECHITCOLL> void process(edm::Event& e, const edm::EventSetup& c, const edm::EDGetTokenT<DIGICOLL> &tok);
-      void processUpgrade(edm::Event& e, const edm::EventSetup& c);
       HcalSimpleRecAlgo reco_;
       DetId::Detector det_;
       int subdet_;
       HcalOtherSubdetector subdetOther_;
       edm::InputTag inputLabel_;
 
-      edm::EDGetTokenT<HBHEUpgradeDigiCollection> tok_hbheUp_;
-      edm::EDGetTokenT<HFUpgradeDigiCollection> tok_hfUp_;
-      edm::EDGetTokenT<HBHEDigiCollection> tok_hbhe_;
       edm::EDGetTokenT<HFDigiCollection> tok_hf_;
       edm::EDGetTokenT<HODigiCollection> tok_ho_;
       edm::EDGetTokenT<HcalCalibDigiCollection> tok_calib_;
@@ -50,8 +51,6 @@ class HcalTopology;
       int firstSample_;
       int samplesToAdd_;
       bool tsFromDB_;
-      bool upgradeHBHE_;
-      bool upgradeHF_;
 
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
       HcalTopology *theTopology;

@@ -16,15 +16,8 @@
 
 
 SiPixelCluster::SiPixelCluster( const SiPixelCluster::PixelPos& pix, int adc) :
-  thePixelRow(pix.row()),
-  thePixelCol(pix.col()),
-    // ggiurgiu@fnal.gov, 01/05/12
-  // Initialize the split cluster errors to un-physical values.
-  // The CPE will check these errors and if they are not un-physical, 
-  // it will recognize the clusters as split and assign these (increased) 
-  // errors to the corresponding rechit. 
-  err_x(-99999.9),
-  err_y(-99999.9)
+  theMinPixelRow(pix.row()),
+  theMinPixelCol(pix.col())
 {
   // First pixel in this cluster.
   thePixelADC.push_back( adc );
@@ -57,8 +50,8 @@ void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, int adc) {
     for (int i=0; i<isize; ++i) {
       int xoffset = thePixelOffset[i*2]  + ominRow - minRow;
       int yoffset = thePixelOffset[i*2+1]  + ominCol -minCol;
-      thePixelOffset[i*2] = std::min(63,xoffset);
-      thePixelOffset[i*2+1] = std::min(63,yoffset);
+      thePixelOffset[i*2] = std::min(int(MAXSPAN),xoffset);
+      thePixelOffset[i*2+1] = std::min(int(MAXSPAN),yoffset);
       if (xoffset > maxRow) maxRow = xoffset; 
       if (yoffset > maxCol) maxCol = yoffset; 
     }
@@ -73,6 +66,6 @@ void SiPixelCluster::add( const SiPixelCluster::PixelPos& pix, int adc) {
     packCol(minCol,pix.col()-minCol);
   
   thePixelADC.push_back( adc );
-  thePixelOffset.push_back( std::min(63,pix.row() - minRow) );
-  thePixelOffset.push_back( std::min(63,pix.col() - minCol) );
+  thePixelOffset.push_back( std::min(int(MAXSPAN),pix.row() - minRow) );
+  thePixelOffset.push_back( std::min(int(MAXSPAN),pix.col() - minCol) );
 }

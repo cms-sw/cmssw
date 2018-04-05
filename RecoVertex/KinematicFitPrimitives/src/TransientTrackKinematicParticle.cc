@@ -10,7 +10,7 @@ TransientTrackKinematicParticle::TransientTrackKinematicParticle
 	KinematicStatePropagator * pr, const TransientTrack * initialTrack)
 {
   theField = kineState.magneticField();
- if(previousParticle.get() == 0)
+ if(previousParticle.get() == nullptr)
  { 
   initState = kineState;
 }else{initState = previousParticle->initialState();}
@@ -20,13 +20,13 @@ TransientTrackKinematicParticle::TransientTrackKinematicParticle
  chi2 = chiSquared;
  ndf = degreesOfFr;
  lConstraint = lastConstraint;
- if(pr!=0)
+ if(pr!=nullptr)
  {
   propagator = pr->clone();
  }else{
   propagator = new TrackKinematicStatePropagator();
  }
- tree = 0;
+ tree = nullptr;
 } 
 
 TransientTrackKinematicParticle::~TransientTrackKinematicParticle()
@@ -39,7 +39,7 @@ bool TransientTrackKinematicParticle::operator==(const KinematicParticle& other)
 //first looking if this is an object of the same type
  const  KinematicParticle * lp = &other;
  const TransientTrackKinematicParticle * lPart = dynamic_cast<const TransientTrackKinematicParticle * >(lp);
- if(lPart != 0){
+ if(lPart != nullptr){
  
 //then comparing particle with their initial TransientTracks 
   if((initialTransientTrack())&&(lPart->initialTransientTrack()))

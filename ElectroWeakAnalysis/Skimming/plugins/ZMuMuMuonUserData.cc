@@ -115,7 +115,7 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
   Handle<VertexCollection> primaryVertices;  // Collection of primary Vertices
   evt.getByToken(primaryVerticesToken_, primaryVertices);
 
-  auto_ptr<vector<pat::Muon> > muonColl( new vector<pat::Muon> (*muons) );
+  unique_ptr<vector<pat::Muon> > muonColl( new vector<pat::Muon> (*muons) );
   for (unsigned int i = 0; i< muonColl->size();++i){
     pat::Muon & m = (*muonColl)[i];
     //pat::Muon *mu = new pat::Muon(m);
@@ -219,7 +219,7 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
     m.addUserFloat("zDau_MuEnergyHad", zDauMuEnergyHad );
  }
 
-  evt.put( muonColl);
+  evt.put(std::move(muonColl));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

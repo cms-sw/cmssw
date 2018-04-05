@@ -48,7 +48,7 @@ class L1GtVhdlWriterCore : public L1GtVhdlDefinitions
         L1GtVhdlWriterCore(const std::string &templatesDirectory, const std::string &outputDirectory, const bool &debug);
 
         /// destructor
-        ~L1GtVhdlWriterCore();
+        ~L1GtVhdlWriterCore() override;
 
         /// returns all condition of the same class. Conditions belong to one class if they are matching
         /// in type (Type1s, Type2s..) category (CondMuon, CondCalo,)and are defined for the same object (Mu, fwdJet..)

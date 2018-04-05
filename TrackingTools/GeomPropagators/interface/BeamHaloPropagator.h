@@ -21,7 +21,7 @@
 
 /* Class BeamHaloPropagator Interface */
 
-class BeamHaloPropagator GCC11_FINAL : public Propagator {
+class BeamHaloPropagator final : public Propagator {
 
   public:
 
@@ -39,10 +39,10 @@ class BeamHaloPropagator GCC11_FINAL : public Propagator {
     BeamHaloPropagator( const BeamHaloPropagator& );
 
     /** virtual destructor */
-    virtual ~BeamHaloPropagator() ;
+    ~BeamHaloPropagator() override ;
 
     ///Virtual constructor (using copy c'tor)
-    virtual BeamHaloPropagator* clone() const {
+    BeamHaloPropagator* clone() const override {
       return new BeamHaloPropagator(getEndCapTkPropagator(),getCrossTkPropagator(),magneticField(),propagationDirection());
     }
 
@@ -61,12 +61,12 @@ class BeamHaloPropagator GCC11_FINAL : public Propagator {
 
     std::pair<TrajectoryStateOnSurface,double>
       propagateWithPath(const FreeTrajectoryState& fts,
-                        const Plane& plane) const;
+                        const Plane& plane) const override;
 
 
     std::pair<TrajectoryStateOnSurface,double>
       propagateWithPath(const FreeTrajectoryState& fts,
-                        const Cylinder& cylinder) const;
+                        const Cylinder& cylinder) const override;
 
 
     ///true if the plane and the fts z position have different sign
@@ -77,7 +77,7 @@ class BeamHaloPropagator GCC11_FINAL : public Propagator {
     ///return the propagator used to cross the tracker
     const Propagator* getCrossTkPropagator() const ;
     ///return the magneticField
-    virtual const MagneticField* magneticField() const {return theField;}
+    const MagneticField* magneticField() const override {return theField;}
 
   private:
     void directionCheck(PropagationDirection dir);

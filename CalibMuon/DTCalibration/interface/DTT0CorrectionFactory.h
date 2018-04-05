@@ -5,7 +5,6 @@
  *  Factory of seal plugins for TTrig DB corrections.
  *  The plugins are concrete implementations of DTT0BaseCorrection case class.
  *
- *  \author A. Vilela Pereira
  */
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 

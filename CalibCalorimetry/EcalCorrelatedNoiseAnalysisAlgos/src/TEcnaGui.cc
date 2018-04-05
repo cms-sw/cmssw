@@ -34,545 +34,545 @@ ClassImp(TEcnaGui)
 
   //.... general frames
 
-  if ( fLayoutGeneral      != 0 ) {delete fLayoutGeneral;      fCdelete++;}
-  if ( fLayoutBottLeft     != 0 ) {delete fLayoutBottLeft;     fCdelete++;}
-  if ( fLayoutBottRight    != 0 ) {delete fLayoutBottRight;    fCdelete++;}
-  if ( fLayoutTopLeft      != 0 ) {delete fLayoutTopLeft;      fCdelete++;}
-  if ( fLayoutTopRight     != 0 ) {delete fLayoutTopRight;     fCdelete++;}
-  if ( fLayoutCenterYLeft  != 0 ) {delete fLayoutCenterYLeft;  fCdelete++;}
-  if ( fLayoutCenterYRight != 0 ) {delete fLayoutCenterYRight; fCdelete++;}
-  if ( fLayoutCenterXTop   != 0 ) {delete fLayoutCenterXTop;   fCdelete++;}
+  if ( fLayoutGeneral      != nullptr ) {delete fLayoutGeneral;      fCdelete++;}
+  if ( fLayoutBottLeft     != nullptr ) {delete fLayoutBottLeft;     fCdelete++;}
+  if ( fLayoutBottRight    != nullptr ) {delete fLayoutBottRight;    fCdelete++;}
+  if ( fLayoutTopLeft      != nullptr ) {delete fLayoutTopLeft;      fCdelete++;}
+  if ( fLayoutTopRight     != nullptr ) {delete fLayoutTopRight;     fCdelete++;}
+  if ( fLayoutCenterYLeft  != nullptr ) {delete fLayoutCenterYLeft;  fCdelete++;}
+  if ( fLayoutCenterYRight != nullptr ) {delete fLayoutCenterYRight; fCdelete++;}
+  if ( fLayoutCenterXTop   != nullptr ) {delete fLayoutCenterXTop;   fCdelete++;}
 
-  if ( fVoidFrame          != 0 ) {delete fVoidFrame;          fCdelete++;}
+  if ( fVoidFrame          != nullptr ) {delete fVoidFrame;          fCdelete++;}
 
   //..... specific frames + buttons + menus
 
   //++++++++++++++++++++++++++++++ Horizontal frame Analysis + First requested evt number + Run number
-  if ( fAnaNorsRunFrame       != 0 ) {delete fAnaNorsRunFrame;       fCdelete++;}
-  if ( fLayoutAnaNorsRunFrame != 0 ) {delete fLayoutAnaNorsRunFrame; fCdelete++;}
+  if ( fAnaNorsRunFrame       != nullptr ) {delete fAnaNorsRunFrame;       fCdelete++;}
+  if ( fLayoutAnaNorsRunFrame != nullptr ) {delete fLayoutAnaNorsRunFrame; fCdelete++;}
 
   //--------------------------------- Sub-Frame Analysis Name (Button+Entry Field)
-  if ( fAnaFrame       != 0 ) {delete fAnaFrame;       fCdelete++;}
-  if ( fAnaBut         != 0 ) {delete fAnaBut;         fCdelete++;}
-  if ( fLayoutAnaBut   != 0 ) {delete fLayoutAnaBut;   fCdelete++;}
-  if ( fEntryAnaNumber != 0 ) {delete fEntryAnaNumber; fCdelete++;}
-  if ( fAnaText        != 0 ) {fAnaText->Delete();     fCdelete++;}
-  if ( fLayoutAnaField != 0 ) {delete fLayoutAnaField; fCdelete++;}
+  if ( fAnaFrame       != nullptr ) {delete fAnaFrame;       fCdelete++;}
+  if ( fAnaBut         != nullptr ) {delete fAnaBut;         fCdelete++;}
+  if ( fLayoutAnaBut   != nullptr ) {delete fLayoutAnaBut;   fCdelete++;}
+  if ( fEntryAnaNumber != nullptr ) {delete fEntryAnaNumber; fCdelete++;}
+  if ( fAnaText        != nullptr ) {fAnaText->Delete();     fCdelete++;}
+  if ( fLayoutAnaField != nullptr ) {delete fLayoutAnaField; fCdelete++;}
 
   //------------------- subframe first requested evt number
-  if ( fFevFrame            != 0 ) {delete fFevFrame;            fCdelete++;}
-  if ( fFevBut              != 0 ) {delete fFevBut;              fCdelete++;}
-  if ( fLayoutFevBut        != 0 ) {delete fLayoutFevBut;        fCdelete++;}
-  if ( fEntryFevNumber      != 0 ) {delete fEntryFevNumber;      fCdelete++;}
-  if ( fFevText             != 0 ) {fFevText->Delete();          fCdelete++;}  
-  if ( fLayoutFevFieldText  != 0 ) {delete fLayoutFevFieldText;  fCdelete++;}
-  if ( fLayoutFevFieldFrame != 0 ) {delete fLayoutFevFieldFrame; fCdelete++;}
+  if ( fFevFrame            != nullptr ) {delete fFevFrame;            fCdelete++;}
+  if ( fFevBut              != nullptr ) {delete fFevBut;              fCdelete++;}
+  if ( fLayoutFevBut        != nullptr ) {delete fLayoutFevBut;        fCdelete++;}
+  if ( fEntryFevNumber      != nullptr ) {delete fEntryFevNumber;      fCdelete++;}
+  if ( fFevText             != nullptr ) {fFevText->Delete();          fCdelete++;}  
+  if ( fLayoutFevFieldText  != nullptr ) {delete fLayoutFevFieldText;  fCdelete++;}
+  if ( fLayoutFevFieldFrame != nullptr ) {delete fLayoutFevFieldFrame; fCdelete++;}
 
   //-------------------------------- Sub-Frame Run number (Button+Entry Field)  
-  if ( fRunFrame       != 0 ) {delete fRunFrame;           fCdelete++;}
-  if ( fRunBut         != 0 ) {delete fRunBut;             fCdelete++;}
-  if ( fLayoutRunBut   != 0 ) {delete fLayoutRunBut;       fCdelete++;}
-  if ( fEntryRunNumber != 0 ) {delete fEntryRunNumber;     fCdelete++;}
-  if ( fRunText        != 0 ) {fRunText->Delete();         fCdelete++;}
-  if ( fLayoutRunField != 0 ) {delete fLayoutRunField;     fCdelete++;}
+  if ( fRunFrame       != nullptr ) {delete fRunFrame;           fCdelete++;}
+  if ( fRunBut         != nullptr ) {delete fRunBut;             fCdelete++;}
+  if ( fLayoutRunBut   != nullptr ) {delete fLayoutRunBut;       fCdelete++;}
+  if ( fEntryRunNumber != nullptr ) {delete fEntryRunNumber;     fCdelete++;}
+  if ( fRunText        != nullptr ) {fRunText->Delete();         fCdelete++;}
+  if ( fLayoutRunField != nullptr ) {delete fLayoutRunField;     fCdelete++;}
 
   //+++++++++++++++++++++++++++++ Horizontal frame Nb Of Samples + last requested events + Clean + Submit
-  if ( fFevLevStexFrame       != 0 ) {delete fFevLevStexFrame;       fCdelete++;}
-  if ( fLayoutFevLevStexFrame != 0 ) {delete fLayoutFevLevStexFrame; fCdelete++;}
+  if ( fFevLevStexFrame       != nullptr ) {delete fFevLevStexFrame;       fCdelete++;}
+  if ( fLayoutFevLevStexFrame != nullptr ) {delete fLayoutFevLevStexFrame; fCdelete++;}
 
   //------------------- Sub-Frame Nb of Required Samples (Button+Entry Field)
-  if ( fNorsFrame          != 0 ) {delete fNorsFrame;          fCdelete++;}
-  if ( fNorsBut            != 0 ) {delete fNorsBut;            fCdelete++;}
-  if ( fLayoutNorsBut      != 0 ) {delete fLayoutNorsBut;      fCdelete++;}
-  if ( fEntryNorsNumber    != 0 ) {delete fEntryNorsNumber;    fCdelete++;}
-  if ( fNorsText           != 0 ) {fNorsText->Delete();        fCdelete++;}
-  if ( fLayoutNorsField    != 0 ) {delete fLayoutNorsField;    fCdelete++;}
+  if ( fNorsFrame          != nullptr ) {delete fNorsFrame;          fCdelete++;}
+  if ( fNorsBut            != nullptr ) {delete fNorsBut;            fCdelete++;}
+  if ( fLayoutNorsBut      != nullptr ) {delete fLayoutNorsBut;      fCdelete++;}
+  if ( fEntryNorsNumber    != nullptr ) {delete fEntryNorsNumber;    fCdelete++;}
+  if ( fNorsText           != nullptr ) {fNorsText->Delete();        fCdelete++;}
+  if ( fLayoutNorsField    != nullptr ) {delete fLayoutNorsField;    fCdelete++;}
 
   //------------------- subframe last requested evt number
-  if ( fLevFrame            != 0 ) {delete fLevFrame;            fCdelete++;}
-  if ( fLevBut              != 0 ) {delete fLevBut;              fCdelete++;}
-  if ( fLayoutLevBut        != 0 ) {delete fLayoutLevBut;        fCdelete++;}
-  if ( fEntryLevNumber      != 0 ) {delete fEntryLevNumber;      fCdelete++;}
-  if ( fLevText             != 0 ) {fLevText->Delete();          fCdelete++;}
-  if ( fLayoutLevFieldText  != 0 ) {delete fLayoutLevFieldText;  fCdelete++;}
-  if ( fLayoutLevFieldFrame != 0 ) {delete fLayoutLevFieldFrame; fCdelete++;}
+  if ( fLevFrame            != nullptr ) {delete fLevFrame;            fCdelete++;}
+  if ( fLevBut              != nullptr ) {delete fLevBut;              fCdelete++;}
+  if ( fLayoutLevBut        != nullptr ) {delete fLayoutLevBut;        fCdelete++;}
+  if ( fEntryLevNumber      != nullptr ) {delete fEntryLevNumber;      fCdelete++;}
+  if ( fLevText             != nullptr ) {fLevText->Delete();          fCdelete++;}
+  if ( fLayoutLevFieldText  != nullptr ) {delete fLayoutLevFieldText;  fCdelete++;}
+  if ( fLayoutLevFieldFrame != nullptr ) {delete fLayoutLevFieldFrame; fCdelete++;}
 
   //................................ Menu for Clean
-  if ( fMenuClean          != 0 ) {delete fMenuClean;          fCdelete++;}
-  if ( fMenuBarClean       != 0 ) {fMenuBarClean->Delete();    fCdelete++;}
+  if ( fMenuClean          != nullptr ) {delete fMenuClean;          fCdelete++;}
+  if ( fMenuBarClean       != nullptr ) {fMenuBarClean->Delete();    fCdelete++;}
   //................................ Menu for Submit jobs on batch system
-  if ( fMenuSubmit         != 0 ) {delete fMenuSubmit;         fCdelete++;}
-  if ( fMenuBarSubmit      != 0 ) {fMenuBarSubmit->Delete();   fCdelete++;}
+  if ( fMenuSubmit         != nullptr ) {delete fMenuSubmit;         fCdelete++;}
+  if ( fMenuBarSubmit      != nullptr ) {fMenuBarSubmit->Delete();   fCdelete++;}
 
   //+++++++++++++++++++++++++++++++++++++++++++++++++  Horizontal Frame:Stex number + NbOfReqEvts
-  if ( fCompStRqFrame       != 0 ) {delete fCompStRqFrame;       fCdelete++;}
-  if ( fLayoutCompStRqFrame != 0 ) {delete fLayoutCompStRqFrame; fCdelete++;}
+  if ( fCompStRqFrame       != nullptr ) {delete fCompStRqFrame;       fCdelete++;}
+  if ( fLayoutCompStRqFrame != nullptr ) {delete fLayoutCompStRqFrame; fCdelete++;}
 
   //------------------- subframe stex number
-  if ( fStexFrame            != 0 ) {delete fStexFrame;            fCdelete++;}
-  if ( fStexBut              != 0 ) {delete fStexBut;              fCdelete++;}
-  if ( fLayoutStexBut        != 0 ) {delete fLayoutStexBut;        fCdelete++;}
-  if ( fEntryStexNumber      != 0 ) {delete fEntryStexNumber;      fCdelete++;}
-  if ( fStexText             != 0 ) {fStexText->Delete();          fCdelete++;}  
-  if ( fLayoutStexFieldText  != 0 ) {delete fLayoutStexFieldText;  fCdelete++;}
-  if ( fLayoutStexFieldFrame != 0 ) {delete fLayoutStexFieldFrame; fCdelete++;}
+  if ( fStexFrame            != nullptr ) {delete fStexFrame;            fCdelete++;}
+  if ( fStexBut              != nullptr ) {delete fStexBut;              fCdelete++;}
+  if ( fLayoutStexBut        != nullptr ) {delete fLayoutStexBut;        fCdelete++;}
+  if ( fEntryStexNumber      != nullptr ) {delete fEntryStexNumber;      fCdelete++;}
+  if ( fStexText             != nullptr ) {fStexText->Delete();          fCdelete++;}  
+  if ( fLayoutStexFieldText  != nullptr ) {delete fLayoutStexFieldText;  fCdelete++;}
+  if ( fLayoutStexFieldFrame != nullptr ) {delete fLayoutStexFieldFrame; fCdelete++;}
 
   //------------------- subframe number of requested evts
-  if ( fRevFrame            != 0 ) {delete fRevFrame;            fCdelete++;}
-  if ( fRevBut              != 0 ) {delete fRevBut;              fCdelete++;}
-  if ( fLayoutRevBut        != 0 ) {delete fLayoutRevBut;        fCdelete++;}
-  if ( fEntryRevNumber      != 0 ) {delete fEntryRevNumber;      fCdelete++;}
-  if ( fRevText             != 0 ) {fRevText->Delete();          fCdelete++;}
-  if ( fLayoutRevFieldText  != 0 ) {delete fLayoutRevFieldText;  fCdelete++;}
-  if ( fLayoutRevFieldFrame != 0 ) {delete fLayoutRevFieldFrame; fCdelete++;}
+  if ( fRevFrame            != nullptr ) {delete fRevFrame;            fCdelete++;}
+  if ( fRevBut              != nullptr ) {delete fRevBut;              fCdelete++;}
+  if ( fLayoutRevBut        != nullptr ) {delete fLayoutRevBut;        fCdelete++;}
+  if ( fEntryRevNumber      != nullptr ) {delete fEntryRevNumber;      fCdelete++;}
+  if ( fRevText             != nullptr ) {fRevText->Delete();          fCdelete++;}
+  if ( fLayoutRevFieldText  != nullptr ) {delete fLayoutRevFieldText;  fCdelete++;}
+  if ( fLayoutRevFieldFrame != nullptr ) {delete fLayoutRevFieldFrame; fCdelete++;}
 
   //+++++++++++++++++++++++  Horizontal Frame StexStin numbering + Nb Samp for calc + Calculations
-  if ( fCompStnbFrame       != 0 ) {delete fCompStnbFrame;       fCdelete++;}
-  if ( fLayoutCompStnbFrame != 0 ) {delete fLayoutCompStnbFrame; fCdelete++;}
+  if ( fCompStnbFrame       != nullptr ) {delete fCompStnbFrame;       fCdelete++;}
+  if ( fLayoutCompStnbFrame != nullptr ) {delete fLayoutCompStnbFrame; fCdelete++;}
 
   //............................ Stex Stin Numbering view (Button)
-  if ( fButStexNb           != 0 ) {delete fButStexNb;           fCdelete++;}
-  if ( fLayoutStexNbBut     != 0 ) {delete fLayoutStexNbBut;     fCdelete++;}
+  if ( fButStexNb           != nullptr ) {delete fButStexNb;           fCdelete++;}
+  if ( fLayoutStexNbBut     != nullptr ) {delete fLayoutStexNbBut;     fCdelete++;}
   //------------------- subframe NbSampForCalc
-  if ( fNbSampForCalcFrame            != 0 ) {delete fNbSampForCalcFrame;            fCdelete++;}
-  if ( fNbSampForCalcBut              != 0 ) {delete fNbSampForCalcBut;              fCdelete++;}
-  if ( fLayoutNbSampForCalcBut        != 0 ) {delete fLayoutNbSampForCalcBut;        fCdelete++;}
-  if ( fEntryNbSampForCalcNumber      != 0 ) {delete fEntryNbSampForCalcNumber;      fCdelete++;}
-  if ( fNbSampForCalcText             != 0 ) {fNbSampForCalcText->Delete();          fCdelete++;}  
-  if ( fLayoutNbSampForCalcFieldText  != 0 ) {delete fLayoutNbSampForCalcFieldText;  fCdelete++;}
-  if ( fLayoutNbSampForCalcFieldFrame != 0 ) {delete fLayoutNbSampForCalcFieldFrame; fCdelete++;}
+  if ( fNbSampForCalcFrame            != nullptr ) {delete fNbSampForCalcFrame;            fCdelete++;}
+  if ( fNbSampForCalcBut              != nullptr ) {delete fNbSampForCalcBut;              fCdelete++;}
+  if ( fLayoutNbSampForCalcBut        != nullptr ) {delete fLayoutNbSampForCalcBut;        fCdelete++;}
+  if ( fEntryNbSampForCalcNumber      != nullptr ) {delete fEntryNbSampForCalcNumber;      fCdelete++;}
+  if ( fNbSampForCalcText             != nullptr ) {fNbSampForCalcText->Delete();          fCdelete++;}  
+  if ( fLayoutNbSampForCalcFieldText  != nullptr ) {delete fLayoutNbSampForCalcFieldText;  fCdelete++;}
+  if ( fLayoutNbSampForCalcFieldFrame != nullptr ) {delete fLayoutNbSampForCalcFieldFrame; fCdelete++;}
   //................................ Menus for CALCULATIONS
-  if ( fMenuComput          != 0 ) {delete fMenuComput;          fCdelete++;}
-  if ( fMenuBarComput       != 0 ) {fMenuBarComput->Delete();    fCdelete++;}
+  if ( fMenuComput          != nullptr ) {delete fMenuComput;          fCdelete++;}
+  if ( fMenuBarComput       != nullptr ) {fMenuBarComput->Delete();    fCdelete++;}
 
   //+++++++++++++++++++++++++++++++++++++++++++ Frame for quantities relative to the Stex 
-  if ( fStexUpFrame          != 0 ) {delete fStexUpFrame;          fCdelete++;}
+  if ( fStexUpFrame          != nullptr ) {delete fStexUpFrame;          fCdelete++;}
 
   //................................ Menus+Ymin+Ymax for the Stex ............................
 
   //...................................... Nb of evts in the data
 
-  if ( fVmmD_NOE_ChNbFrame            != 0 ) {delete fVmmD_NOE_ChNbFrame;            fCdelete++;}
+  if ( fVmmD_NOE_ChNbFrame            != nullptr ) {delete fVmmD_NOE_ChNbFrame;            fCdelete++;}
 
-  if ( fVmaxD_NOE_ChNbFrame           != 0 ) {delete fVmaxD_NOE_ChNbFrame;           fCdelete++;}
-  if ( fVmaxD_NOE_ChNbBut             != 0 ) {delete fVmaxD_NOE_ChNbBut;             fCdelete++;}
-  if ( fLayoutVmaxD_NOE_ChNbBut       != 0 ) {delete fLayoutVmaxD_NOE_ChNbBut;       fCdelete++;}
-  if ( fEntryVmaxD_NOE_ChNbNumber     != 0 ) {delete fEntryVmaxD_NOE_ChNbNumber;     fCdelete++;}
-  if ( fVmaxD_NOE_ChNbText            != 0 ) {fVmaxD_NOE_ChNbText->Delete();         fCdelete++;}
-  if ( fLayoutVmaxD_NOE_ChNbFieldText != 0 ) {delete fLayoutVmaxD_NOE_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVmaxD_NOE_ChNbFrame     != 0 ) {delete fLayoutVmaxD_NOE_ChNbFrame;     fCdelete++;}
+  if ( fVmaxD_NOE_ChNbFrame           != nullptr ) {delete fVmaxD_NOE_ChNbFrame;           fCdelete++;}
+  if ( fVmaxD_NOE_ChNbBut             != nullptr ) {delete fVmaxD_NOE_ChNbBut;             fCdelete++;}
+  if ( fLayoutVmaxD_NOE_ChNbBut       != nullptr ) {delete fLayoutVmaxD_NOE_ChNbBut;       fCdelete++;}
+  if ( fEntryVmaxD_NOE_ChNbNumber     != nullptr ) {delete fEntryVmaxD_NOE_ChNbNumber;     fCdelete++;}
+  if ( fVmaxD_NOE_ChNbText            != nullptr ) {fVmaxD_NOE_ChNbText->Delete();         fCdelete++;}
+  if ( fLayoutVmaxD_NOE_ChNbFieldText != nullptr ) {delete fLayoutVmaxD_NOE_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVmaxD_NOE_ChNbFrame     != nullptr ) {delete fLayoutVmaxD_NOE_ChNbFrame;     fCdelete++;}
 
-  if ( fVminD_NOE_ChNbFrame           != 0 ) {delete fVminD_NOE_ChNbFrame;           fCdelete++;}
-  if ( fVminD_NOE_ChNbBut             != 0 ) {delete fVminD_NOE_ChNbBut;             fCdelete++;}
-  if ( fLayoutVminD_NOE_ChNbBut       != 0 ) {delete fLayoutVminD_NOE_ChNbBut;       fCdelete++;}
-  if ( fEntryVminD_NOE_ChNbNumber     != 0 ) {delete fEntryVminD_NOE_ChNbNumber;     fCdelete++;}
-  if ( fVminD_NOE_ChNbText            != 0 ) {fVminD_NOE_ChNbText->Delete();         fCdelete++;}
-  if ( fLayoutVminD_NOE_ChNbFieldText != 0 ) {delete fLayoutVminD_NOE_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVminD_NOE_ChNbFrame     != 0 ) {delete fLayoutVminD_NOE_ChNbFrame;     fCdelete++;}
+  if ( fVminD_NOE_ChNbFrame           != nullptr ) {delete fVminD_NOE_ChNbFrame;           fCdelete++;}
+  if ( fVminD_NOE_ChNbBut             != nullptr ) {delete fVminD_NOE_ChNbBut;             fCdelete++;}
+  if ( fLayoutVminD_NOE_ChNbBut       != nullptr ) {delete fLayoutVminD_NOE_ChNbBut;       fCdelete++;}
+  if ( fEntryVminD_NOE_ChNbNumber     != nullptr ) {delete fEntryVminD_NOE_ChNbNumber;     fCdelete++;}
+  if ( fVminD_NOE_ChNbText            != nullptr ) {fVminD_NOE_ChNbText->Delete();         fCdelete++;}
+  if ( fLayoutVminD_NOE_ChNbFieldText != nullptr ) {delete fLayoutVminD_NOE_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVminD_NOE_ChNbFrame     != nullptr ) {delete fLayoutVminD_NOE_ChNbFrame;     fCdelete++;}
 
-  if ( fMenuD_NOE_ChNb                != 0 ) {delete fMenuD_NOE_ChNb;                fCdelete++;}
-  if ( fMenuBarD_NOE_ChNb             != 0 ) {fMenuBarD_NOE_ChNb->Delete();          fCdelete++;}
-  if ( fVminD_NOE_ChNbText            != 0 ) {fVminD_NOE_ChNbText->Delete();         fCdelete++;}
+  if ( fMenuD_NOE_ChNb                != nullptr ) {delete fMenuD_NOE_ChNb;                fCdelete++;}
+  if ( fMenuBarD_NOE_ChNb             != nullptr ) {fMenuBarD_NOE_ChNb->Delete();          fCdelete++;}
+  if ( fVminD_NOE_ChNbText            != nullptr ) {fVminD_NOE_ChNbText->Delete();         fCdelete++;}
 
-  if ( fLayoutVmmD_NOE_ChNbFrame      != 0 ) {delete fLayoutVmmD_NOE_ChNbFrame;      fCdelete++;}
+  if ( fLayoutVmmD_NOE_ChNbFrame      != nullptr ) {delete fLayoutVmmD_NOE_ChNbFrame;      fCdelete++;}
 
   //---------------------------------------------------
-  if ( fVmmD_Ped_ChNbFrame            != 0 ) {delete fVmmD_Ped_ChNbFrame;            fCdelete++;}
+  if ( fVmmD_Ped_ChNbFrame            != nullptr ) {delete fVmmD_Ped_ChNbFrame;            fCdelete++;}
 
-  if ( fVmaxD_Ped_ChNbFrame           != 0 ) {delete fVmaxD_Ped_ChNbFrame;           fCdelete++;}
-  if ( fVmaxD_Ped_ChNbBut             != 0 ) {delete fVmaxD_Ped_ChNbBut;             fCdelete++;}
-  if ( fLayoutVmaxD_Ped_ChNbBut       != 0 ) {delete fLayoutVmaxD_Ped_ChNbBut;       fCdelete++;}
-  if ( fVmaxD_Ped_ChNbText            != 0 ) {fVmaxD_Ped_ChNbText->Delete();         fCdelete++;}
-  if ( fEntryVmaxD_Ped_ChNbNumber     != 0 ) {delete fEntryVmaxD_Ped_ChNbNumber;     fCdelete++;}
-  if ( fLayoutVmaxD_Ped_ChNbFieldText != 0 ) {delete fLayoutVmaxD_Ped_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVmaxD_Ped_ChNbFrame     != 0 ) {delete fLayoutVmaxD_Ped_ChNbFrame;     fCdelete++;}
+  if ( fVmaxD_Ped_ChNbFrame           != nullptr ) {delete fVmaxD_Ped_ChNbFrame;           fCdelete++;}
+  if ( fVmaxD_Ped_ChNbBut             != nullptr ) {delete fVmaxD_Ped_ChNbBut;             fCdelete++;}
+  if ( fLayoutVmaxD_Ped_ChNbBut       != nullptr ) {delete fLayoutVmaxD_Ped_ChNbBut;       fCdelete++;}
+  if ( fVmaxD_Ped_ChNbText            != nullptr ) {fVmaxD_Ped_ChNbText->Delete();         fCdelete++;}
+  if ( fEntryVmaxD_Ped_ChNbNumber     != nullptr ) {delete fEntryVmaxD_Ped_ChNbNumber;     fCdelete++;}
+  if ( fLayoutVmaxD_Ped_ChNbFieldText != nullptr ) {delete fLayoutVmaxD_Ped_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVmaxD_Ped_ChNbFrame     != nullptr ) {delete fLayoutVmaxD_Ped_ChNbFrame;     fCdelete++;}
 
-  if ( fVminD_Ped_ChNbFrame           != 0 ) {delete fVminD_Ped_ChNbFrame;           fCdelete++;}
-  if ( fVminD_Ped_ChNbBut             != 0 ) {delete fVminD_Ped_ChNbBut;             fCdelete++;}
-  if ( fLayoutVminD_Ped_ChNbBut       != 0 ) {delete fLayoutVminD_Ped_ChNbBut;       fCdelete++;}
-  if ( fVminD_Ped_ChNbText            != 0 ) {fVminD_Ped_ChNbText->Delete();         fCdelete++;}
-  if ( fEntryVminD_Ped_ChNbNumber     != 0 ) {delete fEntryVminD_Ped_ChNbNumber;     fCdelete++;}
-  if ( fLayoutVminD_Ped_ChNbFieldText != 0 ) {delete fLayoutVminD_Ped_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVminD_Ped_ChNbFrame     != 0 ) {delete fLayoutVminD_Ped_ChNbFrame;     fCdelete++;}
+  if ( fVminD_Ped_ChNbFrame           != nullptr ) {delete fVminD_Ped_ChNbFrame;           fCdelete++;}
+  if ( fVminD_Ped_ChNbBut             != nullptr ) {delete fVminD_Ped_ChNbBut;             fCdelete++;}
+  if ( fLayoutVminD_Ped_ChNbBut       != nullptr ) {delete fLayoutVminD_Ped_ChNbBut;       fCdelete++;}
+  if ( fVminD_Ped_ChNbText            != nullptr ) {fVminD_Ped_ChNbText->Delete();         fCdelete++;}
+  if ( fEntryVminD_Ped_ChNbNumber     != nullptr ) {delete fEntryVminD_Ped_ChNbNumber;     fCdelete++;}
+  if ( fLayoutVminD_Ped_ChNbFieldText != nullptr ) {delete fLayoutVminD_Ped_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVminD_Ped_ChNbFrame     != nullptr ) {delete fLayoutVminD_Ped_ChNbFrame;     fCdelete++;}
 
-  if ( fMenuD_Ped_ChNb                != 0 ) {delete fMenuD_Ped_ChNb;                fCdelete++;}
-  if ( fMenuBarD_Ped_ChNb             != 0 ) {fMenuBarD_Ped_ChNb->Delete();          fCdelete++;}
-  if ( fLayoutMenuBarD_Ped_ChNb       != 0 ) {delete fLayoutMenuBarD_Ped_ChNb;       fCdelete++;}
+  if ( fMenuD_Ped_ChNb                != nullptr ) {delete fMenuD_Ped_ChNb;                fCdelete++;}
+  if ( fMenuBarD_Ped_ChNb             != nullptr ) {fMenuBarD_Ped_ChNb->Delete();          fCdelete++;}
+  if ( fLayoutMenuBarD_Ped_ChNb       != nullptr ) {delete fLayoutMenuBarD_Ped_ChNb;       fCdelete++;}
 
-  if ( fLayoutVmmD_Ped_ChNbFrame      != 0 ) {delete fLayoutVmmD_Ped_ChNbFrame;      fCdelete++;}
+  if ( fLayoutVmmD_Ped_ChNbFrame      != nullptr ) {delete fLayoutVmmD_Ped_ChNbFrame;      fCdelete++;}
 
   //----------------------------------------------------
-  if ( fVmmD_TNo_ChNbFrame            != 0 ) {delete fVmmD_TNo_ChNbFrame;            fCdelete++;}
+  if ( fVmmD_TNo_ChNbFrame            != nullptr ) {delete fVmmD_TNo_ChNbFrame;            fCdelete++;}
 
-  if ( fVmaxD_TNo_ChNbFrame           != 0 ) {delete fVmaxD_TNo_ChNbFrame;           fCdelete++;}
-  if ( fVmaxD_TNo_ChNbBut             != 0 ) {delete fVmaxD_TNo_ChNbBut;             fCdelete++;}
-  if ( fLayoutVmaxD_TNo_ChNbBut       != 0 ) {delete fLayoutVmaxD_TNo_ChNbBut;       fCdelete++;}
-  if ( fVmaxD_TNo_ChNbText            != 0 ) {fVmaxD_TNo_ChNbText->Delete();         fCdelete++;}
-  if ( fEntryVmaxD_TNo_ChNbNumber     != 0 ) {delete fEntryVmaxD_TNo_ChNbNumber;     fCdelete++;}
-  if ( fLayoutVmaxD_TNo_ChNbFieldText != 0 ) {delete fLayoutVmaxD_TNo_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVmaxD_TNo_ChNbFrame     != 0 ) {delete fLayoutVmaxD_TNo_ChNbFrame;     fCdelete++;}
+  if ( fVmaxD_TNo_ChNbFrame           != nullptr ) {delete fVmaxD_TNo_ChNbFrame;           fCdelete++;}
+  if ( fVmaxD_TNo_ChNbBut             != nullptr ) {delete fVmaxD_TNo_ChNbBut;             fCdelete++;}
+  if ( fLayoutVmaxD_TNo_ChNbBut       != nullptr ) {delete fLayoutVmaxD_TNo_ChNbBut;       fCdelete++;}
+  if ( fVmaxD_TNo_ChNbText            != nullptr ) {fVmaxD_TNo_ChNbText->Delete();         fCdelete++;}
+  if ( fEntryVmaxD_TNo_ChNbNumber     != nullptr ) {delete fEntryVmaxD_TNo_ChNbNumber;     fCdelete++;}
+  if ( fLayoutVmaxD_TNo_ChNbFieldText != nullptr ) {delete fLayoutVmaxD_TNo_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVmaxD_TNo_ChNbFrame     != nullptr ) {delete fLayoutVmaxD_TNo_ChNbFrame;     fCdelete++;}
  
-  if ( fVminD_TNo_ChNbFrame           != 0 ) {delete fVminD_TNo_ChNbFrame;           fCdelete++;}
-  if ( fVminD_TNo_ChNbBut             != 0 ) {delete fVminD_TNo_ChNbBut;             fCdelete++;}
-  if ( fLayoutVminD_TNo_ChNbBut       != 0 ) {delete fLayoutVminD_TNo_ChNbBut;       fCdelete++;}
-  if ( fVminD_TNo_ChNbText            != 0 ) {fVminD_TNo_ChNbText->Delete();         fCdelete++;}
-  if ( fEntryVminD_TNo_ChNbNumber     != 0 ) {delete fEntryVminD_TNo_ChNbNumber;     fCdelete++;}
-  if ( fLayoutVminD_TNo_ChNbFieldText != 0 ) {delete fLayoutVminD_TNo_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVminD_TNo_ChNbFrame     != 0 ) {delete fLayoutVminD_TNo_ChNbFrame;     fCdelete++;}
+  if ( fVminD_TNo_ChNbFrame           != nullptr ) {delete fVminD_TNo_ChNbFrame;           fCdelete++;}
+  if ( fVminD_TNo_ChNbBut             != nullptr ) {delete fVminD_TNo_ChNbBut;             fCdelete++;}
+  if ( fLayoutVminD_TNo_ChNbBut       != nullptr ) {delete fLayoutVminD_TNo_ChNbBut;       fCdelete++;}
+  if ( fVminD_TNo_ChNbText            != nullptr ) {fVminD_TNo_ChNbText->Delete();         fCdelete++;}
+  if ( fEntryVminD_TNo_ChNbNumber     != nullptr ) {delete fEntryVminD_TNo_ChNbNumber;     fCdelete++;}
+  if ( fLayoutVminD_TNo_ChNbFieldText != nullptr ) {delete fLayoutVminD_TNo_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVminD_TNo_ChNbFrame     != nullptr ) {delete fLayoutVminD_TNo_ChNbFrame;     fCdelete++;}
  
-  if ( fMenuD_TNo_ChNb                != 0 ) {delete fMenuD_TNo_ChNb;                fCdelete++;}
-  if ( fMenuBarD_TNo_ChNb             != 0 ) {fMenuBarD_TNo_ChNb->Delete();          fCdelete++;}
-  if ( fLayoutMenuBarD_TNo_ChNb       != 0 ) {delete fLayoutMenuBarD_TNo_ChNb;       fCdelete++;}
+  if ( fMenuD_TNo_ChNb                != nullptr ) {delete fMenuD_TNo_ChNb;                fCdelete++;}
+  if ( fMenuBarD_TNo_ChNb             != nullptr ) {fMenuBarD_TNo_ChNb->Delete();          fCdelete++;}
+  if ( fLayoutMenuBarD_TNo_ChNb       != nullptr ) {delete fLayoutMenuBarD_TNo_ChNb;       fCdelete++;}
 
-  if ( fLayoutVmmD_TNo_ChNbFrame      != 0 ) {delete fLayoutVmmD_TNo_ChNbFrame;      fCdelete++;}
+  if ( fLayoutVmmD_TNo_ChNbFrame      != nullptr ) {delete fLayoutVmmD_TNo_ChNbFrame;      fCdelete++;}
 
   //-----------------------------------------------------------
-  if ( fVmmD_MCs_ChNbFrame            != 0 ) {delete fVmmD_MCs_ChNbFrame;            fCdelete++;}
+  if ( fVmmD_MCs_ChNbFrame            != nullptr ) {delete fVmmD_MCs_ChNbFrame;            fCdelete++;}
 
-  if ( fVmaxD_MCs_ChNbFrame           != 0 ) {delete fVmaxD_MCs_ChNbFrame;           fCdelete++;}
-  if ( fVmaxD_MCs_ChNbBut             != 0 ) {delete fVmaxD_MCs_ChNbBut;             fCdelete++;}
-  if ( fLayoutVmaxD_MCs_ChNbBut       != 0 ) {delete fLayoutVmaxD_MCs_ChNbBut;       fCdelete++;}
-  if ( fVmaxD_MCs_ChNbText            != 0 ) {fVmaxD_MCs_ChNbText->Delete();         fCdelete++;}
-  if ( fEntryVmaxD_MCs_ChNbNumber     != 0 ) {delete fEntryVmaxD_MCs_ChNbNumber;     fCdelete++;}
-  if ( fLayoutVmaxD_MCs_ChNbFieldText != 0 ) {delete fLayoutVmaxD_MCs_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVmaxD_MCs_ChNbFrame     != 0 ) {delete fLayoutVmaxD_MCs_ChNbFrame;     fCdelete++;}
+  if ( fVmaxD_MCs_ChNbFrame           != nullptr ) {delete fVmaxD_MCs_ChNbFrame;           fCdelete++;}
+  if ( fVmaxD_MCs_ChNbBut             != nullptr ) {delete fVmaxD_MCs_ChNbBut;             fCdelete++;}
+  if ( fLayoutVmaxD_MCs_ChNbBut       != nullptr ) {delete fLayoutVmaxD_MCs_ChNbBut;       fCdelete++;}
+  if ( fVmaxD_MCs_ChNbText            != nullptr ) {fVmaxD_MCs_ChNbText->Delete();         fCdelete++;}
+  if ( fEntryVmaxD_MCs_ChNbNumber     != nullptr ) {delete fEntryVmaxD_MCs_ChNbNumber;     fCdelete++;}
+  if ( fLayoutVmaxD_MCs_ChNbFieldText != nullptr ) {delete fLayoutVmaxD_MCs_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVmaxD_MCs_ChNbFrame     != nullptr ) {delete fLayoutVmaxD_MCs_ChNbFrame;     fCdelete++;}
 
-  if ( fVminD_MCs_ChNbFrame           != 0 ) {delete fVminD_MCs_ChNbFrame;           fCdelete++;}
-  if ( fVminD_MCs_ChNbBut             != 0 ) {delete fVminD_MCs_ChNbBut;             fCdelete++;}
-  if ( fLayoutVminD_MCs_ChNbBut       != 0 ) {delete fLayoutVminD_MCs_ChNbBut;       fCdelete++;}
-  if ( fVminD_MCs_ChNbText            != 0 ) {fVminD_MCs_ChNbText->Delete();         fCdelete++;}
-  if ( fEntryVminD_MCs_ChNbNumber     != 0 ) {delete fEntryVminD_MCs_ChNbNumber;     fCdelete++;}
-  if ( fLayoutVminD_MCs_ChNbFieldText != 0 ) {delete fLayoutVminD_MCs_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVminD_MCs_ChNbFrame     != 0 ) {delete fLayoutVminD_MCs_ChNbFrame;     fCdelete++;}
+  if ( fVminD_MCs_ChNbFrame           != nullptr ) {delete fVminD_MCs_ChNbFrame;           fCdelete++;}
+  if ( fVminD_MCs_ChNbBut             != nullptr ) {delete fVminD_MCs_ChNbBut;             fCdelete++;}
+  if ( fLayoutVminD_MCs_ChNbBut       != nullptr ) {delete fLayoutVminD_MCs_ChNbBut;       fCdelete++;}
+  if ( fVminD_MCs_ChNbText            != nullptr ) {fVminD_MCs_ChNbText->Delete();         fCdelete++;}
+  if ( fEntryVminD_MCs_ChNbNumber     != nullptr ) {delete fEntryVminD_MCs_ChNbNumber;     fCdelete++;}
+  if ( fLayoutVminD_MCs_ChNbFieldText != nullptr ) {delete fLayoutVminD_MCs_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVminD_MCs_ChNbFrame     != nullptr ) {delete fLayoutVminD_MCs_ChNbFrame;     fCdelete++;}
 
-  if ( fMenuD_MCs_ChNb                != 0 ) {delete fMenuD_MCs_ChNb;                fCdelete++;}
-  if ( fMenuBarD_MCs_ChNb             != 0 ) {fMenuBarD_MCs_ChNb->Delete();          fCdelete++;}
-  if ( fLayoutMenuBarD_MCs_ChNb       != 0 ) {delete fLayoutMenuBarD_MCs_ChNb;       fCdelete++;}
+  if ( fMenuD_MCs_ChNb                != nullptr ) {delete fMenuD_MCs_ChNb;                fCdelete++;}
+  if ( fMenuBarD_MCs_ChNb             != nullptr ) {fMenuBarD_MCs_ChNb->Delete();          fCdelete++;}
+  if ( fLayoutMenuBarD_MCs_ChNb       != nullptr ) {delete fLayoutMenuBarD_MCs_ChNb;       fCdelete++;}
 
-  if ( fLayoutVmmD_MCs_ChNbFrame      != 0 ) {delete fLayoutVmmD_MCs_ChNbFrame;      fCdelete++;}
+  if ( fLayoutVmmD_MCs_ChNbFrame      != nullptr ) {delete fLayoutVmmD_MCs_ChNbFrame;      fCdelete++;}
   
   //............................................... Frame Sig + Menus Sig
-  if ( fStexHozFrame         != 0 ) {delete fStexHozFrame;         fCdelete++;}
+  if ( fStexHozFrame         != nullptr ) {delete fStexHozFrame;         fCdelete++;}
 
   //------------------------------------------------------------- 
-  if ( fVmmD_LFN_ChNbFrame            != 0 ) {delete fVmmD_LFN_ChNbFrame;            fCdelete++;}
+  if ( fVmmD_LFN_ChNbFrame            != nullptr ) {delete fVmmD_LFN_ChNbFrame;            fCdelete++;}
 
-  if ( fVmaxD_LFN_ChNbFrame           != 0 ) {delete fVmaxD_LFN_ChNbFrame;           fCdelete++;}
-  if ( fVmaxD_LFN_ChNbBut             != 0 ) {delete fVmaxD_LFN_ChNbBut;             fCdelete++;}
-  if ( fLayoutVmaxD_LFN_ChNbBut       != 0 ) {delete fLayoutVmaxD_LFN_ChNbBut;       fCdelete++;}
-  if ( fVmaxD_LFN_ChNbText            != 0 ) {fVmaxD_LFN_ChNbText->Delete();         fCdelete++;}
-  if ( fEntryVmaxD_LFN_ChNbNumber     != 0 ) {delete fEntryVmaxD_LFN_ChNbNumber;     fCdelete++;}
-  if ( fLayoutVmaxD_LFN_ChNbFieldText != 0 ) {delete fLayoutVmaxD_LFN_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVmaxD_LFN_ChNbFrame     != 0 ) {delete fLayoutVmaxD_LFN_ChNbFrame;     fCdelete++;}
+  if ( fVmaxD_LFN_ChNbFrame           != nullptr ) {delete fVmaxD_LFN_ChNbFrame;           fCdelete++;}
+  if ( fVmaxD_LFN_ChNbBut             != nullptr ) {delete fVmaxD_LFN_ChNbBut;             fCdelete++;}
+  if ( fLayoutVmaxD_LFN_ChNbBut       != nullptr ) {delete fLayoutVmaxD_LFN_ChNbBut;       fCdelete++;}
+  if ( fVmaxD_LFN_ChNbText            != nullptr ) {fVmaxD_LFN_ChNbText->Delete();         fCdelete++;}
+  if ( fEntryVmaxD_LFN_ChNbNumber     != nullptr ) {delete fEntryVmaxD_LFN_ChNbNumber;     fCdelete++;}
+  if ( fLayoutVmaxD_LFN_ChNbFieldText != nullptr ) {delete fLayoutVmaxD_LFN_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVmaxD_LFN_ChNbFrame     != nullptr ) {delete fLayoutVmaxD_LFN_ChNbFrame;     fCdelete++;}
 
-  if ( fVminD_LFN_ChNbFrame           != 0 ) {delete fVminD_LFN_ChNbFrame;           fCdelete++;}
-  if ( fVminD_LFN_ChNbBut             != 0 ) {delete fVminD_LFN_ChNbBut;             fCdelete++;}
-  if ( fLayoutVminD_LFN_ChNbBut       != 0 ) {delete fLayoutVminD_LFN_ChNbBut;       fCdelete++;}
-  if ( fVminD_LFN_ChNbText            != 0 ) {fVminD_LFN_ChNbText->Delete();         fCdelete++;}
-  if ( fEntryVminD_LFN_ChNbNumber     != 0 ) {delete fEntryVminD_LFN_ChNbNumber;     fCdelete++;}
-  if ( fLayoutVminD_LFN_ChNbFieldText != 0 ) {delete fLayoutVminD_LFN_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVminD_LFN_ChNbFrame     != 0 ) {delete fLayoutVminD_LFN_ChNbFrame;     fCdelete++;}
+  if ( fVminD_LFN_ChNbFrame           != nullptr ) {delete fVminD_LFN_ChNbFrame;           fCdelete++;}
+  if ( fVminD_LFN_ChNbBut             != nullptr ) {delete fVminD_LFN_ChNbBut;             fCdelete++;}
+  if ( fLayoutVminD_LFN_ChNbBut       != nullptr ) {delete fLayoutVminD_LFN_ChNbBut;       fCdelete++;}
+  if ( fVminD_LFN_ChNbText            != nullptr ) {fVminD_LFN_ChNbText->Delete();         fCdelete++;}
+  if ( fEntryVminD_LFN_ChNbNumber     != nullptr ) {delete fEntryVminD_LFN_ChNbNumber;     fCdelete++;}
+  if ( fLayoutVminD_LFN_ChNbFieldText != nullptr ) {delete fLayoutVminD_LFN_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVminD_LFN_ChNbFrame     != nullptr ) {delete fLayoutVminD_LFN_ChNbFrame;     fCdelete++;}
 
-  if ( fMenuD_LFN_ChNb                != 0 ) {delete fMenuD_LFN_ChNb;                fCdelete++;}
-  if ( fMenuBarD_LFN_ChNb             != 0 ) {fMenuBarD_LFN_ChNb->Delete();          fCdelete++;}
-  if ( fLayoutMenuBarD_LFN_ChNb       != 0 ) {delete fLayoutMenuBarD_LFN_ChNb;       fCdelete++;}
+  if ( fMenuD_LFN_ChNb                != nullptr ) {delete fMenuD_LFN_ChNb;                fCdelete++;}
+  if ( fMenuBarD_LFN_ChNb             != nullptr ) {fMenuBarD_LFN_ChNb->Delete();          fCdelete++;}
+  if ( fLayoutMenuBarD_LFN_ChNb       != nullptr ) {delete fLayoutMenuBarD_LFN_ChNb;       fCdelete++;}
 
-  if ( fLayoutVmmD_LFN_ChNbFrame      != 0 ) {delete fLayoutVmmD_LFN_ChNbFrame;      fCdelete++;}
-
-  //-------------------------------------------------------------
-  if ( fVmmD_HFN_ChNbFrame            != 0 ) {delete fVmmD_HFN_ChNbFrame;            fCdelete++;}
-
-  if ( fVmaxD_HFN_ChNbFrame           != 0 ) {delete fVmaxD_HFN_ChNbFrame;           fCdelete++;}
-  if ( fVmaxD_HFN_ChNbBut             != 0 ) {delete fVmaxD_HFN_ChNbBut;             fCdelete++;}
-  if ( fLayoutVmaxD_HFN_ChNbBut       != 0 ) {delete fLayoutVmaxD_HFN_ChNbBut;       fCdelete++;}
-  if ( fVmaxD_HFN_ChNbText            != 0 ) {fVmaxD_HFN_ChNbText->Delete();         fCdelete++;}
-  if ( fEntryVmaxD_HFN_ChNbNumber     != 0 ) {delete fEntryVmaxD_HFN_ChNbNumber;     fCdelete++;}
-  if ( fLayoutVmaxD_HFN_ChNbFieldText != 0 ) {delete fLayoutVmaxD_HFN_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVmaxD_HFN_ChNbFrame     != 0 ) {delete fLayoutVmaxD_HFN_ChNbFrame;     fCdelete++;}
-
-  if ( fVminD_HFN_ChNbFrame           != 0 ) {delete fVminD_HFN_ChNbFrame;           fCdelete++;}
-  if ( fVminD_HFN_ChNbBut             != 0 ) {delete fVminD_HFN_ChNbBut;             fCdelete++;}
-  if ( fLayoutVminD_HFN_ChNbBut       != 0 ) {delete fLayoutVminD_HFN_ChNbBut;       fCdelete++;}
-  if ( fVminD_HFN_ChNbText            != 0 ) {fVminD_HFN_ChNbText->Delete();         fCdelete++;}
-  if ( fEntryVminD_HFN_ChNbNumber     != 0 ) {delete fEntryVminD_HFN_ChNbNumber;     fCdelete++;}
-  if ( fLayoutVminD_HFN_ChNbFieldText != 0 ) {delete fLayoutVminD_HFN_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVminD_HFN_ChNbFrame     != 0 ) {delete fLayoutVminD_HFN_ChNbFrame;     fCdelete++;}
-
-  if ( fMenuD_HFN_ChNb                != 0 ) {delete fMenuD_HFN_ChNb;                fCdelete++;}
-  if ( fMenuBarD_HFN_ChNb             != 0 ) {fMenuBarD_HFN_ChNb->Delete();          fCdelete++;}
-  if ( fLayoutMenuBarD_HFN_ChNb       != 0 ) {delete fLayoutMenuBarD_HFN_ChNb;       fCdelete++;}
-
-  if ( fLayoutVmmD_HFN_ChNbFrame      != 0 ) {delete fLayoutVmmD_HFN_ChNbFrame;      fCdelete++;}
+  if ( fLayoutVmmD_LFN_ChNbFrame      != nullptr ) {delete fLayoutVmmD_LFN_ChNbFrame;      fCdelete++;}
 
   //-------------------------------------------------------------
-  if ( fVmmD_SCs_ChNbFrame            != 0 ) {delete fVmmD_SCs_ChNbFrame;            fCdelete++;}
+  if ( fVmmD_HFN_ChNbFrame            != nullptr ) {delete fVmmD_HFN_ChNbFrame;            fCdelete++;}
 
-  if ( fVmaxD_SCs_ChNbFrame           != 0 ) {delete fVmaxD_SCs_ChNbFrame;           fCdelete++;}
-  if ( fVmaxD_SCs_ChNbBut             != 0 ) {delete fVmaxD_SCs_ChNbBut;             fCdelete++;}
-  if ( fLayoutVmaxD_SCs_ChNbBut       != 0 ) {delete fLayoutVmaxD_SCs_ChNbBut;       fCdelete++;}
-  if ( fVmaxD_SCs_ChNbText            != 0 ) {fVmaxD_SCs_ChNbText->Delete();         fCdelete++;}
-  if ( fEntryVmaxD_SCs_ChNbNumber     != 0 ) {delete fEntryVmaxD_SCs_ChNbNumber;     fCdelete++;}
-  if ( fLayoutVmaxD_SCs_ChNbFieldText != 0 ) {delete fLayoutVmaxD_SCs_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVmaxD_SCs_ChNbFrame     != 0 ) {delete fLayoutVmaxD_SCs_ChNbFrame;     fCdelete++;}
+  if ( fVmaxD_HFN_ChNbFrame           != nullptr ) {delete fVmaxD_HFN_ChNbFrame;           fCdelete++;}
+  if ( fVmaxD_HFN_ChNbBut             != nullptr ) {delete fVmaxD_HFN_ChNbBut;             fCdelete++;}
+  if ( fLayoutVmaxD_HFN_ChNbBut       != nullptr ) {delete fLayoutVmaxD_HFN_ChNbBut;       fCdelete++;}
+  if ( fVmaxD_HFN_ChNbText            != nullptr ) {fVmaxD_HFN_ChNbText->Delete();         fCdelete++;}
+  if ( fEntryVmaxD_HFN_ChNbNumber     != nullptr ) {delete fEntryVmaxD_HFN_ChNbNumber;     fCdelete++;}
+  if ( fLayoutVmaxD_HFN_ChNbFieldText != nullptr ) {delete fLayoutVmaxD_HFN_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVmaxD_HFN_ChNbFrame     != nullptr ) {delete fLayoutVmaxD_HFN_ChNbFrame;     fCdelete++;}
 
-  if ( fVminD_SCs_ChNbFrame           != 0 ) {delete fVminD_SCs_ChNbFrame;           fCdelete++;}
-  if ( fVminD_SCs_ChNbBut             != 0 ) {delete fVminD_SCs_ChNbBut;             fCdelete++;}
-  if ( fLayoutVminD_SCs_ChNbBut       != 0 ) {delete fLayoutVminD_SCs_ChNbBut;       fCdelete++;}
-  if ( fVminD_SCs_ChNbText            != 0 ) {fVminD_SCs_ChNbText->Delete();         fCdelete++;}
-  if ( fEntryVminD_SCs_ChNbNumber     != 0 ) {delete fEntryVminD_SCs_ChNbNumber;     fCdelete++;}
-  if ( fLayoutVminD_SCs_ChNbFieldText != 0 ) {delete fLayoutVminD_SCs_ChNbFieldText; fCdelete++;}
-  if ( fLayoutVminD_SCs_ChNbFrame     != 0 ) {delete fLayoutVminD_SCs_ChNbFrame;     fCdelete++;}
+  if ( fVminD_HFN_ChNbFrame           != nullptr ) {delete fVminD_HFN_ChNbFrame;           fCdelete++;}
+  if ( fVminD_HFN_ChNbBut             != nullptr ) {delete fVminD_HFN_ChNbBut;             fCdelete++;}
+  if ( fLayoutVminD_HFN_ChNbBut       != nullptr ) {delete fLayoutVminD_HFN_ChNbBut;       fCdelete++;}
+  if ( fVminD_HFN_ChNbText            != nullptr ) {fVminD_HFN_ChNbText->Delete();         fCdelete++;}
+  if ( fEntryVminD_HFN_ChNbNumber     != nullptr ) {delete fEntryVminD_HFN_ChNbNumber;     fCdelete++;}
+  if ( fLayoutVminD_HFN_ChNbFieldText != nullptr ) {delete fLayoutVminD_HFN_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVminD_HFN_ChNbFrame     != nullptr ) {delete fLayoutVminD_HFN_ChNbFrame;     fCdelete++;}
 
-  if ( fMenuD_SCs_ChNb                != 0 ) {delete fMenuD_SCs_ChNb;                fCdelete++;}
-  if ( fMenuBarD_SCs_ChNb             != 0 ) {fMenuBarD_SCs_ChNb->Delete();          fCdelete++;}
-  if ( fLayoutMenuBarD_SCs_ChNb       != 0 ) {delete fLayoutMenuBarD_SCs_ChNb;       fCdelete++;}
+  if ( fMenuD_HFN_ChNb                != nullptr ) {delete fMenuD_HFN_ChNb;                fCdelete++;}
+  if ( fMenuBarD_HFN_ChNb             != nullptr ) {fMenuBarD_HFN_ChNb->Delete();          fCdelete++;}
+  if ( fLayoutMenuBarD_HFN_ChNb       != nullptr ) {delete fLayoutMenuBarD_HFN_ChNb;       fCdelete++;}
 
-  if ( fLayoutVmmD_SCs_ChNbFrame      != 0 ) {delete fLayoutVmmD_SCs_ChNbFrame;      fCdelete++;}
+  if ( fLayoutVmmD_HFN_ChNbFrame      != nullptr ) {delete fLayoutVmmD_HFN_ChNbFrame;      fCdelete++;}
+
   //-------------------------------------------------------------
-  if ( fLayoutStexHozFrame          != 0 ) {delete fLayoutStexHozFrame;          fCdelete++;}
+  if ( fVmmD_SCs_ChNbFrame            != nullptr ) {delete fVmmD_SCs_ChNbFrame;            fCdelete++;}
+
+  if ( fVmaxD_SCs_ChNbFrame           != nullptr ) {delete fVmaxD_SCs_ChNbFrame;           fCdelete++;}
+  if ( fVmaxD_SCs_ChNbBut             != nullptr ) {delete fVmaxD_SCs_ChNbBut;             fCdelete++;}
+  if ( fLayoutVmaxD_SCs_ChNbBut       != nullptr ) {delete fLayoutVmaxD_SCs_ChNbBut;       fCdelete++;}
+  if ( fVmaxD_SCs_ChNbText            != nullptr ) {fVmaxD_SCs_ChNbText->Delete();         fCdelete++;}
+  if ( fEntryVmaxD_SCs_ChNbNumber     != nullptr ) {delete fEntryVmaxD_SCs_ChNbNumber;     fCdelete++;}
+  if ( fLayoutVmaxD_SCs_ChNbFieldText != nullptr ) {delete fLayoutVmaxD_SCs_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVmaxD_SCs_ChNbFrame     != nullptr ) {delete fLayoutVmaxD_SCs_ChNbFrame;     fCdelete++;}
+
+  if ( fVminD_SCs_ChNbFrame           != nullptr ) {delete fVminD_SCs_ChNbFrame;           fCdelete++;}
+  if ( fVminD_SCs_ChNbBut             != nullptr ) {delete fVminD_SCs_ChNbBut;             fCdelete++;}
+  if ( fLayoutVminD_SCs_ChNbBut       != nullptr ) {delete fLayoutVminD_SCs_ChNbBut;       fCdelete++;}
+  if ( fVminD_SCs_ChNbText            != nullptr ) {fVminD_SCs_ChNbText->Delete();         fCdelete++;}
+  if ( fEntryVminD_SCs_ChNbNumber     != nullptr ) {delete fEntryVminD_SCs_ChNbNumber;     fCdelete++;}
+  if ( fLayoutVminD_SCs_ChNbFieldText != nullptr ) {delete fLayoutVminD_SCs_ChNbFieldText; fCdelete++;}
+  if ( fLayoutVminD_SCs_ChNbFrame     != nullptr ) {delete fLayoutVminD_SCs_ChNbFrame;     fCdelete++;}
+
+  if ( fMenuD_SCs_ChNb                != nullptr ) {delete fMenuD_SCs_ChNb;                fCdelete++;}
+  if ( fMenuBarD_SCs_ChNb             != nullptr ) {fMenuBarD_SCs_ChNb->Delete();          fCdelete++;}
+  if ( fLayoutMenuBarD_SCs_ChNb       != nullptr ) {delete fLayoutMenuBarD_SCs_ChNb;       fCdelete++;}
+
+  if ( fLayoutVmmD_SCs_ChNbFrame      != nullptr ) {delete fLayoutVmmD_SCs_ChNbFrame;      fCdelete++;}
+  //-------------------------------------------------------------
+  if ( fLayoutStexHozFrame          != nullptr ) {delete fLayoutStexHozFrame;          fCdelete++;}
 
   //----------------------------------------------------------------------------------------------
 
   //...................................... Covariances between Stins
-  if ( fVmmLHFccFrame            != 0 ) {delete fVmmLHFccFrame;            fCdelete++;}
+  if ( fVmmLHFccFrame            != nullptr ) {delete fVmmLHFccFrame;            fCdelete++;}
 
-  if ( fVmaxLHFccFrame           != 0 ) {delete fVmaxLHFccFrame;           fCdelete++;}
-  if ( fVmaxLHFccBut             != 0 ) {delete fVmaxLHFccBut;             fCdelete++;}
-  if ( fLayoutVmaxLHFccBut       != 0 ) {delete fLayoutVmaxLHFccBut;       fCdelete++;}
-  if ( fVmaxLHFccText            != 0 ) {fVmaxLHFccText->Delete();         fCdelete++;}
-  if ( fEntryVmaxLHFccNumber     != 0 ) {delete fEntryVmaxLHFccNumber;     fCdelete++;}
-  if ( fLayoutVmaxLHFccFieldText != 0 ) {delete fLayoutVmaxLHFccFieldText; fCdelete++;}
-  if ( fLayoutVmaxLHFccFrame     != 0 ) {delete fLayoutVmaxLHFccFrame;     fCdelete++;}
+  if ( fVmaxLHFccFrame           != nullptr ) {delete fVmaxLHFccFrame;           fCdelete++;}
+  if ( fVmaxLHFccBut             != nullptr ) {delete fVmaxLHFccBut;             fCdelete++;}
+  if ( fLayoutVmaxLHFccBut       != nullptr ) {delete fLayoutVmaxLHFccBut;       fCdelete++;}
+  if ( fVmaxLHFccText            != nullptr ) {fVmaxLHFccText->Delete();         fCdelete++;}
+  if ( fEntryVmaxLHFccNumber     != nullptr ) {delete fEntryVmaxLHFccNumber;     fCdelete++;}
+  if ( fLayoutVmaxLHFccFieldText != nullptr ) {delete fLayoutVmaxLHFccFieldText; fCdelete++;}
+  if ( fLayoutVmaxLHFccFrame     != nullptr ) {delete fLayoutVmaxLHFccFrame;     fCdelete++;}
 
-  if ( fVminLHFccFrame           != 0 ) {delete fVminLHFccFrame;           fCdelete++;}
-  if ( fVminLHFccBut             != 0 ) {delete fVminLHFccBut;             fCdelete++;}
-  if ( fLayoutVminLHFccBut       != 0 ) {delete fLayoutVminLHFccBut;       fCdelete++;}
-  if ( fVminLHFccText            != 0 ) {fVminLHFccText->Delete();         fCdelete++;}
-  if ( fEntryVminLHFccNumber     != 0 ) {delete fEntryVminLHFccNumber;     fCdelete++;}
-  if ( fLayoutVminLHFccFieldText != 0 ) {delete fLayoutVminLHFccFieldText; fCdelete++;}
-  if ( fLayoutVminLHFccFrame     != 0 ) {delete fLayoutVminLHFccFrame;     fCdelete++;}
+  if ( fVminLHFccFrame           != nullptr ) {delete fVminLHFccFrame;           fCdelete++;}
+  if ( fVminLHFccBut             != nullptr ) {delete fVminLHFccBut;             fCdelete++;}
+  if ( fLayoutVminLHFccBut       != nullptr ) {delete fLayoutVminLHFccBut;       fCdelete++;}
+  if ( fVminLHFccText            != nullptr ) {fVminLHFccText->Delete();         fCdelete++;}
+  if ( fEntryVminLHFccNumber     != nullptr ) {delete fEntryVminLHFccNumber;     fCdelete++;}
+  if ( fLayoutVminLHFccFieldText != nullptr ) {delete fLayoutVminLHFccFieldText; fCdelete++;}
+  if ( fLayoutVminLHFccFrame     != nullptr ) {delete fLayoutVminLHFccFrame;     fCdelete++;}
 
-  if ( fMenuLHFcc             != 0 ) {delete fMenuLHFcc;             fCdelete++;}
-  if ( fMenuBarLHFcc          != 0 ) {fMenuBarLHFcc->Delete();       fCdelete++;}
-  if ( fLayoutMenuBarLHFcc    != 0 ) {delete fLayoutMenuBarLHFcc;    fCdelete++;}
+  if ( fMenuLHFcc             != nullptr ) {delete fMenuLHFcc;             fCdelete++;}
+  if ( fMenuBarLHFcc          != nullptr ) {fMenuBarLHFcc->Delete();       fCdelete++;}
+  if ( fLayoutMenuBarLHFcc    != nullptr ) {delete fLayoutMenuBarLHFcc;    fCdelete++;}
 
-  if ( fLayoutVmmLHFccFrame      != 0 ) {delete fLayoutVmmLHFccFrame;      fCdelete++;}
+  if ( fLayoutVmmLHFccFrame      != nullptr ) {delete fLayoutVmmLHFccFrame;      fCdelete++;}
 
   //...................................... Low Freq Cor(c,c') for each pair of Stins  
-  if ( fVmmLFccMosFrame            != 0 ) {delete fVmmLFccMosFrame;            fCdelete++;}
+  if ( fVmmLFccMosFrame            != nullptr ) {delete fVmmLFccMosFrame;            fCdelete++;}
 
-  if ( fVmaxLFccMosFrame           != 0 ) {delete fVmaxLFccMosFrame;           fCdelete++;}
-  if ( fVmaxLFccMosBut             != 0 ) {delete fVmaxLFccMosBut;             fCdelete++;}
-  if ( fLayoutVmaxLFccMosBut       != 0 ) {delete fLayoutVmaxLFccMosBut;       fCdelete++;}
-  if ( fVmaxLFccMosText            != 0 ) {fVmaxLFccMosText->Delete();         fCdelete++;}
-  if ( fEntryVmaxLFccMosNumber     != 0 ) {delete fEntryVmaxLFccMosNumber;     fCdelete++;}
-  if ( fLayoutVmaxLFccMosFieldText != 0 ) {delete fLayoutVmaxLFccMosFieldText; fCdelete++;}
-  if ( fLayoutVmaxLFccMosFrame     != 0 ) {delete fLayoutVmaxLFccMosFrame;     fCdelete++;}
+  if ( fVmaxLFccMosFrame           != nullptr ) {delete fVmaxLFccMosFrame;           fCdelete++;}
+  if ( fVmaxLFccMosBut             != nullptr ) {delete fVmaxLFccMosBut;             fCdelete++;}
+  if ( fLayoutVmaxLFccMosBut       != nullptr ) {delete fLayoutVmaxLFccMosBut;       fCdelete++;}
+  if ( fVmaxLFccMosText            != nullptr ) {fVmaxLFccMosText->Delete();         fCdelete++;}
+  if ( fEntryVmaxLFccMosNumber     != nullptr ) {delete fEntryVmaxLFccMosNumber;     fCdelete++;}
+  if ( fLayoutVmaxLFccMosFieldText != nullptr ) {delete fLayoutVmaxLFccMosFieldText; fCdelete++;}
+  if ( fLayoutVmaxLFccMosFrame     != nullptr ) {delete fLayoutVmaxLFccMosFrame;     fCdelete++;}
 
-  if ( fVminLFccMosFrame           != 0 ) {delete fVminLFccMosFrame;           fCdelete++;}
-  if ( fVminLFccMosBut             != 0 ) {delete fVminLFccMosBut;             fCdelete++;}
-  if ( fLayoutVminLFccMosBut       != 0 ) {delete fLayoutVminLFccMosBut;       fCdelete++;}
-  if ( fVminLFccMosText            != 0 ) {fVminLFccMosText->Delete();         fCdelete++;}
-  if ( fEntryVminLFccMosNumber     != 0 ) {delete fEntryVminLFccMosNumber;     fCdelete++;}
-  if ( fLayoutVminLFccMosFieldText != 0 ) {delete fLayoutVminLFccMosFieldText; fCdelete++;}
-  if ( fLayoutVminLFccMosFrame     != 0 ) {delete fLayoutVminLFccMosFrame;     fCdelete++;}
+  if ( fVminLFccMosFrame           != nullptr ) {delete fVminLFccMosFrame;           fCdelete++;}
+  if ( fVminLFccMosBut             != nullptr ) {delete fVminLFccMosBut;             fCdelete++;}
+  if ( fLayoutVminLFccMosBut       != nullptr ) {delete fLayoutVminLFccMosBut;       fCdelete++;}
+  if ( fVminLFccMosText            != nullptr ) {fVminLFccMosText->Delete();         fCdelete++;}
+  if ( fEntryVminLFccMosNumber     != nullptr ) {delete fEntryVminLFccMosNumber;     fCdelete++;}
+  if ( fLayoutVminLFccMosFieldText != nullptr ) {delete fLayoutVminLFccMosFieldText; fCdelete++;}
+  if ( fLayoutVminLFccMosFrame     != nullptr ) {delete fLayoutVminLFccMosFrame;     fCdelete++;}
 
-  if ( fMenuLFccMos                  != 0 ) {delete fMenuLFccMos;                  fCdelete++;}
-  if ( fMenuBarLFccMos               != 0 ) {fMenuBarLFccMos->Delete();            fCdelete++;}
-  if ( fLayoutMenuBarLFccMos         != 0 ) {delete fLayoutMenuBarLFccMos;         fCdelete++;}
+  if ( fMenuLFccMos                  != nullptr ) {delete fMenuLFccMos;                  fCdelete++;}
+  if ( fMenuBarLFccMos               != nullptr ) {fMenuBarLFccMos->Delete();            fCdelete++;}
+  if ( fLayoutMenuBarLFccMos         != nullptr ) {delete fLayoutMenuBarLFccMos;         fCdelete++;}
 
-  if ( fLayoutVmmLFccMosFrame      != 0 ) {delete fLayoutVmmLFccMosFrame;      fCdelete++;}
+  if ( fLayoutVmmLFccMosFrame      != nullptr ) {delete fLayoutVmmLFccMosFrame;      fCdelete++;}
 
   //...................................... High Freq Cor(c,c') for each pair of Stins  
-  if ( fVmmHFccMosFrame            != 0 ) {delete fVmmHFccMosFrame;            fCdelete++;}
+  if ( fVmmHFccMosFrame            != nullptr ) {delete fVmmHFccMosFrame;            fCdelete++;}
 
-  if ( fVmaxHFccMosFrame           != 0 ) {delete fVmaxHFccMosFrame;           fCdelete++;}
-  if ( fVmaxHFccMosBut             != 0 ) {delete fVmaxHFccMosBut;             fCdelete++;}
-  if ( fLayoutVmaxHFccMosBut       != 0 ) {delete fLayoutVmaxHFccMosBut;       fCdelete++;}
-  if ( fVmaxHFccMosText            != 0 ) {fVmaxHFccMosText->Delete();         fCdelete++;}
-  if ( fEntryVmaxHFccMosNumber     != 0 ) {delete fEntryVmaxHFccMosNumber;     fCdelete++;}
-  if ( fLayoutVmaxHFccMosFieldText != 0 ) {delete fLayoutVmaxHFccMosFieldText; fCdelete++;}
-  if ( fLayoutVmaxHFccMosFrame     != 0 ) {delete fLayoutVmaxHFccMosFrame;     fCdelete++;}
+  if ( fVmaxHFccMosFrame           != nullptr ) {delete fVmaxHFccMosFrame;           fCdelete++;}
+  if ( fVmaxHFccMosBut             != nullptr ) {delete fVmaxHFccMosBut;             fCdelete++;}
+  if ( fLayoutVmaxHFccMosBut       != nullptr ) {delete fLayoutVmaxHFccMosBut;       fCdelete++;}
+  if ( fVmaxHFccMosText            != nullptr ) {fVmaxHFccMosText->Delete();         fCdelete++;}
+  if ( fEntryVmaxHFccMosNumber     != nullptr ) {delete fEntryVmaxHFccMosNumber;     fCdelete++;}
+  if ( fLayoutVmaxHFccMosFieldText != nullptr ) {delete fLayoutVmaxHFccMosFieldText; fCdelete++;}
+  if ( fLayoutVmaxHFccMosFrame     != nullptr ) {delete fLayoutVmaxHFccMosFrame;     fCdelete++;}
 
-  if ( fVminHFccMosFrame           != 0 ) {delete fVminHFccMosFrame;           fCdelete++;}
-  if ( fVminHFccMosBut             != 0 ) {delete fVminHFccMosBut;             fCdelete++;}
-  if ( fLayoutVminHFccMosBut       != 0 ) {delete fLayoutVminHFccMosBut;       fCdelete++;}
-  if ( fVminHFccMosText            != 0 ) {fVminHFccMosText->Delete();         fCdelete++;}
-  if ( fEntryVminHFccMosNumber     != 0 ) {delete fEntryVminHFccMosNumber;     fCdelete++;}
-  if ( fLayoutVminHFccMosFieldText != 0 ) {delete fLayoutVminHFccMosFieldText; fCdelete++;}
-  if ( fLayoutVminHFccMosFrame     != 0 ) {delete fLayoutVminHFccMosFrame;     fCdelete++;}
+  if ( fVminHFccMosFrame           != nullptr ) {delete fVminHFccMosFrame;           fCdelete++;}
+  if ( fVminHFccMosBut             != nullptr ) {delete fVminHFccMosBut;             fCdelete++;}
+  if ( fLayoutVminHFccMosBut       != nullptr ) {delete fLayoutVminHFccMosBut;       fCdelete++;}
+  if ( fVminHFccMosText            != nullptr ) {fVminHFccMosText->Delete();         fCdelete++;}
+  if ( fEntryVminHFccMosNumber     != nullptr ) {delete fEntryVminHFccMosNumber;     fCdelete++;}
+  if ( fLayoutVminHFccMosFieldText != nullptr ) {delete fLayoutVminHFccMosFieldText; fCdelete++;}
+  if ( fLayoutVminHFccMosFrame     != nullptr ) {delete fLayoutVminHFccMosFrame;     fCdelete++;}
 
-  if ( fMenuHFccMos                != 0 ) {delete fMenuHFccMos;                fCdelete++;}
-  if ( fMenuBarHFccMos             != 0 ) {fMenuBarHFccMos->Delete();          fCdelete++;}
-  if ( fLayoutMenuBarHFccMos       != 0 ) {delete fLayoutMenuBarHFccMos;       fCdelete++;}
+  if ( fMenuHFccMos                != nullptr ) {delete fMenuHFccMos;                fCdelete++;}
+  if ( fMenuBarHFccMos             != nullptr ) {fMenuBarHFccMos->Delete();          fCdelete++;}
+  if ( fLayoutMenuBarHFccMos       != nullptr ) {delete fLayoutMenuBarHFccMos;       fCdelete++;}
 
-  if ( fLayoutVmmHFccMosFrame      != 0 ) {delete fLayoutVmmHFccMosFrame;      fCdelete++;}
+  if ( fLayoutVmmHFccMosFrame      != nullptr ) {delete fLayoutVmmHFccMosFrame;      fCdelete++;}
 
-  if ( fLayoutStexUpFrame          != 0 ) {delete fLayoutStexUpFrame;          fCdelete++;}
+  if ( fLayoutStexUpFrame          != nullptr ) {delete fLayoutStexUpFrame;          fCdelete++;}
 
   //+++++++++++++++++++++++++++++++++++++++++ Horizontal frame Stin_A + Stin_B
-  if ( fStinSpFrame       != 0 ) {delete fStinSpFrame;         fCdelete++;}
+  if ( fStinSpFrame       != nullptr ) {delete fStinSpFrame;         fCdelete++;}
   
   //----------------------------------- SubFrame Stin_A (Button + EntryField)
-  if ( fTxSubFrame        != 0 ) {delete fTxSubFrame;          fCdelete++;}
+  if ( fTxSubFrame        != nullptr ) {delete fTxSubFrame;          fCdelete++;}
 
-  if ( fStinAFrame        != 0 ) {delete fStinAFrame;          fCdelete++;}
-  if ( fStinABut          != 0 ) {delete fStinABut;            fCdelete++;}
-  if ( fLayoutStinABut    != 0 ) {delete fLayoutStinABut;      fCdelete++;} 
-  if ( fEntryStinANumber  != 0 ) {delete fEntryStinANumber;    fCdelete++;}
-  if ( fStinAText         != 0 ) {fStinAText->Delete();        fCdelete++;} 
-  if ( fLayoutStinAField  != 0 ) {delete fLayoutStinAField;    fCdelete++;} 
+  if ( fStinAFrame        != nullptr ) {delete fStinAFrame;          fCdelete++;}
+  if ( fStinABut          != nullptr ) {delete fStinABut;            fCdelete++;}
+  if ( fLayoutStinABut    != nullptr ) {delete fLayoutStinABut;      fCdelete++;} 
+  if ( fEntryStinANumber  != nullptr ) {delete fEntryStinANumber;    fCdelete++;}
+  if ( fStinAText         != nullptr ) {fStinAText->Delete();        fCdelete++;} 
+  if ( fLayoutStinAField  != nullptr ) {delete fLayoutStinAField;    fCdelete++;} 
 
   //............................ Stin Crystal Numbering view (Button)
-  if ( fButChNb          != 0 ) {delete fButChNb;            fCdelete++;}
-  if ( fLayoutChNbBut    != 0 ) {delete fLayoutChNbBut;      fCdelete++;} 
+  if ( fButChNb          != nullptr ) {delete fButChNb;            fCdelete++;}
+  if ( fLayoutChNbBut    != nullptr ) {delete fLayoutChNbBut;      fCdelete++;} 
 
   //............................ Menus Stin_A
-  if ( fMenuCorssAll     != 0 ) {delete fMenuCorssAll;       fCdelete++;}
-  if ( fMenuBarCorssAll  != 0 ) {fMenuBarCorssAll->Delete(); fCdelete++;}
+  if ( fMenuCorssAll     != nullptr ) {delete fMenuCorssAll;       fCdelete++;}
+  if ( fMenuBarCorssAll  != nullptr ) {fMenuBarCorssAll->Delete(); fCdelete++;}
 
   //if ( fMenuCovssAll     != 0 ) {delete fMenuCovssAll;       fCdelete++;}
   //if ( fMenuBarCovssAll  != 0 ) {fMenuBarCovssAll->Delete(); fCdelete++;}
 
-  if ( fLayoutTxSubFrame != 0 ) {delete fLayoutTxSubFrame;   fCdelete++;}
+  if ( fLayoutTxSubFrame != nullptr ) {delete fLayoutTxSubFrame;   fCdelete++;}
 
   //----------------------------------- SubFrame Stin_B (Button + EntryField)
 
-  if ( fTySubFrame        != 0 ) {delete fTySubFrame;        fCdelete++;}
+  if ( fTySubFrame        != nullptr ) {delete fTySubFrame;        fCdelete++;}
 
-  if ( fStinBFrame        != 0 ) {delete fStinBFrame;        fCdelete++;}
-  if ( fStinBBut          != 0 ) {delete fStinBBut;          fCdelete++;}
-  if ( fLayoutStinBBut    != 0 ) {delete fLayoutStinBBut;    fCdelete++;}
-  if ( fEntryStinBNumber  != 0 ) {delete fEntryStinBNumber;  fCdelete++;}
-  if ( fStinBText         != 0 ) {fStinBText->Delete();      fCdelete++;}
-  if ( fLayoutStinBField  != 0 ) {delete fLayoutStinBField;  fCdelete++;}
+  if ( fStinBFrame        != nullptr ) {delete fStinBFrame;        fCdelete++;}
+  if ( fStinBBut          != nullptr ) {delete fStinBBut;          fCdelete++;}
+  if ( fLayoutStinBBut    != nullptr ) {delete fLayoutStinBBut;    fCdelete++;}
+  if ( fEntryStinBNumber  != nullptr ) {delete fEntryStinBNumber;  fCdelete++;}
+  if ( fStinBText         != nullptr ) {fStinBText->Delete();      fCdelete++;}
+  if ( fLayoutStinBField  != nullptr ) {delete fLayoutStinBField;  fCdelete++;}
 
-  if ( fLayoutTySubFrame  != 0 ) {delete fLayoutTySubFrame;  fCdelete++;}
+  if ( fLayoutTySubFrame  != nullptr ) {delete fLayoutTySubFrame;  fCdelete++;}
 
-  if ( fLayoutStinSpFrame != 0 ) {delete fLayoutStinSpFrame; fCdelete++;}
+  if ( fLayoutStinSpFrame != nullptr ) {delete fLayoutStinSpFrame; fCdelete++;}
 
   //.................................. Menus for Horizontal frame (Stin_A + Stin_B)
 
-  if ( fMenuLFCorcc     != 0 ) {delete fMenuLFCorcc;        fCdelete++;}
-  if ( fMenuBarLFCorcc  != 0 ) {fMenuBarLFCorcc->Delete();  fCdelete++;}
+  if ( fMenuLFCorcc     != nullptr ) {delete fMenuLFCorcc;        fCdelete++;}
+  if ( fMenuBarLFCorcc  != nullptr ) {fMenuBarLFCorcc->Delete();  fCdelete++;}
 
-  if ( fMenuHFCorcc     != 0 ) {delete fMenuHFCorcc;        fCdelete++;}
-  if ( fMenuBarHFCorcc  != 0 ) {fMenuBarHFCorcc->Delete();  fCdelete++;}
+  if ( fMenuHFCorcc     != nullptr ) {delete fMenuHFCorcc;        fCdelete++;}
+  if ( fMenuBarHFCorcc  != nullptr ) {fMenuBarHFCorcc->Delete();  fCdelete++;}
 
   //++++++++++++++++++++++++ Horizontal frame channel number (Stin_A crystal number) + sample number
-  if ( fChSpFrame        != 0 ) {delete fChSpFrame;         fCdelete++;}
+  if ( fChSpFrame        != nullptr ) {delete fChSpFrame;         fCdelete++;}
 
   //------------------------------------- SubFrame Channel (Button + EntryField)
 
-  if ( fChSubFrame       != 0 ) {delete fChSubFrame;        fCdelete++;}
+  if ( fChSubFrame       != nullptr ) {delete fChSubFrame;        fCdelete++;}
 
-  if ( fChanFrame        != 0 ) {delete fChanFrame;         fCdelete++;}
-  if ( fChanBut          != 0 ) {delete fChanBut;           fCdelete++;}
-  if ( fLayoutChanBut    != 0 ) {delete fLayoutChanBut;     fCdelete++;}
-  if ( fEntryChanNumber  != 0 ) {delete fEntryChanNumber;   fCdelete++;}
-  if ( fChanText         != 0 ) {fChanText->Delete();       fCdelete++;}
-  if ( fLayoutChanField  != 0 ) {delete fLayoutChanField;   fCdelete++;}
+  if ( fChanFrame        != nullptr ) {delete fChanFrame;         fCdelete++;}
+  if ( fChanBut          != nullptr ) {delete fChanBut;           fCdelete++;}
+  if ( fLayoutChanBut    != nullptr ) {delete fLayoutChanBut;     fCdelete++;}
+  if ( fEntryChanNumber  != nullptr ) {delete fEntryChanNumber;   fCdelete++;}
+  if ( fChanText         != nullptr ) {fChanText->Delete();       fCdelete++;}
+  if ( fLayoutChanField  != nullptr ) {delete fLayoutChanField;   fCdelete++;}
 
   //................................ Menus Stin_A crystal number
-  if ( fMenuCorss        != 0 ) {delete fMenuCorss;         fCdelete++;}
-  if ( fMenuBarCorss     != 0 ) {fMenuBarCorss->Delete();   fCdelete++;}
+  if ( fMenuCorss        != nullptr ) {delete fMenuCorss;         fCdelete++;}
+  if ( fMenuBarCorss     != nullptr ) {fMenuBarCorss->Delete();   fCdelete++;}
 
-  if ( fMenuCovss        != 0 ) {delete fMenuCovss;         fCdelete++;}
-  if ( fMenuBarCovss     != 0 ) {fMenuBarCovss->Delete();   fCdelete++;}
+  if ( fMenuCovss        != nullptr ) {delete fMenuCovss;         fCdelete++;}
+  if ( fMenuBarCovss     != nullptr ) {fMenuBarCovss->Delete();   fCdelete++;}
 
-  if ( fMenuD_MSp_SpNb    != 0 ) {delete fMenuD_MSp_SpNb;       fCdelete++;}
-  if ( fMenuBarD_MSp_SpNb != 0 ) {fMenuBarD_MSp_SpNb->Delete(); fCdelete++;}
-  if ( fMenuD_MSp_SpDs    != 0 ) {delete fMenuD_MSp_SpDs;       fCdelete++;}
-  if ( fMenuBarD_MSp_SpDs != 0 ) {fMenuBarD_MSp_SpDs->Delete(); fCdelete++;}
+  if ( fMenuD_MSp_SpNb    != nullptr ) {delete fMenuD_MSp_SpNb;       fCdelete++;}
+  if ( fMenuBarD_MSp_SpNb != nullptr ) {fMenuBarD_MSp_SpNb->Delete(); fCdelete++;}
+  if ( fMenuD_MSp_SpDs    != nullptr ) {delete fMenuD_MSp_SpDs;       fCdelete++;}
+  if ( fMenuBarD_MSp_SpDs != nullptr ) {fMenuBarD_MSp_SpDs->Delete(); fCdelete++;}
 
-  if ( fMenuD_SSp_SpNb    != 0 ) {delete fMenuD_SSp_SpNb;       fCdelete++;}
-  if ( fMenuBarD_SSp_SpNb != 0 ) {fMenuBarD_SSp_SpNb->Delete(); fCdelete++;}
-  if ( fMenuD_SSp_SpDs    != 0 ) {delete fMenuD_SSp_SpDs;       fCdelete++;}
-  if ( fMenuBarD_SSp_SpDs != 0 ) {fMenuBarD_SSp_SpDs->Delete(); fCdelete++;}
+  if ( fMenuD_SSp_SpNb    != nullptr ) {delete fMenuD_SSp_SpNb;       fCdelete++;}
+  if ( fMenuBarD_SSp_SpNb != nullptr ) {fMenuBarD_SSp_SpNb->Delete(); fCdelete++;}
+  if ( fMenuD_SSp_SpDs    != nullptr ) {delete fMenuD_SSp_SpDs;       fCdelete++;}
+  if ( fMenuBarD_SSp_SpDs != nullptr ) {fMenuBarD_SSp_SpDs->Delete(); fCdelete++;}
 
-  if ( fLayoutChSubFrame != 0 ) {delete fLayoutChSubFrame;  fCdelete++;}
+  if ( fLayoutChSubFrame != nullptr ) {delete fLayoutChSubFrame;  fCdelete++;}
 
   //------------------------------------ SubFrame Sample (Button + EntryField)
-  if ( fSpSubFrame       != 0 ) {delete fSpSubFrame;        fCdelete++;}
-  if ( fSampFrame        != 0 ) {delete fSampFrame;         fCdelete++;}
-  if ( fSampBut          != 0 ) {delete fSampBut;           fCdelete++;}
-  if ( fLayoutSampBut    != 0 ) {delete fLayoutSampBut;     fCdelete++;}
-  if ( fEntrySampNumber  != 0 ) {delete fEntrySampNumber;   fCdelete++;}
-  if ( fSampText         != 0 ) {fSampText->Delete();       fCdelete++;}
-  if ( fLayoutSampField  != 0 ) {delete fLayoutSampField;   fCdelete++;}
-  if ( fLayoutSpSubFrame != 0 ) {delete fLayoutSpSubFrame;  fCdelete++;}
+  if ( fSpSubFrame       != nullptr ) {delete fSpSubFrame;        fCdelete++;}
+  if ( fSampFrame        != nullptr ) {delete fSampFrame;         fCdelete++;}
+  if ( fSampBut          != nullptr ) {delete fSampBut;           fCdelete++;}
+  if ( fLayoutSampBut    != nullptr ) {delete fLayoutSampBut;     fCdelete++;}
+  if ( fEntrySampNumber  != nullptr ) {delete fEntrySampNumber;   fCdelete++;}
+  if ( fSampText         != nullptr ) {fSampText->Delete();       fCdelete++;}
+  if ( fLayoutSampField  != nullptr ) {delete fLayoutSampField;   fCdelete++;}
+  if ( fLayoutSpSubFrame != nullptr ) {delete fLayoutSpSubFrame;  fCdelete++;}
 
   //................................ Menus Sample number
 
   //     (no menu in this SubFrame)
 
-  if ( fLayoutChSpFrame  != 0 ) {delete fLayoutChSpFrame;   fCdelete++;}
+  if ( fLayoutChSpFrame  != nullptr ) {delete fLayoutChSpFrame;   fCdelete++;}
 
   //++++++++++++++++++++++++++++++++++++ Menu Event Distribution
-  if ( fMenuAdcProj            != 0 ) {delete fMenuAdcProj;            fCdelete++;}
-  if ( fMenuBarAdcProj         != 0 ) {fMenuBarAdcProj->Delete();      fCdelete++;}
-  if ( fLayoutMenuBarAdcProj   != 0 ) {delete fLayoutMenuBarAdcProj;   fCdelete++;}
+  if ( fMenuAdcProj            != nullptr ) {delete fMenuAdcProj;            fCdelete++;}
+  if ( fMenuBarAdcProj         != nullptr ) {fMenuBarAdcProj->Delete();      fCdelete++;}
+  if ( fLayoutMenuBarAdcProj   != nullptr ) {delete fLayoutMenuBarAdcProj;   fCdelete++;}
 
   //++++++++++++++++++++++++++++++++++++ Frame: Run List (Rul) (Button + EntryField)
-  if ( fRulFrame            != 0 ) {delete fRulFrame;            fCdelete++;}
-  if ( fRulBut              != 0 ) {delete fRulBut;              fCdelete++;}
-  if ( fLayoutRulBut        != 0 ) {delete fLayoutRulBut;        fCdelete++;}
-  if ( fEntryRulNumber      != 0 ) {delete fEntryRulNumber;      fCdelete++;}
-  if ( fRulText             != 0 ) {fRulText->Delete();          fCdelete++;}
-  if ( fLayoutRulFieldText  != 0 ) {delete fLayoutRulFieldText;  fCdelete++;}
-  if ( fLayoutRulFieldFrame != 0 ) {delete fLayoutRulFieldFrame; fCdelete++;}
+  if ( fRulFrame            != nullptr ) {delete fRulFrame;            fCdelete++;}
+  if ( fRulBut              != nullptr ) {delete fRulBut;              fCdelete++;}
+  if ( fLayoutRulBut        != nullptr ) {delete fLayoutRulBut;        fCdelete++;}
+  if ( fEntryRulNumber      != nullptr ) {delete fEntryRulNumber;      fCdelete++;}
+  if ( fRulText             != nullptr ) {fRulText->Delete();          fCdelete++;}
+  if ( fLayoutRulFieldText  != nullptr ) {delete fLayoutRulFieldText;  fCdelete++;}
+  if ( fLayoutRulFieldFrame != nullptr ) {delete fLayoutRulFieldFrame; fCdelete++;}
 
   //................................ Menus for time evolution
-  if ( fMenuHistory         != 0 ) {delete fMenuHistory;         fCdelete++;}
-  if ( fMenuBarHistory      != 0 ) {fMenuBarHistory->Delete();   fCdelete++;}
+  if ( fMenuHistory         != nullptr ) {delete fMenuHistory;         fCdelete++;}
+  if ( fMenuBarHistory      != nullptr ) {fMenuBarHistory->Delete();   fCdelete++;}
 
   //++++++++++++++++++++++++++++++++++++ LinLog Frame
-  if ( fLinLogFrame   != 0 ) {delete fLinLogFrame;   fCdelete++;}
+  if ( fLinLogFrame   != nullptr ) {delete fLinLogFrame;   fCdelete++;}
 
   //---------------------------------- Lin/Log X
-  if ( fButLogx         != 0 ) {delete fButLogx;         fCdelete++;}
-  if ( fLayoutLogxBut   != 0 ) {delete fLayoutLogxBut;   fCdelete++;}
+  if ( fButLogx         != nullptr ) {delete fButLogx;         fCdelete++;}
+  if ( fLayoutLogxBut   != nullptr ) {delete fLayoutLogxBut;   fCdelete++;}
   //---------------------------------- Lin/Log Y
-  if ( fButLogy         != 0 ) {delete fButLogy;         fCdelete++;}
-  if ( fLayoutLogyBut   != 0 ) {delete fLayoutLogyBut;   fCdelete++;} 
+  if ( fButLogy         != nullptr ) {delete fButLogy;         fCdelete++;}
+  if ( fLayoutLogyBut   != nullptr ) {delete fLayoutLogyBut;   fCdelete++;} 
   //---------------------------------- Proj Y
-  if ( fButProjy        != 0 ) {delete fButProjy;        fCdelete++;}
-  if ( fLayoutProjyBut  != 0 ) {delete fLayoutProjyBut;  fCdelete++;} 
+  if ( fButProjy        != nullptr ) {delete fButProjy;        fCdelete++;}
+  if ( fLayoutProjyBut  != nullptr ) {delete fLayoutProjyBut;  fCdelete++;} 
 
   //++++++++++++++++++++++++++++++++++++ Frame: General Title (Gent) (Button + EntryField)
-  if ( fGentFrame            != 0 ) {delete fGentFrame;            fCdelete++;}
-  if ( fGentBut              != 0 ) {delete fGentBut;              fCdelete++;}
-  if ( fLayoutGentBut        != 0 ) {delete fLayoutGentBut;        fCdelete++;}
-  if ( fEntryGentNumber      != 0 ) {delete fEntryGentNumber;      fCdelete++;}
-  if ( fGentText             != 0 ) {fGentText->Delete();          fCdelete++;}
-  if ( fLayoutGentFieldText  != 0 ) {delete fLayoutGentFieldText;  fCdelete++;}
-  if ( fLayoutGentFieldFrame != 0 ) {delete fLayoutGentFieldFrame; fCdelete++;}
+  if ( fGentFrame            != nullptr ) {delete fGentFrame;            fCdelete++;}
+  if ( fGentBut              != nullptr ) {delete fGentBut;              fCdelete++;}
+  if ( fLayoutGentBut        != nullptr ) {delete fLayoutGentBut;        fCdelete++;}
+  if ( fEntryGentNumber      != nullptr ) {delete fEntryGentNumber;      fCdelete++;}
+  if ( fGentText             != nullptr ) {fGentText->Delete();          fCdelete++;}
+  if ( fLayoutGentFieldText  != nullptr ) {delete fLayoutGentFieldText;  fCdelete++;}
+  if ( fLayoutGentFieldFrame != nullptr ) {delete fLayoutGentFieldFrame; fCdelete++;}
 
   //++++++++++++++++++++++++++++++++++++ Color + EXIT BUTTON
-  if ( fColorExitFrame       != 0 ) {delete fColorExitFrame;       fCdelete++;}
-  if ( fLayoutColorExitFrame != 0 ) {delete fLayoutColorExitFrame; fCdelete++;}
+  if ( fColorExitFrame       != nullptr ) {delete fColorExitFrame;       fCdelete++;}
+  if ( fLayoutColorExitFrame != nullptr ) {delete fLayoutColorExitFrame; fCdelete++;}
 
   //---------------------------------- Color Palette
-  if ( fButColPal       != 0 ) {delete fButColPal;       fCdelete++;}
-  if ( fLayoutColPalBut != 0 ) {delete fLayoutColPalBut; fCdelete++;}
+  if ( fButColPal       != nullptr ) {delete fButColPal;       fCdelete++;}
+  if ( fLayoutColPalBut != nullptr ) {delete fLayoutColPalBut; fCdelete++;}
   //---------------------------------- Exit
-  if ( fButExit       != 0 ) {delete fButExit;       fCdelete++;}
-  if ( fLayoutExitBut != 0 ) {delete fLayoutExitBut; fCdelete++;}
+  if ( fButExit       != nullptr ) {delete fButExit;       fCdelete++;}
+  if ( fLayoutExitBut != nullptr ) {delete fLayoutExitBut; fCdelete++;}
  
   //++++++++++++++++++++++++++++++++++++ Last Frame
-  if ( fLastFrame     != 0 ) {delete fLastFrame;     fCdelete++;}
+  if ( fLastFrame     != nullptr ) {delete fLastFrame;     fCdelete++;}
 
   //--------------------------------- Clone Last Canvas (Button)
-  if ( fButClone       != 0 ) {delete fButClone;       fCdelete++;}
-  if ( fLayoutCloneBut != 0 ) {delete fLayoutCloneBut; fCdelete++;}
+  if ( fButClone       != nullptr ) {delete fButClone;       fCdelete++;}
+  if ( fLayoutCloneBut != nullptr ) {delete fLayoutCloneBut; fCdelete++;}
 
   //--------------------------------- Root version (Button)
-  if ( fButRoot       != 0 ) {delete fButRoot;       fCdelete++;}
-  if ( fLayoutRootBut != 0 ) {delete fLayoutRootBut; fCdelete++;}
+  if ( fButRoot       != nullptr ) {delete fButRoot;       fCdelete++;}
+  if ( fLayoutRootBut != nullptr ) {delete fLayoutRootBut; fCdelete++;}
 
   //--------------------------------- Help (Button)
-  if ( fButHelp       != 0 ) {delete fButHelp;       fCdelete++;}
-  if ( fLayoutHelpBut != 0 ) {delete fLayoutHelpBut; fCdelete++;}
+  if ( fButHelp       != nullptr ) {delete fButHelp;       fCdelete++;}
+  if ( fLayoutHelpBut != nullptr ) {delete fLayoutHelpBut; fCdelete++;}
 
   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -642,7 +642,7 @@ TGMainFrame(p, w, h)
   fSubDet = SubDet.Data();
 
   //............................ fCnaParCout
-  fCnaParCout = 0;
+  fCnaParCout = nullptr;
   Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
   if( iCnaParCout == 0 )
     {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
@@ -656,7 +656,7 @@ TGMainFrame(p, w, h)
   //fCnaParPaths->GetCMSSWParameters();
 
   //............................ fCnaParPaths
-  fCnaParPaths = 0;
+  fCnaParPaths = nullptr;
   Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
   if( iCnaParPaths == 0 )
     {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
@@ -667,7 +667,7 @@ TGMainFrame(p, w, h)
   fCnaParPaths->GetCMSSWParameters();
 
   //............................ fEcal  => to be changed in fParEcal
-  fEcal = 0;
+  fEcal = nullptr;
   Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
     {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -675,7 +675,7 @@ TGMainFrame(p, w, h)
     {fEcal = (TEcnaParEcal*)iParEcal;}
 
   //............................ fEcalNumbering
-  fEcalNumbering = 0;
+  fEcalNumbering = nullptr;
   Long_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
   if( iEcalNumbering == 0 )
     {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -683,7 +683,7 @@ TGMainFrame(p, w, h)
     {fEcalNumbering = (TEcnaNumbering*)iEcalNumbering;}
 
   //............................ fCnaParHistos
-  fCnaParHistos = 0;
+  fCnaParHistos = nullptr;
   Long_t iCnaParHistos = pObjectManager->GetPointerValue("TEcnaParHistos");
   if( iCnaParHistos == 0 )
     {fCnaParHistos = new TEcnaParHistos(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -691,7 +691,7 @@ TGMainFrame(p, w, h)
     {fCnaParHistos = (TEcnaParHistos*)iCnaParHistos;}
 
   //............................ fCnaWrite
-  fCnaWrite = 0;
+  fCnaWrite = nullptr;
   Long_t iCnaWrite = pObjectManager->GetPointerValue("TEcnaWrite");
   if( iCnaWrite == 0 )
     {fCnaWrite = new TEcnaWrite(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -703,7 +703,7 @@ TGMainFrame(p, w, h)
   //fHistos = new TEcnaHistos(fSubDet.Data(), fCnaParPaths, fCnaParCout,
   //		              fEcal, fCnaParHistos, fEcalNumbering, fCnaWrite);       fCnew++;
 
-  fHistos = 0;
+  fHistos = nullptr;
   Long_t iHistos = pObjectManager->GetPointerValue("TEcnaHistos");
   if( iHistos == 0 )
     {fHistos = new TEcnaHistos(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -750,532 +750,532 @@ void TEcnaGui::InitGuiParameters()
 
   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Init GUI DIALOG BOX pointers %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-  fLayoutGeneral      = 0;
-  fLayoutBottLeft     = 0;
-  fLayoutBottRight    = 0;
-  fLayoutTopLeft      = 0;
-  fLayoutTopRight     = 0;  
-  fLayoutCenterYLeft  = 0;
-  fLayoutCenterYRight = 0; 
+  fLayoutGeneral      = nullptr;
+  fLayoutBottLeft     = nullptr;
+  fLayoutBottRight    = nullptr;
+  fLayoutTopLeft      = nullptr;
+  fLayoutTopRight     = nullptr;  
+  fLayoutCenterYLeft  = nullptr;
+  fLayoutCenterYRight = nullptr; 
 
-  fVoidFrame = 0;
+  fVoidFrame = nullptr;
 
   //+++++++++++++++++++++++++++++++++ Horizontal frame Analysis + 1st requested evt number + Run number
-  fAnaNorsRunFrame       = 0;
-  fLayoutAnaNorsRunFrame = 0;
+  fAnaNorsRunFrame       = nullptr;
+  fLayoutAnaNorsRunFrame = nullptr;
   //--------------------------------- Sub-Frame Analysis Name (Button+Entry Field)
-  fAnaFrame       = 0;
-  fAnaBut         = 0;
-  fLayoutAnaBut   = 0;
-  fAnaText        = 0;
-  fEntryAnaNumber = 0;
-  fLayoutAnaField = 0;
+  fAnaFrame       = nullptr;
+  fAnaBut         = nullptr;
+  fLayoutAnaBut   = nullptr;
+  fAnaText        = nullptr;
+  fEntryAnaNumber = nullptr;
+  fLayoutAnaField = nullptr;
   //--------------------------------- SubFrame: first requested evt number
-  fFevFrame            = 0;
-  fFevBut              = 0;
-  fLayoutFevBut        = 0;
-  fFevText             = 0;
-  fEntryFevNumber      = 0;
-  fLayoutFevFieldText  = 0;
-  fLayoutFevFieldFrame = 0;
+  fFevFrame            = nullptr;
+  fFevBut              = nullptr;
+  fLayoutFevBut        = nullptr;
+  fFevText             = nullptr;
+  fEntryFevNumber      = nullptr;
+  fLayoutFevFieldText  = nullptr;
+  fLayoutFevFieldFrame = nullptr;
   //-------------------------------- Sub-Frame Run number (Button+Entry Field)  
-  fRunFrame       = 0;  
-  fRunBut         = 0;
-  fLayoutRunBut   = 0;
-  fRunText        = 0;
-  fEntryRunNumber = 0;
-  fLayoutRunField = 0;
+  fRunFrame       = nullptr;  
+  fRunBut         = nullptr;
+  fLayoutRunBut   = nullptr;
+  fRunText        = nullptr;
+  fEntryRunNumber = nullptr;
+  fLayoutRunField = nullptr;
 
   //+++++++++++++++++++++++++ Horizontal frame Nb Of Samples + Last requested evt number + Clean + submit
-  fFevLevStexFrame       = 0;
-  fLayoutFevLevStexFrame = 0;
+  fFevLevStexFrame       = nullptr;
+  fLayoutFevLevStexFrame = nullptr;
   //-------------------------------- Sub-Frame: Nb Of Requesred Samples (Button+Entry Field)  
-  fNorsFrame       = 0;
-  fNorsBut         = 0;
-  fLayoutNorsBut   = 0;
-  fNorsText        = 0;
-  fEntryNorsNumber = 0;
-  fLayoutNorsField = 0;
+  fNorsFrame       = nullptr;
+  fNorsBut         = nullptr;
+  fLayoutNorsBut   = nullptr;
+  fNorsText        = nullptr;
+  fEntryNorsNumber = nullptr;
+  fLayoutNorsField = nullptr;
   //---------------------------- SubFrame: last requested event number
-  fLevFrame            = 0;
-  fLevBut              = 0;
-  fLayoutLevBut        = 0;
-  fLevText             = 0;
-  fEntryLevNumber      = 0;
-  fLayoutLevFieldText  = 0;
-  fLayoutLevFieldFrame = 0;
+  fLevFrame            = nullptr;
+  fLevBut              = nullptr;
+  fLayoutLevBut        = nullptr;
+  fLevText             = nullptr;
+  fEntryLevNumber      = nullptr;
+  fLayoutLevFieldText  = nullptr;
+  fLayoutLevFieldFrame = nullptr;
   //................................ Menu for Clean
-  fMenuClean    = 0;
-  fMenuBarClean = 0;
+  fMenuClean    = nullptr;
+  fMenuBarClean = nullptr;
   //................................ Menu for SUBMIT
-  fMenuSubmit    = 0;
-  fMenuBarSubmit = 0;
+  fMenuSubmit    = nullptr;
+  fMenuBarSubmit = nullptr;
 
   //+++++++++++++++++++++++++++++++++++ Horizontal frame StexStin number +  Nb of Req evts
-  fCompStRqFrame       = 0;
-  fLayoutCompStRqFrame = 0;
+  fCompStRqFrame       = nullptr;
+  fLayoutCompStRqFrame = nullptr;
 
   //---------------------------- SubFrame: Stex number
-  fStexFrame            = 0;
-  fStexBut              = 0;
-  fLayoutStexBut        = 0;
-  fStexText             = 0;
-  fEntryStexNumber      = 0;
-  fLayoutStexFieldText  = 0;
-  fLayoutStexFieldFrame = 0;
+  fStexFrame            = nullptr;
+  fStexBut              = nullptr;
+  fLayoutStexBut        = nullptr;
+  fStexText             = nullptr;
+  fEntryStexNumber      = nullptr;
+  fLayoutStexFieldText  = nullptr;
+  fLayoutStexFieldFrame = nullptr;
 
   //---------------------------- SubFrame: number of requested events
-  fRevFrame            = 0;
-  fRevBut              = 0;
-  fLayoutRevBut        = 0;
-  fRevText             = 0;
-  fEntryRevNumber      = 0;
-  fLayoutRevFieldText  = 0;
-  fLayoutRevFieldFrame = 0;
+  fRevFrame            = nullptr;
+  fRevBut              = nullptr;
+  fLayoutRevBut        = nullptr;
+  fRevText             = nullptr;
+  fEntryRevNumber      = nullptr;
+  fLayoutRevFieldText  = nullptr;
+  fLayoutRevFieldFrame = nullptr;
 
   //+++++++++++++++++++++++++++++++++++ Horizontal frame StexStin numbering +  Nb of samp for Calc + Calculations
-  fCompStnbFrame       = 0;
-  fLayoutCompStnbFrame = 0;
+  fCompStnbFrame       = nullptr;
+  fLayoutCompStnbFrame = nullptr;
 
   //................................ Stex Stin Numbering view (Button)
-  fButStexNb       = 0;
-  fLayoutStexNbBut = 0;
+  fButStexNb       = nullptr;
+  fLayoutStexNbBut = nullptr;
 
   //---------------------------- SubFrame: NbSampForCalc
-  fNbSampForCalcFrame            = 0;
-  fNbSampForCalcBut              = 0;
-  fLayoutNbSampForCalcBut        = 0;
-  fNbSampForCalcText             = 0;
-  fEntryNbSampForCalcNumber      = 0;
-  fLayoutNbSampForCalcFieldText  = 0;
-  fLayoutNbSampForCalcFieldFrame = 0;
+  fNbSampForCalcFrame            = nullptr;
+  fNbSampForCalcBut              = nullptr;
+  fLayoutNbSampForCalcBut        = nullptr;
+  fNbSampForCalcText             = nullptr;
+  fEntryNbSampForCalcNumber      = nullptr;
+  fLayoutNbSampForCalcFieldText  = nullptr;
+  fLayoutNbSampForCalcFieldFrame = nullptr;
 
   //................................ Menu for Calculations
-  fMenuComput    = 0;
-  fMenuBarComput = 0;
+  fMenuComput    = nullptr;
+  fMenuBarComput = nullptr;
 
   //=====================================================================================
 
   //+++++++++++++++++++++++++++++++++++++++++++ Frame for quantities relative to the Stex
-  fStexUpFrame       = 0; 
+  fStexUpFrame       = nullptr; 
 
   //................................ Menus+Ymin+Ymax for the Stex ............................
 
   //...................................... Nb of evts in the data
-  fVmmD_NOE_ChNbFrame       = 0;
+  fVmmD_NOE_ChNbFrame       = nullptr;
 
-  fVmaxD_NOE_ChNbFrame           = 0;
-  fVmaxD_NOE_ChNbBut             = 0;
-  fLayoutVmaxD_NOE_ChNbBut       = 0;
-  fVmaxD_NOE_ChNbText            = 0;
-  fEntryVmaxD_NOE_ChNbNumber     = 0;
-  fLayoutVmaxD_NOE_ChNbFieldText = 0;
-  fLayoutVmaxD_NOE_ChNbFrame     = 0;
+  fVmaxD_NOE_ChNbFrame           = nullptr;
+  fVmaxD_NOE_ChNbBut             = nullptr;
+  fLayoutVmaxD_NOE_ChNbBut       = nullptr;
+  fVmaxD_NOE_ChNbText            = nullptr;
+  fEntryVmaxD_NOE_ChNbNumber     = nullptr;
+  fLayoutVmaxD_NOE_ChNbFieldText = nullptr;
+  fLayoutVmaxD_NOE_ChNbFrame     = nullptr;
 
-  fVminD_NOE_ChNbFrame           = 0;
-  fVminD_NOE_ChNbBut             = 0;
-  fLayoutVminD_NOE_ChNbBut       = 0;
-  fVminD_NOE_ChNbText            = 0;
-  fEntryVminD_NOE_ChNbNumber     = 0;
-  fLayoutVminD_NOE_ChNbFieldText = 0;
-  fLayoutVminD_NOE_ChNbFrame     = 0;
+  fVminD_NOE_ChNbFrame           = nullptr;
+  fVminD_NOE_ChNbBut             = nullptr;
+  fLayoutVminD_NOE_ChNbBut       = nullptr;
+  fVminD_NOE_ChNbText            = nullptr;
+  fEntryVminD_NOE_ChNbNumber     = nullptr;
+  fLayoutVminD_NOE_ChNbFieldText = nullptr;
+  fLayoutVminD_NOE_ChNbFrame     = nullptr;
 
-  fMenuD_NOE_ChNb           = 0;
-  fMenuBarD_NOE_ChNb        = 0;
-  fLayoutMenuBarD_NOE_ChNb  = 0;
+  fMenuD_NOE_ChNb           = nullptr;
+  fMenuBarD_NOE_ChNb        = nullptr;
+  fLayoutMenuBarD_NOE_ChNb  = nullptr;
 
-  fLayoutVmmD_NOE_ChNbFrame = 0;
-
-  //-------------------------------------------------------------
-  fVmmD_Ped_ChNbFrame       = 0;
-
-  fVmaxD_Ped_ChNbFrame           = 0;
-  fVmaxD_Ped_ChNbBut             = 0;
-  fLayoutVmaxD_Ped_ChNbBut       = 0;
-  fVmaxD_Ped_ChNbText            = 0;
-  fEntryVmaxD_Ped_ChNbNumber     = 0;
-  fLayoutVmaxD_Ped_ChNbFieldText = 0;
-  fLayoutVmaxD_Ped_ChNbFrame     = 0;
-
-  fVminD_Ped_ChNbFrame           = 0;
-  fVminD_Ped_ChNbBut             = 0;
-  fLayoutVminD_Ped_ChNbBut       = 0;
-  fVminD_Ped_ChNbText            = 0;
-  fEntryVminD_Ped_ChNbNumber     = 0;
-  fLayoutVminD_Ped_ChNbFieldText = 0;
-  fLayoutVminD_Ped_ChNbFrame     = 0;
-
-  fMenuD_Ped_ChNb          = 0;
-  fMenuBarD_Ped_ChNb       = 0;
-  fLayoutMenuBarD_Ped_ChNb = 0;
-
-  fLayoutVmmD_Ped_ChNbFrame = 0;
+  fLayoutVmmD_NOE_ChNbFrame = nullptr;
 
   //-------------------------------------------------------------
-  fVmmD_TNo_ChNbFrame       = 0;
+  fVmmD_Ped_ChNbFrame       = nullptr;
 
-  fVmaxD_TNo_ChNbFrame           = 0;
-  fVmaxD_TNo_ChNbBut             = 0;
-  fLayoutVmaxD_TNo_ChNbBut       = 0;
-  fVmaxD_TNo_ChNbText            = 0;
-  fEntryVmaxD_TNo_ChNbNumber     = 0;
-  fLayoutVmaxD_TNo_ChNbFieldText = 0;
+  fVmaxD_Ped_ChNbFrame           = nullptr;
+  fVmaxD_Ped_ChNbBut             = nullptr;
+  fLayoutVmaxD_Ped_ChNbBut       = nullptr;
+  fVmaxD_Ped_ChNbText            = nullptr;
+  fEntryVmaxD_Ped_ChNbNumber     = nullptr;
+  fLayoutVmaxD_Ped_ChNbFieldText = nullptr;
+  fLayoutVmaxD_Ped_ChNbFrame     = nullptr;
 
-  fVminD_TNo_ChNbFrame           = 0;
-  fVminD_TNo_ChNbBut             = 0;
-  fLayoutVminD_TNo_ChNbBut       = 0;
-  fVminD_TNo_ChNbText            = 0;
-  fEntryVminD_TNo_ChNbNumber     = 0;
-  fLayoutVminD_TNo_ChNbFieldText = 0;
-  fLayoutVminD_TNo_ChNbFrame     = 0;
+  fVminD_Ped_ChNbFrame           = nullptr;
+  fVminD_Ped_ChNbBut             = nullptr;
+  fLayoutVminD_Ped_ChNbBut       = nullptr;
+  fVminD_Ped_ChNbText            = nullptr;
+  fEntryVminD_Ped_ChNbNumber     = nullptr;
+  fLayoutVminD_Ped_ChNbFieldText = nullptr;
+  fLayoutVminD_Ped_ChNbFrame     = nullptr;
 
-  fMenuD_TNo_ChNb          = 0;
-  fMenuBarD_TNo_ChNb       = 0;
-  fLayoutMenuBarD_TNo_ChNb = 0;
-  fLayoutVmaxD_TNo_ChNbFrame = 0;
+  fMenuD_Ped_ChNb          = nullptr;
+  fMenuBarD_Ped_ChNb       = nullptr;
+  fLayoutMenuBarD_Ped_ChNb = nullptr;
 
-  fLayoutVmmD_TNo_ChNbFrame = 0;
+  fLayoutVmmD_Ped_ChNbFrame = nullptr;
 
   //-------------------------------------------------------------
-  fVmmD_MCs_ChNbFrame       = 0;
+  fVmmD_TNo_ChNbFrame       = nullptr;
 
-  fVmaxD_MCs_ChNbFrame           = 0;
-  fVmaxD_MCs_ChNbBut             = 0;
-  fLayoutVmaxD_MCs_ChNbBut       = 0;
-  fVmaxD_MCs_ChNbText            = 0;
-  fEntryVmaxD_MCs_ChNbNumber     = 0;
-  fLayoutVmaxD_MCs_ChNbFieldText = 0;
-  fLayoutVmaxD_MCs_ChNbFrame     = 0;
+  fVmaxD_TNo_ChNbFrame           = nullptr;
+  fVmaxD_TNo_ChNbBut             = nullptr;
+  fLayoutVmaxD_TNo_ChNbBut       = nullptr;
+  fVmaxD_TNo_ChNbText            = nullptr;
+  fEntryVmaxD_TNo_ChNbNumber     = nullptr;
+  fLayoutVmaxD_TNo_ChNbFieldText = nullptr;
 
-  fVminD_MCs_ChNbFrame           = 0;
-  fVminD_MCs_ChNbBut             = 0;
-  fLayoutVminD_MCs_ChNbBut       = 0;
-  fVminD_MCs_ChNbText            = 0;
-  fEntryVminD_MCs_ChNbNumber     = 0;
-  fLayoutVminD_MCs_ChNbFieldText = 0;
-  fLayoutVminD_MCs_ChNbFrame     = 0;
+  fVminD_TNo_ChNbFrame           = nullptr;
+  fVminD_TNo_ChNbBut             = nullptr;
+  fLayoutVminD_TNo_ChNbBut       = nullptr;
+  fVminD_TNo_ChNbText            = nullptr;
+  fEntryVminD_TNo_ChNbNumber     = nullptr;
+  fLayoutVminD_TNo_ChNbFieldText = nullptr;
+  fLayoutVminD_TNo_ChNbFrame     = nullptr;
 
-  fMenuD_MCs_ChNb          = 0;
-  fMenuBarD_MCs_ChNb       = 0;
-  fLayoutMenuBarD_MCs_ChNb = 0;
-  fLayoutVmmD_MCs_ChNbFrame = 0;
+  fMenuD_TNo_ChNb          = nullptr;
+  fMenuBarD_TNo_ChNb       = nullptr;
+  fLayoutMenuBarD_TNo_ChNb = nullptr;
+  fLayoutVmaxD_TNo_ChNbFrame = nullptr;
+
+  fLayoutVmmD_TNo_ChNbFrame = nullptr;
+
+  //-------------------------------------------------------------
+  fVmmD_MCs_ChNbFrame       = nullptr;
+
+  fVmaxD_MCs_ChNbFrame           = nullptr;
+  fVmaxD_MCs_ChNbBut             = nullptr;
+  fLayoutVmaxD_MCs_ChNbBut       = nullptr;
+  fVmaxD_MCs_ChNbText            = nullptr;
+  fEntryVmaxD_MCs_ChNbNumber     = nullptr;
+  fLayoutVmaxD_MCs_ChNbFieldText = nullptr;
+  fLayoutVmaxD_MCs_ChNbFrame     = nullptr;
+
+  fVminD_MCs_ChNbFrame           = nullptr;
+  fVminD_MCs_ChNbBut             = nullptr;
+  fLayoutVminD_MCs_ChNbBut       = nullptr;
+  fVminD_MCs_ChNbText            = nullptr;
+  fEntryVminD_MCs_ChNbNumber     = nullptr;
+  fLayoutVminD_MCs_ChNbFieldText = nullptr;
+  fLayoutVminD_MCs_ChNbFrame     = nullptr;
+
+  fMenuD_MCs_ChNb          = nullptr;
+  fMenuBarD_MCs_ChNb       = nullptr;
+  fLayoutMenuBarD_MCs_ChNb = nullptr;
+  fLayoutVmmD_MCs_ChNbFrame = nullptr;
 
   //............................................... Frame Sig + Menus Sig
-  fStexHozFrame       = 0; 
+  fStexHozFrame       = nullptr; 
 
   //-------------------------------------------------------------
-  fVmmD_LFN_ChNbFrame       = 0;
+  fVmmD_LFN_ChNbFrame       = nullptr;
 
-  fVmaxD_LFN_ChNbFrame           = 0;
-  fVmaxD_LFN_ChNbBut             = 0;
-  fLayoutVmaxD_LFN_ChNbBut       = 0;
-  fVmaxD_LFN_ChNbText            = 0;
-  fEntryVmaxD_LFN_ChNbNumber     = 0;
-  fLayoutVmaxD_LFN_ChNbFieldText = 0;
-  fLayoutVmaxD_LFN_ChNbFrame     = 0;
+  fVmaxD_LFN_ChNbFrame           = nullptr;
+  fVmaxD_LFN_ChNbBut             = nullptr;
+  fLayoutVmaxD_LFN_ChNbBut       = nullptr;
+  fVmaxD_LFN_ChNbText            = nullptr;
+  fEntryVmaxD_LFN_ChNbNumber     = nullptr;
+  fLayoutVmaxD_LFN_ChNbFieldText = nullptr;
+  fLayoutVmaxD_LFN_ChNbFrame     = nullptr;
 
-  fVminD_LFN_ChNbFrame           = 0;
-  fVminD_LFN_ChNbBut             = 0;
-  fLayoutVminD_LFN_ChNbBut       = 0;
-  fVminD_LFN_ChNbText            = 0;
-  fEntryVminD_LFN_ChNbNumber     = 0;
-  fLayoutVminD_LFN_ChNbFieldText = 0;
-  fLayoutVminD_LFN_ChNbFrame     = 0;
+  fVminD_LFN_ChNbFrame           = nullptr;
+  fVminD_LFN_ChNbBut             = nullptr;
+  fLayoutVminD_LFN_ChNbBut       = nullptr;
+  fVminD_LFN_ChNbText            = nullptr;
+  fEntryVminD_LFN_ChNbNumber     = nullptr;
+  fLayoutVminD_LFN_ChNbFieldText = nullptr;
+  fLayoutVminD_LFN_ChNbFrame     = nullptr;
 
-  fMenuD_LFN_ChNb          = 0;
-  fMenuBarD_LFN_ChNb       = 0;
-  fLayoutMenuBarD_LFN_ChNb = 0;
+  fMenuD_LFN_ChNb          = nullptr;
+  fMenuBarD_LFN_ChNb       = nullptr;
+  fLayoutMenuBarD_LFN_ChNb = nullptr;
 
-  fLayoutVmmD_LFN_ChNbFrame = 0;
-
-  //-------------------------------------------------------------
-  fVmmD_HFN_ChNbFrame       = 0;
-
-  fVmaxD_HFN_ChNbFrame           = 0;
-  fVmaxD_HFN_ChNbBut             = 0;
-  fLayoutVmaxD_HFN_ChNbBut       = 0;
-  fVmaxD_HFN_ChNbText            = 0;
-  fEntryVmaxD_HFN_ChNbNumber     = 0;
-  fLayoutVmaxD_HFN_ChNbFieldText = 0;
-  fLayoutVmaxD_HFN_ChNbFrame     = 0;
-
-  fVminD_HFN_ChNbFrame           = 0;
-  fVminD_HFN_ChNbBut             = 0;
-  fLayoutVminD_HFN_ChNbBut       = 0;
-  fVminD_HFN_ChNbText            = 0;
-  fEntryVminD_HFN_ChNbNumber     = 0;
-  fLayoutVminD_HFN_ChNbFieldText = 0;
-  fLayoutVminD_HFN_ChNbFrame     = 0;
-
-  fMenuD_HFN_ChNb          = 0; 
-  fMenuBarD_HFN_ChNb       = 0;
-  fLayoutMenuBarD_HFN_ChNb = 0;
-
-  fLayoutVmmD_HFN_ChNbFrame = 0;
+  fLayoutVmmD_LFN_ChNbFrame = nullptr;
 
   //-------------------------------------------------------------
-  fVmmD_SCs_ChNbFrame       = 0;
+  fVmmD_HFN_ChNbFrame       = nullptr;
 
-  fVmaxD_SCs_ChNbFrame           = 0;
-  fVmaxD_SCs_ChNbBut             = 0;
-  fLayoutVmaxD_SCs_ChNbBut       = 0;
-  fVmaxD_SCs_ChNbText            = 0;
-  fEntryVmaxD_SCs_ChNbNumber     = 0;
-  fLayoutVmaxD_SCs_ChNbFieldText = 0;
-  fLayoutVmaxD_SCs_ChNbFrame     = 0;
+  fVmaxD_HFN_ChNbFrame           = nullptr;
+  fVmaxD_HFN_ChNbBut             = nullptr;
+  fLayoutVmaxD_HFN_ChNbBut       = nullptr;
+  fVmaxD_HFN_ChNbText            = nullptr;
+  fEntryVmaxD_HFN_ChNbNumber     = nullptr;
+  fLayoutVmaxD_HFN_ChNbFieldText = nullptr;
+  fLayoutVmaxD_HFN_ChNbFrame     = nullptr;
 
-  fVminD_SCs_ChNbFrame           = 0;
-  fVminD_SCs_ChNbBut             = 0;
-  fLayoutVminD_SCs_ChNbBut       = 0;
-  fVminD_SCs_ChNbText            = 0;
-  fEntryVminD_SCs_ChNbNumber     = 0;
-  fLayoutVminD_SCs_ChNbFieldText = 0;
-  fLayoutVminD_SCs_ChNbFrame     = 0;
+  fVminD_HFN_ChNbFrame           = nullptr;
+  fVminD_HFN_ChNbBut             = nullptr;
+  fLayoutVminD_HFN_ChNbBut       = nullptr;
+  fVminD_HFN_ChNbText            = nullptr;
+  fEntryVminD_HFN_ChNbNumber     = nullptr;
+  fLayoutVminD_HFN_ChNbFieldText = nullptr;
+  fLayoutVminD_HFN_ChNbFrame     = nullptr;
 
-  fMenuD_SCs_ChNb          = 0;
-  fMenuBarD_SCs_ChNb       = 0;
-  fLayoutMenuBarD_SCs_ChNb = 0;
+  fMenuD_HFN_ChNb          = nullptr; 
+  fMenuBarD_HFN_ChNb       = nullptr;
+  fLayoutMenuBarD_HFN_ChNb = nullptr;
 
-  fLayoutVmmD_SCs_ChNbFrame = 0;
+  fLayoutVmmD_HFN_ChNbFrame = nullptr;
+
+  //-------------------------------------------------------------
+  fVmmD_SCs_ChNbFrame       = nullptr;
+
+  fVmaxD_SCs_ChNbFrame           = nullptr;
+  fVmaxD_SCs_ChNbBut             = nullptr;
+  fLayoutVmaxD_SCs_ChNbBut       = nullptr;
+  fVmaxD_SCs_ChNbText            = nullptr;
+  fEntryVmaxD_SCs_ChNbNumber     = nullptr;
+  fLayoutVmaxD_SCs_ChNbFieldText = nullptr;
+  fLayoutVmaxD_SCs_ChNbFrame     = nullptr;
+
+  fVminD_SCs_ChNbFrame           = nullptr;
+  fVminD_SCs_ChNbBut             = nullptr;
+  fLayoutVminD_SCs_ChNbBut       = nullptr;
+  fVminD_SCs_ChNbText            = nullptr;
+  fEntryVminD_SCs_ChNbNumber     = nullptr;
+  fLayoutVminD_SCs_ChNbFieldText = nullptr;
+  fLayoutVminD_SCs_ChNbFrame     = nullptr;
+
+  fMenuD_SCs_ChNb          = nullptr;
+  fMenuBarD_SCs_ChNb       = nullptr;
+  fLayoutMenuBarD_SCs_ChNb = nullptr;
+
+  fLayoutVmmD_SCs_ChNbFrame = nullptr;
 
   //----------------------------------------------------------------------------------
 
   //...................................... Low Freq Cor(c,c') for each pair of  Stins
-  fVmmLFccMosFrame       = 0;
+  fVmmLFccMosFrame       = nullptr;
 
-  fVmaxLFccMosFrame           = 0;
-  fVmaxLFccMosBut             = 0;
-  fLayoutVmaxLFccMosBut       = 0;
-  fVmaxLFccMosText            = 0;
-  fEntryVmaxLFccMosNumber     = 0;
-  fLayoutVmaxLFccMosFieldText = 0;
-  fLayoutVmaxLFccMosFrame     = 0;
+  fVmaxLFccMosFrame           = nullptr;
+  fVmaxLFccMosBut             = nullptr;
+  fLayoutVmaxLFccMosBut       = nullptr;
+  fVmaxLFccMosText            = nullptr;
+  fEntryVmaxLFccMosNumber     = nullptr;
+  fLayoutVmaxLFccMosFieldText = nullptr;
+  fLayoutVmaxLFccMosFrame     = nullptr;
 
-  fVminLFccMosFrame           = 0;
-  fVminLFccMosBut             = 0;
-  fLayoutVminLFccMosBut       = 0;
-  fVminLFccMosText            = 0;
-  fEntryVminLFccMosNumber     = 0;
-  fLayoutVminLFccMosFieldText = 0;
-  fLayoutVminLFccMosFrame     = 0;
+  fVminLFccMosFrame           = nullptr;
+  fVminLFccMosBut             = nullptr;
+  fLayoutVminLFccMosBut       = nullptr;
+  fVminLFccMosText            = nullptr;
+  fEntryVminLFccMosNumber     = nullptr;
+  fLayoutVminLFccMosFieldText = nullptr;
+  fLayoutVminLFccMosFrame     = nullptr;
 
-  fMenuLFccMos          = 0;
-  fMenuBarLFccMos       = 0;
-  fLayoutMenuBarLFccMos = 0;
+  fMenuLFccMos          = nullptr;
+  fMenuBarLFccMos       = nullptr;
+  fLayoutMenuBarLFccMos = nullptr;
 
-  fLayoutVmmLFccMosFrame = 0;
+  fLayoutVmmLFccMosFrame = nullptr;
 
   //...................................... High Freq Cor(c,c') for each pair of  Stins
-  fVmmHFccMosFrame       = 0;
+  fVmmHFccMosFrame       = nullptr;
 
-  fVmaxHFccMosFrame           = 0;
-  fVmaxHFccMosBut             = 0;
-  fLayoutVmaxHFccMosBut       = 0;
-  fVmaxHFccMosText            = 0;
-  fEntryVmaxHFccMosNumber     = 0;
-  fLayoutVmaxHFccMosFieldText = 0;
-  fLayoutVmaxHFccMosFrame     = 0;
+  fVmaxHFccMosFrame           = nullptr;
+  fVmaxHFccMosBut             = nullptr;
+  fLayoutVmaxHFccMosBut       = nullptr;
+  fVmaxHFccMosText            = nullptr;
+  fEntryVmaxHFccMosNumber     = nullptr;
+  fLayoutVmaxHFccMosFieldText = nullptr;
+  fLayoutVmaxHFccMosFrame     = nullptr;
 
-  fVminHFccMosFrame           = 0;
-  fVminHFccMosBut             = 0;
-  fLayoutVminHFccMosBut       = 0;
-  fVminHFccMosText            = 0;
-  fEntryVminHFccMosNumber     = 0;
-  fLayoutVminHFccMosFieldText = 0;
-  fLayoutVminHFccMosFrame     = 0;
+  fVminHFccMosFrame           = nullptr;
+  fVminHFccMosBut             = nullptr;
+  fLayoutVminHFccMosBut       = nullptr;
+  fVminHFccMosText            = nullptr;
+  fEntryVminHFccMosNumber     = nullptr;
+  fLayoutVminHFccMosFieldText = nullptr;
+  fLayoutVminHFccMosFrame     = nullptr;
 
-  fMenuHFccMos          = 0;
-  fMenuBarHFccMos       = 0;
-  fLayoutMenuBarHFccMos = 0;
+  fMenuHFccMos          = nullptr;
+  fMenuBarHFccMos       = nullptr;
+  fLayoutMenuBarHFccMos = nullptr;
 
-  fLayoutVmmHFccMosFrame = 0;
+  fLayoutVmmHFccMosFrame = nullptr;
 
   //...................................... LF and HF Cor(c,c')
-  fVmmLHFccFrame            = 0;
+  fVmmLHFccFrame            = nullptr;
 
-  fVmaxLHFccFrame           = 0;
-  fVmaxLHFccBut             = 0;
-  fLayoutVmaxLHFccBut       = 0;
-  fVmaxLHFccText            = 0;
-  fEntryVmaxLHFccNumber     = 0;
-  fLayoutVmaxLHFccFieldText = 0;
-  fLayoutVmaxLHFccFrame     = 0;
+  fVmaxLHFccFrame           = nullptr;
+  fVmaxLHFccBut             = nullptr;
+  fLayoutVmaxLHFccBut       = nullptr;
+  fVmaxLHFccText            = nullptr;
+  fEntryVmaxLHFccNumber     = nullptr;
+  fLayoutVmaxLHFccFieldText = nullptr;
+  fLayoutVmaxLHFccFrame     = nullptr;
 
-  fVminLHFccFrame           = 0;
-  fVminLHFccBut             = 0;
-  fLayoutVminLHFccBut       = 0;
-  fVminLHFccText            = 0;
-  fEntryVminLHFccNumber     = 0;
-  fLayoutVminLHFccFieldText = 0;
-  fLayoutVminLHFccFrame     = 0;
+  fVminLHFccFrame           = nullptr;
+  fVminLHFccBut             = nullptr;
+  fLayoutVminLHFccBut       = nullptr;
+  fVminLHFccText            = nullptr;
+  fEntryVminLHFccNumber     = nullptr;
+  fLayoutVminLHFccFieldText = nullptr;
+  fLayoutVminLHFccFrame     = nullptr;
 
-  fMenuLHFcc          = 0;
-  fMenuBarLHFcc       = 0;
-  fLayoutMenuBarLHFcc = 0;
+  fMenuLHFcc          = nullptr;
+  fMenuBarLHFcc       = nullptr;
+  fLayoutMenuBarLHFcc = nullptr;
 
-  fLayoutVmmLHFccFrame = 0;
+  fLayoutVmmLHFccFrame = nullptr;
 
-  fLayoutStexHozFrame = 0;
+  fLayoutStexHozFrame = nullptr;
 
-  fLayoutStexUpFrame = 0;
+  fLayoutStexUpFrame = nullptr;
 
   //+++++++++++++++++++++++++++++++++++++++++ Horizontal frame Stin_A + Stin_B
-  fStinSpFrame      = 0;
-  fLayoutStinSpFrame = 0;
+  fStinSpFrame      = nullptr;
+  fLayoutStinSpFrame = nullptr;
   
   //----------------------------------- SubFrame Stin_A (Button + EntryField)
 
-  fTxSubFrame       = 0; 
-  fLayoutTxSubFrame = 0;
+  fTxSubFrame       = nullptr; 
+  fLayoutTxSubFrame = nullptr;
 
-  fStinAFrame     = 0;
-  fStinABut       = 0;
-  fLayoutStinABut = 0; 
+  fStinAFrame     = nullptr;
+  fStinABut       = nullptr;
+  fLayoutStinABut = nullptr; 
 
-  fStinAText        = 0;
-  fEntryStinANumber = 0; 
-  fLayoutStinAField = 0;
+  fStinAText        = nullptr;
+  fEntryStinANumber = nullptr; 
+  fLayoutStinAField = nullptr;
   
   //............................ Stin Crystal Numbering view (Button)
-  fButChNb       = 0;
-  fLayoutChNbBut = 0;
+  fButChNb       = nullptr;
+  fLayoutChNbBut = nullptr;
 
   //............................ Menus Stin_A
-  fMenuCorssAll    = 0;
-  fMenuBarCorssAll = 0;
+  fMenuCorssAll    = nullptr;
+  fMenuBarCorssAll = nullptr;
 
   //fMenuCovssAll    = 0;
   //fMenuBarCovssAll = 0;
 
   //----------------------------------- SubFrame Stin_B (Button + EntryField)
-  fTySubFrame       = 0;
-  fLayoutTySubFrame = 0;
+  fTySubFrame       = nullptr;
+  fLayoutTySubFrame = nullptr;
 
-  fStinBFrame     = 0;
-  fStinBBut       = 0;
-  fLayoutStinBBut = 0;
+  fStinBFrame     = nullptr;
+  fStinBBut       = nullptr;
+  fLayoutStinBBut = nullptr;
 
-  fStinBText        = 0;  
-  fEntryStinBNumber = 0;
-  fLayoutStinBField = 0;
+  fStinBText        = nullptr;  
+  fEntryStinBNumber = nullptr;
+  fLayoutStinBField = nullptr;
 
   //.................................. Menus for Horizontal frame (Stin_A + Stin_B)
-  fMenuBarLFCorcc = 0;
-  fMenuLFCorcc    = 0; 
+  fMenuBarLFCorcc = nullptr;
+  fMenuLFCorcc    = nullptr; 
 
-  fMenuBarHFCorcc = 0;  
-  fMenuHFCorcc    = 0;
+  fMenuBarHFCorcc = nullptr;  
+  fMenuHFCorcc    = nullptr;
 
   //++++++++++++++++++++++++ Horizontal frame channel number (Stin_A crystal number) + sample number
-  fChSpFrame       = 0;
-  fLayoutChSpFrame = 0;
+  fChSpFrame       = nullptr;
+  fLayoutChSpFrame = nullptr;
 
   //------------------------------------- SubFrame Channel (Button + EntryField)
-  fChanFrame       = 0;
-  fChanBut         = 0;
-  fChanText        = 0;
-  fEntryChanNumber = 0;
-  fLayoutChanBut   = 0;
-  fLayoutChanField = 0;
+  fChanFrame       = nullptr;
+  fChanBut         = nullptr;
+  fChanText        = nullptr;
+  fEntryChanNumber = nullptr;
+  fLayoutChanBut   = nullptr;
+  fLayoutChanField = nullptr;
 
-  fChSubFrame       = 0;
-  fLayoutChSubFrame = 0;
+  fChSubFrame       = nullptr;
+  fLayoutChSubFrame = nullptr;
 
   //................................ Menus Stin_A crystal number
-  fMenuCorss    = 0;
-  fMenuBarCorss = 0;
+  fMenuCorss    = nullptr;
+  fMenuBarCorss = nullptr;
 
-  fMenuCovss    = 0; 
-  fMenuBarCovss = 0;
+  fMenuCovss    = nullptr; 
+  fMenuBarCovss = nullptr;
 
-  fMenuD_MSp_SpNb    = 0;
-  fMenuBarD_MSp_SpNb = 0;
-  fMenuD_MSp_SpDs    = 0;
-  fMenuBarD_MSp_SpDs = 0;
+  fMenuD_MSp_SpNb    = nullptr;
+  fMenuBarD_MSp_SpNb = nullptr;
+  fMenuD_MSp_SpDs    = nullptr;
+  fMenuBarD_MSp_SpDs = nullptr;
 
-  fMenuD_SSp_SpNb    = 0;
-  fMenuBarD_SSp_SpNb = 0;
-  fMenuD_SSp_SpDs    = 0;
-  fMenuBarD_SSp_SpDs = 0;
+  fMenuD_SSp_SpNb    = nullptr;
+  fMenuBarD_SSp_SpNb = nullptr;
+  fMenuD_SSp_SpDs    = nullptr;
+  fMenuBarD_SSp_SpDs = nullptr;
 
   //------------------------------------ SubFrame Sample (Button + EntryField)
-  fSampFrame = 0;
-  fSampBut   = 0;
+  fSampFrame = nullptr;
+  fSampBut   = nullptr;
 
-  fSampText        = 0;  
-  fEntrySampNumber = 0;
-  fLayoutSampBut   = 0;
-  fLayoutSampField = 0;
+  fSampText        = nullptr;  
+  fEntrySampNumber = nullptr;
+  fLayoutSampBut   = nullptr;
+  fLayoutSampField = nullptr;
 
-  fSpSubFrame       = 0;
-  fLayoutSpSubFrame = 0;
+  fSpSubFrame       = nullptr;
+  fLayoutSpSubFrame = nullptr;
 
   //................................ Menus Sample number
 
   //     (no menu in this SubFrame)
 
   //++++++++++++++++++++++++++++++++++++ Frame: Run List (Rul) (Button + EntryField)
-  fRulFrame            = 0;
-  fRulBut              = 0;
-  fLayoutRulBut        = 0;
-  fRulText             = 0;
-  fEntryRulNumber      = 0;
-  fLayoutRulFieldText  = 0;
-  fLayoutRulFieldFrame = 0;
+  fRulFrame            = nullptr;
+  fRulBut              = nullptr;
+  fLayoutRulBut        = nullptr;
+  fRulText             = nullptr;
+  fEntryRulNumber      = nullptr;
+  fLayoutRulFieldText  = nullptr;
+  fLayoutRulFieldFrame = nullptr;
 
   //................................ Menus for time evolution
-  fMenuHistory    = 0;
-  fMenuBarHistory = 0;
+  fMenuHistory    = nullptr;
+  fMenuBarHistory = nullptr;
 
   //++++++++++++++++++++++++++++++++++++ Menu Event Distribution
-  fMenuAdcProj          = 0;
-  fMenuBarAdcProj       = 0;
-  fLayoutMenuBarAdcProj = 0;
+  fMenuAdcProj          = nullptr;
+  fMenuBarAdcProj       = nullptr;
+  fLayoutMenuBarAdcProj = nullptr;
 
   //++++++++++++++++++++++++++++++++++++ LinLog + Color Palette Frame
-  fLinLogFrame = 0;  
+  fLinLogFrame = nullptr;  
 
   //---------------------------------- Lin/Log X
-  fButLogx         = 0;
-  fLayoutLogxBut   = 0;
+  fButLogx         = nullptr;
+  fLayoutLogxBut   = nullptr;
   //---------------------------------- Lin/Log Y
-  fButLogy         = 0;
-  fLayoutLogyBut   = 0;
+  fButLogy         = nullptr;
+  fLayoutLogyBut   = nullptr;
   //---------------------------------- Proj Y
-  fButProjy        = 0;
-  fLayoutProjyBut  = 0;
+  fButProjy        = nullptr;
+  fLayoutProjyBut  = nullptr;
 
   //++++++++++++++++++++++++++++++++++++ Frame: General Title (Gent) (Button + EntryField)
-  fGentFrame            = 0;
-  fGentBut              = 0;
-  fLayoutGentBut        = 0;
-  fGentText             = 0;
-  fEntryGentNumber      = 0;
-  fLayoutGentFieldText  = 0;
-  fLayoutGentFieldFrame = 0;
+  fGentFrame            = nullptr;
+  fGentBut              = nullptr;
+  fLayoutGentBut        = nullptr;
+  fGentText             = nullptr;
+  fEntryGentNumber      = nullptr;
+  fLayoutGentFieldText  = nullptr;
+  fLayoutGentFieldFrame = nullptr;
 
   //++++++++++++++++++++++++++++++++++++ Color + Exit
   //---------------------------------- Color Palette
-  fButColPal       = 0;
-  fLayoutColPalBut = 0;
+  fButColPal       = nullptr;
+  fLayoutColPalBut = nullptr;
   //---------------------------------- Exit
-  fButExit       = 0;   
-  fLayoutExitBut = 0;
+  fButExit       = nullptr;   
+  fLayoutExitBut = nullptr;
 
   //++++++++++++++++++++++++++++++++++++ Last Frame
-  fLastFrame = 0;   
+  fLastFrame = nullptr;   
 
   //--------------------------------- Clone Last Canvas (Button)
-  fButClone       = 0;
-  fLayoutCloneBut = 0;
+  fButClone       = nullptr;
+  fLayoutCloneBut = nullptr;
 
   //--------------------------------- Root version (Button)
-  fButRoot       = 0;
-  fLayoutRootBut = 0;
+  fButRoot       = nullptr;
+  fLayoutRootBut = nullptr;
 
   //--------------------------------- Help (Button)
-  fButHelp       = 0;
-  fLayoutHelpBut = 0;
+  fButHelp       = nullptr;
+  fLayoutHelpBut = nullptr;
 
   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%% end of init GUI DIALOG BOX pointers %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -4138,7 +4138,7 @@ void TEcnaGui::DoButtonClone()
   std::cout << "   *TEcnaGui [" << fCnaCommand
        << "]> Clone last canvas. " << std::endl;
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());      /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());      /*fCnew++*/ ;}
   fHistos->PlotCloneOfCurrentCanvas();
 }
 //-------------------------------------------------------------------
@@ -5023,8 +5023,8 @@ void TEcnaGui::Calculations(const TString& calc_code)
 		  Int_t n_samp_fic = fKeyNbOfSamples;
 
 		  //....................... READ the "ADC" (AdcPed.., AdcLaser..., ...) file
-		  TEcnaRun* MyRun = 0; 
-		  if ( MyRun == 0 ){MyRun = new TEcnaRun(fObjectManager, fSubDet.Data(), n_samp_fic);  fCnew++;}
+		  TEcnaRun* MyRun = nullptr; 
+		  if ( MyRun == nullptr ){MyRun = new TEcnaRun(fObjectManager, fSubDet.Data(), n_samp_fic);  fCnew++;}
 
 		  MyRun->GetReadyToReadData(fKeyAnaType.Data(),    fKeyRunNumber,
 					    fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, nStex);
@@ -5155,7 +5155,7 @@ void TEcnaGui::Calculations(const TString& calc_code)
 			   << fTTBELL << std::endl << std::endl;
 		    }
 		  //.......................................................................
-		  delete MyRun; MyRun = 0;                    fCdelete++;
+		  delete MyRun; MyRun = nullptr;                    fCdelete++;
 		} // end of for( Int_t nStex = nStexMin; nStex<= nStexMax; nStex++)
 	      fConfirmCalcScc = 0;
 	    } // end of if( fKeyNbOfSamples >= fKeyNbOfSampForCalc )
@@ -5241,7 +5241,7 @@ void TEcnaGui::ViewMatrixLowFrequencyMeanCorrelationsBetweenStins(const TString&
 {
   // Plot of Low Frequency Mean Cor(c,c') for each pair of Stins
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5263,7 +5263,7 @@ void TEcnaGui::ViewMatrixHighFrequencyMeanCorrelationsBetweenStins(const TString
 {
   // Plot of Low Frequency Mean Cor(c,c') for each pair of Stins
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5288,7 +5288,7 @@ void TEcnaGui::ViewMatrixLowFrequencyCorrelationsBetweenChannels(const Int_t&  c
 {
   // Low Frequency Correlation matrix (crystal of Stin X, crystal of Stin X) for each Stin
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
@@ -5312,7 +5312,7 @@ void TEcnaGui::ViewMatrixHighFrequencyCorrelationsBetweenChannels(const Int_t&  
 {
 // High Frequency Correlation matrix (crystal of Stin X, crystal of Stin X) for each Stin
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
@@ -5336,7 +5336,7 @@ void TEcnaGui::ViewStexLowFrequencyCorcc()
 {
   //===> big matrix
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5359,7 +5359,7 @@ void TEcnaGui::ViewStexHighFrequencyCorcc()
 {
   //===> big matrix
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5384,7 +5384,7 @@ void TEcnaGui::ViewMatrixCorrelationSamples(const Int_t&  cStexStin_A, const Int
 {
 // Plot of correlation matrix between samples for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
@@ -5412,7 +5412,7 @@ void TEcnaGui::ViewMatrixCovarianceSamples(const Int_t&  cStexStin_A, const Int_
 {
 // Plot of covariance matrix between samples for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5445,7 +5445,7 @@ void TEcnaGui::ViewStinCorrelationSamples(const Int_t& cStexStin)
 {
   // Plot of (sample,sample) correlation matrices for all the crystal of a given Stin  
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
@@ -5467,7 +5467,7 @@ void TEcnaGui::ViewStinCovarianceSamples(const Int_t& cStexStin)
 {
   // Plot of (sample,sample) covariance matrices for all the crystal of a given Stin  
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
   
@@ -5492,7 +5492,7 @@ void TEcnaGui::ViewStinCovarianceSamples(const Int_t& cStexStin)
 
 void TEcnaGui::ViewSorSNumberOfEvents()
 {
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
 
   if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
     {
@@ -5528,7 +5528,7 @@ void TEcnaGui::ViewSorSNumberOfEvents()
 
 void TEcnaGui::ViewSorSPedestals()
 {
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
 
   if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
     {
@@ -5564,7 +5564,7 @@ void TEcnaGui::ViewSorSPedestals()
 
 void TEcnaGui::ViewSorSTotalNoise()
 {
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
 
   if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
     {
@@ -5600,7 +5600,7 @@ void TEcnaGui::ViewSorSTotalNoise()
 
 void TEcnaGui::ViewSorSLowFrequencyNoise()
 {
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
     {
@@ -5635,7 +5635,7 @@ void TEcnaGui::ViewSorSLowFrequencyNoise()
 
 void TEcnaGui::ViewSorSHighFrequencyNoise()
 {
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
     {
@@ -5674,7 +5674,7 @@ void TEcnaGui::ViewSorSHighFrequencyNoise()
 
 void TEcnaGui::ViewSorSMeanCorss()
 {
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
 
   if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
     {
@@ -5713,7 +5713,7 @@ void TEcnaGui::ViewSorSMeanCorss()
 
 void TEcnaGui::ViewSorSSigmaOfCorss()
 {
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   if( fKeyStexNumber > 0 && fKeyStexNumber <= fEcal->MaxStexInStas() )
     {
@@ -5769,7 +5769,7 @@ void TEcnaGui::ViewStinCrystalNumbering(const Int_t& StexStinEcna)
        << "]> Crystal numbering for " << " " << fStexName.Data() << " "
        << fKeyStexNumber << ", " << fStinName.Data() << " " << StinNumber << std::endl;
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;} 
   fHistos->GeneralTitle(fKeyGeneralTitle);
   fHistos->StinCrystalNumbering(fKeyStexNumber, StinNumber);
 }
@@ -5791,7 +5791,7 @@ void TEcnaGui::ViewStexStinNumbering()
        << "]> " << fStinName.Data() << " numbering for " << fStexName.Data()
        << " " << fKeyStexNumber << std::endl;
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->GeneralTitle(fKeyGeneralTitle);
   fHistos->StexStinNumbering(fKeyStexNumber);
 }
@@ -5808,7 +5808,7 @@ void TEcnaGui::ViewHistoSorSNumberOfEventsOfCrystals(const TString& first_same_p
 // Plot the 1D histogram of the number of events (found in the data)
 // as a function of crystals (grouped by Stins)
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5831,7 +5831,7 @@ void TEcnaGui::ViewHistoSorSNumberOfEventsDistribution(const TString& first_same
 {
 // Plot the 1D histogram of the number of events distribution for a Stex
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5855,7 +5855,7 @@ void TEcnaGui::ViewHistoSorSPedestalsOfCrystals(const TString& first_same_plot)
 {
 // Plot the 1D histogram of the pedestals as a function of crystals (grouped by Stins)
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5878,7 +5878,7 @@ void TEcnaGui::ViewHistoSorSPedestalsDistribution(const TString& first_same_plot
 {
 // Plot the 1D histogram of the pedestals distribution for a Stex
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5902,7 +5902,7 @@ void TEcnaGui::ViewHistoSorSTotalNoiseOfCrystals(const TString& first_same_plot)
 {
 // Plot the 1D histogram of the mean sample sigmas as a function of crystals (grouped by Stins)
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);
 
@@ -5925,7 +5925,7 @@ void TEcnaGui::ViewHistoSorSTotalNoiseDistribution(const TString& first_same_plo
 {
 // Plot the 1D histogram of the mean sample sigmas distribution for a Stex
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber);  
 
@@ -5950,7 +5950,7 @@ void TEcnaGui::ViewHistoSorSLowFrequencyNoiseOfCrystals(const TString& first_sam
 {
 // Plot the 1D histogram of the pedestals as a function of crystals (grouped by Stins)
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -5973,7 +5973,7 @@ void TEcnaGui::ViewHistoSorSLowFrequencyNoiseDistribution(const TString& first_s
 {
 // Plot the 1D histogram of the pedestals distribution for a Stex
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -5997,7 +5997,7 @@ void TEcnaGui::ViewHistoSorSHighFrequencyNoiseOfCrystals(const TString& first_sa
 {
 // Plot the 1D histogram of the mean sample sigmas as a function of crystals (grouped by Stins)
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6020,7 +6020,7 @@ void TEcnaGui::ViewHistoSorSHighFrequencyNoiseDistribution(const TString& first_
 {
 // Plot the 1D histogram of the mean sample sigmas distribution for a Stex
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6044,7 +6044,7 @@ void TEcnaGui::ViewHistoSorSMeanCorssOfCrystals(const TString& first_same_plot)
 {
 // Plot the 1D histogram of the mean cor(s,s') as a function of crystals (grouped by Stins)
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6067,7 +6067,7 @@ void TEcnaGui::ViewHistoSorSMeanCorssDistribution(const TString& first_same_plot
 {
 // Plot the 1D histogram of the mean cor(s,s') sigmas distribution for a Stex
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6090,7 +6090,7 @@ void TEcnaGui::ViewHistoSorSSigmaOfCorssOfCrystals(const TString& first_same_plo
 {
 // Plot the 1D histogram of the mean cor(s,s') as a function of crystals (grouped by Stins)
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6113,7 +6113,7 @@ void TEcnaGui::ViewHistoSorSSigmaOfCorssDistribution(const TString& first_same_p
 {
 // Plot the 1D histogram of the mean cor(s,s') sigmas distribution for a Stex
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6138,7 +6138,7 @@ void TEcnaGui::ViewHistoCrystalSampleMeans(const Int_t&  cStexStin_A, const Int_
 {
 // Plot the 1D histogram of the mean sample ADC for a crystal
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6164,7 +6164,7 @@ void TEcnaGui::ViewHistoCrystalSampleMeansDistribution(const Int_t&  cStexStin_A
 {
 // Plot the 1D histogram distribution of the mean sample ADC for a crystal
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6189,7 +6189,7 @@ void TEcnaGui::ViewHistoCrystalSampleSigmas(const Int_t&  cStexStin_A, const Int
 {
 // Plot the 1D histogram of the sigmas of the sample ADC for a crystal
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6214,7 +6214,7 @@ void TEcnaGui::ViewHistoCrystalSampleSigmasDistribution(const Int_t&  cStexStin_
 {
 // Plot the 1D histogram distribution of the sigmas of the sample ADC for a crystal
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6241,7 +6241,7 @@ void TEcnaGui::ViewHistoCrystalSampleValues(const Int_t& cStexStin_A, const Int_
 // Plot the 1D histogram of the pedestals as a function of the event number for a crystal
 
   Int_t n1Sample = sample+1;
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6267,7 +6267,7 @@ void TEcnaGui::ViewHistoSampleEventDistribution(const Int_t& cStexStin_A, const 
 // Plot the 1D histogram of the ADC event distribution for a sample
 
   Int_t n1Sample = sample+1;
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
   fHistos->FileParameters(fKeyAnaType, fKeyNbOfSamples, fKeyRunNumber,
 			  fKeyFirstReqEvtNumber, fKeyLastReqEvtNumber, fKeyReqNbOfEvts, fKeyStexNumber); 
 
@@ -6294,7 +6294,7 @@ void TEcnaGui::ViewHistimeCrystalPedestals(const TString&  run_par_file_name,
 {
 // Plot the graph of Pedestals evolution for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   std::cout << "   *TEcnaGui [" << fCnaCommand
@@ -6319,7 +6319,7 @@ void TEcnaGui::ViewHistimeCrystalPedestalsRuns(const TString&  run_par_file_name
 {
 // Plot the graph of Pedestals evolution for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   std::cout << "   *TEcnaGui [" << fCnaCommand
@@ -6345,7 +6345,7 @@ void TEcnaGui::ViewHistimeCrystalTotalNoise(const TString&  run_par_file_name,
 {
 // Plot the graph of total noise evolution for a given channel
   
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   std::cout << "   *TEcnaGui [" << fCnaCommand
@@ -6370,7 +6370,7 @@ void TEcnaGui::ViewHistimeCrystalTotalNoiseRuns(const TString&  run_par_file_nam
 {
 // Plot the graph of total noise evolution for a given channel
   
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   std::cout << "   *TEcnaGui [" << fCnaCommand
@@ -6395,7 +6395,7 @@ void TEcnaGui::ViewHistimeCrystalLowFrequencyNoise(const TString&  run_par_file_
 {
 // Plot the graph of Low Frequency Noise evolution for a given channel
   
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   std::cout << "   *TEcnaGui [" << fCnaCommand
@@ -6420,7 +6420,7 @@ void TEcnaGui::ViewHistimeCrystalLowFrequencyNoiseRuns(const TString&  run_par_f
 {
 // Plot the graph of Low Frequency Noise evolution for a given channel
   
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   std::cout << "   *TEcnaGui [" << fCnaCommand
@@ -6445,7 +6445,7 @@ void TEcnaGui::ViewHistimeCrystalHighFrequencyNoise(const TString&  run_par_file
 {
 // Plot the graph of High Frequency Noise evolution for a given channel
   
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   std::cout << "   *TEcnaGui [" << fCnaCommand
@@ -6470,7 +6470,7 @@ void TEcnaGui::ViewHistimeCrystalHighFrequencyNoiseRuns(const TString&  run_par_
 {
 // Plot the graph of High Frequency Noise evolution for a given channel
   
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   std::cout << "   *TEcnaGui [" << fCnaCommand
@@ -6495,7 +6495,7 @@ void TEcnaGui::ViewHistimeCrystalMeanCorss(const TString&  run_par_file_name,
 {
 // Plot the graph for Mean Corss evolution for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   std::cout << "   *TEcnaGui [" << fCnaCommand
@@ -6520,7 +6520,7 @@ void TEcnaGui::ViewHistimeCrystalMeanCorssRuns(const TString&  run_par_file_name
 {
 // Plot the graph for Mean Corss evolution for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/ ;}
 
   fCnaCommand++;
   std::cout << "   *TEcnaGui [" << fCnaCommand
@@ -6545,7 +6545,7 @@ void TEcnaGui::ViewHistimeCrystalSigmaOfCorss(const TString& run_par_file_name,
 {
 // Plot the graph of Mean Corss evolution for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/;}
 
   fCnaCommand++;
   std::cout << "   *TEcnaGui [" << fCnaCommand
@@ -6570,7 +6570,7 @@ void TEcnaGui::ViewHistimeCrystalSigmaOfCorssRuns(const TString& run_par_file_na
 {
 // Plot the graph of Mean Corss evolution for a given channel
 
-  if( fHistos == 0 ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/;}
+  if( fHistos == nullptr ){fHistos = new TEcnaHistos(fObjectManager, fSubDet.Data());       /*fCnew++*/;}
 
   fCnaCommand++;
   std::cout << "   *TEcnaGui [" << fCnaCommand

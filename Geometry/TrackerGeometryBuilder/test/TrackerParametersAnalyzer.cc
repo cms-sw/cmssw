@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,13 +12,15 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 
-class TrackerParametersAnalyzer : public edm::EDAnalyzer
+class TrackerParametersAnalyzer : public edm::one::EDAnalyzer<>
 {
 public:
   explicit TrackerParametersAnalyzer( const edm::ParameterSet& ) {}
-  ~TrackerParametersAnalyzer() {}
+  ~TrackerParametersAnalyzer() override {}
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 };
 
 void
@@ -40,16 +42,16 @@ TrackerParametersAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSe
      std::cout << (*git)->name() << ": " << (*git)->type() << std::endl;
    }
    
-   for( std::vector<PTrackerParameters::Item>::const_iterator it = ptp->vitems.begin(); it != ptp->vitems.end(); ++it )
+   for(const auto & vitem : ptp->vitems)
    {
-     std::cout << it->id << " is " << pDD->geomDetSubDetector(it->id) << " has " << it->vpars.size() << ": " << std::endl;
-     for(  std::vector<int>::const_iterator in = it->vpars.begin(); in !=  it->vpars.end(); ++in )
+     std::cout << vitem.id << " is " << pDD->geomDetSubDetector(vitem.id) << " has " << vitem.vpars.size() << ": " << std::endl;
+     for(  std::vector<int>::const_iterator in = vitem.vpars.begin(); in !=  vitem.vpars.end(); ++in )
        std::cout << *in << "; ";
      std::cout << std::endl;
    }
-   for( std::vector<int>::const_iterator pit = ptp->vpars.begin(); pit != ptp->vpars.end(); ++pit )
+   for(int vpar : ptp->vpars)
    {
-     std::cout << *pit << "; ";
+     std::cout << vpar << "; ";
    }
 }
 

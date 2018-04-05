@@ -15,7 +15,7 @@
                                                                                                                         
 // EgammaCoreTools
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
+#include "DataFormats/Math/interface/RectangularEtaPhiRegion.h"
 
 // Muon stuff
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
@@ -133,7 +133,7 @@ void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSet
     first_ = false;
   }                                                                                              
   
-  std::auto_ptr<EcalListOfFEDS> productAddress(new EcalListOfFEDS);
+  auto productAddress = std::make_unique<EcalListOfFEDS>();
   
   std::vector<int> feds;		// the list of FEDS produced by this module
   
@@ -188,7 +188,7 @@ void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSet
     std::cout << " Warning : no ECAL FED to unpack for Run " << e.id().run() << "  Event " << e.id().event() << std::endl;
   
   productAddress.get() -> SetList(feds);
-  e.put(productAddress,OutputLabel_);
+  e.put(std::move(productAddress),OutputLabel_);
 }
 
 void EcalListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventSetup& es, std::vector<int>& done, std::vector<int>& FEDs ) {
@@ -459,7 +459,7 @@ std::vector<int> EcalListOfFEDSProducer::ListOfFEDS(double etaLow, double etaHig
 		phiMinus << " " << phiPlus << std::endl;
   
   
-  const EcalEtaPhiRegion ecalregion(etaLow,etaHigh,phiMinus,phiPlus);
+  const RectangularEtaPhiRegion ecalregion(etaLow,etaHigh,phiMinus,phiPlus);
   
   FEDs = TheMapping -> GetListofFEDs(ecalregion);
   return FEDs;

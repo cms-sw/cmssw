@@ -24,7 +24,7 @@ class UserCodeTool(ConfigToolBase):
         return self
     def toolCode(self,process):
         code=self._parameters['code'].value
-        exec code
+        exec(code)
 
 userCodeTool=UserCodeTool()
 

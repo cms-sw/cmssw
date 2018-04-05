@@ -13,7 +13,6 @@ process.load('FastSimulation.Configuration.Geometries_MC_cff')
 process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
-process.load('FastSimulation.Configuration.FamosSequences_cff')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load('FastSimulation.Configuration.HLT_GRun_cff')
 process.load('FastSimulation.Configuration.Validation_cff')
@@ -22,27 +21,27 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2000)
-)
+    )
 
 # Input source
 process.source = cms.Source("PoolSource",
-#			        firstEvent = cms.untracked.uint32(XXXXX),
-			        firstEvent = cms.untracked.uint32(0),
-#			        fileNames = cms.untracked.vstring('file:mc.root')
-      			        fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/3_1_X/mc_pi50_eta05.root')
+                            #			        firstEvent = cms.untracked.uint32(XXXXX),
+                            firstEvent = cms.untracked.uint32(0),
+                            #			        fileNames = cms.untracked.vstring('file:mc.root')
+                            fileNames = cms.untracked.vstring('file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/3_1_X/mc_pi50_eta05.root')
 			    )
 
 process.options = cms.untracked.PSet(
 
-)
+    )
 
 
 # Output definition
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
-     outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*'),
-     fileName = cms.untracked.string("output.root")
-)
+                                outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*'),
+                                fileName = cms.untracked.string("output.root")
+                                )
 
 # DQM
 
@@ -59,24 +58,20 @@ process.BeamSpotFakeConditions.X0=0
 process.BeamSpotFakeConditions.Y0=0
 process.BeamSpotFakeConditions.Z0=0
 
-process.famosSimHits.VertexGenerator.SigmaX=0
-process.famosSimHits.VertexGenerator.SigmaY=0
-process.famosSimHits.VertexGenerator.SigmaZ=0  
+process.fastSimProducer.VertexGenerator.SigmaX=0
+process.fastSimProducer.VertexGenerator.SigmaY=0
+process.fastSimProducer.VertexGenerator.SigmaZ=0  
 
 process.VtxSmeared.SigmaX = 0.00001 # unuseful?
 process.VtxSmeared.SigmaY = 0.00001 # unuseful?
 process.VtxSmeared.SigmaZ = 0.00001 # unuseful?
 
 # Make the tracker transparent
-process.famosSimHits.MaterialEffects.PairProduction = False
-process.famosSimHits.MaterialEffects.Bremsstrahlung = False
-process.famosSimHits.MaterialEffects.EnergyLoss = False
-process.famosSimHits.MaterialEffects.MultipleScattering = False
-process.famosSimHits.MaterialEffects.NuclearInteraction = False
-
-# Other statements
-process.famosSimHits.SimulateCalorimetry = True
-process.famosSimHits.SimulateTracking = False
+for layer in process.fastSimProducer.detectorDefinition.BarrelLayers: 
+    layer.interactionModels = cms.untracked.vstring()
+for layer in process.fastSimProducer.detectorDefinition.ForwardLayers: 
+    layer.interactionModels = cms.untracked.vstring()
+    
 process.simulation = cms.Sequence(process.simulationWithFamos)
 process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
 
@@ -85,33 +80,34 @@ process.GlobalTag.globaltag = autoCond['mc']
 
 # HCAL validation
 
-process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
-    outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
-    HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
-    HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
-    HORecHitCollectionLabel   = cms.untracked.InputTag("horeco"),
-    eventype                  = cms.untracked.string('single'),
-    ecalselector              = cms.untracked.string('yes'),
-    hcalselector              = cms.untracked.string('all'),
-    mc                        = cms.untracked.string('yes'),
-    Famos                     = cms.untracked.bool(True) 
-)
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.hcalRecoAnalyzer = DQMEDAnalyzer('HcalRecHitsValidation',
+                                          outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
+                                          HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
+                                          HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
+                                          HORecHitCollectionLabel   = cms.untracked.InputTag("horeco"),
+                                          eventype                  = cms.untracked.string('single'),
+                                          ecalselector              = cms.untracked.string('yes'),
+                                          hcalselector              = cms.untracked.string('all'),
+                                          mc                        = cms.untracked.string('yes'),
+                                          Famos                     = cms.untracked.bool(True) 
+                                          )
 
-process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
-    outputFile               = cms.untracked.string('CaloTowersValidationRelVal.root'),
-    CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
-    hcalselector             = cms.untracked.string('all'),
-    mc                       = cms.untracked.string('yes')  
-)
+process.hcalTowerAnalyzer = DQMEDAnalyzer('CaloTowersValidation',
+                                           outputFile               = cms.untracked.string('CaloTowersValidationRelVal.root'),
+                                           CaloTowerCollectionLabel = cms.untracked.InputTag('towerMaker'),
+                                           hcalselector             = cms.untracked.string('all'),
+                                           mc                       = cms.untracked.string('yes')  
+                                           )
 
 
 # Path and EndPath definitions
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVT)
 process.hcalHitsValidation_step = cms.EndPath(
- process.hcalTowerAnalyzer *
- process.hcalRecoAnalyzer *
- process.MEtoEDMConverter
- )
+    process.hcalTowerAnalyzer *
+    process.hcalRecoAnalyzer *
+    process.MEtoEDMConverter
+    )
 
 # Schedule definition
 process.schedule = cms.Schedule(process.HLTSchedule)

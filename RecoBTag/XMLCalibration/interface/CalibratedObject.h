@@ -14,6 +14,7 @@
 class CalibratedObject 
 {
   public:
+    virtual ~CalibratedObject() = default;
     /** This function has to be implemented in derived class.
     * It should read all the information the calibrated objects need to
     * load to be initialized from the xml file.

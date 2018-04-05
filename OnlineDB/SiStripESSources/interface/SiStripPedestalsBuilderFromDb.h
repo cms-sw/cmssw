@@ -18,10 +18,10 @@ class SiStripPedestalsBuilderFromDb : public SiStripPedestalsESSource {
  public:
 
   SiStripPedestalsBuilderFromDb( const edm::ParameterSet& );
-  virtual ~SiStripPedestalsBuilderFromDb();
+  ~SiStripPedestalsBuilderFromDb() override;
   
   /** Builds pedestals using info from configuration database. */
-  virtual SiStripPedestals* makePedestals();
+  SiStripPedestals* makePedestals() override;
   
  protected:
   

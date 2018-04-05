@@ -2,16 +2,16 @@
 //  SiPixelTemplateDefs.h (v1.10)
 //
 // Created by Morris Swartz on 12/01/09.
-// 2009 __TheJohnsHopkinsUniversity__. 
+// 2009 __TheJohnsHopkinsUniversity__.
 //
 //
- 
-// Define template buffer size parameters 
+
+// Define template buffer size parameters
 
 #ifndef SiPixelTemplateDefs_h
 #define SiPixelTemplateDefs_h 1
 
-// Switch to use boost multiarrays to store the template entries (instead of plain c arrays).  
+// Switch to use boost multiarrays to store the template entries (instead of plain c arrays).
 // It adds real time re-sizing and bounds checking at a cost in time (10%?).
 
 //#define SI_PIXEL_TEMPLATE_USE_BOOST 1

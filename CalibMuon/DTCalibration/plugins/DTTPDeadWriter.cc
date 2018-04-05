@@ -67,7 +67,7 @@ void DTTPDeadWriter::analyze(const Event & event, const EventSetup& eventSetup) 
 
   //Loop on tzero map
   for(DTT0::const_iterator tzero = tZeroMap->begin();
-      tzero != tZeroMap->end(); tzero++){
+      tzero != tZeroMap->end(); ++tzero){
 
     //Consider what layers have been already considered
 // @@@ NEW DTT0 FORMAT

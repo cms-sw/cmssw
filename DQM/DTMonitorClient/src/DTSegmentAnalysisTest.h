@@ -48,9 +48,9 @@ public:
   DTSegmentAnalysisTest(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~DTSegmentAnalysisTest();
+  ~DTSegmentAnalysisTest() override;
 
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   void bookHistos(DQMStore::IBooker &);
 
@@ -60,12 +60,12 @@ public:
   /// Perform client diagnostic operations
   void performClientDiagnostic(DQMStore::IGetter &);
 
-  void endRun(edm::Run const& run, edm::EventSetup const& c);
+  void endRun(edm::Run const& run, edm::EventSetup const& c) override;
 
 protected:
 
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 private:
 

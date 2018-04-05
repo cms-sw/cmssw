@@ -2,11 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoMuon.MuonIdentification.DTTimingExtractor_cfi import *
 from RecoMuon.MuonIdentification.CSCTimingExtractor_cfi import *
+from RecoMuon.TrackingTools.MuonSegmentMatcher_cff import *
 
 TimingFillerBlock = cms.PSet(
   TimingFillerParameters = cms.PSet(
     DTTimingExtractorBlock,
     CSCTimingExtractorBlock,
+    MuonSegmentMatcher,
     
     # Ecal minimum energy cut
     EcalEnergyCut = cms.double(0.4),

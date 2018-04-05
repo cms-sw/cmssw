@@ -21,22 +21,20 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50) )
 ##################### digi-2-raw plus L1 emulation #########################
 
 process.load("Configuration.StandardSequences.Services_cff")
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
-process.load('Configuration/StandardSequences/MagneticField_38T_cff')
-process.load('TrackingTools/TrackAssociator/DetIdAssociatorESProducer_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff')
 
 #################### Conditions and L1 menu ################################
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'START3X_V25B::All'
-#process.GlobalTag.globaltag = 'START3X_V27::All'
-process.GlobalTag.globaltag = 'START36_V10::All'
-
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run1_mc']
 
 process.load('Calibration.IsolatedParticles.isolatedTracksHcalScale_cfi')
-process.isolatedTracksHcal.MaxDxyPV  = 10.
-process.isolatedTracksHcal.MaxDzPV   = 10.
-process.isolatedTracksHcal.Verbosity = 1
+process.isolatedTracksHcalScale.MaxDxyPV  = 10.
+process.isolatedTracksHcalScale.MaxDzPV   = 10.
+process.isolatedTracksHcalScale.Verbosity = 1
 
 process.primaryVertexFilter = cms.EDFilter("GoodVertexFilter",
                                            vertexCollection = cms.InputTag('offlinePrimaryVertices'),
@@ -50,17 +48,5 @@ process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string('IsolatedTracksHcalScale.root')
                                    )
 
-# define an EndPath to analyze all other path results
-process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',
-      #HLTriggerResults = cms.InputTag( 'TriggerResults','','REDIGI36X')
-      HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT') 
-)
-
-process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
-#process.l1GtTrigReport.L1GtRecordInputTag = 'simGtDigis'
-process.l1GtTrigReport.L1GtRecordInputTag = 'gtDigis'
-process.l1GtTrigReport.PrintVerbosity = 0
-#=============================================================================
-
-#process.p1 = cms.Path(process.primaryVertexFilter*process.isolatedTracksHcal)
-process.p1 = cms.Path( process.isolatedTracksHcal )
+#process.p1 = cms.Path(process.primaryVertexFilter*process.IsolatedTracksHcalScale)
+process.p1 = cms.Path( process.isolatedTracksHcalScale )

@@ -2,15 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 #special propagator
 from TrackingTools.GeomPropagators.BeamHaloPropagator_cff import *
-from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
+from TrackingTools.TrackFitters.KFTrajectoryFitter_cfi import *
 # KFTrajectoryFitterESProducer
 #include "TrackingTools/TrackFitters/data/KFTrajectoryFitterESProducer.cfi"
 KFTrajectoryFitterBeamHalo = copy.deepcopy(KFTrajectoryFitter)
-from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
+from TrackingTools.TrackFitters.KFTrajectorySmoother_cfi import *
 # KFTrajectorySmootherESProducer
 #include "TrackingTools/TrackFitters/data/KFTrajectorySmootherESProducer.cfi"
 KFTrajectorySmootherBeamHalo = copy.deepcopy(KFTrajectorySmoother)
-from TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi import *
+from TrackingTools.TrackFitters.KFFittingSmoother_cfi import *
 # KFFittingSmootherESProducer
 #include "TrackingTools/TrackFitters/data/KFFittingSmootherESProducer.cfi"
 KFFittingSmootherBeamHalo = copy.deepcopy(KFFittingSmoother)

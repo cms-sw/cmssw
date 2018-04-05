@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -29,12 +29,13 @@ class MonitorElement;
 class EwkElecDQM : public DQMEDAnalyzer {
  public:
   EwkElecDQM(const edm::ParameterSet&);
+protected:
   //Book histograms
   void bookHistograms(DQMStore::IBooker &,
     edm::Run const &, edm::EventSetup const &) override;
-  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   double calcDeltaPhi(double phi1, double phi2);
 
@@ -91,7 +92,7 @@ class EwkElecDQM : public DQMEDAnalyzer {
   unsigned int PUMax_, PUBinCount_;
 
   bool isValidHltConfig_;
-  HLTConfigProvider hltConfigProvider_;
+  HLTPrescaleProvider hltPrescaleProvider_;
 
   unsigned int nall;
   unsigned int nrec;

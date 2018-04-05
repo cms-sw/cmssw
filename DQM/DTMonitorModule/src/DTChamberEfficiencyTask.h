@@ -46,16 +46,16 @@ public:
   DTChamberEfficiencyTask(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTChamberEfficiencyTask();
+  ~DTChamberEfficiencyTask() override;
 
   /// BeginRun
-  void dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup);
+  void dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
 
   // Operations
-  void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
  protected:
 // Book the histograms

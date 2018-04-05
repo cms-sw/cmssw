@@ -1,5 +1,10 @@
 /*
-  Hydjet2
+
+##########################
+#  Hydjet2		 #
+#  version: 2.2.0 patch1 #
+##########################
+
   Interface to the HYDJET++ generator, produces HepMC events
 
   Author: Andrey Belyaev (Andrey.Belyaev@cern.ch)
@@ -87,13 +92,25 @@ TString RunInputHYDJETstr;
 
 // definition of the static member fLastIndex
 int Particle::fLastIndex;
-bool ev=0;
+bool ev=false;
 namespace {
+  int convertStatusForComponents(int sta, int typ){
+
+    if(sta== 1 && typ==0) return 6;
+    if(sta== 1 && typ==1) return 7;
+    if(sta== 2 && typ==0) return 16;
+    if(sta== 2 && typ==1) return 17;
+
+    else return sta;
+  }
+
   int convertStatus(int st){
+
     if(st<= 0) return 0;
     if(st<=10) return 1;
     if(st<=20) return 2;
     if(st<=30) return 3;
+
     else return st;
   }
 }
@@ -143,7 +160,7 @@ Hydjet2Hadronizer::Hydjet2Hadronizer(const edm::ParameterSet& pset):
 
   embedding_(pset.getParameter<bool>("embeddingMode")),
   rotate_(pset.getParameter<bool>("rotateEventPlane")),
-  evt(0),
+  evt(nullptr),
   nsub_(0),
   nhard_(0), 
   nsoft_(0),
@@ -210,7 +227,7 @@ bool Hydjet2Hadronizer::initializeForInternalPartons(){
 
     if(fSqrtS < 2.24){
       LogError("Hydjet2Hadronizer|sqrtS") << "SqrtS<2.24 not allowed with fTMuType>0";
-      return 0;
+      return false;
     }
     
     //sqrt(s) = 2.24 ==> T_kin = 0.8 GeV
@@ -232,7 +249,7 @@ bool Hydjet2Hadronizer::initializeForInternalPartons(){
     //if user choose fYlmax larger then allowed by kinematics at the specified beam energy sqrt(s)     
     if(fYlmax > TMath::Log(fSqrtS/0.94)){
       LogError("Hydjet2Hadronizer|Ylmax") << "fYlmax more then TMath::Log(fSqrtS vs 0.94)!!! ";
-      return 0;
+      return false;
     }
       
     if(fCorrS <= 0.) {
@@ -530,9 +547,9 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
             Particle particle(partDef, partJPos, partJMom, 0, 0, type, motherPdg, zeroVec, zeroVec);
             int index = particle.SetIndex();
             if(index!=i) {
-              LogWarning("Hydjet2Hadronizer") << " Allocated HYDJET++ index is not synchronized with the PYTHIA index!" << endl
-                   << " Collision history information is destroyed! It happens when a PYTHIA code is not" << endl
-                   << " implemented in HYDJET++ particle list particles.data! Check it out!";
+           //   LogWarning("Hydjet2Hadronizer") << " Allocated Hydjet2 index is not synchronized with the PYTHIA index !" << endl
+            //       << " Collision history information is destroyed! It happens when a PYTHIA code is not" << endl
+             //      << " implemented in Hydjet2 particle list particles.data! Check it out!";
             }
             particle.SetPythiaStatusCode(pythiaStatus);
             particle.SetMother(mother_index);
@@ -542,7 +559,7 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
             allocator.AddParticle(particle, source);
           }
           else {
-            LogWarning("Hydjet2Hadronizer") << " PYTHIA particle of specie " << pdg << " is not in HYDJET++ particle list" << endl
+            LogWarning("Hydjet2Hadronizer") << " PYTHIA particle of specie " << pdg << " is not in Hydjet2 particle list" << endl
                  <<" Please define it in particles.data, otherwise the history information will be de-synchronized and lost!";
           }
         }
@@ -555,7 +572,7 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
       double impactParameter = HYFPAR.bgen;
 
       // Sergey psiforv3
-      double psiforv3 = 0.;	//AS-ML Nov2012  epsilon3 //
+      psiforv3 = 0.;	//AS-ML Nov2012  epsilon3 //
       double e3 = (0.2/5.5)*TMath::Power(impactParameter,1./3.);
       psiforv3 = TMath::TwoPi() *  (-0.5 + CLHEP::RandFlat::shoot(hjRandomEngine))  / 3.;
       SERVICEEV.psiv3 = -psiforv3;
@@ -787,10 +804,10 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
       Njet = (int)HYJPAR.njet;
       Nbcol = (int)HYFPAR.nbcol;
 
-      if(source.empty()) {
-        LogError("Hydjet2Hadronizer") << "Source is not initialized!!";
+      //if(source.empty()) {
+      //  LogError("Hydjet2Hadronizer") << "Source is not initialized!! Trying again...";
         //return ;
-      }
+      //}
       //Run the decays
       if(RunDecays()) Evolve(source, allocator, GetWeakDecayLimit());
 
@@ -814,7 +831,7 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
         Z[Ntot] = pos[2];
         T[Ntot] = it->T();
         type[Ntot] = it->GetType();
-        pythiaStatus[Ntot] = it->GetPythiaStatusCode();
+        pythiaStatus[Ntot] = convertStatus(it->GetPythiaStatusCode());
         Index[Ntot] = it->GetIndex();
         MotherIndex[Ntot] = it->GetMother();
         NDaughters[Ntot] = it->GetNDaughters();
@@ -824,16 +841,17 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize(){
         //index of last daughter
         LastDaughterIndex[Ntot] = it->GetLastDaughterIndex();
         if(type[Ntot]==1) {     // jets
-          if(pythiaStatus[Ntot]==1 && NDaughters[Ntot]==0)  // code for final state particle in pythia
+          if(pythiaStatus[Ntot]==1 && NDaughters[Ntot]==0){  // code for final state particle in pythia
             final[Ntot]=1;
-          else
-            final[Ntot]=0;
+          }else{
+	final[Ntot]=pythiaStatus[Ntot];
+          }
         }
         if(type[Ntot]==0) {     // hydro
           if(NDaughters[Ntot]==0)
             final[Ntot]=1;
           else
-            final[Ntot]=0;
+            final[Ntot]=2;
         }
 
         if(type[Ntot]==0)Nhyd++;
@@ -1042,7 +1060,7 @@ double Hydjet2Hadronizer::CharmEnhancementFactor(double Ncc, double Ndth, double
 void Hydjet2Hadronizer::rotateEvtPlane()
 {
   const double pi = 3.14159265358979;
-  phi0_ = 2.*pi*gen::pyr_(0) - pi;
+  phi0_ = 2.*pi*gen::pyr_(nullptr) - pi;
   sinphi0_ = sin(phi0_);
   cosphi0_ = cos(phi0_);
 }
@@ -1068,7 +1086,7 @@ bool Hydjet2Hadronizer::get_particles(HepMC::GenEvent *evt )
   for(int isub=0;isub<nsub_;isub++){
     LogDebug("SubEvent") <<"Sub Event ID : "<<isub;
 
-    int sub_up = (isub+1)*50000; // Upper limit in mother index, determining the range of Sub-Event
+    int sub_up = (isub+1)*150000; // Upper limit in mother index, determining the range of Sub-Event
     vector<HepMC::GenParticle*> particles;
     vector<int> mother_ids;
     vector<HepMC::GenVertex*> prods;
@@ -1094,7 +1112,7 @@ bool Hydjet2Hadronizer::get_particles(HepMC::GenEvent *evt )
       HepMC::GenParticle* part = particles[i];
       //The Fortran code is modified to preserve mother id info, by seperating the beginning
       //mother indices of successive subevents by 5000
-      int mid = mother_ids[i]-isub*50000-1;
+      int mid = mother_ids[i]-isub*150000-1;
       LogDebug("DecayChain")<<"Particle "<<i;
       LogDebug("DecayChain")<<"Mother's ID "<<mid;
       LogDebug("DecayChain")<<"Particle's PDG ID "<<part->pdg_id();
@@ -1113,7 +1131,7 @@ bool Hydjet2Hadronizer::get_particles(HepMC::GenEvent *evt )
           prod_vertex = prods[i];
           prod_vertex->add_particle_in(mother);
           evt->add_vertex(prod_vertex);
-          prods[i]=0; // mark to protect deletion
+          prods[i]=nullptr; // mark to protect deletion
         }
 
         prod_vertex->add_particle_out(part);
@@ -1141,7 +1159,7 @@ HepMC::GenParticle* Hydjet2Hadronizer::build_hyjet2(int index, int barcode)
  
   double px = px0*cosphi0_-py0*sinphi0_;
   double py = py0*cosphi0_+px0*sinphi0_;
- 
+// cout<< "status: "<<convertStatus(final[index], type[index])<<endl;
   HepMC::GenParticle* p = new HepMC::GenParticle(
                                                  HepMC::FourVector(
 					px,	// px
@@ -1149,7 +1167,7 @@ HepMC::GenParticle* Hydjet2Hadronizer::build_hyjet2(int index, int barcode)
 					Pz[index],	// pz
 					E[index]),	// E
 					pdg[index],	// id
-                                                 	convertStatus(final[index]) // status
+                                                 	convertStatusForComponents(final[index], type[index])// status
                        
                                                  );
  

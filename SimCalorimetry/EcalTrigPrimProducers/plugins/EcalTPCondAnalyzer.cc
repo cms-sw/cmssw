@@ -185,7 +185,7 @@ EcalTPCondAnalyzer::endJob(){
 
 void EcalTPCondAnalyzer::printEcalTPGPhysicsConst(const EcalTPGPhysicsConst *ecaltpgPhysConst) const {
   EcalTPGPhysicsConstMapIterator it;
-  const EcalTPGPhysicsConstMap mymap=ecaltpgPhysConst->getMap();
+  const EcalTPGPhysicsConstMap& mymap=ecaltpgPhysConst->getMap();
   for (it=mymap.begin();it!=mymap.end();++it) {
     if (it==mymap.begin()) {
       std::cout<<"\nPHYSICS_EB "<<(*it).first<<std::endl;
@@ -246,7 +246,7 @@ void EcalTPCondAnalyzer::printWEIGHT(const EcalTPGWeightIdMap * ecaltpgWeightIdM
   std::cout<<std::endl;
     EcalTPGWeightIdMap::EcalTPGWeightMapItr it;
     uint32_t w0,w1,w2,w3,w4;
-    const EcalTPGWeightIdMap::EcalTPGWeightMap map=ecaltpgWeightIdMap->getMap();
+    const EcalTPGWeightIdMap::EcalTPGWeightMap& map=ecaltpgWeightIdMap->getMap();
     for (it=map.begin();it!=map.end();++it) {
       std::cout <<"WEIGHT "<<(*it).first<<std::endl;
       (*it).second.getValues(w0,w1,w2,w3,w4);
@@ -258,7 +258,7 @@ void EcalTPCondAnalyzer::printWEIGHT(const EcalTPGWeightIdMap * ecaltpgWeightIdM
 
 void  EcalTPCondAnalyzer::printEcalTPGFineGrainEBIdMap(const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB) const {
     EcalTPGFineGrainEBIdMap::EcalTPGFineGrainEBMapItr it;
-    const EcalTPGFineGrainEBIdMap::EcalTPGFineGrainEBMap map=ecaltpgFineGrainEB->getMap();
+    const EcalTPGFineGrainEBIdMap::EcalTPGFineGrainEBMap& map=ecaltpgFineGrainEB->getMap();
     uint32_t ThresholdETLow, ThresholdETHigh, RatioLow, RatioHigh, LUT;
 
     //std::cout<<std::endl;
@@ -272,7 +272,7 @@ void  EcalTPCondAnalyzer::printEcalTPGFineGrainEBIdMap(const EcalTPGFineGrainEBI
 
 void EcalTPCondAnalyzer::printEcalTPGLutIdMap(const EcalTPGLutIdMap *ecaltpgLut) const {
     EcalTPGLutIdMap::EcalTPGLutMapItr it;
-    const EcalTPGLutIdMap::EcalTPGLutMap map=ecaltpgLut->getMap();
+    const EcalTPGLutIdMap::EcalTPGLutMap& map=ecaltpgLut->getMap();
 
     std::cout<<std::endl;
     for (it=map.begin();it!=map.end();++it) {
@@ -285,8 +285,8 @@ void EcalTPCondAnalyzer::printEcalTPGLutIdMap(const EcalTPGLutIdMap *ecaltpgLut)
 void EcalTPCondAnalyzer::printCRYSTAL(const EcalTPGPedestals * ecaltpPed, const EcalTPGLinearizationConst * ecaltpLin ) {
 
   std::cout<<std::endl;
-  const EcalTPGPedestalsMap pedMap=ecaltpPed->getMap();
-  const EcalTPGLinearizationConstMap linMap=ecaltpLin->getMap();
+  const EcalTPGPedestalsMap& pedMap=ecaltpPed->getMap();
+  const EcalTPGLinearizationConstMap& linMap=ecaltpLin->getMap();
 
   const std::vector<DetId> & ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
 
@@ -415,7 +415,7 @@ void EcalTPCondAnalyzer::printTOWEREB(const EcalTPGSpike *ecaltpgSpikeTh, const 
     const EcalTPGGroups::EcalTPGGroupsMap &fgMap=ecaltpgFgEBGroup->getMap();
     EcalTPGGroups::EcalTPGGroupsMapItr it;
     
-    const EcalTPGSpike::EcalTPGSpikeMap spikeThMap = ecaltpgSpikeTh->getMap();
+    const EcalTPGSpike::EcalTPGSpikeMap& spikeThMap = ecaltpgSpikeTh->getMap();
     EcalTPGSpike::EcalTPGSpikeMapIterator itSpikeTh;
     
     std::cout<<std::endl;
@@ -432,7 +432,7 @@ void EcalTPCondAnalyzer::printTOWEREB(const EcalTPGSpike *ecaltpgSpikeTh, const 
 void EcalTPCondAnalyzer::printTOWEREE(const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE,const EcalTPGLutGroup *ecaltpgLutGroup) const {
 
     EcalTPGFineGrainTowerEEMapIterator it;
-    const EcalTPGFineGrainTowerEEMap map=ecaltpgFineGrainTowerEE->getMap();
+    const EcalTPGFineGrainTowerEEMap& map=ecaltpgFineGrainTowerEE->getMap();
     const EcalTPGGroups::EcalTPGGroupsMap &lutMap=ecaltpgLutGroup->getMap();
     EcalTPGGroups::EcalTPGGroupsMapItr lutGroupId;
 

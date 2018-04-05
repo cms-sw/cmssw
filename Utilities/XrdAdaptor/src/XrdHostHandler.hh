@@ -2,6 +2,7 @@
 #define __XRDADAPTOR_HOSTHANDLER_H_
 
 #include "XrdCl/XrdClXRootDResponses.hh"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #if defined(__linux__)
   #define HAVE_ATOMICS 1
@@ -32,8 +33,9 @@ public:
   virtual void HandleResponse(XrdCl::XRootDStatus *status,
                               XrdCl::AnyObject    *response) override
   {
-    pStatus.reset(status);
-    pResponse.reset(response);
+    // propagate_const<T> has no reset() function
+    pStatus_ = std::unique_ptr<XrdCl::XRootDStatus>(status);
+    pResponse_ = std::unique_ptr<XrdCl::AnyObject>(response);
     sem.Post();
   }
 
@@ -41,25 +43,26 @@ public:
                                        XrdCl::AnyObject    *response,
                                        XrdCl::HostList     *hostList) override
   {
-    pStatus.reset(status);
-    pResponse.reset(response);
-    pHostList.reset(hostList);
+    // propagate_const<T> has no reset() function
+    pStatus_ = std::unique_ptr<XrdCl::XRootDStatus>(status);
+    pResponse_ = std::unique_ptr<XrdCl::AnyObject>(response);
+    pHostList_ = std::unique_ptr<XrdCl::HostList>(hostList);
     sem.Post();
   }
 
   std::unique_ptr<XrdCl::XRootDStatus> GetStatus()
   {
-        return std::move(pStatus);
+        return std::move(get_underlying_safe(pStatus_));
   }
 
   std::unique_ptr<XrdCl::AnyObject> GetResponse()
   {
-    return std::move(pResponse);
+    return std::move(get_underlying_safe(pResponse_));
   }
 
   std::unique_ptr<XrdCl::HostList> GetHosts()
   {
-    return std::move(pHostList);
+    return std::move(get_underlying_safe(pHostList_));
   }
 
   void WaitForResponse()
@@ -69,9 +72,9 @@ public:
 
 private:
 
-  std::unique_ptr<XrdCl::XRootDStatus> pStatus;
-  std::unique_ptr<XrdCl::AnyObject>    pResponse;
-  std::unique_ptr<XrdCl::HostList>     pHostList;
+  edm::propagate_const<std::unique_ptr<XrdCl::XRootDStatus>> pStatus_;
+  edm::propagate_const<std::unique_ptr<XrdCl::AnyObject>>    pResponse_;
+  edm::propagate_const<std::unique_ptr<XrdCl::HostList>>     pHostList_;
   Semaphore                            sem;
 };
 

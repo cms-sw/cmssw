@@ -1,14 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
 #Chi2 estimator
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-ElectronChi2 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone()
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+ElectronChi2 = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone()
 ElectronChi2.ComponentName = 'ElectronChi2'
 ElectronChi2.MaxChi2 = 2000.
 ElectronChi2.nSigma = 3.
+ElectronChi2.MaxDisplacement = 100
+ElectronChi2.MaxSagitta = -1
 
 # Trajectory Filter
-TrajectoryFilterForElectrons = cms.PSet(
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+TrajectoryFilterForElectrons = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     chargeSignificance = cms.double(-1.0),
     minPt = cms.double(2.0),
     minHitsMinPt = cms.int32(-1),
@@ -17,7 +20,9 @@ TrajectoryFilterForElectrons = cms.PSet(
     maxNumberOfHits = cms.int32(-1),
     maxConsecLostHits = cms.int32(1),
     nSigmaMinPt = cms.double(5.0),
-    minimumNumberOfHits = cms.int32(5)
+    minimumNumberOfHits = cms.int32(5),
+    maxCCCLostHits = cms.int32(9999),
+    minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutNone'))
 )
 
 # Trajectory Builder
@@ -63,11 +68,7 @@ from TrackingTools.GsfTracking.bwdGsfElectronPropagator_cff import *
 from TrackingTools.GsfTracking.fwdGsfElectronPropagator_cff import *
 # TrajectoryFilter
 
-
-
-
-
-
-
-
+electronCkfTrackCandidatesFromMultiCl = electronCkfTrackCandidates.clone(
+  src = 'electronMergedSeedsFromMultiCl'
+)
 

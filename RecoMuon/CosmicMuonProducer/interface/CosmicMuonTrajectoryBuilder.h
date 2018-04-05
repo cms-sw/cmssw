@@ -43,17 +43,17 @@ public:
   CosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service,edm::ConsumesCollector& iC);
 
   /// Destructor
-  virtual ~CosmicMuonTrajectoryBuilder();
+  ~CosmicMuonTrajectoryBuilder() override;
 
   /// build trajectories from seed
-  std::vector<Trajectory*> trajectories(const TrajectorySeed&);
+  std::vector<Trajectory*> trajectories(const TrajectorySeed&) override;
 
   /// dummy implementation, unused in this class
-  virtual CandidateContainer trajectories(const TrackCand&) {
+  CandidateContainer trajectories(const TrackCand&) override {
     return CandidateContainer();
   }
 
-  virtual void setEvent(const edm::Event&);
+  void setEvent(const edm::Event&) override;
 
   const Propagator* propagator() const {return &*theService->propagator(thePropagatorName);}
 

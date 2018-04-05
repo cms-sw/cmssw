@@ -37,9 +37,9 @@ class DTExtLutOnlineProd :
 {
    public:
       DTExtLutOnlineProd(const edm::ParameterSet&);
-      ~DTExtLutOnlineProd();
+      ~DTExtLutOnlineProd() override;
 
-  virtual boost::shared_ptr< L1MuDTExtLut > newObject(
+  std::shared_ptr< L1MuDTExtLut > newObject(
     const std::string& objectKey ) override ;
 
    private:
@@ -77,13 +77,13 @@ DTExtLutOnlineProd::~DTExtLutOnlineProd()
 
 }
 
-boost::shared_ptr< L1MuDTExtLut >
+std::shared_ptr< L1MuDTExtLut >
 DTExtLutOnlineProd::newObject( const std::string& objectKey )
 {
   edm::LogError( "L1-O2O" ) << "L1MuDTExtLut object with key "
 			    << objectKey << " not in ORCON!" ;
 
-  return boost::shared_ptr< L1MuDTExtLut >() ;
+  return std::shared_ptr< L1MuDTExtLut >() ;
 }
 
 //

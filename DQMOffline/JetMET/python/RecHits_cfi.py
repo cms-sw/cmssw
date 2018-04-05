@@ -5,7 +5,8 @@ import FWCore.ParameterSet.Config as cms
 # Date: 03.04.2008
 #
 # Fill validation histograms for ECAL and HCAL RecHits.
-ECALAnalyzer = cms.EDAnalyzer(
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+ECALAnalyzer = DQMEDAnalyzer(
     "ECALRecHitAnalyzer",
     EBRecHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     EERecHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
@@ -13,7 +14,7 @@ ECALAnalyzer = cms.EDAnalyzer(
     FineBinning = cms.untracked.bool(True),
     FolderName = cms.untracked.string("JetMET/ECALRecHits")
 )
-HCALAnalyzer = cms.EDAnalyzer(
+HCALAnalyzer = DQMEDAnalyzer(
     "HCALRecHitAnalyzer",
     HORecHitsLabel = cms.InputTag("horeco"),
     HBHERecHitsLabel = cms.InputTag("hbhereco"),

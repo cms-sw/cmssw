@@ -21,19 +21,19 @@ class ReferenceTrajectoryFactory : public TrajectoryFactoryBase
 {
 public:
   ReferenceTrajectoryFactory(const edm::ParameterSet &config);
-  virtual ~ReferenceTrajectoryFactory();
+  ~ReferenceTrajectoryFactory() override;
 
   /// Produce the reference trajectories.
-  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const reco::BeamSpot &beamSpot) const override;
 
-  virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
+  const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
 							   const ExternalPredictionCollection &external,
 							   const reco::BeamSpot &beamSpot) const override;
 
-  virtual ReferenceTrajectoryFactory* clone() const override { return new ReferenceTrajectoryFactory(*this); }
+  ReferenceTrajectoryFactory* clone() const override { return new ReferenceTrajectoryFactory(*this); }
 
 protected:
   ReferenceTrajectoryFactory(const ReferenceTrajectoryFactory &other);
@@ -52,7 +52,7 @@ ReferenceTrajectoryFactory::ReferenceTrajectoryFactory( const edm::ParameterSet 
   TrajectoryFactoryBase( config ),
   theMass(config.getParameter<double>("ParticleMass")),
   theUseBzeroIfFieldOff(config.getParameter<bool>("UseBzeroIfFieldOff")),
-  theBzeroFactory(0)
+  theBzeroFactory(nullptr)
 {
   edm::LogInfo("Alignment") << "@SUB=ReferenceTrajectoryFactory"
                             << "mass: " << theMass
@@ -64,7 +64,7 @@ ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const ReferenceTrajectory
   TrajectoryFactoryBase(other),
   theMass(other.theMass),
   theUseBzeroIfFieldOff(other.theUseBzeroIfFieldOff),
-  theBzeroFactory(0) // copy data members, but no double pointing to same Bzero factory...
+  theBzeroFactory(nullptr) // copy data members, but no double pointing to same Bzero factory...
 {
 }
  
@@ -96,11 +96,15 @@ ReferenceTrajectoryFactory::trajectories(const edm::EventSetup &setup,
     // Check input: If all hits were rejected, the TSOS is initialized as invalid.
     if ( input.first.isValid() )
     {
+      ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
+      config.useBeamSpot = useBeamSpot_;
+      config.includeAPEs = includeAPEs_;
+      config.allowZeroMaterial = allowZeroMaterial_;
       // set the flag for reversing the RecHits to false, since they are already in the correct order.
-      trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second, false,
-                                                                            magneticField.product(), materialEffects(),
-                                                                            propagationDirection(), theMass, 
-                                                                            theUseBeamSpot, beamSpot)));
+      config.hitsAreReverse = false;
+      trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second,
+                                                                            magneticField.product(),
+                                                                            beamSpot, config)));
     }
 
     ++itTracks;
@@ -144,22 +148,30 @@ ReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
     {
       if ( (*itExternal).isValid() && sameSurface( (*itExternal).surface(), input.first.surface() ) )
       {
+        ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
+        config.useBeamSpot = useBeamSpot_;
+        config.includeAPEs = includeAPEs_;
+        config.allowZeroMaterial = allowZeroMaterial_;
         // set the flag for reversing the RecHits to false, since they are already in the correct order.
-	ReferenceTrajectoryPtr refTraj( new ReferenceTrajectory( *itExternal, input.second, false,
-                                                                 magneticField.product(), materialEffects(),
-                                                                 propagationDirection(), theMass,
-                                                                 theUseBeamSpot, beamSpot) );
-	  
+        config.hitsAreReverse = false;
+        ReferenceTrajectoryPtr refTraj(new ReferenceTrajectory(*itExternal, input.second,
+                                                               magneticField.product(),
+                                                               beamSpot, config));
+
         AlgebraicSymMatrix externalParamErrors( asHepMatrix<5>( (*itExternal).localError().matrix() ) );
         refTraj->setParameterErrors( externalParamErrors );
 	trajectories.push_back( refTraj );
       }
       else
       {
-        trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second, false,
-                                                                              magneticField.product(), materialEffects(),
-                                                                              propagationDirection(), theMass,
-                                                                              theUseBeamSpot, beamSpot)));
+        ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection(), theMass);
+        config.useBeamSpot = useBeamSpot_;
+        config.includeAPEs = includeAPEs_;
+        config.allowZeroMaterial = allowZeroMaterial_;
+        config.hitsAreReverse = false;
+        trajectories.push_back(ReferenceTrajectoryPtr(new ReferenceTrajectory(input.first, input.second,
+                                                                              magneticField.product(),
+                                                                              beamSpot, config)));
       }
     }
     

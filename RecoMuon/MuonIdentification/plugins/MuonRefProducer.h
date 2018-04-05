@@ -26,8 +26,8 @@
 class MuonRefProducer : public edm::global::EDProducer<> {
  public:
    explicit MuonRefProducer(const edm::ParameterSet&);
-   virtual ~MuonRefProducer();
-   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+   ~MuonRefProducer() override;
+   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
  private:
    edm::InputTag theReferenceCollection_;

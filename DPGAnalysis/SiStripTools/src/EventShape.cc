@@ -212,7 +212,7 @@ math::XYZTLorentzVectorF EventShape::thrust(const reco::TrackCollection& tracks)
 float EventShape::sphericity(const reco::TrackCollection& tracks)
 {
   // a critical check
-  if(tracks.size()==0) return 0;
+  if(tracks.empty()) return 0;
   
   // first fill the momentum tensor
   TMatrixDSym MomentumTensor(3);
@@ -243,7 +243,7 @@ float EventShape::sphericity(const reco::TrackCollection& tracks)
 float EventShape::aplanarity(const reco::TrackCollection& tracks)
 {
   // a critical check
-  if (tracks.size()==0) return 0;
+  if (tracks.empty()) return 0;
   // first fill the momentum tensor
   TMatrixDSym MomentumTensor(3);
   for(reco::TrackCollection::const_iterator itTrack = tracks.begin(); itTrack<tracks.end(); ++itTrack) {
@@ -272,7 +272,7 @@ float EventShape::aplanarity(const reco::TrackCollection& tracks)
 float EventShape::planarity(const reco::TrackCollection& tracks)
 {
   // First a critical check
-  if (tracks.size()==0) return 0;
+  if (tracks.empty()) return 0;
   // first fill the momentum tensor
   TMatrixDSym MomentumTensor(3);
   for(reco::TrackCollection::const_iterator itTrack = tracks.begin(); itTrack<tracks.end(); ++itTrack) {

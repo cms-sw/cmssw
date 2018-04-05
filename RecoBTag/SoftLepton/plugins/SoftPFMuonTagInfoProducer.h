@@ -31,17 +31,17 @@ class SoftPFMuonTagInfoProducer : public edm::stream::EDProducer<> {
   public:
 
     SoftPFMuonTagInfoProducer(const edm::ParameterSet& conf);
-    ~SoftPFMuonTagInfoProducer();
+    ~SoftPFMuonTagInfoProducer() override;
     
   private:
 
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    void produce(edm::Event&, const edm::EventSetup&) override;
     virtual float boostedPPar(const math::XYZVector&, const math::XYZVector&);
 
     edm::EDGetTokenT<edm::View<reco::Jet> > jetToken;
     edm::EDGetTokenT<edm::View<reco::Muon> > muonToken;
     edm::EDGetTokenT<reco::VertexCollection> vertexToken;
-    float pTcut, SIPcut, IPcut, ratio1cut, ratio2cut;
+    float pTcut, SIPsigcut, IPsigcut, ratio1cut, ratio2cut;
     bool useFilter;
 };
 

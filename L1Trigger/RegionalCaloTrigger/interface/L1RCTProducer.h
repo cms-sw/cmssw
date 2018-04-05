@@ -48,10 +48,10 @@ class L1RCTProducer : public edm::EDProducer
 {
  public:
   explicit L1RCTProducer(const edm::ParameterSet& ps);
-  virtual ~L1RCTProducer();
-  virtual void beginRun(edm::Run const& r, const edm::EventSetup& c) override final;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& context) override final;
-  virtual void produce(edm::Event& e, const edm::EventSetup& c) override final;
+  ~L1RCTProducer() override;
+  void beginRun(edm::Run const& r, const edm::EventSetup& c) final;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& context) final;
+  void produce(edm::Event& e, const edm::EventSetup& c) final;
 
 
   void updateConfiguration(const edm::EventSetup&);
@@ -88,12 +88,12 @@ class L1RCTProducer : public edm::EDProducer
     eeFed,
     hbheFed,
     hfFed,
-    c_max = hfFed
+    hfFedUp,
+    c_max = hfFedUp
   };
 
+  static const int crateFED[18][6];
 
-
-  static const int crateFED[18][5];
   static const int minBarrel = 1;
   static const int maxBarrel = 17;
   static const int minEndcap = 17;

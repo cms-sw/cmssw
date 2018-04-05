@@ -55,12 +55,12 @@ void PFMCTruthTreeProducer::beginJob()
 //////////////////////////////////////////////////////////////////////////////////////////
 void PFMCTruthTreeProducer::endJob()
 {
-  if (file_ !=0)
+  if (file_ !=nullptr)
     {
       file_->cd();
       mcTruthTree_->Write();
     }
-  file_ = 0;
+  file_ = nullptr;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
 void PFMCTruthTreeProducer::analyze(edm::Event const& event, edm::EventSetup const& iSetup)
@@ -76,7 +76,7 @@ void PFMCTruthTreeProducer::analyze(edm::Event const& event, edm::EventSetup con
   ptHat_ = hEventInfo->binningValues()[0];
   float rr;
   int njet(0);
-  if (jets->size()>0 && genjets->size()>0)
+  if (!jets->empty() && !genjets->empty())
     {
       for (i_genjet = genjets->begin(); i_genjet != genjets->end(); i_genjet++)
        {

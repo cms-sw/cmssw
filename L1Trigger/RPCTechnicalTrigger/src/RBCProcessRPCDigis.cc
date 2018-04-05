@@ -212,7 +212,7 @@ int RBCProcessRPCDigis::next() {
     if ( m_debug ) (*wheelCounter).second->printSummary();
   }
   
-  if ( m_data.size() <= 0 ) return 0;
+  if ( m_data.empty() ) return 0;
   
   return 1;
   
@@ -365,7 +365,7 @@ void RBCProcessRPCDigis::setInputBit( std::bitset<15> & signals , int digipos )
   
   int bitpos = m_layermap[digipos];
   if( m_debug ) std::cout << "Bitpos: " << bitpos << std::endl;
-  signals.set( bitpos , 1 );
+  signals.set( bitpos , true );
   
 }
 

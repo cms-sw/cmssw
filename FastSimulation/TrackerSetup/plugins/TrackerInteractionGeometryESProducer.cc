@@ -17,15 +17,13 @@ TrackerInteractionGeometryESProducer::TrackerInteractionGeometryESProducer(const
 
 TrackerInteractionGeometryESProducer::~TrackerInteractionGeometryESProducer() {}
 
-boost::shared_ptr<TrackerInteractionGeometry> 
+std::unique_ptr<TrackerInteractionGeometry>
 TrackerInteractionGeometryESProducer::produce(const TrackerInteractionGeometryRecord & iRecord){ 
 
   edm::ESHandle<GeometricSearchTracker> theGeomSearchTracker;
   
   iRecord.getRecord<TrackerRecoGeometryRecord>().get(_label, theGeomSearchTracker );
-  _tracker = boost::shared_ptr<TrackerInteractionGeometry>
-    (new TrackerInteractionGeometry(theTrackerMaterial,&(*theGeomSearchTracker)));
-  return _tracker;
+  return std::make_unique<TrackerInteractionGeometry>(theTrackerMaterial,&(*theGeomSearchTracker));
 
 }
 

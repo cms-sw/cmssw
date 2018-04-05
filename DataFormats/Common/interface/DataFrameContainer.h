@@ -8,6 +8,13 @@
 
 #include<vector>
 #include<algorithm>
+#include <cstddef> // for size_t
+#include <utility> // for pair
+
+class TestDataFrame;
+
+template<typename DigiCollection>
+class TestEcalDigi;
 
 namespace edm {
 
@@ -183,6 +190,12 @@ namespace edm {
     // DataContainer const & data() const { return  m_data;}
     
   private:
+    //for testing
+    friend class ::TestDataFrame;
+
+    template<typename DigiCollection>
+    friend class ::TestEcalDigi;
+    
     // subdetector id (as returned by  DetId::subdetId())
     int m_subdetId;
 

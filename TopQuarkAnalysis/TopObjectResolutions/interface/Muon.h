@@ -1,6 +1,8 @@
 #ifndef TopObjetcResolutionsMuon_h
 #define TopObjetcResolutionsMuon_h
 
+#include <cmath>
+
 namespace res{
   class HelperMuon {
 

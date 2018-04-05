@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 
 # A set of quality cuts used for the PFTaus.  Note that the quality cuts are
 # different for the signal and isolation regions.  (Currently, only in Nhits)
@@ -13,7 +14,7 @@ PFTauQualityCuts = cms.PSet(
         minTrackVertexWeight         = cms.double(-1.),    # Tracks weight in vertex
         minTrackPixelHits            = cms.uint32(0),      # pixel-only hits
         minTrackHits                 = cms.uint32(3),      # total track hits
-        minGammaEt                   = cms.double(0.5),    # filter PFgammas below given Pt
+        minGammaEt                   = cms.double(1.0),    # filter PFgammas below given Pt
         #useTracksInsteadOfPFHadrons  = cms.bool(False),   # if true, use generalTracks, instead of PFChargedHadrons
         minNeutralHadronEt           = cms.double(30.)
     ),
@@ -35,7 +36,7 @@ PFTauQualityCuts = cms.PSet(
         minTrackVertexWeight         = cms.double(-1.),    # Tracks weight in vertex
         minTrackPixelHits            = cms.uint32(0),      # pixel-only hits
         minTrackHits                 = cms.uint32(3),      # total track hits
-        minGammaEt                   = cms.double(0.5)     # filter PFgammas below given Pt
+        minGammaEt                   = cms.double(1.0)     # filter PFgammas below given Pt
         #useTracksInsteadOfPFHadrons  = cms.bool(False),   # if true, use generalTracks, instead of PFChargedHadrons
     ),
     # The central definition of primary vertex source.
@@ -51,3 +52,6 @@ PFTauQualityCuts = cms.PSet(
     ##leadingTrkOrPFCandOption = cms.string("minLeadTrackOrPFCand")
     ##leadingTrkOrPFCandOption = cms.string("firstTrack") #default behaviour until 710 (first track in the collection)
 )
+phase2_common.toModify(PFTauQualityCuts,
+                       isolationQualityCuts = dict( maxDeltaZ = cms.double(0.1) ) )
+                       

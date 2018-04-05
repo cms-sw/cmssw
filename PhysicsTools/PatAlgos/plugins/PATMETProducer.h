@@ -16,7 +16,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -30,17 +30,19 @@
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "RecoMET/METAlgorithms/interface/METSignificance.h"
 
 namespace pat {
 
-  class PATMETProducer : public edm::EDProducer {
+  class PATMETProducer : public edm::stream::EDProducer<> {
 
     public:
 
       explicit PATMETProducer(const edm::ParameterSet & iConfig);
-      ~PATMETProducer();
+      ~PATMETProducer() override;
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -64,6 +66,19 @@ namespace pat {
       bool useUserData_;
       pat::PATUserDataHelper<pat::MET>      userDataHelper_;
 
+    //MET Significance
+    bool calculateMETSignificance_;
+    metsig::METSignificance* metSigAlgo_;
+    edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
+    edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandToken_;
+    std::vector< edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
+    edm::EDGetTokenT<double> rhoToken_;
+    std::string jetResPtType_;
+    std::string jetResPhiType_;
+    std::string jetSFType_;
+
+    const reco::METCovMatrix getMETCovMatrix(const edm::Event& event, 
+					     const edm::EventSetup& iSetup) const;
 
   };
 

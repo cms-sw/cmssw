@@ -3,11 +3,6 @@
 
 //--- pow():
 #include <cmath>
-
-//--- &&& I'm not sure why we need this. [Petar]
-#include <utility>
-
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 

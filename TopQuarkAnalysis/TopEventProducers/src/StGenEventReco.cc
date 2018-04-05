@@ -28,6 +28,6 @@ StGenEventReco::produce(edm::Event& evt, const edm::EventSetup& setup)
 
   //add genEvt to the output stream
   StGenEvent* genEvt = new StGenEvent( cands, initParts );
-  std::auto_ptr<StGenEvent> gen( genEvt );
-  evt.put( gen );
+  std::unique_ptr<StGenEvent> gen( genEvt );
+  evt.put(std::move(gen));
 }

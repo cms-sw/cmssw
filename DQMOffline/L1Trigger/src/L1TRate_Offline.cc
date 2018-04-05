@@ -10,15 +10,14 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
 
-#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
-
 #include "TList.h"
 
 using namespace edm;
 using namespace std;
 
 //_____________________________________________________________________
-L1TRate_Offline::L1TRate_Offline(const ParameterSet & ps){
+L1TRate_Offline::L1TRate_Offline(const ParameterSet & ps) :
+  m_l1GtUtils(ps, consumesCollector(), false, *this) {
 
   m_maxNbins   = 2500; // Maximum LS for each run (for binning purposes)
   m_parameters = ps;
@@ -84,7 +83,8 @@ void L1TRate_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&
 
   // Getting Lowest Prescale Single Object Triggers from the menu
   L1TMenuHelper myMenuHelper = L1TMenuHelper(iSetup);
-  m_selectedTriggers = myMenuHelper.getLUSOTrigger(m_inputCategories,m_refPrescaleSet);
+  m_l1GtUtils.retrieveL1EventSetup(iSetup);
+  m_selectedTriggers = myMenuHelper.getLUSOTrigger(m_inputCategories,m_refPrescaleSet, m_l1GtUtils);
 
   //-> Getting template fits for the algLo cross sections
   getXSexFitsPython(m_parameters);
@@ -232,10 +232,10 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
   //map<TString,double>* rates=0;
   double               lumi=0;
   double               deadtime=0;
-  int                  prescalesIndex=0;
+  unsigned int         prescalesIndex=0;
 
   bool isDefCount;
-  map<TString,double>* counts=0;
+  map<TString,double>* counts=nullptr;
 
   // Resetting MonitorElements so we can refill them
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
@@ -277,7 +277,7 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
       prescalesIndex=m_lsPrescaleIndex[lsPreInd];
     }
 
-    if(isDefCount && isDefLumi && isDefPrescaleIndex){
+    if(isDefCount && isDefLumi && isDefPrescaleIndex && (prescalesIndex < m_listsPrescaleFactors->size())){
 
       const vector<int>& currentPrescaleFactors = (*m_listsPrescaleFactors).at(prescalesIndex);
 
@@ -359,7 +359,7 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
   unsigned int eventLS  = iEvent.id().luminosityBlock();
 
   // Getting the trigger trigger rates from GT and buffering it
-  if(triggerScalers.isValid() && triggerScalers->size()){
+  if(triggerScalers.isValid() && !triggerScalers->empty()){
 
     Level1TriggerScalersCollection::const_iterator itL1TScalers = triggerScalers->begin();
     Level1TriggerRates trigRates(*itL1TScalers,EventRun);
@@ -406,7 +406,7 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
 
 
   // Getting from the SCAL the luminosity information and buffering it
-  if(colLScal.isValid() && colLScal->size()){
+  if(colLScal.isValid() && !colLScal->empty()){
 
     LumiScalersCollection::const_iterator itLScal = colLScal->begin();
     unsigned int scalLS  = itLScal->sectionNumber();
@@ -464,7 +464,7 @@ void L1TRate_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
         if(gtFdlVectorData[i].bxInEvent()==0){indexFDL=i; break;}
       }
 
-      if(gtFdlVectorData.size() != 0)
+      if(!gtFdlVectorData.empty())
         {
 	  int CurrentPrescalesIndex  = gtFdlVectorData[indexFDL].gtPrescaleFactorIndexAlgo(); // <###### WE NEED TO STORE THIS
 	  m_lsPrescaleIndex[eventLS] = CurrentPrescalesIndex;

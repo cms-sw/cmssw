@@ -18,7 +18,7 @@ FWMagField::FWMagField() :
    m_reverse(true),
    m_simpleModel(false),
 
-   m_guessValHist(0),
+   m_guessValHist(nullptr),
    m_numberOfFieldIsOnEstimates(0),
    m_numberOfFieldEstimates(0),
    m_updateFieldEstimate(true),
@@ -26,7 +26,7 @@ FWMagField::FWMagField() :
 {
    m_guessValHist = new TH1F("FieldEstimations", "Field estimations from tracks and muons",
                              200, -4.5, 4.5);
-   m_guessValHist->SetDirectory(0);
+   m_guessValHist->SetDirectory(nullptr);
 }
 
 FWMagField::~FWMagField()
@@ -182,12 +182,15 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event)
       const fwlite::Event *fwEvent = dynamic_cast<const fwlite::Event*>(event);
       if (!fwEvent)
          return;
+
+      m_source = kNone;
       fwEvent->getRun().getByLabel(conditionsTag, runCond);
       
       if( runCond.isValid())
       {
          available = true;
          m_eventField = currentToField * runCond->BAvgCurrent;
+         m_source = kEvent;
          fwLog( fwlog::kDebug ) << "Magnetic field info found in ConditionsInEdm branch : "<< m_eventField << std::endl;
       }
       else
@@ -196,7 +199,7 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event)
          edm::Handle< std::vector<DcsStatus> > dcsStatus;
          event->getByLabel(dcsTag, dcsStatus);
          
-         if (dcsStatus.isValid() && dcsStatus->size())
+         if (dcsStatus.isValid() && !dcsStatus->empty())
          {
             float sum = 0;
             for (std::vector<DcsStatus>::const_iterator i = dcsStatus->begin(); i <  dcsStatus->end(); ++i)
@@ -204,6 +207,7 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event)
 
             available = true;
             m_eventField = currentToField * sum/dcsStatus->size();
+            m_source = kEvent;
             fwLog( fwlog::kDebug) << "Magnetic field info found in DcsStatus branch: " << m_eventField << std::endl;
          }
 
@@ -216,8 +220,17 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event)
 
    if (!available)
    {
-      m_source = kNone;
       fwLog( fwlog::kDebug ) << "No magnetic field info available in Event\n";
    }
 }
 
+
+//______________________________________________________________________________
+void FWMagField::setFFFieldMag(float mag)
+{
+   // AMT this is a workaround for seting FF in FFLooper
+   // Correct imeplementation is having a base class of  FWMagField amd do implementation for FF and FWLite version
+
+   m_source = kEvent;
+   m_eventField = mag;
+}

@@ -29,9 +29,14 @@ Muon::Muon() :
     normChi2_(0.0),
     cachedNumberOfValidHits_(false),
     numberOfValidHits_(0),
-    pfEcalEnergy_(0)
+    pfEcalEnergy_(0),
+    jetPtRatio_(0),
+    jetPtRel_(0),
+    mvaValue_(0),
+    softMvaValue_(0)
 {
   initImpactParameters();
+  initSimInfo();
 }
 
 /// constructor from reco::Muon
@@ -53,9 +58,14 @@ Muon::Muon(const reco::Muon & aMuon) :
     normChi2_(0.0),
     cachedNumberOfValidHits_(false),
     numberOfValidHits_(0),
-    pfEcalEnergy_(0)
+    pfEcalEnergy_(0),
+    jetPtRatio_(0),
+    jetPtRel_(0),
+    mvaValue_(0),
+    softMvaValue_(0)
 {
   initImpactParameters();
+  initSimInfo();
 }
 
 /// constructor from ref to reco::Muon
@@ -75,11 +85,16 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     pfCandidateRef_(),
     cachedNormChi2_(false),
     normChi2_(0.0),
-    cachedNumberOfValidHits_(0),
+    cachedNumberOfValidHits_(false),
     numberOfValidHits_(0),
-    pfEcalEnergy_(0)
+    pfEcalEnergy_(0),
+    jetPtRatio_(0),
+    jetPtRel_(0),
+    mvaValue_(0),
+    softMvaValue_(0)
 {
   initImpactParameters();
+  initSimInfo();
 }
 
 /// constructor from ref to reco::Muon
@@ -99,11 +114,16 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     pfCandidateRef_(),
     cachedNormChi2_(false),
     normChi2_(0.0),
-    cachedNumberOfValidHits_(0),
+    cachedNumberOfValidHits_(false),
     numberOfValidHits_(0),
-    pfEcalEnergy_(0)
+    pfEcalEnergy_(0),
+    jetPtRatio_(0),
+    jetPtRel_(0),
+    mvaValue_(0),
+    softMvaValue_(0)
 {
   initImpactParameters();
+  initSimInfo();
 }
 
 /// destructor
@@ -132,6 +152,22 @@ void Muon::initImpactParameters() {
   std::fill(ip_, ip_+IpTypeSize, 0.0f);
   std::fill(eip_, eip_+IpTypeSize, 0.0f);
   cachedIP_ = 0;
+}
+
+// initialize impact parameter container vars
+void Muon::initSimInfo() {
+  simType_ = reco::MuonSimType::Unknown;
+  simExtType_ = reco::ExtendedMuonSimType::ExtUnknown;
+  simFlavour_ = 0;
+  simHeaviestMotherFlavour_ = 0;
+  simPdgId_ = 0;
+  simMotherPdgId_ = 0;
+  simBX_ = 999;
+  simProdRho_ = 0.0;
+  simProdZ_ = 0.0;
+  simPt_ = 0.0;
+  simEta_ = 0.0;
+  simPhi_ = 0.0;
 }
 
 
@@ -235,7 +271,7 @@ reco::CandidatePtr Muon::sourceCandidatePtr( size_type i ) const {
 void Muon::embedMuonBestTrack(bool force) {
   muonBestTrack_.clear();
   embeddedMuonBestTrack_ = false;
-  bool alreadyEmbedded = force;
+  bool alreadyEmbedded = false;
   if (!force) {
       switch (muonBestTrackType()) {
         case None: alreadyEmbedded = true; break;
@@ -247,7 +283,7 @@ void Muon::embedMuonBestTrack(bool force) {
         case DYT: if (embeddedDytMuon_) alreadyEmbedded = true; break;
       }
   }
-  if (!alreadyEmbedded) {
+  if (force || !alreadyEmbedded) {
       muonBestTrack_.push_back(*reco::Muon::muonBestTrack());
       embeddedMuonBestTrack_ = true;
   }
@@ -256,10 +292,10 @@ void Muon::embedMuonBestTrack(bool force) {
 /// embed the Track selected to be the best measurement of the muon parameters
 void Muon::embedTunePMuonBestTrack(bool force) {
   tunePMuonBestTrack_.clear();
-  bool alreadyEmbedded = force;
+  bool alreadyEmbedded = false;
   embeddedTunePMuonBestTrack_ = false;
   if (!force) {
-      switch (muonBestTrackType()) {
+      switch (tunePMuonBestTrackType()) {
           case None: alreadyEmbedded = true; break;
           case InnerTrack: if (embeddedTrack_) alreadyEmbedded = true; break;
           case OuterTrack: if (embeddedStandAloneMuon_) alreadyEmbedded = true; break;
@@ -272,7 +308,7 @@ void Muon::embedTunePMuonBestTrack(bool force) {
           if (embeddedMuonBestTrack_) alreadyEmbedded = true;
       }
   }
-  if (!alreadyEmbedded) {
+  if (force || !alreadyEmbedded) {
       tunePMuonBestTrack_.push_back(*reco::Muon::tunePMuonBestTrack());
       embeddedTunePMuonBestTrack_ = true;
   }
@@ -428,6 +464,11 @@ bool Muon::isTightMuon(const reco::Vertex&vtx) const {
 
 bool Muon::isLooseMuon() const {
   return muon::isLooseMuon(*this);
+
+}
+
+bool Muon::isMediumMuon() const {
+  return muon::isMediumMuon(*this);
 
 }
 

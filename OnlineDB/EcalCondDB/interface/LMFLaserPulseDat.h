@@ -7,7 +7,7 @@
 
 #include "OnlineDB/EcalCondDB/interface/LMFColoredTable.h"
 
-#include <math.h>
+#include <cmath>
 
 /**
  *   LMF_LASER_XXX_PULSE_DAT interface
@@ -30,9 +30,9 @@ class LMFLaserPulseDat : public LMFColoredTable {
 		   oracle::occi::Connection* conn, int color);
   LMFLaserPulseDat(EcalDBConnection *c, std::string color);
   LMFLaserPulseDat(EcalDBConnection *c, int color);
-  ~LMFLaserPulseDat() {}
+  ~LMFLaserPulseDat() override {}
   
-  std::string getTableName() const {
+  std::string getTableName() const override {
     return "LMF_LASER_" + getColor() + "_PULSE_DAT";
   }
   
@@ -66,7 +66,7 @@ class LMFLaserPulseDat : public LMFColoredTable {
   float getMTQFW80(int id);
   float getMTQSliding(int id);
 
-  bool isValid();
+  bool isValid() override;
   // to do: complete list of set/get methods
 
  private:

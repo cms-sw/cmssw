@@ -20,7 +20,7 @@ namespace PhysicsTools {
 TrainProcessor::TrainProcessor(const char *name,
                                const AtomicId *id,
                                MVATrainer *trainer) :
-	Source(*id), name(name), trainer(trainer), monitoring(0), monModule(0)
+	Source(*id), name(name), trainer(trainer), monitoring(nullptr), monModule(nullptr)
 {
 }
 
@@ -44,7 +44,7 @@ void TrainProcessor::doTrainBegin()
 			nBins = 400;
 		}
 
-		booked = monModule != 0;
+		booked = monModule != nullptr;
 	}
 
 	if (booked) {
@@ -141,7 +141,7 @@ void TrainProcessor::doTrainEnd()
 			}
 		}
 
-		monModule = 0;
+		monModule = nullptr;
 	}
 }
 

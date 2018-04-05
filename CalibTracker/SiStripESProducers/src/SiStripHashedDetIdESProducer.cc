@@ -19,7 +19,7 @@ SiStripHashedDetIdESProducer::~SiStripHashedDetIdESProducer() {}
 
 // -----------------------------------------------------------------------------
 //
-std::auto_ptr<SiStripHashedDetId> SiStripHashedDetIdESProducer::produce( const SiStripHashedDetIdRcd& rcd ) { 
+std::unique_ptr<SiStripHashedDetId> SiStripHashedDetIdESProducer::produce( const SiStripHashedDetIdRcd& rcd ) { 
   
   SiStripHashedDetId* temp = make( rcd );
   
@@ -29,7 +29,7 @@ std::auto_ptr<SiStripHashedDetId> SiStripHashedDetIdESProducer::produce( const S
       << " Null pointer to SiStripHashedDetId object!";
   }
   
-  std::auto_ptr<SiStripHashedDetId> ptr( temp );
+  std::unique_ptr<SiStripHashedDetId> ptr( temp );
   return ptr;
   
 }

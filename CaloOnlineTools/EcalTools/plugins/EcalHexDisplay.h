@@ -18,7 +18,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 #include <fstream>
 
 #include <iomanip> 
@@ -39,7 +39,7 @@ class EcalHexDisplay: public edm::EDAnalyzer {
     bool     writeDcc_;
     std::string   filename_;
 
-    void analyze(const edm::Event & e, const  edm::EventSetup& c);
+    void analyze(const edm::Event & e, const  edm::EventSetup& c) override;
 
   private:
     edm::InputTag fedRawDataCollectionTag_;

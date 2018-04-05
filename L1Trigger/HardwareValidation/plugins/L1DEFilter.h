@@ -25,13 +25,13 @@ class L1DEFilter : public edm::EDFilter {
   
  public:
   explicit L1DEFilter(const edm::ParameterSet&);
-  ~L1DEFilter();
+  ~L1DEFilter() override;
   
  private:
-  virtual void beginJob(void) {};
+  void beginJob(void) override {};
   //virtual void beginRun(edm::Run&, const edm::EventSetup&);
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   edm::InputTag DEsource_;
   std::vector<unsigned int> flagSys_;

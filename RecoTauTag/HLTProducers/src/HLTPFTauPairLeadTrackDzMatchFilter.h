@@ -21,9 +21,9 @@ class HLTPFTauPairLeadTrackDzMatchFilter : public HLTFilter {
   public:
 
     explicit HLTPFTauPairLeadTrackDzMatchFilter(const edm::ParameterSet& conf);
-    ~HLTPFTauPairLeadTrackDzMatchFilter();
+    ~HLTPFTauPairLeadTrackDzMatchFilter() override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    virtual bool hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
+    bool hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
   private:
 

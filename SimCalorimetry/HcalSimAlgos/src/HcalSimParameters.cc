@@ -5,43 +5,52 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/HcalObjects/interface/HcalGain.h"
 #include "CondFormats/HcalObjects/interface/HcalGainWidth.h"
+#include "CalibFormats/HcalObjects/interface/HcalSiPMType.h"
 #include "CLHEP/Random/RandGaussQ.h"
 using namespace std;
 
-HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons, const std::vector<double> & photoelectronsToAnalog,
-                 double samplingFactor, double timePhase,
-                 int readoutFrameSize, int binOfMaximum,
-                 bool doPhotostatistics, bool syncPhase,
-                 int firstRing, const std::vector<double> & samplingFactors)
-: CaloSimParameters(simHitToPhotoelectrons,  photoelectronsToAnalog[0], samplingFactor, timePhase,
+HcalSimParameters::HcalSimParameters(double simHitToPhotoelectrons,
+				     double samplingFactor, double timePhase,
+				     int readoutFrameSize, int binOfMaximum,
+				     bool doPhotostatistics, bool syncPhase,
+				     int firstRing, const std::vector<double> & samplingFactors,
+                     double sipmTau
+				     )
+: CaloSimParameters(simHitToPhotoelectrons,  0.0, samplingFactor, timePhase,
                     readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
-  theDbService(0),
+  theDbService(nullptr),
+  theSiPMcharacteristics(nullptr),
   theFirstRing(firstRing),
   theSamplingFactors(samplingFactors),
-  thePE2fCByRing(photoelectronsToAnalog),
-  thePixels(0),
   theSiPMSmearing(false),
-  doTimeSmear_(true)
+  doTimeSmear_(true),
+  theSiPMTau(sipmTau)
 {
   defaultTimeSmearing();
+
+  edm::LogInfo("HcalSimParameters:") << " doSiPMsmearing    = " << theSiPMSmearing;
 }
 
 HcalSimParameters::HcalSimParameters(const edm::ParameterSet & p)
-:  CaloSimParameters(p),
-   theDbService(0),
+:  CaloSimParameters(p,true),
+   theDbService(nullptr),
    theFirstRing( p.getParameter<int>("firstRing") ),
    theSamplingFactors( p.getParameter<std::vector<double> >("samplingFactors") ),
-   thePE2fCByRing( p.getParameter<std::vector<double> >("photoelectronsToAnalog") ),
-   thePixels(0), theSiPMSmearing(false),
-   doTimeSmear_( p.getParameter<bool>("timeSmearing"))
+   theSiPMSmearing( p.getParameter<bool>("doSiPMSmearing") ),
+   doTimeSmear_( p.getParameter<bool>("timeSmearing") ),
+   theSiPMTau( p.getParameter<double>("sipmTau") )
 {
-  if(p.exists("pixels"))
-  {
-    thePixels = p.getParameter<int>("pixels");
-  }
-  if (p.exists("doSiPMSmearing"))
-    theSiPMSmearing = p.getParameter<bool>("doSiPMSmearing");
   defaultTimeSmearing();
+
+  edm::LogInfo("HcalSimParameters:") << " doSiPMsmearing    = " << theSiPMSmearing;
+}
+
+void  HcalSimParameters::setDbService(const HcalDbService * service)
+{
+  assert(service);
+  theDbService = service;
+  theSiPMcharacteristics = service->getHcalSiPMCharacteristics();
+  assert(theSiPMcharacteristics);
 }
 
 double HcalSimParameters::simHitToPhotoelectrons(const DetId & detId) const 
@@ -60,20 +69,24 @@ double HcalSimParameters::simHitToPhotoelectrons(const DetId & detId) const
 
 double HcalSimParameters::fCtoGeV(const DetId & detId) const
 {
-  assert(theDbService != 0);
+  assert(theDbService != nullptr);
   HcalGenericDetId hcalGenDetId(detId);
   const HcalGain* gains = theDbService->getGain(hcalGenDetId);
   const HcalGainWidth* gwidths = theDbService->getGainWidth(hcalGenDetId);
+  double result = 0.0;
   if (!gains || !gwidths )
   {
     edm::LogError("HcalAmplifier") << "Could not fetch HCAL conditions for channel " << hcalGenDetId;
-  }
-  // only one gain will be recorded per channel, so just use capID 0 for now
-  double result = gains->getValue(0);
+  } 
+  else 
+  {
+    // only one gain will be recorded per channel, so just use capID 0 for now
+    result = gains->getValue(0);
 //  if(doNoise_)
 ///  {
 //    result += CLHEP::RandGaussQ::shoot(0.,  gwidths->getValue(0));
 //  }
+  }
   return result;
 }
 
@@ -86,8 +99,9 @@ double HcalSimParameters::samplingFactor(const DetId & detId) const
 
 double HcalSimParameters::photoelectronsToAnalog(const DetId & detId) const
 {
-  HcalDetId hcalDetId(detId);
-  return thePE2fCByRing.at(hcalDetId.ietaAbs()-theFirstRing);
+  //now always taken from database for HPDs or SiPMs (HB, HE, HO)
+  assert(theDbService);
+  return theDbService->getHcalSiPMParameter(detId)->getFCByPE();
 }
 
 
@@ -135,4 +149,34 @@ double HcalSimParameters::timeSmearRMS(double ampl) const {
 
   return smearsigma;
 
+}
+
+int HcalSimParameters::pixels(const DetId & detId) const {
+  assert(theDbService);
+  int type = theDbService->getHcalSiPMParameter(detId)->getType();
+  return theSiPMcharacteristics->getPixels(type);
+}
+
+double HcalSimParameters::sipmDarkCurrentuA(const DetId & detId) const
+{ 
+  assert(theDbService);
+  return theDbService->getHcalSiPMParameter(detId)->getDarkCurrent();
+}
+
+double HcalSimParameters::sipmCrossTalk(const DetId & detId) const
+{ 
+  assert(theDbService);
+  int type = theDbService->getHcalSiPMParameter(detId)->getType();
+  return theSiPMcharacteristics->getCrossTalk(type); 
+}
+std::vector<float> HcalSimParameters::sipmNonlinearity(const DetId & detId) const
+{
+  assert(theDbService);
+  int type = theDbService->getHcalSiPMParameter(detId)->getType();
+  return theSiPMcharacteristics->getNonLinearities(type); 
+}
+
+unsigned int HcalSimParameters::signalShape(const DetId & detId) const {
+  assert(theDbService);
+  return theDbService->getHcalMCParam(detId)->signalShape();
 }

@@ -18,10 +18,10 @@ class MVATrainerContainerSave : public edm::EDAnalyzer {
     public:
 	explicit MVATrainerContainerSave(const edm::ParameterSet &params);
 
-	virtual void analyze(const edm::Event& iEvent,
-	                     const edm::EventSetup& iSetup);
+	void analyze(const edm::Event& iEvent,
+	                     const edm::EventSetup& iSetup) override;
 
-	virtual void endJob();
+	void endJob() override;
 
     protected:
 	virtual const Calibration::MVAComputerContainer *
@@ -35,7 +35,7 @@ class MVATrainerContainerSave : public edm::EDAnalyzer {
     private:
 	std::vector<std::string>				toPut;
 	std::vector<std::string>				toCopy;
-	std::auto_ptr<Calibration::MVAComputerContainer>	calib;
+	std::unique_ptr<Calibration::MVAComputerContainer>	calib;
 	bool							saved;
 };
 

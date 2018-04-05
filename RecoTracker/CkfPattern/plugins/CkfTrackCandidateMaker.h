@@ -17,6 +17,7 @@
 #include "RecoTracker/CkfPattern/interface/RedundantSeedCleaner.h"
 #include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMakerBase.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 
 class TransientInitialStateEstimator;
 
@@ -29,13 +30,14 @@ namespace cms
     explicit CkfTrackCandidateMaker(const edm::ParameterSet& conf):
       CkfTrackCandidateMakerBase(conf, consumesCollector()){
       produces<TrackCandidateCollection>();
+      produces<std::vector<SeedStopInfo> >();
     }
 
-    virtual ~CkfTrackCandidateMaker(){;}
+    ~CkfTrackCandidateMaker() override{;}
 
-    virtual void beginRun (edm::Run const& r, edm::EventSetup const & es) override {beginRunBase(r,es);}
+    void beginRun (edm::Run const& r, edm::EventSetup const & es) override {beginRunBase(r,es);}
 
-    virtual void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
+    void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
     
   };
 }

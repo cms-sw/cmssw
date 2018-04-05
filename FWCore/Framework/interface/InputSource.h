@@ -46,15 +46,17 @@ Some examples of InputSource subclasses may be:
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
-#include "FWCore/Framework/interface/ProductRegistryHelper.h"
-
+#include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
+#include "FWCore/Utilities/interface/RunIndex.h"
 #include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 #include <memory>
 #include <string>
 #include <chrono>
+#include <mutex>
 
 namespace edm {
   class ActivityRegistry;
@@ -67,13 +69,11 @@ namespace edm {
   class ProcessHistoryRegistry;
   class ProductRegistry;
   class StreamContext;
+  class ModuleCallingContext;
   class SharedResourcesAcquirer;
   class ThinnedAssociationsHelper;
-  namespace multicore {
-    class MessageReceiverForSource;
-  }
 
-  class InputSource : private ProductRegistryHelper {
+  class InputSource {
   public:
     enum ItemType {
       IsInvalid,
@@ -92,12 +92,11 @@ namespace edm {
       RunsLumisAndEvents
     };
 
-    typedef ProductRegistryHelper::TypeLabelList TypeLabelList;
     /// Constructor
     explicit InputSource(ParameterSet const&, InputSourceDescription const&);
 
     /// Destructor
-    virtual ~InputSource();
+    virtual ~InputSource() noexcept(false);
 
     InputSource(InputSource const&) = delete; // Disallow copying and moving
     InputSource& operator=(InputSource const&) = delete; // Disallow copying and moving
@@ -144,10 +143,6 @@ namespace edm {
     /// Offset may be negative.
     void skipEvents(int offset);
 
-    /// Skips the correct number of events if this is a forked process
-    /// returns false if we are out of events
-    bool skipForForking();
-
     bool goToEvent(EventID const& eventID);
 
     /// Begin again at the first event
@@ -160,25 +155,26 @@ namespace edm {
     void setLuminosityBlockNumber_t(LuminosityBlockNumber_t lb) {setLumi(lb);}
 
     /// issue an event report
-    void issueReports(EventID const& eventID);
+    void issueReports(EventID const& eventID, StreamID streamID);
 
     /// Register any produced products
-    void registerProducts();
+    virtual void registerProducts();
 
-    /// Accessor for product registry.
-    std::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
+    /// Accessors for product registry
+    std::shared_ptr<ProductRegistry const> productRegistry() const {return get_underlying_safe(productRegistry_);}
+    std::shared_ptr<ProductRegistry>& productRegistry() {return get_underlying_safe(productRegistry_);}
 
-    /// Const accessor for process history registry.
+    /// Accessors for process history registry.
     ProcessHistoryRegistry const& processHistoryRegistry() const {return *processHistoryRegistry_;}
+    ProcessHistoryRegistry& processHistoryRegistry() {return *processHistoryRegistry_;}
 
-    /// Non-const accessor for process history registry.
-    ProcessHistoryRegistry& processHistoryRegistryForUpdate() {return *processHistoryRegistry_;}
+    /// Accessors for branchIDListHelper
+    std::shared_ptr<BranchIDListHelper const> branchIDListHelper() const {return get_underlying_safe(branchIDListHelper_);}
+    std::shared_ptr<BranchIDListHelper>& branchIDListHelper() {return get_underlying_safe(branchIDListHelper_);}
 
-    /// Accessor for branchIDListHelper
-    std::shared_ptr<BranchIDListHelper> branchIDListHelper() const {return branchIDListHelper_;}
-
-    /// Accessor for thinnedAssociationsHelper
-    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper() const {return thinnedAssociationsHelper_;}
+    /// Accessors for thinnedAssociationsHelper
+    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper() const {return get_underlying_safe(thinnedAssociationsHelper_);}
+    std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper() {return get_underlying_safe(thinnedAssociationsHelper_);}
 
     /// Reset the remaining number of events/lumis to the maximum number.
     void repeat() {
@@ -187,7 +183,7 @@ namespace edm {
     }
     
     /// Returns nullptr if no resource shared between the Source and a DelayedReader
-    SharedResourcesAcquirer* resourceSharedWithDelayedReader() const;
+    std::pair<SharedResourcesAcquirer*,std::recursive_mutex*> resourceSharedWithDelayedReader();
 
     /// Accessor for maximum number of events to be read.
     /// -1 is used for unlimited.
@@ -211,9 +207,6 @@ namespace edm {
     /// Accessor for Process Configuration
     ProcessConfiguration const& processConfiguration() const {return moduleDescription().processConfiguration();}
 
-    /// Accessor for primary input source flag
-    bool primary() const {return primary_;}
-
     /// Accessor for global process identifier
     std::string const& processGUID() const {return processGUID_;}
 
@@ -224,20 +217,10 @@ namespace edm {
     void doEndJob();
 
     /// Called by framework at beginning of lumi block
-    void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*);
-
-    /// Called by framework at end of lumi block
-    void doEndLumi(LuminosityBlockPrincipal& lbp, bool cleaningUpAfterException, ProcessContext const*);
+    virtual void doBeginLumi(LuminosityBlockPrincipal& lbp, ProcessContext const*);
 
     /// Called by framework at beginning of run
-    void doBeginRun(RunPrincipal& rp, ProcessContext const*);
-
-    /// Called by framework at end of run
-    void doEndRun(RunPrincipal& rp, bool cleaningUpAfterException, ProcessContext const*);
-
-    /// Called by the framework before forking the process
-    void doPreForkReleaseResources();
-    void doPostForkReacquireResources(std::shared_ptr<multicore::MessageReceiverForSource>);
+    virtual void doBeginRun(RunPrincipal& rp, ProcessContext const*);
 
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
@@ -269,22 +252,6 @@ namespace edm {
     ProcessingController::ForwardState forwardState() const;
     ProcessingController::ReverseState reverseState() const;
 
-    using ProductRegistryHelper::produces;
-    using ProductRegistryHelper::typeLabelList;
-
-    class SourceSentry {
-    public:
-      typedef signalslot::Signal<void()> Sig;
-      SourceSentry(Sig& pre, Sig& post);
-      ~SourceSentry();
-
-      SourceSentry(SourceSentry const&) = delete; // Disallow copying and moving
-      SourceSentry& operator=(SourceSentry const&) = delete; // Disallow copying and moving
-
-    private:
-      Sig& post_;
-    };
-
     class EventSourceSentry {
     public:
       EventSourceSentry(InputSource const& source, StreamContext & sc);
@@ -300,16 +267,28 @@ namespace edm {
 
     class LumiSourceSentry {
     public:
-      explicit LumiSourceSentry(InputSource const& source);
+      LumiSourceSentry(InputSource const& source, LuminosityBlockIndex id);
+      ~LumiSourceSentry();
+
+      LumiSourceSentry(LumiSourceSentry const&) = delete; // Disallow copying and moving
+      LumiSourceSentry& operator=(LumiSourceSentry const&) = delete; // Disallow copying and moving
+
     private:
-      SourceSentry sentry_;
+      InputSource const& source_;
+      LuminosityBlockIndex index_;
     };
 
     class RunSourceSentry {
     public:
-      explicit RunSourceSentry(InputSource const& source);
+      RunSourceSentry(InputSource const& source, RunIndex id);
+      ~RunSourceSentry();
+
+      RunSourceSentry(RunSourceSentry const&) = delete; // Disallow copying and moving
+      RunSourceSentry& operator=(RunSourceSentry const&) = delete; // Disallow copying and moving
+
     private:
-      SourceSentry sentry_;
+      InputSource const& source_;
+      RunIndex index_;
     };
 
     class FileOpenSentry {
@@ -342,14 +321,18 @@ namespace edm {
       bool usedFallback_;
     };
 
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> preEventReadFromSourceSignal_;
+    signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> postEventReadFromSourceSignal_;
+    
+
   protected:
     virtual void skip(int offset);
 
     /// To set the current time, as seen by the input source
     void setTimestamp(Timestamp const& theTime) {time_ = theTime;}
 
-    ProductRegistry& productRegistryUpdate() const {return *productRegistry_;}
-    ProcessHistoryRegistry& processHistoryRegistryUpdate() const {return *processHistoryRegistry_;}
+    ProductRegistry& productRegistryUpdate() {return *productRegistry_;}
+    ProcessHistoryRegistry& processHistoryRegistryForUpdate() {return *processHistoryRegistry_;}
     ItemType state() const{return state_;}
     void setRunAuxiliary(RunAuxiliary* rp) {
       runAuxiliary_.reset(rp);
@@ -372,8 +355,6 @@ namespace edm {
       resetRunAuxiliary();
       state_ = IsInvalid;
     }
-    std::shared_ptr<LuminosityBlockPrincipal> const luminosityBlockPrincipal() const;
-    std::shared_ptr<RunPrincipal> const runPrincipal() const;
     bool newRun() const {return newRun_;}
     void setNewRun() {newRun_ = true;}
     void resetNewRun() {newRun_ = false;}
@@ -414,23 +395,17 @@ namespace edm {
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
     virtual void rewind_();
-    virtual void beginLuminosityBlock(LuminosityBlock&);
-    virtual void endLuminosityBlock(LuminosityBlock&);
-    virtual void beginRun(Run&);
-    virtual void endRun(Run&);
     virtual void beginJob();
     virtual void endJob();
-    virtual SharedResourcesAcquirer* resourceSharedWithDelayedReader_() const;
+    virtual std::pair<SharedResourcesAcquirer*,std::recursive_mutex*> resourceSharedWithDelayedReader_();
 
-    virtual void preForkReleaseResources();
-    virtual void postForkReacquireResources(std::shared_ptr<multicore::MessageReceiverForSource>);
     virtual bool randomAccess_() const;
     virtual ProcessingController::ForwardState forwardState_() const;
     virtual ProcessingController::ReverseState reverseState_() const;
 
   private:
 
-    std::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
     int maxEvents_;
     int remainingEvents_;
     int maxLumis_;
@@ -440,11 +415,10 @@ namespace edm {
     std::chrono::time_point<std::chrono::steady_clock> processingStart_;
     ProcessingMode processingMode_;
     ModuleDescription const moduleDescription_;
-    std::shared_ptr<ProductRegistry> productRegistry_;
-    std::unique_ptr<ProcessHistoryRegistry> processHistoryRegistry_;
-    std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
-    std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
-    bool const primary_;
+    edm::propagate_const<std::shared_ptr<ProductRegistry>> productRegistry_;
+    edm::propagate_const<std::unique_ptr<ProcessHistoryRegistry>> processHistoryRegistry_;
+    edm::propagate_const<std::shared_ptr<BranchIDListHelper>> branchIDListHelper_;
+    edm::propagate_const<std::shared_ptr<ThinnedAssociationsHelper>> thinnedAssociationsHelper_;
     std::string processGUID_;
     Timestamp time_;
     mutable bool newRun_;
@@ -455,8 +429,6 @@ namespace edm {
     mutable std::shared_ptr<LuminosityBlockAuxiliary>  lumiAuxiliary_;
     std::string statusFileName_;
 
-    //used when process has been forked
-    std::shared_ptr<edm::multicore::MessageReceiverForSource> receiver_;
     unsigned int numberOfEventsBeforeBigSkip_;
   };
 }

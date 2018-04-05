@@ -18,15 +18,12 @@ class PartonShowerBsHepMCFilter : public BaseHepMCFilter{
 public:
 
   PartonShowerBsHepMCFilter( const edm::ParameterSet & );
-  ~PartonShowerBsHepMCFilter();
+  ~PartonShowerBsHepMCFilter() override;
 
-  virtual bool filter(const HepMC::GenEvent* evt);
+  bool filter(const HepMC::GenEvent* evt) override;
 
 private:
 
-  int particle_id;
-  int exclude_status_id;
-  int status_id;
 };
 
 

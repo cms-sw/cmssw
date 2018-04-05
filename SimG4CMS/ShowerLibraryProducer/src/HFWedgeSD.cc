@@ -16,36 +16,16 @@
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 
-HFWedgeSD::HFWedgeSD(std::string name, const DDCompactView & cpv, 
-		 const SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
-		 const SimTrackManager* manager) :
-  SensitiveCaloDetector(name, cpv, clg, p), theName(name),
-  m_trackManager(manager), hcID(-1), theHC(0), currentHit(0) {
+HFWedgeSD::HFWedgeSD(const std::string& iname, const DDCompactView & cpv, 
+		     const SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
+		     const SimTrackManager* manager) :
+  SensitiveCaloDetector(iname, cpv, clg, p),
+  m_trackManager(manager), hcID(-1), theHC(nullptr), currentHit(nullptr) {
 
-  collectionName.insert(name);
-  LogDebug("FiberSim") << "***************************************************"
-		       << "\n"
-		       << "*                                                 *"
-		       << "\n"
-		       << "* Constructing a HFWedgeSD  with name " << GetName()
-		       << "\n"
-		       << "*                                                 *"
-		       << "\n"
-		       << "***************************************************";
-  //
-  // Now attach the right detectors (LogicalVolumes) to me
-  //
-  const std::vector<std::string>& lvNames = clg.logicalNames(name);
-  this->Register();
-  for (std::vector<std::string>::const_iterator it=lvNames.begin();
-       it !=lvNames.end(); it++){
-    this->AssignSD(*it);
-    LogDebug("FiberSim") << "HFWedgeSD : Assigns SD to LV " << (*it);
-  }
 }
 
 HFWedgeSD::~HFWedgeSD() {
-  if (theHC)    delete theHC;
+  delete theHC;
 }
 
 void HFWedgeSD::Initialize(G4HCofThisEvent * HCE) {
@@ -145,9 +125,9 @@ void HFWedgeSD::clearHits() {
   previousID = -1;
 }
 
-uint32_t HFWedgeSD::setDetUnitId(G4Step* aStep) {
+uint32_t HFWedgeSD::setDetUnitId(const G4Step* aStep) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   return (touch->GetReplicaNumber(0));
 }
 
-void HFWedgeSD::fillHits(edm::PCaloHitContainer&, std::string) {}
+void HFWedgeSD::fillHits(edm::PCaloHitContainer&, const std::string&) {}

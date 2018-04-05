@@ -8,6 +8,9 @@
  *\date 07.04
  */
 
+#include <iomanip>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/HardwareValidation/interface/DEtrait.h"
 
 template <typename T> 
@@ -23,7 +26,7 @@ struct DEutils {
   public:
   
   DEutils() {
-    if(de_type()>38)
+    if(de_type()>51)
       edm::LogError("L1ComparatorDeutilsCollType") //throw cms::Exception("ERROR") 
 	<< "DEutils::DEutils() :: "
 	<< "specialization is still missing for collection of type:" 
@@ -348,7 +351,7 @@ DEutils<L1MuRegionalCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag
   digi.setRank((float)de,(float)ee);
   //note: phi,eta,pt 'values' not always set for all muon tf systems
   //(under discussion) need universal mechanism for setting up physical units
-  if(0) //check print
+  if(false) //check print
     std::cout << "L1DataEmulDigi DEutils<L1MuRegionalCandCollection>] dedigi info"
       //<< " phivalue:" << itd->phiValue()   << "," << itm->phiValue()
       //<< " etavalue:" << itd->etaValue()   << "," << itm->etaValue()
@@ -377,7 +380,7 @@ DEutils<L1MuGMTCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   int de = (aflag==4)?0:itd->ptIndex();//ptValue();
   int ee = (aflag==3)?0:itm->ptIndex();//ptValue();
   digi.setRank((float)de,(float)ee);
-  if(0) //check print
+  if(false) //check print
   std::cout << "l1dataemuldigi l1mugmtcandcoll type:" << cid 
     //<< " eta:" << itd->etaValue() << ", " << itm->etaValue()
     //<< " phi:" << itd->phiValue() << ", " << itm->phiValue()
@@ -1367,7 +1370,7 @@ inline std::string DEutils<L1CSCSPStatusDigiCollection_>::print(col_cit it) cons
 template <typename T> 
 std::string DEutils<T>::GetName(int i) const {
 
-  const int nlabel = 16;
+  const int nlabel = 17;
   if(!(i<nlabel)) 
     return                  "un-defined" ;
   std::string str[nlabel]= {"un-registered"};
@@ -1415,6 +1418,11 @@ std::string DEutils<T>::GetName(int i) const {
    break;
   case dedefs::GCTtaujets:
     str[0] = "GCT tau jet";
+    str[1] = "L1GctJetCandCollection";
+    str[2] = "L1GctJetCand";
+   break;
+  case dedefs::GCTisotaujets:
+    str[0] = "Stage1Layer2 iso-tau jet";
     str[1] = "L1GctJetCandCollection";
     str[2] = "L1GctJetCand";
    break;
@@ -1529,7 +1537,7 @@ inline bool de_rank<L1CaloEmCollection>::operator()
   if       (x.rank()      != y.rank())     {
     return (x.rank()      <  y.rank())     ;
   } else if(x.isolated()  != y.isolated()) {
-    return (x.isolated())?1:0;
+    return (x.isolated())?true:false;
   } else if(x.rctRegion() != y.rctRegion()){
     return (x.rctRegion() <  y.rctRegion());
   } else if(x.rctCrate()  != y.rctCrate()) {

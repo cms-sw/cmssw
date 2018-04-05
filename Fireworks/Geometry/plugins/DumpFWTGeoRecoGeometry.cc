@@ -16,12 +16,12 @@ class DumpFWTGeoRecoGeometry : public edm::EDAnalyzer
 {
 public:
   explicit DumpFWTGeoRecoGeometry( const edm::ParameterSet& config );
-  virtual ~DumpFWTGeoRecoGeometry( void ) {}
+  ~DumpFWTGeoRecoGeometry( void ) override {}
 
 private:
-  virtual void analyze( const edm::Event& event, const edm::EventSetup& eventSetup ) override;
-  virtual void beginJob( void ) override;
-  virtual void endJob( void ) override;
+  void analyze( const edm::Event& event, const edm::EventSetup& eventSetup ) override;
+  void beginJob( void ) override;
+  void endJob( void ) override;
 
    std::string m_tag;
    std::string m_outputFileName;

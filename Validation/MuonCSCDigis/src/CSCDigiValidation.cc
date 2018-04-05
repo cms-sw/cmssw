@@ -14,12 +14,12 @@
 CSCDigiValidation::CSCDigiValidation(const edm::ParameterSet & ps)
   : doSim_(ps.getParameter<bool>("doSim")),
     theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag"), consumesCollector()),
-    theCSCGeometry(0),
-    theStripDigiValidation(0),
-    theWireDigiValidation(0),
-    theComparatorDigiValidation(0),
-    theALCTDigiValidation(0),
-    theCLCTDigiValidation(0)
+    theCSCGeometry(nullptr),
+    theStripDigiValidation(nullptr),
+    theWireDigiValidation(nullptr),
+    theComparatorDigiValidation(nullptr),
+    theALCTDigiValidation(nullptr),
+    theCLCTDigiValidation(nullptr)
 {
   theStripDigiValidation = new CSCStripDigiValidation(ps.getParameter<edm::InputTag>("stripDigiTag"),
                                                       consumesCollector());

@@ -20,7 +20,7 @@ TH1D* AverageRunBadChannels(TFile& ff, const char* module, const char* histo, co
   CommonAnalyzer camult(&ff,"",module);
 
   TH1D* badchannels = new TH1D("badchannels","Average Number of Bad Channels vs run",10,0.,10.);
-  badchannels->SetBit(TH1::kCanRebin);
+  badchannels->SetCanExtend(TH1::kXaxis);
 
   std::vector<unsigned int> runs = camult.getRunList();
   std::sort(runs.begin(),runs.end());
@@ -35,8 +35,8 @@ TH1D* AverageRunBadChannels(TFile& ff, const char* module, const char* histo, co
       camult.setPath(runpath);
       
       
-      TProfile* multvstime=0;
-      if(multvstime==0) multvstime = (TProfile*)camult.getObject(histo);
+      TProfile* multvstime=nullptr;
+      if(multvstime==nullptr) multvstime = (TProfile*)camult.getObject(histo);
       if(multvstime) {
 	// compute mean exlucing the last filled bins
 

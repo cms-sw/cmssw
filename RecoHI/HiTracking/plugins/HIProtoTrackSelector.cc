@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
 #include "RecoHI/HiTracking/plugins/HIProtoTrackSelector.h"
 
 namespace reco
@@ -9,7 +9,7 @@ namespace reco
 	{
 		
 		// define your producer name
-		typedef ObjectSelector<HIProtoTrackSelector> HIProtoTrackSelection;
+		typedef ObjectSelectorStream<HIProtoTrackSelector> HIProtoTrackSelection;
 		
 		// declare the module as plugin
 		DEFINE_FWK_MODULE( HIProtoTrackSelection );

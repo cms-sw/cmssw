@@ -1,3 +1,6 @@
+#ifndef CondFormats_RunInfo_FillInfo_H
+#define CondFormats_RunInfo_FillInfo_H
+
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include "CondFormats/Common/interface/Time.h"
@@ -62,7 +65,11 @@ class FillInfo {
   cond::Time_t const endTime() const;
   
   std::string const & injectionScheme() const;
-    
+
+  //returns a boolean, true if the injection scheme has a leading 25ns
+  //TODO: parse the circulating bunch configuration, instead of the string.
+  bool is25nsBunchSpacing() const;
+
   //returns a boolean, true if the bunch slot number is in the circulating bunch configuration
   bool isBunchInBeam1( size_t const & bunch ) const;
   
@@ -156,3 +163,5 @@ class FillInfo {
 };
 
 std::ostream & operator<<( std::ostream &, FillInfo fillInfo );
+
+#endif // CondFormats_RunInfo_FillInfo_H

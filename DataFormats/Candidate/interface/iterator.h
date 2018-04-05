@@ -17,7 +17,7 @@ namespace reco {
       typedef Candidate & reference;
       typedef ptrdiff_t difference_type;
       typedef std::vector<int>::iterator::iterator_category iterator_category;
-      iterator() : me(0), i( 0 ) { }
+      iterator() : me(nullptr), i( 0 ) { }
       iterator(pointer ime, difference_type ii ) : me(ime), i(ii) { }
       iterator& operator++() { ++i; return *this; }
       iterator operator++( int ) { iterator ci = *this; ++i; return ci; }

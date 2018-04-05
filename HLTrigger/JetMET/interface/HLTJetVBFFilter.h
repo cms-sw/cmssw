@@ -24,9 +24,9 @@ class HLTJetVBFFilter : public HLTFilter {
 
    public:
       explicit HLTJetVBFFilter(const edm::ParameterSet&);
-      ~HLTJetVBFFilter();
+      ~HLTJetVBFFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       edm::InputTag inputTag_; // input tag identifying jets

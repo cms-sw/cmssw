@@ -14,7 +14,7 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -32,7 +32,7 @@ SiStripDCSStatus::SiStripDCSStatus(edm::ConsumesCollector & iC) :
   initialised(false) {
 
   dcsStatusToken_ = iC.consumes<DcsStatusCollection>(edm::InputTag("scalersRawToDigi"));
-  rawDataToken_   = iC.consumes<FEDRawDataCollection>(edm::InputTag("source"));
+  rawDataToken_   = iC.consumes<FEDRawDataCollection>(edm::InputTag("rawDataCollector"));
 }
 //
 // -- Destructor
@@ -51,7 +51,7 @@ bool SiStripDCSStatus::getStatus(edm::Event const& e, edm::EventSetup const& eSe
   //  e.getByLabel("scalersRawToDigi", dcsStatus);
   e.getByToken(dcsStatusToken_, dcsStatus);
   if ( trackerAbsent || !dcsStatus.isValid())  return retVal;
-  if ((*dcsStatus).size() == 0) return retVal;
+  if ((*dcsStatus).empty()) return retVal;
 
   statusTIBTID = true;
   statusTOB    = true;
@@ -101,7 +101,7 @@ bool SiStripDCSStatus::getStatus(edm::Event const& e, edm::EventSetup const& eSe
 void SiStripDCSStatus::initialise(edm::Event const& e, edm::EventSetup const& eSetup) {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::ESHandle< SiStripFedCabling > fedCabling_;

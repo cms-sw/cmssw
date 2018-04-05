@@ -1,12 +1,12 @@
 #ifndef DDL_Ellipsoid_H
 #define DDL_Ellipsoid_H
 
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
+#include <string>
+
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLEllipsoid processes all Ellipsoid elements.
 /** @class DDLEllipsoid
@@ -21,16 +21,13 @@
  *                                                                         
  */
 
-class DDLEllipsoid : public DDLSolid
+class DDLEllipsoid final : public DDLSolid
 {
 public:
 
-  /// Constructor
   DDLEllipsoid( DDLElementRegistry* myreg );
 
-  /// Destructor
-  ~DDLEllipsoid( void );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

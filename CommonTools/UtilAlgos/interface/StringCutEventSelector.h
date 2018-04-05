@@ -7,7 +7,6 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "PhysicsTools/UtilAlgos/interface/CachingVariable.h"
 
 template<typename Object, bool any=false>
 class  StringCutEventSelector : public EventSelector {
@@ -21,7 +20,7 @@ class  StringCutEventSelector : public EventSelector {
     f_(pset.getParameter<std::string>("cut")),
     //put this guy to 0 to do the check on "all" object in the collection
     nFirst_(pset.getParameter<unsigned int>("nFirst")),
-    order_(0)
+    order_(nullptr)
       {
 	  std::stringstream ss;
 	  ss<<"string cut based selection on collection: "<<src_;
@@ -32,7 +31,7 @@ class  StringCutEventSelector : public EventSelector {
 	    order_ = new StringObjectFunction<Object>( pset.getParameter<std::string>("order"));
       }
 
-    bool select (const edm::Event& e) const{
+    bool select (const edm::Event& e) const override{
       edm::Handle<edm::View<Object> > oH;
       e.getByToken(srcToken_, oH);
       std::vector<const Object*> copyToSort(oH->size());
@@ -78,7 +77,7 @@ class  StringCutsEventSelector : public EventSelector {
     EventSelector(pset, iC),
     src_(edm::Service<InputTagDistributorService>()->retrieve("src",pset)),
     srcToken_(iC.consumes<edm::View<Object> >(src_)),
-    order_(0)
+    order_(nullptr)
       {
 	std::vector<std::string> selection=pset.getParameter<std::vector<std::string > >("cut");
 	std::stringstream ss;
@@ -93,23 +92,23 @@ class  StringCutsEventSelector : public EventSelector {
 	  }
 	  else
 	    {
-	      f_.push_back(0);
+	      f_.push_back(nullptr);
 	      ss<<"["<<i<<"]: no selection";
 	      description_.push_back(ss.str());           ss.str("");
 	    }
 	if (pset.exists("order"))
 	  order_ = new StringObjectFunction<Object>( pset.getParameter<std::string>("order"));
       }
-  ~StringCutsEventSelector(){
+  ~StringCutsEventSelector() override{
     unsigned int i=0; 
     for (;i!=f_.size();i++) 
       if (f_[i]){ 
-	delete f_[i];f_[i]=0;
+	delete f_[i];f_[i]=nullptr;
       }
     if (order_) delete order_;
   }
 
-    bool select (const edm::Event& e) const{
+    bool select (const edm::Event& e) const override{
       edm::Handle<edm::View<Object> > oH;
       e.getByToken(srcToken_, oH);
       std::vector<const Object*> copyToSort(oH->size());

@@ -30,7 +30,7 @@ class EcalClusterEnergyCorrectionObjectSpecificBaseClass : public EcalClusterFun
         public:
                 EcalClusterEnergyCorrectionObjectSpecificBaseClass();
                 EcalClusterEnergyCorrectionObjectSpecificBaseClass( const edm::ParameterSet & ) {};
-                virtual ~EcalClusterEnergyCorrectionObjectSpecificBaseClass();
+                ~EcalClusterEnergyCorrectionObjectSpecificBaseClass() override;
 
                 // get/set explicit methods for parameters
                 const EcalClusterEnergyCorrectionObjectSpecificParameters * getParameters() const { return params_; }
@@ -38,15 +38,15 @@ class EcalClusterEnergyCorrectionObjectSpecificBaseClass : public EcalClusterFun
                 void checkInit() const;
                 
                 // compute the correction
-                virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const = 0;
-                virtual float getValue( const reco::SuperCluster &, const int mode ) const = 0;
+                float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const override = 0;
+                float getValue( const reco::SuperCluster &, const int mode ) const override = 0;
 		
 		//virtual float getValue( const reco::Photon &, const int mode) const = 0;
 		//virtual float getValue( const reco::GsfElectron &, const int mode) const;
 
 
                 // set parameters
-                virtual void init( const edm::EventSetup& es );
+                void init( const edm::EventSetup& es ) override;
 
         protected:
                 edm::ESHandle<EcalClusterEnergyCorrectionObjectSpecificParameters> esParams_;

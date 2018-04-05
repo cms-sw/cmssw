@@ -7,7 +7,7 @@
 
 #include "OnlineDB/EcalCondDB/interface/LMFColoredTable.h"
 
-#include <math.h>
+#include <cmath>
 
 /**
  *   LMF_YYYY_XXX_PPRIM_DAT interface
@@ -32,9 +32,9 @@ class LMFPrimDat : public LMFColoredTable {
 	      oracle::occi::Connection* conn, int color,
 	      std::string system);
   LMFPrimDat(EcalDBConnection *c, int color, std::string system);
-  ~LMFPrimDat() {}
+  ~LMFPrimDat() override {}
 
-  std::string getTableName() const {
+  std::string getTableName() const override {
     return "LMF_" + getSystem() + "_" + getColor() + "_PRIM_DAT";
   }
 
@@ -93,7 +93,7 @@ class LMFPrimDat : public LMFColoredTable {
   float getBeta(int id);
   float getShapeCorr(int id);
 
-  bool isValid();
+  bool isValid() override;
   // to do: complete list of set/get methods
 
  private:

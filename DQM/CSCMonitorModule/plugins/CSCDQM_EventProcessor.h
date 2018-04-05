@@ -22,7 +22,7 @@
 
 #include <set>
 #include <string>
-#include <math.h>
+#include <cmath>
 
 #include <TString.h>
 

@@ -13,7 +13,7 @@
 //
 
 // System include files
-#include <math.h>
+#include <cmath>
 #include "TEveScalableStraightLineSet.h"
 #include "TEveCompound.h"
 

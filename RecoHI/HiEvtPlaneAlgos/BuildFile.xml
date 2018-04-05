@@ -16,7 +16,6 @@
 <use   name="DataFormats/HeavyIonEvent"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="DataFormats/Provenance"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="RecoHI/HiCentralityAlgos"/>

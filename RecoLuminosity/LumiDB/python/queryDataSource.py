@@ -65,7 +65,7 @@ def uncalibratedlumiFromOldLumi(session,runnumber):
         summaryQuery.addToOrderList('lumilsnum')
         summaryQuery.setCondition('RUNNUM=:runnumber',summaryCondition)
         summarycursor=summaryQuery.execute()
-        while summarycursor.next():
+        while next(summarycursor):
             lumilsnum=summarycursor.currentRow()['lumilsnum'].data()
             cmslsnum=summarycursor.currentRow()['cmslsnum'].data()
             instlumi=summarycursor.currentRow()['instlumi'].data()
@@ -110,7 +110,7 @@ def uncalibratedlumiFromOldLumi(session,runnumber):
             detailQuery.addToOrderList('lumilsnum')
             detailQuery.setCondition('s.RUNNUM=:runnumber AND s.LUMISUMMARY_ID=d.LUMISUMMARY_ID AND d.ALGONAME=:algoname',detailCondition)
             detailcursor=detailQuery.execute()
-            while detailcursor.next():
+            while next(detailcursor):
                 lumilsnum=detailcursor.currentRow()['lumilsnum'].data()
                 bxlumivalue=detailcursor.currentRow()['bxlumivalue'].data()
                 bxlumierror=detailcursor.currentRow()['bxlumierror'].data()
@@ -144,7 +144,7 @@ def hltFromOldLumi(session,runnumber):
         qHandle.defineOutput(qResult)
         qHandle.setCondition('RUNNUM=:runnum',qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             npath=cursor.currentRow()['npath'].data()
         del qHandle
         #print 'npath ',npath
@@ -176,7 +176,7 @@ def hltFromOldLumi(session,runnumber):
         prescaleArray=array.array('I')
         ipath=0
         pathnHLT_PixelTracksVdMames=''
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             pathname=cursor.currentRow()['pathname'].data()
             ipath+=1
@@ -235,7 +235,7 @@ def trgFromOldLumi(session,runnumber):
         cursor=qHandle.execute()
         bitnums=[]
         bitnameList=[]
-        while cursor.next():
+        while next(cursor):
             bitnum=cursor.currentRow()['bitnum'].data()
             bitname=cursor.currentRow()['bitname'].data()
             bitnums.append(bitnum)
@@ -267,13 +267,13 @@ def trgFromOldLumi(session,runnumber):
         cursor=qHandle.execute()
         trgcountArray=array.array('I')
         prescaleArray=array.array('I')
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             bitnum=cursor.currentRow()['bitnum'].data()
             deadtime=cursor.currentRow()['deadtime'].data()
             trgcount=cursor.currentRow()['trgcount'].data()
             prescale=cursor.currentRow()['prescale'].data()
-            if not databuffer.has_key(cmslsnum):
+            if cmslsnum not in databuffer:
                 databuffer[cmslsnum]=[]
                 databuffer[cmslsnum].append(deadtime)
             if bitnum==0:
@@ -362,7 +362,7 @@ def trgFromOldGT(session,runnumber):
         deadviewQuery.defineOutput(deadOutput)
         deadcursor=deadviewQuery.execute()
         s=0
-        while deadcursor.next():
+        while next(deadcursor):
             row=deadcursor.currentRow()
             s+=1
             lsnr=row['lsnr'].data()
@@ -403,7 +403,7 @@ def trgFromOldGT(session,runnumber):
       
         algocursor=algoviewQuery.execute()
         s=0
-        while algocursor.next():
+        while next(algocursor):
             row=algocursor.currentRow()
             lsnr=row['lsnr'].data()
             counts=row['counts'].data()
@@ -451,7 +451,7 @@ def trgFromOldGT(session,runnumber):
       
         techcursor=techviewQuery.execute()
         s=0
-        while techcursor.next():
+        while next(techcursor):
             row=techcursor.currentRow()
             lsnr=row['lsnr'].data()
             counts=row['counts'].data()
@@ -493,7 +493,7 @@ def trgFromOldGT(session,runnumber):
         namealiasQuery.setCondition('RUNNUMBER=:runnumber',algonameCondition)
         namealiasQuery.defineOutput(algonameOutput)
         algonamecursor=namealiasQuery.execute()
-        while algonamecursor.next():
+        while next(algonamecursor):
             row=algonamecursor.currentRow()
             algo_index=row['algo_index'].data()
             algo_name=row['alias'].data()
@@ -555,7 +555,7 @@ def trgFromOldGT(session,runnumber):
         presidxQuery.defineOutput(presidxOutput)
         presidxQuery.setCondition('RUN_NUMBER=:runnumber',presidxBindVariable)
         presidxCursor=presidxQuery.execute()
-        while presidxCursor.next():
+        while next(presidxCursor):
             presc=presidxCursor.currentRow()['prescale_index'].data()
             prescaleidx.append(presc)
         #print prescaleidx
@@ -580,7 +580,7 @@ def trgFromOldGT(session,runnumber):
             algoprescQuery.setCondition('RUNNR=:runnumber AND PRESCALE_INDEX=:prescaleindex',PrescbindVariable)
             algoprescQuery.defineOutput(algoPrescOutput)
             algopresccursor=algoprescQuery.execute()
-            while algopresccursor.next():
+            while next(algopresccursor):
                 row=algopresccursor.currentRow()
                 algoprescale=[]
                 for bitidx in range(NAlgoBit):
@@ -609,7 +609,7 @@ def trgFromOldGT(session,runnumber):
             techprescQuery.setCondition('RUNNR=:runnumber AND PRESCALE_INDEX=:prescaleindex',PrescbindVariable)
             techprescQuery.defineOutput(techPrescOutput)
             techpresccursor=techprescQuery.execute()
-            while techpresccursor.next():
+            while next(techpresccursor):
                 row=techpresccursor.currentRow()
                 techprescale=[]
                 for bitidx in range(NTechBit):
@@ -636,7 +636,7 @@ def trgFromOldGT(session,runnumber):
         lumiprescQuery.defineOutput(lumiprescOutput)
         lumiprescQuery.setCondition('RUN_NUMBER=:runnumber',lumiprescBindVariable)
         lumiprescCursor=lumiprescQuery.execute()
-        while lumiprescCursor.next():
+        while next(lumiprescCursor):
             row=lumiprescCursor.currentRow()
             lumisection=row['lumisection'].data()
             psindex=row['prescale_index'].data()
@@ -697,7 +697,7 @@ def hltFromRuninfoV2(session,runnumber):
         q1.setCondition('RUNNR=:runnumber AND LSNUMBER=:lsnumber',bvar)
         q1.defineOutput(nls)
         c=q1.execute()
-        while c.next():
+        while next(c):
             npath=c.currentRow()['npath'].data()
         del q1
         if npath==0:
@@ -726,7 +726,7 @@ def hltFromRuninfoV2(session,runnumber):
         hltinputs=array.array('I')
         hltaccepts=array.array('I')
         prescales=array.array('I')
-        while cursor.next():
+        while next(cursor):
             row=cursor.currentRow()
             cmsluminr=row['lsnumber'].data()
             hltinput=row['hltinput'].data()
@@ -736,7 +736,7 @@ def hltFromRuninfoV2(session,runnumber):
             ipath+=1
             if cmsluminr==1:
                 pathnames.append(pathname)
-            if not hltdict.has_key(cmsluminr):
+            if cmsluminr not in hltdict:
                 hltdict[cmsluminr]=[]
             hltinputs.append(hltinput)
             hltaccepts.append(hltaccept)
@@ -807,7 +807,7 @@ def hltconf(session,hltkey):
         hltconfQuery.setCondition('PARAMETERS.PARAMID=STRINGPARAMVALUES.PARAMID AND SUPERIDPARAMETERASSOC.PARAMID=PARAMETERS.PARAMID AND MODULES.SUPERID=SUPERIDPARAMETERASSOC.SUPERID AND MODULETEMPLATES.SUPERID=MODULES.TEMPLATEID AND PATHMODULEASSOC.MODULEID=MODULES.SUPERID AND PATHS.PATHID=PATHMODULEASSOC.PATHID AND CONFIGURATIONPATHASSOC.PATHID=PATHS.PATHID AND CONFIGURATIONS.CONFIGID=CONFIGURATIONPATHASSOC.CONFIGID AND MODULETEMPLATES.NAME=:hltseed AND PARAMETERS.NAME=:l1seedexpr AND CONFIGURATIONS.CONFIGDESCRIPTOR=:hltkey',hltconfBindVar)
         hlt2l1map={}
         cursor=hltconfQuery.execute()
-        while cursor.next():
+        while next(cursor):
             hltpath=cursor.currentRow()['hltpath'].data()
             print hltpath
             l1expression=cursor.currentRow()['l1expression'].data()
@@ -860,7 +860,7 @@ def runsummary(session,schemaname,runnumber,complementalOnly=False):
         l1keyQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',l1keyCondition)
         l1keyQuery.defineOutput(l1keyOutput)
         cursor=l1keyQuery.execute()
-        while cursor.next():
+        while next(cursor):
             l1key=cursor.currentRow()['l1key'].data()
         del l1keyQuery
         result.append(l1key)
@@ -879,7 +879,7 @@ def runsummary(session,schemaname,runnumber,complementalOnly=False):
         amodetagQuery.limitReturnedRows(1)
         amodetagQuery.defineOutput(amodetagOutput)
         cursor=amodetagQuery.execute()
-        while cursor.next():
+        while next(cursor):
             amodetag=cursor.currentRow()['amodetag'].data()
         del amodetagQuery
         result.append(amodetag)
@@ -899,7 +899,7 @@ def runsummary(session,schemaname,runnumber,complementalOnly=False):
         egevQuery.defineOutput(egevOutput)
         egevQuery.addToOrderList('SESSION_ID')
         cursor=egevQuery.execute()
-        while cursor.next():
+        while next(cursor):
             egev=cursor.currentRow()['egev'].data()
         del egevQuery
         result.append(egev)
@@ -918,7 +918,7 @@ def runsummary(session,schemaname,runnumber,complementalOnly=False):
             seqQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',seqCondition)
             seqQuery.defineOutput(seqOutput)
             cursor=seqQuery.execute()
-            while cursor.next():
+            while next(cursor):
                 sequence=cursor.currentRow()['seq'].data()
             del seqQuery
             result.append(sequence)
@@ -937,7 +937,7 @@ def runsummary(session,schemaname,runnumber,complementalOnly=False):
             #hltkeyQuery.limitReturnedRows(1)
             hltkeyQuery.defineOutput(hltkeyOutput)
             cursor=hltkeyQuery.execute()
-            while cursor.next():
+            while next(cursor):
                 hltkey=cursor.currentRow()['hltkey'].data()
                 del hltkeyQuery
             result.append(hltkey)
@@ -956,7 +956,7 @@ def runsummary(session,schemaname,runnumber,complementalOnly=False):
             fillnumQuery.limitReturnedRows(1)
             fillnumQuery.defineOutput(fillnumOutput)
             cursor=fillnumQuery.execute()
-            while cursor.next():
+            while next(cursor):
                 fillnum=cursor.currentRow()['fillnum'].data()
             del fillnumQuery
             result.append(fillnum)
@@ -974,7 +974,7 @@ def runsummary(session,schemaname,runnumber,complementalOnly=False):
             starttimeQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',starttimeCondition)
             starttimeQuery.defineOutput(starttimeOutput)
             cursor=starttimeQuery.execute()
-            while cursor.next():
+            while next(cursor):
                 starttime=cursor.currentRow()['starttime'].data()
             del starttimeQuery
             result.append(starttime)
@@ -992,7 +992,7 @@ def runsummary(session,schemaname,runnumber,complementalOnly=False):
             stoptimeQuery.setCondition('NAME=:name AND RUNNUMBER=:runnumber',stoptimeCondition)
             stoptimeQuery.defineOutput(stoptimeOutput)
             cursor=stoptimeQuery.execute()
-            while cursor.next():
+            while next(cursor):
                 stoptime=cursor.currentRow()['stoptime'].data()
             del stoptimeQuery
             result.append(stoptime)

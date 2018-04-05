@@ -5,5 +5,8 @@ reducedHcalRecHits = cms.EDProducer("HcalHitSelection",
                                     hfTag = cms.InputTag('hfreco'),
                                     hoTag = cms.InputTag('horeco'),
                                     hoSeverityLevel = cms.int32(13),
-                                    interestingDetIds = cms.VInputTag(cms.InputTag("interestingGedEgammaIsoHCALDetId"),)
+                                    interestingDetIds = cms.VInputTag(
+                                         cms.InputTag("interestingGedEgammaIsoHCALDetId"),
+                                         cms.InputTag("interestingOotEgammaIsoHCALDetId"),
+                                         )
                                     )

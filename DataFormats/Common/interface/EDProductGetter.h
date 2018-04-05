@@ -22,8 +22,6 @@
 #include <string>
 #include <vector>
 
-#include "boost/utility.hpp"
-
 // forward declarations
 
 namespace edm {

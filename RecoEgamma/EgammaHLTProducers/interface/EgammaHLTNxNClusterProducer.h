@@ -10,7 +10,7 @@ Description: simple NxN ( 3x3 etc) clustering ,( for low energy photon reconstru
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,7 +26,7 @@ Description: simple NxN ( 3x3 etc) clustering ,( for low energy photon reconstru
 
 #include <vector>
 #include <memory>
-#include <time.h>
+#include <ctime>
 
 
 namespace edm {
@@ -44,11 +44,11 @@ class ecalRecHitSort : public std::binary_function<EcalRecHit, EcalRecHit, bool>
 };
 
 
-class EgammaHLTNxNClusterProducer : public edm::EDProducer {
+class EgammaHLTNxNClusterProducer : public edm::stream::EDProducer<> {
  public:
 
   EgammaHLTNxNClusterProducer(const edm::ParameterSet& ps);
-  ~EgammaHLTNxNClusterProducer();
+  ~EgammaHLTNxNClusterProducer() override;
   
   void produce(edm::Event&, const edm::EventSetup&) override ;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

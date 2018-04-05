@@ -18,11 +18,11 @@ class HcalChannelQuality: public HcalCondObjectContainer<HcalChannelStatus>
 {
  public:
 #ifndef HCAL_COND_SUPPRESS_DEFAULT
-  HcalChannelQuality():HcalCondObjectContainer<HcalChannelStatus>(0) {}
+  HcalChannelQuality():HcalCondObjectContainer<HcalChannelStatus>(nullptr) {}
 #endif
   HcalChannelQuality(const HcalTopology* topo):HcalCondObjectContainer<HcalChannelStatus>(topo) {}
 
-  std::string myname() const {return (std::string)"HcalChannelQuality";}
+  std::string myname() const override {return (std::string)"HcalChannelQuality";}
 
  private:
 

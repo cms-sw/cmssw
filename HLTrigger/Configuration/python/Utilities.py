@@ -16,7 +16,7 @@ def getHltConfiguration(menu, **args):
   options = _build_options(**args)
 
   hlt = _imp.new_module('hlt')
-  exec _confdb.HLTProcess(options).dump() in globals(), hlt.__dict__
+  exec(_confdb.HLTProcess(options).dump(), globals(), hlt.__dict__)
   return hlt.process
 
 
@@ -26,7 +26,7 @@ def loadHltConfiguration(process, menu, **args):
   options = _build_options(**args)
 
   hlt = _imp.new_module('hlt')
-  exec _confdb.HLTProcess(options).dump() in globals(), hlt.__dict__
+  exec(_confdb.HLTProcess(options).dump(), globals(), hlt.__dict__)
   process.extend( hlt )
 
 

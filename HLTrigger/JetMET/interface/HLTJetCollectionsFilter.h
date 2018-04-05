@@ -21,7 +21,7 @@ class HLTJetCollectionsFilter : public HLTFilter {
 
    public:
       explicit HLTJetCollectionsFilter(const edm::ParameterSet&);
-      ~HLTJetCollectionsFilter();
+      ~HLTJetCollectionsFilter() override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
       bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
    private:

@@ -33,11 +33,11 @@ class ShiftedPFCandidateProducerByMatchedObject : public edm::stream::EDProducer
  public:
 
   explicit ShiftedPFCandidateProducerByMatchedObject(const edm::ParameterSet&);
-  ~ShiftedPFCandidateProducerByMatchedObject();
+  ~ShiftedPFCandidateProducerByMatchedObject() override;
     
  private:
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<reco::PFCandidateCollection > srcPFCandidates_; 
   edm::EDGetTokenT<edm::View<reco::Candidate> > srcUnshiftedObjects_; 

@@ -175,7 +175,7 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
 if  ( ((*jets)[i].et()<solution.getJetB().et()) && ((*jets)[i].et()<solution.getJetBbar().et())) {jet3.push_back((*jets)[i]);
 }}
   double jet1Ratio = 0., jet2Ratio = 0.;
-  if (jet3.size()>0) {
+  if (!jet3.empty()) {
     jet1Ratio = jet3[0].et()/solution.getJetB().et();
     jet2Ratio = jet3[0].et()/solution.getJetBbar().et();
   }

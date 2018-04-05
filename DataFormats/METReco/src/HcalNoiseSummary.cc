@@ -324,6 +324,11 @@ double HcalNoiseSummary::GetTotalCalibCharge(void) const
    return calibCharge_;
 }
 
+double HcalNoiseSummary::GetLaserMonitorCharge(void) const
+{
+   return lasmonCharge_;
+}
+
 bool HcalNoiseSummary::HasBadRBXTS4TS5(void) const
 {
    return hasBadRBXTS4TS5_;
@@ -337,6 +342,11 @@ bool HcalNoiseSummary::HasBadRBXRechitR45Loose(void) const
 bool HcalNoiseSummary::HasBadRBXRechitR45Tight(void) const
 {
    return hasBadRBXRechitR45Tight_;
+}
+
+bool HcalNoiseSummary::goodJetFoundInLowBVRegion(void) const
+{
+   return goodJetFoundInLowBVRegion_;
 }
 
 int HcalNoiseSummary::GetCalibCountTS45(void) const

@@ -22,6 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "CondFormats/DTObjects/interface/DTCCBConfig.h"
+#include <memory>
 #include <string>
 
 namespace coral {
@@ -53,13 +54,13 @@ class DTKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
 
   /** Destructor
    */
-  virtual ~DTKeyedConfigHandler();
+  ~DTKeyedConfigHandler() override;
 
   /** Operations
    */
   /// 
-  void getNewObjects();
-  std::string id() const;
+  void getNewObjects() override;
+  std::string id() const override;
 
   static void setList( cond::persistency::KeyList* list );
 
@@ -79,7 +80,7 @@ class DTKeyedConfigHandler: public popcon::PopConSourceHandler<DTCCBConfig> {
   DTCCBConfig* ccbConfig;
   
   cond::persistency::ConnectionPool connection;
-  boost::shared_ptr<coral::ISessionProxy> isession;
+  std::shared_ptr<coral::ISessionProxy> isession;
   void chkConfigList();
   static bool sameConfigList( const std::vector<DTConfigKey>& cfgl,
                               const std::vector<DTConfigKey>& cfgr );

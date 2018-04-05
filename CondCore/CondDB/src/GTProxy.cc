@@ -5,14 +5,19 @@ namespace cond {
 
   namespace persistency {
 
+    std::string fullyQualifiedTag( const std::string& tag, const std::string& connectionString ){
+      if(connectionString.empty()) return tag;
+      return  tag+"@["+connectionString+"]";
+    }
+
     std::pair<std::string,std::string> parseTag( const std::string& tag ){
       std::string pfn("");
       std::string t(tag);
-      size_t pos = tag.rfind('@');
-      if( pos != std::string::npos && tag.size() >= pos+3 ){
-	if( tag[pos+1]=='[' && tag[tag.size()-1]==']' ) {
-	  pfn = tag.substr( pos+2,tag.size()-pos-3 ); 
-	  t = tag.substr( 0, pos );
+      size_t pos = tag.rfind("[");
+      if( pos != std::string::npos && tag.size() >= pos+2 ){
+	if( tag[pos-1]=='@' && tag[tag.size()-1]==']' ) {
+	  pfn = tag.substr( pos+1,tag.size()-pos-2 ); 
+	  t = tag.substr( 0, pos-1 );
 	}
       }
       return std::make_pair( t, pfn );

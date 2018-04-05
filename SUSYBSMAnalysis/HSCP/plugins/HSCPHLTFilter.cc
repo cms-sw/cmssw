@@ -24,17 +24,18 @@ using namespace edm;
 class HSCPHLTFilter : public edm::EDFilter {
    public:
       explicit HSCPHLTFilter(const edm::ParameterSet&);
-      ~HSCPHLTFilter();
+      ~HSCPHLTFilter() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       bool isDuplicate(unsigned int Run, unsigned int Event);
 
       bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut, int NObjectAboveThreshold, bool averageThreshold);
 
       std::string TriggerProcess;
+      edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
       edm::EDGetTokenT< trigger::TriggerEvent > trEvToken;
       std::map<std::string, bool > DuplicateMap;
 
@@ -55,6 +56,8 @@ HSCPHLTFilter::HSCPHLTFilter(const edm::ParameterSet& iConfig)
    RemoveDuplicates      = iConfig.getParameter<bool>                ("RemoveDuplicates");
 
    TriggerProcess        = iConfig.getParameter<std::string>         ("TriggerProcess");
+   triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", TriggerProcess));
+
    trEvToken = consumes< trigger::TriggerEvent >( edm::InputTag( "hltTriggerSummaryAOD" ) );
    MuonTrigger1Mask      = iConfig.getParameter<int>                 ("MuonTrigger1Mask");
    PFMetTriggerMask      = iConfig.getParameter<int>                 ("PFMetTriggerMask");
@@ -91,7 +94,13 @@ bool HSCPHLTFilter::isDuplicate(unsigned int Run, unsigned int Event){
 /////////////////////////////////////////////////////////////////////////////////////
 bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   edm::TriggerResultsByName tr = iEvent.triggerResultsByName(TriggerProcess);
+   edm::Handle<edm::TriggerResults> triggerResults;
+   iEvent.getByToken(triggerResultsToken_, triggerResults);
+
+   edm::TriggerResultsByName tr(nullptr, nullptr);
+   if (triggerResults.isValid()) {
+     tr = iEvent.triggerResultsByName(*triggerResults);
+   }
    if(!tr.isValid()){    printf("NoValidTrigger\n");  }
 
 

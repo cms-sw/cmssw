@@ -20,6 +20,11 @@ namespace DataFormats_L1TCalorimeter {
     l1t::CaloTowerBxCollection   caloTowerBxColl;
     l1t::CaloClusterBxCollection caloClusterBxColl;
 
+    std::vector<l1t::CaloRegion>  v_aloRegionBx;
+    std::vector<l1t::CaloEmCand>  v_caloEmCandBx;
+    std::vector<l1t::CaloTower>   v_caloTowerBx;
+    std::vector<l1t::CaloCluster> v_caloClusterBx;
+
     edm::Wrapper<l1t::CaloRegionBxCollection>  w_caloRegionBxColl;
     edm::Wrapper<l1t::CaloEmCandBxCollection>  w_caloEmCandBxColl;
     edm::Wrapper<l1t::CaloTowerBxCollection>   w_caloTowerBxColl;

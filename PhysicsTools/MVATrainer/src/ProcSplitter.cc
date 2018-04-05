@@ -23,16 +23,16 @@ class ProcSplitter : public TrainProcessor {
 
 	ProcSplitter(const char *name, const AtomicId *id,
 	             MVATrainer *trainer);
-	virtual ~ProcSplitter();
+	~ProcSplitter() override;
 
-	virtual void configure(DOMElement *elem) override;
-	virtual Calibration::VarProcessor *getCalibration() const override;
+	void configure(DOMElement *elem) override;
+	Calibration::VarProcessor *getCalibration() const override;
 
     private:
 	unsigned int	count;
 };
 
-static ProcSplitter::Registry registry("ProcSplitter");
+ProcSplitter::Registry registry("ProcSplitter");
 
 ProcSplitter::ProcSplitter(const char *name, const AtomicId *id,
                            MVATrainer *trainer) :

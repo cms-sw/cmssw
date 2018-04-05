@@ -25,12 +25,12 @@ int run_script(std::string const& shell, std::string const& script) {
   int status = 0;
 
   if((pid = fork()) < 0) {
-      std::cerr << "fork failed, to run " << script << std::endl;;
+      std::cerr << "fork failed, to run " << script << std::endl;
       return -1;
   }
 
   if(pid == 0) { // child
-    execlp(shell.c_str(), "sh", "-c", script.c_str(), static_cast<char const*>(0));
+    execlp(shell.c_str(), "sh", "-c", script.c_str(), static_cast<char const*>(nullptr));
     std::cerr << "child failed becuase '" << strerror(errno) << "'\n";
     _exit(127); // signal parent and children processes
   } else { // parent
@@ -67,7 +67,7 @@ int do_work(int argc, char* argv[], char** env) {
     std::cout << "Current directory is: " << currentPath.string() << '\n';
     std::cout << "Current environment:\n";
     std::cout << "---------------------\n";
-    for(int i = 0; env[i] != 0; ++i) std::cout << env[i] << '\n';
+    for(int i = 0; env[i] != nullptr; ++i) std::cout << env[i] << '\n';
     std::cout << "---------------------\n";
     std::cout << "Executable name: " << argv[0] << '\n';
     return -1;
@@ -89,13 +89,13 @@ int do_work(int argc, char* argv[], char** env) {
   if(!topdir) topdir = getenv("LOCALRT");
   try {
     if(!edm::untaintString(topdir, goodDirectory)) {
-      std::cerr << "Invalid top directory '" << topdir << "'" << std::endl;;
+      std::cerr << "Invalid top directory '" << topdir << "'" << std::endl;
       return -1;
     }
   }
   catch(std::runtime_error const& e) {
-    std::cerr << "Invalid top directory '" << topdir << "'" << std::endl;;
-    std::cerr << "e.what" << std::endl;;
+    std::cerr << "Invalid top directory '" << topdir << "'" << std::endl;
+    std::cerr << "e.what" << std::endl;
     return -1;
   }
 
@@ -119,19 +119,19 @@ int do_work(int argc, char* argv[], char** env) {
   int rc = 0;
 
   if(!topdir) {
-    std::cerr << "Neither SCRAMRT_LOCALRT nor LOCALRT is defined" << std::endl;;
+    std::cerr << "Neither SCRAMRT_LOCALRT nor LOCALRT is defined" << std::endl;
     return -1;
   }
 
   try {
     if(!edm::untaintString(argv[2], goodDirectory)) {
-      std::cerr << "Invalid test directory '" << argv[2] << "'" << std::endl;;
+      std::cerr << "Invalid test directory '" << argv[2] << "'" << std::endl;
       return -1;
     }
   }
   catch(std::runtime_error const& e) {
-    std::cerr << "Invalid test directory '" << argv[2] << "'" << std::endl;;
-    std::cerr << "e.what" << std::endl;;
+    std::cerr << "Invalid test directory '" << argv[2] << "'" << std::endl;
+    std::cerr << "e.what" << std::endl;
     return -1;
   }
 
@@ -145,19 +145,19 @@ int do_work(int argc, char* argv[], char** env) {
   std::cout << "testbin is: " << testbin << '\n';
 
   if(setenv("LOCAL_TEST_DIR", testdir.c_str(),1) != 0) {
-    std::cerr << "Could not set LOCAL_TEST_DIR to " << testdir << std::endl;;
+    std::cerr << "Could not set LOCAL_TEST_DIR to " << testdir << std::endl;
     return -1;
   }
   if(setenv("LOCAL_TMP_DIR", tmpdir.c_str(),1) != 0) {
-    std::cerr << "Could not set LOCAL_TMP_DIR to " << tmpdir << std::endl;;
+    std::cerr << "Could not set LOCAL_TMP_DIR to " << tmpdir << std::endl;
     return -1;
   }
   if(setenv("LOCAL_TOP_DIR", topdir,1) != 0) {
-    std::cerr << "Could not set LOCAL_TOP_DIR to " << topdir << std::endl;;
+    std::cerr << "Could not set LOCAL_TOP_DIR to " << topdir << std::endl;
     return -1;
   }
   if(setenv("LOCAL_TEST_BIN", testbin.c_str(),1) != 0) {
-    std::cerr << "Could not set LOCAL_TEST_BIN to " << testbin << std::endl;;
+    std::cerr << "Could not set LOCAL_TEST_BIN to " << testbin << std::endl;
     return -1;
   }
 

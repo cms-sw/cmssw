@@ -1,8 +1,7 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPhysics.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsListSS.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
@@ -13,7 +12,8 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "G4HadronPhysicsQGSP_FTFP_BERT.hh"
+#include "G4HadronPhysicsFTFP_BERT.hh"
+#include "G4SystemOfUnits.hh"
  
 CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map, 
 			     const HepPDT::ParticleDataTable * table_,
@@ -23,13 +23,15 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
   G4DataQuestionaire it(photon);
 
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
+  bool tracking= p.getParameter<bool>("TrackingCut");
   bool ssPhys  = p.getUntrackedParameter<bool>("ExoticaPhysicsSS",false);
+  double timeLimit = p.getParameter<double>("MaxTrackTime")*ns;
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_FTFP_BERT_EML for regular particles";
-
+			      << "QGSP_FTFP_BERT_EML for regular particles \n"
+			      << "CustomPhysicsList " << ssPhys << " for exotics; "
+                              << " tracking cut " << tracking << "  t(ns)= " << timeLimit/ns;
   // EM Physics
-  RegisterPhysics(new CMSEmStandardPhysics(ver));
-  //RegisterPhysics(new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
+  RegisterPhysics(new CMSEmStandardPhysicsLPM(ver));
 
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics(ver));
@@ -41,7 +43,7 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
   RegisterPhysics(new G4HadronElasticPhysics(ver)); 
 
   // Hadron Physics
-  RegisterPhysics(new G4HadronPhysicsQGSP_FTFP_BERT(ver));
+  RegisterPhysics(new G4HadronPhysicsFTFP_BERT(ver));
 
   // Stopping Physics
   RegisterPhysics(new G4StoppingPhysics(ver));
@@ -50,7 +52,11 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
   RegisterPhysics(new G4IonPhysics(ver));
 
   // Neutron tracking cut
-  RegisterPhysics(new G4NeutronTrackingCut(ver));
+  if (tracking) {
+    G4NeutronTrackingCut* ncut= new G4NeutronTrackingCut(ver);
+    ncut->SetTimeLimit(timeLimit);
+    RegisterPhysics(ncut);
+  }
 
   // Custom Physics
   if(ssPhys) {

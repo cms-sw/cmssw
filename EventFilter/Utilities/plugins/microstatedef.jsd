@@ -27,6 +27,18 @@
       {
       	 "name" : "FilesProcessed",
          "operation" : "sum"
+      },
+      {
+         "name" : "LockWaitUs",
+         "operation" : "sum"
+      },
+      {
+         "name" : "LockCount",
+         "operation" : "sum"
+      },
+      {
+         "name" : "Inputstate",
+         "operation" : "histo"
       }
    ]
 }

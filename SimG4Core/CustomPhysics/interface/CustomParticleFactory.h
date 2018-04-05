@@ -1,34 +1,37 @@
-#ifndef CustomParticleFactory_h
-#define CustomParticleFactory_h 1
+#ifndef SimG4Core_CustomPhysics_CustomParticleFactory_h
+#define SimG4Core_CustomPhysics_CustomParticleFactory_h 1
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "SimG4Core/CustomPhysics/interface/CustomParticle.h"
-#include <set>
+#include "G4Threading.hh"
+#include <vector>
 #include <string>
+#include <fstream>
 
 class G4DecayTable;
-// ######################################################################
-// ###                          CustomParticle                                ###
-// ######################################################################
+class G4ParticleDefinition;
 
 class CustomParticleFactory {
 
- public:
-  static void loadCustomParticles(const std::string & filePath);
-  static bool isCustomParticle(G4ParticleDefinition *particle);
+public:
 
- private:
+  explicit CustomParticleFactory();
+  ~CustomParticleFactory();
 
-  static void addCustomParticle(int pdgCode, double mass, const std::string & name );
-  static void getMassTable(std::ifstream *configFile);
-  static G4DecayTable* getDecayTable(std::ifstream *configFile, int pdgId);
-  static G4DecayTable* getAntiDecayTable(int pdgId, G4DecayTable *theDecayTable);
+  void loadCustomParticles(const std::string & filePath);
+  const std::vector<G4ParticleDefinition *>& GetCustomParticles();
+
+private:
+
+  void addCustomParticle(int pdgCode, double mass, const std::string & name );
+  void getMassTable(std::ifstream *configFile);
+  G4DecayTable* getDecayTable(std::ifstream *configFile, int pdgId);
+  G4DecayTable* getAntiDecayTable(int pdgId, G4DecayTable *theDecayTable);
+  std::string ToLower(std::string str);  
 
   static bool loaded;
-  static std::set<G4ParticleDefinition *> m_particles;
-
-  static std::string ToLower(std::string str);  
+  static std::vector<G4ParticleDefinition *> m_particles;
+#ifdef G4MULTITHREADED
+  static G4Mutex customParticleFactoryMutex;
+#endif
   
 };
 

@@ -63,13 +63,13 @@ void test()
 	MVATrainer trainer(file.fullPath());
 
 	for(;;) {
-		std::auto_ptr<Calibration::MVAComputer> calib(
+		std::unique_ptr<Calibration::MVAComputer> calib(
 					trainer.getTrainCalibration());
 
 		if (!calib.get())
 			break;
 
-		std::auto_ptr<MVAComputer> computer(
+		std::unique_ptr<MVAComputer> computer(
 					new MVAComputer(calib.get()));
 
 		train(computer.get());

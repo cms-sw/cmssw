@@ -23,7 +23,7 @@
 using namespace std;
 
 
-HepMCFileReader *HepMCFileReader::instance_=0;
+HepMCFileReader *HepMCFileReader::instance_=nullptr;
 
 
 //-------------------------------------------------------------------------
@@ -31,7 +31,7 @@ HepMCFileReader *HepMCFileReader::instance()
 {
   // Implement a HepMCFileReader singleton.
 
-  if (instance_== 0) {
+  if (instance_== nullptr) {
     instance_ = new HepMCFileReader();
   }
   return instance_;
@@ -40,10 +40,10 @@ HepMCFileReader *HepMCFileReader::instance()
 
 //-------------------------------------------------------------------------
 HepMCFileReader::HepMCFileReader() :
-  evt_(0), input_(0)
+  evt_(nullptr), input_(nullptr)
 { 
   // Default constructor.
-  if (instance_ == 0) {
+  if (instance_ == nullptr) {
     instance_ = this;  
   } else {
     edm::LogError("HepMCFileReader") << "Constructing a new instance";
@@ -56,8 +56,8 @@ HepMCFileReader::~HepMCFileReader()
 {
   edm::LogInfo("HepMCFileReader") << "Destructing HepMCFileReader";
   
-  instance_=0;    
-  delete input_;
+  instance_=nullptr;    
+  delete input_.get();
 }
 
 
@@ -66,11 +66,11 @@ void HepMCFileReader::initialize(const string &filename)
 {
   if (isInitialized()) {
     edm::LogError("HepMCFileReader") << "Was already initialized... reinitializing";
-    delete input_;
+    delete input_.get();
   }
 
   edm::LogInfo("HepMCFileReader") << "Opening file" << filename << "using HepMC::IO_GenEvent";
-  input_ = new HepMC::IO_GenEvent(filename.c_str(), std::ios::in);
+  input_ = new HepMC::IO_GenEvent(filename, std::ios::in);
 
   if (rdstate() == std::ios::failbit) {
     throw cms::Exception("FileNotFound", "HepMCFileReader::initialize()")
@@ -84,7 +84,7 @@ int HepMCFileReader::rdstate() const
 {
   // work around a HepMC IO_ inheritence shortfall
 
-  HepMC::IO_GenEvent *p = dynamic_cast<HepMC::IO_GenEvent*>(input_);
+  HepMC::IO_GenEvent const* p = dynamic_cast<HepMC::IO_GenEvent const*>(input());
   if (p) return p->rdstate();
 
   return std::ios::failbit;
@@ -105,7 +105,7 @@ bool HepMCFileReader::readCurrentEvent()
     edm::LogInfo("HepMCFileReader") << "Got no event" <<endl;
   }
 
-  return evt_ != 0;
+  return evt_ != nullptr;
 }
 
 
@@ -119,7 +119,7 @@ bool HepMCFileReader::setEvent(int event)
 //-------------------------------------------------------------------------
 bool HepMCFileReader::printHepMcEvent() const
 {
-  if (evt_ != 0) evt_->print(); 
+  if (evt_ != nullptr) evt_->print(); 
   return true;
 }
 
@@ -136,7 +136,7 @@ HepMC::GenEvent * HepMCFileReader::fillCurrentEventData()
 // Print out in old CMKIN style for comparisons
 void HepMCFileReader::printEvent() const {
   int mo1=0,mo2=0,da1=0,da2=0,status=0,pid=0;   
-  if (evt_ != 0) {   
+  if (evt_ != nullptr) {   
     cout << "---#-------pid--st---Mo1---Mo2---Da1---Da2------px------py------pz-------E-";
     cout << "------m---------x---------y---------z---------t-";
     cout << endl;
@@ -159,7 +159,7 @@ void HepMCFileReader::printEvent() const {
       cout << setw(8) << setprecision(2) << g->momentum().t();
       cout << setw(8) << setprecision(2) << g->generatedMass();       
       // tau=L/(gamma*beta*c) 
-      if (g->production_vertex() != 0 && g->end_vertex() != 0 && status == 2) {
+      if (g->production_vertex() != nullptr && g->end_vertex() != nullptr && status == 2) {
         cout << setw(10) << setprecision(2) <<g->production_vertex()->position().x();
         cout << setw(10) << setprecision(2) <<g->production_vertex()->position().y();
         cout << setw(10) << setprecision(2) <<g->production_vertex()->position().z();
@@ -196,7 +196,7 @@ void HepMCFileReader::ReadStats()
 {
   unsigned int particle_counter=0;
   index_to_particle.reserve(evt_->particles_size()+1); 
-  index_to_particle[0] = 0; 
+  index_to_particle[0] = nullptr;
   for (HepMC::GenEvent::vertex_const_iterator v = evt_->vertices_begin();
        v != evt_->vertices_end(); ++v ) {
     // making a list of incoming particles of the vertices

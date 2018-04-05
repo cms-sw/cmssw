@@ -4,7 +4,7 @@
  */
 
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 RPCGeometry::RPCGeometry(){}
@@ -25,7 +25,7 @@ const RPCGeometry::DetTypeContainer&  RPCGeometry::detTypes() const{
 }
 
 
-const RPCGeometry::DetUnitContainer& RPCGeometry::detUnits() const{
+const RPCGeometry::DetContainer& RPCGeometry::detUnits() const{
   return theRolls;
 }
 
@@ -45,8 +45,8 @@ const RPCGeometry::DetIdContainer& RPCGeometry::detIds() const{
 }
 
 
-const GeomDetUnit* RPCGeometry::idToDetUnit(DetId id) const{
-  return dynamic_cast<const GeomDetUnit*>(idToDet(id));
+const GeomDet* RPCGeometry::idToDetUnit(DetId id) const{
+  return dynamic_cast<const GeomDet*>(idToDet(id));
 }
 
 
@@ -56,7 +56,7 @@ const GeomDet* RPCGeometry::idToDet(DetId id) const{
     return i->second;
 
   LogDebug("RPCGeometry")<<"Invalid DetID: no GeomDet associated "<< RPCDetId(id);
-  GeomDet* geom = 0;
+  GeomDet* geom = nullptr;
   return geom;   
 }
 
@@ -79,22 +79,22 @@ const RPCRoll* RPCGeometry::roll(RPCDetId id) const{
 
 void
 RPCGeometry::add(RPCRoll* roll){
-  theDets.push_back(roll);
-  allRolls.push_back(roll);
-  theRolls.push_back(roll);
-  theRollIds.push_back(roll->geographicalId());
-  theDetIds.push_back(roll->geographicalId());
+  theDets.emplace_back(roll);
+  allRolls.emplace_back(roll);
+  theRolls.emplace_back(roll);
+  theRollIds.emplace_back(roll->geographicalId());
+  theDetIds.emplace_back(roll->geographicalId());
   GeomDetType* _t = const_cast<GeomDetType*>(&roll->type());
-  theRollTypes.push_back(_t);
+  theRollTypes.emplace_back(_t);
   theMap.insert(std::pair<DetId,GeomDetUnit*>
 		(roll->geographicalId(),roll));
 }
 
 void
 RPCGeometry::add(RPCChamber* chamber){
-  allChambers.push_back(chamber);
-  theDets.push_back(chamber);
-  theDetIds.push_back(chamber->geographicalId());
+  allChambers.emplace_back(chamber);
+  theDets.emplace_back(chamber);
+  theDetIds.emplace_back(chamber->geographicalId());
   theMap.insert(std::pair<DetId,GeomDet*>
 		(chamber->geographicalId(),chamber));
 }

@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -13,7 +13,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 
-class PFClusterCollectionMerger : public edm::EDProducer {
+class PFClusterCollectionMerger : public edm::global::EDProducer<> {
 public: 
   PFClusterCollectionMerger(const edm::ParameterSet& conf) {
     const std::vector<edm::InputTag>& inputs = 
@@ -24,15 +24,14 @@ public:
     produces<reco::PFClusterCollection>();
   }
 
-  virtual void produce(edm::Event& e, const edm::EventSetup& es) {
-    std::auto_ptr<reco::PFClusterCollection> output;
-    output.reset(new reco::PFClusterCollection);
+  void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& es) const override {
+    auto output = std::make_unique<reco::PFClusterCollection>();
     for( const auto& input : _inputs ) {
       edm::Handle<reco::PFClusterCollection> handle;
       e.getByToken(input,handle);
       output->insert(output->end(),handle->begin(),handle->end());
     }
-    e.put(output);
+    e.put(std::move(output));
   }
 private:
   std::vector<edm::EDGetTokenT<reco::PFClusterCollection> > _inputs;

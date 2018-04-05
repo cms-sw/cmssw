@@ -28,7 +28,6 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Common/interface/HandleExceptionFactory.h"
-#include "DataFormats/Common/interface/ProductData.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 #include <memory>
@@ -45,21 +44,14 @@ namespace edm {
   public:
     BasicHandle() :
       product_(),
-      prov_(0) {}
+      prov_(nullptr) {}
 
     BasicHandle(BasicHandle const& h) :
       product_(h.product_),
       prov_(h.prov_),
       whyFailedFactory_(h.whyFailedFactory_){}
 
-    explicit BasicHandle(ProductData const& productData) :
-      product_(productData.wrapper_.get()),
-      prov_(&productData.prov_) {
-    }
-
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
     BasicHandle(BasicHandle &&h) = default;
-#endif
     
     BasicHandle(WrapperBase const* iProd, Provenance const* iProv) :
       product_(iProd),
@@ -69,7 +61,7 @@ namespace edm {
     ///Used when the attempt to get the data failed
     BasicHandle(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed):
     product_(),
-    prov_(0),
+    prov_(nullptr),
     whyFailedFactory_(iWhyFailed) {}
 
     ~BasicHandle() {}
@@ -117,6 +109,12 @@ namespace edm {
     
     std::shared_ptr<HandleExceptionFactory>& whyFailedFactory()  {
       return whyFailedFactory_;
+    }
+
+    void clear() {
+      product_ = nullptr;
+      prov_ = nullptr;
+      whyFailedFactory_.reset();
     }
 
   private:

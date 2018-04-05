@@ -356,7 +356,7 @@ void SiStripModule::print( std::stringstream& ss ) const {
   std::vector<uint16_t> apvs = activeApvs();
   if ( apvs.empty() ) { ss << "NONE!"; }
   std::vector<uint16_t>::const_iterator iapv = apvs.begin();
-  for ( ; iapv != apvs.end(); iapv++ ) { ss << *iapv << ", "; }
+  for ( ; iapv != apvs.end(); ++iapv ) { ss << *iapv << ", "; }
   ss << std::endl;
   
   ss << " DcuId/DetId/nPairs                      : "
@@ -369,7 +369,7 @@ void SiStripModule::print( std::stringstream& ss ) const {
   FedCabling channels = fedChannels();
   ss << " ApvPairNum/FedCrate/FedSlot/FedId/FedCh : ";
   FedCabling::const_iterator ichan = channels.begin();
-  for ( ; ichan != channels.end(); ichan++ ) {
+  for ( ; ichan != channels.end(); ++ichan ) {
     ss << ichan->first << "/"
        << ichan->second.fedCrate_ << "/"
        << ichan->second.fedSlot_ << "/"
@@ -402,7 +402,7 @@ void SiStripModule::terse( std::stringstream& ss ) const {
   std::vector<uint16_t> apvs = activeApvs();
   if ( apvs.empty() ) { ss << "NONE!"; }
   std::vector<uint16_t>::const_iterator iapv = apvs.begin();
-  for ( ; iapv != apvs.end(); iapv++ ) { ss << *iapv << ", "; }
+  for ( ; iapv != apvs.end(); ++iapv ) { ss << *iapv << ", "; }
   ss << std::endl;
   
   ss << " DcuId/DetId/nPairs                      : "
@@ -415,7 +415,7 @@ void SiStripModule::terse( std::stringstream& ss ) const {
   FedCabling channels = fedChannels();
   ss << " ApvPairNum/FedCrate/FedSlot/FedId/FedCh : ";
   FedCabling::const_iterator ichan = channels.begin();
-  for ( ; ichan != channels.end(); ichan++ ) {
+  for ( ; ichan != channels.end(); ++ichan ) {
     ss << ichan->first << "/"
        << ichan->second.fedCrate_ << "/"
        << ichan->second.fedSlot_ << "/"

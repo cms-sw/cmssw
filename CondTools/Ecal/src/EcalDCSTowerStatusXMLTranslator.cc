@@ -6,6 +6,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/XercesStrUtils.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
@@ -69,34 +70,31 @@ int  EcalDCSTowerStatusXMLTranslator::readXML(const std::string& filename,
 int EcalDCSTowerStatusXMLTranslator::writeXML(const std::string& filename, 
 					  const EcalCondHeader& header,
 					  const EcalDCSTowerStatus& record){
+  cms::concurrency::xercesInitialize();
+
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
+
+  cms::concurrency::xercesTerminate();
+
   return 0;  
 }
 
-
 std::string EcalDCSTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalDCSTowerStatus& record){
 
-  cms::concurrency::xercesInitialize();
-  DOMImplementation*  impl =
-    DOMImplementationRegistry::getDOMImplementation(fromNative("LS").c_str());
-
-  DOMWriter* writer =static_cast<DOMImplementationLS*>(impl)->createDOMWriter( );
-  writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-
-  DOMDocumentType* doctype = impl->createDocumentType(fromNative("XML").c_str(), 0, 0 );
-  DOMDocument *    doc = 
-    impl->createDocument( 0, fromNative(DCSTowerStatus_tag).c_str(), doctype );
-
-  doc->setEncoding(fromNative("UTF-8").c_str() );
-  doc->setStandalone(true);
-  doc->setVersion(fromNative("1.0").c_str() );
-
+  unique_ptr<DOMImplementation> impl( DOMImplementationRegistry::getDOMImplementation(cms::xerces::uStr("LS").ptr()));
+  
+  DOMLSSerializer* writer = impl->createLSSerializer();
+  if( writer->getDomConfig()->canSetParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true ))
+    writer->getDomConfig()->setParameter( XMLUni::fgDOMWRTFormatPrettyPrint, true );
+  
+  DOMDocumentType* doctype = impl->createDocumentType( cms::xerces::uStr("XML").ptr(), nullptr, nullptr );
+  DOMDocument* doc = impl->createDocument( nullptr, cms::xerces::uStr(DCSTowerStatus_tag.c_str()).ptr(), doctype );
   DOMElement* root = doc->getDocumentElement();
 
   xuti::writeHeader(root,header);
   std::cout << " barrel size " << record.barrelItems().size() << std::endl;
-  if (!record.barrelItems().size()) return std::string();
+  if (record.barrelItems().empty()) return std::string();
   for(uint cellid = 0;
       cellid < EcalTrigTowerDetId::kEBTotalTowers;
       ++cellid) {
@@ -108,7 +106,7 @@ std::string EcalDCSTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& heade
   } 
 
   std::cout << " endcap size " << record.endcapItems().size() << std::endl;
-  if (!record.endcapItems().size()) return std::string();
+  if (record.endcapItems().empty()) return std::string();
   for(uint cellid = 0;
       cellid < EcalTrigTowerDetId::kEETotalTowers;
       ++cellid) {
@@ -121,8 +119,11 @@ std::string EcalDCSTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& heade
     WriteNodeWithValue(cellnode, DCSStatusCode_tag, record[rawid].getStatusCode());
   }
 
-  std::string dump = toNative(writer->writeToString(*root)); 
-  doc->release(); 
+  std::string dump = cms::xerces::toString( writer->writeToString( root ));
+  doc->release();
+  doctype->release();
+  writer->release();
+
   return dump;
 }
 
@@ -130,7 +131,7 @@ void EcalDCSTowerStatusXMLTranslator::plot(std::string fn, const EcalDCSTowerSta
   std::ofstream fout(fn.c_str());
   int valEB[34][72];
   std::cout << " barrel size " << record.barrelItems().size() << std::endl;
-  if (!record.barrelItems().size()) return;
+  if (record.barrelItems().empty()) return;
   for(uint cellid = 0;
       cellid < EcalTrigTowerDetId::kEBTotalTowers;
       ++cellid) {
@@ -150,7 +151,7 @@ void EcalDCSTowerStatusXMLTranslator::plot(std::string fn, const EcalDCSTowerSta
   }
 
   std::cout << " endcap size " << record.endcapItems().size() << std::endl;
-  if (!record.endcapItems().size()) return;
+  if (record.endcapItems().empty()) return;
   int valEE[2][20][20];
   for(int k = 0 ; k < 2; k++ ) 
     for(int ix = 0 ; ix < 20; ix++) 

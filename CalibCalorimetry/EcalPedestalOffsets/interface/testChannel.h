@@ -42,7 +42,7 @@ class testChannel: public edm::EDAnalyzer
     testChannel (const edm::ParameterSet& ps) ;
     
     //! Destructor
-    virtual ~testChannel () ;
+    ~testChannel () override ;
     
     //! Subscribe/Unsubscribe to Monitoring Elements
     void subscribe (void) ;
@@ -50,13 +50,13 @@ class testChannel: public edm::EDAnalyzer
     void unsubscribe (void) ;
     
     ///! Analyze
-    void analyze (edm::Event const& event, edm::EventSetup const& eventSetup) ;
+    void analyze (edm::Event const& event, edm::EventSetup const& eventSetup) override ;
     
     //! BeginJob
-    void beginJob () ;
+    void beginJob () override ;
     
     //! EndJob
-    void endJob (void) ;
+    void endJob (void) override ;
         
   private:
  

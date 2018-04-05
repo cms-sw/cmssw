@@ -5,7 +5,7 @@
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <utility>
 #include <vector>
 

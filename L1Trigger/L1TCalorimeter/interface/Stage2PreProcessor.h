@@ -15,19 +15,17 @@
 
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
-
 namespace l1t {
-    
-  class Stage2PreProcessor { 
+
+  class Stage2PreProcessor {
   public:
     virtual void processEvent(const std::vector<l1t::CaloTower> & inTowers,
 			      std::vector<l1t::CaloTower> & outTowers) = 0;
 
     virtual ~Stage2PreProcessor(){};
 
-  }; 
-  
-} 
+  };
+
+}
 
 #endif

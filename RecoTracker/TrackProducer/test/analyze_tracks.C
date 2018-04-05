@@ -1,17 +1,17 @@
 {
 gSystem->Load("libFWCoreFWLite.so");
-AutoLibraryLoader::enable();
+FWLiteEnabler::enable();
 /////////SET THESE VALUES///////////////
 TFile file("TracksParTest2.root");
 TTree * tree = (TTree *) gROOT->FindObject("Events");
 TFile outFile("graphsParTest2.root","recreate");
 float intervals[] = {0,0.5,1.0,1.5,2.0,2.5};
 int bins = 5;
-char * ptinterval  = "4.99<P_{T}<5.01";
-char * etainterval = "|#eta|<2.5";
-char * rs  = "recoTracks_rsWithMaterialTracks__RsWithMaterial";
-char * ctf = "recoTracks_ctfWithMaterialTracks__FinalFits";
-char * sim = "SimTracks_SimG4Object__Test";
+const char * ptinterval  = "4.99<P_{T}<5.01";
+const char * etainterval = "|#eta|<2.5";
+const char * rs  = "recoTracks_rsWithMaterialTracks__RsWithMaterial";
+const char * ctf = "recoTracks_ctfWithMaterialTracks__FinalFits";
+const char * sim = "SimTracks_SimG4Object__Test";
 ////////////////////////////////////////
 vector<float> tot;
 vector<float> ptrmsRS;

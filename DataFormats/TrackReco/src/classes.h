@@ -29,11 +29,13 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
+#include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 
 #include <vector>
 
 namespace DataFormats_TrackReco {
   struct dictionary {
+    std::bitset<reco::TrackBase::algoSize> ba;
     reco::TrackExtraCollection v3;
     edm::Wrapper<reco::TrackExtraCollection> c3;
     edm::Ref<reco::TrackExtraCollection> r3;
@@ -89,6 +91,9 @@ namespace DataFormats_TrackReco {
     edm::reftobase::Holder<reco::Track, reco::TrackRef> h_tk_tkr;
     std::vector< edm::RefToBase<reco::Track> >		rtb_tk_vect;
 
+    reco::TrackBaseRefVector tbrv;
+    edm::Wrapper<reco::TrackBaseRefVector> wtbrv;
+
     edm::RefToBaseProd<reco::Track> aaaaaa;
     std::vector<std::pair<edm::RefToBase<reco::Track>,double> > aaaaaaaaaa;
     std::pair<edm::RefToBase<reco::Track>,double> aaaaaaaaaaaa;
@@ -134,5 +139,8 @@ namespace DataFormats_TrackReco {
     reco::DeDxHitInfo::DeDxHitInfoContainer hitInfoContainerDEDX;
     reco::DeDxHitInfo::DeDxHitInfoContainerCollection hitInfoContainerDEDXc;
 
+    SeedStopInfo ssi;
+    std::vector<SeedStopInfo> vssi;
+    edm::Wrapper<std::vector<SeedStopInfo> > wvssi;
   };
 }

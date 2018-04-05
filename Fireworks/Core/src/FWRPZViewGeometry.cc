@@ -36,6 +36,7 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 //
 //
@@ -53,15 +54,16 @@
 FWRPZViewGeometry::FWRPZViewGeometry(const fireworks::Context& context):
    FWViewGeometryList(context),
 
-   m_rhoPhiGeo(0),
-   m_rhoZGeo(0),
+   m_rhoPhiGeo(nullptr),
+   m_rhoZGeo(nullptr),
 
-   m_pixelBarrelElements(0),
-   m_pixelEndcapElements(0),
-   m_trackerBarrelElements(0),
-   m_trackerEndcapElements(0),
-   m_rpcEndcapElements(0),
-   m_GEMElements(0)
+   m_pixelBarrelElements(nullptr),
+   m_pixelEndcapElements(nullptr),
+   m_trackerBarrelElements(nullptr),
+   m_trackerEndcapElements(nullptr),
+   m_rpcEndcapElements(nullptr),
+   m_GEMElements(nullptr),
+   m_ME0Elements(nullptr)
 {
    SetElementName("RPZGeomShared");
 }
@@ -82,7 +84,7 @@ FWRPZViewGeometry::~FWRPZViewGeometry()
 void
 FWRPZViewGeometry::initStdGeoElements(const FWViewType::EType type)
 {
-   assert(m_geom != 0);
+   assert(m_geom != nullptr);
 
    if (type == FWViewType::kRhoZ)
    {
@@ -200,6 +202,7 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
                DTChamberId id( iWheel, iStation, iSector );
                unsigned int rawid = id.rawId();
                FWGeometry::IdToInfoItr det = m_geom->find( rawid );
+               if (det == m_geom->mapEnd()) return container;
                estimateProjectionSizeDT( *det, min_rho, max_rho, min_z, max_z );
             }
             if ( min_rho > max_rho || min_z > max_z ) continue;
@@ -242,6 +245,7 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
       {
          unsigned int rawid = i->rawId();
          TEveGeoShape* shape = m_geom->getEveShape(rawid);
+         if (!shape) return cscContainer;
          addToCompound(shape, kFWMuonEndcapLineColorIndex);
          shape->SetName(Form(" e:%d r:%d s:%d chamber %d",i->endcap(), i->ring(), i->station(), i->chamber() ));
          cscContainer->AddElement(shape);
@@ -368,6 +372,7 @@ FWRPZViewGeometry::showPixelBarrel( bool show )
            id != ids.end(); ++id )
       {
          TEveGeoShape* shape = m_geom->getEveShape( *id );
+         if (!shape) return;
          shape->SetTitle(Form("PixelBarrel %d",*id));
          addToCompound(shape, kFWPixelBarrelColorIndex);
          m_pixelBarrelElements->AddElement( shape );
@@ -394,7 +399,7 @@ FWRPZViewGeometry::showPixelEndcap( bool show )
            id != ids.end(); ++id )
       {
          TEveGeoShape* shape = m_geom->getEveShape( *id );
-
+         if (!shape) return;
          shape->SetTitle(Form("PixelEndCap %d",*id));
          addToCompound(shape, kFWPixelEndcapColorIndex);
          m_pixelEndcapElements->AddElement( shape );
@@ -423,7 +428,8 @@ FWRPZViewGeometry::showTrackerBarrel( bool show )
       for( std::vector<unsigned int>::const_iterator id = ids.begin();
            id != ids.end(); ++id )
       {
-         TEveGeoShape* shape = m_geom->getEveShape( *id ); 
+         TEveGeoShape* shape = m_geom->getEveShape( *id );
+         if (!shape) return;
          addToCompound(shape, kFWTrackerBarrelColorIndex);
          m_trackerBarrelElements->AddElement( shape );
       }
@@ -432,7 +438,7 @@ FWRPZViewGeometry::showTrackerBarrel( bool show )
            id != ids.end(); ++id )
       {
          TEveGeoShape* shape = m_geom->getEveShape( *id );
-
+         if (!shape) return;
          shape->SetTitle(Form("TrackerBarrel %d",*id));
          addToCompound(shape, kFWTrackerBarrelColorIndex);
          m_trackerBarrelElements->AddElement( shape );
@@ -462,6 +468,8 @@ FWRPZViewGeometry::showTrackerEndcap( bool show )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
          addToCompound(shape, kFWTrackerEndcapColorIndex);
+
+         if (!shape) return;
          m_trackerEndcapElements->AddElement( shape );
       }
       ids = m_geom->getMatchedIds( FWGeometry::Tracker, FWGeometry::TEC );
@@ -469,8 +477,8 @@ FWRPZViewGeometry::showTrackerEndcap( bool show )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
-
          shape->SetTitle(Form("TrackerEndcap %d",*id));
+         if (!shape) return;
          addToCompound(shape, kFWTrackerEndcapColorIndex);
          m_trackerEndcapElements->AddElement( shape );
       }
@@ -528,6 +536,7 @@ FWRPZViewGeometry::showRpcEndcap( bool show )
       for (std::vector<RPCDetId>::iterator i = ids.begin(); i != ids.end(); ++i)
       {
          TEveGeoShape* shape = m_geom->getEveShape(i->rawId());
+         if (!shape) return;
          addToCompound(shape, kFWMuonEndcapLineColorIndex);
          m_rpcEndcapElements->AddElement(shape);
          gEve->AddToListTree(shape, true);
@@ -549,40 +558,77 @@ FWRPZViewGeometry::showRpcEndcap( bool show )
 void
 FWRPZViewGeometry::showGEM( bool show )
 {
-   if( !m_GEMElements && show )
-   {
-      m_GEMElements = new TEveElementList("GEM");
+  // hardcoded gem and me0; need to find better way for different gem geometries
+  if( !m_GEMElements && show ){
+    m_GEMElements = new TEveElementList("GEM");
 
+    for( Int_t iRegion = GEMDetId::minRegionId; iRegion <= GEMDetId::maxRegionId; iRegion= iRegion+2){
+      int mxSt = m_geom->versionInfo().haveExtraDet("GE2") ? 3:1; 
+
+      for( Int_t iStation = GEMDetId::minStationId; iStation <= mxSt; ++iStation ){	      
+	Int_t iRing = 1;
+	for( Int_t iLayer = GEMDetId::minLayerId; iLayer <= GEMDetId::maxLayerId ; ++iLayer ){
+	  int maxChamber = 36;
+	  if (iStation >= 2) maxChamber = 18;
+
+	  for( Int_t iChamber = 1; iChamber <= maxChamber; ++iChamber ){
+	    int maxRoll = iChamber%2 ? 9:10;
+	    if (iStation == 2) maxRoll = 8;
+	    if (iStation == 3) maxRoll = 12;
+
+	    for (Int_t iRoll = GEMDetId::minRollId; iRoll <= maxRoll ; ++iRoll ){
+	      GEMDetId id( iRegion, iRing, iStation, iLayer, iChamber, iRoll );
+	      TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+	      if (shape){
+		addToCompound(shape, kFWMuonEndcapLineColorIndex);
+		m_GEMElements->AddElement( shape );
+		gEve->AddToListTree(shape, true);
+	      }
+	    }
+	  }
+	}
+      }
+    }
       
-      std::vector<GEMDetId> ids;
-      int rArr [] = { -1, 1};  // front back region
-      int cArr [] = { 9, 10, 29, 30}; // top bottom chamber
-
-      for (int ri = 0; ri < 2; ++ri ) 
-         for (int ci= 0; ci < 4; ++ci) {
-            int minRoll = 2; 
-            //if (ci == 1 || ci == 3) minRoll = 2;
-            for (int roll = minRoll; roll <=10; ++roll)
-               for (int layer = 1; layer <=2; ++layer)
-               {
-                  GEMDetId id(rArr[ri], 1, 1, layer, cArr[ci], roll);
-                  TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
-                  addToCompound(shape, kFWMuonEndcapLineColorIndex);
-                  m_GEMElements->AddElement( shape );
-               }
-         }
-
-
-
-      AddElement(m_GEMElements);
-      importNew(m_GEMElements);
-   }
-   if (m_GEMElements)
-   {
-      m_GEMElements->SetRnrState(show);
-      gEve->Redraw3D();
-   }
+    AddElement(m_GEMElements);
+    importNew(m_GEMElements);
+  }
+  if (m_GEMElements){
+    m_GEMElements->SetRnrState(show);
+    gEve->Redraw3D();
+  }
 }
+
+void
+FWRPZViewGeometry::showME0( bool show )
+{
+  if( !m_ME0Elements && show ){
+    m_ME0Elements = new TEveElementList("ME0");
+
+    for( Int_t iRegion = ME0DetId::minRegionId; iRegion <= ME0DetId::maxRegionId; iRegion= iRegion+2 ){
+      for( Int_t iLayer = 1; iLayer <= 6 ; ++iLayer ){
+	for( Int_t iChamber = 1; iChamber <= 18; ++iChamber ){
+	  Int_t iRoll = 1;
+	  ME0DetId id( iRegion, iLayer, iChamber, iRoll );
+	  TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+	  if (shape){
+	    addToCompound(shape, kFWMuonEndcapLineColorIndex);
+	    m_ME0Elements->AddElement( shape );
+	    gEve->AddToListTree(shape, true);
+	  }
+	}
+      }
+    }
+      
+    AddElement(m_ME0Elements);
+    importNew(m_ME0Elements);
+  }
+  if (m_ME0Elements){
+    m_ME0Elements->SetRnrState(show);
+    gEve->Redraw3D();
+  }
+}
+
 //-------------------------------------
 
 void FWRPZViewGeometry::importNew(TEveElementList* x)

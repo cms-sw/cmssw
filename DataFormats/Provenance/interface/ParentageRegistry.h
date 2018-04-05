@@ -38,6 +38,7 @@ namespace edm
     /// value_type object, and 'false' if the
     /// value_type object was already present.
     bool insertMapped(value_type const& v);
+    bool insertMapped(value_type&& v);
     
     ///Not thread safe
     void clear();

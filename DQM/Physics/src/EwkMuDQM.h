@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
 // #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -29,13 +29,14 @@ class MonitorElement;
 
 class EwkMuDQM : public DQMEDAnalyzer {
  public:
-  EwkMuDQM(const edm::ParameterSet&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+   EwkMuDQM(const edm::ParameterSet&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+protected:
   //Book histograms
   void bookHistograms(DQMStore::IBooker &,
     edm::Run const &, edm::EventSetup const &) override;
-  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+   void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   void init_histograms();
 
@@ -85,7 +86,7 @@ class EwkMuDQM : public DQMEDAnalyzer {
   int nPhoMax_;
 
   bool isValidHltConfig_;
-  HLTConfigProvider hltConfigProvider_;
+  HLTPrescaleProvider hltPrescaleProvider_;
 
   unsigned int nall;
   unsigned int nrec;

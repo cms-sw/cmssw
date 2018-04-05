@@ -4,7 +4,7 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 

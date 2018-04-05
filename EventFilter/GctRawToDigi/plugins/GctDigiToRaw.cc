@@ -51,7 +51,7 @@ GctDigiToRaw::GctDigiToRaw(const edm::ParameterSet& iConfig) :
   produces<FEDRawDataCollection>();
   const edm::InputTag rctInputTag = iConfig.getParameter<edm::InputTag>("rctInputLabel");
   const edm::InputTag gctInputTag = iConfig.getParameter<edm::InputTag>("gctInputLabel");
-  const std::string gctInputLabelStr = gctInputTag.label();
+  const std::string& gctInputLabelStr = gctInputTag.label();
   tokenL1GctEmCand_isoEm_ = consumes<L1GctEmCandCollection>(edm::InputTag(gctInputLabelStr, "isoEm"));
   tokenL1GctEmCand_nonIsoEm_ = consumes<L1GctEmCandCollection>(edm::InputTag(gctInputLabelStr, "nonIsoEm"));
   tokenGctJetCand_cenJets_ = consumes<L1GctJetCandCollection>(edm::InputTag(gctInputLabelStr, "cenJets"));
@@ -151,7 +151,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   // create the raw data collection
-  std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
+  std::unique_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
  
   // get the GCT buffer
   FEDRawData& fedRawData=rawColl->FEDData(fedId_);
@@ -211,7 +211,7 @@ GctDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (verbose_) { print(fedRawData); }
  
   // Put the collection in the event.
-  iEvent.put(rawColl);
+  iEvent.put(std::move(rawColl));
 }
 
 

@@ -12,16 +12,16 @@ class FWCastorRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder
 {
 public:
    FWCastorRecHitProxyBuilder( void ) {}  
-   virtual ~FWCastorRecHitProxyBuilder( void ) {}
+   ~FWCastorRecHitProxyBuilder( void ) override {}
 
 
-   virtual float scaleFactor(const FWViewContext* vc) { return 10 * FWCaloRecHitDigitSetProxyBuilder::scaleFactor(vc); } 
+   float scaleFactor(const FWViewContext* vc) override { return 10 * FWCaloRecHitDigitSetProxyBuilder::scaleFactor(vc); } 
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWCastorRecHitProxyBuilder( const FWCastorRecHitProxyBuilder& );
-   const FWCastorRecHitProxyBuilder& operator=( const FWCastorRecHitProxyBuilder& );
+   FWCastorRecHitProxyBuilder( const FWCastorRecHitProxyBuilder& ) = delete;
+   const FWCastorRecHitProxyBuilder& operator=( const FWCastorRecHitProxyBuilder& ) = delete;
 };
 
 REGISTER_FWPROXYBUILDER( FWCastorRecHitProxyBuilder, CastorRecHitCollection, "Castor RecHit", FWViewType::kISpyBit );

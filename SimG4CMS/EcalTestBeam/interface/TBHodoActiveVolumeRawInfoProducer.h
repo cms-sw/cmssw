@@ -6,8 +6,7 @@
  *
  */
 
-
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,24 +23,25 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-class TBHodoActiveVolumeRawInfoProducer: public edm::EDProducer{
+class TBHodoActiveVolumeRawInfoProducer: public edm::stream::EDProducer<>
+{
 
-  
- public:
+public:
   
   /// Constructor
-  TBHodoActiveVolumeRawInfoProducer(const edm::ParameterSet& ps);
+  explicit TBHodoActiveVolumeRawInfoProducer(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~TBHodoActiveVolumeRawInfoProducer();
+  ~TBHodoActiveVolumeRawInfoProducer() override;
   
   /// Produce digis out of raw data
-  void produce(edm::Event & event, const edm::EventSetup& eventSetup);
+  void produce(edm::Event & event, const edm::EventSetup& eventSetup) override;
   
 private:
 
   double myThreshold;
 
+  edm::EDGetTokenT<edm::PCaloHitContainer> m_EcalToken;
   EcalTBHodoscopeGeometry * theTBHodoGeom_;
 };
 

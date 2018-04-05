@@ -44,13 +44,13 @@ class L1JPTOffsetCorrectorImpl : public reco::JetCorrectorImpl
 			   const reco::JetCorrector* offsetService);   
 
     //----- apply correction using Jet information only -------
-    virtual double correction(const LorentzVector& fJet) const override;
+    double correction(const LorentzVector& fJet) const override;
 
     //----- apply correction using Jet information only -------
-    virtual double correction(const reco::Jet& fJet) const override;
+    double correction(const reco::Jet& fJet) const override;
 
     //----- if correction needs event information -------------
-    virtual bool refRequired() const override {return false;}
+    bool refRequired() const override {return false;}
 
   private:
     //----- member data ---------------------------------------

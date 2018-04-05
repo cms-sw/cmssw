@@ -7,6 +7,7 @@
 
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -17,6 +18,9 @@
 
 class CutApplicatorWithEventContentBase : public CutApplicatorBase {
  public:  
+
+ CutApplicatorWithEventContentBase(): CutApplicatorBase() {}
+
  CutApplicatorWithEventContentBase(const edm::ParameterSet& c) :
   CutApplicatorBase(c) {
   }
@@ -32,7 +36,7 @@ class CutApplicatorWithEventContentBase : public CutApplicatorBase {
   virtual void getEventContent(const edm::EventBase&) = 0;
     
   //! Destructor
-  virtual ~CutApplicatorWithEventContentBase(){};
+  ~CutApplicatorWithEventContentBase() override{};
   
  protected:
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)

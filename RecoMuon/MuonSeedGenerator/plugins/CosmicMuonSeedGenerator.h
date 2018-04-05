@@ -30,12 +30,12 @@ class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
   CosmicMuonSeedGenerator(const edm::ParameterSet&);
   
   /// Destructor
-  virtual ~CosmicMuonSeedGenerator();
+  ~CosmicMuonSeedGenerator() override;
   
   // Operations
 
   /// reconstruct muon's seeds
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 

@@ -4,10 +4,10 @@
 #include "DQMOffline/CalibTracker/plugins/SiStripBadComponentsDQMServiceReader.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 #include <sys/time.h>
 
 #include <boost/lexical_cast.hpp>
@@ -23,7 +23,7 @@ void SiStripBadComponentsDQMServiceReader::analyze( const edm::Event& e, const e
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   uint32_t FedErrorMask = 1;     // bit 0
@@ -125,7 +125,7 @@ string SiStripBadComponentsDQMServiceReader::detIdToString(const DetId & detid, 
       break;
     }
   }
-  std::string name( detector + "\t" + boost::lexical_cast<string>(layer) + "\t" + boost::lexical_cast<string>(stereo) + "\t" );
+  std::string name( detector + "\t" + std::to_string(layer) + "\t" + std::to_string(stereo) + "\t" );
   if( side == 1 ) {
     name += "-";
   }

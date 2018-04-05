@@ -1,13 +1,13 @@
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "SimMuon/MCTruth/interface/TrackerMuonHitExtractor.h"
@@ -82,7 +82,7 @@ namespace muonAssociatorByHitsDiagnostics {
          
     if (crossingframe) {
       event.getByLabel(simtracksXFTag,cf_simtracks);
-      auto_ptr<MixCollection<SimTrack> > SimTk( new MixCollection<SimTrack>(cf_simtracks.product()) );
+      unique_ptr<MixCollection<SimTrack> > SimTk( new MixCollection<SimTrack>(cf_simtracks.product()) );
       edm::LogVerbatim("MuonAssociatorByHits")<<"\n"<<"CrossingFrame<SimTrack> collection with InputTag = "<<simtracksXFTag
                                               <<" has size = "<<SimTk->size();
       int k = 0;
@@ -95,7 +95,7 @@ namespace muonAssociatorByHitsDiagnostics {
           <<"\n * "<<*ITER <<endl;
       }
       event.getByLabel(simtracksXFTag,cf_simvertices);
-      auto_ptr<MixCollection<SimVertex> > SimVtx( new MixCollection<SimVertex>(cf_simvertices.product()) );
+      unique_ptr<MixCollection<SimVertex> > SimVtx( new MixCollection<SimVertex>(cf_simvertices.product()) );
       edm::LogVerbatim("MuonAssociatorByHits")<<"\n"<<"CrossingFrame<SimVertex> collection with InputTag = "<<simtracksXFTag
                                               <<" has size = "<<SimVtx->size();
       int kv = 0;
@@ -137,25 +137,16 @@ namespace muonAssociatorByHitsDiagnostics {
 
 MuonAssociatorByHits::MuonAssociatorByHits (const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :  
   helper_(conf),
-  conf_(conf)
+  conf_(conf),
+  trackerHitAssociatorConfig_(conf, std::move(iC))
 {
   //hack for consumes
   RPCHitAssociator rpctruth(conf,std::move(iC));
+  GEMHitAssociator gemtruth(conf,std::move(iC));
   DTHitAssociator dttruth(conf,std::move(iC));
   CSCHitAssociator muonTruth(conf,std::move(iC));
-  TrackerHitAssociator trackertruth(conf,std::move(iC));
   if( conf.getUntrackedParameter<bool>("dumpInputCollections") ) {
     diagnostics_.reset( new InputDumper(conf, std::move(iC)) );
-  }
-}
-
-//compatibility constructor - argh
-MuonAssociatorByHits::MuonAssociatorByHits (const edm::ParameterSet& conf) :  
-  helper_(conf),
-  conf_(conf)
-{
-  if( conf.getUntrackedParameter<bool>("dumpInputCollections") ) {
-    diagnostics_.reset( new InputDumper(conf) );
   }
 }
 
@@ -178,12 +169,12 @@ MuonAssociatorByHits::associateRecoToSim( const edm::RefToBaseVector<reco::Track
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  setup->get<IdealGeometryRecord>().get(tTopoHand);
+  setup->get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
 
   // Tracker hit association  
-  TrackerHitAssociator trackertruth(*e, conf_);
+  TrackerHitAssociator trackertruth(*e, trackerHitAssociatorConfig_);
   // CSC hit association
   CSCHitAssociator csctruth(*e,*setup,conf_);
   // DT hit association
@@ -191,8 +182,10 @@ MuonAssociatorByHits::associateRecoToSim( const edm::RefToBaseVector<reco::Track
   DTHitAssociator dttruth(*e,*setup,conf_,printRtS);  
   // RPC hit association
   RPCHitAssociator rpctruth(*e,*setup,conf_);
+  // GEM hit association
+  GEMHitAssociator gemtruth(*e,*setup,conf_);
    
-  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth};
+  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth};
 
   if(diagnostics_) {
     resources.diagnostics_ = [this, e](const TrackHitsCollection& hC, const TrackingParticleCollection& pC) {
@@ -224,11 +217,11 @@ MuonAssociatorByHits::associateSimToReco( const edm::RefToBaseVector<reco::Track
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  setup->get<IdealGeometryRecord>().get(tTopoHand);
+  setup->get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
   // Tracker hit association  
-  TrackerHitAssociator trackertruth(*e, conf_);
+  TrackerHitAssociator trackertruth(*e, trackerHitAssociatorConfig_);
   // CSC hit association
   CSCHitAssociator csctruth(*e,*setup,conf_);
   // DT hit association
@@ -236,8 +229,10 @@ MuonAssociatorByHits::associateSimToReco( const edm::RefToBaseVector<reco::Track
   DTHitAssociator dttruth(*e,*setup,conf_,printRtS);  
   // RPC hit association
   RPCHitAssociator rpctruth(*e,*setup,conf_);
+  // GEM hit association
+  GEMHitAssociator gemtruth(*e,*setup,conf_);
    
-  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth};
+  MuonAssociatorByHitsHelper::Resources resources = {tTopo, &trackertruth, &csctruth, &dttruth, &rpctruth, &gemtruth};
   
   auto bareAssoc = helper_.associateSimToRecoIndices(tH, TPCollectionH, resources);
   for (auto it = bareAssoc.begin(), ed = bareAssoc.end(); it != ed; ++it) {

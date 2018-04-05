@@ -26,9 +26,9 @@
 #include "G4PhysicalConstants.hh"
 
 //________________________________________________________________________________________
-DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
-	       const SensitiveDetectorCatalog & clg,
-	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
+DreamSD::DreamSD(const std::string& name, const DDCompactView & cpv,
+		 const SensitiveDetectorCatalog & clg,
+		 edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager) {
 
   edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ECalSD");
@@ -39,6 +39,8 @@ DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
   birk3  = m_EC.getParameter<double>("BirkC3");
   slopeLY= m_EC.getParameter<double>("SlopeLightYield");
   readBothSide_ = m_EC.getUntrackedParameter<bool>("ReadBothSide", false);
+
+  chAngleIntegrals_.reset(nullptr);
   
   edm::LogInfo("EcalSim")  << "Constructing a DreamSD  with name " << GetName() << "\n"
 			   << "DreamSD:: Use of Birks law is set to      " 
@@ -76,7 +78,7 @@ DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
 //________________________________________________________________________________________
 bool DreamSD::ProcessHits(G4Step * aStep, G4TouchableHistory *) {
 
-  if (aStep == NULL) {
+  if (aStep == nullptr) {
     return true;
   } else {
     side = 1;
@@ -166,7 +168,7 @@ void DreamSD::initRun() {
 
   // Get the material and set properties if needed
   DimensionMap::const_iterator ite = xtalLMap.begin();
-  G4LogicalVolume* lv = (ite->first);
+  const G4LogicalVolume* lv = (ite->first);
   G4Material* material = lv->GetMaterial();
   edm::LogInfo("EcalSim") << "DreamSD::initRun: Initializes for material " 
 			  << material->GetName() << " in " << lv->GetName();
@@ -182,7 +184,7 @@ void DreamSD::initRun() {
 
 
 //________________________________________________________________________________________
-uint32_t DreamSD::setDetUnitId(G4Step * aStep) { 
+uint32_t DreamSD::setDetUnitId(const G4Step * aStep) { 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   uint32_t id = (touch->GetReplicaNumber(1))*10 + (touch->GetReplicaNumber(0));
   LogDebug("EcalSim") << "DreamSD:: ID " << id;
@@ -191,14 +193,11 @@ uint32_t DreamSD::setDetUnitId(G4Step * aStep) {
 
 
 //________________________________________________________________________________________
-void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
+void DreamSD::initMap(const std::string& sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
-  DDSpecificsFilter filter;
-  DDValue           ddv(attribute,sd,0);
-  filter.setCriteria(ddv,DDSpecificsFilter::equals);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
+  DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
+  DDFilteredView fv(cpv,filter);
   fv.firstChild();
 
   const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
@@ -208,7 +207,7 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
     const DDSolid & sol  = fv.logicalPart().solid();
     std::vector<double> paras(sol.parameters());
     G4String name = sol.name().name();
-    G4LogicalVolume* lv=0;
+    G4LogicalVolume* lv=nullptr;
     for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) 
       if ((*lvcite)->GetName() == name) {
 	lv = (*lvcite);
@@ -231,7 +230,7 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
   int i=0;
   for (; ite != xtalLMap.end(); ite++, i++) {
     G4String name = "Unknown";
-    if (ite->first != 0) name = (ite->first)->GetName();
+    if (ite->first != nullptr) name = (ite->first)->GetName();
     LogDebug("EcalSim") << " " << i << " " << ite->first << " " << name 
 			<< " L = " << ite->second.first
                         << " W = " << ite->second.second;
@@ -239,9 +238,9 @@ void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
 }
 
 //________________________________________________________________________________________
-double DreamSD::curve_LY(G4Step* aStep, int flag) {
+double DreamSD::curve_LY(const G4Step* aStep, int flag) {
 
-  G4StepPoint*     stepPoint = aStep->GetPreStepPoint();
+  const G4StepPoint*     stepPoint = aStep->GetPreStepPoint();
   G4LogicalVolume* lv        = stepPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
   G4String         nameVolume= lv->GetName();
 
@@ -293,7 +292,7 @@ const double DreamSD::crystalWidth(G4LogicalVolume* lv) const {
 //________________________________________________________________________________________
 // Calculate total cherenkov deposit
 // Inspired by Geant4's Cherenkov implementation
-double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
+double DreamSD::cherenkovDeposit_(const G4Step* aStep ) {
 
   double cherenkovEnergy = 0;
   if (!materialPropertiesTable) return cherenkovEnergy;
@@ -301,7 +300,7 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
 
   // Retrieve refractive index
   G4MaterialPropertyVector* Rindex = materialPropertiesTable->GetProperty("RINDEX"); 
-  if ( Rindex == NULL ) {
+  if ( Rindex == nullptr ) {
     edm::LogWarning("EcalSim") << "Couldn't retrieve refractive index";
     return cherenkovEnergy;
   }
@@ -316,9 +315,9 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
                       << "  Pmax = " << Pmax;
   
   // Get particle properties
-  G4StepPoint* pPreStepPoint  = aStep->GetPreStepPoint();
-  G4StepPoint* pPostStepPoint = aStep->GetPostStepPoint();
-  G4ThreeVector x0 = pPreStepPoint->GetPosition();
+  const G4StepPoint* pPreStepPoint  = aStep->GetPreStepPoint();
+  const G4StepPoint* pPostStepPoint = aStep->GetPostStepPoint();
+  const G4ThreeVector& x0 = pPreStepPoint->GetPosition();
   G4ThreeVector p0 = aStep->GetDeltaPosition().unit();
   const G4DynamicParticle* aParticle = aStep->GetTrack()->GetDynamicParticle();
   const double charge = aParticle->GetDefinition()->GetPDGCharge();
@@ -428,7 +427,7 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
 double DreamSD::getAverageNumberOfPhotons_( const double charge,
 					    const double beta,
 					    const G4Material* aMaterial,
-					    G4MaterialPropertyVector* Rindex )
+					    const G4MaterialPropertyVector* Rindex )
 {
   const G4double rFact = 369.81/(eV * cm);
 
@@ -450,7 +449,7 @@ double DreamSD::getAverageNumberOfPhotons_( const double charge,
   double nMax = (*Rindex)[Rlength];
 
   // Max Cerenkov Angle Integral 
-  double CAImax = chAngleIntegrals_->GetMaxValue();
+  double CAImax = chAngleIntegrals_.get()->GetMaxValue();
 
   double dp = 0., ge = 0., CAImin = 0.;
 
@@ -524,14 +523,13 @@ bool DreamSD::setPbWO2MaterialProperties_( G4Material* aMaterial ) {
 
   // Calculate Cherenkov angle integrals: 
   // This is an ad-hoc solution (we hold it in the class, not in the material)
-  chAngleIntegrals_ = 
-    std::auto_ptr<G4PhysicsOrderedFreeVector>( new G4PhysicsOrderedFreeVector() );
+  chAngleIntegrals_.reset(new G4PhysicsOrderedFreeVector());
 
   int index = 0;
   double currentRI = RefractiveIndex[index];
   double currentPM = PhotonEnergy[index];
   double currentCAI = 0.0;
-  chAngleIntegrals_->InsertValues(currentPM, currentCAI);
+  chAngleIntegrals_.get()->InsertValues(currentPM, currentCAI);
   double prevPM  = currentPM;
   double prevCAI = currentCAI;
   double prevRI  = currentRI;
@@ -541,7 +539,7 @@ bool DreamSD::setPbWO2MaterialProperties_( G4Material* aMaterial ) {
     currentCAI = 0.5*(1.0/(prevRI*prevRI) + 1.0/(currentRI*currentRI));
     currentCAI = prevCAI + (currentPM - prevPM) * currentCAI;
 
-    chAngleIntegrals_->InsertValues(currentPM, currentCAI);
+    chAngleIntegrals_.get()->InsertValues(currentPM, currentCAI);
 
     prevPM  = currentPM;
     prevCAI = currentCAI;

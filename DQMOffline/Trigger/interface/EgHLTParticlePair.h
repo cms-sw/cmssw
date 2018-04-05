@@ -10,7 +10,7 @@ namespace egHLT {
     const T& part2;
     
     ParticlePair(const T& particle1,const T& particle2):part1(particle1),part2(particle2){}
-    ~ParticlePair(){}
+    ~ParticlePair()= default;
     
     float mass()const{return (part1.p4()+part2.p4()).mag();}
     

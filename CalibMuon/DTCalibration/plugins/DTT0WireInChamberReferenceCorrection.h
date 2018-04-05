@@ -5,6 +5,7 @@
  *  Concrete implementation of a DTT0BaseCorrection.
  *  Computes correction for t0
  *
+ *  $Revision: 1.1 $
  *  \author A. Vilela Pereira
  */
 
@@ -29,10 +30,10 @@ public:
   DTT0WireInChamberReferenceCorrection(const edm::ParameterSet&);
 
   // Destructor
-  virtual ~DTT0WireInChamberReferenceCorrection();
+  ~DTT0WireInChamberReferenceCorrection() override;
 
-  virtual void setES(const edm::EventSetup& setup);
-  virtual DTT0Data correction(const DTWireId&);
+  void setES(const edm::EventSetup& setup) override;
+  DTT0Data correction(const DTWireId&) override;
 
 private:
   DTT0Data defaultT0(const DTWireId&);

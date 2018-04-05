@@ -1,16 +1,20 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
+
 #process.Tracer = cms.Service("Tracer")
 
 ## load tau sequences up to selectedPatTaus
 process.load("PhysicsTools.PatAlgos.producersLayer1.tauProducer_cff")
+patAlgosToolsTask.add(process.makePatTausTask)
+#Temporary customize to the unit tests that fail due to old input samples
+process.patTaus.skipMissingTauID = True
 process.load("PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi")
+patAlgosToolsTask.add(process.selectedPatTaus)
 
 ## temporary fix until we find a more sustainable solution
 from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 process.particleFlowPtrs = particleFlowPtrs
+patAlgosToolsTask.add(process.particleFlowPtrs)
 
 ## make sure to keep the created objects
 process.out.outputCommands = ['keep *_selectedPat*_*_*']

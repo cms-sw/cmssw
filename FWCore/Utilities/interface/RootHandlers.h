@@ -1,6 +1,7 @@
 #ifndef FWCore_Utilities_RootHandlers_h
 #define FWCore_Utilities_RootHandlers_h
 
+#include "FWCore/Utilities/interface/propagate_const.h"
 namespace edm {
   class EventProcessor;
   class RootHandlers {
@@ -12,7 +13,7 @@ namespace edm {
       ~WarningSentry() {
         m_handler->enableWarnings_();
       }
-      RootHandlers* m_handler;
+      edm::propagate_const<RootHandlers*> m_handler;
     };
     friend struct edm::RootHandlers::WarningSentry;
     friend class edm::EventProcessor;
@@ -29,7 +30,6 @@ namespace edm {
     
   private:
     virtual void willBeUsingThreads() = 0;
-    virtual void initializeThisThreadForUse() = 0;
     
     virtual void enableWarnings_() = 0;
     virtual void ignoreWarnings_() = 0;

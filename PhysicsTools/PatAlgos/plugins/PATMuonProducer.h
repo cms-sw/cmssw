@@ -18,7 +18,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,9 +29,11 @@
 #include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 
 #include "DataFormats/PatCandidates/interface/UserData.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-
+#include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
+#include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
 
 namespace pat {
   /// foward declarations
@@ -39,15 +41,15 @@ namespace pat {
   class CaloIsolationEnergy;
 
   /// class definition
-  class PATMuonProducer : public edm::EDProducer {
+  class PATMuonProducer : public edm::stream::EDProducer<> {
 
   public:
     /// default constructir
     explicit PATMuonProducer(const edm::ParameterSet & iConfig);
     /// default destructur
-    ~PATMuonProducer();
+    ~PATMuonProducer() override;
     /// everything that needs to be done during the event loop
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+    void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
     /// description of config file parameters
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
@@ -62,11 +64,13 @@ namespace pat {
 
 
     /// common muon filling, for both the standard and PF2PAT case
-    void fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const reco::CandidateBaseRef& baseRef, const GenAssociations& genMatches, const IsoDepositMaps& deposits, const IsolationValueMaps& isolationValues) const;
+      void fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const reco::CandidateBaseRef& baseRef, const GenAssociations& genMatches, const IsoDepositMaps& deposits, const IsolationValueMaps& isolationValues) const;
     /// fill label vector from the contents of the parameter set,
     /// for the embedding of isoDeposits or userIsolation values
     template<typename T> void readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, IsolationLabels& labels, std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens);
 
+    void setMuonMiniIso(pat::Muon& aMuon, const pat::PackedCandidateCollection *pc);
+    double getRelMiniIsoPUCorrected(const pat::Muon& muon, float rho);
 
     // embed various impact parameters with errors
     // embed high level selection
@@ -77,11 +81,18 @@ namespace pat {
 			 bool primaryVertexIsValid,
 			 reco::BeamSpot & beamspot,
 			 bool beamspotIsValid );
-
+    double relMiniIsoPUCorrected( const pat::Muon& aMuon,
+				  double rho);
 
   private:
     /// input source
     edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+    
+    // for mini-iso calculation
+    edm::EDGetTokenT<pat::PackedCandidateCollection > pcToken_;
+    bool computeMiniIso_;
+    std::vector<double> miniIsoParams_;
+    double relMiniIsoPUCorrected_;
 
     /// embed the track from best muon measurement (global pflow)
     bool embedBestTrack_;
@@ -143,7 +154,31 @@ namespace pat {
     bool useUserData_;
     /// add ecal PF energy
     bool embedPfEcalEnergy_;
-
+    /// add puppi isolation
+    bool addPuppiIsolation_;
+    //PUPPI isolation tokens
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_charged_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_neutral_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPIIsolation_photons_;
+    //PUPPINoLeptons isolation tokens
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_charged_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_neutral_hadrons_;
+    edm::EDGetTokenT<edm::ValueMap<float> > PUPPINoLeptonsIsolation_photons_;
+    /// standard muon selectors
+    bool computeMuonMVA_;
+    bool computeSoftMuonMVA_;
+    bool recomputeBasicSelectors_;
+    double mvaDrMax_;
+    bool mvaUseJec_;
+    edm::EDGetTokenT<reco::JetTagCollection> mvaBTagCollectionTag_;
+    edm::EDGetTokenT<reco::JetCorrector> mvaL1Corrector_;
+    edm::EDGetTokenT<reco::JetCorrector> mvaL1L2L3ResCorrector_;
+    edm::EDGetTokenT<double> rho_;
+    pat::MuonMvaEstimator mvaEstimator_;
+    std::string mvaTrainingFile_;
+    pat::SoftMuonMvaEstimator softMvaEstimator_;
+    std::string softMvaTrainingFile_;
+    
     /// --- tools ---
     /// comparator for pt ordering
     GreaterByPt<Muon> pTComparator_;
@@ -155,16 +190,18 @@ namespace pat {
     pat::helper::EfficiencyLoader efficiencyLoader_;
     /// helper class to add userData to the muon
     pat::PATUserDataHelper<pat::Muon> userDataHelper_;
+
+    /// MC info
+    edm::EDGetTokenT<edm::ValueMap<reco::MuonSimInfo> > simInfo_;
   };
 
 }
 
 
-using namespace pat;
 
 
 template<typename T>
-void PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, IsolationLabels& labels, std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens)
+void pat::PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, pat::PATMuonProducer::IsolationLabels& labels, std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens)
 {
   labels.clear();
 
@@ -195,13 +232,14 @@ void PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig, co
     if (depconf.exists("user")) {
       std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
       std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
-      int key = UserBaseIso;
+      int key = pat::IsolationKeys::UserBaseIso;
       for ( ; it != ed; ++it, ++key) {
-       labels.push_back(std::make_pair(IsolationKeys(key), *it));
+       labels.push_back(std::make_pair(pat::IsolationKeys(key), *it));
       }
+      tokens = edm::vector_transform(labels, [this](IsolationLabel const & label){return consumes<edm::ValueMap<T> >(label.second);});
     }
   }
-  tokens = edm::vector_transform(labels, [this](IsolationLabel const & label){return consumes<edm::ValueMap<T> >(label.second);});
+  tokens = edm::vector_transform(labels, [this](pat::PATMuonProducer::IsolationLabel const & label){return consumes<edm::ValueMap<T> >(label.second);});
 }
 
 #endif

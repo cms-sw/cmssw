@@ -6,11 +6,11 @@
 #include <memory>
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
@@ -23,22 +23,21 @@
 
 using namespace std;
 
-class DTGeometryAnalyzer : public edm::EDAnalyzer {
+class DTGeometryAnalyzer : public edm::one::EDAnalyzer<>
+{
+public: 
+  DTGeometryAnalyzer( const edm::ParameterSet& pset);
+  ~DTGeometryAnalyzer() override;
 
-  public: 
-    DTGeometryAnalyzer( const edm::ParameterSet& pset);
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
-    ~DTGeometryAnalyzer();
-
-    virtual void analyze( const edm::Event&, const edm::EventSetup& );
-
-    const string& myName() { return myName_;}
-
-  private: 
-
-    const int dashedLineWidth_;
-    const string dashedLine_;
-    const string myName_;
+private: 
+  const string& myName() { return myName_;}
+  const int dashedLineWidth_;
+  const string dashedLine_;
+  const string myName_;
 };
 
 DTGeometryAnalyzer::DTGeometryAnalyzer( const edm::ParameterSet& iConfig ) : 
@@ -70,16 +69,15 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
   cout << "iter " << dashedLine_ << endl;
 
   // check detUnits
-  for(DTGeometry::DetUnitContainer::const_iterator det = pDD->detUnits().begin(); 
-      det != pDD->detUnits().end(); ++det){
+  for( const auto& det : pDD->detUnits()) {
 
-    DetId detId = (*det)->geographicalId();
+    DetId detId = det->geographicalId();
     int id = detId(); // or detId.rawId()
     const GeomDet* gdet_=pDD->idToDet(detId);
     const GeomDetUnit* gdet=pDD->idToDetUnit(detId);
     const DTLayer* lay=dynamic_cast<const DTLayer*>(gdet);
     cout << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id << endl;
-    assert(*det==gdet);
+    assert(det==gdet);
     assert(gdet_==gdet);
     assert(gdet_==lay);
   }
@@ -87,12 +85,11 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
   // check layers
   cout << "LAYERS " << dashedLine_ << endl;
-  for(vector<const DTLayer*>::const_iterator det = pDD->layers().begin(); 
-      det != pDD->layers().end(); ++det){
-    const DTTopology& topo = (*det)->specificTopology();
-    const BoundPlane& surf=(*det)->surface();
-    cout << "Layer " << (*det)->id() << " SL " << (*det)->superLayer()->id() 
-      << " chamber " << (*det)->chamber()->id() 
+  for(auto det : pDD->layers()){
+    const DTTopology& topo = det->specificTopology();
+    const BoundPlane& surf=det->surface();
+    cout << "Layer " << det->id() << " SL " << det->superLayer()->id() 
+      << " chamber " << det->chamber()->id() 
       << " Topology W/H/L: " 
       << topo.cellWidth() << "/" << topo.cellHeight() << "/" << topo.cellLenght() 
       << " first/last/# wire " << topo.firstChannel() << "/" << topo.lastChannel() << "/" << topo.channels()
@@ -106,11 +103,10 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
   // check superlayers
   cout << "SUPERLAYERS " << dashedLine_ << endl;
-  for(vector<const DTSuperLayer*>::const_iterator det = pDD->superLayers().begin(); 
-      det != pDD->superLayers().end(); ++det){
-    const BoundPlane& surf=(*det)->surface();
-    cout << "SuperLayer " << (*det)->id()
-      << " chamber " << (*det)->chamber()->id()
+  for(auto det : pDD->superLayers()){
+    const BoundPlane& surf=det->surface();
+    cout << "SuperLayer " << det->id()
+      << " chamber " << det->chamber()->id()
       << " Position " << surf.position()
       << " normVect " << surf.normalVector() 
       << " bounds W/H/L: " << surf.bounds().width() << "/" 
@@ -121,12 +117,11 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
   // check chamber
   cout << "CHAMBERS " << dashedLine_ << endl;
-  for(vector<const DTChamber*>::const_iterator det = pDD->chambers().begin(); 
-      det != pDD->chambers().end(); ++det){
+  for(auto det : pDD->chambers()){
     //cout << "Chamber " << (*det)->geographicalId().det() << endl;
-    const BoundPlane& surf=(*det)->surface();
+    const BoundPlane& surf=det->surface();
     //cout << "surf " << &surf <<  endl;
-    cout << "Chamber " << (*det)->id() 
+    cout << "Chamber " << det->id() 
       << " Position " << surf.position()
       << " normVect " << surf.normalVector() 
       << " bounds W/H/L: " << surf.bounds().width() << "/" 

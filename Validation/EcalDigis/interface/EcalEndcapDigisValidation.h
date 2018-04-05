@@ -30,8 +30,9 @@
 #include <vector>
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class EcalEndcapDigisValidation: public edm::EDAnalyzer{
+class EcalEndcapDigisValidation: public DQMEDAnalyzer{
 
     typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
 
@@ -41,27 +42,21 @@ public:
 EcalEndcapDigisValidation(const edm::ParameterSet& ps);
 
 /// Destructor
-~EcalEndcapDigisValidation();
+~EcalEndcapDigisValidation() override;
+
+void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 
 protected:
 
 /// Analyze
-void analyze(edm::Event const & e, edm::EventSetup const & c);
-
-// BeginRun
-void beginRun(edm::Run const &, edm::EventSetup const & c);
-
-// EndJob
-void endJob(void);
-
+void analyze(edm::Event const & e, edm::EventSetup const & c) override;
 
 void checkCalibrations(edm::EventSetup const & c);
 
 private:
 
  bool verbose_;
- 
- DQMStore* dbe_;
  
  std::string outputFile_;
  

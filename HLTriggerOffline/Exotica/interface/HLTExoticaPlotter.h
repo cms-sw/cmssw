@@ -39,7 +39,7 @@
 
 //const unsigned int kNull = (unsigned int) - 1;
 
-class EVTColContainer;
+struct EVTColContainer;
 
 class HLTExoticaPlotter {
 public:
@@ -77,6 +77,10 @@ private:
     std::vector<double> _parametersTurnOn;
     std::vector<double> _parametersTurnOnSumEt;
     std::vector<double> _parametersDxy;
+
+    // flag to switch off
+    bool _drop_pt2;
+    bool _drop_pt3;
 
     std::map<std::string, MonitorElement *> _elements;
 };

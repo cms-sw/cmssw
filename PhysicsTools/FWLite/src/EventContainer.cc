@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <cassert>
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "PhysicsTools/FWLite/interface/EventContainer.h"
 #include "PhysicsTools/FWLite/interface/dout.h"
 #include "DataFormats/FWLite/interface/MultiChainEvent.h"
@@ -23,7 +23,7 @@ bool EventContainer::sm_autoloaderCalled = false;
 
 EventContainer::EventContainer (optutl::CommandLineParser &parser, 
                                 FuncPtr funcPtr) : 
-   m_eventsSeen (0), m_maxWanted (0), m_parserPtr (0)
+   m_eventsSeen (0), m_maxWanted (0), m_parserPtr (nullptr)
 {
    // get the user-defined tag
    string tag;
@@ -38,13 +38,13 @@ EventContainer::EventContainer (optutl::CommandLineParser &parser,
    // Call the autoloader if not already called.
    if (! sm_autoloaderCalled)
    {
-      AutoLibraryLoader::enable();
+      FWLiteEnabler::enable();
       sm_autoloaderCalled = true;      
    }
 
    const optutl::CommandLineParser::SVec &secondaryInputFiles = 
       parser.stringVector ("secondaryInputFiles");
-   if (secondaryInputFiles.size())
+   if (!secondaryInputFiles.empty())
    {
       m_eventBasePtr = 
          new fwlite::MultiChainEvent( parser.stringVector ("inputFiles"), 

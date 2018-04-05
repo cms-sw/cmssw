@@ -23,48 +23,86 @@ TransientVertex::TransientVertex(const GlobalPoint & pos, const GlobalError & po
   withRefittedTracks(false)
 {
   theNDF = 2.*theOriginalTracks.size() - 3.;
-  //  addTracks(tracks);
+}
+
+TransientVertex::TransientVertex(const GlobalPoint & pos, const double time,
+                                 const GlobalError & posTimeError,
+                                 const std::vector<TransientTrack> & tracks, float chi2) :
+  theVertexState(pos, time, posTimeError), theOriginalTracks(tracks),
+  theChi2(chi2), theNDF(0), vertexValid(true), withPrior(false),
+  theWeightMapIsAvailable(false), theCovMapAvailable(false), 
+  withRefittedTracks(false)
+{
+  theNDF = 2.*theOriginalTracks.size() - 3.;
 }
 
 
 TransientVertex::TransientVertex(const GlobalPoint & pos, const GlobalError & posError,
-		     const std::vector<TransientTrack> & tracks, float chi2, float ndf) :
+                                 const std::vector<TransientTrack> & tracks, float chi2, float ndf) :
     theVertexState(pos, posError), theOriginalTracks(tracks),
     theChi2(chi2), theNDF(ndf), vertexValid(true), withPrior(false),
     theWeightMapIsAvailable(false), theCovMapAvailable(false), 
     withRefittedTracks(false)
 {
-  //  addTracks(tracks);
+}
+
+TransientVertex::TransientVertex(const GlobalPoint & pos, const double time,
+                                 const GlobalError & posTimeError,
+                                 const std::vector<TransientTrack> & tracks, float chi2, float ndf) :
+  theVertexState(pos, time, posTimeError), theOriginalTracks(tracks),
+  theChi2(chi2), theNDF(ndf), vertexValid(true), withPrior(false),
+  theWeightMapIsAvailable(false), theCovMapAvailable(false), 
+  withRefittedTracks(false)
+{
 }
 
 
 TransientVertex::TransientVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
-		     const GlobalPoint & pos, const GlobalError & posError,
-		     const std::vector<TransientTrack> & tracks, float chi2) :
+                                 const GlobalPoint & pos, const GlobalError & posError,
+                                 const std::vector<TransientTrack> & tracks, float chi2) :
     thePriorVertexState(priorPos, priorErr), theVertexState(pos, posError),
     theOriginalTracks(tracks), theChi2(chi2), theNDF(0), vertexValid(true),
     withPrior(true), theWeightMapIsAvailable(false), theCovMapAvailable(false),
     withRefittedTracks(false)
 {
   theNDF = 2.*theOriginalTracks.size();
-  //  addTracks(tracks);
+}
+
+TransientVertex::TransientVertex(const GlobalPoint & priorPos, const double priorTime, const GlobalError & priorErr,
+                                 const GlobalPoint & pos, const double time, const GlobalError & posError,
+                                 const std::vector<TransientTrack> & tracks, float chi2) :
+  thePriorVertexState(priorPos, priorTime, priorErr), theVertexState(pos, time, posError),
+  theOriginalTracks(tracks), theChi2(chi2), theNDF(0), vertexValid(true),
+  withPrior(true), theWeightMapIsAvailable(false), theCovMapAvailable(false),
+  withRefittedTracks(false)
+{
+  theNDF = 2.*theOriginalTracks.size();
 }
 
 
 TransientVertex::TransientVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
-		     const GlobalPoint & pos, const GlobalError & posError,
-		     const std::vector<TransientTrack> & tracks, float chi2, float ndf) :
+                                 const GlobalPoint & pos, const GlobalError & posError,
+                                 const std::vector<TransientTrack> & tracks, float chi2, float ndf) :
     thePriorVertexState(priorPos, priorErr), theVertexState(pos, posError),
     theOriginalTracks(tracks), theChi2(chi2), theNDF(ndf), vertexValid(true),
     withPrior(true), theWeightMapIsAvailable(false), theCovMapAvailable(false),
     withRefittedTracks(false)
 {
-  //  addTracks(tracks);
+}
+
+TransientVertex::TransientVertex(const GlobalPoint & priorPos, const double priorTime, const GlobalError & priorErr,
+                                 const GlobalPoint & pos, const double time, const GlobalError & posError,
+                                 const std::vector<TransientTrack> & tracks, float chi2, float ndf) :
+  thePriorVertexState(priorPos, priorTime, priorErr), theVertexState(pos, time, posError),
+  theOriginalTracks(tracks), theChi2(chi2), theNDF(ndf), vertexValid(true),
+  withPrior(true), theWeightMapIsAvailable(false), theCovMapAvailable(false),
+  withRefittedTracks(false)
+{
 }
 
 
 TransientVertex::TransientVertex(const VertexState & state, 
-		     const std::vector<TransientTrack> & tracks, float chi2) : 
+                                 const std::vector<TransientTrack> & tracks, float chi2) : 
   theVertexState(state), theOriginalTracks(tracks),
   theChi2(chi2), theNDF(0), vertexValid(true), withPrior(false),
   theWeightMapIsAvailable(false), theCovMapAvailable(false), 
@@ -75,13 +113,12 @@ TransientVertex::TransientVertex(const VertexState & state,
 
 
 TransientVertex::TransientVertex(const VertexState & state, 
-		     const std::vector<TransientTrack> & tracks, float chi2, float ndf) : 
+                                 const std::vector<TransientTrack> & tracks, float chi2, float ndf) : 
     theVertexState(state), theOriginalTracks(tracks),
     theChi2(chi2), theNDF(ndf), vertexValid(true), withPrior(false),
     theWeightMapIsAvailable(false), theCovMapAvailable(false), 
     withRefittedTracks(false) 
 {
-  //  addTracks(tracks);
 }
 
 
@@ -95,7 +132,6 @@ TransientVertex::TransientVertex(const VertexState & prior,
     withRefittedTracks(false)
 {
   theNDF = 2.*theOriginalTracks.size();
-  //  addTracks(tracks);
 }
 
 
@@ -108,15 +144,12 @@ TransientVertex::TransientVertex(const VertexState & prior,
     withPrior(true), theWeightMapIsAvailable(false),
     theCovMapAvailable(false), withRefittedTracks(false)
 {
-  //  addTracks(tracks);
 }
 
 void TransientVertex::weightMap(const TransientTrackToFloatMap & theMap)
 {
   theWeightMap = theMap;
   theWeightMapIsAvailable = true;
-//   removeTracks(); // remove trackrefs from reco::Vertex
-//   addTracks( theOriginalTracks );
 }
 
 void TransientVertex::refittedTracks(
@@ -209,11 +242,12 @@ TransientVertex::operator reco::Vertex() const
 {
    //If the vertex is invalid, return an invalid TV !
   if (!isValid()) return Vertex();
-
+  
   Vertex vertex(Vertex::Point(theVertexState.position()),
-// 	RecoVertex::convertError(theVertexState.error()), 
-	theVertexState.error().matrix_new(), 
-	totalChiSquared(), degreesOfFreedom(), theOriginalTracks.size() );
+                // 	RecoVertex::convertError(theVertexState.error()), 
+                theVertexState.error4D().matrix4D(),
+                theVertexState.time(),
+                totalChiSquared(), degreesOfFreedom(), theOriginalTracks.size() );
   for (std::vector<TransientTrack>::const_iterator i = theOriginalTracks.begin();
        i != theOriginalTracks.end(); ++i) {
 //     const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>((*i).basicTransientTrack());
@@ -234,33 +268,34 @@ TransientVertex::operator reco::Vertex() const
 
 TransientVertex::operator reco::VertexCompositePtrCandidate() const
 {
-using namespace reco;
-	if (!isValid())  return VertexCompositePtrCandidate();
-
-	VertexCompositePtrCandidate vtxCompPtrCand;
-
-	vtxCompPtrCand.setCovariance(vertexState().error().matrix_new());
-	vtxCompPtrCand.setChi2AndNdof(totalChiSquared(), degreesOfFreedom());
-	vtxCompPtrCand.setVertex(Candidate::Point(position().x(),position().y(),position().z()));
-
-	Candidate::LorentzVector p4;
-	for(std::vector<reco::TransientTrack>::const_iterator tt = theOriginalTracks.begin(); tt != theOriginalTracks.end(); ++tt)
+  using namespace reco;
+  if (!isValid())  return VertexCompositePtrCandidate();
+  
+  VertexCompositePtrCandidate vtxCompPtrCand;
+  
+  vtxCompPtrCand.setTime(vertexState().time());
+  vtxCompPtrCand.setCovariance(vertexState().error4D().matrix4D());
+  vtxCompPtrCand.setChi2AndNdof(totalChiSquared(), degreesOfFreedom());
+  vtxCompPtrCand.setVertex(Candidate::Point(position().x(),position().y(),position().z()));
+  
+  Candidate::LorentzVector p4;
+  for(std::vector<reco::TransientTrack>::const_iterator tt = theOriginalTracks.begin(); tt != theOriginalTracks.end(); ++tt)
+    {
+      if (trackWeight(*tt) < 0.5)
+	continue;
+      
+      const CandidatePtrTransientTrack* cptt = dynamic_cast<const CandidatePtrTransientTrack*>(tt->basicTransientTrack());
+      if ( cptt==nullptr )
+	edm::LogError("DynamicCastingFailed") << "Casting of TransientTrack to CandidatePtrTransientTrack failed!";
+      else
 	{
-		if (trackWeight(*tt) < 0.5)
-			continue;
-
-		const CandidatePtrTransientTrack* cptt = dynamic_cast<const CandidatePtrTransientTrack*>(tt->basicTransientTrack());
-		if ( cptt==0 )
-			edm::LogError("DynamicCastingFailed") << "Casting of TransientTrack to CandidatePtrTransientTrack failed!";
-		else
-		{
-			p4 += cptt->candidate()->p4();
-			vtxCompPtrCand.addDaughter(cptt->candidate());
-		}
+	  p4 += cptt->candidate()->p4();
+	  vtxCompPtrCand.addDaughter(cptt->candidate());
 	}
-
-	//TODO: if has refitted tracks we should scale the candidate p4 to the refitted one
-	vtxCompPtrCand.setP4(p4);
-	return vtxCompPtrCand;
+    }
+  
+  //TODO: if has refitted tracks we should scale the candidate p4 to the refitted one
+  vtxCompPtrCand.setP4(p4);
+  return vtxCompPtrCand;
 }
 

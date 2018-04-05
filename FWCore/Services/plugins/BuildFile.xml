@@ -1,4 +1,8 @@
 <use   name="FWCore/Services"/>
+<use   name="Utilities/StorageFactory"/>
+<use   name="Utilities/XrdAdaptor"/>
+<use   name="boost"/>
+<use   name="gcc-atomic"/>
 <library   file="*.cc" name="FWCoreServicesPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

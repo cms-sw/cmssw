@@ -10,7 +10,7 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
@@ -36,16 +36,6 @@ SiStripQualityChecker::SiStripQualityChecker(edm::ParameterSet const& ps):pSet_(
   SubDetFolderMap.insert(std::pair<std::string, std::string>("TIDF", "TID/PLUS"));
   SubDetFolderMap.insert(std::pair<std::string, std::string>("TIDB", "TID/MINUS"));
   badModuleList.clear();
-
-  if(!edm::Service<TkDetMap>().isAvailable()){
-    edm::LogError("TkHistoMap") <<
-      "\n------------------------------------------"
-      "\nUnAvailable Service TkHistoMap: please insert in the configuration file an instance like"
-      "\n\tprocess.TkDetMap = cms.Service(\"TkDetMap\")"
-      "\n------------------------------------------";
-  }
-  tkDetMap_=edm::Service<TkDetMap>().operator->();
-
 }
 //
 // --  Destructor
@@ -63,7 +53,7 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
     dqm_store->cd();
     std::string strip_dir = "";
     SiStripUtility::getTopFolderPath(dqm_store, "SiStrip", strip_dir); 
-    if (strip_dir.size() == 0) strip_dir = "SiStrip";
+    if (strip_dir.empty()) strip_dir = "SiStrip";
 
     // Non Standard Plots and should be put outside EventInfo folder
 
@@ -75,6 +65,33 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
     DetFractionReportMap  = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
     DetFractionReportMap->setAxisTitle("Sub Detector Type", 1);
     DetFractionReportMap->setAxisTitle("Layer/Disc Number", 2);
+
+    hname  = "detFractionReportMap_hasBadChan";
+    htitle = "SiStrip Report for Good Detector Fraction due to bad channels";
+    DetFractionReportMap_hasBadChan  = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
+    DetFractionReportMap_hasBadChan->setAxisTitle("Sub Detector Type", 1);
+    DetFractionReportMap_hasBadChan->setAxisTitle("Layer/Disc Number", 2);
+    hname  = "detFractionReportMap_hasTooManyDigis";
+    htitle = "SiStrip Report for Good Detector Fraction due to too many digis";
+    DetFractionReportMap_hasTooManyDigis  = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
+    DetFractionReportMap_hasTooManyDigis->setAxisTitle("Sub Detector Type", 1);
+    DetFractionReportMap_hasTooManyDigis->setAxisTitle("Layer/Disc Number", 2);
+    hname  = "detFractionReportMap_hasTooManyClu";
+    htitle = "SiStrip Report for Good Detector Fraction due to too many clusters";
+    DetFractionReportMap_hasTooManyClu  = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
+    DetFractionReportMap_hasTooManyClu->setAxisTitle("Sub Detector Type", 1);
+    DetFractionReportMap_hasTooManyClu->setAxisTitle("Layer/Disc Number", 2);
+    hname  = "detFractionReportMap_hasExclFed";
+    htitle = "SiStrip Report for Good Detector Fraction due to excluded FEDs";
+    DetFractionReportMap_hasExclFed  = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
+    DetFractionReportMap_hasExclFed->setAxisTitle("Sub Detector Type", 1);
+    DetFractionReportMap_hasExclFed->setAxisTitle("Layer/Disc Number", 2);
+    hname  = "detFractionReportMap_hasDcsErr";
+    htitle = "SiStrip Report for Good Detector Fraction due to DCS errors";
+    DetFractionReportMap_hasDcsErr  = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
+    DetFractionReportMap_hasDcsErr->setAxisTitle("Sub Detector Type", 1);
+    DetFractionReportMap_hasDcsErr->setAxisTitle("Layer/Disc Number", 2);
+
     hname  = "sToNReportMap";
     htitle = "SiStrip Report for Signal-to-Noise";
     SToNReportMap         = dqm_store->book2D(hname, htitle, 6,0.5,6.5,9,0.5,9.5);
@@ -98,9 +115,14 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
 	 it != SubDetFolderMap.end(); it++) {
       ibin++;
       std::string det = it->first;
-      DetFractionReportMap->setBinLabel(ibin,det);
-      SToNReportMap->setBinLabel(ibin,det);
-      SummaryReportMap->setBinLabel(ibin,det);
+      DetFractionReportMap->setBinLabel(ibin,it->second);
+      DetFractionReportMap_hasBadChan     ->setBinLabel(ibin,it->second);
+      DetFractionReportMap_hasTooManyDigis->setBinLabel(ibin,it->second);
+      DetFractionReportMap_hasTooManyClu  ->setBinLabel(ibin,it->second);
+      DetFractionReportMap_hasExclFed     ->setBinLabel(ibin,it->second);
+      DetFractionReportMap_hasDcsErr      ->setBinLabel(ibin,it->second);
+      SToNReportMap->setBinLabel(ibin,it->second);
+      SummaryReportMap->setBinLabel(ibin,it->second);
       
       SubDetMEs local_mes;
       
@@ -143,6 +165,11 @@ void SiStripQualityChecker::fillDummyStatus(){
       for (int ybin = 1; ybin < SummaryReportMap->getNbinsY()+1; ybin++) {
 	SummaryReportMap     -> Fill(xbin, ybin, -1.0);
 	DetFractionReportMap -> Fill(xbin, ybin, -1.0);
+  DetFractionReportMap_hasBadChan      -> Fill(xbin, ybin, -1.0);
+	DetFractionReportMap_hasTooManyDigis -> Fill(xbin, ybin, -1.0);
+	DetFractionReportMap_hasTooManyClu   -> Fill(xbin, ybin, -1.0);
+	DetFractionReportMap_hasExclFed      -> Fill(xbin, ybin, -1.0);
+	DetFractionReportMap_hasDcsErr       -> Fill(xbin, ybin, -1.0);
 	SToNReportMap        -> Fill(xbin, ybin, -1.0);
       }
     }
@@ -163,6 +190,11 @@ void SiStripQualityChecker::resetStatus() {
     }
     SummaryReportMap->Reset();
     DetFractionReportMap->Reset();
+    DetFractionReportMap_hasBadChan     ->Reset();
+    DetFractionReportMap_hasTooManyDigis->Reset();
+    DetFractionReportMap_hasTooManyClu  ->Reset();
+    DetFractionReportMap_hasExclFed     ->Reset();
+    DetFractionReportMap_hasDcsErr      ->Reset();
     SToNReportMap->Reset();
 
     SummaryReportGlobal->Reset();
@@ -173,6 +205,10 @@ void SiStripQualityChecker::resetStatus() {
 //
 void SiStripQualityChecker::fillStatus(DQMStore* dqm_store, const edm::ESHandle< SiStripDetCabling >& cabling, const edm::EventSetup& eSetup) {
   if (!bookedStripStatus_) bookStatus(dqm_store);
+
+  edm::ESHandle<TkDetMap> tkMapHandle;
+  eSetup.get<TrackerTopologyRcd>().get(tkMapHandle);
+  tkDetMap_ = tkMapHandle.product();
 
   fillDummyStatus();
   fillDetectorStatus(dqm_store, cabling);
@@ -231,18 +267,25 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
        ic != subDirVec.end(); ic++) {
     std::string dname = (*ic);
     if (dname.find("BadModuleList") != std::string::npos) continue;
+    if (dname.find("ring") !=std::string::npos) continue;
     std::vector<MonitorElement*> meVec;
+    
     ybin++;
     dqm_store->cd((*ic));
     meVec = dqm_store->getContents((*ic));
     uint16_t ndet = 100;
-    int errdet = 0;       
+    int errdet = 0;
+    int errdet_hasBadChan = 0;
+    int errdet_hasTooManyDigis = 0;
+    int errdet_hasTooManyClu = 0;
+    int errdet_hasExclFed = 0;
+    int errdet_hasDcsErr = 0;      
 
     int ston_stat = 1;
     int lnum = atoi(dname.substr(dname.find_last_of("_")+1).c_str());
     ndet = cabling->connectedNumber(mes.detectorTag, lnum);
      
-    getModuleStatus(dqm_store, meVec, errdet);
+    getModuleStatus(dqm_store, meVec, errdet, errdet_hasBadChan, errdet_hasTooManyDigis, errdet_hasTooManyClu, errdet_hasExclFed, errdet_hasDcsErr);
 
     for (std::vector<MonitorElement*>::const_iterator it = meVec.begin();
 	 it != meVec.end(); it++) {
@@ -250,7 +293,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
       if (!me) continue;
       std::vector<QReport *> reports = me->getQReports();
 
-      if (reports.size() == 0) continue;
+      if (reports.empty()) continue;
       std::string name = me->getName();
       
       if( name.find("Summary_ClusterStoNCorr__OnTrack") != std::string::npos){
@@ -265,8 +308,18 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore* dqm_store,
     }
     if (ndet > 0) {
       float eff_fac = 1 - (errdet*1.0/ndet);
+      float eff_fac_hasBadChan      = 1 - (errdet_hasBadChan     *1.0/ndet);
+      float eff_fac_hasTooManyDigis = 1 - (errdet_hasTooManyDigis*1.0/ndet);
+      float eff_fac_hasTooManyClu   = 1 - (errdet_hasTooManyClu  *1.0/ndet);
+      float eff_fac_hasExclFed      = 1 - (errdet_hasExclFed     *1.0/ndet);
+      float eff_fac_hasDcsErr       = 1 - (errdet_hasDcsErr      *1.0/ndet);
       fillStatusHistogram(SToNReportMap,        xbin, ybin, ston_stat);
       fillStatusHistogram(DetFractionReportMap, xbin, ybin, eff_fac);
+      fillStatusHistogram(DetFractionReportMap_hasBadChan     , xbin, ybin, eff_fac_hasBadChan     );
+      fillStatusHistogram(DetFractionReportMap_hasTooManyDigis, xbin, ybin, eff_fac_hasTooManyDigis);
+      fillStatusHistogram(DetFractionReportMap_hasTooManyClu  , xbin, ybin, eff_fac_hasTooManyClu  );
+      fillStatusHistogram(DetFractionReportMap_hasExclFed     , xbin, ybin, eff_fac_hasExclFed     );
+      fillStatusHistogram(DetFractionReportMap_hasDcsErr      , xbin, ybin, eff_fac_hasDcsErr      );
       if (ston_stat < 0) fillStatusHistogram(SummaryReportMap, xbin, ybin, eff_fac);
       else               fillStatusHistogram(SummaryReportMap, xbin, ybin, ston_stat*eff_fac);
 
@@ -309,11 +362,11 @@ void SiStripQualityChecker::printStatusReport() {
     
 
     SiStripUtility::getMEValue(local_mes.DetFraction, sval); 
-    if (sval.size() > 0) fval1 = atof(sval.c_str());
+    if (!sval.empty()) fval1 = atof(sval.c_str());
     SiStripUtility::getMEValue(local_mes.SToNFlag, sval); 
-    if (sval.size() > 0) fval2 = atof(sval.c_str());
+    if (!sval.empty()) fval2 = atof(sval.c_str());
     SiStripUtility::getMEValue(local_mes.SummaryFlag, sval); 
-    if (sval.size() > 0) fval3 = atof(sval.c_str());
+    if (!sval.empty()) fval3 = atof(sval.c_str());
 
     det_summary_str << std::setw(7) << " % of good detectors " << fval1
 		    << " SToN Flag           " << fval2
@@ -323,7 +376,7 @@ void SiStripQualityChecker::printStatusReport() {
 //
 // -- Get Module Status from Layer Level Histograms
 //
-void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<MonitorElement*>& layer_mes,int& errdet) { 
+void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<MonitorElement*>& layer_mes,int& errdet, int& errdet_hasBadChan, int& errdet_hasTooManyDigis, int& errdet_hasTooManyClu, int& errdet_hasExclFed, int& errdet_hasDcsErr) { 
   
   std::string lname;
   std::map<uint32_t,uint16_t> bad_modules;
@@ -332,7 +385,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
     MonitorElement * me = (*it);
     if (!me) continue;
     std::vector<QReport *> qreports = me->getQReports();
-    if (qreports.size() == 0) continue;
+    if (qreports.empty()) continue;
     std::string name = me->getName();
     std::vector<DQMChannel>  bad_channels_me;
     if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
@@ -361,7 +414,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
 	std::ostringstream detid_str;  
 	detid_str << detId;  
 	//now in the layer/wheel dir  
-	std::string currentdir = dqm_store->pwd();  
+	const std::string& currentdir = dqm_store->pwd();  
 	std::string thisMEpath = currentdir.substr( 0 , currentdir.rfind( "/" ) ) + "/BadModuleList/" + detid_str.str() ;  
 	
 	MonitorElement *meBadModule = dqm_store->get ( thisMEpath );  
@@ -383,6 +436,11 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
       it != bad_modules.end(); it++) {
     uint32_t detId = it->first;
     uint16_t flag  = it->second;
+    if (((flag >> 0) & 0x1) > 0) errdet_hasBadChan++;
+    if (((flag >> 1) & 0x1) > 0) errdet_hasTooManyDigis++;
+    if (((flag >> 2) & 0x1) > 0) errdet_hasTooManyClu++;
+    if (((flag >> 3) & 0x1) > 0) errdet_hasExclFed++;
+    if (((flag >> 4) & 0x1) > 0) errdet_hasDcsErr++;
     std::map<uint32_t,uint16_t>::iterator iPos = badModuleList.find(detId);
     if (iPos != badModuleList.end()){
       iPos->second = flag;
@@ -390,7 +448,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
       badModuleList.insert(std::pair<uint32_t,uint16_t>(detId,flag));
     }
   }    
-  errdet = bad_modules.size();  
+  errdet = bad_modules.size();
 }
 //
 // -- Fill Report Summary Map
@@ -405,11 +463,11 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
 // -- Create Monitor Elements for Modules
 //
 void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store, const edm::EventSetup& eSetup) {
-  if (badModuleList.size() == 0) return;
+  if (badModuleList.empty()) return;
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  eSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   dqm_store->cd();

@@ -80,8 +80,8 @@ int main(int argc, char* argv[]) {
 
   int rc = 0;
   try {
-    std::auto_ptr<edm::SiteLocalConfig> slcptr(new edm::service::SiteLocalConfigService(edm::ParameterSet()));
-    auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(slcptr);
+    std::unique_ptr<edm::SiteLocalConfig> slcptr = std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
+    auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(std::move(slcptr));
     edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
     edm::ServiceRegistry::Operate operate(slcToken);
 
@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
     bool print = more && (vm.count("print") > 0 ? true : false);
     bool printBranchDetails = more && (vm.count("printBranchDetails") > 0 ? true : false);
     bool onlyDecodeLFN = decodeLFN && !(uuid || adler32 || allowRecovery || json || events || tree || ls || print || printBranchDetails);
-    std::string selectedTree = tree ? vm["tree"].as<std::string>() : edm::poolNames::eventTreeName().c_str();
+    std::string selectedTree = tree ? vm["tree"].as<std::string>() : edm::poolNames::eventTreeName();
 
     if (events||eventsInLumis) {
       try {
@@ -148,8 +148,8 @@ int main(int argc, char* argv[]) {
       // open a data file
       if (!json) std::cout << in[j] << "\n";
       std::string const& lfn = in[j];
-      TFile *tfile = edm::openFileHdl(filesIn[j]);
-      if (tfile == 0) return 1;
+      std::unique_ptr<TFile> tfile{edm::openFileHdl(filesIn[j])};
+      if (tfile == nullptr) return 1;
 
       std::string const& pfn = filesIn[j];
 
@@ -179,7 +179,7 @@ int main(int argc, char* argv[]) {
       // Ok. Do we have the expected trees?
       for (unsigned int i = 0; i < expectedTrees.size(); ++i) {
         TTree *t = (TTree*) tfile->Get(expectedTrees[i].c_str());
-        if (t == 0) {
+        if (t == nullptr) {
           std::cout << "Tree " << expectedTrees[i] << " appears to be missing. Not a valid collection\n";
           std::cout << "Exiting\n";
           return 1;
@@ -225,9 +225,9 @@ int main(int argc, char* argv[]) {
       }
 
       // Ok. How many events?
-      int nruns = edm::numEntries(tfile, edm::poolNames::runTreeName());
-      int nlumis = edm::numEntries(tfile, edm::poolNames::luminosityBlockTreeName());
-      int nevents = edm::numEntries(tfile, edm::poolNames::eventTreeName());
+      int nruns = edm::numEntries(tfile.get(), edm::poolNames::runTreeName());
+      int nlumis = edm::numEntries(tfile.get(), edm::poolNames::luminosityBlockTreeName());
+      int nevents = edm::numEntries(tfile.get(), edm::poolNames::eventTreeName());
       if (json) {
         if (j > 0) std::cout << ',' << std::endl;
         std::cout << "{\"file\":\"" << datafile << '"'
@@ -254,13 +254,13 @@ int main(int argc, char* argv[]) {
 
       // Look at the collection contents
       if (ls) {
-        if (tfile != 0) tfile->ls();
+        if (tfile != nullptr) tfile->ls();
       }
 
       // Print out each tree
       if (print) {
         TTree *printTree = (TTree*)tfile->Get(selectedTree.c_str());
-        if (printTree == 0) {
+        if (printTree == nullptr) {
           std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
           std::cout << "Exiting\n";
           return 1;
@@ -270,7 +270,7 @@ int main(int argc, char* argv[]) {
 
       if (printBranchDetails) {
         TTree *printTree = (TTree*)tfile->Get(selectedTree.c_str());
-        if (printTree == 0) {
+        if (printTree == nullptr) {
           std::cout << "Tree " << selectedTree << " appears to be missing. Could not find it in the file.\n";
           std::cout << "Exiting\n";
           return 1;
@@ -280,11 +280,11 @@ int main(int argc, char* argv[]) {
 
       // Print out event lists
       if (events) {
-        edm::printEventLists(tfile);
+        edm::printEventLists(tfile.get());
       }
 
       if(eventsInLumis) {
-        edm::printEventsInLumis(tfile);
+        edm::printEventsInLumis(tfile.get());
       }
       
       tfile->Close();

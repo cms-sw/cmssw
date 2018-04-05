@@ -1,7 +1,11 @@
 #include "HLTriggerOffline/Btag/interface/HLTVertexPerformanceAnalyzer.h"
 
+using namespace edm;
+using namespace reco;
+
 HLTVertexPerformanceAnalyzer::HLTVertexPerformanceAnalyzer(const edm::ParameterSet& iConfig)
 {
+	mainFolder_                     = iConfig.getParameter<std::string>("mainFolder");
 	hlTriggerResults_   		= consumes<TriggerResults>(iConfig.getParameter<InputTag> ("TriggerResults"));
 	VertexCollection_           = 	edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "Vertex" ), [this](edm::InputTag const & tag){return mayConsume< reco::VertexCollection>(tag);});
 	hltPathNames_        		= iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");
@@ -77,6 +81,8 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 
 	Handle<std::vector<SimVertex> > simVertexCollection;
 	iEvent.getByToken(simVertexCollection_, simVertexCollection);
+	if (!simVertexCollection.isValid()) { edm::LogInfo("NoSimVertex") << "SimVertex collection is invalid"; return;}
+	if (simVertexCollection->empty()) { edm::LogInfo("NoSimVertex") << "SimVertex collection is empty"; return;}
 	const SimVertex simPVh = *(simVertexCollection->begin());
 	simPV=simPVh.position().z();
 	
@@ -92,19 +98,20 @@ void HLTVertexPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::
 			if (VertexCollection_Label.at(coll) != "" && VertexCollection_Label.at(coll) != "NULL" )
 			{
 				iEvent.getByToken(VertexCollection_.at(coll), VertexHandler);
-				if (VertexHandler.isValid())   VertexOK=true;
+				if (VertexHandler.isValid()>0)   VertexOK=true;
 			}
 			
-			//calculate the variable (RecoVertex - SimVertex)
-			float value=VertexHandler->begin()->z()-simPV;
-			
-			//if value is over/under flow, assign the extreme value
-			float maxValue=H1_.at(ind)["Vertex_"+VertexCollection_Label.at(coll)]->getTH1F()->GetXaxis()->GetXmax();
-			if(value>maxValue)	value=maxValue-0.0001; 
-			if(value<-maxValue)	value=-maxValue+0.0001; 
-			
-			//fill the histo
-			if (VertexOK) H1_.at(ind)["Vertex_"+VertexCollection_Label.at(coll)] -> Fill(value);
+			if (VertexOK){
+				//calculate the variable (RecoVertex - SimVertex)
+				float value=VertexHandler->begin()->z()-simPV;
+				
+				//if value is over/under flow, assign the extreme value
+				float maxValue=H1_.at(ind)["Vertex_"+VertexCollection_Label.at(coll)]->getTH1F()->GetXaxis()->GetXmax();
+				if(value>maxValue)	value=maxValue-0.0001; 
+				if(value<-maxValue)	value=-maxValue+0.0001; 
+				//fill the histo
+				H1_.at(ind)["Vertex_"+VertexCollection_Label.at(coll)] -> Fill(value);
+			}
 		}// for on VertexCollection_
 	}//for on hltPathNames_
 }
@@ -116,7 +123,7 @@ void HLTVertexPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, e
 	using namespace std;
 	std::string dqmFolder;
 	for (unsigned int ind=0; ind<hltPathNames_.size();ind++) {
-		dqmFolder = Form("HLT/BTag/Vertex/%s",hltPathNames_[ind].c_str());
+		dqmFolder = Form("%s/Vertex/%s",mainFolder_.c_str(),hltPathNames_[ind].c_str());
 		H1_.push_back(std::map<std::string, MonitorElement *>());
 		ibooker.setCurrentFolder(dqmFolder);
 		for (unsigned int coll=0; coll<VertexCollection_.size();coll++) {

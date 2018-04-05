@@ -1,10 +1,20 @@
-namespace std { } using namespace std;
-#include <sstream>
 #include <cstdlib>
+#include <iostream>
+#include <memory>
 #include <set>
-#include <algorithm>
 #include <string>
-#include "DetectorDescription/RegressionTest/interface/DDExpandedViewDump.h"
+#include <utility>
+
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDTranslation.h"
+#include "DetectorDescription/Core/interface/DDExpandedNode.h"
+#include "DetectorDescription/Core/interface/DDExpandedView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+
+using namespace std;
 
 void DDExpandedViewDump(ostream & os, DDExpandedView & ex, size_t skip, size_t sto)
 {
@@ -26,7 +36,7 @@ void DDExpandedViewDump(ostream & os, DDExpandedView & ex, size_t skip, size_t s
       s << ex.logicalPart().name() << ' '
 	<< ex.copyno() << ' ' 
 	<< ex.geoHistory() << " r="
-	<< ex.geoHistory().back().posdata()->rot_.name() << "\n"; 
+	<< ex.geoHistory().back().posdata()->ddrot().name() << "\n"; 
       DDRotationMatrix rm = ex.rotation();
       {
 	double v[9]; rm.GetComponents(v,v+9);

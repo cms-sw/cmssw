@@ -35,10 +35,10 @@ class MuonPtFilter : public edm::EDFilter {
     MuonPtFilter(const edm::ParameterSet&) ;
 
 /// Destructorquer
-    ~MuonPtFilter() ;
+    ~MuonPtFilter() override ;
 
 /* Operations */ 
-    virtual bool filter(edm::Event &, const edm::EventSetup&) override;
+    bool filter(edm::Event &, const edm::EventSetup&) override;
 
   private:
     std::string theSTAMuonLabel; // label of muons 

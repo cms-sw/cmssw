@@ -49,23 +49,25 @@ class CaloSD : public SensitiveCaloDetector,
 
 public:    
   
-  CaloSD(G4String  aSDname, const DDCompactView & cpv,
+  CaloSD(const std::string& aSDname, const DDCompactView & cpv,
          const SensitiveDetectorCatalog & clg,
          edm::ParameterSet const & p, const SimTrackManager*,
-	 int tSlice=1, bool ignoreTkID=false);
-  virtual ~CaloSD();
-  virtual bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
-  virtual bool     ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*);
-  virtual double   getEnergyDeposit(G4Step* step); 
-  virtual uint32_t setDetUnitId(G4Step* step)=0;
-  
-  virtual void     Initialize(G4HCofThisEvent * HCE);
-  virtual void     EndOfEvent(G4HCofThisEvent * eventHC);
-  virtual void     clear();
-  virtual void     DrawAll();
-  virtual void     PrintAll();
+	 float timeSlice=1., bool ignoreTkID=false);
+  ~CaloSD() override;
+  bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory) override;
+  bool     ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*) override;
 
-  void             fillHits(edm::PCaloHitContainer&,std::string n);
+  virtual double getEnergyDeposit(G4Step* step); 
+  uint32_t setDetUnitId(const G4Step* step) override =0;
+  
+  void     Initialize(G4HCofThisEvent * HCE) override;
+  void     EndOfEvent(G4HCofThisEvent * eventHC) override;
+  void     clear() override;
+  void     DrawAll() override;
+  void     PrintAll() override;
+
+  void     clearHits() override;
+  void     fillHits(edm::PCaloHitContainer&, const std::string&) override;
 
 protected:
 
@@ -77,21 +79,20 @@ protected:
   CaloG4Hit*       createNewHit();
   void             updateHit(CaloG4Hit*);
   void             resetForNewPrimary(const G4ThreeVector&, double);
-  double           getAttenuation(G4Step* aStep, double birk1, double birk2,
+  double           getAttenuation(const G4Step* aStep, double birk1, double birk2,
                                   double birk3);
 
-  virtual void     update(const BeginOfRun *);
-  virtual void     update(const BeginOfEvent *);
-  virtual void     update(const BeginOfTrack * trk);
-  virtual void     update(const EndOfTrack * trk);
-  virtual void     update(const ::EndOfEvent *);
-  virtual void     clearHits();
+  void     update(const BeginOfRun *) override;
+  void     update(const BeginOfEvent *) override;
+  void     update(const BeginOfTrack * trk) override;
+  void     update(const EndOfTrack * trk) override;
+  void     update(const ::EndOfEvent *) override;
   virtual void     initRun();
   virtual bool     filterHit(CaloG4Hit*, double);
 
-  virtual int      getTrackID(G4Track*);
-  virtual uint16_t getDepth(G4Step*);   
-  double           getResponseWt(G4Track*);
+  virtual int      getTrackID(const G4Track*);
+  virtual uint16_t getDepth(const G4Step*);   
+  double           getResponseWt(const G4Track*);
   int              getNumberOfHits();
 
 private:
@@ -126,7 +127,7 @@ protected:
 
   const SimTrackManager*          m_trackManager;
   CaloG4Hit*                      currentHit;
-//  TimerProxy                    theHitTimer;
+
   bool                            runInit;
 
   bool                            corrTOFBeam, suppressHeavy;
@@ -138,7 +139,7 @@ protected:
 
 private:
 
-  int                             timeSlice;
+  float                           timeSlice;
   bool                            ignoreTrackID;
   CaloSlaveSD*                    slave;
   int                             hcID;

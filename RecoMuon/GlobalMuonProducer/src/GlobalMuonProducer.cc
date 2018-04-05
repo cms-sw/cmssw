@@ -131,19 +131,19 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
       
       const reco::TrackRef tk = ( tkUpdated.isNonnull() && etaFlip1==1 ) ? tkUpdated : tkRegular ;
 
-      MuonTrajectoryBuilder::TrackCand tkCand = MuonTrajectoryBuilder::TrackCand((Trajectory*)(0),tk);
+      MuonTrajectoryBuilder::TrackCand tkCand = MuonTrajectoryBuilder::TrackCand((Trajectory*)nullptr,tk);
       if( traj->isValid() ) tkCand.first = &*traj ;
       staTrackCands.push_back(tkCand);
     }
   } else {
     for ( unsigned int position = 0; position != staMuons->size(); ++position ) {
       reco::TrackRef staTrackRef(staMuons,position);
-      MuonTrajectoryBuilder::TrackCand staCand = MuonTrajectoryBuilder::TrackCand((Trajectory*)(0),staTrackRef);
+      MuonTrajectoryBuilder::TrackCand staCand = MuonTrajectoryBuilder::TrackCand((Trajectory*)nullptr,staTrackRef);
       staTrackCands.push_back(staCand); 
     }
   }
     
-  theTrackFinder->reconstruct(staTrackCands, event);      
+  theTrackFinder->reconstruct(staTrackCands, event, eventSetup);
   
   
   LogTrace(metname)<<"Event loaded"

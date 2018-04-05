@@ -14,7 +14,6 @@
 
 // system include files
 #include <memory>
-#include <boost/shared_ptr.hpp>
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -35,10 +34,10 @@
 class L1MuGMTParametersProducer : public edm::ESProducer {
 public:
   L1MuGMTParametersProducer(const edm::ParameterSet&);
-  ~L1MuGMTParametersProducer();
+  ~L1MuGMTParametersProducer() override;
   
-  std::auto_ptr<L1MuGMTParameters> produceL1MuGMTParameters(const L1MuGMTParametersRcd&);
-  std::auto_ptr<L1MuGMTChannelMask> produceL1MuGMTChannelMask(const L1MuGMTChannelMaskRcd&);
+  std::unique_ptr<L1MuGMTParameters> produceL1MuGMTParameters(const L1MuGMTParametersRcd&);
+  std::unique_ptr<L1MuGMTChannelMask> produceL1MuGMTChannelMask(const L1MuGMTChannelMaskRcd&);
 
 private:
   // ----------member data ---------------------------

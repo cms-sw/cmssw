@@ -26,7 +26,7 @@ using namespace std;
 MuRodBarrelLayer::MuRodBarrelLayer(vector<const DetRod*>& rods) :
   RodBarrelLayer(false),
   theRods(rods),
-  theBinFinder(0),
+  theBinFinder(nullptr),
   isOverlapping(false)
 {
   // Sort rods in phi

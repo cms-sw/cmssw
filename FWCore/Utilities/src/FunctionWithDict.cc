@@ -4,9 +4,9 @@
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
-#include "TInterpreter.h"
 #include "TMethod.h"
 #include "TMethodArg.h"
+#include "TMethodCall.h"
 
 #include "tbb/concurrent_unordered_map.h"
 
@@ -21,6 +21,11 @@ namespace edm {
   }
 
   FunctionWithDict::FunctionWithDict(TMethod* meth) : function_(meth) {
+    if (meth and isPublic() and not isDestructor() and not isConstructor()) {
+      TMethodCall caller( meth );
+      auto callFunc = caller.GetCallFunc();
+      funcptr_ = gInterpreter->CallFunc_IFacePtr( callFunc );
+    }
   }
 
   FunctionWithDict::operator bool() const {
@@ -101,24 +106,26 @@ namespace edm {
   void
   FunctionWithDict::invoke(ObjectWithDict const& obj, ObjectWithDict* ret/*=nullptr*/,
          std::vector<void*> const& values/*=std::vector<void*>()*/) const {
-    void const** data = const_cast<void const**>(values.data());
+    void ** data = const_cast<void**>(values.data());
+    assert(funcptr_.fGeneric);
     if (ret == nullptr) {
-      gInterpreter->ExecuteWithArgsAndReturn(function_, obj.address(), data, values.size(), nullptr);
+      (*funcptr_.fGeneric)(obj.address(), values.size(), data, nullptr);
       return;
     }
-    gInterpreter->ExecuteWithArgsAndReturn(function_, obj.address(), data, values.size(), ret->address());
+    (*funcptr_.fGeneric)(obj.address(), values.size(), data, ret->address());
   }
 
   /// Call a static function.
   void
   FunctionWithDict::invoke(ObjectWithDict* ret/*=nullptr*/,
          std::vector<void*> const& values/*=std::vector<void*>()*/) const {
-    void const** data = const_cast<void const**>(values.data());
+    void ** data = const_cast<void **>(values.data());
+    assert(funcptr_.fGeneric);
     if (ret == nullptr) {
-      gInterpreter->ExecuteWithArgsAndReturn(function_, nullptr, data, values.size(), nullptr);
+      (*funcptr_.fGeneric)(nullptr, values.size(), data, nullptr);
       return;
     }
-    gInterpreter->ExecuteWithArgsAndReturn(function_, nullptr, data, values.size(), ret->address());
+    (*funcptr_.fGeneric)(nullptr, values.size(), data, ret->address());
   }
 
   IterWithDict<TMethodArg>

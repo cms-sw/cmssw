@@ -17,9 +17,9 @@ class CosmicMuonLinksProducer : public edm::EDProducer {
 public:
   explicit CosmicMuonLinksProducer(const edm::ParameterSet&);
 
-   ~CosmicMuonLinksProducer();
+   ~CosmicMuonLinksProducer() override;
   
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
 

@@ -32,7 +32,7 @@ namespace edm {
                                  moduleDescription_("Looper", "looper"),
                                  moduleCallingContext_(&moduleDescription_)
  { }
-  EDLooperBase::~EDLooperBase() { }
+  EDLooperBase::~EDLooperBase() noexcept(false) { }
 
   void
   EDLooperBase::doStartingNewLoop() {
@@ -98,7 +98,7 @@ namespace edm {
                                     processContext);
         ParentContext parentContext(&globalContext);
         ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-        Run run(iRP, moduleDescription_, &moduleCallingContext_);
+        Run run(iRP, moduleDescription_, &moduleCallingContext_, false);
         beginRun(run,iES);
   }
 
@@ -111,7 +111,7 @@ namespace edm {
                                     processContext);
         ParentContext parentContext(&globalContext);
         ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-        Run run(iRP, moduleDescription_, &moduleCallingContext_);
+        Run run(iRP, moduleDescription_, &moduleCallingContext_,true);
         endRun(run,iES);
   }
   void EDLooperBase::doBeginLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES, ProcessContext* processContext){
@@ -123,7 +123,7 @@ namespace edm {
                                 processContext);
     ParentContext parentContext(&globalContext);
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-    LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_);
+    LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_, false);
     beginLuminosityBlock(luminosityBlock,iES);
   }
   void EDLooperBase::doEndLuminosityBlock(LuminosityBlockPrincipal& iLB, EventSetup const& iES, ProcessContext* processContext){
@@ -135,7 +135,7 @@ namespace edm {
                                 processContext);
     ParentContext parentContext(&globalContext);
     ModuleContextSentry moduleContextSentry(&moduleCallingContext_, parentContext);
-    LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_);
+    LuminosityBlock luminosityBlock(iLB, moduleDescription_, &moduleCallingContext_, true);
     endLuminosityBlock(luminosityBlock,iES);
   }
 
@@ -155,14 +155,14 @@ namespace edm {
    
   void 
   EDLooperBase::copyInfo(const ScheduleInfo& iInfo){
-    scheduleInfo_ = std::auto_ptr<ScheduleInfo>(new ScheduleInfo(iInfo));
+    scheduleInfo_ = std::make_unique<ScheduleInfo>(iInfo);
   }
   void 
-  EDLooperBase::setModuleChanger(const ModuleChanger* iChanger) {
+  EDLooperBase::setModuleChanger(ModuleChanger* iChanger) {
     moduleChanger_ = iChanger;
   }
 
-  const ModuleChanger* EDLooperBase::moduleChanger() const {
+  ModuleChanger* EDLooperBase::moduleChanger() {
     return moduleChanger_;
   }
   const ScheduleInfo* EDLooperBase::scheduleInfo() const {

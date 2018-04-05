@@ -23,7 +23,7 @@ Exhume::Event::Event(CrossSection &Process_, CLHEP::HepRandomEngine* engine){
   CSMass = 0.0;
   Sigmai=0.0;
   yRange = 0.0;
-  TwoPI = 2.0 * PI;
+  TwoPI = 2.0 * M_PI;
   B = Process->GetB();
   InvB = 1.0/B;
   InvBlnB = InvB * log(B);

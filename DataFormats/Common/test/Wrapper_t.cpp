@@ -10,36 +10,36 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
-class CopyNoSwappy
+class CopyNoMove
 {
  public:
-  CopyNoSwappy() {}
-  CopyNoSwappy(CopyNoSwappy const&) { /* std::cout << "copied\n"; */ }
-  CopyNoSwappy& operator=(CopyNoSwappy const&) { /*std::cout << "assigned\n";*/ return *this;}
+  CopyNoMove() {}
+  CopyNoMove(CopyNoMove const&) { /* std::cout << "copied\n"; */ }
+  CopyNoMove& operator=(CopyNoMove const&) { /*std::cout << "assigned\n";*/ return *this;}
  private:
 };
 
-class SwappyNoCopy
+class MoveNoCopy
 {
  public:
-  SwappyNoCopy() {}
-  void swap(SwappyNoCopy&) { /* std::cout << "swapped\n";*/ }
+  MoveNoCopy() {}
+  MoveNoCopy(MoveNoCopy const&) = delete;
+  MoveNoCopy& operator=(MoveNoCopy const&) = delete;
+  MoveNoCopy(MoveNoCopy&&) { /* std::cout << "moved\n";*/ }
+  MoveNoCopy& operator=(MoveNoCopy&&) { /* std::cout << "moved\n";*/ return *this; }
  private:
-  SwappyNoCopy(SwappyNoCopy const&); // not implemented
-  SwappyNoCopy& operator=(SwappyNoCopy const&); // not implemented
 };
 
 void work()
 {
-  std::unique_ptr<CopyNoSwappy> thing(new CopyNoSwappy);
-  edm::Wrapper<CopyNoSwappy> wrap(std::move(thing));
+  auto thing = std::make_unique<CopyNoMove>();
+  edm::Wrapper<CopyNoMove> wrap(std::move(thing));
 
-  std::unique_ptr<SwappyNoCopy> thing2(new SwappyNoCopy);
-  edm::Wrapper<SwappyNoCopy> wrap2(std::move(thing2));
+  auto thing2 = std::make_unique<MoveNoCopy>();
+  edm::Wrapper<MoveNoCopy> wrap2(std::move(thing2));
 
 
-  std::unique_ptr<std::vector<double> >
-    thing3(new std::vector<double>(10,2.2));
+  auto thing3 = std::make_unique<std::vector<double>>(10,2.2);
   assert(thing3->size() == 10);
 
   edm::Wrapper<std::vector<double> > wrap3(std::move(thing3));

@@ -68,7 +68,7 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
   theAlgo->setES(setup);
 
   // Create the pointer to the collection which will store the rechits
-  auto_ptr<DTRecHitCollection> recHitCollection(new DTRecHitCollection());
+  auto recHitCollection = std::make_unique<DTRecHitCollection>();
 
 
   // Iterate through all digi collections ordered by LayerId   
@@ -89,9 +89,9 @@ void DTRecHitProducer::produce(Event& event, const EventSetup& setup) {
     
     if(debug)
       cout << "Number of hits in this layer: " << recHits.size() << endl;
-    if(recHits.size() > 0) //FIXME: is it really needed?
+    if(!recHits.empty()) //FIXME: is it really needed?
       recHitCollection->put(layerId, recHits.begin(), recHits.end());
   }
 
-  event.put(recHitCollection);
+  event.put(std::move(recHitCollection));
 }

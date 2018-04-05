@@ -5,10 +5,10 @@
  *  \author M. Strang SUNY-Buffalo
  *  Testing by Ken Smith
  */
-using namespace std;
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsHistogrammer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+using namespace std;
 
 GlobalRecHitsHistogrammer::GlobalRecHitsHistogrammer(const edm::ParameterSet& iPSet) :
   fName(""), verbosity(0), frequency(0), label(""), getAllProvenances(false),
@@ -90,9 +90,9 @@ void GlobalRecHitsHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
      "TOBL1", "TOBL2", "TOBL3", "TOBL4"};
 
   for (int i = 0; i < 19; ++i) {
-    mehSiStripn[i] = 0;
-    mehSiStripResX[i] = 0;
-    mehSiStripResY[i] = 0;
+    mehSiStripn[i] = nullptr;
+    mehSiStripResX[i] = nullptr;
+    mehSiStripResY[i] = nullptr;
   }
 
   string hcharname, hchartitle;
@@ -124,8 +124,8 @@ void GlobalRecHitsHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
   float HCalnUpper[4] = {3000., 3000., 3000., 2000.};
   float HCalnLower[4] = {2000., 2000., 2000., 1000.};
   for (int j =0; j <4; ++j) {
-    mehHcaln[j] = 0;
-    mehHcalRes[j] = 0;
+    mehHcaln[j] = nullptr;
+    mehHcalRes[j] = nullptr;
   }
 
   ibooker.setCurrentFolder("GlobalRecHitsV/HCals");
@@ -155,8 +155,8 @@ void GlobalRecHitsHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
   float ECalResUpper[3] = {1., 0.3, .0002};
   float ECalResLower[3] = {-1., -0.3, -.0002};
   for (int i = 0; i < 3; ++i) {
-    mehEcaln[i] = 0;
-    mehEcalRes[i] = 0;
+    mehEcaln[i] = nullptr;
+    mehEcalRes[i] = nullptr;
   }
 
   ibooker.setCurrentFolder("GlobalRecHitsV/ECals");
@@ -182,9 +182,9 @@ void GlobalRecHitsHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
   //Si Pixels
   string SiPixelString[7] = {"BRL1", "BRL2", "BRL3", "FWD1n", "FWD1p", "FWD2n", "FWD2p"};
   for (int j =0; j < 7; ++j) {
-    mehSiPixeln[j] = 0;
-    mehSiPixelResX[j] = 0;
-    mehSiPixelResY[j] = 0;
+    mehSiPixeln[j] = nullptr;
+    mehSiPixelResX[j] = nullptr;
+    mehSiPixelResY[j] = nullptr;
   }
 
   ibooker.setCurrentFolder("GlobalRecHitsV/SiPixels");
@@ -210,9 +210,9 @@ void GlobalRecHitsHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
 
   //Muons
   ibooker.setCurrentFolder("GlobalRecHitsV/Muons");
-  mehDtMuonn = 0;
-  mehCSCn = 0;
-  mehRPCn = 0;
+  mehDtMuonn = nullptr;
+  mehCSCn = nullptr;
+  mehRPCn = nullptr;
 
   //std::vector<MonitorElement *> me_List = {mehDtMuonn, mehCSCn, mehRPCn};
   string n_List[3] = {"hDtMuonn", "hCSCn", "hRPCn"};
@@ -238,9 +238,9 @@ void GlobalRecHitsHistogrammer::bookHistograms(DQMStore::IBooker & ibooker,
     }
   }
 
-  mehDtMuonRes = 0;
-  mehCSCResRDPhi = 0;
-  mehRPCResX = 0;
+  mehDtMuonRes = nullptr;
+  mehCSCResRDPhi = nullptr;
+  mehRPCResX = nullptr;
 
   hcharname = "hDtMuonRes";
   hchartitle = "DT wire distance resolution";
@@ -286,8 +286,8 @@ void GlobalRecHitsHistogrammer::analyze(const edm::Event& iEvent,
   // look at information available in the event
   if (getAllProvenances) {
 
-    std::vector<const edm::Provenance*> AllProv;
-    iEvent.getAllProvenance(AllProv);
+    std::vector<const edm::StableProvenance*> AllProv;
+    iEvent.getAllStableProvenance(AllProv);
 
     if (verbosity >= 0)
       edm::LogInfo(MsgLoggerCat)

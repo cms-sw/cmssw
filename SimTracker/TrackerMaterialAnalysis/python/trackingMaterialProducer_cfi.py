@@ -4,7 +4,7 @@ import copy
 from SimG4Core.Application.g4SimHits_cfi import *
 # Detector simulation (Geant4-based)
 trackingMaterialProducer = copy.deepcopy(g4SimHits)
-trackingMaterialProducer.Generator.HepMCProductLabel = 'generator'
+trackingMaterialProducer.Generator.HepMCProductLabel = 'generatorSmeared'
 trackingMaterialProducer.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 trackingMaterialProducer.Physics.DummyEMPhysics = True
 trackingMaterialProducer.Physics.CutsPerRegion = False

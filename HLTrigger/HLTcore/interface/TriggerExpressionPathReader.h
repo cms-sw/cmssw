@@ -15,11 +15,11 @@ public:
     m_triggers()
   { }
 
-  bool operator()(const Data & data) const;
+  bool operator()(const Data & data) const override;
 
-  void init(const Data & data);
+  void init(const Data & data) override;
 
-  void dump(std::ostream & out) const;
+  void dump(std::ostream & out) const override;
 
 private:
   std::string m_pattern;

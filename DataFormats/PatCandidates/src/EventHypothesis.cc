@@ -1,6 +1,13 @@
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesisLooper.h"
 
+char *
+pat::EventHypothesis::getDemangledSymbol(const char* mangledSymbol) const {
+    int status;
+    char *demangledSymbol = abi::__cxa_demangle(mangledSymbol, nullptr, nullptr, &status);
+    return (status == 0) ? demangledSymbol : nullptr;
+}
+
 void pat::EventHypothesis::add(const CandRefType &ref, const std::string &role) {
     particles_.push_back(value_type(role,ref));
 }

@@ -14,7 +14,7 @@
 #include <sstream>
 #include <boost/bind.hpp>
 #include <boost/program_options.hpp>
-#include <string.h>
+#include <cstring>
 
 #include "TSystem.h"
 #include "TGLWidget.h"
@@ -28,6 +28,7 @@
 #include "TEveManager.h"
 #include "TFile.h"
 #include "TGClient.h"
+#include <KeySymbols.h>
 
 #include "Fireworks/Core/src/CmsShowMain.h"
 
@@ -54,13 +55,17 @@
 
 #include "Fireworks/Core/interface/ActionsList.h"
 
+#include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWMagField.h"
+
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/src/FWTTreeCache.h"
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 
 #if defined(R__LINUX)
 #include "TGX11.h" // !!!! AMT has to be at the end to pass build
@@ -85,7 +90,9 @@ static const char* const kPlayCommandOpt       = "play,p";
 static const char* const kLoopOpt              = "loop";
 static const char* const kLoopCommandOpt       = "loop";
 static const char* const kLogLevelCommandOpt   = "log";
-static const char* const kLogLevelOpt          = "log";
+static const char* const kLogTreeCacheOpt      = "log-tree-cache";
+static const char* const kSizeTreeCacheOpt     = "tree-cache-size";
+static const char* const kPrefetchTreeCacheOpt = "tree-cache-prefetch";
 static const char* const kEveOpt               = "eve";
 static const char* const kEveCommandOpt        = "eve";
 static const char* const kAdvancedRenderOpt        = "shine";
@@ -93,6 +100,7 @@ static const char* const kAdvancedRenderCommandOpt = "shine,s";
 static const char* const kHelpOpt        = "help";
 static const char* const kHelpCommandOpt = "help,h";
 static const char* const kSoftCommandOpt = "soft";
+static const char* const kExpertCommandOpt = "expert";
 static const char* const kPortCommandOpt = "port";
 static const char* const kPlainRootCommandOpt = "prompt";
 static const char* const kRootInteractiveCommandOpt = "root-interactive,r";
@@ -122,7 +130,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
                                       colorManager(),
                                       m_metadataManager.get())),
      m_loadedAnyInputFile(false),
-     m_openFile(0),
+     m_openFile(nullptr),
      m_live(false),
      m_liveTimer(new SignalTimer()),
      m_liveTimeout(600000),
@@ -130,7 +138,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
      m_noVersionCheck(false)
 {
    try {
-      TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, 0, 10, 10);
+      TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, nullptr, 10, 10);
       delete w;
    }
    catch (std::exception& iException) {
@@ -160,7 +168,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       (kSimGeomFileCommandOpt,po::value<std::string>(),   "Geometry file for browsing in table view. Default is CmsSimGeom-14.root. Can be simulation or reco geometry in TGeo format")
      (kFieldCommandOpt, po::value<double>(),             "Set magnetic field value explicitly. Default is auto-field estimation")
    (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
-   (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
+     (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
+   (kExpertCommandOpt,                                   "Enable PF user plugins.")
       (kHelpCommandOpt,                                   "Display help message");
 
  po::options_description livedesc("Live Event Display");
@@ -181,6 +190,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    (kEveCommandOpt,                                    "Show TEveBrowser to help debug problems")
    (kEnableFPE,                                        "Enable detection of floating-point exceptions");
 
+ po::options_description tcachedesc("TreeCache");
+ tcachedesc.add_options()
+    (kLogTreeCacheOpt,                                 "Log tree cache operations and status")
+    (kSizeTreeCacheOpt, po::value<int>(),              "Set size of TTreeCache for data access in MB (default is 50)")
+    (kPrefetchTreeCacheOpt,                            "Enable prefetching");
 
  po::options_description rnrdesc("Appearance");
  rnrdesc.add_options()
@@ -191,11 +205,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    p.add(kInputFilesOpt, -1);
 
 
- po::options_description hiddendesc("hidden");
- hiddendesc.add_options();
+   po::options_description hiddendesc("hidden");
+   hiddendesc.add_options();
 
    po::options_description all("");
- all.add(desc).add(rnrdesc).add(livedesc).add(debugdesc);
+   all.add(desc).add(rnrdesc).add(livedesc).add(debugdesc).add(tcachedesc);
 
 
    int newArgc = argc;
@@ -221,9 +235,27 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       exit(0);
    }
       
-   if(vm.count(kLogLevelOpt)) {
-      fwlog::LogLevel level = (fwlog::LogLevel)(vm[kLogLevelOpt].as<unsigned int>());
+   if(vm.count(kLogLevelCommandOpt)) {
+      fwlog::LogLevel level = (fwlog::LogLevel)(vm[kLogLevelCommandOpt].as<unsigned int>());
       fwlog::setPresentLogLevel(level);
+   }
+
+   if(vm.count(kLogTreeCacheOpt)) {
+      fwLog(fwlog::kInfo) << "Enabling logging of TTreCache operations." << std::endl;
+      FWTTreeCache::LoggingOn();
+   }
+
+   if(vm.count(kPrefetchTreeCacheOpt)) {
+      fwLog(fwlog::kInfo) << "Enabling TTreCache prefetching." << std::endl;
+      FWTTreeCache::PrefetchingOn();
+   }
+
+   if(vm.count(kSizeTreeCacheOpt)) {
+      int ds = vm[kSizeTreeCacheOpt].as<int>();
+      if (ds < 0)    throw std::runtime_error("tree-cache-size should be non negative");
+      if (ds > 8192) throw std::runtime_error("tree-cache-size should be smaller than 8 GB");
+      fwLog(fwlog::kInfo) << "Setting default TTreeCache size to " << ds << " MB." << std::endl;
+      FWTTreeCache::SetDefaultCacheSize(ds * 1024 * 1024);
    }
 
    if(vm.count(kPlainRootCommandOpt)) {
@@ -232,7 +264,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    }
 
    const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-   if(0 == cmspath) {
+   if(nullptr == cmspath) {
       throw std::runtime_error("CMSSW_BASE environment variable not set");
    }
 
@@ -241,7 +273,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       m_inputFiles = vm[kInputFilesOpt].as< std::vector<std::string> >();
    }
 
-   if (!m_inputFiles.size())
+   if (m_inputFiles.empty())
       fwLog(fwlog::kInfo) << "No data file given." << std::endl;
    else if (m_inputFiles.size() == 1)
       fwLog(fwlog::kInfo) << "Input " << m_inputFiles.front() << std::endl;
@@ -288,9 +320,25 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
 
    //Delay creating guiManager and enabling autoloading until here so that if we have a 'help' request we don't
    // open any graphics or build dictionaries
-   AutoLibraryLoader::enable();
+   FWLiteEnabler::enable();
 
    TEveManager::Create(kFALSE, eveMode ? "FIV" : "FI");
+ 
+   if(vm.count(kExpertCommandOpt)) 
+   {
+      m_context->setHidePFBuilders(false);
+   }
+   else {
+      m_context->setHidePFBuilders(true);
+   }
+
+   if(vm.count(kExpertCommandOpt)) 
+   {
+      m_context->setHidePFBuilders(false);
+   }
+   else {
+      m_context->setHidePFBuilders(true);
+   }
 
    setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
 
@@ -319,18 +367,21 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    f=boost::bind(&CmsShowMainBase::setupViewManagers,this);
    startupTasks()->addTask(f);
 
-   if ( m_inputFiles.empty()) {
-      f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
-      startupTasks()->addTask(f);
-      f=boost::bind(&CmsShowMain::setupDataHandling,this);
-      startupTasks()->addTask(f);
-   }
-   else {
-      f=boost::bind(&CmsShowMain::setupDataHandling,this);
-      startupTasks()->addTask(f);
-      f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
+   if(vm.count(kLiveCommandOpt))
+   {
+      f = boost::bind(&CmsShowMain::setLiveMode, this);
       startupTasks()->addTask(f);
    }
+      
+   if(vm.count(kFieldCommandOpt)) 
+   {
+      m_context->getField()->setSource(FWMagField::kUser);
+      m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
+   }
+  
+   f=boost::bind(&CmsShowMain::setupDataHandling,this);
+   startupTasks()->addTask(f);
+
   
    if (vm.count(kLoopOpt))
       setPlayLoop();
@@ -348,17 +399,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       startupTasks()->addTask(f);
    }
 
-   if(vm.count(kLiveCommandOpt))
-   {
-      f = boost::bind(&CmsShowMain::setLiveMode, this);
-      startupTasks()->addTask(f);
-   }
-      
-   if(vm.count(kFieldCommandOpt)) 
-   {
-      m_context->getField()->setSource(FWMagField::kUser);
-      m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
-   }
    if(vm.count(kAutoSaveAllViews)) {
       std::string type = "png";
       if(vm.count(kAutoSaveType)) {
@@ -415,7 +455,7 @@ public:
       Start(0, kTRUE);
    }
 
-   virtual Bool_t Notify() override
+   Bool_t Notify() override
    {
       TurnOff();
       fApp->doExit();
@@ -463,7 +503,7 @@ CmsShowMain::getCurrentEvent() const
 {
    if (m_navigator.get())
      return static_cast<const fwlite::Event*>(m_navigator->getCurrentEvent());
-   return 0;
+   return nullptr;
 }
 
 void
@@ -473,6 +513,10 @@ CmsShowMain::fileChangedSlot(const TFile *file)
    if (file)
       guiManager()->titleChanged(m_navigator->frameTitle());
 
+
+   if (context()->getField()->getSource() == FWMagField::kNone) {
+      context()->getField()->resetFieldEstimate();
+   }
    m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }
 
@@ -490,7 +534,7 @@ void CmsShowMain::resetInitialization() {
 
 void CmsShowMain::openData()
 {
-   const char* kRootType[] = {"ROOT files","*.root", 0, 0};
+   const char* kRootType[] = {"ROOT files","*.root", nullptr, nullptr};
    TGFileInfo fi;
    fi.fFileTypes = kRootType;
    /* this is how things used to be done:
@@ -504,7 +548,8 @@ void CmsShowMain::openData()
    guiManager()->updateStatus("loading file ...");
    if (fi.fFilename) {
       m_navigator->openFile(fi.fFilename);
-      m_loadedAnyInputFile = true;
+
+      setLoadedAnyInputFileAfterStartup();
       m_navigator->firstEvent();
       checkPosition();
       draw();
@@ -514,7 +559,7 @@ void CmsShowMain::openData()
 
 void CmsShowMain::appendData()
 {
-   const char* kRootType[] = {"ROOT files","*.root", 0, 0};
+   const char* kRootType[] = {"ROOT files","*.root", nullptr, nullptr};
    TGFileInfo fi;
    fi.fFileTypes = kRootType;
    /* this is how things used to be done:
@@ -528,7 +573,7 @@ void CmsShowMain::appendData()
    guiManager()->updateStatus("loading file ...");
    if (fi.fFilename) {
       m_navigator->appendFile(fi.fFilename, false, false);
-      m_loadedAnyInputFile = true;
+      setLoadedAnyInputFileAfterStartup();
       checkPosition();
       draw();
       guiManager()->titleChanged(m_navigator->frameTitle());
@@ -539,7 +584,7 @@ void CmsShowMain::appendData()
 void
 CmsShowMain::openDataViaURL()
 {
-   if (m_searchFiles.get() == 0) {
+   if (m_searchFiles.get() == nullptr) {
       m_searchFiles = std::auto_ptr<CmsShowSearchFiles>(new CmsShowSearchFiles("",
                                                                                "Open Remote Data Files",
                                                                                guiManager()->getMainFrame(),
@@ -549,8 +594,8 @@ CmsShowMain::openDataViaURL()
    std::string chosenFile = m_searchFiles->chooseFileFromURL();
    if(!chosenFile.empty()) {
       guiManager()->updateStatus("loading file ...");
-      if(m_navigator->openFile(chosenFile.c_str())) {
-         m_loadedAnyInputFile = true;
+      if(m_navigator->openFile(chosenFile)) {
+         setLoadedAnyInputFileAfterStartup();
          m_navigator->firstEvent();
          checkPosition();
          draw();
@@ -639,7 +684,6 @@ CmsShowMain::setupDataHandling()
 {
    guiManager()->updateStatus("Setting up data handling...");
 
-
    // navigator filtering  ->
    m_navigator->fileChanged_.connect(boost::bind(&CmsShowMain::fileChangedSlot, this, _1));
    m_navigator->editFiltersExternally_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, guiManager(), _1));
@@ -651,11 +695,11 @@ CmsShowMain::setupDataHandling()
    guiManager()->filterButtonClicked_.connect(boost::bind(&CmsShowMain::filterButtonClicked,this));
 
    // Data handling. File related and therefore not in the base class.
-   if (guiManager()->getAction(cmsshow::sOpenData)    != 0) 
+   if (guiManager()->getAction(cmsshow::sOpenData)    != nullptr) 
       guiManager()->getAction(cmsshow::sOpenData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openData));
-   if (guiManager()->getAction(cmsshow::sAppendData)  != 0) 
+   if (guiManager()->getAction(cmsshow::sAppendData)  != nullptr) 
       guiManager()->getAction(cmsshow::sAppendData)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::appendData));
-   if (guiManager()->getAction(cmsshow::sSearchFiles) != 0)
+   if (guiManager()->getAction(cmsshow::sSearchFiles) != nullptr)
       guiManager()->getAction(cmsshow::sSearchFiles)->activated.connect(sigc::mem_fun(*this, &CmsShowMain::openDataViaURL));
 
    setupActions();
@@ -674,8 +718,7 @@ CmsShowMain::setupDataHandling()
       }
       else
       {
-         m_loadedAnyInputFile = true;
-
+         m_loadedAnyInputFile = true; 
       }
    }
 
@@ -683,16 +726,40 @@ CmsShowMain::setupDataHandling()
    {
       m_navigator->firstEvent();
       checkPosition();
-      draw();
-   }
-   else if (m_monitor.get() == 0 && (configurationManager()->getIgnore() == false) )
-   {
-      if (m_inputFiles.empty())
-         openDataViaURL();
+      if (configurationManager()->getIgnore())
+         guiManager()->initEmpty();
       else
-         openData();
+         setupConfiguration();
+   }
+   else {
+      if (configFilename()[0] == '\0') {
+         guiManager()->initEmpty();
+      }
+      else {
+         setupConfiguration();
+      }
+
+      bool geoBrowser = (configFilename()[0] !='\0') && (eiManager()->begin() == eiManager()->end());
+
+      if (m_monitor.get() == nullptr && (configurationManager()->getIgnore() == false) && ( !geoBrowser)) {
+         if (m_inputFiles.empty())
+            openDataViaURL();
+         else
+            openData();
+      }
    }
 }
+
+void
+CmsShowMain::setLoadedAnyInputFileAfterStartup()
+{
+   if (m_loadedAnyInputFile == false) {
+      m_loadedAnyInputFile = true;
+      if ((configFilename()[0] == '\0') && (configurationManager()->getIgnore() == false))
+         setupConfiguration();
+   }
+}
+
 
 void
 CmsShowMain::setupSocket(unsigned int iSocket)
@@ -785,12 +852,22 @@ CmsShowMain::notified(TSocket* iSocket)
 }
 
 void
+CmsShowMain::checkKeyBindingsOnPLayEventsStateChanged()
+{
+    if (m_live) {
+        Int_t keycode = gVirtualX->KeysymToKeycode((int)kKey_Space);
+        Window_t id = FWGUIManager::getGUIManager()->getMainFrame()->GetId();
+        gVirtualX->GrabKey(id, keycode, 0, isPlaying());
+    }
+}
+
+void
 CmsShowMain::stopPlaying()
 {
    stopAutoLoadTimer();
    if (m_live)
       m_navigator->resetNewFileOnNextEvent();
-   setIsPlaying(false);
+   CmsShowMainBase::stopPlaying();
    guiManager()->enableActions();
    checkPosition();
 }

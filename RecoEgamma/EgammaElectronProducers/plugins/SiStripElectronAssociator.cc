@@ -82,7 +82,7 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
    }
 
    // Output the high-level Electrons
-   std::auto_ptr<reco::ElectronCollection> output(new reco::ElectronCollection);
+   auto output = std::make_unique<reco::ElectronCollection>();
 
    LogDebug("SiStripElectronAssociator") << " About to loop over tracks " << std::endl ;
    LogDebug("SiStripElectronAssociator") << " Number of tracks in Associator " << tracks.product()->size() ;
@@ -200,5 +200,5 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
    
    LogDebug("SiStripElectronAssociator") << " Number of SiStripElectrons returned with a good fit " 
                                          << countSiElFit << "\n"<<  std::endl ;
-   iEvent.put(output, electronsLabel_.label());
+   iEvent.put(std::move(output), electronsLabel_.label());
 }

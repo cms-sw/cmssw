@@ -19,9 +19,7 @@ TriggerSummaryAnalyzerAOD::TriggerSummaryAnalyzerAOD(const edm::ParameterSet& ps
   inputToken_(consumes<trigger::TriggerEvent>(inputTag_))
 { }
 
-TriggerSummaryAnalyzerAOD::~TriggerSummaryAnalyzerAOD()
-{
-}
+TriggerSummaryAnalyzerAOD::~TriggerSummaryAnalyzerAOD() = default;
 
 //
 // member functions

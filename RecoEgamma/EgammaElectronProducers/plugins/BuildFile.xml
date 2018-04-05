@@ -2,6 +2,7 @@
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="RecoTracker/CkfPattern"/>
 <use   name="RecoTracker/TrackProducer"/>
+<use   name="CommonTools/CandAlgos"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="MagneticField/Engine"/>

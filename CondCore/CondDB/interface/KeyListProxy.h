@@ -15,30 +15,30 @@ namespace cond {
       typedef PayloadProxy<DataT> super;
 
     
-      explicit PayloadProxy( const char * source=0 ) :
+      explicit PayloadProxy( const char * source=nullptr ) :
 	super( source ),
 	m_keyList() {
 	if( source ) m_name = source;
       }
 
-      virtual ~PayloadProxy(){}
+      ~PayloadProxy() override{}
 
       // dereference (does not load)
       const KeyList & operator()() const {
 	return m_keyList; 
       }
         
-      virtual void invalidateCache() {
+      void invalidateCache() override {
 	super::invalidateCache();
       }
 
-      virtual void loadMore(CondGetter const & getter){
+      void loadMore(CondGetter const & getter) override{
       	m_keyList.init(getter.get(m_name));
       }
 
 
     protected:
-      virtual void loadPayload() {
+      void loadPayload() override {
 	super::loadPayload();
 	m_keyList.load(super::operator()());
       }

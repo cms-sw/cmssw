@@ -29,10 +29,10 @@ class FWHLTTriggerTableView : public FWTriggerTableView
 {
 public:
    FWHLTTriggerTableView( TEveWindowSlot*);
-   virtual ~FWHLTTriggerTableView() {}
+   ~FWHLTTriggerTableView() override {}
 
 protected:
-   virtual void fillTable(fwlite::Event* event);
+   void fillTable(fwlite::Event* event) override;
 
 private:
    typedef boost::unordered_map<std::string,double> acceptmap_t;

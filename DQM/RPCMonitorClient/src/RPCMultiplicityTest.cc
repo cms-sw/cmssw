@@ -117,8 +117,8 @@ void RPCMultiplicityTest::clientOperation() {
 
 void  RPCMultiplicityTest::fillGlobalME(RPCDetId & detId, MonitorElement * myMe){
 
-  MonitorElement * MULT =NULL;
-  MonitorElement * MULTD = NULL;
+  MonitorElement * MULT =nullptr;
+  MonitorElement * MULTD = nullptr;
 
   if (detId.region()==0) {
     MULT = MULTWheel[detId.ring()+2];

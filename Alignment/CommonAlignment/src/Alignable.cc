@@ -21,9 +21,9 @@ Alignable::Alignable(align::ID id, const AlignableSurface& surf):
   theId(id),    // (finally get rid of one of the IDs!)
   theSurface(surf),
   theCachedSurface(surf),
-  theAlignmentParameters(0),
-  theMother(0),
-  theSurvey(0)
+  theAlignmentParameters(nullptr),
+  theMother(nullptr),
+  theSurvey(nullptr)
 {
 }
 
@@ -33,9 +33,9 @@ Alignable::Alignable(align::ID id, const RotationType& rot):
   theId(id),
   theSurface(PositionType(), rot),
   theCachedSurface(PositionType(), rot),
-  theAlignmentParameters(0),
-  theMother(0),
-  theSurvey(0)
+  theAlignmentParameters(nullptr),
+  theMother(nullptr),
+  theSurvey(nullptr)
 {
 }
 
@@ -47,21 +47,39 @@ Alignable::~Alignable()
 }
 
 //__________________________________________________________________________________________________
+void Alignable::update(align::ID id, const AlignableSurface& surf)
+{
+  if (theId != id) {
+    throw cms::Exception("Alignment")
+      << "@SUB=Alignable::update\n"
+      << "Current alignable ID does not match ID of the update.";
+  }
+  const auto shift = surf.position() - theSurface.position();
+  theSurface = surf;
+
+  // reset displacement and rotations after update
+  theDisplacement = GlobalVector();
+  theRotation = RotationType();
+
+  // recalculate containing composite's position
+  updateMother(shift);
+}
+
+//__________________________________________________________________________________________________
 bool Alignable::firstCompsWithParams(Alignables &paramComps) const
 {
   bool isConsistent = true;
   bool hasAliComp = false; // whether there are any (grand-) daughters with parameters
   bool first = true;
-  const Alignables comps(this->components());
-  for (Alignables::const_iterator iComp = comps.begin(), iCompEnd = comps.end();
-       iComp != iCompEnd; ++iComp) {
-    if ((*iComp)->alignmentParameters()) { // component has parameters itself
-      paramComps.push_back(*iComp);
+  const auto& comps = this->components();
+  for (const auto& iComp: comps) {
+    if (iComp->alignmentParameters()) { // component has parameters itself
+      paramComps.push_back(iComp);
       if (!first && !hasAliComp) isConsistent = false;
       hasAliComp = true;
     } else {
       const unsigned int nCompBefore = paramComps.size();
-      if (!(*iComp)->firstCompsWithParams(paramComps)) {
+      if (!(iComp->firstCompsWithParams(paramComps))) {
         isConsistent = false; // problem down in hierarchy
       }
       if (paramComps.size() != nCompBefore) {
@@ -70,6 +88,35 @@ bool Alignable::firstCompsWithParams(Alignables &paramComps) const
       } else if (hasAliComp) { // no components with params, but previous component did have comps.
         isConsistent = false;
       }
+    }
+    first = false;
+  }
+
+  return isConsistent;
+}
+
+//__________________________________________________________________________________________________
+bool Alignable::lastCompsWithParams(Alignables& paramComps) const
+{
+  bool isConsistent = true;
+  bool hasAliComp = false;
+  bool first = true;
+  const auto& comps = this->components();
+  for (const auto& iComp: comps) {
+    const auto nCompsBefore = paramComps.size();
+    isConsistent = iComp->lastCompsWithParams(paramComps);
+    if (paramComps.size() == nCompsBefore) {
+      if (iComp->alignmentParameters()) {
+	paramComps.push_back(iComp);
+	if (!first && !hasAliComp) isConsistent = false;
+	hasAliComp = true;
+      }
+    } else {
+      if (hasAliComp) {
+	isConsistent = false;
+      }
+      if (!first && !hasAliComp) isConsistent = false;
+      hasAliComp = true;
     }
     first = false;
   }
@@ -240,12 +287,27 @@ AlignmentSurfaceDeformations* Alignable::surfaceDeformations( void ) const
   return allSurfaceDeformations;
 
 }
- 
+
 void Alignable::cacheTransformation()
 {
+  // first treat itself
   theCachedSurface = theSurface;
   theCachedDisplacement = theDisplacement;
   theCachedRotation = theRotation;
+
+  // now treat components (a clean design would move that to AlignableComposite...)
+  for (const auto& it: this->components()) it->cacheTransformation();
+}
+
+void Alignable::cacheTransformation(const align::RunNumber& run)
+{
+  // first treat itself
+  surfacesCache_[run] = theSurface;
+  displacementsCache_[run] = theDisplacement;
+  rotationsCache_[run] = theRotation;
+
+  // now treat components (a clean design would move that to AlignableComposite...)
+  for (const auto& it: this->components()) it->cacheTransformation(run);
 }
 
 void Alignable::restoreCachedTransformation()
@@ -256,12 +318,25 @@ void Alignable::restoreCachedTransformation()
   theRotation = theCachedRotation;
 
   // now treat components (a clean design would move that to AlignableComposite...)
-  const Alignables comps(this->components());
+  for (const auto& it: this->components()) it->restoreCachedTransformation();
+}
 
-  for (auto it = comps.begin(); it != comps.end(); ++it) {
-    (*it)->restoreCachedTransformation();
+void Alignable::restoreCachedTransformation(const align::RunNumber& run)
+{
+  if (surfacesCache_.find(run) == surfacesCache_.end()) {
+    throw cms::Exception("Alignment")
+      << "@SUB=Alignable::restoreCachedTransformation\n"
+      << "Trying to restore cached transformation for a run (" << run
+      << ") that has not been cached.";
+  } else {
+    // first treat itself
+    theSurface = surfacesCache_[run];
+    theDisplacement = displacementsCache_[run];
+    theRotation = rotationsCache_[run];
+
+    // now treat components (a clean design would move that to AlignableComposite...)
+    for (const auto& it: this->components()) it->restoreCachedTransformation();
   }
- 
 }
 
 //__________________________________________________________________________________________________
@@ -271,4 +346,36 @@ void Alignable::setSurvey( const SurveyDet* survey )
   delete theSurvey;
   theSurvey = survey;
 
+}
+
+//______________________________________________________________________________
+void Alignable::updateMother(const GlobalVector& shift) {
+
+  if (!theMother) return;
+
+  const auto thisComps = this->deepComponents().size();
+  const auto motherComps = theMother->deepComponents().size();
+  const auto motherShift = shift * static_cast<Scalar>(thisComps) / motherComps;
+
+  switch(theMother->compConstraintType()) {
+  case CompConstraintType::NONE:
+    break;
+  case CompConstraintType::POSITION_Z:
+    theMother->theSurface.move(GlobalVector(0,0, motherShift.z()));
+    theMother->updateMother(GlobalVector(0,0, motherShift.z()));
+    break;
+  case CompConstraintType::POSITION:
+    theMother->theSurface.move(motherShift);
+    theMother->updateMother(motherShift);
+    break;
+  }
+}
+
+//______________________________________________________________________________
+void Alignable::recenterSurface()
+{
+  const auto& currentPosition = this->globalPosition();
+  theSurface.move(align::GlobalVector{-currentPosition.x(),
+                                      -currentPosition.y(),
+                                      -currentPosition.z()});
 }

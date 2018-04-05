@@ -23,7 +23,7 @@ class HEcalDetIdAssociator: public HCaloDetIdAssociator{
  public:
    HEcalDetIdAssociator():HCaloDetIdAssociator(180,150,0.04){};
  protected:
-   virtual std::set<DetId> getASetOfValidDetIds(){
+   std::set<DetId> getASetOfValidDetIds() override{
       std::set<DetId> setOfValidIds;
       const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Ecal, 1);//EB
       for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)

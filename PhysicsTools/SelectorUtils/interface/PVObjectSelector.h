@@ -43,7 +43,7 @@ public:
     retInternal_ = getBitTemplate();
   }
 
- bool operator() ( reco::Vertex const & pv,  pat::strbitset & ret ) {
+ bool operator() ( reco::Vertex const & pv,  pat::strbitset & ret ) override {
     if ( pv.isFake() ) return false;
 
     if ( pv.ndof() >= cut(indexNDOF_, double() )

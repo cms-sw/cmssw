@@ -30,7 +30,7 @@ bool SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(GlobalTrajector
 					kine.charge(),
 					&*bfield);
     }
-    return (filter ? filter->compatible(hits, kine, helix, *region) : true); 
+    return (filter ? filter->compatible(hits, kine, helix) : true); 
   } 
   
   const GlobalPoint& vertexPos = region->origin();
@@ -50,5 +50,5 @@ bool SeedFromConsecutiveHitsTripletOnlyCreator::initialKinematic(GlobalTrajector
 					kine.charge(),
 					&*bfield);
   }
-  return (filter ? filter->compatible(hits, kine, helix, *region) : true); 
+  return (filter ? filter->compatible(hits, kine, helix) : true);
 }

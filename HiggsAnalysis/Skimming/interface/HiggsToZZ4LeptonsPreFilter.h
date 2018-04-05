@@ -32,10 +32,10 @@ class HiggsToZZ4LeptonsPreFilter : public edm::EDFilter {
   explicit HiggsToZZ4LeptonsPreFilter(const edm::ParameterSet&);
 
   // Destructor
-  ~HiggsToZZ4LeptonsPreFilter();
+  ~HiggsToZZ4LeptonsPreFilter() override;
 
   /// Get event properties to send to builder to fill seed collection
-  virtual bool filter(edm::Event&, const edm::EventSetup& );
+  bool filter(edm::Event&, const edm::EventSetup& ) override;
 
 
  private:

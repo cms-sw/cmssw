@@ -21,9 +21,9 @@ namespace cms
 class BHFilter : public edm::EDFilter {
   public:
   explicit BHFilter(const edm::ParameterSet& conf);
-  virtual ~BHFilter() {}
+  ~BHFilter() override {}
   //   virtual bool filter(edm::Event & e, edm::EventSetup const& c);
-  bool filter(edm::Event & iEvent, edm::EventSetup const& c);
+  bool filter(edm::Event & iEvent, edm::EventSetup const& c) override;
   bool BSC1(const HepMC::FourVector&, const HepMC::FourVector&,const HepMC::FourVector&);
 
  private:

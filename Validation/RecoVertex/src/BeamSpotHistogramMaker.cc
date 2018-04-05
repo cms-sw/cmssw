@@ -10,10 +10,10 @@
 
 
 BeamSpotHistogramMaker::BeamSpotHistogramMaker(edm::ConsumesCollector&& iC):
-  _currdir(0), _histoParameters(), _rhm(iC) { }
+  _currdir(nullptr), _histoParameters(), _rhm(iC) { }
 
 BeamSpotHistogramMaker::BeamSpotHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
-  _currdir(0),
+  _currdir(nullptr),
   _histoParameters(iConfig.getUntrackedParameter<edm::ParameterSet>("histoParameters",edm::ParameterSet())),
   _rhm(iC)
 { }
@@ -83,7 +83,7 @@ void BeamSpotHistogramMaker::beginRun(const unsigned int nrun) {
   sprintf(runname,"run_%d",nrun);
 
   TFileDirectory* currdir = _currdir;
-  if(currdir==0) {
+  if(currdir==nullptr) {
     edm::Service<TFileService> tfserv;
     currdir = &(tfserv->tFileDirectory());
   }
@@ -98,17 +98,17 @@ void BeamSpotHistogramMaker::beginRun(const unsigned int nrun) {
   (*_hbssigmazrun)->GetXaxis()->SetTitle("sigmaZ [cm]");   (*_hbssigmazrun)->GetYaxis()->SetTitle("Events");
 
   (*_hbsxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbsxvsorbrun)->GetYaxis()->SetTitle("X [cm]");
-  (*_hbsxvsorbrun)->SetBit(TH1::kCanRebin);
+  (*_hbsxvsorbrun)->SetCanExtend(TH1::kAllAxes);
   (*_hbsyvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbsyvsorbrun)->GetYaxis()->SetTitle("Y [cm]");
-  (*_hbsyvsorbrun)->SetBit(TH1::kCanRebin);
+  (*_hbsyvsorbrun)->SetCanExtend(TH1::kAllAxes);
   (*_hbszvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbszvsorbrun)->GetYaxis()->SetTitle("Z [cm]");
-  (*_hbszvsorbrun)->SetBit(TH1::kCanRebin);
+  (*_hbszvsorbrun)->SetCanExtend(TH1::kAllAxes);
   (*_hbssigmaxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbssigmaxvsorbrun)->GetYaxis()->SetTitle("sigmaX [cm]");
-  (*_hbssigmaxvsorbrun)->SetBit(TH1::kCanRebin);
+  (*_hbssigmaxvsorbrun)->SetCanExtend(TH1::kAllAxes);
   (*_hbssigmayvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbssigmayvsorbrun)->GetYaxis()->SetTitle("sigmaY [cm]");
-  (*_hbssigmayvsorbrun)->SetBit(TH1::kCanRebin);
+  (*_hbssigmayvsorbrun)->SetCanExtend(TH1::kAllAxes);
   (*_hbssigmazvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbssigmazvsorbrun)->GetYaxis()->SetTitle("sigmaZ [cm]");
-  (*_hbssigmazvsorbrun)->SetBit(TH1::kCanRebin);
+  (*_hbssigmazvsorbrun)->SetCanExtend(TH1::kAllAxes);
 
 
 }

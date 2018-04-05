@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -52,7 +52,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "FWCore/Services/src/Memory.h"
 
 #include <string>
 
@@ -89,7 +88,7 @@ namespace edm{
    class HiMixingWorker : public HiMixingWorkerBase {
    public:
       HiMixingWorker(std::string& object, std::vector<InputTag>& tags, std::string& label) : HiMixingWorkerBase(object,tags, label) {;}
-      ~HiMixingWorker(){;}
+      ~HiMixingWorker() override{;}
       void addSignals(edm::Event &e) override {
 	 std::vector<Handle<std::vector<T> > > handles;
 	 bool get = true;
@@ -108,7 +107,7 @@ namespace edm{
 	 }
 	 
          if(get){
-	    std::auto_ptr<CrossingFrame<T> > crFrame(new CrossingFrame<T>() );	    
+	    std::unique_ptr<CrossingFrame<T> > crFrame(new CrossingFrame<T>() );
 	    crFrame->addSignals(handles[0].product(),e.id());
 	    for(size_t itag = 1; itag < tags_.size(); ++itag){
                std::vector<T>* product = const_cast<std::vector<T>*>(handles[itag].product());
@@ -118,7 +117,7 @@ namespace edm{
                }
 	       crFrame->addPileups(*product);	 
 	    }
-	    e.put(crFrame,label_);
+	    e.put(std::move(crFrame),label_);
 	 }
       }
    };
@@ -140,25 +139,25 @@ void HiMixingWorker<HepMCProduct>::addSignals(edm::Event &e){
    }
    
    if(get){
-      std::auto_ptr<CrossingFrame<HepMCProduct> > crFrame(new CrossingFrame<HepMCProduct>() );
+      std::unique_ptr<CrossingFrame<HepMCProduct> > crFrame(new CrossingFrame<HepMCProduct>() );
       crFrame->addSignals(handles[0].product(),e.id());
       for(size_t itag = 1; itag < tags_.size(); ++itag){
          HepMCProduct* product = const_cast<HepMCProduct*>(handles[itag].product());
          crFrame->addPileups(*product);	 
       }
-      e.put(crFrame,label_);
+      e.put(std::move(crFrame),label_);
    }
 }
 
-class HiMixingModule : public edm::EDProducer {
+class HiMixingModule : public edm::stream::EDProducer<> {
    public:
       explicit HiMixingModule(const edm::ParameterSet&);
-      ~HiMixingModule();
+      ~HiMixingModule() override;
 
    private:
-  virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      //virtual void beginJob() override {}
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      //virtual void endJob() override {}
       bool verifyRegistry(std::string object, std::string subdet, InputTag &tag,std::string &label);      
       // ----------member data ---------------------------
 
@@ -261,20 +260,9 @@ HiMixingModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       (workers_[i])->addSignals(iEvent);
    }
 
-   std::auto_ptr< PileupMixingContent > PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent());
-   iEvent.put(PileupMixing_);
+   std::unique_ptr< PileupMixingContent > PileupMixing_ = std::unique_ptr< PileupMixingContent >(new PileupMixingContent());
+   iEvent.put(std::move(PileupMixing_));
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HiMixingModule::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HiMixingModule::endJob() {
 }
 
 bool HiMixingModule::verifyRegistry(std::string object, std::string subdet, InputTag &tag,std::string &label) {

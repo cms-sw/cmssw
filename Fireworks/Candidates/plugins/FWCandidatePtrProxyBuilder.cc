@@ -24,13 +24,13 @@ class FWCandidatePtrProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Can
       
 public:
    FWCandidatePtrProxyBuilder() {}
-   virtual ~FWCandidatePtrProxyBuilder() {}
+   ~FWCandidatePtrProxyBuilder() override {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWCandidatePtrProxyBuilder(const FWCandidatePtrProxyBuilder&); // stop default
-   const FWCandidatePtrProxyBuilder& operator=(const FWCandidatePtrProxyBuilder&); // stop default
+   FWCandidatePtrProxyBuilder(const FWCandidatePtrProxyBuilder&) = delete; // stop default
+   const FWCandidatePtrProxyBuilder& operator=(const FWCandidatePtrProxyBuilder&) = delete; // stop default
 
    using FWSimpleProxyBuilderTemplate<reco::CandidatePtr>::build;
    void build(const reco::CandidatePtr& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;

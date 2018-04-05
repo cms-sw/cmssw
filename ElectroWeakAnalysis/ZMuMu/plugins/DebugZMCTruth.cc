@@ -15,7 +15,7 @@ class DebugZMCTruth : public edm::EDAnalyzer {
 public:
   DebugZMCTruth(const edm::ParameterSet& pset);
 private:
-  virtual void analyze(const Event& event, const EventSetup& setup) override;
+  void analyze(const Event& event, const EventSetup& setup) override;
   InputTag src_;
   EDGetTokenT<CandidateView> srcToken_;
   EDGetTokenT<GenParticleCollection> genParticlesToken_;

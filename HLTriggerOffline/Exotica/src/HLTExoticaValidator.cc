@@ -21,8 +21,8 @@
 // Constructor
 HLTExoticaValidator::HLTExoticaValidator(const edm::ParameterSet& pset) :
     _pset(pset),
-    _analysisnames(pset.getParameter<std::vector<std::string> >("analysis")),
-    _collections(0)
+    _analysisnames(pset.getParameter<std::vector<std::string> >("analyses")),
+    _collections(nullptr)
 {
 
     LogDebug("ExoticaValidation") << "In HLTExoticaValidator::constructor()";
@@ -42,9 +42,9 @@ HLTExoticaValidator::HLTExoticaValidator(const edm::ParameterSet& pset) :
 
 HLTExoticaValidator::~HLTExoticaValidator()
 {
-    if (_collections != 0) {
+    if (_collections != nullptr) {
         delete _collections;
-        _collections = 0;
+        _collections = nullptr;
     }
 }
 
@@ -109,6 +109,10 @@ void HLTExoticaValidator::beginJob()
 
 void HLTExoticaValidator::endRun(const edm::Run & iRun, const edm::EventSetup& iSetup)
 {
+    for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin();
+         iter != _analyzers.end(); ++iter) {
+        iter->endRun();
+    }
 }
 
 

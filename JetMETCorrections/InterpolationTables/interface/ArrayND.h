@@ -1686,7 +1686,7 @@ namespace npstat {
     ArrayND<Numeric,StackLen,StackDim>::ArrayND(
         const ArrayND<Num2, Len2, Dim2>& slicedArray,
         const unsigned *fixedIndices, const unsigned nFixedIndices)
-        : data_(0), strides_(0), shape_(0),
+        : data_(0), strides_(nullptr), shape_(nullptr),
           len_(1UL), dim_(slicedArray.dim_ - nFixedIndices),
           shapeIsKnown_(true)
     {
@@ -2559,7 +2559,7 @@ namespace npstat {
     void ArrayND<Numeric,Len,Dim>::buildStrides()
     {
         assert(dim_);
-        if (strides_ == 0)
+        if (strides_ == nullptr)
             strides_ = makeBuffer(dim_, localStrides_, Dim);
         strides_[dim_ - 1] = 1UL;
         for (unsigned j=dim_ - 1; j>0; --j)
@@ -2568,7 +2568,7 @@ namespace npstat {
 
     template<typename Numeric, unsigned StackLen, unsigned StackDim>
     inline ArrayND<Numeric,StackLen,StackDim>::ArrayND()
-        : data_(0), strides_(0), shape_(0),
+        : data_(nullptr), strides_(nullptr), shape_(nullptr),
           len_(0UL), dim_(0U), shapeIsKnown_(false)
     {
         localData_[0] = Numeric();
@@ -2577,7 +2577,7 @@ namespace npstat {
 
     template<typename Numeric, unsigned Len, unsigned Dim>
     ArrayND<Numeric,Len,Dim>::ArrayND(const ArrayND& r)
-        : data_(0), strides_(0), shape_(0),
+        : data_(nullptr), strides_(nullptr), shape_(nullptr),
           len_(r.len_), dim_(r.dim_), shapeIsKnown_(r.shapeIsKnown_)
     {
         if (dim_)
@@ -2605,7 +2605,7 @@ namespace npstat {
     template<typename Numeric, unsigned Len, unsigned Dim>
     template <typename Num2, unsigned Len2, unsigned Dim2>
     ArrayND<Numeric,Len,Dim>::ArrayND(const ArrayND<Num2, Len2, Dim2>& r)
-        : data_(0), strides_(0), shape_(0),
+        : data_(0), strides_(nullptr), shape_(nullptr),
           len_(r.len_), dim_(r.dim_), shapeIsKnown_(r.shapeIsKnown_)
     {
         if (dim_)
@@ -2634,7 +2634,7 @@ namespace npstat {
     template<typename Num2, unsigned Len2, unsigned Dim2, class Functor>
     ArrayND<Numeric,Len,Dim>::ArrayND(const ArrayND<Num2, Len2, Dim2>& r,
                                       Functor f)
-        : data_(0), strides_(0), shape_(0),
+        : data_(0), strides_(nullptr), shape_(nullptr),
           len_(r.len_), dim_(r.dim_), shapeIsKnown_(r.shapeIsKnown_)
     {
         if (dim_)
@@ -2694,7 +2694,7 @@ namespace npstat {
     template <typename Num2, unsigned Len2, unsigned Dim2>
     ArrayND<Numeric,Len,Dim>::ArrayND(
         const ArrayND<Num2, Len2, Dim2>& r, const ArrayRange& range)
-        : data_(0), strides_(0), shape_(0),
+        : data_(0), strides_(nullptr), shape_(nullptr),
           len_(r.len_), dim_(r.dim_), shapeIsKnown_(r.shapeIsKnown_)
     {
         if (!range.isCompatible(r.shape_, r.dim_))
@@ -2743,7 +2743,7 @@ namespace npstat {
     ArrayND<Numeric,Len,Dim>::ArrayND(
         const ArrayND<Num2, Len2, Dim2>& r, const ArrayRange& range,
         Functor f)
-        : data_(0), strides_(0), shape_(0),
+        : data_(0), strides_(nullptr), shape_(nullptr),
           len_(r.len_), dim_(r.dim_), shapeIsKnown_(r.shapeIsKnown_)
     {
         if (!range.isCompatible(r.shape_, r.dim_))
@@ -2782,23 +2782,23 @@ namespace npstat {
 
     template<typename Numeric, unsigned Len, unsigned Dim>
     ArrayND<Numeric,Len,Dim>::ArrayND(const ArrayShape& sh)
-        : data_(0), strides_(0), shape_(0), len_(1UL), shapeIsKnown_(true)
+        : data_(nullptr), strides_(nullptr), shape_(nullptr), len_(1UL), shapeIsKnown_(true)
     {
         const unsigned sz = sh.size();
-        buildFromShapePtr(sz ? &sh[0] : 0, sz);
+        buildFromShapePtr(sz ? &sh[0] : nullptr, sz);
     }
 
     template<typename Numeric, unsigned Len, unsigned Dim>
     ArrayND<Numeric,Len,Dim>::ArrayND(const unsigned* sizes,
                                       const unsigned dim)
-        : data_(0), strides_(0), shape_(0), len_(1UL), shapeIsKnown_(true)
+        : data_(0), strides_(nullptr), shape_(nullptr), len_(1UL), shapeIsKnown_(true)
     {
         buildFromShapePtr(sizes, dim);
     }
 
     template<typename Numeric, unsigned Len, unsigned Dim>
     ArrayND<Numeric,Len,Dim>::ArrayND(const unsigned n0)
-        : data_(0), strides_(0), shape_(0), len_(1UL), shapeIsKnown_(true)
+        : data_(0), strides_(nullptr), shape_(nullptr), len_(1UL), shapeIsKnown_(true)
     {
         const unsigned dim = 1U;
         unsigned sizes[dim];
@@ -2809,7 +2809,7 @@ namespace npstat {
     template<typename Numeric, unsigned Len, unsigned Dim>
     ArrayND<Numeric,Len,Dim>::ArrayND(const unsigned n0,
                                       const unsigned n1)
-        : data_(0), strides_(0), shape_(0), len_(1UL), shapeIsKnown_(true)
+        : data_(0), strides_(nullptr), shape_(nullptr), len_(1UL), shapeIsKnown_(true)
     {
         const unsigned dim = 2U;
         unsigned sizes[dim];
@@ -2822,7 +2822,7 @@ namespace npstat {
     ArrayND<Numeric,Len,Dim>::ArrayND(const unsigned n0,
                                       const unsigned n1,
                                       const unsigned n2)
-        : data_(0), strides_(0), shape_(0), len_(1UL), shapeIsKnown_(true)
+        : data_(0), strides_(nullptr), shape_(nullptr), len_(1UL), shapeIsKnown_(true)
     {
         const unsigned dim = 3U;
         unsigned sizes[dim];
@@ -2837,7 +2837,7 @@ namespace npstat {
                                       const unsigned n1,
                                       const unsigned n2,
                                       const unsigned n3)
-        : data_(0), strides_(0), shape_(0), len_(1UL), shapeIsKnown_(true)
+        : data_(0), strides_(nullptr), shape_(nullptr), len_(1UL), shapeIsKnown_(true)
     {
         const unsigned dim = 4U;
         unsigned sizes[dim];
@@ -2854,7 +2854,7 @@ namespace npstat {
                                       const unsigned n2,
                                       const unsigned n3,
                                       const unsigned n4)
-        : data_(0), strides_(0), shape_(0), len_(1UL), shapeIsKnown_(true)
+        : data_(0), strides_(nullptr), shape_(nullptr), len_(1UL), shapeIsKnown_(true)
     {
         const unsigned dim = 5U;
         unsigned sizes[dim];
@@ -2873,7 +2873,7 @@ namespace npstat {
                                       const unsigned n3,
                                       const unsigned n4,
                                       const unsigned n5)
-        : data_(0), strides_(0), shape_(0), len_(1UL), shapeIsKnown_(true)
+        : data_(0), strides_(nullptr), shape_(nullptr), len_(1UL), shapeIsKnown_(true)
     {
         const unsigned dim = 6U;
         unsigned sizes[dim];
@@ -2894,7 +2894,7 @@ namespace npstat {
                                       const unsigned n4,
                                       const unsigned n5,
                                       const unsigned n6)
-        : data_(0), strides_(0), shape_(0), len_(1UL), shapeIsKnown_(true)
+        : data_(0), strides_(nullptr), shape_(nullptr), len_(1UL), shapeIsKnown_(true)
     {
         const unsigned dim = 7U;
         unsigned sizes[dim];
@@ -2917,7 +2917,7 @@ namespace npstat {
                                       const unsigned n5,
                                       const unsigned n6,
                                       const unsigned n7)
-        : data_(0), strides_(0), shape_(0), len_(1UL), shapeIsKnown_(true)
+        : data_(0), strides_(nullptr), shape_(nullptr), len_(1UL), shapeIsKnown_(true)
     {
         const unsigned dim = 8U;
         unsigned sizes[dim];
@@ -2942,7 +2942,7 @@ namespace npstat {
                                       const unsigned n6,
                                       const unsigned n7,
                                       const unsigned n8)
-        : data_(0), strides_(0), shape_(0), len_(1UL), shapeIsKnown_(true)
+        : data_(0), strides_(nullptr), shape_(nullptr), len_(1UL), shapeIsKnown_(true)
     {
         const unsigned dim = 9U;
         unsigned sizes[dim];
@@ -2969,7 +2969,7 @@ namespace npstat {
                                       const unsigned n7,
                                       const unsigned n8,
                                       const unsigned n9)
-        : data_(0), strides_(0), shape_(0), len_(1UL), shapeIsKnown_(true)
+        : data_(0), strides_(nullptr), shape_(nullptr), len_(1UL), shapeIsKnown_(true)
     {
         const unsigned dim = 10U;
         unsigned sizes[dim];
@@ -3020,7 +3020,7 @@ namespace npstat {
              typename Num2, unsigned Len2, unsigned Dim2>
     ArrayND<Numeric,Len,Dim>::ArrayND(const ArrayND<Num1, Len1, Dim1>& a1,
                                       const ArrayND<Num2, Len2, Dim2>& a2)
-        : data_(0), strides_(0), shape_(0),
+        : data_(0), strides_(nullptr), shape_(nullptr),
           len_(1UL), dim_(a1.dim_ + a2.dim_), shapeIsKnown_(true)
     {
         if (!(a1.shapeIsKnown_ && a2.shapeIsKnown_))
@@ -4787,8 +4787,8 @@ namespace npstat {
         destroyBuffer(shape_, localShape_);
         localData_[0] = Numeric();
         data_ = localData_;
-        strides_ = 0;
-        shape_ = 0;
+        strides_ = nullptr;
+        shape_ = nullptr;
         len_ = 0;
         dim_ = 0;
         shapeIsKnown_ = false;
@@ -4978,7 +4978,7 @@ namespace npstat {
         }
         else
             localData_[0] = static_cast<Numeric>(
-                f(static_cast<unsigned*>(0), 0U));
+                f(static_cast<unsigned*>(nullptr), 0U));
         return *this;
     }
 
@@ -5595,7 +5595,7 @@ namespace npstat {
         if (dim_ == 1 && r.dim_ == 1)
         {
             // Special case: the result is of 0 rank
-            ArrayND<Numeric,Len,Dim> result(static_cast<unsigned*>(0), 0U);
+            ArrayND<Numeric,Len,Dim> result(static_cast<unsigned*>(nullptr), 0U);
             Numeric sum = Numeric();
             const unsigned imax = shape_[0];
             for (unsigned i=0; i<imax; ++i)

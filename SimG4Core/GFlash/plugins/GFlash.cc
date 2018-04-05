@@ -1,8 +1,5 @@
 #include "SimG4Core/GFlash/interface/GFlash.h"
 #include "SimG4Core/GFlash/interface/ParametrisedPhysics.h"
-#include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_WP.h"
-#include "SimG4Core/GFlash/interface/HadronPhysicsQGSP_BERT_WP.h"
-#include "SimG4Core/GFlash/interface/HadronPhysicsQGSPCMS_FTFP_BERT_WP.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -28,20 +25,16 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
 
   G4DataQuestionaire it(photon);
 
-  //std::string hadronPhysics = thePar.getParameter<std::string>("GflashHadronPhysics");
-
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
   std::string region = p.getParameter<std::string>("Region");
-  bool gem  = thePar.getParameter<bool>("GflashEMShowerModel");
-  bool ghad = thePar.getParameter<bool>("GflashHadronShowerModel");
 
-  edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << " + CMS GFLASH with Flags for EM Physics "
-                              << gem << ", for Hadronic Physics "
-			      << ghad 
+  edm::LogInfo("PhysicsList") << "You are using the obsolete simulation engine: "
+			      << " GFlash with Flags for EM Physics "
+                              << emPhys << ", for Hadronic Physics "
+			      << hadPhys
                               << " and tracking cut " << tracking
                               << " with special region " << region;
 
@@ -74,31 +67,6 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
     if (tracking) {
       RegisterPhysics( new G4NeutronTrackingCut(ver));
     }
-    /*
-    if(hadronPhysics=="QGSP_FTFP_BERT") {
-      RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT_WP("hadron",quasiElastic)); 
-    }
-    else if(hadronPhysics=="QGSP_BERT") {
-      RegisterPhysics( new HadronPhysicsQGSP_BERT_WP("hadron",quasiElastic));
-    }
-    else if (hadronPhysics=="QGSP") {
-      RegisterPhysics( new HadronPhysicsQGSP_WP("hadron",quasiElastic));
-    }
-    else {
-      edm::LogInfo("PhysicsList") << hadronPhysics << " is not available for GflashHadronPhysics!"
-				  << "... Using QGSP_FTFP_BERT\n";
-      RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT_WP("hadron",quasiElastic));
-    }
-    // Stopping Physics
-    RegisterPhysics( new G4QStoppingPhysics("stopping"));
-
-    // Ion Physics
-    RegisterPhysics( new G4IonPhysics("ion"));
-
-    // Neutron tracking cut
-    if (tracking) 
-      RegisterPhysics( new G4NeutronTrackingCut("Neutron tracking cut", ver));
-    */
   }
 
   // Monopoles
@@ -110,7 +78,6 @@ GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
     theHisto->setStoreFlag(true);
     theHisto->bookHistogram(thePar.getParameter<std::string>("GflashHistogramName"));
   }
-
 }
 
 GFlash::~GFlash() {

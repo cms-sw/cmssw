@@ -50,13 +50,13 @@ void testSharedResourcesRegistry::oneTest()
     std::vector<std::string> res{"foo","bar","zoo"};
     auto tester = reg.createAcquirer(res);
     
-    CPPUNIT_ASSERT(0 == tester.numberOfResources());
+    CPPUNIT_ASSERT(1 == tester.numberOfResources());
   }
   {
     std::vector<std::string> res{"foo"};
     auto tester = reg.createAcquirer(res);
     
-    CPPUNIT_ASSERT(0 == tester.numberOfResources());
+    CPPUNIT_ASSERT(1 == tester.numberOfResources());
   }
 }
 
@@ -69,7 +69,7 @@ void testSharedResourcesRegistry::legacyTest()
     reg.registerSharedResource(edm::SharedResourcesRegistry::kLegacyModuleResourceName);
     auto tester = reg.createAcquirer(res);
 
-    CPPUNIT_ASSERT(0 == tester.numberOfResources());
+    CPPUNIT_ASSERT(1 == tester.numberOfResources());
   }
   {
     edm::SharedResourcesRegistry reg;
@@ -149,7 +149,7 @@ void testSharedResourcesRegistry::multipleTest()
     std::vector<std::string> res{"foo"};
     auto tester = reg.createAcquirer(res);
     
-    CPPUNIT_ASSERT(0 == tester.numberOfResources());
+    CPPUNIT_ASSERT(1 == tester.numberOfResources());
   }
   {
     std::vector<std::string> res{"bar"};

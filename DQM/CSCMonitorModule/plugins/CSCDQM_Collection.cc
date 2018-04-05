@@ -18,6 +18,9 @@
 #include "CSCDQM_Collection.h"
 #include "FWCore/Concurrency/interface/Xerces.h"
 #include <cstdio>
+#include <string>
+#include <xercesc/util/XMLString.hpp>
+#include <xercesc/util/TransService.hpp>
 
 namespace cscdqm {
 
@@ -35,7 +38,6 @@ namespace cscdqm {
    * @return 
    */
   void Collection::load() {
-
     LOG_INFO << "Reading histograms from " << config->getBOOKING_XML_FILE();
 
     if (config->getBOOKING_XML_FILE().empty()) {
@@ -45,37 +47,34 @@ namespace cscdqm {
     try {
 
       cms::concurrency::xercesInitialize();
-
       {
+	XercesDOMParser parser;
 
-        XercesDOMParser parser;
+	parser.setValidationScheme(XercesDOMParser::Val_Always);
+	parser.setDoNamespaces(true);
+	parser.setDoSchema(true);
+	parser.setExitOnFirstFatalError(true);
+	parser.setValidationConstraintFatal(true);
+	XMLFileErrorHandler eh;
+	parser.setErrorHandler(&eh);
+	parser.parse(config->getBOOKING_XML_FILE().c_str());
+	
+	DOMDocument *doc = parser.getDocument();
+	DOMElement *docNode = doc->getDocumentElement();
+	DOMNodeList *itemList = docNode->getChildNodes();
 
-        parser.setValidationScheme(XercesDOMParser::Val_Always);
-        parser.setDoNamespaces(true);
-        parser.setDoSchema(true);
-        parser.setExitOnFirstFatalError(true);
-        parser.setValidationConstraintFatal(true);
-        XMLFileErrorHandler eh;
-        parser.setErrorHandler(&eh);
-
-        parser.parse(config->getBOOKING_XML_FILE().c_str());
-        DOMDocument *doc = parser.getDocument();
-        DOMNode *docNode = (DOMNode*) doc->getDocumentElement();
-  
-        DOMNodeList *itemList = docNode->getChildNodes();
-
-        CoHisto definitions;
-        for (uint32_t i = 0; i < itemList->getLength(); i++) {
+	CoHisto definitions;
+	for (XMLSize_t i = 0; i < itemList->getLength(); i++) {
   
           DOMNode* node = itemList->item(i);
           if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
 
           std::string nodeName = XMLString::transcode(node->getNodeName());
-
+	  
           ///
           /// Load histogram definition
           ///
-          if (nodeName.compare(XML_BOOK_DEFINITION) == 0) {
+          if (nodeName == XML_BOOK_DEFINITION) {
 
             CoHistoProps dp;
             getNodeProperties(node, dp);
@@ -89,13 +88,14 @@ namespace cscdqm {
           ///
           /// Load histogram
           ///
-          if (nodeName.compare(XML_BOOK_HISTOGRAM) == 0) {
+          if (nodeName == XML_BOOK_HISTOGRAM) {
   
             CoHistoProps hp;
 
             DOMElement* el = dynamic_cast<DOMElement*>(node);
             if (el->hasAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))) {
               std::string id(XMLString::transcode(el->getAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))));
+
               CoHistoProps d = definitions[id];
               for (CoHistoProps::iterator it = d.begin(); it != d.end(); it++) {
                 hp[it->first] = it->second;
@@ -110,8 +110,8 @@ namespace cscdqm {
             // Check if this histogram is an ON DEMAND histogram?
             hp[XML_BOOK_ONDEMAND] = (Utility::regexMatch(REGEXP_ONDEMAND, name) ? XML_BOOK_ONDEMAND_TRUE : XML_BOOK_ONDEMAND_FALSE );
 
-            LOG_DEBUG << "[Collection::load] loading " << prefix << "::" << name << " XML_BOOK_ONDEMAND = " << hp[XML_BOOK_ONDEMAND]; 
-  
+            LOG_DEBUG << "[Collection::load] loading " << prefix << "::" << name << " XML_BOOK_ONDEMAND = " << hp[XML_BOOK_ONDEMAND];
+	    
             CoHistoMap::iterator it = collection.find(prefix);
             if (it == collection.end()) {
               CoHisto h;
@@ -120,10 +120,8 @@ namespace cscdqm {
             } else {
               it->second.insert(make_pair(name, hp));
             }
-
           }
         }
-
       }
 
       cms::concurrency::xercesTerminate();
@@ -136,7 +134,6 @@ namespace cscdqm {
     for (CoHistoMap::const_iterator i = collection.begin(); i != collection.end(); i++) {
       LOG_INFO << i->second.size() << " " << i->first << " histograms defined";
     }
-    
   }
   
   /**
@@ -146,18 +143,26 @@ namespace cscdqm {
    * @param  p List of properties to fill
    * @return 
    */
+  
   void Collection::getNodeProperties(DOMNode*& node, CoHistoProps& p) {
     DOMNodeList *props  = node->getChildNodes();
-    for(uint32_t j = 0; j < props->getLength(); j++) {
+
+    for(XMLSize_t j = 0; j < props->getLength(); j++) {
       DOMNode* node = props->item(j);
       if (node->getNodeType() != DOMNode::ELEMENT_NODE) { continue; }
-      std::string name  = XMLString::transcode(node->getNodeName());
-      std::string value = XMLString::transcode(node->getTextContent());
+      DOMElement* element = dynamic_cast<DOMElement*>(node);
+      std::string name = XMLString::transcode(element->getNodeName());
+
+      const XMLCh *content = element->getTextContent();
+      XERCES_CPP_NAMESPACE_QUALIFIER TranscodeToStr tc(content, "UTF-8");
+      std::istringstream buffer((const char*)tc.str());
+      std::string value = buffer.str();
+      
       DOMNamedNodeMap* attributes = node->getAttributes();
       if (attributes) {
-        for (uint32_t i = 0; i < attributes->getLength(); i++) {
+        for (XMLSize_t i = 0; i < attributes->getLength(); i++) {
           DOMNode* attribute = attributes->item(i);
-          std::string aname  = XMLString::transcode(attribute->getNodeName());
+          std::string aname = XMLString::transcode(attribute->getNodeName());
           std::string avalue = XMLString::transcode(attribute->getNodeValue());
           p[name + "_" + aname] = avalue;
         }
@@ -273,7 +278,7 @@ namespace cscdqm {
   const int Collection::ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels) {
     std::string tmp = s;
     std::string::size_type pos = tmp.find("|");
-    char* stopstring = NULL;
+    char* stopstring = nullptr;
   
     while (pos != std::string::npos) {
       std::string label_pair = tmp.substr(0, pos);
@@ -417,7 +422,7 @@ namespace cscdqm {
    */
   void Collection::book(const HistoDef& h, const CoHistoProps& p, const std::string& folder) const {
 
-    MonitorObject* me = NULL;
+    MonitorObject* me = nullptr;
     std::string name = h.getName(), type, title, s;
 
     /** Check if this histogram is included in booking by filters */
@@ -500,7 +505,7 @@ namespace cscdqm {
       throw Exception("Can not book histogram with type: " + type);
     }
 
-    if(me != NULL) {
+    if(me != nullptr) {
 
       LockType lock(me->mutex);
       TH1 *th = me->getTH1Lock();
@@ -532,6 +537,7 @@ namespace cscdqm {
       if(checkHistoValue(p, "SetXLabels", s)) {
         std::map<int, std::string> labels;
         ParseAxisLabels(s, labels);
+        th->GetXaxis()->SetNoAlphanumeric(); // For ROOT6 to prevent getting zero means values
         for (std::map<int, std::string>::iterator l_itr = labels.begin(); l_itr != labels.end(); ++l_itr) {
           th->GetXaxis()->SetBinLabel(l_itr->first, l_itr->second.c_str());
         }
@@ -539,6 +545,7 @@ namespace cscdqm {
       if(checkHistoValue(p, "SetYLabels", s)) {
         std::map<int, std::string> labels;
         ParseAxisLabels(s, labels);
+        th->GetYaxis()->SetNoAlphanumeric(); // For ROOT6 to prevent getting zero means values
         for (std::map<int, std::string>::iterator l_itr = labels.begin(); l_itr != labels.end(); ++l_itr) {
           th->GetYaxis()->SetBinLabel(l_itr->first, l_itr->second.c_str());
         }

@@ -1,16 +1,12 @@
 #ifndef  PopConSourceHandler_H
 #define  PopConSourceHandler_H
 
-//#include "CondCore/DBCommon/interface/DbSession.h"
-//#include "CondCore/DBCommon/interface/DbTransaction.h"
-
 #include "CondCore/CondDB/interface/Session.h"
 #include "CondCore/CondDB/interface/Time.h"
-//#include "CondCore/DBCommon/interface/TagInfo.h"
-#include "CondCore/DBCommon/interface/LogDBEntry.h"
 
 #include <boost/bind.hpp>
 #include <algorithm>
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -87,13 +83,13 @@ namespace popcon {
     private:
       
       cond::persistency::Session m_dbsession;
-      boost::shared_ptr<T> m_d;
+      std::shared_ptr<T> m_d;
     };
     
     
     PopConSourceHandler():
-      m_tagInfo(0),
-      m_logDBEntry(0)
+      m_tagInfo(nullptr),
+      m_logDBEntry(nullptr)
     {}
     
     virtual ~PopConSourceHandler(){
@@ -108,11 +104,11 @@ namespace popcon {
     }
     
     // return last successful log entry for the tag in question
-    cond::LogDBEntry const & logDBEntry() const { return *m_logDBEntry; }
+    cond::LogDBEntry_t const & logDBEntry() const { return *m_logDBEntry; }
     
     // FIX ME
     void initialize (const cond::persistency::Session& dbSession,
-      		     cond::TagInfo_t const & tagInfo, cond::LogDBEntry const & logDBEntry) { 
+      		     cond::TagInfo_t const & tagInfo, cond::LogDBEntry_t const & logDBEntry) { 
       m_session = dbSession;
       m_tagInfo = &tagInfo;
       m_logDBEntry = &logDBEntry;
@@ -121,7 +117,7 @@ namespace popcon {
     // this is the only mandatory interface
     std::pair<Container const *, std::string const>  operator()(const cond::persistency::Session& session,
       							cond::TagInfo_t const & tagInfo, 
-      							cond::LogDBEntry const & logDBEntry) const {
+      							cond::LogDBEntry_t const & logDBEntry) const {
       const_cast<self*>(this)->initialize(session, tagInfo, logDBEntry);
       return std::pair<Container const *, std::string const>(&(const_cast<self*>(this)->returnData()), userTextLog());
     }
@@ -167,7 +163,10 @@ namespace popcon {
     }
     
   protected:
-    
+
+    cond::persistency::Session& dbSession() const {
+      return m_session;
+    }
     
     int add(value_type * payload, Summary * summary, Time_t time) {
       Triplet t = {payload,summary,time};
@@ -181,7 +180,7 @@ namespace popcon {
     
     cond::TagInfo_t const * m_tagInfo;
     
-    cond::LogDBEntry const * m_logDBEntry;
+    cond::LogDBEntry_t const * m_logDBEntry;
     
 
   protected:

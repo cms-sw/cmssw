@@ -47,12 +47,12 @@
 class EcalRecHitsFilter : public edm::EDFilter {
    public:
       explicit EcalRecHitsFilter(const edm::ParameterSet &);
-      ~EcalRecHitsFilter();
+      ~EcalRecHitsFilter() override;
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter ( edm::Event &, const edm::EventSetup &);
-      virtual void endJob() ;
+      void beginJob() override ;
+      bool filter ( edm::Event &, const edm::EventSetup &) override;
+      void endJob() override ;
 
       double EnergyCut;  
       int NumBadXtalsThreshold_; 

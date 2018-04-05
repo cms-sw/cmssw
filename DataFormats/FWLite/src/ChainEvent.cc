@@ -43,19 +43,17 @@ ChainEvent::ChainEvent(std::vector<std::string> const& iFileNames):
   accumulatedSize_.reserve(iFileNames.size()+1);
   fileNames_.reserve(iFileNames.size());
     
-  for (std::vector<std::string>::const_iterator it= iFileNames.begin(), itEnd = iFileNames.end();
-      it!=itEnd;
-      ++it) {
-    TFile *tfilePtr = TFile::Open(it->c_str());
+  for (auto const& fileName : iFileNames) {
+    TFile *tfilePtr = TFile::Open(fileName.c_str());
     file_ = std::shared_ptr<TFile>(tfilePtr);
     gROOT->GetListOfFiles()->Remove(tfilePtr);
     TTree* tree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::eventTreeName().c_str()));
-    if (0 == tree) {
-      throw cms::Exception("NotEdmFile")<<"The file "<<*it<<" has no 'Events' TTree and therefore is not an EDM ROOT file";
+    if (nullptr == tree) {
+      throw cms::Exception("NotEdmFile")<<"The file "<<fileName<<" has no 'Events' TTree and therefore is not an EDM ROOT file";
     }
     Long64_t nEvents = tree->GetEntries();
     if (nEvents > 0) { // skip empty files
-      fileNames_.push_back(*it);
+      fileNames_.push_back(fileName);
       // accumulatedSize_ is the entry # at the beginning of this file
       accumulatedSize_.push_back(summedSize);
       summedSize += nEvents;
@@ -64,7 +62,7 @@ ChainEvent::ChainEvent(std::vector<std::string> const& iFileNames):
   // total accumulated size (last enry + 1) at the end of last file
   accumulatedSize_.push_back(summedSize);
 
-  if (fileNames_.size() > 0)
+  if (!fileNames_.empty())
     switchToFile(0);
 }
 
@@ -199,6 +197,7 @@ ChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event)
 ChainEvent const&
 ChainEvent::toBegin()
 {
+   if (!size()) return *this;
    if (eventIndex_ != 0)
    {
       switchToFile(0);
@@ -214,7 +213,7 @@ ChainEvent::switchToFile(Long64_t iIndex)
   TFile *tfilePtr = TFile::Open(fileNames_[iIndex].c_str());
   file_ = std::shared_ptr<TFile>(tfilePtr);
   gROOT->GetListOfFiles()->Remove(tfilePtr);
-  event_ = std::shared_ptr<Event>(new Event(file_.get()));
+  event_ = std::make_shared<Event>(file_.get());
 }
 
 //
@@ -301,6 +300,7 @@ ChainEvent::operator bool() const
 bool
 ChainEvent::atEnd() const
 {
+  if (!size()) return true;
   if (eventIndex_ == static_cast<Long64_t>(fileNames_.size())-1) {
     return event_->atEnd();
   }
@@ -310,7 +310,7 @@ ChainEvent::atEnd() const
 Long64_t
 ChainEvent::size() const
 {
-  return accumulatedSize_.back();
+  return accumulatedSize_.empty() ? 0 : accumulatedSize_.back();
 }
 
 edm::TriggerNames const&
@@ -319,6 +319,11 @@ ChainEvent::triggerNames(edm::TriggerResults const& triggerResults) const
   return event_->triggerNames(triggerResults);
 }
 
+edm::ParameterSet const*
+ChainEvent::parameterSet(edm::ParameterSetID const& psID) const {
+  return event_->parameterSet(psID);
+}
+  
 void
 ChainEvent::fillParameterSetRegistry() const
 {
@@ -326,8 +331,8 @@ ChainEvent::fillParameterSetRegistry() const
 }
 
 edm::TriggerResultsByName
-ChainEvent::triggerResultsByName(std::string const& process) const {
-  return event_->triggerResultsByName(process);
+ChainEvent::triggerResultsByName(edm::TriggerResults const& triggerResults) const {
+  return event_->triggerResultsByName(triggerResults);
 }
 
 //

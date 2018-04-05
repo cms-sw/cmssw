@@ -1,185 +1,3 @@
-<library   file="EcalPedestalsPyWrapper.cc" name="EcalPedestalsPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalPulseShapesPyWrapper.cc" name="EcalPulseShapesPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalPulseCovariancesPyWrapper.cc" name="EcalPulseCovariancesPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalWeightXtalGroupsPyWrapper.cc" name="EcalWeightXtalGroupsPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalTBWeightsPyWrapper.cc" name="EcalTBWeightsPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalAlignmentPyWrapper.cc" name="AlignmentsPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalGainRatiosPyWrapper.cc" name="EcalGainRatiosPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalADCToGeVConstantPyWrapper.cc" name="EcalADCToGeVConstantPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalLaserAPDPNRatiosPyWrapper.cc" name="EcalLaserAPDPNRatiosPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalFloatCondObjectContainerPyWrapper.cc" name="EcalFloatCondObjectContainerPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="DataFormats/EcalDetId"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <use   name="root"/>
-  <use   name="rootgraphics"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalChannelStatusPyWrapper.cc" name="EcalChannelStatusPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalDAQTowerStatusPyWrapper.cc" name="EcalDAQTowerStatusPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalDCSTowerStatusPyWrapper.cc" name="EcalDCSTowerStatusPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalTPGTowerStatusPyWrapper.cc" name="EcalTPGTowerStatusPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalTPGCrystalStatusPyWrapper.cc" name="EcalTPGCrystalStatusPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalTPGStripStatusPyWrapper.cc" name="EcalTPGStripStatusPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalTPGLinearizationConstPyWrapper.cc" name="EcalTPGLinearizationConstPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="EcalMappingElectronicsPyWrapper.cc" name="EcalMappingElectronicsPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
 <library   file="EcalPyUtils.cc" name="EcalPyUtils">
   <use   name="CondCore/Utilities"/>
   <use   name="CondFormats/EcalObjects"/>
@@ -187,45 +5,141 @@
   <use   name="DataFormats/EcalDetId"/>
   <use   name="boost"/>
   <use   name="boost_python"/>
-  <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="EcalTimeOffsetConstantPyWrapper.cc" name="EcalTimeOffsetConstantPyInterface">
+
+<library   file="EcalPedestals_PayloadInspector.cc" name="EcalPedestals_PayloadInspector">
   <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
   <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
   <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="EcalFunParamsPyWrapper.cc" name="EcalFunParamsPyInterface">
+
+<library   file="EcalChannelStatus_PayloadInspector.cc" name="EcalChannelStatus_PayloadInspector">
   <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
   <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
   <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="ESGainPyWrapper.cc" name="ESGainPyInterface">
+
+<library   file="EcalIntercalibConstants_PayloadInspector.cc" name="EcalIntercalibConstants_PayloadInspector">
   <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library> 
+
+<library   file="EcalLaserAPDPNRatios_PayloadInspector.cc" name="EcalLaserAPDPNRatios_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalGainRatios_PayloadInspector.cc" name="EcalGainRatios_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalAlignment_PayloadInspector.cc" name="EcalAlignment_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalFloatCondObjectContainer_PayloadInspector.cc" name="EcalFloatCondObjectContainer_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalLinearCorrections_PayloadInspector.cc" name="EcalLinearCorrections_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalPulseCovariances_PayloadInspector.cc" name="EcalPulseCovariances_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalPulseShapes_PayloadInspector.cc" name="EcalPulseShapes_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTPGCrystalStatus_PayloadInspector.cc" name="EcalTPGCrystalStatus_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTPGStripStatus_PayloadInspector.cc" name="EcalTPGStripStatus_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTPGTowerStatus_PayloadInspector.cc" name="EcalTPGTowerStatus_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTPGLinearizationConst_PayloadInspector.cc" name="EcalTPGLinearizationConst_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="EcalTPGPedestals_PayloadInspector.cc" name="EcalTPGPedestals_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/EcalObjects"/>
+  <use   name="boost_python"/>
+</library>
+
+<library   file="ESChannelStatus_PayloadInspector.cc" name="ESChannelStatus_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
   <use   name="CondFormats/ESObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
   <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="EcalTimeBiasCorrectionsPyWrapper.cc" name="EcalTimeBiasCorrectionsPyInterface">
+
+<library   file="ESIntercalibConstants_PayloadInspector.cc" name="ESIntercalibConstants_PayloadInspector">
   <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/EcalObjects"/>
-  <use   name="CondTools/Ecal"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/ESObjects"/>
   <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
 </library>
+

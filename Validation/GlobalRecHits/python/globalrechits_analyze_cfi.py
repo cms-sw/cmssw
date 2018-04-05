@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-globalrechitsanalyze = cms.EDAnalyzer("GlobalRecHitsAnalyzer",
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+globalrechitsanalyze = DQMEDAnalyzer('GlobalRecHitsAnalyzer',
     MuDTSrc = cms.InputTag("dt1DRecHits"),
     SiPxlSrc = cms.InputTag("siPixelRecHits"),
     # as of 110p2, needs to be 1. Anything ealier should be 0.
@@ -30,6 +31,8 @@ globalrechitsanalyze = cms.EDAnalyzer("GlobalRecHitsAnalyzer",
     ECalUncalEESrc = cms.InputTag("ecalWeightUncalibRecHit","EcalUncalibRecHitsEE"),
     Name = cms.untracked.string('GlobalRecHitsAnalyzer'),
     Verbosity = cms.untracked.int32(0), ## 0 provides no output
+    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
 
     associateStrip = cms.bool(True),
     MuRPCSrc = cms.InputTag("rpcRecHits"),

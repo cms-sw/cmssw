@@ -1,6 +1,8 @@
 #ifndef Utilities_XrdAdaptor_XrdSource_h
 #define Utilities_XrdAdaptor_XrdSource_h
 
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
+
 #include <memory>
 #include <vector>
 
@@ -63,15 +65,20 @@ private:
 
     void setXrootdSite();
 
+    std::shared_ptr<XrdCl::File const> fh() const {return get_underlying_safe(m_fh);}
+    std::shared_ptr<XrdCl::File>& fh() {return get_underlying_safe(m_fh);}
+    std::shared_ptr<XrdSiteStatistics const> stats() const {return get_underlying_safe(m_stats);}
+    std::shared_ptr<XrdSiteStatistics>& stats() {return get_underlying_safe(m_stats);}
+
     struct timespec m_lastDowngrade;
     std::string m_id;
     std::string m_prettyid;
     std::string m_site;
     std::string m_exclude;
-    std::shared_ptr<XrdCl::File> m_fh;
+    edm::propagate_const<std::shared_ptr<XrdCl::File>> m_fh;
 
-    std::unique_ptr<QualityMetricSource> m_qm;
-    std::shared_ptr<XrdSiteStatistics> m_stats;
+    edm::propagate_const<std::unique_ptr<QualityMetricSource>> m_qm;
+    edm::propagate_const<std::shared_ptr<XrdSiteStatistics>> m_stats;
 
 #ifdef XRD_FAKE_SLOW
     bool m_slow;

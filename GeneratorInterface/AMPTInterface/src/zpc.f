@@ -4,9 +4,6 @@ c	PROGRAM ZPC
 c       Version: 1.0.1
 c       Author: Bin Zhang 
 c       (suggestions, problems -> bzhang@nt1.phys.columbia.edu)
-cms
-cms     dlw & gsfs Comments our writing of output files
-cms
         implicit double precision (a-h, o-z)
 clin-4/20/01        PARAMETER (NMAXGL = 16000)
         parameter (MAXPTN=400001)
@@ -164,7 +161,7 @@ c
 
 cc        external ran1
 
-        character*50 str
+cms        character*50 str
 
         common /para2/ xmp, xmu, alpha, rscut2, cutof2
 cc      SAVE /para2/
@@ -186,7 +183,6 @@ cc      SAVE /rndm2/
 cc      SAVE /rndm3/
         SAVE   
 
-        str=str
         iseed=iseedp
 c       this is the initialization file containing the initial values of 
 c          the parameters
@@ -197,7 +193,7 @@ cbz1/31/99end
 c       this is the final data file containing general info about the cascade
 cbz1/31/99
 c        open (6, file = 'zpc.res', status = 'unknown')
-cms     open (25, file = 'ana/zpc.res', status = 'unknown')
+cms        open (25, file = 'ana/zpc.res', status = 'unknown')
 cbz1/31/99end
 
 c       this is the input file containing initial particle records
@@ -209,8 +205,8 @@ c       this gives the optional OSCAR standard output
 cbz1/31/99
 c        open (8, file = 'zpc.oscar', status = 'unknown')
         if(ioscar.eq.1) then
-cms        open (26, file = 'ana/parton.oscar', status = 'unknown')
-cms        open (19, file = 'ana/hadron.oscar', status = 'unknown')
+cms           open (26, file = 'ana/parton.oscar', status = 'unknown')
+cms           open (19, file = 'ana/hadron.oscar', status = 'unknown')
         endif
 cbz1/31/99end
 
@@ -235,7 +231,7 @@ c        read (29, *) str, ireflg
         ireflg=1
 cbz1/31/99
         IF (ireflg .EQ. 0) THEN
-cms        OPEN (27, FILE = 'zpc.inp', STATUS = 'UNKNOWN')
+cms           OPEN (27, FILE = 'zpc.inp', STATUS = 'UNKNOWN')
         END IF
 cbz1/31/99end
 c        read (29, *) str, igeflg
@@ -494,8 +490,8 @@ c           e = sqrt(e ** 2 + xmp ** 2)
             
 c       check if it's necessary to adjust array size 'adarr'
             if (mul .ge. MAXPTN .or. mul .eq. 0) then
-           print *, 'event',ievt,'has',mul,'number of gluon',
-     &          'adjusting counting is necessary'
+cms           print *, 'event',ievt,'has',mul,'number of gluon',
+cms     &          'adjusting counting is necessary'
            stop 'adarr'
         end if
         
@@ -525,7 +521,7 @@ cc      SAVE /rndm3/
         
         implicit double precision (a-h, o-z)
 
-c        external ran1
+cc        external ran1
 
         common /ilist3/ size1, size2, size3, v1, v2, v3, size
 cc      SAVE /ilist3/
@@ -895,8 +891,8 @@ c       save particle info for fixed time analysis
  1002   continue
 
 clin-6/2009
-cms     if(isoft.eq.1.and.(ioscar.eq.2.or.ioscar.eq.3))
-cms  1       write(92,*) iaevt,miss,mul
+        if(isoft.eq.1.and.(ioscar.eq.2.or.ioscar.eq.3))
+     1       write(92,*) iaevt,miss,mul
 
         do 1003 i = 1, mul
            energy = e(i)
@@ -935,15 +931,15 @@ c     and after propagating to its format time:
            if(ioscar.eq.2.or.ioscar.eq.3) then
               if(dmax1(abs(gx(i)),abs(gy(i)),
      1             abs(gz(i)),abs(ft(i))).lt.9999) then
-cms              write(92,200) ityp(i),px(i),py(i),pz(i),xmass(i),
-cms  1                gx(i),gy(i),gz(i),ft(i)
+                 write(92,200) ityp(i),px(i),py(i),pz(i),xmass(i),
+     1                gx(i),gy(i),gz(i),ft(i)
               else
-cms              write(92,201) ityp(i),px(i),py(i),pz(i),xmass(i),
-cms  1                gx(i),gy(i),gz(i),ft(i)
+                 write(92,201) ityp(i),px(i),py(i),pz(i),xmass(i),
+     1                gx(i),gy(i),gz(i),ft(i)
               endif
            endif
-cyy 200      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
-cyy 201      format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
+ 200       format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
+ 201       format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
 c
  1003   continue
 
@@ -1216,24 +1212,24 @@ clin-6/2009 write out info for each collision:
 c           if (mod(ictype, 2) .eq. 0) call scat(t, iscat, jscat)
            if (mod(ictype, 2) .eq. 0) then
               if(ioscar.eq.3) then
-cms              write(95,*) 'event,miss,iscat,jscat=',iaevt,miss,iscat,jscat
+            write(95,*) 'event,miss,iscat,jscat=',iaevt,miss,iscat,jscat
                  if(dmax1(abs(gx(iscat)),abs(gy(iscat)),
      1                abs(gz(iscat)),abs(ft(iscat)),abs(gx(jscat)),
      2                abs(gy(jscat)),abs(gz(jscat)),abs(ft(jscat)))
      3                .lt.9999) then
-cms                 write(95,200) ityp(iscat),px(iscat),py(iscat),
-cms  1                   pz(iscat),xmass(iscat),gx(iscat),gy(iscat),
-cms  2                   gz(iscat),ft(iscat)
-cms                 write(95,200) ityp(jscat),px(jscat),py(jscat),
-cms  1                   pz(jscat),xmass(jscat),gx(jscat),gy(jscat),
-cms  2                   gz(jscat),ft(jscat)
+                    write(95,200) ityp(iscat),px(iscat),py(iscat),
+     1                   pz(iscat),xmass(iscat),gx(iscat),gy(iscat),
+     2                   gz(iscat),ft(iscat)
+                    write(95,200) ityp(jscat),px(jscat),py(jscat),
+     1                   pz(jscat),xmass(jscat),gx(jscat),gy(jscat),
+     2                   gz(jscat),ft(jscat)
                  else
-cms                 write(95,201) ityp(iscat),px(iscat),py(iscat),
-cms  1                   pz(iscat),xmass(iscat),gx(iscat),gy(iscat),
-cms  2                   gz(iscat),ft(iscat)
-cms                 write(95,201) ityp(jscat),px(jscat),py(jscat),
-cms  1                   pz(jscat),xmass(jscat),gx(jscat),gy(jscat),
-cms  2                   gz(jscat),ft(jscat)
+                    write(95,201) ityp(iscat),px(iscat),py(iscat),
+     1                   pz(iscat),xmass(iscat),gx(iscat),gy(iscat),
+     2                   gz(iscat),ft(iscat)
+                    write(95,201) ityp(jscat),px(jscat),py(jscat),
+     1                   pz(jscat),xmass(jscat),gx(jscat),gy(jscat),
+     2                   gz(jscat),ft(jscat)
                  endif
               endif
 c     
@@ -1244,24 +1240,24 @@ c
      1                abs(gz(iscat)),abs(ft(iscat)),abs(gx(jscat)),
      2                abs(gy(jscat)),abs(gz(jscat)),abs(ft(jscat)))
      3                .lt.9999) then
-cms                 write(95,200) ityp(iscat),px(iscat),py(iscat),
-cms  1                   pz(iscat),xmass(iscat),gx(iscat),gy(iscat),
-cms  2                   gz(iscat),ft(iscat)
-cms                 write(95,200) ityp(jscat),px(jscat),py(jscat),
-cms  1                   pz(jscat),xmass(jscat),gx(jscat),gy(jscat),
-cms  2                   gz(jscat),ft(jscat)
+                    write(95,200) ityp(iscat),px(iscat),py(iscat),
+     1                   pz(iscat),xmass(iscat),gx(iscat),gy(iscat),
+     2                   gz(iscat),ft(iscat)
+                    write(95,200) ityp(jscat),px(jscat),py(jscat),
+     1                   pz(jscat),xmass(jscat),gx(jscat),gy(jscat),
+     2                   gz(jscat),ft(jscat)
                  else
-cms                 write(95,201) ityp(iscat),px(iscat),py(iscat),
-cms  1                   pz(iscat),xmass(iscat),gx(iscat),gy(iscat),
-cms  2                   gz(iscat),ft(iscat)
-cms                 write(95,201) ityp(jscat),px(jscat),py(jscat),
-cms  1                   pz(jscat),xmass(jscat),gx(jscat),gy(jscat),
-cms  2                   gz(jscat),ft(jscat)
+                    write(95,201) ityp(iscat),px(iscat),py(iscat),
+     1                   pz(iscat),xmass(iscat),gx(iscat),gy(iscat),
+     2                   gz(iscat),ft(iscat)
+                    write(95,201) ityp(jscat),px(jscat),py(jscat),
+     1                   pz(jscat),xmass(jscat),gx(jscat),gy(jscat),
+     2                   gz(jscat),ft(jscat)
                  endif
               endif
            endif
-cyy           format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
-cyy           format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
+ 200       format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,f8.2))
+ 201       format(I6,2(1x,f8.3),1x,f10.3,1x,f6.3,4(1x,e8.2))
            
         end if
 
@@ -1856,7 +1852,6 @@ cc      SAVE /prec5/
 cc      SAVE /ilist5/
         SAVE   
 
-        t=t
         dt1 = ct(i) - ft(i)
         
         gx(i) = gx(i) + vx(i) * dt1
@@ -1930,7 +1925,6 @@ cc      SAVE /anim/
 cc      SAVE /frzprc/
         SAVE   
 
-        t=t
 clin-6/06/02 no momentum change for partons already frozen out,
 c     however, spatial upgrade is needed to ensure overall system freezeout:
       if(isoft.eq.5) then
@@ -2138,8 +2132,6 @@ cc        external ran1
 cc      SAVE /rndm3/
         SAVE   
 
-        iscat=iscat
-        jscat=jscat
         iseed=iseedp
         xmu2 = (hbarc * xmu) ** 2
         xmp2 = xmp ** 2
@@ -2474,10 +2466,6 @@ cc      SAVE /ilist3/
 cc      SAVE /ilist5/
         SAVE   
 
-        i1=i1
-        i2=i2
-        i3=i3
-        t=t
         x1p = gx(i)
         x2p = gy(i)
         x3p = gz(i)
@@ -3609,7 +3597,6 @@ cc      SAVE /ilist1/
 cc      SAVE /ilist5/
         SAVE   
 
-        t=t
         k = nc
         if (tmin .lt. tmin1) then
            ot(l) = tmin
@@ -5823,7 +5810,6 @@ cc      SAVE /ilist2/
 cc      SAVE /ilist4/
         SAVE   
 
-        t=t
         if (iconfg .eq. 3 .or. iconfg .eq. 5) then
            jj = ichkpt
            do 1001 j = 1, jj
@@ -6127,13 +6113,13 @@ c     &         icolln,
 c     &     ',\n\t freezeout time=', t,
 c     &     ',\n\t ending at the ', number, 'th random number',
 c     &     ',\n\t ending collision iff=', iff
-cms     WRITE (25, *) ' Event ', IAEVT, ', run ', IARUN
-cms     WRITE (25, *) '    number of operations = ', iopern
-cms     WRITE (25, *) '    number of collisions between particles = ', 
-cms  &       icolln
-cms     WRITE (25, *) '    freezeout time=', t
-cms     WRITE (25, *) '    ending at the ', number, 'th random number'
-cms     WRITE (25, *) '    ending collision iff=', iff
+        WRITE (25, *) ' Event ', IAEVT, ', run ', IARUN
+        WRITE (25, *) '    number of operations = ', iopern
+        WRITE (25, *) '    number of collisions between particles = ', 
+     &       icolln
+        WRITE (25, *) '    freezeout time=', t
+        WRITE (25, *) '    ending at the ', number, 'th random number'
+        WRITE (25, *) '    ending collision iff=', iff
 
         return
         end
@@ -6180,9 +6166,6 @@ cc      SAVE /ana1/
 cc      SAVE /ana2/
         common /ana4/ fdetdy(24), fdndy(24), fdndpt(12)
 cc      SAVE /ana4/
-
-        logical iwrite
-        data iwrite / .false. /
         SAVE   
 
         do 1004 i = 1, ichkpt
@@ -6229,14 +6212,13 @@ c           et = sqrt(px(i) ** 2 + py(i) ** 2 + xmp ** 2)
  1004   continue
 
         do 1005 ian = 1, 12
-          if ( iwrite ) then
            if (dn(ian) .eq. 0d0 .or. dn1(ian) .eq. 0d0 .or.
      &        dn2(ian) .eq. 0d0) then
-              print *, 'event=', ievt
-              print *, 'dn(', ian, ')=', dn(ian), 'dn1(', ian,
-     &           ')=', dn1(ian), 'dn2(', ian, ')=', dn2(ian)
+clin-9/2012 suppress output:
+c              print *, 'event=', ievt
+c              print *, 'dn(', ian, ')=', dn(ian), 'dn1(', ian,
+c     &           ')=', dn1(ian), 'dn2(', ian, ')=', dn2(ian)
            end if
-           endif
            detdy(ian) = detdy(ian) + det(ian)
            if (dn(ian) .ne. 0) then
               detdn(ian) = detdn(ian) + det(ian) / dn(ian)
@@ -6314,8 +6296,8 @@ cc      SAVE /prec2/
 
 c       file header
         if (nff .eq. 0) then
-cms        write (26, 101) 'OSCAR1997A'
-cms        write (26, 101) 'final_id_p_x'
+           write (26, 101) 'OSCAR1997A'
+           write (26, 101) 'final_id_p_x'
            code = 'ZPC'
            versn = '1.0.1'
            aproj = -1
@@ -6325,8 +6307,8 @@ cms        write (26, 101) 'final_id_p_x'
            reffra = 'cm'
            ebeam = 0d0
            ntestp = 1
-cms        write (26, 102) code, versn, aproj, zproj, atarg, ztarg,
-cms  &        reffra, ebeam, ntestp
+           write (26, 102) code, versn, aproj, zproj, atarg, ztarg,
+     &        reffra, ebeam, ntestp
            nff = 1
            event = 1
            bimp = 0d0
@@ -6336,22 +6318,22 @@ cms  &        reffra, ebeam, ntestp
 c       comment
 
 c       event header
-cms     write (26, 103) event, mul, bimp, phi
+        write (26, 103) event, mul, bimp, phi
 
 c       particles
         do 99 i = 1, mul
-cms        write (26, 104) i, ityp(i),
-cms  &        px(i), py(i), pz(i), e(i), xmass(i),
-cms  &        gx(i), gy(i), gz(i), ft(i)
+           write (26, 104) i, ityp(i),
+     &        px(i), py(i), pz(i), e(i), xmass(i),
+     &        gx(i), gy(i), gz(i), ft(i)
  99         continue
 
          event = event + 1
 
-cyy 101        format (a12)
-cyy 102        format (2(a8, 2x), '(',i3, ',',i6, ')+(',i3, ',', i6, ')',
-cyy     &     2x, a4, 2x, e10.4, 2x, i8)
-cyy 103        format (i10, 2x, i10, 2x, f8.3, 2x, f8.3)
-cyy 104        format (i10, 2x, i10, 2x, 9(e12.6, 2x))
+ 101        format (a12)
+ 102        format (2(a8, 2x), '(',i3, ',',i6, ')+(',i3, ',', i6, ')',
+     &     2x, a4, 2x, e10.4, 2x, i8)
+ 103        format (i10, 2x, i10, 2x, f8.3, 2x, f8.3)
+ 104        format (i10, 2x, i10, 2x, 9(e12.6, 2x))
 
         return
         end
@@ -6415,17 +6397,17 @@ cc      SAVE /ana1/
 cc      SAVE /ana3/
         SAVE   
 c
-cms     open (28, file = 'ana4/em.dat', status = 'unknown')
+        open (28, file = 'ana4/em.dat', status = 'unknown')
         vol = 1000.d0 * size1 * size2 * size3
         ntotal = nevnt * nsbrun
 
         do 1002 ian = 1, 12
-cms        write (28, *) '*** for time ', ts(ian), 'fm(s)'
+           write (28, *) '*** for time ', ts(ian), 'fm(s)'
            do 1001 i = 1, 4
-cms           write (28, *) em(i, 1, ian) / vol / ntotal,
-cms  &                        em(i, 2, ian) / vol / ntotal,
-cms  &                        em(i, 3, ian) / vol / ntotal,
-cms  &                        em(i, 4, ian) / vol / ntotal
+              write (28, *) em(i, 1, ian) / vol / ntotal,
+     &                        em(i, 2, ian) / vol / ntotal,
+     &                        em(i, 3, ian) / vol / ntotal,
+     &                        em(i, 4, ian) / vol / ntotal
  1001      continue
  1002   continue
 
@@ -6621,25 +6603,25 @@ c     around the unit vector (xn1, xn2, xn3)
       end
 
 c      double precision function ran1(idum)
-
+c
 c*     return a uniform random deviate between 0.0 and 1.0. set idum to 
 c*     any negative value to initialize or reinitialize the sequence.
-
+c
 c      implicit double precision (a-h, o-z)
-
+c
 c      dimension r(97)
-
+c
 c      common /rndm1/ number
-cc      SAVE /rndm1/
+ccc      SAVE /rndm1/
 c      parameter (m1 = 259200, ia1 = 7141, ic1 = 54773, rm1 = 1d0 / m1)
 c      parameter (m2 = 134456, ia2 = 8121, ic2 = 28411, rm2 = 1d0 / m2)
 c      parameter (m3 = 243000, ia3 = 4561, ic3 = 51349)
-clin-6/23/00 save ix1-3:
-clin-10/30/02 r unsaved, causing wrong values for ran1 when compiled with f77:
-cc      SAVE ix1,ix2,ix3,r
+cclin-6/23/00 save ix1-3:
+cclin-10/30/02 r unsaved, causing wrong values for ran1 when compiled with f77:
+ccc      SAVE ix1,ix2,ix3,r
 c      SAVE   
 c      data iff/0/
-
+c
 c      if (idum .lt. 0 .or. iff .eq. 0) then
 c         iff = 1
 c         ix1 = mod(ic1 - idum, m1)
@@ -6657,17 +6639,17 @@ c      end if
 c      ix1 = mod(ia1 * ix1 + ic1, m1)
 c      ix2 = mod(ia2 * ix2 + ic2, m2)
 c      ix3 = mod(ia3 * ix3 + ic3, m3)
-clin-7/01/02       j = 1 + (97 * i x 3) / m3
+cclin-7/01/02       j = 1 + (97 * i x 3) / m3
 c      j=1+(97*ix3)/m3
-clin-4/2008:
-c      if (j .gt. 97 .or. j .lt. 1) pause
+cclin-4/2008:
+cc      if (j .gt. 97 .or. j .lt. 1) pause
 c      if (j .gt. 97 .or. j .lt. 1) print *, 'In zpc ran1, j<1 or j>97',j
 c      ran1 = r(j)
 c      r(j) = (dble(ix1) + dble(ix2) * rm2) * rm1
-
-clin-6/23/00 check random number generator:
+c
+cclin-6/23/00 check random number generator:
 c      number = number + 1
-c      if(number.le.100000) write(99,*) 'number, ran1=', number,ran1
-
+cc      if(number.le.100000) write(99,*) 'number, ran1=', number,ran1
+c
 c      return
 c      end

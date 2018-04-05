@@ -29,11 +29,11 @@ class MuonMETcorrInputProducer : public edm::stream::EDProducer<>
  public:
 
   explicit MuonMETcorrInputProducer(const edm::ParameterSet&);
-  ~MuonMETcorrInputProducer();
+  ~MuonMETcorrInputProducer() override;
     
  private:
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   std::string moduleLabel_;
 

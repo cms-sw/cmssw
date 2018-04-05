@@ -8,6 +8,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerESProducer.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputerWrapper.h"
 
+#include "RecoBTag/SecondaryVertex/interface/CandidateBoostedDoubleSecondaryVertexComputer.h"
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVSoftLeptonComputer.h"
 #include "RecoBTag/SecondaryVertex/interface/GhostTrackComputer.h"
@@ -28,7 +29,7 @@ typedef GenericMVAJetTagComputerWrapper<CombinedSVComputer,
 typedef GenericMVAJetTagComputerWrapper<CombinedSVComputer,
 	reco::CandIPTagInfo,         ipTagInfos,
 	reco::CandSecondaryVertexTagInfo, svTagInfos> CandidateCombinedSVJetTagComputer;
-
+		
 //this one is actually not fully non-candidate based anymore (no backward compatibility with old SL taginfos for the moment)
 typedef GenericMVAJetTagComputerWrapper<CombinedSVSoftLeptonComputer,
 	reco::TrackIPTagInfo,         ipTagInfos,
@@ -46,11 +47,15 @@ typedef GenericMVAJetTagComputerWrapper<GhostTrackComputer,
 	reco::TrackIPTagInfo,         ipTagInfos,
 	reco::SecondaryVertexTagInfo, svTagInfos> GhostTrackJetTagComputer;
 
+typedef GenericMVAJetTagComputerWrapper<GhostTrackComputer,
+	reco::CandIPTagInfo,         ipTagInfos,
+	reco::CandSecondaryVertexTagInfo, svTagInfos> CandidateGhostTrackJetTagComputer;
+
 typedef GenericMVAJetTagComputerWrapper<CombinedSVSoftLeptonComputer,
 	reco::CandIPTagInfo,         ipTagInfos,
 	reco::CandSecondaryVertexTagInfo, svTagInfos,
 	reco::CandSoftLeptonTagInfo, muonTagInfos,
-	reco::CandSoftLeptonTagInfo, elecTagInfos> CandidateCombinedSVSoftLeptonCtagLJetTagComputer;
+	reco::CandSoftLeptonTagInfo, elecTagInfos> CandidateCombinedSVSoftLeptonJetTagComputer;
 
 typedef JetTagComputerESProducer<CandidateCombinedSVJetTagComputer> CandidateCombinedSecondaryVertexESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(CandidateCombinedSecondaryVertexESProducer);
@@ -67,11 +72,17 @@ DEFINE_FWK_EVENTSETUP_MODULE(CombinedSecondaryVertexSoftLeptonESProducer);
 typedef JetTagComputerESProducer<GhostTrackJetTagComputer> GhostTrackESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(GhostTrackESProducer);
 
+typedef JetTagComputerESProducer<CandidateGhostTrackJetTagComputer> CandidateGhostTrackESProducer;
+DEFINE_FWK_EVENTSETUP_MODULE(CandidateGhostTrackESProducer);
+
 typedef JetTagComputerESProducer<CandidateSimpleSecondaryVertexComputer> CandidateSimpleSecondaryVertexESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(CandidateSimpleSecondaryVertexESProducer);
 
 typedef JetTagComputerESProducer<SimpleSecondaryVertexComputer> SimpleSecondaryVertexESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(SimpleSecondaryVertexESProducer);
 
-typedef JetTagComputerESProducer<CandidateCombinedSVSoftLeptonJetTagComputer> CandidateCombinedSecondaryVertexSoftLeptonCtagLESProducer;
-DEFINE_FWK_EVENTSETUP_MODULE(CandidateCombinedSecondaryVertexSoftLeptonCtagLESProducer);
+typedef JetTagComputerESProducer<CandidateCombinedSVSoftLeptonJetTagComputer> CandidateCombinedSecondaryVertexSoftLeptonCvsLESProducer;
+DEFINE_FWK_EVENTSETUP_MODULE(CandidateCombinedSecondaryVertexSoftLeptonCvsLESProducer);
+
+typedef JetTagComputerESProducer<CandidateBoostedDoubleSecondaryVertexComputer> CandidateBoostedDoubleSecondaryVertexESProducer;
+DEFINE_FWK_EVENTSETUP_MODULE(CandidateBoostedDoubleSecondaryVertexESProducer);

@@ -1,0 +1,147 @@
+1  TestDescriptionComments  (global::EDAnalyzer)  "pluginTestDescriptionComments.so"
+
+This plugin has 1 PSet description. This description is always used to validate 
+configurations. The label below is used when generating the cfi file.
+
+  1.1 module label: test
+
+    sswitch (switch)
+                        type: string 
+                        see Section 1.1.1
+
+    mightGet
+                        type: untracked vstring optional
+                        default: none (do not write to cfi)
+                        List contains the branch names for the EDProducts which 
+                        might be requested by the module.
+                        The format for identifying the EDProduct is the same as 
+                        the one used for OutputModules, except no wild cards 
+                        are allowed. E.g.
+                        Foos_foomodule_whichFoo_RECO
+
+    Section 1.1.1 sswitch (switch):
+    The value of "sswitch" controls which other parameters
+    are required or allowed to be in the PSet.
+
+        switch:
+        sswitch
+                        type: string 
+                        default: 'b'
+                        test1
+
+        if sswitch = "a"
+        x
+                        type: int32 
+                        default: 100
+                        test2
+
+        if sswitch = "b"
+        AND group:
+                        see Section 1.1.1.1
+
+        if sswitch = "c"
+        z
+                        type: string 
+                        default: '102'
+
+        if sswitch = "d"
+        nested1
+                        type: PSet 
+                        see Section 1.1.1.2
+                        test5
+
+        if sswitch = "e"
+        nested2
+                        type: PSet 
+                        see Section 1.1.1.3
+                        test6
+
+        if sswitch = "f"
+        vpset1
+                        type: VPSet 
+                        see Section 1.1.1.4
+                        test7
+
+        if sswitch = "g"
+        vpset2
+                        type: VPSet 
+                        see Section 1.1.1.5
+                        test8
+
+        if sswitch = "h"
+        vpset3
+                        type: VPSet 
+                        see Section 1.1.1.6
+                        test9
+
+        if sswitch = "i"
+        vpset4
+                        type: VPSet 
+                        see Section 1.1.1.7
+                        test10
+
+    Section 1.1.1.1 AND group description:
+    This AND group requires all of the following to be in the PSet
+
+        y1
+                        type: double 
+                        default: none (do not write to cfi)
+                        test3
+
+        y2
+                        type: double 
+                        default: none (do not write to cfi)
+                        test4
+
+    Section 1.1.1.2 nested1 PSet description:
+
+        x
+                        type: int32 
+                        default: 1
+
+    Section 1.1.1.3 nested2 PSet description:
+
+        x
+                        type: int32 
+                        default: 1
+
+    Section 1.1.1.4 vpset1 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.1.4.1.
+        The default VPSet is empty.
+
+    Section 1.1.1.4.1 description of PSet used to validate elements of VPSet:
+
+        x
+                        type: int32 
+                        default: 1
+
+    Section 1.1.1.5 vpset2 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.1.5.1.
+        The default VPSet is empty.
+
+    Section 1.1.1.5.1 description of PSet used to validate elements of VPSet:
+
+        x
+                        type: int32 
+                        default: 1
+
+    Section 1.1.1.6 vpset3 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.1.6.1.
+        Does not have a default VPSet.
+
+    Section 1.1.1.6.1 description of PSet used to validate elements of VPSet:
+
+        x
+                        type: int32 
+                        default: 1
+
+    Section 1.1.1.7 vpset4 VPSet description:
+        All elements will be validated using the PSet description in Section 1.1.1.7.1.
+        Does not have a default VPSet.
+
+    Section 1.1.1.7.1 description of PSet used to validate elements of VPSet:
+
+        x
+                        type: int32 
+                        default: 1
+

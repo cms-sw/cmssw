@@ -6,7 +6,8 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorMatrixTag.h"
 
   /**
-   * typedef to a  GlobalErrorBase object defined as a 3*3 covariance matrix
+   * typedef to a  GlobalErrorBase object defined as a 4*4 covariance matrix
+   * acts like a 3*3 matrix to preserve backwards compatibility
    */
 
 typedef GlobalErrorBase<double,ErrorMatrixTag> GlobalError;

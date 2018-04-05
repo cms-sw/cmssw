@@ -1,11 +1,11 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
+
 #process.Tracer = cms.Service("Tracer")
 
 ## load met sequences up to patMETs
 process.load("PhysicsTools.PatAlgos.producersLayer1.metProducer_cff")
+patAlgosToolsTask.add(process.makePatMETsTask)
 
 ## make sure to keep the created objects
 process.out.outputCommands = ['keep *_patMETs*_*_*']

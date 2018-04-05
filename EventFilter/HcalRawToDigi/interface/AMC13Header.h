@@ -2,7 +2,7 @@
 #ifndef AMC13Header_H_included
 #define AMC13Header_H_included
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace hcal {
   /** \class AMC13Header

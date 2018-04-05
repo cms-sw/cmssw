@@ -69,7 +69,7 @@ namespace cms
     es.get<TrackerDigiGeometryRecord>().get( geom );
 
     // Step B: create empty output collection
-    std::auto_ptr<SiPixelRecHitCollectionNew> output(new SiPixelRecHitCollectionNew);
+    auto output = std::make_unique<SiPixelRecHitCollectionNew>();
     
     // Step B*: create CPE
     edm::ESHandle<PixelClusterParameterEstimator> hCPE;
@@ -83,7 +83,7 @@ namespace cms
     run( input, *output, geom );
 
     output->shrink_to_fit();
-    e.put(output);
+    e.put(std::move(output));
 
   }
 

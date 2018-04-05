@@ -46,14 +46,14 @@
 class CaloTowersMerger : public edm::EDProducer {
    public:
       explicit CaloTowersMerger(const edm::ParameterSet&);
-      ~CaloTowersMerger();
+      ~CaloTowersMerger() override;
 
   CaloTower mergedTower(const CaloTower& t1, const CaloTower& t2);
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
       
       // ----------member data ---------------------------
 
@@ -110,23 +110,19 @@ CaloTowersMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(tok_reg_,regTower);
   iEvent.getByToken(tok_ext_,extraTower);
 
-  std::auto_ptr<CaloTowerCollection> output;
-
   if (!regTower.isValid() && !extraTower.isValid()){
     edm::LogError("CaloTowersMerger")<<"both input tag:"<<regularTowerTag<<" and "<<extraTowerTag<<" are invalid. empty merged collection";
-    output.reset(new CaloTowerCollection());
-    iEvent.put(output);
+    iEvent.put(std::make_unique<CaloTowerCollection>());
     return;
   }else if (!regTower.isValid()  || !extraTower.isValid()){
     if (!regTower.isValid() && extraTower.isValid())
       regTower=extraTower;
-    output.reset(new CaloTowerCollection(*regTower));
-    iEvent.put(output);
+    iEvent.put(std::make_unique<CaloTowerCollection>(*regTower));
     return;
   }
   else{
     //both valid input collections: merging
-    output.reset(new CaloTowerCollection());
+    auto output = std::make_unique<CaloTowerCollection>();
     output->reserve(regTower->size()+extraTower->size());
   
     CaloTowerCollection::const_iterator rt_begin = regTower->begin();
@@ -165,7 +161,7 @@ CaloTowersMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//copy the extra tower over
 	output->push_back(*et_it);
     }
-    iEvent.put(output);
+    iEvent.put(std::move(output));
   }
   
 }

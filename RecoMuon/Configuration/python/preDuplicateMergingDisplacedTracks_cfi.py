@@ -1,28 +1,28 @@
 import FWCore.ParameterSet.Config as cms
-#only merge muonSeededTracksInOut and muonSeededTracksOutInDisplaced.
-import RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi 
-preDuplicateMergingDisplacedTracks =  RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi.earlyGeneralTracks.clone(
-    TrackProducers = cms.VInputTag(
-        #cms.InputTag("earlyGeneralTracks"), 
-        cms.InputTag("muonSeededTracksInOut"),
-        cms.InputTag("muonSeededTracksOutInDisplaced"),
-    ),
-    #hasSelector = cms.vint32(0,1,1),
-    hasSelector = cms.vint32(1,1),
-    selectedTrackQuals = cms.VInputTag(
-       # cms.InputTag("muonSeededTracksInOutSelector","muonSeededTracksInOutHighPurity"), # not used but needed
-        cms.InputTag("muonSeededTracksInOutSelector","muonSeededTracksInOutHighPurity"), 
-        cms.InputTag("muonSeededTracksOutInDisplacedSelector","muonSeededTracksOutInDisplacedHighPurity"), 
-    ),
-    mvaValueTags = cms.VInputTag(
-        #cms.InputTag("earlyGeneralTracks","MVAVals"),
-        cms.InputTag("muonSeededTracksInOutSelector","MVAVals"), 
-        cms.InputTag("muonSeededTracksOutInDisplacedSelector","MVAVals"), 
-    ),
-    #setsToMerge = cms.VPSet(cms.PSet(pQual = cms.bool(False), tLists = cms.vint32(0, 1,2))),
-    setsToMerge = cms.VPSet(cms.PSet(pQual = cms.bool(False), tLists = cms.vint32(1,2))),
-    FoundHitBonus  = 100.0,
-    LostHitPenalty =   1.0,
-)
+from RecoTracker.FinalTrackSelectors.TrackCollectionMerger_cfi import *
+from RecoTracker.FinalTrackSelectors.trackAlgoPriorityOrder_cfi import trackAlgoPriorityOrder
 
+preDuplicateMergingDisplacedTracks = TrackCollectionMerger.clone()
+preDuplicateMergingDisplacedTracks.trackProducers = [
+    "muonSeededTracksInOut",
+    "muonSeededTracksOutInDisplaced",
+    ]
+preDuplicateMergingDisplacedTracks.inputClassifiers =[
+   "muonSeededTracksInOutClassifier",
+   "muonSeededTracksOutInDisplacedClassifier"
+   ]
+
+preDuplicateMergingDisplacedTracks.foundHitBonus  = 100.0
+preDuplicateMergingDisplacedTracks.lostHitPenalty =   1.0
+
+# For Phase2PU140 tracking, take out muonSeededTracksInOut because the
+# cut-selector module is technically incompatible with this one. Since
+# that configuration is indended only for tracking comparisons (not
+# for production), it is not worth of the effort to try to fix the
+# situation.
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+trackingPhase2PU140.toModify(preDuplicateMergingDisplacedTracks,
+    trackProducers = [x for x in preDuplicateMergingDisplacedTracks.trackProducers if x != "muonSeededTracksInOut"],
+    inputClassifiers = [x for x in preDuplicateMergingDisplacedTracks.inputClassifiers if x != "muonSeededTracksInOutClassifier"],
+)
 

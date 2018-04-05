@@ -2,6 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 patTrigger = cms.EDProducer( "PATTriggerProducer"
 , onlyStandAlone = cms.bool( False )
+,l1GtRecordInputTag = cms.InputTag("gtDigis")
+,l1GtReadoutRecordInputTag = cms.InputTag("gtDigis")
+,l1GtTriggerMenuLiteInputTag = cms.InputTag("gtDigis")
+,l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis")
+,l1tExtBlkInputTag = cms.InputTag("gtStage2Digis")
+,ReadPrescalesFromFile = cms.bool(False)
+
 # ## L1
 # , addL1Algos                     = cms.bool( False )                                 # default; possibly superseded by 'onlyStandAlone' = True
 # , l1GlobalTriggerObjectMaps      = cms.InputTag( "l1L1GtObjectMap" )                 # default; change only, if you know exactly, what you are doing!
@@ -23,5 +30,6 @@ patTrigger = cms.EDProducer( "PATTriggerProducer"
 # , hltPrescaleTable = cms.string( "hltPrescaleRecorder" )  # only the label!
 # , addPathModuleLabels = cms.bool( False )                 # setting this "True" stores the names of all modules as strings (~10kB/ev.); possibly superseded by 'onlyStandAlone' = True
 # , exludeCollections = cms.vstring()
+, packTriggerLabels = cms.bool(False)
 )
 

@@ -18,6 +18,16 @@ ecalEnergyTask = cms.untracked.PSet(
             btype = cms.untracked.string('SuperCrystal'),
             description = cms.untracked.string('2D distribution of the mean rec hit energy.')
         ),
+        HitMapAllByLumi = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sSummaryClient/%(prefix)sOT%(suffix)s energy summary by lumi'), # In SummaryClient for historical reasons
+            kind = cms.untracked.string('TProfile2D'),
+            zaxis = cms.untracked.PSet(
+                title = cms.untracked.string('energy (GeV)')
+            ),
+            otype = cms.untracked.string('Ecal3P'),
+            btype = cms.untracked.string('SuperCrystal'),
+            description = cms.untracked.string('2D distribution of the mean tower rec hit energy for this lumisection. The mean is the total tower rechit energy over the number of rechits in the tower.')
+        ),
         HitAll = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT rec hit spectrum%(suffix)s'),
             kind = cms.untracked.string('TH1F'),

@@ -7,6 +7,7 @@ class CaloSimParameters;
 class CaloVSimParameterMap
 {
 public:
+  virtual ~CaloVSimParameterMap() = default;
   virtual const CaloSimParameters & simParameters(const DetId & id) const = 0;
 };
 

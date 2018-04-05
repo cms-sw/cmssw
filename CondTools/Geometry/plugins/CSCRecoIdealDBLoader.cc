@@ -1,46 +1,34 @@
-#include "CSCRecoIdealDBLoader.h"
-
-#include <Geometry/CSCGeometryBuilder/src/CSCGeometryParsFromDD.h>
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/GeometryObjects/interface/RecoIdealGeometry.h"
 #include "CondFormats/GeometryObjects/interface/CSCRecoDigiParameters.h"
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/CSCRecoDigiParametersRcd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
-
+#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
+#include "Geometry/CSCGeometryBuilder/src/CSCGeometryParsFromDD.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
-#include "Geometry/Records/interface/MuonNumberingRecord.h"
-#include "Geometry/MuonNumbering/interface/MuonDDDConstants.h"
-
-#include <iostream>
-#include <string>
-#include <vector>
-#include <map>
-#include <sstream>
-#include <algorithm>
-
-CSCRecoIdealDBLoader::CSCRecoIdealDBLoader(const edm::ParameterSet& iConfig) : label_()
+class CSCRecoIdealDBLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns>
 {
-  std::cout<<"CSCRecoIdealDBLoader::CSCRecoIdealDBLoader"<<std::endl;
-}
+public:
+  CSCRecoIdealDBLoader( edm::ParameterSet const& ) {}
 
-CSCRecoIdealDBLoader::~CSCRecoIdealDBLoader()
-{
-  std::cout<<"CSCRecoIdealDBLoader::~CSCRecoIdealDBLoader"<<std::endl;
-}
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+};
 
 void
 CSCRecoIdealDBLoader::beginRun( const edm::Run&, edm::EventSetup const& es) 
 {
-  std::cout<<"CSCRecoIdealDBLoader::beginRun"<<std::endl;
+  edm::LogInfo("CSCRecoIdealDBLoader")<<"CSCRecoIdealDBLoader::beginRun";
+  
   RecoIdealGeometry* rig = new RecoIdealGeometry;
   CSCRecoDigiParameters* rdp = new CSCRecoDigiParameters;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
@@ -51,7 +39,7 @@ CSCRecoIdealDBLoader::beginRun( const edm::Run&, edm::EventSetup const& es)
 
   edm::ESTransientHandle<DDCompactView> pDD;
   edm::ESHandle<MuonDDDConstants> pMNDC;
-  es.get<IdealGeometryRecord>().get(label_, pDD );
+  es.get<IdealGeometryRecord>().get( pDD );
   es.get<MuonNumberingRecord>().get( pMNDC );
 
   const DDCompactView& cpv = *pDD;
@@ -75,5 +63,6 @@ CSCRecoIdealDBLoader::beginRun( const edm::Run&, edm::EventSetup const& es)
   } else {
     edm::LogError("CSCRecoIdealDBLoader")<<"CSCRecoDigiParametersRcd Tag is already present.";
   }
-
 }
+
+DEFINE_FWK_MODULE(CSCRecoIdealDBLoader);

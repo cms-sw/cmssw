@@ -16,7 +16,7 @@ SiStripPedestalsESSource::SiStripPedestalsESSource( const edm::ParameterSet& pse
 
 // -----------------------------------------------------------------------------
 //
-std::auto_ptr<SiStripPedestals> SiStripPedestalsESSource::produce( const SiStripPedestalsRcd& ) { 
+std::unique_ptr<SiStripPedestals> SiStripPedestalsESSource::produce( const SiStripPedestalsRcd& ) { 
   
   SiStripPedestals* peds = makePedestals();
   
@@ -26,7 +26,7 @@ std::auto_ptr<SiStripPedestals> SiStripPedestalsESSource::produce( const SiStrip
       << " Null pointer to SiStripPedestals object!";
   }
   
-  std::auto_ptr<SiStripPedestals> ptr(peds);
+  std::unique_ptr<SiStripPedestals> ptr(peds);
   return ptr;
 
 }

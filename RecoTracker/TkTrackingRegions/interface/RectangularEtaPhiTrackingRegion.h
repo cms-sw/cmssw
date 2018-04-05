@@ -21,12 +21,11 @@
 
 
 class OuterHitPhiPrediction;
-class OuterEstimator;
 class BarrelDetLayer;
 class ForwardDetLayer;
 class MeasurementTrackerEvent;
 
-class RectangularEtaPhiTrackingRegion GCC11_FINAL : public TrackingRegion {
+class RectangularEtaPhiTrackingRegion final : public TrackingRegion {
 public:
   enum class UseMeasurementTracker {
     kNever = -1,
@@ -45,6 +44,8 @@ public:
     if(value > -0.5) return UseMeasurementTracker::kForSiStrips;
     return UseMeasurementTracker::kNever;
   }
+
+  static UseMeasurementTracker stringToUseMeasurementTracker(const std::string& name);
 
   RectangularEtaPhiTrackingRegion(RectangularEtaPhiTrackingRegion const & rh) :
     TrackingRegion(rh),
@@ -137,15 +138,17 @@ public:
                                    UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
                                    bool precise = true,
                                    const MeasurementTrackerEvent *measurementTracker = nullptr,
-				   bool etaPhiRegion=false) 
+				   bool etaPhiRegion=false, bool useMS=true) 
     : TrackingRegionBase( dir, vertexPos, invPtRange, rVertex, zVertex),
-    thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise),theUseEtaPhi(etaPhiRegion),
+    thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), 
+    thePrecise(precise),theUseMS(useMS),theUseEtaPhi(etaPhiRegion),
     theMeasurementTracker(measurementTracker)
     { initEtaRange(dir, etaMargin); }
 
 
   /// allowed eta range [eta_min, eta_max] interval
   const Range & etaRange() const { return theEtaRange; }
+  const Range & tanLambdaRange() const { return theLambdaRange; }
 
   /// defined phi range around phi0, margin is [phi_left,phi_right]. 
   /// region is defined in a range: [phi0-phi_left, phi0+phi_right]
@@ -154,33 +157,33 @@ public:
   /// is precise error calculation switched on 
   bool  isPrecise() const { return thePrecise; }
 
-  virtual TrackingRegion::Hits hits(
-      const edm::Event& ev,
+  TrackingRegion::Hits hits(
       const edm::EventSetup& es,
       const SeedingLayerSetsHits::SeedingLayer& layer) const override;
 
-  virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
+  HitRZCompatibility * checkRZ(const DetLayer* layer,  
 				       const Hit &  outerHit,
-				       const edm::EventSetup& iSetup,
-				       const DetLayer* outerlayer=0,
-				       float lr=0, float gz=0, float dr=0, float dz=0) const
-  { return checkRZOld(layer,outerHit->hit(),iSetup); }
+				       const edm::EventSetup&iSetup,
+				       const DetLayer* outerlayer=nullptr,
+				       float lr=0, float gz=0, float dr=0, float dz=0) const override
+  { return checkRZOld(layer,outerHit,iSetup, outerlayer); }
 
-  virtual RectangularEtaPhiTrackingRegion* clone() const { 
+  RectangularEtaPhiTrackingRegion* clone() const override { 
     return new RectangularEtaPhiTrackingRegion(*this);
   }
 
-  virtual std::string name() const { return "RectangularEtaPhiTrackingRegion"; }
-  virtual std::string print() const;
+  std::string name() const override { return "RectangularEtaPhiTrackingRegion"; }
+  std::string print() const override;
 
 private:
   HitRZCompatibility* checkRZOld(
       const DetLayer* layer, 
-      const TrackingRecHit*  outerHit,
-      const edm::EventSetup& iSetup) const;
+      const Hit &  outerHit,
+      const edm::EventSetup&iSetup,
+      const DetLayer* outerlayer) const;
 
-  OuterEstimator * estimator(const BarrelDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
-  OuterEstimator * estimator(const ForwardDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
+  std::unique_ptr<MeasurementEstimator> estimator(const BarrelDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
+  std::unique_ptr<MeasurementEstimator> estimator(const ForwardDetLayer* layer,const edm::EventSetup& iSetup) const dso_internal;
 
   OuterHitPhiPrediction phiWindow(const edm::EventSetup& iSetup) const dso_internal;
   HitRZConstraint rzConstraint() const dso_internal;
@@ -190,13 +193,14 @@ private:
 private:
 
   Range theEtaRange;
-  Range theLambdaRange;
+  Range theLambdaRange; // this is actually tanLambda
   Margin thePhiMargin;
   float theMeanLambda;
-  const UseMeasurementTracker theMeasurementTrackerUsage;
-  bool thePrecise;
-  bool theUseEtaPhi;
-  const MeasurementTrackerEvent *theMeasurementTracker;
+  const UseMeasurementTracker theMeasurementTrackerUsage = UseMeasurementTracker::kNever;
+  bool thePrecise=false;
+  bool theUseMS=false;
+  bool theUseEtaPhi=false;
+  const MeasurementTrackerEvent *theMeasurementTracker = nullptr;
 
 
 

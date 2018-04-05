@@ -30,7 +30,7 @@ public:
 
   bool complete() const { return theValidBX && theValidLN && theValidCD; }
 
-  bool hasErrors() const { return (theErrors.size()>0); }
+  bool hasErrors() const { return (!theErrors.empty()); }
 
   bool samePartition(const EventRecords & r) const;
 

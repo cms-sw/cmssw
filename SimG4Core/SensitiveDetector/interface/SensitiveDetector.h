@@ -4,13 +4,11 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-#include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+//#include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 
 #include "G4VSensitiveDetector.hh"
 
-#include <boost/cstdint.hpp>
 #include <string>
 
 class G4Step;
@@ -22,34 +20,41 @@ class DDCompactView;
 class SensitiveDetector : public G4VSensitiveDetector
 {
 public:
-  explicit SensitiveDetector(std::string & iname, const DDCompactView & cpv,
+  explicit SensitiveDetector(const std::string & iname, 
+                             const DDCompactView & cpv,
 			     const SensitiveDetectorCatalog & ,
 			     edm::ParameterSet const & p);
-  virtual ~SensitiveDetector();
-  virtual void Initialize(G4HCofThisEvent * eventHC);
+  ~SensitiveDetector() override;
+
+  void Initialize(G4HCofThisEvent * eventHC) override;
+  G4bool ProcessHits(G4Step * step ,G4TouchableHistory * tHistory) override = 0;
+  void EndOfEvent(G4HCofThisEvent * eventHC) override;
+
+  virtual uint32_t setDetUnitId(const G4Step * step) = 0;
   virtual void clearHits() = 0;
-  virtual G4bool ProcessHits(G4Step * step ,G4TouchableHistory * tHistory) = 0;
-  virtual uint32_t setDetUnitId(G4Step * step) = 0;
-  void Register();
-  virtual void AssignSD(const std::string & vname);
-  virtual void EndOfEvent(G4HCofThisEvent * eventHC); 
+
+  inline const std::vector<std::string>& getNames() const { return namesOfSD; }
+ 
+protected:
+
   enum coordinates {WorldCoordinates, LocalCoordinates};
-  Local3DPoint InitialStepPosition(G4Step * s, coordinates);
-  Local3DPoint FinalStepPosition(G4Step * s, coordinates);
-  Local3DPoint ConvertToLocal3DPoint(const G4ThreeVector& point);    
-  std::string nameOfSD() { return name; }
-  virtual std::vector<std::string> getNames() 
-  {
-    std::vector<std::string> temp;
-    temp.push_back(nameOfSD());
-    return temp;
-  }
+  Local3DPoint InitialStepPosition(const G4Step * step, coordinates) const;
+  Local3DPoint FinalStepPosition(const G4Step * step, coordinates) const;
+
+  Local3DPoint LocalPreStepPosition(const G4Step * step) const;
+  Local3DPoint LocalPostStepPosition(const G4Step * step) const;
+
+  inline Local3DPoint ConvertToLocal3DPoint(const G4ThreeVector& point) const
+  { return Local3DPoint(point.x(),point.y(),point.z()); }
   
-  void NaNTrap( G4Step* step ) ;
+  void setNames(const std::vector<std::string>&);
+  void NaNTrap(const G4Step* step ) const;
     
 private:
-  std::string name;
-  G4Step * currentStep;
+
+  void AssignSD(const std::string & vname);
+
+  std::vector<std::string> namesOfSD;
 };
 
 #endif

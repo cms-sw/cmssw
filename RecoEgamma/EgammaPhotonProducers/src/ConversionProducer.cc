@@ -71,7 +71,7 @@ Implementation:
 
 
 ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
-  theVertexFinder_(0)
+  theVertexFinder_(nullptr)
 
 {
   algoName_ = iConfig.getParameter<std::string>( "AlgorithmName" );
@@ -159,7 +159,7 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
 
   theVertexFinder_ = new ConversionVertexFinder ( iConfig );
 
-  thettbuilder_ = 0;
+  thettbuilder_ = nullptr;
 
   //output
   ConvertedPhotonCollection_     = iConfig.getParameter<std::string>("convertedPhotonCollection");
@@ -185,7 +185,7 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
 
   reco::ConversionCollection outputConvPhotonCollection;
-  std::auto_ptr<reco::ConversionCollection> outputConvPhotonCollection_p(new reco::ConversionCollection);
+  auto outputConvPhotonCollection_p = std::make_unique<reco::ConversionCollection>();
 
   //std::cout << " ConversionProducer::produce " << std::endl;
   //Read multiple track input collections
@@ -226,7 +226,7 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     the_pvtx = *(vertexCollection.begin());
     
   if (trackCollectionHandle->size()> maxNumOfTrackInPU_){
-    iEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
+    iEvent.put(std::move(outputConvPhotonCollection_p), ConvertedPhotonCollection_);
     return;
   }
     
@@ -241,7 +241,7 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   buildCollection( iEvent, iSetup, convTrackMap,  superClusterPtrs, basicClusterPtrs, the_pvtx, outputConvPhotonCollection);//allow empty basicClusterPtrs
     
   outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(), outputConvPhotonCollection.end());
-  iEvent.put( outputConvPhotonCollection_p, ConvertedPhotonCollection_);
+  iEvent.put(std::move(outputConvPhotonCollection_p), ConvertedPhotonCollection_);
     
 }
 
@@ -488,11 +488,8 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
         trackPin.push_back(toFConverterV(right->innerMomentum()));
         trackPout.push_back(toFConverterV(left->outerMomentum()));
 	trackPout.push_back(toFConverterV(right->outerMomentum()));
-      }
-          
-      if (ll->second->trajRef().isNonnull() && rr->second->trajRef().isNonnull()) {
-        std::pair<uint8_t,Measurement1DFloat> leftWrongHits = hitChecker.nHitsBeforeVtx(*ll->second->trajRef().get(),theConversionVertex);
-        std::pair<uint8_t,Measurement1DFloat> rightWrongHits = hitChecker.nHitsBeforeVtx(*rr->second->trajRef().get(),theConversionVertex);
+        auto leftWrongHits = hitChecker.nHitsBeforeVtx(*left->extra(),theConversionVertex);
+        auto rightWrongHits = hitChecker.nHitsBeforeVtx(*right->extra(),theConversionVertex);
         nHitsBeforeVtx.push_back(leftWrongHits.first);
         nHitsBeforeVtx.push_back(rightWrongHits.first);
         dlClosestHitToVtx.push_back(leftWrongHits.second);

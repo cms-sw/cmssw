@@ -59,16 +59,16 @@ class TtSemiEvtSolution {
   // get the matched gen particles
   //-------------------------------------------
   const edm::RefProd<TtGenEvent> & getGenEvent() const { return theGenEvt_; };
-  const reco::GenParticle * getGenHadt() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayTop(); };
-  const reco::GenParticle * getGenHadW() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayW(); };
-  const reco::GenParticle * getGenHadb() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayB(); };
-  const reco::GenParticle * getGenHadp() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayQuark(); };
-  const reco::GenParticle * getGenHadq() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->hadronicDecayQuarkBar(); };
-  const reco::GenParticle * getGenLept() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->leptonicDecayTop(); };
-  const reco::GenParticle * getGenLepW() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->leptonicDecayW(); };
-  const reco::GenParticle * getGenLepb() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->leptonicDecayB(); };
-  const reco::GenParticle * getGenLepl() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->singleLepton(); };
-  const reco::GenParticle * getGenLepn() const { if (!theGenEvt_) return 0; else return this->getGenEvent()->singleNeutrino(); };
+  const reco::GenParticle * getGenHadt() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->hadronicDecayTop(); };
+  const reco::GenParticle * getGenHadW() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->hadronicDecayW(); };
+  const reco::GenParticle * getGenHadb() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->hadronicDecayB(); };
+  const reco::GenParticle * getGenHadp() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->hadronicDecayQuark(); };
+  const reco::GenParticle * getGenHadq() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->hadronicDecayQuarkBar(); };
+  const reco::GenParticle * getGenLept() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->leptonicDecayTop(); };
+  const reco::GenParticle * getGenLepW() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->leptonicDecayW(); };
+  const reco::GenParticle * getGenLepb() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->leptonicDecayB(); };
+  const reco::GenParticle * getGenLepl() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->singleLepton(); };
+  const reco::GenParticle * getGenLepn() const { if (!theGenEvt_) return nullptr; else return this->getGenEvent()->singleNeutrino(); };
 
   //-------------------------------------------
   // get (un-)/calibrated reco objects
@@ -103,14 +103,14 @@ class TtSemiEvtSolution {
   //-------------------------------------------  
   reco::Particle getFitHadt() const;
   reco::Particle getFitHadW() const;
-  pat::Particle getFitHadb() const { return (fitHadb_.size()>0 ? fitHadb_.front() : pat::Particle()); };
-  pat::Particle getFitHadp() const { return (fitHadp_.size()>0 ? fitHadp_.front() : pat::Particle()); };
-  pat::Particle getFitHadq() const { return (fitHadq_.size()>0 ? fitHadq_.front() : pat::Particle()); };
+  pat::Particle getFitHadb() const { return (!fitHadb_.empty() ? fitHadb_.front() : pat::Particle()); };
+  pat::Particle getFitHadp() const { return (!fitHadp_.empty() ? fitHadp_.front() : pat::Particle()); };
+  pat::Particle getFitHadq() const { return (!fitHadq_.empty() ? fitHadq_.front() : pat::Particle()); };
   reco::Particle getFitLept() const;      
   reco::Particle getFitLepW() const;
-  pat::Particle getFitLepb() const { return (fitLepb_.size()>0 ? fitLepb_.front() : pat::Particle()); };
-  pat::Particle getFitLepl() const { return (fitLepl_.size()>0 ? fitLepl_.front() : pat::Particle()); }; 
-  pat::Particle getFitLepn() const { return (fitLepn_.size()>0 ? fitLepn_.front() : pat::Particle()); };    
+  pat::Particle getFitLepb() const { return (!fitLepb_.empty() ? fitLepb_.front() : pat::Particle()); };
+  pat::Particle getFitLepl() const { return (!fitLepl_.empty() ? fitLepl_.front() : pat::Particle()); }; 
+  pat::Particle getFitLepn() const { return (!fitLepn_.empty() ? fitLepn_.front() : pat::Particle()); };    
 
   //-------------------------------------------
   // get the selected semileptonic decay chain 

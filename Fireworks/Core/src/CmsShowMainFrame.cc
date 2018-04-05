@@ -29,6 +29,7 @@
 
 #include <TSystem.h>
 #include <TImage.h>
+#include <TEnv.h>
 // user include files
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "Fireworks/Core/interface/CSGAction.h"
@@ -46,6 +47,8 @@
 #include "Fireworks/Core/src/FWNumberEntry.h"
 
 #include "Fireworks/Core/interface/fwPaths.h"
+#include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 
 #include <fstream>
 
@@ -64,7 +67,7 @@ class FWPack : public TGPack
    friend class CmsShowMainFrame;
 public:
    FWPack(const TGWindow* w) : TGPack(w, 100, 100) {}
-   virtual ~FWPack() {}
+   ~FWPack() override {}
 };
 
 //
@@ -74,16 +77,16 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGMainFrame(p, w, h),
    m_filterEnableBtn(),
    m_filterShowGUIBtn(),
-   m_runEntry(0),
-   m_lumiEntry(0),
-   m_eventEntry(0),
-   m_delaySliderListener(0),
+   m_runEntry(nullptr),
+   m_lumiEntry(nullptr),
+   m_eventEntry(nullptr),
+   m_delaySliderListener(nullptr),
    m_manager(m),
-   m_fworksAbout(0)
+   m_fworksAbout(nullptr)
 {
    const unsigned int backgroundColor=0x2f2f2f;
    const unsigned int textColor= 0xb3b3b3;
-
+   gClient->SetStyle("classic");
    CSGAction *openData    = new CSGAction(this, cmsshow::sOpenData.c_str());
    CSGAction *appendData  = new CSGAction(this, cmsshow::sAppendData.c_str());
    CSGAction *searchFiles = new CSGAction(this, cmsshow::sSearchFiles.c_str());
@@ -91,6 +94,13 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *loadConfig   = new CSGAction(this, cmsshow::sLoadConfig.c_str());
    CSGAction *saveConfig   = new CSGAction(this, cmsshow::sSaveConfig.c_str());
    CSGAction *saveConfigAs = new CSGAction(this, cmsshow::sSaveConfigAs.c_str());
+
+
+   CSGAction *loadPartialConfig   = new CSGAction(this, cmsshow::sLoadPartialConfig.c_str());
+   CSGAction *savePartialConfig   = new CSGAction(this, cmsshow::sSavePartialConfig.c_str());
+   CSGAction *savePartialConfigAs = new CSGAction(this, cmsshow::sSavePartialConfigAs.c_str());
+
+
    CSGAction *exportImage  = new CSGAction(this, cmsshow::sExportImage.c_str());
    CSGAction *exportImages = new CSGAction(this, cmsshow::sExportAllImages.c_str());
    CSGAction *quit = new CSGAction(this, cmsshow::sQuit.c_str());
@@ -155,9 +165,19 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    appendData->createMenuEntry(fileMenu);
    searchFiles->createMenuEntry(fileMenu);
    //searchFiles->disable();
+
+   fileMenu->AddSeparator();
    loadConfig->createMenuEntry(fileMenu);
    saveConfig->createMenuEntry(fileMenu);
    saveConfigAs->createMenuEntry(fileMenu);
+
+ 
+   TGPopupMenu*  partialSaveMenu = new TGPopupMenu(gClient->GetRoot());
+   fileMenu->AddPopup("Advanced Configuration", partialSaveMenu);
+
+   loadPartialConfig->createMenuEntry(partialSaveMenu);
+   savePartialConfig->createMenuEntry(partialSaveMenu);
+   savePartialConfigAs->createMenuEntry(partialSaveMenu);
    fileMenu->AddSeparator();
     
    exportImage->createMenuEntry(fileMenu);
@@ -171,7 +191,8 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    saveConfig->createShortcut(kKey_S, "CTRL", GetId());
    saveConfigAs->createShortcut(kKey_S, "CTRL+SHIFT", GetId());
    exportImage->createShortcut(kKey_P, "CTRL", GetId());
-   exportImages->createShortcut(kKey_P, "CTRL+SHIFT", GetId());
+   // comment out the followinf one, seems to get double open file dialog events on OSX
+   // exportImages->createShortcut(kKey_P, "CTRL+SHIFT", GetId());
    quit->createShortcut(kKey_Q, "CTRL", GetId());
 
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
@@ -241,7 +262,9 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    while ((title = (TGMenuTitle *)next()))
       title->SetTextColor(textColor);
 
-   menuTopFrame->AddFrame(menuBar, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
+   menuTopFrame->AddFrame(menuBar, new TGLayoutHints(kLHintsLeft, 0, 0, 0, 0));
+
+   
    AddFrame(menuTopFrame, new TGLayoutHints(kLHintsExpandX, 0, 0, 0, 0));
 
    // !!!! MT Line separating menu from other window components.
@@ -369,19 +392,19 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
       makeFixedSizeLabel(rLeft, "Run", backgroundColor, 0xffffff, 26, entryHeight);
       m_runEntry = new FWNumberEntryField(rLeft, -1, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive);
       rLeft->AddFrame(m_runEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,8,0,0));
-      runInfo->AddFrameWithWeight(rLeft, 0, 0.28);
+      runInfo->AddFrameWithWeight(rLeft, nullptr, 0.28);
 
       TGHorizontalFrame *rMid = new TGHorizontalFrame(runInfo, 1, entryHeight);
       makeFixedSizeLabel(rMid, "Lumi", backgroundColor, 0xffffff, 36, entryHeight);
       m_lumiEntry = new FWNumberEntryField(rMid, -1, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive);
       rMid->AddFrame(m_lumiEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,8,0,0));
-      runInfo->AddFrameWithWeight(rMid, 0, 0.32);
+      runInfo->AddFrameWithWeight(rMid, nullptr, 0.32);
 
       TGHorizontalFrame *rRight = new TGHorizontalFrame(runInfo, 1, entryHeight);
       makeFixedSizeLabel(rRight, "Event", backgroundColor, 0xffffff, 42, entryHeight);
       m_eventEntry = new FWNumberEntryField(rRight, -1, 0, TGNumberFormat::kNESInteger, TGNumberFormat::kNEAPositive);
       rRight->AddFrame(m_eventEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX, 0,0,0,0));
-      runInfo->AddFrameWithWeight(rRight, 0, 0.4);
+      runInfo->AddFrameWithWeight(rRight, nullptr, 0.4);
 
       texts->AddFrame(runInfo, new TGLayoutHints(kLHintsTop | kLHintsExpandX, 0,0,0,4));
    }
@@ -490,10 +513,10 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    csArea->SetVertical(kFALSE);
 
    TGCompositeFrame *cf = m_manager->createList(csArea);
-   csArea->AddFrameWithWeight(cf, 0, 20);
+   csArea->AddFrameWithWeight(cf, nullptr, 20);
 
-   TEveCompositeFrameInPack *slot = new TEveCompositeFrameInPack(csArea, 0, csArea);
-   csArea->AddFrameWithWeight(slot, 0, 80);
+   TEveCompositeFrameInPack *slot = new TEveCompositeFrameInPack(csArea, nullptr, csArea);
+   csArea->AddFrameWithWeight(slot, nullptr, 80);
    TEveWindowSlot *ew_slot = TEveWindow::CreateDefaultWindowSlot();
    ew_slot->PopulateEmptyFrame(slot);
    m_manager->createViews(ew_slot);
@@ -582,7 +605,7 @@ CmsShowMainFrame::enableActions(bool enable)
 void
 CmsShowMainFrame::enablePrevious(bool enable)
 {
-   if (m_previousEvent != 0) {
+   if (m_previousEvent != nullptr) {
       if (enable) {
          m_previousEvent->enable();
          m_goToFirst->enable();
@@ -599,7 +622,7 @@ CmsShowMainFrame::enablePrevious(bool enable)
 void
 CmsShowMainFrame::enableNext(bool enable)
 {
-   if (m_nextEvent != 0) {
+   if (m_nextEvent != nullptr) {
       if (enable) {
          m_nextEvent->enable();
          m_goToLast->enable();
@@ -664,6 +687,7 @@ void CmsShowMainFrame::HandleMenu(Int_t id) {
 }
 
 Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
+
    if (event->fType == kGKeyPress) {
       const std::vector<CSGAction*>& alist = getListOfActions();
       std::vector<CSGAction*>::const_iterator it_act;
@@ -681,6 +705,15 @@ Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
             //  return kTRUE;
             return false;
          }
+      }
+
+      // special case is --live option where Space key is grabbed
+      static UInt_t spacecode =  gVirtualX->KeysymToKeycode((int)kKey_Space);
+      if (event->fCode == spacecode && event->fState == 0 ) {
+          if (playEventsAction()->isRunning() )
+              playEventsAction()->switchMode();
+          else if (playEventsBackwardsAction()->isRunning() )
+              playEventsBackwardsAction()->switchMode();
       }
    }
    return kFALSE;
@@ -714,9 +747,9 @@ CmsShowMainFrame::makeFixedSizeLabel(TGHorizontalFrame* p, const char* txt,
 class InfoFrame : public TGMainFrame {
 public:
    InfoFrame(const TGWindow* p, UInt_t w, UInt_t h, UInt_t opts) : TGMainFrame(p, w, h, opts) {}
-   virtual ~InfoFrame() {}
+   ~InfoFrame() override {}
    
-   virtual void CloseWindow() override
+   void CloseWindow() override
    {
       UnmapWindow();  
    }
@@ -725,7 +758,7 @@ public:
 void
 CmsShowMainFrame::showFWorksInfo()
 {
-   if (m_fworksAbout == 0)
+   if (m_fworksAbout == nullptr)
    {
       UInt_t ww = 280, hh = 190;
       int number_of_lines = 0;

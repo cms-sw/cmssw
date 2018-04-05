@@ -17,7 +17,7 @@ class PFCPositionCalculatorBase {
   PFCPositionCalculatorBase(const edm::ParameterSet& conf) :
     _minFractionInCalc(conf.getParameter<double>("minFractionInCalc")),
     _algoName(conf.getParameter<std::string>("algoName")) { }
-  ~PFCPositionCalculatorBase() { }
+  virtual ~PFCPositionCalculatorBase() = default;
   //get rid of things we should never use
   PFCPositionCalculatorBase(const PosCalc&) = delete;
   PosCalc& operator=(const PosCalc&) = delete;

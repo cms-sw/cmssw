@@ -2,7 +2,7 @@
 
 #include "SimCalorimetry/EcalSimAlgos/interface/APDShape.h"
 
-#include<assert.h>
+#include<cassert>
 
 APDShape::~APDShape()
 {

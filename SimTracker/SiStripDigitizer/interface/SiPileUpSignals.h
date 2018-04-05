@@ -33,7 +33,7 @@ class SiPileUpSignals{
   const SignalMapType* getSignal(uint32_t detID) const {
     auto where = signal_.find(detID);
     if(where == signal_.end()) {
-      return 0;
+      return nullptr;
     }
     return &where->second;
   }

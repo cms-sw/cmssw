@@ -40,7 +40,9 @@ namespace edmtest {
     } else {
       expectedRunLumisEvents1_ = pset.getUntrackedParameter<std::vector<unsigned long long> >("expectedRunLumiEvents1", std::vector<unsigned long long>());
     }
-
+    if(dumpTriggerResults_) {
+      triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"));
+    }
   }
 
   void RunLumiEventAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&) {
@@ -54,7 +56,7 @@ namespace edmtest {
 
     if(dumpTriggerResults_) {
       edm::Handle<edm::TriggerResults> triggerResults;
-      event.getByLabel("TriggerResults", triggerResults);
+      event.getByToken(triggerResultsToken_, triggerResults);
       if(triggerResults.isValid()) {
         edm::LogAbsolute("RunLumiEvent") << "TestFailuresAnalyzer dumping TriggerResults";
         edm::LogAbsolute("RunLumiEvent") << *triggerResults;
@@ -103,15 +105,24 @@ namespace edmtest {
 
     if((index_ + 2U) < expectedRunLumisEvents_->size()) {
       if(!(expectedRunLumisEvents_->at(index_) == run.run())) {
-        throw cms::Exception("UnexpectedRun", "RunLumiEventAnalyzer::endRun unexpected run");
+        throw cms::Exception("UnexpectedRun")
+        << "RunLumiEventAnalyzer::endRun unexpected run\n"
+           "  expected "<<expectedRunLumisEvents_->at(index_)
+        << "  found    "<<run.run();
       }
       ++index_;
       if(!(expectedRunLumisEvents_->at(index_) == 0)) {
-        throw cms::Exception("UnexpectedLumi", "RunLumiEventAnalyzer::endRun unexpected lumi");
+        throw cms::Exception("UnexpectedLumi")
+        << "RunLumiEventAnalyzer::endRun unexpected lumi\n"
+           "  expected "<<expectedRunLumisEvents_->at(index_)
+        << "  found    0";
       }
       ++index_;
       if(!(expectedRunLumisEvents_->at(index_) == 0)) {
-        throw cms::Exception("UnexpectedEvent", "RunLumiEventAnalyzer::endRun unexpected event");
+        throw cms::Exception("UnexpectedEvent")
+        << "RunLumiEventAnalyzer::endRun unexpected event\n"
+           "  expected "<<expectedRunLumisEvents_->at(index_)
+        << "  found    0";
       }
       ++index_;
     }
@@ -147,15 +158,24 @@ namespace edmtest {
 
     if((index_ + 2U) < expectedRunLumisEvents_->size()) {
       if(!(expectedRunLumisEvents_->at(index_) == lumi.run())) {
-        throw cms::Exception("UnexpectedRun", "RunLumiEventAnalyzer::endLuminosityBlock unexpected run");
+        throw cms::Exception("UnexpectedRun")
+        << "RunLumiEventAnalyzer::endLuminosityBlock unexpected run\n"
+           "  expected "<<expectedRunLumisEvents_->at(index_)
+        << "  found    "<<lumi.run();
       }
       ++index_;
       if(!(expectedRunLumisEvents_->at(index_) == lumi.luminosityBlock())) {
-        throw cms::Exception("UnexpectedLumi", "RunLumiEventAnalyzer::endLuminosityBlock unexpected lumi");
+        throw cms::Exception("UnexpectedLumi")
+        << "RunLumiEventAnalyzer::endLuminosityBlock unexpected lumi"
+           "  expected "<<expectedRunLumisEvents_->at(index_)
+        << "  found    "<<lumi.luminosityBlock();
       }
       ++index_;
       if(!(expectedRunLumisEvents_->at(index_) == 0)) {
-        throw cms::Exception("UnexpectedEvent", "RunLumiEventAnalyzer::endLuminosityBlock unexpected event");
+        throw cms::Exception("UnexpectedEvent")
+        << "RunLumiEventAnalyzer::endLuminosityBlock unexpected event"
+           "  expected "<<expectedRunLumisEvents_->at(index_)
+        << "  found    0";
       }
       ++index_;
     }
@@ -168,16 +188,6 @@ namespace edmtest {
     }
   }
 
-  void
-  RunLumiEventAnalyzer::postForkReacquireResources(unsigned int iChildIndex, unsigned int /*iNumberOfChildren*/) {
-    if(iChildIndex == 0U) {
-      expectedRunLumisEvents_ = &expectedRunLumisEvents0_;
-      expectedEndingIndex_ = expectedEndingIndex0_;
-    } else {
-      expectedRunLumisEvents_ = &expectedRunLumisEvents1_;
-      expectedEndingIndex_ = expectedEndingIndex1_;
-    }
-  }
 }
 using edmtest::RunLumiEventAnalyzer;
 DEFINE_FWK_MODULE(RunLumiEventAnalyzer);

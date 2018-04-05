@@ -8,11 +8,34 @@ from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import *
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import *
 
 ## for scheduled mode
-makePatJets = cms.Sequence(
-    patJetCorrections *
-    patJetCharge *
-    patJetPartonMatch *
-    patJetGenJetMatch *
-    (patJetFlavourIdLegacy + patJetFlavourId) *
+makePatJetsTask = cms.Task(
+    patJetCorrectionsTask,
+    patJetCharge,
+    patJetPartonMatch,
+    patJetGenJetMatch,
+    patJetFlavourIdLegacyTask,
+    patJetFlavourIdTask,
     patJets
     )
+makePatJets = cms.Sequence(makePatJetsTask)
+
+from RecoBTag.ImpactParameter.pfImpactParameterTagInfos_cfi import * #pfImpactParameterTagInfos
+from RecoBTag.SecondaryVertex.pfSecondaryVertexTagInfos_cfi import * #pfSecondaryVertexTagInfos
+from RecoBTag.SecondaryVertex.pfInclusiveSecondaryVertexFinderTagInfos_cfi import * #pfInclusiveSecondaryVertexFinderTagInfos
+from RecoBTag.Combined.deepFlavour_cff import * #pfDeepCSVTask
+
+#make a copy to avoid labels and substitution problems
+_makePatJetsWithDeepFlavorTask = makePatJetsTask.copy()
+_makePatJetsWithDeepFlavorTask.add(
+    pfImpactParameterTagInfos, 
+    pfSecondaryVertexTagInfos,
+    pfInclusiveSecondaryVertexFinderTagInfos,
+    pfDeepCSVTask
+)
+
+from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+run2_miniAOD_80XLegacy.toReplaceWith(
+    makePatJetsTask, _makePatJetsWithDeepFlavorTask
+)
+
+

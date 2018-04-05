@@ -37,7 +37,8 @@ using namespace edm;
 L1Scalers::L1Scalers(const edm::ParameterSet& ps)
     : nev_(0),
       verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
-      l1GtDataSource_(ps.getParameter<edm::InputTag>("l1GtData")),
+      l1GtDataSource_(consumes<L1GlobalTriggerReadoutRecord>(ps.getParameter<edm::InputTag>("l1GtData"))),
+      l1GmtDataSource_(consumes<L1MuGMTReadoutCollection>(ps.getParameter<edm::InputTag>("l1GtData"))),
       denomIsTech_(ps.getUntrackedParameter<bool>("denomIsTech", true)),
       denomBit_(ps.getUntrackedParameter<unsigned int>("denomBit", 40)),
       tfIsTech_(ps.getUntrackedParameter<bool>("tfIsTech", true)),
@@ -48,15 +49,15 @@ L1Scalers::L1Scalers(const edm::ParameterSet& ps)
           "techMonitorBits", std::vector<unsigned int>())),
       folderName_(ps.getUntrackedParameter<std::string>(
           "dqmFolder", std::string("L1T/L1Scalers_EvF"))),
-      l1scalers_(0),
-      l1techScalers_(0),
-      l1Correlations_(0),
-      bxNum_(0),
-      l1scalersBx_(0),
-      l1techScalersBx_(0),
-      nLumiBlock_(0),
-      l1AlgoCounter_(0),
-      l1TtCounter_(0),
+      l1scalers_(nullptr),
+      l1techScalers_(nullptr),
+      l1Correlations_(nullptr),
+      bxNum_(nullptr),
+      l1scalersBx_(nullptr),
+      l1techScalersBx_(nullptr),
+      nLumiBlock_(nullptr),
+      l1AlgoCounter_(nullptr),
+      l1TtCounter_(nullptr),
       fedStart_(ps.getUntrackedParameter<unsigned int>("firstFED", 0)),
       fedStop_(ps.getUntrackedParameter<unsigned int>("lastFED", 931)),
       rateAlgoCounter_(0),
@@ -165,11 +166,10 @@ void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   // get Global Trigger decision and the decision word
   // these are locally derived
   edm::Handle<L1GlobalTriggerReadoutRecord> gtRecord;
-  bool t = e.getByLabel(l1GtDataSource_, gtRecord);
+  bool t = e.getByToken(l1GtDataSource_, gtRecord);
 
   if (!t) {
-    LogDebug("Product") << "can't find L1GlobalTriggerReadoutRecord "
-                        << "with label " << l1GtDataSource_.label();
+    LogDebug("Product") << "can't find L1GlobalTriggerReadoutRecord";
   } else {
     L1GtfeWord gtfeWord = gtRecord->gtfeWord();
     int gtfeBx = gtfeWord.bxNr();
@@ -247,12 +247,11 @@ void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
 
     // GMT information
     edm::Handle<L1MuGMTReadoutCollection> gmtCollection;
-    e.getByLabel(l1GtDataSource_, gmtCollection);
+    e.getByToken(l1GmtDataSource_, gmtCollection);
 
     if (!gmtCollection.isValid()) {
       edm::LogInfo("DataNotFound")
-          << "can't find L1MuGMTReadoutCollection with label "
-          << l1GtDataSource_.label();
+	<< "can't find L1MuGMTReadoutCollection with label";
     }
 
     // remember the bx of 1st candidate of each system (9=none)

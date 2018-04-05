@@ -6,6 +6,19 @@ import os
 import pprint
 from ROOT import TChain, TFile, TTree, gSystem
 
+def is_pfn(fn):
+    return not (is_lfn(fn) or is_rootfn(fn))
+
+def is_lfn(fn):
+    return fn.startswith("/store")
+
+def is_rootfn(fn):
+    """
+    To open files like root://, file:// which os.isfile won't find.
+    """
+    return "://" in fn
+
+
 class Chain( object ):
     """Wrapper to TChain, with a python iterable interface.
 
@@ -37,7 +50,10 @@ class Chain( object ):
             if len(self.files)==0:
                 raise ValueError('no matching file name: '+input)
         else: # case of a list of files
-            if False in [ os.path.isfile(fnam) for fnam in self.files ]:
+            if False in [
+                ((is_pfn(fnam) and os.path.isfile(fnam)) or
+                is_lfn(fnam)) or is_rootfn(fnam)
+                for fnam in self.files]:
                 err = 'at least one input file does not exist\n'
                 err += pprint.pformat(self.files)
                 raise ValueError(err)
@@ -93,13 +109,3 @@ class Chain( object ):
         return self.chain
 
 
-if __name__ == '__main__':
-
-    import sys
-
-    if len(sys.argv)!=3:
-        print 'usage: Chain.py <tree_name> <pattern>'
-        sys.exit(1)
-    tree_name = sys.argv[1]
-    pattern = sys.argv[2]
-    chain = Chain( tree_name, pattern )

@@ -14,7 +14,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -22,7 +22,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 SiStripDigiValid::SiStripDigiValid(const edm::ParameterSet& ps)
-  : dbe_(0)
+  : dbe_(nullptr)
   , runStandalone ( ps.getParameter<bool>("runStandalone")  )  
   , outputFile_( ps.getUntrackedParameter<std::string>( "outputFile", "stripdigihisto.root" ) )
   , edmDetSetVector_SiStripDigi_Token_( consumes< edm::DetSetVector<SiStripDigi> >( ps.getParameter<edm::InputTag>( "src" ) ) ) {
@@ -33,9 +33,6 @@ SiStripDigiValid::~SiStripDigiValid(){
 }
 
 
-void SiStripDigiValid::beginJob(){
-
-}
 
 void SiStripDigiValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es){
   dbe_ = edm::Service<DQMStore>().operator->();
@@ -332,7 +329,7 @@ void SiStripDigiValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run
 }
 
 void SiStripDigiValid::endJob() {
-  if ( runStandalone && outputFile_.size() != 0 && dbe_ ){ dbe_->save(outputFile_);}
+  if ( runStandalone && !outputFile_.empty() && dbe_ ){ dbe_->save(outputFile_);}
 
 }
 
@@ -340,7 +337,7 @@ void SiStripDigiValid::endJob() {
 void SiStripDigiValid::analyze(const edm::Event& e, const edm::EventSetup& c){
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  c.get<IdealGeometryRecord>().get(tTopoHandle);
+  c.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
 

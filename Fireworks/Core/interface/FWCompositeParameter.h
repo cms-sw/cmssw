@@ -33,20 +33,20 @@ public:
    FWCompositeParameter(FWParameterizable* iParent,
                         const std::string& iName,
                         unsigned int iVersion=1);
-   virtual ~FWCompositeParameter();
+   ~FWCompositeParameter() override;
 
    // ---------- const member functions ---------------------
-   virtual void addTo(FWConfiguration& ) const ;
+   void addTo(FWConfiguration& ) const override ;
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   virtual void setFrom(const FWConfiguration&);
+   void setFrom(const FWConfiguration&) override;
 
 private:
-   FWCompositeParameter(const FWCompositeParameter&);    // stop default
+   FWCompositeParameter(const FWCompositeParameter&) = delete;    // stop default
 
-   const FWCompositeParameter& operator=(const FWCompositeParameter&);    // stop default
+   const FWCompositeParameter& operator=(const FWCompositeParameter&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    unsigned int m_version;

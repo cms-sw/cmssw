@@ -95,7 +95,7 @@ DTTSS::run() {
   // end debugging
 
   DTTSCand* first=sortTSS1();
-  if(first!=0) {
+  if(first!=nullptr) {
     _outcand.push_back(first); 
   }
 
@@ -114,7 +114,7 @@ DTTSS::run() {
   // end debugging
   
   DTTSCand* second=sortTSS2();
-  if(second!=0) {
+  if(second!=nullptr) {
     _outcand.push_back(second); 
   }
 
@@ -124,24 +124,24 @@ DTTSCand*
 DTTSS::sortTSS1() {
 
   // Do a sort 1
-  DTTSCand* best=0;
-  DTTSCand* carry=0;
+  DTTSCand* best=nullptr;
+  DTTSCand* carry=nullptr;
   std::vector<DTTSCand*>::iterator p;
   for(p=_tctrig[0].begin(); p!=_tctrig[0].end(); p++) {
-    DTTSCand* curr= (*p) ? (*p) : 0;
+    DTTSCand* curr= (*p) ? (*p) : nullptr;
     // SM sector collector Set bits for tss
     curr->setBitsTss(); 
     if(curr->dataword()==0x1ff)continue;   
     _logWord1[1+curr->TcPos()] = (curr->isFirst()) ? '1' : '2';
 //     std::cout << "Running TSS: --->curr->dataword() sort 1 " << curr->dataword()  << std::endl;
-    if(best==0){
+    if(best==nullptr){
       best=curr;
     } 
     else if((*curr)<=(*best)){
       carry=best;
       best=curr;
     } 
-    else if(carry==0){
+    else if(carry==nullptr){
       carry=curr;
     } 
     else if((*curr)<=(*carry)){
@@ -151,7 +151,7 @@ DTTSS::sortTSS1() {
 
   // Ghost 1 suppression: use carry only if not suppressed
 
-  if(carry!=0) { // A carry is present
+  if(carry!=nullptr) { // A carry is present
 
   // Carry enabled if correlated and TRACO is next to best
     bool inner_or_corr;
@@ -205,7 +205,7 @@ DTTSS::sortTSS2() {
   if(nTracks()<1){
     std::cout << "DTTSS::DTTSSsort2: called with no first track.";
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
 
   if(_ignoreSecondTrack){
@@ -219,7 +219,7 @@ DTTSS::sortTSS2() {
     std::vector<DTTSCand*>::iterator p;
     for(p=_tctrig[1].begin(); p!=_tctrig[1].end(); p++)
       if(!(*p)->isCarry())_logWord2[1+(*p)->TcPos()] = 'o'; // out of time
-    return 0;
+    return nullptr;
   }
 
   // If second tracks are always suppressed skip processing
@@ -228,12 +228,12 @@ DTTSS::sortTSS2() {
     std::vector<DTTSCand*>::iterator p;
     for(p=_tctrig[1].begin(); p!=_tctrig[1].end(); p++)
       _logWord2[1+(*p)->TcPos()] = 'G';
-    return 0;
+    return nullptr;
   }
 
   // If no first tracks at the following BX, do a sort 2
   DTTSCand* best=getTrack(1);
-  DTTSCand* second=0;
+  DTTSCand* second=nullptr;
   std::vector<DTTSCand*>::iterator p;
   for(p=_tctrig[1].begin(); p!=_tctrig[1].end(); p++) {
     DTTSCand* curr=(*p);
@@ -271,7 +271,7 @@ DTTSS::sortTSS2() {
         }
       }
     }
-    if(second==0){
+    if(second==nullptr){
       second=curr;
     } 
     else if((*curr)<=(*second)){
@@ -308,12 +308,12 @@ DTTSS::getDTTSCand(int ifs, unsigned n) const {
   if(ifs<1||ifs>2){
     std::cout << "DTTSS::getDTTSCand: wrong track number: " << ifs;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   if(n<1 || n>nTracoT(ifs)) {
     std::cout << "DTTSS::getDTTSCand: requested trigger not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   std::vector<DTTSCand*>::const_iterator p=_tctrig[ifs-1].begin()+n-1;
   return (*p);
@@ -324,12 +324,12 @@ DTTSS::getTracoT(int ifs, unsigned n) const {
   if(ifs<1||ifs>2){
     std::cout << "DTTSS::getTracoT: wrong track number: " << ifs;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   if(n<1 || n>nTracoT(ifs)) {
     std::cout << "DTTSS::getTracoT: requested trigger not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   return getDTTSCand(ifs, n)->tracoTr();
 }
@@ -339,7 +339,7 @@ DTTSS::getTrack(int n) const {
   if(n<1 || n>nTracks()) {
     std::cout << "DTTSS::getTrack: requested track not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;
-    return 0;
+    return nullptr;
   }
   std::vector<DTTSCand*>::const_iterator p = _outcand.begin()+n-1;
   return (*p);
@@ -350,7 +350,7 @@ DTTSS::getCarry() const {
   std::vector<DTTSCand*>::const_iterator p;
   for(p=_tctrig[1].begin(); p!=_tctrig[1].end(); p++)
     if((*p)->isCarry()) return (*p);
-  return 0;
+  return nullptr;
 }
 
 std::string

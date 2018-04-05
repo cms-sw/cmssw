@@ -2,7 +2,7 @@
 #define MCTruth_MuonAssociatorEDProducer_h
 
 #include <memory>
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -10,14 +10,14 @@
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 
-class MuonAssociatorEDProducer : public edm::EDProducer {
+class MuonAssociatorEDProducer : public edm::stream::EDProducer<> {
 public:
   explicit MuonAssociatorEDProducer(const edm::ParameterSet&);
-  ~MuonAssociatorEDProducer();
+  ~MuonAssociatorEDProducer() override;
   
 private:
   virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob();
 
   edm::InputTag tracksTag;

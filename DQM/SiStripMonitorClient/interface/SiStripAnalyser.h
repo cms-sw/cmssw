@@ -37,7 +37,7 @@ public:
   SiStripAnalyser(const edm::ParameterSet& ps);
   
   /// Destructor
-  virtual ~SiStripAnalyser();
+  ~SiStripAnalyser() override;
 
   //void defaultWebPage(xgi::Input *in, xgi::Output *out); 
   //void publish(xdata::InfoSpace *){};
@@ -46,26 +46,26 @@ public:
 private:
 
   /// BeginJob
-  void beginJob();
+  void beginJob() override;
 
   /// BeginRun
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   /// Analyze
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
   /// Begin Luminosity Block
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) ;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override ;
 
   /// End Luminosity Block
   
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup);
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
 
   /// EndRun
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
 
   /// Endjob
-  void endJob();
+  void endJob() override;
 
 
 

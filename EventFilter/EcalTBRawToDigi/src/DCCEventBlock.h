@@ -20,14 +20,14 @@ class DCCTBEventBlock : public DCCTBBlockPrototype {
 		
 		DCCTBEventBlock(
 			DCCTBDataParser * parser, 
-			uint32_t * buffer, 
+			const uint32_t * buffer, 
 			uint32_t numbBytes, 
 			uint32_t wordsToEnd, 
 			uint32_t wordBufferOffset = 0 , 
 			uint32_t wordEventOffset = 0 
 		);
 		
-		~DCCTBEventBlock();
+		~DCCTBEventBlock() override;
 		
 		void dataCheck(); 
 		
@@ -36,6 +36,7 @@ class DCCTBEventBlock : public DCCTBBlockPrototype {
 		DCCTBSRPBlock               * srpBlock();
 		DCCTBTrailerBlock           * trailerBlock();
 		std::vector< DCCTBTowerBlock * >   towerBlocksById(uint32_t towerId);
+		using DCCTBBlockPrototype::compare;
 		std::pair<bool,std::string> compare(DCCTBEventBlock * );
 
 		bool eventHasErrors();

@@ -607,7 +607,7 @@ EOF
 	if [ "$CREATETRENDS" = "True" ]; then
 	    afstokenchecker.sh "Creating the Trend Plots ..."
 
-	    getOfflineDQMData.sh $DB $ACCOUNT $TAGSUBDIR $tag
+	    getOfflineDQMData.sh $DB $ACCOUNT $TAGSUBDIR $tag $STORAGEPATH
 
 	    afstokenchecker.sh "Moving Trend Plots Using the script moveTrendPlots..."
 

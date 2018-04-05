@@ -3,14 +3,12 @@
 #define HcalSimAlgos_HcalSiPMHitResponse_h
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMRecovery.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalTDCParameters.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPM.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
 
 #include <map>
 #include <set>
 #include <vector>
-
-class HcalSiPM;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -28,49 +26,44 @@ class HcalSiPMHitResponse : public CaloHitResponse {
 
 public:
   HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap, 
-		      const CaloShapes * shapes);
+		      const CaloShapes * shapes, bool PreMix1 = false, bool HighFidelity = true);
 
-  virtual ~HcalSiPMHitResponse();
+  ~HcalSiPMHitResponse() override;
 
   typedef std::vector<unsigned int> photonTimeHist;
   typedef std::map< DetId, photonTimeHist > photonTimeMap;
 
-  virtual void initializeHits();
+  void initializeHits() override;
 
-  virtual void finalizeHits(CLHEP::HepRandomEngine*) override;
+  void finalizeHits(CLHEP::HepRandomEngine*) override;
 
-  virtual void add(const PCaloHit& hit, CLHEP::HepRandomEngine*) override;
+  void add(const PCaloHit& hit, CLHEP::HepRandomEngine*) override;
 
-  virtual void add(const CaloSamples& signal);
+  void add(const CaloSamples& signal) override;
 
-  virtual void run(MixCollection<PCaloHit> & hits, CLHEP::HepRandomEngine*) override;
+  virtual void addPEnoise(CLHEP::HepRandomEngine* engine);
 
   virtual CaloSamples makeBlankSignal(const DetId & detId) const;
 
-  static double Y11TimePDF( double t );
+  virtual void setDetIds(const std::vector<DetId> & detIds);
+
+  virtual int getReadoutFrameSize(const DetId& id) const;
 
 protected:
-  typedef std::multiset <PCaloHit, PCaloHitCompareTimes> SortedHitSet;
-
-  virtual CaloSamples makeSiPMSignal(const DetId& id, const PCaloHit& hit, int & integral, CLHEP::HepRandomEngine*) const;
-  virtual CaloSamples makeSiPMSignal(DetId const& id, photonTimeHist const& photons, CLHEP::HepRandomEngine*) const;
-
-  virtual void differentiatePreciseSamples(CaloSamples& samples, 
-					   double diffNorm = 1.0) const;
-
-  double generatePhotonTime(CLHEP::HepRandomEngine*) const;
+  virtual CaloSamples makeSiPMSignal(DetId const& id, photonTimeHist const& photons, CLHEP::HepRandomEngine*);
 
 private:
-  HcalSiPM * theSiPM;
-  double theRecoveryTime;
-  int const TIMEMULT;
-  float const Y11RANGE;
-  float const Y11MAX;
-  float const Y11TIMETORISE;
-  float theDiffNorm;
+  HcalSiPM theSiPM;
+  bool PreMixDigis;
+  bool HighFidelityPreMix;
+  int nbins;
+  double dt, invdt;
 
   photonTimeMap precisionTimedPhotons;
-  HcalTDCParameters theTDCParams;
+
+  const std::vector<DetId>* theDetIds;
+
+  std::map<int,HcalSiPMShape> shapeMap;
 };
 
 #endif //HcalSimAlgos_HcalSiPMHitResponse_h

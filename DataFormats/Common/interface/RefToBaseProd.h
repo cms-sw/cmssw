@@ -97,15 +97,14 @@ namespace edm {
     View<T> const* viewPtr() const {
       return reinterpret_cast<const View<T>*>(product_.productPtr());
     }
-    //needs to be mutable so we can modify the 'productPtr' it holds
-    // so that 'productPtr' can hold our View
-    mutable RefCore product_;
+
+    RefCore product_;
   };
 
   template<typename T>
   inline
   RefToBaseProd<T>::RefToBaseProd(Handle<View<T> > const& handle) :
-    product_(handle.id(), 0, 0, false){
+    product_(handle.id(), nullptr, nullptr, false){
     product_.setProductPtr(new View<T>(* handle));
   }
 
@@ -114,7 +113,7 @@ namespace edm {
   RefToBaseProd<T>::RefToBaseProd(const RefToBaseProd<T>& ref) :
     product_(ref.product_) {
       if(product_.productPtr()) {
-        product_.setProductPtr(ref.viewPtr() ? (new View<T>(* ref)) : 0);
+        product_.setProductPtr(ref.viewPtr() ? (new View<T>(* ref)) : nullptr);
       }
   }
 
@@ -137,7 +136,9 @@ namespace edm {
   template<typename T>
   inline
   View<T> const* RefToBaseProd<T>::operator->() const {
-    if(product_.productPtr() == 0) {
+    //Another thread might change the value returned so just get it once
+    auto getter = product_.productGetter();
+    if(getter != nullptr) {
       if(product_.isNull()) {
         Exception::throwThis(errors::InvalidReference,
           "attempting get view from a null RefToBaseProd.\n");
@@ -145,13 +146,16 @@ namespace edm {
       ProductID tId = product_.id();
       std::vector<void const*> pointers;
       FillViewHelperVector helpers;
-      WrapperBase const* prod = product_.productGetter()->getIt(tId);
+      WrapperBase const* prod = getter->getIt(tId);
       if(prod == nullptr) {
         Exception::throwThis(errors::InvalidReference,
                              "attempting to get view from an unavailable RefToBaseProd.");
       }
       prod->fillView(tId, pointers, helpers);
-      product_.setProductPtr((new View<T>(pointers, helpers,product_.productGetter())));
+      std::unique_ptr<View<T>> tmp{ new View<T>(pointers, helpers, getter) };
+      if( product_.tryToSetProductPtrForFirstTime(tmp.get())) {
+        tmp.release();
+      }
     }
     return viewPtr();
   }
@@ -159,7 +163,7 @@ namespace edm {
   template<typename T>
   inline
   void RefToBaseProd<T>::swap(RefToBaseProd<T>& other) {
-    std::swap(product_, other.product_);
+    edm::swap(product_, other.product_);
   }
 
   template<typename T>
@@ -192,7 +196,6 @@ namespace edm {
 #include "DataFormats/Common/interface/FillView.h"
 
 namespace edm {
-#ifndef __GCCXML__
   template<typename T>
   template<typename C>
   inline
@@ -203,17 +206,16 @@ namespace edm {
     fillView(* ref.product(), ref.id(), pointers, helpers);
     product_.setProductPtr(new View<T>(pointers, helpers, ref.refCore().productGetter()));
   }
-#endif
 
   template<typename T>
   template<typename C>
   inline
   RefToBaseProd<T>::RefToBaseProd(Handle<C> const& handle) :
-    product_(handle.id(), handle.product(), 0, false) {
+    product_(handle.id(), handle.product(), nullptr, false) {
     std::vector<void const*> pointers;
     FillViewHelperVector helpers;
     fillView(* handle, handle.id(), pointers, helpers);
-    product_.setProductPtr(new View<T>(pointers, helpers,0));
+    product_.setProductPtr(new View<T>(pointers, helpers,nullptr));
   }
 
   template<typename T>

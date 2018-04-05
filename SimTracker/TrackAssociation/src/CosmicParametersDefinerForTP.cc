@@ -42,7 +42,7 @@ TrackingParticle::Vector
   GlobalVector finalGV(0,0,0);
   GlobalPoint finalGP(0,0,0);
   double radius(9999);
-  bool found(0);
+  bool found(false);
   TrackingParticle::Vector momentum(0,0,0);
 
   edm::LogVerbatim("CosmicParametersDefinerForTP")<<"\t in CosmicParametersDefinerForTP::momentum"; 
@@ -135,7 +135,7 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event& i
   GlobalVector finalGV(0,0,0);
   GlobalPoint finalGP(0,0,0);
   double radius(9999);
-  bool found(0);
+  bool found(false);
   TrackingParticle::Point vertex(0,0,0);
 
   edm::LogVerbatim("CosmicParametersDefinerForTP")<<"\t in CosmicParametersDefinerForTP::vertex";
@@ -185,9 +185,12 @@ TrackingParticle::Point CosmicParametersDefinerForTP::vertex(const edm::Event& i
 
       if(tsAtClosestApproach.isValid()){
 	GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
-	vertex = TrackingParticle::Point(v.x()-bs->x0(),v.y()-bs->y0(),v.z()-bs->z0());
+	vertex = TrackingParticle::Point(v.x(), v.y(), v.z());
       }
       else {
+        // to preserve old behaviour
+        // would be better to flag this somehow to allow ignoring in downstream
+        vertex = TrackingParticle::Point(bs->x0(), bs->y0(), bs->z0());
 	edm::LogVerbatim("CosmicParametersDefinerForTP")
 	  <<"*** WARNING in CosmicParametersDefinerForTP::vertex: tsAtClosestApproach is not valid." <<"\n";
       }

@@ -97,7 +97,7 @@ void BackgroundEstimator::_compute(){
   }
   
   // there is nothing inside our region, so answer will always be zero
-  if (pt_over_areas.size() == 0) {
+  if (pt_over_areas.empty()) {
     _median_rho = 0.0;
     _sigma      = 0.0;
     _mean_area  = 0.0;

@@ -43,8 +43,8 @@ class JetCorrectorProducer : public edm::stream::EDProducer<>
   // ---------- member functions ---------------------------
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override {
     auto impl =maker_.make(iEvent,iSetup);
-    std::auto_ptr<reco::JetCorrector> corrector{ new reco::JetCorrector{std::move(impl) } };
-    iEvent.put(corrector);
+    std::unique_ptr<reco::JetCorrector> corrector{ new reco::JetCorrector{std::move(impl) } };
+    iEvent.put(std::move(corrector));
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& iDescriptions) {

@@ -64,11 +64,11 @@ class RPCRecHitFilter : public edm::EDFilter {
 public:
 
   explicit RPCRecHitFilter(const edm::ParameterSet&);
-  ~RPCRecHitFilter() { }
+  ~RPCRecHitFilter() override { }
 
 private:
 
-  virtual bool filter(edm::Event &, const edm::EventSetup&) override;
+  bool filter(edm::Event &, const edm::EventSetup&) override;
 
   std::string RPCDataLabel;
   

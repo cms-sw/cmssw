@@ -1,5 +1,6 @@
 #include "GeneratorInterface/SherpaInterface/interface/SherpackUtilities.h"
 #include <unistd.h>
+#include <cstdlib>
 namespace spu {
 	
 // functions for inflating (and deflating)
@@ -153,6 +154,16 @@ void zerr(int ret)
 /* compress or decompress from stdin to stdout */
 int Unzip(std::string infile, std::string outfile)
 {
+    /////////////////////////////////////////////
+    /////////////// BUG FIX FOR MPI /////////////
+    /////////////////////////////////////////////
+    const char *tmpdir = getenv("TMPDIR");
+    if (tmpdir && (strlen(tmpdir) > 50)) {
+        setenv("TMPDIR", "/tmp", true);
+    }
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
+    /////////////////////////////////////////////
     int ret;
 	FILE *in = fopen(infile.c_str(),"r");
 	if (!in) return -1;
@@ -215,7 +226,7 @@ void create_dir(char *pathname, int mode) {
 	if (r != 0) {
 		/* On failure, try creating parent directory. */
 		p = strrchr(pathname, '/');
-		if (p != NULL) {
+		if (p != nullptr) {
 			*p = '\0';
 			create_dir(pathname, 0755);
 			*p = '/';
@@ -230,10 +241,10 @@ void create_dir(char *pathname, int mode) {
 FILE* create_file(char *pathname, int mode) {
 	FILE *f;
 	f = fopen(pathname, "w+");
-	if (f == NULL) {
+	if (f == nullptr) {
 		/* Try creating parent dir and then creating file. */
 		char *p = strrchr(pathname, '/');
-		if (p != NULL) {
+		if (p != nullptr) {
 			*p = '\0';
 			create_dir(pathname, 0755);
 			*p = '/';
@@ -264,7 +275,7 @@ void Untar(FILE *a, const char *path) {
 	char newlongpathname[512];
 	char newlonglinkname[512];
 	char buff[512];
-	FILE *f = NULL;
+	FILE *f = nullptr;
 	size_t bytes_read;
 	int filesize;
 
@@ -456,20 +467,20 @@ void Untar(FILE *a, const char *path) {
 				}
 				if (filesize < 512)
 					bytes_read = filesize;
-				if (f != NULL) {
+				if (f != nullptr) {
 					if (fwrite(buff, 1, bytes_read, f)
 						!= bytes_read)
 					{
 						fprintf(stderr, "Failed write\n");
 						fclose(f);
-						f = NULL;
+						f = nullptr;
 					}
 				}
 				filesize -= bytes_read;
 			}
-			if (f != NULL) {
+			if (f != nullptr) {
 				fclose(f);
-				f = NULL;
+				f = nullptr;
 			}
 		}
 	}

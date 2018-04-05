@@ -167,8 +167,6 @@ ElectronIDValidationAnalyzer::~ElectronIDValidationAnalyzer()
 void
 ElectronIDValidationAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   // using namespace edm;
-
    edm::Handle<edm::ValueMap<float> > full5x5sieie;
    edm::Handle<edm::View<reco::GsfElectron> > collection;
    edm::Handle<edm::ValueMap<bool> > id_decisions;
@@ -230,7 +228,7 @@ ElectronIDValidationAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
      // Conversion rejection
      constexpr reco::HitPattern::HitCategory missingHitType =
        reco::HitPattern::MISSING_INNER_HITS;
-     expectedMissingInnerHits_ = el->gsfTrack()->hitPattern().numberOfHits(missingHitType);
+     expectedMissingInnerHits_ = el->gsfTrack()->hitPattern().numberOfLostHits(missingHitType);
      passConversionVeto_ = false;
      if( thebs.isValid() && convs.isValid() ) {
        passConversionVeto_ = !ConversionTools::hasMatchedConversion(*el,convs,

@@ -34,17 +34,17 @@ namespace pat {
   class HLTL1MuonMatcher : public edm::EDProducer {
     public:
       explicit HLTL1MuonMatcher(const edm::ParameterSet & iConfig);
-      virtual ~HLTL1MuonMatcher() { }
+      ~HLTL1MuonMatcher() override { }
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
 
-      virtual void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
+      void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
 
 
       /// select L1s with patName_ and filterLabel_ (public, so it can be used by L1MuonMatcherAlgo)
       bool operator()(const pat::TriggerObjectStandAlone &l1) const {
           if (resolveAmbiguities_ && (std::find(lockedItems_.begin(), lockedItems_.end(), &l1) != lockedItems_.end())) return false;
-          return selector_(0,l1);
+          return selector_(false,l1);
       }
     private:
       typedef pat::TriggerObjectStandAlone           PATPrimitive;
@@ -110,7 +110,7 @@ pat::HLTL1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     iEvent.getByToken(recoToken_, reco);
     iEvent.getByToken(l1Token_, l1s);
 
-    auto_ptr<PATPrimitiveCollection> propOut(new PATPrimitiveCollection());
+    unique_ptr<PATPrimitiveCollection> propOut(new PATPrimitiveCollection());
     vector<int>   propMatches(reco->size(), -1);
     vector<int>   fullMatches(reco->size(), -1);
     vector<float> deltaRs(reco->size(), 999), deltaPhis(reco->size(), 999);
@@ -133,19 +133,19 @@ pat::HLTL1MuonMatcher::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     }
     lockedItems_.clear();
 
-    OrphanHandle<PATPrimitiveCollection> propDone = iEvent.put(propOut, "propagatedReco");
+    OrphanHandle<PATPrimitiveCollection> propDone = iEvent.put(std::move(propOut), "propagatedReco");
 
-    auto_ptr<PATTriggerAssociation> propAss(new PATTriggerAssociation(propDone));
+    unique_ptr<PATTriggerAssociation> propAss(new PATTriggerAssociation(propDone));
     PATTriggerAssociation::Filler propFiller(*propAss);
     propFiller.insert(reco, propMatches.begin(), propMatches.end());
     propFiller.fill();
-    iEvent.put(propAss, "propagatedReco");
+    iEvent.put(std::move(propAss), "propagatedReco");
 
-    auto_ptr<PATTriggerAssociation> fullAss(new PATTriggerAssociation(l1s));
+    unique_ptr<PATTriggerAssociation> fullAss(new PATTriggerAssociation(l1s));
     PATTriggerAssociation::Filler fullFiller(*fullAss);
     fullFiller.insert(reco, fullMatches.begin(), fullMatches.end());
     fullFiller.fill();
-    iEvent.put(fullAss);
+    iEvent.put(std::move(fullAss));
 
     if (writeExtraInfo_) {
         storeExtraInfo(iEvent, reco, deltaRs,   "deltaR");
@@ -160,11 +160,11 @@ pat::HLTL1MuonMatcher::storeExtraInfo(edm::Event &iEvent,
                      const std::vector<T> & values,
                      const std::string    & label) const {
     using namespace edm; using namespace std;
-    auto_ptr<ValueMap<T> > valMap(new ValueMap<T>());
+    unique_ptr<ValueMap<T> > valMap(new ValueMap<T>());
     typename edm::ValueMap<T>::Filler filler(*valMap);
     filler.insert(handle, values.begin(), values.end());
     filler.fill();
-    iEvent.put(valMap, label);
+    iEvent.put(std::move(valMap), label);
 }
 
 

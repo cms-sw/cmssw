@@ -11,7 +11,7 @@ class Py8JetGun : public Py8GunBase {
    public:
       
       Py8JetGun( edm::ParameterSet const& );
-      ~Py8JetGun() {}
+      ~Py8JetGun() override {}
 	 
       bool generatePartonsAndHadronize() override;
       const char* classname() const override;
@@ -83,6 +83,10 @@ bool Py8JetGun::generatePartonsAndHadronize()
          particleID = std::fabs(particleID) ;
       }
       (fMasterGen->event).append( particleID, 1, 0, 0, px, py, pz, ee, mass ); 
+      int eventSize = (fMasterGen->event).size()-1;
+      // -log(flat) = exponential distribution
+      double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());
+      (fMasterGen->event)[eventSize].tau( tauTmp );
       
       // values for computing total mass
       //

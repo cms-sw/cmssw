@@ -1,11 +1,13 @@
 #ifndef DD_DDMap_h
 #define DD_DDMap_h
 
+#include <iostream>
+#include <map>
+#include <string>
+
+#include "DetectorDescription/Core/interface/DDReadMapType.h"
 #include "DetectorDescription/Core/interface/DDBase.h"
 #include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Base/interface/DDReadMapType.h"
-#include <string>
-#include <iostream>
 
 class DDMap;
 

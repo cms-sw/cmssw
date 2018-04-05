@@ -16,20 +16,20 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
-
+#include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
 class DQMStore;
 
 class CentralityDQM : public DQMEDAnalyzer {
 
  public:
   explicit CentralityDQM(const edm::ParameterSet& ps);
-  virtual ~CentralityDQM();
+  ~CentralityDQM() override;
 
  protected:
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
+  void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
 
  private:
-  virtual void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
+  void bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
                               edm::EventSetup const&) override;
 
   // void bookHistos(DQMStore * bei );
@@ -48,6 +48,11 @@ class CentralityDQM : public DQMEDAnalyzer {
 
   edm::InputTag  eventplaneTag_;
   edm::EDGetTokenT<reco::EvtPlaneCollection> eventplaneToken;
+  
+  edm::InputTag centralityBinTag_;
+  edm::EDGetTokenT<int> centralityBinToken;
+  edm::Handle<int>centralityBin_;
+
 
   ///////////////////////////
   // Histograms
@@ -81,12 +86,25 @@ class CentralityDQM : public DQMEDAnalyzer {
   MonitorElement* h_vertex_y;
   MonitorElement* h_vertex_z;
 
+  MonitorElement* h_cent_bin;
+
+  MonitorElement* h_ep_HFm1;
+  MonitorElement* h_ep_HFp1;
+  MonitorElement* h_ep_trackm1;
+  MonitorElement* h_ep_trackp1;
+  MonitorElement* h_ep_castor1;
+
   MonitorElement* h_ep_HFm2;
   MonitorElement* h_ep_HFp2;
   MonitorElement* h_ep_trackmid2;
   MonitorElement* h_ep_trackm2;
   MonitorElement* h_ep_trackp2;
   MonitorElement* h_ep_castor2;
+
+  MonitorElement* h_ep_HFm3;
+  MonitorElement* h_ep_HFp3;
+  MonitorElement* h_ep_trackmid3;
+
 };
 
 #endif

@@ -21,7 +21,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
@@ -33,24 +33,18 @@ class SiStripBaselineValidator : public DQMEDAnalyzer
 {
  public:
   explicit SiStripBaselineValidator(const edm::ParameterSet&);
-  virtual ~SiStripBaselineValidator();
+  ~SiStripBaselineValidator() override;
 
-  virtual void beginJob();
-  virtual void endJob();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   private:
-
-  DQMStore *dbe;
 
   MonitorElement *h1NumbadAPVsRes_;
   MonitorElement *h1ADC_vs_strip_;
 
   edm::InputTag srcProcessedRawDigi_;
   edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > moduleRawDigiToken_;
-  std::string outputFile_;
-  bool createOutputFile_;
 
 };
 #endif

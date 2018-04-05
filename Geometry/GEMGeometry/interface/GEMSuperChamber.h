@@ -6,7 +6,7 @@
  *  Model of a GEM super chamber.
  *   
  *  The super chamber is composed of 2 chambers.
- *  It's detId is the same as ch1 detId
+ *  It's detId is layer 0, chambers are layer 1 and 2
  *
  *  \author S. Dildick
  */
@@ -23,7 +23,7 @@ class GEMSuperChamber : public GeomDet
   GEMSuperChamber(GEMDetId id, const ReferenceCountingPointer<BoundPlane>& plane);
 
   /// destructor
-  ~GEMSuperChamber();
+  ~GEMSuperChamber() override;
 
   /// Return the GEMDetId of this super chamber
   GEMDetId id() const;
@@ -32,19 +32,19 @@ class GEMSuperChamber : public GeomDet
   const std::vector<GEMDetId>& ids() const;
 
   // Which subdetector
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::GEM;}
+  SubDetector subDetector() const override {return GeomDetEnumerators::GEM;}
 
   /// equal if the id is the same
   bool operator==(const GEMSuperChamber& sch) const;
 
   /// Add chamber to the super chamber which takes ownership
-  void add(GEMChamber* ch);
+  void add(const GEMChamber* ch);
   
   /// Return the chambers in the super chamber
-  virtual std::vector<const GeomDet*> components() const;
+  std::vector<const GeomDet*> components() const override;
 
   /// Return the sub-component (chamber) with a given id in this super chamber
-  virtual const GeomDet* component(DetId id) const;
+  const GeomDet* component(DetId id) const override;
 
   /// Return the chamber corresponding to the given id 
   const GEMChamber* chamber(GEMDetId id) const;

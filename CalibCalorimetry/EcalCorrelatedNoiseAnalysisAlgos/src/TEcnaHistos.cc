@@ -48,7 +48,7 @@ TEcnaHistos::~TEcnaHistos()
 {
   //destructor
 
-  if (fT1DRunNumber != 0){delete [] fT1DRunNumber; fCdelete++;}
+  if (fT1DRunNumber != nullptr){delete [] fT1DRunNumber; fCdelete++;}
   
   //if (fCnaParHistos  != 0){delete fCnaParHistos;  fCdelete++;}
   //if (fCnaParPaths   != 0){delete fCnaParPaths;   fCdelete++;}
@@ -121,7 +121,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString& SubDet)
   //----------------------- Object management
 
   //............................ fCnaParCout
-  fCnaParCout = 0;
+  fCnaParCout = nullptr;
   Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
   if( iCnaParCout == 0 )
     {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
@@ -129,7 +129,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString& SubDet)
     {fCnaParCout = (TEcnaParCout*)iCnaParCout;}
 
   //............................ fCnaParPaths
-  fCnaParPaths = 0;
+  fCnaParPaths = nullptr;
   Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
   if( iCnaParPaths == 0 )
     {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
@@ -140,7 +140,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString& SubDet)
   fCfgHistoryRunListFilePath = fCnaParPaths->HistoryRunListFilePath();
 
   //............................ fEcal  => to be changed in fParEcal
-  fEcal = 0;
+  fEcal = nullptr;
   Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
     {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -148,7 +148,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString& SubDet)
     {fEcal = (TEcnaParEcal*)iParEcal;}
 
   //............................ fEcalNumbering
-  fEcalNumbering = 0;
+  fEcalNumbering = nullptr;
   Long_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
   if( iEcalNumbering == 0 )
     {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -156,7 +156,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString& SubDet)
     {fEcalNumbering = (TEcnaNumbering*)iEcalNumbering;}
 
   //............................ fCnaParHistos
-  fCnaParHistos = 0;
+  fCnaParHistos = nullptr;
   Long_t iCnaParHistos = pObjectManager->GetPointerValue("TEcnaParHistos");
   if( iCnaParHistos == 0 )
     {fCnaParHistos = new TEcnaParHistos(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -164,7 +164,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString& SubDet)
     {fCnaParHistos = (TEcnaParHistos*)iCnaParHistos;}
 
   //............................ fCnaWrite
-  fCnaWrite = 0;
+  fCnaWrite = nullptr;
   Long_t iCnaWrite = pObjectManager->GetPointerValue("TEcnaWrite");
   if( iCnaWrite == 0 )
     {fCnaWrite = new TEcnaWrite(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -172,7 +172,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString& SubDet)
     {fCnaWrite = (TEcnaWrite*)iCnaWrite;}
 
   //............................ fMyRootFile
-  fMyRootFile = 0;
+  fMyRootFile = nullptr;
   Long_t iMyRootFile = pObjectManager->GetPointerValue("TEcnaRead");
   if( iMyRootFile == 0 )
     {fMyRootFile = new TEcnaRead(pObjectManager, SubDet.Data()); /*fCnew++*/}
@@ -211,7 +211,7 @@ void TEcnaHistos::Init()
   //------------------------------ initialisations ----------------------
   fTTBELL = '\007';
 
-  fT1DRunNumber = 0;
+  fT1DRunNumber = nullptr;
 
   //.......... init flags Same plot
   fMemoPlotH1SamePlus = 0;
@@ -432,43 +432,43 @@ void TEcnaHistos::Init()
   fNbBinsMemoH_SCs_RuDs = 0;
 
   //.................................. Init canvas/pad pointers                (Init)
-  fCurrentCanvas         = 0;
+  fCurrentCanvas         = nullptr;
 
   fCurrentCanvasName     = "?";
 
-  fCanvH1SamePlus = 0; 
-  fCanvD_NOE_ChNb = 0;
-  fCanvD_NOE_ChDs = 0;
-  fCanvD_Ped_ChNb = 0;
-  fCanvD_Ped_ChDs = 0;
-  fCanvD_TNo_ChNb = 0;   
-  fCanvD_TNo_ChDs = 0; 
-  fCanvD_MCs_ChNb = 0; 
-  fCanvD_MCs_ChDs = 0;
-  fCanvD_LFN_ChNb = 0;
-  fCanvD_LFN_ChDs = 0; 
-  fCanvD_HFN_ChNb = 0;   
-  fCanvD_HFN_ChDs = 0; 
-  fCanvD_SCs_ChNb = 0; 
-  fCanvD_SCs_ChDs = 0; 
-  fCanvD_MSp_SpNb = 0; 
-  fCanvD_MSp_SpDs = 0;
-  fCanvD_SSp_SpNb = 0;
-  fCanvD_SSp_SpDs = 0;  
-  fCanvD_Adc_EvDs = 0;     
-  fCanvD_Adc_EvNb = 0;
-  fCanvH_Ped_Date = 0;
-  fCanvH_TNo_Date = 0;
-  fCanvH_MCs_Date = 0;
-  fCanvH_LFN_Date = 0;
-  fCanvH_HFN_Date = 0;
-  fCanvH_SCs_Date = 0;
-  fCanvH_Ped_RuDs = 0;
-  fCanvH_TNo_RuDs = 0;
-  fCanvH_MCs_RuDs = 0;
-  fCanvH_LFN_RuDs = 0;
-  fCanvH_HFN_RuDs = 0;
-  fCanvH_SCs_RuDs = 0;
+  fCanvH1SamePlus = nullptr; 
+  fCanvD_NOE_ChNb = nullptr;
+  fCanvD_NOE_ChDs = nullptr;
+  fCanvD_Ped_ChNb = nullptr;
+  fCanvD_Ped_ChDs = nullptr;
+  fCanvD_TNo_ChNb = nullptr;   
+  fCanvD_TNo_ChDs = nullptr; 
+  fCanvD_MCs_ChNb = nullptr; 
+  fCanvD_MCs_ChDs = nullptr;
+  fCanvD_LFN_ChNb = nullptr;
+  fCanvD_LFN_ChDs = nullptr; 
+  fCanvD_HFN_ChNb = nullptr;   
+  fCanvD_HFN_ChDs = nullptr; 
+  fCanvD_SCs_ChNb = nullptr; 
+  fCanvD_SCs_ChDs = nullptr; 
+  fCanvD_MSp_SpNb = nullptr; 
+  fCanvD_MSp_SpDs = nullptr;
+  fCanvD_SSp_SpNb = nullptr;
+  fCanvD_SSp_SpDs = nullptr;  
+  fCanvD_Adc_EvDs = nullptr;     
+  fCanvD_Adc_EvNb = nullptr;
+  fCanvH_Ped_Date = nullptr;
+  fCanvH_TNo_Date = nullptr;
+  fCanvH_MCs_Date = nullptr;
+  fCanvH_LFN_Date = nullptr;
+  fCanvH_HFN_Date = nullptr;
+  fCanvH_SCs_Date = nullptr;
+  fCanvH_Ped_RuDs = nullptr;
+  fCanvH_TNo_RuDs = nullptr;
+  fCanvH_MCs_RuDs = nullptr;
+  fCanvH_LFN_RuDs = nullptr;
+  fCanvH_HFN_RuDs = nullptr;
+  fCanvH_SCs_RuDs = nullptr;
   
 
   fClosedH1SamePlus = kFALSE;    // (Canvas Closed SIGNAL)
@@ -505,109 +505,109 @@ void TEcnaHistos::Init()
   fClosedH_HFN_RuDs = kFALSE;
   fClosedH_SCs_RuDs = kFALSE;
 
-  fCurrentPad = 0;                                    //   (Init)
+  fCurrentPad = nullptr;                                    //   (Init)
 
-  fPadH1SamePlus = 0;
-  fPadD_NOE_ChNb = 0;
-  fPadD_NOE_ChDs = 0;
-  fPadD_Ped_ChNb = 0;
-  fPadD_Ped_ChDs = 0;
-  fPadD_TNo_ChNb = 0;   
-  fPadD_TNo_ChDs = 0; 
-  fPadD_MCs_ChNb = 0; 
-  fPadD_MCs_ChDs = 0;
-  fPadD_LFN_ChNb = 0;
-  fPadD_LFN_ChDs = 0; 
-  fPadD_HFN_ChNb = 0;   
-  fPadD_HFN_ChDs = 0; 
-  fPadD_SCs_ChNb = 0; 
-  fPadD_SCs_ChDs = 0; 
-  fPadD_MSp_SpNb = 0;
-  fPadD_MSp_SpDs = 0;
-  fPadD_SSp_SpNb = 0;
-  fPadD_SSp_SpDs = 0;
-  fPadD_Adc_EvDs = 0;
-  fPadD_Adc_EvNb = 0;
-  fPadH_Ped_Date = 0;
-  fPadH_TNo_Date = 0;
-  fPadH_MCs_Date = 0;
-  fPadH_LFN_Date = 0;
-  fPadH_HFN_Date = 0;
-  fPadH_SCs_Date = 0;
-  fPadH_Ped_RuDs = 0;
-  fPadH_TNo_RuDs = 0;
-  fPadH_MCs_RuDs = 0;
-  fPadH_LFN_RuDs = 0;
-  fPadH_HFN_RuDs = 0;
-  fPadH_SCs_RuDs = 0;
+  fPadH1SamePlus = nullptr;
+  fPadD_NOE_ChNb = nullptr;
+  fPadD_NOE_ChDs = nullptr;
+  fPadD_Ped_ChNb = nullptr;
+  fPadD_Ped_ChDs = nullptr;
+  fPadD_TNo_ChNb = nullptr;   
+  fPadD_TNo_ChDs = nullptr; 
+  fPadD_MCs_ChNb = nullptr; 
+  fPadD_MCs_ChDs = nullptr;
+  fPadD_LFN_ChNb = nullptr;
+  fPadD_LFN_ChDs = nullptr; 
+  fPadD_HFN_ChNb = nullptr;   
+  fPadD_HFN_ChDs = nullptr; 
+  fPadD_SCs_ChNb = nullptr; 
+  fPadD_SCs_ChDs = nullptr; 
+  fPadD_MSp_SpNb = nullptr;
+  fPadD_MSp_SpDs = nullptr;
+  fPadD_SSp_SpNb = nullptr;
+  fPadD_SSp_SpDs = nullptr;
+  fPadD_Adc_EvDs = nullptr;
+  fPadD_Adc_EvNb = nullptr;
+  fPadH_Ped_Date = nullptr;
+  fPadH_TNo_Date = nullptr;
+  fPadH_MCs_Date = nullptr;
+  fPadH_LFN_Date = nullptr;
+  fPadH_HFN_Date = nullptr;
+  fPadH_SCs_Date = nullptr;
+  fPadH_Ped_RuDs = nullptr;
+  fPadH_TNo_RuDs = nullptr;
+  fPadH_MCs_RuDs = nullptr;
+  fPadH_LFN_RuDs = nullptr;
+  fPadH_HFN_RuDs = nullptr;
+  fPadH_SCs_RuDs = nullptr;
 
-  fPavTxtH1SamePlus = 0;                                    //   (Init)
-  fPavTxtD_NOE_ChNb = 0;
-  fPavTxtD_NOE_ChDs = 0;
-  fPavTxtD_Ped_ChNb = 0;
-  fPavTxtD_Ped_ChDs = 0;
-  fPavTxtD_TNo_ChNb = 0;   
-  fPavTxtD_TNo_ChDs = 0; 
-  fPavTxtD_MCs_ChNb = 0; 
-  fPavTxtD_MCs_ChDs = 0;
-  fPavTxtD_LFN_ChNb = 0;
-  fPavTxtD_LFN_ChDs = 0; 
-  fPavTxtD_HFN_ChNb = 0;   
-  fPavTxtD_HFN_ChDs = 0; 
-  fPavTxtD_SCs_ChNb = 0; 
-  fPavTxtD_SCs_ChDs = 0; 
-  fPavTxtD_MSp_SpNb = 0; 
-  fPavTxtD_MSp_SpDs = 0;
-  fPavTxtD_SSp_SpNb = 0;
-  fPavTxtD_SSp_SpDs = 0;
-  fPavTxtD_Adc_EvDs = 0;
-  fPavTxtD_Adc_EvNb = 0;
-  fPavTxtH_Ped_Date = 0;
-  fPavTxtH_TNo_Date = 0;
-  fPavTxtH_MCs_Date = 0;
-  fPavTxtH_LFN_Date = 0;
-  fPavTxtH_HFN_Date = 0;
-  fPavTxtH_SCs_Date = 0;
-  fPavTxtH_Ped_RuDs = 0;
-  fPavTxtH_TNo_RuDs = 0;
-  fPavTxtH_MCs_RuDs = 0;
-  fPavTxtH_LFN_RuDs = 0;
-  fPavTxtH_HFN_RuDs = 0;
-  fPavTxtH_SCs_RuDs = 0;
+  fPavTxtH1SamePlus = nullptr;                                    //   (Init)
+  fPavTxtD_NOE_ChNb = nullptr;
+  fPavTxtD_NOE_ChDs = nullptr;
+  fPavTxtD_Ped_ChNb = nullptr;
+  fPavTxtD_Ped_ChDs = nullptr;
+  fPavTxtD_TNo_ChNb = nullptr;   
+  fPavTxtD_TNo_ChDs = nullptr; 
+  fPavTxtD_MCs_ChNb = nullptr; 
+  fPavTxtD_MCs_ChDs = nullptr;
+  fPavTxtD_LFN_ChNb = nullptr;
+  fPavTxtD_LFN_ChDs = nullptr; 
+  fPavTxtD_HFN_ChNb = nullptr;   
+  fPavTxtD_HFN_ChDs = nullptr; 
+  fPavTxtD_SCs_ChNb = nullptr; 
+  fPavTxtD_SCs_ChDs = nullptr; 
+  fPavTxtD_MSp_SpNb = nullptr; 
+  fPavTxtD_MSp_SpDs = nullptr;
+  fPavTxtD_SSp_SpNb = nullptr;
+  fPavTxtD_SSp_SpDs = nullptr;
+  fPavTxtD_Adc_EvDs = nullptr;
+  fPavTxtD_Adc_EvNb = nullptr;
+  fPavTxtH_Ped_Date = nullptr;
+  fPavTxtH_TNo_Date = nullptr;
+  fPavTxtH_MCs_Date = nullptr;
+  fPavTxtH_LFN_Date = nullptr;
+  fPavTxtH_HFN_Date = nullptr;
+  fPavTxtH_SCs_Date = nullptr;
+  fPavTxtH_Ped_RuDs = nullptr;
+  fPavTxtH_TNo_RuDs = nullptr;
+  fPavTxtH_MCs_RuDs = nullptr;
+  fPavTxtH_LFN_RuDs = nullptr;
+  fPavTxtH_HFN_RuDs = nullptr;
+  fPavTxtH_SCs_RuDs = nullptr;
 
-  fImpH1SamePlus = 0;                                    //   (Init)
-  fImpD_NOE_ChNb = 0;
-  fImpD_NOE_ChDs = 0;
-  fImpD_Ped_ChNb = 0;
-  fImpD_Ped_ChDs = 0;
-  fImpD_TNo_ChNb = 0;   
-  fImpD_TNo_ChDs = 0; 
-  fImpD_MCs_ChNb = 0; 
-  fImpD_MCs_ChDs = 0;
-  fImpD_LFN_ChNb = 0;
-  fImpD_LFN_ChDs = 0; 
-  fImpD_HFN_ChNb = 0;   
-  fImpD_HFN_ChDs = 0; 
-  fImpD_SCs_ChNb = 0; 
-  fImpD_SCs_ChDs = 0; 
-  fImpD_MSp_SpNb = 0; 
-  fImpD_MSp_SpDs = 0;
-  fImpD_SSp_SpNb = 0; 
-  fImpD_SSp_SpDs = 0;  
-  fImpD_Adc_EvDs = 0;     
-  fImpD_Adc_EvNb = 0;
-  fImpH_Ped_Date = 0;
-  fImpH_TNo_Date = 0;
-  fImpH_MCs_Date = 0;
-  fImpH_LFN_Date = 0;
-  fImpH_HFN_Date = 0;
-  fImpH_SCs_Date = 0;
-  fImpH_Ped_RuDs = 0;
-  fImpH_TNo_RuDs = 0;
-  fImpH_MCs_RuDs = 0;
-  fImpH_LFN_RuDs = 0;
-  fImpH_HFN_RuDs = 0;
-  fImpH_SCs_RuDs = 0;
+  fImpH1SamePlus = nullptr;                                    //   (Init)
+  fImpD_NOE_ChNb = nullptr;
+  fImpD_NOE_ChDs = nullptr;
+  fImpD_Ped_ChNb = nullptr;
+  fImpD_Ped_ChDs = nullptr;
+  fImpD_TNo_ChNb = nullptr;   
+  fImpD_TNo_ChDs = nullptr; 
+  fImpD_MCs_ChNb = nullptr; 
+  fImpD_MCs_ChDs = nullptr;
+  fImpD_LFN_ChNb = nullptr;
+  fImpD_LFN_ChDs = nullptr; 
+  fImpD_HFN_ChNb = nullptr;   
+  fImpD_HFN_ChDs = nullptr; 
+  fImpD_SCs_ChNb = nullptr; 
+  fImpD_SCs_ChDs = nullptr; 
+  fImpD_MSp_SpNb = nullptr; 
+  fImpD_MSp_SpDs = nullptr;
+  fImpD_SSp_SpNb = nullptr; 
+  fImpD_SSp_SpDs = nullptr;  
+  fImpD_Adc_EvDs = nullptr;     
+  fImpD_Adc_EvNb = nullptr;
+  fImpH_Ped_Date = nullptr;
+  fImpH_TNo_Date = nullptr;
+  fImpH_MCs_Date = nullptr;
+  fImpH_LFN_Date = nullptr;
+  fImpH_HFN_Date = nullptr;
+  fImpH_SCs_Date = nullptr;
+  fImpH_Ped_RuDs = nullptr;
+  fImpH_TNo_RuDs = nullptr;
+  fImpH_MCs_RuDs = nullptr;
+  fImpH_LFN_RuDs = nullptr;
+  fImpH_HFN_RuDs = nullptr;
+  fImpH_SCs_RuDs = nullptr;
 
   fNbBinsProj = 100;       // number of bins for histos in option Projection
 
@@ -1858,9 +1858,9 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      //      << fCurrentCanvasName << std::endl;
 			      // std::cout << "*TEcnaHistos::ViewMatrix(...)> fCurrentCanvas = " << fCurrentCanvas << std::endl;
 			  
-			      delete [] f_in; f_in = 0;                         fCdelete++;
+			      delete [] f_in; f_in = nullptr;                         fCdelete++;
 
-			      if( fPavComGeneralTitle != 0 ){fPavComGeneralTitle->Draw();}
+			      if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
 			      fPavComStex->Draw();
 
 			      if(BetweenWhat == fLFBetweenChannels || BetweenWhat == fHFBetweenChannels)
@@ -1882,14 +1882,14 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      if( (BetweenWhat == fLFBetweenStins) ||
 				  (BetweenWhat == fHFBetweenStins) ){gPad->SetGrid(1,1);}
 			      h_fbid0->DrawCopy(PlotOption);
-			      h_fbid0->SetStats((Bool_t)1);    
+			      h_fbid0->SetStats(true);    
 			      gPad->Update();
-			      h_fbid0->Delete();  h_fbid0 = 0;              fCdeleteRoot++;
+			      h_fbid0->Delete();  h_fbid0 = nullptr;              fCdeleteRoot++;
 			  
 			      //MainCanvas->Delete();                 fCdeleteRoot++;
-			      delete [] f_in_axis_x;  f_in_axis_x  = 0;       fCdelete++;
-			      delete [] f_in_axis_y;  f_in_axis_y  = 0;       fCdelete++;
-			      delete [] f_in_mat_tit; f_in_mat_tit = 0;       fCdelete++;
+			      delete [] f_in_axis_x;  f_in_axis_x  = nullptr;       fCdelete++;
+			      delete [] f_in_axis_y;  f_in_axis_y  = nullptr;       fCdelete++;
+			      delete [] f_in_mat_tit; f_in_mat_tit = nullptr;       fCdelete++;
 			    }
 			} // end of if ( OKData == kTRUE )
 		      else
@@ -2237,10 +2237,10 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 		  
 		      // std::cout << "*TEcnaHistos::ViewStin(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
 		  
-		      delete [] f_in; f_in = 0;                                 fCdelete++;
+		      delete [] f_in; f_in = nullptr;                                 fCdelete++;
 		  
 		      //------------------------ Canvas draw and update ------------ (ViewStin)  
-		      if( fPavComGeneralTitle != 0 ){fPavComGeneralTitle->Draw();}
+		      if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
 		      fPavComStex->Draw();
 		      fPavComStin->Draw();
 		      fPavComAnaRun->Draw();
@@ -2264,13 +2264,13 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString& CorOrCov)
 		  
 		      gPad->Update();
 		  
-		      h_geo_bid->SetStats((Bool_t)1);    
+		      h_geo_bid->SetStats(true);    
 
 		      //      delete MainCanvas;              fCdeleteRoot++;
 		    }
-		  delete [] f_in_mat_tit;   f_in_mat_tit = 0;        fCdelete++;
+		  delete [] f_in_mat_tit;   f_in_mat_tit = nullptr;        fCdelete++;
 		  
-		  h_geo_bid->Delete();   h_geo_bid = 0;             fCdeleteRoot++;
+		  h_geo_bid->Delete();   h_geo_bid = nullptr;             fCdeleteRoot++;
 		}
 	      else
 		{
@@ -2380,7 +2380,7 @@ void TEcnaHistos::TowerCrystalNumbering(const Int_t& SMNumber, const Int_t& n1SM
       Color_t couleur_rouge      = fCnaParHistos->SetColorsForNumbers("lvrb_top");
       Color_t couleur_bleu_fonce = fCnaParHistos->SetColorsForNumbers("lvrb_bottom");
 
-      gStyle->SetPalette(1,0);          // Rainbow spectrum
+      gStyle->SetPalette(1,nullptr);          // Rainbow spectrum
 
       //.................................... options generales
       fCnaParHistos->SetViewHistoStyle("Stin");
@@ -2411,8 +2411,8 @@ void TEcnaHistos::TowerCrystalNumbering(const Int_t& SMNumber, const Int_t& n1SM
       fPavComStin->Draw();
       fPavComLVRB->Draw();
   
-      Bool_t b_true = 1; 
-      Bool_t b_false = 0;
+      Bool_t b_true = true; 
+      Bool_t b_false = false;
       gPad->cd(1);
 
       gStyle->SetMarkerColor(couleur_rouge);
@@ -2498,22 +2498,22 @@ void TEcnaHistos::TowerCrystalNumbering(const Int_t& SMNumber, const Int_t& n1SM
 	  sprintf(f_in_hsd, "%d", i_crys_hsd);
 	  text_sm_num->DrawText(xgi_hsd, ygj_hsd, f_in_hsd);
 	}
-      text_sm_num->Delete();   text_sm_num   = 0;        fCdeleteRoot++;
-      text_sme_num->Delete();  text_sme_num  = 0;        fCdeleteRoot++;
-      text_elec_num->Delete(); text_elec_num = 0;        fCdeleteRoot++;
-      text_hsd_num->Delete();  text_hsd_num  = 0;        fCdeleteRoot++;
+      text_sm_num->Delete();   text_sm_num   = nullptr;        fCdeleteRoot++;
+      text_sme_num->Delete();  text_sme_num  = nullptr;        fCdeleteRoot++;
+      text_elec_num->Delete(); text_elec_num = nullptr;        fCdeleteRoot++;
+      text_hsd_num->Delete();  text_hsd_num  = nullptr;        fCdeleteRoot++;
 
       ViewStinGrid(SMNumber, n1SMTow, MatSize, size_eta, size_phi, "CrystalNumbering");
 
       gPad->Update();
       h_gbid->SetStats(b_true);
 
-      h_gbid->Delete();     h_gbid = 0;             fCdeleteRoot++;
+      h_gbid->Delete();     h_gbid = nullptr;             fCdeleteRoot++;
 
-      delete [] f_in;       f_in      = 0;          fCdelete++; 
-      delete [] f_in_sm;    f_in_sm   = 0;          fCdelete++;
-      delete [] f_in_sme;   f_in_sme  = 0;          fCdelete++;
-      delete [] f_in_elec;  f_in_elec = 0;          fCdelete++;
+      delete [] f_in;       f_in      = nullptr;          fCdelete++; 
+      delete [] f_in_sm;    f_in_sm   = nullptr;          fCdelete++;
+      delete [] f_in_sme;   f_in_sme  = nullptr;          fCdelete++;
+      delete [] f_in_elec;  f_in_elec = nullptr;          fCdelete++;
     }
   else
     {
@@ -2576,7 +2576,7 @@ void TEcnaHistos::SCCrystalNumbering(const Int_t& DeeNumber, const Int_t& n1DeeS
       Color_t couleur_rouge      = fCnaParHistos->ColorDefinition("rouge");
       // Color_t couleur_bleu_fonce = fCnaParHistos->ColorDefinition("bleu_fonce");
 
-      gStyle->SetPalette(1,0);          // Rainbow spectrum
+      gStyle->SetPalette(1,nullptr);          // Rainbow spectrum
       //.................................... options generales
       fCnaParHistos->SetViewHistoStyle("Stin");
           
@@ -2605,8 +2605,8 @@ void TEcnaHistos::SCCrystalNumbering(const Int_t& DeeNumber, const Int_t& n1DeeS
       fPavComStin->Draw();
       fPavComCxyz->Draw();
 
-      Bool_t b_true  = 1; 
-      Bool_t b_false = 0;
+      Bool_t b_true  = true; 
+      Bool_t b_false = false;
       gPad->cd(1);
 
       gStyle->SetMarkerColor(couleur_rouge);
@@ -2650,17 +2650,17 @@ void TEcnaHistos::SCCrystalNumbering(const Int_t& DeeNumber, const Int_t& n1DeeS
 	  sprintf(f_in_elec, "%d", i_chan_p);   // offset = +1 (Xtal for construction numbering, CMS NOTE 2006/027)
 	  text_elec_num->DrawText(xgi, ygj, f_in_elec);
 	}
-      text_elec_num->Delete();   text_elec_num = 0;           fCdeleteRoot++;
+      text_elec_num->Delete();   text_elec_num = nullptr;           fCdeleteRoot++;
 
       ViewStinGrid(DeeNumber, n1DeeSCEcna, fEcal->MaxSampADC(), size_IX, size_IY, "CrystalNumbering");
 
       gPad->Update();
       h_gbid->SetStats(b_true);
 
-      h_gbid->Delete();     h_gbid = 0;                         fCdeleteRoot++;
+      h_gbid->Delete();     h_gbid = nullptr;                         fCdeleteRoot++;
 
-      delete [] f_in;       f_in      = 0;          fCdelete++; 
-      delete [] f_in_elec;  f_in_elec = 0;          fCdelete++;
+      delete [] f_in;       f_in      = nullptr;          fCdelete++; 
+      delete [] f_in_elec;  f_in_elec = nullptr;          fCdelete++;
     }
   else
     {
@@ -2826,7 +2826,7 @@ void TEcnaHistos::ViewTowerGrid(const Int_t&  SMNumber,
   
   new TF1("f1", x_direction.Data(), eta_min, eta_max);                fCnewRoot++;
 
-  TGaxis* sup_axis_x = 0;
+  TGaxis* sup_axis_x = nullptr;
 
   if ( x_direction == "-x" )   // NEVER  IN THIS CASE: xmin->xmax <=> right->left ("-x") direction
     {sup_axis_x = new TGaxis( -(Float_t)MatSize, (Float_t)0, (Float_t)(size_eta*MatSize), (Float_t)0.,
@@ -2861,7 +2861,7 @@ void TEcnaHistos::ViewTowerGrid(const Int_t&  SMNumber,
       TString  y_direction = fEcalNumbering->GetYDirectionEB(SMNumber);
   
       new TF1("f2", y_direction.Data(), phi_min, phi_max);               fCnewRoot++;
-      TGaxis* sup_axis_y = 0;
+      TGaxis* sup_axis_y = nullptr;
       
       if ( y_direction == "-x" )  // ALWAYS IN THIS CASE: ymin->ymax <=> top->bottom ("-x") direction
 	{sup_axis_y = new TGaxis( (Float_t)(size_eta*MatSize), (Float_t)0.,
@@ -2889,7 +2889,7 @@ void TEcnaHistos::ViewTowerGrid(const Int_t&  SMNumber,
   TString  jy_direction = fEcalNumbering->GetJYDirectionEB(SMNumber);
 
   new TF1("f3", jy_direction.Data(), j_phi_min, j_phi_max);               fCnewRoot++;
-  TGaxis* sup_axis_jy = 0;
+  TGaxis* sup_axis_jy = nullptr;
 
   sup_axis_jy = new TGaxis( (Float_t)0., (Float_t)0.,
 			    (Float_t)0., (Float_t)(size_phi*MatSize),
@@ -2975,7 +2975,7 @@ void TEcnaHistos::ViewSCGrid(const Int_t& DeeNumber, const Int_t&  n1DeeSCEcna,
   TString  x_var_name  = GetIXIYAxisTitle(StrDee.Data());
   TString  x_direction = fEcalNumbering->GetXDirectionEE(DeeNumber);
 
-  TGaxis* sup_axis_x = 0;
+  TGaxis* sup_axis_x = nullptr;
 
   if( DeeNumber == 1 ) //  -xmin -> -xmax <=> left->right
     {
@@ -3286,10 +3286,10 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 
 	  // std::cout << "*TEcnaHistos::ViewStex(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
 	  
-	  delete [] f_in; f_in = 0;                                 fCdelete++;
+	  delete [] f_in; f_in = nullptr;                                 fCdelete++;
 	  
 	  //------------------------ Canvas draw and update ------------ (ViewStex)  
-	  if( fPavComGeneralTitle != 0 ){fPavComGeneralTitle->Draw();}
+	  if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
 	  fPavComStex->Draw();
 	  fPavComAnaRun->Draw();
 	  fPavComNbOfEvts->Draw();
@@ -3321,13 +3321,13 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	  gPad->Update();
 
 	  //..................... retour aux options standard
-	  Bool_t b_true = 1;
+	  Bool_t b_true = true;
 	  h_geo_bid->SetStats(b_true);    
-	  h_geo_bid->Delete();  h_geo_bid = 0;              fCdeleteRoot++;
+	  h_geo_bid->Delete();  h_geo_bid = nullptr;              fCdeleteRoot++;
 
 	  //      delete MainCanvas;              fCdeleteRoot++;
 	}  // end of if OKData == kTRUE )
-      delete [] f_in_mat_tit;    f_in_mat_tit = 0;                        fCdelete++;
+      delete [] f_in_mat_tit;    f_in_mat_tit = nullptr;                        fCdelete++;
     } // end of if OKFileExists == kTRUE )
   else
     {
@@ -3528,10 +3528,10 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString& Freq)
 	      // std::cout << "*TEcnaHistos::StexHocoVecoLHFCorcc(...)> Plot is displayed on canvas ----> "
 	      //      << f_in << std::endl;
 	      
-	      delete [] f_in; f_in = 0;                                 fCdelete++;
+	      delete [] f_in; f_in = nullptr;                                 fCdelete++;
 	     
 	      //------------ Canvas draw and update ------ (StexHocoVecoLHFCorcc)  
-	      if( fPavComGeneralTitle != 0 ){fPavComGeneralTitle->Draw();}
+	      if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
 	      fPavComStex->Draw();
 	      fPavComAnaRun->Draw();
 	      fPavComNbOfEvts->Draw();
@@ -3564,14 +3564,14 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString& Freq)
 	      gPad->Update();
 
 	      //..................... retour aux options standard
-	      Bool_t b_true = 1;
+	      Bool_t b_true = true;
 	      h_geo_bid->SetStats(b_true);    
-	      h_geo_bid->Delete();   h_geo_bid = 0;             fCdeleteRoot++;
+	      h_geo_bid->Delete();   h_geo_bid = nullptr;             fCdeleteRoot++;
 	      	      
 	      //      delete MainCanvas;              fCdeleteRoot++;
 	    }
 	}
-      delete [] f_in_mat_tit;   f_in_mat_tit = 0;               fCdelete++;
+      delete [] f_in_mat_tit;   f_in_mat_tit = nullptr;               fCdelete++;
     } // end of if ( fMyRootFile->LookAtRootFile() == kTRUE )
   else
     {
@@ -3748,7 +3748,7 @@ void TEcnaHistos::SMTowerNumbering(const Int_t& SMNumber)
 
       // std::cout << "*TEcnaHistosEB::ViewSM(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
   
-      delete [] f_in; f_in = 0;                                 fCdelete++;
+      delete [] f_in; f_in = nullptr;                                 fCdelete++;
 
       //------------------------ Canvas draw and update ------------ (SMTowerNumbering)  
       fPavComStex->Draw();
@@ -3764,14 +3764,14 @@ void TEcnaHistos::SMTowerNumbering(const Int_t& SMNumber)
       gPad->Update();
   
       //..................... retour aux options standard
-      Bool_t b_true = 1;
+      Bool_t b_true = true;
       h_empty_bid->SetStats(b_true);    
   
-      h_empty_bid->Delete();  h_empty_bid = 0;            fCdeleteRoot++;      
+      h_empty_bid->Delete();  h_empty_bid = nullptr;            fCdeleteRoot++;      
   
       //      delete MainCanvas;              fCdeleteRoot++;
   
-      delete [] f_in_mat_tit;  f_in_mat_tit = 0;         fCdelete++;
+      delete [] f_in_mat_tit;  f_in_mat_tit = nullptr;         fCdelete++;
     }
   else
     {
@@ -3830,7 +3830,7 @@ void TEcnaHistos::ViewSMTowerNumberingPad(const Int_t& SMNumber)
       text_SMtow_num->DrawText(x_from_eta, y_from_phi, f_in);  // <=== prend du temps si on mets "T%d" dans le sprintf
     }
 
-  text_SMtow_num->Delete();    text_SMtow_num = 0;         fCdeleteRoot++;
+  text_SMtow_num->Delete();    text_SMtow_num = nullptr;         fCdeleteRoot++;
 
   //.................................................... legende (ViewSMTowerNumberingPad)
   Double_t offset_tow_tex_eta = (Double_t)8.;
@@ -3909,7 +3909,7 @@ void TEcnaHistos::ViewSMTowerNumberingPad(const Int_t& SMNumber)
   text_legend_bleu_expm->Draw();
   //text_legend_bleu_expl->Delete();   text_legend_bleu_expl = 0;          fCdeleteRoot++;
   
-  delete [] f_in;   f_in = 0;                                    fCdelete++;
+  delete [] f_in;   f_in = nullptr;                                    fCdelete++;
 
   gStyle->SetTextColor(couleur_noir);
 }
@@ -4016,7 +4016,7 @@ void TEcnaHistos::ViewSMGrid(const Int_t& SMNumber, const TString& c_option)
 	  //text_num_module->Delete();  text_num_module = 0;    fCdeleteRoot++;     
 	}
     }
-  delete [] f_in;   f_in = 0;    fCdelete++;
+  delete [] f_in;   f_in = nullptr;    fCdelete++;
 
   //------------------ trace axes en eta et phi --------------- ViewSMGrid
 
@@ -4040,7 +4040,7 @@ void TEcnaHistos::ViewSMGrid(const Int_t& SMNumber, const TString& c_option)
   Float_t lab_off_x = fCnaParHistos->AxisLabelOffset("SMx");
 
   new TF1("f1", x_direction.Data(), eta_min, eta_max);          fCnewRoot++;
-    TGaxis* sup_axis_x = 0;
+    TGaxis* sup_axis_x = nullptr;
 
   if( x_direction == "-x" ) // NEVER  IN THIS CASE: xmin->xmax <=> right->left ("-x") direction
     {sup_axis_x = new TGaxis( (Float_t)0., (Float_t)0., (Float_t)(size_eta_sm*MatSize), (Float_t)0.,
@@ -4072,7 +4072,7 @@ void TEcnaHistos::ViewSMGrid(const Int_t& SMNumber, const TString& c_option)
   Float_t lab_off_y = fCnaParHistos->AxisLabelOffset("SMy");
 
   new TF1("f2", y_direction.Data(), phi_min, phi_max);           fCnewRoot++;
-  TGaxis* sup_axis_y = 0;
+  TGaxis* sup_axis_y = nullptr;
   
   if ( y_direction == "-x" ) // ALWAYS IN THIS CASE: ymin->ymax <=> top->bottom ("-x") direction
     {sup_axis_y = new TGaxis(-(Float_t)1.5*(Float_t)size_eta, (Float_t)0.,
@@ -4100,7 +4100,7 @@ void TEcnaHistos::ViewSMGrid(const Int_t& SMNumber, const TString& c_option)
   TString  jy_direction = fEcalNumbering->GetJYDirectionEB(SMNumber);
 
   new TF1("f3", jy_direction.Data(), jphi_min, jphi_max);           fCnewRoot++;
-  TGaxis* sup_axis_jy = 0;
+  TGaxis* sup_axis_jy = nullptr;
   
   //............; essai
   sup_axis_jy = new TGaxis((Float_t)0., (Float_t)0.,
@@ -4162,7 +4162,7 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
 				   nb_binx, xinf_bid,  xsup_bid,
 				   nb_biny, yinf_bid,  ysup_bid);     fCnewRoot++;
   
-      delete [] f_in_mat_tit;  f_in_mat_tit = 0;         fCdelete++;
+      delete [] f_in_mat_tit;  f_in_mat_tit = nullptr;         fCdelete++;
 
       h_empty_bid->Reset();
 
@@ -4193,7 +4193,7 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
 
       // std::cout << "*TEcnaHistosEE::ViewDee(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
   
-      delete [] f_in; f_in = 0;                                 fCdelete++;
+      delete [] f_in; f_in = nullptr;                                 fCdelete++;
 
       //------------------------ Canvas draw and update ------------ (DeeSCNumbering)  
       fPavComStex->Draw();
@@ -4221,10 +4221,10 @@ void TEcnaHistos::DeeSCNumbering(const Int_t& DeeNumber)
       gPad->Update();   // prend beaucoup de temps...
 
       //..................... retour aux options standard
-      Bool_t b_true = 1;
+      Bool_t b_true = true;
       h_empty_bid->SetStats(b_true);    
   
-      h_empty_bid->Delete(); h_empty_bid = 0;             fCdeleteRoot++;      
+      h_empty_bid->Delete(); h_empty_bid = nullptr;             fCdeleteRoot++;      
 
       //      delete MainCanvas;              fCdeleteRoot++;
     }
@@ -4555,7 +4555,7 @@ void TEcnaHistos::ViewDeeSCNumberingPad(const Int_t&   DeeNumber)
   text_colors->SetTextColor(coul_textcolors);
   text_colors->Draw();
 
-  delete [] f_in;  f_in = 0;                                     fCdelete++;
+  delete [] f_in;  f_in = nullptr;                                     fCdelete++;
 
   Color_t couleur_noir = fCnaParHistos->ColorDefinition("noir");
   gStyle->SetTextColor(couleur_noir);
@@ -5058,7 +5058,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
     } // end of for(Int_t iStasStex=0; iStasStex<fEcal->MaxStexInStas(); iStasStex++)
 
   //delete [] NOFE_int;     NOFE_int = 0;       fCdelete++;
-  delete [] xFapNbOfEvts; xFapNbOfEvts = 0;   fCdelete++;
+  delete [] xFapNbOfEvts; xFapNbOfEvts = nullptr;   fCdelete++;
 
   if( CounterExistingFile > 0 && CounterDataExist > 0 )
     {
@@ -5144,10 +5144,10 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 
       // std::cout << "*TEcnaHistos::ViewStas(...)> Plot is displayed on canvas ----> " << f_in << std::endl;
 	  
-      delete [] f_in; f_in = 0;                                 fCdelete++;
+      delete [] f_in; f_in = nullptr;                                 fCdelete++;
 
       //------------------------ Canvas draw and update ------------ (ViewStas)  
-      if( fPavComGeneralTitle != 0 ){fPavComGeneralTitle->Draw();}
+      if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
 
       fPavComStas->Draw();
       fPavComAnaRun->Draw();
@@ -5183,11 +5183,11 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
     }
   //..................... retour aux options standard
 
-  Bool_t b_true = 1;
+  Bool_t b_true = true;
   h_geo_bid->SetStats(b_true);    
-  h_geo_bid->Delete();  h_geo_bid = 0;              fCdeleteRoot++;
+  h_geo_bid->Delete();  h_geo_bid = nullptr;              fCdeleteRoot++;
   
-  delete [] f_in_mat_tit;    f_in_mat_tit = 0;             fCdelete++;
+  delete [] f_in_mat_tit;    f_in_mat_tit = nullptr;             fCdelete++;
 
 }  // end of ViewStas(...)
 
@@ -5367,7 +5367,7 @@ void TEcnaHistos::ViewEBGrid()
   TString  x_direction = fEcalNumbering->GetXDirectionEB(SMNumber);
 
   new TF1("f1", x_direction.Data(), phi_min, phi_max);          fCnewRoot++;
-    TGaxis* sup_axis_x = 0;
+    TGaxis* sup_axis_x = nullptr;
 
   if( x_direction == "-x" ) // NEVER  IN THIS CASE: xmin->xmax <=> right->left ("-x") direction
     {sup_axis_x = new TGaxis( (Float_t)0., (Float_t)0., (Float_t)(size_x_eb*MatSize), (Float_t)0.,
@@ -5400,7 +5400,7 @@ void TEcnaHistos::ViewEBGrid()
 
   TString y_var_name = GetHocoVecoAxisTitle("ietaEB");
 
-  TGaxis* sup_axis_y = 0;
+  TGaxis* sup_axis_y = nullptr;
   sup_axis_y = new TGaxis((Float_t)0., (Float_t)0.,
 			  (Float_t)0., (Float_t)(size_y_eb*MatSize),
 			  eta_min, eta_max, MatSize/2, "SC", 0.);         fCnewRoot++;
@@ -5831,7 +5831,7 @@ void TEcnaHistos::EEDataSectors(const Float_t& coefcc_x,  const Float_t& coefcc_
   text_from_ip->SetTextColor(coul_textfromIP);
   if( opt_plot == "Dee" || (opt_plot == "EE" && DeeNumber == 3) ){text_from_ip->Draw();}
 
-  delete [] f_in;      f_in = 0;                                 fCdelete++;
+  delete [] f_in;      f_in = nullptr;                                 fCdelete++;
 
 }  // ------ end of EEDataSectors() ------
 
@@ -5929,7 +5929,7 @@ void TEcnaHistos::EEGridAxis( const Int_t&   DeeNumber, const TString& opt_plot,
   axis_x_inf += fCnaParHistos->DeeOffsetX(opt_plot, DeeNumber);
   axis_x_sup += fCnaParHistos->DeeOffsetX(opt_plot, DeeNumber);
 
-  TGaxis* sup_axis_x = 0;
+  TGaxis* sup_axis_x = nullptr;
   sup_axis_x = new TGaxis(axis_x_inf, axis_y_inf, axis_x_sup, axis_y_sup,
 			  IX_values_min, IX_values_max, axis_nb_div, chopt, 0.);   fCnewRoot++;
 
@@ -5957,7 +5957,7 @@ void TEcnaHistos::EEGridAxis( const Int_t&   DeeNumber, const TString& opt_plot,
   if( DeeNumber == 1 || DeeNumber == 2 )
     {
       chopt = "CS";
-      TGaxis* sup_axis_x_bis = 0;
+      TGaxis* sup_axis_x_bis = nullptr;
       sup_axis_x_bis = new TGaxis(axis_x_inf, axis_y_inf, axis_x_sup, axis_y_sup,
 				  IX_values_min, IX_values_max, axis_nb_div, chopt, 0.);   fCnewRoot++;
       sup_axis_x_bis->SetTickSize(0.);
@@ -5996,7 +5996,7 @@ void TEcnaHistos::EEGridAxis( const Int_t&   DeeNumber, const TString& opt_plot,
       Float_t lab_off_y = fCnaParHistos->AxisLabelOffset("Deey");
       if(opt_plot == "EE"){lab_off_y = fCnaParHistos->AxisLabelOffset("EEy");}
 
-      TGaxis* axis_jy_plus = 0;
+      TGaxis* axis_jy_plus = nullptr;
       axis_jy_plus = new TGaxis((Float_t)0., (Float_t)0.,
 				(Float_t)0., (Float_t)(size_IY_axis*MatSize),
 				jIY_min, jIY_max, axis_nb_div, "SC", 0.);   fCnewRoot++;
@@ -6478,10 +6478,10 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
   Int_t xCanvasExists = 1; // a priori ==> Canvas exists                                   // (ViewHisto)
   if( opt_plot != fOnlyOnePlot && GetMemoFlag(HistoCode, opt_plot) == "Busy" )
     {
-      TVirtualPad* main_subpad = 0; 
+      TVirtualPad* main_subpad = nullptr; 
       //---------------- Call to ActivePad
       main_subpad = ActivePad(HistoCode.Data(), opt_plot.Data());  // => return 0 if canvas has been closed
-      if( main_subpad == 0 )
+      if( main_subpad == nullptr )
 	{
 	  std::cout << "*TEcnaHistos::ViewHisto(...)> WARNING ===> Canvas has been closed in option SAME or SAME n."
 	       << std::endl
@@ -6928,7 +6928,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		} // end of for(Int_t iStasStex=0; iStasStex<fEcal->MaxStexInStas(); iStasStex++)
 
 	      //delete [] NOFE_int; NOFE_int = 0;               fCdelete++;
-	      delete [] xFapNbOfEvts; xFapNbOfEvts = 0;       fCdelete++;
+	      delete [] xFapNbOfEvts; xFapNbOfEvts = nullptr;       fCdelete++;
 	    
 	      if( CounterExistingFile > 0 && CounterDataExist > 0 ){OKPlot = 1;} 
 	  
@@ -7307,7 +7307,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 			      if( fFlagUserHistoMin == "AUTO" ){XinfProj = h_hisa->GetMinimum();}
 			      if( fFlagUserHistoMax == "AUTO" ){XsupProj = h_hisa->GetMaximum();}
 			      XsupProj += (XsupProj-XinfProj)*fCnaParHistos->GetMarginAutoMinMax(); // to see the last bin
-			      h_hisa->Delete();  h_hisa = 0;     fCdeleteRoot++;
+			      h_hisa->Delete();  h_hisa = nullptr;     fCdeleteRoot++;
 			    } // end of  if( fFlagUserHistoMin == "AUTO" || fFlagUserHistoMax == "AUTO" )
 			  else
 			    {
@@ -7454,7 +7454,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 			    StexStin_A,       i0StinEcha,    i0Sample,
 			    opt_scale_x,      opt_scale_y,   opt_plot, arg_AlreadyRead,
 			    xFlagAutoYsupMargin);
-		  h_his0->Delete();   h_his0 = 0;             fCdeleteRoot++;
+		  h_his0->Delete();   h_his0 = nullptr;             fCdeleteRoot++;
 		  //===========================================================================
 
 		  //--- Recover ymin and ymax from user's values in option SAME n
@@ -7959,10 +7959,10 @@ void TEcnaHistos::ViewHistime(const TString& list_of_run_file_name,
   Int_t xCanvasExists = 1; // a priori ==> SAME plot                                  //   (ViewHistime)
   if( opt_plot != fOnlyOnePlot && GetMemoFlag(HistoCode, opt_plot) == "Busy" )
     {
-      TVirtualPad* main_subpad = 0; 
+      TVirtualPad* main_subpad = nullptr; 
       //---------------- Call to ActivePad
       main_subpad = ActivePad(HistoCode.Data(), opt_plot.Data());  // => return 0 if canvas has been closed
-      if( main_subpad == 0 )
+      if( main_subpad == nullptr )
 	{
 	  std::cout << "*TEcnaHistos::ViewHistime(...)> WARNING ===> Canvas has been closed in option SAME or SAME n."
 	       << std::endl
@@ -8519,14 +8519,14 @@ void TEcnaHistos::ViewHistime(const TString& list_of_run_file_name,
 				opt_scale_x,      opt_scale_y,      opt_plot, arg_AlreadyRead,
 				xFlagAutoYsupMargin);
 
-		      h_his_evol_proj->Delete();   h_his_evol_proj = 0;                         fCdeleteRoot++;
+		      h_his_evol_proj->Delete();   h_his_evol_proj = nullptr;                         fCdeleteRoot++;
 		      //*===> deleter l'histo sinon "Replacing existing histo (potential memory leak)" a l'execution
 
 		    } // end of if( HistoType == "EvolProj" )
 		  //---------------------------------------------------------------------------------- (ViewHistime)
 
-		  delete [] time_coordx;   time_coordx = 0;      fCdelete++;   
-		  delete [] hval_coordy;   hval_coordy = 0;      fCdelete++;  
+		  delete [] time_coordx;   time_coordx = nullptr;      fCdelete++;   
+		  delete [] hval_coordy;   hval_coordy = nullptr;      fCdelete++;  
 		}
 	      else
 		{
@@ -8544,7 +8544,7 @@ void TEcnaHistos::ViewHistime(const TString& list_of_run_file_name,
 	      if( fFlagSubDet == "EB" ){std::cout << " (or [-18,+18])";}
 		std::cout << fTTBELL << std::endl;
 	    }
-	  delete [] exist_indic;  exist_indic = 0;         fCdelete++;
+	  delete [] exist_indic;  exist_indic = nullptr;         fCdelete++;
 	} // end of if( nb_of_runs_in_list > 0 )
       else
 	{
@@ -8704,7 +8704,7 @@ Int_t TEcnaHistos::GetHistoryRunListParameters(const TString& list_of_run_file_n
 	      fFapMaxNbOfRuns = fCnaParHistos->MaxNbOfRunsInLists();
 	    }
 	  //................................. Alloc of the array and init
-	  if( fT1DRunNumber == 0 )
+	  if( fT1DRunNumber == nullptr )
 	    {
 	      if( fFapMaxNbOfRuns > 0 )
 		{
@@ -9163,7 +9163,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 				      opt_plot.Data(),  arg_AlreadyRead, 
 				      StexStin_A,       i0StinEcha,  i0Sample);
   //..................................................... Canvas allocations (HistoPlot)
-  TCanvas* MainCanvas = 0;
+  TCanvas* MainCanvas = nullptr;
 
   if(opt_plot == fOnlyOnePlot && (arg_AlreadyRead == 0 || arg_AlreadyRead == 1 ) )
     {
@@ -9201,8 +9201,8 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
   //                       Set main_subpad and main_pavtxt
   //
   //=============================================================================
-  TVirtualPad* main_subpad = 0; // main_subpad: Pad for the histo
-  TPaveText*   main_pavtxt = 0; // Pave for the "Several Changing" parameters (options SAME and SAME n)
+  TVirtualPad* main_subpad = nullptr; // main_subpad: Pad for the histo
+  TPaveText*   main_pavtxt = nullptr; // Pave for the "Several Changing" parameters (options SAME and SAME n)
 
   Int_t xMemoPlotSame = 1; // a priori ==> SAME plot
 
@@ -9212,7 +9212,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
       if( arg_AlreadyRead == 0 || arg_AlreadyRead == 1 )
 	{
 	  //.................................... Draw titles and paves (pad = main canvas)
-	  if( fPavComGeneralTitle != 0 ){fPavComGeneralTitle->Draw();}
+	  if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
 	  fPavComStex->Draw();
 	  if( !( HistoType == "Global" || HistoType == "Proj" ) ){fPavComStin->Draw(); fPavComXtal->Draw();}
 
@@ -9264,7 +9264,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	  main_pavtxt = ActivePavTxt(HistoCode.Data(), opt_plot.Data());
 
 	  //---------------------------- Set texts for pave "several changing", options SAME and SAME n
-	  if( fPavComGeneralTitle != 0 ){fPavComGeneralTitle->Draw();}
+	  if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
 
 	  main_pavtxt->SetTextAlign(fTextPaveAlign);
 	  main_pavtxt->SetTextFont(fTextPaveFont);
@@ -9381,7 +9381,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	  TText* tt = main_pavtxt->AddText(f_in);
 	  tt->SetTextColor(GetViewHistoColor(HistoCode, opt_plot));
 	  
-	  delete [] f_in;   f_in = 0;                                          fCdelete++;
+	  delete [] f_in;   f_in = nullptr;                                          fCdelete++;
 
 	  //---------------- Draw the "several changing" pave with its text in the Canvas (AT FIRST TIME)
 	  main_pavtxt->Draw();
@@ -9422,7 +9422,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
   //                      "several changing" pave (options SAME and SAME n)
   //                      and Draw Histo
   //=============================================================================
-  if(main_subpad != 0)
+  if(main_subpad != nullptr)
     { 
       if( (opt_plot == fSeveralPlot) || (opt_plot == fSameOnePlot) )
 	{
@@ -9506,7 +9506,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	      MainCanvas->cd(); gStyle->SetOptDate(0);
 	      main_pavtxt->Draw();
 
-	      delete [] f_in;   f_in = 0;                      fCdelete++;
+	      delete [] f_in;   f_in = nullptr;                      fCdelete++;
 	    }
 	  
 	  main_subpad->cd();
@@ -9779,7 +9779,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 		  //text_legend_NotComplete->Draw("SAME");
 		}
 	    }
-	  delete [] f_in;   f_in = 0;                      fCdelete++;
+	  delete [] f_in;   f_in = nullptr;                      fCdelete++;
 	} // end of if( ( opt_plot == fOnlyOnePlot )
 	  // || ( (opt_plot == fSeveralPlot || opt_plot == fSameOnePlot) && xMemoPlotSame == 0 ) )
 
@@ -10068,7 +10068,7 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 	  
   //------------------------------------------------ Canvas allocation	(HistimePlot)
   //......................................... declarations canvas et pad
-  TCanvas*  MainCanvas = 0;
+  TCanvas*  MainCanvas = nullptr;
 
   if( opt_plot == fOnlyOnePlot )
     {MainCanvas = new TCanvas(canvas_name.Data(), canvas_name.Data(), canv_w , canv_h);   fCnewRoot++;
@@ -10117,8 +10117,8 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
   //                       Set main_subpad and main_pavtxt
   //
   //=============================================================================
-  TVirtualPad* main_subpad = 0;  //      main_subpad: Pad for the histo
-  TPaveText*   main_pavtxt = 0;  //      main_pavtxt: pave for changing parameters
+  TVirtualPad* main_subpad = nullptr;  //      main_subpad: Pad for the histo
+  TPaveText*   main_pavtxt = nullptr;  //      main_pavtxt: pave for changing parameters
 
   Int_t xMemoPlotSame = 1;   // a priori ==> SAME plot 
 
@@ -10128,7 +10128,7 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
   if( opt_plot == fOnlyOnePlot )
     {
       //................................. Draw titles and paves (pad = main canvas)
-      if( fPavComGeneralTitle != 0 ){fPavComGeneralTitle->Draw();}
+      if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
       fPavComStex->Draw();
 
       if( !( HistoType == "Global"  || HistoType == "Proj" ) )
@@ -10163,7 +10163,7 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
     {
       if(GetMemoFlag(HistoCode, opt_plot) == "Free")
 	{
-	  if( fPavComGeneralTitle != 0 ){fPavComGeneralTitle->Draw();}
+	  if( fPavComGeneralTitle != nullptr ){fPavComGeneralTitle->Draw();}
 	  fPavComSeveralChanging->Draw();
 
 	  fPavComEvolRuns->Draw();
@@ -10243,7 +10243,7 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 	  TText* tt = main_pavtxt->AddText(f_in);
 	  tt->SetTextColor(GetViewHistoColor(HistoCode, opt_plot));
 
-	  delete [] f_in;      f_in = 0;                                       fCdelete++;
+	  delete [] f_in;      f_in = nullptr;                                       fCdelete++;
 
 	  //---------- Draw the "several changing" pave with its text in the Canvas (FIRST TIME)	(HistimePlot)
 	  main_pavtxt->Draw();
@@ -10281,7 +10281,7 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
   //                      "several changing" pave (options SAME and SAME n)
   //                      Draw Histo
   //=============================================================================
-  if(main_subpad != 0)
+  if(main_subpad != nullptr)
     {
       if(opt_plot == fSeveralPlot || opt_plot == fSameOnePlot)
 	{
@@ -10308,7 +10308,7 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 	      MainCanvas->cd(); gStyle->SetOptDate(0);
 	      main_pavtxt->Draw();
 
-	      delete [] f_in;    f_in = 0;                          fCdelete++;
+	      delete [] f_in;    f_in = nullptr;                          fCdelete++;
 	    }
 	  main_subpad->cd();
 	  Double_t x_low = fCnaParHistos->BoxLeftX("bottom_left_box")   - 0.005;
@@ -10399,7 +10399,7 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 		    }
 		}
 
-	      delete [] f_in;      f_in = 0;                                         fCdelete++;
+	      delete [] f_in;      f_in = nullptr;                                         fCdelete++;
 
 	    }
 	  if(opt_scale_y == fOptScaleLogy)
@@ -10532,7 +10532,7 @@ void TEcnaHistos::TopAxisForHistos(TH1D*        h_his0,              const TStri
 	  ndiv = 5;
 	}
 
-      TGaxis* top_axis_x = 0;
+      TGaxis* top_axis_x = nullptr;
 
       top_axis_x = new TGaxis(Xbegin, Maxih, Xend, Maxih,
 			       v_min, v_max, ndiv, opt, 0.);         fCnewRoot++;
@@ -10569,7 +10569,7 @@ void TEcnaHistos::TopAxisForHistos(TH1D*        h_his0,              const TStri
 	  if(fFapStexNumber == 3 || fFapStexNumber == 4 ){opt = "MS";} 
 	  ndiv = 4;
 	  if( fFapStexNumber > 0 ){ndiv = 5;}
-	  TGaxis* top_axis_x_bis = 0;
+	  TGaxis* top_axis_x_bis = nullptr;
 	  top_axis_x_bis = new TGaxis(Xbegin, Maxih, Xend, Maxih,
 				      v_min_p, v_max_p, ndiv, opt, 0.);   fCnewRoot++;
 	  top_axis_x_bis->SetTickSize(0.);
@@ -11030,7 +11030,7 @@ TString TEcnaHistos::SetCanvasName(const TString& HistoCode,
     }
   
   canvas_name = f_in;
-  delete [] f_in;    f_in = 0;              fCdelete++;
+  delete [] f_in;    f_in = nullptr;              fCdelete++;
   return canvas_name.Data();
   
 }  // end of CanvasName()
@@ -12372,7 +12372,7 @@ TCanvas* TEcnaHistos::CreateCanvas(const TString& HistoCode, const TString& opt_
 {
 // Create canvas according to HistoCode
 
-  TCanvas* main_canvas = 0;
+  TCanvas* main_canvas = nullptr;
  
   if( opt_plot == fSameOnePlot )
     {
@@ -12757,7 +12757,7 @@ void TEcnaHistos::SetParametersCanvas(const TString& HistoCode, const TString& o
 
 TCanvas* TEcnaHistos::GetCurrentCanvas(const TString& HistoCode, const TString& opt_plot)
 {
-  TCanvas* main_canvas = 0;
+  TCanvas* main_canvas = nullptr;
 
   if( opt_plot == fSameOnePlot ){main_canvas = fCanvH1SamePlus;}
 
@@ -12805,9 +12805,9 @@ TString  TEcnaHistos::GetCurrentCanvasName(){return fCurrentCanvasName;}
 
 void TEcnaHistos::PlotCloneOfCurrentCanvas()
 {
-  if( fCurrentCanvas != 0)
+  if( fCurrentCanvas != nullptr)
     {
-      if( (TCanvasImp*)fCurrentCanvas->GetCanvasImp() != 0 )
+      if( (TCanvasImp*)fCurrentCanvas->GetCanvasImp() != nullptr )
 	{
 	  static_cast<TCanvas*>(fCurrentCanvas)->DrawClone();
 	}
@@ -12830,7 +12830,7 @@ TVirtualPad* TEcnaHistos::ActivePad(const TString& HistoCode, const TString& opt
 {
 // Active Pad for Same plot option
 
-  TVirtualPad* main_subpad = 0;
+  TVirtualPad* main_subpad = nullptr;
 
   fCurrentHistoCode = HistoCode;
   fCurrentOptPlot   = opt_plot;
@@ -12973,7 +12973,7 @@ TVirtualPad* TEcnaHistos::ActivePad(const TString& HistoCode, const TString& opt
 	if( fClosedH_SCs_RuDs == kFALSE ){main_subpad = fPadH_SCs_RuDs;}}
     }
     
-  if( main_subpad == 0 )
+  if( main_subpad == nullptr )
     {std::cout << "*TEcnaHistos::ActivePad(...)> main_subpad = "
 	  << main_subpad << ". This canvas has been closed." << std::endl;}
 
@@ -13075,7 +13075,7 @@ TPaveText* TEcnaHistos::ActivePavTxt(const TString& HistoCode, const TString& op
 {
   // Active Pad for Same plot option
 
-  TPaveText* main_pavtxt = 0;
+  TPaveText* main_pavtxt = nullptr;
   
   if( opt_plot == fSameOnePlot ){main_pavtxt = fPavTxtH1SamePlus;}
   
@@ -13115,7 +13115,7 @@ TPaveText* TEcnaHistos::ActivePavTxt(const TString& HistoCode, const TString& op
       if(HistoCode == "H_SCs_RuDs"){main_pavtxt = fPavTxtH_SCs_RuDs;}
     }
   
-  if( main_pavtxt == 0 )
+  if( main_pavtxt == nullptr )
     {std::cout << "*TEcnaHistos::ActivePavTxt(...)> ERROR: main_pavtxt = " << main_pavtxt << std::endl;}
 
   return main_pavtxt;
@@ -13646,10 +13646,10 @@ void TEcnaHistos::NewCanvas(const TString& opt_plot)
 
   if( opt_plot == fSameOnePlot )
     {
-      fImpH1SamePlus = 0;       fCanvH1SamePlus = 0;
-      fPadH1SamePlus = 0;       fMemoPlotH1SamePlus = 0;
+      fImpH1SamePlus = nullptr;       fCanvH1SamePlus = nullptr;
+      fPadH1SamePlus = nullptr;       fMemoPlotH1SamePlus = 0;
       fMemoColorH1SamePlus = 0; fCanvSameH1SamePlus++;
-      fPavTxtH1SamePlus = 0;    fClosedH1SamePlus = kFALSE;
+      fPavTxtH1SamePlus = nullptr;    fClosedH1SamePlus = kFALSE;
     }
   else
     {
@@ -13665,195 +13665,195 @@ void TEcnaHistos::ReInitCanvas(const TString& HistoCode, const TString& opt_plot
 
   if( opt_plot == fSameOnePlot )
     {
-      fImpH1SamePlus = 0;       fCanvH1SamePlus = 0;
-      fPadH1SamePlus = 0;       fMemoPlotH1SamePlus = 0;
+      fImpH1SamePlus = nullptr;       fCanvH1SamePlus = nullptr;
+      fPadH1SamePlus = nullptr;       fMemoPlotH1SamePlus = 0;
       fMemoColorH1SamePlus = 0; fCanvSameH1SamePlus++;
-      fPavTxtH1SamePlus = 0;    fClosedH1SamePlus = kFALSE;
+      fPavTxtH1SamePlus = nullptr;    fClosedH1SamePlus = kFALSE;
     }
 
   if( opt_plot == fOnlyOnePlot ||  opt_plot == fSeveralPlot)
     {
       if(HistoCode == "D_NOE_ChNb")
 	{	      
-	  fImpD_NOE_ChNb = 0;       fCanvD_NOE_ChNb = 0;
-	  fPadD_NOE_ChNb = 0;       fMemoPlotD_NOE_ChNb = 0;
+	  fImpD_NOE_ChNb = nullptr;       fCanvD_NOE_ChNb = nullptr;
+	  fPadD_NOE_ChNb = nullptr;       fMemoPlotD_NOE_ChNb = 0;
 	  fMemoColorD_NOE_ChNb = 0; fCanvSameD_NOE_ChNb++;
-	  fPavTxtD_NOE_ChNb = 0;    fClosedD_NOE_ChNb = kFALSE;
+	  fPavTxtD_NOE_ChNb = nullptr;    fClosedD_NOE_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_NOE_ChDs")
 	{	      
-	  fImpD_NOE_ChDs = 0;       fCanvD_NOE_ChDs = 0;
-	  fPadD_NOE_ChDs = 0;       fMemoPlotD_NOE_ChDs = 0;
+	  fImpD_NOE_ChDs = nullptr;       fCanvD_NOE_ChDs = nullptr;
+	  fPadD_NOE_ChDs = nullptr;       fMemoPlotD_NOE_ChDs = 0;
 	  fMemoColorD_NOE_ChDs = 0; fCanvSameD_NOE_ChDs++;
-	  fPavTxtD_NOE_ChDs = 0;    fClosedD_NOE_ChDs = kFALSE;
+	  fPavTxtD_NOE_ChDs = nullptr;    fClosedD_NOE_ChDs = kFALSE;
 	}
       
       if(HistoCode == "D_Ped_ChNb")                            // (ReInitCanvas)
 	{	      
-	  fImpD_Ped_ChNb = 0;       fCanvD_Ped_ChNb = 0;
-	  fPadD_Ped_ChNb = 0;       fMemoPlotD_Ped_ChNb = 0;
+	  fImpD_Ped_ChNb = nullptr;       fCanvD_Ped_ChNb = nullptr;
+	  fPadD_Ped_ChNb = nullptr;       fMemoPlotD_Ped_ChNb = 0;
 	  fMemoColorD_Ped_ChNb = 0; fCanvSameD_Ped_ChNb++;
-	  fPavTxtD_Ped_ChNb = 0;    fClosedD_Ped_ChNb = kFALSE;
+	  fPavTxtD_Ped_ChNb = nullptr;    fClosedD_Ped_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_Ped_ChDs")
 	{	      
-	  fImpD_Ped_ChDs = 0;       fCanvD_Ped_ChDs = 0;
-	  fPadD_Ped_ChDs = 0;       fMemoPlotD_Ped_ChDs = 0;
+	  fImpD_Ped_ChDs = nullptr;       fCanvD_Ped_ChDs = nullptr;
+	  fPadD_Ped_ChDs = nullptr;       fMemoPlotD_Ped_ChDs = 0;
 	  fMemoColorD_Ped_ChDs = 0; fCanvSameD_Ped_ChDs++;
-	  fPavTxtD_Ped_ChDs = 0;    fClosedD_Ped_ChDs = kFALSE;
+	  fPavTxtD_Ped_ChDs = nullptr;    fClosedD_Ped_ChDs = kFALSE;
 	}
       
       if(HistoCode == "D_TNo_ChNb")
 	{	      
-	  fImpD_TNo_ChNb = 0;       fCanvD_TNo_ChNb = 0;
-	  fPadD_TNo_ChNb = 0;       fMemoPlotD_TNo_ChNb = 0;
+	  fImpD_TNo_ChNb = nullptr;       fCanvD_TNo_ChNb = nullptr;
+	  fPadD_TNo_ChNb = nullptr;       fMemoPlotD_TNo_ChNb = 0;
 	  fMemoColorD_TNo_ChNb = 0; fCanvSameD_TNo_ChNb++;
-	  fPavTxtD_TNo_ChNb = 0;    fClosedD_TNo_ChNb = kFALSE;
+	  fPavTxtD_TNo_ChNb = nullptr;    fClosedD_TNo_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_TNo_ChDs") 
 	{	      
-	  fImpD_TNo_ChDs = 0;       fCanvD_TNo_ChDs = 0;
-	  fPadD_TNo_ChDs = 0;       fMemoPlotD_TNo_ChDs = 0;
+	  fImpD_TNo_ChDs = nullptr;       fCanvD_TNo_ChDs = nullptr;
+	  fPadD_TNo_ChDs = nullptr;       fMemoPlotD_TNo_ChDs = 0;
 	  fMemoColorD_TNo_ChDs = 0; fCanvSameD_TNo_ChDs++;
-	  fPavTxtD_TNo_ChDs = 0;    fClosedD_TNo_ChDs = kFALSE;
+	  fPavTxtD_TNo_ChDs = nullptr;    fClosedD_TNo_ChDs = kFALSE;
 	}
       
       if(HistoCode == "D_MCs_ChNb")                           // (ReInitCanvas)
 	{	      
-	  fImpD_MCs_ChNb = 0;       fCanvD_MCs_ChNb = 0;
-	  fPadD_MCs_ChNb = 0;       fMemoPlotD_MCs_ChNb = 0;
+	  fImpD_MCs_ChNb = nullptr;       fCanvD_MCs_ChNb = nullptr;
+	  fPadD_MCs_ChNb = nullptr;       fMemoPlotD_MCs_ChNb = 0;
 	  fMemoColorD_MCs_ChNb = 0; fCanvSameD_MCs_ChNb++;
-	  fPavTxtD_MCs_ChNb = 0;    fClosedD_MCs_ChNb = kFALSE;
+	  fPavTxtD_MCs_ChNb = nullptr;    fClosedD_MCs_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_MCs_ChDs")
 	{	      
-	  fImpD_MCs_ChDs = 0;       fCanvD_MCs_ChDs = 0;
-	  fPadD_MCs_ChDs = 0;       fMemoPlotD_MCs_ChDs = 0;
+	  fImpD_MCs_ChDs = nullptr;       fCanvD_MCs_ChDs = nullptr;
+	  fPadD_MCs_ChDs = nullptr;       fMemoPlotD_MCs_ChDs = 0;
 	  fMemoColorD_MCs_ChDs = 0; fCanvSameD_MCs_ChDs++;
-	  fPavTxtD_MCs_ChDs = 0;    fClosedD_MCs_ChDs = kFALSE;
+	  fPavTxtD_MCs_ChDs = nullptr;    fClosedD_MCs_ChDs = kFALSE;
 	}
 
       if(HistoCode == "D_LFN_ChNb")
 	{	      
-	  fImpD_LFN_ChNb = 0;       fCanvD_LFN_ChNb = 0;
-	  fPadD_LFN_ChNb = 0;       fMemoPlotD_LFN_ChNb = 0;
+	  fImpD_LFN_ChNb = nullptr;       fCanvD_LFN_ChNb = nullptr;
+	  fPadD_LFN_ChNb = nullptr;       fMemoPlotD_LFN_ChNb = 0;
 	  fMemoColorD_LFN_ChNb = 0; fCanvSameD_LFN_ChNb++;
-	  fPavTxtD_LFN_ChNb = 0;    fClosedD_LFN_ChNb = kFALSE;
+	  fPavTxtD_LFN_ChNb = nullptr;    fClosedD_LFN_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_LFN_ChDs")                            // (ReInitCanvas)
 	{	      
-	  fImpD_LFN_ChDs = 0;       fCanvD_LFN_ChDs = 0;
-	  fPadD_LFN_ChDs= 0;        fMemoPlotD_LFN_ChDs = 0;
+	  fImpD_LFN_ChDs = nullptr;       fCanvD_LFN_ChDs = nullptr;
+	  fPadD_LFN_ChDs= nullptr;        fMemoPlotD_LFN_ChDs = 0;
 	  fMemoColorD_LFN_ChDs = 0; fCanvSameD_LFN_ChDs++;
-	  fPavTxtD_LFN_ChDs= 0;     fClosedD_LFN_ChDs = kFALSE;
+	  fPavTxtD_LFN_ChDs= nullptr;     fClosedD_LFN_ChDs = kFALSE;
 	}
       
       if(HistoCode == "D_HFN_ChNb")
 	{	      
-	  fImpD_HFN_ChNb = 0;       fCanvD_HFN_ChNb = 0;
-	  fPadD_HFN_ChNb = 0;       fMemoPlotD_HFN_ChNb = 0;
+	  fImpD_HFN_ChNb = nullptr;       fCanvD_HFN_ChNb = nullptr;
+	  fPadD_HFN_ChNb = nullptr;       fMemoPlotD_HFN_ChNb = 0;
 	  fMemoColorD_HFN_ChNb = 0; fCanvSameD_HFN_ChNb++;
-	  fPavTxtD_HFN_ChNb = 0;    fClosedD_HFN_ChNb = kFALSE;
+	  fPavTxtD_HFN_ChNb = nullptr;    fClosedD_HFN_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_HFN_ChDs")
 	{	      
-	  fImpD_HFN_ChDs = 0;       fCanvD_HFN_ChDs = 0;
-	  fPadD_HFN_ChDs = 0;       fMemoPlotD_HFN_ChDs = 0;
+	  fImpD_HFN_ChDs = nullptr;       fCanvD_HFN_ChDs = nullptr;
+	  fPadD_HFN_ChDs = nullptr;       fMemoPlotD_HFN_ChDs = 0;
 	  fMemoColorD_HFN_ChDs = 0; fCanvSameD_HFN_ChDs++;
-	  fPavTxtD_HFN_ChDs = 0;    fClosedD_HFN_ChDs = kFALSE;
+	  fPavTxtD_HFN_ChDs = nullptr;    fClosedD_HFN_ChDs = kFALSE;
 	}
       
       if(HistoCode == "D_SCs_ChNb")
 	{	      
-	  fImpD_SCs_ChNb = 0;       fCanvD_SCs_ChNb = 0;
-	  fPadD_SCs_ChNb = 0;       fMemoPlotD_SCs_ChNb = 0;
+	  fImpD_SCs_ChNb = nullptr;       fCanvD_SCs_ChNb = nullptr;
+	  fPadD_SCs_ChNb = nullptr;       fMemoPlotD_SCs_ChNb = 0;
 	  fMemoColorD_SCs_ChNb = 0; fCanvSameD_SCs_ChNb++;
-	  fPavTxtD_SCs_ChNb = 0;    fClosedD_SCs_ChNb = kFALSE;
+	  fPavTxtD_SCs_ChNb = nullptr;    fClosedD_SCs_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_SCs_ChDs")                            // (ReInitCanvas)
 	{	      
-	  fImpD_SCs_ChDs = 0;       fCanvD_SCs_ChDs = 0;
-	  fPadD_SCs_ChDs = 0;       fMemoPlotD_SCs_ChDs = 0;
+	  fImpD_SCs_ChDs = nullptr;       fCanvD_SCs_ChDs = nullptr;
+	  fPadD_SCs_ChDs = nullptr;       fMemoPlotD_SCs_ChDs = 0;
 	  fMemoColorD_SCs_ChDs = 0; fCanvSameD_SCs_ChDs++;
-	  fPavTxtD_SCs_ChDs = 0;    fClosedD_SCs_ChDs = kFALSE;
+	  fPavTxtD_SCs_ChDs = nullptr;    fClosedD_SCs_ChDs = kFALSE;
 	}
       
       if(HistoCode == "D_MSp_SpNb")
 	{	      
-	  fImpD_MSp_SpNb = 0;       fCanvD_MSp_SpNb = 0;
-	  fPadD_MSp_SpNb = 0;       fMemoPlotD_MSp_SpNb = 0; 
+	  fImpD_MSp_SpNb = nullptr;       fCanvD_MSp_SpNb = nullptr;
+	  fPadD_MSp_SpNb = nullptr;       fMemoPlotD_MSp_SpNb = 0; 
 	  fMemoColorD_MSp_SpNb = 0; fCanvSameD_MSp_SpNb++;
-	  fPavTxtD_MSp_SpNb = 0;    fClosedD_MSp_SpNb = kFALSE;
+	  fPavTxtD_MSp_SpNb = nullptr;    fClosedD_MSp_SpNb = kFALSE;
 	}
             
       if(HistoCode == "D_MSp_SpDs")
 	{	      
-	  fImpD_MSp_SpDs = 0;       fCanvD_MSp_SpDs = 0;
-	  fPadD_MSp_SpDs = 0;       fMemoPlotD_MSp_SpDs = 0; 
+	  fImpD_MSp_SpDs = nullptr;       fCanvD_MSp_SpDs = nullptr;
+	  fPadD_MSp_SpDs = nullptr;       fMemoPlotD_MSp_SpDs = 0; 
 	  fMemoColorD_MSp_SpDs = 0; fCanvSameD_MSp_SpDs++;
-	  fPavTxtD_MSp_SpDs = 0;    fClosedD_MSp_SpDs = kFALSE;
+	  fPavTxtD_MSp_SpDs = nullptr;    fClosedD_MSp_SpDs = kFALSE;
 	}
       
       if(HistoCode == "D_SSp_SpNb")
 	{	      
-	  fImpD_SSp_SpNb = 0;       fCanvD_SSp_SpNb = 0;
-	  fPadD_SSp_SpNb = 0;       fMemoPlotD_SSp_SpNb= 0;
+	  fImpD_SSp_SpNb = nullptr;       fCanvD_SSp_SpNb = nullptr;
+	  fPadD_SSp_SpNb = nullptr;       fMemoPlotD_SSp_SpNb= 0;
 	  fMemoColorD_SSp_SpNb = 0; fCanvSameD_SSp_SpNb++;
-	  fPavTxtD_SSp_SpNb = 0;    fClosedD_SSp_SpNb = kFALSE;
+	  fPavTxtD_SSp_SpNb = nullptr;    fClosedD_SSp_SpNb = kFALSE;
 	}
 
       if(HistoCode == "D_SSp_SpDs")
 	{	      
-	  fImpD_SSp_SpDs = 0;       fCanvD_SSp_SpDs = 0;
-	  fPadD_SSp_SpDs = 0;       fMemoPlotD_SSp_SpDs= 0;
+	  fImpD_SSp_SpDs = nullptr;       fCanvD_SSp_SpDs = nullptr;
+	  fPadD_SSp_SpDs = nullptr;       fMemoPlotD_SSp_SpDs= 0;
 	  fMemoColorD_SSp_SpDs = 0; fCanvSameD_SSp_SpDs++;
-	  fPavTxtD_SSp_SpDs = 0;    fClosedD_SSp_SpDs = kFALSE;
+	  fPavTxtD_SSp_SpDs = nullptr;    fClosedD_SSp_SpDs = kFALSE;
 	}
 
       if(HistoCode == "D_Adc_EvNb")                            // (ReInitCanvas)
 	{	      
-	  fImpD_Adc_EvNb = 0;       fCanvD_Adc_EvNb = 0;
-	  fPadD_Adc_EvNb = 0;       fMemoPlotD_Adc_EvNb = 0;
+	  fImpD_Adc_EvNb = nullptr;       fCanvD_Adc_EvNb = nullptr;
+	  fPadD_Adc_EvNb = nullptr;       fMemoPlotD_Adc_EvNb = 0;
 	  fMemoColorD_Adc_EvNb = 0; fCanvSameD_Adc_EvNb++;
-	  fPavTxtD_Adc_EvNb = 0;    fClosedD_Adc_EvNb = kFALSE;
+	  fPavTxtD_Adc_EvNb = nullptr;    fClosedD_Adc_EvNb = kFALSE;
 	}
        
       if(HistoCode == "D_Adc_EvDs")
 	{	      
-	  fImpD_Adc_EvDs = 0;       fCanvD_Adc_EvDs = 0;
-	  fPadD_Adc_EvDs = 0;       fMemoPlotD_Adc_EvDs = 0;
+	  fImpD_Adc_EvDs = nullptr;       fCanvD_Adc_EvDs = nullptr;
+	  fPadD_Adc_EvDs = nullptr;       fMemoPlotD_Adc_EvDs = 0;
 	  fMemoColorD_Adc_EvDs = 0; fCanvSameD_Adc_EvDs++;
-	  fPavTxtD_Adc_EvDs = 0;    fClosedD_Adc_EvDs = kFALSE;
+	  fPavTxtD_Adc_EvDs = nullptr;    fClosedD_Adc_EvDs = kFALSE;
 	}
           
  
       if(HistoCode == "H_Ped_Date")
 	{	      
-	  fImpH_Ped_Date = 0;         fCanvH_Ped_Date = 0;
-	  fPadH_Ped_Date = 0;         fMemoPlotH_Ped_Date = 0;
+	  fImpH_Ped_Date = nullptr;         fCanvH_Ped_Date = nullptr;
+	  fPadH_Ped_Date = nullptr;         fMemoPlotH_Ped_Date = 0;
 	  fMemoColorH_Ped_Date = 0;   fCanvSameH_Ped_Date++;
 	  fNbOfListFileH_Ped_Date = 0;fClosedH_Ped_Date = kFALSE;
 	}
 
       if(HistoCode == "H_TNo_Date")
 	{	      
-	  fImpH_TNo_Date = 0;          fCanvH_TNo_Date = 0;
-	  fPadH_TNo_Date = 0;          fMemoPlotH_TNo_Date = 0;
+	  fImpH_TNo_Date = nullptr;          fCanvH_TNo_Date = nullptr;
+	  fPadH_TNo_Date = nullptr;          fMemoPlotH_TNo_Date = 0;
 	  fMemoColorH_TNo_Date = 0;    fCanvSameH_TNo_Date++;
 	  fNbOfListFileH_TNo_Date = 0; fClosedH_TNo_Date = kFALSE;
 	}
 
       if(HistoCode == "H_MCs_Date")                            // (ReInitCanvas)
 	{	      
-	  fImpH_MCs_Date = 0;          fCanvH_MCs_Date = 0;
-	  fPadH_MCs_Date = 0;          fMemoPlotH_MCs_Date = 0;
+	  fImpH_MCs_Date = nullptr;          fCanvH_MCs_Date = nullptr;
+	  fPadH_MCs_Date = nullptr;          fMemoPlotH_MCs_Date = 0;
 	  fMemoColorH_MCs_Date = 0;    fCanvSameH_MCs_Date++;
 	  fNbOfListFileH_MCs_Date = 0; fClosedH_MCs_Date = kFALSE;
 	}
@@ -13861,48 +13861,48 @@ void TEcnaHistos::ReInitCanvas(const TString& HistoCode, const TString& opt_plot
       
       if(HistoCode == "H_LFN_Date")
 	{	      
-	  fImpH_LFN_Date = 0;          fCanvH_LFN_Date = 0;
-	  fPadH_LFN_Date = 0;          fMemoPlotH_LFN_Date = 0;
+	  fImpH_LFN_Date = nullptr;          fCanvH_LFN_Date = nullptr;
+	  fPadH_LFN_Date = nullptr;          fMemoPlotH_LFN_Date = 0;
 	  fMemoColorH_LFN_Date = 0;    fCanvSameH_LFN_Date++;
 	  fNbOfListFileH_LFN_Date = 0; fClosedH_LFN_Date = kFALSE;
 	}
 
       if(HistoCode == "H_HFN_Date")
 	{	      
-	  fImpH_HFN_Date = 0;          fCanvH_HFN_Date = 0;
-	  fPadH_HFN_Date = 0;          fMemoPlotH_HFN_Date = 0;
+	  fImpH_HFN_Date = nullptr;          fCanvH_HFN_Date = nullptr;
+	  fPadH_HFN_Date = nullptr;          fMemoPlotH_HFN_Date = 0;
 	  fMemoColorH_HFN_Date = 0;    fCanvSameH_HFN_Date++;
 	  fNbOfListFileH_HFN_Date = 0; fClosedH_HFN_Date = kFALSE;
 	}
 
       if(HistoCode == "H_SCs_Date")
 	{	      
-	  fImpH_SCs_Date = 0;          fCanvH_SCs_Date = 0;
-	  fPadH_SCs_Date = 0;          fMemoPlotH_SCs_Date = 0;
+	  fImpH_SCs_Date = nullptr;          fCanvH_SCs_Date = nullptr;
+	  fPadH_SCs_Date = nullptr;          fMemoPlotH_SCs_Date = 0;
 	  fMemoColorH_SCs_Date = 0;    fCanvSameH_SCs_Date++;
 	  fNbOfListFileH_SCs_Date = 0; fClosedH_SCs_Date = kFALSE;
 	}
 
       if(HistoCode == "H_Ped_RuDs")
 	{	      
-	  fImpH_Ped_RuDs = 0;          fCanvH_Ped_RuDs = 0;
-	  fPadH_Ped_RuDs = 0;          fMemoPlotH_Ped_RuDs = 0;
+	  fImpH_Ped_RuDs = nullptr;          fCanvH_Ped_RuDs = nullptr;
+	  fPadH_Ped_RuDs = nullptr;          fMemoPlotH_Ped_RuDs = 0;
 	  fMemoColorH_Ped_RuDs = 0;    fCanvSameH_Ped_RuDs++;
 	  fNbOfListFileH_Ped_RuDs = 0; fClosedH_Ped_RuDs = kFALSE;
 	}
 
       if(HistoCode == "H_TNo_RuDs")
 	{	      
-	  fImpH_TNo_RuDs = 0;          fCanvH_TNo_RuDs = 0;
-	  fPadH_TNo_RuDs = 0;          fMemoPlotH_TNo_RuDs = 0;
+	  fImpH_TNo_RuDs = nullptr;          fCanvH_TNo_RuDs = nullptr;
+	  fPadH_TNo_RuDs = nullptr;          fMemoPlotH_TNo_RuDs = 0;
 	  fMemoColorH_TNo_RuDs = 0;    fCanvSameH_TNo_RuDs++;
 	  fNbOfListFileH_TNo_RuDs = 0; fClosedH_TNo_RuDs = kFALSE;
 	}
 
       if(HistoCode == "H_MCs_RuDs")                            // (ReInitCanvas)
 	{	      
-	  fImpH_MCs_RuDs = 0;          fCanvH_MCs_RuDs = 0;
-	  fPadH_MCs_RuDs = 0;          fMemoPlotH_MCs_RuDs = 0;
+	  fImpH_MCs_RuDs = nullptr;          fCanvH_MCs_RuDs = nullptr;
+	  fPadH_MCs_RuDs = nullptr;          fMemoPlotH_MCs_RuDs = 0;
 	  fMemoColorH_MCs_RuDs = 0;    fCanvSameH_MCs_RuDs++;
 	  fNbOfListFileH_MCs_RuDs = 0; fClosedH_MCs_RuDs = kFALSE;
 	}
@@ -13910,24 +13910,24 @@ void TEcnaHistos::ReInitCanvas(const TString& HistoCode, const TString& opt_plot
       
       if(HistoCode == "H_LFN_RuDs")
 	{	      
-	  fImpH_LFN_RuDs = 0;          fCanvH_LFN_RuDs = 0;
-	  fPadH_LFN_RuDs = 0;          fMemoPlotH_LFN_RuDs = 0;
+	  fImpH_LFN_RuDs = nullptr;          fCanvH_LFN_RuDs = nullptr;
+	  fPadH_LFN_RuDs = nullptr;          fMemoPlotH_LFN_RuDs = 0;
 	  fMemoColorH_LFN_RuDs = 0;    fCanvSameH_LFN_RuDs++;
 	  fNbOfListFileH_LFN_RuDs = 0; fClosedH_LFN_RuDs = kFALSE;
 	}
 
       if(HistoCode == "H_HFN_RuDs")
 	{	      
-	  fImpH_HFN_RuDs = 0;          fCanvH_HFN_RuDs = 0;
-	  fPadH_HFN_RuDs = 0;          fMemoPlotH_HFN_RuDs = 0;
+	  fImpH_HFN_RuDs = nullptr;          fCanvH_HFN_RuDs = nullptr;
+	  fPadH_HFN_RuDs = nullptr;          fMemoPlotH_HFN_RuDs = 0;
 	  fMemoColorH_HFN_RuDs = 0;    fCanvSameH_HFN_RuDs++;
 	  fNbOfListFileH_HFN_RuDs = 0; fClosedH_HFN_RuDs = kFALSE;
 	}
 
       if(HistoCode == "H_SCs_RuDs")
 	{	      
-	  fImpH_SCs_RuDs = 0;          fCanvH_SCs_RuDs = 0;
-	  fPadH_SCs_RuDs = 0;          fMemoPlotH_SCs_RuDs = 0;
+	  fImpH_SCs_RuDs = nullptr;          fCanvH_SCs_RuDs = nullptr;
+	  fPadH_SCs_RuDs = nullptr;          fMemoPlotH_SCs_RuDs = 0;
 	  fMemoColorH_SCs_RuDs = 0;    fCanvSameH_SCs_RuDs++;
 	  fNbOfListFileH_SCs_RuDs = 0; fClosedH_SCs_RuDs = kFALSE;
 	}

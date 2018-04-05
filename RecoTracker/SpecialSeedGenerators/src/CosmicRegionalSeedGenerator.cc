@@ -57,10 +57,10 @@ CosmicRegionalSeedGenerator::CosmicRegionalSeedGenerator(edm::ParameterSet const
 					       << "Reco L2 muons collection: "     << recoL2MuonsCollection_;
 }
    
-std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSeedGenerator::regions(const edm::Event& event, const edm::EventSetup& es) const
+std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::regions(const edm::Event& event, const edm::EventSetup& es) const
 {
 
-  std::vector<TrackingRegion* > result;
+  std::vector<std::unique_ptr<TrackingRegion> > result;
 
 
   const MeasurementTrackerEvent *measurementTracker = nullptr;
@@ -204,24 +204,19 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
 	
       //definition of the region
 
-      CosmicTrackingRegion *etaphiRegion = new CosmicTrackingRegion((-1)*regionMom,
-								    center,
-								    ptMin_,
-								    rVertex_,
-								    zVertex_,
-								    deltaEta_,
-								    deltaPhi_,
-								    regionPSet,
-								    measurementTracker);
-
-
-
-      //return the result
-      result.push_back(etaphiRegion);      
+      result.push_back(std::make_unique<CosmicTrackingRegion>((-1)*regionMom,
+                                                              center,
+                                                              ptMin_,
+                                                              rVertex_,
+                                                              zVertex_,
+                                                              deltaEta_,
+                                                              deltaPhi_,
+                                                              regionPSet,
+                                                              measurementTracker));
 
       LogDebug("CosmicRegionalSeedGenerator")   << "Final CosmicTrackingRegion \n "
 						<< "Position = "<< center << "\n "
-						<< "Direction = "<< etaphiRegion->direction() << "\n "
+						<< "Direction = "<< result.back()->direction() << "\n "
 						<< "Distance from the region on the layer = " << (regionPosition -center).mag() << "\n "
 						<< "Eta = " << center.eta() << "\n "
 						<< "Phi = " << center.phi();
@@ -358,23 +353,19 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
       }// end if doJetsExclusionCheck
 
       //definition of the region
-      CosmicTrackingRegion *etaphiRegion = new CosmicTrackingRegion((-1)*regionMom,
-								    center,
-								    ptMin_,
-								    rVertex_,
-								    zVertex_,
-								    deltaEta_,
-								    deltaPhi_,
-								    regionPSet,
-								    measurementTracker);
-      
-
-      //return the result
-      result.push_back(etaphiRegion);      
+      result.push_back(std::make_unique<CosmicTrackingRegion>((-1)*regionMom,
+                                                              center,
+                                                              ptMin_,
+                                                              rVertex_,
+                                                              zVertex_,
+                                                              deltaEta_,
+                                                              deltaPhi_,
+                                                              regionPSet,
+                                                              measurementTracker));
 
       LogDebug("CosmicRegionalSeedGenerator")   << "Final CosmicTrackingRegion \n "
 						<< "Position = "<< center << "\n "
-						<< "Direction = "<< etaphiRegion->direction() << "\n "
+						<< "Direction = "<< result.back()->direction() << "\n "
 						<< "Distance from the region on the layer = " << (regionPosition -center).mag() << "\n "
 						<< "Eta = " << center.eta() << "\n "
 						<< "Phi = " << center.phi();
@@ -490,21 +481,19 @@ std::vector<TrackingRegion*, std::allocator<TrackingRegion*> > CosmicRegionalSee
       
 	
       //definition of the region
-      CosmicTrackingRegion *etaphiRegion = new CosmicTrackingRegion((-1)*regionMom,
-								    center,
-								    ptMin_,
-								    rVertex_,
-								    zVertex_,
-								    deltaEta_,
-								    deltaPhi_,
-								    regionPSet,
-								    measurementTracker);
-      
-      result.push_back(etaphiRegion);      
+      result.push_back(std::make_unique<CosmicTrackingRegion>((-1)*regionMom,
+                                                              center,
+                                                              ptMin_,
+                                                              rVertex_,
+                                                              zVertex_,
+                                                              deltaEta_,
+                                                              deltaPhi_,
+                                                              regionPSet,
+                                                              measurementTracker));
 
       LogDebug("CosmicRegionalSeedGenerator")       << "Final L2TrackingRegion \n "
 						    << "Position = "<< center << "\n "
-						    << "Direction = "<< etaphiRegion->direction() << "\n "
+						    << "Direction = "<< result.back()->direction() << "\n "
 						    << "Distance from the region on the layer = " << (regionPosition -center).mag() << "\n "
 						    << "Eta = " << center.eta() << "\n "
 						    << "Phi = " << center.phi();

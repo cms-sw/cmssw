@@ -108,7 +108,6 @@ process.quickTrackAssociatorByHits.SimToRecoDenominator = 'reco'
 
 ########### configuration MultiTrackValidator ########
 process.multiTrackValidator.associators = ['quickTrackAssociatorByHits']
-process.multiTrackValidator.skipHistoFit = False
 #process.cutsRecoTracks.quality = ['','highPurity']
 #process.cutsRecoTracks.quality = ['']
 process.multiTrackValidator.label = ['cutsRecoTracks']
@@ -127,7 +126,7 @@ process.multiTrackValidator.UseAssociators = True
 #process.cutsRecoTracks.maxRapidity  = 1.0
 
 process.quickTrackAssociatorByHits.useClusterTPAssociation = True
-process.load("SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi")
+process.load("SimTracker.TrackerHitAssociation.tpClusterProducer_cfi")
 
 process.validation = cms.Sequence(
     process.tpClusterProducer *

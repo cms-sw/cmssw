@@ -30,11 +30,9 @@ SiStripHistoTitle::SiStripHistoTitle( const sistrip::HistoType& histo_type,
   } else {
     keyType_ = sistrip::UNKNOWN_KEY;
   }
-  if ( &key_object ) {
-    keyValue_ = key_object.key();
-    granularity_ = key_object.granularity();
-    channel_ = key_object.channel();
-  }
+  keyValue_ = key_object.key();
+  granularity_ = key_object.granularity();
+  channel_ = key_object.channel();
   setTitle();
 }
 

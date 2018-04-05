@@ -11,10 +11,10 @@ using namespace oracle::occi;
 
 ODRunConfigSeqInfo::ODRunConfigSeqInfo()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_ID = 0;
   //
@@ -41,7 +41,7 @@ void ODRunConfigSeqInfo::setRunSeqDef(const RunSeqDef& run_seq)
 
 
 int ODRunConfigSeqInfo::fetchID()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   // Return from memory if available
   if (m_ID>0) {
@@ -70,7 +70,7 @@ int ODRunConfigSeqInfo::fetchID()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigSeqInfo::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigSeqInfo::fetchID:  ")+getOraMessage(&e)));
   }
   setByID(m_ID);
   return m_ID;
@@ -79,7 +79,7 @@ int ODRunConfigSeqInfo::fetchID()
 
 
 int ODRunConfigSeqInfo::fetchIDLast()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
   this->checkConnection();
@@ -98,7 +98,7 @@ int ODRunConfigSeqInfo::fetchIDLast()
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigSeqInfo::fetchIDLast:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigSeqInfo::fetchIDLast:  ")+getOraMessage(&e)));
   }
 
   setByID(m_ID);
@@ -107,7 +107,7 @@ int ODRunConfigSeqInfo::fetchIDLast()
 
 
 void ODRunConfigSeqInfo::setByID(int id) 
-  throw(std::runtime_error)
+  noexcept(false)
 {
    this->checkConnection();
 
@@ -127,7 +127,7 @@ void ODRunConfigSeqInfo::setByID(int id)
        m_seq_num=rset->getInt(2);
        m_cycles=rset->getInt(3);
        int seq_def_id=rset->getInt(4);
-       m_description= rset->getString(5);
+       m_description= getOraString(rset,5);
        m_ID = id;
        m_run_seq.setConnection(m_env, m_conn);
        m_run_seq.setByID(seq_def_id);
@@ -136,12 +136,12 @@ void ODRunConfigSeqInfo::setByID(int id)
      }
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(std::runtime_error("ODRunConfigSeqInfo::setByID:  "+e.getMessage()));
+     throw(std::runtime_error(std::string("ODRunConfigSeqInfo::setByID:  ")+getOraMessage(&e)));
    }
 }
 
 void ODRunConfigSeqInfo::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -151,11 +151,11 @@ void ODRunConfigSeqInfo::prepareWrite()
 			"sequence_num, num_of_cycles, sequence_type_def_id, description ) "
 			"VALUES (:1, :2, :3 , :4, :5 )");
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigSeqInfo::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigSeqInfo::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 void ODRunConfigSeqInfo::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -184,7 +184,7 @@ void ODRunConfigSeqInfo::writeDB()
     m_writeStmt->executeUpdate();
 
    } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigSeqInfo::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigSeqInfo::writeDB():  ")+getOraMessage(&e)));
   }
   if (!this->fetchID()) {
     throw(std::runtime_error("ODRunConfigSeqInfo::writeDB:  Failed to write"));
@@ -205,7 +205,7 @@ void ODRunConfigSeqInfo::clear(){
 
 
 void ODRunConfigSeqInfo::fetchData(ODRunConfigSeqInfo * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   //  result->clear();
@@ -231,10 +231,10 @@ void ODRunConfigSeqInfo::fetchData(ODRunConfigSeqInfo * result)
 
     m_run_seq.setConnection(m_env, m_conn);
     m_run_seq.setByID(seq_def_id);
-    result->setDescription(   rset->getString(5) );
+    result->setDescription(   getOraString(rset,5) );
     
     
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODRunConfigSeqInfo::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODRunConfigSeqInfo::fetchData():  ")+getOraMessage(&e)));
   }
 }

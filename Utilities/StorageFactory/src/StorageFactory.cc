@@ -7,7 +7,6 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <boost/shared_ptr.hpp>
 
 StorageFactory StorageFactory::s_instance;
 
@@ -27,8 +26,12 @@ StorageFactory::~StorageFactory (void)
 {
 }
 
-StorageFactory *
+const StorageFactory *
 StorageFactory::get (void)
+{ return &s_instance; }
+
+StorageFactory *
+StorageFactory::getToModify (void)
 { return &s_instance; }
 
 bool
@@ -106,7 +109,7 @@ StorageFactory::setTempDir(const std::string &s, double minFreeSpace)
 
   m_temppath = s;
   m_tempfree = minFreeSpace;
-  m_tempdir = m_lfs.findCachePath(dirs, minFreeSpace);
+  std::tie(m_tempdir, m_unusableDirWarnings) = m_lfs.findCachePath(dirs, minFreeSpace);
 
 #if 0
   std::cerr /* edm::LogInfo("StorageFactory") */
@@ -128,7 +131,7 @@ StorageFactory::tempMinFree(void) const
 { return m_tempfree; }
 
 StorageMaker *
-StorageFactory::getMaker (const std::string &proto)
+StorageFactory::getMaker (const std::string &proto) const
 {
   auto itFound = m_makers.find(proto);
   if(itFound != m_makers.end()) {
@@ -147,7 +150,7 @@ StorageFactory::getMaker (const std::string &proto)
 StorageMaker *
 StorageFactory::getMaker (const std::string &url,
 		          std::string &protocol,
-		          std::string &rest)
+		          std::string &rest) const
 {
   size_t p = url.find(':');
   if (p != std::string::npos)
@@ -164,29 +167,30 @@ StorageFactory::getMaker (const std::string &url,
   return getMaker (protocol);
 }
    
-Storage *
-StorageFactory::open (const std::string &url, int mode /* = IOFlags::OpenRead */)
+std::unique_ptr<Storage>
+StorageFactory::open (const std::string &url, int mode /* = IOFlags::OpenRead */) const
 { 
   std::string protocol;
   std::string rest;
-  Storage *ret = 0;
-  boost::shared_ptr<StorageAccount::Stamp> stats;
+  std::unique_ptr<Storage> ret;
+  std::unique_ptr<StorageAccount::Stamp> stats;
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
-    maker->setDebugLevel(m_debugLevel);
-    if (m_accounting) 
-      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "open")));
+    if (m_accounting) {
+        auto token = StorageAccount::tokenForStorageClassName(protocol);
+        stats.reset(new StorageAccount::Stamp(StorageAccount::counter (token, StorageAccount::Operation::open)));
+    }
     try
     {
-      if (Storage *storage = maker->open (protocol, rest, mode))
+      if (auto storage = maker->open (protocol, rest, mode, StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout)))
       {
-	if (dynamic_cast<LocalCacheFile *>(storage))
+	if (dynamic_cast<LocalCacheFile *>(storage.get()))
 	  protocol = "local-cache";
 
 	if (m_accounting)
-	  ret = new StorageAccountProxy(protocol, storage);
+    ret = std::make_unique<StorageAccountProxy>(protocol, std::move(storage));
 	else
-	  ret = storage;
+    ret = std::move(storage);
 
         if (stats)
 	  stats->tick();
@@ -205,19 +209,21 @@ StorageFactory::open (const std::string &url, int mode /* = IOFlags::OpenRead */
 }
 
 void
-StorageFactory::stagein (const std::string &url)
+StorageFactory::stagein (const std::string &url) const
 { 
   std::string protocol;
   std::string rest;
 
-  boost::shared_ptr<StorageAccount::Stamp> stats;
+  std::unique_ptr<StorageAccount::Stamp> stats;
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
-    if (m_accounting) 
-      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "stagein")));
+    if (m_accounting) {
+      auto token = StorageAccount::tokenForStorageClassName(protocol);
+      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (token, StorageAccount::Operation::stagein)));
+    }
     try
     {
-      maker->stagein (protocol, rest);
+      maker->stagein (protocol, rest,StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout));
       if (stats) stats->tick();
     }
     catch (cms::Exception &err)
@@ -230,20 +236,22 @@ StorageFactory::stagein (const std::string &url)
 }
 
 bool
-StorageFactory::check (const std::string &url, IOOffset *size /* = 0 */)
+StorageFactory::check (const std::string &url, IOOffset *size /* = 0 */) const
 { 
   std::string protocol;
   std::string rest;
 
   bool ret = false;
-  boost::shared_ptr<StorageAccount::Stamp> stats;
+  std::unique_ptr<StorageAccount::Stamp> stats;
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
-    if (m_accounting) 
-      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "check")));
+    if (m_accounting) {
+      auto token = StorageAccount::tokenForStorageClassName(protocol);
+      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (token, StorageAccount::Operation::check)));
+    }
     try
     {
-      ret = maker->check (protocol, rest, size);
+      ret = maker->check (protocol, rest, StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout), size);
       if (stats) stats->tick();
     }
     catch (cms::Exception &err)
@@ -257,11 +265,11 @@ StorageFactory::check (const std::string &url, IOOffset *size /* = 0 */)
   return ret;
 }
 
-Storage *
-StorageFactory::wrapNonLocalFile (Storage *s,
+std::unique_ptr<Storage>
+StorageFactory::wrapNonLocalFile (std::unique_ptr<Storage> s,
 				  const std::string &proto,
 				  const std::string &path,
-				  int mode)
+				  int mode) const
 {
   StorageFactory::CacheHint hint = cacheHint();
   if ((hint == StorageFactory::CACHE_HINT_LAZY_DOWNLOAD) || (mode & IOFlags::OpenWrap))
@@ -272,32 +280,21 @@ StorageFactory::wrapNonLocalFile (Storage *s,
       }
       else if (m_tempdir.empty())
       {
-        m_lfs.issueWarning();
+        edm::LogWarning("StorageFactory") << m_unusableDirWarnings;
       }
-      else if (path.empty() || m_lfs.isLocalPath(path))
+      else if ( (not path.empty()) and m_lfs.isLocalPath(path))
       {
         // For now, issue no warning - otherwise, we'd always warn on local input files.
       }
       else
       {
-        if (accounting()) {s = new StorageAccountProxy(proto, s);}
-        s = new LocalCacheFile(s, m_tempdir);
+        if (accounting()) {s = std::make_unique<StorageAccountProxy>(proto, std::move(s));}
+        s = std::make_unique<LocalCacheFile>(std::move(s), m_tempdir);
       }
   }
 
   return s;
 }
 
-void
-StorageFactory::activateTimeout (const std::string &url)
-{
-  std::string protocol;
-  std::string rest;
-
-  if (StorageMaker *maker = getMaker (url, protocol, rest))
-  {
-    maker->setTimeout (m_timeout);
-  }
-}
 
 

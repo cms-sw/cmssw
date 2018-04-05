@@ -98,9 +98,9 @@ void dumpInitVerbose(const InitMsgView* view)
   TClass* desc = getTClass(typeid(SendJobHeader));
   TBufferFile xbuf(TBuffer::kRead, view->descLength(),
                (char*)view->descData(), kFALSE);
-  std::auto_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
+  std::unique_ptr<SendJobHeader> sd((SendJobHeader*)xbuf.ReadObjectAny(desc));
 
-  if (sd.get() == 0) {
+  if (sd.get() == nullptr) {
     std::cout << "Unable to determine the product registry - "
               << "Registry deserialization error." << std::endl;
   }

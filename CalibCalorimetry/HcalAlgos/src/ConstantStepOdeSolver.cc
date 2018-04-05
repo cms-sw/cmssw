@@ -143,7 +143,7 @@ void ConstantStepOdeSolver::writeIntegrated(std::ostream& os,
 }
 
 ConstantStepOdeSolver::ConstantStepOdeSolver(const ConstantStepOdeSolver& r)
-    : rhs_(0),
+    : rhs_(nullptr),
       dt_(r.dt_),
       dim_(r.dim_),
       runLen_(r.runLen_),
@@ -160,7 +160,7 @@ ConstantStepOdeSolver& ConstantStepOdeSolver::operator=(
 {
     if (this != &r)
     {
-        delete rhs_; rhs_ = 0;
+        delete rhs_; rhs_ = nullptr;
         dt_ = r.dt_;
         dim_ = r.dim_;
         runLen_ = r.runLen_;

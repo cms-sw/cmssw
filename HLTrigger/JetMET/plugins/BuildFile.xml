@@ -4,6 +4,7 @@
   <use   name="DataFormats/HcalRecHit"/>
   <use   name="DataFormats/JetReco"/>
   <use   name="DataFormats/METReco"/>
+  <use   name="DataFormats/Scouting"/>
   <use   name="DataFormats/Math"/>
   <use   name="Geometry/Records"/>
   <use   name="Geometry/CaloTopology"/>
@@ -17,5 +18,6 @@
   <use   name="RecoJets/JetProducers"/>
   <use   name="TrackingTools/IPTools"/>
   <use   name="TrackingTools/TransientTrack"/>
+  <use   name="HLTrigger/JetMET"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

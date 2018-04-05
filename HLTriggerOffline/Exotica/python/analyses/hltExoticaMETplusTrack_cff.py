@@ -2,10 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 METplusTrackPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        #"HLT_MET80_v",                 # For debugging 
-        #"HLT_MET85_Track50_dEdx3p6_v", # For debugging
-        "HLT_MET75_IsoTrk50_v", 
-        "HLT_MET95_IsoTrk50_v" 
+        #"HLT_MET75_IsoTrk50_v",       # 2015-6 proposal
+        #"HLT_MET90_IsoTrk50_v",       # 2015-6 proposal
+        #"HLT_MET60_IsoTrk35_Loose_v", # 2016-6 proposal
+        "HLT_MET105_IsoTrk50_v",       # 2017 proposal
+        "HLT_MET120_IsoTrk50_v"        # 2017 proposal
     ),
     recPFMETLabel = cms.InputTag("pfMet"),
     #recMETLabel   = cms.InputTag("hltPFMETProducer"),
@@ -30,5 +31,7 @@ METplusTrackPSet = cms.PSet(
                                          300, 310, 320, 330, 340, 350, 360, 370,  380, 390,
                                          400
                                        ),
+    dropPt2 = cms.bool(True),
+    dropPt3 = cms.bool(True),
 )
 

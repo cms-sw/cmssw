@@ -8,9 +8,9 @@ class ElectronMcFakePostValidator : public ElectronDqmHarvesterBase
  {
   public:
     explicit ElectronMcFakePostValidator( const edm::ParameterSet & conf ) ; 
-    virtual ~ElectronMcFakePostValidator() ;
+    ~ElectronMcFakePostValidator() override ;
 //    virtual void book() ;
-    virtual void finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter ) ; // 
+    void finalize( DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter ) override ; // 
 
   private:
     std::string inputFile_ ;

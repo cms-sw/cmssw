@@ -12,10 +12,12 @@
 *   A longer explanation will be placed here later
 */
 
+#include "CalibFormats/SiPixelObjects/interface/PixelConfigKey.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <time.h>
+#include <ctime>
 #include <sys/time.h>
 #include <cstdlib>
 
@@ -34,6 +36,8 @@ namespace pos{
      std::cout << "[PixelTimeFormatter::PixelTimeFormatter()]\t\t    Time counter started for " << origin_ << std::endl ;
      startTime_ = getImSecTime() ;
     }
+
+    virtual ~PixelTimeFormatter() = default;
     
     void stopTimer(void) 
     {
@@ -47,8 +51,8 @@ namespace pos{
     virtual void writeXMLHeader(pos::PixelConfigKey key,
                                 int version, std::string path,
                                 std::ofstream *out,
-                                std::ofstream *out1 = NULL,
-                                std::ofstream *out2 = NULL
+                                std::ofstream *out1 = nullptr,
+                                std::ofstream *out2 = nullptr
                                 ) const {;}
 
     //---------------------------------------------------------------------------------
@@ -88,7 +92,7 @@ namespace pos{
     {
       char theDate[20] ;
       struct timeval msecTime;
-      gettimeofday(&msecTime, (struct timezone *)0) ;
+      gettimeofday(&msecTime, (struct timezone *)nullptr) ;
       
       sprintf(theDate,
 	      "%d-%d", 
@@ -101,7 +105,7 @@ namespace pos{
     struct timeval getImSecTime(void) 
     {
       struct timeval msecTime;
-      gettimeofday(&msecTime, (struct timezone *)0) ;
+      gettimeofday(&msecTime, (struct timezone *)nullptr) ;
       
       return msecTime ;
     }

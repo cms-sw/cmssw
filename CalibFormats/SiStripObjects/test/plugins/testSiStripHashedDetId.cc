@@ -7,7 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h" 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -52,7 +52,7 @@ void testSiStripHashedDetId::initialize( const edm::EventSetup& setup ) {
   // Build list of DetIds
   std::vector<uint32_t> dets;
   dets.reserve(16000);
-  TrackerGeometry::DetUnitContainer::const_iterator iter = geom->detUnits().begin();
+  TrackerGeometry::DetContainer::const_iterator iter = geom->detUnits().begin();
   for( ; iter != geom->detUnits().end(); ++iter ) {
     const auto strip = dynamic_cast<const StripGeomDetUnit*>(*iter);
     if( strip ) {

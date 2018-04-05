@@ -3,11 +3,7 @@
 #include "DataFormats/Common/interface/AssociationMapHelpers.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include <functional>
-#else
-#include "boost/bind.hpp"
-#endif
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -61,11 +57,18 @@ namespace edm {
           Exception::throwThis(errors::InvalidReference,
 	    "can't insert transient references in uninitialized AssociationMap");
         }
-        if(ref.key.productGetter() == nullptr) {
+        //another thread might cause productGetter() to return a different value
+        EDProductGetter const* getter = ref.key.productGetter();
+        if(getter == nullptr) {
           Exception::throwThis(errors::LogicError,
-	    "can't insert into AssociationMap unless it was initialized with a getter or RefProd(s) or RefToBaseProd(s)");
+            "Can't insert into AssociationMap unless it was properly initialized.\n"
+            "The most common fix for this is to add arguments to the call to the\n"
+            "AssociationMap constructor that are valid Handle's to the containers.\n"
+            "If you don't have valid handles or either template parameter to the\n"
+            "AssociationMap is a View, then see the comments in AssociationMap.h.\n"
+            "(note this was a new requirement added in the 7_5_X release series)\n");
         }
-        ref.key = KeyRefProd(k.id(), ref.key.productGetter());
+        ref.key = KeyRefProd(k.id(), getter);
         ref.val = ValRefProd(vref.id(), ref.val.productGetter());
       }
       helpers::checkRef(ref.key, k); helpers::checkRef(ref.val, vref);
@@ -93,22 +96,15 @@ namespace edm {
     static void sort(map_type & m) {
       //      using namespace boost::lambda;
       for(typename map_type::iterator i = m.begin(), iEnd = m.end(); i != iEnd; ++i) {
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
         using std::placeholders::_1;
         using std::placeholders::_2;
-#endif
 	map_assoc & v = i->second;
 	// Q std::pair<index, Q>::*quality = &std::pair<index, Q>::second;
 	// std::sort(v.begin(), v.end(),
 	// 	  bind(quality, boost::lambda::_2) < bind(quality, boost::lambda::_1));
            std::sort(v.begin(), v.end(), 
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
                   std::bind(std::less<Q>(), 
                   std::bind(&std::pair<index, Q>::second,_2), std::bind( &std::pair<index, Q>::second,_1)
-#else
-                  boost::bind(std::less<Q>(), 
-                  boost::bind(&std::pair<index, Q>::second,_2), boost::bind( &std::pair<index, Q>::second,_1)
-#endif
                              )
            );
 

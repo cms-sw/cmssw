@@ -57,7 +57,7 @@ ALIbool FittedEntriesReader::readFittedEntriesFromFile()
 
   ALIstring coordi("XYZ");
   std::map<OpticalObject*,ALIRmDataFromFile>::const_iterator ite;
-  for( ite = affAngles.begin(); ite != affAngles.end(); ite++ ){
+  for( ite = affAngles.begin(); ite != affAngles.end(); ++ite ){
     ALIRmDataFromFile dff = (*ite).second;
     OpticalObject* opto = (*ite).first;
     for( size_t ii = 0; ii < 3; ii++ ) {

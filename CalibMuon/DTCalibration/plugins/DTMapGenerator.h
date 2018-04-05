@@ -23,15 +23,15 @@ public:
   DTMapGenerator(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~DTMapGenerator();
+  ~DTMapGenerator() override;
 
   // Operations
 
-  virtual void beginJob(){}
+  void beginJob() override{}
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override{}
 
-  virtual void endJob();
+  void endJob() override;
 
 protected:
 

@@ -1,7 +1,4 @@
-<use   name="DetectorDescription/Algorithm"/>
-<use   name="DetectorDescription/Base"/>
 <use   name="DetectorDescription/Core"/>
-<use   name="DetectorDescription/ExprAlgo"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
@@ -11,7 +8,6 @@
 <use   name="Geometry/Records"/>
 <use   name="SimDataFormats/EcalTestBeam"/>
 <use   name="Geometry/EcalTestBeam"/>
-<use   name="boost"/>
 <use   name="clhep"/>
 <library   file="*.cc" name="GeometryEcalTestBeamPlugins">
   <flags   EDM_PLUGIN="1"/>

@@ -46,12 +46,12 @@
 class TrackAssociatorByChi2Producer : public edm::global::EDProducer<> {
 public:
   explicit TrackAssociatorByChi2Producer(const edm::ParameterSet&);
-  ~TrackAssociatorByChi2Producer();
+  ~TrackAssociatorByChi2Producer() override;
   
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
 private:
-  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;

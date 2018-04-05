@@ -137,6 +137,7 @@ namespace CLHEP {
 
 namespace edm {
 
+  class ConsumesCollector;
   class Event;
   class LuminosityBlock;
   class LuminosityBlockIndex;
@@ -153,10 +154,10 @@ namespace edm {
     /// These are the only functions most modules should call.
 
     /// Use this engine in event methods
-    virtual CLHEP::HepRandomEngine& getEngine(StreamID const&) const = 0;
+    virtual CLHEP::HepRandomEngine& getEngine(StreamID const&) = 0;
 
     /// Use this engine in the global begin luminosity block method
-    virtual CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const&) const = 0;
+    virtual CLHEP::HepRandomEngine& getEngine(LuminosityBlockIndex const&) = 0;
 
     /// This returns the seed from the configuration. In the unusual case where an
     /// an engine type takes multiple seeds to initialize a sequence, this function
@@ -182,6 +183,8 @@ namespace edm {
 
     virtual std::vector<RandomEngineState> const& getEventCache(StreamID const&) const = 0;
     virtual std::vector<RandomEngineState> const& getLumiCache(LuminosityBlockIndex const&) const = 0;
+
+    virtual void consumes(ConsumesCollector&& iC) const = 0;
 
     /// For debugging purposes only.
     virtual void print(std::ostream& os) const = 0;

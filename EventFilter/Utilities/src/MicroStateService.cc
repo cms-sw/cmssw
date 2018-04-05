@@ -4,10 +4,17 @@
 namespace evf{
   
   const edm::ModuleDescription MicroStateService::reservedMicroStateNames[mCOUNT] = 
-    { edm::ModuleDescription("Dummy","Invalid"), edm::ModuleDescription("Dummy","FwkOvh"), 
-      edm::ModuleDescription("Dummy","Idle"), edm::ModuleDescription("Dummy","Input"), 
-      edm::ModuleDescription("Dummy","InputDone"), edm::ModuleDescription("Dummy","DQM"),
-      edm::ModuleDescription("Dummy","EoL")};
+    { 
+      edm::ModuleDescription("Dummy","Invalid"),
+      edm::ModuleDescription("Dummy","Idle"),
+      edm::ModuleDescription("Dummy","FwkOvhSrc"), 
+      edm::ModuleDescription("Dummy","FwkOvhMod"), 
+      edm::ModuleDescription("Dummy","FwkEoL"), 
+      edm::ModuleDescription("Dummy","Input"), 
+      edm::ModuleDescription("Dummy","DQM"),
+      edm::ModuleDescription("Dummy","BoL"), 
+      edm::ModuleDescription("Dummy","EoL"),
+      edm::ModuleDescription("Dummy","GlobalEoL")};
 
   const std::string MicroStateService::default_return_="NotImplemented";
 

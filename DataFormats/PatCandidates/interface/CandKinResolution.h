@@ -72,12 +72,11 @@ namespace pat {
 
         /// Returns the number of free parameters in this parametrization
         uint32_t dimension() const { 
-            return (static_cast<uint32_t>(parametrization_) & 0x0F);
+            return dimensionFrom(parametrization_);
         }
 
         /// Returns the full covariance matrix
         const AlgebraicSymMatrix44 & covariance()  const { 
-            if (!hasMatrix_) { fillMatrix(); hasMatrix_ = true; }
             return covmatrix_; 
         }
 
@@ -121,6 +120,13 @@ namespace pat {
         /// Resolution on pz, given the 4-momentum of the associated Candidate
 	double resolPz(const LorentzVector &p4) const ;
 
+        static int dimensionFrom(Parametrization parametrization) {
+          return (static_cast<uint32_t>(parametrization) & 0x0F);
+        }
+
+        static void fillMatrixFrom( Parametrization parametrization, const std::vector<Scalar>& covariances,
+                                    AlgebraicSymMatrix44& covmatrix);
+
      private:
         // persistent 
         /// Parametrization code
@@ -132,16 +138,13 @@ namespace pat {
 
         // transient
 
-        /// Did we make the Matrix from the vector?
-        mutable bool       hasMatrix_;
-    
         /// Transient copy of the full 4x4 covariance matrix
-        mutable AlgebraicSymMatrix44 covmatrix_;
+        AlgebraicSymMatrix44 covmatrix_;
 
         //methods
 
         /// Fill matrix from vector
-        void fillMatrix() const ; // const: the matrix is mutable
+        void fillMatrix() ;
 
         /// Fill vectoor from matrix
         void fillVector() ;

@@ -15,6 +15,7 @@
  * Add SimTracks selection
  */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
@@ -48,29 +49,29 @@ public Observer<const EndOfEvent*>
  {
 
  public:    
-  MuonSensitiveDetector(std::string, const DDCompactView &,
+  MuonSensitiveDetector(const std::string&, const DDCompactView &,
 			const SensitiveDetectorCatalog &, edm::ParameterSet const &,
 			const SimTrackManager*);
-  virtual ~MuonSensitiveDetector();
-  virtual G4bool ProcessHits(G4Step *,G4TouchableHistory *);
-  virtual uint32_t setDetUnitId(G4Step *);
-  virtual void EndOfEvent(G4HCofThisEvent*);
+  ~MuonSensitiveDetector() override;
+  G4bool ProcessHits(G4Step *,G4TouchableHistory *) override;
+  uint32_t setDetUnitId(const G4Step *) override;
+  void EndOfEvent(G4HCofThisEvent*) override;
 
-  void fillHits(edm::PSimHitContainer&, std::string use);
-  std::vector<std::string> getNames();
+  void fillHits(edm::PSimHitContainer&, const std::string&) override;
+  void clearHits() override;
+
   std::string type();
 
   const MuonSlaveSD* GetSlaveMuon() const {
     return slaveMuon; }
   
  private:
-  void update(const BeginOfEvent *);
-  void update(const ::EndOfEvent *);
-  virtual void clearHits();
+  void update(const BeginOfEvent *) override;
+  void update(const ::EndOfEvent *) override;
 
-  Local3DPoint toOrcaRef(Local3DPoint in ,G4Step * s);
-  Local3DPoint toOrcaUnits(Local3DPoint);
-  Global3DPoint toOrcaUnits(Global3DPoint);
+  Local3DPoint toOrcaRef(Local3DPoint in ,G4Step *);
+  Local3DPoint toOrcaUnits(const Local3DPoint&);
+  Global3DPoint toOrcaUnits(const Global3DPoint&);
 
   TrackInformation* getOrCreateTrackInformation( const G4Track* theTrack );
 
@@ -81,7 +82,7 @@ public Observer<const EndOfEvent*>
   MuonFrameRotation* theRotation;
   MuonG4Numbering* g4numbering;
 
-  void storeVolumeAndTrack(G4Step *);
+  void storeVolumeAndTrack(const G4Step *);
   bool newHit(G4Step *);
   void createHit(G4Step *);
   void updateHit(G4Step *);

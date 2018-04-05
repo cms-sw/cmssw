@@ -103,7 +103,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
   pnAllocated = false;
   
 
-  theParser_->parseBuffer( reinterpret_cast<uint32_t*>(const_cast<unsigned char*>(pData)), static_cast<uint32_t>(length), shit );
+  theParser_->parseBuffer( reinterpret_cast<const uint32_t*>(pData), static_cast<uint32_t>(length), shit );
   
   std::vector< DCCTBEventBlock * > &   dccEventBlocks = theParser_->dccEvents();
 
@@ -217,7 +217,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData & fedData ,
     
     
     short TowerStatus[MAX_TT_SIZE+1];
-    char buffer[20];
+    char buffer[25];
     std::vector<short> theTTstatus;
     for(int i=1;i<MAX_TT_SIZE+1;i++)
       { 
@@ -841,7 +841,7 @@ void EcalTB07DaqFormatter::DecodeMEM( DCCTBTowerBlock *  towerblock,  EcalPnDiod
   // if anything was wrong with mem_tt_id or mem_tt_size: you would have already exited
   // otherwise, if any problem with ch_gain or ch_id: must not produce digis for the pertaining Pn
 
-  if (!      (memgaincollection.size()==0 && memchidcollection.size()==0)          )
+  if (!      (memgaincollection.empty() && memchidcollection.empty())          )
     {
       for ( EcalElectronicsIdCollection::const_iterator idItr = memgaincollection.begin();
 	    idItr != memgaincollection.end();

@@ -4,6 +4,8 @@
 
 #include <string>
 #include <sstream>
+#include <atomic>
+#include <mutex>
 
 namespace edm {
 
@@ -36,7 +38,6 @@ namespace edm {
             ssize_t m_read_vector_square;
             ssize_t m_read_vector_count_sum;
             ssize_t m_read_vector_count_square;
-            ssize_t m_read_bytes_at_close;
             time_t  m_start_time;
         };
 
@@ -50,8 +51,9 @@ namespace edm {
         FileStatistics m_filestats;
         std::string    m_guid;
         size_t         m_counter;
-        ssize_t        m_size;
+        std::atomic<ssize_t> m_size;
         std::string    m_userdn;
+        std::mutex     m_servermutex;
     };
 
     

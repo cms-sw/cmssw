@@ -7,7 +7,7 @@ int main(int argc, char** argv)
   const float XMIN = -3.0; const float XMAX = 3.0;
 
   // create instance of test-suite
-  DQMQualityTest * dqm_test = new DQMQualityTest(NBINS, XMIN, XMAX);
+  auto * dqm_test = new DQMQualityTest(NBINS, XMIN, XMAX);
   // generate random data
   dqm_test->generateData();
   

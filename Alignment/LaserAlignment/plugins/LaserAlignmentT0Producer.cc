@@ -104,10 +104,8 @@ void LaserAlignmentT0Producer::produce( edm::Event& iEvent, const edm::EventSetu
       }
 
       // create the output collection for the DetSetVector
-      std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > theDigiOutput( new edm::DetSetVector<SiStripRawDigi>( theDigiVector ) );
-      
       // write output to file
-      iEvent.put( theDigiOutput, digiLabel );
+      iEvent.put(std::make_unique<edm::DetSetVector<SiStripRawDigi>>(theDigiVector), digiLabel);
       
     }
 
@@ -137,8 +135,7 @@ void LaserAlignmentT0Producer::produce( edm::Event& iEvent, const edm::EventSetu
 	}
       }
 
-      std::auto_ptr<edm::DetSetVector<SiStripDigi> > theDigiOutput( new edm::DetSetVector<SiStripDigi>( theDigiVector ) );
-      iEvent.put( theDigiOutput, digiLabel );
+      iEvent.put(std::make_unique<edm::DetSetVector<SiStripDigi>>(theDigiVector), digiLabel);
       
     }
 

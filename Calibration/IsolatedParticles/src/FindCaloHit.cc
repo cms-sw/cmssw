@@ -4,6 +4,19 @@
 
 namespace spr {
 
+  std::vector<std::vector<PCaloHit>::const_iterator> findHit(std::vector<PCaloHit>& hits, DetId thisDet, bool ) {
+
+    std::vector<std::vector<PCaloHit>::const_iterator> hit;
+    std::vector<PCaloHit>::const_iterator ihit;
+    for (ihit=hits.begin(); ihit!=hits.end(); ihit++) {
+      DetId detId(ihit->id());
+      if (detId == thisDet) {
+        hit.push_back(ihit);
+      }
+    }
+    return hit;
+  }
+
   void find(edm::Handle<EcalRecHitCollection>& hits, DetId thisDet, std::vector<EcalRecHitCollection::const_iterator>& hit, bool ) {
 
     if (hits->find(thisDet) != hits->end())

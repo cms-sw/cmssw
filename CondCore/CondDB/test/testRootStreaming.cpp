@@ -1,6 +1,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/PluginManager/interface/PluginCapabilities.h"
+#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "MyTestData.h"
 //
 #include <iostream>
@@ -14,9 +15,10 @@ int main (int argc, char** argv)
   int ret = 0;
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
-  
-  static std::string const prefix("LCGReflex/");
-  edmplugin::PluginCapabilities::get()->load(prefix + "MyTestData");
+
+  if (!edm::TypeWithDict::byName("MyTestData")) {
+    throw cms::Exception("DictionaryMissingClass") << "The dictionary of class 'MyTestData' is missing!";
+  }
 
   MyTestData d0( 17 );
   d0.print();

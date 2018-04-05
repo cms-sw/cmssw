@@ -226,14 +226,14 @@ def exportRunInfo(xml_doc, run_info, release = None, print_out = False):
 	#create nodes for TestResults:
 	for (testName, result) in run_info["TestResults"].items():
 		#either we have one node or multiple ones (if list)
-		if type(result) == types.ListType:
+		if type(result) == list:
 			for result_item in result:
 				result_item.update({"testname": testName})
 
 				#We have JOBS so FAR only for TimeSize which we represent as a list
 				jobs = []
 				#we don't want jobs to be dumped as string
-				if result_item.has_key("jobs"):
+				if "jobs" in result_item:
 					jobs = result_item["jobs"]
 					del result_item["jobs"]
 
@@ -316,7 +316,7 @@ def write_xml(xml_doc, remotedir,xmlFileName):
 		print copy_cmd
 		os.system(copy_cmd)
 		print "Successfully copied XML report %s to stage directory %s"%(xmlFileName,remotedir)
-	except Exception,e :
+	except Exception as e :
 		print "Issues with copying XML report %s to stage directory %s!\n%s"%(xmlFileName,remotedir,str(e))
 	#os.system("cd -") #just in case...
 		

@@ -19,8 +19,8 @@ class HLTNVFilter : public HLTFilter {
 
    public:
       explicit HLTNVFilter(const edm::ParameterSet&);
-      ~HLTNVFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+      ~HLTNVFilter() override;
+      bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:

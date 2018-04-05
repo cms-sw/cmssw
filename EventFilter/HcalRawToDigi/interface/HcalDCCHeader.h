@@ -43,7 +43,7 @@ class HcalDCCHeader {
   /** Check the third bit of second Slink64 CDF word */
   inline bool thereIsAThirdCDFHeaderWord() const {return ((commondataformat2>>3) & 0x0001); }
   /** Get the Orbit Number from the CDF. */
-  inline unsigned int getOrbitNumber() const { return ( ((commondataformat3 && 0xF) << 28) + ( commondataformat2>>4) ); }
+  inline unsigned int getOrbitNumber() const { return ( ((commondataformat3 & 0xF) << 28) + ( commondataformat2>>4) ); }
   /** get the (undefined) 'Reserved' part of the second Slink64 CDF word */
   inline unsigned int getSlink64ReservedBits() const { return (  (commondataformat3>>4)&0x00FFFFFF ); }
   /** Get the Beginning Of Event bits.  If it's not the first or last CDF Slink64 word, the high 4 bits must be zero.*/

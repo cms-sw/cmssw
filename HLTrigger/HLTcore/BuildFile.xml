@@ -7,6 +7,7 @@
 <use   name="FWCore/Services"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="L1Trigger/GlobalTriggerAnalyzer"/>
+<use   name="L1Trigger/L1TGlobal"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="CondFormats/HLTObjects"/>
 <use   name="CondFormats/DataRecord"/>

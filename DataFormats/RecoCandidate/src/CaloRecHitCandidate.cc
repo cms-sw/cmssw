@@ -10,7 +10,7 @@ CaloRecHitCandidate * CaloRecHitCandidate::clone() const {
 
 bool CaloRecHitCandidate::overlap( const Candidate & c ) const {
   const CaloRecHitCandidate * o = dynamic_cast<const CaloRecHitCandidate *>( & c );
-  if ( o == 0 ) return false;
+  if ( o == nullptr ) return false;
   if ( caloRecHit().isNull() ) return false;
   if ( o->caloRecHit().isNull() ) return false;
   return ( caloRecHit() != o->caloRecHit() );

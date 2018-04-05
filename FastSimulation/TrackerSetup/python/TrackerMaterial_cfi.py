@@ -208,17 +208,22 @@ TrackerMaterialBlock = cms.PSet(
     27,  # TEC Layer 9
     27,  # TEC Layer 9
     113,  # Barrel Wall
-    114,  # Endcap Wall : 4.86<eta<4.91
-    114,  # Endcap Wall : 4.82<eta<4.86
-    114,  # Endcap Wall : 4.40<eta<4.82
-    114,  # Endcap Wall : 4.00<eta<4.40
-    114,  # Endcap Wall : 3.71<eta<4.00
-    114,  # Endcap Wall : 3.61<eta<3.71
-    114,  # Endcap Wall : 3.30<eta<3.61
-    114,  # Endcap Wall : 3.05<eta<3.30
-    114,  # Endcap Wall : 2.95<eta<3.05
-    114,  # Endcap Wall : 2.75<eta<2.95
-    114   # Endcap Wall
+#
+    114, # Endcap Wall : 4.889<eta<5.191
+    114, # Endcap Wall : 4.716<eta<4.889
+    114, # Endcap Wall : 4.538<eta<4.889
+    114, # Endcap Wall : 4.363<eta<4.538
+    114, # Endcap Wall : 4.191<eta<4.363
+    114, # Endcap Wall : 4.013<eta<4.191
+    114, # Endcap Wall : 3.839<eta<4.013
+    114, # Endcap Wall : 3.664<eta<3.839
+    114, # Endcap Wall : 3.489<eta<3.664
+    114, # Endcap Wall : 3.314<eta<3.489
+    114, # Endcap Wall : 3.139<eta<3.314
+    114, # Endcap Wall : 3.000<eta<3.139
+    114, # Endcap Wall : 2.853<eta<3.000
+    114, # Endcap Wall : 2.750<eta<2.853
+    114  # Endcap Wall
     ),
     
     # Lower limit on Radius or Z
@@ -298,17 +303,22 @@ TrackerMaterialBlock = cms.PSet(
     0.0,  # TEC Layer 9
     32.0,  # TEC Layer 9
     120.0,  # Barrel wall
-    4.42, # Endcap Wall : 4.86<eta<4.91
-    4.65, # Endcap Wall : 4.82<eta<4.86
-    4.84, # Endcap Wall : 4.40<eta<4.82
-    7.37, # Endcap Wall : 4.00<eta<4.40
-    10.99, # Endcap Wall : 3.71<eta<4.00
-    14.70, # Endcap Wall : 3.61<eta<3.71
-    16.24, # Endcap Wall : 3.30<eta<3.61
-    22.00, # Endcap Wall : 3.05<eta<3.30
-    28.50, # Endcap Wall : 2.95<eta<3.05
-    31.50, # Endcap wall : 2.75<eta<2.95
-    36.0   # Endcap wall
+#
+    3.34, # Endcap Wall : 4.889<eta<5.191
+    4.52, # Endcap Wall : 4.716<eta<4.889
+    5.37, # Endcap Wall : 4.538<eta<4.889
+    6.42, # Endcap Wall : 4.363<eta<4.538
+    7.64, # Endcap Wall : 4.191<eta<4.363
+    9.08, # Endcap Wall : 4.013<eta<4.191
+   10.85, # Endcap Wall : 3.839<eta<4.013
+   12.92, # Endcap Wall : 3.664<eta<3.839
+   15.38, # Endcap Wall : 3.489<eta<3.664
+   18.33, # Endcap Wall : 3.314<eta<3.489
+   21.85, # Endcap Wall : 3.139<eta<3.314
+   26.04, # Endcap Wall : 3.000<eta<3.139
+   29.95, # Endcap Wall : 2.853<eta<3.000
+   34.72, # Endcap Wall : 2.750<eta<2.853
+   36.0   # Endcap wall
     ),
     
     # Upper limit on Radius or Z
@@ -388,17 +398,22 @@ TrackerMaterialBlock = cms.PSet(
     32.0,  # TEC Layer 9
     60.0,  # TEC Layer 9
     301.0,  # Barrel wall
-    4.65, # Endcap Wall : 4.86<eta<4.91
-    4.84, # Endcap Wall : 4.82<eta<4.86
-    7.37, # Endcap Wall : 4.40<eta<4.82
-    10.99, # Endcap Wall : 4.00<eta<4.40
-    14.70, # Endcap Wall : 3.71<eta<4.00
-    16.24, # Endcap Wall : 3.61<eta<3.71
-    22.00, # Endcap Wall : 3.30<eta<3.61
-    28.50, # Endcap Wall : 3.05<eta<3.30
-    31.50, # Endcap Wall : 2.95<eta<3.05
-    36.00, # Endcap Wall : 2.75<eta<2.95
-    120.0   # Endcap wall
+#
+    4.51, # Endcap Wall : 4.889<eta<5.191
+    5.37, # Endcap Wall : 4.716<eta<4.889
+    6.42, # Endcap Wall : 4.538<eta<4.889 
+    7.64, # Endcap Wall : 4.363<eta<4.538 
+    9.08, # Endcap Wall : 4.191<eta<4.363 
+   10.85, # Endcap Wall : 4.013<eta<4.191 
+   12.92, # Endcap Wall : 3.839<eta<4.013 
+   15.38, # Endcap Wall : 3.664<eta<3.839 
+   18.33, # Endcap Wall : 3.489<eta<3.664 
+   21.85, # Endcap Wall : 3.314<eta<3.489 
+   26.04, # Endcap Wall : 3.139<eta<3.314
+   29.95, # Endcap Wall : 3.000<eta<3.139
+   34.72, # Endcap Wall : 2.853<eta<3.000
+   36.00, # Endcap Wall : 2.750<eta<2.853
+  120.0   # Endcap wall
     ),
     
     # Fudge factor on x/X0
@@ -478,16 +493,21 @@ TrackerMaterialBlock = cms.PSet(
     3.0,  # TEC Layer 9
     0.6,  # TEC Layer 9
     3.8,  # Barrel wall
-    18.74,  # Endcap Wall : 4.86<eta<4.91
-    2.30,  # Endcap Wall : 4.82<eta<4.86
-    0.604, # Endcap Wall : 4.40<eta<4.82
-    0.424, # Endcap Wall : 4.00<eta<4.40
-    0.327, # Endcap Wall : 3.71<eta<4.00
-    0.591, # Endcap Wall : 3.61<eta<3.71
-    7.00,  # Endcap Wall : 3.30<eta<3.61
-    4.40,  # Endcap Wall : 3.05<eta<3.30
-    3.30,  # Endcap Wall : 2.95<eta<3.05
-    1.40,  # Endcap Wall : 2.75<eta<2.95
+#
+  250.00,  # Endcap Wall : 4.889<eta<5.191
+  100.00,  # Endcap Wall : 4.716<eta<4.889
+   15.00,  # Endcap Wall : 4.538<eta<4.716
+    6.00,  # Endcap Wall : 4.363<eta<4.538
+    5.00,  # Endcap Wall : 4.191<eta<4.363
+    3.00,  # Endcap Wall : 4.013<eta<4.191
+    3.00,  # Endcap Wall : 3.839<eta<4.013
+    3.00,  # Endcap Wall : 3.664<eta<3.839
+    5.00,  # Endcap Wall : 3.489<eta<3.664
+    6.00,  # Endcap Wall : 3.314<eta<3.489
+    4.50,  # Endcap Wall : 3.139<eta<3.314
+    7.00,  # Endcap Wall : 3.000<eta<3.139
+    0.00,  # Endcap Wall : 2.853<eta<3.000
+    1.40,  # Endcap Wall : 2.750<eta<2.853
     1.60   # Endcap wall
     )
   )

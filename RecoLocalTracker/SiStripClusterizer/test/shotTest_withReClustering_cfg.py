@@ -23,20 +23,17 @@ process.source = cms.Source ( "PoolSource",
 #------------------------------------------
 # Load standard sequences.
 #------------------------------------------
-process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
-process.load('Configuration/StandardSequences/GeometryIdeal_cff')
-
-
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.load("Configuration/StandardSequences/RawToDigi_Data_cff")
-process.load("Configuration/StandardSequences/Reconstruction_cff")
-process.load('Configuration/EventContent/EventContent_cff')
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 #------------------------------------------
 # Load ClusterToDigiProducer
 #------------------------------------------
-
 
 process.load('RecoLocalTracker.SiStripClusterizer.SiStripClusterToDigiProducer_cfi')
 
@@ -51,9 +48,7 @@ process.siStripClustersNew.Clusterizer.RemoveApvShots = cms.bool(True)
 # Load DQM 
 #------------------------------------------
 
-process.DQMStore = cms.Service("DQMStore")
-process.TkDetMap = cms.Service("TkDetMap")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
+process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 process.load("DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi")
 
@@ -75,7 +70,7 @@ process.SiStripMonitorClusterNew.TH1ClusterDigiPos.moduleswitchon= cms.bool(True
 #------------------------------------------
 # Load apvshotanalyzer
 #------------------------------------------
-
+process.load("DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi")
 process.load("DPGAnalysis.SiStripTools.apvshotsanalyzer_cfi")
 process.apvshotsanalyzer.digiCollection.moduleLabel = "siStripClustersToDigis" 
 
@@ -92,6 +87,7 @@ process.skimming = cms.EDFilter("FilterOutScraping",
                                 )
 
 process.outpath = cms.EndPath(process.skimming+
+                              process.consecutiveHEs+
                               process.siStripDigis+
                               process.siStripZeroSuppression+
                               process.siStripClusters+

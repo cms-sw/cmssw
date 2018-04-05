@@ -7,10 +7,10 @@
 #include <string>
 #include <map>
 
-#include <time.h>
-#include <stdio.h>
+#include <ctime>
+#include <cstdio>
 
-#include <math.h>
+#include <cmath>
 
 #include "SimG4CMS/Calo/interface/EvolutionECAL.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -27,10 +27,8 @@ class EnergyResolutionVsLumi {
     calcmuTot();
   };
 
-
   virtual ~EnergyResolutionVsLumi();
-  
-	  
+  	  
   struct DegradationAtEta{
     double eta;
     double muEM;
@@ -42,12 +40,9 @@ class EnergyResolutionVsLumi {
     double resolutitonConstantTerm;
   };
   
-
-  
-
   DegradationAtEta CalculateDegradation(double eta);
   double  Resolution(double eta, double ene);
-  void Decomposition();
+  //void Decomposition();
 
   void setLumi(double x){m_lumi=x;};
   void setInstLumi(double x){m_instlumi=x;};

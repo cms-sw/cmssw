@@ -230,11 +230,8 @@ void L1GtTriggerMenuTester::retrieveL1EventSetup(const edm::EventSetup& evSetup)
     edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
     evSetup.get<L1GtTriggerMenuRcd> ().get(l1GtMenu);
     m_l1GtMenu = l1GtMenu.product();
-    (const_cast<L1GtTriggerMenu*> (m_l1GtMenu))->buildGtConditionMap();
-
     m_algorithmMap = &(m_l1GtMenu->gtAlgorithmMap());
     m_algorithmAliasMap = &(m_l1GtMenu->gtAlgorithmAliasMap());
-
     m_technicalTriggerMap = &(m_l1GtMenu->gtTechnicalTriggerMap());
 
 }
@@ -439,7 +436,7 @@ void L1GtTriggerMenuTester::printTriggerGroup(const std::string& trigGroupName,
             const std::vector<std::string> & hltPaths =
                     m_hltPathsForL1AlgorithmTrigger.at(bitNumber);
 
-            if (hltPaths.size() < 1) {
+            if (hltPaths.empty()) {
                 algoTriggerNotSeed.push_back(aAlias);
                 seedsHlt
                         = "<font color = \"red\">Not used as seed by any !HLT path</font>";
@@ -495,7 +492,7 @@ void L1GtTriggerMenuTester::printTriggerGroup(const std::string& trigGroupName,
                 << "\n Algorithm triggers from " << trigGroupName
                 << " not used as seeds by !HLT:" << std::endl;
 
-        if (algoTriggerNotSeed.size() != 0) {
+        if (!algoTriggerNotSeed.empty()) {
             for (std::vector<std::string>::const_iterator strIter =
                     algoTriggerNotSeed.begin(); strIter
                     != algoTriggerNotSeed.end(); ++strIter) {

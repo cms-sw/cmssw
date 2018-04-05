@@ -1,0 +1,16 @@
+<run-settings id="uGT">
+  <context id="uGtProcessor">
+    <param id="finorMask" type="table">
+      <columns>algo, mask</columns>
+      <types>string, uint</types>
+      <rows>
+        <!-- Default FinOR mask value is 1 -->
+        <row>ALL, 1</row> <!-- mandatory row: set defaults -->
+        <row>L1_ZeroBias, 0</row>
+        <row>L1_BptxMinus_NotBptxPlus2, 0</row>
+        <row>L1_DoubleMu10_Mass60to150_BptxAND, 0</row>
+      </rows>
+    </param>
+  </context>
+</run-settings>
+

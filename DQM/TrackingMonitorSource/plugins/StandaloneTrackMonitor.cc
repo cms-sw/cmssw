@@ -11,7 +11,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TPRegexp.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
@@ -127,7 +127,7 @@ void StandaloneTrackMonitor::bookHistograms(DQMStore::IBooker &iBook, edm::Run c
   edm::ParameterSet TrackPtHistoPar = parameters_.getParameter<edm::ParameterSet>("trackPtH");
 
   std::string currentFolder = moduleName_ + "/" + folderName_ ;
-  iBook.setCurrentFolder(currentFolder.c_str());
+  iBook.setCurrentFolder(currentFolder);
 
   // The following are common with the official tool
   if (haveAllHistograms_) {

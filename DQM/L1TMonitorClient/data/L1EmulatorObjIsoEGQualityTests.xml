@@ -14,7 +14,7 @@
     </QTEST>
 
 
-    <LINK name="*GCTexpert/IsoEM/IsoEMErrorFlag">
+    <LINK name="*Stage1Layer2expert/IsoEM/IsoEMErrorFlag">
         <TestName activate="true">L1EmulatorIsoEGGctErrorFlagQT</TestName>
     </LINK>
 

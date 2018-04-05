@@ -7,9 +7,9 @@
 class EcalGenEvtSelectorFrag : public BaseHiGenEvtSelector {
  public:
    EcalGenEvtSelectorFrag(const edm::ParameterSet& pset);
-   virtual ~EcalGenEvtSelectorFrag(){;}
+   ~EcalGenEvtSelectorFrag() override{;}
 
-   bool filter(HepMC::GenEvent *);
+   bool filter(HepMC::GenEvent *) override;
 
  private:
 

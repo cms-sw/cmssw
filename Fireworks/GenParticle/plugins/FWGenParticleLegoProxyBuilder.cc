@@ -12,9 +12,9 @@ class FWGenParticleLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::
 
 public:
    FWGenParticleLegoProxyBuilder() {}
-   virtual ~FWGenParticleLegoProxyBuilder() {}
+   ~FWGenParticleLegoProxyBuilder() override {}
 
-  virtual void setItem(const FWEventItem* iItem) override
+  void setItem(const FWEventItem* iItem) override
   {
     FWProxyBuilderBase::setItem(iItem);
     if (iItem)
@@ -28,9 +28,9 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWGenParticleLegoProxyBuilder(const FWGenParticleLegoProxyBuilder&); // stop default
+   FWGenParticleLegoProxyBuilder(const FWGenParticleLegoProxyBuilder&) = delete; // stop default
 
-   const FWGenParticleLegoProxyBuilder& operator=(const FWGenParticleLegoProxyBuilder&); // stop default
+   const FWGenParticleLegoProxyBuilder& operator=(const FWGenParticleLegoProxyBuilder&) = delete; // stop default
    
    using FWSimpleProxyBuilderTemplate<reco::GenParticle>::build;
    void build(const reco::GenParticle& iData, unsigned int iIndex,TEveElement& oItemHolder, const FWViewContext*) override;

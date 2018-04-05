@@ -24,7 +24,7 @@ class SiStripLayoutParser : public DQMParserBase {
   SiStripLayoutParser();
   
   // Destructor
-  ~SiStripLayoutParser();
+  ~SiStripLayoutParser() override;
 
   // Get list of Layouts for ME groups
   bool getAllLayouts(std::map< std::string, std::vector<std::string> >& me_names);

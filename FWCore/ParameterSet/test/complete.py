@@ -145,7 +145,7 @@ process.looper = cms.Looper("ALooper",
 )
 
 process.mix = cms.EDProducer("MixingModule",
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
       fileNames = cms.untracked.vstring("file:pileup.root")
     ),
     mixtype = cms.string("fixed"),

@@ -1,19 +1,11 @@
-#ifndef DDLSAX2HANDLER_H
-#define DDLSAX2HANDLER_H
+#ifndef DETECTOR_DESCRIPTION_PARSER_DDL_SAX2_HANDLER_H
+#define DETECTOR_DESCRIPTION_PARSER_DDL_SAX2_HANDLER_H
 
-// ---------------------------------------------------------------------------
-//  Includes
-// ---------------------------------------------------------------------------
-
-// Xerces C++ Dependencies
-#include <xercesc/util/XercesDefs.hpp>
 #include <xercesc/sax2/Attributes.hpp>
 #include <xercesc/sax2/DefaultHandler.hpp>
-
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
-
 
 ///  DDLSAX2Handler inherits from Xerces C++ DefaultHandler.
 /** @class DDLSAX2Handler
@@ -22,7 +14,6 @@
  *  DDLSAX2Handler.h  -  description
  *  -------------------
  *  begin: Mon Oct 22 2001
- *  email: case@ucdhep.ucdavis.edu
  *
  *  The DefaultHandler of Xerces C++ provides an interface to the SAX2 event
  *  driven processing of XML documents.  It does so by providing methods which
@@ -35,69 +26,60 @@
  */
 class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
 {
-
  public:
-  typedef XERCES_CPP_NAMESPACE::Attributes Attributes;
-  typedef XERCES_CPP_NAMESPACE::SAXParseException SAXParseException;
+  using Attributes = XERCES_CPP_NAMESPACE::Attributes;
+  using SAXParseException = XERCES_CPP_NAMESPACE::SAXParseException;
 
-  // -----------------------------------------------------------------------
-  //  Constructor and Destructor
-  // -----------------------------------------------------------------------
-
-  //  DDLSAX2Handler();
   DDLSAX2Handler();
-  ~DDLSAX2Handler();
+  ~DDLSAX2Handler() override;
 
-  // -----------------------------------------------------------------------
-  //  Getter methods
-  // -----------------------------------------------------------------------
   /// Get the count of elements processed so far.
   unsigned int getElementCount() const
-    {
-      return elementCount_;
-    }
+  {
+    return elementCount_;
+  }
   /// Get the count of attributes processed so far.
   unsigned int getAttrCount() const
-    {
-      return attrCount_;
-    }
+  {
+    return attrCount_;
+  }
   /// Get the count of characters processed so far.
   unsigned int getCharacterCount() const
-    {
-      return characterCount_;
-    }
+  {
+    return characterCount_;
+  }
   /// Did the XML parser see any errors?
   bool getSawErrors() const
-    {
-      return sawErrors_;
-    }
+  {
+    return sawErrors_;
+  }
   /// Get the count of spaces processed so far.
   unsigned int getSpaceCount() const
-    {
-      return spaceCount_;
-    }
+  {
+    return spaceCount_;
+  }
 
   // -----------------------------------------------------------------------
   //  Handlers for the SAX ContentHandler interface
   // -----------------------------------------------------------------------
 
-  virtual void startElement(const XMLCh* const uri, const XMLCh* const localname
-		    , const XMLCh* const qname, const Attributes& attrs);
-  virtual void endElement(const XMLCh* const uri, const XMLCh* const localname
-		    , const XMLCh* const qname);
-  virtual void characters(const XMLCh* const chars, const unsigned int length);
-  virtual void comment (const XMLCh *const chars, const unsigned int length );
-  virtual void ignorableWhitespace(const XMLCh* const chars, const unsigned int length);
-  virtual void resetDocument();
+  void startElement( const XMLCh* uri, const XMLCh* localname,
+		     const XMLCh* qname, const Attributes& attrs ) override;
+  void endElement( const XMLCh* uri, const XMLCh* localname,
+		   const XMLCh* qname ) override;
+  void characters( const XMLCh* chars, XMLSize_t length ) override;
+  void comment( const XMLCh* chars, XMLSize_t length ) override;
+  void ignorableWhitespace( const XMLCh* chars, XMLSize_t length ) override;
+  void resetDocument() override;
 
   // -----------------------------------------------------------------------
   //  Handlers for the SAX ErrorHandler interface
   // -----------------------------------------------------------------------
-  virtual void warning(const SAXParseException& exception);
-  virtual void error(const SAXParseException& exception);
-  virtual void fatalError(const SAXParseException& exception);
+  void warning(const SAXParseException& exception) override;
+  void error(const SAXParseException& exception) override;
+  void fatalError(const SAXParseException& exception) override;
   virtual void dumpStats(const std::string& fname);
-
+  
  protected:
 
   // -----------------------------------------------------------------------
@@ -114,14 +96,13 @@ class DDLSAX2Handler : public XERCES_CPP_NAMESPACE::DefaultHandler
   //      This is set by the error handlers, and is queryable later to
   //      see if any errors occurred.
   // -----------------------------------------------------------------------
-  unsigned int    attrCount_;
-  unsigned int    characterCount_;
-  unsigned int    elementCount_;
-  unsigned int    spaceCount_;
+  XMLSize_t       attrCount_;
+  XMLSize_t       characterCount_;
+  XMLSize_t       elementCount_;
+  XMLSize_t       spaceCount_;
   bool            sawErrors_;
   bool            userNS_;
   std::string     nmspace_;
-/*   std::string getnmspace(const std::string& fname); */
  
  public:
   /** This allows the DDLSAX2Handler and objects that inherit from it to set

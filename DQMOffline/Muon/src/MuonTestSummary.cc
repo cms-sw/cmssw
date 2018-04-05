@@ -498,7 +498,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, string muon
 	LogTrace(metname) << "Chi2Report exists!!";
 	float qtresult = myQReport->getQTresult(); // get QT result value
 	int qtstatus = myQReport->getStatus() ; // get QT status value (see table below)
-	std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
 	LogTrace(metname) << "qtresult " <<qtresult << " qtstatus "<<qtstatus<<endl;
 	chi2TestSummaryMap->setBinContent(bin,1,qtresult);
       }
@@ -509,7 +508,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, string muon
 	LogTrace(metname) << "Chi2Report Kolmogorov exists!!";
 	float qtresult = myQReportKolmo->getQTresult(); // get QT result value
 	int qtstatus = myQReportKolmo->getStatus() ; // get QT status value (see table below)
-	std::string qtmessage = myQReportKolmo->getMessage() ; // get the whole QT result message
 	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
 	KolmogorovTestSummaryMap->setBinContent(bin,1,qtresult);
       }
@@ -558,7 +556,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, string muon
 	LogTrace(metname) << "EtaReport exists!!";
 	float qtresult = myQReport->getQTresult(); // get QT result value
 	int qtstatus = myQReport->getStatus() ; // get QT status value (see table below)
-	std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
 	LogTrace(metname) << "qtresult " <<qtresult << " qtstatus "<<qtstatus<<endl;
 	chi2TestSummaryMap->setBinContent(bin,2,qtresult);
       }
@@ -570,7 +567,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, string muon
 	LogTrace(metname) << "EtaReport Kolmogorov exists!!";
 	float qtresult = myQReportKolmo->getQTresult(); // get QT result value
 	int qtstatus = myQReportKolmo->getStatus() ; // get QT status value (see table below)
-	std::string qtmessage = myQReportKolmo->getMessage() ; // get the whole QT result message
 	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
 	KolmogorovTestSummaryMap->setBinContent(bin,2,qtresult);
       }
@@ -619,7 +615,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, string muon
 	LogTrace(metname) << "PhiReport exists!!";
 	float qtresult = myQReport->getQTresult(); // get QT result value
 	int qtstatus = myQReport->getStatus() ; // get QT status value (see table below)
-	std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
 	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
 	chi2TestSummaryMap->setBinContent(bin,3,qtresult);
      }
@@ -631,7 +626,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, string muon
 	LogTrace(metname) << "PhiReport Kolmogorov exists!!";
 	float qtresult = myQReportKolmo->getQTresult(); // get QT result value
 	int qtstatus = myQReportKolmo->getStatus() ; // get QT status value (see table below)
-	std::string qtmessage = myQReportKolmo->getMessage() ; // get the whole QT result message
 	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
 	KolmogorovTestSummaryMap->setBinContent(bin,3,qtresult);
       }
@@ -657,7 +651,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, string muon
 	LogTrace(metname) << "PtReport exists!!";
 	float qtresult = myQReport->getQTresult(); // get QT result value
 	int qtstatus = myQReport->getStatus() ; // get QT status value (see table below)
-	std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
 	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
 	chi2TestSummaryMap->setBinContent(bin,4,qtresult);
      }
@@ -669,7 +662,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, string muon
 	LogTrace(metname) << "PtReport Kolmogorov exists!!";
 	float qtresult = myQReportKolmo->getQTresult(); // get QT result value
 	int qtstatus = myQReportKolmo->getStatus() ; // get QT status value (see table below)
-	std::string qtmessage = myQReportKolmo->getMessage() ; // get the whole QT result message
 	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
 	KolmogorovTestSummaryMap->setBinContent(bin,4,qtresult);
       }
@@ -694,7 +686,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, string muon
 	LogTrace(metname) << "qReport exists!!";
 	float qtresult = myQReport->getQTresult(); // get QT result value
 	int qtstatus = myQReport->getStatus() ; // get QT status value (see table below)
-	std::string qtmessage = myQReport->getMessage() ; // get the whole QT result message
 	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
 	chi2TestSummaryMap->setBinContent(bin,5,qtresult);
      }
@@ -706,7 +697,6 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, string muon
 	LogTrace(metname) << "qReport Kolmogorov exists!!";
 	float qtresult = myQReportKolmo->getQTresult(); // get QT result value
 	int qtstatus = myQReportKolmo->getStatus() ; // get QT status value (see table below)
-	std::string qtmessage = myQReportKolmo->getMessage() ; // get the whole QT result message
 	LogTrace(metname) << "qtresult " <<qtresult<< " qtstatus "<<qtstatus<<endl;
 	KolmogorovTestSummaryMap->setBinContent(bin,5,qtresult);
       }

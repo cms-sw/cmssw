@@ -4,7 +4,7 @@
 #define CSCDCCTrailer_h
 
 #include <iostream>
-#include <string.h> // bzero
+#include <cstring> // bzero
 #include "DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h"
 
 

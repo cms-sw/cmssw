@@ -9,7 +9,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include <map>
 #include <set>
@@ -58,6 +58,7 @@ class RPCSim
 
  protected:
   std::set< std::pair<int,int> > strips;
+  std::set<RPCDigi> irpc_digis;
 
   //--------NEW---------------------
 

@@ -36,25 +36,25 @@ class FWTableWidget : public TGCompositeFrame
 {
 
 public:
-   FWTableWidget(FWTableManagerBase* iManager,const TGWindow* p=0);
-   virtual ~FWTableWidget();
+   FWTableWidget(FWTableManagerBase* iManager,const TGWindow* p=nullptr);
+   ~FWTableWidget() override;
 
    // ---------- const member functions ---------------------
    //the standard method gives the wrong values when using a TGTabularLayout
-   TGDimension GetDefaultSize() const;
+   TGDimension GetDefaultSize() const override;
 
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
    using  TGFrame::Resize;
-   virtual void Resize(UInt_t w, UInt_t h);
-   virtual void MoveResize(Int_t x, Int_t y, UInt_t w = 0, UInt_t h = 0);
-   void SetBackgroundColor(Pixel_t);
+   void Resize(UInt_t w, UInt_t h) override;
+   void MoveResize(Int_t x, Int_t y, UInt_t w = 0, UInt_t h = 0) override;
+   void SetBackgroundColor(Pixel_t) override;
    void SetHeaderBackgroundColor(Pixel_t);
    void SetHeaderForegroundColor(Pixel_t);
    void SetLineSeparatorColor(Pixel_t);
    
-   virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
+   Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2) override;
 
    /**Sorts the rows of data in the table based on values in column iColumn.
       If iDescendingSort is 'true' then the rows are sorted in descending order of the values.
@@ -78,7 +78,7 @@ public:
    void childrenEvent(Event_t *);
    void Clicked();
 
-   ClassDef(FWTableWidget,0);
+   ClassDefOverride(FWTableWidget,0);
 
    void forceLayout() { m_forceLayout = true; }
    void dataChanged();
@@ -94,7 +94,7 @@ public:
    void disableGrowInWidth();
 
 protected:
-   virtual void DoRedraw();
+   void DoRedraw() override;
 
 private:
    //FWTableWidget(const FWTableWidget&); // stop default

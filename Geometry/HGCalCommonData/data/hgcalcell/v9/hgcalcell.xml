@@ -1,0 +1,296 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalcell.xml" eval="true">
+  <Constant name="WaferSize"             value="[hgcal:WaferSize]"/>
+  <Constant name="WaferThickness"        value="[hgcal:WaferThickness]"/>
+  <Constant name="CellThicknessFine"     value="[hgcal:CellThicknessFine]"/>
+  <Constant name="CellThicknessCoarse1"  value="[hgcal:CellThicknessCoarse1]"/>
+  <Constant name="CellThicknessCoarse2"  value="[hgcal:CellThicknessCoarse2]"/>
+  <Constant name="NumberOfCellsFine"     value="[hgcal:NumberOfCellsFine]"/>
+  <Constant name="NumberOfCellsCoarse"   value="[hgcal:NumberOfCellsCoarse]"/>
+</ConstantsSection>
+
+<PosPartSection label="hgcalcell.xml">
+  <Algorithm name="hgcal:DDHGCalCell">
+    <rParent name="hgcalwafer:HGCalCell"/>
+    <Numeric name="WaferSize"    value="[WaferSize]"/>
+    <Numeric name="WaferThick"   value="[WaferThickness]"/>
+    <Numeric name="CellThick"    value="[CellThicknessFine]"/>
+    <Numeric name="NCells"       value="[NumberOfCellsFine]"/>
+    <Numeric name="PosSensitive" value="0"/>
+    <String name="Material"      value="materials:Silicon"/>
+    <String name="FullCell"      value="HGCalEECellFull0Fine"/>
+    <String name="FullSensitive" value="HGCalEESenitiveFull0Fine"/>
+    <Vector name="TruncatedCell" type="string" nEntries="3">
+       HGCalEECellTrunc01Fine, HGCalEECellTrunc02Fine,
+       HGCalEECellTrunc03Fine</Vector>
+    <Vector name="TruncatedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveTrunc01Fine, HGCalEESenitiveTrunc02Fine,
+      HGCalEESenitiveTrunc03Fine</Vector>
+    <Vector name="ExtendedCell" type="string" nEntries="3">
+       HGCalEECellExten01Fine, HGCalEECellExten02Fine,
+       HGCalEECellExten03Fine</Vector>
+    <Vector name="ExtendedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveExten01Fine, HGCalEESenitiveExten02Fine,
+      HGCalEESenitiveExten03Fine</Vector>
+    <Vector name="CornerCell" type="string" nEntries="6">
+       HGCalEECellCorner01Fine, HGCalEECellCorner02Fine,
+       HGCalEECellCorner03Fine, HGCalEECellCorner04Fine,
+       HGCalEECellCorner05Fine, HGCalEECellCorner06Fine</Vector>
+    <Vector name="CornerSensitive" type="string" nEntries="6">
+      HGCalEESenitiveCorner01Fine, HGCalEESenitiveCorner02Fine,
+      HGCalEESenitiveCorner03Fine, HGCalEESenitiveCorner04Fine,
+      HGCalEESenitiveCorner05Fine, HGCalEESenitiveCorner06Fine</Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalCell">
+    <rParent name="hgcalwafer:HGCalCell"/>
+    <Numeric name="WaferSize"    value="[WaferSize]"/>
+    <Numeric name="WaferThick"   value="[WaferThickness]"/>
+    <Numeric name="CellThick"    value="[CellThicknessFine]"/>
+    <Numeric name="NCells"       value="[NumberOfCellsFine]"/>
+    <Numeric name="PosSensitive" value="1"/>
+    <String name="Material"      value="materials:Silicon"/>
+    <String name="FullCell"      value="HGCalEECellFull1Fine"/>
+    <String name="FullSensitive" value="HGCalEESenitiveFull1Fine"/>
+    <Vector name="TruncatedCell" type="string" nEntries="3">
+       HGCalEECellTrunc11Fine, HGCalEECellTrunc12Fine,
+       HGCalEECellTrunc13Fine</Vector>
+    <Vector name="TruncatedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveTrunc11Fine, HGCalEESenitiveTrunc12Fine,
+      HGCalEESenitiveTrunc13Fine</Vector>
+    <Vector name="ExtendedCell" type="string" nEntries="3">
+       HGCalEECellExten11Fine, HGCalEECellExten12Fine,
+       HGCalEECellExten13Fine</Vector>
+    <Vector name="ExtendedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveExten11Fine, HGCalEESenitiveExten12Fine,
+      HGCalEESenitiveExten13Fine</Vector>
+    <Vector name="CornerCell" type="string" nEntries="6">
+       HGCalEECellCorner11Fine, HGCalEECellCorner12Fine,
+       HGCalEECellCorner13Fine, HGCalEECellCorner14Fine,
+       HGCalEECellCorner15Fine, HGCalEECellCorner16Fine</Vector>
+    <Vector name="CornerSensitive" type="string" nEntries="6">
+      HGCalEESenitiveCorner11Fine, HGCalEESenitiveCorner12Fine,
+      HGCalEESenitiveCorner13Fine, HGCalEESenitiveCorner14Fine,
+      HGCalEESenitiveCorner15Fine, HGCalEESenitiveCorner16Fine</Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalCell">
+    <rParent name="hgcalwafer:HGCalCell"/>
+    <Numeric name="WaferSize"    value="[WaferSize]"/>
+    <Numeric name="WaferThick"   value="[WaferThickness]"/>
+    <Numeric name="CellThick"    value="[CellThicknessCoarse1]"/>
+    <Numeric name="NCells"       value="[NumberOfCellsCoarse]"/>
+    <Numeric name="PosSensitive" value="0"/>
+    <String name="Material"      value="materials:Silicon"/>
+    <String name="FullCell"      value="HGCalEECellFull0Coarse1"/>
+    <String name="FullSensitive" value="HGCalEESenitiveFull0Coarse1"/>
+    <Vector name="TruncatedCell" type="string" nEntries="3">
+       HGCalEECellTrunc01Coarse1, HGCalEECellTrunc02Coarse1,
+       HGCalEECellTrunc03Coarse1</Vector>
+    <Vector name="TruncatedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveTrunc01Coarse1, HGCalEESenitiveTrunc02Coarse1,
+      HGCalEESenitiveTrunc03Coarse1</Vector>
+    <Vector name="ExtendedCell" type="string" nEntries="3">
+       HGCalEECellExten01Coarse1, HGCalEECellExten02Coarse1,
+       HGCalEECellExten03Coarse1</Vector>
+    <Vector name="ExtendedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveExten01Coarse1, HGCalEESenitiveExten02Coarse1,
+      HGCalEESenitiveExten03Coarse1</Vector>
+    <Vector name="CornerCell" type="string" nEntries="6">
+       HGCalEECellCorner01Coarse1, HGCalEECellCorner02Coarse1,
+       HGCalEECellCorner03Coarse1, HGCalEECellCorner04Coarse1,
+       HGCalEECellCorner05Coarse1, HGCalEECellCorner06Coarse1</Vector>
+    <Vector name="CornerSensitive" type="string" nEntries="6">
+      HGCalEESenitiveCorner01Coarse1, HGCalEESenitiveCorner02Coarse1,
+      HGCalEESenitiveCorner03Coarse1, HGCalEESenitiveCorner04Coarse1,
+      HGCalEESenitiveCorner05Coarse1, HGCalEESenitiveCorner06Coarse1</Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalCell">
+    <rParent name="hgcalwafer:HGCalCell"/>
+    <Numeric name="WaferSize"    value="[WaferSize]"/>
+    <Numeric name="WaferThick"   value="[WaferThickness]"/>
+    <Numeric name="CellThick"    value="[CellThicknessCoarse1]"/>
+    <Numeric name="NCells"       value="[NumberOfCellsCoarse]"/>
+    <Numeric name="PosSensitive" value="1"/>
+    <String name="Material"      value="materials:Silicon"/>
+    <String name="FullCell"      value="HGCalEECellFull1Coarse1"/>
+    <String name="FullSensitive" value="HGCalEESenitiveFull1Coarse1"/>
+    <Vector name="TruncatedCell" type="string" nEntries="3">
+       HGCalEECellTrunc11Coarse1, HGCalEECellTrunc12Coarse1,
+       HGCalEECellTrunc13Coarse1</Vector>
+    <Vector name="TruncatedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveTrunc11Coarse1, HGCalEESenitiveTrunc12Coarse1,
+      HGCalEESenitiveTrunc13Coarse1</Vector>
+    <Vector name="ExtendedCell" type="string" nEntries="3">
+       HGCalEECellExten11Coarse1, HGCalEECellExten12Coarse1,
+       HGCalEECellExten13Coarse1</Vector>
+    <Vector name="ExtendedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveExten11Coarse1, HGCalEESenitiveExten12Coarse1,
+      HGCalEESenitiveExten13Coarse1</Vector>
+    <Vector name="CornerCell" type="string" nEntries="6">
+       HGCalEECellCorner11Coarse1, HGCalEECellCorner12Coarse1,
+       HGCalEECellCorner13Coarse1, HGCalEECellCorner14Coarse1,
+       HGCalEECellCorner15Coarse1, HGCalEECellCorner16Coarse1</Vector>
+    <Vector name="CornerSensitive" type="string" nEntries="6">
+      HGCalEESenitiveCorner11Coarse1, HGCalEESenitiveCorner12Coarse1,
+      HGCalEESenitiveCorner13Coarse1, HGCalEESenitiveCorner14Coarse1,
+      HGCalEESenitiveCorner15Coarse1, HGCalEESenitiveCorner16Coarse1</Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalCell">
+    <rParent name="hgcalwafer:HGCalCell"/>
+    <Numeric name="WaferSize"    value="[WaferSize]"/>
+    <Numeric name="WaferThick"   value="[WaferThickness]"/>
+    <Numeric name="CellThick"    value="[CellThicknessCoarse2]"/>
+    <Numeric name="NCells"       value="[NumberOfCellsCoarse]"/>
+    <Numeric name="PosSensitive" value="0"/>
+    <String name="Material"      value="materials:Silicon"/>
+    <String name="FullCell"      value="HGCalEECellFull0Coarse2"/>
+    <String name="FullSensitive" value="HGCalEESenitiveFull0Coarse2"/>
+    <Vector name="TruncatedCell" type="string" nEntries="3">
+       HGCalEECellTrunc01Coarse2, HGCalEECellTrunc02Coarse2,
+       HGCalEECellTrunc03Coarse2</Vector>
+    <Vector name="TruncatedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveTrunc01Coarse2, HGCalEESenitiveTrunc02Coarse2,
+      HGCalEESenitiveTrunc03Coarse2</Vector>
+    <Vector name="ExtendedCell" type="string" nEntries="3">
+       HGCalEECellExten01Coarse2, HGCalEECellExten02Coarse2,
+       HGCalEECellExten03Coarse2</Vector>
+    <Vector name="ExtendedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveExten01Coarse2, HGCalEESenitiveExten02Coarse2,
+      HGCalEESenitiveExten03Coarse2</Vector>
+    <Vector name="CornerCell" type="string" nEntries="6">
+       HGCalEECellCorner01Coarse2, HGCalEECellCorner02Coarse2,
+       HGCalEECellCorner03Coarse2, HGCalEECellCorner04Coarse2,
+       HGCalEECellCorner05Coarse2, HGCalEECellCorner06Coarse2</Vector>
+    <Vector name="CornerSensitive" type="string" nEntries="6">
+      HGCalEESenitiveCorner01Coarse2, HGCalEESenitiveCorner02Coarse2,
+      HGCalEESenitiveCorner03Coarse2, HGCalEESenitiveCorner04Coarse2,
+      HGCalEESenitiveCorner05Coarse2, HGCalEESenitiveCorner06Coarse2</Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalCell">
+    <rParent name="hgcalwafer:HGCalCell"/>
+    <Numeric name="WaferSize"    value="[WaferSize]"/>
+    <Numeric name="WaferThick"   value="[WaferThickness]"/>
+    <Numeric name="CellThick"    value="[CellThicknessCoarse2]"/>
+    <Numeric name="NCells"       value="[NumberOfCellsCoarse]"/>
+    <Numeric name="PosSensitive" value="1"/>
+    <String name="Material"      value="materials:Silicon"/>
+    <String name="FullCell"      value="HGCalEECellFull1Coarse2"/>
+    <String name="FullSensitive" value="HGCalEESenitiveFull1Coarse2"/>
+    <Vector name="TruncatedCell" type="string" nEntries="3">
+       HGCalEECellTrunc11Coarse2, HGCalEECellTrunc12Coarse2,
+       HGCalEECellTrunc13Coarse2</Vector>
+    <Vector name="TruncatedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveTrunc11Coarse2, HGCalEESenitiveTrunc12Coarse2,
+      HGCalEESenitiveTrunc13Coarse2</Vector>
+    <Vector name="ExtendedCell" type="string" nEntries="3">
+       HGCalEECellExten11Coarse2, HGCalEECellExten12Coarse2,
+       HGCalEECellExten13Coarse2</Vector>
+    <Vector name="ExtendedSensitive" type="string" nEntries="3">
+      HGCalEESenitiveExten11Coarse2, HGCalEESenitiveExten12Coarse2,
+      HGCalEESenitiveExten13Coarse2</Vector>
+    <Vector name="CornerCell" type="string" nEntries="6">
+       HGCalEECellCorner11Coarse2, HGCalEECellCorner12Coarse2,
+       HGCalEECellCorner13Coarse2, HGCalEECellCorner14Coarse2,
+       HGCalEECellCorner15Coarse2, HGCalEECellCorner16Coarse2</Vector>
+    <Vector name="CornerSensitive" type="string" nEntries="6">
+      HGCalEESenitiveCorner11Coarse2, HGCalEESenitiveCorner12Coarse2,
+      HGCalEESenitiveCorner13Coarse2, HGCalEESenitiveCorner14Coarse2,
+      HGCalEESenitiveCorner15Coarse2, HGCalEESenitiveCorner16Coarse2</Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalCell">
+    <rParent name="hgcalwafer:HGCalCell"/>
+    <Numeric name="WaferSize"    value="[WaferSize]"/>
+    <Numeric name="WaferThick"   value="[WaferThickness]"/>
+    <Numeric name="CellThick"    value="[CellThicknessFine]"/>
+    <Numeric name="NCells"       value="[NumberOfCellsFine]"/>
+    <Numeric name="PosSensitive" value="0"/>
+    <String name="Material"      value="materials:Silicon"/>
+    <String name="FullCell"      value="HGCalHECellFull0Fine"/>
+    <String name="FullSensitive" value="HGCalHESenitiveFull0Fine"/>
+    <Vector name="TruncatedCell" type="string" nEntries="3">
+       HGCalHECellTrunc01Fine, HGCalHECellTrunc02Fine,
+       HGCalHECellTrunc03Fine</Vector>
+    <Vector name="TruncatedSensitive" type="string" nEntries="3">
+      HGCalHESenitiveTrunc01Fine, HGCalHESenitiveTrunc02Fine,
+      HGCalHESenitiveTrunc03Fine</Vector>
+    <Vector name="ExtendedCell" type="string" nEntries="3">
+       HGCalHECellExten01Fine, HGCalHECellExten02Fine,
+       HGCalHECellExten03Fine</Vector>
+    <Vector name="ExtendedSensitive" type="string" nEntries="3">
+      HGCalHESenitiveExten01Fine, HGCalHESenitiveExten02Fine,
+      HGCalHESenitiveExten03Fine</Vector>
+    <Vector name="CornerCell" type="string" nEntries="6">
+       HGCalHECellCorner01Fine, HGCalHECellCorner02Fine,
+       HGCalHECellCorner03Fine, HGCalHECellCorner04Fine,
+       HGCalHECellCorner05Fine, HGCalHECellCorner06Fine</Vector>
+    <Vector name="CornerSensitive" type="string" nEntries="6">
+      HGCalHESenitiveCorner01Fine, HGCalHESenitiveCorner02Fine,
+      HGCalHESenitiveCorner03Fine, HGCalHESenitiveCorner04Fine,
+      HGCalHESenitiveCorner05Fine, HGCalHESenitiveCorner06Fine</Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalCell">
+    <rParent name="hgcalwafer:HGCalCell"/>
+    <Numeric name="WaferSize"    value="[WaferSize]"/>
+    <Numeric name="WaferThick"   value="[WaferThickness]"/>
+    <Numeric name="CellThick"    value="[CellThicknessCoarse1]"/>
+    <Numeric name="NCells"       value="[NumberOfCellsCoarse]"/>
+    <Numeric name="PosSensitive" value="0"/>
+    <String name="Material"      value="materials:Silicon"/>
+    <String name="FullCell"      value="HGCalHECellFull0Coarse1"/>
+    <String name="FullSensitive" value="HGCalHESenitiveFull0Coarse1"/>
+    <Vector name="TruncatedCell" type="string" nEntries="3">
+       HGCalHECellTrunc01Coarse1, HGCalHECellTrunc02Coarse1,
+       HGCalHECellTrunc03Coarse1</Vector>
+    <Vector name="TruncatedSensitive" type="string" nEntries="3">
+      HGCalHESenitiveTrunc01Coarse1, HGCalHESenitiveTrunc02Coarse1,
+      HGCalHESenitiveTrunc03Coarse1</Vector>
+    <Vector name="ExtendedCell" type="string" nEntries="3">
+       HGCalHECellExten01Coarse1, HGCalHECellExten02Coarse1,
+       HGCalHECellExten03Coarse1</Vector>
+    <Vector name="ExtendedSensitive" type="string" nEntries="3">
+      HGCalHESenitiveExten01Coarse1, HGCalHESenitiveExten02Coarse1,
+      HGCalHESenitiveExten03Coarse1</Vector>
+    <Vector name="CornerCell" type="string" nEntries="6">
+       HGCalHECellCorner01Coarse1, HGCalHECellCorner02Coarse1,
+       HGCalHECellCorner03Coarse1, HGCalHECellCorner04Coarse1,
+       HGCalHECellCorner05Coarse1, HGCalHECellCorner06Coarse1</Vector>
+    <Vector name="CornerSensitive" type="string" nEntries="6">
+      HGCalHESenitiveCorner01Coarse1, HGCalHESenitiveCorner02Coarse1,
+      HGCalHESenitiveCorner03Coarse1, HGCalHESenitiveCorner04Coarse1,
+      HGCalHESenitiveCorner05Coarse1, HGCalHESenitiveCorner06Coarse1</Vector>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalCell">
+    <rParent name="hgcalwafer:HGCalCell"/>
+    <Numeric name="WaferSize"    value="[WaferSize]"/>
+    <Numeric name="WaferThick"   value="[WaferThickness]"/>
+    <Numeric name="CellThick"    value="[CellThicknessCoarse2]"/>
+    <Numeric name="NCells"       value="[NumberOfCellsCoarse]"/>
+    <Numeric name="PosSensitive" value="0"/>
+    <String name="Material"      value="materials:Silicon"/>
+    <String name="FullCell"      value="HGCalHECellFull0Coarse2"/>
+    <String name="FullSensitive" value="HGCalHESenitiveFull0Coarse2"/>
+    <Vector name="TruncatedCell" type="string" nEntries="3">
+       HGCalHECellTrunc01Coarse2, HGCalHECellTrunc02Coarse2,
+       HGCalHECellTrunc03Coarse2</Vector>
+    <Vector name="TruncatedSensitive" type="string" nEntries="3">
+      HGCalHESenitiveTrunc01Coarse2, HGCalHESenitiveTrunc02Coarse2,
+      HGCalHESenitiveTrunc03Coarse2</Vector>
+    <Vector name="ExtendedCell" type="string" nEntries="3">
+       HGCalHECellExten01Coarse2, HGCalHECellExten02Coarse2,
+       HGCalHECellExten03Coarse2</Vector>
+    <Vector name="ExtendedSensitive" type="string" nEntries="3">
+      HGCalHESenitiveExten01Coarse2, HGCalHESenitiveExten02Coarse2,
+      HGCalHESenitiveExten03Coarse2</Vector>
+    <Vector name="CornerCell" type="string" nEntries="6">
+       HGCalHECellCorner01Coarse2, HGCalHECellCorner02Coarse2,
+       HGCalHECellCorner03Coarse2, HGCalHECellCorner04Coarse2,
+       HGCalHECellCorner05Coarse2, HGCalHECellCorner06Coarse2</Vector>
+    <Vector name="CornerSensitive" type="string" nEntries="6">
+      HGCalHESenitiveCorner01Coarse2, HGCalHESenitiveCorner02Coarse2,
+      HGCalHESenitiveCorner03Coarse2, HGCalHESenitiveCorner04Coarse2,
+      HGCalHESenitiveCorner05Coarse2, HGCalHESenitiveCorner06Coarse2</Vector>
+  </Algorithm>
+</PosPartSection>
+
+</DDDefinition>

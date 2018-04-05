@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="tidmodpar.xml" eval="true">
+		<Constant name="DetTilt" value="0.100*rad"/>
+		<Constant name="ModuleThickDS" value="0.710*cm"/>
+		<Constant name="ModuleThickSS" value="0.552*cm"/>
+		<Constant name="WaferThick" value="0.032*cm"/>
+		<Constant name="ActiveZDS" value="0.121*cm"/>
+		<Constant name="ActiveZSS" value="0*cm"/>
+		<Constant name="PitchThick" value="0.1130*cm"/>
+		<Constant name="PitchZDS" value="0.1315*cm"/>
+		<Constant name="PitchZSS" value="0.0105*cm"/>
+		<Constant name="HybridHeight" value="2.53*cm"/>
+		<Constant name="HybridWidth" value="4.70*cm"/>
+		<Constant name="HybridThick" value="[PitchThick]"/>
+		<Constant name="HybridZDS" value="[PitchZDS]"/>
+		<Constant name="HybridZSS" value="[PitchZSS]"/>
+		<Constant name="KaptonThick" value="0.030*cm"/>
+		<Constant name="KaptonZDS" value="0.090*cm"/>
+		<Constant name="KaptonZSS" value="-0.031*cm"/>
+		<Constant name="KaptonOver" value="0.400*cm"/>
+		<Constant name="BoxFrameWidth" value="7.70*cm"/>
+		<Constant name="BoxFrameHeightDS" value="1.95*cm"/>
+		<Constant name="BoxFrameHeightSS" value="[HybridHeight]"/>
+		<Constant name="BoxFrameThick" value="0.050*cm"/>
+		<Constant name="BoxFrameZDS" value="0.050*cm"/>
+		<Constant name="BoxFrameZSS" value="-0.071*cm"/>
+		<Constant name="SideFrameThick" value="[BoxFrameThick]"/>
+		<Constant name="SideFrameZDS" value="[BoxFrameZDS]"/>
+		<Constant name="SideFrameZSS" value="[BoxFrameZSS]"/>
+		<Constant name="SideFrameOver" value="0.200*cm"/>
+		<Constant name="BottomFrameOverDS" value="0.20*cm"/>
+		<Constant name="BottomFrameOverSS" value="0.15*cm"/>
+		<Constant name="TopFrameOverDS" value="0.15*cm"/>
+		<Constant name="TopFrameOverSS" value="0.20*cm"/>
+		<Constant name="PitchStereoTolerance" value="0.02*cm"/>
+		<!-- Cool Insert section -->
+		<Constant name="CoolInsertHeightSS" value="1.4*cm"/>
+		<Constant name="CoolInsertWidthSS" value="0.8*cm"/>
+		<Constant name="CoolInsertThickSS" value="0.18*cm"/>
+		<Constant name="CoolInsertZSS" value="[BoxFrameZSS]-0.5*([BoxFrameThick]+[CoolInsertThickSS])"/>
+		<Constant name="CoolInsertHeightDS" value="1.3*cm"/>
+		<Constant name="CoolInsertWidthDS" value="0.7*cm"/>
+		<Constant name="CoolInsertThickDS" value="0.25*cm"/>
+		<Constant name="CoolInsertZDS" value="-([KaptonZDS]+0.5*([KaptonThick]+[CoolInsertThickDS]))"/>
+		<!-- Spacers Section DS modules -->
+		<Constant name="BottomSpacersHeight" value="2.15*cm"/>
+		<Constant name="BottomSpacersWidth" value="7.70*cm"/>
+		<Constant name="BottomSpacersThick" value="0.050*cm"/>
+		<Constant name="BottomSpacersZ" value="[tid:zero]"/>
+		<Constant name="SideSpacersHeight" value="3.1*cm"/>
+		<Constant name="SideSpacersWidth" value="0.9*cm"/>
+		<!-- ~ 25% smaller then real ones -->
+		<Constant name="SideSpacersThick" value="[BottomSpacersThick]"/>
+		<Constant name="SideSpacersZ" value="[BottomSpacersZ]"/>
+	</ConstantsSection>
+	<SolidSection label="tidmodpar.xml">
+		<Box name="BottomSpacers" dx="[BottomSpacersWidth]/2" dy="[BottomSpacersThick]/2" dz="[BottomSpacersHeight]/2"/>
+		<Box name="SideSpacers" dx="[SideSpacersWidth]/2" dy="[SideSpacersThick]/2" dz="[SideSpacersHeight]/2"/>
+	</SolidSection>
+	<LogicalPartSection label="tidmodpar.xml">
+		<LogicalPart name="TIDBottomSpacers" category="unspecified">
+			<rSolid name="tidmodpar:BottomSpacers"/>
+			<rMaterial name="tidmaterial:TID_Spacer"/>
+		</LogicalPart>
+		<LogicalPart name="TIDSideSpacers" category="unspecified">
+			<rSolid name="tidmodpar:SideSpacers"/>
+			<rMaterial name="tidmaterial:TID_Spacer"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<RotationSection label="tidmodpar.xml">
+		<Rotation name="90ZD" thetaX="-90*deg" phiX="0*deg" thetaY="180*deg" phiY="0*deg" thetaZ="-90*deg" phiZ="90*deg"/>
+		<Rotation name="9NYX" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="-90*deg" phiZ="0*deg"/>
+		<Rotation name="9PYX" thetaX="0*deg" phiX="0*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="90*deg" phiZ="0*deg"/>
+		<Rotation name="RFI1" thetaX="-90*deg" phiX="0*deg" thetaY="-90*deg" phiY="90*deg" thetaZ="0*deg" phiZ="0*deg"/>
+		<Rotation name="RFI2" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="180*deg" phiZ="0*deg"/>
+		<Rotation name="F100" thetaX="84.2704*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="5.7296*deg" phiZ="180*deg"/>
+		<Rotation name="G100" thetaX="-95.7296*deg" phiX="180*deg" thetaY="-90*deg" phiY="-90*deg" thetaZ="-5.7296*deg" phiZ="180*deg"/>
+		<Rotation name="R180" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="-90*deg" thetaZ="0*deg" phiZ="0*deg"/>
+	</RotationSection>
+</DDDefinition>

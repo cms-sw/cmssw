@@ -15,8 +15,8 @@
 #include<fstream>
 #include<string>
 #include<vector>
-#include<stdlib.h>
-#include <FWCore/Framework/interface/EventSetup.h>
+#include<cstdlib>
+#include "FWCore/Framework/interface/EventSetup.h"
 
 
 class RPCGeometry;
@@ -30,7 +30,7 @@ class RPCSimAverage : public RPCSim
  public:
 
   RPCSimAverage(const edm::ParameterSet& config);
-  ~RPCSimAverage();
+  ~RPCSimAverage() override;
 
   void simulate(const RPCRoll* roll,
 		const edm::PSimHitContainer& rpcHits,
@@ -41,7 +41,7 @@ class RPCSimAverage : public RPCSim
   int getClSize(float posX, CLHEP::HepRandomEngine*);
 
  private:
-  void init(){};
+  void init() override{};
  private:
   double aveEff;
   double aveCls;

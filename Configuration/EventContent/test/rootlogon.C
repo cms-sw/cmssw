@@ -1,4 +1,4 @@
 {
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 }

@@ -89,10 +89,11 @@ void HFClusterAlgo::setup(double minTowerEnergy, double seedThreshold,double max
 
 /** Analyze the hits */
 void HFClusterAlgo::clusterize(const HFRecHitCollection& hf, 
-			       const CaloGeometry& geom,
+			       const CaloGeometry& geomO,
 			       HFEMClusterShapeCollection& clusterShapes,
 			       SuperClusterCollection& SuperClusters) {
   
+  const CaloGeometry* geom(&geomO);
   std::vector<HFCompleteHit> protoseeds, seeds;
   HFRecHitCollection::const_iterator j,j2;
   std::vector<HFCompleteHit>::iterator i;
@@ -118,9 +119,9 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
     }
 
     if (m_cutByEta[iz]<0) {
-      double eta=geom.getPosition(j->id()).eta();
+      double eta=geom->getPosition(j->id()).eta();
       m_cutByEta[iz]=m_seedThreshold*cosh(eta); // convert ET to E for this ring
-      const CaloCellGeometry* ccg=geom.getGeometry(j->id()); 
+      auto ccg=geom->getGeometry(j->id()); 
       const CaloCellGeometry::CornersVec& CellCorners=ccg->getCorners();
       for(size_t sc=0;sc<CellCorners.size();sc++){
 	if(fabs(CellCorners[sc].z())<1200){
@@ -141,7 +142,7 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
       if(isPMTHit(*j)) continue;
 
       HFCompleteHit ahit;
-      double eta=geom.getPosition(j->id()).eta();
+      double eta=geom->getPosition(j->id()).eta();
       ahit.id=j->id();
       ahit.energy=elong;
       ahit.et=ahit.energy/cosh(eta);
@@ -194,7 +195,7 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
 
 bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 				const HFRecHitCollection& hf, 
-				const CaloGeometry& geom,
+				const CaloGeometry* geom,
 				HFEMClusterShape& clusShp,
 				SuperCluster& Sclus)  {
 			
@@ -217,7 +218,7 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
   double s_1=0;
   int de, dp, phiWrap;
   double l_1e=0;
-  GlobalPoint sp=geom.getPosition(seedid);
+  const GlobalPoint& sp=geom->getPosition(seedid);
   std::vector<double> coreCanid;
   std::vector<double>::const_iterator ci;
   HFRecHitCollection::const_iterator i,is,il;
@@ -310,7 +311,7 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
 	  }
 	  
 	  // position calculation
-	  GlobalPoint p=geom.getPosition(idl);
+	  const GlobalPoint& p=geom->getPosition(idl);
           
 	  double d_p = p.phi()-sp.phi();
 	  while (d_p < -M_PI)

@@ -80,7 +80,7 @@ edm::ParameterSet ConfigurableAdaptiveReconstructor::defaults() const
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfRecoBuilder.h"
 
 namespace {
-  ConfRecoBuilder < ConfigurableAdaptiveReconstructor > t
+  const ConfRecoBuilder < ConfigurableAdaptiveReconstructor > t
     ( "avr", "Adaptive Vertex Reconstructor [ = Iterative avf]" );
   // ConfRecoBuilder < ConfigurableAdaptiveReconstructor > s ( "default", "Adaptive Vertex Reconstructor [ = Iterative avf]" );
 }

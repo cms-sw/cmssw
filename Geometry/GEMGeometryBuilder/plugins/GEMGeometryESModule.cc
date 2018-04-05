@@ -30,26 +30,28 @@ GEMGeometryESModule::GEMGeometryESModule(const edm::ParameterSet & p)
   setWhatProduced(this);
 }
 
-
 GEMGeometryESModule::~GEMGeometryESModule(){}
 
-
-boost::shared_ptr<GEMGeometry>
+std::shared_ptr<GEMGeometry>
 GEMGeometryESModule::produce(const MuonGeometryRecord & record) 
 {
-  if(useDDD){
+  gemGeometry = std::make_shared<GEMGeometry>();
+  
+  if( useDDD ) {
     edm::ESTransientHandle<DDCompactView> cpv;
     record.getRecord<IdealGeometryRecord>().get(cpv);
     edm::ESHandle<MuonDDDConstants> mdc;
     record.getRecord<MuonNumberingRecord>().get(mdc);
     GEMGeometryBuilderFromDDD builder;
-    return boost::shared_ptr<GEMGeometry>(builder.build(&(*cpv), *mdc));
-  }else{
+    builder.build(gemGeometry, &(*cpv), *mdc);
+  } else {
     edm::ESHandle<RecoIdealGeometry> riggem;
     record.getRecord<GEMRecoGeometryRcd>().get(riggem);
     GEMGeometryBuilderFromCondDB builder;
-    return boost::shared_ptr<GEMGeometry>(builder.build(*riggem));
+    builder.build(gemGeometry, *riggem);
   }
+  
+  return gemGeometry;  
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(GEMGeometryESModule);

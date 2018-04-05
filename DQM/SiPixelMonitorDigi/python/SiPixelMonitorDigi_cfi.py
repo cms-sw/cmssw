@@ -1,6 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-SiPixelDigiSource = cms.EDAnalyzer("SiPixelDigiSource",
+#
+# This object is used to make changes for different running scenarios
+#
+
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+SiPixelDigiSource = DQMEDAnalyzer('SiPixelDigiSource',
     TopFolderName = cms.string('Pixel'),
     src = cms.InputTag("siPixelDigis"),
     outputFile = cms.string('Pixel_DQM_Digi.root'),
@@ -26,4 +31,7 @@ SiPixelDigiSource = cms.EDAnalyzer("SiPixelDigiSource",
     bigEventSize = cms.untracked.int32(1000)
 )
 
+# Modify for if the phase 1 pixel detector is active
+from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
+phase1Pixel.toModify( SiPixelDigiSource, isUpgrade=cms.untracked.bool(True) )
 

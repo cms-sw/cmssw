@@ -10,10 +10,10 @@ using namespace oracle::occi;
 
 FEConfigLinParamDat::FEConfigLinParamDat()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
 
   m_etsat = 0;
 }
@@ -27,7 +27,7 @@ FEConfigLinParamDat::~FEConfigLinParamDat()
 
 
 void FEConfigLinParamDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -38,14 +38,14 @@ void FEConfigLinParamDat::prepareWrite()
 		      "VALUES (:lin_conf_id, :logic_id, "
 		      ":etsat )" );
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLinParamDat::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLinParamDat::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void FEConfigLinParamDat::writeDB(const EcalLogicID* ecid, const FEConfigLinParamDat* item, FEConfigLinInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -63,14 +63,14 @@ void FEConfigLinParamDat::writeDB(const EcalLogicID* ecid, const FEConfigLinPara
 
     m_writeStmt->executeUpdate();
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLinParamDat::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLinParamDat::writeDB():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void FEConfigLinParamDat::fetchData(map< EcalLogicID, FEConfigLinParamDat >* fillMap, FEConfigLinInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();
@@ -95,12 +95,12 @@ void FEConfigLinParamDat::fetchData(map< EcalLogicID, FEConfigLinParamDat >* fil
     std::pair< EcalLogicID, FEConfigLinParamDat > p;
     FEConfigLinParamDat dat;
     while(rset->next()) {
-      p.first = EcalLogicID( rset->getString(1),     // name
+      p.first = EcalLogicID( getOraString(rset,1),     // name
 			     rset->getInt(2),        // logic_id
 			     rset->getInt(3),        // id1
 			     rset->getInt(4),        // id2
 			     rset->getInt(5),        // id3
-			     rset->getString(6));    // maps_to
+			     getOraString(rset,6));    // maps_to
 
 
 
@@ -110,12 +110,12 @@ void FEConfigLinParamDat::fetchData(map< EcalLogicID, FEConfigLinParamDat >* fil
       fillMap->insert(p);
     }
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLinParamDat::fetchData:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLinParamDat::fetchData:  ")+getOraMessage(&e)));
   }
 }
 
 void FEConfigLinParamDat::writeArrayDB(const std::map< EcalLogicID, FEConfigLinParamDat >* data, FEConfigLinInfo* iconf)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -174,6 +174,6 @@ void FEConfigLinParamDat::writeArrayDB(const std::map< EcalLogicID, FEConfigLinP
     delete [] x_len;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("FEConfigLinParamDat::writeArrayDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("FEConfigLinParamDat::writeArrayDB():  ")+getOraMessage(&e)));
   }
 }

@@ -85,8 +85,8 @@ float EcalClusterLocalContCorrection::getValue( const reco::SuperCluster & super
   int iphiclosest = 0;
   for (unsigned int icry=0; icry!=crystals_vector.size(); ++icry) {    
     EBDetId crystal(crystals_vector[icry].first);
-    const CaloCellGeometry* cell=geom->getGeometry(crystal);
-    GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
+    auto cell = geom->getGeometry(crystal);
+    GlobalPoint center_pos = cell->getPosition(depth);
     double EtaCentr = center_pos.eta();
     double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
     if (TMath::Abs(EtaCentr-Eta) < detamin) {
@@ -101,8 +101,8 @@ float EcalClusterLocalContCorrection::getValue( const reco::SuperCluster & super
   EBDetId crystalseed(ietaclosest, iphiclosest);
   
   // Get center cell position from shower depth
-  const CaloCellGeometry* cell=geom->getGeometry(crystalseed);
-  GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
+  auto cell = geom->getGeometry(crystalseed);
+  GlobalPoint center_pos = cell->getPosition(depth);
   
   //if the seed crystal is neighbourgh of a supermodule border, don't apply the phi dependent  containment corrections, but use the larger crack corrections instead.
   int iphimod20 = TMath::Abs(iphiclosest%20);

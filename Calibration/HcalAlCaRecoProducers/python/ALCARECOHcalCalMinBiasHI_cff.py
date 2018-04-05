@@ -4,19 +4,7 @@ import FWCore.ParameterSet.Config as cms
 #AlCaReco filtering for HCAL minbias:
 #------------------------------------------------
 
-import EventFilter.HcalRawToDigi.HcalRawToDigi_cfi
-hcalDigiAlCaMB = EventFilter.HcalRawToDigi.HcalRawToDigi_cfi.hcalDigis.clone()
-import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi
-hbherecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hbhe_cfi.hbheprereco.clone()
-import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
-hfrecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
-import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi
-hfrecoMBspecial = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_hf_cfi.hfreco.clone()
-import RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi
-horecoNoise = RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi.horeco.clone()
-#add GT digi:
-import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
-gtDigisAlCaMB = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBiasNoise_cff import *
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 hcalminbiasHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
@@ -25,37 +13,78 @@ hcalminbiasHLT =  HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     throw = False #dont throw except on unknown path name 
 )
 
-seqALCARECOHcalCalMinBias = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDigisAlCaMB*hbherecoNoise*hfrecoNoise*hfrecoMBspecial*horecoNoise)
+import RecoLocalCalo.HcalRecProducers.HBHEPhase1Reconstructor_cfi
 
-gtDigisAlCaMB.DaqGtInputTag = 'source'
+import RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi
+hfrecoMBNZS = RecoLocalCalo.HcalRecProducers.hfsimplereco_cfi.hfsimplereco.clone()
 
-hcalDigiAlCaMB.firstSample = 0
-hcalDigiAlCaMB.lastSample = 9
-hcalDigiAlCaMB.InputLabel = 'rawDataCollector'
+hfrecoMBNZS.firstSample = 2
+hfrecoMBNZS.samplesToAdd = 2
+hfrecoMBNZS.digiLabel = 'hcalDigiAlCaMB'
+hfrecoMBNZS.tsFromDB = cms.bool(False)
+hfrecoMBNZS.dropZSmarkedPassed = cms.bool(False)
 
-hbherecoNoise.firstSample = 0
-hbherecoNoise.samplesToAdd = 4
-hbherecoNoise.digiLabel = 'hcalDigiAlCaMB'
+seqALCARECOHcalCalMinBiasDigi = cms.Sequence(hcalminbiasHLT*hcalDigiAlCaMB*gtDigisAlCaMB)
+seqALCARECOHcalCalMinBias = cms.Sequence(hbherecoNoise*hfrecoNoise*hfrecoMBNZS*horecoNoise)
 
-hfrecoNoise.firstSample = 0
-hfrecoNoise.samplesToAdd = 2
-hfrecoNoise.digiLabel = 'hcalDigiAlCaMB'
+import RecoLocalCalo.HcalRecProducers.hfprereco_cfi
+hfprerecoMBNZS = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
+    digiLabel = cms.InputTag("hcalDigiAlCaMB"),
+    dropZSmarkedPassed = cms.bool(False),
+    tsFromDB = cms.bool(False),
+    sumAllTimeSlices = cms.bool(True),
+    forceSOI = cms.int32(1)
+)
+hfprerecoNoise = RecoLocalCalo.HcalRecProducers.hfprereco_cfi.hfprereco.clone(
+    digiLabel = cms.InputTag("hcalDigiAlCaMB"),
+    dropZSmarkedPassed = cms.bool(False),
+    tsFromDB = cms.bool(False),
+    sumAllTimeSlices = cms.bool(False),
+    forceSOI = cms.int32(0)
+)
 
-hfrecoMBspecial.firstSample = 2
-hfrecoMBspecial.samplesToAdd = 2
-hfrecoMBspecial.digiLabel = 'hcalDigiAlCaMB'
+import RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi
+_phase1_hfrecoMBNZS = RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi.hfreco.clone(
+    inputLabel = cms.InputTag("hfprerecoMBNZS"),
+    setNoiseFlags = cms.bool(False),
+    algorithm = dict(
+        Class = cms.string("HFSimpleTimeCheck"),
+        rejectAllFailures = cms.bool(False)
+    ),
+)
+_phase1_hfrecoNoise = RecoLocalCalo.HcalRecProducers.HFPhase1Reconstructor_cfi.hfreco.clone(
+    inputLabel = cms.InputTag("hfprerecoNoise"),
+    setNoiseFlags = cms.bool(False),
+    algorithm = dict(
+        Class = cms.string("HFSimpleTimeCheck"),
+        rejectAllFailures = cms.bool(False)
+    ),
+)
 
-horecoNoise.firstSample = 0
-horecoNoise.samplesToAdd = 4
-horecoNoise.digiLabel = 'hcalDigiAlCaMB'
+_phase1_seqALCARECOHcalCalMinBias = seqALCARECOHcalCalMinBias.copy()
+_phase1_seqALCARECOHcalCalMinBias.insert(0,hfprerecoMBNZS)
+_phase1_seqALCARECOHcalCalMinBias.insert(0,hfprerecoNoise)
 
-#switch off "ZS in reco":
-hbherecoNoise.dropZSmarkedPassed = cms.bool(False)
-hfrecoNoise.dropZSmarkedPassed = cms.bool(False)
-horecoNoise.dropZSmarkedPassed = cms.bool(False)
-hfrecoMBspecial.dropZSmarkedPassed = cms.bool(False)
-hbherecoNoise.tsFromDB = cms.bool(False)
-hfrecoNoise.tsFromDB = cms.bool(False)
-hfrecoMBspecial.tsFromDB = cms.bool(False)
-horecoNoise.tsFromDB = cms.bool(False)
+from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
+run2_HF_2017.toReplaceWith( seqALCARECOHcalCalMinBias, _phase1_seqALCARECOHcalCalMinBias )
+run2_HF_2017.toReplaceWith( hfrecoNoise, _phase1_hfrecoNoise )
+run2_HF_2017.toReplaceWith( hfrecoMBNZS, _phase1_hfrecoMBNZS )
 
+import RecoLocalCalo.HcalRecProducers.hbheplan1_cfi
+hbheplan1Noise = RecoLocalCalo.HcalRecProducers.hbheplan1_cfi.hbheplan1.clone(
+    hbheInput = cms.InputTag("hbheprerecoNoise")
+)
+
+from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
+run2_HCAL_2017.toModify( hbherecoNoise,
+    processQIE11 = cms.bool(True),
+# temporarily disabled until RecoLocalCalo/HcalRecProducers/python/HBHEPhase1Reconstructor_cfi.py:flagParametersQIE11 is filled
+#    setNoiseFlagsQIE11 = cms.bool(True),
+)
+
+_plan1_seqALCARECOHcalCalMinBias = _phase1_seqALCARECOHcalCalMinBias.copy()
+hbheprerecoNoise = hbherecoNoise.clone()
+_plan1_seqALCARECOHcalCalMinBias.insert(0,hbheprerecoNoise)
+from Configuration.Eras.Modifier_run2_HEPlan1_2017_cff import run2_HEPlan1_2017
+run2_HEPlan1_2017.toReplaceWith(hbherecoNoise, hbheplan1Noise)
+run2_HEPlan1_2017.toReplaceWith(seqALCARECOHcalCalMinBias, _plan1_seqALCARECOHcalCalMinBias)

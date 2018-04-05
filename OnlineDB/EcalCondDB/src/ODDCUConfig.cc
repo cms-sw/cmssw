@@ -9,10 +9,10 @@ using namespace oracle::occi;
 
 ODDCUConfig::ODDCUConfig()
 {
-  m_env = NULL;
-  m_conn = NULL;
-  m_writeStmt = NULL;
-  m_readStmt = NULL;
+  m_env = nullptr;
+  m_conn = nullptr;
+  m_writeStmt = nullptr;
+  m_readStmt = nullptr;
   m_config_tag="";
   m_ID=0;
   clear();
@@ -41,7 +41,7 @@ void ODDCUConfig::setParameters(const std::map<string,string>& my_keys_map){
   
 }
 
-int ODDCUConfig::fetchNextId()  throw(std::runtime_error) {
+int ODDCUConfig::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -57,14 +57,14 @@ int ODDCUConfig::fetchNextId()  throw(std::runtime_error) {
     return result; 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUConfig::fetchNextId():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCUConfig::fetchNextId():  ")+getOraMessage(&e)));
   }
 
 }
 
 
 void ODDCUConfig::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   int next_id=fetchNextId();
@@ -78,14 +78,14 @@ void ODDCUConfig::prepareWrite()
     m_ID=next_id;
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUConfig::prepareWrite():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCUConfig::prepareWrite():  ")+getOraMessage(&e)));
   }
 }
 
 
 
 void ODDCUConfig::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -98,7 +98,7 @@ void ODDCUConfig::writeDB()
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUConfig::writeDB():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCUConfig::writeDB():  ")+getOraMessage(&e)));
   }
   // Now get the ID
   if (!this->fetchID()) {
@@ -111,11 +111,11 @@ void ODDCUConfig::writeDB()
 
 
 void ODDCUConfig::fetchData(ODDCUConfig * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag()=="") ){
+  if(result->getId()==0 && (result->getConfigTag().empty()) ){
     throw(std::runtime_error("ODDCUConfig::fetchData(): no Id defined for this ODDCUConfig "));
   }
 
@@ -131,15 +131,15 @@ void ODDCUConfig::fetchData(ODDCUConfig * result)
     rset->next();
     // 1 is the id and 2 is the config tag
     result->setId(rset->getInt(1));
-    result->setConfigTag(rset->getString(2));
+    result->setConfigTag(getOraString(rset,2));
 
 
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUConfig::fetchData():  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCUConfig::fetchData():  ")+getOraMessage(&e)));
   }
 }
 
-int ODDCUConfig::fetchID()    throw(std::runtime_error)
+int ODDCUConfig::fetchID()    noexcept(false)
 {
   // Return from memory if available
   if (m_ID!=0) {
@@ -164,7 +164,7 @@ int ODDCUConfig::fetchID()    throw(std::runtime_error)
     }
     m_conn->terminateStatement(stmt);
   } catch (SQLException &e) {
-    throw(std::runtime_error("ODDCUConfig::fetchID:  "+e.getMessage()));
+    throw(std::runtime_error(std::string("ODDCUConfig::fetchID:  ")+getOraMessage(&e)));
   }
 
   return m_ID;

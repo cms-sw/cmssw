@@ -29,7 +29,7 @@
 #include <vector>
 #include <sstream>
 #include <limits>
-#include <assert.h>
+#include <cassert>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -55,12 +55,12 @@ bool orderLuminosityBlockRange (edm::LuminosityBlockRange u, edm::LuminosityBloc
 class PickEvents : public edm::EDFilter {
    public:
       explicit PickEvents(const edm::ParameterSet&);
-      ~PickEvents();
+      ~PickEvents() override;
 
    private:
-      virtual void beginJob() override ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      void beginJob() override ;
+      bool filter(edm::Event&, const edm::EventSetup&) override;
+      void endJob() override ;
 
   std::string listrunevents_; 
   std::string listruneventsinpath_; 
@@ -91,11 +91,11 @@ PickEvents::PickEvents(const edm::ParameterSet& iConfig)
   listrunevents_=listruneventstmp.fullPath();
 
   // sanity checks
-  if ( isRunLsBased_ && luminositySectionsBlockRanges_.size()==0 ) {
-    assert( "ERROR: selection based on run/Lumisection from json file, but LuminositySectionsBlockRange is emptpy." ==0 );
+  if ( isRunLsBased_ && luminositySectionsBlockRanges_.empty() ) {
+    assert( "ERROR: selection based on run/Lumisection from json file, but LuminositySectionsBlockRange is emptpy." ==nullptr );
   }
-  if ( (!isRunLsBased_) && luminositySectionsBlockRanges_.size()>0 ) {
-    assert( "ERROR: selection based on run/event from txt file, but LuminositySectionsBlockRange is not emptpy." ==0 );
+  if ( (!isRunLsBased_) && !luminositySectionsBlockRanges_.empty() ) {
+    assert( "ERROR: selection based on run/event from txt file, but LuminositySectionsBlockRange is not emptpy." ==nullptr );
   }
 
   if (isRunLsBased_ ){     std::cout <<"Selection based on run/luminositySection; file with run/event list: " << std::endl;      }  

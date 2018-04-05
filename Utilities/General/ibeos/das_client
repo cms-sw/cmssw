@@ -1,0 +1,82 @@
+#!/bin/sh
+#CMSSDT_DAS_CLIENT_SIGN:12345678901234567890ABCDEFABCDEF
+#Do not change the above magic line. It is signature for the cmssw ibs das_client wrapper
+function get_parent_cmds ()
+{
+  local DEPTH=$2
+  let DEPTH=$DEPTH+1
+  [ $DEPTH -gt 2 ] && return 0
+  local XPID=$(ps -p $1 -o ppid= | sed 's| ||g;')
+  [ "$XPID" = "" -o "$XPID" = "1" ] && return 0
+  cat "/proc/$XPID/cmdline"
+  echo ""
+  cat "/proc/$XPID/cmdline" >> ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.info
+  echo "" >> ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.info
+  get_parent_cmds "$XPID" "$DEPTH"
+}
+
+CMD_NAME=$(basename $0)
+LIMIT_RESULTS="NO"
+QUERY=
+FORMAT="plain"
+HELP=
+for ((i=1; i<=$#; i++)); do
+  next=$((i+1))
+  case  ${!i} in
+    --query=*  ) QUERY=$(echo ${!i} | sed 's|.*=||') ;;
+    --query    ) QUERY=${!next} ;;
+    --format=* ) FORMAT=$(echo ${!i} | sed 's|.*=||') ;;
+    --format   ) FORMAT=${!next} ;;
+    -h|--help  ) HELP=YES ;;
+  esac
+done
+
+ORIG_DAS_CLIENT=""
+for DAS_CLIENT in $(echo $PATH | tr ':' '\n' | sed "s|\$|/${CMD_NAME}|") ; do
+ [ -e ${DAS_CLIENT} ] || continue
+ if [ $(head -2 ${DAS_CLIENT} | grep 'CMSSDT_DAS_CLIENT_SIGN' | wc -l) -eq 0 ] ; then ORIG_DAS_CLIENT=${DAS_CLIENT}; break; fi
+done
+
+if [ "X${ORIG_DAS_CLIENT}" = "X" ] ; then
+  echo "${CMD_NAME}: Command not found." 1>&2
+  exit 1
+fi
+
+if [ "${QUERY}" = "" -o "${HELP}" != "" ] ; then
+  ${ORIG_DAS_CLIENT} "$@"
+  exit $?
+fi
+
+QUERY=$(echo "${QUERY}" | sed 's|^ *||;s| *$||;s|  *| |g;s| =|=|g;s|= |=|g;')
+QUERY_SHA_HASH=$(echo -n "${QUERY}" | sha256sum | sed 's| .*$||;s| *||')
+QUERY_SHA=$(echo "${QUERY_SHA_HASH}" | sed 's|^\(..\)|\1/\1|')
+QUERY_URL="https://raw.githubusercontent.com/cms-sw/cms-sw.github.io/master/das_queries/${QUERY_SHA}"
+DAS_QUERY_DIR=das_query/$$
+if [ "X${LOCALRT}" != "X" ] ; then DAS_QUERY_DIR="${LOCALRT}/${DAS_QUERY_DIR}" ; fi
+rm -rf ${DAS_QUERY_DIR}
+mkdir -p ${DAS_QUERY_DIR}
+echo "${QUERY}" > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.query
+touch ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.info
+if [ "${FORMAT}" = "json" ]  ; then
+  QUERY_RESULTS=$(curl -f -L -s "${QUERY_URL}.json" || true)
+  if [ "${QUERY_RESULTS}" = "" ] ; then
+    ${ORIG_DAS_CLIENT} "$@" > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
+  else
+    echo "${QUERY_RESULTS}" > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
+  fi
+else
+  QUERY_RESULTS=$((curl -f -L -s "${QUERY_URL}" || true) | grep /store/ | sed 's| ||g;s|"||g;s|,||g')
+  [ $((get_parent_cmds $$ 0 2>&1 || true) | grep '/cmsDriver.py' | wc -l) -gt 0 ] && LIMIT_RESULTS="YES"
+  if [ "${QUERY_RESULTS}" = "" ] ; then
+    ${ORIG_DAS_CLIENT} "$@" > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
+  else
+    echo "${QUERY_RESULTS}" > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
+  fi
+fi
+echo $LIMIT_RESULTS >> ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.info
+if [ "$LIMIT_RESULTS" = "YES" ] ; then
+  cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out | ibeos-lfn-sort > ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.selected
+  cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.selected
+else
+  cat ${DAS_QUERY_DIR}/${QUERY_SHA_HASH}.out
+fi

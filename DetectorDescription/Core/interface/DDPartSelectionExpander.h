@@ -1,12 +1,16 @@
-#ifndef DD_DDPartSelectionExpander_h
-#define DD_DDPartSelectionExpander_h
+#ifndef DETECTOR_DESCRIPTION_CORE_DD_PART_SELECTION_EXPANDER_H
+#define DETECTOR_DESCRIPTION_CORE_DD_PART_SELECTION_EXPANDER_H
 
-#include "DetectorDescription/Core/interface/adjgraph.h"
-#include "DetectorDescription/Core/interface/DDPartSelection.h"
+#include <cstddef>
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDPartSelection.h"
+#include "DataFormats/Math/interface/Graph.h"
+
+class DDPartSelection;
+struct DDPartSelectionLevel;
 
 
-typedef graph<DDPartSelectionLevel,char> PartSelectionTree;
+using PartSelectionTree = math::Graph<DDPartSelectionLevel,char>;
  
 
 class DDPartSelectionExpander

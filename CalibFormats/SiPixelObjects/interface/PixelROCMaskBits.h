@@ -12,6 +12,10 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelROCName.h"
 
 namespace pos{
+
+  class PixelROCMaskBits;
+  std::ostream& operator<<(std::ostream& s, const PixelROCMaskBits& maskbits);
+
 /*! \class PixelROCMaskBits PixelROCMaskBits.h "interface/PixelROCMaskBits.h"
 *   \brief This class implements..
 *

@@ -1,3 +1,4 @@
+#include <cxxabi.h>
 #include "DataFormats/PatCandidates/interface/UserData.h"
 // Note: these two below are allowed in FWLite even if they come from FWCore
 #include "FWCore/Utilities/interface/TypeWithDict.h"
@@ -6,9 +7,9 @@
 void pat::UserData::checkDictionaries(const std::type_info &type) {
     if (!edm::hasDictionary(type)) {
         int status = 0;
-        char * demangled = abi::__cxa_demangle(type.name(),  0, 0, &status);
+        char * demangled = abi::__cxa_demangle(type.name(),  nullptr, nullptr, &status);
         std::string typeName(status == 0 ? demangled : type.name());
-        if ((demangled != 0) && (status == 0)) free(demangled);
+        if ((demangled != nullptr) && (status == 0)) free(demangled);
         throw edm::Exception(edm::errors::DictionaryNotFound)
             << "   No REFLEX data dictionary found for the following class:\n\t"
             << typeName 
@@ -22,4 +23,10 @@ void pat::UserData::checkDictionaries(const std::type_info &type) {
             << "   Also, if this class has any transient members,\n"
             << "   you need to specify them in classes_def.xml.\n";
     } // check for dictionary
+}
+
+std::string pat::UserData::typeNameFor(std::type_info const& iType) {
+    int status = 0;
+    const char * demangled = abi::__cxa_demangle(iType.name(),  nullptr, nullptr, &status);
+    return std::string(status == 0 ? demangled : "[UNKNOWN]");
 }

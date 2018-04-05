@@ -34,7 +34,7 @@ class CastorShowerLibrary {
 public:
   
   //Constructor and Destructor
-  CastorShowerLibrary(std::string & name, edm::ParameterSet const & p);
+  CastorShowerLibrary(const std::string & name, edm::ParameterSet const & p);
   ~CastorShowerLibrary();
 
 public:

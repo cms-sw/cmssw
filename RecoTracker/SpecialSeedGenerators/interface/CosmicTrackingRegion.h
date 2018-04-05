@@ -11,7 +11,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -26,7 +25,7 @@ class CosmicTrackingRegion : public TrackingRegionBase {
 public:
 
 
-  virtual ~CosmicTrackingRegion() { }
+  ~CosmicTrackingRegion() override { }
 
   /** constructor (symmetric eta and phi margins). <BR>
    * dir        - the direction around which region is constructed <BR>
@@ -82,33 +81,25 @@ public:
       theMeasurementTracker_(rh.theMeasurementTracker_),
       measurementTrackerName_(rh.measurementTrackerName_){}
   
-  virtual TrackingRegion::ctfHits 
-  hits(
-       const edm::Event& ev,  
-       const edm::EventSetup& es, 
-       const ctfseeding::SeedingLayer* layer) const;
-  
    TrackingRegion::Hits 
    hits(
-	const edm::Event& ev,
 	const edm::EventSetup& es,
 	const SeedingLayerSetsHits::SeedingLayer& layer) const override;
   
-  virtual HitRZCompatibility* checkRZ(
+  HitRZCompatibility* checkRZ(
       const DetLayer* layer,
       const Hit & outerHit,
       const edm::EventSetup& iSetup, 
-      const DetLayer* outerlayer=0,
-      float lr=0, float gz=0, float dr=0, float dz=0) const {return 0; }
+      const DetLayer* outerlayer=nullptr,
+      float lr=0, float gz=0, float dr=0, float dz=0) const override {return nullptr; }
    
-   CosmicTrackingRegion * clone() const {     return new CosmicTrackingRegion(*this);  }
+   CosmicTrackingRegion * clone() const override {     return new CosmicTrackingRegion(*this);  }
    
-   std::string name() const { return "CosmicTrackingRegion"; }
+   std::string name() const override { return "CosmicTrackingRegion"; }
 
 private:
   template <typename T>
   void hits_(
-      const edm::Event& ev,
       const edm::EventSetup& es,
       const T& layer, TrackingRegion::Hits & result) const;
 

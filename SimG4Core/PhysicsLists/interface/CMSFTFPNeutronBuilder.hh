@@ -22,16 +22,16 @@ class CMSFTFPNeutronBuilder : public G4VNeutronBuilder
 {
   public: 
     CMSFTFPNeutronBuilder(G4bool quasiElastic=false);
-    virtual ~CMSFTFPNeutronBuilder();
+    ~CMSFTFPNeutronBuilder() override;
 
   public: 
-    virtual void Build(G4HadronElasticProcess * aP);
-    virtual void Build(G4HadronFissionProcess * aP);
-    virtual void Build(G4HadronCaptureProcess * aP);
-    virtual void Build(G4NeutronInelasticProcess * aP);
+    void Build(G4HadronElasticProcess * aP) override;
+    void Build(G4HadronFissionProcess * aP) override;
+    void Build(G4HadronCaptureProcess * aP) override;
+    void Build(G4NeutronInelasticProcess * aP) override;
     
-    void SetMinEnergy(G4double aM) {theMin = aM;}
-    void SetMaxEnergy(G4double aM) {theMax = aM;}
+    void SetMinEnergy(G4double aM) override {theMin = aM;}
+    void SetMaxEnergy(G4double aM) override {theMax = aM;}
 
   private:
     G4TheoFSGenerator * theModel;

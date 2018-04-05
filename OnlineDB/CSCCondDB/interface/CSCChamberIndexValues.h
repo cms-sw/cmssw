@@ -22,19 +22,17 @@
 class CSCChamberIndexValues: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
  public:
   CSCChamberIndexValues(const edm::ParameterSet&);
-  ~CSCChamberIndexValues();
+  ~CSCChamberIndexValues() override;
+
+  typedef std::unique_ptr<CSCChamberIndex> ReturnType;
   
   inline static CSCChamberIndex * fillChamberIndex();
-
-  typedef const  CSCChamberIndex * ReturnType;
   
   ReturnType produceChamberIndex(const CSCChamberIndexRcd&);
   
  private:
   // ----------member data ---------------------------
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
-  CSCChamberIndex *mapObj ;
-
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & ) override;
 };
 
 #include<fstream>
@@ -42,10 +40,10 @@ class CSCChamberIndexValues: public edm::ESProducer, public edm::EventSetupRecor
 #include<iostream>
 
 // to workaround plugin library
-inline CSCChamberIndex *  CSCChamberIndexValues::fillChamberIndex()
+inline CSCChamberIndex * CSCChamberIndexValues::fillChamberIndex()
 {
   CSCChamberIndex * mapobj = new CSCChamberIndex();
-  cscmap1 *map = new cscmap1();
+  cscmap1 map;
   CSCMapItem::MapItem item;
   int chamberid;
 
@@ -65,7 +63,7 @@ inline CSCChamberIndex *  CSCChamberIndexValues::fillChamberIndex()
        else c=36;
         for(l=1;l<=c;++l){
          chamberid=i*100000+j*10000+k*1000+l*10;
-         map->chamber(chamberid,&item);
+         map.chamber(chamberid,&item);
          mapobj->ch_index[item.cscIndex-1]=item;
          count=count+1;
         }

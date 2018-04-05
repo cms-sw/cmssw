@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -51,95 +51,74 @@
 // class decleration
 //
 
-class TrackerDigiGeometryAnalyzer : public edm::EDAnalyzer {
-   public:
+
+// #define PRINT(X) edm::LogInfo(X)
+#define PRINT(X) std::cout << X << ':'
+
+class TrackerDigiGeometryAnalyzer : public edm::one::EDAnalyzer<>
+{
+public:
       explicit TrackerDigiGeometryAnalyzer( const edm::ParameterSet& );
-      ~TrackerDigiGeometryAnalyzer();
+      ~TrackerDigiGeometryAnalyzer() override;
 
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-   private:
+private:
   void analyseTrapezoidal( const GeomDetUnit& det);
   void checkRotation( const GeomDetUnit& det);
   void checkTopology( const GeomDetUnit& det);
   std::ostream& cylindrical( std::ostream& os, const GlobalPoint& gp) const;
-
-      // ----------member data ---------------------------
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 TrackerDigiGeometryAnalyzer::TrackerDigiGeometryAnalyzer( const edm::ParameterSet& iConfig )
-{
-   //now do what ever initialization is needed
-
-}
-
+{}
 
 TrackerDigiGeometryAnalyzer::~TrackerDigiGeometryAnalyzer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
-
-//
-// member functions
-//
+{}
 
 // ------------ method called to produce the data  ------------
 void
 TrackerDigiGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
-   edm::LogInfo("TrackerDigiGeometryAnalyzer")<< "Here I am";
+   PRINT("TrackerDigiGeometryAnalyzer")<< "Here I am";
    //
    // get the TrackerGeom
    //
    edm::ESHandle<TrackerGeometry> pDD;
    iSetup.get<TrackerDigiGeometryRecord>().get( pDD );     
-   edm::LogInfo("TrackerDigiGeometryAnalyzer")<< " Geometry node for TrackerGeom is  "<<&(*pDD);   
-   edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" I have "<<pDD->detUnits().size() <<" detectors";
-   edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" I have "<<pDD->detTypes().size() <<" types";
+   PRINT("TrackerDigiGeometryAnalyzer")<< " Geometry node for TrackerGeom is  "<<&(*pDD) <<'\n';   
+   PRINT("TrackerDigiGeometryAnalyzer")<<" I have "<<pDD->detUnits().size() <<" detectors"<<'\n';
+   PRINT("TrackerDigiGeometryAnalyzer")<<" I have "<<pDD->detTypes().size() <<" types"<<'\n';
 
-   for(TrackingGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
-       if(dynamic_cast<const PixelGeomDetUnit*>((*it))!=0){
-	const BoundPlane& p = (dynamic_cast<const PixelGeomDetUnit*>((*it)))->specificSurface();
-	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" RadLeng Pixel "<<p.mediumProperties().radLen();
-	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" Xi Pixel "<<p.mediumProperties().xi();
+   for(auto const & it : pDD->detUnits()){
+       if(dynamic_cast<const PixelGeomDetUnit*>((it))!=nullptr){
+	const BoundPlane& p = (dynamic_cast<const PixelGeomDetUnit*>((it)))->specificSurface();
+	PRINT("TrackerDigiGeometryAnalyzer") << it->geographicalId()
+              <<" RadLeng Pixel "<<p.mediumProperties().radLen()<<' ' <<" Xi Pixel "<<p.mediumProperties().xi()<<'\n';
        } 
 
-       if(dynamic_cast<const StripGeomDetUnit*>((*it))!=0){
-	const BoundPlane& s = (dynamic_cast<const StripGeomDetUnit*>((*it)))->specificSurface();
-	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" RadLeng Strip "<<s.mediumProperties().radLen();
-	edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" Xi Strip "<<s.mediumProperties().xi();
+       if(dynamic_cast<const StripGeomDetUnit*>((it))!=nullptr){
+	const BoundPlane& s = (dynamic_cast<const StripGeomDetUnit*>((it)))->specificSurface();
+	PRINT("TrackerDigiGeometryAnalyzer")<< it->geographicalId()
+             << " RadLeng Strip "<<s.mediumProperties().radLen() <<" Xi Strip "<<s.mediumProperties().xi()<<'\n';
        }
        
-       //analyseTrapezoidal(**it);
+       //analyseTrapezoidal(*it);
 
     }	
 
-   for (TrackingGeometry::DetTypeContainer::const_iterator it = pDD->detTypes().begin(); it != pDD->detTypes().end(); it ++){
-     if (dynamic_cast<const PixelGeomDetType*>((*it))!=0){
-       edm::LogInfo("TrackerDigiGeometryAnalyzer")<<" PIXEL Det";
-       const PixelTopology& p = (dynamic_cast<const PixelGeomDetType*>((*it)))->specificTopology();
-       edm::LogInfo("TrackerDigiGeometryAnalyzer")<<"    Rows    "<<p.nrows();
-       edm::LogInfo("TrackerDigiGeometryAnalyzer")<<"    Columns "<<p.ncolumns();
+   for (auto const & it  :pDD->detTypes() ){
+     if (dynamic_cast<const PixelGeomDetType*>((it))!=nullptr){
+       const PixelTopology& p = (dynamic_cast<const PixelGeomDetType*>((it)))->specificTopology();
+       PRINT("TrackerDigiGeometryAnalyzer")<<" PIXEL Det " // << it->geographicalId()
+                      <<"    Rows    "<<p.nrows() <<"    Columns "<<p.ncolumns()<<'\n';
      }else{
-       edm::LogInfo("TrackerDigiGeometryAnalyzer") <<" STRIP Det";
-       const StripTopology& p = (dynamic_cast<const StripGeomDetType*>((*it)))->specificTopology();
-       edm::LogInfo("TrackerDigiGeometryAnalyzer")<<"    Strips    "<<p.nstrips();
+       const StripTopology& p = (dynamic_cast<const StripGeomDetType*>((it)))->specificTopology();
+       PRINT("TrackerDigiGeometryAnalyzer") <<" STRIP Det " // << it->geographicalId()
+                                            <<"    Strips    "<<p.nstrips()<<'\n';
      }
    }
 }
@@ -152,11 +131,11 @@ void TrackerDigiGeometryAnalyzer::analyseTrapezoidal( const GeomDetUnit& det)
 
   const Bounds& bounds = det.surface().bounds();
   const TrapezoidalPlaneBounds* tb = dynamic_cast<const TrapezoidalPlaneBounds*>(&bounds);
-  if (tb == 0) return; // not trapezoidal
+  if (tb == nullptr) return; // not trapezoidal
 
   checkTopology( det);
 
-  GlobalPoint pos = det.position();
+  const GlobalPoint& pos = det.position();
   double length = tb->length();
   double width = tb->width();
 

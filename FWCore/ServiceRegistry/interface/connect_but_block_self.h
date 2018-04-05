@@ -40,7 +40,7 @@ namespace edm {
          // ---------- const member functions ---------------------
          template<typename... Args>
          void operator()(Args&&... args) {
-            std::shared_ptr<void> guard(static_cast<void*>(0), std::bind(&BlockingWrapper::unblock,this) );
+            std::shared_ptr<void> guard(static_cast<void*>(nullptr), std::bind(&BlockingWrapper::unblock,this) );
            if( startBlocking() ) { func_(std::forward<Args>(args)...); }
          }
 

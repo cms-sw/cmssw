@@ -11,8 +11,9 @@ from RecoEcal.EgammaClusterProducers.correctedMulti5x5SuperClustersWithPreshower
 # producer for preshower cluster shapes
 from RecoEcal.EgammaClusterProducers.multi5x5PreshowerClusterShape_cfi import *
 # create sequence for preshower clustering
-multi5x5PreshowerClusteringSequence = cms.Sequence(correctedMulti5x5SuperClustersWithPreshower*
-                                                   multi5x5PreshowerClusterShape*
-                                                   uncleanedOnlyMulti5x5SuperClustersWithPreshower*
+multi5x5PreshowerClusteringTask = cms.Task(correctedMulti5x5SuperClustersWithPreshower,
+                                                   multi5x5PreshowerClusterShape,
+                                                   uncleanedOnlyMulti5x5SuperClustersWithPreshower,
                                                    uncleanedOnlyCorrectedMulti5x5SuperClustersWithPreshower)
 
+multi5x5PreshowerClusteringSequence = cms.Sequence(multi5x5PreshowerClusteringTask)

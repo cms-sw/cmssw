@@ -23,11 +23,11 @@ public:
   OptOXLaser(){ };
   OptOXLaser(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
   OpticalObject( parent, type, name, copy_data){ };
-  ~OptOXLaser(){ };
+  ~OptOXLaser() override{ };
 
   //---------- Default behaviour: create a LightRay object
-  virtual void defaultBehaviour( LightRay& lightray, Measurement& meas );
-  void constructSolidShape();
+  void defaultBehaviour( LightRay& lightray, Measurement& meas ) override;
+  void constructSolidShape() override;
 
 #ifdef COCOA_VIS
   virtual void fillIguana();

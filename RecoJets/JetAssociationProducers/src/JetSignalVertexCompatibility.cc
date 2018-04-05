@@ -51,8 +51,7 @@ void JetSignalVertexCompatibility::produce(edm::Event &event,
 	edm::Handle<VertexCollection> primaryVertices;
 	event.getByToken(primaryVerticesToken, primaryVertices);
 
-	std::auto_ptr<JetFloatAssociation::Container> result(
-		new JetFloatAssociation::Container(jetTracksAssoc->keyProduct()));
+	auto result = std::make_unique<JetFloatAssociation::Container>(jetTracksAssoc->keyProduct());
 
 	for(JetTracksAssociationCollection::const_iterator iter =
 						jetTracksAssoc->begin();
@@ -68,7 +67,7 @@ void JetSignalVertexCompatibility::produce(edm::Event &event,
 		(*result)[iter->first] = compatibility[0];
 	}
 
-	algo.resetEvent(0);
+	algo.resetEvent(nullptr);
 
-	event.put(result);
+	event.put(std::move(result));
 }

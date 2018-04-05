@@ -15,7 +15,6 @@
 #include <string>
 
 class MonitorElement;
-class TkDetMap;
 class TrackingDetCabling;
 
 class TrackingQualityChecker {

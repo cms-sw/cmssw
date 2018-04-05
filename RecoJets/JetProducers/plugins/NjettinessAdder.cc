@@ -20,25 +20,25 @@ NjettinessAdder::NjettinessAdder(const edm::ParameterSet& iConfig) :
       std::ostringstream tauN_str;
       tauN_str << "tau" << *n;
 
-      produces<edm::ValueMap<float> >(tauN_str.str().c_str());
+      produces<edm::ValueMap<float> >(tauN_str.str());
     }
 
 
   // Get the measure definition
   fastjet::contrib::NormalizedMeasure          normalizedMeasure        (beta_,R0_);
   fastjet::contrib::UnnormalizedMeasure        unnormalizedMeasure      (beta_);
-  fastjet::contrib::GeometricMeasure           geometricMeasure         (beta_);
+  fastjet::contrib::OriginalGeometricMeasure   geometricMeasure         (beta_);// changed in 1.020
   fastjet::contrib::NormalizedCutoffMeasure    normalizedCutoffMeasure  (beta_,R0_,Rcutoff_);
   fastjet::contrib::UnnormalizedCutoffMeasure  unnormalizedCutoffMeasure(beta_,Rcutoff_);
-  fastjet::contrib::GeometricCutoffMeasure     geometricCutoffMeasure   (beta_,Rcutoff_);
+  //fastjet::contrib::GeometricCutoffMeasure     geometricCutoffMeasure   (beta_,Rcutoff_); // removed in 1.020
 
-  fastjet::contrib::MeasureDefinition const * measureDef = 0;
+  fastjet::contrib::MeasureDefinition const * measureDef = nullptr;
   switch ( measureDefinition_ ) {
   case UnnormalizedMeasure : measureDef = &unnormalizedMeasure; break;
-  case GeometricMeasure    : measureDef = &geometricMeasure; break;
+  case OriginalGeometricMeasure    : measureDef = &geometricMeasure; break;// changed in 1.020
   case NormalizedCutoffMeasure : measureDef = &normalizedCutoffMeasure; break;
   case UnnormalizedCutoffMeasure : measureDef = &unnormalizedCutoffMeasure; break;
-  case GeometricCutoffMeasure : measureDef = &geometricCutoffMeasure; break;
+  //case GeometricCutoffMeasure : measureDef = &geometricCutoffMeasure; break; // removed in 1.020
   case NormalizedMeasure : default : measureDef = &normalizedMeasure; break;
   } 
 
@@ -55,7 +55,7 @@ NjettinessAdder::NjettinessAdder(const edm::ParameterSet& iConfig) :
   fastjet::contrib::OnePass_WTA_CA_Axes onepass_wta_ca_axes;
   fastjet::contrib::MultiPass_Axes      multipass_axes (nPass_);
 
-  fastjet::contrib::AxesDefinition const * axesDef = 0;
+  fastjet::contrib::AxesDefinition const * axesDef = nullptr;
   switch ( axesDefinition_ ) {
   case  KT_Axes : default : axesDef = &kt_axes; break;
   case  CA_Axes : axesDef = &ca_axes; break; 
@@ -97,12 +97,12 @@ void NjettinessAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	tauN.push_back(t);
       }
 
-      std::auto_ptr<edm::ValueMap<float> > outT(new edm::ValueMap<float>());
+      auto outT = std::make_unique<edm::ValueMap<float>>();
       edm::ValueMap<float>::Filler fillerT(*outT);
       fillerT.insert(jets, tauN.begin(), tauN.end());
       fillerT.fill();
 
-      iEvent.put(outT,tauN_str.str().c_str());
+      iEvent.put(std::move(outT),tauN_str.str());
     }
 }
 

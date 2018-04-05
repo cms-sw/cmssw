@@ -1,12 +1,21 @@
 #ifndef SimTransport_HectorProducer_H
 #define SimTransport_HectorProducer_H
  
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+  class ConsumesCollector;
+  class HepMCProduct;
+}
 
 class HectorManager;
 
@@ -15,23 +24,25 @@ class Hector;
 namespace HepMC {
   class GenEvent;
 }
-class HectorProducer : public edm::EDProducer
+class HectorProducer : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns>
 {
  public:
-  HectorProducer(edm::ParameterSet const & p);    //!< default constructor
-  virtual ~HectorProducer();   //!< default destructor
-  virtual void beginJob() {}
-  virtual void endJob() {}
-  void produce(edm::Event & iEvent, const edm::EventSetup & es);   //!< this method will do the user analysis
+  explicit HectorProducer(edm::ParameterSet const & p);  
+  ~HectorProducer() override;  
+  void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
+  void endRun(const edm::Run & r,const edm::EventSetup& c) override;
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
+
  private:
-  int eventsAnalysed; //!< just to count events that have been analysed
+
   HepMC::GenEvent * evt_;
-  Hector * hector;
+  Hector* m_Hector;
   
-  std::string m_InTag;
+  edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
   bool m_verbosity;
   bool m_FP420Transport;
   bool m_ZDCTransport;
+  int  m_evtAnalysed; //!< just to count events that have been analysed
 };
 
 #endif

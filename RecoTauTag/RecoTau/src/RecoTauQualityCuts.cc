@@ -278,7 +278,7 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts)
   minNeutralHadronEt_ = getDouble("minNeutralHadronEt");
 
   // Check if there are any remaining unparsed QCuts
-  if ( passedOptionSet.size() ) {
+  if ( !passedOptionSet.empty() ) {
     std::string unParsedOptions;
     bool thereIsABadParameter = false;
     BOOST_FOREACH( const std::string& option, passedOptionSet ) {

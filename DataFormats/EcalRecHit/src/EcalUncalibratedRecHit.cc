@@ -44,7 +44,7 @@ void EcalUncalibratedRecHit::setJitterError( float jitterErr )
         // has range of 5 ps - 5000 ps
         // expect input in BX units
         // all bits off --> time reco bailed out
-        if(jitterErr < 0)
+        if(jitterErr <= 0)
         {
                 aux_ = (~0xFF & aux_);
                 return;

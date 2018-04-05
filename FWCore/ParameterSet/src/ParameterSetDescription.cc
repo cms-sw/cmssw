@@ -57,32 +57,32 @@ namespace edm {
   ParameterDescriptionNode*
   ParameterSetDescription::
   addNode(ParameterDescriptionNode const& node) {
-    std::auto_ptr<ParameterDescriptionNode> clonedNode(node.clone());
-    return addNode(clonedNode, false, true);
+    std::unique_ptr<ParameterDescriptionNode> clonedNode(node.clone());
+    return addNode(std::move(clonedNode), false, true);
   }
 
   ParameterDescriptionNode*
   ParameterSetDescription::
-  addNode(std::auto_ptr<ParameterDescriptionNode> node) {
-    return addNode(node, false, true);
+  addNode(std::unique_ptr<ParameterDescriptionNode> node) {
+    return addNode(std::move(node), false, true);
   }
 
   ParameterDescriptionNode*
   ParameterSetDescription::
   addOptionalNode(ParameterDescriptionNode const& node, bool writeToCfi) {
-    std::auto_ptr<ParameterDescriptionNode> clonedNode(node.clone());
-    return addNode(clonedNode, true, writeToCfi);
+    std::unique_ptr<ParameterDescriptionNode> clonedNode(node.clone());
+    return addNode(std::move(clonedNode), true, writeToCfi);
   }
 
   ParameterDescriptionNode*
   ParameterSetDescription::
-  addOptionalNode(std::auto_ptr<ParameterDescriptionNode> node, bool writeToCfi) {
-    return addNode(node, true, writeToCfi);
+  addOptionalNode(std::unique_ptr<ParameterDescriptionNode> node, bool writeToCfi) {
+    return addNode(std::move(node), true, writeToCfi);
   }
 
   ParameterDescriptionNode*
   ParameterSetDescription::
-  addNode(std::auto_ptr<ParameterDescriptionNode> node,
+  addNode(std::unique_ptr<ParameterDescriptionNode> node,
       bool optional,
       bool writeToCfi) {
   
@@ -97,7 +97,7 @@ namespace edm {
     entry.setOptional(optional);
     entry.setWriteToCfi(writeToCfi);
     entries_.push_back(entry);
-    return entries_.back().setNode(node);
+    return entries_.back().setNode(std::move(node));
   }
 
   void
@@ -400,7 +400,7 @@ namespace edm {
   ifExists(ParameterDescriptionNode const& node1,
            ParameterDescriptionNode const& node2,
            bool optional, bool writeToCfi) {
-    std::auto_ptr<ParameterDescriptionNode> pdIfExists(new IfExistsDescription(node1, node2));
-    return addNode(pdIfExists, optional, writeToCfi);
+    std::unique_ptr<ParameterDescriptionNode> pdIfExists = std::make_unique<IfExistsDescription>(node1, node2);
+    return addNode(std::move(pdIfExists), optional, writeToCfi);
   }
 }

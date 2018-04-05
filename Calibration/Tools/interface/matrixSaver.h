@@ -32,7 +32,7 @@ public:
   int saveMatrixVector (std::string outputFileName, 
                        const std::vector<CLHEP::HepGenMatrix*> &saveMe) ;
 
-  int touch (std::string inputFileName) ;
+  bool touch (std::string inputFileName) ;
 
   CLHEP::HepGenMatrix* getMatrix (std::string inputFileName) ;
   

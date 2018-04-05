@@ -32,7 +32,7 @@ class SiStripDetCabling;
 class SiStripDetInfoFileReader;
 class TrackerTopology;
 
-class SiStripQuality GCC11_FINAL : public SiStripBadStrip {
+class SiStripQuality final : public SiStripBadStrip {
 
  public:
 
@@ -52,7 +52,7 @@ class SiStripQuality GCC11_FINAL : public SiStripBadStrip {
   SiStripQuality(edm::FileInPath&);
   SiStripQuality(const SiStripQuality&); //copy constructor
 
-  ~SiStripQuality();
+  ~SiStripQuality() override;
 
   void clear(){
     v_badstrips.clear();

@@ -11,8 +11,7 @@
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/PluginManager"/>
-  <use   name="rootcore"/>
   <use   name="EventFilter/SiStripRawToDigi"/>
-  <use   name="DQM/HLTEvF"/>
+  <use   name="rootcore"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

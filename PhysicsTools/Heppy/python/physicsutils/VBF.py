@@ -1,6 +1,6 @@
 import math
 from ROOT import TLorentzVector       
-from CMGTools.RootTools.utils.DeltaR import deltaPhi, deltaR2
+from PhysicsTools.HeppyCore.utils.deltar import deltaPhi, deltaR2
 
 class VBF( object ):
     '''Computes and holds VBF quantities'''

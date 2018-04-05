@@ -169,7 +169,7 @@ void DCCEEEventBlock::unpack(const uint64_t * buffer, size_t numbBytes, unsigned
   
     // Unpack SRP block
     if(srChStatus_ != CH_TIMEOUT &&  srChStatus_ != CH_DISABLED){
-      STATUS = srpBlock_->unpack(&data_,&dwToEnd_);
+      STATUS = srpBlock_->unpack(&data_,&dwToEnd_,SRP_NUMBFLAGS);
       if ( STATUS == BLOCK_UNPACKED ){ ignoreSR = false; }
     }
   }

@@ -51,7 +51,7 @@ float EcalBasicClusterLocalContCorrection::getValue( const reco::BasicCluster & 
   const CaloSubdetectorGeometry* geom = caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);//EcalBarrel = 1
   
 
-  const math::XYZPoint position_ = basicCluster.position(); 
+  const math::XYZPoint& position_ = basicCluster.position(); 
   double Theta = -position_.theta()+0.5*TMath::Pi();
   double Eta = position_.eta();
   double Phi = TVector2::Phi_mpi_pi(position_.phi());
@@ -77,8 +77,8 @@ float EcalBasicClusterLocalContCorrection::getValue( const reco::BasicCluster & 
     {    
       
       EBDetId crystal(crystals_vector[icry].first);
-      const CaloCellGeometry* cell=geom->getGeometry(crystal);// problema qui
-      GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
+      auto cell=geom->getGeometry(crystal);// problema qui
+      GlobalPoint center_pos = cell->getPosition(depth);
       double EtaCentr = center_pos.eta();
       double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
       if (TMath::Abs(EtaCentr-Eta) < detamin) {
@@ -97,8 +97,8 @@ float EcalBasicClusterLocalContCorrection::getValue( const reco::BasicCluster & 
 
   
   // Get center cell position from shower depth
-  const CaloCellGeometry* cell=geom->getGeometry(crystalseed);
-  GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
+  auto cell=geom->getGeometry(crystalseed);
+  GlobalPoint center_pos = cell->getPosition(depth);
 
   //PHI
   double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
