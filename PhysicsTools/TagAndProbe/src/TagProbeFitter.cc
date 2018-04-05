@@ -309,6 +309,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
     if(catName.Contains("NotMapped")) continue;
 
     RooDataSet* data_bin(0);
+    RooArgSet tmpVars;
 
     if (not split_mode){
       //create the dataset
@@ -351,7 +352,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
 	}
 	RooFormulaVar expr(ev->first.first.c_str(), ev->first.second.c_str(), ev->second.first.c_str(), args);
 	RooRealVar *col = (RooRealVar *) data_bin->addColumn(expr);
-	dataVars.addClone(*col); // FIXME (should not add new variables in the loop)
+	tmpVars.add(*dataVars.addClone(*col));
       }
  
       // And add all dynamic categories from thresholds
@@ -360,7 +361,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
 	RooThresholdCategory tmp(tc->first.first.c_str(), tc->first.second.c_str(), (RooAbsReal &)dataVars[tc->second.first.c_str()], "above", 1);
 	tmp.addThreshold(tc->second.second, "below",0);
 	RooCategory *cat = (RooCategory *) data_bin->addColumn(tmp);
-	dataVars.addClone(*cat); // FIXME (should not add new variables in the loop)
+	tmpVars.add(*dataVars.addClone(*cat));
       }
 
       //setup the efficiency category
@@ -452,6 +453,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
     }
     //clean up
     delete w;
+    if (split_mode) dataVars.remove(tmpVars);
     //get back to the initial directory
     gDirectory->cd("..");
   }
