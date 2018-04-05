@@ -173,10 +173,10 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
   for ( ConstRecHitContainer::const_iterator ihit = hits.begin() + 1; 
         ihit != hits.end(); ++ihit ) {
 
-    if ( !(**ihit).isValid() ) {
-      LogTrace(category_)<< "Error: invalid hit.";
-      continue;
-    }
+    //if ( !(**ihit).isValid() ) {
+    //  LogTrace(category_)<< "Error: invalid hit.";
+    //  continue;
+    //}
     if (currTsos.isValid() && currTsos.globalMomentum().mag2() > 1e-18f)  {
      LogTrace(category_)<<"current pos "<<currTsos.globalPosition()
                        <<"mom "<<currTsos.globalMomentum();
