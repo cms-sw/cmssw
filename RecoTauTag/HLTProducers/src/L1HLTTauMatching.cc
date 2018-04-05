@@ -61,8 +61,8 @@ void L1HLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm
 	  deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
 	  if(deltaR < matchingR ) {
 	    //		 LeafCandidate myLC(myJet);
-	    if(myJet.leadPFChargedHadrCand().isNonnull()){
-	      a =  myJet.leadPFChargedHadrCand()->vertex();  
+	    if(myJet.leadChargedHadrCand().isNonnull()){
+	      a =  myJet.leadChargedHadrCand()->vertex();  
 	    }
 	    PFTau myPFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4(), a);
 	    if(myJet.pt() > mEt_Min) {
@@ -83,8 +83,8 @@ void L1HLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm
 	  deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
 	  if(deltaR < matchingR ) {
 	    //		 LeafCandidate myLC(myJet);
-	    if(myJet.leadPFChargedHadrCand().isNonnull()){
-	      a =  myJet.leadPFChargedHadrCand()->vertex();  
+	    if(myJet.leadChargedHadrCand().isNonnull()){
+	      a =  myJet.leadChargedHadrCand()->vertex();  
 	    }
             
 	    PFTau myPFTau(std::numeric_limits<int>::quiet_NaN(), myJet.p4(),a);

@@ -104,7 +104,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
    PFTauElementsOperators myPFTauElementsOperators(myPFTau);
    double myMatchingConeSize=myPFTauElementsOperators.computeConeSize(myMatchingConeSizeTFormula,MatchingConeSize_min_,MatchingConeSize_max_);
 
-   CandidatePtr myleadPFChargedCand=myPFTauElementsOperators.leadPFChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,PFTauAlgo_PFCand_minPt_);
+   CandidatePtr myleadPFChargedCand=myPFTauElementsOperators.leadChargedHadrCand(MatchingConeMetric_,myMatchingConeSize,PFTauAlgo_PFCand_minPt_);
 
    // These two quantities always taken from the signal cone
    CandidatePtr myleadPFNeutralCand;
@@ -115,7 +115,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
 
    // Determine the SIPT of the lead track
    if(myleadPFChargedCand.isNonnull()) {
-      myPFTau.setleadPFChargedHadrCand(myleadPFChargedCand);
+      myPFTau.setleadChargedHadrCand(myleadPFChargedCand);
       const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(myleadPFChargedCand.get());
       if (pflch == nullptr)
         throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
@@ -189,19 +189,19 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
       }
 
       // Set the Charged hadronics that live in the signal cones
-      myPFTau.setsignalPFChargedHadrCands(mySignalPFChargedHadrCands);
+      myPFTau.setsignalChargedHadrCands(mySignalPFChargedHadrCands);
 
       // Set the neurtral hadrons that live in the signal cone
       mySignalPFNeutrHadrCands=myPFTauElementsOperators.PFNeutrHadrCandsInCone(tauAxis,
             HCALSignalConeMetric_, myHCALSignalConeSize, PFTauAlgo_NeutrHadrCand_minPt_);
 
-      myPFTau.setsignalPFNeutrHadrCands(mySignalPFNeutrHadrCands);
+      myPFTau.setsignalNeutrHadrCands(mySignalPFNeutrHadrCands);
 
       // Compute the gammas that live in the signal cone
       mySignalPFGammaCands=myPFTauElementsOperators.PFGammaCandsInCone(tauAxis,
             ECALSignalConeMetric_,myECALSignalConeSize,PFTauAlgo_GammaCand_minPt_);
 
-      myPFTau.setsignalPFGammaCands(mySignalPFGammaCands);
+      myPFTau.setsignalGammaCands(mySignalPFGammaCands);
 
       // Add charged objects to signal cone, and calculate charge
       if(!mySignalPFChargedHadrCands.empty()) {
@@ -227,9 +227,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
          }
          mySignalPFCands.push_back(mySignalPFGammaCands[i]);
       }
-      myPFTau.setsignalPFCands(mySignalPFCands);
+      myPFTau.setsignalCands(mySignalPFCands);
       // Set leading gamma
-      myPFTau.setleadPFNeutralCand(myleadPFNeutralCand);
+      myPFTau.setleadNeutralCand(myleadPFNeutralCand);
 
       // Logic to determine lead PFCand.  If the lead charged object
       // is above the threshold, take that.  If the lead charged object is less
@@ -237,9 +237,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
       // take the gamma as the leadPFCand.  Otherwise it is null.
 
       if(myleadPFChargedCand->pt() > LeadPFCand_minPt_) {
-         myPFTau.setleadPFCand(myleadPFChargedCand);
+         myPFTau.setleadCand(myleadPFChargedCand);
       } else if (maxSignalGammaPt > LeadPFCand_minPt_) {
-         myPFTau.setleadPFCand(myleadPFNeutralCand);
+         myPFTau.setleadCand(myleadPFNeutralCand);
       }
 
       // Declare isolation collections
@@ -262,19 +262,19 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
       myIsolPFChargedHadrCands = TauTagTools::filteredPFChargedHadrCandsByNumTrkHits(
             myUnfilteredIsolPFChargedHadrCands, ChargedHadrCand_IsolAnnulus_minNhits_);
 
-      myPFTau.setisolationPFChargedHadrCands(myIsolPFChargedHadrCands);
+      myPFTau.setisolationChargedHadrCands(myIsolPFChargedHadrCands);
 
       // Fill neutral hadrons
       myIsolPFNeutrHadrCands = myPFTauElementsOperators.PFNeutrHadrCandsInAnnulus(
             tauAxis, HCALSignalConeMetric_, myHCALSignalConeSize, HCALIsolConeMetric_,
             myHCALIsolConeSize, PFTauAlgo_NeutrHadrCand_minPt_);
-      myPFTau.setisolationPFNeutrHadrCands(myIsolPFNeutrHadrCands);
+      myPFTau.setisolationNeutrHadrCands(myIsolPFNeutrHadrCands);
 
       // Fill gamma candidates
       myIsolPFGammaCands = myPFTauElementsOperators.PFGammaCandsInAnnulus(
             tauAxis, ECALSignalConeMetric_, myECALSignalConeSize, ECALIsolConeMetric_,
             myECALIsolConeSize, PFTauAlgo_GammaCand_minPt_);
-      myPFTau.setisolationPFGammaCands(myIsolPFGammaCands);
+      myPFTau.setisolationGammaCands(myIsolPFGammaCands);
 
       //Incorporate converted gammas from isolation ellipse into signal  ... ELLL
       //Get pair with in/out elements using the isoPFGammaCandidates set by default
@@ -295,10 +295,10 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
             mySignalPFCands.push_back(*inEllipseIt);
             mySignalPFGammaCands.push_back(*inEllipseIt);
          }
-         myPFTau.setsignalPFCands(mySignalPFCands);
+         myPFTau.setsignalCands(mySignalPFCands);
          //redefine isoPFGammaCandidates to be the outside elements
          myIsolPFGammaCands=elementsOutEllipse;
-         myPFTau.setisolationPFGammaCands(myIsolPFGammaCands);
+         myPFTau.setisolationGammaCands(myIsolPFGammaCands);
       }
 
 
@@ -321,7 +321,7 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
          myIsolPFCands.push_back(myIsolPFGammaCands[i]);
       }
       myPFTau.setisolationPFGammaCandsEtSum(myIsolPFGammaCands_Etsum);
-      myPFTau.setisolationPFCands(myIsolPFCands);
+      myPFTau.setisolationCands(myIsolPFCands);
 
       //Making the alternateLorentzVector, i.e. direction with only signal components
       math::XYZTLorentzVector alternatLorentzVect(0.,0.,0.,0.);
@@ -351,9 +351,9 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
    }
 
    // set the leading, signal cone and isolation annulus Tracks (the initial list of Tracks was catched through a JetTracksAssociation
-   // object, not through the charged hadr. Candidates inside the PFJet ;
+   // object, not through the charged hadr. PFCandidates inside the PFJet ;
    // the motivation for considering these objects is the need for checking that a selection by the
-   // charged hadr. Candidates is equivalent to a selection by the rec. Tracks.)
+   // charged hadr. PFCandidates is equivalent to a selection by the rec. Tracks.)
    TrackRef myleadTk=myPFTauElementsOperators.leadTk(MatchingConeMetric_,myMatchingConeSize,LeadTrack_minPt_);
    myPFTau.setleadTrack(myleadTk);
    if(myleadTk.isNonnull()){

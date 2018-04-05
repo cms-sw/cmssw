@@ -34,14 +34,14 @@ class PFTauElementsOperators : public TauElementsOperators {
   ~PFTauElementsOperators(){}   
   void setAreaMetricrecoElementsmaxabsEta( double x);
   //return the leading PFCandidate in a given cone around the jet axis or a given direction
-  reco::CandidatePtr leadPFCand(const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;
-  reco::CandidatePtr leadPFCand(const math::XYZVector& myVector,const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;  
-  reco::CandidatePtr leadPFChargedHadrCand(const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;
-  reco::CandidatePtr leadPFChargedHadrCand(const math::XYZVector& myVector,const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;  
-  reco::CandidatePtr leadPFNeutrHadrCand(const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;
-  reco::CandidatePtr leadPFNeutrHadrCand(const math::XYZVector& myVector,const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;  
-  reco::CandidatePtr leadPFGammaCand(const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;
-  reco::CandidatePtr leadPFGammaCand(const math::XYZVector& myVector,const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;  
+  reco::CandidatePtr leadCand(const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;
+  reco::CandidatePtr leadCand(const math::XYZVector& myVector,const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;  
+  reco::CandidatePtr leadChargedHadrCand(const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;
+  reco::CandidatePtr leadChargedHadrCand(const math::XYZVector& myVector,const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;  
+  reco::CandidatePtr leadNeutrHadrCand(const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;
+  reco::CandidatePtr leadNeutrHadrCand(const math::XYZVector& myVector,const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;  
+  reco::CandidatePtr leadGammaCand(const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;
+  reco::CandidatePtr leadGammaCand(const math::XYZVector& myVector,const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;  
   
   // return all PFCandidates in a cone of metric* "cone_metric" and size "conesize" around a direction "myVector" 
   std::vector<reco::CandidatePtr> PFCandsInCone(const std::vector<reco::CandidatePtr>& PFCands,const math::XYZVector& myVector,const std::string conemetric,const double conesize,const double minPt)const;

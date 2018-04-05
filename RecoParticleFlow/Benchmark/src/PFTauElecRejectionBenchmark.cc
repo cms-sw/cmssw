@@ -258,12 +258,10 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, 
 
 	// Check if track goes to Ecal crack
 	reco::TrackRef myleadTk;
-	if(thePFTau->leadPFChargedHadrCand().isNonnull()){
-	  const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(thePFTau->leadPFChargedHadrCand().get());
-	  if (pflch != nullptr) {
-	    myleadTk=pflch->trackRef();
-	    myleadTkEcalPos = pflch->positionAtECALEntrance();
-	  }
+	const reco::PFCandidatePtr& pflch = thePFTau->leadPFChargedHadrCand();
+	if(pflch.isNonnull()){
+	  myleadTk=pflch->trackRef();
+	  myleadTkEcalPos = pflch->positionAtECALEntrance();
 	  
 	  if(myleadTk.isNonnull()){ 
 	    if (applyEcalCrackCut_ && isInEcalCrack(std::abs((double)myleadTkEcalPos.eta()))) {

@@ -122,8 +122,8 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
       reco::Vertex::Point poca(0,0,0);
       double ip3d(-999), ip3d_err(-999);
       reco::Vertex::Point ip3d_poca(0,0,0);
-      if(RefPFTau->leadPFChargedHadrCand().isNonnull()){
-	const reco::Track* track = getTrack(*RefPFTau->leadPFChargedHadrCand());
+      if(RefPFTau->leadChargedHadrCand().isNonnull()){
+	const reco::Track* track = getTrack(*RefPFTau->leadChargedHadrCand());
 	if(track != nullptr){
 	  if(useFullCalculation_){
 	    reco::TransientTrack transTrk=transTrackBuilder->build(*track);

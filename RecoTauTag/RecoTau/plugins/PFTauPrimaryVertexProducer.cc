@@ -201,12 +201,9 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	    reco::PFTauRef RefPFTau(Tau, jPFTau);
 	    ///////////////////////////////////////////////////////////////////////////////////////////////
 	    // Get tracks from PFTau daughters
-	    for (const auto& cand : RefPFTau->signalPFChargedHadrCands()){
-	      const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand.get());
-	      if (pfcand != nullptr) {
-		if (pfcand->trackRef().isNonnull()) {SignalTracks.push_back(reco::TrackBaseRef(pfcand->trackRef()));}
-		else if (pfcand->gsfTrackRef().isNonnull()) {SignalTracks.push_back(reco::TrackBaseRef((pfcand->gsfTrackRef())));}
-	      }
+	    for (const auto& pfcand : RefPFTau->signalPFChargedHadrCands()) {
+	      if (pfcand->trackRef().isNonnull()) {SignalTracks.push_back(reco::TrackBaseRef(pfcand->trackRef()));}
+	      else if (pfcand->gsfTrackRef().isNonnull()) {SignalTracks.push_back(reco::TrackBaseRef((pfcand->gsfTrackRef())));}
 	    }
 	  }
 	}

@@ -23,7 +23,7 @@ class TauIdMVAAuxiliaries {
     /// return chi2 of the leading track ==> deprecated? <==
     float tau_leadTrackChi2(const reco::PFTau& tau) const {
       float LeadingTracknormalizedChi2 = 0;
-      const reco::CandidatePtr& leadingPFCharged = tau.leadPFChargedHadrCand();
+      const reco::CandidatePtr& leadingPFCharged = tau.leadChargedHadrCand();
       if (leadingPFCharged.isNonnull()) {
       	const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(leadingPFCharged.get());
       	if (pfcand != nullptr) {
@@ -44,7 +44,7 @@ class TauIdMVAAuxiliaries {
 
     /// return ratio of energy in ECAL over sum of energy in ECAL and HCAL
     float tau_Eratio(const reco::PFTau& tau) const {
-      const auto& constsignal = tau.signalPFCands();
+      const auto& constsignal = tau.signalCands();
       float EcalEnInSignalPFCands = 0.;
       float HcalEnInSignalPFCands = 0.;
       for (const auto& icand : constsignal) {
@@ -195,11 +195,11 @@ class TauIdMVAAuxiliaries {
     /// return total number of pf photon candidates with pT>500 MeV, which are associated to signal
     unsigned int tau_n_photons_total(const reco::PFTau& tau) const {
       unsigned int n_photons = 0;
-      for (auto& cand : tau.signalPFGammaCands()) {
+      for (auto& cand : tau.signalGammaCands()) {
         if ((float)cand->pt() > 0.5)
           ++n_photons;
       }
-      for (auto& cand : tau.isolationPFGammaCands()) {
+      for (auto& cand : tau.isolationGammaCands()) {
         if ((float)cand->pt() > 0.5)
           ++n_photons;
       }
@@ -222,9 +222,9 @@ class TauIdMVAAuxiliaries {
     /// return pf photon candidates that are associated to signal
     const std::vector<reco::CandidatePtr>& getPFGammas(const reco::PFTau& tau, bool signal = true) const {
       if (signal){
-        return tau.signalPFGammaCands();
+        return tau.signalGammaCands();
       }
-      return tau.isolationPFGammaCands();
+      return tau.isolationGammaCands();
     }
     reco::CandidatePtrVector getGammas(const pat::Tau& tau, bool signal = true) const {
       if(signal){

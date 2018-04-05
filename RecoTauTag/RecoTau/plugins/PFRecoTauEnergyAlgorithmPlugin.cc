@@ -126,12 +126,12 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(reco::PFTau& tau) const
     if ( !((jetConstituentPdgId == 130    && jetConstituent->et() > minNeutralHadronEt_) ||
 	   (jetConstituentPdgId == 22 && jetConstituent->et() > minGammaEt_        )) ) continue;
 
-    bool isSignalPFCand = false;
-    const auto& signalPFCands = tau.signalPFCands();
-    for (const auto& signalPFCand : signalPFCands) {
-      if ( isPtrEqual(jetConstituent, signalPFCand) ) isSignalPFCand = true;
+    bool isSignalCand = false;
+    const auto& signalCands = tau.signalCands();
+    for (const auto& signalCand : signalCands) {
+      if ( isPtrEqual(jetConstituent, signalCand) ) isSignalCand = true;
     }
-    if ( isSignalPFCand ) continue;
+    if ( isSignalCand ) continue;
     
     double dR = deltaR(jetConstituent->p4(), tau.p4());
     double dRadd = -1.;      
@@ -323,13 +323,13 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(reco::PFTau& tau) const
 	std::cout << "allTracksSumP = " << allTracksSumP << " +/- " << sqrt(allTracksSumPerr2) << std::endl;
       }
       double allNeutralsSumEn = 0.;
-      const auto& signalPFCands = tau.signalPFCands();
-      for (const auto& signalPFCand : signalPFCands) {
+      const auto& signalCands = tau.signalCands();
+      for (const auto& signalCand : signalCands) {
 	if ( verbosity_ ) {
-	  std::cout << "PFCandidate #" << signalPFCand.id() << ":" << signalPFCand.key() << ":" 
-		    << " Pt = " << (signalPFCand)->pt() << ", eta = " << (signalPFCand)->eta() << ", phi = " << (signalPFCand)->phi() << std::endl;
+	  std::cout << "Candidate #" << signalCand.id() << ":" << signalCand.key() << ":" 
+		    << " Pt = " << (signalCand)->pt() << ", eta = " << (signalCand)->eta() << ", phi = " << (signalCand)->phi() << std::endl;
         }
-        const PFCandidate* pfCand = dynamic_cast<const PFCandidate*>(&*signalPFCand);
+        const PFCandidate* pfCand = dynamic_cast<const PFCandidate*>(&*signalCand);
         if (pfCand) {
           if (verbosity_) {
 	    std::cout << "calorimeter energy:" 

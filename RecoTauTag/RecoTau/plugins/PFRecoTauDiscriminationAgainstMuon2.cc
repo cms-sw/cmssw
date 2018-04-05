@@ -174,7 +174,7 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
     numHitsRPC[iStation]    = 0;
   } 
 
-  const reco::CandidatePtr& pfLeadChargedHadron = pfTau->leadPFChargedHadrCand();
+  const reco::CandidatePtr& pfLeadChargedHadron = pfTau->leadChargedHadrCand();
   if ( pfLeadChargedHadron.isNonnull() ) {
     const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(pfLeadChargedHadron.get());
     if (pflch != nullptr) {

@@ -54,19 +54,16 @@ double PFRecoTauDiscriminationByFlight::discriminate(
     const reco::PFTauRef& tau) const {
 
   KalmanVertexFitter kvf(true);
-  const std::vector<reco::CandidatePtr>& signalTracks =
+  const std::vector<reco::PFCandidatePtr>& signalTracks =
     tau->signalPFChargedHadrCands();
   std::vector<reco::TransientTrack> signalTransTracks;
   std::vector<reco::TrackRef> signalTrackPtrs;
-  BOOST_FOREACH(const reco::CandidatePtr& signalTrack, signalTracks) {
-    const reco::PFCandidate* pftrack = dynamic_cast<const reco::PFCandidate*>(signalTrack.get());
-    if (pftrack != nullptr) {
-      if (pftrack->trackRef().isNonnull()) {
-        signalTransTracks.push_back(
-            builder_->build(pftrack->trackRef()));
-        signalTrackPtrs.push_back(pftrack->trackRef());
-      }
-    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and this outdated algorithm was not updated to cope with PFTaus made from other Candidates.\n";
+  for (const auto& pftrack : signalTracks) {
+    if (pftrack->trackRef().isNonnull()) {
+      signalTransTracks.push_back(
+          builder_->build(pftrack->trackRef()));
+      signalTrackPtrs.push_back(pftrack->trackRef());
+    }
   }
 
   reco::Vertex pv = (*vertices_)[0];
@@ -101,7 +98,7 @@ double PFRecoTauDiscriminationByFlight::discriminate(
   // The tau direction, to determine the sign of the IP.
   // In the case that it is a one prong, take the jet direction.
   // This may give better result due to out-of-cone stuff.
-  GlobalVector direction = (tau->signalPFCands().size() == 1 ?
+  GlobalVector direction = (tau->signalCands().size() == 1 ?
       GlobalVector(
           tau->jetRef()->px(), tau->jetRef()->py(), tau->jetRef()->pz()) :
       GlobalVector(tau->px(), tau->py(), tau->pz()));

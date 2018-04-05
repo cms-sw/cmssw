@@ -164,7 +164,7 @@ double PFRecoTauDiscriminationAgainstMuonSimple::discriminate(const reco::PFTauR
 
   //if (pfTau->decayMode() >= 5) return true; //MB: accept all multi-prongs??
 
-  const reco::CandidatePtr& pfLeadChargedHadron = pfTau->leadPFChargedHadrCand();
+  const reco::CandidatePtr& pfLeadChargedHadron = pfTau->leadChargedHadrCand();
   bool passesCaloMuonVeto = true;
   if ( pfLeadChargedHadron.isNonnull() ) {
     const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(pfLeadChargedHadron.get());

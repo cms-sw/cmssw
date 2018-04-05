@@ -212,7 +212,7 @@ void PFTauMiniAODPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::Ev
 	    reco::PFTauRef RefPFTau(Tau, jPFTau);
 	    ///////////////////////////////////////////////////////////////////////////////////////////////
 	    // Get tracks from PFTau daugthers
-	    const std::vector<reco::CandidatePtr> cands = RefPFTau->signalPFChargedHadrCands(); 
+	    const std::vector<reco::CandidatePtr> cands = RefPFTau->signalChargedHadrCands(); 
 	    for(std::vector<reco::CandidatePtr>::const_iterator iter = cands.begin(); iter!=cands.end(); ++iter){
 	      if((*iter).isNull()) continue;
 	      const reco::Track* track = getTrack(**iter);
