@@ -386,7 +386,7 @@ void HGCalHitCalibration::fillDescriptions(
   desc.add<edm::InputTag>("hgcalMultiClusters", edm::InputTag("particleFlowClusterHGCalFromMultiCl"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("ecalDrivenGsfElectronsFromMultiCl"));
   desc.add<edm::InputTag>("photons", edm::InputTag("photonsFromMultiCl"));
-  descriptions.add("hgcalHitCalibration", desc);
+  descriptions.add("hgcalHitCalibrationDefault", desc);
 }
 
 // define this as a plug-in

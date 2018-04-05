@@ -345,6 +345,13 @@ phase2_hgcal.toModify(mixData,
             digiTagSig = cms.InputTag("mix", "HGCDigisHEback"),
             pileInputTag = cms.InputTag("mix", "HGCDigisHEback"),
         ),
+        caloTruth = cms.PSet(
+            workerType = cms.string("PreMixingCaloParticleWorker"),
+            #
+            labelSig = cms.InputTag("mix", "MergedCaloTruth"),
+            pileInputTag = cms.InputTag("mix", "MergedCaloTruth"),
+            collectionDM = cms.string("MergedCaloTruth"),
+        )
     )
 )
 

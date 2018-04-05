@@ -87,7 +87,8 @@ theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True
 
 phase2_hgcal.toModify( theDigitizersValid,
-                       calotruth = cms.PSet( caloParticles ) )
+                       calotruth = cms.PSet( caloParticles ) ) # Doesn't HGCal need these also without validation?
+(premix_stage2 & phase2_hgcal).toModify(theDigitizersValid, calotruth = dict(premixStage1 = True))
 
 
 phase2_timing.toModify( theDigitizersValid.mergedtruth,
