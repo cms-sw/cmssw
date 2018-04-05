@@ -84,7 +84,9 @@ private:
 	const double SF1_,SF2_,SF3_,SF4_,SF5_;
 
 	/// Distance of TSOSs to trigger using hits or not
-	const double tsosDiff_;
+	const double tsosDiff1_;
+
+        const double tsosDiff2_;
 
 	/// Counters and flags for the implementation
 	const std::string propagatorName_;
