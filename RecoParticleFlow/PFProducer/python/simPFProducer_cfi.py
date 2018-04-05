@@ -27,5 +27,7 @@ phase2_timing.toModify(
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(simPFProducer,
-    trackingParticleSrc = "mixData:MergedTrackTruth"
+    trackingParticleSrc = "mixData:MergedTrackTruth",
+    caloParticlesSrc = "mixData:MergedCaloTruth",
+    simClusterTruthSrc = "mixData:MergedCaloTruth",
 )

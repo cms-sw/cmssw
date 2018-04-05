@@ -177,6 +177,7 @@ class CaloTruthAccumulator : public DigiAccumulatorMixMod {
   edm::InputTag hepMCproductLabel_;
 
   const double minEnergy_, maxPseudoRapidity_;
+  const bool premixStage1_;
 
  public:
   struct OutputCollections {
@@ -374,9 +375,13 @@ CaloTruthAccumulator::CaloTruthAccumulator(const edm::ParameterSet& config,
       genParticleLabel_(config.getParameter<edm::InputTag>("genParticleCollection")),
       hepMCproductLabel_(config.getParameter<edm::InputTag>("HepMCProductLabel")),
       minEnergy_(config.getParameter<double>("MinEnergy")),
-      maxPseudoRapidity_(config.getParameter<double>("MaxPseudoRapidity")) {
+      maxPseudoRapidity_(config.getParameter<double>("MaxPseudoRapidity")),
+      premixStage1_(config.getParameter<bool>("premixStage1")) {
   mixMod.produces<SimClusterCollection>("MergedCaloTruth");
   mixMod.produces<CaloParticleCollection>("MergedCaloTruth");
+  if(premixStage1_) {
+    mixMod.produces<std::vector<std::pair<unsigned int, float> > >("MergedCaloTruth");
+  }
 
   iC.consumes<std::vector<SimTrack> >(simTrackLabel_);
   iC.consumes<std::vector<SimVertex> >(simVertexLabel_);
@@ -467,19 +472,29 @@ void CaloTruthAccumulator::finalizeEvent(edm::Event& event, edm::EventSetup cons
 
   // We need to normalize the hits and energies into hits and fractions (since
   // we have looped over all pileup events)
+  // For premixing stage1 we keep the energies, they will be normalized to fractions in stage2
 
-  for (auto& sc : *(output_.pSimClusters)) {
-    auto hitsAndEnergies = sc.hits_and_fractions();
-    sc.clearHitsAndFractions();
-    for (auto& hAndE : hitsAndEnergies) {
-      const float totalenergy = m_detIdToTotalSimEnergy[hAndE.first];
-      float fraction = 0.;
-      if (totalenergy > 0)
-        fraction = hAndE.second / totalenergy;
-      else
-        edm::LogWarning(messageCategory_) << "TotalSimEnergy for hit " << hAndE.first
-                                          << " is 0! The fraction for this hit cannot be computed.";
-      sc.addRecHitAndFraction(hAndE.first, fraction);
+  if(premixStage1_) {
+    auto totalEnergies = std::make_unique<std::vector<std::pair<unsigned int, float> > >();
+    totalEnergies->reserve(m_detIdToTotalSimEnergy.size());
+    std::copy(m_detIdToTotalSimEnergy.begin(), m_detIdToTotalSimEnergy.end(), std::back_inserter(*totalEnergies));
+    std::sort(totalEnergies->begin(), totalEnergies->end());
+    event.put(std::move(totalEnergies), "MergedCaloTruth");
+  }
+  else {
+    for (auto& sc : *(output_.pSimClusters)) {
+      auto hitsAndEnergies = sc.hits_and_fractions();
+      sc.clearHitsAndFractions();
+      for (auto& hAndE : hitsAndEnergies) {
+        const float totalenergy = m_detIdToTotalSimEnergy[hAndE.first];
+        float fraction = 0.;
+        if (totalenergy > 0)
+          fraction = hAndE.second / totalenergy;
+        else
+          edm::LogWarning(messageCategory_) << "TotalSimEnergy for hit " << hAndE.first
+                                            << " is 0! The fraction for this hit cannot be computed.";
+        sc.addRecHitAndFraction(hAndE.first, fraction);
+      }
     }
   }
 
