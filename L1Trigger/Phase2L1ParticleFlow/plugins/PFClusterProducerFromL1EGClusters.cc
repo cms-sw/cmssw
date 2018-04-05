@@ -48,7 +48,7 @@ l1tpf::PFClusterProducerFromL1EGClusters::produce(edm::Event & iEvent, const edm
   for(auto it = clusters->begin(), ed = clusters->end(); it != ed; ++it, ++index) {
       if (it->pt() <= etCut_) continue;
 
-      l1t::PFCluster cluster(it->pt(), it->eta(), it->phi(), 0, /*hOverE=*/0., /*isEM=*/true); // it->hovere() seems to return random values
+      l1t::PFCluster cluster(it->pt(), it->eta(), it->phi(), /*hOverE=*/0., /*isEM=*/true); // it->hovere() seems to return random values
       if (corrector_.valid()) corrector_.correctPt(cluster);
       cluster.setPtError(resol_(cluster.pt(), std::abs(cluster.eta())));
 
