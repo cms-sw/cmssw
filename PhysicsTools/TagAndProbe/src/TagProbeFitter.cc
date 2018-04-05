@@ -205,7 +205,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
 
  
   //now add the necessary mass and passing variables to make the unbinned RooDataSet
-  RooDataSet* data(0);
+  RooDataSet* data(nullptr);
   if (not split_mode){
     data = new RooDataSet("data", "data", inputTree, 
 			  dataVars,
@@ -287,11 +287,11 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
     }
   } else {
     // disactive not needed branches
-    inputTree->SetBranchStatus("*", 0);
+    inputTree->SetBranchStatus("*", false);
     TIterator* iter = dataVars.createIterator();
-    TObject* obj(0);
+    TObject* obj(nullptr);
     while ( (obj = iter->Next()) )
-      inputTree->SetBranchStatus(obj->GetName(),1);
+      inputTree->SetBranchStatus(obj->GetName(),true);
   }
 
   // loop over all bins with the help of allCats
@@ -308,7 +308,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
     //skip unmapped states
     if(catName.Contains("NotMapped")) continue;
 
-    RooDataSet* data_bin(0);
+    RooDataSet* data_bin(nullptr);
     RooArgSet tmpVars;
 
     if (not split_mode){
@@ -317,7 +317,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
     } else {
       data_bin = new RooDataSet("data", "data", 
 				dataVars,
-				(weightVar.empty() ? 0 : weightVar.c_str()));
+				(weightVar.empty() ? nullptr : weightVar.c_str()));
       
       TDirectory* tmp = gDirectory;
       gROOT->cd();
@@ -330,7 +330,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
       while (first_entry<n_entries){
 	TTree* copyTree = inputTree->CopyTree("","",split_mode,first_entry);
 	RooTreeDataStore store("reader","reader",dataVars,*copyTree,
-			       /*selExpr=*/"", /*wgtVarName=*/(weightVar.empty() ? 0 : weightVar.c_str()));
+			       /*selExpr=*/"", /*wgtVarName=*/(weightVar.empty() ? nullptr : weightVar.c_str()));
 	for (unsigned int i=0; i<store.GetEntries(); ++i){
 	  store.get(i);
 	  if (allCats.getIndex()==iCat){
