@@ -103,11 +103,11 @@ SiPixelPhase1ClustersNClusters = DefaultHistoDigiCluster.clone(
     StandardSpecifications1D_Num,
 
     Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
-                             .reduce("COUNT")    
+                             .reduce("COUNT")
                              .groupBy("PXBarrel/PXLayer")
                              .save(nbins=50, xmin=0, xmax=10000),
     Specification().groupBy("PXForward/PXDisk/Event")
-                             .reduce("COUNT")    
+                             .reduce("COUNT")
                              .groupBy("PXForward/PXDisk/")
                              .save(nbins=50, xmin=0, xmax=5000),
   )
@@ -248,18 +248,18 @@ SiPixelPhase1ClustersPixelToStripRatio = DefaultHistoDigiCluster.clone(
   enabled = False,
   name = "cluster_ratio",
   title = "Pixel to Strip clusters ratio",
-  
+
   xlabel = "ratio",
   dimensions = 1,
-  
+
   specs = VPSet(
-    Specification().groupBy("PXAll").save(100, 0, 1), 
+    Specification().groupBy("PXAll").save(100, 0, 1),
     Specification().groupBy("PXAll/LumiBlock")
-                   .reduce("MEAN") 
+                   .reduce("MEAN")
                    .groupBy("PXAll", "EXTEND_X")
                    .save(),
     Specification().groupBy("PXAll/BX")
-                   .reduce("MEAN") 
+                   .reduce("MEAN")
                    .groupBy("PXAll", "EXTEND_X")
                    .save(),
   )

@@ -9,7 +9,7 @@ hltSiPixelPhase1ClustersCharge = hltDefaultHistoDigiCluster.clone(
   title = "Cluster Charge",
   range_min = 0, range_max = 200e3, range_nbins = 200,
   xlabel = "Charge (electrons)",
-  
+
   specs = VPSet(
     #StandardSpecification2DProfile,
     hltStandardSpecificationPixelmapProfile,
@@ -250,18 +250,18 @@ hltSiPixelPhase1ClustersReadoutNClusters = hltDefaultHistoReadout.clone(
 hltSiPixelPhase1ClustersPixelToStripRatio = hltDefaultHistoDigiCluster.clone(
   name = "cluster_ratio",
   title = "Pixel to Strip clusters ratio",
-  
+
   xlabel = "ratio",
   dimensions = 1,
-  
+
   specs = VPSet(
-    Specification().groupBy("PXAll").save(100, 0, 1), 
+    Specification().groupBy("PXAll").save(100, 0, 1),
     Specification().groupBy("PXAll/Lumisection")
-                   .reduce("MEAN") 
+                   .reduce("MEAN")
                    .groupBy("PXAll", "EXTEND_X")
                    .save(),
     Specification().groupBy("PXAll/BX")
-                   .reduce("MEAN") 
+                   .reduce("MEAN")
                    .groupBy("PXAll", "EXTEND_X")
                    .save(),
   )
@@ -307,4 +307,3 @@ hltSiPixelPhase1ClustersHarvester = DQMEDHarvester("SiPixelPhase1Harvester",
         histograms = hltSiPixelPhase1ClustersConf,
         geometry   = hltSiPixelPhase1Geometry
 )
-
