@@ -36,6 +36,8 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalMinBiasAAGHI_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalZeroBiasHI_cff import *
 # AlCaReco for SiPixel Bad Components using ZeroBias events
 from CalibTracker.SiPixelQuality.ALCARECOSiPixelCalZeroBias_cff import *
+# AlCaReco for tracker calibration using Cosmics events 
+from Calibration.TkAlCaRecoProducers.ALCARECOSiStripCalCosmics_cff import *
 
 ###############################################################
 # ECAL Calibration
@@ -126,6 +128,7 @@ pathALCARECOTkAlMinBiasHI = cms.Path(seqALCARECOTkAlMinBiasHI*ALCARECOTkAlMinBia
 pathALCARECOSiPixelLorentzAngle = cms.Path(seqALCARECOSiPixelLorentzAngle)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
 pathALCARECOSiStripCalMinBiasAAG = cms.Path(seqALCARECOSiStripCalMinBiasAAG*ALCARECOSiStripCalMinBiasAAGDQM)
+pathALCARECOSiStripCalCosmics = cms.Path(seqALCARECOSiStripCalCosmics)
 pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECOSiStripCalZeroBiasDQM)
 pathALCARECOSiPixelCalZeroBias = cms.Path(seqALCARECOSiPixelCalZeroBias)
 
@@ -252,6 +255,14 @@ ALCARECOStreamSiStripCalMinBiasAAG = cms.FilteredStream(
         dataTier = cms.untracked.string('ALCARECO')
         )
 
+ALCARECOStreamSiStripCalCosmics = cms.FilteredStream(
+	responsible = 'Marco Musich',
+	name = 'SiStripCalCosmics',
+	paths  = (pathALCARECOSiStripCalCosmics),
+	content = OutALCARECOSiStripCalCosmics.outputCommands,
+	selectEvents = OutALCARECOSiStripCalCosmics.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
 
 ALCARECOStreamSiStripCalZeroBias = cms.FilteredStream(
 	responsible = 'Gordon Kaussen',
