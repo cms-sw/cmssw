@@ -486,6 +486,8 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
       int station = theId.station()&0x3;
       int rpot = theId.rp()&0x7;
 
+      if((StationStatus[station]==0) || (RPstatus[station][rpot]==0)) continue;
+
         int index = getRPindex(arm,station,rpot);
         ++ClusMultPlane[index][plane];
 
