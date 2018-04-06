@@ -21,13 +21,17 @@ class PCrossingFrame
 
   PCrossingFrame(){}
   PCrossingFrame(const CrossingFrame<T>& cf);
-  PCrossingFrame(const PCrossingFrame<T> &pcf){};
 
   ~PCrossingFrame() {;}
   
   // getters for data members of PCrossingFrame
   edm::EventID getEventID() const {return Pid_;}
-  std::vector<const T *> getPileups() const {return PCFpileups_;}
+  std::vector<const T *> getPileups() const {
+    std::vector<const T *> ret;
+    ret.reserve(PCFpileups_.size());
+    for(const auto& p: PCFpileups_) ret.emplace_back(&p);
+    return ret;
+  }
   int getBunchSpace() const {return PbunchSpace_;}
   unsigned int getMaxNbSources() const {return PmaxNbSources_; }
   std::string getSubDet() const { return PCFsubdet_;}
@@ -44,8 +48,8 @@ class PCrossingFrame
   edm::EventID Pid_;
   int firstPCrossing_;
   int lastPCrossing_;
-  std::vector<const T * > PCFpileups_;
-  std::vector<const T * > PCFsignals_;
+  std::vector<T> PCFpileups_;
+  std::vector<T> PCFsignals_;
   std::string PCFsubdet_;
   unsigned int PCFpileupFileNr_;
   edm::EventID PCFidFirstPileup_;
@@ -63,8 +67,18 @@ PCrossingFrame<T>::PCrossingFrame(const CrossingFrame<T>& cf)
  Pid_ = cf.getEventID();
  firstPCrossing_ = cf.getBunchRange().first;
  lastPCrossing_ = cf.getBunchRange().second;
- PCFpileups_ = cf.getPileups();
- PCFsignals_ = cf.getSignal();
+
+ const auto pileups = cf.getPileups();
+ PCFpileups_.reserve(pileups.size());
+ for(const auto& ptr: pileups) {
+   PCFpileups_.emplace_back(*ptr);
+ }
+ const auto signal = cf.getSignal();
+ PCFsignals_.reserve(signal.size());
+ for(const auto& ptr: signal) {
+   PCFsignals_.emplace_back(*ptr);
+ }
+
  PCFsubdet_ = cf.getSubDet();
  PCFpileupFileNr_ = cf.getPileupFileNr();
  PCFidFirstPileup_ = cf.getIdFirstPileup();
