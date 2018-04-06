@@ -74,7 +74,7 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
     {
       histo[PIXEL_TO_STRIP_RATIO].fill((double)inputPixel.product()->data().size() / (double) inputStrip.product()->data().size(), DetId(0), &iEvent);
     }
-  } 
+  }
 
   bool hasClusters=false;
 
@@ -95,21 +95,21 @@ void SiPixelPhase1Clusters::analyze(const edm::Event& iEvent, const edm::EventSe
 
       for (unsigned int i = 0;  i < pixelsVec.size(); ++i) {
 
-	float pixx = pixelsVec[i].x; // index as float=iteger, row index
-	float pixy = pixelsVec[i].y; // same, col index
+        float pixx = pixelsVec[i].x; // index as float=iteger, row index
+        float pixy = pixelsVec[i].y; // same, col index
 
-	bool bigInX = topol.isItBigPixelInX(int(pixx));
-	bool bigInY = topol.isItBigPixelInY(int(pixy));
-	float pixel_charge = pixelsVec[i].adc;
+        bool bigInX = topol.isItBigPixelInX(int(pixx));
+        bool bigInY = topol.isItBigPixelInY(int(pixy));
+        float pixel_charge = pixelsVec[i].adc;
 
 
-	if (bigInX==true || bigInY==true) {
-	  histo[BIGPIXELCHARGE].fill(pixel_charge, id, &iEvent, col, row);
-	}
+        if (bigInX==true || bigInY==true) {
+          histo[BIGPIXELCHARGE].fill(pixel_charge, id, &iEvent, col, row);
+        }
 
-	else {
-	  histo[NOTBIGPIXELCHARGE].fill(pixel_charge, id, &iEvent, col, row);
-	}
+        else {
+          histo[NOTBIGPIXELCHARGE].fill(pixel_charge, id, &iEvent, col, row);
+        }
       }
       histo[READOUT_CHARGE].fill(double(cluster.charge()), id, &iEvent, col, row);
       histo[CHARGE].fill(double(cluster.charge()), id, &iEvent, col, row);
