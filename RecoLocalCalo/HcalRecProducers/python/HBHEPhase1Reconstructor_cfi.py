@@ -64,9 +64,6 @@ hbheprereco = cms.EDProducer(
         # Time shift (in ns) to add to TDC timing (for QIE11)
         tdcTimeShift = cms.double(0.0),
 
-        # Parameters for "Method 0"
-        firstSampleShift = cms.int32(0),
-
         # Use "Method 2"?
         useM2 = cms.bool(False),
 
