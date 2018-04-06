@@ -13,6 +13,8 @@
 #include "DataFormats/GEMRecHit/interface/GEMRecHit.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
+using namespace std;
+
 class GEMCosmicMuonStandEfficiency : public DQMEDAnalyzer
 {
 public:
@@ -35,12 +37,10 @@ MonitorElement* ipartition;
 MonitorElement* ichi2;
 
 edm::EDGetTokenT<reco::TrackCollection> insideOutTracks_, outsideInTracks_;
+edm::EDGetTokenT<vector<TrajectorySeed>> seedInside_, seedOutside_;
 
 };
 
 DEFINE_FWK_MODULE (GEMCosmicMuonStandEfficiency) ;
 #endif
 
-/* Track -> seedRef() :::: RefToBase<TrajectorySeed> :::: range
- * recHits
- */
