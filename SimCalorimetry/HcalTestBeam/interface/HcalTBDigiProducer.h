@@ -96,7 +96,7 @@ private:
   bool   doPhaseShift;
   double tunePhaseShift;
 
-  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+  CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
 
 #endif

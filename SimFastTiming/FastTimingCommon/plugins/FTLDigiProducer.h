@@ -37,7 +37,7 @@ private:
   CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
   //the digitizer
   std::vector<std::unique_ptr<FTLDigitizerBase> > theDigitizers_;
-  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+  CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

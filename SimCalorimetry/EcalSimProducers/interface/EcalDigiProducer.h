@@ -148,7 +148,7 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       std::array< std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix> >, 3 > m_EBCorrNoise ;
       std::array< std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix> >, 3 > m_EECorrNoise ;
 
-      std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+      CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
 
 #endif 

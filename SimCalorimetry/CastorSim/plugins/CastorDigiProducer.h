@@ -81,7 +81,7 @@ private:
 
   std::vector<PCaloHit> theCastorHits;
 
-  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+  CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
 
 #endif
