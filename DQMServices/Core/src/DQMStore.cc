@@ -586,7 +586,7 @@ DQMStore::makeDirectory(const std::string &path)
     subdir.append(path, 0, slash);
     name.clear();
     name.append(subdir, prevname, std::string::npos);
-    if (! prev.empty() && findObject(prev, name))
+    if (! prev.empty() && findObject(0, 0, 0, prev, name))
       raiseDQMError("DQMStore", "Attempt to create subdirectory '%s'"
                     " which already exists as a monitor element",
                     subdir.c_str());
@@ -631,7 +631,7 @@ DQMStore::book_(const std::string &dir, const std::string &name,
   h->SetDirectory(nullptr);
 
   // Check if the request monitor element already exists.
-  MonitorElement *me = findObject(dir, name, run_, 0, moduleId_);
+  MonitorElement *me = findObject(run_, 0, moduleId_, dir, name);
   if (me)
   {
     if (collateHistograms_)
@@ -676,7 +676,7 @@ DQMStore::book_(const std::string &dir, const std::string &name,
     refdir += s_referenceDirName;
     refdir += '/';
     refdir += dir;
-    MonitorElement* referenceME = findObject(refdir, name);
+    MonitorElement* referenceME = findObject(0, 0, 0, refdir, name);
     if (referenceME) {
       // We have booked a new MonitorElement with a specific dir and name.
       // Then, if we can find the corresponding MonitorElement in the reference
@@ -701,7 +701,7 @@ DQMStore::book_(const std::string &dir,
     print_trace(dir, name);
 
   // Check if the request monitor element already exists.
-  if (MonitorElement *me = findObject(dir, name, run_, 0, moduleId_))
+  if (MonitorElement *me = findObject(run_, 0, moduleId_, dir, name))
   {
     if (verbose_ > 1)
     {
@@ -733,7 +733,7 @@ DQMStore::bookInt_(const std::string &dir, const std::string &name)
 {
   if (collateHistograms_)
   {
-    if (MonitorElement *me = findObject(dir, name, run_, 0, moduleId_))
+    if (MonitorElement *me = findObject(run_, 0, moduleId_, dir, name))
     {
       me->Fill(0);
       return me;
@@ -763,7 +763,7 @@ DQMStore::bookFloat_(const std::string &dir, const std::string &name)
 {
   if (collateHistograms_)
   {
-    if (MonitorElement *me = findObject(dir, name, run_, 0, moduleId_))
+    if (MonitorElement *me = findObject(run_, 0, moduleId_, dir, name))
     {
       me->Fill(0.);
       return me;
@@ -795,7 +795,7 @@ DQMStore::bookString_(const std::string &dir,
 {
   if (collateHistograms_)
   {
-    if (MonitorElement *me = findObject(dir, name, run_, 0, moduleId_))
+    if (MonitorElement *me = findObject(run_, 0, moduleId_, dir, name))
       return me;
   }
 
@@ -1519,7 +1519,7 @@ DQMStore::tag(const std::string &path, unsigned int myTag)
   std::string name;
   splitPath(dir, name, path);
 
-  if (MonitorElement *me = findObject(dir, name))
+  if (MonitorElement *me = findObject(0, 0, 0, dir, name))
     tag(me, myTag);
   else
     raiseDQMError("DQMStore", "Attempt to tag non-existent monitor element"
@@ -1736,11 +1736,11 @@ DQMStore::getContents(std::vector<std::string> &into, bool showContents /* = tru
 /// get MonitorElement <name> in directory <dir>
 /// (null if MonitorElement does not exist)
 MonitorElement *
-DQMStore::findObject(const std::string &dir,
-                     const std::string &name,
-                     const uint32_t run /* = 0 */,
-                     const uint32_t lumi /* = 0 */,
-                     const uint32_t moduleId /* = 0 */) const
+DQMStore::findObject(const uint32_t run,
+                     const uint32_t lumi,
+                     const uint32_t moduleId,
+                     const std::string &dir,
+                     const std::string &name) const
 {
   if (dir.find_first_not_of(s_safe) != std::string::npos)
     raiseDQMError("DQMStore", "Monitor element path name '%s' uses"
@@ -2044,7 +2044,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   MonitorElement *refcheck = nullptr;
   if (auto *h = dynamic_cast<TProfile *>(obj))
   {
-    MonitorElement *me = findObject(dir, h->GetName());
+    MonitorElement *me = findObject(0, 0, 0, dir, h->GetName());
     if (! me)
       me = bookProfile_(dir, h->GetName(), (TProfile *) h->Clone());
     else if (overwrite)
@@ -2055,7 +2055,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   }
   else if (auto *h = dynamic_cast<TProfile2D *>(obj))
   {
-    MonitorElement *me = findObject(dir, h->GetName());
+    MonitorElement *me = findObject(0, 0, 0, dir, h->GetName());
     if (! me)
       me = bookProfile2D_(dir, h->GetName(), (TProfile2D *) h->Clone());
     else if (overwrite)
@@ -2066,7 +2066,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   }
   else if (auto *h = dynamic_cast<TH1F *>(obj))
   {
-    MonitorElement *me = findObject(dir, h->GetName());
+    MonitorElement *me = findObject(0, 0, 0, dir, h->GetName());
     if (! me)
       me = book1D_(dir, h->GetName(), (TH1F *) h->Clone());
     else if (overwrite)
@@ -2077,7 +2077,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   }
   else if (auto *h = dynamic_cast<TH1S *>(obj))
   {
-    MonitorElement *me = findObject(dir, h->GetName());
+    MonitorElement *me = findObject(0, 0, 0, dir, h->GetName());
     if (! me)
       me = book1S_(dir, h->GetName(), (TH1S *) h->Clone());
     else if (overwrite)
@@ -2088,7 +2088,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   }
   else if (auto *h = dynamic_cast<TH1D *>(obj))
   {
-    MonitorElement *me = findObject(dir, h->GetName());
+    MonitorElement *me = findObject(0, 0, 0, dir, h->GetName());
     if (! me)
       me = book1DD_(dir, h->GetName(), (TH1D *) h->Clone());
     else if (overwrite)
@@ -2099,7 +2099,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   }
   else if (auto *h = dynamic_cast<TH2F *>(obj))
   {
-    MonitorElement *me = findObject(dir, h->GetName());
+    MonitorElement *me = findObject(0, 0, 0, dir, h->GetName());
     if (! me)
       me = book2D_(dir, h->GetName(), (TH2F *) h->Clone());
     else if (overwrite)
@@ -2110,7 +2110,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   }
   else if (auto *h = dynamic_cast<TH2S *>(obj))
   {
-    MonitorElement *me = findObject(dir, h->GetName());
+    MonitorElement *me = findObject(0, 0, 0, dir, h->GetName());
     if (! me)
       me = book2S_(dir, h->GetName(), (TH2S *) h->Clone());
     else if (overwrite)
@@ -2121,7 +2121,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   }
   else if (auto *h = dynamic_cast<TH2D *>(obj))
   {
-    MonitorElement *me = findObject(dir, h->GetName());
+    MonitorElement *me = findObject(0, 0, 0, dir, h->GetName());
     if (! me)
       me = book2DD_(dir, h->GetName(), (TH2D *) h->Clone());
     else if (overwrite)
@@ -2132,7 +2132,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   }
   else if (auto *h = dynamic_cast<TH3F *>(obj))
   {
-    MonitorElement *me = findObject(dir, h->GetName());
+    MonitorElement *me = findObject(0, 0, 0, dir, h->GetName());
     if (! me)
       me = book3D_(dir, h->GetName(), (TH3F *) h->Clone());
     else if (overwrite)
@@ -2173,7 +2173,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
 
     if (kind == "i")
     {
-      MonitorElement *me = findObject(dir, label);
+      MonitorElement *me = findObject(0, 0, 0, dir, label);
       if (! me || overwrite)
       {
         if (! me) me = bookInt_(dir, label);
@@ -2182,7 +2182,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     }
     else if (kind == "f")
     {
-      MonitorElement *me = findObject(dir, label);
+      MonitorElement *me = findObject(0, 0, 0, dir, label);
       if (! me || overwrite)
       {
         if (! me) me = bookFloat_(dir, label);
@@ -2191,7 +2191,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     }
     else if (kind == "s")
     {
-      MonitorElement *me = findObject(dir, label);
+      MonitorElement *me = findObject(0, 0, 0, dir, label);
       if (! me)
         me = bookString_(dir, label, value);
       else if (overwrite)
@@ -2199,7 +2199,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     }
     else if (kind == "e")
     {
-      MonitorElement *me = findObject(dir, label);
+      MonitorElement *me = findObject(0, 0, 0, dir, label);
       if (! me)
       {
         std::cout << "*** DQMStore: WARNING: no monitor element '"
@@ -2211,7 +2211,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
     }
     else if (kind == "t")
     {
-      MonitorElement *me = findObject(dir, label);
+      MonitorElement *me = findObject(0, 0, 0, dir, label);
       if (! me)
       {
         std::cout << "*** DQMStore: WARNING: no monitor element '"
@@ -2273,7 +2273,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
           return false;
         }
 
-        MonitorElement *me = findObject(dir, mename);
+        MonitorElement *me = findObject(0, 0, 0, dir, mename);
         if (! me)
         {
           std::cout << "*** DQMStore: WARNING: no monitor element '"
@@ -2319,7 +2319,7 @@ DQMStore::extract(TObject *obj, const std::string &dir,
   if (refcheck && isSubdirectory(s_referenceDirName, dir))
   {
     std::string mdir(dir, s_referenceDirName.size()+1, std::string::npos);
-    if (MonitorElement *master = findObject(mdir, obj->GetName()))
+    if (MonitorElement *master = findObject(0, 0, 0, mdir, obj->GetName()))
     {
       // We have extracted a MonitorElement, and it's located in the reference
       // dir. Then we find the corresponding MonitorElement in the
@@ -3105,7 +3105,7 @@ DQMStore::readFilePB(const std::string &filename,
        * if it does - flags for the given monitor are already set (and merged)
        * else - set the flags after the histogram is created.
        */
-      MonitorElement *me = findObject(path, objname);
+      MonitorElement *me = findObject(0, 0, 0, path, objname);
 
       /* Run histograms should be collated and not overwritten,
        * Lumi histograms should be overwritten (and collate flag is not checked)
@@ -3115,7 +3115,7 @@ DQMStore::readFilePB(const std::string &filename,
       extract(static_cast<TObject *>(obj), path, overwrite, collate);
 
       if (me == nullptr) {
-        me = findObject(path, objname);
+        me = findObject(0, 0, 0, path, objname);
         me->data_.flags = h.flags();
       }
 

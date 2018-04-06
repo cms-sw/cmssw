@@ -719,11 +719,11 @@ class DQMStore
                                               const std::string &curdir,
                                               OpenRunDirs stripdirs);
 
-  MonitorElement *              findObject(const std::string &dir,
-                                           const std::string &name,
-                                           const uint32_t run = 0,
-                                           const uint32_t lumi = 0,
-                                           const uint32_t moduleId = 0) const;
+  MonitorElement *              findObject(const uint32_t run,
+                                           const uint32_t lumi,
+                                           const uint32_t moduleId,
+                                           const std::string &dir,
+                                           const std::string &name) const;
 
   void                          get_info(const  dqmstorepb::ROOTFilePB_Histo &,
                                          std::string & dirname,
