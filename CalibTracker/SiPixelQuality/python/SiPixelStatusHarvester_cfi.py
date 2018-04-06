@@ -10,9 +10,7 @@ siPixelStatusHarvester = cms.EDAnalyzer("SiPixelStatusHarvester",
         label      = cms.untracked.string("siPixelStatus"),
     ),
     debug = cms.untracked.bool(False),
-    recordName   = cms.untracked.string("SiPixelQualityFromDbRcd"),
-    dumpTxt            = cms.untracked.bool(False),
-    txtFileName        = cms.untracked.string("SiPixelBadComponent"),
+    recordName   = cms.untracked.string("SiPixelQualityFromDbRcd")
 
 )
 

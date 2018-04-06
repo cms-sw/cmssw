@@ -167,6 +167,14 @@ ALCAHARVESTSiPixelQuality_dbOutput = cms.VPSet(cms.PSet(record = cms.string('SiP
                                                         )
                                                )
 
+if ALCAHARVESTSiPixelQuality.debug == cms.untracked.bool(True) :
+   ALCAHARVESTSiPixelQuality_dbOutput.append(
+       cms.PSet(record = cms.string('SiPixelQualityFromDbRcd_PCL'),
+                tag = cms.string('SiPixelQualityFromDbRcd_PCL'),
+                timetype = cms.untracked.string('lumiid')
+                )
+   )
+
 # define all the paths
 BeamSpotByRun  = cms.Path(ALCAHARVESTBeamSpotByRun)
 BeamSpotByLumi = cms.Path(ALCAHARVESTBeamSpotByLumi)
