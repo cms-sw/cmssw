@@ -78,6 +78,7 @@ DiDispStaMuonEfficiency = DQMEDHarvester("DQMGenericClient",
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
         "effic_muonPt          'Muon pt turnON; DisplacedStandAlone Muon p_{T} [GeV]; Efficiency'     muonPt_numerator          muonPt_denominator",
+        "effic_muonPtNoDxyCut  'Muon pt turnON; DisplacedStandAlone Muon p_{T} [GeV]; Efficiency'     muonPtNoDxyCut_numerator  muonPtNoDxyCut_denominator",
         "effic_muonPt_variable 'Muon pt turnON; DisplacedStandAlone Muon p_{T} [GeV]; Efficiency'     muonPt_variable_numerator muonPt_variable_denominator",
         "effic_muonEta          'Muon eta eff; DisplacedStandAlone Muon #eta; Efficiency'     muonEta_numerator          muonEta_denominator",
         "effic_muonPhi          'Muon phi eff; DisplacedStandAlone Muon #phi; Efficiency'     muonPhi_numerator          muonPhi_denominator",

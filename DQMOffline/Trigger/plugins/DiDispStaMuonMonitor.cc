@@ -23,6 +23,8 @@ DiDispStaMuonMonitor::DiDispStaMuonMonitor( const edm::ParameterSet& iConfig ) :
 
   muonPtME_.numerator   = nullptr;
   muonPtME_.denominator = nullptr;
+  muonPtNoDxyCutME_.numerator   = nullptr;
+  muonPtNoDxyCutME_.denominator = nullptr;
   muonPtME_variableBinning_.numerator   = nullptr;
   muonPtME_variableBinning_.denominator = nullptr;
   muonPtVsLS_.numerator   = nullptr;
@@ -132,6 +134,11 @@ void DiDispStaMuonMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bookME(ibooker,muonPtME_,histname,histtitle,muonPt_binning_.nbins,muonPt_binning_.xmin, muonPt_binning_.xmax);
   setTitle(muonPtME_,"DisplacedStandAlone Muon p_{T} [GeV]","Events / [GeV]", bookDen);
 
+  histname = "muonPtNoDxyCut"; histtitle = "muonPtNoDxyCut";
+  bookDen = true;
+  bookME(ibooker,muonPtNoDxyCutME_,histname,histtitle,muonPt_binning_.nbins,muonPt_binning_.xmin, muonPt_binning_.xmax);
+  setTitle(muonPtNoDxyCutME_,"DisplacedStandAlone Muon p_{T} [GeV] without Dxy cut","Events / [GeV]", bookDen);
+
   histname = "muonPt_variable"; histtitle = "muonPt";
   bookDen = true;
   bookME(ibooker,muonPtME_variableBinning_,histname,histtitle,muonPt_variable_binning_);
@@ -218,6 +225,10 @@ void DiDispStaMuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup con
   std::copy_if(dsaMuonPtrs_.begin(), dsaMuonPtrs_.end(), back_inserter(muons), selectGeneral_);
   if ((unsigned int)(muons.size()) < nmuons_ ) return;
 
+  // sort by pt
+  auto ptSorter_ = [](edm::Ptr<reco::Track> const& lhs, edm::Ptr<reco::Track> const& rhs)->bool {return lhs->pt() > rhs->pt();};
+  std::sort(muons.begin(), muons.end(), ptSorter_);
+
   // cut on pt
   auto selectOnPt_([this](edm::Ptr<reco::Track> const& m)->bool {return muonSelectionPt_(*m);});
   std::copy_if(muons.begin(), muons.end(), back_inserter(muonsCutOnPt), selectOnPt_);
@@ -228,40 +239,39 @@ void DiDispStaMuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup con
   auto selectOnPtAndDxy_([this](edm::Ptr<reco::Track> const& m)->bool {return muonSelectionPt_(*m) && muonSelectionDxy_(*m);});
   std::copy_if(muons.begin(), muons.end(), back_inserter(muonsCutOnPtAndDxy), selectOnPtAndDxy_);
 
+  std::sort(muonsCutOnPt.begin(), muonsCutOnPt.end(), ptSorter_);
+  std::sort(muonsCutOnDxy.begin(), muonsCutOnDxy.end(), ptSorter_);
+  std::sort(muonsCutOnPtAndDxy.begin(), muonsCutOnPtAndDxy.end(), ptSorter_);
+
   // --------------------------------
   // filling histograms (denominator)
   // --------------------------------
-  if(!muons.empty()){
-    if(!muonsCutOnDxy.empty()) {
-        // pt has cut on dxy
-        muonPtME_.denominator->Fill( muonsCutOnDxy[0]->pt() );
-        muonPtME_variableBinning_.denominator->Fill( muonsCutOnDxy[0]->pt() );
-        muonPtVsLS_.denominator->Fill( ls, muonsCutOnDxy[0]->pt() );
-    }
-    if(!muonsCutOnPtAndDxy.empty()) {
-        // eta, phi have cut on pt and dxy
-        muonEtaME_.denominator->Fill( muonsCutOnPtAndDxy[0]->eta() );
-        muonPhiME_.denominator->Fill( muonsCutOnPtAndDxy[0]->phi() );
-    }
-    if(!muonsCutOnPt.empty()){
-        // dxy has cut on pt
-        muonDxyME_.denominator->Fill( muonsCutOnPt[0]->dxy() );
-    }
-  }
-
-  if(muonsCutOnDxy.size() > 1) {
+  if(muonsCutOnDxy.size() >= nmuons_) {
       // pt has cut on dxy
-      subMuonPtME_.denominator->Fill( muonsCutOnDxy[1]->pt() );
-      subMuonPtME_variableBinning_.denominator->Fill( muonsCutOnDxy[1]->pt() );
+      muonPtME_.denominator->Fill( muonsCutOnDxy[0]->pt() );
+      muonPtNoDxyCutME_.denominator->Fill( muons[0]->pt() );
+      muonPtME_variableBinning_.denominator->Fill( muonsCutOnDxy[0]->pt() );
+      muonPtVsLS_.denominator->Fill( ls, muonsCutOnDxy[0]->pt() );
+      if(nmuons_ > 1) {
+        subMuonPtME_.denominator->Fill( muonsCutOnDxy[1]->pt() );
+        subMuonPtME_variableBinning_.denominator->Fill( muonsCutOnDxy[1]->pt() );
+      }
   }
-  if(muonsCutOnPtAndDxy.size() > 1) {
+  if(muonsCutOnPtAndDxy.size() >= nmuons_) {
       // eta, phi have cut on pt and dxy
-      subMuonEtaME_.denominator->Fill( muonsCutOnPtAndDxy[1]->eta() );
-      subMuonPhiME_.denominator->Fill( muonsCutOnPtAndDxy[1]->phi() );
+      muonEtaME_.denominator->Fill( muonsCutOnPtAndDxy[0]->eta() );
+      muonPhiME_.denominator->Fill( muonsCutOnPtAndDxy[0]->phi() );
+      if(nmuons_ > 1) {
+          subMuonEtaME_.denominator->Fill( muonsCutOnPtAndDxy[1]->eta() );
+          subMuonPhiME_.denominator->Fill( muonsCutOnPtAndDxy[1]->phi() );
+      }
   }
-  if(muonsCutOnPt.size() > 1){
+  if(muonsCutOnPt.size() >= nmuons_){
       // dxy has cut on pt
-      subMuonDxyME_.denominator->Fill( muonsCutOnPt[1]->dxy() );
+      muonDxyME_.denominator->Fill( muonsCutOnPt[0]->dxy() );
+      if (nmuons_ > 1) {
+        subMuonDxyME_.denominator->Fill( muonsCutOnPt[1]->dxy() );
+      }
   }
 
 
@@ -270,37 +280,32 @@ void DiDispStaMuonMonitor::analyze(edm::Event const& iEvent, edm::EventSetup con
   // --------------------------------
   if (num_genTriggerEventFlag_->on() && ! num_genTriggerEventFlag_->accept( iEvent, iSetup) ) return;
   
-  if(!muons.empty()){
-    if(!muonsCutOnDxy.empty()) {
-        // pt has cut on dxy
-        muonPtME_.numerator->Fill( muonsCutOnDxy[0]->pt() );
-        muonPtME_variableBinning_.numerator->Fill( muonsCutOnDxy[0]->pt() );
-        muonPtVsLS_.numerator->Fill( ls, muonsCutOnDxy[0]->pt() );
-    }
-    if(!muonsCutOnPtAndDxy.empty()) {
-        // eta, phi have cut on pt and dxy
-        muonEtaME_.numerator->Fill( muonsCutOnPtAndDxy[0]->eta() );
-        muonPhiME_.numerator->Fill( muonsCutOnPtAndDxy[0]->phi() );
-    }
-    if(!muonsCutOnPt.empty()){
-        // dxy has cut on pt
-        muonDxyME_.numerator->Fill( muonsCutOnPt[0]->dxy() );
-    }
-  }
-
-  if(muonsCutOnDxy.size() > 1) {
+  if(muonsCutOnDxy.size() >= nmuons_) {
       // pt has cut on dxy
-      subMuonPtME_.numerator->Fill( muonsCutOnDxy[1]->pt() );
-      subMuonPtME_variableBinning_.numerator->Fill( muonsCutOnDxy[1]->pt() );
+      muonPtME_.numerator->Fill( muonsCutOnDxy[0]->pt() );
+      muonPtNoDxyCutME_.numerator->Fill( muons[0]->pt() );
+      muonPtME_variableBinning_.numerator->Fill( muonsCutOnDxy[0]->pt() );
+      muonPtVsLS_.numerator->Fill( ls, muonsCutOnDxy[0]->pt() );
+      if(nmuons_ > 1) {
+        subMuonPtME_.numerator->Fill( muonsCutOnDxy[1]->pt() );
+        subMuonPtME_variableBinning_.numerator->Fill( muonsCutOnDxy[1]->pt() );
+      }
   }
-  if(muonsCutOnPtAndDxy.size() > 1) {
+  if(muonsCutOnPtAndDxy.size() >= nmuons_) {
       // eta, phi have cut on pt and dxy
-      subMuonEtaME_.numerator->Fill( muonsCutOnPtAndDxy[1]->eta() );
-      subMuonPhiME_.numerator->Fill( muonsCutOnPtAndDxy[1]->phi() );
+      muonEtaME_.numerator->Fill( muonsCutOnPtAndDxy[0]->eta() );
+      muonPhiME_.numerator->Fill( muonsCutOnPtAndDxy[0]->phi() );
+      if(nmuons_ > 1) {
+          subMuonEtaME_.numerator->Fill( muonsCutOnPtAndDxy[1]->eta() );
+          subMuonPhiME_.numerator->Fill( muonsCutOnPtAndDxy[1]->phi() );
+      }
   }
-  if(muonsCutOnPt.size() > 1){
+  if(muonsCutOnPt.size() >= nmuons_){
       // dxy has cut on pt
-      subMuonDxyME_.numerator->Fill( muonsCutOnPt[1]->dxy() );
+      muonDxyME_.numerator->Fill( muonsCutOnPt[0]->dxy() );
+      if (nmuons_ > 1) {
+        subMuonDxyME_.numerator->Fill( muonsCutOnPt[1]->dxy() );
+      }
   }
 
 
