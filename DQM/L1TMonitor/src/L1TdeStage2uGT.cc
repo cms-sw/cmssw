@@ -67,9 +67,13 @@ void L1TdeStage2uGT::analyze(const edm::Event & event, const edm::EventSetup & e
 
    // int bx = event.bunchCrossing();
 
-   // check that the requested range of BX's is consistant with the BX's in the emulated collection 
+   // check that the requested range of BX's is consistent with the BX's in the emulated and unpacked collections
    if (emulCollection->getFirstBX() > firstBx) firstBx = emulCollection->getFirstBX();
    if (emulCollection->getLastBX() < lastBx) lastBx = emulCollection->getLastBX();
+
+   if (dataCollection->getFirstBX() > firstBx) firstBx = dataCollection->getFirstBX();
+   if (dataCollection->getLastBX() < lastBx) lastBx = dataCollection->getLastBX();
+
 
    for (int ibx = firstBx; ibx <= lastBx; ++ibx) {
 
