@@ -86,6 +86,7 @@ private:
   MEbinning           ls_binning_;
 
   DiDispStaMuonME muonPtME_;
+  DiDispStaMuonME muonPtNoDxyCutME_;
   DiDispStaMuonME muonPtME_variableBinning_;
   DiDispStaMuonME muonPtVsLS_;
   DiDispStaMuonME muonEtaME_;
