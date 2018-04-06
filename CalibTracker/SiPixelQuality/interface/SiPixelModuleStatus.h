@@ -16,22 +16,19 @@ public:
   ~SiPixelModuleStatus();
 
   /// fill with online coordinates
-  void fillDIGI(int iroc, int idc);
+  void fillDIGI(int iroc);
 
   /// fill with online coordinates (nhit > 1)
-  void updateDIGI(int iroc, int idc, unsigned long nhit);
+  void updateDIGI(int iroc, unsigned int nhit);
 
-  /// fill stuck TBM
-  void fillStuckTBM( PixelFEDChannel ch, std::time_t time );
-
-  /// return DC status of a ROC (=hits on DC idc on ROC iroc)
-  unsigned long int digiOccDC(int iroc, int idc);
+  /// fill FEDerror25
+  void fillFEDerror25( PixelFEDChannel ch );
 
   /// return ROC status (= hits on ROC iroc)
-  unsigned long int digiOccROC(int iroc);
+  unsigned int digiOccROC(int iroc);
 
   /// return module status (= hits on module)
-  unsigned long int digiOccMOD();
+  unsigned int digiOccMOD();
 
   /// get a ROC
   SiPixelRocStatus* getRoc(int i);
@@ -42,18 +39,16 @@ public:
   void   setNrocs(int iroc);
 
   /// calculate (averaged over this module's ROCs) mean hit number and its sigma
-  void digiOccupancy();
   double perRocDigiOcc();
   double perRocDigiOccVar();
 
   /// combine new data to update(topup) module status
-  void updateModuleDIGI(int roc, int dc, unsigned long int nhits);
+  void updateModuleDIGI(int roc, unsigned int nhits);
   void updateModuleStatus(SiPixelModuleStatus newData);
 
 private:
 
   int fDetid, fNrocs;
-  double fModAverage, fModSigma;
   std::vector<SiPixelRocStatus> fRocs;
 
 };
