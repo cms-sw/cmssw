@@ -35,7 +35,7 @@ protected :
 
 private:
 
-  ClassDef(TFitParticleEtThetaPhi, 0)
+  ClassDefOverride(TFitParticleEtThetaPhi, 0)
 };
 
 #endif
