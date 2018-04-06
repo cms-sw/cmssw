@@ -32,7 +32,7 @@ protected :
 
 private :
 
-  ClassDef(TFitParticleEScaledMomDev, 0)
+  ClassDefOverride(TFitParticleEScaledMomDev, 0)
 };
 
 #endif

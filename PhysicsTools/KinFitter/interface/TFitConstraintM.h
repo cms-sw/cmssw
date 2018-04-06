@@ -53,7 +53,7 @@ protected :
 
 private :
 
-  ClassDef(TFitConstraintM, 0)
+  ClassDefOverride(TFitConstraintM, 0)
 };
 
 #endif

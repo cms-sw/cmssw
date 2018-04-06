@@ -34,7 +34,7 @@ protected :
 
 private:
 
-  ClassDef(TFitParticleMCCart, 0)
+  ClassDefOverride(TFitParticleMCCart, 0)
 };
 
 #endif
