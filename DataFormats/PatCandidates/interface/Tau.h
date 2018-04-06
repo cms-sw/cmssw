@@ -179,16 +179,16 @@ namespace pat {
       const reco::PFCandidatePtr leadPFCand() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const std::vector<reco::PFCandidatePtr> signalPFCands() const;
+      const std::vector<reco::PFCandidatePtr>& signalPFCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const std::vector<reco::PFCandidatePtr> signalPFChargedHadrCands() const;
+      const std::vector<reco::PFCandidatePtr>& signalPFChargedHadrCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const std::vector<reco::PFCandidatePtr> signalPFNeutrHadrCands() const;
+      const std::vector<reco::PFCandidatePtr>& signalPFNeutrHadrCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const std::vector<reco::PFCandidatePtr> signalPFGammaCands() const;
+      const std::vector<reco::PFCandidatePtr>& signalPFGammaCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       const std::vector<reco::PFRecoTauChargedHadron> & signalTauChargedHadronCandidates() const;
@@ -197,16 +197,16 @@ namespace pat {
       const std::vector<reco::RecoTauPiZero> & signalPiZeroCandidates() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const std::vector<reco::PFCandidatePtr> isolationPFCands() const;
+      const std::vector<reco::PFCandidatePtr>& isolationPFCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const std::vector<reco::PFCandidatePtr> isolationPFChargedHadrCands() const;
+      const std::vector<reco::PFCandidatePtr>& isolationPFChargedHadrCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const std::vector<reco::PFCandidatePtr> isolationPFNeutrHadrCands() const;
+      const std::vector<reco::PFCandidatePtr>& isolationPFNeutrHadrCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      const std::vector<reco::PFCandidatePtr> isolationPFGammaCands() const;
+      const std::vector<reco::PFCandidatePtr>& isolationPFGammaCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       const std::vector<reco::PFRecoTauChargedHadron> & isolationTauChargedHadronCandidates() const;

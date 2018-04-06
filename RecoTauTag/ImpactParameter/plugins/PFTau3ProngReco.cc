@@ -135,8 +135,8 @@ namespace {
       else return nullptr;
     }
     const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
-    if (packedCand && packedCand->hasTrackDetails())
-    	return &packedCand->pseudoTrack();
+    if (packedCand != nullptr)
+      return packedCand->bestTrack();
 
     return nullptr;
   }

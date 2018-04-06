@@ -244,13 +244,5 @@ namespace DataFormats_TauReco {
 /*     edm::helpers::KeyVal<edm::RefProd<std::vector<reco::PFJet> >,edm::RefProd<std::vector<reco::PFCandidate> > > jetPFCandidateAssociation_kv; */
 /*     edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > jetPFCandidateAssociation_kv2; */
 /*     std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > jetPFCandidateAssociation_mkv; */
-
-    // PAT Jet associations, needed for miniAOD-based reconstruction
-    edm::Association<std::vector<pat::Jet> > patjet_assoc_vr;
-    edm::Wrapper<edm::Association<std::vector<pat::Jet> > > patjet_assoc_vr_wrapper;
-    edm::RefProd<vector<pat::Jet> > patjet_rp;
-    edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> >patjet_v_patpc_v_otm_am;
-    edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<pat::Jet>,std::vector<pat::PackedCandidate>,unsigned int> > > patjet_v_patpc_v_otm_am_w;
-    edm::helpers::KeyVal<edm::RefProd<vector<pat::Jet> >,edm::RefProd<vector<pat::PackedCandidate> > > patjet_v_patpc_v_kv;
   };
 }
