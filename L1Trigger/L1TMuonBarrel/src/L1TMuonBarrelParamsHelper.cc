@@ -124,6 +124,9 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys)
 {
 	std::map<std::string, std::string> procRole = trgSys.getProcToRoleAssignment();
 
+	//Cleaning the default masking from the prototype
+	l1mudttfmasks.reset();
+
 	for(auto it_proc=procRole.begin(); it_proc!=procRole.end(); it_proc++ )
 	{
 
@@ -171,26 +174,26 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys)
 	             for(int sec=0; sec<12; sec++){
 	              if(masks[m]=="mask_ctrl_N2"){
 	                                    l1mudttfmasks.set_inrec_chdis_st1(-3,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st1(-3,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st1(-3,sec,true);
 	              }
 	              if(masks[m]=="mask_ctrl_N1"){
 	                                    l1mudttfmasks.set_inrec_chdis_st1(-2,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st1(-2,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st1(-2,sec,true);
 	              }
 
 	              if(masks[m]=="mask_ctrl_0"){
 	                                    l1mudttfmasks.set_inrec_chdis_st1(-1,sec,true);
 	                                    l1mudttfmasks.set_inrec_chdis_st1(1,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st1(-1,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st1(1,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st1(-1,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st1(1,sec,true);
 	              }
 	              if(masks[m]=="mask_ctrl_P1"){
 	                                    l1mudttfmasks.set_inrec_chdis_st1(2,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st1(2,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st1(2,sec,true);
 	              }
 	              if(masks[m]=="mask_ctrl_P2"){
 	                                    l1mudttfmasks.set_inrec_chdis_st1(3,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st1(3,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st1(3,sec,true);
 	              }
 	            }
 
@@ -200,26 +203,26 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys)
 	            for(int sec=0; sec<12; sec++){
 	              if(masks[m]=="mask_ctrl_N2"){
 	                                    l1mudttfmasks.set_inrec_chdis_st2(-3,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st2(-3,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st2(-3,sec,true);
 	              }
 	              if(masks[m]=="mask_ctrl_N1"){
 	                                    l1mudttfmasks.set_inrec_chdis_st2(-2,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st2(-2,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st2(-2,sec,true);
 	              }
 
 	              if(masks[m]=="mask_ctrl_0"){
 	                                    l1mudttfmasks.set_inrec_chdis_st2(-1,sec,true);
 	                                    l1mudttfmasks.set_inrec_chdis_st2(1,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st2(-1,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st2(1,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st2(-1,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st2(1,sec,true);
 	              }
 	              if(masks[m]=="mask_ctrl_P1"){
 	                                    l1mudttfmasks.set_inrec_chdis_st2(2,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st2(2,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st2(2,sec,true);
 	              }
 	              if(masks[m]=="mask_ctrl_P2"){
 	                                    l1mudttfmasks.set_inrec_chdis_st2(3,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st2(3,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st2(3,sec,true);
 	              }
 	            }
 	          }
@@ -228,26 +231,26 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys)
 	            for(int sec=0; sec<12; sec++){
 	              if(masks[m]=="mask_ctrl_N2"){
 	                                    l1mudttfmasks.set_inrec_chdis_st3(-3,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st3(-3,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st3(-3,sec,true);
 	              }
 	              if(masks[m]=="mask_ctrl_N1"){
 	                                    l1mudttfmasks.set_inrec_chdis_st3(-2,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st3(-2,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st3(-2,sec,true);
 	              }
 
 	              if(masks[m]=="mask_ctrl_0"){
 	                                    l1mudttfmasks.set_inrec_chdis_st3(-1,sec,true);
 	                                    l1mudttfmasks.set_inrec_chdis_st3(1,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st3(-1,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st3(1,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st3(-1,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st3(1,sec,true);
 	              }
 	              if(masks[m]=="mask_ctrl_P1"){
 	                                    l1mudttfmasks.set_inrec_chdis_st3(2,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st3(2,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st3(2,sec,true);
 	              }
 	              if(masks[m]=="mask_ctrl_P2"){
 	                                    l1mudttfmasks.set_inrec_chdis_st3(3,sec,true);
-	                                    l1mudttfmasks.set_etsoc_chdis_st3(3,sec,true);
+	                                    //l1mudttfmasks.set_etsoc_chdis_st3(3,sec,true);
 	              }
 	            }
 	          }
