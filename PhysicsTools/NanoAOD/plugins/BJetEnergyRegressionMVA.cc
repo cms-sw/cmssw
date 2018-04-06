@@ -45,8 +45,9 @@ class BJetEnergyRegressionMVA : public BaseMVAValueMapProducer<pat::Jet> {
 	  }
 
           void fillAdditionalVariables(const pat::Jet&j)  override {
-		this->setValue("nPVs",pvs_->size());
-		BaseMVAValueMapProducer<pat::Jet>::setValue("Jet_leptonPtRel",0);
+		this->setValue("nPVs",(pvs_->size()-19.1268252508)*0.138597756712);
+
+        /*		BaseMVAValueMapProducer<pat::Jet>::setValue("Jet_leptonPtRel",0);
 
 		if(!j.overlaps("muons").empty()) { 
 			const auto *lep=dynamic_cast<const pat::Muon *>(&*j.overlaps("muons")[0]);
@@ -86,7 +87,7 @@ class BJetEnergyRegressionMVA : public BaseMVAValueMapProducer<pat::Jet> {
 			}	
 		    } 
 		}
-
+*/
 	  }
 
           static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

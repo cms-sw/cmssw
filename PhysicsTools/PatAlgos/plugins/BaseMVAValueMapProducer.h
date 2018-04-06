@@ -171,7 +171,7 @@ BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
        std::vector<tensorflow::Tensor> outputs;
        std::vector<std::string> names; names.push_back(outputTensorName_);
        tensorflow::run(session_, input_tensors, names, &outputs);
-       for(size_t k=0;k<output_names_.size();k++) mvaOut[k].push_back(outputs.at(0).matrix<float>()(1, k));
+       for(size_t k=0;k<output_names_.size();k++) mvaOut[k].push_back(outputs.at(0).matrix<float>()(0, k));
     }
     
 
@@ -200,6 +200,14 @@ BaseMVAValueMapProducer<T>::getDescription(){
   variables.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("variables", variables)->setComment("list of input variable definitions");
   desc.add<edm::FileInPath>("weightFile")->setComment("xml weight file");
+  desc.add<std::string>("backend","TMVA")->setComment("TMVA or TF");
+  desc.add<std::string>("inputTensorName","")->setComment("Name of tensorflow input tensor in the model");
+  desc.add<std::string>("outputTensorName","")->setComment("Name of tensorflow output tensor in the model");
+  desc.add<std::vector<std::string>>("outputNames",std::vector<std::string>())->setComment("Names of the output values to be used in the output valuemap");
+  desc.add<unsigned int>("nThreads",1)->setComment("number of threads");
+  desc.add<std::string>("singleThreadPool", "no_threads");
+
+
   return desc;
 }
 
