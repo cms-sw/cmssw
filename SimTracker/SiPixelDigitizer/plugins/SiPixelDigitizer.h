@@ -95,7 +95,7 @@ namespace cms {
     edm::ESHandle<TrackerGeometry> pDD;
     edm::ESHandle<MagneticField> pSetup;
     std::map<unsigned int, PixelGeomDetUnit const *> detectorUnits;
-    std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+    CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 
     PileupMixingContent* PileupInfo_;
     

@@ -86,15 +86,9 @@ HcalDigiProducer::setQIE11NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGe
 }
 
 CLHEP::HepRandomEngine* HcalDigiProducer::randomEngine(edm::StreamID const& streamID) {
-  unsigned int index = streamID.value();
-  if(index >= randomEngines_.size()) {
-    randomEngines_.resize(index + 1, nullptr);
-  }
-  CLHEP::HepRandomEngine* ptr = randomEngines_[index];
-  if(!ptr) {
+  if(!randomEngine_) {
     edm::Service<edm::RandomNumberGenerator> rng;
-    ptr = &rng->getEngine(streamID);
-    randomEngines_[index] = ptr;
+    randomEngine_ = &rng->getEngine(streamID);
   }
-  return ptr;
+  return randomEngine_;
 }

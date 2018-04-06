@@ -98,7 +98,7 @@ private:
   edm::ESHandle<TrackerGeometry> pDD;
   edm::ESHandle<MagneticField> pSetup;
   std::map<unsigned int, StripGeomDetUnit const *> detectorUnits;
-  std::vector<CLHEP::HepRandomEngine*> randomEngines_;
+  CLHEP::HepRandomEngine* randomEngine_ = nullptr;
   std::vector<std::pair<int,std::bitset<6>>> theAffectedAPVvector;
 
   PileupMixingContent* PileupInfo_;
