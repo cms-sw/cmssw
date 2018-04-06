@@ -579,6 +579,7 @@ phase2_common.toModify(PREMIXEventContent, outputCommands = PREMIXEventContent.o
         'keep *_*_GEMStripDigiSimLink_*',
         # ME0
         'keep *_simMuonME0Digis_*_*',
+        'keep *_mix_g4SimHitsMuonME0Hits_*',
         'keep *_*_ME0DigiSimLink_*',
         'keep *_*_ME0StripDigiSimLink_*',
         # CaloParticles
