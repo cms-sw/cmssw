@@ -37,7 +37,9 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
     time = 0.;
     timeReso = -1.;
   }
-  
+  float dzError = track->dzError();
+  if(isnan(dzError)) dzError=100; //a nan in dZerror likely means a badly measured track, assume large dz error 
+ 
   if (preferHighRanked_) {
     for(IV iv=vertices.begin(); iv!=vertices.end(); ++iv) {
         int ivtx = iv - vertices.begin();
@@ -48,7 +50,7 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
         
         bool useTimeVtx = useTime && iv->tError()>0.;
         
-        if ((dz < maxDzForPrimaryAssignment_ or dz/track->dzError() < maxDzSigForPrimaryAssignment_ ) and (!useTimeVtx or dt/timeReso < maxDtSigForPrimaryAssignment_)) {
+        if ((dz < maxDzForPrimaryAssignment_ or dz/dzError < maxDzSigForPrimaryAssignment_ ) and (!useTimeVtx or dt/timeReso < maxDtSigForPrimaryAssignment_)) {
           return std::pair<int,PrimaryVertexAssignment::Quality>(ivtx,PrimaryVertexAssignment::PrimaryDz);
         }               
     }
@@ -65,7 +67,7 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
     double dz = std::abs(track->dz(iv->position()));
     double dt = std::abs(time-iv->t());
     
-    double dzsig = dz/track->dzError();
+    double dzsig = dz/dzError;
     double dist = dzsig*dzsig;
     
     bool useTimeVtx = useTime && iv->tError()>0.;
@@ -88,9 +90,9 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
       
   // first use "closest in Z" with tight cuts (targetting primary particles)
     const float add_cov = vtxIdMinSignif >= 0 ? vertices[vtxIdMinSignif].covariance(2,2) : 0.f;
-    const float dzE=sqrt(track->dzError()*track->dzError()+add_cov);
+    const float dzE=sqrt(dzError*dzError+add_cov);
     if(vtxIdMinSignif>=0 and 
-       (dzmin < maxDzForPrimaryAssignment_ and dzmin/dzE < maxDzSigForPrimaryAssignment_  and track->dzError()<maxDzErrorForPrimaryAssignment_) and
+       (dzmin < maxDzForPrimaryAssignment_ and dzmin/dzE < maxDzSigForPrimaryAssignment_  and dzError<maxDzErrorForPrimaryAssignment_) and
        (!useTime or dtmin/timeReso < maxDtSigForPrimaryAssignment_) )
     {
         iVertex=vtxIdMinSignif;
@@ -109,7 +111,7 @@ PrimaryVertexAssignment::chargedHadronVertex( const reco::VertexCollection& vert
       if( ij->pt() < minJetPt_ ) continue; // skip jets below the jet Pt threshold
 
       double deltaR = reco::deltaR( *ij, *track );
-      if( deltaR < minDeltaR and track->dzError()<maxDzErrorForPrimaryAssignment_ )
+      if( deltaR < minDeltaR and dzError<maxDzErrorForPrimaryAssignment_ )
       {
         minDeltaR = deltaR;
         jetIdx = std::distance(jets.begin(), ij);
