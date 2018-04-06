@@ -29,7 +29,7 @@ class TauIdMVAAuxiliaries {
       	if (pfcand != nullptr) {
           reco::TrackRef tref = pfcand->trackRef();
           if (tref.isNonnull()) {
-            LeadingTracknormalizedChi2 = (float)(tref -> normalizedChi2());
+            LeadingTracknormalizedChi2 = tref->normalizedChi2();
           }
         }
         else {

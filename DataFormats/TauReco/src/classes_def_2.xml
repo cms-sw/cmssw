@@ -1,7 +1,7 @@
 <lcgdict>
   
-  <class name="reco::PFTau" ClassVersion="20">
-   <version ClassVersion="20" checksum="759808483"/>
+  <class name="reco::PFTau" ClassVersion="21">
+   <version ClassVersion="21" checksum="759808483"/>
      <field name="selectedTransientSignalPFCands_" transient="true"/>
      <field name="selectedTransientSignalPFChargedHadrCands_" transient="true"/>
      <field name="selectedTransientSignalPFNeutrHadrCands_" transient="true"/>
@@ -10,6 +10,7 @@
      <field name="selectedTransientIsolationPFChargedHadrCands_" transient="true"/>
      <field name="selectedTransientIsolationPFNeutrHadrCands_" transient="true"/>
      <field name="selectedTransientIsolationPFGammaCands_" transient="true"/>
+   <version ClassVersion="20" checksum="3395041825"/>
    <version ClassVersion="19" checksum="4003955973"/>
    <version ClassVersion="18" checksum="1318776182"/>
    <version ClassVersion="17" checksum="1523260402"/>
@@ -47,19 +48,19 @@
   <class name="edm::reftobase::Holder<reco::PFTau, reco::PFTauRef>" />
   <class name="edm::reftobase::RefHolder<reco::PFTauRef>" />
 
-<ioread sourceClass="reco::PFTau" version="[12-19]" source="edm::Ptr<reco::PFCandidate> leadPFChargedHadrCand_;" targetClass="reco::PFTau" target="leadChargedHadrCand_">
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="edm::Ptr<reco::PFCandidate> leadPFChargedHadrCand_;" targetClass="reco::PFTau" target="leadChargedHadrCand_">
    <![CDATA[leadChargedHadrCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFChargedHadrCand_);]]>
   </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[12-19]" source="edm::Ptr<reco::PFCandidate> leadPFNeutralCand_;" targetClass="reco::PFTau" target="leadNeutralCand_">
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="edm::Ptr<reco::PFCandidate> leadPFNeutralCand_;" targetClass="reco::PFTau" target="leadNeutralCand_">
     <![CDATA[leadNeutralCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFNeutralCand_);]]>
   </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[12-19]" source="edm::Ptr<reco::PFCandidate> leadPFCand_;" targetClass="reco::PFTau" target="leadCand_">
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="edm::Ptr<reco::PFCandidate> leadPFCand_;" targetClass="reco::PFTau" target="leadCand_">
     <![CDATA[leadCand_ = edm::Ptr<reco::Candidate>(onfile.leadPFCand_);]]>
   </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[12-19]" source="std::vector<reco::PFCandidatePtr> selectedSignalPFCands_;" targetClass="reco::PFTau" target="selectedSignalCands_">
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<reco::PFCandidatePtr> selectedSignalPFCands_;" targetClass="reco::PFTau" target="selectedSignalCands_">
     <![CDATA[
     selectedSignalCands_.reserve(onfile.selectedSignalPFCands_.size());
     for (const edm::Ptr<reco::PFCandidate>& cand : onfile.selectedSignalPFCands_) {
@@ -67,56 +68,56 @@
       ]]>
   </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[12-19]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFChargedHadrCands_;" targetClass="reco::PFTau" target="selectedSignalChargedHadrCands_">
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFChargedHadrCands_;" targetClass="reco::PFTau" target="selectedSignalChargedHadrCands_">
     <![CDATA[
     selectedSignalChargedHadrCands_.reserve(onfile.selectedSignalPFChargedHadrCands_.size());
     for (const auto& cand : onfile.selectedSignalPFChargedHadrCands_)
       selectedSignalChargedHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
   </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[12-19]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFNeutrHadrCands_;" targetClass="reco::PFTau" target="selectedSignalNeutrHadrCands_">
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFNeutrHadrCands_;" targetClass="reco::PFTau" target="selectedSignalNeutrHadrCands_">
     <![CDATA[
     selectedSignalNeutrHadrCands_.reserve(onfile.selectedSignalPFNeutrHadrCands_.size());
     for (const auto& cand : onfile.selectedSignalPFNeutrHadrCands_)
       selectedSignalNeutrHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));;]]>
   </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[12-19]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFGammaCands_;" targetClass="reco::PFTau" target="selectedSignalGammaCands_">
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedSignalPFGammaCands_;" targetClass="reco::PFTau" target="selectedSignalGammaCands_">
     <![CDATA[
     selectedSignalGammaCands_.reserve(onfile.selectedSignalPFGammaCands_.size());
     for (const auto& cand : onfile.selectedSignalPFGammaCands_)
       selectedSignalGammaCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
   </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[12-19]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFCands_;" targetClass="reco::PFTau" target="selectedIsolationCands_">
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFCands_;" targetClass="reco::PFTau" target="selectedIsolationCands_">
     <![CDATA[
     selectedIsolationCands_.reserve(onfile.selectedIsolationPFCands_.size());
     for (const auto& cand : onfile.selectedIsolationPFCands_)
       selectedIsolationCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
   </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[12-19]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFChargedHadrCands_;" targetClass="reco::PFTau" target="selectedIsolationChargedHadrCands_">
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFChargedHadrCands_;" targetClass="reco::PFTau" target="selectedIsolationChargedHadrCands_">
     <![CDATA[
     selectedIsolationChargedHadrCands_.reserve(onfile.selectedIsolationPFChargedHadrCands_.size());
     for (const auto& cand : onfile.selectedIsolationPFChargedHadrCands_)
       selectedIsolationChargedHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
   </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[12-19]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFNeutrHadrCands_;" targetClass="reco::PFTau" target="selectedIsolationNeutrHadrCands_">
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFNeutrHadrCands_;" targetClass="reco::PFTau" target="selectedIsolationNeutrHadrCands_">
     <![CDATA[
     selectedIsolationNeutrHadrCands_.reserve(onfile.selectedIsolationPFNeutrHadrCands_.size());
     for (const auto& cand : onfile.selectedIsolationPFNeutrHadrCands_)
       selectedIsolationNeutrHadrCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
   </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[12-19]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFGammaCands_;" targetClass="reco::PFTau" target="selectedIsolationGammaCands_">
+<ioread sourceClass="reco::PFTau" version="[12-20]" source="std::vector<edm::Ptr<reco::PFCandidate> > selectedIsolationPFGammaCands_;" targetClass="reco::PFTau" target="selectedIsolationGammaCands_">
     <![CDATA[
     selectedIsolationGammaCands_.reserve(onfile.selectedIsolationPFGammaCands_.size());
     for (const auto& cand : onfile.selectedIsolationPFGammaCands_)
       selectedIsolationGammaCands_.push_back(edm::Ptr<reco::Candidate>(cand));]]>
   </ioread>
 
-<ioread sourceClass="reco::PFTau" version="[-19]" source="edm::Ref<vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<vector<reco::PFJet>,reco::PFJet> > jetRef_;" targetClass="reco::PFTau" target="jetRef_" include="DataFormats/JetReco/interface/PFJet.h">
+<ioread sourceClass="reco::PFTau" version="[-20]" source="edm::Ref<vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<vector<reco::PFJet>,reco::PFJet> > jetRef_;" targetClass="reco::PFTau" target="jetRef_" include="DataFormats/JetReco/interface/PFJet.h">
     <![CDATA[jetRef_ = reco::JetBaseRef(onfile.jetRef_);]]>
   </ioread>
 

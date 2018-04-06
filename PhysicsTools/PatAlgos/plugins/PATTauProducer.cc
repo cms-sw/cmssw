@@ -387,39 +387,36 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       for(const auto& it : signalCands) {
 	const reco::PFCandidate* icand = dynamic_cast<const reco::PFCandidate*>(it.get());
 	if (icand != nullptr) {
-          ecalEnergy += icand->ecalEnergy();
-          hcalEnergy += icand->hcalEnergy();
+	  ecalEnergy += icand->ecalEnergy();
+	  hcalEnergy += icand->hcalEnergy();
 	  sumPhiTimesEnergy += icand->positionAtECALEntrance().phi()*icand->energy();		
 	  sumEtaTimesEnergy += icand->positionAtECALEntrance().eta()*icand->energy();
-          sumEnergy += icand->energy();	 
+	  sumEnergy += icand->energy();	 
 	  const reco::Track* track = nullptr;
-     	  if ( icand->trackRef().isNonnull() ) track = icand->trackRef().get();
-     	else if ( icand->muonRef().isNonnull() && icand->muonRef()->innerTrack().isNonnull()  ) track = icand->muonRef  ()->innerTrack().get();
-     	else if ( icand->muonRef().isNonnull() && icand->muonRef()->globalTrack().isNonnull() ) track = icand->muonRef  ()->globalTrack().get();
-     	else if ( icand->muonRef().isNonnull() && icand->muonRef()->outerTrack().isNonnull()  ) track = icand->muonRef  ()->outerTrack().get();
-     	  else if ( icand->gsfTrackRef().isNonnull() ) track = icand->gsfTrackRef().get();
-     	  if( track ) {
-     	    if( track->pt() > leadChargedCandPt ) {
-     	      leadChargedCandEtaAtEcalEntrance = icand->positionAtECALEntrance().eta();
-     	      leadChargedCandPt = track->pt();
-     	    }
-          }
-        }
-        else{
-	  const pat::PackedCandidate* packedCandPtr = dynamic_cast<const pat::PackedCandidate*>(it.get());
-	  if(packedCandPtr != nullptr) {
-	    // TauReco@MiniAOD: individual ECAL and HCAL energies currently not available for PackedCandidates 
-	    // (see above implementation for PFCandidates).
-	    // Should be added if available, as well as on-the-fly computation of position at ECAL entrance
-	    sumEnergy += packedCandPtr->energy();
-	    const reco::Track* track = packedCandPtr->hasTrackDetails() ? &packedCandPtr->pseudoTrack() : nullptr;
-	    if( track != nullptr ) {
-	      if( track->pt() > leadChargedCandPt ) {
-		leadChargedCandPt = track->pt();
-	      }
+	  if ( icand->trackRef().isNonnull() ) track = icand->trackRef().get();
+	  else if ( icand->muonRef().isNonnull() && icand->muonRef()->innerTrack().isNonnull()  ) track = icand->muonRef  ()->innerTrack().get();
+	  else if ( icand->muonRef().isNonnull() && icand->muonRef()->globalTrack().isNonnull() ) track = icand->muonRef  ()->globalTrack().get();
+	  else if ( icand->muonRef().isNonnull() && icand->muonRef()->outerTrack().isNonnull()  ) track = icand->muonRef  ()->outerTrack().get();
+	  else if ( icand->gsfTrackRef().isNonnull() ) track = icand->gsfTrackRef().get();
+	  if( track ) {
+	    if( track->pt() > leadChargedCandPt ) {
+	      leadChargedCandEtaAtEcalEntrance = icand->positionAtECALEntrance().eta();
+	      leadChargedCandPt = track->pt();
 	    }
 	  }
-	} 		
+	}
+	else {
+	  // TauReco@MiniAOD: individual ECAL and HCAL energies currently not available for PackedCandidates 
+	  // (see above implementation for PFCandidates).
+	  // Should be added if available, as well as on-the-fly computation of position at ECAL entrance
+	  sumEnergy += it->energy();
+	  const reco::Track* track = it->bestTrack();
+	  if( track != nullptr ) {
+	    if( track->pt() > leadChargedCandPt ) {
+	      leadChargedCandPt = track->pt();
+	    }
+	  }
+	}
       }
       aTauPFEssential.ecalEnergy_ = ecalEnergy;
       aTauPFEssential.hcalEnergy_ = hcalEnergy;

@@ -100,28 +100,10 @@ class PFMEtSignInterfaceBase
       //    (until PFTau specific resolutions are available)
       if ( dynamic_cast<const pat::Tau*>(particle) != nullptr ) {
 	const pat::Tau* pfTau = dynamic_cast<const pat::Tau*>(particle);
-	//std::cout << "tau: pt = " << pt << ", eta = " << eta << ", phi = " << phi << std::endl;
-	const reco::PFJet* pfJet = dynamic_cast<const reco::PFJet*>(pfTau->pfJetRef().get());
-	if (pfJet != nullptr)
-	  return pfMEtResolution_->evalPFJet(pfJet);
-
-	const pat::Jet* patJet = dynamic_cast<const pat::Jet*>(pfTau->pfJetRef().get());
-	if (patJet != nullptr) {
-	  reco::PFJet pfJet(patJet->p4(), patJet->vertex(), patJet->pfSpecific(), patJet->getJetConstituents());
-	  return pfMEtResolution_->evalPFJet(&pfJet);
-	}
-	else throw cms::Exception("addPFMEtSignObjects")
-	    << "Neither PAT jet nor PF Jet in tau object !!\n";
+	return pfMEtResolution_->evalPFJet(pfTau->pfJetRef().get());
       } else if ( dynamic_cast<const reco::PFTau*>(particle) != nullptr  ) {
 	const reco::PFTau* pfTau = dynamic_cast<const reco::PFTau*>(particle);
-	//std::cout << "tau: pt = " << pt << ", eta = " << eta << ", phi = " << phi << std::endl;
-	const pat::Jet* patJet = dynamic_cast<const pat::Jet*>(pfTau->jetRef().get());
-	if (patJet != nullptr) {
-	  reco::PFJet pfJet(patJet->p4(), patJet->vertex(), patJet->pfSpecific(), patJet->getJetConstituents());
-	  return pfMEtResolution_->evalPFJet(&pfJet);
-	}
-	else throw cms::Exception("addPFMEtSignObjects")
-	    << "Neither PAT jet nor PF Jet in tau object !!\n";
+	return pfMEtResolution_->evalPFJet(pfTau->jetRef().get());
       } else assert(0);
     } else if ( dynamic_cast<const reco::PFJet*>(particle) != nullptr ||
 		dynamic_cast<const pat::Jet*>(particle) != nullptr ) {
