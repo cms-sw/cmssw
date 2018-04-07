@@ -35,7 +35,7 @@ protected :
 
 private:
 
-  ClassDef(TFitParticleESpher, 0)
+  ClassDefOverride(TFitParticleESpher, 0)
 };
 
 #endif

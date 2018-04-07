@@ -35,7 +35,7 @@ protected :
 
 private:
 
-  ClassDef(TFitParticleMCMomDev, 0)
+  ClassDefOverride(TFitParticleMCMomDev, 0)
 };
 
 #endif
