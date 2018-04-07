@@ -63,6 +63,8 @@ valGtStage2Digis.AlgorithmTriggersUnmasked = cms.bool(False)
 valGtStage2Digis.AlgorithmTriggersUnprescaled = cms.bool(False)
 valGtStage2Digis.EmulateBxInEvent = cms.int32(5)
 valGtStage2Digis.PrescaleSet = cms.uint32(7)
+valGtStage2Digis.GetPrescaleColumnFromData = cms.bool(True)
+valGtStage2Digis.AlgoBlkInputTag = cms.InputTag("gtStage2Digis")
 
 Stage2L1HardwareValidation = cms.Sequence(
     valCaloStage2Layer1Digis +

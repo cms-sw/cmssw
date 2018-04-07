@@ -104,13 +104,14 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet) :
 	    m_algoblkInputTag(parSet.getParameter<edm::InputTag>("AlgoBlkInputTag"))
 {
 
-  m_egInputToken = consumes <BXVector<EGamma> > (m_egInputTag);
-  m_tauInputToken = consumes <BXVector<Tau> > (m_tauInputTag);
-  m_jetInputToken = consumes <BXVector<Jet> > (m_jetInputTag);
-  m_sumInputToken = consumes <BXVector<EtSum> > (m_sumInputTag);
-  m_muInputToken = consumes <BXVector<Muon> > (m_muInputTag);
-  m_extInputToken = consumes <BXVector<GlobalExtBlk> > (m_extInputTag);
-  m_algoblkInputToken = consumes <BXVector<GlobalAlgBlk> > (m_algoblkInputTag);
+    m_egInputToken = consumes <BXVector<EGamma> > (m_egInputTag);
+    m_tauInputToken = consumes <BXVector<Tau> > (m_tauInputTag);
+    m_jetInputToken = consumes <BXVector<Jet> > (m_jetInputTag);
+    m_sumInputToken = consumes <BXVector<EtSum> > (m_sumInputTag);
+    m_muInputToken = consumes <BXVector<Muon> > (m_muInputTag);
+    m_extInputToken = consumes <BXVector<GlobalExtBlk> > (m_extInputTag);
+    if (m_getPrescaleColumnFromData) 
+      m_algoblkInputToken = consumes <BXVector<GlobalAlgBlk> > (m_algoblkInputTag);
 
     if (m_verbosity) {
 
@@ -404,7 +405,6 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
       }
       if (m_getPrescaleColumnFromData && (m_currentLumi != iEvent.luminosityBlock()) ){ // get prescale column from unpacked data
 
-	std::cout << "CCLA L1TGlobalProducer -- Lumi Block Changed: " << m_currentLumi << "\t" <<  iEvent.luminosityBlock() << std::endl;
 	m_currentLumi=iEvent.luminosityBlock();
 
 	edm::Handle<BXVector<GlobalAlgBlk>> m_uGtAlgBlk;
@@ -413,10 +413,9 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 	if(m_uGtAlgBlk.isValid()) {
 	  std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);
 	  m_prescaleSet=static_cast<unsigned int>(algBlk->getPreScColumn());
-	  std::cout << "CCLA L1TGlobalProducer -- Getting prescale column from algoblk " << m_prescaleSet << std::endl;
 	}else{
 	  m_prescaleSet=1;
-	  std::cout << "CCLA L1TGlobalProducer --  Could not find valid algo block. Setting prescale column to 1" << std::endl;
+	  edm::LogError("L1TGlobalProduce") << "Could not find valid algo block. Setting prescale column to 1" << std::endl;
 	}
       }
     }
