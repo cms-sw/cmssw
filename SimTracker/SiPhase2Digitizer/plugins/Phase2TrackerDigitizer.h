@@ -106,8 +106,7 @@ namespace cms
     std::map<unsigned int, const Phase2TrackerGeomDetUnit*> detectorUnits_;
     edm::ESHandle<TrackerTopology> tTopoHand;
     edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher;
-    const edm::ParameterSet& iconfig_;
-
+    const bool isOuterTrackerReadoutAnalog; 
     // cache for detector types
     ModuleTypeCache moduleTypeCache_;
     
