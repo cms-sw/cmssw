@@ -16,7 +16,7 @@
 class TotemTimingEventInfo
 {
   public:
-    TotemTimingEventInfo( const uint8_t hwId, const uint64_t l1ATimestamp, const uint16_t bunchNumber, const uint32_t orbitNumber, const uint32_t eventNumber, const uint16_t channelMap, const uint16_t l1ALatency, const uint8_t numberOfSamples, const uint8_t offsetOfSamples );
+    TotemTimingEventInfo( const uint8_t hwId, const uint64_t l1ATimestamp, const uint16_t bunchNumber, const uint32_t orbitNumber, const uint32_t eventNumber, const uint16_t channelMap, const uint16_t l1ALatency, const uint8_t numberOfSamples, const uint8_t offsetOfSamples, const uint8_t pllInfo );
     TotemTimingEventInfo( const TotemTimingEventInfo& eventInfo );
     TotemTimingEventInfo();
     ~TotemTimingEventInfo() {};
