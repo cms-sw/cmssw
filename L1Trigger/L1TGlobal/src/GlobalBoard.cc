@@ -959,12 +959,10 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
       }
       m_firstEv = false;
       m_currentLumi=iEvent.luminosityBlock();
-      std::cout << "CCLA GlobalBoard -- First event. Lumi block: " << iEvent.luminosityBlock() << std::endl;
     }
 
-    // TODO FIXME find the beginning of the luminosity segment
+    // update and clear prescales at the beginning of the luminosity segment
     if( m_firstEvLumiSegment || m_currentLumi != iEvent.luminosityBlock() ){
-      std::cout << "CCLA GlobalBoard -- New Lumi Segment: " << iEvent.luminosityBlock() << std::endl;
 
       m_prescaleCounterAlgoTrig.clear();
       for( int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent ){
