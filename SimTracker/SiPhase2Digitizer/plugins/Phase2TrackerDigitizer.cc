@@ -82,7 +82,7 @@ namespace cms
     hitsProducer_(iConfig.getParameter<std::string>("hitsProducer")),
     trackerContainers_(iConfig.getParameter<std::vector<std::string> >("ROUList")),
     geometryType_(iConfig.getParameter<std::string>("GeometryType")),
-    iconfig_(iConfig)
+    isOuterTrackerReadoutAnalog(iConfig.getParameter<bool>("isOTreadoutAnalog"))
   {
     //edm::LogInfo("Phase2TrackerDigitizer") << "Initialize Digitizer Algorithms";
     const std::string alias1("simSiPixelDigis"); 
@@ -94,10 +94,10 @@ namespace cms
     mixMod.produces<edm::DetSetVector<PixelDigiSimLink> >("Tracker").setBranchAlias(alias2);
 
     // creating algorithm objects and pushing them into the map
-    algomap_[AlgorithmType::InnerPixel] = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PixelDigitizerAlgorithm(iconfig_));
-    algomap_[AlgorithmType::PixelinPS]  = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PSPDigitizerAlgorithm(iconfig_));
-    algomap_[AlgorithmType::StripinPS]  = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PSSDigitizerAlgorithm(iconfig_));
-    algomap_[AlgorithmType::TwoStrip]   = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new SSDigitizerAlgorithm(iconfig_));
+    algomap_[AlgorithmType::InnerPixel] = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PixelDigitizerAlgorithm(iConfig));
+    algomap_[AlgorithmType::PixelinPS]  = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PSPDigitizerAlgorithm(iConfig));
+    algomap_[AlgorithmType::StripinPS]  = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new PSSDigitizerAlgorithm(iConfig));
+    algomap_[AlgorithmType::TwoStrip]   = std::unique_ptr<Phase2TrackerDigitizerAlgorithm>(new SSDigitizerAlgorithm(iConfig));
   }
 
   void Phase2TrackerDigitizer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& iSetup) {
@@ -213,7 +213,6 @@ namespace cms
      }
   }
   void Phase2TrackerDigitizer::finalizeEvent(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    const bool isOuterTrackerReadoutAnalog = iconfig_.getParameter<bool>("isOTreadoutAnalog");
     //Decide if we want analog readout for Outer Tracker.
     addPixelCollection(iEvent, iSetup, isOuterTrackerReadoutAnalog);
     if(!isOuterTrackerReadoutAnalog)
