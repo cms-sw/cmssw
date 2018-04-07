@@ -69,22 +69,17 @@ enum TotemSampicConstant
   
 };
 
-
-uint8_t grayToBinary_8bit( const uint8_t &gcode_data )
+template <typename T>
+T grayToBinary( const T& gcode_data )
 {
-  //b[0] = g[0]
-  uint8_t binary_byte = gcode_data & 0x80; // MSB is the same
+    //b[0] = g[0]
+  T binary = gcode_data & ( 0x0001 << ( 8*sizeof(T) - 1 ) ); // MSB is the same
 
   //b[i] = g[i] xor b[i-1]
-  binary_byte |= ( gcode_data ^ ( binary_byte >> 1 ) ) & 0x40;
-  binary_byte |= ( gcode_data ^ ( binary_byte >> 1 ) ) & 0x20;
-  binary_byte |= ( gcode_data ^ ( binary_byte >> 1 ) ) & 0x10;
-  binary_byte |= ( gcode_data ^ ( binary_byte >> 1 ) ) & 0x08;
-  binary_byte |= ( gcode_data ^ ( binary_byte >> 1 ) ) & 0x04;
-  binary_byte |= ( gcode_data ^ ( binary_byte >> 1 ) ) & 0x02;
-  binary_byte |= ( gcode_data ^ ( binary_byte >> 1 ) ) & 0x01;
-
-  return binary_byte;
+  for (unsigned short int i = 1; i < 8*sizeof(T); ++i)
+    binary |= ( gcode_data ^ ( binary >> 1 ) ) & (0x0001 << ( 8*sizeof(T) - i - 1 ) );
+  
+  return binary;
 }
 
 /**
@@ -131,11 +126,11 @@ class TotemSampicFrame
           << "\nChannel:\nHardwareId:\t" << std::hex << (unsigned int) getHardwareId()
           << "\nFPGATimestamp:\t" << std::dec << getFPGATimestamp()
           << "\nTimestampA:\t" << std::dec << getTimestampA()
-          << "\nTimestampA:\t" << std::dec << getTimestampA()
+          << "\nTimestampB:\t" << std::dec << getTimestampB()
           << "\nCellInfo:\t" << std::dec << getCellInfo()
           << "\nPlane:\t" << std::dec << getDetPlane()
           << "\nChannel:\t" << std::dec << getDetChannel()
-          << "\\nPLL Info:\t" << bitsPLLInfo.to_string()
+          << "\nPLL Info:\t" << bitsPLLInfo.to_string()
           << std::endl << std::endl;
     }
 
@@ -159,18 +154,18 @@ class TotemSampicFrame
       uint16_t tmp = 0;
       if ( status_ ) {
         for ( unsigned short i = 0; i < TotemSampicConstant::timestampA_Size; ++i )
-          tmp += grayToBinary_8bit( totemSampicInfoPtr_[ TotemSampicConstant::timestampA_Position + i ] ) << 8*i;
+          tmp |= ( totemSampicInfoPtr_[ TotemSampicConstant::timestampA_Position + i ] ) << 8*i;
       }
-      return tmp;
+      return grayToBinary<uint16_t> ( tmp );
     }
 
     inline uint16_t getTimestampB() const {
       uint16_t tmp = 0;
       if ( status_ ) {
         for ( unsigned short i = 0; i < TotemSampicConstant::timestampB_Size; ++i )
-          tmp += grayToBinary_8bit( totemSampicInfoPtr_[ TotemSampicConstant::timestampB_Position + i ] ) << 8*i;
+          tmp |= ( totemSampicInfoPtr_[ TotemSampicConstant::timestampB_Position + i ] ) << 8*i;
       }
-      return tmp;
+      return grayToBinary<uint16_t> ( tmp );
     }
 
     inline uint16_t getCellInfo() const {
@@ -198,7 +193,8 @@ class TotemSampicFrame
       std::vector<uint8_t> samples;
       if ( status_ ) {
         samples.assign( totemSampicDataPtr_, totemSampicDataPtr_ + TotemSampicConstant::numberOfSamples );
-        std::for_each( samples.begin(), samples.end(), &grayToBinary_8bit );
+        for ( auto it = samples.begin(); it != samples.end(); ++it )
+          *it = grayToBinary<uint8_t>( *it );
       }
       return samples;
     }
