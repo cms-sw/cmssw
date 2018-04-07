@@ -336,7 +336,7 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll, const TotemDAQMapp
         if (totemSampicFrame.valid())
         {
           // create the digi
-          TotemTimingEventInfo eventInfoTmp( totemSampicFrame.getEventHardwareId(), totemSampicFrame.getL1ATimestamp(), totemSampicFrame.getBunchNumber(), totemSampicFrame.getOrbitNumber(), totemSampicFrame.getEventNumber(), totemSampicFrame.getChannelMap(), totemSampicFrame.getL1ALatency(), totemSampicFrame.getNumberOfSentSamples(), totemSampicFrame.getOffsetOfSamples() );
+          TotemTimingEventInfo eventInfoTmp( totemSampicFrame.getEventHardwareId(), totemSampicFrame.getL1ATimestamp(), totemSampicFrame.getBunchNumber(), totemSampicFrame.getOrbitNumber(), totemSampicFrame.getEventNumber(), totemSampicFrame.getChannelMap(), totemSampicFrame.getL1ALatency(), totemSampicFrame.getNumberOfSentSamples(), totemSampicFrame.getOffsetOfSamples(), totemSampicFrame.getPLLInfo() );
           TotemTimingDigi digiTmp( totemSampicFrame.getHardwareId(), totemSampicFrame.getFPGATimestamp(), totemSampicFrame.getTimestampA(), totemSampicFrame.getTimestampB(), totemSampicFrame.getCellInfo(), totemSampicFrame.getSamples(), eventInfoTmp);
           // calculate ids
           TotemTimingDetId detId(record.info->symbolicID.symbolicID);
