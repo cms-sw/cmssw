@@ -7,6 +7,7 @@
  *
  * \author Mirko Berretti
  * \author Nicola Minafra
+ * \author Laurent Forthomme
  * March 2018
  */
 
@@ -196,9 +197,9 @@ inline std::ostream& operator<<( std::ostream& os, const TotemTimingDigi& digi )
   return os << "TotemTimingDigi:"
             << "\nHardwareId:\t" << std::hex << digi.getHardwareId()
             << "\nDB: " << std::dec << digi.getHardwareBoardId() << "\tSampic: " << digi.getHardwareSampicId() << "\tChannel: " << digi.getHardwareChannelId()
-            << "\nFPGATimestamp:\t" << std::hex << digi.getFPGATimestamp()
-            << "\nTimestampA:\t" << std::hex << digi.getTimestampA()
-            << "\nTimestampA:\t" << std::hex << digi.getTimestampA()
+            << "\nFPGATimestamp:\t" << std::dec << digi.getFPGATimestamp()
+            << "\nTimestampA:\t" << std::dec << digi.getTimestampA()
+            << "\nTimestampB:\t" << std::dec << digi.getTimestampB()
             << "\nCellInfo:\t" << std::hex << digi.getCellInfo()
             << "\nNumberOfSamples:\t" << std::dec << digi.getNumberOfSamples()
             << std::endl << digi.getEventInfo() << std::endl;
