@@ -153,10 +153,6 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
   theSiPixelGainCalibrationService_(use_ineff_from_db_ ? new SiPixelGainCalibrationOfflineSimService(conf_specific) : nullptr),
   subdetEfficiencies_(conf_specific)
 {
-  flatDistribution_.reset(nullptr);
-  gaussDistribution_.reset(nullptr);
-  smearedThreshold_Endcap_.reset(nullptr);
-  smearedThreshold_Barrel_.reset(nullptr);  
 
   LogInfo("Phase2TrackerDigitizerAlgorithm") << "Phase2TrackerDigitizerAlgorithm constructed\n"
 			    << "Configuration parameters:\n"
@@ -717,7 +713,7 @@ void Phase2TrackerDigitizerAlgorithm::pixel_inefficiency(const SubdetEfficiencie
   // Now loop again over pixels to kill some of them.
   // Loop over hits, amplitude in electrons, channel = coded row,col
   for (auto & s : theSignal) {
-    float rand = flatDistribution_->fire();
+    float rand = rengine_->flat();
     if( rand>subdetEfficiency ) {
       // make amplitude =0
       s.second.set(0.); // reset amplitude,
@@ -727,13 +723,12 @@ void Phase2TrackerDigitizerAlgorithm::pixel_inefficiency(const SubdetEfficiencie
 void Phase2TrackerDigitizerAlgorithm::initializeEvent(CLHEP::HepRandomEngine* eng) {
   if (addNoise || AddPixelInefficiency || fluctuateCharge || addThresholdSmearing) {
     
-    flatDistribution_ = std::unique_ptr<CLHEP::RandFlat>(new CLHEP::RandFlat(*eng, 0., 1.));
-    gaussDistribution_ = std::unique_ptr<CLHEP::RandGaussQ>(new CLHEP::RandGaussQ(eng, 0., theReadoutNoise));
+    gaussDistribution_ = std::make_unique<CLHEP::RandGaussQ>(eng, 0., theReadoutNoise);
   }
   // Threshold smearing with gaussian distribution:
   if (addThresholdSmearing) {
-    smearedThreshold_Endcap_ =  std::unique_ptr<CLHEP::RandGaussQ> (new CLHEP::RandGaussQ(eng, theThresholdInE_Endcap , theThresholdSmearing_Endcap));
-    smearedThreshold_Barrel_ = std::unique_ptr<CLHEP::RandGaussQ> (new CLHEP::RandGaussQ(eng, theThresholdInE_Barrel , theThresholdSmearing_Barrel));
+    smearedThreshold_Endcap_ = std::make_unique<CLHEP::RandGaussQ> (eng, theThresholdInE_Endcap , theThresholdSmearing_Endcap);
+    smearedThreshold_Barrel_ = std::make_unique<CLHEP::RandGaussQ> (eng, theThresholdInE_Barrel , theThresholdSmearing_Barrel);
   }
    rengine_ = eng;
   _signal.clear();

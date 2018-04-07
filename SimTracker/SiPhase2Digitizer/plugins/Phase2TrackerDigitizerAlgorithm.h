@@ -198,7 +198,6 @@ class Phase2TrackerDigitizerAlgorithm  {
   const SubdetEfficiencies subdetEfficiencies_;
   
   // For random numbers
-  std::unique_ptr<CLHEP::RandFlat> flatDistribution_;
   std::unique_ptr<CLHEP::RandGaussQ> gaussDistribution_;
   
   // Threshold gaussian smearing:
