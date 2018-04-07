@@ -7,6 +7,7 @@
  *
  * \author Mirko Berretti
  * \author Nicola Minafra
+ * \author Laurent Forthomme
  * \date March 2018
  */
 
@@ -202,7 +203,7 @@ inline std::ostream& operator<<( std::ostream& o, const TotemTimingEventInfo& di
            << "\nChannels fired:\t" << std::hex << digi.getChannelMap()
            << "\nNumber of Samples:\t" << std::dec << digi.getNumberOfSamples()
            << "\nOffset of Samples:\t" << std::dec << digi.getOffsetOfSamples()
-           << "\\nPLL Info:\t" << bitsPLLInfo.to_string()
+           << "\nPLL Info:\t" << bitsPLLInfo.to_string()
            << std::endl;
 }
 
