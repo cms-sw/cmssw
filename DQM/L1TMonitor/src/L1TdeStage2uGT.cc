@@ -15,7 +15,8 @@ L1TdeStage2uGT::L1TdeStage2uGT(const edm::ParameterSet & ps) :
   numBx_(ps.getParameter<int>("numBxToMonitor")),
   histFolder_(ps.getParameter<std::string>("histFolder")),
   gtUtil_(new l1t::L1TGlobalUtil(ps, consumesCollector(), *this, ps.getParameter<edm::InputTag>("dataSource"), ps.getParameter<edm::InputTag>("dataSource"))),
-  numLS_(2000)
+  numLS_(2000),
+  m_currentLumi(0)
 {
 
   if (numBx_ >5 ) numBx_ = 5;
@@ -45,20 +46,24 @@ void L1TdeStage2uGT::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& ev
 
 void L1TdeStage2uGT::analyze(const edm::Event & event, const edm::EventSetup & es)
 {
-  edm::Handle<GlobalAlgBlkBxCollection> dataCollection;
-  event.getByToken(dataSource_, dataCollection);
-  edm::Handle<GlobalAlgBlkBxCollection> emulCollection;
-  event.getByToken(emulSource_, emulCollection);
-
-  gtUtil_->retrieveL1(event,es,dataSource_);
+   edm::Handle<GlobalAlgBlkBxCollection> dataCollection;
+   event.getByToken(dataSource_, dataCollection);
+   edm::Handle<GlobalAlgBlkBxCollection> emulCollection;
+   event.getByToken(emulSource_, emulCollection);
 
    if (!dataCollection.isValid()) {
-      edm::LogInfo("L1TdeStage2uGT") << "Cannot find unpacked uGT readout record.";
-      return;
+     edm::LogError("L1TdeStage2uGT") << "Cannot find unpacked uGT readout record.";
+     return;
    }
    if (!emulCollection.isValid()) {
-      edm::LogInfo("L1TdeStage2uGT") << "Cannot find emulated uGT readout record.";
-      return;
+     edm::LogError("L1TdeStage2uGT") << "Cannot find emulated uGT readout record.";
+     return;
+   }
+
+   // Only using gtUtil to find prescale factors and mapping of bits to names, so only call gtUtil_ at lumi boundaries.
+   if (m_currentLumi != event.luminosityBlock()){
+     m_currentLumi=event.luminosityBlock();
+     gtUtil_->retrieveL1(event,es,dataSource_);
    }
 
    // Get standard event parameters 
@@ -74,6 +79,10 @@ void L1TdeStage2uGT::analyze(const edm::Event & event, const edm::EventSetup & e
    if (dataCollection->getFirstBX() > firstBx) firstBx = dataCollection->getFirstBX();
    if (dataCollection->getLastBX() < lastBx) lastBx = dataCollection->getLastBX();
 
+   m_normalizationHisto -> Fill(float(NInitalMismatchDataNoEmul));
+   m_normalizationHisto -> Fill(float(NInitalMismatchEmulNoData));
+   m_normalizationHisto -> Fill(float(NFinalMismatchDataNoEmul));
+   m_normalizationHisto -> Fill(float(NFinalMismatchEmulNoData));
 
    for (int ibx = firstBx; ibx <= lastBx; ++ibx) {
 
@@ -83,16 +92,16 @@ void L1TdeStage2uGT::analyze(const edm::Event & event, const edm::EventSetup & e
      }else{
        bxt << "BX" << ibx;
      }
-     TString hname, hsummary;
+     std::string hname, hsummary;
      float wt;
 
      hsummary="dataEmulSummary_" + bxt.str();
-     fillHist(m_SummaryHistograms, hsummary, float(Nevt),1.);
 
      std::vector<GlobalAlgBlk>::const_iterator it_data, it_emul;
      for (it_data = dataCollection->begin(ibx), it_emul = emulCollection->begin(ibx); 
 	  it_data != dataCollection->end(ibx) && it_emul != emulCollection->end(ibx); 
 	  ++it_data, ++it_emul) {
+
 
        // Fills algorithm bits histograms
        int numAlgs= it_data->getAlgoDecisionInitial().size();
@@ -100,8 +109,7 @@ void L1TdeStage2uGT::analyze(const edm::Event & event, const edm::EventSetup & e
 
 	 string algoName = "xxx";
 	 bool found=gtUtil_->getAlgNameFromBit(algoBit,algoName);
-	 if (not found) algoName="NULL";
-	 if (algoName == "NULL") continue;
+	 if (not found) continue;
 
 	 // skip bits which emulator does not handle (only skiped for bx !=0)
 	 bool isBlackListed(false);
@@ -140,7 +148,7 @@ void L1TdeStage2uGT::analyze(const edm::Event & event, const edm::EventSetup & e
 	   int prescale = -999;
 	   bool dummy=gtUtil_->getPrescaleByBit(algoBit,prescale);
 	   if (not dummy) 
-	     edm::LogError("L1TdeStage2uGT") << "Could not find prescale value for algobit: " << algoBit << std::endl;
+	     edm::LogWarning("L1TdeStage2uGT") << "Could not find prescale value for algobit: " << algoBit << std::endl;
 
 	   if (prescale != 1) unprescaled=false;
 
@@ -200,12 +208,21 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& 
     htitle  = "uGT Data/Emulator Mismatches --" + bxn.str();
     m_SummaryHistograms[hname] = ibooker.book1D(hname, htitle, NSummaryColumns, 0., double(NSummaryColumns));
     m_SummaryHistograms[hname]->getTH1F()->GetYaxis()->SetTitle("Events");
-    m_SummaryHistograms[hname]->getTH1F()->GetXaxis()->SetBinLabel(1+Nevt, "Events processed");
     m_SummaryHistograms[hname]->getTH1F()->GetXaxis()->SetBinLabel(1+NInitalMismatchDataNoEmul, "Data, NoEmul -- Initial Decisions");
     m_SummaryHistograms[hname]->getTH1F()->GetXaxis()->SetBinLabel(1+NInitalMismatchEmulNoData, "Emulator, No Data -- Initial Decisions");
     m_SummaryHistograms[hname]->getTH1F()->GetXaxis()->SetBinLabel(1+NFinalMismatchDataNoEmul, "Data, NoEmul -- Final Decisions");
     m_SummaryHistograms[hname]->getTH1F()->GetXaxis()->SetBinLabel(1+NFinalMismatchEmulNoData, "Emulator, No Data -- Final Decisions");
 
+    if (i == 0){
+      hname="normalizationHisto";
+      htitle="Normalization histogram for uGT Data/Emulator Mismatches ratios";
+      m_normalizationHisto = ibooker.book1D(hname, htitle, NSummaryColumns, 0., double(NSummaryColumns));
+      m_normalizationHisto->getTH1F()->GetYaxis()->SetTitle("Events");
+      m_normalizationHisto->getTH1F()->GetXaxis()->SetBinLabel(1+NInitalMismatchDataNoEmul, "Data, NoEmul -- Initial Decisions");
+      m_normalizationHisto->getTH1F()->GetXaxis()->SetBinLabel(1+NInitalMismatchEmulNoData, "Emulator, No Data -- Initial Decisions");
+      m_normalizationHisto->getTH1F()->GetXaxis()->SetBinLabel(1+NFinalMismatchDataNoEmul, "Data, NoEmul -- Final Decisions");
+      m_normalizationHisto->getTH1F()->GetXaxis()->SetBinLabel(1+NFinalMismatchEmulNoData, "Emulator, No Data -- Final Decisions");
+    }
 
     // book initial decisions histograms
     ibooker.setCurrentFolder(histFolder_+"/InitialDecisionMismatches");
@@ -239,7 +256,7 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& 
   }
 
   // Set some histogram attributes
-  for (std::map<TString,MonitorElement*>::iterator it = m_HistNamesInitial.begin(); it != m_HistNamesInitial.end(); ++it) {
+  for (std::map<std::string,MonitorElement*>::iterator it = m_HistNamesInitial.begin(); it != m_HistNamesInitial.end(); ++it) {
     // for (unsigned int i = 0; i < prescales.size(); i++) {
     //   auto const& name = prescales.at(i).first;    
     //   if (name != "NULL")
@@ -249,7 +266,7 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& 
     (*it).second->getTH1F()->GetYaxis()->SetTitle("Events with Initial Decision Mismatch");
   }
 
-  for (std::map<TString,MonitorElement*>::iterator it = m_HistNamesFinal.begin(); it != m_HistNamesFinal.end(); ++it) {
+  for (std::map<std::string,MonitorElement*>::iterator it = m_HistNamesFinal.begin(); it != m_HistNamesFinal.end(); ++it) {
     // for (unsigned int i = 0; i < prescales.size(); i++) {
     //   auto const& name = prescales.at(i).first;    
     //   if (name != "NULL")
@@ -262,12 +279,12 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run& 
 
 }
 
-void L1TdeStage2uGT::fillHist(const std::map<TString, MonitorElement*>& m_HistNames, const TString& histName, const Double_t& value, const Double_t& wt=1.){
+void L1TdeStage2uGT::fillHist(const std::map<std::string, MonitorElement*>& m_HistNames, const std::string& histName, const Double_t& value, const Double_t& wt=1.){
 
-  std::map<TString, MonitorElement*>::const_iterator hid = m_HistNames.find(histName);
+  std::map<std::string, MonitorElement*>::const_iterator hid = m_HistNames.find(histName);
 
   if (hid==m_HistNames.end())
-    edm::LogError("L1TdeStage2uGT") << "%fillHist -- Could not find histogram with name: " << histName << std::endl;
+    edm::LogWarning("L1TdeStage2uGT") << "%fillHist -- Could not find histogram with name: " << histName << std::endl;
   else
     hid->second->Fill(value,wt);
 }

@@ -8,14 +8,13 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
+// #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -25,7 +24,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
-#include "DataFormats/Provenance/interface/EventAuxiliary.h"
+// #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -60,15 +59,16 @@ class L1TdeStage2uGT : public DQMEDAnalyzer {
     std::string histFolder_;
     L1TGlobalUtil* gtUtil_;
     int numLS_;
+    uint m_currentLumi;
 
     int firstBx, lastBx;
 
-    std::map<TString, MonitorElement*> m_HistNamesInitial, m_HistNamesFinal, m_SummaryHistograms;
+    std::map<std::string, MonitorElement*> m_HistNamesInitial, m_HistNamesFinal, m_SummaryHistograms;
     MonitorElement* initDecisionMismatches_vs_LS;
     MonitorElement* finalDecisionMismatches_vs_LS;
+    MonitorElement* m_normalizationHisto;
 
     enum SummaryColumn {
-      Nevt,
       NInitalMismatchDataNoEmul,
       NInitalMismatchEmulNoData,
       NFinalMismatchDataNoEmul,
@@ -76,7 +76,7 @@ class L1TdeStage2uGT : public DQMEDAnalyzer {
       NSummaryColumns,
     };
 
-    void  fillHist(const std::map<TString, MonitorElement*>&, const TString&, const Double_t& , const Double_t&);
+    void  fillHist(const std::map<std::string, MonitorElement*>&, const std::string&, const Double_t& , const Double_t&);
 };
 
 #endif
