@@ -56,7 +56,7 @@ private:
   Double_t _constraint;                   // Value of constraint
   TFitConstraintEp::component _component; // 4vector component to be constrained
 
-  ClassDef(TFitConstraintEp, 0)
+  ClassDefOverride(TFitConstraintEp, 0)
 };
 
 #endif
