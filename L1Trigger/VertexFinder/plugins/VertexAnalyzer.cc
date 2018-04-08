@@ -18,9 +18,10 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 
 #include "L1Trigger/VertexFinder/interface/InputData.h"
-#include "L1Trigger/VertexFinder/interface/Settings.h"
 #include "L1Trigger/VertexFinder/interface/L1fittedTrack.h"
 #include "L1Trigger/VertexFinder/interface/RecoVertexWithTP.h"
+#include "L1Trigger/VertexFinder/interface/Settings.h"
+#include "L1Trigger/VertexFinder/interface/selection.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -485,8 +486,10 @@ namespace l1tVertexFinder {
 
     cout << "Input Tracks to L1 Correlator " << numInputTracks << endl;
 
-    l1t::Vertex pvVertexFromEDM = l1VerticesHandle->at(0);
-    l1t::Vertex tdrPVVertexFromEDM = l1VertexTDRHandle->at(0);
+    l1t::Vertex pvVertexFromEDM = l1tVertexFinder::getPrimaryVertex(*l1VerticesHandle);
+    l1t::Vertex tdrPVVertexFromEDM = l1tVertexFinder::getPrimaryVertex(*l1VertexTDRHandle);
+
+    const size_t primaryVertexIndex = &l1tVertexFinder::getPrimaryVertex(*l1VerticesHandle) - &l1VerticesHandle->at(0);
 
     std::vector<RecoVertexWithTP *> recoVertices;
     recoVertices.reserve(numVertices);
@@ -531,7 +534,7 @@ namespace l1tVertexFinder {
     TDRVertexBase.setZ(tdrPVVertexFromEDM.z0());
 
     RecoVertexWithTP * TDRVertex = new RecoVertexWithTP(TDRVertexBase, trackAssociationMap);
-    RecoVertexWithTP * RecoPrimaryVertex = recoVertices.at(0);
+    RecoVertexWithTP * RecoPrimaryVertex = recoVertices.at(primaryVertexIndex);
 
     TDRVertex->computeParameters(settings_->vx_weightedmean());
 
@@ -589,8 +592,10 @@ namespace l1tVertexFinder {
     }
 
     unsigned int TrackRank = 0;
-    for(unsigned int id = 1; id < numVertices ; ++id){
-      if(recoVertices.at(id)->numTrueTracks() > RecoPrimaryVertex->numTrueTracks()) {
+    for(unsigned int id = 0; id < numVertices ; ++id){
+      if (id == primaryVertexIndex)
+        continue;
+      if (recoVertices.at(id)->numTrueTracks() > RecoPrimaryVertex->numTrueTracks()) {
         TrackRank++;
       }
     }
@@ -931,7 +936,7 @@ namespace l1tVertexFinder {
         z0distance = recoVertices.at(i+1)->z0() - recoVertices.at(i)->z0();
         hisRecoVertexZ0Spacing_->Fill(z0distance);
       }
-      if (i != 0) {
+      if (i != primaryVertexIndex) {
         hisRecoPileUpVertexZ0width_->Fill(recoVertices.at(i)->z0width());
         hisRecoPileUpVertexPT_->Fill(recoVertices.at(i)->pT());
         double PUres = 999.;

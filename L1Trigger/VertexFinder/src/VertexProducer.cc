@@ -37,8 +37,6 @@ void VertexProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 
 void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // bool runAnalysis = true;
-
   edm::Handle<TTTrackCollectionView> l1TracksHandle;
   iEvent.getByToken(l1TracksToken_, l1TracksHandle);
 
@@ -94,23 +92,13 @@ void VertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // //=== Store output EDM track and hardware stub collections.
   std::unique_ptr<l1t::VertexCollection> lProduct(new std::vector<l1t::Vertex>());
-  std::vector<edm::Ptr<l1t::Vertex::Track_t>> pvTracks;
-  pvTracks.reserve(vf.PrimaryVertex().tracks().size());
-  // store PV first in list
-  for (const auto& track : vf.PrimaryVertex().tracks()) {
-    pvTracks.emplace_back(track->getTTTrackPtr());
-  }
-  lProduct->emplace_back(l1t::Vertex(vf.PrimaryVertex().z0(), pvTracks));
 
-  unsigned vIndex = 0;
   for (const auto& vtx : vf.Vertices()) {
-    if (vIndex != vf.PrimaryVertexId()) {
-      std::vector<edm::Ptr<l1t::Vertex::Track_t>> lVtxTracks;
-      for (const auto& t : vtx.tracks() )
-        lVtxTracks.push_back( t->getTTTrackPtr() );
-      lProduct->emplace_back(l1t::Vertex(vtx.z0(), lVtxTracks));
-    }
-    ++vIndex;
+    std::vector<edm::Ptr<l1t::Vertex::Track_t>> lVtxTracks;
+    lVtxTracks.reserve(vtx.tracks().size());
+    for (const auto& t : vtx.tracks() )
+      lVtxTracks.push_back( t->getTTTrackPtr() );
+    lProduct->emplace_back(l1t::Vertex(vtx.z0(), lVtxTracks));
   }
   iEvent.put(std::move(lProduct), "l1vertices");
 

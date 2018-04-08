@@ -5,7 +5,6 @@
 #include <vector>
 
 
-
 namespace l1tVertexFinder {
 
 class Settings;
