@@ -121,7 +121,7 @@ process.GEMCosmicMuon = cms.EDProducer("GEMCosmicMuon",
                                        process.MuonServiceProxy,
                                        gemRecHitLabel = cms.InputTag("gemRecHits"),
                                        doInnerSeeding = cms.bool(False),
-                                       trackChi2 = cms.double(100.0),
+                                       trackChi2 = cms.double(10000.0),
                                        trackResX = cms.double(5.0),
                                        trackResY = cms.double(15.0),
                                        MuonSmootherParameters = cms.PSet(
