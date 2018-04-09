@@ -108,6 +108,9 @@ process.shallowTracks.Tracks  = cms.InputTag( options.inputCollection )
 #process.shallowGainCalibrationAllBunch   = 'ALCARECOSiStripCalMinBias' #cms.InputTag( options.inputCollection )
 #process.shallowGainCalibrationAllBunch0T = 'ALCARECOSiStripCalMinBias' #cms.InputTag( options.inputCollection )
 
+#Setup prescale
+process.prescaleEvent.prescale = 1
+
 
 # BSCNoBeamHalo selection (Not to use for Cosmic Runs) --- OUTDATED!!!
 ## process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
@@ -134,10 +137,10 @@ process.TkCalPath_StdBunch0T = cms.Path(process.TkCalSeq_StdBunch0T *process.sha
 process.TkCalPath_IsoMuon    = cms.Path(process.TkCalSeq_IsoMuon    *process.shallowEventRun*process.testTree)
 process.TkCalPath_IsoMuon0T  = cms.Path(process.TkCalSeq_IsoMuon0T  *process.shallowEventRun*process.testTree)
 process.TkCalPath_AagBunch   = cms.Path(process.TkCalSeq_AagBunch   *process.shallowEventRun*process.testTree)
-process.TkCalPath_AagBunch0T = cms.Path(process.TkCalSeq_AagBunch0T *process.shallowEventRun*process.testTree) 
+process.TkCalPath_AagBunch0T = cms.Path(process.TkCalSeq_AagBunch0T *process.shallowEventRun*process.testTree)
 
 
-process.schedule = cms.Schedule( process.TkCalPath_StdBunch, 
+process.schedule = cms.Schedule( process.TkCalPath_StdBunch,
                                  process.TkCalPath_StdBunch0T,
                                  process.TkCalPath_IsoMuon,
                                  process.TkCalPath_IsoMuon0T,
@@ -147,30 +150,30 @@ process.schedule = cms.Schedule( process.TkCalPath_StdBunch,
 
 
 process.options = cms.untracked.PSet(
-    Rethrow = cms.untracked.vstring('OtherCMS', 
-        'StdException', 
-        'Unknown', 
-        'BadAlloc', 
-        'BadExceptionType', 
-        'ProductNotFound', 
-        'DictionaryNotFound', 
-        'InsertFailure', 
-        'Configuration', 
-        'LogicError', 
-        'UnimplementedFeature', 
-        'InvalidReference', 
-        'NullPointerError', 
-        'NoProductSpecified', 
-        'EventTimeout', 
-        'EventCorruption', 
-        'ScheduleExecutionFailure', 
-        'EventProcessorFailure', 
-        'FileInPathError', 
-        'FileOpenError', 
-        'FileReadError', 
-        'FatalRootError', 
-        'MismatchedInputFiles', 
-        'ProductDoesNotSupportViews', 
-        'ProductDoesNotSupportPtr', 
+    Rethrow = cms.untracked.vstring('OtherCMS',
+        'StdException',
+        'Unknown',
+        'BadAlloc',
+        'BadExceptionType',
+        'ProductNotFound',
+        'DictionaryNotFound',
+        'InsertFailure',
+        'Configuration',
+        'LogicError',
+        'UnimplementedFeature',
+        'InvalidReference',
+        'NullPointerError',
+        'NoProductSpecified',
+        'EventTimeout',
+        'EventCorruption',
+        'ScheduleExecutionFailure',
+        'EventProcessorFailure',
+        'FileInPathError',
+        'FileOpenError',
+        'FileReadError',
+        'FatalRootError',
+        'MismatchedInputFiles',
+        'ProductDoesNotSupportViews',
+        'ProductDoesNotSupportPtr',
         'NotFound')
 )
