@@ -24,8 +24,12 @@ class PCrossingFrame
 
   ~PCrossingFrame() {;}
   
+  void setAllExceptSignalFrom(const PCrossingFrame<T>& cf);
+
   // getters for data members of PCrossingFrame
   edm::EventID getEventID() const {return Pid_;}
+  const std::vector<T>& getSignals() const { return PCFsignals_; }
+  const std::vector<T>& getPileupRefs() const { return PCFpileups_; }
   std::vector<const T *> getPileups() const {
     std::vector<const T *> ret;
     ret.reserve(PCFpileups_.size());
@@ -85,5 +89,23 @@ PCrossingFrame<T>::PCrossingFrame(const CrossingFrame<T>& cf)
  PCFpileupOffsetsBcr_ = cf.getPileupOffsetsBcr();
  PCFpileupOffsetsSource_ = cf.getPileupOffsetsSource();
 }
+
+template <typename T>
+void PCrossingFrame<T>::setAllExceptSignalFrom(const PCrossingFrame<T>& cf) {
+  // TODO: reduce copy-paste
+ PmaxNbSources_= cf.getMaxNbSources();
+ PbunchSpace_ = cf.getBunchSpace();
+ firstPCrossing_ = cf.getBunchRange().first;
+ lastPCrossing_ = cf.getBunchRange().second;
+
+ PCFpileups_ = cf.getPileupRefs();
+
+ PCFsubdet_ = cf.getSubDet();
+ PCFpileupFileNr_ = cf.getPileupFileNr();
+ PCFidFirstPileup_ = cf.getIdFirstPileup();
+ PCFpileupOffsetsBcr_ = cf.getPileupOffsetsBcr();
+ PCFpileupOffsetsSource_ = cf.getPileupOffsetsSource();
+}
+
 
 #endif 

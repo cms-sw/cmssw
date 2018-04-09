@@ -379,6 +379,13 @@ phase2_muon.toModify(mixData,
             pileInputTag = cms.InputTag("simMuonME0Digis",""),
             collectionDM = cms.string(''),
         ),
+        me0SimHit = cms.PSet(
+            workerType = cms.string("PreMixingCrossingFramePSimHitWorker"),
+            #
+            labelSig = cms.InputTag("mix", "g4SimHitsMuonME0Hits"),
+            pileInputTag = cms.InputTag("mix", "g4SimHitsMuonME0Hits"),
+            collectionDM = cms.string("g4SimHitsMuonME0Hits"),
+        ),
         gemSimLink = cms.PSet(
             workerType = cms.string("PreMixingGEMDigiSimLinkWorker"),
             #
