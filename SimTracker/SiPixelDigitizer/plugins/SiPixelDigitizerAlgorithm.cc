@@ -2157,7 +2157,6 @@ bool SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
   if (UseTemplateAgeing == true){
     int ID1 = dbobject_num->getTemplateID(detID);
     int ID0 = dbobject_den->getTemplateID(detID);
-    std::cout << "IDs: " << ID0 << " " << ID1 << std::endl;
     //ierr = PixelTempRewgt2D(IDden, IDnum, pixrewgt);
     ierr = PixelTempRewgt2D(ID0, ID1, pixrewgt);
   }
