@@ -72,6 +72,3 @@ premix_stage1.toReplaceWith(SimL1Emulator, SimL1Emulator.copyAndExclude([
     SimL1TechnicalTriggers,
     SimL1TGlobal
 ]))
-(premix_stage1 & phase2_hgcal).toReplaceWith(SimL1Emulator, SimL1Emulator.copyAndExclude([
-    hgcalTriggerPrimitives
-]))
