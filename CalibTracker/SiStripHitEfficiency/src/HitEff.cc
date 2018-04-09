@@ -86,6 +86,9 @@ HitEff::HitEff(const edm::ParameterSet& conf) :
   addCommonMode_ = conf_.getUntrackedParameter<bool>("addCommonMode", false);
   cutOnTracks_ = conf_.getUntrackedParameter<bool>("cutOnTracks", false);
   trackMultiplicityCut_ = conf.getUntrackedParameter<unsigned int>("trackMultiplicity",100);
+  useFirstMeas_ = conf_.getUntrackedParameter<bool>("useFirstMeas", false);
+  useLastMeas_ = conf_.getUntrackedParameter<bool>("useLastMeas", false);
+  useAllHitsFromTracksWithMissingHits_ = conf_.getUntrackedParameter<bool>("useAllHitsFromTracksWithMissingHits", false);
 }
 
 // Virtual destructor needed.
@@ -340,8 +343,19 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
       double angleX = -999.;
       double angleY = -999.;
       double xglob,yglob,zglob;
-      
-      for (itm=TMeas.begin();itm!=TMeas.end();itm++){
+	  
+	  // Check whether the trajectory has some missing hits
+	  bool hasMissingHits=false;
+	  for (itm=TMeas.begin();itm!=TMeas.end();itm++){
+	    auto theHit = (*itm).recHit();
+		if(theHit->getType()==TrackingRecHit::Type::missing) hasMissingHits=true;  
+	  }
+	
+	
+	// Loop on each measurement and take it into consideration
+	//--------------------------------------------------------
+	
+	      for (itm=TMeas.begin();itm!=TMeas.end();itm++){
 	auto theInHit = (*itm).recHit();
 	
 	if(DEBUG) cout << "theInHit is valid = " << theInHit->isValid() << endl;
@@ -351,6 +365,20 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	unsigned int TKlayers = checkLayer(iidd, tTopo);
 	if (DEBUG)	cout << "TKlayer from trajectory: " << TKlayers << "  from module = " << iidd <<  "   matched/stereo/rphi = " << ((iidd & 0x3)==0) << "/" << ((iidd & 0x3)==1) << "/" << ((iidd & 0x3)==2) << endl;
 
+	
+	// Test first and last points of the trajectory
+	// the list of measurements starts from outer layers  !!! This could change -> should add a check
+	bool isFirstMeas = (itm==(TMeas.end()-1));
+	bool isLastMeas = (itm==(TMeas.begin()));
+	
+	if(!useFirstMeas_ && isFirstMeas) continue;
+	if(!useLastMeas_ && isLastMeas) continue;
+	
+	// In case of missing hit in the track, check whether to use the other hits or not.
+	if(hasMissingHits && theInHit->getType()!=TrackingRecHit::Type::missing && !useAllHitsFromTracksWithMissingHits_) continue;
+
+	
+		
 	// If Trajectory measurement from TOB 6 or TEC 9, skip it because it's always valid they are filled later
 	if ( TKlayers == 10 || TKlayers == 22 ) {
 	  if (DEBUG) cout << "skipping original TM for TOB 6 or TEC 9" << endl;
