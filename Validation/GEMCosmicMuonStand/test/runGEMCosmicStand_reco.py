@@ -18,9 +18,6 @@ process.load('Geometry.GEMGeometry.GeometryGEMCosmicStand_cff')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('SimMuon.GEMDigitizer.muonGEMDigi_cff')
-process.load('EventFilter.GEMRawToDigi.gemPacker_cfi')
-process.load('EventFilter.RawDataCollector.rawDataCollector_cfi')
 process.load('EventFilter.GEMRawToDigi.muonGEMDigis_cfi')
 process.load('RecoLocalMuon.GEMRecHit.gemLocalReco_cff')
 process.load('Configuration.StandardSequences.Validation_cff')
@@ -90,7 +87,6 @@ process.DQMStore = cms.Service("DQMStore",
 process.load('Validation.GEMCosmicMuonStand.GEMCosmicMuonStandEfficiency_cff')
 process.load('Validation.GEMCosmicMuonStand.GEMCosmicMuonStandSim_cff')
 
-process.rawDataCollector.RawCollectionList = cms.VInputTag(cms.InputTag("gemPacker"))
 # Path and EndPath definitions
 process.reconstruction_step = cms.Path(process.GEMCosmicMuon+process.GEMCosmicMuonInSide)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
