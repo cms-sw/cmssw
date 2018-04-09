@@ -181,13 +181,13 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cTDCTime_SubdetPM.initialize(_name, "TDCTime", 
 			hcaldqm::hashfunctions::fSubdetPM,
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
 		_cTDCTime_depth.initialize(_name, "TDCTime", 
 			hcaldqm::hashfunctions::fdepth,
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
 			new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fiphi),			
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10fC_400000),0);
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTime_ns_250),0);
 		// Manually book LED monitoring histogram, to get custom axis
 		ib.setCurrentFolder(_subsystem+"/"+_name);
 		_meLEDMon = ib.book2D("LED_ADCvsBX", "ADC vs BX", 99, -0.5, 3564-0.5, 64, -0.5, 255.5);
