@@ -46,17 +46,20 @@ void GEMCosmicMuonStandEfficiency::bookHistograms(DQMStore::IBooker & ibooker, e
   // for( auto& region : GEMGeometry_->regions() ){
   //   int re = region->region();
   // }
-  for(int i = 0; i < 30; i++)
+  for(int i = 0; i < 15; i++)
   {
-    std::string temp1 = "vfatValidHitChamber" + to_string(i+1); 
-    gem_vfat_eff[i] = BookHist1D(ibooker, temp1.c_str(), temp1.c_str(), 24, -0.5, 23.5);
-    std::string temp2 = "vfatTotalHitChamber" + to_string(i+1);
-    gem_vfat_tot[i] = BookHist1D(ibooker, temp2.c_str(), temp2.c_str(), 24, -0.5, 23.5);
+    for(int j = 0; j < 2; j++)
+    {
+      std::string temp1 = "vfat_Valid_Hit_Chamber" + to_string(2*i+1) + "_layer" + to_string(j+1); 
+      gem_vfat_eff[i][j] = BookHist1D(ibooker, temp1.c_str(), temp1.c_str(), 24, -0.5, 23.5);
+      std::string temp2 = "vfat_Total_Hit_Chamber" + to_string(2*i+1) + "_layer" + to_string(j+1);
+      gem_vfat_tot[i][j] = BookHist1D(ibooker, temp2.c_str(), temp2.c_str(), 24, -0.5, 23.5);
+    }
   }
   gem_vfat_total_eff = BookHist1D(ibooker, "vfatTotHit", "vfatTotHit", 24, -0.5, 23.5);
   
 
-  isuperChamber = BookHist1D(ibooker, "superChamber", "superChamber", 15, 0.5, 30.5);
+  isuperChamber = BookHist1D(ibooker, "superChamber", "superChamber", 30, 0.5, 30.5);
   ilayers = BookHist1D(ibooker, "layers", "layers", 2, 0.5, 2.5);
   ichamber = BookHist1D(ibooker, "chamber", "chamber", 30, 0.5, 30.5);
   iroll = BookHist1D(ibooker, "roll", "roll", 8, 0.5, 8.5);
@@ -113,12 +116,13 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
       iroll->Fill(roll);
       ipartition->Fill(int(strip*3/nStrips));
       
-      int idxChamber = chamber+layer-2;
+      int idxChamber = (chamber-1)/2;
+      int idxLayer = layer-1;
       int vfat = (roll-1)+int(strip/nStrips*3)*8;
       
       gem_vfat_total_eff->Fill(vfat);
-      if((*recHit)->isValid()) gem_vfat_eff[idxChamber]->Fill(vfat);
-      gem_vfat_tot[idxChamber]->Fill(vfat);
+      if((*recHit)->isValid()) gem_vfat_eff[idxChamber][idxLayer]->Fill(vfat);
+      gem_vfat_tot[idxChamber][idxLayer]->Fill(vfat);
     }
   }
 
@@ -151,12 +155,13 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
       iroll->Fill(roll);
       ipartition->Fill(int(strip*3/nStrips));
       
-      int idxChamber = chamber+layer-2;
+      int idxChamber = (chamber-1)/2;
+      int idxLayer = layer-1;
       int vfat = (roll-1)+int(strip/nStrips*3)*8;
       
       gem_vfat_total_eff->Fill(vfat);
-      if((*recHit)->isValid()) gem_vfat_eff[idxChamber]->Fill(vfat);
-      gem_vfat_tot[idxChamber]->Fill(vfat);
+      if((*recHit)->isValid()) gem_vfat_eff[idxChamber][idxLayer]->Fill(vfat);
+      gem_vfat_tot[idxChamber][idxLayer]->Fill(vfat);
     }
   }
 }
