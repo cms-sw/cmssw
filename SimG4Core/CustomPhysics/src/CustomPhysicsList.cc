@@ -9,7 +9,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4Decay.hh"
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
 #include "G4ProcessManager.hh"
@@ -19,7 +18,6 @@
 
 using namespace CLHEP;
 
-G4ThreadLocal std::unique_ptr<G4Decay> CustomPhysicsList::fDecayProcess;
 G4ThreadLocal std::unique_ptr<G4ProcessHelper> CustomPhysicsList::myHelper;
 
 CustomPhysicsList::CustomPhysicsList(const std::string& name, const edm::ParameterSet & p)  
@@ -33,7 +31,6 @@ CustomPhysicsList::CustomPhysicsList(const std::string& name, const edm::Paramet
   particleDefFilePath = fp.fullPath();
 
   fParticleFactory.reset(new CustomParticleFactory());
-  fDecayProcess.reset(nullptr);
   myHelper.reset(nullptr);
 
   edm::LogInfo("SimG4CoreCustomPhysics") 
@@ -56,7 +53,6 @@ void CustomPhysicsList::ConstructProcess() {
     <<"CustomPhysicsList: adding CustomPhysics processes "
     << "for the list of particles";
 
-  fDecayProcess.reset(new G4Decay());
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   for(auto particle : fParticleFactory.get()->GetCustomParticles()) {
@@ -71,9 +67,6 @@ void CustomPhysicsList::ConstructProcess() {
 	if(particle->GetPDGCharge() != 0.0) {
 	  ph->RegisterProcess(new G4hMultipleScattering, particle);
 	  ph->RegisterProcess(new G4hIonisation, particle);
-	}
-	if(fDecayProcess.get()->IsApplicable(*particle)) {
-	  ph->RegisterProcess(fDecayProcess.get(), particle);
 	}
 	if(cp->GetCloud() && fHadronicInteraction && 
 	   CustomPDGParser::s_isRHadron(particle->GetPDGEncoding())) {
