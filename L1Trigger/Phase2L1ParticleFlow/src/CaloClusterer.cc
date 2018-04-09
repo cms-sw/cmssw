@@ -141,6 +141,12 @@ l1tpf_calo::SingleCaloClusterer::~SingleCaloClusterer()
 {
 }
 
+void l1tpf_calo::SingleCaloClusterer::clear() {
+    rawet_.zero();
+    clusters_.clear();
+    clusterIndex_.fill(-1);
+}
+
 void l1tpf_calo::SingleCaloClusterer::run() 
 {
     unsigned int i, ncells = grid_->size();
@@ -226,11 +232,9 @@ void l1tpf_calo::SingleCaloClusterer::run()
             float avg_phi = 0;
             cluster.clear();
             cluster.constituents.emplace_back(i, 1.0);
-            unclustered_[i] = 0; // FIXME emulate old bug for regression check
             for (int ineigh = 0; ineigh < 8; ++ineigh) {
                 int ineighcell = grid_->neighbour(i, ineigh);
                 if (ineighcell == -1) continue; // skip dummy cells
-                unclustered_[ineighcell] = 0; // FIXME emulate old bug for regression check
                 float fracet = 0;
                 switch (energyShareAlgo_) {
                     case Fractions: fracet = myet * precluster_.neigh(i,ineigh).ptOverNeighLocalMaxSum; break;
@@ -295,16 +299,6 @@ void l1tpf_calo::SingleCaloClusterer::grow() {
     for (int i : toreset) unclustered_[i] = 0;
 }
 
-std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetch(float ptMin) const {
-    auto ret = std::make_unique<l1t::PFClusterCollection>();
-    for (const Cluster & cluster : clusters_) {
-        if (cluster.et > ptMin) {
-            ret->emplace_back(cluster.et, cluster.eta, cluster.phi);  
-        }
-    }
-    return ret;
-}
-
 std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetchCells(bool unclusteredOnly, float ptMin) const {
     auto ret = std::make_unique<l1t::PFClusterCollection>();
     const EtGrid & src = (unclusteredOnly ? unclustered_ : rawet_);
@@ -320,7 +314,17 @@ std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetch
     return ret;
 }
 
-std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetchWithRefs(const edm::OrphanHandle<l1t::PFClusterCollection> & cells, float ptMin) const {
+std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetch(float ptMin) const {
+    auto ret = std::make_unique<l1t::PFClusterCollection>();
+    for (const Cluster & cluster : clusters_) {
+        if (cluster.et > ptMin) {
+            ret->emplace_back(cluster.et, cluster.eta, cluster.phi);  
+        }
+    }
+    return ret;
+}
+
+std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetch(const edm::OrphanHandle<l1t::PFClusterCollection> & cells, float ptMin) const {
     auto ret = std::make_unique<l1t::PFClusterCollection>();
     for (const Cluster & cluster : clusters_) {
         if (cluster.et > ptMin) {
@@ -352,6 +356,12 @@ l1tpf_calo::SimpleCaloLinker::SimpleCaloLinker(const edm::ParameterSet &pset, co
 
 l1tpf_calo::SimpleCaloLinker::~SimpleCaloLinker() 
 {
+}
+
+void l1tpf_calo::SimpleCaloLinker::clear() {
+    ecalToHCal_.clear();
+    clusters_.clear();
+    clusterIndex_.fill(-1);
 }
 
 void l1tpf_calo::SimpleCaloLinker::run() 
@@ -455,21 +465,12 @@ void l1tpf_calo::SimpleCaloLinker::run()
 
 
 std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SimpleCaloLinker::fetch() const {
-    auto ret = std::make_unique<l1t::PFClusterCollection>();
-    for (const CombinedCluster & cluster : clusters_) {
-        if (cluster.et > 0) {
-            bool photon = (cluster.hcal_et < hoeCut_* cluster.ecal_et);
-            if (cluster.et > (photon ? minPhotonEt_ : minHadronEt_)) {
-                ret->emplace_back(cluster.et, cluster.eta, cluster.phi, 
-                        cluster.ecal_et > 0 ? std::max(cluster.et-cluster.ecal_et,0.f)/cluster.ecal_et : -1,
-                        photon);  
-            }
-        }
-    }
-    return ret;
+    edm::OrphanHandle<l1t::PFClusterCollection> ecal, hcal;
+    return fetch(ecal, hcal);
 }
 
-std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SimpleCaloLinker::fetchWithRefs(const edm::OrphanHandle<l1t::PFClusterCollection> & ecal, const edm::OrphanHandle<l1t::PFClusterCollection> & hcal) const {
+std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SimpleCaloLinker::fetch(const edm::OrphanHandle<l1t::PFClusterCollection> & ecal, const edm::OrphanHandle<l1t::PFClusterCollection> & hcal) const {
+    bool setRefs = (ecal.isValid() && hcal.isValid());
     auto ret = std::make_unique<l1t::PFClusterCollection>();
     for (const CombinedCluster & cluster : clusters_) {
         if (cluster.et > 0) {
@@ -478,12 +479,14 @@ std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SimpleCaloLinker::fetchWit
                 ret->emplace_back(cluster.et, cluster.eta, cluster.phi, 
                         cluster.ecal_et > 0 ? std::max(cluster.et-cluster.ecal_et,0.f)/cluster.ecal_et : -1,
                         photon); 
-                for (auto & pair : cluster.constituents) {
-                    assert(pair.first != 0);
-                    if (pair.first > 0) { // 1+hcal index
-                        ret->back().addConstituent(edm::Ptr<l1t::PFCluster>(hcal, +pair.first-1), pair.second);
-                    } else { // -1-ecal index
-                        ret->back().addConstituent(edm::Ptr<l1t::PFCluster>(ecal, -pair.first+1), pair.second);
+                if (setRefs) {
+                    for (auto & pair : cluster.constituents) {
+                        assert(pair.first != 0);
+                        if (pair.first > 0) { // 1+hcal index
+                            ret->back().addConstituent(edm::Ptr<l1t::PFCluster>(hcal, +pair.first-1), pair.second);
+                        } else { // -1-ecal index
+                            ret->back().addConstituent(edm::Ptr<l1t::PFCluster>(ecal, -pair.first+1), pair.second);
+                        }
                     }
                 }
             }

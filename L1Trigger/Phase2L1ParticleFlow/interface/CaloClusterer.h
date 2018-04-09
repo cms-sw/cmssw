@@ -133,7 +133,7 @@ namespace l1tpf_calo {
         public:
             SingleCaloClusterer(const edm::ParameterSet &pset) ;
             ~SingleCaloClusterer() ;
-            void clear() { rawet_.zero(); }
+            void clear() ;
             void add(const reco::Candidate &c) { add(c.pt(), c.eta(), c.phi()); }
             void add(float pt, float eta, float phi) { 
                 rawet_(eta, phi) += pt; 
@@ -159,10 +159,10 @@ namespace l1tpf_calo {
                 }
             }
 
-            std::unique_ptr<l1t::PFClusterCollection> fetch(float ptMin=0.) const ;
             std::unique_ptr<l1t::PFClusterCollection> fetchCells(bool unclusteredOnly=false, float ptMin=0.) const ;
 
-            std::unique_ptr<l1t::PFClusterCollection> fetchWithRefs(const edm::OrphanHandle<l1t::PFClusterCollection> & cells, float ptMin=0.) const ;
+            std::unique_ptr<l1t::PFClusterCollection> fetch(float ptMin=0.) const ;
+            std::unique_ptr<l1t::PFClusterCollection> fetch(const edm::OrphanHandle<l1t::PFClusterCollection> & cells, float ptMin=0.) const ;
 
         private:
             enum EnergyShareAlgo { Fractions, /* each local maximum neighbour takes a share proportional to its value */
@@ -185,13 +185,9 @@ namespace l1tpf_calo {
         public:
             SimpleCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) ;
             ~SimpleCaloLinker() ;
-            void run() ; 
-            const IndexGrid & indexGrid() const { return clusterIndex_; }
-            const std::vector<CombinedCluster> & clusters() const { return clusters_; }
-            const CombinedCluster & cluster(int i) const { 
-                return (i == -1 || clusterIndex_[i] == -1) ? nullCluster_ : clusters_[clusterIndex_[i]]; 
-            }
-            
+            void clear() ;
+            void run() ;
+
             // for the moment, generic interface that takes a cluster and returns the corrected pt
             template<typename Corrector>
             void correct(const Corrector & corrector) {
@@ -201,7 +197,7 @@ namespace l1tpf_calo {
             }
 
             std::unique_ptr<l1t::PFClusterCollection> fetch() const ;
-            std::unique_ptr<l1t::PFClusterCollection> fetchWithRefs(const edm::OrphanHandle<l1t::PFClusterCollection> & ecal, const edm::OrphanHandle<l1t::PFClusterCollection> & hcal) const ;
+            std::unique_ptr<l1t::PFClusterCollection> fetch(const edm::OrphanHandle<l1t::PFClusterCollection> & ecal, const edm::OrphanHandle<l1t::PFClusterCollection> & hcal) const ;
 
         private:
             const Grid * grid_;
