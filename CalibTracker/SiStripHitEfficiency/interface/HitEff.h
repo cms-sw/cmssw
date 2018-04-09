@@ -17,6 +17,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h" 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -73,6 +74,7 @@ class HitEff : public edm::EDAnalyzer {
   
   const edm::EDGetTokenT< reco::TrackCollection > combinatorialTracks_token_;
   const edm::EDGetTokenT< std::vector<Trajectory> > trajectories_token_;
+  const edm::EDGetTokenT< TrajTrackAssociationCollection > trajTrackAsso_token_;
   const edm::EDGetTokenT< edmNew::DetSetVector<SiStripCluster> > clusters_token_;
   const edm::EDGetTokenT<DetIdCollection> digis_token_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
@@ -95,6 +97,7 @@ class HitEff : public edm::EDAnalyzer {
   unsigned int ModIsBad; unsigned int Id; unsigned int SiStripQualBad; bool withinAcceptance;
   int nHits, nLostHits; 
   float p, pT, chi2;
+  bool highPurity;
   unsigned int trajHitValid, run, event, bunchx;
   float timeDT, timeDTErr;
   int timeDTDOF;

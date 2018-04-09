@@ -33,6 +33,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -75,6 +76,7 @@ HitEff::HitEff(const edm::ParameterSet& conf) :
   commonModeToken_( mayConsume< edm::DetSetVector<SiStripRawDigi> >(conf.getParameter<edm::InputTag>("commonMode")) ),
   combinatorialTracks_token_( consumes< reco::TrackCollection >(conf.getParameter<edm::InputTag>("combinatorialTracks")) ),
   trajectories_token_( consumes< std::vector<Trajectory> >(conf.getParameter<edm::InputTag>("trajectories")) ),
+  trajTrackAsso_token_( consumes< TrajTrackAssociationCollection >(conf.getParameter<edm::InputTag>("trajectories")) ),
   clusters_token_( consumes< edmNew::DetSetVector<SiStripCluster> >(conf.getParameter<edm::InputTag>("siStripClusters")) ),
   digis_token_( consumes< DetIdCollection >(conf.getParameter<edm::InputTag>("siStripDigis")) ),
   trackerEvent_token_( consumes< MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("trackerEvent")) ),
@@ -123,6 +125,7 @@ void HitEff::beginJob(){
   traj->Branch("chi2",&chi2,"chi2/F");
   traj->Branch("p",&p,"p/F");
   traj->Branch("pT",&pT,"pT/F");
+  traj->Branch("highPurity",&highPurity,"highPurity/O");
   traj->Branch("trajHitValid", &trajHitValid, "trajHitValid/i");
   traj->Branch("Id",&Id,"Id/i");
   traj->Branch("run",&run,"run/i");
@@ -190,6 +193,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
   edm::Handle<std::vector<Trajectory> > TrajectoryCollectionCKF;
   //edm::InputTag TkTrajCKF = conf_.getParameter<edm::InputTag>("trajectories");
   e.getByToken(trajectories_token_,TrajectoryCollectionCKF);
+  
+  edm::Handle<TrajTrackAssociationCollection> trajTrackAssociationHandle;
+  e.getByToken(trajTrackAsso_token_, trajTrackAssociationHandle);
   
   // Clusters
   // get the SiStripClusters from the event
@@ -315,11 +321,14 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
       timeDT = -999.0; timeDTErr = -999.0; timeDTDOF = -999; timeECAL = -999.0;
     }
 
-    // actually should do a loop over all the tracks in the event here
 
-    for (vector<Trajectory>::const_iterator itraj = TrajectoryCollectionCKF.product()->begin();
-	 itraj != TrajectoryCollectionCKF.product()->end();
-	 itraj++) {
+    // Looping over traj-track associations to be able to get traj & track informations
+	for(TrajTrackAssociationCollection::const_iterator it = trajTrackAssociationHandle->begin();
+	 it!=trajTrackAssociationHandle->end();
+	 it++) {
+	 
+	  edm::Ref<std::vector<Trajectory> > itraj  = it->key;
+	  reco::TrackRef itrack  = it->val;
 
       // for each track, fill some variables such as number of hits and momentum
       nHits = itraj->foundHits();
@@ -331,7 +340,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		   itraj->lastMeasurement().updatedState().globalMomentum().y()) );
       p = itraj->lastMeasurement().updatedState().globalMomentum().mag();
       
-      //Put in code to check track quality
+      // track quality
+	  highPurity = itrack->quality(reco::TrackBase::TrackQuality::highPurity);
+
       
       
       std::vector<TrajectoryMeasurement> TMeas=itraj->measurements();
