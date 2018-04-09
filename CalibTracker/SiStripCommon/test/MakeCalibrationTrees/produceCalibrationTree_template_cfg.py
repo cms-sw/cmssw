@@ -50,6 +50,12 @@ options.register('maxEvents',
                  VarParsing.VarParsing.varType.int,
                  "number of events to process (\"-1\" for all)")
 
+options.register('runNumber',
+                 -1,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "run number to process (\"-1\" for all)")
+
 
 
 
@@ -66,6 +72,7 @@ print "inputCollection   : ", options.inputCollection
 print "maxEvents         : ", options.maxEvents
 print "outputFile        : ", options.outputFile
 print "inputFiles        : ", options.inputFiles
+print "runNumber         : ", options.runNumber
 
 
 process = cms.Process('CALIB')
@@ -93,10 +100,19 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxE
 #    )
 
 #import runs
-process.source = cms.Source (
-  "PoolSource",
-  fileNames = cms.untracked.vstring( options.inputFiles )
-    )
+if options.runNumber == -1:
+   process.source = cms.Source (
+     "PoolSource",
+     fileNames = cms.untracked.vstring( options.inputFiles )
+   )
+else:
+   print "Restricting to the following events :"
+   print '%s:1-%s:MAX'%(options.runNumber,options.runNumber)
+   process.source = cms.Source (
+        "PoolSource",
+         fileNames = cms.untracked.vstring( options.inputFiles ),
+         eventsToProcess = cms.untracked.VEventRange('%s:1-%s:MAX'%(options.runNumber,options.runNumber))
+         )
 
 
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
