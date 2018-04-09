@@ -34,7 +34,6 @@ MonitorElement* ilayers;
 MonitorElement* ichamber;
 MonitorElement* iroll;
 MonitorElement* ipartition;
-MonitorElement* ichi2;
 
 edm::EDGetTokenT<reco::TrackCollection> insideOutTracks_, outsideInTracks_;
 edm::EDGetTokenT<vector<TrajectorySeed>> seedInside_, seedOutside_;

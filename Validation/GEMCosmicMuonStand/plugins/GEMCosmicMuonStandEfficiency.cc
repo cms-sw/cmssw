@@ -50,18 +50,17 @@ void GEMCosmicMuonStandEfficiency::bookHistograms(DQMStore::IBooker & ibooker, e
   {
     std::string temp1 = "vfatValidHitChamber" + to_string(i+1); 
     gem_vfat_eff[i] = BookHist1D(ibooker, temp1.c_str(), temp1.c_str(), 24, -0.5, 23.5);
-    std::string temp2 = "vfatMissingHitChamber" + to_string(i+1);
+    std::string temp2 = "vfatTotalHitChamber" + to_string(i+1);
     gem_vfat_tot[i] = BookHist1D(ibooker, temp2.c_str(), temp2.c_str(), 24, -0.5, 23.5);
   }
   gem_vfat_total_eff = BookHist1D(ibooker, "vfatTotHit", "vfatTotHit", 24, -0.5, 23.5);
   
 
-  isuperChamber = BookHist1D(ibooker, "superChamber", "superChamber", 15, 0.5, 15.5);
+  isuperChamber = BookHist1D(ibooker, "superChamber", "superChamber", 15, 0.5, 30.5);
   ilayers = BookHist1D(ibooker, "layers", "layers", 2, 0.5, 2.5);
   ichamber = BookHist1D(ibooker, "chamber", "chamber", 30, 0.5, 30.5);
   iroll = BookHist1D(ibooker, "roll", "roll", 8, 0.5, 8.5);
   ipartition = BookHist1D(ibooker, "partition", "partition", 3, -0.5, 2.5);
-  ichi2 = BookHist1D(ibooker, "chi2", "chi2", 100, 0, 10);
 
   LogDebug("GEMCosmicMuonStandEfficiency")<<"Booking End.\n";
 }
@@ -84,8 +83,9 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
 
   edm::Handle<vector<TrajectorySeed>> seedOutside;
   e.getByToken( seedOutside_, seedOutside);
-//Test Lines
-  
+
+
+  // Analysis inside out tracks 
   for (std::vector<reco::Track>::const_iterator track = insideOutTracks->begin(); track != insideOutTracks->end(); ++track)
   {
     vector<TrajectorySeed>::const_iterator seeds = seedInside->begin();
@@ -93,6 +93,7 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
     auto firstHit = seed->rawId();
     seed++;
     auto secondHit = seed->rawId();
+
     for (trackingRecHit_iterator recHit = track->recHitsBegin(); recHit != track->recHitsEnd(); ++recHit)
     {
       auto rawId = (*recHit)->rawId();
@@ -106,22 +107,23 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
       int nStrips = etaPartition->nstrips();
       float strip = etaPartition->strip((*recHit)->localPosition());
 
-      isuperChamber->Fill(chamber/2);
+      isuperChamber->Fill(chamber);
       ilayers->Fill(layer);
       ichamber->Fill(chamber + layer - 1);
       iroll->Fill(roll);
       ipartition->Fill(int(strip*3/nStrips));
       
-      int iChamber = chamber+layer-2;
+      int idxChamber = chamber+layer-2;
       int vfat = (roll-1)+int(strip/nStrips*3)*8;
       
       gem_vfat_total_eff->Fill(vfat);
-      if((*recHit)->isValid()) gem_vfat_eff[iChamber]->Fill(vfat);
-      else gem_vfat_tot[iChamber]->Fill(vfat);
-      
+      if((*recHit)->isValid()) gem_vfat_eff[idxChamber]->Fill(vfat);
+      gem_vfat_tot[idxChamber]->Fill(vfat);
     }
- 
- }
+  }
+
+
+  // Analysis outside in tracks 
   for (std::vector<reco::Track>::const_iterator track = outsideInTracks->begin(); track != outsideInTracks->end(); ++track)
   {
     vector<TrajectorySeed>::const_iterator seeds = seedOutside->begin();
@@ -143,18 +145,18 @@ void GEMCosmicMuonStandEfficiency::analyze(const edm::Event& e,const edm::EventS
       int nStrips = etaPartition->nstrips();
       float strip = etaPartition->strip((*recHit)->localPosition());
  
-      isuperChamber->Fill(chamber/2);
+      isuperChamber->Fill(chamber);
       ilayers->Fill(layer);
       ichamber->Fill(chamber + layer - 1);
       iroll->Fill(roll);
       ipartition->Fill(int(strip*3/nStrips));
       
-      int iChamber = chamber+layer-2;
+      int idxChamber = chamber+layer-2;
       int vfat = (roll-1)+int(strip/nStrips*3)*8;
       
-      if((*recHit)->isValid()) gem_vfat_eff[iChamber]->Fill(vfat);
-      else gem_vfat_tot[iChamber]->Fill(vfat);
-       
+      gem_vfat_total_eff->Fill(vfat);
+      if((*recHit)->isValid()) gem_vfat_eff[idxChamber]->Fill(vfat);
+      gem_vfat_tot[idxChamber]->Fill(vfat);
     }
   }
 }

@@ -78,8 +78,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.load("GeneratorInterface.CosmicMuonGenerator.CMSCGENproducer_cfi")
 process.generator.TrackerOnly = True
 process.generator.MinP = 1000
-process.generator.RadiusOfTarget = cms.double(10.0)#in cm
-process.generator.ZDistOfTarget = cms.double(10.0) #in cm
+process.generator.RadiusOfTarget = cms.double(100.0)#in cm
+process.generator.ZDistOfTarget = cms.double(100.0) #in cm
 
 process.RandomNumberGeneratorService.generator = cms.PSet(
         initialSeed = cms.untracked.uint32(123456789),
