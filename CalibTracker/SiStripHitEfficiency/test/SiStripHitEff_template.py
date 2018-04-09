@@ -30,6 +30,7 @@ process.SiStripHitEff = cms.EDFilter("SiStripHitEffFromCalibTree",
     ClusterMatchingMethod  = cms.untracked.int32(4),     # default 0  case0,1,2,3,4
     ClusterTrajDist   = cms.untracked.double(64),   # default 64
     StripsApvEdge     = cms.untracked.double(10),   # default 10  
+    UseOnlyHighPurityTracks = cms.untracked.bool(True), # default True
     SpaceBetweenTrains = cms.untracked.int32(25),   # default 25
     UseCommonMode     = cms.untracked.bool(False),  # default False
     ShowEndcapSides   = cms.untracked.bool(True),  # default True

@@ -128,6 +128,7 @@ class SiStripHitEffFromCalibTree : public ConditionDBWriter<SiStripBadStrip> {
     float _ResXSig;
     float _clusterTrajDist;
     float _stripsApvEdge;
+	bool _useOnlyHighPurityTracks;
     unsigned int _bunchx;
     unsigned int _spaceBetweenTrains;
 	bool _useCM;
@@ -186,6 +187,7 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   _ResXSig = conf.getUntrackedParameter<double>("ResXSig",-1);
   _clusterTrajDist = conf.getUntrackedParameter<double>("ClusterTrajDist",64.0);
   _stripsApvEdge = conf.getUntrackedParameter<double>("StripsApvEdge",10.0);
+  _useOnlyHighPurityTracks = conf.getUntrackedParameter<bool>("UseOnlyHighPurityTracks", true);
   _bunchx = conf.getUntrackedParameter<int>("BunchCrossing",0);
   _spaceBetweenTrains = conf.getUntrackedParameter<int>("SpaceBetweenTrains",25);
   _useCM = conf.getUntrackedParameter<bool>("UseCommonMode",false);
@@ -352,7 +354,8 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 	TLeaf* idLf = CalibTree->GetLeaf("Id");
 	TLeaf* acceptLf = CalibTree->GetLeaf("withinAcceptance");
 	TLeaf* layerLf = CalibTree->GetLeaf("layer");
-	TLeaf* nHitsLf = CalibTree->GetLeaf("nHits");
+	//TLeaf* nHitsLf = CalibTree->GetLeaf("nHits");
+	TLeaf* highPurityLf = CalibTree->GetLeaf("highPurity");
 	TLeaf* xLf = CalibTree->GetLeaf("TrajGlbX");
 	TLeaf* yLf = CalibTree->GetLeaf("TrajGlbY");
 	TLeaf* zLf = CalibTree->GetLeaf("TrajGlbZ");
@@ -388,7 +391,8 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     	if(layer<14) layer = 10 + ((id>>9)&0x3); //TID   3 disks and also 3 rings -> use the same container
     	else layer = 13 + ((id>>5)&0x7); //TEC
       }
-      unsigned int nHits = (unsigned int)nHitsLf->GetValue();
+      //unsigned int nHits = (unsigned int)nHitsLf->GetValue();
+	  bool highPurity = (bool) highPurityLf->GetValue();
       double x = xLf->GetValue();
       double y = yLf->GetValue();
       double z = zLf->GetValue();
@@ -433,7 +437,8 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 	  if(_bunchx > 0 && _bunchx != bx) continue;
 
       //if(quality == 1 || accept != 1 || nHits < 8) continue;
-      if(accept != 1 || nHits < 8) continue;
+      if(accept != 1) continue;
+      if(_useOnlyHighPurityTracks && !highPurity) continue;
       if(quality == 1) badquality = true;
 
       // don't compute efficiencies in modules from TOB6 and TEC9
