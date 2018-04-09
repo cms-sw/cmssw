@@ -593,40 +593,6 @@
    <config name="PBConfig" version="1">
    </config>
   </config>
-  <config name="GEMCosmicMuon" version="6">
-   <config name="type" version="0">
-     <string>std::vector&lt;reco::TrackExtra&gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>GEMCosmicMuon</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string></string>
-   </config>
-   <config name="color" version="0">
-     <string>1001</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>19</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>Table</string>
-   </config>
-   <config name="transparency" version="0">
-     <string>0</string>
-   </config>
-   <config name="PBConfig" version="1">
-   </config>
-  </config>
   <config name="GEMCosmicMuonInSide" version="6">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Track&gt;</string>
@@ -650,7 +616,7 @@
      <string>t</string>
    </config>
    <config name="layer" version="0">
-     <string>20</string>
+     <string>28</string>
    </config>
    <config name="purpose" version="0">
      <string>Tracks</string>
@@ -666,7 +632,7 @@
     </config>
    </config>
   </config>
-  <config name="GEMCosmicMuonTrk" version="6">
+  <config name="GEMCosmicMuon" version="6">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Track&gt;</string>
    </config>
@@ -689,7 +655,7 @@
      <string>t</string>
    </config>
    <config name="layer" version="0">
-     <string>21</string>
+     <string>29</string>
    </config>
    <config name="purpose" version="0">
      <string>Tracks</string>
@@ -703,40 +669,6 @@
        <string>1</string>
      </config>
     </config>
-   </config>
-  </config>
-  <config name="GEMCosmicMuonTrkHit" version="6">
-   <config name="type" version="0">
-     <string>std::vector&lt;reco::Track&gt;</string>
-   </config>
-   <config name="moduleLabel" version="0">
-     <string>GEMCosmicMuonInSide</string>
-   </config>
-   <config name="productInstanceLabel" version="0">
-     <string></string>
-   </config>
-   <config name="processName" version="0">
-     <string></string>
-   </config>
-   <config name="filterExpression" version="0">
-     <string></string>
-   </config>
-   <config name="color" version="0">
-     <string>1002</string>
-   </config>
-   <config name="isVisible" version="0">
-     <string>t</string>
-   </config>
-   <config name="layer" version="0">
-     <string>22</string>
-   </config>
-   <config name="purpose" version="0">
-     <string>TrackHits</string>
-   </config>
-   <config name="transparency" version="0">
-     <string>0</string>
-   </config>
-   <config name="PBConfig" version="1">
    </config>
   </config>
  </config>
@@ -800,7 +732,7 @@
  <config name="GUI" version="1">
   <config name="main window" version="3">
    <config name="x" version="0">
-     <string>8</string>
+     <string>49</string>
    </config>
    <config name="y" version="0">
      <string>22</string>
@@ -935,22 +867,22 @@
       <string>1</string>
     </config>
     <config name="cameraMatrix0Plain3D" version="0">
-      <string>-0.701978</string>
+      <string>-0.963843</string>
     </config>
     <config name="cameraMatrix1Plain3D" version="0">
-      <string>-0.451903</string>
+      <string>-0.0882593</string>
     </config>
     <config name="cameraMatrix2Plain3D" version="0">
-      <string>0.550464</string>
+      <string>0.251431</string>
     </config>
     <config name="cameraMatrix3Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix4Plain3D" version="0">
-      <string>0.541292</string>
+      <string>0.0911888</string>
     </config>
     <config name="cameraMatrix5Plain3D" version="0">
-      <string>-0.840834</string>
+      <string>-0.995833</string>
     </config>
     <config name="cameraMatrix6Plain3D" version="0">
       <string>0</string>
@@ -959,25 +891,25 @@
       <string>0</string>
     </config>
     <config name="cameraMatrix8Plain3D" version="0">
-      <string>0.46285</string>
+      <string>0.250384</string>
     </config>
     <config name="cameraMatrix9Plain3D" version="0">
-      <string>0.297961</string>
+      <string>0.0229265</string>
     </config>
     <config name="cameraMatrix10Plain3D" version="0">
-      <string>0.834859</string>
+      <string>0.967875</string>
     </config>
     <config name="cameraMatrix11Plain3D" version="0">
       <string>0</string>
     </config>
     <config name="cameraMatrix12Plain3D" version="0">
-      <string>-3411.96</string>
+      <string>-4703.03</string>
     </config>
     <config name="cameraMatrix13Plain3D" version="0">
-      <string>-2196.96</string>
+      <string>-431.07</string>
     </config>
     <config name="cameraMatrix14Plain3D" version="0">
-      <string>2731.71</string>
+      <string>1275.17</string>
     </config>
     <config name="cameraMatrix15Plain3D" version="0">
       <string>1</string>
@@ -1031,7 +963,7 @@
       <string>1</string>
     </config>
     <config name="Plain3D FOV" version="0">
-      <string>1.536210</string>
+      <string>2.203666</string>
     </config>
    </config>
   </config>

@@ -263,9 +263,9 @@ unique_ptr<vector<TrajectorySeed> > GEMCosmicMuon::findSeeds(MuonTransientTracki
 	TrajectoryStateOnSurface tsos(param, error, tophit->det()->surface(), &*theService_->magneticField());
 
 	// auto tsosBot = theService_->propagator("StraightLinePropagator")->propagate(tsos,bottomhit->det()->surface());
-	// // cout << "GEMCosmicMuon::tsos        " << tsos << endl;
+	cout << "GEMCosmicMuon::tsos        " << tsos << endl;
 	// tsos = theUpdator_->update(tsosBot, *bottomhit);
-	// // cout << "GEMCosmicMuon::tsos update " << tsos << endl;
+	//cout << "GEMCosmicMuon::tsos update " << tsos << endl;
 	  
 	PTrajectoryStateOnDet seedTSOS = trajectoryStateTransform::persistentState(tsos, tophit->rawId());
 	
@@ -287,12 +287,11 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
   PTrajectoryStateOnDet ptsd1(seed.startingState());
   DetId did(ptsd1.detId());
   const BoundPlane& bp = theService_->trackingGeometry()->idToDet(did)->surface();
-  TrajectoryStateOnSurface predTsos = trajectoryStateTransform::transientState(ptsd1,&bp,&*theService_->magneticField());
-  TrajectoryStateOnSurface currTsos = predTsos;
+  TrajectoryStateOnSurface tsos = trajectoryStateTransform::transientState(ptsd1,&bp,&*theService_->magneticField());
 
   TransientTrackingRecHit::ConstRecHitContainer consRecHits;
   
-  cout << "tsos gp   "<< predTsos.freeTrajectoryState()->position() <<endl;
+  cout << "tsos gp   "<< tsos.freeTrajectoryState()->position() <<endl;
   auto seedhit = seed.recHits().first;
   cout << "first  gp "<< GEMDetId(seedhit->rawId()) <<endl;
   seedhit++;
@@ -301,7 +300,6 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
   float previousLayer = -200;//skip first layer
   int validHits = 0;
   int invalidHits = 0;
-  bool firstHit = true;
   for (auto chmap : detLayerMap_){
     //// skip same layers
     if (chmap.first == previousLayer) continue;
@@ -311,13 +309,12 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
     //const DetLayer* layer = theService_->detLayerGeometry()->idToLayer( ch->id().rawId() );
     shared_ptr<MuonTransientTrackingRecHit> tmpRecHit;
 
-    //if (currTsos != predTsos)
-    predTsos = theService_->propagator("StraightLinePropagator")->propagate(currTsos,refChamber->surface());
-    if (!predTsos.isValid()){
+    tsos = theService_->propagator("StraightLinePropagator")->propagate(tsos,refChamber->surface());
+    if (!tsos.isValid()){
       continue;
     }
     
-    GlobalPoint tsosGP = predTsos.freeTrajectoryState()->position();
+    GlobalPoint tsosGP = tsos.freeTrajectoryState()->position();
 
     cout << "tsos gp   "<< tsosGP << refChamber->id() <<endl;
     
@@ -364,7 +361,7 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
     	  const LocalPoint pos2D(pos.x(), pos.y(), 0);
     	  const BoundPlane& bps(etaPart->surface());
 	  
-	  if(abs(pos.y()) < 17)
+	  if(abs(pos.y()) < 17 && abs(pos.x()) < 40 )
 	    cout << " missing hit "<< etaPart->id() << " pos = "<<pos<< " R = "<<pos.mag() <<" inside "<<  bps.bounds().inside(pos2D) <<endl;
 	  
 	  if (bps.bounds().inside(pos2D)){
@@ -386,14 +383,7 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
     if (tmpRecHit){      
       //cout << "hit isValid "<<tmpRecHit->isValid() <<" gp "<< tmpRecHit->globalPosition()<<endl;
       if (tmpRecHit->isValid()){
-	if (!firstHit){
-	  // cout << "GEMCosmicMuon::tsos predTsos " << currTsos << endl;
-	  // currTsos = theUpdator_->update(predTsos, *tmpRecHit);
-	  // cout << "GEMCosmicMuon::tsos currTsos " << currTsos << endl;
-
-	}
 	++validHits;
-	firstHit = false;
       }
       else{
 	++invalidHits;
@@ -402,12 +392,15 @@ Trajectory GEMCosmicMuon::makeTrajectory(TrajectorySeed& seed,
     }
   }
   cout << "validHits "<<validHits <<" invalidHits "<<invalidHits<< " total Hits "<< validHits+invalidHits<< endl;
-  cout << "consRecHits.size() "<<consRecHits.size()<< endl;
+  //cout << "consRecHits.size() "<<consRecHits.size()<< endl;
   if (consRecHits.size() <3) return Trajectory();
-  cout << "validHits "<<validHits<< endl;
+  //cout << "validHits "<<validHits<< endl;
   if (validHits <3) return Trajectory();
-  vector<Trajectory> fitted = theSmoother_->trajectories(seed, consRecHits, currTsos);
-  
+
+  auto firstHit = consRecHits.front();
+  tsos = theService_->propagator("StraightLinePropagator")->propagate(tsos,*(firstHit->surface()));
+
+  vector<Trajectory> fitted = theSmoother_->trajectories(seed, consRecHits, tsos);
   cout << "fitted.size() "<<fitted.size()<< endl;
   return fitted.front();
 }

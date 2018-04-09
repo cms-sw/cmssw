@@ -6,7 +6,7 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('RECO',eras.phase2_muon)
+process = cms.Process('DIGI',eras.phase2_muon)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -53,7 +53,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(10485760),
-    fileName = cms.untracked.string('out_reco.root'),
+    fileName = cms.untracked.string('out_digi.root'),
     outputCommands = cms.untracked.vstring( ('keep *')),
     splitLevel = cms.untracked.int32(0)
 )
@@ -77,7 +77,11 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 # Cosmic Muon generator
 process.load("GeneratorInterface.CosmicMuonGenerator.CMSCGENproducer_cfi")
 process.generator.TrackerOnly = True
+<<<<<<< HEAD
 process.generator.MinP = 1000
+=======
+process.generator.MinP = 100
+>>>>>>> cbd68393a1f222542021919dccf024838eba3b16
 process.generator.RadiusOfTarget = cms.double(100.0)#in cm
 process.generator.ZDistOfTarget = cms.double(100.0) #in cm
 
@@ -148,8 +152,8 @@ process.generation_step = cms.Path(process.generator+process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.digi2raw_step = cms.Path(process.gemPacker+process.rawDataCollector)
 process.raw2digi_step = cms.Path(process.muonGEMDigis)
-process.digitisation_step = cms.Path(process.randomEngineStateProducer+process.mix+process.simMuonGEMDigis)
-process.reconstruction_step = cms.Path(process.gemLocalReco+process.GEMCosmicMuon+process.GEMCosmicMuonInSide)
+process.digitisation_step = cms.Path(process.randomEngineStateProducer+process.mix+process.simMuonGEMDigis+process.gemLocalReco)
+process.reconstruction_step = cms.Path(process.GEMCosmicMuon+process.GEMCosmicMuonInSide)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 #process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
@@ -159,9 +163,10 @@ process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.simulation_step,
                                 process.digitisation_step,
-                                process.digi2raw_step,process.raw2digi_step,process.reconstruction_step,
-                                process.validation_step,
-                                process.DQMoutput_step,
+                                process.digi2raw_step,process.raw2digi_step,
+                                #process.reconstruction_step,
+                                #process.validation_step,
+                                #process.DQMoutput_step,
                                 process.FEVTDEBUGHLToutput_step
                                 )
 
