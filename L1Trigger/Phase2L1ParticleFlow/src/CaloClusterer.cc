@@ -116,11 +116,13 @@ const l1tpf_calo::Grid * l1tpf_calo::getGrid(const std::string & type)
 l1tpf_calo::SingleCaloClusterer::SingleCaloClusterer(const edm::ParameterSet &pset) :
     grid_(getGrid(pset.getParameter<std::string>("grid"))),
     rawet_(*grid_),
+    unclustered_(*grid_),
     precluster_(*grid_),
     cluster_(*grid_),
     zsEt_(pset.getParameter<double>("zsEt")),
     seedEt_(pset.getParameter<double>("seedEt")),
     minClusterEt_(pset.getParameter<double>("minClusterEt")),
+    minEtToGrow_(pset.existsAs<double>("minEtToGrow") ? pset.getParameter<double>("minEtToGrow") : -1),
     energyWeightedPosition_(pset.getParameter<bool>("energyWeightedPosition"))
 {
     std::string energyShareAlgo = pset.getParameter<std::string>("energyShareAlgo");
@@ -204,6 +206,7 @@ void l1tpf_calo::SingleCaloClusterer::run()
     }
 
     cluster_.clear();
+    unclustered_ = rawet_;
     // cluster: at each localMax cell, take itself plus the weighted contributions of the neighbours
     for (i = 0; i < ncells; ++i) {
         if (precluster_[i].ptLocalMax > 0) {
@@ -211,9 +214,11 @@ void l1tpf_calo::SingleCaloClusterer::run()
             float tot  = myet;
             float avg_eta = 0;
             float avg_phi = 0;
+            unclustered_[i] = 0;
             for (int ineigh = 0; ineigh < 8; ++ineigh) {
                 int ineighcell = grid_->neighbour(i, ineigh);
                 if (ineighcell == -1) continue; // skip dummy cells
+                unclustered_[ineighcell] = 0;
                 float fracet = 0;
                 switch (energyShareAlgo_) {
                     case Fractions: fracet = myet * precluster_.neigh(i,ineigh).ptOverNeighLocalMaxSum; break;
@@ -242,8 +247,27 @@ void l1tpf_calo::SingleCaloClusterer::run()
             }
         }
     }
+    if (minEtToGrow_ > 0) grow();
+}
 
-
+void l1tpf_calo::SingleCaloClusterer::grow() {
+    int selneighs[4] = { 1, 3, 4, 6} ; // -eta, -phi, +phi, +eta
+    std::vector<int> toreset;
+    for (unsigned int i = 0, ncells = grid_->size(); i < ncells; ++i) {
+        if (cluster_[i].et > minEtToGrow_) {
+            for (int side = 0; side < 4; ++side) {
+                int neigh = grid_->neighbour(i, selneighs[side]);
+                if (neigh == -1) continue;
+                for (int in = 0; in < 8; ++in) {
+                    int n2 = grid_->neighbour(neigh, in);
+                    if (n2 == -1) continue;
+                    cluster_[i].et += unclustered_[n2];
+                    if (unclustered_[n2]) toreset.push_back(n2);
+                }
+            }
+        }
+    }
+    for (int i : toreset) unclustered_[i] = 0;
 }
 
 std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetch(float ptMin) const {
@@ -255,6 +279,17 @@ std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetch
     }
     return ret;
 }
+
+std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetchCells(float ptMin, bool unclusteredOnly) const {
+    auto ret = std::make_unique<l1t::PFClusterCollection>();
+    const EtGrid & src = (unclusteredOnly ? unclustered_ : rawet_);
+    for (unsigned int i = 0, ncells = grid_->size(); i < ncells; ++i) {
+        if (src[i] <= ptMin) continue;
+        ret->emplace_back(src[i], grid_->eta(i), grid_->phi(i));  
+    }
+    return ret;
+}
+
 
 l1tpf_calo::SimpleCaloLinker::SimpleCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer & ecal,  const SingleCaloClusterer & hcal) :
     grid_(getGrid(pset.getParameter<std::string>("grid"))),

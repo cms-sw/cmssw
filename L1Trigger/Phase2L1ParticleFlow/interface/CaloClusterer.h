@@ -83,6 +83,12 @@ namespace l1tpf_calo {
                 return (ineigh < 0 ? empty_ : data_[ineigh]); 
             }
 
+            GridData<T> & operator=(const GridData<T> & other) {
+                assert(grid_ == other.grid_);
+                data_ = other.data_;
+                return *this;
+            }
+
             // always defined
             void fill(const T &val) { std::fill(data_.begin(), data_.end(), val); }
             void zero() { fill(T()); }
@@ -130,6 +136,11 @@ namespace l1tpf_calo {
                 rawet_(eta, phi) += pt; 
             }
             void run() ; 
+
+            /// possibly grow clusters by adding unclustered energy on the sides
+            //  note: there can be some double-counting as the same unclustered energy can go into more clusters
+            void grow() ; 
+
             const EtGrid      & raw()      const { return rawet_; }
             const ClusterGrid & clusters() const { return cluster_; }
 
@@ -144,6 +155,7 @@ namespace l1tpf_calo {
             }
 
             std::unique_ptr<l1t::PFClusterCollection> fetch(float ptMin=0.) const ;
+            std::unique_ptr<l1t::PFClusterCollection> fetchCells(float ptMin, bool unclusteredOnly) const ;
 
         private:
             enum EnergyShareAlgo { Fractions, /* each local maximum neighbour takes a share proportional to its value */
@@ -151,10 +163,10 @@ namespace l1tpf_calo {
                                    Greedy,    /* assing cell to the highest local maximum neighbour */
                                    Crude };   /* if there's more than one local maximum neighbour, they all take half of the value (no fp division) */
             const Grid * grid_;
-            EtGrid         rawet_;
-            PreClusterGrid  precluster_;
+            EtGrid         rawet_, unclustered_;
+            PreClusterGrid precluster_;
             ClusterGrid    cluster_;
-            float zsEt_, seedEt_, minClusterEt_;
+            float zsEt_, seedEt_, minClusterEt_, minEtToGrow_;
             EnergyShareAlgo energyShareAlgo_;
             bool  energyWeightedPosition_; // do the energy-weighted cluster position instead of the cell center
     };

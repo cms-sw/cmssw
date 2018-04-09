@@ -80,6 +80,8 @@ L1TPFCaloProducer::L1TPFCaloProducer(const edm::ParameterSet& iConfig):
 
     if (ecalOnly_) return;
 
+    produces<l1t::PFClusterCollection>("hcalUnclustered");
+    produces<l1t::PFClusterCollection>("hcalUncalibrated");
     produces<l1t::PFClusterCollection>("uncalibrated");
     produces<l1t::PFClusterCollection>("calibrated");
 
@@ -152,7 +154,9 @@ L1TPFCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if (!hcalHGCTCs_.empty()) {
         readHcalHGCTCs_(iEvent, iSetup);
     }
-     hcalClusterer_.run();
+    hcalClusterer_.run();
+    iEvent.put(hcalClusterer_.fetch(),  "hcalUncalibrated");
+    iEvent.put(hcalClusterer_.fetchCells(0., /*unclustered=*/true),  "hcalUnclustered");
 
     // Calorimeter linking
     caloLinker_.run();
