@@ -4,8 +4,8 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 totemTimingDQMSource = DQMEDAnalyzer('TotemTimingDQMSource',
     tagDigi = cms.InputTag("totemTimingRawToDigi", "TotemTiming"),
     tagFEDInfo = cms.InputTag("totemTimingRawToDigi", "TotemTiming"),
-    tagRecHits = cms.InputTag("totemTimingRecHits"),
-    # tagTracks = cms.InputTag("totemTimingLocalTracks"),
+    tagDiamondRecHits = cms.InputTag("ctppsDiamondRecHits"),
+    tagDiamondLocalTracks = cms.InputTag("ctppsDiamondLocalTracks"),
     tagLocalTrack = cms.InputTag("totemRPLocalTrackFitter"),
 
     minimumStripAngleForTomography = cms.double(0),
