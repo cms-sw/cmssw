@@ -67,6 +67,9 @@ class HitEff : public edm::EDAnalyzer {
   bool addCommonMode_;
   bool cutOnTracks_;
   unsigned int trackMultiplicityCut_;
+  bool useFirstMeas_;
+  bool useLastMeas_;
+  bool useAllHitsFromTracksWithMissingHits_;  
   
   const edm::EDGetTokenT< reco::TrackCollection > combinatorialTracks_token_;
   const edm::EDGetTokenT< std::vector<Trajectory> > trajectories_token_;
