@@ -26,7 +26,7 @@ class configuration:
       self.initEnv+='source /afs/cern.ch/cms/cmsset_default.sh' + ';'
       self.initEnv+='eval `scramv1 runtime -sh`' + ';'
 
-      proxyFile = "/afs/cern.ch/user/%s/%s/private/x509up_u60069"%(os.environ["USER"][0],os.environ["USER"])
+      proxyFile = "/afs/cern.ch/user/%s/%s/private/x509up_u%s"%(os.environ["USER"][0],os.environ["USER"],os.geteuid())
       if not os.path.isfile(proxyFile):
         print "WARNING : No private proxy file to use. Can't run on data outside of CERN"
       else:
