@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -30,6 +31,7 @@
 #include "DataFormats/Common/interface/Association.h"
 #include <iostream>
 
+
 class PFCandidateRecalibrator : public edm::stream::EDProducer<> {
     public:
         PFCandidateRecalibrator(const edm::ParameterSet&);
@@ -40,6 +42,9 @@ class PFCandidateRecalibrator : public edm::stream::EDProducer<> {
         void endRun(const edm::Run& iRun, edm::EventSetup const& iSetup) override;
         void produce(edm::Event&, const edm::EventSetup&) override;
 
+        edm::ESWatcher<HcalRecNumberingRecord> hcalDbWatcher_;
+        edm::ESWatcher<HcalRespCorrsRcd> hcalRCWatcher_;
+  
         edm::EDGetTokenT<std::vector<reco::PFCandidate> > pfcandidates_;
 
         std::vector<std::tuple<float,float,float>> badChHE_;
@@ -56,62 +61,65 @@ PFCandidateRecalibrator::PFCandidateRecalibrator(const edm::ParameterSet &iConfi
 
 void PFCandidateRecalibrator::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
 {
-    //Get Calib Constants from current GT
-    edm::ESHandle<HcalDbService> gtCond;
-    iSetup.get<HcalDbRecord>().get(gtCond);
-
-    //Get Calib Constants from bugged tag
-    edm::ESHandle<HcalTopology> htopo;
-    iSetup.get<HcalRecNumberingRecord>().get(htopo);
-    const HcalTopology* theHBHETopology = htopo.product();
-    
-    edm::ESHandle<HcalRespCorrs> buggedCond;
-    iSetup.get<HcalRespCorrsRcd>().get("bugged", buggedCond);
-    HcalRespCorrs buggedRespCorrs(*buggedCond.product());
-    buggedRespCorrs.setTopo(theHBHETopology);
-
-    //access calogeometry
-    edm::ESHandle<CaloGeometry> calogeom;
-    iSetup.get<CaloGeometryRecord>().get(calogeom);
-    const CaloGeometry* cgeo = calogeom.product();
-    const HcalGeometry* hgeom = static_cast<const HcalGeometry*>(cgeo->getSubdetectorGeometry(DetId::Hcal,HcalForward));
-
-    
-    //fill bad cells HE (use eta, phi)
-    const std::vector<DetId>& cellsHE = hgeom->getValidDetIds(DetId::Detector::Hcal, HcalEndcap);
-    for( auto id : cellsHE)
+    if (hcalDbWatcher_.check(iSetup) || hcalRCWatcher_.check(iSetup))
       {
-	float currentRespCorr = gtCond->getHcalRespCorr(id)->getValue();
-	float buggedRespCorr = buggedRespCorrs.getValues(id)->getValue();
-	float ratio = currentRespCorr/buggedRespCorr;
-
-	if(ratio != 1.)
+	//Get Calib Constants from current GT
+	edm::ESHandle<HcalDbService> gtCond;
+	iSetup.get<HcalDbRecord>().get(gtCond);
+	
+	//Get Calib Constants from bugged tag
+	edm::ESHandle<HcalTopology> htopo;
+	iSetup.get<HcalRecNumberingRecord>().get(htopo);
+	const HcalTopology* theHBHETopology = htopo.product();
+	
+	edm::ESHandle<HcalRespCorrs> buggedCond;
+	iSetup.get<HcalRespCorrsRcd>().get("bugged", buggedCond);
+	HcalRespCorrs buggedRespCorrs(*buggedCond.product());
+	buggedRespCorrs.setTopo(theHBHETopology);
+	
+	//access calogeometry
+	edm::ESHandle<CaloGeometry> calogeom;
+	iSetup.get<CaloGeometryRecord>().get(calogeom);
+	const CaloGeometry* cgeo = calogeom.product();
+	const HcalGeometry* hgeom = static_cast<const HcalGeometry*>(cgeo->getSubdetectorGeometry(DetId::Hcal,HcalForward));
+	
+	
+	//fill bad cells HE (use eta, phi)
+	const std::vector<DetId>& cellsHE = hgeom->getValidDetIds(DetId::Detector::Hcal, HcalEndcap);
+	for( auto id : cellsHE)
 	  {
-	    GlobalPoint pos = hgeom->getPosition(id);
-	    badChHE_.push_back(std::make_tuple(pos.eta(),pos.phi(),ratio));
+	    float currentRespCorr = gtCond->getHcalRespCorr(id)->getValue();
+	    float buggedRespCorr = buggedRespCorrs.getValues(id)->getValue();
+	    float ratio = currentRespCorr/buggedRespCorr;
+	    
+	    if(ratio != 1.)
+	      {
+		GlobalPoint pos = hgeom->getPosition(id);
+		badChHE_.push_back(std::make_tuple(pos.eta(),pos.phi(),ratio));
+	      }
 	  }
-      }
-
-    //fill bad cells HF (use ieta, iphi)
-    std::vector<DetId> cellsHF = hgeom->getValidDetIds(DetId::Detector::Hcal, HcalForward);
-    for( auto id : cellsHF)
-      {
-	float currentRespCorr = gtCond->getHcalRespCorr(id)->getValue();
-	float buggedRespCorr = buggedRespCorrs.getValues(id)->getValue();
-	float ratio = currentRespCorr/buggedRespCorr;
-
-	if(ratio != 1.)
+	
+	//fill bad cells HF (use ieta, iphi)
+	std::vector<DetId> cellsHF = hgeom->getValidDetIds(DetId::Detector::Hcal, HcalForward);
+	for( auto id : cellsHF)
 	  {
-	    HcalDetId dummyId(id);
-	    badChHF_.push_back(std::make_tuple(dummyId.ieta(), dummyId.iphi(), dummyId.depth(), ratio));
+	    float currentRespCorr = gtCond->getHcalRespCorr(id)->getValue();
+	    float buggedRespCorr = buggedRespCorrs.getValues(id)->getValue();
+	    float ratio = currentRespCorr/buggedRespCorr;
+	    
+	    if(ratio != 1.)
+	      {
+		HcalDetId dummyId(id);
+		badChHF_.push_back(std::make_tuple(dummyId.ieta(), dummyId.iphi(), dummyId.depth(), ratio));
+	      }
 	  }
       }
 }
 
 void PFCandidateRecalibrator::endRun(const edm::Run &iRun, const edm::EventSetup &iSetup)
 {
-  badChHE_.clear();
-  badChHF_.clear();
+    badChHE_.clear();
+    badChHF_.clear();
 }
 
 void PFCandidateRecalibrator::produce(edm::Event &iEvent, const edm::EventSetup &iSetup)
