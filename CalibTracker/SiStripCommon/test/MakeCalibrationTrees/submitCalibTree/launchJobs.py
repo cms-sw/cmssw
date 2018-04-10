@@ -138,7 +138,7 @@ def sendJob(dataset,run,files,conf,firstFile):
    if conf.submit:
       os.system(bsub)
    else:
-      print bsub
+      print cmd + " --stageout False"
 
 def generateJobs(conf):
    print "Gathering jobs to launch."
