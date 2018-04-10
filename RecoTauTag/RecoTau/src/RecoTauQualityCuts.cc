@@ -28,16 +28,25 @@ namespace {
     return nullptr;
   }
 
-  const reco::TrackBaseRef getTrackRef(const Candidate& cand) 
+  const reco::TrackRef getTrackRef(const Candidate& cand) 
+  {
+    const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
+    if (pfCandPtr)
+      return pfCandPtr->trackRef();
+
+    return reco::TrackRef();
+  }
+
+  const reco::TrackBaseRef getGsfTrackRef(const Candidate& cand) 
   {
     const PFCandidate* pfCandPtr = dynamic_cast<const PFCandidate*>(&cand);
     if (pfCandPtr) {
-      if      ( pfCandPtr->trackRef().isNonnull()    ) return reco::TrackBaseRef(pfCandPtr->trackRef());
-      else if ( pfCandPtr->gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(pfCandPtr->gsfTrackRef());
+      return reco::TrackBaseRef(pfCandPtr->gsfTrackRef());
     }
     return reco::TrackBaseRef();
 
   }
+
 
   // Translate GsfTrackRef to TrackBaseRef
   template <typename T>
@@ -184,6 +193,19 @@ bool minTrackVertexWeight(const TrackBaseRef& track, const reco::VertexRef* pv, 
   return ((*pv)->trackWeight(track) >= cut);
 }
 
+bool minTrackVertexWeight(const TrackRef& track, const reco::VertexRef* pv, double cut) 
+{
+  if ( pv->isNull() ) {
+    edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
+      "RecoTauQualityCuts is invalid. - minTrackVertexWeight";
+    return false;
+  }
+  LogDebug("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() ;
+  LogDebug("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y() << ", z = " << (*pv)->position().z() ;
+  LogDebug("TauQCuts") << "--> trackWeight = " << (*pv)->trackWeight(track) << " (cut = " << cut << ")" ;
+  return ((*pv)->trackWeight(track) >= cut);
+}
+
 bool minPackedCandVertexWeight(const pat::PackedCandidate& pCand, const reco::VertexRef* pv, double cut) {
 
   if ( pv->isNull() ) {
@@ -210,6 +232,11 @@ bool minTrackVertexWeight_cand(const Candidate& cand, const reco::VertexRef* pv,
   if ( track.isNonnull() ) {
     return minTrackVertexWeight(track, pv, cut);
   }
+  auto gsfTrack = getGsfTrackRef(cand);
+  if ( gsfTrack.isNonnull() ) {
+    return minTrackVertexWeight(gsfTrack, pv, cut);
+  }
+
   const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
   if( pCand != nullptr && cand.charge() != 0) {
     return minPackedCandVertexWeight(*pCand, pv, cut);
@@ -509,11 +536,18 @@ bool RecoTauQualityCuts::filterCand(const reco::Candidate& cand) const
   auto trackRef = getTrackRef(cand);
   bool result = true;
 
-  if(trackRef.isNonnull())
+  if (trackRef.isNonnull()) {
     result = filterTrack(trackRef);
-  else if(cand.charge() != 0){
-    result = filterChargedCand(cand);
+  } 
+  else {
+    auto gsfTrackRef = getGsfTrackRef(cand);
+    if (gsfTrackRef.isNonnull())
+      result = filterTrack(gsfTrackRef);
+    else if (cand.charge() != 0) {
+      result = filterChargedCand(cand);
+    }
   }
+  
   if(result)
     result = filterCandByType(cand);
 

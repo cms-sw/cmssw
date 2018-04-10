@@ -236,16 +236,24 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
 	  maxUnmatchedBlockElements = maxUnmatchedBlockElementsPhoton_;
 	  minMergeEt = minMergeGammaEt_;
 	}
-        // TauReco@MiniAOD: No access to PF blocks at MiniAOD level, but the code below seems to have very minor impact
-        const reco::PFCandidate* pfCHCand = dynamic_cast<const reco::PFCandidate*>(&*chargedHadron->chargedPFCandidate_);
-        const reco::PFCandidate* pfJetConstituent = dynamic_cast<const reco::PFCandidate*>(&**jetConstituent);
-        if (pfCHCand && pfJetConstituent) {
-        	if ( (*jetConstituent)->et() > minMergeEt && 
-        	     (dR < dRmerge || isMatchedByBlockElement(*pfJetConstituent, *pfCHCand, minBlockElementMatches, minBlockElementMatches, maxUnmatchedBlockElements)) ) {
-        	  chargedHadron->neutralPFCandidates_.push_back(*jetConstituent);
-        	  chargedHadron->addDaughter(*jetConstituent);
-        	}
-        }
+
+	if ((*jetConstituent)->et() > minMergeEt) {
+	  if (dR < dRmerge) {
+	    chargedHadron->neutralPFCandidates_.push_back(*jetConstituent);
+	    chargedHadron->addDaughter(*jetConstituent);
+	  }
+	  else {
+	    // TauReco@MiniAOD: No access to PF blocks at MiniAOD level, but the code below seems to have very minor impact
+	    const reco::PFCandidate* pfCHCand = dynamic_cast<const reco::PFCandidate*>(&*chargedHadron->chargedPFCandidate_);
+	    const reco::PFCandidate* pfJetConstituent = dynamic_cast<const reco::PFCandidate*>(&**jetConstituent);
+	    if (pfCHCand != nullptr && pfJetConstituent != nullptr) {
+	      if (isMatchedByBlockElement(*pfJetConstituent, *pfCHCand, minBlockElementMatches, minBlockElementMatches, maxUnmatchedBlockElements)) {
+		chargedHadron->neutralPFCandidates_.push_back(*jetConstituent);
+		chargedHadron->addDaughter(*jetConstituent);
+	      }
+	    }
+	  }
+	}
       }
     }
 

@@ -22,9 +22,13 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include "RecoTauTag/RecoTau/interface/RecoTauMuonTools.h"
+
 #include <vector>
 #include <string>
 #include <iostream>
+
+using reco::tau::format_vint;
 
 namespace {
 
@@ -93,65 +97,6 @@ class PFRecoTauDiscriminationAgainstMuonSimple final : public PFTauDiscriminatio
 void PFRecoTauDiscriminationAgainstMuonSimple::beginEvent(const edm::Event& evt, const edm::EventSetup& es) 
 {
   evt.getByToken(Muons_token, muons_);
-}
-
-namespace
-{
-  /* MB: not used in current implementation, but keep it if needed in future
-  const reco::Track* getTrack(const reco::Candidate& cand) {
-    const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
-    if ( pCand != nullptr && pCand->hasTrackDetails() )
-      return &pCand->pseudoTrack();
-    return nullptr;
-  }
-  */
-  void countHits(const pat::Muon& muon, std::vector<int>& numHitsDT, std::vector<int>& numHitsCSC, std::vector<int>& numHitsRPC)
-  {
-    if ( muon.outerTrack().isNonnull() ) {
-      const reco::HitPattern &muonHitPattern = muon.outerTrack()->hitPattern();
-      for (int iHit = 0; iHit < muonHitPattern.numberOfAllHits(reco::HitPattern::TRACK_HITS); ++iHit) {
-          uint32_t hit = muonHitPattern.getHitPattern(reco::HitPattern::TRACK_HITS, iHit);
-	if ( hit == 0 ) break;	    
-	if ( muonHitPattern.muonHitFilter(hit) && (muonHitPattern.getHitType(hit) == TrackingRecHit::valid || muonHitPattern.getHitType(hit) == TrackingRecHit::bad) ) {
-	  int muonStation = muonHitPattern.getMuonStation(hit) - 1; // CV: map into range 0..3
-	  if ( muonStation >= 0 && muonStation < 4 ) {
-	    if      ( muonHitPattern.muonDTHitFilter(hit)  ) ++numHitsDT[muonStation];
-	    else if ( muonHitPattern.muonCSCHitFilter(hit) ) ++numHitsCSC[muonStation];
-	    else if ( muonHitPattern.muonRPCHitFilter(hit) ) ++numHitsRPC[muonStation];
-	  }
-	}
-      }
-    }
-  }
-
-  void countMatches(const pat::Muon& muon, std::vector<int>& numMatchesDT, std::vector<int>& numMatchesCSC, std::vector<int>& numMatchesRPC)
-  {
-    const std::vector<reco::MuonChamberMatch>& muonSegments = muon.matches();
-    for ( std::vector<reco::MuonChamberMatch>::const_iterator muonSegment = muonSegments.begin();
-	  muonSegment != muonSegments.end(); ++muonSegment ) {
-      if ( muonSegment->segmentMatches.empty() ) continue;
-      int muonDetector = muonSegment->detector();
-      int muonStation = muonSegment->station() - 1;
-      assert(muonStation >= 0 && muonStation <= 3);
-      if      ( muonDetector == MuonSubdetId::DT  ) ++numMatchesDT[muonStation];
-      else if ( muonDetector == MuonSubdetId::CSC ) ++numMatchesCSC[muonStation];
-      else if ( muonDetector == MuonSubdetId::RPC ) ++numMatchesRPC[muonStation];      
-    }
-  }
-
-  std::string format_vint(const std::vector<int>& vi)
-  {
-    std::ostringstream os;    
-    os << "{ ";
-    unsigned numEntries = vi.size();
-    for ( unsigned iEntry = 0; iEntry < numEntries; ++iEntry ) {
-      os << vi[iEntry];
-      if ( iEntry < (numEntries - 1) ) os << ", ";
-    }
-    os << " }";
-    return os.str();
-  }
-  
 }
 
 double PFRecoTauDiscriminationAgainstMuonSimple::discriminate(const reco::PFTauRef& pfTau) const
@@ -252,14 +197,14 @@ double PFRecoTauDiscriminationAgainstMuonSimple::discriminate(const reco::PFTauR
   for (const auto &mu: muonsToCheck) {
     if ( mu->isStandAloneMuon() ) numSTAMuons++;
     if ( mu->muonID("RPCMuLoose") ) numRPCMuons++;
-    countMatches(*mu, numMatchesDT, numMatchesCSC, numMatchesRPC);
+    reco::tau::countMatches(*mu, numMatchesDT, numMatchesCSC, numMatchesRPC);
     int numStationsWithMatches = 0;
     for ( int iStation = 0; iStation < 4; ++iStation ) {
       if ( numMatchesDT[iStation]  > 0 && !maskMatchesDT_[iStation]  ) ++numStationsWithMatches;
       if ( numMatchesCSC[iStation] > 0 && !maskMatchesCSC_[iStation] ) ++numStationsWithMatches;
       if ( numMatchesRPC[iStation] > 0 && !maskMatchesRPC_[iStation] ) ++numStationsWithMatches;
     }
-    countHits(*mu, numHitsDT, numHitsCSC, numHitsRPC);
+    reco::tau::countHits(*mu, numHitsDT, numHitsCSC, numHitsRPC);
     int numLast2StationsWithHits = 0;
     for ( int iStation = 2; iStation < 4; ++iStation ) {
       if ( numHitsDT[iStation]  > 0 && !maskHitsDT_[iStation]  ) ++numLast2StationsWithHits;
