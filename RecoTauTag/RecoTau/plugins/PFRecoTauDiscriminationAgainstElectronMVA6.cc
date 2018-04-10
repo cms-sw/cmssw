@@ -119,7 +119,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	leadChargedPFCandEtaAtEcalEntrance = pfcand->positionAtECALEntrance().eta();
 	leadChargedPFCandPt = track->pt();
       }
-    } else throw cms::Exception("Type Mismatch") << "FIXME.\n";
+    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and PFRecoTauDiscriminationAgainstElectronMVA6 only works with PFTaus made from PFCandidates.";
   }
 
   if( (*thePFTauRef).leadChargedHadrCand().isNonnull()) {
@@ -151,7 +151,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	  bool hasGsfTrack = false;
 	  if (lpfch) {
 	    hasGsfTrack = lpfch->gsfTrackRef().isNonnull();
-	  } else throw cms::Exception("Type Mismatch") << "FIXME.\n";
+	  } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and PFRecoTauDiscriminationAgainstElectronMVA6 only works with PFTaus made from PFCandidates.";
 
 	  if ( !hasGsfTrack )
             hasGsfTrack = theGsfElectron->gsfTrack().isNonnull();
@@ -193,7 +193,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
       bool hasGsfTrack = false;
       if (lpfch) {
 	hasGsfTrack = lpfch->gsfTrackRef().isNonnull();
-      } else throw cms::Exception("Type Mismatch") << "FIXME.\n";
+      } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and PFRecoTauDiscriminationAgainstElectronMVA6 only works with PFTaus made from PFCandidates.";
       
       //// Veto taus that go to Ecal crack
       if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {

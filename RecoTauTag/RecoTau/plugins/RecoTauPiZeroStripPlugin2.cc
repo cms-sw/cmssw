@@ -227,10 +227,6 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
 		    << " numHits = " << candTrack->hitPattern().numberOfValidTrackerHits() << ", numPxlHits = " << candTrack->hitPattern().numberOfValidPixelHits() << "," 
 		    << " chi2 = " << candTrack->normalizedChi2() << ", dPt/Pt = " << (candTrack->ptError()/candTrack->pt()) << ")" ;
 	}
-	// edm::LogPrint("RecoTauPiZeroStripPlugin2") << "ECAL Et: calibrated = " << (*cand)->ecalEnergy()*sin((*cand)->theta()) << "," 
-		  // << " raw = " << (*cand)->rawEcalEnergy()*sin((*cand)->theta()) ;
-	// edm::LogPrint("RecoTauPiZeroStripPlugin2") << "HCAL Et: calibrated = " << (*cand)->hcalEnergy()*sin((*cand)->theta()) << "," 
-		  // << " raw = " << (*cand)->rawHcalEnergy()*sin((*cand)->theta()) ;
       }
       seedCands.push_back(*cand);
     } else if ( (*cand)->et() > minGammaEtStripAdd_  ) {

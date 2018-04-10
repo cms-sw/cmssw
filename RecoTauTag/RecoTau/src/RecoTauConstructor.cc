@@ -58,21 +58,6 @@ RecoTauConstructor::RecoTauConstructor(const JetBaseRef& jet, const edm::Handle<
   tau_->setjetRef(jet);
 }
 
-// void RecoTauConstructor::addPFCand(Region region, ParticleType type, const CandidateRef& ref, bool skipAddToP4) {
-//   LogDebug("TauConstructorAddPFCand") << " region = " << region << ", type = " << type << ": Pt = " << ref->pt() << ", eta = " << ref->eta() << ", phi = " << ref->phi();
-//   if ( region == kSignal ) {
-//     // Keep track of the four vector of the signal vector products added so far.
-//     // If a photon add it if we are not using PiZeros to build the gammas
-//     if ( ((type != kGamma) || !copyGammas_) && !skipAddToP4 ) {
-//       LogDebug("TauConstructorAddPFCand") << "--> adding PFCand to tauP4." ;
-//       p4_ += ref->p4();
-//     }
-//   }
-//   getSortedCollection(region, type)->push_back(edm::refToPtr<PFCandidateCollection>(ref));
-//   // Add to global collection
-//   getSortedCollection(region, kAll)->push_back(edm::refToPtr<PFCandidateCollection>(ref));
-// }
-
 void RecoTauConstructor::addPFCand(Region region, ParticleType type, const CandidatePtr& ptr, bool skipAddToP4) {
   LogDebug("TauConstructorAddPFCand") << " region = " << region << ", type = " << type << ": Pt = " << ptr->pt() << ", eta = " << ptr->eta() << ", phi = " << ptr->phi();
   if ( region == kSignal ) {
@@ -251,14 +236,6 @@ void checkMatchedProductIds(const T1& t1, const T2& t2) {
     }
 }
 }
-
-// PFCandidatePtr RecoTauConstructor::convertToPtr(
-//     const PFCandidateRef& pfRef) const {
-//   if(pfRef.isNonnull()) {
-//     checkMatchedProductIds(pfRef, pfCands_);
-//     return PFCandidatePtr(pfCands_, pfRef.key());
-//   } else return PFCandidatePtr();
-// }
 
 // Convert from a CandidateRef to a Ptr
 CandidatePtr RecoTauConstructor::convertToPtr(
