@@ -111,8 +111,6 @@
 using namespace edm;
 using namespace sipixelobjects;
 
-#define TP_DEBUG // protect all LogDebug with ifdef. Takes too much CPU
-
 
 void SiPixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
   if(use_ineff_from_db_){// load gain calibration service fromdb...
@@ -723,10 +721,6 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
   uint32_t detID = pixdet->geographicalId().rawId();
   const signal_map_type& theSignal = _signal[detID];
   
-  const PixelTopology* topol=&pixdet->specificTopology();
-  int numColumns = topol->ncolumns();  // det module number of cols&rows
-  int numRows = topol->nrows();
-  
   // Noise already defined in electrons
   // thePixelThresholdInE = thePixelThreshold * theNoiseInElectrons ;
   // Find the threshold in noise units, needed for the noiser.
@@ -770,6 +764,9 @@ void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
   
 
 #ifdef TP_DEBUG
+  const PixelTopology* topol=&pixdet->specificTopology();  
+  int numColumns = topol->ncolumns();  // det module number of cols&rows
+  int numRows = topol->nrows();
   // full detector thickness
   float moduleThickness = pixdet->specificSurface().bounds().thickness();
   LogDebug ("PixelDigitizer")
@@ -2049,18 +2046,17 @@ bool SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
   }
   
   LocalPoint hitPosition = hitEntryPoint + trajectoryScaleToPosition * direction;  
-     
+
   MeasurementPoint hitPositionPixel = topol->measurementPosition(hit.localPosition() );
-  LocalPoint CMSSWhitPosition = hit.localPosition();
-  std::pair<int,int> hitPixel = std::pair<int,int>( int( floor(hitPositionPixel.x() ) ), int ( floor(hitPositionPixel.y() ) )); 
+  std::pair<int,int> hitPixel = std::pair<int,int>( int( floor(hitPositionPixel.x() ) ), int ( floor(hitPositionPixel.y() ) ));
   
   MeasurementPoint originPixel = MeasurementPoint(hitPixel.first - THX + 0.5, hitPixel.second - THY + 0.5);
   LocalPoint origin = topol->localPosition(originPixel);
   
   MeasurementPoint hitEntryPointPixel = topol->measurementPosition(hit.entryPoint() );
   MeasurementPoint hitExitPointPixel = topol->measurementPosition(hit.exitPoint() );
-  std::pair<int,int> entryPixel = std::pair<int,int>( int( floor(hitEntryPointPixel.x() ) ), int ( floor(hitEntryPointPixel.y() ) )); 
-  std::pair<int,int> exitPixel = std::pair<int,int>( int( floor(hitExitPointPixel.x() ) ), int ( floor(hitExitPointPixel.y() ) )); 
+  std::pair<int,int> entryPixel = std::pair<int,int>( int( floor(hitEntryPointPixel.x() ) ), int ( floor(hitEntryPointPixel.y() ) ));
+  std::pair<int,int> exitPixel = std::pair<int,int>( int( floor(hitExitPointPixel.x() ) ), int ( floor(hitExitPointPixel.y() ) ));
 
   int hitcol_min, hitcol_max, hitrow_min, hitrow_max;
   if(entryPixel.first>exitPixel.first){
@@ -2081,6 +2077,8 @@ bool SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
 
   
 #ifdef TP_DEBUG
+  LocalPoint CMSSWhitPosition = hit.localPosition();
+
   LogDebug ("Pixel Digitizer")
   << "\n"
   << "Particle ID is: " << hit.particleType() << "\n"
