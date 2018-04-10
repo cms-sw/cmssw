@@ -83,6 +83,7 @@ class BaseMVAValueMapProducer : public edm::stream::EDProducer<> {
         inputTensorName_=iConfig.getParameter<std::string>("inputTensorName");
         outputTensorName_=iConfig.getParameter<std::string>("outputTensorName");
         output_names_=iConfig.getParameter<std::vector<std::string>>("outputNames");
+        for(const auto & s : iConfig.getParameter<std::vector<std::string>>("outputFormulas")) { output_formulas_.push_back(StringObjectFunction<std::vector<float>>(s));} 
         size_t nThreads = iConfig.getParameter<unsigned int>("nThreads");
         std::string singleThreadPool = iConfig.getParameter<std::string>("singleThreadPool");
         tensorflow::SessionOptions sessionOptions;
@@ -105,6 +106,10 @@ class BaseMVAValueMapProducer : public edm::stream::EDProducer<> {
   void setValue(const std::string var,float val) {
       if(positions_.find(var)!=positions_.end())
           values_[positions_[var]]=val;
+      else {
+          edm::LogWarning("MVAUnexpectedVariable") << "Variable not expected: " << var ;
+          std::cout << "Variable not expected: " << var << std::endl;
+      }
   }
   
   static edm::ParameterSetDescription getDescription();
@@ -138,6 +143,8 @@ class BaseMVAValueMapProducer : public edm::stream::EDProducer<> {
   std::string inputTensorName_;
   std::string outputTensorName_;
   std::vector<std::string> output_names_;
+  std::vector<StringObjectFunction<std::vector<float>>> output_formulas_;
+  
 };
 
 template <typename T>
@@ -147,7 +154,6 @@ BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<edm::View<T>> src;
   iEvent.getByToken(src_, src);
   readAdditionalCollections(iEvent,iSetup);
-  
   std::vector<std::vector<float>> mvaOut((tmva_)?1:output_names_.size());
   for( auto & v : mvaOut) v.reserve(src->size());
 
@@ -171,7 +177,12 @@ BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
        std::vector<tensorflow::Tensor> outputs;
        std::vector<std::string> names; names.push_back(outputTensorName_);
        tensorflow::run(session_, input_tensors, names, &outputs);
-       for(size_t k=0;k<output_names_.size();k++) mvaOut[k].push_back(outputs.at(0).matrix<float>()(0, k));
+//       for(size_t k=0;k<output_names_.size();k++) mvaOut[k].push_back(outputs.at(0).matrix<float>()(0, k));
+       std::vector<float> tmpOut;
+       for(int k=0;k<outputs.at(0).matrix<float>().dimension(1);k++) tmpOut.push_back(outputs.at(0).matrix<float>()(0, k));
+       //StringObjectFunction<std::vector<float>> ss("at(0)");
+       for(size_t k=0;k<output_names_.size();k++) mvaOut[k].push_back(output_formulas_[k](tmpOut));
+
     }
     
 
@@ -204,6 +215,7 @@ BaseMVAValueMapProducer<T>::getDescription(){
   desc.add<std::string>("inputTensorName","")->setComment("Name of tensorflow input tensor in the model");
   desc.add<std::string>("outputTensorName","")->setComment("Name of tensorflow output tensor in the model");
   desc.add<std::vector<std::string>>("outputNames",std::vector<std::string>())->setComment("Names of the output values to be used in the output valuemap");
+  desc.add<std::vector<std::string>>("outputFormulas",std::vector<std::string>())->setComment("Formulas to be used to post process the output");
   desc.add<unsigned int>("nThreads",1)->setComment("number of threads");
   desc.add<std::string>("singleThreadPool", "no_threads");
 
