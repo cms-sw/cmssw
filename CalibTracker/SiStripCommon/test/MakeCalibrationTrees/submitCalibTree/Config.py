@@ -3,13 +3,14 @@ import os, commands
 
 class configuration:
    datasetPat  = '/StreamExpress/Run2017*-SiStripCalMinBias__AAG__-Express-v*/ALCARECO'
-   CMSSWDIR    = 'TO_FILL_IN'
+   CMSSWDIR    = '/afs/cern.ch/user/d/delcourt/work/CT2018/CMSSW_10_1_0/src/'
    RUNDIR      = CMSSWDIR+'CalibTracker/SiStripCommon/test/MakeCalibrationTrees/'
    CASTORDIR   = '/store/group/dpg_tracker_strip/comm_tracker/Strip/Calibration/calibrationtree/GR17__AAG__'
    nFilesPerJob= 25
    collection  = "ALCARECOSiStripCalMinBias__AAG__"
    globalTag   = "92X_dataRun2_Express_v2"
    initEnv     = ""
+   dasClient   = "/afs/cern.ch/user/v/valya/public/dasgoclient/dasgoclient_linux"
    eosLs       = "eos ls "
    def  __init__(self,AAG=False,debug=False):
       self.relaunchList= []
@@ -65,7 +66,7 @@ class configuration:
          print "CASTOR dir does not exist."
          goodConfig = False
       self.integrity = goodConfig
-      return goodConfig   
+      return goodConfig
 
    def setupEnviron(self):
       os.environ['PATH'] = os.getenv('PATH')+':/afs/cern.ch/cms/sw/common/'
