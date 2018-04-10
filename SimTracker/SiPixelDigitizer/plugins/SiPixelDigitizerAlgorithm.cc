@@ -2225,7 +2225,7 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
     cotalpha = track[3]/track[5]; //if track[5] (direction in z) is 0 the hit is not processed by re-weighting
     cotbeta = track[4]/track[5];
   } else {
-    std::cout << "Reweighting angle is not good!" << std::endl;
+    LogWarning ("Pixel Digitizer") << "Reweighting angle is not good!" << std::endl;
     return 9; //returned value here indicates that no reweighting was done in this case
   }
 
@@ -2252,8 +2252,8 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
   // Next, interpolate the CMSSW template needed to analyze this cluster     
 
   if(!templ2D.xytemp(id_in, cotalpha, cotbeta, xhit2D, yhit2D, ydouble, xdouble, xy_in)) {success = 1;}
-  if(success!=0){
-    std::cout << "Could not find a template!" << std::endl;
+  if(success != 0){
+    LogWarning ("Pixel Digitizer") << "No matching template found" << std::endl;
   }
 
   if(PrintTemplates){
@@ -2268,17 +2268,17 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
   // Check that the cluster container is a 13x21 matrix
   
   if(cluster.num_dimensions() != 2) {
-    std::cout << "Cluster is not 2-dimensional. Return." << std::endl;
+    LogWarning ("Pixel Digitizer") << "Cluster is not 2-dimensional. Return." << std::endl;
     return 3;
   }
   nclusx = (int)cluster.shape()[0];
   nclusy = (int)cluster.shape()[1];
   if(nclusx != TXSIZE || xdouble.size() != TXSIZE) {
-    std::cout << "Sizes in x do not match: nclusx=" << nclusx << "  xdoubleSize=" << xdouble.size() << "  TXSIZE=" << TXSIZE << ". Return." << std::endl;
+    LogWarning ("Pixel Digitizer") << "Sizes in x do not match: nclusx=" << nclusx << "  xdoubleSize=" << xdouble.size() << "  TXSIZE=" << TXSIZE << ". Return." << std::endl;
     return 4;
   }
   if(nclusy != TYSIZE || ydouble.size() != TYSIZE) {
-    std::cout << "Sizes in y do not match. Return." << std::endl;
+    LogWarning ("Pixel Digitizer") << "Sizes in y do not match. Return." << std::endl;
     return 5;
   }
   
