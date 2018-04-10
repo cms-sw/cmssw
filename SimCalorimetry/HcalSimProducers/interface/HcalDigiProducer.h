@@ -38,9 +38,6 @@ public:
   void setQIE11NoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator);
 
 private:
-
-  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
-
   HcalDigitizer theDigitizer_;
 
   CLHEP::HepRandomEngine* randomEngine_ = nullptr;

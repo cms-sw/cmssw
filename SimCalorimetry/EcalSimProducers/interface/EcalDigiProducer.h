@@ -78,15 +78,13 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       virtual void cacheEEDigis( const EEDigiCollection* eeDigiPtr ) const { }
 
       typedef edm::Handle<std::vector<PCaloHit> > HitsHandle;
-      void accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, HitsHandle const& esHandle, int bunchCrossing, CLHEP::HepRandomEngine*);
+      void accumulateCaloHits(HitsHandle const& ebHandle, HitsHandle const& eeHandle, HitsHandle const& esHandle, int bunchCrossing);
 
       void checkGeometry(const edm::EventSetup& eventSetup) ;
 
       void updateGeometry() ;
 
       void checkCalibrations(const edm::Event& event, const edm::EventSetup& eventSetup) ;
-
-      CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
       const APDShape m_APDShape ;
       const EBShape  m_EBShape  ;

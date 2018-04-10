@@ -46,7 +46,7 @@ public:
 private:
   
 
-  void accumulateCaloHits(std::vector<PCaloHit> const&, int bunchCrossing, CLHEP::HepRandomEngine*);
+  void accumulateCaloHits(std::vector<PCaloHit> const&, int bunchCrossing);
 
   /// fills the vectors for each subdetector
   void sortHits(const edm::PCaloHitContainer & hits);
@@ -57,8 +57,6 @@ private:
   void checkGeometry(const edm::EventSetup& eventSetup);
 
   edm::InputTag theHitsProducerTag;
-
-  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
   /** Reconstruction algorithm*/
   typedef CaloTDigitizer<CastorDigitizerTraits> CastorDigitizer;
