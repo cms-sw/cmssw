@@ -618,6 +618,9 @@ void OuterTrackerMCHarvester::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 
 	} //if dbe found
 	else {edm::LogWarning("DataNotFound")<<"Cannot find valid DQM back end \n";}
+	delete fit;
+	delete fit2;
+	delete fit3;
 } //end dqmEndJob
 
 DEFINE_FWK_MODULE(OuterTrackerMCHarvester);
