@@ -119,7 +119,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	leadChargedPFCandEtaAtEcalEntrance = pfcand->positionAtECALEntrance().eta();
 	leadChargedPFCandPt = track->pt();
       }
-    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and PFRecoTauDiscriminationAgainstElectronMVA6 only works with PFTaus made from PFCandidates.";
+    }
   }
 
   if( (*thePFTauRef).leadChargedHadrCand().isNonnull()) {
@@ -149,7 +149,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
 	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron, usePhiAtEcalEntranceExtrapolation_);
 	  const reco::PFCandidate* lpfch = dynamic_cast<const reco::PFCandidate*>(thePFTauRef->leadChargedHadrCand().get());
 	  bool hasGsfTrack = false;
-	  if (lpfch) {
+	  if (lpfch != nullptr) {
 	    hasGsfTrack = lpfch->gsfTrackRef().isNonnull();
 	  } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and PFRecoTauDiscriminationAgainstElectronMVA6 only works with PFTaus made from PFCandidates.";
 
@@ -191,7 +191,7 @@ double PFRecoTauDiscriminationAgainstElectronMVA6::discriminate(const PFTauRef& 
       mvaValue = mva_->MVAValue(*thePFTauRef, usePhiAtEcalEntranceExtrapolation_);
       const reco::PFCandidate* lpfch = dynamic_cast<const reco::PFCandidate*>(thePFTauRef->leadChargedHadrCand().get());
       bool hasGsfTrack = false;
-      if (lpfch) {
+      if (lpfch != nullptr) {
 	hasGsfTrack = lpfch->gsfTrackRef().isNonnull();
       } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and PFRecoTauDiscriminationAgainstElectronMVA6 only works with PFTaus made from PFCandidates.";
       
