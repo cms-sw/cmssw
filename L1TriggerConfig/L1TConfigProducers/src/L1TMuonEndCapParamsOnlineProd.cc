@@ -117,7 +117,8 @@ std::shared_ptr<L1TMuonEndCapParams> L1TMuonEndCapParamsOnlineProd::newObject(co
         }
     }
 
-    std::map<std::string, l1t::Parameter> conf = trgSys.getParameters("EMTF-1"); // any processor will do
+    // Changed from "EMTF-1" to "EMTFp1", but is this backwards compatible? Does it need to be? - AWB 10.04.2018
+    std::map<std::string, l1t::Parameter> conf = trgSys.getParameters("EMTFp1"); // any processor will do
 
     std::string core_fwv = conf["core_firmware_version"].getValueAsStr();
     tm brokenTime;
