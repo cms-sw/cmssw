@@ -2,15 +2,15 @@
 import os, commands,time,sys
 
 class configuration:
-   datasetPat  = '/StreamExpress/Run2017*-SiStripCalMinBias__AAG__-Express-v*/ALCARECO'
-   CMSSWDIR    = '/afs/cern.ch/user/d/delcourt/work/CT2018/CMSSW_10_1_0/src/'
+   datasetPat  = '/StreamExpress/Run2018*-SiStripCalMinBias__AAG__-Express-v*/ALCARECO'
+   CMSSWDIR    = 'TO_FILL_IN'
    RUNDIR      = CMSSWDIR+'CalibTracker/SiStripCommon/test/MakeCalibrationTrees/'
-   CASTORDIR   = '/store/group/dpg_tracker_strip/comm_tracker/Strip/Calibration/calibrationtree/GR17__AAG__'
+   CASTORDIR   = '/store/group/dpg_tracker_strip/comm_tracker/Strip/Calibration/calibrationtree/GR18__AAG__'
    nFilesPerJob= 25
    collection  = "ALCARECOSiStripCalMinBias__AAG__"
-   globalTag   = "92X_dataRun2_Express_v2"
+   globalTag   = "TO_UPDATE"
    initEnv     = ""
-   dasClient   = "/afs/cern.ch/user/v/valya/public/dasgoclient/dasgoclient_linux"
+   dasClient   = "dasgoclient"
    eosLs       = "eos ls "
    def  __init__(self,AAG=False,debug=False):
       self.relaunchList= []
