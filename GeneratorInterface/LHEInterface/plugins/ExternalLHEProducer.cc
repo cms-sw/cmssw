@@ -27,6 +27,9 @@ Implementation:
 #include <dirent.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+
 
 #include "boost/bind.hpp"
 #include "boost/shared_ptr.hpp"
@@ -55,6 +58,7 @@ Implementation:
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/TimingServiceBase.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -440,6 +444,13 @@ ExternalLHEProducer::executeScript()
       break;
     }
   } while (true);
+  edm::Service<edm::TimingServiceBase> ts;
+  if(ts.isAvailable()) {
+    struct rusage ru;
+    getrusage(RUSAGE_CHILDREN,&ru);
+    double time = static_cast<double>(ru.ru_stime.tv_sec) + (static_cast<double>(ru.ru_stime.tv_usec) * 1E-6);
+    ts->addToCPUTime(time);
+  }
   if (rc) {
     throw cms::Exception("ExternalLHEProducer") << "Child failed with exit code " << rc << ".";
   }
