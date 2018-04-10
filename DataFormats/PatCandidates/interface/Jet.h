@@ -551,6 +551,7 @@ namespace pat {
       // ---- Jet Substructure ----
       std::vector< pat::JetPtrCollection> subjetCollections_;
       std::vector< std::string>          subjetLabels_; 
+      edm::AtomicPtrCache<std::vector< reco::CandidatePtr > > daughtersTemp_;
 
       // ---- MC info ----
 
@@ -637,6 +638,7 @@ namespace pat {
       /// cache calo towers
       void cacheCaloTowers() const;
       void cachePFCandidates() const;
+      void cacheDaughters() const;
 
   };
 }
