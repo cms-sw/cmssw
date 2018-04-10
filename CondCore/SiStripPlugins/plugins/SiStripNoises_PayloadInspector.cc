@@ -154,8 +154,8 @@ namespace {
 
       auto mon1D = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(op_mode_,
 										  "Noise",
-										  Form("#LT Strip Noise #GT per %s for IOV [%s];#LTStrip Noise per %s#GT [ADC counts];n. strips",
-										       opType(op_mode_).c_str(),std::to_string(std::get<0>(iov)).c_str(),opType(op_mode_).c_str())
+										  Form("#LT Strip Noise #GT per %s for IOV [%s];#LTStrip Noise per %s#GT [ADC counts];n. %ss",
+										       opType(op_mode_).c_str(),std::to_string(std::get<0>(iov)).c_str(),opType(op_mode_).c_str(),opType(op_mode_).c_str())
 										  ,100,0.1,10.));
 
       unsigned int prev_det=0, prev_apv=0;
@@ -273,14 +273,14 @@ namespace {
 
       auto f_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(op_mode_,
 										  "f_Noise",
-										  Form("#LT Strip Noise #GT per %s for IOV [%s,%s];#LTStrip Noise per %s#GT [ADC counts];n. strips",
-										       opType(op_mode_).c_str(),std::to_string(std::get<0>(firstiov)).c_str(),std::to_string(std::get<0>(lastiov)).c_str(),opType(op_mode_).c_str())
+										  Form("#LT Strip Noise #GT per %s for IOV [%s,%s];#LTStrip Noise per %s#GT [ADC counts];n. %ss",
+										       opType(op_mode_).c_str(),std::to_string(std::get<0>(firstiov)).c_str(),std::to_string(std::get<0>(lastiov)).c_str(),opType(op_mode_).c_str(),opType(op_mode_).c_str())
 										  ,100,0.1,10.));
 
       auto l_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(op_mode_,
 										  "l_Noise",
-										  Form("#LT Strip Noise #GT per %s for IOV [%s,%s];#LTStrip Noise per %s#GT [ADC counts];n. strips",
-										       opType(op_mode_).c_str(),std::to_string(std::get<0>(lastiov)).c_str(),std::to_string(std::get<0>(lastiov)).c_str(),opType(op_mode_).c_str())
+										  Form("#LT Strip Noise #GT per %s for IOV [%s,%s];#LTStrip Noise per %s#GT [ADC counts];n. %ss",
+										       opType(op_mode_).c_str(),std::to_string(std::get<0>(lastiov)).c_str(),std::to_string(std::get<0>(lastiov)).c_str(),opType(op_mode_).c_str(),opType(op_mode_).c_str())
 										  ,100,0.1,10.));
 
       unsigned int prev_det=0, prev_apv=0;
@@ -365,6 +365,9 @@ namespace {
       h_first.SetStats(kFALSE);
       auto h_last  = l_mon->getHist();
       h_last.SetStats(kFALSE);
+
+      SiStripPI::makeNicePlotStyle(&h_first);
+      SiStripPI::makeNicePlotStyle(&h_last);
 
       h_first.GetYaxis()->CenterTitle(true);
       h_last.GetYaxis()->CenterTitle(true);
