@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, commands
+import os, commands,time,sys
 
 class configuration:
    datasetPat  = '/StreamExpress/Run2017*-SiStripCalMinBias__AAG__-Express-v*/ALCARECO'
@@ -25,6 +25,19 @@ class configuration:
       self.initEnv+='export CMS_PATH=/cvmfs/cms.cern.ch; '
       self.initEnv+='source /afs/cern.ch/cms/cmsset_default.sh' + ';'
       self.initEnv+='eval `scramv1 runtime -sh`' + ';'
+
+      proxyFile = "/afs/cern.ch/user/%s/%s/private/x509up_u60069"%(os.environ["USER"][0],os.environ["USER"])
+      if not os.path.isfile(proxyFile):
+        print "WARNING : No private proxy file to use. Can't run on data outside of CERN"
+      else:
+        T = (time.time()-os.stat(proxyFile).st_mtime)
+        print "proxy file created %sh and %s min ago"%(int(T)/3600, int(T)/60- 60*(int(T)/3600))
+        if T < 36000:
+          # Proxy valid for 12hours --> Ignore files created more than 10h ago"
+          self.initEnv+='export X509_USER_PROXY=%s ;'%proxyFile
+        else:
+          print "WARNING : proxy file expired. Can't run on data outside of CERN"
+
       self.initEnv+='cd -;'
       self.submit = not debug
       self.integrity = False
