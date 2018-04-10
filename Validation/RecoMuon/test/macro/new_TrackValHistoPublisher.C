@@ -563,7 +563,8 @@ void new_TrackValHistoPublisher(const char* newFile="NEW_FILE",const char* refFi
     rcollname = "NEWprobeTrks_TkAsso";
     scollname = "NEWprobeTrks";
   }
-  const char* _refLabel("REF_LABEL, REF_RELEASE REFSELECTION quickTrackAssociatorByHits");
+
+  const char* _refLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION quickTrackAssociatorByHits");
   const char* _newLabel("NEW_LABEL, NEW_RELEASE NEWSELECTION MuonAssociatorByHits");
 
   // efficiency and fake rate Vs eta and phi
