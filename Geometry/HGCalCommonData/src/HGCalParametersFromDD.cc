@@ -133,8 +133,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
   return ok;
 }
 
-double HGCalParametersFromDD::getDDDVallue(const char* s, 
-					   const DDsvalues_type& sv) {
+double HGCalParametersFromDD::getDDDValue(const char* s, 
+					  const DDsvalues_type& sv) {
   DDValue val(s);
   if (DDfetch(&sv, val)) {
     const std::vector<double> & fvec = val.doubles();
