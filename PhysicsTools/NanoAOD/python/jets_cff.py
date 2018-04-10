@@ -178,7 +178,9 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     extension = cms.bool(False), # this is the main table for the jets
     externalVariables = cms.PSet(
         bReg = ExtVar(cms.InputTag("bjetMVA"),float, doc="pt corrected with b-jet regression",precision=14),
-        bReg2 = ExtVar(cms.InputTag("bjetNN:corrNNnoJEC"),float, doc="pt corrected with b-jet regression",precision=14),
+        bRegNN= ExtVar(cms.InputTag("bjetNN:corrNNnoJEC"),float, doc="pt corrected with b-jet regression",precision=14),
+        bRegNN2 = ExtVar(cms.InputTag("bjetNN2:corr"),float, doc="pt corrected with b-jet regression",precision=14),
+        bRegNN2res = ExtVar(cms.InputTag("bjetNN2:res"),float, doc="res on pt corrected with b-jet regression",precision=14),
     ),
     variables = cms.PSet(P4Vars,
         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
@@ -240,6 +242,7 @@ bjetMVA= cms.EDProducer("BJetEnergyRegressionMVA",
     src = cms.InputTag("linkedObjects","jets"),
     pvsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
     svsrc = cms.InputTag("slimmedSecondaryVertices"),
+    rhosrc = cms.InputTag("fixedGridRhoFastjetAll"),
     weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/bjet-regression.xml"),
     name = cms.string("JetReg"),
     isClassifier = cms.bool(False),
@@ -272,6 +275,7 @@ bjetNN= cms.EDProducer("BJetEnergyRegressionMVA",
     src = cms.InputTag("linkedObjects","jets"),
     pvsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
     svsrc = cms.InputTag("slimmedSecondaryVertices"),
+    rhosrc = cms.InputTag("fixedGridRhoFastjetAll"),
     weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/model_noJec.pb"),
     name = cms.string("JetRegNN"),
     isClassifier = cms.bool(False),
@@ -302,6 +306,7 @@ bjetNN= cms.EDProducer("BJetEnergyRegressionMVA",
      inputTensorName = cms.string("dense_1_input"),
      outputTensorName = cms.string("output_node0"),
      outputNames = cms.vstring(["corrNNnoJEC"]),
+     outputFormulas = cms.vstring(["at(0)"]),
      nThreads = cms.uint32(1),
      singleThreadPool = cms.string("no_threads"),
 )
@@ -315,6 +320,50 @@ for k in norms:
   #print k, var.value()
  except:
   pass
+
+bjetNN2= cms.EDProducer("BJetEnergyRegressionMVA",
+    backend = cms.string("TF"),
+    src = cms.InputTag("linkedObjects","jets"),
+    pvsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
+    svsrc = cms.InputTag("slimmedSecondaryVertices"),
+    rhosrc = cms.InputTag("fixedGridRhoFastjetAll"),
+
+    weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/breg_training_2017.pb"),
+    name = cms.string("JetRegNN"),
+    isClassifier = cms.bool(False),
+    variablesOrder = cms.vstring(["Jet_pt","Jet_eta","rho","Jet_mt","Jet_leadTrackPt","Jet_leptonPtRel","Jet_leptonDeltaR","Jet_neHEF","Jet_neEmEF","Jet_vtxPt","Jet_vtxMass","Jet_vtx3dL","Jet_vtxNtrk","Jet_vtx3deL","Jet_numDaughters_pt03","Jet_energyRing_dR0_em_Jet_rawEnergy","Jet_energyRing_dR1_em_Jet_rawEnergy","Jet_energyRing_dR2_em_Jet_rawEnergy","Jet_energyRing_dR3_em_Jet_rawEnergy","Jet_energyRing_dR4_em_Jet_rawEnergy","Jet_energyRing_dR0_neut_Jet_rawEnergy","Jet_energyRing_dR1_neut_Jet_rawEnergy","Jet_energyRing_dR2_neut_Jet_rawEnergy","Jet_energyRing_dR3_neut_Jet_rawEnergy","Jet_energyRing_dR4_neut_Jet_rawEnergy","Jet_energyRing_dR0_ch_Jet_rawEnergy","Jet_energyRing_dR1_ch_Jet_rawEnergy","Jet_energyRing_dR2_ch_Jet_rawEnergy","Jet_energyRing_dR3_ch_Jet_rawEnergy","Jet_energyRing_dR4_ch_Jet_rawEnergy","Jet_energyRing_dR0_mu_Jet_rawEnergy","Jet_energyRing_dR1_mu_Jet_rawEnergy","Jet_energyRing_dR2_mu_Jet_rawEnergy","Jet_energyRing_dR3_mu_Jet_rawEnergy","Jet_energyRing_dR4_mu_Jet_rawEnergy","Jet_chHEF","Jet_chEmEF","Jet_leptonPtRelInv","isEle","isMu","isOther","Jet_mass","Jet_ptd"]),
+    variables = cms.PSet(
+    Jet_pt = cms.string("pt*jecFactor('Uncorrected')"),
+    Jet_mt = cms.string("mt*jecFactor('Uncorrected')"),
+    Jet_eta = cms.string("eta"),
+    Jet_mass = cms.string("mass*jecFactor('Uncorrected')"),
+    Jet_ptd = cms.string("userFloat('ptD')"),
+    Jet_leadTrackPt = cms.string("userFloat('leadTrackPt')"),
+    Jet_vtxNtrk = cms.string("userInt('vtxNtrk')"),
+    Jet_vtxMass = cms.string("userFloat('vtxMass')"),
+    Jet_vtx3dL = cms.string("userFloat('vtx3dL')"),
+    Jet_vtx3deL = cms.string("userFloat('vtx3deL')"),
+    Jet_vtxPt = cms.string("userFloat('vtxPt')"),
+    #Jet_leptonPt = cms.string("userFloat('leptonPt')"),
+    Jet_leptonPtRel = cms.string("userFloat('leptonPtRelv0')"),
+    Jet_leptonPtRelInv = cms.string("userFloat('leptonPtRelInvv0')*jecFactor('Uncorrected')"),
+    Jet_leptonDeltaR = cms.string("userFloat('leptonDeltaR')"),
+    #Jet_leptonPdgId = cms.string("userInt('leptonPdgId')"),
+    Jet_neHEF = cms.string("neutralHadronEnergy()/energy()"),
+    Jet_neEmEF = cms.string("neutralEmEnergy()/energy()"),
+    Jet_chHEF = cms.string("chargedHadronEnergy()/energy()"),
+    Jet_chEmEF = cms.string("chargedEmEnergy()/energy()"),
+
+    ),
+     inputTensorName = cms.string("ffwd_inp"),
+     outputTensorName = cms.string("ffwd_out/BiasAdd"),
+     outputNames = cms.vstring(["corr","res"]),
+     outputFormulas = cms.vstring(["at(0)*0.39077115058898926+1.0610932111740112","0.5*(at(2)-at(1))*0.39077115058898926"]),
+     nThreads = cms.uint32(1),
+     singleThreadPool = cms.string("no_threads"),
+)
+
+
 
 EnergyRingsTable = cms.EDProducer("EnergyRingsTableProducer",
     name = cms.string("Jet"),
@@ -548,7 +597,7 @@ _jetSequence_80X.insert(1,qgtagger80x)
 run2_miniAOD_80XLegacy.toReplaceWith(jetSequence, _jetSequence_80X)
 
 #after cross linkining
-jetTables = cms.Sequence(bjetMVA+bjetNN+ jetTable+EnergyRingsTable+fatJetTable+subJetTable+saJetTable+saTable)
+jetTables = cms.Sequence(bjetMVA+bjetNN+bjetNN2+jetTable+EnergyRingsTable+fatJetTable+subJetTable+saJetTable+saTable)
 
 #MC only producers and tables
 jetMC = cms.Sequence(jetMCTable+genJetTable+patJetPartons+genJetFlavourTable+genJetAK8Table+genJetAK8FlavourAssociation+genJetAK8FlavourTable+genSubJetAK8Table)
