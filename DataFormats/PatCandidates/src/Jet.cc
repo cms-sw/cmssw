@@ -203,6 +203,10 @@ const reco::Candidate * Jet::daughter(size_t i) const {
       else return reco::Jet::daughter(i);
     }
   }
+  if ( !subjetCollections_.empty() ) {
+    if ( !daughtersTemp_.isSet() ) cacheDaughters();
+    return daughtersTemp_->at(i).get();
+  }
   return reco::Jet::daughter(i);
 }
 
@@ -220,6 +224,10 @@ size_t Jet::numberOfDaughters() const {
       else if ( !pfCandidates_.empty() ) return pfCandidates_.size();
       else return reco::Jet::numberOfDaughters();
     }
+  }
+  if ( !subjetCollections_.empty() ) {
+    if ( !daughtersTemp_.isSet() ) cacheDaughters();
+    return daughtersTemp_->size();
   }
   return reco::Jet::numberOfDaughters();
 }
@@ -584,8 +592,21 @@ void Jet::cachePFCandidates() const {
   // Set the cache
   pfCandidatesTemp_.set(std::move(pfCandidatesTemp));
 }
-
-
+ 
+/// method to cache the daughters to allow "user-friendly" access
+void Jet::cacheDaughters() const {
+    // Jets in MiniAOD produced via JetSubstructurePacker contain a mixture of subjets and particles as daughters
+    std::unique_ptr<std::vector<reco::CandidatePtr>> daughtersTemp{ new std::vector<reco::CandidatePtr>{}};
+    const std::vector<reco::CandidatePtr> & jdaus = daughterPtrVector();
+    for (const reco::CandidatePtr & dau : jdaus) {
+      if (dau->isJet()) {
+        const std::vector<reco::CandidatePtr> & sjdaus = edm::Ptr<pat::Jet>(dau)->daughterPtrVector();
+        daughtersTemp->insert(daughtersTemp->end(), sjdaus.begin(), sjdaus.end());
+      } else
+        daughtersTemp->push_back( dau );
+    }
+    daughtersTemp_.set(std::move(daughtersTemp));
+}
 
 
 /// Access to subjet list
