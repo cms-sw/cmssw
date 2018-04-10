@@ -21,9 +21,13 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include "RecoTauTag/RecoTau/interface/RecoTauMuonTools.h"
+
 #include <vector>
 #include <string>
 #include <iostream>
+
+using reco::tau::format_vint;
 
 namespace {
 
@@ -96,58 +100,8 @@ class PFRecoTauDiscriminationAgainstMuon2 final : public PFTauDiscriminationProd
 
 void PFRecoTauDiscriminationAgainstMuon2::beginEvent(const edm::Event& evt, const edm::EventSetup& es) 
 {
-  if ( srcMuons_.label() != "" ) {
+  if ( !srcMuons_.label().empty() ) {
     evt.getByToken(Muons_token, muons_);
-  }
-}
-
-namespace
-{
-  void countHits(const reco::Muon& muon, std::vector<int>& numHitsDT, std::vector<int>& numHitsCSC, std::vector<int>& numHitsRPC)
-  {
-    if ( muon.outerTrack().isNonnull() ) {
-      const reco::HitPattern &muonHitPattern = muon.outerTrack()->hitPattern();
-      for (int iHit = 0; iHit < muonHitPattern.numberOfAllHits(reco::HitPattern::TRACK_HITS); ++iHit) {
-          uint32_t hit = muonHitPattern.getHitPattern(reco::HitPattern::TRACK_HITS, iHit);
-	if ( hit == 0 ) break;	    
-	if ( muonHitPattern.muonHitFilter(hit) && (muonHitPattern.getHitType(hit) == TrackingRecHit::valid || muonHitPattern.getHitType(hit) == TrackingRecHit::bad) ) {
-	  int muonStation = muonHitPattern.getMuonStation(hit) - 1; // CV: map into range 0..3
-	  if ( muonStation >= 0 && muonStation < 4 ) {
-	    if      ( muonHitPattern.muonDTHitFilter(hit)  ) ++numHitsDT[muonStation];
-	    else if ( muonHitPattern.muonCSCHitFilter(hit) ) ++numHitsCSC[muonStation];
-	    else if ( muonHitPattern.muonRPCHitFilter(hit) ) ++numHitsRPC[muonStation];
-	  }
-	}
-      }
-    }
-  }
-
-  std::string format_vint(const std::vector<int>& vi)
-  {
-    std::ostringstream os;    
-    os << "{ ";
-    unsigned numEntries = vi.size();
-    for ( unsigned iEntry = 0; iEntry < numEntries; ++iEntry ) {
-      os << vi[iEntry];
-      if ( iEntry < (numEntries - 1) ) os << ", ";
-    }
-    os << " }";
-    return os.str();
-  }
-
-  void countMatches(const reco::Muon& muon, std::vector<int>& numMatchesDT, std::vector<int>& numMatchesCSC, std::vector<int>& numMatchesRPC)
-  {
-    const std::vector<reco::MuonChamberMatch>& muonSegments = muon.matches();
-    for ( std::vector<reco::MuonChamberMatch>::const_iterator muonSegment = muonSegments.begin();
-	  muonSegment != muonSegments.end(); ++muonSegment ) {
-      if ( muonSegment->segmentMatches.empty() ) continue;
-      int muonDetector = muonSegment->detector();
-      int muonStation = muonSegment->station() - 1;
-      assert(muonStation >= 0 && muonStation <= 3);
-      if      ( muonDetector == MuonSubdetId::DT  ) ++numMatchesDT[muonStation];
-      else if ( muonDetector == MuonSubdetId::CSC ) ++numMatchesCSC[muonStation];
-      else if ( muonDetector == MuonSubdetId::RPC ) ++numMatchesRPC[muonStation];      
-    }
   }
 }
 
@@ -174,17 +128,20 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
     numHitsRPC[iStation]    = 0;
   } 
 
-  const reco::PFCandidatePtr& pfLeadChargedHadron = pfTau->leadPFChargedHadrCand();
+  const reco::CandidatePtr& pfLeadChargedHadron = pfTau->leadChargedHadrCand();
   if ( pfLeadChargedHadron.isNonnull() ) {
-    reco::MuonRef muonRef = pfLeadChargedHadron->muonRef();      
-    if ( muonRef.isNonnull() ) {
-      if ( verbosity_ ) edm::LogPrint("PFTauAgainstMuon2") << " has muonRef." ;
-      countMatches(*muonRef, numMatchesDT, numMatchesCSC, numMatchesRPC);
-      countHits(*muonRef, numHitsDT, numHitsCSC, numHitsRPC);
-    }
+    const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(pfLeadChargedHadron.get());
+    if (pflch != nullptr) {
+      reco::MuonRef muonRef = pflch->muonRef();      
+      if ( muonRef.isNonnull() ) {
+	if ( verbosity_ ) edm::LogPrint("PFTauAgainstMuon2") << " has muonRef." ;
+	reco::tau::countMatches(*muonRef, numMatchesDT, numMatchesCSC, numMatchesRPC);
+	reco::tau::countHits(*muonRef, numHitsDT, numHitsCSC, numHitsRPC);
+      } 
+    } else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and PFRecoTauDiscriminationAgainstMuon2 only works with PFTaus made from PFCandidates. Please use PFRecoTauDiscriminationAgainstMuonSimple instead.\n";
   }
   
-  if ( srcMuons_.label() != "" ) {
+  if ( !srcMuons_.label().empty() ) {
     size_t numMuons = muons_->size();
     for ( size_t idxMuon = 0; idxMuon < numMuons; ++idxMuon ) {
       reco::MuonRef muon(muons_, idxMuon);
@@ -193,9 +150,15 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
 	if ( verbosity_ ){ edm::LogPrint("PFTauAgainstMuon2") << " fails Pt cut --> skipping it." ;}
 	continue;
        }
-      if ( pfLeadChargedHadron.isNonnull() && pfLeadChargedHadron->muonRef().isNonnull() && muon == pfLeadChargedHadron->muonRef() ) {	
-	if ( verbosity_ ){ edm::LogPrint("PFTauAgainstMuon2") << " matches muonRef of tau --> skipping it." ;}
-	continue;
+      if ( pfLeadChargedHadron.isNonnull()) {
+	const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(pfLeadChargedHadron.get());
+	if (pflch != nullptr) {
+	  reco::MuonRef muonRef = pflch->muonRef();      
+	  if (muonRef.isNonnull() && muon == pflch->muonRef() ) {
+	    if ( verbosity_ ) { edm::LogPrint("PFTauAgainstMuon2") << " matches muonRef of tau --> skipping it."; }
+	    continue;
+	  } 
+	} else throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and PFRecoTauDiscriminationAgainstMuon2 only works with PFTaus made from PFCandidates. Please use PFRecoTauDiscriminationAgainstMuonSimple instead.\n";
       }
       double dR = deltaR(muon->p4(), pfTau->p4());
       double dRmatch = dRmuonMatch_;
@@ -215,8 +178,8 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
       }
       if ( dR < dRmatch ) {
 	if ( verbosity_ ) edm::LogPrint("PFTauAgainstMuon2") << " overlaps with tau, dR = " << dR ;
-	countMatches(*muon, numMatchesDT, numMatchesCSC, numMatchesRPC);
-	countHits(*muon, numHitsDT, numHitsCSC, numHitsRPC);
+	reco::tau::countMatches(*muon, numMatchesDT, numMatchesCSC, numMatchesRPC);
+	reco::tau::countHits(*muon, numHitsDT, numHitsCSC, numHitsRPC);
       }
     }
   }
@@ -248,18 +211,26 @@ double PFRecoTauDiscriminationAgainstMuon2::discriminate(const reco::PFTauRef& p
   
   bool passesCaloMuonVeto = true;
   if ( pfLeadChargedHadron.isNonnull() ) {
-    double energyECALplusHCAL = pfLeadChargedHadron->ecalEnergy() + pfLeadChargedHadron->hcalEnergy();    
-    if ( verbosity_ ) {
-      if ( pfLeadChargedHadron->trackRef().isNonnull() ) {
-	edm::LogPrint("PFTauAgainstMuon2") << "decayMode = " << pfTau->decayMode() << ", energy(ECAL+HCAL) = " << energyECALplusHCAL << ", leadPFChargedHadronP = " << pfLeadChargedHadron->trackRef()->p() ;
-      } else if ( pfLeadChargedHadron->gsfTrackRef().isNonnull() ) {
-	edm::LogPrint("PFTauAgainstMuon2") << "decayMode = " << pfTau->decayMode() << ", energy(ECAL+HCAL) = " << energyECALplusHCAL << ", leadPFChargedHadronP = " << pfLeadChargedHadron->gsfTrackRef()->p() ;
+    const reco::PFCandidate* pflch = dynamic_cast<const reco::PFCandidate*>(pfLeadChargedHadron.get());
+    if (pflch != nullptr) {
+      double energyECALplusHCAL = pflch->ecalEnergy() + pflch->hcalEnergy();    
+      if ( verbosity_ ) {
+	if ( pflch->trackRef().isNonnull() ) {
+	  edm::LogPrint("PFTauAgainstMuon2") << "decayMode = " << pfTau->decayMode() << ", energy(ECAL+HCAL) = " << energyECALplusHCAL << ", leadPFChargedHadronP = " << pflch->trackRef()->p() ;
+	} else if ( pflch->gsfTrackRef().isNonnull() ) {
+	  edm::LogPrint("PFTauAgainstMuon2") << "decayMode = " << pfTau->decayMode() << ", energy(ECAL+HCAL) = " << energyECALplusHCAL << ", leadPFChargedHadronP = " << pflch->gsfTrackRef()->p() ;
+	}
       }
+      const reco::Track* leadTrack = nullptr;
+      if ( pflch->trackRef().isNonnull() ) 
+	leadTrack = pflch->trackRef().get();
+      else if ( pflch->gsfTrackRef().isNonnull() ) 
+	leadTrack = pflch->gsfTrackRef().get();
+      if ( pfTau->decayMode() == 0 && leadTrack && energyECALplusHCAL < (hop_*leadTrack->p()) )
+	passesCaloMuonVeto = false;
+    } else {
+      throw cms::Exception("Type Mismatch") << "The PFTau was not made from PFCandidates, and PFRecoTauDiscriminationAgainstMuon2 only works with PFTaus made from PFCandidates. Please use PFRecoTauDiscriminationAgainstMuonSimple instead.\n";
     }
-    const reco::Track* leadTrack = nullptr;
-    if ( pfLeadChargedHadron->trackRef().isNonnull() ) leadTrack = pfLeadChargedHadron->trackRef().get();
-    else if ( pfLeadChargedHadron->gsfTrackRef().isNonnull() ) leadTrack = pfLeadChargedHadron->gsfTrackRef().get();
-    if ( pfTau->decayMode() == 0 && leadTrack && energyECALplusHCAL < (hop_*leadTrack->p()) ) passesCaloMuonVeto = false;
   }
   
   double discriminatorValue = 0.;

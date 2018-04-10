@@ -45,7 +45,7 @@ unsigned int nGammas(const GenJet& jet) {
 }
 
 unsigned int nCharged(const PFTau& tau) {
-  return tau.signalPFChargedHadrCands().size();
+  return tau.signalChargedHadrCands().size();
 }
 unsigned int nGammas(const PFTau& tau) {
   return tau.signalPiZeroCandidates().size();

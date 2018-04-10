@@ -6,7 +6,7 @@
 
 /**
   \class    pat::tau::PFSpecific TauPFSpecific.h "DataFormats/PatCandidates/interface/TauPFSpecific.h"
-  \brief    Structure to hold information specific to a PFTau inside a pat::Tau
+  \brief    Structure to hold information specific to a PFTau made from PFCandidates inside a pat::Tau
 
   \author   Giovanni Petrucciani
 */
@@ -24,8 +24,8 @@ struct TauPFSpecific {
 // constructor from PFTau
   TauPFSpecific(const reco::PFTau& tau);
 // datamembers 
-  reco::PFJetRef pfJetRef_;
-  reco::PFCandidatePtr leadPFChargedHadrCand_;
+  reco::JetBaseRef pfJetRef_;
+  reco::CandidatePtr leadPFChargedHadrCand_;
   float leadPFChargedHadrCandsignedSipt_;
   reco::PFCandidatePtr leadPFNeutralCand_;
   reco::PFCandidatePtr leadPFCand_;

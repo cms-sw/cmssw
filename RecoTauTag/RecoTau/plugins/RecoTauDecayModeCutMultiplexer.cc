@@ -50,7 +50,7 @@ double
 RecoTauDecayModeCutMultiplexer::discriminate(const reco::PFTauRef& tau) const {
   double disc_result = (*handle_)[tau];
   DecayModeCutMap::const_iterator cutIter =
-      decayModeCuts_.find(std::make_pair(tau->signalPFChargedHadrCands().size(),
+      decayModeCuts_.find(std::make_pair(tau->signalChargedHadrCands().size(),
                                          tau->signalPiZeroCandidates().size()));
 
   // Return null if it doesn't exist
