@@ -17,7 +17,7 @@
  */
 
 #include "RecoTauTag/RecoTau/interface/RecoTauDiscriminantPlugins.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 namespace reco { namespace tau {
 
@@ -28,7 +28,7 @@ class RecoTauDiscriminationBinnedIsolation : public RecoTauDiscriminantPlugin {
     void beginEvent() override;
     std::vector<double> operator()(const reco::PFTauRef& tau) const override;
     // Pure abstract function to extract objects to isolate with
-    virtual std::vector<reco::PFCandidatePtr> extractIsoObjects(
+    virtual std::vector<reco::CandidatePtr> extractIsoObjects(
         const reco::PFTauRef& tau) const = 0;
 
   private:

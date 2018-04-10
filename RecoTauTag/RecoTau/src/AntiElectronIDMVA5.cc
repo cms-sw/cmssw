@@ -737,9 +737,9 @@ double AntiElectronIDMVA5::MVAValue(const reco::PFTau& thePFTau,
   std::vector<Float_t> GammasPt;
   for ( unsigned i = 0 ; i < thePFTau.signalPFGammaCands().size(); ++i ) {
     reco::PFCandidatePtr gamma = thePFTau.signalPFGammaCands().at(i);
-    if ( thePFTau.leadPFChargedHadrCand().isNonnull() ) {
-      GammasdEta.push_back(gamma->eta() - thePFTau.leadPFChargedHadrCand()->eta());
-      GammasdPhi.push_back(gamma->phi() - thePFTau.leadPFChargedHadrCand()->phi());
+    if ( thePFTau.leadChargedHadrCand().isNonnull() ) {
+      GammasdEta.push_back(gamma->eta() - thePFTau.leadChargedHadrCand()->eta());
+      GammasdPhi.push_back(gamma->phi() - thePFTau.leadChargedHadrCand()->phi());
     } else {
       GammasdEta.push_back(gamma->eta() - thePFTau.eta());
       GammasdPhi.push_back(gamma->phi() - thePFTau.phi());
@@ -777,7 +777,7 @@ double AntiElectronIDMVA5::MVAValue(const reco::PFTau& thePFTau,
   }
   Float_t TaudCrackPhi = dCrackPhi(TauPhi, TauEtaAtEcalEntrance);
   Float_t TaudCrackEta = dCrackEta(TauEtaAtEcalEntrance);
-  Float_t TauSignalPFChargedCands = thePFTau.signalPFChargedHadrCands().size();
+  Float_t TauSignalPFChargedCands = thePFTau.signalChargedHadrCands().size();
   Float_t TauHasGsf = thePFTau.leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
 
   Float_t ElecEta = theGsfEle.eta();
@@ -902,9 +902,9 @@ double AntiElectronIDMVA5::MVAValue(const reco::PFTau& thePFTau)
   std::vector<Float_t> GammasPt;
   for ( unsigned i = 0 ; i < thePFTau.signalPFGammaCands().size(); ++i ) {
     reco::PFCandidatePtr gamma = thePFTau.signalPFGammaCands().at(i);
-    if ( thePFTau.leadPFChargedHadrCand().isNonnull() ) {
-      GammasdEta.push_back(gamma->eta() - thePFTau.leadPFChargedHadrCand()->eta());
-      GammasdPhi.push_back(gamma->phi() - thePFTau.leadPFChargedHadrCand()->phi());
+    if ( thePFTau.leadChargedHadrCand().isNonnull() ) {
+      GammasdEta.push_back(gamma->eta() - thePFTau.leadChargedHadrCand()->eta());
+      GammasdPhi.push_back(gamma->phi() - thePFTau.leadChargedHadrCand()->phi());
     } else {
       GammasdEta.push_back(gamma->eta() - thePFTau.eta());
       GammasdPhi.push_back(gamma->phi() - thePFTau.phi());
@@ -942,7 +942,7 @@ double AntiElectronIDMVA5::MVAValue(const reco::PFTau& thePFTau)
   }
   Float_t TaudCrackPhi = dCrackPhi(TauPhi,TauEtaAtEcalEntrance) ;
   Float_t TaudCrackEta = dCrackEta(TauEtaAtEcalEntrance) ;
-  Float_t TauSignalPFChargedCands = thePFTau.signalPFChargedHadrCands().size();
+  Float_t TauSignalPFChargedCands = thePFTau.signalChargedHadrCands().size();
   Float_t TauHasGsf = thePFTau.leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
 
   Float_t dummyElecEta = 9.9;

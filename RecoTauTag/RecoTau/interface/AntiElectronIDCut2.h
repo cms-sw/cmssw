@@ -82,11 +82,11 @@ class AntiElectronIDCut2
 	std::vector<float> GammasdEta;
 	std::vector<float> GammasdPhi;
 	std::vector<float> GammasPt;
-	for ( unsigned i = 0 ; i < thePFTau.signalPFGammaCands().size(); ++i ) {
-	  reco::PFCandidatePtr gamma = thePFTau.signalPFGammaCands().at(i);
-	  if ( thePFTau.leadPFChargedHadrCand().isNonnull() ) {
-	    GammasdEta.push_back(gamma->eta() - thePFTau.leadPFChargedHadrCand()->eta());
-	    GammasdPhi.push_back(gamma->phi() - thePFTau.leadPFChargedHadrCand()->phi());
+	for ( unsigned i = 0 ; i < thePFTau.signalGammaCands().size(); ++i ) {
+	  reco::CandidatePtr gamma = thePFTau.signalGammaCands().at(i);
+	  if ( thePFTau.leadChargedHadrCand().isNonnull() ) {
+	    GammasdEta.push_back(gamma->eta() - thePFTau.leadChargedHadrCand()->eta());
+	    GammasdPhi.push_back(gamma->phi() - thePFTau.leadChargedHadrCand()->phi());
 	  } else {
 	    GammasdEta.push_back(gamma->eta() - thePFTau.eta());
 	    GammasdPhi.push_back(gamma->phi() - thePFTau.phi());

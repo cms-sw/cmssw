@@ -58,10 +58,11 @@
     <field name="transientVector_" transient="true"/>
   </class>
 
-  <class name="reco::JetPiZeroAssociation" ClassVersion="11">
+  <class name="reco::JetPiZeroAssociation" ClassVersion="12">
    <version ClassVersion="10" checksum="3488813045"/>
    <version ClassVersion="11" checksum="2107652063"/>
-    <!-- <field name="transientVector_" transient="true"/> -->
+   <version ClassVersion="12" checksum="2981210128"/>
+    <field name="transientVector_" transient="true"/>
   </class>
   <class name="reco::JetPiZeroAssociationRef"/>
   <class name="reco::JetPiZeroAssociationRefProd"/>
@@ -71,14 +72,18 @@
   <class name="std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> >"/>
   <class name="std::vector<std::pair<reco::PFJetRef, std::vector<reco::RecoTauPiZero> > >" />
 
+  <class name="std::pair<reco::JetBaseRef, std::vector<reco::RecoTauPiZero> >"/>
+  <class name="std::vector<std::pair<reco::JetBaseRef, std::vector<reco::RecoTauPiZero> > >" />
+
   <class name="reco::PFJetChargedHadronAssociationBase">
     <field name="transientVector_" transient="true"/>
   </class>
 
-  <class name="reco::PFJetChargedHadronAssociation" ClassVersion="11">
+  <class name="reco::PFJetChargedHadronAssociation" ClassVersion="12">
    <version ClassVersion="10" checksum="3498827707"/>
    <version ClassVersion="11" checksum="269001295"/>
-<!--     <field name="transientVector_" transient="true"/> -->
+   <version ClassVersion="12" checksum="1002363278"/>
+    <field name="transientVector_" transient="true"/>
   </class>
   <class name="reco::PFJetChargedHadronAssociationRef"/>
   <class name="reco::PFJetChargedHadronAssociationRefProd"/>
@@ -87,6 +92,9 @@
 
   <class name="std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> >"/>
   <class name="std::vector<std::pair<reco::PFJetRef, std::vector<reco::PFRecoTauChargedHadron> > >" />
+
+  <class name="std::pair<reco::JetBaseRef, std::vector<reco::PFRecoTauChargedHadron> >"/>
+  <class name="std::vector<std::pair<reco::JetBaseRef, std::vector<reco::PFRecoTauChargedHadron> > >" />
 
   <class name="reco::PFTauDecayModeAssociation">
     <field name="transientVector_" transient="true"/>
@@ -228,6 +236,5 @@
 <!--  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::PFJet> >,edm::RefProd<std::vector<reco::PFCandidate> > >"/> -->
 <!--  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > >"/> -->
 <!--  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >,edm::RefVector<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >"/> -->
-
 
 </lcgdict>

@@ -18,6 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 // Methods to write the different types

@@ -58,7 +58,7 @@ double PFRecoTauDiscriminationByFlight::discriminate(
     tau->signalPFChargedHadrCands();
   std::vector<reco::TransientTrack> signalTransTracks;
   std::vector<reco::TrackRef> signalTrackPtrs;
-  BOOST_FOREACH(const reco::PFCandidatePtr& pftrack, signalTracks) {
+  for (const auto& pftrack : signalTracks) {
     if (pftrack->trackRef().isNonnull()) {
       signalTransTracks.push_back(
           builder_->build(pftrack->trackRef()));
@@ -98,7 +98,7 @@ double PFRecoTauDiscriminationByFlight::discriminate(
   // The tau direction, to determine the sign of the IP.
   // In the case that it is a one prong, take the jet direction.
   // This may give better result due to out-of-cone stuff.
-  GlobalVector direction = (tau->signalPFCands().size() == 1 ?
+  GlobalVector direction = (tau->signalCands().size() == 1 ?
       GlobalVector(
           tau->jetRef()->px(), tau->jetRef()->py(), tau->jetRef()->pz()) :
       GlobalVector(tau->px(), tau->py(), tau->pz()));

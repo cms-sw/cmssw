@@ -125,6 +125,11 @@ namespace DataFormats_JetReco {
     edm::RefToBaseVector<reco::Jet> jrtbv;
     edm::Wrapper<edm::RefToBaseVector<reco::Jet> > jrtbv_w;
     edm::reftobase::BaseVectorHolder<reco::Jet> * bvhj_p;    // pointer since it's pure virtual
+
+    // Generic association (used e.g. in TauReco)
+    edm::AssociationMap<edm::OneToOne<edm::View<reco::Jet>,edm::View<reco::Jet>,unsigned int> > v_j_v_j_am;
+    edm::Wrapper<edm::AssociationMap<edm::OneToOne<edm::View<reco::Jet>,edm::View<reco::Jet>,unsigned int> > > v_j_v_j_am_w;
+    edm::helpers::KeyVal<edm::RefToBaseProd<reco::Jet>,edm::RefToBaseProd<reco::Jet> > v_j_v_j_kv;
   };
 }
 #endif
