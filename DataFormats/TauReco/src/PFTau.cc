@@ -124,7 +124,7 @@ namespace {
 
   reco::PFCandidatePtr convertToPFPtr(const reco::CandidatePtr& ptr) {
     const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*ptr);
-    if (pf_cand) {
+    if (pf_cand != nullptr) {
       return edm::Ptr<reco::PFCandidate>(ptr);
     } else throw cms::Exception("Type Mismatch") << "This PFTau was not made from PFCandidates, but it is being tried to access a PFCandidate.\n";
     return reco::PFCandidatePtr();
@@ -150,15 +150,21 @@ namespace {
 }
 
 const PFCandidatePtr PFTau::leadPFChargedHadrCand() const {
-  return convertToPFPtr(leadChargedHadrCand_);
+  if (leadChargedHadrCand_.isNonnull())
+    return convertToPFPtr(leadChargedHadrCand_);
+  return PFCandidatePtr();
 }
 
 const PFCandidatePtr PFTau::leadPFNeutralCand() const {
-  return convertToPFPtr(leadNeutralCand_);
+  if (leadNeutralCand_.isNonnull())
+    return convertToPFPtr(leadNeutralCand_);
+  return PFCandidatePtr();
 }
 
 const PFCandidatePtr PFTau::leadPFCand() const {
-  return convertToPFPtr(leadCand_);
+  if (leadCand_.isNonnull())
+    return convertToPFPtr(leadCand_);
+  return PFCandidatePtr();
 }
 
 const std::vector<reco::PFCandidatePtr>& PFTau::signalPFCands() const {
