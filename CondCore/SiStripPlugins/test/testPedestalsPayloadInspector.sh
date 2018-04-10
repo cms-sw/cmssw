@@ -23,6 +23,7 @@ getPayloadData.py \
     --test;
 
 estimators=(Mean Min Max RMS)
+plotTypes=(Strip APV Module)
 
 mkdir -p $W_DIR/results
 
@@ -61,3 +62,28 @@ do
 
 done
 
+for j in "${plotTypes[@]}"
+do  
+    getPayloadData.py \
+	--plugin pluginSiStripPedestals_PayloadInspector \
+	--plot plot_SiStripPedestalValuePer${j} \
+	--tag SiStripPedestals_v2_prompt \
+	--time_type Run \
+	--iovs '{"start_iov": "303420", "end_iov": "303420"}' \
+	--db Prod \
+	--test ;
+	
+    mv *.png $W_DIR/results/SiStripPedestalsPer${j}Values.png
+
+    getPayloadData.py \
+	--plugin pluginSiStripPedestals_PayloadInspector \
+	--plot plot_SiStripPedestalValueComparisonPer${j} \
+	--tag SiStripPedestals_v2_prompt \
+	--time_type Run \
+	--iovs '{"start_iov": "303420", "end_iov": "313120"}' \
+	--db Prod \
+	--test ;
+
+    mv *.png $W_DIR/results/SiStripPedestalsPer${j}Comparison.png
+
+done

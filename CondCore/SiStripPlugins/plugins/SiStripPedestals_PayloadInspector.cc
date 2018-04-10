@@ -130,9 +130,9 @@ namespace {
     }// fill
   };
 
-    /************************************************
+  /************************************************
     templated 1d histogram of SiStripPedestals of 1 IOV
-    *************************************************/
+  *************************************************/
 
   // inherit from one of the predefined plot class: PlotImage
   template<SiStripPI::OpMode op_mode_> class SiStripPedestalDistribution : public cond::payloadInspector::PlotImage<SiStripPedestals> {
@@ -152,8 +152,8 @@ namespace {
 
       auto mon1D = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(op_mode_,
 										  "Pedestal",
-										  Form("#LT Pedestal #GT per %s for IOV [%s];#LTStrip Pedestal per %s#GT [ADC counts];n. strips",
-										       opType(op_mode_).c_str(),std::to_string(std::get<0>(iov)).c_str(),opType(op_mode_).c_str())
+										  Form("#LT Pedestal #GT per %s for IOV [%s];#LTStrip Pedestal per %s#GT [ADC counts];n. %ss",
+										       opType(op_mode_).c_str(),std::to_string(std::get<0>(iov)).c_str(),opType(op_mode_).c_str(),opType(op_mode_).c_str())
 										  ,300,0.,300.0));
 
       unsigned int prev_det=0, prev_apv=0;
@@ -241,6 +241,185 @@ namespace {
   typedef SiStripPedestalDistribution<SiStripPI::STRIP_BASED>  SiStripPedestalValuePerStrip;
   typedef SiStripPedestalDistribution<SiStripPI::APV_BASED>    SiStripPedestalValuePerAPV;
   typedef SiStripPedestalDistribution<SiStripPI::MODULE_BASED> SiStripPedestalValuePerModule;
+
+  /************************************************
+  template 1d histogram comparison of SiStripPedestals of 1 IOV
+  *************************************************/
+
+  // inherit from one of the predefined plot class: PlotImage
+  template<SiStripPI::OpMode op_mode_> class SiStripPedestalDistributionComparison : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+
+  public:
+    SiStripPedestalDistributionComparison() : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Pedestal values comparison"){
+      setSingleIov( false );
+    }
+
+    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+	  return std::get<0>(t1) < std::get<0>(t2);
+	});
+
+      auto firstiov  = sorted_iovs.front();
+      auto lastiov   = sorted_iovs.back();
+
+      std::shared_ptr<SiStripPedestals> f_payload = fetchPayload( std::get<1>(firstiov) );
+      std::shared_ptr<SiStripPedestals> l_payload = fetchPayload( std::get<1>(lastiov) );
+
+      auto f_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(op_mode_,
+										  "f_Pedestal",
+										  Form("#LT Strip Pedestal #GT per %s for IOV [%s,%s];#LTStrip Pedestal per %s#GT [ADC counts];n. %ss",
+										       opType(op_mode_).c_str(),std::to_string(std::get<0>(firstiov)).c_str(),std::to_string(std::get<0>(lastiov)).c_str(),opType(op_mode_).c_str(),opType(op_mode_).c_str())
+										  ,300,0.,300.));
+
+      auto l_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(op_mode_,
+										  "l_Pedestal",
+										  Form("#LT Strip Pedestal #GT per %s for IOV [%s,%s];#LTStrip Pedestal per %s#GT [ADC counts];n. %ss",
+										       opType(op_mode_).c_str(),std::to_string(std::get<0>(lastiov)).c_str(),std::to_string(std::get<0>(lastiov)).c_str(),opType(op_mode_).c_str(),opType(op_mode_).c_str())
+										  ,300,0.,300.));
+
+      unsigned int prev_det=0, prev_apv=0;
+      SiStripPI::Entry epedestal;
+
+      std::vector<uint32_t> f_detid;
+      f_payload->getDetIds(f_detid);
+
+      // loop on first payload
+      for (const auto & d : f_detid) {
+	SiStripPedestals::Range range=f_payload->getRange(d);
+
+	unsigned int istrip=0;
+	for( int it=0; it < (range.second-range.first)*8/10; ++it ){
+	  float pedestal = f_payload->getPed(it,range);
+	  //to be used to fill the histogram
+
+	  bool flush = false;
+	  switch(op_mode_) {
+	  case (SiStripPI::APV_BASED):
+	    flush = (prev_det != 0 && prev_apv != istrip/128);
+	    break;
+	  case (SiStripPI::MODULE_BASED):
+	    flush = (prev_det != 0 && prev_det != d);
+	    break;
+	  case (SiStripPI::STRIP_BASED):
+	    flush = (istrip != 0);
+	    break;
+	  }
+
+	  if(flush){
+	    f_mon->Fill(prev_apv,prev_det,epedestal.mean());
+	    epedestal.reset();
+	  }
+	  epedestal.add(std::min<float>(pedestal, 300.));
+	  prev_apv = istrip/128;
+	  istrip++;
+	}
+	prev_det = d;
+      }
+
+      prev_det=0, prev_apv=0;
+      epedestal.reset();
+
+      std::vector<uint32_t> l_detid;
+      l_payload->getDetIds(l_detid);
+
+      // loop on first payload
+      for (const auto & d : l_detid) {
+	SiStripPedestals::Range range=l_payload->getRange(d);
+
+	unsigned int istrip=0;
+	for( int it=0; it < (range.second-range.first)*8/10; ++it ){
+	  float pedestal = l_payload->getPed(it,range);
+
+	  bool flush = false;
+	  switch(op_mode_) {
+	  case (SiStripPI::APV_BASED):
+	    flush = (prev_det != 0 && prev_apv != istrip/128);
+	    break;
+	  case (SiStripPI::MODULE_BASED):
+	    flush = (prev_det != 0 && prev_det != d);
+	    break;
+	  case (SiStripPI::STRIP_BASED):
+	    flush = (istrip != 0);
+	    break;
+	  }
+
+	  if(flush){
+	    l_mon->Fill(prev_apv,prev_det,epedestal.mean());
+	    epedestal.reset();
+	  }
+
+	  epedestal.add(std::min<float>(pedestal, 300.));
+	  prev_apv = istrip/128;
+	  istrip++;
+	}
+	prev_det = d;
+      }
+
+      auto h_first = f_mon->getHist();
+      h_first.SetStats(kFALSE);
+      auto h_last  = l_mon->getHist();
+      h_last.SetStats(kFALSE);
+
+      SiStripPI::makeNicePlotStyle(&h_first);
+      SiStripPI::makeNicePlotStyle(&h_last);
+
+      h_first.GetYaxis()->CenterTitle(true);
+      h_last.GetYaxis()->CenterTitle(true);
+
+      h_first.GetXaxis()->CenterTitle(true);
+      h_last.GetXaxis()->CenterTitle(true);
+
+      h_first.SetLineWidth(2);
+      h_last.SetLineWidth(2);
+
+      h_first.SetLineColor(kBlack);
+      h_last.SetLineColor(kBlue);
+
+      //=========================
+      TCanvas canvas("Partion summary","partition summary",1200,1000);
+      canvas.cd();
+      canvas.SetBottomMargin(0.11);
+      canvas.SetLeftMargin(0.13);
+      canvas.SetRightMargin(0.05);
+      canvas.Modified();
+
+      float theMax = (h_first.GetMaximum() > h_last.GetMaximum()) ? h_first.GetMaximum() : h_last.GetMaximum();
+
+      h_first.SetMaximum(theMax*1.30);
+      h_last.SetMaximum(theMax*1.30);
+
+      h_first.Draw();
+      h_last.Draw("same");
+
+      TLegend legend = TLegend(0.52,0.82,0.95,0.9);
+      legend.SetHeader("SiStrip Pedestal comparison","C"); // option "C" allows to center the header
+      legend.AddEntry(&h_first,("IOV: "+std::to_string(std::get<0>(firstiov))).c_str(),"F");
+      legend.AddEntry(&h_last, ("IOV: "+std::to_string(std::get<0>(lastiov))).c_str(),"F");
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+
+    }
+
+    std::string opType(SiStripPI::OpMode mode) {
+      std::string types[3] = {"Strip","APV","Module"};
+      return types[mode];
+    }
+
+  };
+
+  typedef SiStripPedestalDistributionComparison<SiStripPI::STRIP_BASED>  SiStripPedestalValueComparisonPerStrip;
+  typedef SiStripPedestalDistributionComparison<SiStripPI::APV_BASED>    SiStripPedestalValueComparisonPerAPV;
+  typedef SiStripPedestalDistributionComparison<SiStripPI::MODULE_BASED> SiStripPedestalValueComparisonPerModule;
+
 
   /************************************************
     1d histogram of fraction of Zero SiStripPedestals of 1 IOV 
@@ -543,6 +722,9 @@ PAYLOAD_INSPECTOR_MODULE(SiStripPedestals){
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValuePerStrip);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValuePerAPV);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValuePerModule);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValueComparisonPerStrip); 
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValueComparisonPerAPV);	 
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValueComparisonPerModule);
   PAYLOAD_INSPECTOR_CLASS(SiStripZeroPedestalsFraction_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMin_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMax_TrackerMap);
