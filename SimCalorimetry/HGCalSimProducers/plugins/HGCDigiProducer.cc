@@ -10,60 +10,54 @@
 //
 HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::ProducerBase& mixMod,
                                  edm::ConsumesCollector& iC) :
-  DigiAccumulatorMixMod(),
-  theDigitizer_(new HGCDigitizer(pset, iC) ) 
+  HGCDigiProducer(pset, iC)
 {
-  if( theDigitizer_->producesEEDigis()     )
-    mixMod.produces<HGCEEDigiCollection>(theDigitizer_->digiCollection());
-  if( theDigitizer_->producesHEfrontDigis() ) 
-    mixMod.produces<HGCHEDigiCollection>(theDigitizer_->digiCollection());
-  if( theDigitizer_->producesHEbackDigis() )
-    mixMod.produces<HGCBHDigiCollection>(theDigitizer_->digiCollection());
+  if( theDigitizer_.producesEEDigis()     )
+    mixMod.produces<HGCEEDigiCollection>(theDigitizer_.digiCollection());
+  if( theDigitizer_.producesHEfrontDigis() )
+    mixMod.produces<HGCHEDigiCollection>(theDigitizer_.digiCollection());
+  if( theDigitizer_.producesHEbackDigis() )
+    mixMod.produces<HGCBHDigiCollection>(theDigitizer_.digiCollection());
 }
 
 HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC) :
   DigiAccumulatorMixMod(),
-  theDigitizer_(new HGCDigitizer(pset, iC)) {
-}
-
-//
-HGCDigiProducer::~HGCDigiProducer()
-{
+  theDigitizer_(pset, iC) {
 }
 
 //
 void HGCDigiProducer::initializeEvent(edm::Event const& event, edm::EventSetup const& es) 
 {
-  theDigitizer_->initializeEvent(event, es);
+  theDigitizer_.initializeEvent(event, es);
 }
 
 //
 void HGCDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& es) 
 {
-  theDigitizer_->finalizeEvent(event, es, randomEngine(event.streamID()));
+  theDigitizer_.finalizeEvent(event, es, randomEngine(event.streamID()));
 }
 
 //
 void HGCDigiProducer::accumulate(edm::Event const& event, edm::EventSetup const& es) 
 {
-  theDigitizer_->accumulate(event, es, randomEngine(event.streamID()));
+  theDigitizer_.accumulate(event, es, randomEngine(event.streamID()));
 }
 
 void HGCDigiProducer::accumulate(PileUpEventPrincipal const& event, edm::EventSetup const& es, edm::StreamID const& streamID) 
 {
-  theDigitizer_->accumulate(event, es, randomEngine(streamID));
+  theDigitizer_.accumulate(event, es, randomEngine(streamID));
 }
 
 //
 void HGCDigiProducer::beginRun(edm::Run const&, edm::EventSetup const& es) 
 {
-  theDigitizer_->beginRun(es);
+  theDigitizer_.beginRun(es);
 }
 
 //
 void HGCDigiProducer::endRun(edm::Run const&, edm::EventSetup const&) 
 {
-  theDigitizer_->endRun();
+  theDigitizer_.endRun();
 }
 
 CLHEP::HepRandomEngine* HGCDigiProducer::randomEngine(edm::StreamID const& streamID) {
