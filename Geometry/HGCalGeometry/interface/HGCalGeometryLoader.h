@@ -2,7 +2,7 @@
 #define GeometryHGCalGeometryHGCalGeometryLoader_h
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/FlatTrd.h"
+#include "Geometry/CaloGeometry/interface/FlatHexagon.h"
 
 class HGCalTopology;
 class HGCalGeometry;
