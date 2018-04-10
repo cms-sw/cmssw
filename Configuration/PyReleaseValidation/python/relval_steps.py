@@ -2655,9 +2655,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                     if "Digi" in step:
                         tmpsteps = []
                         for s in d["-s"].split(","):
-                            if "L1TrackTrigger" in s: # TODO: ignore TrackTrigger for now
-                                continue
-
                             if s == "DIGI" or "DIGI:" in s:
                                 tmpsteps.extend([s, "DATAMIX"])
                             else:
