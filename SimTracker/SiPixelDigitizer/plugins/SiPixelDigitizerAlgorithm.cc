@@ -1659,7 +1659,7 @@ float SiPixelDigitizerAlgorithm::pixel_aging(const PixelAging& aging,
   
   
   // Predefined damage parameter (no aging)
-  float pseudoRadDamage  = 0.0;
+  float pseudoRadDamage  = 0.0f;
   
   // setup the chip indices conversion
   if    (pixdet->subDetector() ==  GeomDetEnumerators::SubDetector::PixelBarrel ||
@@ -1682,7 +1682,7 @@ float SiPixelDigitizerAlgorithm::pixel_aging(const PixelAging& aging,
     //    std::cout << "Subid " << Subid << " diskIndex " << diskIndex << std::endl;
   } else if (pixdet->subDetector() == GeomDetEnumerators::SubDetector::P2OTB || pixdet->subDetector() == GeomDetEnumerators::SubDetector::P2OTEC) {
     // if phase 2 OT hardcoded value as it has always been
-    pseudoRadDamage = 0.;
+    pseudoRadDamage = 0.f;
   } // if barrel/forward
   
   //  std::cout << " pseudoRadDamage " << pseudoRadDamage << std::endl;
@@ -1716,10 +1716,10 @@ float SiPixelDigitizerAlgorithm::missCalibrate(uint32_t detID, const TrackerTopo
 
   // Make 2 sets of parameters for Fpix and BPIx:
 
-  float p0=0.0;
-  float p1=0.0;
-  float p2=0.0;
-  float p3=0.0;
+  float p0=0.0f;
+  float p1=0.0f;
+  float p2=0.0f;
+  float p3=0.0f;
 
   if(pixdet->type().isTrackerPixel() && pixdet->type().isBarrel()){// barrel layers
       p0 = BPix_p0;
@@ -1735,7 +1735,7 @@ float SiPixelDigitizerAlgorithm::missCalibrate(uint32_t detID, const TrackerTopo
     throw cms::Exception("NotAPixelGeomDetUnit") << "Not a pixel geomdet unit" << detID;
   }
 
-  float newAmp = 0.; //Modified signal
+  float newAmp = 0.f; //Modified signal
 
   // Convert electrons to VCAL units
   float signal = (signalInElectrons-electronsPerVCAL_Offset)/electronsPerVCAL;
@@ -1805,10 +1805,10 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(const PixelGeomDetUnit* pi
   // The dir_z has to be +/- 1. !
   // LocalVector theDriftDirection = LocalVector(dir_x,dir_y,dir_z);
 
-  float dir_x = 0.0;
-  float dir_y = 0.0;
-  float dir_z = 0.0;
-  float scale = 0.0;
+  float dir_x = 0.0f;
+  float dir_y = 0.0f;
+  float dir_z = 0.0f;
+  float scale = 0.0f;
 
   uint32_t detID= pixdet->geographicalId().rawId();
 
@@ -1821,8 +1821,8 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(const PixelGeomDetUnit* pi
       alpha2_FPix = tanLorentzAnglePerTesla_FPix*tanLorentzAnglePerTesla_FPix;
       alpha2_BPix = tanLorentzAnglePerTesla_BPix*tanLorentzAnglePerTesla_BPix;
     }else {
-      alpha2_FPix = 0.0;
-      alpha2_BPix = 0.0;
+      alpha2_FPix = 0.0f;
+      alpha2_BPix = 0.0f;
     }
     
     if(pixdet->type().isTrackerPixel() && pixdet->type().isBarrel()){// barrel layers
@@ -2111,11 +2111,11 @@ bool SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
   }
 
   
-  float cmToMicrons = 10000;
+  float cmToMicrons = 10000.f;
   
   track[0] = (hitPosition.x() - origin.x() )*cmToMicrons;
   track[1] = (hitPosition.y() - origin.y() )*cmToMicrons;
-  track[2] = 0.0; //Middle of sensor is origin for Z-axis
+  track[2] = 0.0f; //Middle of sensor is origin for Z-axis
   track[3] = direction.x();
   track[4] = direction.y();
   track[5] = direction.z();
@@ -2221,7 +2221,7 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
   
   // Calculate the track angles
 
-  if (fabs(track[5]) > 0.){
+  if (std::abs(track[5]) > 0.f){
     cotalpha = track[3]/track[5]; //if track[5] (direction in z) is 0 the hit is not processed by re-weighting
     cotbeta = track[4]/track[5];
   } else {
@@ -2233,19 +2233,19 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
   if(ydouble[0]) {
     yhit2D = track[1] - cotbeta*track[2] + ysize;
   } else {
-    yhit2D = track[1] - cotbeta*track[2] + 0.5*ysize;
+    yhit2D = track[1] - cotbeta*track[2] + 0.5f*ysize;
   }
   if(xdouble[0]) {
     xhit2D = track[0] - cotalpha*track[2] + xsize;
   } else {
-    xhit2D = track[0] - cotalpha*track[2] + 0.5*xsize;
+    xhit2D = track[0] - cotalpha*track[2] + 0.5f*xsize;
   }
   
   // Zero the input and output templates
   for(i=0; i<BYM2; ++i) {
     for(j=0; j<BXM2; ++j) {
-      xy_in[j][i] = 0.;
-      xy_rewgt[j][i] = 0.;
+      xy_in[j][i] = 0.f;
+      xy_rewgt[j][i] = 0.f;
     }
   }
 
@@ -2263,7 +2263,7 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
 
   q50i = templ2D.s50();
   //q50i = 0;
-  q100i = 2.*q50i;
+  q100i = 2.f*q50i;
 
   // Check that the cluster container is a 13x21 matrix
   
@@ -2284,10 +2284,10 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
   
   // Sum initial charge in the cluster   
   
-  qclust = 0.;
+  qclust = 0.f;
   for(i=0; i<TYSIZE; ++i) {
     for(j=0; j<TXSIZE; ++j) {
-      xy_clust[j][i] = 0.;
+      xy_clust[j][i] = 0.f;
       denx_clust[j][i] = 0;
       deny_clust[j][i] = 0;
       if(cluster[j][i] > q100i) {
@@ -2306,8 +2306,8 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
   }
     
   q50r = templ2D.s50();
-  q100r = 2.*q50r;
-  q10r = 0.2*q50r;
+  q100r = 2.f*q50r;
+  q10r = 0.2f*q50r;
   
   // Find all non-zero denominator pixels in the input template and generate "inside" weights
      
@@ -2317,7 +2317,7 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
   std::vector<int> xtclust;
   std::vector<int> ycclust;
   std::vector<int> xcclust;
-  qclust = 0.;
+  qclust = 0.f;
   for(i=0; i<TYSIZE; ++i) {
     for(j=0; j<TXSIZE; ++j) {
       if(xy_in[j+1][i+1] > q100i) {
@@ -2335,11 +2335,11 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
     
   for(i=0; i<TYSIZE; ++i) {
     for(j=0; j<TXSIZE; ++j) {
-      if(xy_rewgt[j+1][i+1] > q10r && xy_clust[j][i] == 0. && ntpix>0) {
+      if(xy_rewgt[j+1][i+1] > q10r && xy_clust[j][i] == 0.f && ntpix>0) {
 	// Search for nearest denominator pixel
-	dmin2 = 10000.; kclose = 0;
+	dmin2 = 10000.f; kclose = 0;
 	for(k=0; k<ntpix; ++k) {
-	  dist2=(i-ytclust[k])*(i-ytclust[k])+0.44444*(j-xtclust[k])*(j-xtclust[k]);
+	  dist2=(i-ytclust[k])*(i-ytclust[k])+0.44444f*(j-xtclust[k])*(j-xtclust[k]);
 	  if(dist2 < dmin2) {
 	    dmin2 = dist2;
 	    kclose = k;
@@ -2366,7 +2366,7 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
 
   for(i=0; i<TYSIZE; ++i) {
     for(j=0; j<TXSIZE; ++j) {
-      if(xy_clust[j][i] > 0.) {
+      if(xy_clust[j][i] > 0.f) {
 	cluster[j][i] = xy_clust[j][i]*clust[denx_clust[j][i]][deny_clust[j][i]];
 	if(cluster[j][i] > q100r) {
 	  qclust += cluster[j][i];
@@ -2375,7 +2375,7 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
 	  goodWeightsUsed++;
 	}
       } else {
-	if(clust[j][i] > 0.) {
+	if(clust[j][i] > 0.f) {
 	  ++ncpix;
 	  ycclust.push_back(i);
 	  xcclust.push_back(j);
@@ -2389,15 +2389,15 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
   if(ncpix > 0) {
     for(l=0; l<ncpix; ++l) {
       i=ycclust[l]; j=xcclust[l];
-      dmin2 = 10000.; kclose = 0;
+      dmin2 = 10000.f; kclose = 0;
       for(k=0; k<ntpix; ++k) {
-	dist2=(i-ytclust[k])*(i-ytclust[k])+0.44444*(j-xtclust[k])*(j-xtclust[k]);
+	dist2=(i-ytclust[k])*(i-ytclust[k])+0.44444f*(j-xtclust[k])*(j-xtclust[k]);
 	if(dist2 < dmin2) {
 	  dmin2 = dist2;
 	  kclose = k;
 	}
       }
-      if(dmin2 < 5.) {
+      if(dmin2 < 5.f) {
 	nearbyWeightsUsed++;
 	cluster[j][i] *= xy_clust[xtclust[kclose]][ytclust[kclose]];
 	if(cluster[j][i] > q100r) {
@@ -2405,7 +2405,7 @@ int SiPixelDigitizerAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2
 	}
       } else {
 	noWeightsUsed++;
-	cluster[j][i] = 0.;
+	cluster[j][i] = 0.f;
       }
     }
   }
