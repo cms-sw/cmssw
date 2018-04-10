@@ -68,3 +68,13 @@
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
   <use   name="boost_python"/>
 </library>
+
+<library  file="SiStripConfObject_PayloadInspector.cc" name="SiStripConfObject_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CalibTracker/StandaloneTrackerTopology"/>
+  <use   name="CalibTracker/SiStripCommon"/>
+  <use   name="boost_python"/>
+</library>
