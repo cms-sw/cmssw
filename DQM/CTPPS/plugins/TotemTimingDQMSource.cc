@@ -122,6 +122,7 @@ class TotemTimingDQMSource : public DQMEDAnalyzer
       MonitorElement* noiseRMS = nullptr;
       MonitorElement* baseline = nullptr;
       MonitorElement* meanAmplitude = nullptr;
+      MonitorElement* cellOfMax = nullptr;
       
       MonitorElement* digiSent = nullptr;
       MonitorElement* digiAll = nullptr;
@@ -177,6 +178,9 @@ class TotemTimingDQMSource : public DQMEDAnalyzer
       MonitorElement* leadingEdge = nullptr;
       MonitorElement* amplitude = nullptr;
       MonitorElement* noiseSamples = nullptr;
+      
+      MonitorElement* cellOfMax = nullptr;
+      MonitorElement* maxTimeAfterTrigger = nullptr;
 
       MonitorElement* hitTime = nullptr;
       MonitorElement* hitRate = nullptr;
@@ -269,6 +273,7 @@ TotemTimingDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned i
   baseline = ibooker.book2D( "baseline", title+" baseline (V);plane;channel", 10, -0.5, 4.5, 12, 0, 12);
   meanAmplitude = ibooker.book2D( "mean Amplitude", title+" Mean Amplitude (V);plane;channel", 10, -0.5, 4.5, 12, 0, 12);
   hitRate = ibooker.book2D( "hit rate", title+" hit rate (Hz);plane;channel", 10, -0.5, 4.5, 12, 0, 12);
+  cellOfMax = ibooker.book2D( "cell Of Max", title+" cell Of Max (0-23);plane;channel", 10, -0.5, 4.5, 12, 0, 12);
   
   activePlanes = ibooker.book1D( "active planes", title+" active planes (per event);number of active planes", 6, -0.5, 5.5 );
 
@@ -315,6 +320,9 @@ TotemTimingDQMSource::ChannelPlots::ChannelPlots( DQMStore::IBooker& ibooker, un
   dataSamplesRaw = ibooker.book1D( "raw Samples", title+" Raw Samples; ADC", 255, 0, 255 );
   amplitude = ibooker.book1D( "amplitude", title+" amplitude p-p; amplitude (V)", 100, 0, 1 );
   noiseSamples = ibooker.book1D( "noise samples", title+" noise samples; V", 100, 0, 1 );
+  
+  cellOfMax = ibooker.book1D( "cell Of Max", title+" cell Of Max; cell", 24, 0, 24 );
+  maxTimeAfterTrigger = ibooker.book1D( "max Time After Trigger", title+" max Time After Trigger; t (ns)", 20, -10, 10 );
   
   timestampA = ibooker.book1D( "timestampA", title+" TimestampA; Decimal", 4096, 0, 4096 );
   timestampB = ibooker.book1D( "timestampB", title+" TimestampB; Decimal", 4096, 0, 4096 );
@@ -488,7 +496,7 @@ TotemTimingDQMSource::analyze( const edm::Event& event, const edm::EventSetup& e
         
         potPlots_[detId_pot].activityPerBX->Fill( event.bunchCrossing() );
         
-        potPlots_[detId_pot].tirggerCellTime->Fill( triggerCellTimeInstant );
+        potPlots_[detId_pot].tirggerCellTime->Fill( 1e9 * triggerCellTimeInstant );
         
         potPlots_[detId_pot].planesWithHits.insert( detId.plane() );
         
@@ -545,12 +553,16 @@ TotemTimingDQMSource::analyze( const edm::Event& event, const edm::EventSetup& e
       if ( channelPlots_.find( detId ) != channelPlots_.end() )
       {
         channelPlots_[ detId ].activityPerBX->Fill( event.bunchCrossing() );
-        channelPlots_[ detId ].tirggerCellTime->Fill( triggerCellTimeInstant );
+        channelPlots_[ detId ].tirggerCellTime->Fill( 1e9 * triggerCellTimeInstant );
         for ( auto it = digi.getSamplesBegin(); it != digi.getSamplesEnd(); ++it )
           channelPlots_[ detId ].dataSamplesRaw->Fill( *it );
         for ( unsigned short i=0; i<samplesForNoise_; ++i )
           channelPlots_[ detId ].noiseSamples->Fill( SAMPIC_ADC_V * digi.getSampleAt( i ) );
         channelPlots_[ detId ].amplitude->Fill( SAMPIC_ADC_V * ( *( std::max_element( digi.getSamplesBegin(), digi.getSamplesEnd() ) ) - *( std::min_element( digi.getSamplesBegin(), digi.getSamplesEnd() ) ) ) );
+        
+        unsigned int cellOfMax = std::max_element( digi.getSamplesBegin(), digi.getSamplesEnd() ) - digi.getSamplesBegin();
+        channelPlots_[ detId ].cellOfMax->Fill( (int) cellOfMax );
+        channelPlots_[ detId ].maxTimeAfterTrigger->Fill( 1e9 * ( SAMPIC_SAMPLING_PERIOD_NS * cellOfMax - triggerCellTimeInstant ) );
         
         channelPlots_[ detId ].timestampA->Fill( timestampA );
         channelPlots_[ detId ].timestampB->Fill( digi.getTimestampB() );
@@ -601,6 +613,7 @@ TotemTimingDQMSource::endLuminosityBlock( const edm::LuminosityBlock&, const edm
        plot.second.baseline->Fill( chId.plane(), chId.channel(), chPlot.second.noiseSamples->getTH1F()->GetMean() );
        plot.second.noiseRMS->Fill( chId.plane(), chId.channel(), chPlot.second.noiseSamples->getTH1F()->GetRMS() );
        plot.second.meanAmplitude->Fill( chId.plane(), chId.channel(), chPlot.second.amplitude->getTH1F()->GetMean() );
+       plot.second.cellOfMax->Fill( chId.plane(), chId.channel(), chPlot.second.cellOfMax->getTH1F()->GetMean() );
        
        plot.second.hitRate->Fill( chId.plane(), chId.channel(), (double) chPlot.second.hitsCounterPerLumisection * HIT_RATE_FACTOR );
       }
