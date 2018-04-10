@@ -122,6 +122,7 @@ private:
   std::vector<DetId>      m_validGeomIds;
   bool                    m_halfType;
   ForwardSubdetector      m_subdet;
+  const double            twoBysqrt3_;
 };
 
 #endif
