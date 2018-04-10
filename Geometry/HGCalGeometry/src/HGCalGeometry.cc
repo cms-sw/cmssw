@@ -26,7 +26,8 @@ HGCalGeometry::HGCalGeometry( const HGCalTopology& topology_ )
     m_cellVec( topology_.totalGeomModules()),
     m_validGeomIds( topology_.totalGeomModules()),
     m_halfType( topology_.detectorType()),
-    m_subdet( topology_.subDetector()) {
+    m_subdet( topology_.subDetector()),
+    twoBysqrt3_(2.0/std::sqrt(3.0)) {
   
   m_validIds.reserve( topology().totalModules());
 #ifdef EDM_ML_DEBUG
@@ -382,7 +383,7 @@ void HGCalGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  trVector,
 	  ParmVec params( HGCalGeometry::k_NumberOfParametersPerShape, 0 );
 	  params[0] = vol.dz;
 	  params[1] = vol.cellSize;
-	  params[2] = FlatHexagon::twoBysqrt3_*params[1];
+	  params[2] = twoBysqrt3_*params[1];
 	  /*
 	  params[1] = params[2] = 0;
 	  params[3] = params[7] = vol.h;

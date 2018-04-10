@@ -22,6 +22,7 @@ private:
   void buildGeom(const ParmVec&, const HepGeom::Transform3D&, const DetId&,
 		 HGCalGeometry*);
 
+  const double            twoBysqrt3_;
 };
 
 #endif

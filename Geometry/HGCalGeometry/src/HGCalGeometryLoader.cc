@@ -12,7 +12,8 @@
 typedef CaloCellGeometry::CCGFloat CCGFloat;
 typedef std::vector<float> ParmVec;
 
-HGCalGeometryLoader::HGCalGeometryLoader () {}
+HGCalGeometryLoader::HGCalGeometryLoader () : twoBysqrt3_(2.0/std::sqrt(3.0)) {
+}
 
 HGCalGeometryLoader::~HGCalGeometryLoader () {}
 
@@ -85,7 +86,7 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
 	  */
 	  params[0] = vol.dz;
 	  params[1] = topology.dddConstants().cellSizeHex(type);
-	  params[2] = FlatHexagon::twoBysqrt3_*params[1];
+	  params[2] = twoBysqrt3_*params[1];
 
 	  buildGeom(params, ht3d, detId, geom);
 	  counter++;
