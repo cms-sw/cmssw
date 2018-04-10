@@ -381,7 +381,7 @@ void HcalPulseShapes::computeSiPMShapeHO()
 const HcalPulseShape& HcalPulseShapes::computeSiPMShapeHE203()
 {
   //numerical convolution of SiPM pulse + WLS fiber shape
-  static HcalPulseShape siPMShapeMC2017(normalize(convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11203),nBinsSiPM_),nBinsSiPM_);
+  static const HcalPulseShape siPMShapeMC2017(normalize(convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11203),nBinsSiPM_),nBinsSiPM_);
   return siPMShapeMC2017;
 }
 
@@ -389,7 +389,7 @@ const HcalPulseShape& HcalPulseShapes::computeSiPMShapeHE206()
 {
   //numerical convolution of SiPM pulse + WLS fiber shape
   //shift: aligning 206 phase closer to 205 in order to have good reco agreement
-  static HcalPulseShape siPMShapeMC2018(normalizeShift(convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11206),nBinsSiPM_,-2),nBinsSiPM_);
+  static const HcalPulseShape siPMShapeMC2018(normalizeShift(convolve(nBinsSiPM_,analyticPulseShapeSiPMHE,Y11206),nBinsSiPM_,-2),nBinsSiPM_);
   return siPMShapeMC2018;
 }
 
