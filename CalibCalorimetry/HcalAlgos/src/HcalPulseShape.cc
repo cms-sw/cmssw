@@ -5,6 +5,14 @@ HcalPulseShape::HcalPulseShape() {
   tpeak_=0;
 }
 
+HcalPulseShape::HcalPulseShape(const std::vector<double>& shape, unsigned nbin) :
+  shape_(shape.begin(),shape.begin()+nbin),
+  nbin_(nbin)
+{
+  tpeak_ = 0;
+}
+
+
 void HcalPulseShape::setNBin(int n) {
   nbin_=n;
   shape_=std::vector<float>(n,0.0f);

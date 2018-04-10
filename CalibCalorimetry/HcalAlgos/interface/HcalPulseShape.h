@@ -6,6 +6,7 @@
 class HcalPulseShape {
 public:
   HcalPulseShape();
+  HcalPulseShape(const std::vector<double>&,unsigned);
   void setNBin(int n);
   void setShapeBin(int i, float f);
   float getTpeak() const { return tpeak_; }
