@@ -16,7 +16,7 @@ public:
 	     const std::string&, const std::string&);
 
 private:
-  double getDDDVallue(const char* s, const DDsvalues_type& sv);
+  double getDDDValue(const char* s, const DDsvalues_type& sv);
 };
 
 #endif
