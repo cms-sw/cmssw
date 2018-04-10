@@ -107,8 +107,8 @@ class BaseMVAValueMapProducer : public edm::stream::EDProducer<> {
       if(positions_.find(var)!=positions_.end())
           values_[positions_[var]]=val;
       else {
-          edm::LogWarning("MVAUnexpectedVariable") << "Variable not expected: " << var ;
-          std::cout << "Variable not expected: " << var << std::endl;
+       //   edm::LogWarning("MVAUnexpectedVariable") << "Variable not expected: " << var ;
+         // std::cout << "Variable not expected: " << var << std::endl;
       }
   }
   
@@ -159,7 +159,7 @@ BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   for(auto const & o: *src) {
 	for(auto const & p : funcs_ ){
-		values_[positions_[p.first]]=p.second(o);
+        setValue(p.first,p.second(o));
 	}
         fillAdditionalVariables(o);
     if(tmva_){
