@@ -7,7 +7,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('L1',eras.phase2_trigger)
+process = cms.Process('L1',eras.Phase2_trigger)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
