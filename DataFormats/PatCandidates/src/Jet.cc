@@ -600,8 +600,11 @@ void Jet::cacheDaughters() const {
     const std::vector<reco::CandidatePtr> & jdaus = daughterPtrVector();
     for (const reco::CandidatePtr & dau : jdaus) {
       if (dau->isJet()) {
-        const std::vector<reco::CandidatePtr> & sjdaus = edm::Ptr<pat::Jet>(dau)->daughterPtrVector();
-        daughtersTemp->insert(daughtersTemp->end(), sjdaus.begin(), sjdaus.end());
+        const reco::Jet *subjet = dynamic_cast<const reco::Jet *>(&*dau);
+        if (subjet) {
+          const std::vector<reco::CandidatePtr> & sjdaus = subjet->daughterPtrVector();
+          daughtersTemp->insert(daughtersTemp->end(), sjdaus.begin(), sjdaus.end());
+        }
       } else
         daughtersTemp->push_back( dau );
     }
