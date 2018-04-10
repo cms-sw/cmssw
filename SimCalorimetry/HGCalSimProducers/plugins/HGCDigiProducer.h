@@ -32,7 +32,6 @@ public:
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   ~HGCDigiProducer() override = default;
 private:
-  CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
   //the digitizer
   HGCDigitizer theDigitizer_;
   CLHEP::HepRandomEngine* randomEngine_ = nullptr;
