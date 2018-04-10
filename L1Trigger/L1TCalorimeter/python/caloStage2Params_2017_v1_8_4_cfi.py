@@ -31,6 +31,8 @@ caloStage2Params.egHcalThreshold            = cms.double(0.)
 caloStage2Params.egTrimmingLUTFile          = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egTrimmingLUT_10_v16.01.19.txt")
 caloStage2Params.egMaxHcalEt                = cms.double(0.)
 caloStage2Params.egMaxPtHOverE          = cms.double(128.)
+caloStage2Params.egHOverEcutBarrel          = cms.int32(4)
+caloStage2Params.egHOverEcutEndcap          = cms.int32(4)
 caloStage2Params.egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/HoverEIdentification_0.995_v15.12.23.txt")
 caloStage2Params.egBypassExtHOverE          = cms.uint32(0)
 caloStage2Params.egCompressShapesLUTFile    = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCompressLUT_v4.txt")
@@ -55,6 +57,7 @@ caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalor
 
 
 # Tau
+caloStage2Params.isoTauEtaMax                  = cms.int32(25)
 caloStage2Params.tauLsb                        = cms.double(0.5)
 caloStage2Params.tauSeedThreshold              = cms.double(0.)
 caloStage2Params.tauNeighbourThreshold         = cms.double(0.)
