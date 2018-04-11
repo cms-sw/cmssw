@@ -204,8 +204,8 @@ public:
     }
 
     std::vector<MonitorElement*> getAllContents(std::string const& path,
-                                                 uint32_t runNumber = 0,
-                                                 uint32_t lumi = 0);
+                                                uint32_t runNumber = 0,
+                                                uint32_t lumi = 0);
     MonitorElement* get(std::string const& path);
 
     // same as get, throws an exception if histogram not found

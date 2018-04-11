@@ -95,16 +95,11 @@ public:
   };
 
   struct KeyObject {
-    KeyObject(std::string const* dir,
-              std::string name)
-      : KeyObject{dir, move(name), 0, 0, 0}
-    {}
-
-    KeyObject(std::string const* dir,
-              std::string name,
-              uint32_t const r,
+    KeyObject(uint32_t const r,
               uint32_t const l,
-              uint32_t const modId) :
+              uint32_t const modId,
+              std::string const* dir,
+              std::string name) :
       run{r}, lumi{l}, streamId{}, moduleId{modId}, dirname{dir}, objname{move(name)}
     {}
     KeyObject() = default;

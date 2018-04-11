@@ -30,9 +30,6 @@
 
 class QCriterion;
 
-// tag for a special constructor, see below
-struct MonitorElementNoCloneTag {};
-
 /** The base class for all MonitorElements (ME) */
 class MonitorElement
 {
@@ -85,9 +82,8 @@ public:
   MonitorElement();
   MonitorElement(const std::string *path, const std::string &name);
   MonitorElement(const std::string *path, const std::string &name, uint32_t run, uint32_t moduleId);
-  MonitorElement(const MonitorElement &, MonitorElementNoCloneTag);
   MonitorElement(const MonitorElement &);
-  MonitorElement(MonitorElement &&);
+  MonitorElement(MonitorElement &&) = default;
   MonitorElement &operator=(const MonitorElement &) = delete;
   MonitorElement &operator=(MonitorElement &&) = delete;
   ~MonitorElement();

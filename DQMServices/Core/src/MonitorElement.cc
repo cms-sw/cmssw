@@ -205,7 +205,7 @@ MonitorElement::MonitorElement(const std::string *path,
   scalar_.real = 0;
 }
 
-MonitorElement::MonitorElement(const MonitorElement &x, MonitorElementNoCloneTag)
+MonitorElement::MonitorElement(const MonitorElement &x)
   : data_(x.data_),
     scalar_(x.scalar_),
     object_(nullptr),
@@ -213,26 +213,11 @@ MonitorElement::MonitorElement(const MonitorElement &x, MonitorElementNoCloneTag
     refvalue_(nullptr),
     qreports_(x.qreports_)
 {
-}
-
-MonitorElement::MonitorElement(const MonitorElement &x)
-  : MonitorElement::MonitorElement(x, MonitorElementNoCloneTag())
-{
   if (x.object_)
-    object_ = static_cast<TH1 *>(x.object_->Clone());
+    object_ = static_cast<TH1*>(x.object_->Clone());
 
   if (x.refvalue_)
-    refvalue_ = static_cast<TH1 *>(x.refvalue_->Clone());
-}
-
-MonitorElement::MonitorElement(MonitorElement &&o)
-  : MonitorElement::MonitorElement(o, MonitorElementNoCloneTag())
-{
-  object_ = o.object_;
-  refvalue_ = o.refvalue_;
-
-  o.object_ = nullptr;
-  o.refvalue_ = nullptr;
+    refvalue_ = static_cast<TH1*>(x.refvalue_->Clone());
 }
 
 MonitorElement::~MonitorElement()
@@ -249,7 +234,7 @@ MonitorElement::CheckBinLabels(const TAxis* a1, const TAxis * a2)
   // check that axis have same labels
   THashList *l1 = (const_cast<TAxis*>(a1))->GetLabels();
   THashList *l2 = (const_cast<TAxis*>(a2))->GetLabels();
-  
+
   if (!l1 && !l2 )
     return true;
   if (!l1 ||  !l2 ) {
