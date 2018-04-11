@@ -326,7 +326,7 @@ uint16_t SiStripAPVRestorer::NullInspect(const uint16_t& firstAPV, std::vector<T
 }
 
 
-//Hybrid Format emulation ========================================================================================================================================================================
+//Hybrid Format  ========================================================================================================================================================================
 //======================================================================================================================================================================================================
 //======================================================================================================================================================================================================
 
@@ -372,6 +372,36 @@ uint16_t SiStripAPVRestorer::InspectForHybridFormatEmulation(const uint32_t& det
 
 }
   
+// template<typename T>
+// inline
+// uint16_t  InspectHybridFormat(const uint32_t&, const uint16_t&, std::vector<int16_t>&,  std::vector<int16_t>&, const std::vector< std::pair<short,float> >&);
+//   
+//   std::vector<T> singleAPVdigi;  
+//   uint16_t nAPVflagged = 0;
+//   
+//   
+//   for(uint16_t APV=firstAPV ; APV< digis.size()/128 + firstAPV; ++APV){
+// 
+//     DigiMap smoothedmap;
+//     smoothedmap.erase(smoothedmap.begin(), smoothedmap.end());
+// 
+//       //std::cout << "Delta CM: " << DeltaCM << " CM: " << median_[APV] << " detId " << (uint32_t) detId_ << std::endl; 	
+//       //if(DeltaCM < 0 && std::abs(DeltaCM) > DeltaCMThreshold_){
+//       
+//         bool isFlat = FlatRegionsFinder(singleAPVdigi,smoothedmap,APV);
+//         if(!isFlat){
+// 	      apvFlags_[APV]= RestoreAlgo_;    //specify any algo to make the restore
+// 	      nAPVflagged++;
+//         }
+//      // }	
+//       
+//     } 
+//     SmoothedMaps_.insert(SmoothedMaps_.end(), std::pair<uint16_t, DigiMap>(APV, smoothedmap));
+//    }
+//   
+//   return nAPVflagged;
+// }
+
 
 //Restore method implementation ========================================================================================================================================================================
 //======================================================================================================================================================================================================
