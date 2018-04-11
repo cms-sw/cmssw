@@ -304,7 +304,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     // Get event infos
     bool foundEventInfos=false;
     try {
-      CalibTreeFile->cd("testTree");
+      CalibTreeFile->cd("eventInfo");
     }
     catch(exception& e) {
       cout << "No event infos tree" << endl;
