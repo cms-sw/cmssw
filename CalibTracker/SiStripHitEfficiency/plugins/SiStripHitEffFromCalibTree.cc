@@ -1041,9 +1041,9 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging=false) {
           //Fill the bad list with empty results for every module
           tkmapbad->fillc((*ih).first,255,255,255);
     	}
-    	/*if(myden < nModsMin ) {
+    	if(myden < nModsMin ) {
           cout << "Layer " << i <<" ("<< GetLayerName(i) << ")  module " << (*ih).first << " layer " << i << " is under occupancy at " << myden << endl;
-    	}*/
+    	}
       }
 	  
 	}
