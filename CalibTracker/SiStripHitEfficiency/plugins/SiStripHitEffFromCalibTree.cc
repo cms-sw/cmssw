@@ -416,8 +416,8 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
 	  // if no special tree with event infos, they may be stored in the hit eff tree
 	  if(!foundEventInfos){
 		bx = (unsigned int)BunchLf->GetValue();
-		if(InstLumiLf!=0) instLumi = InstLumiLf->GetValue(); // branch not filled by default
-		if(PULf!=0) PU = PULf->GetValue(); // branch not filled by default
+		if(InstLumiLf!=nullptr) instLumi = InstLumiLf->GetValue(); // branch not filled by default
+		if(PULf!=nullptr) PU = PULf->GetValue(); // branch not filled by default
 	  }
 	  int CM = -100;
 	  if(_useCM) CM = CMLf->GetValue();
