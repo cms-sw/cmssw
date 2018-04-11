@@ -75,6 +75,7 @@ namespace dd4hep {
 
     UNICODE(Polycone);
     UNICODE(ZSection);
+    UNICODE(RZPoint);
     UNICODE(z);
 
     UNICODE(Polyhedra);
