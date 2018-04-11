@@ -51,7 +51,7 @@ class RunMerge:
 
 
 if __name__ == '__main__':
-    valid = ["input-files=", "output-file=", "output-lfn=", "dqmroot" ]
+    valid = ["input-files=", "output-file=", "output-lfn=", "dqmroot", "mergeNANO" ]
              
     usage = """RunMerge.py <options>"""
     try:
@@ -75,6 +75,7 @@ if __name__ == '__main__':
             merger.outputLFN = arg
         if opt == "--dqmroot" :
             merger.newDQMIO = True
-        
+        if  opt == "--mergeNANO" :
+            merger.mergeNANO = True
 
     merger()
