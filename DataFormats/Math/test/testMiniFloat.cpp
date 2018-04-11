@@ -1,7 +1,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <iostream>
 
-#include "DataFormats/PatCandidates/interface/libminifloat.h"
+#include "DataFormats/Math/interface/libminifloat.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
 class testMiniFloat : public CppUnit::TestFixture {
